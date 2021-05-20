@@ -4,7 +4,7 @@
 
 # @rimbu/actor
 
-This package offers state management tools for immutable data.
+This package offers generic state management tools to create stateful logic that can be easily integrated in any framework.
 
 For complete documentation please visit the _[Rimbu Docs](http://rimbu.org/rimbu-actor)_.
 
