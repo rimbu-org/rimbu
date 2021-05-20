@@ -1,0 +1,58 @@
+{
+  "name": "root",
+  "private": true,
+  "homepage": "https://rimbu.org",
+  "author": {
+    "name": "Arvid Nicolaas",
+    "email": "arvid@rimbu.org",
+    "url": "https://github.com/vitoke"
+  },
+  "license": "MIT",
+  "funding": [
+    {
+      "type": "individual",
+      "url": "https://github.com/sponsors/vitoke"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vitoke/rimbu.git"
+  },
+  "scripts": {
+    "bootstrap": "lerna bootstrap",
+    "build": "lerna run build",
+    "docsify": "docsify serve docs",
+    "format": "yarn format:root & lerna run format --parallel",
+    "format:root": "yarn format:single !packages",
+    "format:single": "prettier --write --ext .ts,.js,.json,.md",
+    "lint": "lerna run lint --parallel",
+    "precommit": "yarn format && yarn lint",
+    "prerelease": "yarn typecheck && yarn test:types && yarn test && yarn test:random",
+    "setup": "yarn && yarn bootstrap",
+    "test": "lerna run test",
+    "test:types": "lerna run test:types",
+    "test:random": "lerna run test:random",
+    "typecheck": "lerna run typecheck"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn precommit"
+    }
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@typescript-eslint/parser": "^4.22.0",
+    "docsify-cli": "^4.4.3",
+    "eslint": "^7.25.0",
+    "husky": "^6.0.0",
+    "lerna": "^4.0.0",
+    "lint-staged": "^10.5.4",
+    "microbundle": "^0.13.0",
+    "prettier": "^2.2.1",
+    "rimraf": "^3.0.2",
+    "tsd": "^0.14.0"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}

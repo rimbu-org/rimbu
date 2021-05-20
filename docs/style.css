@@ -1,0 +1,21 @@
+.diagram {
+  padding: 12px;
+  border: 1px solid grey;
+  border-radius: 5px;
+}
+
+body {
+  background-image: url('./_media/trees.jpeg'),
+    linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9));
+  background-size: cover;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-attachment: fixed;
+  background-blend-mode: saturation;
+}
+
+:root {
+  --theme-color: rgb(24, 172, 108);
+  --table-row-even-background: rgb(36, 37, 36);
+}

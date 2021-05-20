@@ -1,0 +1,10 @@
+node_modules
+/lib
+/temp
+
+.vscode
+coverage
+
+benchmark
+
+yarn-error.log

@@ -1,0 +1,11 @@
+{
+  "plugins": ["@typescript-eslint"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "rules": {
+    "no-constant-condition": "warn",
+    "no-inner-declarations": "warn",
+    "@typescript-eslint/no-namespace": "off",
+    "@typescript-eslint/no-empty-interface": "warn"
+  },
+  "ignorePatterns": ["test", "test-d"]
+}

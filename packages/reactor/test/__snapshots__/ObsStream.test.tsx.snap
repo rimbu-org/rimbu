@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ObsStream renders empty list 1`] = `<div />`;
+
+exports[`ObsStream renders non-empty list 1`] = `
+<div>
+  <div>
+    1
+  </div>
+  <div>
+    2
+  </div>
+  <div>
+    3
+  </div>
+</div>
+`;
