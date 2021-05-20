@@ -1,7 +1,7 @@
 {
   "name": "@rimbu/actor",
   "version": "0.5.0",
-  "description": "state management tools to create stateful logic that can be easily integrated in any framework",
+  "description": "State management tools to create stateful logic that can be easily integrated in any framework",
   "keywords": [
     "state management",
     "observable",

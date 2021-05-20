@@ -1,0 +1,24 @@
+name: Publish pre-release to NPM
+on:
+  release:
+    types: [publish]
+jobs:
+  build:
+    if: 'github.event.release.prerelease'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      # Setup .npmrc file to publish to npm
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12.x'
+          registry-url: 'https://registry.npmjs.org'
+          # Defaults to the user or organization that owns the workflow file
+          scope: '@rimbu'
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - run: yarn setup
+      - run: yarn build
+      - run: yarn publish --tag $RELEASE_VERSION --access=public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -30,6 +30,7 @@
     "prepare": "husky install",
     "postinstall": "husky install",
     "prerelease": "yarn typecheck && yarn test:types && yarn test && yarn test:random",
+    "publish": "lerna run publish",
     "setup": "yarn && yarn bootstrap",
     "test": "lerna run test",
     "test:types": "lerna run test:types",
