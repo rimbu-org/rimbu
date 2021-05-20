@@ -1,0 +1,33 @@
+name: Build all packages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'packages/**'
+
+  pull-request:
+    branches:
+      - main
+    paths:
+      - 'packages/**'
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    needs: []
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - run: yarn setup
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [setup]
+    steps:
+      - run: yarn lint
+      - run: yarn build
+      - run: yarn typecheck
+      - run: yarn test:types
+      - run: yarn test
