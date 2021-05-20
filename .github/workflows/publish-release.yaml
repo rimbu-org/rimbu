@@ -17,6 +17,6 @@ jobs:
           scope: '@rimbu'
       - run: yarn setup
       - run: yarn build
-      - run: yarn publish --access=public
+      - run: yarn publish-packages --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
