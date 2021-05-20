@@ -41,7 +41,6 @@
     "format": "prettier --write \"**/*.{ts,js,json,md}\"",
     "lint": "eslint src",
     "precommit": "lint-staged",
-    "publish-package": "yarn publish",
     "test": "jest",
     "typecheck": "tsc"
   },
