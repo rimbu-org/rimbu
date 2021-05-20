@@ -1,8 +1,18 @@
 {
   "name": "@rimbu/multiset",
   "version": "0.5.0",
-  "description": "",
-  "keywords": [],
+  "description": "An immutable Set where each element can occur multiple times",
+  "keywords": [
+    "multiset",
+    "bag",
+    "mset",
+    "hashed",
+    "sorted",
+    "immutable",
+    "collection",
+    "rimbu",
+    "typescript"
+  ],
   "homepage": "https://rimbu.org",
   "author": {
     "name": "Arvid Nicolaas",
@@ -18,7 +28,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/vitoke/rimbu.git",
+    "url": "https://github.com/rimbu-org/rimbu.git",
     "directory": "packages/multiset"
   },
   "source": "src/index.ts",

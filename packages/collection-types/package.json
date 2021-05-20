@@ -1,8 +1,14 @@
 {
   "name": "@rimbu/collection-types",
   "version": "0.5.0",
-  "description": "",
-  "keywords": [],
+  "description": "Type definitions for the basic generic Rimbu collections",
+  "keywords": [
+    "definitions",
+    "immutable",
+    "collection",
+    "rimbu",
+    "typescript"
+  ],
   "homepage": "https://rimbu.org",
   "author": {
     "name": "Arvid Nicolaas",
@@ -18,7 +24,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/vitoke/rimbu.git",
+    "url": "https://github.com/rimbu-org/rimbu.git",
     "directory": "packages/collection-types"
   },
   "source": "src/index.ts",

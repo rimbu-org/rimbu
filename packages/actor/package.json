@@ -1,8 +1,16 @@
 {
   "name": "@rimbu/actor",
   "version": "0.5.0",
-  "description": "",
-  "keywords": [],
+  "description": "state management tools to create stateful logic that can be easily integrated in any framework",
+  "keywords": [
+    "state management",
+    "observable",
+    "actor",
+    "reactive",
+    "state",
+    "rimbu",
+    "typescript"
+  ],
   "homepage": "https://rimbu.org",
   "author": {
     "name": "Arvid Nicolaas",
@@ -18,7 +26,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/vitoke/rimbu.git",
+    "url": "https://github.com/rimbu-org/rimbu.git",
     "directory": "packages/actor"
   },
   "source": "src/index.ts",

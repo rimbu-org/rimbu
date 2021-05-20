@@ -1,8 +1,19 @@
 {
   "name": "@rimbu/list",
   "version": "0.5.0",
-  "description": "",
-  "keywords": [],
+  "description": "An efficient immutable ordered sequence of elements akin to a Vector",
+  "keywords": [
+    "list",
+    "vector",
+    "random access",
+    "sequence",
+    "elements",
+    "trie",
+    "immutable",
+    "collection",
+    "rimbu",
+    "typescript"
+  ],
   "homepage": "https://rimbu.org",
   "author": {
     "name": "Arvid Nicolaas",
@@ -18,7 +29,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/vitoke/rimbu.git",
+    "url": "https://github.com/rimbu-org/rimbu.git",
     "directory": "packages/list"
   },
   "source": "src/index.ts",

@@ -4,7 +4,7 @@
 
 # @rimbu/common
 
-This package exports common types used in many other Rimbu packages.
+This package exports common types and objects used in many other Rimbu packages.
 
 For complete documentation please visit the _[Rimbu Docs](http://rimbu.org/rimbu-core)_.
 

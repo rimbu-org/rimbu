@@ -16,7 +16,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/vitoke/rimbu.git"
+    "url": "https://github.com/rimbu-org/rimbu.git"
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
@@ -27,6 +27,8 @@
     "format:single": "prettier --write --ext .ts,.js,.json,.md",
     "lint": "lerna run lint --parallel",
     "precommit": "yarn format && yarn lint",
+    "prepare": "husky install",
+    "postinstall": "husky install",
     "prerelease": "yarn typecheck && yarn test:types && yarn test && yarn test:random",
     "setup": "yarn && yarn bootstrap",
     "test": "lerna run test",
