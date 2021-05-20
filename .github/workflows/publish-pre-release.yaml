@@ -1,7 +1,7 @@
 name: Publish pre-release to NPM
 on:
   release:
-    types: [publish]
+    types: [published]
 jobs:
   build:
     if: 'github.event.release.prerelease'
