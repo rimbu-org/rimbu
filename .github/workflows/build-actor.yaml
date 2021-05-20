@@ -1,0 +1,21 @@
+name: build-rimbu-actor
+
+on:
+  push:
+    # branches:
+    #   - main
+    paths:
+      - 'packages/actor/**'
+
+jobs:
+  build-actor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - run: yarn setup
+      - run: lerna run lint --scope=@rimbu/actor
+      - run: lerna run build --scope=@rimbu/actor --include-filtered-dependencies
+      - run: lerna run typecheck --scope=@rimbu/actor
+      - run: lerna run test:types --scope=@rimbu/actor
+      - run: lerna run test --scope=@rimbu/actor
