@@ -1,0 +1,15 @@
+name: rimbu-CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - run: yarn setup
+      - run: yarn typecheck
+      - run: yarn lint
+      - run: yarn test
+      - run: yarn build
