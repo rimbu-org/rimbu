@@ -1,6 +1,6 @@
 import { Token } from '@rimbu/base';
 import { RMap } from '@rimbu/collection-types';
-import { OptLazy, OptLazyOr, RelatedTo } from '@rimbu/common';
+import { OptLazy, OptLazyOr, RelatedTo, ToJSON } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import {
   GraphEmptyBase,
@@ -102,6 +102,13 @@ export class ValuedGraphEmpty<
 
   toString(): string {
     return `${this.context.typeTag}()`;
+  }
+
+  toJSON(): ToJSON<any[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
   }
 
   toBuilder(): TpG['builder'] {

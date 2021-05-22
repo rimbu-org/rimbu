@@ -1,6 +1,6 @@
 import { Token } from '@rimbu/base';
 import { CustomBase } from '@rimbu/collection-types';
-import { OptLazy, OptLazyOr } from '@rimbu/common';
+import { OptLazy, OptLazyOr, ToJSON } from '@rimbu/common';
 import { List } from '@rimbu/list';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { OrderedMapBase, OrderedMapTypes } from '../../ordered-custom';
@@ -100,6 +100,13 @@ export class OrderedMapEmpty<
 
   toString(): string {
     return 'OrderedMap()';
+  }
+
+  toJSON(): ToJSON<any[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
   }
 
   extendValues(): any {

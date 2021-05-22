@@ -1,5 +1,5 @@
 import { CustomBase } from '@rimbu/collection-types';
-import { ArrayNonEmpty, OptLazy } from '@rimbu/common';
+import { ArrayNonEmpty, OptLazy, ToJSON } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { List } from '../internal';
 import { ListContext } from '../list-custom';
@@ -114,6 +114,13 @@ export class Empty<T = any> extends CustomBase.EmptyBase implements List<T> {
 
   toString(): string {
     return `List()`;
+  }
+
+  toJSON(): ToJSON<any[], this['context']['typeTag']> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
   }
 
   extendType(): List<any> {

@@ -1,5 +1,5 @@
 import { CustomBase as CB } from '@rimbu/collection-types';
-import { RelatedTo, TraverseState } from '@rimbu/common';
+import { RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { BiMultiMapBase, ContextTypesImpl } from '../bimultimap-custom';
 
@@ -107,6 +107,13 @@ export class BiMultiMapEmpty<K, V, Tp extends ContextTypesImpl>
 
   toString(): string {
     return `${this.context.typeTag}()`;
+  }
+
+  toJSON(): ToJSON<any[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
   }
 
   toBuilder(): CB.WithKeyValue<Tp, K, V>['builder'] {
@@ -349,6 +356,13 @@ export class BiMultiMapNonEmpty<
           .join({ start: '(', sep: ', ', end: ')' })}`;
       },
     });
+  }
+
+  toJSON(): ToJSON<[K, V[]][], this['context']['typeTag']> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.keyValueMultiMap.toJSON().value,
+    };
   }
 
   toBuilder(): CB.WithKeyValue<Tp, K, V>['builder'] {

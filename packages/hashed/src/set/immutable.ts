@@ -1,6 +1,6 @@
 import { Arr, RimbuError } from '@rimbu/base';
 import { CustomBase } from '@rimbu/collection-types';
-import { ArrayNonEmpty, RelatedTo, TraverseState } from '@rimbu/common';
+import { ArrayNonEmpty, RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
 import { List } from '@rimbu/list';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { HashSetContext } from '../hashset-custom';
@@ -57,6 +57,13 @@ export class HashSetEmpty<T = any>
 
   toString(): string {
     return `HashSet()`;
+  }
+
+  toJSON(): ToJSON<T[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
   }
 }
 
@@ -161,6 +168,13 @@ export abstract class HashSetNonEmptyBase<T>
 
   toString(): string {
     return this.stream().join({ start: 'HashSet(', sep: ', ', end: ')' });
+  }
+
+  toJSON(): ToJSON<T[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
   }
 }
 

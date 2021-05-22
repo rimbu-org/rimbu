@@ -5,6 +5,7 @@ import {
   OptLazy,
   Range,
   RelatedTo,
+  ToJSON,
   TraverseState,
 } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
@@ -104,6 +105,13 @@ export class SortedSetEmpty<T = any>
 
   toString(): string {
     return `SortedSet()`;
+  }
+
+  toJSON(): ToJSON<T[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
   }
 }
 
@@ -310,6 +318,13 @@ export abstract class SortedSetNode<T>
 
   toString(): string {
     return this.stream().join({ start: 'SortedSet(', sep: ', ', end: ')' });
+  }
+
+  toJSON(): ToJSON<T[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.toArray(),
+    };
   }
 }
 

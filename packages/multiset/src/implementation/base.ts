@@ -1,6 +1,6 @@
 import { Arr, RimbuError } from '@rimbu/base';
 import { CustomBase as CB, RMap } from '@rimbu/collection-types';
-import { ArrayNonEmpty, RelatedTo, TraverseState } from '@rimbu/common';
+import { ArrayNonEmpty, RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { MultiSetBase } from '../multiset-custom';
 
@@ -103,6 +103,13 @@ export class MultiSetEmpty<T, Tp extends ContextImplTypes>
 
   toString(): string {
     return `${this.context.typeTag}()`;
+  }
+
+  toJSON(): ToJSON<[any, number][]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
   }
 }
 
@@ -338,6 +345,13 @@ export class MultiSetNonEmpty<
       sep: `, `,
       end: `)`,
     });
+  }
+
+  toJSON(): ToJSON<(readonly [T, number])[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.countMap.toArray(),
+    };
   }
 
   toBuilder(): TpG['builder'] {

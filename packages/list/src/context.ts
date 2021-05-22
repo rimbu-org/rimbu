@@ -29,7 +29,13 @@ export class ListContext implements List.Context {
       );
   }
 
-  readonly _types!: List.Types;
+  get typeTag(): 'List' {
+    return 'List';
+  }
+
+  get _types(): List.Types {
+    return undefined as any;
+  }
 
   readonly maxBlockSize = 1 << this.blockSizeBits;
 

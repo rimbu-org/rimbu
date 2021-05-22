@@ -1,5 +1,5 @@
 import { CustomBase } from '@rimbu/collection-types';
-import { ArrayNonEmpty, RelatedTo, TraverseState } from '@rimbu/common';
+import { ArrayNonEmpty, RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
 import { List } from '@rimbu/list';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { OrderedSetBase, OrderedSetTypes } from '../../ordered-custom';
@@ -160,5 +160,12 @@ export class OrderedSetNonEmpty<
 
   toString(): string {
     return this.stream().join({ start: 'OrderedSet(', sep: ', ', end: ')' });
+  }
+
+  toJSON(): ToJSON<T[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.sourceSet.toJSON().value,
+    };
   }
 }

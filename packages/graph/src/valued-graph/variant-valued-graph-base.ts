@@ -77,5 +77,6 @@ export namespace VariantValuedGraphBase {
     normal: VariantValuedGraphBase<this['_N'], this['_V']>;
     nonEmpty: VariantValuedGraphBase.NonEmpty<this['_N'], this['_V']>;
     link: ValuedLink<this['_N'], this['_V']>;
+    linkTarget: ValuedLink.Target<this['_N'], this['_V']>;
   }
 }

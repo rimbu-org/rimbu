@@ -5,6 +5,7 @@ import {
   OptLazy,
   OptLazyOr,
   RelatedTo,
+  ToJSON,
   TraverseState,
   Update,
 } from '@rimbu/common';
@@ -251,6 +252,13 @@ export class OrderedMapNonEmpty<
       end: ')',
       valueToString: (entry) => `${entry[0]} -> ${entry[1]}`,
     });
+  }
+
+  toJSON(): ToJSON<(readonly [K, V])[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.sourceMap.toJSON().value,
+    };
   }
 
   extendValues(): any {

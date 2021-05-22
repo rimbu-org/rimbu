@@ -1,5 +1,5 @@
 import { CustomBase } from '@rimbu/collection-types';
-import { RelatedTo, TraverseState } from '@rimbu/common';
+import { RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import {
   GraphBase,
@@ -280,6 +280,25 @@ export class GraphNonEmpty<
           .stream()
           .join({ start: '[', sep: ', ', end: ']' })}`,
     });
+  }
+
+  toJSON(): ToJSON<[N, [N][]][]> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.linkMap
+        .stream()
+        .map(
+          (entry) =>
+            [
+              entry[0],
+              entry[1]
+                .stream()
+                .map((v) => [v] as [N])
+                .toArray(),
+            ] as [N, [N][]]
+        )
+        .toArray(),
+    };
   }
 
   toBuilder(): TpG['builder'] {

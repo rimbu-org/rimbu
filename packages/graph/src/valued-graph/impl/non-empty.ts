@@ -1,6 +1,12 @@
 import { Token } from '@rimbu/base';
 import { CustomBase } from '@rimbu/collection-types';
-import { OptLazy, OptLazyOr, RelatedTo, TraverseState } from '@rimbu/common';
+import {
+  OptLazy,
+  OptLazyOr,
+  RelatedTo,
+  ToJSON,
+  TraverseState,
+} from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import {
   ValuedGraphBase,
@@ -408,6 +414,18 @@ export class ValuedGraphNonEmpty<
           valueToString: ([node2, value]) => `{${node2}: ${value}}`,
         })}`,
     });
+  }
+
+  toJSON(): ToJSON<[N, (readonly [N, V])[]][]> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.linkMap
+        .stream()
+        .map(
+          (entry) => [entry[0], entry[1].toArray()] as [N, (readonly [N, V])[]]
+        )
+        .toArray(),
+    };
   }
 
   toBuilder(): TpG['builder'] {

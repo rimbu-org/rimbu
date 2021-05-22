@@ -1,5 +1,5 @@
 import { CustomBase as CB, RSet } from '@rimbu/collection-types';
-import { ArrayNonEmpty, RelatedTo, TraverseState } from '@rimbu/common';
+import { ArrayNonEmpty, RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
 import { MultiMap } from '@rimbu/multimap';
 import { FastIterable, Stream, Streamable, StreamSource } from '@rimbu/stream';
 
@@ -322,6 +322,12 @@ export interface BiMultiMapBase<
    * HashBiMultiMap.of([1, 'a'], [2, 'b']).toString()   // => HashBiMultiMap(1 <=> ['a'], 2 <=> ['b'])
    */
   toString(): string;
+  /**
+   * Returns a JSON representation of this collection.
+   * @example
+   * HashBiMultiMap.of([1, 'a'], [2, 'b']).toJSON()   // => { dataType: 'HashBiMultiMap', value: [[1, ['a']], [2, ['b']]] }
+   */
+  toJSON(): ToJSON<[K, V[]][], this['context']['typeTag']>;
   /**
    * Returns a builder object containing the entries of this collection.
    * @example

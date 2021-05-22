@@ -568,7 +568,7 @@ export namespace Hasher {
               }
             }
 
-            return _stringHasher.hash(JSON.stringify(value));
+            return _anyStringHasher.hash(value);
           }
         }
       },
@@ -577,7 +577,7 @@ export namespace Hasher {
 
   /**
    * Returns a Hasher instance that hashes any value, but never traverses into an object
-   * or array to hash its elements. In those cases it will use JSON.stringify.
+   * or array to hash its elements. In those cases it will use toString.
    * @example
    * const h = Hasher.anyFlatHasher()
    * console.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))
@@ -589,7 +589,7 @@ export namespace Hasher {
 
   /**
    * Returns a Hasher instance that hashes any value, but only traverses into an object
-   * or array to hash its elements one level deep. After one level, it will use JSON.stringify.
+   * or array to hash its elements one level deep. After one level, it will use toString.
    * @example
    * const h = Hasher.anyShallowHasher()
    * console.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))

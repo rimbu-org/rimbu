@@ -1,5 +1,5 @@
-import { ArrayNonEmpty, RelatedTo, TraverseState } from '@rimbu/common';
-import { Stream, Streamable, StreamSource, FastIterable } from '@rimbu/stream';
+import { ArrayNonEmpty, RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
+import { FastIterable, Stream, Streamable, StreamSource } from '@rimbu/stream';
 import { Elem, WithElem } from '../custom-base';
 
 export interface VariantSetBase<
@@ -130,6 +130,12 @@ export interface VariantSetBase<
    * HashSet.of(1, 2, 3).toString()   // => HashSet(1, 2, 3)
    */
   toString(): string;
+  /**
+   * Returns a JSON representation of this collection.
+   * @example
+   * HashSet.of(1, 2, 3).toJSON()   // => { dataType: 'HashSet', value: [1, 2, 3] }
+   */
+  toJSON(): ToJSON<T[]>;
 }
 
 export namespace VariantSetBase {

@@ -4,6 +4,7 @@ import {
   ArrayNonEmpty,
   OptLazy,
   RelatedTo,
+  ToJSON,
   TraverseState,
 } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
@@ -114,6 +115,13 @@ export class MultiMapEmpty<K, V, Tp extends ContextImplTypes>
 
   toString(): string {
     return `${this.context.typeTag}()`;
+  }
+
+  toJSON(): ToJSON<[K, V[]][]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
   }
 }
 
@@ -360,6 +368,16 @@ export class MultiMapNonEmpty<
           .stream()
           .join({ start: '[', sep: ', ', end: ']' })}`,
     });
+  }
+
+  toJSON(): ToJSON<[K, V[]][]> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.keyMap
+        .stream()
+        .map((entry) => [entry[0], entry[1].toArray()] as [K, V[]])
+        .toArray(),
+    };
   }
 
   toBuilder(): TpG['builder'] {

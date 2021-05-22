@@ -174,7 +174,7 @@ export namespace Eq {
             return _objectEq(v1, v2);
           }
 
-          return _anyJsonEq(v1, v2);
+          return _anyToStringEq(v1, v2);
         }
       }
     };
@@ -184,7 +184,7 @@ export namespace Eq {
 
   /**
    * Returns an Eq instance that checks equality of any values. For composed values (objects and iterables)
-   * it will compare the JSON.stringify results of the values.
+   * it will compare the toString results of the values.
    * @typeparam T - the value type
    * @example
    * const eq = anyFlatEq()
@@ -200,7 +200,7 @@ export namespace Eq {
   /**
    * Returns an Eq instance that checks equality of any values. For composed values (objects and iterables)
    * it will enter 1 level, and if again compound values are found, they are compared
-   * using JSON.stringify.
+   * using toString.
    * @typeparam T - the value type
    * @example
    * const eq = anyFlatEq()
@@ -303,6 +303,13 @@ export namespace Eq {
    */
   export function stringCharCodeEq(): Eq<string> {
     return _stringCharCodeEq;
+  }
+
+  const _anyToStringEq: Eq<any> = (v1, v2) =>
+    String(v1).localeCompare(String(v2), 'und') === 0;
+
+  export function anyToStringEq(): Eq<any> {
+    return _anyToStringEq;
   }
 
   const _anyJsonEq: Eq<any> = (v1, v2) =>

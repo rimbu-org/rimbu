@@ -5,6 +5,7 @@ import {
   Eq,
   OptLazy,
   Reducer,
+  ToJSON,
   TraverseState,
 } from '@rimbu/common';
 import { FastIterator, Stream, StreamSource } from './internal';
@@ -513,6 +514,13 @@ export abstract class StreamBase<T> implements Stream<T> {
 
   toString(): string {
     return `Stream(...<potentially empty>)`;
+  }
+
+  toJSON(): ToJSON<T[], 'Stream'> {
+    return {
+      dataType: 'Stream',
+      value: this.toArray(),
+    };
   }
 
   flatten(): any {

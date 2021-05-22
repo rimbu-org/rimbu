@@ -6,6 +6,7 @@ import {
   OptLazyOr,
   Range,
   RelatedTo,
+  ToJSON,
   TraverseState,
   Update,
 } from '@rimbu/common';
@@ -155,6 +156,13 @@ export class SortedMapEmpty<K = any, V = any>
 
   toString(): string {
     return `SortedMap()`;
+  }
+
+  toJSON(): ToJSON<any[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
   }
 
   extendValues(): any {
@@ -449,6 +457,13 @@ export abstract class SortedMapNode<K, V>
       end: ')',
       valueToString: (entry) => `${entry[0]} -> ${entry[1]}`,
     });
+  }
+
+  toJSON(): ToJSON<(readonly [K, V])[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.toArray(),
+    };
   }
 
   extendValues(): any {

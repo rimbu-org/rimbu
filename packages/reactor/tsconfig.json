@@ -4,7 +4,6 @@
   "rootDir": "./src",
   "compilerOptions": {
     "outDir": "./dist",
-    "noStrictGenericChecks": true,
     "jsx": "react",
     "module": "esnext",
     "target": "esnext",

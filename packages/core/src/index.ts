@@ -1,2 +1,7 @@
 export * from './exports';
-export * as Create from './create';
+
+import * as Create from './create';
+
+export default {
+  Create,
+};

@@ -9,6 +9,8 @@ import { OptLazy } from '@rimbu/common';
 export type Link<N> = [N, N] | [N, N, unknown];
 
 export namespace Link {
+  export type Target<N> = [N] | readonly [N, unknown];
+
   /**
    * Returns the given potentially valued link `link` as a 2-tuple
    * @param link - the link to convert
@@ -119,6 +121,8 @@ export namespace GraphElement {
 export type ValuedLink<N, V> = [N, N, V];
 
 export namespace ValuedLink {
+  export type Target<N, V> = readonly [N, V];
+
   export function fromArgs<N, V>(
     node1: N,
     node2: N,

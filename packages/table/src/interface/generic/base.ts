@@ -6,6 +6,7 @@ import {
   OptLazyOr,
   RelatedTo,
   SuperOf,
+  ToJSON,
   TraverseState,
   Update,
 } from '@rimbu/common';
@@ -297,6 +298,13 @@ export interface VariantTableBase<
    * // => HashTableHashColumn([1, 2] -> 3, [1, 4] -> 5)
    */
   toString(): string;
+  /**
+   * Returns a JSON representation of this collection.
+   * @example
+   * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toJSON()
+   * // => { dataType: 'HashTableHashColumn', value: [1, [ [2, 3], [4, 5] ] ] }
+   */
+  toJSON(): ToJSON<[R, [C, V][]][]>;
 }
 
 export namespace VariantTableBase {

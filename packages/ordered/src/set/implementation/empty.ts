@@ -1,4 +1,5 @@
 import { CustomBase } from '@rimbu/collection-types';
+import { ToJSON } from '@rimbu/common';
 import { List } from '@rimbu/list';
 import { StreamSource } from '@rimbu/stream';
 import {
@@ -75,5 +76,12 @@ export class OrderedSetEmpty<
 
   toString(): string {
     return 'OrderedSet()';
+  }
+
+  toJSON(): ToJSON<any[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
   }
 }

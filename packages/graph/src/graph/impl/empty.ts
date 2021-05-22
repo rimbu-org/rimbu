@@ -1,4 +1,5 @@
 import { RSet } from '@rimbu/collection-types';
+import { ToJSON } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import {
   GraphBase,
@@ -71,6 +72,13 @@ export class GraphEmpty<
 
   toString(): string {
     return `${this.context.typeTag}()`;
+  }
+
+  toJSON(): ToJSON<any[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
   }
 
   toBuilder(): TpG['builder'] {

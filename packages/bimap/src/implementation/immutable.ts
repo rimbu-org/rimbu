@@ -3,6 +3,7 @@ import {
   ArrayNonEmpty,
   OptLazy,
   RelatedTo,
+  ToJSON,
   TraverseState,
   Update,
 } from '@rimbu/common';
@@ -107,6 +108,13 @@ export class BiMapEmpty<K = any, V = any>
 
   toString(): string {
     return `BiMap()`;
+  }
+
+  toJSON(): ToJSON<(readonly [K, V])[], this['context']['typeTag']> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
   }
 }
 
@@ -386,5 +394,12 @@ export class BiMapNonEmptyImpl<K, V>
       end: `)`,
       valueToString: (entry) => `${entry[0]} <-> ${entry[1]}`,
     });
+  }
+
+  toJSON(): ToJSON<(readonly [K, V])[], this['context']['typeTag']> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.toArray(),
+    };
   }
 }

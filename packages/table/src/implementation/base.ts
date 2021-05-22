@@ -5,6 +5,7 @@ import {
   OptLazy,
   OptLazyOr,
   RelatedTo,
+  ToJSON,
   TraverseState,
   Update,
 } from '@rimbu/common';
@@ -136,6 +137,13 @@ export class TableEmpty<R, C, V, Tp extends ContextImplTypes>
 
   toString(): string {
     return `${this.context.typeTag}()`;
+  }
+
+  toJSON(): ToJSON<[R, [C, V][]][]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
   }
 
   extendValues(): any {
@@ -499,6 +507,16 @@ export class TableNonEmpty<
       end: `)`,
       valueToString: (entry) => `[${entry[0]}, ${entry[1]}] -> ${entry[2]}`,
     });
+  }
+
+  toJSON(): ToJSON<[R, [C, V][]][]> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.rowMap
+        .stream()
+        .map((entry) => [entry[0], entry[1].toJSON().value] as [R, [C, V][]])
+        .toArray(),
+    };
   }
 
   toBuilder(): TpR['builder'] {

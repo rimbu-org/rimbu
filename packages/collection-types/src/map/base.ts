@@ -5,6 +5,7 @@ import {
   OptLazyOr,
   RelatedTo,
   SuperOf,
+  ToJSON,
   TraverseState,
   Update,
 } from '@rimbu/common';
@@ -183,6 +184,12 @@ export interface VariantMapBase<
    * HashMap.of([1, 'a'], [2, 'b']).toString()   // => HashMap(1 => 'a', 2 => 'b')
    */
   toString(): string;
+  /**
+   * Returns a JSON representation of this collection.
+   * @example
+   * HashMap.of([1, 'a'], [2, 'b']).toJSON()   // => { dataType: 'HashMap', value: [[1, 'a'], [2, 'b']] }
+   */
+  toJSON(): ToJSON<(readonly [K, V])[]>;
 }
 
 export namespace VariantMapBase {

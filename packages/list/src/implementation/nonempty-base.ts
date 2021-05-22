@@ -6,10 +6,11 @@ import {
   IndexRange,
   OptLazy,
   SuperOf,
+  ToJSON,
   TraverseState,
   Update,
 } from '@rimbu/common';
-import { Stream, StreamSource, FastIterator } from '@rimbu/stream';
+import { FastIterator, Stream, StreamSource } from '@rimbu/stream';
 import { List } from '../internal';
 import { ListContext } from '../list-custom';
 
@@ -210,6 +211,13 @@ export abstract class ListNonEmptyBase<T>
 
   toString(): string {
     return this.stream().join({ start: 'List(', sep: ', ', end: ')' });
+  }
+
+  toJSON(): ToJSON<T[], this['context']['typeTag']> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.toArray(),
+    };
   }
 
   extendType<T2>(): List.NonEmpty<SuperOf<T2, T>> {

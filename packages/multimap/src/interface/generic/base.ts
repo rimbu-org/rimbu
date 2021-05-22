@@ -9,6 +9,7 @@ import {
   ArrayNonEmpty,
   OptLazy,
   RelatedTo,
+  ToJSON,
   TraverseState,
 } from '@rimbu/common';
 import { FastIterable, Stream, Streamable, StreamSource } from '@rimbu/stream';
@@ -231,6 +232,13 @@ export interface VariantMultiMapBase<
    * // => HashMultiMapHashValue(1 => ['a', 'c'], 2 => ['b'])
    */
   toString(): string;
+  /**
+   * Returns a JSON representation of this collection.
+   * @example
+   * HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c']).toJSON()
+   * // => { dataType: 'HashMultiMapHashValue', value: [[1, ['a', 'c']], [2, ['b']]] }
+   */
+  toJSON(): ToJSON<[K, V[]][]>;
 }
 
 export namespace VariantMultiMapBase {

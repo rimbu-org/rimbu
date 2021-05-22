@@ -1,22 +1,26 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    // targets
     "target": "es2015",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    // common
     "lib": ["esnext"],
     "importHelpers": true,
-    "declaration": true,
     "sourceMap": true,
     "strict": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
     "noUnusedParameters": false,
-    "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true,
-    "noEmit": true,
-    "noStrictGenericChecks": true
+    "noStrictGenericChecks": true,
+    "baseUrl": "./",
+    "paths": {
+      "tslib": ["../node_modules/tslib/tslib.d.ts"]
+    }
   }
 }

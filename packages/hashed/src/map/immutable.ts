@@ -5,6 +5,7 @@ import {
   OptLazy,
   OptLazyOr,
   RelatedTo,
+  ToJSON,
   TraverseState,
   Update,
 } from '@rimbu/common';
@@ -90,6 +91,13 @@ export class HashMapEmpty<K = any, V = any>
 
   toString(): string {
     return `HashMap()`;
+  }
+
+  toJSON(): ToJSON<(readonly [K, V])[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
   }
 
   extendValues(): any {
@@ -263,6 +271,13 @@ export abstract class HashMapNonEmptyBase<K, V>
       end: ')',
       valueToString: (entry) => `${entry[0]} -> ${entry[1]}`,
     });
+  }
+
+  toJSON(): ToJSON<(readonly [K, V])[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.toArray(),
+    };
   }
 
   extendValues(): any {

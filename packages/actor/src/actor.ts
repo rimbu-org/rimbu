@@ -29,6 +29,10 @@ export namespace Actor {
     readonly state: this['obsReadonly']['state'];
   }
 
+  export type StateType<
+    A extends Actor.Readonly<unknown>
+  > = A extends Actor.Readonly<infer S> ? S : never;
+
   class Impl<T, P extends Record<string, unknown>, D> implements Actor<T, D> {
     constructor(readonly actor: Actor<T, D>, props: P) {
       Object.assign(this, props);
