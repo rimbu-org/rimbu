@@ -21,7 +21,7 @@ jobs:
       - uses: actions/setup-node@v1
       - run: yarn setup
       - run: yarn lint
-      - run: yarn build
       - run: yarn typecheck
       - run: yarn test:types
+      - run: yarn build
       - run: yarn test

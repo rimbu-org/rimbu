@@ -26,7 +26,7 @@ export class ValuedGraphNonEmpty<
 {
   constructor(
     readonly isDirected: boolean,
-    readonly context: WithGraphValues<Tp, N, V>['context'],
+    readonly context: TpG['context'],
     readonly linkMap: TpG['linkMapNonEmpty'],
     readonly connectionSize: number
   ) {
@@ -333,7 +333,7 @@ export class ValuedGraphNonEmpty<
   disconnect<UN = N>(
     node1: RelatedTo<N, UN>,
     node2: RelatedTo<N, UN>
-  ): WithGraphValues<Tp, N, V>['nonEmpty'] {
+  ): TpG['nonEmpty'] {
     if (
       !this.linkMap.context.isValidKey(node1) ||
       !this.linkMap.context.isValidKey(node2)
@@ -364,7 +364,7 @@ export class ValuedGraphNonEmpty<
     return builder.build().assumeNonEmpty();
   }
 
-  removeUnconnectedNodes(): WithGraphValues<Tp, N, V>['normal'] {
+  removeUnconnectedNodes(): TpG['normal'] {
     if (!this.isDirected) {
       const newLinkMap = this.linkMap.filter(([_, targets]) =>
         targets.nonEmpty()

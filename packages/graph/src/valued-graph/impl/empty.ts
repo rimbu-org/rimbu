@@ -15,7 +15,7 @@ export class ValuedGraphEmpty<
     Tp extends ValuedGraphTypesContextImpl,
     TpG extends WithGraphValues<Tp, N, V> = WithGraphValues<Tp, N, V>
   >
-  extends GraphEmptyBase<TpG['normal']>
+  extends GraphEmptyBase
   implements ValuedGraphBase<N, V, Tp>
 {
   constructor(readonly isDirected: boolean, readonly context: TpG['context']) {

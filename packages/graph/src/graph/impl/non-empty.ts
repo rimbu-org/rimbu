@@ -22,7 +22,7 @@ export class GraphNonEmpty<
 {
   constructor(
     readonly isDirected: boolean,
-    readonly context: WithGraphValues<Tp, N, unknown>['context'],
+    readonly context: TpG['context'],
     readonly linkMap: TpG['linkMapNonEmpty'],
     readonly connectionSize: number
   ) {
@@ -38,11 +38,8 @@ export class GraphNonEmpty<
     return this.context.createNonEmpty<N>(linkMap as any, connectionSize);
   }
 
-  copyE(
-    linkMap: TpG['linkMap'],
-    connectionSize: number
-  ): WithGraphValues<Tp, N, unknown>['normal'] {
-    if (linkMap.nonEmpty()) return this.copy(linkMap, connectionSize);
+  copyE(linkMap: TpG['linkMap'], connectionSize: number): TpG['normal'] {
+    if (linkMap.nonEmpty()) return this.copy(linkMap, connectionSize) as any;
     return this.context.empty();
   }
 
@@ -133,14 +130,14 @@ export class GraphNonEmpty<
     return targets?.isEmpty ?? false;
   }
 
-  isSource<UN = N>(node: RelatedTo<N, UN>): boolean {
+  isSource<UN>(node: RelatedTo<N, UN>): boolean {
     return (
       this.linkMap.hasKey(node) &&
       this.linkMap.streamValues().every((targets) => !targets.has(node))
     );
   }
 
-  addNode(node: N): WithGraphValues<Tp, N, unknown>['nonEmpty'] {
+  addNode(node: N): TpG['nonEmpty'] {
     return this.copy(
       this.linkMap
         .modifyAt(node, { ifNew: this.context.linkConnectionsContext.empty })
@@ -161,7 +158,7 @@ export class GraphNonEmpty<
     return builder.build();
   }
 
-  removeNodes<UN = N>(nodes: StreamSource<RelatedTo<N, UN>>): TpG['normal'] {
+  removeNodes<UN>(nodes: StreamSource<RelatedTo<N, UN>>): TpG['normal'] {
     const builder = this.toBuilder();
     builder.removeNodes(nodes);
     return builder.build();
@@ -211,10 +208,10 @@ export class GraphNonEmpty<
     return builder.build().assumeNonEmpty();
   }
 
-  disconnect<UN = N>(
+  disconnect<UN>(
     node1: RelatedTo<N, UN>,
     node2: RelatedTo<N, UN>
-  ): WithGraphValues<Tp, N, unknown>['nonEmpty'] {
+  ): TpG['nonEmpty'] {
     if (
       !this.linkMap.context.isValidKey(node1) ||
       !this.linkMap.context.isValidKey(node2)
@@ -239,7 +236,7 @@ export class GraphNonEmpty<
     );
   }
 
-  disconnectAll<UN = N>(
+  disconnectAll<UN>(
     links: StreamSource<Link<RelatedTo<N, UN>>>
   ): TpG['nonEmpty'] {
     const builder = this.toBuilder();
@@ -247,7 +244,7 @@ export class GraphNonEmpty<
     return builder.build().assumeNonEmpty();
   }
 
-  removeUnconnectedNodes(): WithGraphValues<Tp, N, unknown>['normal'] {
+  removeUnconnectedNodes(): TpG['normal'] {
     if (!this.isDirected) {
       const newLinkMap = this.linkMap.filter(([_, targets]) =>
         targets.nonEmpty()

@@ -30,8 +30,10 @@ export class ValuedGraphContext<
     >['linkConnectionsContext']
   ) {}
 
-  readonly _empty: WithGraphValues<Tp, UN, any>['normal'] =
-    new ValuedGraphEmpty<UN, any, Tp>(this.isDirected, this as any) as any;
+  readonly _empty: any = new ValuedGraphEmpty<UN, any, Tp>(
+    this.isDirected,
+    this as any
+  );
 
   isNonEmptyInstance(
     source: any
@@ -71,9 +73,7 @@ export class ValuedGraphContext<
     return builder.build();
   };
 
-  of = <N, V>(
-    ...values: ArrayNonEmpty<ValuedGraphElement<N, V>>
-  ): N extends UN ? WithGraphValues<Tp, N, V>['nonEmpty'] : never => {
+  of: any = <N, V>(...values: ArrayNonEmpty<ValuedGraphElement<N, V>>): any => {
     return this.from(values).assumeNonEmpty();
   };
 
