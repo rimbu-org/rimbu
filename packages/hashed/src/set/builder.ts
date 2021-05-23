@@ -16,8 +16,7 @@ type SetBlockBuilderEntry<T> =
 
 export class HashSetBlockBuilder<T>
   extends BlockBuilderBase<T>
-  implements HashSet.Builder<T>
-{
+  implements HashSet.Builder<T> {
   constructor(
     readonly context: HashSetContext<T>,
     public source?: HashSetBlock<T>,

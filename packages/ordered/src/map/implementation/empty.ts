@@ -11,8 +11,7 @@ export class OrderedMapEmpty<
     Tp extends OrderedMapTypes = OrderedMapTypes
   >
   extends CustomBase.EmptyBase
-  implements OrderedMapBase<K, V, Tp>
-{
+  implements OrderedMapBase<K, V, Tp> {
   constructor(readonly context: CustomBase.WithKeyValue<Tp, K, V>['context']) {
     super();
   }
@@ -121,7 +120,7 @@ export class OrderedMapEmpty<
     return this.context.mergeAll(
       fillValue,
       this,
-      ...(sources as any as [any, ...any[]])
+      ...((sources as any) as [any, ...any[]])
     );
   }
 
@@ -138,7 +137,7 @@ export class OrderedMapEmpty<
       fillValue,
       mergeFun as any,
       this,
-      ...(sources as any as [any, ...any[]])
+      ...((sources as any) as [any, ...any[]])
     );
   }
 
@@ -148,7 +147,7 @@ export class OrderedMapEmpty<
     return this.context.merge(
       ((key: any, ...values: I): I => values) as any,
       this,
-      ...(sources as any as [any, ...any[]])
+      ...((sources as any) as [any, ...any[]])
     );
   }
 
@@ -159,7 +158,7 @@ export class OrderedMapEmpty<
     return this.context.mergeWith(
       mergeFun as any,
       this as any,
-      ...(sources as any as [any, ...any[]])
+      ...((sources as any) as [any, ...any[]])
     );
   }
 }

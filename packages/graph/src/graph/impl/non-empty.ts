@@ -18,8 +18,7 @@ export class GraphNonEmpty<
     >
   >
   extends CustomBase.NonEmptyBase<GraphElement<N>>
-  implements GraphBase.NonEmpty<N, Tp>
-{
+  implements GraphBase.NonEmpty<N, Tp> {
   constructor(
     readonly isDirected: boolean,
     readonly context: WithGraphValues<Tp, N, unknown>['context'],

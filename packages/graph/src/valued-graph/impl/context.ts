@@ -17,8 +17,7 @@ export class ValuedGraphContext<
   UN,
   TT extends string,
   Tp extends ValuedGraphTypesContextImpl
-> implements ValuedGraphBase.Context<UN, Tp>
-{
+> implements ValuedGraphBase.Context<UN, Tp> {
   constructor(
     readonly isDirected: boolean,
     readonly typeTag: TT,
@@ -30,8 +29,14 @@ export class ValuedGraphContext<
     >['linkConnectionsContext']
   ) {}
 
-  readonly _empty: WithGraphValues<Tp, UN, any>['normal'] =
-    new ValuedGraphEmpty<UN, any, Tp>(this.isDirected, this as any) as any;
+  readonly _empty: WithGraphValues<
+    Tp,
+    UN,
+    any
+  >['normal'] = new ValuedGraphEmpty<UN, any, Tp>(
+    this.isDirected,
+    this as any
+  ) as any;
 
   isNonEmptyInstance(
     source: any

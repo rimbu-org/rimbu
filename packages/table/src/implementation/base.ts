@@ -19,8 +19,7 @@ export interface ContextImplTypes extends TableBase.Types {
 
 export class TableEmpty<R, C, V, Tp extends ContextImplTypes>
   extends CB.EmptyBase
-  implements TableBase<R, C, V, Tp>
-{
+  implements TableBase<R, C, V, Tp> {
   constructor(readonly context: CB.WithRow<Tp, R, C, V>['context']) {
     super();
   }
@@ -160,8 +159,7 @@ export class TableNonEmpty<
     TpR extends CB.WithRow<Tp, R, C, V> = CB.WithRow<Tp, R, C, V>
   >
   extends CB.NonEmptyBase<[R, C, V]>
-  implements TableBase.NonEmpty<R, C, V, Tp>
-{
+  implements TableBase.NonEmpty<R, C, V, Tp> {
   constructor(
     readonly context: TpR['context'],
     readonly rowMap: TpR['rowMapNonEmpty'],
@@ -536,8 +534,7 @@ export class TableBuilder<
   V,
   Tp extends ContextImplTypes,
   TpR extends Tp & CB.Row<R, C, V> = Tp & CB.Row<R, C, V>
-> implements TableBase.Builder<R, C, V>
-{
+> implements TableBase.Builder<R, C, V> {
   _lock = 0;
   _size = 0;
 
@@ -871,8 +868,7 @@ export class TableBuilder<
 }
 
 export class TableContext<UR, UC, N extends string, Tp extends ContextImplTypes>
-  implements TableBase.Context<UR, UC, Tp>
-{
+  implements TableBase.Context<UR, UC, Tp> {
   constructor(
     readonly typeTag: N,
     readonly rowContext: CB.WithRow<Tp, UR, UC, any>['rowContext'],

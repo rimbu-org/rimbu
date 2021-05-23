@@ -22,8 +22,7 @@ export class ValuedGraphNonEmpty<
     TpG extends WithGraphValues<Tp, N, V> = WithGraphValues<Tp, N, V>
   >
   extends CustomBase.NonEmptyBase<ValuedGraphElement<N, V>>
-  implements ValuedGraphBase.NonEmpty<N, V, Tp>
-{
+  implements ValuedGraphBase.NonEmpty<N, V, Tp> {
   constructor(
     readonly isDirected: boolean,
     readonly context: WithGraphValues<Tp, N, V>['context'],

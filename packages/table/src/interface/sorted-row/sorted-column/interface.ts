@@ -16,12 +16,8 @@ import { TableBase, TableContext } from '../../../table-custom';
  * const t1 = SortedTableSortedColumn.empty<number, string, boolean>()
  * const t2 = SortedTableSortedColumn.of([1, 'a', true], [2, 'a', false])
  */
-export type SortedTableSortedColumn<R, C, V> = TableBase<
-  R,
-  C,
-  V,
-  SortedTableSortedColumn.Types
->;
+export interface SortedTableSortedColumn<R, C, V>
+  extends TableBase<R, C, V, SortedTableSortedColumn.Types> {}
 
 export namespace SortedTableSortedColumn {
   /**
@@ -45,12 +41,8 @@ export namespace SortedTableSortedColumn {
     readonly typeTag: 'SortedTableSortedColumn';
   }
 
-  export type Builder<R, C, V> = TableBase.Builder<
-    R,
-    C,
-    V,
-    SortedTableSortedColumn.Types
-  >;
+  export interface Builder<R, C, V>
+    extends TableBase.Builder<R, C, V, SortedTableSortedColumn.Types> {}
 
   export interface Types extends TableBase.Types {
     normal: SortedTableSortedColumn<this['_R'], this['_C'], this['_V']>;
@@ -94,8 +86,10 @@ function createContext<UR, UC>(options?: {
   );
 }
 
-const _defaultContext: SortedTableSortedColumn.Context<any, any> =
-  createContext();
+const _defaultContext: SortedTableSortedColumn.Context<
+  any,
+  any
+> = createContext();
 
 const _contextHelpers = {
   /**

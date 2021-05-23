@@ -9,8 +9,7 @@ export class OrderedSetBuilder<
   T,
   Tp extends OrderedSetTypes = OrderedSetTypes,
   TpG extends CustomBase.WithElem<Tp, T> = CustomBase.WithElem<Tp, T>
-> implements OrderedSetBase.Builder<T, Tp>
-{
+> implements OrderedSetBase.Builder<T, Tp> {
   constructor(
     readonly context: TpG['context'],
     public source?: TpG['nonEmpty']

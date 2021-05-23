@@ -11,8 +11,7 @@ import {
 
 export class SortedSetContext<UT>
   extends CustomBase.RSetBase.ContextBase<UT, SortedSet.Types>
-  implements SortedSet.Context<UT>
-{
+  implements SortedSet.Context<UT> {
   constructor(readonly blockSizeBits: number, readonly comp: Comp<UT>) {
     super();
   }
@@ -32,11 +31,14 @@ export class SortedSetContext<UT>
   }
 
   builder = <T extends UT>(): SortedSetBuilder<T> => {
-    return new SortedSetBuilder(this as unknown as SortedSetContext<T>);
+    return new SortedSetBuilder((this as unknown) as SortedSetContext<T>);
   };
 
   createBuilder<T extends UT>(source?: SortedSet<T>): SortedSetBuilder<T> {
-    return new SortedSetBuilder(this as unknown as SortedSetContext<T>, source);
+    return new SortedSetBuilder(
+      (this as unknown) as SortedSetContext<T>,
+      source
+    );
   }
 
   findIndex(value: UT, entries: readonly UT[]): number {
@@ -56,7 +58,10 @@ export class SortedSetContext<UT>
   }
 
   leaf(entries: readonly UT[]): SortedSetLeaf<UT> {
-    return new SortedSetLeaf(this as unknown as SortedSetContext<UT>, entries);
+    return new SortedSetLeaf(
+      (this as unknown) as SortedSetContext<UT>,
+      entries
+    );
   }
 
   inner(
@@ -65,7 +70,7 @@ export class SortedSetContext<UT>
     size: number
   ): SortedSetInner<UT> {
     return new SortedSetInner(
-      this as unknown as SortedSetContext<UT>,
+      (this as unknown) as SortedSetContext<UT>,
       entries,
       children,
       size

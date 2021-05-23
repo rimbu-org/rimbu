@@ -4,8 +4,7 @@ import { Stream } from '@rimbu/stream';
 import { Block, ListContext, NonLeaf, NonLeafTree } from '../../list-custom';
 
 export class NonLeafBlock<T, C extends Block<T, C>>
-  implements Block<T, NonLeafBlock<T, C>, C>, NonLeaf<T, Block<T>>
-{
+  implements Block<T, NonLeafBlock<T, C>, C>, NonLeaf<T, Block<T>> {
   constructor(
     readonly context: ListContext,
     public _length: number,
@@ -103,13 +102,15 @@ export class NonLeafBlock<T, C extends Block<T, C>>
       reversed
     );
 
-    return childStream.flatMap((child): Stream<T> => {
-      if (child === startChild)
-        return child.streamRange({ start: inStartChildIndex }, reversed);
-      if (child === endChild)
-        return child.streamRange({ end: inEndChildIndex }, reversed);
-      return child.stream(reversed);
-    });
+    return childStream.flatMap(
+      (child): Stream<T> => {
+        if (child === startChild)
+          return child.streamRange({ start: inStartChildIndex }, reversed);
+        if (child === endChild)
+          return child.streamRange({ end: inEndChildIndex }, reversed);
+        return child.stream(reversed);
+      }
+    );
   }
 
   get(index: number): T {

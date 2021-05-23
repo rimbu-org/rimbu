@@ -18,8 +18,7 @@ import {
 
 export class LeafBlock<T>
   extends ListNonEmptyBase<T>
-  implements Block<T, LeafBlock<T>, T>
-{
+  implements Block<T, LeafBlock<T>, T> {
   constructor(readonly context: ListContext, readonly children: readonly T[]) {
     super();
   }

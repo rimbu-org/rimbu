@@ -22,10 +22,9 @@ export namespace Range {
    * start and end ranges including whether they are inclusive or exclusive
    * @param range - the `Range` to use
    */
-  export function getNormalizedRange<T>(range: Range<T>): {
-    start?: [T, boolean];
-    end?: [T, boolean];
-  } {
+  export function getNormalizedRange<T>(
+    range: Range<T>
+  ): { start?: [T, boolean]; end?: [T, boolean] } {
     let start: [T, boolean] | undefined = undefined;
     let end: [T, boolean] | undefined = undefined;
 

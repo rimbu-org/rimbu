@@ -15,8 +15,7 @@ export class GraphEmpty<
     TpG extends WithGraphValues<Tp, N, V> = WithGraphValues<Tp, N, V>
   >
   extends GraphEmptyBase<TpG['normal']>
-  implements GraphBase<N, Tp>
-{
+  implements GraphBase<N, Tp> {
   constructor(readonly isDirected: boolean, readonly context: TpG['context']) {
     super();
   }

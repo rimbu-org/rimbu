@@ -11,8 +11,7 @@ import {
 
 export class SortedMapContext<UK>
   extends CustomBase.RMapBase.ContextBase<UK, SortedMap.Types>
-  implements SortedMap.Context<UK>
-{
+  implements SortedMap.Context<UK> {
   constructor(readonly blockSizeBits: number, readonly comp: Comp<UK>) {
     super();
   }

@@ -415,8 +415,11 @@ export interface MultiMapBase<
 }
 
 export namespace MultiMapBase {
-  type NonEmptyBase<K, V, Tp extends MultiMapBase.Types> =
-    VariantMultiMapBase.NonEmpty<K, V, Tp> & MultiMapBase<K, V, Tp>;
+  type NonEmptyBase<
+    K,
+    V,
+    Tp extends MultiMapBase.Types
+  > = VariantMultiMapBase.NonEmpty<K, V, Tp> & MultiMapBase<K, V, Tp>;
 
   export interface NonEmpty<
     K,

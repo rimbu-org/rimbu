@@ -10,8 +10,7 @@ export class OrderedSetNonEmpty<
     TpG extends CustomBase.WithElem<Tp, T> = CustomBase.WithElem<Tp, T>
   >
   extends CustomBase.NonEmptyBase<T>
-  implements OrderedSetBase.NonEmpty<T, Tp>
-{
+  implements OrderedSetBase.NonEmpty<T, Tp> {
   constructor(
     readonly context: CustomBase.WithElem<Tp, T>['context'],
     readonly order: List.NonEmpty<T>,

@@ -524,8 +524,12 @@ export interface TableBase<
 }
 
 export namespace TableBase {
-  type NonEmptyBase<R, C, V, Tp extends TableBase.Types> =
-    VariantTableBase.NonEmpty<R, C, V, Tp> & TableBase<R, C, V, Tp>;
+  type NonEmptyBase<
+    R,
+    C,
+    V,
+    Tp extends TableBase.Types
+  > = VariantTableBase.NonEmpty<R, C, V, Tp> & TableBase<R, C, V, Tp>;
 
   export interface NonEmpty<
     R,

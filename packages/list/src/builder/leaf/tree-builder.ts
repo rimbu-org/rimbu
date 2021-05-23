@@ -11,8 +11,7 @@ import {
 
 export class LeafTreeBuilder<T>
   extends TreeBuilderBase<T, T>
-  implements LeafBuilder<T>
-{
+  implements LeafBuilder<T> {
   constructor(
     readonly context: ListContext,
     public source?: LeafTree<T>,

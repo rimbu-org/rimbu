@@ -321,8 +321,10 @@ export interface MultiSetBase<
 }
 
 export namespace MultiSetBase {
-  type NonEmptyBase<T, Tp extends MultiSetBase.Types> =
-    VariantMultiSetBase.NonEmpty<T, Tp> & MultiSetBase<T, Tp>;
+  type NonEmptyBase<
+    T,
+    Tp extends MultiSetBase.Types
+  > = VariantMultiSetBase.NonEmpty<T, Tp> & MultiSetBase<T, Tp>;
 
   export interface NonEmpty<
     T,

@@ -17,8 +17,7 @@ export interface ContextImplTypes extends MultiMapBase.Types {
 
 export class MultiMapEmpty<K, V, Tp extends ContextImplTypes>
   extends CB.EmptyBase
-  implements MultiMapBase<K, V, Tp>
-{
+  implements MultiMapBase<K, V, Tp> {
   constructor(readonly context: CB.WithKeyValue<Tp, K, V>['context']) {
     super();
   }
@@ -133,8 +132,7 @@ export class MultiMapNonEmpty<
     TpG extends CB.WithKeyValue<Tp, K, V> = CB.WithKeyValue<Tp, K, V>
   >
   extends CB.NonEmptyBase<[K, V]>
-  implements MultiMapBase.NonEmpty<K, V, Tp>
-{
+  implements MultiMapBase.NonEmpty<K, V, Tp> {
   constructor(
     readonly context: TpG['context'],
     readonly keyMap: TpG['keyMapNonEmpty'],
@@ -392,8 +390,7 @@ export class MultiMapBuilder<
   V,
   Tp extends ContextImplTypes,
   TpG extends CB.WithKeyValue<Tp, K, V> = CB.WithKeyValue<Tp, K, V>
-> implements MultiMapBase.Builder<K, V, Tp>
-{
+> implements MultiMapBase.Builder<K, V, Tp> {
   _lock = 0;
   _size = 0;
 
@@ -608,8 +605,7 @@ export class MultiMapContext<
   UV,
   N extends string,
   Tp extends ContextImplTypes
-> implements MultiMapBase.Context<UK, UV, Tp>
-{
+> implements MultiMapBase.Context<UK, UV, Tp> {
   constructor(
     readonly typeTag: N,
     readonly keyMapContext: (Tp & CB.KeyValue<UK, UV>)['keyMapContext'],

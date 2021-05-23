@@ -10,8 +10,7 @@ export class BiMultiMapBuilder<
   V,
   Tp extends ContextTypesImpl,
   TpG extends CB.WithKeyValue<Tp, K, V> = CB.WithKeyValue<Tp, K, V>
-> implements BiMultiMapBase.Builder<K, V, Tp>
-{
+> implements BiMultiMapBase.Builder<K, V, Tp> {
   _lock = 0;
 
   constructor(

@@ -35,8 +35,11 @@ export interface ArrowValuedGraphBase<
 }
 
 export namespace ArrowValuedGraphBase {
-  type NonEmptyBase<N, V, Tp extends ArrowValuedGraphBase.Types> =
-    ValuedGraphBase.NonEmpty<N, V, Tp> & ArrowValuedGraphBase<N, V, Tp>;
+  type NonEmptyBase<
+    N,
+    V,
+    Tp extends ArrowValuedGraphBase.Types
+  > = ValuedGraphBase.NonEmpty<N, V, Tp> & ArrowValuedGraphBase<N, V, Tp>;
 
   export interface NonEmpty<
     N,
@@ -53,16 +56,16 @@ export namespace ArrowValuedGraphBase {
     stream(): Stream.NonEmpty<ValuedGraphElement<N, V>>;
   }
 
-  export type Builder<
+  export interface Builder<
     N,
     V,
     Tp extends ArrowValuedGraphBase.Types = ArrowValuedGraphBase.Types
-  > = ValuedGraphBase.Builder<N, V, Tp>;
+  > extends ValuedGraphBase.Builder<N, V, Tp> {}
 
-  export type Context<
+  export interface Context<
     UN,
     Tp extends ArrowValuedGraphBase.Types = ArrowValuedGraphBase.Types
-  > = ValuedGraphBase.Context<UN, Tp>;
+  > extends ValuedGraphBase.Context<UN, Tp> {}
 
   export interface Types extends ValuedGraphBase.Types {
     normal: ArrowValuedGraphBase<this['_N'], this['_V']>;

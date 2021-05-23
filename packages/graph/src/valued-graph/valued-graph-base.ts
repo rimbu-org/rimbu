@@ -113,10 +113,13 @@ export interface ValuedGraphBase<
 }
 
 export namespace ValuedGraphBase {
-  type NonEmptyBase<N, V, Tp extends ValuedGraphBase.Types> =
-    VariantValuedGraphBase.NonEmpty<N, V, Tp> &
-      GraphConnectNonEmpty<N, V, Tp> &
-      ValuedGraphBase<N, V, Tp>;
+  type NonEmptyBase<
+    N,
+    V,
+    Tp extends ValuedGraphBase.Types
+  > = VariantValuedGraphBase.NonEmpty<N, V, Tp> &
+    GraphConnectNonEmpty<N, V, Tp> &
+    ValuedGraphBase<N, V, Tp>;
 
   export interface NonEmpty<
     N,

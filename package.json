@@ -36,7 +36,7 @@
     "typecheck": "lerna run typecheck"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,json,md}": "eslint -c ./config/.eslintrc.json  --cache --fix",
+    "*.{ts,tsx,js,json,md}": "eslint -c ./config/.eslintrc.json --cache",
     "*.{ts,tsx,js,json,md}--parallel": "prettier --write"
   },
   "devDependencies": {

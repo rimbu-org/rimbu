@@ -11,8 +11,7 @@ import {
 
 export class OrderedSetContextImpl<UT, Tp extends OrderedSetTypes>
   extends CustomBase.RSetBase.ContextBase<UT, Tp>
-  implements OrderedSetContext<UT, Tp>
-{
+  implements OrderedSetContext<UT, Tp> {
   constructor(
     readonly listContext: List.Context,
     readonly setContext: CustomBase.WithElem<Tp, UT>['sourceContext']
