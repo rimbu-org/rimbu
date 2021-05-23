@@ -42,6 +42,12 @@
       "pre-commit": "yarn precommit"
     }
   },
+  "lint-staged": {
+    "**/*.{ts,tsx,js,json,md}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
