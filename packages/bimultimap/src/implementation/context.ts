@@ -17,7 +17,8 @@ export class BiMultiMapContext<
   UV,
   N extends string,
   Tp extends ContextTypesImpl
-> implements BiMultiMapBase.Context<UK, UV, Tp> {
+> implements BiMultiMapBase.Context<UK, UV, Tp>
+{
   constructor(
     readonly typeTag: N,
     readonly keyValueMultiMapContext: CB.WithKeyValue<

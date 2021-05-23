@@ -5,7 +5,8 @@ import { BiMultiMapBase, ContextTypesImpl } from '../bimultimap-custom';
 
 export class BiMultiMapEmpty<K, V, Tp extends ContextTypesImpl>
   extends CB.EmptyBase
-  implements BiMultiMapBase<K, V, Tp> {
+  implements BiMultiMapBase<K, V, Tp>
+{
   constructor(readonly context: CB.WithKeyValue<Tp, K, V>['context']) {
     super();
   }
@@ -128,7 +129,8 @@ export class BiMultiMapNonEmpty<
     TpG extends CB.WithKeyValue<Tp, K, V> = CB.WithKeyValue<Tp, K, V>
   >
   extends CB.NonEmptyBase<[K, V]>
-  implements BiMultiMapBase.NonEmpty<K, V, Tp> {
+  implements BiMultiMapBase.NonEmpty<K, V, Tp>
+{
   constructor(
     readonly context: CB.WithKeyValue<Tp, K, V>['context'],
     readonly keyValueMultiMap: TpG['keyValueMultiMapNonEmpty'],

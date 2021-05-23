@@ -14,11 +14,8 @@ export interface EdgeValuedGraphBase<
 }
 
 export namespace EdgeValuedGraphBase {
-  type NonEmptyBase<
-    N,
-    V,
-    Tp extends EdgeValuedGraphBase.Types
-  > = ValuedGraphBase.NonEmpty<N, V, Tp> & EdgeValuedGraphBase<N, V, Tp>;
+  type NonEmptyBase<N, V, Tp extends EdgeValuedGraphBase.Types> =
+    ValuedGraphBase.NonEmpty<N, V, Tp> & EdgeValuedGraphBase<N, V, Tp>;
 
   export interface NonEmpty<
     N,
@@ -35,16 +32,16 @@ export namespace EdgeValuedGraphBase {
     stream(): Stream.NonEmpty<ValuedGraphElement<N, V>>;
   }
 
-  export interface Builder<
+  export type Builder<
     N,
     V,
     Tp extends EdgeValuedGraphBase.Types = EdgeValuedGraphBase.Types
-  > extends ValuedGraphBase.Builder<N, V, Tp> {}
+  > = ValuedGraphBase.Builder<N, V, Tp>
 
-  export interface Context<
+  export type Context<
     UN,
     Tp extends EdgeValuedGraphBase.Types = EdgeValuedGraphBase.Types
-  > extends ValuedGraphBase.Context<UN, Tp> {}
+  > = ValuedGraphBase.Context<UN, Tp>
 
   export interface Types extends ValuedGraphBase.Types {
     normal: EdgeValuedGraphBase<this['_N'], this['_V']>;

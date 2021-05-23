@@ -238,8 +238,7 @@ export function runMultiMapRandomTestsWith(
     it('set existing key overrides', (): void => {
       const m = context.of([1, 1], [2, 2], [3, 3]);
       expect(m.add(1, 4).getValues(1).stream().toArray().sort()).toEqual([
-        1,
-        4,
+        1, 4,
       ]);
     });
 

@@ -11,9 +11,7 @@ function runWith(name: string, context: SortedSet.Context<number>): void {
       const set = context.from(Stream.range({ amount: 100 }));
       expect(set.sliceIndex({ amount: 3 }).toArray()).toEqual([0, 1, 2]);
       expect(set.sliceIndex({ start: 3, amount: 3 }).toArray()).toEqual([
-        3,
-        4,
-        5,
+        3, 4, 5,
       ]);
       expect(
         set.sliceIndex({ start: [3, false], amount: 3 }).toArray()
@@ -22,14 +20,10 @@ function runWith(name: string, context: SortedSet.Context<number>): void {
       expect(set.sliceIndex({ end: [3, false] }).toArray()).toEqual([0, 1, 2]);
       expect(set.sliceIndex({ start: 97 }).toArray()).toEqual([97, 98, 99]);
       expect(set.sliceIndex({ start: [97, false] }).toArray()).toEqual([
-        98,
-        99,
+        98, 99,
       ]);
       expect(set.sliceIndex({ start: 0, end: 3 }).toArray()).toEqual([
-        0,
-        1,
-        2,
-        3,
+        0, 1, 2, 3,
       ]);
       expect(
         set.sliceIndex({ start: [0, false], end: [3, false] }).toArray()
@@ -37,17 +31,14 @@ function runWith(name: string, context: SortedSet.Context<number>): void {
 
       expect(set.sliceIndex({ start: -3 }).toArray()).toEqual([97, 98, 99]);
       expect(set.sliceIndex({ start: [-3, false] }).toArray()).toEqual([
-        98,
-        99,
+        98, 99,
       ]);
 
       expect(set.sliceIndex({ start: -3, end: -2 }).toArray()).toEqual([
-        97,
-        98,
+        97, 98,
       ]);
       expect(set.sliceIndex({ start: -3, amount: 2 }).toArray()).toEqual([
-        97,
-        98,
+        97, 98,
       ]);
     });
 
@@ -79,55 +70,40 @@ function runWith(name: string, context: SortedSet.Context<number>): void {
       const set = context.from(Stream.range({ amount: 100 }));
       expect(set.streamSliceIndex({ amount: 3 }).toArray()).toEqual([0, 1, 2]);
       expect(set.streamSliceIndex({ start: 3, amount: 3 }).toArray()).toEqual([
-        3,
-        4,
-        5,
+        3, 4, 5,
       ]);
       expect(
         set.streamSliceIndex({ start: [3, false], amount: 3 }).toArray()
       ).toEqual([4, 5, 6]);
       expect(set.streamSliceIndex({ end: 3 }).toArray()).toEqual([0, 1, 2, 3]);
       expect(set.streamSliceIndex({ end: [3, false] }).toArray()).toEqual([
-        0,
-        1,
-        2,
+        0, 1, 2,
       ]);
       expect(set.streamSliceIndex({ start: 97 }).toArray()).toEqual([
-        97,
-        98,
-        99,
+        97, 98, 99,
       ]);
       expect(set.streamSliceIndex({ start: [97, false] }).toArray()).toEqual([
-        98,
-        99,
+        98, 99,
       ]);
       expect(set.streamSliceIndex({ start: 0, end: 3 }).toArray()).toEqual([
-        0,
-        1,
-        2,
-        3,
+        0, 1, 2, 3,
       ]);
       expect(
         set.streamSliceIndex({ start: [0, false], end: [3, false] }).toArray()
       ).toEqual([1, 2]);
 
       expect(set.streamSliceIndex({ start: -3 }).toArray()).toEqual([
-        97,
-        98,
-        99,
+        97, 98, 99,
       ]);
       expect(set.streamSliceIndex({ start: [-3, false] }).toArray()).toEqual([
-        98,
-        99,
+        98, 99,
       ]);
 
       expect(set.streamSliceIndex({ start: -3, end: -2 }).toArray()).toEqual([
-        97,
-        98,
+        97, 98,
       ]);
       expect(set.streamSliceIndex({ start: -3, amount: 2 }).toArray()).toEqual([
-        97,
-        98,
+        97, 98,
       ]);
     });
 
@@ -138,34 +114,24 @@ function runWith(name: string, context: SortedSet.Context<number>): void {
       expect(set.streamRange({ end: [3, false] }).toArray()).toEqual([0, 1, 2]);
       expect(set.streamRange({ end: 3.5 }).toArray()).toEqual([0, 1, 2, 3]);
       expect(set.streamRange({ end: [3.5, false] }).toArray()).toEqual([
-        0,
-        1,
-        2,
-        3,
+        0, 1, 2, 3,
       ]);
       expect(set.streamRange({ start: 97 }).toArray()).toEqual([97, 98, 99]);
       expect(set.streamRange({ start: [97, false] }).toArray()).toEqual([
-        98,
-        99,
+        98, 99,
       ]);
       expect(set.streamRange({ start: 0, end: 3 }).toArray()).toEqual([
-        0,
-        1,
-        2,
-        3,
+        0, 1, 2, 3,
       ]);
       expect(
         set.streamRange({ start: [0, false], end: [3, false] }).toArray()
       ).toEqual([1, 2]);
       expect(set.streamRange({ start: 97.5 }).toArray()).toEqual([98, 99]);
       expect(set.streamRange({ start: [97.5, false] }).toArray()).toEqual([
-        98,
-        99,
+        98, 99,
       ]);
       expect(set.streamRange({ start: 0.5, end: 3.5 }).toArray()).toEqual([
-        1,
-        2,
-        3,
+        1, 2, 3,
       ]);
       expect(
         set.streamRange({ start: [0.5, false], end: [3.5, false] }).toArray()

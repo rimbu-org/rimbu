@@ -89,7 +89,7 @@ export class ListContext implements List.Context {
 
       if (!StreamSource.isEmptyInstance(source)) {
         if (source instanceof ListNonEmptyBase && source.context === this) {
-          if (null === result) result = (source as any) as List<T>;
+          if (null === result) result = source as any as List<T>;
           else result = result.concat(source);
         } else {
           const builder = this.builder<T>();

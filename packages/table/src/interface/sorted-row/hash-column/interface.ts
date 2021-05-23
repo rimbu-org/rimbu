@@ -17,8 +17,7 @@ import { TableBase, TableContext } from '../../../table-custom';
  * const t1 = SortedTableHashColumn.empty<number, string, boolean>()
  * const t2 = SortedTableHashColumn.of([1, 'a', true], [2, 'a', false])
  */
-export interface SortedTableHashColumn<R, C, V>
-  extends TableBase<R, C, V, SortedTableHashColumn.Types> {}
+export type SortedTableHashColumn<R, C, V> = TableBase<R, C, V, SortedTableHashColumn.Types>
 
 export namespace SortedTableHashColumn {
   /**
@@ -42,8 +41,7 @@ export namespace SortedTableHashColumn {
     readonly typeTag: 'SortedTableHashColumn';
   }
 
-  export interface Builder<R, C, V>
-    extends TableBase.Builder<R, C, V, SortedTableHashColumn.Types> {}
+  export type Builder<R, C, V> = TableBase.Builder<R, C, V, SortedTableHashColumn.Types>
 
   export interface Types extends TableBase.Types {
     normal: SortedTableHashColumn<this['_R'], this['_C'], this['_V']>;
@@ -83,10 +81,8 @@ function createContext<UR, UC>(options?: {
   );
 }
 
-const _defaultContext: SortedTableHashColumn.Context<
-  any,
-  any
-> = createContext();
+const _defaultContext: SortedTableHashColumn.Context<any, any> =
+  createContext();
 
 const _contextHelpers = {
   /**

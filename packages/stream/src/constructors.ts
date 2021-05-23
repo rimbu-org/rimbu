@@ -526,9 +526,9 @@ export function range(range: IndexRange, delta = 1): Stream<number> {
  * Stream.random().take(3).toArray()     // => [0.3243..., 0.19524...., 0.78324...]
  */
 export function random(): Stream.NonEmpty<number> {
-  return (new SC.FromStream(
+  return new SC.FromStream(
     (): FastIterator<number> => new RandomIterator()
-  ) as unknown) as Stream.NonEmpty<number>;
+  ) as unknown as Stream.NonEmpty<number>;
 }
 
 /**
@@ -541,9 +541,9 @@ export function random(): Stream.NonEmpty<number> {
 export function randomInt(min: number, max: number): Stream.NonEmpty<number> {
   if (min >= max) Err.msg('min should be smaller than max');
 
-  return (new SC.FromStream(
+  return new SC.FromStream(
     (): FastIterator<number> => new RandomIntIterator(min, max)
-  ) as unknown) as Stream.NonEmpty<number>;
+  ) as unknown as Stream.NonEmpty<number>;
 }
 
 /**
@@ -557,9 +557,9 @@ export function unfold<T>(
   init: T,
   next: (current: T, index: number, stop: Token) => T | Token
 ): Stream.NonEmpty<T> {
-  return (new SC.FromStream(
+  return new SC.FromStream(
     (): FastIterator<T> => new UnfoldIterator<T>(init, next)
-  ) as unknown) as Stream.NonEmpty<T>;
+  ) as unknown as Stream.NonEmpty<T>;
 }
 
 class ArrayIterator<T> extends FastIterator.Base<T> {

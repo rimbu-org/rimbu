@@ -272,8 +272,7 @@ export function runMultiSetRandomTestsWith(
     it('streamDistinct', (): void => {
       expect(context.empty().streamDistinct().toArray()).toEqual([]);
       expect(context.of(1, 2, 1).streamDistinct().toArray().sort()).toEqual([
-        1,
-        2,
+        1, 2,
       ]);
     });
 

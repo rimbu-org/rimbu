@@ -17,8 +17,7 @@ import { MultiMapBase, MultiMapContext } from '../../../multimap-custom';
  * const m1 = HashMultiMapHashValue.empty<number, string>()
  * const m2 = HashMultiMapHashValue.of([1, 'a'], [1, 'b'], [2, 'a'])
  */
-export interface HashMultiMapHashValue<K, V>
-  extends MultiMapBase<K, V, HashMultiMapHashValue.Types> {}
+export type HashMultiMapHashValue<K, V> = MultiMapBase<K, V, HashMultiMapHashValue.Types>
 
 export namespace HashMultiMapHashValue {
   type NonEmptyBase<K, V> = MultiMapBase.NonEmpty<
@@ -69,8 +68,7 @@ export namespace HashMultiMapHashValue {
    * @typeparam K - the key type
    * @typeparam V - the value type
    */
-  export interface Builder<K, V>
-    extends MultiMapBase.Builder<K, V, HashMultiMapHashValue.Types> {}
+  export type Builder<K, V> = MultiMapBase.Builder<K, V, HashMultiMapHashValue.Types>
 
   export interface Types extends MultiMapBase.Types {
     normal: HashMultiMapHashValue<this['_K'], this['_V']>;
@@ -108,10 +106,8 @@ function createContext<UK, UV>(options?: {
   );
 }
 
-const _defaultContext: HashMultiMapHashValue.Context<
-  any,
-  any
-> = createContext();
+const _defaultContext: HashMultiMapHashValue.Context<any, any> =
+  createContext();
 
 const _contextHelpers = {
   /**

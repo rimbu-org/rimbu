@@ -20,7 +20,8 @@ export class OrderedMapBuilder<
     K,
     V
   >
-> implements OrderedMapBase.Builder<K, V, Tp> {
+> implements OrderedMapBase.Builder<K, V, Tp>
+{
   constructor(
     readonly context: CustomBase.WithKeyValue<Tp, K, V>['context'],
     public source?: TpG['nonEmpty']

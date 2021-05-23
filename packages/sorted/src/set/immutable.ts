@@ -42,7 +42,8 @@ import { SortedSetContext } from '../sortedset-custom';
 
 export class SortedSetEmpty<T = any>
   extends SortedEmpty
-  implements SortedSet<T> {
+  implements SortedSet<T>
+{
   constructor(readonly context: SortedSetContext<T>) {
     super();
   }
@@ -117,7 +118,8 @@ export class SortedSetEmpty<T = any>
 
 export abstract class SortedSetNode<T>
   extends SortedNonEmptyBase<T, SortedSetNode<T>>
-  implements SortedSet.NonEmpty<T> {
+  implements SortedSet.NonEmpty<T>
+{
   abstract readonly context: SortedSetContext<T>;
   abstract readonly size: number;
   abstract stream(): Stream.NonEmpty<T>;
@@ -510,13 +512,11 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
     const token = Symbol();
     return Stream.from(this.children)
       .zipAll(token, this.entries)
-      .flatMap(
-        ([child, e]): Stream.NonEmpty<T> => {
-          if (token === child) RimbuError.throwInvalidStateError();
-          if (token === e) return child.stream();
-          return child.stream().append(e);
-        }
-      ) as Stream.NonEmpty<T>;
+      .flatMap(([child, e]): Stream.NonEmpty<T> => {
+        if (token === child) RimbuError.throwInvalidStateError();
+        if (token === e) return child.stream();
+        return child.stream().append(e);
+      }) as Stream.NonEmpty<T>;
   }
 
   streamSliceIndex(range: IndexRange): Stream<T> {

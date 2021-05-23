@@ -10,7 +10,8 @@ export interface ContextImplTypes extends MultiSetBase.Types {
 
 export class MultiSetEmpty<T, Tp extends ContextImplTypes>
   extends CB.EmptyBase
-  implements MultiSetBase<T, Tp> {
+  implements MultiSetBase<T, Tp>
+{
   constructor(readonly context: CB.WithElem<Tp, T>['context']) {
     super();
   }
@@ -119,7 +120,8 @@ export class MultiSetNonEmpty<
     TpG extends CB.WithElem<Tp, T> = CB.WithElem<Tp, T>
   >
   extends CB.NonEmptyBase<T>
-  implements MultiSetBase.NonEmpty<T, Tp> {
+  implements MultiSetBase.NonEmpty<T, Tp>
+{
   constructor(
     readonly context: TpG['context'],
     readonly countMap: TpG['countMapNonEmpty'],
@@ -366,7 +368,8 @@ export class MultiSetBuilder<
   T,
   Tp extends ContextImplTypes,
   TpG extends CB.WithElem<Tp, T> = CB.WithElem<Tp, T>
-> implements MultiSetBase.Builder<T, Tp> {
+> implements MultiSetBase.Builder<T, Tp>
+{
   _lock = 0;
   _size = 0;
 
@@ -590,7 +593,8 @@ export class MultiSetBuilder<
 }
 
 export class MultiSetContext<UT, N extends string, Tp extends ContextImplTypes>
-  implements MultiSetBase.Context<UT, Tp> {
+  implements MultiSetBase.Context<UT, Tp>
+{
   constructor(
     readonly typeTag: N,
     readonly countMapContext: (Tp & CB.Elem<UT>)['countMapContext']

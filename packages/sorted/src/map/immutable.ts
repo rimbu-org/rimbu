@@ -44,7 +44,8 @@ import { SortedMapBuilder, SortedMapContext } from '../sortedmap-custom';
 
 export class SortedMapEmpty<K = any, V = any>
   extends SortedEmpty
-  implements SortedMap<K, V> {
+  implements SortedMap<K, V>
+{
   constructor(readonly context: SortedMapContext<K>) {
     super();
   }
@@ -176,7 +177,7 @@ export class SortedMapEmpty<K = any, V = any>
     return this.context.mergeAll(
       fillValue,
       this,
-      ...((sources as any) as [any, ...any[]])
+      ...(sources as any as [any, ...any[]])
     );
   }
 
@@ -193,14 +194,14 @@ export class SortedMapEmpty<K = any, V = any>
       fillValue,
       mergeFun as any,
       this,
-      ...((sources as any) as [any, ...any[]])
+      ...(sources as any as [any, ...any[]])
     );
   }
 
   merge<I extends readonly [unknown, ...unknown[]]>(
     ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
   ): any {
-    return this.context.merge(this, ...((sources as any) as any[]));
+    return this.context.merge(this, ...(sources as any as any[]));
   }
 
   mergeWith<R, K, I extends readonly [unknown, ...unknown[]]>(
@@ -210,14 +211,15 @@ export class SortedMapEmpty<K = any, V = any>
     return this.context.mergeWith(
       mergeFun as any,
       this as any,
-      ...((sources as any) as any[])
+      ...(sources as any as any[])
     );
   }
 }
 
 export abstract class SortedMapNode<K, V>
   extends SortedNonEmptyBase<readonly [K, V], SortedMapNode<K, V>>
-  implements SortedMap.NonEmpty<K, V> {
+  implements SortedMap.NonEmpty<K, V>
+{
   abstract readonly context: SortedMapContext<K>;
   abstract readonly size: number;
   abstract stream(): Stream.NonEmpty<readonly [K, V]>;
@@ -477,7 +479,7 @@ export abstract class SortedMapNode<K, V>
     return this.context.mergeAll(
       fillValue,
       this,
-      ...((sources as any) as [any, ...any[]])
+      ...(sources as any as [any, ...any[]])
     );
   }
 
@@ -494,14 +496,14 @@ export abstract class SortedMapNode<K, V>
       fillValue,
       mergeFun as any,
       this,
-      ...((sources as any) as [any, ...any[]])
+      ...(sources as any as [any, ...any[]])
     );
   }
 
   merge<I extends readonly [unknown, ...unknown[]]>(
     ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
   ): any {
-    return this.context.merge(this, ...((sources as any) as any[]));
+    return this.context.merge(this, ...(sources as any as any[]));
   }
 
   mergeWith<R, K, I extends readonly [unknown, ...unknown[]]>(
@@ -511,7 +513,7 @@ export abstract class SortedMapNode<K, V>
     return this.context.mergeWith(
       mergeFun as any,
       this as any,
-      ...((sources as any) as any[])
+      ...(sources as any as any[])
     );
   }
 }
@@ -756,13 +758,11 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
     const token = Symbol();
     return Stream.from(this.children)
       .zipAll(token, this.entries)
-      .flatMap(
-        ([child, e]): Stream.NonEmpty<readonly [K, V]> => {
-          if (token === child) RimbuError.throwInvalidStateError();
-          if (token === e) return child.stream();
-          return child.stream().append(e);
-        }
-      ) as Stream.NonEmpty<readonly [K, V]>;
+      .flatMap(([child, e]): Stream.NonEmpty<readonly [K, V]> => {
+        if (token === child) RimbuError.throwInvalidStateError();
+        if (token === e) return child.stream();
+        return child.stream().append(e);
+      }) as Stream.NonEmpty<readonly [K, V]>;
   }
 
   streamSliceIndex(range: IndexRange): Stream<readonly [K, V]> {
