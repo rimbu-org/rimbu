@@ -83,10 +83,8 @@ function createContext<UR, UC>(options?: {
   );
 }
 
-const _defaultContext: HashTableSortedColumn.Context<
-  any,
-  any
-> = createContext();
+const _defaultContext: HashTableSortedColumn.Context<any, any> =
+  createContext();
 
 const _contextHelpers = {
   /**

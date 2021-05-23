@@ -28,11 +28,8 @@ export interface OrderedMapBase<
 }
 
 export namespace OrderedMapBase {
-  type NonEmptyBase<
-    K,
-    V,
-    Tp extends OrderedMapBase.Types
-  > = CustomBase.RMapBase.NonEmpty<K, V, Tp> & OrderedMapBase<K, V, Tp>;
+  type NonEmptyBase<K, V, Tp extends OrderedMapBase.Types> =
+    CustomBase.RMapBase.NonEmpty<K, V, Tp> & OrderedMapBase<K, V, Tp>;
 
   export interface NonEmpty<
     K,

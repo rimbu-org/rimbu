@@ -17,7 +17,8 @@ import {
 } from '../../list-custom';
 
 export class NonLeafTree<T, C extends Block<T, C>>
-  implements Tree<T, NonLeafTree<T, C>, NonLeafBlock<T, C>, C>, NonLeaf<T> {
+  implements Tree<T, NonLeafTree<T, C>, NonLeafBlock<T, C>, C>, NonLeaf<T>
+{
   constructor(
     readonly context: ListContext,
     readonly left: NonLeafBlock<T, C>,
@@ -203,9 +204,8 @@ export class NonLeafTree<T, C extends Block<T, C>>
       return this.right.dropInternal(rightAmount);
     }
 
-    const [newMiddle, upLeft, inUpLeft] = this.middle.dropInternal(
-      middleAmount
-    );
+    const [newMiddle, upLeft, inUpLeft] =
+      this.middle.dropInternal(middleAmount);
     const newSelf = this.copy(upLeft, undefined, newMiddle)._normalize();
 
     return newSelf.dropInternal(inUpLeft);

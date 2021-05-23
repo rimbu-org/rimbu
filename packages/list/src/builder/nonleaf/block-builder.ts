@@ -10,7 +10,8 @@ import {
   NonLeafBuilder,
 } from '../../list-custom';
 export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
-  implements BlockBuilder<T, C> {
+  implements BlockBuilder<T, C>
+{
   constructor(
     readonly context: ListContext,
     readonly level: number,

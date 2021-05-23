@@ -14,7 +14,8 @@ export class OrderedSetEmpty<
     TpG extends CustomBase.WithElem<Tp, T> = CustomBase.WithElem<Tp, T>
   >
   extends CustomBase.EmptyBase
-  implements OrderedSetBase<T, Tp> {
+  implements OrderedSetBase<T, Tp>
+{
   constructor(readonly context: CustomBase.WithElem<Tp, T>['context']) {
     super();
   }

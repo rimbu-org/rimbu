@@ -13,7 +13,8 @@ import { Hasher, HashMap } from '../internal';
 
 export class HashMapContext<UK>
   extends CustomBase.RMapBase.ContextBase<UK, HashMap.Types>
-  implements HashMap.Context<UK> {
+  implements HashMap.Context<UK>
+{
   constructor(
     readonly hasher: Hasher<UK>,
     readonly eq: Eq<UK>,

@@ -35,11 +35,8 @@ export interface ArrowValuedGraphBase<
 }
 
 export namespace ArrowValuedGraphBase {
-  type NonEmptyBase<
-    N,
-    V,
-    Tp extends ArrowValuedGraphBase.Types
-  > = ValuedGraphBase.NonEmpty<N, V, Tp> & ArrowValuedGraphBase<N, V, Tp>;
+  type NonEmptyBase<N, V, Tp extends ArrowValuedGraphBase.Types> =
+    ValuedGraphBase.NonEmpty<N, V, Tp> & ArrowValuedGraphBase<N, V, Tp>;
 
   export interface NonEmpty<
     N,

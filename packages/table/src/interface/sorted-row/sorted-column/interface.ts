@@ -86,10 +86,8 @@ function createContext<UR, UC>(options?: {
   );
 }
 
-const _defaultContext: SortedTableSortedColumn.Context<
-  any,
-  any
-> = createContext();
+const _defaultContext: SortedTableSortedColumn.Context<any, any> =
+  createContext();
 
 const _contextHelpers = {
   /**

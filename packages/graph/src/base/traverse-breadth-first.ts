@@ -55,9 +55,8 @@ class DirectedGraphBreadthFirstIterable<
       const targetNode = result[1];
 
       if (this.addVisitedNode(targetNode)) {
-        const targetConnectionStream = this.graph.getConnectionStreamFrom(
-          targetNode
-        );
+        const targetConnectionStream =
+          this.graph.getConnectionStreamFrom(targetNode);
 
         this.nextIterators.push(
           targetConnectionStream[Symbol.iterator]() as FastIterator<

@@ -13,7 +13,8 @@ import { BiMap } from '../internal';
 
 export class BiMapEmpty<K = any, V = any>
   extends CustomBase.EmptyBase
-  implements BiMap<K, V> {
+  implements BiMap<K, V>
+{
   constructor(readonly context: BiMapContext<K, V>) {
     super();
   }
@@ -120,7 +121,8 @@ export class BiMapEmpty<K = any, V = any>
 
 export class BiMapNonEmptyImpl<K, V>
   extends CustomBase.NonEmptyBase<readonly [K, V]>
-  implements BiMap.NonEmpty<K, V> {
+  implements BiMap.NonEmpty<K, V>
+{
   constructor(
     readonly context: BiMapContext<K, V>,
     readonly keyValueMap: RMap.NonEmpty<K, V>,
@@ -222,14 +224,16 @@ export class BiMapNonEmptyImpl<K, V>
       return this.copy(newKeyValueMap, newValueKeyMap);
     }
 
-    const newKeyValueMap = (undefined === removeValueResult
-      ? this.keyValueMap
-      : this.keyValueMap.removeKey(removeValueResult[1])
+    const newKeyValueMap = (
+      undefined === removeValueResult
+        ? this.keyValueMap
+        : this.keyValueMap.removeKey(removeValueResult[1])
     ).addEntry(entry);
 
-    const newValueKeyMap = (undefined === removeKeyResult
-      ? this.valueKeyMap
-      : this.valueKeyMap.removeKey(removeKeyResult[1])
+    const newValueKeyMap = (
+      undefined === removeKeyResult
+        ? this.valueKeyMap
+        : this.valueKeyMap.removeKey(removeKeyResult[1])
     ).set(value, key);
 
     return this.copy(newKeyValueMap, newValueKeyMap);

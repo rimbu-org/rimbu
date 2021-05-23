@@ -13,7 +13,8 @@ import {
 
 export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>
   extends TreeBuilderBase<T, C>
-  implements BuilderBase<T, C> {
+  implements BuilderBase<T, C>
+{
   constructor(
     readonly context: ListContext,
     readonly level: number,

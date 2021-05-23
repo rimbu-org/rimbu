@@ -13,7 +13,8 @@ import { Hasher, HashSet } from '../internal';
 
 export class HashSetContext<UT>
   extends CustomBase.RSetBase.ContextBase<UT, HashSet.Types>
-  implements HashSet.Context<UT> {
+  implements HashSet.Context<UT>
+{
   constructor(
     readonly hasher: Hasher<UT>,
     readonly eq: Eq<UT>,
@@ -75,7 +76,7 @@ export class HashSetContext<UT>
     level: number
   ): HashSetBlock<UT> {
     return new HashSetBlock(
-      (this as unknown) as HashSetContext<UT>,
+      this as unknown as HashSetContext<UT>,
       entries,
       entrySets,
       size,
@@ -84,9 +85,6 @@ export class HashSetContext<UT>
   }
 
   collision(entries: List.NonEmpty<UT>): HashSetCollision<UT> {
-    return new HashSetCollision(
-      (this as unknown) as HashSetContext<UT>,
-      entries
-    );
+    return new HashSetCollision(this as unknown as HashSetContext<UT>, entries);
   }
 }

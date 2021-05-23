@@ -18,7 +18,8 @@ const _emptyObject = {};
 
 export abstract class ListNonEmptyBase<T>
   extends CustomBase.NonEmptyBase<T>
-  implements List.NonEmpty<T> {
+  implements List.NonEmpty<T>
+{
   abstract context: ListContext;
   abstract readonly length: number;
   abstract stream(reversed?: boolean): Stream.NonEmpty<T>;
@@ -225,7 +226,7 @@ export abstract class ListNonEmptyBase<T>
   }
 
   unzip<L extends number>(length: L): any {
-    const streams = (Stream.from(this).unzip(length) as any) as Stream<any>[];
+    const streams = Stream.from(this).unzip(length) as any as Stream<any>[];
 
     return Stream.from(streams).mapPure(this.context.from);
   }

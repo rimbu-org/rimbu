@@ -14,11 +14,8 @@ export interface EdgeValuedGraphBase<
 }
 
 export namespace EdgeValuedGraphBase {
-  type NonEmptyBase<
-    N,
-    V,
-    Tp extends EdgeValuedGraphBase.Types
-  > = ValuedGraphBase.NonEmpty<N, V, Tp> & EdgeValuedGraphBase<N, V, Tp>;
+  type NonEmptyBase<N, V, Tp extends EdgeValuedGraphBase.Types> =
+    ValuedGraphBase.NonEmpty<N, V, Tp> & EdgeValuedGraphBase<N, V, Tp>;
 
   export interface NonEmpty<
     N,

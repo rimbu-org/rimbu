@@ -35,7 +35,7 @@ export abstract class StreamBase<T> implements Stream<T> {
   }
 
   assumeNonEmpty(): Stream.NonEmpty<T> {
-    return (this as unknown) as Stream.NonEmpty<T>;
+    return this as unknown as Stream.NonEmpty<T>;
   }
 
   asNormal(): Stream<T> {
@@ -465,9 +465,10 @@ export abstract class StreamBase<T> implements Stream<T> {
     const state = reducers.map((d: any): unknown => Reducer.Init(d.init));
 
     const iteratorsDone: ((() => void) | null)[] = state.map(
-      (_: any, i: any): (() => void) => (): void => {
-        iteratorsDone[i] = null;
-      }
+      (_: any, i: any): (() => void) =>
+        (): void => {
+          iteratorsDone[i] = null;
+        }
     );
 
     const iter = this[Symbol.iterator]();
@@ -560,7 +561,7 @@ export abstract class StreamBase<T> implements Stream<T> {
     return this.zipAllWith(
       fillValue,
       toTuple,
-      ...((streams as any) as [any, ...any[]])
+      ...(streams as any as [any, ...any[]])
     );
   }
 
@@ -1688,9 +1689,10 @@ class ReduceAllIterator<I, R> extends FastIterator.Base<R> {
   index = 0;
   state = this.reducers.map((d: any): unknown => Reducer.Init(d.init));
   done: ((() => void) | null)[] = this.state.map(
-    (_: any, i: any): (() => void) => (): void => {
-      this.done[i] = null;
-    }
+    (_: any, i: any): (() => void) =>
+      (): void => {
+        this.done[i] = null;
+      }
   );
   isDone = false;
 
@@ -1719,9 +1721,9 @@ class ReduceAllIterator<I, R> extends FastIterator.Base<R> {
     if (!anyNotDone) return OptLazy(otherwise) as O;
     this.index++;
 
-    return (this.state.map((s, i) =>
+    return this.state.map((s, i) =>
       reducers[i].stateToResult(s)
-    ) as unknown) as O;
+    ) as unknown as O;
   }
 }
 

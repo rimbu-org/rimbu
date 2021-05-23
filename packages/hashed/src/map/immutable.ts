@@ -16,7 +16,8 @@ import { HashMap } from '../internal';
 
 export class HashMapEmpty<K = any, V = any>
   extends CustomBase.EmptyBase
-  implements HashMap<K, V> {
+  implements HashMap<K, V>
+{
   constructor(readonly context: HashMapContext<K>) {
     super();
   }
@@ -111,7 +112,7 @@ export class HashMapEmpty<K = any, V = any>
     return this.context.mergeAll(
       fillValue,
       this,
-      ...((sources as any) as [any, ...any[]])
+      ...(sources as any as [any, ...any[]])
     );
   }
 
@@ -128,14 +129,14 @@ export class HashMapEmpty<K = any, V = any>
       fillValue,
       mergeFun as any,
       this,
-      ...((sources as any) as [any, ...any[]])
+      ...(sources as any as [any, ...any[]])
     );
   }
 
   merge<I extends readonly [unknown, ...unknown[]]>(
     ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
   ): any {
-    return this.context.merge(this, ...((sources as any) as any[]));
+    return this.context.merge(this, ...(sources as any as any[]));
   }
 
   mergeWith<R, K, I extends readonly [unknown, ...unknown[]]>(
@@ -145,14 +146,15 @@ export class HashMapEmpty<K = any, V = any>
     return this.context.mergeWith(
       mergeFun as any,
       this as any,
-      ...((sources as any) as [any, ...any[]])
+      ...(sources as any as [any, ...any[]])
     );
   }
 }
 
 export abstract class HashMapNonEmptyBase<K, V>
   extends CustomBase.NonEmptyBase<readonly [K, V]>
-  implements HashMap.NonEmpty<K, V> {
+  implements HashMap.NonEmpty<K, V>
+{
   abstract readonly context: HashMapContext<K>;
   abstract readonly size: number;
   abstract get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O;
@@ -291,7 +293,7 @@ export abstract class HashMapNonEmptyBase<K, V>
     return this.context.mergeAll(
       fillValue,
       this,
-      ...((sources as any) as [any, ...any[]])
+      ...(sources as any as [any, ...any[]])
     );
   }
 
@@ -308,14 +310,14 @@ export abstract class HashMapNonEmptyBase<K, V>
       fillValue,
       mergeFun as any,
       this,
-      ...((sources as any) as [any, ...any[]])
+      ...(sources as any as [any, ...any[]])
     );
   }
 
   merge<I extends readonly [unknown, ...unknown[]]>(
     ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
   ): any {
-    return this.context.merge(this, ...((sources as any) as any[]));
+    return this.context.merge(this, ...(sources as any as any[]));
   }
 
   mergeWith<R, K, I extends readonly [unknown, ...unknown[]]>(
@@ -325,7 +327,7 @@ export abstract class HashMapNonEmptyBase<K, V>
     return this.context.mergeWith(
       mergeFun as any,
       this as any,
-      ...((sources as any) as [any, ...any[]])
+      ...(sources as any as [any, ...any[]])
     );
   }
 }

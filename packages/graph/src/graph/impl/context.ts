@@ -18,7 +18,8 @@ export class GraphContext<
   TT extends string,
   Dir extends boolean,
   Tp extends GraphTypesContextImpl
-> implements GraphBase.Context<UN, Tp> {
+> implements GraphBase.Context<UN, Tp>
+{
   constructor(
     readonly isDirected: Dir,
     readonly typeTag: TT,

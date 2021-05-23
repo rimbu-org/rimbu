@@ -442,7 +442,8 @@ export namespace RSetBase {
   export abstract class ContextBase<
     UT,
     Tp extends RSetBase.Types = RSetBase.Types
-  > implements RSetBase.Context<UT, Tp> {
+  > implements RSetBase.Context<UT, Tp>
+  {
     abstract readonly typeTag: string;
     abstract readonly _empty: (Tp & Elem<any>)['normal'];
 

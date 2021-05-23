@@ -44,7 +44,7 @@
     "bundle:module": "tsc --p tsconfig.module.json",
     "bundle:types": "tsc --p tsconfig.types.json",
     "clean": "rimraf dist",
-    "format": "prettier --write \"**/*.{ts,js,json,md}\"",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
     "lint": "eslint src",
     "precommit": "lint-staged",
     "test": "jest",

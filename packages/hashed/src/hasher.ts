@@ -245,9 +245,8 @@ export namespace Hasher {
     };
   }
 
-  const _streamSourceAnyHasher: Hasher<
-    StreamSource<any>
-  > = createStreamSourceHasher(anyFlatHasher(), MAX_STEP_BITS);
+  const _streamSourceAnyHasher: Hasher<StreamSource<any>> =
+    createStreamSourceHasher(anyFlatHasher(), MAX_STEP_BITS);
 
   /**
    * Returns a Hasher instance that hashes any StreamSource limited to a certain amount

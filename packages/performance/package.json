@@ -21,7 +21,7 @@
     "directory": "packages/performance"
   },
   "scripts": {
-    "format": "prettier --write \"**/*.{ts,js,json,md}\"",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
     "lint": "eslint src",
     "precommit": "lint-staged",
     "start": "NODE_OPTIONS=--max-old-space-size=8192 npx ts-node -O '{\"module\":\"commonjs\"}' src/benchmark.ts",

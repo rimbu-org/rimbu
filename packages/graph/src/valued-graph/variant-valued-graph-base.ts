@@ -42,11 +42,8 @@ export interface VariantValuedGraphBase<
 }
 
 export namespace VariantValuedGraphBase {
-  type NonEmptyBase<
-    N,
-    V,
-    Tp extends VariantValuedGraphBase.Types
-  > = VariantGraphBase.NonEmpty<N, V, Tp> & VariantValuedGraphBase<N, V, Tp>;
+  type NonEmptyBase<N, V, Tp extends VariantValuedGraphBase.Types> =
+    VariantGraphBase.NonEmpty<N, V, Tp> & VariantValuedGraphBase<N, V, Tp>;
 
   export interface NonEmpty<
     N,
