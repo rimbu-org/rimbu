@@ -8,3 +8,5 @@ coverage
 benchmark
 
 yarn-error.log
+
+.eslintcache
