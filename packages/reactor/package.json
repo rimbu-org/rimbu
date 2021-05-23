@@ -44,15 +44,8 @@
     "clean": "rimraf dist",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
     "lint": "eslint src",
-    "precommit": "lint-staged",
     "test": "jest",
     "typecheck": "tsc"
-  },
-  "lint-staged": {
-    "*": [
-      "yarn format:single",
-      "eslint"
-    ]
   },
   "sideEffects": false,
   "devDependencies": {

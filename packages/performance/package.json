@@ -23,15 +23,8 @@
   "scripts": {
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
     "lint": "eslint src",
-    "precommit": "lint-staged",
     "start": "NODE_OPTIONS=--max-old-space-size=8192 npx ts-node -O '{\"module\":\"commonjs\"}' src/benchmark.ts",
     "start:single": "NODE_OPTIONS=--max-old-space-size=8192 npx ts-node -O '{\"module\":\"commonjs\"}'"
-  },
-  "lint-staged": {
-    "*": [
-      "yarn format:single",
-      "eslint"
-    ]
   },
   "sideEffects": false,
   "devDependencies": {
