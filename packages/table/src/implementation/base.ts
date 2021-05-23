@@ -879,7 +879,9 @@ export class TableContext<UR, UC, N extends string, Tp extends ContextImplTypes>
     readonly columnContext: CB.WithRow<Tp, UR, UC, any>['columnContext']
   ) {}
 
-  readonly _types!: Tp;
+  get _types(): Tp {
+    return undefined as any;
+  }
 
   readonly _empty = new TableEmpty<UR, UC, any, Tp>(this) as CB.WithRow<
     Tp,

@@ -33,7 +33,10 @@ export class BiMultiMapContext<
     >['valueKeyMultiMapContext']
   ) {}
 
-  readonly _types!: Tp;
+  get _types(): Tp {
+    return undefined as any;
+  }
+
   readonly _empty = new BiMultiMapEmpty<UK, UV, Tp>(this) as CB.WithKeyValue<
     Tp,
     UK,

@@ -453,7 +453,9 @@ export namespace RSetBase {
     ): source is WithElem<Tp, T>['nonEmpty'];
     abstract builder<T extends UT>(): WithElem<Tp, T>['builder'];
 
-    readonly _types!: Tp;
+    get _types(): Tp {
+      return undefined as any;
+    }
 
     empty = <T extends UT>(): WithElem<Tp, T>['normal'] => {
       return this._empty;

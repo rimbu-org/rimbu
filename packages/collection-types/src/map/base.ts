@@ -905,7 +905,9 @@ export namespace RMapBase {
     ): source is WithKeyValue<Tp, K, V>['nonEmpty'];
     abstract builder: <K extends UK, V>() => WithKeyValue<Tp, K, V>['builder'];
 
-    readonly _types!: Tp;
+    get _types(): Tp {
+      return undefined as any;
+    }
 
     empty = <K extends UK, V>(): WithKeyValue<Tp, K, V>['normal'] => {
       return this._empty;

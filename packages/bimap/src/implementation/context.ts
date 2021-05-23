@@ -12,8 +12,14 @@ export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>
     readonly valueKeyContext: RMap.Context<UV>
   ) {}
 
-  readonly typeTag = 'BiMap';
-  readonly _types!: Tp;
+  get typeTag(): 'BiMap' {
+    return 'BiMap';
+  }
+
+  get _types(): Tp {
+    return undefined as any;
+  }
+
   readonly _empty: BiMap<any, any> = new BiMapEmpty<any, any>(this);
 
   empty = <K extends UK, V extends UV>(): BiMap<K, V> => {

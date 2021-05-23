@@ -600,7 +600,9 @@ export class MultiSetContext<UT, N extends string, Tp extends ContextImplTypes>
     readonly countMapContext: (Tp & CB.Elem<UT>)['countMapContext']
   ) {}
 
-  readonly _types!: Tp;
+  get _types(): Tp {
+    return undefined as any;
+  }
 
   isValidElem(elem: any): elem is UT {
     return this.countMapContext.isValidKey(elem);
