@@ -26,7 +26,6 @@
     "format:root": "yarn format:single !packages",
     "format:single": "prettier --write --ext .ts,.js,.json,.md",
     "lint": "lerna run lint --parallel",
-    "precommit": "yarn format && yarn lint",
     "prepare": "husky install",
     "postinstall": "husky install",
     "prerelease": "yarn typecheck && yarn test:types && yarn test && yarn test:random",
@@ -37,16 +36,9 @@
     "test:random": "lerna run test:random",
     "typecheck": "lerna run typecheck"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "yarn precommit"
-    }
-  },
   "lint-staged": {
-    "**/*.{ts,tsx,js,json,md}": [
-      "eslint --fix",
-      "prettier --write"
-    ]
+    "*.{ts,tsx,js,json,md}": "eslint -c ./config/.eslintrc.json --cache --fix",
+    "*.--parallel": "prettier --write"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.22.0",
