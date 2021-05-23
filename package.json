@@ -22,7 +22,7 @@
     "bootstrap": "lerna bootstrap",
     "build": "lerna run build",
     "docsify": "docsify serve docs",
-    "format": "yarn format:root && lerna run format",
+    "format": "yarn format:root && lerna run format --parallel",
     "format:root": "prettier --write \"*.{ts,tsx,js,json,md}\" \"{config,docs}/**/*.{ts,tsx,js,json,md}\"",
     "lint": "lerna run lint --parallel",
     "prepare": "husky install",
