@@ -78,7 +78,7 @@ export interface GraphConnectNonEmpty<N, V, Tp extends VariantGraphBase.Types>
   ) => WithGraphValues<Tp, N, V>['nonEmpty'];
 }
 
-export abstract class GraphEmptyBase extends CustomBase.EmptyBase {
+export abstract class GraphEmptyBase<TSelf> extends CustomBase.EmptyBase {
   get nodeSize(): 0 {
     return 0;
   }
@@ -111,12 +111,12 @@ export abstract class GraphEmptyBase extends CustomBase.EmptyBase {
     return false;
   }
 
-  removeNode(): any {
-    return this;
+  removeNode(): TSelf {
+    return this as any;
   }
 
-  removeNodes(): any {
-    return this;
+  removeNodes(): TSelf {
+    return this as any;
   }
 
   getConnectionStreamFrom(): Stream<any> {
@@ -127,19 +127,19 @@ export abstract class GraphEmptyBase extends CustomBase.EmptyBase {
     return Stream.empty();
   }
 
-  disconnect(): any {
-    return this;
+  disconnect(): TSelf {
+    return this as any;
   }
 
-  disconnectAll(): any {
-    return this;
+  disconnectAll(): TSelf {
+    return this as any;
   }
 
-  removeUnconnectedNodes(): any {
-    return this;
+  removeUnconnectedNodes(): TSelf {
+    return this as any;
   }
 
-  extendValues(): any {
-    return this;
+  extendValues(): TSelf {
+    return this as any;
   }
 }

@@ -75,7 +75,9 @@ export class GraphContext<
     return builder.build();
   };
 
-  of = <N>(...values: ArrayNonEmpty<GraphElement<N>>): any => {
+  of = <N>(
+    ...values: ArrayNonEmpty<GraphElement<N>>
+  ): N extends UN ? WithGraphValues<Tp, N, unknown>['nonEmpty'] : never => {
     return this.from(values).assumeNonEmpty();
   };
 
