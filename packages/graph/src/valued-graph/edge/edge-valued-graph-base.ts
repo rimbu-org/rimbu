@@ -36,12 +36,12 @@ export namespace EdgeValuedGraphBase {
     N,
     V,
     Tp extends EdgeValuedGraphBase.Types = EdgeValuedGraphBase.Types
-  > = ValuedGraphBase.Builder<N, V, Tp>
+  > = ValuedGraphBase.Builder<N, V, Tp>;
 
   export type Context<
     UN,
     Tp extends EdgeValuedGraphBase.Types = EdgeValuedGraphBase.Types
-  > = ValuedGraphBase.Context<UN, Tp>
+  > = ValuedGraphBase.Context<UN, Tp>;
 
   export interface Types extends ValuedGraphBase.Types {
     normal: EdgeValuedGraphBase<this['_N'], this['_V']>;

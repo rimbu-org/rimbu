@@ -3,6 +3,7 @@
   "include": ["src"],
   "rootDir": "./src",
   "compilerOptions": {
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "noEmit": true
   }
 }

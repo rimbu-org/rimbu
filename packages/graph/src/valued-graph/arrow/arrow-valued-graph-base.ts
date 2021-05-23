@@ -57,12 +57,12 @@ export namespace ArrowValuedGraphBase {
     N,
     V,
     Tp extends ArrowValuedGraphBase.Types = ArrowValuedGraphBase.Types
-  > = ValuedGraphBase.Builder<N, V, Tp>
+  > = ValuedGraphBase.Builder<N, V, Tp>;
 
   export type Context<
     UN,
     Tp extends ArrowValuedGraphBase.Types = ArrowValuedGraphBase.Types
-  > = ValuedGraphBase.Context<UN, Tp>
+  > = ValuedGraphBase.Context<UN, Tp>;
 
   export interface Types extends ValuedGraphBase.Types {
     normal: ArrowValuedGraphBase<this['_N'], this['_V']>;

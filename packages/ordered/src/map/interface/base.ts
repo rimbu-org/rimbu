@@ -60,7 +60,7 @@ export namespace OrderedMapBase {
     K,
     V,
     Tp extends OrderedMapBase.Types = OrderedMapBase.Types
-  > = CustomBase.RMapBase.Builder<K, V, Tp>
+  > = CustomBase.RMapBase.Builder<K, V, Tp>;
 
   export interface Context<
     UK,

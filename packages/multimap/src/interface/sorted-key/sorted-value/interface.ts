@@ -17,7 +17,11 @@ import { MultiMapBase, MultiMapContext } from '../../../multimap-custom';
  * const m1 = SortedMultiMapSortedValue.empty<number, string>()
  * const m2 = SortedMultiMapSortedValue.of([1, 'a'], [1, 'b'], [2, 'a'])
  */
-export type SortedMultiMapSortedValue<K, V> = MultiMapBase<K, V, SortedMultiMapSortedValue.Types>
+export type SortedMultiMapSortedValue<K, V> = MultiMapBase<
+  K,
+  V,
+  SortedMultiMapSortedValue.Types
+>;
 
 export namespace SortedMultiMapSortedValue {
   type NonEmptyBase<K, V> = MultiMapBase.NonEmpty<
@@ -68,7 +72,11 @@ export namespace SortedMultiMapSortedValue {
    * @typeparam K - the key type
    * @typeparam V - the value type
    */
-  export type Builder<K, V> = MultiMapBase.Builder<K, V, SortedMultiMapSortedValue.Types>
+  export type Builder<K, V> = MultiMapBase.Builder<
+    K,
+    V,
+    SortedMultiMapSortedValue.Types
+  >;
 
   export interface Types extends MultiMapBase.Types {
     normal: SortedMultiMapSortedValue<this['_K'], this['_V']>;
