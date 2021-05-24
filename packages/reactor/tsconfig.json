@@ -8,6 +8,8 @@
     "module": "esnext",
     "target": "esnext",
     "lib": ["esnext", "dom"],
-    "noEmit": true
+    "noEmit": true,
+    // needed again for tsd
+    "noStrictGenericChecks": true
   }
 }

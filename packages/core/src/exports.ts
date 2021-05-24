@@ -16,19 +16,21 @@ export {
   ArrowGraph,
   ArrowGraphHashed,
   ArrowGraphSorted,
-  ArrowValuedGraph,
-  ArrowValuedGraphHashed,
-  ArrowValuedGraphSorted,
   EdgeGraph,
   EdgeGraphHashed,
   EdgeGraphSorted,
+  Graph,
+  VariantGraph,
+} from '@rimbu/graph-non-valued';
+export {
+  ArrowValuedGraph,
+  ArrowValuedGraphHashed,
+  ArrowValuedGraphSorted,
   EdgeValuedGraph,
   EdgeValuedGraphHashed,
   EdgeValuedGraphSorted,
-  Graph,
-  VariantGraph,
   VariantValuedGraph,
-} from '@rimbu/graph';
+} from '@rimbu/graph-valued';
 export { Hasher, HashMap, HashSet } from '@rimbu/hashed';
 export { List } from '@rimbu/list';
 export {
