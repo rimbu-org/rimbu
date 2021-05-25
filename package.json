@@ -28,7 +28,6 @@
     "format:root-base": "prettier \"*.{ts,tsx,js,json,md}\" \"{config,docs}/**/*.{ts,tsx,js,json,md}\"",
     "format:root-check": "yarn format:root-base --check",
     "lint": "lerna run lint --parallel",
-    "prepare": "husky install",
     "postinstall": "husky install",
     "prerelease": "yarn typecheck && yarn test:types && yarn test && yarn test:random",
     "publish-all": "lerna publish",
