@@ -6,7 +6,7 @@ import {
   GraphEmptyBase,
   ValuedGraphBase,
   ValuedGraphTypesContextImpl,
-  WithGraphValues
+  WithGraphValues,
 } from '../../graph-custom';
 
 export class ValuedGraphEmpty<
