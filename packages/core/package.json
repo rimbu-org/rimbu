@@ -83,6 +83,8 @@
     "@rimbu/ordered": "^0.5.1",
     "@rimbu/sorted": "^0.5.1",
     "@rimbu/stream": "^0.5.1",
-    "@rimbu/table": "^0.5.1"
+    "@rimbu/table": "^0.5.1",
+    "@rimbu/table-hash-row": "^0.5.1",
+    "@rimbu/table-sorted-row": "^0.5.1"
   }
 }

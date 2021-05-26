@@ -2,7 +2,7 @@ import { RMap } from '@rimbu/collection-types';
 import { OmitStrong } from '@rimbu/common';
 import { SortedMap } from '@rimbu/sorted';
 import { Streamable } from '@rimbu/stream';
-import { TableBase, TableContext } from '../../../table-custom';
+import { TableCustom } from '@rimbu/table';
 
 /**
  * A type-invariant immutable Table of row key type R, column key type C, and value type V.
@@ -17,7 +17,7 @@ import { TableBase, TableContext } from '../../../table-custom';
  * const t2 = SortedTableSortedColumn.of([1, 'a', true], [2, 'a', false])
  */
 export interface SortedTableSortedColumn<R, C, V>
-  extends TableBase<R, C, V, SortedTableSortedColumn.Types> {}
+  extends TableCustom.TableBase<R, C, V, SortedTableSortedColumn.Types> {}
 
 export namespace SortedTableSortedColumn {
   /**
@@ -33,18 +33,32 @@ export namespace SortedTableSortedColumn {
    * const t2 = SortedTableSortedColumn.of([1, 'a', true], [2, 'a', false])
    */
   export interface NonEmpty<R, C, V>
-    extends TableBase.NonEmpty<R, C, V, SortedTableSortedColumn.Types>,
+    extends TableCustom.TableBase.NonEmpty<
+        R,
+        C,
+        V,
+        SortedTableSortedColumn.Types
+      >,
       Streamable.NonEmpty<[R, C, V]> {}
 
   export interface Context<UR, UC>
-    extends TableBase.Context<UR, UC, SortedTableSortedColumn.Types> {
+    extends TableCustom.TableBase.Context<
+      UR,
+      UC,
+      SortedTableSortedColumn.Types
+    > {
     readonly typeTag: 'SortedTableSortedColumn';
   }
 
   export interface Builder<R, C, V>
-    extends TableBase.Builder<R, C, V, SortedTableSortedColumn.Types> {}
+    extends TableCustom.TableBase.Builder<
+      R,
+      C,
+      V,
+      SortedTableSortedColumn.Types
+    > {}
 
-  export interface Types extends TableBase.Types {
+  export interface Types extends TableCustom.TableBase.Types {
     normal: SortedTableSortedColumn<this['_R'], this['_C'], this['_V']>;
     nonEmpty: SortedTableSortedColumn.NonEmpty<
       this['_R'],
@@ -72,14 +86,24 @@ export namespace SortedTableSortedColumn {
 }
 
 interface TypesImpl extends SortedTableSortedColumn.Types {
-  context: TableContext<this['_R'], this['_C'], 'SortedTableSortedColumn', any>;
+  context: TableCustom.TableContext<
+    this['_R'],
+    this['_C'],
+    'SortedTableSortedColumn',
+    any
+  >;
 }
 
 function createContext<UR, UC>(options?: {
   rowContext?: SortedMap.Context<UR>;
   columnContext?: SortedMap.Context<UC>;
 }): SortedTableSortedColumn.Context<UR, UC> {
-  return new TableContext<UR, UC, 'SortedTableSortedColumn', TypesImpl>(
+  return new TableCustom.TableContext<
+    UR,
+    UC,
+    'SortedTableSortedColumn',
+    TypesImpl
+  >(
     'SortedTableSortedColumn',
     options?.rowContext ?? SortedMap.defaultContext(),
     options?.columnContext ?? SortedMap.defaultContext()

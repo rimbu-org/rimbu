@@ -3,7 +3,7 @@ import { OmitStrong } from '@rimbu/common';
 import { HashMap } from '@rimbu/hashed';
 import { SortedMap } from '@rimbu/sorted';
 import { Streamable } from '@rimbu/stream';
-import { TableBase, TableContext } from '../../../table-custom';
+import { TableCustom } from '@rimbu/table';
 
 /**
  * A type-invariant immutable Table of row key type R, column key type C, and value type V.
@@ -18,7 +18,7 @@ import { TableBase, TableContext } from '../../../table-custom';
  * const t2 = SortedTableHashColumn.of([1, 'a', true], [2, 'a', false])
  */
 export interface SortedTableHashColumn<R, C, V>
-  extends TableBase<R, C, V, SortedTableHashColumn.Types> {}
+  extends TableCustom.TableBase<R, C, V, SortedTableHashColumn.Types> {}
 
 export namespace SortedTableHashColumn {
   /**
@@ -34,18 +34,28 @@ export namespace SortedTableHashColumn {
    * const t2 = SortedTableHashColumn.of([1, 'a', true], [2, 'a', false])
    */
   export interface NonEmpty<R, C, V>
-    extends TableBase.NonEmpty<R, C, V, SortedTableHashColumn.Types>,
+    extends TableCustom.TableBase.NonEmpty<
+        R,
+        C,
+        V,
+        SortedTableHashColumn.Types
+      >,
       Streamable.NonEmpty<[R, C, V]> {}
 
   export interface Context<UR, UC>
-    extends TableBase.Context<UR, UC, SortedTableHashColumn.Types> {
+    extends TableCustom.TableBase.Context<UR, UC, SortedTableHashColumn.Types> {
     readonly typeTag: 'SortedTableHashColumn';
   }
 
   export interface Builder<R, C, V>
-    extends TableBase.Builder<R, C, V, SortedTableHashColumn.Types> {}
+    extends TableCustom.TableBase.Builder<
+      R,
+      C,
+      V,
+      SortedTableHashColumn.Types
+    > {}
 
-  export interface Types extends TableBase.Types {
+  export interface Types extends TableCustom.TableBase.Types {
     normal: SortedTableHashColumn<this['_R'], this['_C'], this['_V']>;
     nonEmpty: SortedTableHashColumn.NonEmpty<
       this['_R'],
@@ -69,14 +79,24 @@ export namespace SortedTableHashColumn {
 }
 
 interface TypesImpl extends SortedTableHashColumn.Types {
-  context: TableContext<this['_R'], this['_C'], 'SortedTableHashColumn', any>;
+  context: TableCustom.TableContext<
+    this['_R'],
+    this['_C'],
+    'SortedTableHashColumn',
+    any
+  >;
 }
 
 function createContext<UR, UC>(options?: {
   rowContext?: SortedMap.Context<UR>;
   columnContext?: HashMap.Context<UC>;
 }): SortedTableHashColumn.Context<UR, UC> {
-  return new TableContext<UR, UC, 'SortedTableHashColumn', TypesImpl>(
+  return new TableCustom.TableContext<
+    UR,
+    UC,
+    'SortedTableHashColumn',
+    TypesImpl
+  >(
     'SortedTableHashColumn',
     options?.rowContext ?? SortedMap.defaultContext(),
     options?.columnContext ?? HashMap.defaultContext()

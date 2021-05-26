@@ -1,5 +1,5 @@
+import { runTableTestsWith } from '@rimbu/table/test-utils/table-standard-test';
 import { SortedTableSortedColumn } from '../src';
-import { runTableTestsWith } from './table-standard-test';
 
 runTableTestsWith(
   'SortedTableSortedColumn default',

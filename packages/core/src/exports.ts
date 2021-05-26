@@ -59,11 +59,12 @@ export {
 } from '@rimbu/ordered';
 export { SortedMap, SortedSet } from '@rimbu/sorted';
 export { Stream, Streamable, StreamSource } from '@rimbu/stream';
+export { Table, VariantTable } from '@rimbu/table';
 export {
   HashTableHashColumn,
   HashTableSortedColumn,
+} from '@rimbu/table-hash-row';
+export {
   SortedTableHashColumn,
   SortedTableSortedColumn,
-  Table,
-  VariantTable,
-} from '@rimbu/table';
+} from '@rimbu/table-sorted-row';

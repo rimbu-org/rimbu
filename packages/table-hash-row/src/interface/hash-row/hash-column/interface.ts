@@ -2,7 +2,7 @@ import { RMap } from '@rimbu/collection-types';
 import { OmitStrong } from '@rimbu/common';
 import { HashMap } from '@rimbu/hashed';
 import { Streamable } from '@rimbu/stream';
-import { TableBase, TableContext } from '../../../table-custom';
+import { TableCustom } from '@rimbu/table';
 
 /**
  * A type-invariant immutable Table of row key type R, column key type C, and value type V.
@@ -17,7 +17,7 @@ import { TableBase, TableContext } from '../../../table-custom';
  * const t2 = HashTableHashColumn.of([1, 'a', true], [2, 'a', false])
  */
 export interface HashTableHashColumn<R, C, V>
-  extends TableBase<R, C, V, HashTableHashColumn.Types> {}
+  extends TableCustom.TableBase<R, C, V, HashTableHashColumn.Types> {}
 
 export namespace HashTableHashColumn {
   /**
@@ -33,16 +33,16 @@ export namespace HashTableHashColumn {
    * const t2 = HashTableHashColumn.of([1, 'a', true], [2, 'a', false])
    */
   export interface NonEmpty<R, C, V>
-    extends TableBase.NonEmpty<R, C, V, HashTableHashColumn.Types>,
+    extends TableCustom.TableBase.NonEmpty<R, C, V, HashTableHashColumn.Types>,
       Streamable.NonEmpty<[R, C, V]> {}
 
   export interface Context<UR, UC>
-    extends TableBase.Context<UR, UC, HashTableHashColumn.Types> {}
+    extends TableCustom.TableBase.Context<UR, UC, HashTableHashColumn.Types> {}
 
   export interface Builder<R, C, V>
-    extends TableBase.Builder<R, C, V, HashTableHashColumn.Types> {}
+    extends TableCustom.TableBase.Builder<R, C, V, HashTableHashColumn.Types> {}
 
-  export interface Types extends TableBase.Types {
+  export interface Types extends TableCustom.TableBase.Types {
     normal: HashTableHashColumn<this['_R'], this['_C'], this['_V']>;
     nonEmpty: HashTableHashColumn.NonEmpty<this['_R'], this['_C'], this['_V']>;
     row: HashMap<this['_C'], this['_V']>;
@@ -62,14 +62,19 @@ export namespace HashTableHashColumn {
 }
 
 interface TypesImpl extends HashTableHashColumn.Types {
-  context: TableContext<this['_R'], this['_C'], 'HashTableHashColumn', any>;
+  context: TableCustom.TableContext<
+    this['_R'],
+    this['_C'],
+    'HashTableHashColumn',
+    any
+  >;
 }
 
 function createContext<UR, UC>(options?: {
   rowContext?: HashMap.Context<UR>;
   columnContext?: HashMap.Context<UC>;
 }): HashTableHashColumn.Context<UR, UC> {
-  return new TableContext<UR, UC, 'HashTableHashColumn', TypesImpl>(
+  return new TableCustom.TableContext<UR, UC, 'HashTableHashColumn', TypesImpl>(
     'HashTableHashColumn',
     options?.rowContext ?? HashMap.defaultContext(),
     options?.columnContext ?? HashMap.defaultContext()

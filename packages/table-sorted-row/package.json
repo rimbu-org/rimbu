@@ -1,5 +1,5 @@
 {
-  "name": "@rimbu/table",
+  "name": "@rimbu/table-sorted-row",
   "version": "0.5.1",
   "description": "Immutable spreadsheet-like data structures containing row keys, column keys, and cell values",
   "keywords": [
@@ -50,6 +50,7 @@
     "format:base": "prettier \"**/*.{ts,tsx,js,json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
+    "test": "jest",
     "test:random": "jest --config jest-random.config.json",
     "test:types": "tsd",
     "typecheck": "tsc"
@@ -67,6 +68,7 @@
     "@rimbu/common": "^0.5.1",
     "@rimbu/hashed": "^0.5.1",
     "@rimbu/sorted": "^0.5.1",
-    "@rimbu/stream": "^0.5.1"
+    "@rimbu/stream": "^0.5.1",
+    "@rimbu/table": "^0.5.1"
   }
 }
