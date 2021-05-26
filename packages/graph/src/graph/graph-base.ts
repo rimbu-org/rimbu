@@ -365,16 +365,16 @@ export namespace GraphBase {
   }
 
   export interface Types extends VariantGraphBase.Types {
-    normal: GraphBase<this['_N']>;
-    nonEmpty: GraphBase.NonEmpty<this['_N']>;
-    context: GraphBase.Context<this['_N']>;
-    builder: GraphBase.Builder<this['_N']>;
-    linkMap: RMap<this['_N'], RSet<this['_N']>>;
-    linkMapNonEmpty: RMap.NonEmpty<this['_N'], RSet<this['_N']>>;
-    linkMapContext: RMap.Context<this['_N']>;
-    linkConnectionsContext: RSet.Context<this['_N']>;
-    linkMapBuilder: RMap.Builder<this['_N'], RSet.Builder<this['_N']>>;
-    linkConnectionsBuilder: RSet.Builder<this['_N']>;
-    linkConnections: RSet<this['_N']>;
+    readonly normal: GraphBase<this['_N']>;
+    readonly nonEmpty: GraphBase.NonEmpty<this['_N']>;
+    readonly context: GraphBase.Context<this['_N']>;
+    readonly builder: GraphBase.Builder<this['_N']>;
+    readonly linkMap: RMap<this['_N'], RSet<this['_N']>>;
+    readonly linkMapNonEmpty: RMap.NonEmpty<this['_N'], RSet<this['_N']>>;
+    readonly linkMapContext: RMap.Context<this['_N']>;
+    readonly linkConnectionsContext: RSet.Context<this['_N']>;
+    readonly linkMapBuilder: RMap.Builder<this['_N'], RSet.Builder<this['_N']>>;
+    readonly linkConnectionsBuilder: RSet.Builder<this['_N']>;
+    readonly linkConnections: RSet<this['_N']>;
   }
 }

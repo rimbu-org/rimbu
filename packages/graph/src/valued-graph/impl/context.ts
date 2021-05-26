@@ -5,10 +5,9 @@ import {
   ValuedGraphBuilder,
   ValuedGraphEmpty,
   ValuedGraphNonEmpty,
-  WithGraphValues,
 } from '../../graph-custom';
 import { ValuedGraphElement } from '../../internal';
-
+import { WithGraphValues } from '../../graph-custom';
 export interface ValuedGraphTypesContextImpl extends ValuedGraphBase.Types {
   context: ValuedGraphContext<this['_N'], string, ValuedGraphTypesContextImpl>;
 }
@@ -17,7 +16,8 @@ export class ValuedGraphContext<
   UN,
   TT extends string,
   Tp extends ValuedGraphTypesContextImpl
-> implements ValuedGraphBase.Context<UN, Tp> {
+> implements ValuedGraphBase.Context<UN, Tp>
+{
   constructor(
     readonly isDirected: boolean,
     readonly typeTag: TT,
@@ -29,14 +29,10 @@ export class ValuedGraphContext<
     >['linkConnectionsContext']
   ) {}
 
-  readonly _empty: WithGraphValues<
-    Tp,
-    UN,
-    any
-  >['normal'] = new ValuedGraphEmpty<UN, any, Tp>(
+  readonly _empty: any = new ValuedGraphEmpty<UN, any, Tp>(
     this.isDirected,
     this as any
-  ) as any;
+  );
 
   isNonEmptyInstance(
     source: any
@@ -76,9 +72,7 @@ export class ValuedGraphContext<
     return builder.build();
   };
 
-  of = <N, V>(
-    ...values: ArrayNonEmpty<ValuedGraphElement<N, V>>
-  ): N extends UN ? WithGraphValues<Tp, N, V>['nonEmpty'] : never => {
+  of: any = <N, V>(...values: ArrayNonEmpty<ValuedGraphElement<N, V>>): any => {
     return this.from(values).assumeNonEmpty();
   };
 

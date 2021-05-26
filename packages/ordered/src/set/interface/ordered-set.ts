@@ -1,5 +1,4 @@
-import { RSet } from '@rimbu/collection-types';
-import { RSetBase } from '@rimbu/collection-types/dist/set/base';
+import { RSet, CustomBase } from '@rimbu/collection-types';
 import { List } from '@rimbu/list';
 import { Stream, Streamable } from '@rimbu/stream';
 import {
@@ -29,9 +28,9 @@ export namespace OrderedSet {
     nonEmpty: OrderedSet.NonEmpty<this['_T']>;
     context: OrderedSet.Context<this['_T']>;
     builder: OrderedSet.Builder<this['_T']>;
-    sourceContext: RSetBase.Context<this['_T']>;
-    sourceSet: RSetBase<this['_T']>;
-    sourceSetNonEmpty: RSetBase.NonEmpty<this['_T']>;
+    sourceContext: CustomBase.RSetBase.Context<this['_T']>;
+    sourceSet: CustomBase.RSetBase<this['_T']>;
+    sourceSetNonEmpty: CustomBase.RSetBase.NonEmpty<this['_T']>;
   }
 }
 

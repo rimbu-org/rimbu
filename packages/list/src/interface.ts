@@ -7,6 +7,7 @@ import {
   OptLazy,
   StringNonEmpty,
   SuperOf,
+  ToJSON,
   TraverseState,
   Update,
 } from '@rimbu/common';
@@ -412,6 +413,13 @@ export interface List<T> extends FastIterable<T> {
    * List.of(0, 1, 2, 3).toString()   // => List(0, 1, 2, 3)
    */
   toString(): string;
+  /**
+   * Returns a JSON representation of this collection.
+   * @example
+   * List.of(0, 1, 2, 3).toJSON()   // => { dataType: 'List', value: [0, 1, 2, 3] }
+   */
+  toJSON(): ToJSON<T[], this['context']['typeTag']>;
+
   /**
    * Returns the same `List` with a wider value type T2, if T2
    * is a super type of T.
@@ -878,6 +886,8 @@ export namespace List {
    */
   export interface Context {
     readonly _types: List.Types;
+
+    readonly typeTag: 'List';
 
     /**
      * Returns the (singleton) empty List for this context with given value type.

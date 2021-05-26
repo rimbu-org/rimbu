@@ -1,6 +1,6 @@
 import { RelatedTo } from '@rimbu/common';
 import { Stream, Streamable } from '@rimbu/stream';
-import { GraphElement } from '../../common/utils';
+import { GraphElement } from '../../common/link';
 import { GraphBase } from '../../graph-custom';
 
 export interface ArrowGraphBase<
@@ -67,9 +67,9 @@ export namespace ArrowGraphBase {
   }
 
   export interface Types extends GraphBase.Types {
-    normal: ArrowGraphBase<this['_N']>;
-    nonEmpty: ArrowGraphBase.NonEmpty<this['_N']>;
-    context: ArrowGraphBase.Context<this['_N']>;
-    builder: ArrowGraphBase.Builder<this['_N']>;
+    readonly normal: ArrowGraphBase<this['_N']>;
+    readonly nonEmpty: ArrowGraphBase.NonEmpty<this['_N']>;
+    readonly context: ArrowGraphBase.Context<this['_N']>;
+    readonly builder: ArrowGraphBase.Builder<this['_N']>;
   }
 }

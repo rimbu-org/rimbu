@@ -1,14 +1,9 @@
 import { ArrayNonEmpty } from '@rimbu/common';
+import { ArrowGraphSorted, EdgeGraphSorted, Link } from '@rimbu/graph';
+import { ArrowValuedGraphSorted } from '@rimbu/graph-arrow-valued';
+import { EdgeValuedGraphSorted } from '@rimbu/graph-edge-valued';
 import { Stream } from '@rimbu/stream';
-import {
-  ArrowGraphSorted,
-  ArrowValuedGraphSorted,
-  EdgeGraphSorted,
-  EdgeValuedGraphSorted,
-  Link,
-  traverseDepthFirstSorted,
-  ValuedLink,
-} from '../src';
+import { traverseDepthFirstSorted, ValuedLink } from '../src';
 
 const arr6: ArrayNonEmpty<Link<string>> = [
   ['a', 'b'],

@@ -74,7 +74,7 @@ function createContext<UT>(options?: {
 }): HashSet.Context<UT> {
   return new HashSetContext(
     options?.hasher ?? Hasher.anyShallowHasher(),
-    options?.eq ?? Eq.anyShallowEq(),
+    options?.eq ?? Eq.objectIs,
     options?.blockSizeBits ?? 5,
     options?.listContext ?? List.defaultContext()
   );

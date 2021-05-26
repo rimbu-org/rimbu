@@ -4,7 +4,7 @@
 
 # @rimbu/actor
 
-This package offers state management tools for immutable data.
+This package offers state management tools to create stateful logic that can be easily integrated in any framework.
 
 For complete documentation please visit the _[Rimbu Docs](http://rimbu.org/rimbu-actor)_.
 
@@ -34,11 +34,26 @@ Rimbu uses advanced and recursive typing, potentially making the TS compiler qui
 ## Usage
 
 ```ts
-import { Obs } from '@rimbu/actor';
+import { Actor, Obs } from '@rimbu/actor';
 
-const obs = Obs.create({ count: 0, total: 0 });
+const obs = Obs.create({ count: 0, changes: 0 });
 
-obs.patchState({ count: (v) => v + 1 });
+const actor = Actor.create(obs, {
+  increase() {
+    obs.patchState({ count: (v) => v + 1, changes: (v) => v + 1 }),
+  }
+  decrease() {
+    obs.patchState({ count: (v) => v - 1, changes: (v) => v + 1 }),
+  }
+});
+
+console.log(actor.state);
+// => { count: 0, changes: 0 }
+actor.increase()
+actor.increase()
+actor.decrease()
+console.log(actor.state)
+// => { count: 1, changes: 3 }
 ```
 
 ## Author

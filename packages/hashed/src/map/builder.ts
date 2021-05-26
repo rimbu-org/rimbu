@@ -23,7 +23,8 @@ type MapBlockBuilderEntry<K, V> =
 
 export class HashMapBlockBuilder<K, V>
   extends BlockBuilderBase<readonly [K, V]>
-  implements HashMap.Builder<K, V> {
+  implements HashMap.Builder<K, V>
+{
   constructor(
     readonly context: HashMapContext<K>,
     public source?: HashMapBlock<K, V>,
@@ -411,7 +412,7 @@ export class HashMapBlockBuilder<K, V>
 
   buildMapValues = <V2>(f: (value: V, key: K) => V2): HashMap<K, V2> => {
     if (this.size === 0) {
-      return (this.context.empty() as unknown) as HashMap<K, V2>;
+      return this.context.empty() as unknown as HashMap<K, V2>;
     }
     if (undefined !== this.source) return this.source.mapValues(f);
 

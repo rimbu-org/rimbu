@@ -6,10 +6,11 @@ import {
   IndexRange,
   OptLazy,
   SuperOf,
+  ToJSON,
   TraverseState,
   Update,
 } from '@rimbu/common';
-import { Stream, StreamSource, FastIterator } from '@rimbu/stream';
+import { FastIterator, Stream, StreamSource } from '@rimbu/stream';
 import { List } from '../internal';
 import { ListContext } from '../list-custom';
 
@@ -17,7 +18,8 @@ const _emptyObject = {};
 
 export abstract class ListNonEmptyBase<T>
   extends CustomBase.NonEmptyBase<T>
-  implements List.NonEmpty<T> {
+  implements List.NonEmpty<T>
+{
   abstract context: ListContext;
   abstract readonly length: number;
   abstract stream(reversed?: boolean): Stream.NonEmpty<T>;
@@ -212,12 +214,19 @@ export abstract class ListNonEmptyBase<T>
     return this.stream().join({ start: 'List(', sep: ', ', end: ')' });
   }
 
+  toJSON(): ToJSON<T[], this['context']['typeTag']> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.toArray(),
+    };
+  }
+
   extendType<T2>(): List.NonEmpty<SuperOf<T2, T>> {
     return this as any;
   }
 
   unzip<L extends number>(length: L): any {
-    const streams = (Stream.from(this).unzip(length) as any) as Stream<any>[];
+    const streams = Stream.from(this).unzip(length) as any as Stream<any>[];
 
     return Stream.from(streams).mapPure(this.context.from);
   }

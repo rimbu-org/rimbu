@@ -1,4 +1,4 @@
-import { RelatedTo } from '@rimbu/common';
+import { RelatedTo, ToJSON } from '@rimbu/common';
 import { FastIterable, Stream, Streamable, StreamSource } from '@rimbu/stream';
 import { GraphValues, WithGraphValues } from '../graph-custom';
 import { Link } from '../internal';
@@ -178,6 +178,13 @@ export interface VariantGraphBase<
    * ArrowGraphHashed.of([1], [2, 3]).toString()   // => ArrowGraphHashed(1 => [], 2 => [3])
    */
   toString(): string;
+  /**
+   * Returns a JSON representation of this collection.
+   * @example
+   * ArrowGraphHashed.of([1], [2, 3]).toJSON()
+   * // => { dataType: 'ArrowGraphHashed', value: [[1, []], [2, [3]]] }
+   */
+  toJSON(): ToJSON<[N, WithGraphValues<Tp, N, V>['linkTarget'][]][]>;
 }
 
 export namespace VariantGraphBase {
@@ -222,8 +229,9 @@ export namespace VariantGraphBase {
   }
 
   export interface Types extends GraphValues {
-    normal: VariantGraphBase<this['_N'], this['_V']>;
-    nonEmpty: VariantGraphBase.NonEmpty<this['_N'], this['_V']>;
-    link: Link<this['_N']>;
+    readonly normal: VariantGraphBase<this['_N'], this['_V']>;
+    readonly nonEmpty: VariantGraphBase.NonEmpty<this['_N'], this['_V']>;
+    readonly link: Link<this['_N']>;
+    readonly linkTarget: Link.Target<this['_N']>;
   }
 }

@@ -4,6 +4,6 @@
   "rootDir": "./src",
   "compilerOptions": {
     "outDir": "./dist",
-    "noStrictGenericChecks": true
+    "noEmit": true
   }
 }

@@ -1,4 +1,5 @@
 import { RSet } from '@rimbu/collection-types';
+import { ToJSON } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import {
   GraphBase,
@@ -13,8 +14,9 @@ export class GraphEmpty<
     Tp extends GraphTypesContextImpl,
     TpG extends WithGraphValues<Tp, N, V> = WithGraphValues<Tp, N, V>
   >
-  extends GraphEmptyBase<TpG['normal']>
-  implements GraphBase<N, Tp> {
+  extends GraphEmptyBase
+  implements GraphBase<N, Tp>
+{
   constructor(readonly isDirected: boolean, readonly context: TpG['context']) {
     super();
   }
@@ -71,6 +73,13 @@ export class GraphEmpty<
 
   toString(): string {
     return `${this.context.typeTag}()`;
+  }
+
+  toJSON(): ToJSON<any[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
   }
 
   toBuilder(): TpG['builder'] {

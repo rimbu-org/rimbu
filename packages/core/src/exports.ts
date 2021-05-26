@@ -16,19 +16,23 @@ export {
   ArrowGraph,
   ArrowGraphHashed,
   ArrowGraphSorted,
-  ArrowValuedGraph,
-  ArrowValuedGraphHashed,
-  ArrowValuedGraphSorted,
   EdgeGraph,
   EdgeGraphHashed,
   EdgeGraphSorted,
-  EdgeValuedGraph,
-  EdgeValuedGraphHashed,
-  EdgeValuedGraphSorted,
   Graph,
   VariantGraph,
   VariantValuedGraph,
 } from '@rimbu/graph';
+export {
+  ArrowValuedGraph,
+  ArrowValuedGraphHashed,
+  ArrowValuedGraphSorted,
+} from '@rimbu/graph-arrow-valued';
+export {
+  EdgeValuedGraph,
+  EdgeValuedGraphHashed,
+  EdgeValuedGraphSorted,
+} from '@rimbu/graph-edge-valued';
 export { Hasher, HashMap, HashSet } from '@rimbu/hashed';
 export { List } from '@rimbu/list';
 export {
@@ -55,11 +59,12 @@ export {
 } from '@rimbu/ordered';
 export { SortedMap, SortedSet } from '@rimbu/sorted';
 export { Stream, Streamable, StreamSource } from '@rimbu/stream';
+export { Table, VariantTable } from '@rimbu/table';
 export {
   HashTableHashColumn,
   HashTableSortedColumn,
+} from '@rimbu/table-hash-row';
+export {
   SortedTableHashColumn,
   SortedTableSortedColumn,
-  Table,
-  VariantTable,
-} from '@rimbu/table';
+} from '@rimbu/table-sorted-row';

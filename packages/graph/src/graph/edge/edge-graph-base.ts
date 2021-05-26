@@ -46,9 +46,9 @@ export namespace EdgeGraphBase {
   }
 
   export interface Types extends GraphBase.Types {
-    normal: EdgeGraphBase<this['_N']>;
-    nonEmpty: EdgeGraphBase.NonEmpty<this['_N']>;
-    context: EdgeGraphBase.Context<this['_N']>;
-    builder: EdgeGraphBase.Builder<this['_N']>;
+    readonly normal: EdgeGraphBase<this['_N']>;
+    readonly nonEmpty: EdgeGraphBase.NonEmpty<this['_N']>;
+    readonly context: EdgeGraphBase.Context<this['_N']>;
+    readonly builder: EdgeGraphBase.Builder<this['_N']>;
   }
 }

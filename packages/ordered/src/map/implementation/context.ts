@@ -11,7 +11,8 @@ import {
 
 export class OrderedMapContextImpl<UK, Tp extends OrderedMapTypes>
   extends CustomBase.RMapBase.ContextBase<UK, Tp>
-  implements OrderedMapContext<UK, Tp> {
+  implements OrderedMapContext<UK, Tp>
+{
   constructor(
     readonly listContext: List.Context,
     readonly mapContext: CustomBase.WithKeyValue<Tp, UK, any>['sourceContext']
@@ -20,11 +21,8 @@ export class OrderedMapContextImpl<UK, Tp extends OrderedMapTypes>
   }
 
   readonly typeTag = 'OrderedMap';
-  readonly _empty: CustomBase.WithKeyValue<
-    Tp,
-    any,
-    any
-  >['normal'] = new OrderedMapEmpty<any, any, Tp>(this as any) as any;
+  readonly _empty: CustomBase.WithKeyValue<Tp, any, any>['normal'] =
+    new OrderedMapEmpty<any, any, Tp>(this as any) as any;
 
   isNonEmptyInstance(source: any): source is any {
     return source instanceof OrderedMapNonEmpty;

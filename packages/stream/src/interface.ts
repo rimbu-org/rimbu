@@ -4,6 +4,7 @@ import {
   Eq,
   OptLazy,
   Reducer,
+  ToJSON,
   TraverseState,
 } from '@rimbu/common';
 import * as Constructors from './constructors';
@@ -680,6 +681,13 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * Stream.of(1, 2, 3).toString()   // => 'Stream(...<potentially empty>)'
    */
   toString(): string;
+  /**
+   * Returns a JSON representation of the Stream.
+   * @note take care not to call on infinite Streams
+   * @example
+   * Stream.of(1, 2, 3).toJSON()   // => { dataType: 'Stream', value: [1, 2, 3] }
+   */
+  toJSON(): ToJSON<T[], 'Stream'>;
   /**
    * Returns a Stream concatenating the given `source` StreamSource containing StreamSources.
    * @param source - a StreamSource containing nested StreamSources

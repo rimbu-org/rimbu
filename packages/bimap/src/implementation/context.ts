@@ -5,14 +5,21 @@ import { BiMapBuilder, BiMapEmpty, BiMapNonEmptyImpl } from '../bimap-custom';
 import { BiMap } from '../internal';
 
 export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>
-  implements BiMap.Context<UK, UV> {
+  implements BiMap.Context<UK, UV>
+{
   constructor(
     readonly keyValueContext: RMap.Context<UK>,
     readonly valueKeyContext: RMap.Context<UV>
   ) {}
 
-  readonly typeTag = 'BiMap';
-  readonly _types!: Tp;
+  get typeTag(): 'BiMap' {
+    return 'BiMap';
+  }
+
+  get _types(): Tp {
+    return undefined as any;
+  }
+
   readonly _empty: BiMap<any, any> = new BiMapEmpty<any, any>(this);
 
   empty = <K extends UK, V extends UV>(): BiMap<K, V> => {
@@ -60,6 +67,6 @@ export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>
   };
 
   builder = <K extends UK, V extends UV>(): BiMap.Builder<K, V> => {
-    return new BiMapBuilder((this as unknown) as BiMapContext<K, V>);
+    return new BiMapBuilder(this as unknown as BiMapContext<K, V>);
   };
 }

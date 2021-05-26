@@ -1,5 +1,5 @@
 import { Stream, Streamable } from '@rimbu/stream';
-import { ValuedGraphElement } from '../common/utils';
+import { ValuedGraphElement } from '../internal';
 import { ValuedGraphBase } from '../graph-custom';
 
 /**
@@ -41,9 +41,9 @@ export namespace ValuedGraph {
     extends ValuedGraphBase.Context<UN, ValuedGraph.Types> {}
 
   export interface Types extends ValuedGraphBase.Types {
-    normal: ValuedGraph<this['_N'], this['_V']>;
-    nonEmpty: ValuedGraph.NonEmpty<this['_N'], this['_V']>;
-    builder: ValuedGraph.Builder<this['_N'], this['_V']>;
-    context: ValuedGraph.Context<this['_N']>;
+    readonly normal: ValuedGraph<this['_N'], this['_V']>;
+    readonly nonEmpty: ValuedGraph.NonEmpty<this['_N'], this['_V']>;
+    readonly builder: ValuedGraph.Builder<this['_N'], this['_V']>;
+    readonly context: ValuedGraph.Context<this['_N']>;
   }
 }

@@ -43,3 +43,8 @@ export type Tail<Args extends readonly unknown[]> = Args extends readonly [
 ]
   ? TailArgs
   : never;
+
+export interface ToJSON<V, D extends string = string> {
+  readonly dataType: D;
+  readonly value: V;
+}

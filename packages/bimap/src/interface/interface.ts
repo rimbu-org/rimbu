@@ -4,6 +4,7 @@ import {
   OmitStrong,
   OptLazy,
   RelatedTo,
+  ToJSON,
   TraverseState,
   Update,
 } from '@rimbu/common';
@@ -310,6 +311,12 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
    * BiMap.of([1, 'a'], [2, 'b']).toString()   // => BiMap(1 <=> 'a', 2 <=> 'b')
    */
   toString(): string;
+  /**
+   * Returns a JSON representation of this collection.
+   * @example
+   * BiMap.of([1, 'a'], [2, 'b']).toJSON()   // => { dataType: 'BiMap', value: [[1, 'a'], [2, 'b']] }
+   */
+  toJSON(): ToJSON<(readonly [K, V])[], this['context']['typeTag']>;
 }
 
 export namespace BiMap {

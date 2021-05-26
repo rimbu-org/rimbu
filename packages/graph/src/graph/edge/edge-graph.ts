@@ -44,15 +44,15 @@ export namespace EdgeGraph {
     extends EdgeGraphBase.Context<UN, EdgeGraph.Types> {}
 
   export interface Types extends EdgeGraphBase.Types {
-    normal: EdgeGraph<this['_N']>;
-    nonEmpty: EdgeGraph.NonEmpty<this['_N']>;
-    context: EdgeGraph.Context<this['_N']>;
-    builder: EdgeGraph.Builder<this['_N']>;
+    readonly normal: EdgeGraph<this['_N']>;
+    readonly nonEmpty: EdgeGraph.NonEmpty<this['_N']>;
+    readonly context: EdgeGraph.Context<this['_N']>;
+    readonly builder: EdgeGraph.Builder<this['_N']>;
   }
 }
 
 interface TypesImpl extends EdgeGraph.Types {
-  context: GraphContext<this['_N'], string, false, any>;
+  readonly context: GraphContext<this['_N'], string, false, any>;
 }
 
 export const EdgeGraph = {

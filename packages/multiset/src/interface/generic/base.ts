@@ -1,5 +1,5 @@
 import { CustomBase as CB, RMap, VariantMap } from '@rimbu/collection-types';
-import { ArrayNonEmpty, RelatedTo, TraverseState } from '@rimbu/common';
+import { ArrayNonEmpty, RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
 import { FastIterable, Stream, Streamable, StreamSource } from '@rimbu/stream';
 
 export interface VariantMultiSetBase<
@@ -173,6 +173,12 @@ export interface VariantMultiSetBase<
    * HashMultiSet.of(1, 2, 2).toString()  // => HashMultiSet(1, 2, 2)
    */
   toString(): string;
+  /**
+   * Returns a JSON representation of this collection.
+   * @example
+   * HashMultiSet.of(1, 2, 2).toJSON()   // => { dataType: 'HashMultiSet', value: [[1, 1], [2, 2]] }
+   */
+  toJSON(): ToJSON<(readonly [T, number])[]>;
 }
 
 export namespace VariantMultiSetBase {
@@ -315,10 +321,8 @@ export interface MultiSetBase<
 }
 
 export namespace MultiSetBase {
-  type NonEmptyBase<
-    T,
-    Tp extends MultiSetBase.Types
-  > = VariantMultiSetBase.NonEmpty<T, Tp> & MultiSetBase<T, Tp>;
+  type NonEmptyBase<T, Tp extends MultiSetBase.Types> =
+    VariantMultiSetBase.NonEmpty<T, Tp> & MultiSetBase<T, Tp>;
 
   export interface NonEmpty<
     T,

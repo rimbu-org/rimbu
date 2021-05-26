@@ -26,7 +26,8 @@ import {
 
 export class LeafTree<T>
   extends ListNonEmptyBase<T>
-  implements Tree<T, LeafTree<T>, LeafBlock<T>, T> {
+  implements Tree<T, LeafTree<T>, LeafBlock<T>, T>
+{
   constructor(
     readonly context: ListContext,
     readonly left: LeafBlock<T>,
@@ -129,9 +130,8 @@ export class LeafTree<T>
       return this.copy(undefined, newRight)._normalize();
     }
 
-    const [newMiddle, upRight, inUpRight] = this.middle.takeInternal(
-      middleAmount
-    );
+    const [newMiddle, upRight, inUpRight] =
+      this.middle.takeInternal(middleAmount);
 
     const newRight = upRight.takeChildren(inUpRight);
 
@@ -161,9 +161,8 @@ export class LeafTree<T>
       return this.right.drop(rightAmount);
     }
 
-    const [newMiddle, upLeft, inUpLeft] = this.middle.dropInternal(
-      middleAmount
-    );
+    const [newMiddle, upLeft, inUpLeft] =
+      this.middle.dropInternal(middleAmount);
     const newLeft = upLeft.dropChildren(inUpLeft);
 
     return this.copy(newLeft, undefined, newMiddle)._normalize();

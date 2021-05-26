@@ -27,10 +27,12 @@ import { useConst } from './useConst';
  * }
  */
 export function useActor<
-  A extends Actor.Readonly<T>,
-  T,
+  A extends Actor.Readonly<any>,
   Args extends readonly unknown[] = []
->(getActor: (...args: Args) => A, ...args: Args): readonly [Immutable<T>, A] {
+>(
+  getActor: (...args: Args) => A,
+  ...args: Args
+): readonly [Immutable<Actor.StateType<A>>, A] {
   const stableObs = useConst(getActor, ...args);
   useSubscribeUpdateUI(() => stableObs);
   return [stableObs.state, stableObs];

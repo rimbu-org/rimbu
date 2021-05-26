@@ -1,9 +1,18 @@
 {
   "name": "@rimbu/deep",
-  "version": "0.5.0",
-  "description": "",
-  "keywords": [],
-  "homepage": "https://rimbu.org",
+  "version": "0.5.1",
+  "description": "Tools to use handle plain JS objects as immutable objects",
+  "keywords": [
+    "immutable",
+    "patch",
+    "match",
+    "plain object",
+    "freeze",
+    "frozen",
+    "rimbu",
+    "typescript"
+  ],
+  "homepage": "http://rimbu.org",
   "author": {
     "name": "Arvid Nicolaas",
     "email": "arvid@rimbu.org",
@@ -18,33 +27,30 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/vitoke/rimbu.git",
+    "url": "https://github.com/rimbu-org/rimbu.git",
     "directory": "packages/deep"
   },
   "source": "src/index.ts",
-  "main": "dist/index.js",
-  "module": "dist/index.modules.js",
-  "unpkg": "dist/index.umd.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/main/index.js",
+  "module": "dist/module/index.js",
+  "types": "dist/types/index.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
-    "bundle": "microbundle",
+    "bundle": "yarn bundle:main && yarn bundle:module && yarn bundle:types",
+    "bundle:main": "tsc --p tsconfig.main.json",
+    "bundle:module": "tsc --p tsconfig.module.json",
+    "bundle:types": "tsc --p tsconfig.types.json",
     "clean": "rimraf dist",
-    "format": "prettier --write \"**/*.{ts,js,json,md}\"",
+    "format": "yarn format:base --write",
+    "format:base": "prettier \"**/*.{ts,tsx,js,json,md}\"",
+    "format:check": "yarn format:base --check",
     "lint": "eslint src",
-    "precommit": "lint-staged",
     "test": "jest",
     "test:types": "tsd",
     "typecheck": "tsc"
-  },
-  "lint-staged": {
-    "*": [
-      "yarn format:single",
-      "eslint"
-    ]
   },
   "sideEffects": false,
   "devDependencies": {
@@ -54,7 +60,7 @@
     "typescript": "^4.2.4"
   },
   "dependencies": {
-    "@rimbu/base": "^0.5.0",
-    "@rimbu/common": "^0.5.0"
+    "@rimbu/base": "^0.5.1",
+    "@rimbu/common": "^0.5.1"
   }
 }

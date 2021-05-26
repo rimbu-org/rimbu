@@ -298,14 +298,10 @@ describe('Reducers', () => {
   it('Reducer.average', () => {
     expect(Stream.empty().reduce(Reducer.average)).toBe(0);
     expect(Stream.of(0, 0, 0).reduceStream(Reducer.average).toArray()).toEqual([
-      0,
-      0,
-      0,
+      0, 0, 0,
     ]);
     expect(Stream.of(0, 2, 4).reduceStream(Reducer.average).toArray()).toEqual([
-      0,
-      1,
-      2,
+      0, 1, 2,
     ]);
   });
 
@@ -369,8 +365,7 @@ describe('Reducers', () => {
       10,
     ]);
     expect(Stream.of(1, 10, 2, 11, 3).reduceStream(r2).toArray()).toEqual([
-      -5,
-      10,
+      -5, 10,
     ]);
   });
 
@@ -389,9 +384,7 @@ describe('Reducers', () => {
     expect(Stream.of(1, 2, 3).reduce(Reducer.last())).toBe(3);
     expect(Stream.of(1, 2, 3).reduce(Reducer.last(5))).toBe(3);
     expect(Stream.of(1, 2, 3).reduceStream(Reducer.last()).toArray()).toEqual([
-      1,
-      2,
-      3,
+      1, 2, 3,
     ]);
   });
 
@@ -411,11 +404,7 @@ describe('Reducers', () => {
       11,
     ]);
     expect(Stream.of(1, 10, 2, 11, 3).reduceStream(r2).toArray()).toEqual([
-      -5,
-      10,
-      10,
-      11,
-      11,
+      -5, 10, 10, 11, 11,
     ]);
   });
 
@@ -443,13 +432,13 @@ describe('Reducers', () => {
     expect(Stream.of('b', 'abc', 'ef').reduce(maxLen1)).toBe('abc');
     expect(Stream.of('b', 'abc', 'ef').reduce(maxLen2)).toBe('abc');
 
-    expect(
-      Stream.of('b', 'abc', 'ef').reduceStream(maxLen1).toArray()
-    ).toEqual(['b', 'abc', 'abc']);
+    expect(Stream.of('b', 'abc', 'ef').reduceStream(maxLen1).toArray()).toEqual(
+      ['b', 'abc', 'abc']
+    );
 
-    expect(
-      Stream.of('b', 'abc', 'ef').reduceStream(maxLen2).toArray()
-    ).toEqual(['b', 'abc', 'abc']);
+    expect(Stream.of('b', 'abc', 'ef').reduceStream(maxLen2).toArray()).toEqual(
+      ['b', 'abc', 'abc']
+    );
   });
 
   it('Reducer.min', () => {
@@ -489,9 +478,9 @@ describe('Reducers', () => {
     expect(Stream.empty().reduce(Reducer.nonEmpty)).toBe(false);
     expect(Stream.of(1, 2, 3).reduce(Reducer.nonEmpty)).toBe(true);
 
-    expect(
-      Stream.of(1, 2, 3).reduceStream(Reducer.nonEmpty).toArray()
-    ).toEqual([true]);
+    expect(Stream.of(1, 2, 3).reduceStream(Reducer.nonEmpty).toArray()).toEqual(
+      [true]
+    );
   });
 
   it('Reducer.or', () => {

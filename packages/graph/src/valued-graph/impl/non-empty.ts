@@ -1,13 +1,20 @@
 import { Token } from '@rimbu/base';
 import { CustomBase } from '@rimbu/collection-types';
-import { OptLazy, OptLazyOr, RelatedTo, TraverseState } from '@rimbu/common';
+import {
+  OptLazy,
+  OptLazyOr,
+  RelatedTo,
+  ToJSON,
+  TraverseState,
+} from '@rimbu/common';
+import { Link } from '../../internal';
 import { Stream, StreamSource } from '@rimbu/stream';
 import {
   ValuedGraphBase,
   ValuedGraphTypesContextImpl,
   WithGraphValues,
 } from '../../graph-custom';
-import { Link, ValuedGraphElement, ValuedLink } from '../../internal';
+import { ValuedGraphElement, ValuedLink } from '../../internal';
 
 export class ValuedGraphNonEmpty<
     N,
@@ -16,10 +23,11 @@ export class ValuedGraphNonEmpty<
     TpG extends WithGraphValues<Tp, N, V> = WithGraphValues<Tp, N, V>
   >
   extends CustomBase.NonEmptyBase<ValuedGraphElement<N, V>>
-  implements ValuedGraphBase.NonEmpty<N, V, Tp> {
+  implements ValuedGraphBase.NonEmpty<N, V, Tp>
+{
   constructor(
     readonly isDirected: boolean,
-    readonly context: WithGraphValues<Tp, N, V>['context'],
+    readonly context: TpG['context'],
     readonly linkMap: TpG['linkMapNonEmpty'],
     readonly connectionSize: number
   ) {
@@ -326,7 +334,7 @@ export class ValuedGraphNonEmpty<
   disconnect<UN = N>(
     node1: RelatedTo<N, UN>,
     node2: RelatedTo<N, UN>
-  ): WithGraphValues<Tp, N, V>['nonEmpty'] {
+  ): TpG['nonEmpty'] {
     if (
       !this.linkMap.context.isValidKey(node1) ||
       !this.linkMap.context.isValidKey(node2)
@@ -357,7 +365,7 @@ export class ValuedGraphNonEmpty<
     return builder.build().assumeNonEmpty();
   }
 
-  removeUnconnectedNodes(): WithGraphValues<Tp, N, V>['normal'] {
+  removeUnconnectedNodes(): TpG['normal'] {
     if (!this.isDirected) {
       const newLinkMap = this.linkMap.filter(([_, targets]) =>
         targets.nonEmpty()
@@ -408,6 +416,18 @@ export class ValuedGraphNonEmpty<
           valueToString: ([node2, value]) => `{${node2}: ${value}}`,
         })}`,
     });
+  }
+
+  toJSON(): ToJSON<[N, (readonly [N, V])[]][]> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.linkMap
+        .stream()
+        .map(
+          (entry) => [entry[0], entry[1].toArray()] as [N, (readonly [N, V])[]]
+        )
+        .toArray(),
+    };
   }
 
   toBuilder(): TpG['builder'] {

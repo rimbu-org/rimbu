@@ -4,10 +4,10 @@
   "rootDir": "./src",
   "compilerOptions": {
     "outDir": "./dist",
-    "noStrictGenericChecks": true,
     "jsx": "react",
-    "module": "esnext",
-    "target": "esnext",
-    "lib": ["esnext", "dom"]
+    "lib": ["esnext", "dom"],
+    "noEmit": true,
+    // needed again for tsd
+    "noStrictGenericChecks": true
   }
 }

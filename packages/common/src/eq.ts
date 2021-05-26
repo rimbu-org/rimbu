@@ -305,6 +305,13 @@ export namespace Eq {
     return _stringCharCodeEq;
   }
 
+  const _anyToStringEq: Eq<any> = (v1, v2) =>
+    String(v1).localeCompare(String(v2), 'und') === 0;
+
+  export function anyToStringEq(): Eq<any> {
+    return _anyToStringEq;
+  }
+
   const _anyJsonEq: Eq<any> = (v1, v2) =>
     Object.is(JSON.stringify(v1), JSON.stringify(v2));
 

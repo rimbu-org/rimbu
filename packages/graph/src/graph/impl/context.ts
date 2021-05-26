@@ -18,7 +18,8 @@ export class GraphContext<
   TT extends string,
   Dir extends boolean,
   Tp extends GraphTypesContextImpl
-> implements GraphBase.Context<UN, Tp> {
+> implements GraphBase.Context<UN, Tp>
+{
   constructor(
     readonly isDirected: Dir,
     readonly typeTag: TT,
@@ -42,13 +43,13 @@ export class GraphContext<
     return source instanceof GraphNonEmpty;
   }
 
-  empty = <N extends UN>(): WithGraphValues<Tp, N, unknown>['normal'] => {
+  empty = <N extends UN>(): WithGraphValues<Tp, N, any>['normal'] => {
     return this._empty;
   };
 
   from: any = <N extends UN>(
     ...sources: ArrayNonEmpty<StreamSource<GraphElement<N>>>
-  ): WithGraphValues<Tp, N, unknown>['normal'] => {
+  ): WithGraphValues<Tp, N, any>['normal'] => {
     let builder = this.builder<N>();
 
     let i = -1;
@@ -74,26 +75,24 @@ export class GraphContext<
     return builder.build();
   };
 
-  of = <N>(
-    ...values: ArrayNonEmpty<GraphElement<N>>
-  ): N extends UN ? WithGraphValues<Tp, N, unknown>['nonEmpty'] : never => {
+  of = <N>(...values: ArrayNonEmpty<GraphElement<N>>): any => {
     return this.from(values).assumeNonEmpty();
   };
 
-  builder = <N extends UN>(): WithGraphValues<Tp, N, unknown>['builder'] => {
+  builder = <N extends UN>(): WithGraphValues<Tp, N, any>['builder'] => {
     return new GraphBuilder<N, Tp>(this.isDirected, this as any) as any;
   };
 
   createBuilder<N extends UN>(
-    source?: WithGraphValues<Tp, N, unknown>['nonEmpty']
-  ): WithGraphValues<Tp, N, unknown>['builder'] {
+    source?: WithGraphValues<Tp, N, any>['nonEmpty']
+  ): WithGraphValues<Tp, N, any>['builder'] {
     return new GraphBuilder<N, Tp>(this.isDirected, this as any, source) as any;
   }
 
   createNonEmpty<N extends UN>(
-    linkMap: WithGraphValues<Tp, N, unknown>['linkMapNonEmpty'],
+    linkMap: WithGraphValues<Tp, N, any>['linkMapNonEmpty'],
     connectionSize: number
-  ): WithGraphValues<Tp, N, unknown>['nonEmpty'] {
+  ): WithGraphValues<Tp, N, any>['nonEmpty'] {
     return new GraphNonEmpty<N, Tp>(
       this.isDirected,
       this as any,

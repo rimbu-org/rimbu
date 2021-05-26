@@ -1,5 +1,5 @@
 import { CustomBase } from '@rimbu/collection-types';
-import { ArrayNonEmpty, RelatedTo, TraverseState } from '@rimbu/common';
+import { ArrayNonEmpty, RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
 import { List } from '@rimbu/list';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { OrderedSetBase, OrderedSetTypes } from '../../ordered-custom';
@@ -10,7 +10,8 @@ export class OrderedSetNonEmpty<
     TpG extends CustomBase.WithElem<Tp, T> = CustomBase.WithElem<Tp, T>
   >
   extends CustomBase.NonEmptyBase<T>
-  implements OrderedSetBase.NonEmpty<T, Tp> {
+  implements OrderedSetBase.NonEmpty<T, Tp>
+{
   constructor(
     readonly context: CustomBase.WithElem<Tp, T>['context'],
     readonly order: List.NonEmpty<T>,
@@ -160,5 +161,12 @@ export class OrderedSetNonEmpty<
 
   toString(): string {
     return this.stream().join({ start: 'OrderedSet(', sep: ', ', end: ')' });
+  }
+
+  toJSON(): ToJSON<T[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.sourceSet.toJSON().value,
+    };
   }
 }

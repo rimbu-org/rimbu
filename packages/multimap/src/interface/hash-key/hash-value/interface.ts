@@ -108,10 +108,8 @@ function createContext<UK, UV>(options?: {
   );
 }
 
-const _defaultContext: HashMultiMapHashValue.Context<
-  any,
-  any
-> = createContext();
+const _defaultContext: HashMultiMapHashValue.Context<any, any> =
+  createContext();
 
 const _contextHelpers = {
   /**

@@ -54,28 +54,31 @@ export namespace EdgeGraphSorted {
   }
 
   export interface Types extends EdgeGraphBase.Types {
-    normal: EdgeGraphSorted<this['_N']>;
-    nonEmpty: EdgeGraphSorted.NonEmpty<this['_N']>;
-    context: EdgeGraphSorted.Context<this['_N']>;
-    builder: EdgeGraphSorted.Builder<this['_N']>;
-    linkMap: SortedMap<this['_N'], SortedSet<this['_N']>> &
+    readonly normal: EdgeGraphSorted<this['_N']>;
+    readonly nonEmpty: EdgeGraphSorted.NonEmpty<this['_N']>;
+    readonly context: EdgeGraphSorted.Context<this['_N']>;
+    readonly builder: EdgeGraphSorted.Builder<this['_N']>;
+    readonly linkMap: SortedMap<this['_N'], SortedSet<this['_N']>> &
       SortedMap<this['_N'], RSet<this['_N']>>;
-    linkMapNonEmpty: SortedMap.NonEmpty<this['_N'], SortedSet<this['_N']>> &
+    readonly linkMapNonEmpty: SortedMap.NonEmpty<
+      this['_N'],
+      SortedSet<this['_N']>
+    > &
       SortedMap.NonEmpty<this['_N'], RSet<this['_N']>>;
-    linkMapContext: SortedMap.Context<this['_N']>;
-    linkConnectionsContext: SortedSet.Context<this['_N']>;
-    linkMapBuilder: SortedMap.Builder<
+    readonly linkMapContext: SortedMap.Context<this['_N']>;
+    readonly linkConnectionsContext: SortedSet.Context<this['_N']>;
+    readonly linkMapBuilder: SortedMap.Builder<
       this['_N'],
       SortedSet.Builder<this['_N']>
     > &
       SortedMap.Builder<this['_N'], RSet.Builder<this['_N']>>;
-    linkConnectionsBuilder: SortedSet.Builder<this['_N']>;
-    linkConnections: SortedSet<this['_N']>;
+    readonly linkConnectionsBuilder: SortedSet.Builder<this['_N']>;
+    readonly linkConnections: SortedSet<this['_N']>;
   }
 }
 
 interface TypesImpl extends EdgeGraphSorted.Types {
-  context: GraphContext<this['_N'], 'EdgeGraphSorted', false, any>;
+  readonly context: GraphContext<this['_N'], 'EdgeGraphSorted', false, any>;
 }
 
 function createContext<UN>(options?: {

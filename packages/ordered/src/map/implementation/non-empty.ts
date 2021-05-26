@@ -5,6 +5,7 @@ import {
   OptLazy,
   OptLazyOr,
   RelatedTo,
+  ToJSON,
   TraverseState,
   Update,
 } from '@rimbu/common';
@@ -23,7 +24,8 @@ export class OrderedMapNonEmpty<
     >
   >
   extends CustomBase.NonEmptyBase<[K, V]>
-  implements OrderedMapBase.NonEmpty<K, V, Tp> {
+  implements OrderedMapBase.NonEmpty<K, V, Tp>
+{
   constructor(
     readonly context: TpG['context'],
     readonly keyOrder: List.NonEmpty<K>,
@@ -253,6 +255,13 @@ export class OrderedMapNonEmpty<
     });
   }
 
+  toJSON(): ToJSON<(readonly [K, V])[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.sourceMap.toJSON().value,
+    };
+  }
+
   extendValues(): any {
     return this;
   }
@@ -264,7 +273,7 @@ export class OrderedMapNonEmpty<
     return this.context.mergeAll(
       fillValue,
       this,
-      ...((sources as any) as [any, ...any[]])
+      ...(sources as any as [any, ...any[]])
     );
   }
 
@@ -281,14 +290,14 @@ export class OrderedMapNonEmpty<
       fillValue,
       mergeFun as any,
       this,
-      ...((sources as any) as [any, ...any[]])
+      ...(sources as any as [any, ...any[]])
     );
   }
 
   merge<I extends readonly [unknown, ...unknown[]]>(
     ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
   ): any {
-    return this.context.merge(this, ...((sources as any) as any[]));
+    return this.context.merge(this, ...(sources as any as any[]));
   }
 
   mergeWith<R, K, I extends readonly [unknown, ...unknown[]]>(
@@ -298,7 +307,7 @@ export class OrderedMapNonEmpty<
     return this.context.mergeWith(
       mergeFun as any,
       this as any,
-      ...((sources as any) as any[])
+      ...(sources as any as any[])
     );
   }
 }

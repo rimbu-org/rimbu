@@ -5,6 +5,7 @@ import {
   OptLazyOr,
   RelatedTo,
   SuperOf,
+  ToJSON,
   TraverseState,
   Update,
 } from '@rimbu/common';
@@ -183,6 +184,12 @@ export interface VariantMapBase<
    * HashMap.of([1, 'a'], [2, 'b']).toString()   // => HashMap(1 => 'a', 2 => 'b')
    */
   toString(): string;
+  /**
+   * Returns a JSON representation of this collection.
+   * @example
+   * HashMap.of([1, 'a'], [2, 'b']).toJSON()   // => { dataType: 'HashMap', value: [[1, 'a'], [2, 'b']] }
+   */
+  toJSON(): ToJSON<(readonly [K, V])[]>;
 }
 
 export namespace VariantMapBase {
@@ -887,7 +894,8 @@ export namespace RMapBase {
   export abstract class ContextBase<
     UK,
     Tp extends RMapBase.Types = RMapBase.Types
-  > implements RMapBase.Context<UK, Tp> {
+  > implements RMapBase.Context<UK, Tp>
+  {
     abstract readonly typeTag: string;
     abstract readonly _empty: (Tp & KeyValue<any, any>)['normal'];
 
@@ -897,7 +905,9 @@ export namespace RMapBase {
     ): source is WithKeyValue<Tp, K, V>['nonEmpty'];
     abstract builder: <K extends UK, V>() => WithKeyValue<Tp, K, V>['builder'];
 
-    readonly _types!: Tp;
+    get _types(): Tp {
+      return undefined as any;
+    }
 
     empty = <K extends UK, V>(): WithKeyValue<Tp, K, V>['normal'] => {
       return this._empty;
@@ -943,7 +953,7 @@ export namespace RMapBase {
       mergeFun: (key: K, ...values: { [KT in keyof I]: I[KT] | O }) => R,
       ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
     ): any {
-      const builder = (this.builder() as unknown) as RMapBase.Builder<
+      const builder = this.builder() as unknown as RMapBase.Builder<
         K,
         unknown[]
       >;
@@ -986,8 +996,8 @@ export namespace RMapBase {
     ): any {
       return this.mergeAllWith(
         fillValue,
-        (key: any, ...values: unknown[]): I => (values as any) as I,
-        ...((sources as any) as [any, any, ...any[]])
+        (key: any, ...values: unknown[]): I => values as any as I,
+        ...(sources as any as [any, any, ...any[]])
       );
     }
 
@@ -999,7 +1009,7 @@ export namespace RMapBase {
         return this.empty();
       }
 
-      const builder = (this.builder() as unknown) as RMapBase.Builder<
+      const builder = this.builder() as unknown as RMapBase.Builder<
         K,
         unknown[]
       >;
@@ -1059,8 +1069,8 @@ export namespace RMapBase {
       ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
     ): any {
       return this.mergeWith(
-        (key: any, ...values: unknown[]): I => (values as any) as I,
-        ...((sources as any) as [any, any, ...any[]])
+        (key: any, ...values: unknown[]): I => values as any as I,
+        ...(sources as any as [any, any, ...any[]])
       );
     }
   }

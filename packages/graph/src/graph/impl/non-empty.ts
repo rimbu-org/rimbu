@@ -1,5 +1,5 @@
 import { CustomBase } from '@rimbu/collection-types';
-import { RelatedTo, TraverseState } from '@rimbu/common';
+import { RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import {
   GraphBase,
@@ -11,17 +11,14 @@ import { GraphElement, Link } from '../../internal';
 export class GraphNonEmpty<
     N,
     Tp extends GraphTypesContextImpl,
-    TpG extends WithGraphValues<Tp, N, unknown> = WithGraphValues<
-      Tp,
-      N,
-      unknown
-    >
+    TpG extends WithGraphValues<Tp, N, any> = WithGraphValues<Tp, N, any>
   >
   extends CustomBase.NonEmptyBase<GraphElement<N>>
-  implements GraphBase.NonEmpty<N, Tp> {
+  implements GraphBase.NonEmpty<N, Tp>
+{
   constructor(
     readonly isDirected: boolean,
-    readonly context: WithGraphValues<Tp, N, unknown>['context'],
+    readonly context: TpG['context'],
     readonly linkMap: TpG['linkMapNonEmpty'],
     readonly connectionSize: number
   ) {
@@ -37,11 +34,8 @@ export class GraphNonEmpty<
     return this.context.createNonEmpty<N>(linkMap as any, connectionSize);
   }
 
-  copyE(
-    linkMap: TpG['linkMap'],
-    connectionSize: number
-  ): WithGraphValues<Tp, N, unknown>['normal'] {
-    if (linkMap.nonEmpty()) return this.copy(linkMap, connectionSize);
+  copyE(linkMap: TpG['linkMap'], connectionSize: number): TpG['normal'] {
+    if (linkMap.nonEmpty()) return this.copy(linkMap, connectionSize) as any;
     return this.context.empty();
   }
 
@@ -75,7 +69,7 @@ export class GraphNonEmpty<
     return this.linkMap.streamKeys();
   }
 
-  streamConnections(): Stream<WithGraphValues<Tp, N, unknown>['link']> {
+  streamConnections(): Stream<WithGraphValues<Tp, N, any>['link']> {
     return this.linkMap
       .stream()
       .flatMap(([node1, targets]) =>
@@ -132,14 +126,14 @@ export class GraphNonEmpty<
     return targets?.isEmpty ?? false;
   }
 
-  isSource<UN = N>(node: RelatedTo<N, UN>): boolean {
+  isSource<UN>(node: RelatedTo<N, UN>): boolean {
     return (
       this.linkMap.hasKey(node) &&
       this.linkMap.streamValues().every((targets) => !targets.has(node))
     );
   }
 
-  addNode(node: N): WithGraphValues<Tp, N, unknown>['nonEmpty'] {
+  addNode(node: N): TpG['nonEmpty'] {
     return this.copy(
       this.linkMap
         .modifyAt(node, { ifNew: this.context.linkConnectionsContext.empty })
@@ -160,7 +154,7 @@ export class GraphNonEmpty<
     return builder.build();
   }
 
-  removeNodes<UN = N>(nodes: StreamSource<RelatedTo<N, UN>>): TpG['normal'] {
+  removeNodes<UN>(nodes: StreamSource<RelatedTo<N, UN>>): TpG['normal'] {
     const builder = this.toBuilder();
     builder.removeNodes(nodes);
     return builder.build();
@@ -203,17 +197,17 @@ export class GraphNonEmpty<
   }
 
   connectAll(
-    links: StreamSource<WithGraphValues<Tp, N, unknown>['link']>
+    links: StreamSource<WithGraphValues<Tp, N, any>['link']>
   ): TpG['nonEmpty'] {
     const builder = this.toBuilder();
     builder.connectAll(links as any);
     return builder.build().assumeNonEmpty();
   }
 
-  disconnect<UN = N>(
+  disconnect<UN>(
     node1: RelatedTo<N, UN>,
     node2: RelatedTo<N, UN>
-  ): WithGraphValues<Tp, N, unknown>['nonEmpty'] {
+  ): TpG['nonEmpty'] {
     if (
       !this.linkMap.context.isValidKey(node1) ||
       !this.linkMap.context.isValidKey(node2)
@@ -238,7 +232,7 @@ export class GraphNonEmpty<
     );
   }
 
-  disconnectAll<UN = N>(
+  disconnectAll<UN>(
     links: StreamSource<Link<RelatedTo<N, UN>>>
   ): TpG['nonEmpty'] {
     const builder = this.toBuilder();
@@ -246,7 +240,7 @@ export class GraphNonEmpty<
     return builder.build().assumeNonEmpty();
   }
 
-  removeUnconnectedNodes(): WithGraphValues<Tp, N, unknown>['normal'] {
+  removeUnconnectedNodes(): TpG['normal'] {
     if (!this.isDirected) {
       const newLinkMap = this.linkMap.filter(([_, targets]) =>
         targets.nonEmpty()
@@ -280,6 +274,25 @@ export class GraphNonEmpty<
           .stream()
           .join({ start: '[', sep: ', ', end: ']' })}`,
     });
+  }
+
+  toJSON(): ToJSON<[N, [N][]][]> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.linkMap
+        .stream()
+        .map(
+          (entry) =>
+            [
+              entry[0],
+              entry[1]
+                .stream()
+                .map((v) => [v] as [N])
+                .toArray(),
+            ] as [N, [N][]]
+        )
+        .toArray(),
+    };
   }
 
   toBuilder(): TpG['builder'] {

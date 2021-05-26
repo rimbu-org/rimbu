@@ -111,10 +111,8 @@ function createContext<K, V>(options?: {
   );
 }
 
-const _defaultContext: SortedMultiMapSortedValue.Context<
-  any,
-  any
-> = createContext();
+const _defaultContext: SortedMultiMapSortedValue.Context<any, any> =
+  createContext();
 
 const _contextHelpers = {
   /**

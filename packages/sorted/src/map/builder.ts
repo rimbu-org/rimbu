@@ -13,7 +13,8 @@ import {
 
 export class SortedMapBuilder<K, V>
   extends SortedBuilder<readonly [K, V]>
-  implements SortedMap.Builder<K, V> {
+  implements SortedMap.Builder<K, V>
+{
   constructor(
     readonly context: SortedMapContext<K>,
     public source?: SortedMap<K, V>,

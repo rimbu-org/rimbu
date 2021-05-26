@@ -1,7 +1,7 @@
 import { OptLazy, RelatedTo } from '@rimbu/common';
 import { Stream, Streamable } from '@rimbu/stream';
 import { VariantGraphBase, WithGraphValues } from '../graph-custom';
-import { ValuedLink, ValuedGraphElement } from '../internal';
+import { ValuedGraphElement, ValuedLink } from '../internal';
 
 export interface VariantValuedGraphBase<
   N,
@@ -42,11 +42,8 @@ export interface VariantValuedGraphBase<
 }
 
 export namespace VariantValuedGraphBase {
-  type NonEmptyBase<
-    N,
-    V,
-    Tp extends VariantValuedGraphBase.Types
-  > = VariantGraphBase.NonEmpty<N, V, Tp> & VariantValuedGraphBase<N, V, Tp>;
+  type NonEmptyBase<N, V, Tp extends VariantValuedGraphBase.Types> =
+    VariantGraphBase.NonEmpty<N, V, Tp> & VariantValuedGraphBase<N, V, Tp>;
 
   export interface NonEmpty<
     N,
@@ -74,8 +71,9 @@ export namespace VariantValuedGraphBase {
   }
 
   export interface Types extends VariantGraphBase.Types {
-    normal: VariantValuedGraphBase<this['_N'], this['_V']>;
-    nonEmpty: VariantValuedGraphBase.NonEmpty<this['_N'], this['_V']>;
-    link: ValuedLink<this['_N'], this['_V']>;
+    readonly normal: VariantValuedGraphBase<this['_N'], this['_V']>;
+    readonly nonEmpty: VariantValuedGraphBase.NonEmpty<this['_N'], this['_V']>;
+    readonly link: ValuedLink<this['_N'], this['_V']>;
+    readonly linkTarget: ValuedLink.Target<this['_N'], this['_V']>;
   }
 }

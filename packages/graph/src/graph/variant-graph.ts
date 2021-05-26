@@ -30,7 +30,7 @@ export namespace VariantGraph {
   }
 
   export interface Types extends VariantGraphBase.Types {
-    normal: VariantGraph<this['_N']>;
-    nonEmpty: VariantGraph.NonEmpty<this['_N']>;
+    readonly normal: VariantGraph<this['_N']>;
+    readonly nonEmpty: VariantGraph.NonEmpty<this['_N']>;
   }
 }

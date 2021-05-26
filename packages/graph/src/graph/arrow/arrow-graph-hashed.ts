@@ -54,25 +54,31 @@ export namespace ArrowGraphHashed {
   }
 
   export interface Types extends ArrowGraphBase.Types {
-    normal: ArrowGraphHashed<this['_N']>;
-    nonEmpty: ArrowGraphHashed.NonEmpty<this['_N']>;
-    context: ArrowGraphHashed.Context<this['_N']>;
-    builder: ArrowGraphHashed.Builder<this['_N']>;
-    linkMap: HashMap<this['_N'], HashSet<this['_N']>> &
+    readonly normal: ArrowGraphHashed<this['_N']>;
+    readonly nonEmpty: ArrowGraphHashed.NonEmpty<this['_N']>;
+    readonly context: ArrowGraphHashed.Context<this['_N']>;
+    readonly builder: ArrowGraphHashed.Builder<this['_N']>;
+    readonly linkMap: HashMap<this['_N'], HashSet<this['_N']>> &
       HashMap<this['_N'], RSet<this['_N']>>;
-    linkMapNonEmpty: HashMap.NonEmpty<this['_N'], HashSet<this['_N']>> &
+    readonly linkMapNonEmpty: HashMap.NonEmpty<
+      this['_N'],
+      HashSet<this['_N']>
+    > &
       HashMap.NonEmpty<this['_N'], RSet<this['_N']>>;
-    linkMapContext: HashMap.Context<this['_N']>;
-    linkConnectionsContext: HashSet.Context<this['_N']>;
-    linkMapBuilder: HashMap.Builder<this['_N'], HashSet.Builder<this['_N']>> &
+    readonly linkMapContext: HashMap.Context<this['_N']>;
+    readonly linkConnectionsContext: HashSet.Context<this['_N']>;
+    readonly linkMapBuilder: HashMap.Builder<
+      this['_N'],
+      HashSet.Builder<this['_N']>
+    > &
       HashMap.Builder<this['_N'], RSet.Builder<this['_N']>>;
-    linkConnectionsBuilder: HashSet.Builder<this['_N']>;
-    linkConnections: HashSet<this['_N']>;
+    readonly linkConnectionsBuilder: HashSet.Builder<this['_N']>;
+    readonly linkConnections: HashSet<this['_N']>;
   }
 }
 
 interface TypesImpl extends ArrowGraphHashed.Types {
-  context: GraphContext<this['_N'], 'ArrowGraphHashed', true, any>;
+  readonly context: GraphContext<this['_N'], 'ArrowGraphHashed', true, any>;
 }
 
 function createContext<UN>(options?: {

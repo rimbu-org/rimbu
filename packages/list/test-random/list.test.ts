@@ -279,16 +279,7 @@ function runWith(nrOfBits: number): void {
       const list = context.from(Stream.range({ amount: 10 }));
       expect(list.toArray()).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
       expect(list.toArray(undefined, true)).toEqual([
-        9,
-        8,
-        7,
-        6,
-        5,
-        4,
-        3,
-        2,
-        1,
-        0,
+        9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
       ]);
       expect(list.toArray({ start: 5 })).toEqual([5, 6, 7, 8, 9]);
       expect(list.toArray({ end: 5 })).toEqual([0, 1, 2, 3, 4, 5]);
@@ -298,16 +289,7 @@ function runWith(nrOfBits: number): void {
       const list2 = list.reversed();
       expect(list2.toArray()).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
       expect(list2.toArray(undefined, true)).toEqual([
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
       ]);
       expect(list2.toArray({ start: 5 })).toEqual([4, 3, 2, 1, 0]);
       expect(list2.toArray({ end: 5 })).toEqual([9, 8, 7, 6, 5, 4]);

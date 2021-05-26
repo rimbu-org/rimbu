@@ -44,15 +44,15 @@ export namespace ArrowGraph {
     extends ArrowGraphBase.Context<UN, ArrowGraph.Types> {}
 
   export interface Types extends ArrowGraphBase.Types {
-    normal: ArrowGraph<this['_N']>;
-    nonEmpty: ArrowGraph.NonEmpty<this['_N']>;
-    context: ArrowGraph.Context<this['_N']>;
-    builder: ArrowGraph.Builder<this['_N']>;
+    readonly normal: ArrowGraph<this['_N']>;
+    readonly nonEmpty: ArrowGraph.NonEmpty<this['_N']>;
+    readonly context: ArrowGraph.Context<this['_N']>;
+    readonly builder: ArrowGraph.Builder<this['_N']>;
   }
 }
 
 interface TypesImpl extends ArrowGraph.Types {
-  context: GraphContext<this['_N'], string, true, any>;
+  readonly context: GraphContext<this['_N'], string, true, any>;
 }
 
 export const ArrowGraph = {

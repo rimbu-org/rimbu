@@ -1,6 +1,6 @@
 import { List } from '@rimbu/list';
 import { expectError, expectType } from 'tsd';
-import { patch, matchAll, Literal, Immutable } from '../src';
+import { patch, Match, Literal, Immutable } from '../src';
 
 let m!: {
   a: number;
@@ -59,28 +59,28 @@ expectType<M>(patch(m)({ f: Literal(List.of(1, 2, 3)) }));
 
 // Match
 
-// expectError(matchAll(1)(2));
-// expectError(matchAll(true)(false));
-// expectError(matchAll('abc')('def'));
-// expectError(matchAll([])([1]));
-// expectError(matchAll([1, 2, 3])([]));
-// expectError(matchAll({}));
-expectError(matchAll(m)(undefined));
-expectError(matchAll(m)({ z: 1 }));
-expectError(matchAll(m)({ z: undefined }));
-expectError(matchAll(m)({ a: true }));
-expectError(matchAll(m)({ a: 1, z: 1 }));
-expectError(matchAll(m)({ a: Literal(undefined) }));
-expectError(matchAll(m)({ a: null }));
-expectError(matchAll(m)({ a: Literal(null) }));
-expectError(matchAll(m)({ b: [1] }));
-expectError(matchAll(m)({ b: ['a'] }));
-expectError(matchAll(m)({ b: null }));
-expectError(matchAll(m)({ c: { d: 1 } }));
-expectError(matchAll(m)({ c: { d: null } }));
-expectError(matchAll(m)({ c: { d: Literal(null) } }));
-expectError(matchAll(m)({ c: { d: Literal(undefined) } }));
-expectError(matchAll(m)({ c: null }));
-expectError(matchAll(m)({ f: [1, 2] }));
-expectError(matchAll(m)({ f: List.empty<number>() }));
-expectError(matchAll(m)({ f: { a: 1 } }));
+// expectError(Match.all(1)(2));
+// expectError(Match.all(true)(false));
+// expectError(Match.all('abc')('def'));
+// expectError(Match.all([])([1]));
+// expectError(Match.all([1, 2, 3])([]));
+// expectError(Match.all({}));
+expectError(Match.all(m)(undefined));
+expectError(Match.all(m)({ z: 1 }));
+expectError(Match.all(m)({ z: undefined }));
+expectError(Match.all(m)({ a: true }));
+expectError(Match.all(m)({ a: 1, z: 1 }));
+expectError(Match.all(m)({ a: Literal(undefined) }));
+expectError(Match.all(m)({ a: null }));
+expectError(Match.all(m)({ a: Literal(null) }));
+expectError(Match.all(m)({ b: [1] }));
+expectError(Match.all(m)({ b: ['a'] }));
+expectError(Match.all(m)({ b: null }));
+expectError(Match.all(m)({ c: { d: 1 } }));
+expectError(Match.all(m)({ c: { d: null } }));
+expectError(Match.all(m)({ c: { d: Literal(null) } }));
+expectError(Match.all(m)({ c: { d: Literal(undefined) } }));
+expectError(Match.all(m)({ c: null }));
+expectError(Match.all(m)({ f: [1, 2] }));
+expectError(Match.all(m)({ f: List.empty<number>() }));
+expectError(Match.all(m)({ f: { a: 1 } }));

@@ -1,6 +1,6 @@
 import { Token } from '@rimbu/base';
 import { RMap } from '@rimbu/collection-types';
-import { OptLazy, OptLazyOr, RelatedTo } from '@rimbu/common';
+import { OptLazy, OptLazyOr, RelatedTo, ToJSON } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import {
   GraphEmptyBase,
@@ -15,8 +15,9 @@ export class ValuedGraphEmpty<
     Tp extends ValuedGraphTypesContextImpl,
     TpG extends WithGraphValues<Tp, N, V> = WithGraphValues<Tp, N, V>
   >
-  extends GraphEmptyBase<TpG['normal']>
-  implements ValuedGraphBase<N, V, Tp> {
+  extends GraphEmptyBase
+  implements ValuedGraphBase<N, V, Tp>
+{
   constructor(readonly isDirected: boolean, readonly context: TpG['context']) {
     super();
   }
@@ -102,6 +103,13 @@ export class ValuedGraphEmpty<
 
   toString(): string {
     return `${this.context.typeTag}()`;
+  }
+
+  toJSON(): ToJSON<any[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
   }
 
   toBuilder(): TpG['builder'] {

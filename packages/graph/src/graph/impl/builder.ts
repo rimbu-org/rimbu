@@ -7,7 +7,7 @@ import { GraphElement, Link } from '../../internal';
 export class GraphBuilder<
   N,
   Tp extends GraphTypesContextImpl,
-  TpG extends WithGraphValues<Tp, N, unknown> = WithGraphValues<Tp, N, unknown>
+  TpG extends WithGraphValues<Tp, N, any> = WithGraphValues<Tp, N, any>
 > {
   connectionSize = 0;
 

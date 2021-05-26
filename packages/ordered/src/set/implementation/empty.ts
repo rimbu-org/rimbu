@@ -1,4 +1,5 @@
 import { CustomBase } from '@rimbu/collection-types';
+import { ToJSON } from '@rimbu/common';
 import { List } from '@rimbu/list';
 import { StreamSource } from '@rimbu/stream';
 import {
@@ -13,7 +14,8 @@ export class OrderedSetEmpty<
     TpG extends CustomBase.WithElem<Tp, T> = CustomBase.WithElem<Tp, T>
   >
   extends CustomBase.EmptyBase
-  implements OrderedSetBase<T, Tp> {
+  implements OrderedSetBase<T, Tp>
+{
   constructor(readonly context: CustomBase.WithElem<Tp, T>['context']) {
     super();
   }
@@ -75,5 +77,12 @@ export class OrderedSetEmpty<
 
   toString(): string {
     return 'OrderedSet()';
+  }
+
+  toJSON(): ToJSON<any[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
   }
 }

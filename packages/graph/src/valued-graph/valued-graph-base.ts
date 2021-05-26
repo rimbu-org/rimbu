@@ -113,13 +113,10 @@ export interface ValuedGraphBase<
 }
 
 export namespace ValuedGraphBase {
-  type NonEmptyBase<
-    N,
-    V,
-    Tp extends ValuedGraphBase.Types
-  > = VariantValuedGraphBase.NonEmpty<N, V, Tp> &
-    GraphConnectNonEmpty<N, V, Tp> &
-    ValuedGraphBase<N, V, Tp>;
+  type NonEmptyBase<N, V, Tp extends ValuedGraphBase.Types> =
+    VariantValuedGraphBase.NonEmpty<N, V, Tp> &
+      GraphConnectNonEmpty<N, V, Tp> &
+      ValuedGraphBase<N, V, Tp>;
 
   export interface NonEmpty<
     N,
@@ -488,20 +485,23 @@ export namespace ValuedGraphBase {
   }
 
   export interface Types extends VariantValuedGraphBase.Types {
-    normal: ValuedGraphBase<this['_N'], this['_V']> &
+    readonly normal: ValuedGraphBase<this['_N'], this['_V']> &
       VariantGraphBase<this['_N'], this['_V']>;
-    nonEmpty: ValuedGraphBase.NonEmpty<this['_N'], this['_V']>;
-    context: ValuedGraphBase.Context<this['_N']>;
-    builder: ValuedGraphBase.Builder<this['_N'], this['_V']>;
-    linkMap: RMap<this['_N'], RMap<this['_N'], this['_V']>>;
-    linkMapNonEmpty: RMap.NonEmpty<this['_N'], RMap<this['_N'], this['_V']>>;
-    linkMapContext: RMap.Context<this['_N']>;
-    linkConnectionsContext: RMap.Context<this['_N']>;
-    linkMapBuilder: RMap.Builder<
+    readonly nonEmpty: ValuedGraphBase.NonEmpty<this['_N'], this['_V']>;
+    readonly context: ValuedGraphBase.Context<this['_N']>;
+    readonly builder: ValuedGraphBase.Builder<this['_N'], this['_V']>;
+    readonly linkMap: RMap<this['_N'], RMap<this['_N'], this['_V']>>;
+    readonly linkMapNonEmpty: RMap.NonEmpty<
+      this['_N'],
+      RMap<this['_N'], this['_V']>
+    >;
+    readonly linkMapContext: RMap.Context<this['_N']>;
+    readonly linkConnectionsContext: RMap.Context<this['_N']>;
+    readonly linkMapBuilder: RMap.Builder<
       this['_N'],
       RMap.Builder<this['_N'], this['_V']>
     >;
-    linkConnectionsBuilder: RMap.Builder<this['_N'], this['_V']>;
-    linkConnections: RMap<this['_N'], this['_V']>;
+    readonly linkConnectionsBuilder: RMap.Builder<this['_N'], this['_V']>;
+    readonly linkConnections: RMap<this['_N'], this['_V']>;
   }
 }

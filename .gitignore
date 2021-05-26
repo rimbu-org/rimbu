@@ -8,3 +8,6 @@ coverage
 benchmark
 
 yarn-error.log
+
+.eslintcache
+lerna-debug.log

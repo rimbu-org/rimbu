@@ -1,11 +1,12 @@
 import { CustomBase as CB } from '@rimbu/collection-types';
-import { RelatedTo, TraverseState } from '@rimbu/common';
+import { RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { BiMultiMapBase, ContextTypesImpl } from '../bimultimap-custom';
 
 export class BiMultiMapEmpty<K, V, Tp extends ContextTypesImpl>
   extends CB.EmptyBase
-  implements BiMultiMapBase<K, V, Tp> {
+  implements BiMultiMapBase<K, V, Tp>
+{
   constructor(readonly context: CB.WithKeyValue<Tp, K, V>['context']) {
     super();
   }
@@ -109,6 +110,13 @@ export class BiMultiMapEmpty<K, V, Tp extends ContextTypesImpl>
     return `${this.context.typeTag}()`;
   }
 
+  toJSON(): ToJSON<any[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
+  }
+
   toBuilder(): CB.WithKeyValue<Tp, K, V>['builder'] {
     return this.context.builder();
   }
@@ -121,7 +129,8 @@ export class BiMultiMapNonEmpty<
     TpG extends CB.WithKeyValue<Tp, K, V> = CB.WithKeyValue<Tp, K, V>
   >
   extends CB.NonEmptyBase<[K, V]>
-  implements BiMultiMapBase.NonEmpty<K, V, Tp> {
+  implements BiMultiMapBase.NonEmpty<K, V, Tp>
+{
   constructor(
     readonly context: CB.WithKeyValue<Tp, K, V>['context'],
     readonly keyValueMultiMap: TpG['keyValueMultiMapNonEmpty'],
@@ -349,6 +358,13 @@ export class BiMultiMapNonEmpty<
           .join({ start: '(', sep: ', ', end: ')' })}`;
       },
     });
+  }
+
+  toJSON(): ToJSON<[K, V[]][], this['context']['typeTag']> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.keyValueMultiMap.toJSON().value,
+    };
   }
 
   toBuilder(): CB.WithKeyValue<Tp, K, V>['builder'] {

@@ -1,6 +1,6 @@
 import { Arr, RimbuError } from '@rimbu/base';
 import { CustomBase } from '@rimbu/collection-types';
-import { ArrayNonEmpty, RelatedTo, TraverseState } from '@rimbu/common';
+import { ArrayNonEmpty, RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
 import { List } from '@rimbu/list';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { HashSetContext } from '../hashset-custom';
@@ -8,7 +8,8 @@ import { HashSet } from '../internal';
 
 export class HashSetEmpty<T = any>
   extends CustomBase.EmptyBase
-  implements HashSet<T> {
+  implements HashSet<T>
+{
   constructor(readonly context: HashSetContext<T>) {
     super();
   }
@@ -58,11 +59,19 @@ export class HashSetEmpty<T = any>
   toString(): string {
     return `HashSet()`;
   }
+
+  toJSON(): ToJSON<T[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
+  }
 }
 
 export abstract class HashSetNonEmptyBase<T>
   extends CustomBase.NonEmptyBase<T>
-  implements HashSet.NonEmpty<T> {
+  implements HashSet.NonEmpty<T>
+{
   abstract context: HashSetContext<T>;
   abstract readonly size: number;
   abstract stream(): Stream.NonEmpty<T>;
@@ -161,6 +170,13 @@ export abstract class HashSetNonEmptyBase<T>
 
   toString(): string {
     return this.stream().join({ start: 'HashSet(', sep: ', ', end: ')' });
+  }
+
+  toJSON(): ToJSON<T[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
   }
 }
 

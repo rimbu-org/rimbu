@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    // targets
+    "target": "ES2020",
+    "module": "ES2020",
+    "moduleResolution": "node",
+    // standard
+    "lib": ["esnext"],
+    "importHelpers": true,
+    "sourceMap": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "downlevelIteration": true,
+    "noStrictGenericChecks": true,
+    "baseUrl": "./",
+    "paths": {
+      "tslib": ["../node_modules/tslib/tslib.d.ts"]
+    },
+    // custom
+    "declaration": false
+  }
+}

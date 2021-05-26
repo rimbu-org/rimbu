@@ -1,5 +1,5 @@
 import { Stream, Streamable } from '@rimbu/stream';
-import { GraphElement } from '../common/utils';
+import { GraphElement } from '../common/link';
 import { GraphBase } from '../graph-custom';
 
 /**
@@ -40,8 +40,8 @@ export namespace Graph {
   export interface Context<UN> extends GraphBase.Context<UN, Graph.Types> {}
 
   export interface Types extends GraphBase.Types {
-    normal: Graph<this['_N']>;
-    nonEmpty: Graph.NonEmpty<this['_N']>;
-    context: Graph.Context<this['_N']>;
+    readonly normal: Graph<this['_N']>;
+    readonly nonEmpty: Graph.NonEmpty<this['_N']>;
+    readonly context: Graph.Context<this['_N']>;
   }
 }

@@ -192,6 +192,22 @@ export namespace Comp {
     return _stringCharCodeComp;
   }
 
+  const _anyToStringComp: Comp<any> = {
+    isComparable(obj: any): obj is any {
+      return true;
+    },
+    compare(v1: any, v2: any): number {
+      return String(v1).localeCompare(String(v2), 'und');
+    },
+  };
+
+  /**
+   * Returns a any Comp instance that orders any according to their toString values.
+   */
+  export function anyToStringComp(): Comp<any> {
+    return _anyToStringComp;
+  }
+
   /**
    * Returns a Comp instance that orders objects with a `valueOf` method according to the given `valueComp` instance for the valueOf values.
    * @param cls - the constructor of the values the Comp instance can compare
@@ -387,7 +403,7 @@ export namespace Comp {
 
         if (type1 !== type2) {
           // we can only compare different types though strings
-          return _anyStringJSONComp.compare(v1, v2);
+          return _anyToStringComp.compare(v1, v2);
         }
 
         switch (type1) {
@@ -428,7 +444,7 @@ export namespace Comp {
           }
         }
 
-        return _anyStringJSONComp.compare(v1, v2);
+        return _anyToStringComp.compare(v1, v2);
       },
     };
   }
@@ -440,7 +456,7 @@ export namespace Comp {
    * const c = Comp.anyFlatComp();
    * console.log(c.compare({ a: 1, b: 1 }, { b: 1, a: 1 }) < 0)
    * // => true
-   * // First object is smaller because the objects are converted to a string with JSON.stringify and then compares the resulting string.
+   * // First object is smaller because the objects are converted to a string with and then compares the resulting string.
    */
   export function anyFlatComp<T>(): Comp<T> {
     return _anyFlatComp;
@@ -455,7 +471,7 @@ export namespace Comp {
    * // => 0
    * console.log(c.compare([{ a: 1, b: 1 }], [{ b: 1, a: 1 }]) < 0)
    * // => true
-   * // First object is smaller because the objects are converted to a string with JSON.stringify and then compares the resulting string.
+   * // First object is smaller because the objects are converted to a string and then compares the resulting string.
    */
   export function anyShallowComp<T>(): Comp<T> {
     return _anyShallowComp;

@@ -1,6 +1,6 @@
 ![logo](_media/rimbu_logo.svg)
 
-# rimbu <small>0.5</small>
+# rimbu
 
 > Immutable collections and tools for TypeScript
 

@@ -4,6 +4,7 @@ import {
   ArrayNonEmpty,
   OptLazy,
   RelatedTo,
+  ToJSON,
   TraverseState,
 } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
@@ -16,7 +17,8 @@ export interface ContextImplTypes extends MultiMapBase.Types {
 
 export class MultiMapEmpty<K, V, Tp extends ContextImplTypes>
   extends CB.EmptyBase
-  implements MultiMapBase<K, V, Tp> {
+  implements MultiMapBase<K, V, Tp>
+{
   constructor(readonly context: CB.WithKeyValue<Tp, K, V>['context']) {
     super();
   }
@@ -115,6 +117,13 @@ export class MultiMapEmpty<K, V, Tp extends ContextImplTypes>
   toString(): string {
     return `${this.context.typeTag}()`;
   }
+
+  toJSON(): ToJSON<[K, V[]][]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
+  }
 }
 
 export class MultiMapNonEmpty<
@@ -124,7 +133,8 @@ export class MultiMapNonEmpty<
     TpG extends CB.WithKeyValue<Tp, K, V> = CB.WithKeyValue<Tp, K, V>
   >
   extends CB.NonEmptyBase<[K, V]>
-  implements MultiMapBase.NonEmpty<K, V, Tp> {
+  implements MultiMapBase.NonEmpty<K, V, Tp>
+{
   constructor(
     readonly context: TpG['context'],
     readonly keyMap: TpG['keyMapNonEmpty'],
@@ -362,6 +372,16 @@ export class MultiMapNonEmpty<
     });
   }
 
+  toJSON(): ToJSON<[K, V[]][]> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.keyMap
+        .stream()
+        .map((entry) => [entry[0], entry[1].toArray()] as [K, V[]])
+        .toArray(),
+    };
+  }
+
   toBuilder(): TpG['builder'] {
     return this.context.createBuilder(this as any);
   }
@@ -372,7 +392,8 @@ export class MultiMapBuilder<
   V,
   Tp extends ContextImplTypes,
   TpG extends CB.WithKeyValue<Tp, K, V> = CB.WithKeyValue<Tp, K, V>
-> implements MultiMapBase.Builder<K, V, Tp> {
+> implements MultiMapBase.Builder<K, V, Tp>
+{
   _lock = 0;
   _size = 0;
 
@@ -587,7 +608,8 @@ export class MultiMapContext<
   UV,
   N extends string,
   Tp extends ContextImplTypes
-> implements MultiMapBase.Context<UK, UV, Tp> {
+> implements MultiMapBase.Context<UK, UV, Tp>
+{
   constructor(
     readonly typeTag: N,
     readonly keyMapContext: (Tp & CB.KeyValue<UK, UV>)['keyMapContext'],
