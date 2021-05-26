@@ -5,8 +5,6 @@
   "compilerOptions": {
     "outDir": "./dist",
     "jsx": "react",
-    "module": "esnext",
-    "target": "esnext",
     "lib": ["esnext", "dom"],
     "noEmit": true,
     // needed again for tsd

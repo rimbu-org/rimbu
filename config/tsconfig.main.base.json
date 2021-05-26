@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     // targets
-    "target": "ES2020",
+    "target": "ES5",
     "module": "commonjs",
     // standard
     "lib": ["esnext"],

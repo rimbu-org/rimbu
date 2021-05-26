@@ -18,7 +18,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
+        with:
+        node-version: '12.x'
+        registry-url: 'https://registry.npmjs.org'
+        # Defaults to the user or organization that owns the workflow file
+        scope: '@rimbu'
       - run: yarn setup
       - run: yarn format:check
       - run: yarn lint
