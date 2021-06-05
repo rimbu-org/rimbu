@@ -21,6 +21,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "build": "lerna run build",
+    "clean": "lerna run clean && lerna clean --yes && yarn setup",
     "docsify": "docsify serve docs",
     "format": "yarn format:root & lerna run format --parallel",
     "format:check": "yarn format:root-check & lerna run format:check",
