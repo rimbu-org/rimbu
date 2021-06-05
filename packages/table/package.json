@@ -50,7 +50,6 @@
     "format:base": "prettier \"**/*.{ts,tsx,js,json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
-    "test:random": "jest --config jest-random.config.json",
     "test:types": "tsd",
     "typecheck": "tsc"
   },
