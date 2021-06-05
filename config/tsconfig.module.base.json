@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     // targets
-    "target": "ES2020",
+    "target": "ES2015",
     "module": "ES2020",
     "moduleResolution": "node",
     // standard
