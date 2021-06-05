@@ -1,14 +1,33 @@
-import { Tail } from './internal';
-
 /**
  * A function returning true if given `v1` and `v2` should be considered equal.
  */
 export type Eq<T> = (v1: T, v2: T) => boolean;
 
 export namespace Eq {
+  export function convertAnyToString(value: any): string {
+    if (
+      typeof value !== 'object' ||
+      null === value ||
+      !('toString' in value) ||
+      typeof value.toString !== 'function' ||
+      value.toString !== Object.prototype.toString
+    ) {
+      return String(value);
+    }
+
+    return JSON.stringify(value);
+  }
+
   const _anyFlatEq: Eq<any> = createAnyEq('FLAT');
   const _anyShallowEq: Eq<any> = createAnyEq('SHALLOW');
   const _anyDeepEq: Eq<any> = createAnyEq('DEEP');
+
+  /**
+   * Returns the default Eq instance, which is the Eq.anyDeepEq() instance.
+   */
+  export function defaultEq(): Eq<any> {
+    return _anyDeepEq;
+  }
 
   /**
    * An Eq instance that uses `Object.is` to determine if two objects are equal.
@@ -54,6 +73,8 @@ export namespace Eq {
 
   function createIterableEq<T>(itemEq: Eq<T>): Eq<Iterable<T>> {
     return (v1, v2) => {
+      if (Object.is(v1, v2)) return true;
+
       const iter1 = v1[Symbol.iterator]();
       const iter2 = v2[Symbol.iterator]();
 
@@ -68,7 +89,7 @@ export namespace Eq {
     };
   }
 
-  const _iterableAnyEq: Eq<Iterable<any>> = createIterableEq(anyFlatEq());
+  const _iterableAnyEq: Eq<Iterable<any>> = createIterableEq(defaultEq());
 
   /**
    * Returns an Eq instance that compares Iterables by comparing their elements with the given `itemEq` Eq instance.
@@ -89,6 +110,8 @@ export namespace Eq {
 
   function createObjectEq(valueEq: Eq<any>): Eq<Record<any, any>> {
     return (v1, v2) => {
+      if (Object.is(v1, v2)) return true;
+
       if (v1.constructor !== v2.constructor) return false;
 
       for (const key in v1) {
@@ -110,7 +133,7 @@ export namespace Eq {
     };
   }
 
-  const _objectEq: Eq<Record<any, any>> = createObjectEq(anyFlatEq());
+  const _objectEq: Eq<Record<any, any>> = createObjectEq(defaultEq());
 
   /**
    * Returns an Eq instance that checks equality of objects containing property values of type V by iteratively
@@ -131,7 +154,7 @@ export namespace Eq {
   }
 
   function createAnyEq(mode: 'FLAT' | 'SHALLOW' | 'DEEP'): Eq<any> {
-    const result: Eq<any> = (v1, v2) => {
+    const result: Eq<any> = (v1, v2): boolean => {
       if (Object.is(v1, v2)) return true;
 
       const type1 = typeof v1;
@@ -148,7 +171,7 @@ export namespace Eq {
         case 'symbol':
         case 'function':
           return Object.is(v1, v2);
-        default: {
+        case 'object': {
           if (v1 === null || v2 === null) return false;
 
           if (v1.constructor !== v2.constructor) {
@@ -166,15 +189,21 @@ export namespace Eq {
 
           if (mode !== 'FLAT') {
             if (Symbol.iterator in v1 && Symbol.iterator in v2) {
-              if (mode === 'SHALLOW') return _iterableAnyEq(v1, v2);
+              if (mode === 'SHALLOW') {
+                return createIterableEq(_anyFlatEq)(v1, v2);
+              }
 
               return createIterableEq(result)(v1, v2);
+            }
+
+            if (mode === 'SHALLOW') {
+              return createObjectEq(_anyFlatEq)(v1, v2);
             }
 
             return _objectEq(v1, v2);
           }
 
-          return _anyJsonEq(v1, v2);
+          return _anyToStringEq(v1, v2);
         }
       }
     };
@@ -234,13 +263,33 @@ export namespace Eq {
     return _anyDeepEq;
   }
 
-  function createStringEq(
-    ...args: Tail<Parameters<string['localeCompare']>>
+  const _defaultCollator = Intl.Collator('und');
+
+  const _defaultStringCollatorEq: Eq<any> = (v1, v2) =>
+    _defaultCollator.compare(v1, v2) === 0;
+
+  /**
+   * Returns an Eq instance that considers strings equal taking the given or default locale into account.
+   * @param locales - (optional) a locale or list of locales
+   * @param options - (optional) see String.localeCompare for details
+   * @example
+   * const eq = Eq.createStringCollatorEq()
+   * console.log(eq('a', 'a'))
+   * // => true
+   * console.log(eq('abc', 'aBc'))
+   * // => false
+   */
+  export function createStringCollatorEq(
+    ...args: ConstructorParameters<typeof Intl.Collator>
   ): Eq<string> {
-    return (v1, v2) => v1.localeCompare(v2, ...args) === 0;
+    if (args.length === 0) return _defaultStringCollatorEq;
+
+    const collator = Intl.Collator(...args);
+
+    return (v1, v2) => collator.compare(v1, v2) === 0;
   }
 
-  const _stringCaseInsensitiveEq: Eq<string> = createStringEq('und', {
+  const _stringCaseInsensitiveEq: Eq<string> = createStringCollatorEq('und', {
     sensitivity: 'accent',
   });
 
@@ -255,27 +304,6 @@ export namespace Eq {
    */
   export function stringCaseInsentitiveEq(): Eq<string> {
     return _stringCaseInsensitiveEq;
-  }
-
-  const _stringEq: Eq<string> = createStringEq();
-
-  /**
-   * Returns an Eq instance that considers strings equal taking the given or default locale into account.
-   * @param locales - (optional) a locale or list of locales
-   * @param options - (optional) see String.localeCompare for details
-   * @example
-   * const eq = Eq.stringLocaleEq()
-   * console.log(eq('a', 'a'))
-   * // => true
-   * console.log(eq('abc', 'aBc'))
-   * // => false
-   */
-  export function stringLocaleEq(
-    ...args: Tail<Parameters<string['localeCompare']>>
-  ) {
-    if (args.length === 0) return _stringEq;
-
-    return createStringEq(...args);
   }
 
   const _stringCharCodeEq: Eq<string> = (v1, v2) => {
@@ -306,14 +334,14 @@ export namespace Eq {
   }
 
   const _anyToStringEq: Eq<any> = (v1, v2) =>
-    String(v1).localeCompare(String(v2), 'und') === 0;
+    convertAnyToString(v1) === convertAnyToString(v2);
 
   export function anyToStringEq(): Eq<any> {
     return _anyToStringEq;
   }
 
   const _anyJsonEq: Eq<any> = (v1, v2) =>
-    Object.is(JSON.stringify(v1), JSON.stringify(v2));
+    JSON.stringify(v1) === JSON.stringify(v2);
 
   /**
    * Returns an Eq instance that considers values equal their JSON.stringify values are equal.
@@ -342,7 +370,7 @@ export namespace Eq {
    * // => false
    */
   export function tupleSymmetric<T>(
-    eq: Eq<T> = Eq.objectIs
+    eq: Eq<T> = defaultEq()
   ): Eq<readonly [T, T]> {
     return (tup1: readonly [T, T], tup2: readonly [T, T]): boolean =>
       (eq(tup1[0], tup2[0]) && eq(tup1[1], tup2[1])) ||

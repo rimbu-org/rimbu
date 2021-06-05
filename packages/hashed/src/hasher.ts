@@ -1,3 +1,4 @@
+import { Eq } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 
 /**
@@ -48,6 +49,10 @@ export namespace Hasher {
   const _anyShallowHasher: Hasher<any> = createAnyHasher('SHALLOW');
   const _anyDeepHasher: Hasher<any> = createAnyHasher('DEEP');
 
+  export function defaultHasher(): Hasher<any> {
+    return _anyShallowHasher;
+  }
+
   function createStringHasher(maxStepBits: number): Hasher<string> {
     const maxSteps = 1 << maxStepBits;
 
@@ -83,12 +88,12 @@ export namespace Hasher {
     return _stringHasher;
   }
 
-  const _anyStringHasher: Hasher<any> = {
+  const _anyToStringHasher: Hasher<any> = {
     isValid(obj: unknown): obj is any {
       return true;
     },
     hash(value) {
-      return _stringHasher.hash(String(value));
+      return _stringHasher.hash(Eq.convertAnyToString(value));
     },
   };
 
@@ -96,11 +101,11 @@ export namespace Hasher {
    * Returns a Hasher instance that hashes the string representation of any value
    * @param maxStepBits - the maximum amount of samples to take from the string
    * @example
-   * const h = Hasher.anyStringHasher()
+   * const h = Hasher.anyToStringHasher()
    * h.hash([1, 3, 'a'])
    */
-  export function anyStringHasher(maxStepBits?: number): Hasher<any> {
-    if (undefined === maxStepBits) return _anyStringHasher;
+  export function anyToStringHasher(maxStepBits?: number): Hasher<any> {
+    if (undefined === maxStepBits) return _anyToStringHasher;
 
     return createStringHasher(maxStepBits);
   }
@@ -126,6 +131,39 @@ export namespace Hasher {
     return _anyJsonStringHasher;
   }
 
+  function createStringCaseInsensitiveHasher(
+    maxStepBits: number
+  ): Hasher<string> {
+    const maxSteps = 1 << maxStepBits;
+
+    return {
+      isValid(obj: unknown): obj is string {
+        return typeof obj === 'string';
+      },
+      hash(value) {
+        const length = Math.min(value.length, maxSteps);
+        const stepSize = Math.max(1, value.length >>> maxStepBits);
+
+        let result = STRING_INIT;
+
+        // implement times 31 = 32 - 1
+        for (let i = 0; i < length; i += stepSize) {
+          const char = value.charAt(i).toUpperCase();
+          result = ((result << 5) - result + char.charCodeAt(0)) | 0;
+        }
+
+        return result;
+      },
+    };
+  }
+
+  const _stringCaseInsensitiveHasher: Hasher<string> =
+    createStringCaseInsensitiveHasher(MAX_STEP_BITS);
+
+  export function stringCaseInsensitiveHasher(): Hasher<string> {
+    return _stringCaseInsensitiveHasher;
+  }
+
   function createArrayHasher<T>(
     itemHasher: Hasher<T>,
     maxStepBits: number
@@ -144,7 +182,8 @@ export namespace Hasher {
 
         // implement times 31 = 32 - 1
         for (let i = 0; i < length; i += stepSize) {
-          result = ((result << 5) - result + itemHasher.hash(value[i])) | 0;
+          result =
+            ((result << 5) - result + (i + 1) * itemHasher.hash(value[i])) | 0;
         }
 
         return result;
@@ -153,7 +192,7 @@ export namespace Hasher {
   }
 
   const _arrayAnyHasher: Hasher<readonly any[]> = createArrayHasher(
-    anyFlatHasher(),
+    defaultHasher(),
     MAX_STEP_BITS
   );
 
@@ -183,7 +222,7 @@ export namespace Hasher {
   }
 
   function createStreamSourceHasher<T>(
-    itemHasher: Hasher<T> = anyFlatHasher(),
+    itemHasher: Hasher<T> = defaultHasher(),
     maxStepBits = MAX_STEP_BITS
   ): Hasher<StreamSource<T>> {
     const maxSteps = 1 << maxStepBits;
@@ -246,7 +285,7 @@ export namespace Hasher {
   }
 
   const _streamSourceAnyHasher: Hasher<StreamSource<any>> =
-    createStreamSourceHasher(anyFlatHasher(), MAX_STEP_BITS);
+    createStreamSourceHasher(defaultHasher(), MAX_STEP_BITS);
 
   /**
    * Returns a Hasher instance that hashes any StreamSource limited to a certain amount
@@ -293,7 +332,7 @@ export namespace Hasher {
       }
 
       // not sure what else it could be
-      return _stringHasher.hash(String(value));
+      return _anyToStringHasher.hash(value);
     },
   };
 
@@ -334,7 +373,7 @@ export namespace Hasher {
     isValid(obj: unknown): obj is bigint {
       return typeof obj === 'bigint';
     },
-    hash: _anyStringHasher.hash,
+    hash: _anyToStringHasher.hash,
   };
 
   /**
@@ -368,7 +407,7 @@ export namespace Hasher {
     cls: {
       new (): T;
     },
-    valueHasher: Hasher<V> = anyShallowHasher()
+    valueHasher: Hasher<V> = anyFlatHasher()
   ): Hasher<T> {
     return {
       isValid(obj): obj is T {
@@ -441,9 +480,11 @@ export namespace Hasher {
   ): Hasher<Record<any, any>> {
     return {
       isValid(obj): obj is Record<any, any> {
-        return typeof obj === 'object' && obj !== null;
+        return typeof obj === 'object';
       },
       hash(value) {
+        if (value === null) return NULL_VALUE;
+
         let result = OBJ_INIT;
 
         // implement order independent hash
@@ -497,15 +538,29 @@ export namespace Hasher {
 
   /**
    * Returns a Hasher instance that hashes objects of key type K and value type V.
+   * If a value if an object or array, it will convert those values to a string.
+   * @typeparam K - the key type
+   * @typeparam V - the value type
+   * @example
+   * const h = Hasher.objectShallowHasher()
+   * console.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))
+   * // => true
+   */
+  export function objectShallowHasher<
+    K extends string | number | symbol,
+    V = any
+  >(): Hasher<Record<K, V>> {
+    return _objectShallowHasher;
+  }
+
+  /**
+   * Returns a Hasher instance that hashes objects of key type K and value type V.
    * If a value if an object or array, it will recursively hash its values.
    * @note be careful with circular structures, they can cause an infinite loop
    * @typeparam K - the key type
    * @typeparam V - the value type
-   * @param options - (optional) an object containing:
-   * * keyHasher - (optional) a Hasher instance that is used to hash object keys
-   * * valueHasher - (optional) a Hasher instance that is used to hash object values
    * @example
-   * const h = Hasher.objectHasher()
+   * const h = Hasher.objectDeepHasher()
    * console.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))
    * // => true
    */
@@ -540,8 +595,8 @@ export namespace Hasher {
             return _stringHasher.hash(value);
           case 'function':
           case 'symbol':
-            return _anyStringHasher.hash(value);
-          default: {
+            return _anyToStringHasher.hash(value);
+          case 'object': {
             if (null === value) return NULL_VALUE;
 
             const result = tryWrappedHasher(value);
@@ -550,24 +605,34 @@ export namespace Hasher {
 
             if (mode !== 'FLAT') {
               if (Array.isArray(value)) {
-                if (mode === 'SHALLOW') return _arrayAnyHasher.hash(value);
+                if (mode === 'SHALLOW') {
+                  return createArrayHasher(_anyFlatHasher, MAX_STEP_BITS).hash(
+                    value
+                  );
+                }
+
                 return createArrayHasher(this, maxStepBits).hash(value);
               }
 
               if (_streamSourceAnyHasher.isValid(value)) {
-                if (mode === 'SHALLOW')
-                  return _streamSourceAnyHasher.hash(value);
+                if (mode === 'SHALLOW') {
+                  return createStreamSourceHasher(
+                    _anyFlatHasher,
+                    maxStepBits
+                  ).hash(value);
+                }
+
                 return createStreamSourceHasher(this, maxStepBits).hash(value);
               }
 
               if (_objectShallowHasher.isValid(value)) {
                 if (mode === 'SHALLOW') return _objectShallowHasher.hash(value);
 
-                return createObjectHasher(this, this).hash(value);
+                return createObjectHasher(_anyFlatHasher, this).hash(value);
               }
             }
 
-            return _anyStringHasher.hash(value);
+            return _anyToStringHasher.hash(value);
           }
         }
       },

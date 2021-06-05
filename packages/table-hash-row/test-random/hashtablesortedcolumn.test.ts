@@ -1,4 +1,4 @@
-import { runTableRandomTestsWith } from './table-test-random';
+import { runTableRandomTestsWith } from '@rimbu/table/test-random/table-test-random';
 import { HashTableSortedColumn } from '../src';
 
 runTableRandomTestsWith(

@@ -73,8 +73,8 @@ function createContext<UT>(options?: {
   listContext?: List.Context;
 }): HashSet.Context<UT> {
   return new HashSetContext(
-    options?.hasher ?? Hasher.anyShallowHasher(),
-    options?.eq ?? Eq.objectIs,
+    options?.hasher ?? Hasher.defaultHasher(),
+    options?.eq ?? Eq.defaultEq(),
     options?.blockSizeBits ?? 5,
     options?.listContext ?? List.defaultContext()
   );

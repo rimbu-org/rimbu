@@ -9,6 +9,9 @@ describe('Comp', () => {
     expect(c.compare('b', 'a')).toBeGreaterThan(0);
     expect(c.compare('a', 'A')).not.toBe(0);
 
+    expect(c.compare('a', 'ab')).toBeLessThan(0);
+    expect(c.compare('ab', 'a')).toBeGreaterThan(0);
+
     expect(c.isComparable('a')).toBe(true);
     expect(c.isComparable(5)).toBe(false);
   });
@@ -21,6 +24,9 @@ describe('Comp', () => {
     expect(c.compare('b', 'a')).toBeGreaterThan(0);
     expect(c.compare('a', 'A')).toBe(0);
     expect(c.compare('aBCdEFg', 'ABcDEfG')).toBe(0);
+
+    expect(c.compare('a', 'Ab')).toBeLessThan(0);
+    expect(c.compare('ab', 'A')).toBeGreaterThan(0);
 
     expect(c.isComparable('a')).toBe(true);
     expect(c.isComparable(5)).toBe(false);
@@ -42,6 +48,9 @@ describe('Comp', () => {
     expect(c.compare('', '')).toBe(0);
     expect(c.compare('a', '')).toBeGreaterThan(0);
     expect(c.compare('', 'a')).toBeLessThan(0);
+
+    expect(c.compare('a', 'ab')).toBeLessThan(0);
+    expect(c.compare('ab', 'a')).toBeGreaterThan(0);
 
     expect(c.compare('b', 'a')).toBeGreaterThan(0);
     expect(c.compare('a', 'A')).not.toBe(0);

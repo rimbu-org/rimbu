@@ -1,4 +1,4 @@
-import { Eq, Tail } from './internal';
+import { Eq } from './internal';
 
 /**
  * An object providing methods to compare two values of type `K`.
@@ -37,6 +37,13 @@ export namespace Comp {
   const _anyFlatComp: Comp<any> = createAnyComp('FLAT');
   const _anyShallowComp: Comp<any> = createAnyComp('SHALLOW');
   const _anyDeepComp: Comp<any> = createAnyComp('DEEP');
+
+  /**
+   * Returns the default Comp instance, which is the Comp.anyDeepComp() instance.
+   */
+  export function defaultComp(): Comp<any> {
+    return _anyDeepComp;
+  }
 
   const _numberComp: Comp<number> = {
     isComparable(obj): obj is number {
@@ -115,13 +122,13 @@ export namespace Comp {
     return _bigIntComp;
   }
 
+  const _defaultCollator = Intl.Collator('und');
+
   const _stringComp: Comp<string> = {
     isComparable(obj): obj is string {
       return typeof obj === 'string';
     },
-    compare(v1, v2) {
-      return v1.localeCompare(v2, 'und');
-    },
+    compare: _defaultCollator.compare,
   };
 
   const _anyStringJSONComp: Comp<any> = {
@@ -129,7 +136,7 @@ export namespace Comp {
       return true;
     },
     compare(v1, v2) {
-      return JSON.stringify(v1).localeCompare(JSON.stringify(v2), 'und');
+      return _defaultCollator.compare(JSON.stringify(v1), JSON.stringify(v2));
     },
   };
 
@@ -146,17 +153,17 @@ export namespace Comp {
    * @param options - (optional) see String.localeCompare for details
    */
   export function stringComp(
-    ...args: Tail<Parameters<string['localeCompare']>>
+    ...args: ConstructorParameters<typeof Intl.Collator>
   ): Comp<string> {
     if (args.length === 0) return _stringComp;
+
+    const collator = Intl.Collator(...args);
 
     return {
       isComparable(obj): obj is string {
         return typeof obj === 'string';
       },
-      compare(v1, v2) {
-        return v1.localeCompare(v2, ...args);
-      },
+      compare: collator.compare,
     };
   }
 
@@ -164,7 +171,7 @@ export namespace Comp {
    * Returns a `Comp` instance that compares strings in a case-insensitive way.
    */
   export function stringCaseInsensitiveComp(): Comp<string> {
-    return stringComp(undefined, { sensitivity: 'accent' });
+    return stringComp('und', { sensitivity: 'accent' });
   }
 
   const _stringCharCodeComp: Comp<string> = {
@@ -197,7 +204,10 @@ export namespace Comp {
       return true;
     },
     compare(v1: any, v2: any): number {
-      return String(v1).localeCompare(String(v2), 'und');
+      return _defaultCollator.compare(
+        Eq.convertAnyToString(v1),
+        Eq.convertAnyToString(v2)
+      );
     },
   };
 
@@ -266,7 +276,7 @@ export namespace Comp {
   }
 
   const _iterableAnyComp: Comp<Iterable<any>> = createIterableComp(
-    anyFlatComp()
+    Comp.defaultComp()
   );
 
   /**
@@ -313,7 +323,7 @@ export namespace Comp {
 
   function createObjectComp(
     keyComp: Comp<any> = anyFlatComp(),
-    valueComp: Comp<any> = anyShallowComp()
+    valueComp: Comp<any> = defaultComp()
   ): Comp<Record<any, any>> {
     return {
       isComparable(obj): obj is Record<any, any> {
@@ -413,6 +423,8 @@ export namespace Comp {
             return _booleanComp.compare(v1, v2);
           case 'number':
             return _numberComp.compare(v1, v2);
+          case 'string':
+            return _stringComp.compare(v1, v2);
           case 'object': {
             if (null === v1) {
               if (null === v2) return 0;
@@ -432,14 +444,21 @@ export namespace Comp {
                 _iterableAnyComp.isComparable(v1) &&
                 _iterableAnyComp.isComparable(v2)
               ) {
-                if (mode === 'SHALLOW') return _iterableAnyComp.compare(v1, v2);
+                if (mode === 'SHALLOW') {
+                  return iterableComp(_anyFlatComp).compare(v1, v2);
+                }
 
                 return iterableComp(this).compare(v1, v2);
               }
 
-              if (mode === 'SHALLOW') return _objectAnyComp.compare(v1, v2);
+              if (mode === 'SHALLOW') {
+                return createObjectComp(_anyFlatComp, _anyFlatComp).compare(
+                  v1,
+                  v2
+                );
+              }
 
-              return createObjectComp(this, this).compare(v1, v2);
+              return _objectAnyComp.compare(v1, v2);
             }
           }
         }

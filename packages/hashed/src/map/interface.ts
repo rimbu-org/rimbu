@@ -83,8 +83,8 @@ function createContext<UK>(options?: {
   listContext?: List.Context;
 }): HashMap.Context<UK> {
   return new HashMapContext(
-    options?.hasher ?? Hasher.anyShallowHasher(),
-    options?.eq ?? Eq.objectIs,
+    options?.hasher ?? Hasher.defaultHasher(),
+    options?.eq ?? Eq.defaultEq(),
     options?.blockSizeBits ?? 5,
     options?.listContext ?? List.defaultContext()
   );

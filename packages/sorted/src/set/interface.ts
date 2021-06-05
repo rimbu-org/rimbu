@@ -249,7 +249,7 @@ function createContext<UT>(options?: {
 }): SortedSet.Context<UT> {
   return new SortedSetContext<UT>(
     options?.blockSizeBits ?? 5,
-    options?.comp ?? Comp.anyShallowComp()
+    options?.comp ?? Comp.defaultComp()
   );
 }
 
