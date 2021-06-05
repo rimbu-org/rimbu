@@ -404,7 +404,7 @@ function createContext<UK>(options?: {
 }): SortedMap.Context<UK> {
   return new SortedMapContext<UK>(
     options?.blockSizeBits ?? 5,
-    options?.comp ?? Comp.anyShallowComp()
+    options?.comp ?? Comp.defaultComp()
   );
 }
 
