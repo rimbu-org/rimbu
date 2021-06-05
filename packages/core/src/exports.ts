@@ -12,6 +12,7 @@ export {
   VariantSet,
 } from '@rimbu/collection-types';
 export * from '@rimbu/common';
+export * from '@rimbu/deep';
 export {
   ArrowGraph,
   ArrowGraphHashed,

@@ -1,14 +1,6 @@
 import { RimbuError } from '@rimbu/base';
 import { ArrayNonEmpty } from '@rimbu/common';
-import {
-  getLiteral,
-  Immutable,
-  isLiteral,
-  isPlainObject,
-  NoIterable,
-  Obj,
-  Value,
-} from './internal';
+import { Immutable, Literal } from './internal';
 
 /**
  * Type to determine the allowed input type for the `match` functions.
@@ -16,25 +8,25 @@ import {
  * @typeparam P - the parant type
  * @typeparam R - the root type
  */
-export type Match<T, P = T, R = T> = T extends Obj
-  ? MatchObj<T, P, R>
+export type Match<T, P = T, R = T> = T extends Literal.Obj
+  ? Match.MatchObj<T, P, R>
   : T extends readonly unknown[]
   ? Match.MatchArray<T, P, R>
   : Match.Compare<T, P, R>;
 
-/**
- * Type to determine the allowed input type for `match` functions given an object type T.
- * @typeparam T - the input type, being an object
- * @typeparam P - the parant type
- * @typeparam R - the root type
- */
-export type MatchObj<T, P, R> = (
-  | Match.Compare<T, P, R>
-  | { [K in keyof T]?: Match<T[K], T, R> }
-) &
-  NoIterable;
-
 export namespace Match {
+  /**
+   * Type to determine the allowed input type for `match` functions given an object type T.
+   * @typeparam T - the input type, being an object
+   * @typeparam P - the parant type
+   * @typeparam R - the root type
+   */
+  export type MatchObj<T, P, R> = (
+    | Match.Compare<T, P, R>
+    | { [K in keyof T]?: Match<T[K], T, R> }
+  ) &
+    Literal.NoIterable;
+
   /**
    * Type representing at least one Match object for type T
    * @typeparam T - the target type
@@ -48,7 +40,7 @@ export namespace Match {
    * @typeparam R - the root type
    */
   export type Compare<T, P, R> =
-    | Value<T>
+    | Literal.Value<T>
     | ((
         value: Immutable<T>,
         parent: Immutable<P>,
@@ -67,7 +59,7 @@ export namespace Match {
         [K in { [K2 in keyof T]: K2 }[keyof T]]?: Match<T[K], T, R>;
       }
   ) &
-    NoIterable;
+    Literal.NoIterable;
 
   /**
    * Returns true if the given `value` matches all of the given objects in the `matchers` array.
@@ -187,7 +179,8 @@ function matchSingle<T, P = T, R = T>(
   if (null === value || undefined === value || typeof value !== 'object') {
     if (typeof matcher !== 'object' || null === matcher)
       return (matcher as any) === value;
-    if (isLiteral<T>(matcher)) return getLiteral(matcher) === value;
+    if (Literal.isLiteral<T>(matcher))
+      return Literal.getValue(matcher) === value;
     return (matcher as any) === value;
   }
 
@@ -201,14 +194,14 @@ function matchSingle<T, P = T, R = T>(
 
   if (null === matcher) return false;
 
-  if (isLiteral<T>(matcher)) {
-    return getLiteral(matcher) === value;
+  if (Literal.isLiteral<T>(matcher)) {
+    return Literal.getValue(matcher) === value;
   }
 
   const valueIsArray = Array.isArray(value);
 
   // check if plain object
-  if (!valueIsArray && !isPlainObject(value)) {
+  if (!valueIsArray && !Literal.isPlainObject(value)) {
     return (matcher as any) === value;
   }
 

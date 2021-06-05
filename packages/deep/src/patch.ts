@@ -1,14 +1,6 @@
 import { RimbuError } from '@rimbu/base';
 import { ArrayNonEmpty } from '@rimbu/common';
-import {
-  getLiteral,
-  Immutable,
-  isLiteral,
-  isPlainObject,
-  NoIterable,
-  Obj,
-  Value,
-} from './internal';
+import { Immutable, Literal } from './internal';
 
 /**
  * Type to determine the allowed input type for the `patch` function.
@@ -16,21 +8,11 @@ import {
  * @typeparam P - the parant type
  * @typeparam R - the root type
  */
-export type Patch<T, P = T, R = T> = T extends Obj
-  ? PatchObj<T, P, R>
+export type Patch<T, P = T, R = T> = T extends Literal.Obj
+  ? Patch.PatchObj<T, P, R>
   : T extends readonly unknown[]
   ? Patch.PatchArray<T, P, R>
   : Patch.Update<T, P, R>;
-
-/**
- * Type to determine the allowed input type for the `patch` function given an object type T.
- * @typeparam T - the input type, being an object
- * @typeparam P - the parant type
- * @typeparam R - the root type
- */
-export type PatchObj<T extends Obj, P = T, R = T> =
-  | Patch.Update<T, P, R>
-  | { [K in keyof T]?: Patch<T[K], T, R> };
 
 /**
  * Returns an updated version of given `value`, without modifying the value, where the contents
@@ -39,14 +21,14 @@ export type PatchObj<T extends Obj, P = T, R = T> =
  * @param value - the value to update
  * @param patches - one or more `Patch` objects indicating modifications to the value
  * @example
- * patch({ g: { h: 5 }})({ g: { h: 6 }})          // => { g: { h: 6 }}
- * patch({ g: { h: 5 }})({ g: { h: v => v + 1 }}) // => { g: { h: 6 }}
- * patch({ g: { h: 5 }})({ g: { h: 1 }}, { g: { h: v => v + 1 }})
+ * Patch({ g: { h: 5 }})({ g: { h: 6 }})          // => { g: { h: 6 }}
+ * Patch({ g: { h: 5 }})({ g: { h: v => v + 1 }}) // => { g: { h: 6 }}
+ * Patch({ g: { h: 5 }})({ g: { h: 1 }}, { g: { h: v => v + 1 }})
  * // => { g: { h: 2 }}
- * patch({ a: 1, b: 3 })({ a: (v, p) => v * p.b, (v, p) => v + p.a })
+ * Patch({ a: 1, b: 3 })({ a: (v, p) => v * p.b, (v, p) => v + p.a })
  * // => { a: 3, b: 4 }
  */
-export function patch<T>(
+export function Patch<T>(
   value: T
 ): (...patches: Patch.Multi<T>) => Immutable<T> {
   return function (...patches) {
@@ -67,6 +49,16 @@ export function patch<T>(
 
 export namespace Patch {
   /**
+   * Type to determine the allowed input type for the `patch` function given an object type T.
+   * @typeparam T - the input type, being an object
+   * @typeparam P - the parant type
+   * @typeparam R - the root type
+   */
+  export type PatchObj<T extends Literal.Obj, P = T, R = T> =
+    | Patch.Update<T, P, R>
+    | { [K in keyof T]?: Patch<T[K], T, R> };
+
+  /**
    * Type representing at least one Patch object for type T
    * @typeparam T - the target type
    */
@@ -79,7 +71,7 @@ export namespace Patch {
    * @typeparam R - the root type
    */
   export type Update<T, P, R> =
-    | Value<T>
+    | Literal.Value<T>
     | ((
         value: Immutable<T>,
         parent: Immutable<P>,
@@ -98,7 +90,7 @@ export namespace Patch {
         [K in { [K2 in keyof T]: K2 }[keyof T]]?: Patch<T[K], T, R>;
       }
   ) &
-    NoIterable;
+    Literal.NoIterable;
 
   /**
    * Returns a function that patches a given object of type `T` with the given `patches`
@@ -114,7 +106,7 @@ export namespace Patch {
   export function create<T, T2 extends T = T>(
     ...patches: Patch.Multi<T2>
   ): (value: T) => Immutable<T> {
-    return (value) => patch<T>(value)(...(patches as Patch.Multi<T>));
+    return (value) => Patch<T>(value)(...(patches as Patch.Multi<T>));
   }
 }
 
@@ -130,7 +122,9 @@ function patchSingle<T, P = T, R = T>(
 
   if (null === value || undefined === value || typeof value !== 'object') {
     if (typeof patcher !== 'object' || null === patcher) return patcher as any;
-    if (isLiteral<Immutable<T>>(patcher)) return getLiteral(patcher);
+    if (Literal.isLiteral<Immutable<T>>(patcher)) {
+      return Literal.getValue(patcher);
+    }
     return value;
   }
 
@@ -142,13 +136,13 @@ function patchSingle<T, P = T, R = T>(
 
   if (null === patcher) return null as any;
 
-  if (isLiteral<Immutable<T>>(patcher)) {
-    return getLiteral(patcher);
+  if (Literal.isLiteral<Immutable<T>>(patcher)) {
+    return Literal.getValue(patcher);
   }
 
   const valueIsArray = Array.isArray(value);
 
-  if (!valueIsArray && !isPlainObject(value)) return patcher as any;
+  if (!valueIsArray && !Literal.isPlainObject(value)) return patcher as any;
 
   const clone: any = valueIsArray ? ([...(value as any)] as any) : { ...value };
   let changed = false;

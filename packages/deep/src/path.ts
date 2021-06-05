@@ -1,5 +1,4 @@
-import { Obj } from './common';
-import { patch, Patch } from './internal';
+import { Literal, Patch } from './internal';
 
 /**
  * A string representing a path into an (nested) object of type T.
@@ -7,7 +6,7 @@ import { patch, Patch } from './internal';
  * @example
  * const p: Path<{ a: { b: { c : 5 }}}> = 'a.b'
  */
-export type Path<T> = T extends Obj
+export type Path<T> = T extends Literal.Obj
   ? { [K in string & keyof T]: `${K}` | `${K}.${Path<T[K]>}` }[string & keyof T]
   : never;
 
@@ -110,7 +109,7 @@ export namespace Path {
     ...patches: Patch.Multi<Path.Result<T, P>>
   ): T {
     const value = Path.getValue(source, path);
-    const newValue = patch(value)(...patches);
+    const newValue = Patch(value)(...patches);
 
     if (Object.is(value, newValue)) return source;
 
