@@ -8,7 +8,8 @@ import {
   ToJSON,
   TraverseState,
 } from '@rimbu/common';
-import { FastIterator, Stream, StreamSource } from './internal';
+import { FastIterator } from './fast-iterable';
+import { Stream, StreamSource } from './internal';
 
 function toTuple(...values: any[]): any[] {
   return values;
