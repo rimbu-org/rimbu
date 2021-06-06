@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Checkout main branch
-        run: git checkout main
+        with:
+          fetch-depth: 0
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v2
         with:
