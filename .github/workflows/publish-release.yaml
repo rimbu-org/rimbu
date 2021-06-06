@@ -6,7 +6,7 @@ on:
     tags:
       - 'r*'
 jobs:
-  build:
+  publish:
     if: '!github.event.release.prerelease'
     runs-on: ubuntu-latest
     steps:
@@ -20,6 +20,8 @@ jobs:
           scope: '@rimbu'
       - name: Check npm authentication
         run: npm whoami
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - run: yarn setup
       - name: Bump versions and publish packages
         run: |
