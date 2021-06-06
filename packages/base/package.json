@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/base",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Utilities to implement Rimbu collections",
   "keywords": [
     "array",
@@ -56,6 +56,6 @@
     "typescript": "^4.2.4"
   },
   "dependencies": {
-    "@rimbu/common": "^0.5.1"
+    "@rimbu/common": "^0.5.2"
   }
 }
