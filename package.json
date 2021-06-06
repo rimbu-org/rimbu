@@ -20,7 +20,7 @@
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "build": "lerna run build",
+    "build": "lerna run build --scope",
     "clean": "lerna run clean && lerna clean --yes && yarn setup",
     "commit": "git-cz",
     "docsify": "docsify serve docs",

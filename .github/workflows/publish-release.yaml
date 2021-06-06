@@ -36,6 +36,8 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Build
+        run: yarn build
       - name: Publish packages
         run: yarn publish:ci
         env:
