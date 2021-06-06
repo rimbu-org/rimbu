@@ -13,6 +13,10 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      - name: Configure git credentials
+        uses: OleksiyRudenko/gha-git-credentials@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Attach to main branch
         run: git checkout main && git pull
       # Setup .npmrc file to publish to npm
