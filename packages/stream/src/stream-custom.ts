@@ -8,11 +8,25 @@ import {
   ToJSON,
   TraverseState,
 } from '@rimbu/common';
-import { FastIterator } from './fast-iterable';
-import { Stream, StreamSource } from './internal';
+import { FastIterator, Stream, StreamSource } from './internal';
 
 function toTuple(...values: any[]): any[] {
   return values;
+}
+
+/**
+ * A base class for `FastIterator` instances, that takes implements the default `next`
+ * function based on the abstract `fastNext` function.
+ */
+export abstract class FastIteratorBase<T> implements FastIterator<T> {
+  abstract fastNext<O>(otherwise?: OptLazy<O>): T | O;
+
+  next(): IteratorResult<T> {
+    const done = Symbol('Done');
+    const value = this.fastNext(done);
+    if (done === value) return FastIterator.fixedDone;
+    return { value, done: false };
+  }
 }
 
 export abstract class StreamBase<T> implements Stream<T> {
@@ -591,7 +605,7 @@ export class FromStream<T> extends StreamBase<T> {
   [Symbol.iterator] = this.createIterator;
 }
 
-class PrependIterator<T> extends FastIterator.Base<T> {
+class PrependIterator<T> extends FastIteratorBase<T> {
   constructor(readonly source: FastIterator<T>, readonly item: T) {
     super();
   }
@@ -640,7 +654,7 @@ class PrependStream<T> extends StreamBase<T> {
   }
 }
 
-class AppendIterator<T> extends FastIterator.Base<T> {
+class AppendIterator<T> extends FastIteratorBase<T> {
   constructor(readonly source: FastIterator<T>, readonly item: T) {
     super();
   }
@@ -695,7 +709,7 @@ class AppendStream<T> extends StreamBase<T> {
   }
 }
 
-class IndexedIterator<T> extends FastIterator.Base<[number, T]> {
+class IndexedIterator<T> extends FastIteratorBase<[number, T]> {
   constructor(readonly source: FastIterator<T>, readonly startIndex = 0) {
     super();
   }
@@ -729,7 +743,7 @@ class IndexedStream<T> extends StreamBase<[number, T]> {
   }
 }
 
-class MapIterator<T, T2> extends FastIterator.Base<T2> {
+class MapIterator<T, T2> extends FastIteratorBase<T2> {
   constructor(
     readonly source: FastIterator<T>,
     readonly mapFun: (value: T, index: number) => T2
@@ -801,7 +815,7 @@ class MapPureIterator<
   T,
   A extends readonly unknown[],
   T2
-> extends FastIterator.Base<T2> {
+> extends FastIteratorBase<T2> {
   constructor(
     readonly source: FastIterator<T>,
     readonly mapFun: (value: T, ...args: A) => T2,
@@ -867,7 +881,7 @@ class MapPureStream<
   }
 }
 
-class FlatMapIterator<T, T2> extends FastIterator.Base<T2> {
+class FlatMapIterator<T, T2> extends FastIteratorBase<T2> {
   constructor(
     readonly source: Stream<T>,
     readonly flatMapFun: (
@@ -935,7 +949,7 @@ class FlatMapStream<T, T2> extends StreamBase<T2> {
   }
 }
 
-class ConcatIterator<T> extends FastIterator.Base<T> {
+class ConcatIterator<T> extends FastIteratorBase<T> {
   constructor(
     readonly source: Stream<T>,
     readonly otherSources: StreamSource<T>[]
@@ -1058,7 +1072,7 @@ class ConcatStream<T> extends StreamBase<T> {
   }
 }
 
-class FilterIterator<T> extends FastIterator.Base<T> {
+class FilterIterator<T> extends FastIteratorBase<T> {
   constructor(
     readonly source: FastIterator<T>,
     readonly pred: (value: T, index: number, halt: () => void) => boolean,
@@ -1123,7 +1137,7 @@ class FilterStream<T> extends StreamBase<T> {
 class FilterPureIterator<
   T,
   A extends readonly unknown[]
-> extends FastIterator.Base<T> {
+> extends FastIteratorBase<T> {
   constructor(
     readonly source: FastIterator<T>,
     readonly pred: (value: T, ...args: A) => boolean,
@@ -1174,7 +1188,7 @@ class FilterPureStream<T, A extends readonly unknown[]> extends StreamBase<T> {
   }
 }
 
-class CollectIterator<T, R> extends FastIterator.Base<R> {
+class CollectIterator<T, R> extends FastIteratorBase<R> {
   constructor(
     readonly source: FastIterator<T>,
     readonly collectFun: CollectFun<T, R>
@@ -1224,7 +1238,7 @@ class CollectStream<T, R> extends StreamBase<R> {
   }
 }
 
-class IndicesWhereIterator<T> extends FastIterator.Base<number> {
+class IndicesWhereIterator<T> extends FastIteratorBase<number> {
   constructor(
     readonly source: FastIterator<T>,
     readonly pred: (value: T) => boolean
@@ -1262,7 +1276,7 @@ class IndicesWhereStream<T> extends StreamBase<number> {
   }
 }
 
-class IndicesOfIterator<T> extends FastIterator.Base<number> {
+class IndicesOfIterator<T> extends FastIteratorBase<number> {
   constructor(
     readonly source: FastIterator<T>,
     readonly searchValue: T,
@@ -1307,7 +1321,7 @@ class IndicesOfStream<T> extends StreamBase<number> {
   }
 }
 
-class TakeWhileIterator<T> extends FastIterator.Base<T> {
+class TakeWhileIterator<T> extends FastIteratorBase<T> {
   constructor(
     readonly source: FastIterator<T>,
     readonly pred: (value: T, index: number) => boolean
@@ -1349,7 +1363,7 @@ class TakeWhileStream<T> extends StreamBase<T> {
   }
 }
 
-class DropWhileIterator<T> extends FastIterator.Base<T> {
+class DropWhileIterator<T> extends FastIteratorBase<T> {
   constructor(
     readonly source: FastIterator<T>,
     readonly pred: (value: T, index: number) => boolean
@@ -1389,7 +1403,7 @@ class DropWhileStream<T> extends StreamBase<T> {
   }
 }
 
-class TakeIterator<T> extends FastIterator.Base<T> {
+class TakeIterator<T> extends FastIteratorBase<T> {
   constructor(readonly source: FastIterator<T>, readonly amount: number) {
     super();
   }
@@ -1418,7 +1432,7 @@ class TakeStream<T> extends StreamBase<T> {
   }
 }
 
-class DropIterator<T> extends FastIterator.Base<T> {
+class DropIterator<T> extends FastIteratorBase<T> {
   constructor(readonly source: FastIterator<T>, readonly amount: number) {
     super();
   }
@@ -1455,7 +1469,7 @@ class DropStream<T> extends StreamBase<T> {
   }
 }
 
-class RepeatIterator<T> extends FastIterator.Base<T> {
+class RepeatIterator<T> extends FastIteratorBase<T> {
   constructor(readonly source: Stream<T>, readonly amount?: number) {
     super();
   }
@@ -1489,7 +1503,7 @@ class RepeatIterator<T> extends FastIterator.Base<T> {
   }
 }
 
-class IntersperseIterator<T, S> extends FastIterator.Base<T | S> {
+class IntersperseIterator<T, S> extends FastIteratorBase<T | S> {
   constructor(readonly source: FastIterator<T>, readonly sepStream: Stream<S>) {
     super();
   }
@@ -1545,7 +1559,7 @@ class ItersperseStream<T, S> extends StreamBase<T | S> {
   }
 }
 
-class SplitWhereIterator<T> extends FastIterator.Base<T[]> {
+class SplitWhereIterator<T> extends FastIteratorBase<T[]> {
   constructor(
     readonly source: FastIterator<T>,
     readonly pred: (value: T, index: number) => boolean
@@ -1589,7 +1603,7 @@ class SplitWhereStream<T> extends StreamBase<T[]> {
   }
 }
 
-class SplitOnIterator<T> extends FastIterator.Base<T[]> {
+class SplitOnIterator<T> extends FastIteratorBase<T[]> {
   constructor(
     readonly source: FastIterator<T>,
     readonly sepElem: T,
@@ -1638,7 +1652,7 @@ class SplitOnStream<T> extends StreamBase<T[]> {
   }
 }
 
-class ReduceIterator<I, R> extends FastIterator.Base<R> {
+class ReduceIterator<I, R> extends FastIteratorBase<R> {
   constructor(
     readonly source: FastIterator<I>,
     readonly reducer: Reducer<I, R>
@@ -1678,7 +1692,7 @@ class ReduceStream<I, R> extends StreamBase<R> {
   }
 }
 
-class ReduceAllIterator<I, R> extends FastIterator.Base<R> {
+class ReduceAllIterator<I, R> extends FastIteratorBase<R> {
   constructor(
     readonly source: FastIterator<I>,
     readonly reducers: Reducer<I, any>[]
@@ -1768,7 +1782,7 @@ export class FromIterable<T> extends StreamBase<T> {
 class ZipWithIterator<
   I extends readonly unknown[],
   R
-> extends FastIterator.Base<R> {
+> extends FastIteratorBase<R> {
   constructor(
     readonly iterables: { [K in keyof I]: StreamSource<I[K]> },
     readonly zipFun: (...values: I) => R
@@ -1806,7 +1820,7 @@ class ZipAllWithItererator<
   I extends readonly unknown[],
   F,
   R
-> extends FastIterator.Base<R> {
+> extends FastIteratorBase<R> {
   constructor(
     readonly fillValue: OptLazy<F>,
     readonly iters: { [K in keyof I]: StreamSource<I[K]> },

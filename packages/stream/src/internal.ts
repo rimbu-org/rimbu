@@ -1,5 +1,6 @@
-export * as StreamCustom from './implementation';
+export * as StreamCustom from './stream-custom';
 
+export * from './fast-iterator';
 export * from './fast-iterable';
 export * from './interface';
 export * from './streamable';

@@ -10,14 +10,10 @@ import {
   StringNonEmpty,
   TraverseState,
 } from '@rimbu/common';
-import {
-  FastIterator,
-  Stream,
-  StreamCustom as SC,
-  StreamSource,
-} from './internal';
+import { FastIterator, Stream, StreamSource } from './internal';
+import { FastIteratorBase, FromIterable, FromStream, StreamBase } from './stream-custom';
 
-class EmptyStream<T = any> extends SC.StreamBase<T> implements Stream<T> {
+class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   [Symbol.iterator](): FastIterator<T> {
     return FastIterator.emptyFastIterator;
   }
@@ -188,7 +184,7 @@ class EmptyStream<T = any> extends SC.StreamBase<T> implements Stream<T> {
 const _empty: Stream<any> = new EmptyStream();
 
 function isStream(obj: any): obj is Stream<any> {
-  return obj instanceof SC.StreamBase;
+  return obj instanceof StreamBase;
 }
 
 const fromStreamSource: {
@@ -204,7 +200,7 @@ const fromStreamSource: {
     return new ArrayStream(source);
   }
 
-  return new SC.FromIterable(source);
+  return new FromIterable(source);
 };
 
 /**
@@ -526,7 +522,7 @@ export function range(range: IndexRange, delta = 1): Stream<number> {
  * Stream.random().take(3).toArray()     // => [0.3243..., 0.19524...., 0.78324...]
  */
 export function random(): Stream.NonEmpty<number> {
-  return new SC.FromStream(
+  return new FromStream(
     (): FastIterator<number> => new RandomIterator()
   ) as unknown as Stream.NonEmpty<number>;
 }
@@ -541,7 +537,7 @@ export function random(): Stream.NonEmpty<number> {
 export function randomInt(min: number, max: number): Stream.NonEmpty<number> {
   if (min >= max) Err.msg('min should be smaller than max');
 
-  return new SC.FromStream(
+  return new FromStream(
     (): FastIterator<number> => new RandomIntIterator(min, max)
   ) as unknown as Stream.NonEmpty<number>;
 }
@@ -557,12 +553,12 @@ export function unfold<T>(
   init: T,
   next: (current: T, index: number, stop: Token) => T | Token
 ): Stream.NonEmpty<T> {
-  return new SC.FromStream(
+  return new FromStream(
     (): FastIterator<T> => new UnfoldIterator<T>(init, next)
   ) as unknown as Stream.NonEmpty<T>;
 }
 
-class ArrayIterator<T> extends FastIterator.Base<T> {
+class ArrayIterator<T> extends FastIteratorBase<T> {
   constructor(
     readonly array: readonly T[],
     readonly startIndex: number,
@@ -579,7 +575,7 @@ class ArrayIterator<T> extends FastIterator.Base<T> {
   }
 }
 
-class ArrayReverseIterator<T> extends FastIterator.Base<T> {
+class ArrayReverseIterator<T> extends FastIteratorBase<T> {
   i: number;
 
   constructor(
@@ -597,7 +593,7 @@ class ArrayReverseIterator<T> extends FastIterator.Base<T> {
   }
 }
 
-class ArrayStream<T> extends SC.StreamBase<T> {
+class ArrayStream<T> extends StreamBase<T> {
   constructor(
     readonly array: readonly T[],
     readonly startIndex = 0,
@@ -836,7 +832,7 @@ class MapApplyIterator<
   T extends readonly unknown[],
   A extends readonly unknown[],
   R
-> extends FastIterator.Base<R> {
+> extends FastIteratorBase<R> {
   constructor(
     source: StreamSource<T>,
     readonly f: (...args: [...T, ...A]) => R,
@@ -862,7 +858,7 @@ class MapApplyStream<
   T extends readonly unknown[],
   A extends readonly unknown[],
   R
-> extends SC.StreamBase<R> {
+> extends StreamBase<R> {
   constructor(
     readonly source: StreamSource<T>,
     readonly f: (...args: [...T, ...A]) => R,
@@ -879,7 +875,7 @@ class MapApplyStream<
 class FilterApplyIterator<
   T extends readonly unknown[],
   A extends readonly unknown[]
-> extends FastIterator.Base<T> {
+> extends FastIteratorBase<T> {
   constructor(
     source: StreamSource<T>,
     readonly pred: (...args: [...T, ...A]) => boolean,
@@ -917,7 +913,7 @@ class FilterApplyIterator<
 class FilterApplyStream<
   T extends readonly unknown[],
   A extends readonly unknown[]
-> extends SC.StreamBase<T> {
+> extends StreamBase<T> {
   constructor(
     readonly source: StreamSource<T>,
     readonly pred: (...args: [...T, ...A]) => boolean,
@@ -937,7 +933,7 @@ class FilterApplyStream<
   }
 }
 
-class RangeUpIterator extends FastIterator.Base<number> {
+class RangeUpIterator extends FastIteratorBase<number> {
   constructor(
     readonly start = 0,
     readonly end: number | undefined,
@@ -960,7 +956,7 @@ class RangeUpIterator extends FastIterator.Base<number> {
   }
 }
 
-class RangeDownIterator extends FastIterator.Base<number> {
+class RangeDownIterator extends FastIteratorBase<number> {
   constructor(
     readonly start = 0,
     readonly end: number | undefined,
@@ -983,7 +979,7 @@ class RangeDownIterator extends FastIterator.Base<number> {
   }
 }
 
-class RangeStream extends SC.StreamBase<number> {
+class RangeStream extends StreamBase<number> {
   constructor(
     readonly start: number,
     readonly end?: number,
@@ -1000,13 +996,13 @@ class RangeStream extends SC.StreamBase<number> {
   }
 }
 
-class RandomIterator extends FastIterator.Base<number> {
+class RandomIterator extends FastIteratorBase<number> {
   fastNext(): number {
     return Math.random();
   }
 }
 
-class RandomIntIterator extends FastIterator.Base<number> {
+class RandomIntIterator extends FastIteratorBase<number> {
   constructor(readonly min: number, readonly max: number) {
     super();
   }
@@ -1018,7 +1014,7 @@ class RandomIntIterator extends FastIterator.Base<number> {
   }
 }
 
-class UnfoldIterator<T> extends FastIterator.Base<T> {
+class UnfoldIterator<T> extends FastIteratorBase<T> {
   constructor(
     init: T,
     readonly getNext: (current: T, index: number, stop: Token) => T | Token

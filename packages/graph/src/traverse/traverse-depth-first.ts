@@ -28,7 +28,7 @@ class GraphDepthFirstStream<
 class GraphDepthFirstIterable<
   G extends VariantGraphBase.NonEmpty<N, any>,
   N
-> extends FastIterator.Base<LinkType<G, N>> {
+> extends StreamCustom.FastIteratorBase<LinkType<G, N>> {
   constructor(
     readonly node: N,
     readonly graph: G,
