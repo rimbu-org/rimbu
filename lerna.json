@@ -8,6 +8,7 @@
       "registry": "https://registry.npmjs.org"
     },
     "version": {
+      "allowBranch": "main",
       "ignoreChanges": ["**/*.md"]
     }
   }

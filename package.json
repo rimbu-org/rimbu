@@ -32,7 +32,7 @@
     "lint": "lerna run lint --parallel",
     "postinstall": "husky install",
     "prerelease": "yarn typecheck && yarn test:types && yarn test && yarn test:random",
-    "publish:ci": "lerna publish from-package --access public --yes",
+    "publish:ci": "lerna publish from-package --yes",
     "setup": "yarn && yarn bootstrap",
     "test": "lerna run test",
     "test:types": "lerna run test:types",
