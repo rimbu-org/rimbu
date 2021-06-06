@@ -14,7 +14,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Configure git credentials
-        uses: OleksiyRudenko/gha-git-credentials@v1
+        uses: OleksiyRudenko/gha-git-credentials@v2-latest
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Attach to main branch
