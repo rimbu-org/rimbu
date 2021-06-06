@@ -31,13 +31,13 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - run: yarn setup
+      - name: Build
+        run: yarn build
       - name: Bump versions and publish packages
         run: yarn version:ci
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      - name: Build
-        run: yarn build
       - name: Publish packages
         run: yarn publish:ci
         env:
