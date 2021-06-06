@@ -13,6 +13,8 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      - name: Attach to main branch
+        run: git checkout main && git pull
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v2
         with:
