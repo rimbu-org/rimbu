@@ -88,5 +88,8 @@
     "@rimbu/table": "^0.5.2",
     "@rimbu/table-hash-row": "^0.5.2",
     "@rimbu/table-sorted-row": "^0.5.2"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

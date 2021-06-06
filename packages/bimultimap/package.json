@@ -66,5 +66,8 @@
     "@rimbu/multimap": "^0.5.2",
     "@rimbu/sorted": "^0.5.2",
     "@rimbu/stream": "^0.5.2"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -61,5 +61,8 @@
   },
   "dependencies": {
     "@rimbu/deep": "^0.5.2"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

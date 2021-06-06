@@ -71,5 +71,8 @@
     "@rimbu/sorted": "^0.5.2",
     "@rimbu/stream": "^0.5.2",
     "@rimbu/table": "^0.5.2"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

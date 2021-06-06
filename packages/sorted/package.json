@@ -68,5 +68,8 @@
     "@rimbu/collection-types": "^0.5.2",
     "@rimbu/common": "^0.5.2",
     "@rimbu/stream": "^0.5.2"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
