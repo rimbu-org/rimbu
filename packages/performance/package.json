@@ -1,7 +1,7 @@
 {
   "name": "@rimbu/performance",
   "private": true,
-  "version": "0.5.4",
+  "version": "0.5.5",
   "homepage": "http://rimbu.org",
   "author": {
     "name": "Arvid Nicolaas",
@@ -37,7 +37,7 @@
     "typescript": "^4.2.4"
   },
   "dependencies": {
-    "@rimbu/core": "^0.5.4",
+    "@rimbu/core": "^0.5.5",
     "benny": "^3.6.15"
   }
 }
