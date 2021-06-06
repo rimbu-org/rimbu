@@ -2,5 +2,11 @@
   "packages": ["packages/*"],
   "version": "independent",
   "npmClient": "yarn",
-  "useWorkspaces": true
+  "useWorkspaces": true,
+  "command": {
+    "version": {
+      "allowBranch": "master",
+      "ignoreChanges": ["**/*.md"]
+    }
+  }
 }

@@ -22,6 +22,7 @@
     "bootstrap": "lerna bootstrap",
     "build": "lerna run build",
     "clean": "lerna run clean && lerna clean --yes && yarn setup",
+    "commit": "git-cz",
     "docsify": "docsify serve docs",
     "format": "yarn format:root & lerna run format --parallel",
     "format:check": "yarn format:root-check & lerna run format:check",
@@ -31,12 +32,13 @@
     "lint": "lerna run lint --parallel",
     "postinstall": "husky install",
     "prerelease": "yarn typecheck && yarn test:types && yarn test && yarn test:random",
-    "publish-all": "lerna publish",
+    "publish:ci": "lerna publish from-package --yes",
     "setup": "yarn && yarn bootstrap",
     "test": "lerna run test",
     "test:types": "lerna run test:types",
     "test:random": "lerna run test:random",
-    "typecheck": "lerna run typecheck"
+    "typecheck": "lerna run typecheck",
+    "version:ci": "lerna version --yes --conventional-commits --create-release github --message 'chore(release): publish'"
   },
   "lint-staged": {
     "*.{ts,tsx,js,json}": "eslint -c ./config/.eslintrc.json --cache",
@@ -45,6 +47,8 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
+    "commitizen": "^4.2.4",
+    "cz-conventional-changelog": "^3.3.0",
     "docsify-cli": "^4.4.3",
     "eslint": "^7.25.0",
     "husky": "^6.0.0",
@@ -57,5 +61,10 @@
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
 }

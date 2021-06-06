@@ -1,7 +1,10 @@
 name: Publish release to NPM
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - '!*'
+    tags:
+      - 'r*'
 jobs:
   build:
     if: '!github.event.release.prerelease'
@@ -15,13 +18,12 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           # Defaults to the user or organization that owns the workflow file
           scope: '@rimbu'
-      - name: Checkout and pull branch
-        run: git checkout "${GITHUB_REF:11}" && git pull
       - name: Check npm authentication
         run: npm whoami
       - run: yarn setup
-      - run: yarn build
-      - run: yarn test
-      - run: yarn publish-all
+      - name: Bump versions and publish packages
+        run: |
+          yarn version:ci
+          yarn publish:ci
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

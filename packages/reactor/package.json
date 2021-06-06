@@ -46,6 +46,7 @@
     "format:base": "prettier \"**/*.{ts,tsx,js,json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
+    "prepublish": "yarn build",
     "test": "jest",
     "typecheck": "tsc"
   },
