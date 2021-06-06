@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/collection-types",
-  "version": "0.5.6",
+  "version": "0.5.7",
   "description": "Type definitions for the basic generic Rimbu collections",
   "keywords": [
     "definitions",
@@ -56,9 +56,9 @@
     "typescript": "^4.2.4"
   },
   "dependencies": {
-    "@rimbu/base": "^0.5.6",
-    "@rimbu/common": "^0.5.6",
-    "@rimbu/stream": "^0.5.6"
+    "@rimbu/base": "^0.5.7",
+    "@rimbu/common": "^0.5.7",
+    "@rimbu/stream": "^0.5.7"
   },
   "publishConfig": {
     "access": "public"
