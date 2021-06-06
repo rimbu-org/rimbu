@@ -1,7 +1,7 @@
 import { Arr } from '@rimbu/base';
 import { IndexRange, OptLazy, Update } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
-import { LeafBlock } from '../../list-custom';
+import { LeafBlock } from '../implementation-generic-custom';
 
 export class ReversedLeafBlock<T> extends LeafBlock<T> {
   copy(children: readonly T[]): LeafBlock<T> {

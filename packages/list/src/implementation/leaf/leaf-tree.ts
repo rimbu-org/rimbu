@@ -8,9 +8,9 @@ import {
 } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { List } from '../../internal';
+import { ListContext } from '../../list-custom';
 import {
   LeafBlock,
-  ListContext,
   ListNonEmptyBase,
   NonLeaf,
   NonLeafBlock,
@@ -22,7 +22,7 @@ import {
   treeStream,
   treeToArray,
   treeUpdate,
-} from '../../list-custom';
+} from '../implementation-generic-custom';
 
 export class LeafTree<T>
   extends ListNonEmptyBase<T>

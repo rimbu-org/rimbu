@@ -1,12 +1,14 @@
 import { RimbuError } from '@rimbu/base';
 import {
-  BlockBuilder,
   NonLeaf,
   NonLeafBlock,
-  NonLeafBlockBuilder,
   NonLeafTree,
+} from '../../implementation/implementation-generic-custom';
+import {
+  BlockBuilder,
+  NonLeafBlockBuilder,
   NonLeafTreeBuilder,
-} from '../../list-custom';
+} from '../builder-generic-custom';
 
 export function createNonLeaf<T>(
   nonLeaf: NonLeaf<T>

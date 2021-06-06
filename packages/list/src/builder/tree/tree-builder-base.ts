@@ -1,10 +1,10 @@
 import { OptLazy, TraverseState, Update } from '@rimbu/common';
+import { ListContext } from '../../list-custom';
 import {
   BlockBuilder,
-  ListContext,
   NonLeafBlockBuilder,
   NonLeafBuilder,
-} from '../../list-custom';
+} from '../builder-generic-custom';
 
 export abstract class TreeBuilderBase<T, C> {
   abstract readonly context: ListContext;

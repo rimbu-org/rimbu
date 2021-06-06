@@ -1,25 +1,27 @@
 import { RimbuError } from '@rimbu/base';
 import { ArrayNonEmpty } from '@rimbu/common';
 import { StreamSource } from '@rimbu/stream';
-import { List } from './internal';
+import {
+  BlockBuilder,
+  GenBuilder,
+  LeafBlockBuilder,
+  LeafTreeBuilder,
+  NonLeafBlockBuilder,
+  NonLeafBuilder,
+  NonLeafTreeBuilder,
+} from './builder/builder-generic-custom';
 import {
   Block,
-  BlockBuilder,
   Empty,
-  GenBuilder,
   LeafBlock,
-  LeafBlockBuilder,
   LeafTree,
-  LeafTreeBuilder,
   ListNonEmptyBase,
   NonLeaf,
   NonLeafBlock,
-  NonLeafBlockBuilder,
-  NonLeafBuilder,
   NonLeafTree,
-  NonLeafTreeBuilder,
   ReversedLeafBlock,
-} from './list-custom';
+} from './implementation/implementation-generic-custom';
+import { List } from './internal';
 
 export class ListContext implements List.Context {
   constructor(readonly blockSizeBits: number) {

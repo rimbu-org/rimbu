@@ -8,13 +8,13 @@ import {
 } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { List } from '../../internal';
+import { ListContext } from '../../list-custom';
 import {
   Block,
   LeafTree,
-  ListContext,
   ListNonEmptyBase,
   ReversedLeafBlock,
-} from '../../list-custom';
+} from '../implementation-generic-custom';
 
 export class LeafBlock<T>
   extends ListNonEmptyBase<T>

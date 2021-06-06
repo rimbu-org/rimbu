@@ -1,6 +1,7 @@
 import { OptLazy } from '@rimbu/common';
+import { NonLeaf } from '../implementation/implementation-generic-custom';
 import { List } from '../internal';
-import { NonLeaf } from '../list-custom';
+
 export interface BuilderBase<T, C = unknown> {
   readonly length: number;
   get<O>(index: number, otherwise?: OptLazy<O>): T | O;
