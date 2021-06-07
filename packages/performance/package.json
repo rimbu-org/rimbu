@@ -1,7 +1,6 @@
 {
   "name": "@rimbu/performance",
   "private": true,
-  "version": "0.5.9",
   "homepage": "http://rimbu.org",
   "author": {
     "name": "Arvid Nicolaas",

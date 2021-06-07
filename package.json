@@ -33,6 +33,7 @@
     "postinstall": "husky install",
     "prerelease": "yarn typecheck && yarn test:types && yarn test && yarn test:random",
     "publish:ci": "lerna publish from-package --yes",
+    "publish:canary_ci": "lerna publish --canary --yes",
     "setup": "yarn && yarn bootstrap",
     "test": "lerna run test",
     "test:types": "lerna run test:types",
