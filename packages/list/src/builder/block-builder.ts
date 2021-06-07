@@ -1,10 +1,7 @@
 import { RimbuError } from '@rimbu/base';
 import { OptLazy, TraverseState, Update } from '@rimbu/common';
-import {
-  LeafBlock,
-  NonLeafBlock,
-} from '../implementation/implementation-generic-custom';
-import { BuilderBase } from './builder-generic-custom';
+import type { BuilderBase } from '../list-custom';
+import { LeafBlock, NonLeafBlock } from '../list-custom';
 
 export function createFromBlock<T>(
   input: LeafBlock<T> | NonLeafBlock<T, any>

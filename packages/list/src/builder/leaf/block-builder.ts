@@ -1,8 +1,11 @@
 import { Arr } from '@rimbu/base';
 import { OptLazy, TraverseState, Update } from '@rimbu/common';
-import { LeafBlock } from '../../implementation/implementation-generic-custom';
-import { ListContext } from '../../list-custom';
-import { BlockBuilder, LeafBuilder } from '../builder-generic-custom';
+import type {
+  BlockBuilder,
+  LeafBlock,
+  LeafBuilder,
+  ListContext,
+} from '../../list-custom';
 
 export class LeafBlockBuilder<T> implements LeafBuilder<T>, BlockBuilder<T> {
   constructor(

@@ -1,15 +1,17 @@
-import { OptLazy } from '@rimbu/common';
-import { NonLeafTree } from '../../implementation/implementation-generic-custom';
-import { ListContext } from '../../list-custom';
-import {
+import type { OptLazy } from '@rimbu/common';
+import type {
   BlockBuilder,
   BuilderBase,
-  createFromBlock,
-  createNonLeaf,
+  ListContext,
   NonLeafBlockBuilder,
   NonLeafBuilder,
+  NonLeafTree,
+} from '../../list-custom';
+import {
+  createFromBlock,
+  createNonLeaf,
   TreeBuilderBase,
-} from '../builder-generic-custom';
+} from '../../list-custom';
 
 export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>
   extends TreeBuilderBase<T, C>

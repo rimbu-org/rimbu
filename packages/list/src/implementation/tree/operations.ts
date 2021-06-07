@@ -1,11 +1,8 @@
 import { Arr, RimbuError } from '@rimbu/base';
 import { IndexRange, TraverseState, Update } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
-import {
-  Block,
-  ReversedLeafBlock,
-  Tree,
-} from '../implementation-generic-custom';
+import type { Block, Tree } from '../../list-custom';
+import { ReversedLeafBlock } from '../../list-custom';
 
 export function treeStream<
   T,

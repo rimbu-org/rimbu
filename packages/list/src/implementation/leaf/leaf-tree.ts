@@ -7,14 +7,12 @@ import {
   Update,
 } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
-import { List } from '../../internal';
-import { ListContext } from '../../list-custom';
+import type { List } from '../../internal';
+import type { ListContext, NonLeaf, Tree } from '../../list-custom';
 import {
   LeafBlock,
   ListNonEmptyBase,
-  NonLeaf,
   NonLeafBlock,
-  Tree,
   treeAppend,
   treeForEach,
   treeGet,
@@ -22,7 +20,7 @@ import {
   treeStream,
   treeToArray,
   treeUpdate,
-} from '../implementation-generic-custom';
+} from '../../list-custom';
 
 export class LeafTree<T>
   extends ListNonEmptyBase<T>

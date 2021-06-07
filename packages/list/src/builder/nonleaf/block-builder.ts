@@ -1,16 +1,12 @@
 import { Arr, RimbuError } from '@rimbu/base';
 import { OptLazy, TraverseState, Update } from '@rimbu/common';
-import {
-  NonLeaf,
-  NonLeafBlock,
-} from '../../implementation/implementation-generic-custom';
-import { List } from '../../internal';
-import { ListContext } from '../../list-custom';
-import {
+import type { List } from '../../internal';
+import type {
   BlockBuilder,
-  createFromBlock,
+  ListContext,
   NonLeafBuilder,
-} from '../builder-generic-custom';
+} from '../../list-custom';
+import { createFromBlock, NonLeaf, NonLeafBlock } from '../../list-custom';
 
 export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
   implements BlockBuilder<T, C>

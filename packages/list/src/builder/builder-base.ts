@@ -1,6 +1,6 @@
-import { OptLazy } from '@rimbu/common';
-import { NonLeaf } from '../implementation/implementation-generic-custom';
-import { List } from '../internal';
+import type { OptLazy } from '@rimbu/common';
+import type { List } from '../internal';
+import type { NonLeaf } from '../list-custom';
 
 export interface BuilderBase<T, C = unknown> {
   readonly length: number;

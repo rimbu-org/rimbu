@@ -1,5 +1,4 @@
-import { ListContext } from '../../list-custom';
-import { Block, NonLeaf } from '../implementation-generic-custom';
+import type { Block, ListContext, NonLeaf } from '../../list-custom';
 
 export interface Tree<
   T,

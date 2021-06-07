@@ -11,8 +11,8 @@ import {
   Update,
 } from '@rimbu/common';
 import { FastIterator, Stream, StreamSource } from '@rimbu/stream';
-import { List } from '../internal';
-import { ListContext } from '../list-custom';
+import type { List } from '../internal';
+import type { ListContext } from '../list-custom';
 
 const _emptyObject = {};
 

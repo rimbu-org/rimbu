@@ -7,14 +7,13 @@ import {
   Update,
 } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
-import { List } from '../../internal';
-import { ListContext } from '../../list-custom';
+import type { List } from '../../internal';
+import type { Block, ListContext } from '../../list-custom';
 import {
-  Block,
   LeafTree,
   ListNonEmptyBase,
   ReversedLeafBlock,
-} from '../implementation-generic-custom';
+} from '../../list-custom';
 
 export class LeafBlock<T>
   extends ListNonEmptyBase<T>

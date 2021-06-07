@@ -1,6 +1,6 @@
 import { IndexRange, TraverseState, Update } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
-import { Block } from '../implementation-generic-custom';
+import type { Block } from '../../list-custom';
 
 export interface NonLeaf<T, C extends Block<T, C> = any> {
   readonly length: number;

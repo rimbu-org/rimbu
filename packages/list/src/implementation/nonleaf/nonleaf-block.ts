@@ -1,8 +1,8 @@
 import { Arr, RimbuError } from '@rimbu/base';
 import { IndexRange, TraverseState, Update } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
-import { ListContext } from '../../list-custom';
-import { Block, NonLeaf, NonLeafTree } from '../implementation-generic-custom';
+import type { Block, ListContext, NonLeaf } from '../../list-custom';
+import { NonLeafTree } from '../../list-custom';
 
 export class NonLeafBlock<T, C extends Block<T, C>>
   implements Block<T, NonLeafBlock<T, C>, C>, NonLeaf<T, Block<T>>
