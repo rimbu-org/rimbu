@@ -4,9 +4,6 @@
   "npmClient": "yarn",
   "useWorkspaces": true,
   "command": {
-    "publish": {
-      "registry": "https://registry.npmjs.org"
-    },
     "version": {
       "allowBranch": "main",
       "ignoreChanges": ["**/*.md"]
