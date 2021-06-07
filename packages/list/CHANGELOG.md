@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.10-alpha.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/list@0.5.10-alpha.0...@rimbu/list@0.5.10-alpha.1) (2021-06-07)
+
+
+### Bug Fixes
+
+* **list:** reorder imports to fix codesandbox import ([cb76649](https://github.com/rimbu-org/rimbu/commit/cb766499ab6b941d5934711c5a6bc7d9263c59d5))
+
+
+
+
+
 ## [0.5.10-alpha.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/list@0.5.9...@rimbu/list@0.5.10-alpha.0) (2021-06-07)
 
 
