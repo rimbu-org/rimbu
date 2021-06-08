@@ -4,9 +4,11 @@ import type { List } from '../../internal';
 import type {
   BlockBuilder,
   ListContext,
+  NonLeaf,
+  NonLeafBlock,
   NonLeafBuilder,
 } from '../../list-custom';
-import { createFromBlock, NonLeaf, NonLeafBlock } from '../../list-custom';
+import { createFromBlock } from '../../list-custom';
 
 export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
   implements BlockBuilder<T, C>

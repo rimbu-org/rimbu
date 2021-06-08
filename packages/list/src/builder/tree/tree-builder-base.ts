@@ -1,6 +1,9 @@
 import { OptLazy, TraverseState, Update } from '@rimbu/common';
-import type { BlockBuilder, ListContext } from '../../list-custom';
-import { NonLeafBlockBuilder, NonLeafBuilder } from '../../list-custom';
+import type {
+  BlockBuilder,
+  ListContext,
+  NonLeafBuilder,
+} from '../../list-custom';
 
 export abstract class TreeBuilderBase<T, C> {
   abstract readonly context: ListContext;
@@ -287,7 +290,7 @@ export abstract class TreeBuilderBase<T, C> {
         [child],
         child.length
       );
-    } else if (this.middle instanceof NonLeafBlockBuilder) {
+    } else if (this.context.isNonLeafBlockBuilder(this.middle)) {
       if (child.nrChildren < this.context.minBlockSize) {
         this.middle.length += child.length;
         const firstChild = this.middle.first();
@@ -328,7 +331,7 @@ export abstract class TreeBuilderBase<T, C> {
         [child],
         child.length
       );
-    } else if (this.middle instanceof NonLeafBlockBuilder) {
+    } else if (this.context.isNonLeafBlockBuilder(this.middle)) {
       if (child.nrChildren < this.context.minBlockSize) {
         const lastChild = this.middle.last();
         lastChild.concat(child);

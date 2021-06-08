@@ -1,15 +1,14 @@
 import { RimbuError } from '@rimbu/base';
 import { OptLazy, TraverseState, Update } from '@rimbu/common';
-import type { BuilderBase } from '../list-custom';
-import { LeafBlock, NonLeafBlock } from '../list-custom';
+import type { BuilderBase, LeafBlock, NonLeafBlock } from '../list-custom';
 
 export function createFromBlock<T>(
   input: LeafBlock<T> | NonLeafBlock<T, any>
 ): BlockBuilder<T, any> {
-  if (input instanceof LeafBlock) {
+  if (input.context.isLeafBlock(input)) {
     return input.context.leafBlockBuilderSource(input);
   }
-  if (input instanceof NonLeafBlock) {
+  if (input.context.isNonLeafBlock(input)) {
     return input.context.nonLeafBlockBuilderSource(input);
   }
 

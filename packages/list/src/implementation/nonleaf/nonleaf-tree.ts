@@ -1,9 +1,14 @@
 import { RimbuError } from '@rimbu/base';
 import { IndexRange, TraverseState, Update } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
-import type { Block, ListContext, NonLeaf, Tree } from '../../list-custom';
-import {
+import type {
+  Block,
+  ListContext,
+  NonLeaf,
   NonLeafBlock,
+  Tree,
+} from '../../list-custom';
+import {
   treeAppend,
   treeForEach,
   treeGet,
@@ -209,8 +214,8 @@ export class NonLeafTree<T, C extends Block<T, C>>
   }
 
   concat(other: NonLeaf<T, C>): NonLeaf<T, C> {
-    if (other instanceof NonLeafBlock) return this.concatBlock(other);
-    if (other instanceof NonLeafTree) return this.concatTree(other);
+    if (this.context.isNonLeafBlock<T>(other)) return this.concatBlock(other);
+    if (this.context.isNonLeafTree(other)) return this.concatTree(other);
 
     RimbuError.throwInvalidStateError();
   }
@@ -340,7 +345,10 @@ export class NonLeafTree<T, C extends Block<T, C>>
 
     if (null === this.middle) return this.left.concat(this.right);
 
-    if (this.middle instanceof NonLeafBlock && this.middle.nrChildren === 1) {
+    if (
+      this.context.isNonLeafBlock(this.middle) &&
+      this.middle.nrChildren === 1
+    ) {
       const tMiddle: NonLeafBlock<T, NonLeafBlock<T, C>> = this.middle;
       const middleChild = tMiddle.children[0];
       if (

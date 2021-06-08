@@ -3,7 +3,6 @@ import { OptLazy, TraverseState, Update } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import type { List } from '../internal';
 import type { LeafBuilder, ListContext } from '../list-custom';
-import { LeafBlockBuilder, LeafTreeBuilder } from '../list-custom';
 
 export class GenBuilder<T> implements List.Builder<T> {
   constructor(readonly context: ListContext, public builder?: LeafBuilder<T>) {}
@@ -63,7 +62,7 @@ export class GenBuilder<T> implements List.Builder<T> {
     if (undefined === this.builder) {
       this.builder = this.context.leafBlockBuilder([value]);
     } else if (
-      this.builder instanceof LeafBlockBuilder &&
+      this.context.isLeafBlockBuilder(this.builder) &&
       this.builder.nrChildren >= this.context.maxBlockSize
     ) {
       this.builder.prepend(value);
@@ -86,7 +85,7 @@ export class GenBuilder<T> implements List.Builder<T> {
     if (undefined === this.builder) {
       this.builder = this.context.leafBlockBuilder([value]);
     } else if (
-      this.builder instanceof LeafBlockBuilder &&
+      this.context.isLeafBlockBuilder(this.builder) &&
       this.builder.nrChildren >= this.context.maxBlockSize
     ) {
       this.builder.append(value);
@@ -126,7 +125,7 @@ export class GenBuilder<T> implements List.Builder<T> {
       return this.appendArray(array, from + items.length);
     }
 
-    if (this.builder instanceof LeafBlockBuilder) {
+    if (this.context.isLeafBlockBuilder(this.builder)) {
       if (this.builder.nrChildren < this.context.maxBlockSize) {
         const items = array.slice(
           from,
@@ -147,7 +146,7 @@ export class GenBuilder<T> implements List.Builder<T> {
       return this.appendArray(array, from + secondItems.length);
     }
 
-    if (this.builder instanceof LeafTreeBuilder) {
+    if (this.context.isLeafTreeBuilder(this.builder)) {
       this.builder.appendChildren(array, from);
     }
   }

@@ -1,8 +1,12 @@
 import { Arr, RimbuError } from '@rimbu/base';
 import { IndexRange, TraverseState, Update } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
-import type { Block, ListContext, NonLeaf } from '../../list-custom';
-import { NonLeafTree } from '../../list-custom';
+import type {
+  Block,
+  ListContext,
+  NonLeaf,
+  NonLeafTree,
+} from '../../list-custom';
 
 export class NonLeafBlock<T, C extends Block<T, C>>
   implements Block<T, NonLeafBlock<T, C>, C>, NonLeaf<T, Block<T>>
@@ -170,7 +174,7 @@ export class NonLeafBlock<T, C extends Block<T, C>>
 
   concat(other: NonLeaf<T, C>): NonLeaf<T, C> {
     if (other instanceof NonLeafBlock) return this.concatBlock(other);
-    if (other instanceof NonLeafTree) return this.concatTree(other);
+    if (this.context.isNonLeafTree(other)) return this.concatTree(other);
 
     RimbuError.throwInvalidStateError();
   }

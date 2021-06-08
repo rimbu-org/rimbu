@@ -8,12 +8,8 @@ import {
 } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import type { List } from '../../internal';
-import type { Block, ListContext } from '../../list-custom';
-import {
-  LeafTree,
-  ListNonEmptyBase,
-  ReversedLeafBlock,
-} from '../../list-custom';
+import type { Block, LeafTree, ListContext } from '../../list-custom';
+import { ListNonEmptyBase } from '../../list-custom';
 
 export class LeafBlock<T>
   extends ListNonEmptyBase<T>
@@ -84,7 +80,7 @@ export class LeafBlock<T>
   }
 
   prepend(value: T): List.NonEmpty<T> {
-    if (this.length === 1 && !(this instanceof ReversedLeafBlock)) {
+    if (this.length === 1 && !this.context.isReversedLeafBlock<any>(this)) {
       return this.context.reversedLeaf([this.children[0], value]);
     }
     if (this.canAddChild) {
@@ -146,10 +142,9 @@ export class LeafBlock<T>
   }
 
   concatChildren(other: LeafBlock<T>): LeafBlock<T> {
-    const addChildren =
-      other instanceof ReversedLeafBlock
-        ? Arr.reverse(other.children)
-        : other.children;
+    const addChildren = this.context.isReversedLeafBlock<any>(other)
+      ? Arr.reverse(other.children)
+      : other.children;
 
     const newChildren = this.children.concat(addChildren);
 
@@ -157,11 +152,11 @@ export class LeafBlock<T>
   }
 
   concat(...sources: ArrayNonEmpty<StreamSource<T>>): List.NonEmpty<T> {
-    const asList = this.context.from(...sources);
+    const asList: List<T> = this.context.from(...sources);
 
     if (asList.nonEmpty()) {
-      if (asList instanceof LeafBlock) return this.concatBlock(asList);
-      if (asList instanceof LeafTree) return this.concatTree(asList);
+      if (this.context.isLeafBlock(asList)) return this.concatBlock(asList);
+      if (this.context.isLeafTree(asList)) return this.concatTree(asList);
       RimbuError.throwInvalidStateError();
     }
 
@@ -210,7 +205,12 @@ export class LeafBlock<T>
   ): void {
     if (state.halted) return;
 
-    Arr.forEach(this.children, f, state, this instanceof ReversedLeafBlock);
+    Arr.forEach(
+      this.children,
+      f,
+      state,
+      this.context.isReversedLeafBlock(this)
+    );
   }
 
   map<T2>(

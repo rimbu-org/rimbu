@@ -5,16 +5,15 @@ import type {
   NonLeafBlockBuilder,
   NonLeafTreeBuilder,
 } from '../../list-custom';
-import { NonLeafBlock, NonLeafTree } from '../../list-custom';
 
 export function createNonLeaf<T>(
   nonLeaf: NonLeaf<T>
 ): NonLeafBuilder<T, BlockBuilder<T>> {
-  if (nonLeaf instanceof NonLeafBlock) {
+  if (nonLeaf.context.isNonLeafBlock(nonLeaf)) {
     return nonLeaf.context.nonLeafBlockBuilderSource(nonLeaf);
   }
 
-  if (nonLeaf instanceof NonLeafTree) {
+  if (nonLeaf.context.isNonLeafTree(nonLeaf)) {
     return nonLeaf.context.nonLeafTreeBuilderSource(nonLeaf);
   }
 

@@ -8,11 +8,9 @@ import {
 } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import type { List } from '../../internal';
-import type { ListContext, NonLeaf, Tree } from '../../list-custom';
+import type { LeafBlock, ListContext, NonLeaf, Tree } from '../../list-custom';
 import {
-  LeafBlock,
   ListNonEmptyBase,
-  NonLeafBlock,
   treeAppend,
   treeForEach,
   treeGet,
@@ -167,11 +165,11 @@ export class LeafTree<T>
   }
 
   concat(...sources: ArrayNonEmpty<StreamSource<T>>): List.NonEmpty<T> {
-    const asList = this.context.from(...sources);
+    const asList: List<T> = this.context.from(...sources);
 
     if (asList.nonEmpty()) {
-      if (asList instanceof LeafBlock) return this.concatBlock(asList);
-      else if (asList instanceof LeafTree) return this.concatTree(asList);
+      if (this.context.isLeafBlock(asList)) return this.concatBlock(asList);
+      else if (this.context.isLeafTree(asList)) return this.concatTree(asList);
       else RimbuError.throwInvalidStateError();
     }
 
@@ -342,7 +340,7 @@ export class LeafTree<T>
     }
     if (this.length > this.context.maxBlockSize) return this;
     if (null === this.middle) return this.left.concatChildren(this.right);
-    if (this.middle instanceof NonLeafBlock) {
+    if (this.context.isNonLeafBlock(this.middle)) {
       const children = this.left.children.concat(
         this.middle.getChild(0).children,
         this.right.children

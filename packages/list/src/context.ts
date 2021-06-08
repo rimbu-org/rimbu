@@ -5,6 +5,7 @@ import type { List } from './internal';
 import type {
   Block,
   BlockBuilder,
+  LeafBuilder,
   NonLeaf,
   NonLeafBuilder,
 } from './list-custom';
@@ -206,5 +207,41 @@ export class ListContext implements List.Context {
       middle,
       length
     );
+  }
+
+  isLeafBlock<T>(obj: List<T> | Block<T>): obj is LeafBlock<T> {
+    return obj instanceof LeafBlock;
+  }
+
+  isReversedLeafBlock<T>(obj: List<T> | Block<T>): obj is ReversedLeafBlock<T> {
+    return obj instanceof ReversedLeafBlock;
+  }
+
+  isNonLeafBlock<T>(
+    obj: List<T> | Block<T> | NonLeaf<T>
+  ): obj is NonLeafBlock<T, any> {
+    return obj instanceof NonLeafBlock;
+  }
+
+  isLeafTree<T>(obj: List<T>): obj is LeafTree<T> {
+    return obj instanceof LeafTree;
+  }
+
+  isNonLeafTree<T>(obj: NonLeaf<T>): obj is NonLeafTree<T, any> {
+    return obj instanceof NonLeafTree;
+  }
+
+  isLeafBlockBuilder<T>(obj: LeafBuilder<T>): obj is LeafBlockBuilder<T> {
+    return obj instanceof LeafBlockBuilder;
+  }
+
+  isLeafTreeBuilder<T>(obj: LeafBuilder<T>): obj is LeafTreeBuilder<T> {
+    return obj instanceof LeafTreeBuilder;
+  }
+
+  isNonLeafBlockBuilder<T>(
+    obj: NonLeafBuilder<T, any>
+  ): obj is NonLeafBlockBuilder<T, any> {
+    return obj instanceof LeafTreeBuilder;
   }
 }

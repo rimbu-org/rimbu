@@ -2,7 +2,6 @@ import { Arr, RimbuError } from '@rimbu/base';
 import { IndexRange, TraverseState, Update } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
 import type { Block, Tree } from '../../list-custom';
-import { ReversedLeafBlock } from '../../list-custom';
 
 export function treeStream<
   T,
@@ -145,7 +144,7 @@ export function treeAppend<
   }
 
   if (null === tree.middle && tree.left.canAddChild) {
-    if (tree.right instanceof ReversedLeafBlock) {
+    if (tree.context.isReversedLeafBlock<any>(tree.right)) {
       const newRightChildren = Arr.splice(
         tree.right.children,
         tree.right.children.length - 1,

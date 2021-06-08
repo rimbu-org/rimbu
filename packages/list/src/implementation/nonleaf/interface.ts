@@ -1,9 +1,10 @@
 import { IndexRange, TraverseState, Update } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
-import type { Block } from '../../list-custom';
+import type { Block, ListContext } from '../../list-custom';
 
 export interface NonLeaf<T, C extends Block<T, C> = any> {
   readonly length: number;
+  readonly context: ListContext;
   get(index: number): T;
   prepend(child: C): NonLeaf<T, C>;
   append(child: C): NonLeaf<T, C>;
