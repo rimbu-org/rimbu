@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.10-alpha.5](https://github.com/rimbu-org/rimbu/compare/@rimbu/list@0.5.10-alpha.4...@rimbu/list@0.5.10-alpha.5) (2021-06-08)
+
+
+### Bug Fixes
+
+* **list:** move some dependencies into one file ([970df92](https://github.com/rimbu-org/rimbu/commit/970df92ebd7d21ba3097afeb7c583c0af6d6a729))
+
+
+
+
+
 ## [0.5.10-alpha.4](https://github.com/rimbu-org/rimbu/compare/@rimbu/list@0.5.10-alpha.3...@rimbu/list@0.5.10-alpha.4) (2021-06-08)
 
 
