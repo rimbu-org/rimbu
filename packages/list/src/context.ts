@@ -1,6 +1,7 @@
 import { RimbuError } from '@rimbu/base';
 import { ArrayNonEmpty } from '@rimbu/common';
 import { StreamSource } from '@rimbu/stream';
+import { ListNonEmptyBase } from './implementation/nonempty-base';
 import type { List } from './internal';
 import type {
   Block,
@@ -16,7 +17,6 @@ import {
   LeafBlockBuilder,
   LeafTree,
   LeafTreeBuilder,
-  ListNonEmptyBase,
   NonLeafBlock,
   NonLeafBlockBuilder,
   NonLeafTree,

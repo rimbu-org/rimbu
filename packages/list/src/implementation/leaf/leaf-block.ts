@@ -9,7 +9,7 @@ import {
 import { Stream, StreamSource } from '@rimbu/stream';
 import type { List } from '../../internal';
 import type { Block, LeafTree, ListContext } from '../../list-custom';
-import { ListNonEmptyBase } from '../../list-custom';
+import { ListNonEmptyBase } from '../nonempty-base';
 
 export class LeafBlock<T>
   extends ListNonEmptyBase<T>
