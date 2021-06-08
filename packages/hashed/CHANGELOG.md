@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.10-alpha.7](https://github.com/rimbu-org/rimbu/compare/@rimbu/hashed@0.5.10-alpha.6...@rimbu/hashed@0.5.10-alpha.7) (2021-06-08)
+
+
+### Bug Fixes
+
+* **hashed:** reorder imports for codesandbox ([bc6a4dd](https://github.com/rimbu-org/rimbu/commit/bc6a4dd48bdb3573c4e283fb4643b88c2cdaff99))
+
+
+
+
+
 ## [0.5.10-alpha.6](https://github.com/rimbu-org/rimbu/compare/@rimbu/hashed@0.5.10-alpha.5...@rimbu/hashed@0.5.10-alpha.6) (2021-06-08)
 
 **Note:** Version bump only for package @rimbu/hashed
