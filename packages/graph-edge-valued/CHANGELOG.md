@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.10-alpha.4](https://github.com/rimbu-org/rimbu/compare/@rimbu/graph-edge-valued@0.5.10-alpha.3...@rimbu/graph-edge-valued@0.5.10-alpha.4) (2021-06-08)
+
+**Note:** Version bump only for package @rimbu/graph-edge-valued
+
+
+
+
+
 ## [0.5.10-alpha.3](https://github.com/rimbu-org/rimbu/compare/@rimbu/graph-edge-valued@0.5.10-alpha.2...@rimbu/graph-edge-valued@0.5.10-alpha.3) (2021-06-08)
 
 **Note:** Version bump only for package @rimbu/graph-edge-valued
