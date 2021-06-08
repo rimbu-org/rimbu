@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.10-alpha.6](https://github.com/rimbu-org/rimbu/compare/@rimbu/bimap@0.5.10-alpha.5...@rimbu/bimap@0.5.10-alpha.6) (2021-06-08)
+
+**Note:** Version bump only for package @rimbu/bimap
+
+
+
+
+
 ## [0.5.10-alpha.5](https://github.com/rimbu-org/rimbu/compare/@rimbu/bimap@0.5.10-alpha.4...@rimbu/bimap@0.5.10-alpha.5) (2021-06-08)
 
 **Note:** Version bump only for package @rimbu/bimap
