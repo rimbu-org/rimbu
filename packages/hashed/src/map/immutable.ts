@@ -571,7 +571,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
       if (newEntrySet.size === 1) {
         let firstEntry: readonly [K, V] = undefined as any;
 
-        if (newEntrySet instanceof HashMapBlock) {
+        if (this.context.isHashMapBlock<K, V>(newEntrySet)) {
           for (const key in newEntrySet.entries!) {
             firstEntry = newEntrySet.entries![key];
             break;

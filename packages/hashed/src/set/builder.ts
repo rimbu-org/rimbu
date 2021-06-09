@@ -10,7 +10,7 @@ import {
 } from '../hashset-custom';
 import { HashSet } from '../internal';
 
-type SetBlockBuilderEntry<T> =
+export type SetBlockBuilderEntry<T> =
   | HashSetBlockBuilder<T>
   | HashSetCollisionBuilder<T>;
 
@@ -52,7 +52,7 @@ export class HashSetBlockBuilder<T>
         this._entrySets = Arr.mapSparse(
           this.source.entrySets,
           (entrySet): SetBlockBuilderEntry<T> => {
-            if (entrySet instanceof HashSetBlock) {
+            if (this.context.isHashSetBlock(entrySet)) {
               return new HashSetBlockBuilder(this.context, entrySet);
             }
             return new HashSetCollisionBuilder(this.context, entrySet);
@@ -221,7 +221,7 @@ export class HashSetBlockBuilder<T>
 
       let first: T = undefined as any;
 
-      if (entrySet instanceof HashSetBlockBuilder) {
+      if (this.context.isHashSetBlockBuilder(entrySet)) {
         for (const i in entrySet.entries) {
           first = entrySet.entries[i];
           break;

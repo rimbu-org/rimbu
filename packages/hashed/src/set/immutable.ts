@@ -33,8 +33,11 @@ export class HashSetEmpty<T = any>
   }
 
   union(other: StreamSource<T>): HashSet<T> | any {
-    if (other instanceof HashSetBlock || other instanceof HashSetCollision) {
-      if (other.context === this.context) return other;
+    if (
+      this.context.isHashSetBlock(other as any) ||
+      this.context.isHashSetCollision(other as any)
+    ) {
+      if ((other as any).context === this.context) return other;
     }
 
     return this.context.from(other);
@@ -350,7 +353,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
       if (newEntrySet.size === 1) {
         let firstValue: T = undefined as any;
 
-        if (newEntrySet instanceof HashSetBlock) {
+        if (this.context.isHashSetBlock(newEntrySet)) {
           for (const key in newEntrySet.entries!) {
             firstValue = newEntrySet.entries![key];
             break;

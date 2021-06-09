@@ -1,12 +1,14 @@
 import { CustomBase } from '@rimbu/collection-types';
 import { Eq } from '@rimbu/common';
 import { List } from '@rimbu/list';
+import { StreamSource } from '@rimbu/stream';
 import {
   HashSetBlock,
   HashSetBlockBuilder,
   HashSetCollision,
   HashSetEmpty,
   HashSetNonEmptyBase,
+  SetBlockBuilderEntry,
   SetEntrySet,
 } from '../hashset-custom';
 import { Hasher, HashSet } from '../internal';
@@ -86,5 +88,23 @@ export class HashSetContext<UT>
 
   collision(entries: List.NonEmpty<UT>): HashSetCollision<UT> {
     return new HashSetCollision(this as unknown as HashSetContext<UT>, entries);
+  }
+
+  isHashSetBlock<T>(
+    obj: SetEntrySet<T> | StreamSource<T>
+  ): obj is HashSetBlock<T> {
+    return obj instanceof HashSetBlock;
+  }
+
+  isHashSetCollision<T>(
+    obj: SetEntrySet<T> | StreamSource<T>
+  ): obj is HashSetCollision<T> {
+    return obj instanceof HashSetCollision;
+  }
+
+  isHashSetBlockBuilder<T>(
+    obj: SetBlockBuilderEntry<T>
+  ): obj is HashSetBlockBuilder<T> {
+    return obj instanceof HashSetBlockBuilder;
   }
 }

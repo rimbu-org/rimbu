@@ -7,6 +7,7 @@ import {
   HashMapCollision,
   HashMapEmpty,
   HashMapNonEmptyBase,
+  MapBlockBuilderEntry,
   MapEntrySet,
 } from '../hashmap-custom';
 import { Hasher, HashMap } from '../internal';
@@ -85,5 +86,15 @@ export class HashMapContext<UK>
     entries: List.NonEmpty<readonly [UK, V]>
   ): HashMapCollision<UK, V> {
     return new HashMapCollision(this, entries);
+  }
+
+  isHashMapBlock<K, V>(obj: MapEntrySet<K, V>): obj is HashMapBlock<K, V> {
+    return obj instanceof HashMapBlock;
+  }
+
+  isHashMapBlockBuilder<K, V>(
+    obj: MapBlockBuilderEntry<K, V>
+  ): obj is HashMapBlockBuilder<K, V> {
+    return obj instanceof HashMapBlockBuilder;
   }
 }

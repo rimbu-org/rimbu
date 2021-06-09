@@ -9,15 +9,15 @@ import {
 import { List } from '@rimbu/list';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { BlockBuilderBase, CollisionBuilderBase } from '../hashed-custom';
-import {
+import type {
   HashMapBlock,
   HashMapCollision,
   HashMapContext,
   MapEntrySet,
 } from '../hashmap-custom';
-import { HashMap } from '../internal';
+import type { HashMap } from '../internal';
 
-type MapBlockBuilderEntry<K, V> =
+export type MapBlockBuilderEntry<K, V> =
   | HashMapBlockBuilder<K, V>
   | HashMapCollisionBuilder<K, V>;
 
@@ -62,7 +62,7 @@ export class HashMapBlockBuilder<K, V>
             : Arr.mapSparse(
                 this.source.entrySets,
                 (entrySet): MapBlockBuilderEntry<K, V> => {
-                  if (entrySet instanceof HashMapBlock) {
+                  if (this.context.isHashMapBlock(entrySet)) {
                     return new HashMapBlockBuilder(this.context, entrySet);
                   }
                   return new HashMapCollisionBuilder(this.context, entrySet);
@@ -299,7 +299,7 @@ export class HashMapBlockBuilder<K, V>
       // single entry needs to be pulled up
 
       let first: readonly [K, V] = undefined as any;
-      if (entrySet instanceof HashMapBlockBuilder) {
+      if (this.context.isHashMapBlockBuilder(entrySet)) {
         for (const index in entrySet.entries) {
           first = entrySet.entries[index];
           break;
