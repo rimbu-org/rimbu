@@ -2,8 +2,8 @@ import { CustomBase, RMap } from '@rimbu/collection-types';
 import { Eq, OmitStrong } from '@rimbu/common';
 import { List } from '@rimbu/list';
 import { Stream, Streamable } from '@rimbu/stream';
+import { Hasher } from '../hasher';
 import { HashMapContext } from '../hashmap-custom';
-import { Hasher } from '../internal';
 
 /**
  * A type-invariant immutable Map of key type K, and value type V.

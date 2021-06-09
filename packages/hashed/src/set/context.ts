@@ -2,6 +2,7 @@ import { CustomBase } from '@rimbu/collection-types';
 import { Eq } from '@rimbu/common';
 import { List } from '@rimbu/list';
 import { StreamSource } from '@rimbu/stream';
+import { Hasher } from '../hasher';
 import {
   HashSetBlock,
   HashSetBlockBuilder,
@@ -11,7 +12,7 @@ import {
   SetBlockBuilderEntry,
   SetEntrySet,
 } from '../hashset-custom';
-import { Hasher, HashSet } from '../internal';
+import { HashSet } from '../internal';
 
 export class HashSetContext<UT>
   extends CustomBase.RSetBase.ContextBase<UT, HashSet.Types>

@@ -1,6 +1,7 @@
 import { CustomBase } from '@rimbu/collection-types';
 import { Eq } from '@rimbu/common';
 import { List } from '@rimbu/list';
+import { Hasher } from '../hasher';
 import {
   HashMapBlock,
   HashMapBlockBuilder,
@@ -10,7 +11,7 @@ import {
   MapBlockBuilderEntry,
   MapEntrySet,
 } from '../hashmap-custom';
-import { Hasher, HashMap } from '../internal';
+import { HashMap } from '../internal';
 
 export class HashMapContext<UK>
   extends CustomBase.RMapBase.ContextBase<UK, HashMap.Types>
