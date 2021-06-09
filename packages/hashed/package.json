@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/hashed",
-  "version": "0.5.10-alpha.7",
+  "version": "0.5.10-alpha.8",
   "description": "Immutable HashMap and HashSet implementations for TypeScript",
   "keywords": [
     "hashmap",

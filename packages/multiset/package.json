@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/multiset",
-  "version": "0.5.10-alpha.7",
+  "version": "0.5.10-alpha.8",
   "description": "An immutable Set where each element can occur multiple times",
   "keywords": [
     "multiset",
@@ -65,7 +65,7 @@
     "@rimbu/base": "^0.5.7",
     "@rimbu/collection-types": "^0.5.10-alpha.0",
     "@rimbu/common": "^0.5.7",
-    "@rimbu/hashed": "^0.5.10-alpha.7",
+    "@rimbu/hashed": "^0.5.10-alpha.8",
     "@rimbu/sorted": "^0.5.10-alpha.0",
     "@rimbu/stream": "^0.5.10-alpha.0"
   },

@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/table",
-  "version": "0.5.10-alpha.7",
+  "version": "0.5.10-alpha.8",
   "description": "Immutable spreadsheet-like data structures containing row keys, column keys, and cell values",
   "keywords": [
     "table",
@@ -64,7 +64,7 @@
     "@rimbu/base": "^0.5.7",
     "@rimbu/collection-types": "^0.5.10-alpha.0",
     "@rimbu/common": "^0.5.7",
-    "@rimbu/hashed": "^0.5.10-alpha.7",
+    "@rimbu/hashed": "^0.5.10-alpha.8",
     "@rimbu/sorted": "^0.5.10-alpha.0",
     "@rimbu/stream": "^0.5.10-alpha.0"
   },

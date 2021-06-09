@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.10-alpha.8](https://github.com/rimbu-org/rimbu/compare/@rimbu/ordered@0.5.10-alpha.7...@rimbu/ordered@0.5.10-alpha.8) (2021-06-09)
+
+**Note:** Version bump only for package @rimbu/ordered
+
+
+
+
+
 ## [0.5.10-alpha.7](https://github.com/rimbu-org/rimbu/compare/@rimbu/ordered@0.5.10-alpha.6...@rimbu/ordered@0.5.10-alpha.7) (2021-06-08)
 
 **Note:** Version bump only for package @rimbu/ordered
