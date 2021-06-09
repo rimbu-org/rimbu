@@ -2,8 +2,7 @@ import { CustomBase, RMap } from '@rimbu/collection-types';
 import { Eq, OmitStrong } from '@rimbu/common';
 import { List } from '@rimbu/list';
 import { Stream, Streamable } from '@rimbu/stream';
-import { HashMapContext } from '../hashmap-custom';
-import { Hasher } from '../internal';
+import { Hasher, HashMapCustom } from '../internal';
 
 /**
  * A type-invariant immutable Map of key type K, and value type V.
@@ -82,7 +81,7 @@ function createContext<UK>(options?: {
   blockSizeBits?: number;
   listContext?: List.Context;
 }): HashMap.Context<UK> {
-  return new HashMapContext(
+  return new HashMapCustom.HashMapContext(
     options?.hasher ?? Hasher.defaultHasher(),
     options?.eq ?? Eq.defaultEq(),
     options?.blockSizeBits ?? 5,

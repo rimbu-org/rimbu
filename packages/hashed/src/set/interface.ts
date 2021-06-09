@@ -2,8 +2,7 @@ import { CustomBase } from '@rimbu/collection-types';
 import { Eq, OmitStrong } from '@rimbu/common';
 import { List } from '@rimbu/list';
 import { Streamable } from '@rimbu/stream';
-import { HashSetContext } from '../hashset-custom';
-import { Hasher } from '../internal';
+import { Hasher, HashSetCustom } from '../internal';
 
 /**
  * A type-invariant immutable Set of value type T.
@@ -72,7 +71,7 @@ function createContext<UT>(options?: {
   blockSizeBits?: number;
   listContext?: List.Context;
 }): HashSet.Context<UT> {
-  return new HashSetContext(
+  return new HashSetCustom.HashSetContext(
     options?.hasher ?? Hasher.defaultHasher(),
     options?.eq ?? Eq.defaultEq(),
     options?.blockSizeBits ?? 5,
