@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.10-alpha.11](https://github.com/rimbu-org/rimbu/compare/@rimbu/hashed@0.5.10-alpha.10...@rimbu/hashed@0.5.10-alpha.11) (2021-06-09)
+
+
+### Bug Fixes
+
+* **hashed:** remove more circular dependencies ([07d8131](https://github.com/rimbu-org/rimbu/commit/07d81313fc0e8c917f4d206600f35a0f7eaee88a))
+
+
+
+
+
 ## [0.5.10-alpha.10](https://github.com/rimbu-org/rimbu/compare/@rimbu/hashed@0.5.10-alpha.9...@rimbu/hashed@0.5.10-alpha.10) (2021-06-09)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/core",
-  "version": "0.5.10-alpha.10",
+  "version": "0.5.10-alpha.11",
   "description": "Immutable collections and tools for TypeScript",
   "keywords": [
     "collection",
@@ -69,24 +69,24 @@
     "typescript": "^4.2.4"
   },
   "dependencies": {
-    "@rimbu/bimap": "^0.5.10-alpha.10",
-    "@rimbu/bimultimap": "^0.5.10-alpha.10",
+    "@rimbu/bimap": "^0.5.10-alpha.11",
+    "@rimbu/bimultimap": "^0.5.10-alpha.11",
     "@rimbu/collection-types": "^0.5.10-alpha.0",
     "@rimbu/common": "^0.5.7",
     "@rimbu/deep": "^0.5.7",
-    "@rimbu/graph": "^0.5.10-alpha.10",
-    "@rimbu/graph-arrow-valued": "^0.5.10-alpha.10",
-    "@rimbu/graph-edge-valued": "^0.5.10-alpha.10",
-    "@rimbu/hashed": "^0.5.10-alpha.10",
+    "@rimbu/graph": "^0.5.10-alpha.11",
+    "@rimbu/graph-arrow-valued": "^0.5.10-alpha.11",
+    "@rimbu/graph-edge-valued": "^0.5.10-alpha.11",
+    "@rimbu/hashed": "^0.5.10-alpha.11",
     "@rimbu/list": "^0.5.10-alpha.7",
-    "@rimbu/multimap": "^0.5.10-alpha.10",
-    "@rimbu/multiset": "^0.5.10-alpha.10",
-    "@rimbu/ordered": "^0.5.10-alpha.10",
+    "@rimbu/multimap": "^0.5.10-alpha.11",
+    "@rimbu/multiset": "^0.5.10-alpha.11",
+    "@rimbu/ordered": "^0.5.10-alpha.11",
     "@rimbu/sorted": "^0.5.10-alpha.0",
     "@rimbu/stream": "^0.5.10-alpha.0",
-    "@rimbu/table": "^0.5.10-alpha.10",
-    "@rimbu/table-hash-row": "^0.5.10-alpha.10",
-    "@rimbu/table-sorted-row": "^0.5.10-alpha.10"
+    "@rimbu/table": "^0.5.10-alpha.11",
+    "@rimbu/table-hash-row": "^0.5.10-alpha.11",
+    "@rimbu/table-sorted-row": "^0.5.10-alpha.11"
   },
   "publishConfig": {
     "access": "public"
