@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/graph-edge-valued",
-  "version": "0.5.10-alpha.8",
+  "version": "0.5.10-alpha.9",
   "description": "Immutable Graph data structures for TypeScript",
   "keywords": [
     "graph",
@@ -66,8 +66,8 @@
   "dependencies": {
     "@rimbu/collection-types": "^0.5.10-alpha.0",
     "@rimbu/common": "^0.5.7",
-    "@rimbu/graph": "^0.5.10-alpha.8",
-    "@rimbu/hashed": "^0.5.10-alpha.8",
+    "@rimbu/graph": "^0.5.10-alpha.9",
+    "@rimbu/hashed": "^0.5.10-alpha.9",
     "@rimbu/sorted": "^0.5.10-alpha.0",
     "@rimbu/stream": "^0.5.10-alpha.0"
   },
