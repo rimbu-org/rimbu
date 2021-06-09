@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/core",
-  "version": "0.5.10-alpha.11",
+  "version": "0.5.10-alpha.12",
   "description": "Immutable collections and tools for TypeScript",
   "keywords": [
     "collection",
@@ -74,9 +74,9 @@
     "@rimbu/collection-types": "^0.5.10-alpha.0",
     "@rimbu/common": "^0.5.7",
     "@rimbu/deep": "^0.5.7",
-    "@rimbu/graph": "^0.5.10-alpha.11",
-    "@rimbu/graph-arrow-valued": "^0.5.10-alpha.11",
-    "@rimbu/graph-edge-valued": "^0.5.10-alpha.11",
+    "@rimbu/graph": "^0.5.10-alpha.12",
+    "@rimbu/graph-arrow-valued": "^0.5.10-alpha.12",
+    "@rimbu/graph-edge-valued": "^0.5.10-alpha.12",
     "@rimbu/hashed": "^0.5.10-alpha.11",
     "@rimbu/list": "^0.5.10-alpha.7",
     "@rimbu/multimap": "^0.5.10-alpha.11",

@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/graph",
-  "version": "0.5.10-alpha.11",
+  "version": "0.5.10-alpha.12",
   "description": "Immutable Graph data structures for TypeScript",
   "keywords": [
     "graph",
