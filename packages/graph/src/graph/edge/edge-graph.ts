@@ -1,7 +1,8 @@
 import { RMap, RSet } from '@rimbu/collection-types';
 import { Stream, Streamable } from '@rimbu/stream';
-import { EdgeGraphBase, GraphContext } from '../../graph-custom';
-import { GraphElement } from '../../internal';
+import type { GraphElement } from '../../internal';
+import type { EdgeGraphBase } from '../graph-custom';
+import { GraphContext } from '../graph-custom';
 
 /**
  * An type-invariant immutable edge (undirected) graph.

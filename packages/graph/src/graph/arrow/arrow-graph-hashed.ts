@@ -2,8 +2,9 @@ import { RSet } from '@rimbu/collection-types';
 import { OmitStrong } from '@rimbu/common';
 import { HashMap, HashSet } from '@rimbu/hashed';
 import { Stream, Streamable } from '@rimbu/stream';
-import { ArrowGraphBase, GraphContext } from '../../graph-custom';
-import { GraphElement } from '../../internal';
+import type { GraphElement } from '../../internal';
+import type { ArrowGraphBase } from '../graph-custom';
+import { GraphContext } from '../graph-custom';
 
 /**
  * An type-invariant immutable valued arrow (directed) graph.

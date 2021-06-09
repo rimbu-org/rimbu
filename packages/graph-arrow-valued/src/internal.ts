@@ -1,4 +1,4 @@
-export * as CustomGraphValuedBase from './graph-custom';
+export * as ArrowValuedGraphCustom from './graph-custom';
 
 export * from './arrow/arrow-valued-graph';
 

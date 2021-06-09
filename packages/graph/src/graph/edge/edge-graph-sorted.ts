@@ -2,8 +2,9 @@ import { RSet } from '@rimbu/collection-types';
 import { OmitStrong } from '@rimbu/common';
 import { SortedMap, SortedSet } from '@rimbu/sorted';
 import { Stream, Streamable } from '@rimbu/stream';
-import { EdgeGraphBase, GraphContext } from '../../graph-custom';
-import { GraphElement } from '../../internal';
+import type { GraphElement } from '../../internal';
+import type { EdgeGraphBase } from '../graph-custom';
+import { GraphContext } from '../graph-custom';
 
 /**
  * An type-invariant immutable valued edge (undirected) graph.

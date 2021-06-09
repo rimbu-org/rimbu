@@ -7,14 +7,13 @@ import {
   ToJSON,
   TraverseState,
 } from '@rimbu/common';
-import { Link } from '../../internal';
 import { Stream, StreamSource } from '@rimbu/stream';
-import {
+import type { WithGraphValues } from '../../gen-graph-custom';
+import type { Link, ValuedGraphElement, ValuedLink } from '../../internal';
+import type {
   ValuedGraphBase,
   ValuedGraphTypesContextImpl,
-  WithGraphValues,
-} from '../../graph-custom';
-import { ValuedGraphElement, ValuedLink } from '../../internal';
+} from '../valued-graph-custom';
 
 export class ValuedGraphNonEmpty<
     N,

@@ -1,6 +1,6 @@
 import { Stream, Streamable } from '@rimbu/stream';
-import { VariantValuedGraphBase } from '../graph-custom';
-import { ValuedGraphElement } from '../internal';
+import type { ValuedGraphElement } from '../internal';
+import type { VariantValuedGraphBase } from './valued-graph-custom';
 
 /**
  * An type-variant immutable valued graph.

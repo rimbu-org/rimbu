@@ -1,5 +1,6 @@
-import { VariantGraphBase, VariantValuedGraphBase } from '../graph-custom';
-import { Link, ValuedLink } from '../internal';
+import type { VariantGraphBase } from '../graph/graph-custom';
+import type { Link, ValuedLink } from '../internal';
+import type { VariantValuedGraphBase } from '../valued-graph/valued-graph-custom';
 
 /**
  * Utility type to determine if a graph has valued or unvalued links

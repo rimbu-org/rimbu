@@ -1,13 +1,14 @@
 import { ArrayNonEmpty } from '@rimbu/common';
 import { StreamSource } from '@rimbu/stream';
+import type { WithGraphValues } from '../../gen-graph-custom';
+import type { ValuedGraphElement } from '../../internal';
+import type { ValuedGraphBase } from '../valued-graph-custom';
 import {
-  ValuedGraphBase,
   ValuedGraphBuilder,
   ValuedGraphEmpty,
   ValuedGraphNonEmpty,
-} from '../../graph-custom';
-import { ValuedGraphElement } from '../../internal';
-import { WithGraphValues } from '../../graph-custom';
+} from '../valued-graph-custom';
+
 export interface ValuedGraphTypesContextImpl extends ValuedGraphBase.Types {
   context: ValuedGraphContext<this['_N'], string, ValuedGraphTypesContextImpl>;
 }

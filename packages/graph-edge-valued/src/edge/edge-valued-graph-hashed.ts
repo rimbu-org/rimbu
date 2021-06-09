@@ -1,6 +1,6 @@
 import { RMap } from '@rimbu/collection-types';
 import { OmitStrong } from '@rimbu/common';
-import { CustomGraphNonValuedBase, ValuedGraphElement } from '@rimbu/graph';
+import { ValuedGraphCustom, ValuedGraphElement } from '@rimbu/graph';
 import { HashMap } from '@rimbu/hashed';
 import { Stream, Streamable } from '@rimbu/stream';
 import { EdgeValuedGraphBase } from '../graph-custom';
@@ -85,7 +85,7 @@ export namespace EdgeValuedGraphHashed {
 }
 
 interface TypesImpl extends EdgeValuedGraphHashed.Types {
-  readonly context: CustomGraphNonValuedBase.ValuedGraphContext<
+  readonly context: ValuedGraphCustom.ValuedGraphContext<
     this['_N'],
     'EdgeValuedGraphHashed',
     any
@@ -96,7 +96,7 @@ function createContext<UN>(options?: {
   linkMapContext?: HashMap.Context<UN>;
   linkConnectionsContext?: HashMap.Context<UN>;
 }): EdgeValuedGraphHashed.Context<UN> {
-  return new CustomGraphNonValuedBase.ValuedGraphContext<
+  return new ValuedGraphCustom.ValuedGraphContext<
     UN,
     'EdgeValuedGraphHashed',
     TypesImpl

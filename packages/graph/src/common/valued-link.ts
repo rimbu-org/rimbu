@@ -1,5 +1,5 @@
 import { OptLazy } from '@rimbu/common';
-import { Link } from '../internal';
+import type { Link } from '../internal';
 
 /**
  * A valued connection between two nodes,

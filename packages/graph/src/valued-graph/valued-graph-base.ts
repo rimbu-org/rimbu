@@ -8,15 +8,14 @@ import {
   SuperOf,
 } from '@rimbu/common';
 import { Stream, Streamable, StreamSource } from '@rimbu/stream';
-import {
+import type {
   GraphConnect,
   GraphConnectNonEmpty,
-  VariantGraphBase,
-  VariantValuedGraphBase,
   WithGraphValues,
-} from '../graph-custom';
-import { Link, ValuedGraphElement } from '../internal';
-
+} from '../gen-graph-custom';
+import type { VariantGraphBase } from '../graph/graph-custom';
+import type { Link, ValuedGraphElement } from '../internal';
+import type { VariantValuedGraphBase } from './valued-graph-custom';
 export interface ValuedGraphBase<
   N,
   V,

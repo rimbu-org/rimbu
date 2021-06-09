@@ -1,13 +1,9 @@
 import { ArrayNonEmpty } from '@rimbu/common';
 import { StreamSource } from '@rimbu/stream';
-import {
-  GraphBase,
-  GraphBuilder,
-  GraphEmpty,
-  GraphNonEmpty,
-  WithGraphValues,
-} from '../../graph-custom';
-import { GraphElement } from '../../internal';
+import type { WithGraphValues } from '../../gen-graph-custom';
+import type { GraphElement } from '../../internal';
+import type { GraphBase } from '../graph-custom';
+import { GraphBuilder, GraphEmpty, GraphNonEmpty } from '../graph-custom';
 
 export interface GraphTypesContextImpl extends GraphBase.Types {
   context: GraphContext<this['_N'], string, boolean, GraphTypesContextImpl>;

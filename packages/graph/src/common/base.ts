@@ -1,6 +1,6 @@
 import { CustomBase } from '@rimbu/collection-types';
 import { Stream, StreamSource } from '@rimbu/stream';
-import { VariantGraphBase } from '../graph-custom';
+import type { VariantGraphBase } from '../graph/graph-custom';
 
 export interface GraphValues<N = unknown, V = unknown> {
   readonly _N: N;

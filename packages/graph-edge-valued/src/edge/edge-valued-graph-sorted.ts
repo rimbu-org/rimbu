@@ -1,6 +1,6 @@
 import { RMap } from '@rimbu/collection-types';
 import { OmitStrong } from '@rimbu/common';
-import { CustomGraphNonValuedBase, ValuedGraphElement } from '@rimbu/graph';
+import { ValuedGraphCustom, ValuedGraphElement } from '@rimbu/graph';
 import { SortedMap } from '@rimbu/sorted';
 import { Stream, Streamable } from '@rimbu/stream';
 import { EdgeValuedGraphBase } from '../graph-custom';
@@ -85,7 +85,7 @@ export namespace EdgeValuedGraphSorted {
 }
 
 interface TypesImpl extends EdgeValuedGraphSorted.Types {
-  readonly context: CustomGraphNonValuedBase.ValuedGraphContext<
+  readonly context: ValuedGraphCustom.ValuedGraphContext<
     this['_N'],
     'EdgeValuedGraphSorted',
     any
@@ -96,7 +96,7 @@ function createContext<UN>(options?: {
   linkMapContext?: SortedMap.Context<UN>;
   linkConnectionsContext?: SortedMap.Context<UN>;
 }): EdgeValuedGraphSorted.Context<UN> {
-  return new CustomGraphNonValuedBase.ValuedGraphContext<
+  return new ValuedGraphCustom.ValuedGraphContext<
     UN,
     'EdgeValuedGraphSorted',
     TypesImpl

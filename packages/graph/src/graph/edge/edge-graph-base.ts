@@ -1,6 +1,6 @@
 import { Stream, Streamable } from '@rimbu/stream';
-import { GraphElement } from '../../internal';
-import { GraphBase } from '../../graph-custom';
+import type { GraphElement } from '../../internal';
+import type { GraphBase } from '../graph-custom';
 
 export interface EdgeGraphBase<
   N,

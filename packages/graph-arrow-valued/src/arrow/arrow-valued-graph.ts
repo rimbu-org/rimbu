@@ -1,5 +1,5 @@
 import { RMap } from '@rimbu/collection-types';
-import { CustomGraphNonValuedBase, ValuedGraphElement } from '@rimbu/graph';
+import { ValuedGraphCustom, ValuedGraphElement } from '@rimbu/graph';
 import { Stream, Streamable } from '@rimbu/stream';
 import { ArrowValuedGraphBase } from '../graph-custom';
 
@@ -60,7 +60,7 @@ export namespace ArrowValuedGraph {
 }
 
 interface TypesImpl extends ArrowValuedGraph.Types {
-  readonly context: CustomGraphNonValuedBase.ValuedGraphContext<
+  readonly context: ValuedGraphCustom.ValuedGraphContext<
     this['_N'],
     string,
     any
@@ -79,7 +79,7 @@ export const ArrowValuedGraph = {
     linkMapContext: RMap.Context<UN>;
     linkConnectionsContext: RMap.Context<UN>;
   }): ArrowValuedGraph.Context<UN> {
-    return new CustomGraphNonValuedBase.ValuedGraphContext<
+    return new ValuedGraphCustom.ValuedGraphContext<
       UN,
       'ArrowValuedGraph',
       TypesImpl

@@ -1,12 +1,12 @@
 import { RelatedTo } from '@rimbu/common';
-import { CustomGraphNonValuedBase, ValuedGraphElement } from '@rimbu/graph';
+import { ValuedGraphCustom, ValuedGraphElement } from '@rimbu/graph';
 import { Stream, Streamable } from '@rimbu/stream';
 
 export interface ArrowValuedGraphBase<
   N,
   V,
   Tp extends ArrowValuedGraphBase.Types = ArrowValuedGraphBase.Types
-> extends CustomGraphNonValuedBase.ValuedGraphBase<N, V, Tp> {
+> extends ValuedGraphCustom.ValuedGraphBase<N, V, Tp> {
   /**
    * Returns true since this is an arrow (directed) graph instance.
    */
@@ -35,7 +35,7 @@ export interface ArrowValuedGraphBase<
 
 export namespace ArrowValuedGraphBase {
   type NonEmptyBase<N, V, Tp extends ArrowValuedGraphBase.Types> =
-    CustomGraphNonValuedBase.ValuedGraphBase.NonEmpty<N, V, Tp> &
+    ValuedGraphCustom.ValuedGraphBase.NonEmpty<N, V, Tp> &
       ArrowValuedGraphBase<N, V, Tp>;
 
   export interface NonEmpty<
@@ -57,15 +57,14 @@ export namespace ArrowValuedGraphBase {
     N,
     V,
     Tp extends ArrowValuedGraphBase.Types = ArrowValuedGraphBase.Types
-  > extends CustomGraphNonValuedBase.ValuedGraphBase.Builder<N, V, Tp> {}
+  > extends ValuedGraphCustom.ValuedGraphBase.Builder<N, V, Tp> {}
 
   export interface Context<
     UN,
     Tp extends ArrowValuedGraphBase.Types = ArrowValuedGraphBase.Types
-  > extends CustomGraphNonValuedBase.ValuedGraphBase.Context<UN, Tp> {}
+  > extends ValuedGraphCustom.ValuedGraphBase.Context<UN, Tp> {}
 
-  export interface Types
-    extends CustomGraphNonValuedBase.ValuedGraphBase.Types {
+  export interface Types extends ValuedGraphCustom.ValuedGraphBase.Types {
     readonly normal: ArrowValuedGraphBase<this['_N'], this['_V']>;
     readonly nonEmpty: ArrowValuedGraphBase.NonEmpty<this['_N'], this['_V']>;
     readonly context: ArrowValuedGraphBase.Context<this['_N']>;

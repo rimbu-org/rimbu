@@ -1,7 +1,8 @@
 import { OptLazy, RelatedTo } from '@rimbu/common';
 import { Stream, Streamable } from '@rimbu/stream';
-import { VariantGraphBase, WithGraphValues } from '../graph-custom';
-import { ValuedGraphElement, ValuedLink } from '../internal';
+import type { WithGraphValues } from '../gen-graph-custom';
+import type { VariantGraphBase } from '../graph/graph-custom';
+import type { ValuedGraphElement, ValuedLink } from '../internal';
 
 export interface VariantValuedGraphBase<
   N,

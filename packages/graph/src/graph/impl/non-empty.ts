@@ -1,12 +1,9 @@
 import { CustomBase } from '@rimbu/collection-types';
 import { RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
-import {
-  GraphBase,
-  GraphTypesContextImpl,
-  WithGraphValues,
-} from '../../graph-custom';
-import { GraphElement, Link } from '../../internal';
+import type { WithGraphValues } from '../../gen-graph-custom';
+import type { GraphElement, Link } from '../../internal';
+import type { GraphBase, GraphTypesContextImpl } from '../graph-custom';
 
 export class GraphNonEmpty<
     N,

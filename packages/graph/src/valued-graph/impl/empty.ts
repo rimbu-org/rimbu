@@ -2,13 +2,12 @@ import { Token } from '@rimbu/base';
 import { RMap } from '@rimbu/collection-types';
 import { OptLazy, OptLazyOr, RelatedTo, ToJSON } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
-import {
-  GraphEmptyBase,
+import type { WithGraphValues } from '../../gen-graph-custom';
+import { GraphEmptyBase } from '../../gen-graph-custom';
+import type {
   ValuedGraphBase,
   ValuedGraphTypesContextImpl,
-  WithGraphValues,
-} from '../../graph-custom';
-
+} from '../valued-graph-custom';
 export class ValuedGraphEmpty<
     N,
     V,

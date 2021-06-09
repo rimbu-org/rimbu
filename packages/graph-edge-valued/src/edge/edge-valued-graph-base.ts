@@ -1,11 +1,11 @@
-import { CustomGraphNonValuedBase, ValuedGraphElement } from '@rimbu/graph';
+import { ValuedGraphCustom, ValuedGraphElement } from '@rimbu/graph';
 import { Stream, Streamable } from '@rimbu/stream';
 
 export interface EdgeValuedGraphBase<
   N,
   V,
   Tp extends EdgeValuedGraphBase.Types = EdgeValuedGraphBase.Types
-> extends CustomGraphNonValuedBase.ValuedGraphBase<N, V, Tp> {
+> extends ValuedGraphCustom.ValuedGraphBase<N, V, Tp> {
   /**
    * Returns false since this is an edge (undirected) graph instance.
    */
@@ -14,7 +14,7 @@ export interface EdgeValuedGraphBase<
 
 export namespace EdgeValuedGraphBase {
   type NonEmptyBase<N, V, Tp extends EdgeValuedGraphBase.Types> =
-    CustomGraphNonValuedBase.ValuedGraphBase.NonEmpty<N, V, Tp> &
+    ValuedGraphCustom.ValuedGraphBase.NonEmpty<N, V, Tp> &
       EdgeValuedGraphBase<N, V, Tp>;
 
   export interface NonEmpty<
@@ -36,15 +36,14 @@ export namespace EdgeValuedGraphBase {
     N,
     V,
     Tp extends EdgeValuedGraphBase.Types = EdgeValuedGraphBase.Types
-  > extends CustomGraphNonValuedBase.ValuedGraphBase.Builder<N, V, Tp> {}
+  > extends ValuedGraphCustom.ValuedGraphBase.Builder<N, V, Tp> {}
 
   export interface Context<
     UN,
     Tp extends EdgeValuedGraphBase.Types = EdgeValuedGraphBase.Types
-  > extends CustomGraphNonValuedBase.ValuedGraphBase.Context<UN, Tp> {}
+  > extends ValuedGraphCustom.ValuedGraphBase.Context<UN, Tp> {}
 
-  export interface Types
-    extends CustomGraphNonValuedBase.ValuedGraphBase.Types {
+  export interface Types extends ValuedGraphCustom.ValuedGraphBase.Types {
     readonly normal: EdgeValuedGraphBase<this['_N'], this['_V']>;
     readonly nonEmpty: EdgeValuedGraphBase.NonEmpty<this['_N'], this['_V']>;
     readonly context: EdgeValuedGraphBase.Context<this['_N']>;

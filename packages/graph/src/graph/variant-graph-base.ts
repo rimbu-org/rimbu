@@ -1,7 +1,7 @@
 import { RelatedTo, ToJSON } from '@rimbu/common';
 import { FastIterable, Stream, Streamable, StreamSource } from '@rimbu/stream';
-import { GraphValues, WithGraphValues } from '../graph-custom';
-import { Link } from '../internal';
+import type { GraphValues, WithGraphValues } from '../gen-graph-custom';
+import type { Link } from '../internal';
 
 export interface VariantGraphBase<
   N,

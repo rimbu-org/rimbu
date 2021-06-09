@@ -1,8 +1,10 @@
 import { RimbuError } from '@rimbu/base';
 import { RelatedTo } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
-import { GraphTypesContextImpl, WithGraphValues } from '../../graph-custom';
-import { GraphElement, Link } from '../../internal';
+import type { WithGraphValues } from '../../gen-graph-custom';
+import type { Link } from '../../internal';
+import { GraphElement } from '../../internal';
+import type { GraphTypesContextImpl } from '../graph-custom';
 
 export class GraphBuilder<
   N,

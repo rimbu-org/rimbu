@@ -1,13 +1,13 @@
 import { RMap, RSet } from '@rimbu/collection-types';
 import { ArrayNonEmpty, RelatedTo } from '@rimbu/common';
 import { Stream, Streamable, StreamSource } from '@rimbu/stream';
-import {
+import type {
   GraphConnect,
   GraphConnectNonEmpty,
-  VariantGraphBase,
   WithGraphValues,
-} from '../graph-custom';
-import { Link, GraphElement } from '../internal';
+} from '../gen-graph-custom';
+import type { GraphElement, Link } from '../internal';
+import type { VariantGraphBase } from './graph-custom';
 
 export interface GraphBase<N, Tp extends GraphBase.Types = GraphBase.Types>
   extends VariantGraphBase<N, unknown, Tp>,

@@ -1,4 +1,4 @@
-export * as CustomGraphValuedBase from './graph-custom';
+export * as EdgeValuedGraphCustom from './graph-custom';
 
 export * from './edge/edge-valued-graph';
 

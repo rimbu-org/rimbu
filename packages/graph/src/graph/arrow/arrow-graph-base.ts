@@ -1,7 +1,7 @@
 import { RelatedTo } from '@rimbu/common';
 import { Stream, Streamable } from '@rimbu/stream';
-import { GraphElement } from '../../common/link';
-import { GraphBase } from '../../graph-custom';
+import type { GraphElement } from '../../internal';
+import type { GraphBase } from '../graph-custom';
 
 export interface ArrowGraphBase<
   N,

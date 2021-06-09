@@ -1,6 +1,6 @@
 import { RMap } from '@rimbu/collection-types';
 import { OmitStrong } from '@rimbu/common';
-import { CustomGraphNonValuedBase, ValuedGraphElement } from '@rimbu/graph';
+import { ValuedGraphCustom, ValuedGraphElement } from '@rimbu/graph';
 import { HashMap } from '@rimbu/hashed';
 import { Stream, Streamable } from '@rimbu/stream';
 import { ArrowValuedGraphBase } from '../graph-custom';
@@ -85,7 +85,7 @@ export namespace ArrowValuedGraphHashed {
 }
 
 interface TypesImpl extends ArrowValuedGraphHashed.Types {
-  readonly context: CustomGraphNonValuedBase.ValuedGraphContext<
+  readonly context: ValuedGraphCustom.ValuedGraphContext<
     this['_N'],
     'ArrowValuedGraphHashed',
     any
@@ -96,7 +96,7 @@ function createContext<UN>(options?: {
   linkMapContext?: HashMap.Context<UN>;
   linkConnectionsContext?: HashMap.Context<UN>;
 }): ArrowValuedGraphHashed.Context<UN> {
-  return new CustomGraphNonValuedBase.ValuedGraphContext<
+  return new ValuedGraphCustom.ValuedGraphContext<
     UN,
     'ArrowValuedGraphHashed',
     TypesImpl

@@ -1,11 +1,10 @@
 import { RimbuError, Token } from '@rimbu/base';
 import { OptLazy, OptLazyOr, RelatedTo } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
-import {
-  ValuedGraphTypesContextImpl,
-  WithGraphValues,
-} from '../../graph-custom';
-import { Link, ValuedGraphElement } from '../../internal';
+import type { WithGraphValues } from '../../gen-graph-custom';
+import type { Link } from '../../internal';
+import { ValuedGraphElement } from '../../internal';
+import type { ValuedGraphTypesContextImpl } from '../valued-graph-custom';
 
 export class ValuedGraphBuilder<
   N,
