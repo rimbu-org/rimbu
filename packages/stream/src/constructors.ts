@@ -11,7 +11,12 @@ import {
   TraverseState,
 } from '@rimbu/common';
 import { FastIterator, Stream, StreamSource } from './internal';
-import { FastIteratorBase, FromIterable, FromStream, StreamBase } from './stream-custom';
+import {
+  FastIteratorBase,
+  FromIterable,
+  FromStream,
+  StreamBase,
+} from './stream-custom';
 
 class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   [Symbol.iterator](): FastIterator<T> {

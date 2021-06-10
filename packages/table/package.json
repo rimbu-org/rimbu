@@ -47,7 +47,7 @@
     "bundle:types": "tsc --p tsconfig.types.json",
     "clean": "rimraf dist",
     "format": "yarn format:base --write",
-    "format:base": "prettier \"**/*.{ts,tsx,js,json,md}\"",
+    "format:base": "prettier \"{!CHANGELOG.md}|**/*.{ts,tsx,js,json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
     "test:types": "tsd",
