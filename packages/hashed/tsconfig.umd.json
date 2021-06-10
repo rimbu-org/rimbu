@@ -1,0 +1,8 @@
+{
+  "extends": "../../config/tsconfig.umd.base.json",
+  "include": ["src"],
+  "rootDir": "./src",
+  "compilerOptions": {
+    "outDir": "./dist/umd"
+  }
+}

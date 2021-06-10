@@ -123,7 +123,7 @@ export namespace Binding {
           return enabled?.state === false;
         },
         onChange(evt) {
-          const newValue = evt.target.value;
+          const newValue = (evt.target as any).value;
           value.obs.setState(newValue);
         },
       },
@@ -187,7 +187,7 @@ export namespace Binding {
           return enabled?.state === false;
         },
         onChange(evt) {
-          const newValue = evt.target.checked;
+          const newValue = (evt.target as any).checked;
           value.obs.setState(newValue);
         },
       },
