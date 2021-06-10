@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/common",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "description": "Common types and objects used in many other Rimbu packages",
   "keywords": [
     "common",
@@ -44,7 +44,7 @@
     "clean": "rimraf dist",
     "format": "yarn format:base --write",
     "format:base": "prettier \"{!CHANGELOG.md}|**/*.{ts,tsx,js,json,md}\"",
-      "format:check": "yarn format:base --check",
+    "format:check": "yarn format:base --check",
     "lint": "eslint src",
     "test": "jest",
     "typecheck": "tsc"
