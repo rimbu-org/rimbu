@@ -6,29 +6,15 @@ The List is an immutable ordered sequence of elements that can be manipulated an
 
 ## Creation
 
-```ts
-import { List } from '@rimbu/core';
-
-List.empty<number>();
-List.of(1, 2, 3);
-List.from([1, 2, 3]);
-List.from(Stream.range({ amount: 10 }));
-```
+<!-- prettier-ignore-start -->
+[List creation](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/list/create.ts ':include :type=iframe width=100% height=450px')
+<!-- prettier-ignore-end -->
 
 ## Retrieval
 
-```ts
-import { List } from '@rimbu/core';
-
-const list = List.of(0, 1, 2, 3, 4, 5, 6);
-list.first(); // => 0
-list.last(); // => 6
-list.get(2); // => 2
-list.get(-2); // => 5 (2nd element from end)
-list.get(10); // => undefined
-list.get(10, 100); // => 100
-list.get(10, () => 100); // => 100
-```
+<!-- prettier-ignore-start -->
+[List creation](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/list/retrieval.ts ':include :type=iframe width=100% height=450px')
+<!-- prettier-ignore-end -->
 
 ## Manipulation
 

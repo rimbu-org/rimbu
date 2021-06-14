@@ -4,11 +4,9 @@ A BiMap is a bidirectional Map of keys and values, where each key has exactly on
 
 This package exports the following types:
 
-| Name                | Description                                                   |
-| ------------------- | ------------------------------------------------------------- |
-| `BiMap<K, V>`       | a generic `BiMap` between keys of type K and values of type V |
-| `HashBiMap<K, V>`   | a `BiMap` implementation where keys and values are hashed     |
-| `SortedBiMap<K, V>` | a `BiMap` implementation where keys and values are sorted     |
+| Name          | Description                                                   |
+| ------------- | ------------------------------------------------------------- |
+| `BiMap<K, V>` | a generic `BiMap` between keys of type K and values of type V |
 
 ## Usage
 
