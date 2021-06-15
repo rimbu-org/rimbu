@@ -73,14 +73,7 @@ export namespace Match {
   export function all<T>(value: T): (...matchers: Match.Multi<T>) => boolean {
     return (...matchers) => {
       for (const matcher of matchers) {
-        if (
-          !matchSingle(
-            value as Immutable<T>,
-            matcher,
-            value as Immutable<T>,
-            value as Immutable<T>
-          )
-        ) {
+        if (!matchSingle<any, any, any>(value, matcher, value, value)) {
           return false;
         }
       }
@@ -101,14 +94,7 @@ export namespace Match {
   export function any<T>(value: T): (...matchers: Match.Multi<T>) => boolean {
     return (...matchers) => {
       for (const matcher of matchers) {
-        if (
-          matchSingle(
-            value as Immutable<T>,
-            matcher,
-            value as Immutable<T>,
-            value as Immutable<T>
-          )
-        ) {
+        if (matchSingle<any, any, any>(value, matcher, value, value)) {
           return true;
         }
       }
@@ -137,7 +123,7 @@ export namespace Match {
   export function createAll<T, T2 extends T = T>(
     ...matches: Match.Multi<T2>
   ): (value: T) => boolean {
-    return (value) => Match.all(value)(...(matches as Match.Multi<T>));
+    return (value) => Match.all<any>(value)(...matches);
   }
 
   /**
@@ -162,7 +148,7 @@ export namespace Match {
   export function createAny<T, T2 extends T = T>(
     ...matches: Match.Multi<T2>
   ): (value: T) => boolean {
-    return (value) => Match.any(value)(...(matches as Match.Multi<T>));
+    return (value) => Match.any<any>(value)(...matches);
   }
 }
 
@@ -195,7 +181,7 @@ function matchSingle<T, P = T, R = T>(
   if (null === matcher) return false;
 
   if (Literal.isLiteral<T>(matcher)) {
-    return Literal.getValue(matcher) === value;
+    return Literal.getValue<T>(matcher) === value;
   }
 
   const valueIsArray = Array.isArray(value);
@@ -216,9 +202,9 @@ function matchSingle<T, P = T, R = T>(
       );
     }
 
-    const result = matchSingle(
+    const result = matchSingle<any, any, any>(
       (value as any)[key],
-      matchKey as any,
+      matchKey,
       value,
       root
     );

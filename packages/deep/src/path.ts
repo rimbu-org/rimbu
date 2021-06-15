@@ -113,6 +113,6 @@ export namespace Path {
 
     if (Object.is(value, newValue)) return source;
 
-    return Path.setValue(source, path, newValue as Path.Result<T, P>);
+    return Path.setValue<any, any>(source, path, newValue);
   }
 }
