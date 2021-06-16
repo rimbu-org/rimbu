@@ -3,9 +3,9 @@
 ## TL;DR
 
 - Immutable objects make code **easier to read** and **more predictable**.
-- Immutable collections require **less mental load** to remember whether methods return a new collection of modify the existing one.
-- Immutable collections are quite **fast and efficient** due to **persistence**, but less performant than mutable collections.
-- Immutable collections can even be faster and require less extra memory, for example when reversing a List.
+- Immutable collections require **less mental load** to remember whether methods return a new collection, or modify the existing one.
+- Immutable collections are quite **fast and efficient** due to **persistence**, but generally somewhat less performant than mutable collections.
+- Immutable collections can, in some cases, be faster and require less extra memory, for example when reversing a List.
 
 ## Introduction
 
@@ -27,7 +27,7 @@ processElments(myArray);
 const element = myArray[1];
 ```
 
-What can we say about the value of `element`? Actually, surprisingly little. We've passed the array to some function that can do anything, including clearing the entire array, or replacing it with completely different values. `element` can therefore also be any value. This holds for any mutable collection library (except for languages like Rust).
+What can we say about the value of `element`? Actually, surprisingly little. We've passed the array to some `processElements` function that can do anything, including clearing the entire array, or replacing it with completely different values. `element` can therefore also be any value. This holds for any mutable collection library (except for languages like Rust).
 
 Now let's do the same with a Rimbu `List`:
 
@@ -41,7 +41,7 @@ What can we now say about the value of `element`? Well, it will always be 2, no 
 
 ## Mutable collections have arbitrary immutable methods
 
-In our view, most standard mutable collection libraries seem to partly choose immutability, but in somewhat arbitrary places. A JS array is mutable, however, when we `filter` it, it will not mutate the array, but return a copy containing the filtered elements. `push` will mutate the array, `map` will not, `reverse` will mutate the array, `slice` will not, `sort` will mutate the array, and `splice` will too. The user needs to keep this in mind every time, leading to mental load.
+Most standard mutable collection libraries seem to partly choose immutability, but in somewhat arbitrary places. A JS array is mutable, however, when we `filter` it, it will not mutate the array, but return a copy containing the filtered elements. `push` will mutate the array, `map` will not, `reverse` will mutate the array, `slice` will not, `sort` will mutate the array, and `splice` will too. The user needs to keep this in mind every time, leading to _mental load_.
 
 So then, why not split this into two "modes":
 
@@ -58,11 +58,11 @@ It is indeed less efficient than modifying in-place, but Rimbu uses persistence 
 
 ```ts
 function addItem(items: Item[], newItem: Item): Item[] {
-  return [...data, newItem];
+  return [...item, newItem];
 }
 ```
 
-Here, the programmer is careful not to modify the incoming array. However, in memory there are no two copies of the original array. Usually, one of them will be thrown away quite quickly due to garbage collection, but doing this a lot of not so efficient, especially for large arrays.
+Here, the programmer is careful not to modify the incoming array. However, in memory there are now two copies of the original array. Usually, one of them will be thrown away quite quickly due to garbage collection, but doing this a lot of not so efficient, especially for large arrays.
 
 The immutable `List` offers the standard `append` method for this:
 

@@ -2,7 +2,7 @@
 
 A BiMultiMap is a bidirectional MultiMap of keys and values, where each key-value association also has an inverse value-key association. There is a many-to-many mapping between keys and values.
 
-This package exports the following types:
+The `@rimbu/core` package exports the following types:
 
 | Name                     | Description                                                      |
 | ------------------------ | ---------------------------------------------------------------- |
@@ -12,63 +12,38 @@ This package exports the following types:
 
 <img id="inheritance" class="diagram" />
 
-<script src="core/bimultimap.js"></script>
+<script src="bimultimap/bimultimap.js"></script>
 
 ## Usage
 
-```ts
-import { HashBiMultiMap } from '@rimbu/core';
+### Creation
 
-const biMultiMap = HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'b']);
-console.log(biMultiMap.toString());
-// HashBiMultiMap(1 <-> ['a'], 2 <-> ['b'], 3 <-> ['b'])
+[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimultimap/create.ts ':target blank')
 
-console.log(biMultiMap.getValues(1).toArray());
-// ['a']
-console.log(biMultiMap.getKeys('b').toArray());
-// [2, 3]
-```
+<!-- prettier-ignore-start -->
+[Create](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimultimap/create.ts ':include :type=iframe width=100% height=450px')
+<!-- prettier-ignore-end -->
 
-## Motivation
+### Query
 
-Imagine we have a collection of cats, and a collection of badges. Cats can earn badges for certain behavior, and we want to query which badges a cat has, and also which cats have a certain badge.
+[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimultimap/query.ts ':target blank')
 
-Assume we have the following cats and toys:
+<!-- prettier-ignore-start -->
+[Query](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimultimap/query.ts ':include :type=iframe width=100% height=450px')
+<!-- prettier-ignore-end -->
 
-```ts
-class Cat {
-  constructor(readonly name: string) {}
-}
-const alice = new Cat('Alice');
-const bob = new Cat('Bob');
-const carol = new Cat('Carol');
+### Motivation
 
-class Badge {
-  constructor(readonly description: string) {}
-}
-const honor = new Badge('honor');
-const courage = new Badge('courage');
-```
+[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimultimap/motivation.ts ':target blank')
 
-If we use a `normal` MultiMap from Cats to Badges, we can assign badges to cats, and see which badges a certain cat has. But we cannot easily see which cats have a certain badge.
+<!-- prettier-ignore-start -->
+[Motivation](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimultimap/motivation.ts ':include :type=iframe width=100% height=450px')
+<!-- prettier-ignore-end -->
 
-With a 'BiMultiMap` this becomes easy:
+### Builder
 
-```ts
-import { HashBiMultiMap } from '@rimbu/core`
+[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimultimap/build.ts ':target blank')
 
-const catBadges = HashBiMultiMap.of([alice, honor], [alice, courage], [bob, honor])
-
-console.log(catBadges.getValues(alice).toArray())
-// [Badge('honor'), Badge('courage')]
-
-console.log(catBadges.getKeys(honor).toArray())
-// [Cat('Alice'), Cat('Bob')]
-
-const newCatBadges = catBadges.removeValue(honor)
-
-console.log(newCatBadges.getValues(alice).toArray())
-// [Badge('courage')]
-```
-
-We see that removing a Badge from the multimap also automatically ensures that the badge is removed from all cat associations.
+<!-- prettier-ignore-start -->
+[Build](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimultimap/build.ts ':include :type=iframe width=100% height=450px')
+<!-- prettier-ignore-end -->

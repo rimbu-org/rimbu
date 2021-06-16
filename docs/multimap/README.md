@@ -1,5 +1,5 @@
-# @rimbu/multimap
+# MultiMap
 
 <img id="inheritance" />
 
-<script src="core/multimap.js"></script>
+<script src="multimap/multimap.js"></script>

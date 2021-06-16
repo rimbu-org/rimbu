@@ -1,5 +1,5 @@
-# @rimbu/multiset
+# MultiSet
 
 <img id="inheritance" />
 
-<script src="core/multiset.js"></script>
+<script src="multiset/multiset.js"></script>

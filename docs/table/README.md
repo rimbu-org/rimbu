@@ -1,4 +1,4 @@
-# @rimbu/table
+# Table
 
 A Table is an immutable 2-dimensional map, containing row keys and column keys, and a combination of a row and column key can contain one value.
 
@@ -17,7 +17,7 @@ This package exports the following types:
 
 <img id="inheritance" />
 
-<script src="core/table.js"></script>
+<script src="table/table.js"></script>
 
 ## Usage
 

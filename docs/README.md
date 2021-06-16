@@ -4,7 +4,7 @@ Rimbu is a TypeScript library focused on _immutable, performant, and type-safe c
 
 ## Library contents
 
-Rimbu's main package is the `@rimbu/core` package that contains many commonly used collection types (List, HashMap, SortedSet, etc.), and some less commonly used types (BiMultiMap, MultiSet, Table, Graph, etc.). Furthermore, it has tools like Match, Patch, and Path to handle common JS objects as immutable objects.
+Rimbu's main package is the `@rimbu/core` package that contains many commonly used collection types (`List`, `HashMap`, `SortedSet`, etc.), and some less commonly used types (`BiMultiMap`, `MultiSet`, `Table`, `Graph`, etc.). Furthermore, it has tools like `Match`, `Patch`, and `Path` to handle common JS objects as immutable objects.
 
 All collections are designed to efficiently support data sets from small to really large (as long as it fits in memory). Persistence is maximally used to ensure that memory load is kept to a mimimum. This means that, when changing a collection instance, maximum effort is made to keep references to elements that did not change equal.
 

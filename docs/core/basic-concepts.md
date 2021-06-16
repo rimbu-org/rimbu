@@ -1,15 +1,15 @@
-# Basic concepts of immutable collections
+# Basic concepts of immutable Rimbu collections
 
 ## TL;DR
 
 - Constructing instances can be done with the **constructor methods** exposed by each collection namespace
   - e.g. `List.empty<number>()` and `HashMap.of([1, 'a'], [2, 'b'])`
 - When "**changing**" an immutable instance, the resulting **reference needs to be stored**, otherwise the result is lost
-  - e.g. `const newList = oldList.append(4)`
+  - e.g. `const newList = oldList.append(4).prepend(3)`
 - Each collection type has a `.NonEmpty` type associated with it. These instances are **guaranteed** to have at least 1 value.
   - NonEmpty collections have a **simpler API**.
   - NonEmpty types as function arguments remove the need to **check for emptiness**.
-- All methods that can 'fail' like `List.get(index)` offer a choice of **Error Mode**
+- All methods that can 'fail' like `List.get(index)` offer a choice of **Error Mode**:
   - `List.get(10)` returns undefined if the index is out of bounds
   - `List.get(10, Err)` throws an error if the index is out of bounds
   - `List.get(10, 4)` returns 4 if ths index is out of bounds
@@ -176,7 +176,7 @@ const f2 = list2.first();
 const f3 = list2.first(0);
 // type is number
 list.first(0);
-// compiler error!
+// compiler error! cannot provide fallback value because first cannot fail
 ```
 
 ### Less checking
@@ -189,7 +189,7 @@ import { List } from '@rimbu/core';
 // old way
 function exec1(list: List<number>): number {
   // need to check for emptiness
-  if (list.isEmpty()) throw Error('should have at least one element');
+  if (list.isEmpty) return 0;
 
   // need to provide fallback values
   return (list.first(0) + list.last(0)) / 2;

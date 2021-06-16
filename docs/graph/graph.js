@@ -11,7 +11,7 @@ abstract EdgeGraph<N>;
 abstract VariantValuedGraph<N, V>;
 abstract ValuedGraph<N, V>;
 abstract ArrowValuedGraph<N, V>;
-abstract EdgeValuedGraph<N>;
+abstract EdgeValuedGraph<N, V>;
 
 Streamable <|.. VariantGraph;
 
@@ -64,7 +64,7 @@ abstract ValuedGraph<N, V>;
 abstract ArrowValuedGraph<N, V>;
 class ArrowValuedGraphHashed<N, V>;
 class ArrowValuedGraphSorted<N, V>;
-abstract EdgeValuedGraph<N>;
+abstract EdgeValuedGraph<N, V>;
 class EdgeValuedGraphHashed<N, V>;
 class EdgeValuedGraphSorted<N, V>;
 
