@@ -106,7 +106,8 @@ export namespace Patch {
   export function create<T, T2 extends T = T>(
     ...patches: Patch.Multi<T2>
   ): (value: T) => Immutable<T> {
-    return (value) => Patch<T>(value)(...(patches as Patch.Multi<T>));
+    return (value) =>
+      Patch<T>(value)(...(patches as unknown as Patch.Multi<T>));
   }
 }
 
@@ -117,7 +118,7 @@ function patchSingle<T, P = T, R = T>(
   root: Immutable<R>
 ): Immutable<T> {
   if (typeof patcher === 'function') {
-    return patcher(value, parent, root) as Immutable<T>;
+    return patcher(value, parent, root) as any;
   }
 
   if (null === value || undefined === value || typeof value !== 'object') {

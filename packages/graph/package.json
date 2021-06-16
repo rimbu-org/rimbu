@@ -39,18 +39,15 @@
   "main": "dist/main/index.js",
   "module": "dist/module/index.js",
   "types": "dist/types/index.d.ts",
-  "umd:main": "dist/umd/index.js",
-  "unpkg": "dist/umd/index.js",
   "files": [
     "dist"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
-    "bundle": "yarn bundle:main && yarn bundle:module && yarn bundle:types && yarn bundle:umd",
+    "bundle": "yarn bundle:main && yarn bundle:module && yarn bundle:types",
     "bundle:main": "tsc --p tsconfig.main.json",
     "bundle:module": "tsc --p tsconfig.module.json",
     "bundle:types": "tsc --p tsconfig.types.json",
-    "bundle:umd": "microbundle -f umd --tsconfig tsconfig.umd.json -o dist/umd/index.js",
     "clean": "rimraf dist",
     "format": "yarn format:base --write",
     "format:base": "prettier \"{!CHANGELOG.md}|**/*.{ts,tsx,js,json,md}\"",
@@ -61,12 +58,7 @@
     "typecheck": "tsc"
   },
   "sideEffects": false,
-  "devDependencies": {
-    "@types/jest": "^26.0.23",
-    "jest": "^26.6.3",
-    "ts-jest": "^26.5.5",
-    "typescript": "^4.2.4"
-  },
+  "devDependencies": {},
   "dependencies": {
     "@rimbu/collection-types": "^0.5.10",
     "@rimbu/common": "^0.5.8",
