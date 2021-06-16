@@ -11,3 +11,5 @@ yarn-error.log
 
 .eslintcache
 lerna-debug.log
+
+.DS_Store
