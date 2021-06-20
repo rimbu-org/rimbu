@@ -4,7 +4,7 @@
 
 ### Creation
 
-[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/graph/arrow/valued/create.ts ':target blank')
+[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/graph/arrow/valued/create.ts ':target blank')
 
 <!-- prettier-ignore-start -->
 [Create List](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/graph/arrow/valued/create.ts ':include :type=iframe width=100% height=450px')
@@ -12,7 +12,7 @@
 
 ### Query
 
-[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/graph/arrow/valued/query.ts ':target blank')
+[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/graph/arrow/valued/query.ts ':target blank')
 
 <!-- prettier-ignore-start -->
 [Query](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/graph/arrow/valued/query.ts ':include :type=iframe width=100% height=450px')
@@ -20,7 +20,7 @@
 
 ### Motivation
 
-[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/graph/arrow/valued/motivation.ts ':target blank')
+[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/graph/arrow/valued/motivation.ts ':target blank')
 
 <!-- prettier-ignore-start -->
 [Motivation](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/graph/arrow/valued/motivation.ts ':include :type=iframe width=100% height=450px')
@@ -28,7 +28,7 @@
 
 ### Builder
 
-[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/graph/arrow/valued/build.ts ':target blank')
+[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/graph/arrow/valued/build.ts ':target blank')
 
 <!-- prettier-ignore-start -->
 [Build](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/graph/arrow/valued/build.ts ':include :type=iframe width=100% height=450px')

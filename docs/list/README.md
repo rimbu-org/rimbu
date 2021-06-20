@@ -6,7 +6,7 @@ The List is an immutable ordered sequence of elements that can be manipulated an
 
 ### Creation
 
-[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/list/create.ts ':target blank')
+[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/list/create.ts ':target blank')
 
 <!-- prettier-ignore-start -->
 [Create](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/list/create.ts ':include :type=iframe width=100% height=450px')
@@ -14,7 +14,7 @@ The List is an immutable ordered sequence of elements that can be manipulated an
 
 ### Query
 
-[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/list/query.ts ':target blank')
+[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/list/query.ts ':target blank')
 
 <!-- prettier-ignore-start -->
 [Query](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/list/query.ts ':include :type=iframe width=100% height=450px')
@@ -22,7 +22,7 @@ The List is an immutable ordered sequence of elements that can be manipulated an
 
 ### Manipulation
 
-[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/list/manipulation.ts ':target blank')
+[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/list/manipulation.ts ':target blank')
 
 <!-- prettier-ignore-start -->
 [Manipulation](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/list/manipulation.ts ':include :type=iframe width=100% height=450px')
@@ -30,7 +30,7 @@ The List is an immutable ordered sequence of elements that can be manipulated an
 
 ### Builder
 
-[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/list/build.ts ':target blank')
+[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/list/build.ts ':target blank')
 
 <!-- prettier-ignore-start -->
 [Build](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/list/build.ts ':include :type=iframe width=100% height=450px')

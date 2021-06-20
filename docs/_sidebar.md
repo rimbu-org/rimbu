@@ -1,5 +1,6 @@
 - [Introduction](/#introduction)
 - [Why Immutability](why-immutability.md)
+- [Getting Started](getting-started.md)
 - [Immutable collections](core/)
 
   - [Quick start](core/#quick-start)
@@ -21,15 +22,9 @@
       - Hello
     - [MultiSet](multiset/)
       - Hello
-    - [RMap](core/rmap/rmap.md)
+    - [Map](map/)
       - Hello
-      - [HashMap](core/hashmap.md)
-        - Hello
-      - [SortedMap](core/sortedmap.md)
-        - Hello
-      - [OrderedMap](core/orderedmap.md)
-        - Hello
-    - [RSet](core/rset/rset.md)
+    - [Set](set/)
       - [HashSet](core/hashset.md)
         - Hello
       - [SortedSet](core/sortedset.md)

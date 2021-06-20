@@ -18,8 +18,3 @@ Next to the core package, the `@rimbu/actor` package contains a library to easil
 - No external dependencies.
 - Provides sane defaults but allows extensive customization and configuration.
 - A novel and efficient immutable random-access List implementation.
-
-<!-- prettier-ignore-start -->
-<!-- [Test](https://codesandbox.io/embed/typescript-lib-test-cf92r?previewwindow=console&view=split&editorsize=60&moduleview=1&module=/src/demo1.ts ':include :type=iframe width=100% height=400px') -->
-<!-- [filename](core/bimap.md ':include') -->
-<!-- prettier-ignore-end -->
