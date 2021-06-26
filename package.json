@@ -39,8 +39,9 @@
     "test:random": "lerna run test:random",
     "typecheck": "lerna run typecheck",
     "version:ci": "lerna version --yes --conventional-commits --create-release github --message 'chore(release): publish'",
-    "version:prerelease": "lerna version --yes --conventional-commits  --conventional-prerelease --message 'chore(release): prepublish canary'",
-    "version:graduate": "lerna version --yes --conventional-commits  --conventional-graduate --message 'chore(release): graduate prerelease packages'"
+    "version:localtest": "lerna version --yes --conventional-commits --no-git-tag-version --no-push",
+    "version:prerelease": "lerna version --yes --conventional-commits --conventional-prerelease --message 'chore(release): prepublish canary'",
+    "version:graduate": "lerna version --yes --conventional-commits --conventional-graduate --message 'chore(release): graduate prerelease packages'"
   },
   "lint-staged": {
     "*.{ts,tsx,js,json}": "eslint -c ./config/.eslintrc.json --cache",

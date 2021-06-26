@@ -8,8 +8,8 @@ First please make sure that the information is not already in the [Rimbu documen
 
 ## Questions or ideas
 
-For questions or ideas, please use our [Github Discussions board](github.com/vitoke/rimbu/discussions). Before posting a question, please search first to see if the question has not been asked before.
+For questions or ideas, please use our [Github Discussions board](github.com/rimbu-org/rimbu/discussions). Before posting a question, please search first to see if the question has not been asked before.
 
 ## Bugs and issues
 
-If you run into a bug or issue, please use [Github Issues](github.com/vitoke/rimbu/issues). Before creating an issue, please search first to see if the issue has not been raised before. Please do not create issues for questions or ideas, those belong in [Github Discussions](github.com/vitoke/rimbu/discussions)
+If you run into a bug or issue, please use [Github Issues](github.com/rimbu-org/rimbu/issues). Before creating an issue, please search first to see if the issue has not been raised before. Please do not create issues for questions or ideas, those belong in [Github Discussions](github.com/rimbu-org/rimbu/discussions)

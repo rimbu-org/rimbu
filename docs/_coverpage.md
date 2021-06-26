@@ -9,5 +9,5 @@
 - Integrated documentation for extensive IDE assistance
 - No external dependencies
 
-[GitHub](https://github.com/vitoke/rimbu)
+[GitHub](https://github.com/rimbu-org/rimbu)
 [Documentation](#introduction)
