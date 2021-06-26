@@ -1,15 +1,16 @@
-# Basic concepts of immutable collections
+# Basic concepts of immutable Rimbu collections
 
 ## TL;DR
 
 - Constructing instances can be done with the **constructor methods** exposed by each collection namespace
   - e.g. `List.empty<number>()` and `HashMap.of([1, 'a'], [2, 'b'])`
 - When "**changing**" an immutable instance, the resulting **reference needs to be stored**, otherwise the result is lost
-  - e.g. `const newList = oldList.append(4)`
+  - e.g. `const newList = oldList.append(4).prepend(3)`
 - Each collection type has a `.NonEmpty` type associated with it. These instances are **guaranteed** to have at least 1 value.
   - NonEmpty collections have a **simpler API**.
   - NonEmpty types as function arguments remove the need to **check for emptiness**.
-- All methods that can 'fail' like `List.get(index)` offer a choice of **Error Mode**
+- Each immutable collection has a corresponding mutable `Builder` that can be used to perform bulk changes with more performance when needed.
+- All methods that can 'fail' like `List.get(index)` offer a choice of **Error Mode**:
   - `List.get(10)` returns undefined if the index is out of bounds
   - `List.get(10, Err)` throws an error if the index is out of bounds
   - `List.get(10, 4)` returns 4 if ths index is out of bounds
@@ -89,7 +90,7 @@ Every method of an immutable collection instance that modifies the content will 
 When it does not suffice to use the methods above, or if they would lead to many intermediate instances, it is possible to use Builders to create mutable instances. A Builder is a mutable collection instance that can be converted to an immutable instance.
 
 ```ts
-import { List, HashMap } from '@rimbu/core';
+import { List } from '@rimbu/core';
 
 // Create a mutable List builder
 const lb = List.builder<number>();
@@ -103,6 +104,23 @@ for (let i = 0; i < 20; i++) {
 // Create an immutable instance with the builder's contents
 const list = lb.build();
 ```
+
+It's also possible to easily convert to and from a builder for each collection, as the following code demonstrates for a `List`:
+
+```ts
+import { List, Stream } from '@rimbu/core';
+
+const list = List.from(Stream.range{ amount: 10 });
+const builder = list.toBuilder();
+
+for (let i = 0; i < 20; i++) {
+  builder.insert(i, i);
+}
+
+const list2 = builder.build();
+```
+
+In this way, it is always possible to choose the mode that is the best fit for a specific situation.
 
 ## Changing immutable instances
 
@@ -176,7 +194,7 @@ const f2 = list2.first();
 const f3 = list2.first(0);
 // type is number
 list.first(0);
-// compiler error!
+// compiler error! cannot provide fallback value because first cannot fail
 ```
 
 ### Less checking
@@ -189,7 +207,7 @@ import { List } from '@rimbu/core';
 // old way
 function exec1(list: List<number>): number {
   // need to check for emptiness
-  if (list.isEmpty()) throw Error('should have at least one element');
+  if (list.isEmpty) throw Error('cannot handle empty list');
 
   // need to provide fallback values
   return (list.first(0) + list.last(0)) / 2;

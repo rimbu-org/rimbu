@@ -1,5 +1,5 @@
 setUmlGraph(
-  'inheritance',
+  '_inheritance',
   `
 interface Streamable<GraphElement<N, V>>;
 
@@ -11,7 +11,7 @@ abstract EdgeGraph<N>;
 abstract VariantValuedGraph<N, V>;
 abstract ValuedGraph<N, V>;
 abstract ArrowValuedGraph<N, V>;
-abstract EdgeValuedGraph<N>;
+abstract EdgeValuedGraph<N, V>;
 
 Streamable <|.. VariantGraph;
 
@@ -27,7 +27,7 @@ ValuedGraph <|-- EdgeValuedGraph;
 );
 
 setUmlGraph(
-  'inheritance_nonvalued',
+  '_inheritance_nonvalued',
   `
 interface Streamable<GraphElement<N>>;
 
@@ -53,7 +53,7 @@ EdgeGraph <|-- EdgeGraphSorted;
 );
 
 setUmlGraph(
-  'inheritance_valued',
+  '_inheritance_valued',
   `
 interface Streamable<GraphElement<N, V>>;
 
@@ -64,7 +64,7 @@ abstract ValuedGraph<N, V>;
 abstract ArrowValuedGraph<N, V>;
 class ArrowValuedGraphHashed<N, V>;
 class ArrowValuedGraphSorted<N, V>;
-abstract EdgeValuedGraph<N>;
+abstract EdgeValuedGraph<N, V>;
 class EdgeValuedGraphHashed<N, V>;
 class EdgeValuedGraphSorted<N, V>;
 

@@ -6,7 +6,7 @@
 
 This package contains the type definitions for the basic generic Rimbu collections.
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org/rimbu-core)_.
+For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
 
 ## Installation
 
@@ -14,11 +14,11 @@ All types are exported through `@rimbu/core`. It is recommended to use this pack
 
 To install separately:
 
-`yarn add @rimbu/collection-types`
+> `yarn add @rimbu/collection-types`
 
 or
 
-`npm i @rimbu/collection-types`
+> `npm i @rimbu/collection-types`
 
 ### recommended tsconfig settings
 

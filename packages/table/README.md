@@ -4,12 +4,16 @@
 
 # @rimbu/table
 
-This package exports the following types:
+A `Table` is an immutable 2-dimensional Map, containing row keys and column keys, where a combination of a row and column key can contain one value.
 
-| Name | Description |
-| ---- | ----------- |
+This package exports the following main types:
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org/rimbu-core)_.
+| Name                    | Description                                                         |
+| ----------------------- | ------------------------------------------------------------------- |
+| `Table<R, C, V>`        | a generic `Table` with row keys R, column keys C, and values V      |
+| `VariantTable<R, C, V>` | a type-variant `Table` with row keys R, column keys C, and values V |
+
+For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
 
 ## Installation
 
@@ -17,11 +21,11 @@ All types are exported through [`@rimbu/core`](../core). It is recommended to us
 
 To install separately:
 
-`yarn add @rimbu/table`
+> `yarn add @rimbu/table`
 
 or
 
-`npm i @rimbu/table`
+. `npm i @rimbu/table`
 
 ### recommended tsconfig settings
 
@@ -37,8 +41,6 @@ Rimbu uses advanced and recursive typing, potentially making the TypeScript comp
   }
 }
 ```
-
-## Usage
 
 ## Author
 

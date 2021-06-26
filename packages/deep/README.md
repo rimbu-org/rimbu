@@ -6,15 +6,15 @@
 
 Offers tools to use handle plain JS objects as immutable objects.
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org/rimbu-core)_.
+For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
 
 ## Installation
 
-`yarn add @rimbu/deep`
+> `yarn add @rimbu/deep`
 
 or
 
-`npm i @rimbu/deep`
+> `npm i @rimbu/deep`
 
 ### recommended tsconfig.json settings
 
@@ -29,6 +29,23 @@ Rimbu uses advanced and recursive typing, potentially making the TS compiler qui
     "noStrictGenericChecks": true
   }
 }
+```
+
+## Usage
+
+```ts
+import { Patch } from '@rimbu/deep';
+
+console.log(
+  Patch({
+    a: 'a',
+    b: { c: 1, d: true },
+  })({
+    a: 'q',
+    b: { c: (v) => v + 1 },
+  })
+);
+// => { a: 'q', b: { c: 2, d: true }}
 ```
 
 ## Author

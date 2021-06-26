@@ -6,7 +6,7 @@
 
 The List is an immutable ordered sequence of elements that can be manipulated and accessed randomly in a relatively efficient way.
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org/rimbu-core)_.
+For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
 
 ## Installation
 
@@ -14,11 +14,11 @@ All types are exported through [`@rimbu/core`](../core). It is recommended to us
 
 To install separately:
 
-`yarn add @rimbu/list`
+> `yarn add @rimbu/list`
 
 or
 
-`npm i @rimbu/list`
+> `npm i @rimbu/list`
 
 ### recommended tsconfig settings
 
@@ -36,6 +36,12 @@ Rimbu uses advanced and recursive typing, potentially making the TypeScript comp
 ```
 
 ## Usage
+
+```ts
+import { List } from '@rimbu/list';
+
+console.log(List.of(1, 3, 2, 4, 3, 1).toString());
+```
 
 ## Author
 

@@ -6,15 +6,15 @@
 
 This package offers state management tools to create stateful logic that can be easily integrated in any framework.
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org/rimbu-actor)_.
+For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
 
 ## Installation
 
-`yarn add @rimbu/actor`
+> `yarn add @rimbu/actor`
 
 or
 
-`npm i @rimbu/actor`
+> `npm i @rimbu/actor`
 
 ### recommended tsconfig.json settings
 

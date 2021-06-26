@@ -1,69 +1,49 @@
-# @rimbu/table
+# Table
 
-A Table is an immutable 2-dimensional map, containing row keys and column keys, and a combination of a row and column key can contain one value.
+A `Table` is an immutable 2-dimensional Map, containing row keys and column keys, where a combination of a row and column key can contain one value.
 
-## Types
+The Table structure is useful in cases where there are two properties that in combination have some value. For example, a school with students needs to store a grade for each class the student takes. The school is only interested in the last grade. In this case, a Table with the student as row key, the class as column key, and the grade as value would allow easy access to all the grades.
 
-This package exports the following types:
+## Exports
 
-| Name                               | Description                                                              |
-| ---------------------------------- | ------------------------------------------------------------------------ |
-| `VariantTable<R, C, V>`            | a generic variant `Table` with row keys R, column keys C, and values V   |
-| `Table<R, C, V>`                   | a generic invariant `Table` with row keys R, column keys C, and values V |
-| `HashTableHashColumn<R, C, V>`     | a `Table` where the row keys and column keys are hashed                  |
-| `HashTableSortedColumn<R, C, V>`   | a `Table` where the row keys are hashed and the column keys are sorted   |
-| `SortedTableSortedColumn<R, C, V>` | a `Table` where the row keys and column keys are sorted                  |
-| `HashTableSortedColumn<R, C, V>`   | a `Table` where the row keys are sorted and the column keys are hashed   |
+The `@rimbu/core` package exports the following _abstract_ Table types:
 
-<img id="inheritance" />
+| Name                    | Description                                                         |
+| ----------------------- | ------------------------------------------------------------------- |
+| `VariantTable<R, C, V>` | a type-variant `Table` with row keys R, column keys C, and values V |
+| `Table<R, C, V>`        | a generic `Table` with row keys R, column keys C, and values V      |
 
-<script src="core/table.js"></script>
+The `@rimbu/core` package exports the following _concrete_ Table types:
+
+| Name                               | Description                                                            |
+| ---------------------------------- | ---------------------------------------------------------------------- |
+| `HashTableHashColumn<R, C, V>`     | a `Table` where the row keys and column keys are hashed                |
+| `HashTableSortedColumn<R, C, V>`   | a `Table` where the row keys are hashed and the column keys are sorted |
+| `SortedTableHashColumn<R, C, V>`   | a `Table` where the row keys are sorted and the column keys are hashed |
+| `SortedTableSortedColumn<R, C, V>` | a `Table` where the row keys and column keys are sorted                |
+
+## Inheritance
+
+<img id="_inheritance"  class="diagram"/>
+
+<script src="table/table.js"></script>
 
 ## Usage
 
-```ts
-import { HashTableHashColumn } from '@rimbu/core';
+### Creation
 
-const table = HashTableHashColumn.of([1, 'a', true], [2, 'a', false]);
-console.log('E.1', table.toString());
-console.log('E.2', table.get(1, 'a'));
-console.log('E.2', table.get(2, 'b'));
-console.log('E.2', table.get(2, 'b'), 'nothing');
-```
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/table/create.ts ':target blank :class=btn')
 
-## Motivation
+[Create](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/table/create.ts ':include :type=iframe width=100% height=450px')
 
-Tables are useful data structures for data that is 2-dimensional. Spreadsheets have become hugely popular because that's basically what they offer: rows, columns, and cells. In programming, most frameworks do not cover this use case, and leave it up to the programmer to figure out ways to simulate such a structure.
+### Query
 
-Imagine we have a collection of cats, and a collection of courses, as follows:
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/table/query.ts ':target blank :class=btn')
 
-```ts
-type Cat = Readonly<{ name: string }>;
+[Query](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/table/query.ts ':include :type=iframe width=100% height=450px')
 
-const alice = { name: 'Alice' };
-const bob = { name: 'Bob' };
-const carol = { name: 'Carol' };
+### Builder
 
-type Course = Readonly<{ title: string }>;
-const machineLearning = { title: 'Machine learning' };
-const calculus = { title: 'Calculus' };
-```
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/table/build.ts ':target blank :class=btn')
 
-Now, each cat can take the offered courses and obtain some score. If the cat retakes the same course, the previous score is thrown away.
-
-```ts
-import { HashTableHashColumn } from '@rimbu/core';
-
-const catCourseScores = HashTableHashColumn.of(
-  [alice, machineLearning, 7.3],
-  [bob, calculus, 4.2],
-  [bob, machineLearning, 8.2]
-);
-
-console.log('E.1', catCourseScores.getValue(alice, machineLearning));
-console.log('E.2', catCourseScores.getValue(carol, machineLearning));
-console.log('E.3', catCourseScores.getValue(carol, machineLearning, 0.0));
-console.log('E.4', catCourseScores.getRow(bob).toArray());
-```
-
-We see that each combination of a cat and course has at one or no value. This makes it easy to keep the score each cat received for each course.
+[Build](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/table/build.ts ':include :type=iframe width=100% height=450px')

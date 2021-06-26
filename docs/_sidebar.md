@@ -1,56 +1,31 @@
 - [Introduction](/#introduction)
-- [Why Immutability](why-immutability.md)
-- [Immutable collections](core/)
+- [Getting Started](generic/getting-started.md)
+- [Why Immutability](generic/why-immutability.md)
+- [Basic collection concepts](generic/basic-concepts.md)
+- [Immutable collections](generic/collections.md)
 
-  - [Quick start](core/#quick-start)
-  - [Usage](core/#usage)
-  - [Basic concepts](core/basic-concepts.md)
-  - Collections
-
-    - [BiMap](bimap/)
-      - [Usage](bimap/#usage)
-      - [Motivation](bimap/#motivation)
-    - [BiMultiMap](bimultimap/)
-      - [Usage](bimultimap/#usage)
-      - [Motivation](bimultimap/#motivation)
-    - [Graph](graph/)
-      - Hello
-    - [List](list/)
-      - Hello
-    - [MultiMap](multimap/)
-      - Hello
-    - [MultiSet](multiset/)
-      - Hello
-    - [RMap](core/rmap/rmap.md)
-      - Hello
-      - [HashMap](core/hashmap.md)
-        - Hello
-      - [SortedMap](core/sortedmap.md)
-        - Hello
-      - [OrderedMap](core/orderedmap.md)
-        - Hello
-    - [RSet](core/rset/rset.md)
-      - [HashSet](core/hashset.md)
-        - Hello
-      - [SortedSet](core/sortedset.md)
-        - Hello
-      - [OrderedSet](core/orderedset.md)
-        - Hello
-    - [Stream](stream/)
-    - [Table](table/)
-
-  - [Advanced concepts](core/advanced-concepts.md)
+  - [BiMap](bimap/)
+  - [BiMultiMap](bimultimap/)
+  - [Graph](graph/)
+    - [Arrow](graph/arrow.md)
+    - [Arrow Valued](graph/arrow_valued.md)
+    - [Edge](graph/edge.md)
+    - [Edge Valued](graph/edge_valued.md)
+  - [List](list/)
+    - [Advanced topics](list/advanced.md)
+  - [MultiMap](multimap/)
+  - [MultiSet](multiset/)
+  - [Map](map/)
+  - [Set](set/)
+  - [Stream](stream/)
+  - [Table](table/)
 
 - [Object manipulation](deep/)
 
-  - [Quick start](deep/rimbu-deep.md#quick-start)
-  - [Usage](deep/rimbu-deep.md#usage)
+  - [Immutable](deep/immutable.md)
+  - [Patch](deep/patch.md)
+  - [Match](deep/match.md)
+  - [Path](deep/path.md)
+  - [Tuple](deep/tuple.md)
 
-- [Actor state management](actor/)
-
-  - [Quick start](actor/rimbu-actor.md#quick-start)
-  - [Usage](actor/rimbu-actor.md#usage)
-
-  - [Usage in React](reactor/rimbu-reactor.md)
-    - [Quick start](reactor/rimbu-reactor.md#quick-start)
-    - [Usage](reactor/rimbu-reactor.md#usage)
+- [Advanced collection concepts](generic/advanced-concepts.md)

@@ -1,75 +1,41 @@
 # BiMap
 
-A BiMap is a bidirectional Map of keys and values, where each key has exactly one value, and each value has exactly one key. There is a one-to-one mapping between keys and values.
+A BiMap is a bidirectional Map of keys and values, where each key has exactly one value, and each value has exactly one key. Furthermore, both keys and values are unique and there is a one-to-one mapping between keys and values.
 
-This package exports the following types:
+This `BiMap` can be useful when you have a domain in which there needs to be a strict one-to-one mapping between two types of entities. For example, say we have a BiMap between persons and seats in a room. A person can have only one seat, and a seat can have only one person. Using a BiMap, this restriction is guaranteed. If we assign seat 1 to person A, and then assign seat 5 to person A, seat 1 will automatically be vacant. In a similar way, if we assign seat 1 to person A, and then seat 1 to person B, person A no longer has a seat.
 
-| Name                | Description                                                   |
-| ------------------- | ------------------------------------------------------------- |
-| `BiMap<K, V>`       | a generic `BiMap` between keys of type K and values of type V |
-| `HashBiMap<K, V>`   | a `BiMap` implementation where keys and values are hashed     |
-| `SortedBiMap<K, V>` | a `BiMap` implementation where keys and values are sorted     |
+The BiMap internally uses two 'normal' Maps to maintain this guarantee, and therefore also provides fast look-up times both for keys and values. Insertion time and memory usage are double that of a normal Map.
+
+## Exports
+
+The `@rimbu/core` package exports the following _concrete_ BiMap types:
+
+| Name          | Description                                                   |
+| ------------- | ------------------------------------------------------------- |
+| `BiMap<K, V>` | a generic `BiMap` between keys of type K and values of type V |
 
 ## Usage
 
-```ts
-import { HashBiMap } from '@rimbu/core';
+### Creation
 
-const bimap = HashBiMap.of([1, 'a'], [2, 'b'], [3, 'b']);
+[Open with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimap/create.ts ':target blank :class=btn')
 
-console.log(bimap.toString());
-// HashBiMap(1 <-> a, 3 <-> b)
-```
+[Create](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimap/create.ts ':include :type=iframe width=100% height=450px')
 
-## Motivation
+### Query
 
-A BiMap is useful when we need a `Map` in which both the keys and values are unique, and have a one-to-one relation.
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimap/query.ts ':target blank :class=btn')
 
-Imagine we have a collection of cats, and a collection of toys, where each cat can have at most one toy. Conversely, each toy can belong to at most one cat. We want to keep track of the cat-toy associations.
+[Query](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimap/query.ts ':include :type=iframe width=100% height=450px')
 
-Assume we have the following cats and toys:
+### Motivation
 
-```ts
-type Cat = Readonly<{ name: string }>;
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimap/motivation.ts ':target blank :class=btn')
 
-const alice = { name: 'Alice' };
-const bob = { name: 'Bob' };
-const carol = { name: 'Carol' };
+[Motivation](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimap/motivation.ts ':include :type=iframe width=100% height=450px')
 
-type Toy = Readonly<{ description: string }>;
+### Builder
 
-const yarn = { description: 'yarn' };
-const ball = { description: 'ball' };
-```
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimap/build.ts ':target blank :class=btn')
 
-Imagine we have a 'normal' Map from Cats to Toys. This would allow us to add the same toy to multiple cats:
-
-```ts
-import { HashMap } from '@rimbu/core';
-
-const assignments = HashMap.of([alice, yarn], [bob, yarn]);
-
-console.log(assignments.get(alice));
-// { description: 'yarn' }
-console.log(assignments.get(bob));
-// { description: 'yarn' }
-```
-
-This is not what we want. Also, we cannot do a reverse lookup if we want to know who currently has the yarn.
-
-Using a BiMap, we automatically get this functionality:
-
-```ts
-import { HashBiMap } from '@rimbu/core';
-
-const assignments = HashBiMap.of([alice, yarn], [bob, yarn]);
-
-console.log(assignments.getValue(alice));
-// undefined
-console.log(assignments.getValue(bob));
-// { description: 'yarn' }
-console.log(assignments.getKey(yarn));
-// { name: 'Bob' }
-```
-
-Here, Alice does not have the yarn since it has later been assigned to Bob. Also, we can query the owner of the yarn, which is Bob. The BiMap structure automatically takes care of removing obsolete assignments.
+[Build](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimap/build.ts ':include :type=iframe width=100% height=450px')

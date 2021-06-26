@@ -2,14 +2,20 @@
     <img src="../../assets/rimbu_logo.svg" />
 </p>
 
-# @rimbu/table
+# @rimbu/table-hash-row
+
+A `Table` is an immutable 2-dimensional Map, containing row keys and column keys, where a combination of a row and column key can contain one value.
+
+This package contains the hash row implementations of Table. It was mainly split off from the `@rimbu/table` package to reduce build time and memory usage.
 
 This package exports the following types:
 
-| Name | Description |
-| ---- | ----------- |
+| Name                             | Description                                                            |
+| -------------------------------- | ---------------------------------------------------------------------- |
+| `HashTableHashColumn<R, C, V>`   | a `Table` where the row keys and column keys are hashed                |
+| `HashTableSortedColumn<R, C, V>` | a `Table` where the row keys are hashed and the column keys are sorted |
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org/rimbu-core)_.
+For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
 
 ## Installation
 
@@ -17,11 +23,11 @@ All types are exported through [`@rimbu/core`](../core). It is recommended to us
 
 To install separately:
 
-`yarn add @rimbu/table`
+> `yarn add @rimbu/table-hash-row`
 
 or
 
-`npm i @rimbu/table`
+> `npm i @rimbu/table-hash-row`
 
 ### recommended tsconfig settings
 
@@ -39,6 +45,12 @@ Rimbu uses advanced and recursive typing, potentially making the TypeScript comp
 ```
 
 ## Usage
+
+```ts
+import { HashTableHashColumn } from '@rimbu/table-hash-row';
+
+console.log(HashTableHashColumn.of([1, 'a', true], [1, 'b', false]).toString());
+```
 
 ## Author
 

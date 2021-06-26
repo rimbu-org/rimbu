@@ -4,12 +4,18 @@
 
 # @rimbu/multiset
 
-This package exports the following types:
+A Rimbu MultiSet is a Set-like structure where each unique element can be added multiple times. Each element in the MultiSet occurs one or more times. The MultiSet keeps track of the amount of times an element was added.
 
-| Name | Description |
-| ---- | ----------- |
+This package exports the following main types:
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org/rimbu-core)_.
+| Name                 | Description                                     |
+| -------------------- | ----------------------------------------------- |
+| `HashMultiSet<T>`    | a MultiSet with hashed elements of type T       |
+| `MultiSet<T>`        | a generic MultiSet with elements of type T      |
+| `SortedMultiSet<T>`  | a MultiSet with sorted elements of type T       |
+| `VariantMultiSet<T>` | a type-variant MultiSet with elements of type T |
+
+For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
 
 ## Installation
 
@@ -17,11 +23,11 @@ All types are exported through [`@rimbu/core`](../core). It is recommended to us
 
 To install separately:
 
-`yarn add @rimbu/multiset`
+> `yarn add @rimbu/multiset`
 
 or
 
-`npm i @rimbu/multiset`
+> `npm i @rimbu/multiset`
 
 ### recommended tsconfig settings
 
@@ -39,6 +45,12 @@ Rimbu uses advanced and recursive typing, potentially making the TypeScript comp
 ```
 
 ## Usage
+
+```ts
+import { SortedMultiSet } from '@rimbu/multiset';
+
+console.log(SortedMultiSet.of(1, 3, 2, 3, 2, 3).toString());
+```
 
 ## Author
 

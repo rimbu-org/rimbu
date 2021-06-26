@@ -13,6 +13,13 @@ function createUml(spec) {
   @enduml;`;
 }
 
+function createDigraph(spec) {
+  return `https://g.gravizo.com/svg?
+  digraph G {
+  ${spec}
+  }`;
+}
+
 function normalize(value) {
   return value.replaceAll('<', '%3C').replaceAll('>', '%3E');
 }
@@ -20,5 +27,12 @@ function normalize(value) {
 function setUmlGraph(tag, spec) {
   const element = document.getElementById(tag);
   const graph = createUml(normalize(spec));
+  console.log(normalize(spec));
+  element.src = graph;
+}
+
+function setDigraph(tag, spec) {
+  const element = document.getElementById(tag);
+  const graph = createDigraph(normalize(spec));
   element.src = graph;
 }

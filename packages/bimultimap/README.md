@@ -14,7 +14,7 @@ This package exports the following types:
 | `HashBiMultiMap<K, V>`   | a BiMultiMap implementation where keys and values are hashed     |
 | `SortedBiMultiMap<K, V>` | a BiMultiMap implementation where keys and values are sorted     |
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org/rimbu-core)_.
+For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
 
 ## Installation
 
@@ -22,11 +22,11 @@ All types are exported through [`@rimbu/core`](../core). It is recommended to us
 
 To install separately:
 
-`yarn add @rimbu/bimultimap`
+> `yarn add @rimbu/bimultimap`
 
 or
 
-`npm i @rimbu/bimultimap`
+> `npm i @rimbu/bimultimap`
 
 ### recommended tsconfig settings
 
@@ -46,7 +46,7 @@ Rimbu uses advanced and recursive typing, potentially making the TypeScript comp
 ## Usage
 
 ```ts
-import { HashBiMultiMap } from '@rimbu/core';
+import { HashBiMultiMap } from '@rimbu/bimultimap';
 
 const biMultiMap = HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'b']);
 console.log(biMultiMap.toString());

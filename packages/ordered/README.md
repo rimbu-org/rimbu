@@ -4,12 +4,16 @@
 
 # @rimbu/ordered
 
+This packages contains an implementation of `OrderedMap` and `OrderedSet`, which are wrappers around other `RMap` and `RSet` implementations, and that add the capability to remember insertion order. Iterating over the collections will return the values in this insertion order.
+
 This package exports the following types:
 
-| Name | Description |
-| ---- | ----------- |
+| Name               | Description                                                                                |
+| ------------------ | ------------------------------------------------------------------------------------------ |
+| `OrderedMap<K, V>` | a map with entries of key type K and value type V, where key insertion order is maintained |
+| `OrderedSet<T>`    | a set of value type T where insertion order is maintained                                  |
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org/rimbu-core)_.
+For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
 
 ## Installation
 
@@ -17,11 +21,11 @@ All types are exported through [`@rimbu/core`](../core). It is recommended to us
 
 To install separately:
 
-`yarn add @rimbu/ordered`
+> `yarn add @rimbu/ordered`
 
 or
 
-`npm i @rimbu/ordered`
+> `npm i @rimbu/ordered`
 
 ### recommended tsconfig settings
 
@@ -39,6 +43,12 @@ Rimbu uses advanced and recursive typing, potentially making the TypeScript comp
 ```
 
 ## Usage
+
+```ts
+import { OrderedSet } from '@rimbu/ordered';
+
+console.log(OrderedSet.of(1, 3, 2, 3, 1).toString());
+```
 
 ## Author
 

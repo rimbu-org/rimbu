@@ -2,12 +2,17 @@
     <img src="../../assets/rimbu_logo.svg" />
 </p>
 
-# @rimbu/graph
+# @rimbu/graph-arrow-valued
+
+This package contains the implementations for the ArrowValuedGraph type. It was mainly split off to a seperate package from the `@rimbu/graph` package to descrease build time and memory usage.
 
 This package exports the following types:
 
-| Name | Description |
-| ---- | ----------- |
+| Name                           | Description                                                                     |
+| ------------------------------ | ------------------------------------------------------------------------------- |
+| `ArrowValuedGraph<N, V>`       | a generic directed valued graph with nodes of type N, and edge values of type V |
+| `ArrowValuedGraphHashed<N, V>` | a valued directed graph with hashed nodes of type N, and edge values of type V  |
+| `ArrowvaluedGraphSorted<N, V>` | a valued directed graph with sorted nodes of type N, and edge values of type V  |
 
 ## Installation
 
@@ -15,11 +20,11 @@ All types are exported through [`@rimbu/core`](../core). It is recommended to us
 
 To install separately:
 
-`yarn add @rimbu/graph`
+> `yarn add @rimbu/graph-arrow-valued`
 
 or
 
-`npm i @rimbu/graph`
+> `npm i @rimbu/graph-arrow-valued`
 
 ### recommended tsconfig settings
 
@@ -35,8 +40,6 @@ Rimbu uses advanced and recursive typing, potentially making the TypeScript comp
   }
 }
 ```
-
-## Usage
 
 ## Author
 

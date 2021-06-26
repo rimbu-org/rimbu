@@ -2,14 +2,20 @@
     <img src="../../assets/rimbu_logo.svg" />
 </p>
 
-# @rimbu/table
+# @rimbu/table-sorted-row
 
-This package exports the following types:
+A `Table` is an immutable 2-dimensional Map, containing row keys and column keys, where a combination of a row and column key can contain one value.
 
-| Name | Description |
-| ---- | ----------- |
+This package contains the sorted row implementations of Table. It was mainly split off from the `@rimbu/table` package to reduce build time and memory usage.
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org/rimbu-core)_.
+This package exports the following main types:
+
+| Name                               | Description                                                            |
+| ---------------------------------- | ---------------------------------------------------------------------- |
+| `SortedTableHashColumn<R, C, V>`   | a `Table` where the row keys are sorted and the column keys are hashed |
+| `SortedTableSortedColumn<R, C, V>` | a `Table` where the row keys and column keys are sorted                |
+
+For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
 
 ## Installation
 
@@ -17,11 +23,11 @@ All types are exported through [`@rimbu/core`](../core). It is recommended to us
 
 To install separately:
 
-`yarn add @rimbu/table`
+> `yarn add @rimbu/table-sorted-row`
 
 or
 
-`npm i @rimbu/table`
+> `npm i @rimbu/table-sorted-row`
 
 ### recommended tsconfig settings
 
@@ -39,6 +45,14 @@ Rimbu uses advanced and recursive typing, potentially making the TypeScript comp
 ```
 
 ## Usage
+
+```ts
+import { SortedTableSortedColumn } from '@rimbu/table-sorted-row';
+
+console.log(
+  SortedTableSortedColumn.of([1, 'a', true], [1, 'b', false]).toString()
+);
+```
 
 ## Author
 

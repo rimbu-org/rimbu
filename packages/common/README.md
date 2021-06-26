@@ -6,31 +6,6 @@
 
 This package exports common types and objects used in many other Rimbu packages.
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org/rimbu-core)_.
-
-## Installation
-
-All types are exported through `@rimbu/core`. It is recommended to use this package.
-
-To install separately:
-
-`yarn add @rimbu/common`
-
-or
-
-`npm i @rimbu/common`
-
-## Usage
-
-```ts
-import { Eq } from '@rimbu/core';
-
-console.log(Eq.stringCaseInsentitive()('abc', 'AbC'));
-// => true
-```
-
-## Overview
-
 Here is a brief overview:
 
 | Name            | Description                                                                                              |
@@ -48,6 +23,29 @@ Here is a brief overview:
 | `Update`        | a standard way to update a value                                                                         |
 
 Other than these values, there are a number of utility types that are exported that are also used throughout the collection.
+
+For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
+
+## Installation
+
+All types are exported through `@rimbu/core`. It is recommended to use this package.
+
+To install separately:
+
+> `yarn add @rimbu/common`
+
+or
+
+> `npm i @rimbu/common`
+
+## Usage
+
+```ts
+import { Eq } from '@rimbu/common';
+
+console.log(Eq.stringCaseInsentitive()('abc', 'AbC'));
+// => true
+```
 
 ## Author
 

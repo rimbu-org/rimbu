@@ -5,8 +5,8 @@
 }
 
 body {
-  background-image: url('./_media/trees.jpeg'),
-    linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9));
+  /* background-image: url('./_media/trees.jpeg'),
+    linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)); */
   background-size: cover;
   -webkit-background-size: cover;
   -moz-background-size: cover;
@@ -18,4 +18,14 @@ body {
 :root {
   --theme-color: rgb(24, 172, 108);
   --table-row-even-background: rgb(36, 37, 36);
+}
+
+.btn {
+  background-color: rgb(24, 172, 108, 0.8);
+  color: white !important;
+  padding: 1em 1.2em;
+  text-decoration: none !important;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 1.1em;
 }

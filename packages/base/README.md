@@ -4,7 +4,7 @@
 
 # @rimbu/base
 
-This package contains mostly utilities to implement the other Rimbu collections. The types are not exported by any of the other packages, but are used by most of them.
+This package contains mostly utilities to implement the other Rimbu collections. The types are not exported by any of the other packages, but are internally used by most of them.
 
 Most important are the exported `Arr` methods that are used at the basis of all the block-based data structures. These methods should be as correct and efficient as possible.
 
@@ -12,11 +12,11 @@ For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
 
 ## Installation
 
-`yarn add @rimbu/base`
+> `yarn add @rimbu/base`
 
 or
 
-`npm install @rimbu/base`
+> `npm install @rimbu/base`
 
 ### recommended tsconfig settings
 

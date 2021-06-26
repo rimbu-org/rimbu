@@ -4,12 +4,16 @@
 
 # @rimbu/hashed
 
-This package exports the following types:
+This package contains the implementation for the `HashMap` and `HashSet` types, which form the basis of all Rimbu Hashed collections. The collections use a `Hasher` instance that is configurable to determine the equality of values/objects.
 
-| Name | Description |
-| ---- | ----------- |
+This package exports the following main types:
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org/rimbu-core)_.
+| Name            | Description                                                                              |
+| --------------- | ---------------------------------------------------------------------------------------- |
+| `HashMap<K, V>` | a map with entries of key type K and value type V, where keys are hashed with a `Hasher` |
+| `HashSet<T>`    | a set of value type T where items are hashed with a `Hasher`                             |
+
+For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
 
 ## Installation
 
@@ -17,11 +21,11 @@ All types are exported through [`@rimbu/core`](../core). It is recommended to us
 
 To install separately:
 
-`yarn add @rimbu/hashed`
+> `yarn add @rimbu/hashed`
 
 or
 
-`npm i @rimbu/hashed`
+> `npm i @rimbu/hashed`
 
 ### recommended tsconfig settings
 
@@ -39,6 +43,12 @@ Rimbu uses advanced and recursive typing, potentially making the TypeScript comp
 ```
 
 ## Usage
+
+```ts
+import { HashSet } from '@rimbu/hashed';
+
+console.log(HashSet.of(1, 3, 2, 4, 3, 1).toString());
+```
 
 ## Author
 

@@ -4,18 +4,28 @@
 
 # Immutable collections and tools for TypeScript
 
-Rimbu consists of TypeScript projects focused on immutability. This is the monorepo for all Rimbu projects.
+Rimbu is a TypeScript library focused on _immutable, performant, and type-safe collections_ and other tools. Its main aim is to allow programmers to create safe and performant programs without getting in the way. It is inspired by various other collection libraries, mainly Java's Guava library, the Java 8 Collection library, and Scala's collection library plus various ideas from the Scala community.
+
+## Quick overview of features and benefits
+
+- Extensive set of collection types to cover many problems that would otherwise require more coding to solve.
+- Advanced typing uses the TS compiler to offer strict type inference without much explicit typing, and to prove collection non-emptiness.
+- Avoid 'monad' style programming / chaining (e.g. using types like Option) by offering flexible fallback options for simple methods that can 'fail'.
+- No external dependencies.
+- Provides sane defaults but allows extensive customization and configuration.
+- A novel and efficient immutable random-access List implementation.
 
 For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
 
-The main projects are:
+## Main exports
 
-| Name                               | Description                                                                                                                                 |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| [@rimbu/core](packages/core)       | Immutable collections including `List`, `SortedMap`, `EdgeGraph`, `HashBiMultiMap` and many more.                                           |
-| [@rimbu/deep](packages/deep)       | Utilities to define immutable views on plain JS objects, and to easily handle and manipulate (e.g. create changed copies) of those objects. |
-| [@rimbu/actor](packages/actor)     | A framework-agnostic synchronous state management library that uses immutable objects under the hood.                                       |
-| [@rimbu/reactor](packages/reactor) | A framework that allows usage of `@rimbu/actor` objects in `React`.                                                                         |
+The main exported projects are:
+
+| Name                               | Description                                                                                           |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| [@rimbu/core](packages/core)       | Immutable collections including `List`, `SortedMap`, `EdgeGraph`, `HashBiMultiMap` and many more.     |
+| [@rimbu/actor](packages/actor)     | A framework-agnostic synchronous state management library that uses immutable objects under the hood. |
+| [@rimbu/reactor](packages/reactor) | A framework that allows usage of `@rimbu/actor` objects in `React`.                                   |
 
 ## Getting started with this monorepo
 
@@ -24,6 +34,7 @@ The main projects are:
 
 To build all the packages: `yarn build`
 To start the Rimbu Docs locally: `yarn docsify`
+To run the tests: `yarn test`
 
 ## Author
 

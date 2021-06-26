@@ -1,5 +1,5 @@
 setUmlGraph(
-  'inheritance',
+  '_inheritance',
   `
 interface Streamable<T>;
 

@@ -4,10 +4,10 @@
 
 > Immutable collections and tools for TypeScript
 
-- Map your domain problems to a wide variety of collections
-- Offers Sets, Graphs, (Multi)Maps, Streams and many more
-- No external dependencies
+- Offers Sets, Lists, Graphs, (Bi)(Multi)Maps, Streams and many more
+- Map your specific domain problems to generic collections
 - Integrated documentation for extensive IDE assistance
+- No external dependencies
 
 [GitHub](https://github.com/vitoke/rimbu)
-[Getting Started](#introduction)
+[Documentation](#introduction)

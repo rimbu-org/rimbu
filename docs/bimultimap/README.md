@@ -2,73 +2,55 @@
 
 A BiMultiMap is a bidirectional MultiMap of keys and values, where each key-value association also has an inverse value-key association. There is a many-to-many mapping between keys and values.
 
-This package exports the following types:
+The BiMultiMap is useful when there is a many-to-many relation between to types of entities, and it is desired to query the relation in both directions.
 
-| Name                     | Description                                                      |
-| ------------------------ | ---------------------------------------------------------------- |
-| `BiMultiMap<K, V>`       | a generic BiMultiMap between keys of type K and values of type V |
-| `HashBiMultiMap<K, V>`   | a BiMultiMap implementation where keys and values are hashed     |
-| `SortedBiMultiMap<K, V>` | a BiMultiMap implementation where keys and values are sorted     |
+For example, take a relation between persons and their hobbies. The BiMultiMap can efficiently tell you, given a person, what her hobbies are. But it can also efficiently tell you, given a hobby, which persons practice it.
 
-<img id="inheritance" class="diagram" />
+Internally the BiMultiMap uses of two MultiMaps, making lookup operations in both directions fast. Insertion and memory usage are double that of a MultiMap.
 
-<script src="core/bimultimap.js"></script>
+## Exports
 
-## Usage
+The `@rimbu/core` package exports the following _abstract_ BiMultiMap types:
 
-```ts
-import { HashBiMultiMap } from '@rimbu/core';
+| Name               | Description                                                      |
+| ------------------ | ---------------------------------------------------------------- |
+| `BiMultiMap<K, V>` | a generic BiMultiMap between keys of type K and values of type V |
 
-const biMultiMap = HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'b']);
-console.log(biMultiMap.toString());
-// HashBiMultiMap(1 <-> ['a'], 2 <-> ['b'], 3 <-> ['b'])
+The `@rimbu/core` package exports the following _concrete_ BiMultiMap types:
 
-console.log(biMultiMap.getValues(1).toArray());
-// ['a']
-console.log(biMultiMap.getKeys('b').toArray());
-// [2, 3]
-```
+| Name                     | Description                                                  |
+| ------------------------ | ------------------------------------------------------------ |
+| `HashBiMultiMap<K, V>`   | a BiMultiMap implementation where keys and values are hashed |
+| `SortedBiMultiMap<K, V>` | a BiMultiMap implementation where keys and values are sorted |
 
-## Motivation
+## Inheritance
 
-Imagine we have a collection of cats, and a collection of badges. Cats can earn badges for certain behavior, and we want to query which badges a cat has, and also which cats have a certain badge.
+<img id="_inheritance" class="diagram" />
 
-Assume we have the following cats and toys:
+<script src="bimultimap/bimultimap.js"></script>
 
-```ts
-class Cat {
-  constructor(readonly name: string) {}
-}
-const alice = new Cat('Alice');
-const bob = new Cat('Bob');
-const carol = new Cat('Carol');
+<!-- ## Usage
 
-class Badge {
-  constructor(readonly description: string) {}
-}
-const honor = new Badge('honor');
-const courage = new Badge('courage');
-```
+### Creation
 
-If we use a `normal` MultiMap from Cats to Badges, we can assign badges to cats, and see which badges a certain cat has. But we cannot easily see which cats have a certain badge.
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimultimap/create.ts ':target blank :class=btn')
 
-With a 'BiMultiMap` this becomes easy:
+[Create](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimultimap/create.ts ':include :type=iframe width=100% height=450px')
 
-```ts
-import { HashBiMultiMap } from '@rimbu/core`
+### Query
 
-const catBadges = HashBiMultiMap.of([alice, honor], [alice, courage], [bob, honor])
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimultimap/query.ts ':target blank :class=btn')
 
-console.log(catBadges.getValues(alice).toArray())
-// [Badge('honor'), Badge('courage')]
+[Query](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimultimap/query.ts ':include :type=iframe width=100% height=450px')
 
-console.log(catBadges.getKeys(honor).toArray())
-// [Cat('Alice'), Cat('Bob')]
+### Motivation
 
-const newCatBadges = catBadges.removeValue(honor)
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimultimap/motivation.ts ':target blank :class=btn')
 
-console.log(newCatBadges.getValues(alice).toArray())
-// [Badge('courage')]
-```
+[Motivation](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimultimap/motivation.ts ':include :type=iframe width=100% height=450px')
 
-We see that removing a Badge from the multimap also automatically ensures that the badge is removed from all cat associations.
+### Builder
+
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimultimap/build.ts ':target blank :class=btn')
+
+[Build](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimultimap/build.ts ':include :type=iframe width=100% height=450px') -->
