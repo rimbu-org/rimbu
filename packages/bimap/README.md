@@ -8,13 +8,13 @@ A BiMap is a bidirectional Map of keys and values, where each key has exactly on
 
 This package exports the following types:
 
-| Name                | Description                                                 |
-| ------------------- | ----------------------------------------------------------- |
-| `BiMap<K, V>`       | a generic BiMap between keys of type K and values of type V |
-| `HashBiMap<K, V>`   | a BiMap implementation where keys and values are hashed     |
-| `SortedBiMap<K, V>` | a BiMap implementation where keys and values are sorted     |
+| Name                | Description                                                                                    |
+| ------------------- | ---------------------------------------------------------------------------------------------- |
+| `BiMap<K, V>`       | a generic BiMap between keys of type K and values of type V                                    |
+| `HashBiMap<K, V>`   | a BiMap between keys of type K and values of type V, where both the keys and values are hashed |
+| `SortedBiMap<K, V>` | a BiMap between keys of type K and values of type V, where both the keys and values are sorted |
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org/rimbu-core)_.
+For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
 
 ## Installation
 
@@ -22,11 +22,11 @@ All types are exported through [`@rimbu/core`](../core). It is recommended to us
 
 To install separately:
 
-`yarn add @rimbu/bimap`
+> `yarn add @rimbu/bimap`
 
 or
 
-`npm i @rimbu/bimap`
+> `npm i @rimbu/bimap`
 
 ### recommended tsconfig settings
 

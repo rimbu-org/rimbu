@@ -1,4 +1,4 @@
-# Advanced concepts of immutable collections
+# Advanced concepts of Rimbu collections
 
 ## Collection Context
 
@@ -14,6 +14,19 @@ import { List } from '@rimbu/core';
 List.of(1, 2, 3);
 // is equivalent to:
 List.defaultContext().of(1, 2, 3);
+```
+
+### Custom context
+
+All Rimbu collections are configurable in some way. To create a custom configured collection, there is the `.createContext()` method, e.g. for Lists:
+
+```ts
+import { List } from '@rimbu/core';
+
+const MyList = List.createContext({ blockSizeBits: 7 });
+
+// we can now use MyList to construct custom instances.
+const list = MyList.of(1, 2, 3);
 ```
 
 ### Context references

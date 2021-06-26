@@ -2,6 +2,14 @@
 
 A BiMultiMap is a bidirectional MultiMap of keys and values, where each key-value association also has an inverse value-key association. There is a many-to-many mapping between keys and values.
 
+The BiMultiMap is useful when there is a many-to-many relation between to types of entities, and it is desired to query the relation in both directions.
+
+For example, take a relation between persons and their hobbies. The BiMultiMap can efficiently tell you, given a person, what her hobbies are. But it can also efficiently tell you, given a hobby, which persons practice it.
+
+Internally the BiMultiMap uses of two MultiMaps, making lookup operations in both directions fast. Insertion and memory usage are double that of a MultiMap.
+
+## Exports
+
 The `@rimbu/core` package exports the following _abstract_ BiMultiMap types:
 
 | Name               | Description                                                      |
@@ -17,40 +25,32 @@ The `@rimbu/core` package exports the following _concrete_ BiMultiMap types:
 
 ## Inheritance
 
-<img id="inheritance" class="diagram" />
+<img id="_inheritance" class="diagram" />
 
 <script src="bimultimap/bimultimap.js"></script>
 
-## Usage
+<!-- ## Usage
 
 ### Creation
 
-[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimultimap/create.ts ':target blank')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimultimap/create.ts ':target blank :class=btn')
 
-<!-- prettier-ignore-start -->
 [Create](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimultimap/create.ts ':include :type=iframe width=100% height=450px')
-<!-- prettier-ignore-end -->
 
 ### Query
 
-[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimultimap/query.ts ':target blank')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimultimap/query.ts ':target blank :class=btn')
 
-<!-- prettier-ignore-start -->
 [Query](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimultimap/query.ts ':include :type=iframe width=100% height=450px')
-<!-- prettier-ignore-end -->
 
 ### Motivation
 
-[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimultimap/motivation.ts ':target blank')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimultimap/motivation.ts ':target blank :class=btn')
 
-<!-- prettier-ignore-start -->
 [Motivation](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimultimap/motivation.ts ':include :type=iframe width=100% height=450px')
-<!-- prettier-ignore-end -->
 
 ### Builder
 
-[Open full sandbox with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimultimap/build.ts ':target blank')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimultimap/build.ts ':target blank :class=btn')
 
-<!-- prettier-ignore-start -->
-[Build](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimultimap/build.ts ':include :type=iframe width=100% height=450px')
-<!-- prettier-ignore-end -->
+[Build](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimultimap/build.ts ':include :type=iframe width=100% height=450px') -->

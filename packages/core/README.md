@@ -6,7 +6,7 @@
 
 This package exports all the Rimbu collections, plus the contents of the `@rimbu/common` package. Its aim is to provide an easy to use access point for the collections.
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org/rimbu-core)_.
+For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
 
 ## Installation
 
@@ -55,13 +55,13 @@ console.log(map.toArray());
 The same code using the `Create` menu-object:
 
 ```ts
-import { Create } from '@rimbu/core';
+import Rimbu from '@rimbu/core';
 
-const list = Create.List.of(1, 3, 2, 4, 2);
+const list = Rimbu.Create.List.of(1, 3, 2, 4, 2);
 
-const stream = Create.Stream.from(list).map((v) => [v, String(v * 2)]);
+const stream = Rimbu.Create.Stream.from(list).map((v) => [v, String(v * 2)]);
 
-const map = Create.Map.Sorted.from(stream);
+const map = Rimbu.Create.Map.Sorted.from(stream);
 
 console.log(map.toArray());
 // => [[1, '2'], [2, '4'], [3, '6'], [4, '8']]
@@ -77,6 +77,7 @@ This package exports everything from the following packages:
 | [@rimbu/bimultimap](../bimultimap)             | a bidirectional multimap in which keys and values have a many-to-many mapping                                                                |
 | [@rimbu/collection-types](../collection-types) | definitions for many of the generic collection types, used to derive more specific implementations                                           |
 | [@rimbu/common](../common)                     | contains public types and functions that are used throughout the whole library                                                               |
+| [@rimbu/deep](../deep)                         | offers tools to use handle plain JS objects as immutable objects. library                                                                    |
 | [@rimbu/graph](../graph)                       | provides various graph implementations to represent data in forms of nodes and edges                                                         |
 | [@rimbu/hashed](../hashed)                     | provides a HashMap and HashSet implementation, using hash functions to efficiently retrieve keys                                             |
 | [@rimbu/list](../list)                         | provides the List datastructure containing an ordered sequence of elements that can be manipulated and accessed randomly in an efficient way |

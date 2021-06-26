@@ -15,7 +15,7 @@ Most standard libraries focus on mutable collections. Mutability seems easy to u
 
 ## Benefits against mutable objects
 
-Some languages, like Scala, put a large focus on the immutable collections. The main advantage is the same reason why most programmers these days prefer constant assignments to variable assignments (in TS: `const` vs `let`). A constant assignment with a primitive value makes it very to reason about the code: you assign something, and that value will always be the same.
+Some languages, like Scala, put a large focus on the immutable collections. The main advantage is the same reason why most programmers these days prefer constant assignments to variable assignments (in TS: `const` vs `let`). A constant assignment with a primitive value makes it easy to reason about the code: you assign something, and that value will always be the same.
 
 Using a constant assignment with a mutable object, e.g. an array, is possible, but it loses a large part of the predictability. Basically it only tells you that the reference won't change, however there's no guarantee about its contents. While often this is no issue, in theory one should always use defensive copying to avoid surprises.
 
@@ -23,7 +23,7 @@ To show this, imagine the following program:
 
 ```ts
 const myArray = [1, 2, 3];
-processElments(myArray);
+processElements(myArray);
 const element = myArray[1];
 ```
 

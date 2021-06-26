@@ -2,12 +2,17 @@
     <img src="../../assets/rimbu_logo.svg" />
 </p>
 
-# @rimbu/graph
+# @rimbu/graph-edge-valued
+
+This package contains the implementations for the EdgeValuedGraph type. It was mainly split off to a seperate package from the `@rimbu/graph` package to descrease build time and memory usage.
 
 This package exports the following types:
 
-| Name | Description |
-| ---- | ----------- |
+| Name                          | Description                                                                       |
+| ----------------------------- | --------------------------------------------------------------------------------- |
+| `EdgeValuedGraph<N, V>`       | a generic undirected valued graph with nodes of type N, and edge values of type V |
+| `EdgeValuedGraphHashed<N, V>` | a valued undirected graph with hashed nodes of type N, and edge values of type V  |
+| `EdgevaluedGraphSorted<N, V>` | a valued undirected graph with sorted nodes of type N, and edge values of type V  |
 
 ## Installation
 
@@ -15,11 +20,11 @@ All types are exported through [`@rimbu/core`](../core). It is recommended to us
 
 To install separately:
 
-`yarn add @rimbu/graph`
+> `yarn add @rimbu/graph`
 
 or
 
-`npm i @rimbu/graph`
+> `npm i @rimbu/graph`
 
 ### recommended tsconfig settings
 

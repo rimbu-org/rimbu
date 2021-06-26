@@ -4,22 +4,19 @@
 
 # @rimbu/reactor
 
-This package exports the following types:
+This package offers integration of `@rimbu/actor` in React.
 
-| Name | Description |
-| ---- | ----------- |
-
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org/rimbu-core)_.
+For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
 
 ## Installation
 
 To install:
 
-`yarn add @rimbu/reactor`
+> `yarn add @rimbu/reactor`
 
 or
 
-`npm i @rimbu/reactor`
+> `npm i @rimbu/reactor`
 
 ### recommended tsconfig settings
 

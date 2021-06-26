@@ -1,5 +1,5 @@
 setUmlGraph(
-  'inheritance',
+  '_inheritance',
   `
 interface Streamable<GraphElement<N, V>>;
 
@@ -27,7 +27,7 @@ ValuedGraph <|-- EdgeValuedGraph;
 );
 
 setUmlGraph(
-  'inheritance_nonvalued',
+  '_inheritance_nonvalued',
   `
 interface Streamable<GraphElement<N>>;
 
@@ -53,7 +53,7 @@ EdgeGraph <|-- EdgeGraphSorted;
 );
 
 setUmlGraph(
-  'inheritance_valued',
+  '_inheritance_valued',
   `
 interface Streamable<GraphElement<N, V>>;
 

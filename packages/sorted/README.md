@@ -4,12 +4,16 @@
 
 # @rimbu/sorted
 
+This package contains the implementation for the `SortedMap` and `SortedSet` types, which form the basis of all Rimbu Sorted collections. The collections use a `Comp` instance that is configurable to determine the equality and order of values/objects.
+
 This package exports the following types:
 
-| Name | Description |
-| ---- | ----------- |
+| Name              | Description                                                                            |
+| ----------------- | -------------------------------------------------------------------------------------- |
+| `SortedMap<K, V>` | a map with entries of key type K and value type V, where keys are sorted with a `Comp` |
+| `SortedSet<T>`    | a set of value type T where items are sorted with a `Comp`                             |
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org/rimbu-core)_.
+For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
 
 ## Installation
 
@@ -17,11 +21,11 @@ All types are exported through [`@rimbu/core`](../core). It is recommended to us
 
 To install separately:
 
-`yarn add @rimbu/sorted`
+> `yarn add @rimbu/sorted`
 
 or
 
-`npm i @rimbu/sorted`
+> `npm i @rimbu/sorted`
 
 ### recommended tsconfig settings
 
@@ -39,6 +43,12 @@ Rimbu uses advanced and recursive typing, potentially making the TypeScript comp
 ```
 
 ## Usage
+
+```ts
+import { SortedSet } from '@rimbu/sorted';
+
+console.log(SortedSet.of(1, 3, 4, 2, 3).toString());
+```
 
 ## Author
 

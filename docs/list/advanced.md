@@ -1,78 +1,6 @@
-# Advanced topics
+# List Advanced topics
 
-## Non-emptiness
-
-Rimbu types are designed to keep track of collections that are guaranteed to be non-empty. This saves the developer from doing many standard tests and prevents bugs.
-
-```ts
-import { List } from '@rimbu/core';
-
-const list1 = List.empty<number>();
-// list1 has type: List<number>
-
-const list2 = List.of(1, 2, 3);
-// list2 has type: List.NonEmpty<number>
-```
-
-The benefits are that certain methods are guaranteed to give a result for non-empty Lists:
-
-```ts
-const r1 = list1.first() + list1.last();
-// ==> compiler error! list1.first() and list1.last() can be undefined
-
-const r2 = list2.first() + list2.last();
-// => no error, r2 is a number
-```
-
-However, most methods offer an easy way to fallback to default values:
-
-```ts
-const r1 = list1.first(0) + list1.last(() => 0);
-// no error, r1 is a number
-```
-
-The biggest benefit is when requiring non-empty collections in function signatures:
-
-```ts
-function processSomething(list: List.NonEmpty<number>): number {
-    ...
-}
-
-processSomething(List.empty<number>());
-// compiler error
-
-processSomething(List.of(1, 2, 3));
-// no error
-```
-
-Sometimes the compiler cannot infer non-emptiness. When needed, there is `assumeNonEmpty()`. However, this method will throw if the collection is empty, so only use when absolutely necessary.
-
-```ts
-processSomething(List.of(1, 2, 3).take(2));
-// compiler error: .take does not know if the result is non-empty
-
-processSomething(List.of(1, 2, 3).take(2).assumeNonEmpty());
-// no error
-
-processSomething(List.of(1, 2, 3).take(0).assumeNonEmpty());
-// throws runtime error!
-```
-
-Especially for mutable references to Lists, it may sometimes be useful to drop the .NonEmpty type. This is possible with .asNormal():
-
-```ts
-import { List } from '@rimbu/core';
-
-let list1 = List.of(1, 2, 3);
-list1 = List.empty<number>();
-// => error: List<number> is not assignable to List.NonEmpty<number>
-
-let list2 = List.of(1, 2, 3).asNormal();
-list2 = List.empty<number>();
-// OK
-```
-
-# Implementation details
+## Implementation details
 
 The List structure is implemented as a block-based structure, similar to Vectors in Scala and Clojure. However the implementation differs radically in many ways from any known existing List/Vector implementation. One requirement for the Rimbu List was to allow for random insertion and deletion, which the other Vector implementations do not allow. There are other implementations (see below) that do allow insertion and deletion, however the Rimbu List uses a different approach.
 
@@ -117,3 +45,19 @@ A similar process happens for concatenation. For List A and B to be concatenated
 Each block in a List can be reversed without copying the underlying data. Basically, each block has a boolean indicating whether the block elements should be read from left to right, or right to left. To reverse a block, the pointer to the elements remains the same, but the new block has an inverted boolean. Therefore, to reverse an entire List, each block needs to flip its switch. There are approx. log(N) blocks in a List, therefore reversing a List has complexity O(log(N)).
 
 A List can have mixed reversed and non-reversed blocks, which is necessary to keep the same performance when concatenating a non-reversed and a reversed List. In such a case, at most some elements will need to be copied since within a block all elements need to have the same direction. But other blocks can be kept as is.
+
+## Efficiency
+
+### Complexity
+
+The nature of the List data structure is such that retrieving random elements has complexity O(logB(N)), where N is the length of the collection, and B is the block size. While not bad, this is still slow compared to an Array, which has constant access time (O(1)).
+
+However, knowing the characteristics of the List implementation can help circumventing this drawback.
+
+Firstly, retrieval time in a List depends on the index within the List. At both the start and the end of the List, the complexity is O(1). The complexity increases to a maximum of O(logB(N)) towards the middle of the List. The consequence is that, for large Lists, it takes more time to retrieve an element towards the middle of a list than at the start or end.
+
+Secondly, the List makes it easy to retrieve subparts using `.slice` or `.streamRange`. Imagine we have a List of 10,000 elements. We have some algorithm that averages 10 consecutive values of the list at some index. The worst thing we can do is write a for-loop that performs `List.get(i)` 10 times, because it will take 10 times O(logB(10000)).
+
+A better idea would be to use the `.slice` or `.streamRange` methods. Both only take one time the O(logB(10000)) and then allow nearly constant time access to the subsequent values.
+
+The same holds for many other methods, like `.forEach`
