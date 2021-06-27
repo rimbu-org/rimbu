@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/table-hash-row",
-  "version": "0.5.10",
+  "version": "0.5.11",
   "description": "Immutable spreadsheet-like data structures containing row keys, column keys, and cell values",
   "keywords": [
     "table",
@@ -37,7 +37,8 @@
   "module": "dist/module/index.js",
   "types": "dist/types/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
@@ -56,15 +57,14 @@
     "typecheck": "tsc"
   },
   "sideEffects": false,
-  "devDependencies": {},
   "dependencies": {
-    "@rimbu/base": "^0.5.8",
-    "@rimbu/collection-types": "^0.5.10",
-    "@rimbu/common": "^0.5.8",
-    "@rimbu/hashed": "^0.5.10",
-    "@rimbu/sorted": "^0.5.10",
-    "@rimbu/stream": "^0.5.10",
-    "@rimbu/table": "^0.5.10"
+    "@rimbu/base": "^0.5.9",
+    "@rimbu/collection-types": "^0.5.11",
+    "@rimbu/common": "^0.5.9",
+    "@rimbu/hashed": "^0.5.11",
+    "@rimbu/sorted": "^0.5.11",
+    "@rimbu/stream": "^0.5.11",
+    "@rimbu/table": "^0.5.11"
   },
   "publishConfig": {
     "access": "public"

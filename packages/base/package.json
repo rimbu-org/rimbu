@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/base",
-  "version": "0.5.8",
+  "version": "0.5.9",
   "description": "Utilities to implement Rimbu collections",
   "keywords": [
     "array",
@@ -31,7 +31,8 @@
   "module": "dist/module/index.js",
   "types": "dist/types/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
@@ -48,9 +49,8 @@
     "typecheck": "tsc"
   },
   "sideEffects": false,
-  "devDependencies": {},
   "dependencies": {
-    "@rimbu/common": "^0.5.8"
+    "@rimbu/common": "^0.5.9"
   },
   "publishConfig": {
     "access": "public"

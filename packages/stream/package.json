@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/stream",
-  "version": "0.5.10",
+  "version": "0.5.11",
   "description": "Efficient structure representing a sequence of elements, with powerful operations for TypeScript",
   "keywords": [
     "stream",
@@ -37,7 +37,8 @@
   "module": "dist/module/index.js",
   "types": "dist/types/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
@@ -55,10 +56,9 @@
     "typecheck": "tsc"
   },
   "sideEffects": false,
-  "devDependencies": {},
   "dependencies": {
-    "@rimbu/base": "^0.5.8",
-    "@rimbu/common": "^0.5.8"
+    "@rimbu/base": "^0.5.9",
+    "@rimbu/common": "^0.5.9"
   },
   "publishConfig": {
     "access": "public"
