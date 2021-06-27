@@ -37,7 +37,8 @@
   "module": "dist/module/index.js",
   "types": "dist/types/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
