@@ -1,4 +1,4 @@
-import { Err } from './mod.ts';
+import { Err } from '../../common/deno_dist/mod.ts';
 
 export class EmptyCollectionAssumedNonEmptyError extends Err.CustomError {
   constructor() {

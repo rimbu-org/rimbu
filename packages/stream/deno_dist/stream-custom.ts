@@ -7,8 +7,8 @@ import {
   Reducer,
   ToJSON,
   TraverseState,
-} from '@rimbu/common';
-import { FastIterator, Stream, StreamSource } from './internal';
+} from '../../common/deno_dist/mod.ts';
+import { FastIterator, Stream, StreamSource } from './internal.ts';
 
 function toTuple(...values: any[]): any[] {
   return values;

@@ -1,4 +1,4 @@
-import { RimbuError, Token } from '@rimbu/base';
+import { RimbuError, Token } from '../../base/deno_dist/mod.ts';
 import {
   ArrayNonEmpty,
   Eq,
@@ -9,14 +9,14 @@ import {
   Reducer,
   StringNonEmpty,
   TraverseState,
-} from '@rimbu/common';
-import { FastIterator, Stream, StreamSource } from './internal';
+} from '../../common/deno_dist/mod.ts';
+import { FastIterator, Stream, StreamSource } from './internal.ts';
 import {
   FastIteratorBase,
   FromIterable,
   FromStream,
   StreamBase,
-} from './stream-custom';
+} from './stream-custom.ts';
 
 class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   [Symbol.iterator](): FastIterator<T> {

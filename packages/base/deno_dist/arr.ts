@@ -1,4 +1,4 @@
-import { Update, TraverseState, ArrayNonEmpty } from './mod.ts';
+import { Update, TraverseState, ArrayNonEmpty } from '../../common/deno_dist/mod.ts';
 
 // Returns a copy of the array with the given value appended
 export function append<T>(array: readonly T[], value: T): ArrayNonEmpty<T> {

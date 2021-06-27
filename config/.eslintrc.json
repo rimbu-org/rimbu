@@ -7,5 +7,5 @@
     "@typescript-eslint/no-namespace": "off",
     "@typescript-eslint/no-empty-interface": "warn"
   },
-  "ignorePatterns": ["test", "test-d", "docs"]
+  "ignorePatterns": ["test", "test-d", "docs", "*.js"]
 }
