@@ -54,5 +54,10 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "denoify": {
+    "ports": {
+      "@rimbu/common": "../../deno_dist/mod.ts"
+    }
   }
 }
