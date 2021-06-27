@@ -14,7 +14,7 @@ To get started with the immutable collections, which are exported through `@rimb
 
 For yarn:
 
-`yarn @rimbu/core`
+`yarn add @rimbu/core`
 
 For npm:
 
