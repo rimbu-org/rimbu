@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/common",
-  "version": "0.5.8",
+  "version": "0.5.9",
   "description": "Common types and objects used in many other Rimbu packages",
   "keywords": [
     "common",
@@ -51,7 +51,6 @@
     "typecheck": "tsc"
   },
   "sideEffects": false,
-  "devDependencies": {},
   "publishConfig": {
     "access": "public"
   }

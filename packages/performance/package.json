@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/performance",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "private": true,
   "homepage": "http://rimbu.org",
   "author": {
@@ -33,7 +33,7 @@
     "ts-node": "^10.0.0"
   },
   "dependencies": {
-    "@rimbu/core": "^0.5.9",
+    "@rimbu/core": "^0.5.11",
     "benny": "^3.6.15"
   }
 }
