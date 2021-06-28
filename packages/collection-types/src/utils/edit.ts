@@ -1,6 +1,6 @@
-import { CollectFun } from '@rimbu/common';
-import { Stream, StreamSource } from '@rimbu/stream';
-import { WithElem, WithKeyValue, WithRow } from '../custom-base';
+import type { CollectFun } from '@rimbu/common';
+import type { Stream, StreamSource } from '@rimbu/stream';
+import type { WithElem, WithKeyValue, WithRow } from '../custom-base';
 
 /**
  * Returns the result of converting given `source` immutable collection to a builder, applying given `f` function

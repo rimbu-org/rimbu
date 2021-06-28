@@ -1,9 +1,9 @@
 import { Token } from '@rimbu/base';
 import { CustomBase } from '@rimbu/collection-types';
 import { OptLazy, OptLazyOr, ToJSON } from '@rimbu/common';
-import { List } from '@rimbu/list';
+import type { List } from '@rimbu/list';
 import { Stream, StreamSource } from '@rimbu/stream';
-import { OrderedMapBase, OrderedMapTypes } from '../../ordered-custom';
+import type { OrderedMapBase, OrderedMapTypes } from '../../ordered-custom';
 
 export class OrderedMapEmpty<
     K = any,

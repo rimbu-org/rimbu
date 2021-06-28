@@ -1,6 +1,6 @@
-import { RMap } from '@rimbu/collection-types';
+import type { RMap } from '@rimbu/collection-types';
 import { List } from '@rimbu/list';
-import { Stream, Streamable } from '@rimbu/stream';
+import type { Stream, Streamable } from '@rimbu/stream';
 import {
   OrderedMapBase,
   OrderedMapContextImpl,

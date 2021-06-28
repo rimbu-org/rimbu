@@ -1,7 +1,7 @@
-import { OmitStrong } from '@rimbu/common';
-import { HashSet } from '@rimbu/hashed';
+import type { OmitStrong } from '@rimbu/common';
+import type { HashSet } from '@rimbu/hashed';
 import { HashMultiMapHashValue } from '@rimbu/multimap';
-import { Streamable } from '@rimbu/stream';
+import type { Streamable } from '@rimbu/stream';
 import { BiMultiMapBase, BiMultiMapContext } from '../../bimultimap-custom';
 
 /**

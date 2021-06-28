@@ -1,5 +1,5 @@
 import { RimbuError } from '@rimbu/base';
-import { RelatedTo } from '@rimbu/common';
+import type { RelatedTo } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import type { WithGraphValues } from '../../gen-graph-custom';
 import type { Link } from '../../internal';

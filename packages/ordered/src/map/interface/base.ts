@@ -1,8 +1,11 @@
-import { CustomBase, RMapBase } from '@rimbu/collection-types';
-import { List } from '@rimbu/list';
-import { Stream, Streamable } from '@rimbu/stream';
-import { OrderedMapBuilder, OrderedMapNonEmpty } from '../../ordered-custom';
-import { OrderedMapContextImpl } from '../implementation/context';
+import type { CustomBase, RMapBase } from '@rimbu/collection-types';
+import type { List } from '@rimbu/list';
+import type { Stream, Streamable } from '@rimbu/stream';
+import type {
+  OrderedMapBuilder,
+  OrderedMapNonEmpty
+} from '../../ordered-custom';
+import type { OrderedMapContextImpl } from '../implementation/context';
 
 export interface OrderedMapBase<
   K,
@@ -28,8 +31,11 @@ export interface OrderedMapBase<
 }
 
 export namespace OrderedMapBase {
-  type NonEmptyBase<K, V, Tp extends OrderedMapBase.Types> =
-    CustomBase.RMapBase.NonEmpty<K, V, Tp> & OrderedMapBase<K, V, Tp>;
+  type NonEmptyBase<
+    K,
+    V,
+    Tp extends OrderedMapBase.Types
+  > = CustomBase.RMapBase.NonEmpty<K, V, Tp> & OrderedMapBase<K, V, Tp>;
 
   export interface NonEmpty<
     K,

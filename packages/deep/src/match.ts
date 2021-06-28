@@ -1,5 +1,5 @@
 import { RimbuError } from '@rimbu/base';
-import { ArrayNonEmpty } from '@rimbu/common';
+import type { ArrayNonEmpty } from '@rimbu/common';
 import { Immutable, Literal } from './internal';
 
 /**
@@ -172,7 +172,7 @@ function matchSingle<T, P = T, R = T>(
 
   if (Array.isArray(matcher)) {
     RimbuError.throwInvalidUsageError(
-      'Do not use arrays directly in match object, but use Literal(array) instead due to type limittions.'
+      'Do not use arrays directly in match object, but use Literal.of(array) instead due to type limittions.'
     );
   }
 
@@ -198,7 +198,7 @@ function matchSingle<T, P = T, R = T>(
 
     if (undefined === matchKey) {
       RimbuError.throwInvalidUsageError(
-        'Do not use undefined directly in match objects, but use Literal(undefined) instead due to type limitations.'
+        'Do not use undefined directly in match objects, but use Literal.of(undefined) instead due to type limitations.'
       );
     }
 

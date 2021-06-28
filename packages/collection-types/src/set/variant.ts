@@ -1,5 +1,5 @@
-import { Streamable } from '@rimbu/stream';
-import { VariantSetBase } from '../custom-base';
+import type { Streamable } from '@rimbu/stream';
+import type { VariantSetBase } from '../custom-base';
 
 /**
  * A type-variant immutable Set of value type T.

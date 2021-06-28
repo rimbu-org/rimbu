@@ -1,6 +1,6 @@
-import { CustomBase } from '@rimbu/collection-types';
+import type { CustomBase } from '@rimbu/collection-types';
 import { Comp, IndexRange, OmitStrong, OptLazy, Range } from '@rimbu/common';
-import { Stream, Streamable } from '@rimbu/stream';
+import type { Stream, Streamable } from '@rimbu/stream';
 import { SortedMapContext } from '../sortedmap-custom';
 
 /**

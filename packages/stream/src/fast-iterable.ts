@@ -1,4 +1,4 @@
-import { FastIterator } from './internal';
+import type { FastIterator } from './internal';
 
 /**
  * An interface that extends the standard `Iterable` interface to return

@@ -1,7 +1,7 @@
-import { RSet } from '@rimbu/collection-types';
-import { OmitStrong } from '@rimbu/common';
+import type { RSet } from '@rimbu/collection-types';
+import type { OmitStrong } from '@rimbu/common';
 import { SortedMap, SortedSet } from '@rimbu/sorted';
-import { Stream, Streamable } from '@rimbu/stream';
+import type { Stream, Streamable } from '@rimbu/stream';
 import { MultiMapBase, MultiMapContext } from '../../../multimap-custom';
 
 /**

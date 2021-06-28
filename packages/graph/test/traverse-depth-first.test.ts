@@ -1,4 +1,4 @@
-import { ArrayNonEmpty } from '@rimbu/common';
+import type { ArrayNonEmpty } from '@rimbu/common';
 import { ArrowGraphSorted, EdgeGraphSorted, Link } from '@rimbu/graph';
 import { ArrowValuedGraphSorted } from '@rimbu/graph-arrow-valued';
 import { EdgeValuedGraphSorted } from '@rimbu/graph-edge-valued';

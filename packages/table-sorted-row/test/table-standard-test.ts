@@ -1,4 +1,4 @@
-import { ArrayNonEmpty } from '@rimbu/common';
+import type { ArrayNonEmpty } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
 import { HashTableHashColumn, Table } from '../src';
 

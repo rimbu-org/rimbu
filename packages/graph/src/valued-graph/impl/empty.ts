@@ -1,5 +1,5 @@
 import { Token } from '@rimbu/base';
-import { RMap } from '@rimbu/collection-types';
+import type { RMap } from '@rimbu/collection-types';
 import { OptLazy, OptLazyOr, RelatedTo, ToJSON } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import type { WithGraphValues } from '../../gen-graph-custom';

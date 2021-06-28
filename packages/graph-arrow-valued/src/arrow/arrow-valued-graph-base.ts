@@ -1,6 +1,6 @@
-import { RelatedTo } from '@rimbu/common';
-import { ValuedGraphCustom, ValuedGraphElement } from '@rimbu/graph';
-import { Stream, Streamable } from '@rimbu/stream';
+import type { RelatedTo } from '@rimbu/common';
+import type { ValuedGraphCustom, ValuedGraphElement } from '@rimbu/graph';
+import type { Stream, Streamable } from '@rimbu/stream';
 
 export interface ArrowValuedGraphBase<
   N,
@@ -34,9 +34,12 @@ export interface ArrowValuedGraphBase<
 }
 
 export namespace ArrowValuedGraphBase {
-  type NonEmptyBase<N, V, Tp extends ArrowValuedGraphBase.Types> =
-    ValuedGraphCustom.ValuedGraphBase.NonEmpty<N, V, Tp> &
-      ArrowValuedGraphBase<N, V, Tp>;
+  type NonEmptyBase<
+    N,
+    V,
+    Tp extends ArrowValuedGraphBase.Types
+  > = ValuedGraphCustom.ValuedGraphBase.NonEmpty<N, V, Tp> &
+    ArrowValuedGraphBase<N, V, Tp>;
 
   export interface NonEmpty<
     N,

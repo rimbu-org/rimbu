@@ -1,10 +1,10 @@
-import { OmitStrong } from '@rimbu/common';
+import type { OmitStrong } from '@rimbu/common';
 import { HashMap } from '@rimbu/hashed';
 import { List } from '@rimbu/list';
-import { Stream, Streamable } from '@rimbu/stream';
-import { OrderedMapBase } from '../../ordered-custom';
+import type { Stream, Streamable } from '@rimbu/stream';
+import type { OrderedMapBase } from '../../ordered-custom';
 import { OrderedMapContextImpl } from '../implementation/context';
-import { OrderedMapTypes } from './base';
+import type { OrderedMapTypes } from './base';
 
 /**
  * A type-invariant immutable Ordered HashMap of key type K, and value type V.

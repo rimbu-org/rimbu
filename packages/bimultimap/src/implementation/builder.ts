@@ -1,9 +1,9 @@
 import { RimbuError } from '@rimbu/base';
-import { CustomBase as CB, RSet } from '@rimbu/collection-types';
-import { RelatedTo, TraverseState } from '@rimbu/common';
-import { MultiMap } from '@rimbu/multimap';
+import type { CustomBase as CB, RSet } from '@rimbu/collection-types';
+import type { RelatedTo, TraverseState } from '@rimbu/common';
+import type { MultiMap } from '@rimbu/multimap';
 import { Stream, StreamSource } from '@rimbu/stream';
-import { BiMultiMapBase, ContextTypesImpl } from '../bimultimap-custom';
+import type { BiMultiMapBase, ContextTypesImpl } from '../bimultimap-custom';
 
 export class BiMultiMapBuilder<
   K,

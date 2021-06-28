@@ -1,5 +1,5 @@
-import { RMap, RSet } from '@rimbu/collection-types';
-import { Stream, Streamable } from '@rimbu/stream';
+import type { RMap, RSet } from '@rimbu/collection-types';
+import type { Stream, Streamable } from '@rimbu/stream';
 import type { Link } from '../../internal';
 import type { ArrowGraphBase } from '../graph-custom';
 import { GraphContext } from '../graph-custom';

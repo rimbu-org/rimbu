@@ -1,4 +1,4 @@
-import { Actor } from '@rimbu/actor';
+import type { Actor } from '@rimbu/actor';
 import { useActorSubscribe, useUpdateUI } from '../internal';
 
 /**

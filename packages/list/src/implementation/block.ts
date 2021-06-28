@@ -1,5 +1,5 @@
-import { IndexRange, OptLazy, TraverseState, Update } from '@rimbu/common';
-import { Stream } from '@rimbu/stream';
+import type { IndexRange, OptLazy, TraverseState, Update } from '@rimbu/common';
+import type { Stream } from '@rimbu/stream';
 
 export interface Block<T, TS extends Block<T, TS, C> = any, C = any> {
   readonly length: number;

@@ -1,5 +1,5 @@
 import { RimbuError } from '@rimbu/base';
-import { ArrayNonEmpty } from '@rimbu/common';
+import type { ArrayNonEmpty } from '@rimbu/common';
 import { StreamSource } from '@rimbu/stream';
 import type { List } from './internal';
 import type {
@@ -25,11 +25,18 @@ import {
 } from './list-custom';
 
 export class ListContext implements List.Context {
+  readonly maxBlockSize: number;
+  readonly minBlockSize: number;
+
   constructor(readonly blockSizeBits: number) {
-    if (blockSizeBits < 2)
+    if (blockSizeBits < 2) {
       RimbuError.throwInvalidUsageError(
         'List: blockSizeBits should be at least 2'
       );
+    }
+
+    this.maxBlockSize = 1 << blockSizeBits;
+    this.minBlockSize = this.maxBlockSize >>> 1;
   }
 
   get typeTag(): 'List' {
@@ -39,10 +46,6 @@ export class ListContext implements List.Context {
   get _types(): List.Types {
     return undefined as any;
   }
-
-  readonly maxBlockSize = 1 << this.blockSizeBits;
-
-  readonly minBlockSize = this.maxBlockSize >>> 1;
 
   builder = <T>(): GenBuilder<T> => {
     return new GenBuilder<T>(this);

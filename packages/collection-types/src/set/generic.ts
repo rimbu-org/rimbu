@@ -1,5 +1,5 @@
-import { Streamable } from '@rimbu/stream';
-import { RSetBase } from '../custom-base';
+import type { Streamable } from '@rimbu/stream';
+import type { RSetBase } from '../custom-base';
 
 /**
  * A type-invariant immutable Set of value type T.

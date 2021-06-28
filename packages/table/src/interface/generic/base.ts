@@ -1,6 +1,10 @@
-import { Token } from '@rimbu/base';
-import { CustomBase as CB, RMap, VariantMap } from '@rimbu/collection-types';
-import {
+import type { Token } from '@rimbu/base';
+import type {
+  CustomBase as CB,
+  RMap,
+  VariantMap,
+} from '@rimbu/collection-types';
+import type {
   ArrayNonEmpty,
   OptLazy,
   OptLazyOr,
@@ -10,7 +14,12 @@ import {
   TraverseState,
   Update,
 } from '@rimbu/common';
-import { FastIterable, Stream, Streamable, StreamSource } from '@rimbu/stream';
+import type {
+  FastIterable,
+  Stream,
+  Streamable,
+  StreamSource,
+} from '@rimbu/stream';
 
 export interface VariantTableBase<
   R,
@@ -524,8 +533,12 @@ export interface TableBase<
 }
 
 export namespace TableBase {
-  type NonEmptyBase<R, C, V, Tp extends TableBase.Types> =
-    VariantTableBase.NonEmpty<R, C, V, Tp> & TableBase<R, C, V, Tp>;
+  type NonEmptyBase<
+    R,
+    C,
+    V,
+    Tp extends TableBase.Types
+  > = VariantTableBase.NonEmpty<R, C, V, Tp> & TableBase<R, C, V, Tp>;
 
   export interface NonEmpty<
     R,

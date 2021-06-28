@@ -1,6 +1,6 @@
 import { CustomBase } from '@rimbu/collection-types';
-import { Comp } from '@rimbu/common';
-import { SortedSet } from '../internal';
+import type { Comp } from '@rimbu/common';
+import type { SortedSet } from '../internal';
 import {
   SortedSetBuilder,
   SortedSetEmpty,
@@ -13,19 +13,25 @@ export class SortedSetContext<UT>
   extends CustomBase.RSetBase.ContextBase<UT, SortedSet.Types>
   implements SortedSet.Context<UT>
 {
+  readonly maxEntries: number;
+  readonly minEntries: number;
+
+  readonly _empty: SortedSet<any>;
+
   constructor(readonly blockSizeBits: number, readonly comp: Comp<UT>) {
     super();
+
+    this.maxEntries = 1 << this.blockSizeBits;
+    this.minEntries = this.maxEntries >>> 1;
+
+    this._empty = new SortedSetEmpty<any>(this);
   }
 
   readonly typeTag = 'SortedSet';
-  readonly maxEntries = 1 << this.blockSizeBits;
-  readonly minEntries = this.maxEntries >>> 1;
 
   isNonEmptyInstance(source: any): source is any {
     return source instanceof SortedSetNode;
   }
-
-  readonly _empty: SortedSet<any> = new SortedSetEmpty<any>(this);
 
   isValidValue(value: any): value is UT {
     return this.comp.isComparable(value);

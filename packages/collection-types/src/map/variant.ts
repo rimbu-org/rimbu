@@ -1,5 +1,5 @@
-import { Streamable } from '@rimbu/stream';
-import { VariantMapBase } from '../custom-base';
+import type { Streamable } from '@rimbu/stream';
+import type { VariantMapBase } from '../custom-base';
 
 /**
  * A type-variant immutable Map of key type K, and value type V.

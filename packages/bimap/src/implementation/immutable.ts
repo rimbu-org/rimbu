@@ -5,11 +5,11 @@ import {
   RelatedTo,
   ToJSON,
   TraverseState,
-  Update,
+  Update
 } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { BiMapBuilder, BiMapContext } from '../bimap-custom';
-import { BiMap } from '../internal';
+import type { BiMap } from '../internal';
 
 export class BiMapEmpty<K = any, V = any>
   extends CustomBase.EmptyBase

@@ -1,4 +1,4 @@
-import { Stream, Streamable } from '@rimbu/stream';
+import type { Stream, Streamable } from '@rimbu/stream';
 import type { GraphElement } from '../../internal';
 import type { GraphBase } from '../graph-custom';
 

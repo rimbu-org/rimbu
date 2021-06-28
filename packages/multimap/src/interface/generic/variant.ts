@@ -1,5 +1,5 @@
-import { Streamable } from '@rimbu/stream';
-import { VariantMultiMapBase } from '../../multimap-custom';
+import type { Streamable } from '@rimbu/stream';
+import type { VariantMultiMapBase } from '../../multimap-custom';
 
 /**
  * A type-variant immutable MultiMap of key type K, and value type V.

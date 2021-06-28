@@ -1,7 +1,7 @@
 import { CustomBase } from '@rimbu/collection-types';
-import { Eq } from '@rimbu/common';
-import { List } from '@rimbu/list';
-import { Hasher } from '../hasher';
+import type { Eq } from '@rimbu/common';
+import type { List } from '@rimbu/list';
+import type { Hasher } from '../hasher';
 import {
   HashMapBlock,
   HashMapBlockBuilder,
@@ -9,14 +9,21 @@ import {
   HashMapEmpty,
   HashMapNonEmptyBase,
   MapBlockBuilderEntry,
-  MapEntrySet,
+  MapEntrySet
 } from '../hashmap-custom';
-import { HashMap } from '../internal';
+import type { HashMap } from '../internal';
 
 export class HashMapContext<UK>
   extends CustomBase.RMapBase.ContextBase<UK, HashMap.Types>
   implements HashMap.Context<UK>
 {
+  readonly blockCapacity: number;
+  readonly blockMask: number;
+  readonly maxDepth: number;
+
+  readonly _empty: HashMap<any, any>;
+  readonly _emptyBlock: HashMapBlock<any, any>;
+
   constructor(
     readonly hasher: Hasher<UK>,
     readonly eq: Eq<UK>,
@@ -24,21 +31,16 @@ export class HashMapContext<UK>
     readonly listContext: List.Context
   ) {
     super();
+
+    this.blockCapacity = 1 << blockSizeBits;
+    this.blockMask = this.blockCapacity - 1;
+    this.maxDepth = Math.ceil(32 / blockSizeBits);
+
+    this._empty = new HashMapEmpty<any, any>(this);
+    this._emptyBlock = new HashMapBlock(this, null, null, 0, 0);
   }
 
   readonly typeTag = 'HashMap';
-  readonly blockCapacity = 1 << this.blockSizeBits;
-  readonly blockMask = this.blockCapacity - 1;
-  readonly maxDepth = Math.ceil(32 / this.blockSizeBits);
-
-  readonly _empty = new HashMapEmpty<any, any>(this);
-  readonly _emptyBlock: HashMapBlock<any, any> = new HashMapBlock(
-    this,
-    null,
-    null,
-    0,
-    0
-  );
 
   hash(value: UK): number {
     return this.hasher.hash(value);

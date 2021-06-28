@@ -1,5 +1,5 @@
-import { RMap } from '@rimbu/collection-types';
-import { Streamable } from '@rimbu/stream';
+import type { RMap } from '@rimbu/collection-types';
+import type { Streamable } from '@rimbu/stream';
 import { MultiSetBase, MultiSetContext } from '../../multiset-custom';
 
 /**

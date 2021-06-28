@@ -1,17 +1,17 @@
-import { Err } from '../src';
+import { Err, ErrBase } from '../src';
 
-describe('Err', () => {
+describe('Err/Base', () => {
   it('throws error', () => {
-    expect(() => Err()).toThrow(Err.ForcedError);
+    expect(() => Err()).toThrow(ErrBase.ForcedError);
   });
 
   it('throws error', () => {
-    expect(() => Err.msg('test')()).toThrow(Err.ForcedError);
+    expect(() => ErrBase.msg('test')()).toThrow(ErrBase.ForcedError);
   });
 
   it('has name', () => {
     const msg = 'abc';
-    const e = new Err.ForcedError(msg);
+    const e = new ErrBase.ForcedError(msg);
     expect(e.message).toBe(msg);
     expect(e.name).toBe('ForcedError');
   });

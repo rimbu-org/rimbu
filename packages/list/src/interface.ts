@@ -1,5 +1,5 @@
-import { CustomBase } from '@rimbu/collection-types';
-import {
+import type { CustomBase } from '@rimbu/collection-types';
+import type {
   ArrayNonEmpty,
   CollectFun,
   IndexRange,
@@ -11,7 +11,12 @@ import {
   TraverseState,
   Update,
 } from '@rimbu/common';
-import { FastIterable, Stream, Streamable, StreamSource } from '@rimbu/stream';
+import type {
+  FastIterable,
+  Stream,
+  Streamable,
+  StreamSource,
+} from '@rimbu/stream';
 import { ListContext } from './list-custom';
 
 /**

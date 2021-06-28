@@ -1,6 +1,6 @@
 import { CustomBase } from '@rimbu/collection-types';
-import { Comp } from '@rimbu/common';
-import { SortedMap } from '../internal';
+import type { Comp } from '@rimbu/common';
+import type { SortedMap } from '../internal';
 import {
   SortedMapBuilder,
   SortedMapEmpty,
@@ -13,15 +13,21 @@ export class SortedMapContext<UK>
   extends CustomBase.RMapBase.ContextBase<UK, SortedMap.Types>
   implements SortedMap.Context<UK>
 {
+  readonly maxEntries: number;
+  readonly minEntries: number;
+
+  readonly _empty: SortedMap<any, any>;
+
   constructor(readonly blockSizeBits: number, readonly comp: Comp<UK>) {
     super();
+
+    this.maxEntries = 1 << blockSizeBits;
+    this.minEntries = this.maxEntries >>> 1;
+
+    this._empty = new SortedMapEmpty<any, any>(this);
   }
 
   readonly typeTag = 'SortedMap';
-  readonly maxEntries = 1 << this.blockSizeBits;
-  readonly minEntries = this.maxEntries >>> 1;
-
-  _empty: SortedMap<any, any> = new SortedMapEmpty<any, any>(this);
 
   isNonEmptyInstance(source: any): source is any {
     return source instanceof SortedMapNode;

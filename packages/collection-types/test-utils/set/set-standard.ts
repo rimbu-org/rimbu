@@ -1,5 +1,5 @@
 import { Stream } from '@rimbu/stream';
-import { RSet } from '../../src';
+import type { RSet } from '../../src';
 import { HashSet } from '../../../hashed/src';
 
 function expectEqual<T>(set: RSet<T>, arr: T[]) {

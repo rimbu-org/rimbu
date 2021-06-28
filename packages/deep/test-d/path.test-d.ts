@@ -1,4 +1,4 @@
-import { List } from '@rimbu/list';
+import type { List } from '@rimbu/list';
 import { expectError, expectType } from 'tsd';
 import { Path } from '../src';
 

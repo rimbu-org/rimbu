@@ -1,4 +1,4 @@
-import { RelatedTo } from '@rimbu/common';
+import type { RelatedTo } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { SortedIndex, SortedSet } from '../internal';
 import { SortedBuilder } from '../sorted-custom';

@@ -1,5 +1,5 @@
-import { ValuedGraphCustom, ValuedGraphElement } from '@rimbu/graph';
-import { Stream, Streamable } from '@rimbu/stream';
+import type { ValuedGraphCustom, ValuedGraphElement } from '@rimbu/graph';
+import type { Stream, Streamable } from '@rimbu/stream';
 
 export interface EdgeValuedGraphBase<
   N,
@@ -13,9 +13,12 @@ export interface EdgeValuedGraphBase<
 }
 
 export namespace EdgeValuedGraphBase {
-  type NonEmptyBase<N, V, Tp extends EdgeValuedGraphBase.Types> =
-    ValuedGraphCustom.ValuedGraphBase.NonEmpty<N, V, Tp> &
-      EdgeValuedGraphBase<N, V, Tp>;
+  type NonEmptyBase<
+    N,
+    V,
+    Tp extends EdgeValuedGraphBase.Types
+  > = ValuedGraphCustom.ValuedGraphBase.NonEmpty<N, V, Tp> &
+    EdgeValuedGraphBase<N, V, Tp>;
 
   export interface NonEmpty<
     N,

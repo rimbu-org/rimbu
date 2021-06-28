@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import React from 'react';
 
 const emptyArray: any[] = [];
 
@@ -32,5 +32,5 @@ export function useConst<R, Args extends readonly unknown[] = []>(
   create: (...args: Args) => R,
   ...args: Args
 ): R {
-  return useMemo(() => create(...args), emptyArray);
+  return React.useMemo(() => create(...args), emptyArray);
 }

@@ -1,5 +1,5 @@
 import { Entry } from '@rimbu/base';
-import { ArrayNonEmpty } from '@rimbu/common';
+import type { ArrayNonEmpty } from '@rimbu/common';
 import { Stream, Streamable } from '@rimbu/stream';
 import { HashMultiMapHashValue, MultiMap } from '../src';
 

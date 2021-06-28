@@ -1,7 +1,7 @@
-import { OmitStrong } from '@rimbu/common';
+import type { OmitStrong } from '@rimbu/common';
 import { SortedMultiMapSortedValue } from '@rimbu/multimap';
-import { SortedSet } from '@rimbu/sorted';
-import { Streamable } from '@rimbu/stream';
+import type { SortedSet } from '@rimbu/sorted';
+import type { Streamable } from '@rimbu/stream';
 import { BiMultiMapBase, BiMultiMapContext } from '../../bimultimap-custom';
 
 /**

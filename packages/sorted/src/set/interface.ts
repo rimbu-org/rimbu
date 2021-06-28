@@ -1,6 +1,6 @@
-import { CustomBase, RSet } from '@rimbu/collection-types';
+import type { CustomBase, RSet } from '@rimbu/collection-types';
 import { Comp, IndexRange, OmitStrong, OptLazy, Range } from '@rimbu/common';
-import { Stream, Streamable } from '@rimbu/stream';
+import type { Stream, Streamable } from '@rimbu/stream';
 import { SortedSetContext } from '../sortedset-custom';
 
 /**

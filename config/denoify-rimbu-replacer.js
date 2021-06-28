@@ -13,27 +13,26 @@ const replaceImportArgument = (parsedImportExportStatement, url) => {
   });
 };
 
-const urlBase = '../..';
-// const urlBase = 'https://deno.land/x/rimbu';
+const urlBase = 'https://deno.land/x/rimbu';
 
 makeThisModuleAnExecutableReplacer(async ({ parsedImportExportStatement }) => {
   const { nodeModuleName, specificImportPath } =
     parsedImportExportStatement.parsedArgument;
 
   if (nodeModuleName === '@rimbu') {
-    const package = require(`../packages/${specificImportPath}/package.json`);
-    const { version } = package;
+    // const package = require(`../packages/${specificImportPath}/package.json`);
+    // const { version } = package;
 
     if (specificImportPath === 'core') {
       return replaceImportArgument(
         parsedImportExportStatement,
-        `${urlBase}@${version}`
+        `${urlBase}/mod.ts`
       );
     }
 
     return replaceImportArgument(
       parsedImportExportStatement,
-      `${urlBase}/${specificImportPath}/deno_dist/mod.ts`
+      `${urlBase}/${specificImportPath}/mod.ts`
     );
   }
 

@@ -1,5 +1,10 @@
-import { RelatedTo, ToJSON } from '@rimbu/common';
-import { FastIterable, Stream, Streamable, StreamSource } from '@rimbu/stream';
+import type { RelatedTo, ToJSON } from '@rimbu/common';
+import type {
+  FastIterable,
+  Stream,
+  Streamable,
+  StreamSource,
+} from '@rimbu/stream';
 import type { GraphValues, WithGraphValues } from '../gen-graph-custom';
 import type { Link } from '../internal';
 

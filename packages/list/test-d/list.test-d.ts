@@ -1,10 +1,10 @@
-import { ArrayNonEmpty } from '@rimbu/common';
-import { FastIterator, Stream } from '@rimbu/stream';
+import type { ArrayNonEmpty } from '@rimbu/common';
+import type { FastIterator, Stream } from '@rimbu/stream';
 import {
   expectAssignable,
   expectError,
   expectNotAssignable,
-  expectType,
+  expectType
 } from 'tsd';
 import { List } from '../src';
 

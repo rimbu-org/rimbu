@@ -1,9 +1,9 @@
-import { RMap } from '@rimbu/collection-types';
-import { OmitStrong } from '@rimbu/common';
+import type { RMap } from '@rimbu/collection-types';
+import type { OmitStrong } from '@rimbu/common';
 import { ValuedGraphCustom, ValuedGraphElement } from '@rimbu/graph';
 import { HashMap } from '@rimbu/hashed';
-import { Stream, Streamable } from '@rimbu/stream';
-import { ArrowValuedGraphBase } from '../graph-custom';
+import type { Stream, Streamable } from '@rimbu/stream';
+import type { ArrowValuedGraphBase } from '../graph-custom';
 
 /**
  * An type-invariant immutable valued arrow (directed) graph.

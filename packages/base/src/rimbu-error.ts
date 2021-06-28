@@ -1,18 +1,18 @@
-import { Err } from '@rimbu/common';
+import { ErrBase } from '@rimbu/common';
 
-export class EmptyCollectionAssumedNonEmptyError extends Err.CustomError {
+export class EmptyCollectionAssumedNonEmptyError extends ErrBase.CustomError {
   constructor() {
     super('empty collection was assumbed to be non-empty');
   }
 }
 
-export class ModifiedBuilderWhileLoopingOverItError extends Err.CustomError {
+export class ModifiedBuilderWhileLoopingOverItError extends ErrBase.CustomError {
   constructor() {
     super('an attempt was made to modify a builder while looping over it');
   }
 }
 
-export class InvalidStateError extends Err.CustomError {
+export class InvalidStateError extends ErrBase.CustomError {
   constructor() {
     super(
       "something happend that shouldn't happen, please consider creating an issue"
@@ -20,7 +20,7 @@ export class InvalidStateError extends Err.CustomError {
   }
 }
 
-export class InvalidUsageError extends Err.CustomError {}
+export class InvalidUsageError extends ErrBase.CustomError {}
 
 export function throwEmptyCollectionAssumedNonEmptyError(): never {
   throw new EmptyCollectionAssumedNonEmptyError();

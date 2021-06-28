@@ -1,7 +1,7 @@
 import { Entry } from '@rimbu/base';
-import { ArrayNonEmpty } from '@rimbu/common';
+import type { ArrayNonEmpty } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
-import { RMap } from '../../src';
+import type { RMap } from '../../src';
 
 function expectEqual<K, V>(map: RMap<K, V>, arr: [K, V][]) {
   expect(new Map(map)).toEqual(new Map(arr));

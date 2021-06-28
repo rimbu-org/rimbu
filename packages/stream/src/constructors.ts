@@ -2,7 +2,7 @@ import { RimbuError, Token } from '@rimbu/base';
 import {
   ArrayNonEmpty,
   Eq,
-  Err,
+  ErrBase,
   IndexRange,
   OptLazy,
   Range,
@@ -540,7 +540,7 @@ export function random(): Stream.NonEmpty<number> {
  * Stream.randomInt(0, 10).take(3).toArray()    // => [4, 9, 3]
  */
 export function randomInt(min: number, max: number): Stream.NonEmpty<number> {
-  if (min >= max) Err.msg('min should be smaller than max');
+  if (min >= max) ErrBase.msg('min should be smaller than max');
 
   return new FromStream(
     (): FastIterator<number> => new RandomIntIterator(min, max)

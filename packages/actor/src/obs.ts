@@ -1,5 +1,5 @@
 import { Eq } from '@rimbu/common';
-import { Immutable, Literal, Patch, Path } from '@rimbu/deep';
+import { Immutable, Literal, patch, Patch, Path } from '@rimbu/deep';
 
 /**
  * An observable entity that contains potentially complex state and methods to manipulate
@@ -561,7 +561,7 @@ export namespace Obs {
     patchState(...patches: Patch.Multi<T>): void {
       const pureState = this.pureState;
 
-      const newState = Patch(pureState as T)(...patches) as T;
+      const newState = patch(pureState as T)(...patches) as T;
 
       this.setState(newState);
     }
@@ -662,7 +662,7 @@ export namespace Obs {
             newChildState as any
           );
 
-          return Literal(newParentState) as any;
+          return Literal.of(newParentState) as any;
         },
         options
       );
@@ -765,7 +765,7 @@ export namespace Obs {
         onSetState: (newCombinedState) => {
           const parentPatch = mapFrom(newCombinedState);
 
-          const [newThisState, newOtherState] = Patch([
+          const [newThisState, newOtherState] = patch([
             this.state,
             other.state,
           ] as const)(parentPatch as any);

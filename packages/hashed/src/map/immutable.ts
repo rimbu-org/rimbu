@@ -9,10 +9,10 @@ import {
   TraverseState,
   Update,
 } from '@rimbu/common';
-import { List } from '@rimbu/list';
+import type { List } from '@rimbu/list';
 import { Stream, StreamSource } from '@rimbu/stream';
-import { HashMapContext } from '../hashmap-custom';
-import { HashMap } from '../internal';
+import type { HashMapContext } from '../hashmap-custom';
+import type { HashMap } from '../internal';
 
 export class HashMapEmpty<K = any, V = any>
   extends CustomBase.EmptyBase

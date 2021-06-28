@@ -1,4 +1,4 @@
-import { OptLazy, TraverseState, Update } from '@rimbu/common';
+import type { OptLazy, TraverseState, Update } from '@rimbu/common';
 import type { List } from '../../internal';
 import type { BuilderBase } from '../../list-custom';
 

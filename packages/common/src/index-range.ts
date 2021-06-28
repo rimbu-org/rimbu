@@ -1,4 +1,4 @@
-import { Range } from './internal';
+import type { Range } from './internal';
 
 /**
  * A flexible range specification for numeric indices.

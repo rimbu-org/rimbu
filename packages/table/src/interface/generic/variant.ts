@@ -1,5 +1,5 @@
-import { Streamable } from '@rimbu/stream';
-import { VariantTableBase } from '../../table-custom';
+import type { Streamable } from '@rimbu/stream';
+import type { VariantTableBase } from '../../table-custom';
 
 /**
  * A type-variant immutable Table of row key type R, column key type C, and value type V.

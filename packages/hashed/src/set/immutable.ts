@@ -1,10 +1,10 @@
 import { Arr, RimbuError } from '@rimbu/base';
 import { CustomBase } from '@rimbu/collection-types';
 import { ArrayNonEmpty, RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
-import { List } from '@rimbu/list';
+import type { List } from '@rimbu/list';
 import { Stream, StreamSource } from '@rimbu/stream';
-import { HashSetContext } from '../hashset-custom';
-import { HashSet } from '../internal';
+import type { HashSetContext } from '../hashset-custom';
+import type { HashSet } from '../internal';
 
 export class HashSetEmpty<T = any>
   extends CustomBase.EmptyBase
@@ -12,6 +12,8 @@ export class HashSetEmpty<T = any>
 {
   constructor(readonly context: HashSetContext<T>) {
     super();
+
+    this.addAll = context.from;
   }
 
   has(): false {
@@ -22,7 +24,7 @@ export class HashSetEmpty<T = any>
     return this.context.emptyBlock().add(value);
   }
 
-  addAll = this.context.from;
+  addAll: any;
 
   remove(): this {
     return this;

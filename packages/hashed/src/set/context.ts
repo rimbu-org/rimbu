@@ -1,8 +1,8 @@
 import { CustomBase } from '@rimbu/collection-types';
-import { Eq } from '@rimbu/common';
-import { List } from '@rimbu/list';
-import { StreamSource } from '@rimbu/stream';
-import { Hasher } from '../hasher';
+import type { Eq } from '@rimbu/common';
+import type { List } from '@rimbu/list';
+import type { StreamSource } from '@rimbu/stream';
+import type { Hasher } from '../hasher';
 import {
   HashSetBlock,
   HashSetBlockBuilder,
@@ -12,12 +12,19 @@ import {
   SetBlockBuilderEntry,
   SetEntrySet,
 } from '../hashset-custom';
-import { HashSet } from '../internal';
+import type { HashSet } from '../internal';
 
 export class HashSetContext<UT>
   extends CustomBase.RSetBase.ContextBase<UT, HashSet.Types>
   implements HashSet.Context<UT>
 {
+  readonly blockCapacity: number;
+  readonly blockMask: number;
+  readonly maxDepth: number;
+
+  readonly _empty: HashSet<any>;
+  readonly _emptyBlock: HashSetBlock<any>;
+
   constructor(
     readonly hasher: Hasher<UT>,
     readonly eq: Eq<UT>,
@@ -25,21 +32,16 @@ export class HashSetContext<UT>
     readonly listContext: List.Context
   ) {
     super();
+
+    this.blockCapacity = 1 << blockSizeBits;
+    this.blockMask = this.blockCapacity - 1;
+    this.maxDepth = Math.ceil(32 / blockSizeBits);
+
+    this._empty = new HashSetEmpty<any>(this);
+    this._emptyBlock = new HashSetBlock(this, null, null, 0, 0);
   }
 
   readonly typeTag = 'HashSet';
-  readonly blockCapacity = 1 << this.blockSizeBits;
-  readonly blockMask = this.blockCapacity - 1;
-  readonly maxDepth = Math.ceil(32 / this.blockSizeBits);
-
-  readonly _empty: HashSet<any> = new HashSetEmpty<any>(this);
-  readonly _emptyBlock: HashSetBlock<any> = new HashSetBlock(
-    this,
-    null,
-    null,
-    0,
-    0
-  );
 
   isNonEmptyInstance(source: any): source is any {
     return source instanceof HashSetNonEmptyBase;

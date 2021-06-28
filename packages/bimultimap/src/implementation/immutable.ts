@@ -1,7 +1,7 @@
 import { CustomBase as CB } from '@rimbu/collection-types';
-import { RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
+import type { RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
-import { BiMultiMapBase, ContextTypesImpl } from '../bimultimap-custom';
+import type { BiMultiMapBase, ContextTypesImpl } from '../bimultimap-custom';
 
 export class BiMultiMapEmpty<K, V, Tp extends ContextTypesImpl>
   extends CB.EmptyBase

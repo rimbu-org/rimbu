@@ -1,8 +1,8 @@
-import { RMap } from '@rimbu/collection-types';
-import { ArrayNonEmpty } from '@rimbu/common';
-import { FastIterator, Stream } from '@rimbu/stream';
+import type { RMap } from '@rimbu/collection-types';
+import type { ArrayNonEmpty } from '@rimbu/common';
+import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-import { SortedMap } from '../src';
+import type { SortedMap } from '../src';
 
 type GE<K, V> = SortedMap<K, V>;
 type GNE<K, V> = SortedMap.NonEmpty<K, V>;

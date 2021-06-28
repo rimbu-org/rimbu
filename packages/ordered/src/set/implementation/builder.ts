@@ -1,9 +1,9 @@
 import { RimbuError } from '@rimbu/base';
-import { CustomBase } from '@rimbu/collection-types';
+import type { CustomBase } from '@rimbu/collection-types';
 import { RelatedTo, TraverseState } from '@rimbu/common';
-import { List } from '@rimbu/list';
+import type { List } from '@rimbu/list';
 import { Stream, StreamSource } from '@rimbu/stream';
-import { OrderedSetBase, OrderedSetTypes } from '../../ordered-custom';
+import type { OrderedSetBase, OrderedSetTypes } from '../../ordered-custom';
 
 export class OrderedSetBuilder<
   T,

@@ -1,6 +1,6 @@
 import { List } from '@rimbu/list';
 import { expectError, expectType } from 'tsd';
-import { Patch, Match, Literal, Immutable } from '../src';
+import { patch, Match, Literal, Immutable } from '../src';
 
 let m!: {
   a: number;
@@ -15,47 +15,47 @@ type M = Immutable<typeof m>;
 
 // Patch
 
-expectError(Patch(m)(m));
+expectError(patch(m)(m));
 
-expectType<M>(Patch(m)({}));
+expectType<M>(patch(m)({}));
 
-expectError(Patch(m)({ z: 1 }));
-expectError(Patch(m)({ z: undefined }));
-expectError(Patch(m)({ a: '' }));
-expectError(Patch(m)({ a: 2, z: 1 }));
-// expectError(Patch(m)({ a: undefined }));
-expectError(Patch(m)({ a: Literal(undefined) }));
-expectError(Patch(m)({ a: null }));
-expectError(Patch(m)({ a: Literal(null) }));
-expectError(Patch(m)({ a: () => 'a' }));
-expectError(Patch(m)({ b: [1] }));
-expectError(Patch(m)({ b: ['a'] }));
-expectError(Patch(m)({ b: null }));
-expectError(Patch(m)({ c: { d: 1 } }));
-expectError(Patch(m)({ c: { d: null } }));
-expectError(Patch(m)({ c: { d: Literal(null) } }));
-expectError(Patch(m)({ c: { d: Literal(undefined) } }));
-expectError(Patch(m)({ c: null }));
-expectError(Patch(m)({ c: () => {} }));
-expectError(Patch(m)({ f: [1, 2] }));
-expectError(Patch(m)({ f: List.empty<number>() }));
-expectError(Patch(m)({ f: List.of(1, 2, 3) }));
-expectError(Patch(m)({ f: { a: 1 } }));
+expectError(patch(m)({ z: 1 }));
+expectError(patch(m)({ z: undefined }));
+expectError(patch(m)({ a: '' }));
+expectError(patch(m)({ a: 2, z: 1 }));
+// expectError(patch(m)({ a: undefined }));
+expectError(patch(m)({ a: Literal.of(undefined) }));
+expectError(patch(m)({ a: null }));
+expectError(patch(m)({ a: Literal.of(null) }));
+expectError(patch(m)({ a: () => 'a' }));
+expectError(patch(m)({ b: [1] }));
+expectError(patch(m)({ b: ['a'] }));
+expectError(patch(m)({ b: null }));
+expectError(patch(m)({ c: { d: 1 } }));
+expectError(patch(m)({ c: { d: null } }));
+expectError(patch(m)({ c: { d: Literal.of(null) } }));
+expectError(patch(m)({ c: { d: Literal.of(undefined) } }));
+expectError(patch(m)({ c: null }));
+expectError(patch(m)({ c: () => {} }));
+expectError(patch(m)({ f: [1, 2] }));
+expectError(patch(m)({ f: List.empty<number>() }));
+expectError(patch(m)({ f: List.of(1, 2, 3) }));
+expectError(patch(m)({ f: { a: 1 } }));
 
-expectType<M>(Patch(m)({ a: 2 }));
-expectType<M>(Patch(m)({ a: (v) => v + 1 }));
-expectType<M>(Patch(m)({ a: (v, p) => p.a }));
-expectType<M>(Patch(m)({ a: (v, p, r) => r.a }));
-expectType<M>(Patch(m)({ a: Literal(1) }));
-expectType<M>(Patch(m)({ b: Literal(['abc']) }));
-expectType<M>(Patch(m)({ b: { 1: 'abc' } }));
-expectType<M>(Patch(m)({ c: {} }));
-expectType<M>(Patch(m)({ c: { d: true } }));
-expectType<M>(Patch(m)({ c: { d: (v) => !v } }));
-expectType<M>(Patch(m)({ c: { e: null } }));
-expectType<M>(Patch(m)({ c: { e: Literal(null) } }));
-expectType<M>(Patch(m)({ f: (v) => v }));
-expectType<M>(Patch(m)({ f: Literal(List.of(1, 2, 3)) }));
+expectType<M>(patch(m)({ a: 2 }));
+expectType<M>(patch(m)({ a: (v) => v + 1 }));
+expectType<M>(patch(m)({ a: (v, p) => p.a }));
+expectType<M>(patch(m)({ a: (v, p, r) => r.a }));
+expectType<M>(patch(m)({ a: Literal.of(1) }));
+expectType<M>(patch(m)({ b: Literal.of(['abc']) }));
+expectType<M>(patch(m)({ b: { 1: 'abc' } }));
+expectType<M>(patch(m)({ c: {} }));
+expectType<M>(patch(m)({ c: { d: true } }));
+expectType<M>(patch(m)({ c: { d: (v) => !v } }));
+expectType<M>(patch(m)({ c: { e: null } }));
+expectType<M>(patch(m)({ c: { e: Literal.of(null) } }));
+expectType<M>(patch(m)({ f: (v) => v }));
+expectType<M>(patch(m)({ f: Literal.of(List.of(1, 2, 3)) }));
 
 // Match
 
@@ -70,16 +70,16 @@ expectError(Match.all(m)({ z: 1 }));
 expectError(Match.all(m)({ z: undefined }));
 expectError(Match.all(m)({ a: true }));
 expectError(Match.all(m)({ a: 1, z: 1 }));
-expectError(Match.all(m)({ a: Literal(undefined) }));
+expectError(Match.all(m)({ a: Literal.of(undefined) }));
 expectError(Match.all(m)({ a: null }));
-expectError(Match.all(m)({ a: Literal(null) }));
+expectError(Match.all(m)({ a: Literal.of(null) }));
 expectError(Match.all(m)({ b: [1] }));
 expectError(Match.all(m)({ b: ['a'] }));
 expectError(Match.all(m)({ b: null }));
 expectError(Match.all(m)({ c: { d: 1 } }));
 expectError(Match.all(m)({ c: { d: null } }));
-expectError(Match.all(m)({ c: { d: Literal(null) } }));
-expectError(Match.all(m)({ c: { d: Literal(undefined) } }));
+expectError(Match.all(m)({ c: { d: Literal.of(null) } }));
+expectError(Match.all(m)({ c: { d: Literal.of(undefined) } }));
 expectError(Match.all(m)({ c: null }));
 expectError(Match.all(m)({ f: [1, 2] }));
 expectError(Match.all(m)({ f: List.empty<number>() }));

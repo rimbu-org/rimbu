@@ -1,5 +1,5 @@
-import { RSet } from '@rimbu/collection-types';
-import { ToJSON } from '@rimbu/common';
+import type { RSet } from '@rimbu/collection-types';
+import type { ToJSON } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import type { WithGraphValues } from '../../gen-graph-custom';
 import { GraphEmptyBase } from '../../gen-graph-custom';

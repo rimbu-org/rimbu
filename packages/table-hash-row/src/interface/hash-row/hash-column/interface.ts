@@ -1,7 +1,7 @@
-import { RMap } from '@rimbu/collection-types';
-import { OmitStrong } from '@rimbu/common';
+import type { RMap } from '@rimbu/collection-types';
+import type { OmitStrong } from '@rimbu/common';
 import { HashMap } from '@rimbu/hashed';
-import { Streamable } from '@rimbu/stream';
+import type { Streamable } from '@rimbu/stream';
 import { TableCustom } from '@rimbu/table';
 
 /**

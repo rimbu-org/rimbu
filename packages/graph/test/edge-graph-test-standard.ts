@@ -1,6 +1,6 @@
-import { ArrayNonEmpty } from '@rimbu/common';
+import type { ArrayNonEmpty } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
-import { EdgeGraph, Link } from '../src';
+import type { EdgeGraph, Link } from '../src';
 
 function symmetric<N>(source: StreamSource<Link<N>>): [N, N][] {
   return Stream.from(source)

@@ -1,5 +1,5 @@
 import { CustomBase } from '@rimbu/collection-types';
-import { RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
+import type { RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import type { WithGraphValues } from '../../gen-graph-custom';
 import type { GraphElement, Link } from '../../internal';
@@ -36,7 +36,9 @@ export class GraphNonEmpty<
     return this.context.empty();
   }
 
-  assumeNonEmpty: any;
+  assumeNonEmpty(): any {
+    return this;
+  }
 
   asNormal(): any {
     return this;

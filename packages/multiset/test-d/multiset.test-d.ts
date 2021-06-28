@@ -1,8 +1,8 @@
-import { RMap, VariantMap } from '@rimbu/collection-types';
-import { ArrayNonEmpty } from '@rimbu/common';
-import { FastIterator, Stream } from '@rimbu/stream';
+import type { RMap, VariantMap } from '@rimbu/collection-types';
+import type { ArrayNonEmpty } from '@rimbu/common';
+import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-import { MultiSet, VariantMultiSet } from '../src';
+import type { MultiSet, VariantMultiSet } from '../src';
 
 type VE<T> = VariantMultiSet<T>;
 type VNE<T> = VariantMultiSet.NonEmpty<T>;

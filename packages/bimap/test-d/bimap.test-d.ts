@@ -1,8 +1,8 @@
-import { RMap } from '@rimbu/collection-types';
-import { ArrayNonEmpty } from '@rimbu/common';
-import { FastIterator, Stream } from '@rimbu/stream';
+import type { RMap } from '@rimbu/collection-types';
+import type { ArrayNonEmpty } from '@rimbu/common';
+import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-import { BiMap } from '../src';
+import type { BiMap } from '../src';
 
 type B_Empty = BiMap<number, string>;
 type B_NonEmpty = BiMap.NonEmpty<number, string>;

@@ -1,9 +1,9 @@
 import { RimbuError } from '@rimbu/base';
-import { RMap } from '@rimbu/collection-types';
+import type { RMap } from '@rimbu/collection-types';
 import { OptLazy, RelatedTo, TraverseState } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { BiMapContext, BiMapNonEmptyImpl } from '../bimap-custom';
-import { BiMap } from '../internal';
+import type { BiMap } from '../internal';
 
 export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
   constructor(
