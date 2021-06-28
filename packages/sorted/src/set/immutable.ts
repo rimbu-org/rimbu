@@ -38,7 +38,7 @@ import {
   SortedEmpty,
   SortedNonEmptyBase,
 } from '../sorted-custom';
-import { SortedSetContext } from '../sortedset-custom';
+import type { SortedSetContext } from '../sortedset-custom';
 
 export class SortedSetEmpty<T = any>
   extends SortedEmpty

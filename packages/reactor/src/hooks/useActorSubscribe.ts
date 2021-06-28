@@ -1,6 +1,6 @@
-import { Actor, Obs } from '@rimbu/actor';
-import { Immutable } from '@rimbu/deep';
-import { useEffect } from 'react';
+import type { Actor, Obs } from '@rimbu/actor';
+import type { Immutable } from '@rimbu/deep';
+import React from 'react';
 
 /**
  * Subscribes the given `onNotification` function to the given `subject`, such that on every subject's notification,
@@ -36,7 +36,7 @@ export function useActorSubscribe<T>(
   onStart?: (state: Immutable<T>) => void,
   onEnd?: (state: Immutable<T>) => void
 ): void {
-  useEffect(() => {
+  React.useEffect(() => {
     const stableSubject = getActor();
 
     onStart?.(stableSubject.state);

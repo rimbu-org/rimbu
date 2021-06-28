@@ -1,7 +1,7 @@
-import { ArrayNonEmpty } from '@rimbu/common';
-import { ValuedLink } from '@rimbu/graph';
+import type { ArrayNonEmpty } from '@rimbu/common';
+import type { ValuedLink } from '@rimbu/graph';
 import { Stream } from '@rimbu/stream';
-import { ArrowValuedGraph } from '../src';
+import type { ArrowValuedGraph } from '../src';
 
 function expectEqual<N, V>(
   source: { streamConnections(): Stream<ValuedLink<N, V>> },

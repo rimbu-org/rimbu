@@ -598,11 +598,12 @@ export abstract class StreamBase<T> implements Stream<T> {
 }
 
 export class FromStream<T> extends StreamBase<T> {
+  [Symbol.iterator]: () => FastIterator<T>;
+
   constructor(readonly createIterator: () => FastIterator<T>) {
     super();
+    this[Symbol.iterator] = createIterator;
   }
-
-  [Symbol.iterator] = this.createIterator;
 }
 
 class PrependIterator<T> extends FastIteratorBase<T> {
@@ -710,11 +711,12 @@ class AppendStream<T> extends StreamBase<T> {
 }
 
 class IndexedIterator<T> extends FastIteratorBase<[number, T]> {
+  index: number;
+
   constructor(readonly source: FastIterator<T>, readonly startIndex = 0) {
     super();
+    this.index = startIndex;
   }
-
-  index = this.startIndex;
 
   fastNext<O>(otherwise?: OptLazy<O>): [number, T] | O {
     const done = Symbol('Done');
@@ -882,6 +884,8 @@ class MapPureStream<
 }
 
 class FlatMapIterator<T, T2> extends FastIteratorBase<T2> {
+  iterator: FastIterator<T>;
+
   constructor(
     readonly source: Stream<T>,
     readonly flatMapFun: (
@@ -891,11 +895,11 @@ class FlatMapIterator<T, T2> extends FastIteratorBase<T2> {
     ) => StreamSource<T2>
   ) {
     super();
+    this.iterator = this.source[Symbol.iterator]();
   }
 
   readonly state = TraverseState();
 
-  iterator = this.source[Symbol.iterator]();
   done = false;
   currentIterator: null | FastIterator<T2> = null;
 
@@ -950,14 +954,17 @@ class FlatMapStream<T, T2> extends StreamBase<T2> {
 }
 
 class ConcatIterator<T> extends FastIteratorBase<T> {
+  iterator: FastIterator<T>;
+
   constructor(
     readonly source: Stream<T>,
     readonly otherSources: StreamSource<T>[]
   ) {
     super();
+
+    this.iterator = source[Symbol.iterator]();
   }
 
-  iterator = this.source[Symbol.iterator]();
   sourceIndex = 0;
 
   fastNext<O>(otherwise?: OptLazy<O>): T | O {
@@ -1433,11 +1440,13 @@ class TakeStream<T> extends StreamBase<T> {
 }
 
 class DropIterator<T> extends FastIteratorBase<T> {
+  remain: number;
+
   constructor(readonly source: FastIterator<T>, readonly amount: number) {
     super();
-  }
 
-  remain = this.amount;
+    this.remain = amount;
+  }
 
   fastNext<O>(otherwise?: OptLazy<O>): T | O {
     const source = this.source;
@@ -1470,12 +1479,16 @@ class DropStream<T> extends StreamBase<T> {
 }
 
 class RepeatIterator<T> extends FastIteratorBase<T> {
+  iterator: FastIterator<T>;
+  remain?: number;
+
   constructor(readonly source: Stream<T>, readonly amount?: number) {
     super();
+
+    this.iterator = source[Symbol.iterator]();
+    this.remain = amount;
   }
 
-  iterator = this.source[Symbol.iterator]();
-  remain = this.amount;
   isEmpty = true;
 
   fastNext<O>(otherwise?: OptLazy<O>): T | O {
@@ -1653,16 +1666,19 @@ class SplitOnStream<T> extends StreamBase<T[]> {
 }
 
 class ReduceIterator<I, R> extends FastIteratorBase<R> {
+  state: unknown;
+
   constructor(
     readonly source: FastIterator<I>,
     readonly reducer: Reducer<I, R>
   ) {
     super();
+
+    this.state = Reducer.Init(reducer.init);
   }
 
   halted = false;
   index = 0;
-  state = Reducer.Init(this.reducer.init);
 
   halt = (): void => {
     this.halted = true;
@@ -1693,22 +1709,23 @@ class ReduceStream<I, R> extends StreamBase<R> {
 }
 
 class ReduceAllIterator<I, R> extends FastIteratorBase<R> {
+  readonly state: unknown[];
+  readonly done: ((() => void) | null)[];
+
   constructor(
     readonly source: FastIterator<I>,
     readonly reducers: Reducer<I, any>[]
   ) {
     super();
+
+    this.state = reducers.map((d: any): unknown => Reducer.Init(d.init));
+    this.done = this.state.map((_: any, i: any): (() => void) => (): void => {
+      this.done[i] = null;
+    });
   }
 
   halted = false;
   index = 0;
-  state = this.reducers.map((d: any): unknown => Reducer.Init(d.init));
-  done: ((() => void) | null)[] = this.state.map(
-    (_: any, i: any): (() => void) =>
-      (): void => {
-        this.done[i] = null;
-      }
-  );
   isDone = false;
 
   fastNext<O>(otherwise?: OptLazy<O>): R | O {

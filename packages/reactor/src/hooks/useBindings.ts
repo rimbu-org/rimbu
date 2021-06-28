@@ -1,6 +1,6 @@
-import { Actor, Command } from '@rimbu/actor';
-import { Immutable } from '@rimbu/deep';
-import React from 'react';
+import type { Actor, Command } from '@rimbu/actor';
+import type { Immutable } from '@rimbu/deep';
+import type React from 'react';
 import { useConst, useSubscribeUpdateUI } from '../internal';
 
 /**

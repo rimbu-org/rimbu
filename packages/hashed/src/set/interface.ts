@@ -1,7 +1,7 @@
-import { CustomBase } from '@rimbu/collection-types';
+import type { CustomBase } from '@rimbu/collection-types';
 import { Eq, OmitStrong } from '@rimbu/common';
 import { List } from '@rimbu/list';
-import { Streamable } from '@rimbu/stream';
+import type { Streamable } from '@rimbu/stream';
 import { Hasher } from '../hasher';
 import { HashSetContext } from '../hashset-custom';
 

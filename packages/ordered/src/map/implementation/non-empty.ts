@@ -9,9 +9,9 @@ import {
   TraverseState,
   Update,
 } from '@rimbu/common';
-import { List } from '@rimbu/list';
+import type { List } from '@rimbu/list';
 import { Stream, StreamSource } from '@rimbu/stream';
-import { OrderedMapBase, OrderedMapTypes } from '../../ordered-custom';
+import type { OrderedMapBase, OrderedMapTypes } from '../../ordered-custom';
 
 export class OrderedMapNonEmpty<
     K,

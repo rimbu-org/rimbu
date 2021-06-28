@@ -1,5 +1,5 @@
-import { Actor } from '@rimbu/actor';
-import { Immutable } from '@rimbu/deep';
+import type { Actor } from '@rimbu/actor';
+import type { Immutable } from '@rimbu/deep';
 import { useSubscribeUpdateUI } from '../internal';
 import { useConst } from './useConst';
 

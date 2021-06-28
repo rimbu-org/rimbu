@@ -37,6 +37,7 @@
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
+    "build:deno": "rimraf deno_dist ../../deno_dist/collection-types && denoify && cp ../../config/mod_ts_template deno_dist/mod.ts && mv deno_dist ../../deno_dist/collection-types",
     "bundle": "yarn bundle:main && yarn bundle:module && yarn bundle:types",
     "bundle:main": "tsc --p tsconfig.main.json",
     "bundle:module": "tsc --p tsconfig.module.json",
@@ -57,5 +58,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "denoify": {
+    "replacer": "../../config/denoify-rimbu-replacer.js"
   }
 }

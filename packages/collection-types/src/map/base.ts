@@ -1,5 +1,5 @@
-import { Token } from '@rimbu/base';
-import {
+import type { Token } from '@rimbu/base';
+import type {
   ArrayNonEmpty,
   OptLazy,
   OptLazyOr,
@@ -10,7 +10,7 @@ import {
   Update,
 } from '@rimbu/common';
 import { FastIterable, Stream, Streamable, StreamSource } from '@rimbu/stream';
-import { KeyValue, WithKeyValue } from '../custom-base';
+import type { KeyValue, WithKeyValue } from '../custom-base';
 
 export interface VariantMapBase<
   K,

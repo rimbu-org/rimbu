@@ -1,8 +1,8 @@
-import { ArrayNonEmpty } from '@rimbu/common';
-import { SortedMap } from '@rimbu/sorted';
-import { FastIterator, Stream } from '@rimbu/stream';
+import type { ArrayNonEmpty } from '@rimbu/common';
+import type { SortedMap } from '@rimbu/sorted';
+import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-import { SortedTableSortedColumn } from '../src';
+import type { SortedTableSortedColumn } from '../src';
 
 type GE<R, C, V> = SortedTableSortedColumn<R, C, V>;
 type GNE<R, C, V> = SortedTableSortedColumn.NonEmpty<R, C, V>;

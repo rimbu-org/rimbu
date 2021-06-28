@@ -1,4 +1,4 @@
-import { ArrayNonEmpty } from '@rimbu/common';
+import type { ArrayNonEmpty } from '@rimbu/common';
 import { ArrowGraphSorted, EdgeGraphSorted, Link } from '@rimbu/graph';
 import { Stream } from '@rimbu/stream';
 import { traverseBreadthFirstSorted, ValuedLink } from '../src';

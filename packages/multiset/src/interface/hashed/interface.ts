@@ -1,6 +1,6 @@
-import { OmitStrong } from '@rimbu/common';
+import type { OmitStrong } from '@rimbu/common';
 import { HashMap } from '@rimbu/hashed';
-import { Stream, Streamable } from '@rimbu/stream';
+import type { Stream, Streamable } from '@rimbu/stream';
 import { MultiSetBase, MultiSetContext } from '../../multiset-custom';
 
 /**

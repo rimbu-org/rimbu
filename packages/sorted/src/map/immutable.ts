@@ -40,7 +40,7 @@ import {
   SortedEmpty,
   SortedNonEmptyBase,
 } from '../sorted-custom';
-import { SortedMapBuilder, SortedMapContext } from '../sortedmap-custom';
+import type { SortedMapBuilder, SortedMapContext } from '../sortedmap-custom';
 
 export class SortedMapEmpty<K = any, V = any>
   extends SortedEmpty

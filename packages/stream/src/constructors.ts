@@ -2,7 +2,7 @@ import { RimbuError, Token } from '@rimbu/base';
 import {
   ArrayNonEmpty,
   Eq,
-  Err,
+  ErrBase,
   IndexRange,
   OptLazy,
   Range,
@@ -540,7 +540,7 @@ export function random(): Stream.NonEmpty<number> {
  * Stream.randomInt(0, 10).take(3).toArray()    // => [4, 9, 3]
  */
 export function randomInt(min: number, max: number): Stream.NonEmpty<number> {
-  if (min >= max) Err.msg('min should be smaller than max');
+  if (min >= max) ErrBase.msg('min should be smaller than max');
 
   return new FromStream(
     (): FastIterator<number> => new RandomIntIterator(min, max)
@@ -564,15 +564,16 @@ export function unfold<T>(
 }
 
 class ArrayIterator<T> extends FastIteratorBase<T> {
+  i: number;
+
   constructor(
     readonly array: readonly T[],
     readonly startIndex: number,
     readonly endIndex: number
   ) {
     super();
+    this.i = startIndex;
   }
-
-  i = this.startIndex;
 
   fastNext<O>(otherwise?: OptLazy<O>): T | O {
     if (this.i > this.endIndex) return OptLazy(otherwise) as O;
@@ -599,6 +600,8 @@ class ArrayReverseIterator<T> extends FastIteratorBase<T> {
 }
 
 class ArrayStream<T> extends StreamBase<T> {
+  readonly length: number;
+
   constructor(
     readonly array: readonly T[],
     readonly startIndex = 0,
@@ -606,9 +609,8 @@ class ArrayStream<T> extends StreamBase<T> {
     readonly reversed = false
   ) {
     super();
+    this.length = endIndex - startIndex + 1;
   }
-
-  readonly length = this.endIndex - this.startIndex + 1;
 
   [Symbol.iterator](): FastIterator<T> {
     if (!this.reversed) {
@@ -939,15 +941,17 @@ class FilterApplyStream<
 }
 
 class RangeUpIterator extends FastIteratorBase<number> {
+  state: number;
+
   constructor(
     readonly start = 0,
     readonly end: number | undefined,
     readonly delta: number
   ) {
     super();
-  }
 
-  state = this.start;
+    this.state = start;
+  }
 
   fastNext<O>(otherwise?: OptLazy<O>): number | O {
     if (undefined !== this.end) {
@@ -962,15 +966,17 @@ class RangeUpIterator extends FastIteratorBase<number> {
 }
 
 class RangeDownIterator extends FastIteratorBase<number> {
+  state: number;
+
   constructor(
     readonly start = 0,
     readonly end: number | undefined,
     readonly delta: number
   ) {
     super();
-  }
 
-  state = this.start;
+    this.state = start;
+  }
 
   fastNext<O>(otherwise?: OptLazy<O>): number | O {
     if (undefined !== this.end) {
@@ -1008,11 +1014,13 @@ class RandomIterator extends FastIteratorBase<number> {
 }
 
 class RandomIntIterator extends FastIteratorBase<number> {
+  readonly width: number;
+
   constructor(readonly min: number, readonly max: number) {
     super();
-  }
 
-  readonly width = this.max - this.min;
+    this.width = max - min;
+  }
 
   fastNext(): number {
     return this.min + Math.round(Math.random() * this.width);

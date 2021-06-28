@@ -8,8 +8,8 @@ import {
   TraverseState,
 } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
-import { MultiMap } from '../internal';
-import { MultiMapBase } from '../multimap-custom';
+import type { MultiMap } from '../internal';
+import type { MultiMapBase } from '../multimap-custom';
 
 export interface ContextImplTypes extends MultiMapBase.Types {
   context: MultiMapContext<this['_K'], this['_V'], string, this>;
@@ -143,7 +143,9 @@ export class MultiMapNonEmpty<
     super();
   }
 
-  assumeNonEmpty: any;
+  assumeNonEmpty(): any {
+    return this;
+  }
 
   asNormal(): any {
     return this;

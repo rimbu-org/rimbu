@@ -1,4 +1,4 @@
-import { Literal, Patch } from './internal';
+import { Literal, patch, Patch } from './internal';
 
 /**
  * A string representing a path into an (nested) object of type T.
@@ -109,7 +109,7 @@ export namespace Path {
     ...patches: Patch.Multi<Path.Result<T, P>>
   ): T {
     const value = Path.getValue(source, path);
-    const newValue = Patch(value)(...patches);
+    const newValue = patch(value)(...patches);
 
     if (Object.is(value, newValue)) return source;
 

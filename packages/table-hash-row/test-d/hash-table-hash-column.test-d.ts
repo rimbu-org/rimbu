@@ -1,8 +1,8 @@
-import { ArrayNonEmpty } from '@rimbu/common';
-import { HashMap } from '@rimbu/hashed';
-import { FastIterator, Stream } from '@rimbu/stream';
+import type { ArrayNonEmpty } from '@rimbu/common';
+import type { HashMap } from '@rimbu/hashed';
+import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-import { HashTableHashColumn } from '../src';
+import type { HashTableHashColumn } from '../src';
 
 type GE<R, C, V> = HashTableHashColumn<R, C, V>;
 type GNE<R, C, V> = HashTableHashColumn.NonEmpty<R, C, V>;

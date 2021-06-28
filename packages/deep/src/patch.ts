@@ -1,5 +1,5 @@
 import { RimbuError } from '@rimbu/base';
-import { ArrayNonEmpty } from '@rimbu/common';
+import type { ArrayNonEmpty } from '@rimbu/common';
 import { Immutable, Literal } from './internal';
 
 /**
@@ -21,14 +21,14 @@ export type Patch<T, P = T, R = T> = T extends Literal.Obj
  * @param value - the value to update
  * @param patches - one or more `Patch` objects indicating modifications to the value
  * @example
- * Patch({ g: { h: 5 }})({ g: { h: 6 }})          // => { g: { h: 6 }}
- * Patch({ g: { h: 5 }})({ g: { h: v => v + 1 }}) // => { g: { h: 6 }}
- * Patch({ g: { h: 5 }})({ g: { h: 1 }}, { g: { h: v => v + 1 }})
+ * patch({ g: { h: 5 }})({ g: { h: 6 }})          // => { g: { h: 6 }}
+ * patch({ g: { h: 5 }})({ g: { h: v => v + 1 }}) // => { g: { h: 6 }}
+ * patch({ g: { h: 5 }})({ g: { h: 1 }}, { g: { h: v => v + 1 }})
  * // => { g: { h: 2 }}
- * Patch({ a: 1, b: 3 })({ a: (v, p) => v * p.b, (v, p) => v + p.a })
+ * patch({ a: 1, b: 3 })({ a: (v, p) => v * p.b, (v, p) => v + p.a })
  * // => { a: 3, b: 4 }
  */
-export function Patch<T>(
+export function patch<T>(
   value: T
 ): (...patches: Patch.Multi<T>) => Immutable<T> {
   return function (...patches) {
@@ -107,7 +107,7 @@ export namespace Patch {
     ...patches: Patch.Multi<T2>
   ): (value: T) => Immutable<T> {
     return (value) =>
-      Patch<T>(value)(...(patches as unknown as Patch.Multi<T>));
+      patch<T>(value)(...(patches as unknown as Patch.Multi<T>));
   }
 }
 
@@ -156,7 +156,7 @@ function patchSingle<T, P = T, R = T>(
 
     if (undefined === patchKey) {
       RimbuError.throwInvalidUsageError(
-        'Do not use undefined directly in patch objects, but use Literal(undefined) instead due to type limitations.'
+        'Do not use undefined directly in patch objects, but use Literal.of(undefined) instead due to type limitations.'
       );
     }
 

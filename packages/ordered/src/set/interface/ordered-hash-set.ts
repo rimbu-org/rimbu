@@ -1,10 +1,10 @@
-import { OmitStrong } from '@rimbu/common';
+import type { OmitStrong } from '@rimbu/common';
 import { HashSet } from '@rimbu/hashed';
 import { List } from '@rimbu/list';
-import { Stream, Streamable } from '@rimbu/stream';
-import { OrderedSetBase } from '../../ordered-custom';
+import type { Stream, Streamable } from '@rimbu/stream';
+import type { OrderedSetBase } from '../../ordered-custom';
 import { OrderedSetContextImpl } from '../implementation/context';
-import { OrderedSetTypes } from './base';
+import type { OrderedSetTypes } from './base';
 
 /**
  * A type-invariant immutable Ordered HashSet of value type T.

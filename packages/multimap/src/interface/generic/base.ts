@@ -1,18 +1,23 @@
-import {
+import type {
   CustomBase as CB,
   RMap,
   RSet,
   VariantMap,
   VariantSet,
 } from '@rimbu/collection-types';
-import {
+import type {
   ArrayNonEmpty,
   OptLazy,
   RelatedTo,
   ToJSON,
   TraverseState,
 } from '@rimbu/common';
-import { FastIterable, Stream, Streamable, StreamSource } from '@rimbu/stream';
+import type {
+  FastIterable,
+  Stream,
+  Streamable,
+  StreamSource,
+} from '@rimbu/stream';
 
 export interface VariantMultiMapBase<
   K,
@@ -415,8 +420,11 @@ export interface MultiMapBase<
 }
 
 export namespace MultiMapBase {
-  type NonEmptyBase<K, V, Tp extends MultiMapBase.Types> =
-    VariantMultiMapBase.NonEmpty<K, V, Tp> & MultiMapBase<K, V, Tp>;
+  type NonEmptyBase<
+    K,
+    V,
+    Tp extends MultiMapBase.Types
+  > = VariantMultiMapBase.NonEmpty<K, V, Tp> & MultiMapBase<K, V, Tp>;
 
   export interface NonEmpty<
     K,

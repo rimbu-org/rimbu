@@ -1,7 +1,7 @@
-import { ArrayNonEmpty } from '@rimbu/common';
-import { FastIterator, Stream } from '@rimbu/stream';
+import type { ArrayNonEmpty } from '@rimbu/common';
+import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-import { RMap, VariantMap } from '../src';
+import type { RMap, VariantMap } from '../src';
 
 type VE<K, V> = VariantMap<K, V>;
 type VNE<K, V> = VariantMap.NonEmpty<K, V>;

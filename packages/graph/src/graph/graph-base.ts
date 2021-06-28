@@ -1,6 +1,6 @@
-import { RMap, RSet } from '@rimbu/collection-types';
-import { ArrayNonEmpty, RelatedTo } from '@rimbu/common';
-import { Stream, Streamable, StreamSource } from '@rimbu/stream';
+import type { RMap, RSet } from '@rimbu/collection-types';
+import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common';
+import type { Stream, Streamable, StreamSource } from '@rimbu/stream';
 import type {
   GraphConnect,
   GraphConnectNonEmpty,

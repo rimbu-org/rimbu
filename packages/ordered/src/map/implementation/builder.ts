@@ -1,15 +1,15 @@
 import { RimbuError, Token } from '@rimbu/base';
-import { CustomBase } from '@rimbu/collection-types';
+import type { CustomBase } from '@rimbu/collection-types';
 import {
   OptLazy,
   OptLazyOr,
   RelatedTo,
   TraverseState,
-  Update,
+  Update
 } from '@rimbu/common';
-import { List } from '@rimbu/list';
+import type { List } from '@rimbu/list';
 import { Stream, StreamSource } from '@rimbu/stream';
-import { OrderedMapBase, OrderedMapTypes } from '../../ordered-custom';
+import type { OrderedMapBase, OrderedMapTypes } from '../../ordered-custom';
 
 export class OrderedMapBuilder<
   K,

@@ -1,5 +1,5 @@
-import { CustomBase, RMap } from '@rimbu/collection-types';
-import {
+import type { CustomBase, RMap } from '@rimbu/collection-types';
+import type {
   ArrayNonEmpty,
   OmitStrong,
   OptLazy,
@@ -9,7 +9,12 @@ import {
   Update,
 } from '@rimbu/common';
 import { HashMap } from '@rimbu/hashed';
-import { FastIterable, Stream, Streamable, StreamSource } from '@rimbu/stream';
+import type {
+  FastIterable,
+  Stream,
+  Streamable,
+  StreamSource,
+} from '@rimbu/stream';
 import { BiMapContext } from '../bimap-custom';
 
 /**

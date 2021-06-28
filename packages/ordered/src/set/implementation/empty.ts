@@ -1,7 +1,7 @@
 import { CustomBase } from '@rimbu/collection-types';
-import { ToJSON } from '@rimbu/common';
-import { List } from '@rimbu/list';
-import { StreamSource } from '@rimbu/stream';
+import type { ToJSON } from '@rimbu/common';
+import type { List } from '@rimbu/list';
+import type { StreamSource } from '@rimbu/stream';
 import {
   OrderedSetBase,
   OrderedSetNonEmpty,

@@ -1,4 +1,4 @@
-import { Literal } from './internal';
+import type { Literal } from './internal';
 
 /**
  * An immutably typed version of given type T. Makes all properties or elements read only.

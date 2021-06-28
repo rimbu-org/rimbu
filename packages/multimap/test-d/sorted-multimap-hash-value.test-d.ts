@@ -1,9 +1,9 @@
-import { ArrayNonEmpty } from '@rimbu/common';
-import { HashSet } from '@rimbu/hashed';
-import { SortedMap } from '@rimbu/sorted';
-import { FastIterator, Stream } from '@rimbu/stream';
+import type { ArrayNonEmpty } from '@rimbu/common';
+import type { HashSet } from '@rimbu/hashed';
+import type { SortedMap } from '@rimbu/sorted';
+import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-import { SortedMultiMapHashValue } from '../src';
+import type { SortedMultiMapHashValue } from '../src';
 
 type GE<K, V> = SortedMultiMapHashValue<K, V>;
 type GNE<K, V> = SortedMultiMapHashValue.NonEmpty<K, V>;

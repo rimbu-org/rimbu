@@ -1,9 +1,9 @@
-import { ArrayNonEmpty } from '@rimbu/common';
-import { HashMap } from '@rimbu/hashed';
-import { SortedMap } from '@rimbu/sorted';
-import { FastIterator, Stream } from '@rimbu/stream';
+import type { ArrayNonEmpty } from '@rimbu/common';
+import type { HashMap } from '@rimbu/hashed';
+import type { SortedMap } from '@rimbu/sorted';
+import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-import { SortedTableHashColumn } from '../src';
+import type { SortedTableHashColumn } from '../src';
 
 type GE<R, C, V> = SortedTableHashColumn<R, C, V>;
 type GNE<R, C, V> = SortedTableHashColumn.NonEmpty<R, C, V>;

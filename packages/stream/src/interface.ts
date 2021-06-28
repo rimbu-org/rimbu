@@ -1,4 +1,4 @@
-import {
+import type {
   ArrayNonEmpty,
   CollectFun,
   Eq,
@@ -8,7 +8,7 @@ import {
   TraverseState,
 } from '@rimbu/common';
 import * as Constructors from './constructors';
-import { FastIterable, Streamable, StreamSource } from './internal';
+import type { FastIterable, Streamable, StreamSource } from './internal';
 
 /**
  * A possibly infinite sequence of elements of type T.

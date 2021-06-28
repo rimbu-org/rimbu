@@ -1,6 +1,6 @@
 import { Obs } from '@rimbu/actor';
 import { OptLazy } from '@rimbu/common';
-import { Immutable } from '@rimbu/deep';
+import type { Immutable } from '@rimbu/deep';
 import { useActor } from './useActor';
 
 /**

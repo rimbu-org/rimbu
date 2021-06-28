@@ -42,6 +42,7 @@
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
+    "build:deno": "rimraf deno_dist ../../deno_dist/table-sorted-row && denoify && cp ../../config/mod_ts_template deno_dist/mod.ts && mv deno_dist ../../deno_dist/table-sorted-row",
     "bundle": "yarn bundle:main && yarn bundle:module && yarn bundle:types",
     "bundle:main": "tsc --p tsconfig.main.json",
     "bundle:module": "tsc --p tsconfig.module.json",
@@ -68,5 +69,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "denoify": {
+    "replacer": "../../config/denoify-rimbu-replacer.js"
   }
 }

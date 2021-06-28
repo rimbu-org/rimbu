@@ -1,4 +1,4 @@
-import { Token } from '@rimbu/base';
+import type { Token } from '@rimbu/base';
 import { CustomBase } from '@rimbu/collection-types';
 import {
   OptLazy,
@@ -50,7 +50,9 @@ export class ValuedGraphNonEmpty<
     return this.context.empty();
   }
 
-  assumeNonEmpty: any;
+  assumeNonEmpty(): any {
+    return this;
+  }
 
   asNormal(): any {
     return this;

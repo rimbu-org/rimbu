@@ -1,8 +1,8 @@
-import { RMap } from '@rimbu/collection-types';
-import { ArrayNonEmpty } from '@rimbu/common';
+import type { RMap } from '@rimbu/collection-types';
+import type { ArrayNonEmpty } from '@rimbu/common';
 import { StreamSource } from '@rimbu/stream';
 import { BiMapBuilder, BiMapEmpty, BiMapNonEmptyImpl } from '../bimap-custom';
-import { BiMap } from '../internal';
+import type { BiMap } from '../internal';
 
 export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>
   implements BiMap.Context<UK, UV>

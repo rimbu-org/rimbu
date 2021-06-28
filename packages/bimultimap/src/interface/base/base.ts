@@ -1,7 +1,17 @@
-import { CustomBase as CB, RSet } from '@rimbu/collection-types';
-import { ArrayNonEmpty, RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
-import { MultiMap } from '@rimbu/multimap';
-import { FastIterable, Stream, Streamable, StreamSource } from '@rimbu/stream';
+import type { CustomBase as CB, RSet } from '@rimbu/collection-types';
+import type {
+  ArrayNonEmpty,
+  RelatedTo,
+  ToJSON,
+  TraverseState,
+} from '@rimbu/common';
+import type { MultiMap } from '@rimbu/multimap';
+import type {
+  FastIterable,
+  Stream,
+  Streamable,
+  StreamSource,
+} from '@rimbu/stream';
 
 export interface BiMultiMapBase<
   K,

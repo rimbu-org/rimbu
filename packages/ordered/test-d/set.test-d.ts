@@ -1,8 +1,8 @@
-import { RSet } from '@rimbu/collection-types';
-import { ArrayNonEmpty } from '@rimbu/common';
-import { FastIterator, Stream } from '@rimbu/stream';
+import type { RSet } from '@rimbu/collection-types';
+import type { ArrayNonEmpty } from '@rimbu/common';
+import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-import { OrderedSet } from '../src';
+import type { OrderedSet } from '../src';
 
 type GE<T> = OrderedSet<T>;
 type GNE<T> = OrderedSet.NonEmpty<T>;

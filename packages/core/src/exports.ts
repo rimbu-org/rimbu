@@ -4,25 +4,27 @@ export {
   HashBiMultiMap,
   SortedBiMultiMap,
 } from '@rimbu/bimultimap';
-export {
-  Edit,
+export type {
   RMap,
   RSet,
   VariantMap,
   VariantSet,
 } from '@rimbu/collection-types';
+export { Edit } from '@rimbu/collection-types';
 export * from '@rimbu/common';
 export * from '@rimbu/deep';
-export {
+export type {
   ArrowGraph,
-  ArrowGraphHashed,
-  ArrowGraphSorted,
   EdgeGraph,
-  EdgeGraphHashed,
-  EdgeGraphSorted,
   Graph,
   VariantGraph,
   VariantValuedGraph,
+} from '@rimbu/graph';
+export {
+  ArrowGraphHashed,
+  ArrowGraphSorted,
+  EdgeGraphHashed,
+  EdgeGraphSorted,
 } from '@rimbu/graph';
 export {
   ArrowValuedGraph,
@@ -36,20 +38,15 @@ export {
 } from '@rimbu/graph-edge-valued';
 export { Hasher, HashMap, HashSet } from '@rimbu/hashed';
 export { List } from '@rimbu/list';
+export type { MultiMap, VariantMultiMap } from '@rimbu/multimap';
 export {
   HashMultiMapHashValue,
   HashMultiMapSortedValue,
-  MultiMap,
   SortedMultiMapHashValue,
   SortedMultiMapSortedValue,
-  VariantMultiMap,
 } from '@rimbu/multimap';
-export {
-  HashMultiSet,
-  MultiSet,
-  SortedMultiSet,
-  VariantMultiSet,
-} from '@rimbu/multiset';
+export type { MultiSet, VariantMultiSet } from '@rimbu/multiset';
+export { HashMultiSet, SortedMultiSet } from '@rimbu/multiset';
 export {
   OrderedHashMap,
   OrderedHashSet,
@@ -59,8 +56,10 @@ export {
   OrderedSortedSet,
 } from '@rimbu/ordered';
 export { SortedMap, SortedSet } from '@rimbu/sorted';
-export { Stream, Streamable, StreamSource } from '@rimbu/stream';
-export { Table, VariantTable } from '@rimbu/table';
+export type { Streamable } from '@rimbu/stream';
+export { Stream, StreamSource } from '@rimbu/stream';
+export type { VariantTable } from '@rimbu/table';
+export { Table } from '@rimbu/table';
 export {
   HashTableHashColumn,
   HashTableSortedColumn,

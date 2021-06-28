@@ -10,8 +10,8 @@ import {
   Update,
 } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
-import { Table } from '../internal';
-import { TableBase } from '../table-custom';
+import type { Table } from '../internal';
+import type { TableBase } from '../table-custom';
 
 export interface ContextImplTypes extends TableBase.Types {
   context: TableContext<this['_R'], this['_C'], string, this>;

@@ -1,12 +1,12 @@
 import { CustomBase } from '@rimbu/collection-types';
-import { List } from '@rimbu/list';
+import type { List } from '@rimbu/list';
 import {
   OrderedMapBase,
   OrderedMapBuilder,
   OrderedMapContext,
   OrderedMapEmpty,
   OrderedMapNonEmpty,
-  OrderedMapTypes,
+  OrderedMapTypes
 } from '../../ordered-custom';
 
 export class OrderedMapContextImpl<UK, Tp extends OrderedMapTypes>

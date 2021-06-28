@@ -1,4 +1,4 @@
-import { ArrayNonEmpty } from '@rimbu/common';
+import type { ArrayNonEmpty } from '@rimbu/common';
 import { StreamSource } from '@rimbu/stream';
 import type { WithGraphValues } from '../../gen-graph-custom';
 import type { GraphElement } from '../../internal';
@@ -16,6 +16,8 @@ export class GraphContext<
   Tp extends GraphTypesContextImpl
 > implements GraphBase.Context<UN, Tp>
 {
+  readonly _empty: WithGraphValues<Tp, UN, any>['normal'];
+
   constructor(
     readonly isDirected: Dir,
     readonly typeTag: TT,
@@ -25,13 +27,9 @@ export class GraphContext<
       UN,
       any
     >['linkConnectionsContext']
-  ) {}
-
-  readonly _empty: WithGraphValues<Tp, UN, any>['normal'] = new GraphEmpty<
-    UN,
-    any,
-    Tp
-  >(this.isDirected, this as any) as any;
+  ) {
+    this._empty = new GraphEmpty<UN, any, Tp>(isDirected, this as any) as any;
+  }
 
   isNonEmptyInstance(
     source: any

@@ -1,6 +1,20 @@
-import { CustomBase as CB, RMap, VariantMap } from '@rimbu/collection-types';
-import { ArrayNonEmpty, RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
-import { FastIterable, Stream, Streamable, StreamSource } from '@rimbu/stream';
+import type {
+  CustomBase as CB,
+  RMap,
+  VariantMap,
+} from '@rimbu/collection-types';
+import type {
+  ArrayNonEmpty,
+  RelatedTo,
+  ToJSON,
+  TraverseState,
+} from '@rimbu/common';
+import type {
+  FastIterable,
+  Stream,
+  Streamable,
+  StreamSource,
+} from '@rimbu/stream';
 
 export interface VariantMultiSetBase<
   T,
@@ -321,8 +335,10 @@ export interface MultiSetBase<
 }
 
 export namespace MultiSetBase {
-  type NonEmptyBase<T, Tp extends MultiSetBase.Types> =
-    VariantMultiSetBase.NonEmpty<T, Tp> & MultiSetBase<T, Tp>;
+  type NonEmptyBase<
+    T,
+    Tp extends MultiSetBase.Types
+  > = VariantMultiSetBase.NonEmpty<T, Tp> & MultiSetBase<T, Tp>;
 
   export interface NonEmpty<
     T,

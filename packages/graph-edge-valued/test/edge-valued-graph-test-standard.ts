@@ -1,7 +1,7 @@
-import { ArrayNonEmpty } from '@rimbu/common';
-import { ValuedLink } from '@rimbu/graph';
+import type { ArrayNonEmpty } from '@rimbu/common';
+import type { ValuedLink } from '@rimbu/graph';
 import { Stream, StreamSource } from '@rimbu/stream';
-import { EdgeValuedGraph } from '../src';
+import type { EdgeValuedGraph } from '../src';
 
 function symmetric<N, V>(source: StreamSource<ValuedLink<N, V>>): [N, N, V][] {
   return Stream.from(source)

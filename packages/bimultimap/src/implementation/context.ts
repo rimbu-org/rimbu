@@ -1,5 +1,5 @@
-import { CustomBase as CB } from '@rimbu/collection-types';
-import { ArrayNonEmpty } from '@rimbu/common';
+import type { CustomBase as CB } from '@rimbu/collection-types';
+import type { ArrayNonEmpty } from '@rimbu/common';
 import { StreamSource } from '@rimbu/stream';
 import {
   BiMultiMapBase,

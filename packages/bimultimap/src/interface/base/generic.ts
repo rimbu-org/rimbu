@@ -1,5 +1,5 @@
-import { MultiMap } from '@rimbu/multimap';
-import { Streamable } from '@rimbu/stream';
+import type { MultiMap } from '@rimbu/multimap';
+import type { Streamable } from '@rimbu/stream';
 import { BiMultiMapBase, BiMultiMapContext } from '../../bimultimap-custom';
 
 /**

@@ -3,12 +3,12 @@ import { RelatedTo, TraverseState } from '@rimbu/common';
 import { List } from '@rimbu/list';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { BlockBuilderBase, CollisionBuilderBase } from '../hashed-custom';
-import {
+import type {
   HashSetBlock,
   HashSetCollision,
   HashSetContext,
 } from '../hashset-custom';
-import { HashSet } from '../internal';
+import type { HashSet } from '../internal';
 
 export type SetBlockBuilderEntry<T> =
   | HashSetBlockBuilder<T>

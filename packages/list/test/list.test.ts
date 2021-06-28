@@ -1,4 +1,4 @@
-import { CollectFun } from '@rimbu/common';
+import type { CollectFun } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
 import { List as ListSrc } from '../src';
 

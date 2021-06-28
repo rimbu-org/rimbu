@@ -1,6 +1,11 @@
-import { ArrayNonEmpty, RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
+import type {
+  ArrayNonEmpty,
+  RelatedTo,
+  ToJSON,
+  TraverseState,
+} from '@rimbu/common';
 import { FastIterable, Stream, Streamable, StreamSource } from '@rimbu/stream';
-import { Elem, WithElem } from '../custom-base';
+import type { Elem, WithElem } from '../custom-base';
 
 export interface VariantSetBase<
   T,

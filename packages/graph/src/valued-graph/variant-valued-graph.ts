@@ -1,4 +1,4 @@
-import { Stream, Streamable } from '@rimbu/stream';
+import type { Stream, Streamable } from '@rimbu/stream';
 import type { ValuedGraphElement } from '../internal';
 import type { VariantValuedGraphBase } from './valued-graph-custom';
 

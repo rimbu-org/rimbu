@@ -1,4 +1,4 @@
-import { Stream } from './internal';
+import type { Stream } from './internal';
 
 /**
  * An object that can create a Stream of elements of type `T`

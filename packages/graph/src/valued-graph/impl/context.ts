@@ -1,4 +1,4 @@
-import { ArrayNonEmpty } from '@rimbu/common';
+import type { ArrayNonEmpty } from '@rimbu/common';
 import { StreamSource } from '@rimbu/stream';
 import type { WithGraphValues } from '../../gen-graph-custom';
 import type { ValuedGraphElement } from '../../internal';
@@ -19,6 +19,8 @@ export class ValuedGraphContext<
   Tp extends ValuedGraphTypesContextImpl
 > implements ValuedGraphBase.Context<UN, Tp>
 {
+  readonly _empty: any;
+
   constructor(
     readonly isDirected: boolean,
     readonly typeTag: TT,
@@ -28,12 +30,9 @@ export class ValuedGraphContext<
       UN,
       any
     >['linkConnectionsContext']
-  ) {}
-
-  readonly _empty: any = new ValuedGraphEmpty<UN, any, Tp>(
-    this.isDirected,
-    this as any
-  );
+  ) {
+    this._empty = new ValuedGraphEmpty<UN, any, Tp>(isDirected, this as any);
+  }
 
   isNonEmptyInstance(
     source: any

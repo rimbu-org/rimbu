@@ -1,5 +1,5 @@
 import { RimbuError } from '@rimbu/base';
-import { OptLazy, TraverseState, Update } from '@rimbu/common';
+import type { OptLazy, TraverseState, Update } from '@rimbu/common';
 import type { BuilderBase, LeafBlock, NonLeafBlock } from '../list-custom';
 
 export function createFromBlock<T>(

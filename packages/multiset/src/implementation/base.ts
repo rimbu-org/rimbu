@@ -2,7 +2,7 @@ import { Arr, RimbuError } from '@rimbu/base';
 import { CustomBase as CB, RMap } from '@rimbu/collection-types';
 import { ArrayNonEmpty, RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
-import { MultiSetBase } from '../multiset-custom';
+import type { MultiSetBase } from '../multiset-custom';
 
 export interface ContextImplTypes extends MultiSetBase.Types {
   context: MultiSetContext<this['_T'], string, this>;

@@ -1,7 +1,7 @@
-import { CustomBase } from '@rimbu/collection-types';
-import { List } from '@rimbu/list';
-import { Streamable } from '@rimbu/stream';
-import { OrderedSetNonEmpty } from '../../ordered-custom';
+import type { CustomBase } from '@rimbu/collection-types';
+import type { List } from '@rimbu/list';
+import type { Streamable } from '@rimbu/stream';
+import type { OrderedSetNonEmpty } from '../../ordered-custom';
 
 export interface OrderedSetBase<
   T,

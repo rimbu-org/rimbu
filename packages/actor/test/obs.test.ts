@@ -438,7 +438,7 @@ describe('Obs.combine', () => {
     const obs = obs1.combine(
       obs2,
       (v1, v2) => ({ v1, v2 }),
-      ({ v1, v2 }) => Literal([v1, v2])
+      ({ v1, v2 }) => Literal.of([v1, v2])
     );
 
     expect(obs.state).toEqual({ v1: 5, v2: 'a' });
@@ -459,7 +459,7 @@ describe('Obs.combine', () => {
     const obs = obs1.combine(
       obs2,
       (v1, v2) => ({ v1, v2 }),
-      ({ v1, v2 }) => Literal([v1, v2])
+      ({ v1, v2 }) => Literal.of([v1, v2])
     );
 
     expect(obs1.state).toBe(5);
@@ -483,7 +483,7 @@ describe('Obs.combine', () => {
     const obs = obs1.combine(
       obs2,
       (v1, v2) => ({ v1, v2 }),
-      ({ v1, v2 }) => Literal([v1, v2])
+      ({ v1, v2 }) => Literal.of([v1, v2])
     );
 
     const onChange = jest.fn();

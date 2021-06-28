@@ -1,7 +1,7 @@
-import { OmitStrong } from '@rimbu/common';
+import type { OmitStrong } from '@rimbu/common';
 import { List } from '@rimbu/list';
 import { SortedSet } from '@rimbu/sorted';
-import { Stream, Streamable } from '@rimbu/stream';
+import type { Stream, Streamable } from '@rimbu/stream';
 import {
   OrderedSetBase,
   OrderedSetContextImpl,

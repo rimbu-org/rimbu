@@ -1,13 +1,13 @@
-import { Token } from '@rimbu/base';
-import { RMap } from '@rimbu/collection-types';
-import {
+import type { Token } from '@rimbu/base';
+import type { RMap } from '@rimbu/collection-types';
+import type {
   ArrayNonEmpty,
   OptLazy,
   OptLazyOr,
   RelatedTo,
   SuperOf,
 } from '@rimbu/common';
-import { Stream, Streamable, StreamSource } from '@rimbu/stream';
+import type { Stream, Streamable, StreamSource } from '@rimbu/stream';
 import type {
   GraphConnect,
   GraphConnectNonEmpty,
@@ -16,6 +16,7 @@ import type {
 import type { VariantGraphBase } from '../graph/graph-custom';
 import type { Link, ValuedGraphElement } from '../internal';
 import type { VariantValuedGraphBase } from './valued-graph-custom';
+
 export interface ValuedGraphBase<
   N,
   V,
@@ -112,10 +113,13 @@ export interface ValuedGraphBase<
 }
 
 export namespace ValuedGraphBase {
-  type NonEmptyBase<N, V, Tp extends ValuedGraphBase.Types> =
-    VariantValuedGraphBase.NonEmpty<N, V, Tp> &
-      GraphConnectNonEmpty<N, V, Tp> &
-      ValuedGraphBase<N, V, Tp>;
+  type NonEmptyBase<
+    N,
+    V,
+    Tp extends ValuedGraphBase.Types
+  > = VariantValuedGraphBase.NonEmpty<N, V, Tp> &
+    GraphConnectNonEmpty<N, V, Tp> &
+    ValuedGraphBase<N, V, Tp>;
 
   export interface NonEmpty<
     N,

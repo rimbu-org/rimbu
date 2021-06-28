@@ -1,5 +1,5 @@
-import { IndexRange, TraverseState, Update } from '@rimbu/common';
-import { Stream } from '@rimbu/stream';
+import type { IndexRange, TraverseState, Update } from '@rimbu/common';
+import type { Stream } from '@rimbu/stream';
 import type { Block, ListContext } from '../../list-custom';
 
 export interface NonLeaf<T, C extends Block<T, C> = any> {

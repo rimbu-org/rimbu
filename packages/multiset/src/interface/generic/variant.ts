@@ -1,5 +1,5 @@
-import { Streamable } from '@rimbu/stream';
-import { VariantMultiSetBase } from '../../multiset-custom';
+import type { Streamable } from '@rimbu/stream';
+import type { VariantMultiSetBase } from '../../multiset-custom';
 
 /**
  * A type-variant immutable MultiSet of value type T.
