@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - actions-test
     paths:
       - 'packages/**'
 
