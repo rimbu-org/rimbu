@@ -4,7 +4,7 @@ import {
   expectAssignable,
   expectError,
   expectNotAssignable,
-  expectType
+  expectType,
 } from 'tsd';
 import { List } from '../src';
 
