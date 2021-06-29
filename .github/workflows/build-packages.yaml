@@ -5,14 +5,10 @@ on:
     branches:
       - main
       - actions-test
-    paths:
-      - 'packages/**'
 
   pull_request:
     branches:
       - main
-    paths:
-      - 'packages/**'
 
 jobs:
   build:
