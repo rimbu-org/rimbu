@@ -8,6 +8,8 @@ Offers tools to use handle plain JS objects as immutable objects.
 
 For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
 
+Or [Try Me Out](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
+
 ## Installation
 
 > `yarn add @rimbu/deep`

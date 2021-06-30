@@ -10,13 +10,15 @@ This package exports the following main types:
 
 | Name              | Description                                                                                          |
 | ----------------- | ---------------------------------------------------------------------------------------------------- |
-| `FastIterator<T>` | an Iterable that supports faster iterating than the `Iterable` type                                  |
+| `FastIterable<T>` | an Iterable that supports faster iterating than the `Iterable` type                                  |
 | `FastIterator<T>` | an Iterator that supports faster iterating than the `Iterator` type                                  |
 | `Stream<T>`       | an Iterable-like structure that represents a source that can produce values of type T when requested |
 | `Streamable<T>`   | an interface requiring that an object has a `.stream()` method                                       |
 | `StreamSource<T>` | a convenience type that covers all types that can be automatically converted to a `Stream`           |
 
 For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
+
+Or [Try Me Out](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
 
 ## Installation
 
