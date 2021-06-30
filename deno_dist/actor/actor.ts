@@ -1,4 +1,4 @@
-import { Obs } from './internal.ts';
+import type { Obs } from './internal.ts';
 
 /**
  * Am `Actor` that has an `Obs` instance so that its state can be observed and modified. Its main aim is to allow

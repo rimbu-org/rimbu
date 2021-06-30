@@ -156,7 +156,7 @@ function patchSingle<T, P = T, R = T>(
 
     if (undefined === patchKey) {
       RimbuError.throwInvalidUsageError(
-        'Do not use undefined directly in patch objects, but use Literal(undefined) instead due to type limitations.'
+        'Do not use undefined directly in patch objects, but use Literal.of(undefined) instead due to type limitations.'
       );
     }
 

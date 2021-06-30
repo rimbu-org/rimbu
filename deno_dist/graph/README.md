@@ -4,6 +4,8 @@
 
 # @rimbu/graph
 
+A Graph is a data structure consisting of nodes that can be connected through edges. Each node has a unique value or identifier. Edges can be directed, in which case we will call it an Arrow Graph, or undirected, in which case we will call it an Edge Graph. Furthermore, edges and arrows can also have values, in which case we call it a Valued Graph.
+
 This package exports the following main types:
 
 | Name                       | Description                                                                   |
@@ -18,6 +20,10 @@ This package exports the following main types:
 | `ValuedGraph<N, V>`        | a generic graph with nodes of type N and edges with value type V              |
 | `VariantGraph<N>`          | a generic type-variant graph with nodes of type N                             |
 | `VariantValuedGraph<N, V>` | a generic type-variant graph with nodes of type N and edges with value type V |
+
+For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
+
+Or [Try Me Out](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
 
 ## Installation
 
@@ -37,9 +43,7 @@ Rimbu uses advanced and recursive typing, potentially making the TypeScript comp
 
 ```json
 {
-  //  ...
   "compilerOptions": {
-    // ...
     "skipLibCheck": true,
     "noStrictGenericChecks": true
   }

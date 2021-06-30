@@ -38,9 +38,7 @@ Rimbu uses advanced and recursive typing, potentially making the TypeScript comp
 
 ```json
 {
-  //  ...
   "compilerOptions": {
-    // ...
     "skipLibCheck": true,
     "noStrictGenericChecks": true
   }

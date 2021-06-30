@@ -14,6 +14,10 @@ This package exports the following types:
 | `ArrowValuedGraphHashed<N, V>` | a valued directed graph with hashed nodes of type N, and edge values of type V  |
 | `ArrowvaluedGraphSorted<N, V>` | a valued directed graph with sorted nodes of type N, and edge values of type V  |
 
+For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
+
+Or [Try Me Out](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
+
 ## Installation
 
 All types are exported through [`@rimbu/core`](../core). It is recommended to use this package.
@@ -32,9 +36,7 @@ Rimbu uses advanced and recursive typing, potentially making the TypeScript comp
 
 ```json
 {
-  //  ...
   "compilerOptions": {
-    // ...
     "skipLibCheck": true,
     "noStrictGenericChecks": true
   }

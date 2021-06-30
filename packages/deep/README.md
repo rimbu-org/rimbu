@@ -24,9 +24,7 @@ Rimbu uses advanced and recursive typing, potentially making the TS compiler qui
 
 ```json
 {
-  //  ...
   "compilerOptions": {
-    // ...
     "skipLibCheck": true,
     "noStrictGenericChecks": true
   }
