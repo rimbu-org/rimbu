@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="../../assets/rimbu_logo.svg" />
+    <img src="https://github.com/rimbu-org/rimbu/raw/main/assets/rimbu_logo.svg" />
 </p>
 
 # @rimbu/graph-edge-valued
