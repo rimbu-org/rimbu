@@ -28,7 +28,9 @@ export class OrderedSetNonEmpty<
     return this;
   }
 
-  assumeNonEmpty: any;
+  assumeNonEmpty(): any {
+    return this;
+  }
 
   copy(order = this.order, sourceSet = this.sourceSet): TpG['nonEmpty'] {
     return this.context.createNonEmpty<T>(order, sourceSet as any);

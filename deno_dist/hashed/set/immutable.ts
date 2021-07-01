@@ -10,6 +10,8 @@ export class HashSetEmpty<T = any>
   extends CustomBase.EmptyBase
   implements HashSet<T>
 {
+  readonly addAll: any;
+
   constructor(readonly context: HashSetContext<T>) {
     super();
 
@@ -23,8 +25,6 @@ export class HashSetEmpty<T = any>
   add(value: T): HashSet.NonEmpty<T> {
     return this.context.emptyBlock().add(value);
   }
-
-  addAll: any;
 
   remove(): this {
     return this;
@@ -77,7 +77,7 @@ export abstract class HashSetNonEmptyBase<T>
   extends CustomBase.NonEmptyBase<T>
   implements HashSet.NonEmpty<T>
 {
-  abstract context: HashSetContext<T>;
+  abstract readonly context: HashSetContext<T>;
   abstract readonly size: number;
   abstract stream(): Stream.NonEmpty<T>;
   abstract forEach(

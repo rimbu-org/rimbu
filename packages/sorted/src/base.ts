@@ -37,7 +37,7 @@ export abstract class SortedNonEmptyBase<
   abstract getAtIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
 
   // internal
-  abstract entries: readonly E[];
+  abstract readonly entries: readonly E[];
 
   abstract takeInternal(amount: number): TS;
   abstract dropInternal(amount: number): TS;
@@ -663,7 +663,8 @@ export abstract class SortedBuilder<E> {
   };
   abstract _entries?: E[];
   abstract _children?: SortedBuilder<E>[];
-  abstract children: SortedBuilder<E>[];
+  abstract get children(): SortedBuilder<E>[];
+  abstract set children(value: SortedBuilder<E>[]);
   abstract size: number;
   abstract prepareMutate(): void;
   abstract createNew(

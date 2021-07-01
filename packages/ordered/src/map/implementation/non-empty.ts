@@ -58,7 +58,9 @@ export class OrderedMapNonEmpty<
     return this;
   }
 
-  assumeNonEmpty: any;
+  assumeNonEmpty(): any {
+    return this;
+  }
 
   stream(): Stream.NonEmpty<[K, V]> {
     return this.streamKeys().map((k): [K, V] => [
