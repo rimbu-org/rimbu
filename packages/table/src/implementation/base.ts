@@ -170,7 +170,9 @@ export class TableNonEmpty<
     super();
   }
 
-  assumeNonEmpty: any;
+  assumeNonEmpty(): any {
+    return this;
+  }
 
   asNormal(): any {
     return this;

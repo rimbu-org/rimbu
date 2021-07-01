@@ -15,9 +15,12 @@ import { createFromBlock, createNonLeaf } from '../../list-custom';
 export abstract class TreeBuilderBase<T, C> {
   abstract readonly context: ListContext;
   abstract readonly level: number;
-  abstract left: BlockBuilder<T, C>;
-  abstract right: BlockBuilder<T, C>;
-  abstract middle?: NonLeafBuilder<T, BlockBuilder<T, C>>;
+  abstract get left(): BlockBuilder<T, C>;
+  abstract set left(value: BlockBuilder<T, C>);
+  abstract get right(): BlockBuilder<T, C>;
+  abstract set right(value: BlockBuilder<T, C>);
+  abstract get middle(): NonLeafBuilder<T, BlockBuilder<T, C>> | undefined;
+  abstract set middle(value: NonLeafBuilder<T, BlockBuilder<T, C>> | undefined);
   abstract length: number;
   abstract getChildLength(child: C): number;
 
@@ -64,17 +67,17 @@ export abstract class TreeBuilderBase<T, C> {
     }
 
     if (undefined !== this.middle) {
-      const delta = this.middle.modifyFirstChild((firstChild):
-        | number
-        | undefined => {
-        if (firstChild.nrChildren < this.context.maxBlockSize) {
-          const shiftChild = this.left.dropLast();
-          this.left.prepend(child);
-          firstChild.prepend(shiftChild);
-          return this.getChildLength(shiftChild);
+      const delta = this.middle.modifyFirstChild(
+        (firstChild): number | undefined => {
+          if (firstChild.nrChildren < this.context.maxBlockSize) {
+            const shiftChild = this.left.dropLast();
+            this.left.prepend(child);
+            firstChild.prepend(shiftChild);
+            return this.getChildLength(shiftChild);
+          }
+          return;
         }
-        return;
-      });
+      );
 
       if (undefined !== delta) return;
     } else if (this.right.nrChildren < this.context.maxBlockSize) {
@@ -100,17 +103,17 @@ export abstract class TreeBuilderBase<T, C> {
 
     if (undefined !== this.middle) {
       // try to shift to last middle child
-      const delta = this.middle.modifyLastChild((lastChild):
-        | number
-        | undefined => {
-        if (lastChild.nrChildren < this.context.maxBlockSize) {
-          const shiftChild = this.right.dropFirst();
-          this.right.append(child);
-          lastChild.append(shiftChild);
-          return this.getChildLength(shiftChild);
+      const delta = this.middle.modifyLastChild(
+        (lastChild): number | undefined => {
+          if (lastChild.nrChildren < this.context.maxBlockSize) {
+            const shiftChild = this.right.dropFirst();
+            this.right.append(child);
+            lastChild.append(shiftChild);
+            return this.getChildLength(shiftChild);
+          }
+          return;
         }
-        return;
-      });
+      );
 
       if (undefined !== delta) return;
     } else if (this.left.nrChildren < this.context.maxBlockSize) {
@@ -142,17 +145,17 @@ export abstract class TreeBuilderBase<T, C> {
 
       if (undefined !== this.middle) {
         // left borrows from middle
-        const delta = this.middle.modifyFirstChild((firstChild):
-          | number
-          | undefined => {
-          if (firstChild.nrChildren > this.context.minBlockSize) {
-            // left borrows from middle's first grandChild
-            const shiftChild = firstChild.dropFirst();
-            this.left.append(shiftChild);
-            return -this.getChildLength(shiftChild);
+        const delta = this.middle.modifyFirstChild(
+          (firstChild): number | undefined => {
+            if (firstChild.nrChildren > this.context.minBlockSize) {
+              // left borrows from middle's first grandChild
+              const shiftChild = firstChild.dropFirst();
+              this.left.append(shiftChild);
+              return -this.getChildLength(shiftChild);
+            }
+            return;
           }
-          return;
-        });
+        );
 
         // if borrow was succesful
         if (undefined !== delta) return oldValue;
@@ -181,16 +184,16 @@ export abstract class TreeBuilderBase<T, C> {
 
       if (undefined !== this.middle) {
         // right borrows from middle
-        const delta = this.middle.modifyLastChild((lastChild):
-          | number
-          | undefined => {
-          if (lastChild.nrChildren > this.context.minBlockSize) {
-            const shiftChild = lastChild.dropLast();
-            this.right.prepend(shiftChild);
-            return -this.getChildLength(shiftChild);
+        const delta = this.middle.modifyLastChild(
+          (lastChild): number | undefined => {
+            if (lastChild.nrChildren > this.context.minBlockSize) {
+              const shiftChild = lastChild.dropLast();
+              this.right.prepend(shiftChild);
+              return -this.getChildLength(shiftChild);
+            }
+            return;
           }
-          return;
-        });
+        );
 
         // if borrow was succesful
         if (undefined !== delta) return oldValue;
@@ -227,16 +230,16 @@ export abstract class TreeBuilderBase<T, C> {
 
       if (undefined !== this.middle) {
         // try shift to middle
-        const delta = this.middle.modifyFirstChild((firstChild):
-          | number
-          | undefined => {
-          if (firstChild.nrChildren < this.context.maxBlockSize) {
-            const shiftChild = this.left.dropLast();
-            firstChild.prepend(shiftChild);
-            return this.getChildLength(shiftChild);
+        const delta = this.middle.modifyFirstChild(
+          (firstChild): number | undefined => {
+            if (firstChild.nrChildren < this.context.maxBlockSize) {
+              const shiftChild = this.left.dropLast();
+              firstChild.prepend(shiftChild);
+              return this.getChildLength(shiftChild);
+            }
+            return;
           }
-          return;
-        });
+        );
 
         if (undefined !== delta) return;
       } else if (this.right.nrChildren < this.context.maxBlockSize) {
@@ -261,16 +264,16 @@ export abstract class TreeBuilderBase<T, C> {
 
       if (undefined !== this.middle) {
         // try to shift child to middle last
-        const delta = this.middle.modifyLastChild((lastChild):
-          | number
-          | undefined => {
-          if (lastChild.nrChildren < this.context.maxBlockSize) {
-            const shiftChild = this.right.dropFirst();
-            lastChild.append(shiftChild);
-            return this.getChildLength(shiftChild);
+        const delta = this.middle.modifyLastChild(
+          (lastChild): number | undefined => {
+            if (lastChild.nrChildren < this.context.maxBlockSize) {
+              const shiftChild = this.right.dropFirst();
+              lastChild.append(shiftChild);
+              return this.getChildLength(shiftChild);
+            }
+            return;
           }
-          return;
-        });
+        );
 
         if (undefined !== delta) return;
       } else if (this.left.nrChildren < this.context.maxBlockSize) {
@@ -374,16 +377,16 @@ export abstract class TreeBuilderBase<T, C> {
     if (this.left.nrChildren >= this.context.minBlockSize) return first;
 
     if (undefined !== this.middle) {
-      const delta = this.middle.modifyFirstChild((firstChild):
-        | number
-        | undefined => {
-        if (firstChild.nrChildren > this.context.minBlockSize) {
-          const shiftChild = firstChild.dropFirst();
-          this.left.append(shiftChild);
-          return -this.getChildLength(shiftChild);
+      const delta = this.middle.modifyFirstChild(
+        (firstChild): number | undefined => {
+          if (firstChild.nrChildren > this.context.minBlockSize) {
+            const shiftChild = firstChild.dropFirst();
+            this.left.append(shiftChild);
+            return -this.getChildLength(shiftChild);
+          }
+          return;
         }
-        return;
-      });
+      );
 
       if (undefined !== delta) return first;
 
@@ -409,16 +412,16 @@ export abstract class TreeBuilderBase<T, C> {
     if (this.right.nrChildren >= this.context.minBlockSize) return last;
 
     if (undefined !== this.middle) {
-      const delta = this.middle.modifyLastChild((lastChild):
-        | number
-        | undefined => {
-        if (lastChild.nrChildren > this.context.minBlockSize) {
-          const shiftChild = lastChild.dropLast();
-          this.right.prepend(shiftChild);
-          return -this.getChildLength(shiftChild);
+      const delta = this.middle.modifyLastChild(
+        (lastChild): number | undefined => {
+          if (lastChild.nrChildren > this.context.minBlockSize) {
+            const shiftChild = lastChild.dropLast();
+            this.right.prepend(shiftChild);
+            return -this.getChildLength(shiftChild);
+          }
+          return;
         }
-        return;
-      });
+      );
 
       if (undefined !== delta) return last;
 
