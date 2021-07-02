@@ -10,13 +10,13 @@ See [Immutable](deep/immutable.md) for more information.
 
 ## Patch
 
-With immutable objects its often desirable to create copies where some properties are modified. The `Patch` function offers a convenient way to do this.
+With immutable objects its often desirable to create copies where some properties are modified. The `patch` function offers a convenient way to do this.
 
 See [Patch](deep/patch.md) for more information.
 
 ## Match
 
-In a similar fashion to `Patch`, the `Match` object offers methods to easily check if data in an object satisfies a number of characteristics.
+In a similar fashion to `patch`, the `Match` object offers methods to easily check if data in an object satisfies a number of characteristics.
 
 See [Match](deep/match.md) for more information.
 

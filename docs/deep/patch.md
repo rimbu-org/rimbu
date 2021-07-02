@@ -28,14 +28,14 @@ const newState = {
 
 There are libraries that solve this problem in various ways, for example, the [Immer](https://github.com/immerjs/immer) library allows you to write mutable code that will in the end result in a new object containing those changes.
 
-Rimbu offers the `Patch` object, which has a kind of 'contract' to specify how a specific object should be updated. The contract uses a quite concise but powerful notation, making it quite handy or many use cases. It also only copies those parts that have changes, and maintains references to the original parts that didn't change.
+Rimbu offers the `patch` function, which has a kind of 'contract' to specify how a specific object should be updated. The contract uses a quite concise but powerful notation, making it quite handy or many use cases. It also only copies those parts that have changes, and maintains references to the original parts that didn't change.
 
 ## Usage
 
-The `Patch` object takes the plain object to update, and one or more `Update` objects or functions specifying how the object should be updated. It then returns an updated object:
+The `patch` function takes the plain object to update, and one or more `Update` objects or functions specifying how the object should be updated. It then returns an updated object:
 
 ```ts
-import { Patch } from '@rimbu/core';
+import { patch } from '@rimbu/core';
 
 const state = {
   a: 1,
@@ -45,7 +45,7 @@ const state = {
   },
 };
 
-const newState = Patch(state)({
+const newState = patch(state)({
   a: (v) => v + 1,
   b: { c: 'newText' },
 });
@@ -53,7 +53,7 @@ const newState = Patch(state)({
 // newState => { a: 2, b: { c: 'newText', d: true } }
 ```
 
-The following CodeSandbox shows more example of how to use `Patch`:
+The following CodeSandbox shows more example of how to use `patch`:
 
 [Open with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/deep/patch.ts ':target blank :class=btn')
 
