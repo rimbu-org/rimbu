@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/table-hash-row",
-  "version": "0.5.11",
+  "version": "0.6.0",
   "description": "Immutable spreadsheet-like data structures containing row keys, column keys, and cell values",
   "keywords": [
     "table",
@@ -59,13 +59,13 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@rimbu/base": "^0.5.9",
-    "@rimbu/collection-types": "^0.5.11",
-    "@rimbu/common": "^0.5.9",
-    "@rimbu/hashed": "^0.5.11",
-    "@rimbu/sorted": "^0.5.11",
-    "@rimbu/stream": "^0.5.11",
-    "@rimbu/table": "^0.5.11"
+    "@rimbu/base": "^0.6.0",
+    "@rimbu/collection-types": "^0.6.0",
+    "@rimbu/common": "^0.6.0",
+    "@rimbu/hashed": "^0.6.0",
+    "@rimbu/sorted": "^0.6.0",
+    "@rimbu/stream": "^0.6.0",
+    "@rimbu/table": "^0.6.0"
   },
   "publishConfig": {
     "access": "public"

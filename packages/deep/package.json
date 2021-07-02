@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/deep",
-  "version": "0.5.9",
+  "version": "0.6.0",
   "description": "Tools to use handle plain JS objects as immutable objects",
   "keywords": [
     "immutable",
@@ -56,8 +56,8 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@rimbu/base": "^0.5.9",
-    "@rimbu/common": "^0.5.9"
+    "@rimbu/base": "^0.6.0",
+    "@rimbu/common": "^0.6.0"
   },
   "publishConfig": {
     "access": "public"

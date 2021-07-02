@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.6.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/multimap@0.5.11...@rimbu/multimap@0.6.0) (2021-07-02)
+
+
+### Features
+
+* added support for deno ([7240c99](https://github.com/rimbu-org/rimbu/commit/7240c998904822e098d2abf6e8e6deda4f165f11))
+
+
+### BREAKING CHANGES
+
+* New compiler settings do not allow function and namespace with same name, impacting
+Err and Patch
+
+
+
+
+
 ## [0.5.11](https://github.com/rimbu-org/rimbu/compare/@rimbu/multimap@0.5.10...@rimbu/multimap@0.5.11) (2021-06-27)
 
 **Note:** Version bump only for package @rimbu/multimap
