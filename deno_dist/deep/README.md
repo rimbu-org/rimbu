@@ -34,10 +34,10 @@ Rimbu uses advanced and recursive typing, potentially making the TS compiler qui
 ## Usage
 
 ```ts
-import { Patch } from '@rimbu/deep';
+import { patch } from '@rimbu/deep';
 
 console.log(
-  Patch({
+  patch({
     a: 'a',
     b: { c: 1, d: true },
   })({
