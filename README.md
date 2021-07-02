@@ -2,6 +2,8 @@
     <img src="https://github.com/rimbu-org/rimbu/raw/main/assets/rimbu_logo.svg" />
 </p>
 
+[![codecov](https://codecov.io/gh/rimbu-org/rimbu/branch/main/graph/badge.svg?token=RSFK5B0N0Z)](https://codecov.io/gh/rimbu-org/rimbu)
+
 # Immutable collections and tools for TypeScript
 
 Rimbu is a TypeScript library focused on _immutable, performant, and type-safe collections_ and other tools. Its main aim is to allow programmers to create safe and performant programs without getting in the way. It is inspired by various other collection libraries, mainly Java's Guava library, the Java 8 Collection library, and Scala's collection library plus various ideas from the Scala community.
