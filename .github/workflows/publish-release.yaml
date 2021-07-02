@@ -5,6 +5,9 @@ on:
       - '!*'
     tags:
       - 'r*'
+  release:
+    types:
+      - created
 jobs:
   publish:
     runs-on: ubuntu-latest
