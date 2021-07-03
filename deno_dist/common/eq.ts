@@ -203,7 +203,8 @@ export namespace Eq {
             return _objectEq(v1, v2);
           }
 
-          return _anyToStringEq(v1, v2);
+          // cannot establish that they are equal in flat mode
+          return false;
         }
       }
     };
@@ -213,7 +214,7 @@ export namespace Eq {
 
   /**
    * Returns an Eq instance that checks equality of any values. For composed values (objects and iterables)
-   * it will compare the JSON.stringify results of the values.
+   * it will compare with Object.is.
    * @typeparam T - the value type
    * @example
    * const eq = anyFlatEq()
@@ -229,7 +230,7 @@ export namespace Eq {
   /**
    * Returns an Eq instance that checks equality of any values. For composed values (objects and iterables)
    * it will enter 1 level, and if again compound values are found, they are compared
-   * using JSON.stringify.
+   * with Object.is.
    * @typeparam T - the value type
    * @example
    * const eq = anyFlatEq()

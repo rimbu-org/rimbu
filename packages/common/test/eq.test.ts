@@ -59,7 +59,8 @@ describe('Eq', () => {
     ).toBe(false);
     expect(e(Object.is, Object.is)).toBe(true);
     expect(e({}, new (class Object {})())).toBe(false);
-    expect(e({}, {})).toBe(true);
+    // flat does not compare object contents, to be safe returns false
+    expect(e({}, {})).toBe(false);
     // not same constructor
     expect(e(new (class Object {})(), new (class Object {})())).toBe(false);
 
@@ -67,8 +68,8 @@ describe('Eq', () => {
       constructor(readonly v: number) {}
     }
 
-    // same constructor
-    expect(e(new O(1), new O(1))).toBe(true);
+    // same constructor but flat does not compare contents
+    expect(e(new O(1), new O(1))).toBe(false);
     // because toString gives [object object], this will be true
     // expect(e(new O(1), new O(2))).toBe(false);
   });
@@ -82,7 +83,8 @@ describe('Eq', () => {
     expect(e([1], [1, 3])).toBe(false);
     expect(e({}, { a: 1 })).toBe(false);
     expect(e({ a: 1 }, { a: 1 })).toBe(true);
-    expect(e({ a: 1, b: { c: 4 } }, { a: 1, b: { c: 4 } })).toBe(true);
+    // shallow only checks one level deep, to be safe will return false for deeper nested objects
+    expect(e({ a: 1, b: { c: 4 } }, { a: 1, b: { c: 4 } })).toBe(false);
     expect(e({ a: 1, b: { c: 4 } }, { a: 1, b: { c: 5 } })).toBe(false);
     expect(e(1, 2)).toBe(false);
     expect(e(2, 2)).toBe(true);
@@ -90,6 +92,13 @@ describe('Eq', () => {
     expect(e('a', 'a')).toBe(true);
     expect(e('a', 'b')).toBe(false);
     expect(e(Symbol('a'), Symbol('a'))).toBe(false);
+
+    class O {
+      constructor(readonly v: number) {}
+    }
+
+    // same constructor
+    expect(e(new O(1), new O(1))).toBe(true);
   });
 
   it('anyDeepEq', () => {
