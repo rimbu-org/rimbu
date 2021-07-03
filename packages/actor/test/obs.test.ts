@@ -1,5 +1,6 @@
 import { Literal } from '@rimbu/deep';
 import { Obs } from '../src';
+import { OrderedHashMap } from '@rimbu/core';
 
 describe('Obs', () => {
   it('asReadonly', () => {
@@ -317,46 +318,45 @@ describe('Obs.map', () => {
   it('subscribe', () => {
     const onChange = jest.fn();
 
-    const obs = Obs.create({ a: 1 });
+    const obs = Obs.create({ a: { b: 1 } });
 
     const mappedObs = obs.map(
-      (s) => s,
-      (s) => s,
-      { derive: (s) => ({ b: s.a * 2 }) }
+      (s) => s.a,
+      (a) => ({ a: Literal.of(a) })
     );
 
     const unsubscribe = mappedObs.subscribe(onChange);
 
     expect(onChange).not.toBeCalled();
 
-    obs.setState({ a: 2 });
+    obs.setState({ a: { b: 2 } });
 
     expect(onChange).toBeCalledTimes(1);
-    expect(onChange).toBeCalledWith({ a: 2, b: 4 }, { a: 1, b: 2 });
+    expect(onChange).toBeCalledWith({ b: 2 }, { b: 1 });
 
     onChange.mockReset();
 
-    obs.patchState({ a: (v) => v + 1 });
+    obs.patchState({ a: { b: (v) => v + 1 } });
 
     expect(onChange).toBeCalledTimes(1);
-    expect(onChange).toBeCalledWith({ a: 3, b: 6 }, { a: 2, b: 4 });
+    expect(onChange).toBeCalledWith({ b: 3 }, { b: 2 });
 
     onChange.mockReset();
 
-    obs.patchState({ a: 3 });
+    obs.patchState({ a: { b: 3 } });
 
     expect(onChange).not.toBeCalled();
 
-    mappedObs.patchState({ a: (v) => v + 1 });
+    mappedObs.patchState({ b: (v) => v + 1 });
 
     expect(onChange).toBeCalledTimes(1);
-    expect(onChange).toBeCalledWith({ a: 4, b: 8 }, { a: 3, b: 6 });
+    expect(onChange).toBeCalledWith({ b: 4 }, { b: 3 });
 
     unsubscribe();
     onChange.mockReset();
 
-    obs.patchState({ a: (v) => v + 1 });
-    mappedObs.patchState({ a: 12 });
+    obs.patchState({ a: { b: (v) => v + 1 } });
+    mappedObs.patchState({ b: 12 });
 
     expect(onChange).not.toBeCalled();
   });
@@ -720,5 +720,21 @@ describe('Obs.select', () => {
 
     expect(obs.hasSubscribers).toBe(true);
     expect(mappedObs.hasSubscribers).toBe(true);
+  });
+});
+
+describe('additional tests', () => {
+  it('updates nested immutable collection', () => {
+    const onChange = jest.fn();
+
+    const obs = Obs.create({
+      a: OrderedHashMap.of([1, { label: 'a', done: false }]),
+    });
+
+    obs.subscribe(onChange);
+
+    obs.patchState({ a: (v) => v.set(1, { label: 'a', done: true }) });
+
+    expect(onChange).toBeCalledTimes(1);
   });
 });

@@ -1,5 +1,23 @@
 import type { Obs } from './internal.ts';
 
+class Impl<T, P extends Record<string, unknown>, D> implements Actor<T, D> {
+  constructor(readonly actor: Actor<T, D>, props: P) {
+    Object.assign(this, props);
+  }
+
+  get obs() {
+    return this.actor.obs;
+  }
+
+  get obsReadonly() {
+    return this.actor.obsReadonly;
+  }
+
+  get state() {
+    return this.actor.state;
+  }
+}
+
 /**
  * Am `Actor` that has an `Obs` instance so that its state can be observed and modified. Its main aim is to allow
  * custom methods to be added to an `Obs`.
@@ -29,26 +47,11 @@ export namespace Actor {
     readonly state: this['obsReadonly']['state'];
   }
 
+  /**
+   * Returns, for an Obs or Actor, its state type
+   */
   export type StateType<A extends Actor.Readonly<unknown>> =
     A extends Actor.Readonly<infer S> ? S : never;
-
-  class Impl<T, P extends Record<string, unknown>, D> implements Actor<T, D> {
-    constructor(readonly actor: Actor<T, D>, props: P) {
-      Object.assign(this, props);
-    }
-
-    get obs() {
-      return this.actor.obs;
-    }
-
-    get obsReadonly() {
-      return this.actor.obsReadonly;
-    }
-
-    get state() {
-      return this.actor.state;
-    }
-  }
 
   /**
    * Returns an `Actor` instance based on the given input `Actor` (which may also be an `Obs`), and adds the methods and properties of the

@@ -1,5 +1,354 @@
-import { Eq } from 'https://deno.land/x/rimbu/common/mod.ts';
 import { Immutable, Literal, patch, Patch, Path } from 'https://deno.land/x/rimbu/deep/mod.ts';
+
+class NotifierBase<T> {
+  readonly _subscribers = new Set<Obs.StateUpdate<T>>();
+  _onNoMoreSupscribers?: Obs.UnsubscribeFn;
+
+  constructor(
+    readonly options?: { onFirstSubscription?: () => Obs.UnsubscribeFn }
+  ) {}
+
+  get hasSubscribers(): boolean {
+    return this._subscribers.size > 0;
+  }
+
+  subscribe(onChange: Obs.StateUpdate<T>): Obs.UnsubscribeFn {
+    if (!this.hasSubscribers) {
+      this._onNoMoreSupscribers = this.options?.onFirstSubscription?.();
+    }
+
+    this._subscribers.add(onChange);
+
+    return () => {
+      this._subscribers.delete(onChange);
+
+      if (!this.hasSubscribers) {
+        this._onNoMoreSupscribers?.();
+        this._onNoMoreSupscribers = undefined;
+      }
+    };
+  }
+
+  notify(newState: T, oldState: T) {
+    for (const subscriber of this._subscribers) {
+      subscriber(newState, oldState);
+    }
+  }
+}
+
+class Impl<T, D> extends NotifierBase<Immutable<T & D>> implements Obs<T, D> {
+  constructor(
+    public pureState: T,
+    readonly options?: {
+      onGetState?: () => void;
+      onSetState?: (newState: Immutable<T & D>) => void;
+      derive?: (
+        newState: Immutable<T>,
+        oldState: Immutable<T>,
+        oldDerived?: Immutable<D>
+      ) => D;
+      onFirstSubscription?: () => Obs.UnsubscribeFn;
+    },
+    public derivedState = options?.derive?.(
+      pureState as Immutable<T>,
+      pureState as Immutable<T>
+    ),
+    public fullState = (options?.derive
+      ? { ...pureState, ...derivedState }
+      : pureState) as T & D
+  ) {
+    super(options);
+  }
+
+  get state(): Immutable<T & D> {
+    this.options?.onGetState?.();
+    return this.fullState as Immutable<T & D>;
+  }
+
+  get obs() {
+    return this;
+  }
+
+  get obsReadonly() {
+    return this;
+  }
+
+  asReadonly(): this {
+    return this;
+  }
+
+  setState(newPureState: T): void {
+    const oldPureState = this.pureState;
+
+    if (Object.is(newPureState, oldPureState)) return;
+
+    this.pureState = newPureState;
+
+    if (!this.options?.derive) {
+      this.fullState = newPureState as T & D;
+      this.options?.onSetState?.(newPureState as Immutable<T & D>);
+
+      this.notify(
+        newPureState as Immutable<T & D>,
+        oldPureState as Immutable<T & D>
+      );
+      return;
+    }
+
+    const oldDerivedState = this.derivedState;
+
+    const newDerivedState = this.options.derive(
+      newPureState as Immutable<T>,
+      oldPureState as Immutable<T>,
+      oldDerivedState as Immutable<D>
+    );
+
+    const newFullState = { ...newPureState, ...newDerivedState };
+
+    this.derivedState = newDerivedState;
+
+    const oldFullState = this.fullState;
+    this.fullState = newFullState;
+    this.options?.onSetState?.(newPureState as Immutable<T & D>);
+
+    this.notify(
+      newFullState as Immutable<T & D>,
+      oldFullState as Immutable<T & D>
+    );
+  }
+
+  patchState(...patches: Patch.Multi<T>): void {
+    const pureState = this.pureState;
+
+    const newState = patch(pureState as T)(...patches) as T;
+
+    this.setState(newState);
+  }
+
+  mapReadonly<T2, D2>(
+    mapTo: (newState: Immutable<T & D>) => T2,
+    options?: {
+      derive?: (
+        newState: Immutable<T2>,
+        oldState: Immutable<T2>,
+        oldDerived?: Immutable<D2>
+      ) => D2;
+      onFirstSubscription?: () => Obs.UnsubscribeFn;
+    }
+  ): Obs.Readonly<T2 & D2> {
+    const onFirstSubscription = (): Obs.UnsubscribeFn => {
+      const unsubscribe1 = this.subscribe((newState) =>
+        result.setState(mapTo(newState))
+      );
+      const unsubscribe2 = options?.onFirstSubscription?.();
+
+      return () => {
+        unsubscribe1();
+        unsubscribe2?.();
+      };
+    };
+
+    const result = new Impl<T2, D2>(mapTo(this.state), {
+      derive: options?.derive,
+      onFirstSubscription,
+      onGetState: () => {
+        if (!result.hasSubscribers) {
+          result.setState(mapTo(this.state));
+        }
+      },
+    });
+
+    return result;
+  }
+
+  map<T2, D2 = unknown>(
+    mapTo: (newState: Immutable<T & D>) => T2,
+    mapFrom: (newState: Immutable<T2>) => Patch<T>,
+    options?: {
+      derive?: (
+        newState: Immutable<T2>,
+        oldState: Immutable<T2>,
+        oldDerived?: Immutable<D2>
+      ) => D2;
+      onFirstSubscription?: () => Obs.UnsubscribeFn;
+    }
+  ): Obs<T2, D2> {
+    const onFirstSubscription = (): Obs.UnsubscribeFn => {
+      const unsubscribe1 = this.subscribe((newState) => {
+        result.setState(mapTo(newState));
+      });
+      const unsubscribe2 = options?.onFirstSubscription?.();
+
+      return () => {
+        unsubscribe1();
+        unsubscribe2?.();
+      };
+    };
+
+    const result = new Impl<T2, D2>(mapTo(this.state), {
+      derive: options?.derive,
+      onFirstSubscription,
+      onGetState: () => {
+        if (!result.hasSubscribers) {
+          result.setState(mapTo(this.state));
+        }
+      },
+      onSetState: (newState) => {
+        if (Object.is(mapTo(this.state), newState)) return;
+
+        this.patchState(mapFrom(newState));
+      },
+    });
+
+    return result;
+  }
+
+  select<P extends Path<T>, DR = unknown>(
+    pathInState: P,
+    options?: {
+      derive?: (
+        newState: Immutable<Path.Result<T, P>>,
+        oldState: Immutable<Path.Result<T, P>>,
+        oldDerived?: Immutable<DR>
+      ) => DR;
+      onFirstSubscription?: () => Obs.UnsubscribeFn;
+    }
+  ): Obs<Path.Result<T, P>, DR> {
+    return this.map(
+      (newParentState) => Path.getValue(newParentState as T, pathInState),
+      (newChildState: Immutable<Path.Result<T, P>>): Patch<T> => {
+        const pathObj = {};
+        const parts = pathInState.split('.');
+
+        if (parts.length <= 0) return Literal.of(newChildState);
+
+        const lastPart = parts.pop()!;
+
+        let obj: any = pathObj;
+
+        for (const part of parts) {
+          obj[part] = {};
+          obj = obj[part];
+        }
+
+        obj[lastPart] = Literal.of(newChildState);
+
+        return pathObj as any;
+      },
+      options
+    );
+  }
+
+  selectReadonly<P extends Path<T & D>, DR>(
+    pathInState: P,
+    options?: {
+      derive?: (
+        newState: Immutable<Path.Result<T & D, P>>,
+        oldState: Immutable<Path.Result<T & D, P>>,
+        oldDerived?: Immutable<DR>
+      ) => DR;
+      onFirstSubscription?: () => Obs.UnsubscribeFn;
+    }
+  ): Obs.Readonly<Path.Result<T & D, P> & DR> {
+    return this.mapReadonly(
+      (newParentState: Immutable<T & D>) =>
+        Path.getValue(newParentState as T & D, pathInState),
+      options
+    );
+  }
+
+  combineReadonly<T2, R, DR = unknown>(
+    other: Obs.Readonly<T2>,
+    mapTo: (state1: Immutable<T & D>, state2: Immutable<T2>) => R,
+    options?: {
+      derive?: (
+        newState: Immutable<R>,
+        oldState: Immutable<R>,
+        oldDerived?: Immutable<DR>
+      ) => DR;
+      onFirstSubscription?: () => Obs.UnsubscribeFn;
+    }
+  ): Obs.Readonly<R & DR> {
+    const onFirstSubscription = (): Obs.UnsubscribeFn => {
+      const unsubscribe1 = this.subscribe((newState) => {
+        result.setState(mapTo(newState, other.state));
+      });
+      const unsubscribe2 = other.subscribe((newState) => {
+        result.setState(mapTo(this.state, newState));
+      });
+      const unsubscribe3 = options?.onFirstSubscription?.();
+      return () => {
+        unsubscribe1();
+        unsubscribe2();
+        unsubscribe3?.();
+      };
+    };
+    const result = new Impl(mapTo(this.state, other.state), {
+      onFirstSubscription,
+      onGetState: () => {
+        if (!result.hasSubscribers) {
+          result.setState(mapTo(this.state, other.state));
+        }
+      },
+      derive: options?.derive,
+    });
+
+    return result;
+  }
+
+  combine<T2, D2, R, DR = unknown>(
+    other: Obs<T2, D2>,
+    mapTo: (state1: Immutable<T & D>, state2: Immutable<T2 & D2>) => R,
+    mapFrom: (state: Immutable<R & DR>) => Patch<readonly [T, T2]>,
+    options?: {
+      derive?: (
+        newState: Immutable<R>,
+        oldState: Immutable<R>,
+        oldDerived?: Immutable<DR>
+      ) => DR;
+      onFirstSubscription?: () => Obs.UnsubscribeFn;
+    }
+  ): Obs<R> {
+    const onFirstSubscription = (): Obs.UnsubscribeFn => {
+      const unsubscribe1 = this.subscribe((newState) => {
+        result.setState(mapTo(newState, other.state));
+      });
+      const unsubscribe2 = other.subscribe((newState) => {
+        result.setState(mapTo(this.state, newState));
+      });
+      const unsubscribe3 = options?.onFirstSubscription?.();
+
+      return () => {
+        unsubscribe1();
+        unsubscribe2();
+        unsubscribe3?.();
+      };
+    };
+
+    const result = new Impl(mapTo(this.state, other.state), {
+      onFirstSubscription,
+      derive: options?.derive,
+      onGetState: () => {
+        if (!result.hasSubscribers) {
+          result.setState(mapTo(this.state, other.state));
+        }
+      },
+      onSetState: (newCombinedState) => {
+        const parentPatch = mapFrom(newCombinedState);
+
+        const [newThisState, newOtherState] = patch([
+          this.state,
+          other.state,
+        ] as const)(parentPatch as any);
+
+        this.setState(newThisState as T);
+        other.setState(newOtherState as T2);
+      },
+    });
+
+    return result;
+  }
+}
 
 /**
  * An observable entity that contains potentially complex state and methods to manipulate
@@ -437,345 +786,5 @@ export namespace Obs {
     }
   ): Obs<T, D> {
     return new Impl<T, D>(initState, options);
-  }
-
-  class NotifierBase<T> {
-    readonly _subscribers = new Set<StateUpdate<T>>();
-    _onNoMoreSupscribers?: UnsubscribeFn;
-
-    constructor(
-      readonly options?: { onFirstSubscription?: () => UnsubscribeFn }
-    ) {}
-
-    get hasSubscribers(): boolean {
-      return this._subscribers.size > 0;
-    }
-
-    subscribe(onChange: StateUpdate<T>): UnsubscribeFn {
-      if (!this.hasSubscribers) {
-        this._onNoMoreSupscribers = this.options?.onFirstSubscription?.();
-      }
-
-      this._subscribers.add(onChange);
-
-      return () => {
-        this._subscribers.delete(onChange);
-
-        if (!this.hasSubscribers) {
-          this._onNoMoreSupscribers?.();
-          this._onNoMoreSupscribers = undefined;
-        }
-      };
-    }
-
-    notify(newState: T, oldState: T) {
-      for (const subscriber of this._subscribers) {
-        subscriber(newState, oldState);
-      }
-    }
-  }
-
-  const anyEq = Eq.anyShallowEq();
-
-  class Impl<T, D> extends NotifierBase<Immutable<T & D>> implements Obs<T, D> {
-    constructor(
-      public pureState: T,
-      readonly options?: {
-        onGetState?: () => void;
-        onSetState?: (newState: Immutable<T & D>) => void;
-        derive?: (
-          newState: Immutable<T>,
-          oldState: Immutable<T>,
-          oldDerived?: Immutable<D>
-        ) => D;
-        onFirstSubscription?: () => UnsubscribeFn;
-      },
-      public derivedState = options?.derive?.(
-        pureState as Immutable<T>,
-        pureState as Immutable<T>
-      ),
-      public fullState = (options?.derive
-        ? { ...pureState, ...derivedState }
-        : pureState) as T & D
-    ) {
-      super(options);
-    }
-
-    get state(): Immutable<T & D> {
-      this.options?.onGetState?.();
-      return this.fullState as Immutable<T & D>;
-    }
-
-    get obs() {
-      return this;
-    }
-
-    get obsReadonly() {
-      return this;
-    }
-
-    asReadonly(): this {
-      return this;
-    }
-
-    setState(newPureState: T): void {
-      const oldPureState = this.pureState;
-
-      if (anyEq(newPureState, oldPureState)) return;
-
-      this.pureState = newPureState;
-
-      if (!this.options?.derive) {
-        this.fullState = newPureState as T & D;
-        this.options?.onSetState?.(newPureState as Immutable<T & D>);
-
-        this.notify(
-          newPureState as Immutable<T & D>,
-          oldPureState as Immutable<T & D>
-        );
-        return;
-      }
-
-      const oldDerivedState = this.derivedState;
-
-      const newDerivedState = this.options.derive(
-        newPureState as Immutable<T>,
-        oldPureState as Immutable<T>,
-        oldDerivedState as Immutable<D>
-      );
-
-      const newFullState = { ...newPureState, ...newDerivedState };
-
-      this.derivedState = newDerivedState;
-
-      const oldFullState = this.fullState;
-      this.fullState = newFullState;
-      this.options?.onSetState?.(newFullState as Immutable<T & D>);
-
-      this.notify(
-        newFullState as Immutable<T & D>,
-        oldFullState as Immutable<T & D>
-      );
-    }
-
-    patchState(...patches: Patch.Multi<T>): void {
-      const pureState = this.pureState;
-
-      const newState = patch(pureState as T)(...patches) as T;
-
-      this.setState(newState);
-    }
-
-    mapReadonly<T2, D2>(
-      mapTo: (newState: Immutable<T & D>) => T2,
-      options?: {
-        derive?: (
-          newState: Immutable<T2>,
-          oldState: Immutable<T2>,
-          oldDerived?: Immutable<D2>
-        ) => D2;
-        onFirstSubscription?: () => Obs.UnsubscribeFn;
-      }
-    ): Obs.Readonly<T2 & D2> {
-      const onFirstSubscription = (): UnsubscribeFn => {
-        const unsubscribe1 = this.subscribe((newState) =>
-          result.setState(mapTo(newState))
-        );
-        const unsubscribe2 = options?.onFirstSubscription?.();
-
-        return () => {
-          unsubscribe1();
-          unsubscribe2?.();
-        };
-      };
-
-      const result = new Impl<T2, D2>(mapTo(this.state), {
-        derive: options?.derive,
-        onFirstSubscription,
-        onGetState: () => {
-          if (!result.hasSubscribers) {
-            result.setState(mapTo(this.state));
-          }
-        },
-      });
-
-      return result;
-    }
-
-    map<T2, D2 = unknown>(
-      mapTo: (newState: Immutable<T & D>) => T2,
-      mapFrom: (newState: Immutable<T2>) => Patch<T>,
-      options?: {
-        derive?: (
-          newState: Immutable<T2>,
-          oldState: Immutable<T2>,
-          oldDerived?: Immutable<D2>
-        ) => D2;
-        onFirstSubscription?: () => Obs.UnsubscribeFn;
-      }
-    ): Obs<T2, D2> {
-      const onFirstSubscription = (): UnsubscribeFn => {
-        const unsubscribe1 = this.subscribe((newState) => {
-          result.setState(mapTo(newState));
-        });
-        const unsubscribe2 = options?.onFirstSubscription?.();
-
-        return () => {
-          unsubscribe1();
-          unsubscribe2?.();
-        };
-      };
-
-      const result = new Impl<T2, D2>(mapTo(this.state), {
-        derive: options?.derive,
-        onFirstSubscription,
-        onGetState: () => {
-          if (!result.hasSubscribers) {
-            result.setState(mapTo(this.state));
-          }
-        },
-        onSetState: (newState) => {
-          this.patchState(mapFrom(newState));
-        },
-      });
-
-      return result;
-    }
-
-    select<P extends Path<T>, DR = unknown>(
-      pathInState: P,
-      options?: {
-        derive?: (
-          newState: Immutable<Path.Result<T, P>>,
-          oldState: Immutable<Path.Result<T, P>>,
-          oldDerived?: Immutable<DR>
-        ) => DR;
-        onFirstSubscription?: () => Obs.UnsubscribeFn;
-      }
-    ): Obs<Path.Result<T, P>, DR> {
-      return this.map(
-        (newParentState) => Path.getValue(newParentState as T, pathInState),
-        (newChildState: Immutable<Path.Result<T, P>>): Patch<T> => {
-          const newParentState = Path.patchValue(
-            this.state as T,
-            pathInState,
-            newChildState as any
-          );
-
-          return Literal.of(newParentState) as any;
-        },
-        options
-      );
-    }
-
-    selectReadonly<P extends Path<T & D>, DR>(
-      pathInState: P,
-      options?: {
-        derive?: (
-          newState: Immutable<Path.Result<T & D, P>>,
-          oldState: Immutable<Path.Result<T & D, P>>,
-          oldDerived?: Immutable<DR>
-        ) => DR;
-        onFirstSubscription?: () => Obs.UnsubscribeFn;
-      }
-    ): Obs.Readonly<Path.Result<T & D, P> & DR> {
-      return this.mapReadonly(
-        (newParentState: Immutable<T & D>) =>
-          Path.getValue(newParentState as T & D, pathInState),
-        options
-      );
-    }
-
-    combineReadonly<T2, R, DR = unknown>(
-      other: Obs.Readonly<T2>,
-      mapTo: (state1: Immutable<T & D>, state2: Immutable<T2>) => R,
-      options?: {
-        derive?: (
-          newState: Immutable<R>,
-          oldState: Immutable<R>,
-          oldDerived?: Immutable<DR>
-        ) => DR;
-        onFirstSubscription?: () => Obs.UnsubscribeFn;
-      }
-    ): Obs.Readonly<R & DR> {
-      const onFirstSubscription = (): UnsubscribeFn => {
-        const unsubscribe1 = this.subscribe((newState) => {
-          result.setState(mapTo(newState, other.state));
-        });
-        const unsubscribe2 = other.subscribe((newState) => {
-          result.setState(mapTo(this.state, newState));
-        });
-        const unsubscribe3 = options?.onFirstSubscription?.();
-        return () => {
-          unsubscribe1();
-          unsubscribe2();
-          unsubscribe3?.();
-        };
-      };
-      const result = new Impl(mapTo(this.state, other.state), {
-        onFirstSubscription,
-        onGetState: () => {
-          if (!result.hasSubscribers) {
-            result.setState(mapTo(this.state, other.state));
-          }
-        },
-        derive: options?.derive,
-      });
-
-      return result;
-    }
-
-    combine<T2, D2, R, DR = unknown>(
-      other: Obs<T2, D2>,
-      mapTo: (state1: Immutable<T & D>, state2: Immutable<T2 & D2>) => R,
-      mapFrom: (state: Immutable<R & DR>) => Patch<readonly [T, T2]>,
-      options?: {
-        derive?: (
-          newState: Immutable<R>,
-          oldState: Immutable<R>,
-          oldDerived?: Immutable<DR>
-        ) => DR;
-        onFirstSubscription?: () => Obs.UnsubscribeFn;
-      }
-    ): Obs<R> {
-      const onFirstSubscription = (): UnsubscribeFn => {
-        const unsubscribe1 = this.subscribe((newState) => {
-          result.setState(mapTo(newState, other.state));
-        });
-        const unsubscribe2 = other.subscribe((newState) => {
-          result.setState(mapTo(this.state, newState));
-        });
-        const unsubscribe3 = options?.onFirstSubscription?.();
-
-        return () => {
-          unsubscribe1();
-          unsubscribe2();
-          unsubscribe3?.();
-        };
-      };
-
-      const result = new Impl(mapTo(this.state, other.state), {
-        onFirstSubscription,
-        derive: options?.derive,
-        onGetState: () => {
-          if (!result.hasSubscribers) {
-            result.setState(mapTo(this.state, other.state));
-          }
-        },
-        onSetState: (newCombinedState) => {
-          const parentPatch = mapFrom(newCombinedState);
-
-          const [newThisState, newOtherState] = patch([
-            this.state,
-            other.state,
-          ] as const)(parentPatch as any);
-
-          this.setState(newThisState as T);
-          other.setState(newOtherState as T2);
-        },
-      });
-
-      return result;
-    }
   }
 }

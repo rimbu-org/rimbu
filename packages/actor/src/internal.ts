@@ -1,4 +1,4 @@
 export * from './obs';
-export * from './command';
 export * from './actor';
+export * from './command';
 export * from './process-queue';
