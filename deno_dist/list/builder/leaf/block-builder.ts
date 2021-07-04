@@ -21,7 +21,11 @@ export class LeafBlockBuilder<T> implements LeafBuilder<T>, BlockBuilder<T> {
   get children(): T[] {
     if (undefined === this._children) {
       if (undefined !== this.source) {
-        this._children = this.source.children.slice();
+        if (this.context.isReversedLeafBlock(this.source)) {
+          this._children = Arr.reverse(this.source.children);
+        } else {
+          this._children = (this.source as LeafBlock<T>).children.slice();
+        }
       }
     }
 

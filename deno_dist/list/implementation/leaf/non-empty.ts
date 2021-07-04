@@ -401,7 +401,7 @@ export class LeafBlock<T>
     return this.concatChildren(other)._mutateNormalize();
   }
 
-  concatTree(other: LeafTree<T>): List.NonEmpty<T> {
+  concatTree(other: LeafTree<T>): LeafTree<T> {
     if (this.length + other.left.length <= this.context.maxBlockSize) {
       const newLeft = this.concatChildren(other.left);
 
@@ -584,7 +584,7 @@ export class ReversedLeafBlock<T> extends LeafBlock<T> {
     }
 
     const newChildren = Arr.map(this.children, mapFun, indexOffset);
-    return this.copy2(newChildren);
+    return super.copy2(newChildren);
   }
 
   reversed(): LeafBlock<T> {
@@ -685,11 +685,11 @@ export class LeafTree<T>
     return treeGet<T, LeafTree<T>, LeafBlock<T>, T>(this, index);
   }
 
-  prepend(value: T): List.NonEmpty<T> {
+  prepend(value: T): LeafTree<T> {
     return treePrepend(this, value);
   }
 
-  append(value: T): List.NonEmpty<T> {
+  append(value: T): LeafTree<T> {
     return treeAppend(this, value);
   }
 
@@ -799,7 +799,7 @@ export class LeafTree<T>
     return this.copy(undefined, newLast, newMiddle);
   }
 
-  concatTree(other: LeafTree<T>): List.NonEmpty<T> {
+  concatTree(other: LeafTree<T>): LeafTree<T> {
     const jointLength = this.right.length + other.left.length;
 
     if (jointLength < this.context.minBlockSize) {
@@ -910,6 +910,7 @@ export class LeafTree<T>
 
     const newMiddle =
       null === this.middle ? null : this.middle.map(mapFun, false, offset);
+
     if (null !== this.middle) offset += this.middle.length;
 
     const newRight = this.right.map(mapFun, false, offset);
