@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.6.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/common@0.6.0...@rimbu/common@0.6.1) (2021-07-04)
+
+
+### Bug Fixes
+
+* **common:** flat eq now returns false instead of comparing tostring to prevent false positives ([b045177](https://github.com/rimbu-org/rimbu/commit/b0451770a8c6be8e5e88020fe9b41269f5afd98c))
+
+
+
+
+
 # [0.6.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/common@0.5.9...@rimbu/common@0.6.0) (2021-07-02)
 
 

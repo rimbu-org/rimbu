@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.6.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/actor@0.6.0...@rimbu/actor@0.6.1) (2021-07-04)
+
+
+### Bug Fixes
+
+* **actor:** remove usage of eq and refactor ([742006a](https://github.com/rimbu-org/rimbu/commit/742006a4819c9af11812770f626d4f9f7571f0b4))
+
+
+
+
+
 # [0.6.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/actor@0.5.9...@rimbu/actor@0.6.0) (2021-07-02)
 
 
