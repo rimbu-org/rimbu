@@ -1,5 +1,5 @@
-import { RimbuError } from 'https://deno.land/x/rimbu/base/mod.ts';
-import type { OptLazy, TraverseState, Update } from 'https://deno.land/x/rimbu/common/mod.ts';
+import { RimbuError } from '../../base/mod.ts';
+import type { OptLazy, TraverseState, Update } from '../../common/mod.ts';
 import type { BuilderBase, LeafBlock, NonLeafBlock } from '../list-custom.ts';
 
 export function createFromBlock<T>(

@@ -1,5 +1,5 @@
-import { TraverseState } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { List } from 'https://deno.land/x/rimbu/list/mod.ts';
+import { TraverseState } from '../common/mod.ts';
+import { List } from '../list/mod.ts';
 
 type GenBlockBuilderEntry<E> = BlockBuilderBase<E> | CollisionBuilderBase<E>;
 

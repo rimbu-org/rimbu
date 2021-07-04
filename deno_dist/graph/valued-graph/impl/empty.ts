@@ -1,7 +1,7 @@
-import { Token } from 'https://deno.land/x/rimbu/base/mod.ts';
-import type { RMap } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import { OptLazy, OptLazyOr, RelatedTo, ToJSON } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { Stream, StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import { Token } from '../../../base/mod.ts';
+import type { RMap } from '../../../collection-types/mod.ts';
+import { OptLazy, OptLazyOr, RelatedTo, ToJSON } from '../../../common/mod.ts';
+import { Stream, StreamSource } from '../../../stream/mod.ts';
 import type { WithGraphValues } from '../../gen-graph-custom.ts';
 import { GraphEmptyBase } from '../../gen-graph-custom.ts';
 import type {

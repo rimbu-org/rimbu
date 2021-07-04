@@ -1,7 +1,7 @@
-import type { OmitStrong } from 'https://deno.land/x/rimbu/common/mod.ts';
-import type { HashSet } from 'https://deno.land/x/rimbu/hashed/mod.ts';
-import { HashMultiMapHashValue } from 'https://deno.land/x/rimbu/multimap/mod.ts';
-import type { Streamable } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { OmitStrong } from '../../../common/mod.ts';
+import type { HashSet } from '../../../hashed/mod.ts';
+import { HashMultiMapHashValue } from '../../../multimap/mod.ts';
+import type { Streamable } from '../../../stream/mod.ts';
 import { BiMultiMapBase, BiMultiMapContext } from '../../bimultimap-custom.ts';
 
 /**

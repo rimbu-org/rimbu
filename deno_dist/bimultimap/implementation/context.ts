@@ -1,6 +1,6 @@
-import type { CustomBase as CB } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import type { ArrayNonEmpty } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { CustomBase as CB } from '../../collection-types/mod.ts';
+import type { ArrayNonEmpty } from '../../common/mod.ts';
+import { StreamSource } from '../../stream/mod.ts';
 import {
   BiMultiMapBase,
   BiMultiMapBuilder,

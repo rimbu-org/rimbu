@@ -1,4 +1,4 @@
-import type { CustomBase, RMap } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
+import type { CustomBase, RMap } from '../../collection-types/mod.ts';
 import type {
   ArrayNonEmpty,
   OmitStrong,
@@ -7,14 +7,14 @@ import type {
   ToJSON,
   TraverseState,
   Update,
-} from 'https://deno.land/x/rimbu/common/mod.ts';
-import { HashMap } from 'https://deno.land/x/rimbu/hashed/mod.ts';
+} from '../../common/mod.ts';
+import { HashMap } from '../../hashed/mod.ts';
 import type {
   FastIterable,
   Stream,
   Streamable,
   StreamSource,
-} from 'https://deno.land/x/rimbu/stream/mod.ts';
+} from '../../stream/mod.ts';
 import { BiMapContext } from '../bimap-custom.ts';
 
 /**

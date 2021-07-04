@@ -1,4 +1,4 @@
-import type { OptLazy, TraverseState, Update } from 'https://deno.land/x/rimbu/common/mod.ts';
+import type { OptLazy, TraverseState, Update } from '../../../common/mod.ts';
 import type { List } from '../../internal.ts';
 import type { BuilderBase } from '../../list-custom.ts';
 

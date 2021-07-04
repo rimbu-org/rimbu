@@ -1,4 +1,4 @@
-import { Immutable, Literal, patch, Patch, Path } from 'https://deno.land/x/rimbu/deep/mod.ts';
+import { Immutable, Literal, patch, Patch, Path } from '../deep/mod.ts';
 
 class NotifierBase<T> {
   readonly _subscribers = new Set<Obs.StateUpdate<T>>();

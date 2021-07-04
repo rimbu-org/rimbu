@@ -1,4 +1,4 @@
-import { ErrBase } from 'https://deno.land/x/rimbu/common/mod.ts';
+import { ErrBase } from '../common/mod.ts';
 
 export class EmptyCollectionAssumedNonEmptyError extends ErrBase.CustomError {
   constructor() {

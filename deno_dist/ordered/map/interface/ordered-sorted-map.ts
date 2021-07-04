@@ -1,7 +1,7 @@
-import type { OmitStrong } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { List } from 'https://deno.land/x/rimbu/list/mod.ts';
-import { SortedMap } from 'https://deno.land/x/rimbu/sorted/mod.ts';
-import type { Stream, Streamable } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { OmitStrong } from '../../../common/mod.ts';
+import { List } from '../../../list/mod.ts';
+import { SortedMap } from '../../../sorted/mod.ts';
+import type { Stream, Streamable } from '../../../stream/mod.ts';
 import {
   OrderedMapBase,
   OrderedMapContextImpl,

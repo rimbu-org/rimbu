@@ -1,7 +1,7 @@
-import type { CustomBase } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import { Eq, OmitStrong } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { List } from 'https://deno.land/x/rimbu/list/mod.ts';
-import type { Streamable } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { CustomBase } from '../../collection-types/mod.ts';
+import { Eq, OmitStrong } from '../../common/mod.ts';
+import { List } from '../../list/mod.ts';
+import type { Streamable } from '../../stream/mod.ts';
 import { Hasher } from '../hasher.ts';
 import { HashSetContext } from '../hashset-custom.ts';
 

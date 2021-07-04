@@ -1,5 +1,5 @@
-import { CustomBase } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import type { List } from 'https://deno.land/x/rimbu/list/mod.ts';
+import { CustomBase } from '../../../collection-types/mod.ts';
+import type { List } from '../../../list/mod.ts';
 import {
   OrderedSetBase,
   OrderedSetBuilder,

@@ -1,6 +1,6 @@
-import type { RMap, RSet } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import type { ArrayNonEmpty, RelatedTo } from 'https://deno.land/x/rimbu/common/mod.ts';
-import type { Stream, Streamable, StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { RMap, RSet } from '../../collection-types/mod.ts';
+import type { ArrayNonEmpty, RelatedTo } from '../../common/mod.ts';
+import type { Stream, Streamable, StreamSource } from '../../stream/mod.ts';
 import type {
   GraphConnect,
   GraphConnectNonEmpty,

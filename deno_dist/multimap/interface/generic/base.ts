@@ -4,20 +4,20 @@ import type {
   RSet,
   VariantMap,
   VariantSet,
-} from 'https://deno.land/x/rimbu/collection-types/mod.ts';
+} from '../../../collection-types/mod.ts';
 import type {
   ArrayNonEmpty,
   OptLazy,
   RelatedTo,
   ToJSON,
   TraverseState,
-} from 'https://deno.land/x/rimbu/common/mod.ts';
+} from '../../../common/mod.ts';
 import type {
   FastIterable,
   Stream,
   Streamable,
   StreamSource,
-} from 'https://deno.land/x/rimbu/stream/mod.ts';
+} from '../../../stream/mod.ts';
 
 export interface VariantMultiMapBase<
   K,

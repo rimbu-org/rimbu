@@ -1,5 +1,5 @@
-import type { RelatedTo } from 'https://deno.land/x/rimbu/common/mod.ts';
-import type { Stream, Streamable } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { RelatedTo } from '../../../common/mod.ts';
+import type { Stream, Streamable } from '../../../stream/mod.ts';
 import type { GraphElement } from '../../internal.ts';
 import type { GraphBase } from '../graph-custom.ts';
 

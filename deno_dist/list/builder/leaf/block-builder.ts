@@ -1,5 +1,5 @@
-import { Arr } from 'https://deno.land/x/rimbu/base/mod.ts';
-import { OptLazy, TraverseState, Update } from 'https://deno.land/x/rimbu/common/mod.ts';
+import { Arr } from '../../../base/mod.ts';
+import { OptLazy, TraverseState, Update } from '../../../common/mod.ts';
 import type {
   BlockBuilder,
   LeafBlock,

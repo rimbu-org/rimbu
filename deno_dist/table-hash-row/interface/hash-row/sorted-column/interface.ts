@@ -1,9 +1,9 @@
-import type { RMap } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import type { OmitStrong } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { HashMap } from 'https://deno.land/x/rimbu/hashed/mod.ts';
-import { SortedMap } from 'https://deno.land/x/rimbu/sorted/mod.ts';
-import type { Streamable } from 'https://deno.land/x/rimbu/stream/mod.ts';
-import { TableCustom } from 'https://deno.land/x/rimbu/table/mod.ts';
+import type { RMap } from '../../../../collection-types/mod.ts';
+import type { OmitStrong } from '../../../../common/mod.ts';
+import { HashMap } from '../../../../hashed/mod.ts';
+import { SortedMap } from '../../../../sorted/mod.ts';
+import type { Streamable } from '../../../../stream/mod.ts';
+import { TableCustom } from '../../../../table/mod.ts';
 
 /**
  * A type-invariant immutable Table of row key type R, column key type C, and value type V.

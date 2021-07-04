@@ -1,6 +1,6 @@
-import { Token } from 'https://deno.land/x/rimbu/base/mod.ts';
-import { OptLazy, OptLazyOr, RelatedTo, Update } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { Stream, StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import { Token } from '../../base/mod.ts';
+import { OptLazy, OptLazyOr, RelatedTo, Update } from '../../common/mod.ts';
+import { Stream, StreamSource } from '../../stream/mod.ts';
 import { SortedIndex, SortedMap } from '../internal.ts';
 import { SortedBuilder } from '../sorted-custom.ts';
 import {

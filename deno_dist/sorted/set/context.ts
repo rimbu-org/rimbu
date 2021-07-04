@@ -1,5 +1,5 @@
-import { CustomBase } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import type { Comp } from 'https://deno.land/x/rimbu/common/mod.ts';
+import { CustomBase } from '../../collection-types/mod.ts';
+import type { Comp } from '../../common/mod.ts';
 import type { SortedSet } from '../internal.ts';
 import {
   SortedSetBuilder,

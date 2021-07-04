@@ -1,5 +1,5 @@
-import { RimbuError, Token } from 'https://deno.land/x/rimbu/base/mod.ts';
-import { CustomBase } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
+import { RimbuError, Token } from '../../../base/mod.ts';
+import { CustomBase } from '../../../collection-types/mod.ts';
 import {
   ArrayNonEmpty,
   OptLazy,
@@ -8,9 +8,9 @@ import {
   ToJSON,
   TraverseState,
   Update,
-} from 'https://deno.land/x/rimbu/common/mod.ts';
-import type { List } from 'https://deno.land/x/rimbu/list/mod.ts';
-import { Stream, StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+} from '../../../common/mod.ts';
+import type { List } from '../../../list/mod.ts';
+import { Stream, StreamSource } from '../../../stream/mod.ts';
 import type { OrderedMapBase, OrderedMapTypes } from '../../ordered-custom.ts';
 
 export class OrderedMapNonEmpty<

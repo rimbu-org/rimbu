@@ -13,11 +13,21 @@ const replaceImportArgument = (parsedImportExportStatement, url) => {
   });
 };
 
-const urlBase = 'https://deno.land/x/rimbu';
+const urlBase = '..';
 
-makeThisModuleAnExecutableReplacer(async ({ parsedImportExportStatement }) => {
+makeThisModuleAnExecutableReplacer(async (args) => {
+  const { parsedImportExportStatement, destDirPath } = args;
   const { nodeModuleName, specificImportPath } =
     parsedImportExportStatement.parsedArgument;
+
+  // we need to find the file folder level to apply a relative path
+  const countSlashes = (destDirPath.match(/\//g) ?? []).length;
+
+  let url = urlBase;
+
+  for (let i = 0; i < countSlashes; i++) {
+    url = `${url}/..`;
+  }
 
   if (nodeModuleName === '@rimbu') {
     // const package = require(`../packages/${specificImportPath}/package.json`);
@@ -26,13 +36,13 @@ makeThisModuleAnExecutableReplacer(async ({ parsedImportExportStatement }) => {
     if (specificImportPath === 'core') {
       return replaceImportArgument(
         parsedImportExportStatement,
-        `${urlBase}/mod.ts`
+        `${url}/mod.ts`
       );
     }
 
     return replaceImportArgument(
       parsedImportExportStatement,
-      `${urlBase}/${specificImportPath}/mod.ts`
+      `${url}/${specificImportPath}/mod.ts`
     );
   }
 

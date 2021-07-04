@@ -1,6 +1,6 @@
-import type { CustomBase, RSet } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import { Comp, IndexRange, OmitStrong, OptLazy, Range } from 'https://deno.land/x/rimbu/common/mod.ts';
-import type { Stream, Streamable } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { CustomBase, RSet } from '../../collection-types/mod.ts';
+import { Comp, IndexRange, OmitStrong, OptLazy, Range } from '../../common/mod.ts';
+import type { Stream, Streamable } from '../../stream/mod.ts';
 import { SortedSetContext } from '../sortedset-custom.ts';
 
 /**

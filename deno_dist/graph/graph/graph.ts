@@ -1,4 +1,4 @@
-import type { Stream, Streamable } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { Stream, Streamable } from '../../stream/mod.ts';
 import type { GraphElement } from '../common/link.ts';
 import type { GraphBase } from './graph-custom.ts';
 

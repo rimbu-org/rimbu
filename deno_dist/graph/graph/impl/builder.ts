@@ -1,6 +1,6 @@
-import { RimbuError } from 'https://deno.land/x/rimbu/base/mod.ts';
-import type { RelatedTo } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { Stream, StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import { RimbuError } from '../../../base/mod.ts';
+import type { RelatedTo } from '../../../common/mod.ts';
+import { Stream, StreamSource } from '../../../stream/mod.ts';
 import type { WithGraphValues } from '../../gen-graph-custom.ts';
 import type { Link } from '../../internal.ts';
 import { GraphElement } from '../../internal.ts';

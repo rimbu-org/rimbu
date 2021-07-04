@@ -1,7 +1,7 @@
-import { Arr, RimbuError } from 'https://deno.land/x/rimbu/base/mod.ts';
-import { CustomBase } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import { IndexRange, OptLazy, TraverseState } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { Stream } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import { Arr, RimbuError } from '../base/mod.ts';
+import { CustomBase } from '../collection-types/mod.ts';
+import { IndexRange, OptLazy, TraverseState } from '../common/mod.ts';
+import { Stream } from '../stream/mod.ts';
 import { SortedIndex } from './internal.ts';
 
 export class SortedEmpty extends CustomBase.EmptyBase {

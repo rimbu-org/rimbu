@@ -1,7 +1,7 @@
-import { CustomBase } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import type { ToJSON } from 'https://deno.land/x/rimbu/common/mod.ts';
-import type { List } from 'https://deno.land/x/rimbu/list/mod.ts';
-import type { StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import { CustomBase } from '../../../collection-types/mod.ts';
+import type { ToJSON } from '../../../common/mod.ts';
+import type { List } from '../../../list/mod.ts';
+import type { StreamSource } from '../../../stream/mod.ts';
 import {
   OrderedSetBase,
   OrderedSetNonEmpty,

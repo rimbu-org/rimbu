@@ -1,7 +1,7 @@
-import { RimbuError } from 'https://deno.land/x/rimbu/base/mod.ts';
-import type { RMap } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import { OptLazy, RelatedTo, TraverseState } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { Stream, StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import { RimbuError } from '../../base/mod.ts';
+import type { RMap } from '../../collection-types/mod.ts';
+import { OptLazy, RelatedTo, TraverseState } from '../../common/mod.ts';
+import { Stream, StreamSource } from '../../stream/mod.ts';
 import { BiMapContext, BiMapNonEmptyImpl } from '../bimap-custom.ts';
 import type { BiMap } from '../internal.ts';
 

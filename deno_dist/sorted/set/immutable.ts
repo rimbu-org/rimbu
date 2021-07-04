@@ -1,4 +1,4 @@
-import { Arr, RimbuError } from 'https://deno.land/x/rimbu/base/mod.ts';
+import { Arr, RimbuError } from '../../base/mod.ts';
 import {
   ArrayNonEmpty,
   IndexRange,
@@ -7,8 +7,8 @@ import {
   RelatedTo,
   ToJSON,
   TraverseState,
-} from 'https://deno.land/x/rimbu/common/mod.ts';
-import { Stream, StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+} from '../../common/mod.ts';
+import { Stream, StreamSource } from '../../stream/mod.ts';
 import { SortedIndex, SortedSet } from '../internal.ts';
 import {
   innerDeleteMax,

@@ -1,5 +1,5 @@
-import { RimbuError } from 'https://deno.land/x/rimbu/base/mod.ts';
-import { FastIterable, FastIterator, Stream } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import { RimbuError } from '../../base/mod.ts';
+import { FastIterable, FastIterator, Stream } from '../../stream/mod.ts';
 
 /**
  * A utility type providing access to the element type T.

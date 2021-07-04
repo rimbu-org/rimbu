@@ -1,6 +1,6 @@
-import type { CustomBase, RSet } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import { List } from 'https://deno.land/x/rimbu/list/mod.ts';
-import type { Stream, Streamable } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { CustomBase, RSet } from '../../../collection-types/mod.ts';
+import { List } from '../../../list/mod.ts';
+import type { Stream, Streamable } from '../../../stream/mod.ts';
 import {
   OrderedSetBase,
   OrderedSetContextImpl,

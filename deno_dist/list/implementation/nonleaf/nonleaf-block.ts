@@ -1,6 +1,6 @@
-import { Arr, RimbuError } from 'https://deno.land/x/rimbu/base/mod.ts';
-import { IndexRange, TraverseState, Update } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { Stream } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import { Arr, RimbuError } from '../../../base/mod.ts';
+import { IndexRange, TraverseState, Update } from '../../../common/mod.ts';
+import { Stream } from '../../../stream/mod.ts';
 import type {
   Block,
   ListContext,

@@ -2,19 +2,19 @@ import type {
   CustomBase as CB,
   RMap,
   VariantMap,
-} from 'https://deno.land/x/rimbu/collection-types/mod.ts';
+} from '../../../collection-types/mod.ts';
 import type {
   ArrayNonEmpty,
   RelatedTo,
   ToJSON,
   TraverseState,
-} from 'https://deno.land/x/rimbu/common/mod.ts';
+} from '../../../common/mod.ts';
 import type {
   FastIterable,
   Stream,
   Streamable,
   StreamSource,
-} from 'https://deno.land/x/rimbu/stream/mod.ts';
+} from '../../../stream/mod.ts';
 
 export interface VariantMultiSetBase<
   T,

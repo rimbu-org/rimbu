@@ -1,5 +1,5 @@
-import type { RelatedTo } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { Stream, StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { RelatedTo } from '../../common/mod.ts';
+import { Stream, StreamSource } from '../../stream/mod.ts';
 import { SortedIndex, SortedSet } from '../internal.ts';
 import { SortedBuilder } from '../sorted-custom.ts';
 import {

@@ -1,5 +1,5 @@
-import { RimbuError } from 'https://deno.land/x/rimbu/base/mod.ts';
-import type { ArrayNonEmpty } from 'https://deno.land/x/rimbu/common/mod.ts';
+import { RimbuError } from '../base/mod.ts';
+import type { ArrayNonEmpty } from '../common/mod.ts';
 import { Immutable, Literal } from './internal.ts';
 
 /**

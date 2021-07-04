@@ -1,6 +1,6 @@
-import type { RMap } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import { ValuedGraphCustom, ValuedGraphElement } from 'https://deno.land/x/rimbu/graph/mod.ts';
-import type { Stream, Streamable } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { RMap } from '../../collection-types/mod.ts';
+import { ValuedGraphCustom, ValuedGraphElement } from '../../graph/mod.ts';
+import type { Stream, Streamable } from '../../stream/mod.ts';
 import type { EdgeValuedGraphBase } from '../graph-custom.ts';
 
 /**

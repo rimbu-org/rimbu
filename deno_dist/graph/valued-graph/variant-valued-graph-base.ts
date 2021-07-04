@@ -1,5 +1,5 @@
-import type { OptLazy, RelatedTo } from 'https://deno.land/x/rimbu/common/mod.ts';
-import type { Stream, Streamable } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { OptLazy, RelatedTo } from '../../common/mod.ts';
+import type { Stream, Streamable } from '../../stream/mod.ts';
 import type { WithGraphValues } from '../gen-graph-custom.ts';
 import type { VariantGraphBase } from '../graph/graph-custom.ts';
 import type { ValuedGraphElement, ValuedLink } from '../internal.ts';

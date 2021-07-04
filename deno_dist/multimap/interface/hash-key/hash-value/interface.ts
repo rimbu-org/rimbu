@@ -1,7 +1,7 @@
-import type { RSet } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import type { OmitStrong } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { HashMap, HashSet } from 'https://deno.land/x/rimbu/hashed/mod.ts';
-import type { Stream, Streamable } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { RSet } from '../../../../collection-types/mod.ts';
+import type { OmitStrong } from '../../../../common/mod.ts';
+import { HashMap, HashSet } from '../../../../hashed/mod.ts';
+import type { Stream, Streamable } from '../../../../stream/mod.ts';
 import { MultiMapBase, MultiMapContext } from '../../../multimap-custom.ts';
 
 /**

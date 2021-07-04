@@ -1,4 +1,4 @@
-import type { OptLazy } from 'https://deno.land/x/rimbu/common/mod.ts';
+import type { OptLazy } from '../../common/mod.ts';
 import type { List } from '../internal.ts';
 import type { NonLeaf } from '../list-custom.ts';
 

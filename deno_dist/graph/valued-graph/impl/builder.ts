@@ -1,6 +1,6 @@
-import { RimbuError, Token } from 'https://deno.land/x/rimbu/base/mod.ts';
-import { OptLazy, OptLazyOr, RelatedTo } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { Stream, StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import { RimbuError, Token } from '../../../base/mod.ts';
+import { OptLazy, OptLazyOr, RelatedTo } from '../../../common/mod.ts';
+import { Stream, StreamSource } from '../../../stream/mod.ts';
 import type { WithGraphValues } from '../../gen-graph-custom.ts';
 import type { Link } from '../../internal.ts';
 import { ValuedGraphElement } from '../../internal.ts';

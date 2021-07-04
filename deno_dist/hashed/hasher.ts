@@ -1,5 +1,5 @@
-import { Eq } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { Stream, StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import { Eq } from '../common/mod.ts';
+import { Stream, StreamSource } from '../stream/mod.ts';
 
 /**
  * Interface used to hash objects for hashed collections.

@@ -1,5 +1,5 @@
-import { CustomBase } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import { Stream, StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import { CustomBase } from '../../collection-types/mod.ts';
+import { Stream, StreamSource } from '../../stream/mod.ts';
 import type { VariantGraphBase } from '../graph/graph-custom.ts';
 
 export interface GraphValues<N = unknown, V = unknown> {

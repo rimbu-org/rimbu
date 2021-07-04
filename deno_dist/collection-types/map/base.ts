@@ -1,4 +1,4 @@
-import type { Token } from 'https://deno.land/x/rimbu/base/mod.ts';
+import type { Token } from '../../base/mod.ts';
 import type {
   ArrayNonEmpty,
   OptLazy,
@@ -8,8 +8,8 @@ import type {
   ToJSON,
   TraverseState,
   Update,
-} from 'https://deno.land/x/rimbu/common/mod.ts';
-import { FastIterable, Stream, Streamable, StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+} from '../../common/mod.ts';
+import { FastIterable, Stream, Streamable, StreamSource } from '../../stream/mod.ts';
 import type { KeyValue, WithKeyValue } from '../custom-base.ts';
 
 export interface VariantMapBase<

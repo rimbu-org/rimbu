@@ -1,13 +1,13 @@
-import { Arr, RimbuError, Token } from 'https://deno.land/x/rimbu/base/mod.ts';
+import { Arr, RimbuError, Token } from '../../base/mod.ts';
 import {
   OptLazy,
   OptLazyOr,
   RelatedTo,
   TraverseState,
   Update,
-} from 'https://deno.land/x/rimbu/common/mod.ts';
-import { List } from 'https://deno.land/x/rimbu/list/mod.ts';
-import { Stream, StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+} from '../../common/mod.ts';
+import { List } from '../../list/mod.ts';
+import { Stream, StreamSource } from '../../stream/mod.ts';
 import { BlockBuilderBase, CollisionBuilderBase } from '../hashed-custom.ts';
 import type {
   HashMapBlock,

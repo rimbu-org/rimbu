@@ -1,10 +1,10 @@
-import type { RelatedTo, ToJSON } from 'https://deno.land/x/rimbu/common/mod.ts';
+import type { RelatedTo, ToJSON } from '../../common/mod.ts';
 import type {
   FastIterable,
   Stream,
   Streamable,
   StreamSource,
-} from 'https://deno.land/x/rimbu/stream/mod.ts';
+} from '../../stream/mod.ts';
 import type { GraphValues, WithGraphValues } from '../gen-graph-custom.ts';
 import type { Link } from '../internal.ts';
 

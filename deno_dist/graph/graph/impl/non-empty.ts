@@ -1,6 +1,6 @@
-import { CustomBase } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import type { RelatedTo, ToJSON, TraverseState } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { Stream, StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import { CustomBase } from '../../../collection-types/mod.ts';
+import type { RelatedTo, ToJSON, TraverseState } from '../../../common/mod.ts';
+import { Stream, StreamSource } from '../../../stream/mod.ts';
 import type { WithGraphValues } from '../../gen-graph-custom.ts';
 import type { GraphElement, Link } from '../../internal.ts';
 import type { GraphBase, GraphTypesContextImpl } from '../graph-custom.ts';

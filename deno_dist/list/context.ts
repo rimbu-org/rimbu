@@ -1,6 +1,6 @@
-import { RimbuError } from 'https://deno.land/x/rimbu/base/mod.ts';
-import type { ArrayNonEmpty } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import { RimbuError } from '../base/mod.ts';
+import type { ArrayNonEmpty } from '../common/mod.ts';
+import { StreamSource } from '../stream/mod.ts';
 import type { List } from './internal.ts';
 import type {
   Block,

@@ -1,5 +1,5 @@
-import type { RMap, RSet } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import type { Stream, Streamable } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { RMap, RSet } from '../../../collection-types/mod.ts';
+import type { Stream, Streamable } from '../../../stream/mod.ts';
 import type { GraphElement } from '../../internal.ts';
 import type { EdgeGraphBase } from '../graph-custom.ts';
 import { GraphContext } from '../graph-custom.ts';

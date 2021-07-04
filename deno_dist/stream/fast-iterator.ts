@@ -1,4 +1,4 @@
-import { OptLazy } from 'https://deno.land/x/rimbu/common/mod.ts';
+import { OptLazy } from '../common/mod.ts';
 
 /**
  * An iterator that extends the default `Iterator` interface with methods that give more performance.

@@ -1,6 +1,6 @@
-import type { CustomBase } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import type { List } from 'https://deno.land/x/rimbu/list/mod.ts';
-import type { Streamable } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { CustomBase } from '../../../collection-types/mod.ts';
+import type { List } from '../../../list/mod.ts';
+import type { Streamable } from '../../../stream/mod.ts';
 import type { OrderedSetNonEmpty } from '../../ordered-custom.ts';
 
 export interface OrderedSetBase<

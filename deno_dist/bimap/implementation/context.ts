@@ -1,6 +1,6 @@
-import type { RMap } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import type { ArrayNonEmpty } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { RMap } from '../../collection-types/mod.ts';
+import type { ArrayNonEmpty } from '../../common/mod.ts';
+import { StreamSource } from '../../stream/mod.ts';
 import { BiMapBuilder, BiMapEmpty, BiMapNonEmptyImpl } from '../bimap-custom.ts';
 import type { BiMap } from '../internal.ts';
 

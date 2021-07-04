@@ -1,4 +1,4 @@
-import { OptLazy } from 'https://deno.land/x/rimbu/common/mod.ts';
+import { OptLazy } from '../../common/mod.ts';
 
 /**
  * A potentially valued connection between two nodes,

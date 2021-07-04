@@ -6,7 +6,7 @@ import type {
   Reducer,
   ToJSON,
   TraverseState,
-} from 'https://deno.land/x/rimbu/common/mod.ts';
+} from '../common/mod.ts';
 import * as Constructors from './constructors.ts';
 import type { FastIterable, Streamable, StreamSource } from './internal.ts';
 

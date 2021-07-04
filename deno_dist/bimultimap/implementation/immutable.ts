@@ -1,6 +1,6 @@
-import { CustomBase as CB } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import type { RelatedTo, ToJSON, TraverseState } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { Stream, StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import { CustomBase as CB } from '../../collection-types/mod.ts';
+import type { RelatedTo, ToJSON, TraverseState } from '../../common/mod.ts';
+import { Stream, StreamSource } from '../../stream/mod.ts';
 import type { BiMultiMapBase, ContextTypesImpl } from '../bimultimap-custom.ts';
 
 export class BiMultiMapEmpty<K, V, Tp extends ContextTypesImpl>

@@ -3,8 +3,8 @@ import type {
   RelatedTo,
   ToJSON,
   TraverseState,
-} from 'https://deno.land/x/rimbu/common/mod.ts';
-import { FastIterable, Stream, Streamable, StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+} from '../../common/mod.ts';
+import { FastIterable, Stream, Streamable, StreamSource } from '../../stream/mod.ts';
 import type { Elem, WithElem } from '../custom-base.ts';
 
 export interface VariantSetBase<

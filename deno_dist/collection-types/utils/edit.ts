@@ -1,5 +1,5 @@
-import type { CollectFun } from 'https://deno.land/x/rimbu/common/mod.ts';
-import type { Stream, StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { CollectFun } from '../../common/mod.ts';
+import type { Stream, StreamSource } from '../../stream/mod.ts';
 import type { WithElem, WithKeyValue, WithRow } from '../custom-base.ts';
 
 /**

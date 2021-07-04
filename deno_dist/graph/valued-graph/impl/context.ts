@@ -1,5 +1,5 @@
-import type { ArrayNonEmpty } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { ArrayNonEmpty } from '../../../common/mod.ts';
+import { StreamSource } from '../../../stream/mod.ts';
 import type { WithGraphValues } from '../../gen-graph-custom.ts';
 import type { ValuedGraphElement } from '../../internal.ts';
 import type { ValuedGraphBase } from '../valued-graph-custom.ts';

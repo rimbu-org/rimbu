@@ -1,13 +1,13 @@
-import type { Token } from 'https://deno.land/x/rimbu/base/mod.ts';
-import type { RMap } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
+import type { Token } from '../../base/mod.ts';
+import type { RMap } from '../../collection-types/mod.ts';
 import type {
   ArrayNonEmpty,
   OptLazy,
   OptLazyOr,
   RelatedTo,
   SuperOf,
-} from 'https://deno.land/x/rimbu/common/mod.ts';
-import type { Stream, Streamable, StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+} from '../../common/mod.ts';
+import type { Stream, Streamable, StreamSource } from '../../stream/mod.ts';
 import type {
   GraphConnect,
   GraphConnectNonEmpty,

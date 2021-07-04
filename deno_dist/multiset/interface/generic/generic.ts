@@ -1,5 +1,5 @@
-import type { RMap } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import type { Streamable } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { RMap } from '../../../collection-types/mod.ts';
+import type { Streamable } from '../../../stream/mod.ts';
 import { MultiSetBase, MultiSetContext } from '../../multiset-custom.ts';
 
 /**

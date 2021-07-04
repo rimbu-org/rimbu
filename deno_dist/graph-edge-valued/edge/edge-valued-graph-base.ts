@@ -1,5 +1,5 @@
-import type { ValuedGraphCustom, ValuedGraphElement } from 'https://deno.land/x/rimbu/graph/mod.ts';
-import type { Stream, Streamable } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { ValuedGraphCustom, ValuedGraphElement } from '../../graph/mod.ts';
+import type { Stream, Streamable } from '../../stream/mod.ts';
 
 export interface EdgeValuedGraphBase<
   N,

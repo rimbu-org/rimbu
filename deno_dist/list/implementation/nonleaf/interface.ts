@@ -1,5 +1,5 @@
-import type { IndexRange, TraverseState, Update } from 'https://deno.land/x/rimbu/common/mod.ts';
-import type { Stream } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { IndexRange, TraverseState, Update } from '../../../common/mod.ts';
+import type { Stream } from '../../../stream/mod.ts';
 import type { Block, ListContext } from '../../list-custom.ts';
 
 export interface NonLeaf<T, C extends Block<T, C> = any> {

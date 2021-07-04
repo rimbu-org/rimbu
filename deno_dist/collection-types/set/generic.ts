@@ -1,4 +1,4 @@
-import type { Streamable } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { Streamable } from '../../stream/mod.ts';
 import type { RSetBase } from '../custom-base.ts';
 
 /**

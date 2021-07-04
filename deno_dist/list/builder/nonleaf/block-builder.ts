@@ -1,5 +1,5 @@
-import { Arr, RimbuError } from 'https://deno.land/x/rimbu/base/mod.ts';
-import { OptLazy, TraverseState, Update } from 'https://deno.land/x/rimbu/common/mod.ts';
+import { Arr, RimbuError } from '../../../base/mod.ts';
+import { OptLazy, TraverseState, Update } from '../../../common/mod.ts';
 import type { List } from '../../internal.ts';
 import type {
   BlockBuilder,

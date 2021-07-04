@@ -1,13 +1,13 @@
-import { RimbuError } from 'https://deno.land/x/rimbu/base/mod.ts';
-import { CustomBase as CB, RMap, RSet } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
+import { RimbuError } from '../../base/mod.ts';
+import { CustomBase as CB, RMap, RSet } from '../../collection-types/mod.ts';
 import {
   ArrayNonEmpty,
   OptLazy,
   RelatedTo,
   ToJSON,
   TraverseState,
-} from 'https://deno.land/x/rimbu/common/mod.ts';
-import { Stream, StreamSource } from 'https://deno.land/x/rimbu/stream/mod.ts';
+} from '../../common/mod.ts';
+import { Stream, StreamSource } from '../../stream/mod.ts';
 import type { MultiMap } from '../internal.ts';
 import type { MultiMapBase } from '../multimap-custom.ts';
 

@@ -1,4 +1,4 @@
-import { RimbuError, Token } from 'https://deno.land/x/rimbu/base/mod.ts';
+import { RimbuError, Token } from '../base/mod.ts';
 import {
   ArrayNonEmpty,
   Eq,
@@ -9,7 +9,7 @@ import {
   Reducer,
   StringNonEmpty,
   TraverseState,
-} from 'https://deno.land/x/rimbu/common/mod.ts';
+} from '../common/mod.ts';
 import { FastIterator, Stream, StreamSource } from './internal.ts';
 import {
   FastIteratorBase,

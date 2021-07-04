@@ -1,7 +1,7 @@
-import type { RSet } from 'https://deno.land/x/rimbu/collection-types/mod.ts';
-import type { OmitStrong } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { SortedMap, SortedSet } from 'https://deno.land/x/rimbu/sorted/mod.ts';
-import type { Stream, Streamable } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { RSet } from '../../../collection-types/mod.ts';
+import type { OmitStrong } from '../../../common/mod.ts';
+import { SortedMap, SortedSet } from '../../../sorted/mod.ts';
+import type { Stream, Streamable } from '../../../stream/mod.ts';
 import type { GraphElement } from '../../internal.ts';
 import type { ArrowGraphBase } from '../graph-custom.ts';
 import { GraphContext } from '../graph-custom.ts';

@@ -1,7 +1,7 @@
-import type { OmitStrong } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { SortedMultiMapSortedValue } from 'https://deno.land/x/rimbu/multimap/mod.ts';
-import type { SortedSet } from 'https://deno.land/x/rimbu/sorted/mod.ts';
-import type { Streamable } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import type { OmitStrong } from '../../../common/mod.ts';
+import { SortedMultiMapSortedValue } from '../../../multimap/mod.ts';
+import type { SortedSet } from '../../../sorted/mod.ts';
+import type { Streamable } from '../../../stream/mod.ts';
 import { BiMultiMapBase, BiMultiMapContext } from '../../bimultimap-custom.ts';
 
 /**

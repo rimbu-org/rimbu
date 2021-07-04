@@ -1,7 +1,7 @@
-import { OptLazy } from 'https://deno.land/x/rimbu/common/mod.ts';
-import { HashSet } from 'https://deno.land/x/rimbu/hashed/mod.ts';
-import { SortedSet } from 'https://deno.land/x/rimbu/sorted/mod.ts';
-import { FastIterator, Stream, StreamCustom } from 'https://deno.land/x/rimbu/stream/mod.ts';
+import { OptLazy } from '../../common/mod.ts';
+import { HashSet } from '../../hashed/mod.ts';
+import { SortedSet } from '../../sorted/mod.ts';
+import { FastIterator, Stream, StreamCustom } from '../../stream/mod.ts';
 import type { LinkType } from '../gen-graph-custom.ts';
 import type { VariantGraphBase } from '../graph/graph-custom.ts';
 

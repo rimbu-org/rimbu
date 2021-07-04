@@ -1,4 +1,4 @@
-import { RimbuError } from 'https://deno.land/x/rimbu/base/mod.ts';
+import { RimbuError } from '../../../base/mod.ts';
 import type {
   BlockBuilder,
   NonLeaf,
