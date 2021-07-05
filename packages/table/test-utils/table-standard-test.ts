@@ -625,7 +625,7 @@ export function runTableTestsWith(name: string, T: Table.Context<any, any>) {
         });
       });
 
-      fit('modifyAt', () => {
+      it('modifyAt', () => {
         const b = T.builder<number, string, boolean>();
         expect(
           b.modifyAt(1, 'a', { ifNew: (none) => none, ifExists: (v) => !v })
