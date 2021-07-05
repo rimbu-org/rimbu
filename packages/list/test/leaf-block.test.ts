@@ -1,3 +1,4 @@
+import { Stream } from '@rimbu/stream';
 import { ListContext, LeafBlock, LeafTree } from '../src/list-custom';
 
 describe('LeafBlock', () => {
@@ -435,6 +436,7 @@ function runLeafBlockTests(
     it('streamRange', () => {
       const b5 = createBlock(1, 2, 3, 4, 5);
 
+      expect(b5.streamRange({ amount: 0 })).toBe(Stream.empty());
       expect(b5.streamRange({ amount: 2 }).toArray()).toEqual([1, 2]);
       expect(b5.streamRange({ amount: 2 }, true).toArray()).toEqual([2, 1]);
 

@@ -933,24 +933,34 @@ export class LeafTree<T>
   _normalize(): List.NonEmpty<T> {
     if (null !== this.middle) {
       if (this.left.length + this.middle.length <= this.context.maxBlockSize) {
+        // first middle child can be merged with left
         const result = this.middle.dropFirst();
         const block = result[1];
         return this.copy(this.left.concatChildren(block), undefined, null);
       }
       if (this.right.length + this.middle.length <= this.context.maxBlockSize) {
-        const result = this.middle.dropFirst();
+        // last middle child can be merged with right
+        const result = this.middle.dropLast();
         const block = result[1];
         return this.copy(undefined, block.concatChildren(this.right), null);
       }
     }
-    if (this.length > this.context.maxBlockSize) return this;
-    if (null === this.middle) return this.left.concatChildren(this.right);
+
+    if (this.length > this.context.maxBlockSize) {
+      // no option to merge
+      return this;
+    }
+
+    if (null === this.middle) {
+      // can merge left and right
+      return this.left.concatChildren(this.right);
+    }
+
     if (this.context.isNonLeafBlock(this.middle)) {
-      const children = this.left.children.concat(
-        this.middle.getChild(0).children,
-        this.right.children
-      );
-      return this.left.copy(children);
+      // left, middle, and right can be merged into one block
+      return this.left
+        .concatChildren(this.middle.getChild(0))
+        .concatChildren(this.right);
     }
 
     RimbuError.throwInvalidStateError();
