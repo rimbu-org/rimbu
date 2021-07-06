@@ -1,10 +1,12 @@
 import { TraverseState } from '@rimbu/common';
+import { Stream } from '@rimbu/stream';
 import {
   LeafBlock,
   ListContext,
   NonLeafBlock,
   NonLeafTree,
 } from '../src/list-custom';
+import './setupTests';
 
 const context = new ListContext(2);
 
@@ -16,7 +18,7 @@ describe('NonLeafBlock', () => {
     {
       const nl = context.nonLeafBlock(3, [b3], 1);
       const r = nl.append(b4) as NonLeafBlock<any, any>;
-      expect(r.children).toEqual([b3, b4]);
+      expect(r.children).toBeArrayOf([b3, b4]);
       expect(r.length).toBe(6);
     }
     {
@@ -37,13 +39,13 @@ describe('NonLeafBlock', () => {
     {
       const nl = context.nonLeafBlock(3, [b3], 1);
       const r = nl.appendInternal(b4);
-      expect(r.children).toEqual([b3, b4]);
+      expect(r.children).toBeArrayOf([b3, b4]);
       expect(r.length).toBe(6);
     }
     {
       const nl = context.nonLeafBlock(12, [b3, b3, b3, b3], 1);
       const r = nl.appendInternal(b4);
-      expect(r.children).toEqual([b3, b3, b3, b3, b4]);
+      expect(r.children).toBeArrayOf([b3, b3, b3, b3, b4]);
       expect(r.length).toBe(15);
     }
   });
@@ -94,7 +96,7 @@ describe('NonLeafBlock', () => {
       const nl = context.nonLeafBlock(6, [b3, b3], 1);
       const r = nl.concat(nl) as NonLeafBlock<any, any>;
       expect(r).toBeInstanceOf(NonLeafBlock);
-      expect(r.children).toEqual([b3, b3, b3, b3]);
+      expect(r.children).toBeArrayOf([b3, b3, b3, b3]);
       expect(r.length).toBe(12);
     }
     {
@@ -102,10 +104,10 @@ describe('NonLeafBlock', () => {
       const r = nl.concat(nl) as NonLeafTree<any, any>;
       expect(r).toBeInstanceOf(NonLeafTree);
       expect(r.left).toBeInstanceOf(NonLeafBlock);
-      expect(r.left.children).toEqual([b3, b3, b3]);
+      expect(r.left.children).toBeArrayOf([b3, b3, b3]);
       expect(r.middle).toBeNull();
       expect(r.right).toBeInstanceOf(NonLeafBlock);
-      expect(r.right.children).toEqual([b3, b3, b3]);
+      expect(r.right.children).toBeArrayOf([b3, b3, b3]);
       expect(r.length).toBe(18);
     }
   });
@@ -117,7 +119,7 @@ describe('NonLeafBlock', () => {
       const nl = context.nonLeafBlock(6, [b3, b3], 1);
       const r = nl.concatBlock(nl) as NonLeafBlock<any, any>;
       expect(r).toBeInstanceOf(NonLeafBlock);
-      expect(r.children).toEqual([b3, b3, b3, b3]);
+      expect(r.children).toBeArrayOf([b3, b3, b3, b3]);
       expect(r.length).toBe(12);
     }
     {
@@ -125,10 +127,10 @@ describe('NonLeafBlock', () => {
       const r = nl.concatBlock(nl) as NonLeafTree<any, any>;
       expect(r).toBeInstanceOf(NonLeafTree);
       expect(r.left).toBeInstanceOf(NonLeafBlock);
-      expect(r.left.children).toEqual([b3, b3, b3]);
+      expect(r.left.children).toBeArrayOf([b3, b3, b3]);
       expect(r.middle).toBeNull();
       expect(r.right).toBeInstanceOf(NonLeafBlock);
-      expect(r.right.children).toEqual([b3, b3, b3]);
+      expect(r.right.children).toBeArrayOf([b3, b3, b3]);
       expect(r.length).toBe(18);
     }
   });
@@ -140,14 +142,14 @@ describe('NonLeafBlock', () => {
       const nl = context.nonLeafBlock(6, [b3, b3], 1);
       const r = nl.concatChildren(nl) as NonLeafBlock<any, any>;
       expect(r).toBeInstanceOf(NonLeafBlock);
-      expect(r.children).toEqual([b3, b3, b3, b3]);
+      expect(r.children).toBeArrayOf([b3, b3, b3, b3]);
       expect(r.length).toBe(12);
     }
     {
       const nl = context.nonLeafBlock(9, [b3, b3, b3], 1);
       const r = nl.concatChildren(nl);
       expect(r).toBeInstanceOf(NonLeafBlock);
-      expect(r.children).toEqual([b3, b3, b3, b3, b3, b3]);
+      expect(r.children).toBeArrayOf([b3, b3, b3, b3, b3, b3]);
       expect(r.length).toBe(18);
     }
   });
@@ -159,8 +161,10 @@ describe('NonLeafBlock', () => {
   });
 
   it('dropChildren', () => {
-    const b3 = context.leafBlock([1, 2, 3]);
-    const nl = context.nonLeafBlock(9, [b3, b3, b3], 1);
+    const b1 = context.leafBlock([1, 2, 3]);
+    const b2 = context.leafBlock([4, 5, 6]);
+    const b3 = context.leafBlock([7, 8, 9]);
+    const nl = context.nonLeafBlock(9, [b1, b2, b3], 1);
 
     expect(nl.dropChildren(8)).toBeNull();
     expect(nl.dropChildren(0)).toBe(nl);
@@ -168,6 +172,7 @@ describe('NonLeafBlock', () => {
     const r = nl.dropChildren(2);
     expect(r).toBeInstanceOf(NonLeafBlock);
     expect(r?.length).toBe(3);
+    expect(r?.children).toBeArrayOf([b3]);
   });
 
   it('dropFirst', () => {
@@ -179,7 +184,7 @@ describe('NonLeafBlock', () => {
 
       expect(r).toBeInstanceOf(NonLeafBlock);
       expect(r?.length).toBe(6);
-      expect(r?.children).toEqual([b3, b3]);
+      expect(r?.children).toBeArrayOf([b3, b3]);
       expect(u).toBeInstanceOf(LeafBlock);
       expect(u).toBe(b3_2);
     }
@@ -230,7 +235,7 @@ describe('NonLeafBlock', () => {
 
       expect(r).toBeInstanceOf(NonLeafBlock);
       expect(r?.length).toBe(6);
-      expect(r?.children).toEqual([b3, b3]);
+      expect(r?.children).toBeArrayOf([b3, b3]);
       expect(u).toBeInstanceOf(LeafBlock);
       expect(u).toBe(b3_2);
     }
@@ -390,7 +395,7 @@ describe('NonLeafBlock', () => {
     {
       const nl = context.nonLeafBlock(3, [b3], 1);
       const r = nl.prepend(b4) as NonLeafBlock<any, any>;
-      expect(r.children).toEqual([b4, b3]);
+      expect(r.children).toBeArrayOf([b4, b3]);
       expect(r.length).toBe(6);
     }
     {
@@ -411,14 +416,135 @@ describe('NonLeafBlock', () => {
     {
       const nl = context.nonLeafBlock(3, [b3], 1);
       const r = nl.prependInternal(b4);
-      expect(r.children).toEqual([b4, b3]);
+      expect(r.children).toBeArrayOf([b4, b3]);
       expect(r.length).toBe(6);
     }
     {
       const nl = context.nonLeafBlock(12, [b3, b3, b3, b3], 1);
       const r = nl.prependInternal(b4);
-      expect(r.children).toEqual([b4, b3, b3, b3, b3]);
+      expect(r.children).toBeArrayOf([b4, b3, b3, b3, b3]);
       expect(r.length).toBe(15);
     }
+  });
+
+  it('reversed', () => {
+    const b1 = context.leafBlock([1, 2, 3]);
+    const b2 = context.leafBlock([4, 5, 6]);
+    const b3 = context.leafBlock([7, 8, 9]);
+
+    const nl = context.nonLeafBlock(9, [b1, b2, b3], 1);
+
+    const r = nl.reversed();
+    expect(r.toArray()).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1]);
+    expect(r.children[0].toArray()).toEqual([9, 8, 7]);
+    expect(r.children[1].toArray()).toEqual([6, 5, 4]);
+    expect(r.children[2].toArray()).toEqual([3, 2, 1]);
+  });
+
+  it('stream', () => {
+    const b1 = context.leafBlock([1, 2, 3]);
+    const b2 = context.leafBlock([4, 5, 6]);
+    const b3 = context.leafBlock([7, 8, 9]);
+
+    const nl = context.nonLeafBlock(9, [b1, b2, b3], 1);
+
+    expect(nl.stream().toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(nl.stream(true).toArray()).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1]);
+  });
+
+  it('streamRange', () => {
+    const b1 = context.leafBlock([1, 2, 3]);
+    const b2 = context.leafBlock([4, 5, 6]);
+    const b3 = context.leafBlock([7, 8, 9]);
+
+    const nl = context.nonLeafBlock(9, [b1, b2, b3], 1);
+
+    expect(nl.streamRange({ amount: 10 }).toArray()).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8, 9,
+    ]);
+    expect(nl.streamRange({ amount: 0 })).toBe(Stream.empty());
+    expect(nl.streamRange({ start: 3, amount: 4 }).toArray()).toEqual([
+      4, 5, 6, 7,
+    ]);
+    expect(nl.streamRange({ start: 3, amount: 4 }, true).toArray()).toEqual([
+      7, 6, 5, 4,
+    ]);
+  });
+
+  it('takeChildren', () => {
+    const b1 = context.leafBlock([1, 2, 3]);
+    const b2 = context.leafBlock([4, 5, 6]);
+    const b3 = context.leafBlock([7, 8, 9]);
+    const nl = context.nonLeafBlock(9, [b1, b2, b3], 1);
+
+    expect(nl.takeChildren(8)).toBe(nl);
+    expect(nl.takeChildren(0)).toBeNull();
+
+    const r = nl.takeChildren(2);
+    expect(r).toBeInstanceOf(NonLeafBlock);
+    expect(r?.length).toBe(6);
+    expect(r?.children).toBeArrayOf([b1, b2]);
+  });
+
+  it('takeInternal', () => {
+    const b3 = context.leafBlock([1, 2, 3]);
+    {
+      const nl = context.nonLeafBlock(9, [b3, b3, b3], 1);
+      const [r, u, i] = nl.takeInternal(1);
+      expect(r).toBeNull();
+      expect(u).toBeInstanceOf(LeafBlock);
+      expect(u.children).toEqual([1, 2, 3]);
+      expect(i).toBe(1);
+    }
+    {
+      const nl = context.nonLeafBlock(9, [b3, b3, b3], 1);
+      const [r, u, i] = nl.takeInternal(4);
+      expect(r?.length).toBe(3);
+      expect(u).toBeInstanceOf(LeafBlock);
+      expect(u.children).toEqual([1, 2, 3]);
+      expect(i).toBe(1);
+    }
+    {
+      const nl = context.nonLeafBlock(9, [b3, b3, b3], 1);
+      const [r, u, i] = nl.takeInternal(7);
+      expect(r?.length).toBe(6);
+      expect(u).toBeInstanceOf(LeafBlock);
+      expect(u.children).toEqual([1, 2, 3]);
+      expect(i).toBe(1);
+    }
+  });
+
+  it('toArray', () => {
+    const b1 = context.leafBlock([1, 2, 3]);
+    const b2 = context.leafBlock([4, 5, 6]);
+    const b3 = context.leafBlock([7, 8, 9]);
+    const nl = context.nonLeafBlock(9, [b1, b2, b3], 1);
+
+    expect(nl.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(nl.toArray({ amount: 0 })).toEqual([]);
+    expect(nl.toArray({ amount: 10 })).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(nl.toArray({ start: 3, amount: 4 })).toEqual([4, 5, 6, 7]);
+
+    expect(nl.toArray(undefined, true)).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1]);
+    expect(nl.toArray({ amount: 10 }, true)).toEqual([
+      9, 8, 7, 6, 5, 4, 3, 2, 1,
+    ]);
+    expect(nl.toArray({ start: 3, amount: 4 }, true)).toEqual([7, 6, 5, 4]);
+  });
+
+  it('updateAt', () => {
+    const b1 = context.leafBlock([1, 2, 3]);
+    const b2 = context.leafBlock([4, 5, 6]);
+    const b3 = context.leafBlock([7, 8, 9]);
+    const nl = context.nonLeafBlock<number, LeafBlock<number>>(
+      9,
+      [b1, b2, b3],
+      1
+    );
+
+    expect(nl.updateAt(3, 10).toArray()).toEqual([1, 2, 3, 10, 5, 6, 7, 8, 9]);
+    expect(nl.updateAt(3, (v) => v + 10).toArray()).toEqual([
+      1, 2, 3, 14, 5, 6, 7, 8, 9,
+    ]);
   });
 });

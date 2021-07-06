@@ -71,7 +71,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
     return treePrepend(this, child);
   }
 
-  append(child: C): NonLeaf<T, C> {
+  append(child: C): NonLeafTree<T, C> {
     return treeAppend(this, child);
   }
 
