@@ -23,7 +23,7 @@ describe('Path', () => {
 
   it('patchValue', () => {
     expect(Path.patchValue(m, 'a', 5)).toMatchObject({ a: 5 });
-    expect(Path.patchValue(m, 'a', (v) => v + 1)).toMatchObject({
+    expect(Path.patchValue(m, 'a', (v: number) => v + 1)).toMatchObject({
       a: 2,
     });
     expect(Path.patchValue(m, 'b', Literal.of(['abc']))).toMatchObject({
@@ -32,7 +32,7 @@ describe('Path', () => {
     expect(Path.patchValue(m, 'c.d', false)).toMatchObject({
       c: { d: false },
     });
-    expect(Path.patchValue(m, 'c.d', (v) => !v)).toMatchObject({
+    expect(Path.patchValue(m, 'c.d', (v: number) => !v)).toMatchObject({
       c: { d: false },
     });
     expect(Path.patchValue(m, 'c.e', Literal.of(null))).toMatchObject({
