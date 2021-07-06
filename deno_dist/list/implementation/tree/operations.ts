@@ -110,6 +110,19 @@ export function treePrepend<
   }
 
   if (null === tree.middle && tree.right.canAddChild) {
+    if (tree.context.isReversedLeafBlock<any>(tree.left)) {
+      const newLeftChildren = Arr.splice(tree.left.children, 0, 1);
+      newLeftChildren.push(child);
+      const moveRightChild = tree.left.children[0];
+      const newLeftLength =
+        tree.left.length -
+        tree.getChildLength(moveRightChild) +
+        tree.getChildLength(child);
+      const newLeft = tree.left.copy(newLeftChildren, newLeftLength);
+      const newRight = tree.right.prependInternal(moveRightChild);
+      return tree.copy(newLeft, newRight);
+    }
+
     const newLeftChildren = Arr.splice(
       tree.left.children,
       tree.context.maxBlockSize - 1,

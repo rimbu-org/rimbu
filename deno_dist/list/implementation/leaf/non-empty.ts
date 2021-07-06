@@ -401,7 +401,7 @@ export class LeafBlock<T>
     return this.concatChildren(other)._mutateNormalize();
   }
 
-  concatTree(other: LeafTree<T>): List.NonEmpty<T> {
+  concatTree(other: LeafTree<T>): LeafTree<T> {
     if (this.length + other.left.length <= this.context.maxBlockSize) {
       const newLeft = this.concatChildren(other.left);
 
@@ -584,7 +584,7 @@ export class ReversedLeafBlock<T> extends LeafBlock<T> {
     }
 
     const newChildren = Arr.map(this.children, mapFun, indexOffset);
-    return this.copy2(newChildren);
+    return super.copy2(newChildren);
   }
 
   reversed(): LeafBlock<T> {
@@ -685,11 +685,11 @@ export class LeafTree<T>
     return treeGet<T, LeafTree<T>, LeafBlock<T>, T>(this, index);
   }
 
-  prepend(value: T): List.NonEmpty<T> {
+  prepend(value: T): LeafTree<T> {
     return treePrepend(this, value);
   }
 
-  append(value: T): List.NonEmpty<T> {
+  append(value: T): LeafTree<T> {
     return treeAppend(this, value);
   }
 
@@ -799,7 +799,7 @@ export class LeafTree<T>
     return this.copy(undefined, newLast, newMiddle);
   }
 
-  concatTree(other: LeafTree<T>): List.NonEmpty<T> {
+  concatTree(other: LeafTree<T>): LeafTree<T> {
     const jointLength = this.right.length + other.left.length;
 
     if (jointLength < this.context.minBlockSize) {
@@ -910,6 +910,7 @@ export class LeafTree<T>
 
     const newMiddle =
       null === this.middle ? null : this.middle.map(mapFun, false, offset);
+
     if (null !== this.middle) offset += this.middle.length;
 
     const newRight = this.right.map(mapFun, false, offset);
@@ -932,24 +933,34 @@ export class LeafTree<T>
   _normalize(): List.NonEmpty<T> {
     if (null !== this.middle) {
       if (this.left.length + this.middle.length <= this.context.maxBlockSize) {
+        // first middle child can be merged with left
         const result = this.middle.dropFirst();
         const block = result[1];
         return this.copy(this.left.concatChildren(block), undefined, null);
       }
       if (this.right.length + this.middle.length <= this.context.maxBlockSize) {
-        const result = this.middle.dropFirst();
+        // last middle child can be merged with right
+        const result = this.middle.dropLast();
         const block = result[1];
         return this.copy(undefined, block.concatChildren(this.right), null);
       }
     }
-    if (this.length > this.context.maxBlockSize) return this;
-    if (null === this.middle) return this.left.concatChildren(this.right);
+
+    if (this.length > this.context.maxBlockSize) {
+      // no option to merge
+      return this;
+    }
+
+    if (null === this.middle) {
+      // can merge left and right
+      return this.left.concatChildren(this.right);
+    }
+
     if (this.context.isNonLeafBlock(this.middle)) {
-      const children = this.left.children.concat(
-        this.middle.getChild(0).children,
-        this.right.children
-      );
-      return this.left.copy(children);
+      // left, middle, and right can be merged into one block
+      return this.left
+        .concatChildren(this.middle.getChild(0))
+        .concatChildren(this.right);
     }
 
     RimbuError.throwInvalidStateError();

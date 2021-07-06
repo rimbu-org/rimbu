@@ -760,6 +760,8 @@ export class TableBuilder<
 
         if (!changed) return none;
 
+        this._size++;
+
         return columnBuilder;
       };
     }
@@ -769,7 +771,12 @@ export class TableBuilder<
         columnBuilder,
         remove
       ): RMap.Builder<C, V> | typeof remove => {
+        const preSize = columnBuilder.size;
+
         changed = columnBuilder.modifyAt(column, options);
+
+        this._size += columnBuilder.size - preSize;
+
         if (columnBuilder.isEmpty) return remove;
         return columnBuilder;
       };

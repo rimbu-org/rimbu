@@ -631,15 +631,31 @@ export function runTableTestsWith(name: string, T: Table.Context<any, any>) {
           b.modifyAt(1, 'a', { ifNew: (none) => none, ifExists: (v) => !v })
         ).toBe(false);
         expect(b.size).toBe(0);
+        expect(b.build().size).toBe(0);
+
         expect(b.modifyAt(1, 'a', { ifNew: true })).toBe(true);
+        expect(b.size).toBe(1);
         expect(b.get(1, 'a')).toBe(true);
+        expect(b.build().get(1, 'a')).toBe(true);
+
         expect(b.modifyAt(1, 'a', { ifNew: true })).toBe(false);
+
         expect(b.modifyAt(1, 'a', { ifExists: (v) => !v })).toBe(true);
+        expect(b.size).toBe(1);
         expect(b.get(1, 'a')).toBe(false);
+        expect(b.build().get(1, 'a')).toBe(false);
+
+        expect(b.modifyAt(2, 'a', { ifNew: true })).toBe(true);
+        expect(b.size).toBe(2);
+
         expect(b.modifyAt(1, 'a', { ifExists: (_, remove) => remove })).toBe(
           true
         );
+        expect(b.size).toBe(1);
         expect(b.get(1, 'a')).toBe(undefined);
+        expect(b.build().get(1, 'a')).toBe(undefined);
+        expect(b.get(2, 'a')).toBe(true);
+        expect(b.build().get(2, 'a')).toBe(true);
       });
 
       it('remove', () => {

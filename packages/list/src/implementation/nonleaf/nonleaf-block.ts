@@ -258,6 +258,7 @@ export class NonLeafBlock<T, C extends Block<T, C>>
     return [newSelf, lastChild, inChildIndex];
   }
 
+  // return remainer, first new child, and index in new child
   dropInternal(amount: number): [NonLeafBlock<T, C> | null, C, number] {
     const [childIndex, inChildIndex] = this.getCoordinates(
       amount,
@@ -326,7 +327,7 @@ export class NonLeafBlock<T, C extends Block<T, C>>
       const length = children.length;
       while (++i < length) {
         const child = children[i];
-        newChildren.push(child.map(mapFun, true, offset));
+        newChildren.push(child.map(mapFun, false, offset));
         offset += child.length;
       }
 

@@ -1,5 +1,8 @@
 // For VS Code
 {
   "extends": "../../../config/tsconfig.base.json",
-  "include": ["."]
+  "include": ["."],
+  "compilerOptions": {
+    "noStrictGenericChecks": true
+  }
 }

@@ -1,6 +1,6 @@
 import { List } from '@rimbu/list';
 import { expectError, expectType } from 'tsd';
-import { patch, Match, Literal, Immutable } from '../src';
+import { Literal, Match, patch } from '../src';
 
 let m!: {
   a: number;
@@ -11,7 +11,7 @@ let m!: {
   };
   f: List.NonEmpty<number>;
 };
-type M = Immutable<typeof m>;
+type M = typeof m;
 
 // Patch
 
@@ -51,7 +51,7 @@ expectType<M>(patch(m)({ b: Literal.of(['abc']) }));
 expectType<M>(patch(m)({ b: { 1: 'abc' } }));
 expectType<M>(patch(m)({ c: {} }));
 expectType<M>(patch(m)({ c: { d: true } }));
-expectType<M>(patch(m)({ c: { d: (v) => !v } }));
+expectType<M>(patch(m)({ c: { d: (v: boolean) => !v } }));
 expectType<M>(patch(m)({ c: { e: null } }));
 expectType<M>(patch(m)({ c: { e: Literal.of(null) } }));
 expectType<M>(patch(m)({ f: (v) => v }));
