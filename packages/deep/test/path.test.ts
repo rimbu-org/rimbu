@@ -32,7 +32,7 @@ describe('Path', () => {
     expect(Path.patchValue(m, 'c.d', false)).toMatchObject({
       c: { d: false },
     });
-    expect(Path.patchValue(m, 'c.d', (v: number) => !v)).toMatchObject({
+    expect(Path.patchValue(m, 'c.d', (v: boolean) => !v)).toMatchObject({
       c: { d: false },
     });
     expect(Path.patchValue(m, 'c.e', Literal.of(null))).toMatchObject({
