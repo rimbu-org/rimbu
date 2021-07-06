@@ -1,6 +1,6 @@
 import { RimbuError } from '../base/mod.ts';
 import type { ArrayNonEmpty } from '../common/mod.ts';
-import { Immutable, Literal } from './internal.ts';
+import { Literal } from './internal.ts';
 
 /**
  * Type to determine the allowed input type for the `patch` function.
@@ -28,19 +28,12 @@ export type Patch<T, P = T, R = T> = T extends Literal.Obj
  * patch({ a: 1, b: 3 })({ a: (v, p) => v * p.b, (v, p) => v + p.a })
  * // => { a: 3, b: 4 }
  */
-export function patch<T>(
-  value: T
-): (...patches: Patch.Multi<T>) => Immutable<T> {
+export function patch<T>(value: T): (...patches: Patch.Multi<T>) => T {
   return function (...patches) {
-    let result = value as Immutable<T>;
+    let result = value;
 
     for (const p of patches) {
-      result = patchSingle(
-        result,
-        p as Patch<T>,
-        result,
-        result
-      ) as Immutable<T>;
+      result = patchSingle(result, p as Patch<T>, result, result);
     }
 
     return result;
@@ -48,6 +41,8 @@ export function patch<T>(
 }
 
 export namespace Patch {
+  export const MAP = Symbol('Patch.ALL');
+
   /**
    * Type to determine the allowed input type for the `patch` function given an object type T.
    * @typeparam T - the input type, being an object
@@ -72,11 +67,7 @@ export namespace Patch {
    */
   export type Update<T, P, R> =
     | Literal.Value<T>
-    | ((
-        value: Immutable<T>,
-        parent: Immutable<P>,
-        root: Immutable<R>
-      ) => T extends boolean ? boolean : T);
+    | ((value: T, parent: P, root: R) => T extends boolean ? boolean : T);
 
   /**
    * Type representing allowed patches for arrays
@@ -86,6 +77,7 @@ export namespace Patch {
    */
   export type PatchArray<T extends readonly unknown[], P, R> = (
     | Patch.Update<T, P, R>
+    | (T extends readonly (infer E)[] ? { [Patch.MAP]: Patch<E, T, R> } : never)
     | {
         [K in { [K2 in keyof T]: K2 }[keyof T]]?: Patch<T[K], T, R>;
       }
@@ -105,25 +97,25 @@ export namespace Patch {
    */
   export function create<T, T2 extends T = T>(
     ...patches: Patch.Multi<T2>
-  ): (value: T) => Immutable<T> {
+  ): (value: T) => T {
     return (value) =>
       patch<T>(value)(...(patches as unknown as Patch.Multi<T>));
   }
 }
 
 function patchSingle<T, P = T, R = T>(
-  value: Immutable<T>,
+  value: T,
   patcher: Patch<T, P, R>,
-  parent: Immutable<P>,
-  root: Immutable<R>
-): Immutable<T> {
+  parent: P,
+  root: R
+): T {
   if (typeof patcher === 'function') {
     return patcher(value, parent, root) as any;
   }
 
   if (null === value || undefined === value || typeof value !== 'object') {
     if (typeof patcher !== 'object' || null === patcher) return patcher as any;
-    if (Literal.isLiteral<Immutable<T>>(patcher)) {
+    if (Literal.isLiteral<T>(patcher)) {
       return Literal.getValue(patcher);
     }
     return value;
@@ -137,13 +129,26 @@ function patchSingle<T, P = T, R = T>(
 
   if (null === patcher) return null as any;
 
-  if (Literal.isLiteral<Immutable<T>>(patcher)) {
+  if (Literal.isLiteral<T>(patcher)) {
     return Literal.getValue(patcher);
   }
 
   const valueIsArray = Array.isArray(value);
 
   if (!valueIsArray && !Literal.isPlainObject(value)) return patcher as any;
+
+  if (valueIsArray && Patch.MAP in patcher) {
+    const arr = value as unknown as any[];
+    const itemPatch = (patcher as any)[Patch.MAP];
+
+    const result = arr.slice();
+
+    for (let i = 0; i < arr.length; i++) {
+      result[i] = patchSingle(arr[i], itemPatch, value, root);
+    }
+
+    return result as any;
+  }
 
   const clone: any = valueIsArray ? ([...(value as any)] as any) : { ...value };
   let changed = false;

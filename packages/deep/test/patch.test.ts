@@ -1,6 +1,6 @@
 import { HashMap } from '@rimbu/hashed';
 import { List } from '@rimbu/list';
-import { Literal, patch, Tuple } from '../src';
+import { Literal, Patch, patch, Tuple } from '../src';
 
 describe('patch', () => {
   it('handles null', () => {
@@ -291,6 +291,21 @@ describe('patch', () => {
     });
     expect(patch({ a: [1, 2] })({ a: { 4: (v, p) => v + p[0] } })).toEqual({
       a: [1, 2],
+    });
+  });
+
+  it('handles array Patch.map', () => {
+    expect(patch({ a: [1, 2] })({ a: { [Patch.MAP]: (v) => v + 1 } })).toEqual({
+      a: [2, 3],
+    });
+    expect(
+      patch({ a: [1, 2] })({
+        a: {
+          [Patch.MAP]: (v, p, r) => v + p.length + r.a.length,
+        },
+      })
+    ).toEqual({
+      a: [5, 6],
     });
   });
 
