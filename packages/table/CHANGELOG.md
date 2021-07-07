@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.6.2](https://github.com/rimbu-org/rimbu/compare/@rimbu/table@0.6.1...@rimbu/table@0.6.2) (2021-07-07)
+
+
+### Bug Fixes
+
+* **list, table:** add tests and fix bugs that came out of tests ([c32a62d](https://github.com/rimbu-org/rimbu/commit/c32a62df661c27a8197ebcd4bbf15eff115223cb))
+
+
+
+
+
 ## [0.6.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/table@0.6.0...@rimbu/table@0.6.1) (2021-07-04)
 
 **Note:** Version bump only for package @rimbu/table

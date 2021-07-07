@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/deep@0.6.1...@rimbu/deep@0.7.0) (2021-07-07)
+
+
+### Features
+
+* **deep:** add Patch.MAP to patch function ([0c12fdb](https://github.com/rimbu-org/rimbu/commit/0c12fdb410b411488526a0deb249f4e189b0701a))
+
+
+
+
+
 ## [0.6.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/deep@0.6.0...@rimbu/deep@0.6.1) (2021-07-04)
 
 **Note:** Version bump only for package @rimbu/deep
