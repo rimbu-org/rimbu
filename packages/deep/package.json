@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/deep",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "Tools to use handle plain JS objects as immutable objects",
   "keywords": [
     "immutable",
