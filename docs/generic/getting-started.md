@@ -4,7 +4,7 @@
 
 This documentation site makes a lot of use of CodeSandbox examples, where you can use the Rimbu library live in a browser environment. Try it out to quickly browse through many examples:
 
-[Open Rimbu Sandbox](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts ':target blank :class=btn')
+[Open Rimbu Sandbox](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts ':target=_blank :class=btn')
 
 ## Installation
 

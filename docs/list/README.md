@@ -10,24 +10,24 @@ The List implementation is a novel data structure invented by the author of this
 
 ### Creation
 
-[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/list/create.ts ':target blank :class=btn')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/list/create.ts ':target=_blank :class=btn')
 
 [Create](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/list/create.ts ':include :type=iframe width=100% height=450px')
 
 ### Query
 
-[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/list/query.ts ':target blank :class=btn')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/list/query.ts ':target=_blank :class=btn')
 
 [Query](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/list/query.ts ':include :type=iframe width=100% height=450px')
 
 ### Manipulation
 
-[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/list/manipulation.ts ':target blank :class=btn')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/list/manipulation.ts ':target=_blank :class=btn')
 
 [Manipulation](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/list/manipulation.ts ':include :type=iframe width=100% height=450px')
 
 ### Builder
 
-[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/list/build.ts ':target blank :class=btn')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/list/build.ts ':target=_blank :class=btn')
 
 [Build](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/list/build.ts ':include :type=iframe width=100% height=450px')

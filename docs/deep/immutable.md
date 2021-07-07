@@ -36,6 +36,6 @@ Like `Readonly`, `Immutable` does not have any effect on the object itself, but 
 
 ## Examples
 
-[Open with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/deep/immutable.ts ':target blank :class=btn')
+[Open with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/deep/immutable.ts ':target=_blank :class=btn')
 
 [Immutable](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/deep/immutable.ts ':include :type=iframe width=100% height=450px')

@@ -18,24 +18,24 @@ The `@rimbu/core` package exports the following _concrete_ BiMap types:
 
 ### Creation
 
-[Open with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimap/create.ts ':target blank :class=btn')
+[Open with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimap/create.ts ':target=_blank :class=btn')
 
 [Create](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimap/create.ts ':include :type=iframe width=100% height=450px')
 
 ### Query
 
-[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimap/query.ts ':target blank :class=btn')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimap/query.ts ':target=_blank :class=btn')
 
 [Query](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimap/query.ts ':include :type=iframe width=100% height=450px')
 
 ### Motivation
 
-[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimap/motivation.ts ':target blank :class=btn')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimap/motivation.ts ':target=_blank :class=btn')
 
 [Motivation](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimap/motivation.ts ':include :type=iframe width=100% height=450px')
 
 ### Builder
 
-[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimap/build.ts ':target blank :class=btn')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/bimap/build.ts ':target=_blank :class=btn')
 
 [Build](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/bimap/build.ts ':include :type=iframe width=100% height=450px')

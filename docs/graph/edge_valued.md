@@ -16,24 +16,24 @@ The `@rimbu/core` package exports the following EdgeValuedGraph types:
 
 ### Creation
 
-[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/graph/edge/valued/create.ts ':target blank :class=btn')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/graph/edge/valued/create.ts ':target=_blank :class=btn')
 
 [Create List](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/graph/edge/valued/create.ts ':include :type=iframe width=100% height=450px')
 
 ### Query
 
-[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/graph/edge/valued/query.ts ':target blank :class=btn')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/graph/edge/valued/query.ts ':target=_blank :class=btn')
 
 [Query](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/graph/edge/valued/query.ts ':include :type=iframe width=100% height=450px')
 
 ### Motivation
 
-[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/graph/edge/valued/motivation.ts ':target blank :class=btn')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/graph/edge/valued/motivation.ts ':target=_blank :class=btn')
 
 [Motivation](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/graph/edge/valued/motivation.ts ':include :type=iframe width=100% height=450px')
 
 ### Builder
 
-[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/graph/edge/valued/build.ts ':target blank :class=btn')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/graph/edge/valued/build.ts ':target=_blank :class=btn')
 
 [Build](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/graph/edge/valued/build.ts ':include :type=iframe width=100% height=450px')

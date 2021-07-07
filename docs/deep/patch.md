@@ -55,6 +55,6 @@ const newState = patch(state)({
 
 The following CodeSandbox shows more example of how to use `patch`:
 
-[Open with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/deep/patch.ts ':target blank :class=btn')
+[Open with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/deep/patch.ts ':target=_blank :class=btn')
 
 [Patch](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/deep/patch.ts ':include :type=iframe width=100% height=450px')

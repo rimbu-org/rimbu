@@ -20,24 +20,24 @@ A `Stream` is also `Iterable` so it also blends in well with 'traditional' metho
 
 ### Creation
 
-[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/stream/create.ts ':target blank :class=btn')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/stream/create.ts ':target=_blank :class=btn')
 
 [Create](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/stream/create.ts ':include :type=iframe width=100% height=450px')
 
 ### Query
 
-[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/stream/query.ts ':target blank :class=btn')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/stream/query.ts ':target=_blank :class=btn')
 
 [Query](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/stream/query.ts ':include :type=iframe width=100% height=450px')
 
 ### Conversions
 
-[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/stream/conversions.ts ':target blank :class=btn')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/stream/conversions.ts ':target=_blank :class=btn')
 
 [Conversion](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/stream/conversions.ts ':include :type=iframe width=100% height=450px')
 
 ### Reduce
 
-[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/stream/reduce.ts ':target blank :class=btn')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/stream/reduce.ts ':target=_blank :class=btn')
 
 [Reduce](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/stream/reduce.ts ':include :type=iframe width=100% height=450px')

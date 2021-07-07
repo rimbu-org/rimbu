@@ -30,24 +30,24 @@ The `@rimbu/core` package exports the following _concrete_ Multiset types:
 
 ### Creation
 
-[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/multiset/create.ts ':target blank :class=btn')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/multiset/create.ts ':target=_blank :class=btn')
 
 [Create](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/multiset/create.ts ':include :type=iframe width=100% height=450px')
 
 ### Query
 
-[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/multiset/query.ts ':target blank :class=btn')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/multiset/query.ts ':target=_blank :class=btn')
 
 [Query](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/multiset/query.ts ':include :type=iframe width=100% height=450px')
 
 ### Manipulation
 
-[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/multiset/manipulation.ts ':target blank :class=btn')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/multiset/manipulation.ts ':target=_blank :class=btn')
 
 [Manipulation](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/multiset/manipulation.ts ':include :type=iframe width=100% height=450px')
 
 ### Builder
 
-[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/multiset/build.ts ':target blank :class=btn')
+[Open with type interence](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/multiset/build.ts ':target=_blank :class=btn')
 
 [Build](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/multiset/build.ts ':include :type=iframe width=100% height=450px')

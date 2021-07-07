@@ -24,6 +24,6 @@ function getPersonStreet(person: Person): string {
 
 The following CodeSandbox shows more examples of how to use the `Path` object:
 
-[Open with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/deep/path.ts ':target blank :class=btn')
+[Open with type inference](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/deep/path.ts ':target=_blank :class=btn')
 
 [Match](https://codesandbox.io/embed/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&codemirror=1&moduleview=1&module=/src/deep/path.ts ':include :type=iframe width=100% height=450px')
