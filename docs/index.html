@@ -23,7 +23,10 @@
         logo: '_media/rimbu_logo.svg',
         repo: 'rimbu-org/rimbu',
         routerMode: 'history',
-        loadSidebar: './_sidebar.md',
+        loadSidebar: true,
+        alias: {
+          '/.*/_sidebar.md': '/_sidebar.md',
+        },
         coverpage: true,
         auto2top: true,
         search: {
