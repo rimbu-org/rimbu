@@ -307,6 +307,8 @@ describe('patch', () => {
     ).toEqual({
       a: [5, 6],
     });
+    const arr = [1, 2];
+    expect(patch(arr)({ [Patch.MAP]: (v) => v })).toBe(arr);
   });
 
   it('handles tuples', () => {

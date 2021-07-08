@@ -141,13 +141,20 @@ function patchSingle<T, P = T, R = T>(
     const arr = value as unknown as any[];
     const itemPatch = (patcher as any)[Patch.MAP];
 
-    const result = arr.slice();
+    let result: any[] | undefined = undefined;
 
     for (let i = 0; i < arr.length; i++) {
-      result[i] = patchSingle(arr[i], itemPatch, value, root);
+      const currentItem = arr[i];
+      const newItem = patchSingle(currentItem, itemPatch, value, root);
+      if (!Object.is(newItem, currentItem)) {
+        if (undefined === result) {
+          result = arr.slice();
+        }
+        result[i] = newItem;
+      }
     }
 
-    return result as any;
+    return (result ?? arr) as any;
   }
 
   const clone: any = valueIsArray ? ([...(value as any)] as any) : { ...value };
