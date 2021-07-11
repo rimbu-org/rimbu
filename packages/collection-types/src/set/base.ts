@@ -4,6 +4,7 @@ import type {
   ToJSON,
   TraverseState,
 } from '@rimbu/common';
+import { Reducer } from '@rimbu/common';
 import { FastIterable, Stream, Streamable, StreamSource } from '@rimbu/stream';
 import type { Elem, WithElem } from '../custom-base';
 
@@ -343,6 +344,19 @@ export namespace RSetBase {
      * HashSet.builder<number>()     // => HashSet.Builder<number>
      */
     builder: <T extends UT>() => WithElem<Tp, T>['builder'];
+    /**
+     * Returns a `Reducer` that appends received items to an RSet and returns the RSet as a result. When a `source` is given,
+     * the reducer will first create an RSet from the source, and then append elements to it.
+     * @param source - (optional) an initial source of elements to append to
+     * @example
+     * const someList = SortedSet.of(1, 2, 3);
+     * const result = Stream.range({ start: 20, amount: 5 }).reduce(SortedSet.reducer(someList))
+     * result.toArray()   // => [1, 2, 3, 20, 21, 22, 23, 24]
+     * @note uses an RSet builder under the hood. If the given `source` is a RSet in the same context, it will directly call `.toBuilder()`.
+     */
+    reducer: <T>(
+      source?: StreamSource<T>
+    ) => Reducer<T, WithElem<Tp, T>['normal']>;
   }
 
   export interface Builder<T, Tp extends RSetBase.Types = RSetBase.Types> {
@@ -495,10 +509,26 @@ export namespace RSetBase {
       return builder.build();
     };
 
-    of = <T>(
+    of = <T extends UT>(
       ...values: ArrayNonEmpty<T>
     ): T extends UT ? WithElem<Tp, T>['nonEmpty'] : never => {
       return this.from(values);
+    };
+
+    reducer = <T extends UT>(
+      source?: StreamSource<T>
+    ): Reducer<T, WithElem<Tp, T>['normal']> => {
+      return Reducer.create(
+        () =>
+          undefined === source
+            ? this.builder<T>()
+            : (this.from(source) as WithElem<Tp, T>['normal']).toBuilder(),
+        (builder, value) => {
+          builder.add(value);
+          return builder;
+        },
+        (builder) => builder.build()
+      );
     };
   }
 }

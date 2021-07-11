@@ -1,5 +1,6 @@
 import { RimbuError } from '@rimbu/base';
 import type { ArrayNonEmpty } from '@rimbu/common';
+import { Reducer } from '@rimbu/common';
 import { StreamSource } from '@rimbu/stream';
 import type { List } from './internal';
 import type {
@@ -118,6 +119,20 @@ export class ListContext implements List.Context {
 
   fromString = (...sources: ArrayNonEmpty<string>) => {
     return this.from(...sources);
+  };
+
+  reducer = <T>(source?: StreamSource<T>): Reducer<T, List<T>> => {
+    return Reducer.create(
+      () =>
+        undefined === source
+          ? this.builder<T>()
+          : this.from(source).toBuilder(),
+      (builder, value) => {
+        builder.append(value);
+        return builder;
+      },
+      (builder) => builder.build()
+    );
   };
 
   leafBlock<T>(children: readonly T[]): LeafBlock<T> {

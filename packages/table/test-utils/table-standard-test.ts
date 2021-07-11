@@ -67,6 +67,37 @@ export function runTableTestsWith(name: string, T: Table.Context<any, any>) {
       b.addEntries(arr6);
       expect(b.size).toBe(6);
     });
+
+    it('reducer', () => {
+      const source = Stream.of<[number, string, boolean]>(
+        [1, 'a', true],
+        [2, 'b', false],
+        [3, 'a', true]
+      );
+      {
+        const result = source.reduce(T.reducer());
+        expectEqual(result, [
+          [1, 'a', true],
+          [2, 'b', false],
+          [3, 'a', true],
+        ]);
+      }
+
+      {
+        const result = source.reduce(
+          T.reducer([
+            [3, 'a', false],
+            [3, 'b', true],
+          ])
+        );
+        expectEqual(result, [
+          [1, 'a', true],
+          [2, 'b', false],
+          [3, 'a', true],
+          [3, 'b', true],
+        ]);
+      }
+    });
   });
 
   describe(`${name} methods`, () => {

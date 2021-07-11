@@ -62,6 +62,35 @@ describe('BiMap creators', () => {
       expect(BiMap.from(c.from(m))).not.toBe(m);
     }
   });
+
+  it('reducer', () => {
+    const source = Stream.of<readonly [number, string]>(
+      [1, 'a'],
+      [2, 'b'],
+      [3, 'a']
+    );
+    {
+      const result = source.reduce(BiMap.reducer());
+      expectEqual(result, [
+        [2, 'b'],
+        [3, 'a'],
+      ]);
+    }
+
+    {
+      const result = source.reduce(
+        BiMap.reducer([
+          [4, 'b'],
+          [5, 'q'],
+        ])
+      );
+      expectEqual(result, [
+        [2, 'b'],
+        [3, 'a'],
+        [5, 'q'],
+      ]);
+    }
+  });
 });
 
 describe('BiMap methods', () => {

@@ -3,6 +3,7 @@ import { CustomBase as CB, RMap, RSet } from '../../collection-types/mod.ts';
 import {
   ArrayNonEmpty,
   OptLazy,
+  Reducer,
   RelatedTo,
   ToJSON,
   TraverseState,
@@ -678,7 +679,7 @@ export class MultiMapContext<
     return builder.build();
   };
 
-  of = <K, V>(
+  of = <K extends UK, V extends UV>(
     ...entries: ArrayNonEmpty<readonly [K, V]>
   ): [K, V] extends [UK, UV]
     ? CB.WithKeyValue<Tp, K, V>['nonEmpty']
@@ -686,12 +687,34 @@ export class MultiMapContext<
     return this.from(entries);
   };
 
-  builder = <K, V>(): CB.WithKeyValue<Tp, K, V>['builder'] => {
+  builder = <K extends UK, V extends UV>(): CB.WithKeyValue<
+    Tp,
+    K,
+    V
+  >['builder'] => {
     return new MultiMapBuilder<K, V, Tp>(this) as CB.WithKeyValue<
       Tp,
       K,
       V
     >['builder'];
+  };
+
+  reducer = <K extends UK, V extends UV>(
+    source?: StreamSource<readonly [K, V]>
+  ): Reducer<[K, V], CB.WithKeyValue<Tp, K, V>['normal']> => {
+    return Reducer.create(
+      () =>
+        undefined === source
+          ? this.builder<K, V>()
+          : (
+              this.from(source) as CB.WithKeyValue<Tp, K, V>['normal']
+            ).toBuilder(),
+      (builder, entry) => {
+        builder.add(entry[0], entry[1]);
+        return builder;
+      },
+      (builder) => builder.build()
+    );
   };
 
   createBuilder<K, V>(

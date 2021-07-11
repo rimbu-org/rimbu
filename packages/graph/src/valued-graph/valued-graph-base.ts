@@ -4,6 +4,7 @@ import type {
   ArrayNonEmpty,
   OptLazy,
   OptLazyOr,
+  Reducer,
   RelatedTo,
   SuperOf,
 } from '@rimbu/common';
@@ -485,6 +486,19 @@ export namespace ValuedGraphBase {
      * ArrowValuedGraphHashed.builder<number, string>()    // => ArrowValuedGraphHashed.Builder<number, string>
      */
     builder: <N extends UN, V>() => WithGraphValues<Tp, N, V>['builder'];
+    /**
+     * Returns a `Reducer` that adds valued received graph elements to a ValuedGraph and returns the ValuedGraph as a result. When a `source` is given,
+     * the reducer will first create a graph from the source, and then add graph elements to it.
+     * @param source - (optional) an initial source of graph elements to add to
+     * @example
+     * const someSource: ValuedGraphElement<number, string>[] = [[1, 2, 'a'], [3], [5]];
+     * const result = Stream.of([1, 3, 'b'], [4, 3, 'c']).reduce(ArrowGraphSorted.reducer(someSource))
+     * result.toArray()   // => [[1, 2, 'a'], [1, 3, 'b'], [4, 3, 'c'], [5]]
+     * @note uses a builder under the hood. If the given `source` is a ValuedGraph in the same context, it will directly call `.toBuilder()`.
+     */
+    reducer: <N extends UN, V>(
+      source?: StreamSource.NonEmpty<ValuedGraphElement<N, V>>
+    ) => Reducer<ValuedGraphElement<N, V>, WithGraphValues<Tp, N, V>['normal']>;
   }
 
   export interface Types extends VariantValuedGraphBase.Types {

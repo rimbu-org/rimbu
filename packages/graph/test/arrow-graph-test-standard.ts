@@ -1,6 +1,6 @@
 import type { ArrayNonEmpty } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
-import { ArrowGraph, ArrowGraphHashed, Link } from '../src';
+import { ArrowGraph, ArrowGraphHashed, GraphElement, Link } from '../src';
 
 function expectEqual<N>(
   source: { streamConnections(): Stream<Link<N>> },
@@ -67,6 +67,28 @@ export function runArrowGraphTestsWith(
       b.connectAll(arr6);
       expect(b.nodeSize).toBe(7);
       expect(b.connectionSize).toBe(6);
+    });
+
+    it('reducer', () => {
+      const source = Stream.of<GraphElement<number>>([1, 2], [3], [4, 5]);
+      {
+        const result = source.reduce(G.reducer());
+        expectEqual(result, [
+          [1, 2],
+          [4, 5],
+        ]);
+        expect(result.hasNode(3)).toBe(true);
+      }
+
+      {
+        const result = source.reduce(G.reducer([[3, 4], [6]]));
+        expectEqual(result, [
+          [1, 2],
+          [3, 4],
+          [4, 5],
+        ]);
+        expect(result.hasNode(6)).toBe(true);
+      }
     });
   });
 

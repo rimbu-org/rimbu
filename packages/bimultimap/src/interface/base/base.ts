@@ -1,6 +1,7 @@
 import type { CustomBase as CB, RSet } from '@rimbu/collection-types';
 import type {
   ArrayNonEmpty,
+  Reducer,
   RelatedTo,
   ToJSON,
   TraverseState,
@@ -491,6 +492,19 @@ export namespace BiMultiMapBase {
       K,
       V
     >['builder'];
+    /**
+     * Returns a `Reducer` that adds received tuples to a BiMultiMap and returns the BiMultiMap as a result. When a `source` is given,
+     * the reducer will first create a BiMultiMap from the source, and then add tuples to it.
+     * @param source - (optional) an initial source of tuples to add to
+     * @example
+     * const someSource = BiMultiMap.of([1, 'a'], [2, 'b']);
+     * const result = Stream.of([1, 'c'], [3, 'a']).reduce(BiMultiMap.reducer(someSource))
+     * result.toArray()   // => [[1, 'a'], [1, 'c'], [2, 'b'], [3, 'a']]
+     * @note uses a builder under the hood. If the given `source` is a BiMultiMap in the same context, it will directly call `.toBuilder()`.
+     */
+    reducer: <K extends UK, V extends UV>(
+      source?: StreamSource<readonly [K, V]>
+    ) => Reducer<[K, V], CB.WithKeyValue<Tp, K, V>['normal']>;
   }
 
   export interface Builder<

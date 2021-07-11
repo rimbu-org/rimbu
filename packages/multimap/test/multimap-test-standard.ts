@@ -66,6 +66,34 @@ export function runMultiMapTestsWith(
       b.addEntries(arr6);
       expect(b.size).toBe(6);
     });
+
+    it('reducer', () => {
+      const source = Stream.of<[number, string]>([1, 'a'], [2, 'b'], [3, 'a']);
+      {
+        const result = source.reduce(MM.reducer());
+        expectEqual(result, [
+          [1, 'a'],
+          [2, 'b'],
+          [3, 'a'],
+        ]);
+      }
+
+      {
+        const result = source.reduce(
+          MM.reducer([
+            [3, 'b'],
+            [5, 'q'],
+          ])
+        );
+        expectEqual(result, [
+          [1, 'a'],
+          [2, 'b'],
+          [3, 'a'],
+          [3, 'b'],
+          [5, 'q'],
+        ]);
+      }
+    });
   });
 
   describe(`${name} methods`, () => {

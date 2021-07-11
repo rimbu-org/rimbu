@@ -5,6 +5,7 @@ import type {
   IndexRange,
   OmitStrong,
   OptLazy,
+  Reducer,
   StringNonEmpty,
   SuperOf,
   ToJSON,
@@ -304,7 +305,7 @@ export interface List<T> extends FastIterable<T> {
    * * `value`: the next value
    * * `index`: the value index
    * * `halt`: a function that, when called, ensures no next elements are passed
-   * @param range - (default: undefined) the range of the list to include in the filtering process
+   * @param range - (optional) the range of the list to include in the filtering process
    * @param reversed - (default: false) if true reverses the elements within the given range
    * @example
    * List.of(0, 1, 2, 3).filter(v => v < 2)           // -> List(0, 1)
@@ -327,7 +328,7 @@ export interface List<T> extends FastIterable<T> {
    * * `index`: the value index
    * * `skip`: a token that, when returned, will not add a value to the resulting collection
    * * `halt`: a function that, when called, ensures no next elements are passed
-   * @param range - (default: undefined) the range of the list to include in the filtering process
+   * @param range - (optional) the range of the list to include in the filtering process
    * @param reversed - (default: false) if true reverses the elements within the given range
    * @example
    * List.of(0, 1, 2, 3).collect(v => v > 1)
@@ -378,7 +379,7 @@ export interface List<T> extends FastIterable<T> {
    *
    * @param flatMapFun - a function taking the next value and its index, and returning a `StreamSource`
    * of value to include in the resulting collection
-   * @param range - (default: undefined) the range of the list to include in the filtering process
+   * @param range - (optional) the range of the list to include in the filtering process
    * @param reversed - (default: false) if true reverses the elements within the given range
    */
   flatMap<T2>(
@@ -396,7 +397,7 @@ export interface List<T> extends FastIterable<T> {
   /**
    * Returns an array containing the values within given `range` (default: all) in this collection.
    * If `reversed` is true, reverses the order of the values.
-   * @param range - (default: undefined) the range of the list to include in the filtering process
+   * @param range - (optional) the range of the list to include in the filtering process
    * @param reversed - (default: false) if true reverses the elements within the given range
    * @example
    * List.of(0, 1, 2, 3).toArray()                      // => [0, 1, 2, 3]
@@ -565,7 +566,7 @@ export namespace List {
      * of the List according to the `positionPercentage` such that the result length is equal to `length`.
      * @param length - the target length of the resulting list
      * @param fill - the element used to fill up empty space in the resulting List
-     * @param positionPercentage - a percentage indicating how much of the filling elements should be on the left
+     * @param positionPercentage - (optional) a percentage indicating how much of the filling elements should be on the left
      * side of the current List
      * @example
      * List.of(0, 1).padTo(4, 10)       // -> List(0, 1, 10, 10)
@@ -622,7 +623,7 @@ export namespace List {
      * Returns a List containing the joined results of applying given `flatMapFun` to each value in this List.
      * @param flatMapFun - a function taking the next value and its index, and returning a `StreamSource`
      * of value to include in the resulting collection
-     * @param range - (default: undefined) the range of the list to include in the filtering process
+     * @param range - (optional) the range of the list to include in the filtering process
      * @param reversed - (default: false) if true reverses the elements within the given range
      */
     flatMap<T2>(
@@ -671,7 +672,7 @@ export namespace List {
     /**
      * Returns an array containing the values within given `range` (default: all) in this collection.
      * If `reversed` is true, reverses the order of the values.
-     * @param range - (default: undefined) the range of the list to include in the filtering process
+     * @param range - (optional) the range of the list to include in the filtering process
      * @param reversed - (default: false) if true reverses the elements within the given range
      * @example
      * List.of(0, 1, 2, 3).toArray()                      // => [0, 1, 2, 3]
@@ -935,6 +936,17 @@ export namespace List {
      * List.builder<number>()   // => List.Builder<number>
      */
     builder<T>(): List.Builder<T>;
+    /**
+     * Returns a `Reducer` that appends received items to a List and returns the List as a result. When a `source` is given,
+     * the reducer will first create a List from the source, and then append elements to it.
+     * @param source - (optional) an initial source of elements to append to
+     * @example
+     * const someList = List.of(1, 2, 3);
+     * const result = Stream.range({ start: 20, amount: 5 }).reduce(List.reducer(someList))
+     * result.toArray()   // => [1, 2, 3, 20, 21, 22, 23, 24]
+     * @note uses a List builder under the hood. If the given `source` is a List in the same context, it will directly call `.toBuilder()`.
+     */
+    reducer<T>(source?: StreamSource<T>): Reducer<T, List<T>>;
   }
 
   export interface Types extends CustomBase.Elem {

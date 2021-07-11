@@ -52,6 +52,19 @@ describe('List creators', () => {
     b.prepend(2);
     expect(b.length).toBe(2);
   });
+
+  it('reducer', () => {
+    const source = Stream.range({ start: 5, amount: 15 });
+    {
+      const result = source.reduce(List.reducer());
+      expect(result.toArray()).toEqual(source.toArray());
+    }
+
+    {
+      const result = source.reduce(List.reducer([1, 2, 3]));
+      expect(result.toArray()).toEqual([1, 2, 3, ...source.toArray()]);
+    }
+  });
 });
 
 describe('List methods', () => {

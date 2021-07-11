@@ -3,6 +3,7 @@ import type {
   ArrayNonEmpty,
   OmitStrong,
   OptLazy,
+  Reducer,
   RelatedTo,
   ToJSON,
   TraverseState,
@@ -496,6 +497,19 @@ export namespace BiMap {
      * BiMap.builder<number, string>()    // => BiMap.Builder<number, string>
      */
     builder: <K extends UK, V extends UV>() => BiMap.Builder<K, V>;
+    /**
+     * Returns a `Reducer` that adds received tuples to a BiMap and returns the BiMap as a result. When a `source` is given,
+     * the reducer will first create a BiMap from the source, and then add tuples to it.
+     * @param source - (optional) an initial source of tuples to add to
+     * @example
+     * const someSource = BiMap.of([1, 'a'], [2, 'b']);
+     * const result = Stream.of([1, 'c'], [3, 'a']).reduce(BiMap.reducer(someSource))
+     * result.toArray()   // => [[1, 'c'], [2, 'b'], [3, 'a']]
+     * @note uses a builder under the hood. If the given `source` is a BiMap in the same context, it will directly call `.toBuilder()`.
+     */
+    reducer: <K extends UK, V extends UV>(
+      source?: StreamSource<readonly [K, V]>
+    ) => Reducer<readonly [K, V], BiMap<K, V>>;
   }
 
   export interface Types extends CustomBase.KeyValue {

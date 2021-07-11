@@ -1,6 +1,12 @@
 import { Arr, RimbuError } from '@rimbu/base';
 import { CustomBase as CB, RMap } from '@rimbu/collection-types';
-import { ArrayNonEmpty, RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
+import {
+  ArrayNonEmpty,
+  Reducer,
+  RelatedTo,
+  ToJSON,
+  TraverseState,
+} from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import type { MultiSetBase } from '../multiset-custom';
 
@@ -668,6 +674,22 @@ export class MultiSetContext<UT, N extends string, Tp extends ContextImplTypes>
       Tp,
       T
     >['builder'];
+  };
+
+  reducer = <T extends UT>(
+    source?: StreamSource<T>
+  ): Reducer<T, CB.WithElem<Tp, T>['normal']> => {
+    return Reducer.create(
+      () =>
+        undefined === source
+          ? this.builder<T>()
+          : (this.from(source) as CB.WithElem<Tp, T>['normal']).toBuilder(),
+      (builder, value) => {
+        builder.add(value);
+        return builder;
+      },
+      (builder) => builder.build()
+    );
   };
 
   createBuilder<T extends UT>(

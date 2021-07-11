@@ -1,5 +1,5 @@
 import type { ArrayNonEmpty } from '@rimbu/common';
-import type { ValuedLink } from '@rimbu/graph';
+import type { ValuedGraphElement, ValuedLink } from '@rimbu/graph';
 import { Stream } from '@rimbu/stream';
 import type { ArrowValuedGraph } from '../src';
 
@@ -58,6 +58,32 @@ export function runGraphTestsWith(
       b.connectAll(arr6);
       expect(b.nodeSize).toBe(7);
       expect(b.connectionSize).toBe(6);
+    });
+
+    it('reducer', () => {
+      const source = Stream.of<ValuedGraphElement<number, string>>(
+        [1, 2, 'a'],
+        [3],
+        [4, 5, 'b']
+      );
+      {
+        const result = source.reduce(G.reducer());
+        expectEqual(result, [
+          [1, 2, 'a'],
+          [4, 5, 'b'],
+        ]);
+        expect(result.hasNode(3)).toBe(true);
+      }
+
+      {
+        const result = source.reduce(G.reducer([[3, 4, 'q'], [6]]));
+        expectEqual(result, [
+          [1, 2, 'a'],
+          [3, 4, 'q'],
+          [4, 5, 'b'],
+        ]);
+        expect(result.hasNode(6)).toBe(true);
+      }
     });
   });
 

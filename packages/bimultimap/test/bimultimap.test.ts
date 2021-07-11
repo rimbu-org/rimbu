@@ -68,6 +68,34 @@ function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
       b.addEntries(arr6);
       expect(b.size).toBe(6);
     });
+
+    it('reducer', () => {
+      const source = Stream.of<[number, string]>([1, 'a'], [2, 'b'], [3, 'a']);
+      {
+        const result = source.reduce(BMM.reducer());
+        expectEqual(result, [
+          [1, 'a'],
+          [2, 'b'],
+          [3, 'a'],
+        ]);
+      }
+
+      {
+        const result = source.reduce(
+          BMM.reducer([
+            [4, 'b'],
+            [5, 'q'],
+          ])
+        );
+        expectEqual(result, [
+          [1, 'a'],
+          [2, 'b'],
+          [3, 'a'],
+          [4, 'b'],
+          [5, 'q'],
+        ]);
+      }
+    });
   });
 
   describe(`${name} methods`, () => {

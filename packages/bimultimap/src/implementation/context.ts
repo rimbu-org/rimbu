@@ -1,5 +1,6 @@
 import type { CustomBase as CB } from '@rimbu/collection-types';
 import type { ArrayNonEmpty } from '@rimbu/common';
+import { Reducer } from '@rimbu/common';
 import { StreamSource } from '@rimbu/stream';
 import {
   BiMultiMapBase,
@@ -105,6 +106,24 @@ export class BiMultiMapContext<
       K,
       V
     >['builder'];
+  };
+
+  reducer = <K extends UK, V extends UV>(
+    source?: StreamSource<readonly [K, V]>
+  ): Reducer<[K, V], CB.WithKeyValue<Tp, K, V>['normal']> => {
+    return Reducer.create(
+      () =>
+        undefined === source
+          ? this.builder<K, V>()
+          : (
+              this.from(source) as CB.WithKeyValue<Tp, K, V>['normal']
+            ).toBuilder(),
+      (builder, entry) => {
+        builder.add(entry[0], entry[1]);
+        return builder;
+      },
+      (builder) => builder.build()
+    );
   };
 
   createBuilder<K extends UK, V extends UV>(

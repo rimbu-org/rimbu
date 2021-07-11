@@ -48,6 +48,19 @@ export function runSetTestsWith(
       b.addAll([1, 2]);
       expect(b.size).toBe(2);
     });
+
+    it('reducer', () => {
+      const source = Stream.range({ start: 5, amount: 15 });
+      {
+        const result = source.reduce(S.reducer());
+        expectEqual(result, source.toArray());
+      }
+
+      {
+        const result = source.reduce(S.reducer([1, 2, 3]));
+        expectEqual(result, [1, 2, 3, ...source.toArray()]);
+      }
+    });
   });
 
   describe(`${name} methods`, () => {

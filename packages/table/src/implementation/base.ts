@@ -4,6 +4,7 @@ import {
   ArrayNonEmpty,
   OptLazy,
   OptLazyOr,
+  Reducer,
   RelatedTo,
   ToJSON,
   TraverseState,
@@ -968,6 +969,24 @@ export class TableContext<UR, UC, N extends string, Tp extends ContextImplTypes>
       C,
       V
     >['builder'];
+  };
+
+  reducer = <R extends UR, C extends UC, V>(
+    source?: StreamSource<readonly [R, C, V]>
+  ): Reducer<[R, C, V], CB.WithRow<Tp, R, C, V>['normal']> => {
+    return Reducer.create(
+      () =>
+        undefined === source
+          ? this.builder<R, C, V>()
+          : (
+              this.from(source) as CB.WithRow<Tp, R, C, V>['normal']
+            ).toBuilder(),
+      (builder, entry) => {
+        builder.addEntry(entry);
+        return builder;
+      },
+      (builder) => builder.build()
+    );
   };
 
   createBuilder<R extends UR, C extends UC, V>(

@@ -1,10 +1,10 @@
 import type { ArrayNonEmpty } from '@rimbu/common';
+import { Reducer } from '@rimbu/common';
 import { StreamSource } from '@rimbu/stream';
 import type { WithGraphValues } from '../../gen-graph-custom';
 import type { GraphElement } from '../../internal';
 import type { GraphBase } from '../graph-custom';
 import { GraphBuilder, GraphEmpty, GraphNonEmpty } from '../graph-custom';
-
 export interface GraphTypesContextImpl extends GraphBase.Types {
   context: GraphContext<this['_N'], string, boolean, GraphTypesContextImpl>;
 }
@@ -75,6 +75,24 @@ export class GraphContext<
 
   builder = <N extends UN>(): WithGraphValues<Tp, N, any>['builder'] => {
     return new GraphBuilder<N, Tp>(this.isDirected, this as any) as any;
+  };
+
+  reducer = <N extends UN>(
+    source?: StreamSource<GraphElement<N>>
+  ): Reducer<GraphElement<N>, WithGraphValues<Tp, N, any>['normal']> => {
+    return Reducer.create(
+      () =>
+        undefined === source
+          ? this.builder<N>()
+          : (
+              this.from(source) as WithGraphValues<Tp, N, any>['normal']
+            ).toBuilder(),
+      (builder, entry) => {
+        builder.addGraphElement(entry);
+        return builder;
+      },
+      (builder) => builder.build()
+    );
   };
 
   createBuilder<N extends UN>(

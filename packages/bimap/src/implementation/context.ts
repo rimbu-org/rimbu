@@ -1,5 +1,6 @@
 import type { RMap } from '@rimbu/collection-types';
 import type { ArrayNonEmpty } from '@rimbu/common';
+import { Reducer } from '@rimbu/common';
 import { StreamSource } from '@rimbu/stream';
 import { BiMapBuilder, BiMapEmpty, BiMapNonEmptyImpl } from '../bimap-custom';
 import type { BiMap } from '../internal';
@@ -68,5 +69,21 @@ export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>
 
   builder = <K extends UK, V extends UV>(): BiMap.Builder<K, V> => {
     return new BiMapBuilder(this as unknown as BiMapContext<K, V>);
+  };
+
+  reducer = <K extends UK, V extends UV>(
+    source?: StreamSource<readonly [K, V]>
+  ): Reducer<readonly [K, V], BiMap<K, V>> => {
+    return Reducer.create(
+      () =>
+        undefined === source
+          ? this.builder<K, V>()
+          : (this.from(source) as BiMap<K, V>).toBuilder(),
+      (builder, entry) => {
+        builder.addEntry(entry);
+        return builder;
+      },
+      (builder) => builder.build()
+    );
   };
 }

@@ -9,6 +9,7 @@ import type {
   TraverseState,
   Update,
 } from '../../common/mod.ts';
+import { Reducer } from '../../common/mod.ts';
 import { FastIterable, Stream, Streamable, StreamSource } from '../../stream/mod.ts';
 import type { KeyValue, WithKeyValue } from '../custom-base.ts';
 
@@ -700,6 +701,19 @@ export namespace RMapBase {
      * HashMap.builder<number, string>()    // => HashMap.Builder<number, string>
      */
     builder: <K extends UK, V>() => WithKeyValue<Tp, K, V>['builder'];
+    /**
+     * Returns a `Reducer` that adds received tuples to an RMap and returns the RMap as a result. When a `source` is given,
+     * the reducer will first create an RMap from the source, and then add tuples to it.
+     * @param source - (optional) an initial source of tuples to add to
+     * @example
+     * const someSource = HashMap.of([1, 'a'], [2, 'b']);
+     * const result = Stream.of([1, 'c'], [3, 'a']).reduce(HashMap.reducer(someSource))
+     * result.toArray()   // => [[1, 'c'], [2, 'b'], [3, 'a']]
+     * @note uses a builder under the hood. If the given `source` is an RMap in the same context, it will directly call `.toBuilder()`.
+     */
+    reducer: <K extends UK, V>(
+      source?: StreamSource<readonly [K, V]>
+    ) => Reducer<readonly [K, V], WithKeyValue<Tp, K, V>['normal']>;
   }
 
   export interface Builder<K, V, Tp extends RMapBase.Types = RMapBase.Types> {
@@ -942,10 +956,28 @@ export namespace RMapBase {
       return builder.build();
     };
 
-    of = <K, V>(
+    of = <K extends UK, V>(
       ...values: ArrayNonEmpty<readonly [K, V]>
     ): K extends UK ? WithKeyValue<Tp, K, V>['nonEmpty'] : never => {
       return this.from(values);
+    };
+
+    reducer = <K extends UK, V>(
+      source?: StreamSource<readonly [K, V]>
+    ): Reducer<readonly [K, V], WithKeyValue<Tp, K, V>['normal']> => {
+      return Reducer.create(
+        () =>
+          undefined === source
+            ? this.builder<K, V>()
+            : (
+                this.from(source) as WithKeyValue<Tp, K, V>['normal']
+              ).toBuilder(),
+        (builder, entry) => {
+          builder.addEntry(entry);
+          return builder;
+        },
+        (builder) => builder.build()
+      );
     };
 
     mergeAllWith<R, K, O, I extends readonly [unknown, unknown, ...unknown[]]>(

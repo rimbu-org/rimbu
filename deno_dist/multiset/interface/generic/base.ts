@@ -5,6 +5,7 @@ import type {
 } from '../../../collection-types/mod.ts';
 import type {
   ArrayNonEmpty,
+  Reducer,
   RelatedTo,
   ToJSON,
   TraverseState,
@@ -443,6 +444,19 @@ export namespace MultiSetBase {
      * HashMultiSet.builder<number>()    // => HashMultiSet.Builder<number>
      */
     builder: <T extends UT>() => CB.WithElem<Tp, T>['builder'];
+    /**
+     * Returns a `Reducer` that appends received items to a MultiSet and returns the MultiSet as a result. When a `source` is given,
+     * the reducer will first create a MultiSet from the source, and then add elements to it.
+     * @param source - (optional) an initial source of elements to add to
+     * @example
+     * const someList = [1, 2, 3];
+     * const result = Stream.range({ start: 20, amount: 5 }).reduce(SortedMultiSet.reducer(someList))
+     * result.toArray()   // => [1, 2, 3, 20, 21, 22, 23, 24]
+     * @note uses a MultiSet builder under the hood. If the given `source` is a MultiSet in the same context, it will directly call `.toBuilder()`.
+     */
+    reducer: <T extends UT>(
+      source?: StreamSource<T>
+    ) => Reducer<T, CB.WithElem<Tp, T>['normal']>;
   }
 
   export interface Builder<

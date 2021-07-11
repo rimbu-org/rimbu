@@ -1,5 +1,5 @@
 import type { RMap, RSet } from '../../collection-types/mod.ts';
-import type { ArrayNonEmpty, RelatedTo } from '../../common/mod.ts';
+import type { ArrayNonEmpty, Reducer, RelatedTo } from '../../common/mod.ts';
 import type { Stream, Streamable, StreamSource } from '../../stream/mod.ts';
 import type {
   GraphConnect,
@@ -362,6 +362,19 @@ export namespace GraphBase {
      * ArrowValuedGraphHashed.builder<number, string>()    // => ArrowValuedGraphHashed.Builder<number, string>
      */
     builder: <N extends UN>() => WithGraphValues<Tp, N, unknown>['builder'];
+    /**
+     * Returns a `Reducer` that adds received graph elements to a Graph and returns the Graph as a result. When a `source` is given,
+     * the reducer will first create a graph from the source, and then add graph elements to it.
+     * @param source - (optional) an initial source of graph elements to add to
+     * @example
+     * const someSource: GraphElement<number>[] = [[1, 2], [3], [5]];
+     * const result = Stream.of([1, 3], [4, 3]).reduce(ArrowGraphSorted.reducer(someSource))
+     * result.toArray()   // => [[1, 2], [1, 3], [4, 3], [5]]
+     * @note uses a builder under the hood. If the given `source` is a Graph in the same context, it will directly call `.toBuilder()`.
+     */
+    reducer: <N extends UN>(
+      source?: StreamSource.NonEmpty<GraphElement<N>>
+    ) => Reducer<GraphElement<N>, WithGraphValues<Tp, N, unknown>['normal']>;
   }
 
   export interface Types extends VariantGraphBase.Types {

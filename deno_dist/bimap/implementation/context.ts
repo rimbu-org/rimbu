@@ -1,5 +1,6 @@
 import type { RMap } from '../../collection-types/mod.ts';
 import type { ArrayNonEmpty } from '../../common/mod.ts';
+import { Reducer } from '../../common/mod.ts';
 import { StreamSource } from '../../stream/mod.ts';
 import { BiMapBuilder, BiMapEmpty, BiMapNonEmptyImpl } from '../bimap-custom.ts';
 import type { BiMap } from '../internal.ts';
@@ -68,5 +69,21 @@ export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>
 
   builder = <K extends UK, V extends UV>(): BiMap.Builder<K, V> => {
     return new BiMapBuilder(this as unknown as BiMapContext<K, V>);
+  };
+
+  reducer = <K extends UK, V extends UV>(
+    source?: StreamSource<readonly [K, V]>
+  ): Reducer<readonly [K, V], BiMap<K, V>> => {
+    return Reducer.create(
+      () =>
+        undefined === source
+          ? this.builder<K, V>()
+          : (this.from(source) as BiMap<K, V>).toBuilder(),
+      (builder, entry) => {
+        builder.addEntry(entry);
+        return builder;
+      },
+      (builder) => builder.build()
+    );
   };
 }

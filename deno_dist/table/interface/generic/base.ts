@@ -8,6 +8,7 @@ import type {
   ArrayNonEmpty,
   OptLazy,
   OptLazyOr,
+  Reducer,
   RelatedTo,
   SuperOf,
   ToJSON,
@@ -666,6 +667,19 @@ export namespace TableBase {
       C,
       V
     >['builder'];
+    /**
+     * Returns a `Reducer` that adds received tuples to a Table and returns the Table as a result. When a `source` is given,
+     * the reducer will first create a Table from the source, and then add tuples to it.
+     * @param source - (optional) an initial source of tuples to add to
+     * @example
+     * const someSource = Table.of([1, 'a', true], [2, 'b', false]);
+     * const result = Stream.of([1, 'c', true], [3, 'a', false]).reduce(Table.reducer(someSource))
+     * result.toArray()   // => [[1, 'c'], [2, 'b'], [3, 'a']]
+     * @note uses a builder under the hood. If the given `source` is a Table in the same context, it will directly call `.toBuilder()`.
+     */
+    reducer: <R extends UR, C extends UC, V>(
+      source?: StreamSource<readonly [R, C, V]>
+    ) => Reducer<[R, C, V], CB.WithRow<Tp, R, C, V>['normal']>;
   }
 
   export interface Builder<

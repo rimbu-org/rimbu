@@ -1,4 +1,5 @@
 import type { ArrayNonEmpty } from '@rimbu/common';
+import { Reducer } from '@rimbu/common';
 import { StreamSource } from '@rimbu/stream';
 import type { WithGraphValues } from '../../gen-graph-custom';
 import type { ValuedGraphElement } from '../../internal';
@@ -81,6 +82,24 @@ export class ValuedGraphContext<
       this.isDirected,
       this as any
     ) as any;
+  };
+
+  reducer = <N extends UN, V>(
+    source?: StreamSource<ValuedGraphElement<N, V>>
+  ): Reducer<ValuedGraphElement<N, V>, WithGraphValues<Tp, N, V>['normal']> => {
+    return Reducer.create(
+      () =>
+        undefined === source
+          ? this.builder<N, V>()
+          : (
+              this.from(source) as WithGraphValues<Tp, N, V>['normal']
+            ).toBuilder(),
+      (builder, entry) => {
+        builder.addGraphElement(entry);
+        return builder;
+      },
+      (builder) => builder.build()
+    );
   };
 
   createBuilder<N extends UN, V>(

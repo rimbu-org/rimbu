@@ -57,6 +57,28 @@ export function runMultiSetTestsWith(name: string, MS: MultiSet.Context<any>) {
       b.addAll('aabc');
       expect(b.size).toBe(5);
     });
+
+    it('reducer', () => {
+      const source = Stream.from('abcb');
+      {
+        const result = source.reduce(MS.reducer());
+        expectEqual(result, [
+          ['a', 1],
+          ['b', 2],
+          ['c', 1],
+        ]);
+      }
+
+      {
+        const result = source.reduce(MS.reducer('bdb'));
+        expectEqual(result, [
+          ['a', 1],
+          ['b', 4],
+          ['c', 1],
+          ['d', 1],
+        ]);
+      }
+    });
   });
 
   describe(`${name} methods`, () => {
