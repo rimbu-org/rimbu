@@ -1,4 +1,4 @@
-import { Stream, Streamable } from './internal.ts';
+import { Stream, Streamable } from '../internal';
 
 /**
  * Any object that is Iterable, a Stream, or can produce a Stream.
@@ -9,10 +9,7 @@ export namespace StreamSource {
   /**
    * Any object that is a non-empty Stream, can produce a non-empty Stream, or is a non-empty array.
    */
-  export type NonEmpty<T> =
-    | Stream.NonEmpty<T>
-    | Streamable.NonEmpty<T>
-    | readonly [T, ...T[]];
+  export type NonEmpty<T> = Streamable.NonEmpty<T> | readonly [T, ...T[]];
 
   /**
    * Returns true if the given `source` StreamSource is known to be empty.

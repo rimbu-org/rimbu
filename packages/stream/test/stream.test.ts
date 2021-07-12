@@ -107,6 +107,13 @@ describe('Stream constructors', () => {
     expect(Stream.fromString('abc', { amount: 2 }, true).join()).toEqual('ba');
   });
 
+  it('always', () => {
+    expect(Stream.always(5).take(5).toArray()).toEqual([5, 5, 5, 5, 5]);
+    expect(Stream.always(5).first()).toBe(5);
+    expect(Stream.always(5).last()).toBe(5);
+    expect(Stream.always(5).elementAt(10000)).toBe(5);
+  });
+
   it('flatten', () => {
     expect(Stream.empty().flatten()).toBe(Stream.empty());
     expect(Stream.of([]).flatten().toArray()).toEqual([]);
@@ -155,16 +162,6 @@ describe('Stream constructors', () => {
       Stream.unfold(0, (c, i, stop) => (c > 2 ? stop : c + i)).toArray()
     ).toEqual([0, 1, 3]);
   });
-
-  // it('forEachApply', () => {
-  //   Stream.forEachApply(
-  //     Stream.of<[number, string]>([1, 'a'], [2, 'b']),
-  //     (n: number, s: string, b: boolean) => {
-  //       console.log({ n, s, b });
-  //     },
-  //     true
-  //   );
-  // });
 });
 
 describe('Stream methods', () => {

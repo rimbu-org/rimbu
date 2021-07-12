@@ -6,9 +6,9 @@ import type {
   Reducer,
   ToJSON,
   TraverseState,
-} from '../common/mod.ts';
-import * as Constructors from './constructors.ts';
-import type { FastIterable, Streamable, StreamSource } from './internal.ts';
+} from '@rimbu/common';
+import * as Constructors from './constructors';
+import type { FastIterable, Streamable, StreamSource } from '../internal';
 
 /**
  * A possibly infinite sequence of elements of type T.
@@ -55,7 +55,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * // => [0, 1, 2, 3]
    * @note O(1)
    */
-  prepend(value: T): Stream.NonEmpty<T>;
+  prepend<T2 = T>(value: OptLazy<T2>): Stream.NonEmpty<T2>;
   /**
    * Returns the current stream succeeded by the given `value`
    * @param value - the value to append
@@ -64,7 +64,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * // => [1, 2, 3, 4]
    * @note O(1)
    */
-  append(value: T): Stream.NonEmpty<T>;
+  append<T2 = T>(value: OptLazy<T2>): Stream.NonEmpty<T | T2>;
   /**
    * Performs given function `f` for each element of the Stream, using given `state` as initial traversal state.
    * @param f - the function to perform for each element, receiving:
@@ -948,6 +948,29 @@ export namespace Stream {
       start?: StreamSource<T2>;
       end?: StreamSource<T2>;
     }): Stream.NonEmpty<T | T2>;
+    /**
+     * Returns a Stream containing the values resulting from applying the given the given `next` function to a current state (initially the given `init` value),
+     * and the next Stream value, and returning the new state.
+     * @param init - the initial result/state value
+     * @param next - a function taking the parameters below and returning the new result/state value
+     * * current: the current result/state value, initially `init`.
+     * * value: the next Stream value
+     * * index: the index of the given value
+     * * halt: a function that, if called, ensures that no new elements are passed
+     * @example
+     * console.log(
+     *   Stream.empty<number>()
+     *     .foldStream(5, (current, value) => current + value)
+     *     .toArray()
+     * )
+     * // => []
+     * console.log(
+     *   Stream.of(1, 2, 3)
+     *     .foldStream(5, (current, value) => current + value)
+     *     .toArray()
+     * )
+     * // => [6, 8, 11]
+     */
     foldStream<R = T>(
       init: OptLazy<R>,
       next: (current: R, value: T, index: number) => R

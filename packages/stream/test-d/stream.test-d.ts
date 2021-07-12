@@ -148,6 +148,10 @@ expectType<Stream.NonEmpty<number>>(Stream.of(1).assumeNonEmpty());
 // .append()
 expectType<Stream.NonEmpty<number>>(Stream.empty<number>().append(1));
 expectType<Stream.NonEmpty<number>>(Stream.of(1).append(1));
+expectType<Stream.NonEmpty<number | string>>(
+  Stream.empty<number>().append('a')
+);
+expectType<Stream.NonEmpty<number | string>>(Stream.of(1).append('a'));
 
 // .collect(..)
 expectType<Stream<string>>(Stream.empty<number>().collect(() => ''));

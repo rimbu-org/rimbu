@@ -7,8 +7,8 @@ import {
   Reducer,
   ToJSON,
   TraverseState,
-} from '../common/mod.ts';
-import { FastIterator, Stream, StreamSource } from './internal.ts';
+} from '../../common/mod.ts';
+import { FastIterator, Stream, StreamSource } from '../internal.ts';
 
 function toTuple(...values: any[]): any[] {
   return values;
@@ -57,12 +57,12 @@ export abstract class StreamBase<T> implements Stream<T> {
     return this;
   }
 
-  prepend(value: T): Stream.NonEmpty<T> {
-    return new PrependStream(this, value) as any;
+  prepend<T2>(value: OptLazy<T>): Stream.NonEmpty<T | T2> {
+    return new PrependStream<T | T2>(this, value) as any;
   }
 
-  append(value: T): Stream.NonEmpty<T> {
-    return new AppendStream(this, value) as any;
+  append<T2>(value: OptLazy<T2>): Stream.NonEmpty<T | T2> {
+    return new AppendStream<T | T2>(this, value) as any;
   }
 
   forEach(
@@ -607,7 +607,7 @@ export class FromStream<T> extends StreamBase<T> {
 }
 
 class PrependIterator<T> extends FastIteratorBase<T> {
-  constructor(readonly source: FastIterator<T>, readonly item: T) {
+  constructor(readonly source: FastIterator<T>, readonly item: OptLazy<T>) {
     super();
   }
 
@@ -616,12 +616,12 @@ class PrependIterator<T> extends FastIteratorBase<T> {
   fastNext<O>(otherwise?: OptLazy<O>): T | O {
     if (this.prependDone) return this.source.fastNext(otherwise!);
     this.prependDone = true;
-    return this.item;
+    return OptLazy(this.item);
   }
 }
 
 class PrependStream<T> extends StreamBase<T> {
-  constructor(readonly source: Stream<T>, readonly item: T) {
+  constructor(readonly source: Stream<T>, readonly item: OptLazy<T>) {
     super();
   }
 
@@ -630,7 +630,7 @@ class PrependStream<T> extends StreamBase<T> {
   }
 
   first(): T {
-    return this.item;
+    return OptLazy(this.item);
   }
 
   last(): T {
@@ -647,7 +647,7 @@ class PrependStream<T> extends StreamBase<T> {
   ): void {
     if (state.halted) return;
 
-    f(this.item, state.nextIndex(), state.halt);
+    f(OptLazy(this.item), state.nextIndex(), state.halt);
 
     if (state.halted) return;
 
@@ -656,7 +656,7 @@ class PrependStream<T> extends StreamBase<T> {
 }
 
 class AppendIterator<T> extends FastIteratorBase<T> {
-  constructor(readonly source: FastIterator<T>, readonly item: T) {
+  constructor(readonly source: FastIterator<T>, readonly item: OptLazy<T>) {
     super();
   }
 
@@ -672,11 +672,12 @@ class AppendIterator<T> extends FastIteratorBase<T> {
     if (done !== value) return value;
 
     this.appendDone = true;
-    return this.item;
+    return OptLazy(this.item);
   }
 }
+
 class AppendStream<T> extends StreamBase<T> {
-  constructor(readonly source: Stream<T>, readonly item: T) {
+  constructor(readonly source: Stream<T>, readonly item: OptLazy<T>) {
     super();
   }
 
@@ -689,7 +690,7 @@ class AppendStream<T> extends StreamBase<T> {
   }
 
   last(): T {
-    return this.item;
+    return OptLazy(this.item);
   }
 
   count(): number {
@@ -706,7 +707,7 @@ class AppendStream<T> extends StreamBase<T> {
 
     if (state.halted) return;
 
-    f(this.item, state.nextIndex(), state.halt);
+    f(OptLazy(this.item), state.nextIndex(), state.halt);
   }
 }
 
@@ -1773,11 +1774,11 @@ class ReduceAllStream<I, R> extends StreamBase<R> {
 }
 
 class SlowIteratorAdapter<T> implements FastIterator<T> {
-  constructor(readonly source: Iterator<T>) {}
-
-  next(): IteratorResult<T> {
-    return this.source.next();
+  constructor(readonly source: Iterator<T>) {
+    this.next = this.source.next;
   }
+
+  next: () => IteratorResult<T>;
 
   fastNext<O>(otherwise?: OptLazy<O>): T | O {
     const result = this.source.next();
@@ -1792,7 +1793,11 @@ export class FromIterable<T> extends StreamBase<T> {
   }
 
   [Symbol.iterator](): FastIterator<T> {
-    return new SlowIteratorAdapter(this.iterable[Symbol.iterator]());
+    const iterator = this.iterable[Symbol.iterator]();
+
+    if (FastIterator.isFastIterator(iterator)) return iterator;
+
+    return new SlowIteratorAdapter(iterator);
   }
 }
 

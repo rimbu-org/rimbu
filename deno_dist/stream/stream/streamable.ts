@@ -1,4 +1,4 @@
-import type { Stream } from './internal.ts';
+import type { Stream } from '../internal.ts';
 
 /**
  * An object that can create a Stream of elements of type `T`
