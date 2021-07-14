@@ -777,7 +777,11 @@ export namespace Reducer {
       (allState, next, index, halt) => {
         let anyNotHalted = false;
 
-        for (const red of allState) {
+        let i = -1;
+        const len = allState.length;
+        while (++i < len) {
+          const red = allState[i];
+
           if (red.halted) continue;
 
           red.state = red.reducer.next(red.state, next, index, red.halt);

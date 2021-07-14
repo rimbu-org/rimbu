@@ -397,7 +397,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 
     const sepStream = Stream.from(sep);
 
-    return new ItersperseStream(this, sepStream);
+    return new IntersperseStream(this, sepStream);
   }
 
   join({
@@ -1560,7 +1560,7 @@ class IntersperseIterator<T, S> extends FastIteratorBase<T | S> {
   }
 }
 
-class ItersperseStream<T, S> extends StreamBase<T | S> {
+class IntersperseStream<T, S> extends StreamBase<T | S> {
   constructor(readonly source: Stream<T>, readonly sepStream: Stream<S>) {
     super();
   }
@@ -1774,11 +1774,11 @@ class ReduceAllStream<I, R> extends StreamBase<R> {
 }
 
 class SlowIteratorAdapter<T> implements FastIterator<T> {
-  constructor(readonly source: Iterator<T>) {
-    this.next = this.source.next;
-  }
+  constructor(readonly source: Iterator<T>) {}
 
-  next: () => IteratorResult<T>;
+  next(): IteratorResult<T> {
+    return this.source.next();
+  }
 
   fastNext<O>(otherwise?: OptLazy<O>): T | O {
     const result = this.source.next();

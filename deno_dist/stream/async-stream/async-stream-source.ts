@@ -8,7 +8,6 @@ export type AsyncStreamSource<T> =
       | AsyncStreamable<T>
       | StreamSource<T>
       | AsyncIterable<T>
-      | AsyncGenerator<T, void, never>
       | Promise<StreamSource<T>>
     >;
 

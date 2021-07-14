@@ -259,11 +259,11 @@ export function empty<T>(): AsyncStream<T> {
 }
 
 class FromAsyncIterator<T> implements AsyncFastIterator<T> {
-  constructor(readonly source: AsyncIterator<T>) {
-    this.next = source.next;
-  }
+  constructor(readonly source: AsyncIterator<T>) {}
 
-  next: () => Promise<IteratorResult<T>>;
+  next(): Promise<IteratorResult<T>> {
+    return this.source.next();
+  }
 
   async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<T | O> {
     const result = await this.source.next();

@@ -1,6 +1,5 @@
 import type {
   ArrayNonEmpty,
-  CollectFun,
   Eq,
   OptLazy,
   Reducer,
@@ -8,6 +7,7 @@ import type {
   TraverseState,
 } from '../../common/mod.ts';
 import type {
+  AsyncCollectFun,
   AsyncFastIterable,
   AsyncOptLazy,
   AsyncStreamable,
@@ -62,7 +62,7 @@ export interface AsyncStream<T>
     pred: (value: T, ...args: A) => MaybePromise<boolean>,
     ...args: A
   ): AsyncStream<T>;
-  collect<R>(collectFun: CollectFun<T, R>): AsyncStream<R>;
+  collect<R>(collectFun: AsyncCollectFun<T, R>): AsyncStream<R>;
   first(): MaybePromise<T | undefined>;
   first<O>(otherwise: AsyncOptLazy<O>): Promise<T | O>;
   last(): Promise<T | undefined>;
@@ -116,18 +116,16 @@ export interface AsyncStream<T>
   ): AsyncStream<T>;
   min(): Promise<T | undefined>;
   min<O>(otherwise: AsyncOptLazy<O>): Promise<T | O>;
-  minBy(
-    compare: (v1: T, v2: T) => MaybePromise<number>
-  ): Promise<T | undefined>;
+  minBy(compare: (v1: T, v2: T) => number): Promise<T | undefined>;
   minBy<O>(
-    compare: (v1: T, v2: T) => MaybePromise<number>,
+    compare: (v1: T, v2: T) => number,
     otherwise: AsyncOptLazy<O>
   ): Promise<T | O>;
   max(): Promise<T | undefined>;
   max<O>(otherwise: AsyncOptLazy<O>): Promise<T | O>;
   maxBy(compare: (v1: T, v2: T) => number): Promise<T | undefined>;
   maxBy<O>(
-    compare: (v1: T, v2: T) => MaybePromise<number>,
+    compare: (v1: T, v2: T) => number,
     otherwise: AsyncOptLazy<O>
   ): Promise<T | O>;
   intersperse<T2>(sep: AsyncStreamSource<T2>): AsyncStream<T | T2>;
@@ -256,9 +254,9 @@ export namespace AsyncStream {
       ...others: ArrayNonEmpty<AsyncStreamSource<T2>>
     ): AsyncStream.NonEmpty<T>;
     min(): Promise<T>;
-    minBy(compare: (v1: T, v2: T) => MaybePromise<number>): Promise<T>;
+    minBy(compare: (v1: T, v2: T) => number): Promise<T>;
     max(): Promise<T>;
-    maxBy(compare: (v1: T, v2: T) => MaybePromise<number>): Promise<T>;
+    maxBy(compare: (v1: T, v2: T) => number): Promise<T>;
     intersperse<T2>(sep: AsyncStreamSource<T2>): AsyncStream.NonEmpty<T | T2>;
     mkGroup<T2>(options: {
       sep?: AsyncStreamSource<T2>;
