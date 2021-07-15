@@ -317,28 +317,34 @@ function asyncStreamSourceToIterator<T>(
     return AsyncFastIterator.emptyAsyncFastIterator;
   }
 
-  if (Symbol.asyncIterator in source) {
-    const iterator = (source as AsyncIterable<T>)[Symbol.asyncIterator]();
-
-    if (`fastNext` in iterator) {
-      return iterator as AsyncFastIterator<T>;
-    }
-
-    return new FromAsyncIterator(iterator);
-  }
-
-  if (`asyncStream` in source) {
-    return asyncStreamSourceToIterator(
-      (source as AsyncStreamable<T>).asyncStream()
-    );
-  }
-
-  if (Symbol.iterator in source) {
+  if (typeof source === 'string') {
     return new FromIterator((source as any)[Symbol.iterator]());
   }
 
-  if (source instanceof Promise) {
-    return new FromPromise(source);
+  if (typeof source === 'object') {
+    if (Symbol.asyncIterator in source) {
+      const iterator = (source as AsyncIterable<T>)[Symbol.asyncIterator]();
+
+      if (`fastNext` in iterator) {
+        return iterator as AsyncFastIterator<T>;
+      }
+
+      return new FromAsyncIterator(iterator);
+    }
+
+    if (`asyncStream` in source) {
+      return asyncStreamSourceToIterator(
+        (source as AsyncStreamable<T>).asyncStream()
+      );
+    }
+
+    if (Symbol.iterator in source) {
+      return new FromIterator((source as any)[Symbol.iterator]());
+    }
+
+    if (source instanceof Promise) {
+      return new FromPromise(source);
+    }
   }
 
   throw Error('unknown async stream source');
