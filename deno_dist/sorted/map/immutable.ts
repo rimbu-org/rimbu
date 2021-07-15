@@ -220,8 +220,8 @@ export abstract class SortedMapNode<K, V>
   extends SortedNonEmptyBase<readonly [K, V], SortedMapNode<K, V>>
   implements SortedMap.NonEmpty<K, V>
 {
-  abstract readonly context: SortedMapContext<K>;
-  abstract readonly size: number;
+  abstract get context(): SortedMapContext<K>;
+  abstract get size(): number;
   abstract stream(): Stream.NonEmpty<readonly [K, V]>;
   abstract streamSliceIndex(range: IndexRange): Stream<readonly [K, V]>;
   abstract forEach(

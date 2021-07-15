@@ -7,7 +7,7 @@ export abstract class BlockBuilderBase<E> {
   abstract source?: GenSource<E>;
   abstract _entries?: E[];
   abstract _entrySets?: GenBlockBuilderEntry<E>[];
-  abstract size: number;
+  abstract get size(): number;
 
   get isEmpty(): boolean {
     return this.size === 0;
@@ -46,7 +46,7 @@ export abstract class CollisionBuilderBase<E> {
       state: TraverseState
     ): void;
   };
-  abstract _entries?: List.Builder<E>;
+  abstract _entries?: List.Builder<E> | undefined;
 
   get size(): number {
     if (undefined !== this.source) return this.source.size;

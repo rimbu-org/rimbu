@@ -29,8 +29,8 @@ export abstract class ListNonEmptyBase<T>
   extends CustomBase.NonEmptyBase<T>
   implements List.NonEmpty<T>
 {
-  abstract readonly context: ListContext;
-  abstract readonly length: number;
+  abstract get context(): ListContext;
+  abstract get length(): number;
   abstract stream(reversed?: boolean): Stream.NonEmpty<T>;
   abstract streamRange(range: IndexRange, reversed?: boolean): Stream<T>;
   abstract forEach(

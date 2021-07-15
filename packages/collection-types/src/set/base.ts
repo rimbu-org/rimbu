@@ -463,8 +463,8 @@ export namespace RSetBase {
     Tp extends RSetBase.Types = RSetBase.Types
   > implements RSetBase.Context<UT, Tp>
   {
-    abstract readonly typeTag: string;
-    abstract readonly _empty: (Tp & Elem<any>)['normal'];
+    abstract get typeTag(): string;
+    abstract get _empty(): (Tp & Elem<any>)['normal'];
 
     abstract isValidValue(value: any): value is UT;
     abstract isNonEmptyInstance<T>(
