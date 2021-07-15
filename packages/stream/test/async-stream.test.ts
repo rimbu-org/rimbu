@@ -109,12 +109,16 @@ describe('AsyncStream constructors', () => {
     ]);
   });
 
-  //   it('unfold', () => {
-  //     expect(AsyncStream.unfold(0, (c, n, stop) => stop).toArray()).toEqual([0]);
-  //     expect(
-  //       AsyncStream.unfold(0, (c, i, stop) => (c > 2 ? stop : c + i)).toArray()
-  //     ).toEqual([0, 1, 3]);
-  //   });
+  it('unfold', async () => {
+    expect(await AsyncStream.unfold(0, (c, n, stop) => stop).toArray()).toEqual(
+      [0]
+    );
+    expect(
+      await AsyncStream.unfold(0, async (c, i, stop) =>
+        c > 2 ? stop : c + i
+      ).toArray()
+    ).toEqual([0, 1, 3]);
+  });
 
   // it('forEachApply', () => {
   //   AsyncStream.forEachApply(
@@ -800,7 +804,7 @@ describe('AsyncStream methods', () => {
     ]);
   });
   it('fold', async () => {
-    function sum(
+    async function sum(
       current: number,
       value: number,
       index: number,
@@ -891,129 +895,141 @@ describe('AsyncStream methods', () => {
     }
   });
   it('toString', async () => {
-    expect(await AsyncStream.empty<string>().toString()).toBe(
-      'AsyncStream(<empty>)'
-    );
-    expect(await AsyncStream.of(1).toString()).toBe(
+    expect(AsyncStream.empty<string>().toString()).toBe('AsyncStream(<empty>)');
+    expect(AsyncStream.of(1).toString()).toBe(
       'AsyncStream(...<potentially empty>)'
     );
   });
-  //   it('zipWith', () => {
-  //     expect(
-  //       AsyncStream.empty<number>()
-  //         .zipWith((a, b) => a + b, [])
-  //         .toArray()
-  //     ).toEqual([]);
-  //     expect(
-  //       AsyncStream.of(1, 2, 3)
-  //         .zipWith((a, b) => a + b, [])
-  //         .toArray()
-  //     ).toEqual([]);
-  //     expect(
-  //       AsyncStream.empty<number>()
-  //         .zipWith((a, b) => a + b, [1, 2, 3])
-  //         .toArray()
-  //     ).toEqual([]);
-  //     expect(
-  //       AsyncStream.of(1, 2, 3)
-  //         .zipWith((a, b) => a + b, [1, 2, 3])
-  //         .toArray()
-  //     ).toEqual([2, 4, 6]);
-  //     expect(
-  //       AsyncStream.of(1)
-  //         .zipWith((a, b) => a + b, [1, 2, 3])
-  //         .toArray()
-  //     ).toEqual([2]);
-  //     expect(
-  //       AsyncStream.of(1, 2, 3)
-  //         .zipWith((a, b) => a + b, [1])
-  //         .toArray()
-  //     ).toEqual([2]);
-  //   });
-  //   it('zip', () => {
-  //     expect(AsyncStream.empty().zip(AsyncStream.empty())).toBe(AsyncStream.empty());
-  //     expect(AsyncStream.empty().zip(AsyncStream.of(1))).toBe(AsyncStream.empty());
-  //     expect(AsyncStream.of(1).zip(AsyncStream.empty())).toBe(AsyncStream.empty());
-  //     expect(AsyncStream.of(1).zip(AsyncStream.of(2)).toArray()).toEqual([[1, 2]]);
-  //     expect(AsyncStream.of(1, 2, 3).zip(AsyncStream.of(2)).toArray()).toEqual([[1, 2]]);
-  //     expect(AsyncStream.of(1).zip(AsyncStream.of(2, 3, 4)).toArray()).toEqual([[1, 2]]);
-  //     expect(
-  //       AsyncStream.of(1, 2, 3, 4, 5)
-  //         .zip(AsyncStream.of(2, 3, 4), AsyncStream.of(3, 4, 5, 6))
-  //         .toArray()
-  //     ).toEqual([
-  //       [1, 2, 3],
-  //       [2, 3, 4],
-  //       [3, 4, 5],
-  //     ]);
-  //     sources.forEach((source) => {
-  //       expect(source.zip(source).toArray()).toEqual(
-  //         source.map((v) => [v, v]).toArray()
-  //       );
-  //     });
-  //     const ne = AsyncStream.of(1);
-  //     isNonEmpty(ne.zip(ne));
-  //     isNonEmpty(ne.zip(ne, ne, ne));
-  //   });
-  //   it('zipAllWith', () => {
-  //     expect(
-  //       AsyncStream.empty<number>()
-  //         .zipAllWith(10, (a, b) => a + b, [])
-  //         .toArray()
-  //     ).toEqual([]);
-  //     expect(
-  //       AsyncStream.of(1, 2, 3)
-  //         .zipAllWith(10, (a, b) => a + b, [])
-  //         .toArray()
-  //     ).toEqual([11, 12, 13]);
-  //     expect(
-  //       AsyncStream.empty<number>()
-  //         .zipAllWith(10, (a, b) => a + b, [1, 2, 3])
-  //         .toArray()
-  //     ).toEqual([11, 12, 13]);
-  //     expect(
-  //       AsyncStream.of(1, 2, 3)
-  //         .zipAllWith(10, (a, b) => a + b, [1, 2, 3])
-  //         .toArray()
-  //     ).toEqual([2, 4, 6]);
-  //     expect(
-  //       AsyncStream.of(1)
-  //         .zipAllWith(10, (a, b) => a + b, [1, 2, 3])
-  //         .toArray()
-  //     ).toEqual([2, 12, 13]);
-  //     expect(
-  //       AsyncStream.of(1, 2, 3)
-  //         .zipAllWith(10, (a, b) => a + b, [1])
-  //         .toArray()
-  //     ).toEqual([2, 12, 13]);
-  //   });
-  //   it('zipAll', () => {
-  //     expect(AsyncStream.empty().zipAll(undefined, AsyncStream.empty()).toArray()).toEqual(
-  //       []
-  //     );
-  //     expect(AsyncStream.of(1).zipAll(undefined, AsyncStream.empty()).toArray()).toEqual([
-  //       [1, undefined],
-  //     ]);
-  //     expect(AsyncStream.empty().zipAll(undefined, AsyncStream.of(1)).toArray()).toEqual([
-  //       [undefined, 1],
-  //     ]);
-  //     expect(AsyncStream.of(1).zipAll(undefined, AsyncStream.of(2)).toArray()).toEqual([
-  //       [1, 2],
-  //     ]);
-  //     expect(
-  //       AsyncStream.of(1, 2, 3).zipAll(undefined, AsyncStream.of(10, 11)).toArray()
-  //     ).toEqual([
-  //       [1, 10],
-  //       [2, 11],
-  //       [3, undefined],
-  //     ]);
-  //   });
-  //   it('unzip', () => {
-  //     const [u1l, u1r] = AsyncStream.empty<[number, string]>().unzip(2);
-  //     expect(u1l.toArray()).toEqual([]);
-  //     expect(u1r.toArray()).toEqual([]);
-  //     const [u2l, u2r] = AsyncStream.of<[number, string]>([1, 'a'], [2, 'b']).unzip(2);
-  //     expect(u2l.toArray()).toEqual([1, 2]);
-  //     expect(u2r.toArray()).toEqual(['a', 'b']);
-  //   });
+  it('zipWith', async () => {
+    expect(
+      await AsyncStream.empty<number>()
+        .zipWith((a, b) => a + b, [])
+        .toArray()
+    ).toEqual([]);
+    expect(
+      await AsyncStream.of(1, 2, 3)
+        .zipWith((a, b) => a + b, [])
+        .toArray()
+    ).toEqual([]);
+    expect(
+      await AsyncStream.empty<number>()
+        .zipWith((a, b) => a + b, [1, 2, 3])
+        .toArray()
+    ).toEqual([]);
+    expect(
+      await AsyncStream.of(1, 2, 3)
+        .zipWith(async (a, b) => a + b, [1, 2, 3])
+        .toArray()
+    ).toEqual([2, 4, 6]);
+    expect(
+      await AsyncStream.of(1)
+        .zipWith((a, b) => a + b, [1, 2, 3])
+        .toArray()
+    ).toEqual([2]);
+    expect(
+      await AsyncStream.of(1, 2, 3)
+        .zipWith((a, b) => a + b, [1])
+        .toArray()
+    ).toEqual([2]);
+  });
+  it('zip', async () => {
+    expect(AsyncStream.empty().zip(AsyncStream.empty())).toBe(
+      AsyncStream.empty()
+    );
+    expect(AsyncStream.empty().zip(AsyncStream.of(1))).toBe(
+      AsyncStream.empty()
+    );
+    expect(AsyncStream.of(1).zip(AsyncStream.empty())).toBe(
+      AsyncStream.empty()
+    );
+    expect(await AsyncStream.of(1).zip(AsyncStream.of(2)).toArray()).toEqual([
+      [1, 2],
+    ]);
+    expect(
+      await AsyncStream.of(1, 2, 3).zip(AsyncStream.of(2)).toArray()
+    ).toEqual([[1, 2]]);
+    expect(
+      await AsyncStream.of(1).zip(AsyncStream.of(2, 3, 4)).toArray()
+    ).toEqual([[1, 2]]);
+    expect(
+      await AsyncStream.of(1, 2, 3, 4, 5)
+        .zip(AsyncStream.of(2, 3, 4), AsyncStream.of(3, 4, 5, 6))
+        .toArray()
+    ).toEqual([
+      [1, 2, 3],
+      [2, 3, 4],
+      [3, 4, 5],
+    ]);
+    for (const source of sources) {
+      expect(await source.zip(source).toArray()).toEqual(
+        await source.map((v) => [v, v]).toArray()
+      );
+    }
+  });
+  it('zipAllWith', async () => {
+    expect(
+      await AsyncStream.empty<number>()
+        .zipAllWith(10, (a, b) => a + b, [])
+        .toArray()
+    ).toEqual([]);
+    expect(
+      await AsyncStream.of(1, 2, 3)
+        .zipAllWith(10, (a, b) => a + b, [])
+        .toArray()
+    ).toEqual([11, 12, 13]);
+    expect(
+      await AsyncStream.empty<number>()
+        .zipAllWith(10, (a, b) => a + b, [1, 2, 3])
+        .toArray()
+    ).toEqual([11, 12, 13]);
+    expect(
+      await AsyncStream.of(1, 2, 3)
+        .zipAllWith(10, (a, b) => a + b, [1, 2, 3])
+        .toArray()
+    ).toEqual([2, 4, 6]);
+    expect(
+      await AsyncStream.of(1)
+        .zipAllWith(10, (a, b) => a + b, [1, 2, 3])
+        .toArray()
+    ).toEqual([2, 12, 13]);
+    expect(
+      await AsyncStream.of(1, 2, 3)
+        .zipAllWith(10, (a, b) => a + b, [1])
+        .toArray()
+    ).toEqual([2, 12, 13]);
+  });
+  it('zipAll', async () => {
+    expect(
+      await AsyncStream.empty().zipAll(undefined, AsyncStream.empty()).toArray()
+    ).toEqual([]);
+    expect(
+      await AsyncStream.of(1).zipAll(undefined, AsyncStream.empty()).toArray()
+    ).toEqual([[1, undefined]]);
+    expect(
+      await AsyncStream.empty().zipAll(undefined, AsyncStream.of(1)).toArray()
+    ).toEqual([[undefined, 1]]);
+    expect(
+      await AsyncStream.of(1).zipAll(undefined, AsyncStream.of(2)).toArray()
+    ).toEqual([[1, 2]]);
+    expect(
+      await AsyncStream.of(1, 2, 3)
+        .zipAll(undefined, AsyncStream.of(10, 11))
+        .toArray()
+    ).toEqual([
+      [1, 10],
+      [2, 11],
+      [3, undefined],
+    ]);
+  });
+  it('unzip', async () => {
+    const [u1l, u1r] = AsyncStream.empty<[number, string]>().unzip(2);
+    expect(await u1l.toArray()).toEqual([]);
+    expect(await u1r.toArray()).toEqual([]);
+    const [u2l, u2r] = AsyncStream.of<[number, string]>(
+      [1, 'a'],
+      [2, 'b']
+    ).unzip(2);
+    expect(await u2l.toArray()).toEqual([1, 2]);
+    expect(await u2r.toArray()).toEqual(['a', 'b']);
+  });
 });

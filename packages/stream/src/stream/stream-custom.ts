@@ -10,10 +10,6 @@ import {
 } from '@rimbu/common';
 import { FastIterator, Stream, StreamSource } from '../internal';
 
-function toTuple(...values: any[]): any[] {
-  return values;
-}
-
 /**
  * A base class for `FastIterator` instances, that takes implements the default `next`
  * function based on the abstract `fastNext` function.
@@ -547,7 +543,7 @@ export abstract class StreamBase<T> implements Stream<T> {
     zipFun: (value: T, ...values: I) => R,
     ...iters: { [K in keyof I]: StreamSource<I[K]> }
   ): any {
-    if (iters.includes(Stream.empty())) return Stream.empty();
+    if (iters.some(StreamSource.isEmptyInstance)) return Stream.empty();
 
     return new FromStream(
       (): FastIterator<R> => new ZipWithIterator([this, ...iters], zipFun)
@@ -555,7 +551,7 @@ export abstract class StreamBase<T> implements Stream<T> {
   }
 
   zip(...iters: any): any {
-    return this.zipWith(toTuple, ...(iters as [any, ...any[]]));
+    return this.zipWith(Array, ...(iters as [any, ...any[]]));
   }
 
   zipAllWith<I extends readonly [unknown, ...unknown[]], O, R>(
@@ -575,7 +571,7 @@ export abstract class StreamBase<T> implements Stream<T> {
   ): any {
     return this.zipAllWith(
       fillValue,
-      toTuple,
+      Array,
       ...(streams as any as [any, ...any[]])
     );
   }

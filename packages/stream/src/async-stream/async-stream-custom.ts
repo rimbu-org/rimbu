@@ -14,6 +14,7 @@ import {
   AsyncStream,
   AsyncStreamSource,
   MaybePromise,
+  Stream,
 } from '../internal';
 
 export abstract class AsyncFastIteratorBase<T> implements AsyncFastIterator<T> {
@@ -468,18 +469,42 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     return new AsyncSplitOnStream(this, sepElem, eq);
   }
 
-  fold<R>(
+  async fold<R>(
     init: Reducer.Init<R>,
-    next: (current: R, value: T, index: number, halt: () => void) => R
+    next: (
+      current: R,
+      value: T,
+      index: number,
+      halt: () => void
+    ) => MaybePromise<R>
   ): Promise<R> {
-    return this.reduce(Reducer.createOutput(init, next));
+    let current = Reducer.Init(init);
+
+    const state = TraverseState();
+    const done = Symbol('done');
+    const iterator = this[Symbol.asyncIterator]();
+    let value: T | typeof done;
+
+    while (!state.halted && done !== (value = await iterator.fastNext(done))) {
+      current = await next(current, value, state.nextIndex(), state.halt);
+    }
+
+    return current;
   }
 
   foldStream<R>(
     init: Reducer.Init<R>,
-    next: (current: R, value: T, index: number, halt: () => void) => R
+    next: (
+      current: R,
+      value: T,
+      index: number,
+      halt: () => void
+    ) => MaybePromise<R>
   ): AsyncStream<R> {
-    return this.reduceStream(Reducer.createOutput(init, next));
+    return new AsyncFromStream(
+      (): AsyncFastIterator<R> =>
+        new AsyncFoldIterator(this[Symbol.asyncIterator](), init, next)
+    );
   }
 
   async reduce<R>(reducer: Reducer<T, R>): Promise<R> {
@@ -547,7 +572,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   reduceAllStream<R extends [unknown, unknown, ...unknown[]]>(
     ...reducers: { [K in keyof R]: Reducer<T, R[K]> }
   ): AsyncStream<R> {
-    return new AsyncReduceAllStream(this, reducers);
+    return new AsyncReduceAllStream<any, R>(this, reducers);
   }
 
   async toArray(): Promise<T[]> {
@@ -578,35 +603,71 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     return this.flatMap((s: any) => s);
   }
 
-  zipWith(): any {
-    throw new Error('Method not implemented.');
-  }
-  zip(): any {
-    throw new Error('Method not implemented.');
-  }
-  zipAllWith(): any {
-    throw new Error('Method not implemented.');
-  }
-  zipAll(): any {
-    throw new Error('Method not implemented.');
-  }
-  unzip(): any {
-    throw new Error('Method not implemented.');
-  }
-  //   zipWith<I extends readonly [unknown, ...unknown[]], R>(zipFun: (value: T, ...values: I) => R, ...iters: { [K in keyof I]: AsyncStreamSource<I[K]>; }) => AsyncStream<R> {
+  zipWith<I extends readonly [unknown, ...unknown[]], R>(
+    zipFun: (value: T, ...values: I) => MaybePromise<R>,
+    ...iters: { [K in keyof I]: AsyncStreamSource<I[K]> }
+  ): any {
+    if (iters.some(AsyncStreamSource.isEmptyInstance)) {
+      return AsyncStream.empty();
+    }
 
-  //   }
-  //   zip <I extends readonly [unknown, ...unknown[]]>(...iters: { [K in keyof I]: AsyncStreamSource<I[K]>; }) => AsyncStream<[T, ...I]> {
+    return new AsyncFromStream(
+      (): AsyncFastIterator<R> =>
+        new AsyncZipWithIterator([this, ...iters], zipFun)
+    );
+  }
 
-  //   }
-  //   zipAllWith: { <I extends readonly [unknown, ...unknown[]], O, R>(fillValue: AsyncOptLazy<O>, zipFun: (value: T | O, ...values: { [K in keyof I]: O | I[K]; }) => R, ...streams: { [K in keyof I]: StreamSource.NonEmpty<I[K]>; }): AsyncStream.NonEmpty<...>; <I extends readonly [...], O, R>(fillValue: OptLazy<...>, zipFun: (value: T | O, ...values: { [K in keyof I]: O | I[K]; }) => R, ...streams: { [K in keyof I]: StreamSource<...>; }): AsyncStream<...>; } = null as any;
-  //   zipAll: { <I extends readonly [unknown, ...unknown[]], O>(fillValue: AsyncOptLazy<O>, ...streams: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]>; }): AsyncStream.NonEmpty<[T | O, ...{ [K in keyof I]: O | I[K]; }]>; <I extends readonly [...], O>(fillValue: AsyncOptLazy<...>, ...streams: { [K in keyof I]: AsyncStreamSource<...>; }): AsyncStream<...>; };
-  //   unzip<L extends number, T2 extends T = T>(length: L): T2 extends readonly [unknown, ...unknown[]] & { length: L; } ? { [K in keyof T2]: AsyncStream<T2[K]>; } : never {
-  //       throw new Error('Method not implemented.');
-  //   }
+  zip(...iters: any): any {
+    return this.zipWith(Array, ...(iters as [any, ...any[]]));
+  }
+
+  zipAllWith<I extends readonly [unknown, ...unknown[]], O, R>(
+    fillValue: AsyncOptLazy<O>,
+    zipFun: (
+      value: T,
+      ...values: { [K in keyof I]: I[K] | O }
+    ) => MaybePromise<R>,
+    ...streams: { [K in keyof I]: AsyncStreamSource<I[K]> }
+  ): any {
+    return new AsyncFromStream(
+      (): AsyncFastIterator<any> =>
+        new AsyncZipAllWithItererator(
+          fillValue,
+          [this, ...streams],
+          zipFun as any
+        )
+    );
+  }
+
+  zipAll<I extends readonly [unknown, ...unknown[]], O>(
+    fillValue: AsyncOptLazy<O>,
+    ...streams: { [K in keyof I]: AsyncStreamSource<I[K]> }
+  ): any {
+    return this.zipAllWith(
+      fillValue,
+      Array,
+      ...(streams as any as [any, ...any[]])
+    );
+  }
+
+  unzip<L extends number>(length: L): any {
+    if (AsyncStreamSource.isEmptyInstance(this)) {
+      return Stream.of(AsyncStream.empty()).repeat(length).toArray();
+    }
+
+    const result: AsyncStream<unknown>[] = [];
+    let i = -1;
+
+    while (++i < length) {
+      const index = i;
+      result[i] = this.map((t: any): unknown => t[index]);
+    }
+
+    return result;
+  }
 }
 
-class AsyncFromStream<T> extends AsyncStreamBase<T> {
+export class AsyncFromStream<T> extends AsyncStreamBase<T> {
   [Symbol.asyncIterator]: () => AsyncFastIterator<T>;
 
   constructor(readonly createIterator: () => AsyncFastIterator<T>) {
@@ -1534,7 +1595,9 @@ class AsyncRepeatIterator<T> extends AsyncFastIteratorBase<T> {
       return value;
     }
 
-    if (this.isEmpty) return AsyncOptLazy.toMaybePromise(otherwise!) as O;
+    if (this.isEmpty) {
+      return AsyncOptLazy.toMaybePromise(otherwise!) as O;
+    }
 
     if (undefined !== this.remain) {
       this.remain--;
@@ -1595,6 +1658,46 @@ class AsyncSplitWhereStream<T> extends AsyncStreamBase<T[]> {
       this.source[Symbol.asyncIterator](),
       this.pred
     );
+  }
+}
+
+class AsyncFoldIterator<I, R> extends AsyncFastIteratorBase<R> {
+  constructor(
+    readonly source: AsyncFastIterator<I>,
+    init: Reducer.Init<R>,
+    readonly getNext: (
+      current: R,
+      value: I,
+      index: number,
+      halt: () => void
+    ) => MaybePromise<R>
+  ) {
+    super();
+
+    this.current = Reducer.Init(init);
+  }
+
+  current: R;
+
+  state = TraverseState();
+
+  async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<R | O> {
+    const state = this.state;
+    if (state.halted) return AsyncOptLazy.toMaybePromise(otherwise!);
+
+    const done = Symbol('done');
+    const value = await this.source.fastNext(done);
+
+    if (done === value) return AsyncOptLazy.toMaybePromise(otherwise!);
+
+    this.current = await this.getNext(
+      this.current,
+      value,
+      state.nextIndex(),
+      state.halt
+    );
+
+    return this.current;
   }
 }
 
@@ -1762,5 +1865,97 @@ class AsyncReduceAllStream<I, R> extends AsyncStreamBase<R> {
       this.source[Symbol.asyncIterator](),
       this.reducers
     );
+  }
+}
+
+class AsyncZipWithIterator<
+  I extends readonly unknown[],
+  R
+> extends AsyncFastIteratorBase<R> {
+  constructor(
+    readonly iterables: { [K in keyof I]: AsyncStreamSource<I[K]> },
+    readonly zipFun: (...values: I) => MaybePromise<R>
+  ) {
+    super();
+
+    this.sources = iterables.map(
+      (source): AsyncFastIterator<any> =>
+        AsyncStream.from(source)[Symbol.asyncIterator]()
+    );
+  }
+
+  readonly sources: AsyncFastIterator<any>[];
+
+  async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<R | O> {
+    const result = [];
+
+    let sourceIndex = -1;
+    const sources = this.sources;
+
+    const done = Symbol('Done');
+
+    while (++sourceIndex < sources.length) {
+      const value = await sources[sourceIndex].fastNext(done);
+
+      if (done === value) return AsyncOptLazy.toMaybePromise(otherwise!);
+
+      result.push(value);
+    }
+
+    return (this.zipFun as any)(...result);
+  }
+}
+
+class AsyncZipAllWithItererator<
+  I extends readonly unknown[],
+  F,
+  R
+> extends AsyncFastIteratorBase<R> {
+  constructor(
+    readonly fillValue: AsyncOptLazy<F>,
+    readonly iters: { [K in keyof I]: AsyncStreamSource<I[K]> },
+    readonly zipFun: (
+      ...values: { [K in keyof I]: I[K] | F }
+    ) => MaybePromise<R>
+  ) {
+    super();
+
+    this.sources = iters.map(
+      (o): AsyncFastIterator<any> => AsyncStream.from(o)[Symbol.asyncIterator]()
+    );
+  }
+
+  readonly sources: AsyncFastIterator<any>[];
+  allDone = false;
+
+  async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<R | O> {
+    if (this.allDone) return AsyncOptLazy.toMaybePromise(otherwise!);
+
+    const result = [];
+
+    let sourceIndex = -1;
+    const sources = this.sources;
+
+    const done = Symbol('Done');
+    let anyNotDone = false;
+    const fillValue = this.fillValue;
+
+    while (++sourceIndex < sources.length) {
+      const value = await sources[sourceIndex].fastNext(done);
+
+      if (done === value) {
+        result.push(await AsyncOptLazy.toMaybePromise(fillValue));
+      } else {
+        anyNotDone = true;
+        result.push(value);
+      }
+    }
+
+    if (!anyNotDone) {
+      this.allDone = true;
+      return AsyncOptLazy.toMaybePromise(otherwise!);
+    }
+
+    return (this.zipFun as any)(...result);
   }
 }

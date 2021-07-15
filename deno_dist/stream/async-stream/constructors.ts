@@ -1,4 +1,4 @@
-import { RimbuError } from '../../base/mod.ts';
+import { RimbuError, Token } from '../../base/mod.ts';
 import { ArrayNonEmpty, OptLazy, Reducer } from '../../common/mod.ts';
 import {
   AsyncFastIterator,
@@ -10,7 +10,11 @@ import {
   Stream,
   StreamSource,
 } from '../internal.ts';
-import { AsyncFastIteratorBase, AsyncStreamBase } from './async-stream-custom.ts';
+import {
+  AsyncFastIteratorBase,
+  AsyncFromStream,
+  AsyncStreamBase,
+} from './async-stream-custom.ts';
 import type { MaybePromise } from './utils.ts';
 
 class AsyncOfIterator<T> extends AsyncFastIteratorBase<T> {
@@ -353,4 +357,55 @@ class FromSource<T> extends AsyncStreamBase<T> {
 
 export function always<T>(value: AsyncOptLazy<T>): AsyncStream.NonEmpty<T> {
   return AsyncStream.of(value).repeat();
+}
+
+/**
+ * Returns a possibly infinite Stream starting with given `init` value, followed by applying given `next` function to the previous value.
+ * @param init - an initial value
+ * @param next - a function taking the last value, its index, and a stop token, and returning a new value or a stop token
+ * @example
+ * Stream.unfold(2, v => v * v).take(4).toArray()   // => [2, 4, 16, 256]
+ */
+export function unfold<T>(
+  init: T,
+  next: (current: T, index: number, stop: Token) => MaybePromise<T | Token>
+): AsyncStream.NonEmpty<T> {
+  return new AsyncFromStream(
+    (): AsyncFastIterator<T> => new AsyncUnfoldIterator<T>(init, next)
+  ) as unknown as AsyncStream.NonEmpty<T>;
+}
+
+class AsyncUnfoldIterator<T> extends AsyncFastIteratorBase<T> {
+  constructor(
+    init: T,
+    readonly getNext: (
+      current: T,
+      index: number,
+      stop: Token
+    ) => MaybePromise<T | Token>
+  ) {
+    super();
+    this.current = init;
+  }
+
+  current: T | Token;
+  index = 0;
+
+  async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<T | O> {
+    const current = this.current;
+
+    if (Token === current) return AsyncOptLazy.toMaybePromise(otherwise!);
+
+    if (this.index === 0) {
+      this.index++;
+      return current;
+    }
+
+    const next = await this.getNext(current, this.index++, Token);
+    this.current = next;
+
+    if (Token === next) return AsyncOptLazy.toMaybePromise(otherwise!);
+
+    return next;
+  }
 }
