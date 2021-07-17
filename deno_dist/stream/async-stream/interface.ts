@@ -13,7 +13,6 @@ import type {
   AsyncStreamable,
   AsyncStreamSource,
   MaybePromise,
-  StreamSource,
 } from '../internal.ts';
 import * as Constructors from './constructors.ts';
 
@@ -203,12 +202,12 @@ export interface AsyncStream<T>
     <I extends readonly [unknown, ...unknown[]], O, R>(
       fillValue: AsyncOptLazy<O>,
       zipFun: (value: T | O, ...values: { [K in keyof I]: I[K] | O }) => R,
-      ...streams: { [K in keyof I]: StreamSource.NonEmpty<I[K]> }
+      ...streams: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> }
     ): AsyncStream.NonEmpty<R>;
     <I extends readonly [unknown, ...unknown[]], O, R>(
       fillValue: OptLazy<O>,
       zipFun: (value: T | O, ...values: { [K in keyof I]: I[K] | O }) => R,
-      ...streams: { [K in keyof I]: StreamSource<I[K]> }
+      ...streams: { [K in keyof I]: AsyncStreamSource<I[K]> }
     ): AsyncStream<R>;
   };
   zipAll: {

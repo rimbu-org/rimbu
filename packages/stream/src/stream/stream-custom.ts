@@ -227,9 +227,8 @@ export abstract class StreamBase<T> implements Stream<T> {
     let value: T | typeof done;
     let i = 0;
 
-    while (done !== (value = iterator.fastNext(done))) {
+    while (i <= index && done !== (value = iterator.fastNext(done))) {
       if (i === index) return value;
-      if (i > index) return OptLazy(otherwise) as O;
       i++;
     }
 
