@@ -1,6 +1,5 @@
 import type { OptLazy } from '@rimbu/common';
-import { AsyncStreamable, StreamSource } from '../internal';
-import { AsyncStream } from './interface';
+import { AsyncStream, AsyncStreamable, StreamSource } from '../internal';
 
 export type AsyncStreamSource<T> =
   | AsyncStreamSource.NonEmpty<T>

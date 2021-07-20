@@ -1,8 +1,13 @@
 import { RimbuError, Token } from '@rimbu/base';
-import { ArrayNonEmpty, OptLazy, Reducer } from '@rimbu/common';
+import {
+  ArrayNonEmpty,
+  AsyncOptLazy,
+  MaybePromise,
+  OptLazy,
+  Reducer,
+} from '@rimbu/common';
 import {
   AsyncFastIterator,
-  AsyncOptLazy,
   AsyncStream,
   AsyncStreamable,
   AsyncStreamSource,
@@ -15,7 +20,7 @@ import {
   AsyncFromStream,
   AsyncStreamBase,
 } from './async-stream-custom';
-import { closeIters, MaybePromise } from './utils';
+import { closeIters } from './utils';
 
 class AsyncOfIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(readonly values: ArrayNonEmpty<AsyncOptLazy<T>>) {
@@ -281,7 +286,13 @@ class FromAsyncIterator<T> implements AsyncFastIterator<T> {
     readonly source: AsyncIterator<T>,
     close?: () => MaybePromise<void>
   ) {
-    this.return = close;
+    if (source.return && close) {
+      this.return = () => Promise.all([source.return?.(), close?.()]);
+    } else if (source.return) {
+      this.return = () => source.return?.();
+    } else if (close) {
+      this.return = close;
+    }
   }
 
   return?: () => MaybePromise<any>;

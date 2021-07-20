@@ -1,3 +1,5 @@
+import type { MaybePromise } from './internal.ts';
+
 /**
  * A function used in `collect` methods to collect values from a collection. This is basically a single-pass map and filter.
  * @param value - the input value
@@ -24,3 +26,10 @@ export namespace CollectFun {
    */
   export type Skip = typeof Skip;
 }
+
+export type AsyncCollectFun<T, R> = (
+  value: T,
+  index: number,
+  skip: CollectFun.Skip,
+  halt: () => void
+) => MaybePromise<R | CollectFun.Skip>;

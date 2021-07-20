@@ -1247,7 +1247,7 @@ describe('AsyncStream methods', () => {
     await createResourceStream([1, 2, 3]).reduce(Reducer.count());
     expect(close).toBeCalledTimes(1);
     close.mockReset();
-    await createResourceStream([1, 2, 3]).reduce(Reducer.first());
+    await createResourceStream([1, 2, 3]).reduce(Reducer.first<number>());
     expect(close).toBeCalledTimes(1);
   });
   it('reduceStream', async () => {

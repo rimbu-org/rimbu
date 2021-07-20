@@ -7,11 +7,11 @@ import { CollectFun, Eq, OptLazy } from './internal.ts';
  */
 export type Reducer<I, O = I> = Reducer.Impl<I, O, unknown>;
 
-export namespace Reducer {
-  function identity<T>(value: T): T {
-    return value;
-  }
+function identity<T>(value: T): T {
+  return value;
+}
 
+export namespace Reducer {
   /**
    * Ensures that all non-primitive type use lazy initialization to prevent accidental instance sharing.
    */

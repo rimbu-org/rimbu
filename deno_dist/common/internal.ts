@@ -9,3 +9,5 @@ export * from './reducer.ts';
 export * from './traverse-state.ts';
 export * from './types.ts';
 export * from './update.ts';
+export * from './async-optlazy.ts';
+export * from './async-reducer.ts';

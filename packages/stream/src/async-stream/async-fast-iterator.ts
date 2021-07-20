@@ -1,4 +1,5 @@
-import { AsyncOptLazy, MaybePromise, FastIterator } from '../internal';
+import { AsyncOptLazy, MaybePromise } from '@rimbu/common';
+import { FastIterator } from '../internal';
 
 export interface AsyncFastIterator<T> extends AsyncIterator<T> {
   fastNext(): MaybePromise<T | undefined>;

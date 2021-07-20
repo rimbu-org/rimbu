@@ -1,18 +1,18 @@
 import type {
   ArrayNonEmpty,
+  AsyncCollectFun,
+  AsyncOptLazy,
+  AsyncReducer,
   Eq,
+  MaybePromise,
   OptLazy,
-  Reducer,
   ToJSON,
   TraverseState,
 } from '../../common/mod.ts';
 import type {
-  AsyncCollectFun,
   AsyncFastIterable,
-  AsyncOptLazy,
   AsyncStreamable,
   AsyncStreamSource,
-  MaybePromise,
 } from '../internal.ts';
 import * as Constructors from './constructors.ts';
 
@@ -171,13 +171,13 @@ export interface AsyncStream<T>
       halt: () => void
     ) => MaybePromise<R>
   ): AsyncStream<R>;
-  reduce<R>(reducer: Reducer<T, R>): Promise<R>;
-  reduceStream<R>(reducer: Reducer<T, R>): AsyncStream<R>;
+  reduce<R>(reducer: AsyncReducer<T, R>): Promise<R>;
+  reduceStream<R>(reducer: AsyncReducer<T, R>): AsyncStream<R>;
   reduceAll<R extends [unknown, unknown, ...unknown[]]>(
-    ...reducers: { [K in keyof R]: Reducer<T, R[K]> }
+    ...reducers: { [K in keyof R]: AsyncReducer<T, R[K]> }
   ): Promise<R>;
   reduceAllStream<R extends [unknown, unknown, ...unknown[]]>(
-    ...reducers: { [K in keyof R]: Reducer<T, R[K]> }
+    ...reducers: { [K in keyof R]: AsyncReducer<T, R[K]> }
   ): AsyncStream<R>;
   toArray(): Promise<T[]>;
   toString(): string;
@@ -327,23 +327,3 @@ export namespace AsyncStream {
 }
 
 export const AsyncStream = Constructors;
-
-// let g!: AsyncStream<number>;
-
-// const g2 = g.map((v) => '');
-// g2[Symbol.asyncIterator]().fastNext();
-
-// function from<T>(source: AsyncStreamSource<T>): AsyncStream<T> {
-//   return null as any;
-// }
-
-// async function* q() {
-//   yield 4;
-// }
-
-// const g3 = from(q()).map((v) => v + 2);
-
-// const r2 = g3.reduceAllStream(
-//   Reducer.sum.filterInput((v) => v > 4).mapOutput(String),
-//   Reducer.max(5)
-// );

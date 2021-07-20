@@ -1,6 +1,5 @@
 import type { OptLazy } from '../../common/mod.ts';
-import { AsyncStreamable, StreamSource } from '../internal.ts';
-import { AsyncStream } from './interface.ts';
+import { AsyncStream, AsyncStreamable, StreamSource } from '../internal.ts';
 
 export type AsyncStreamSource<T> =
   | AsyncStreamSource.NonEmpty<T>

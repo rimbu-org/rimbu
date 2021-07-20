@@ -1,19 +1,19 @@
 import {
   ArrayNonEmpty,
+  AsyncCollectFun,
+  AsyncOptLazy,
+  AsyncReducer,
   CollectFun,
   Comp,
   Eq,
-  Reducer,
+  MaybePromise,
   ToJSON,
   TraverseState,
 } from '@rimbu/common';
 import {
-  AsyncCollectFun,
   AsyncFastIterator,
-  AsyncOptLazy,
   AsyncStream,
   AsyncStreamSource,
-  MaybePromise,
   Stream,
 } from '../internal';
 import { closeIters } from './utils';
@@ -542,7 +542,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   }
 
   async fold<R>(
-    init: Reducer.Init<R>,
+    init: AsyncOptLazy<R>,
     next: (
       current: R,
       value: T,
@@ -550,7 +550,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
       halt: () => void
     ) => MaybePromise<R>
   ): Promise<R> {
-    let current = Reducer.Init(init);
+    let current = await AsyncOptLazy.toMaybePromise(init);
 
     const state = TraverseState();
     const done = Symbol('done');
@@ -569,7 +569,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   }
 
   foldStream<R>(
-    init: Reducer.Init<R>,
+    init: AsyncOptLazy<R>,
     next: (
       current: R,
       value: T,
@@ -583,11 +583,11 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     );
   }
 
-  async reduce<R>(reducer: Reducer<T, R>): Promise<R> {
+  async reduce<R>(reducer: AsyncReducer<T, R>): Promise<R> {
     const traverseState = TraverseState();
 
     const next = reducer.next;
-    let state = Reducer.Init(reducer.init);
+    let state = await AsyncOptLazy.toMaybePromise(reducer.init);
     const done = Symbol('Done');
     let value: T | typeof done;
     const iter = this[Symbol.asyncIterator]();
@@ -596,7 +596,12 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
       !traverseState.halted &&
       done !== (value = await iter.fastNext(done))
     ) {
-      state = next(state, value, traverseState.nextIndex(), traverseState.halt);
+      state = await next(
+        state,
+        value,
+        traverseState.nextIndex(),
+        traverseState.halt
+      );
     }
 
     if (traverseState.halted) {
@@ -606,14 +611,16 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     return reducer.stateToResult(state);
   }
 
-  reduceStream<R>(reducer: Reducer<T, R>): AsyncStream<R> {
+  reduceStream<R>(reducer: AsyncReducer<T, R>): AsyncStream<R> {
     return new AsyncReduceStream(this, reducer);
   }
 
   async reduceAll<R extends [unknown, unknown, ...unknown[]]>(
-    ...reducers: { [K in keyof R]: Reducer<T, R[K]> }
+    ...reducers: { [K in keyof R]: AsyncReducer<T, R[K]> }
   ): Promise<any> {
-    const state = reducers.map((d: any): unknown => Reducer.Init(d.init));
+    const state = await Promise.all(
+      reducers.map((d: any): unknown => AsyncOptLazy.toMaybePromise(d.init))
+    );
 
     const iteratorsDone: ((() => void) | null)[] = state.map(
       (_: any, i: any): (() => void) =>
@@ -637,7 +644,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
         const halt = iteratorsDone[i];
         if (null !== halt) {
           anyNotDone = true;
-          state[i] = reducers[i].next(state[i], value, index, halt);
+          state[i] = await reducers[i].next(state[i], value, index, halt);
         }
       }
       if (!anyNotDone) {
@@ -647,11 +654,13 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
       index++;
     }
 
-    return state.map((s: any, i: any): unknown => reducers[i].stateToResult(s));
+    return Promise.all(
+      state.map((s: any, i: any): unknown => reducers[i].stateToResult(s))
+    );
   }
 
   reduceAllStream<R extends [unknown, unknown, ...unknown[]]>(
-    ...reducers: { [K in keyof R]: Reducer<T, R[K]> }
+    ...reducers: { [K in keyof R]: AsyncReducer<T, R[K]> }
   ): AsyncStream<R> {
     return new AsyncReduceAllStream<any, R>(this, reducers);
   }
@@ -1831,7 +1840,7 @@ class AsyncSplitWhereStream<T> extends AsyncStreamBase<T[]> {
 class AsyncFoldIterator<I, R> extends AsyncFastIteratorBase<R> {
   constructor(
     readonly source: AsyncFastIterator<I>,
-    init: Reducer.Init<R>,
+    readonly init: AsyncOptLazy<R>,
     readonly getNext: (
       current: R,
       value: I,
@@ -1842,15 +1851,19 @@ class AsyncFoldIterator<I, R> extends AsyncFastIteratorBase<R> {
     super();
 
     this.return = source.return;
-
-    this.current = Reducer.Init(init);
   }
 
-  current: R;
+  current?: R;
+  isInitialized = false;
 
   state = TraverseState();
 
   async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<R | O> {
+    if (!this.isInitialized) {
+      this.current = await AsyncOptLazy.toMaybePromise(this.init);
+      this.isInitialized = true;
+    }
+
     const state = this.state;
     if (state.halted) {
       await closeIters(this.source);
@@ -1868,7 +1881,7 @@ class AsyncFoldIterator<I, R> extends AsyncFastIteratorBase<R> {
     }
 
     this.current = await this.getNext(
-      this.current,
+      this.current!,
       value,
       state.nextIndex(),
       state.halt
@@ -1942,16 +1955,15 @@ class AsyncReduceIterator<I, R> extends AsyncFastIteratorBase<R> {
 
   constructor(
     readonly source: AsyncFastIterator<I>,
-    readonly reducer: Reducer<I, R>
+    readonly reducer: AsyncReducer<I, R>
   ) {
     super();
 
     this.return = source.return;
-
-    this.state = Reducer.Init(reducer.init);
   }
 
   readonly traverseState = TraverseState();
+  isInitialized = false;
   isDone = false;
 
   async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<R | O> {
@@ -1968,10 +1980,16 @@ class AsyncReduceIterator<I, R> extends AsyncFastIteratorBase<R> {
       return AsyncOptLazy.toMaybePromise(otherwise!);
     }
 
+    const reducer = this.reducer;
+
+    if (!this.isInitialized) {
+      this.state = await AsyncOptLazy.toMaybePromise(reducer.init);
+      this.isInitialized = true;
+    }
+
     const traverseState = this.traverseState;
 
-    const reducer = this.reducer;
-    this.state = reducer.next(
+    this.state = await reducer.next(
       this.state,
       value,
       traverseState.nextIndex(),
@@ -1991,7 +2009,7 @@ class AsyncReduceIterator<I, R> extends AsyncFastIteratorBase<R> {
 class AsyncReduceStream<I, R> extends AsyncStreamBase<R> {
   constructor(
     readonly source: AsyncStream<I>,
-    readonly reducerDef: Reducer<I, R>
+    readonly reducerDef: AsyncReducer<I, R>
   ) {
     super();
   }
@@ -2005,21 +2023,23 @@ class AsyncReduceStream<I, R> extends AsyncStreamBase<R> {
 }
 
 class AsyncReduceAllIterator<I, R> extends AsyncFastIteratorBase<R> {
-  readonly state: unknown[];
+  state?: unknown[];
   readonly done: ((() => void) | null)[];
 
   constructor(
     readonly source: AsyncFastIterator<I>,
-    readonly reducers: Reducer<I, any>[]
+    readonly reducers: AsyncReducer<I, any>[]
   ) {
     super();
 
     this.return = source.return;
 
-    this.state = reducers.map((d: any): unknown => Reducer.Init(d.init));
-    this.done = this.state.map((_: any, i: any): (() => void) => (): void => {
-      this.done[i] = null;
-    });
+    this.done = this.reducers.map(
+      (_: any, i: any): (() => void) =>
+        (): void => {
+          this.done[i] = null;
+        }
+    );
   }
 
   halted = false;
@@ -2045,12 +2065,23 @@ class AsyncReduceAllIterator<I, R> extends AsyncFastIteratorBase<R> {
     let i = -1;
     let anyNotDone = false;
 
+    if (undefined === this.state) {
+      this.state = await Promise.all(
+        reducers.map((d: any): unknown => AsyncOptLazy.toMaybePromise(d.init))
+      );
+    }
+
     while (++i < length) {
       const halt = this.done[i];
       if (null !== halt) {
         anyNotDone = true;
         const reducer = reducers[i];
-        this.state[i] = reducer.next(this.state[i], value, this.index, halt);
+        this.state[i] = await reducer.next(
+          this.state[i],
+          value,
+          this.index,
+          halt
+        );
       }
     }
     this.isDone = !anyNotDone;
@@ -2061,16 +2092,16 @@ class AsyncReduceAllIterator<I, R> extends AsyncFastIteratorBase<R> {
     }
     this.index++;
 
-    return this.state.map((s, i) =>
-      reducers[i].stateToResult(s)
-    ) as unknown as O;
+    return Promise.all(
+      this.state.map((s, i) => reducers[i].stateToResult(s))
+    ) as any;
   }
 }
 
 class AsyncReduceAllStream<I, R> extends AsyncStreamBase<R> {
   constructor(
     readonly source: AsyncStream<I>,
-    readonly reducers: Reducer<I, any>[]
+    readonly reducers: AsyncReducer<I, any>[]
   ) {
     super();
   }

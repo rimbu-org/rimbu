@@ -1,4 +1,5 @@
-import { AsyncOptLazy, MaybePromise, FastIterator } from '../internal.ts';
+import { AsyncOptLazy, MaybePromise } from '../../common/mod.ts';
+import { FastIterator } from '../internal.ts';
 
 export interface AsyncFastIterator<T> extends AsyncIterator<T> {
   fastNext(): MaybePromise<T | undefined>;
