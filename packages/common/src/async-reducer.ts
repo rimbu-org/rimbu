@@ -16,6 +16,7 @@ export namespace AsyncReducer {
     readonly init: AsyncOptLazy<S>;
     next(state: S, elem: I, index: number, halt: () => void): MaybePromise<S>;
     stateToResult(state: S): MaybePromise<O>;
+    onClose?(state: S, error?: unknown): MaybePromise<void>;
     filterInput(
       pred: (value: I, index: number, halt: () => void) => MaybePromise<boolean>
     ): AsyncReducer<I, O>;
@@ -38,7 +39,8 @@ export namespace AsyncReducer {
         index: number,
         halt: () => void
       ) => MaybePromise<S>,
-      readonly stateToResult: (state: S) => MaybePromise<O>
+      readonly stateToResult: (state: S) => MaybePromise<O>,
+      readonly onClose?: (state: S, error?: unknown) => MaybePromise<void>
     ) {}
 
     filterInput(
@@ -65,7 +67,8 @@ export namespace AsyncReducer {
           }
           return state;
         },
-        (state): MaybePromise<O> => this.stateToResult(state.state)
+        (state): MaybePromise<O> => this.stateToResult(state.state),
+        (state, error) => this.onClose?.(state.state, error)
       );
     }
 
@@ -76,7 +79,8 @@ export namespace AsyncReducer {
         this.init,
         async (state, elem, index, halt): Promise<S> =>
           this.next(state, await mapFun(elem, index), index, halt),
-        this.stateToResult
+        this.stateToResult,
+        this.onClose
       );
     }
 
@@ -105,7 +109,8 @@ export namespace AsyncReducer {
 
           return state;
         },
-        (state): MaybePromise<O> => this.stateToResult(state.state)
+        (state): MaybePromise<O> => this.stateToResult(state.state),
+        (state, error) => this.onClose?.(state.state, error)
       );
     }
 
@@ -113,7 +118,8 @@ export namespace AsyncReducer {
       return create(
         this.init,
         this.next,
-        async (state): Promise<O2> => mapFun(await this.stateToResult(state))
+        async (state): Promise<O2> => mapFun(await this.stateToResult(state)),
+        this.onClose
       );
     }
 
@@ -151,9 +157,10 @@ export namespace AsyncReducer {
       index: number,
       halt: () => void
     ) => MaybePromise<S>,
-    stateToResult: (state: S) => MaybePromise<O>
+    stateToResult: (state: S) => MaybePromise<O>,
+    onClose?: (state: S, error?: unknown) => MaybePromise<void>
   ): AsyncReducer<I, O> {
-    return new AsyncReducer.Base(init, next, stateToResult);
+    return new AsyncReducer.Base(init, next, stateToResult, onClose);
   }
 
   export function createMono<T>(
@@ -164,9 +171,10 @@ export namespace AsyncReducer {
       index: number,
       halt: () => void
     ) => MaybePromise<T>,
-    stateToResult?: (state: T) => MaybePromise<T>
+    stateToResult?: (state: T) => MaybePromise<T>,
+    onClose?: (state: T, error?: unknown) => MaybePromise<void>
   ): AsyncReducer<T> {
-    return create(init, next, stateToResult ?? identity);
+    return create(init, next, stateToResult ?? identity, onClose);
   }
 
   export function createOutput<I, O = I>(
@@ -177,8 +185,9 @@ export namespace AsyncReducer {
       index: number,
       halt: () => void
     ) => MaybePromise<O>,
-    stateToResult?: (state: O) => MaybePromise<O>
+    stateToResult?: (state: O) => MaybePromise<O>,
+    onClose?: (state: O, error?: unknown) => MaybePromise<void>
   ): AsyncReducer<I, O> {
-    return create(init, next, stateToResult ?? identity);
+    return create(init, next, stateToResult ?? identity, onClose);
   }
 }

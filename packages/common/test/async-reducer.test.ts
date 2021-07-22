@@ -32,12 +32,15 @@ describe('AsyncReducer', () => {
   });
 
   it('async sum', async () => {
+    const close = jest.fn();
     const sumDouble = AsyncReducer.createMono(
       async () => 0,
       async (c, v) => c + v,
-      async (s) => s * 2
+      async (s) => s * 2,
+      close
     );
 
-    expect(await AsyncStream.from([1, 2, 3]).reduce(sumDouble as any));
+    expect(await AsyncStream.from([1, 2, 3]).reduce(sumDouble as any)).toBe(12);
+    expect(close).toBeCalledTimes(1);
   });
 });

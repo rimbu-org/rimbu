@@ -1,20 +1,18 @@
-import type { OptLazy } from '../../common/mod.ts';
+import type { MaybePromise, OptLazy } from '../../common/mod.ts';
 import { AsyncStream, AsyncStreamable, StreamSource } from '../internal.ts';
 
 export type AsyncStreamSource<T> =
   | AsyncStreamSource.NonEmpty<T>
-  | OptLazy<
-      | AsyncStreamable<T>
-      | StreamSource<T>
-      | AsyncIterable<T>
-      | Promise<StreamSource<T>>
-    >;
+  | (() => MaybePromise<AsyncStreamSource<T>>)
+  | AsyncStreamable<T>
+  | StreamSource<T>
+  | AsyncIterable<T>;
 
 export namespace AsyncStreamSource {
   export type NonEmpty<T> = OptLazy<
     | AsyncStreamable.NonEmpty<T>
     | StreamSource.NonEmpty<T>
-    | Promise<StreamSource.NonEmpty<T>>
+    | (() => MaybePromise<AsyncStreamSource.NonEmpty<T>>)
   >;
 
   export function isEmptyInstance(source: AsyncStreamSource<any>): boolean {

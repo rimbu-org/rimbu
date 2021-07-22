@@ -189,7 +189,7 @@ export interface AsyncStream<T>
     : never;
   zipWith: {
     <I extends readonly [unknown, ...unknown[]], R>(
-      zipFun: (value: T, ...values: I) => R,
+      zipFun: (value: T, ...values: I) => MaybePromise<R>,
       ...iters: { [K in keyof I]: AsyncStreamSource<I[K]> }
     ): AsyncStream<R>;
   };
@@ -201,12 +201,18 @@ export interface AsyncStream<T>
   zipAllWith: {
     <I extends readonly [unknown, ...unknown[]], O, R>(
       fillValue: AsyncOptLazy<O>,
-      zipFun: (value: T | O, ...values: { [K in keyof I]: I[K] | O }) => R,
+      zipFun: (
+        value: T | O,
+        ...values: { [K in keyof I]: I[K] | O }
+      ) => MaybePromise<R>,
       ...streams: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> }
     ): AsyncStream.NonEmpty<R>;
     <I extends readonly [unknown, ...unknown[]], O, R>(
       fillValue: OptLazy<O>,
-      zipFun: (value: T | O, ...values: { [K in keyof I]: I[K] | O }) => R,
+      zipFun: (
+        value: T | O,
+        ...values: { [K in keyof I]: I[K] | O }
+      ) => MaybePromise<R>,
       ...streams: { [K in keyof I]: AsyncStreamSource<I[K]> }
     ): AsyncStream<R>;
   };

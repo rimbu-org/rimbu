@@ -3,18 +3,9 @@ import {
   ArrayNonEmpty,
   AsyncOptLazy,
   MaybePromise,
-  OptLazy,
   Reducer,
 } from '@rimbu/common';
-import {
-  AsyncFastIterator,
-  AsyncStream,
-  AsyncStreamable,
-  AsyncStreamSource,
-  FastIterator,
-  Stream,
-  StreamSource,
-} from '../internal';
+import { AsyncFastIterator, AsyncStream, AsyncStreamSource } from '../internal';
 import {
   AsyncFastIteratorBase,
   AsyncFromStream,
@@ -73,16 +64,18 @@ export const from: {
 };
 
 export const fromResource: {
-  <T>(
-    source: AsyncStreamSource.NonEmpty<T>,
-    close: () => MaybePromise<void>
+  <T, R>(
+    open: () => MaybePromise<R>,
+    createSource: (resource: R) => AsyncStreamSource.NonEmpty<T>,
+    close: (resource: R) => MaybePromise<void>
   ): AsyncStream.NonEmpty<T>;
-  <T>(
-    source: AsyncStreamSource<T>,
-    close: () => MaybePromise<void>
+  <T, R>(
+    open: () => MaybePromise<R>,
+    createSource: (resource: R) => MaybePromise<AsyncStreamSource<T>>,
+    close: (resource: R) => MaybePromise<void>
   ): AsyncStream<T>;
-} = (source, close): any => {
-  return new FromSource(source, close);
+} = (open, createSource, close): any => {
+  return new FromResource(open, createSource, close);
 };
 
 function isAsyncStream(obj: any): obj is AsyncStream<any> {
@@ -335,34 +328,36 @@ class FromIterator<T> extends AsyncFastIteratorBase<T> {
 
 class FromPromise<T> extends AsyncFastIteratorBase<T> {
   constructor(
-    readonly promise: Promise<StreamSource<T>>,
+    readonly promise: () => Promise<AsyncStreamSource<T>>,
     close?: () => MaybePromise<void>
   ) {
     super();
-    this.return = close as any;
+    this.return = async () => {
+      if (close) await close?.();
+      if (this.iterator) await this.iterator.return?.();
+    };
   }
 
-  iterator: FastIterator<T> | undefined;
+  iterator: AsyncFastIterator<T> | undefined;
 
   async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<T | O> {
     if (this.iterator === undefined) {
-      const source = await this.promise;
-      this.iterator = Stream.from(source)[Symbol.iterator]();
+      const source = await this.promise();
+      this.iterator = AsyncStream.from(source)[Symbol.asyncIterator]() as any;
     }
 
-    return this.iterator.fastNext(otherwise!);
+    return this.iterator!.fastNext(otherwise!);
   }
 }
 
 function asyncStreamSourceToIterator<T>(
-  source:
-    | AsyncStreamable<T>
-    | StreamSource<T>
-    | AsyncIterable<T>
-    | AsyncGenerator<T>
-    | Promise<StreamSource<T>>,
+  source: AsyncStreamSource<T>,
   close?: () => MaybePromise<void>
 ): AsyncFastIterator<T> {
+  if (source instanceof Function) {
+    return new FromPromise(source as any, close);
+  }
+
   if (AsyncStreamSource.isEmptyInstance(source)) {
     return AsyncFastIterator.emptyAsyncFastIterator;
   }
@@ -375,42 +370,32 @@ function asyncStreamSourceToIterator<T>(
     if (Symbol.asyncIterator in source) {
       const iterator = (source as AsyncIterable<T>)[Symbol.asyncIterator]();
 
-      if (`fastNext` in iterator) {
+      if (AsyncFastIterator.isAsyncFastIterator(iterator)) {
         if (undefined === close) {
           return iterator as AsyncFastIterator<T>;
         }
         if (undefined === iterator.return) {
-          return {
-            ...iterator,
-            return: close,
-          } as any;
+          (iterator as any).return = close;
+
+          return iterator;
         }
 
-        return {
-          ...iterator,
-          async return() {
-            await iterator.return?.();
-            await close();
-          },
-        } as any;
+        const oldReturn = iterator.return;
+
+        (iterator as any).return = () => Promise.all([oldReturn, close]);
+
+        return iterator;
       }
 
       return new FromAsyncIterator(iterator, close);
     }
 
     if (`asyncStream` in source) {
-      return asyncStreamSourceToIterator(
-        (source as AsyncStreamable<T>).asyncStream(),
-        close
-      );
+      return asyncStreamSourceToIterator((source as any).asyncStream(), close);
     }
 
     if (Symbol.iterator in source) {
       return new FromIterator((source as any)[Symbol.iterator](), close);
-    }
-
-    if (source instanceof Promise) {
-      return new FromPromise(source, close);
     }
   }
 
@@ -426,9 +411,54 @@ class FromSource<T> extends AsyncStreamBase<T> {
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
-    const source = OptLazy(this.source);
+    return asyncStreamSourceToIterator(this.source, this.close);
+  }
+}
 
-    return asyncStreamSourceToIterator(source, this.close);
+class FromResourceIterator<T, R> extends AsyncFastIteratorBase<T> {
+  constructor(
+    readonly open: () => MaybePromise<R>,
+    readonly createSource: (resource: R) => MaybePromise<AsyncStreamSource<T>>,
+    readonly close: (resource: R) => MaybePromise<void>
+  ) {
+    super();
+
+    this.return = async () => {
+      if (this.resource) await close(this.resource);
+      await this.iterator?.return?.();
+    };
+  }
+
+  resource?: R;
+  iterator?: AsyncFastIterator<T>;
+
+  async fastNext<O>(otherwise?: AsyncOptLazy<O>) {
+    if (undefined === this.iterator) {
+      const resource = await this.open();
+      this.resource = resource;
+      const source = await this.createSource(resource);
+      this.iterator = AsyncStream.from(source)[Symbol.asyncIterator]();
+    }
+
+    return this.iterator.fastNext(async () => {
+      await this.return?.();
+
+      return AsyncOptLazy.toMaybePromise(otherwise!);
+    });
+  }
+}
+
+class FromResource<T, R> extends AsyncStreamBase<T> {
+  constructor(
+    readonly open: () => MaybePromise<R>,
+    readonly createSource: (resource: R) => MaybePromise<AsyncStreamSource<T>>,
+    readonly close: (resource: R) => MaybePromise<void>
+  ) {
+    super();
+  }
+
+  [Symbol.asyncIterator](): AsyncFastIterator<T> {
+    return new FromResourceIterator(this.open, this.createSource, this.close);
   }
 }
 
