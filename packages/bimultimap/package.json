@@ -44,7 +44,7 @@
     "bundle:main": "tsc --p tsconfig.main.json",
     "bundle:module": "tsc --p tsconfig.module.json",
     "bundle:types": "tsc --p tsconfig.types.json",
-    "clean": "rimraf dist deno_dist",
+    "clean": "rimraf dist",
     "format": "yarn format:base --write",
     "format:base": "prettier \"{!CHANGELOG.md}|**/*.{ts,tsx,js,json,md}\"",
     "format:check": "yarn format:base --check",
