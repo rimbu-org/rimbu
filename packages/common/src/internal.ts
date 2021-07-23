@@ -9,3 +9,5 @@ export * from './reducer';
 export * from './traverse-state';
 export * from './types';
 export * from './update';
+export * from './async-optlazy';
+export * from './async-reducer';

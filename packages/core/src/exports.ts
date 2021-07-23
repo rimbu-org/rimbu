@@ -56,8 +56,13 @@ export {
   OrderedSortedSet,
 } from '@rimbu/ordered';
 export { SortedMap, SortedSet } from '@rimbu/sorted';
-export type { Streamable } from '@rimbu/stream';
-export { Stream, StreamSource } from '@rimbu/stream';
+export type { AsyncStreamable, Streamable } from '@rimbu/stream';
+export {
+  AsyncStream,
+  AsyncStreamSource,
+  Stream,
+  StreamSource,
+} from '@rimbu/stream';
 export type { VariantTable } from '@rimbu/table';
 export { Table } from '@rimbu/table';
 export {

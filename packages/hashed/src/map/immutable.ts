@@ -155,8 +155,8 @@ export abstract class HashMapNonEmptyBase<K, V>
   extends CustomBase.NonEmptyBase<readonly [K, V]>
   implements HashMap.NonEmpty<K, V>
 {
-  abstract readonly context: HashMapContext<K>;
-  abstract readonly size: number;
+  abstract get context(): HashMapContext<K>;
+  abstract get size(): number;
   abstract get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O;
   abstract addEntry(
     entry: readonly [K, V],

@@ -1,4 +1,4 @@
-import { RimbuError, Token } from '@rimbu/base';
+import { RimbuError, Token } from '../../base/mod.ts';
 import {
   ArrayNonEmpty,
   Eq,
@@ -9,14 +9,14 @@ import {
   Reducer,
   StringNonEmpty,
   TraverseState,
-} from '@rimbu/common';
-import { FastIterator, Stream, StreamSource } from './internal';
+} from '../../common/mod.ts';
+import { FastIterator, Stream, StreamSource } from '../internal.ts';
 import {
   FastIteratorBase,
   FromIterable,
   FromStream,
   StreamBase,
-} from './stream-custom';
+} from './stream-custom.ts';
 
 class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   [Symbol.iterator](): FastIterator<T> {
@@ -350,6 +350,10 @@ export const fromString: {
 } = (source: string, range?: IndexRange, reversed = false) => {
   return fromArray(source as any, range, reversed) as any;
 };
+
+export function always<T>(value: T): Stream.NonEmpty<T> {
+  return new AlwaysStream(value) as any;
+}
 
 /**
  * For a Stream of tuples, supplied each tuple element as an argument to given function `f` for each element of the Stream, with the optionally given `args` as extra arguments.
@@ -832,6 +836,78 @@ class ArrayStream<T> extends StreamBase<T> {
 
     if (this.reversed) return super.toArray();
     return array.slice(this.startIndex, this.endIndex + 1);
+  }
+}
+
+class AlwaysStream<T> extends StreamBase<T> {
+  constructor(readonly value: T) {
+    super();
+  }
+
+  [Symbol.iterator](): FastIterator<T> {
+    return new AlwaysIterator(this.value);
+  }
+
+  first(): T {
+    return this.value;
+  }
+
+  append(): Stream.NonEmpty<T> {
+    return this as any;
+  }
+
+  forEach(
+    f: (value: T, index: number, halt: () => void) => void,
+    state?: TraverseState
+  ): void {
+    const s = state ?? TraverseState();
+    const value = this.value;
+
+    while (!s.halted) {
+      f(value, s.nextIndex(), s.halt);
+    }
+  }
+
+  last(): T {
+    return this.value;
+  }
+
+  elementAt(): T {
+    return this.value;
+  }
+
+  repeat(): Stream<T> {
+    return this;
+  }
+
+  concat<T2 extends T>(): Stream.NonEmpty<T2> {
+    return this as any;
+  }
+
+  min(): T {
+    return this.value;
+  }
+
+  minBy(): T {
+    return this.value;
+  }
+
+  max(): T {
+    return this.value;
+  }
+
+  maxBy(): T {
+    return this.value;
+  }
+}
+
+class AlwaysIterator<T> extends FastIteratorBase<T> {
+  constructor(readonly value: T) {
+    super();
+  }
+
+  fastNext(): T {
+    return this.value;
   }
 }
 

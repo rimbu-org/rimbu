@@ -13,15 +13,16 @@ import type {
 import { createFromBlock, createNonLeaf } from '../../list-custom';
 
 export abstract class TreeBuilderBase<T, C> {
-  abstract readonly context: ListContext;
-  abstract readonly level: number;
+  abstract get context(): ListContext;
+  abstract get level(): number;
   abstract get left(): BlockBuilder<T, C>;
   abstract set left(value: BlockBuilder<T, C>);
   abstract get right(): BlockBuilder<T, C>;
   abstract set right(value: BlockBuilder<T, C>);
   abstract get middle(): NonLeafBuilder<T, BlockBuilder<T, C>> | undefined;
   abstract set middle(value: NonLeafBuilder<T, BlockBuilder<T, C>> | undefined);
-  abstract length: number;
+  abstract get length(): number;
+  abstract set length(value: number);
   abstract getChildLength(child: C): number;
 
   get<O>(index: number, otherwise?: OptLazy<O>): T | O {

@@ -7,11 +7,11 @@ import { CollectFun, Eq, OptLazy } from './internal';
  */
 export type Reducer<I, O = I> = Reducer.Impl<I, O, unknown>;
 
-export namespace Reducer {
-  function identity<T>(value: T): T {
-    return value;
-  }
+function identity<T>(value: T): T {
+  return value;
+}
 
+export namespace Reducer {
   /**
    * Ensures that all non-primitive type use lazy initialization to prevent accidental instance sharing.
    */
@@ -115,7 +115,7 @@ export namespace Reducer {
      * @param from - (default: 0) the index at which to start processing elements
      * @param amount - (optional) the amount of elements to process, if not given, processes all elements from the `from` index
      * @example
-     * Stream.range({ end: 10 }).reduce(Reducer.sum.slice(1, 2))
+     * Stream.range({ end: 10 }).reduce(Reducer.sum.sliceInput(1, 2))
      * // => 3
      */
     sliceInput(from?: number, amount?: number): Reducer<I, O>;
@@ -231,6 +231,15 @@ export namespace Reducer {
    * @typeparam I - the input value type
    * @typeparam O - the output value type
    * @typeparam S - the internal state type
+   * @example
+   * const evenNumberOfOnes = Reducer
+   *   .create(
+   *     true,
+   *     (current, value: number) => value === 1 ? !current : current,
+   *     state => state ? 'even' : 'not even')
+   * const result = Stream.of(1, 2, 3, 2, 1)).reduce(evenNumberOfOnes)
+   * console.log+(result)
+   * // => 'even'
    */
   export function create<I, O = I, S = O>(
     init: Reducer.Init<S>,
@@ -250,6 +259,14 @@ export namespace Reducer {
    * - halt: function that, when called, ensures no more elements are passed to the reducer
    * @param stateToResult - (optional) a function that converts the current state to an output value
    * @typeparam T - the overall value type
+   * const sum = Reducer
+   *   .createMono(
+   *     0,
+   *     (current, value) => current + value
+   *   )
+   * const result = Stream.of(1, 2, 3, 2, 1)).reduce(sum)
+   * console.log+(result)
+   * // => 9
    */
   export function createMono<T>(
     init: Reducer.Init<T>,
@@ -270,6 +287,14 @@ export namespace Reducer {
    * @param stateToResult - (optional) a function that converts the current state to an output value
    * @typeparam I - the input value type
    * @typeparam O - the output value type
+   * const boolToString = Reducer
+   *   .createOutput(
+   *     '',
+   *     (current, value: boolean) => current + (value ? 'T' : 'F')
+   *   )
+   * const result = Stream.of(true, false, true)).reduce(boolToString)
+   * console.log+(result)
+   * // => 'TFT'
    */
   export function createOutput<I, O = I>(
     init: Reducer.Init<O>,
@@ -777,7 +802,11 @@ export namespace Reducer {
       (allState, next, index, halt) => {
         let anyNotHalted = false;
 
-        for (const red of allState) {
+        let i = -1;
+        const len = allState.length;
+        while (++i < len) {
+          const red = allState[i];
+
           if (red.halted) continue;
 
           red.state = red.reducer.next(red.state, next, index, red.halt);

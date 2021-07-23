@@ -107,6 +107,13 @@ describe('Stream constructors', () => {
     expect(Stream.fromString('abc', { amount: 2 }, true).join()).toEqual('ba');
   });
 
+  it('always', () => {
+    expect(Stream.always(5).take(5).toArray()).toEqual([5, 5, 5, 5, 5]);
+    expect(Stream.always(5).first()).toBe(5);
+    expect(Stream.always(5).last()).toBe(5);
+    expect(Stream.always(5).elementAt(10000)).toBe(5);
+  });
+
   it('flatten', () => {
     expect(Stream.empty().flatten()).toBe(Stream.empty());
     expect(Stream.of([]).flatten().toArray()).toEqual([]);
@@ -155,16 +162,6 @@ describe('Stream constructors', () => {
       Stream.unfold(0, (c, i, stop) => (c > 2 ? stop : c + i)).toArray()
     ).toEqual([0, 1, 3]);
   });
-
-  // it('forEachApply', () => {
-  //   Stream.forEachApply(
-  //     Stream.of<[number, string]>([1, 'a'], [2, 'b']),
-  //     (n: number, s: string, b: boolean) => {
-  //       console.log({ n, s, b });
-  //     },
-  //     true
-  //   );
-  // });
 });
 
 describe('Stream methods', () => {
@@ -275,6 +272,28 @@ describe('Stream methods', () => {
     });
   });
 
+  it('forEachPure', () => {
+    Stream.empty().forEachPure(() => {
+      expect(true).toBe(false);
+    });
+    Stream.of(1).forEachPure((v) => {
+      expect(v).toBe(1);
+    });
+    let result = 0;
+    Stream.of(1, 2, 3).forEachPure((v) => {
+      result += v;
+    });
+    expect(result).toBe(6);
+
+    sources.forEach((source) => {
+      result = 0;
+      source.forEachPure((v) => {
+        result += v;
+      });
+      expect(result).toBe(4950);
+    });
+  });
+
   it('indexed', () => {
     expect(Stream.empty().indexed()).toBe(Stream.empty());
     expect(Stream.of(1).indexed().toArray()).toEqual([[0, 1]]);
@@ -300,6 +319,19 @@ describe('Stream methods', () => {
 
     sources.forEach((source) => {
       expect(source.map((v) => v).toArray()).toEqual(source.toArray());
+    });
+  });
+
+  it('mapPure', () => {
+    expect(Stream.empty().mapPure((v) => v)).toBe(Stream.empty());
+    expect(
+      Stream.of(1, 2, 3)
+        .mapPure((v) => v + 1)
+        .toArray()
+    ).toEqual([2, 3, 4]);
+
+    sources.forEach((source) => {
+      expect(source.mapPure((v) => v).toArray()).toEqual(source.toArray());
     });
   });
 
@@ -367,6 +399,38 @@ describe('Stream methods', () => {
         source
           .filter((v) => v % 15 === 0)
           .filter((v) => v % 20 === 0)
+          .toArray()
+      ).toEqual([0, 60]);
+    });
+  });
+
+  it('filterPure', () => {
+    expect(Stream.empty().filterPure((v) => true)).toBe(Stream.empty());
+    expect(
+      Stream.of(1, 2, 3)
+        .filterPure((v) => true)
+        .toArray()
+    ).toEqual([1, 2, 3]);
+    expect(
+      Stream.of(1, 2, 3)
+        .filterPure((v) => false)
+        .toArray()
+    ).toEqual([]);
+    expect(
+      Stream.of(1, 2, 3)
+        .filterPure((v) => v % 2 === 1)
+        .toArray()
+    ).toEqual([1, 3]);
+
+    sources.forEach((source) => {
+      expect(source.filterPure((v) => false).toArray()).toEqual([]);
+      expect(source.filterPure((v) => v % 30 === 0).toArray()).toEqual([
+        0, 30, 60, 90,
+      ]);
+      expect(
+        source
+          .filterPure((v) => v % 15 === 0)
+          .filterPure((v) => v % 20 === 0)
           .toArray()
       ).toEqual([0, 60]);
     });

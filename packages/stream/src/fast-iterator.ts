@@ -31,4 +31,10 @@ export namespace FastIterator {
       return fixedDone;
     },
   };
+
+  export function isFastIterator<T>(
+    iterator: Iterator<T>
+  ): iterator is FastIterator<T> {
+    return `fastNext` in iterator;
+  }
 }

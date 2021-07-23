@@ -56,8 +56,13 @@ export {
   OrderedSortedSet,
 } from '../ordered/mod.ts';
 export { SortedMap, SortedSet } from '../sorted/mod.ts';
-export type { Streamable } from '../stream/mod.ts';
-export { Stream, StreamSource } from '../stream/mod.ts';
+export type { AsyncStreamable, Streamable } from '../stream/mod.ts';
+export {
+  AsyncStream,
+  AsyncStreamSource,
+  Stream,
+  StreamSource,
+} from '../stream/mod.ts';
 export type { VariantTable } from '../table/mod.ts';
 export { Table } from '../table/mod.ts';
 export {

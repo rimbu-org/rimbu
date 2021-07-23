@@ -6,9 +6,9 @@ import type {
   Reducer,
   ToJSON,
   TraverseState,
-} from '../common/mod.ts';
-import * as Constructors from './constructors.ts';
-import type { FastIterable, Streamable, StreamSource } from './internal.ts';
+} from '@rimbu/common';
+import * as Constructors from './constructors';
+import type { FastIterable, Streamable, StreamSource } from '../internal';
 
 /**
  * A possibly infinite sequence of elements of type T.
@@ -55,7 +55,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * // => [0, 1, 2, 3]
    * @note O(1)
    */
-  prepend(value: T): Stream.NonEmpty<T>;
+  prepend<T2 = T>(value: OptLazy<T2>): Stream.NonEmpty<T2>;
   /**
    * Returns the current stream succeeded by the given `value`
    * @param value - the value to append
@@ -64,7 +64,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * // => [1, 2, 3, 4]
    * @note O(1)
    */
-  append(value: T): Stream.NonEmpty<T>;
+  append<T2 = T>(value: OptLazy<T2>): Stream.NonEmpty<T | T2>;
   /**
    * Performs given function `f` for each element of the Stream, using given `state` as initial traversal state.
    * @param f - the function to perform for each element, receiving:
@@ -343,10 +343,11 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * @param occurrance - (default: 1) the occurrance to search for
    * @param eq - (optional) the equality function to use
    * @example
-   * Stream.from('marmot').indexOf('m')     // => 0
-   * Stream.from('marmot').indexOf('m', 2)  // => 3
-   * Stream.from('marmot').indexOf('m', 3)  // => undefined
-   * Stream.from('marmot').indexOf('q')     // => undefined
+   * const source = Stream.from('marmot')
+   * source.indexOf('m')     // => 0
+   * source.indexOf('m', 2)  // => 3
+   * source.indexOf('m', 3)  // => undefined
+   * source.indexOf('q')     // => undefined
    * @note O(N)
    */
   indexOf(searchValue: T, occurrance?: number, eq?: Eq<T>): number | undefined;
@@ -456,7 +457,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
   min(): T | undefined;
   min<O>(otherwise: OptLazy<O>): T | O;
   /**
-   * Returns the mimimum element of the Stream according to the provided `compare` function, or the provided `otherwise fallback value
+   * Returns the mimimum element of the Stream according to the provided `compare` function, or the provided `otherwise` fallback value
    * if the Stream is empty.
    * @param otherwise - (default: undefined) the value to return if the Stream is empty
    * @example
@@ -511,7 +512,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * * end: (optional) an end string to append at the end
    * * valueToString: (default: String) a function converting a Stream element to a string
    * @example
-   * Stream.of(1, 2, 3).join({ start: '<', sep: ', ', end: '>' })   // => '<1, 2, 3>'
+   * Stream.of(1, 2, 3).join({ start: '<', sep: ', ', end: '>' })
+   * // => '<1, 2, 3>'
    * @note O(N)
    */
   join(options?: {
@@ -690,10 +692,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
   toJSON(): ToJSON<T[], 'Stream'>;
   /**
    * Returns a Stream concatenating the given `source` StreamSource containing StreamSources.
-   * @param source - a StreamSource containing nested StreamSources
    * @example
-   * Stream.flatten([[1, 2], [3], [], [4]]).toArray()  // => [1, 2, 3, 4]
-   * Stream.flatten(['ma', 'r', '', 'mot').toArray()   // => ['m', 'a', 'r', 'm', 'o', 't']
+   * Stream.of([[1, 2], [3], [], [4]]).flatten().toArray()  // => [1, 2, 3, 4]
+   * Stream.of(['ma', 'r', '', 'mot').flatten().toArray()   // => ['m', 'a', 'r', 'm', 'o', 't']
    */
   flatten<T2 extends T = T>(): T2 extends StreamSource.NonEmpty<infer S>
     ? Stream<S>
@@ -734,7 +735,13 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * @param zipFun - a function taking one element from each given Stream, and returning a result value
    * @param streams - the input stream sources
    * @example
-   * Stream.zipAllWith(0, (a, b, c) => a + b + c, [1, 2], [3, 4, 5], [6, 7]).toArray()
+   * Stream.zipAllWith(
+   *   0,
+   *   (a, b, c) => a + b + c,
+   *   [1, 2],
+   *   [3, 4, 5],
+   *   [6, 7]
+   * ).toArray()
    * // => [10, 13, 5]
    */
   zipAllWith: {
@@ -755,8 +762,13 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * @param fillValue - the value to add to streams that end early
    * @param streams - the input stream sources
    * @example
-   * Stream.zipAll(0, [1, 2, 3], [4, 5], ['a', 'b', 'c']).toArray()    // => [[1, 4, 'a'], [2, 5, 'b'], [3, 0, 'c']]
-   * @note ends the Stream when any of the given streams ends
+   * Stream.zipAll(
+   *   0,
+   *   [1, 2, 3],
+   *   [4, 5],
+   *   ['a', 'b', 'c']
+   * ).toArray()
+   * // => [[1, 4, 'a'], [2, 5, 'b'], [3, 0, 'c']]
    */
   zipAll: {
     <I extends readonly [unknown, ...unknown[]], O>(
@@ -769,11 +781,10 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
     ): Stream<[T | O, ...{ [K in keyof I]: I[K] | O }]>;
   };
   /**
-   * Returns an array containing a Stream for each tuple element resulting from given `source` Stream.
-   * @param source - a Stream containing tuple elements
-   * @param length - the tuple length
+   * Returns an array containing a Stream for each tuple element in this stream.
+   * @param length - the stream element tuple length
    * @example
-   * const [a, b] = Stream.unzip([[1, 'a'], [2, 'b']])
+   * const [a, b] = Stream.of([[1, 'a'], [2, 'b']]).unzip(2)
    * a.toArray()   // => [1, 2]
    * b.toArray()   // => ['a', 'b']
    */
@@ -822,19 +833,24 @@ export namespace Stream {
      */
     map<T2 = T>(mapFun: (value: T, index: number) => T2): Stream.NonEmpty<T2>;
     /**
-     * Returns a Stream consisting of the concatenation of `flatMapFun` applied to each element.
-     * @param flatMapFun - a function receiving the inputs described below and returning a `StreamSource` of new elements
-     * * value: the next element
-     * * index: the index of the element
-     * * halt: a function that, if called, ensures that no new elements are passed
+     * Returns a non-empty tream where the given `mapFun` is applied to each value in the stream, with optionally
+     * as extra arguments the given `args`.
+     * @typeparam T2 - the result value type
+     * @param mapFun - a function taking an element and the given args, and returning the resulting stream value
+     * @param args - (optional) the extra arguments to pass to the given `mapFun`
+     * @note is mostly aimed to increase performance so that an extra function is not required
+     * @note can be used on function that really expect 1 argument, since the normal map will also pass more arguments
      * @example
-     * Stream.of(1, 2, 3).flatMap((v, i, halt) => {
-     *   if (i >= 1) halt();
-     *   return [v, i, v + i]
-     * }).toArray()
-     * // => [1, 0, 1, 2, 1, 3]
-     * @note O(1)
+     * const s = Stream.of({ a: 1 }, { a: 2, c: { d: true } })
+     * const s2 = s.mapPure(JSON.stringify, ['a'], 5)
+     * // when stream is evaluated, will call JSON.stringify on each stream element with the given extra arguments
+     * console.log(s2.toArray())
+     * // => ["{\n \"a\": 1\n}", "{\n \"a\": 2\n}"]
      */
+    mapPure<T2, A extends readonly unknown[]>(
+      mapFun: (value: T, ...args: A) => T2,
+      ...args: A
+    ): Stream.NonEmpty<T2>;
     flatMap<T2 = T>(
       flatMapFun: (value: T, index: number) => StreamSource.NonEmpty<T2>
     ): Stream.NonEmpty<T2>;
@@ -859,14 +875,6 @@ export namespace Stream {
      * @note O(N) for most types of Stream
      */
     last(): T;
-    /**
-     * Returns a stream that contains the elements of this Stream up to a maximum of `amount` elements.
-     * @param amount - the maximum amount of elements to return from the resulting Stream
-     * @example
-     * Stream.of(1, 2, 3).take(2).toArray()   // => [1, 2]
-     * @note O(N) for most types of Stream
-     */
-    take(amount: number): Stream<T>;
     /**
      * Returns a non-empty Stream that returns the elements from this Stream given `amount` of times.
      * @param amount - (default: undefined) the amount of times to return this Stream
@@ -1006,10 +1014,6 @@ export namespace Stream {
         ? { [K in keyof T2]: Stream.NonEmpty<T2[K]> }
         : never;
     };
-  }
-
-  export interface StreamIterable<T> extends FastIterable<T> {
-    stream(): Stream<T>;
   }
 }
 

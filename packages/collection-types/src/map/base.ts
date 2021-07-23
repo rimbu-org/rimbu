@@ -910,8 +910,8 @@ export namespace RMapBase {
     Tp extends RMapBase.Types = RMapBase.Types
   > implements RMapBase.Context<UK, Tp>
   {
-    abstract readonly typeTag: string;
-    abstract readonly _empty: (Tp & KeyValue<any, any>)['normal'];
+    abstract get typeTag(): string;
+    abstract get _empty(): (Tp & KeyValue<any, any>)['normal'];
 
     abstract isValidKey(key: any): key is UK;
     abstract isNonEmptyInstance<K, V>(

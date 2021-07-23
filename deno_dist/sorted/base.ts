@@ -37,7 +37,7 @@ export abstract class SortedNonEmptyBase<
   abstract getAtIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
 
   // internal
-  abstract readonly entries: readonly E[];
+  abstract get entries(): readonly E[];
 
   abstract takeInternal(amount: number): TS;
   abstract dropInternal(amount: number): TS;
@@ -651,7 +651,7 @@ export function innerStreamSliceIndex<E>(
 }
 
 export abstract class SortedBuilder<E> {
-  abstract readonly context: { minEntries: number; maxEntries: number };
+  abstract get context(): { minEntries: number; maxEntries: number };
   abstract source?: {
     min<O>(otherwise?: OptLazy<O>): E | O;
     max<O>(otherwise?: OptLazy<O>): E | O;

@@ -1,4 +1,4 @@
-export { List, Stream, BiMap } from '../exports';
+export { List, AsyncStream, Stream, BiMap } from '../exports';
 
 export * as BiMultiMap from './bimultimap';
 export * as Graph from './graph';

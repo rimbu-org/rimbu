@@ -77,8 +77,8 @@ export abstract class HashSetNonEmptyBase<T>
   extends CustomBase.NonEmptyBase<T>
   implements HashSet.NonEmpty<T>
 {
-  abstract readonly context: HashSetContext<T>;
-  abstract readonly size: number;
+  abstract get context(): HashSetContext<T>;
+  abstract get size(): number;
   abstract stream(): Stream.NonEmpty<T>;
   abstract forEach(
     f: (value: T, index: number, halt: () => void) => void,

@@ -1,4 +1,4 @@
-export { List, Stream, BiMap } from '../exports.ts';
+export { List, AsyncStream, Stream, BiMap } from '../exports.ts';
 
 export * as BiMultiMap from './bimultimap.ts';
 export * as Graph from './graph/index.ts';

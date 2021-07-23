@@ -120,8 +120,8 @@ export abstract class SortedSetNode<T>
   extends SortedNonEmptyBase<T, SortedSetNode<T>>
   implements SortedSet.NonEmpty<T>
 {
-  abstract readonly context: SortedSetContext<T>;
-  abstract readonly size: number;
+  abstract get context(): SortedSetContext<T>;
+  abstract get size(): number;
   abstract stream(): Stream.NonEmpty<T>;
   abstract streamSliceIndex(range: IndexRange): Stream<T>;
   abstract forEach(
