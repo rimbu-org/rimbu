@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.6.4](https://github.com/rimbu-org/rimbu/compare/@rimbu/table-sorted-row@0.6.3...@rimbu/table-sorted-row@0.6.4) (2021-07-23)
+
+
+
+## 0.6.5 (2021-07-23)
+
+**Note:** Version bump only for package @rimbu/table-sorted-row
+
+
+
+
+
 ## [0.6.3](https://github.com/rimbu-org/rimbu/compare/@rimbu/table-sorted-row@0.6.2...@rimbu/table-sorted-row@0.6.3) (2021-07-23)
 
 **Note:** Version bump only for package @rimbu/table-sorted-row
