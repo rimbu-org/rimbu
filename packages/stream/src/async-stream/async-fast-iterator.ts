@@ -1,5 +1,4 @@
 import { AsyncOptLazy, MaybePromise } from '@rimbu/common';
-import { FastIterator } from '../internal';
 
 export interface AsyncFastIterator<T> extends AsyncIterator<T> {
   fastNext(): MaybePromise<T | undefined>;
@@ -8,7 +7,7 @@ export interface AsyncFastIterator<T> extends AsyncIterator<T> {
 }
 
 export namespace AsyncFastIterator {
-  export const fixedDone = Promise.resolve(FastIterator.fixedDone);
+  export const fixedDone = Promise.resolve({ done: true, value: undefined });
 
   export function isAsyncFastIterator<T>(
     iterator: AsyncIterator<T>
