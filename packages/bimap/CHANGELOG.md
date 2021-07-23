@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/bimap@0.6.2...@rimbu/bimap@0.7.0) (2021-07-23)
+
+
+### Features
+
+* add .reducer factory method to collections ([5eb2976](https://github.com/rimbu-org/rimbu/commit/5eb29760ed6b2ce3a739de7663d7d5cacbf12207))
+
+
+
+
+
 ## [0.6.2](https://github.com/rimbu-org/rimbu/compare/@rimbu/bimap@0.6.1...@rimbu/bimap@0.6.2) (2021-07-07)
 
 **Note:** Version bump only for package @rimbu/bimap

@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@0.6.1...@rimbu/stream@0.7.0) (2021-07-23)
+
+
+
+## 0.6.4 (2021-07-23)
+
+
+### Bug Fixes
+
+* **stream:** fix string as AsyncStream source gives error ([5f97e1f](https://github.com/rimbu-org/rimbu/commit/5f97e1f9e68b6585460053c4ed7936dec4a6f878))
+* **stream:** fix type of Stream prepend ([f0a06c4](https://github.com/rimbu-org/rimbu/commit/f0a06c4a770027837c48e14c07de8d8015bd5b07))
+
+
+### Features
+
+* **common, stream:** add open and close methods to AsyncReducer, and improve AsyncStream close ([63e0c41](https://github.com/rimbu-org/rimbu/commit/63e0c4137106c4a82e15c439c1baaf836412eea7))
+* **stream:** add close handler to AsyncStream ([9cfcd4b](https://github.com/rimbu-org/rimbu/commit/9cfcd4b5b0f982d85e7e1c73b2ccdb5531354cd3))
+* **stream:** extending AsyncStream implementation ([c11f3ba](https://github.com/rimbu-org/rimbu/commit/c11f3ba03f4111c7b1b3914b39383670b26e01b5))
+* **stream:** finalize AsyncStream and improve its test coverage ([6b82f07](https://github.com/rimbu-org/rimbu/commit/6b82f070e37ba737b1ced3726bae6602b0a757ae)), closes [#22](https://github.com/rimbu-org/rimbu/issues/22)
+* **stream:** initial step towards adding async stream ([475fa3a](https://github.com/rimbu-org/rimbu/commit/475fa3a1cbf85728646420852a1ca8c2033cef21))
+
+
+
+
+
 ## [0.6.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@0.6.0...@rimbu/stream@0.6.1) (2021-07-04)
 
 **Note:** Version bump only for package @rimbu/stream

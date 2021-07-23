@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.7.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/deep@0.7.0...@rimbu/deep@0.7.1) (2021-07-23)
+
+
+### Performance Improvements
+
+* **deep:** for Patch.MAP only copy array when values changed ([d25784e](https://github.com/rimbu-org/rimbu/commit/d25784ee844f4b599ca2bd2b304387b45e3951d2))
+
+
+
+
+
 # [0.7.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/deep@0.6.1...@rimbu/deep@0.7.0) (2021-07-07)
 
 

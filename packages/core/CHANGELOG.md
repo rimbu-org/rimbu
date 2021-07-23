@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/core@0.6.2...@rimbu/core@0.7.0) (2021-07-23)
+
+
+### Features
+
+* **stream:** finalize AsyncStream and improve its test coverage ([6b82f07](https://github.com/rimbu-org/rimbu/commit/6b82f070e37ba737b1ced3726bae6602b0a757ae)), closes [#22](https://github.com/rimbu-org/rimbu/issues/22)
+
+
+
+
+
 ## [0.6.2](https://github.com/rimbu-org/rimbu/compare/@rimbu/core@0.6.1...@rimbu/core@0.6.2) (2021-07-07)
 
 **Note:** Version bump only for package @rimbu/core

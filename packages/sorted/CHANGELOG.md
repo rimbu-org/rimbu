@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.6.2](https://github.com/rimbu-org/rimbu/compare/@rimbu/sorted@0.6.1...@rimbu/sorted@0.6.2) (2021-07-23)
+
+
+### Bug Fixes
+
+* replace abstract readonly with abstract getters because deno treats it differently than node ([46e6ffe](https://github.com/rimbu-org/rimbu/commit/46e6ffe982d4bc47ed240d0b1a1b8118ae9ecbc7))
+
+
+
+
+
 ## [0.6.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/sorted@0.6.0...@rimbu/sorted@0.6.1) (2021-07-04)
 
 **Note:** Version bump only for package @rimbu/sorted

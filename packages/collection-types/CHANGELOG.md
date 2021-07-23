@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/collection-types@0.6.1...@rimbu/collection-types@0.7.0) (2021-07-23)
+
+
+### Bug Fixes
+
+* replace abstract readonly with abstract getters because deno treats it differently than node ([46e6ffe](https://github.com/rimbu-org/rimbu/commit/46e6ffe982d4bc47ed240d0b1a1b8118ae9ecbc7))
+
+
+### Features
+
+* add .reducer factory method to collections ([5eb2976](https://github.com/rimbu-org/rimbu/commit/5eb29760ed6b2ce3a739de7663d7d5cacbf12207))
+
+
+
+
+
 ## [0.6.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/collection-types@0.6.0...@rimbu/collection-types@0.6.1) (2021-07-04)
 
 **Note:** Version bump only for package @rimbu/collection-types
