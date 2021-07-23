@@ -7,7 +7,10 @@ export interface AsyncFastIterator<T> extends AsyncIterator<T> {
 }
 
 export namespace AsyncFastIterator {
-  export const fixedDone = Promise.resolve({ done: true, value: undefined });
+  export const fixedDone = Promise.resolve({
+    done: true,
+    value: undefined,
+  } as IteratorResult<any>);
 
   export function isAsyncFastIterator<T>(
     iterator: AsyncIterator<T>
