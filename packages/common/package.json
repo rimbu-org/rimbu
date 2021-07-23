@@ -57,5 +57,8 @@
   },
   "denoify": {
     "replacer": "../../config/denoify-rimbu-replacer.js"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
   }
 }

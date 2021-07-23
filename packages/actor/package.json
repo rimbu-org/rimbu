@@ -55,7 +55,8 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@rimbu/deep": "^0.7.1"
+    "@rimbu/deep": "^0.7.1",
+    "tslib": "^2.3.0"
   },
   "publishConfig": {
     "access": "public"

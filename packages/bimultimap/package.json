@@ -60,7 +60,8 @@
     "@rimbu/hashed": "^0.6.3",
     "@rimbu/multimap": "^0.7.0",
     "@rimbu/sorted": "^0.6.2",
-    "@rimbu/stream": "^0.7.0"
+    "@rimbu/stream": "^0.7.0",
+    "tslib": "^2.3.0"
   },
   "publishConfig": {
     "access": "public"

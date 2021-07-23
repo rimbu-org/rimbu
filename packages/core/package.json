@@ -82,7 +82,8 @@
     "@rimbu/stream": "^0.7.0",
     "@rimbu/table": "^0.7.0",
     "@rimbu/table-hash-row": "^0.6.3",
-    "@rimbu/table-sorted-row": "^0.6.3"
+    "@rimbu/table-sorted-row": "^0.6.3",
+    "tslib": "^2.3.0"
   },
   "publishConfig": {
     "access": "public"
