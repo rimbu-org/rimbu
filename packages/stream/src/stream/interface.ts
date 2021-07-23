@@ -55,7 +55,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * // => [0, 1, 2, 3]
    * @note O(1)
    */
-  prepend<T2 = T>(value: OptLazy<T2>): Stream.NonEmpty<T2>;
+  prepend<T2 = T>(value: OptLazy<T2>): Stream.NonEmpty<T | T2>;
   /**
    * Returns the current stream succeeded by the given `value`
    * @param value - the value to append
