@@ -183,3 +183,7 @@ function runWith(name: string, context: SortedMap.Context<number>): void {
 }
 
 runWith('SortedMap default', SortedMap.createContext());
+runWith(
+  'SortedMap block bits 2',
+  SortedMap.createContext({ blockSizeBits: 2 })
+);

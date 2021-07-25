@@ -43,5 +43,3 @@ export interface ToJSON<V, D extends string = string> {
   readonly dataType: D;
   readonly value: V;
 }
-
-export type MaybePromise<T> = T | Promise<T>;

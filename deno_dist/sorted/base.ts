@@ -57,7 +57,7 @@ export abstract class SortedNonEmptyBase<
   }
 }
 
-interface LeafMutateSource<TS extends LeafMutateSource<TS, E>, E> {
+export interface LeafMutateSource<TS extends LeafMutateSource<TS, E>, E> {
   mutateEntries: E[];
   entries: readonly E[];
   copy(entries: readonly E[]): TS;
@@ -122,9 +122,9 @@ export function leafMutateGetFromRight<S extends LeafMutateSource<S, E>, E>(
   toMe: E
 ): [E, S] {
   const toUp = right.entries[0];
-  const newLeft = right.copy(Arr.tail(right.entries));
+  const newRight = right.copy(Arr.tail(right.entries));
   source.mutateEntries.push(toMe);
-  return [toUp, newLeft];
+  return [toUp, newRight];
 }
 
 export function leafMutateJoinLeft<S extends LeafMutateSource<S, E>, E>(
@@ -145,7 +145,7 @@ export function leafMutateJoinRight<S extends LeafMutateSource<S, E>, E>(
   source.entries = source.entries.concat(right.entries);
 }
 
-interface InnerChild<E> {
+export interface InnerChild<E> {
   readonly size: number;
   getAtIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
   stream(): Stream<E>;
@@ -164,7 +164,7 @@ interface InnerChild<E> {
   mutateGetFromRight(right: InnerChild<E>, toMe: E): [E, InnerChild<E>];
 }
 
-interface InnerMutateSource<TS extends InnerMutateSource<TS, E>, E> {
+export interface InnerMutateSource<TS extends InnerMutateSource<TS, E>, E> {
   readonly context: {
     readonly minEntries: number;
     readonly maxEntries: number;

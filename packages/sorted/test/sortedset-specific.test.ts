@@ -1,8 +1,6 @@
 import { Stream } from '@rimbu/stream';
-import { runSetRandomTestsWith } from '@rimbu/collection-types/test-utils/set/set-random';
+import { Reducer } from '@rimbu/common';
 import { SortedSet } from '../src';
-
-runSetRandomTestsWith('SortedSet default', SortedSet.defaultContext<number>());
 
 function runWith(name: string, context: SortedSet.Context<number>): void {
   describe(name, () => {
@@ -137,7 +135,32 @@ function runWith(name: string, context: SortedSet.Context<number>): void {
         set.streamRange({ start: [0.5, false], end: [3.5, false] }).toArray()
       ).toEqual([1, 2, 3]);
     });
+
+    it('min', () => {
+      expect(context.empty().min()).toBe(undefined);
+      expect(context.empty().min(1)).toBe(1);
+      const input = Stream.randomInt(0, 1000).take(100);
+      const [min, set] = input.reduceAll(
+        Reducer.min(),
+        context.reducer<number>()
+      );
+      expect(set.min()).toBe(min);
+    });
+    it('max', () => {
+      expect(context.empty().min()).toBe(undefined);
+      expect(context.empty().min(1)).toBe(1);
+      const input = Stream.randomInt(0, 1000).take(100);
+      const [max, set] = input.reduceAll(
+        Reducer.max(),
+        context.reducer<number>()
+      );
+      expect(set.max()).toBe(max);
+    });
   });
 }
 
 runWith('SortedSet default', SortedSet.createContext());
+runWith(
+  'SortedSet block bits 2',
+  SortedSet.createContext({ blockSizeBits: 2 })
+);

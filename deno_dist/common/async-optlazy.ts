@@ -1,4 +1,10 @@
-import { MaybePromise, OptLazy } from './internal.ts';
+import { OptLazy } from './internal.ts';
+
+/**
+ * A type that is either a value T or a promise yielding a value of type T.
+ * @typeparam T - the value type
+ */
+export type MaybePromise<T> = T | Promise<T>;
 
 /**
  * A potentially lazy and/or asynchronous value of type T.

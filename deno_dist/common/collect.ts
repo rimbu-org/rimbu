@@ -27,6 +27,14 @@ export namespace CollectFun {
   export type Skip = typeof Skip;
 }
 
+/**
+ * A potentially asynchronous function used in `collect` methods to collect values from a collection. This is basically a single-pass map and filter.
+ * @param value - the input value
+ * @param index - the index of the input value
+ * @param skip - a token that can be returned to skip the value
+ * @param halt - a function that, when called, ensures no more values are passed
+ * @returns either a new value to collect, or the `skip` token indicating to skip the value
+ */
 export type AsyncCollectFun<T, R> = (
   value: T,
   index: number,

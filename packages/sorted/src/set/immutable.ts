@@ -600,7 +600,7 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
 
       index += child.size + 1;
 
-      if (comp === 0) return index;
+      if (comp === 0) return index - 1;
     }
 
     const insertIndex = Arr.last(this.children).getInsertIndexOf(value);

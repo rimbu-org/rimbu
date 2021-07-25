@@ -1,5 +1,5 @@
 import { Stream } from '@rimbu/stream';
-import { RMap } from '../../src';
+import type { RMap } from '@rimbu/collection-types';
 
 export function runMapRandomTestsWith(
   name: string,

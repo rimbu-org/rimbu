@@ -262,8 +262,11 @@ export abstract class SortedMapNode<K, V>
       const [startValue, startInclude] = start;
       startIndex = this.getInsertIndexOf(startValue);
 
-      if (startIndex < 0) startIndex = SortedIndex.next(startIndex);
-      else if (!startInclude) startIndex++;
+      if (startIndex < 0) {
+        startIndex = SortedIndex.next(startIndex);
+      } else if (!startInclude) {
+        startIndex++;
+      }
     }
     if (undefined !== end) {
       const [endValue, endInclude] = end;
@@ -858,7 +861,7 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 
       index += child.size + 1;
 
-      if (comp === 0) return index;
+      if (comp === 0) return index - 1;
     }
 
     const insertIndex = Arr.last(this.children).getInsertIndexOf(key);
