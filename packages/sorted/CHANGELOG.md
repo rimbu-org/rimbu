@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.6.5](https://github.com/rimbu-org/rimbu/compare/@rimbu/sorted@0.6.4...@rimbu/sorted@0.6.5) (2021-08-20)
+
+
+### Bug Fixes
+
+* increase test coverage and fix found issues ([129ea21](https://github.com/rimbu-org/rimbu/commit/129ea21ae979bf8f4f4858f1e234e720cae89768))
+
+
+
+
+
 ## [0.6.4](https://github.com/rimbu-org/rimbu/compare/@rimbu/sorted@0.6.3...@rimbu/sorted@0.6.4) (2021-07-23)
 
 **Note:** Version bump only for package @rimbu/sorted

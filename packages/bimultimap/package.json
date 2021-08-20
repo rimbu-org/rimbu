@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/bimultimap",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "A bidirectional immutable MultiMap of keys and values for TypeScript",
   "keywords": [
     "bimultimap",
@@ -54,13 +54,13 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@rimbu/base": "^0.6.4",
-    "@rimbu/collection-types": "^0.7.2",
-    "@rimbu/common": "^0.7.2",
-    "@rimbu/hashed": "^0.6.5",
-    "@rimbu/multimap": "^0.7.2",
-    "@rimbu/sorted": "^0.6.4",
-    "@rimbu/stream": "^0.7.2",
+    "@rimbu/base": "^0.6.5",
+    "@rimbu/collection-types": "^0.7.3",
+    "@rimbu/common": "^0.7.3",
+    "@rimbu/hashed": "^0.6.6",
+    "@rimbu/multimap": "^0.7.3",
+    "@rimbu/sorted": "^0.6.5",
+    "@rimbu/stream": "^0.7.3",
     "tslib": "^2.3.0"
   },
   "publishConfig": {

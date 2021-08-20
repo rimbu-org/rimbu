@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.7.3](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@0.7.2...@rimbu/stream@0.7.3) (2021-08-20)
+
+
+### Bug Fixes
+
+* **stream:** reorder imports to avoid CodeSandbox error ([adfbe19](https://github.com/rimbu-org/rimbu/commit/adfbe198ed50f9ea5e754a55cce8e1fc628fa649))
+
+
+
+
+
 ## [0.7.2](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@0.7.1...@rimbu/stream@0.7.2) (2021-07-23)
 
 
