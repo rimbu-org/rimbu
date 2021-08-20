@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/typical",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Type-level numeric and string operations",
   "keywords": [
     "typelevel",
@@ -51,7 +51,6 @@
     "typecheck": "tsc"
   },
   "sideEffects": false,
-  "dependencies": {},
   "publishConfig": {
     "access": "public"
   },
