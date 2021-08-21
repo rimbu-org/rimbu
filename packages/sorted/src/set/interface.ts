@@ -14,6 +14,7 @@ import { SortedSetContext } from '../sortedset-custom';
  * const s2 = SortedSet.of('a', 'b', 'c')
  */
 export interface SortedSet<T> extends CustomBase.RSetBase<T, SortedSet.Types> {
+  stream(reversed?: boolean): Stream<T>;
   /**
    * Returns a Stream of sorted values of this collection within the given `keyRange`.
    * @param keyRange - the range of values to include in the stream
@@ -22,7 +23,7 @@ export interface SortedSet<T> extends CustomBase.RSetBase<T, SortedSet.Types> {
    * console.log(m.streamRange({ start: 'b', end: 'c' }).toArray())
    * // => ['b', 'c']
    */
-  streamRange(range: Range<T>): Stream<T>;
+  streamRange(range: Range<T>, reversed?: boolean): Stream<T>;
   /**
    * Returns a Stream of sorted values of this collection within the given `range` index range.
    * @param range - the range of values to include in the stream
@@ -31,7 +32,7 @@ export interface SortedSet<T> extends CustomBase.RSetBase<T, SortedSet.Types> {
    * console.log(m.streamSliceIndex({ start: 1, amount: 2 }).toArray())
    * // => ['b', 'c']
    */
-  streamSliceIndex(range: IndexRange): Stream<T>;
+  streamSliceIndex(range: IndexRange, reversed?: boolean): Stream<T>;
   /**
    * Returns the minimum value of the SortedSet, or a fallback value (default: undefined)
    * if the SortedSet is empty.
@@ -142,7 +143,7 @@ export namespace SortedSet {
    * context's `comp` `Comp` instance.
    */
   export interface NonEmpty<T> extends NonEmptyBase<T>, Streamable.NonEmpty<T> {
-    stream(): Stream.NonEmpty<T>;
+    stream(reversed?: boolean): Stream.NonEmpty<T>;
     /**
      * Returns the minimum value of the SortedSet.
      * @example
