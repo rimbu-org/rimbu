@@ -122,8 +122,8 @@ export abstract class SortedSetNode<T>
 {
   abstract get context(): SortedSetContext<T>;
   abstract get size(): number;
-  abstract stream(): Stream.NonEmpty<T>;
-  abstract streamSliceIndex(range: IndexRange): Stream<T>;
+  abstract stream(reversed?: boolean): Stream.NonEmpty<T>;
+  abstract streamSliceIndex(range: IndexRange, reversed?: boolean): Stream<T>;
   abstract forEach(
     f: (value: T, index: number, halt: () => void) => void,
     traverseState?: TraverseState
@@ -166,13 +166,16 @@ export abstract class SortedSetNode<T>
     return { startIndex, endIndex };
   }
 
-  streamRange(range: Range<T>): Stream<T> {
+  streamRange(range: Range<T>, reversed = false): Stream<T> {
     const { startIndex, endIndex } = this.getSliceRange(range);
 
-    return this.streamSliceIndex({
-      start: [startIndex, true],
-      end: [endIndex, true],
-    });
+    return this.streamSliceIndex(
+      {
+        start: [startIndex, true],
+        end: [endIndex, true],
+      },
+      reversed
+    );
   }
 
   add(value: T): SortedSet.NonEmpty<T> {
@@ -347,12 +350,16 @@ export class SortedSetLeaf<T> extends SortedSetNode<T> {
     return this.entries.length;
   }
 
-  stream(): Stream.NonEmpty<T> {
-    return Stream.fromArray(this.entries) as Stream.NonEmpty<T>;
+  stream(reversed = false): Stream.NonEmpty<T> {
+    return Stream.fromArray(
+      this.entries,
+      undefined,
+      reversed
+    ) as Stream.NonEmpty<T>;
   }
 
-  streamSliceIndex(range: IndexRange): Stream<T> {
-    return Stream.fromArray(this.entries, range);
+  streamSliceIndex(range: IndexRange, reversed = false): Stream<T> {
+    return Stream.fromArray(this.entries, range, reversed);
   }
 
   min(): T {
@@ -508,19 +515,20 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
     return this.context.inner(entries, children, size);
   }
 
-  stream(): Stream.NonEmpty<T> {
+  stream(reversed = false): Stream.NonEmpty<T> {
     const token = Symbol();
-    return Stream.from(this.children)
-      .zipAll(token, this.entries)
+
+    return Stream.fromArray(this.children, undefined, reversed)
+      .zipAll(token, Stream.fromArray(this.entries, undefined, reversed))
       .flatMap(([child, e]): Stream.NonEmpty<T> => {
         if (token === child) RimbuError.throwInvalidStateError();
-        if (token === e) return child.stream();
-        return child.stream().append(e);
+        if (token === e) return child.stream(reversed);
+        return child.stream(reversed).append(e);
       }) as Stream.NonEmpty<T>;
   }
 
-  streamSliceIndex(range: IndexRange): Stream<T> {
-    return innerStreamSliceIndex<T>(this, range);
+  streamSliceIndex(range: IndexRange, reversed = false): Stream<T> {
+    return innerStreamSliceIndex<T>(this, range, reversed);
   }
 
   min(): T {

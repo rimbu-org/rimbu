@@ -425,7 +425,21 @@ describe('inner index', () => {
   });
   it('innerStreamSliceIndex', () => {
     const inner = createInner();
-    const stream = innerStreamSliceIndex(inner, { start: 1, amount: 9 });
-    expect(stream.toArray()).toEqual([5, 8, 10, 12, 15, 18, 20, 22, 25]);
+    {
+      const stream = innerStreamSliceIndex(
+        inner,
+        { start: 1, amount: 9 },
+        false
+      );
+      expect(stream.toArray()).toEqual([5, 8, 10, 12, 15, 18, 20, 22, 25]);
+    }
+    {
+      const stream = innerStreamSliceIndex(
+        inner,
+        { start: 1, amount: 9 },
+        true
+      );
+      expect(stream.toArray()).toEqual([25, 22, 20, 18, 15, 12, 10, 8, 5]);
+    }
   });
 });

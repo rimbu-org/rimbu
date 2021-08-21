@@ -222,8 +222,11 @@ export abstract class SortedMapNode<K, V>
 {
   abstract get context(): SortedMapContext<K>;
   abstract get size(): number;
-  abstract stream(): Stream.NonEmpty<readonly [K, V]>;
-  abstract streamSliceIndex(range: IndexRange): Stream<readonly [K, V]>;
+  abstract stream(reversed?: boolean): Stream.NonEmpty<readonly [K, V]>;
+  abstract streamSliceIndex(
+    range: IndexRange,
+    reversed?: boolean
+  ): Stream<readonly [K, V]>;
   abstract forEach(
     f: (entry: readonly [K, V], index: number, halt: () => void) => void,
     traverseState?: TraverseState
@@ -279,21 +282,24 @@ export abstract class SortedMapNode<K, V>
     return { startIndex, endIndex };
   }
 
-  streamKeys(): Stream.NonEmpty<K> {
-    return this.stream().map(Entry.first);
+  streamKeys(reversed?: boolean): Stream.NonEmpty<K> {
+    return this.stream(reversed).map(Entry.first);
   }
 
-  streamValues(): Stream.NonEmpty<V> {
-    return this.stream().map(Entry.second);
+  streamValues(reversed?: boolean): Stream.NonEmpty<V> {
+    return this.stream(reversed).map(Entry.second);
   }
 
-  streamRange(keyRange: Range<K>): Stream<readonly [K, V]> {
+  streamRange(keyRange: Range<K>, reversed?: boolean): Stream<readonly [K, V]> {
     const { startIndex, endIndex } = this.getSliceRange(keyRange);
 
-    return this.streamSliceIndex({
-      start: [startIndex, true],
-      end: [endIndex, true],
-    });
+    return this.streamSliceIndex(
+      {
+        start: [startIndex, true],
+        end: [endIndex, true],
+      },
+      reversed
+    );
   }
 
   minKey(): K {
@@ -538,12 +544,19 @@ export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
     return this.entries.length;
   }
 
-  stream(): Stream.NonEmpty<readonly [K, V]> {
-    return Stream.fromArray(this.entries) as Stream.NonEmpty<[K, V]>;
+  stream(reversed?: boolean): Stream.NonEmpty<readonly [K, V]> {
+    return Stream.fromArray(
+      this.entries,
+      undefined,
+      reversed
+    ) as Stream.NonEmpty<[K, V]>;
   }
 
-  streamSliceIndex(range: IndexRange): Stream<readonly [K, V]> {
-    return Stream.fromArray(this.entries, range);
+  streamSliceIndex(
+    range: IndexRange,
+    reversed?: boolean
+  ): Stream<readonly [K, V]> {
+    return Stream.fromArray(this.entries, range, reversed);
   }
 
   min(): readonly [K, V] {
@@ -757,19 +770,22 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
     return this.context.inner(entries, children, size);
   }
 
-  stream(): Stream.NonEmpty<readonly [K, V]> {
+  stream(reversed?: boolean): Stream.NonEmpty<readonly [K, V]> {
     const token = Symbol();
-    return Stream.from(this.children)
-      .zipAll(token, this.entries)
+    return Stream.fromArray(this.children, undefined, reversed)
+      .zipAll(token, Stream.fromArray(this.entries, undefined, reversed))
       .flatMap(([child, e]): Stream.NonEmpty<readonly [K, V]> => {
         if (token === child) RimbuError.throwInvalidStateError();
-        if (token === e) return child.stream();
-        return child.stream().append(e);
+        if (token === e) return child.stream(reversed);
+        return child.stream(reversed).append(e);
       }) as Stream.NonEmpty<readonly [K, V]>;
   }
 
-  streamSliceIndex(range: IndexRange): Stream<readonly [K, V]> {
-    return innerStreamSliceIndex<readonly [K, V]>(this, range);
+  streamSliceIndex(
+    range: IndexRange,
+    reversed?: boolean
+  ): Stream<readonly [K, V]> {
+    return innerStreamSliceIndex<readonly [K, V]>(this, range, reversed);
   }
 
   min(): readonly [K, V] {

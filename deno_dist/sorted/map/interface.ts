@@ -17,6 +17,9 @@ import { SortedMapContext } from '../sortedmap-custom.ts';
  */
 export interface SortedMap<K, V>
   extends CustomBase.RMapBase<K, V, SortedMap.Types> {
+  stream(reversed?: boolean): Stream<readonly [K, V]>;
+  streamKeys(reversed?: boolean): Stream<K>;
+  streamValues(reversed?: boolean): Stream<V>;
   /**
    * Returns a Stream of sorted entries of this collection within the given `keyRange`.
    * @param keyRange - the range of keys to include in the stream
@@ -25,7 +28,7 @@ export interface SortedMap<K, V>
    * console.log(m.streamRange({ start: 'b', end: 'c' }).toArray())
    * // => ['b', 'c']
    */
-  streamRange(keyRange: Range<K>): Stream<readonly [K, V]>;
+  streamRange(keyRange: Range<K>, reversed?: boolean): Stream<readonly [K, V]>;
   /**
    * Returns a Stream of sorted entries of this collection within the given `range` index range.
    * @param range - the range of keys to include in the stream
@@ -34,7 +37,10 @@ export interface SortedMap<K, V>
    * console.log(m.streamSliceIndex({ start: 1, amount: 2 }).toArray())
    * // => [['b', 2], ['c', 3]]
    */
-  streamSliceIndex(range: IndexRange): Stream<readonly [K, V]>;
+  streamSliceIndex(
+    range: IndexRange,
+    reversed?: boolean
+  ): Stream<readonly [K, V]>;
   /**
    * Returns the entry with the minimum key of the SortedMap, or a fallback value (default: undefined)
    * if the SortedMap is empty.
@@ -259,7 +265,9 @@ export namespace SortedMap {
   export interface NonEmpty<K, V>
     extends NonEmptyBase<K, V>,
       Streamable.NonEmpty<readonly [K, V]> {
-    stream(): Stream.NonEmpty<readonly [K, V]>;
+    stream(reversed?: boolean): Stream.NonEmpty<readonly [K, V]>;
+    streamKeys(reversed?: boolean): Stream.NonEmpty<K>;
+    streamValues(reversed?: boolean): Stream.NonEmpty<V>;
     /**
      * Returns the entry with the minimum key of the SortedMap.
      * @example

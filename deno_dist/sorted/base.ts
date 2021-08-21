@@ -148,8 +148,8 @@ export function leafMutateJoinRight<S extends LeafMutateSource<S, E>, E>(
 export interface InnerChild<E> {
   readonly size: number;
   getAtIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
-  stream(): Stream<E>;
-  streamSliceIndex(range: IndexRange): Stream<E>;
+  stream(reversed: boolean): Stream<E>;
+  streamSliceIndex(range: IndexRange, reversed: boolean): Stream<E>;
   readonly entries: readonly E[];
   takeInternal(amount: number): InnerChild<E>;
   dropInternal(amount: number): InnerChild<E>;
@@ -179,7 +179,7 @@ export interface InnerMutateSource<TS extends InnerMutateSource<TS, E>, E> {
   mutateEntries: E[];
   children: readonly InnerChild<E>[];
   mutateChildren: InnerChild<E>[];
-  stream(): Stream.NonEmpty<E>;
+  stream(reversed: boolean): Stream.NonEmpty<E>;
   copy(
     entries?: readonly E[],
     children?: readonly InnerChild<E>[],
@@ -590,11 +590,12 @@ export function innerDropInternal<S extends InnerMutateSource<S, E>, E>(
 
 export function innerStreamSliceIndex<E>(
   source: InnerMutateSource<any, E>,
-  range: IndexRange
+  range: IndexRange,
+  reversed = false
 ): Stream<E> {
   const result = IndexRange.getIndicesFor(range, source.size);
 
-  if (result === 'all') return source.stream();
+  if (result === 'all') return source.stream(reversed);
   if (result === 'empty') return Stream.empty();
 
   const [startIndex, endIndex] = result;
@@ -625,28 +626,37 @@ export function innerStreamSliceIndex<E>(
   if (startElemIndex === endElemIndex) {
     if (startElemIndex >= 0) return Stream.of(source.entries[startElemIndex]);
 
-    return source.children[SortedIndex.next(startElemIndex)].streamSliceIndex({
-      start: inStartElemIndex,
-      end: inEndElemIndex,
-    });
+    return source.children[SortedIndex.next(startElemIndex)].streamSliceIndex(
+      {
+        start: inStartElemIndex,
+        end: inEndElemIndex,
+      },
+      reversed
+    );
   }
 
-  return Stream.unfold(startElemIndex, (i, _, stop) =>
-    SortedIndex.compare(i, endElemIndex) >= 0 ? stop : SortedIndex.next(i)
-  ).flatMap((index) => {
+  const indices = reversed
+    ? Stream.unfold(endElemIndex, (i, _, stop) =>
+        SortedIndex.compare(i, startElemIndex) <= 0 ? stop : SortedIndex.prev(i)
+      )
+    : Stream.unfold(startElemIndex, (i, _, stop) =>
+        SortedIndex.compare(i, endElemIndex) >= 0 ? stop : SortedIndex.next(i)
+      );
+
+  return indices.flatMap((index) => {
     if (index >= 0) return Stream.of(source.entries[index]);
 
     const childIndex = SortedIndex.next(index);
     const child = source.children[childIndex];
 
     if (index === startElemIndex) {
-      return child.streamSliceIndex({ start: inStartElemIndex });
+      return child.streamSliceIndex({ start: inStartElemIndex }, reversed);
     }
     if (index === endElemIndex) {
-      return child.streamSliceIndex({ end: inEndElemIndex });
+      return child.streamSliceIndex({ end: inEndElemIndex }, reversed);
     }
 
-    return child.stream();
+    return child.stream(reversed);
   });
 }
 
