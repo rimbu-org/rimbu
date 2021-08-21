@@ -26,7 +26,7 @@ However, since we can manipulate strings, we can create a bijection from numbers
 You've read that correctly. For example, to add two type-level number literals, we first convert them to base-10 strings (13 becomes '13'), then use string literal
 magic to add the two numbers, and finally convert the number back to a string. And it actually works pretty well!
 
-Or [Try Me Out](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
+Or [Try Me Out](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/typical/num.ts) in CodeSandBox.
 
 ## Installation
 
