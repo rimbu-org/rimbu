@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/sorted@0.6.5...@rimbu/sorted@0.7.0) (2021-08-21)
+
+
+### Features
+
+* **sorted:** added reverse stream ordering to sorted collections ([87a963b](https://github.com/rimbu-org/rimbu/commit/87a963b38c1f1f7215ffab9036301c59da4d1ce1)), closes [#26](https://github.com/rimbu-org/rimbu/issues/26)
+
+
+
+
+
 ## [0.6.5](https://github.com/rimbu-org/rimbu/compare/@rimbu/sorted@0.6.4...@rimbu/sorted@0.6.5) (2021-08-20)
 
 
