@@ -12,17 +12,45 @@ Or [Try Me Out](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=conso
 
 ## Installation
 
-To get started with the immutable collections, which are exported through `@rimbu/core`, you can use the following:
+To get started with the immutable collections, which are exported through `@rimbu/core`, you can use the following.
+
+### Yarn/NPM
 
 For yarn:
 
-`yarn add @rimbu/core`
+> `yarn add @rimbu/core`
 
 For npm:
 
-`npm i @rimbu/core`
+> `npm i @rimbu/core`
 
-### recommended tsconfig settings
+### Deno
+
+Create a file called `rimbu.ts` and add the following:
+
+> ```ts
+> export * from 'https://deno.land/x/rimbu/core/mod.ts';
+> ```
+
+Or using a pinned version (`x.y.z`):
+
+> ```ts
+> export * from 'https://deno.land/x/rimbu/core@x.y.z./mod.ts';
+> ```
+
+Then import what you need from `rimbu.ts`:
+
+```ts
+import { HashMap } from './rimbu.ts';
+```
+
+Because Rimbu uses complex types, it's recommended to use the `--no-check` flag (your editor should already have checked your code) and to specify a `tsconfig.json` file with the settings described below.
+
+Running your script then becomes:
+
+> `deno run --no-check --config tsconfig.json <your-script>.ts`
+
+## Recommended `tsconfig.json` settings
 
 Rimbu uses advanced and recursive typing, potentially making the TypeScript compiler quite slow in some cases, or causing infinite recursion. It is recommended to set the following values in the `tsconfig.json` file of your project:
 

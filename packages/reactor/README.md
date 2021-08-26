@@ -18,7 +18,7 @@ or
 
 > `npm i @rimbu/reactor`
 
-### recommended tsconfig settings
+## Recommended `tsconfig.json` settings
 
 Rimbu uses advanced and recursive typing, potentially making the TypeScript compiler quite slow in some cases, or causing infinite recursion. It is recommended to set the following values in the `tsconfig.json` file of your project:
 
