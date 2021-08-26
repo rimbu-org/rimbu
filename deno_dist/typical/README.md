@@ -30,6 +30,8 @@ Or [Try Me Out](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=conso
 
 ## Installation
 
+### Yarn/NPM
+
 This library only contains type definitions. You should therefore install it as a dev dependency:
 
 > `yarn add --dev @rimbu/typical`
@@ -38,7 +40,33 @@ or
 
 > `npm i @rimbu/typical --save-dev`
 
-### recommended tsconfig settings
+### Deno
+
+Create a file called `rimbu.ts` and add the following:
+
+> ```ts
+> export * from 'https://deno.land/x/rimbu/typical/mod.ts';
+> ```
+
+Or using a pinned version (`x.y.z`):
+
+> ```ts
+> export * from 'https://deno.land/x/rimbu/typical@x.y.z./mod.ts';
+> ```
+
+Then import what you need from `rimbu.ts`:
+
+```ts
+import { Num } from './rimbu.ts';
+```
+
+Because Rimbu uses complex types, it's recommended to use the `--no-check` flag (your editor should already have checked your code) and to specify a `tsconfig.json` file with the settings described below.
+
+Running your script then becomes:
+
+> `deno run --no-check --config tsconfig.json <your-script>.ts`
+
+## Recommended `tsconfig.json` settings
 
 Rimbu uses advanced and recursive typing, potentially making the TypeScript compiler quite slow in some cases, or causing infinite recursion. It is recommended to set the following values in the `tsconfig.json` file of your project:
 
