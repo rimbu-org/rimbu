@@ -31,7 +31,7 @@ Create a file called `rimbu.ts` and add the following:
 Or using a pinned version (`x.y.z`):
 
 > ```ts
-> export * from 'https://deno.land/x/rimbu/base@x.y.z./mod.ts';
+> export * from 'https://deno.land/x/rimbu/base@x.y.z/mod.ts';
 > ```
 
 Then import what you need from `rimbu.ts`:
