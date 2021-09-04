@@ -321,7 +321,7 @@ describe('Reducers', () => {
     ]);
   });
 
-  fit('Reducer.combine with halt', () => {
+  it('Reducer.combine with halt', () => {
     const r = Reducer.combine(Reducer.sum, Reducer.product);
 
     expect(Stream.empty().reduce(r)).toEqual([0, 1]);
@@ -334,6 +334,25 @@ describe('Reducers', () => {
       [0, 0],
       [2, 0],
       [6, 0],
+    ]);
+  });
+
+  it('Reducer.combine with stateToResult', () => {
+    const r = Reducer.combine(
+      Reducer.sum.mapOutput((v) => v + 1),
+      Reducer.product
+    );
+
+    expect(Stream.empty().reduce(r)).toEqual([1, 1]);
+    expect(Stream.of(0, 0, 0).reduceStream(r).toArray()).toEqual([
+      [1, 0],
+      [1, 0],
+      [1, 0],
+    ]);
+    expect(Stream.of(0, 2, 4).reduceStream(r).toArray()).toEqual([
+      [1, 0],
+      [3, 0],
+      [7, 0],
     ]);
   });
 
