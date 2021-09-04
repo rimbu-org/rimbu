@@ -787,14 +787,18 @@ export namespace Reducer {
     ...reducers: { [K in keyof R]: Reducer<T, R[K]> } & Reducer<T, unknown>[]
   ): Reducer<T, R> {
     const createState = () => {
-      return reducers.map((reducer) => ({
-        reducer,
-        halted: false,
-        halt() {
-          this.halted = true;
-        },
-        state: Init(reducer.init),
-      }));
+      return reducers.map((reducer) => {
+        const result = {
+          reducer,
+          halted: false,
+          halt() {
+            result.halted = true;
+          },
+          state: Init(reducer.init),
+        };
+
+        return result;
+      });
     };
 
     return create<T, R, ReturnType<typeof createState>>(

@@ -321,6 +321,22 @@ describe('Reducers', () => {
     ]);
   });
 
+  fit('Reducer.combine with halt', () => {
+    const r = Reducer.combine(Reducer.sum, Reducer.product);
+
+    expect(Stream.empty().reduce(r)).toEqual([0, 1]);
+    expect(Stream.of(0, 0, 0).reduceStream(r).toArray()).toEqual([
+      [0, 0],
+      [0, 0],
+      [0, 0],
+    ]);
+    expect(Stream.of(0, 2, 4).reduceStream(r).toArray()).toEqual([
+      [0, 0],
+      [2, 0],
+      [6, 0],
+    ]);
+  });
+
   it('Reducer.contains', () => {
     expect(Stream.empty().reduce(Reducer.contains(6))).toBe(false);
     expect(Stream.of(1, 2, 3).reduce(Reducer.contains(6))).toBe(false);
