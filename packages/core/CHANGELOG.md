@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.7.5](https://github.com/rimbu-org/rimbu/compare/@rimbu/core@0.7.4...@rimbu/core@0.7.5) (2021-09-04)
+
+**Note:** Version bump only for package @rimbu/core
+
+
+
+
+
 ## [0.7.4](https://github.com/rimbu-org/rimbu/compare/@rimbu/core@0.7.3...@rimbu/core@0.7.4) (2021-08-21)
 
 **Note:** Version bump only for package @rimbu/core

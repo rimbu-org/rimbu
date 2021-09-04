@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.7.4](https://github.com/rimbu-org/rimbu/compare/@rimbu/common@0.7.3...@rimbu/common@0.7.4) (2021-09-04)
+
+
+### Bug Fixes
+
+* **common:** fix Reducer.combine fails when supplied reducer calls halt() ([4422383](https://github.com/rimbu-org/rimbu/commit/4422383c34113f26fa8744444d9784f43585b085))
+
+
+
+
+
 ## [0.7.3](https://github.com/rimbu-org/rimbu/compare/@rimbu/common@0.7.2...@rimbu/common@0.7.3) (2021-08-20)
 
 
