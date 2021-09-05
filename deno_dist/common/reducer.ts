@@ -821,7 +821,10 @@ export namespace Reducer {
 
         return allState;
       },
-      (allState) => allState.map((r) => r.state) as any
+      (allState) =>
+        allState.map((r, index) =>
+          reducers[index].stateToResult(r.state)
+        ) as any
     );
   }
 }
