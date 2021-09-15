@@ -21,13 +21,6 @@ export interface SortedMultiMapSortedValue<K, V>
   extends MultiMapBase<K, V, SortedMultiMapSortedValue.Types> {}
 
 export namespace SortedMultiMapSortedValue {
-  type NonEmptyBase<K, V> = MultiMapBase.NonEmpty<
-    K,
-    V,
-    SortedMultiMapSortedValue.Types
-  > &
-    SortedMultiMapSortedValue<K, V>;
-
   /**
    * A non-empty type-invariant immutable MultiMap of key type K, and value type V.
    * In the MultiMap, each key has at least one value.
@@ -39,7 +32,11 @@ export namespace SortedMultiMapSortedValue {
    * the values for each key.
    */
   export interface NonEmpty<K, V>
-    extends NonEmptyBase<K, V>,
+    extends MultiMapBase.NonEmpty<K, V, SortedMultiMapSortedValue.Types>,
+      Omit<
+        SortedMultiMapSortedValue<K, V>,
+        keyof MultiMapBase.NonEmpty<any, any, any>
+      >,
       Streamable.NonEmpty<[K, V]> {
     stream(): Stream.NonEmpty<[K, V]>;
   }

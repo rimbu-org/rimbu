@@ -21,9 +21,6 @@ export interface HashMap<K, V>
   extends CustomBase.RMapBase<K, V, HashMap.Types> {}
 
 export namespace HashMap {
-  type NonEmptyBase<K, V> = CustomBase.RMapBase.NonEmpty<K, V, HashMap.Types> &
-    HashMap<K, V>;
-
   /**
    * A non-empty type-invariant immutable Map of key type K, and value type V.
    * In the Map, each key has exactly one value, and the Map cannot contain
@@ -36,7 +33,8 @@ export namespace HashMap {
    * const m2 = HashMap.of([1, 'a'], [2, 'b'])
    */
   export interface NonEmpty<K, V>
-    extends NonEmptyBase<K, V>,
+    extends CustomBase.RMapBase.NonEmpty<K, V, HashMap.Types>,
+      Omit<HashMap<K, V>, keyof CustomBase.RMapBase.NonEmpty<any, any, any>>,
       Streamable.NonEmpty<readonly [K, V]> {
     stream(): Stream.NonEmpty<readonly [K, V]>;
   }

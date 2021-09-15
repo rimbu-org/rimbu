@@ -11,20 +11,17 @@ export interface VariantValuedGraph<N, V>
   extends VariantValuedGraphBase<N, V, VariantValuedGraph.Types> {}
 
 export namespace VariantValuedGraph {
-  type NonEmptyBase<N, V> = VariantValuedGraphBase.NonEmpty<
-    N,
-    V,
-    VariantValuedGraph.Types
-  > &
-    VariantValuedGraph<N, V>;
-
   /**
    * A non-empty type-variant immutable valued graph.
    * @typeparam N - the node type
    * @typeparam V - the connection value type
    */
   export interface NonEmpty<N, V>
-    extends NonEmptyBase<N, V>,
+    extends VariantValuedGraphBase.NonEmpty<N, V, VariantValuedGraph.Types>,
+      Omit<
+        VariantValuedGraph<N, V>,
+        keyof VariantValuedGraphBase.NonEmpty<any, any, any>
+      >,
       Streamable.NonEmpty<ValuedGraphElement<N, V>> {
     /**
      * Returns a non-empty Stream containing all entries of this collection as tuples of key and value.

@@ -18,16 +18,14 @@ export interface EdgeGraphSorted<N>
   extends EdgeGraphBase<N, EdgeGraphSorted.Types> {}
 
 export namespace EdgeGraphSorted {
-  type NonEmptyBase<N> = EdgeGraphBase.NonEmpty<N, EdgeGraphSorted.Types> &
-    EdgeGraphSorted<N>;
-
   /**
    * A non-empty type-invariant immutable valued edge (undirected) graph.
    * The connections are internally maintained using sorted collections
    * @typeparam N - the node type
    */
   export interface NonEmpty<N>
-    extends NonEmptyBase<N>,
+    extends EdgeGraphBase.NonEmpty<N, EdgeGraphSorted.Types>,
+      Omit<EdgeGraphSorted<N>, keyof EdgeGraphBase.NonEmpty<any, any>>,
       Streamable.NonEmpty<GraphElement<N>> {
     /**
      * Returns a non-empty `Stream` containing all graph elements of this collection as single tuples for isolated nodes

@@ -34,18 +34,15 @@ export interface ArrowValuedGraphBase<
 }
 
 export namespace ArrowValuedGraphBase {
-  type NonEmptyBase<
-    N,
-    V,
-    Tp extends ArrowValuedGraphBase.Types
-  > = ValuedGraphCustom.ValuedGraphBase.NonEmpty<N, V, Tp> &
-    ArrowValuedGraphBase<N, V, Tp>;
-
   export interface NonEmpty<
     N,
     V,
     Tp extends ArrowValuedGraphBase.Types = ArrowValuedGraphBase.Types
-  > extends NonEmptyBase<N, V, Tp>,
+  > extends ValuedGraphCustom.ValuedGraphBase.NonEmpty<N, V, Tp>,
+      Omit<
+        ArrowValuedGraphBase<N, V, Tp>,
+        keyof ValuedGraphCustom.ValuedGraphBase.NonEmpty<any, any, any>
+      >,
       Streamable.NonEmpty<ValuedGraphElement<N, V>> {
     /**
      * Returns a non-empty Stream containing all entries of this collection as tuples of key and value.

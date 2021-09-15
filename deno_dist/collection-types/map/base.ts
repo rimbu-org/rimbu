@@ -483,15 +483,9 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 }
 
 export namespace RMapBase {
-  type NonEmptyBase<K, V, Tp extends RMapBase.Types> = VariantMapBase.NonEmpty<
-    K,
-    V,
-    Tp
-  > &
-    RMapBase<K, V, Tp>;
-
   export interface NonEmpty<K, V, Tp extends RMapBase.Types = RMapBase.Types>
-    extends NonEmptyBase<K, V, Tp>,
+    extends VariantMapBase.NonEmpty<K, V, Tp>,
+      Omit<RMapBase<K, V, Tp>, keyof VariantMapBase.NonEmpty<any, any, any>>,
       Streamable.NonEmpty<readonly [K, V]> {
     /**
      * Returns a non-empty Stream containing all entries of this collection as tuples of key and value.

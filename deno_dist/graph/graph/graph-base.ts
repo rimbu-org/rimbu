@@ -54,16 +54,17 @@ export interface GraphBase<N, Tp extends GraphBase.Types = GraphBase.Types>
 }
 
 export namespace GraphBase {
-  type NonEmptyBase<N, Tp extends GraphBase.Types> = VariantGraphBase.NonEmpty<
-    N,
-    unknown,
-    Tp
-  > &
-    GraphConnectNonEmpty<N, unknown, Tp> &
-    GraphBase<N, Tp>;
-
   export interface NonEmpty<N, Tp extends GraphBase.Types = GraphBase.Types>
-    extends NonEmptyBase<N, Tp>,
+    extends VariantGraphBase.NonEmpty<N, unknown, Tp>,
+      Omit<
+        GraphConnectNonEmpty<N, unknown, Tp>,
+        keyof VariantGraphBase.NonEmpty<any, any, any>
+      >,
+      Omit<
+        GraphBase<N, Tp>,
+        | keyof VariantGraphBase.NonEmpty<any, any, any>
+        | keyof GraphConnectNonEmpty<any, any, any>
+      >,
       Streamable.NonEmpty<GraphElement<N>> {
     /**
      * Returns the nested non-empty Map representation of the graph connections.

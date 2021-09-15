@@ -10,10 +10,10 @@ import {
 export interface OrderedSet<T> extends OrderedSetBase<T, OrderedSet.Types> {}
 
 export namespace OrderedSet {
-  type NonEmptyBase<T> = OrderedSetBase.NonEmpty<T, OrderedSet.Types> &
-    OrderedSet<T>;
-
-  export interface NonEmpty<T> extends NonEmptyBase<T>, Streamable.NonEmpty<T> {
+  export interface NonEmpty<T>
+    extends OrderedSetBase.NonEmpty<T, OrderedSet.Types>,
+      Omit<OrderedSet<T>, keyof OrderedSetBase.NonEmpty<any, any>>,
+      Streamable.NonEmpty<T> {
     stream(): Stream.NonEmpty<T>;
   }
 

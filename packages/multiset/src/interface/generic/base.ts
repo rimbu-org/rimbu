@@ -336,15 +336,11 @@ export interface MultiSetBase<
 }
 
 export namespace MultiSetBase {
-  type NonEmptyBase<
-    T,
-    Tp extends MultiSetBase.Types
-  > = VariantMultiSetBase.NonEmpty<T, Tp> & MultiSetBase<T, Tp>;
-
   export interface NonEmpty<
     T,
     Tp extends MultiSetBase.Types = MultiSetBase.Types
-  > extends NonEmptyBase<T, Tp>,
+  > extends VariantMultiSetBase.NonEmpty<T, Tp>,
+      Omit<MultiSetBase<T, Tp>, keyof VariantMultiSetBase.NonEmpty<any, any>>,
       Streamable.NonEmpty<T> {
     /**
      * Returns a non-empty Stream containing all values of this collection.

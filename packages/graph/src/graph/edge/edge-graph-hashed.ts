@@ -18,16 +18,14 @@ export interface EdgeGraphHashed<N>
   extends EdgeGraphBase<N, EdgeGraphHashed.Types> {}
 
 export namespace EdgeGraphHashed {
-  type NonEmptyBase<N> = EdgeGraphBase.NonEmpty<N, EdgeGraphHashed.Types> &
-    EdgeGraphHashed<N>;
-
   /**
    * A non-empty type-invariant immutable valued edge (undirected) graph.
    * The connections are internally maintained using hashed collections
    * @typeparam N - the node type
    */
   export interface NonEmpty<N>
-    extends NonEmptyBase<N>,
+    extends EdgeGraphBase.NonEmpty<N, EdgeGraphHashed.Types>,
+      Omit<EdgeGraphHashed<N>, keyof EdgeGraphBase.NonEmpty<any, any>>,
       Streamable.NonEmpty<GraphElement<N>> {
     /**
      * Returns a non-empty `Stream` containing all graph elements of this collection as single tuples for isolated nodes
