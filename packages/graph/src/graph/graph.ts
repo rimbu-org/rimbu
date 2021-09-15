@@ -9,14 +9,13 @@ import type { GraphBase } from './graph-custom';
 export interface Graph<N> extends GraphBase<N, Graph.Types> {}
 
 export namespace Graph {
-  type NonEmptyBase<N> = GraphBase.NonEmpty<N, Graph.Types> & Graph<N>;
-
   /**
    * A non-empty type-invariant immutable graph.
    * @typeparam N - the node type
    */
   export interface NonEmpty<N>
-    extends NonEmptyBase<N>,
+    extends GraphBase.NonEmpty<N, Graph.Types>,
+      Omit<Graph<N>, keyof GraphBase.NonEmpty<any, any>>,
       Streamable.NonEmpty<GraphElement<N>> {
     /**
      * Returns a non-empty `Stream` containing all graph elements of this collection as single tuples for isolated nodes

@@ -3,7 +3,7 @@ import type { List } from '../../../list/mod.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
 import type {
   OrderedMapBuilder,
-  OrderedMapNonEmpty
+  OrderedMapNonEmpty,
 } from '../../ordered-custom.ts';
 import type { OrderedMapContextImpl } from '../implementation/context.ts';
 
@@ -31,17 +31,15 @@ export interface OrderedMapBase<
 }
 
 export namespace OrderedMapBase {
-  type NonEmptyBase<
-    K,
-    V,
-    Tp extends OrderedMapBase.Types
-  > = CustomBase.RMapBase.NonEmpty<K, V, Tp> & OrderedMapBase<K, V, Tp>;
-
   export interface NonEmpty<
     K,
     V,
     Tp extends OrderedMapBase.Types = OrderedMapBase.Types
-  > extends NonEmptyBase<K, V, Tp>,
+  > extends CustomBase.RMapBase.NonEmpty<K, V, Tp>,
+      Omit<
+        OrderedMapBase<K, V, Tp>,
+        keyof CustomBase.RMapBase.NonEmpty<any, any, any>
+      >,
       Streamable.NonEmpty<readonly [K, V]> {
     /**
      * Returns a non-empty `List` instance containing the key order of the Map.

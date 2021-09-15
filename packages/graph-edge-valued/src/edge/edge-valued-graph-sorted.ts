@@ -18,13 +18,6 @@ export interface EdgeValuedGraphSorted<N, V>
   extends EdgeValuedGraphBase<N, V, EdgeValuedGraphSorted.Types> {}
 
 export namespace EdgeValuedGraphSorted {
-  type NonEmptyBase<N, V> = EdgeValuedGraphBase.NonEmpty<
-    N,
-    V,
-    EdgeValuedGraphSorted.Types
-  > &
-    EdgeValuedGraphSorted<N, V>;
-
   /**
    * A non-empty type-invariant immutable valued edge (undirected) graph.
    * The nodes are internally maintained using SortedMaps
@@ -32,7 +25,11 @@ export namespace EdgeValuedGraphSorted {
    * @typeparam V - the connection value type
    */
   export interface NonEmpty<N, V>
-    extends NonEmptyBase<N, V>,
+    extends EdgeValuedGraphBase.NonEmpty<N, V, EdgeValuedGraphSorted.Types>,
+      Omit<
+        EdgeValuedGraphSorted<N, V>,
+        keyof EdgeValuedGraphBase.NonEmpty<any, any, any>
+      >,
       Streamable.NonEmpty<ValuedGraphElement<N, V>> {
     /**
      * Returns a non-empty Stream containing all entries of this collection as tuples of key and value.

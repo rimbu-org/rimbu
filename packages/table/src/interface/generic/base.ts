@@ -534,19 +534,16 @@ export interface TableBase<
 }
 
 export namespace TableBase {
-  type NonEmptyBase<
-    R,
-    C,
-    V,
-    Tp extends TableBase.Types
-  > = VariantTableBase.NonEmpty<R, C, V, Tp> & TableBase<R, C, V, Tp>;
-
   export interface NonEmpty<
     R,
     C,
     V,
     Tp extends TableBase.Types = TableBase.Types
-  > extends NonEmptyBase<R, C, V, Tp>,
+  > extends VariantTableBase.NonEmpty<R, C, V, Tp>,
+      Omit<
+        TableBase<R, C, V, Tp>,
+        keyof VariantTableBase.NonEmpty<any, any, any>
+      >,
       Streamable.NonEmpty<[R, C, V]> {
     /**
      * Returns a non-empty Stream containing all entries of this collection as tuples of row key,

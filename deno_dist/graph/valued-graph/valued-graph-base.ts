@@ -114,19 +114,20 @@ export interface ValuedGraphBase<
 }
 
 export namespace ValuedGraphBase {
-  type NonEmptyBase<
-    N,
-    V,
-    Tp extends ValuedGraphBase.Types
-  > = VariantValuedGraphBase.NonEmpty<N, V, Tp> &
-    GraphConnectNonEmpty<N, V, Tp> &
-    ValuedGraphBase<N, V, Tp>;
-
   export interface NonEmpty<
     N,
     V,
     Tp extends ValuedGraphBase.Types = ValuedGraphBase.Types
-  > extends NonEmptyBase<N, V, Tp>,
+  > extends VariantValuedGraphBase.NonEmpty<N, V, Tp>,
+      Omit<
+        GraphConnectNonEmpty<N, V, Tp>,
+        keyof VariantValuedGraphBase.NonEmpty<any, any, any>
+      >,
+      Omit<
+        ValuedGraphBase<N, V, Tp>,
+        | keyof VariantValuedGraphBase.NonEmpty<any, any, any>
+        | keyof GraphConnectNonEmpty<any, any, any>
+      >,
       Streamable.NonEmpty<ValuedGraphElement<N, V>> {
     /**
      * Returns the nested non-empty Map representation of the graph connections.

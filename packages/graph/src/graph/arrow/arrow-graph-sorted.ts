@@ -18,16 +18,14 @@ export interface ArrowGraphSorted<N>
   extends ArrowGraphBase<N, ArrowGraphSorted.Types> {}
 
 export namespace ArrowGraphSorted {
-  type NonEmptyBase<N> = ArrowGraphBase.NonEmpty<N, ArrowGraphSorted.Types> &
-    ArrowGraphSorted<N>;
-
   /**
    * A non-empty type-invariant immutable valued arrow (directed) graph.
    * The connections are internally maintained using sorted collections
    * @typeparam N - the node type
    */
   export interface NonEmpty<N>
-    extends NonEmptyBase<N>,
+    extends ArrowGraphBase.NonEmpty<N, ArrowGraphSorted.Types>,
+      Omit<ArrowGraphSorted<N>, keyof ArrowGraphBase.NonEmpty<any, any>>,
       Streamable.NonEmpty<GraphElement<N>> {
     /**
      * Returns a non-empty Stream containing all entries of this collection as tuples of key and value.

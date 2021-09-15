@@ -250,14 +250,9 @@ export interface RSetBase<T, Tp extends RSetBase.Types = RSetBase.Types>
 }
 
 export namespace RSetBase {
-  type NonEmptyBase<T, Tp extends RSetBase.Types> = VariantSetBase.NonEmpty<
-    T,
-    Tp
-  > &
-    RSetBase<T, Tp>;
-
   export interface NonEmpty<T, Tp extends RSetBase.Types = RSetBase.Types>
-    extends NonEmptyBase<T, Tp>,
+    extends VariantSetBase.NonEmpty<T, Tp>,
+      Omit<RSetBase<T, Tp>, keyof VariantSetBase.NonEmpty<any, any>>,
       Streamable.NonEmpty<T> {
     /**
      * Returns a non-empty Stream containing all values of this collection.

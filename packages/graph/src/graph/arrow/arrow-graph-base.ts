@@ -34,17 +34,17 @@ export interface ArrowGraphBase<
 }
 
 export namespace ArrowGraphBase {
-  type NonEmptyBase<N, Tp extends ArrowGraphBase.Types> = GraphBase.NonEmpty<
-    N,
-    Tp
-  > &
-    ArrowGraphBase<N, Tp>;
-
   export interface NonEmpty<
     N,
     Tp extends ArrowGraphBase.Types = ArrowGraphBase.Types
-  > extends NonEmptyBase<N, Tp>,
+  > extends GraphBase.NonEmpty<N, Tp>,
+      Omit<ArrowGraphBase<N, Tp>, keyof GraphBase.NonEmpty<any, any>>,
       Streamable.NonEmpty<GraphElement<N>> {
+    /**
+     * Returns true since this is an arrow (directed) graph instance.
+     */
+    readonly isDirected: true;
+
     /**
      * Returns a non-empty `Stream` containing all graph elements of this collection as single tuples for isolated nodes
      * and 2-valued tuples of nodes for connections.

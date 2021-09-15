@@ -18,13 +18,6 @@ export interface EdgeValuedGraphHashed<N, V>
   extends EdgeValuedGraphBase<N, V, EdgeValuedGraphHashed.Types> {}
 
 export namespace EdgeValuedGraphHashed {
-  type NonEmptyBase<N, V> = EdgeValuedGraphBase.NonEmpty<
-    N,
-    V,
-    EdgeValuedGraphHashed.Types
-  > &
-    EdgeValuedGraphHashed<N, V>;
-
   /**
    * A non-empty type-invariant immutable valued edge (undirected) graph.
    * The nodes are internally maintained using HashMaps
@@ -32,7 +25,11 @@ export namespace EdgeValuedGraphHashed {
    * @typeparam V - the connection value type
    */
   export interface NonEmpty<N, V>
-    extends NonEmptyBase<N, V>,
+    extends EdgeValuedGraphBase.NonEmpty<N, V, EdgeValuedGraphHashed.Types>,
+      Omit<
+        EdgeValuedGraphHashed<N, V>,
+        keyof EdgeValuedGraphBase.NonEmpty<any, any, any>
+      >,
       Streamable.NonEmpty<ValuedGraphElement<N, V>> {
     /**
      * Returns a non-empty Stream containing all entries of this collection as tuples of key and value.

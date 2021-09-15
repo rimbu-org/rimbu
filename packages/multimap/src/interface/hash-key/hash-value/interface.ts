@@ -21,13 +21,6 @@ export interface HashMultiMapHashValue<K, V>
   extends MultiMapBase<K, V, HashMultiMapHashValue.Types> {}
 
 export namespace HashMultiMapHashValue {
-  type NonEmptyBase<K, V> = MultiMapBase.NonEmpty<
-    K,
-    V,
-    HashMultiMapHashValue.Types
-  > &
-    HashMultiMapHashValue<K, V>;
-
   /**
    * A non-empty type-invariant immutable MultiMap of key type K, and value type V.
    * In the MultiMap, each key has at least one value.
@@ -39,7 +32,11 @@ export namespace HashMultiMapHashValue {
    * the values for each key.
    */
   export interface NonEmpty<K, V>
-    extends NonEmptyBase<K, V>,
+    extends MultiMapBase.NonEmpty<K, V, HashMultiMapHashValue.Types>,
+      Omit<
+        HashMultiMapHashValue<K, V>,
+        keyof MultiMapBase.NonEmpty<any, any, any>
+      >,
       Streamable.NonEmpty<[K, V]> {
     stream(): Stream.NonEmpty<[K, V]>;
   }

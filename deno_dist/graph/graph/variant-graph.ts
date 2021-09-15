@@ -10,15 +10,13 @@ export interface VariantGraph<N>
   extends VariantGraphBase<N, unknown, VariantGraph.Types> {}
 
 export namespace VariantGraph {
-  type NonEmptyBase<N> = VariantGraphBase.NonEmpty<N, VariantGraph.Types> &
-    VariantGraph<N>;
-
   /**
    * A non-empty type-variant immutable graph.
    * @typeparam N - the node type
    */
   export interface NonEmpty<N>
-    extends NonEmptyBase<N>,
+    extends VariantGraphBase.NonEmpty<N, VariantGraph.Types>,
+      Omit<VariantGraph<N>, keyof VariantGraphBase.NonEmpty<any, any>>,
       Streamable.NonEmpty<GraphElement<N>> {
     /**
      * Returns a non-empty `Stream` containing all graph elements of this collection as single tuples for isolated nodes

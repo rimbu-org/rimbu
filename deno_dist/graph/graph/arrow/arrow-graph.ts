@@ -11,15 +11,13 @@ import { GraphContext } from '../graph-custom.ts';
 export interface ArrowGraph<N> extends ArrowGraphBase<N, ArrowGraph.Types> {}
 
 export namespace ArrowGraph {
-  type NonEmptyBase<N> = ArrowGraphBase.NonEmpty<N, ArrowGraph.Types> &
-    ArrowGraph<N>;
-
   /**
    * A non-empty type-invariant immutable arrow (directed) graph.
    * @typeparam N - the node type
    */
   export interface NonEmpty<N>
-    extends NonEmptyBase<N>,
+    extends ArrowGraphBase.NonEmpty<N, ArrowGraph.Types>,
+      Omit<ArrowGraph<N>, keyof ArrowGraphBase.NonEmpty<any, any>>,
       Streamable.NonEmpty<[N] | Link<N>> {
     /**
      * Returns a non-empty `Stream` containing all graph elements of this collection as single tuples for isolated nodes

@@ -132,9 +132,6 @@ export interface SortedSet<T> extends CustomBase.RSetBase<T, SortedSet.Types> {
 }
 
 export namespace SortedSet {
-  type NonEmptyBase<T> = CustomBase.RSetBase.NonEmpty<T, SortedSet.Types> &
-    SortedSet<T>;
-
   /**
    * A non-empty type-invariant immutable Set of value type T.
    * In the Set, there are no duplicate values.
@@ -142,7 +139,10 @@ export namespace SortedSet {
    * * The `SortedSet` keeps the inserted values in sorted order according to the
    * context's `comp` `Comp` instance.
    */
-  export interface NonEmpty<T> extends NonEmptyBase<T>, Streamable.NonEmpty<T> {
+  export interface NonEmpty<T>
+    extends CustomBase.RSetBase.NonEmpty<T, SortedSet.Types>,
+      Omit<SortedSet<T>, keyof CustomBase.RSetBase.NonEmpty<any, any>>,
+      Streamable.NonEmpty<T> {
     stream(reversed?: boolean): Stream.NonEmpty<T>;
     /**
      * Returns the minimum value of the SortedSet.

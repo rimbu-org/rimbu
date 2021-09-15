@@ -18,16 +18,14 @@ export interface ArrowGraphHashed<N>
   extends ArrowGraphBase<N, ArrowGraphHashed.Types> {}
 
 export namespace ArrowGraphHashed {
-  type NonEmptyBase<N> = ArrowGraphBase.NonEmpty<N, ArrowGraphHashed.Types> &
-    ArrowGraphHashed<N>;
-
   /**
    * A non-empty type-invariant immutable valued arrow (directed) graph.
    * The connections are internally maintained using hashed collections
    * @typeparam N - the node type
    */
   export interface NonEmpty<N>
-    extends NonEmptyBase<N>,
+    extends ArrowGraphBase.NonEmpty<N, ArrowGraphHashed.Types>,
+      Omit<ArrowGraphHashed<N>, keyof ArrowGraphBase.NonEmpty<any, any>>,
       Streamable.NonEmpty<GraphElement<N>> {
     /**
      * Returns a non-empty `Stream` containing all graph elements of this collection as single tuples for isolated nodes

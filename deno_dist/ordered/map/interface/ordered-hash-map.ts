@@ -26,13 +26,6 @@ export interface OrderedHashMap<K, V>
   extends OrderedMapBase<K, V, OrderedHashMap.Types> {}
 
 export namespace OrderedHashMap {
-  type NonEmptyBase<K, V> = OrderedMapBase.NonEmpty<
-    K,
-    V,
-    OrderedHashMap.Types
-  > &
-    OrderedHashMap<K, V>;
-
   /**
    * A non-empty type-invariant immutable Ordered HashMap of key type K, and value type V.
    * In the Map, each key has exactly one value, and the Map cannot contain
@@ -50,7 +43,8 @@ export namespace OrderedHashMap {
    * const m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])
    */
   export interface NonEmpty<K, V>
-    extends NonEmptyBase<K, V>,
+    extends OrderedMapBase.NonEmpty<K, V, OrderedHashMap.Types>,
+      Omit<OrderedHashMap<K, V>, keyof OrderedMapBase.NonEmpty<any, any, any>>,
       Streamable.NonEmpty<readonly [K, V]> {
     stream(): Stream.NonEmpty<readonly [K, V]>;
   }

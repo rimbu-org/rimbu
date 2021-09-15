@@ -421,17 +421,15 @@ export interface MultiMapBase<
 }
 
 export namespace MultiMapBase {
-  type NonEmptyBase<
-    K,
-    V,
-    Tp extends MultiMapBase.Types
-  > = VariantMultiMapBase.NonEmpty<K, V, Tp> & MultiMapBase<K, V, Tp>;
-
   export interface NonEmpty<
     K,
     V,
     Tp extends MultiMapBase.Types = MultiMapBase.Types
-  > extends NonEmptyBase<K, V, Tp>,
+  > extends VariantMultiMapBase.NonEmpty<K, V, Tp>,
+      Omit<
+        MultiMapBase<K, V, Tp>,
+        keyof VariantMultiMapBase.NonEmpty<any, any, any>
+      >,
       Streamable.NonEmpty<[K, V]> {
     /**
      * Returns a non-empty Stream containing all entries of this collection as tuples of key and value.

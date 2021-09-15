@@ -16,9 +16,6 @@ import { MultiSetBase, MultiSetContext } from '../../multiset-custom';
 export interface HashMultiSet<T> extends MultiSetBase<T, HashMultiSet.Types> {}
 
 export namespace HashMultiSet {
-  type NonEmptyBase<T> = MultiSetBase.NonEmpty<T, HashMultiSet.Types> &
-    HashMultiSet<T>;
-
   /**
    * A type-invariant immutable MultiSet of value type T.
    * In the MultiSet, each value can occur multiple times.
@@ -26,7 +23,10 @@ export namespace HashMultiSet {
    * * The `HashMultiSet` uses the contexts' `HashMap` `mapContext` to hash
    * the values.
    */
-  export interface NonEmpty<T> extends NonEmptyBase<T>, Streamable.NonEmpty<T> {
+  export interface NonEmpty<T>
+    extends MultiSetBase.NonEmpty<T, HashMultiSet.Types>,
+      Omit<HashMultiSet<T>, keyof MultiSetBase.NonEmpty<any, any>>,
+      Streamable.NonEmpty<T> {
     stream(): Stream.NonEmpty<T>;
   }
 

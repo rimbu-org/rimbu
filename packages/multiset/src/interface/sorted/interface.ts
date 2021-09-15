@@ -17,9 +17,6 @@ export interface SortedMultiSet<T>
   extends MultiSetBase<T, SortedMultiSet.Types> {}
 
 export namespace SortedMultiSet {
-  type NonEmptyBase<T> = MultiSetBase.NonEmpty<T, SortedMultiSet.Types> &
-    SortedMultiSet<T>;
-
   /**
    * A type-invariant immutable MultiSet of value type T.
    * In the MultiSet, each value can occur multiple times.
@@ -27,7 +24,10 @@ export namespace SortedMultiSet {
    * * The `SortedMultiSet` uses the contexts' `SortedMap` `mapContext` to sort
    * the values.
    */
-  export interface NonEmpty<T> extends NonEmptyBase<T>, Streamable.NonEmpty<T> {
+  export interface NonEmpty<T>
+    extends MultiSetBase.NonEmpty<T, SortedMultiSet.Types>,
+      Omit<SortedMultiSet<T>, keyof MultiSetBase.NonEmpty<any, any>>,
+      Streamable.NonEmpty<T> {
     stream(): Stream.NonEmpty<T>;
   }
 

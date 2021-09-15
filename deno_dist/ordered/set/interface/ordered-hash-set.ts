@@ -24,9 +24,6 @@ export interface OrderedHashSet<T>
   extends OrderedSetBase<T, OrderedHashSet.Types> {}
 
 export namespace OrderedHashSet {
-  type NonEmptyBase<T> = OrderedSetBase.NonEmpty<T, OrderedHashSet.Types> &
-    OrderedHashSet<T>;
-
   /**
    * A non-empty type-invariant immutable Ordered HashSet of value type T.
    * In the Set, there are no duplicate values.
@@ -41,7 +38,10 @@ export namespace OrderedHashSet {
    * const s1 = OrderedHashSet.empty<string>()
    * const s2 = OrderedHashSet.of('a', 'b', 'c')
    */
-  export interface NonEmpty<T> extends NonEmptyBase<T>, Streamable.NonEmpty<T> {
+  export interface NonEmpty<T>
+    extends OrderedSetBase.NonEmpty<T, OrderedHashSet.Types>,
+      Omit<OrderedHashSet<T>, keyof OrderedSetBase.NonEmpty<any, any>>,
+      Streamable.NonEmpty<T> {
     stream(): Stream.NonEmpty<T>;
   }
 

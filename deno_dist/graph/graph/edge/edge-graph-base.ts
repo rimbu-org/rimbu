@@ -13,16 +13,11 @@ export interface EdgeGraphBase<
 }
 
 export namespace EdgeGraphBase {
-  type NonEmptyBase<N, Tp extends EdgeGraphBase.Types> = GraphBase.NonEmpty<
-    N,
-    Tp
-  > &
-    EdgeGraphBase<N, Tp>;
-
   export interface NonEmpty<
     N,
     Tp extends EdgeGraphBase.Types = EdgeGraphBase.Types
-  > extends NonEmptyBase<N, Tp>,
+  > extends GraphBase.NonEmpty<N, Tp>,
+      Omit<EdgeGraphBase<N, Tp>, keyof GraphBase.NonEmpty<any, any>>,
       Streamable.NonEmpty<GraphElement<N>> {
     /**
      * Returns a non-empty `Stream` containing all graph elements of this collection as single tuples for isolated nodes

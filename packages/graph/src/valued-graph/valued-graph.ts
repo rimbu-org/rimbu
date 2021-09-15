@@ -11,16 +11,14 @@ export interface ValuedGraph<N, V>
   extends ValuedGraphBase<N, V, ValuedGraph.Types> {}
 
 export namespace ValuedGraph {
-  type NonEmptyBase<N, V> = ValuedGraphBase.NonEmpty<N, V, ValuedGraph.Types> &
-    ValuedGraph<N, V>;
-
   /**
    * A non-empty type-invariant immutable valued graph.
    * @typeparam N - the node type
    * @typeparam V - the connection value type
    */
   export interface NonEmpty<N, V>
-    extends NonEmptyBase<N, V>,
+    extends ValuedGraphBase.NonEmpty<N, V, ValuedGraph.Types>,
+      Omit<ValuedGraph<N, V>, keyof ValuedGraphBase.NonEmpty<any, any, any>>,
       Streamable.NonEmpty<ValuedGraphElement<N, V>> {
     stream(): Stream.NonEmpty<ValuedGraphElement<N, V>>;
   }

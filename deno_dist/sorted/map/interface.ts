@@ -246,13 +246,6 @@ export interface SortedMap<K, V>
 }
 
 export namespace SortedMap {
-  type NonEmptyBase<K, V> = CustomBase.RMapBase.NonEmpty<
-    K,
-    V,
-    SortedMap.Types
-  > &
-    SortedMap<K, V>;
-
   /**
    * A non-empty type-invariant immutable Map of key type K, and value type V.
    * In the Map, each key has exactly one value, and the Map cannot contain
@@ -263,7 +256,8 @@ export namespace SortedMap {
    * @typeparam V - the value type
    */
   export interface NonEmpty<K, V>
-    extends NonEmptyBase<K, V>,
+    extends CustomBase.RMapBase.NonEmpty<K, V, SortedMap.Types>,
+      Omit<SortedMap<K, V>, keyof CustomBase.RMapBase.NonEmpty<any, any, any>>,
       Streamable.NonEmpty<readonly [K, V]> {
     stream(reversed?: boolean): Stream.NonEmpty<readonly [K, V]>;
     streamKeys(reversed?: boolean): Stream.NonEmpty<K>;

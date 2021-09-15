@@ -43,17 +43,15 @@ export interface VariantValuedGraphBase<
 }
 
 export namespace VariantValuedGraphBase {
-  type NonEmptyBase<
-    N,
-    V,
-    Tp extends VariantValuedGraphBase.Types
-  > = VariantGraphBase.NonEmpty<N, V, Tp> & VariantValuedGraphBase<N, V, Tp>;
-
   export interface NonEmpty<
     N,
     V,
     Tp extends VariantValuedGraphBase.Types = VariantValuedGraphBase.Types
-  > extends NonEmptyBase<N, V, Tp>,
+  > extends VariantGraphBase.NonEmpty<N, V, Tp>,
+      Omit<
+        VariantValuedGraphBase<N, V, Tp>,
+        keyof VariantGraphBase.NonEmpty<any, any, any>
+      >,
       Streamable.NonEmpty<ValuedGraphElement<N, V>> {
     /**
      * Returns a non-empty Stream containing all entries of this collection as tuples of key and value.

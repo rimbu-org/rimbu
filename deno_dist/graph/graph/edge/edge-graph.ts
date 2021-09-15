@@ -11,15 +11,13 @@ import { GraphContext } from '../graph-custom.ts';
 export interface EdgeGraph<N> extends EdgeGraphBase<N, EdgeGraph.Types> {}
 
 export namespace EdgeGraph {
-  type NonEmptyBase<N> = EdgeGraphBase.NonEmpty<N, EdgeGraph.Types> &
-    EdgeGraph<N>;
-
   /**
    * A non-empty type-invariant immutable edge (undirected) graph.
    * @typeparam N - the node type
    */
   export interface NonEmpty<N>
-    extends NonEmptyBase<N>,
+    extends EdgeGraphBase.NonEmpty<N, EdgeGraph.Types>,
+      Omit<EdgeGraph<N>, keyof EdgeGraphBase.NonEmpty<any, any>>,
       Streamable.NonEmpty<GraphElement<N>> {
     /**
      * Returns a non-empty `Stream` containing all graph elements of this collection as single tuples for isolated nodes
