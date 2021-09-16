@@ -6,5 +6,5 @@ import React from 'react';
 export function useUpdateUI(): () => void {
   const setState = React.useState(0)[1];
 
-  return () => setState((v) => (v + 1) | 0);
+  return (): void => setState((v) => (v + 1) | 0);
 }

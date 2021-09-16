@@ -32,7 +32,7 @@ export namespace ProcessQueue {
 
     let error = false;
 
-    async function start() {
+    async function start(): Promise<void> {
       let nextProcess: Process | undefined;
 
       while (undefined !== (nextProcess = queue[0])) {
@@ -49,7 +49,7 @@ export namespace ProcessQueue {
 
     return {
       isProcessing,
-      add(process: Process) {
+      add(process: Process): Promise<void> {
         return new Promise<void>((resolve, reject) => {
           queue.push(async () => {
             if (error) return reject(Error('earlier queue item failed'));

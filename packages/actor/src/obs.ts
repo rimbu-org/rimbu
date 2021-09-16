@@ -19,7 +19,7 @@ class NotifierBase<T> {
 
     this._subscribers.add(onChange);
 
-    return () => {
+    return (): void => {
       this._subscribers.delete(onChange);
 
       if (!this.hasSubscribers) {
@@ -29,7 +29,7 @@ class NotifierBase<T> {
     };
   }
 
-  notify(newState: T, oldState: T) {
+  notify(newState: T, oldState: T): void {
     for (const subscriber of this._subscribers) {
       subscriber(newState, oldState);
     }
@@ -65,11 +65,11 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> implements Obs<T, D> {
     return this.fullState as Immutable<T & D>;
   }
 
-  get obs() {
+  get obs(): this {
     return this;
   }
 
-  get obsReadonly() {
+  get obsReadonly(): this {
     return this;
   }
 
@@ -142,7 +142,7 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> implements Obs<T, D> {
       );
       const unsubscribe2 = options?.onFirstSubscription?.();
 
-      return () => {
+      return (): void => {
         unsubscribe1();
         unsubscribe2?.();
       };
@@ -151,7 +151,7 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> implements Obs<T, D> {
     const result = new Impl<T2, D2>(mapTo(this.state), {
       derive: options?.derive,
       onFirstSubscription,
-      onGetState: () => {
+      onGetState: (): void => {
         if (!result.hasSubscribers) {
           result.setState(mapTo(this.state));
         }
@@ -179,7 +179,7 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> implements Obs<T, D> {
       });
       const unsubscribe2 = options?.onFirstSubscription?.();
 
-      return () => {
+      return (): void => {
         unsubscribe1();
         unsubscribe2?.();
       };
@@ -188,12 +188,12 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> implements Obs<T, D> {
     const result = new Impl<T2, D2>(mapTo(this.state), {
       derive: options?.derive,
       onFirstSubscription,
-      onGetState: () => {
+      onGetState: (): void => {
         if (!result.hasSubscribers) {
           result.setState(mapTo(this.state));
         }
       },
-      onSetState: (newState) => {
+      onSetState: (newState): void => {
         if (Object.is(mapTo(this.state), newState)) return;
 
         this.patchState(mapFrom(newState));
@@ -277,7 +277,7 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> implements Obs<T, D> {
         result.setState(mapTo(this.state, newState));
       });
       const unsubscribe3 = options?.onFirstSubscription?.();
-      return () => {
+      return (): void => {
         unsubscribe1();
         unsubscribe2();
         unsubscribe3?.();
@@ -285,7 +285,7 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> implements Obs<T, D> {
     };
     const result = new Impl(mapTo(this.state, other.state), {
       onFirstSubscription,
-      onGetState: () => {
+      onGetState: (): void => {
         if (!result.hasSubscribers) {
           result.setState(mapTo(this.state, other.state));
         }
@@ -318,7 +318,7 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> implements Obs<T, D> {
       });
       const unsubscribe3 = options?.onFirstSubscription?.();
 
-      return () => {
+      return (): void => {
         unsubscribe1();
         unsubscribe2();
         unsubscribe3?.();
@@ -328,12 +328,12 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> implements Obs<T, D> {
     const result = new Impl(mapTo(this.state, other.state), {
       onFirstSubscription,
       derive: options?.derive,
-      onGetState: () => {
+      onGetState: (): void => {
         if (!result.hasSubscribers) {
           result.setState(mapTo(this.state, other.state));
         }
       },
-      onSetState: (newCombinedState) => {
+      onSetState: (newCombinedState): void => {
         const parentPatch = mapFrom(newCombinedState);
 
         const [newThisState, newOtherState] = patch([

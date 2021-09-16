@@ -117,7 +117,7 @@ export class ListContext implements List.Context {
     return result;
   };
 
-  fromString = (...sources: ArrayNonEmpty<string>) => {
+  fromString = (...sources: ArrayNonEmpty<string>): any => {
     return this.from(...sources);
   };
 

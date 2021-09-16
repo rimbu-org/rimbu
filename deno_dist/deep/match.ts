@@ -71,7 +71,7 @@ export namespace Match {
    * matchAll({ g: { h: 'abc' }})({ g: { h: v => v.length > 1 }}) => true
    */
   export function all<T>(value: T): (...matchers: Match.Multi<T>) => boolean {
-    return (...matchers) => {
+    return (...matchers): boolean => {
       for (const matcher of matchers) {
         if (!matchSingle<any, any, any>(value, matcher, value, value)) {
           return false;
@@ -92,7 +92,7 @@ export namespace Match {
    * matchAny({ g: { h: 'abc' }})({ g: { h: 'a' }}, { g: { h: v => v.length > 1 }}) => true
    */
   export function any<T>(value: T): (...matchers: Match.Multi<T>) => boolean {
-    return (...matchers) => {
+    return (...matchers): boolean => {
       for (const matcher of matchers) {
         if (matchSingle<any, any, any>(value, matcher, value, value)) {
           return true;
@@ -123,7 +123,7 @@ export namespace Match {
   export function createAll<T, T2 extends T = T>(
     ...matches: Match.Multi<T2>
   ): (value: T) => boolean {
-    return (value) => Match.all<any>(value)(...matches);
+    return (value): boolean => Match.all<any>(value)(...matches);
   }
 
   /**
@@ -148,7 +148,7 @@ export namespace Match {
   export function createAny<T, T2 extends T = T>(
     ...matches: Match.Multi<T2>
   ): (value: T) => boolean {
-    return (value) => Match.any<any>(value)(...matches);
+    return (value): boolean => Match.any<any>(value)(...matches);
   }
 }
 

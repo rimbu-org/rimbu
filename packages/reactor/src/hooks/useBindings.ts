@@ -86,13 +86,13 @@ export namespace Binding {
     return [
       enabled ? [value, enabled] : [value],
       {
-        get value() {
+        get value(): string {
           return value.state;
         },
-        get disabled() {
+        get disabled(): boolean {
           return enabled?.state === false;
         },
-        onChange() {
+        onChange(): void {
           //
         },
       },
@@ -116,13 +116,13 @@ export namespace Binding {
     return [
       enabled ? [value, enabled] : [value],
       {
-        get value() {
+        get value(): string {
           return value.state;
         },
-        get disabled() {
+        get disabled(): boolean {
           return enabled?.state === false;
         },
-        onChange(evt) {
+        onChange(evt): void {
           const newValue = (evt.target as any).value;
           value.obs.setState(newValue);
         },
@@ -148,13 +148,13 @@ export namespace Binding {
       enabled ? [value, enabled] : [value],
       {
         type: 'checkbox',
-        get checked() {
+        get checked(): boolean {
           return value.state;
         },
-        get disabled() {
+        get disabled(): boolean {
           return enabled?.state === false;
         },
-        onChange() {
+        onChange(): void {
           //
         },
       },
@@ -180,13 +180,13 @@ export namespace Binding {
       enabled ? [value, enabled] : [value],
       {
         type: 'checkbox',
-        get checked() {
+        get checked(): boolean {
           return value.state;
         },
-        get disabled() {
+        get disabled(): boolean {
           return enabled?.state === false;
         },
-        onChange(evt) {
+        onChange(evt): void {
           const newValue = (evt.target as any).checked;
           value.obs.setState(newValue);
         },
@@ -207,11 +207,11 @@ export namespace Binding {
   ): Binding<(...args: Args) => { onClick: () => void; disabled: boolean }> {
     return [
       [sourceCommand],
-      (...args: Args) => ({
-        onClick() {
+      (...args: Args): { onClick: () => void; disabled: boolean } => ({
+        onClick(): void {
           sourceCommand.execute(...args);
         },
-        get disabled() {
+        get disabled(): boolean {
           return !sourceCommand.state;
         },
       }),
@@ -225,10 +225,10 @@ export namespace Binding {
     return [
       [sourceCommand],
       {
-        onClick() {
+        onClick(): void {
           sourceCommand.execute(...args);
         },
-        get disabled() {
+        get disabled(): boolean {
           return !sourceCommand.state;
         },
       },

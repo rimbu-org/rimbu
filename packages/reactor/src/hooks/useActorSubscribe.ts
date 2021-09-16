@@ -43,7 +43,7 @@ export function useActorSubscribe<T>(
 
     const unsubscribe = stableSubject.obsReadonly.subscribe(onChange);
 
-    return () => {
+    return (): void => {
       unsubscribe?.();
       onEnd?.(stableSubject.state);
     };

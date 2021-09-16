@@ -98,7 +98,7 @@ export function traverseBreadthFirstCustom<
 >(
   graph: G,
   startNode: N,
-  addVisitedNode: (node: N) => boolean = () => true
+  addVisitedNode: (node: N) => boolean = (): boolean => true
 ): Stream<LinkType<G, N>> {
   if (!graph.nonEmpty() || !graph.hasNode(startNode)) return Stream.empty();
 

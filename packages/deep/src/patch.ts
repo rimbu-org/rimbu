@@ -29,7 +29,7 @@ export type Patch<T, P = T, R = T> = T extends Literal.Obj
  * // => { a: 3, b: 4 }
  */
 export function patch<T>(value: T): (...patches: Patch.Multi<T>) => T {
-  return function (...patches) {
+  return function (...patches): T {
     let result = value;
 
     for (const p of patches) {
@@ -98,7 +98,7 @@ export namespace Patch {
   export function create<T, T2 extends T = T>(
     ...patches: Patch.Multi<T2>
   ): (value: T) => T {
-    return (value) =>
+    return (value): T =>
       patch<T>(value)(...(patches as unknown as Patch.Multi<T>));
   }
 }

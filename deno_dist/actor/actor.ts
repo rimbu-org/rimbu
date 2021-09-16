@@ -1,3 +1,4 @@
+import type { Immutable } from '../deep/mod.ts';
 import type { Obs } from './internal.ts';
 
 class Impl<T, P extends Record<string, unknown>, D> implements Actor<T, D> {
@@ -5,15 +6,15 @@ class Impl<T, P extends Record<string, unknown>, D> implements Actor<T, D> {
     Object.assign(this, props);
   }
 
-  get obs() {
+  get obs(): Obs<T, D> {
     return this.actor.obs;
   }
 
-  get obsReadonly() {
+  get obsReadonly(): Obs.Readonly<T & D> {
     return this.actor.obsReadonly;
   }
 
-  get state() {
+  get state(): Immutable<T & D> {
     return this.actor.state;
   }
 }

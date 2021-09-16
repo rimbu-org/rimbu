@@ -848,7 +848,7 @@ class AsyncPrependIterator<T> extends AsyncFastIteratorBase<T> {
   ) {
     super();
 
-    this.return = async () => {
+    this.return = async (): Promise<void> => {
       if (this.prependDone) return closeIters(this.source);
     };
   }
@@ -897,7 +897,7 @@ class AsyncAppendIterator<T> extends AsyncFastIteratorBase<T> {
   ) {
     super();
 
-    this.return = async () => {
+    this.return = async (): Promise<void> => {
       if (!this.appendDone) return closeIters(source);
     };
   }
@@ -942,7 +942,7 @@ class AsyncIndexedIterator<T> extends AsyncFastIteratorBase<[number, T]> {
   constructor(readonly source: AsyncFastIterator<T>, readonly startIndex = 0) {
     super();
     this.index = startIndex;
-    this.return = () => closeIters(source);
+    this.return = (): Promise<void> => closeIters(source);
   }
 
   async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<[number, T] | O> {
@@ -1015,7 +1015,7 @@ class AsyncMapIterator<T, T2> extends AsyncFastIteratorBase<T2> {
     readonly mapFun: (value: T, index: number) => MaybePromise<T2>
   ) {
     super();
-    this.return = () => closeIters(source);
+    this.return = (): Promise<void> => closeIters(source);
   }
 
   readonly state = TraverseState();
@@ -1095,7 +1095,7 @@ class AsyncMapPureIterator<
     readonly args: A
   ) {
     super();
-    this.return = () => closeIters(source);
+    this.return = (): Promise<void> => closeIters(source);
   }
 
   async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<T2 | O> {
@@ -1138,7 +1138,8 @@ class AsyncFlatMapIterator<T, T2> extends AsyncFastIteratorBase<T2> {
   ) {
     super();
     this.iterator = this.source[Symbol.asyncIterator]();
-    this.return = () => closeIters(this.currentIterator, this.iterator);
+    this.return = (): Promise<void> =>
+      closeIters(this.currentIterator, this.iterator);
   }
 
   readonly state = TraverseState();
@@ -1194,12 +1195,12 @@ class AsyncConcatIterator<T> extends AsyncFastIteratorBase<T> {
     super();
 
     this.iterator = source[Symbol.asyncIterator]();
-    this.return = () => closeIters(this.iterator);
+    this.return = (): Promise<void> => closeIters(this.iterator);
   }
 
   sourceIndex = 0;
 
-  async fastNext<O>(otherwise?: AsyncOptLazy<O>) {
+  async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<T | O> {
     const done = Symbol('Done');
     let value: T | typeof done;
     const length = this.otherSources.length;
@@ -1245,7 +1246,7 @@ class AsyncIntersperseIterator<T, S> extends AsyncFastIteratorBase<T | S> {
     readonly sepStream: AsyncStream<S>
   ) {
     super();
-    this.return = async () => {
+    this.return = async (): Promise<void> => {
       if (!this.isDone) return closeIters(this.sepIterator, this.source);
     };
   }
@@ -1328,7 +1329,7 @@ class AsyncFilterIterator<T> extends AsyncFastIteratorBase<T> {
     readonly invert: boolean
   ) {
     super();
-    this.return = () => closeIters(source);
+    this.return = (): Promise<void> => closeIters(source);
   }
 
   readonly state = TraverseState();
@@ -1404,7 +1405,7 @@ class AsyncFilterPureIterator<
   ) {
     super();
 
-    this.return = () => closeIters(source);
+    this.return = (): Promise<void> => closeIters(source);
   }
 
   async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<T | O> {
@@ -1453,7 +1454,7 @@ class AsyncCollectIterator<T, R> extends AsyncFastIteratorBase<R> {
     readonly collectFun: AsyncCollectFun<T, R>
   ) {
     super();
-    this.return = () => closeIters(source);
+    this.return = (): Promise<void> => closeIters(source);
   }
 
   readonly state = TraverseState();
@@ -1516,7 +1517,7 @@ class AsyncIndicesWhereIterator<T> extends AsyncFastIteratorBase<number> {
     readonly pred: (value: T) => MaybePromise<boolean>
   ) {
     super();
-    this.return = () => closeIters(source);
+    this.return = (): Promise<void> => closeIters(source);
   }
 
   index = 0;
@@ -1562,7 +1563,7 @@ class AsyncIndicesOfIterator<T> extends AsyncFastIteratorBase<number> {
     readonly eq: Eq<T>
   ) {
     super();
-    this.return = () => closeIters(source);
+    this.return = (): Promise<void> => closeIters(source);
   }
 
   index = 0;
@@ -1607,7 +1608,7 @@ class AsyncTakeWhileIterator<T> extends AsyncFastIteratorBase<T> {
     readonly pred: (value: T, index: number) => MaybePromise<boolean>
   ) {
     super();
-    this.return = () => closeIters(source);
+    this.return = (): Promise<void> => closeIters(source);
   }
 
   isDone = false;
@@ -1655,7 +1656,7 @@ class AsyncDropWhileIterator<T> extends AsyncFastIteratorBase<T> {
     readonly pred: (value: T, index: number) => MaybePromise<boolean>
   ) {
     super();
-    this.return = () => closeIters(source);
+    this.return = (): Promise<void> => closeIters(source);
   }
 
   pass = false;
@@ -1696,7 +1697,7 @@ class AsyncDropWhileStream<T> extends AsyncStreamBase<T> {
 class AsyncTakeIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(readonly source: AsyncFastIterator<T>, readonly amount: number) {
     super();
-    this.return = () => closeIters(source);
+    this.return = (): Promise<void> => closeIters(source);
   }
 
   i = 0;
@@ -1737,7 +1738,7 @@ class AsyncDropIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(readonly source: AsyncFastIterator<T>, readonly amount: number) {
     super();
 
-    this.return = () => closeIters(source);
+    this.return = (): Promise<void> => closeIters(source);
 
     this.remain = amount;
   }
@@ -1785,7 +1786,7 @@ class AsyncRepeatIterator<T> extends AsyncFastIteratorBase<T> {
     super();
 
     this.iterator = source[Symbol.asyncIterator]();
-    this.return = () => closeIters(this.iterator);
+    this.return = (): Promise<void> => closeIters(this.iterator);
 
     this.remain = amount;
   }
@@ -1834,7 +1835,7 @@ class AsyncSplitWhereIterator<T> extends AsyncFastIteratorBase<T[]> {
     readonly pred: (value: T, index: number) => MaybePromise<boolean>
   ) {
     super();
-    this.return = () => closeIters(source);
+    this.return = (): Promise<void> => closeIters(source);
   }
 
   index = 0;
@@ -1899,7 +1900,7 @@ class AsyncFoldIterator<I, R> extends AsyncFastIteratorBase<R> {
   ) {
     super();
 
-    this.return = () => closeIters(source);
+    this.return = (): Promise<void> => closeIters(source);
   }
 
   current?: R;
@@ -1947,7 +1948,7 @@ class AsyncSplitOnIterator<T> extends AsyncFastIteratorBase<T[]> {
     readonly eq: Eq<T>
   ) {
     super();
-    this.return = () => closeIters(source);
+    this.return = (): Promise<void> => closeIters(source);
   }
 
   isDone = false;
@@ -2008,7 +2009,7 @@ class AsyncReduceIterator<I, R> extends AsyncFastIteratorBase<R> {
   ) {
     super();
 
-    this.return = () => closeIters(source);
+    this.return = (): Promise<void> => closeIters(source);
   }
 
   readonly traverseState = TraverseState();
@@ -2092,7 +2093,7 @@ class AsyncReduceAllIterator<I, R> extends AsyncFastIteratorBase<R> {
 
     this.reducersToClose = new Set(reducers);
 
-    this.return = async () => {
+    this.return = async (): Promise<void> => {
       await closeIters(source);
 
       const state = this.state;
@@ -2201,7 +2202,7 @@ class AsyncZipWithIterator<
 
     this.sourcesToClose = new Set(this.sources);
 
-    this.return = () => closeIters(...this.sourcesToClose);
+    this.return = (): Promise<void> => closeIters(...this.sourcesToClose);
   }
 
   readonly sources: AsyncFastIterator<any>[];
@@ -2250,7 +2251,7 @@ class AsyncZipAllWithItererator<
 
     this.sourcesToClose = new Set(this.sources);
 
-    this.return = () => closeIters(...this.sourcesToClose);
+    this.return = (): Promise<void> => closeIters(...this.sourcesToClose);
   }
 
   readonly sources: AsyncFastIterator<any>[];

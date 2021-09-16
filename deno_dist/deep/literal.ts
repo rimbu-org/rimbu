@@ -4,9 +4,9 @@ type LITERAL = typeof LITERAL;
 /**
  * Type to represent Literal values for the match and patch functions.
  */
-export type Literal<T> = {
+export interface Literal<T> {
   readonly [LITERAL]: T;
-};
+}
 
 export namespace Literal {
   /**
@@ -20,7 +20,9 @@ export namespace Literal {
   /**
    * Excludes Iterable types
    */
-  export type NoIterable = { [Symbol.iterator]?: never };
+  export interface NoIterable {
+    readonly [Symbol.iterator]?: never;
+  }
 
   /**
    * A plain object that is not iterable

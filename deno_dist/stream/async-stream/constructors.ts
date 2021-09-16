@@ -280,9 +280,10 @@ class FromAsyncIterator<T> implements AsyncFastIterator<T> {
     close?: () => MaybePromise<void>
   ) {
     if (source.return && close) {
-      this.return = () => Promise.all([source.return?.(), close?.()]);
+      this.return = (): Promise<any> =>
+        Promise.all([source.return?.(), close?.()]);
     } else if (source.return) {
-      this.return = () => source.return?.();
+      this.return = (): Promise<any> | undefined => source.return?.();
     } else if (close) {
       this.return = close;
     }
@@ -332,7 +333,7 @@ class FromPromise<T> extends AsyncFastIteratorBase<T> {
     close?: () => MaybePromise<void>
   ) {
     super();
-    this.return = async () => {
+    this.return = async (): Promise<void> => {
       if (close) await close?.();
       if (this.iterator) await this.iterator.return?.();
     };
@@ -382,7 +383,8 @@ function asyncStreamSourceToIterator<T>(
 
         const oldReturn = iterator.return;
 
-        (iterator as any).return = () => Promise.all([oldReturn, close]);
+        (iterator as any).return = (): Promise<any> =>
+          Promise.all([oldReturn, close]);
 
         return iterator;
       }
@@ -423,7 +425,7 @@ class FromResourceIterator<T, R> extends AsyncFastIteratorBase<T> {
   ) {
     super();
 
-    this.return = async () => {
+    this.return = async (): Promise<void> => {
       if (this.resource) await close(this.resource);
       await this.iterator?.return?.();
     };
@@ -432,7 +434,7 @@ class FromResourceIterator<T, R> extends AsyncFastIteratorBase<T> {
   resource?: R;
   iterator?: AsyncFastIterator<T>;
 
-  async fastNext<O>(otherwise?: AsyncOptLazy<O>) {
+  async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<T | O> {
     if (undefined === this.iterator) {
       const resource = await this.open();
       this.resource = resource;

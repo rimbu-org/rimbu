@@ -60,7 +60,7 @@ export namespace Hasher {
       isValid(obj: unknown): obj is string {
         return typeof obj === 'string';
       },
-      hash(value) {
+      hash(value): number {
         const length = Math.min(value.length, maxSteps);
         const stepSize = Math.max(1, value.length >>> maxStepBits);
 
@@ -140,7 +140,7 @@ export namespace Hasher {
       isValid(obj: unknown): obj is string {
         return typeof obj === 'string';
       },
-      hash(value) {
+      hash(value): number {
         const length = Math.min(value.length, maxSteps);
         const stepSize = Math.max(1, value.length >>> maxStepBits);
 
@@ -174,7 +174,7 @@ export namespace Hasher {
       isValid(obj: unknown): obj is readonly T[] {
         return Array.isArray(obj);
       },
-      hash(value) {
+      hash(value): number {
         const length = Math.min(value.length, maxSteps);
         const stepSize = Math.max(1, value.length >>> maxStepBits);
 
@@ -233,7 +233,7 @@ export namespace Hasher {
           typeof obj === 'object' && obj !== null && Symbol.iterator in obj
         );
       },
-      hash(source) {
+      hash(source): number {
         const iter = Stream.from(source)[Symbol.iterator]();
 
         let hashItems: T[] = [];
@@ -413,7 +413,7 @@ export namespace Hasher {
       isValid(obj): obj is T {
         return obj instanceof cls;
       },
-      hash(value) {
+      hash(value): number {
         return valueHasher.hash(value.valueOf());
       },
     };
@@ -482,7 +482,7 @@ export namespace Hasher {
       isValid(obj): obj is Record<any, any> {
         return typeof obj === 'object';
       },
-      hash(value) {
+      hash(value): number {
         if (value === null) return NULL_VALUE;
 
         let result = OBJ_INIT;
@@ -579,7 +579,7 @@ export namespace Hasher {
       isValid(obj): obj is any {
         return true;
       },
-      hash(value) {
+      hash(value): number {
         const valueType = typeof value;
 
         switch (valueType) {
