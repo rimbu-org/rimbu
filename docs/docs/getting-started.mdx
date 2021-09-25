@@ -1,0 +1,70 @@
+---
+id: getting-started
+sidebar_position: 2
+title: Getting Started
+slug: ./getting-started
+---
+
+import { SandBox } from '/js/sandbox'
+
+## CodeSandbox
+
+This documentation site makes a lot of use of CodeSandbox examples, where you can use the Rimbu library live in a browser environment. Try it out to quickly browse through many examples:
+
+<SandBox path="index.ts"/>
+
+## Installation
+
+### Yarn/NPM
+
+To install the library in your own project:
+
+> `npm install @rimbu/core`
+
+or
+
+> `yarn add @rimbu/core`
+
+### Deno
+
+Create a file called `rimbu.ts` and add the following:
+
+> ```ts
+> export * from "https://deno.land/x/rimbu/core/mod.ts";
+> ```
+
+Or using a pinned version (`x.y.z`):
+
+> ```ts
+> export * from "https://deno.land/x/rimbu/core@x.y.z/mod.ts";
+> ```
+
+Then import what you need from `rimbu.ts`:
+
+```ts
+import { SortedMap } from "./rimbu.ts";
+```
+
+## Configuration
+
+We recommend adding the following settings to your `tsconfig.json` file:
+
+```json
+{
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "noStrictGenericChecks": true
+  }
+}
+```
+
+## Ready to use
+
+Import into and use in your code:
+
+```ts
+import { List, Stream } from "@rimbu/core";
+
+const list = List.from(Stream.range({ start: 2, amount: 64 }));
+console.log(list.toString());
+```

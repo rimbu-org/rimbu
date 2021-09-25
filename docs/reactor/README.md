@@ -1,3 +1,0 @@
-# @rimbu/reactor
-
-Reactor

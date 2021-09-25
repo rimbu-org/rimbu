@@ -1,0 +1,57 @@
+---
+id: table
+slug: ./table
+title: Table
+---
+
+import { UmlGraph } from "/js/graphs";
+import { inheritance } from "./table";
+import { SandBox } from "/js/sandbox";
+
+# Table
+
+A `Table` is an immutable 2-dimensional Map, containing row keys and column keys, where a combination of a row and column key can contain one value.
+
+## When to use
+
+The Table structure is useful in cases where there are two properties that in combination have some value. For example, a school with students needs to store a grade for each class the student takes. The school is only interested in the last grade. In this case, a Table with the student as row key, the class as column key, and the grade as value would allow easy access to all the grades.
+
+:::tip
+Internally, a `Table<R, C, V>` is built on: `RMap<R, RMap<C, V>>`. So it is a Map of Maps. The `.rowMap` property gives direct access to this Map, and can sometimes provide more convenient ways to access the contained data.
+:::
+
+## Exports
+
+The `@rimbu/core` package exports the following _abstract_ Table types:
+
+| Name                    | Description                                                         |
+| ----------------------- | ------------------------------------------------------------------- |
+| `VariantTable<R, C, V>` | a type-variant `Table` with row keys R, column keys C, and values V |
+| `Table<R, C, V>`        | a generic `Table` with row keys R, column keys C, and values V      |
+
+The `@rimbu/core` package exports the following _concrete_ Table types:
+
+| Name                               | Description                                                            |
+| ---------------------------------- | ---------------------------------------------------------------------- |
+| `HashTableHashColumn<R, C, V>`     | a `Table` where the row keys and column keys are hashed                |
+| `HashTableSortedColumn<R, C, V>`   | a `Table` where the row keys are hashed and the column keys are sorted |
+| `SortedTableHashColumn<R, C, V>`   | a `Table` where the row keys are sorted and the column keys are hashed |
+| `SortedTableSortedColumn<R, C, V>` | a `Table` where the row keys and column keys are sorted                |
+
+## Inheritance
+
+<UmlGraph contents={inheritance} />
+
+## Usage
+
+### Creation
+
+<SandBox path="table/create.ts" />
+
+### Query
+
+<SandBox path="table/query.ts" />
+
+### Builder
+
+<SandBox path="table/build.ts" />

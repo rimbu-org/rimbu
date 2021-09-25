@@ -1,0 +1,17 @@
+node_modules
+/lib
+/temp
+/build
+.docusaurus
+
+.vscode
+coverage
+
+benchmark
+
+yarn-error.log
+
+.eslintcache
+lerna-debug.log
+
+.DS_Store

@@ -1,0 +1,35 @@
+---
+id: list
+slug: ./list
+title: List
+---
+
+import { SandBox } from "/js/sandbox";
+
+# List
+
+The List is an immutable ordered sequence of elements that can be manipulated and accessed randomly in a relatively efficient way.
+
+It can handle data sizes from small to very large since it is block-based. This means that, for larger data sets, the data is cut into chunks. When updating one element in a large collection, this will only require copying of one chunk of data, and updating the element in the copy (and then updating the List administration). The rest of the chunks remain the same.
+
+:::info
+The List implementation is a novel data structure invented by the author of this library. See [List advaned topics](/docs/advanced/list) for more information.
+:::
+
+## Usage
+
+### Creation
+
+<SandBox path="list/create.ts" />
+
+### Query
+
+<SandBox path="list/query.ts" />
+
+### Manipulation
+
+<SandBox path="list/manipulation.ts" />
+
+### Builder
+
+<SandBox path="list/build.ts" />

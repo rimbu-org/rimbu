@@ -1,0 +1,41 @@
+---
+id: edge-graph
+slug: ./edge-graph
+title: Edge Graph
+---
+
+import { SandBox } from "/js/sandbox";
+
+# `EdgeGraph<N>`
+
+An `EdgeGraph` is an undirected `Graph` where the edges have no values. This structure is useful for situations in which elements of the same type can have relations to each other. The relation is either there or not there. The relation is bidirectional, so `A -> B` also implies that `B -> A`.
+
+:::info
+Like all `Graph` implementations, these graphs can contain cycles and isolated nodes are allowed.
+:::
+
+The `@rimbu/core` package exports the following ArrowGraph types:
+
+| Name                 | Description                                     |
+| -------------------- | ----------------------------------------------- |
+| `EdgeGraph<N>`       | a generic undirected graph with nodes of type N |
+| `EdgeGraphHashed<N>` | an undirected graph with hashed nodes of type N |
+| `EdgeGraphSorted<N>` | an undirected graph with sorted nodes of type N |
+
+## Usage
+
+### Creation
+
+<SandBox path="graph/edge/non-valued/create.ts" />
+
+### Query
+
+<SandBox path="graph/edge/non-valued/query.ts" />
+
+### Motivation
+
+<SandBox path="graph/edge/non-valued/motivation.ts" />
+
+### Builder
+
+<SandBox path="graph/edge/non-valued/builder.ts" />

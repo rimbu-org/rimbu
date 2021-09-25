@@ -1,0 +1,56 @@
+---
+id: bimultimap
+slug: ./bimultimap
+title: BiMultiMap
+---
+
+import { UmlGraph } from '/js/graphs';
+import { inheritance } from './bimultimap';
+import { SandBox } from '/js/sandbox';
+
+A BiMultiMap is a bidirectional MultiMap of keys and values, where each key-value association also has an inverse value-key association. There is a many-to-many mapping between keys and values.
+
+## When to use
+
+The BiMultiMap is useful when there is a many-to-many relation between to types of entities, and it is desired to query the relation in both directions.
+
+For example, take a relation between persons and their hobbies. The BiMultiMap can efficiently tell you, given a person, what her hobbies are. But it can also efficiently tell you, given a hobby, which persons practice it.
+
+:::info
+Internally the BiMultiMap uses of two MultiMaps, making lookup operations in both directions fast. Insertion and memory usage are double that of a MultiMap.
+:::
+
+## Exports
+
+The `@rimbu/core` package exports the following _abstract_ BiMultiMap types:
+
+| Name               | Description                                                      |
+| ------------------ | ---------------------------------------------------------------- |
+| `BiMultiMap<K, V>` | a generic BiMultiMap between keys of type K and values of type V |
+
+The `@rimbu/core` package exports the following _concrete_ BiMultiMap types:
+
+| Name                     | Description                                                  |
+| ------------------------ | ------------------------------------------------------------ |
+| `HashBiMultiMap<K, V>`   | a BiMultiMap implementation where keys and values are hashed |
+| `SortedBiMultiMap<K, V>` | a BiMultiMap implementation where keys and values are sorted |
+
+## Inheritance
+
+<UmlGraph contents={inheritance} />
+
+### Creation
+
+<SandBox path="bimultimap/create.ts" />
+
+### Query
+
+<SandBox path="bimultimap/query.ts" />
+
+### Motivation
+
+<SandBox path="bimultimap/motivation.ts" />
+
+### Builder
+
+<SandBox path="bimultimap/build.ts" />
