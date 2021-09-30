@@ -1,75 +1,76 @@
-const lightCodeTheme = require("prism-react-renderer/themes/github");
-const darkCodeTheme = require("prism-react-renderer/themes/dracula");
+const lightCodeTheme = require('prism-react-renderer/themes/github');
+const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
-  title: "Rimbu",
-  tagline: "Immutable collections and tools for TypeScript",
-  url: "https://rimbu.org",
-  baseUrl: "/",
-  onBrokenLinks: "throw",
-  onBrokenMarkdownLinks: "warn",
-  favicon: "img/favicon.ico",
-  organizationName: "rimbu-org",
-  projectName: "rimbu",
+  title: 'Rimbu',
+  tagline: 'Immutable collections and tools for TypeScript',
+  url: 'https://rimbu-org.github.io',
+  baseUrl: '/',
+  onBrokenLinks: 'throw',
+  onBrokenMarkdownLinks: 'warn',
+  favicon: 'img/favicon.ico',
+  organizationName: 'rimbu-org',
+  projectName: 'rimbu',
+  trailingSlash: false,
   themeConfig: {
     colorMode: {},
     navbar: {
-      title: "",
+      title: '',
       logo: {
-        alt: "Rimbu Logo",
-        src: "img/rimbu_logo.svg",
+        alt: 'Rimbu Logo',
+        src: 'img/rimbu_logo.svg',
       },
       items: [
         {
-          type: "doc",
-          docId: "main",
-          position: "left",
-          label: "Docs",
+          type: 'doc',
+          docId: 'main',
+          position: 'left',
+          label: 'Docs',
         },
-        { to: "/blog", label: "Blog", position: "left" },
+        { to: '/blog', label: 'Blog', position: 'left' },
         {
-          href: "https://github.com/rimbu-org/rimbu",
-          label: "GitHub",
-          position: "right",
+          href: 'https://github.com/rimbu-org/rimbu',
+          label: 'GitHub',
+          position: 'right',
         },
       ],
     },
     footer: {
-      style: "dark",
+      style: 'dark',
       links: [
         {
-          title: "Docs",
+          title: 'Docs',
           items: [
             {
-              label: "Docs",
-              to: "/docs",
+              label: 'Docs',
+              to: '/docs',
             },
           ],
         },
         {
-          title: "Community",
+          title: 'Community',
           items: [
             {
-              label: "Github Discussions",
-              href: "https://github.com/rimbu-org/rimbu/discussions",
+              label: 'Github Discussions',
+              href: 'https://github.com/rimbu-org/rimbu/discussions',
             },
             {
-              label: "Stack Overflow",
-              href: "https://stackoverflow.com/questions/tagged/rimbu",
+              label: 'Stack Overflow',
+              href: 'https://stackoverflow.com/questions/tagged/rimbu',
             },
           ],
         },
         {
-          title: "More",
+          title: 'More',
           items: [
             {
-              label: "Blog",
-              to: "/blog",
+              label: 'Blog',
+              to: '/blog',
             },
             {
-              label: "GitHub",
-              href: "https://github.com/rimbu-org/rimbu",
+              label: 'GitHub',
+              href: 'https://github.com/rimbu-org/rimbu',
             },
           ],
         },
@@ -83,21 +84,21 @@ module.exports = {
   },
   presets: [
     [
-      "@docusaurus/preset-classic",
+      '@docusaurus/preset-classic',
       {
         docs: {
-          sidebarPath: require.resolve("./sidebars.js"),
+          sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
-          editUrl: "https://github.com/rimbu-org/rimbu/edit/master/website/",
+          editUrl: 'https://github.com/rimbu-org/rimbu/edit/master/website/',
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           editUrl:
-            "https://github.com/rimbu-org/rimbu/edit/master/website/blog/",
+            'https://github.com/rimbu-org/rimbu/edit/master/website/blog/',
         },
         theme: {
-          customCss: require.resolve("./src/css/custom.css"),
+          customCss: require.resolve('./src/css/custom.css'),
         },
       },
     ],

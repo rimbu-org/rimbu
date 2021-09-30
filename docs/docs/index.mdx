@@ -13,16 +13,16 @@ Rimbu is a TypeScript library focused on _immutable, performant, and type-safe c
 
 Rimbu's main package is the `@rimbu/core` package that contains many commonly used collection types:
 
-- [`List`](collections/list): a block-based random-access structure akin to a `Vector`
-- [Maps](collections/map): `HashMap`, `SortedMap`, `OrderedMap`
-- [Sets](collections/set): `HashSet`, `SortedSet` `OrderedSet`
-- [`Stream`](collections/stream): a way to create and convert streams of data
+- [`List`](docs/collections/list): a block-based random-access structure akin to a `Vector`
+- [Maps](docs/collections/map): `HashMap`, `SortedMap`, `OrderedMap`
+- [Sets](docs/collections/set): `HashSet`, `SortedSet` `OrderedSet`
+- [`Stream`](docs/collections/stream): a way to create and convert streams of data
 
-It also contains less commonly used, but very useful collections, like [`MultiMap`](collections/multimap), [`BiMultiMap`](collections/bimultimap), [`MultiSet`](collections/multiset), [`Table`](collections/table), [`Graph`](collections/graph).
+It also contains less commonly used, but very useful collections, like [`MultiMap`](docs/collections/multimap), [`BiMultiMap`](docs/collections/bimultimap), [`MultiSet`](docs/collections/multiset), [`Table`](docs/collections/table), [`Graph`](docs/collections/graph).
 
 ### Immutable object utilities
 
-Next to collections, there are also tools to treat plain JS objects as immutable objects, most notable are [`Match`](.), [`Patch`](.), and [`Path`](.). The
+Next to collections, there are also tools to treat plain JS objects as immutable objects, most notable are [`Patch`](docs/deep/patch) [`Match`](docs/deep/match), and [`Path`](docs/deep/path). The
 
 All collections are designed to efficiently support data sets from small to really large (as long as it fits in memory). Persistence is maximally used to ensure that memory load is kept to a mimimum. This means that, when changing a collection instance, maximum effort is made to keep references to elements that did not change equal.
 

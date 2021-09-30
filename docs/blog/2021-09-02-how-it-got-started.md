@@ -17,11 +17,11 @@ This was going slowly but I was progressing. And while I was doing that, I also 
 as well create a whole collection library instead of just one collection implementation. I learned a lot from this effort about immutable data structures and
 creating strict but useful types. However, after some time, I realized that Scala, while having a great compiler, was holding me back in writing the code I wanted
 to write. Also, it seemed the community was getting split (due to a complete rewrite of Scala), and its popularity seemed to go down. In the meantime, Scala does have
-a new Vector implementation with the `insert` and `remove` methods. However, I found the documentation of the structure lacking so I cannot compare it to my approach.
+a new Vector implementation with the `insert` and `remove` methods. I actually discovered this quite recently. However, I found the documentation of the structure lacking so I cannot compare it to my approach.
 
 Since I was now using TypeScript at work, it seemed an interesting exercise to me to see if I could better write down my ideas in this language. It turned out
 that this was indeed the case. And stil, I could create quite rich interfaces for the collection methods. This led me to abandon the Scala effort, and fully
-focus on the TypeScript library. And now, I have (finally) released the Rimbu library.
+focus on the TypeScript library (I basically ported/rewrote the Scala code to TypeScript). And now, I have (finally) released the Rimbu library.
 
 There are many things still to be done, but I am satisfied with the library so far. I hope developers will find it useful for their own projects, and am
 hopeful to hear what they think of it. I hope to find time to extensively document the data structure behind Rimbu's List in the near future. I find it quite

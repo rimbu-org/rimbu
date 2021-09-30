@@ -8,6 +8,8 @@ author_image_url: https://github.com/vitoke.png
 tags: [rimbu, immmutable, collections, typescript]
 ---
 
+## Immutable collections and tools for TypeScript
+
 A new collection library for TypeScript? Aren't `Array`, `Set`, and `Map` good enough? What about `immutable.js`? Well, I understand you have a lot of questions
 my friend. Let me start by describing what Rimbu is all about.
 
@@ -40,7 +42,7 @@ will always be the same, no matter what you do to it. Combined with `const`, we 
 But, I hear you say, what's the use? How can we add values to immutable collections? Well, it simply the same as the story of adding 1 to a `const` number:
 
 ```ts
-import { List } from "@rimbu/collections";
+import { List } from '@rimbu/collections';
 
 const list1 = List.of(1, 2, 3);
 const list2 = list1.append(4);
@@ -56,15 +58,15 @@ not change. This is exactly the benefit of immutability, you never have to worry
 
 ### Smart and strong type safety
 
-Rimbu goes through great lenghts to ensure that the compiler will 'understand' what you are trying to do, but still prevent you from making obvious mistakes.
+Rimbu goes to great lenghts to ensure that the compiler will 'understand' what you are trying to do, but still prevent you from making obvious mistakes.
 For example, imagine the following:
 
 ```ts
-import { List } from "@rimbu/collection";
+import { List } from '@rimbu/collection';
 const list1 = List.of(1, 2, 3);
 // type of list1: List.NonEmpty<number>
-const list2 = list1.append("a"); // error: string is not assignable to number
-const list3 = list1.extendType<number | string>().append("a");
+const list2 = list1.append('a'); // error: string is not assignable to number
+const list3 = list1.extendType<number | string>().append('a');
 // type of list3: List.NonEmpty<number | string>
 ```
 
@@ -77,9 +79,9 @@ These are just small examples from a plethora of built-in smartness that the Rim
 
 ### Performance: Rimbu collections designed for performance
 
-Because immutable collections are often described as 'copying' data, they are often assumbed to be slow. However, there is a principle called 'persistence', which
+Because immutable collections are often described as 'copying' data, they are often assumed to be slow. However, there is a principle called 'persistence', which
 allows them to actually be really fast. Persistance actually means memory sharing. Rimbu immutable collections will share memory as much as possible as long as no
-changes need to be made. The collections only copy parts of shared data when changes are requested. The rest of the data remains shared. This is because the collections
+changes need to be made. The collections only duplicates parts of shared data that are modified. The rest of the data remains shared. This is because the collections
 keep their data in block-like structures, comparable to blocks on hard-drives. If some collection uses 50 blocks of data, and one value is changed, chances are that only 2 or 3 blocks need to be copied and changed, while the rest stays the same and shared. In some cases, persistent collections can be faster than mutable collections. For example, reversing a `List` of N elements in Rimbu has complexity O(logM(N)) where M is usually 32, so it is really fast for large collections as well. For a mutable array, the complexity is O(N), and therefore much slower. A similar story goes for memory complexity, however I will probably cover this topic some other time.
 
 ### Simplicity
@@ -90,20 +92,20 @@ programming concepts like Monads, because they make code harder to understand an
 This is why you will not find an `Option` or `Maybe` type (which are monads). Still, Rimbu provides nearly the same power in all methods that can fail:
 
 ```ts
-import { List, err } from "@rimbu/core";
+import { List, err } from '@rimbu/core';
 
 const list = List.of(1, 2, 3);
 
 const v1 = list.getAtIndex(1);
 // type of v1: number | undefined
 
-const v2 = list.getAtIndex(1, "not found");
+const v2 = list.getAtIndex(1, 'not found');
 // type of v2: number | 'not found'
 
 const v3 = list.getAtIndex(1, -1); // return -1 if not found
 // type of v3: number
 
-const v4 = list.getAtIndex(1, () => "lazy failure");
+const v4 = list.getAtIndex(1, () => 'lazy failure');
 // type of v4: number | 'lazy failure'
 
 // err is a function that throws an error when invoked

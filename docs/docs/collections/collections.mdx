@@ -10,26 +10,26 @@ Here is a brief overview of the basic Rimbu collection types. Many of these type
 
 ## Single-typed base collections
 
-| Name                        | Description                                                                                                                     |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| [`Stream<T>`](./stream)     | an Iterable-like structure that represents a source that can produce values of type T when requested                            |
-| [`List<T>`](./list)         | an immutable ordered sequence of elements of type T that can be manipulated and accessed randomly in a relatively efficient way |
-| [`RSet<T>`](./set)          | a Set collection with values of type T, where the collection does not contain duplicate values                                  |
-| [`MultiSet<T>`](./multiset) | a Set-like structure where each unique element of type T can be added multiple times, and its count is stored                   |
-| [`Graph<N>`](./graph)       | a collection of nodes of type N that can be connected through edges                                                             |
+| Name                                  | Description                                                                                                                     |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| [`Stream<T>`](collections/stream)     | an Iterable-like structure that represents a source that can produce values of type T when requested                            |
+| [`List<T>`](collections/list)         | an immutable ordered sequence of elements of type T that can be manipulated and accessed randomly in a relatively efficient way |
+| [`RSet<T>`](collections/set)          | a Set collection with values of type T, where the collection does not contain duplicate values                                  |
+| [`MultiSet<T>`](collections/multiset) | a Set-like structure where each unique element of type T can be added multiple times, and its count is stored                   |
+| [`Graph<N>`](collections/graph)       | a collection of nodes of type N that can be connected through edges                                                             |
 
 ## Two-typed base collections
 
-| Name                               | Description                                                                                                                                 |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`RMap<K, V>`](./map)              | a Map collection with entries containing keys of type K and values of type V. Each key has exactly one value, and each key is unique        |
-| [`MultiMap<K, V>`](./multimap)     | a Map-like structure in which each key of type K has one or more values of type V. For each key, it's associated values are unique          |
-| [`BiMap<K, V>`](./bimap)           | a bidirectional Map of keys of type K and values of type V, where each key has exactly one value, and each value has exactly one key        |
-| [`BiMultiMap<K, V>`](./bimultimap) | a bidirectional MultiMap of keys of type K and values of type V, where each key-value association also has an inverse value-key association |
-| [`ValuedGraph<N, V>`](./graph)     | a collection of nodes of type N that can be connected through edges with values of type V                                                   |
+| Name                                         | Description                                                                                                                                 |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`RMap<K, V>`](collections/map)              | a Map collection with entries containing keys of type K and values of type V. Each key has exactly one value, and each key is unique        |
+| [`MultiMap<K, V>`](collections/multimap)     | a Map-like structure in which each key of type K has one or more values of type V. For each key, it's associated values are unique          |
+| [`BiMap<K, V>`](collections/bimap)           | a bidirectional Map of keys of type K and values of type V, where each key has exactly one value, and each value has exactly one key        |
+| [`BiMultiMap<K, V>`](collections/bimultimap) | a bidirectional MultiMap of keys of type K and values of type V, where each key-value association also has an inverse value-key association |
+| [`ValuedGraph<N, V>`](collections/graph)     | a collection of nodes of type N that can be connected through edges with values of type V                                                   |
 
 ## Three-typed base collections
 
-| Name                        | Description                                                                                                                                                          |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`Table<R, C, V>`](./table) | an immutable 2-dimensional Map, containing row keys of type R and column keys of type C, where a combination of a row and column key can contain one value of type V |
+| Name                                  | Description                                                                                                                                                          |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`Table<R, C, V>`](collections/table) | an immutable 2-dimensional Map, containing row keys of type R and column keys of type C, where a combination of a row and column key can contain one value of type V |
