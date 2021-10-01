@@ -36,8 +36,6 @@ export function SandBox(props: SandBoxProps) {
   const embedUrl = `https://codesandbox.io/embed/github/vitoke/rimbu-sandbox/tree/main${paramString}`;
   const openUrl = `https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main${paramString}`;
 
-  console.log({ embedUrl });
-
   return (
     <>
       <a
