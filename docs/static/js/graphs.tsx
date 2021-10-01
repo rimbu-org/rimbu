@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 function createUml(spec: string): string {
   return `https://g.gravizo.com/svg?
@@ -23,7 +23,7 @@ function createDigraph(spec: string): string {
 }
 
 function normalize(value: string): string {
-  return value.replaceAll("<", "%3C").replaceAll(">", "%3E");
+  return value.replace(/</g, '%3C').replace(/>/g, '%3E');
 }
 
 export function UmlGraph(props: { contents: string }) {
