@@ -1,0 +1,106 @@
+---
+id: advanced-concepts
+slug: ./in-depth
+title: Collections in-depth
+---
+
+## Collection Context
+
+To understand how immutable collections in Rimbu are stuctured, it is needed to understand the concept of Contexts. A Context in Rimbu is an object that can create instances and builders of a certain collection. It usually contains some configuration that is uses to create collection instances. For example, for block-based data structures, it might contain a specific block-size.
+
+### The default context
+
+All non-abstract collection types have default constructors that use the `defaultContext` to construct instances.
+
+```ts
+import { List } from "@rimbu/core";
+
+List.of(1, 2, 3);
+// is equivalent to:
+List.defaultContext().of(1, 2, 3);
+```
+
+### Custom context
+
+All Rimbu collections are configurable. To create a custom configured collection, there is the `.createContext()` method, e.g. for Lists:
+
+```ts
+import { List } from "@rimbu/core";
+
+// create a context to create Lists with block sizes of maximum size 2^7 = 128 elements
+const MyList = List.createContext({ blockSizeBits: 7 });
+
+// we can now use MyList to construct custom instances.
+const list = MyList.of(1, 2, 3);
+```
+
+### Context references
+
+Every collection or builder instance that a Context creates will have a reference to that Context. In this way, the configuration can be preserved.
+
+```ts
+import { List } from "@rimbu/core";
+
+console.log(List.of(1, 2, 3).context === List.defaultContext());
+// => true
+
+const MyList = List.createContext({ blockSizeBits: 3 });
+console.log(MyList.of(1, 2, 3).context === List.of(1, 2, 3).context);
+// => false
+```
+
+### The singleton empty instance
+
+Every Context has a singleton empty value, which is the only empty collection that the specific Context will ever produce. The singleton is context specific because it needs a reference to the context that created it to maintain its configuration.
+
+```ts
+import { List } from "@rimbu/core";
+
+console.log(List.empty<number>() === List.empty<string>());
+// => true
+
+const MyList = List.createContext({ blockSizeBits: 3 });
+console.log(MyList.empty() === List.empty());
+// => false
+```
+
+:::note
+At first it may seem strange that a context can use the same object to represent empty collections of all types. From a philosophical perspective however, it can be compared as follows:
+
+_If I gave you an empty basket of apples, or an empty basket of oranges, would you see the difference?_
+:::
+
+## Builders in-depth
+
+All immutable collections have a corresponding mutable Builder. The builder can be used when many mutations need to happen at one time, or when the immutable methods do not have enough expression power to perform the mutation. Rimbu tries to keep the conversion to and from a builder as efficient as possible.
+
+```ts
+import { List } from "@rimbu/core";
+
+const list = List.of(1, 2, 3);
+
+const builder = list.toBuilder();
+
+console.log(builder.get(1));
+// => 2
+
+builder.append(4);
+const list2 = builder.build();
+
+builder.append(5);
+const list3 = builder.build();
+```
+
+In this example, until the first `append` function, the builder did not copy any data, but referenced the source immutable List. For a large List, the builder would only copy and update the last block. When re-building the immutable list, it can then still share many blocks with the original list, saving time and memory.
+
+The example also shows that a builder build intermediate instances as well, so it is safe to re-use the same builder.
+
+:::note
+The Rimbu Builder API's are generally not as expressive as the immutable ones, since this is not the focus of the library. It is purely aimed at building immutable instances and not as a replacement for a mutable collection library.
+:::
+
+### No iterators
+
+Rimbu Builders are not iterable. Iterating over a mutable object is inherantly unsafe, since in the iteration it is possible to mutate the object, causing all kinds of nasty side-effects.
+
+The only way to perform logic on all the elements in a builder, is to use the `.forEach(...)` methods. When performing a `forEach` on a builder, performing any mutation on the builder will throw a runtime error. This is to protect against unpredictable behaviors.

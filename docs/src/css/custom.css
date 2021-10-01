@@ -1,0 +1,54 @@
+/* stylelint-disable docusaurus/copyright-header */
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* You can override the default Infima variables here. */
+:root {
+  /* --ifm-color-primary: #7c757e;
+  --ifm-color-primary-dark: #706971;
+  --ifm-color-primary-darker: #69636b;
+  --ifm-color-primary-darkest: #575258;
+  --ifm-color-primary-light: #88818a;
+  --ifm-color-primary-lighter: #8e8790;
+  --ifm-color-primary-lightest: #a09aa2; */
+
+  --ifm-code-font-size: 95%;
+}
+
+/* html[data-theme="dark"] {
+  --ifm-color-primary: #827266;
+  --ifm-color-primary-dark: #75675c;
+  --ifm-color-primary-darker: #6f6157;
+  --ifm-color-primary-darkest: #5b5047;
+  --ifm-color-primary-light: #8f7d70;
+  --ifm-color-primary-lighter: #948377;
+  --ifm-color-primary-lightest: #a3958a;
+} */
+
+.docusaurus-highlight-code-line {
+  background-color: rgba(0, 0, 0, 0.1);
+  display: block;
+  margin: 0 calc(-1 * var(--ifm-pre-padding));
+  padding: 0 var(--ifm-pre-padding);
+}
+
+html[data-theme="dark"] .docusaurus-highlight-code-line {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.diagram {
+  padding: 12px;
+  border: 1px solid grey;
+  border-radius: 5px;
+}
+
+.codesandbox-iframe {
+  width: 100%;
+  height: 450px;
+  border: 0;
+  border-radius: 4px;
+  overflow: hidden;
+}

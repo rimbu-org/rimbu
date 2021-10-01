@@ -1,0 +1,41 @@
+---
+id: arrow-valued-graph
+slug: ./arrow-valued-graph
+title: Arrow Valued Graph
+---
+
+import { SandBox } from "/js/sandbox";
+
+# `ArrowValuedGraph<N,V>`
+
+An `ArrowValuedGraph` is a directed `ValuedGraph` where the edges have values. This structure is useful for situations in which elements of the same type can have relations to each other, and those relations have some associated value. The relations are directed, so `A -> B` does not imply that `B -> A`.
+
+:::info
+Like all `Graph` implementations, these graphs can contain cycles and isolated nodes are allowed.
+:::
+
+The `@rimbu/core` package exports the following ArrowValuedGraph types:
+
+| Name                           | Description                                                                     |
+| ------------------------------ | ------------------------------------------------------------------------------- |
+| `ArrowValuedGraph<N, V>`       | a generic directed valued graph with nodes of type N, and edge values of type V |
+| `ArrowValuedGraphHashed<N, V>` | a valued directed graph with hashed nodes of type N, and edge values of type V  |
+| `ArrowvaluedGraphSorted<N, V>` | a valued directed graph with sorted nodes of type N, and edge values of type V  |
+
+## Usage
+
+### Creation
+
+<SandBox path="graph/arrow/valued/create.ts" />
+
+### Query
+
+<SandBox path="graph/arrow/valued/query.ts" />
+
+### Motivation
+
+<SandBox path="graph/arrow/valued/motivation.ts" />
+
+### Builder
+
+<SandBox path="graph/arrow/valued/build.ts" />

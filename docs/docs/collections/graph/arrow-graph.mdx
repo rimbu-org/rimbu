@@ -1,0 +1,41 @@
+---
+id: arrow-graph
+slug: ./arrow-graph
+title: Arrow Graph
+---
+
+import { SandBox } from "/js/sandbox";
+
+# `ArrowGraph<N>`
+
+An `ArrowGraph` is a directed `Graph` where the edges have no values. This structure is useful for situations in which elements of the same type can have relations to each other. The relation is either there or not there, and is is directed, so `A -> B` does not imply that `B -> A`.
+
+:::info
+Like all `Graph` implementations, these graphs can contain cycles and isolated nodes are allowed.
+:::
+
+The `@rimbu/core` package exports the following ArrowGraph types:
+
+| Name                  | Description                                   |
+| --------------------- | --------------------------------------------- |
+| `ArrowGraph<N>`       | a generic directed graph with nodes of type N |
+| `ArrowGraphHashed<N>` | a directed graph with hashed nodes of type N  |
+| `ArrowGraphSorted<N>` | a directed graph with sorted nodes of type N  |
+
+## Usage
+
+### Creation
+
+<SandBox path="graph/arrow/non-valued/create.ts" />
+
+### Query
+
+<SandBox path="graph/arrow/non-valued/query.ts" />
+
+### Motivation
+
+<SandBox path="graph/arrow/non-valued/motivation.ts" />
+
+### Builder
+
+<SandBox path="graph/arrow/non-valued/build.ts" />

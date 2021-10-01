@@ -1,0 +1,39 @@
+---
+id: main
+sidebar_position: 1
+title: Introduction
+slug: .
+---
+
+Rimbu is a TypeScript library focused on _immutable, performant, and type-safe collections_ and other tools. Its main aim is to allow coders to create safe and performant programs without getting in the way. It is inspired by various other collection libraries, mainly Java's Guava library, the Java 8 Collection library, and Scala's collection library plus various ideas from the Scala community.
+
+## Library contents
+
+### Collections
+
+Rimbu's main package is the `@rimbu/core` package that contains many commonly used collection types:
+
+- [`List`](docs/collections/list): a block-based random-access structure akin to a `Vector`
+- [Maps](docs/collections/map): `HashMap`, `SortedMap`, `OrderedMap`
+- [Sets](docs/collections/set): `HashSet`, `SortedSet` `OrderedSet`
+- [`Stream`](docs/collections/stream): a way to create and convert streams of data
+
+It also contains less commonly used, but very useful collections, like [`MultiMap`](docs/collections/multimap), [`BiMultiMap`](docs/collections/bimultimap), [`MultiSet`](docs/collections/multiset), [`Table`](docs/collections/table), [`Graph`](docs/collections/graph).
+
+### Immutable object utilities
+
+Next to collections, there are also tools to treat plain JS objects as immutable objects, most notable are [`Patch`](docs/deep/patch) [`Match`](docs/deep/match), and [`Path`](docs/deep/path). The
+
+All collections are designed to efficiently support data sets from small to really large (as long as it fits in memory). Persistence is maximally used to ensure that memory load is kept to a mimimum. This means that, when changing a collection instance, maximum effort is made to keep references to elements that did not change equal.
+
+### Other packages
+
+Next to the `@rimbu/core` package, the `@rimbu/actor` package contains a library to easily create and update immutable state. For convenience there is also a library to allow for easy integration with state management in React `@rimbu/reactor`.
+
+## Quick overview of features and benefits
+
+- Extensive set of collection types to cover many problems that would otherwise require more coding to solve.
+- Advanced typing uses the TS compiler to offer strict type inference without much explicit typing.
+- No external dependencies (except for ts-lib).
+- Provides sane defaults but allows extensive customization and configuration.
+- A unique novel and efficient immutable random-access List implementation.

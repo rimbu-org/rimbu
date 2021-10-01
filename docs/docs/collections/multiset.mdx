@@ -1,0 +1,59 @@
+---
+id: multiset
+slug: ./multiset
+title: MultiSet
+---
+
+import { UmlGraph } from "/js/graphs";
+import { inheritance } from "./multiset";
+import { SandBox } from "/js/sandbox";
+
+# MultiSet
+
+A Rimbu MultiSet is a Set-like structure where each unique element can be added multiple times. Each element in the MultiSet occurs one or more times. The MultiSet keeps track of the amount of times an element was added.
+
+## When to use
+
+The MultiSet is useful for use cases that involve some kind of frequency count. For example, for a piece of text, to split it in words and count the amount of times each word occurs. Or, for a set of events, to count the frequencies of those events.
+
+:::tip
+The `MultiSet<T>` is implemented on top of an `RMap<T, number>` map. The `.countMap` property provides direct access to this map, and sometimes may have more convenient ways to access information about the contained data.
+:::
+
+## Exports
+
+The `@rimbu/core` package exports the following _abstract_ MultiSet types:
+
+| Name                 | Description                                     |
+| -------------------- | ----------------------------------------------- |
+| `VariantMultiSet<T>` | a type-variant MultiSet with elements of type T |
+| `MultiSet<T>`        | a generic MultiSet with elements of type T      |
+
+The `@rimbu/core` package exports the following _concrete_ Multiset types:
+
+| Name                | Description                               |
+| ------------------- | ----------------------------------------- |
+| `HashMultiSet<T>`   | a MultiSet with hashed elements of type T |
+| `SortedMultiSet<T>` | a MultiSet with sorted elements of type T |
+
+## Inheritance
+
+<UmlGraph contents={inheritance} />
+
+## Usage
+
+### Creation
+
+<SandBox path="multiset/create.ts" />
+
+### Query
+
+<SandBox path="multiset/query.ts" />
+
+### Manipulation
+
+<SandBox path="multiset/manipulation.ts" />
+
+### Builder
+
+<SandBox path="multiset/build.ts" />
