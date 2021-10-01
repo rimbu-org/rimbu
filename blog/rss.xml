@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+    <channel>
+        <title>Rimbu Blog</title>
+        <link>https://rimbu-org.github.io/blog</link>
+        <description>Rimbu Blog</description>
+        <lastBuildDate>Fri, 03 Sep 2021 00:00:00 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
+        <item>
+            <title><![CDATA[Introducing Rimbu]]></title>
+            <link>https://rimbu-org.github.io/blog/introducing-rimbu</link>
+            <guid>introducing-rimbu</guid>
+            <pubDate>Fri, 03 Sep 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[Immutable collections and tools for TypeScript]]></description>
+        </item>
+        <item>
+            <title><![CDATA[How it all got started]]></title>
+            <link>https://rimbu-org.github.io/blog/how-it-got-started</link>
+            <guid>how-it-got-started</guid>
+            <pubDate>Thu, 02 Sep 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[In my Scala days, I became very interested in immutable collections, especially Scala's Vector. I was watching all kinds of YouTube videos from conferences]]></description>
+        </item>
+        <item>
+            <title><![CDATA[Introducing Myself]]></title>
+            <link>https://rimbu-org.github.io/blog/introducing-myself</link>
+            <guid>introducing-myself</guid>
+            <pubDate>Wed, 01 Sep 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[Programming has, from a young age, been one of my passions. I remember starting in the early days in Basic. It felt like magic, being able to write]]></description>
+        </item>
+    </channel>
+</rss>

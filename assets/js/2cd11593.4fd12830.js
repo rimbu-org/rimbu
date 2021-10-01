@@ -1,0 +1,1 @@
+(self.webpackChunkmy_docs=self.webpackChunkmy_docs||[]).push([[119],{4110:function(a){"use strict";a.exports=JSON.parse('{"allTagsPath":"/blog/tags","slug":"/blog/tags/immmutable","name":"immmutable","count":1,"permalink":"/blog/tags/immmutable"}')}}]);
