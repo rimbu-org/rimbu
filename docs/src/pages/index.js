@@ -17,9 +17,7 @@ function HomepageHeader() {
         <div className={styles.buttons}>
           <Link
             className="button button--secondary button--lg"
-            to="https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?
-            previewwindow=console&view=split&editorsize=65&
-            moduleview=1&module=/src/index.ts"
+            to="https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts"
           >
             Rimbu Playground
           </Link>
