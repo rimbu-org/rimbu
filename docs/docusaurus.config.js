@@ -5,7 +5,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 module.exports = {
   title: 'Rimbu',
   tagline: 'Immutable collections and tools for TypeScript',
-  url: 'https://rimbu-org.github.io',
+  url: 'https://rimbu.org',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
