@@ -23,3 +23,7 @@
   align-items: center;
   justify-content: center;
 }
+
+.buttons *:not(:first-child) {
+  margin-left: 16px;
+}

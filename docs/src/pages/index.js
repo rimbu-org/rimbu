@@ -15,8 +15,11 @@ function HomepageHeader() {
         <h1 className="hero__title">{siteConfig.title}</h1>
         <p className="hero__subtitle">{siteConfig.tagline}</p>
         <div className={styles.buttons}>
+          <Link className="button button--secondary button--lg" to="/docs">
+            Get Started
+          </Link>
           <Link
-            className="button button--secondary button--lg"
+            className="button button--info button--lg"
             to="https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts"
           >
             Rimbu Playground
