@@ -8,7 +8,7 @@ This package contains the type definitions for the basic generic Rimbu collectio
 
 For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
 
-Or [Try Me Out](https://codesandbox.io/s/rimbu-sandbox-d4tbk?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
+Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
 
 ## Installation
 
