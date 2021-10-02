@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://rimbu-org.github.io/blog</id>
+    <id>https://rimbu.org/blog</id>
     <title>Rimbu Blog</title>
     <updated>2021-09-03T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://rimbu-org.github.io/blog"/>
+    <link rel="alternate" href="https://rimbu.org/blog"/>
     <subtitle>Rimbu Blog</subtitle>
-    <icon>https://rimbu-org.github.io/img/favicon.ico</icon>
+    <icon>https://rimbu.org/img/favicon.ico</icon>
     <entry>
         <title type="html"><![CDATA[Introducing Rimbu]]></title>
         <id>introducing-rimbu</id>
-        <link href="https://rimbu-org.github.io/blog/introducing-rimbu"/>
+        <link href="https://rimbu.org/blog/introducing-rimbu"/>
         <updated>2021-09-03T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[Immutable collections and tools for TypeScript]]></summary>
         <author>
@@ -21,7 +21,7 @@
     <entry>
         <title type="html"><![CDATA[How it all got started]]></title>
         <id>how-it-got-started</id>
-        <link href="https://rimbu-org.github.io/blog/how-it-got-started"/>
+        <link href="https://rimbu.org/blog/how-it-got-started"/>
         <updated>2021-09-02T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[In my Scala days, I became very interested in immutable collections, especially Scala's Vector. I was watching all kinds of YouTube videos from conferences]]></summary>
         <author>
@@ -32,7 +32,7 @@
     <entry>
         <title type="html"><![CDATA[Introducing Myself]]></title>
         <id>introducing-myself</id>
-        <link href="https://rimbu-org.github.io/blog/introducing-myself"/>
+        <link href="https://rimbu.org/blog/introducing-myself"/>
         <updated>2021-09-01T00:00:00.000Z</updated>
         <summary type="html"><![CDATA[Programming has, from a young age, been one of my passions. I remember starting in the early days in Basic. It felt like magic, being able to write]]></summary>
         <author>
