@@ -4,9 +4,9 @@ slug: ./multimap
 title: MultiMap
 ---
 
-import { UmlGraph } from "/js/graphs";
-import { inheritance } from "./multimap";
-import { SandBox } from "/js/sandbox";
+import { UmlGraph } from '/js/graphs';
+import { inheritance } from './multimap';
+import { SandBox } from '/js/sandbox';
 
 # MultiMap
 
@@ -17,12 +17,12 @@ A Rimbu MultiMap is a Map in which each key has one or more values. For each key
 A MultiMap is useful when there is a one to many relation between two types of entities. For example, one planet can have many moons, so if we have a MultiMap from Planet to Moon, we can easily find all the moons that belong to a particular planet. However, if we also easily want to know to which planet a moon belongs, it would be better to use a [`BiMultiMap`](bimultimap/)
 
 :::tip
-The predefined MultiMap implementations do not maintain the insertion order of the values per key. However, it is possible to create a custom context with an `OrderedMap` implementation to achieve this behavior.
+The predefined immutable MultiMap implementations do not maintain the insertion order of the values per key. However, it is possible to create a custom context with an `OrderedMap` implementation to achieve this behavior.
 :::
 
 ## Exports
 
-The `@rimbu/core` package exports the following _abstract_ MultiMap types:
+The `@rimbu/core` package exports the following _abstract_ MultiMap TypeScript types:
 
 | Name                    | Description                                                           |
 | ----------------------- | --------------------------------------------------------------------- |

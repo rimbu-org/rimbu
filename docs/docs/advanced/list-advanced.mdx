@@ -6,7 +6,7 @@ title: List Advanced topics
 
 ## Implementation details
 
-The List structure is implemented as a block-based structure, similar to Vectors in Scala and Clojure. However the implementation differs radically in many ways from any known existing List/Vector implementation. One requirement for the Rimbu List was to allow for random insertion and deletion, which the other Vector implementations do not allow. There are other implementations (see below) that do allow insertion and deletion, however the Rimbu List uses a different approach.
+The Rimbu Immutable List structure is implemented in TypeScript as a block-based structure, similar to Vectors in Scala and Clojure. However the implementation differs radically in many ways from any known existing List/Vector implementation. One requirement for the Rimbu List was to allow for random insertion and deletion, which the other Vector implementations do not allow. There are other implementations (see below) that do allow insertion and deletion, however the Rimbu List uses a different approach.
 
 To key to efficient insertion and deletion is to have efficient splits and concatenation. These should both be of complexity O(log(N)) for large N. When this is the case, it follows that insertion and deletion are also O(log(N)), since they can be represented as combinations of splits and concatenations. For example, imagine a List with elements (0, 1, 2, 3, 4, 5) (this is not a good example for O(log(N)) since N here is very small, but it serves as an example). We want to insert values (10, 11) at index 2. This can be done as follows:
 

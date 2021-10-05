@@ -6,7 +6,7 @@ title: Deep Path
 
 import { SandBox } from '/js/sandbox';
 
-`Path` is a function to easily retrieve and update a possibly nested property in an object. As shown in the `Patch` documentation, it can be quite hard to update an immutable object without helpers. That `Path` object allows you to specify the location of a nested property using a string:
+`Path` is a function to easily retrieve and update a possibly nested property in an (immutable) object in TypeScript. As shown in the `Patch` documentation, it can be quite hard to update an immutable object without helpers. That `Path` object allows you to specify the location of a nested property using a string:
 
 ```ts
 import { Path } from '@rimbu/core';

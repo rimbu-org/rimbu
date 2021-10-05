@@ -4,13 +4,13 @@ slug: ./multiset
 title: MultiSet
 ---
 
-import { UmlGraph } from "/js/graphs";
-import { inheritance } from "./multiset";
-import { SandBox } from "/js/sandbox";
+import { UmlGraph } from '/js/graphs';
+import { inheritance } from './multiset';
+import { SandBox } from '/js/sandbox';
 
 # MultiSet
 
-A Rimbu MultiSet is a Set-like structure where each unique element can be added multiple times. Each element in the MultiSet occurs one or more times. The MultiSet keeps track of the amount of times an element was added.
+A Rimbu MultiSet is an immutable Set-like structure where each unique element can be added multiple times. Each element in the MultiSet occurs one or more times. The MultiSet keeps track of the amount of times an element was added.
 
 ## When to use
 
@@ -22,7 +22,7 @@ The `MultiSet<T>` is implemented on top of an `RMap<T, number>` map. The `.count
 
 ## Exports
 
-The `@rimbu/core` package exports the following _abstract_ MultiSet types:
+The `@rimbu/core` package exports the following _abstract_ MultiSet TypeScript types:
 
 | Name                 | Description                                     |
 | -------------------- | ----------------------------------------------- |

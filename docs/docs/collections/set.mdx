@@ -4,13 +4,13 @@ slug: ./set
 title: Set
 ---
 
-import { UmlGraph } from "/js/graphs";
-import { inheritance } from "./set";
-import { SandBox } from "/js/sandbox";
+import { UmlGraph } from '/js/graphs';
+import { inheritance } from './set';
+import { SandBox } from '/js/sandbox';
 
 # Set
 
-A Set is a collection of values, where the collection does not contain duplicate values. That is, all values are unique. The way this uniqueness is determined can vary through the specific Set implementation that is chosen.
+A Set is an immutable collection of values, where the collection does not contain duplicate values. That is, all values are unique. The way this uniqueness is determined can vary through the specific Set implementation that is chosen.
 
 ## When to use
 
@@ -32,14 +32,14 @@ The `OrderedSet` is a Set with internally an extra `List` that maintains the ins
 
 ## Exports
 
-The `@rimbu/core` package exports the following _abstract_ Set types:
+The `@rimbu/core` package exports the following _abstract_ Set TypeScript types:
 
 | Name            | Description                        |
 | --------------- | ---------------------------------- |
 | `VariantSet<T>` | a type-variant set of value type T |
 | `RSet<T>`       | a generic set of value type T      |
 
-The `@rimbu/core` package exports the following _concrete_ Set types:
+The `@rimbu/core` package exports the following _concrete_ Set TypeScript types:
 
 | Name            | Description                                                  |
 | --------------- | ------------------------------------------------------------ |

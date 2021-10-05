@@ -4,11 +4,11 @@ title: Stream
 slug: ./stream
 ---
 
-import { SandBox } from "/js/sandbox";
+import { SandBox } from '/js/sandbox';
 
 A Stream is an Iterable-like structure that represents a source that can stream values when requested. The source is unspecified, it may be a materialized object (e.g. an Array), or a calculated sequence (e.g. the fibonacci numbers). However, unlike an Iterable, a Stream offers many methods to change the values produced by the Stream, before it is consumed, without the need to `materialize` intermediate instances.
 
-Streams are reusable, and in general, they should always return the same values in the same order (exceptions are randomized streams). This makes them excellent to use as glue between various collection instances.
+Streams are reusable, immutable, and in general, they should always return the same values in the same order (exceptions are randomized streams). This makes them excellent to use as glue between various collection instances.
 
 Except for intentionally random sources, a `Stream` should satisfy the following contract:
 
@@ -20,7 +20,7 @@ The `Stream` should be seen as the way to transfer values from one form to the o
 
 Because a `Stream` has many methods to manipulate its values without materializing into a new collection, it can be used in many ways.
 
-A `Stream` is also `Iterable` so it also blends in well with 'traditional' methods and uses. Internally, a lot of effort is put into making it as efficient as possible using all kinds of optimizations. Many of its built-in methods will be much faster than using `.forEach(...)` or an iterating with `for (const x of xs) {...}`.
+A `Stream` is also a TypeScript `Iterable`, so it also blends in well with 'traditional' methods and uses. Internally, a lot of effort is put into making it as efficient as possible using all kinds of optimizations. Many of its built-in methods will be much faster than using `.forEach(...)` or an iterating with `for (const x of xs) {...}`.
 
 ## Usage
 

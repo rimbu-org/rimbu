@@ -4,9 +4,9 @@ slug: ./map
 title: Map
 ---
 
-import { UmlGraph } from "/js/graphs";
-import { inheritance } from "./map";
-import { SandBox } from "/js/sandbox";
+import { UmlGraph } from '/js/graphs';
+import { inheritance } from './map';
+import { SandBox } from '/js/sandbox';
 
 # Map
 
@@ -17,7 +17,7 @@ A Map is a collection of entries, where each entry has a key and a value. Each k
 The Map is a useful when it is useful to assign values of objects to unique entities of a certain type. For example, consider currencies and their values. Using a Map we can assign a value to each currency, e.g. euro and dollar. We can update their values, and we can query the value of a specific currency. It does not really make much sense to query using a value to get a currency, so a `BiMap` would not be useful in this case.
 
 :::info
-Rimbu provides one unordered Map implementation, being `HashMap`, and two ordered maps, being `SortedMap` and `OrderedMap`
+Rimbu provides one unordered immutable map implementation, being `HashMap`, and two ordered immutable maps, being `SortedMap` and `OrderedMap`
 :::
 
 ## HashMap
@@ -34,14 +34,14 @@ The `OrderedMap` maintains an extra `List` or the inserted keys in insertion ord
 
 ## Exports
 
-The `@rimbu/core` package exports the following _abstract_ Map types:
+The `@rimbu/core` package exports the following _abstract_ Map TypeScript types:
 
 | Name               | Description                                                    |
 | ------------------ | -------------------------------------------------------------- |
 | `VariantMap<K, V>` | a type-variant map with entries of key type K and value type V |
 | `RMap<K, V>`       | a generic map with entries of key type K and value type V      |
 
-The `@rimbu/core` package exports the following _concrete_ Map types:
+The `@rimbu/core` package exports the following _concrete_ Map TypeScript types:
 
 | Name               | Description                                                                                |
 | ------------------ | ------------------------------------------------------------------------------------------ |

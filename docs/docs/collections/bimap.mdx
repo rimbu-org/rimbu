@@ -4,7 +4,7 @@ slug: ./bimap
 title: BiMap
 ---
 
-import { SandBox } from "/js/sandbox";
+import { SandBox } from '/js/sandbox';
 
 # BiMap
 
@@ -15,12 +15,12 @@ A BiMap is a bidirectional Map of keys and values, where each key has exactly on
 This `BiMap` can be useful when you have a domain in which there needs to be a strict one-to-one mapping between two types of entities. For example, say we have a BiMap between persons and seats in a room. A person can have only one seat, and a seat can have only one person. Using a BiMap, this restriction is guaranteed. If we assign seat 1 to person A, and then assign seat 5 to person A, seat 1 will automatically be vacant. In a similar way, if we assign seat 1 to person A, and then seat 1 to person B, person A no longer has a seat.
 
 :::info
-The BiMap internally uses two 'normal' Maps to maintain this guarantee, and therefore also provides fast look-up times both for keys and values. Insertion time and memory usage are double that of a normal Map.
+The BiMap internally uses two 'normal' immutable Maps to maintain this guarantee, and therefore also provides fast look-up times both for keys and values. Insertion time and memory usage are double that of a normal Map.
 :::
 
 ## Exports
 
-The `@rimbu/core` package exports the following _concrete_ BiMap types:
+The `@rimbu/core` package exports the following _concrete_ BiMap TypeScript types:
 
 | Name          | Description                                                   |
 | ------------- | ------------------------------------------------------------- |

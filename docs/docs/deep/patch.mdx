@@ -6,7 +6,7 @@ title: Deep Patch
 
 import { SandBox } from '/js/sandbox';
 
-The `Immutable` function and type allow easy creation of plain objects that cannot be modified. However, it is quite useful to create immutable copies of these objects that change some of its properties.
+The `Immutable` function and type allow easy creation of plain objects that cannot be modified in TypeScript. However, it is quite useful to create immutable copies of these objects that change some of its properties.
 
 The main example is Redux state management, which requires any changes to object data to copy the entire object. However, copying deeply nested objects is a lot of work:
 
@@ -38,7 +38,7 @@ Rimbu offers the `patch` function, which has a kind of 'contract' to specify how
 
 ## Usage
 
-The `patch` function takes the plain object to update, and one or more `Update` objects or functions specifying how the object should be updated. It then returns an updated object:
+The `patch` function takes the plain (immutable) object to update, and one or more `Update` objects or functions specifying how the object should be updated. It then returns an updated object:
 
 ```ts
 import { patch } from '@rimbu/core';

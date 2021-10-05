@@ -9,7 +9,7 @@ title: Basic Concepts
 
 ## TL;DR
 
-- Construct collection instances with provided **constructor methods**
+- Construct TypeScript collection instances with provided **constructor methods**
   - e.g. `List.empty<number>()` and `HashMap.of([1, 'a'], [2, 'b'])`
 - To **"change"** an immutable instance, the resulting **reference needs to be stored**
   - e.g. `const newList = oldList.append(4).prepend(3)`
@@ -36,7 +36,7 @@ Because immutable collection instances, of course, can't be mutated, each instan
 To create an empty instance, one can use the `.empty()` method:
 
 ```ts
-import { List, HashMap } from "@rimbu/core";
+import { List, HashMap } from '@rimbu/core';
 
 // create an empty List of numbers
 const list1 = List.empty<number>();
@@ -56,19 +56,19 @@ const map2 = HashMap.empty<string, boolean>();
 To create an instance with immediately given values, the collections offer the `.of(...)` method:
 
 ```ts
-import { List, HashMap } from "@rimbu/core";
+import { List, HashMap } from '@rimbu/core';
 
 // Create a List with given number values
 const list1 = List.of(1, 2, 3);
 
 // Create a List with given string values
-const list2 = List.of("a", "b", "c");
+const list2 = List.of('a', 'b', 'c');
 
 // Create a HashMap with given key-value entries
-const map1 = HashMap.of([1, "a"], [2, "b"]);
+const map1 = HashMap.of([1, 'a'], [2, 'b']);
 
 // Create a HashMap with given key-value entries
-const map2 = HashMap.of(["a", true], ["b", false]);
+const map2 = HashMap.of(['a', true], ['b', false]);
 ```
 
 ### Instances from other sources
@@ -76,7 +76,7 @@ const map2 = HashMap.of(["a", true], ["b", false]);
 It is also possible to create collections from other `Iterable` sources, like Arrays, Streams, or even other collection instances. The `.from(...)` constructor method does this:
 
 ```ts
-import { List, HashSet } from "@rimbu/core";
+import { List, HashSet } from '@rimbu/core';
 
 const array = [1, 2];
 
@@ -97,7 +97,7 @@ Every method of an immutable collection instance that modifies the content will 
 When it does not suffice to use the methods above, or if they would lead to many intermediate instances, it is possible to use Builders to create mutable instances. A Builder is a mutable collection instance that can be converted to an immutable instance.
 
 ```ts
-import { List } from "@rimbu/core";
+import { List } from '@rimbu/core';
 
 // Create a mutable List builder
 const lb = List.builder<number>();
@@ -134,7 +134,7 @@ In this way, it is always possible to choose the mode that is the best fit for a
 Every collection offers basic methods to manipulate or process the contained data. Keep in mind that it is never possible to change the data in the collection, as the following example illustrates:
 
 ```ts
-import { List } from "@rimbu/core";
+import { List } from '@rimbu/core';
 
 const list = List.of(1, 2, 3);
 console.log(list.toString());
@@ -157,7 +157,7 @@ console.log(list2.toString());
 When changing immutable instances, Rimbu takes care to do the minimum amount of work possible. For example, if an operation does not actually change the data, often a reference to the same instance is returned. The can also help to determine if an operation actually changed anything.
 
 ```ts
-import { HashSet } from "@rimbu/core";
+import { HashSet } from '@rimbu/core';
 
 const set1 = HashSet.of(1, 2, 3);
 // add an element that was already present
@@ -170,8 +170,8 @@ console.log(set1 === set2);
 const set3 = set1.remove(5);
 
 // answer: check the result object equality
-if (set3 === set1) console.log("nothing changed");
-else console.log("element was removed");
+if (set3 === set1) console.log('nothing changed');
+else console.log('element was removed');
 // => logs 'nothing changed'
 ```
 
@@ -180,7 +180,7 @@ else console.log("element was removed");
 When creating immutable instances with given elements, the compiler will indicate through its type that the collection is inferred to be non-empty:
 
 ```ts
-import { List } from "@rimbu/core";
+import { List } from '@rimbu/core';
 
 const list = List.of(1, 2, 3);
 // type of list: List.NonEmpty<number>
@@ -189,7 +189,7 @@ const list = List.of(1, 2, 3);
 This has an impact on the methods that the instance offers. Certain methods will require less checking or exception values, for example:
 
 ```ts
-import { List } from "@rimbu/core";
+import { List } from '@rimbu/core';
 
 const list = List.of(1, 2, 3);
 const list2 = list as List<number>;
@@ -209,12 +209,12 @@ list.first(0);
 Having non-empty types also makes it easier to create functions that no longer need to check whether their arguments are empty:
 
 ```ts
-import { List } from "@rimbu/core";
+import { List } from '@rimbu/core';
 
 // old way
 function exec1(list: List<number>): number {
   // need to check for emptiness
-  if (list.isEmpty) throw Error("cannot handle empty list");
+  if (list.isEmpty) throw Error('cannot handle empty list');
 
   // need to provide fallback values
   return (list.first(0) + list.last(0)) / 2;
@@ -239,7 +239,7 @@ exec2(List.empty<number>());
 It is also possible to use `.nonEmpty()` to have better compiler assistance than `.isEmpty`
 
 ```ts
-import { List } from "@rimbu/core";
+import { List } from '@rimbu/core';
 
 function exec(list: List<number>): number {
   if (list.nonEmpty()) {
@@ -249,7 +249,7 @@ function exec(list: List<number>): number {
   }
 
   // list is empty
-  throw Error("should have at least one element");
+  throw Error('should have at least one element');
 }
 ```
 
@@ -266,7 +266,7 @@ Often such modes result in methods being specified multiple times for each mode,
 Rimbu offers ways to determine the desired mode on every method call that could benefit from having such modes. Each such method has an optional `otherwise` parameter that can cover each of the given modes.
 
 ```ts
-import { List, Err } from "@rimbu/core";
+import { List, Err } from '@rimbu/core';
 
 const list = List.of(1, 2, 3);
 
@@ -290,7 +290,7 @@ const e4_2 = list.get(1, () => calculateLargePrime());
 // type of e4_2 : number
 // e4_2 will receive value 2 and not execute the `calculateLargePrime` function
 
-const e5 = list.get(10, "no value");
+const e5 = list.get(10, 'no value');
 // type of e5: number | string
 // e5 will receive string 'no value'
 ```

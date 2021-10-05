@@ -6,7 +6,7 @@ title: Deep Match
 
 import { SandBox } from '/js/sandbox';
 
-Sometimes it is useful to have have a complex condition on a (nested) object. This can lead to long `if` statements that are also hard to read.
+Sometimes it is useful in TypeScript to have have a complex condition on a (nested) object. This can lead to long `if` statements that are also hard to read.
 
 ```ts
 type Person = {
@@ -29,7 +29,7 @@ function process(person: Person) {
 }
 ```
 
-The `Match` object offers, in a similar fashion to `Patch`, a way to concisely define the conditions an object should meet:
+The `Match` object offers, in a similar fashion to `Patch`, a way to concisely define the conditions an (immutable) object should meet:
 
 ```ts
 import { Match } from '@rimbu/core';
