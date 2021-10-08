@@ -81,6 +81,10 @@ module.exports = {
       theme: lightCodeTheme,
       darkTheme: darkCodeTheme,
     },
+    googleAnalytics: {
+      trackingID: 'G-MG8SZG61N5',
+      anonymizeIP: true,
+    },
   },
   presets: [
     [
