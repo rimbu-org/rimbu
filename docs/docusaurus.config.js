@@ -85,6 +85,10 @@ module.exports = {
       trackingID: 'G-MG8SZG61N5',
       anonymizeIP: true,
     },
+    gtag: {
+      trackingID: 'G-MG8SZG61N5',
+      anonymizeIP: true,
+    },
   },
   presets: [
     [
