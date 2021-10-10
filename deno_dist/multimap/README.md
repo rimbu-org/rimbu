@@ -17,7 +17,7 @@ This package exports the following types:
 | `SortedMultiMapSortedValue<K, V>` | a multimap between sorted values of type K and sorted values of type V |
 | `VariantMultiMap<K, V>`           | a type-variant multimap between values of type K and values of type V  |
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
+For complete documentation please visit the [MultiMap page](https://rimbu.org/docs/collections/multimap) _[Rimbu Docs](https://rimbu.org)_.
 
 Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
 

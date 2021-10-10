@@ -13,7 +13,7 @@ This package exports the following types:
 | `SortedMap<K, V>` | a map with entries of key type K and value type V, where keys are sorted with a `Comp` |
 | `SortedSet<T>`    | a set of value type T where items are sorted with a `Comp`                             |
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
+For complete documentation please visit the [Map](https://rimbu.org/docs/collections/map) or [Se](https://rimbu.org/docs/collections/set) page in the _[Rimbu Docs](https://rimbu.org)_.
 
 Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
 

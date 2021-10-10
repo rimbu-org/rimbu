@@ -16,7 +16,7 @@ This package exports the following main types:
 | `Streamable<T>`   | an interface requiring that an object has a `.stream()` method                                       |
 | `StreamSource<T>` | a convenience type that covers all types that can be automatically converted to a `Stream`           |
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
+For complete documentation please visit the [Stream page](https://rimbu.org/docs/collections/stream) in the _[Rimbu Docs](https://rimbu.org)_.
 
 Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
 

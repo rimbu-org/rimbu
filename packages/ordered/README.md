@@ -13,7 +13,7 @@ This package exports the following types:
 | `OrderedMap<K, V>` | a map with entries of key type K and value type V, where key insertion order is maintained |
 | `OrderedSet<T>`    | a set of value type T where insertion order is maintained                                  |
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
+For complete documentation please visit the [Map](https://rimbu.org/docs/collections/map) or [Se](https://rimbu.org/docs/collections/set) page in the _[Rimbu Docs](https://rimbu.org)_.
 
 Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
 

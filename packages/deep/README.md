@@ -4,9 +4,9 @@
 
 # @rimbu/deep
 
-Offers tools to use handle plain JS objects as immutable objects.
+Offers tools to use handle plain JS objects as immutable objects. The [`Patch` object](https://rimbu.org/docs/deep/patch) allows convenient immutable modification of simple objects. The [`Match` object](https://rimbu.org/docs/deep/match) allows easy matching on plain objects. The [`Path` object](https://rimbu.org/docs/deep/path) allows easy querying of nested values. The [`Immutable` type](https://rimbu.org/docs/deep/immutable) makes it easy to create plain objects that that have compile-time protection against mutation. The [`Tuple` type](https://rimbu.org/docs/deep/tuple) is a utility to have similar functionality as `as const` but less strict.
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
+For complete documentation please visit the [Immutable Objects overview](https://rimbu.org/docs/deep/overview) in the _[Rimbu Docs](https://rimbu.org)_.
 
 Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
 

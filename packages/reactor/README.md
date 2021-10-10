@@ -6,7 +6,7 @@
 
 This package offers integration of `@rimbu/actor` in React.
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
+For complete documentation please visit the _[Rimbu Docs](https://rimbu.org)_.
 
 ## Installation
 

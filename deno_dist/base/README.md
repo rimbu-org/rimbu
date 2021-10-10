@@ -8,7 +8,7 @@ This package contains mostly utilities to implement the other Rimbu collections.
 
 Most important are the exported `Arr` methods that are used at the basis of all the block-based data structures. These methods should be as correct and efficient as possible.
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
+For complete documentation please visit the _[Rimbu Docs](https://rimbu.org)_.
 
 ## Installation
 

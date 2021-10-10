@@ -15,7 +15,7 @@ This package exports the following main types:
 | `SortedTableHashColumn<R, C, V>`   | a `Table` where the row keys are sorted and the column keys are hashed |
 | `SortedTableSortedColumn<R, C, V>` | a `Table` where the row keys and column keys are sorted                |
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
+For complete documentation please visit the [Table page](https://rimbu.org/docs/collections/table) in the _[Rimbu Docs](https://rimbu.org)_.
 
 Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
 

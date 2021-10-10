@@ -14,7 +14,7 @@ This package exports the following types:
 | `EdgeValuedGraphHashed<N, V>` | a valued undirected graph with hashed nodes of type N, and edge values of type V  |
 | `EdgevaluedGraphSorted<N, V>` | a valued undirected graph with sorted nodes of type N, and edge values of type V  |
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
+For complete documentation please visit the [Edge Valued Graph page](https://rimbu.org/docs/collections/graph/edge-valued-graph) in the _[Rimbu Docs](https://rimbu.org)_.
 
 Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
 

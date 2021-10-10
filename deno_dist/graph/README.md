@@ -21,7 +21,7 @@ This package exports the following main types:
 | `VariantGraph<N>`          | a generic type-variant graph with nodes of type N                             |
 | `VariantValuedGraph<N, V>` | a generic type-variant graph with nodes of type N and edges with value type V |
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
+For complete documentation please visit the [Graph page](https://rimbu.org/docs/collections/graph) _[Rimbu Docs](https://rimbu.org)_.
 
 Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
 

@@ -14,7 +14,7 @@ This package exports the following types:
 | `HashBiMap<K, V>`   | a BiMap between keys of type K and values of type V, where both the keys and values are hashed |
 | `SortedBiMap<K, V>` | a BiMap between keys of type K and values of type V, where both the keys and values are sorted |
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
+For complete documentation please visit the [BiMap page](https://rimbu.org/docs/collections/bimap) in the _[Rimbu Docs](https://rimbu.org)_.
 
 Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
 

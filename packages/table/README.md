@@ -13,7 +13,7 @@ This package exports the following main types:
 | `Table<R, C, V>`        | a generic `Table` with row keys R, column keys C, and values V      |
 | `VariantTable<R, C, V>` | a type-variant `Table` with row keys R, column keys C, and values V |
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
+For complete documentation please visit the [Table page](https://rimbu.org/docs/collections/table) in the _[Rimbu Docs](https://rimbu.org)_.
 
 Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
 
