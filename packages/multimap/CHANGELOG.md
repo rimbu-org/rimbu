@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.7.6](https://github.com/rimbu-org/rimbu/compare/@rimbu/multimap@0.7.5...@rimbu/multimap@0.7.6) (2021-10-10)
+
+
+
+## 0.6.11 (2021-10-10)
+
+**Note:** Version bump only for package @rimbu/multimap
+
+
+
+
+
 ## [0.7.5](https://github.com/rimbu-org/rimbu/compare/@rimbu/multimap@0.7.4...@rimbu/multimap@0.7.5) (2021-09-04)
 
 **Note:** Version bump only for package @rimbu/multimap

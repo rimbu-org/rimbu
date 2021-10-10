@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.7.5](https://github.com/rimbu-org/rimbu/compare/@rimbu/common@0.7.4...@rimbu/common@0.7.5) (2021-10-10)
+
+
+
+## 0.6.11 (2021-10-10)
+
+
+### Bug Fixes
+
+* **common:** use stateToResult in Reducer.compose ([48b7429](https://github.com/rimbu-org/rimbu/commit/48b742917c291bc249f0173cd4003d7b0f78f1e3)), closes [#35](https://github.com/rimbu-org/rimbu/issues/35)
+
+
+
+
+
 ## [0.7.4](https://github.com/rimbu-org/rimbu/compare/@rimbu/common@0.7.3...@rimbu/common@0.7.4) (2021-09-04)
 
 
