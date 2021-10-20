@@ -17,7 +17,7 @@ Rimbu is a TypeScript library focused on _immutable, performant, and type-safe c
 - Provides sane defaults but allows extensive customization and configuration.
 - A novel and efficient immutable random-access List implementation.
 
-For complete documentation please visit the _[Rimbu Docs](http://rimbu.org)_.
+For complete documentation please visit the _[Rimbu Docs](https://rimbu.org)_.
 
 Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
 

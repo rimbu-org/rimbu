@@ -4,7 +4,7 @@ Thanks for using Rimbu in your project. We have various methods available to pro
 
 ## Documentation
 
-First please make sure that the information is not already in the [Rimbu documentation](http://rimbu.org)
+First please make sure that the information is not already in the [Rimbu documentation](https://rimbu.org)
 
 ## Questions or ideas
 
