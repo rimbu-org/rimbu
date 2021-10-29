@@ -13,10 +13,10 @@ export type Extends<A, B, Then = true, Else = false> = A extends B
 /**
  * If A does not extend B, returns Then (default true) or else Else (default false)
  * @example
- * Extends<1, number> => true
- * Extends<1, string> => false
- * Extends<1, number, 'a', 'b'> => 'a'
- * Extends<1, string, 'a', 'b'> => 'b'
+ * NotExtends<1, number> => false
+ * NotExtends<1, string> => true
+ * NotExtends<1, number, 'a', 'b'> => 'b'
+ * NotExtends<1, string, 'a', 'b'> => 'a'
  */
 export type NotExtends<A, B, Then = true, Else = false> = A extends B
   ? Else

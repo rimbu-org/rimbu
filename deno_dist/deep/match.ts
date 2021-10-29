@@ -8,9 +8,11 @@ import { Immutable, Literal } from './internal.ts';
  * @typeparam P - the parant type
  * @typeparam R - the root type
  */
-export type Match<T, P = T, R = T> = T extends Literal.Obj
+export type Match<T> = MatchHelper<T, T, T>;
+
+type MatchHelper<T, P, R> = T extends Literal.Obj
   ? Match.MatchObj<T, P, R>
-  : T extends readonly unknown[]
+  : T extends readonly any[]
   ? Match.MatchArray<T, P, R>
   : Match.Compare<T, P, R>;
 
@@ -23,7 +25,7 @@ export namespace Match {
    */
   export type MatchObj<T, P, R> = (
     | Match.Compare<T, P, R>
-    | { [K in keyof T]?: Match<T[K], T, R> }
+    | { [K in keyof T]?: MatchHelper<T[K], T, R> }
   ) &
     Literal.NoIterable;
 
@@ -53,10 +55,10 @@ export namespace Match {
    * @typeparam P - the parent type
    * @typeparam R - the root type
    */
-  export type MatchArray<T extends readonly unknown[], P, R> = (
+  export type MatchArray<T extends readonly any[], P, R> = (
     | Match.Compare<T, P, R>
     | {
-        [K in { [K2 in keyof T]: K2 }[keyof T]]?: Match<T[K], T, R>;
+        [K in { [K2 in keyof T]: K2 }[keyof T]]?: MatchHelper<T[K], T, R>;
       }
   ) &
     Literal.NoIterable;
@@ -152,9 +154,9 @@ export namespace Match {
   }
 }
 
-function matchSingle<T, P = T, R = T>(
+function matchSingle<T, P, R>(
   value: Immutable<T>,
-  matcher: Match<T, P, R>,
+  matcher: MatchHelper<T, P, R>,
   parent: Immutable<P>,
   root: Immutable<R>
 ): boolean {
