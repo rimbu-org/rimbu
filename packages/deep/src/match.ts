@@ -165,10 +165,12 @@ function matchSingle<T, P, R>(
   }
 
   if (null === value || undefined === value || typeof value !== 'object') {
-    if (typeof matcher !== 'object' || null === matcher)
+    if (typeof matcher !== 'object' || null === matcher) {
       return (matcher as any) === value;
-    if (Literal.isLiteral<T>(matcher))
+    }
+    if (Literal.isLiteral(matcher)) {
       return Literal.getValue(matcher) === value;
+    }
     return (matcher as any) === value;
   }
 
@@ -182,8 +184,8 @@ function matchSingle<T, P, R>(
 
   if (null === matcher) return false;
 
-  if (Literal.isLiteral<T>(matcher)) {
-    return Literal.getValue<T>(matcher) === value;
+  if (Literal.isLiteral(matcher)) {
+    return Literal.getValue(matcher) === value;
   }
 
   const valueIsArray = Array.isArray(value);
@@ -193,10 +195,10 @@ function matchSingle<T, P, R>(
     return (matcher as any) === value;
   }
 
-  for (const key in matcher as T) {
+  for (const key in matcher as any) {
     if (!(key in value)) return false;
 
-    const matchKey = (matcher as T)[key];
+    const matchKey = (matcher as any)[key];
 
     if (undefined === matchKey) {
       RimbuError.throwInvalidUsageError(

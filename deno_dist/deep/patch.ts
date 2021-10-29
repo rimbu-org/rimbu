@@ -124,8 +124,8 @@ function patchSingle<T, P, R>(
 
   if (null === value || undefined === value || typeof value !== 'object') {
     if (typeof patcher !== 'object' || null === patcher) return patcher as any;
-    if (Literal.isLiteral<T>(patcher)) {
-      return Literal.getValue(patcher);
+    if (Literal.isLiteral(patcher)) {
+      return Literal.getValue(patcher) as any;
     }
     return value;
   }
@@ -138,8 +138,8 @@ function patchSingle<T, P, R>(
 
   if (null === patcher) return null as any;
 
-  if (Literal.isLiteral<T>(patcher)) {
-    return Literal.getValue(patcher);
+  if (Literal.isLiteral(patcher)) {
+    return Literal.getValue(patcher) as any;
   }
 
   const valueIsArray = Array.isArray(value);
@@ -169,8 +169,8 @@ function patchSingle<T, P, R>(
   const clone: any = valueIsArray ? ([...(value as any)] as any) : { ...value };
   let changed = false;
 
-  for (const key in patcher as T) {
-    const patchKey = (patcher as T)[key];
+  for (const key in patcher as any) {
+    const patchKey = (patcher as any)[key];
 
     if (!(key in clone) && typeof patchKey === 'function') continue;
 
