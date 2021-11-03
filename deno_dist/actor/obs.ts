@@ -36,7 +36,8 @@ class NotifierBase<T> {
   }
 }
 
-class Impl<T, D> extends NotifierBase<Immutable<T & D>> implements Obs<T, D> {
+class Impl<T, D> extends NotifierBase<Immutable<T & D>> {
+  //implements Obs<T, D> {
   constructor(
     public pureState: T,
     readonly options?: {
@@ -137,7 +138,7 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> implements Obs<T, D> {
     }
   ): Obs.Readonly<T2 & D2> {
     const onFirstSubscription = (): Obs.UnsubscribeFn => {
-      const unsubscribe1 = this.subscribe((newState) =>
+      const unsubscribe1 = this.subscribe((newState: Immutable<T & D>) =>
         result.setState(mapTo(newState))
       );
       const unsubscribe2 = options?.onFirstSubscription?.();
@@ -174,7 +175,7 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> implements Obs<T, D> {
     }
   ): Obs<T2, D2> {
     const onFirstSubscription = (): Obs.UnsubscribeFn => {
-      const unsubscribe1 = this.subscribe((newState) => {
+      const unsubscribe1 = this.subscribe((newState: Immutable<T & D>) => {
         result.setState(mapTo(newState));
       });
       const unsubscribe2 = options?.onFirstSubscription?.();
@@ -200,7 +201,7 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> implements Obs<T, D> {
       },
     });
 
-    return result;
+    return result as any;
   }
 
   select<P extends Path<T>, DR = unknown>(
@@ -214,13 +215,14 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> implements Obs<T, D> {
       onFirstSubscription?: () => Obs.UnsubscribeFn;
     }
   ): Obs<Path.Result<T, P>, DR> {
-    return this.map(
-      (newParentState) => Path.getValue(newParentState as T, pathInState),
+    return this.map<Path.Result<T, P>, DR>(
+      (newParentState: Immutable<T & D>) =>
+        Path.getValue(newParentState as T, pathInState),
       (newChildState: Immutable<Path.Result<T, P>>): Patch<T> => {
         const pathObj = {};
         const parts = pathInState.split('.');
 
-        if (parts.length <= 0) return Literal.of(newChildState);
+        if (parts.length <= 0) return Literal.of(newChildState) as any;
 
         const lastPart = parts.pop()!;
 
@@ -250,7 +252,7 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> implements Obs<T, D> {
       onFirstSubscription?: () => Obs.UnsubscribeFn;
     }
   ): Obs.Readonly<Path.Result<T & D, P> & DR> {
-    return this.mapReadonly(
+    return this.mapReadonly<Path.Result<T & D, P>, DR>(
       (newParentState: Immutable<T & D>) =>
         Path.getValue(newParentState as T & D, pathInState),
       options
@@ -270,7 +272,7 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> implements Obs<T, D> {
     }
   ): Obs.Readonly<R & DR> {
     const onFirstSubscription = (): Obs.UnsubscribeFn => {
-      const unsubscribe1 = this.subscribe((newState) => {
+      const unsubscribe1 = this.subscribe((newState: Immutable<T & D>) => {
         result.setState(mapTo(newState, other.state));
       });
       const unsubscribe2 = other.subscribe((newState) => {
@@ -310,7 +312,7 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> implements Obs<T, D> {
     }
   ): Obs<R> {
     const onFirstSubscription = (): Obs.UnsubscribeFn => {
-      const unsubscribe1 = this.subscribe((newState) => {
+      const unsubscribe1 = this.subscribe((newState: Immutable<T & D>) => {
         result.setState(mapTo(newState, other.state));
       });
       const unsubscribe2 = other.subscribe((newState) => {
@@ -346,7 +348,7 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> implements Obs<T, D> {
       },
     });
 
-    return result;
+    return result as any;
   }
 }
 
@@ -785,6 +787,6 @@ export namespace Obs {
       onFirstSubscription?: () => Obs.UnsubscribeFn;
     }
   ): Obs<T, D> {
-    return new Impl<T, D>(initState, options);
+    return new Impl<T, D>(initState, options) as any;
   }
 }

@@ -245,7 +245,7 @@ type CountHelper<
   ? CountHelper<Rest, Sub, Num.Inc<Result>>
   : S extends Append<string, infer Rest>
   ? CountHelper<Rest, Sub, Result>
-  : 0;
+  : Result;
 
 /**
  * Returns true if the given string contains the given Amount (default 1) of Sub types.
