@@ -6,8 +6,6 @@
     "outDir": "./dist",
     "jsx": "react",
     "lib": ["esnext", "dom"],
-    "noEmit": true,
-    // needed again for tsd
-    "noStrictGenericChecks": true
+    "noEmit": true
   }
 }

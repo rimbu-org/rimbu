@@ -57,10 +57,12 @@ expectType<Stream.NonEmpty<string>>(Stream.fromString('abc'));
 expectType<Stream<string>>(Stream.fromString('abc' as string));
 
 // Stream.flatten<T>(..)
-expectType<never>(Stream.empty<number>().flatten());
-expectType<Stream<number>>(Stream.empty<Stream<number>>().flatten());
-expectType<Stream<number>>(Stream.empty<Stream.NonEmpty<number>>().flatten());
-expectType<Stream.NonEmpty<number>>(Stream.of(Stream.of(1)).flatten());
+expectError(Stream.flatten(Stream.empty<number>()));
+expectType<Stream<number>>(Stream.flatten(Stream.empty<Stream<number>>()));
+expectType<Stream<number>>(
+  Stream.flatten(Stream.empty<Stream.NonEmpty<number>>())
+);
+expectType<Stream.NonEmpty<number>>(Stream.flatten(Stream.of(Stream.of(1))));
 
 // Stream.random(X)(..)
 expectType<Stream.NonEmpty<number>>(Stream.random());
@@ -74,11 +76,13 @@ expectType<Stream.NonEmpty<number>>(Stream.unfold(0, (v) => v + 1));
 
 // Stream.unzip(..)
 expectType<[Stream.NonEmpty<number>, Stream.NonEmpty<string>]>(
-  Stream.of<[number, string]>([0, 'a'], [1, 'b']).unzip(2)
+  Stream.unzip(Stream.of<[number, string]>([0, 'a'], [1, 'b']), 2)
 );
 expectType<[Stream<number>, Stream<string>]>(
-  Stream.from(new Map<number, string>()).unzip(2)
+  Stream.unzip(Stream.from(new Map<number, string>()), 2)
 );
+expectError(Stream.unzip(Stream.of(1), 2));
+expectError(Stream.unzip(Stream.of([1, 2] as const), 3));
 
 // Stream.zip(..)
 expectType<Stream<[number, string]>>(

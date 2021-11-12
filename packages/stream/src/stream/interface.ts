@@ -438,12 +438,10 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * // [1, 2, 3, 4, 5, 6, 7]
    * @note O(1)
    */
-  concat<T2 extends T = T>(
+  concat<T2 = T>(
     ...others: ArrayNonEmpty<StreamSource.NonEmpty<T2>>
-  ): Stream.NonEmpty<T>;
-  concat<T2 extends T = T>(
-    ...others: ArrayNonEmpty<StreamSource<T2>>
-  ): Stream<T>;
+  ): Stream.NonEmpty<T | T2>;
+  concat<T2 = T>(...others: ArrayNonEmpty<StreamSource<T2>>): Stream<T | T2>;
   /**
    * Returns the mimimum element of the Stream according to a default compare function, or the provided `otherwise` fallback value if the
    * Stream is empty.
@@ -691,17 +689,6 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    */
   toJSON(): ToJSON<T[], 'Stream'>;
   /**
-   * Returns a Stream concatenating the given `source` StreamSource containing StreamSources.
-   * @example
-   * Stream.of([[1, 2], [3], [], [4]]).flatten().toArray()  // => [1, 2, 3, 4]
-   * Stream.of(['ma', 'r', '', 'mot').flatten().toArray()   // => ['m', 'a', 'r', 'm', 'o', 't']
-   */
-  flatten<T2 extends T = T>(): T2 extends StreamSource.NonEmpty<infer S>
-    ? Stream<S>
-    : T2 extends StreamSource<infer S>
-    ? Stream<S>
-    : never;
-  /**
    * Returns a Stream with the result of applying given `zipFun` to each successive value resulting from the given `streams`.
    * @param zipFun - a function taking one element from each given Stream, and returning a result value
    * @param streams - the input stream sources
@@ -780,19 +767,6 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
       ...streams: { [K in keyof I]: StreamSource<I[K]> }
     ): Stream<[T | O, ...{ [K in keyof I]: I[K] | O }]>;
   };
-  /**
-   * Returns an array containing a Stream for each tuple element in this stream.
-   * @param length - the stream element tuple length
-   * @example
-   * const [a, b] = Stream.of([[1, 'a'], [2, 'b']]).unzip(2)
-   * a.toArray()   // => [1, 2]
-   * b.toArray()   // => ['a', 'b']
-   */
-  unzip<L extends number, T2 extends T = T>(
-    length: L
-  ): T2 extends readonly [unknown, ...unknown[]] & { length: L }
-    ? { [K in keyof T2]: Stream<T2[K]> }
-    : never;
 }
 
 export namespace Stream {
@@ -897,7 +871,7 @@ export namespace Stream {
      * // [1, 2, 3, 4, 5, 6, 7]
      * @note O(1)
      */
-    concat<T2 extends T = T>(
+    concat<T2 = T>(
       ...others: ArrayNonEmpty<StreamSource<T2>>
     ): Stream.NonEmpty<T>;
     /**
@@ -970,11 +944,6 @@ export namespace Stream {
      * Stream.of(1, 2, 3).toArray()   // => [1, 2, 3]
      */
     toArray(): ArrayNonEmpty<T>;
-    flatten<T2 extends T = T>(): T2 extends StreamSource.NonEmpty<infer S>
-      ? Stream.NonEmpty<S>
-      : T2 extends StreamSource<infer S>
-      ? Stream<S>
-      : never;
     zipWith: {
       <I extends readonly [unknown, ...unknown[]], R>(
         zipFun: (value: T, ...values: I) => R,
@@ -1005,14 +974,6 @@ export namespace Stream {
         fillValue: OptLazy<O>,
         ...streams: { [K in keyof I]: StreamSource<I[K]> }
       ): Stream.NonEmpty<[T | O, ...{ [K in keyof I]: I[K] | O }]>;
-    };
-    unzip: {
-      <L extends number, T2 extends T = T>(length: L): T2 extends readonly [
-        unknown,
-        ...unknown[]
-      ] & { length: L }
-        ? { [K in keyof T2]: Stream.NonEmpty<T2[K]> }
-        : never;
     };
   }
 }

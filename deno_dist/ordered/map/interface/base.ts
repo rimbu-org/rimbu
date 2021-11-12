@@ -1,10 +1,7 @@
 import type { CustomBase, RMapBase } from '../../../collection-types/mod.ts';
 import type { List } from '../../../list/mod.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
-import type {
-  OrderedMapBuilder,
-  OrderedMapNonEmpty,
-} from '../../ordered-custom.ts';
+import type { OrderedMapNonEmpty } from '../../ordered-custom.ts';
 import type { OrderedMapContextImpl } from '../implementation/context.ts';
 
 export interface OrderedMapBase<
@@ -109,7 +106,8 @@ export interface OrderedMapContext<UK, Tp extends OrderedMapTypes>
 }
 
 export interface OrderedMapTypes extends OrderedMapBase.Types {
-  context: OrderedMapContextImpl<this['_K'], OrderedMapTypes>;
-  nonEmpty: OrderedMapNonEmpty<this['_K'], this['_V'], OrderedMapTypes>;
-  builder: OrderedMapBuilder<this['_K'], this['_V'], OrderedMapTypes>;
+  context: OrderedMapContextImpl<this['_K']>;
+  // normal: OrderedMapBase<this['_K'], this['_V']>;
+  // nonEmpty: OrderedMapNonEmpty<this['_K'], this['_V']>;
+  // builder: OrderedMapBuilder<this['_K'], this['_V']>;
 }

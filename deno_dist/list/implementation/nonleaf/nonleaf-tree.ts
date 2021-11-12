@@ -213,9 +213,11 @@ export class NonLeafTree<T, C extends Block<T, C>>
     return newSelf.dropInternal(inUpLeft);
   }
 
-  concat(other: NonLeaf<T, C>): NonLeaf<T, C> {
-    if (this.context.isNonLeafBlock<T>(other)) return this.concatBlock(other);
-    if (this.context.isNonLeafTree(other)) return this.concatTree(other);
+  concat<T2>(other: NonLeaf<T2, C>): NonLeaf<T | T2, C> {
+    if (this.context.isNonLeafBlock(other))
+      return (this as any).concatBlock(other);
+    if (this.context.isNonLeafTree(other))
+      return (this as any).concatTree(other);
 
     RimbuError.throwInvalidStateError();
   }

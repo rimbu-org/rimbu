@@ -349,7 +349,7 @@ export namespace RSetBase {
      * result.toArray()   // => [1, 2, 3, 20, 21, 22, 23, 24]
      * @note uses an RSet builder under the hood. If the given `source` is a RSet in the same context, it will directly call `.toBuilder()`.
      */
-    reducer: <T>(
+    reducer: <T extends UT>(
       source?: StreamSource<T>
     ) => Reducer<T, WithElem<Tp, T>['normal']>;
   }

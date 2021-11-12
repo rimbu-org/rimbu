@@ -13,7 +13,8 @@ import type { MultiMap } from '../internal';
 import type { MultiMapBase } from '../multimap-custom';
 
 export interface ContextImplTypes extends MultiMapBase.Types {
-  context: MultiMapContext<this['_K'], this['_V'], string, this>;
+  context: MultiMapContext<this['_K'], this['_V'], string, this> &
+    MultiMapBase.Context<this['_K'], this['_V']>;
 }
 
 export class MultiMapEmpty<K, V, Tp extends ContextImplTypes>
@@ -620,11 +621,9 @@ export class MultiMapContext<
       CB.KeyValue<UK, UV>)['keyMapValuesContext']
   ) {}
 
-  readonly _empty = new MultiMapEmpty<UK, UV, Tp>(this) as CB.WithKeyValue<
-    Tp,
-    UK,
-    UV
-  >['normal'];
+  readonly _empty = new MultiMapEmpty<UK, UV, Tp>(
+    this as any
+  ) as CB.WithKeyValue<Tp, UK, UV>['normal'];
 
   isNonEmptyInstance<K, V>(
     source: any
@@ -637,7 +636,7 @@ export class MultiMapContext<
     size: number
   ): CB.WithKeyValue<Tp, K, V>['nonEmpty'] {
     return new MultiMapNonEmpty<K, V, Tp>(
-      this,
+      this as any,
       keyMap,
       size
     ) as CB.WithKeyValue<Tp, K, V>['nonEmpty'];
@@ -692,7 +691,7 @@ export class MultiMapContext<
     K,
     V
   >['builder'] => {
-    return new MultiMapBuilder<K, V, Tp>(this) as CB.WithKeyValue<
+    return new MultiMapBuilder<K, V, Tp>(this as any) as CB.WithKeyValue<
       Tp,
       K,
       V
@@ -720,10 +719,9 @@ export class MultiMapContext<
   createBuilder<K, V>(
     source?: MultiMap.NonEmpty<K, V>
   ): CB.WithKeyValue<Tp, K, V>['builder'] {
-    return new MultiMapBuilder<K, V, Tp>(this, source) as CB.WithKeyValue<
-      Tp,
-      K,
-      V
-    >['builder'];
+    return new MultiMapBuilder<K, V, Tp>(
+      this as any,
+      source
+    ) as CB.WithKeyValue<Tp, K, V>['builder'];
   }
 }

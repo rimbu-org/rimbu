@@ -170,10 +170,7 @@ export class SortedMapEmpty<K = any, V = any>
     return this;
   }
 
-  mergeAll<O, I extends readonly [unknown, ...unknown[]]>(
-    fillValue: O,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
+  mergeAll<O>(fillValue: O, ...sources: any): any {
     return this.context.mergeAll(
       fillValue,
       this,
@@ -188,7 +185,7 @@ export class SortedMapEmpty<K = any, V = any>
       value: V | O,
       ...values: { [KT in keyof I]: I[KT] | O }
     ) => R,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
+    ...sources: any
   ): any {
     return this.context.mergeAllWith(
       fillValue,
@@ -198,15 +195,13 @@ export class SortedMapEmpty<K = any, V = any>
     );
   }
 
-  merge<I extends readonly [unknown, ...unknown[]]>(
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
+  merge(...sources: any): any {
     return this.context.merge(this, ...(sources as any as any[]));
   }
 
   mergeWith<R, K, I extends readonly [unknown, ...unknown[]]>(
     mergeFun: (key: K, ...values: I) => R,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
+    ...sources: any
   ): any {
     return this.context.mergeWith(
       mergeFun as any,
@@ -481,10 +476,7 @@ export abstract class SortedMapNode<K, V>
     return this;
   }
 
-  mergeAll<O, I extends readonly [unknown, ...unknown[]]>(
-    fillValue: O,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
+  mergeAll<O>(fillValue: O, ...sources: any): any {
     return this.context.mergeAll(
       fillValue,
       this,
@@ -492,14 +484,10 @@ export abstract class SortedMapNode<K, V>
     );
   }
 
-  mergeAllWith<R, O, I extends readonly [unknown, ...unknown[]]>(
+  mergeAllWith<R, O>(
     fillValue: O,
-    mergeFun: (
-      key: K,
-      value: V | O,
-      ...values: { [KT in keyof I]: I[KT] | O }
-    ) => R,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
+    mergeFun: (key: K, value: V | O, ...values: any) => R,
+    ...sources: any
   ): any {
     return this.context.mergeAllWith(
       fillValue,
@@ -509,21 +497,15 @@ export abstract class SortedMapNode<K, V>
     );
   }
 
-  merge<I extends readonly [unknown, ...unknown[]]>(
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
-    return this.context.merge(this, ...(sources as any as any[]));
+  merge(...sources: any): any {
+    return this.context.merge(this, ...sources);
   }
 
   mergeWith<R, K, I extends readonly [unknown, ...unknown[]]>(
     mergeFun: (key: K, ...values: I) => R,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
+    ...sources: any
   ): any {
-    return this.context.mergeWith(
-      mergeFun as any,
-      this as any,
-      ...(sources as any as any[])
-    );
+    return this.context.mergeWith(mergeFun as any, this, ...sources);
   }
 }
 

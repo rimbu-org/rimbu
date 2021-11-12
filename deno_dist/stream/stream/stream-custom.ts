@@ -53,7 +53,7 @@ export abstract class StreamBase<T> implements Stream<T> {
     return this;
   }
 
-  prepend<T2>(value: OptLazy<T>): Stream.NonEmpty<T | T2> {
+  prepend<T2>(value: OptLazy<T2>): Stream.NonEmpty<T | T2> {
     return new PrependStream<T | T2>(this, value) as any;
   }
 
@@ -92,54 +92,54 @@ export abstract class StreamBase<T> implements Stream<T> {
   }
 
   indexed(startIndex = 0): Stream<[number, T]> {
-    return new IndexedStream(this, startIndex);
+    return new IndexedStream<T>(this, startIndex);
   }
 
   map<T2>(mapFun: (value: T, index: number) => T2): Stream<T2> {
-    return new MapStream(this, mapFun);
+    return new MapStream<T, T2>(this, mapFun);
   }
 
   mapPure<T2, A extends readonly unknown[]>(
     mapFun: (value: T, ...args: A) => T2,
     ...args: A
   ): Stream<T2> {
-    return new MapPureStream(this, mapFun, args);
+    return new MapPureStream<T, A, T2>(this, mapFun, args);
   }
 
   flatMap<T2>(
     flatMapFun: (value: T, index: number, halt: () => void) => StreamSource<T2>
   ): Stream<T2> {
-    return new FlatMapStream(this, flatMapFun);
+    return new FlatMapStream<T, T2>(this, flatMapFun);
   }
 
   filter(
     pred: (value: T, index: number, halt: () => void) => boolean
   ): Stream<T> {
-    return new FilterStream(this, pred);
+    return new FilterStream<T>(this, pred);
   }
 
   filterNot(
     pred: (value: T, index: number, halt: () => void) => boolean
   ): Stream<T> {
-    return new FilterStream(this, pred, true);
+    return new FilterStream<T>(this, pred, true);
   }
 
   filterPure<A extends readonly unknown[]>(
     pred: (value: T, ...args: A) => boolean,
     ...args: A
   ): Stream<T> {
-    return new FilterPureStream(this, pred, args);
+    return new FilterPureStream<T, A>(this, pred, args);
   }
 
   filterNotPure<A extends readonly unknown[]>(
     pred: (value: T, ...args: A) => boolean,
     ...args: A
   ): Stream<T> {
-    return new FilterPureStream(this, pred, args, true);
+    return new FilterPureStream<T, A>(this, pred, args, true);
   }
 
   collect<R>(collectFun: CollectFun<T, R>): Stream<R> {
-    return new CollectStream(this, collectFun);
+    return new CollectStream<T, R>(this, collectFun);
   }
 
   first<O>(otherwise?: OptLazy<O>): T | O {
@@ -236,11 +236,11 @@ export abstract class StreamBase<T> implements Stream<T> {
   }
 
   indicesWhere(pred: (value: T) => boolean): Stream<number> {
-    return new IndicesWhereStream(this, pred);
+    return new IndicesWhereStream<T>(this, pred);
   }
 
   indicesOf(searchValue: T, eq: Eq<T> = Eq.objectIs): Stream<number> {
-    return new IndicesOfStream(this, searchValue, eq);
+    return new IndicesOfStream<T>(this, searchValue, eq);
   }
 
   indexWhere(
@@ -316,37 +316,37 @@ export abstract class StreamBase<T> implements Stream<T> {
   }
 
   takeWhile(pred: (value: T, index: number) => boolean): Stream<T> {
-    return new TakeWhileStream(this, pred);
+    return new TakeWhileStream<T>(this, pred);
   }
 
   dropWhile(pred: (value: T, index: number) => boolean): Stream<T> {
-    return new DropWhileStream(this, pred);
+    return new DropWhileStream<T>(this, pred);
   }
 
   take(amount: number): Stream<T> {
     if (amount <= 0) return Stream.empty();
 
-    return new TakeStream(this, amount);
+    return new TakeStream<T>(this, amount);
   }
 
   drop(amount: number): Stream<T> {
     if (amount <= 0) return this;
 
-    return new DropStream(this, amount);
+    return new DropStream<T>(this, amount);
   }
 
   repeat(amount?: number): Stream<T> {
     if (undefined !== amount && amount <= 1) return this;
 
-    return new FromStream(() => new RepeatIterator(this, amount));
+    return new FromStream<T>(() => new RepeatIterator<T>(this, amount));
   }
 
-  concat<T2 extends T = T>(
+  concat<T2>(
     ...others: ArrayNonEmpty<StreamSource<T2>>
-  ): Stream.NonEmpty<T> {
+  ): Stream.NonEmpty<T | T2> {
     if (others.every(StreamSource.isEmptyInstance)) return this as any;
 
-    return new ConcatStream(this, others) as any;
+    return new ConcatStream<T | T2>(this, others) as any;
   }
 
   min<O>(otherwise?: OptLazy<O>): T | O {
@@ -388,11 +388,11 @@ export abstract class StreamBase<T> implements Stream<T> {
   }
 
   intersperse<O>(sep: StreamSource<O>): Stream<T | O> {
-    if (StreamSource.isEmptyInstance(sep)) return this as any;
+    if (StreamSource.isEmptyInstance(sep)) return this;
 
     const sepStream = Stream.from(sep);
 
-    return new IntersperseStream(this, sepStream);
+    return new IntersperseStream<T, O>(this, sepStream);
   }
 
   join({
@@ -425,25 +425,25 @@ export abstract class StreamBase<T> implements Stream<T> {
   }
 
   splitWhere(pred: (value: T, index: number) => boolean): Stream<T[]> {
-    return new SplitWhereStream(this, pred);
+    return new SplitWhereStream<T>(this, pred);
   }
 
   splitOn(sepElem: T, eq: Eq<T> = Eq.objectIs): Stream<T[]> {
-    return new SplitOnStream(this, sepElem, eq);
+    return new SplitOnStream<T>(this, sepElem, eq);
   }
 
   fold<R>(
     init: Reducer.Init<R>,
     next: (current: R, value: T, index: number, halt: () => void) => R
   ): R {
-    return this.reduce(Reducer.createOutput(init, next));
+    return this.reduce<R>(Reducer.createOutput<T, R>(init, next));
   }
 
   foldStream<R>(
     init: Reducer.Init<R>,
     next: (current: R, value: T, index: number, halt: () => void) => R
   ): Stream<R> {
-    return this.reduceStream(Reducer.createOutput(init, next));
+    return this.reduceStream<R>(Reducer.createOutput<T, R>(init, next));
   }
 
   reduce<O>(reducer: Reducer<T, O>): O {
@@ -468,7 +468,7 @@ export abstract class StreamBase<T> implements Stream<T> {
   }
 
   reduceStream<O>(reducer: Reducer<T, O>): Stream<O> {
-    return new ReduceStream(this, reducer);
+    return new ReduceStream<T, O>(this, reducer);
   }
 
   reduceAll(...reducers: any): any {
@@ -534,17 +534,13 @@ export abstract class StreamBase<T> implements Stream<T> {
     };
   }
 
-  flatten(): any {
-    return this.flatMap((s: any) => s);
-  }
-
   zipWith<I extends readonly [unknown, ...unknown[]], R>(
     zipFun: (value: T, ...values: I) => R,
     ...iters: { [K in keyof I]: StreamSource<I[K]> }
   ): any {
     if (iters.some(StreamSource.isEmptyInstance)) return Stream.empty();
 
-    return new FromStream(
+    return new FromStream<R>(
       (): FastIterator<R> => new ZipWithIterator([this, ...iters], zipFun)
     );
   }
@@ -573,22 +569,6 @@ export abstract class StreamBase<T> implements Stream<T> {
       Array,
       ...(streams as any as [any, ...any[]])
     );
-  }
-
-  unzip<L extends number>(length: L): any {
-    if (StreamSource.isEmptyInstance(this)) {
-      return Stream.of(Stream.empty()).repeat(length).toArray();
-    }
-
-    const result: Stream<unknown>[] = [];
-    let i = -1;
-
-    while (++i < length) {
-      const index = i;
-      result[i] = this.map((t: any): unknown => t[index]);
-    }
-
-    return result;
   }
 }
 
@@ -621,7 +601,7 @@ class PrependStream<T> extends StreamBase<T> {
   }
 
   [Symbol.iterator](): FastIterator<T> {
-    return new PrependIterator(this.source[Symbol.iterator](), this.item);
+    return new PrependIterator<T>(this.source[Symbol.iterator](), this.item);
   }
 
   first(): T {
@@ -677,7 +657,7 @@ class AppendStream<T> extends StreamBase<T> {
   }
 
   [Symbol.iterator](): FastIterator<T> {
-    return new AppendIterator(this.source[Symbol.iterator](), this.item);
+    return new AppendIterator<T>(this.source[Symbol.iterator](), this.item);
   }
 
   first(): T {
@@ -774,7 +754,7 @@ class MapStream<T, T2> extends StreamBase<T2> {
   }
 
   [Symbol.iterator](): FastIterator<T2> {
-    return new MapIterator(this.source[Symbol.iterator](), this.mapFun);
+    return new MapIterator<T, T2>(this.source[Symbol.iterator](), this.mapFun);
   }
 
   first<O>(otherwise?: OptLazy<O>): T2 | O {
@@ -803,7 +783,7 @@ class MapStream<T, T2> extends StreamBase<T2> {
   }
 
   map<T3>(mapFun: (value: T2, index: number) => T3): Stream<T3> {
-    return new MapStream(this.source, (value, index) =>
+    return new MapStream<T, T3>(this.source, (value, index) =>
       mapFun(this.mapFun(value, index), index)
     );
   }
@@ -846,7 +826,7 @@ class MapPureStream<
   }
 
   [Symbol.iterator](): FastIterator<T2> {
-    return new MapPureIterator(
+    return new MapPureIterator<T, A, T2>(
       this.source[Symbol.iterator](),
       this.mapFun,
       this.args
@@ -994,7 +974,7 @@ class ConcatStream<T> extends StreamBase<T> {
   }
 
   [Symbol.iterator](): FastIterator<T> {
-    return new ConcatIterator(this.source, this.otherSources);
+    return new ConcatIterator<T>(this.source, this.otherSources);
   }
 
   forEach(
@@ -1052,8 +1032,11 @@ class ConcatStream<T> extends StreamBase<T> {
     return result;
   }
 
-  concat(...others2: StreamSource<T>[]): any {
-    return new ConcatStream(this.source, this.otherSources.concat(others2));
+  concat<T2>(...others2: StreamSource<T2>[]): any {
+    return new ConcatStream<T | T2>(
+      this.source,
+      (this.otherSources as StreamSource<T | T2>[]).concat(others2)
+    );
   }
 
   toArray(): T[] {
@@ -1120,7 +1103,7 @@ class FilterStream<T> extends StreamBase<T> {
   }
 
   [Symbol.iterator](): FastIterator<T> {
-    return new FilterIterator(
+    return new FilterIterator<T>(
       this.source[Symbol.iterator](),
       this.pred,
       this.invert
@@ -1130,7 +1113,7 @@ class FilterStream<T> extends StreamBase<T> {
   filter(
     pred: (value: T, index: number, halt: () => void) => boolean
   ): Stream<T> {
-    return new FilterStream(
+    return new FilterStream<T>(
       this.source,
       (v, i, halt) => this.pred(v, i, halt) && pred(v, i, halt)
     );
@@ -1182,7 +1165,7 @@ class FilterPureStream<T, A extends readonly unknown[]> extends StreamBase<T> {
   }
 
   [Symbol.iterator](): FastIterator<T> {
-    return new FilterPureIterator(
+    return new FilterPureIterator<T, A>(
       this.source[Symbol.iterator](),
       this.pred,
       this.args,
@@ -1237,7 +1220,10 @@ class CollectStream<T, R> extends StreamBase<R> {
   }
 
   [Symbol.iterator](): FastIterator<R> {
-    return new CollectIterator(this.source[Symbol.iterator](), this.collectFun);
+    return new CollectIterator<T, R>(
+      this.source[Symbol.iterator](),
+      this.collectFun
+    );
   }
 }
 
@@ -1275,7 +1261,10 @@ class IndicesWhereStream<T> extends StreamBase<number> {
   }
 
   [Symbol.iterator](): FastIterator<number> {
-    return new IndicesWhereIterator(this.source[Symbol.iterator](), this.pred);
+    return new IndicesWhereIterator<T>(
+      this.source[Symbol.iterator](),
+      this.pred
+    );
   }
 }
 
@@ -1316,7 +1305,7 @@ class IndicesOfStream<T> extends StreamBase<number> {
   }
 
   [Symbol.iterator](): FastIterator<number> {
-    return new IndicesOfIterator(
+    return new IndicesOfIterator<T>(
       this.source[Symbol.iterator](),
       this.searchValue,
       this.eq
@@ -1362,7 +1351,7 @@ class TakeWhileStream<T> extends StreamBase<T> {
   }
 
   [Symbol.iterator](): FastIterator<T> {
-    return new TakeWhileIterator(this.source[Symbol.iterator](), this.pred);
+    return new TakeWhileIterator<T>(this.source[Symbol.iterator](), this.pred);
   }
 }
 
@@ -1402,7 +1391,7 @@ class DropWhileStream<T> extends StreamBase<T> {
   }
 
   [Symbol.iterator](): FastIterator<T> {
-    return new DropWhileIterator(this.source[Symbol.iterator](), this.pred);
+    return new DropWhileIterator<T>(this.source[Symbol.iterator](), this.pred);
   }
 }
 
@@ -1426,7 +1415,7 @@ class TakeStream<T> extends StreamBase<T> {
   }
 
   [Symbol.iterator](): FastIterator<T> {
-    return new TakeIterator(this.source[Symbol.iterator](), this.amount);
+    return new TakeIterator<T>(this.source[Symbol.iterator](), this.amount);
   }
 
   take(amount: number): Stream<T> {
@@ -1465,7 +1454,7 @@ class DropStream<T> extends StreamBase<T> {
   }
 
   [Symbol.iterator](): FastIterator<T> {
-    return new DropIterator(this.source[Symbol.iterator](), this.amount);
+    return new DropIterator<T>(this.source[Symbol.iterator](), this.amount);
   }
 
   drop(amount: number): Stream<T> {
@@ -1561,7 +1550,7 @@ class IntersperseStream<T, S> extends StreamBase<T | S> {
   }
 
   [Symbol.iterator](): FastIterator<T | S> {
-    return new IntersperseIterator(
+    return new IntersperseIterator<T, S>(
       this.source[Symbol.iterator](),
       this.sepStream
     );
@@ -1608,7 +1597,7 @@ class SplitWhereStream<T> extends StreamBase<T[]> {
   }
 
   [Symbol.iterator](): FastIterator<T[]> {
-    return new SplitWhereIterator(this.source[Symbol.iterator](), this.pred);
+    return new SplitWhereIterator<T>(this.source[Symbol.iterator](), this.pred);
   }
 }
 
@@ -1653,7 +1642,7 @@ class SplitOnStream<T> extends StreamBase<T[]> {
   }
 
   [Symbol.iterator](): FastIterator<T[]> {
-    return new SplitOnIterator(
+    return new SplitOnIterator<T>(
       this.source[Symbol.iterator](),
       this.sepElem,
       this.eq
@@ -1700,7 +1689,10 @@ class ReduceStream<I, R> extends StreamBase<R> {
   }
 
   [Symbol.iterator](): FastIterator<R> {
-    return new ReduceIterator(this.source[Symbol.iterator](), this.reducerDef);
+    return new ReduceIterator<I, R>(
+      this.source[Symbol.iterator](),
+      this.reducerDef
+    );
   }
 }
 
@@ -1764,7 +1756,10 @@ class ReduceAllStream<I, R> extends StreamBase<R> {
   }
 
   [Symbol.iterator](): FastIterator<R> {
-    return new ReduceAllIterator(this.source[Symbol.iterator](), this.reducers);
+    return new ReduceAllIterator<I, R>(
+      this.source[Symbol.iterator](),
+      this.reducers
+    );
   }
 }
 
@@ -1792,7 +1787,7 @@ export class FromIterable<T> extends StreamBase<T> {
 
     if (FastIterator.isFastIterator(iterator)) return iterator;
 
-    return new SlowIteratorAdapter(iterator);
+    return new SlowIteratorAdapter<T>(iterator);
   }
 }
 

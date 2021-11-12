@@ -2,10 +2,16 @@ import { RimbuError, Token } from '@rimbu/base';
 import {
   ArrayNonEmpty,
   AsyncOptLazy,
+  AsyncReducer,
   MaybePromise,
   Reducer,
 } from '@rimbu/common';
-import { AsyncFastIterator, AsyncStream, AsyncStreamSource } from '../internal';
+import {
+  AsyncFastIterator,
+  AsyncStream,
+  AsyncStreamSource,
+  Stream,
+} from '../internal';
 import {
   AsyncFastIteratorBase,
   AsyncFromStream,
@@ -76,6 +82,58 @@ export const fromResource: {
   ): AsyncStream<T>;
 } = (open, createSource, close): any => {
   return new FromResource(open, createSource, close);
+};
+
+/**
+ * Returns an AsyncStream concatenating the given `source` AsyncStreamSource containing StreamSources.
+ * @param source - a StreamSource containing nested StreamSources
+ * @example
+ * await AsyncStream.flatten(AsyncStream.of([[1, 2], [3], [], [4]])).toArray()  // => [1, 2, 3, 4]
+ * await AsyncStream.flatten(AsyncStream.of(['ma', 'r', '', 'mot')).toArray()   // => ['m', 'a', 'r', 'm', 'o', 't']
+ */
+export const flatten: {
+  <T extends AsyncStreamSource.NonEmpty<unknown>>(
+    source: AsyncStreamSource.NonEmpty<T>
+  ): T extends AsyncStreamSource.NonEmpty<infer S>
+    ? AsyncStream.NonEmpty<S>
+    : never;
+  <T extends AsyncStreamSource<unknown>>(
+    source: AsyncStreamSource<T>
+  ): T extends AsyncStreamSource<infer S> ? AsyncStream<S> : never;
+} = (source: any) => AsyncStream.from(source).flatMap((s: any) => s);
+
+/**
+ * Returns an array containing an AsyncStream for each tuple element resulting from given `source` AsyncStream.
+ * @param source - a Stream containing tuple elements
+ * @param length - the tuple length
+ * @example
+ * const [a, b] = AsyncStream.unzip(AsyncStream.of([[1, 'a'], [2, 'b']]), 2)
+ * await a.toArray()   // => [1, 2]
+ * await b.toArray()   // => ['a', 'b']
+ */
+export const unzip: {
+  <T extends readonly unknown[] & { length: L }, L extends number>(
+    source: AsyncStream.NonEmpty<T>,
+    length: L
+  ): { [K in keyof T]: AsyncStream.NonEmpty<T[K]> };
+  <T extends readonly unknown[] & { length: L }, L extends number>(
+    source: AsyncStream<T>,
+    length: L
+  ): { [K in keyof T]: AsyncStream<T[K]> };
+} = (source, length) => {
+  if (AsyncStreamSource.isEmptyInstance(source)) {
+    return Stream.of(AsyncStream.empty()).repeat(length).toArray();
+  }
+
+  const result: AsyncStream<unknown>[] = [];
+  let i = -1;
+
+  while (++i < length) {
+    const index = i;
+    result[i] = source.map((t: any): unknown => t[index]);
+  }
+
+  return result as any;
 };
 
 function isAsyncStream(obj: any): obj is AsyncStream<any> {
@@ -233,13 +291,13 @@ class AsyncEmptyStream<T = any>
   } = {}): AsyncStream.NonEmpty<O> {
     return AsyncStream.from(start, end) as any;
   }
-  fold<R>(init: Reducer.Init<R>): R {
-    return Reducer.Init(init);
+  fold<R>(init: AsyncOptLazy<R>): Promise<R> {
+    return AsyncOptLazy.toPromise(init);
   }
   foldStream<R>(): AsyncStream<R> {
     return this as any;
   }
-  async reduce<O>(reducer: Reducer<T, O>): Promise<O> {
+  async reduce<O>(reducer: AsyncReducer<T, O>): Promise<O> {
     return reducer.stateToResult(Reducer.Init(reducer.init));
   }
   reduceStream(): any {

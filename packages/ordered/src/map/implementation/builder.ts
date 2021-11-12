@@ -5,7 +5,7 @@ import {
   OptLazyOr,
   RelatedTo,
   TraverseState,
-  Update
+  Update,
 } from '@rimbu/common';
 import type { List } from '@rimbu/list';
 import { Stream, StreamSource } from '@rimbu/stream';
@@ -14,7 +14,7 @@ import type { OrderedMapBase, OrderedMapTypes } from '../../ordered-custom';
 export class OrderedMapBuilder<
   K,
   V,
-  Tp extends OrderedMapTypes,
+  Tp extends OrderedMapTypes = OrderedMapTypes,
   TpG extends CustomBase.WithKeyValue<Tp, K, V> = CustomBase.WithKeyValue<
     Tp,
     K,
@@ -208,7 +208,7 @@ export class OrderedMapBuilder<
   buildMapValues = <V2>(
     f: (value: V, key: K) => V2
   ): CustomBase.WithKeyValue<Tp, K, V2>['normal'] => {
-    if (undefined !== this.source) return this.source.mapValues(f);
+    if (undefined !== this.source) return this.source.mapValues<V2>(f) as any;
 
     if (this.size === 0) return this.context.empty();
 

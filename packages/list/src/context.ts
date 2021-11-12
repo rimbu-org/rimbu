@@ -1,7 +1,7 @@
 import { RimbuError } from '@rimbu/base';
 import type { ArrayNonEmpty } from '@rimbu/common';
 import { Reducer } from '@rimbu/common';
-import { StreamSource } from '@rimbu/stream';
+import { Stream, StreamSource } from '@rimbu/stream';
 import type { List } from './internal';
 import type {
   Block,
@@ -133,6 +133,14 @@ export class ListContext implements List.Context {
       },
       (builder) => builder.build()
     );
+  };
+
+  flatten = (source: any): any => this.from(source).flatMap((s: any) => s);
+
+  unzip = (source: any, length: number): any => {
+    const streams = Stream.unzip(source, length) as any as Stream<any>[];
+
+    return Stream.from(streams).mapPure(this.from) as any;
   };
 
   leafBlock<T>(children: readonly T[]): LeafBlock<T> {

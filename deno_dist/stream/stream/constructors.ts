@@ -119,7 +119,7 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   repeat(): Stream<T> {
     return this;
   }
-  concat<T2 extends T = T>(...others: ArrayNonEmpty<StreamSource<T2>>): any {
+  concat<T2 = T>(...others: ArrayNonEmpty<StreamSource<T2>>): any {
     if (others.every(StreamSource.isEmptyInstance)) return this;
     const [source1, source2, ...sources] = others;
 
@@ -174,9 +174,6 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   }
   toString(): string {
     return `Stream(<empty>)`;
-  }
-  flatten(): any {
-    return this;
   }
   zipWith(): any {
     return this;
@@ -262,7 +259,6 @@ export const from: {
  * Stream.fromArray([1, 2, 3], { start: -2 }).toArray()        // => [1, 2]
  * Stream.fromArray([1, 2, 3], { start: 1 }, true).toArray()   // => [3, 2]
  */
-
 export const fromArray: {
   <T>(
     array: ArrayNonEmpty<T>,
@@ -585,6 +581,54 @@ class ArrayIterator<T> extends FastIteratorBase<T> {
   }
 }
 
+/**
+ * Returns a Stream concatenating the given `source` StreamSource containing StreamSources.
+ * @example
+ * Stream.flatten(Stream.of([[1, 2], [3], [], [4]])).toArray()  // => [1, 2, 3, 4]
+ * Stream.flatten(Stream.of(['ma', 'r', '', 'mot')).toArray()   // => ['m', 'a', 'r', 'm', 'o', 't']
+ */
+export const flatten: {
+  <T extends StreamSource.NonEmpty<unknown>>(
+    source: StreamSource.NonEmpty<T>
+  ): T extends StreamSource.NonEmpty<infer S> ? Stream.NonEmpty<S> : never;
+  <T extends StreamSource<unknown>>(
+    source: StreamSource<T>
+  ): T extends StreamSource<infer S> ? Stream<S> : never;
+} = (source: any) => Stream.from(source).flatMap((s: any) => s);
+
+/**
+ * Returns an array containing a Stream for each tuple element in this stream.
+ * @param length - the stream element tuple length
+ * @example
+ * const [a, b] = Stream.unzip(Stream.of([[1, 'a'], [2, 'b']]), 2)
+ * a.toArray()   // => [1, 2]
+ * b.toArray()   // => ['a', 'b']
+ */
+export const unzip: {
+  <T extends readonly unknown[] & { length: L }, L extends number>(
+    source: Stream.NonEmpty<T>,
+    length: L
+  ): { [K in keyof T]: Stream.NonEmpty<T[K]> };
+  <T extends readonly unknown[] & { length: L }, L extends number>(
+    source: Stream<T>,
+    length: L
+  ): { [K in keyof T]: Stream<T[K]> };
+} = (source, length) => {
+  if (StreamSource.isEmptyInstance(source)) {
+    return Stream.of(Stream.empty()).repeat(length).toArray();
+  }
+
+  const result: Stream<unknown>[] = [];
+  let i = -1;
+
+  while (++i < length) {
+    const index = i;
+    result[i] = source.map((t: any): unknown => t[index]);
+  }
+
+  return result as any;
+};
+
 class ArrayReverseIterator<T> extends FastIteratorBase<T> {
   i: number;
 
@@ -877,7 +921,7 @@ class AlwaysStream<T> extends StreamBase<T> {
   }
 
   repeat(): Stream<T> {
-    return this;
+    return this as any;
   }
 
   concat<T2 extends T>(): Stream.NonEmpty<T2> {

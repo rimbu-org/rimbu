@@ -59,7 +59,7 @@ export class Empty<T = any> extends CustomBase.EmptyBase implements List<T> {
     return this;
   }
 
-  concat(...sources: ArrayNonEmpty<StreamSource<T>>): any {
+  concat<T2>(...sources: ArrayNonEmpty<StreamSource<T2>>): any {
     return this.context.from(...sources);
   }
 
@@ -121,17 +121,5 @@ export class Empty<T = any> extends CustomBase.EmptyBase implements List<T> {
       dataType: this.context.typeTag,
       value: [],
     };
-  }
-
-  extendType(): List<any> {
-    return this as any;
-  }
-
-  unzip(length: number): any {
-    return Stream.of(this).repeat(length).toArray();
-  }
-
-  flatten(): any {
-    return this;
   }
 }

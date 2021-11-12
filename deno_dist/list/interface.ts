@@ -7,7 +7,6 @@ import type {
   OptLazy,
   Reducer,
   StringNonEmpty,
-  SuperOf,
   ToJSON,
   TraverseState,
   Update,
@@ -245,8 +244,10 @@ export interface List<T> extends FastIterable<T> {
    * List.of(0, 1, 2).concat([10, 11], new Set([12, 13]))   // -> List(0, 1, 2, 10, 11, 12, 13)
    * @note O(logB(N)) for block size B
    */
-  concat(...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>): List.NonEmpty<T>;
-  concat(...sources: ArrayNonEmpty<StreamSource<T>>): List<T>;
+  concat<T2 = T>(
+    ...sources: ArrayNonEmpty<StreamSource.NonEmpty<T2>>
+  ): List.NonEmpty<T | T2>;
+  concat<T2 = T>(...sources: ArrayNonEmpty<StreamSource<T2>>): List<T | T2>;
   /**
    * Returns a List that contains this List the given `amount` of times.
    * @param amount - the amount of times to repeat the values in this List
@@ -425,17 +426,6 @@ export interface List<T> extends FastIterable<T> {
    * List.of(0, 1, 2, 3).toJSON()   // => { dataType: 'List', value: [0, 1, 2, 3] }
    */
   toJSON(): ToJSON<T[], this['context']['typeTag']>;
-
-  /**
-   * Returns the same `List` with a wider value type T2, if T2
-   * is a super type of T.
-   * @typeparam T2 - a super type of T
-   * @example
-   * const m = List.of(1, 2, 3)
-   * m.extendType<number | string>()
-   * // type: List.NonEmpty<number | string>
-   */
-  extendType<T2>(): List<SuperOf<T2, T>>;
   /**
    * Returns an array of Lists, where each list contains the values of the corresponding index of tuple T.
    * @param length - the length of the tuples in type T
@@ -443,11 +433,11 @@ export interface List<T> extends FastIterable<T> {
    * const m = List.of([1, 'a'], [2, 'b'])
    * m.unzip(2)  // => [List.NonEmpty<number>, List.NonEmpty<string>]
    */
-  unzip<L extends number, T2 extends T = T>(
-    length: L
-  ): T2 extends readonly [unknown, ...unknown[]] & { length: L }
-    ? { [K in keyof T2]: List<T2[K]> }
-    : never;
+  // unzip<L extends number, T2 extends T = T>(
+  //   length: L
+  // ): T2 extends readonly [unknown, ...unknown[]] & { length: L }
+  //   ? { [K in keyof T2]: List<T2[K]> }
+  //   : never;
   /**
    * Returns, if T is a valid `StreamSource`, the result of concatenating all
    * streamable elements of this List.
@@ -455,11 +445,11 @@ export interface List<T> extends FastIterable<T> {
    * const m = List.of([1, 2], [3, 4, 5])
    * m.flatten().toArray() // => [1, 2, 3, 4, 5]
    */
-  flatten<T2 = T>(): T2 extends StreamSource.NonEmpty<infer S>
-    ? List<S>
-    : T2 extends StreamSource<infer S>
-    ? List<S>
-    : never;
+  // flatten<T2 = T>(): T2 extends StreamSource.NonEmpty<infer S>
+  //   ? List<S>
+  //   : T2 extends StreamSource<infer S>
+  //   ? List<S>
+  //   : never;
 }
 
 export namespace List {
@@ -534,7 +524,9 @@ export namespace List {
      * List.of(0, 1, 2).concat([10, 11], new Set([12, 13]))   // -> List(0, 1, 2, 10, 11, 12, 13)
      * @note O(logB(N)) for block size B
      */
-    concat(...sources: ArrayNonEmpty<StreamSource<T>>): List.NonEmpty<T>;
+    concat<T2 = T>(
+      ...sources: ArrayNonEmpty<StreamSource<T2>>
+    ): List.NonEmpty<T | T2>;
     /**
      * Returns, for a List of `StreamSource` instances of type T, a List of type T containing the concatenation
      * of all nested sources.
@@ -684,32 +676,22 @@ export namespace List {
     toArray(range?: undefined, reversed?: boolean): ArrayNonEmpty<T>;
     toArray(range?: IndexRange, reversed?: boolean): T[];
     /**
-     * Returns the same `List` with a wider value type T2, if T2
-     * is a super type of T.
-     * @typeparam T2 - a super type of T
-     * @example
-     * const m = List.of(1, 2, 3)
-     * m.extendType<number | string>()
-     * // type: List.NonEmpty<number | string>
-     */
-    extendType<T2>(): List.NonEmpty<SuperOf<T2, T>>;
-    /**
      * Returns an array of Lists, where each list contains the values of the corresponding index of tuple T.
      * @param length - the length of the tuples in type T
      * @example
      * const m = List.of([1, 'a'], [2, 'b'])
      * m.unzip(2)  // => [List.NonEmpty<number>, List.NonEmpty<string>]
      */
-    unzip<L extends number, T2 extends T = T>(
-      length: L
-    ): T2 extends readonly [unknown, ...unknown[]] & { length: L }
-      ? { [K in keyof T2]: List.NonEmpty<T2[K]> }
-      : never;
-    flatten<T2 extends T = T>(): T2 extends StreamSource.NonEmpty<infer S>
-      ? List.NonEmpty<S>
-      : T2 extends StreamSource<infer S>
-      ? List<S>
-      : never;
+    // unzip<L extends number, T2 extends T = T>(
+    //   length: L
+    // ): T2 extends readonly [unknown, ...unknown[]] & { length: L }
+    //   ? { [K in keyof T2]: List.NonEmpty<T2[K]> }
+    //   : never;
+    // flatten<T2 extends T = T>(): T2 extends StreamSource.NonEmpty<infer S>
+    //   ? List.NonEmpty<S>
+    //   : T2 extends StreamSource<infer S>
+    //   ? List<S>
+    //   : never;
   }
 
   export interface Builder<T> {
@@ -930,6 +912,38 @@ export namespace List {
       ...sources: ArrayNonEmpty<StringNonEmpty<S>>
     ): List.NonEmpty<string>;
     fromString(...sources: ArrayNonEmpty<string>): List<string>;
+    /**
+     * Returns, if T is a valid `StreamSource`, the result of concatenating all
+     * streamable elements of the given sources.
+     * @example
+     * const m = List.of([1, 2], [3, 4, 5])
+     * List.flatten(m).toArray() // => [1, 2, 3, 4, 5]
+     */
+    flatten: {
+      <T extends StreamSource.NonEmpty<unknown>>(
+        source: StreamSource.NonEmpty<T>
+      ): T extends StreamSource.NonEmpty<infer S> ? List.NonEmpty<S> : never;
+      <T extends StreamSource<unknown>>(
+        source: StreamSource<T>
+      ): T extends StreamSource<infer S> ? List<S> : never;
+    };
+    /**
+     * Returns an array of Lists, where each list contains the values of the corresponding index of tuple T.
+     * @param length - the length of the tuples in type T
+     * @example
+     * const m = List.of([1, 'a'], [2, 'b'])
+     * List.unzip(m)  // => [List.NonEmpty<number>, List.NonEmpty<string>]
+     */
+    unzip: {
+      <T extends readonly unknown[] & { length: L }, L extends number>(
+        source: StreamSource.NonEmpty<T>,
+        length: L
+      ): { [K in keyof T]: List.NonEmpty<T[K]> };
+      <T extends readonly unknown[] & { length: L }, L extends number>(
+        source: StreamSource<T>,
+        length: L
+      ): { [K in keyof T]: List<T[K]> };
+    };
     /**
      * Returns an empty List Builder based on this context.
      * @example

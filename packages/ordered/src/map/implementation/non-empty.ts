@@ -16,7 +16,7 @@ import type { OrderedMapBase, OrderedMapTypes } from '../../ordered-custom';
 export class OrderedMapNonEmpty<
     K,
     V,
-    Tp extends OrderedMapTypes,
+    Tp extends OrderedMapTypes = OrderedMapTypes,
     TpG extends CustomBase.WithKeyValue<Tp, K, V> = CustomBase.WithKeyValue<
       Tp,
       K,
@@ -268,10 +268,7 @@ export class OrderedMapNonEmpty<
     return this;
   }
 
-  mergeAll<O, I extends readonly [unknown, ...unknown[]]>(
-    fillValue: O,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
+  mergeAll<O>(fillValue: O, ...sources: any): any {
     return this.context.mergeAll(
       fillValue,
       this,
@@ -279,14 +276,10 @@ export class OrderedMapNonEmpty<
     );
   }
 
-  mergeAllWith<R, O, I extends readonly [unknown, ...unknown[]]>(
+  mergeAllWith<R, O>(
     fillValue: O,
-    mergeFun: (
-      key: K,
-      value: V | O,
-      ...values: { [KT in keyof I]: I[KT] | O }
-    ) => R,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
+    mergeFun: (key: K, value: V | O, ...values: any) => R,
+    ...sources: any
   ): any {
     return this.context.mergeAllWith(
       fillValue,
@@ -296,15 +289,13 @@ export class OrderedMapNonEmpty<
     );
   }
 
-  merge<I extends readonly [unknown, ...unknown[]]>(
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
+  merge(...sources: any): any {
     return this.context.merge(this, ...(sources as any as any[]));
   }
 
-  mergeWith<R, K, I extends readonly [unknown, ...unknown[]]>(
-    mergeFun: (key: K, ...values: I) => R,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
+  mergeWith<R, K>(
+    mergeFun: (key: K, ...values: any) => R,
+    ...sources: any
   ): any {
     return this.context.mergeWith(
       mergeFun as any,

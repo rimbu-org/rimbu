@@ -11,7 +11,8 @@ import { Stream, StreamSource } from '../../stream/mod.ts';
 import type { MultiSetBase } from '../multiset-custom.ts';
 
 export interface ContextImplTypes extends MultiSetBase.Types {
-  context: MultiSetContext<this['_T'], string, this>;
+  context: MultiSetContext<this['_T'], string, this> &
+    MultiSetBase.Context<this['_T']>;
 }
 
 export class MultiSetEmpty<T, Tp extends ContextImplTypes>

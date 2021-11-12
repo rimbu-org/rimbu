@@ -1,15 +1,17 @@
 import { CustomBase } from '@rimbu/collection-types';
 import type { List } from '@rimbu/list';
 import {
-  OrderedMapBase,
   OrderedMapBuilder,
   OrderedMapContext,
   OrderedMapEmpty,
   OrderedMapNonEmpty,
-  OrderedMapTypes
+  OrderedMapTypes,
 } from '../../ordered-custom';
 
-export class OrderedMapContextImpl<UK, Tp extends OrderedMapTypes>
+export class OrderedMapContextImpl<
+    UK,
+    Tp extends OrderedMapTypes = OrderedMapTypes
+  >
   extends CustomBase.RMapBase.ContextBase<UK, Tp>
   implements OrderedMapContext<UK, Tp>
 {
@@ -40,16 +42,14 @@ export class OrderedMapContextImpl<UK, Tp extends OrderedMapTypes>
     return new OrderedMapBuilder<K, V, Tp>(this as any) as any;
   };
 
-  createBuilder<K extends UK, V>(
-    source?: OrderedMapBase.NonEmpty<K, V>
-  ): CustomBase.WithKeyValue<Tp, K, V>['builder'] {
+  createBuilder<K extends UK, V>(source?: any): any {
     return new OrderedMapBuilder<K, V, Tp>(this as any, source as any) as any;
   }
 
   createNonEmpty<K extends UK, V>(
     order: List.NonEmpty<K>,
-    sourceMap: CustomBase.WithKeyValue<Tp, K, V>['sourceMapNonEmpty']
-  ): CustomBase.WithKeyValue<Tp, K, V>['nonEmpty'] {
+    sourceMap: any
+  ): any {
     return new OrderedMapNonEmpty<K, V, Tp>(
       this as any,
       order,

@@ -10,12 +10,7 @@ import {
   ToJSON,
   TraverseState,
 } from '../../common/mod.ts';
-import {
-  AsyncFastIterator,
-  AsyncStream,
-  AsyncStreamSource,
-  Stream,
-} from '../internal.ts';
+import { AsyncFastIterator, AsyncStream, AsyncStreamSource } from '../internal.ts';
 import { closeIters } from './utils.ts';
 
 export abstract class AsyncFastIteratorBase<T> implements AsyncFastIterator<T> {
@@ -78,11 +73,11 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   }
 
   prepend<T2 = T>(value: AsyncOptLazy<T>): AsyncStream.NonEmpty<T | T2> {
-    return new AsyncPrependStream<T | T2>(this, value) as any;
+    return new AsyncPrependStream<T | T2>(this as any, value) as any;
   }
 
   append<T2 = T>(value: AsyncOptLazy<T2>): AsyncStream.NonEmpty<T | T2> {
-    return new AsyncAppendStream<T | T2>(this, value) as any;
+    return new AsyncAppendStream<T | T2>(this as any, value) as any;
   }
 
   async forEach(
@@ -128,20 +123,20 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   }
 
   indexed(startIndex = 0): AsyncStream<[number, T]> {
-    return new AsyncIndexedStream(this, startIndex);
+    return new AsyncIndexedStream<T>(this, startIndex);
   }
 
   map<T2>(
     mapFun: (value: T, index: number) => MaybePromise<T2>
   ): AsyncStream<T2> {
-    return new AsyncMapStream(this, mapFun);
+    return new AsyncMapStream<T, T2>(this, mapFun);
   }
 
   mapPure<T2, A extends readonly unknown[]>(
     mapFun: (value: T, ...args: A) => MaybePromise<T2>,
     ...args: A
   ): AsyncStream<T2> {
-    return new AsyncMapPureStream(this, mapFun, args);
+    return new AsyncMapPureStream<T, A, T2>(this, mapFun, args);
   }
 
   flatMap<T2>(
@@ -151,37 +146,37 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
       halt: () => void
     ) => AsyncStreamSource<T2>
   ): AsyncStream<T2> {
-    return new AsyncFlatMapStream(this, flatMapFun);
+    return new AsyncFlatMapStream<T, T2>(this, flatMapFun);
   }
 
   filter(
     pred: (value: T, index: number, halt: () => void) => MaybePromise<boolean>
   ): AsyncStream<T> {
-    return new AsyncFilterStream(this, pred);
+    return new AsyncFilterStream<T>(this, pred);
   }
 
   filterNot(
     pred: (value: T, index: number, halt: () => void) => MaybePromise<boolean>
   ): AsyncStream<T> {
-    return new AsyncFilterStream(this, pred, true);
+    return new AsyncFilterStream<T>(this, pred, true);
   }
 
   filterPure<A extends readonly unknown[]>(
     pred: (value: T, ...args: A) => MaybePromise<boolean>,
     ...args: A
   ): AsyncStream<T> {
-    return new AsyncFilterPureStream(this, pred, args);
+    return new AsyncFilterPureStream<T, A>(this, pred, args);
   }
 
   filterNotPure<A extends readonly unknown[]>(
     pred: (value: T, ...args: A) => MaybePromise<boolean>,
     ...args: A
   ): AsyncStream<T> {
-    return new AsyncFilterPureStream(this, pred, args, true);
+    return new AsyncFilterPureStream<T, A>(this, pred, args, true);
   }
 
   collect<R>(collectFun: AsyncCollectFun<T, R>): AsyncStream<R> {
-    return new AsyncCollectStream(this, collectFun);
+    return new AsyncCollectStream<T, R>(this, collectFun);
   }
 
   async first<O>(otherwise?: AsyncOptLazy<O>): Promise<T | O> {
@@ -317,11 +312,11 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   }
 
   indicesWhere(pred: (value: T) => MaybePromise<boolean>): AsyncStream<number> {
-    return new AsyncIndicesWhereStream(this, pred);
+    return new AsyncIndicesWhereStream<T>(this, pred);
   }
 
   indicesOf(searchValue: T, eq: Eq<T> = Eq.objectIs): AsyncStream<number> {
-    return new AsyncIndicesOfStream(this, searchValue, eq);
+    return new AsyncIndicesOfStream<T>(this, searchValue, eq);
   }
 
   async indexWhere(
@@ -707,8 +702,8 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 
   reduceAllStream<R extends [unknown, unknown, ...unknown[]]>(
     ...reducers: { [K in keyof R]: AsyncReducer<T, R[K]> }
-  ): AsyncStream<R> {
-    return new AsyncReduceAllStream<any, R>(this, reducers);
+  ): any {
+    return new AsyncReduceAllStream(this, reducers);
   }
 
   async toArray(): Promise<T[]> {
@@ -737,10 +732,6 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
       dataType: 'AsyncStream',
       value: await this.toArray(),
     };
-  }
-
-  flatten(): any {
-    return this.flatMap((s: any) => s);
   }
 
   zipWith<I extends readonly [unknown, ...unknown[]], R>(
@@ -788,22 +779,6 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
       Array,
       ...(streams as any as [any, ...any[]])
     );
-  }
-
-  unzip<L extends number>(length: L): any {
-    if (AsyncStreamSource.isEmptyInstance(this)) {
-      return Stream.of(AsyncStream.empty()).repeat(length).toArray();
-    }
-
-    const result: AsyncStream<unknown>[] = [];
-    let i = -1;
-
-    while (++i < length) {
-      const index = i;
-      result[i] = this.map((t: any): unknown => t[index]);
-    }
-
-    return result;
   }
 }
 

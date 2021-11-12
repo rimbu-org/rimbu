@@ -10,14 +10,14 @@ import {
 } from '../bimultimap-custom.ts';
 
 export interface ContextTypesImpl extends BiMultiMapBase.Types {
-  context: BiMultiMapContext<this['_K'], this['_V'], string, this>;
+  context: BiMultiMapContext<this['_K'], this['_V'], string>;
 }
 
 export class BiMultiMapContext<
   UK,
   UV,
   N extends string,
-  Tp extends ContextTypesImpl
+  Tp extends ContextTypesImpl = ContextTypesImpl
 > implements BiMultiMapBase.Context<UK, UV, Tp>
 {
   constructor(
