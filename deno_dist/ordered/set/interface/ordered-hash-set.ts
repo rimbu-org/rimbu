@@ -61,13 +61,13 @@ export namespace OrderedHashSet {
     extends OrderedSetBase.Context<UT, OrderedHashSet.Types> {}
 
   export interface Types extends OrderedSetBase.Types {
-    normal: OrderedHashSet<this['_T']>;
-    nonEmpty: OrderedHashSet.NonEmpty<this['_T']>;
-    context: OrderedHashSet.Context<this['_T']>;
-    builder: OrderedHashSet.Builder<this['_T']>;
-    sourceContext: HashSet.Context<this['_T']>;
-    sourceSet: HashSet<this['_T']>;
-    sourceSetNonEmpty: HashSet.NonEmpty<this['_T']>;
+    readonly normal: OrderedHashSet<this['_T']>;
+    readonly nonEmpty: OrderedHashSet.NonEmpty<this['_T']>;
+    readonly context: OrderedHashSet.Context<this['_T']>;
+    readonly builder: OrderedHashSet.Builder<this['_T']>;
+    readonly sourceContext: HashSet.Context<this['_T']>;
+    readonly sourceSet: HashSet<this['_T']>;
+    readonly sourceSetNonEmpty: HashSet.NonEmpty<this['_T']>;
   }
 }
 

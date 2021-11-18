@@ -66,13 +66,13 @@ export namespace OrderedMap {
   export interface Context<UK> extends OrderedMapBase.Context<UK> {}
 
   export interface Types extends OrderedMapBase.Types {
-    normal: OrderedMap<this['_K'], this['_V']>;
-    nonEmpty: OrderedMap.NonEmpty<this['_K'], this['_V']>;
-    context: OrderedMap.Context<this['_K']>;
-    builder: OrderedMap.Builder<this['_K'], this['_V']>;
-    sourceContext: RMap.Context<this['_K']>;
-    sourceMap: RMap<this['_K'], this['_V']>;
-    sourceMapNonEmpty: RMap.NonEmpty<this['_K'], this['_V']>;
+    readonly normal: OrderedMap<this['_K'], this['_V']>;
+    readonly nonEmpty: OrderedMap.NonEmpty<this['_K'], this['_V']>;
+    readonly context: OrderedMap.Context<this['_K']>;
+    readonly builder: OrderedMap.Builder<this['_K'], this['_V']>;
+    readonly sourceContext: RMap.Context<this['_K']>;
+    readonly sourceMap: RMap<this['_K'], this['_V']>;
+    readonly sourceMapNonEmpty: RMap.NonEmpty<this['_K'], this['_V']>;
   }
 }
 

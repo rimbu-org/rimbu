@@ -71,14 +71,14 @@ export namespace OrderedSetBase {
   }
 
   export interface Types extends CustomBase.RSetBase.Types {
-    normal: OrderedSetBase<this['_T']>;
-    nonEmpty: OrderedSetBase.NonEmpty<this['_T']>;
-    context: OrderedSetBase.Context<this['_T']>;
-    builder: OrderedSetBase.Builder<this['_T']>;
-    sourceContext: CustomBase.RSetBase.Context<this['_T']>;
-    sourceSet: CustomBase.RSetBase<this['_T']>;
-    sourceSetNonEmpty: CustomBase.RSetBase.NonEmpty<this['_T']>;
-    sourceBuilder: CustomBase.RSetBase.Builder<this['_T']>;
+    readonly normal: OrderedSetBase<this['_T']>;
+    readonly nonEmpty: OrderedSetBase.NonEmpty<this['_T']>;
+    readonly context: OrderedSetBase.Context<this['_T']>;
+    readonly builder: OrderedSetBase.Builder<this['_T']>;
+    readonly sourceContext: CustomBase.RSetBase.Context<this['_T']>;
+    readonly sourceSet: CustomBase.RSetBase<this['_T']>;
+    readonly sourceSetNonEmpty: CustomBase.RSetBase.NonEmpty<this['_T']>;
+    readonly sourceBuilder: CustomBase.RSetBase.Builder<this['_T']>;
   }
 }
 

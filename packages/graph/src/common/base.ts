@@ -19,7 +19,7 @@ export interface GraphConnect<N, V, Tp extends VariantGraphBase.Types>
    * g.addNode(4).stream().toArray()  // => [[1], [2, 3], [4]]
    * g.addNode(1).stream().toArray()  // ==> [[1], [2, 3]]
    */
-  addNode: (node: N) => WithGraphValues<Tp, N, V>['nonEmpty'];
+  addNode(node: N): WithGraphValues<Tp, N, V>['nonEmpty'];
   /**
    * Returns the graph with the nodes from the given `nodes` `StreamSource` added.
    * @param nodes - a `StreamSource` containing the nodes to add
@@ -28,10 +28,10 @@ export interface GraphConnect<N, V, Tp extends VariantGraphBase.Types>
    * g.addNodes([4, 1]).stream().toArray()  // => [[1], [2, 3], [4]]
    * g.addNodes([1, 2]).stream().toArray()  // => [[1], [2, 3]]
    */
-  addNodes: {
-    (nodes: StreamSource.NonEmpty<N>): WithGraphValues<Tp, N, V>['nonEmpty'];
-    (nodes: StreamSource<N>): WithGraphValues<Tp, N, V>['normal'];
-  };
+  addNodes(
+    nodes: StreamSource.NonEmpty<N>
+  ): WithGraphValues<Tp, N, V>['nonEmpty'];
+  addNodes(nodes: StreamSource<N>): WithGraphValues<Tp, N, V>['normal'];
   /**
    * Returns the graph with the connections from the given `connections` `StreamSource` added.
    * @param connections - a `StreamSource` conntaining tuple representing the connections to add
@@ -42,14 +42,12 @@ export interface GraphConnect<N, V, Tp extends VariantGraphBase.Types>
    * g2.connectAll([[1, 2, 'b'], [2, 3, 'c']]).stream().toArray()
    * // => [[1, 2, 'b'], [2, 3, 'c']]
    */
-  connectAll: {
-    (
-      connections: StreamSource.NonEmpty<WithGraphValues<Tp, N, V>['link']>
-    ): WithGraphValues<Tp, N, V>['nonEmpty'];
-    (
-      connections: StreamSource<WithGraphValues<Tp, N, V>['link']>
-    ): WithGraphValues<Tp, N, V>['normal'];
-  };
+  connectAll(
+    connections: StreamSource.NonEmpty<WithGraphValues<Tp, N, V>['link']>
+  ): WithGraphValues<Tp, N, V>['nonEmpty'];
+  connectAll(
+    connections: StreamSource<WithGraphValues<Tp, N, V>['link']>
+  ): WithGraphValues<Tp, N, V>['normal'];
 }
 
 export interface GraphConnectNonEmpty<N, V, Tp extends VariantGraphBase.Types>
@@ -62,7 +60,7 @@ export interface GraphConnectNonEmpty<N, V, Tp extends VariantGraphBase.Types>
    * g.addNodes([4, 1]).stream().toArray()  // => [[1], [2, 3], [4]]
    * g.addNodes([1, 2]).stream().toArray()  // => [[1], [2, 3]]
    */
-  addNodes: (nodes: StreamSource<N>) => WithGraphValues<Tp, N, V>['nonEmpty'];
+  addNodes(nodes: StreamSource<N>): WithGraphValues<Tp, N, V>['nonEmpty'];
   /**
    * Returns the non-empty graph with the connections from the given `connections` `StreamSource` added.
    * @param connections - a `StreamSource` conntaining tuple representing the connections to add
@@ -73,9 +71,9 @@ export interface GraphConnectNonEmpty<N, V, Tp extends VariantGraphBase.Types>
    * g2.connectAll([[1, 2, 'b'], [2, 3, 'c']]).stream().toArray()
    * // => [[1, 2, 'b'], [2, 3, 'c']]
    */
-  connectAll: (
+  connectAll(
     links: StreamSource<WithGraphValues<Tp, N, V>['link']>
-  ) => WithGraphValues<Tp, N, V>['nonEmpty'];
+  ): WithGraphValues<Tp, N, V>['nonEmpty'];
 }
 
 export abstract class GraphEmptyBase extends CustomBase.EmptyBase {

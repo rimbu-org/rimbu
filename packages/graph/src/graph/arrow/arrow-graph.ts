@@ -50,10 +50,6 @@ export namespace ArrowGraph {
   }
 }
 
-interface TypesImpl extends ArrowGraph.Types {
-  readonly context: GraphContext<this['_N'], string, true, any>;
-}
-
 export const ArrowGraph = {
   /**
    * Returns a new ArrowGraph context instance based on the given `options`.
@@ -66,7 +62,7 @@ export const ArrowGraph = {
     linkMapContext: RMap.Context<UN>;
     linkConnectionsContext: RSet.Context<UN>;
   }): ArrowGraph.Context<UN> {
-    return new GraphContext<UN, 'ArrowGraph', true, TypesImpl>(
+    return new GraphContext<UN, 'ArrowGraph', true, any>(
       true,
       'ArrowGraph',
       options.linkMapContext,

@@ -37,15 +37,11 @@ export namespace BiMultiMap {
     extends BiMultiMapBase.Builder<K, V, BiMultiMap.Types> {}
 
   export interface Types extends BiMultiMapBase.Types {
-    context: BiMultiMap.Context<this['_K'], this['_V']>;
-    normal: BiMultiMap<this['_K'], this['_V']>;
-    nonEmpty: BiMultiMap.NonEmpty<this['_K'], this['_V']>;
-    builder: BiMultiMap.Builder<this['_K'], this['_V']>;
+    readonly context: BiMultiMap.Context<this['_K'], this['_V']>;
+    readonly normal: BiMultiMap<this['_K'], this['_V']>;
+    readonly nonEmpty: BiMultiMap.NonEmpty<this['_K'], this['_V']>;
+    readonly builder: BiMultiMap.Builder<this['_K'], this['_V']>;
   }
-}
-
-interface Types extends BiMultiMap.Types {
-  context: BiMultiMapContext<this['_K'], this['_V'], string, any>;
 }
 
 export const BiMultiMap = {
@@ -61,7 +57,7 @@ export const BiMultiMap = {
     keyValueMultiMapContext: MultiMap.Context<UK, UV>;
     valueKeyMultiMapContext: MultiMap.Context<UV, UK>;
   }): BiMultiMap.Context<UK, UV> {
-    return new BiMultiMapContext<UK, UV, 'BiMultiMap', Types>(
+    return new BiMultiMapContext<UK, UV, 'BiMultiMap', any>(
       'BiMultiMap',
       options.keyValueMultiMapContext,
       options.valueKeyMultiMapContext

@@ -1,4 +1,3 @@
-import type { RMap } from '../../../../collection-types/mod.ts';
 import type { OmitStrong } from '../../../../common/mod.ts';
 import { HashMap } from '../../../../hashed/mod.ts';
 import type { Streamable } from '../../../../stream/mod.ts';
@@ -43,38 +42,38 @@ export namespace HashTableHashColumn {
     extends TableCustom.TableBase.Builder<R, C, V, HashTableHashColumn.Types> {}
 
   export interface Types extends TableCustom.TableBase.Types {
-    normal: HashTableHashColumn<this['_R'], this['_C'], this['_V']>;
-    nonEmpty: HashTableHashColumn.NonEmpty<this['_R'], this['_C'], this['_V']>;
-    row: HashMap<this['_C'], this['_V']>;
-    rowNonEmpty: HashMap.NonEmpty<this['_C'], this['_V']>;
-    rowMap: HashMap<this['_R'], HashMap.NonEmpty<this['_C'], this['_V']>> &
-      HashMap<this['_R'], RMap.NonEmpty<this['_C'], this['_V']>>;
-    rowMapNonEmpty: HashMap.NonEmpty<
+    readonly normal: HashTableHashColumn<this['_R'], this['_C'], this['_V']>;
+    readonly nonEmpty: HashTableHashColumn.NonEmpty<
+      this['_R'],
+      this['_C'],
+      this['_V']
+    >;
+    readonly row: HashMap<this['_C'], this['_V']>;
+    readonly rowNonEmpty: HashMap.NonEmpty<this['_C'], this['_V']>;
+    readonly rowMap: HashMap<
       this['_R'],
       HashMap.NonEmpty<this['_C'], this['_V']>
-    > &
-      HashMap.NonEmpty<this['_R'], RMap.NonEmpty<this['_C'], this['_V']>>;
-    context: HashTableHashColumn.Context<this['_R'], this['_C']>;
-    builder: HashTableHashColumn.Builder<this['_R'], this['_C'], this['_V']>;
-    rowContext: HashMap.Context<this['_R']>;
-    columnContext: HashMap.Context<this['_C']>;
+    >;
+    readonly rowMapNonEmpty: HashMap.NonEmpty<
+      this['_R'],
+      HashMap.NonEmpty<this['_C'], this['_V']>
+    >;
+    readonly context: HashTableHashColumn.Context<this['_R'], this['_C']>;
+    readonly builder: HashTableHashColumn.Builder<
+      this['_R'],
+      this['_C'],
+      this['_V']
+    >;
+    readonly rowContext: HashMap.Context<this['_R']>;
+    readonly columnContext: HashMap.Context<this['_C']>;
   }
-}
-
-interface TypesImpl extends HashTableHashColumn.Types {
-  context: TableCustom.TableContext<
-    this['_R'],
-    this['_C'],
-    'HashTableHashColumn',
-    any
-  >;
 }
 
 function createContext<UR, UC>(options?: {
   rowContext?: HashMap.Context<UR>;
   columnContext?: HashMap.Context<UC>;
 }): HashTableHashColumn.Context<UR, UC> {
-  return new TableCustom.TableContext<UR, UC, 'HashTableHashColumn', TypesImpl>(
+  return new TableCustom.TableContext<UR, UC, 'HashTableHashColumn', any>(
     'HashTableHashColumn',
     options?.rowContext ?? HashMap.defaultContext(),
     options?.columnContext ?? HashMap.defaultContext()

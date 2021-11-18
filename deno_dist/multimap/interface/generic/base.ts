@@ -315,12 +315,12 @@ export namespace VariantMultiMapBase {
   }
 
   export interface Types extends CB.KeyValue {
-    normal: VariantMultiMapBase<this['_K'], this['_V']>;
-    nonEmpty: VariantMultiMapBase.NonEmpty<this['_K'], this['_V']>;
-    keyMapValues: VariantSet<this['_V']>;
-    keyMapValuesNonEmpty: VariantSet.NonEmpty<this['_V']>;
-    keyMap: VariantMap<this['_K'], VariantSet.NonEmpty<this['_V']>>;
-    keyMapNonEmpty: VariantMap.NonEmpty<
+    readonly normal: VariantMultiMapBase<this['_K'], this['_V']>;
+    readonly nonEmpty: VariantMultiMapBase.NonEmpty<this['_K'], this['_V']>;
+    readonly keyMapValues: VariantSet<this['_V']>;
+    readonly keyMapValuesNonEmpty: VariantSet.NonEmpty<this['_V']>;
+    readonly keyMap: VariantMap<this['_K'], VariantSet.NonEmpty<this['_V']>>;
+    readonly keyMapNonEmpty: VariantMap.NonEmpty<
       this['_K'],
       VariantSet.NonEmpty<this['_V']>
     >;
@@ -344,7 +344,7 @@ export interface MultiMapBase<
    * HashMultiMapHashValue.of([1, 'a']).add(2, 'b').toArray()   // => [[1, 'a'], [2, 'b']]
    * HashMultiMapHashValue.of([1, 'a']).add(1, 'b').toArray()   // => [[1, 'a'], [1, 'b']]
    */
-  add: (key: K, value: V) => CB.WithKeyValue<Tp, K, V>['nonEmpty'];
+  add(key: K, value: V): CB.WithKeyValue<Tp, K, V>['nonEmpty'];
   /**
    * Returns the collection with the given `entries` added.
    * @param entries - a `StreamSource` containing entries to add
@@ -352,18 +352,12 @@ export interface MultiMapBase<
    * HashMultiMapHashValue.of([1, 'a']).addEntries([[2, 'b'], [1, 'c']).toArray()
    * // => [[1, 'a'], [1, 'c'], [2, 'b']]
    */
-  addEntries: {
-    (entries: StreamSource.NonEmpty<readonly [K, V]>): CB.WithKeyValue<
-      Tp,
-      K,
-      V
-    >['nonEmpty'];
-    (entries: StreamSource<readonly [K, V]>): CB.WithKeyValue<
-      Tp,
-      K,
-      V
-    >['normal'];
-  };
+  addEntries(
+    entries: StreamSource.NonEmpty<readonly [K, V]>
+  ): CB.WithKeyValue<Tp, K, V>['nonEmpty'];
+  addEntries(
+    entries: StreamSource<readonly [K, V]>
+  ): CB.WithKeyValue<Tp, K, V>['normal'];
   /**
    * Returns the collection where given `key` has the given `values` associated with it.
    * @param key - the key for which to set the values
@@ -372,14 +366,14 @@ export interface MultiMapBase<
    * HashMultiMapHashValue.of([1, 'a'], [2, 'b']).setValues(1, ['d', 'e']).toArray()
    * // => [[1, 'd'], [1, 'e'], [2, 'b']]
    */
-  setValues: {
-    (key: K, values: StreamSource.NonEmpty<V>): CB.WithKeyValue<
-      Tp,
-      K,
-      V
-    >['nonEmpty'];
-    (key: K, values: StreamSource<V>): CB.WithKeyValue<Tp, K, V>['normal'];
-  };
+  setValues(
+    key: K,
+    values: StreamSource.NonEmpty<V>
+  ): CB.WithKeyValue<Tp, K, V>['nonEmpty'];
+  setValues(
+    key: K,
+    values: StreamSource<V>
+  ): CB.WithKeyValue<Tp, K, V>['normal'];
   /**
    * Returns the collection with the given `atKey` key modified according to given `options`.
    * @param atKey - the key at which to modify the collection
@@ -417,7 +411,7 @@ export interface MultiMapBase<
    * const builder: HashMultiMapHashValue.Builder<number, string>
    *   = HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [2, 'c']).toBuilder()
    */
-  toBuilder: () => CB.WithKeyValue<Tp, K, V>['builder'];
+  toBuilder(): CB.WithKeyValue<Tp, K, V>['builder'];
 }
 
 export namespace MultiMapBase {
@@ -444,9 +438,9 @@ export namespace MultiMapBase {
      * HashMultiMapHashValue.of([1, 'a']).addEntries([[2, 'b'], [1, 'c']).toArray()
      * // => [[1, 'a'], [1, 'c'], [2, 'b']]
      */
-    addEntries: (
+    addEntries(
       entries: StreamSource<readonly [K, V]>
-    ) => CB.WithKeyValue<Tp, K, V>['nonEmpty'];
+    ): CB.WithKeyValue<Tp, K, V>['nonEmpty'];
   }
 
   /**
@@ -479,44 +473,34 @@ export namespace MultiMapBase {
      * HashMultiMapHashValue.empty<number, string>()    // => HashMultiMapHashValue<number, string>
      * HashMultiMapHashValue.empty<string, boolean>()   // => HashMultiMapHashValue<string, boolean>
      */
-    empty: <K extends UK, V extends UV>() => CB.WithKeyValue<
-      Tp,
-      K,
-      V
-    >['normal'];
+    empty<K extends UK, V extends UV>(): CB.WithKeyValue<Tp, K, V>['normal'];
     /**
      * Returns an immutable multimap of this collection type and context, containing the given `entries`.
      * @param entries - a non-empty array of key-value entries
      * @example
      * HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c'])    // => HashMap.NonEmpty<number, string>
      */
-    of: <K extends UK, V extends UV>(
+    of<K extends UK, V extends UV>(
       ...entries: ArrayNonEmpty<readonly [K, V]>
-    ) => CB.WithKeyValue<Tp, K, V>['nonEmpty'];
+    ): CB.WithKeyValue<Tp, K, V>['nonEmpty'];
     /**
      * Returns an immutable multimap of this type and context, containing the entries in the given `source` `StreamSource`.
      * @param sources - an array of `StreamSource` instances containing key-value entries
      * @example
      * HashMultiMapHashValue.from([[1, 'a'], [2, 'b']])    // => HashMultiMapHashValue.NonEmpty<number, string>
      */
-    from: {
-      <K extends UK, V extends UV>(
-        ...sources: ArrayNonEmpty<StreamSource.NonEmpty<readonly [K, V]>>
-      ): CB.WithKeyValue<Tp, K, V>['nonEmpty'];
-      <K extends UK, V extends UV>(
-        ...sources: ArrayNonEmpty<StreamSource<readonly [K, V]>>
-      ): CB.WithKeyValue<Tp, K, V>['normal'];
-    };
+    from<K extends UK, V extends UV>(
+      ...sources: ArrayNonEmpty<StreamSource.NonEmpty<readonly [K, V]>>
+    ): CB.WithKeyValue<Tp, K, V>['nonEmpty'];
+    from<K extends UK, V extends UV>(
+      ...sources: ArrayNonEmpty<StreamSource<readonly [K, V]>>
+    ): CB.WithKeyValue<Tp, K, V>['normal'];
     /**
      * Returns an empty builder instance for this type of collection and context.
      * @example
      * HashMultiMapHashValue.builder<number, string>()    // => HashMultiMapHashValue.Builder<number, string>
      */
-    builder: <K extends UK, V extends UV>() => CB.WithKeyValue<
-      Tp,
-      K,
-      V
-    >['builder'];
+    builder<K extends UK, V extends UV>(): CB.WithKeyValue<Tp, K, V>['builder'];
     /**
      * Returns a `Reducer` that adds received tuples to a MultiMap and returns the MultiMap as a result. When a `source` is given,
      * the reducer will first create a MultiMap from the source, and then add tuples to it.
@@ -527,9 +511,9 @@ export namespace MultiMapBase {
      * result.toArray()   // => [[1, 'a'], [1, 'c'], [2, 'b'], [3, 'a']]
      * @note uses a builder under the hood. If the given `source` is a BiMap in the same context, it will directly call `.toBuilder()`.
      */
-    reducer: <K extends UK, V extends UV>(
+    reducer<K extends UK, V extends UV>(
       source?: StreamSource<readonly [K, V]>
-    ) => Reducer<[K, V], CB.WithKeyValue<Tp, K, V>['normal']>;
+    ): Reducer<[K, V], CB.WithKeyValue<Tp, K, V>['normal']>;
   }
 
   export interface Builder<
@@ -571,7 +555,7 @@ export namespace MultiMapBase {
      * m.setValues(1, ['a'])      // => false
      * m.setValues(2, ['c', 'd']) // => true
      */
-    setValues: (key: K, values: StreamSource<V>) => boolean;
+    setValues(key: K, values: StreamSource<V>): boolean;
     /**
      * Returns true if the given `key` is present in the builder.
      * @param key - the key to look for
@@ -601,7 +585,7 @@ export namespace MultiMapBase {
      * m.add(1, 'a')   // => false
      * m.add(1, 'b')   // => true
      */
-    add: (key: K, value: V) => boolean;
+    add(key: K, value: V): boolean;
     /**
      * Adds given `entries` to the builder.
      * @param entries - a `StreamSource` containig entries to add
@@ -610,7 +594,7 @@ export namespace MultiMapBase {
      * m.addEntries([1, 'a'], [2, 'b']])   // => false
      * m.addEntries([1, 'b'], [2, 'd']])   // => true
      */
-    addEntries: (entries: StreamSource<readonly [K, V]>) => boolean;
+    addEntries(entries: StreamSource<readonly [K, V]>): boolean;
     /**
      * Removes the given `value` from the values associated with given `key` from the builder.
      * @param key - the key at which to remove the value
@@ -684,17 +668,20 @@ export namespace MultiMapBase {
   }
 
   export interface Types extends VariantMultiMapBase.Types {
-    normal: MultiMapBase<this['_K'], this['_V']>;
-    nonEmpty: MultiMapBase.NonEmpty<this['_K'], this['_V']>;
-    context: MultiMapBase.Context<this['_K'], this['_V']>;
-    builder: MultiMapBase.Builder<this['_K'], this['_V']>;
-    limitKey: true;
-    limitValue: true;
-    keyMap: RMap<this['_K'], RSet.NonEmpty<this['_V']>>;
-    keyMapNonEmpty: RMap.NonEmpty<this['_K'], RSet.NonEmpty<this['_V']>>;
-    keyMapContext: RMap.Context<this['_K']>;
-    keyMapValuesContext: RSet.Context<this['_V']>;
-    keyMapValues: RSet<this['_V']>;
-    keyMapValuesNonEmpty: RSet.NonEmpty<this['_V']>;
+    readonly normal: MultiMapBase<this['_K'], this['_V']>;
+    readonly nonEmpty: MultiMapBase.NonEmpty<this['_K'], this['_V']>;
+    readonly context: MultiMapBase.Context<this['_K'], this['_V']>;
+    readonly builder: MultiMapBase.Builder<this['_K'], this['_V']>;
+    readonly limitKey: true;
+    readonly limitValue: true;
+    readonly keyMap: RMap<this['_K'], RSet.NonEmpty<this['_V']>>;
+    readonly keyMapNonEmpty: RMap.NonEmpty<
+      this['_K'],
+      RSet.NonEmpty<this['_V']>
+    >;
+    readonly keyMapContext: RMap.Context<this['_K']>;
+    readonly keyMapValuesContext: RSet.Context<this['_V']>;
+    readonly keyMapValues: RSet<this['_V']>;
+    readonly keyMapValuesNonEmpty: RSet.NonEmpty<this['_V']>;
   }
 }

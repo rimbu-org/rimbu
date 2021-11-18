@@ -66,13 +66,13 @@ export namespace OrderedHashMap {
     extends OrderedMapBase.Context<UK, OrderedHashMap.Types> {}
 
   export interface Types extends OrderedMapBase.Types {
-    normal: OrderedHashMap<this['_K'], this['_V']>;
-    nonEmpty: OrderedHashMap.NonEmpty<this['_K'], this['_V']>;
-    context: OrderedHashMap.Context<this['_K']>;
-    builder: OrderedHashMap.Builder<this['_K'], this['_V']>;
-    sourceContext: HashMap.Context<this['_K']>;
-    sourceMap: HashMap<this['_K'], this['_V']>;
-    sourceMapNonEmpty: HashMap.NonEmpty<this['_K'], this['_V']>;
+    readonly normal: OrderedHashMap<this['_K'], this['_V']>;
+    readonly nonEmpty: OrderedHashMap.NonEmpty<this['_K'], this['_V']>;
+    readonly context: OrderedHashMap.Context<this['_K']>;
+    readonly builder: OrderedHashMap.Builder<this['_K'], this['_V']>;
+    readonly sourceContext: HashMap.Context<this['_K']>;
+    readonly sourceMap: HashMap<this['_K'], this['_V']>;
+    readonly sourceMapNonEmpty: HashMap.NonEmpty<this['_K'], this['_V']>;
   }
 }
 

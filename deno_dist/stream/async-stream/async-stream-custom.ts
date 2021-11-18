@@ -72,12 +72,12 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     return this;
   }
 
-  prepend<T2 = T>(value: AsyncOptLazy<T>): AsyncStream.NonEmpty<T | T2> {
-    return new AsyncPrependStream<T | T2>(this as any, value) as any;
+  prepend(value: AsyncOptLazy<T>): AsyncStream.NonEmpty<T> {
+    return new AsyncPrependStream<T>(this, value).assumeNonEmpty();
   }
 
-  append<T2 = T>(value: AsyncOptLazy<T2>): AsyncStream.NonEmpty<T | T2> {
-    return new AsyncAppendStream<T | T2>(this as any, value) as any;
+  append(value: AsyncOptLazy<T>): AsyncStream.NonEmpty<T> {
+    return new AsyncAppendStream<T>(this, value).assumeNonEmpty();
   }
 
   async forEach(
@@ -431,13 +431,13 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   take(amount: number): AsyncStream<T> {
     if (amount <= 0) return AsyncStream.empty();
 
-    return new AsyncTakeStream(this, amount);
+    return new AsyncTakeStream<T>(this, amount);
   }
 
   drop(amount: number): AsyncStream<T> {
     if (amount <= 0) return this;
 
-    return new AsyncDropStream(this, amount);
+    return new AsyncDropStream<T>(this, amount);
   }
 
   repeat(amount?: number): AsyncStream<T> {
@@ -445,13 +445,15 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
       return this;
     }
 
-    return new AsyncFromStream(() => new AsyncRepeatIterator(this, amount));
+    return new AsyncFromStream<T>(
+      () => new AsyncRepeatIterator<T>(this, amount)
+    );
   }
 
-  concat<T2 extends T>(...others: ArrayNonEmpty<AsyncStreamSource<T2>>): any {
-    if (others.every(AsyncStreamSource.isEmptyInstance)) return this as any;
+  concat(...others: ArrayNonEmpty<AsyncStreamSource<T>>): any {
+    if (others.every(AsyncStreamSource.isEmptyInstance)) return this;
 
-    return new AsyncConcatStream(this, others);
+    return new AsyncConcatStream<T>(this, others);
   }
 
   min<O>(otherwise?: AsyncOptLazy<O>): Promise<T | O> {
@@ -512,12 +514,12 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     }
   }
 
-  intersperse<T2>(sep: AsyncStreamSource<T2>): AsyncStream<T | T2> {
-    if (AsyncStreamSource.isEmptyInstance(sep)) return this as any;
+  intersperse(sep: AsyncStreamSource<T>): AsyncStream<T> {
+    if (AsyncStreamSource.isEmptyInstance(sep)) return this;
 
     const sepStream = AsyncStream.from(sep);
 
-    return new AsyncIntersperseStream(this, sepStream);
+    return new AsyncIntersperseStream<T>(this, sepStream);
   }
 
   async join({
@@ -546,22 +548,22 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     }
   }
 
-  mkGroup<O>({
-    sep = AsyncStream.empty<O>() as AsyncStreamSource<O>,
-    start = AsyncStream.empty<O>() as AsyncStreamSource<O>,
-    end = AsyncStream.empty<O>() as AsyncStreamSource<O>,
+  mkGroup({
+    sep = AsyncStream.empty<T>() as AsyncStreamSource<T>,
+    start = AsyncStream.empty<T>() as AsyncStreamSource<T>,
+    end = AsyncStream.empty<T>() as AsyncStreamSource<T>,
   } = {}): any {
-    return AsyncStream.from<T | O>(start, this.intersperse(sep), end);
+    return AsyncStream.from<T>(start, this.intersperse(sep), end);
   }
 
   splitWhere(
     pred: (value: T, index: number) => MaybePromise<boolean>
   ): AsyncStream<T[]> {
-    return new AsyncSplitWhereStream(this, pred);
+    return new AsyncSplitWhereStream<T>(this, pred);
   }
 
   splitOn(sepElem: T, eq: Eq<T> = Eq.objectIs): AsyncStream<T[]> {
-    return new AsyncSplitOnStream(this, sepElem, eq);
+    return new AsyncSplitOnStream<T>(this, sepElem, eq);
   }
 
   async fold<R>(
@@ -732,53 +734,6 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
       dataType: 'AsyncStream',
       value: await this.toArray(),
     };
-  }
-
-  zipWith<I extends readonly [unknown, ...unknown[]], R>(
-    zipFun: (value: T, ...values: I) => MaybePromise<R>,
-    ...iters: { [K in keyof I]: AsyncStreamSource<I[K]> }
-  ): any {
-    if (iters.some(AsyncStreamSource.isEmptyInstance)) {
-      return AsyncStream.empty();
-    }
-
-    return new AsyncFromStream(
-      (): AsyncFastIterator<R> =>
-        new AsyncZipWithIterator([this, ...iters], zipFun)
-    );
-  }
-
-  zip(...iters: any): any {
-    return this.zipWith(Array, ...(iters as [any, ...any[]]));
-  }
-
-  zipAllWith<I extends readonly [unknown, ...unknown[]], O, R>(
-    fillValue: AsyncOptLazy<O>,
-    zipFun: (
-      value: T,
-      ...values: { [K in keyof I]: I[K] | O }
-    ) => MaybePromise<R>,
-    ...streams: { [K in keyof I]: AsyncStreamSource<I[K]> }
-  ): any {
-    return new AsyncFromStream(
-      (): AsyncFastIterator<any> =>
-        new AsyncZipAllWithItererator(
-          fillValue,
-          [this, ...streams],
-          zipFun as any
-        )
-    );
-  }
-
-  zipAll<I extends readonly [unknown, ...unknown[]], O>(
-    fillValue: AsyncOptLazy<O>,
-    ...streams: { [K in keyof I]: AsyncStreamSource<I[K]> }
-  ): any {
-    return this.zipAllWith(
-      fillValue,
-      Array,
-      ...(streams as any as [any, ...any[]])
-    );
   }
 }
 
@@ -1277,15 +1232,15 @@ class AsyncIntersperseIterator<T, S> extends AsyncFastIteratorBase<T | S> {
   }
 }
 
-class AsyncIntersperseStream<T, S> extends AsyncStreamBase<T | S> {
+class AsyncIntersperseStream<T> extends AsyncStreamBase<T> {
   constructor(
     readonly source: AsyncStream<T>,
-    readonly sepStream: AsyncStream<S>
+    readonly sepStream: AsyncStream<T>
   ) {
     super();
   }
 
-  [Symbol.asyncIterator](): AsyncFastIterator<T | S> {
+  [Symbol.asyncIterator](): AsyncFastIterator<T> {
     return new AsyncIntersperseIterator(
       this.source[Symbol.asyncIterator](),
       this.sepStream
@@ -2157,108 +2112,5 @@ class AsyncReduceAllStream<I, R> extends AsyncStreamBase<R> {
       this.source[Symbol.asyncIterator](),
       this.reducers
     );
-  }
-}
-
-class AsyncZipWithIterator<
-  I extends readonly unknown[],
-  R
-> extends AsyncFastIteratorBase<R> {
-  constructor(
-    readonly iterables: { [K in keyof I]: AsyncStreamSource<I[K]> },
-    readonly zipFun: (...values: I) => MaybePromise<R>
-  ) {
-    super();
-
-    this.sources = iterables.map(
-      (source): AsyncFastIterator<any> =>
-        AsyncStream.from(source)[Symbol.asyncIterator]()
-    );
-
-    this.sourcesToClose = new Set(this.sources);
-
-    this.return = (): Promise<void> => closeIters(...this.sourcesToClose);
-  }
-
-  readonly sources: AsyncFastIterator<any>[];
-  readonly sourcesToClose: Set<AsyncFastIterator<any>>;
-
-  async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<R | O> {
-    const sources = this.sources;
-
-    const done = Symbol('Done');
-
-    const result = await Promise.all(
-      sources.map((source) =>
-        source.fastNext(() => {
-          this.sourcesToClose.delete(source);
-          return done;
-        })
-      )
-    );
-
-    if (this.sourcesToClose.size !== sources.length) {
-      await closeIters(this);
-      return AsyncOptLazy.toMaybePromise(otherwise!);
-    }
-
-    return (this.zipFun as any)(...result);
-  }
-}
-
-class AsyncZipAllWithItererator<
-  I extends readonly unknown[],
-  F,
-  R
-> extends AsyncFastIteratorBase<R> {
-  constructor(
-    readonly fillValue: AsyncOptLazy<F>,
-    readonly iters: { [K in keyof I]: AsyncStreamSource<I[K]> },
-    readonly zipFun: (
-      ...values: { [K in keyof I]: I[K] | F }
-    ) => MaybePromise<R>
-  ) {
-    super();
-
-    this.sources = iters.map(
-      (o): AsyncFastIterator<any> => AsyncStream.from(o)[Symbol.asyncIterator]()
-    );
-
-    this.sourcesToClose = new Set(this.sources);
-
-    this.return = (): Promise<void> => closeIters(...this.sourcesToClose);
-  }
-
-  readonly sources: AsyncFastIterator<any>[];
-
-  readonly sourcesToClose: Set<AsyncFastIterator<any>>;
-
-  async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<R | O> {
-    if (this.sourcesToClose.size === 0) {
-      return AsyncOptLazy.toMaybePromise(otherwise!);
-    }
-
-    const sources = this.sources;
-
-    const fillValue = this.fillValue;
-
-    const result = await Promise.all(
-      sources.map((source) => {
-        if (this.sourcesToClose.has(source)) {
-          return source.fastNext(() => {
-            this.sourcesToClose.delete(source);
-            return AsyncOptLazy.toMaybePromise(fillValue);
-          });
-        }
-
-        return AsyncOptLazy.toMaybePromise(fillValue);
-      })
-    );
-
-    if (this.sourcesToClose.size === 0) {
-      return AsyncOptLazy.toMaybePromise(otherwise!);
-    }
-
-    return (this.zipFun as any)(...result);
   }
 }

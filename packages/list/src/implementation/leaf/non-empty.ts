@@ -41,7 +41,7 @@ export abstract class ListNonEmptyBase<T>
   abstract append(value: T): List.NonEmpty<T>;
   abstract take(amount: number): List<T> | any;
   abstract drop(amount: number): List<T>;
-  abstract concat<T2>(
+  abstract concat<T2 = T>(
     ...sources: ArrayNonEmpty<StreamSource<T2>>
   ): List.NonEmpty<T | T2>;
   abstract updateAt(index: number, update: Update<T>): List.NonEmpty<T>;

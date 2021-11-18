@@ -55,7 +55,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * // => [0, 1, 2, 3]
    * @note O(1)
    */
-  prepend<T2 = T>(value: OptLazy<T2>): Stream.NonEmpty<T | T2>;
+  prepend(value: OptLazy<T>): Stream.NonEmpty<T>;
   /**
    * Returns the current stream succeeded by the given `value`
    * @param value - the value to append
@@ -64,7 +64,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * // => [1, 2, 3, 4]
    * @note O(1)
    */
-  append<T2 = T>(value: OptLazy<T2>): Stream.NonEmpty<T | T2>;
+  append(value: OptLazy<T>): Stream.NonEmpty<T>;
   /**
    * Performs given function `f` for each element of the Stream, using given `state` as initial traversal state.
    * @param f - the function to perform for each element, receiving:
@@ -500,7 +500,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * // => [1, 'a', 'b', 2, 'a', 'b', 3]
    * @note O(1)
    */
-  intersperse<T2>(sep: StreamSource<T2>): Stream<T | T2>;
+  intersperse(sep: StreamSource<T>): Stream<T>;
   /**
    * Returns a string resulting from converting each element to string with `options.valueToString`, interspersed with `options.sep`, starting with
    * `options.start` and ending with `options.end`.
@@ -532,21 +532,11 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * // => ['<', '<', 1, '-', 2, '-', 3, '>', '>']
    * @note O(N)
    */
-  mkGroup<T2>(options: {
-    sep?: StreamSource<T2>;
-    start: StreamSource.NonEmpty<T2>;
-    end?: StreamSource<T2>;
-  }): Stream.NonEmpty<T | T2>;
-  mkGroup<T2>(options: {
-    sep?: StreamSource<T2>;
-    start?: StreamSource<T2>;
-    end: StreamSource.NonEmpty<T2>;
-  }): Stream.NonEmpty<T | T2>;
-  mkGroup<T2>(options: {
-    sep?: StreamSource<T2>;
-    start?: StreamSource<T2>;
-    end?: StreamSource<T2>;
-  }): Stream<T | T2>;
+  mkGroup(options: {
+    sep?: StreamSource<T>;
+    start?: StreamSource<T>;
+    end?: StreamSource<T>;
+  }): Stream<T>;
   /**
    * Returns a Stream of arrays of Stream elements, where each array is filled with elements of this Stream up to the next element that
    * satisfies give function `pred`.
@@ -688,85 +678,6 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * Stream.of(1, 2, 3).toJSON()   // => { dataType: 'Stream', value: [1, 2, 3] }
    */
   toJSON(): ToJSON<T[], 'Stream'>;
-  /**
-   * Returns a Stream with the result of applying given `zipFun` to each successive value resulting from the given `streams`.
-   * @param zipFun - a function taking one element from each given Stream, and returning a result value
-   * @param streams - the input stream sources
-   * @example
-   * Stream.zipWith((a, b, c) => c ? a + b : a - b, [1, 2], [3, 4, 5], [true, false]).toArray()
-   * // => [4, -2]
-   * @note ends the Stream when any of the given streams ends
-   */
-  zipWith: {
-    <I extends readonly [unknown, ...unknown[]], R>(
-      zipFun: (value: T, ...values: I) => R,
-      ...iters: { [K in keyof I]: StreamSource<I[K]> }
-    ): Stream<R>;
-  };
-  /**
-   * Returns a Stream with tuples containing each successive value from the given `streams`.
-   * @param streams - the input stream sources
-   * @example
-   * Stream.zip([1, 2, 3], [4, 5], ['a', 'b', 'c']).toArray()    // => [[1, 4, 'a'], [2, 5, 'b']]
-   * @note ends the Stream when any of the given streams ends
-   */
-  zip: {
-    <I extends readonly [unknown, ...unknown[]]>(
-      ...iters: { [K in keyof I]: StreamSource<I[K]> }
-    ): Stream<[T, ...I]>;
-  };
-  /**
-   * Returns a Stream with the result of applying given `zipFun` to each successive value resulting from the given `streams`, adding
-   * given `fillValue` to any Streams that end before all streams have ended.
-   * @param fillValue - the value to add to streams that end early
-   * @param zipFun - a function taking one element from each given Stream, and returning a result value
-   * @param streams - the input stream sources
-   * @example
-   * Stream.zipAllWith(
-   *   0,
-   *   (a, b, c) => a + b + c,
-   *   [1, 2],
-   *   [3, 4, 5],
-   *   [6, 7]
-   * ).toArray()
-   * // => [10, 13, 5]
-   */
-  zipAllWith: {
-    <I extends readonly [unknown, ...unknown[]], O, R>(
-      fillValue: OptLazy<O>,
-      zipFun: (value: T | O, ...values: { [K in keyof I]: I[K] | O }) => R,
-      ...streams: { [K in keyof I]: StreamSource.NonEmpty<I[K]> }
-    ): Stream.NonEmpty<R>;
-    <I extends readonly [unknown, ...unknown[]], O, R>(
-      fillValue: OptLazy<O>,
-      zipFun: (value: T | O, ...values: { [K in keyof I]: I[K] | O }) => R,
-      ...streams: { [K in keyof I]: StreamSource<I[K]> }
-    ): Stream<R>;
-  };
-  /**
-   * Returns a Stream with tuples containing each successive value from the given `streams`, adding given `fillValue` to any Streams
-   * that end before all streams have ended.
-   * @param fillValue - the value to add to streams that end early
-   * @param streams - the input stream sources
-   * @example
-   * Stream.zipAll(
-   *   0,
-   *   [1, 2, 3],
-   *   [4, 5],
-   *   ['a', 'b', 'c']
-   * ).toArray()
-   * // => [[1, 4, 'a'], [2, 5, 'b'], [3, 0, 'c']]
-   */
-  zipAll: {
-    <I extends readonly [unknown, ...unknown[]], O>(
-      fillValue: OptLazy<O>,
-      ...streams: { [K in keyof I]: StreamSource.NonEmpty<I[K]> }
-    ): Stream.NonEmpty<[T | O, ...{ [K in keyof I]: I[K] | O }]>;
-    <I extends readonly [unknown, ...unknown[]], O>(
-      fillValue: OptLazy<O>,
-      ...streams: { [K in keyof I]: StreamSource<I[K]> }
-    ): Stream<[T | O, ...{ [K in keyof I]: I[K] | O }]>;
-  };
 }
 
 export namespace Stream {
@@ -805,7 +716,7 @@ export namespace Stream {
      * // => ['[0]: 1', '[1]: 2', '[2]: 3']
      * @note O(1)
      */
-    map<T2 = T>(mapFun: (value: T, index: number) => T2): Stream.NonEmpty<T2>;
+    map<T2>(mapFun: (value: T, index: number) => T2): Stream.NonEmpty<T2>;
     /**
      * Returns a non-empty tream where the given `mapFun` is applied to each value in the stream, with optionally
      * as extra arguments the given `args`.
@@ -873,7 +784,7 @@ export namespace Stream {
      */
     concat<T2 = T>(
       ...others: ArrayNonEmpty<StreamSource<T2>>
-    ): Stream.NonEmpty<T>;
+    ): Stream.NonEmpty<T | T2>;
     /**
      * Returns the mimimum element of the Stream according to a default compare function.
      * @example
@@ -912,7 +823,7 @@ export namespace Stream {
      * // => [1, 'a', 'b', 2, 'a', 'b', 3]
      * @note O(1)
      */
-    intersperse<T2>(sep: StreamSource<T2>): Stream.NonEmpty<T | T2>;
+    intersperse(sep: StreamSource<T>): Stream.NonEmpty<T>;
     /**
      * Returns a non-empty Stream starting with `options.sep`, then returning the elements of this Stream interspersed with `options.sep`, and ending with
      * `options.end`.
@@ -925,16 +836,16 @@ export namespace Stream {
      * // => ['<', '<', 1, '-', 2, '-', 3, '>', '>']
      * @note O(N)
      */
-    mkGroup<T2>(options: {
-      sep?: StreamSource<T2>;
-      start?: StreamSource<T2>;
-      end?: StreamSource<T2>;
-    }): Stream.NonEmpty<T | T2>;
-    foldStream<R = T>(
+    mkGroup(options: {
+      sep?: StreamSource<T>;
+      start?: StreamSource<T>;
+      end?: StreamSource<T>;
+    }): Stream.NonEmpty<T>;
+    foldStream<R>(
       init: OptLazy<R>,
       next: (current: R, value: T, index: number) => R
     ): Stream.NonEmpty<R>;
-    foldStream<R = T>(
+    foldStream<R>(
       init: OptLazy<R>,
       next: (current: R, value: T, index: number, halt: () => void) => R
     ): Stream<R>;
@@ -944,37 +855,6 @@ export namespace Stream {
      * Stream.of(1, 2, 3).toArray()   // => [1, 2, 3]
      */
     toArray(): ArrayNonEmpty<T>;
-    zipWith: {
-      <I extends readonly [unknown, ...unknown[]], R>(
-        zipFun: (value: T, ...values: I) => R,
-        ...iters: { [K in keyof I]: StreamSource.NonEmpty<I[K]> }
-      ): Stream.NonEmpty<R>;
-      <I extends readonly [unknown, ...unknown[]], R>(
-        zipFun: (value: T, ...values: I) => R,
-        ...iters: { [K in keyof I]: StreamSource<I[K]> }
-      ): Stream<R>;
-    };
-    zip: {
-      <I extends readonly [unknown, ...unknown[]]>(
-        ...iters: { [K in keyof I]: StreamSource.NonEmpty<I[K]> }
-      ): Stream.NonEmpty<[T, ...I]>;
-      <I extends readonly [unknown, ...unknown[]]>(
-        ...iters: { [K in keyof I]: StreamSource<I[K]> }
-      ): Stream<[T, ...I]>;
-    };
-    zipAllWith: {
-      <I extends readonly [unknown, ...unknown[]], O, R>(
-        fillValue: OptLazy<O>,
-        zipFun: (value: T | O, ...values: { [K in keyof I]: I[K] | O }) => R,
-        ...streams: { [K in keyof I]: StreamSource<I[K]> }
-      ): Stream.NonEmpty<R>;
-    };
-    zipAll: {
-      <I extends readonly [unknown, ...unknown[]], O>(
-        fillValue: OptLazy<O>,
-        ...streams: { [K in keyof I]: StreamSource<I[K]> }
-      ): Stream.NonEmpty<[T | O, ...{ [K in keyof I]: I[K] | O }]>;
-    };
   }
 }
 

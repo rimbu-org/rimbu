@@ -39,17 +39,11 @@ export namespace MultiMap {
     extends MultiMapBase.Builder<K, V, MultiMap.Types> {}
 
   export interface Types extends MultiMapBase.Types {
-    normal: MultiMap<this['_K'], this['_V']>;
-    nonEmpty: MultiMap.NonEmpty<this['_K'], this['_V']>;
-    // keyMap: RMap<this['_K'], this['keyMapValuesNonEmpty']>;
-    // keyMapNonEmpty: RMap.NonEmpty<this['_K'], this['keyMapValuesNonEmpty']>;
-    context: MultiMap.Context<this['_K'], this['_V']>;
-    builder: MultiMap.Builder<this['_K'], this['_V']>;
+    readonly normal: MultiMap<this['_K'], this['_V']>;
+    readonly nonEmpty: MultiMap.NonEmpty<this['_K'], this['_V']>;
+    readonly context: MultiMap.Context<this['_K'], this['_V']>;
+    readonly builder: MultiMap.Builder<this['_K'], this['_V']>;
   }
-}
-
-interface TypesImpl extends MultiMap.Types {
-  context: MultiMapContext<this['_K'], this['_V'], string, any>;
 }
 
 export const MultiMap = {
@@ -65,7 +59,7 @@ export const MultiMap = {
     keyMapContext: RMap.Context<UK>;
     keyMapValuesContext: RSet.Context<UV>;
   }): MultiMap.Context<UK, UV> {
-    return new MultiMapContext<UK, UV, 'MultiMap', TypesImpl>(
+    return new MultiMapContext<UK, UV, 'MultiMap', any>(
       'MultiMap',
       options.keyMapContext,
       options.keyMapValuesContext

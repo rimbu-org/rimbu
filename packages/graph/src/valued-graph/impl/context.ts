@@ -11,7 +11,11 @@ import {
 } from '../valued-graph-custom';
 
 export interface ValuedGraphTypesContextImpl extends ValuedGraphBase.Types {
-  context: ValuedGraphContext<this['_N'], string, ValuedGraphTypesContextImpl>;
+  readonly context: ValuedGraphContext<
+    this['_N'],
+    string,
+    ValuedGraphTypesContextImpl
+  >;
 }
 
 export class ValuedGraphContext<
@@ -20,6 +24,8 @@ export class ValuedGraphContext<
   Tp extends ValuedGraphTypesContextImpl
 > implements ValuedGraphBase.Context<UN, Tp>
 {
+  readonly _fixedType!: UN;
+
   readonly _empty: any;
 
   constructor(
@@ -41,7 +47,7 @@ export class ValuedGraphContext<
     return source instanceof ValuedGraphNonEmpty;
   }
 
-  empty = <N extends UN, V>(): WithGraphValues<Tp, N, V>['normal'] => {
+  empty = <N extends UN, V>(): any => {
     return this._empty;
   };
 

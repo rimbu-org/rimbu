@@ -46,42 +46,44 @@ export namespace SortedBiMultiMap {
     extends BiMultiMapBase.Builder<K, V, SortedBiMultiMap.Types> {}
 
   export interface Types extends BiMultiMapBase.Types {
-    context: SortedBiMultiMap.Context<this['_K'], this['_V']>;
-    normal: SortedBiMultiMap<this['_K'], this['_V']>;
-    nonEmpty: SortedBiMultiMap.NonEmpty<this['_K'], this['_V']>;
-    builder: SortedBiMultiMap.Builder<this['_K'], this['_V']>;
-    keyValueMultiMapContext: SortedMultiMapSortedValue.Context<
+    readonly context: SortedBiMultiMap.Context<this['_K'], this['_V']>;
+    readonly normal: SortedBiMultiMap<this['_K'], this['_V']>;
+    readonly nonEmpty: SortedBiMultiMap.NonEmpty<this['_K'], this['_V']>;
+    readonly builder: SortedBiMultiMap.Builder<this['_K'], this['_V']>;
+    readonly keyValueMultiMapContext: SortedMultiMapSortedValue.Context<
       this['_K'],
       this['_V']
     >;
-    valueKeyMultiMapContext: SortedMultiMapSortedValue.Context<
+    readonly valueKeyMultiMapContext: SortedMultiMapSortedValue.Context<
       this['_V'],
       this['_K']
     >;
-    keyValueMultiMap: SortedMultiMapSortedValue<this['_K'], this['_V']>;
-    valueKeyMultiMap: SortedMultiMapSortedValue<this['_V'], this['_K']>;
-    keyValueMultiMapNonEmpty: SortedMultiMapSortedValue.NonEmpty<
+    readonly keyValueMultiMap: SortedMultiMapSortedValue<
       this['_K'],
       this['_V']
     >;
-    valueKeyMultiMapNonEmpty: SortedMultiMapSortedValue.NonEmpty<
+    readonly valueKeyMultiMap: SortedMultiMapSortedValue<
       this['_V'],
       this['_K']
     >;
-    keyMultiMapValues: SortedSet<this['_V']>;
-    valueMultiMapValues: SortedSet<this['_K']>;
+    readonly keyValueMultiMapNonEmpty: SortedMultiMapSortedValue.NonEmpty<
+      this['_K'],
+      this['_V']
+    >;
+    readonly valueKeyMultiMapNonEmpty: SortedMultiMapSortedValue.NonEmpty<
+      this['_V'],
+      this['_K']
+    >;
+    readonly keyMultiMapValues: SortedSet<this['_V']>;
+    readonly valueMultiMapValues: SortedSet<this['_K']>;
   }
-}
-
-interface Types extends SortedBiMultiMap.Types {
-  context: BiMultiMapContext<this['_K'], this['_V'], any, any>;
 }
 
 function createContext<K, V>(options?: {
   keyValueMultiMapContext?: SortedMultiMapSortedValue.Context<K, V>;
   valueKeyMultiMapContext?: SortedMultiMapSortedValue.Context<V, K>;
 }): SortedBiMultiMap.Context<K, V> {
-  return new BiMultiMapContext<K, V, 'SortedBiMultiMap', Types>(
+  return new BiMultiMapContext<K, V, 'SortedBiMultiMap', any>(
     'SortedBiMultiMap',
     options?.keyValueMultiMapContext ??
       SortedMultiMapSortedValue.defaultContext(),

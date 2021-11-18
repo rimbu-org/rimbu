@@ -4,8 +4,8 @@ import {
   ArrayNonEmpty,
   OptLazy,
   OptLazyOr,
-  Reducer,
   RelatedTo,
+  Reducer,
   ToJSON,
   TraverseState,
   Update,
@@ -15,7 +15,7 @@ import type { Table } from '../internal.ts';
 import type { TableBase } from '../table-custom.ts';
 
 export interface ContextImplTypes extends TableBase.Types {
-  context: TableContext<this['_R'], this['_C'], string, this>;
+  readonly context: TableContext<this['_R'], this['_C'], string>;
 }
 
 export class TableEmpty<R, C, V, Tp extends ContextImplTypes>
@@ -27,18 +27,10 @@ export class TableEmpty<R, C, V, Tp extends ContextImplTypes>
   }
 
   set(row: R, column: C, value: V): CB.WithRow<Tp, R, C, V>['nonEmpty'] {
-    const columnMap = this.context.columnContext.of([
-      column,
-      value,
-    ]) as CB.WithRow<Tp, R, C, V>['rowNonEmpty'];
-    const rowMap = this.context.rowContext.of([row, columnMap]) as CB.WithRow<
-      Tp,
-      R,
-      C,
-      V
-    >['rowMapNonEmpty'];
+    const columnMap = this.context.columnContext.of([column, value]);
+    const rowMap = this.context.rowContext.of([row, columnMap]);
 
-    return this.context.createNonEmpty(rowMap as any, 1);
+    return this.context.createNonEmpty(rowMap, 1) as any;
   }
 
   get rowMap(): CB.WithRow<Tp, R, C, V>['rowMap'] {
@@ -116,7 +108,7 @@ export class TableEmpty<R, C, V, Tp extends ContextImplTypes>
       const value = OptLazyOr(options.ifNew, Token);
       if (Token === value) return this as any;
 
-      return this.set(row, column, value) as CB.WithRow<Tp, R, C, V>['normal'];
+      return this.set(row, column, value) as any;
     }
     return this as any;
   }
@@ -134,7 +126,7 @@ export class TableEmpty<R, C, V, Tp extends ContextImplTypes>
   }
 
   toBuilder(): CB.WithRow<Tp, R, C, V>['builder'] {
-    return this.context.builder() as CB.WithRow<Tp, R, C, V>['builder'];
+    return this.context.builder() as any;
   }
 
   toString(): string {
@@ -146,10 +138,6 @@ export class TableEmpty<R, C, V, Tp extends ContextImplTypes>
       dataType: this.context.typeTag,
       value: [],
     };
-  }
-
-  extendValues(): any {
-    return this;
   }
 }
 
@@ -185,9 +173,10 @@ export class TableNonEmpty<
   }
 
   copyE(rowMap: TpR['rowMap'], size: number): TpR['normal'] {
-    if (rowMap.nonEmpty())
-      return this.copy(rowMap.assumeNonEmpty(), size) as TpR['normal'];
-    return this.context.empty<R, C, V>() as TpR['normal'];
+    if (rowMap.nonEmpty()) {
+      return this.copy(rowMap.assumeNonEmpty(), size) as any;
+    }
+    return this.context.empty<R, C, V>() as any;
   }
 
   stream(): Stream.NonEmpty<[R, C, V]> {
@@ -239,7 +228,7 @@ export class TableNonEmpty<
     return this.rowMap.get(
       row,
       this.context.columnContext.empty<C, V>()
-    ) as TpR['row'];
+    ) as any;
   }
 
   set(row: R, column: C, value: V): TpR['nonEmpty'] {
@@ -374,7 +363,7 @@ export class TableNonEmpty<
           },
         });
 
-        if (newColumns.nonEmpty()) return newColumns;
+        if (newColumns.nonEmpty()) return newColumns as any;
         return remove;
       },
     });
@@ -415,7 +404,7 @@ export class TableNonEmpty<
     const builder = this.toBuilder();
 
     builder.removeEntries(entries);
-    return builder.build() as TpR['normal'];
+    return builder.build() as any;
   }
 
   forEach(
@@ -455,7 +444,7 @@ export class TableNonEmpty<
 
     if (builder.size === this.size) return this as any;
 
-    return builder.build() as TpR['normal'];
+    return builder.build() as any;
   }
 
   filterRows(
@@ -502,7 +491,7 @@ export class TableNonEmpty<
       }
     }
 
-    return result as ArrayNonEmpty<[R, C, V]>;
+    return result as any;
   }
 
   toString(): string {
@@ -519,17 +508,13 @@ export class TableNonEmpty<
       dataType: this.context.typeTag,
       value: this.rowMap
         .stream()
-        .map((entry) => [entry[0], entry[1].toJSON().value] as [R, [C, V][]])
+        .map((entry) => [entry[0], entry[1].toJSON().value] as any)
         .toArray(),
     };
   }
 
   toBuilder(): TpR['builder'] {
     return this.context.createBuilder(this as any);
-  }
-
-  extendValues(): any {
-    return this;
   }
 }
 
@@ -539,8 +524,8 @@ export class TableBuilder<
   V,
   Tp extends ContextImplTypes,
   TpR extends Tp & CB.Row<R, C, V> = Tp & CB.Row<R, C, V>
-> implements TableBase.Builder<R, C, V>
-{
+> {
+  //implements TableBase.Builder<R, C, V>
   _lock = 0;
   _size = 0;
 
@@ -843,7 +828,7 @@ export class TableBuilder<
     this._lock--;
   };
 
-  build = (): TableBase<R, C, V, TableBase.Types> => {
+  build = (): TpR['normal'] => {
     if (undefined !== this.source) return this.source;
 
     if (this.isEmpty) return this.context.empty() as any;
@@ -856,9 +841,7 @@ export class TableBuilder<
     ) as any;
   };
 
-  buildMapValues = <V2>(
-    mapFun: (value: V, row: R, column: C) => V2
-  ): TableBase<R, C, V2, TableBase.Types> => {
+  buildMapValues = <V2>(mapFun: (value: V, row: R, column: C) => V2): any => {
     if (undefined !== this.source) return this.source.mapValues<V2>(mapFun);
 
     if (this.isEmpty) return this.context.empty() as any;
@@ -880,20 +863,25 @@ export class TableBuilder<
   };
 }
 
-export class TableContext<UR, UC, N extends string, Tp extends ContextImplTypes>
-  implements TableBase.Context<UR, UC, Tp>
+export class TableContext<
+  UR,
+  UC,
+  N extends string,
+  Tp extends ContextImplTypes = ContextImplTypes
+> implements TableBase.Context<UR, UC, Tp>
 {
   constructor(
     readonly typeTag: N,
     readonly rowContext: CB.WithRow<Tp, UR, UC, any>['rowContext'],
     readonly columnContext: CB.WithRow<Tp, UR, UC, any>['columnContext']
   ) {}
+  readonly _fixedKeys!: readonly [UR, UC];
 
   get _types(): Tp {
     return undefined as any;
   }
 
-  readonly _empty = new TableEmpty<UR, UC, any, Tp>(this) as CB.WithRow<
+  readonly _empty = new TableEmpty<UR, UC, any, any>(this) as CB.WithRow<
     Tp,
     UR,
     UC,
@@ -910,8 +898,7 @@ export class TableContext<UR, UC, N extends string, Tp extends ContextImplTypes>
     rowMap: CB.WithRow<Tp, R, C, V>['rowMapNonEmpty'],
     size: number
   ): CB.WithRow<Tp, R, C, V>['nonEmpty'] {
-    return new TableNonEmpty<R, C, V, Tp>(this, rowMap, size) as (Tp &
-      CB.Row<R, C, V>)['nonEmpty'];
+    return new TableNonEmpty<R, C, V, Tp>(this, rowMap, size) as any;
   }
 
   empty = <R extends UR, C extends UC, V>(): CB.WithRow<
@@ -963,12 +950,8 @@ export class TableContext<UR, UC, N extends string, Tp extends ContextImplTypes>
     C,
     V
   >['builder'] => {
-    return new TableBuilder<R, C, V, Tp>(this) as CB.WithRow<
-      Tp,
-      R,
-      C,
-      V
-    >['builder'];
+    return null as any;
+    // return new TableBuilder<R, C, V, Tp>(this) as any;
   };
 
   reducer = <R extends UR, C extends UC, V>(
@@ -978,9 +961,7 @@ export class TableContext<UR, UC, N extends string, Tp extends ContextImplTypes>
       () =>
         undefined === source
           ? this.builder<R, C, V>()
-          : (
-              this.from(source) as CB.WithRow<Tp, R, C, V>['normal']
-            ).toBuilder(),
+          : (this.from(source) as any).toBuilder(),
       (builder, entry) => {
         builder.addEntry(entry);
         return builder;
@@ -992,11 +973,7 @@ export class TableContext<UR, UC, N extends string, Tp extends ContextImplTypes>
   createBuilder<R extends UR, C extends UC, V>(
     source?: Table.NonEmpty<R, C, V>
   ): CB.WithRow<Tp, R, C, V>['builder'] {
-    return new TableBuilder<R, C, V, Tp>(this, source) as CB.WithRow<
-      Tp,
-      R,
-      C,
-      V
-    >['builder'];
+    return null as any;
+    // return new TableBuilder<R, C, V, Tp>(this, source) as any;
   }
 }

@@ -133,7 +133,7 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
    * // => [[1, 2]]
    * @note if the key and/or value are already associated, the previous value will be 'replaced'
    */
-  set: (key: K, value: V) => BiMap.NonEmpty<K, V>;
+  set(key: K, value: V): BiMap.NonEmpty<K, V>;
   /**
    * Returns the collection with given `entry` added.
    * @param entry - a tuple containing a key and value
@@ -141,7 +141,7 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
    * BiMap.of([1, 1], [2, 2]).addEntry([1, 2]).toArray()
    * // => [[1, 2]]
    */
-  addEntry: (entry: readonly [K, V]) => BiMap.NonEmpty<K, V>;
+  addEntry(entry: readonly [K, V]): BiMap.NonEmpty<K, V>;
   /**
    * Returns the collection with the entries from the given `StreamSource` `entries` added.
    * @param entries - a `StreamSource` containing tuples with a key and value
@@ -149,10 +149,11 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
    * BiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()
    * // => [[1, 3], [2, 2]]
    */
-  addEntries: {
-    (entries: StreamSource.NonEmpty<readonly [K, V]>): BiMap.NonEmpty<K, V>;
-    (entries: StreamSource<readonly [K, V]>): BiMap<K, V>;
-  };
+  addEntries(
+    entries: StreamSource.NonEmpty<readonly [K, V]>
+  ): BiMap.NonEmpty<K, V>;
+  addEntries(entries: StreamSource<readonly [K, V]>): BiMap<K, V>;
+
   /**
    * Returns the collection where the entry associated with given `key` is removed if it was part of the collection.
    * @param key - the key of the entry to remove
@@ -302,7 +303,7 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
    * @example
    * const builder: BiMap.Builder<number, string> = BiMap.of([1, 'a'], [2, 'b']).toBuilder()
    */
-  toBuilder: () => BiMap.Builder<K, V>;
+  toBuilder(): BiMap.Builder<K, V>;
   /**
    * Returns an array containing all entries in this collection.
    * @example
@@ -380,9 +381,7 @@ export namespace BiMap {
      * BiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()
      * // => [[1, 2]]
      */
-    addEntries: (
-      entries: StreamSource<readonly [K, V]>
-    ) => BiMap.NonEmpty<K, V>;
+    addEntries(entries: StreamSource<readonly [K, V]>): BiMap.NonEmpty<K, V>;
     /**
      * Returns the collection where the value associated with given `key` is updated with the given `update` value or update function.
      * @param key - the key of the entry to update
@@ -467,36 +466,34 @@ export namespace BiMap {
      * BiMap.empty<number, string>()    // => BiMap<number, string>
      * BiMap.empty<string, boolean>()   // => BiMap<string, boolean>
      */
-    empty: <K extends UK, V extends UV>() => BiMap<K, V>;
+    empty<K extends UK, V extends UV>(): BiMap<K, V>;
     /**
      * Returns an immutable `BiMap`, containing the given `entries`.
      * @param entries - a non-empty array of key-value entries
      * @example
      * BiMap.of([1, 'a'], [2, 'b'])    // => BiMap.NonEmpty<number, string>
      */
-    of: <K extends UK, V extends UV>(
+    of<K extends UK, V extends UV>(
       ...entries: ArrayNonEmpty<readonly [K, V]>
-    ) => BiMap.NonEmpty<K, V>;
+    ): BiMap.NonEmpty<K, V>;
     /**
      * Returns an immutable BiMap, containing the entries in the given `sources` `StreamSource` instances.
      * @param sources - an array of `StreamSource` instances contaning key-value entries
      * @example
      * BiMap.from([[1, 'a'], [2, 'b']])    // => BiMap.NonEmpty<number, string>
      */
-    from: {
-      <K extends UK, V extends UV>(
-        ...sources: ArrayNonEmpty<StreamSource<readonly [K, V]>>
-      ): BiMap.NonEmpty<K, V>;
-      <K extends UK, V extends UV>(
-        ...sources: ArrayNonEmpty<StreamSource.NonEmpty<readonly [K, V]>>
-      ): BiMap<K, V>;
-    };
+    from<K extends UK, V extends UV>(
+      ...sources: ArrayNonEmpty<StreamSource<readonly [K, V]>>
+    ): BiMap.NonEmpty<K, V>;
+    from<K extends UK, V extends UV>(
+      ...sources: ArrayNonEmpty<StreamSource.NonEmpty<readonly [K, V]>>
+    ): BiMap<K, V>;
     /**
      * Returns an empty `BiMap` builder instance.
      * @example
      * BiMap.builder<number, string>()    // => BiMap.Builder<number, string>
      */
-    builder: <K extends UK, V extends UV>() => BiMap.Builder<K, V>;
+    builder<K extends UK, V extends UV>(): BiMap.Builder<K, V>;
     /**
      * Returns a `Reducer` that adds received tuples to a BiMap and returns the BiMap as a result. When a `source` is given,
      * the reducer will first create a BiMap from the source, and then add tuples to it.
@@ -507,16 +504,16 @@ export namespace BiMap {
      * result.toArray()   // => [[1, 'c'], [2, 'b'], [3, 'a']]
      * @note uses a builder under the hood. If the given `source` is a BiMap in the same context, it will directly call `.toBuilder()`.
      */
-    reducer: <K extends UK, V extends UV>(
+    reducer<K extends UK, V extends UV>(
       source?: StreamSource<readonly [K, V]>
-    ) => Reducer<readonly [K, V], BiMap<K, V>>;
+    ): Reducer<readonly [K, V], BiMap<K, V>>;
   }
 
   export interface Types extends CustomBase.KeyValue {
-    normal: BiMap<this['_K'], this['_V']>;
-    nonEmpty: BiMap.NonEmpty<this['_K'], this['_V']>;
-    limitKey: true;
-    limitValue: true;
+    readonly normal: BiMap<this['_K'], this['_V']>;
+    readonly nonEmpty: BiMap.NonEmpty<this['_K'], this['_V']>;
+    readonly limitKey: true;
+    readonly limitValue: true;
   }
 
   /**
@@ -593,7 +590,7 @@ export namespace BiMap {
      * m.set(1, 'a')   // => false
      * m.set(1, 'b')   // => true
      */
-    set: (key: K, value: V) => boolean;
+    set(key: K, value: V): boolean;
     /**
      * Adds the given `entry` to the builder, where the entry key is associated with the entry value.
      * @param entry - the entry to add
@@ -603,7 +600,7 @@ export namespace BiMap {
      * m.addEntry([1, 'a'])   // => false
      * m.addEntry([1, 'b'])   // => true
      */
-    addEntry: (entry: readonly [K, V]) => boolean;
+    addEntry(entry: readonly [K, V]): boolean;
     /**
      * Adds given `entries` to the builder.
      * @param entries - a `StreamSource` containing the entries to add
@@ -613,7 +610,7 @@ export namespace BiMap {
      * m.addEntries([1, 'a'], [3, 'c']])   // => true
      * m.addEntries([])                    // => false
      */
-    addEntries: (entries: StreamSource<readonly [K, V]>) => boolean;
+    addEntries(entries: StreamSource<readonly [K, V]>): boolean;
     /**
      * Removes the entries related to given `key` from the builder.
      * @param key - the key to remove

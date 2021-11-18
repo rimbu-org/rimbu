@@ -258,7 +258,7 @@ export abstract class HashMapNonEmptyBase<K, V>
   }
 
   toBuilder(): HashMap.Builder<K, V> {
-    return this.context.createBuilder(this);
+    return this.context.createBuilder<K, V>(this);
   }
 
   toString(): string {

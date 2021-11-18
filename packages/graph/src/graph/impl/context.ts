@@ -6,7 +6,12 @@ import type { GraphElement } from '../../internal';
 import type { GraphBase } from '../graph-custom';
 import { GraphBuilder, GraphEmpty, GraphNonEmpty } from '../graph-custom';
 export interface GraphTypesContextImpl extends GraphBase.Types {
-  context: GraphContext<this['_N'], string, boolean, GraphTypesContextImpl>;
+  readonly context: GraphContext<
+    this['_N'],
+    string,
+    boolean,
+    GraphTypesContextImpl
+  >;
 }
 
 export class GraphContext<
@@ -16,6 +21,8 @@ export class GraphContext<
   Tp extends GraphTypesContextImpl
 > implements GraphBase.Context<UN, Tp>
 {
+  readonly _fixedType!: UN;
+
   readonly _empty: WithGraphValues<Tp, UN, any>['normal'];
 
   constructor(

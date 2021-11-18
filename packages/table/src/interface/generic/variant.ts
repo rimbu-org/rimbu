@@ -32,7 +32,11 @@ export namespace VariantTable {
       Streamable.NonEmpty<[R, C, V]> {}
 
   export interface Types extends VariantTableBase.Types {
-    normal: VariantTable<this['_R'], this['_C'], this['_V']>;
-    nonEmpty: VariantTable.NonEmpty<this['_R'], this['_C'], this['_V']>;
+    readonly normal: VariantTable<this['_R'], this['_C'], this['_V']>;
+    readonly nonEmpty: VariantTable.NonEmpty<
+      this['_R'],
+      this['_C'],
+      this['_V']
+    >;
   }
 }

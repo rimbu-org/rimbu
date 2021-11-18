@@ -1,4 +1,4 @@
-import type { CustomBase, RMapBase } from '@rimbu/collection-types';
+import type { CustomBase, RMap, RMapBase } from '@rimbu/collection-types';
 import type { List } from '@rimbu/list';
 import type { Stream, Streamable } from '@rimbu/stream';
 import type { OrderedMapNonEmpty } from '../../ordered-custom';
@@ -80,14 +80,14 @@ export namespace OrderedMapBase {
   }
 
   export interface Types extends CustomBase.RMapBase.Types {
-    normal: OrderedMapBase<this['_K'], this['_V']>;
-    nonEmpty: OrderedMapBase.NonEmpty<this['_K'], this['_V']>;
-    context: OrderedMapBase.Context<this['_K']>;
-    builder: OrderedMapBase.Builder<this['_K'], this['_V']>;
-    sourceContext: CustomBase.RMapBase.Context<this['_K']>;
-    sourceMap: CustomBase.RMapBase<this['_K'], this['_V']>;
-    sourceMapNonEmpty: CustomBase.RMapBase.NonEmpty<this['_K'], this['_V']>;
-    sourceBuilder: CustomBase.RMapBase.Builder<this['_K'], this['_V']>;
+    readonly normal: OrderedMapBase<this['_K'], this['_V']>;
+    readonly nonEmpty: OrderedMapBase.NonEmpty<this['_K'], this['_V']>;
+    readonly context: OrderedMapBase.Context<this['_K']>;
+    readonly builder: OrderedMapBase.Builder<this['_K'], this['_V']>;
+    readonly sourceContext: RMap.Context<this['_K']>;
+    readonly sourceMap: RMap<this['_K'], this['_V']>;
+    readonly sourceMapNonEmpty: RMap.NonEmpty<this['_K'], this['_V']>;
+    readonly sourceBuilder: RMap.Builder<this['_K'], this['_V']>;
   }
 }
 

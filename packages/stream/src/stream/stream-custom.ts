@@ -53,12 +53,12 @@ export abstract class StreamBase<T> implements Stream<T> {
     return this;
   }
 
-  prepend<T2>(value: OptLazy<T2>): Stream.NonEmpty<T | T2> {
-    return new PrependStream<T | T2>(this, value) as any;
+  prepend(value: OptLazy<T>): Stream.NonEmpty<T> {
+    return new PrependStream<T>(this, value).assumeNonEmpty();
   }
 
-  append<T2>(value: OptLazy<T2>): Stream.NonEmpty<T | T2> {
-    return new AppendStream<T | T2>(this, value) as any;
+  append(value: OptLazy<T>): Stream.NonEmpty<T> {
+    return new AppendStream<T>(this, value).assumeNonEmpty();
   }
 
   forEach(
@@ -341,12 +341,12 @@ export abstract class StreamBase<T> implements Stream<T> {
     return new FromStream<T>(() => new RepeatIterator<T>(this, amount));
   }
 
-  concat<T2>(
-    ...others: ArrayNonEmpty<StreamSource<T2>>
-  ): Stream.NonEmpty<T | T2> {
-    if (others.every(StreamSource.isEmptyInstance)) return this as any;
+  concat(...others: ArrayNonEmpty<StreamSource<T>>): Stream.NonEmpty<T> {
+    if (others.every(StreamSource.isEmptyInstance)) {
+      return this.assumeNonEmpty();
+    }
 
-    return new ConcatStream<T | T2>(this, others) as any;
+    return new ConcatStream<T>(this, others).assumeNonEmpty();
   }
 
   min<O>(otherwise?: OptLazy<O>): T | O {
@@ -387,12 +387,12 @@ export abstract class StreamBase<T> implements Stream<T> {
     return result;
   }
 
-  intersperse<O>(sep: StreamSource<O>): Stream<T | O> {
+  intersperse(sep: StreamSource<T>): Stream<T> {
     if (StreamSource.isEmptyInstance(sep)) return this;
 
     const sepStream = Stream.from(sep);
 
-    return new IntersperseStream<T, O>(this, sepStream);
+    return new IntersperseStream<T>(this, sepStream);
   }
 
   join({
@@ -416,12 +416,12 @@ export abstract class StreamBase<T> implements Stream<T> {
     return result.concat(end);
   }
 
-  mkGroup<O>({
-    sep = Stream.empty<O>() as StreamSource<O>,
-    start = Stream.empty<O>() as StreamSource<O>,
-    end = Stream.empty<O>() as StreamSource<O>,
+  mkGroup({
+    sep = Stream.empty<T>() as StreamSource<T>,
+    start = Stream.empty<T>() as StreamSource<T>,
+    end = Stream.empty<T>() as StreamSource<T>,
   } = {}): any {
-    return Stream.from<T | O>(start, this.intersperse(sep), end);
+    return Stream.from<T>(start, this.intersperse(sep), end);
   }
 
   splitWhere(pred: (value: T, index: number) => boolean): Stream<T[]> {
@@ -532,43 +532,6 @@ export abstract class StreamBase<T> implements Stream<T> {
       dataType: 'Stream',
       value: this.toArray(),
     };
-  }
-
-  zipWith<I extends readonly [unknown, ...unknown[]], R>(
-    zipFun: (value: T, ...values: I) => R,
-    ...iters: { [K in keyof I]: StreamSource<I[K]> }
-  ): any {
-    if (iters.some(StreamSource.isEmptyInstance)) return Stream.empty();
-
-    return new FromStream<R>(
-      (): FastIterator<R> => new ZipWithIterator([this, ...iters], zipFun)
-    );
-  }
-
-  zip(...iters: any): any {
-    return this.zipWith(Array, ...(iters as [any, ...any[]]));
-  }
-
-  zipAllWith<I extends readonly [unknown, ...unknown[]], O, R>(
-    fillValue: OptLazy<O>,
-    zipFun: (value: T, ...values: { [K in keyof I]: I[K] | O }) => R,
-    ...streams: { [K in keyof I]: StreamSource<I[K]> }
-  ): any {
-    return new FromStream(
-      (): FastIterator<any> =>
-        new ZipAllWithItererator(fillValue, [this, ...streams], zipFun as any)
-    );
-  }
-
-  zipAll<I extends readonly [unknown, ...unknown[]], O>(
-    fillValue: OptLazy<O>,
-    ...streams: { [K in keyof I]: StreamSource<I[K]> }
-  ): any {
-    return this.zipAllWith(
-      fillValue,
-      Array,
-      ...(streams as any as [any, ...any[]])
-    );
   }
 }
 
@@ -1501,16 +1464,16 @@ class RepeatIterator<T> extends FastIteratorBase<T> {
   }
 }
 
-class IntersperseIterator<T, S> extends FastIteratorBase<T | S> {
-  constructor(readonly source: FastIterator<T>, readonly sepStream: Stream<S>) {
+class IntersperseIterator<T> extends FastIteratorBase<T> {
+  constructor(readonly source: FastIterator<T>, readonly sepStream: Stream<T>) {
     super();
   }
 
-  sepIterator: FastIterator<S> | undefined;
+  sepIterator: FastIterator<T> | undefined;
   nextValue!: T;
   isInitialized = false;
 
-  fastNext<O>(otherwise?: OptLazy<O>): T | S | O {
+  fastNext<O>(otherwise?: OptLazy<O>): T | O {
     const done = Symbol('Done');
 
     if (undefined !== this.sepIterator) {
@@ -1544,13 +1507,13 @@ class IntersperseIterator<T, S> extends FastIteratorBase<T | S> {
   }
 }
 
-class IntersperseStream<T, S> extends StreamBase<T | S> {
-  constructor(readonly source: Stream<T>, readonly sepStream: Stream<S>) {
+class IntersperseStream<T> extends StreamBase<T> {
+  constructor(readonly source: Stream<T>, readonly sepStream: Stream<T>) {
     super();
   }
 
-  [Symbol.iterator](): FastIterator<T | S> {
-    return new IntersperseIterator<T, S>(
+  [Symbol.iterator](): FastIterator<T> {
+    return new IntersperseIterator<T>(
       this.source[Symbol.iterator](),
       this.sepStream
     );
@@ -1788,94 +1751,5 @@ export class FromIterable<T> extends StreamBase<T> {
     if (FastIterator.isFastIterator(iterator)) return iterator;
 
     return new SlowIteratorAdapter<T>(iterator);
-  }
-}
-
-class ZipWithIterator<
-  I extends readonly unknown[],
-  R
-> extends FastIteratorBase<R> {
-  constructor(
-    readonly iterables: { [K in keyof I]: StreamSource<I[K]> },
-    readonly zipFun: (...values: I) => R
-  ) {
-    super();
-
-    this.sources = iterables.map(
-      (source): FastIterator<any> => Stream.from(source)[Symbol.iterator]()
-    );
-  }
-
-  readonly sources: FastIterator<any>[];
-
-  fastNext<O>(otherwise?: OptLazy<O>): R | O {
-    const result = [];
-
-    let sourceIndex = -1;
-    const sources = this.sources;
-
-    const done = Symbol('Done');
-
-    while (++sourceIndex < sources.length) {
-      const value = sources[sourceIndex].fastNext(done);
-
-      if (done === value) return OptLazy(otherwise) as O;
-
-      result.push(value);
-    }
-
-    return (this.zipFun as any)(...result);
-  }
-}
-
-class ZipAllWithItererator<
-  I extends readonly unknown[],
-  F,
-  R
-> extends FastIteratorBase<R> {
-  constructor(
-    readonly fillValue: OptLazy<F>,
-    readonly iters: { [K in keyof I]: StreamSource<I[K]> },
-    readonly zipFun: (...values: { [K in keyof I]: I[K] | F }) => R
-  ) {
-    super();
-
-    this.sources = iters.map(
-      (o): FastIterator<any> => Stream.from(o)[Symbol.iterator]()
-    );
-  }
-
-  readonly sources: FastIterator<any>[];
-  allDone = false;
-
-  fastNext<O>(otherwise?: OptLazy<O>): R | O {
-    if (this.allDone) return OptLazy(otherwise) as O;
-
-    const result = [];
-
-    let sourceIndex = -1;
-    const sources = this.sources;
-
-    const done = Symbol('Done');
-    let anyNotDone = false;
-    const fillValue = this.fillValue;
-
-    while (++sourceIndex < sources.length) {
-      const value = sources[sourceIndex].fastNext(done);
-
-      if (done === value) {
-        result.push(OptLazy(fillValue));
-      } else {
-        anyNotDone = true;
-        result.push(value);
-      }
-    }
-
-    if (!anyNotDone) {
-      this.allDone = true;
-      return OptLazy(otherwise) as O;
-    }
-
-    return (this.zipFun as any)(...result);
   }
 }

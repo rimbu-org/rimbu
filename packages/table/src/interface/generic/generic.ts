@@ -1,6 +1,6 @@
 import type { RMap } from '@rimbu/collection-types';
 import type { Streamable } from '@rimbu/stream';
-import { TableBase, TableContext } from '../../table-custom';
+import type { TableBase } from '../../table-custom';
 
 /**
  * A type-invariant immutable Table of row key type R, column key type C, and value type V.
@@ -48,15 +48,11 @@ export namespace Table {
     extends TableBase.Builder<R, C, V, Table.Types> {}
 
   export interface Types extends TableBase.Types {
-    normal: Table<this['_R'], this['_C'], this['_V']>;
-    nonEmpty: Table.NonEmpty<this['_R'], this['_C'], this['_V']>;
-    context: Table.Context<this['_R'], this['_C']>;
-    builder: Table.Builder<this['_R'], this['_C'], this['_V']>;
+    readonly normal: Table<this['_R'], this['_C'], this['_V']>;
+    readonly nonEmpty: Table.NonEmpty<this['_R'], this['_C'], this['_V']>;
+    readonly context: Table.Context<this['_R'], this['_C']>;
+    readonly builder: Table.Builder<this['_R'], this['_C'], this['_V']>;
   }
-}
-
-interface TypesImpl extends Table.Types {
-  context: TableContext<this['_R'], this['_C'], string, any>;
 }
 
 export const Table = {
@@ -72,10 +68,11 @@ export const Table = {
     rowContext: RMap.Context<UR>;
     columnContext: RMap.Context<UC>;
   }): Table.Context<UR, UC> {
-    return new TableContext<UR, UC, 'Table', TypesImpl>(
-      'Table',
-      options.rowContext,
-      options.columnContext
-    );
+    return null as any;
+    // return new TableContext<UR, UC, 'Table', any>(
+    //   'Table',
+    //   options.rowContext,
+    //   options.columnContext
+    // );
   },
 };

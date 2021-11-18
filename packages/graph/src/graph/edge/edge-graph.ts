@@ -50,10 +50,6 @@ export namespace EdgeGraph {
   }
 }
 
-interface TypesImpl extends EdgeGraph.Types {
-  readonly context: GraphContext<this['_N'], string, false, any>;
-}
-
 export const EdgeGraph = {
   /**
    * Returns a new EdgeGraph context instance based on the given `options`.
@@ -66,7 +62,7 @@ export const EdgeGraph = {
     linkMapContext: RMap.Context<UN>;
     linkConnectionsContext: RSet.Context<UN>;
   }): EdgeGraph.Context<UN> {
-    return new GraphContext<UN, 'EdgeGraph', false, TypesImpl>(
+    return new GraphContext<UN, 'EdgeGraph', false, any>(
       false,
       'EdgeGraph',
       options.linkMapContext,

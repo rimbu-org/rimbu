@@ -1,4 +1,3 @@
-import type { RMap } from '@rimbu/collection-types';
 import type { OmitStrong } from '@rimbu/common';
 import { ValuedGraphCustom, ValuedGraphElement } from '@rimbu/graph';
 import { SortedMap } from '@rimbu/sorted';
@@ -62,20 +61,17 @@ export namespace ArrowValuedGraphSorted {
     readonly nonEmpty: ArrowValuedGraphSorted.NonEmpty<this['_N'], this['_V']>;
     readonly context: ArrowValuedGraphSorted.Context<this['_N']>;
     readonly builder: ArrowValuedGraphSorted.Builder<this['_N'], this['_V']>;
-    readonly linkMap: SortedMap<this['_N'], SortedMap<this['_N'], this['_V']>> &
-      SortedMap<this['_N'], RMap<this['_N'], this['_V']>>;
+    readonly linkMap: SortedMap<this['_N'], SortedMap<this['_N'], this['_V']>>;
     readonly linkMapNonEmpty: SortedMap.NonEmpty<
       this['_N'],
       SortedMap<this['_N'], this['_V']>
-    > &
-      SortedMap.NonEmpty<this['_N'], RMap<this['_N'], this['_V']>>;
+    >;
     readonly linkMapContext: SortedMap.Context<this['_N']>;
     readonly linkConnectionsContext: SortedMap.Context<this['_N']>;
     readonly linkMapBuilder: SortedMap.Builder<
       this['_N'],
       SortedMap.Builder<this['_N'], this['_V']>
-    > &
-      SortedMap.Builder<this['_N'], RMap.Builder<this['_N'], this['_V']>>;
+    >;
     readonly linkConnectionsBuilder: SortedMap.Builder<this['_N'], this['_V']>;
     readonly linkConnections: SortedMap<this['_N'], this['_V']>;
   }

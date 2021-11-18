@@ -30,7 +30,7 @@ export namespace VariantMultiMap {
       Streamable.NonEmpty<[K, V]> {}
 
   export interface Types extends VariantMultiMapBase.Types {
-    normal: VariantMultiMap<this['_K'], this['_V']>;
-    nonEmpty: VariantMultiMap.NonEmpty<this['_K'], this['_V']>;
+    readonly normal: VariantMultiMap<this['_K'], this['_V']>;
+    readonly nonEmpty: VariantMultiMap.NonEmpty<this['_K'], this['_V']>;
   }
 }

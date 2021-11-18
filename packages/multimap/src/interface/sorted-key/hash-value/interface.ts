@@ -1,4 +1,3 @@
-import type { RSet } from '@rimbu/collection-types';
 import type { OmitStrong } from '@rimbu/common';
 import { HashSet } from '@rimbu/hashed';
 import { SortedMap } from '@rimbu/sorted';
@@ -71,38 +70,27 @@ export namespace SortedMultiMapHashValue {
     extends MultiMapBase.Builder<K, V, SortedMultiMapHashValue.Types> {}
 
   export interface Types extends MultiMapBase.Types {
-    normal: SortedMultiMapHashValue<this['_K'], this['_V']>;
-    nonEmpty: SortedMultiMapHashValue.NonEmpty<this['_K'], this['_V']>;
-    context: SortedMultiMapHashValue.Context<this['_K'], this['_V']>;
-    builder: SortedMultiMapHashValue.Builder<this['_K'], this['_V']>;
-    keyMap: SortedMap<this['_K'], HashSet.NonEmpty<this['_V']>> &
-      SortedMap<this['_K'], RSet.NonEmpty<this['_K']>>;
-    keyMapNonEmpty: SortedMap.NonEmpty<
+    readonly normal: SortedMultiMapHashValue<this['_K'], this['_V']>;
+    readonly nonEmpty: SortedMultiMapHashValue.NonEmpty<this['_K'], this['_V']>;
+    readonly context: SortedMultiMapHashValue.Context<this['_K'], this['_V']>;
+    readonly builder: SortedMultiMapHashValue.Builder<this['_K'], this['_V']>;
+    readonly keyMap: SortedMap<this['_K'], HashSet.NonEmpty<this['_V']>>;
+    readonly keyMapNonEmpty: SortedMap.NonEmpty<
       this['_K'],
       HashSet.NonEmpty<this['_V']>
-    > &
-      SortedMap.NonEmpty<this['_K'], RSet.NonEmpty<this['_K']>>;
-    keyMapContext: SortedMap.Context<this['_K']>;
-    keyMapValuesContext: HashSet.Context<this['_V']>;
-    keyMapValues: HashSet<this['_V']>;
-    keyMapValuesNonEmpty: HashSet.NonEmpty<this['_V']>;
+    >;
+    readonly keyMapContext: SortedMap.Context<this['_K']>;
+    readonly keyMapValuesContext: HashSet.Context<this['_V']>;
+    readonly keyMapValues: HashSet<this['_V']>;
+    readonly keyMapValuesNonEmpty: HashSet.NonEmpty<this['_V']>;
   }
-}
-
-interface TypesImpl extends SortedMultiMapHashValue.Types {
-  context: MultiMapContext<
-    this['_K'],
-    this['_V'],
-    'SortedMultiMapHashValue',
-    any
-  >;
 }
 
 function createContext<K, V>(options?: {
   keyMapContext?: SortedMap.Context<K>;
   keyMapValuesContext?: HashSet.Context<V>;
 }): SortedMultiMapHashValue.Context<K, V> {
-  return new MultiMapContext<K, V, 'SortedMultiMapHashValue', TypesImpl>(
+  return new MultiMapContext<K, V, 'SortedMultiMapHashValue', any>(
     'SortedMultiMapHashValue',
     options?.keyMapContext ?? SortedMap.defaultContext(),
     options?.keyMapValuesContext ?? HashSet.defaultContext()

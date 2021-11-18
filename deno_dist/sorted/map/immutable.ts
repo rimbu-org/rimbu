@@ -453,7 +453,7 @@ export abstract class SortedMapNode<K, V>
   }
 
   toBuilder(): SortedMapBuilder<K, V> {
-    return this.context.createBuilder(this);
+    return this.context.createBuilder<K, V>(this);
   }
 
   toString(): string {
@@ -754,13 +754,15 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 
   stream(reversed?: boolean): Stream.NonEmpty<readonly [K, V]> {
     const token = Symbol();
-    return Stream.fromArray(this.children, undefined, reversed)
-      .zipAll(token, Stream.fromArray(this.entries, undefined, reversed))
-      .flatMap(([child, e]): Stream.NonEmpty<readonly [K, V]> => {
-        if (token === child) RimbuError.throwInvalidStateError();
-        if (token === e) return child.stream(reversed);
-        return child.stream(reversed).append(e);
-      }) as Stream.NonEmpty<readonly [K, V]>;
+    return Stream.zipAll(
+      token,
+      Stream.fromArray(this.children, undefined, reversed),
+      Stream.fromArray(this.entries, undefined, reversed)
+    ).flatMap(([child, e]): Stream.NonEmpty<readonly [K, V]> => {
+      if (token === child) RimbuError.throwInvalidStateError();
+      if (token === e) return child.stream(reversed);
+      return child.stream(reversed).append(e);
+    }) as Stream.NonEmpty<readonly [K, V]>;
   }
 
   streamSliceIndex(

@@ -518,13 +518,15 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
   stream(reversed = false): Stream.NonEmpty<T> {
     const token = Symbol();
 
-    return Stream.fromArray(this.children, undefined, reversed)
-      .zipAll(token, Stream.fromArray(this.entries, undefined, reversed))
-      .flatMap(([child, e]): Stream.NonEmpty<T> => {
-        if (token === child) RimbuError.throwInvalidStateError();
-        if (token === e) return child.stream(reversed);
-        return child.stream(reversed).append(e);
-      }) as Stream.NonEmpty<T>;
+    return Stream.zipAll(
+      token,
+      Stream.fromArray(this.children, undefined, reversed),
+      Stream.fromArray(this.entries, undefined, reversed)
+    ).flatMap(([child, e]): Stream.NonEmpty<T> => {
+      if (token === child) RimbuError.throwInvalidStateError();
+      if (token === e) return child.stream(reversed);
+      return child.stream(reversed).append(e);
+    }) as Stream.NonEmpty<T>;
   }
 
   streamSliceIndex(range: IndexRange, reversed = false): Stream<T> {

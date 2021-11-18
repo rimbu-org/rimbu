@@ -13,8 +13,7 @@ import type { MultiMap } from '../internal.ts';
 import type { MultiMapBase } from '../multimap-custom.ts';
 
 export interface ContextImplTypes extends MultiMapBase.Types {
-  context: MultiMapContext<this['_K'], this['_V'], string, this> &
-    MultiMapBase.Context<this['_K'], this['_V']>;
+  readonly context: MultiMapContext<this['_K'], this['_V'], string>;
 }
 
 export class MultiMapEmpty<K, V, Tp extends ContextImplTypes>
@@ -611,7 +610,7 @@ export class MultiMapContext<
   UK,
   UV,
   N extends string,
-  Tp extends ContextImplTypes
+  Tp extends ContextImplTypes = ContextImplTypes
 > implements MultiMapBase.Context<UK, UV, Tp>
 {
   constructor(

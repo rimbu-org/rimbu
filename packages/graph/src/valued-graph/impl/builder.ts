@@ -151,8 +151,10 @@ export class ValuedGraphBuilder<
 
     this.linkMap.modifyAt(node1, {
       ifNew: () => {
-        const targetBuilder =
-          this.context.linkConnectionsContext.builder<N, V>();
+        const targetBuilder = this.context.linkConnectionsContext.builder<
+          N,
+          V
+        >();
         targetBuilder.set(node2, value);
         this.connectionSize++;
         changed = true;
@@ -173,8 +175,10 @@ export class ValuedGraphBuilder<
     if (changed && node1 !== node2) {
       this.linkMap.modifyAt(node2, {
         ifNew: () => {
-          const targetBuilder =
-            this.context.linkConnectionsContext.builder<N, V>();
+          const targetBuilder = this.context.linkConnectionsContext.builder<
+            N,
+            V
+          >();
           if (!this.isDirected) targetBuilder.set(node1, value);
           return targetBuilder;
         },
@@ -403,7 +407,7 @@ export class ValuedGraphBuilder<
   build = (): TpG['normal'] => {
     if (undefined !== this.source) return this.source as any;
 
-    if (this.isEmpty) return this.context.empty();
+    if (this.isEmpty) return this.context.empty<N, V>();
 
     const linkMap = this.linkMap
       .buildMapValues((targets) => targets.build())

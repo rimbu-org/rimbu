@@ -1,4 +1,3 @@
-import type { RMap } from '../../collection-types/mod.ts';
 import type { OmitStrong } from '../../common/mod.ts';
 import { ValuedGraphCustom, ValuedGraphElement } from '../../graph/mod.ts';
 import { HashMap } from '../../hashed/mod.ts';
@@ -62,20 +61,17 @@ export namespace EdgeValuedGraphHashed {
     readonly nonEmpty: EdgeValuedGraphHashed.NonEmpty<this['_N'], this['_V']>;
     readonly context: EdgeValuedGraphHashed.Context<this['_N']>;
     readonly builder: EdgeValuedGraphHashed.Builder<this['_N'], this['_V']>;
-    readonly linkMap: HashMap<this['_N'], HashMap<this['_N'], this['_V']>> &
-      HashMap<this['_N'], RMap<this['_N'], this['_V']>>;
+    readonly linkMap: HashMap<this['_N'], HashMap<this['_N'], this['_V']>>;
     readonly linkMapNonEmpty: HashMap.NonEmpty<
       this['_N'],
       HashMap<this['_N'], this['_V']>
-    > &
-      HashMap.NonEmpty<this['_N'], RMap<this['_N'], this['_V']>>;
+    >;
     readonly linkMapContext: HashMap.Context<this['_N']>;
     readonly linkConnectionsContext: HashMap.Context<this['_N']>;
     readonly linkMapBuilder: HashMap.Builder<
       this['_N'],
       HashMap.Builder<this['_N'], this['_V']>
-    > &
-      HashMap.Builder<this['_N'], RMap.Builder<this['_N'], this['_V']>>;
+    >;
     readonly linkConnectionsBuilder: HashMap.Builder<this['_N'], this['_V']>;
     readonly linkConnections: HashMap<this['_N'], this['_V']>;
   }

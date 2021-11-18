@@ -1,4 +1,3 @@
-import type { RSet } from '../../../../collection-types/mod.ts';
 import type { OmitStrong } from '../../../../common/mod.ts';
 import { HashMap } from '../../../../hashed/mod.ts';
 import { SortedSet } from '../../../../sorted/mod.ts';
@@ -71,38 +70,27 @@ export namespace HashMultiMapSortedValue {
     extends MultiMapBase.Builder<K, V, HashMultiMapSortedValue.Types> {}
 
   export interface Types extends MultiMapBase.Types {
-    normal: HashMultiMapSortedValue<this['_K'], this['_V']>;
-    nonEmpty: HashMultiMapSortedValue.NonEmpty<this['_K'], this['_V']>;
-    context: HashMultiMapSortedValue.Context<this['_K'], this['_V']>;
-    builder: HashMultiMapSortedValue.Builder<this['_K'], this['_V']>;
-    keyMap: HashMap<this['_K'], SortedSet.NonEmpty<this['_V']>> &
-      HashMap<this['_K'], RSet.NonEmpty<this['_V']>>;
-    keyMapNonEmpty: HashMap.NonEmpty<
+    readonly normal: HashMultiMapSortedValue<this['_K'], this['_V']>;
+    readonly nonEmpty: HashMultiMapSortedValue.NonEmpty<this['_K'], this['_V']>;
+    readonly context: HashMultiMapSortedValue.Context<this['_K'], this['_V']>;
+    readonly builder: HashMultiMapSortedValue.Builder<this['_K'], this['_V']>;
+    readonly keyMap: HashMap<this['_K'], SortedSet.NonEmpty<this['_V']>>;
+    readonly keyMapNonEmpty: HashMap.NonEmpty<
       this['_K'],
       SortedSet.NonEmpty<this['_V']>
-    > &
-      HashMap.NonEmpty<this['_K'], RSet.NonEmpty<this['_V']>>;
-    keyMapContext: HashMap.Context<this['_K']>;
-    keyMapValuesContext: SortedSet.Context<this['_V']>;
-    keyMapValues: SortedSet<this['_V']>;
-    keyMapValuesNonEmpty: SortedSet.NonEmpty<this['_V']>;
+    >;
+    readonly keyMapContext: HashMap.Context<this['_K']>;
+    readonly keyMapValuesContext: SortedSet.Context<this['_V']>;
+    readonly keyMapValues: SortedSet<this['_V']>;
+    readonly keyMapValuesNonEmpty: SortedSet.NonEmpty<this['_V']>;
   }
-}
-
-interface TypesImpl extends HashMultiMapSortedValue.Types {
-  context: MultiMapContext<
-    this['_K'],
-    this['_V'],
-    'HashMultiMapSortedValue',
-    any
-  >;
 }
 
 function createContext<K, V>(options?: {
   keyMapContext?: HashMap.Context<K>;
   keyMapValuesContext?: SortedSet.Context<V>;
 }): HashMultiMapSortedValue.Context<K, V> {
-  return new MultiMapContext<K, V, 'HashMultiMapSortedValue', TypesImpl>(
+  return new MultiMapContext<K, V, 'HashMultiMapSortedValue', any>(
     'HashMultiMapSortedValue',
     options?.keyMapContext ?? HashMap.defaultContext(),
     options?.keyMapValuesContext ?? SortedSet.defaultContext()

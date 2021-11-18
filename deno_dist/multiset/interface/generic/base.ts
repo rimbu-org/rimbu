@@ -250,10 +250,10 @@ export namespace VariantMultiSetBase {
   }
 
   export interface Types extends CB.Elem {
-    normal: VariantMultiSetBase<this['_T']>;
-    nonEmpty: VariantMultiSetBase.NonEmpty<this['_T']>;
-    countMap: VariantMap<this['_T'], number>;
-    countMapNonEmpty: VariantMap.NonEmpty<this['_T'], number>;
+    readonly normal: VariantMultiSetBase<this['_T']>;
+    readonly nonEmpty: VariantMultiSetBase.NonEmpty<this['_T']>;
+    readonly countMap: VariantMap<this['_T'], number>;
+    readonly countMapNonEmpty: VariantMap.NonEmpty<this['_T'], number>;
   }
 }
 
@@ -274,20 +274,16 @@ export interface MultiSetBase<
    * HashMultiSet.of(1, 2).add(3, 2).toArray()   // => [1, 2, 3, 3]
    * @note amount < 0 will be normalized to 0
    */
-  add: {
-    (value: T): CB.WithElem<Tp, T>['nonEmpty'];
-    (value: T, amount: number): CB.WithElem<Tp, T>['normal'];
-  };
+  add(value: T): CB.WithElem<Tp, T>['nonEmpty'];
+  add(value: T, amount: number): CB.WithElem<Tp, T>['normal'];
   /**
    * Returns the collection with the values in `values` added.
    * @param values - a `StreamSource` containing values to add
    * @example
    * HashMultiSet.of(1, 2).addAll([2, 3]).toArray()   // => [1, 2, 2, 3]
    */
-  addAll: {
-    (values: StreamSource.NonEmpty<T>): CB.WithElem<Tp, T>['nonEmpty'];
-    (values: StreamSource<T>): CB.WithElem<Tp, T>['normal'];
-  };
+  addAll(values: StreamSource.NonEmpty<T>): CB.WithElem<Tp, T>['nonEmpty'];
+  addAll(values: StreamSource<T>): CB.WithElem<Tp, T>['normal'];
   /**
    * Returns the collection where for every entry in `entries` consisting of a tuple
    * of a value and an amount, that value is added `amount` times.
@@ -296,9 +292,9 @@ export interface MultiSetBase<
    * HashMultiSet.of(1, 2).addEntries([[2, 2], [3, 2]]).toArray()
    * // => [1, 2, 2, 2, 3, 3]
    */
-  addEntries: (
+  addEntries(
     entries: StreamSource<readonly [T, number]>
-  ) => CB.WithElem<Tp, T>['normal'];
+  ): CB.WithElem<Tp, T>['normal'];
   /**
    * Returns the collection where the amount of values of `value` if set to `amount`.
    * @param value - the value of which to set the amount
@@ -309,7 +305,7 @@ export interface MultiSetBase<
    * m.setCount(1, 2).toArray()    // => [1, 1, 2, 2]
    * m.setCount(2, 0).toArray()    // => [1]
    */
-  setCount: (value: T, amount: number) => CB.WithElem<Tp, T>['normal'];
+  setCount(value: T, amount: number): CB.WithElem<Tp, T>['normal'];
   /**
    * Returns the collection where the count of the given `value` is modified according to
    * the given `update` function.
@@ -332,7 +328,7 @@ export interface MultiSetBase<
    * const builder: HashMultiSet.Builder<number>
    *   = HashMultiSet.of(1, 2, 2).toBuilder()
    */
-  toBuilder: () => CB.WithElem<Tp, T>['builder'];
+  toBuilder(): CB.WithElem<Tp, T>['builder'];
 }
 
 export namespace MultiSetBase {
@@ -357,14 +353,14 @@ export namespace MultiSetBase {
      * HashMultiSet.of(1, 2).add(3, 2).toArray()   // => [1, 2, 3, 3]
      * @note amount < 0 will be normalized to 0
      */
-    add: (value: T, amount?: number) => CB.WithElem<Tp, T>['nonEmpty'];
+    add(value: T, amount?: number): CB.WithElem<Tp, T>['nonEmpty'];
     /**
      * Returns the collection with the values in `values` added.
      * @param values - a `StreamSource` containing values to add
      * @example
      * HashMultiSet.of(1, 2).addAll([2, 3]).toArray()   // => [1, 2, 2, 3]
      */
-    addAll: (values: StreamSource<T>) => CB.WithElem<Tp, T>['nonEmpty'];
+    addAll(values: StreamSource<T>): CB.WithElem<Tp, T>['nonEmpty'];
     /**
      * Returns the collection where for every entry in `entries` consisting of a tuple
      * of a value and an amount, that value is added `amount` times.
@@ -373,9 +369,9 @@ export namespace MultiSetBase {
      * HashMultiSet.of(1, 2).addEntries([[2, 2], [3, 2]]).toArray()
      * // => [1, 2, 2, 2, 3, 3]
      */
-    addEntries: (
+    addEntries(
       entries: StreamSource<readonly [T, number]>
-    ) => CB.WithElem<Tp, T>['nonEmpty'];
+    ): CB.WithElem<Tp, T>['nonEmpty'];
   }
 
   export interface Context<
@@ -401,23 +397,23 @@ export namespace MultiSetBase {
      * @example
      * HashMultiSet.defaultContext().isValidKey(1)   // => true
      */
-    isValidElem: (key: any) => key is UT;
+    isValidElem(key: any): key is UT;
     /**
      * Returns the (singleton) empty instance of this type and context with given key and value types.
      * @example
      * HashMultiSet.empty<number>()    // => HashMultiSet<number>
      * HashMultiSet.empty<string>()    // => HashMultiSet<string>
      */
-    empty: <T extends UT>() => CB.WithElem<Tp, T>['normal'];
+    empty<T extends UT>(): CB.WithElem<Tp, T>['normal'];
     /**
      * Returns an immutable multimap of this collection type and context, containing the given `values`.
      * @param values - a non-empty array of vslues
      * @example
      * HashMultiSet.of(1, 2, 2)    // => HashMultiSet.NonEmpty<number>
      */
-    of: <T extends UT>(
+    of<T extends UT>(
       ...values: ArrayNonEmpty<T>
-    ) => CB.WithElem<Tp, T>['nonEmpty'];
+    ): CB.WithElem<Tp, T>['nonEmpty'];
     /**
      * Returns an immutable multimap of this type and context, containing the values in the given `sources`
      * `StreamSource`.
@@ -425,21 +421,18 @@ export namespace MultiSetBase {
      * @example
      * HashMultiSet.from([1, 2], [2, 3, 4]).toArray()    // => [1, 2, 2, 3, 4]
      */
-    from: {
-      <T extends UT>(
-        ...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>
-      ): CB.WithElem<Tp, T>['nonEmpty'];
-      <T extends UT>(...sources: ArrayNonEmpty<StreamSource<T>>): CB.WithElem<
-        Tp,
-        T
-      >['normal'];
-    };
+    from<T extends UT>(
+      ...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>
+    ): CB.WithElem<Tp, T>['nonEmpty'];
+    from<T extends UT>(
+      ...sources: ArrayNonEmpty<StreamSource<T>>
+    ): CB.WithElem<Tp, T>['normal'];
     /**
      * Returns an empty builder instance for this type of collection and context.
      * @example
      * HashMultiSet.builder<number>()    // => HashMultiSet.Builder<number>
      */
-    builder: <T extends UT>() => CB.WithElem<Tp, T>['builder'];
+    builder<T extends UT>(): CB.WithElem<Tp, T>['builder'];
     /**
      * Returns a `Reducer` that appends received items to a MultiSet and returns the MultiSet as a result. When a `source` is given,
      * the reducer will first create a MultiSet from the source, and then add elements to it.
@@ -450,9 +443,9 @@ export namespace MultiSetBase {
      * result.toArray()   // => [1, 2, 3, 20, 21, 22, 23, 24]
      * @note uses a MultiSet builder under the hood. If the given `source` is a MultiSet in the same context, it will directly call `.toBuilder()`.
      */
-    reducer: <T extends UT>(
+    reducer<T extends UT>(
       source?: StreamSource<T>
-    ) => Reducer<T, CB.WithElem<Tp, T>['normal']>;
+    ): Reducer<T, CB.WithElem<Tp, T>['normal']>;
   }
 
   export interface Builder<
@@ -499,7 +492,7 @@ export namespace MultiSetBase {
      * s.add(3, 5)  // => true
      * s.add(3, 0)  // => false
      */
-    add: (value: T, amount?: number) => boolean;
+    add(value: T, amount?: number): boolean;
     /**
      * Adds the values in given `values` `StreamSource` to the builder.
      * @param values - the values to add
@@ -509,7 +502,7 @@ export namespace MultiSetBase {
      * s.addAll(1, 3)   // => false
      * s.addAll(2, 10)  // => true
      */
-    addAll: (values: StreamSource<T>) => boolean;
+    addAll(values: StreamSource<T>): boolean;
     /**
      * Adds for each tuple of a value and amount in the given `entries`, the amount of values
      * to the builder.
@@ -520,7 +513,7 @@ export namespace MultiSetBase {
      * s.addEntries([[1, 2], [2, 3]])   // => true
      * s.addEntries([[1, 0], [3, 0]])   // => false
      */
-    addEntries: (entries: StreamSource<readonly [T, number]>) => boolean;
+    addEntries(entries: StreamSource<readonly [T, number]>): boolean;
     /**
      * Removes given `amount` or all of given `value` from the builder.
      * @param value - the value to remove
@@ -564,7 +557,7 @@ export namespace MultiSetBase {
      * s.setCount(1, 1)    // => false
      * s.setCount(1, 3)    // => true
      */
-    setCount: (value: T, amount: number) => boolean;
+    setCount(value: T, amount: number): boolean;
     /**
      * Changes the amount of given `value` in the builder according to the result of given `update`
      * function.
@@ -579,10 +572,7 @@ export namespace MultiSetBase {
      * s.modifyCount(3, v => v + 1)  // => true
      * s.modifyCount(2, v => v + 1)  // => true
      */
-    modifyCount: (
-      value: T,
-      update: (currentCount: number) => number
-    ) => boolean;
+    modifyCount(value: T, update: (currentCount: number) => number): boolean;
     /**
      * Returns the amount of given `value` in the builder.
      * @param value - the value to look for
@@ -622,13 +612,13 @@ export namespace MultiSetBase {
   }
 
   export interface Types extends VariantMultiSetBase.Types {
-    normal: MultiSetBase<this['_T']>;
-    nonEmpty: MultiSetBase.NonEmpty<this['_T']>;
-    context: MultiSetBase.Context<this['_T']>;
-    builder: MultiSetBase.Builder<this['_T']>;
-    limitElem: true;
-    countMap: RMap<this['_T'], number>;
-    countMapNonEmpty: RMap.NonEmpty<this['_T'], number>;
-    countMapContext: RMap.Context<this['_T']>;
+    readonly normal: MultiSetBase<this['_T']>;
+    readonly nonEmpty: MultiSetBase.NonEmpty<this['_T']>;
+    readonly context: MultiSetBase.Context<this['_T']>;
+    readonly builder: MultiSetBase.Builder<this['_T']>;
+    readonly limitElem: true;
+    readonly countMap: RMap<this['_T'], number>;
+    readonly countMapNonEmpty: RMap.NonEmpty<this['_T'], number>;
+    readonly countMapContext: RMap.Context<this['_T']>;
   }
 }

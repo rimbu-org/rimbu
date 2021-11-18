@@ -63,13 +63,13 @@ export namespace OrderedSortedSet {
     extends OrderedSetBase.Context<UT, OrderedSortedSet.Types> {}
 
   export interface Types extends OrderedSetBase.Types {
-    normal: OrderedSortedSet<this['_T']>;
-    nonEmpty: OrderedSortedSet.NonEmpty<this['_T']>;
-    context: OrderedSortedSet.Context<this['_T']>;
-    builder: OrderedSortedSet.Builder<this['_T']>;
-    sourceContext: SortedSet.Context<this['_T']>;
-    sourceSet: SortedSet<this['_T']>;
-    sourceSetNonEmpty: SortedSet.NonEmpty<this['_T']>;
+    readonly normal: OrderedSortedSet<this['_T']>;
+    readonly nonEmpty: OrderedSortedSet.NonEmpty<this['_T']>;
+    readonly context: OrderedSortedSet.Context<this['_T']>;
+    readonly builder: OrderedSortedSet.Builder<this['_T']>;
+    readonly sourceContext: SortedSet.Context<this['_T']>;
+    readonly sourceSet: SortedSet<this['_T']>;
+    readonly sourceSetNonEmpty: SortedSet.NonEmpty<this['_T']>;
   }
 }
 

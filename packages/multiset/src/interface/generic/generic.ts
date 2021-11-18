@@ -34,12 +34,12 @@ export namespace MultiSet {
   export interface Builder<T> extends MultiSetBase.Builder<T, MultiSet.Types> {}
 
   export interface Types extends MultiSetBase.Types {
-    normal: MultiSet<this['_T']>;
-    nonEmpty: MultiSet.NonEmpty<this['_T']>;
-    countMap: RMap<this['_T'], number>;
-    countMapNonEmpty: RMap.NonEmpty<this['_T'], number>;
-    context: MultiSet.Context<this['_T']>;
-    builder: MultiSet.Builder<this['_T']>;
+    readonly normal: MultiSet<this['_T']>;
+    readonly nonEmpty: MultiSet.NonEmpty<this['_T']>;
+    readonly countMap: RMap<this['_T'], number>;
+    readonly countMapNonEmpty: RMap.NonEmpty<this['_T'], number>;
+    readonly context: MultiSet.Context<this['_T']>;
+    readonly builder: MultiSet.Builder<this['_T']>;
   }
 }
 

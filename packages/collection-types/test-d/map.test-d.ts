@@ -19,6 +19,11 @@ let varNonEmpty!: V_NonEmpty;
 let genEmpty!: G_Empty;
 let genNonEmpty!: G_NonEmpty;
 
+expectAssignable<RMap<number, string | number>>(genEmpty);
+expectNotAssignable<RMap<number | string, string>>(genEmpty);
+expectNotAssignable<RMap<1, string>>(genEmpty);
+expectNotAssignable<RMap<number, 'a'>>(genEmpty);
+
 // Variant to Gen mappings
 expectAssignable<V_Empty>(varNonEmpty);
 expectAssignable<V_Empty>(genEmpty);
@@ -46,9 +51,9 @@ expectAssignable<VE<number | string, string | boolean>>(genNonEmpty);
 expectAssignable<VNE<number | string, string | boolean>>(genNonEmpty);
 
 expectNotAssignable<GE<number | string, string>>(genEmpty);
-expectNotAssignable<GE<number, string | boolean>>(genEmpty);
+expectAssignable<GE<number, string | boolean>>(genEmpty);
 expectNotAssignable<GNE<number | string, string>>(genNonEmpty);
-expectNotAssignable<GNE<number, string | boolean>>(genNonEmpty);
+expectAssignable<GNE<number, string | boolean>>(genNonEmpty);
 
 let m!: any;
 expectNotAssignable<V_Empty>(m as VE<number | string, string>);
