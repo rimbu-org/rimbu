@@ -4,7 +4,6 @@ import { List } from '@rimbu/list';
 import type { Stream, Streamable } from '@rimbu/stream';
 import type { OrderedSetBase } from '../../ordered-custom';
 import { OrderedSetContextImpl } from '../implementation/context';
-import type { OrderedSetTypes } from './base';
 
 /**
  * A type-invariant immutable Ordered HashSet of value type T.
@@ -75,7 +74,7 @@ function createContext<UT>(options?: {
   listContext?: List.Context;
   setContext?: HashSet.Context<UT>;
 }): OrderedHashSet.Context<UT> {
-  return new OrderedSetContextImpl<UT, OrderedSetTypes>(
+  return new OrderedSetContextImpl<UT>(
     options?.listContext ?? List.defaultContext(),
     options?.setContext ?? HashSet.defaultContext()
   ) as any;

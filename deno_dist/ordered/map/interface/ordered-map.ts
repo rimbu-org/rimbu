@@ -1,11 +1,7 @@
 import type { RMap } from '../../../collection-types/mod.ts';
 import { List } from '../../../list/mod.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
-import {
-  OrderedMapBase,
-  OrderedMapContextImpl,
-  OrderedMapTypes,
-} from '../../ordered-custom.ts';
+import { OrderedMapBase, OrderedMapContextImpl } from '../../ordered-custom.ts';
 
 /**
  * A type-invariant immutable Ordered Map of key type K, and value type V.
@@ -88,7 +84,7 @@ export const OrderedMap = {
     listContext?: List.Context;
     mapContext: RMap.Context<UK>;
   }): OrderedMap.Context<UK> {
-    return new OrderedMapContextImpl<UK, OrderedMapTypes>(
+    return new OrderedMapContextImpl<UK>(
       options.listContext ?? List.defaultContext(),
       options.mapContext
     ) as any;

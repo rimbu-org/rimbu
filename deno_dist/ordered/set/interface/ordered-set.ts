@@ -1,11 +1,7 @@
 import type { RSet } from '../../../collection-types/mod.ts';
 import { List } from '../../../list/mod.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
-import {
-  OrderedSetBase,
-  OrderedSetContextImpl,
-  OrderedSetTypes,
-} from '../../ordered-custom.ts';
+import { OrderedSetBase, OrderedSetContextImpl } from '../../ordered-custom.ts';
 
 export interface OrderedSet<T> extends OrderedSetBase<T, OrderedSet.Types> {}
 
@@ -46,7 +42,7 @@ export const OrderedSet = {
     listContext?: List.Context;
     setContext: RSet.Context<UT>;
   }): OrderedSet.Context<UT> {
-    return new OrderedSetContextImpl<UT, OrderedSetTypes>(
+    return new OrderedSetContextImpl<UT>(
       options.listContext ?? List.defaultContext(),
       options.setContext
     ) as any;

@@ -166,10 +166,6 @@ export class SortedMapEmpty<K = any, V = any>
     };
   }
 
-  extendValues(): any {
-    return this;
-  }
-
   mergeAll<O>(fillValue: O, ...sources: any): any {
     return this.context.mergeAll(
       fillValue,
@@ -470,10 +466,6 @@ export abstract class SortedMapNode<K, V>
       dataType: this.context.typeTag,
       value: this.toArray(),
     };
-  }
-
-  extendValues(): any {
-    return this;
   }
 
   mergeAll<O>(fillValue: O, ...sources: any): any {

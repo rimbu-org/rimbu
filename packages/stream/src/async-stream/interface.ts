@@ -117,7 +117,7 @@ export interface AsyncStream<T>
    * // => [[0, 1], [1, 2], [2, 3]]
    * @note O(1)
    */
-  // indexed(startIndex?: number): AsyncStream<[number, T]>;
+  indexed(startIndex?: number): AsyncStream<[number, T]>;
   /**
    * Returns an AsyncStream where `mapFun` is applied to each element.
    * @param mapFun - a potentially asynchronous function taking an element and its index, and returning some new element
@@ -470,10 +470,12 @@ export interface AsyncStream<T>
    * // [1, 2, 3, 4, 5, 6, 7]
    * @note O(1)
    */
-  concat(
-    ...others: ArrayNonEmpty<AsyncStreamSource.NonEmpty<T>>
-  ): AsyncStream.NonEmpty<T>;
-  concat(...others: ArrayNonEmpty<AsyncStreamSource<T>>): AsyncStream<T>;
+  concat<T2 = T>(
+    ...others: ArrayNonEmpty<AsyncStreamSource.NonEmpty<T2>>
+  ): AsyncStream.NonEmpty<T | T2>;
+  concat<T2 = T>(
+    ...others: ArrayNonEmpty<AsyncStreamSource<T2>>
+  ): AsyncStream<T | T2>;
   /**
    * Returns the mimimum element of the AsyncStream according to a default compare function, or the provided `otherwise` fallback value if the
    * stream is empty.
@@ -765,7 +767,7 @@ export namespace AsyncStream {
      * // => [[0, 1], [1, 2], [2, 3]]
      * @note O(1)
      */
-    // indexed(startIndex?: number): AsyncStream.NonEmpty<[number, T]>;
+    indexed(startIndex?: number): AsyncStream.NonEmpty<[number, T]>;
     /**
      * Returns a non-empty AsyncStream where `mapFun` is applied to each element.
      * @param mapFun - a potentially asynchronous function taking an element and its index, and returning some new element
@@ -843,9 +845,9 @@ export namespace AsyncStream {
      * // [1, 2, 3, 4, 5, 6, 7]
      * @note O(1)
      */
-    concat(
+    concat<T2 = T>(
       ...others: ArrayNonEmpty<AsyncStreamSource<T>>
-    ): AsyncStream.NonEmpty<T>;
+    ): AsyncStream.NonEmpty<T | T2>;
     /**
      * Returns the mimimum element of the AsyncStream according to a default compare function.
      * @example

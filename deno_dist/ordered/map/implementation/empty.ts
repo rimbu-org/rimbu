@@ -110,10 +110,6 @@ export class OrderedMapEmpty<
     };
   }
 
-  extendValues(): any {
-    return this;
-  }
-
   mergeAll<O>(fillValue: O, ...sources: any): any {
     return this.context.mergeAll(
       fillValue,

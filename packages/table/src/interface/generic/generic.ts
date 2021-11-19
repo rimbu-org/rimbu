@@ -1,6 +1,6 @@
 import type { RMap } from '@rimbu/collection-types';
 import type { Streamable } from '@rimbu/stream';
-import type { TableBase } from '../../table-custom';
+import { TableBase, TableContext } from '../../table-custom';
 
 /**
  * A type-invariant immutable Table of row key type R, column key type C, and value type V.
@@ -68,11 +68,10 @@ export const Table = {
     rowContext: RMap.Context<UR>;
     columnContext: RMap.Context<UC>;
   }): Table.Context<UR, UC> {
-    return null as any;
-    // return new TableContext<UR, UC, 'Table', any>(
-    //   'Table',
-    //   options.rowContext,
-    //   options.columnContext
-    // );
+    return new TableContext<UR, UC, 'Table'>(
+      'Table',
+      options.rowContext,
+      options.columnContext
+    );
   },
 };

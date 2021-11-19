@@ -1,7 +1,6 @@
 import type { CustomBase } from '../../../collection-types/mod.ts';
 import type { List } from '../../../list/mod.ts';
 import type { Streamable } from '../../../stream/mod.ts';
-import type { OrderedSetNonEmpty } from '../../ordered-custom.ts';
 
 export interface OrderedSetBase<
   T,
@@ -80,22 +79,4 @@ export namespace OrderedSetBase {
     readonly sourceSetNonEmpty: CustomBase.RSetBase.NonEmpty<this['_T']>;
     readonly sourceBuilder: CustomBase.RSetBase.Builder<this['_T']>;
   }
-}
-
-export interface OrderedSetContext<UT, Tp extends OrderedSetTypes>
-  extends OrderedSetBase.Context<UT, Tp> {
-  builder<T extends UT>(): CustomBase.WithElem<Tp, T>['builder'];
-
-  createBuilder<T extends UT>(
-    source?: OrderedSetNonEmpty<T, Tp>
-  ): CustomBase.WithElem<Tp, T>['builder'];
-
-  createNonEmpty<T extends UT>(
-    order: List.NonEmpty<T>,
-    sourceSet: CustomBase.WithElem<Tp, T>['sourceSetNonEmpty']
-  ): CustomBase.WithElem<Tp, T>['nonEmpty'];
-}
-
-export interface OrderedSetTypes extends OrderedSetBase.Types {
-  context: OrderedSetContext<this['_T'], OrderedSetTypes>;
 }

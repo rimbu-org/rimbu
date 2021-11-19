@@ -420,6 +420,8 @@ export namespace BiMultiMapBase {
     UV,
     Tp extends BiMultiMapBase.Types = BiMultiMapBase.Types
   > {
+    readonly _fixTypes: readonly [UK, UV];
+
     /**
      * A string tag defining the specific collection type
      * @example

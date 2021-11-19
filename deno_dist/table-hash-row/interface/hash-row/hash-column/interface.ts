@@ -2,7 +2,6 @@ import type { OmitStrong } from '../../../../common/mod.ts';
 import { HashMap } from '../../../../hashed/mod.ts';
 import type { Streamable } from '../../../../stream/mod.ts';
 import { TableCustom } from '../../../../table/mod.ts';
-
 /**
  * A type-invariant immutable Table of row key type R, column key type C, and value type V.
  * In the Table, a combination of a row and column key has exactly one value.

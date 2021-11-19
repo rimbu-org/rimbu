@@ -973,7 +973,6 @@ export class TableContext<
   createBuilder<R extends UR, C extends UC, V>(
     source?: Table.NonEmpty<R, C, V>
   ): CB.WithRow<Tp, R, C, V>['builder'] {
-    return null as any;
-    // return new TableBuilder<R, C, V, Tp>(this, source) as any;
+    return new TableBuilder<R, C, V, Tp>(this, source) as any;
   }
 }

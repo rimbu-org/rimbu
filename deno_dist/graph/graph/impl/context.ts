@@ -5,23 +5,19 @@ import type { WithGraphValues } from '../../gen-graph-custom.ts';
 import type { GraphElement } from '../../internal.ts';
 import type { GraphBase } from '../graph-custom.ts';
 import { GraphBuilder, GraphEmpty, GraphNonEmpty } from '../graph-custom.ts';
+
 export interface GraphTypesContextImpl extends GraphBase.Types {
-  readonly context: GraphContext<
-    this['_N'],
-    string,
-    boolean,
-    GraphTypesContextImpl
-  >;
+  readonly context: GraphContext<this['_N'], string, boolean>;
 }
 
 export class GraphContext<
   UN,
   TT extends string,
   Dir extends boolean,
-  Tp extends GraphTypesContextImpl
+  Tp extends GraphTypesContextImpl = GraphTypesContextImpl
 > implements GraphBase.Context<UN, Tp>
 {
-  readonly _fixedType!: UN;
+  readonly _fixedType!: any;
 
   readonly _empty: WithGraphValues<Tp, UN, any>['normal'];
 
@@ -35,7 +31,7 @@ export class GraphContext<
       any
     >['linkConnectionsContext']
   ) {
-    this._empty = new GraphEmpty<UN, any, Tp>(isDirected, this as any) as any;
+    this._empty = new GraphEmpty(isDirected, this) as any;
   }
 
   isNonEmptyInstance(
@@ -44,14 +40,14 @@ export class GraphContext<
     return source instanceof GraphNonEmpty;
   }
 
-  empty = <N extends UN>(): WithGraphValues<Tp, N, any>['normal'] => {
+  empty = <N extends UN>(): any => {
     return this._empty;
   };
 
   from: any = <N extends UN>(
     ...sources: ArrayNonEmpty<StreamSource<GraphElement<N>>>
-  ): WithGraphValues<Tp, N, any>['normal'] => {
-    let builder = this.builder<N>();
+  ): any => {
+    let builder = this.builder();
 
     let i = -1;
     const length = sources.length;
@@ -80,20 +76,14 @@ export class GraphContext<
     return this.from(values).assumeNonEmpty();
   };
 
-  builder = <N extends UN>(): WithGraphValues<Tp, N, any>['builder'] => {
-    return new GraphBuilder<N, Tp>(this.isDirected, this as any) as any;
+  builder = (): any => {
+    return new GraphBuilder(this.isDirected, this);
   };
 
-  reducer = <N extends UN>(
-    source?: StreamSource<GraphElement<N>>
-  ): Reducer<GraphElement<N>, WithGraphValues<Tp, N, any>['normal']> => {
+  reducer = <N extends UN>(source?: StreamSource<GraphElement<N>>): any => {
     return Reducer.create(
       () =>
-        undefined === source
-          ? this.builder<N>()
-          : (
-              this.from(source) as WithGraphValues<Tp, N, any>['normal']
-            ).toBuilder(),
+        undefined === source ? this.builder() : this.from(source).toBuilder(),
       (builder, entry) => {
         builder.addGraphElement(entry);
         return builder;
@@ -105,7 +95,7 @@ export class GraphContext<
   createBuilder<N extends UN>(
     source?: WithGraphValues<Tp, N, any>['nonEmpty']
   ): WithGraphValues<Tp, N, any>['builder'] {
-    return new GraphBuilder<N, Tp>(this.isDirected, this as any, source) as any;
+    return new GraphBuilder<N, Tp>(this.isDirected, this, source) as any;
   }
 
   createNonEmpty<N extends UN>(
@@ -114,7 +104,7 @@ export class GraphContext<
   ): WithGraphValues<Tp, N, any>['nonEmpty'] {
     return new GraphNonEmpty<N, Tp>(
       this.isDirected,
-      this as any,
+      this,
       linkMap,
       connectionSize
     ) as any;

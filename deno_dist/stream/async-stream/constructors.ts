@@ -85,11 +85,6 @@ export const fromResource: {
   return new FromResource(open, createSource, close);
 };
 
-export const widenType: {
-  <T>(stream: AsyncStream.NonEmpty<T>): AsyncStream.NonEmpty<T>;
-  <T>(stream: AsyncStream<T>): Stream<T>;
-} = (stream) => stream as any;
-
 /** Returns an AsyncStream with the result of applying given `zipFun` to each successive value resulting from the given `streams`.
  * @param zipFun - a potentially asynchronous function taking one element from each given Stream, and returning a result value
  * @param streams - the input async stream sources
@@ -106,16 +101,21 @@ export const widenType: {
 export const zipWith: {
   <I extends readonly unknown[], R>(
     zipFun: (...values: I) => R,
-    ...iters: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> }
-  ): Stream.NonEmpty<R>;
+    ...iters: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> } & unknown[]
+  ): AsyncStream.NonEmpty<R>;
   <I extends readonly unknown[], R>(
     zipFun: (...values: I) => R,
-    ...iters: { [K in keyof I]: AsyncStreamSource<I[K]> }
-  ): Stream<R>;
-} = (zipFun, ...iters) =>
-  new AsyncFromStream(
+    ...iters: { [K in keyof I]: AsyncStreamSource<I[K]> } & unknown[]
+  ): AsyncStream<R>;
+} = (zipFun, ...iters) => {
+  if (iters.some(AsyncStreamSource.isEmptyInstance)) {
+    return AsyncStream.empty();
+  }
+
+  return new AsyncFromStream(
     () => new AsyncZipWithIterator(iters as any, zipFun)
   ) as any;
+};
 
 /**
  * Returns an AsyncStream with tuples containing each successive value from the given `streams`.
@@ -131,12 +131,12 @@ export const zipWith: {
  */
 export const zip: {
   <I extends readonly unknown[]>(
-    ...iters: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> }
+    ...iters: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> } & unknown[]
   ): AsyncStream.NonEmpty<I>;
   <I extends readonly unknown[]>(
-    ...iters: { [K in keyof I]: AsyncStreamSource<I[K]> }
+    ...iters: { [K in keyof I]: AsyncStreamSource<I[K]> } & unknown[]
   ): AsyncStream<I>;
-} = (...iters) => zipWith(Array, ...iters) as any;
+} = (...iters) => zipWith(Array, ...(iters as any)) as any;
 
 /**
  * Returns an AsyncStream with the result of applying given `zipFun` to each successive value resulting from the given `streams`, adding
@@ -158,18 +158,23 @@ export const zipAllWith: {
   <I extends readonly unknown[], O, R>(
     fillValue: AsyncOptLazy<O>,
     zipFun: (...values: { [K in keyof I]: I[K] | O }) => MaybePromise<R>,
-    ...streams: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> }
+    ...streams: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> } & unknown[]
   ): AsyncStream.NonEmpty<R>;
   <I extends readonly unknown[], O, R>(
     fillValue: OptLazy<O>,
     zipFun: (...values: { [K in keyof I]: I[K] | O }) => MaybePromise<R>,
-    ...streams: { [K in keyof I]: AsyncStreamSource<I[K]> }
+    ...streams: { [K in keyof I]: AsyncStreamSource<I[K]> } & unknown[]
   ): AsyncStream<R>;
-} = (fillValue, zipFun, ...streams) =>
-  new AsyncFromStream(
+} = (fillValue, zipFun, ...streams) => {
+  if (streams.every(AsyncStreamSource.isEmptyInstance)) {
+    return AsyncStream.empty();
+  }
+
+  return new AsyncFromStream(
     (): AsyncFastIterator<any> =>
       new AsyncZipAllWithItererator(fillValue, streams, zipFun as any)
   ) as any;
+};
 
 /**
  * Returns an AsyncStream with tuples containing each successive value from the given `streams`, adding given `fillValue` to any streams
@@ -189,11 +194,11 @@ export const zipAllWith: {
 export const zipAll: {
   <I extends readonly unknown[], O>(
     fillValue: AsyncOptLazy<O>,
-    ...streams: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> }
+    ...streams: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> } & unknown[]
   ): AsyncStream.NonEmpty<{ [K in keyof I]: I[K] | O }>;
   <I extends readonly unknown[], O>(
     fillValue: AsyncOptLazy<O>,
-    ...streams: { [K in keyof I]: AsyncStreamSource<I[K]> }
+    ...streams: { [K in keyof I]: AsyncStreamSource<I[K]> } & unknown[]
   ): AsyncStream<{ [K in keyof I]: I[K] | O }>;
 } = (fillValue, ...streams) =>
   zipAllWith(fillValue, Array, ...(streams as any)) as any;

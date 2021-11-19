@@ -186,9 +186,6 @@ expectType<Stream.NonEmpty<number>>(
   Stream.of(1).concat(Stream.of(1), Stream.of(1))
 );
 
-// TODO
-// expectType<Stream.NonEmpty<number>>(Stream.empty<number>().concat(Stream.empty<number>(), Stream.of(1)));
-
 // .drop(..)
 expectType<Stream<number>>(Stream.empty<number>().drop(4));
 expectType<Stream<number>>(Stream.of(1).drop(4));

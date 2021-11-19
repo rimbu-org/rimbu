@@ -4,7 +4,6 @@ import { List } from '../../../list/mod.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
 import type { OrderedMapBase } from '../../ordered-custom.ts';
 import { OrderedMapContextImpl } from '../implementation/context.ts';
-import type { OrderedMapTypes } from './base.ts';
 
 /**
  * A type-invariant immutable Ordered HashMap of key type K, and value type V.
@@ -80,7 +79,7 @@ function createContext<UK>(options?: {
   listContext?: List.Context;
   mapContext?: HashMap.Context<UK>;
 }): OrderedHashMap.Context<UK> {
-  return new OrderedMapContextImpl<UK, OrderedMapTypes>(
+  return new OrderedMapContextImpl<UK>(
     options?.listContext ?? List.defaultContext(),
     options?.mapContext ?? HashMap.defaultContext()
   ) as any;

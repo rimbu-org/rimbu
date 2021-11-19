@@ -1,4 +1,5 @@
 import { Stream } from '@rimbu/stream';
+import { List } from '../src';
 import { ListContext, LeafBlock, LeafTree } from '../src/list-custom';
 
 describe('LeafBlock', () => {
@@ -225,11 +226,6 @@ function runLeafBlockTests(
       expect(b3.dropChildren(1).toArray()).toEqual([2, 3]);
     });
 
-    it('extendType', () => {
-      const b1 = createBlock(1);
-      expect(b1.extendType<number | string>()).toBe(b1);
-    });
-
     it('filter', () => {
       const b3 = createBlock(1, 2, 3);
       expect(b3.filter((v) => v !== 2).toArray()).toEqual([1, 3]);
@@ -250,7 +246,7 @@ function runLeafBlockTests(
 
     it('flatten', () => {
       const b3 = createBlock([1], [2], [], [3, 4]);
-      expect(b3.flatten().toArray()).toEqual([1, 2, 3, 4]);
+      expect(List.flatten(b3).toArray()).toEqual([1, 2, 3, 4]);
     });
 
     it('forEach', () => {
@@ -496,17 +492,17 @@ function runLeafBlockTests(
 
     it('unzip', () => {
       {
-        const [l1, l2] = createBlock<[number, string]>([1, 'a']).unzip(2);
+        const [l1, l2] = List.unzip(createBlock<[number, string]>([1, 'a']), 2);
 
         expect(l1.toArray()).toEqual([1]);
         expect(l2.toArray()).toEqual(['a']);
       }
 
       {
-        const [l1, l2] = createBlock<[number, string]>(
-          [1, 'a'],
-          [2, 'b']
-        ).unzip(2);
+        const [l1, l2] = List.unzip(
+          createBlock<[number, string]>([1, 'a'], [2, 'b']),
+          2
+        );
 
         expect(l1.toArray()).toEqual([1, 2]);
         expect(l2.toArray()).toEqual(['a', 'b']);

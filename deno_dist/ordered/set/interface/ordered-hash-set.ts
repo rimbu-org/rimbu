@@ -4,7 +4,6 @@ import { List } from '../../../list/mod.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
 import type { OrderedSetBase } from '../../ordered-custom.ts';
 import { OrderedSetContextImpl } from '../implementation/context.ts';
-import type { OrderedSetTypes } from './base.ts';
 
 /**
  * A type-invariant immutable Ordered HashSet of value type T.
@@ -75,7 +74,7 @@ function createContext<UT>(options?: {
   listContext?: List.Context;
   setContext?: HashSet.Context<UT>;
 }): OrderedHashSet.Context<UT> {
-  return new OrderedSetContextImpl<UT, OrderedSetTypes>(
+  return new OrderedSetContextImpl<UT>(
     options?.listContext ?? List.defaultContext(),
     options?.setContext ?? HashSet.defaultContext()
   ) as any;

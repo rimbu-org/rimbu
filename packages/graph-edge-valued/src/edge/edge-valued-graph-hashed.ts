@@ -77,14 +77,6 @@ export namespace EdgeValuedGraphHashed {
   }
 }
 
-interface TypesImpl extends EdgeValuedGraphHashed.Types {
-  readonly context: ValuedGraphCustom.ValuedGraphContext<
-    this['_N'],
-    'EdgeValuedGraphHashed',
-    any
-  >;
-}
-
 function createContext<UN>(options?: {
   linkMapContext?: HashMap.Context<UN>;
   linkConnectionsContext?: HashMap.Context<UN>;
@@ -92,7 +84,7 @@ function createContext<UN>(options?: {
   return new ValuedGraphCustom.ValuedGraphContext<
     UN,
     'EdgeValuedGraphHashed',
-    TypesImpl
+    any
   >(
     false,
     'EdgeValuedGraphHashed',

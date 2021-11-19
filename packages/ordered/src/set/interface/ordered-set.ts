@@ -1,11 +1,7 @@
 import type { RSet } from '@rimbu/collection-types';
 import { List } from '@rimbu/list';
 import type { Stream, Streamable } from '@rimbu/stream';
-import {
-  OrderedSetBase,
-  OrderedSetContextImpl,
-  OrderedSetTypes,
-} from '../../ordered-custom';
+import { OrderedSetBase, OrderedSetContextImpl } from '../../ordered-custom';
 
 export interface OrderedSet<T> extends OrderedSetBase<T, OrderedSet.Types> {}
 
@@ -46,7 +42,7 @@ export const OrderedSet = {
     listContext?: List.Context;
     setContext: RSet.Context<UT>;
   }): OrderedSet.Context<UT> {
-    return new OrderedSetContextImpl<UT, OrderedSetTypes>(
+    return new OrderedSetContextImpl<UT>(
       options.listContext ?? List.defaultContext(),
       options.setContext
     ) as any;

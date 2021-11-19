@@ -43,10 +43,6 @@ export namespace MultiSet {
   }
 }
 
-interface TypesImpl extends MultiSet.Types {
-  context: MultiSetContext<this['_T'], string, any>;
-}
-
 export const MultiSet = {
   /**
    * Returns a new MultiSet context instance based on the given `options`.
@@ -57,7 +53,7 @@ export const MultiSet = {
   createContext<UT>(options: {
     countMapContext: RMap.Context<UT>;
   }): MultiSet.Context<UT> {
-    return new MultiSetContext<UT, 'MultiSet', TypesImpl>(
+    return new MultiSetContext<UT, 'MultiSet'>(
       'MultiSet',
       options.countMapContext
     );

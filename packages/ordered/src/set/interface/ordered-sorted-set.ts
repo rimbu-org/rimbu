@@ -2,11 +2,7 @@ import type { OmitStrong } from '@rimbu/common';
 import { List } from '@rimbu/list';
 import { SortedSet } from '@rimbu/sorted';
 import type { Stream, Streamable } from '@rimbu/stream';
-import {
-  OrderedSetBase,
-  OrderedSetContextImpl,
-  OrderedSetTypes,
-} from '../../ordered-custom';
+import { OrderedSetBase, OrderedSetContextImpl } from '../../ordered-custom';
 
 /**
  * A type-invariant immutable Ordered SortedSet of value type T.
@@ -77,7 +73,7 @@ function createContext<UT>(options?: {
   listContext?: List.Context;
   setContext?: SortedSet.Context<UT>;
 }): OrderedSortedSet.Context<UT> {
-  return new OrderedSetContextImpl<UT, OrderedSetTypes>(
+  return new OrderedSetContextImpl<UT>(
     options?.listContext ?? List.defaultContext(),
     options?.setContext ?? SortedSet.defaultContext<UT>()
   ) as any;

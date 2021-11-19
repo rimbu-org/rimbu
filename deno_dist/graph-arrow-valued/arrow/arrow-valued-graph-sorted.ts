@@ -77,14 +77,6 @@ export namespace ArrowValuedGraphSorted {
   }
 }
 
-interface TypesImpl extends ArrowValuedGraphSorted.Types {
-  readonly context: ValuedGraphCustom.ValuedGraphContext<
-    this['_N'],
-    'ArrowValuedGraphSorted',
-    any
-  >;
-}
-
 function createContext<UN>(options?: {
   linkMapContext?: SortedMap.Context<UN>;
   linkConnectionsContext?: SortedMap.Context<UN>;
@@ -92,7 +84,7 @@ function createContext<UN>(options?: {
   return new ValuedGraphCustom.ValuedGraphContext<
     UN,
     'ArrowValuedGraphSorted',
-    TypesImpl
+    any
   >(
     true,
     'ArrowValuedGraphSorted',

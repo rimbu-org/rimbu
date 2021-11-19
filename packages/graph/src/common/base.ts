@@ -136,8 +136,4 @@ export abstract class GraphEmptyBase extends CustomBase.EmptyBase {
   removeUnconnectedNodes(): any {
     return this;
   }
-
-  extendValues(): any {
-    return this;
-  }
 }

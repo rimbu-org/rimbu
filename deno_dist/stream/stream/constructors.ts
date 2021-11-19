@@ -175,12 +175,6 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   toString(): string {
     return `Stream(<empty>)`;
   }
-  // zipWith(): any {
-  //   return this;
-  // }
-  // zip(): any {
-  //   return this;
-  // }
 }
 
 const _empty: Stream<any> = new EmptyStream();
@@ -563,11 +557,6 @@ export function unfold<T>(
   ) as unknown as Stream.NonEmpty<T>;
 }
 
-export const widenType: {
-  <T>(stream: Stream.NonEmpty<T>): Stream.NonEmpty<T>;
-  <T>(stream: Stream<T>): Stream<T>;
-} = (stream) => stream as any;
-
 /**
  * Returns a Stream with the result of applying given `zipFun` to each successive value resulting from the given `streams`.
  * @param zipFun - a function taking one element from each given Stream, and returning a result value
@@ -580,14 +569,19 @@ export const widenType: {
 export const zipWith: {
   <I extends readonly unknown[], R>(
     zipFun: (...values: I) => R,
-    ...iters: { [K in keyof I]: StreamSource.NonEmpty<I[K]> }
+    ...iters: { [K in keyof I]: StreamSource.NonEmpty<I[K]> } & unknown[]
   ): Stream.NonEmpty<R>;
   <I extends readonly unknown[], R>(
     zipFun: (...values: I) => R,
-    ...iters: { [K in keyof I]: StreamSource<I[K]> }
+    ...iters: { [K in keyof I]: StreamSource<I[K]> } & unknown[]
   ): Stream<R>;
-} = (zipFun, ...iters) =>
-  new FromStream(() => new ZipWithIterator(iters as any, zipFun)) as any;
+} = (zipFun, ...iters) => {
+  if (iters.some(StreamSource.isEmptyInstance)) {
+    return Stream.empty();
+  }
+
+  return new FromStream(() => new ZipWithIterator(iters as any, zipFun)) as any;
+};
 
 /**
  * Returns a Stream with tuples containing each successive value from the given `streams`.
@@ -598,10 +592,10 @@ export const zipWith: {
  */
 export const zip: {
   <I extends readonly unknown[]>(
-    ...iters: { [K in keyof I]: StreamSource.NonEmpty<I[K]> }
+    ...iters: { [K in keyof I]: StreamSource.NonEmpty<I[K]> } & unknown[]
   ): Stream.NonEmpty<I>;
   <I extends readonly unknown[]>(
-    ...iters: { [K in keyof I]: StreamSource<I[K]> }
+    ...iters: { [K in keyof I]: StreamSource<I[K]> } & unknown[]
   ): Stream<I>;
 } = (...iters) => zipWith(Array, ...(iters as any));
 
@@ -625,18 +619,23 @@ export const zipAllWith: {
   <I extends readonly unknown[], O, R>(
     fillValue: OptLazy<O>,
     zipFun: (...values: { [K in keyof I]: I[K] | O }) => R,
-    ...streams: { [K in keyof I]: StreamSource.NonEmpty<I[K]> }
+    ...streams: { [K in keyof I]: StreamSource.NonEmpty<I[K]> } & unknown[]
   ): Stream.NonEmpty<R>;
   <I extends readonly unknown[], O, R>(
     fillValue: OptLazy<O>,
     zipFun: (...values: { [K in keyof I]: I[K] | O }) => R,
-    ...streams: { [K in keyof I]: StreamSource<I[K]> }
+    ...streams: { [K in keyof I]: StreamSource<I[K]> } & unknown[]
   ): Stream<R>;
-} = (fillValue, zipFun, ...streams) =>
-  new FromStream(
+} = (fillValue, zipFun, ...streams) => {
+  if (streams.every(StreamSource.isEmptyInstance)) {
+    return Stream.empty();
+  }
+
+  return new FromStream(
     (): FastIterator<any> =>
       new ZipAllWithItererator(fillValue, streams, zipFun as any)
   ) as any;
+};
 
 /**
  * Returns a Stream with tuples containing each successive value from the given `streams`, adding given `fillValue` to any Streams
@@ -655,11 +654,11 @@ export const zipAllWith: {
 export const zipAll: {
   <I extends readonly unknown[], O>(
     fillValue: OptLazy<O>,
-    ...streams: { [K in keyof I]: StreamSource.NonEmpty<I[K]> }
+    ...streams: { [K in keyof I]: StreamSource.NonEmpty<I[K]> } & unknown[]
   ): Stream.NonEmpty<{ [K in keyof I]: I[K] | O }>;
   <I extends readonly unknown[], O>(
     fillValue: OptLazy<O>,
-    ...streams: { [K in keyof I]: StreamSource<I[K]> }
+    ...streams: { [K in keyof I]: StreamSource<I[K]> } & unknown[]
   ): Stream<{ [K in keyof I]: I[K] | O }>;
 } = (fillValue, ...streams) => zipAllWith(fillValue, Array, ...streams) as any;
 

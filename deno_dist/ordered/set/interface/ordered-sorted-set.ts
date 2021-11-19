@@ -2,11 +2,7 @@ import type { OmitStrong } from '../../../common/mod.ts';
 import { List } from '../../../list/mod.ts';
 import { SortedSet } from '../../../sorted/mod.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
-import {
-  OrderedSetBase,
-  OrderedSetContextImpl,
-  OrderedSetTypes,
-} from '../../ordered-custom.ts';
+import { OrderedSetBase, OrderedSetContextImpl } from '../../ordered-custom.ts';
 
 /**
  * A type-invariant immutable Ordered SortedSet of value type T.
@@ -77,7 +73,7 @@ function createContext<UT>(options?: {
   listContext?: List.Context;
   setContext?: SortedSet.Context<UT>;
 }): OrderedSortedSet.Context<UT> {
-  return new OrderedSetContextImpl<UT, OrderedSetTypes>(
+  return new OrderedSetContextImpl<UT>(
     options?.listContext ?? List.defaultContext(),
     options?.setContext ?? SortedSet.defaultContext<UT>()
   ) as any;

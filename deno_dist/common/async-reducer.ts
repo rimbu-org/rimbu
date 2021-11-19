@@ -3,6 +3,7 @@ import {
   AsyncOptLazy,
   CollectFun,
   MaybePromise,
+  Reducer,
 } from './internal.ts';
 
 /**
@@ -347,5 +348,13 @@ export namespace AsyncReducer {
     onClose?: (state: O, error?: unknown) => MaybePromise<void>
   ): AsyncReducer<I, O> {
     return create(init, next, stateToResult ?? identity, onClose);
+  }
+
+  export function from<I, O>(reducer: Reducer<I, O>): AsyncReducer<I, O> {
+    return AsyncReducer.create(
+      reducer.init,
+      reducer.next,
+      reducer.stateToResult
+    );
   }
 }

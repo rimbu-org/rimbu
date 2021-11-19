@@ -2,11 +2,7 @@ import type { OmitStrong } from '../../../common/mod.ts';
 import { List } from '../../../list/mod.ts';
 import { SortedMap } from '../../../sorted/mod.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
-import {
-  OrderedMapBase,
-  OrderedMapContextImpl,
-  OrderedMapTypes,
-} from '../../ordered-custom.ts';
+import { OrderedMapBase, OrderedMapContextImpl } from '../../ordered-custom.ts';
 
 /**
  * A type-invariant immutable Ordered SortedMap of key type K, and value type V.
@@ -85,7 +81,7 @@ function createContext<UK>(options?: {
   listContext?: List.Context;
   mapContext?: SortedMap.Context<UK>;
 }): OrderedSortedMap.Context<UK> {
-  return new OrderedMapContextImpl<UK, OrderedMapTypes>(
+  return new OrderedMapContextImpl<UK>(
     options?.listContext ?? List.defaultContext(),
     options?.mapContext ?? SortedMap.defaultContext()
   ) as any;

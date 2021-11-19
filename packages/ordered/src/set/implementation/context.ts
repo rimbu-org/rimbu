@@ -3,15 +3,20 @@ import type { List } from '@rimbu/list';
 import {
   OrderedSetBase,
   OrderedSetBuilder,
-  OrderedSetContext,
   OrderedSetEmpty,
   OrderedSetNonEmpty,
-  OrderedSetTypes,
 } from '../../ordered-custom';
 
-export class OrderedSetContextImpl<UT, Tp extends OrderedSetTypes>
+export interface OrderedSetTypes extends OrderedSetBase.Types {
+  readonly context: OrderedSetContextImpl<this['_T']>;
+}
+
+export class OrderedSetContextImpl<
+    UT,
+    Tp extends OrderedSetTypes = OrderedSetTypes
+  >
   extends CustomBase.RSetBase.ContextBase<UT, Tp>
-  implements OrderedSetContext<UT, Tp>
+  implements OrderedSetBase.Context<UT, Tp>
 {
   constructor(
     readonly listContext: List.Context,

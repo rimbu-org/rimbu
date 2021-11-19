@@ -1,19 +1,22 @@
 import { CustomBase } from '@rimbu/collection-types';
 import type { List } from '@rimbu/list';
 import {
+  OrderedMapBase,
   OrderedMapBuilder,
-  OrderedMapContext,
   OrderedMapEmpty,
   OrderedMapNonEmpty,
-  OrderedMapTypes,
 } from '../../ordered-custom';
+
+export interface OrderedMapTypes extends OrderedMapBase.Types {
+  readonly context: OrderedMapContextImpl<this['_K']>;
+}
 
 export class OrderedMapContextImpl<
     UK,
     Tp extends OrderedMapTypes = OrderedMapTypes
   >
   extends CustomBase.RMapBase.ContextBase<UK, Tp>
-  implements OrderedMapContext<UK, Tp>
+  implements OrderedMapBase.Context<UK, Tp>
 {
   constructor(
     readonly listContext: List.Context,
