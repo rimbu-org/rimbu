@@ -1,9 +1,12 @@
 import { Entry } from '@rimbu/base';
 import type { ArrayNonEmpty } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
-import type { RMap } from '../../src';
+import type { RMap } from '../..';
 
-function expectEqual<K, V>(map: RMap<K, V>, arr: [K, V][]) {
+function expectEqual<K, V>(
+  map: RMap<K, V> | RMap.NonEmpty<K, V>,
+  arr: [K, V][]
+): void {
   expect(new Map(map)).toEqual(new Map(arr));
 }
 
@@ -22,8 +25,12 @@ const arr6 = [
   [6, 'f'],
 ] as ArrayNonEmpty<[number, string]>;
 
-export function runMapTestsWith(name: string, GMap: RMap.Context<any>) {
+export function runMapTestsWith(name: string, GMap: RMap.Context<any>): void {
   describe(`${name} creators`, () => {
+    const mapEmpty = GMap.empty<number, string>();
+    const map3 = GMap.from(arr3);
+    const map6 = GMap.from(arr6);
+
     it('empty', () => {
       expect(GMap.empty<number, number>()).toBe(GMap.empty<string, string>());
     });
@@ -93,6 +100,136 @@ export function runMapTestsWith(name: string, GMap: RMap.Context<any>) {
           [5, 'q'],
         ]);
       }
+    });
+
+    it('merge', () => {
+      expect(GMap.merge(mapEmpty, mapEmpty)).toBe(mapEmpty);
+      expect(GMap.merge(mapEmpty, map3)).toBe(mapEmpty);
+      expect(GMap.merge(map3, mapEmpty)).toBe(mapEmpty);
+      expectEqual(
+        GMap.merge(map3, map3),
+        arr3.map(([k, v]) => [k, [v, v] as [string, string]])
+      );
+      expectEqual(
+        GMap.merge(map6, arr6),
+        arr6.map(([k, v]) => [k, [v, v] as [string, string]])
+      );
+      expectEqual(GMap.merge(map3, map6), [
+        [1, ['a', 'a']],
+        [2, ['b', 'b']],
+        [3, ['c', 'c']],
+      ]);
+      expectEqual(GMap.merge(map6, map3), [
+        [1, ['a', 'a']],
+        [2, ['b', 'b']],
+        [3, ['c', 'c']],
+      ]);
+    });
+
+    it('mergeAll', () => {
+      expect(GMap.mergeAll(undefined, mapEmpty, mapEmpty)).toBe(mapEmpty);
+      expect(GMap.mergeAll(undefined, map3, map3).toArray()).toEqual(
+        arr3.map(([k, v]) => [k, [v, v]])
+      );
+      expectEqual(
+        GMap.mergeAll(undefined, map6, arr6),
+        arr6.map(([k, v]) => [k, [v, v] as [string, string]])
+      );
+      expectEqual(GMap.mergeAll(undefined, map3, map6), [
+        [1, ['a', 'a']],
+        [2, ['b', 'b']],
+        [3, ['c', 'c']],
+        [4, [undefined, 'd']],
+        [5, [undefined, 'e']],
+        [6, [undefined, 'f']],
+      ]);
+      expectEqual(GMap.mergeAll(undefined, map6, map3), [
+        [1, ['a', 'a']],
+        [2, ['b', 'b']],
+        [3, ['c', 'c']],
+        [4, ['d', undefined]],
+        [5, ['e', undefined]],
+        [6, ['f', undefined]],
+      ]);
+    });
+
+    it('mergeAllWith', () => {
+      const toTuple = <A, B>(_: any, a: A, b: B): [A, B] => [a, b];
+
+      expect(GMap.mergeAllWith(mapEmpty, mapEmpty)(undefined, toTuple)).toBe(
+        mapEmpty
+      );
+      expectEqual(
+        GMap.mergeAllWith(mapEmpty, map3)(undefined, toTuple),
+        arr3.map(([k, v]) => [
+          k,
+          [undefined, v] as [string | undefined, string | undefined],
+        ])
+      );
+      expectEqual(
+        GMap.mergeAllWith(map3, mapEmpty)(undefined, toTuple),
+        arr3.map(([k, v]) => [
+          k,
+          [v, undefined] as [string | undefined, string | undefined],
+        ])
+      );
+      expectEqual(
+        GMap.mergeAllWith(map3, map3)(undefined, toTuple),
+        arr3.map(([k, v]) => [
+          k,
+          [v, v] as [string | undefined, string | undefined],
+        ])
+      );
+      expectEqual(
+        GMap.mergeAllWith(map6, map6)(undefined, toTuple),
+        arr6.map(([k, v]) => [k, [v, v] as [string, string]])
+      );
+
+      expectEqual(GMap.mergeAllWith(map3, map6)(undefined, toTuple), [
+        [1, ['a', 'a']],
+        [2, ['b', 'b']],
+        [3, ['c', 'c']],
+        [4, [undefined, 'd']],
+        [5, [undefined, 'e']],
+        [6, [undefined, 'f']],
+      ]);
+
+      expectEqual(GMap.mergeAllWith(map6, map3)(undefined, toTuple), [
+        [1, ['a', 'a']],
+        [2, ['b', 'b']],
+        [3, ['c', 'c']],
+        [4, ['d', undefined]],
+        [5, ['e', undefined]],
+        [6, ['f', undefined]],
+      ]);
+    });
+
+    it('mergeWith', () => {
+      const toTuple = <A, B>(_: any, a: A, b: B): [A, B] => [a, b];
+
+      expect(GMap.mergeWith(mapEmpty, mapEmpty)(toTuple)).toBe(mapEmpty);
+      expect(GMap.mergeWith(mapEmpty, map3)(toTuple)).toBe(mapEmpty);
+      expect(GMap.mergeWith(map3, mapEmpty)(toTuple)).toBe(mapEmpty);
+      expectEqual(
+        GMap.mergeWith(map3, map3)(toTuple),
+        arr3.map(([k, v]) => [k, [v, v] as [string, string]])
+      );
+      expectEqual(
+        GMap.mergeWith(map6, map6)(toTuple),
+        arr6.map(([k, v]) => [k, [v, v] as [string, string]])
+      );
+
+      expectEqual(GMap.mergeWith(map3, map6)(toTuple), [
+        [1, ['a', 'a']],
+        [2, ['b', 'b']],
+        [3, ['c', 'c']],
+      ]);
+
+      expectEqual(GMap.mergeWith(map6, map3)(toTuple), [
+        [1, ['a', 'a']],
+        [2, ['b', 'b']],
+        [3, ['c', 'c']],
+      ]);
     });
   });
 
@@ -389,142 +526,12 @@ export function runMapTestsWith(name: string, GMap: RMap.Context<any>) {
       expect(map6.updateAt(2, (v) => v + v).get(2)).toBe('bb');
       expect(map6.updateAt(10, 'z')).toBe(map6);
     });
-
-    it('merge', () => {
-      expect(mapEmpty.merge(mapEmpty)).toBe(mapEmpty);
-      expect(mapEmpty.merge(map3)).toBe(mapEmpty);
-      expect(map3.merge(mapEmpty)).toBe(mapEmpty);
-      expectEqual(
-        map3.merge(map3),
-        arr3.map(([k, v]) => [k, [v, v] as [string, string]])
-      );
-      expectEqual(
-        map6.merge(arr6),
-        arr6.map(([k, v]) => [k, [v, v] as [string, string]])
-      );
-      expectEqual(map3.merge(map6), [
-        [1, ['a', 'a']],
-        [2, ['b', 'b']],
-        [3, ['c', 'c']],
-      ]);
-      expectEqual(map6.merge(map3), [
-        [1, ['a', 'a']],
-        [2, ['b', 'b']],
-        [3, ['c', 'c']],
-      ]);
-    });
-
-    it('mergeAll', () => {
-      expect(mapEmpty.mergeAll(undefined, mapEmpty)).toBe(mapEmpty);
-      expect(map3.mergeAll(undefined, map3).toArray()).toEqual(
-        arr3.map(([k, v]) => [k, [v, v]])
-      );
-      expectEqual(
-        map6.mergeAll(undefined, arr6),
-        arr6.map(([k, v]) => [k, [v, v] as [string, string]])
-      );
-      expectEqual(map3.mergeAll(undefined, map6), [
-        [1, ['a', 'a']],
-        [2, ['b', 'b']],
-        [3, ['c', 'c']],
-        [4, [undefined, 'd']],
-        [5, [undefined, 'e']],
-        [6, [undefined, 'f']],
-      ]);
-      expectEqual(map6.mergeAll(undefined, map3), [
-        [1, ['a', 'a']],
-        [2, ['b', 'b']],
-        [3, ['c', 'c']],
-        [4, ['d', undefined]],
-        [5, ['e', undefined]],
-        [6, ['f', undefined]],
-      ]);
-    });
-
-    it('mergeAllWith', () => {
-      const toTuple = <A, B>(_: any, a: A, b: B) => [a, b] as [A, B];
-
-      expect(mapEmpty.mergeAllWith(undefined, toTuple, mapEmpty)).toBe(
-        mapEmpty
-      );
-      expectEqual(
-        mapEmpty.mergeAllWith(undefined, toTuple, map3),
-        arr3.map(([k, v]) => [
-          k,
-          [undefined, v] as [string | undefined, string | undefined],
-        ])
-      );
-      expectEqual(
-        map3.mergeAllWith(undefined, toTuple, mapEmpty),
-        arr3.map(([k, v]) => [
-          k,
-          [v, undefined] as [string | undefined, string | undefined],
-        ])
-      );
-      expectEqual(
-        map3.mergeAllWith(undefined, toTuple, map3),
-        arr3.map(([k, v]) => [
-          k,
-          [v, v] as [string | undefined, string | undefined],
-        ])
-      );
-      expectEqual(
-        map6.mergeAllWith(undefined, toTuple, map6),
-        arr6.map(([k, v]) => [k, [v, v] as [string, string]])
-      );
-
-      expectEqual(map3.mergeAllWith(undefined, toTuple, map6), [
-        [1, ['a', 'a']],
-        [2, ['b', 'b']],
-        [3, ['c', 'c']],
-        [4, [undefined, 'd']],
-        [5, [undefined, 'e']],
-        [6, [undefined, 'f']],
-      ]);
-
-      expectEqual(map6.mergeAllWith(undefined, toTuple, map3), [
-        [1, ['a', 'a']],
-        [2, ['b', 'b']],
-        [3, ['c', 'c']],
-        [4, ['d', undefined]],
-        [5, ['e', undefined]],
-        [6, ['f', undefined]],
-      ]);
-    });
-
-    it('mergeWith', () => {
-      const toTuple = <A, B>(_: any, a: A, b: B) => [a, b] as [A, B];
-
-      expect(mapEmpty.mergeWith(toTuple, mapEmpty)).toBe(mapEmpty);
-      expect(mapEmpty.mergeWith(toTuple, map3)).toBe(mapEmpty);
-      expect(map3.mergeWith(toTuple, mapEmpty)).toBe(mapEmpty);
-      expectEqual(
-        map3.mergeWith(toTuple, map3),
-        arr3.map(([k, v]) => [k, [v, v] as [string, string]])
-      );
-      expectEqual(
-        map6.mergeWith(toTuple, map6),
-        arr6.map(([k, v]) => [k, [v, v] as [string, string]])
-      );
-
-      expectEqual(map3.mergeWith(toTuple, map6), [
-        [1, ['a', 'a']],
-        [2, ['b', 'b']],
-        [3, ['c', 'c']],
-      ]);
-
-      expectEqual(map6.mergeWith(toTuple, map3), [
-        [1, ['a', 'a']],
-        [2, ['b', 'b']],
-        [3, ['c', 'c']],
-      ]);
-    });
   });
 
   describe(`${name}.Builder`, () => {
     function forEachBuilder(
       f: (builder: RMap.Builder<number, string>) => void
-    ) {
+    ): void {
       const b1 = GMap.from(arr3).toBuilder();
       const b2 = GMap.builder<number, string>();
       b2.addEntries(arr3);

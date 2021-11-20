@@ -100,46 +100,6 @@ export class HashMapEmpty<K = any, V = any>
       value: [],
     };
   }
-
-  mergeAll<O>(fillValue: O, ...sources: any): any {
-    return this.context.mergeAll(
-      fillValue,
-      this,
-      ...(sources as any as [any, ...any[]])
-    );
-  }
-
-  mergeAllWith<R, O, I extends readonly [unknown, ...unknown[]]>(
-    fillValue: O,
-    mergeFun: (
-      key: K,
-      value: V | O,
-      ...values: { [KT in keyof I]: I[KT] | O }
-    ) => R,
-    ...sources: any
-  ): any {
-    return this.context.mergeAllWith(
-      fillValue,
-      mergeFun as any,
-      this,
-      ...(sources as any as [any, ...any[]])
-    );
-  }
-
-  merge(...sources: any): any {
-    return this.context.merge(this, ...(sources as any as any[]));
-  }
-
-  mergeWith<R, K, I extends readonly [unknown, ...unknown[]]>(
-    mergeFun: (key: K, ...values: I) => R,
-    ...sources: any
-  ): any {
-    return this.context.mergeWith(
-      mergeFun as any,
-      this as any,
-      ...(sources as any as [any, ...any[]])
-    );
-  }
 }
 
 export abstract class HashMapNonEmptyBase<K, V>
@@ -271,42 +231,6 @@ export abstract class HashMapNonEmptyBase<K, V>
       dataType: this.context.typeTag,
       value: this.toArray(),
     };
-  }
-
-  mergeAll<O>(fillValue: O, ...sources: any): any {
-    return this.context.mergeAll(
-      fillValue,
-      this,
-      ...(sources as any as [any, ...any[]])
-    );
-  }
-
-  mergeAllWith<R, O>(
-    fillValue: O,
-    mergeFun: (key: K, value: V | O, ...values: any) => R,
-    ...sources: any
-  ): any {
-    return this.context.mergeAllWith(
-      fillValue,
-      mergeFun as any,
-      this,
-      ...(sources as any as [any, ...any[]])
-    );
-  }
-
-  merge(...sources: any): any {
-    return this.context.merge(this, ...(sources as any as any[]));
-  }
-
-  mergeWith<R, K, I extends readonly [unknown, ...unknown[]]>(
-    mergeFun: (key: K, ...values: I) => R,
-    ...sources: any
-  ): any {
-    return this.context.mergeWith(
-      mergeFun as any,
-      this as any,
-      ...(sources as any as [any, ...any[]])
-    );
   }
 }
 

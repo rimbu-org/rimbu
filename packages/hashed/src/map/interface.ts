@@ -67,10 +67,10 @@ export namespace HashMap {
     extends CustomBase.RMapBase.Builder<K, V, HashMap.Types> {}
 
   export interface Types extends RMap.Types {
-    normal: HashMap<this['_K'], this['_V']>;
-    nonEmpty: HashMap.NonEmpty<this['_K'], this['_V']>;
-    context: HashMap.Context<this['_K']>;
-    builder: HashMap.Builder<this['_K'], this['_V']>;
+    readonly normal: HashMap<this['_K'], this['_V']>;
+    readonly nonEmpty: HashMap.NonEmpty<this['_K'], this['_V']>;
+    readonly context: HashMap.Context<this['_K']>;
+    readonly builder: HashMap.Builder<this['_K'], this['_V']>;
   }
 }
 

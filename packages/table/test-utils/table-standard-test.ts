@@ -1,8 +1,11 @@
 import type { ArrayNonEmpty } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
-import { Table } from '../src';
+import { Table } from '..';
 
-function expectEqual<R, C, V>(map: Table<R, C, V>, arr: [R, C, V][]) {
+function expectEqual<R, C, V>(
+  map: Table<R, C, V> | Table.NonEmpty<R, C, V>,
+  arr: [R, C, V][]
+): void {
   expect(new Set(map)).toEqual(new Set(arr));
 }
 
@@ -21,7 +24,10 @@ const arr6 = [
   [3, 'f', true],
 ] as ArrayNonEmpty<[number, string, boolean]>;
 
-export function runTableTestsWith(name: string, T: Table.Context<any, any>) {
+export function runTableTestsWith(
+  name: string,
+  T: Table.Context<any, any>
+): void {
   describe(`${name} creators`, () => {
     it('empty', () => {
       expect(T.empty<number, number, number>()).toBe(
@@ -262,7 +268,7 @@ export function runTableTestsWith(name: string, T: Table.Context<any, any>) {
     it('mapValues', () => {
       expect(tableEmpty.mapValues((v) => (v ? 'a' : 'b'))).toBe(tableEmpty);
       expectEqual(
-        table3.mapValues((v) => (v ? 'a' : 'b')),
+        table3.mapValues((v): string => (v ? 'a' : 'b')),
         [
           [1, 'a', 'a'],
           [1, 'c', 'a'],
@@ -502,7 +508,7 @@ export function runTableTestsWith(name: string, T: Table.Context<any, any>) {
     describe(`${name}.Builder`, () => {
       function forEachBuilder(
         f: (builder: Table.Builder<number, string, boolean>) => void
-      ) {
+      ): void {
         const b1 = T.from(arr3).toBuilder();
         const b2 = T.builder<number, string, boolean>();
         b2.addEntries(arr3);

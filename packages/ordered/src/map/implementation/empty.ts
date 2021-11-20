@@ -109,44 +109,4 @@ export class OrderedMapEmpty<
       value: [],
     };
   }
-
-  mergeAll<O>(fillValue: O, ...sources: any): any {
-    return this.context.mergeAll(
-      fillValue,
-      this,
-      ...(sources as any as [any, ...any[]])
-    );
-  }
-
-  mergeAllWith<R, O>(
-    fillValue: O,
-    mergeFun: (key: K, value: V | O, ...values: any) => R,
-    ...sources: any
-  ): any {
-    return this.context.mergeAllWith(
-      fillValue,
-      mergeFun as any,
-      this,
-      ...(sources as any as [any, ...any[]])
-    );
-  }
-
-  merge(...sources: any): any {
-    return this.context.merge(
-      ((key: any, ...values: any): any => values) as any,
-      this,
-      ...(sources as any as [any, ...any[]])
-    );
-  }
-
-  mergeWith<R, K>(
-    mergeFun: (key: K, ...values: any) => R,
-    ...sources: any
-  ): any {
-    return this.context.mergeWith(
-      mergeFun as any,
-      this as any,
-      ...(sources as any as [any, ...any[]])
-    );
-  }
 }

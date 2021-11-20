@@ -3,5 +3,5 @@ import { HashTableHashColumn } from '../src';
 
 runTableTestsWith(
   'HashTableHashColumn default',
-  HashTableHashColumn.defaultContext<number, number>()
+  HashTableHashColumn.defaultContext()
 );

@@ -940,7 +940,7 @@ export class TableContext<
 
   of: any = <R extends UR, C extends UC, V>(
     ...entries: ArrayNonEmpty<readonly [R, C, V]>
-  ): [R, C] extends [UR, UC] ? CB.WithRow<Tp, R, C, V>['nonEmpty'] : never => {
+  ): any => {
     return this.from(entries);
   };
 
@@ -950,8 +950,7 @@ export class TableContext<
     C,
     V
   >['builder'] => {
-    return null as any;
-    // return new TableBuilder<R, C, V, Tp>(this) as any;
+    return new TableBuilder(this);
   };
 
   reducer = <R extends UR, C extends UC, V>(

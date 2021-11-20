@@ -359,110 +359,6 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
    * const builder: HashMap.Builder<number, string> = HashMap.of([1, 'a'], [2, 'b']).toBuilder()
    */
   toBuilder(): WithKeyValue<Tp, K, V>['builder'];
-  /**
-   * Returns a Map containing all keys from this map and all the given `sources` key-value stream sources,
-   * and as values tuples of all the corresponding values for each key. If a source doesn't have a key,
-   * the tuple will be filled with the given `fillValue`.
-   * @typeparam O - the type of the fill value
-   * @typeparam I - the array of input source value types
-   * @param fillValue - the value to use for the result tuple if a source does not have a certain key
-   * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
-   * @example
-   * const m = HashMap.of([1, 'a'], [2, 'b'])
-   * const m2 = m.mergeAll('none', [[2, true]], HashMap.of([3, 15]))
-   * // type of m2: HashMap<number, [string, boolean | string, number | string]>
-   * console.log(m2.toArray())
-   * // => [[1, ['a', 'none', 'none']], [2, ['b', true, 'none']], [3, ['none', 'none', 15]]]
-   */
-  mergeAll<O, I extends readonly [unknown, ...unknown[]]>(
-    fillValue: O,
-    ...sources: {
-      [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
-    }
-  ): (Tp & KeyValue<K, [V | O, ...{ [KT in keyof I]: I[KT] | O }]>)['nonEmpty'];
-  mergeAll<O, I extends readonly [unknown, ...unknown[]]>(
-    fillValue: O,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): (Tp & KeyValue<K, [V | O, ...{ [KT in keyof I]: I[KT] | O }]>)['normal'];
-  /**
-   * Returns a Map containing all keys from this map and all the given `sources` key-value stream sources,
-   * and as values the result of applying the given `mergeFun` to the key and all the corresponding values for each key. If a source doesn't have a key,
-   * the given tuple will be filled with the given `fillValue`.
-   * @typeparam O - the type of the fill value
-   * @typeparam I - the array of input source value types
-   * @param fillValue - the value to use for the result tuple if a source does not have a certain key
-   * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
-   * @example
-   * const m = HashMap.of([1, 'a'], [2, 'b'])
-   * const m2 = m.mergeAllWith(
-   *   'q',
-   *   (key, v1, v2, v3) => `${key}${v1}${v2}${v3}`,
-   *   [[2, 'c']],
-   *   HashMap.of([3, 'd'])
-   * )
-   * // type of m2: HashMap<number, string>
-   * console.log(m2.toArray())
-   * // => [[1, '1aqq'], [2, '2bcq'], [3, '3qqd']]
-   */
-  mergeAllWith<R, O, I extends readonly [unknown, ...unknown[]]>(
-    fillValue: O,
-    mergeFun: (
-      key: K,
-      value: V | O,
-      ...values: { [KT in keyof I]: I[KT] | O }
-    ) => R,
-    ...sources: {
-      [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
-    }
-  ): (Tp & KeyValue<K, R>)['nonEmpty'];
-  mergeAllWith<R, O, I extends readonly [unknown, ...unknown[]]>(
-    fillValue: O,
-    mergeFun: (
-      key: K,
-      value: V | O,
-      ...values: { [KT in keyof I]: I[KT] | O }
-    ) => R,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): (Tp & KeyValue<K, R>)['normal'];
-  /**
-   * Returns a Map containing the common keys from this map and all the given `sources` key-value stream sources,
-   * and as values tuples of all the corresponding values for each common key. If a source doesn't have a key,
-   * the key will be skipped.
-   * @typeparam I - the array of input source value types
-   * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
-   * @example
-   * const m = HashMap.of([1, 'a'], [2, 'b'])
-   * const m2 = m.merge([[2, true]], HashMap.of([2, 15]))
-   * // type of m2: HashMap<number, [string, boolean, number]>
-   * console.log(m2.toArray())
-   * // => [[2, ['b', true, 15]]]
-   */
-  merge<I extends readonly [unknown, ...unknown[]]>(
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): (Tp & KeyValue<K, [V, ...{ [KT in keyof I]: I[KT] }]>)['normal'];
-  /**
-   * Returns a Map containing the common keys from this map and all the given `sources` key-value stream sources,
-   * and as values the result of applying given `mergeFun` to the key and values of all the corresponding values for each common key.
-   * If a source doesn't have a key, the key will be skipped.
-   * @typeparam I - the array of input source value types
-   * @param mergeFun - a function taking the key and values from this map and all sources corresponding to the key, and
-   * returning a value for the resulting Map.
-   * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
-   * @example
-   * const m = HashMap.of([1, 'a'], [2, 'b'])
-   * const m2 = m.merge(
-   *   (key, v1, v2) => `${key}${v1}${v2}`,
-   *   [[2, true]],
-   *   HashMap.of([2, 15])
-   * )
-   * // type of m2: HashMap<number, string>
-   * console.log(m2.toArray())
-   * // => [[2, '2true15']]
-   */
-  mergeWith<R, I extends readonly [unknown, ...unknown[]]>(
-    mergeFun: (key: K, ...values: [V, ...I]) => R,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): (Tp & KeyValue<K, R>)['normal'];
 }
 
 export namespace RMapBase {
@@ -504,105 +400,6 @@ export namespace RMapBase {
       key: RelatedTo<K, UK>,
       update: RMapBase.Update<V>
     ): WithKeyValue<Tp, K, V>['nonEmpty'];
-    /**
-     * Returns a Map containing all keys from this map and all the given `sources` key-value stream sources,
-     * and as values tuples of all the corresponding values for each key. If a source doesn't have a key,
-     * the tuple will be filled with the given `fillValue`.
-     * @typeparam O - the type of the fill value
-     * @typeparam I - the array of input source value types
-     * @param fillValue - the value to use for the result tuple if a source does not have a certain key
-     * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
-     * @example
-     * const m = HashMap.of([1, 'a'], [2, 'b'])
-     * const m2 = m.mergeAll('none', [[2, true]], HashMap.of([3, 15]))
-     * // type of m2: HashMap<number, [string, boolean | string, number | string]>
-     * console.log(m2.toArray())
-     * // => [[1, ['a', 'none', 'none']], [2, ['b', true, 'none']], [3, ['none', 'none', 15]]]
-     */
-    mergeAll<O, I extends readonly [unknown, ...unknown[]]>(
-      fillValue: O,
-      ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-    ): (Tp &
-      KeyValue<K, [V | O, ...{ [KT in keyof I]: I[KT] | O }]>)['nonEmpty'];
-    /**
-     * Returns a Map containing all keys from this map and all the given `sources` key-value stream sources,
-     * and as values the result of applying the given `mergeFun` to the key and all the corresponding values for each key. If a source doesn't have a key,
-     * the given tuple will be filled with the given `fillValue`.
-     * @typeparam O - the type of the fill value
-     * @typeparam I - the array of input source value types
-     * @param fillValue - the value to use for the result tuple if a source does not have a certain key
-     * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
-     * @example
-     * const m = HashMap.of([1, 'a'], [2, 'b'])
-     * const m2 = m.mergeAllWith(
-     *   'q',
-     *   (key, v1, v2, v3) => `${key}${v1}${v2}${v3}`,
-     *   [[2, 'c']],
-     *   HashMap.of([3, 'd'])
-     * )
-     * // type of m2: HashMap<number, string>
-     * console.log(m2.toArray())
-     * // => [[1, '1aqq'], [2, '2bcq'], [3, '3qqd']]
-     */
-    mergeAllWith<R, O, I extends readonly [unknown, ...unknown[]]>(
-      fillValue: O,
-      mergeFun: (
-        key: K,
-        value: V | O,
-        ...values: { [KT in keyof I]: I[KT] | O }
-      ) => R,
-      ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-    ): (Tp & KeyValue<K, R>)['nonEmpty'];
-    /**
-     * Returns a Map containing the common keys from this map and all the given `sources` key-value stream sources,
-     * and as values tuples of all the corresponding values for each common key. If a source doesn't have a key,
-     * the key will be skipped.
-     * @typeparam I - the array of input source value types
-     * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
-     * @example
-     * const m = HashMap.of([1, 'a'], [2, 'b'])
-     * const m2 = m.merge([[2, true]], HashMap.of([2, 15]))
-     * // type of m2: HashMap<number, [string, boolean, number]>
-     * console.log(m2.toArray())
-     * // => [[2, ['b', true, 15]]]
-     */
-    merge<I extends readonly [unknown, ...unknown[]]>(
-      ...sources: {
-        [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
-      }
-    ): (Tp & KeyValue<K, [V, ...{ [KT in keyof I]: I[KT] }]>)['nonEmpty'];
-    merge<I extends readonly [unknown, ...unknown[]]>(
-      ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-    ): (Tp & KeyValue<K, [V, ...{ [KT in keyof I]: I[KT] }]>)['normal'];
-    /**
-     * Returns a Map containing the common keys from this map and all the given `sources` key-value stream sources,
-     * and as values the result of applying given `mergeFun` to the key and values of all the corresponding values for each common key.
-     * If a source doesn't have a key, the key will be skipped.
-     * @typeparam I - the array of input source value types
-     * @param mergeFun - a function taking the key and values from this map and all sources corresponding to the key, and
-     * returning a value for the resulting Map.
-     * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
-     * @example
-     * const m = HashMap.of([1, 'a'], [2, 'b'])
-     * const m2 = m.merge(
-     *   (key, v1, v2) => `${key}${v1}${v2}`,
-     *   [[2, true]],
-     *   HashMap.of([2, 15])
-     * )
-     * // type of m2: HashMap<number, string>
-     * console.log(m2.toArray())
-     * // => [[2, '2true15']]
-     */
-    mergeWith<R, I extends readonly [unknown, ...unknown[]]>(
-      mergeFun: (key: K, ...values: [V, ...I]) => R,
-      ...sources: {
-        [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
-      }
-    ): (Tp & KeyValue<K, R>)['nonEmpty'];
-    mergeWith<R, I extends readonly [unknown, ...unknown[]]>(
-      mergeFun: (key: K, ...values: [V, ...I]) => R,
-      ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-    ): (Tp & KeyValue<K, R>)['normal'];
   }
 
   /**
@@ -674,6 +471,145 @@ export namespace RMapBase {
     reducer<K extends UK, V>(
       source?: StreamSource<readonly [K, V]>
     ): Reducer<readonly [K, V], WithKeyValue<Tp, K, V>['normal']>;
+    /**
+     * Returns a Map containing all keys from this map and all the given `sources` key-value stream sources,
+     * and as values tuples of all the corresponding values for each key. If a source doesn't have a key,
+     * the tuple will be filled with the given `fillValue`.
+     * @typeparam O - the type of the fill value
+     * @typeparam I - the array of input source value types
+     * @param fillValue - the value to use for the result tuple if a source does not have a certain key
+     * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
+     * @example
+     * const m = HashMap.of([1, 'a'], [2, 'b'])
+     * const m2 = m.mergeAll('none', [[2, true]], HashMap.of([3, 15]))
+     * // type of m2: HashMap<number, [string, boolean | string, number | string]>
+     * console.log(m2.toArray())
+     * // => [[1, ['a', 'none', 'none']], [2, ['b', true, 'none']], [3, ['none', 'none', 15]]]
+     */
+    mergeAll<
+      O,
+      I extends readonly [unknown, unknown, ...unknown[]],
+      K extends UK
+    >(
+      fillValue: O,
+      ...sources: {
+        [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
+      } &
+        unknown[]
+    ): WithKeyValue<Tp, K, { [KT in keyof I]: I[KT] | O }>['nonEmpty'];
+    mergeAll<
+      O,
+      I extends readonly [unknown, unknown, ...unknown[]],
+      K extends UK
+    >(
+      fillValue: O,
+      ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> } &
+        unknown[]
+    ): WithKeyValue<Tp, K, { [KT in keyof I]: I[KT] | O }>['normal'];
+    /**
+     * Returns a Map containing all keys from this map and all the given `sources` key-value stream sources,
+     * and as values the result of applying the given `mergeFun` to the key and all the corresponding values for each key. If a source doesn't have a key,
+     * the given tuple will be filled with the given `fillValue`.
+     * @typeparam O - the type of the fill value
+     * @typeparam I - the array of input source value types
+     * @param fillValue - the value to use for the result tuple if a source does not have a certain key
+     * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
+     * @example
+     * const m = HashMap.of([1, 'a'], [2, 'b'])
+     * const m2 = m.mergeAllWith(
+     *   'q',
+     *   (key, v1, v2, v3) => `${key}${v1}${v2}${v3}`,
+     *   [[2, 'c']],
+     *   HashMap.of([3, 'd'])
+     * )
+     * // type of m2: HashMap<number, string>
+     * console.log(m2.toArray())
+     * // => [[1, '1aqq'], [2, '2bcq'], [3, '3qqd']]
+     */
+    mergeAllWith<
+      I extends readonly [unknown, unknown, ...unknown[]],
+      K extends UK
+    >(
+      ...sources: {
+        [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
+      } &
+        unknown[]
+    ): <O, R>(
+      fillValue: O,
+      mergeFun: (key: K, ...values: { [KT in keyof I]: I[KT] | O }) => R
+    ) => WithKeyValue<Tp, K, R>['nonEmpty'];
+    mergeAllWith<
+      I extends readonly [unknown, unknown, ...unknown[]],
+      K extends UK
+    >(
+      ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> } &
+        unknown[]
+    ): <O, R>(
+      fillValue: O,
+      mergeFun: (key: K, ...values: { [KT in keyof I]: I[KT] | O }) => R
+    ) => WithKeyValue<Tp, K, R>['normal'];
+    /**
+     * Returns a Map containing the common keys from this map and all the given `sources` key-value stream sources,
+     * and as values tuples of all the corresponding values for each common key. If a source doesn't have a key,
+     * the key will be skipped.
+     * @typeparam I - the array of input source value types
+     * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
+     * @example
+     * const m = HashMap.of([1, 'a'], [2, 'b'])
+     * const m2 = m.merge([[2, true]], HashMap.of([2, 15]))
+     * // type of m2: HashMap<number, [string, boolean, number]>
+     * console.log(m2.toArray())
+     * // => [[2, ['b', true, 15]]]
+     */
+    merge<K extends UK, I extends readonly [unknown, unknown, ...unknown[]]>(
+      ...sources: {
+        [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
+      } &
+        unknown[]
+    ): WithKeyValue<Tp, K, { [KT in keyof I]: I[KT] }>['nonEmpty'];
+    merge<K extends UK, I extends readonly [unknown, unknown, ...unknown[]]>(
+      ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> } &
+        unknown[]
+    ): WithKeyValue<Tp, K, { [KT in keyof I]: I[KT] }>['normal'];
+    /**
+     * Returns a Map containing the common keys from this map and all the given `sources` key-value stream sources,
+     * and as values the result of applying given `mergeFun` to the key and values of all the corresponding values for each common key.
+     * If a source doesn't have a key, the key will be skipped.
+     * @typeparam I - the array of input source value types
+     * @param mergeFun - a function taking the key and values from this map and all sources corresponding to the key, and
+     * returning a value for the resulting Map.
+     * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
+     * @example
+     * const m = HashMap.of([1, 'a'], [2, 'b'])
+     * const m2 = m.merge(
+     *   (key, v1, v2) => `${key}${v1}${v2}`,
+     *   [[2, true]],
+     *   HashMap.of([2, 15])
+     * )
+     * // type of m2: HashMap<number, string>
+     * console.log(m2.toArray())
+     * // => [[2, '2true15']]
+     */
+    mergeWith<
+      I extends readonly [unknown, unknown, ...unknown[]],
+      K extends UK
+    >(
+      ...sources: {
+        [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
+      } &
+        unknown[]
+    ): <R>(
+      mergeFun: (key: K, ...values: I) => R
+    ) => WithKeyValue<Tp, K, R>['nonEmpty'];
+    mergeWith<
+      I extends readonly [unknown, unknown, ...unknown[]],
+      K extends UK
+    >(
+      ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> } &
+        unknown[]
+    ): <R>(
+      mergeFun: (key: K, ...values: I) => R
+    ) => WithKeyValue<Tp, K, R>['normal'];
   }
 
   export interface Builder<K, V, Tp extends RMapBase.Types = RMapBase.Types> {
@@ -949,130 +885,135 @@ export namespace RMapBase {
       );
     };
 
-    mergeAllWith<R, K, O, I extends readonly [unknown, unknown, ...unknown[]]>(
-      fillValue: O,
-      mergeFun: (key: K, ...values: { [KT in keyof I]: I[KT] | O }) => R,
+    mergeAllWith: any = <
+      K,
+      I extends readonly [unknown, unknown, ...unknown[]]
+    >(
       ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-    ): any {
-      const builder = this.builder() as unknown as RMapBase.Builder<
-        K,
-        unknown[]
-      >;
+    ): any => {
+      return <O, R>(
+        fillValue: O,
+        mergeFun: (key: K, ...values: { [KT in keyof I]: I[KT] | O }) => R
+      ): any => {
+        const builder = this.builder() as unknown as RMapBase.Builder<
+          K,
+          unknown[]
+        >;
 
-      let i = -1;
-      const length = sources.length;
+        let i = -1;
+        const length = sources.length;
 
-      while (++i < sources.length) {
-        let entry: readonly [K, unknown] | undefined;
-        const iter = Stream.from(sources[i])[Symbol.iterator]();
+        while (++i < sources.length) {
+          let entry: readonly [K, unknown] | undefined;
+          const iter = Stream.from(sources[i])[Symbol.iterator]();
 
-        while (undefined !== (entry = iter.fastNext())) {
-          const key = entry[0];
-          const value = entry[1];
+          while (undefined !== (entry = iter.fastNext())) {
+            const key = entry[0];
+            const value = entry[1];
 
-          const index = i;
+            const index = i;
 
-          builder.modifyAt(key, {
-            ifNew(): unknown[] {
-              const row = Array(length).fill(fillValue);
-              row[index] = value;
-              return row;
-            },
-            ifExists(row): unknown[] {
-              row[index] = value;
-              return row;
-            },
-          });
+            builder.modifyAt(key, {
+              ifNew(): unknown[] {
+                const row = Array(length).fill(fillValue);
+                row[index] = value;
+                return row;
+              },
+              ifExists(row): unknown[] {
+                row[index] = value;
+                return row;
+              },
+            });
+          }
         }
-      }
 
-      return builder.buildMapValues((row, key) =>
-        mergeFun(key, ...(row as any))
-      );
-    }
+        return builder.buildMapValues((row, key) =>
+          mergeFun(key, ...(row as any))
+        );
+      };
+    };
 
-    mergeAll<O, K, I extends readonly [unknown, unknown, ...unknown[]]>(
+    mergeAll: any = <O, K, I extends readonly [unknown, unknown, ...unknown[]]>(
       fillValue: O,
       ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-    ): any {
-      return this.mergeAllWith(
+    ): any => {
+      return this.mergeAllWith(...sources)(
         fillValue,
-        (key: any, ...values: unknown[]): I => values as any as I,
-        ...(sources as any as [any, any, ...any[]])
+        (key: any, ...values: unknown[]): any => values
       );
-    }
+    };
 
-    mergeWith<R, K, I extends readonly [unknown, ...unknown[]]>(
-      mergeFun: (key: K, ...values: I) => R,
+    mergeWith: any = <I extends readonly [unknown, ...unknown[]], K>(
       ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-    ): any {
-      if (Stream.from(sources).some(StreamSource.isEmptyInstance)) {
-        return this.empty();
-      }
+    ): any => {
+      return <R>(mergeFun: (key: K, ...values: I) => R): any => {
+        if (Stream.from(sources).some(StreamSource.isEmptyInstance)) {
+          return this.empty();
+        }
 
-      const builder = this.builder() as unknown as RMapBase.Builder<
-        K,
-        unknown[]
-      >;
+        const builder = this.builder() as unknown as RMapBase.Builder<
+          K,
+          unknown[]
+        >;
 
-      let i = -1;
-      const length = sources.length;
+        let i = -1;
+        const length = sources.length;
 
-      while (++i < sources.length) {
+        while (++i < sources.length) {
+          let entry: readonly [K, unknown] | undefined;
+          const iter = Stream.from(sources[i])[Symbol.iterator]();
+
+          while (undefined !== (entry = iter.fastNext())) {
+            const key = entry[0];
+            const value = entry[1];
+
+            const index = i;
+
+            builder.modifyAt(key, {
+              ifNew(nothing): unknown[] | typeof nothing {
+                if (index > 0) return nothing;
+
+                const row = [value];
+                return row;
+              },
+              ifExists(row, remove): unknown[] | typeof remove {
+                if (row.length !== index) return remove;
+                row.push(value);
+                return row;
+              },
+            });
+          }
+        }
+
+        // remove all rows that are not full
+        const firstSource = sources[0];
+
         let entry: readonly [K, unknown] | undefined;
-        const iter = Stream.from(sources[i])[Symbol.iterator]();
+        const iter = Stream.from(firstSource)[Symbol.iterator]();
 
         while (undefined !== (entry = iter.fastNext())) {
           const key = entry[0];
-          const value = entry[1];
-
-          const index = i;
 
           builder.modifyAt(key, {
-            ifNew(nothing): unknown[] | typeof nothing {
-              if (index > 0) return nothing;
-
-              const row = [value];
-              return row;
-            },
             ifExists(row, remove): unknown[] | typeof remove {
-              if (row.length !== index) return remove;
-              row.push(value);
+              if (row.length !== length) return remove;
               return row;
             },
           });
         }
-      }
 
-      // remove all rows that are not full
-      const firstSource = sources[0];
+        return builder.buildMapValues((row, key) =>
+          mergeFun(key, ...(row as any))
+        );
+      };
+    };
 
-      let entry: readonly [K, unknown] | undefined;
-      const iter = Stream.from(firstSource)[Symbol.iterator]();
-
-      while (undefined !== (entry = iter.fastNext())) {
-        const key = entry[0];
-
-        builder.modifyAt(key, {
-          ifExists(row, remove): unknown[] | typeof remove {
-            if (row.length !== length) return remove;
-            return row;
-          },
-        });
-      }
-
-      return builder.buildMapValues((row, key) =>
-        mergeFun(key, ...(row as any))
-      );
-    }
-
-    merge<K, I extends readonly [unknown, ...unknown[]]>(
+    merge: any = <K, I extends readonly [unknown, ...unknown[]]>(
       ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-    ): any {
-      return this.mergeWith(
-        (key: any, ...values: unknown[]): I => values as any as I,
-        ...(sources as any as [any, any, ...any[]])
+    ): any => {
+      return this.mergeWith(...sources)(
+        (key: any, ...values: unknown[]): any => values
       );
-    }
+    };
   }
 }
