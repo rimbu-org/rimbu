@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@0.7.5...@rimbu/stream@0.8.0) (2021-11-20)
+
+
+### Features
+
+* add typescript 4.5 rc compatibility and remove need to enable noStrictGenericChecks ([056dd8a](https://github.com/rimbu-org/rimbu/commit/056dd8a998ae4064570481fb7a9396326c0ca131))
+* improve zipwith, zipallwith, mergewith, mergeallwith methods and fix related tests ([915f9f2](https://github.com/rimbu-org/rimbu/commit/915f9f2ee35e33eb654765ad5fb726da08bfa36c))
+* integrate release version of TypeScript 4.5, improve build times ([d684828](https://github.com/rimbu-org/rimbu/commit/d6848281859752c630979e44e8e22c3cbfccf577))
+
+
+### BREAKING CHANGES
+
+* Some methods are extracted from Stream instances and made static, same for Maps and
+Sets. This leads to better variance inference.
+* Interfaces for methods like merge and flatten have been moved from instance to
+class methods
+
+
+
+
+
 ## [0.7.5](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@0.7.4...@rimbu/stream@0.7.5) (2021-10-10)
 
 

@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/typical@0.2.2...@rimbu/typical@0.3.0) (2021-11-20)
+
+
+### Features
+
+* add typescript 4.5 rc compatibility and remove need to enable noStrictGenericChecks ([056dd8a](https://github.com/rimbu-org/rimbu/commit/056dd8a998ae4064570481fb7a9396326c0ca131))
+* upgrade to TS 4.5 and fix code that trips up compiler ([63fba7c](https://github.com/rimbu-org/rimbu/commit/63fba7cb039c629f9fc0dc09db2ef6435d06d5f1))
+
+
+### BREAKING CHANGES
+
+* Interfaces for methods like merge and flatten have been moved from instance to
+class methods
+
+
+
+
+
 ## [0.2.2](https://github.com/rimbu-org/rimbu/compare/@rimbu/typical@0.2.1...@rimbu/typical@0.2.2) (2021-10-10)
 
 
