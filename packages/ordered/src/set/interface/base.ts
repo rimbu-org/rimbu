@@ -1,7 +1,6 @@
 import type { CustomBase } from '@rimbu/collection-types';
 import type { List } from '@rimbu/list';
 import type { Streamable } from '@rimbu/stream';
-import type { OrderedSetNonEmpty } from '../../ordered-custom';
 
 export interface OrderedSetBase<
   T,
@@ -71,31 +70,13 @@ export namespace OrderedSetBase {
   }
 
   export interface Types extends CustomBase.RSetBase.Types {
-    normal: OrderedSetBase<this['_T']>;
-    nonEmpty: OrderedSetBase.NonEmpty<this['_T']>;
-    context: OrderedSetBase.Context<this['_T']>;
-    builder: OrderedSetBase.Builder<this['_T']>;
-    sourceContext: CustomBase.RSetBase.Context<this['_T']>;
-    sourceSet: CustomBase.RSetBase<this['_T']>;
-    sourceSetNonEmpty: CustomBase.RSetBase.NonEmpty<this['_T']>;
-    sourceBuilder: CustomBase.RSetBase.Builder<this['_T']>;
+    readonly normal: OrderedSetBase<this['_T']>;
+    readonly nonEmpty: OrderedSetBase.NonEmpty<this['_T']>;
+    readonly context: OrderedSetBase.Context<this['_T']>;
+    readonly builder: OrderedSetBase.Builder<this['_T']>;
+    readonly sourceContext: CustomBase.RSetBase.Context<this['_T']>;
+    readonly sourceSet: CustomBase.RSetBase<this['_T']>;
+    readonly sourceSetNonEmpty: CustomBase.RSetBase.NonEmpty<this['_T']>;
+    readonly sourceBuilder: CustomBase.RSetBase.Builder<this['_T']>;
   }
-}
-
-export interface OrderedSetContext<UT, Tp extends OrderedSetTypes>
-  extends OrderedSetBase.Context<UT, Tp> {
-  builder<T extends UT>(): CustomBase.WithElem<Tp, T>['builder'];
-
-  createBuilder<T extends UT>(
-    source?: OrderedSetNonEmpty<T, Tp>
-  ): CustomBase.WithElem<Tp, T>['builder'];
-
-  createNonEmpty<T extends UT>(
-    order: List.NonEmpty<T>,
-    sourceSet: CustomBase.WithElem<Tp, T>['sourceSetNonEmpty']
-  ): CustomBase.WithElem<Tp, T>['nonEmpty'];
-}
-
-export interface OrderedSetTypes extends OrderedSetBase.Types {
-  context: OrderedSetContext<this['_T'], OrderedSetTypes>;
 }

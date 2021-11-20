@@ -297,8 +297,4 @@ export class GraphNonEmpty<
   toBuilder(): TpG['builder'] {
     return this.context.createBuilder(this as any);
   }
-
-  extendValues(): any {
-    return this;
-  }
 }

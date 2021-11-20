@@ -10,7 +10,6 @@ import type {
   OptLazyOr,
   Reducer,
   RelatedTo,
-  SuperOf,
   ToJSON,
   TraverseState,
   Update,
@@ -402,12 +401,19 @@ export namespace VariantTableBase {
   }
 
   export interface Types extends CB.Row {
-    normal: VariantTableBase<this['_R'], this['_C'], this['_V']>;
-    nonEmpty: VariantTableBase.NonEmpty<this['_R'], this['_C'], this['_V']>;
-    row: VariantMap<this['_C'], this['_V']>;
-    rowNonEmpty: VariantMap.NonEmpty<this['_C'], this['_V']>;
-    rowMap: VariantMap<this['_R'], VariantMap.NonEmpty<this['_C'], this['_V']>>;
-    rowMapNonEmpty: VariantMap.NonEmpty<
+    readonly normal: VariantTableBase<this['_R'], this['_C'], this['_V']>;
+    readonly nonEmpty: VariantTableBase.NonEmpty<
+      this['_R'],
+      this['_C'],
+      this['_V']
+    >;
+    readonly row: VariantMap<this['_C'], this['_V']>;
+    readonly rowNonEmpty: VariantMap.NonEmpty<this['_C'], this['_V']>;
+    readonly rowMap: VariantMap<
+      this['_R'],
+      VariantMap.NonEmpty<this['_C'], this['_V']>
+    >;
+    readonly rowMapNonEmpty: VariantMap.NonEmpty<
       this['_R'],
       VariantMap.NonEmpty<this['_C'], this['_V']>
     >;
@@ -435,7 +441,7 @@ export interface TableBase<
    * t.set(1, 2, 10).toArray()    // => [[1, 2, 10], [1, 4, 5]]
    * t.set(2, 6, 8).toArray()     // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]
    */
-  set: (row: R, column: C, value: V) => CB.WithRow<Tp, R, C, V>['nonEmpty'];
+  set(row: R, column: C, value: V): CB.WithRow<Tp, R, C, V>['nonEmpty'];
   /**
    * Returns the collection with the given `entry` added.
    * @param entry - the entry to add
@@ -443,7 +449,7 @@ export interface TableBase<
    * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
    * t.addEntry([2, 6, 8]).toArray()   // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]
    */
-  addEntry: (entry: readonly [R, C, V]) => CB.WithRow<Tp, R, C, V>['nonEmpty'];
+  addEntry(entry: readonly [R, C, V]): CB.WithRow<Tp, R, C, V>['nonEmpty'];
   /**
    * Returns the collection with the given `entries` added.
    * @param entries - a `StreamSource containing entries to add
@@ -452,20 +458,12 @@ export interface TableBase<
    * t.addEntries([[1, 4, 5], [2, 6, 8]]).toArray()
    * // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]
    */
-  addEntries: {
-    (entries: StreamSource.NonEmpty<readonly [R, C, V]>): CB.WithRow<
-      Tp,
-      R,
-      C,
-      V
-    >['nonEmpty'];
-    (entries: StreamSource<readonly [R, C, V]>): CB.WithRow<
-      Tp,
-      R,
-      C,
-      V
-    >['normal'];
-  };
+  addEntries(
+    entries: StreamSource.NonEmpty<readonly [R, C, V]>
+  ): CB.WithRow<Tp, R, C, V>['nonEmpty'];
+  addEntries(
+    entries: StreamSource<readonly [R, C, V]>
+  ): CB.WithRow<Tp, R, C, V>['normal'];
   /**
    * Returns the collection with the value at given `row` and `column` keys modified according to given `options`.
    * @param row - the row key
@@ -487,14 +485,14 @@ export interface TableBase<
    * t.modifyAt(1, 2, { ifExists: (v, remove) => remove }).toArray()
    * // => [[1, 4, 5]]
    */
-  modifyAt: (
+  modifyAt(
     row: R,
     column: C,
     options: {
       ifNew?: OptLazyOr<V, Token>;
       ifExists?: (value: V, remove: Token) => V | Token;
     }
-  ) => CB.WithRow<Tp, R, C, V>['normal'];
+  ): CB.WithRow<Tp, R, C, V>['normal'];
   /**
    * Returns the collection with the value at given `row` and `column` keys updated according
    * to the given `update` function.
@@ -520,17 +518,6 @@ export interface TableBase<
    *   = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()
    */
   toBuilder(): CB.WithRow<Tp, R, C, V>['builder'];
-  /**
-   * Returns the same Table with an extended value type.
-   * @typeparam V2 - a type that extends V that defines the new value type
-   * @example
-   * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
-   * t.extendValues<number | string>
-   * // => type: HashTableHashColumn.NonEmpty<number, number, number | string>
-   * t.extendValues<boolean>
-   * // => type: HashTableHashColumn.NonEmpty<number, number, never>
-   */
-  extendValues<V2>(): CB.WithRow<Tp, R, C, SuperOf<V2, V>>['normal'];
 }
 
 export namespace TableBase {
@@ -561,9 +548,9 @@ export namespace TableBase {
      * t.addEntries([[1, 4, 5], [2, 6, 8]]).toArray()
      * // => [[1, 2, 3], [1, 4, 5], [2, 6, 8]]
      */
-    addEntries: (
+    addEntries(
       entries: StreamSource<readonly [R, C, V]>
-    ) => CB.WithRow<Tp, R, C, V>['nonEmpty'];
+    ): CB.WithRow<Tp, R, C, V>['nonEmpty'];
     /**
      * Returns the collection with the value at given `row` and `column` keys updated according
      * to the given `update` function.
@@ -582,17 +569,6 @@ export namespace TableBase {
       column: RelatedTo<C, UC>,
       update: Update<V>
     ): CB.WithRow<Tp, R, C, V>['nonEmpty'];
-    /**
-     * Returns the same Table with an extended value type.
-     * @typeparam V2 - a type that extends V that defines the new value type
-     * @example
-     * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
-     * t.extendValues<number | string>
-     * // => type: HashTableHashColumn.NonEmpty<number, number, number | string>
-     * t.extendValues<boolean>
-     * // => type: HashTableHashColumn.NonEmpty<number, number, never>
-     */
-    extendValues<V2>(): CB.WithRow<Tp, R, C, SuperOf<V2, V>>['nonEmpty'];
   }
 
   export interface Context<
@@ -600,6 +576,7 @@ export namespace TableBase {
     UC,
     Tp extends TableBase.Types = TableBase.Types
   > {
+    readonly _fixedKeys: readonly [UR, UC];
     /**
      * A string tag defining the specific collection type
      * @example
@@ -624,41 +601,34 @@ export namespace TableBase {
      * HashTableHashColumn.empty<number, string, boolean>()    // => HashTableHashColumn<number, string, boolean>
      * HashTableHashColumn.empty<string, boolean, number>()    // => HashTableHashColumn<string, boolean, number>
      */
-    empty: <R extends UR, C extends UC, V>() => CB.WithRow<
-      Tp,
-      R,
-      C,
-      V
-    >['normal'];
+    empty<R extends UR, C extends UC, V>(): CB.WithRow<Tp, R, C, V>['normal'];
     /**
      * Returns an immutable multimap of this collection type and context, containing the given `entries`.
      * @param entries - a non-empty array of row-column-value entries
      * @example
      * HashTableHashColumn.of([1, 2, 3], [1, 4, 5])    // => HashTableHashColumn.NonEmpty<number, number, number>
      */
-    of: <R extends UR, C extends UC, V>(
+    of<R extends UR, C extends UC, V>(
       ...entries: ArrayNonEmpty<readonly [R, C, V]>
-    ) => CB.WithRow<Tp, R, C, V>['nonEmpty'];
+    ): CB.WithRow<Tp, R, C, V>['nonEmpty'];
     /**
      * Returns an immutable table of this type and context, containing the entries in the given `sources` `StreamSource` instances.
      * @param sources - an array of `StreamSource` instances containing row-column-value entries
      * @example
      * HashTableHashColumn.from([[1, 2, 3], [1, 4, 5]])    // => HashTableHashColumn.NonEmpty<number, number, number>
      */
-    from: {
-      <R extends UR, C extends UC, V>(
-        ...sources: ArrayNonEmpty<StreamSource.NonEmpty<readonly [R, C, V]>>
-      ): CB.WithRow<Tp, R, C, V>['nonEmpty'];
-      <R extends UR, C extends UC, V>(
-        ...sources: ArrayNonEmpty<StreamSource<readonly [R, C, V]>>
-      ): CB.WithRow<Tp, R, C, V>['normal'];
-    };
+    from<R extends UR, C extends UC, V>(
+      ...sources: ArrayNonEmpty<StreamSource.NonEmpty<readonly [R, C, V]>>
+    ): CB.WithRow<Tp, R, C, V>['nonEmpty'];
+    from<R extends UR, C extends UC, V>(
+      ...sources: ArrayNonEmpty<StreamSource<readonly [R, C, V]>>
+    ): CB.WithRow<Tp, R, C, V>['normal'];
     /**
      * Returns an empty builder instance for this type of collection and context.
      * @example
      * HashTableHashColumn.builder<number, string, boolean>()    // => HashTableHashColumn.Builder<number, string, boolean>
      */
-    builder: <R extends UR, C extends UC, V>() => CB.WithRow<
+    builder<R extends UR, C extends UC, V>(): CB.WithRow<
       Tp,
       R,
       C,
@@ -674,9 +644,9 @@ export namespace TableBase {
      * result.toArray()   // => [[1, 'c'], [2, 'b'], [3, 'a']]
      * @note uses a builder under the hood. If the given `source` is a Table in the same context, it will directly call `.toBuilder()`.
      */
-    reducer: <R extends UR, C extends UC, V>(
+    reducer<R extends UR, C extends UC, V>(
       source?: StreamSource<readonly [R, C, V]>
-    ) => Reducer<[R, C, V], CB.WithRow<Tp, R, C, V>['normal']>;
+    ): Reducer<[R, C, V], CB.WithRow<Tp, R, C, V>['normal']>;
   }
 
   export interface Builder<
@@ -776,7 +746,7 @@ export namespace TableBase {
      * t.set(1, 2, 3)   // => false
      * t.set(1, 3, 8)   // => true
      */
-    set: (row: R, column: C, value: V) => boolean;
+    set(row: R, column: C, value: V): boolean;
     /**
      * Adds the given `entry` to the builder.
      * @param entry - the entry to add
@@ -786,7 +756,7 @@ export namespace TableBase {
      * t.addEntry([1, 2, 3])   // => false
      * t.addEntry([1, 3, 8])   // => true
      */
-    addEntry: (entry: readonly [R, C, V]) => boolean;
+    addEntry(entry: readonly [R, C, V]): boolean;
     /**
      * Adds the given `entries` to the builder.
      * @param entries - a `StreamSource` containing entries to add.
@@ -796,7 +766,7 @@ export namespace TableBase {
      * t.addEntries([[1, 2, 3], [1, 2, 3]])  // => false
      * t.addEntries([[1, 2, 3], [2, 3, 4]])  // => true
      */
-    addEntries: (entries: StreamSource<readonly [R, C, V]>) => boolean;
+    addEntries(entries: StreamSource<readonly [R, C, V]>): boolean;
     /**
      * Remove the value at given `row` and `column` keys in the builder.
      * @param row - the row key
@@ -895,14 +865,14 @@ export namespace TableBase {
      * t.modifyAt(1, 2, { ifExists: (v, remove) => remove })
      * // => true
      */
-    modifyAt: (
+    modifyAt(
       row: R,
       column: C,
       options: {
         ifNew?: OptLazyOr<V, Token>;
         ifExists?: (currentValue: V, remove: Token) => V | Token;
       }
-    ) => boolean;
+    ): boolean;
     /**
      * Updates the value at given `row` and `column` keys according to the given `update`
      * function.
@@ -940,25 +910,25 @@ export namespace TableBase {
      * const m = HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toBuilder()
      * const m2: HashTableHashColumn<number, number, boolean> = m.buildMapValues(v => v > 3)
      */
-    buildMapValues: <V2>(
+    buildMapValues<V2>(
       mapFun: (value: V, row: R, column: C) => V2
-    ) => (Tp & CB.Row<R, C, V2>)['normal'];
+    ): (Tp & CB.Row<R, C, V2>)['normal'];
   }
 
   export interface Types extends VariantTableBase.Types {
-    normal: TableBase<this['_R'], this['_C'], this['_V']>;
-    nonEmpty: TableBase.NonEmpty<this['_R'], this['_C'], this['_V']>;
-    limitRow: true;
-    row: RMap<this['_C'], this['_V']>;
-    rowNonEmpty: RMap.NonEmpty<this['_C'], this['_V']>;
-    rowMap: RMap<this['_R'], RMap.NonEmpty<this['_C'], this['_V']>>;
-    rowMapNonEmpty: RMap.NonEmpty<
+    readonly normal: TableBase<this['_R'], this['_C'], this['_V']>;
+    readonly nonEmpty: TableBase.NonEmpty<this['_R'], this['_C'], this['_V']>;
+    readonly limitRow: true;
+    readonly row: RMap<this['_C'], this['_V']>;
+    readonly rowNonEmpty: RMap.NonEmpty<this['_C'], this['_V']>;
+    readonly rowMap: RMap<this['_R'], RMap.NonEmpty<this['_C'], this['_V']>>;
+    readonly rowMapNonEmpty: RMap.NonEmpty<
       this['_R'],
       RMap.NonEmpty<this['_C'], this['_V']>
     >;
-    context: TableBase.Context<this['_R'], this['_C']>;
-    builder: TableBase.Builder<this['_R'], this['_C'], this['_V']>;
-    rowContext: RMap.Context<this['_R']>;
-    columnContext: RMap.Context<this['_C']>;
+    readonly context: TableBase.Context<this['_R'], this['_C']>;
+    readonly builder: TableBase.Builder<this['_R'], this['_C'], this['_V']>;
+    readonly rowContext: RMap.Context<this['_R']>;
+    readonly columnContext: RMap.Context<this['_C']>;
   }
 }

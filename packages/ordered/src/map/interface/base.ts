@@ -1,11 +1,6 @@
-import type { CustomBase, RMapBase } from '@rimbu/collection-types';
+import type { CustomBase, RMap } from '@rimbu/collection-types';
 import type { List } from '@rimbu/list';
 import type { Stream, Streamable } from '@rimbu/stream';
-import type {
-  OrderedMapBuilder,
-  OrderedMapNonEmpty,
-} from '../../ordered-custom';
-import type { OrderedMapContextImpl } from '../implementation/context';
 
 export interface OrderedMapBase<
   K,
@@ -83,33 +78,13 @@ export namespace OrderedMapBase {
   }
 
   export interface Types extends CustomBase.RMapBase.Types {
-    normal: OrderedMapBase<this['_K'], this['_V']>;
-    nonEmpty: OrderedMapBase.NonEmpty<this['_K'], this['_V']>;
-    context: OrderedMapBase.Context<this['_K']>;
-    builder: OrderedMapBase.Builder<this['_K'], this['_V']>;
-    sourceContext: CustomBase.RMapBase.Context<this['_K']>;
-    sourceMap: CustomBase.RMapBase<this['_K'], this['_V']>;
-    sourceMapNonEmpty: CustomBase.RMapBase.NonEmpty<this['_K'], this['_V']>;
-    sourceBuilder: CustomBase.RMapBase.Builder<this['_K'], this['_V']>;
+    readonly normal: OrderedMapBase<this['_K'], this['_V']>;
+    readonly nonEmpty: OrderedMapBase.NonEmpty<this['_K'], this['_V']>;
+    readonly context: OrderedMapBase.Context<this['_K']>;
+    readonly builder: OrderedMapBase.Builder<this['_K'], this['_V']>;
+    readonly sourceContext: RMap.Context<this['_K']>;
+    readonly sourceMap: RMap<this['_K'], this['_V']>;
+    readonly sourceMapNonEmpty: RMap.NonEmpty<this['_K'], this['_V']>;
+    readonly sourceBuilder: RMap.Builder<this['_K'], this['_V']>;
   }
-}
-
-export interface OrderedMapContext<UK, Tp extends OrderedMapTypes>
-  extends OrderedMapBase.Context<UK, Tp> {
-  builder<K extends UK, V>(): CustomBase.WithKeyValue<Tp, K, V>['builder'];
-
-  createBuilder<K extends UK, V>(
-    source?: OrderedMapNonEmpty<K, V, Tp>
-  ): CustomBase.WithKeyValue<Tp, K, V>['builder'];
-
-  createNonEmpty<K extends UK, V>(
-    order: List.NonEmpty<K>,
-    sourceMap: RMapBase.NonEmpty<K, V>
-  ): CustomBase.WithKeyValue<Tp, K, V>['nonEmpty'];
-}
-
-export interface OrderedMapTypes extends OrderedMapBase.Types {
-  context: OrderedMapContextImpl<this['_K'], OrderedMapTypes>;
-  nonEmpty: OrderedMapNonEmpty<this['_K'], this['_V'], OrderedMapTypes>;
-  builder: OrderedMapBuilder<this['_K'], this['_V'], OrderedMapTypes>;
 }

@@ -28,7 +28,7 @@ export namespace VariantMultiSet {
       Streamable.NonEmpty<T> {}
 
   export interface Types extends VariantMultiSetBase.Types {
-    normal: VariantMultiSet<this['_T']>;
-    nonEmpty: VariantMultiSet.NonEmpty<this['_T']>;
+    readonly normal: VariantMultiSet<this['_T']>;
+    readonly nonEmpty: VariantMultiSet.NonEmpty<this['_T']>;
   }
 }

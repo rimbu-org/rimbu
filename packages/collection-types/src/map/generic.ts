@@ -37,9 +37,9 @@ export namespace RMap {
   export interface Builder<K, V> extends RMapBase.Builder<K, V, RMap.Types> {}
 
   export interface Types extends RMapBase.Types {
-    normal: RMap<this['_K'], this['_V']>;
-    nonEmpty: RMap.NonEmpty<this['_K'], this['_V']>;
-    context: RMap.Context<this['_K']>;
-    builder: RMap.Builder<this['_K'], this['_V']>;
+    readonly normal: RMap<this['_K'], this['_V']>;
+    readonly nonEmpty: RMap.NonEmpty<this['_K'], this['_V']>;
+    readonly context: RMap.Context<this['_K']>;
+    readonly builder: RMap.Builder<this['_K'], this['_V']>;
   }
 }

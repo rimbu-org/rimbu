@@ -84,7 +84,7 @@ export namespace Binding {
     enabled?: Actor.Readonly<boolean>
   ): Binding<{ value: string; disabled: boolean; onChange: () => void }> {
     return [
-      enabled ? [value, enabled] : [value],
+      enabled ? [value as any, enabled] : [value],
       {
         get value(): string {
           return value.state;
@@ -114,7 +114,7 @@ export namespace Binding {
     onChange: (evt: React.ChangeEvent<HTMLInputElement>) => void;
   }> {
     return [
-      enabled ? [value, enabled] : [value],
+      enabled ? [value as any, enabled] : [value],
       {
         get value(): string {
           return value.state;
@@ -145,7 +145,7 @@ export namespace Binding {
     onChange: () => void;
   }> {
     return [
-      enabled ? [value, enabled] : [value],
+      enabled ? [value as any, enabled] : [value],
       {
         type: 'checkbox',
         get checked(): boolean {
@@ -177,7 +177,7 @@ export namespace Binding {
     onChange: (evt: React.ChangeEvent<HTMLInputElement>) => void;
   }> {
     return [
-      enabled ? [value, enabled] : [value],
+      enabled ? [value as any, enabled] : [value],
       {
         type: 'checkbox',
         get checked(): boolean {
@@ -206,7 +206,7 @@ export namespace Binding {
     sourceCommand: Command<Args>
   ): Binding<(...args: Args) => { onClick: () => void; disabled: boolean }> {
     return [
-      [sourceCommand],
+      [sourceCommand as any],
       (...args: Args): { onClick: () => void; disabled: boolean } => ({
         onClick(): void {
           sourceCommand.execute(...args);
@@ -223,7 +223,7 @@ export namespace Binding {
     ...args: Args
   ): Binding<{ onClick: () => void; disabled: boolean }> {
     return [
-      [sourceCommand],
+      [sourceCommand as any],
       {
         onClick(): void {
           sourceCommand.execute(...args);

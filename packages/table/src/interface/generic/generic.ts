@@ -48,15 +48,11 @@ export namespace Table {
     extends TableBase.Builder<R, C, V, Table.Types> {}
 
   export interface Types extends TableBase.Types {
-    normal: Table<this['_R'], this['_C'], this['_V']>;
-    nonEmpty: Table.NonEmpty<this['_R'], this['_C'], this['_V']>;
-    context: Table.Context<this['_R'], this['_C']>;
-    builder: Table.Builder<this['_R'], this['_C'], this['_V']>;
+    readonly normal: Table<this['_R'], this['_C'], this['_V']>;
+    readonly nonEmpty: Table.NonEmpty<this['_R'], this['_C'], this['_V']>;
+    readonly context: Table.Context<this['_R'], this['_C']>;
+    readonly builder: Table.Builder<this['_R'], this['_C'], this['_V']>;
   }
-}
-
-interface TypesImpl extends Table.Types {
-  context: TableContext<this['_R'], this['_C'], string, any>;
 }
 
 export const Table = {
@@ -72,7 +68,7 @@ export const Table = {
     rowContext: RMap.Context<UR>;
     columnContext: RMap.Context<UC>;
   }): Table.Context<UR, UC> {
-    return new TableContext<UR, UC, 'Table', TypesImpl>(
+    return new TableContext<UR, UC, 'Table'>(
       'Table',
       options.rowContext,
       options.columnContext

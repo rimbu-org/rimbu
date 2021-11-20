@@ -39,7 +39,9 @@ export const ObsStream: <T, P>(props: {
     toKey: (item: Immutable<T>) => string;
     toProps: (item: Immutable<T>) => P;
   }) => {
-    const streamSource = useActorState(props.source);
+    const streamSource: StreamSource<T> = useActorState(
+      props.source as any
+    ) as any;
 
     const viewCache = React.useRef(new Map<string, JSX.Element>());
 

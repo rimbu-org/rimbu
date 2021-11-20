@@ -32,7 +32,7 @@ export namespace VariantMap {
       Streamable.NonEmpty<readonly [K, V]> {}
 
   export interface Types extends VariantMapBase.Types {
-    normal: VariantMap<this['_K'], this['_V']>;
-    nonEmpty: VariantMap.NonEmpty<this['_K'], this['_V']>;
+    readonly normal: VariantMap<this['_K'], this['_V']>;
+    readonly nonEmpty: VariantMap.NonEmpty<this['_K'], this['_V']>;
   }
 }

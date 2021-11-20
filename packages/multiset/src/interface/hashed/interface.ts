@@ -48,24 +48,20 @@ export namespace HashMultiSet {
     extends MultiSetBase.Builder<T, HashMultiSet.Types> {}
 
   export interface Types extends MultiSetBase.Types {
-    normal: HashMultiSet<this['_T']>;
-    nonEmpty: HashMultiSet.NonEmpty<this['_T']>;
-    context: HashMultiSet.Context<this['_T']>;
-    builder: HashMultiSet.Builder<this['_T']>;
-    countMap: HashMap<this['_T'], number>;
-    countMapNonEmpty: HashMap.NonEmpty<this['_T'], number>;
-    countMapContext: HashMap.Context<this['_T']>;
+    readonly normal: HashMultiSet<this['_T']>;
+    readonly nonEmpty: HashMultiSet.NonEmpty<this['_T']>;
+    readonly context: HashMultiSet.Context<this['_T']>;
+    readonly builder: HashMultiSet.Builder<this['_T']>;
+    readonly countMap: HashMap<this['_T'], number>;
+    readonly countMapNonEmpty: HashMap.NonEmpty<this['_T'], number>;
+    readonly countMapContext: HashMap.Context<this['_T']>;
   }
-}
-
-interface TypesImpl extends HashMultiSet.Types {
-  context: MultiSetContext<this['_T'], 'HashMultiSet', any>;
 }
 
 function createContext<UT>(options?: {
   countMapContext?: HashMap.Context<UT>;
 }): HashMultiSet.Context<UT> {
-  return new MultiSetContext<UT, 'HashMultiSet', TypesImpl>(
+  return new MultiSetContext<UT, 'HashMultiSet', any>(
     'HashMultiSet',
     options?.countMapContext ?? HashMap.defaultContext()
   );

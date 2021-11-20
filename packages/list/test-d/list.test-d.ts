@@ -63,16 +63,6 @@ expectType<List.NonEmpty<number>>(List.of(1).concat(List.of(1)));
 expectType<List<number>>(List.empty<number>().drop(3));
 expectType<List<number>>(List.of(1).drop(3));
 
-// .extendType()
-expectType<List<never>>(List.empty<number>().extendType<string>());
-expectType<List<number | string>>(
-  List.empty<number>().extendType<number | string>()
-);
-expectType<List.NonEmpty<never>>(List.of(1, 2).extendType<string>());
-expectType<List.NonEmpty<number | string>>(
-  List.of(1, 2).extendType<number | string>()
-);
-
 // .filter(..)
 expectType<List<number>>(List.empty<number>().filter(() => true));
 expectType<List<number>>(List.of(1).filter(() => true));
@@ -97,12 +87,12 @@ expectType<List<string>>(
 );
 
 // .flatten()
-expectType<never>(List.empty<number>().flatten());
-expectType<List.NonEmpty<number>>(List.of(List.of(1)).flatten());
-expectType<List<number>>(List.of(List.empty<number>()).flatten());
-expectType<List<number>>(List.of(List.of(1)).asNormal().flatten());
-expectType<List.NonEmpty<number>>(List.of(List.from([1, 2])).flatten());
-expectType<List<string>>(List.of('abc').flatten());
+expectError(List.flatten(List.empty<number>()));
+expectType<List.NonEmpty<number>>(List.flatten(List.of(List.of(1))));
+expectType<List<number>>(List.flatten(List.of(List.empty<number>())));
+expectType<List<number>>(List.flatten(List.of(List.of(1)).asNormal()));
+expectType<List.NonEmpty<number>>(List.flatten(List.of(List.from([1, 2]))));
+expectType<List<string>>(List.flatten(List.of('abc')));
 
 // .get(..)
 expectType<number | undefined>(List.of(1).get(3));
@@ -212,15 +202,16 @@ expectType<List.Builder<number>>(List.empty<number>().toBuilder());
 expectType<List.Builder<number>>(List.of(1).toBuilder());
 
 // .unzip(..)
+expectError(List.unzip(List.of(1)));
 expectType<[List<number>, List<string>]>(
-  List.empty<[number, string]>().unzip(2)
+  List.unzip(List.empty<[number, string]>(), 2)
 );
 expectType<[List.NonEmpty<number>, List.NonEmpty<string>]>(
-  List.of([1, 'a'] as [number, string]).unzip(2)
+  List.unzip(List.of([1, 'a'] as [number, string]), 2)
 );
 expectType<
   [List.NonEmpty<number>, List.NonEmpty<string>, List.NonEmpty<boolean>]
->(List.of([1, 'a', true] as [number, string, boolean]).unzip(3));
+>(List.unzip(List.of([1, 'a', true] as [number, string, boolean]), 3));
 
 // .updateAt(..)
 expectType<List<number>>(List.empty<number>().updateAt(1, (v) => v + 1));

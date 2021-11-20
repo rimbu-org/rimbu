@@ -296,7 +296,7 @@ export type TupleLength<T extends unknown[]> = T extends { length: infer L }
  */
 export type DigitToTup<T extends unknown[] = [unknown]> = {
   '0': [];
-  '1': [...T];
+  '1': T;
   '2': [...T, ...T];
   '3': [...T, ...T, ...T];
   '4': [...T, ...T, ...T, ...T];
@@ -305,23 +305,24 @@ export type DigitToTup<T extends unknown[] = [unknown]> = {
   '7': [...T, ...T, ...T, ...T, ...T, ...T, ...T];
   '8': [...T, ...T, ...T, ...T, ...T, ...T, ...T, ...T];
   '9': [...T, ...T, ...T, ...T, ...T, ...T, ...T, ...T, ...T];
-  deca: [...T, ...T, ...T, ...T, ...T, ...T, ...T, ...T, ...T, ...T];
+  '10': [...T, ...T, ...T, ...T, ...T, ...T, ...T, ...T, ...T, ...T];
 };
 
 /**
  * Builds a tuple of the length of a given string-number. The length can be used
  * to convert a string-number to a number.
  */
-export type BuildTuple<
+export type BuildTuple<N extends string> = BuildTupleHelper<N, []>;
+
+type BuildTupleHelper<
   N extends string,
-  Deca extends unknown[] = [unknown]
-> = N extends Str.Append<infer First, Digit>
-  ? First extends ''
-    ? DigitToTup<Deca>[Digit & N]
-    : N extends Str.Append<First, infer D>
-    ? [...BuildTuple<First, DigitToTup<Deca>['deca']>, ...BuildTuple<D, Deca>]
-    : never
-  : never;
+  Result extends unknown[]
+> = N extends Str.Append<Digit & infer D, infer Rest>
+  ? BuildTupleHelper<
+      Rest,
+      [...DigitToTup[Digit & D], ...DigitToTup<Result>['10']]
+    >
+  : Result;
 
 /**
  * Converts the given string-number to its corresponding number.
@@ -380,31 +381,43 @@ export type Mult<N1 extends string, N2 extends string> = N2 extends Str.Append<
 
 export type AmountTimesIn<
   Small extends string,
+  Large extends string
+> = AmountTimesInHelper<Small, Large, '0'>;
+
+type AmountTimesInHelper<
+  Small extends string,
   Large extends string,
-  Am extends string = '0'
+  Am extends string
 > = Small extends Large
   ? [Add<Am, '1'>, '0']
   : Subtract<Large, Small> extends never
   ? [Am, Large]
   : Subtract<Large, Small> extends infer Result
-  ? AmountTimesIn<Small, string & Result, Add<Am, '1'>>
+  ? AmountTimesInHelper<Small, string & Result, Add<Am, '1'>>
   : never;
 
 export type AppendDigit<N extends string, D extends Digit> = N extends '0'
   ? D
   : Str.Append<N, D>;
 
-export type Divide<
+export type Divide<N extends string, M extends string> = DivideHelper<
+  N,
+  M,
+  '',
+  ''
+>;
+
+type DivideHelper<
   N extends string,
   M extends string,
-  Q extends string = '',
-  R extends string = ''
+  Q extends string,
+  R extends string
 > = M extends '0'
   ? never
   : N extends Str.Append<infer Dig, infer Rest>
   ? AppendDigit<R, Digit & Dig> extends infer D
     ? AmountTimesIn<M, string & D> extends [infer B, infer NewR]
-      ? Divide<Rest, M, AppendDigit<Q, Digit & B>, string & NewR>
+      ? DivideHelper<Rest, M, AppendDigit<Q, Digit & B>, string & NewR>
       : never
     : never
   : [Q, R];

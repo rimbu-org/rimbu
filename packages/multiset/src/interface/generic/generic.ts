@@ -34,17 +34,13 @@ export namespace MultiSet {
   export interface Builder<T> extends MultiSetBase.Builder<T, MultiSet.Types> {}
 
   export interface Types extends MultiSetBase.Types {
-    normal: MultiSet<this['_T']>;
-    nonEmpty: MultiSet.NonEmpty<this['_T']>;
-    countMap: RMap<this['_T'], number>;
-    countMapNonEmpty: RMap.NonEmpty<this['_T'], number>;
-    context: MultiSet.Context<this['_T']>;
-    builder: MultiSet.Builder<this['_T']>;
+    readonly normal: MultiSet<this['_T']>;
+    readonly nonEmpty: MultiSet.NonEmpty<this['_T']>;
+    readonly countMap: RMap<this['_T'], number>;
+    readonly countMapNonEmpty: RMap.NonEmpty<this['_T'], number>;
+    readonly context: MultiSet.Context<this['_T']>;
+    readonly builder: MultiSet.Builder<this['_T']>;
   }
-}
-
-interface TypesImpl extends MultiSet.Types {
-  context: MultiSetContext<this['_T'], string, any>;
 }
 
 export const MultiSet = {
@@ -57,7 +53,7 @@ export const MultiSet = {
   createContext<UT>(options: {
     countMapContext: RMap.Context<UT>;
   }): MultiSet.Context<UT> {
-    return new MultiSetContext<UT, 'MultiSet', TypesImpl>(
+    return new MultiSetContext<UT, 'MultiSet'>(
       'MultiSet',
       options.countMapContext
     );

@@ -17,7 +17,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true,
-    "noStrictGenericChecks": true,
     "baseUrl": "./",
     "isolatedModules": true,
     "importsNotUsedAsValues": "error"

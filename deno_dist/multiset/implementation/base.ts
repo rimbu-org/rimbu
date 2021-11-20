@@ -11,7 +11,7 @@ import { Stream, StreamSource } from '../../stream/mod.ts';
 import type { MultiSetBase } from '../multiset-custom.ts';
 
 export interface ContextImplTypes extends MultiSetBase.Types {
-  context: MultiSetContext<this['_T'], string, this>;
+  readonly context: MultiSetContext<this['_T'], string>;
 }
 
 export class MultiSetEmpty<T, Tp extends ContextImplTypes>
@@ -600,8 +600,11 @@ export class MultiSetBuilder<
   };
 }
 
-export class MultiSetContext<UT, N extends string, Tp extends ContextImplTypes>
-  implements MultiSetBase.Context<UT, Tp>
+export class MultiSetContext<
+  UT,
+  N extends string,
+  Tp extends ContextImplTypes = ContextImplTypes
+> implements MultiSetBase.Context<UT, Tp>
 {
   constructor(
     readonly typeTag: N,

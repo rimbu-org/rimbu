@@ -134,7 +134,7 @@ export interface BiMultiMapBase<
    * HashBiMultiMap.of([1, 1], [2, 2]).add(1, 2).toArray()
    * // => [[1, 1], [1, 2], [2, 2]]
    */
-  add: (key: K, value: V) => CB.WithKeyValue<Tp, K, V>['nonEmpty'];
+  add(key: K, value: V): CB.WithKeyValue<Tp, K, V>['nonEmpty'];
   /**
    * Returns the collection with the entries from the given `StreamSource` `entries` added.
    * @param entries - a `StreamSource` containing tuples with a key and value
@@ -142,18 +142,12 @@ export interface BiMultiMapBase<
    * HashBiMultiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()
    * // => [[1, 1], [1, 3], [2, 2]]
    */
-  addEntries: {
-    (entries: StreamSource.NonEmpty<readonly [K, V]>): CB.WithKeyValue<
-      Tp,
-      K,
-      V
-    >['nonEmpty'];
-    (entries: StreamSource<readonly [K, V]>): CB.WithKeyValue<
-      Tp,
-      K,
-      V
-    >['normal'];
-  };
+  addEntries(
+    entries: StreamSource.NonEmpty<readonly [K, V]>
+  ): CB.WithKeyValue<Tp, K, V>['nonEmpty'];
+  addEntries(
+    entries: StreamSource<readonly [K, V]>
+  ): CB.WithKeyValue<Tp, K, V>['normal'];
   /**
    * Returns the collection with the values from the given `values` StreamSource associated
    * with the given `key`.
@@ -163,14 +157,14 @@ export interface BiMultiMapBase<
    * HashBiMultiMap.of([1, 1]).setValues(1, [2, 3]).toArray()
    * // => [[1, 1], [1, 2], [1, 3]]
    */
-  setValues: {
-    (key: K, values: StreamSource.NonEmpty<V>): CB.WithKeyValue<
-      Tp,
-      K,
-      V
-    >['nonEmpty'];
-    (key: K, values: StreamSource<V>): CB.WithKeyValue<Tp, K, V>['normal'];
-  };
+  setValues(
+    key: K,
+    values: StreamSource.NonEmpty<V>
+  ): CB.WithKeyValue<Tp, K, V>['nonEmpty'];
+  setValues(
+    key: K,
+    values: StreamSource<V>
+  ): CB.WithKeyValue<Tp, K, V>['normal'];
   /**
    * Returns the collection with the keys from the given `keys` StreamSource associated
    * with the given `value`.
@@ -180,14 +174,11 @@ export interface BiMultiMapBase<
    * HashBiMultiMap.of([1, 1]).setKeys(1, [2, 3]).toArray()
    * // => [[1, 1], [2, 1], [3, 1]]
    */
-  setKeys: {
-    (value: V, keys: StreamSource.NonEmpty<K>): CB.WithKeyValue<
-      Tp,
-      K,
-      V
-    >['nonEmpty'];
-    (value: V, keys: StreamSource<K>): CB.WithKeyValue<Tp, K, V>['normal'];
-  };
+  setKeys(
+    value: V,
+    keys: StreamSource.NonEmpty<K>
+  ): CB.WithKeyValue<Tp, K, V>['nonEmpty'];
+  setKeys(value: V, keys: StreamSource<K>): CB.WithKeyValue<Tp, K, V>['normal'];
   /**
    * Returns a collection containing the values associated with the given `key`.
    * @param key - the key of which to find the values
@@ -344,7 +335,7 @@ export interface BiMultiMapBase<
    * @example
    * const builder: HashBiMultiMap.Builder<number, string> = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
    */
-  toBuilder: () => CB.WithKeyValue<Tp, K, V>['builder'];
+  toBuilder(): CB.WithKeyValue<Tp, K, V>['builder'];
 }
 
 export namespace BiMultiMapBase {
@@ -419,9 +410,9 @@ export namespace BiMultiMapBase {
      * HashBiMultiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()
      * // => [[1, 1], [1, 3], [2, 2]]
      */
-    addEntries: (
+    addEntries(
       entries: StreamSource<readonly [K, V]>
-    ) => CB.WithKeyValue<Tp, K, V>['nonEmpty'];
+    ): CB.WithKeyValue<Tp, K, V>['nonEmpty'];
   }
 
   export interface Context<
@@ -429,6 +420,8 @@ export namespace BiMultiMapBase {
     UV,
     Tp extends BiMultiMapBase.Types = BiMultiMapBase.Types
   > {
+    readonly _fixTypes: readonly [UK, UV];
+
     /**
      * A string tag defining the specific collection type
      * @example
@@ -454,44 +447,34 @@ export namespace BiMultiMapBase {
      * HashBiMultiMap.empty<number, string>()    // => HashBiMultiMap<number, string>
      * HashBiMultiMap.empty<string, boolean>()   // => HashBiMultiMap<string, boolean>
      */
-    empty: <K extends UK, V extends UV>() => CB.WithKeyValue<
-      Tp,
-      K,
-      V
-    >['normal'];
+    empty<K extends UK, V extends UV>(): CB.WithKeyValue<Tp, K, V>['normal'];
     /**
      * Returns an immutable BiMultiMap, containing the given `entries`.
      * @param entries - a non-empty array of key-value entries
      * @example
      * HashBiMultiMap.of([1, 'a'], [2, 'b'])    // => HashBiMultiMap.NonEmpty<number, string>
      */
-    of: <K extends UK, V extends UV>(
+    of<K extends UK, V extends UV>(
       ...entries: ArrayNonEmpty<readonly [K, V]>
-    ) => CB.WithKeyValue<Tp, K, V>['nonEmpty'];
+    ): CB.WithKeyValue<Tp, K, V>['nonEmpty'];
     /**
      * Returns an immutable BiMultiMap, containing the entries in the given `sources` `StreamSource` instances.
      * @param sources - an array of `StreamSource` instances contaning key-value entries
      * @example
      * HashBiMultiMap.from([[1, 'a'], [2, 'b']])    // => HashBiMultiMap.NonEmpty<number, string>
      */
-    from: {
-      <K extends UK, V extends UV>(
-        ...sources: ArrayNonEmpty<StreamSource.NonEmpty<readonly [K, V]>>
-      ): CB.WithKeyValue<Tp, K, V>['nonEmpty'];
-      <K extends UK, V extends UV>(
-        ...sources: ArrayNonEmpty<StreamSource<readonly [K, V]>>
-      ): CB.WithKeyValue<Tp, K, V>['normal'];
-    };
+    from<K extends UK, V extends UV>(
+      ...sources: ArrayNonEmpty<StreamSource.NonEmpty<readonly [K, V]>>
+    ): CB.WithKeyValue<Tp, K, V>['nonEmpty'];
+    from<K extends UK, V extends UV>(
+      ...sources: ArrayNonEmpty<StreamSource<readonly [K, V]>>
+    ): CB.WithKeyValue<Tp, K, V>['normal'];
     /**
      * Returns an empty `BiMultiMap` builder instance.
      * @example
      * HashBiMultiMap.builder<number, string>()    // => HashBiMultiMap.Builder<number, string>
      */
-    builder: <K extends UK, V extends UV>() => CB.WithKeyValue<
-      Tp,
-      K,
-      V
-    >['builder'];
+    builder<K extends UK, V extends UV>(): CB.WithKeyValue<Tp, K, V>['builder'];
     /**
      * Returns a `Reducer` that adds received tuples to a BiMultiMap and returns the BiMultiMap as a result. When a `source` is given,
      * the reducer will first create a BiMultiMap from the source, and then add tuples to it.
@@ -502,9 +485,9 @@ export namespace BiMultiMapBase {
      * result.toArray()   // => [[1, 'a'], [1, 'c'], [2, 'b'], [3, 'a']]
      * @note uses a builder under the hood. If the given `source` is a BiMultiMap in the same context, it will directly call `.toBuilder()`.
      */
-    reducer: <K extends UK, V extends UV>(
+    reducer<K extends UK, V extends UV>(
       source?: StreamSource<readonly [K, V]>
-    ) => Reducer<[K, V], CB.WithKeyValue<Tp, K, V>['normal']>;
+    ): Reducer<[K, V], CB.WithKeyValue<Tp, K, V>['normal']>;
   }
 
   export interface Builder<
@@ -591,7 +574,7 @@ export namespace BiMultiMapBase {
      * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
      * m.setValues(1, ['b', 'c']).getValues(1).toArray() // => ['b', 'c']
      */
-    setValues: (key: K, values: StreamSource<V>) => boolean;
+    setValues(key: K, values: StreamSource<V>): boolean;
     /**
      * Sets the keys associated to given `value` to the keys in the given `keys` StreamSource.
      * @param value - the value to which to associate the keys
@@ -600,7 +583,7 @@ export namespace BiMultiMapBase {
      * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
      * m.setKeys('a', [3, 4]).getKeys('a').toArray() // => [3, 4]
      */
-    setKeys: (value: V, keys: StreamSource<K>) => boolean;
+    setKeys(value: V, keys: StreamSource<K>): boolean;
     /**
      * Associates given `key` with given `value` in the builder.
      * @param key - the entry key
@@ -611,7 +594,7 @@ export namespace BiMultiMapBase {
      * m.set(1, 'a')   // => false
      * m.set(1, 'b')   // => true
      */
-    add: (key: K, value: V) => boolean;
+    add(key: K, value: V): boolean;
     /**
      * Adds given `entries` to the builder.
      * @param entries - a `StreamSource` containing the entries to add
@@ -621,7 +604,7 @@ export namespace BiMultiMapBase {
      * m.addEntries([1, 'a'], [3, 'c']])   // => true
      * m.addEntries([])                    // => false
      */
-    addEntries: (entries: StreamSource<readonly [K, V]>) => boolean;
+    addEntries(entries: StreamSource<readonly [K, V]>): boolean;
     /**
      * Removes the entries related to given `key` from the builder.
      * @param key - the key to remove
@@ -718,19 +701,25 @@ export namespace BiMultiMapBase {
   }
 
   export interface Types extends CB.KeyValue {
-    limitKey: true;
-    limitValue: true;
-    context: BiMultiMapBase.Context<this['_K'], this['_V']>;
-    normal: BiMultiMapBase<this['_K'], this['_V']>;
-    nonEmpty: BiMultiMapBase.NonEmpty<this['_K'], this['_V']>;
-    builder: BiMultiMapBase.Builder<this['_K'], this['_V']>;
-    keyValueMultiMapContext: MultiMap.Context<this['_K'], this['_V']>;
-    valueKeyMultiMapContext: MultiMap.Context<this['_V'], this['_K']>;
-    keyValueMultiMap: MultiMap<this['_K'], this['_V']>;
-    valueKeyMultiMap: MultiMap<this['_V'], this['_K']>;
-    keyValueMultiMapNonEmpty: MultiMap.NonEmpty<this['_K'], this['_V']>;
-    valueKeyMultiMapNonEmpty: MultiMap.NonEmpty<this['_V'], this['_K']>;
-    keyMultiMapValues: RSet<this['_V']>;
-    valueMultiMapValues: RSet<this['_K']>;
+    readonly limitKey: true;
+    readonly limitValue: true;
+    readonly context: BiMultiMapBase.Context<this['_K'], this['_V']>;
+    readonly normal: BiMultiMapBase<this['_K'], this['_V']>;
+    readonly nonEmpty: BiMultiMapBase.NonEmpty<this['_K'], this['_V']>;
+    readonly builder: BiMultiMapBase.Builder<this['_K'], this['_V']>;
+    readonly keyValueMultiMapContext: MultiMap.Context<this['_K'], this['_V']>;
+    readonly valueKeyMultiMapContext: MultiMap.Context<this['_V'], this['_K']>;
+    readonly keyValueMultiMap: MultiMap<this['_K'], this['_V']>;
+    readonly valueKeyMultiMap: MultiMap<this['_V'], this['_K']>;
+    readonly keyValueMultiMapNonEmpty: MultiMap.NonEmpty<
+      this['_K'],
+      this['_V']
+    >;
+    readonly valueKeyMultiMapNonEmpty: MultiMap.NonEmpty<
+      this['_V'],
+      this['_K']
+    >;
+    readonly keyMultiMapValues: RSet<this['_V']>;
+    readonly valueMultiMapValues: RSet<this['_K']>;
   }
 }

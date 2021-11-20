@@ -100,55 +100,6 @@ export class HashMapEmpty<K = any, V = any>
       value: [],
     };
   }
-
-  extendValues(): any {
-    return this;
-  }
-
-  mergeAll<O, I extends readonly [unknown, ...unknown[]]>(
-    fillValue: O,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
-    return this.context.mergeAll(
-      fillValue,
-      this,
-      ...(sources as any as [any, ...any[]])
-    );
-  }
-
-  mergeAllWith<R, O, I extends readonly [unknown, ...unknown[]]>(
-    fillValue: O,
-    mergeFun: (
-      key: K,
-      value: V | O,
-      ...values: { [KT in keyof I]: I[KT] | O }
-    ) => R,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
-    return this.context.mergeAllWith(
-      fillValue,
-      mergeFun as any,
-      this,
-      ...(sources as any as [any, ...any[]])
-    );
-  }
-
-  merge<I extends readonly [unknown, ...unknown[]]>(
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
-    return this.context.merge(this, ...(sources as any as any[]));
-  }
-
-  mergeWith<R, K, I extends readonly [unknown, ...unknown[]]>(
-    mergeFun: (key: K, ...values: I) => R,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
-    return this.context.mergeWith(
-      mergeFun as any,
-      this as any,
-      ...(sources as any as [any, ...any[]])
-    );
-  }
 }
 
 export abstract class HashMapNonEmptyBase<K, V>
@@ -263,7 +214,7 @@ export abstract class HashMapNonEmptyBase<K, V>
   }
 
   toBuilder(): HashMap.Builder<K, V> {
-    return this.context.createBuilder(this);
+    return this.context.createBuilder<K, V>(this);
   }
 
   toString(): string {
@@ -280,55 +231,6 @@ export abstract class HashMapNonEmptyBase<K, V>
       dataType: this.context.typeTag,
       value: this.toArray(),
     };
-  }
-
-  extendValues(): any {
-    return this;
-  }
-
-  mergeAll<O, I extends readonly [unknown, ...unknown[]]>(
-    fillValue: O,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
-    return this.context.mergeAll(
-      fillValue,
-      this,
-      ...(sources as any as [any, ...any[]])
-    );
-  }
-
-  mergeAllWith<R, O, I extends readonly [unknown, ...unknown[]]>(
-    fillValue: O,
-    mergeFun: (
-      key: K,
-      value: V | O,
-      ...values: { [KT in keyof I]: I[KT] | O }
-    ) => R,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
-    return this.context.mergeAllWith(
-      fillValue,
-      mergeFun as any,
-      this,
-      ...(sources as any as [any, ...any[]])
-    );
-  }
-
-  merge<I extends readonly [unknown, ...unknown[]]>(
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
-    return this.context.merge(this, ...(sources as any as any[]));
-  }
-
-  mergeWith<R, K, I extends readonly [unknown, ...unknown[]]>(
-    mergeFun: (key: K, ...values: I) => R,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
-    return this.context.mergeWith(
-      mergeFun as any,
-      this as any,
-      ...(sources as any as [any, ...any[]])
-    );
   }
 }
 

@@ -1,4 +1,3 @@
-import type { RSet } from '@rimbu/collection-types';
 import type { OmitStrong } from '@rimbu/common';
 import { SortedMap, SortedSet } from '@rimbu/sorted';
 import type { Stream, Streamable } from '@rimbu/stream';
@@ -70,38 +69,30 @@ export namespace SortedMultiMapSortedValue {
     extends MultiMapBase.Builder<K, V, SortedMultiMapSortedValue.Types> {}
 
   export interface Types extends MultiMapBase.Types {
-    normal: SortedMultiMapSortedValue<this['_K'], this['_V']>;
-    nonEmpty: SortedMultiMapSortedValue.NonEmpty<this['_K'], this['_V']>;
-    context: SortedMultiMapSortedValue.Context<this['_K'], this['_V']>;
-    builder: SortedMultiMapSortedValue.Builder<this['_K'], this['_V']>;
-    keyMap: SortedMap<this['_K'], SortedSet.NonEmpty<this['_V']>> &
-      SortedMap<this['_K'], RSet.NonEmpty<this['_V']>>;
-    keyMapNonEmpty: SortedMap.NonEmpty<
+    readonly normal: SortedMultiMapSortedValue<this['_K'], this['_V']>;
+    readonly nonEmpty: SortedMultiMapSortedValue.NonEmpty<
+      this['_K'],
+      this['_V']
+    >;
+    readonly context: SortedMultiMapSortedValue.Context<this['_K'], this['_V']>;
+    readonly builder: SortedMultiMapSortedValue.Builder<this['_K'], this['_V']>;
+    readonly keyMap: SortedMap<this['_K'], SortedSet.NonEmpty<this['_V']>>;
+    readonly keyMapNonEmpty: SortedMap.NonEmpty<
       this['_K'],
       SortedSet.NonEmpty<this['_V']>
-    > &
-      SortedMap.NonEmpty<this['_K'], RSet.NonEmpty<this['_V']>>;
-    keyMapContext: SortedMap.Context<this['_K']>;
-    keyMapValuesContext: SortedSet.Context<this['_V']>;
-    keyMapValues: SortedSet<this['_V']>;
-    keyMapValuesNonEmpty: SortedSet.NonEmpty<this['_V']>;
+    >;
+    readonly keyMapContext: SortedMap.Context<this['_K']>;
+    readonly keyMapValuesContext: SortedSet.Context<this['_V']>;
+    readonly keyMapValues: SortedSet<this['_V']>;
+    readonly keyMapValuesNonEmpty: SortedSet.NonEmpty<this['_V']>;
   }
-}
-
-interface TypesImpl extends SortedMultiMapSortedValue.Types {
-  context: MultiMapContext<
-    this['_K'],
-    this['_V'],
-    'SortedMultiMapSortedValue',
-    any
-  >;
 }
 
 function createContext<K, V>(options?: {
   keyMapContext?: SortedMap.Context<K>;
   keyMapValuesContext?: SortedSet.Context<V>;
 }): SortedMultiMapSortedValue.Context<K, V> {
-  return new MultiMapContext<K, V, 'SortedMultiMapSortedValue', TypesImpl>(
+  return new MultiMapContext<K, V, 'SortedMultiMapSortedValue', any>(
     'SortedMultiMapSortedValue',
     options?.keyMapContext ?? SortedMap.defaultContext(),
     options?.keyMapValuesContext ?? SortedSet.defaultContext()

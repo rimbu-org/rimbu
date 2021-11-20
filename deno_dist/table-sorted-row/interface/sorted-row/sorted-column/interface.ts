@@ -1,4 +1,3 @@
-import type { RMap } from '../../../../collection-types/mod.ts';
 import type { OmitStrong } from '../../../../common/mod.ts';
 import { SortedMap } from '../../../../sorted/mod.ts';
 import type { Streamable } from '../../../../stream/mod.ts';
@@ -59,51 +58,42 @@ export namespace SortedTableSortedColumn {
     > {}
 
   export interface Types extends TableCustom.TableBase.Types {
-    normal: SortedTableSortedColumn<this['_R'], this['_C'], this['_V']>;
-    nonEmpty: SortedTableSortedColumn.NonEmpty<
+    readonly normal: SortedTableSortedColumn<
       this['_R'],
       this['_C'],
       this['_V']
     >;
-    row: SortedMap<this['_C'], this['_V']>;
-    rowNonEmpty: SortedMap.NonEmpty<this['_C'], this['_V']>;
-    rowMap: SortedMap<this['_R'], SortedMap.NonEmpty<this['_C'], this['_V']>> &
-      SortedMap<this['_R'], RMap.NonEmpty<this['_C'], this['_V']>>;
-    rowMapNonEmpty: SortedMap.NonEmpty<
+    readonly nonEmpty: SortedTableSortedColumn.NonEmpty<
+      this['_R'],
+      this['_C'],
+      this['_V']
+    >;
+    readonly row: SortedMap<this['_C'], this['_V']>;
+    readonly rowNonEmpty: SortedMap.NonEmpty<this['_C'], this['_V']>;
+    readonly rowMap: SortedMap<
       this['_R'],
       SortedMap.NonEmpty<this['_C'], this['_V']>
-    > &
-      SortedMap.NonEmpty<this['_R'], RMap.NonEmpty<this['_C'], this['_V']>>;
-    context: SortedTableSortedColumn.Context<this['_R'], this['_C']>;
-    builder: SortedTableSortedColumn.Builder<
+    >;
+    readonly rowMapNonEmpty: SortedMap.NonEmpty<
+      this['_R'],
+      SortedMap.NonEmpty<this['_C'], this['_V']>
+    >;
+    readonly context: SortedTableSortedColumn.Context<this['_R'], this['_C']>;
+    readonly builder: SortedTableSortedColumn.Builder<
       this['_R'],
       this['_C'],
       this['_V']
     >;
-    rowContext: SortedMap.Context<this['_R']>;
-    columnContext: SortedMap.Context<this['_C']>;
+    readonly rowContext: SortedMap.Context<this['_R']>;
+    readonly columnContext: SortedMap.Context<this['_C']>;
   }
-}
-
-interface TypesImpl extends SortedTableSortedColumn.Types {
-  context: TableCustom.TableContext<
-    this['_R'],
-    this['_C'],
-    'SortedTableSortedColumn',
-    any
-  >;
 }
 
 function createContext<UR, UC>(options?: {
   rowContext?: SortedMap.Context<UR>;
   columnContext?: SortedMap.Context<UC>;
 }): SortedTableSortedColumn.Context<UR, UC> {
-  return new TableCustom.TableContext<
-    UR,
-    UC,
-    'SortedTableSortedColumn',
-    TypesImpl
-  >(
+  return new TableCustom.TableContext<UR, UC, 'SortedTableSortedColumn', any>(
     'SortedTableSortedColumn',
     options?.rowContext ?? SortedMap.defaultContext(),
     options?.columnContext ?? SortedMap.defaultContext()

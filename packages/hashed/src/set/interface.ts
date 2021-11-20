@@ -59,10 +59,10 @@ export namespace HashSet {
     extends CustomBase.RSetBase.Builder<T, HashSet.Types> {}
 
   export interface Types extends CustomBase.RSetBase.Types {
-    normal: HashSet<this['_T']>;
-    nonEmpty: HashSet.NonEmpty<this['_T']>;
-    context: HashSet.Context<this['_T']>;
-    builder: HashSet.Builder<this['_T']>;
+    readonly normal: HashSet<this['_T']>;
+    readonly nonEmpty: HashSet.NonEmpty<this['_T']>;
+    readonly context: HashSet.Context<this['_T']>;
+    readonly builder: HashSet.Builder<this['_T']>;
   }
 }
 

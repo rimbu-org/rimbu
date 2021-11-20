@@ -1,4 +1,5 @@
 import { Stream } from '@rimbu/stream';
+import { List } from '../src';
 import {
   LeafBlock,
   LeafTree,
@@ -228,12 +229,6 @@ function runLeafTreeTests(
       expect(r3).toBeInstanceOf(LeafTree);
       expect(r3.left.toArray()).toEqual([2, 3]);
       expect(r3.right).toBe(b3);
-    });
-
-    it('extendType', () => {
-      const b3 = createBlock([1, 2, 3]);
-      const t6 = context.leafTree(b3, b3, null);
-      expect(t6.extendType<number | string>()).toBe(t6);
     });
 
     it('filter', () => {
@@ -580,7 +575,7 @@ function runLeafTreeTests(
       ]);
       const t6 = context.leafTree(b3, b3, null);
 
-      const [l1, l2] = t6.unzip(2);
+      const [l1, l2] = List.unzip(t6, 2);
 
       expect(l1.toArray()).toEqual([1, 2, 3, 1, 2, 3]);
       expect(l2.toArray()).toEqual(['a', 'b', 'c', 'a', 'b', 'c']);

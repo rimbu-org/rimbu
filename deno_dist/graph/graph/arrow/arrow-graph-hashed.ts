@@ -1,4 +1,3 @@
-import type { RSet } from '../../../collection-types/mod.ts';
 import type { OmitStrong } from '../../../common/mod.ts';
 import { HashMap, HashSet } from '../../../hashed/mod.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
@@ -57,34 +56,24 @@ export namespace ArrowGraphHashed {
     readonly nonEmpty: ArrowGraphHashed.NonEmpty<this['_N']>;
     readonly context: ArrowGraphHashed.Context<this['_N']>;
     readonly builder: ArrowGraphHashed.Builder<this['_N']>;
-    readonly linkMap: HashMap<this['_N'], HashSet<this['_N']>> &
-      HashMap<this['_N'], RSet<this['_N']>>;
-    readonly linkMapNonEmpty: HashMap.NonEmpty<
-      this['_N'],
-      HashSet<this['_N']>
-    > &
-      HashMap.NonEmpty<this['_N'], RSet<this['_N']>>;
+    readonly linkMap: HashMap<this['_N'], HashSet<this['_N']>>;
+    readonly linkMapNonEmpty: HashMap.NonEmpty<this['_N'], HashSet<this['_N']>>;
     readonly linkMapContext: HashMap.Context<this['_N']>;
     readonly linkConnectionsContext: HashSet.Context<this['_N']>;
     readonly linkMapBuilder: HashMap.Builder<
       this['_N'],
       HashSet.Builder<this['_N']>
-    > &
-      HashMap.Builder<this['_N'], RSet.Builder<this['_N']>>;
+    >;
     readonly linkConnectionsBuilder: HashSet.Builder<this['_N']>;
     readonly linkConnections: HashSet<this['_N']>;
   }
-}
-
-interface TypesImpl extends ArrowGraphHashed.Types {
-  readonly context: GraphContext<this['_N'], 'ArrowGraphHashed', true, any>;
 }
 
 function createContext<UN>(options?: {
   linkMapContext?: HashMap.Context<UN>;
   linkConnectionsContext?: HashSet.Context<UN>;
 }): ArrowGraphHashed.Context<UN> {
-  return new GraphContext<UN, 'ArrowGraphHashed', true, TypesImpl>(
+  return new GraphContext<UN, 'ArrowGraphHashed', true, any>(
     true,
     'ArrowGraphHashed',
     options?.linkMapContext ?? HashMap.defaultContext(),

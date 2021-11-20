@@ -4,8 +4,6 @@
   "rootDir": "./src",
   "compilerOptions": {
     "outDir": "./dist",
-    "noEmit": true,
-    // needed again for tsd
-    "noStrictGenericChecks": true
+    "noEmit": true
   }
 }

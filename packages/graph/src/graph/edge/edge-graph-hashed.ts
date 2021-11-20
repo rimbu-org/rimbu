@@ -1,4 +1,3 @@
-import type { RSet } from '@rimbu/collection-types';
 import type { OmitStrong } from '@rimbu/common';
 import { HashMap, HashSet } from '@rimbu/hashed';
 import type { Stream, Streamable } from '@rimbu/stream';
@@ -57,34 +56,24 @@ export namespace EdgeGraphHashed {
     readonly nonEmpty: EdgeGraphHashed.NonEmpty<this['_N']>;
     readonly context: EdgeGraphHashed.Context<this['_N']>;
     readonly builder: EdgeGraphHashed.Builder<this['_N']>;
-    readonly linkMap: HashMap<this['_N'], HashSet<this['_N']>> &
-      HashMap<this['_N'], RSet<this['_N']>>;
-    readonly linkMapNonEmpty: HashMap.NonEmpty<
-      this['_N'],
-      HashSet<this['_N']>
-    > &
-      HashMap.NonEmpty<this['_N'], RSet<this['_N']>>;
+    readonly linkMap: HashMap<this['_N'], HashSet<this['_N']>>;
+    readonly linkMapNonEmpty: HashMap.NonEmpty<this['_N'], HashSet<this['_N']>>;
     readonly linkMapContext: HashMap.Context<this['_N']>;
     readonly linkConnectionsContext: HashSet.Context<this['_N']>;
     readonly linkMapBuilder: HashMap.Builder<
       this['_N'],
       HashSet.Builder<this['_N']>
-    > &
-      HashMap.Builder<this['_N'], RSet.Builder<this['_N']>>;
+    >;
     readonly linkConnectionsBuilder: HashSet.Builder<this['_N']>;
     readonly linkConnections: HashSet<this['_N']>;
   }
-}
-
-interface TypesImpl extends EdgeGraphHashed.Types {
-  readonly context: GraphContext<this['_N'], 'EdgeGraphHashed', false, any>;
 }
 
 function createContext<UN>(options?: {
   linkMapContext?: HashMap.Context<UN>;
   linkConnectionsContext?: HashSet.Context<UN>;
 }): EdgeGraphHashed.Context<UN> {
-  return new GraphContext<UN, 'EdgeGraphHashed', false, TypesImpl>(
+  return new GraphContext<UN, 'EdgeGraphHashed', false, any>(
     false,
     'EdgeGraphHashed',
     options?.linkMapContext ?? HashMap.defaultContext(),

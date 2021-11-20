@@ -165,55 +165,6 @@ export class SortedMapEmpty<K = any, V = any>
       value: [],
     };
   }
-
-  extendValues(): any {
-    return this;
-  }
-
-  mergeAll<O, I extends readonly [unknown, ...unknown[]]>(
-    fillValue: O,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
-    return this.context.mergeAll(
-      fillValue,
-      this,
-      ...(sources as any as [any, ...any[]])
-    );
-  }
-
-  mergeAllWith<R, O, I extends readonly [unknown, ...unknown[]]>(
-    fillValue: O,
-    mergeFun: (
-      key: K,
-      value: V | O,
-      ...values: { [KT in keyof I]: I[KT] | O }
-    ) => R,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
-    return this.context.mergeAllWith(
-      fillValue,
-      mergeFun as any,
-      this,
-      ...(sources as any as [any, ...any[]])
-    );
-  }
-
-  merge<I extends readonly [unknown, ...unknown[]]>(
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
-    return this.context.merge(this, ...(sources as any as any[]));
-  }
-
-  mergeWith<R, K, I extends readonly [unknown, ...unknown[]]>(
-    mergeFun: (key: K, ...values: I) => R,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
-    return this.context.mergeWith(
-      mergeFun as any,
-      this as any,
-      ...(sources as any as any[])
-    );
-  }
 }
 
 export abstract class SortedMapNode<K, V>
@@ -458,7 +409,7 @@ export abstract class SortedMapNode<K, V>
   }
 
   toBuilder(): SortedMapBuilder<K, V> {
-    return this.context.createBuilder(this);
+    return this.context.createBuilder<K, V>(this);
   }
 
   toString(): string {
@@ -475,55 +426,6 @@ export abstract class SortedMapNode<K, V>
       dataType: this.context.typeTag,
       value: this.toArray(),
     };
-  }
-
-  extendValues(): any {
-    return this;
-  }
-
-  mergeAll<O, I extends readonly [unknown, ...unknown[]]>(
-    fillValue: O,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
-    return this.context.mergeAll(
-      fillValue,
-      this,
-      ...(sources as any as [any, ...any[]])
-    );
-  }
-
-  mergeAllWith<R, O, I extends readonly [unknown, ...unknown[]]>(
-    fillValue: O,
-    mergeFun: (
-      key: K,
-      value: V | O,
-      ...values: { [KT in keyof I]: I[KT] | O }
-    ) => R,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
-    return this.context.mergeAllWith(
-      fillValue,
-      mergeFun as any,
-      this,
-      ...(sources as any as [any, ...any[]])
-    );
-  }
-
-  merge<I extends readonly [unknown, ...unknown[]]>(
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
-    return this.context.merge(this, ...(sources as any as any[]));
-  }
-
-  mergeWith<R, K, I extends readonly [unknown, ...unknown[]]>(
-    mergeFun: (key: K, ...values: I) => R,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ): any {
-    return this.context.mergeWith(
-      mergeFun as any,
-      this as any,
-      ...(sources as any as any[])
-    );
   }
 }
 
@@ -772,13 +674,15 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 
   stream(reversed?: boolean): Stream.NonEmpty<readonly [K, V]> {
     const token = Symbol();
-    return Stream.fromArray(this.children, undefined, reversed)
-      .zipAll(token, Stream.fromArray(this.entries, undefined, reversed))
-      .flatMap(([child, e]): Stream.NonEmpty<readonly [K, V]> => {
-        if (token === child) RimbuError.throwInvalidStateError();
-        if (token === e) return child.stream(reversed);
-        return child.stream(reversed).append(e);
-      }) as Stream.NonEmpty<readonly [K, V]>;
+    return Stream.zipAll(
+      token,
+      Stream.fromArray(this.children, undefined, reversed),
+      Stream.fromArray(this.entries, undefined, reversed)
+    ).flatMap(([child, e]): Stream.NonEmpty<readonly [K, V]> => {
+      if (token === child) RimbuError.throwInvalidStateError();
+      if (token === e) return child.stream(reversed);
+      return child.stream(reversed).append(e);
+    }) as Stream.NonEmpty<readonly [K, V]>;
   }
 
   streamSliceIndex(

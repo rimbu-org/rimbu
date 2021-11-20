@@ -333,4 +333,22 @@ describe('patch', () => {
     expect(patch(true)(Literal.of(false))).toBe(false);
     expect(patch(true)(() => false)).toBe(false);
   });
+
+  it('adds new props for indexed objects', () => {
+    expect(patch({ a: 1 } as Record<string, number>)({ b: 2 })).toEqual({
+      a: 1,
+      b: 2,
+    });
+  });
+
+  it('only updates existing props on indexed objects with update function', () => {
+    expect(
+      patch({ a: 1 } as Record<string, number>)({
+        a: (v) => v + 1,
+        b: (v) => v + 1,
+      })
+    ).toEqual({
+      a: 2,
+    });
+  });
 });

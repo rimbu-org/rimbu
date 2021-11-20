@@ -1,4 +1,3 @@
-import type { RMap } from '@rimbu/collection-types';
 import type { OmitStrong } from '@rimbu/common';
 import { ValuedGraphCustom, ValuedGraphElement } from '@rimbu/graph';
 import { HashMap } from '@rimbu/hashed';
@@ -62,31 +61,20 @@ export namespace EdgeValuedGraphHashed {
     readonly nonEmpty: EdgeValuedGraphHashed.NonEmpty<this['_N'], this['_V']>;
     readonly context: EdgeValuedGraphHashed.Context<this['_N']>;
     readonly builder: EdgeValuedGraphHashed.Builder<this['_N'], this['_V']>;
-    readonly linkMap: HashMap<this['_N'], HashMap<this['_N'], this['_V']>> &
-      HashMap<this['_N'], RMap<this['_N'], this['_V']>>;
+    readonly linkMap: HashMap<this['_N'], HashMap<this['_N'], this['_V']>>;
     readonly linkMapNonEmpty: HashMap.NonEmpty<
       this['_N'],
       HashMap<this['_N'], this['_V']>
-    > &
-      HashMap.NonEmpty<this['_N'], RMap<this['_N'], this['_V']>>;
+    >;
     readonly linkMapContext: HashMap.Context<this['_N']>;
     readonly linkConnectionsContext: HashMap.Context<this['_N']>;
     readonly linkMapBuilder: HashMap.Builder<
       this['_N'],
       HashMap.Builder<this['_N'], this['_V']>
-    > &
-      HashMap.Builder<this['_N'], RMap.Builder<this['_N'], this['_V']>>;
+    >;
     readonly linkConnectionsBuilder: HashMap.Builder<this['_N'], this['_V']>;
     readonly linkConnections: HashMap<this['_N'], this['_V']>;
   }
-}
-
-interface TypesImpl extends EdgeValuedGraphHashed.Types {
-  readonly context: ValuedGraphCustom.ValuedGraphContext<
-    this['_N'],
-    'EdgeValuedGraphHashed',
-    any
-  >;
 }
 
 function createContext<UN>(options?: {
@@ -96,7 +84,7 @@ function createContext<UN>(options?: {
   return new ValuedGraphCustom.ValuedGraphContext<
     UN,
     'EdgeValuedGraphHashed',
-    TypesImpl
+    any
   >(
     false,
     'EdgeValuedGraphHashed',

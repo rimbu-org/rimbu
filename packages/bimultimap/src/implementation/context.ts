@@ -10,14 +10,14 @@ import {
 } from '../bimultimap-custom';
 
 export interface ContextTypesImpl extends BiMultiMapBase.Types {
-  context: BiMultiMapContext<this['_K'], this['_V'], string, this>;
+  readonly context: BiMultiMapContext<this['_K'], this['_V'], string>;
 }
 
 export class BiMultiMapContext<
   UK,
   UV,
   N extends string,
-  Tp extends ContextTypesImpl
+  Tp extends ContextTypesImpl = ContextTypesImpl
 > implements BiMultiMapBase.Context<UK, UV, Tp>
 {
   constructor(
@@ -33,6 +33,8 @@ export class BiMultiMapContext<
       UV
     >['valueKeyMultiMapContext']
   ) {}
+
+  readonly _fixTypes!: any;
 
   get _types(): Tp {
     return undefined as any;

@@ -5,7 +5,6 @@ import {
   CollectFun,
   IndexRange,
   OptLazy,
-  SuperOf,
   ToJSON,
   TraverseState,
   Update,
@@ -42,7 +41,9 @@ export abstract class ListNonEmptyBase<T>
   abstract append(value: T): List.NonEmpty<T>;
   abstract take(amount: number): List<T> | any;
   abstract drop(amount: number): List<T>;
-  abstract concat(...sources: ArrayNonEmpty<StreamSource<T>>): List.NonEmpty<T>;
+  abstract concat<T2 = T>(
+    ...sources: ArrayNonEmpty<StreamSource<T2>>
+  ): List.NonEmpty<T | T2>;
   abstract updateAt(index: number, update: Update<T>): List.NonEmpty<T>;
   abstract map<T2>(
     mapFun: (value: T, index: number) => T2,
@@ -229,20 +230,6 @@ export abstract class ListNonEmptyBase<T>
       value: this.toArray(),
     };
   }
-
-  extendType<T2>(): List.NonEmpty<SuperOf<T2, T>> {
-    return this as any;
-  }
-
-  unzip<L extends number>(length: L): any {
-    const streams = Stream.from(this).unzip(length) as any as Stream<any>[];
-
-    return Stream.from(streams).mapPure(this.context.from);
-  }
-
-  flatten(): any {
-    return this.flatMap((values: any) => values);
-  }
 }
 
 export class LeafBlock<T>
@@ -385,16 +372,20 @@ export class LeafBlock<T>
     return this.copy(newChildren);
   }
 
-  concat(...sources: ArrayNonEmpty<StreamSource<T>>): List.NonEmpty<T> {
-    const asList: List<T> = this.context.from(...sources);
+  concat<T2>(
+    ...sources: ArrayNonEmpty<StreamSource<T2>>
+  ): List.NonEmpty<T | T2> {
+    const asList: List<T | T2> = this.context.from(...sources);
 
     if (asList.nonEmpty()) {
-      if (this.context.isLeafBlock(asList)) return this.concatBlock(asList);
-      if (this.context.isLeafTree(asList)) return this.concatTree(asList);
+      if (this.context.isLeafBlock(asList))
+        return (this as LeafBlock<T | T2>).concatBlock(asList);
+      if (this.context.isLeafTree(asList))
+        return (this as LeafBlock<T | T2>).concatTree(asList);
       RimbuError.throwInvalidStateError();
     }
 
-    return this;
+    return this as List.NonEmpty<T | T2>;
   }
 
   concatBlock(other: LeafBlock<T>): List.NonEmpty<T> {
@@ -768,16 +759,22 @@ export class LeafTree<T>
     return this.copy(newLeft, undefined, newMiddle)._normalize();
   }
 
-  concat(...sources: ArrayNonEmpty<StreamSource<T>>): List.NonEmpty<T> {
-    const asList: List<T> = this.context.from(...sources);
+  concat<T2>(
+    ...sources: ArrayNonEmpty<StreamSource<T2>>
+  ): List.NonEmpty<T | T2> {
+    const asList: List<T | T2> = this.context.from(...sources);
 
     if (asList.nonEmpty()) {
-      if (this.context.isLeafBlock(asList)) return this.concatBlock(asList);
-      else if (this.context.isLeafTree(asList)) return this.concatTree(asList);
-      else RimbuError.throwInvalidStateError();
+      if (this.context.isLeafBlock(asList)) {
+        return (this as LeafTree<T | T2>).concatBlock(asList);
+      } else if (this.context.isLeafTree(asList)) {
+        return (this as LeafTree<T | T2>).concatTree(asList);
+      } else {
+        RimbuError.throwInvalidStateError();
+      }
     }
 
-    return this;
+    return this as List.NonEmpty<T | T2>;
   }
 
   concatBlock(other: LeafBlock<T>): List.NonEmpty<T> {

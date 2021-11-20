@@ -1,4 +1,3 @@
-import type { RSet } from '../../../collection-types/mod.ts';
 import type { OmitStrong } from '../../../common/mod.ts';
 import { SortedMap, SortedSet } from '../../../sorted/mod.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
@@ -57,34 +56,27 @@ export namespace ArrowGraphSorted {
     readonly nonEmpty: ArrowGraphSorted.NonEmpty<this['_N']>;
     readonly context: ArrowGraphSorted.Context<this['_N']>;
     readonly builder: ArrowGraphSorted.Builder<this['_N']>;
-    readonly linkMap: SortedMap<this['_N'], SortedSet<this['_N']>> &
-      SortedMap<this['_N'], RSet<this['_N']>>;
+    readonly linkMap: SortedMap<this['_N'], SortedSet<this['_N']>>;
     readonly linkMapNonEmpty: SortedMap.NonEmpty<
       this['_N'],
       SortedSet<this['_N']>
-    > &
-      SortedMap.NonEmpty<this['_N'], RSet<this['_N']>>;
+    >;
     readonly linkMapContext: SortedMap.Context<this['_N']>;
     readonly linkConnectionsContext: SortedSet.Context<this['_N']>;
     readonly linkMapBuilder: SortedMap.Builder<
       this['_N'],
       SortedSet.Builder<this['_N']>
-    > &
-      SortedMap.Builder<this['_N'], RSet.Builder<this['_N']>>;
+    >;
     readonly linkConnectionsBuilder: SortedSet.Builder<this['_N']>;
     readonly linkConnections: SortedSet<this['_N']>;
   }
-}
-
-interface TypesImpl extends ArrowGraphSorted.Types {
-  readonly context: GraphContext<this['_N'], 'ArrowGraphSorted', true, any>;
 }
 
 function createContext<UN>(options?: {
   linkMapContext?: SortedMap.Context<UN>;
   linkConnectionsContext?: SortedSet.Context<UN>;
 }): ArrowGraphSorted.Context<UN> {
-  return new GraphContext<UN, 'ArrowGraphSorted', true, TypesImpl>(
+  return new GraphContext<UN, 'ArrowGraphSorted', true, any>(
     true,
     'ArrowGraphSorted',
     options?.linkMapContext ?? SortedMap.defaultContext(),

@@ -1,4 +1,3 @@
-import type { RMap } from '@rimbu/collection-types';
 import type { OmitStrong } from '@rimbu/common';
 import { HashMap } from '@rimbu/hashed';
 import { SortedMap } from '@rimbu/sorted';
@@ -56,47 +55,38 @@ export namespace HashTableSortedColumn {
     > {}
 
   export interface Types extends TableCustom.TableBase.Types {
-    normal: HashTableSortedColumn<this['_R'], this['_C'], this['_V']>;
-    nonEmpty: HashTableSortedColumn.NonEmpty<
+    readonly normal: HashTableSortedColumn<this['_R'], this['_C'], this['_V']>;
+    readonly nonEmpty: HashTableSortedColumn.NonEmpty<
       this['_R'],
       this['_C'],
       this['_V']
     >;
-    row: SortedMap<this['_C'], this['_V']>;
-    rowNonEmpty: SortedMap.NonEmpty<this['_C'], this['_V']>;
-    rowMap: HashMap<this['_R'], SortedMap.NonEmpty<this['_C'], this['_V']>> &
-      HashMap<this['_R'], RMap.NonEmpty<this['_C'], this['_V']>>;
-    rowMapNonEmpty: HashMap.NonEmpty<
+    readonly row: SortedMap<this['_C'], this['_V']>;
+    readonly rowNonEmpty: SortedMap.NonEmpty<this['_C'], this['_V']>;
+    readonly rowMap: HashMap<
       this['_R'],
       SortedMap.NonEmpty<this['_C'], this['_V']>
-    > &
-      HashMap.NonEmpty<this['_R'], RMap.NonEmpty<this['_C'], this['_V']>>;
-    context: HashTableSortedColumn.Context<this['_R'], this['_C']>;
-    builder: HashTableSortedColumn.Builder<this['_R'], this['_C'], this['_V']>;
-    rowContext: HashMap.Context<this['_R']>;
-    columnContext: SortedMap.Context<this['_C']>;
+    >;
+    readonly rowMapNonEmpty: HashMap.NonEmpty<
+      this['_R'],
+      SortedMap.NonEmpty<this['_C'], this['_V']>
+    >;
+    readonly context: HashTableSortedColumn.Context<this['_R'], this['_C']>;
+    readonly builder: HashTableSortedColumn.Builder<
+      this['_R'],
+      this['_C'],
+      this['_V']
+    >;
+    readonly rowContext: HashMap.Context<this['_R']>;
+    readonly columnContext: SortedMap.Context<this['_C']>;
   }
-}
-
-interface TypesImpl extends HashTableSortedColumn.Types {
-  context: TableCustom.TableContext<
-    this['_R'],
-    this['_C'],
-    'HashTableSortedColumn',
-    any
-  >;
 }
 
 function createContext<UR, UC>(options?: {
   rowContext?: HashMap.Context<UR>;
   columnContext?: SortedMap.Context<UC>;
 }): HashTableSortedColumn.Context<UR, UC> {
-  return new TableCustom.TableContext<
-    UR,
-    UC,
-    'HashTableSortedColumn',
-    TypesImpl
-  >(
+  return new TableCustom.TableContext<UR, UC, 'HashTableSortedColumn', any>(
     'HashTableSortedColumn',
     options?.rowContext ?? HashMap.defaultContext(),
     options?.columnContext ?? SortedMap.defaultContext()

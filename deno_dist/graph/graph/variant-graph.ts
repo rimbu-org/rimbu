@@ -1,3 +1,4 @@
+import type { VariantMap, VariantSet } from '../../collection-types/mod.ts';
 import type { Stream, Streamable } from '../../stream/mod.ts';
 import type { GraphElement, Link } from '../internal.ts';
 import type { VariantGraphBase } from './graph-custom.ts';
@@ -7,7 +8,15 @@ import type { VariantGraphBase } from './graph-custom.ts';
  * @typeparam N - the node type
  */
 export interface VariantGraph<N>
-  extends VariantGraphBase<N, unknown, VariantGraph.Types> {}
+  extends VariantGraphBase<N, unknown, VariantGraph.Types> {
+  /**
+   * Returns the nested Map representation of the graph connections.
+   * @example
+   * ArrowValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'b']).linkMap.toArray()
+   * // => [[1, HashMap(2 -> 'a')], [2, HashMap(3 -> 'b')]]
+   */
+  readonly linkMap: VariantMap<N, VariantSet<N>>;
+}
 
 export namespace VariantGraph {
   /**
@@ -18,6 +27,14 @@ export namespace VariantGraph {
     extends VariantGraphBase.NonEmpty<N, VariantGraph.Types>,
       Omit<VariantGraph<N>, keyof VariantGraphBase.NonEmpty<any, any>>,
       Streamable.NonEmpty<GraphElement<N>> {
+    /**
+     * Returns the nested Map representation of the graph connections.
+     * @example
+     * ArrowValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'b']).linkMap.toArray()
+     * // => [[1, HashMap(2 -> 'a')], [2, HashMap(3 -> 'b')]]
+     */
+    readonly linkMap: VariantMap.NonEmpty<N, VariantSet<N>>;
+
     /**
      * Returns a non-empty `Stream` containing all graph elements of this collection as single tuples for isolated nodes
      * and 2-valued tuples of nodes for connections.

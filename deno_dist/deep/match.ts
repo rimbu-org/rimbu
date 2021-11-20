@@ -8,9 +8,11 @@ import { Immutable, Literal } from './internal.ts';
  * @typeparam P - the parant type
  * @typeparam R - the root type
  */
-export type Match<T, P = T, R = T> = T extends Literal.Obj
+export type Match<T> = MatchHelper<T, T, T>;
+
+type MatchHelper<T, P, R> = T extends Literal.Obj
   ? Match.MatchObj<T, P, R>
-  : T extends readonly unknown[]
+  : T extends readonly any[]
   ? Match.MatchArray<T, P, R>
   : Match.Compare<T, P, R>;
 
@@ -23,7 +25,7 @@ export namespace Match {
    */
   export type MatchObj<T, P, R> = (
     | Match.Compare<T, P, R>
-    | { [K in keyof T]?: Match<T[K], T, R> }
+    | { [K in keyof T]?: MatchHelper<T[K], T, R> }
   ) &
     Literal.NoIterable;
 
@@ -53,10 +55,10 @@ export namespace Match {
    * @typeparam P - the parent type
    * @typeparam R - the root type
    */
-  export type MatchArray<T extends readonly unknown[], P, R> = (
+  export type MatchArray<T extends readonly any[], P, R> = (
     | Match.Compare<T, P, R>
     | {
-        [K in { [K2 in keyof T]: K2 }[keyof T]]?: Match<T[K], T, R>;
+        [K in { [K2 in keyof T]: K2 }[keyof T]]?: MatchHelper<T[K], T, R>;
       }
   ) &
     Literal.NoIterable;
@@ -152,9 +154,9 @@ export namespace Match {
   }
 }
 
-function matchSingle<T, P = T, R = T>(
+function matchSingle<T, P, R>(
   value: Immutable<T>,
-  matcher: Match<T, P, R>,
+  matcher: MatchHelper<T, P, R>,
   parent: Immutable<P>,
   root: Immutable<R>
 ): boolean {
@@ -163,10 +165,12 @@ function matchSingle<T, P = T, R = T>(
   }
 
   if (null === value || undefined === value || typeof value !== 'object') {
-    if (typeof matcher !== 'object' || null === matcher)
+    if (typeof matcher !== 'object' || null === matcher) {
       return (matcher as any) === value;
-    if (Literal.isLiteral<T>(matcher))
+    }
+    if (Literal.isLiteral(matcher)) {
       return Literal.getValue(matcher) === value;
+    }
     return (matcher as any) === value;
   }
 
@@ -180,8 +184,8 @@ function matchSingle<T, P = T, R = T>(
 
   if (null === matcher) return false;
 
-  if (Literal.isLiteral<T>(matcher)) {
-    return Literal.getValue<T>(matcher) === value;
+  if (Literal.isLiteral(matcher)) {
+    return Literal.getValue(matcher) === value;
   }
 
   const valueIsArray = Array.isArray(value);
@@ -191,10 +195,10 @@ function matchSingle<T, P = T, R = T>(
     return (matcher as any) === value;
   }
 
-  for (const key in matcher as T) {
+  for (const key in matcher as any) {
     if (!(key in value)) return false;
 
-    const matchKey = (matcher as T)[key];
+    const matchKey = (matcher as any)[key];
 
     if (undefined === matchKey) {
       RimbuError.throwInvalidUsageError(

@@ -5,7 +5,6 @@ import type {
   AsyncReducer,
   Eq,
   MaybePromise,
-  OptLazy,
   ToJSON,
   TraverseState,
 } from '@rimbu/common';
@@ -63,7 +62,7 @@ export interface AsyncStream<T>
    * // => [0, 1, 2, 3]
    * @note O(1)
    */
-  prepend<T2 = T>(value: AsyncOptLazy<T>): AsyncStream.NonEmpty<T | T2>;
+  prepend(value: AsyncOptLazy<T>): AsyncStream.NonEmpty<T>;
   /**
    * Returns the current stream succeeded by the given `value`
    * @param value - the value to append
@@ -72,7 +71,7 @@ export interface AsyncStream<T>
    * // => [1, 2, 3, 4]
    * @note O(1)
    */
-  append<T2 = T>(value: AsyncOptLazy<T2>): AsyncStream.NonEmpty<T | T2>;
+  append(value: AsyncOptLazy<T>): AsyncStream.NonEmpty<T>;
   /**
    * Performs given function `f` for each element of the Stream, using given `state` as initial traversal state.
    * @param f - the potentially asynchronous function to perform for each element, receiving:
@@ -471,12 +470,12 @@ export interface AsyncStream<T>
    * // [1, 2, 3, 4, 5, 6, 7]
    * @note O(1)
    */
-  concat<T2 extends T = T>(
+  concat<T2 = T>(
     ...others: ArrayNonEmpty<AsyncStreamSource.NonEmpty<T2>>
-  ): AsyncStream.NonEmpty<T>;
-  concat<T2 extends T = T>(
+  ): AsyncStream.NonEmpty<T | T2>;
+  concat<T2 = T>(
     ...others: ArrayNonEmpty<AsyncStreamSource<T2>>
-  ): AsyncStream<T>;
+  ): AsyncStream<T | T2>;
   /**
    * Returns the mimimum element of the AsyncStream according to a default compare function, or the provided `otherwise` fallback value if the
    * stream is empty.
@@ -542,7 +541,7 @@ export interface AsyncStream<T>
    * // => [1, 'a', 'b', 2, 'a', 'b', 3]
    * @note O(1)
    */
-  intersperse<T2>(sep: AsyncStreamSource<T2>): AsyncStream<T | T2>;
+  intersperse(sep: AsyncStreamSource<T>): AsyncStream<T>;
   /**
    * Returns a string resulting from converting each element to string with `options.valueToString`, interspersed with `options.sep`, starting with
    * `options.start` and ending with `options.end`.
@@ -574,21 +573,21 @@ export interface AsyncStream<T>
    * // => ['<', '<', 1, '-', 2, '-', 3, '>', '>']
    * @note O(N)
    */
-  mkGroup<T2>(options: {
-    sep?: AsyncStreamSource<T2>;
-    start: AsyncStreamSource.NonEmpty<T2>;
-    end?: AsyncStreamSource<T2>;
-  }): AsyncStream.NonEmpty<T | T2>;
-  mkGroup<T2>(options: {
-    sep?: AsyncStreamSource<T2>;
-    start?: AsyncStreamSource<T2>;
-    end: AsyncStreamSource.NonEmpty<T2>;
-  }): AsyncStream.NonEmpty<T | T2>;
-  mkGroup<T2>(options: {
-    sep?: AsyncStreamSource<T2>;
-    start?: AsyncStreamSource<T2>;
-    end?: AsyncStreamSource<T2>;
-  }): AsyncStream<T | T2>;
+  mkGroup(options: {
+    sep?: AsyncStreamSource<T>;
+    start: AsyncStreamSource.NonEmpty<T>;
+    end?: AsyncStreamSource<T>;
+  }): AsyncStream.NonEmpty<T>;
+  mkGroup(options: {
+    sep?: AsyncStreamSource<T>;
+    start?: AsyncStreamSource<T>;
+    end: AsyncStreamSource.NonEmpty<T>;
+  }): AsyncStream.NonEmpty<T>;
+  mkGroup(options: {
+    sep?: AsyncStreamSource<T>;
+    start?: AsyncStreamSource<T>;
+    end?: AsyncStreamSource<T>;
+  }): AsyncStream<T>;
   /**
    * Returns an AsyncStream of arrays of stream elements, where each array is filled with elements of this stream up to the next element that
    * satisfies give function `pred`.
@@ -743,128 +742,6 @@ export interface AsyncStream<T>
    * await AsyncStream.of(1, 2, 3).toJSON()   // => { dataType: 'AsyncStream', value: [1, 2, 3] }
    */
   toJSON(): Promise<ToJSON<T[], 'AsyncStream'>>;
-  /**
-   * Returns an AsyncStream concatenating the given `source` AsyncStreamSource containing StreamSources.
-   * @param source - a StreamSource containing nested StreamSources
-   * @example
-   * await AsyncStream.of([[1, 2], [3], [], [4]]).flatten().toArray()  // => [1, 2, 3, 4]
-   * await AsyncStream.of(['ma', 'r', '', 'mot').flatten().toArray()   // => ['m', 'a', 'r', 'm', 'o', 't']
-   */
-  flatten<T2 extends T = T>(): T2 extends AsyncStreamSource.NonEmpty<infer S>
-    ? AsyncStream<S>
-    : T2 extends AsyncStreamSource<infer S>
-    ? AsyncStream<S>
-    : never;
-  /**
-   * Returns an AsyncStream with the result of applying given `zipFun` to each successive value resulting from the given `streams`.
-   * @param zipFun - a potentially asynchronous function taking one element from each given Stream, and returning a result value
-   * @param streams - the input async stream sources
-   * @example
-   * await AsyncStream.zipWith(
-   *   async (a, b, c) => c ? a + b : a - b,
-   *   [1, 2],
-   *   [3, 4, 5],
-   *   [true, false]
-   * ).toArray()
-   * // => [4, -2]
-   * @note ends the AsyncStream when any of the given streams ends
-   */
-  zipWith: {
-    <I extends readonly [unknown, ...unknown[]], R>(
-      zipFun: (value: T, ...values: I) => MaybePromise<R>,
-      ...iters: { [K in keyof I]: AsyncStreamSource<I[K]> }
-    ): AsyncStream<R>;
-  };
-  /**
-   * Returns an AsyncStream with tuples containing each successive value from the given `streams`.
-   * @param streams - the input async stream sources
-   * @example
-   * await AsyncStream.zip(
-   *   [1, 2, 3],
-   *   [4, 5],
-   *   ['a', 'b', 'c']
-   * ).toArray()
-   * // => [[1, 4, 'a'], [2, 5, 'b']]
-   * @note ends the AsyncStream when any of the given streams ends
-   */
-  zip: {
-    <I extends readonly [unknown, ...unknown[]]>(
-      ...iters: { [K in keyof I]: AsyncStreamSource<I[K]> }
-    ): AsyncStream<[T, ...I]>;
-  };
-  /**
-   * Returns an AsyncStream with the result of applying given `zipFun` to each successive value resulting from the given `streams`, adding
-   * given `fillValue` to any Streams that end before all streams have ended.
-   * @param fillValue - the `AsyncOptLazyz value to add to streams that end early
-   * @param zipFun - a potentially asynchronous function taking one element from each given Stream, and returning a result value
-   * @param streams - the input async stream sources
-   * @example
-   * await AsyncStream.zipAllWith(
-   *   async () => 0,
-   *   async (a, b, c) => a + b + c,
-   *   [1, 2],
-   *   [3, 4, 5],
-   *   [6, 7]
-   * ).toArray()
-   * // => [10, 13, 5]
-   */
-  zipAllWith: {
-    <I extends readonly [unknown, ...unknown[]], O, R>(
-      fillValue: AsyncOptLazy<O>,
-      zipFun: (
-        value: T | O,
-        ...values: { [K in keyof I]: I[K] | O }
-      ) => MaybePromise<R>,
-      ...streams: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> }
-    ): AsyncStream.NonEmpty<R>;
-    <I extends readonly [unknown, ...unknown[]], O, R>(
-      fillValue: OptLazy<O>,
-      zipFun: (
-        value: T | O,
-        ...values: { [K in keyof I]: I[K] | O }
-      ) => MaybePromise<R>,
-      ...streams: { [K in keyof I]: AsyncStreamSource<I[K]> }
-    ): AsyncStream<R>;
-  };
-  /**
-   * Returns an AsyncStream with tuples containing each successive value from the given `streams`, adding given `fillValue` to any streams
-   * that end before all streams have ended.
-   * @param fillValue - the `AsyncOptLazy` value to add to streams that end early
-   * @param streams - the input async stream sources
-   * @example
-   * await AsyncStream.zipAll(
-   *   0,
-   *   [1, 2, 3],
-   *   [4, 5],
-   *   ['a', 'b', 'c']
-   * ).toArray()
-   * // => [[1, 4, 'a'], [2, 5, 'b'], [3, 0, 'c']]
-   * @note ends the AsyncStream when any of the given streams ends
-   */
-  zipAll: {
-    <I extends readonly [unknown, ...unknown[]], O>(
-      fillValue: AsyncOptLazy<O>,
-      ...streams: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> }
-    ): AsyncStream.NonEmpty<[T | O, ...{ [K in keyof I]: I[K] | O }]>;
-    <I extends readonly [unknown, ...unknown[]], O>(
-      fillValue: AsyncOptLazy<O>,
-      ...streams: { [K in keyof I]: AsyncStreamSource<I[K]> }
-    ): AsyncStream<[T | O, ...{ [K in keyof I]: I[K] | O }]>;
-  };
-  /**
-   * Returns an array containing an AsyncStream for each tuple element resulting from given `source` AsyncStream.
-   * @param source - a Stream containing tuple elements
-   * @param length - the tuple length
-   * @example
-   * const [a, b] = AsyncStream.of([[1, 'a'], [2, 'b']]).unzip()
-   * await a.toArray()   // => [1, 2]
-   * await b.toArray()   // => ['a', 'b']
-   */
-  unzip<L extends number, T2 extends T = T>(
-    length: L
-  ): T2 extends readonly [unknown, ...unknown[]] & { length: L }
-    ? { [K in keyof T2]: AsyncStream<T2[K]> }
-    : never;
 }
 
 export namespace AsyncStream {
@@ -899,7 +776,7 @@ export namespace AsyncStream {
      * // => ['[0]: 1', '[1]: 2', '[2]: 3']
      * @note O(1)
      */
-    map<T2 = T>(
+    map<T2>(
       mapFun: (value: T, index: number) => MaybePromise<T2>
     ): AsyncStream.NonEmpty<T2>;
     /**
@@ -920,11 +797,11 @@ export namespace AsyncStream {
     mapPure<T2, A extends readonly unknown[]>(
       mapFun: (value: T, ...args: A) => MaybePromise<T2>,
       ...args: A
-    ): AsyncStream<T2>;
-    flatMap<T2 = T>(
+    ): AsyncStream.NonEmpty<T2>;
+    flatMap<T2>(
       flatMapFun: (value: T, index: number) => AsyncStreamSource.NonEmpty<T2>
     ): AsyncStream.NonEmpty<T2>;
-    flatMap<T2 = T>(
+    flatMap<T2>(
       flatMapFun: (
         value: T,
         index: number,
@@ -968,9 +845,9 @@ export namespace AsyncStream {
      * // [1, 2, 3, 4, 5, 6, 7]
      * @note O(1)
      */
-    concat<T2 extends T = T>(
-      ...others: ArrayNonEmpty<AsyncStreamSource<T2>>
-    ): AsyncStream.NonEmpty<T>;
+    concat<T2 = T>(
+      ...others: ArrayNonEmpty<AsyncStreamSource<T>>
+    ): AsyncStream.NonEmpty<T | T2>;
     /**
      * Returns the mimimum element of the AsyncStream according to a default compare function.
      * @example
@@ -1009,7 +886,7 @@ export namespace AsyncStream {
      * // => [1, 'a', 'b', 2, 'a', 'b', 3]
      * @note O(1)
      */
-    intersperse<T2>(sep: AsyncStreamSource<T2>): AsyncStream.NonEmpty<T | T2>;
+    intersperse(sep: AsyncStreamSource<T>): AsyncStream.NonEmpty<T>;
     /**
      * Returns a non-empty AsyncStream starting with `options.sep`, then returning the elements of this Stream interspersed with `options.sep`, and ending with
      * `options.end`.
@@ -1022,16 +899,16 @@ export namespace AsyncStream {
      * // => ['<', '<', 1, '-', 2, '-', 3, '>', '>']
      * @note O(N)
      */
-    mkGroup<T2>(options: {
-      sep?: AsyncStreamSource<T2>;
-      start?: AsyncStreamSource<T2>;
-      end?: AsyncStreamSource<T2>;
-    }): AsyncStream.NonEmpty<T | T2>;
-    foldStream<R = T>(
+    mkGroup(options: {
+      sep?: AsyncStreamSource<T>;
+      start?: AsyncStreamSource<T>;
+      end?: AsyncStreamSource<T>;
+    }): AsyncStream.NonEmpty<T>;
+    foldStream<R>(
       init: AsyncOptLazy<R>,
       next: (current: R, value: T, index: number) => MaybePromise<R>
     ): AsyncStream.NonEmpty<R>;
-    foldStream<R = T>(
+    foldStream<R>(
       init: AsyncOptLazy<R>,
       next: (
         current: R,
@@ -1046,53 +923,6 @@ export namespace AsyncStream {
      * await AsyncStream.of(1, 2, 3).toArray()   // => [1, 2, 3]
      */
     toArray(): Promise<ArrayNonEmpty<T>>;
-    flatten<T2 extends T = T>(): T2 extends AsyncStreamSource.NonEmpty<infer S>
-      ? AsyncStream.NonEmpty<S>
-      : T2 extends AsyncStreamSource<infer S>
-      ? AsyncStream<S>
-      : never;
-    zipWith: {
-      <I extends readonly [unknown, ...unknown[]], R>(
-        zipFun: (value: T, ...values: I) => R,
-        ...iters: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> }
-      ): AsyncStream.NonEmpty<R>;
-      <I extends readonly [unknown, ...unknown[]], R>(
-        zipFun: (value: T, ...values: I) => MaybePromise<R>,
-        ...iters: { [K in keyof I]: AsyncStreamSource<I[K]> }
-      ): AsyncStream<R>;
-    };
-    zip: {
-      <I extends readonly [unknown, ...unknown[]]>(
-        ...iters: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> }
-      ): AsyncStream.NonEmpty<[T, ...I]>;
-      <I extends readonly [unknown, ...unknown[]]>(
-        ...iters: { [K in keyof I]: AsyncStreamSource<I[K]> }
-      ): AsyncStream<[T, ...I]>;
-    };
-    zipAllWith: {
-      <I extends readonly [unknown, ...unknown[]], O, R>(
-        fillValue: AsyncOptLazy<O>,
-        zipFun: (
-          value: T | O,
-          ...values: { [K in keyof I]: I[K] | O }
-        ) => MaybePromise<R>,
-        ...streams: { [K in keyof I]: AsyncStreamSource<I[K]> }
-      ): AsyncStream.NonEmpty<R>;
-    };
-    zipAll: {
-      <I extends readonly [unknown, ...unknown[]], O>(
-        fillValue: AsyncOptLazy<O>,
-        ...streams: { [K in keyof I]: AsyncStreamSource<I[K]> }
-      ): AsyncStream.NonEmpty<[T | O, ...{ [K in keyof I]: I[K] | O }]>;
-    };
-    unzip: {
-      <L extends number, T2 extends T = T>(length: L): T2 extends readonly [
-        unknown,
-        ...unknown[]
-      ] & { length: L }
-        ? { [K in keyof T2]: AsyncStream.NonEmpty<T2[K]> }
-        : never;
-    };
   }
 }
 

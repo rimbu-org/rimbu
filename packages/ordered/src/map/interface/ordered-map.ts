@@ -1,11 +1,7 @@
 import type { RMap } from '@rimbu/collection-types';
 import { List } from '@rimbu/list';
 import type { Stream, Streamable } from '@rimbu/stream';
-import {
-  OrderedMapBase,
-  OrderedMapContextImpl,
-  OrderedMapTypes,
-} from '../../ordered-custom';
+import { OrderedMapBase, OrderedMapContextImpl } from '../../ordered-custom';
 
 /**
  * A type-invariant immutable Ordered Map of key type K, and value type V.
@@ -66,13 +62,13 @@ export namespace OrderedMap {
   export interface Context<UK> extends OrderedMapBase.Context<UK> {}
 
   export interface Types extends OrderedMapBase.Types {
-    normal: OrderedMap<this['_K'], this['_V']>;
-    nonEmpty: OrderedMap.NonEmpty<this['_K'], this['_V']>;
-    context: OrderedMap.Context<this['_K']>;
-    builder: OrderedMap.Builder<this['_K'], this['_V']>;
-    sourceContext: RMap.Context<this['_K']>;
-    sourceMap: RMap<this['_K'], this['_V']>;
-    sourceMapNonEmpty: RMap.NonEmpty<this['_K'], this['_V']>;
+    readonly normal: OrderedMap<this['_K'], this['_V']>;
+    readonly nonEmpty: OrderedMap.NonEmpty<this['_K'], this['_V']>;
+    readonly context: OrderedMap.Context<this['_K']>;
+    readonly builder: OrderedMap.Builder<this['_K'], this['_V']>;
+    readonly sourceContext: RMap.Context<this['_K']>;
+    readonly sourceMap: RMap<this['_K'], this['_V']>;
+    readonly sourceMapNonEmpty: RMap.NonEmpty<this['_K'], this['_V']>;
   }
 }
 
@@ -88,7 +84,7 @@ export const OrderedMap = {
     listContext?: List.Context;
     mapContext: RMap.Context<UK>;
   }): OrderedMap.Context<UK> {
-    return new OrderedMapContextImpl<UK, OrderedMapTypes>(
+    return new OrderedMapContextImpl<UK>(
       options.listContext ?? List.defaultContext(),
       options.mapContext
     ) as any;

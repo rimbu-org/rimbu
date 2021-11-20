@@ -13,16 +13,16 @@ export interface GraphBase<N, Tp extends GraphBase.Types = GraphBase.Types>
   extends VariantGraphBase<N, unknown, Tp>,
     GraphConnect<N, unknown, Tp> {
   /**
-   * Returns the `context` associated to this collection instance.
-   */
-  readonly context: WithGraphValues<Tp, N, unknown>['context'];
-  /**
    * Returns the nested Map representation of the graph connections.
    * @example
    * ArrowGraphHashed.of([1, 2], [2, 3]).linkMap.toArray()
    * // => [1 -> HashSet(2), 2 -> HashSet(3)]]
    */
   readonly linkMap: WithGraphValues<Tp, N, unknown>['linkMap'];
+  /**
+   * Returns the `context` associated to this collection instance.
+   */
+  readonly context: WithGraphValues<Tp, N, unknown>['context'];
   /**
    * Returns a Set containing the nodes reachable from given `node1` node as keys,
    * and their corresponding values.
@@ -44,13 +44,13 @@ export interface GraphBase<N, Tp extends GraphBase.Types = GraphBase.Types>
    * g.connect(3, 1).stream().toArray()
    * // => [[1, 2], [2, 3], [3, 1]]
    */
-  connect: (node1: N, node2: N) => WithGraphValues<Tp, N, unknown>['nonEmpty'];
+  connect(node1: N, node2: N): WithGraphValues<Tp, N, unknown>['nonEmpty'];
   /**
    * Returns a builder object containing the entries of this collection.
    * @example
    * const builder: ArrowGraphHashed.Builder<number> = ArrowGraphHashed.of([1, 2], [2, 3]).toBuilder()
    */
-  toBuilder: () => WithGraphValues<Tp, N, unknown>['builder'];
+  toBuilder(): WithGraphValues<Tp, N, unknown>['builder'];
 }
 
 export namespace GraphBase {
@@ -154,7 +154,7 @@ export namespace GraphBase {
      * b.addNode(6)   // => true
      * b.addNode(1)   // => false
      */
-    addNode: (node: N) => boolean;
+    addNode(node: N): boolean;
     /**
      * Adds the given `nodes` to the builder.
      * @param nodes - a `StreamSource` containing the nodes to add
@@ -166,7 +166,7 @@ export namespace GraphBase {
      * b.addNodes([3, 4, 5]) // => true
      * b.addNodes([1, 2])    // => false
      */
-    addNodes: (nodes: StreamSource<N>) => boolean;
+    addNodes(nodes: StreamSource<N>): boolean;
     /**
      * Adds the given `element` graph element to the builder, where a graph element
      * is either a one-element tuple containing a node, or a two-element tuple containing
@@ -182,7 +182,7 @@ export namespace GraphBase {
      * b.addGraphElement([2, 3])  // => false
      * b.addGraphElement([4, 1])  // => true
      */
-    addGraphElement: (element: GraphElement<N>) => boolean;
+    addGraphElement(element: GraphElement<N>): boolean;
     /**
      * Adds the graph elements in the given `elements` StreamSource to the graph.
      * @param elements - a `StreamSource` containing elements that represent either a single node or a valued connection
@@ -194,7 +194,7 @@ export namespace GraphBase {
      * b.addGraphElements([[3, 1], [1]])  // => true
      * b.addGraphElements([[1, 2], [1]])  // => false
      */
-    addGraphElements: (elements: StreamSource<GraphElement<N>>) => boolean;
+    addGraphElements(elements: StreamSource<GraphElement<N>>): boolean;
     /**
      * Removes the given `node`, and any of its connections, from the graph.
      * @param node - the node to remove
@@ -229,7 +229,7 @@ export namespace GraphBase {
      * b.connect(3, 1)  // => true
      * b.connect(1, 2)  // => false
      */
-    connect: (node1: N, node2: N) => boolean;
+    connect(node1: N, node2: N): boolean;
     /**
      * Adds the connections in given `connections` `StreamSource` to the graph.
      * @param connections - a `StreamSource` containing the connection definitions to add
@@ -241,9 +241,9 @@ export namespace GraphBase {
      * b.connectAll([[1, 2], [3, 1]])   // => true
      * b.connectAll([[1, 2]])           // => false
      */
-    connectAll: (
+    connectAll(
       connections: StreamSource<WithGraphValues<Tp, N, unknown>['link']>
-    ) => boolean;
+    ): boolean;
     /**
      * Adds a connection between given `node1` and `node2` nodes only if both
      * nodes exist in the graph.
@@ -255,7 +255,7 @@ export namespace GraphBase {
      * b.connectIfNodesExist(3, 1)   // => true
      * b.connectIfNodesExist(3, 4)   // => false
      */
-    connectIfNodesExist: (node1: N, node2: N) => boolean;
+    connectIfNodesExist(node1: N, node2: N): boolean;
     /**
      * Removes the connection between given `node1` and `node2` if the connection was present.
      * @param node1 - the first connection node
@@ -296,10 +296,12 @@ export namespace GraphBase {
      * console.log(g.toArray())
      * // => [[1, 2], [3]]
      */
-    build: () => WithGraphValues<Tp, N, unknown>['normal'];
+    build(): WithGraphValues<Tp, N, unknown>['normal'];
   }
 
   export interface Context<UN, Tp extends GraphBase.Types = GraphBase.Types> {
+    readonly _fixedType: UN;
+
     /**
      * A string tag defining the specific collection type
      * @example
@@ -330,7 +332,7 @@ export namespace GraphBase {
      * ArrowGraphHashed.empty<number>()    // => ArrowGraphHashed<number>
      * ArrowGraphHashed.empty<string>()    // => ArrowGraphHashed<string>
      */
-    empty: <N extends UN>() => WithGraphValues<Tp, N, unknown>['normal'];
+    empty<N extends UN>(): WithGraphValues<Tp, N, unknown>['normal'];
     /**
      * Returns an immutable valued Graph instance containing the graph elements from the given
      * `graphElements`.
@@ -339,9 +341,9 @@ export namespace GraphBase {
      * @example
      * ArrowGraphHashed.of([1], [2], [3, 4]) // => ArrowGraphHashed.NonEmpty<number>
      */
-    of: <N extends UN>(
+    of<N extends UN>(
       ...graphElements: ArrayNonEmpty<GraphElement<N>>
-    ) => WithGraphValues<Tp, N, unknown>['nonEmpty'];
+    ): WithGraphValues<Tp, N, unknown>['nonEmpty'];
     /**
      * Returns an immutable valued Graph, containing the graph elements from each of the
      * given `sources`.
@@ -349,20 +351,18 @@ export namespace GraphBase {
      * @example
      * ArrowGraphHashed.from([[1], [2]], [[3, 4]])  // => ArrowGraphHashed.NonEmpty<number>
      */
-    from: {
-      <N extends UN>(
-        ...sources: ArrayNonEmpty<StreamSource.NonEmpty<GraphElement<N>>>
-      ): WithGraphValues<Tp, N, unknown>['nonEmpty'];
-      <N extends UN>(
-        ...sources: ArrayNonEmpty<StreamSource<GraphElement<N>>>
-      ): WithGraphValues<Tp, N, unknown>['normal'];
-    };
+    from<N extends UN>(
+      ...sources: ArrayNonEmpty<StreamSource.NonEmpty<GraphElement<N>>>
+    ): WithGraphValues<Tp, N, unknown>['nonEmpty'];
+    from<N extends UN>(
+      ...sources: ArrayNonEmpty<StreamSource<GraphElement<N>>>
+    ): WithGraphValues<Tp, N, unknown>['normal'];
     /**
      * Returns an empty builder instance.
      * @example
      * ArrowValuedGraphHashed.builder<number, string>()    // => ArrowValuedGraphHashed.Builder<number, string>
      */
-    builder: <N extends UN>() => WithGraphValues<Tp, N, unknown>['builder'];
+    builder<N extends UN>(): WithGraphValues<Tp, N, unknown>['builder'];
     /**
      * Returns a `Reducer` that adds received graph elements to a Graph and returns the Graph as a result. When a `source` is given,
      * the reducer will first create a graph from the source, and then add graph elements to it.
@@ -373,9 +373,9 @@ export namespace GraphBase {
      * result.toArray()   // => [[1, 2], [1, 3], [4, 3], [5]]
      * @note uses a builder under the hood. If the given `source` is a Graph in the same context, it will directly call `.toBuilder()`.
      */
-    reducer: <N extends UN>(
+    reducer<N extends UN>(
       source?: StreamSource.NonEmpty<GraphElement<N>>
-    ) => Reducer<GraphElement<N>, WithGraphValues<Tp, N, unknown>['normal']>;
+    ): Reducer<GraphElement<N>, WithGraphValues<Tp, N, unknown>['normal']>;
   }
 
   export interface Types extends VariantGraphBase.Types {

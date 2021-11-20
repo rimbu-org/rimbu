@@ -2,7 +2,5 @@
 {
   "extends": "../../../config/tsconfig.base.json",
   "include": ["."],
-  "compilerOptions": {
-    "noStrictGenericChecks": true
-  }
+  "compilerOptions": {}
 }

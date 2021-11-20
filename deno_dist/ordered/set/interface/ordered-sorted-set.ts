@@ -2,11 +2,7 @@ import type { OmitStrong } from '../../../common/mod.ts';
 import { List } from '../../../list/mod.ts';
 import { SortedSet } from '../../../sorted/mod.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
-import {
-  OrderedSetBase,
-  OrderedSetContextImpl,
-  OrderedSetTypes,
-} from '../../ordered-custom.ts';
+import { OrderedSetBase, OrderedSetContextImpl } from '../../ordered-custom.ts';
 
 /**
  * A type-invariant immutable Ordered SortedSet of value type T.
@@ -63,13 +59,13 @@ export namespace OrderedSortedSet {
     extends OrderedSetBase.Context<UT, OrderedSortedSet.Types> {}
 
   export interface Types extends OrderedSetBase.Types {
-    normal: OrderedSortedSet<this['_T']>;
-    nonEmpty: OrderedSortedSet.NonEmpty<this['_T']>;
-    context: OrderedSortedSet.Context<this['_T']>;
-    builder: OrderedSortedSet.Builder<this['_T']>;
-    sourceContext: SortedSet.Context<this['_T']>;
-    sourceSet: SortedSet<this['_T']>;
-    sourceSetNonEmpty: SortedSet.NonEmpty<this['_T']>;
+    readonly normal: OrderedSortedSet<this['_T']>;
+    readonly nonEmpty: OrderedSortedSet.NonEmpty<this['_T']>;
+    readonly context: OrderedSortedSet.Context<this['_T']>;
+    readonly builder: OrderedSortedSet.Builder<this['_T']>;
+    readonly sourceContext: SortedSet.Context<this['_T']>;
+    readonly sourceSet: SortedSet<this['_T']>;
+    readonly sourceSetNonEmpty: SortedSet.NonEmpty<this['_T']>;
   }
 }
 
@@ -77,7 +73,7 @@ function createContext<UT>(options?: {
   listContext?: List.Context;
   setContext?: SortedSet.Context<UT>;
 }): OrderedSortedSet.Context<UT> {
-  return new OrderedSetContextImpl<UT, OrderedSetTypes>(
+  return new OrderedSetContextImpl<UT>(
     options?.listContext ?? List.defaultContext(),
     options?.setContext ?? SortedSet.defaultContext<UT>()
   ) as any;

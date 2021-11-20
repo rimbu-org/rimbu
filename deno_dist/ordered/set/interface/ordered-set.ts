@@ -1,11 +1,7 @@
-import type { CustomBase, RSet } from '../../../collection-types/mod.ts';
+import type { RSet } from '../../../collection-types/mod.ts';
 import { List } from '../../../list/mod.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
-import {
-  OrderedSetBase,
-  OrderedSetContextImpl,
-  OrderedSetTypes,
-} from '../../ordered-custom.ts';
+import { OrderedSetBase, OrderedSetContextImpl } from '../../ordered-custom.ts';
 
 export interface OrderedSet<T> extends OrderedSetBase<T, OrderedSet.Types> {}
 
@@ -24,13 +20,13 @@ export namespace OrderedSet {
     extends OrderedSetBase.Context<UT, OrderedSet.Types> {}
 
   export interface Types extends OrderedSetBase.Types {
-    normal: OrderedSet<this['_T']>;
-    nonEmpty: OrderedSet.NonEmpty<this['_T']>;
-    context: OrderedSet.Context<this['_T']>;
-    builder: OrderedSet.Builder<this['_T']>;
-    sourceContext: CustomBase.RSetBase.Context<this['_T']>;
-    sourceSet: CustomBase.RSetBase<this['_T']>;
-    sourceSetNonEmpty: CustomBase.RSetBase.NonEmpty<this['_T']>;
+    readonly normal: OrderedSet<this['_T']>;
+    readonly nonEmpty: OrderedSet.NonEmpty<this['_T']>;
+    readonly context: OrderedSet.Context<this['_T']>;
+    readonly builder: OrderedSet.Builder<this['_T']>;
+    readonly sourceContext: RSet.Context<this['_T']>;
+    readonly sourceSet: RSet<this['_T']>;
+    readonly sourceSetNonEmpty: RSet.NonEmpty<this['_T']>;
   }
 }
 
@@ -46,7 +42,7 @@ export const OrderedSet = {
     listContext?: List.Context;
     setContext: RSet.Context<UT>;
   }): OrderedSet.Context<UT> {
-    return new OrderedSetContextImpl<UT, OrderedSetTypes>(
+    return new OrderedSetContextImpl<UT>(
       options.listContext ?? List.defaultContext(),
       options.setContext
     ) as any;

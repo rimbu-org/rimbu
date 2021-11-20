@@ -49,24 +49,20 @@ export namespace SortedMultiSet {
     extends MultiSetBase.Builder<T, SortedMultiSet.Types> {}
 
   export interface Types extends MultiSetBase.Types {
-    normal: SortedMultiSet<this['_T']>;
-    nonEmpty: SortedMultiSet.NonEmpty<this['_T']>;
-    context: SortedMultiSet.Context<this['_T']>;
-    builder: SortedMultiSet.Builder<this['_T']>;
-    countMap: SortedMap<this['_T'], number>;
-    countMapNonEmpty: SortedMap.NonEmpty<this['_T'], number>;
-    countMapContext: SortedMap.Context<this['_T']>;
+    readonly normal: SortedMultiSet<this['_T']>;
+    readonly nonEmpty: SortedMultiSet.NonEmpty<this['_T']>;
+    readonly context: SortedMultiSet.Context<this['_T']>;
+    readonly builder: SortedMultiSet.Builder<this['_T']>;
+    readonly countMap: SortedMap<this['_T'], number>;
+    readonly countMapNonEmpty: SortedMap.NonEmpty<this['_T'], number>;
+    readonly countMapContext: SortedMap.Context<this['_T']>;
   }
-}
-
-interface TypesImpl extends SortedMultiSet.Types {
-  context: MultiSetContext<this['_T'], 'SortedMultiSet', any>;
 }
 
 function createContext<UT>(options?: {
   countMapContext?: SortedMap.Context<UT>;
 }): SortedMultiSet.Context<UT> {
-  return new MultiSetContext<UT, 'SortedMultiSet', TypesImpl>(
+  return new MultiSetContext<UT, 'SortedMultiSet', any>(
     'SortedMultiSet',
     options?.countMapContext ?? SortedMap.defaultContext()
   );

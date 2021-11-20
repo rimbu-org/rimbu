@@ -852,13 +852,16 @@ describe('List methods', () => {
 
   it('unzip', () => {
     {
-      const [l1, l2] = List.empty<[number, string]>().unzip(2);
+      const [l1, l2] = List.unzip(List.empty<[number, string]>(), 2);
 
       expect(l1).toBe(List.empty());
       expect(l2).toBe(List.empty());
     }
     {
-      const [l1, l2] = List.of<[number, string]>([1, 'a'], [2, 'b']).unzip(2);
+      const [l1, l2] = List.unzip(
+        List.of<[number, string]>([1, 'a'], [2, 'b']),
+        2
+      );
 
       expect(l1.toArray()).toEqual([1, 2]);
       expect(l2.toArray()).toEqual(['a', 'b']);
@@ -866,17 +869,10 @@ describe('List methods', () => {
   });
 
   it('flatten', () => {
-    expect(List.of([]).flatten()).toBe(List.empty());
-    expect(List.of([1, 2], [3, 4, 5]).flatten().toArray()).toEqual([
+    expect(List.flatten(List.of([]))).toBe(List.empty());
+    expect(List.flatten(List.of([1, 2], [3, 4, 5])).toArray()).toEqual([
       1, 2, 3, 4, 5,
     ]);
-  });
-
-  it('extendType', () => {
-    expect(List.empty<number>().extendType<number | string>()).toBe(
-      List.empty()
-    );
-    expect(list3_1.extendType<number | string>()).toBe(list3_1);
   });
 });
 

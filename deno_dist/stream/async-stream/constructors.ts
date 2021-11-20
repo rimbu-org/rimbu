@@ -2,10 +2,17 @@ import { RimbuError, Token } from '../../base/mod.ts';
 import {
   ArrayNonEmpty,
   AsyncOptLazy,
+  AsyncReducer,
   MaybePromise,
+  OptLazy,
   Reducer,
 } from '../../common/mod.ts';
-import { AsyncFastIterator, AsyncStream, AsyncStreamSource } from '../internal.ts';
+import {
+  AsyncFastIterator,
+  AsyncStream,
+  AsyncStreamSource,
+  Stream,
+} from '../internal.ts';
 import {
   AsyncFastIteratorBase,
   AsyncFromStream,
@@ -76,6 +83,176 @@ export const fromResource: {
   ): AsyncStream<T>;
 } = (open, createSource, close): any => {
   return new FromResource(open, createSource, close);
+};
+
+/** Returns an AsyncStream with the result of applying given `zipFun` to each successive value resulting from the given `streams`.
+ * @param zipFun - a potentially asynchronous function taking one element from each given Stream, and returning a result value
+ * @param streams - the input async stream sources
+ * @example
+ * await AsyncStream.zipWith(
+ *   async (a, b, c) => c ? a + b : a - b,
+ *   [1, 2],
+ *   [3, 4, 5],
+ *   [true, false]
+ * ).toArray()
+ * // => [4, -2]
+ * @note ends the AsyncStream when any of the given streams ends
+ */
+export const zipWith: {
+  <I extends readonly unknown[], R>(
+    zipFun: (...values: I) => R,
+    ...iters: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> } & unknown[]
+  ): AsyncStream.NonEmpty<R>;
+  <I extends readonly unknown[], R>(
+    zipFun: (...values: I) => R,
+    ...iters: { [K in keyof I]: AsyncStreamSource<I[K]> } & unknown[]
+  ): AsyncStream<R>;
+} = (zipFun, ...iters) => {
+  if (iters.some(AsyncStreamSource.isEmptyInstance)) {
+    return AsyncStream.empty();
+  }
+
+  return new AsyncFromStream(
+    () => new AsyncZipWithIterator(iters as any, zipFun)
+  ) as any;
+};
+
+/**
+ * Returns an AsyncStream with tuples containing each successive value from the given `streams`.
+ * @param streams - the input async stream sources
+ * @example
+ * await AsyncStream.zip(
+ *   [1, 2, 3],
+ *   [4, 5],
+ *   ['a', 'b', 'c']
+ * ).toArray()
+ * // => [[1, 4, 'a'], [2, 5, 'b']]
+ * @note ends the AsyncStream when any of the given streams ends
+ */
+export const zip: {
+  <I extends readonly unknown[]>(
+    ...iters: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> } & unknown[]
+  ): AsyncStream.NonEmpty<I>;
+  <I extends readonly unknown[]>(
+    ...iters: { [K in keyof I]: AsyncStreamSource<I[K]> } & unknown[]
+  ): AsyncStream<I>;
+} = (...iters) => zipWith(Array, ...(iters as any)) as any;
+
+/**
+ * Returns an AsyncStream with the result of applying given `zipFun` to each successive value resulting from the given `streams`, adding
+ * given `fillValue` to any Streams that end before all streams have ended.
+ * @param fillValue - the `AsyncOptLazyz value to add to streams that end early
+ * @param zipFun - a potentially asynchronous function taking one element from each given Stream, and returning a result value
+ * @param streams - the input async stream sources
+ * @example
+ * await AsyncStream.zipAllWith(
+ *   async () => 0,
+ *   async (a, b, c) => a + b + c,
+ *   [1, 2],
+ *   [3, 4, 5],
+ *   [6, 7]
+ * ).toArray()
+ * // => [10, 13, 5]
+ */
+export const zipAllWith: {
+  <I extends readonly unknown[], O, R>(
+    fillValue: AsyncOptLazy<O>,
+    zipFun: (...values: { [K in keyof I]: I[K] | O }) => MaybePromise<R>,
+    ...streams: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> } & unknown[]
+  ): AsyncStream.NonEmpty<R>;
+  <I extends readonly unknown[], O, R>(
+    fillValue: OptLazy<O>,
+    zipFun: (...values: { [K in keyof I]: I[K] | O }) => MaybePromise<R>,
+    ...streams: { [K in keyof I]: AsyncStreamSource<I[K]> } & unknown[]
+  ): AsyncStream<R>;
+} = (fillValue, zipFun, ...streams) => {
+  if (streams.every(AsyncStreamSource.isEmptyInstance)) {
+    return AsyncStream.empty();
+  }
+
+  return new AsyncFromStream(
+    (): AsyncFastIterator<any> =>
+      new AsyncZipAllWithItererator(fillValue, streams, zipFun as any)
+  ) as any;
+};
+
+/**
+ * Returns an AsyncStream with tuples containing each successive value from the given `streams`, adding given `fillValue` to any streams
+ * that end before all streams have ended.
+ * @param fillValue - the `AsyncOptLazy` value to add to streams that end early
+ * @param streams - the input async stream sources
+ * @example
+ * await AsyncStream.zipAll(
+ *   0,
+ *   [1, 2, 3],
+ *   [4, 5],
+ *   ['a', 'b', 'c']
+ * ).toArray()
+ * // => [[1, 4, 'a'], [2, 5, 'b'], [3, 0, 'c']]
+ * @note ends the AsyncStream when any of the given streams ends
+ */
+export const zipAll: {
+  <I extends readonly unknown[], O>(
+    fillValue: AsyncOptLazy<O>,
+    ...streams: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> } & unknown[]
+  ): AsyncStream.NonEmpty<{ [K in keyof I]: I[K] | O }>;
+  <I extends readonly unknown[], O>(
+    fillValue: AsyncOptLazy<O>,
+    ...streams: { [K in keyof I]: AsyncStreamSource<I[K]> } & unknown[]
+  ): AsyncStream<{ [K in keyof I]: I[K] | O }>;
+} = (fillValue, ...streams) =>
+  zipAllWith(fillValue, Array, ...(streams as any)) as any;
+
+/**
+ * Returns an AsyncStream concatenating the given `source` AsyncStreamSource containing StreamSources.
+ * @param source - a StreamSource containing nested StreamSources
+ * @example
+ * await AsyncStream.flatten(AsyncStream.of([[1, 2], [3], [], [4]])).toArray()  // => [1, 2, 3, 4]
+ * await AsyncStream.flatten(AsyncStream.of(['ma', 'r', '', 'mot')).toArray()   // => ['m', 'a', 'r', 'm', 'o', 't']
+ */
+export const flatten: {
+  <T extends AsyncStreamSource.NonEmpty<unknown>>(
+    source: AsyncStreamSource.NonEmpty<T>
+  ): T extends AsyncStreamSource.NonEmpty<infer S>
+    ? AsyncStream.NonEmpty<S>
+    : never;
+  <T extends AsyncStreamSource<unknown>>(
+    source: AsyncStreamSource<T>
+  ): T extends AsyncStreamSource<infer S> ? AsyncStream<S> : never;
+} = (source: any) => AsyncStream.from(source).flatMap((s: any) => s);
+
+/**
+ * Returns an array containing an AsyncStream for each tuple element resulting from given `source` AsyncStream.
+ * @param source - a Stream containing tuple elements
+ * @param length - the tuple length
+ * @example
+ * const [a, b] = AsyncStream.unzip(AsyncStream.of([[1, 'a'], [2, 'b']]), 2)
+ * await a.toArray()   // => [1, 2]
+ * await b.toArray()   // => ['a', 'b']
+ */
+export const unzip: {
+  <T extends readonly unknown[] & { length: L }, L extends number>(
+    source: AsyncStream.NonEmpty<T>,
+    length: L
+  ): { [K in keyof T]: AsyncStream.NonEmpty<T[K]> };
+  <T extends readonly unknown[] & { length: L }, L extends number>(
+    source: AsyncStream<T>,
+    length: L
+  ): { [K in keyof T]: AsyncStream<T[K]> };
+} = (source, length) => {
+  if (AsyncStreamSource.isEmptyInstance(source)) {
+    return Stream.of(AsyncStream.empty()).repeat(length).toArray();
+  }
+
+  const result: AsyncStream<unknown>[] = [];
+  let i = -1;
+
+  while (++i < length) {
+    const index = i;
+    result[i] = source.map((t: any): unknown => t[index]);
+  }
+
+  return result as any;
 };
 
 function isAsyncStream(obj: any): obj is AsyncStream<any> {
@@ -199,9 +376,7 @@ class AsyncEmptyStream<T = any>
   repeat(): AsyncStream<T> {
     return this;
   }
-  concat<T2 extends T = T>(
-    ...others: ArrayNonEmpty<AsyncStreamSource<T2>>
-  ): any {
+  concat(...others: ArrayNonEmpty<AsyncStreamSource<T>>): any {
     if (others.every(AsyncStreamSource.isEmptyInstance)) return this;
     const [source1, source2, ...sources] = others;
 
@@ -227,19 +402,19 @@ class AsyncEmptyStream<T = any>
   async join({ start = '', end = '' } = {}): Promise<string> {
     return start.concat(end);
   }
-  mkGroup<O>({
-    start = AsyncStream.empty<O>() as AsyncStreamSource<O>,
-    end = AsyncStream.empty<O>() as AsyncStreamSource<O>,
-  } = {}): AsyncStream.NonEmpty<O> {
+  mkGroup({
+    start = AsyncStream.empty<T>() as AsyncStreamSource<T>,
+    end = AsyncStream.empty<T>() as AsyncStreamSource<T>,
+  } = {}): AsyncStream.NonEmpty<T> {
     return AsyncStream.from(start, end) as any;
   }
-  fold<R>(init: Reducer.Init<R>): R {
-    return Reducer.Init(init);
+  fold<R>(init: AsyncOptLazy<R>): Promise<R> {
+    return AsyncOptLazy.toPromise(init);
   }
   foldStream<R>(): AsyncStream<R> {
     return this as any;
   }
-  async reduce<O>(reducer: Reducer<T, O>): Promise<O> {
+  async reduce<O>(reducer: AsyncReducer<T, O>): Promise<O> {
     return reducer.stateToResult(Reducer.Init(reducer.init));
   }
   reduceStream(): any {
@@ -256,15 +431,6 @@ class AsyncEmptyStream<T = any>
   }
   toString(): string {
     return `AsyncStream(<empty>)`;
-  }
-  flatten(): any {
-    return this;
-  }
-  zipWith(): any {
-    return this;
-  }
-  zip(): any {
-    return this;
   }
 }
 
@@ -516,5 +682,108 @@ class AsyncUnfoldIterator<T> extends AsyncFastIteratorBase<T> {
     if (Token === next) return AsyncOptLazy.toMaybePromise(otherwise!);
 
     return next;
+  }
+}
+
+class AsyncZipWithIterator<
+  I extends readonly unknown[],
+  R
+> extends AsyncFastIteratorBase<R> {
+  constructor(
+    readonly iterables: { [K in keyof I]: AsyncStreamSource<I[K]> },
+    readonly zipFun: (...values: I) => MaybePromise<R>
+  ) {
+    super();
+
+    this.sources = iterables.map(
+      (source): AsyncFastIterator<any> =>
+        AsyncStream.from(source)[Symbol.asyncIterator]()
+    );
+
+    this.sourcesToClose = new Set(this.sources);
+
+    this.return = (): Promise<void> => closeIters(...this.sourcesToClose);
+  }
+
+  readonly sources: AsyncFastIterator<any>[];
+  readonly sourcesToClose: Set<AsyncFastIterator<any>>;
+
+  async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<R | O> {
+    const sources = this.sources;
+
+    const done = Symbol('Done');
+
+    const result = await Promise.all(
+      sources.map((source) =>
+        source.fastNext(() => {
+          this.sourcesToClose.delete(source);
+          return done;
+        })
+      )
+    );
+
+    if (this.sourcesToClose.size !== sources.length) {
+      await closeIters(this);
+      return AsyncOptLazy.toMaybePromise(otherwise!);
+    }
+
+    return (this.zipFun as any)(...result);
+  }
+}
+
+class AsyncZipAllWithItererator<
+  I extends readonly unknown[],
+  F,
+  R
+> extends AsyncFastIteratorBase<R> {
+  constructor(
+    readonly fillValue: AsyncOptLazy<F>,
+    readonly iters: { [K in keyof I]: AsyncStreamSource<I[K]> },
+    readonly zipFun: (
+      ...values: { [K in keyof I]: I[K] | F }
+    ) => MaybePromise<R>
+  ) {
+    super();
+
+    this.sources = iters.map(
+      (o): AsyncFastIterator<any> => AsyncStream.from(o)[Symbol.asyncIterator]()
+    );
+
+    this.sourcesToClose = new Set(this.sources);
+
+    this.return = (): Promise<void> => closeIters(...this.sourcesToClose);
+  }
+
+  readonly sources: AsyncFastIterator<any>[];
+
+  readonly sourcesToClose: Set<AsyncFastIterator<any>>;
+
+  async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<R | O> {
+    if (this.sourcesToClose.size === 0) {
+      return AsyncOptLazy.toMaybePromise(otherwise!);
+    }
+
+    const sources = this.sources;
+
+    const fillValue = this.fillValue;
+
+    const result = await Promise.all(
+      sources.map((source) => {
+        if (this.sourcesToClose.has(source)) {
+          return source.fastNext(() => {
+            this.sourcesToClose.delete(source);
+            return AsyncOptLazy.toMaybePromise(fillValue);
+          });
+        }
+
+        return AsyncOptLazy.toMaybePromise(fillValue);
+      })
+    );
+
+    if (this.sourcesToClose.size === 0) {
+      return AsyncOptLazy.toMaybePromise(otherwise!);
+    }
+
+    return (this.zipFun as any)(...result);
   }
 }

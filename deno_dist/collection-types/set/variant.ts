@@ -27,7 +27,7 @@ export namespace VariantSet {
       Streamable.NonEmpty<T> {}
 
   export interface Types extends VariantSetBase.Types {
-    normal: VariantSet<this['_T']>;
-    nonEmpty: VariantSet.NonEmpty<this['_T']>;
+    readonly normal: VariantSet<this['_T']>;
+    readonly nonEmpty: VariantSet.NonEmpty<this['_T']>;
   }
 }

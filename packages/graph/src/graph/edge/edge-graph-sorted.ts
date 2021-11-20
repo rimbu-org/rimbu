@@ -1,4 +1,3 @@
-import type { RSet } from '@rimbu/collection-types';
 import type { OmitStrong } from '@rimbu/common';
 import { SortedMap, SortedSet } from '@rimbu/sorted';
 import type { Stream, Streamable } from '@rimbu/stream';
@@ -57,34 +56,27 @@ export namespace EdgeGraphSorted {
     readonly nonEmpty: EdgeGraphSorted.NonEmpty<this['_N']>;
     readonly context: EdgeGraphSorted.Context<this['_N']>;
     readonly builder: EdgeGraphSorted.Builder<this['_N']>;
-    readonly linkMap: SortedMap<this['_N'], SortedSet<this['_N']>> &
-      SortedMap<this['_N'], RSet<this['_N']>>;
+    readonly linkMap: SortedMap<this['_N'], SortedSet<this['_N']>>;
     readonly linkMapNonEmpty: SortedMap.NonEmpty<
       this['_N'],
       SortedSet<this['_N']>
-    > &
-      SortedMap.NonEmpty<this['_N'], RSet<this['_N']>>;
+    >;
     readonly linkMapContext: SortedMap.Context<this['_N']>;
     readonly linkConnectionsContext: SortedSet.Context<this['_N']>;
     readonly linkMapBuilder: SortedMap.Builder<
       this['_N'],
       SortedSet.Builder<this['_N']>
-    > &
-      SortedMap.Builder<this['_N'], RSet.Builder<this['_N']>>;
+    >;
     readonly linkConnectionsBuilder: SortedSet.Builder<this['_N']>;
     readonly linkConnections: SortedSet<this['_N']>;
   }
-}
-
-interface TypesImpl extends EdgeGraphSorted.Types {
-  readonly context: GraphContext<this['_N'], 'EdgeGraphSorted', false, any>;
 }
 
 function createContext<UN>(options?: {
   linkMapContext?: SortedMap.Context<UN>;
   linkConnectionsContext?: SortedSet.Context<UN>;
 }): EdgeGraphSorted.Context<UN> {
-  return new GraphContext<UN, 'EdgeGraphSorted', false, TypesImpl>(
+  return new GraphContext<UN, 'EdgeGraphSorted', false, any>(
     false,
     'EdgeGraphSorted',
     options?.linkMapContext ?? SortedMap.defaultContext(),

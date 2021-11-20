@@ -46,26 +46,22 @@ export namespace HashBiMultiMap {
     extends BiMultiMapBase.Builder<K, V, HashBiMultiMap.Types> {}
 
   export interface Types extends BiMultiMapBase.Types {
-    context: HashBiMultiMap.Context<this['_K'], this['_V']>;
-    normal: HashBiMultiMap<this['_K'], this['_V']>;
-    nonEmpty: HashBiMultiMap.NonEmpty<this['_K'], this['_V']>;
-    builder: HashBiMultiMap.Builder<this['_K'], this['_V']>;
-    keyValueMultiMap: HashMultiMapHashValue<this['_K'], this['_V']>;
-    valueKeyMultiMap: HashMultiMapHashValue<this['_V'], this['_K']>;
-    keyMultiMapValues: HashSet<this['_V']>;
-    valueMultiMapValues: HashSet<this['_K']>;
+    readonly context: HashBiMultiMap.Context<this['_K'], this['_V']>;
+    readonly normal: HashBiMultiMap<this['_K'], this['_V']>;
+    readonly nonEmpty: HashBiMultiMap.NonEmpty<this['_K'], this['_V']>;
+    readonly builder: HashBiMultiMap.Builder<this['_K'], this['_V']>;
+    readonly keyValueMultiMap: HashMultiMapHashValue<this['_K'], this['_V']>;
+    readonly valueKeyMultiMap: HashMultiMapHashValue<this['_V'], this['_K']>;
+    readonly keyMultiMapValues: HashSet<this['_V']>;
+    readonly valueMultiMapValues: HashSet<this['_K']>;
   }
-}
-
-interface Types extends HashBiMultiMap.Types {
-  context: BiMultiMapContext<this['_K'], this['_V'], any, any>;
 }
 
 function createContext<UK, UV>(options?: {
   keyValueMultiMapContext?: HashMultiMapHashValue.Context<UK, UV>;
   valueKeyMultiMapContext?: HashMultiMapHashValue.Context<UV, UK>;
 }): HashBiMultiMap.Context<UK, UV> {
-  return new BiMultiMapContext<UK, UV, 'HashBiMultiMap', Types>(
+  return new BiMultiMapContext<UK, UV, 'HashBiMultiMap', any>(
     'HashBiMultiMap',
     options?.keyValueMultiMapContext ?? HashMultiMapHashValue.defaultContext(),
     options?.valueKeyMultiMapContext ?? HashMultiMapHashValue.defaultContext()

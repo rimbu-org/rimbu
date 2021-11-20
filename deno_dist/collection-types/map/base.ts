@@ -4,10 +4,8 @@ import type {
   OptLazy,
   OptLazyOr,
   RelatedTo,
-  SuperOf,
   ToJSON,
   TraverseState,
-  Update,
 } from '../../common/mod.ts';
 import { Reducer } from '../../common/mod.ts';
 import { FastIterable, Stream, Streamable, StreamSource } from '../../stream/mod.ts';
@@ -265,8 +263,8 @@ export namespace VariantMapBase {
   }
 
   export interface Types extends KeyValue {
-    normal: VariantMapBase<this['_K'], this['_V']>;
-    nonEmpty: VariantMapBase.NonEmpty<this['_K'], this['_V']>;
+    readonly normal: VariantMapBase<this['_K'], this['_V']>;
+    readonly nonEmpty: VariantMapBase.NonEmpty<this['_K'], this['_V']>;
   }
 }
 
@@ -285,7 +283,7 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
    * HashMap.of([1, 'a']).set(1, 'b').toArray()   // => [[1, 'b']]
    * @note if the key is already associated, the previous value will be 'replaced'
    */
-  set: (key: K, value: V) => WithKeyValue<Tp, K, V>['nonEmpty'];
+  set(key: K, value: V): WithKeyValue<Tp, K, V>['nonEmpty'];
   /**
    * Returns the collection with given `entry` added.
    * @param entry - a tuple containing a key and value
@@ -293,21 +291,19 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
    * HashMap.of([1, 'a']).addEntry([2, 'b']).toArray()   // => [[1, 'a'], [2, 'b']]
    * HashMap.of([1, 'a']).addEntry([1, 'b']).toArray()   // => [[1, 'b']]
    */
-  addEntry: (entry: readonly [K, V]) => WithKeyValue<Tp, K, V>['nonEmpty'];
+  addEntry(entry: readonly [K, V]): WithKeyValue<Tp, K, V>['nonEmpty'];
   /**
    * Returns the collection with the entries from the given `StreamSource` `entries` added.
    * @param entries - a `StreamSource` containing tuples with a key and value
    * @example
    * HashMap.of([1, 'a']).addEntries([[2, 'b']]).toArray()   // => [[1, 'a'], [2, 'b']]
    */
-  addEntries: {
-    (entries: StreamSource.NonEmpty<readonly [K, V]>): WithKeyValue<
-      Tp,
-      K,
-      V
-    >['nonEmpty'];
-    (entries: StreamSource<readonly [K, V]>): WithKeyValue<Tp, K, V>['normal'];
-  };
+  addEntries(
+    entries: StreamSource.NonEmpty<readonly [K, V]>
+  ): WithKeyValue<Tp, K, V>['nonEmpty'];
+  addEntries(
+    entries: StreamSource<readonly [K, V]>
+  ): WithKeyValue<Tp, K, V>['normal'];
   /**
    * Returns the collection with the given `atKey` key modified according to given `options`.
    * @param atKey - the key at which to modify the collection
@@ -330,13 +326,16 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
    * m.modifyAt(2, { ifExists: (v, remove) => v.length > 5 ? v : remove }).toArray()
    * // => [[1, 'a']]
    */
-  modifyAt: (
+  modifyAt(
     atKey: K,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: (currentEntry: V, remove: Token) => V | Token;
+      ifExists?: <V2 extends V = V>(
+        currentEntry: V & V2,
+        remove: Token
+      ) => V | Token;
     }
-  ) => WithKeyValue<Tp, K, V>['normal'];
+  ): WithKeyValue<Tp, K, V>['normal'];
   /**
    * Returns the collection where the value associated with given `key` is updated with the given `update` value or update function.
    * @param key - the key of the entry to update
@@ -352,137 +351,19 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
    */
   updateAt<UK = K>(
     key: RelatedTo<K, UK>,
-    update: Update<V>
+    update: RMapBase.Update<V>
   ): WithKeyValue<Tp, K, V>['normal'];
   /**
    * Returns a builder object containing the entries of this collection.
    * @example
    * const builder: HashMap.Builder<number, string> = HashMap.of([1, 'a'], [2, 'b']).toBuilder()
    */
-  toBuilder: () => WithKeyValue<Tp, K, V>['builder'];
-  /**
-   * Returns the same Map with an extended value type.
-   * @typeparam V2 - a type that extends V that defines the new value type
-   * @example
-   * const m = HashMap.of([1, 'a'], [2, 'b'])
-   * m.extendValues<number | string>
-   * // => type: HashMap.NonEmpty<number, number | string>
-   * m.extendValues<boolean>
-   * // => type: HashMap.NonEmpty<number, never>
-   */
-  extendValues: <V2>() => WithKeyValue<Tp, K, SuperOf<V2, V>>['normal'];
-  /**
-   * Returns a Map containing all keys from this map and all the given `sources` key-value stream sources,
-   * and as values tuples of all the corresponding values for each key. If a source doesn't have a key,
-   * the tuple will be filled with the given `fillValue`.
-   * @typeparam O - the type of the fill value
-   * @typeparam I - the array of input source value types
-   * @param fillValue - the value to use for the result tuple if a source does not have a certain key
-   * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
-   * @example
-   * const m = HashMap.of([1, 'a'], [2, 'b'])
-   * const m2 = m.mergeAll('none', [[2, true]], HashMap.of([3, 15]))
-   * // type of m2: HashMap<number, [string, boolean | string, number | string]>
-   * console.log(m2.toArray())
-   * // => [[1, ['a', 'none', 'none']], [2, ['b', true, 'none']], [3, ['none', 'none', 15]]]
-   */
-  mergeAll: {
-    <O, I extends readonly [unknown, ...unknown[]]>(
-      fillValue: O,
-      ...sources: {
-        [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
-      }
-    ): (Tp &
-      KeyValue<K, [V | O, ...{ [KT in keyof I]: I[KT] | O }]>)['nonEmpty'];
-    <O, I extends readonly [unknown, ...unknown[]]>(
-      fillValue: O,
-      ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-    ): (Tp & KeyValue<K, [V | O, ...{ [KT in keyof I]: I[KT] | O }]>)['normal'];
-  };
-  /**
-   * Returns a Map containing all keys from this map and all the given `sources` key-value stream sources,
-   * and as values the result of applying the given `mergeFun` to the key and all the corresponding values for each key. If a source doesn't have a key,
-   * the given tuple will be filled with the given `fillValue`.
-   * @typeparam O - the type of the fill value
-   * @typeparam I - the array of input source value types
-   * @param fillValue - the value to use for the result tuple if a source does not have a certain key
-   * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
-   * @example
-   * const m = HashMap.of([1, 'a'], [2, 'b'])
-   * const m2 = m.mergeAllWith(
-   *   'q',
-   *   (key, v1, v2, v3) => `${key}${v1}${v2}${v3}`,
-   *   [[2, 'c']],
-   *   HashMap.of([3, 'd'])
-   * )
-   * // type of m2: HashMap<number, string>
-   * console.log(m2.toArray())
-   * // => [[1, '1aqq'], [2, '2bcq'], [3, '3qqd']]
-   */
-  mergeAllWith: {
-    <R, O, I extends readonly [unknown, ...unknown[]]>(
-      fillValue: O,
-      mergeFun: (
-        key: K,
-        value: V | O,
-        ...values: { [KT in keyof I]: I[KT] | O }
-      ) => R,
-      ...sources: {
-        [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
-      }
-    ): (Tp & KeyValue<K, R>)['nonEmpty'];
-    <R, O, I extends readonly [unknown, ...unknown[]]>(
-      fillValue: O,
-      mergeFun: (
-        key: K,
-        value: V | O,
-        ...values: { [KT in keyof I]: I[KT] | O }
-      ) => R,
-      ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-    ): (Tp & KeyValue<K, R>)['normal'];
-  };
-  /**
-   * Returns a Map containing the common keys from this map and all the given `sources` key-value stream sources,
-   * and as values tuples of all the corresponding values for each common key. If a source doesn't have a key,
-   * the key will be skipped.
-   * @typeparam I - the array of input source value types
-   * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
-   * @example
-   * const m = HashMap.of([1, 'a'], [2, 'b'])
-   * const m2 = m.merge([[2, true]], HashMap.of([2, 15]))
-   * // type of m2: HashMap<number, [string, boolean, number]>
-   * console.log(m2.toArray())
-   * // => [[2, ['b', true, 15]]]
-   */
-  merge: <I extends readonly [unknown, ...unknown[]]>(
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ) => (Tp & KeyValue<K, [V, ...{ [KT in keyof I]: I[KT] }]>)['normal'];
-  /**
-   * Returns a Map containing the common keys from this map and all the given `sources` key-value stream sources,
-   * and as values the result of applying given `mergeFun` to the key and values of all the corresponding values for each common key.
-   * If a source doesn't have a key, the key will be skipped.
-   * @typeparam I - the array of input source value types
-   * @param mergeFun - a function taking the key and values from this map and all sources corresponding to the key, and
-   * returning a value for the resulting Map.
-   * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
-   * @example
-   * const m = HashMap.of([1, 'a'], [2, 'b'])
-   * const m2 = m.merge(
-   *   (key, v1, v2) => `${key}${v1}${v2}`,
-   *   [[2, true]],
-   *   HashMap.of([2, 15])
-   * )
-   * // type of m2: HashMap<number, string>
-   * console.log(m2.toArray())
-   * // => [[2, '2true15']]
-   */
-  mergeWith: <R, I extends readonly [unknown, ...unknown[]]>(
-    mergeFun: (key: K, ...values: [V, ...I]) => R,
-    ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-  ) => (Tp & KeyValue<K, R>)['normal'];
+  toBuilder(): WithKeyValue<Tp, K, V>['builder'];
 }
 
 export namespace RMapBase {
+  export type Update<V> = V | (<V2 extends V>(value: V & V2) => V);
+
   export interface NonEmpty<K, V, Tp extends RMapBase.Types = RMapBase.Types>
     extends VariantMapBase.NonEmpty<K, V, Tp>,
       Omit<RMapBase<K, V, Tp>, keyof VariantMapBase.NonEmpty<any, any, any>>,
@@ -499,13 +380,9 @@ export namespace RMapBase {
      * @example
      * HashMap.of([1, 'a']).addEntries([[2, 'b']]).toArray()   // => [[1, 'a'], [2, 'b']]
      */
-    addEntries: {
-      (entries: StreamSource<readonly [K, V]>): WithKeyValue<
-        Tp,
-        K,
-        V
-      >['nonEmpty'];
-    };
+    addEntries(
+      entries: StreamSource<readonly [K, V]>
+    ): WithKeyValue<Tp, K, V>['nonEmpty'];
     /**
      * Returns the collection where the value associated with given `key` is updated with the given `update` value or update function.
      * @param key - the key of the entry to update
@@ -521,19 +398,79 @@ export namespace RMapBase {
      */
     updateAt<UK = K>(
       key: RelatedTo<K, UK>,
-      update: Update<V>
+      update: RMapBase.Update<V>
+    ): WithKeyValue<Tp, K, V>['nonEmpty'];
+  }
+
+  /**
+   * The map's Context instance that serves as a factory for all related immutable instances and builders.
+   */
+  export interface Context<UK, Tp extends RMapBase.Types = RMapBase.Types> {
+    readonly _fixedKeyType: (key: UK) => never;
+
+    /**
+     * A string tag defining the specific collection type
+     * @example
+     * HashMap.defaultContext().typeTag   // => 'HashMap'
+     */
+    readonly typeTag: string;
+
+    readonly _types: Tp;
+
+    /**
+     * Returns true if given `obj` could be a valid key in this Context.
+     * @param obj - the object to check
+     * @example
+     * HashMap.defaultContext().isValidKey(1)   // => true
+     */
+    isValidKey(obj: any): obj is UK;
+    /**
+     * Returns the (singleton) empty instance of this type and context with given key and value types.
+     * @example
+     * HashMap.empty<number, string>()    // => HashMap<number, string>
+     * HashMap.empty<string, boolean>()   // => HashMap<string, boolean>
+     */
+    empty<K extends UK, V>(): WithKeyValue<Tp, K, V>['normal'];
+    /**
+     * Returns an immutable map of this collection type and context, containing the given `entries`.
+     * @param entries - a non-empty array of key-value entries
+     * @example
+     * HashMap.of([1, 'a'], [2, 'b'])    // => HashMap.NonEmpty<number, string>
+     */
+    of<K extends UK, V>(
+      ...entries: ArrayNonEmpty<readonly [K, V]>
     ): WithKeyValue<Tp, K, V>['nonEmpty'];
     /**
-     * Returns the same Map with an extended value type.
-     * @typeparam V2 - a type that extends V that defines the new value type
+     * Returns an immutable map of this type and context, containing the entries in the given `sources` `StreamSource` instances.
+     * @param sources - an array of `StreamSource` instances containing key-value entries
      * @example
-     * const m = HashMap.of([1, 'a'], [2, 'b'])
-     * m.extendValues<number | string>
-     * // => type: HashMap.NonEmpty<number, number | string>
-     * m.extendValues<boolean>
-     * // => type: HashMap.NonEmpty<number, never>
+     * HashMap.from([[1, 'a'], [2, 'b']])    // => HashMap.NonEmpty<number, string>
      */
-    extendValues: <V2>() => WithKeyValue<Tp, K, SuperOf<V2, V>>['nonEmpty'];
+    from<K extends UK, V>(
+      ...sources: ArrayNonEmpty<StreamSource.NonEmpty<readonly [K, V]>>
+    ): WithKeyValue<Tp, K, V>['nonEmpty'];
+    from<K, V>(
+      ...sources: ArrayNonEmpty<StreamSource<readonly [K, V]>>
+    ): WithKeyValue<Tp, K, V>['normal'];
+    /**
+     * Returns an empty builder instance for this type of collection and context.
+     * @example
+     * HashMap.builder<number, string>()    // => HashMap.Builder<number, string>
+     */
+    builder<K extends UK, V>(): WithKeyValue<Tp, K, V>['builder'];
+    /**
+     * Returns a `Reducer` that adds received tuples to an RMap and returns the RMap as a result. When a `source` is given,
+     * the reducer will first create an RMap from the source, and then add tuples to it.
+     * @param source - (optional) an initial source of tuples to add to
+     * @example
+     * const someSource = HashMap.of([1, 'a'], [2, 'b']);
+     * const result = Stream.of([1, 'c'], [3, 'a']).reduce(HashMap.reducer(someSource))
+     * result.toArray()   // => [[1, 'c'], [2, 'b'], [3, 'a']]
+     * @note uses a builder under the hood. If the given `source` is an RMap in the same context, it will directly call `.toBuilder()`.
+     */
+    reducer<K extends UK, V>(
+      source?: StreamSource<readonly [K, V]>
+    ): Reducer<readonly [K, V], WithKeyValue<Tp, K, V>['normal']>;
     /**
      * Returns a Map containing all keys from this map and all the given `sources` key-value stream sources,
      * and as values tuples of all the corresponding values for each key. If a source doesn't have a key,
@@ -549,11 +486,26 @@ export namespace RMapBase {
      * console.log(m2.toArray())
      * // => [[1, ['a', 'none', 'none']], [2, ['b', true, 'none']], [3, ['none', 'none', 15]]]
      */
-    mergeAll: <O, I extends readonly [unknown, ...unknown[]]>(
+    mergeAll<
+      O,
+      I extends readonly [unknown, unknown, ...unknown[]],
+      K extends UK
+    >(
       fillValue: O,
-      ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-    ) => (Tp &
-      KeyValue<K, [V | O, ...{ [KT in keyof I]: I[KT] | O }]>)['nonEmpty'];
+      ...sources: {
+        [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
+      } &
+        unknown[]
+    ): WithKeyValue<Tp, K, { [KT in keyof I]: I[KT] | O }>['nonEmpty'];
+    mergeAll<
+      O,
+      I extends readonly [unknown, unknown, ...unknown[]],
+      K extends UK
+    >(
+      fillValue: O,
+      ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> } &
+        unknown[]
+    ): WithKeyValue<Tp, K, { [KT in keyof I]: I[KT] | O }>['normal'];
     /**
      * Returns a Map containing all keys from this map and all the given `sources` key-value stream sources,
      * and as values the result of applying the given `mergeFun` to the key and all the corresponding values for each key. If a source doesn't have a key,
@@ -574,15 +526,28 @@ export namespace RMapBase {
      * console.log(m2.toArray())
      * // => [[1, '1aqq'], [2, '2bcq'], [3, '3qqd']]
      */
-    mergeAllWith: <R, O, I extends readonly [unknown, ...unknown[]]>(
+    mergeAllWith<
+      I extends readonly [unknown, unknown, ...unknown[]],
+      K extends UK
+    >(
+      ...sources: {
+        [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
+      } &
+        unknown[]
+    ): <O, R>(
       fillValue: O,
-      mergeFun: (
-        key: K,
-        value: V | O,
-        ...values: { [KT in keyof I]: I[KT] | O }
-      ) => R,
-      ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-    ) => (Tp & KeyValue<K, R>)['nonEmpty'];
+      mergeFun: (key: K, ...values: { [KT in keyof I]: I[KT] | O }) => R
+    ) => WithKeyValue<Tp, K, R>['nonEmpty'];
+    mergeAllWith<
+      I extends readonly [unknown, unknown, ...unknown[]],
+      K extends UK
+    >(
+      ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> } &
+        unknown[]
+    ): <O, R>(
+      fillValue: O,
+      mergeFun: (key: K, ...values: { [KT in keyof I]: I[KT] | O }) => R
+    ) => WithKeyValue<Tp, K, R>['normal'];
     /**
      * Returns a Map containing the common keys from this map and all the given `sources` key-value stream sources,
      * and as values tuples of all the corresponding values for each common key. If a source doesn't have a key,
@@ -596,16 +561,16 @@ export namespace RMapBase {
      * console.log(m2.toArray())
      * // => [[2, ['b', true, 15]]]
      */
-    merge: {
-      <I extends readonly [unknown, ...unknown[]]>(
-        ...sources: {
-          [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
-        }
-      ): (Tp & KeyValue<K, [V, ...{ [KT in keyof I]: I[KT] }]>)['nonEmpty'];
-      <I extends readonly [unknown, ...unknown[]]>(
-        ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-      ): (Tp & KeyValue<K, [V, ...{ [KT in keyof I]: I[KT] }]>)['normal'];
-    };
+    merge<K extends UK, I extends readonly [unknown, unknown, ...unknown[]]>(
+      ...sources: {
+        [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
+      } &
+        unknown[]
+    ): WithKeyValue<Tp, K, { [KT in keyof I]: I[KT] }>['nonEmpty'];
+    merge<K extends UK, I extends readonly [unknown, unknown, ...unknown[]]>(
+      ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> } &
+        unknown[]
+    ): WithKeyValue<Tp, K, { [KT in keyof I]: I[KT] }>['normal'];
     /**
      * Returns a Map containing the common keys from this map and all the given `sources` key-value stream sources,
      * and as values the result of applying given `mergeFun` to the key and values of all the corresponding values for each common key.
@@ -625,89 +590,26 @@ export namespace RMapBase {
      * console.log(m2.toArray())
      * // => [[2, '2true15']]
      */
-    mergeWith: {
-      <R, I extends readonly [unknown, ...unknown[]]>(
-        mergeFun: (key: K, ...values: [V, ...I]) => R,
-        ...sources: {
-          [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
-        }
-      ): (Tp & KeyValue<K, R>)['nonEmpty'];
-      <R, I extends readonly [unknown, ...unknown[]]>(
-        mergeFun: (key: K, ...values: [V, ...I]) => R,
-        ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-      ): (Tp & KeyValue<K, R>)['normal'];
-    };
-  }
-
-  /**
-   * The map's Context instance that serves as a factory for all related immutable instances and builders.
-   */
-  export interface Context<UK, Tp extends RMapBase.Types = RMapBase.Types> {
-    /**
-     * A string tag defining the specific collection type
-     * @example
-     * HashMap.defaultContext().typeTag   // => 'HashMap'
-     */
-    readonly typeTag: string;
-
-    readonly _types: Tp;
-
-    /**
-     * Returns true if given `obj` could be a valid key in this Context.
-     * @param obj - the object to check
-     * @example
-     * HashMap.defaultContext().isValidKey(1)   // => true
-     */
-    isValidKey: (obj: any) => obj is UK;
-    /**
-     * Returns the (singleton) empty instance of this type and context with given key and value types.
-     * @example
-     * HashMap.empty<number, string>()    // => HashMap<number, string>
-     * HashMap.empty<string, boolean>()   // => HashMap<string, boolean>
-     */
-    empty: <K extends UK, V>() => WithKeyValue<Tp, K, V>['normal'];
-    /**
-     * Returns an immutable map of this collection type and context, containing the given `entries`.
-     * @param entries - a non-empty array of key-value entries
-     * @example
-     * HashMap.of([1, 'a'], [2, 'b'])    // => HashMap.NonEmpty<number, string>
-     */
-    of: <K extends UK, V>(
-      ...entries: ArrayNonEmpty<readonly [K, V]>
-    ) => WithKeyValue<Tp, K, V>['nonEmpty'];
-    /**
-     * Returns an immutable map of this type and context, containing the entries in the given `sources` `StreamSource` instances.
-     * @param sources - an array of `StreamSource` instances containing key-value entries
-     * @example
-     * HashMap.from([[1, 'a'], [2, 'b']])    // => HashMap.NonEmpty<number, string>
-     */
-    from: {
-      <K extends UK, V>(
-        ...sources: ArrayNonEmpty<StreamSource.NonEmpty<readonly [K, V]>>
-      ): WithKeyValue<Tp, K, V>['nonEmpty'];
-      <K, V>(
-        ...sources: ArrayNonEmpty<StreamSource<readonly [K, V]>>
-      ): WithKeyValue<Tp, K, V>['normal'];
-    };
-    /**
-     * Returns an empty builder instance for this type of collection and context.
-     * @example
-     * HashMap.builder<number, string>()    // => HashMap.Builder<number, string>
-     */
-    builder: <K extends UK, V>() => WithKeyValue<Tp, K, V>['builder'];
-    /**
-     * Returns a `Reducer` that adds received tuples to an RMap and returns the RMap as a result. When a `source` is given,
-     * the reducer will first create an RMap from the source, and then add tuples to it.
-     * @param source - (optional) an initial source of tuples to add to
-     * @example
-     * const someSource = HashMap.of([1, 'a'], [2, 'b']);
-     * const result = Stream.of([1, 'c'], [3, 'a']).reduce(HashMap.reducer(someSource))
-     * result.toArray()   // => [[1, 'c'], [2, 'b'], [3, 'a']]
-     * @note uses a builder under the hood. If the given `source` is an RMap in the same context, it will directly call `.toBuilder()`.
-     */
-    reducer: <K extends UK, V>(
-      source?: StreamSource<readonly [K, V]>
-    ) => Reducer<readonly [K, V], WithKeyValue<Tp, K, V>['normal']>;
+    mergeWith<
+      I extends readonly [unknown, unknown, ...unknown[]],
+      K extends UK
+    >(
+      ...sources: {
+        [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
+      } &
+        unknown[]
+    ): <R>(
+      mergeFun: (key: K, ...values: I) => R
+    ) => WithKeyValue<Tp, K, R>['nonEmpty'];
+    mergeWith<
+      I extends readonly [unknown, unknown, ...unknown[]],
+      K extends UK
+    >(
+      ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> } &
+        unknown[]
+    ): <R>(
+      mergeFun: (key: K, ...values: I) => R
+    ) => WithKeyValue<Tp, K, R>['normal'];
   }
 
   export interface Builder<K, V, Tp extends RMapBase.Types = RMapBase.Types> {
@@ -780,7 +682,7 @@ export namespace RMapBase {
      * m.addEntry([3, 'c'])   // => true
      * m.addEntry([1, 'a'])   // => false
      */
-    addEntry: (entry: readonly [K, V]) => boolean;
+    addEntry(entry: readonly [K, V]): boolean;
     /**
      * Adds given `entries` to the builder.
      * @param entries - a `StreamSource` containing the entries to add
@@ -790,7 +692,7 @@ export namespace RMapBase {
      * m.addEntries([1, 'a'], [3, 'c']])   // => true
      * m.addEntries([])                    // => false
      */
-    addEntries: (entries: StreamSource<readonly [K, V]>) => boolean;
+    addEntries(entries: StreamSource<readonly [K, V]>): boolean;
     /**
      * Associates given `key` with given `value` in the builder.
      * @param key - the entry key
@@ -801,7 +703,7 @@ export namespace RMapBase {
      * m.set(3, 'c')   // => true
      * m.set(1, 'a')   // => false
      */
-    set: (key: K, value: V) => boolean;
+    set(key: K, value: V): boolean;
     /**
      * Removes the entry with given `key` from the builder.
      * @param key - the key of the entry to remove
@@ -849,13 +751,16 @@ export namespace RMapBase {
      * m.modifyAt(2, { ifExists: (v, remove) => v.length > 5 ? v : remove })
      * // => true
      */
-    modifyAt: (
+    modifyAt(
       key: K,
       options: {
         ifNew?: OptLazyOr<V, Token>;
-        ifExists?: (currentValue: V, remove: Token) => V | Token;
+        ifExists?: <V2 extends V = V>(
+          currentValue: V & V2,
+          remove: Token
+        ) => V | Token;
       }
-    ) => boolean;
+    ): boolean;
     /**
      * Updates the value in the builder associated with given `key` according to given `update` value or function.
      * @param key - the key of the entry to update
@@ -868,15 +773,19 @@ export namespace RMapBase {
      * m.updateAt(1, 'b')           // => 'b'
      * m.updateAt(2, v => v + 'z')  // => 'b'
      */
-    updateAt(key: K, update: Update<V>): V | undefined;
-    updateAt<O>(key: K, update: Update<V>, otherwise: OptLazy<O>): V | O;
+    updateAt(key: K, update: RMapBase.Update<V>): V | undefined;
+    updateAt<O>(
+      key: K,
+      update: RMapBase.Update<V>,
+      otherwise: OptLazy<O>
+    ): V | O;
     /**
      * Returns an immutable collection instance containing the entries in this builder.
      * @example
      * const m = HashMap.of([1, 'a'], [2, 'b']).toBuilder()
      * const m2: HashMap<number, string> = m.build()
      */
-    build: () => WithKeyValue<Tp, K, V>['normal'];
+    build(): WithKeyValue<Tp, K, V>['normal'];
     /**
      * Returns an immutable instance of the entries in this builder, with given `mapValues` function applied
      * to all the values in the entries.
@@ -885,9 +794,9 @@ export namespace RMapBase {
      * const m = HashMap.of([1, 'a'], [2, 'b']).toBuilder()
      * const m2: HashMap<number, number> = m.buildMapValues(value => value.length)
      */
-    buildMapValues: <V2>(
+    buildMapValues<V2>(
       mapFun: (value: V, key: K) => V2
-    ) => (Tp & KeyValue<K, V2>)['normal'];
+    ): (Tp & KeyValue<K, V2>)['normal'];
   }
 
   export interface Types extends VariantMapBase.Types {
@@ -912,6 +821,8 @@ export namespace RMapBase {
       source: any
     ): source is WithKeyValue<Tp, K, V>['nonEmpty'];
     abstract builder: <K extends UK, V>() => WithKeyValue<Tp, K, V>['builder'];
+
+    _fixedKeyType!: any;
 
     get _types(): Tp {
       return undefined as any;
@@ -974,130 +885,135 @@ export namespace RMapBase {
       );
     };
 
-    mergeAllWith<R, K, O, I extends readonly [unknown, unknown, ...unknown[]]>(
-      fillValue: O,
-      mergeFun: (key: K, ...values: { [KT in keyof I]: I[KT] | O }) => R,
+    mergeAllWith: any = <
+      K,
+      I extends readonly [unknown, unknown, ...unknown[]]
+    >(
       ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-    ): any {
-      const builder = this.builder() as unknown as RMapBase.Builder<
-        K,
-        unknown[]
-      >;
+    ): any => {
+      return <O, R>(
+        fillValue: O,
+        mergeFun: (key: K, ...values: { [KT in keyof I]: I[KT] | O }) => R
+      ): any => {
+        const builder = this.builder() as unknown as RMapBase.Builder<
+          K,
+          unknown[]
+        >;
 
-      let i = -1;
-      const length = sources.length;
+        let i = -1;
+        const length = sources.length;
 
-      while (++i < sources.length) {
-        let entry: readonly [K, unknown] | undefined;
-        const iter = Stream.from(sources[i])[Symbol.iterator]();
+        while (++i < sources.length) {
+          let entry: readonly [K, unknown] | undefined;
+          const iter = Stream.from(sources[i])[Symbol.iterator]();
 
-        while (undefined !== (entry = iter.fastNext())) {
-          const key = entry[0];
-          const value = entry[1];
+          while (undefined !== (entry = iter.fastNext())) {
+            const key = entry[0];
+            const value = entry[1];
 
-          const index = i;
+            const index = i;
 
-          builder.modifyAt(key, {
-            ifNew(): unknown[] {
-              const row = Array(length).fill(fillValue);
-              row[index] = value;
-              return row;
-            },
-            ifExists(row): unknown[] {
-              row[index] = value;
-              return row;
-            },
-          });
+            builder.modifyAt(key, {
+              ifNew(): unknown[] {
+                const row = Array(length).fill(fillValue);
+                row[index] = value;
+                return row;
+              },
+              ifExists(row): unknown[] {
+                row[index] = value;
+                return row;
+              },
+            });
+          }
         }
-      }
 
-      return builder.buildMapValues((row, key) =>
-        mergeFun(key, ...(row as any))
-      );
-    }
+        return builder.buildMapValues((row, key) =>
+          mergeFun(key, ...(row as any))
+        );
+      };
+    };
 
-    mergeAll<O, K, I extends readonly [unknown, unknown, ...unknown[]]>(
+    mergeAll: any = <O, K, I extends readonly [unknown, unknown, ...unknown[]]>(
       fillValue: O,
       ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-    ): any {
-      return this.mergeAllWith(
+    ): any => {
+      return this.mergeAllWith(...sources)(
         fillValue,
-        (key: any, ...values: unknown[]): I => values as any as I,
-        ...(sources as any as [any, any, ...any[]])
+        (key: any, ...values: unknown[]): any => values
       );
-    }
+    };
 
-    mergeWith<R, K, I extends readonly [unknown, ...unknown[]]>(
-      mergeFun: (key: K, ...values: I) => R,
+    mergeWith: any = <I extends readonly [unknown, ...unknown[]], K>(
       ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-    ): any {
-      if (Stream.from(sources).some(StreamSource.isEmptyInstance)) {
-        return this.empty();
-      }
+    ): any => {
+      return <R>(mergeFun: (key: K, ...values: I) => R): any => {
+        if (Stream.from(sources).some(StreamSource.isEmptyInstance)) {
+          return this.empty();
+        }
 
-      const builder = this.builder() as unknown as RMapBase.Builder<
-        K,
-        unknown[]
-      >;
+        const builder = this.builder() as unknown as RMapBase.Builder<
+          K,
+          unknown[]
+        >;
 
-      let i = -1;
-      const length = sources.length;
+        let i = -1;
+        const length = sources.length;
 
-      while (++i < sources.length) {
+        while (++i < sources.length) {
+          let entry: readonly [K, unknown] | undefined;
+          const iter = Stream.from(sources[i])[Symbol.iterator]();
+
+          while (undefined !== (entry = iter.fastNext())) {
+            const key = entry[0];
+            const value = entry[1];
+
+            const index = i;
+
+            builder.modifyAt(key, {
+              ifNew(nothing): unknown[] | typeof nothing {
+                if (index > 0) return nothing;
+
+                const row = [value];
+                return row;
+              },
+              ifExists(row, remove): unknown[] | typeof remove {
+                if (row.length !== index) return remove;
+                row.push(value);
+                return row;
+              },
+            });
+          }
+        }
+
+        // remove all rows that are not full
+        const firstSource = sources[0];
+
         let entry: readonly [K, unknown] | undefined;
-        const iter = Stream.from(sources[i])[Symbol.iterator]();
+        const iter = Stream.from(firstSource)[Symbol.iterator]();
 
         while (undefined !== (entry = iter.fastNext())) {
           const key = entry[0];
-          const value = entry[1];
-
-          const index = i;
 
           builder.modifyAt(key, {
-            ifNew(nothing): unknown[] | typeof nothing {
-              if (index > 0) return nothing;
-
-              const row = [value];
-              return row;
-            },
             ifExists(row, remove): unknown[] | typeof remove {
-              if (row.length !== index) return remove;
-              row.push(value);
+              if (row.length !== length) return remove;
               return row;
             },
           });
         }
-      }
 
-      // remove all rows that are not full
-      const firstSource = sources[0];
+        return builder.buildMapValues((row, key) =>
+          mergeFun(key, ...(row as any))
+        );
+      };
+    };
 
-      let entry: readonly [K, unknown] | undefined;
-      const iter = Stream.from(firstSource)[Symbol.iterator]();
-
-      while (undefined !== (entry = iter.fastNext())) {
-        const key = entry[0];
-
-        builder.modifyAt(key, {
-          ifExists(row, remove): unknown[] | typeof remove {
-            if (row.length !== length) return remove;
-            return row;
-          },
-        });
-      }
-
-      return builder.buildMapValues((row, key) =>
-        mergeFun(key, ...(row as any))
-      );
-    }
-
-    merge<K, I extends readonly [unknown, ...unknown[]]>(
+    merge: any = <K, I extends readonly [unknown, ...unknown[]]>(
       ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
-    ): any {
-      return this.mergeWith(
-        (key: any, ...values: unknown[]): I => values as any as I,
-        ...(sources as any as [any, any, ...any[]])
+    ): any => {
+      return this.mergeWith(...sources)(
+        (key: any, ...values: unknown[]): any => values
       );
-    }
+    };
   }
 }

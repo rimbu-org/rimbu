@@ -58,11 +58,11 @@ describe('Eq', () => {
       )
     ).toBe(false);
     expect(e(Object.is, Object.is)).toBe(true);
-    expect(e({}, new (class Object {})())).toBe(false);
+    expect(e({}, new (class Obj {})())).toBe(false);
     // flat does not compare object contents, to be safe returns false
     expect(e({}, {})).toBe(false);
     // not same constructor
-    expect(e(new (class Object {})(), new (class Object {})())).toBe(false);
+    expect(e(new (class Obj {})(), new (class Obj {})())).toBe(false);
 
     class O {
       constructor(readonly v: number) {}

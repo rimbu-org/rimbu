@@ -192,8 +192,8 @@ export namespace VariantSetBase {
   }
 
   export interface Types extends Elem {
-    normal: VariantSetBase<this['_T']>;
-    nonEmpty: VariantSetBase.NonEmpty<this['_T']>;
+    readonly normal: VariantSetBase<this['_T']>;
+    readonly nonEmpty: VariantSetBase.NonEmpty<this['_T']>;
   }
 }
 
@@ -209,17 +209,15 @@ export interface RSetBase<T, Tp extends RSetBase.Types = RSetBase.Types>
    * @example
    * HashSet.of(1, 2, 3).add(10).toArray()   // => [1, 2, 3, 10]
    */
-  add: (value: T) => WithElem<Tp, T>['nonEmpty'];
+  add(value: T): WithElem<Tp, T>['nonEmpty'];
   /**
    * Returns the collection with the values in given `values` `StreamSource` added.
    * @param values - a `StreamSource` containing values to add
    * @example
    * HashSet.of(1, 2, 3).addAll(10, 11).toArray()   // => [1, 2, 3, 10, 11]
    */
-  addAll: {
-    (values: StreamSource.NonEmpty<T>): WithElem<Tp, T>['nonEmpty'];
-    (values: StreamSource<T>): WithElem<Tp, T>['normal'];
-  };
+  addAll(values: StreamSource.NonEmpty<T>): WithElem<Tp, T>['nonEmpty'];
+  addAll(values: StreamSource<T>): WithElem<Tp, T>['normal'];
   /**
    * Returns a collection containing all values from this collection and all values of given
    * `other` `StreamSource`.
@@ -228,10 +226,8 @@ export interface RSetBase<T, Tp extends RSetBase.Types = RSetBase.Types>
    * HashSet.of(1, 2, 3).union(HashSet.of(2, 4, 6)).toArray()
    * // => [1, 2, 3, 4, 6]
    */
-  union: {
-    (other: StreamSource.NonEmpty<T>): WithElem<Tp, T>['nonEmpty'];
-    (other: StreamSource<T>): WithElem<Tp, T>['normal'];
-  };
+  union(other: StreamSource.NonEmpty<T>): WithElem<Tp, T>['nonEmpty'];
+  union(other: StreamSource<T>): WithElem<Tp, T>['normal'];
   /**
    * Returns a collection of the values that are either in this collection or in the `other` `StreamSource`, but
    * not in both.
@@ -240,13 +236,13 @@ export interface RSetBase<T, Tp extends RSetBase.Types = RSetBase.Types>
    * HashSet.of(1, 2, 3).symDifference([2, 4]).toArray()
    * // => [1, 3, 4]
    */
-  symDifference: (other: StreamSource<T>) => WithElem<Tp, T>['normal'];
+  symDifference(other: StreamSource<T>): WithElem<Tp, T>['normal'];
   /**
    * Returns a builder object containing the values of this collection.
    * @example
    * const builder: HashSet.Builder<number> = HashSet.of(1, 2, 3).toBuilder()
    */
-  toBuilder: () => WithElem<Tp, T>['builder'];
+  toBuilder(): WithElem<Tp, T>['builder'];
 }
 
 export namespace RSetBase {
@@ -266,14 +262,14 @@ export namespace RSetBase {
      * @example
      * HashSet.of(1, 2, 3).add(10).toArray()   // => [1, 2, 3, 10]
      */
-    add: (value: T) => WithElem<Tp, T>['nonEmpty'];
+    add(value: T): WithElem<Tp, T>['nonEmpty'];
     /**
      * Returns the collection with the values in given `values` `StreamSource` added.
      * @param values - a `StreamSource` containing values to add
      * @example
      * HashSet.of(1, 2, 3).addAll(10, 11).toArray()   // => [1, 2, 3, 10, 11]
      */
-    addAll: (values: StreamSource<T>) => WithElem<Tp, T>['nonEmpty'];
+    addAll(values: StreamSource<T>): WithElem<Tp, T>['nonEmpty'];
     /**
      * Returns a collection containing all values from this collection and all values of given
      * `other` `StreamSource`.
@@ -282,10 +278,12 @@ export namespace RSetBase {
      * HashSet.of(1, 2, 3).union(HashSet.of(2, 4, 6)).toArray()
      * // => [1, 2, 3, 4, 6]
      */
-    union: (other: StreamSource<T>) => WithElem<Tp, T>['nonEmpty'];
+    union(other: StreamSource<T>): WithElem<Tp, T>['nonEmpty'];
   }
 
   export interface Context<UT, Tp extends RSetBase.Types = RSetBase.Types> {
+    readonly _fixedElementType: (element: UT) => never;
+
     /**
      * A string tag defining the specific collection type
      * @example
@@ -301,44 +299,39 @@ export namespace RSetBase {
      * @example
      * HashSet.defaultContext().isValidValue(1)   // => true
      */
-    isValidValue: (value: any) => value is UT;
+    isValidValue(value: any): value is UT;
     /**
      * Returns the (singleton) empty instance of this type and context with given value type.
      * @example
      * HashSet.empty<number>()    // => HashSet<number>
      * HashSet.empty<string>()    // => HashSet<string>
      */
-    empty: <T extends UT>() => WithElem<Tp, T>['normal'];
+    empty<T extends UT>(): WithElem<Tp, T>['normal'];
     /**
      * Returns an immutable set of this type and context, containing the given `values`.
      * @param values - a non-empty array of values
      * @example
      * HashSet.of(1, 2, 3).toArray()   // => [1, 2, 3]
      */
-    of: <T extends UT>(
-      ...values: ArrayNonEmpty<T>
-    ) => WithElem<Tp, T>['nonEmpty'];
+    of<T extends UT>(...values: ArrayNonEmpty<T>): WithElem<Tp, T>['nonEmpty'];
     /**
      * Returns an immutable set of this collection type and context, containing the given values in `source`.
      * @param sources - an array of `StreamSource` instances containing values
      * @example
      * HashSet.from([1, 2, 3], [4, 5])   // => HashSet.NonEmpty<number>
      */
-    from: {
-      <T extends UT>(
-        ...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>
-      ): WithElem<Tp, T>['nonEmpty'];
-      <T extends UT>(...sources: ArrayNonEmpty<StreamSource<T>>): WithElem<
-        Tp,
-        T
-      >['normal'];
-    };
+    from<T extends UT>(
+      ...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>
+    ): WithElem<Tp, T>['nonEmpty'];
+    from<T extends UT>(
+      ...sources: ArrayNonEmpty<StreamSource<T>>
+    ): WithElem<Tp, T>['normal'];
     /**
      * Returns an empty builder instance for this type of collection and context.
      * @example
      * HashSet.builder<number>()     // => HashSet.Builder<number>
      */
-    builder: <T extends UT>() => WithElem<Tp, T>['builder'];
+    builder<T extends UT>(): WithElem<Tp, T>['builder'];
     /**
      * Returns a `Reducer` that appends received items to an RSet and returns the RSet as a result. When a `source` is given,
      * the reducer will first create an RSet from the source, and then append elements to it.
@@ -349,9 +342,9 @@ export namespace RSetBase {
      * result.toArray()   // => [1, 2, 3, 20, 21, 22, 23, 24]
      * @note uses an RSet builder under the hood. If the given `source` is a RSet in the same context, it will directly call `.toBuilder()`.
      */
-    reducer: <T>(
+    reducer<T extends UT>(
       source?: StreamSource<T>
-    ) => Reducer<T, WithElem<Tp, T>['normal']>;
+    ): Reducer<T, WithElem<Tp, T>['normal']>;
   }
 
   export interface Builder<T, Tp extends RSetBase.Types = RSetBase.Types> {
@@ -387,7 +380,7 @@ export namespace RSetBase {
      * s.add(2)   // => false
      * s.add(10)  // => true
      */
-    add: (value: T) => boolean;
+    add(value: T): boolean;
     /**
      * Adds the values in given `values` `StreamSource` to the builder.
      * @param values - the values to add
@@ -397,7 +390,7 @@ export namespace RSetBase {
      * s.addAll([1, 3])   // => false
      * s.addAll([2, 10])  // => true
      */
-    addAll: (values: StreamSource<T>) => boolean;
+    addAll(values: StreamSource<T>): boolean;
     /**
      * Remove the given `value` from the builder.
      * @param value - the value to remove
@@ -442,7 +435,7 @@ export namespace RSetBase {
      * const s = HashSet.of(1, 2, 3).toBuilder()
      * const s2: HashSet<number> = m.build()
      */
-    build: () => WithElem<Tp, T>['normal'];
+    build(): WithElem<Tp, T>['normal'];
   }
 
   export interface Types extends VariantSetBase.Types {
@@ -466,6 +459,8 @@ export namespace RSetBase {
       source: any
     ): source is WithElem<Tp, T>['nonEmpty'];
     abstract builder<T extends UT>(): WithElem<Tp, T>['builder'];
+
+    readonly _fixedElementType!: any;
 
     get _types(): Tp {
       return undefined as any;

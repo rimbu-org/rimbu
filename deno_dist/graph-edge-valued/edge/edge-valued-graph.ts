@@ -56,14 +56,6 @@ export namespace EdgeValuedGraph {
   }
 }
 
-interface TypesImpl extends EdgeValuedGraph.Types {
-  readonly context: ValuedGraphCustom.ValuedGraphContext<
-    this['_N'],
-    string,
-    any
-  >;
-}
-
 export const EdgeValuedGraph = {
   /**
    * Returns a new EdgeValuedGraph context instance based on the given `options`.
@@ -79,7 +71,7 @@ export const EdgeValuedGraph = {
     return new ValuedGraphCustom.ValuedGraphContext<
       UN,
       'ArrowValuedGraph',
-      TypesImpl
+      any
     >(
       true,
       'ArrowValuedGraph',

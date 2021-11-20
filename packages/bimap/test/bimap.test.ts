@@ -3,7 +3,7 @@ import type { ArrayNonEmpty } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
 import { BiMap } from '../src';
 
-function expectEqual<K, V>(map: BiMap<K, V>, arr: [K, V][]) {
+function expectEqual(map: BiMap<number, string>, arr: [number, string][]) {
   expect(new Map(map)).toEqual(new Map(arr));
 }
 

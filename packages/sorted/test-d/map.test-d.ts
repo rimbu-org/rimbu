@@ -22,12 +22,15 @@ expectAssignable<RMap<number, string>>(genEmpty);
 expectNotAssignable<RMap.NonEmpty<number, string>>(genEmpty);
 expectAssignable<RMap<number, string>>(genNonEmpty);
 expectAssignable<RMap.NonEmpty<number, string>>(genNonEmpty);
+expectAssignable<RMap<number, string | number>>(
+  null as any as GNE<number, string>
+);
 
 // Test variance
 expectNotAssignable<GE<number | string, string>>(genEmpty);
-expectNotAssignable<GE<number, string | boolean>>(genEmpty);
+expectAssignable<GE<number, string | boolean>>(genEmpty);
 expectNotAssignable<GNE<number | string, string>>(genNonEmpty);
-expectNotAssignable<GNE<number, string | boolean>>(genNonEmpty);
+expectAssignable<GNE<number, string | boolean>>(genNonEmpty);
 
 let m!: any;
 

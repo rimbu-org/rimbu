@@ -8,7 +8,9 @@ import { Literal } from './internal';
  * @typeparam P - the parant type
  * @typeparam R - the root type
  */
-export type Patch<T, P = T, R = T> = T extends Literal.Obj
+export type Patch<T> = PatchHelper<T, T, T>;
+
+type PatchHelper<T, P, R> = T extends Literal.Obj
   ? Patch.PatchObj<T, P, R>
   : T extends readonly unknown[]
   ? Patch.PatchArray<T, P, R>
@@ -33,7 +35,12 @@ export function patch<T>(value: T): (...patches: Patch.Multi<T>) => T {
     let result = value;
 
     for (const p of patches) {
-      result = patchSingle(result, p as Patch<T>, result, result);
+      result = patchSingle(
+        result as any,
+        p as any,
+        result as any,
+        result as any
+      );
     }
 
     return result;
@@ -51,7 +58,7 @@ export namespace Patch {
    */
   export type PatchObj<T extends Literal.Obj, P = T, R = T> =
     | Patch.Update<T, P, R>
-    | { [K in keyof T]?: Patch<T[K], T, R> };
+    | { [K in keyof T]?: PatchHelper<T[K], T, R> };
 
   /**
    * Type representing at least one Patch object for type T
@@ -77,9 +84,11 @@ export namespace Patch {
    */
   export type PatchArray<T extends readonly unknown[], P, R> = (
     | Patch.Update<T, P, R>
-    | (T extends readonly (infer E)[] ? { [Patch.MAP]: Patch<E, T, R> } : never)
+    | (T extends readonly (infer E)[]
+        ? { [Patch.MAP]: PatchHelper<E, T, R> }
+        : never)
     | {
-        [K in { [K2 in keyof T]: K2 }[keyof T]]?: Patch<T[K], T, R>;
+        [K in { [K2 in keyof T]: K2 }[keyof T]]?: PatchHelper<T[K], T, R>;
       }
   ) &
     Literal.NoIterable;
@@ -103,9 +112,9 @@ export namespace Patch {
   }
 }
 
-function patchSingle<T, P = T, R = T>(
+function patchSingle<T, P, R>(
   value: T,
-  patcher: Patch<T, P, R>,
+  patcher: PatchHelper<T, P, R>,
   parent: P,
   root: R
 ): T {
@@ -115,8 +124,8 @@ function patchSingle<T, P = T, R = T>(
 
   if (null === value || undefined === value || typeof value !== 'object') {
     if (typeof patcher !== 'object' || null === patcher) return patcher as any;
-    if (Literal.isLiteral<T>(patcher)) {
-      return Literal.getValue(patcher);
+    if (Literal.isLiteral(patcher)) {
+      return Literal.getValue(patcher) as any;
     }
     return value;
   }
@@ -129,8 +138,8 @@ function patchSingle<T, P = T, R = T>(
 
   if (null === patcher) return null as any;
 
-  if (Literal.isLiteral<T>(patcher)) {
-    return Literal.getValue(patcher);
+  if (Literal.isLiteral(patcher)) {
+    return Literal.getValue(patcher) as any;
   }
 
   const valueIsArray = Array.isArray(value);
@@ -160,11 +169,12 @@ function patchSingle<T, P = T, R = T>(
   const clone: any = valueIsArray ? ([...(value as any)] as any) : { ...value };
   let changed = false;
 
-  for (const key in patcher as T) {
-    if (!(key in clone)) continue;
+  for (const key in patcher as any) {
+    const patchKey = (patcher as any)[key];
+
+    if (!(key in clone) && typeof patchKey === 'function') continue;
 
     const oldValue = clone[key];
-    const patchKey = (patcher as T)[key];
 
     if (undefined === patchKey) {
       RimbuError.throwInvalidUsageError(

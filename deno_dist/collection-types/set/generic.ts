@@ -32,9 +32,9 @@ export namespace RSet {
   export interface Builder<T> extends RSetBase.Builder<T, RSet.Types> {}
 
   export interface Types extends RSetBase.Types {
-    normal: RSet<this['_T']>;
-    nonEmpty: RSet.NonEmpty<this['_T']>;
-    context: RSet.Context<this['_T']>;
-    builder: RSet.Builder<this['_T']>;
+    readonly normal: RSet<this['_T']>;
+    readonly nonEmpty: RSet.NonEmpty<this['_T']>;
+    readonly context: RSet.Context<this['_T']>;
+    readonly builder: RSet.Builder<this['_T']>;
   }
 }

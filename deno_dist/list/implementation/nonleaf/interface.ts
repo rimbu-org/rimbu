@@ -2,7 +2,7 @@ import type { IndexRange, TraverseState, Update } from '../../../common/mod.ts';
 import type { Stream } from '../../../stream/mod.ts';
 import type { Block, ListContext } from '../../list-custom.ts';
 
-export interface NonLeaf<T, C extends Block<T, C> = any> {
+export interface NonLeaf<T, C extends Block<any, C> = any> {
   readonly length: number;
   readonly context: ListContext;
   get(index: number): T;
@@ -12,7 +12,7 @@ export interface NonLeaf<T, C extends Block<T, C> = any> {
   dropLast(): [NonLeaf<T, C> | null, C];
   dropInternal(amount: number): [NonLeaf<T, C> | null, C, number];
   takeInternal(amount: number): [NonLeaf<T, C> | null, C, number];
-  concat(other: NonLeaf<T, C>): NonLeaf<T, C>;
+  concat<T2>(other: NonLeaf<T2, C>): NonLeaf<T | T2, C>;
   updateAt(index: number, update: Update<T>): NonLeaf<T, C>;
   stream(reversed?: boolean): Stream.NonEmpty<T>;
   streamRange(range: IndexRange, reversed?: boolean): Stream<T>;

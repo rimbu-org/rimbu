@@ -56,14 +56,6 @@ export namespace ArrowValuedGraph {
   }
 }
 
-interface TypesImpl extends ArrowValuedGraph.Types {
-  readonly context: ValuedGraphCustom.ValuedGraphContext<
-    this['_N'],
-    string,
-    any
-  >;
-}
-
 export const ArrowValuedGraph = {
   /**
    * Returns a new ArrowValuedGraph context instance based on the given `options`.
@@ -79,7 +71,7 @@ export const ArrowValuedGraph = {
     return new ValuedGraphCustom.ValuedGraphContext<
       UN,
       'ArrowValuedGraph',
-      TypesImpl
+      any
     >(
       true,
       'ArrowValuedGraph',

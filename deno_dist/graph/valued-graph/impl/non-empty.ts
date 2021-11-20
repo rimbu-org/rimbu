@@ -434,8 +434,4 @@ export class ValuedGraphNonEmpty<
   toBuilder(): TpG['builder'] {
     return this.context.createBuilder<N, V>(this as any);
   }
-
-  extendValues(): any {
-    return this;
-  }
 }

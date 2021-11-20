@@ -2,11 +2,7 @@ import type { OmitStrong } from '@rimbu/common';
 import { List } from '@rimbu/list';
 import { SortedMap } from '@rimbu/sorted';
 import type { Stream, Streamable } from '@rimbu/stream';
-import {
-  OrderedMapBase,
-  OrderedMapContextImpl,
-  OrderedMapTypes,
-} from '../../ordered-custom';
+import { OrderedMapBase, OrderedMapContextImpl } from '../../ordered-custom';
 
 /**
  * A type-invariant immutable Ordered SortedMap of key type K, and value type V.
@@ -71,13 +67,13 @@ export namespace OrderedSortedMap {
     extends OrderedMapBase.Context<UK, OrderedSortedMap.Types> {}
 
   export interface Types extends OrderedMapBase.Types {
-    normal: OrderedSortedMap<this['_K'], this['_V']>;
-    nonEmpty: OrderedSortedMap.NonEmpty<this['_K'], this['_V']>;
-    context: OrderedSortedMap.Context<this['_K']>;
-    builder: OrderedSortedMap.Builder<this['_K'], this['_V']>;
-    sourceContext: SortedMap.Context<this['_K']>;
-    sourceMap: SortedMap<this['_K'], this['_V']>;
-    sourceMapNonEmpty: SortedMap.NonEmpty<this['_K'], this['_V']>;
+    readonly normal: OrderedSortedMap<this['_K'], this['_V']>;
+    readonly nonEmpty: OrderedSortedMap.NonEmpty<this['_K'], this['_V']>;
+    readonly context: OrderedSortedMap.Context<this['_K']>;
+    readonly builder: OrderedSortedMap.Builder<this['_K'], this['_V']>;
+    readonly sourceContext: SortedMap.Context<this['_K']>;
+    readonly sourceMap: SortedMap<this['_K'], this['_V']>;
+    readonly sourceMapNonEmpty: SortedMap.NonEmpty<this['_K'], this['_V']>;
   }
 }
 
@@ -85,7 +81,7 @@ function createContext<UK>(options?: {
   listContext?: List.Context;
   mapContext?: SortedMap.Context<UK>;
 }): OrderedSortedMap.Context<UK> {
-  return new OrderedMapContextImpl<UK, OrderedMapTypes>(
+  return new OrderedMapContextImpl<UK>(
     options?.listContext ?? List.defaultContext(),
     options?.mapContext ?? SortedMap.defaultContext()
   ) as any;

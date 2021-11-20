@@ -4,7 +4,6 @@ import { List } from '../../../list/mod.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
 import type { OrderedMapBase } from '../../ordered-custom.ts';
 import { OrderedMapContextImpl } from '../implementation/context.ts';
-import type { OrderedMapTypes } from './base.ts';
 
 /**
  * A type-invariant immutable Ordered HashMap of key type K, and value type V.
@@ -66,13 +65,13 @@ export namespace OrderedHashMap {
     extends OrderedMapBase.Context<UK, OrderedHashMap.Types> {}
 
   export interface Types extends OrderedMapBase.Types {
-    normal: OrderedHashMap<this['_K'], this['_V']>;
-    nonEmpty: OrderedHashMap.NonEmpty<this['_K'], this['_V']>;
-    context: OrderedHashMap.Context<this['_K']>;
-    builder: OrderedHashMap.Builder<this['_K'], this['_V']>;
-    sourceContext: HashMap.Context<this['_K']>;
-    sourceMap: HashMap<this['_K'], this['_V']>;
-    sourceMapNonEmpty: HashMap.NonEmpty<this['_K'], this['_V']>;
+    readonly normal: OrderedHashMap<this['_K'], this['_V']>;
+    readonly nonEmpty: OrderedHashMap.NonEmpty<this['_K'], this['_V']>;
+    readonly context: OrderedHashMap.Context<this['_K']>;
+    readonly builder: OrderedHashMap.Builder<this['_K'], this['_V']>;
+    readonly sourceContext: HashMap.Context<this['_K']>;
+    readonly sourceMap: HashMap<this['_K'], this['_V']>;
+    readonly sourceMapNonEmpty: HashMap.NonEmpty<this['_K'], this['_V']>;
   }
 }
 
@@ -80,7 +79,7 @@ function createContext<UK>(options?: {
   listContext?: List.Context;
   mapContext?: HashMap.Context<UK>;
 }): OrderedHashMap.Context<UK> {
-  return new OrderedMapContextImpl<UK, OrderedMapTypes>(
+  return new OrderedMapContextImpl<UK>(
     options?.listContext ?? List.defaultContext(),
     options?.mapContext ?? HashMap.defaultContext()
   ) as any;

@@ -4,7 +4,6 @@ import { List } from '@rimbu/list';
 import type { Stream, Streamable } from '@rimbu/stream';
 import type { OrderedSetBase } from '../../ordered-custom';
 import { OrderedSetContextImpl } from '../implementation/context';
-import type { OrderedSetTypes } from './base';
 
 /**
  * A type-invariant immutable Ordered HashSet of value type T.
@@ -61,13 +60,13 @@ export namespace OrderedHashSet {
     extends OrderedSetBase.Context<UT, OrderedHashSet.Types> {}
 
   export interface Types extends OrderedSetBase.Types {
-    normal: OrderedHashSet<this['_T']>;
-    nonEmpty: OrderedHashSet.NonEmpty<this['_T']>;
-    context: OrderedHashSet.Context<this['_T']>;
-    builder: OrderedHashSet.Builder<this['_T']>;
-    sourceContext: HashSet.Context<this['_T']>;
-    sourceSet: HashSet<this['_T']>;
-    sourceSetNonEmpty: HashSet.NonEmpty<this['_T']>;
+    readonly normal: OrderedHashSet<this['_T']>;
+    readonly nonEmpty: OrderedHashSet.NonEmpty<this['_T']>;
+    readonly context: OrderedHashSet.Context<this['_T']>;
+    readonly builder: OrderedHashSet.Builder<this['_T']>;
+    readonly sourceContext: HashSet.Context<this['_T']>;
+    readonly sourceSet: HashSet<this['_T']>;
+    readonly sourceSetNonEmpty: HashSet.NonEmpty<this['_T']>;
   }
 }
 
@@ -75,7 +74,7 @@ function createContext<UT>(options?: {
   listContext?: List.Context;
   setContext?: HashSet.Context<UT>;
 }): OrderedHashSet.Context<UT> {
-  return new OrderedSetContextImpl<UT, OrderedSetTypes>(
+  return new OrderedSetContextImpl<UT>(
     options?.listContext ?? List.defaultContext(),
     options?.setContext ?? HashSet.defaultContext()
   ) as any;

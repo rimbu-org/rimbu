@@ -11,15 +11,17 @@ import {
 } from '../valued-graph-custom.ts';
 
 export interface ValuedGraphTypesContextImpl extends ValuedGraphBase.Types {
-  context: ValuedGraphContext<this['_N'], string, ValuedGraphTypesContextImpl>;
+  readonly context: ValuedGraphContext<this['_N'], string>;
 }
 
 export class ValuedGraphContext<
   UN,
   TT extends string,
-  Tp extends ValuedGraphTypesContextImpl
+  Tp extends ValuedGraphTypesContextImpl = ValuedGraphTypesContextImpl
 > implements ValuedGraphBase.Context<UN, Tp>
 {
+  readonly _fixedType!: UN;
+
   readonly _empty: any;
 
   constructor(
@@ -32,7 +34,7 @@ export class ValuedGraphContext<
       any
     >['linkConnectionsContext']
   ) {
-    this._empty = new ValuedGraphEmpty<UN, any, Tp>(isDirected, this as any);
+    this._empty = new ValuedGraphEmpty(isDirected, this);
   }
 
   isNonEmptyInstance(
@@ -41,14 +43,14 @@ export class ValuedGraphContext<
     return source instanceof ValuedGraphNonEmpty;
   }
 
-  empty = <N extends UN, V>(): WithGraphValues<Tp, N, V>['normal'] => {
+  empty = <N extends UN, V>(): any => {
     return this._empty;
   };
 
   from: any = <N extends UN, V>(
     ...sources: ArrayNonEmpty<StreamSource<ValuedGraphElement<N, V>>>
-  ): WithGraphValues<Tp, N, V>['normal'] => {
-    let builder = this.builder<N, V>();
+  ): any => {
+    let builder = this.builder();
 
     let i = -1;
     const length = sources.length;
@@ -77,23 +79,16 @@ export class ValuedGraphContext<
     return this.from(values).assumeNonEmpty();
   };
 
-  builder = <N extends UN, V>(): WithGraphValues<Tp, N, V>['builder'] => {
-    return new ValuedGraphBuilder<N, V, Tp>(
-      this.isDirected,
-      this as any
-    ) as any;
+  builder = (): any => {
+    return new ValuedGraphBuilder(this.isDirected, this);
   };
 
   reducer = <N extends UN, V>(
     source?: StreamSource<ValuedGraphElement<N, V>>
-  ): Reducer<ValuedGraphElement<N, V>, WithGraphValues<Tp, N, V>['normal']> => {
+  ): any => {
     return Reducer.create(
       () =>
-        undefined === source
-          ? this.builder<N, V>()
-          : (
-              this.from(source) as WithGraphValues<Tp, N, V>['normal']
-            ).toBuilder(),
+        undefined === source ? this.builder() : this.from(source).toBuilder(),
       (builder, entry) => {
         builder.addGraphElement(entry);
         return builder;
@@ -107,7 +102,7 @@ export class ValuedGraphContext<
   ): WithGraphValues<Tp, N, V>['builder'] {
     return new ValuedGraphBuilder<N, V, Tp>(
       this.isDirected,
-      this as any,
+      this,
       source
     ) as any;
   }
@@ -118,7 +113,7 @@ export class ValuedGraphContext<
   ): WithGraphValues<Tp, N, V>['nonEmpty'] {
     return new ValuedGraphNonEmpty<N, V, Tp>(
       this.isDirected,
-      this as any,
+      this,
       linkMap,
       connectionSize
     ) as any;

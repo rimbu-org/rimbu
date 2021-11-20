@@ -1,4 +1,3 @@
-import type { RSet } from '@rimbu/collection-types';
 import type { OmitStrong } from '@rimbu/common';
 import { HashMap, HashSet } from '@rimbu/hashed';
 import type { Stream, Streamable } from '@rimbu/stream';
@@ -70,35 +69,27 @@ export namespace HashMultiMapHashValue {
     extends MultiMapBase.Builder<K, V, HashMultiMapHashValue.Types> {}
 
   export interface Types extends MultiMapBase.Types {
-    normal: HashMultiMapHashValue<this['_K'], this['_V']>;
-    nonEmpty: HashMultiMapHashValue.NonEmpty<this['_K'], this['_V']>;
-    context: HashMultiMapHashValue.Context<this['_K'], this['_V']>;
-    builder: HashMultiMapHashValue.Builder<this['_K'], this['_V']>;
-    keyMap: HashMap<this['_K'], HashSet.NonEmpty<this['_V']>> &
-      HashMap<this['_K'], RSet.NonEmpty<this['_V']>>;
-    keyMapNonEmpty: HashMap.NonEmpty<this['_K'], HashSet.NonEmpty<this['_V']>> &
-      HashMap.NonEmpty<this['_K'], RSet.NonEmpty<this['_V']>>;
-    keyMapContext: HashMap.Context<this['_K']>;
-    keyMapValuesContext: HashSet.Context<this['_V']>;
-    keyMapValues: HashSet<this['_V']>;
-    keyMapValuesNonEmpty: HashSet.NonEmpty<this['_V']>;
+    readonly normal: HashMultiMapHashValue<this['_K'], this['_V']>;
+    readonly nonEmpty: HashMultiMapHashValue.NonEmpty<this['_K'], this['_V']>;
+    readonly context: HashMultiMapHashValue.Context<this['_K'], this['_V']>;
+    readonly builder: HashMultiMapHashValue.Builder<this['_K'], this['_V']>;
+    readonly keyMap: HashMap<this['_K'], HashSet.NonEmpty<this['_V']>>;
+    readonly keyMapNonEmpty: HashMap.NonEmpty<
+      this['_K'],
+      HashSet.NonEmpty<this['_V']>
+    >;
+    readonly keyMapContext: HashMap.Context<this['_K']>;
+    readonly keyMapValuesContext: HashSet.Context<this['_V']>;
+    readonly keyMapValues: HashSet<this['_V']>;
+    readonly keyMapValuesNonEmpty: HashSet.NonEmpty<this['_V']>;
   }
-}
-
-interface TypesImpl extends HashMultiMapHashValue.Types {
-  context: MultiMapContext<
-    this['_K'],
-    this['_V'],
-    'HashMultiMapHashValue',
-    any
-  >;
 }
 
 function createContext<UK, UV>(options?: {
   keyMapContext?: HashMap.Context<UK>;
   keyMapValuesContext?: HashSet.Context<UV>;
 }): HashMultiMapHashValue.Context<UK, UV> {
-  return new MultiMapContext<UK, UV, 'HashMultiMapHashValue', TypesImpl>(
+  return new MultiMapContext<UK, UV, 'HashMultiMapHashValue', any>(
     'HashMultiMapHashValue',
     options?.keyMapContext ?? HashMap.defaultContext(),
     options?.keyMapValuesContext ?? HashSet.defaultContext()
