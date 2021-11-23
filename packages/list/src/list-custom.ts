@@ -15,6 +15,8 @@ export * from './builder/nonleaf/nonleaf-builder';
 // circular dependencies
 export * from './implementation/leaf/non-empty';
 export * from './builder/tree/tree-builder';
+export * from './builder/leaf/tree-builder';
+export * from './builder/nonleaf/tree-builder';
 
 export * from './implementation/nonleaf/nonleaf-tree';
 

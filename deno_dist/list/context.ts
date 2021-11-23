@@ -268,6 +268,6 @@ export class ListContext implements List.Context {
   isNonLeafBlockBuilder<T>(
     obj: NonLeafBuilder<T, any>
   ): obj is NonLeafBlockBuilder<T, any> {
-    return obj instanceof LeafTreeBuilder;
+    return obj instanceof NonLeafBlockBuilder;
   }
 }
