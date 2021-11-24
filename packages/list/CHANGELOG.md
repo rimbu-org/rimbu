@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.8.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/list@0.8.0...@rimbu/list@0.8.1) (2021-11-24)
+
+
+### Bug Fixes
+
+* **list:** fix builder mixing up order for larger lists ([0db93ca](https://github.com/rimbu-org/rimbu/commit/0db93ca4563ca3cf861724829c716daa0cc40615)), closes [#46](https://github.com/rimbu-org/rimbu/issues/46)
+
+
+
+
+
 # [0.8.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/list@0.7.5...@rimbu/list@0.8.0) (2021-11-20)
 
 

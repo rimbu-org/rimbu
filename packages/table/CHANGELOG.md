@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.8.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/table@0.8.0...@rimbu/table@0.8.1) (2021-11-24)
+
+
+### Bug Fixes
+
+* improve collection types and documentation, and fix broken tests ([857d32d](https://github.com/rimbu-org/rimbu/commit/857d32d89d1377809d97aa3d03e6b9b6a40369ad))
+
+
+
+
+
 # [0.8.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/table@0.7.6...@rimbu/table@0.8.0) (2021-11-20)
 
 
