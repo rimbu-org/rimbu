@@ -157,10 +157,15 @@ export class GenBuilder<T> implements List.Builder<T> {
     if (undefined === this.builder) {
       this.builder = this.context.leafBlockBuilder([value]);
     } else {
-      if (index === 0) return this.prepend(value);
-      if (index > this.length || -index > this.length + 1)
+      if (index === 0) {
+        return this.prepend(value);
+      }
+      if (index > this.length || -index > this.length + 1) {
         return this.append(value);
-      if (index < 0) return this.insert(this.length + index, value);
+      }
+      if (index < 0) {
+        return this.insert(this.length + index, value);
+      }
 
       this.builder.insert(index, value);
       this.builder = this.builder.normalized();

@@ -426,30 +426,6 @@ export interface List<T> extends FastIterable<T> {
    * List.of(0, 1, 2, 3).toJSON()   // => { dataType: 'List', value: [0, 1, 2, 3] }
    */
   toJSON(): ToJSON<T[], this['context']['typeTag']>;
-  /**
-   * Returns an array of Lists, where each list contains the values of the corresponding index of tuple T.
-   * @param length - the length of the tuples in type T
-   * @example
-   * const m = List.of([1, 'a'], [2, 'b'])
-   * m.unzip(2)  // => [List.NonEmpty<number>, List.NonEmpty<string>]
-   */
-  // unzip<L extends number, T2 extends T = T>(
-  //   length: L
-  // ): T2 extends readonly [unknown, ...unknown[]] & { length: L }
-  //   ? { [K in keyof T2]: List<T2[K]> }
-  //   : never;
-  /**
-   * Returns, if T is a valid `StreamSource`, the result of concatenating all
-   * streamable elements of this List.
-   * @example
-   * const m = List.of([1, 2], [3, 4, 5])
-   * m.flatten().toArray() // => [1, 2, 3, 4, 5]
-   */
-  // flatten<T2 = T>(): T2 extends StreamSource.NonEmpty<infer S>
-  //   ? List<S>
-  //   : T2 extends StreamSource<infer S>
-  //   ? List<S>
-  //   : never;
 }
 
 export namespace List {
@@ -675,23 +651,6 @@ export namespace List {
      */
     toArray(range?: undefined, reversed?: boolean): ArrayNonEmpty<T>;
     toArray(range?: IndexRange, reversed?: boolean): T[];
-    /**
-     * Returns an array of Lists, where each list contains the values of the corresponding index of tuple T.
-     * @param length - the length of the tuples in type T
-     * @example
-     * const m = List.of([1, 'a'], [2, 'b'])
-     * m.unzip(2)  // => [List.NonEmpty<number>, List.NonEmpty<string>]
-     */
-    // unzip<L extends number, T2 extends T = T>(
-    //   length: L
-    // ): T2 extends readonly [unknown, ...unknown[]] & { length: L }
-    //   ? { [K in keyof T2]: List.NonEmpty<T2[K]> }
-    //   : never;
-    // flatten<T2 extends T = T>(): T2 extends StreamSource.NonEmpty<infer S>
-    //   ? List.NonEmpty<S>
-    //   : T2 extends StreamSource<infer S>
-    //   ? List<S>
-    //   : never;
   }
 
   export interface Builder<T> {

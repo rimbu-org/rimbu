@@ -1,5 +1,5 @@
 import { Stream } from '@rimbu/stream';
-import { MultiSet } from '../src';
+import type { MultiSet } from '../src';
 
 function expectMultiSet(s: MultiSet<number>): any {
   return {

@@ -3,5 +3,5 @@ import { HashTableSortedColumn } from '../src';
 
 runTableRandomTestsWith(
   'HashTableSortedColumn default',
-  HashTableSortedColumn.defaultContext<number, number>()
+  HashTableSortedColumn.defaultContext()
 );

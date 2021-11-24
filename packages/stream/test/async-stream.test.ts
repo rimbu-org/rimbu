@@ -1751,43 +1751,38 @@ describe('AsyncStream methods', () => {
   it('zipWith', async () => {
     expect(
       await AsyncStream.zipWith(
-        (a, b) => a + b,
         AsyncStream.empty<number>(),
         []
-      ).toArray()
+      )((a, b) => a + b).toArray()
     ).toEqual([]);
     expect(
       await AsyncStream.zipWith(
-        (a, b) => a + b,
         AsyncStream.of(1, 2, 3),
         []
-      ).toArray()
+      )((a, b) => a + b).toArray()
     ).toEqual([]);
     expect(
       await AsyncStream.zipWith(
-        (a: number, b) => a + b,
         AsyncStream.empty<number>(),
         [1, 2, 3]
-      ).toArray()
+      )((a, b) => a + b).toArray()
     ).toEqual([]);
     expect(
       await AsyncStream.zipWith(
-        async (a, b) => a + b,
         AsyncStream.of(1, 2, 3),
         [1, 2, 3]
-      ).toArray()
+      )(async (a, b) => a + b).toArray()
     ).toEqual([2, 4, 6]);
     expect(
       await AsyncStream.zipWith(
-        (a, b) => a + b,
         AsyncStream.of(1),
         [1, 2, 3]
-      ).toArray()
+      )((a, b) => a + b).toArray()
     ).toEqual([2]);
     expect(
-      await AsyncStream.zipWith((a, b) => a + b, AsyncStream.of(1, 2, 3), [
-        1,
-      ]).toArray()
+      await AsyncStream.zipWith(AsyncStream.of(1, 2, 3), [1])(
+        (a, b) => a + b
+      ).toArray()
     ).toEqual([2]);
   });
   it('zipWith close', async () => {
@@ -1796,7 +1791,7 @@ describe('AsyncStream methods', () => {
     {
       const close2 = jest.fn();
       const s2 = createResourceStream([4, 5, 6], close2);
-      const res = AsyncStream.zipWith((v1, v2) => [v1, v2] as const, s1, s2);
+      const res = AsyncStream.zipWith(s1, s2)((v1, v2) => [v1, v2] as const);
       await res.count();
       expect(close).toBeCalledTimes(1);
       expect(close2).toBeCalledTimes(1);
@@ -1806,7 +1801,7 @@ describe('AsyncStream methods', () => {
       close.mockReset();
       const close2 = jest.fn();
       const s2 = createResourceStream([4, 5], close2);
-      const res = AsyncStream.zipWith((v1, v2) => [v1, v2] as const, s1, s2);
+      const res = AsyncStream.zipWith(s1, s2)((v1, v2) => [v1, v2] as const);
       await res.count();
       expect(close).toBeCalledTimes(1);
       expect(close2).toBeCalledTimes(1);
@@ -1816,7 +1811,7 @@ describe('AsyncStream methods', () => {
       close.mockReset();
       const close2 = jest.fn();
       const s2 = createResourceStream([4, 5], close2);
-      const res = AsyncStream.zipWith((v1, v2) => [v1, v2] as const, s2, s1);
+      const res = AsyncStream.zipWith(s2, s1)((v1, v2) => [v1, v2] as const);
       await res.count();
       expect(close).toBeCalledTimes(1);
       expect(close2).toBeCalledTimes(1);
@@ -1898,51 +1893,39 @@ describe('AsyncStream methods', () => {
   });
   it('zipAllWith', async () => {
     expect(
-      await AsyncStream.zipAllWith(
+      await AsyncStream.zipAllWith(AsyncStream.empty<number>(), [])(
         10,
-        (a: number, b) => a + b,
-        AsyncStream.empty<number>(),
-        []
+        (a, b) => a + b
       ).toArray()
     ).toEqual([]);
     expect(
-      await AsyncStream.zipAllWith(
+      await AsyncStream.zipAllWith(AsyncStream.of(1, 2, 3), [])(
         10,
-        (a, b) => a + b,
-        AsyncStream.of(1, 2, 3),
-        []
+        (a, b) => a + b
       ).toArray()
     ).toEqual([11, 12, 13]);
     expect(
-      await AsyncStream.zipAllWith(
+      await AsyncStream.zipAllWith(AsyncStream.empty<number>(), [1, 2, 3])(
         10,
-        (a: number, b) => a + b,
-        AsyncStream.empty<number>(),
-        [1, 2, 3]
+        (a, b) => a + b
       ).toArray()
     ).toEqual([11, 12, 13]);
     expect(
-      await AsyncStream.zipAllWith(
+      await AsyncStream.zipAllWith(AsyncStream.of(1, 2, 3), [1, 2, 3])(
         10,
-        (a, b) => a + b,
-        AsyncStream.of(1, 2, 3),
-        [1, 2, 3]
+        (a, b) => a + b
       ).toArray()
     ).toEqual([2, 4, 6]);
     expect(
-      await AsyncStream.zipAllWith(
+      await AsyncStream.zipAllWith(AsyncStream.of(1), [1, 2, 3])(
         10,
-        (a, b) => a + b,
-        AsyncStream.of(1),
-        [1, 2, 3]
+        (a, b) => a + b
       ).toArray()
     ).toEqual([2, 12, 13]);
     expect(
-      await AsyncStream.zipAllWith(
+      await AsyncStream.zipAllWith(AsyncStream.of(1, 2, 3), [1])(
         10,
-        (a, b) => a + b,
-        AsyncStream.of(1, 2, 3),
-        [1]
+        (a, b) => a + b
       ).toArray()
     ).toEqual([2, 12, 13]);
   });
@@ -1952,7 +1935,7 @@ describe('AsyncStream methods', () => {
     {
       const close2 = jest.fn();
       const s2 = createResourceStream([4, 5, 6], close2);
-      const res = AsyncStream.zipAllWith(-1, (v1, v2) => v1, s1, s2);
+      const res = AsyncStream.zipAllWith(s1, s2)(-1, (v1, v2) => v1);
       await res.count();
       expect(close).toBeCalledTimes(1);
       expect(close2).toBeCalledTimes(1);
@@ -1962,11 +1945,9 @@ describe('AsyncStream methods', () => {
       close.mockReset();
       const close2 = jest.fn();
       const s2 = createResourceStream([4, 5], close2);
-      const res = AsyncStream.zipAllWith(
+      const res = AsyncStream.zipAllWith(s1, s2)(
         -1,
-        (v1, v2) => [v1, v2] as const,
-        s1,
-        s2
+        (v1, v2) => [v1, v2] as const
       );
       await res.count();
       expect(close).toBeCalledTimes(1);
@@ -1977,11 +1958,9 @@ describe('AsyncStream methods', () => {
       close.mockReset();
       const close2 = jest.fn();
       const s2 = createResourceStream([4, 5], close2);
-      const res = AsyncStream.zipAllWith(
+      const res = AsyncStream.zipAllWith(s2, s1)(
         -1,
-        (v1, v2) => [v1, v2] as const,
-        s2,
-        s1
+        (v1, v2) => [v1, v2] as const
       );
       await res.count();
       expect(close).toBeCalledTimes(1);

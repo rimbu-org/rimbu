@@ -15,7 +15,7 @@ function runWith(nrOfBits: number): void {
     disableListBuilder = false;
     enableLog = false;
 
-    check() {
+    check(): void {
       try {
         if (!this.disableListBuilder) {
           expect(this.listBuilder.length).toEqual(this.arr.length);
@@ -39,28 +39,28 @@ function runWith(nrOfBits: number): void {
       }
     }
 
-    addLog(action: string, ...values: any[]) {
+    addLog(action: string, ...values: any[]): void {
       if (!this.enableLog) return;
 
       if (values.length > 0) this.log.push(`${action}: ${values}`);
       else this.log.push(`${action}`);
     }
 
-    prepend(value: number) {
+    prepend(value: number): void {
       this.addLog('prepend', value);
       this.arr.push(value);
       this.list = this.list.append(value);
       this.listBuilder.append(value);
     }
 
-    append(value: number) {
+    append(value: number): void {
       this.addLog('append', value);
       this.arr.push(value);
       this.list = this.list.append(value);
       this.listBuilder.append(value);
     }
 
-    insert(index: number, value: number) {
+    insert(index: number, value: number): void {
       this.addLog('insert', index, value);
       const newList = this.list.insert(index, context.of(value));
       this.list = newList;
@@ -68,7 +68,7 @@ function runWith(nrOfBits: number): void {
       this.listBuilder.insert(index, value);
     }
 
-    remove(index: number) {
+    remove(index: number): void {
       this.addLog('remove', index);
       const newList = this.list.remove(index);
       this.list = newList;
@@ -76,14 +76,14 @@ function runWith(nrOfBits: number): void {
       this.listBuilder.remove(index);
     }
 
-    concat(other: Entangled) {
+    concat(other: Entangled): void {
       this.addLog('concat', this.arr.length, other.arr.length);
       this.disableListBuilder = true;
       this.arr = this.arr.concat(other.arr);
       this.list = this.list.concat(other.list);
     }
 
-    createLen(length: number) {
+    createLen(length: number): void {
       if (Math.random() < 0.5) {
         const valueStream = Stream.range({ amount: length });
         this.arr = valueStream.toArray();
@@ -100,7 +100,7 @@ function runWith(nrOfBits: number): void {
       this.listBuilder = this.list.toBuilder();
     }
 
-    checkGet(index: number) {
+    checkGet(index: number): void {
       const getArr = this.arr[index];
       const getList = this.list.get(index, undefined);
       expect(getList).toEqual(getArr);
@@ -111,7 +111,7 @@ function runWith(nrOfBits: number): void {
       }
     }
 
-    checkStream(options?: { start: number; amount: number }) {
+    checkStream(options?: { start: number; amount: number }): void {
       let i = undefined === options ? 0 : options.start;
       try {
         this.list.streamRange(options || { start: 0 }).forEach((v) => {
@@ -155,14 +155,16 @@ function runWith(nrOfBits: number): void {
     it('gets random', () => {
       const ent = new Entangled();
 
+      const size = 3000;
+
       let i = 0;
       Stream.randomInt(0, 3000)
-        .take(3000)
+        .take(size)
         .forEach((v) => {
           ent.insert(v, i++);
         });
 
-      Stream.range({ amount: 3000 }).forEach((v) => {
+      Stream.range({ amount: size }).forEach((v) => {
         ent.checkGet(v);
       });
     });
@@ -199,34 +201,30 @@ function runWith(nrOfBits: number): void {
 
     it('concats', () => {
       const maxLen = 3000;
-      Stream.randomInt(0, maxLen)
-        .take(3000)
-        .zip(Stream.randomInt(0, maxLen))
-        .forEach(([len1, len2]) => {
-          Stream.of(9)
-            .zip(Stream.of(0))
-            .forEach(([len1, len2]) => {
-              const e1 = new Entangled();
-              const e2 = new Entangled();
+      Stream.zip(
+        Stream.randomInt(0, maxLen).take(3000),
+        Stream.randomInt(0, maxLen)
+      ).forEach(([len1, len2]) => {
+        const e1 = new Entangled();
+        const e2 = new Entangled();
 
-              e1.createLen(len1);
-              e2.createLen(len2);
-              e1.disableListBuilder = true;
+        e1.createLen(len1);
+        e2.createLen(len2);
+        e1.disableListBuilder = true;
 
-              try {
-                e1.concat(e2);
-                e1.check();
-              } catch (err) {
-                console.log(
-                  'failed concat',
-                  { v1: len1, v2: len2 },
-                  [...e1.list],
-                  [...e2.list]
-                );
-                throw err;
-              }
-            });
-        });
+        try {
+          e1.concat(e2);
+          e1.check();
+        } catch (err) {
+          console.log(
+            'failed concat',
+            { v1: len1, v2: len2 },
+            [...e1.list],
+            [...e2.list]
+          );
+          throw err;
+        }
+      });
     });
 
     it('stream', () => {
