@@ -16,10 +16,10 @@ export * from './builder/nonleaf/nonleaf-builder';
 export * from './implementation/leaf/non-empty';
 export * from './builder/tree/tree-builder';
 export * from './builder/leaf/tree-builder';
-export * from './builder/nonleaf/tree-builder';
 
 export * from './implementation/nonleaf/nonleaf-tree';
 
 export * from './builder/nonleaf/block-builder';
+export * from './builder/nonleaf/tree-builder';
 
 export * from './context';

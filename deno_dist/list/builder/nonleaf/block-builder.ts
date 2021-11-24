@@ -8,7 +8,6 @@ import type {
   NonLeafBlock,
   NonLeafBuilder,
 } from '../../list-custom.ts';
-import { createFromBlock } from '../../list-custom.ts';
 
 export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
   implements BlockBuilder<T, C>
@@ -24,7 +23,7 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
   get children(): C[] {
     if (undefined !== this.source) {
       this._children = this.source.children.map(
-        (c): C => createFromBlock<T>(c) as C
+        (c): C => this.context.createBlockBuilderFromBlock<T>(c) as C
       );
       this.source = undefined;
     }
@@ -35,7 +34,7 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
   set children(value: C[]) {
     if (undefined !== this.source) {
       this._children = this.source.children.map(
-        (c): C => createFromBlock<T>(c) as C
+        (c): C => this.context.createBlockBuilderFromBlock<T>(c) as C
       );
       this.source = undefined;
     }

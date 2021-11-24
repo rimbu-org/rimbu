@@ -6,7 +6,7 @@ import type {
   ListContext,
   NonLeafBuilder,
 } from '../../list-custom.ts';
-import { createNonLeaf, TreeBuilderBase } from '../../list-custom.ts';
+import { TreeBuilderBase } from '../tree/tree-builder.ts';
 
 export class LeafTreeBuilder<T>
   extends TreeBuilderBase<T, T>
@@ -30,7 +30,7 @@ export class LeafTreeBuilder<T>
       this._middle =
         null === this.source.middle
           ? undefined
-          : (createNonLeaf<T>(this.source.middle) as any);
+          : (this.context.createNonLeafBuilder<T>(this.source.middle) as any);
       this.source = undefined;
     }
   }
