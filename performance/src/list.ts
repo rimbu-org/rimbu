@@ -8,7 +8,7 @@ const sizes = sizePowers.map((p) => Math.pow(2, p));
 function runBench(
   name: string,
   f: (list: List<number>, size: number) => () => void
-) {
+): void {
   sizes.forEach((size) => {
     const lists = blockSizes.map((bs) => ({
       bs,
@@ -32,98 +32,98 @@ function runBench(
   });
 }
 
-function operation(value: number, index: number, halt: () => void) {
+function operation(value: number, index: number, halt: () => void): void {
   if (value + index < 0) halt();
 }
 
-function pred(_: number, index: number) {
+function pred(_: number, index: number): boolean {
   return index % 2 === 0;
 }
 
-function inc(v: number, i: number) {
+function inc(v: number, i: number): number {
   return v + i;
 }
 
-runBench('list-append', (list) => () => {
+runBench('list-append', (list) => (): void => {
   list.append(-1);
 });
 
-runBench('list-concat', (list) => () => {
+runBench('list-concat', (list) => (): void => {
   list.concat(list);
 });
 
-runBench('list-drop', (list, size) => () => {
+runBench('list-drop', (list, size) => (): void => {
   list.drop(size / 2 + 1);
 });
 
-runBench('list-filter', (list) => () => {
+runBench('list-filter', (list) => (): void => {
   list.filter(pred);
 });
 
-runBench('list-first', (list) => () => {
+runBench('list-first', (list) => (): void => {
   list.first();
 });
 
-runBench('list-flatMap', (list) => () => {
+runBench('list-flatMap', (list) => (): void => {
   list.flatMap((v) => [v, v]);
 });
 
-runBench('list-foreach', (list) => () => {
+runBench('list-foreach', (list) => (): void => {
   list.forEach(operation);
 });
 
-runBench('list-get-start', (list) => () => {
+runBench('list-get-start', (list) => (): void => {
   list.get(3);
 });
 
-runBench('list-get-middle', (list, size) => () => {
+runBench('list-get-middle', (list, size) => (): void => {
   list.get(size / 2);
 });
 
-runBench('list-get-end', (list, size) => () => {
+runBench('list-get-end', (list, size) => (): void => {
   list.get(size - 3);
 });
 
-runBench('list-insert', (list, size) => () => {
+runBench('list-insert', (list, size) => (): void => {
   list.insert(size / 2, [-1, -2]);
 });
 
-runBench('list-last', (list) => () => {
+runBench('list-last', (list) => (): void => {
   list.last();
 });
 
-runBench('list-map', (list) => () => {
+runBench('list-map', (list) => (): void => {
   list.map(inc);
 });
 
-runBench('list-prepend', (list) => () => {
+runBench('list-prepend', (list) => (): void => {
   list.prepend(-1);
 });
 
-runBench('list-remove', (list, size) => () => {
+runBench('list-remove', (list, size) => (): void => {
   list.remove(size / 2, 10);
 });
 
-runBench('list-reversed', (list) => () => {
+runBench('list-reversed', (list) => (): void => {
   list.reversed();
 });
 
-runBench('list-slice', (list, size) => () => {
+runBench('list-slice', (list, size) => (): void => {
   list.slice({ start: size / 2, amount: 10 });
 });
 
-runBench('list-splice', (list, size) => () => {
+runBench('list-splice', (list, size) => (): void => {
   list.splice({ index: size / 2, remove: 10, insert: [-1, -2] });
 });
 
-runBench('list-take', (list, size) => () => {
+runBench('list-take', (list, size) => (): void => {
   list.take(size / 2);
 });
 
-runBench('list-toArray', (list) => () => {
+runBench('list-toArray', (list) => (): void => {
   list.toArray();
 });
 
-runBench('list-toString', (list) => () => {
+runBench('list-toString', (list) => (): void => {
   list.toString();
 });

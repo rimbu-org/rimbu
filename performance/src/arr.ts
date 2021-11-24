@@ -4,11 +4,11 @@ import b from 'benny';
 
 const arr = Stream.range({ amount: 256 }).toArray();
 
-function process(_: number, index: number, halt: () => void) {
+function process(_: number, index: number, halt: () => void): void {
   if (index > 200) halt();
 }
 
-function mapFun(value: number, index: number) {
+function mapFun(value: number, index: number): number {
   return value + index;
 }
 

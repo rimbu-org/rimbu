@@ -1,5 +1,6 @@
 {
   "name": "@rimbu/performance",
+  "version": "0.1.0",
   "private": true,
   "homepage": "https://rimbu.org",
   "author": {
@@ -29,10 +30,12 @@
   },
   "sideEffects": false,
   "devDependencies": {
+    "eslint": "^8.3.0",
+    "prettier": "^2.4.1",
     "ts-node": "^10.0.0"
   },
   "dependencies": {
-    "@rimbu/core": "^0.5.11",
+    "@rimbu/core": "file:../packages/core",
     "benny": "^3.6.15"
   }
 }

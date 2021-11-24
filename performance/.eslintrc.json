@@ -1,5 +1,5 @@
 {
-  "extends": ["../../config/.eslintrc.json"],
+  "extends": ["../config/.eslintrc.json"],
   "rules": {
     "@typescript-eslint/explicit-function-return-type": "warn"
   }
