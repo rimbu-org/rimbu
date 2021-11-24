@@ -298,11 +298,11 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
    * @example
    * HashMap.of([1, 'a']).addEntries([[2, 'b']]).toArray()   // => [[1, 'a'], [2, 'b']]
    */
-  addEntries(
-    entries: StreamSource.NonEmpty<readonly [K, V]>
+  addEntries<V2 extends V = V>(
+    entries: StreamSource.NonEmpty<readonly [K, V2]>
   ): WithKeyValue<Tp, K, V>['nonEmpty'];
-  addEntries(
-    entries: StreamSource<readonly [K, V]>
+  addEntries<V2 extends V = V>(
+    entries: StreamSource<readonly [K, V2]>
   ): WithKeyValue<Tp, K, V>['normal'];
   /**
    * Returns the collection with the given `atKey` key modified according to given `options`.
@@ -477,11 +477,12 @@ export namespace RMapBase {
      * the tuple will be filled with the given `fillValue`.
      * @typeparam O - the type of the fill value
      * @typeparam I - the array of input source value types
+     * @typeparam K - the common key type
      * @param fillValue - the value to use for the result tuple if a source does not have a certain key
      * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
      * @example
      * const m = HashMap.of([1, 'a'], [2, 'b'])
-     * const m2 = m.mergeAll('none', [[2, true]], HashMap.of([3, 15]))
+     * const m2 = HashMap.mergeAll('none', m, [[2, true]], HashMap.of([3, 15]))
      * // type of m2: HashMap<number, [string, boolean | string, number | string]>
      * console.log(m2.toArray())
      * // => [[1, ['a', 'none', 'none']], [2, ['b', true, 'none']], [3, ['none', 'none', 15]]]
@@ -510,17 +511,23 @@ export namespace RMapBase {
      * Returns a Map containing all keys from this map and all the given `sources` key-value stream sources,
      * and as values the result of applying the given `mergeFun` to the key and all the corresponding values for each key. If a source doesn't have a key,
      * the given tuple will be filled with the given `fillValue`.
-     * @typeparam O - the type of the fill value
      * @typeparam I - the array of input source value types
+     * @typeparam K - the common key type
+     * @typeparam O - the type of the fill value
+     * @typeparam R - the resulting Map value type
      * @param fillValue - the value to use for the result tuple if a source does not have a certain key
      * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
+     * @param mergeFun - a function that receives each key of the given sources and, if present, the corresponding source values, or the given fill value otherwise,
+     * and returns the result value to use in the resulting map.
      * @example
      * const m = HashMap.of([1, 'a'], [2, 'b'])
-     * const m2 = m.mergeAllWith(
-     *   'q',
-     *   (key, v1, v2, v3) => `${key}${v1}${v2}${v3}`,
+     * const m2 = HashMap.mergeAllWith(
+     *   m
      *   [[2, 'c']],
      *   HashMap.of([3, 'd'])
+     * )(
+     *   'q',
+     *   (key, v1, v2, v3) => `${key}${v1}${v2}${v3}`
      * )
      * // type of m2: HashMap<number, string>
      * console.log(m2.toArray())
@@ -553,10 +560,11 @@ export namespace RMapBase {
      * and as values tuples of all the corresponding values for each common key. If a source doesn't have a key,
      * the key will be skipped.
      * @typeparam I - the array of input source value types
+     * @typeparam K - the common key type
      * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
      * @example
      * const m = HashMap.of([1, 'a'], [2, 'b'])
-     * const m2 = m.merge([[2, true]], HashMap.of([2, 15]))
+     * const m2 = HashMap.merge(m, [[2, true]], HashMap.of([2, 15]))
      * // type of m2: HashMap<number, [string, boolean, number]>
      * console.log(m2.toArray())
      * // => [[2, ['b', true, 15]]]
@@ -576,15 +584,19 @@ export namespace RMapBase {
      * and as values the result of applying given `mergeFun` to the key and values of all the corresponding values for each common key.
      * If a source doesn't have a key, the key will be skipped.
      * @typeparam I - the array of input source value types
+     * @typeparam K - the common key type
+     * @typeparam R - the resulting Map value type
+     * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
      * @param mergeFun - a function taking the key and values from this map and all sources corresponding to the key, and
      * returning a value for the resulting Map.
-     * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
      * @example
      * const m = HashMap.of([1, 'a'], [2, 'b'])
-     * const m2 = m.merge(
-     *   (key, v1, v2) => `${key}${v1}${v2}`,
+     * const m2 = HashMap.mergeWith(
+     *   m,
      *   [[2, true]],
      *   HashMap.of([2, 15])
+     * )(
+     *   (key, v1, v2) => `${key}${v1}${v2}`,
      * )
      * // type of m2: HashMap<number, string>
      * console.log(m2.toArray())

@@ -1,4 +1,4 @@
-import { Table } from '../src';
+import type { Table } from '..';
 import { Stream } from '@rimbu/stream';
 
 export function runTableRandomTestsWith(
@@ -127,8 +127,11 @@ export function runTableRandomTestsWith(
     it('set', (): void => {
       const ent = new Entangled();
 
-      Stream.randomInt(0, 1000)
-        .zip(Stream.randomInt(0, 10), Stream.randomInt(0, 100))
+      Stream.zip(
+        Stream.randomInt(0, 1000),
+        Stream.randomInt(0, 10),
+        Stream.randomInt(0, 100)
+      )
         .take(1000)
         .forEach(([v1, v2, v3]): void => {
           ent.set(v1, v2, v3);
@@ -141,18 +144,22 @@ export function runTableRandomTestsWith(
 
       const len = 3000;
 
-      Stream.randomInt(0, len)
-        .zip(Stream.randomInt(0, 10), Stream.randomInt(0, 100))
+      Stream.zip(
+        Stream.randomInt(0, len),
+        Stream.randomInt(0, 10),
+        Stream.randomInt(0, 100)
+      )
         .take(len)
         .forEach(([v1, v2, v3]): void => {
           ent.set(v1, v2, v3);
         });
 
-      Stream.range({ amount: len })
-        .zip(Stream.range({ amount: 10 }))
-        .forEach(([v1, v2]): void => {
-          ent.checkGet(v1, v2);
-        });
+      Stream.zip(
+        Stream.range({ amount: len }),
+        Stream.range({ amount: 10 })
+      ).forEach(([v1, v2]): void => {
+        ent.checkGet(v1, v2);
+      });
     });
 
     it('remove', (): void => {
@@ -160,8 +167,11 @@ export function runTableRandomTestsWith(
 
       const len = 1000;
 
-      Stream.randomInt(0, len)
-        .zip(Stream.randomInt(0, 4), Stream.randomInt(0, 100))
+      Stream.zip(
+        Stream.randomInt(0, len),
+        Stream.randomInt(0, 4),
+        Stream.randomInt(0, 100)
+      )
         .take(len)
         .forEach(([v1, v2, v3]): void => {
           ent.set(v1, v2, v3);
@@ -169,12 +179,12 @@ export function runTableRandomTestsWith(
 
       ent.check();
 
-      Stream.range({ amount: len })
-        .zip(Stream.randomInt(0, 4))
-        .forEach(([v1, v2]): void => {
+      Stream.zip(Stream.range({ amount: len }), Stream.randomInt(0, 4)).forEach(
+        ([v1, v2]): void => {
           ent.remove(v1, v2);
           ent.check();
-        });
+        }
+      );
     });
 
     it('set existing key overrides', (): void => {
@@ -200,7 +210,7 @@ export function runTableRandomTestsWith(
 
     it('filter', (): void => {
       const stream = Stream.range({ amount: 100 });
-      const m = context.from(stream.zip(stream, stream));
+      const m = context.from(Stream.zip(stream, stream, stream));
       expect(m.size).toBe(100);
       expect(m.filter((r) => r[0] % 2 === 0).size).toBe(50);
       expect(m.filter((r) => r[1] % 2 === 0).size).toBe(50);
@@ -211,7 +221,7 @@ export function runTableRandomTestsWith(
 
     it('foreach', (): void => {
       const stream = Stream.range({ amount: 100 });
-      const m = context.from(stream.zip(stream, stream));
+      const m = context.from(Stream.zip(stream, stream, stream));
 
       let state = 0;
       m.forEach((e, i, halt): void => {
@@ -400,7 +410,7 @@ export function runTableRandomTestsWith(
     it('foreach', (): void => {
       const b = context.builder();
       const stream = Stream.range({ amount: 100 });
-      stream.zip(stream, stream).forEach((e) => b.set(...e));
+      Stream.zip(stream, stream, stream).forEach((e) => b.set(...e));
 
       let state = 0;
       b.forEach((e, i, halt): void => {
@@ -420,7 +430,7 @@ export function runTableRandomTestsWith(
     it('foreach checklock', (): void => {
       const b = context.builder();
       const stream = Stream.range({ amount: 100 });
-      stream.zip(stream, stream).forEach((e) => b.set(...e));
+      Stream.zip(stream, stream, stream).forEach((e) => b.set(...e));
 
       expect((): void => {
         b.forEach((): void => {

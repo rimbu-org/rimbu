@@ -1,8 +1,10 @@
-import { RSet } from '@rimbu/collection-types';
+import type { RSet } from '@rimbu/collection-types';
 import { Stream } from '@rimbu/stream';
-import { MultiMap } from '../src';
+import type { MultiMap } from '../src';
 
-function expectMultiMap(s: MultiMap<number, number>) {
+function expectMultiMap(s: MultiMap<number, number>): {
+  toEqual(...entries: [number, number[]][]): void;
+} {
   return {
     toEqual(...entries: [number, number[]][]): void {
       for (const e of entries) {
@@ -172,8 +174,7 @@ export function runMultiMapRandomTestsWith(
     it('add', (): void => {
       const ent = new Entangled();
 
-      Stream.randomInt(0, 1000)
-        .zip(Stream.randomInt(0, 5))
+      Stream.zip(Stream.randomInt(0, 1000), Stream.randomInt(0, 5))
         .take(1000)
         .forEach((values): void => {
           ent.add(values[0], values[1]);
@@ -184,15 +185,13 @@ export function runMultiMapRandomTestsWith(
     it('removeEntry', (): void => {
       const ent = new Entangled();
 
-      Stream.randomInt(0, 1000)
-        .zip(Stream.randomInt(0, 5))
+      Stream.zip(Stream.randomInt(0, 1000), Stream.randomInt(0, 5))
         .take(1000)
         .forEach((values): void => {
           ent.add(values[0], values[1]);
         });
 
-      Stream.randomInt(0, 1000)
-        .zip(Stream.randomInt(0, 5))
+      Stream.zip(Stream.randomInt(0, 1000), Stream.randomInt(0, 5))
         .take(1000)
         .forEach((values): void => {
           ent.removeEntry(values[0], values[1]);
@@ -220,8 +219,7 @@ export function runMultiMapRandomTestsWith(
     it('remove', (): void => {
       const ent = new Entangled();
 
-      Stream.randomInt(0, 1000)
-        .zip(Stream.randomInt(0, 5))
+      Stream.zip(Stream.randomInt(0, 1000), Stream.randomInt(0, 5))
         .take(1000)
         .forEach((values): void => {
           ent.add(values[0], values[1]);
@@ -259,9 +257,10 @@ export function runMultiMapRandomTestsWith(
     });
 
     it('filter', (): void => {
-      const stream = Stream.range({ amount: 30 })
-        .repeat()
-        .zip(Stream.range({ amount: 100 }));
+      const stream = Stream.zip(
+        Stream.range({ amount: 30 }).repeat(),
+        Stream.range({ amount: 100 })
+      );
 
       const m = context.from(stream);
       expect(m.size).toBe(100);
@@ -271,9 +270,10 @@ export function runMultiMapRandomTestsWith(
     });
 
     it('foreach', (): void => {
-      const stream = Stream.range({ amount: 30 })
-        .repeat()
-        .zip(Stream.range({ amount: 100 }));
+      const stream = Stream.zip(
+        Stream.range({ amount: 30 }).repeat(),
+        Stream.range({ amount: 100 })
+      );
       const m = context.from(stream);
 
       let state = 0;
@@ -366,9 +366,10 @@ export function runMultiMapRandomTestsWith(
     });
 
     it('foreach', (): void => {
-      const stream = Stream.range({ amount: 30 })
-        .repeat()
-        .zip(Stream.range({ amount: 100 }));
+      const stream = Stream.zip(
+        Stream.range({ amount: 30 }).repeat(),
+        Stream.range({ amount: 100 })
+      );
       const b = context.builder<number, number>();
       stream.forEach((e) => b.add(e[0], e[1]));
 
@@ -388,9 +389,10 @@ export function runMultiMapRandomTestsWith(
     });
 
     it('foreach checklock', (): void => {
-      const stream = Stream.range({ amount: 30 })
-        .repeat()
-        .zip(Stream.range({ amount: 100 }));
+      const stream = Stream.zip(
+        Stream.range({ amount: 30 }).repeat(),
+        Stream.range({ amount: 100 })
+      );
       const b = context.builder();
       b.addEntries(stream);
 

@@ -1,4 +1,4 @@
-import { OptLazy } from './internal';
+import type { OptLazy } from './internal';
 
 /**
  * A type that is either a value T or a promise yielding a value of type T.
@@ -23,9 +23,10 @@ export namespace AsyncOptLazy {
    * AsyncOptLazy.toMaybePromise(async () => 1)  // => Promise(1)
    * AsyncOptLazy.toMaybePromise(Promise.resolve(1))  // => Promise(1)
    */
-  export const toMaybePromise: <T>(
-    optLazy: AsyncOptLazy<T>
-  ) => MaybePromise<T> = OptLazy;
+  export function toMaybePromise<T>(optLazy: AsyncOptLazy<T>): MaybePromise<T> {
+    if (optLazy instanceof Function) return optLazy();
+    return optLazy;
+  }
 
   /**
    * Returns the value contained in an `AsyncOptLazy` instance of type T as a promise.
