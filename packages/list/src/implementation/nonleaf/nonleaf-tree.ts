@@ -1,6 +1,8 @@
 import { RimbuError } from '@rimbu/base';
 import type { IndexRange, TraverseState, Update } from '@rimbu/common';
 import type { Stream } from '@rimbu/stream';
+import type { BlockBuilder } from '../../builder/block-builder';
+import type { NonLeafBuilder } from '../../builder/nonleaf/nonleaf-builder';
 import type {
   Block,
   ListContext,
@@ -375,5 +377,9 @@ export class NonLeafTree<T, C extends Block<T, C>>
     }\n  l:${this.left.structure()}\n  m:${
       this.middle && this.middle.structure()
     }\n  r:${this.right.structure()}\n>`;
+  }
+
+  createNonLeafBuilder(): NonLeafBuilder<T, BlockBuilder<T, unknown>> {
+    return this.context.nonLeafTreeBuilderSource(this);
   }
 }

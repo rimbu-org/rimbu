@@ -1,6 +1,8 @@
 import { RimbuError } from '../../../base/mod.ts';
 import type { IndexRange, TraverseState, Update } from '../../../common/mod.ts';
 import type { Stream } from '../../../stream/mod.ts';
+import type { BlockBuilder } from '../../builder/block-builder.ts';
+import type { NonLeafBuilder } from '../../builder/nonleaf/nonleaf-builder.ts';
 import type {
   Block,
   ListContext,
@@ -375,5 +377,9 @@ export class NonLeafTree<T, C extends Block<T, C>>
     }\n  l:${this.left.structure()}\n  m:${
       this.middle && this.middle.structure()
     }\n  r:${this.right.structure()}\n>`;
+  }
+
+  createNonLeafBuilder(): NonLeafBuilder<T, BlockBuilder<T, unknown>> {
+    return this.context.nonLeafTreeBuilderSource(this);
   }
 }

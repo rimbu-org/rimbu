@@ -30,7 +30,7 @@ export class LeafTreeBuilder<T>
       this._middle =
         null === this.source.middle
           ? undefined
-          : (this.context.createNonLeafBuilder<T>(this.source.middle) as any);
+          : (this.source.middle.createNonLeafBuilder() as any);
       this.source = undefined;
     }
   }

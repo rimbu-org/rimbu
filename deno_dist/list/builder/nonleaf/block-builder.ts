@@ -23,7 +23,7 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
   get children(): C[] {
     if (undefined !== this.source) {
       this._children = this.source.children.map(
-        (c): C => this.context.createBlockBuilderFromBlock<T>(c) as C
+        (c): C => c.createBlockBuilder()
       );
       this.source = undefined;
     }
@@ -34,7 +34,7 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
   set children(value: C[]) {
     if (undefined !== this.source) {
       this._children = this.source.children.map(
-        (c): C => this.context.createBlockBuilderFromBlock<T>(c) as C
+        (c): C => c.createBlockBuilder()
       );
       this.source = undefined;
     }

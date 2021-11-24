@@ -1,5 +1,6 @@
 import type { IndexRange, OptLazy, TraverseState, Update } from '@rimbu/common';
 import type { Stream } from '@rimbu/stream';
+import type { BlockBuilder } from '../list-custom';
 
 export interface Block<T, TS extends Block<T, TS, C> = any, C = any> {
   readonly length: number;
@@ -27,4 +28,5 @@ export interface Block<T, TS extends Block<T, TS, C> = any, C = any> {
   toArray(range?: IndexRange, reversed?: boolean): T[] | any;
   structure(): string;
   _mutateSplitRight(index?: number): TS;
+  createBlockBuilder(): BlockBuilder<T, any>;
 }

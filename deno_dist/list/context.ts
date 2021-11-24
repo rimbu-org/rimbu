@@ -270,31 +270,4 @@ export class ListContext implements List.Context {
   ): obj is NonLeafBlockBuilder<T, any> {
     return obj instanceof NonLeafBlockBuilder;
   }
-
-  createBlockBuilderFromBlock<T>(
-    input: LeafBlock<T> | NonLeafBlock<T, any>
-  ): BlockBuilder<T, any> {
-    if (input.context.isLeafBlock(input)) {
-      return input.context.leafBlockBuilderSource(input);
-    }
-    if (input.context.isNonLeafBlock(input)) {
-      return input.context.nonLeafBlockBuilderSource(input);
-    }
-
-    RimbuError.throwInvalidStateError();
-  }
-
-  createNonLeafBuilder<T>(
-    nonLeaf: NonLeaf<T>
-  ): NonLeafBuilder<T, BlockBuilder<T>> {
-    if (nonLeaf.context.isNonLeafBlock(nonLeaf)) {
-      return nonLeaf.context.nonLeafBlockBuilderSource(nonLeaf);
-    }
-
-    if (nonLeaf.context.isNonLeafTree(nonLeaf)) {
-      return nonLeaf.context.nonLeafTreeBuilderSource(nonLeaf);
-    }
-
-    RimbuError.throwInvalidStateError();
-  }
 }

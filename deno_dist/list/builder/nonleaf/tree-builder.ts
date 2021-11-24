@@ -27,16 +27,12 @@ export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>
 
   prepareMutate(): void {
     if (undefined !== this.source) {
-      this._left = this.context.createBlockBuilderFromBlock(
-        this.source.left
-      ) as any;
-      this._right = this.context.createBlockBuilderFromBlock(
-        this.source.right
-      ) as any;
+      this._left = this.source.left.createBlockBuilder() as any;
+      this._right = this.source.right.createBlockBuilder() as any;
       this._middle =
         null === this.source.middle
           ? undefined
-          : (this.context.createNonLeafBuilder(this.source.middle) as any);
+          : (this.source.middle.createNonLeafBuilder() as any);
       this.source = undefined;
     }
   }
