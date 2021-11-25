@@ -3,18 +3,19 @@ import {
   ArrayNonEmpty,
   AsyncOptLazy,
   AsyncReducer,
-  MaybePromise, Reducer
+  MaybePromise,
+  Reducer,
 } from '../../common/mod.ts';
 import {
   AsyncFastIterator,
   AsyncStream,
   AsyncStreamSource,
-  Stream
+  Stream,
 } from '../internal.ts';
 import {
   AsyncFastIteratorBase,
   AsyncFromStream,
-  AsyncStreamBase
+  AsyncStreamBase,
 } from './async-stream-custom.ts';
 import { closeIters } from './utils.ts';
 

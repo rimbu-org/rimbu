@@ -486,13 +486,13 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
       return true;
     }
 
-    const oldEntry = this.entries.updateAt(index, (currentEntry): readonly [
-      K,
-      V
-    ] => {
-      if (Object.is(currentEntry[1], entry[1])) return currentEntry;
-      return entry;
-    });
+    const oldEntry = this.entries.updateAt(
+      index,
+      (currentEntry): readonly [K, V] => {
+        if (Object.is(currentEntry[1], entry[1])) return currentEntry;
+        return entry;
+      }
+    );
 
     const changed =
       undefined === oldEntry ||

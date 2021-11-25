@@ -1,6 +1,11 @@
 import type { IndexRange, TraverseState, Update } from '@rimbu/common';
 import type { Stream } from '@rimbu/stream';
-import type { Block, ListContext } from '../../list-custom';
+import type {
+  Block,
+  BlockBuilder,
+  ListContext,
+  NonLeafBuilder,
+} from '../../list-custom';
 
 export interface NonLeaf<T, C extends Block<any, C> = any> {
   readonly length: number;
@@ -28,4 +33,5 @@ export interface NonLeaf<T, C extends Block<any, C> = any> {
   reversed(): NonLeaf<T, C>;
   toArray(range?: IndexRange, reversed?: boolean): T[];
   structure(): string;
+  createNonLeafBuilder(): NonLeafBuilder<T, BlockBuilder<T>>;
 }

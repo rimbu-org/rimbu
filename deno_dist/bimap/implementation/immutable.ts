@@ -5,7 +5,7 @@ import {
   RelatedTo,
   ToJSON,
   TraverseState,
-  Update
+  Update,
 } from '../../common/mod.ts';
 import { Stream, StreamSource } from '../../stream/mod.ts';
 import { BiMapBuilder, BiMapContext } from '../bimap-custom.ts';

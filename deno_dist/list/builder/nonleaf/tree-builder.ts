@@ -7,11 +7,7 @@ import type {
   NonLeafBuilder,
   NonLeafTree,
 } from '../../list-custom.ts';
-import {
-  createFromBlock,
-  createNonLeaf,
-  TreeBuilderBase,
-} from '../../list-custom.ts';
+import { TreeBuilderBase } from '../tree/tree-builder.ts';
 
 export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>
   extends TreeBuilderBase<T, C>
@@ -31,12 +27,12 @@ export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>
 
   prepareMutate(): void {
     if (undefined !== this.source) {
-      this._left = createFromBlock(this.source.left) as any;
-      this._right = createFromBlock(this.source.right) as any;
+      this._left = this.source.left.createBlockBuilder() as any;
+      this._right = this.source.right.createBlockBuilder() as any;
       this._middle =
         null === this.source.middle
           ? undefined
-          : (createNonLeaf(this.source.middle) as any);
+          : (this.source.middle.createNonLeafBuilder() as any);
       this.source = undefined;
     }
   }

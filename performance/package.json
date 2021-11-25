@@ -22,7 +22,7 @@
   },
   "scripts": {
     "format": "yarn format:base --write",
-    "format:base": "prettier \"{!CHANGELOG.md}|**/*.{ts,tsx,js,json,md}\"",
+    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
     "start": "NODE_OPTIONS=--max-old-space-size=8192 npx ts-node -O '{\"module\":\"commonjs\"}' src/benchmark.ts",

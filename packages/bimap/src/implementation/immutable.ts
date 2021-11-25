@@ -5,7 +5,7 @@ import {
   RelatedTo,
   ToJSON,
   TraverseState,
-  Update
+  Update,
 } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { BiMapBuilder, BiMapContext } from '../bimap-custom';
