@@ -10,8 +10,8 @@ import { Stream, StreamSource } from '../../../stream/mod.ts';
 import type { BlockBuilder } from '../../builder/block-builder.ts';
 import type { List } from '../../internal.ts';
 import type { Block, ListContext } from '../../list-custom.ts';
-import { ListNonEmptyBase } from '../../list-custom.ts';
 import type { LeafTree } from './leaf-tree.ts';
+import { ListNonEmptyBase } from './non-empty.ts';
 
 export class LeafBlock<T>
   extends ListNonEmptyBase<T>
