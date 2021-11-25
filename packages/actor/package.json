@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/actor",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "State management tools to create stateful logic that can be easily integrated in any framework",
   "keywords": [
     "state management",
@@ -55,7 +55,7 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@rimbu/deep": "^0.8.1",
+    "@rimbu/deep": "^0.8.2",
     "tslib": "^2.3.1"
   },
   "publishConfig": {

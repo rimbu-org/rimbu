@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/bimap",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "A bidirectional immutable Map of keys and values for TypeScript",
   "keywords": [
     "bimap",
@@ -55,11 +55,11 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@rimbu/base": "^0.7.1",
-    "@rimbu/collection-types": "^0.8.1",
-    "@rimbu/common": "^0.8.1",
-    "@rimbu/hashed": "^0.7.1",
-    "@rimbu/stream": "^0.8.1",
+    "@rimbu/base": "^0.7.2",
+    "@rimbu/collection-types": "^0.8.2",
+    "@rimbu/common": "^0.8.2",
+    "@rimbu/hashed": "^0.7.2",
+    "@rimbu/stream": "^0.8.2",
     "tslib": "^2.3.1"
   },
   "publishConfig": {

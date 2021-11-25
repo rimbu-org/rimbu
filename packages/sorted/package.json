@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/sorted",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Immutable SortedMap and SortedSet implementations for TypeScript",
   "keywords": [
     "sortedmap",
@@ -59,10 +59,10 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@rimbu/base": "^0.7.1",
-    "@rimbu/collection-types": "^0.8.1",
-    "@rimbu/common": "^0.8.1",
-    "@rimbu/stream": "^0.8.1",
+    "@rimbu/base": "^0.7.2",
+    "@rimbu/collection-types": "^0.8.2",
+    "@rimbu/common": "^0.8.2",
+    "@rimbu/stream": "^0.8.2",
     "tslib": "^2.3.1"
   },
   "publishConfig": {
