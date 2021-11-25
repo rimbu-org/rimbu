@@ -495,8 +495,7 @@ export namespace RMapBase {
       fillValue: O,
       ...sources: {
         [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
-      } &
-        unknown[]
+      } & unknown[]
     ): WithKeyValue<Tp, K, { [KT in keyof I]: I[KT] | O }>['nonEmpty'];
     mergeAll<
       O,
@@ -504,8 +503,9 @@ export namespace RMapBase {
       K extends UK
     >(
       fillValue: O,
-      ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> } &
-        unknown[]
+      ...sources: {
+        [KT in keyof I]: StreamSource<readonly [K, I[KT]]>;
+      } & unknown[]
     ): WithKeyValue<Tp, K, { [KT in keyof I]: I[KT] | O }>['normal'];
     /**
      * Returns a Map containing all keys from this map and all the given `sources` key-value stream sources,
@@ -539,8 +539,7 @@ export namespace RMapBase {
     >(
       ...sources: {
         [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
-      } &
-        unknown[]
+      } & unknown[]
     ): <O, R>(
       fillValue: O,
       mergeFun: (key: K, ...values: { [KT in keyof I]: I[KT] | O }) => R
@@ -549,8 +548,9 @@ export namespace RMapBase {
       I extends readonly [unknown, unknown, ...unknown[]],
       K extends UK
     >(
-      ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> } &
-        unknown[]
+      ...sources: {
+        [KT in keyof I]: StreamSource<readonly [K, I[KT]]>;
+      } & unknown[]
     ): <O, R>(
       fillValue: O,
       mergeFun: (key: K, ...values: { [KT in keyof I]: I[KT] | O }) => R
@@ -572,12 +572,12 @@ export namespace RMapBase {
     merge<K extends UK, I extends readonly [unknown, unknown, ...unknown[]]>(
       ...sources: {
         [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
-      } &
-        unknown[]
+      } & unknown[]
     ): WithKeyValue<Tp, K, { [KT in keyof I]: I[KT] }>['nonEmpty'];
     merge<K extends UK, I extends readonly [unknown, unknown, ...unknown[]]>(
-      ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> } &
-        unknown[]
+      ...sources: {
+        [KT in keyof I]: StreamSource<readonly [K, I[KT]]>;
+      } & unknown[]
     ): WithKeyValue<Tp, K, { [KT in keyof I]: I[KT] }>['normal'];
     /**
      * Returns a Map containing the common keys from this map and all the given `sources` key-value stream sources,
@@ -608,8 +608,7 @@ export namespace RMapBase {
     >(
       ...sources: {
         [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
-      } &
-        unknown[]
+      } & unknown[]
     ): <R>(
       mergeFun: (key: K, ...values: I) => R
     ) => WithKeyValue<Tp, K, R>['nonEmpty'];
@@ -617,8 +616,9 @@ export namespace RMapBase {
       I extends readonly [unknown, unknown, ...unknown[]],
       K extends UK
     >(
-      ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> } &
-        unknown[]
+      ...sources: {
+        [KT in keyof I]: StreamSource<readonly [K, I[KT]]>;
+      } & unknown[]
     ): <R>(
       mergeFun: (key: K, ...values: I) => R
     ) => WithKeyValue<Tp, K, R>['normal'];

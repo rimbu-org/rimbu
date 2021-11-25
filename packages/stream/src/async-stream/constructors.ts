@@ -3,18 +3,19 @@ import {
   ArrayNonEmpty,
   AsyncOptLazy,
   AsyncReducer,
-  MaybePromise, Reducer
+  MaybePromise,
+  Reducer,
 } from '@rimbu/common';
 import {
   AsyncFastIterator,
   AsyncStream,
   AsyncStreamSource,
-  Stream
+  Stream,
 } from '../internal';
 import {
   AsyncFastIteratorBase,
   AsyncFromStream,
-  AsyncStreamBase
+  AsyncStreamBase,
 } from './async-stream-custom';
 import { closeIters } from './utils';
 

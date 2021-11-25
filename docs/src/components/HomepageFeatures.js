@@ -1,11 +1,11 @@
-import React from "react";
-import clsx from "clsx";
-import styles from "./HomepageFeatures.module.css";
+import React from 'react';
+import clsx from 'clsx';
+import styles from './HomepageFeatures.module.css';
 
 const FeatureList = [
   {
-    title: "Boost your Typescript code",
-    Svg: require("../../static/img/undraw_outer_space.svg").default,
+    title: 'Boost your Typescript code',
+    Svg: require('../../static/img/undraw_outer_space.svg').default,
     description: (
       <>
         Rimbu has you covered for almost anything related to data loading,
@@ -14,8 +14,8 @@ const FeatureList = [
     ),
   },
   {
-    title: "Immutability made easy",
-    Svg: require("../../static/img/undraw_building_blocks.svg").default,
+    title: 'Immutability made easy',
+    Svg: require('../../static/img/undraw_building_blocks.svg').default,
     description: (
       <>
         Immutable data structures have a reputation of being hard to use. Rimbu
@@ -24,8 +24,8 @@ const FeatureList = [
     ),
   },
   {
-    title: "Leading the way",
-    Svg: require("../../static/img/undraw_powerful.svg").default,
+    title: 'Leading the way',
+    Svg: require('../../static/img/undraw_powerful.svg').default,
     description: (
       <>
         Rimbu incorporates many novel ideas, and intends to lead the way in
@@ -37,7 +37,7 @@ const FeatureList = [
 
 function Feature({ Svg, title, description }) {
   return (
-    <div className={clsx("col col--4")}>
+    <div className={clsx('col col--4')}>
       <div className="text--center">
         <Svg className={styles.featureSvg} alt={title} />
       </div>

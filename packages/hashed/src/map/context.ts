@@ -9,7 +9,7 @@ import {
   HashMapEmpty,
   HashMapNonEmptyBase,
   MapBlockBuilderEntry,
-  MapEntrySet
+  MapEntrySet,
 } from '../hashmap-custom';
 import type { HashMap } from '../internal';
 
