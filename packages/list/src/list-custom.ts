@@ -1,10 +1,10 @@
+export * from './implementation/leaf/non-empty';
 export * from './implementation/block';
 export * from './implementation/empty';
 export * from './implementation/nonleaf/interface';
 export * from './implementation/nonleaf/nonleaf-block';
 export * from './implementation/tree/interface';
 export * from './implementation/tree/operations';
-export * from './implementation/leaf/non-empty';
 
 export * from './builder/block-builder';
 export * from './builder/builder-base';

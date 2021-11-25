@@ -10,8 +10,8 @@ import { Stream, StreamSource } from '@rimbu/stream';
 import type { BlockBuilder } from '../../builder/block-builder';
 import type { List } from '../../internal';
 import type { Block, ListContext } from '../../list-custom';
-import { ListNonEmptyBase } from '../../list-custom';
 import type { LeafTree } from './leaf-tree';
+import { ListNonEmptyBase } from './non-empty';
 
 export class LeafBlock<T>
   extends ListNonEmptyBase<T>

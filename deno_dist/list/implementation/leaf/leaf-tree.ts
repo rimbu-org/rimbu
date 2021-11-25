@@ -10,7 +10,6 @@ import type { Stream, StreamSource } from '../../../stream/mod.ts';
 import type { List } from '../../internal.ts';
 import type { LeafBlock, ListContext, NonLeaf, Tree } from '../../list-custom.ts';
 import {
-  ListNonEmptyBase,
   treeAppend,
   treeForEach,
   treeGet,
@@ -19,6 +18,7 @@ import {
   treeToArray,
   treeUpdate,
 } from '../../list-custom.ts';
+import { ListNonEmptyBase } from './non-empty.ts';
 
 export class LeafTree<T>
   extends ListNonEmptyBase<T>

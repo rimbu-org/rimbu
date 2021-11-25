@@ -1,10 +1,10 @@
+export * from './implementation/leaf/non-empty.ts';
 export * from './implementation/block.ts';
 export * from './implementation/empty.ts';
 export * from './implementation/nonleaf/interface.ts';
 export * from './implementation/nonleaf/nonleaf-block.ts';
 export * from './implementation/tree/interface.ts';
 export * from './implementation/tree/operations.ts';
-export * from './implementation/leaf/non-empty.ts';
 
 export * from './builder/block-builder.ts';
 export * from './builder/builder-base.ts';
