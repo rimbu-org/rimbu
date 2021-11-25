@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/graph",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "Immutable Graph data structures for TypeScript",
   "keywords": [
     "graph",
@@ -63,7 +63,7 @@
   "dependencies": {
     "@rimbu/collection-types": "^0.8.2",
     "@rimbu/common": "^0.8.2",
-    "@rimbu/hashed": "^0.7.2",
+    "@rimbu/hashed": "^0.7.3",
     "@rimbu/sorted": "^0.8.2",
     "@rimbu/stream": "^0.8.2",
     "tslib": "^2.3.1"
