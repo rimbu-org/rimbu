@@ -1,1 +1,0 @@
-(self.webpackChunkmy_docs=self.webpackChunkmy_docs||[]).push([[7064],{2972:function(a){"use strict";a.exports=JSON.parse('{"allTagsPath":"/blog/tags","slug":"/blog/tags/scala","name":"scala","count":1,"permalink":"/blog/tags/scala"}')}}]);
