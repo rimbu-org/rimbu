@@ -24,7 +24,6 @@
     "deno:build": "rimraf deno_dist && mkdir deno_dist && cp config/mod_root_ts_template deno_dist/mod.ts && lerna run build:deno && cp {README.md,LICENSE} deno_dist",
     "clean": "lerna run clean && lerna clean --yes && yarn setup",
     "commit": "yarn deno:build && git add deno_dist && git-cz",
-    "docsify": "docsify serve docs",
     "format": "yarn format:root & lerna run format --parallel",
     "format:check": "yarn format:root-check & lerna run format:check",
     "format:root": "yarn format:root-base --write",
