@@ -175,9 +175,21 @@ export class NonLeafBlock<T, C extends Block<T, C>>
   }
 
   concat<T2>(other: NonLeaf<T2, C>): NonLeaf<T | T2, C> {
-    if (other instanceof NonLeafBlock) return (this as any).concatBlock(other);
-    if (this.context.isNonLeafTree(other))
+    if (other instanceof NonLeafBlock) {
+      if (other === this && this.children.length > this.context.minBlockSize) {
+        return this.context.nonLeafTree<T | T2, any>(
+          this as any,
+          this as any,
+          null,
+          this.level
+        );
+      }
+
+      return (this as any).concatBlock(other);
+    }
+    if (this.context.isNonLeafTree(other)) {
       return (this as any).concatTree(other);
+    }
 
     RimbuError.throwInvalidStateError();
   }
@@ -338,12 +350,18 @@ export class NonLeafBlock<T, C extends Block<T, C>>
     }
   }
 
-  reversed(): NonLeafBlock<T, C> {
+  reversed(cacheMap = new Map<any, any>()): NonLeafBlock<T, C> {
+    const cachedThis = cacheMap.get(this);
+    if (cachedThis !== undefined) return cachedThis;
+
     const newChildren = Arr.reverseMap(
       this.children,
-      (child): C => child.reversed()
+      (child): C => child.reversed(cacheMap)
     );
-    return this.copy(newChildren, this.length);
+
+    const reversedThis = this.copy(newChildren, this.length);
+    cacheMap.set(this, reversedThis);
+    return reversedThis;
   }
 
   toArray(range?: IndexRange, reversed = false): T[] | any {

@@ -40,7 +40,7 @@ export abstract class ListNonEmptyBase<T>
     mapFun: (value: T, index: number) => T2,
     reversed?: boolean
   ): List.NonEmpty<T2>;
-  abstract reversed(): List.NonEmpty<T>;
+  abstract reversed(cache?: Map<any, any>): List.NonEmpty<T>;
   abstract toArray(range?: IndexRange, reversed?: boolean): T[] | any;
   abstract structure(): string;
 

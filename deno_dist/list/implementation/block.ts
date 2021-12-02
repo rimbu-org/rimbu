@@ -24,7 +24,7 @@ export interface Block<T, TS extends Block<T, TS, C> = any, C = any> {
     reversed?: boolean,
     indexOffset?: number
   ): Block<T2>;
-  reversed(): TS;
+  reversed(cache: Map<any, any>): TS;
   toArray(range?: IndexRange, reversed?: boolean): T[] | any;
   structure(): string;
   _mutateSplitRight(index?: number): TS;

@@ -320,12 +320,18 @@ export class LeafTree<T>
     return this.copy2(newLeft, newRight, newMiddle);
   }
 
-  reversed(): LeafTree<T> {
-    return this.copy(
-      this.right.reversed(),
-      this.left.reversed(),
-      null === this.middle ? null : this.middle.reversed()
-    );
+  reversed(cacheMap = new Map<any, any>()): LeafTree<T> {
+    const cachedThis = cacheMap.get(this);
+    if (cachedThis !== undefined) return cachedThis;
+
+    const newMid = this.middle?.reversed(cacheMap) ?? null;
+    const newLeft = this.right.reversed(cacheMap);
+    const newRight =
+      this.left === this.right ? newLeft : this.left.reversed(cacheMap);
+
+    const reversedThis = this.copy(newLeft, newRight, newMid);
+    cacheMap.set(this, reversedThis);
+    return reversedThis;
   }
 
   toArray(range?: IndexRange, reversed = false): T[] | any {

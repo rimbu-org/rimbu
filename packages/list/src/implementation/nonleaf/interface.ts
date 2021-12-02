@@ -30,7 +30,7 @@ export interface NonLeaf<T, C extends Block<any, C> = any> {
     reversed?: boolean,
     indexOffset?: number
   ): NonLeaf<T2>;
-  reversed(): NonLeaf<T, C>;
+  reversed(cacheMap?: Map<any, any>): NonLeaf<T, C>;
   toArray(range?: IndexRange, reversed?: boolean): T[];
   structure(): string;
   createNonLeafBuilder(): NonLeafBuilder<T, BlockBuilder<T>>;
