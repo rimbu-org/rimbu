@@ -11,6 +11,7 @@ import type {
   NonLeafBuilder,
 } from './list-custom';
 import {
+  CacheMap,
   Empty,
   GenBuilder,
   LeafBlock,
@@ -267,5 +268,9 @@ export class ListContext implements List.Context {
     obj: NonLeafBuilder<T, any>
   ): obj is NonLeafBlockBuilder<T, any> {
     return obj instanceof NonLeafBlockBuilder;
+  }
+
+  createCacheMap(): CacheMap {
+    return new CacheMap();
   }
 }

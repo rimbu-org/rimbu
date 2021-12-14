@@ -376,6 +376,15 @@ export interface List<T> extends FastIterable<T> {
     reversed?: boolean
   ): List<T2>;
   /**
+   * Returns a List containing the result of applying given `mapFun` to each value in this List.
+   * If `reversed` is true, the order of the values is reversed.
+   * The given `mapFun` is expected to be side-effect free, so that structural sharing can be kept
+   * in place.
+   * @param mapFun - a function receiving a value and its index, and returning a new value
+   * @param reversed - (default: false) if true, reverses the order of the values
+   */
+  mapPure<T2>(mapFun: (value: T) => T2, reversed?: boolean): List<T2>;
+  /**
    * Returns a List containing the joined results of applying given `flatMapFun` to each value in this List.
    *
    * @param flatMapFun - a function taking the next value and its index, and returning a `StreamSource`
@@ -585,6 +594,18 @@ export namespace List {
      */
     map<T2>(
       mapFun: (value: T, index: number) => T2,
+      reversed?: boolean
+    ): List.NonEmpty<T2>;
+    /**
+     * Returns a non-empty List containing the result of applying given `mapFun` to each value in this List.
+     * If `reversed` is true, the order of the values is reversed.
+     * The given `mapFun` is expected to be side-effect free, so that structural sharing can be kept
+     * in place.
+     * @param mapFun - a function receiving a value and its index, and returning a new value
+     * @param reversed - (default: false) if true, reverses the order of the values
+     */
+    mapPure<T2>(
+      mapFun: (value: T) => T2,
       reversed?: boolean
     ): List.NonEmpty<T2>;
     /**

@@ -1,3 +1,4 @@
+export * from './implementation/cache-map.ts';
 export * from './implementation/leaf/non-empty.ts';
 export * from './implementation/block.ts';
 export * from './implementation/empty.ts';

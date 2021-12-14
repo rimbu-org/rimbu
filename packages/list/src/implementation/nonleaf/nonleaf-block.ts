@@ -316,6 +316,23 @@ export class NonLeafBlock<T, C extends Block<T, C>>
     }
   }
 
+  mapPure<T2>(
+    mapFun: (value: T) => T2,
+    reversed = false,
+    cacheMap = this.context.createCacheMap()
+  ): NonLeafBlock<T2, Block<T2>> {
+    const cachedThis = cacheMap.get(this);
+    if (cachedThis) return cachedThis;
+
+    const fn = reversed ? Arr.reverseMap : Arr.map;
+
+    const newChildren = fn(this.children, (c: C): any =>
+      c.mapPure(mapFun, reversed, cacheMap)
+    );
+
+    return cacheMap.setAndReturn(this, this.copy2(newChildren));
+  }
+
   map<T2>(
     mapFun: (value: T, index: number) => T2,
     reversed = false,
@@ -350,7 +367,7 @@ export class NonLeafBlock<T, C extends Block<T, C>>
     }
   }
 
-  reversed(cacheMap = new Map<any, any>()): NonLeafBlock<T, C> {
+  reversed(cacheMap = this.context.createCacheMap()): NonLeafBlock<T, C> {
     const cachedThis = cacheMap.get(this);
     if (cachedThis !== undefined) return cachedThis;
 
@@ -360,8 +377,7 @@ export class NonLeafBlock<T, C extends Block<T, C>>
     );
 
     const reversedThis = this.copy(newChildren, this.length);
-    cacheMap.set(this, reversedThis);
-    return reversedThis;
+    return cacheMap.setAndReturn(this, reversedThis);
   }
 
   toArray(range?: IndexRange, reversed = false): T[] | any {

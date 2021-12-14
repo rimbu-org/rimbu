@@ -92,6 +92,10 @@ export class Empty<T = any> extends CustomBase.EmptyBase implements List<T> {
     return this;
   }
 
+  mapPure(): any {
+    return this;
+  }
+
   flatMap(): any {
     return this;
   }

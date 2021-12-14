@@ -11,7 +11,7 @@ import {
 } from '@rimbu/common';
 import { FastIterator, Stream, StreamSource } from '@rimbu/stream';
 import type { List } from '../../internal';
-import type { ListContext } from '../../list-custom';
+import type { CacheMap, ListContext } from '../../list-custom';
 
 const _emptyObject = {};
 
@@ -36,11 +36,16 @@ export abstract class ListNonEmptyBase<T>
     ...sources: ArrayNonEmpty<StreamSource<T2>>
   ): List.NonEmpty<T | T2>;
   abstract updateAt(index: number, update: Update<T>): List.NonEmpty<T>;
+  abstract mapPure<T2>(
+    mapFun: (value: T) => T2,
+    reversed?: boolean,
+    cacheMap?: CacheMap
+  ): List.NonEmpty<T2>;
   abstract map<T2>(
     mapFun: (value: T, index: number) => T2,
     reversed?: boolean
   ): List.NonEmpty<T2>;
-  abstract reversed(cache?: Map<any, any>): List.NonEmpty<T>;
+  abstract reversed(cache?: CacheMap): List.NonEmpty<T>;
   abstract toArray(range?: IndexRange, reversed?: boolean): T[] | any;
   abstract structure(): string;
 
