@@ -1,3 +1,5 @@
-export * as ListCustom from './list-custom';
+import * as ListCustom from './list-custom';
+
+export { ListCustom };
 
 export * from './interface';
