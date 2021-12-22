@@ -550,6 +550,7 @@ export interface AsyncStream<T>
    * * start: (optional) a start string to prepend at the start
    * * end: (optional) an end string to append at the end
    * * valueToString: (default: String) a potentially asynchronous function converting a Stream element to a string
+   * * ifEmpty: (optional) a string to return instead of the start and end tag if the stream is empty
    * @example
    * await AsyncStream.of(1, 2, 3).join({ start: '<', sep: ', ', end: '>' })
    * // => '<1, 2, 3>'
@@ -560,6 +561,7 @@ export interface AsyncStream<T>
     start?: string;
     end?: string;
     valueToString?: (value: T) => MaybePromise<string>;
+    ifEmpty?: string;
   }): Promise<string>;
   /**
    * Returns an AsyncStream starting with `options.sep`, then returning the elements of this Stream interspersed with `options.sep`, and ending with
