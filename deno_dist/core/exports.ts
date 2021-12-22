@@ -13,14 +13,10 @@ export type {
 export { Edit } from '../collection-types/mod.ts';
 export * from '../common/mod.ts';
 export * from '../deep/mod.ts';
-export type {
+export type { Graph, VariantGraph, VariantValuedGraph } from '../graph/mod.ts';
+export {
   ArrowGraph,
   EdgeGraph,
-  Graph,
-  VariantGraph,
-  VariantValuedGraph,
-} from '../graph/mod.ts';
-export {
   ArrowGraphHashed,
   ArrowGraphSorted,
   EdgeGraphHashed,
@@ -38,15 +34,16 @@ export {
 } from '../graph-edge-valued/mod.ts';
 export { Hasher, HashMap, HashSet } from '../hashed/mod.ts';
 export { List } from '../list/mod.ts';
-export type { MultiMap, VariantMultiMap } from '../multimap/mod.ts';
+export type { VariantMultiMap } from '../multimap/mod.ts';
 export {
+  MultiMap,
   HashMultiMapHashValue,
   HashMultiMapSortedValue,
   SortedMultiMapHashValue,
   SortedMultiMapSortedValue,
 } from '../multimap/mod.ts';
-export type { MultiSet, VariantMultiSet } from '../multiset/mod.ts';
-export { HashMultiSet, SortedMultiSet } from '../multiset/mod.ts';
+export type { VariantMultiSet } from '../multiset/mod.ts';
+export { MultiSet, HashMultiSet, SortedMultiSet } from '../multiset/mod.ts';
 export {
   OrderedHashMap,
   OrderedHashSet,

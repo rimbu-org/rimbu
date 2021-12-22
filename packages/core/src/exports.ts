@@ -13,14 +13,10 @@ export type {
 export { Edit } from '@rimbu/collection-types';
 export * from '@rimbu/common';
 export * from '@rimbu/deep';
-export type {
+export type { Graph, VariantGraph, VariantValuedGraph } from '@rimbu/graph';
+export {
   ArrowGraph,
   EdgeGraph,
-  Graph,
-  VariantGraph,
-  VariantValuedGraph,
-} from '@rimbu/graph';
-export {
   ArrowGraphHashed,
   ArrowGraphSorted,
   EdgeGraphHashed,
@@ -38,15 +34,16 @@ export {
 } from '@rimbu/graph-edge-valued';
 export { Hasher, HashMap, HashSet } from '@rimbu/hashed';
 export { List } from '@rimbu/list';
-export type { MultiMap, VariantMultiMap } from '@rimbu/multimap';
+export type { VariantMultiMap } from '@rimbu/multimap';
 export {
+  MultiMap,
   HashMultiMapHashValue,
   HashMultiMapSortedValue,
   SortedMultiMapHashValue,
   SortedMultiMapSortedValue,
 } from '@rimbu/multimap';
-export type { MultiSet, VariantMultiSet } from '@rimbu/multiset';
-export { HashMultiSet, SortedMultiSet } from '@rimbu/multiset';
+export type { VariantMultiSet } from '@rimbu/multiset';
+export { MultiSet, HashMultiSet, SortedMultiSet } from '@rimbu/multiset';
 export {
   OrderedHashMap,
   OrderedHashSet,

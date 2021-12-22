@@ -1,3 +1,4 @@
+export * from './implementation/cache-map';
 export * from './implementation/leaf/non-empty';
 export * from './implementation/block';
 export * from './implementation/empty';

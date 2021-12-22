@@ -3,6 +3,7 @@ import type { Stream } from '@rimbu/stream';
 import type {
   Block,
   BlockBuilder,
+  CacheMap,
   ListContext,
   NonLeafBuilder,
 } from '../../list-custom';
@@ -25,12 +26,17 @@ export interface NonLeaf<T, C extends Block<any, C> = any> {
     f: (value: T, index: number, halt: () => void) => void,
     state?: TraverseState
   ): void;
+  mapPure<T2>(
+    mapFun: (value: T) => T2,
+    reversed?: boolean,
+    cacheMap?: CacheMap
+  ): NonLeaf<T2>;
   map<T2>(
     mapFun: (value: T, index: number) => T2,
     reversed?: boolean,
     indexOffset?: number
   ): NonLeaf<T2>;
-  reversed(): NonLeaf<T, C>;
+  reversed(cacheMap?: CacheMap): NonLeaf<T, C>;
   toArray(range?: IndexRange, reversed?: boolean): T[];
   structure(): string;
   createNonLeafBuilder(): NonLeafBuilder<T, BlockBuilder<T>>;

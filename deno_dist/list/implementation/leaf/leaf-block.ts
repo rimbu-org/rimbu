@@ -159,10 +159,18 @@ export class LeafBlock<T>
     const asList: List<T | T2> = this.context.from(...sources);
 
     if (asList.nonEmpty()) {
-      if (this.context.isLeafBlock(asList))
+      if (this.context.isLeafBlock(asList)) {
+        if (
+          asList === this &&
+          this.children.length > this.context.minBlockSize
+        ) {
+          return this.context.leafTree<T | T2>(this as any, this as any, null);
+        }
         return (this as LeafBlock<T | T2>).concatBlock(asList);
-      if (this.context.isLeafTree(asList))
+      }
+      if (this.context.isLeafTree(asList)) {
         return (this as LeafBlock<T | T2>).concatTree(asList);
+      }
       RimbuError.throwInvalidStateError();
     }
 
@@ -219,6 +227,20 @@ export class LeafBlock<T>
     );
   }
 
+  mapPure<T2>(
+    mapFun: (value: T) => T2,
+    reversed = false,
+    cacheMap = this.context.createCacheMap()
+  ): LeafBlock<T2> {
+    const currentValue = cacheMap.get(this);
+    if (currentValue) return currentValue;
+
+    const fn = reversed ? Arr.reverseMap : Arr.map;
+
+    const newChildren = fn(this.children, mapFun);
+    return cacheMap.setAndReturn(this, this.copy2(newChildren));
+  }
+
   map<T2>(
     mapFun: (value: T, index: number) => T2,
     reversed = false,
@@ -233,8 +255,14 @@ export class LeafBlock<T>
     return this.copy2(newChildren);
   }
 
-  reversed(): LeafBlock<T> {
-    return this.context.reversedLeaf(this.children);
+  reversed(cacheMap = this.context.createCacheMap()): LeafBlock<T> {
+    if (this.length === 1) return this;
+
+    const cachedThis = cacheMap.get(this);
+    if (cachedThis !== undefined) return cachedThis;
+
+    const reversedThis = this.context.reversedLeaf(this.children);
+    return cacheMap.setAndReturn(this, reversedThis);
   }
 
   _mutateNormalize(): List.NonEmpty<T> {
@@ -363,8 +391,14 @@ export class ReversedLeafBlock<T> extends LeafBlock<T> {
     return super.copy2(newChildren);
   }
 
-  reversed(): LeafBlock<T> {
-    return this.context.leafBlock(this.children);
+  reversed(cacheMap = this.context.createCacheMap()): LeafBlock<T> {
+    if (this.length === 1) return this;
+
+    const cachedThis = cacheMap.get(this);
+    if (cachedThis !== undefined) return cachedThis;
+
+    const reversedThis = this.context.leafBlock(this.children);
+    return cacheMap.setAndReturn(this, reversedThis);
   }
 
   toArray(range?: IndexRange, reversed = false): T[] | any {

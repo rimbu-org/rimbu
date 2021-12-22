@@ -1,6 +1,6 @@
 import type { IndexRange, OptLazy, TraverseState, Update } from '../../common/mod.ts';
 import type { Stream } from '../../stream/mod.ts';
-import type { BlockBuilder } from '../list-custom.ts';
+import type { BlockBuilder, CacheMap } from '../list-custom.ts';
 
 export interface Block<T, TS extends Block<T, TS, C> = any, C = any> {
   readonly length: number;
@@ -19,12 +19,17 @@ export interface Block<T, TS extends Block<T, TS, C> = any, C = any> {
     f: (value: T, index: number, halt: () => void) => void,
     state?: TraverseState
   ): void;
+  mapPure<T2>(
+    mapFun: (value: T) => T2,
+    reversed?: boolean,
+    cache?: CacheMap
+  ): Block<T2>;
   map<T2>(
     mapFun: (value: T, index: number) => T2,
     reversed?: boolean,
     indexOffset?: number
   ): Block<T2>;
-  reversed(): TS;
+  reversed(cache: CacheMap): TS;
   toArray(range?: IndexRange, reversed?: boolean): T[] | any;
   structure(): string;
   _mutateSplitRight(index?: number): TS;

@@ -402,7 +402,13 @@ class AsyncEmptyStream<T = any>
   intersperse(): AsyncStream<T> {
     return this;
   }
-  async join({ start = '', end = '' } = {}): Promise<string> {
+  async join({
+    start = '',
+    end = '',
+    ifEmpty = undefined,
+  } = {}): Promise<string> {
+    if (undefined !== ifEmpty) return ifEmpty;
+
     return start.concat(end);
   }
   mkGroup({

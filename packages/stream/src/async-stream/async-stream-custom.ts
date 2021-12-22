@@ -527,6 +527,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     start = '',
     end = '',
     valueToString = String,
+    ifEmpty = undefined,
   } = {}): Promise<string> {
     const done = Symbol('Done');
     const iterator = this[Symbol.asyncIterator]();
@@ -534,7 +535,11 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     let value: T | typeof done = await iterator.fastNext(done);
 
     try {
-      if (done === value) return start.concat(end);
+      if (done === value) {
+        if (undefined !== ifEmpty) return ifEmpty;
+
+        return start.concat(end);
+      }
 
       let result = start.concat(valueToString(value));
 

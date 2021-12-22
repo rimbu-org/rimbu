@@ -1303,12 +1303,21 @@ describe('AsyncStream methods', () => {
       await AsyncStream.empty().join({ start: '<', end: '>', sep: '-' })
     ).toBe('<>');
     expect(
+      await AsyncStream.empty().join({
+        start: '<',
+        end: '>',
+        sep: '-',
+        ifEmpty: 'abc',
+      })
+    ).toBe('abc');
+    expect(
       await AsyncStream.of(1).join({ start: '<', end: '>', sep: '-' })
     ).toBe('<1>');
     expect(
       await AsyncStream.of(1, 2, 3).join({ start: '<', end: '>', sep: '-' })
     ).toBe('<1-2-3>');
     expect(await AsyncStream.of(1, 2, 3).join()).toBe('123');
+    expect(await AsyncStream.of(1, 2, 3).join({ ifEmpty: 'abc' })).toBe('123');
   });
   it('join close', async () => {
     const s = createResourceStream([1, 2, 3]);

@@ -175,9 +175,21 @@ export class NonLeafBlock<T, C extends Block<T, C>>
   }
 
   concat<T2>(other: NonLeaf<T2, C>): NonLeaf<T | T2, C> {
-    if (other instanceof NonLeafBlock) return (this as any).concatBlock(other);
-    if (this.context.isNonLeafTree(other))
+    if (other instanceof NonLeafBlock) {
+      if (other === this && this.children.length > this.context.minBlockSize) {
+        return this.context.nonLeafTree<T | T2, any>(
+          this as any,
+          this as any,
+          null,
+          this.level
+        );
+      }
+
+      return (this as any).concatBlock(other);
+    }
+    if (this.context.isNonLeafTree(other)) {
       return (this as any).concatTree(other);
+    }
 
     RimbuError.throwInvalidStateError();
   }
@@ -304,6 +316,23 @@ export class NonLeafBlock<T, C extends Block<T, C>>
     }
   }
 
+  mapPure<T2>(
+    mapFun: (value: T) => T2,
+    reversed = false,
+    cacheMap = this.context.createCacheMap()
+  ): NonLeafBlock<T2, Block<T2>> {
+    const cachedThis = cacheMap.get(this);
+    if (cachedThis) return cachedThis;
+
+    const fn = reversed ? Arr.reverseMap : Arr.map;
+
+    const newChildren = fn(this.children, (c: C): any =>
+      c.mapPure(mapFun, reversed, cacheMap)
+    );
+
+    return cacheMap.setAndReturn(this, this.copy2(newChildren));
+  }
+
   map<T2>(
     mapFun: (value: T, index: number) => T2,
     reversed = false,
@@ -338,12 +367,17 @@ export class NonLeafBlock<T, C extends Block<T, C>>
     }
   }
 
-  reversed(): NonLeafBlock<T, C> {
+  reversed(cacheMap = this.context.createCacheMap()): NonLeafBlock<T, C> {
+    const cachedThis = cacheMap.get(this);
+    if (cachedThis !== undefined) return cachedThis;
+
     const newChildren = Arr.reverseMap(
       this.children,
-      (child): C => child.reversed()
+      (child): C => child.reversed(cacheMap)
     );
-    return this.copy(newChildren, this.length);
+
+    const reversedThis = this.copy(newChildren, this.length);
+    return cacheMap.setAndReturn(this, reversedThis);
   }
 
   toArray(range?: IndexRange, reversed = false): T[] | any {

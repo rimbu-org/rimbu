@@ -287,6 +287,28 @@ export class LeafTree<T>
     treeForEach<T, LeafTree<T>, LeafBlock<T>, T>(this, f, state);
   }
 
+  mapPure<T2>(
+    mapFun: (value: T) => T2,
+    reversed = false,
+    cacheMap = this.context.createCacheMap()
+  ): LeafTree<T2> {
+    const currentValue = cacheMap.get(this);
+    if (currentValue) return currentValue;
+
+    const mappedLeft = this.left.mapPure(mapFun, reversed, cacheMap);
+    const mappedMiddle =
+      null === this.middle
+        ? null
+        : this.middle.mapPure(mapFun, reversed, cacheMap);
+    const mappedRight = this.right.mapPure(mapFun, reversed, cacheMap);
+
+    const result = reversed
+      ? this.copy2(mappedRight, mappedLeft, mappedMiddle)
+      : this.copy2(mappedLeft, mappedRight, mappedMiddle);
+
+    return cacheMap.setAndReturn(this, result);
+  }
+
   map<T2>(
     mapFun: (value: T, index: number) => T2,
     reversed = false,
@@ -320,12 +342,17 @@ export class LeafTree<T>
     return this.copy2(newLeft, newRight, newMiddle);
   }
 
-  reversed(): LeafTree<T> {
-    return this.copy(
-      this.right.reversed(),
-      this.left.reversed(),
-      null === this.middle ? null : this.middle.reversed()
-    );
+  reversed(cacheMap = this.context.createCacheMap()): LeafTree<T> {
+    const cachedThis = cacheMap.get(this);
+    if (cachedThis !== undefined) return cachedThis;
+
+    const newMid = this.middle?.reversed(cacheMap) ?? null;
+    const newLeft = this.right.reversed(cacheMap);
+    const newRight =
+      this.left === this.right ? newLeft : this.left.reversed(cacheMap);
+
+    const reversedThis = this.copy(newLeft, newRight, newMid);
+    return cacheMap.setAndReturn(this, reversedThis);
   }
 
   toArray(range?: IndexRange, reversed = false): T[] | any {
