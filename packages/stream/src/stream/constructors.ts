@@ -142,7 +142,8 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   intersperse(): Stream<T> {
     return this;
   }
-  join({ start = '', end = '' } = {}): string {
+  join({ start = '', end = '', ifEmpty = undefined } = {}): string {
+    if (undefined !== ifEmpty) return ifEmpty;
     return start.concat(end);
   }
   mkGroup({

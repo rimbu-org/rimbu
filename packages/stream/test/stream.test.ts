@@ -834,12 +834,16 @@ describe('Stream methods', () => {
 
   it('join', () => {
     expect(Stream.empty().join()).toBe('');
+    expect(Stream.empty().join({ start: '<', end: '>', ifEmpty: 'abc' })).toBe(
+      'abc'
+    );
     expect(Stream.empty().join({ start: '<', end: '>', sep: '-' })).toBe('<>');
     expect(Stream.of(1).join({ start: '<', end: '>', sep: '-' })).toBe('<1>');
     expect(Stream.of(1, 2, 3).join({ start: '<', end: '>', sep: '-' })).toBe(
       '<1-2-3>'
     );
     expect(Stream.of(1, 2, 3).join()).toBe('123');
+    expect(Stream.of(1, 2, 3).join({ ifEmpty: 'abc' })).toBe('123');
   });
 
   it('mkGroup', () => {

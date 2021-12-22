@@ -509,6 +509,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * * start: (optional) a start string to prepend at the start
    * * end: (optional) an end string to append at the end
    * * valueToString: (default: String) a function converting a Stream element to a string
+   * * ifEmpty: (optional) a string to return instead of the start and end tag if the stream is empty
    * @example
    * Stream.of(1, 2, 3).join({ start: '<', sep: ', ', end: '>' })
    * // => '<1, 2, 3>'
@@ -519,6 +520,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
     start?: string;
     end?: string;
     valueToString?: (value: T) => string;
+    ifEmpty?: string;
   }): string;
   /**
    * Returns a Stream starting with `options.sep`, then returning the elements of this Stream interspersed with `options.sep`, and ending with

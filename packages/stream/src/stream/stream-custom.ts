@@ -400,12 +400,16 @@ export abstract class StreamBase<T> implements Stream<T> {
     start = '',
     end = '',
     valueToString = String,
+    ifEmpty = undefined,
   } = {}): string {
     const done = Symbol('Done');
     const iterator = this[Symbol.iterator]();
     let value: T | typeof done = iterator.fastNext(done);
 
-    if (done === value) return start.concat(end);
+    if (done === value) {
+      if (undefined !== ifEmpty) return ifEmpty;
+      return start.concat(end);
+    }
 
     let result = start.concat(valueToString(value));
 
