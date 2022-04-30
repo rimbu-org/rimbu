@@ -1,5 +1,5 @@
 import { Stream } from '@rimbu/stream';
-import { LeafBlock, ListContext, NonLeafBlock } from '../src/list-custom';
+import { LeafBlock, ListContext, NonLeafBlock } from '@rimbu/list/custom';
 import './setupTests';
 
 const context = new ListContext(2);

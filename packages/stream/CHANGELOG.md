@@ -3,18 +3,6 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [0.9.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@0.8.2...@rimbu/stream@0.9.0) (2021-12-22)
-
-
-### Features
-
-* **stream:** add ifEmpty option to join method in AsyncStream ([5b1ac32](https://github.com/rimbu-org/rimbu/commit/5b1ac328a0dcdfed8d644f315f5babe511c89772))
-* **stream:** add ifEmpty option to Stream.join ([53d520a](https://github.com/rimbu-org/rimbu/commit/53d520a7bbbf6be18690a925162a8bc2607dc31f))
-
-
-
-
-
 ## [0.8.2](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@0.8.1...@rimbu/stream@0.8.2) (2021-11-25)
 
 **Note:** Version bump only for package @rimbu/stream

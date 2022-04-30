@@ -4,6 +4,13 @@
   "rootDir": "./src",
   "compilerOptions": {
     "outDir": "./dist",
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@rimbu/stream/async-custom": ["./src/async-custom/index.ts"],
+      "@rimbu/stream/async": ["./src/async/index.ts"],
+      "@rimbu/stream/custom": ["./src/custom/index.ts"],
+      "@rimbu/stream": ["./src/main/index.ts"]
+    }
   }
 }

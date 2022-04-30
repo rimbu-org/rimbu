@@ -7,7 +7,7 @@ import type {
 import type { ArrayNonEmpty } from '@rimbu/common';
 import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-import type { MultiMap, VariantMultiMap } from '../src';
+import type { MultiMap, VariantMultiMap } from '@rimbu/multimap';
 
 type VE<K, V> = VariantMultiMap<K, V>;
 type VNE<K, V> = VariantMultiMap.NonEmpty<K, V>;

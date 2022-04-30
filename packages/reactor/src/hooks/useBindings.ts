@@ -199,8 +199,6 @@ export namespace Binding {
    * when invoking the binding. If the command is not enabled, the disabled property will be true.
    * @typeparam Args - the arguments for the command
    * @param sourceCommand - the command to bind to
-   * @example
-   *
    */
   export function commandArgs<Args extends readonly unknown[] = []>(
     sourceCommand: Command<Args>

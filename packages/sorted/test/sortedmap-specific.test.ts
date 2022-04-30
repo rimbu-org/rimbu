@@ -1,5 +1,5 @@
 import { Stream } from '@rimbu/stream';
-import { SortedMap } from '../src';
+import { SortedMap } from '@rimbu/sorted';
 
 function entries<T>(...keys: T[]): [T, T][] {
   return keys.map((v) => [v, v]);

@@ -4,7 +4,9 @@ import { Literal, patch, Patch } from './internal';
  * A string representing a path into an (nested) object of type T.
  * @typeparam T - the object type to select in
  * @example
+ * ```ts
  * const p: Path<{ a: { b: { c : 5 }}}> = 'a.b'
+ * ```
  */
 export type Path<T> = T extends Literal.Obj
   ? { [K in string & keyof T]: `${K}` | `${K}.${Path<T[K]>}` }[string & keyof T]
@@ -16,8 +18,10 @@ export namespace Path {
    * @typeparam T - the object type to select in
    * @typeparam P - a Path in object type T
    * @example
+   * ```ts
    * let r!: Path.Result<{ a: { b: { c: number } } }, 'a.b'>;
    * // => type of r: { c: number }
+   * ```
    */
   export type Result<T, P extends Path<T> = Path<T>> = T extends Record<
     string,
@@ -39,10 +43,12 @@ export namespace Path {
    * @param source - the object to select in
    * @param path - the path into the object
    * @example
+   * ```ts
    * console.log(Path.getValue({ a: { b: { c: 5 } } }), 'a.b')
    * // => { c: 5 }
    * console.log(Path.getValue({ a: { b: { c: 5 } } }), 'a.b.c')
    * // => 5
+   * ```
    */
   export function getValue<T, P extends Path<T> = Path<T>>(
     source: T,
@@ -65,7 +71,9 @@ export namespace Path {
    * @param path - the path in the object to update
    * @param value - the new value to set at the given position
    * @example
+   * ```ts
    * console.log(Path.setValue({ a: { b: { c: 5  } } }))
+   * ```
    */
   export function setValue<T, P extends Path<T> = Path<T>>(
     source: T,
@@ -100,8 +108,10 @@ export namespace Path {
    * @param path - the path in the object to update
    * @param patches - one or more patches to update the value at the given path
    * @example
+   * ```ts
    * console.log(Path.setValue({ a: { b: { c: 5 } } }, 'a.b.c', 8)
    * // => { a: { b: { c: 8 } } }
+   * ```
    */
   export function patchValue<T, P extends Path<T> = Path<T>>(
     source: T,

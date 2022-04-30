@@ -5,7 +5,7 @@ import {
   ListContext,
   NonLeafBlock,
   NonLeafTree,
-} from '../src/list-custom';
+} from '@rimbu/list/custom';
 import './setupTests';
 
 const context = new ListContext(2);

@@ -6,6 +6,7 @@ import { useActorSubscribe, useUpdateUI } from '../internal';
  * the given `getSubject` method state changes.
  * @param getSubject - a function returning an actor that can be memoized
  * @example
+ * ```ts
  * const obs = Obs.create({ value: 1 })
  *
  * export const MyComponent = () => {
@@ -18,6 +19,7 @@ import { useActorSubscribe, useUpdateUI } from '../internal';
  *     </>
  *   )
  * }
+ * ```
  */
 export function useSubscribeUpdateUI(
   getSubject: () => Actor.Readonly<any>

@@ -1,5 +1,5 @@
-import { Stream } from '@rimbu/stream';
 import type { RSet } from '@rimbu/collection-types';
+import { Stream } from '@rimbu/stream';
 
 function expectSet(s: RSet<any>): any {
   return {

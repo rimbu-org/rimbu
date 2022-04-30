@@ -1,5 +1,6 @@
 import { OptLazy } from '@rimbu/common';
-import { FastIterator, StreamCustom } from '../src';
+import { FastIterator } from '@rimbu/stream';
+import { FastIteratorBase } from '@rimbu/stream/custom';
 
 describe('FastIterator', () => {
   it('fixedDone', () => {
@@ -14,13 +15,13 @@ describe('FastIterator', () => {
   });
 
   it('Base', () => {
-    class Test1 extends StreamCustom.FastIteratorBase<number> {
+    class Test1 extends FastIteratorBase<number> {
       fastNext(): number {
         return 1;
       }
     }
 
-    class Test2 extends StreamCustom.FastIteratorBase<number> {
+    class Test2 extends FastIteratorBase<number> {
       fastNext<O>(otherwise?: OptLazy<O>): number | O {
         return OptLazy(otherwise)!;
       }

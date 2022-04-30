@@ -1,12 +1,10 @@
 import { Comp } from '@rimbu/common';
-import { SortedSetCustom } from '../src';
 import {
+  SortedSetContext,
   SortedSetEmpty,
   SortedSetInner,
   SortedSetLeaf,
-} from '../src/sortedset-custom';
-
-const { SortedSetContext } = SortedSetCustom;
+} from '@rimbu/sorted/set-custom';
 
 const context = new SortedSetContext(2, Comp.defaultComp());
 

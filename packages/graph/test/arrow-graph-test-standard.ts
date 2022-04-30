@@ -1,6 +1,7 @@
 import type { ArrayNonEmpty } from '@rimbu/common';
+import { ArrowGraph, ArrowGraphHashed } from '@rimbu/graph';
+import type { GraphElement, Link } from '@rimbu/graph/custom';
 import { Stream } from '@rimbu/stream';
-import { ArrowGraph, ArrowGraphHashed, GraphElement, Link } from '../src';
 
 function expectEqual<N>(
   source: { streamConnections(): Stream<Link<N>> },

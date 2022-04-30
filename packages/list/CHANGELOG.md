@@ -3,23 +3,6 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [0.9.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/list@0.8.3...@rimbu/list@0.9.0) (2021-12-22)
-
-
-### Bug Fixes
-
-* export values along with types of generic collections that support context creation ([704297a](https://github.com/rimbu-org/rimbu/commit/704297af9bff9edf57ef5fee00426b8b074ffd81))
-
-
-### Features
-
-* **list:** add mapPure method to List ([fa3adda](https://github.com/rimbu-org/rimbu/commit/fa3addaa364f7a5fe1829cb41f6bdba454b0ce3a))
-* **stream:** add ifEmpty option to Stream.join ([53d520a](https://github.com/rimbu-org/rimbu/commit/53d520a7bbbf6be18690a925162a8bc2607dc31f))
-
-
-
-
-
 ## [0.8.3](https://github.com/rimbu-org/rimbu/compare/@rimbu/list@0.8.2...@rimbu/list@0.8.3) (2021-11-25)
 
 

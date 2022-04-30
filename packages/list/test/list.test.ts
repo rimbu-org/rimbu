@@ -1,6 +1,6 @@
 import type { CollectFun } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
-import { List as ListSrc } from '../src';
+import { List as ListSrc } from '@rimbu/list';
 
 const List = ListSrc.createContext({ blockSizeBits: 2 });
 

@@ -30,11 +30,6 @@ export type StringNonEmpty<T> = T extends string
   : never;
 
 /**
- * A stronger version of `Omit`, which only accepts keys that are in type T.
- */
-export type OmitStrong<T, K extends keyof T> = Omit<T, K>;
-
-/**
  * Utility type to convert some object to a JSON serializable format.
  * @typeparam V - the `value` type
  * @typeparam D - the `dataType` tag string type

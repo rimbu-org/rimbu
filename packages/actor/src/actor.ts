@@ -60,6 +60,7 @@ export namespace Actor {
    * @param actor - the Actor or Obs instance to add the given `props` to
    * @param props - the properties to add to the `actor`.
    * @example
+   * ```ts
    * const o = Obs.create({ count: 0 })
    * const actor = Actor.from(o, {
    *   inc(amount: number) {
@@ -78,6 +79,7 @@ export namespace Actor {
    * actor.reset()
    * console.log(actor.state)
    * // => { count: 0 }
+   * ```
    */
   export const from: {
     <T, P extends Record<string, unknown>, D = unknown>(

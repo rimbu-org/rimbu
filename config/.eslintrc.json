@@ -1,12 +1,13 @@
 {
-  "plugins": ["@typescript-eslint"],
+  "plugins": ["@typescript-eslint", "unused-imports"],
   "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
   "rules": {
     "no-constant-condition": "warn",
     "no-inner-declarations": "warn",
     "@typescript-eslint/no-namespace": "off",
     "@typescript-eslint/no-empty-interface": "warn",
-    "@typescript-eslint/explicit-function-return-type": "error"
+    "@typescript-eslint/explicit-function-return-type": "error",
+    "unused-imports/no-unused-imports": "error"
   },
-  "ignorePatterns": ["test", "test-d", "docs", "*.js"]
+  "ignorePatterns": ["test", "test-d", "docs", "*.js", "doc-gen", "deno_dist"]
 }

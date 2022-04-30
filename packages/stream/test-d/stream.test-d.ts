@@ -6,7 +6,7 @@ import {
   expectNotType,
   expectType,
 } from 'tsd';
-import { FastIterator, Stream } from '../src';
+import { FastIterator, Stream } from '@rimbu/stream';
 
 // Variance
 expectAssignable<Stream<number | string>>(Stream.empty<number>());

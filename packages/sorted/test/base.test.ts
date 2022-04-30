@@ -1,9 +1,7 @@
-import { SortedCustom } from '../src';
-import type { LeafMutateSource } from '../src/base';
-
-const {
-  leafDeleteMin,
+import type { LeafMutateSource } from '@rimbu/sorted/set-custom';
+import {
   leafDeleteMax,
+  leafDeleteMin,
   leafMutateGetFromLeft,
   leafMutateGetFromRight,
   leafMutateGiveToLeft,
@@ -12,7 +10,7 @@ const {
   leafMutateJoinRight,
   leafMutateSplitRight,
   SortedEmpty,
-} = SortedCustom;
+} from '@rimbu/sorted/set-custom';
 
 function createSource<T>(values: T[]): LeafMutateSource<any, T> {
   return {

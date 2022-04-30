@@ -1,6 +1,7 @@
 import { Arr } from '@rimbu/base';
 import { AsyncReducer, Eq, Err, Reducer } from '@rimbu/common';
-import { AsyncStream, AsyncStreamSource, Stream } from '../src';
+import { Stream } from '@rimbu/stream';
+import { AsyncStream, AsyncStreamSource } from '@rimbu/stream/async';
 
 const streamRange1 = Stream.range({ amount: 100 });
 const streamRange2 = Stream.from(streamRange1.toArray());

@@ -1,4 +1,4 @@
-import { HashMultiSet } from '../src';
+import { HashMultiSet } from '@rimbu/multiset';
 import { runMultiSetRandomTestsWith } from './multiset-test-random';
 
 runMultiSetRandomTestsWith(

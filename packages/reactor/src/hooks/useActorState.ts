@@ -10,6 +10,7 @@ import { useConst } from './useConst';
  * @param getActor - a memoizable function optionally taking some args, and returning an Actor.
  * @param args - the arguments to supply to `getActor`
  * @example
+ * ```ts
  * function createActor(defaultString: string) {
  *   const obs = Obs.create({ value: defaultString })
  *   setTimeout(() => obs.setState({ value: 'other' }), 1000);
@@ -26,6 +27,7 @@ import { useConst } from './useConst';
  *     </>
  *   )
  * }
+ * ```
  */
 export function useActorState<
   A extends Actor.Readonly<unknown>,

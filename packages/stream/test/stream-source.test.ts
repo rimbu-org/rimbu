@@ -1,4 +1,4 @@
-import { Stream, StreamSource } from '../src';
+import { Stream, StreamSource } from '@rimbu/stream';
 
 describe('StreamSource.isEmptyInstance', () => {
   it('correctly detects empty instances', () => {

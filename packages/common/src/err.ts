@@ -1,9 +1,11 @@
 /**
  * Throws an `Err.ForcedError` error when called.
  * @example
+ * ```ts
  * const emptyMap = HashMap.empty<number, string>()
  * emptyMap.get(5, Err);
  * // throws: Err.CustomError(message: 'Err: forced to throw error')
+ * ```
  */
 export function Err(): never {
   return ErrBase.msg('Err: Forced to throw error')();

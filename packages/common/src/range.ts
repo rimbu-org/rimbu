@@ -1,16 +1,17 @@
 /**
  * A range definition for any type of (orderable) value.
  * If a start or end is defined, a tuple can be used where the second item is a boolean
- * indicating whether that end is inclusive or exclusive.
- * An Range of type T can have one of the following forms:
- * - { end: T }
- * - { end: [T, boolean] }
- * - { start: T }
- * - { start: T, end: T }
- * - { start: T, end: [T, boolean] }
- * - { start: [T, boolean] }
- * - { start: [T, boolean], end: T }
- * - { start: [T, boolean], end: [T, boolean] }
+ * indicating whether that end is inclusive (true) or exclusive (false).<br/>
+ * A Range of type T can have one of the following forms:<br/>
+ * <br/>
+ * - { end: T }<br/>
+ * - { end: [T, boolean] }<br/>
+ * - { start: T }<br/>
+ * - { start: T, end: T }<br/>
+ * - { start: T, end: [T, boolean] }<br/>
+ * - { start: [T, boolean] }<br/>
+ * - { start: [T, boolean], end: T }<br/>
+ * - { start: [T, boolean], end: [T, boolean] }<br/>
  */
 export type Range<T> =
   | { start: T | [T, boolean]; end?: T | [T, boolean]; amount?: undefined }

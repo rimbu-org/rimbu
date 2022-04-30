@@ -32,11 +32,13 @@ export namespace Eq {
   /**
    * An Eq instance that uses `Object.is` to determine if two objects are equal.
    * @example
+   * ```ts
    * const eq = Eq.objectIs
    * console.log(eq(5, 5))
    * // => true
    * console.log(eq(5, 'a'))
    * // => false
+   * ```
    */
   export const objectIs: Eq<any> = Object.is;
 
@@ -48,11 +50,13 @@ export namespace Eq {
    * @typeparam T - the object type containing a valueOf function of type V
    * @typeparam V - the valueOf result type
    * @example
+   * ```ts
    * const eq = Eq.valueOfEq()
    * console.log(eq(new Number(5), new Number(5)))
    * // => true
    * console.log(eq(new Number(5), new Number(3)))
    * // => false
+   * ```
    */
   export function valueOfEq<T extends { valueOf(): V }, V>(): Eq<T> {
     return _valueOfEq;
@@ -61,11 +65,13 @@ export namespace Eq {
   /**
    * Returns an Eq instance that compares Date objects according to their `valueOf` value.
    * @example
+   * ```ts
    * const eq = Eq.dateEq()
    * console.log(eq(new Date(2020, 1, 1), new Date(2020, 1, 1))
    * // => true
    * console.log(eq(new Date(2020, 1, 1), new Date(2020, 2, 1))
    * // => false
+   * ```
    */
   export function dateEq(): Eq<Date> {
     return _valueOfEq;
@@ -96,11 +102,13 @@ export namespace Eq {
    * @typeparam T - the Iterable element type
    * @param itemEq - (optional) the Eq instance to use to compare the Iterable's elements
    * @example
+   * ```ts
    * const eq = Eq.iterableEq();
    * console.log(eq([1, 2, 3], [1, 2, 3])
    * // => true
    * console.log(eq([1, 2, 3], [1, 3, 2])
    * // => false
+   * ```
    */
   export function iterableEq<T>(itemEq?: Eq<T>): Eq<Iterable<T>> {
     if (undefined === itemEq) return _iterableAnyEq;
@@ -141,11 +149,13 @@ export namespace Eq {
    * @typeparam - the object property value type
    * @param valueEq - (optional) the Eq instance to use to compare property values
    * @example
+   * ```ts
    * const eq = Eq.objectEq()
    * console.log(eq({ a: 1, b: { c: 2 }}, { b: { c: 2 }, a: 1 }))
    * // => true
    * console.log(eq({ a: 1, b: { c: 2 }}, { a: 1, b: { c: 3 }}))
    * // => false
+   * ```
    */
   export function objectEq<V = any>(valueEq?: Eq<V>): Eq<Record<any, V>> {
     if (undefined === valueEq) return _objectEq;
@@ -217,11 +227,13 @@ export namespace Eq {
    * it will compare with Object.is.
    * @typeparam T - the value type
    * @example
+   * ```ts
    * const eq = anyFlatEq()
    * console.log(eq(1, 'a'))
    * // => false
    * console.log(eq({ a: 1, b: 2 }, { b: 2, a: 1 }))
    * // => false
+   * ```
    */
   export function anyFlatEq<T = any>(): Eq<T> {
     return _anyFlatEq;
@@ -233,6 +245,7 @@ export namespace Eq {
    * with Object.is.
    * @typeparam T - the value type
    * @example
+   * ```ts
    * const eq = anyFlatEq()
    * console.log(eq(1, 'a'))
    * // => false
@@ -240,6 +253,7 @@ export namespace Eq {
    * // => true
    * console.log(eq([{ a: 1, b: 2 }], [{ b: 2, a: 1 }]))
    * // => false
+   * ```
    */
   export function anyShallowEq<T = any>(): Eq<T> {
     return _anyShallowEq;
@@ -252,6 +266,7 @@ export namespace Eq {
    * may cause infinite loops
    * @typeparam T - the value type
    * @example
+   * ```ts
    * const eq = anyFlatEq()
    * console.log(eq(1, 'a'))
    * // => false
@@ -259,6 +274,7 @@ export namespace Eq {
    * // => true
    * console.log(eq([{ a: 1, b: 2 }], [{ b: 2, a: 1 }]))
    * // => false
+   * ```
    */
   export function anyDeepEq<T = any>(): Eq<T> {
     return _anyDeepEq;
@@ -274,11 +290,13 @@ export namespace Eq {
    * @param locales - (optional) a locale or list of locales
    * @param options - (optional) see String.localeCompare for details
    * @example
+   * ```ts
    * const eq = Eq.createStringCollatorEq()
    * console.log(eq('a', 'a'))
    * // => true
    * console.log(eq('abc', 'aBc'))
    * // => false
+   * ```
    */
   export function createStringCollatorEq(
     ...args: ConstructorParameters<typeof Intl.Collator>
@@ -297,11 +315,13 @@ export namespace Eq {
   /**
    * Returns an Eq instance that considers strings equal regardless of their case.
    * @example
+   * ```ts
    * const eq = Eq.stringCaseInsentitiveEq()
    * console.log(eq('aB', 'Ab'))
    * // => true
    * console.log(eq('aBc', 'abB'))
    * // => false
+   * ```
    */
   export function stringCaseInsentitiveEq(): Eq<string> {
     return _stringCaseInsensitiveEq;
@@ -324,11 +344,13 @@ export namespace Eq {
   /**
    * Returns an Eq instance that considers strings equal when all their charcodes are equal.
    * @example
+   * ```ts
    * const eq = Eq.stringCharCodeEq()
    * console.log(eq('a', 'a'))
    * // => true
    * console.log(eq('abc', 'aBc'))
    * // => false
+   * ```
    */
   export function stringCharCodeEq(): Eq<string> {
     return _stringCharCodeEq;
@@ -347,11 +369,13 @@ export namespace Eq {
   /**
    * Returns an Eq instance that considers values equal their JSON.stringify values are equal.
    * @example
+   * ```ts
    * const eq = Eq.anyJsonEq()
    * console.log(eq({ a: 1, b: 2 }, { a: 1, b: 2 }))
    * // => true
    * console.log(eq({ a: 1, b: 2 }, { b: 2, a: 1 }))
    * // => false
+   * ```
    */
   export function anyJsonEq(): Eq<any> {
     return _anyJsonEq;
@@ -362,6 +386,7 @@ export namespace Eq {
    * or if [A, B] equals [D, C]
    * @param eq - (optional) an alternative `Eq` instance to use for the values in the tuple
    * @example
+   * ```ts
    * const eq = Eq.tupleSymmetric()
    * console.log(eq([1, 2], [1, 2]))
    * // => true
@@ -369,6 +394,7 @@ export namespace Eq {
    * // => true
    * console.log(eq([1, 3], [2, 1]))
    * // => false
+   * ```
    */
   export function tupleSymmetric<T>(
     eq: Eq<T> = defaultEq()

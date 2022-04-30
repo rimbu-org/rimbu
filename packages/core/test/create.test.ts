@@ -1,7 +1,7 @@
-import Rimbu from '../src';
+import Menu from '@rimbu/core/menu';
 
 describe('Create', () => {
   it('creates', () => {
-    expect(Rimbu.Create.List.of(1, 2, 3).toArray()).toEqual([1, 2, 3]);
+    expect(Menu.List.of(1, 2, 3).toArray()).toEqual([1, 2, 3]);
   });
 });

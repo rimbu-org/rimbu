@@ -3,17 +3,6 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [0.8.4](https://github.com/rimbu-org/rimbu/compare/@rimbu/core@0.8.3...@rimbu/core@0.8.4) (2021-12-22)
-
-
-### Bug Fixes
-
-* export values along with types of generic collections that support context creation ([704297a](https://github.com/rimbu-org/rimbu/commit/704297af9bff9edf57ef5fee00426b8b074ffd81))
-
-
-
-
-
 ## [0.8.3](https://github.com/rimbu-org/rimbu/compare/@rimbu/core@0.8.2...@rimbu/core@0.8.3) (2021-11-25)
 
 **Note:** Version bump only for package @rimbu/core

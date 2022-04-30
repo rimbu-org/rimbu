@@ -53,61 +53,74 @@ export namespace Reducer {
     stateToResult(state: S): O;
     /**
      * Returns a `Reducer` instance that only passes values to the reducer that satisy the given `pred` predicate.
-     * @param pred - a function that returns true if the value should be passed to the reducer based on the following inputs:
-     * - value: the current input value
-     * - index: the current input index
+     * @param pred - a function that returns true if the value should be passed to the reducer based on the following inputs:<br/>
+     * - value: the current input value<br/>
+     * - index: the current input index<br/>
      * - halt: function that, when called, ensures no more new values are passed to the reducer
      * @example
+     * ```ts
      * Reducer.sum.filterInput(v => v > 10)
      * // this reducer will only sum values larger than 10
+     * ```
      */
     filterInput(
       pred: (value: I, index: number, halt: () => void) => boolean
     ): Reducer<I, O>;
     /**
      * Returns a `Reducer` instance that converts its input values using given `mapFun` before passing them to the reducer.
-     * @param mapFun - a function that returns a new value to pass to the reducer based on the following inputs:
-     * - value: the current input value
+     * @param mapFun - a function that returns a new value to pass to the reducer based on the following inputs:<br/>
+     * - value: the current input value<br/>
      * - index: the current input index
      * @example
+     * ```ts
      * Reducer.sum.mapInput(v => v * 2)
      * // this reducer will double all input values before summing them
+     * ```
      */
     mapInput<I2>(mapFun: (value: I2, index: number) => I): Reducer<I2, O>;
     /**
      * Returns a `Reducer` instance that converts or filters its input values using given `collectFun` before passing them to the reducer.
-     * @param collectFun - a function receiving
-     * * `value`: the next value
-     * * `index`: the value index
-     * * `skip`: a token that, when returned, will not add a value to the resulting collection
-     * * `halt`: a function that, when called, ensures no next elements are passed
+     * @param collectFun - a function receiving<br/>
+     * - `value`: the next value<br/>
+     * - `index`: the value index<br/>
+     * - `skip`: a token that, when returned, will not add a value to the resulting collection<br/>
+     * - `halt`: a function that, when called, ensures no next elements are passed
      * @example
+     * ```ts
      * Reducer.sum.collectInput((v, _, skip) => v <= 10 ? skip : v * 2)
      * // this reducer will double all input values larger thant 10 before summing them,
      * // and will skip all values smaller than 10
+     * ```
      */
     collectInput<I2>(collectFun: CollectFun<I2, I>): Reducer<I2, O>;
     /**
      * Returns a `Reducer` instance that converts its output values using given `mapFun`.
      * @param mapFun - a function that takes the current output value and converts it to a new output value
+     * @example
+     * ```ts
      * Reducer.sum.mapOutput(String)
      * // this reducer will convert all its results to string before returning them
+     * ```
      */
     mapOutput<O2>(mapFun: (value: O) => O2): Reducer<I, O2>;
     /**
      * Returns a `Reducer` instance that takes at most the given `amount` of input elements, and will ignore subsequent elements.
      * @param amount - the amount of elements to accept
      * @example
+     * ```ts
      * Stream.range({ end: 10 }).reduce(Reducer.sum.takeInput(2))
      * // => 1
+     * ```
      */
     takeInput(amount: number): Reducer<I, O>;
     /**
      * Returns a `Reducer` instance that skips the first given `amount` of input elements, and will process subsequent elements.
      * @param amount - the amount of elements to skip
      * @example
+     * ```ts
      * Stream.range({ end: 10 }).reduce(Reducer.sum.dropInput(9))
      * // => 19
+     * ```
      */
     dropInput(amount: number): Reducer<I, O>;
     /**
@@ -115,8 +128,10 @@ export namespace Reducer {
      * @param from - (default: 0) the index at which to start processing elements
      * @param amount - (optional) the amount of elements to process, if not given, processes all elements from the `from` index
      * @example
+     * ```ts
      * Stream.range({ end: 10 }).reduce(Reducer.sum.sliceInput(1, 2))
      * // => 3
+     * ```
      */
     sliceInput(from?: number, amount?: number): Reducer<I, O>;
   }
@@ -222,16 +237,17 @@ export namespace Reducer {
   /**
    * Returns a `Reducer` with the given options:
    * @param init - the initial state value
-   * @param next - returns the next state value based on the given inputs:
-   * - current: the current state
-   * - next: the current input value
-   * - index: the input index value
+   * @param next - returns the next state value based on the given inputs:<br/>
+   * - current: the current state<br/>
+   * - next: the current input value<br/>
+   * - index: the input index value<br/>
    * - halt: function that, when called, ensures no more elements are passed to the reducer
    * @param stateToResult - a function that converts the current state to an output value
    * @typeparam I - the input value type
    * @typeparam O - the output value type
    * @typeparam S - the internal state type
    * @example
+   * ```ts
    * const evenNumberOfOnes = Reducer
    *   .create(
    *     true,
@@ -240,6 +256,7 @@ export namespace Reducer {
    * const result = Stream.of(1, 2, 3, 2, 1)).reduce(evenNumberOfOnes)
    * console.log+(result)
    * // => 'even'
+   * ```
    */
   export function create<I, O = I, S = O>(
     init: Reducer.Init<S>,
@@ -252,13 +269,15 @@ export namespace Reducer {
   /**
    * Returns a `Reducer` of which the input, state, and output types are the same.
    * @param init - the initial state value
-   * @param next - returns the next state value based on the given inputs:
-   * - current: the current state
-   * - next: the current input value
-   * - index: the input index value
+   * @param next - returns the next state value based on the given inputs:<br/>
+   * - current: the current state<br/>
+   * - next: the current input value<br/>
+   * - index: the input index value<br/>
    * - halt: function that, when called, ensures no more elements are passed to the reducer
    * @param stateToResult - (optional) a function that converts the current state to an output value
    * @typeparam T - the overall value type
+   * @example
+   * ```ts
    * const sum = Reducer
    *   .createMono(
    *     0,
@@ -267,6 +286,7 @@ export namespace Reducer {
    * const result = Stream.of(1, 2, 3, 2, 1)).reduce(sum)
    * console.log+(result)
    * // => 9
+   * ```
    */
   export function createMono<T>(
     init: Reducer.Init<T>,
@@ -279,14 +299,16 @@ export namespace Reducer {
   /**
    * Returns a `Reducer` of which the state and output types are the same.
    * @param init - the initial state value
-   * @param next - returns the next state value based on the given inputs:
-   * - current: the current state
-   * - next: the current input value
-   * - index: the input index value
+   * @param next - returns the next state value based on the given inputs:<br/>
+   * - current: the current state<br/>
+   * - next: the current input value<br/>
+   * - index: the input index value<br/>
    * - halt: function that, when called, ensures no more elements are passed to the reducer
    * @param stateToResult - (optional) a function that converts the current state to an output value
    * @typeparam I - the input value type
    * @typeparam O - the output value type
+   * @example
+   * ```ts
    * const boolToString = Reducer
    *   .createOutput(
    *     '',
@@ -295,6 +317,7 @@ export namespace Reducer {
    * const result = Stream.of(true, false, true)).reduce(boolToString)
    * console.log+(result)
    * // => 'TFT'
+   * ```
    */
   export function createOutput<I, O = I>(
     init: Reducer.Init<O>,
@@ -307,16 +330,20 @@ export namespace Reducer {
   /**
    * A `Reducer` that sums all given numeric input values.
    * @example
+   * ```ts
    * console.log(Stream.range({ amount: 5 }).reduce(Reducer.sum))
    * // => 10
+   * ```
    */
   export const sum = createMono(0, (state, next): number => state + next);
 
   /**
    * A `Reducer` that calculates the product of all given numeric input values.
    * @example
+   * ```ts
    * console.log(Stream.range({ start: 1, amount: 5 }).reduce(product))
    * // => 120
+   * ```
    */
   export const product = createMono(1, (state, next, _, halt): number => {
     if (0 === next) halt();
@@ -326,8 +353,10 @@ export namespace Reducer {
   /**
    * A `Reducer` that calculates the average of all given numberic input values.
    * @example
+   * ```ts
    * console.log(Stream.range({ amount: 5 }).reduce(Reducer.average));
    * // => 2
+   * ```
    */
   export const average = createMono(
     0,
@@ -339,9 +368,11 @@ export namespace Reducer {
    * @param compFun - a comparison function for two input values, returning 0 when equal, positive when greater, negetive when smaller
    * @param otherwise - (default: undefineds) a fallback value when there were no input values given
    * @example
+   * ```ts
    * const stream = Stream.of('abc', 'a', 'abcde', 'ab')
    * console.log(stream.minBy((s1, s2) => s1.length - s2.length))
    * // 'a'
+   * ```
    */
   export const minBy: {
     <T>(compFun: (v1: T, v2: T) => number): Reducer<T, T | undefined>;
@@ -365,8 +396,10 @@ export namespace Reducer {
    * Returns a `Reducer` that remembers the minimum value of the numberic inputs.
    * @param otherwise - (default: undefined) a fallback value when there were no input values given
    * @example
+   * ```ts
    * console.log(Stream.of(5, 3, 7, 4).reduce(Reducer.min()))
    * // => 3
+   * ```
    */
   export const min: {
     (): Reducer<number, number | undefined>;
@@ -385,9 +418,11 @@ export namespace Reducer {
    * @param compFun - a comparison function for two input values, returning 0 when equal, positive when greater, negetive when smaller
    * @param otherwise - (default: undefined) a fallback value when there were no input values given
    * @example
+   * ```ts
    * const stream = Stream.of('abc', 'a', 'abcde', 'ab')
    * console.log(stream.maxBy((s1, s2) => s1.length - s2.length))
    * // 'abcde'
+   * ```
    */
   export const maxBy: {
     <T>(compFun: (v1: T, v2: T) => number): Reducer<T, T | undefined>;
@@ -414,8 +449,10 @@ export namespace Reducer {
    * Returns a `Reducer` that remembers the maximum value of the numberic inputs.
    * @param otherwise - (default: undefined) a fallback value when there were no input values given
    * @example
+   * ```ts
    * console.log(Stream.of(5, 3, 7, 4).reduce(Reducer.max()))
    * // => 7
+   * ```
    */
   export const max: {
     (): Reducer<number, number | undefined>;
@@ -430,14 +467,16 @@ export namespace Reducer {
   };
 
   /**
-   * Returns a `Reducer` that joins the given input values into a string using the given options.
-   * @options - an object containing:
-   * - sep: (optional) a seperator string value between values in the output
-   * - start: (optional) a start string to prepend to the output
-   * - end: (optional) an end string to append to the output
+   * Returns a `yaReducer` that joins the given input values into a string using the given options.
+   * @param options - an object containing:<br/>
+   * - sep: (optional) a seperator string value between values in the output<br/>
+   * - start: (optional) a start string to prepend to the output<br/>
+   * - end: (optional) an end string to append to the output<br/>
    * @example
+   * ```ts
    * console.log(Stream.of(1, 2, 3).reduce(Reducer.join({ sep: '-' })))
    * // => '1-2-3'
+   * ```
    */
   export function join<T>({
     sep = '',
@@ -461,15 +500,17 @@ export namespace Reducer {
 
   /**
    * Returns a `Reducer` that remembers the amount of input items provided.
-   * @param pred - (optional) a predicate that returns false if the item should not be counted given:
-   * - value: the current input value
+   * @param pred - (optional) a predicate that returns false if the item should not be counted given:<br/>
+   * - value: the current input value<br/>
    * - index: the input value index
    * @example
+   * ```ts
    * const stream = Stream.range({ amount: 10 })
    * console.log(stream.reduce(Reducer.count()))
    * // => 10
    * console.log(stream.reduce(Reducer.count(v => v < 5)))
    * // => 5
+   * ```
    */
   export const count: {
     (): Reducer<any, number>;
@@ -490,8 +531,10 @@ export namespace Reducer {
    * @typeparam T - the input value type
    * @typeparam O - the fallback value type
    * @example
+   * ```ts
    * console.log(Stream.range({ amount: 10 }).reduce(Reducer.firstWhere(v => v > 5)))
    * // => 6
+   * ```
    */
   export const firstWhere: {
     <T>(pred: (value: T, index: number) => boolean): Reducer<T, T | undefined>;
@@ -524,8 +567,10 @@ export namespace Reducer {
    * @typeparam T - the input value type
    * @typeparam O - the fallback value type
    * @example
+   * ```ts
    * console.log(Stream.range{ amount: 10 }).reduce(Reducer.first())
    * // => 0
+   * ```
    */
   export const first: {
     <T>(): Reducer<T, T | undefined>;
@@ -551,8 +596,10 @@ export namespace Reducer {
    * @typeparam T - the input value type
    * @typeparam O - the fallback value type
    * @example
+   * ```ts
    * console.log(Stream.range({ amount: 10 }).reduce(Reducer.lastWhere(v => v > 5)))
    * // => 9
+   * ```
    */
   export const lastWhere: {
     <T>(pred: (value: T, index: number) => boolean): Reducer<T, T | undefined>;
@@ -582,8 +629,10 @@ export namespace Reducer {
    * @typeparam T - the input value type
    * @typeparam O - the fallback value type
    * @example
+   * ```ts
    * console.log(Stream.range{ amount: 10 }).reduce(Reducer.first())
    * // => 0
+   * ```
    */
   export const last: {
     <T>(): Reducer<T, T | undefined>;
@@ -602,8 +651,10 @@ export namespace Reducer {
    * Returns a `Reducer` that ouputs false as long as no input value satisfies given `pred`, true otherwise.
    * @param pred - a function taking an input value and its index, and returning true if the value satisfies the predicate
    * @example
+   * ```ts
    * console.log(Stream.range{ amount: 10 }).reduce(Reducer.some(v => v > 5))
    * // => true
+   * ```
    */
   export function some<T>(
     pred: (value: T, index: number) => boolean
@@ -624,8 +675,10 @@ export namespace Reducer {
    * Returns a `Reducer` that ouputs true as long as all input values satisfy the given `pred`, false otherwise.
    * @param pred - a function taking an input value and its index, and returning true if the value satisfies the predicate
    * @example
+   * ```ts
    * console.log(Stream.range{ amount: 10 }).reduce(Reducer.every(v => v < 5))
    * // => false
+   * ```
    */
   export function every<T>(
     pred: (value: T, index: number) => boolean
@@ -648,8 +701,10 @@ export namespace Reducer {
    * @param elem - the element to search for
    * @param eq - (optional) a comparison function that returns true if te two given input values are considered equal
    * @example
+   * ```ts
    * console.log(Stream.range({ amount: 10 }).reduce(Reducer.contains(5)))
    * // => true
+   * ```
    */
   export function contains<T>(
     elem: T,
@@ -670,8 +725,10 @@ export namespace Reducer {
   /**
    * Returns a `Reducer` that takes boolean values and outputs true if all input values are true, and false otherwise.
    * @example
+   * ```ts
    * console.log(Stream.of(true, false, true)).reduce(Reducer.and))
    * // => false
+   * ```
    */
   export const and = createMono(true, (state, next, _, halt): boolean => {
     if (!state) return state;
@@ -682,8 +739,10 @@ export namespace Reducer {
   /**
    * Returns a `Reducer` that takes boolean values and outputs true if one or more input values are true, and false otherwise.
    * @example
+   * ```ts
    * console.log(Stream.of(true, false, true)).reduce(Reducer.or))
    * // => true
+   * ```
    */
   export const or = createMono(false, (state, next, _, halt): boolean => {
     if (state) return state;
@@ -694,8 +753,10 @@ export namespace Reducer {
   /**
    * Returns a `Reducer` that outputs true if no input values are received, false otherwise.
    * @example
+   * ```ts
    * console.log(Stream.of(1, 2, 3).reduce(Reducer.isEmpty))
    * // => false
+   * ```
    */
   export const isEmpty = createOutput<any, boolean>(
     true,
@@ -708,8 +769,10 @@ export namespace Reducer {
   /**
    * Returns a `Reducer` that outputs true if one or more input values are received, false otherwise.
    * @example
+   * ```ts
    * console.log(Stream.of(1, 2, 3).reduce(Reducer.nonEmpty))
    * // => true
+   * ```
    */
   export const nonEmpty = createOutput<any, boolean>(
     false,
@@ -722,8 +785,10 @@ export namespace Reducer {
   /**
    * Returns a `Reducer` that collects received input values in an array, and returns a copy of that array as an output value when requested.
    * @example
+   * ```ts
    * console.log(Stream.of(1, 2, 3).reduce(Reducer.toArray()))
    * // => [1, 2, 3]
+   * ```
    */
   export function toArray<T>(): Reducer<T, T[]> {
     return create(
@@ -740,8 +805,10 @@ export namespace Reducer {
    * Returns a `Reducer` that collects received input tuples into a mutable JS Map, and returns
    * a copy of that map when output is requested.
    * @example
+   * ```ts
    * console.log(Stream.of([1, 'a'], [2, 'b']).reduce(Reducer.toJSMap()))
    * // Map { 1 => 'a', 2 => 'b' }
+   * ```
    */
   export function toJSMap<K, V>(): Reducer<[K, V], Map<K, V>> {
     return create(
@@ -758,8 +825,10 @@ export namespace Reducer {
    * Returns a `Reducer` that collects received input values into a mutable JS Set, and returns
    * a copy of that map when output is requested.
    * @example
+   * ```ts
    * console.log(Stream.of(1, 2, 3).reduce(Reducer.toJSSet()))
    * // Set {1, 2, 3}
+   * ```
    */
   export function toJSSet<T>(): Reducer<T, Set<T>> {
     return create(
@@ -776,9 +845,11 @@ export namespace Reducer {
    * Returns a `Reducer` that combines multiple input `reducers` by providing input values to all of them and collecting the outputs in an array.
    * @param reducers - 2 or more reducers to combine
    * @example
+   * ```ts
    * const red = Reducer.combine(Reducer.sum, Reducer.average)
    * console.log(Stream.range({amount: 9 }).reduce(red))
    * // => [36, 4]
+   * ```
    */
   export function combine<
     T,
@@ -786,12 +857,17 @@ export namespace Reducer {
   >(
     ...reducers: { [K in keyof R]: Reducer<T, R[K]> } & Reducer<T, unknown>[]
   ): Reducer<T, R> {
-    const createState = () => {
+    const createState = (): {
+      reducer: Reducer<T, unknown>;
+      halted: boolean;
+      halt(): void;
+      state: unknown;
+    }[] => {
       return reducers.map((reducer) => {
         const result = {
           reducer,
           halted: false,
-          halt() {
+          halt(): void {
             result.halted = true;
           },
           state: Init(reducer.init),

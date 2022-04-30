@@ -1,4 +1,4 @@
-import { SortedMultiSet } from '../src';
+import { SortedMultiSet } from '@rimbu/multiset';
 import { runMultiSetRandomTestsWith } from './multiset-test-random';
 
 runMultiSetRandomTestsWith(

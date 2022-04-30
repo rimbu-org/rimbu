@@ -1,6 +1,6 @@
 import { Arr } from '@rimbu/base';
 import { Eq, Reducer } from '@rimbu/common';
-import { Stream } from '../src';
+import { Stream } from '@rimbu/stream';
 
 function isNonEmpty(it: Stream.NonEmpty<any>) {
   //

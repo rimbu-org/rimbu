@@ -16,6 +16,7 @@ import { useActorState } from '../internal';
  * @param toKey - a function taking one StreamSource element and returning a unique key
  * @param toProps - a function taking one StreamSource element and returning the component props
  * @example
+ * ```ts
  * const MyComponent = () => {
  *   const [state, actor] = useActor(() => Obs.create({ values: List.of('a', 'b', 'c')}))
  *
@@ -26,6 +27,7 @@ import { useActorState } from '../internal';
  *     </>
  *   )
  * }
+ * ```
  */
 export const ObsStream: <T, P>(props: {
   source: () => Actor.Readonly<StreamSource<T>>;

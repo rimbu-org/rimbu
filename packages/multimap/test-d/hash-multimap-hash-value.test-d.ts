@@ -2,7 +2,7 @@ import type { ArrayNonEmpty } from '@rimbu/common';
 import type { HashMap, HashSet } from '@rimbu/hashed';
 import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-import type { HashMultiMapHashValue } from '../src';
+import type { HashMultiMapHashValue } from '@rimbu/multimap';
 
 type GE<K, V> = HashMultiMapHashValue<K, V>;
 type GNE<K, V> = HashMultiMapHashValue.NonEmpty<K, V>;

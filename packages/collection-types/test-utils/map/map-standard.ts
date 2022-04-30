@@ -1,7 +1,7 @@
 import { Entry } from '@rimbu/base';
+import type { RMap } from '@rimbu/collection-types';
 import type { ArrayNonEmpty } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
-import type { RMap } from '../..';
 
 function expectEqual<K, V>(
   map: RMap<K, V> | RMap.NonEmpty<K, V>,
