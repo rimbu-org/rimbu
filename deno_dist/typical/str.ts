@@ -3,7 +3,9 @@ import type { Num, U } from './index.ts';
 /**
  * Returns the length of the given string S.
  * @example
+ * ```ts
  * Length<'abc'> => 3
+ * ```
  */
 export type Length<S extends string> = LengthHelper<S, 0>;
 
@@ -20,16 +22,20 @@ type LengthHelper<S extends string, Result extends number> = S extends ''
 /**
  * Convenience type to represent the concatenation of two string types.
  * @example
+ * ```ts
  * Append<'abc', 'def'> => 'abcdef'
  * Append<'abc', 'd' | 'e'> => 'abcd' | 'abce'
+ * ```
  */
 export type Append<Start extends string, End extends string> = `${Start}${End}`;
 
 /**
  * Convenience type to represent the concatenation of three string types.
  * @example
+ * ```ts
  * AppendTwo<'abc', 'def', 'ghi'> => 'abcdefghi'
  * AppendTwo<'abc', 'd' | 'e', 'fgh'> => 'abcdfgh' | 'abcefgh'
+ * ```
  */
 export type AppendTwo<
   Start extends string,
@@ -40,16 +46,20 @@ export type AppendTwo<
 /**
  * Returns false if the given string is empty, true otherwise.
  * @example
+ * ```ts
  * IsNonEmptyString<''> => false
  * IsNonEmptyString<'abc'> => true
+ * ```
  */
 export type IsNonEmptyString<S extends string> = '' extends S ? false : true;
 
 /**
  * Returns never if the given string is empty, otherwise the given string.
  * @example
+ * ```ts
  * NonEmptyString<''> => never
  * NonEmptyString<'abc'> => 'abc'
+ * ```
  */
 export type NonEmptyString<S extends string> = '' extends S ? never : unknown;
 
@@ -57,10 +67,12 @@ export type NonEmptyString<S extends string> = '' extends S ? never : unknown;
  * If the given string does not start with the given `Start` type, returns false.
  * Otherwise, returns a tuple containing the matched start and the rest.
  * @example
+ * ```ts
  * StartsWith<'abcd', 'ab'> => ['ab', 'cd']
  * StartsWith<'abcd', 'd'> => false
  * StartsWith<'abcd', 'ab' | 'bc'> => ['ab', 'cd']
  * StartsWith<'abcd', 'ab' | 'a'> => ['ab', 'cd'] | ['a', 'bcd']
+ * ```
  */
 export type StartsWith<
   S extends string,
@@ -75,10 +87,12 @@ export type StartsWith<
  * If the given string does not end with the given `End` type, returns false.
  * Otherwise, returns a tuple containing the start and the matched end.
  * @example
+ * ```ts
  * EndsWith<'abcd', 'cd'> => ['ab', 'cd']
  * EndsWith<'abcd', 'a'> => false
  * EndsWith<'abcd', 'cd' | 'de'> => ['ab', 'cd']
  * EndsWith<'abcd', 'cd' | 'd'> => ['ab', 'cd'] | ['abc', 'd']
+ * ```
  */
 export type EndsWith<
   S extends string,
@@ -93,9 +107,11 @@ export type EndsWith<
  * Returns false if the given string does not contain the given `Middle` type,
  * or a 3-tuple containing the start, the matched middle, and the rest.
  * @example
+ * ```ts
  * SplitAt<'abcd', 'bc'> => ['a', 'bc', 'd']
  * SplitAt<'abcd', 'ef'> => false
  * SplitAt<'abcd', 'b' | 'c'> => ['a', 'b', 'cd'] | ['ab', 'c', 'd']
+ * ```
  */
 export type SplitAt<
   S extends string,
@@ -109,8 +125,10 @@ export type SplitAt<
 /**
  * Returns a string containing all the elements that do not match the given Sub type.
  * @example
+ * ```ts
  * FilterNot<'abcd', 'b'> => 'acd'
  * FilterNot<'abcd', 'b' | 'd'> => 'ac'
+ * ```
  */
 export type FilterNot<
   S extends string,
@@ -132,8 +150,10 @@ type FilterNotHelper<
 /**
  * Returns a string containing all the elements that match the given Sub type.
  * @example
+ * ```ts
  * Filter<'abcd', 'b'> => 'b'
  * Filter<'abcd', 'b' | 'd'> => 'bd'
+ * ```
  */
 
 export type Filter<
@@ -156,8 +176,10 @@ type FilterHelper<
 /**
  * Replaces, in the given string, all matches with Sub with the given Repl.
  * @example
+ * ```ts
  * ReplaceAll<'abcba', 'b', '_'> => 'a_c_a'
  * ReplaceAll<'abcba', 'b' | 'c', '_'> => 'a___a'
+ * ```
  */
 export type ReplaceAll<
   S extends string,
@@ -175,8 +197,10 @@ export type ReplaceAll<
  * Replaces, in the given string, the first match with Sub with the given Repl.
  * Returns never if there was no match.
  * @example
+ * ```ts
  * ReplaceFirst<'abcba', 'b', '_'> => 'a_cba'
  * ReplaceFirst<'abcba', 'b' | 'c', '_'> => 'a_cba'
+ * ```
  */
 export type ReplaceFirst<
   S extends string,
@@ -194,8 +218,10 @@ export type ReplaceFirst<
  * Replaces, in the given string, the last match with Sub with the given Repl.
  * Returns never if there was no match.
  * @example
+ * ```ts
  * ReplaceLast<'abcba', 'b', '_'> => 'abc_a'
  * ReplaceLast<'abcba', 'b' | 'c', '_'> => 'abc_a'
+ * ```
  */
 export type ReplaceLast<
   S extends string,
@@ -226,9 +252,11 @@ type ReplaceLastHelper<
 /**
  * Returns the amount of times the given `Sub` type is encountered in the given string.
  * @example
+ * ```ts
  * Count<'abcba', 'c'> => 1
  * Count<'abcba', 'a' | 'c'> => 3
  * Count<'abcba', 'q'> => 0
+ * ```
  */
 export type Count<
   S extends string,
@@ -250,10 +278,12 @@ type CountHelper<
 /**
  * Returns true if the given string contains the given Amount (default 1) of Sub types.
  * @example
+ * ```ts
  * Contains<'abcba', 'b'> => true
  * Contains<'abcba', 'b', 2> => true
  * Contains<'abcba', 'b', 3> => false
  * Contains<'abcba', 'q'> => false
+ * ```
  */
 export type Contains<
   S extends string,
@@ -270,10 +300,12 @@ export type Contains<
 /**
  * Returns true if the given string does not contain the given Amount (default 1) of Sub types.
  * @example
+ * ```ts
  * NotContains<'abcba', 'b'> => false
  * NotContains<'abcba', 'b', 2> => false
  * NotContains<'abcba', 'b', 3> => true
  * NotContains<'abcba', 'q'> => true
+ * ```
  */
 export type NotContains<
   S extends string,
@@ -304,10 +336,12 @@ type RepeatTimesHelper<
  * Returns a tuple containing the matched part and the rest of the given string if the string
  * start repeats the given Sub at least N times.
  * @example
+ * ```ts
  * RepeatAtLeastTimes<'aabc', 'a', 0> => ['', 'aabc']
  * RepeatAtLeastTimes<'aabc', 'a', 1> => ['a', 'abc']
  * RepeatAtLeastTimes<'aabc', 'a', 3> => false
  * RepeatAtLeastTimes<'aabc', 'a' | 'b', 3> => ['aab', 'c']
+ * ```
  */
 export type RepeatAtLeastTimes<
   S extends string,
@@ -337,10 +371,12 @@ type RepeatAtLeastTimesHelper<
  * Returns a tuple containing the matched part and the rest of the given string if the string
  * start repeats the given Sub at most N times.
  * @example
+ * ```ts
  * RepeatAtMostTimes<'aabc', 'a', 0> => false
  * RepeatAtMostTimes<'aabc', 'a', 1> => false
  * RepeatAtMostTimes<'aabc', 'a', 3> => ['aa', 'bc']
  * RepeatAtMostTimes<'aabc', 'a' | 'b', 3> => ['aab', 'c']
+ * ```
  */
 export type RepeatAtMostTimes<
   S extends string,
@@ -370,11 +406,13 @@ type RepeatAtMostTimesHelper<
  * Returns a tuple containing the matched part and the rest of the given string if the string
  * start repeats the given Sub exactly N times.
  * @example
+ * ```ts
  * RepeatExactTimes<'aabc', 'a', 0> => false
  * RepeatExactTimes<'aabc', 'a', 1> => false
  * RepeatExactTimes<'aabc', 'a', 2> => ['aa', 'bc']
  * RepeatExactTimes<'aabc', 'a', 3> => false
  * RepeatExactTimes<'aabc', 'a' | 'b', 3> => ['aab', 'c']
+ * ```
  */
 export type RepeatExactTimes<
   S extends string,
@@ -406,8 +444,10 @@ type RepeatExactTimesHelper<
  * Returns the first N characters of the given string, or false if the string does
  * not have enough characters.
  * @example
+ * ```ts
  * TakeStrict<'abcd', 2> => 'ab'
  * TakeStrict<'abcd', 5> => false
+ * ```
  */
 export type TakeStrict<S extends string, N extends number> = TakeStrictHelper<
   S,
@@ -429,8 +469,10 @@ type TakeStrictHelper<
  * Returns the first N characters of the given string, or the given
  * string if it does not have enough characters.
  * @example
+ * ```ts
  * Take<'abcd', 2> => 'ab'
  * Take<'abcd', 5> => 'abcd'
+ * ```
  */
 export type Take<S extends string, N extends number> = TakeHelper<S, N, ''>;
 
@@ -447,9 +489,11 @@ type TakeHelper<
 /**
  * Returns part of the string as long as its parts match Sub.
  * @example
+ * ```ts
  * TakeWhile<'aabc', 'a'> => 'aa'
  * TakeWhile<'aabc', 'a' | 'b'> => 'aab'
  * TakeWhile<'aabc', 'q'> => ''
+ * ```
  */
 export type TakeWhile<
   S extends string,
@@ -467,9 +511,11 @@ type TakeWhileHelper<
 /**
  * Skips part of the string as long as its parts match Sub.
  * @example
+ * ```ts
  * DropWhile<'aabc', 'a'> => 'bc'
  * DropWhile<'aabc', 'a' | 'b'> => 'c'
  * DropWhile<'aabc', 'q'> => 'aabc'
+ * ```
  */
 export type DropWhile<S extends string, Sub extends string> = S extends Append<
   Sub,
@@ -481,7 +527,9 @@ export type DropWhile<S extends string, Sub extends string> = S extends Append<
 /**
  * Returns the given string reversed.
  * @example
+ * ```ts
  * Reverse<'abcd'> => 'dcba'
+ * ```
  */
 export type Reverse<S extends string> = ReverseHelper<S, ''>;
 
@@ -496,8 +544,10 @@ type ReverseHelper<S extends string, Result extends string> = S extends Append<
  * Returns the given string without the first N characters, or false if the
  * string has less characters.
  * @example
+ * ```ts
  * DropStrict<'abcd', 2> => 'cd'
  * DropStrict<'abcd', 5> => false
+ * ```
  */
 export type DropStrict<S extends string, N extends number> = N extends 0
   ? S
@@ -509,8 +559,10 @@ export type DropStrict<S extends string, N extends number> = N extends 0
  * Returns the given string without the first N characters, or an empty string if the
  * string has less characters.
  * @example
+ * ```ts
  * Drop<'abcd', 2> => 'cd'
  * Drop<'abcd', 5> => ''
+ * ```
  */
 export type Drop<S extends string, N extends number> = N extends 0
   ? S
@@ -521,8 +573,10 @@ export type Drop<S extends string, N extends number> = N extends 0
 /**
  * Returns the first character of the given string, or false if the string is empty.
  * @example
+ * ```ts
  * First<'abc'> => 'a'
  * First<''> => false
+ * ```
  */
 export type First<S extends string> = S extends Append<infer First, string>
   ? First
@@ -531,8 +585,10 @@ export type First<S extends string> = S extends Append<infer First, string>
 /**
  * Returns all but the first character of the given string, or false if the string is empty.
  * @example
+ * ```ts
  * Tail<'abcd'> => 'bcd'
  * Tail<''> => false
+ * ```
  */
 export type Tail<S extends string> = S extends Append<string, infer Rest>
   ? Rest
@@ -541,8 +597,10 @@ export type Tail<S extends string> = S extends Append<string, infer Rest>
 /**
  * Returns all but the last character of the given string, or false if the string is empty.
  * @example
+ * ```ts
  * Init<'abcd'> => 'abc'
  * Init<''> => false
+ * ```
  */
 export type Init<S extends string> = InitHelper<S, ''>;
 
@@ -556,8 +614,10 @@ type InitHelper<S extends string, Result extends string> = S extends Append<
 /**
  * Returns the last character of the given string, or false if the string if empty.
  * @example
+ * ```ts
  * Last<'abcd'> => 'd'
  * Last<''> => false
+ * ```
  */
 export type Last<S extends string> = S extends Append<infer First, infer Rest>
   ? U.Extends<Rest, '', First, Last<Rest>>
@@ -567,8 +627,10 @@ export type Last<S extends string> = S extends Append<infer First, infer Rest>
  * Returns the character in the given string at the given Index, or false if the index
  * is out of bounds.
  * @example
+ * ```ts
  * CharAt<'abcd', 1> => 'b'
  * CharAt<'abcd', 5> => false
+ * ```
  */
 export type CharAt<S extends string, Index extends number> = S extends Append<
   infer Start,

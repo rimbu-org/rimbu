@@ -45,61 +45,71 @@ export namespace AsyncReducer {
     onClose?(state: S, error?: unknown): MaybePromise<void>;
     /**
      * Returns an `AsyncReducer` instance that only passes values to the reducer that satisy the given `pred` predicate.
-     * @param pred - a potaentially asynchronous function that returns true if the value should be passed to the reducer based on the following inputs:
-     * - value: the current input value
-     * - index: the current input index
+     * @param pred - a potaentially asynchronous function that returns true if the value should be passed to the reducer based on the following inputs:<br/>
+     * - value: the current input value<br/>
+     * - index: the current input index<br/>
      * - halt: function that, when called, ensures no more new values are passed to the reducer
      * @example
+     * ```ts
      * AsyncReducer
      *   .createMono(0, async (c, v) => c + v)
      *   .filterInput(async v => v > 10)
      * // this reducer will only sum values larger than 10
+     * ```
      */
     filterInput(
       pred: (value: I, index: number, halt: () => void) => MaybePromise<boolean>
     ): AsyncReducer<I, O>;
     /**
      * Returns an `AsyncReducer` instance that converts its input values using given `mapFun` before passing them to the reducer.
-     * @param mapFun - a potentially asynchronous function that returns a new value to pass to the reducer based on the following inputs:
-     * - value: the current input value
+     * @param mapFun - a potentially asynchronous function that returns a new value to pass to the reducer based on the following inputs:<br/>
+     * - value: the current input value<br/>
      * - index: the current input index
      * @example
+     * ```ts
      * AsyncReducer
      *   .createMono(0, async (c, v) => c + v)
      *   .mapInput(async v => v * 2)
      * // this reducer will double all input values before summing them
+     * ```
      */
     mapInput<I2>(
       mapFun: (value: I2, index: number) => MaybePromise<I>
     ): AsyncReducer<I2, O>;
     /**
      * Returns an `AsyncReducer` instance that converts or filters its input values using given `collectFun` before passing them to the reducer.
-     * @param collectFun - a function receiving
-     * * `value`: the next value
-     * * `index`: the value index
-     * * `skip`: a token that, when returned, will not add a value to the resulting collection
-     * * `halt`: a function that, when called, ensures no next elements are passed
+     * @param collectFun - a function receiving<br/>
+     * - `value`: the next value<br/>
+     * - `index`: the value index<br/>
+     * - `skip`: a token that, when returned, will not add a value to the resulting collection<br/>
+     * - `halt`: a function that, when called, ensures no next elements are passed
      * @example
+     * ```ts
      * AsyncReducer
      *   .createMono(0, async (c, v) => c + v)
      *   .collectInput(async (v, _, skip) => v <= 10 ? skip : v * 2)
      * // this reducer will double all input values larger thant 10 before summing them,
      * // and will skip all values smaller than 10
+     * ```
      */
     collectInput<I2>(collectFun: AsyncCollectFun<I2, I>): AsyncReducer<I2, O>;
     /**
      * Returns an `AsyncReducer` instance that converts its output values using given `mapFun`.
      * @param mapFun - a potentially asynchronous function that takes the current output value and converts it to a new output value
+     * @example
+     * ```ts
      * AsyncReducer
      *   .createMono(0, async (c, v) => c + v)
      *   .mapOutput(async v => String(v))
      * // this reducer will convert all its results to string before returning them
+     * ```
      */
     mapOutput<O2>(mapFun: (value: O) => MaybePromise<O2>): AsyncReducer<I, O2>;
     /**
      * Returns an `AsyncReducer` instance that takes at most the given `amount` of input elements, and will ignore subsequent elements.
      * @param amount - the amount of elements to accept
      * @example
+     * ```ts
      * await AsyncStream
      *   .from(Stream.range({ end: 10 }))
      *   .reduce(
@@ -108,12 +118,14 @@ export namespace AsyncReducer {
      *       .takeInput(2)
      *   )
      * // => 1
+     * ```
      */
     takeInput(amount: number): AsyncReducer<I, O>;
     /**
      * Returns a `Reducer` instance that skips the first given `amount` of input elements, and will process subsequent elements.
      * @param amount - the amount of elements to skip
      * @example
+     * ```ts
      * await AsyncStream
      *   .from(Stream.range({ end: 10 }))
      *   .reduce(
@@ -122,6 +134,7 @@ export namespace AsyncReducer {
      *       .dropInput(9)
      *   )
      * // => 19
+     * ```
      */
     dropInput(amount: number): AsyncReducer<I, O>;
     /**
@@ -129,6 +142,7 @@ export namespace AsyncReducer {
      * @param from - (default: 0) the index at which to start processing elements
      * @param amount - (optional) the amount of elements to process, if not given, processes all elements from the `from` index
      * @example
+     * ```ts
      * await AsyncStream
      *   .from(Stream.range({ end: 10 }))
      *   .reduce(
@@ -137,6 +151,7 @@ export namespace AsyncReducer {
      *       .sliceInput(1, 2)
      *   )
      * // => 3
+     * ```
      */
     sliceInput(from?: number, amount?: number): AsyncReducer<I, O>;
   }
@@ -269,10 +284,10 @@ export namespace AsyncReducer {
   /**
    * Returns an `AsyncReducer` with the given options:
    * @param init - the optionally lazy and/or promised initial state value
-   * @param next - returns (potentially asynchronously) the next state value based on the given inputs:
-   * - current: the current state
-   * - next: the current input value
-   * - index: the input index value
+   * @param next - returns (potentially asynchronously) the next state value based on the given inputs:<br/>
+   * - current: the current state<br/>
+   * - next: the current input value<br/>
+   * - index: the input index value<br/>
    * - halt: function that, when called, ensures no more elements are passed to the reducer
    * @param stateToResult - a potentially asynchronous function that converts the current state to an output value
    * @param onClose - (optional) a function that will be called when the reducer will no longer receive values
@@ -297,10 +312,10 @@ export namespace AsyncReducer {
   /**
    * Returns an `AsyncReducer` of which the input, state, and output types are the same.
    * @param init - the optionally lazy and/or promised initial state value
-   * @param next - returns (potentially asynchronously) the next state value based on the given inputs:
-   * - current: the current state
-   * - next: the current input value
-   * - index: the input index value
+   * @param next - returns (potentially asynchronously) the next state value based on the given inputs:<br/>
+   * - current: the current state<br/>
+   * - next: the current input value<br/>
+   * - index: the input index value<br/>
    * - halt: function that, when called, ensures no more elements are passed to the reducer
    * @param stateToResult - a potentially asynchronous function that converts the current state to an output value
    * @param onClose - (optional) a function that will be called when the reducer will no longer receive values
@@ -325,10 +340,10 @@ export namespace AsyncReducer {
   /**
    * Returns an `AsyncReducer` of which the state and output types are the same.
    * @param init - the optionally lazy and/or promised initial state value
-   * @param next - returns (potentially asynchronously) the next state value based on the given inputs:
-   * - current: the current state
-   * - next: the current input value
-   * - index: the input index value
+   * @param next - returns (potentially asynchronously) the next state value based on the given inputs:<br/>
+   * - current: the current state<br/>
+   * - next: the current input value<br/>
+   * - index: the input index value<br/>
    * - halt: function that, when called, ensures no more elements are passed to the reducer
    * @param stateToResult - a potentially asynchronous function that converts the current state to an output value
    * @param onClose - (optional) a function that will be called when the reducer will no longer receive values

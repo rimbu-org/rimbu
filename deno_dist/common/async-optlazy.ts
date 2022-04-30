@@ -17,11 +17,13 @@ export namespace AsyncOptLazy {
    * Returns the value or promised value contained in an `AsyncOptLazy` instance of type T.
    * @param optLazy - the `AsyncOptLazy` value of type T
    * @example
+   * ```ts
    * AsyncOptLazy.toMaybePromise(1)              // => 1
    * AsyncOptLazy.toMaybePromise(() => 1)        // => 1
    * AsyncOptLazy.toMaybePromise(() => () => 1)  // => () => 1
    * AsyncOptLazy.toMaybePromise(async () => 1)  // => Promise(1)
    * AsyncOptLazy.toMaybePromise(Promise.resolve(1))  // => Promise(1)
+   * ```
    */
   export function toMaybePromise<T>(optLazy: AsyncOptLazy<T>): MaybePromise<T> {
     if (optLazy instanceof Function) return optLazy();
@@ -32,11 +34,13 @@ export namespace AsyncOptLazy {
    * Returns the value contained in an `AsyncOptLazy` instance of type T as a promise.
    * @param optLazy - the `AsyncOptLazy` value of type T
    * @example
+   * ```ts
    * AsyncOptLazy.toPromise(1)              // => Promise(1)
    * AsyncOptLazy.toPromise(() => 1)        // => Promise(1)
    * AsyncOptLazy.toPromise(() => () => 1)  // => Promise(() => 1)
    * AsyncOptLazy.toPromise(async () => 1)  // => Promise(1)
    * AsyncOptLazy.toPromise(Promise.resolve(1))  // => Promise(1)
+   * ```
    */
   export async function toPromise<T>(optLazy: AsyncOptLazy<T>): Promise<T> {
     if (optLazy instanceof Function) return optLazy();

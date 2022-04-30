@@ -14,8 +14,10 @@ export type Digit = '0' | PosDigit;
  * Type that will return the incoming type if the value is a valid positive integer,
  * or `never` otherwise.
  * @example
+ * ```ts
  * PosNum<'321'> => '321'
  * PosNum<'0'> => never
+ * ```
  */
 export type PosNum<N extends string> = N extends Str.Append<
   PosDigit,
@@ -30,17 +32,21 @@ export type PosNum<N extends string> = N extends Str.Append<
  * Type that will return the incoming type if the value is a valid natural number,
  * or `never` otherwise.
  * @example
+ * ```ts
  * NatNum<'321'> => '321'
  * NatNum<'0'> => '0'
+ * ```
  */
 export type NatNum<N extends string> = N extends '0' ? '0' : PosNum<N>;
 
 /**
  * Returns true if the given string is a valid positive integer, false otherwise.
  * @example
+ * ```ts
  * IsPosNum<5> => true
  * IsPosNum<0> => false
  * IsPosNum<-5> => false
+ * ```
  */
 export type IsPosNum<N extends string> = N extends Str.Append<
   PosDigit,
@@ -54,9 +60,11 @@ export type IsPosNum<N extends string> = N extends Str.Append<
 /**
  * Returns true if the given string is a valid natural number, false otherwise.
  * @example
+ * ```ts
  * IsNatNum<5> => true
  * IsNatNum<0> => true
  * IsNatNum<-5> => false
+ * ```
  */
 export type IsNatNum<N extends string> = N extends '0' ? true : IsPosNum<N>;
 
@@ -87,8 +95,10 @@ export type SymTup<A, B> = [A, B] | [B, A];
  * is the digit resulting from addition of the two digits, and the second element
  * is a boolean indicating whether there was an overflow.
  * @example
+ * ```ts
  * AddDigit<'1', '2'> => ['3', false]
  * AddDigit<'8', '4'> => ['2', true]
+ * ```
  */
 export type AddDigit<D1 extends Digit, D2 extends Digit> = D1 extends '0'
   ? [D2, false]
@@ -154,8 +164,10 @@ export type AddDigit<D1 extends Digit, D2 extends Digit> = D1 extends '0'
 /**
  * Returns the result of adding the two given string-numbers.
  * @example
+ * ```ts
  * SAdd<'13', '8'> => '21'
  * SAdd<'139', '5232'> => '5371'
+ * ```
  */
 export type Add<N1 extends string, N2 extends string> =
   // Check if N1 is non-empty
@@ -192,8 +204,10 @@ export type Add<N1 extends string, N2 extends string> =
  * Given two string digits, returns a tuple of which the first element is the resulting digit from subtracting the second from the first,
  * and the second element a boolean that is true if there is an 'underflow' or borrow, never otherwise.
  * @example
+ * ```ts
  * SubDigit<'5', '3'> => ['2', never]
  * SubDigit<'3', '6'> => ['7', true]
+ * ```
  */
 export type SubDigit<D1 extends Digit, D2 extends Digit> = D2 extends '0'
   ? [D1, false]
@@ -228,9 +242,11 @@ export type SubDigit<D1 extends Digit, D2 extends Digit> = D2 extends '0'
  * Returns the result of subtracting the second from the first given string-number,
  * or never if the second value is greater than the first. (Only natural numbers currently supported)
  * @example
+ * ```ts
  * SSubtract<'13', '8'> => '5'
  * SSubtract<'5371', '139'> => '5232'
  * SSubtract<'100', '101'> => never
+ * ```
  */
 export type Subtract<N1 extends string, N2 extends string> = N1 extends N2
   ? // input is equal
@@ -277,8 +293,10 @@ export type Subtract<N1 extends string, N2 extends string> = N1 extends N2
 /**
  * Converts a natural number to a string-number, otherwise never.
  * @example
+ * ```ts
  * NumberToStringNum<123> => '123'
  * NumberToStringNum<-13> => never
+ * ```
  */
 export type FromNumber<N extends number> = NatNum<`${N}`>;
 
@@ -328,8 +346,10 @@ type BuildTupleHelper<
  * Converts the given string-number to its corresponding number.
  * @note due to compiler limitations the maximum value is '9999'
  * @example
+ * ```ts
  * StringNumToNumber<'13'> => 13
  * StringNumToNumber<'5234'> => 5234
+ * ```
  */
 export type ToNumber<N extends string> = TupleLength<BuildTuple<N>>;
 

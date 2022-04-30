@@ -1,23 +1,29 @@
-import type { OmitStrong } from '../../../common/mod.ts';
-import { HashSet } from '../../../hashed/mod.ts';
+import { HashSet } from '../../../hashed/set/index.ts';
 import { List } from '../../../list/mod.ts';
+import type {
+  OrderedHashSetCreators,
+  OrderedSetBase,
+} from '../../../ordered/set-custom/index.ts';
+import { OrderedSetContextImpl } from '../../../ordered/set-custom/index.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
-import type { OrderedSetBase } from '../../ordered-custom.ts';
-import { OrderedSetContextImpl } from '../implementation/context.ts';
 
 /**
  * A type-invariant immutable Ordered HashSet of value type T.
  * In the Set, there are no duplicate values.
+ * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [OrderedHashSet API documentation](https://rimbu.org/api/rimbu/ordered/set/OrderedHashSet/interface)
  * @typeparam T - the value type
- * * The OrderedHashSet keeps the insertion order of values, thus
+ * @note
+ * - The OrderedHashSet keeps the insertion order of values, thus
  * iterators and stream will also reflect this order.
- * * The OrderedHashSet wraps around a HashSet instance, thus has the same time complexity
+ * - The OrderedHashSet wraps around a HashSet instance, thus has the same time complexity
  * as the HashSet.
- * * The OrderedHashSet keeps the key insertion order in a List, thus its space
+ * - The OrderedHashSet keeps the key insertion order in a List, thus its space
  * complexity is higher than a regular HashSet.
  * @example
+ * ```ts
  * const s1 = OrderedHashSet.empty<string>()
  * const s2 = OrderedHashSet.of('a', 'b', 'c')
+ * ```
  */
 export interface OrderedHashSet<T>
   extends OrderedSetBase<T, OrderedHashSet.Types> {}
@@ -26,16 +32,20 @@ export namespace OrderedHashSet {
   /**
    * A non-empty type-invariant immutable Ordered HashSet of value type T.
    * In the Set, there are no duplicate values.
+   * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [OrderedHashSet API documentation](https://rimbu.org/api/rimbu/ordered/set/OrderedHashSet/interface)
    * @typeparam T - the value type
-   * * The OrderedHashSet keeps the insertion order of values, thus
+   * @note
+   * - The OrderedHashSet keeps the insertion order of values, thus
    * iterators and stream will also reflect this order.
-   * * The OrderedHashSet wraps around a HashSet instance, thus has the same time complexity
+   * - The OrderedHashSet wraps around a HashSet instance, thus has the same time complexity
    * as the HashSet.
-   * * The OrderedHashSet keeps the key insertion order in a List, thus its space
+   * - The OrderedHashSet keeps the key insertion order in a List, thus its space
    * complexity is higher than a regular HashSet.
    * @example
+   * ```ts
    * const s1 = OrderedHashSet.empty<string>()
    * const s2 = OrderedHashSet.of('a', 'b', 'c')
+   * ```
    */
   export interface NonEmpty<T>
     extends OrderedSetBase.NonEmpty<T, OrderedHashSet.Types>,
@@ -46,6 +56,7 @@ export namespace OrderedHashSet {
 
   /**
    * A mutable `OrderedHashSet` builder used to efficiently create new immutable instances.
+   * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [OrderedHashSet.Builder API documentation](https://rimbu.org/api/rimbu/ordered/set/OrderedHashSet/Builder/interface)
    * @typeparam T - the value type
    */
   export interface Builder<T>
@@ -59,6 +70,9 @@ export namespace OrderedHashSet {
   export interface Context<UT>
     extends OrderedSetBase.Context<UT, OrderedHashSet.Types> {}
 
+  /**
+   * Utility interface that provides higher-kinded types for this collection.
+   */
   export interface Types extends OrderedSetBase.Types {
     readonly normal: OrderedHashSet<this['_T']>;
     readonly nonEmpty: OrderedHashSet.NonEmpty<this['_T']>;
@@ -82,31 +96,10 @@ function createContext<UT>(options?: {
 
 const _defaultContext: OrderedHashSet.Context<any> = createContext();
 
-const _contextHelpers = {
-  /**
-   * Returns a new OrderedHashSet context instance based on the given `options`.
-   * @typeparam UT - the upper element type for which the context can create instances
-   * @param options - (optional) an object containing the following properties:
-   * * listContext - (optional) the list context to use for element ordering
-   * * setContext - (optional) the set context to use for element sets
-   */
+export const OrderedHashSet: OrderedHashSetCreators = {
+  ..._defaultContext,
   createContext,
-  /**
-   * Returns the default context for OrderedHashSets.
-   * @typeparam UT - the upper element type for which the context can create instances
-   */
   defaultContext<UT>(): OrderedHashSet.Context<UT> {
     return _defaultContext;
   },
-};
-
-type Export = OmitStrong<
-  OrderedHashSet.Context<any>,
-  '_types' | 'isValidValue' | 'listContext' | 'setContext' | 'typeTag'
-> &
-  typeof _contextHelpers;
-
-export const OrderedHashSet: Export = {
-  ..._defaultContext,
-  ..._contextHelpers,
 };

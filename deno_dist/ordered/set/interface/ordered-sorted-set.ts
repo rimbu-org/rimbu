@@ -1,22 +1,29 @@
-import type { OmitStrong } from '../../../common/mod.ts';
 import { List } from '../../../list/mod.ts';
-import { SortedSet } from '../../../sorted/mod.ts';
+import {
+  OrderedSetBase,
+  OrderedSetContextImpl,
+  OrderedSortedSetCreators,
+} from '../../../ordered/set-custom/index.ts';
+import { SortedSet } from '../../../sorted/set/index.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
-import { OrderedSetBase, OrderedSetContextImpl } from '../../ordered-custom.ts';
 
 /**
  * A type-invariant immutable Ordered SortedSet of value type T.
  * In the Set, there are no duplicate values.
+ * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [OrderedSortedSet API documentation](https://rimbu.org/api/rimbu/ordered/set/OrderedSortedSet/interface)
  * @typeparam T - the value type
- * * The OrderedSortedSet keeps the insertion order of values, thus
+ * @note
+ * - The OrderedSortedSet keeps the insertion order of values, thus
  * iterators and stream will also reflect this order.
- * * The OrderedSortedSet wraps around a SortedSet instance, thus has the same time complexity
+ * - The OrderedSortedSet wraps around a SortedSet instance, thus has the same time complexity
  * as the SortedSet.
- * * The OrderedSortedSet keeps the key insertion order in a List, thus its space
+ * - The OrderedSortedSet keeps the key insertion order in a List, thus its space
  * complexity is higher than a regular SortedSet.
  * @example
+ * ```ts
  * const s1 = OrderedSortedSet.empty<string>()
  * const s2 = OrderedSortedSet.of('a', 'b', 'c')
+ * ```
  */
 export interface OrderedSortedSet<T>
   extends OrderedSetBase<T, OrderedSortedSet.Types> {}
@@ -25,16 +32,20 @@ export namespace OrderedSortedSet {
   /**
    * A non-empty type-invariant immutable Ordered SortedSet of value type T.
    * In the Set, there are no duplicate values.
+   * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [OrderedSortedSet API documentation](https://rimbu.org/api/rimbu/ordered/set/OrderedSortedSet/interface)
    * @typeparam T - the value type
-   * * The OrderedSortedSet keeps the insertion order of values, thus
+   * @note
+   * - The OrderedSortedSet keeps the insertion order of values, thus
    * iterators and stream will also reflect this order.
-   * * The OrderedSortedSet wraps around a SortedSet instance, thus has the same time complexity
+   * - The OrderedSortedSet wraps around a SortedSet instance, thus has the same time complexity
    * as the SortedSet.
-   * * The OrderedSortedSet keeps the key insertion order in a List, thus its space
+   * - The OrderedSortedSet keeps the key insertion order in a List, thus its space
    * complexity is higher than a regular SortedSet.
    * @example
+   * ```ts
    * const s1 = OrderedSortedSet.empty<string>()
    * const s2 = OrderedSortedSet.of('a', 'b', 'c')
+   * ```
    */
   export interface NonEmpty<T>
     extends OrderedSetBase.NonEmpty<T, OrderedSortedSet.Types>,
@@ -45,6 +56,7 @@ export namespace OrderedSortedSet {
 
   /**
    * A mutable `OrderedSortedSet` builder used to efficiently create new immutable instances.
+   * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [OrderedSortedSet.Builder API documentation](https://rimbu.org/api/rimbu/ordered/set/OrderedSortedSet/Builder/interface)
    * @typeparam T - the value type
    */
   export interface Builder<T>
@@ -58,6 +70,9 @@ export namespace OrderedSortedSet {
   export interface Context<UT>
     extends OrderedSetBase.Context<UT, OrderedSortedSet.Types> {}
 
+  /**
+   * Utility interface that provides higher-kinded types for this collection.
+   */
   export interface Types extends OrderedSetBase.Types {
     readonly normal: OrderedSortedSet<this['_T']>;
     readonly nonEmpty: OrderedSortedSet.NonEmpty<this['_T']>;
@@ -81,31 +96,10 @@ function createContext<UT>(options?: {
 
 const _defaultContext: OrderedSortedSet.Context<any> = createContext();
 
-const _contextHelpers = {
-  /**
-   * Returns a new OrderedSortedSet context instance based on the given `options`.
-   * @typeparam UT - the upper element type for which the context can create instances
-   * @param options - (optional) an object containing the following properties:
-   * * listContext - (optional) the list context to use for element ordering
-   * * setContext - (optional) the set context to use for element sets
-   */
+export const OrderedSortedSet: OrderedSortedSetCreators = {
+  ..._defaultContext,
   createContext,
-  /**
-   * Returns the default context for OrderedSortedSet.
-   * @typeparam UT - the upper element type for which the context can create instances
-   */
   defaultContext<UT>(): OrderedSortedSet.Context<UT> {
     return _defaultContext;
   },
-};
-
-type Export = OmitStrong<
-  OrderedSortedSet.Context<any>,
-  '_types' | 'isValidValue' | 'listContext' | 'setContext' | 'typeTag'
-> &
-  typeof _contextHelpers;
-
-export const OrderedSortedSet: Export = {
-  ..._defaultContext,
-  ..._contextHelpers,
 };
