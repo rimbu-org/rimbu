@@ -1,12 +1,12 @@
 import { Stream } from '@rimbu/stream';
-import { List } from '../src';
+import { List } from '@rimbu/list';
 import {
   LeafBlock,
   LeafTree,
   ListContext,
   NonLeafBlock,
   NonLeafTree,
-} from '../src/list-custom';
+} from '@rimbu/list/custom';
 
 const context = new ListContext(2);
 

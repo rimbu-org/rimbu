@@ -32,22 +32,26 @@
     "url": "https://github.com/rimbu-org/rimbu.git",
     "directory": "packages/multimap"
   },
-  "source": "src/index.ts",
-  "main": "dist/main/index.js",
-  "module": "dist/module/index.js",
-  "types": "dist/types/index.d.ts",
+  "source": "src/main/index.ts",
+  "main": "dist/main/main/index.js",
+  "module": "dist/module/main/index.js",
+  "types": "dist/types/main/index.d.ts",
   "files": [
     "dist",
-    "src"
+    "src",
+    "custom"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
-    "build:deno": "rimraf deno_dist ../../deno_dist/multimap && denoify && cp ../../config/mod_ts_template deno_dist/mod.ts && mv deno_dist ../../deno_dist/multimap",
+    "build:deno": "rimraf deno_dist ../../deno_dist/multimap && denoify && mv deno_dist ../../deno_dist/multimap",
     "bundle": "yarn bundle:main && yarn bundle:module && yarn bundle:types",
     "bundle:main": "tsc --p tsconfig.main.json",
     "bundle:module": "tsc --p tsconfig.module.json",
     "bundle:types": "tsc --p tsconfig.types.json",
     "clean": "rimraf dist",
+    "extract-api": "yarn extract-api:main && yarn extract-api:custom",
+    "extract-api:custom": "api-extractor run --local --verbose --config config/api-extractor.custom.json",
+    "extract-api:main": "api-extractor run --local --verbose --config config/api-extractor.main.json",
     "format": "yarn format:base --write",
     "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,json,md}\"",
     "format:check": "yarn format:base --check",
@@ -71,6 +75,7 @@
     "access": "public"
   },
   "denoify": {
+    "index": "src/main/index.ts",
     "replacer": "../../config/denoify-rimbu-replacer.js"
   }
 }

@@ -1,9 +1,12 @@
 import type { ArrayNonEmpty } from '@rimbu/common';
-import { ArrowGraphSorted, EdgeGraphSorted, Link } from '@rimbu/graph';
-import { ArrowValuedGraphSorted } from '@rimbu/graph-arrow-valued';
-import { EdgeValuedGraphSorted } from '@rimbu/graph-edge-valued';
+import { ArrowGraphSorted, EdgeGraphSorted } from '@rimbu/graph';
+import type { Link, ValuedLink } from '@rimbu/graph/custom';
+import { ArrowValuedGraphSorted } from '@rimbu/graph';
+import { EdgeValuedGraphSorted } from '@rimbu/graph';
 import { Stream } from '@rimbu/stream';
-import { traverseDepthFirstSorted, ValuedLink } from '../src';
+import { Traverse } from '@rimbu/graph';
+
+const { traverseDepthFirstSorted } = Traverse;
 
 const arr6: ArrayNonEmpty<Link<string>> = [
   ['a', 'b'],

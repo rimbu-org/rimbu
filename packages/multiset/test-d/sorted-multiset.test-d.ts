@@ -2,7 +2,7 @@ import type { ArrayNonEmpty } from '@rimbu/common';
 import type { SortedMap } from '@rimbu/sorted';
 import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-import type { SortedMultiSet } from '../src';
+import type { SortedMultiSet } from '@rimbu/multiset';
 
 type GE<T> = SortedMultiSet<T>;
 type GNE<T> = SortedMultiSet.NonEmpty<T>;

@@ -29,20 +29,22 @@ makeThisModuleAnExecutableReplacer(async (args) => {
     url = `${url}/..`;
   }
 
-  if (nodeModuleName === '@rimbu') {
-    // const package = require(`../packages/${specificImportPath}/package.json`);
-    // const { version } = package;
+  const [rootPackage, subPackage] = specificImportPath.split('/');
 
-    if (specificImportPath === 'core') {
+  if (nodeModuleName === '@rimbu') {
+    // const package = require(`../packages/${rootPackage}/package.json`);
+    // const name = package.name;
+
+    if (subPackage) {
       return replaceImportArgument(
         parsedImportExportStatement,
-        `${url}/mod.ts`
+        `${url}/${rootPackage}/${subPackage}/index.ts`
       );
     }
 
     return replaceImportArgument(
       parsedImportExportStatement,
-      `${url}/${specificImportPath}/mod.ts`
+      `${url}/${rootPackage}/mod.ts`
     );
   }
 

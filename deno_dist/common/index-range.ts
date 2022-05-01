@@ -3,19 +3,20 @@ import type { Range } from './internal.ts';
 /**
  * A flexible range specification for numeric indices.
  * If a start or end is defined, a tuple can be used where the second item is a boolean
- * indicating whether that end is inclusive or exclusive.
- * An IndexRange can have one of the following forms:
- * - { amount: number }
- * - { start: number }
- * - { start: number, amount: number }
- * - { start: number, end: number }
- * - { start: number, end: [number, boolean] }
- * - { start: [number, boolean] }
- * - { start: [number, boolean], amount: number }
- * - { start: [number, boolean], end: number }
- * - { start: [number, boolean], end: [number, boolean] }
- * - { end: number }
- * - { end: [number, boolean] }
+ * indicating whether that end is inclusive or exclusive.<br/>
+ * An IndexRange can have one of the following forms:<br/>
+ * <br/>
+ * - { amount: number }<br/>
+ * - { start: number }<br/>
+ * - { start: number, amount: number }<br/>
+ * - { start: number, end: number }<br/>
+ * - { start: number, end: [number, boolean] }<br/>
+ * - { start: [number, boolean] }<br/>
+ * - { start: [number, boolean], amount: number }<br/>
+ * - { start: [number, boolean], end: number }<br/>
+ * - { start: [number, boolean], end: [number, boolean] }<br/>
+ * - { end: number }<br/>
+ * - { end: [number, boolean] }<br/>
  */
 export type IndexRange =
   | { amount: number; start?: number | [number, boolean]; end?: undefined }

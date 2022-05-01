@@ -13,6 +13,7 @@ import React from 'react';
  * @param onStart - (optional) function to immediately call when subscribing
  * @param onEnd - (optional) function to call after unsubscribing
  * @example
+ * ```ts
  * function createActor(defaultString: string) {
  *   const obs = Obs.create({ value: defaultString })
  *   setTimeout(() => obs.setState({ value: 'other' }), 1000);
@@ -29,6 +30,7 @@ import React from 'react';
  *     </>
  *   )
  * }
+ * ```
  */
 export function useActorSubscribe<T>(
   getActor: () => Actor.Readonly<T>,

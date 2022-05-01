@@ -23,12 +23,14 @@ type PatchHelper<T, P, R> = T extends Literal.Obj
  * @param value - the value to update
  * @param patches - one or more `Patch` objects indicating modifications to the value
  * @example
+ * ```ts
  * patch({ g: { h: 5 }})({ g: { h: 6 }})          // => { g: { h: 6 }}
  * patch({ g: { h: 5 }})({ g: { h: v => v + 1 }}) // => { g: { h: 6 }}
  * patch({ g: { h: 5 }})({ g: { h: 1 }}, { g: { h: v => v + 1 }})
  * // => { g: { h: 2 }}
  * patch({ a: 1, b: 3 })({ a: (v, p) => v * p.b, (v, p) => v + p.a })
  * // => { a: 3, b: 4 }
+ * ```
  */
 export function patch<T>(value: T): (...patches: Patch.Multi<T>) => T {
   return function (...patches): T {
@@ -100,9 +102,11 @@ export namespace Patch {
    * @typeparam T2 - the type the Patch is done for, should be equal to T
    * @param patches - the patches to apply to a given object
    * @example
+   * ```ts
    * const r = Patch.create<{ a: number, b: number }>({ b: v => v + 1 })({ a: 1, b: 2})
    * console.log(r)
    * // => { a: 1, b: 3 }
+   * ```
    */
   export function create<T, T2 extends T = T>(
     ...patches: Patch.Multi<T2>

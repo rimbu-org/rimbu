@@ -1,6 +1,6 @@
 import type { ArrayNonEmpty } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
-import { Table } from '..';
+import { Table } from '@rimbu/table';
 
 function expectEqual<R, C, V>(
   map: Table<R, C, V> | Table.NonEmpty<R, C, V>,

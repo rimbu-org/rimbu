@@ -10,9 +10,11 @@ export type Update<T> = T | ((value: T) => T);
  * @param update - an `Update` value, either a new value or a function receiving the old value
  * and returning a new one.
  * @example
+ * ```ts
  * Update(1, 2)          // => 2
  * Update(1, () => 10)   // => 10
  * Update(1, v => v + 1) // => 2
+ * ```
  */
 export function Update<T>(value: T, update: Update<T>): T {
   if (typeof update === 'function') {

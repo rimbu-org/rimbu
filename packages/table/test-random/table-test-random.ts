@@ -1,4 +1,4 @@
-import type { Table } from '..';
+import type { Table } from '@rimbu/table';
 import { Stream } from '@rimbu/stream';
 
 export function runTableRandomTestsWith(

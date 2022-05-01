@@ -1,5 +1,5 @@
 import { Stream } from '@rimbu/stream';
-import { Hasher } from '../src';
+import { Hasher } from '@rimbu/hashed';
 
 describe('Hasher', () => {
   it('defaultHasher', () => {

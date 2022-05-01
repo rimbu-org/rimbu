@@ -3,6 +3,11 @@
   "include": ["src"],
   "rootDir": "./src",
   "compilerOptions": {
-    "outDir": "./dist/types"
+    "outDir": "./dist/types",
+    "baseUrl": ".",
+    "paths": {
+      "@rimbu/multiset/custom": ["./src/custom/index.ts"],
+      "@rimbu/multiset": ["./src/main/index.ts"]
+    }
   }
 }

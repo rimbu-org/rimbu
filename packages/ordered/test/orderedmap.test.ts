@@ -1,5 +1,5 @@
 import { runMapTestsWith } from '@rimbu/collection-types/test-utils/map/map-standard';
-import { OrderedHashMap, OrderedSortedMap } from '../src';
+import { OrderedHashMap, OrderedSortedMap } from '@rimbu/ordered';
 
 runMapTestsWith(
   'OrderedHashMap default',

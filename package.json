@@ -27,7 +27,7 @@
     "format": "yarn format:root & lerna run format --parallel",
     "format:check": "yarn format:root-check & lerna run format:check",
     "format:root": "yarn format:root-base --write",
-    "format:root-base": "prettier \"*.{ts,tsx,js,json,md}\" \"{config,docs}/**/*.{ts,tsx,js,json,md}\"",
+    "format:root-base": "prettier \"*.{ts,tsx,js,json,md}\" \"config/**/*.{ts,tsx,js,json,md}\"",
     "format:root-check": "yarn format:root-base --check",
     "lint": "lerna run lint --parallel",
     "postinstall": "husky install",
@@ -49,6 +49,7 @@
     "*.{ts,tsx,js,json,md}--parallel": "prettier --write"
   },
   "devDependencies": {
+    "@microsoft/api-extractor": "^7.23.0",
     "@types/jest": "^27.0.2",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
@@ -56,6 +57,7 @@
     "cz-conventional-changelog": "^3.3.0",
     "denoify": "^0.10.5",
     "eslint": "^8.3.0",
+    "eslint-plugin-unused-imports": "^2.0.0",
     "husky": "^7.0.4",
     "jest": "^27.3.1",
     "lerna": "^4.0.0",

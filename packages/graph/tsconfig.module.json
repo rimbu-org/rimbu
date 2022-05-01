@@ -3,6 +3,11 @@
   "include": ["src"],
   "rootDir": "./src",
   "compilerOptions": {
-    "outDir": "./dist/module"
+    "outDir": "./dist/module",
+    "baseUrl": ".",
+    "paths": {
+      "@rimbu/graph/custom": ["./src/custom/index.ts"],
+      "@rimbu/graph": ["./src/main/index.ts"]
+    }
   }
 }

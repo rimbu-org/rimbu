@@ -1,6 +1,6 @@
 import { Stream } from '@rimbu/stream';
-import { List } from '../src';
-import { ListContext, LeafBlock, LeafTree } from '../src/list-custom';
+import { List } from '@rimbu/list';
+import { ListContext, LeafBlock, LeafTree } from '@rimbu/list/custom';
 
 describe('LeafBlock', () => {
   it('_mutateNormalize', () => {

@@ -11,6 +11,7 @@ export interface Comp<K> {
    * @param value1 - the first value to compare
    * @param value2 - the seconds value to compare
    * @example
+   * ```ts
    * const c = Comp.numberComp()
    * console.log(c.compare(5, 5))
    * // => 0
@@ -18,17 +19,20 @@ export interface Comp<K> {
    * // => -2
    * console.log(c.compare(5, 3))
    * // => 2
+   * ```
    */
   compare(value1: K, value2: K): number;
   /**
    * Returns true if this instance can compare given `obj`.
    * @param obj - the object to check
    * @example
+   * ```ts
    * const c = Comp.numberComp()
    * console.log(c.isComparable(5))
    * // => true
    * console.log(c.isComparable('a'))
    * // => false
+   * ```
    */
   isComparable(obj: any): obj is K;
 }
@@ -73,9 +77,11 @@ export namespace Comp {
   /**
    * Returns a default number Comp instance that orders numbers naturally.
    * @example
+   * ```ts
    * const c = Comp.numberComp();
    * console.log(c.compare(3, 5))
    * // => -2
+   * ```
    */
   export function numberComp(): Comp<number> {
     return _numberComp;
@@ -93,11 +99,13 @@ export namespace Comp {
   /**
    * Returns a default boolean Comp instance that orders booleans according to false < true.
    * @example
+   * ```ts
    * const c = Comp.booleanComp();
    * console.log(c.compare(false, true) < 0)
    * // => true
    * console.log(c.compare(true, true))
    * // => 0
+   * ```
    */
   export function booleanComp(): Comp<boolean> {
     return _booleanComp;
@@ -233,7 +241,7 @@ export namespace Comp {
       isComparable(obj): obj is T {
         return obj instanceof cls;
       },
-      compare(v1, v2) {
+      compare(v1, v2): number {
         return valueComp.compare(v1.valueOf(), v2.valueOf());
       },
     };
@@ -256,7 +264,7 @@ export namespace Comp {
           typeof obj === 'object' && obj !== null && Symbol.iterator in obj
         );
       },
-      compare(v1, v2) {
+      compare(v1, v2): number {
         const iter1 = v1[Symbol.iterator]();
         const iter2 = v2[Symbol.iterator]();
 
@@ -283,11 +291,13 @@ export namespace Comp {
    * Returns a Comp instance for Iterable objects that orders the Iterables by comparing the elements with the given `itemComp` Comp instance.
    * @param itemComp - (optional) the Comp instance to use to compare the Iterable's elements.
    * @example
+   * ```ts
    * const c = Comp.iterableComp();
    * console.log(c.compare([1, 3, 2], [1, 3, 2]))
    * // => 0
    * console.log(c.compare([1, 2, 3, 4], [1, 3, 2]) < 0)
    * // => true
+   * ```
    */
   export function iterableComp<T>(itemComp?: Comp<T>): Comp<Iterable<T>> {
     if (undefined === itemComp) return _iterableAnyComp;
@@ -329,7 +339,7 @@ export namespace Comp {
       isComparable(obj): obj is Record<any, any> {
         return true;
       },
-      compare(v1, v2) {
+      compare(v1, v2): number {
         const keys1 = Object.keys(v1);
         const keys2 = Object.keys(v2);
 
@@ -371,14 +381,16 @@ export namespace Comp {
 
   /**
    * Returns a Comp instance for objects that orders the object keys according to the given `keyComp`, and then compares the corresponding
-   * values using the given `valueComp`. Objects are then compared as follows:
-   * - starting with the smallest key of either object:
-   *   - if only one of the objects has the key, the object with the key is considered to be larger than the other
-   *   - if both objects have the key, the values are compared with `valueComp`. If the values are not equal, this result is returned.
-   * - if the objects have the same keys with the same values, they are considered equal
+   * values using the given `valueComp`. Objects are then compared as follows:<br/>
+   * starting with the smallest key of either object:<br/>
+   * - if only one of the objects has the key, the object with the key is considered to be larger than the other<br/>
+   * - if both objects have the key, the values are compared with `valueComp`. If the values are not equal, this result is returned.<br/>
+   *
+   * if the objects have the same keys with the same values, they are considered equal<br/>
    * @param keyComp - (optional) the Comp instance used to order the object keys
    * @param valueComp - (optional) the Comp instance used to order the object values
    * @example
+   * ```ts
    * const c = Comp.objectComp();
    * console.log(c.compare({ a: 1 }, { a: 1 }))
    * // => 0
@@ -390,6 +402,7 @@ export namespace Comp {
    * // => true
    * console.log(c.compare({ a: 1, b: 2 }, { b: 2, a: 1 }))
    * // => 0
+   * ```
    */
   export function objectComp(options?: {
     keyComp?: Comp<any>;
@@ -405,7 +418,7 @@ export namespace Comp {
       isComparable(obj): obj is any {
         return true;
       },
-      compare(v1, v2) {
+      compare(v1, v2): number {
         if (Object.is(v1, v2)) return 0;
 
         const type1 = typeof v1;
@@ -472,10 +485,12 @@ export namespace Comp {
    * Returns a Comp instance that compares any value using default comparison functions, but never recursively compares
    * Iterables or objects. In those cases, it will use the stringComp instance.
    * @example
+   * ```ts
    * const c = Comp.anyFlatComp();
    * console.log(c.compare({ a: 1, b: 1 }, { b: 1, a: 1 }) < 0)
    * // => true
    * // First object is smaller because the objects are converted to a string with and then compares the resulting string.
+   * ```
    */
   export function anyFlatComp<T>(): Comp<T> {
     return _anyFlatComp;
@@ -485,12 +500,14 @@ export namespace Comp {
    * Returns a Comp instance that compares any value using default comparison functions. For Iterables and objects, their elements are compared
    * only one level deep for performance and to avoid infinite recursion.
    * @example
+   * ```ts
    * const c = Comp.anyShallowComp();
    * console.log(c.compare({ a: 1, b: 1 }, { b: 1, a: 1 }))
    * // => 0
    * console.log(c.compare([{ a: 1, b: 1 }], [{ b: 1, a: 1 }]) < 0)
    * // => true
    * // First object is smaller because the objects are converted to a string and then compares the resulting string.
+   * ```
    */
   export function anyShallowComp<T>(): Comp<T> {
     return _anyShallowComp;
@@ -501,11 +518,13 @@ export namespace Comp {
    * recursively.
    * @note can become slow with large nested arrays and objects, and circular structures can cause infinite loops
    * @example
+   * ```ts
    * const c = Comp.anyDeepComp();
    * console.log(c.compare({ a: 1, b: 1 }, { b: 1, a: 1 }))
    * // => 0
    * console.log(c.compare([{ a: 1, b: 1 }], [{ b: 1, a: 1 }]))
    * // => 0
+   * ```
    */
   export function anyDeepComp<T>(): Comp<T> {
     return _anyDeepComp;
@@ -516,18 +535,20 @@ export namespace Comp {
    * than any other value, and equal to another undefined.
    * @param comp - the Comp instance to wrap
    * @example
+   * ```ts
    * const c = Comp.withUndefined(Comp.numberComp())
    * console.log(c.compare(undefined, 5) < 0)
    * // => true
    * console.log(c.compare(undefined, undefined))
    * // => 0
+   * ```
    */
   export function withUndefined<T>(comp: Comp<T>): Comp<T | undefined> {
     return {
       isComparable(obj): obj is T | undefined {
         return undefined === obj || comp.isComparable(obj);
       },
-      compare(v1, v2) {
+      compare(v1, v2): number {
         if (undefined === v1) {
           if (undefined === v2) return 0;
           return -1;
@@ -543,18 +564,20 @@ export namespace Comp {
    * than any other value, and equal to another null.
    * @param comp - the Comp instance to wrap
    * @example
+   * ```ts
    * const c = Comp.withNull(Comp.numberComp())
    * console.log(c.compare(null, 5) < 0)
    * // => true
    * console.log(c.compare(null, null))
    * // => 0
+   * ```
    */
   export function withNull<T>(comp: Comp<T>): Comp<T | null> {
     return {
       isComparable(obj): obj is T | null {
         return null === obj || comp.isComparable(obj);
       },
-      compare(v1, v2) {
+      compare(v1, v2): number {
         if (null === v1) {
           if (null === v2) return 0;
           return -1;
@@ -569,15 +592,17 @@ export namespace Comp {
    * Returns a Comp instance the reverses the order of the given `comp` instance.
    * @param comp - the Comp instance to wrap
    * @example
+   * ```ts
    * const c = Comp.invert(Comp.numberComp())
    * console.log(c.compare(3, 5) > 0)
    * // => true
    * console.log(c.compare(5, 5))
    * // => 0
+   * ```
    */
   export function invert<T>(comp: Comp<T>): Comp<T> {
     return {
-      compare(v1, v2) {
+      compare(v1, v2): number {
         return comp.compare(v2, v1);
       },
       isComparable: comp.isComparable,
@@ -588,11 +613,13 @@ export namespace Comp {
    * Returns an `Eq` equality instance thet will return true when the given `comp` comparable instance returns 0.
    * @param comp - the `Comp` comparable instance to convert
    * @example
+   * ```ts
    * const eq = Comp.toEq(Comp.objectComp())
    * console.log(eq({ a: 1, b: 2 }, { b: 2, a: 1 }))
    * // => true
+   * ```
    */
   export function toEq<T>(comp: Comp<T>): Eq<T> {
-    return (v1, v2) => comp.compare(v1, v2) === 0;
+    return (v1: T, v2: T): boolean => comp.compare(v1, v2) === 0;
   }
 }

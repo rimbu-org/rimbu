@@ -1,4 +1,4 @@
-import { SortedMultiMapSortedValue } from '../src';
+import { SortedMultiMapSortedValue } from '@rimbu/multimap';
 import { runMultiMapTestsWith } from './multimap-test-standard';
 
 runMultiMapTestsWith(

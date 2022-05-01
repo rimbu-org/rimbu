@@ -4,6 +4,13 @@
   "rootDir": "./src",
   "compilerOptions": {
     "outDir": "./dist",
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@rimbu/ordered/map-custom": ["./src/map-custom/index.ts"],
+      "@rimbu/ordered/set-custom": ["./src/set-custom/index.ts"],
+      "@rimbu/ordered/map": ["./src/map/index.ts"],
+      "@rimbu/ordered/set": ["./src/set/index.ts"]
+    }
   }
 }

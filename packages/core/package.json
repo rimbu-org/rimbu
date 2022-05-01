@@ -40,22 +40,24 @@
     "url": "https://github.com/rimbu-org/rimbu.git",
     "directory": "packages/core"
   },
-  "source": "src/index.ts",
-  "main": "dist/main/index.js",
-  "module": "dist/module/index.js",
-  "types": "dist/types/index.d.ts",
+  "source": "src/main/index.ts",
+  "main": "dist/main/main/index.js",
+  "module": "dist/module/main/index.js",
+  "types": "dist/types/main/index.d.ts",
   "files": [
     "dist",
-    "src"
+    "src",
+    "menu"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
-    "build:deno": "rimraf deno_dist ../../deno_dist/core && denoify && cp ../../config/mod_ts_template deno_dist/mod.ts && mv deno_dist ../../deno_dist/core",
+    "build:deno": "rimraf deno_dist ../../deno_dist/core && denoify && mv deno_dist ../../deno_dist/core",
     "bundle": "yarn bundle:main && yarn bundle:module && yarn bundle:types",
     "bundle:main": "tsc --p tsconfig.main.json",
     "bundle:module": "tsc --p tsconfig.module.json",
     "bundle:types": "tsc --p tsconfig.types.json",
     "clean": "rimraf dist",
+    "extract-api": "api-extractor run --local --verbose --config config/api-extractor.main.json",
     "format": "yarn format:base --write",
     "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,json,md}\"",
     "format:check": "yarn format:base --check",
@@ -71,8 +73,6 @@
     "@rimbu/common": "^0.8.2",
     "@rimbu/deep": "^0.8.2",
     "@rimbu/graph": "^0.8.4",
-    "@rimbu/graph-arrow-valued": "^0.8.4",
-    "@rimbu/graph-edge-valued": "^0.8.4",
     "@rimbu/hashed": "^0.7.4",
     "@rimbu/list": "^0.9.0",
     "@rimbu/multimap": "^0.8.4",
@@ -81,14 +81,13 @@
     "@rimbu/sorted": "^0.8.3",
     "@rimbu/stream": "^0.9.0",
     "@rimbu/table": "^0.8.4",
-    "@rimbu/table-hash-row": "^0.7.4",
-    "@rimbu/table-sorted-row": "^0.7.4",
     "tslib": "^2.3.1"
   },
   "publishConfig": {
     "access": "public"
   },
   "denoify": {
+    "index": "src/main/index.ts",
     "replacer": "../../config/denoify-rimbu-replacer.js"
   }
 }

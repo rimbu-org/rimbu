@@ -6,7 +6,7 @@ import {
   expectNotAssignable,
   expectType,
 } from 'tsd';
-import { List } from '../src';
+import { List } from '@rimbu/list';
 
 expectAssignable<List<number>>(List.of(1));
 expectNotAssignable<List.NonEmpty<number>>(List.empty<number>());

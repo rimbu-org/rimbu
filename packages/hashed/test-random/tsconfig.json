@@ -1,5 +1,0 @@
-// For VS Code
-{
-  "extends": "../../../config/tsconfig.base.json",
-  "include": ["."]
-}

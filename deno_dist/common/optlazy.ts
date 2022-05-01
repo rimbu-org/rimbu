@@ -8,9 +8,11 @@ export type OptLazy<T> = T | (() => T);
  * Returns the value contained in an `OptLazy` instance of type T.
  * @param optLazy - the `OptLazy` value of type T
  * @example
+ * ```ts
  * OptLazy(1)              // => 1
  * OptLazy(() => 1)        // => 1
  * OptLazy(() => () => 1)  // => () => 1
+ * ```
  */
 export function OptLazy<T>(optLazy: OptLazy<T>): T {
   if (optLazy instanceof Function) return optLazy();
@@ -31,9 +33,11 @@ export type OptLazyOr<T, O> = T | ((none: O) => T | O);
  * @param optLazyOr - a value or a function returning a value or otherwise the received value
  * @param otherValue - the value to return if the optLazyOr does not return its own value
  * @example
+ * ```ts
  * OptLazyOr(1, 'a')               // => 1
  * OptLazyOr(() => 1, 'a')         // => 1
  * OptLazyOr((none) => none, 'a')  // => 'a'
+ * ```
  */
 export function OptLazyOr<T, O>(
   optLazyOr: OptLazyOr<T, O>,

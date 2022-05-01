@@ -1,5 +1,5 @@
 import { runMapRandomTestsWith } from '@rimbu/collection-types/test-utils/map/map-random';
-import { HashMap } from '../src';
+import { HashMap } from '@rimbu/hashed';
 
 runMapRandomTestsWith('HashMap default', HashMap.defaultContext());
 

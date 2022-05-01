@@ -1,6 +1,6 @@
-import { Stream } from '@rimbu/stream';
 import { Reducer } from '@rimbu/common';
-import { SortedSet } from '../src';
+import { SortedSet } from '@rimbu/sorted';
+import { Stream } from '@rimbu/stream';
 
 function runWith(name: string, context: SortedSet.Context<number>): void {
   describe(name, () => {

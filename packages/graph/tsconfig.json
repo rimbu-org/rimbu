@@ -4,6 +4,11 @@
   "rootDir": "./src",
   "compilerOptions": {
     "outDir": "./dist",
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@rimbu/graph/custom": ["./src/custom/index.ts"],
+      "@rimbu/graph": ["./src/main/index.ts"]
+    }
   }
 }

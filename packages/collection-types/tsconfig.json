@@ -5,5 +5,12 @@
   "compilerOptions": {
     "outDir": "./dist",
     "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@rimbu/collection-types/map-custom": ["./src/map-custom/index.ts"],
+      "@rimbu/collection-types/set-custom": ["./src/set-custom/index.ts"],
+      "@rimbu/collection-types/map": ["./src/map/index.ts"],
+      "@rimbu/collection-types/set": ["./src/set/index.ts"]
+    }
   }
 }

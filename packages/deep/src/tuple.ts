@@ -21,8 +21,10 @@ export namespace Tuple {
    * Convenience method to type Tuple types
    * @param values - the values of the tuple
    * @example
+   * ```ts
    * const t = Tuple.of(1, 'a', true)
    * // type of t => Tuple<[number, string, boolean]>
+   * ```
    */
   export function of<T extends Tuple.NonEmptySource>(...values: T): Tuple<T> {
     return values as any;
@@ -33,9 +35,11 @@ export namespace Tuple {
    * @param tuple - the tuple to get the item from
    * @param index - the index in of the tuple element
    * @example
+   * ```ts
    * const t = Tuple.of(1, 'a', true)
    * console.log(Tuple.getIndex(t, 1))
    * // => 'a'
+   * ```
    */
   export function getIndex<T extends Tuple.Source, K extends keyof T = keyof T>(
     tuple: T,
@@ -48,9 +52,11 @@ export namespace Tuple {
    * Returns the first element of a Tuple.
    * @param tuple - the source tuple
    * @example
+   * ```ts
    * const t = Tuple.of(1, 'a', true)
    * console.log(Tuple.first(t))
    * // => 1
+   * ```
    */
   export function first<T extends Tuple.Source>(tuple: T): T[0] {
     return tuple[0];
@@ -60,9 +66,11 @@ export namespace Tuple {
    * Returns the second element of a Tuple.
    * @param tuple - the source tuple
    * @example
+   * ```ts
    * const t = Tuple.of(1, 'a', true)
    * console.log(Tuple.second(t))
    * // => 'a'
+   * ```
    */
   export function second<T extends Tuple.Source>(tuple: T): T[1] {
     return tuple[1];
@@ -72,9 +80,11 @@ export namespace Tuple {
    * Returns the last element of a Tuple.
    * @param tuple - the source tuple
    * @example
+   * ```ts
    * const t = Tuple.of(1, 'a', true)
    * console.log(Tuple.last(t))
    * // => true
+   * ```
    */
   export function last<T extends readonly unknown[], R>(
     tuple: readonly [...T, R]
@@ -89,9 +99,11 @@ export namespace Tuple {
    * @param index - the index in the tuple
    * @param updater - the updater for the value
    * @example
+   * ```ts
    * const t = Tuple.of(1, 'a', true)
    * console.log(Tuple.updateAt(t, 1, 'b'))
    * // => [1, 'b', true]
+   * ```
    */
   export function updateAt<T extends Tuple.Source, K extends keyof T = keyof T>(
     tuple: T,
@@ -106,9 +118,11 @@ export namespace Tuple {
    * @param tuple - the source tuple
    * @param values - the values to append
    * @example
+   * ```ts
    * const t = Tuple.of(1, 'a')
    * console.log(Tuple.append(t, true, 5))
    * // => [1, 'a', true, 5]
+   * ```
    */
   export function append<
     T extends Tuple.Source,
@@ -123,10 +137,12 @@ export namespace Tuple {
    * @param tuple1 - the first Tuple
    * @param tuple2 - the second Tuple
    * @example
+   * ```ts
    * const t1 = Tuple.of(1, 'a')
    * const t2 = Tuple.of(true, 5)
    * console.log(Tuple.concat(t1, t2))
    * // => [1, 'a', true, 5]
+   * ```
    */
   export function concat<T1 extends Tuple.Source, T2 extends Tuple.Source>(
     tuple1: T1,
@@ -139,9 +155,11 @@ export namespace Tuple {
    * Returns a Tuple containing all but the last element of the given `tuple`.
    * @param tuple - the source tuple
    * @example
+   * ```ts
    * const t = Tuple.of(1, 'a', true)
    * console.log(Tuple.init(t))
    * // => [1, 'a']
+   * ```
    */
   export function init<T extends readonly unknown[]>(
     tuple: readonly [...T, unknown]
@@ -153,9 +171,11 @@ export namespace Tuple {
    * Returns a Tuple containing all but the first element of the given `tuple`.
    * @param tuple - the source tuple
    * @example
+   * ```ts
    * const t = Tuple.of(1, 'a', true)
    * console.log(Tuple.tail(t))
    * // => ['a', true]
+   * ```
    */
   export function tail<T extends readonly [...unknown[]]>(
     tuple: readonly [unknown, ...T]

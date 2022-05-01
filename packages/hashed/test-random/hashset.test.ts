@@ -1,6 +1,6 @@
 import { runSetRandomTestsWith } from '@rimbu/collection-types/test-utils/set/set-random';
 import { Eq } from '@rimbu/common';
-import { HashSet } from '../src';
+import { HashSet } from '@rimbu/hashed';
 
 runSetRandomTestsWith('HashSet default', HashSet.defaultContext());
 

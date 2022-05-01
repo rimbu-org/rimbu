@@ -1,5 +1,5 @@
 import { runSetTestsWith } from '@rimbu/collection-types/test-utils/set/set-standard';
-import { Hasher, HashSet } from '../src';
+import { Hasher, HashSet } from '@rimbu/hashed';
 
 runSetTestsWith(
   'HashSet block size 2',

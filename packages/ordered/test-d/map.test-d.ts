@@ -2,7 +2,7 @@ import type { RMap } from '@rimbu/collection-types';
 import type { ArrayNonEmpty } from '@rimbu/common';
 import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-import type { OrderedMap } from '../src';
+import type { OrderedMap } from '@rimbu/ordered';
 
 type GE<K, V> = OrderedMap<K, V>;
 type GNE<K, V> = OrderedMap.NonEmpty<K, V>;

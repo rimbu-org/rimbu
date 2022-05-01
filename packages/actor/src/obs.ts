@@ -371,12 +371,14 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    * Sets the Obs state to the given `newState`, and notifies the listeners of the state change.
    * @note will not update if the given state is equal to the current state
    * @example
+   * ```ts
    * const o = Obs.create({ a: 1, b: 'a' });
    * o.subscribe(newState => console.log(newState));
    * o.setState({ a: 2, b: 'a' });
    * // => logs { a: 2, b: 'a' })
    * o.setState({ a: 2, b: 'a' });
    * // nothing happens since given state equal to current state
+   * ```
    */
   setState: (newState: T) => void;
   /**
@@ -384,12 +386,14 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    * @params patches - an array of patches to apply to the current state
    * @note will not update if the resulting state is equal to the current state
    * @example
+   * ```ts
    * const o = Obs.create({ a: 1, b: 'a' });
    * o.subscribe(newState => console.log(newState));
    * o.patchState({ a: v => v + 1 });
    * // => logs { a: 2, b: 'a' })
    * o.patchState({ b: 'a' });
    * // nothing happens since given state equal to current state
+   * ```
    */
   patchState: (...patches: Patch.Multi<T>) => void;
   /**
@@ -398,12 +402,13 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    * @typeparam T2 - the result state type
    * @typeparam D2 - the result derived state type
    * @param mapTo - a function taking the current state and returning the result state
-   * @param options - (optional) an object containing the following properties:
-   * * derive - a function taking the newState, oldState, and optionally the old derived state,
-   * returning the new derived properties
-   * * onFirstSubscription - a function that will be executed each time a first subscription occurs, and which
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - derive - a function taking the newState, oldState, and optionally the old derived state,
+   * returning the new derived properties<br/>
+   * - onFirstSubscription - a function that will be executed each time a first subscription occurs, and which
    * returns a function that will be called when there are no more subscribers
    * @example
+   * ```ts
    * const o = Obs.create({ a: 1, b: 'a' })
    * const m = o.mapReadonly(s => s.a + s.b)
    * console.log(m.state)
@@ -411,6 +416,7 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    * o.patchState({ a: v => v + 1 })
    * console.log(m.state)
    * // => '2a'
+   * ```
    */
   mapReadonly: <T2, D2 = unknown>(
     mapTo: (newState: Immutable<T & D>) => T2,
@@ -432,12 +438,13 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    * @param mapTo - a function taking the current state and returning the result state
    * @param mapFrom - a function taking the target state and returning a patch to update the current
    * state accordingly
-   * @param options - (optional) an object containing the following properties:
-   * * derive - a function taking the newState, oldState, and optionally the old derived state,
-   * returning the new derived properties
-   * * onFirstSubscription - a function that will be executed each time a first subscription occurs, and which
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - derive - a function taking the newState, oldState, and optionally the old derived state,
+   * returning the new derived properties<br/>
+   * - onFirstSubscription - a function that will be executed each time a first subscription occurs, and which
    * returns a function that will be called when there are no more subscribers
    * @example
+   * ```ts
    * const o = Obs.create({ a: 1, b: 'a' })
    * const m = o.map(s => s.a, s => ({ a: s }))
    * console.log(m.state)
@@ -445,6 +452,7 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    * m.patchState(5)
    * console.log(o.state)
    * // => { a: 5, b: 'a' }
+   * ```
    */
   map: <T2, D2 = unknown>(
     mapTo: (newState: Immutable<T & D>) => T2,
@@ -464,12 +472,13 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    * @typeparam P - the path type defining the property to select
    * @typeparam DR - the result derived state type
    * @param pathInState: a Path in the current state to the selected property
-   * @param options - (optional) an object containing the following properties:
-   * * derive - a function taking the newState, oldState, and optionally the old derived state,
-   * returning the new derived properties
-   * * onFirstSubscription - a function that will be executed each time a first subscription occurs, and which
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - derive - a function taking the newState, oldState, and optionally the old derived state,
+   * returning the new derived properties<br/>
+   * - onFirstSubscription - a function that will be executed each time a first subscription occurs, and which
    * returns a function that will be called when there are no more subscribers
    * @example
+   * ```ts
    * const o = Obs.create({ a: 1, b: { c: 2 } })
    * const m = o.selectReadonly('b')
    * console.log(m.state)
@@ -477,6 +486,7 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    * o.patchState({ b: { c: 5 })
    * console.log(m.state)
    * // => { c: 5 }
+   * ```
    */
   selectReadonly: <P extends Path<T & D>, DR = unknown>(
     pathInState: P,
@@ -496,12 +506,13 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    * @typeparam P - the path type defining the property to select
    * @typeparam DR - the result derived state type
    * @param pathInState: a Path in the current state to the selected property
-   * @param options - (optional) an object containing the following properties:
-   * * derive - a function taking the newState, oldState, and optionally the old derived state,
-   * returning the new derived properties
-   * * onFirstSubscription - a function that will be executed each time a first subscription occurs, and which
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - derive - a function taking the newState, oldState, and optionally the old derived state,
+   * returning the new derived properties<br/>
+   * - onFirstSubscription - a function that will be executed each time a first subscription occurs, and which
    * returns a function that will be called when there are no more subscribers
    * @example
+   * ```ts
    * const o = Obs.create({ a: 1, b: { c: 2 } })
    * const m = o.select('b')
    * console.log(m.state)
@@ -509,6 +520,7 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    * m.patchState({ c: 5 })
    * console.log(o.state)
    * // => { a: 1, b: { c: 5 } }
+   * ```
    */
   select: <P extends Path<T>, DR = unknown>(
     pathInState: P,
@@ -529,12 +541,13 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    * @typeparam DR - the combined derived state type
    * @param other - the other Obs containing the state to combine
    * @param mapTo - a function taking the two states, and returning the combined state
-   * @param options - (optional) an object containing the following properties:
-   * * derive - a function taking the newState, oldState, and optionally the old derived state,
-   * returning the new derived properties
-   * * onFirstSubscription - a function that will be executed each time a first subscription occurs, and which
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - derive - a function taking the newState, oldState, and optionally the old derived state,
+   * returning the new derived properties<br/>
+   * - onFirstSubscription - a function that will be executed each time a first subscription occurs, and which
    * returns a function that will be called when there are no more subscribers
    * @example
+   * ```ts
    * const o1 = Obs.create(1)
    * const o2 = Obs.create('a')
    * const m = o1.combineReadonly(o2, (a, b) => ({ a, b }))
@@ -546,6 +559,7 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    * o2.setStatE('z')
    * console.log(m.state)
    * // { a: 5, b: 'z' }
+   * ```
    */
   combineReadonly<T2, R, DR = unknown>(
     other: Obs.Readonly<T2>,
@@ -572,12 +586,13 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    * @param mapFrom - a function taking the current combined state and returning a patch tuple, where
    * the first element is a patch to update this state, and the second element is a patch for the
    * `other` state.
-   * @param options - (optional) an object containing the following properties:
-   * * derive - a function taking the newState, oldState, and optionally the old derived state,
-   * returning the new derived properties
-   * * onFirstSubscription - a function that will be executed each time a first subscription occurs, and which
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - derive - a function taking the newState, oldState, and optionally the old derived state,
+   * returning the new derived properties<br/>
+   * - onFirstSubscription - a function that will be executed each time a first subscription occurs, and which
    * returns a function that will be called when there are no more subscribers
    * @example
+   * ```ts
    * const o1 = Obs.create({ a: 1, b: 2 })
    * const o2 = Obs.create({ c: 3, d: 4 })
    * const m = o1.combine(o2,
@@ -591,6 +606,7 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    * // => { a: 5, b: 2 }
    * console.log(o2.state)
    * // => { c: 3, d: 8 }
+   * ```
    */
   combine<T2, D2, R, DR = unknown>(
     other: Obs<T2, D2>,
@@ -634,20 +650,24 @@ export namespace Obs {
     /**
      * Returns an immutable view of the current state.
      * @example
+     * ```ts
      * const o = Obs.create({ a: 1, b: 'a' })
      * console.log(o.state)
      * // => { a: 1, b: 'a' }
+     * ```
      */
     readonly state: Immutable<T>;
     /**
      * Returns true if the Obs has at least one subscriber.
      * @example
+     * ```ts
      * const o = Obs.create(1)
      * console.log(o.hasSubscribers)
      * // => false
      * o.subscribe(() => {})
      * console.log(o.hasSubscribers)
      * // => true
+     * ```
      */
     readonly hasSubscribers: boolean;
     /**
@@ -663,11 +683,12 @@ export namespace Obs {
      * @typeparam D2 - the result derived state type
      * @param mapTo - a function taking the current state and returning the result state
      * @param options - (optional) an object containing the following properties:
-     * * derive - a function taking the newState, oldState, and optionally the old derived state,
+     * - derive - a function taking the newState, oldState, and optionally the old derived state,
      * returning the new derived properties
-     * * onFirstSubscription - a function that will be executed each time a first subscription occurs, and which
+     * - onFirstSubscription - a function that will be executed each time a first subscription occurs, and which
      * returns a function that will be called when there are no more subscribers
      * @example
+     * ```ts
      * const o = Obs.create({ a: 1, b: 'a' })
      * const m = o.mapReadonly(s => s.a + s.b)
      * console.log(m.state)
@@ -675,6 +696,7 @@ export namespace Obs {
      * o.patchState({ a: v => v + 1 })
      * console.log(m.state)
      * // => '2a'
+     * ```
      */
     mapReadonly: <T2, D2>(
       mapTo: (newState: Immutable<T>) => T2,
@@ -693,12 +715,13 @@ export namespace Obs {
      * @typeparam P - the path type defining the property to select
      * @typeparam DR - the result derived state type
      * @param pathInState: a Path in the current state to the selected property
-     * @param options - (optional) an object containing the following properties:
-     * * derive - a function taking the newState, oldState, and optionally the old derived state,
-     * returning the new derived properties
-     * * onFirstSubscription - a function that will be executed each time a first subscription occurs, and which
+     * @param options - (optional) an object containing the following properties:<br/>
+     * - derive - a function taking the newState, oldState, and optionally the old derived state,
+     * returning the new derived properties<br/>
+     * - onFirstSubscription - a function that will be executed each time a first subscription occurs, and which
      * returns a function that will be called when there are no more subscribers
      * @example
+     * ```ts
      * const o = Obs.create({ a: 1, b: { c: 2 } })
      * const m = o.selectReadonly('b')
      * console.log(m.state)
@@ -706,6 +729,7 @@ export namespace Obs {
      * o.patchState({ b: { c: 5 })
      * console.log(m.state)
      * // => { c: 5 }
+     * ```
      */
     selectReadonly: <P extends Path<T>, DR = unknown>(
       pathInState: P,
@@ -723,12 +747,13 @@ export namespace Obs {
      * the given `mapTo` function.
      * @param other - the other Obs containing the state to combine
      * @param mapTo - a function taking the two states, and returning the combined state
-     * @param options - (optional) an object containing the following properties:
-     * * derive - a function taking the newState, oldState, and optionally the old derived state,
-     * returning the new derived properties
-     * * onFirstSubscription - a function that will be executed each time a first subscription occurs, and which
+     * @param options - (optional) an object containing the following properties:<br/>
+     * - derive - a function taking the newState, oldState, and optionally the old derived state,
+     * returning the new derived properties<br/>
+     * - onFirstSubscription - a function that will be executed each time a first subscription occurs, and which
      * returns a function that will be called when there are no more subscribers
      * @example
+     * ```ts
      * const o1 = Obs.create(1)
      * const o2 = Obs.create('a')
      * const m = o1.combineReadonly(o2, (a, b) => ({ a, b }))
@@ -740,6 +765,7 @@ export namespace Obs {
      * o2.setStatE('z')
      * console.log(m.state)
      * // { a: 5, b: 'z' }
+     * ```
      */
     combineReadonly<T2, R, DR = unknown>(
       other: Obs.Readonly<T2>,
@@ -760,12 +786,13 @@ export namespace Obs {
    * @typeparam T - the state type
    * @typeparam D - the derived state type
    * @param initState - the initial state
-   * @param options - (optional) an object containing the following properties:
-   * * derive - a function taking the newState, oldState, and optionally the old derived state,
-   * returning the new derived properties
-   * * onFirstSubscription - a function that will be executed each time a first subscription occurs, and which
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - derive - a function taking the newState, oldState, and optionally the old derived state,
+   * returning the new derived properties<br/>
+   * - onFirstSubscription - a function that will be executed each time a first subscription occurs, and which
    * returns a function that will be called when there are no more subscribers
    * @example
+   * ```ts
    * const o1 = Obs.create({ a: 1 })
    * console.log(o1.state)
    * // => { a: 1 }
@@ -775,6 +802,7 @@ export namespace Obs {
    * o2.patchState({ a: 5 })
    * console.log(o2.state)
    * // => { a: 5, b: 15 }
+   * ```
    */
   export function create<T, D = unknown>(
     initState: T,

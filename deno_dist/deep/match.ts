@@ -69,8 +69,10 @@ export namespace Match {
    * @param value - the value to match
    * @param matchers - one or more `Match` objects
    * @example
+   * ```ts
    * matchAll({ g: { h: 'abc' }})({ g: { h: 'a' }}) => false
    * matchAll({ g: { h: 'abc' }})({ g: { h: v => v.length > 1 }}) => true
+   * ```
    */
   export function all<T>(value: T): (...matchers: Match.Multi<T>) => boolean {
     return (...matchers): boolean => {
@@ -90,8 +92,10 @@ export namespace Match {
    * @param value - the value to match
    * @param matchers - one or more `Match` objects
    * @example
+   * ```ts
    * matchAny({ g: { h: 'abc' }})({ g: { h: 'a' }}, { g: { h: v => v.length < 2 }}) => false
    * matchAny({ g: { h: 'abc' }})({ g: { h: 'a' }}, { g: { h: v => v.length > 1 }}) => true
+   * ```
    */
   export function any<T>(value: T): (...matchers: Match.Multi<T>) => boolean {
     return (...matchers): boolean => {
@@ -112,6 +116,7 @@ export namespace Match {
    * @typeparam T2 - the type to use for the Match, should be equal to T
    * @param matches - at least one Match instance to perform on a given `value`
    * @example
+   * ```ts
    * type Person = { name: string, age: number }
    * const m = Match.createAll<Person>({ age: v => v > 20 }, { name: v => v.length > 2 })
    *
@@ -121,6 +126,7 @@ export namespace Match {
    * // => true
    * console.log(m({ name: 'a', age: 20 }))
    * // => false
+   * ```
    */
   export function createAll<T, T2 extends T = T>(
     ...matches: Match.Multi<T2>
@@ -135,6 +141,7 @@ export namespace Match {
    * @typeparam T2 - the type to use for the Match, should be equal to T
    * @param matches - at least one Match instance to perform on a given `value`
    * @example
+   * ```ts
    * type Person = { name: string, age: number }
    * const m = Match.createAny<Person>({ age: v => v > 20 }, { name: v => v.length > 2 })
    *
@@ -146,6 +153,7 @@ export namespace Match {
    * // => true
    * console.log(m({ name: 'a', age: 10 }))
    * // => false
+   * ```
    */
   export function createAny<T, T2 extends T = T>(
     ...matches: Match.Multi<T2>

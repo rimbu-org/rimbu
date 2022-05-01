@@ -1,0 +1,8 @@
+{
+  "name": "async-custom",
+  "private": true,
+  "source": "../src/async-custom/index.ts",
+  "main": "../dist/main/async-custom/index.js",
+  "module": "../dist/module/async-custom/index.js",
+  "types": "../dist/types/async-custom/index.d.ts"
+}

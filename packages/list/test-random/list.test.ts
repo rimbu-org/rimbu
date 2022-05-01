@@ -1,6 +1,6 @@
 // import fs from 'fs';
+import { List } from '@rimbu/list';
 import { Stream } from '@rimbu/stream';
-import { List } from '../src';
 
 function runWith(nrOfBits: number): void {
   const context = List.createContext({ blockSizeBits: nrOfBits });

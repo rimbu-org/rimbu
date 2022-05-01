@@ -1,0 +1,8 @@
+{
+  "name": "sorted-row",
+  "private": true,
+  "source": "../src/sorted-row/index.ts",
+  "main": "../dist/main/sorted-row/index.js",
+  "module": "../dist/module/sorted-row/index.js",
+  "types": "../dist/types/sorted-row/index.d.ts"
+}

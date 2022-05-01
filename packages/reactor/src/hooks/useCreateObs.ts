@@ -8,6 +8,7 @@ import { useActor } from './useActor';
  * @typeparam T - the state type
  * @param initState - an optionally lazy initial state
  * @example
+ * ```ts
  * export const MyComponent = () => {
  *   const [state, obs] = useCreateObs({ value: 1 })
  *
@@ -18,6 +19,7 @@ import { useActor } from './useActor';
  *     </>
  *   )
  * }
+ * ```
  */
 export function useCreateObs<T>(
   initState: OptLazy<T>
