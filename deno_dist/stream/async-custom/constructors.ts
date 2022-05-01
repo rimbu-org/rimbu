@@ -7,11 +7,8 @@ import {
   Reducer,
 } from '../../common/mod.ts';
 import { Stream } from '../../stream/mod.ts';
-import {
-  AsyncFastIterator,
-  AsyncStream,
-  AsyncStreamSource,
-} from '../../stream/async/index.ts';
+import type { AsyncStream } from '../../stream/async/index.ts';
+import { AsyncFastIterator, AsyncStreamSource } from '../../stream/async/index.ts';
 import {
   AsyncFastIteratorBase,
   AsyncFromStream,
@@ -54,9 +51,10 @@ const fromAsyncStreamSource: {
   <T>(source: AsyncStreamSource.NonEmpty<T>): AsyncStream.NonEmpty<T>;
   <T>(source: AsyncStreamSource<T>): AsyncStream<T>;
 } = <T>(source: AsyncStreamSource<T>): any => {
-  if (undefined === source) return AsyncStream.empty();
+  if (undefined === source) return AsyncStreamConstructorsImpl.empty();
   if (isAsyncStream(source)) return source;
-  if (AsyncStreamSource.isEmptyInstance(source)) return AsyncStream.empty();
+  if (AsyncStreamSource.isEmptyInstance(source))
+    return AsyncStreamConstructorsImpl.empty();
 
   return new FromSource(source);
 };
@@ -174,7 +172,7 @@ class AsyncEmptyStream<T = any>
 
     if (undefined === source2) return source1;
 
-    return AsyncStream.from(source1, source2, ...sources);
+    return AsyncStreamConstructorsImpl.from(source1, source2, ...sources);
   }
   min<O>(otherwise?: AsyncOptLazy<O>): Promise<O> {
     return AsyncOptLazy.toPromise(otherwise!);
@@ -201,10 +199,10 @@ class AsyncEmptyStream<T = any>
     return start.concat(end);
   }
   mkGroup({
-    start = AsyncStream.empty<T>() as AsyncStreamSource<T>,
-    end = AsyncStream.empty<T>() as AsyncStreamSource<T>,
+    start = AsyncStreamConstructorsImpl.empty<T>() as AsyncStreamSource<T>,
+    end = AsyncStreamConstructorsImpl.empty<T>() as AsyncStreamSource<T>,
   } = {}): AsyncStream.NonEmpty<T> {
-    return AsyncStream.from(start, end) as any;
+    return AsyncStreamConstructorsImpl.from(start, end) as any;
   }
   fold<R>(init: AsyncOptLazy<R>): Promise<R> {
     return AsyncOptLazy.toPromise(init);
@@ -304,7 +302,9 @@ class FromPromise<T> extends AsyncFastIteratorBase<T> {
   async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<T | O> {
     if (this.iterator === undefined) {
       const source = await this.promise();
-      this.iterator = AsyncStream.from(source)[Symbol.asyncIterator]() as any;
+      this.iterator = AsyncStreamConstructorsImpl.from(source)[
+        Symbol.asyncIterator
+      ]() as any;
     }
 
     return this.iterator!.fastNext(otherwise!);
@@ -399,7 +399,8 @@ class FromResourceIterator<T, R> extends AsyncFastIteratorBase<T> {
       const resource = await this.open();
       this.resource = resource;
       const source = await this.createSource(resource);
-      this.iterator = AsyncStream.from(source)[Symbol.asyncIterator]();
+      this.iterator =
+        AsyncStreamConstructorsImpl.from(source)[Symbol.asyncIterator]();
     }
 
     return this.iterator.fastNext(async () => {
@@ -471,7 +472,7 @@ class AsyncZipWithIterator<
 
     this.sources = iterables.map(
       (source): AsyncFastIterator<any> =>
-        AsyncStream.from(source)[Symbol.asyncIterator]()
+        AsyncStreamConstructorsImpl.from(source)[Symbol.asyncIterator]()
     );
 
     this.sourcesToClose = new Set(this.sources);
@@ -520,7 +521,8 @@ class AsyncZipAllWithItererator<
     super();
 
     this.sources = iters.map(
-      (o): AsyncFastIterator<any> => AsyncStream.from(o)[Symbol.asyncIterator]()
+      (o): AsyncFastIterator<any> =>
+        AsyncStreamConstructorsImpl.from(o)[Symbol.asyncIterator]()
     );
 
     this.sourcesToClose = new Set(this.sources);
@@ -751,7 +753,7 @@ export const AsyncStreamConstructorsImpl: AsyncStreamConstructors = {
   zipWith(...sources): any {
     return (zipFun: any): any => {
       if (sources.some(AsyncStreamSource.isEmptyInstance)) {
-        return AsyncStream.empty();
+        return AsyncStreamConstructorsImpl.empty();
       }
 
       return new AsyncFromStream(
@@ -760,12 +762,12 @@ export const AsyncStreamConstructorsImpl: AsyncStreamConstructors = {
     };
   },
   zip(...sources): any {
-    return AsyncStream.zipWith(...sources)(Array);
+    return AsyncStreamConstructorsImpl.zipWith(...sources)(Array);
   },
   zipAllWith(...sources): any {
     return (fillValue: any, zipFun: any): any => {
       if (sources.every(AsyncStreamSource.isEmptyInstance)) {
-        return AsyncStream.empty();
+        return AsyncStreamConstructorsImpl.empty();
       }
 
       return new AsyncFromStream(
@@ -775,14 +777,19 @@ export const AsyncStreamConstructorsImpl: AsyncStreamConstructors = {
     };
   },
   zipAll(fillValue, ...sources): any {
-    return AsyncStream.zipAllWith(...(sources as any))(fillValue, Array);
+    return AsyncStreamConstructorsImpl.zipAllWith(...(sources as any))(
+      fillValue,
+      Array
+    );
   },
   flatten(source: any) {
-    return AsyncStream.from(source).flatMap((s: any) => s);
+    return AsyncStreamConstructorsImpl.from(source).flatMap((s: any) => s);
   },
   unzip(source, length) {
     if (AsyncStreamSource.isEmptyInstance(source)) {
-      return Stream.of(AsyncStream.empty()).repeat(length).toArray();
+      return Stream.of(AsyncStreamConstructorsImpl.empty())
+        .repeat(length)
+        .toArray();
     }
 
     const result: AsyncStream<unknown>[] = [];
@@ -799,7 +806,7 @@ export const AsyncStreamConstructorsImpl: AsyncStreamConstructors = {
     return _empty;
   },
   always<T>(value: AsyncOptLazy<T>): AsyncStream.NonEmpty<T> {
-    return AsyncStream.of(value).repeat();
+    return AsyncStreamConstructorsImpl.of(value).repeat();
   },
   unfold<T>(
     init: T,

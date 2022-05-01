@@ -10,7 +10,8 @@ import {
   StringNonEmpty,
   TraverseState,
 } from '@rimbu/common';
-import { FastIterator, Stream, StreamSource } from '@rimbu/stream';
+import type { Stream } from '@rimbu/stream';
+import { FastIterator, StreamSource } from '@rimbu/stream';
 import {
   FastIteratorBase,
   FromIterable,
@@ -128,7 +129,7 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
 
     if (undefined === source2) return source1;
 
-    return Stream.from(source1, source2, ...sources);
+    return StreamConstructorsImpl.from(source1, source2, ...sources);
   }
   min<O>(otherwise?: OptLazy<O>): O {
     return OptLazy(otherwise) as O;
@@ -150,10 +151,10 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
     return start.concat(end);
   }
   mkGroup({
-    start = Stream.empty<T>() as StreamSource<T>,
-    end = Stream.empty<T>() as StreamSource<T>,
+    start = StreamConstructorsImpl.empty<T>() as StreamSource<T>,
+    end = StreamConstructorsImpl.empty<T>() as StreamSource<T>,
   } = {}): Stream.NonEmpty<T> {
-    return Stream.from(start, end) as any;
+    return StreamConstructorsImpl.from(start, end) as any;
   }
   fold<R>(init: Reducer.Init<R>): R {
     return Reducer.Init(init);
@@ -192,12 +193,12 @@ const fromStreamSource: {
   <T>(source: StreamSource<T>): Stream<T>;
 } = <T>(source: StreamSource<T>): any => {
   if (undefined === source || StreamSource.isEmptyInstance(source))
-    return Stream.empty();
+    return StreamConstructorsImpl.empty();
   if (isStream(source)) return source;
   if (typeof source === 'object' && `stream` in source) return source.stream();
 
   if (Array.isArray(source)) {
-    if (source.length <= 0) return Stream.empty();
+    if (source.length <= 0) return StreamConstructorsImpl.empty();
     return new ArrayStream(source);
   }
 
@@ -421,7 +422,7 @@ class ArrayStream<T> extends StreamBase<T> {
   }
 
   take(amount: number): Stream<T> {
-    if (amount <= 0) return Stream.empty();
+    if (amount <= 0) return StreamConstructorsImpl.empty();
 
     if (amount >= this.length) return this;
 
@@ -445,7 +446,7 @@ class ArrayStream<T> extends StreamBase<T> {
   drop(amount: number): Stream<T> {
     if (amount <= 0) return this;
 
-    if (amount >= this.length) return Stream.empty();
+    if (amount >= this.length) return StreamConstructorsImpl.empty();
 
     if (!this.reversed) {
       return new ArrayStream(
@@ -559,7 +560,7 @@ class MapApplyIterator<
     readonly args: A
   ) {
     super();
-    this.iter = Stream.from(source)[Symbol.iterator]();
+    this.iter = StreamConstructorsImpl.from(source)[Symbol.iterator]();
   }
 
   iter: FastIterator<T>;
@@ -603,7 +604,7 @@ class FilterApplyIterator<
     readonly invert: boolean
   ) {
     super();
-    this.iter = Stream.from(source)[Symbol.iterator]();
+    this.iter = StreamConstructorsImpl.from(source)[Symbol.iterator]();
   }
 
   iter: FastIterator<T>;
@@ -782,7 +783,8 @@ class ZipWithIterator<
     super();
 
     this.sources = iterables.map(
-      (source): FastIterator<any> => Stream.from(source)[Symbol.iterator]()
+      (source): FastIterator<any> =>
+        StreamConstructorsImpl.from(source)[Symbol.iterator]()
     );
   }
 
@@ -821,7 +823,8 @@ class ZipAllWithItererator<
     super();
 
     this.sources = iters.map(
-      (o): FastIterator<any> => Stream.from(o)[Symbol.iterator]()
+      (o): FastIterator<any> =>
+        StreamConstructorsImpl.from(o)[Symbol.iterator]()
     );
   }
 
@@ -1242,7 +1245,7 @@ export const StreamConstructorsImpl: StreamConstructors = {
     return _empty;
   },
   of<T>(...values: ArrayNonEmpty<T>): Stream.NonEmpty<T> {
-    return Stream.from(values) as any;
+    return StreamConstructorsImpl.from(values) as any;
   },
   from<T>(...sources: ArrayNonEmpty<StreamSource<T>>): any {
     const [first, ...rest] = sources;
@@ -1254,7 +1257,7 @@ export const StreamConstructorsImpl: StreamConstructors = {
     return fromStreamSource(first).concat(rest1, ...restOther);
   },
   fromArray<T>(array: readonly T[], range?: IndexRange, reversed = false): any {
-    if (array.length === 0) return Stream.empty();
+    if (array.length === 0) return StreamConstructorsImpl.empty();
 
     if (undefined === range) {
       return new ArrayStream(array, undefined, undefined, reversed);
@@ -1263,7 +1266,7 @@ export const StreamConstructorsImpl: StreamConstructors = {
     const result = IndexRange.getIndicesFor(range, array.length);
 
     if (result === 'empty') {
-      return Stream.empty();
+      return StreamConstructorsImpl.empty();
     }
     if (result === 'all') {
       return new ArrayStream(array, undefined, undefined, reversed);
@@ -1273,18 +1276,22 @@ export const StreamConstructorsImpl: StreamConstructors = {
   fromObjectKeys<K extends string | number | symbol>(
     obj: Record<K, any>
   ): Stream<K> {
-    return Stream.fromArray(Object.keys(obj) as K[]);
+    return StreamConstructorsImpl.fromArray(Object.keys(obj) as K[]);
   },
   fromObjectValues<V>(obj: Record<any, V> | readonly V[]): Stream<V> {
-    return Stream.fromArray(Object.values(obj));
+    return StreamConstructorsImpl.fromArray(Object.values(obj));
   },
   fromObject<K extends string | number | symbol, V>(
     obj: Record<K, V>
   ): Stream<[K, V]> {
-    return Stream.fromArray(Object.entries(obj) as [K, V][]);
+    return StreamConstructorsImpl.fromArray(Object.entries(obj) as [K, V][]);
   },
   fromString(source: string, range?: IndexRange, reversed = false) {
-    return Stream.fromArray(source as any, range, reversed) as any;
+    return StreamConstructorsImpl.fromArray(
+      source as any,
+      range,
+      reversed
+    ) as any;
   },
   always<T>(value: T): Stream.NonEmpty<T> {
     return new AlwaysStream(value) as any;
@@ -1294,7 +1301,7 @@ export const StreamConstructorsImpl: StreamConstructors = {
     f: (...args: [...T, ...A]) => void,
     ...args: A
   ): void {
-    const iter = Stream.from(source)[Symbol.iterator]();
+    const iter = StreamConstructorsImpl.from(source)[Symbol.iterator]();
 
     const done = Symbol();
     let values: T | typeof done;
@@ -1318,7 +1325,7 @@ export const StreamConstructorsImpl: StreamConstructors = {
   },
   range(range: IndexRange, delta = 1): Stream<number> {
     if (undefined !== range.amount) {
-      if (range.amount <= 0) return Stream.empty();
+      if (range.amount <= 0) return StreamConstructorsImpl.empty();
 
       let startIndex = 0;
       if (undefined !== range.start) {
@@ -1345,8 +1352,10 @@ export const StreamConstructorsImpl: StreamConstructors = {
     }
 
     if (undefined !== endIndex) {
-      if (delta > 0 && endIndex < startIndex) return Stream.empty();
-      else if (delta < 0 && startIndex <= endIndex) return Stream.empty();
+      if (delta > 0 && endIndex < startIndex)
+        return StreamConstructorsImpl.empty();
+      else if (delta < 0 && startIndex <= endIndex)
+        return StreamConstructorsImpl.empty();
     }
 
     return new RangeStream(startIndex, endIndex, delta);
@@ -1374,19 +1383,19 @@ export const StreamConstructorsImpl: StreamConstructors = {
   zipWith(...sources) {
     return (zipFun): any => {
       if (sources.some(StreamSource.isEmptyInstance)) {
-        return Stream.empty();
+        return StreamConstructorsImpl.empty();
       }
 
       return new FromStream(() => new ZipWithIterator(sources as any, zipFun));
     };
   },
   zip(...sources) {
-    return Stream.zipWith(...(sources as any))(Array);
+    return StreamConstructorsImpl.zipWith(...(sources as any))(Array);
   },
   zipAllWith(...sources) {
     return (fillValue, zipFun: any): any => {
       if (sources.every(StreamSource.isEmptyInstance)) {
-        return Stream.empty();
+        return StreamConstructorsImpl.empty();
       }
 
       return new FromStream(
@@ -1396,14 +1405,19 @@ export const StreamConstructorsImpl: StreamConstructors = {
     };
   },
   zipAll(fillValue, ...sources) {
-    return Stream.zipAllWith(...sources)(fillValue, Array) as any;
+    return StreamConstructorsImpl.zipAllWith(...sources)(
+      fillValue,
+      Array
+    ) as any;
   },
   flatten(source: any) {
-    return Stream.from(source).flatMap((s: any) => s);
+    return StreamConstructorsImpl.from(source).flatMap((s: any) => s);
   },
   unzip(source, length) {
     if (StreamSource.isEmptyInstance(source)) {
-      return Stream.of(Stream.empty()).repeat(length).toArray();
+      return StreamConstructorsImpl.of(StreamConstructorsImpl.empty())
+        .repeat(length)
+        .toArray();
     }
 
     const result: Stream<unknown>[] = [];
