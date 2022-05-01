@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/collection-types@0.8.3...@rimbu/collection-types@0.9.0) (2022-05-01)
+
+
+### Code Refactoring
+
+* refactored package structure and improved documentation ([d250a07](https://github.com/rimbu-org/rimbu/commit/d250a076300bd9c2cc3c2203b41a1889354c8bc5))
+
+
+### BREAKING CHANGES
+
+* package structure has changed, added sub-packages
+
+
+
+
+
 ## [0.8.3](https://github.com/rimbu-org/rimbu/compare/@rimbu/collection-types@0.8.2...@rimbu/collection-types@0.8.3) (2021-12-22)
 
 **Note:** Version bump only for package @rimbu/collection-types
