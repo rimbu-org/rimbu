@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.10.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@0.10.0...@rimbu/stream@0.10.1) (2022-05-02)
+
+
+
+## 0.8.1 (2022-05-01)
+
+
+### Bug Fixes
+
+* **stream:** remove circular dependency ([2673304](https://github.com/rimbu-org/rimbu/commit/2673304877bdf00737a219e969921d5be12a223e))
+
+
+
+
+
 # [0.10.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@0.9.0...@rimbu/stream@0.10.0) (2022-05-01)
 
 
