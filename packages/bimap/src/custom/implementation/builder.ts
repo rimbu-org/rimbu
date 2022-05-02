@@ -2,6 +2,7 @@ import { RimbuError } from '@rimbu/base';
 import type { RMap } from '@rimbu/collection-types/map';
 import { OptLazy, RelatedTo, TraverseState } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
+import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 import { BiMapContext, BiMapNonEmptyImpl } from '@rimbu/bimap/custom';
 import type { BiMap } from '@rimbu/bimap';
 
@@ -150,7 +151,7 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
   removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
     this.checkLock();
 
-    if (StreamSource.isEmptyInstance(keys)) return false;
+    if (isEmptyStreamSourceInstance(keys)) return false;
 
     const notFound = Symbol();
 
@@ -187,7 +188,7 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
   removeValues = <UV>(values: StreamSource<RelatedTo<V, UV>>): boolean => {
     this.checkLock();
 
-    if (StreamSource.isEmptyInstance(values)) return false;
+    if (isEmptyStreamSourceInstance(values)) return false;
 
     const notFound = Symbol();
 

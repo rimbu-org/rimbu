@@ -11,6 +11,7 @@ import {
   Update,
 } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
+import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 export class BiMapEmpty<K = any, V = any>
   extends EmptyBase
@@ -241,7 +242,7 @@ export class BiMapNonEmptyImpl<K, V>
   }
 
   addEntries(entries: StreamSource<readonly [K, V]>): BiMap.NonEmpty<K, V> {
-    if (StreamSource.isEmptyInstance(entries)) return this;
+    if (isEmptyStreamSourceInstance(entries)) return this;
 
     const builder = this.toBuilder();
 
@@ -288,7 +289,7 @@ export class BiMapNonEmptyImpl<K, V>
   }
 
   removeKeys<UK>(keys: Stream<RelatedTo<K, UK>>): BiMap<K, V> {
-    if (StreamSource.isEmptyInstance(keys)) return this;
+    if (isEmptyStreamSourceInstance(keys)) return this;
 
     const builder = this.toBuilder();
 
@@ -335,7 +336,7 @@ export class BiMapNonEmptyImpl<K, V>
   }
 
   removeValues<UV>(values: Stream<RelatedTo<V, UV>>): BiMap<K, V> {
-    if (StreamSource.isEmptyInstance(values)) return this;
+    if (isEmptyStreamSourceInstance(values)) return this;
 
     const builder = this.toBuilder();
 

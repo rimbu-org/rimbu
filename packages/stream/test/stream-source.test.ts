@@ -1,20 +1,19 @@
-import { Stream, StreamSource } from '@rimbu/stream';
+import { Stream } from '@rimbu/stream';
+import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-describe('StreamSource.isEmptyInstance', () => {
+describe('isEmptyStreamSourceInstance', () => {
   it('correctly detects empty instances', () => {
-    expect(StreamSource.isEmptyInstance('')).toBe(true);
-    expect(StreamSource.isEmptyInstance([])).toBe(true);
-    expect(StreamSource.isEmptyInstance(Stream.empty<number>())).toBe(true);
-    expect(StreamSource.isEmptyInstance(new Map())).toBe(true);
+    expect(isEmptyStreamSourceInstance('')).toBe(true);
+    expect(isEmptyStreamSourceInstance([])).toBe(true);
+    expect(isEmptyStreamSourceInstance(Stream.empty<number>())).toBe(true);
+    expect(isEmptyStreamSourceInstance(new Map())).toBe(true);
 
-    expect(StreamSource.isEmptyInstance('a')).toBe(false);
-    expect(StreamSource.isEmptyInstance([1])).toBe(false);
-    expect(StreamSource.isEmptyInstance(new Set([1]))).toBe(false);
-    expect(StreamSource.isEmptyInstance(Stream.of(1))).toBe(false);
+    expect(isEmptyStreamSourceInstance('a')).toBe(false);
+    expect(isEmptyStreamSourceInstance([1])).toBe(false);
+    expect(isEmptyStreamSourceInstance(new Set([1]))).toBe(false);
+    expect(isEmptyStreamSourceInstance(Stream.of(1))).toBe(false);
     // cannot determine if empty:
-    expect(StreamSource.isEmptyInstance(Stream.from('abc').drop(5))).toBe(
-      false
-    );
+    expect(isEmptyStreamSourceInstance(Stream.from('abc').drop(5))).toBe(false);
 
     const testIsEmpty = {
       [Symbol.iterator](): Iterator<number> {
@@ -23,6 +22,6 @@ describe('StreamSource.isEmptyInstance', () => {
       isEmpty: true,
     };
 
-    expect(StreamSource.isEmptyInstance(testIsEmpty)).toBe(true);
+    expect(isEmptyStreamSourceInstance(testIsEmpty)).toBe(true);
   });
 });

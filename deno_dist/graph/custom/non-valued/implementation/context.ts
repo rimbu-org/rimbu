@@ -8,7 +8,8 @@ import {
   GraphNonEmpty,
   WithGraphValues,
 } from '../../../../graph/custom/index.ts';
-import { StreamSource } from '../../../../stream/mod.ts';
+import type { StreamSource } from '../../../../stream/mod.ts';
+import { isEmptyStreamSourceInstance } from '../../../../stream/custom/index.ts';
 
 export interface GraphTypesContextImpl extends GraphBase.Types {
   readonly context: GraphContext<this['_N'], string, boolean>;
@@ -59,7 +60,7 @@ export class GraphContext<
     while (++i < length) {
       const source = sources[i];
 
-      if (StreamSource.isEmptyInstance(source)) continue;
+      if (isEmptyStreamSourceInstance(source)) continue;
       if (
         builder.isEmpty &&
         this.isNonEmptyInstance(source) &&

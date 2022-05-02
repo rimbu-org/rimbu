@@ -7,6 +7,7 @@ import type {
   OrderedMapTypes,
 } from '@rimbu/ordered/map-custom';
 import { Stream, StreamSource } from '@rimbu/stream';
+import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 export class OrderedMapEmpty<
     K = any,
@@ -58,7 +59,7 @@ export class OrderedMapEmpty<
   addEntries(
     entries: StreamSource<readonly [K, V]>
   ): WithKeyValue<Tp, K, V>['normal'] | any {
-    if (StreamSource.isEmptyInstance(entries)) return this;
+    if (isEmptyStreamSourceInstance(entries)) return this;
 
     return this.context.from(entries);
   }

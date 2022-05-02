@@ -19,6 +19,7 @@ import {
 } from '../../../hashed/map-custom/index.ts';
 import { List } from '../../../list/mod.ts';
 import { Stream, StreamSource } from '../../../stream/mod.ts';
+import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 export type MapBlockBuilderEntry<K, V> =
   | HashMapBlockBuilder<K, V>
@@ -131,7 +132,7 @@ export class HashMapBlockBuilder<K, V>
   addEntries = (source: StreamSource<readonly [K, V]>): boolean => {
     this.checkLock();
 
-    if (StreamSource.isEmptyInstance(source)) return false;
+    if (isEmptyStreamSourceInstance(source)) return false;
 
     return Stream.from(source).filter(this.addEntry).count() > 0;
   };
@@ -372,7 +373,7 @@ export class HashMapBlockBuilder<K, V>
   removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
     this.checkLock();
 
-    if (StreamSource.isEmptyInstance(keys)) return false;
+    if (isEmptyStreamSourceInstance(keys)) return false;
 
     const notFound = Symbol();
 

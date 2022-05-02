@@ -45,6 +45,7 @@ import {
   SortedNonEmptyBase,
 } from '@rimbu/sorted/map-custom';
 import { Stream, StreamSource } from '@rimbu/stream';
+import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 export class SortedMapEmpty<K = any, V = any>
   extends SortedEmpty
@@ -297,7 +298,7 @@ export abstract class SortedMapNode<K, V>
   }
 
   addEntries(entries: StreamSource<readonly [K, V]>): SortedMap.NonEmpty<K, V> {
-    if (StreamSource.isEmptyInstance(entries)) return this;
+    if (isEmptyStreamSourceInstance(entries)) return this;
 
     const builder = this.toBuilder();
     builder.addEntries(entries);
@@ -338,7 +339,7 @@ export abstract class SortedMapNode<K, V>
   }
 
   removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): SortedMap<K, V> {
-    if (StreamSource.isEmptyInstance(keys)) return this;
+    if (isEmptyStreamSourceInstance(keys)) return this;
 
     const builder = this.toBuilder();
     builder.removeKeys(keys);

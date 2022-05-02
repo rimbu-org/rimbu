@@ -14,7 +14,8 @@ import type {
   OrderedMapBase,
   OrderedMapTypes,
 } from '../../../ordered/map-custom/index.ts';
-import { Stream, StreamSource } from '../../../stream/mod.ts';
+import type { Stream, StreamSource } from '../../../stream/mod.ts';
+import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 export class OrderedMapNonEmpty<
     K,
@@ -106,7 +107,7 @@ export class OrderedMapNonEmpty<
   addEntries(
     entries: StreamSource<readonly [K, V]>
   ): OrderedMapBase<K, V, Tp> | any {
-    if (StreamSource.isEmptyInstance(entries)) return this as any;
+    if (isEmptyStreamSourceInstance(entries)) return this as any;
 
     const builder = this.toBuilder();
     builder.addEntries(entries);
@@ -133,7 +134,7 @@ export class OrderedMapNonEmpty<
   }
 
   removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): TpG['normal'] {
-    if (StreamSource.isEmptyInstance(keys)) return this as any;
+    if (isEmptyStreamSourceInstance(keys)) return this as any;
 
     const builder = this.toBuilder();
     builder.removeKeys(keys);

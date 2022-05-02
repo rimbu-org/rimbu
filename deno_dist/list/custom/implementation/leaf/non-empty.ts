@@ -11,7 +11,8 @@ import {
 } from '../../../../common/mod.ts';
 import type { List } from '../../../../list/mod.ts';
 import type { CacheMap, ListContext } from '../../../../list/custom/index.ts';
-import { FastIterator, Stream, StreamSource } from '../../../../stream/mod.ts';
+import type { FastIterator, Stream, StreamSource } from '../../../../stream/mod.ts';
+import { isEmptyStreamSourceInstance } from '../../../../stream/custom/index.ts';
 
 const _emptyObject = {};
 
@@ -111,7 +112,7 @@ export abstract class ListNonEmptyBase<T>
       return this.take(index).concat(this.drop(index + remove));
     }
 
-    if (remove <= 0 && StreamSource.isEmptyInstance(insert)) return this;
+    if (remove <= 0 && isEmptyStreamSourceInstance(insert)) return this;
 
     return this.take(index).concat(insert, this.drop(index + remove));
   }

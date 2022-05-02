@@ -10,18 +10,19 @@ import {
   StringNonEmpty,
   TraverseState,
 } from '../../common/mod.ts';
-import type { Stream } from '../../stream/mod.ts';
-import { FastIterator, StreamSource } from '../../stream/mod.ts';
+import type { Stream, FastIterator, StreamSource } from '../../stream/mod.ts';
 import {
+  emptyFastIterator,
   FastIteratorBase,
   FromIterable,
   FromStream,
   StreamBase,
+  isEmptyStreamSourceInstance,
 } from '../../stream/custom/index.ts';
 
 class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   [Symbol.iterator](): FastIterator<T> {
-    return FastIterator.emptyFastIterator;
+    return emptyFastIterator;
   }
 
   assumeNonEmpty(): never {
@@ -124,7 +125,7 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
     return this;
   }
   concat<T2>(...others: ArrayNonEmpty<StreamSource<T2>>): any {
-    if (others.every(StreamSource.isEmptyInstance)) return this;
+    if (others.every(isEmptyStreamSourceInstance)) return this;
     const [source1, source2, ...sources] = others;
 
     if (undefined === source2) return source1;
@@ -192,7 +193,7 @@ const fromStreamSource: {
   <T>(source: StreamSource.NonEmpty<T>): Stream.NonEmpty<T>;
   <T>(source: StreamSource<T>): Stream<T>;
 } = <T>(source: StreamSource<T>): any => {
-  if (undefined === source || StreamSource.isEmptyInstance(source))
+  if (undefined === source || isEmptyStreamSourceInstance(source))
     return StreamConstructorsImpl.empty();
   if (isStream(source)) return source;
   if (typeof source === 'object' && `stream` in source) return source.stream();
@@ -1382,7 +1383,7 @@ export const StreamConstructorsImpl: StreamConstructors = {
   },
   zipWith(...sources) {
     return (zipFun): any => {
-      if (sources.some(StreamSource.isEmptyInstance)) {
+      if (sources.some(isEmptyStreamSourceInstance)) {
         return StreamConstructorsImpl.empty();
       }
 
@@ -1394,7 +1395,7 @@ export const StreamConstructorsImpl: StreamConstructors = {
   },
   zipAllWith(...sources) {
     return (fillValue, zipFun: any): any => {
-      if (sources.every(StreamSource.isEmptyInstance)) {
+      if (sources.every(isEmptyStreamSourceInstance)) {
         return StreamConstructorsImpl.empty();
       }
 
@@ -1414,7 +1415,7 @@ export const StreamConstructorsImpl: StreamConstructors = {
     return StreamConstructorsImpl.from(source).flatMap((s: any) => s);
   },
   unzip(source, length) {
-    if (StreamSource.isEmptyInstance(source)) {
+    if (isEmptyStreamSourceInstance(source)) {
       return StreamConstructorsImpl.of(StreamConstructorsImpl.empty())
         .repeat(length)
         .toArray();

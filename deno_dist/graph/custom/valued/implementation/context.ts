@@ -8,7 +8,8 @@ import {
   ValuedGraphNonEmpty,
   WithGraphValues,
 } from '../../../../graph/custom/index.ts';
-import { StreamSource } from '../../../../stream/mod.ts';
+import type { StreamSource } from '../../../../stream/mod.ts';
+import { isEmptyStreamSourceInstance } from '../../../../stream/custom/index.ts';
 
 export interface ValuedGraphTypesContextImpl extends ValuedGraphBase.Types {
   readonly context: ValuedGraphContext<this['_N'], string>;
@@ -58,7 +59,7 @@ export class ValuedGraphContext<
     while (++i < length) {
       const source = sources[i];
 
-      if (StreamSource.isEmptyInstance(source)) continue;
+      if (isEmptyStreamSourceInstance(source)) continue;
       if (
         builder.isEmpty &&
         this.isNonEmptyInstance(source) &&

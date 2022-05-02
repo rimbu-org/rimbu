@@ -11,7 +11,8 @@ import {
 } from '@rimbu/common';
 import type { List } from '@rimbu/list';
 import type { CacheMap, ListContext } from '@rimbu/list/custom';
-import { FastIterator, Stream, StreamSource } from '@rimbu/stream';
+import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
+import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 const _emptyObject = {};
 
@@ -111,7 +112,7 @@ export abstract class ListNonEmptyBase<T>
       return this.take(index).concat(this.drop(index + remove));
     }
 
-    if (remove <= 0 && StreamSource.isEmptyInstance(insert)) return this;
+    if (remove <= 0 && isEmptyStreamSourceInstance(insert)) return this;
 
     return this.take(index).concat(insert, this.drop(index + remove));
   }

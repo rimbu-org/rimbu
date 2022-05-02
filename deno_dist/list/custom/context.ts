@@ -24,6 +24,7 @@ import {
   ReversedLeafBlock,
 } from '../../list/custom/index.ts';
 import { Stream, StreamSource } from '../../stream/mod.ts';
+import { isEmptyStreamSourceInstance } from '../../stream/custom/index.ts';
 
 export class ListContext implements List.Context {
   readonly maxBlockSize: number;
@@ -93,7 +94,7 @@ export class ListContext implements List.Context {
     while (++i < length) {
       const source = sources[i];
 
-      if (!StreamSource.isEmptyInstance(source)) {
+      if (!isEmptyStreamSourceInstance(source)) {
         if ((source as any).context === this) {
           if (null === result) result = source as any as List<T>;
           else result = result.concat(source);

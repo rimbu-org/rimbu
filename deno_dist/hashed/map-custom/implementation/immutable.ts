@@ -13,6 +13,7 @@ import type { HashMap } from '../../../hashed/map/index.ts';
 import type { HashMapContext } from '../../../hashed/map-custom/index.ts';
 import type { List } from '../../../list/mod.ts';
 import { Stream, StreamSource } from '../../../stream/mod.ts';
+import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 export class HashMapEmpty<K = any, V = any>
   extends EmptyBase
@@ -151,7 +152,7 @@ export abstract class HashMapNonEmptyBase<K, V>
   }
 
   addEntries(entries: StreamSource<readonly [K, V]>): HashMap.NonEmpty<K, V> {
-    if (StreamSource.isEmptyInstance(entries)) return this;
+    if (isEmptyStreamSourceInstance(entries)) return this;
 
     const builder = this.toBuilder();
     builder.addEntries(entries);
@@ -159,7 +160,7 @@ export abstract class HashMapNonEmptyBase<K, V>
   }
 
   removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): HashMap<K, V> {
-    if (StreamSource.isEmptyInstance(keys)) return this;
+    if (isEmptyStreamSourceInstance(keys)) return this;
 
     const builder = this.toBuilder();
     builder.removeKeys(keys);

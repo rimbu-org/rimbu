@@ -8,7 +8,8 @@ import {
   ValuedGraphNonEmpty,
   WithGraphValues,
 } from '@rimbu/graph/custom';
-import { StreamSource } from '@rimbu/stream';
+import type { StreamSource } from '@rimbu/stream';
+import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 export interface ValuedGraphTypesContextImpl extends ValuedGraphBase.Types {
   readonly context: ValuedGraphContext<this['_N'], string>;
@@ -58,7 +59,7 @@ export class ValuedGraphContext<
     while (++i < length) {
       const source = sources[i];
 
-      if (StreamSource.isEmptyInstance(source)) continue;
+      if (isEmptyStreamSourceInstance(source)) continue;
       if (
         builder.isEmpty &&
         this.isNonEmptyInstance(source) &&

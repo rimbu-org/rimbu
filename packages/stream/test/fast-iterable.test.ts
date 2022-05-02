@@ -1,17 +1,20 @@
 import { OptLazy } from '@rimbu/common';
-import { FastIterator } from '@rimbu/stream';
-import { FastIteratorBase } from '@rimbu/stream/custom';
+import {
+  emptyFastIterator,
+  FastIteratorBase,
+  fixedDoneIteratorResult,
+} from '@rimbu/stream/custom';
 
 describe('FastIterator', () => {
   it('fixedDone', () => {
-    expect(FastIterator.fixedDone).toEqual({ done: true, value: undefined });
+    expect(fixedDoneIteratorResult).toEqual({ done: true, value: undefined });
   });
 
   it('emptyFastIterator', () => {
-    expect(FastIterator.emptyFastIterator.fastNext()).toEqual(undefined);
-    expect(FastIterator.emptyFastIterator.fastNext(1)).toEqual(1);
-    expect(FastIterator.emptyFastIterator.fastNext(() => 1)).toEqual(1);
-    expect(FastIterator.emptyFastIterator.next()).toBe(FastIterator.fixedDone);
+    expect(emptyFastIterator.fastNext()).toEqual(undefined);
+    expect(emptyFastIterator.fastNext(1)).toEqual(1);
+    expect(emptyFastIterator.fastNext(() => 1)).toEqual(1);
+    expect(emptyFastIterator.next()).toBe(fixedDoneIteratorResult);
   });
 
   it('Base', () => {

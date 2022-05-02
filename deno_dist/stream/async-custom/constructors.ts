@@ -6,15 +6,18 @@ import {
   MaybePromise,
   Reducer,
 } from '../../common/mod.ts';
-import { Stream } from '../../stream/mod.ts';
 import type { AsyncStream } from '../../stream/async/index.ts';
-import { AsyncFastIterator, AsyncStreamSource } from '../../stream/async/index.ts';
+import type { AsyncFastIterator, AsyncStreamSource } from '../../stream/async/index.ts';
 import {
   AsyncFastIteratorBase,
   AsyncFromStream,
   AsyncStreamBase,
   closeIters,
+  emptyAsyncFastIterator,
+  isAsyncFastIterator,
+  isEmptyAsyncStreamSourceInstance,
 } from '../../stream/async-custom/index.ts';
+import { StreamConstructorsImpl } from '../../stream/custom/index.ts';
 
 class AsyncOfIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(readonly values: ArrayNonEmpty<AsyncOptLazy<T>>) {
@@ -53,7 +56,7 @@ const fromAsyncStreamSource: {
 } = <T>(source: AsyncStreamSource<T>): any => {
   if (undefined === source) return AsyncStreamConstructorsImpl.empty();
   if (isAsyncStream(source)) return source;
-  if (AsyncStreamSource.isEmptyInstance(source))
+  if (isEmptyAsyncStreamSourceInstance(source))
     return AsyncStreamConstructorsImpl.empty();
 
   return new FromSource(source);
@@ -64,7 +67,7 @@ class AsyncEmptyStream<T = any>
   implements AsyncStream<T>
 {
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
-    return AsyncFastIterator.emptyAsyncFastIterator;
+    return emptyAsyncFastIterator;
   }
 
   assumeNonEmpty(): never {
@@ -167,7 +170,7 @@ class AsyncEmptyStream<T = any>
     return this;
   }
   concat(...others: ArrayNonEmpty<AsyncStreamSource<T>>): any {
-    if (others.every(AsyncStreamSource.isEmptyInstance)) return this;
+    if (others.every(isEmptyAsyncStreamSourceInstance)) return this;
     const [source1, source2, ...sources] = others;
 
     if (undefined === source2) return source1;
@@ -319,8 +322,8 @@ function asyncStreamSourceToIterator<T>(
     return new FromPromise(source as any, close);
   }
 
-  if (AsyncStreamSource.isEmptyInstance(source)) {
-    return AsyncFastIterator.emptyAsyncFastIterator;
+  if (isEmptyAsyncStreamSourceInstance(source)) {
+    return emptyAsyncFastIterator;
   }
 
   if (typeof source === 'string') {
@@ -331,7 +334,7 @@ function asyncStreamSourceToIterator<T>(
     if (Symbol.asyncIterator in source) {
       const iterator = (source as AsyncIterable<T>)[Symbol.asyncIterator]();
 
-      if (AsyncFastIterator.isAsyncFastIterator(iterator)) {
+      if (isAsyncFastIterator(iterator)) {
         if (undefined === close) {
           return iterator as AsyncFastIterator<T>;
         }
@@ -752,7 +755,7 @@ export const AsyncStreamConstructorsImpl: AsyncStreamConstructors = {
   },
   zipWith(...sources): any {
     return (zipFun: any): any => {
-      if (sources.some(AsyncStreamSource.isEmptyInstance)) {
+      if (sources.some(isEmptyAsyncStreamSourceInstance)) {
         return AsyncStreamConstructorsImpl.empty();
       }
 
@@ -766,7 +769,7 @@ export const AsyncStreamConstructorsImpl: AsyncStreamConstructors = {
   },
   zipAllWith(...sources): any {
     return (fillValue: any, zipFun: any): any => {
-      if (sources.every(AsyncStreamSource.isEmptyInstance)) {
+      if (sources.every(isEmptyAsyncStreamSourceInstance)) {
         return AsyncStreamConstructorsImpl.empty();
       }
 
@@ -786,8 +789,8 @@ export const AsyncStreamConstructorsImpl: AsyncStreamConstructors = {
     return AsyncStreamConstructorsImpl.from(source).flatMap((s: any) => s);
   },
   unzip(source, length) {
-    if (AsyncStreamSource.isEmptyInstance(source)) {
-      return Stream.of(AsyncStreamConstructorsImpl.empty())
+    if (isEmptyAsyncStreamSourceInstance(source)) {
+      return StreamConstructorsImpl.of(AsyncStreamConstructorsImpl.empty())
         .repeat(length)
         .toArray();
     }

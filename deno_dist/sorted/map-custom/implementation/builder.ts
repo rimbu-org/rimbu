@@ -11,6 +11,7 @@ import {
   SortedMapNode,
 } from '../../../sorted/map-custom/index.ts';
 import { Stream, StreamSource } from '../../../stream/mod.ts';
+import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 export class SortedMapBuilder<K, V>
   extends SortedBuilder<readonly [K, V]>
@@ -132,7 +133,7 @@ export class SortedMapBuilder<K, V>
   removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
     this.checkLock();
 
-    if (StreamSource.isEmptyInstance(keys)) return false;
+    if (isEmptyStreamSourceInstance(keys)) return false;
 
     const notFound = Symbol();
 

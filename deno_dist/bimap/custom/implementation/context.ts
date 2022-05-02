@@ -1,13 +1,14 @@
 import type { RMap } from '../../../collection-types/map/index.ts';
 import type { ArrayNonEmpty } from '../../../common/mod.ts';
 import { Reducer } from '../../../common/mod.ts';
-import { StreamSource } from '../../../stream/mod.ts';
+import type { StreamSource } from '../../../stream/mod.ts';
 import {
   BiMapBuilder,
   BiMapEmpty,
   BiMapNonEmptyImpl,
 } from '../../../bimap/custom/index.ts';
 import type { BiMap } from '../../../bimap/mod.ts';
+import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>
   implements BiMap.Context<UK, UV>
@@ -54,7 +55,7 @@ export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>
     while (++i < length) {
       const source = sources[i];
 
-      if (StreamSource.isEmptyInstance(source)) continue;
+      if (isEmptyStreamSourceInstance(source)) continue;
       if (
         builder.isEmpty &&
         source instanceof BiMapNonEmptyImpl &&

@@ -8,7 +8,13 @@ import {
   ToJSON,
   TraverseState,
 } from '../../common/mod.ts';
-import { FastIterator, Stream, StreamSource } from '../../stream/mod.ts';
+import type { FastIterator, Stream, StreamSource } from '../../stream/mod.ts';
+import {
+  fixedDoneIteratorResult,
+  isEmptyStreamSourceInstance,
+  isFastIterator,
+  StreamConstructorsImpl,
+} from '../../stream/custom/index.ts';
 
 /**
  * A base class for `FastIterator` instances, that takes implements the default `next`
@@ -20,7 +26,7 @@ export abstract class FastIteratorBase<T> implements FastIterator<T> {
   next(): IteratorResult<T> {
     const done = Symbol('Done');
     const value = this.fastNext(done);
-    if (done === value) return FastIterator.fixedDone;
+    if (done === value) return fixedDoneIteratorResult;
     return { value, done: false };
   }
 }
@@ -34,7 +40,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 
   equals(other: StreamSource<T>, eq: Eq<T> = Eq.objectIs): boolean {
     const it1 = this[Symbol.iterator]();
-    const it2 = Stream.from(other)[Symbol.iterator]();
+    const it2 = StreamConstructorsImpl.from(other)[Symbol.iterator]();
 
     const done = Symbol('Done');
     while (true) {
@@ -116,10 +122,9 @@ export abstract class StreamBase<T> implements Stream<T> {
     flatMapFun: (value: T, index: number, halt: () => void) => StreamSource<T2>
   ): Stream<[T, T2]> {
     return this.flatMap((value, index, halt) =>
-      Stream.from(flatMapFun(value, index, halt)).map((result) => [
-        value,
-        result,
-      ])
+      StreamConstructorsImpl.from(flatMapFun(value, index, halt)).map(
+        (result) => [value, result]
+      )
     );
   }
 
@@ -335,7 +340,7 @@ export abstract class StreamBase<T> implements Stream<T> {
   }
 
   take(amount: number): Stream<T> {
-    if (amount <= 0) return Stream.empty();
+    if (amount <= 0) return StreamConstructorsImpl.empty();
 
     return new TakeStream<T>(this, amount);
   }
@@ -353,7 +358,7 @@ export abstract class StreamBase<T> implements Stream<T> {
   }
 
   concat(...others: ArrayNonEmpty<StreamSource<T>>): Stream.NonEmpty<T> {
-    if (others.every(StreamSource.isEmptyInstance)) {
+    if (others.every(isEmptyStreamSourceInstance)) {
       return this.assumeNonEmpty();
     }
 
@@ -399,9 +404,9 @@ export abstract class StreamBase<T> implements Stream<T> {
   }
 
   intersperse(sep: StreamSource<T>): Stream<T> {
-    if (StreamSource.isEmptyInstance(sep)) return this;
+    if (isEmptyStreamSourceInstance(sep)) return this;
 
-    const sepStream = Stream.from(sep);
+    const sepStream = StreamConstructorsImpl.from(sep);
 
     return new IntersperseStream<T>(this, sepStream);
   }
@@ -432,11 +437,11 @@ export abstract class StreamBase<T> implements Stream<T> {
   }
 
   mkGroup({
-    sep = Stream.empty<T>() as StreamSource<T>,
-    start = Stream.empty<T>() as StreamSource<T>,
-    end = Stream.empty<T>() as StreamSource<T>,
+    sep = StreamConstructorsImpl.empty<T>() as StreamSource<T>,
+    start = StreamConstructorsImpl.empty<T>() as StreamSource<T>,
+    end = StreamConstructorsImpl.empty<T>() as StreamSource<T>,
   } = {}): any {
-    return Stream.from<T>(start, this.intersperse(sep), end);
+    return StreamConstructorsImpl.from<T>(start, this.intersperse(sep), end);
   }
 
   splitWhere(pred: (value: T, index: number) => boolean): Stream<T[]> {
@@ -883,7 +888,8 @@ class FlatMapIterator<T, T2> extends FastIteratorBase<T2> {
         state.halt
       );
 
-      this.currentIterator = Stream.from(nextSource)[Symbol.iterator]();
+      this.currentIterator =
+        StreamConstructorsImpl.from(nextSource)[Symbol.iterator]();
     }
 
     return nextValue;
@@ -931,12 +937,13 @@ class ConcatIterator<T> extends FastIteratorBase<T> {
 
       let nextSource: StreamSource<T> = this.otherSources[this.sourceIndex++];
 
-      while (StreamSource.isEmptyInstance(nextSource)) {
+      while (isEmptyStreamSourceInstance(nextSource)) {
         if (this.sourceIndex >= length) return OptLazy(otherwise) as O;
         nextSource = this.otherSources[this.sourceIndex++];
       }
 
-      this.iterator = Stream.from(nextSource)[Symbol.iterator]();
+      this.iterator =
+        StreamConstructorsImpl.from(nextSource)[Symbol.iterator]();
     }
 
     return value;
@@ -970,8 +977,8 @@ class ConcatStream<T> extends StreamBase<T> {
     while (!state.halted && ++sourceIndex < length) {
       const source = sources[sourceIndex];
 
-      if (!StreamSource.isEmptyInstance(source)) {
-        Stream.from(source).forEach(f, state);
+      if (!isEmptyStreamSourceInstance(source)) {
+        StreamConstructorsImpl.from(source).forEach(f, state);
       }
     }
   }
@@ -983,9 +990,9 @@ class ConcatStream<T> extends StreamBase<T> {
     while (--sourceIndex >= 0) {
       const source = sources[sourceIndex];
 
-      if (!StreamSource.isEmptyInstance(source)) {
+      if (!isEmptyStreamSourceInstance(source)) {
         const done = Symbol('Done');
-        const value = Stream.from(source).last(done);
+        const value = StreamConstructorsImpl.from(source).last(done);
         if (done !== value) return value;
       }
     }
@@ -1002,8 +1009,8 @@ class ConcatStream<T> extends StreamBase<T> {
 
     while (++sourceIndex < length) {
       const source = sources[sourceIndex];
-      if (!StreamSource.isEmptyInstance(source)) {
-        result += Stream.from(source).count();
+      if (!isEmptyStreamSourceInstance(source)) {
+        result += StreamConstructorsImpl.from(source).count();
       }
     }
 
@@ -1027,8 +1034,8 @@ class ConcatStream<T> extends StreamBase<T> {
     while (++sourceIndex < length) {
       const source = sources[sourceIndex];
 
-      if (!StreamSource.isEmptyInstance(source)) {
-        result = result.concat(Stream.from(source).toArray());
+      if (!isEmptyStreamSourceInstance(source)) {
+        result = result.concat(StreamConstructorsImpl.from(source).toArray());
       }
     }
 
@@ -1763,7 +1770,7 @@ export class FromIterable<T> extends StreamBase<T> {
   [Symbol.iterator](): FastIterator<T> {
     const iterator = this.iterable[Symbol.iterator]();
 
-    if (FastIterator.isFastIterator(iterator)) return iterator;
+    if (isFastIterator(iterator)) return iterator;
 
     return new SlowIteratorAdapter<T>(iterator);
   }

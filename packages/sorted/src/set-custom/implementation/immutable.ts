@@ -40,6 +40,7 @@ import {
   SortedNonEmptyBase,
 } from '@rimbu/sorted/set-custom';
 import { Stream, StreamSource } from '@rimbu/stream';
+import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 export class SortedSetEmpty<T = any>
   extends SortedEmpty
@@ -184,7 +185,7 @@ export abstract class SortedSetNode<T>
   }
 
   addAll(values: StreamSource<T>): SortedSet.NonEmpty<T> {
-    if (StreamSource.isEmptyInstance(values)) return this;
+    if (isEmptyStreamSourceInstance(values)) return this;
 
     const builder = this.toBuilder();
     builder.addAll(values);
@@ -197,7 +198,7 @@ export abstract class SortedSetNode<T>
   }
 
   removeAll<U>(values: StreamSource<RelatedTo<T, U>>): SortedSet<T> {
-    if (StreamSource.isEmptyInstance(values)) return this;
+    if (isEmptyStreamSourceInstance(values)) return this;
 
     const builder = this.toBuilder();
     builder.removeAll(values);
@@ -253,7 +254,7 @@ export abstract class SortedSetNode<T>
 
   union(other: StreamSource<T>): SortedSet<T> | any {
     if (other === this) return this;
-    if (StreamSource.isEmptyInstance(other)) return this;
+    if (isEmptyStreamSourceInstance(other)) return this;
 
     const builder = this.toBuilder();
     builder.addAll(other);
@@ -262,7 +263,7 @@ export abstract class SortedSetNode<T>
 
   difference(other: StreamSource<T>): SortedSet<T> {
     if (other === this) return this.context.empty();
-    if (StreamSource.isEmptyInstance(other)) return this;
+    if (isEmptyStreamSourceInstance(other)) return this;
 
     const builder = this.toBuilder();
     builder.removeAll(other);
@@ -271,7 +272,7 @@ export abstract class SortedSetNode<T>
 
   intersect(other: StreamSource<T>): SortedSet<T> {
     if (other === this) return this;
-    if (StreamSource.isEmptyInstance(other)) return this.context.empty();
+    if (isEmptyStreamSourceInstance(other)) return this.context.empty();
 
     const builder = this.context.builder();
     const otherIter = Stream.from(other)[Symbol.iterator]();
@@ -309,7 +310,7 @@ export abstract class SortedSetNode<T>
   symDifference(other: StreamSource<T>): SortedSet<T> {
     if (other === this) return this.context.empty();
 
-    if (StreamSource.isEmptyInstance(other)) return this;
+    if (isEmptyStreamSourceInstance(other)) return this;
 
     const builder = this.toBuilder();
 

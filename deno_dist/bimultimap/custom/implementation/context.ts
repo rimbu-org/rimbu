@@ -7,7 +7,8 @@ import {
 import type { WithKeyValue } from '../../../collection-types/map-custom/index.ts';
 import type { ArrayNonEmpty } from '../../../common/mod.ts';
 import { Reducer } from '../../../common/mod.ts';
-import { StreamSource } from '../../../stream/mod.ts';
+import type { StreamSource } from '../../../stream/mod.ts';
+import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 export interface ContextTypesImpl extends BiMultiMapBase.Types {
   readonly context: BiMultiMapContext<this['_K'], this['_V'], string>;
@@ -75,7 +76,7 @@ export class BiMultiMapContext<
     while (++i < length) {
       const source = sources[i];
 
-      if (StreamSource.isEmptyInstance(source)) continue;
+      if (isEmptyStreamSourceInstance(source)) continue;
       if (
         builder.isEmpty &&
         source instanceof BiMultiMapNonEmpty &&

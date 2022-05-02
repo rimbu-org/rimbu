@@ -24,6 +24,7 @@ import {
   ReversedLeafBlock,
 } from '@rimbu/list/custom';
 import { Stream, StreamSource } from '@rimbu/stream';
+import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 export class ListContext implements List.Context {
   readonly maxBlockSize: number;
@@ -93,7 +94,7 @@ export class ListContext implements List.Context {
     while (++i < length) {
       const source = sources[i];
 
-      if (!StreamSource.isEmptyInstance(source)) {
+      if (!isEmptyStreamSourceInstance(source)) {
         if ((source as any).context === this) {
           if (null === result) result = source as any as List<T>;
           else result = result.concat(source);

@@ -6,7 +6,13 @@ import type {
   TraverseState,
 } from '@rimbu/common';
 import { Reducer } from '@rimbu/common';
-import { FastIterable, Stream, Streamable, StreamSource } from '@rimbu/stream';
+import type {
+  FastIterable,
+  Stream,
+  Streamable,
+  StreamSource,
+} from '@rimbu/stream';
+import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 export interface VariantSetBase<
   T,
@@ -587,7 +593,7 @@ export namespace RSetBase {
       while (++i < length) {
         const source = sources[i];
 
-        if (StreamSource.isEmptyInstance(source)) continue;
+        if (isEmptyStreamSourceInstance(source)) continue;
 
         if (
           builder.isEmpty &&

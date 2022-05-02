@@ -2,6 +2,7 @@ import { RimbuError } from '../../../base/mod.ts';
 import type { RMap } from '../../../collection-types/map/index.ts';
 import { OptLazy, RelatedTo, TraverseState } from '../../../common/mod.ts';
 import { Stream, StreamSource } from '../../../stream/mod.ts';
+import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 import { BiMapContext, BiMapNonEmptyImpl } from '../../../bimap/custom/index.ts';
 import type { BiMap } from '../../../bimap/mod.ts';
 
@@ -150,7 +151,7 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
   removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
     this.checkLock();
 
-    if (StreamSource.isEmptyInstance(keys)) return false;
+    if (isEmptyStreamSourceInstance(keys)) return false;
 
     const notFound = Symbol();
 
@@ -187,7 +188,7 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
   removeValues = <UV>(values: StreamSource<RelatedTo<V, UV>>): boolean => {
     this.checkLock();
 
-    if (StreamSource.isEmptyInstance(values)) return false;
+    if (isEmptyStreamSourceInstance(values)) return false;
 
     const notFound = Symbol();
 

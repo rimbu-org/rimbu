@@ -10,12 +10,17 @@ import {
   ToJSON,
   TraverseState,
 } from '@rimbu/common';
-import {
+import type {
   AsyncFastIterator,
   AsyncStream,
   AsyncStreamSource,
 } from '@rimbu/stream/async';
-import { closeIters } from '@rimbu/stream/async-custom';
+import {
+  closeIters,
+  isEmptyAsyncStreamSourceInstance,
+  fixedDoneAsyncIteratorResult,
+  AsyncStreamConstructorsImpl,
+} from '@rimbu/stream/async-custom';
 
 export abstract class AsyncFastIteratorBase<T> implements AsyncFastIterator<T> {
   abstract fastNext<O>(otherwise?: AsyncOptLazy<O>): MaybePromise<T | O>;
@@ -24,7 +29,7 @@ export abstract class AsyncFastIteratorBase<T> implements AsyncFastIterator<T> {
   async next(): Promise<IteratorResult<T>> {
     const done = Symbol('Done');
     const value = await this.fastNext(done);
-    if (done === value) return AsyncFastIterator.fixedDone;
+    if (done === value) return fixedDoneAsyncIteratorResult;
     return { value, done: false };
   }
 }
@@ -41,7 +46,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     eq: Eq<T> = Eq.objectIs
   ): Promise<boolean> {
     const it1 = this[Symbol.asyncIterator]();
-    const it2 = AsyncStream.from(other)[Symbol.asyncIterator]();
+    const it2 = AsyncStreamConstructorsImpl.from(other)[Symbol.asyncIterator]();
 
     const done = Symbol('Done');
 
@@ -433,7 +438,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   }
 
   take(amount: number): AsyncStream<T> {
-    if (amount <= 0) return AsyncStream.empty();
+    if (amount <= 0) return AsyncStreamConstructorsImpl.empty();
 
     return new AsyncTakeStream<T>(this, amount);
   }
@@ -455,7 +460,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   }
 
   concat(...others: ArrayNonEmpty<AsyncStreamSource<T>>): any {
-    if (others.every(AsyncStreamSource.isEmptyInstance)) return this;
+    if (others.every(isEmptyAsyncStreamSourceInstance)) return this;
 
     return new AsyncConcatStream<T>(this, others);
   }
@@ -519,9 +524,9 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   }
 
   intersperse(sep: AsyncStreamSource<T>): AsyncStream<T> {
-    if (AsyncStreamSource.isEmptyInstance(sep)) return this;
+    if (isEmptyAsyncStreamSourceInstance(sep)) return this;
 
-    const sepStream = AsyncStream.from(sep);
+    const sepStream = AsyncStreamConstructorsImpl.from(sep);
 
     return new AsyncIntersperseStream<T>(this, sepStream);
   }
@@ -558,11 +563,15 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   }
 
   mkGroup({
-    sep = AsyncStream.empty<T>() as AsyncStreamSource<T>,
-    start = AsyncStream.empty<T>() as AsyncStreamSource<T>,
-    end = AsyncStream.empty<T>() as AsyncStreamSource<T>,
+    sep = AsyncStreamConstructorsImpl.empty<T>() as AsyncStreamSource<T>,
+    start = AsyncStreamConstructorsImpl.empty<T>() as AsyncStreamSource<T>,
+    end = AsyncStreamConstructorsImpl.empty<T>() as AsyncStreamSource<T>,
   } = {}): any {
-    return AsyncStream.from<T>(start, this.intersperse(sep), end);
+    return AsyncStreamConstructorsImpl.from<T>(
+      start,
+      this.intersperse(sep),
+      end
+    );
   }
 
   splitWhere(
@@ -1115,7 +1124,7 @@ class AsyncFlatMapIterator<T, T2> extends AsyncFastIteratorBase<T2> {
       );
 
       const currentIterator =
-        AsyncStream.from(nextSource)[Symbol.asyncIterator]();
+        AsyncStreamConstructorsImpl.from(nextSource)[Symbol.asyncIterator]();
 
       this.currentIterator = currentIterator;
     }
@@ -1152,14 +1161,15 @@ class AsyncConcatIterator<T> extends AsyncFastIteratorBase<T> {
       let nextSource: AsyncStreamSource<T> =
         this.otherSources[this.sourceIndex++];
 
-      while (AsyncStreamSource.isEmptyInstance(nextSource)) {
+      while (isEmptyAsyncStreamSourceInstance(nextSource)) {
         if (this.sourceIndex >= length) {
           return AsyncOptLazy.toMaybePromise(otherwise!);
         }
         nextSource = this.otherSources[this.sourceIndex++];
       }
 
-      this.iterator = AsyncStream.from(nextSource)[Symbol.asyncIterator]();
+      this.iterator =
+        AsyncStreamConstructorsImpl.from(nextSource)[Symbol.asyncIterator]();
     }
 
     return value;

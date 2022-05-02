@@ -7,6 +7,7 @@ import type {
   OrderedMapTypes,
 } from '../../../ordered/map-custom/index.ts';
 import { Stream, StreamSource } from '../../../stream/mod.ts';
+import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 export class OrderedMapEmpty<
     K = any,
@@ -58,7 +59,7 @@ export class OrderedMapEmpty<
   addEntries(
     entries: StreamSource<readonly [K, V]>
   ): WithKeyValue<Tp, K, V>['normal'] | any {
-    if (StreamSource.isEmptyInstance(entries)) return this;
+    if (isEmptyStreamSourceInstance(entries)) return this;
 
     return this.context.from(entries);
   }

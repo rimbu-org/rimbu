@@ -13,6 +13,7 @@ import type {
 } from '@rimbu/common';
 import { Reducer } from '@rimbu/common';
 import { FastIterable, Stream, Streamable, StreamSource } from '@rimbu/stream';
+import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 export interface VariantMapBase<
   K,
@@ -988,7 +989,7 @@ export namespace RMapBase {
       while (++i < length) {
         const source = sources[i];
 
-        if (StreamSource.isEmptyInstance(source)) continue;
+        if (isEmptyStreamSourceInstance(source)) continue;
 
         if (
           builder.isEmpty &&
@@ -1092,7 +1093,7 @@ export namespace RMapBase {
       ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
     ): any => {
       return <R>(mergeFun: (key: K, ...values: I) => R): any => {
-        if (Stream.from(sources).some(StreamSource.isEmptyInstance)) {
+        if (Stream.from(sources).some(isEmptyStreamSourceInstance)) {
           return this.empty();
         }
 

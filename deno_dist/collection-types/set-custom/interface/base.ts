@@ -6,7 +6,13 @@ import type {
   TraverseState,
 } from '../../../common/mod.ts';
 import { Reducer } from '../../../common/mod.ts';
-import { FastIterable, Stream, Streamable, StreamSource } from '../../../stream/mod.ts';
+import type {
+  FastIterable,
+  Stream,
+  Streamable,
+  StreamSource,
+} from '../../../stream/mod.ts';
+import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 export interface VariantSetBase<
   T,
@@ -587,7 +593,7 @@ export namespace RSetBase {
       while (++i < length) {
         const source = sources[i];
 
-        if (StreamSource.isEmptyInstance(source)) continue;
+        if (isEmptyStreamSourceInstance(source)) continue;
 
         if (
           builder.isEmpty &&

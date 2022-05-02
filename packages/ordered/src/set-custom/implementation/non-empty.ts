@@ -6,6 +6,7 @@ import type {
   OrderedSetTypes,
 } from '@rimbu/ordered/set-custom';
 import { Stream, StreamSource } from '@rimbu/stream';
+import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 export class OrderedSetNonEmpty<
     T,
@@ -53,7 +54,7 @@ export class OrderedSetNonEmpty<
   }
 
   addAll(values: StreamSource<T>): TpG['nonEmpty'] {
-    if (StreamSource.isEmptyInstance(values)) return this as any;
+    if (isEmptyStreamSourceInstance(values)) return this as any;
 
     const builder = this.toBuilder();
     builder.addAll(values);
@@ -79,7 +80,7 @@ export class OrderedSetNonEmpty<
   }
 
   removeAll<U>(values: StreamSource<RelatedTo<T, U>>): TpG['normal'] {
-    if (StreamSource.isEmptyInstance(values)) return this as any;
+    if (isEmptyStreamSourceInstance(values)) return this as any;
 
     const builder = this.toBuilder();
     builder.removeAll(values);
@@ -109,7 +110,7 @@ export class OrderedSetNonEmpty<
 
   union(other: StreamSource<T>): TpG['nonEmpty'] {
     if (other === this) return this as any;
-    if (StreamSource.isEmptyInstance(other)) return this as any;
+    if (isEmptyStreamSourceInstance(other)) return this as any;
 
     const builder = this.toBuilder();
     builder.addAll(other);
@@ -118,7 +119,7 @@ export class OrderedSetNonEmpty<
 
   difference(other: StreamSource<T>): TpG['normal'] {
     if (other === this) return this.context.empty();
-    if (StreamSource.isEmptyInstance(other)) return this as any;
+    if (isEmptyStreamSourceInstance(other)) return this as any;
 
     const builder = this.toBuilder();
     builder.removeAll(other);
@@ -127,7 +128,7 @@ export class OrderedSetNonEmpty<
 
   intersect(other: StreamSource<T>): TpG['normal'] {
     if (other === this) return this as any;
-    if (StreamSource.isEmptyInstance(other)) return this.context.empty();
+    if (isEmptyStreamSourceInstance(other)) return this.context.empty();
 
     const builder = this.context.builder<T>();
     const otherIter = Stream.from(other)[Symbol.iterator]();
@@ -147,7 +148,7 @@ export class OrderedSetNonEmpty<
   symDifference(other: StreamSource<T>): TpG['normal'] {
     if (other === this) return this.context.empty();
 
-    if (StreamSource.isEmptyInstance(other)) return this as any;
+    if (isEmptyStreamSourceInstance(other)) return this as any;
 
     const builder = this.toBuilder();
 

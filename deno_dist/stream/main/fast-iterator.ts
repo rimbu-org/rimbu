@@ -1,4 +1,4 @@
-import { OptLazy } from '../../common/mod.ts';
+import type { OptLazy } from '../../common/mod.ts';
 
 /**
  * An iterator that extends the default `Iterator` interface with methods that give more performance.
@@ -15,28 +15,4 @@ export interface FastIterator<T> extends Iterator<T> {
    * Returns the next `IteratorResult`.
    */
   next(): IteratorResult<T>;
-}
-
-const _fixedDone: IteratorResult<any> = {
-  done: true,
-  value: undefined,
-};
-
-export namespace FastIterator {
-  export const fixedDone: IteratorResult<any> = _fixedDone;
-
-  export const emptyFastIterator: FastIterator<any> = {
-    fastNext<O>(otherwise?: OptLazy<O>): O {
-      return OptLazy(otherwise) as O;
-    },
-    next(): IteratorResult<any> {
-      return _fixedDone;
-    },
-  };
-
-  export function isFastIterator<T>(
-    iterator: Iterator<T>
-  ): iterator is FastIterator<T> {
-    return `fastNext` in iterator;
-  }
 }

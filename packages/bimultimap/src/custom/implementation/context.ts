@@ -7,7 +7,8 @@ import {
 import type { WithKeyValue } from '@rimbu/collection-types/map-custom';
 import type { ArrayNonEmpty } from '@rimbu/common';
 import { Reducer } from '@rimbu/common';
-import { StreamSource } from '@rimbu/stream';
+import type { StreamSource } from '@rimbu/stream';
+import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 export interface ContextTypesImpl extends BiMultiMapBase.Types {
   readonly context: BiMultiMapContext<this['_K'], this['_V'], string>;
@@ -75,7 +76,7 @@ export class BiMultiMapContext<
     while (++i < length) {
       const source = sources[i];
 
-      if (StreamSource.isEmptyInstance(source)) continue;
+      if (isEmptyStreamSourceInstance(source)) continue;
       if (
         builder.isEmpty &&
         source instanceof BiMultiMapNonEmpty &&
