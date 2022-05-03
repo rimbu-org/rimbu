@@ -6,8 +6,12 @@ import {
   MaybePromise,
   Reducer,
 } from '@rimbu/common';
-import type { AsyncStream } from '@rimbu/stream/async';
-import type { AsyncFastIterator, AsyncStreamSource } from '@rimbu/stream/async';
+
+import type {
+  AsyncStream,
+  AsyncFastIterator,
+  AsyncStreamSource,
+} from '../async';
 import {
   AsyncFastIteratorBase,
   AsyncFromStream,
@@ -16,8 +20,8 @@ import {
   emptyAsyncFastIterator,
   isAsyncFastIterator,
   isEmptyAsyncStreamSourceInstance,
-} from '@rimbu/stream/async-custom';
-import { StreamConstructorsImpl } from '@rimbu/stream/custom';
+} from '.';
+import { StreamConstructorsImpl } from '../custom';
 
 class AsyncOfIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(readonly values: ArrayNonEmpty<AsyncOptLazy<T>>) {

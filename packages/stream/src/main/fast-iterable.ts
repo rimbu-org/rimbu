@@ -1,4 +1,4 @@
-import type { FastIterator } from '@rimbu/stream';
+import type { FastIterator } from '.';
 
 /**
  * An interface that extends the standard `Iterable` interface to return

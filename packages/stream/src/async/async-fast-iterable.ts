@@ -1,4 +1,4 @@
-import type { AsyncFastIterator } from '@rimbu/stream/async';
+import type { AsyncFastIterator } from '.';
 
 export interface AsyncFastIterable<T> extends AsyncIterable<T> {
   [Symbol.asyncIterator](): AsyncFastIterator<T>;

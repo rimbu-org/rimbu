@@ -1,5 +1,6 @@
 import { AsyncOptLazy, MaybePromise } from '@rimbu/common';
-import type { AsyncFastIterator } from '@rimbu/stream/async';
+
+import type { AsyncFastIterator } from '../async';
 
 export const fixedDoneAsyncIteratorResult = Promise.resolve({
   done: true,

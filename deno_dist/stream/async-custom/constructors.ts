@@ -6,8 +6,12 @@ import {
   MaybePromise,
   Reducer,
 } from '../../common/mod.ts';
-import type { AsyncStream } from '../../stream/async/index.ts';
-import type { AsyncFastIterator, AsyncStreamSource } from '../../stream/async/index.ts';
+
+import type {
+  AsyncStream,
+  AsyncFastIterator,
+  AsyncStreamSource,
+} from '../async/index.ts';
 import {
   AsyncFastIteratorBase,
   AsyncFromStream,
@@ -16,8 +20,8 @@ import {
   emptyAsyncFastIterator,
   isAsyncFastIterator,
   isEmptyAsyncStreamSourceInstance,
-} from '../../stream/async-custom/index.ts';
-import { StreamConstructorsImpl } from '../../stream/custom/index.ts';
+} from './index.ts';
+import { StreamConstructorsImpl } from '../custom/index.ts';
 
 class AsyncOfIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(readonly values: ArrayNonEmpty<AsyncOptLazy<T>>) {

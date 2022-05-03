@@ -1,5 +1,5 @@
 import { OptLazy } from '@rimbu/common';
-import type { FastIterator } from '@rimbu/stream';
+import type { FastIterator } from '../main';
 
 export const fixedDoneIteratorResult: IteratorResult<any> = {
   done: true,

@@ -1,5 +1,5 @@
-import type { StreamSource } from '../../stream/mod.ts';
-import { StreamConstructorsImpl } from '../../stream/custom/index.ts';
+import type { StreamSource } from '../main/index.ts';
+import { StreamConstructorsImpl } from './index.ts';
 
 /**
  * Returns true if the given `source` StreamSource is known to be empty.

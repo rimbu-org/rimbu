@@ -7,11 +7,8 @@ import type {
   ToJSON,
   TraverseState,
 } from '@rimbu/common';
-import {
-  StreamConstructors,
-  StreamConstructorsImpl,
-} from '@rimbu/stream/custom';
-import type { FastIterable, Streamable, StreamSource } from '@rimbu/stream';
+import { StreamConstructors, StreamConstructorsImpl } from '../custom';
+import type { FastIterable, Streamable, StreamSource } from '.';
 
 /**
  * A possibly infinite sequence of elements of type T.

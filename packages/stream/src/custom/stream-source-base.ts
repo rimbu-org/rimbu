@@ -1,5 +1,5 @@
-import type { StreamSource } from '@rimbu/stream';
-import { StreamConstructorsImpl } from '@rimbu/stream/custom';
+import type { StreamSource } from '../main';
+import { StreamConstructorsImpl } from '.';
 
 /**
  * Returns true if the given `source` StreamSource is known to be empty.

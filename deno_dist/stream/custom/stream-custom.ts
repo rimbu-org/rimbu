@@ -8,13 +8,13 @@ import {
   ToJSON,
   TraverseState,
 } from '../../common/mod.ts';
-import type { FastIterator, Stream, StreamSource } from '../../stream/mod.ts';
+import type { FastIterator, Stream, StreamSource } from '../main/index.ts';
 import {
   isEmptyStreamSourceInstance,
   isFastIterator,
   StreamConstructorsImpl,
   FastIteratorBase,
-} from '../../stream/custom/index.ts';
+} from './index.ts';
 
 export abstract class StreamBase<T> implements Stream<T> {
   abstract [Symbol.iterator](): FastIterator<T>;

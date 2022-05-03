@@ -10,17 +10,18 @@ import {
   ToJSON,
   TraverseState,
 } from '../../common/mod.ts';
+
 import type {
   AsyncFastIterator,
   AsyncStream,
   AsyncStreamSource,
-} from '../../stream/async/index.ts';
+} from '../async/index.ts';
 import {
   closeIters,
   isEmptyAsyncStreamSourceInstance,
   AsyncStreamConstructorsImpl,
   AsyncFastIteratorBase,
-} from '../../stream/async-custom/index.ts';
+} from './index.ts';
 
 export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   abstract [Symbol.asyncIterator](): AsyncFastIterator<T>;

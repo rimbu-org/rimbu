@@ -8,13 +8,13 @@ import {
   ToJSON,
   TraverseState,
 } from '@rimbu/common';
-import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
+import type { FastIterator, Stream, StreamSource } from '../main';
 import {
   isEmptyStreamSourceInstance,
   isFastIterator,
   StreamConstructorsImpl,
   FastIteratorBase,
-} from '@rimbu/stream/custom';
+} from '.';
 
 export abstract class StreamBase<T> implements Stream<T> {
   abstract [Symbol.iterator](): FastIterator<T>;

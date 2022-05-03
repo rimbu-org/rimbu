@@ -1,6 +1,6 @@
 import type { MaybePromise } from '@rimbu/common';
 import type { StreamSource } from '@rimbu/stream';
-import type { AsyncStream, AsyncStreamable } from '@rimbu/stream/async';
+import type { AsyncStream, AsyncStreamable } from '.';
 
 export type AsyncStreamSource<T> =
   | undefined

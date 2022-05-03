@@ -10,17 +10,18 @@ import {
   ToJSON,
   TraverseState,
 } from '@rimbu/common';
+
 import type {
   AsyncFastIterator,
   AsyncStream,
   AsyncStreamSource,
-} from '@rimbu/stream/async';
+} from '../async';
 import {
   closeIters,
   isEmptyAsyncStreamSourceInstance,
   AsyncStreamConstructorsImpl,
   AsyncFastIteratorBase,
-} from '@rimbu/stream/async-custom';
+} from '.';
 
 export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   abstract [Symbol.asyncIterator](): AsyncFastIterator<T>;

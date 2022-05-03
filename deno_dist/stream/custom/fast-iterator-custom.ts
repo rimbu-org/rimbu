@@ -1,5 +1,5 @@
 import { OptLazy } from '../../common/mod.ts';
-import type { FastIterator } from '../../stream/mod.ts';
+import type { FastIterator } from '../main/index.ts';
 
 export const fixedDoneIteratorResult: IteratorResult<any> = {
   done: true,

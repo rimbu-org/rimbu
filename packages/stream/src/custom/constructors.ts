@@ -10,7 +10,7 @@ import {
   StringNonEmpty,
   TraverseState,
 } from '@rimbu/common';
-import type { Stream, FastIterator, StreamSource } from '@rimbu/stream';
+import type { Stream, FastIterator, StreamSource } from '../main';
 import {
   emptyFastIterator,
   FastIteratorBase,
@@ -18,7 +18,7 @@ import {
   FromStream,
   StreamBase,
   isEmptyStreamSourceInstance,
-} from '@rimbu/stream/custom';
+} from '.';
 
 class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   [Symbol.iterator](): FastIterator<T> {

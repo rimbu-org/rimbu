@@ -1,7 +1,7 @@
-import type { StreamSource } from '@rimbu/stream';
-import type { AsyncStreamSource } from '@rimbu/stream/async';
-import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
-import { AsyncStreamConstructorsImpl } from '@rimbu/stream/async-custom';
+import type { StreamSource } from '../main';
+import type { AsyncStreamSource } from '../async';
+import { isEmptyStreamSourceInstance } from '../custom';
+import { AsyncStreamConstructorsImpl } from '.';
 
 export function isEmptyAsyncStreamSourceInstance(
   source: AsyncStreamSource<any>

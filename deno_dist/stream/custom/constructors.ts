@@ -10,7 +10,7 @@ import {
   StringNonEmpty,
   TraverseState,
 } from '../../common/mod.ts';
-import type { Stream, FastIterator, StreamSource } from '../../stream/mod.ts';
+import type { Stream, FastIterator, StreamSource } from '../main/index.ts';
 import {
   emptyFastIterator,
   FastIteratorBase,
@@ -18,7 +18,7 @@ import {
   FromStream,
   StreamBase,
   isEmptyStreamSourceInstance,
-} from '../../stream/custom/index.ts';
+} from './index.ts';
 
 class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   [Symbol.iterator](): FastIterator<T> {

@@ -8,15 +8,11 @@ import type {
   ToJSON,
   TraverseState,
 } from '@rimbu/common';
-import type {
-  AsyncFastIterable,
-  AsyncStreamable,
-  AsyncStreamSource,
-} from '@rimbu/stream/async';
+import type { AsyncFastIterable, AsyncStreamable, AsyncStreamSource } from '.';
 import {
   AsyncStreamConstructors,
   AsyncStreamConstructorsImpl,
-} from '@rimbu/stream/async-custom';
+} from '../async-custom';
 
 /**
  * A possibly infinite asynchronous sequence of elements of type T.

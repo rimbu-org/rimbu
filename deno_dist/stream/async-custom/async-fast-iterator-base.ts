@@ -1,5 +1,6 @@
 import { AsyncOptLazy, MaybePromise } from '../../common/mod.ts';
-import type { AsyncFastIterator } from '../../stream/async/index.ts';
+
+import type { AsyncFastIterator } from '../async/index.ts';
 
 export const fixedDoneAsyncIteratorResult = Promise.resolve({
   done: true,

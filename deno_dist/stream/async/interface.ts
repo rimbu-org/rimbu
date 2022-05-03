@@ -8,15 +8,11 @@ import type {
   ToJSON,
   TraverseState,
 } from '../../common/mod.ts';
-import type {
-  AsyncFastIterable,
-  AsyncStreamable,
-  AsyncStreamSource,
-} from '../../stream/async/index.ts';
+import type { AsyncFastIterable, AsyncStreamable, AsyncStreamSource } from './index.ts';
 import {
   AsyncStreamConstructors,
   AsyncStreamConstructorsImpl,
-} from '../../stream/async-custom/index.ts';
+} from '../async-custom/index.ts';
 
 /**
  * A possibly infinite asynchronous sequence of elements of type T.

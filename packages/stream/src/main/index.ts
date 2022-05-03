@@ -16,4 +16,4 @@ export * from './stream-source';
 
 export * from './interface';
 
-export * from '@rimbu/stream/async';
+export * from '../async';

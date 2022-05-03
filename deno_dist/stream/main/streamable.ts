@@ -1,4 +1,4 @@
-import type { Stream } from '../../stream/mod.ts';
+import type { Stream } from './index.ts';
 
 /**
  * An object that can create a Stream of elements of type `T`.
