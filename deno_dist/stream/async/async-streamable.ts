@@ -1,4 +1,4 @@
-import type { AsyncStream } from './index.ts';
+import type { AsyncStream } from '../../stream/async/index.ts';
 
 export interface AsyncStreamable<T> {
   asyncStream(): AsyncStream<T>;

@@ -7,8 +7,9 @@ import type {
   ToJSON,
   TraverseState,
 } from '../../common/mod.ts';
-import { StreamConstructors, StreamConstructorsImpl } from '../custom/index.ts';
-import type { FastIterable, Streamable, StreamSource } from './index.ts';
+import type { StreamConstructors } from '../../stream/custom/index.ts';
+import { StreamConstructorsImpl } from '../../stream/custom/index.ts';
+import type { FastIterable, Streamable, StreamSource } from '../../stream/mod.ts';
 
 /**
  * A possibly infinite sequence of elements of type T.

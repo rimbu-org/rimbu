@@ -1,6 +1,6 @@
 import type { MaybePromise } from '../../common/mod.ts';
 import type { StreamSource } from '../../stream/mod.ts';
-import type { AsyncStream, AsyncStreamable } from './index.ts';
+import type { AsyncStream, AsyncStreamable } from '../../stream/async/index.ts';
 
 export type AsyncStreamSource<T> =
   | undefined
