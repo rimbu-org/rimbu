@@ -11,7 +11,9 @@
 
 export * from './fast-iterator';
 export * from './fast-iterable';
-export * from './interface';
 export * from './streamable';
 export * from './stream-source';
+
+export * from './interface';
+
 export * from '@rimbu/stream/async';

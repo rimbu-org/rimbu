@@ -18,21 +18,9 @@ import type {
 import {
   closeIters,
   isEmptyAsyncStreamSourceInstance,
-  fixedDoneAsyncIteratorResult,
   AsyncStreamConstructorsImpl,
+  AsyncFastIteratorBase,
 } from '@rimbu/stream/async-custom';
-
-export abstract class AsyncFastIteratorBase<T> implements AsyncFastIterator<T> {
-  abstract fastNext<O>(otherwise?: AsyncOptLazy<O>): MaybePromise<T | O>;
-  return?: () => Promise<any>;
-
-  async next(): Promise<IteratorResult<T>> {
-    const done = Symbol('Done');
-    const value = await this.fastNext(done);
-    if (done === value) return fixedDoneAsyncIteratorResult;
-    return { value, done: false };
-  }
-}
 
 export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   abstract [Symbol.asyncIterator](): AsyncFastIterator<T>;

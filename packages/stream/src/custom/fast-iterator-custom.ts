@@ -20,3 +20,18 @@ export function isFastIterator<T>(
 ): iterator is FastIterator<T> {
   return `fastNext` in iterator;
 }
+
+/**
+ * A base class for `FastIterator` instances, that takes implements the default `next`
+ * function based on the abstract `fastNext` function.
+ */
+export abstract class FastIteratorBase<T> implements FastIterator<T> {
+  abstract fastNext<O>(otherwise?: OptLazy<O>): T | O;
+
+  next(): IteratorResult<T> {
+    const done = Symbol('Done');
+    const value = this.fastNext(done);
+    if (done === value) return fixedDoneIteratorResult;
+    return { value, done: false };
+  }
+}

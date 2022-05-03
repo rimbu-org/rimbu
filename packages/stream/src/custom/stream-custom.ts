@@ -10,26 +10,11 @@ import {
 } from '@rimbu/common';
 import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
 import {
-  fixedDoneIteratorResult,
   isEmptyStreamSourceInstance,
   isFastIterator,
   StreamConstructorsImpl,
+  FastIteratorBase,
 } from '@rimbu/stream/custom';
-
-/**
- * A base class for `FastIterator` instances, that takes implements the default `next`
- * function based on the abstract `fastNext` function.
- */
-export abstract class FastIteratorBase<T> implements FastIterator<T> {
-  abstract fastNext<O>(otherwise?: OptLazy<O>): T | O;
-
-  next(): IteratorResult<T> {
-    const done = Symbol('Done');
-    const value = this.fastNext(done);
-    if (done === value) return fixedDoneIteratorResult;
-    return { value, done: false };
-  }
-}
 
 export abstract class StreamBase<T> implements Stream<T> {
   abstract [Symbol.iterator](): FastIterator<T>;
