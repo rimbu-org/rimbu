@@ -15,7 +15,6 @@ import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
 import type { StreamConstructors } from '@rimbu/stream/custom';
 import {
   isFastIterator,
-  FastIteratorBase,
   emptyFastIterator,
   FlatMapIterator,
   ConcatIterator,
@@ -46,6 +45,11 @@ import {
   UnfoldIterator,
   ZipAllWithItererator,
   ZipWithIterator,
+  AppendIterator,
+  IndexedIterator,
+  MapIterator,
+  MapPureIterator,
+  PrependIterator,
 } from '@rimbu/stream/custom';
 import { RimbuError, Token } from '@rimbu/base';
 
@@ -583,20 +587,6 @@ export class FromStream<T> extends StreamBase<T> {
   }
 }
 
-class PrependIterator<T> extends FastIteratorBase<T> {
-  constructor(readonly source: FastIterator<T>, readonly item: OptLazy<T>) {
-    super();
-  }
-
-  prependDone = false;
-
-  fastNext<O>(otherwise?: OptLazy<O>): T | O {
-    if (this.prependDone) return this.source.fastNext(otherwise!);
-    this.prependDone = true;
-    return OptLazy(this.item);
-  }
-}
-
 class PrependStream<T> extends StreamBase<T> {
   constructor(readonly source: Stream<T>, readonly item: OptLazy<T>) {
     super();
@@ -629,27 +619,6 @@ class PrependStream<T> extends StreamBase<T> {
     if (state.halted) return;
 
     this.source.forEach(f, state);
-  }
-}
-
-class AppendIterator<T> extends FastIteratorBase<T> {
-  constructor(readonly source: FastIterator<T>, readonly item: OptLazy<T>) {
-    super();
-  }
-
-  appendDone = false;
-
-  fastNext<O>(otherwise?: OptLazy<O>): T | O {
-    if (this.appendDone) return OptLazy(otherwise) as O;
-
-    const done = Symbol('Done');
-
-    const value = this.source.fastNext(done);
-
-    if (done !== value) return value;
-
-    this.appendDone = true;
-    return OptLazy(this.item);
   }
 }
 
@@ -688,24 +657,6 @@ class AppendStream<T> extends StreamBase<T> {
   }
 }
 
-class IndexedIterator<T> extends FastIteratorBase<[number, T]> {
-  index: number;
-
-  constructor(readonly source: FastIterator<T>, readonly startIndex = 0) {
-    super();
-    this.index = startIndex;
-  }
-
-  fastNext<O>(otherwise?: OptLazy<O>): [number, T] | O {
-    const done = Symbol('Done');
-    const value = this.source.fastNext(done);
-
-    if (done === value) return OptLazy(otherwise) as O;
-
-    return [this.index++, value];
-  }
-}
-
 class IndexedStream<T> extends StreamBase<[number, T]> {
   constructor(readonly source: Stream<T>, readonly startIndex: number) {
     super();
@@ -720,30 +671,6 @@ class IndexedStream<T> extends StreamBase<[number, T]> {
 
   count(): number {
     return this.source.count();
-  }
-}
-
-class MapIterator<T, T2> extends FastIteratorBase<T2> {
-  constructor(
-    readonly source: FastIterator<T>,
-    readonly mapFun: (value: T, index: number) => T2
-  ) {
-    super();
-  }
-
-  readonly state = TraverseState();
-
-  fastNext<O>(otherwise?: OptLazy<O>): T2 | O {
-    const state = this.state;
-
-    if (state.halted) return OptLazy(otherwise) as O;
-
-    const done = Symbol('Done');
-    const next = this.source.fastNext(done);
-
-    if (done === next) return OptLazy(otherwise) as O;
-
-    return this.mapFun(next, state.nextIndex());
   }
 }
 
@@ -788,29 +715,6 @@ class MapStream<T, T2> extends StreamBase<T2> {
     return new MapStream<T, T3>(this.source, (value, index) =>
       mapFun(this.mapFun(value, index), index)
     );
-  }
-}
-
-class MapPureIterator<
-  T,
-  A extends readonly unknown[],
-  T2
-> extends FastIteratorBase<T2> {
-  constructor(
-    readonly source: FastIterator<T>,
-    readonly mapFun: (value: T, ...args: A) => T2,
-    readonly args: A
-  ) {
-    super();
-  }
-
-  fastNext<O>(otherwise?: OptLazy<O>): T2 | O {
-    const done = Symbol('Done');
-    const next = this.source.fastNext(done);
-
-    if (done === next) return OptLazy(otherwise) as O;
-
-    return this.mapFun(next, ...this.args);
   }
 }
 

@@ -908,3 +908,103 @@ export class ZipAllWithItererator<
     return (this.zipFun as any)(...result);
   }
 }
+
+export class PrependIterator<T> extends FastIteratorBase<T> {
+  constructor(readonly source: FastIterator<T>, readonly item: OptLazy<T>) {
+    super();
+  }
+
+  prependDone = false;
+
+  fastNext<O>(otherwise?: OptLazy<O>): T | O {
+    if (this.prependDone) return this.source.fastNext(otherwise!);
+    this.prependDone = true;
+    return OptLazy(this.item);
+  }
+}
+
+export class AppendIterator<T> extends FastIteratorBase<T> {
+  constructor(readonly source: FastIterator<T>, readonly item: OptLazy<T>) {
+    super();
+  }
+
+  appendDone = false;
+
+  fastNext<O>(otherwise?: OptLazy<O>): T | O {
+    if (this.appendDone) return OptLazy(otherwise) as O;
+
+    const done = Symbol('Done');
+
+    const value = this.source.fastNext(done);
+
+    if (done !== value) return value;
+
+    this.appendDone = true;
+    return OptLazy(this.item);
+  }
+}
+
+export class IndexedIterator<T> extends FastIteratorBase<[number, T]> {
+  index: number;
+
+  constructor(readonly source: FastIterator<T>, readonly startIndex = 0) {
+    super();
+    this.index = startIndex;
+  }
+
+  fastNext<O>(otherwise?: OptLazy<O>): [number, T] | O {
+    const done = Symbol('Done');
+    const value = this.source.fastNext(done);
+
+    if (done === value) return OptLazy(otherwise) as O;
+
+    return [this.index++, value];
+  }
+}
+
+export class MapIterator<T, T2> extends FastIteratorBase<T2> {
+  constructor(
+    readonly source: FastIterator<T>,
+    readonly mapFun: (value: T, index: number) => T2
+  ) {
+    super();
+  }
+
+  readonly state = TraverseState();
+
+  fastNext<O>(otherwise?: OptLazy<O>): T2 | O {
+    const state = this.state;
+
+    if (state.halted) return OptLazy(otherwise) as O;
+
+    const done = Symbol('Done');
+    const next = this.source.fastNext(done);
+
+    if (done === next) return OptLazy(otherwise) as O;
+
+    return this.mapFun(next, state.nextIndex());
+  }
+}
+
+export class MapPureIterator<
+  T,
+  A extends readonly unknown[],
+  T2
+> extends FastIteratorBase<T2> {
+  constructor(
+    readonly source: FastIterator<T>,
+    readonly mapFun: (value: T, ...args: A) => T2,
+    readonly args: A
+  ) {
+    super();
+  }
+
+  fastNext<O>(otherwise?: OptLazy<O>): T2 | O {
+    const done = Symbol('Done');
+    const next = this.source.fastNext(done);
+
+    if (done === next) return OptLazy(otherwise) as O;
+
+    return this.mapFun(next, ...this.args);
+  }
+}
