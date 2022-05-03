@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.2](https://github.com/rimbu-org/rimbu/compare/@rimbu/bimultimap@0.9.1...@rimbu/bimultimap@0.9.2) (2022-05-02)
+
+
+
+## 0.8.2 (2022-05-02)
+
+
+### Bug Fixes
+
+* remove circular dependencies in Stream to improve loading in environments like CodeSandbox ([497a737](https://github.com/rimbu-org/rimbu/commit/497a7378785d99464d4d11904ec17a81940ec411))
+
+
+
+
+
 ## [0.9.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/bimultimap@0.9.0...@rimbu/bimultimap@0.9.1) (2022-05-02)
 
 **Note:** Version bump only for package @rimbu/bimultimap
