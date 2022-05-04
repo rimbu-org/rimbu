@@ -1,5 +1,7 @@
 import { Arr, RimbuError } from '../../../../base/mod.ts';
 import { IndexRange, TraverseState, Update } from '../../../../common/mod.ts';
+import { Stream } from '../../../../stream/mod.ts';
+
 import type {
   Block,
   BlockBuilder,
@@ -8,7 +10,6 @@ import type {
   NonLeafBuilder,
   NonLeafTree,
 } from '../../../../list/custom/index.ts';
-import { Stream } from '../../../../stream/mod.ts';
 
 export class NonLeafBlock<T, C extends Block<T, C>>
   implements Block<T, NonLeafBlock<T, C>, C>, NonLeaf<T, Block<T>>
@@ -50,14 +51,14 @@ export class NonLeafBlock<T, C extends Block<T, C>>
 
   copy(children: readonly C[], length = this.length): NonLeafBlock<T, C> {
     if (children === this.children && length === this.length) return this;
-    return new NonLeafBlock(this.context, length, children, this.level);
+    return this.context.nonLeafBlock(length, children, this.level);
   }
 
   copy2<T2, C2 extends Block<T2, C2>>(
     children: readonly C2[],
     length = this.length
   ): NonLeafBlock<T2, C2> {
-    return new NonLeafBlock(this.context, length, children, this.level);
+    return this.context.nonLeafBlock(length, children, this.level);
   }
 
   stream(reversed = false): Stream.NonEmpty<T> {
@@ -175,7 +176,7 @@ export class NonLeafBlock<T, C extends Block<T, C>>
   }
 
   concat<T2>(other: NonLeaf<T2, C>): NonLeaf<T | T2, C> {
-    if (other instanceof NonLeafBlock) {
+    if (other.context.isNonLeafBlock<any>(other)) {
       if (other === this && this.children.length > this.context.minBlockSize) {
         return this.context.nonLeafTree<T | T2, any>(
           this as any,

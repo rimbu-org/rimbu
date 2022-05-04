@@ -1,6 +1,9 @@
 import { RimbuError } from '@rimbu/base';
 import type { ArrayNonEmpty } from '@rimbu/common';
 import { Reducer } from '@rimbu/common';
+import { Stream, StreamSource } from '@rimbu/stream';
+import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
+
 import type { List } from '@rimbu/list';
 import type {
   Block,
@@ -23,8 +26,6 @@ import {
   NonLeafTreeBuilder,
   ReversedLeafBlock,
 } from '@rimbu/list/custom';
-import { Stream, StreamSource } from '@rimbu/stream';
-import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 export class ListContext implements List.Context {
   readonly maxBlockSize: number;
@@ -56,12 +57,14 @@ export class ListContext implements List.Context {
   createBuilder<T>(source?: List<T>): GenBuilder<T> {
     if (undefined === source || source.isEmpty) return new GenBuilder<T>(this);
 
-    if (source instanceof LeafBlock) {
+    const context = source.context as ListContext;
+
+    if (context.isLeafBlock(source)) {
       const builder = this.leafBlockBuilderSource<T>(source);
       return new GenBuilder<T>(this, builder);
     }
 
-    if (source instanceof LeafTree) {
+    if (context.isLeafTree(source)) {
       const builder = this.leafTreeBuilderSource<T>(source);
       return new GenBuilder<T>(this, builder);
     }
@@ -274,4 +277,10 @@ export class ListContext implements List.Context {
   createCacheMap(): CacheMap {
     return new CacheMap();
   }
+}
+
+export function createListContext(options?: {
+  blockSizeBits?: number;
+}): List.Context {
+  return new ListContext(options?.blockSizeBits ?? 5);
 }

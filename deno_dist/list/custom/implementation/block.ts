@@ -1,6 +1,7 @@
 import type { IndexRange, OptLazy, TraverseState, Update } from '../../../common/mod.ts';
-import type { BlockBuilder, CacheMap } from '../../../list/custom/index.ts';
 import type { Stream } from '../../../stream/mod.ts';
+
+import type { BlockBuilder, CacheMap } from '../../../list/custom/index.ts';
 
 export interface Block<T, TS extends Block<T, TS, C> = any, C = any> {
   readonly length: number;

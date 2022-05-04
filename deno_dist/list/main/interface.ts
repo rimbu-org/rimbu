@@ -7,7 +7,6 @@ import type {
   TraverseState,
   Update,
 } from '../../common/mod.ts';
-import { ListCreators, ListFactory, ListContext } from '../../list/custom/index.ts';
 import type {
   FastIterable,
   Stream,
@@ -15,6 +14,9 @@ import type {
   StreamSource,
 } from '../../stream/mod.ts';
 import type { Elem } from '../../collection-types/set-custom/index.ts';
+
+import type { ListCreators, ListFactory } from '../../list/custom/index.ts';
+import { createListContext } from '../../list/custom/index.ts';
 
 /**
  * A random accessible immutable sequence of values of type T.
@@ -1068,14 +1070,10 @@ export namespace List {
   }
 }
 
-function createContext(options?: { blockSizeBits?: number }): List.Context {
-  return new ListContext(options?.blockSizeBits ?? 5);
-}
-
-const _defaultContext = createContext();
+const _defaultContext = createListContext();
 
 export const List: ListCreators = {
-  createContext,
+  createContext: createListContext,
   defaultContext() {
     return _defaultContext;
   },

@@ -6,6 +6,8 @@ import {
   TraverseState,
   Update,
 } from '@rimbu/common';
+import { Stream, StreamSource } from '@rimbu/stream';
+
 import type { List } from '@rimbu/list';
 import type {
   Block,
@@ -14,7 +16,6 @@ import type {
   ListContext,
 } from '@rimbu/list/custom';
 import { ListNonEmptyBase } from '@rimbu/list/custom';
-import { Stream, StreamSource } from '@rimbu/stream';
 
 export class LeafBlock<T>
   extends ListNonEmptyBase<T>
@@ -34,11 +35,11 @@ export class LeafBlock<T>
 
   copy(children: readonly T[]): LeafBlock<T> {
     if (children === this.children) return this;
-    return new LeafBlock(this.context, children);
+    return this.context.leafBlock(children);
   }
 
   copy2<T2>(children: readonly T2[]): LeafBlock<T2> {
-    return new LeafBlock(this.context, children);
+    return this.context.leafBlock(children);
   }
 
   get mutateChildren(): T[] {
@@ -313,11 +314,11 @@ export class LeafBlock<T>
 export class ReversedLeafBlock<T> extends LeafBlock<T> {
   copy(children: readonly T[]): LeafBlock<T> {
     if (children === this.children) return this;
-    return new ReversedLeafBlock(this.context, children);
+    return this.context.reversedLeaf(children);
   }
 
   copy2<T2>(children: readonly T2[]): LeafBlock<T2> {
-    return new ReversedLeafBlock(this.context, children);
+    return this.context.reversedLeaf(children);
   }
 
   stream(reversed = false): Stream.NonEmpty<T> {
@@ -366,7 +367,7 @@ export class ReversedLeafBlock<T> extends LeafBlock<T> {
   }
 
   concatChildren(other: LeafBlock<T>): LeafBlock<T> {
-    if (other instanceof ReversedLeafBlock) {
+    if (other.context.isReversedLeafBlock<any>(other)) {
       return this.copy(other.children.concat(this.children));
     }
 

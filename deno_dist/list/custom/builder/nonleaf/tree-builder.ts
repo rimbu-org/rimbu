@@ -1,4 +1,5 @@
 import type { OptLazy } from '../../../../common/mod.ts';
+
 import type {
   BlockBuilder,
   BuilderBase,

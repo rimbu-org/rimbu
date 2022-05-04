@@ -7,7 +7,6 @@ import type {
   TraverseState,
   Update,
 } from '@rimbu/common';
-import { ListCreators, ListFactory, ListContext } from '@rimbu/list/custom';
 import type {
   FastIterable,
   Stream,
@@ -15,6 +14,9 @@ import type {
   StreamSource,
 } from '@rimbu/stream';
 import type { Elem } from '@rimbu/collection-types/set-custom';
+
+import type { ListCreators, ListFactory } from '@rimbu/list/custom';
+import { createListContext } from '@rimbu/list/custom';
 
 /**
  * A random accessible immutable sequence of values of type T.
@@ -1068,14 +1070,10 @@ export namespace List {
   }
 }
 
-function createContext(options?: { blockSizeBits?: number }): List.Context {
-  return new ListContext(options?.blockSizeBits ?? 5);
-}
-
-const _defaultContext = createContext();
+const _defaultContext = createListContext();
 
 export const List: ListCreators = {
-  createContext,
+  createContext: createListContext,
   defaultContext() {
     return _defaultContext;
   },

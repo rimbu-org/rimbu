@@ -1,4 +1,5 @@
 import type { OptLazy } from '@rimbu/common';
+
 import type { List } from '@rimbu/list';
 import type { NonLeaf } from '@rimbu/list/custom';
 

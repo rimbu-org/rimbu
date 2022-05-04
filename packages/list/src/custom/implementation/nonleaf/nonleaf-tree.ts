@@ -1,5 +1,7 @@
 import { RimbuError } from '@rimbu/base';
 import type { IndexRange, TraverseState, Update } from '@rimbu/common';
+import type { Stream } from '@rimbu/stream';
+
 import type {
   Block,
   BlockBuilder,
@@ -18,7 +20,6 @@ import {
   treeToArray,
   treeUpdate,
 } from '@rimbu/list/custom';
-import type { Stream } from '@rimbu/stream';
 
 export class NonLeafTree<T, C extends Block<T, C>>
   implements Tree<T, NonLeafTree<T, C>, NonLeafBlock<T, C>, C>, NonLeaf<T>
@@ -46,7 +47,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
     if (left === this.left && right === this.right && middle === this.middle) {
       return this;
     }
-    return new NonLeafTree(this.context, left, right, middle, this.level);
+    return this.context.nonLeafTree(left, right, middle, this.level);
   }
 
   copy2<T2, C2 extends Block<T2, C2>>(
@@ -54,7 +55,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
     right: NonLeafBlock<T2, C2>,
     middle: NonLeaf<T2, NonLeafBlock<T2, C2>> | null
   ): NonLeafTree<T2, C2> {
-    return new NonLeafTree(this.context, left, right, middle, this.level);
+    return this.context.nonLeafTree(left, right, middle, this.level);
   }
 
   stream(reversed = false): Stream.NonEmpty<T> {

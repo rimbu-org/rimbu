@@ -9,12 +9,11 @@ import {
   TraverseState,
   Update,
 } from '../../../../common/mod.ts';
-import type { List } from '../../../../list/mod.ts';
-import type { CacheMap, ListContext } from '../../../../list/custom/index.ts';
 import type { FastIterator, Stream, StreamSource } from '../../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../../stream/custom/index.ts';
 
-const _emptyObject = {};
+import type { List } from '../../../../list/mod.ts';
+import type { CacheMap, ListContext } from '../../../../list/custom/index.ts';
 
 export abstract class ListNonEmptyBase<T>
   extends NonEmptyBase<T>
@@ -102,7 +101,7 @@ export abstract class ListNonEmptyBase<T>
     index?: number;
     remove?: number;
     insert?: StreamSource<T>;
-  } = _emptyObject): List<T> | any {
+  } = {}): List<T> | any {
     if (index < 0) {
       return this.splice({ index: this.length + index, remove, insert });
     }

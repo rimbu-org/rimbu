@@ -9,12 +9,11 @@ import {
   TraverseState,
   Update,
 } from '@rimbu/common';
-import type { List } from '@rimbu/list';
-import type { CacheMap, ListContext } from '@rimbu/list/custom';
 import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-const _emptyObject = {};
+import type { List } from '@rimbu/list';
+import type { CacheMap, ListContext } from '@rimbu/list/custom';
 
 export abstract class ListNonEmptyBase<T>
   extends NonEmptyBase<T>
@@ -102,7 +101,7 @@ export abstract class ListNonEmptyBase<T>
     index?: number;
     remove?: number;
     insert?: StreamSource<T>;
-  } = _emptyObject): List<T> | any {
+  } = {}): List<T> | any {
     if (index < 0) {
       return this.splice({ index: this.length + index, remove, insert });
     }

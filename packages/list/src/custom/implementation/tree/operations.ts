@@ -1,7 +1,8 @@
 import { Arr, RimbuError } from '@rimbu/base';
 import { IndexRange, TraverseState, Update } from '@rimbu/common';
-import type { Block, Tree } from '@rimbu/list/custom';
 import { Stream } from '@rimbu/stream';
+
+import type { Block, Tree } from '@rimbu/list/custom';
 
 export function treeStream<
   T,

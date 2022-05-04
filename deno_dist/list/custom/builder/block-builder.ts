@@ -1,4 +1,5 @@
 import type { OptLazy, TraverseState, Update } from '../../../common/mod.ts';
+
 import type { BuilderBase } from '../../../list/custom/index.ts';
 
 export interface BlockBuilder<T, C = unknown> extends BuilderBase<T, C> {

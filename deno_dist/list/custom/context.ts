@@ -1,6 +1,9 @@
 import { RimbuError } from '../../base/mod.ts';
 import type { ArrayNonEmpty } from '../../common/mod.ts';
 import { Reducer } from '../../common/mod.ts';
+import { Stream, StreamSource } from '../../stream/mod.ts';
+import { isEmptyStreamSourceInstance } from '../../stream/custom/index.ts';
+
 import type { List } from '../../list/mod.ts';
 import type {
   Block,
@@ -23,8 +26,6 @@ import {
   NonLeafTreeBuilder,
   ReversedLeafBlock,
 } from '../../list/custom/index.ts';
-import { Stream, StreamSource } from '../../stream/mod.ts';
-import { isEmptyStreamSourceInstance } from '../../stream/custom/index.ts';
 
 export class ListContext implements List.Context {
   readonly maxBlockSize: number;
@@ -56,12 +57,14 @@ export class ListContext implements List.Context {
   createBuilder<T>(source?: List<T>): GenBuilder<T> {
     if (undefined === source || source.isEmpty) return new GenBuilder<T>(this);
 
-    if (source instanceof LeafBlock) {
+    const context = source.context as ListContext;
+
+    if (context.isLeafBlock(source)) {
       const builder = this.leafBlockBuilderSource<T>(source);
       return new GenBuilder<T>(this, builder);
     }
 
-    if (source instanceof LeafTree) {
+    if (context.isLeafTree(source)) {
       const builder = this.leafTreeBuilderSource<T>(source);
       return new GenBuilder<T>(this, builder);
     }
@@ -274,4 +277,10 @@ export class ListContext implements List.Context {
   createCacheMap(): CacheMap {
     return new CacheMap();
   }
+}
+
+export function createListContext(options?: {
+  blockSizeBits?: number;
+}): List.Context {
+  return new ListContext(options?.blockSizeBits ?? 5);
 }

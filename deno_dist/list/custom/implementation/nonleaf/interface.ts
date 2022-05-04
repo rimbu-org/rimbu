@@ -1,4 +1,6 @@
 import type { IndexRange, TraverseState, Update } from '../../../../common/mod.ts';
+import type { Stream } from '../../../../stream/mod.ts';
+
 import type {
   Block,
   BlockBuilder,
@@ -6,7 +8,6 @@ import type {
   ListContext,
   NonLeafBuilder,
 } from '../../../../list/custom/index.ts';
-import type { Stream } from '../../../../stream/mod.ts';
 
 export interface NonLeaf<T, C extends Block<any, C> = any> {
   readonly length: number;

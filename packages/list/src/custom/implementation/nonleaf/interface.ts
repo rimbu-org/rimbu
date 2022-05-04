@@ -1,4 +1,6 @@
 import type { IndexRange, TraverseState, Update } from '@rimbu/common';
+import type { Stream } from '@rimbu/stream';
+
 import type {
   Block,
   BlockBuilder,
@@ -6,7 +8,6 @@ import type {
   ListContext,
   NonLeafBuilder,
 } from '@rimbu/list/custom';
-import type { Stream } from '@rimbu/stream';
 
 export interface NonLeaf<T, C extends Block<any, C> = any> {
   readonly length: number;

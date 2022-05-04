@@ -1,5 +1,6 @@
 import { Arr, RimbuError } from '@rimbu/base';
 import { OptLazy, TraverseState, Update } from '@rimbu/common';
+
 import type { List } from '@rimbu/list';
 import type {
   BlockBuilder,

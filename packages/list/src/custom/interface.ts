@@ -1,6 +1,7 @@
 import type { ArrayNonEmpty, Reducer, StringNonEmpty } from '@rimbu/common';
-import type { List } from '@rimbu/list';
 import type { StreamSource } from '@rimbu/stream';
+
+import type { List } from '@rimbu/list';
 
 export interface ListFactory {
   /**
