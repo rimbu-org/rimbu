@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/list",
-  "version": "0.10.6",
+  "version": "0.10.7",
   "description": "An efficient immutable ordered sequence of elements akin to a Vector",
   "keywords": [
     "list",
