@@ -14,17 +14,17 @@ import type {
 } from '@rimbu/list/custom';
 import {
   CacheMap,
-  Empty,
-  GenBuilder,
+  createEmptyList,
   LeafBlock,
-  LeafBlockBuilder,
-  LeafTree,
-  LeafTreeBuilder,
-  NonLeafBlock,
-  NonLeafBlockBuilder,
-  NonLeafTree,
-  NonLeafTreeBuilder,
   ReversedLeafBlock,
+  LeafTree,
+  NonLeafBlock,
+  NonLeafTree,
+  GenBuilder,
+  LeafBlockBuilder,
+  NonLeafBlockBuilder,
+  LeafTreeBuilder,
+  NonLeafTreeBuilder,
 } from '@rimbu/list/custom';
 
 export class ListContext implements List.Context {
@@ -72,7 +72,7 @@ export class ListContext implements List.Context {
     RimbuError.throwInvalidStateError();
   }
 
-  readonly _empty: List<any> = new Empty(this);
+  readonly _empty: List<any> = createEmptyList(this);
 
   empty = <T>(): List<T> => {
     return this._empty;

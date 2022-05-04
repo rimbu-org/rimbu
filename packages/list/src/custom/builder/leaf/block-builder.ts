@@ -2,8 +2,8 @@ import { Arr } from '@rimbu/base';
 import { OptLazy, TraverseState, Update } from '@rimbu/common';
 
 import type {
-  BlockBuilder,
   LeafBlock,
+  BlockBuilder,
   LeafBuilder,
   ListContext,
 } from '@rimbu/list/custom';
