@@ -10,12 +10,18 @@ import {
   TraverseState,
   Update,
 } from '../../../common/mod.ts';
+
+import { Stream, StreamSource } from '../../../stream/mod.ts';
+import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
+
 import type { SortedMap } from '../../../sorted/map/index.ts';
 import type {
   SortedMapBuilder,
   SortedMapContext,
 } from '../../../sorted/map-custom/index.ts';
+
 import {
+  SortedIndex,
   innerDeleteMax,
   innerDeleteMin,
   innerDropInternal,
@@ -41,11 +47,8 @@ import {
   leafMutateJoinRight,
   leafMutateSplitRight,
   SortedEmpty,
-  SortedIndex,
   SortedNonEmptyBase,
-} from '../../../sorted/map-custom/index.ts';
-import { Stream, StreamSource } from '../../../stream/mod.ts';
-import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
+} from '../../common/index.ts';
 
 export class SortedMapEmpty<K = any, V = any>
   extends SortedEmpty

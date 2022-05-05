@@ -1,8 +1,11 @@
 import type { RSet } from '../../../collection-types/set/index.ts';
 import type { RSetBase } from '../../../collection-types/set-custom/index.ts';
-import { Comp, IndexRange, OptLazy, Range } from '../../../common/mod.ts';
-import { SortedSetContext, SortedSetCreators } from '../../../sorted/set-custom/index.ts';
+import type { IndexRange, OptLazy, Range } from '../../../common/mod.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
+
+import type { SortedSetCreators } from '../../../sorted/set-custom/index.ts';
+
+import { createSortedSetContext } from '../../../sorted/set-custom/index.ts';
 
 /**
  * A type-invariant immutable Set of value type T.
@@ -290,21 +293,11 @@ export namespace SortedSet {
   }
 }
 
-function createContext<UT>(options?: {
-  comp?: Comp<UT>;
-  blockSizeBits?: number;
-}): SortedSet.Context<UT> {
-  return new SortedSetContext<UT>(
-    options?.blockSizeBits ?? 5,
-    options?.comp ?? Comp.defaultComp()
-  );
-}
-
-const _defaultContext: SortedSet.Context<any> = createContext();
+const _defaultContext: SortedSet.Context<any> = createSortedSetContext();
 
 export const SortedSet: SortedSetCreators = {
   ..._defaultContext,
-  createContext,
+  createContext: createSortedSetContext,
   defaultContext<UT>(): SortedSet.Context<UT> {
     return _defaultContext;
   },

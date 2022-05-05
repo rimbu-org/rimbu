@@ -2,6 +2,7 @@ import { Arr, RimbuError } from '@rimbu/base';
 import { EmptyBase, NonEmptyBase } from '@rimbu/collection-types/map-custom';
 import { IndexRange, OptLazy, TraverseState } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
+
 import { SortedIndex } from '.';
 
 export class SortedEmpty extends EmptyBase {

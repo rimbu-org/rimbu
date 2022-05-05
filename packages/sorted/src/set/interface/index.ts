@@ -1,8 +1,11 @@
 import type { RSet } from '@rimbu/collection-types/set';
 import type { RSetBase } from '@rimbu/collection-types/set-custom';
-import { Comp, IndexRange, OptLazy, Range } from '@rimbu/common';
-import { SortedSetContext, SortedSetCreators } from '@rimbu/sorted/set-custom';
+import type { IndexRange, OptLazy, Range } from '@rimbu/common';
 import type { Stream, Streamable } from '@rimbu/stream';
+
+import type { SortedSetCreators } from '@rimbu/sorted/set-custom';
+
+import { createSortedSetContext } from '@rimbu/sorted/set-custom';
 
 /**
  * A type-invariant immutable Set of value type T.
@@ -290,21 +293,11 @@ export namespace SortedSet {
   }
 }
 
-function createContext<UT>(options?: {
-  comp?: Comp<UT>;
-  blockSizeBits?: number;
-}): SortedSet.Context<UT> {
-  return new SortedSetContext<UT>(
-    options?.blockSizeBits ?? 5,
-    options?.comp ?? Comp.defaultComp()
-  );
-}
-
-const _defaultContext: SortedSet.Context<any> = createContext();
+const _defaultContext: SortedSet.Context<any> = createSortedSetContext();
 
 export const SortedSet: SortedSetCreators = {
   ..._defaultContext,
-  createContext,
+  createContext: createSortedSetContext,
   defaultContext<UT>(): SortedSet.Context<UT> {
     return _defaultContext;
   },

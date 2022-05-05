@@ -1,7 +1,10 @@
 import type { RMapBase } from '@rimbu/collection-types/map-custom';
-import { Comp, IndexRange, OptLazy, Range } from '@rimbu/common';
-import { SortedMapContext, SortedMapCreators } from '@rimbu/sorted/map-custom';
 import type { Stream, Streamable } from '@rimbu/stream';
+import type { Comp, IndexRange, OptLazy, Range } from '@rimbu/common';
+
+import type { SortedMapCreators } from '@rimbu/sorted/map-custom';
+
+import { createSortedMapContext } from '@rimbu/sorted/map-custom';
 
 /**
  * A type-invariant immutable Map of key type K, and value type V.
@@ -467,21 +470,11 @@ export namespace SortedMap {
   }
 }
 
-function createContext<UK>(options?: {
-  comp?: Comp<UK>;
-  blockSizeBits?: number;
-}): SortedMap.Context<UK> {
-  return new SortedMapContext<UK>(
-    options?.blockSizeBits ?? 5,
-    options?.comp ?? Comp.defaultComp()
-  );
-}
-
-const _defaultContext: SortedMap.Context<any> = createContext();
+const _defaultContext: SortedMap.Context<any> = createSortedMapContext();
 
 export const SortedMap: SortedMapCreators = {
   ..._defaultContext,
-  createContext,
+  createContext: createSortedMapContext,
   defaultContext<UK>(): SortedMap.Context<UK> {
     return _defaultContext;
   },

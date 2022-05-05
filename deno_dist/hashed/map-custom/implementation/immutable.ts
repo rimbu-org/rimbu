@@ -9,11 +9,12 @@ import {
   TraverseState,
   Update,
 } from '../../../common/mod.ts';
-import type { HashMap } from '../../../hashed/map/index.ts';
-import type { HashMapContext } from '../../../hashed/map-custom/index.ts';
 import type { List } from '../../../list/mod.ts';
 import { Stream, StreamSource } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
+
+import type { HashMap } from '../../../hashed/map/index.ts';
+import type { HashMapContext } from '../../../hashed/map-custom/index.ts';
 
 export class HashMapEmpty<K = any, V = any>
   extends EmptyBase

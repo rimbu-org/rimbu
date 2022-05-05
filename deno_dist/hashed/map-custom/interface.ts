@@ -1,7 +1,8 @@
 import type { RMapBase } from '../../collection-types/map-custom/index.ts';
 import type { Eq } from '../../common/mod.ts';
-import type { Hasher, HashMap } from '../../hashed/map/index.ts';
 import type { List } from '../../list/mod.ts';
+
+import type { Hasher, HashMap } from '../../hashed/map/index.ts';
 
 export interface HashMapCreators extends RMapBase.Factory<HashMap.Types> {
   /**

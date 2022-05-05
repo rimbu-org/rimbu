@@ -1,15 +1,11 @@
 import type { RelatedTo } from '@rimbu/common';
-import type { SortedSet } from '@rimbu/sorted/set';
-import {
-  SortedBuilder,
-  SortedIndex,
-  SortedSetContext,
-  SortedSetEmpty,
-  SortedSetInner,
-  SortedSetLeaf,
-  SortedSetNode,
-} from '@rimbu/sorted/set-custom';
+
 import { Stream, StreamSource } from '@rimbu/stream';
+
+import type { SortedSet } from '@rimbu/sorted/set';
+import type { SortedSetContext, SortedSetNode } from '@rimbu/sorted/set-custom';
+
+import { SortedIndex, SortedBuilder } from '../../common';
 
 export class SortedSetBuilder<T> extends SortedBuilder<T> {
   constructor(
@@ -34,16 +30,14 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
   prepareMutate(): void {
     if (undefined === this._entries) {
       if (undefined !== this.source) {
-        if (this.source instanceof SortedSetEmpty) {
+        if (this.context.isSortedSetEmpty(this.source)) {
           this._entries = [];
           this._children = [];
-        } else if (this.source instanceof SortedSetLeaf) {
-          const leaf = this.source as SortedSetLeaf<T>;
-          this._entries = leaf.entries.slice();
-        } else if (this.source instanceof SortedSetInner) {
-          const inner = this.source as SortedSetInner<T>;
-          this._entries = inner.entries.slice();
-          this._children = inner.children.map(
+        } else if (this.context.isSortedSetLeaf<T>(this.source)) {
+          this._entries = this.source.entries.slice();
+        } else if (this.context.isSortedSetInner<T>(this.source)) {
+          this._entries = this.source.entries.slice();
+          this._children = this.source.children.map(
             (child): SortedSetBuilder<T> => this.createNew(child)
           );
         }

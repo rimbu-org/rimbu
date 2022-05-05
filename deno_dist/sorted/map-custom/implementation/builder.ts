@@ -1,17 +1,12 @@
 import { Token } from '../../../base/mod.ts';
 import { OptLazy, OptLazyOr, RelatedTo, Update } from '../../../common/mod.ts';
-import type { SortedMap } from '../../../sorted/map/index.ts';
-import {
-  SortedBuilder,
-  SortedIndex,
-  SortedMapContext,
-  SortedMapEmpty,
-  SortedMapInner,
-  SortedMapLeaf,
-  SortedMapNode,
-} from '../../../sorted/map-custom/index.ts';
 import { Stream, StreamSource } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
+
+import type { SortedMap } from '../../../sorted/map/index.ts';
+import type { SortedMapNode, SortedMapContext } from '../../../sorted/map-custom/index.ts';
+
+import { SortedIndex, SortedBuilder } from '../../common/index.ts';
 
 export class SortedMapBuilder<K, V>
   extends SortedBuilder<readonly [K, V]>
@@ -45,16 +40,14 @@ export class SortedMapBuilder<K, V>
   prepareMutate(): void {
     if (undefined === this._entries) {
       if (undefined !== this.source) {
-        if (this.source instanceof SortedMapEmpty) {
+        if (this.context.isSortedMapEmpty(this.source)) {
           this._entries = [];
           this._children = [];
-        } else if (this.source instanceof SortedMapLeaf) {
-          const leaf = this.source as SortedMapLeaf<K, V>;
-          this._entries = leaf.entries.slice();
-        } else if (this.source instanceof SortedMapInner) {
-          const inner = this.source as SortedMapInner<K, V>;
-          this._entries = inner.entries.slice();
-          this._children = inner.children.map(
+        } else if (this.context.isSortedMapLeaf<K, V>(this.source)) {
+          this._entries = this.source.entries.slice();
+        } else if (this.context.isSortedMapInner<K, V>(this.source)) {
+          this._entries = this.source.entries.slice();
+          this._children = this.source.children.map(
             (child): SortedMapBuilder<K, V> => this.createNew(child)
           );
         }

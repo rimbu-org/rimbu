@@ -1,11 +1,12 @@
 import { Arr, RimbuError } from '../../../base/mod.ts';
 import { EmptyBase, NonEmptyBase } from '../../../collection-types/set-custom/index.ts';
 import { ArrayNonEmpty, RelatedTo, ToJSON, TraverseState } from '../../../common/mod.ts';
-import type { HashSet } from '../../../hashed/set/index.ts';
-import type { HashSetContext } from '../../../hashed/set-custom/index.ts';
 import type { List } from '../../../list/mod.ts';
 import { Stream, StreamSource } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
+
+import type { HashSet } from '../../../hashed/set/index.ts';
+import type { HashSetContext } from '../../../hashed/set-custom/index.ts';
 
 export class HashSetEmpty<T = any> extends EmptyBase implements HashSet<T> {
   readonly addAll: any;

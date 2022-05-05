@@ -1,17 +1,16 @@
 import { Arr, RimbuError } from '@rimbu/base';
 import { RelatedTo, TraverseState } from '@rimbu/common';
+import { List } from '@rimbu/list';
+import { Stream, StreamSource } from '@rimbu/stream';
+
 import type { HashSet } from '@rimbu/hashed/set';
 import type {
   HashSetBlock,
   HashSetCollision,
   HashSetContext,
 } from '@rimbu/hashed/set-custom';
-import {
-  BlockBuilderBase,
-  CollisionBuilderBase,
-} from '@rimbu/hashed/set-custom';
-import { List } from '@rimbu/list';
-import { Stream, StreamSource } from '@rimbu/stream';
+
+import { BlockBuilderBase, CollisionBuilderBase } from '../../base';
 
 export type SetBlockBuilderEntry<T> =
   | HashSetBlockBuilder<T>

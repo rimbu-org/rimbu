@@ -1,12 +1,14 @@
 import { RMapBase } from '@rimbu/collection-types/map-custom';
-import type { Comp } from '@rimbu/common';
+import { Comp } from '@rimbu/common';
+
 import type { SortedMap } from '@rimbu/sorted/map';
+
 import {
-  SortedMapBuilder,
   SortedMapEmpty,
-  SortedMapInner,
-  SortedMapLeaf,
   SortedMapNode,
+  SortedMapLeaf,
+  SortedMapInner,
+  SortedMapBuilder,
 } from '@rimbu/sorted/map-custom';
 
 export class SortedMapContext<UK>
@@ -75,4 +77,26 @@ export class SortedMapContext<UK>
   ): SortedMapInner<UK, V> {
     return new SortedMapInner(this, entries, children, size);
   }
+
+  isSortedMapEmpty(obj: any): obj is SortedMapEmpty {
+    return obj instanceof SortedMapEmpty;
+  }
+
+  isSortedMapLeaf<K, V>(obj: any): obj is SortedMapLeaf<K, V> {
+    return obj instanceof SortedMapLeaf;
+  }
+
+  isSortedMapInner<K, V>(obj: any): obj is SortedMapInner<K, V> {
+    return obj instanceof SortedMapInner;
+  }
+}
+
+export function createSortedMapContext<UK>(options?: {
+  comp?: Comp<UK>;
+  blockSizeBits?: number;
+}): SortedMap.Context<UK> {
+  return new SortedMapContext<UK>(
+    options?.blockSizeBits ?? 5,
+    options?.comp ?? Comp.defaultComp()
+  );
 }

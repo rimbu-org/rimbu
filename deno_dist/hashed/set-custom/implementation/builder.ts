@@ -1,17 +1,16 @@
 import { Arr, RimbuError } from '../../../base/mod.ts';
 import { RelatedTo, TraverseState } from '../../../common/mod.ts';
+import { List } from '../../../list/mod.ts';
+import { Stream, StreamSource } from '../../../stream/mod.ts';
+
 import type { HashSet } from '../../../hashed/set/index.ts';
 import type {
   HashSetBlock,
   HashSetCollision,
   HashSetContext,
 } from '../../../hashed/set-custom/index.ts';
-import {
-  BlockBuilderBase,
-  CollisionBuilderBase,
-} from '../../../hashed/set-custom/index.ts';
-import { List } from '../../../list/mod.ts';
-import { Stream, StreamSource } from '../../../stream/mod.ts';
+
+import { BlockBuilderBase, CollisionBuilderBase } from '../../base/index.ts';
 
 export type SetBlockBuilderEntry<T> =
   | HashSetBlockBuilder<T>

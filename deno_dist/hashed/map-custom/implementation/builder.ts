@@ -6,6 +6,10 @@ import {
   TraverseState,
   Update,
 } from '../../../common/mod.ts';
+import { List } from '../../../list/mod.ts';
+import { Stream, StreamSource } from '../../../stream/mod.ts';
+import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
+
 import type { HashMap } from '../../../hashed/map/index.ts';
 import type {
   HashMapBlock,
@@ -13,13 +17,8 @@ import type {
   HashMapContext,
   MapEntrySet,
 } from '../../../hashed/map-custom/index.ts';
-import {
-  BlockBuilderBase,
-  CollisionBuilderBase,
-} from '../../../hashed/map-custom/index.ts';
-import { List } from '../../../list/mod.ts';
-import { Stream, StreamSource } from '../../../stream/mod.ts';
-import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
+
+import { BlockBuilderBase, CollisionBuilderBase } from '../../base/index.ts';
 
 export type MapBlockBuilderEntry<K, V> =
   | HashMapBlockBuilder<K, V>

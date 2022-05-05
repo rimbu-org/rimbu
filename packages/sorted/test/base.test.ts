@@ -1,4 +1,4 @@
-import type { LeafMutateSource } from '@rimbu/sorted/set-custom';
+import type { LeafMutateSource } from '../src/common';
 import {
   leafDeleteMax,
   leafDeleteMin,
@@ -10,7 +10,7 @@ import {
   leafMutateJoinRight,
   leafMutateSplitRight,
   SortedEmpty,
-} from '@rimbu/sorted/set-custom';
+} from '../src/common';
 
 function createSource<T>(values: T[]): LeafMutateSource<any, T> {
   return {

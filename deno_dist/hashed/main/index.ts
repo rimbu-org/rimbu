@@ -10,5 +10,6 @@
  * - [`@rimbu/hashed/set`](./hashed/set)<br/>
  */
 
+export * from '../common/index.ts';
 export * from '../../hashed/map/index.ts';
 export * from '../../hashed/set/index.ts';

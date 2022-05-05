@@ -1,4 +1,4 @@
-import { SortedIndex } from '@rimbu/sorted/set-custom';
+import { SortedIndex } from '../src/common';
 
 describe('SortedIndex', () => {
   it('firstChild', () => {

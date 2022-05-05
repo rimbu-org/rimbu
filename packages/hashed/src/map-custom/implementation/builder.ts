@@ -6,6 +6,10 @@ import {
   TraverseState,
   Update,
 } from '@rimbu/common';
+import { List } from '@rimbu/list';
+import { Stream, StreamSource } from '@rimbu/stream';
+import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
+
 import type { HashMap } from '@rimbu/hashed/map';
 import type {
   HashMapBlock,
@@ -13,13 +17,8 @@ import type {
   HashMapContext,
   MapEntrySet,
 } from '@rimbu/hashed/map-custom';
-import {
-  BlockBuilderBase,
-  CollisionBuilderBase,
-} from '@rimbu/hashed/map-custom';
-import { List } from '@rimbu/list';
-import { Stream, StreamSource } from '@rimbu/stream';
-import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
+
+import { BlockBuilderBase, CollisionBuilderBase } from '../../base';
 
 export type MapBlockBuilderEntry<K, V> =
   | HashMapBlockBuilder<K, V>

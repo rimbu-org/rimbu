@@ -1,7 +1,10 @@
 import type { RMapBase } from '../../../collection-types/map-custom/index.ts';
-import { Comp, IndexRange, OptLazy, Range } from '../../../common/mod.ts';
-import { SortedMapContext, SortedMapCreators } from '../../../sorted/map-custom/index.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
+import type { Comp, IndexRange, OptLazy, Range } from '../../../common/mod.ts';
+
+import type { SortedMapCreators } from '../../../sorted/map-custom/index.ts';
+
+import { createSortedMapContext } from '../../../sorted/map-custom/index.ts';
 
 /**
  * A type-invariant immutable Map of key type K, and value type V.
@@ -467,21 +470,11 @@ export namespace SortedMap {
   }
 }
 
-function createContext<UK>(options?: {
-  comp?: Comp<UK>;
-  blockSizeBits?: number;
-}): SortedMap.Context<UK> {
-  return new SortedMapContext<UK>(
-    options?.blockSizeBits ?? 5,
-    options?.comp ?? Comp.defaultComp()
-  );
-}
-
-const _defaultContext: SortedMap.Context<any> = createContext();
+const _defaultContext: SortedMap.Context<any> = createSortedMapContext();
 
 export const SortedMap: SortedMapCreators = {
   ..._defaultContext,
-  createContext,
+  createContext: createSortedMapContext,
   defaultContext<UK>(): SortedMap.Context<UK> {
     return _defaultContext;
   },

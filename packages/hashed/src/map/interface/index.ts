@@ -1,11 +1,12 @@
 import type { RMap } from '@rimbu/collection-types';
 import type { RMapBase } from '@rimbu/collection-types/map-custom';
-import { Eq } from '@rimbu/common';
-import { Hasher } from '@rimbu/hashed/map';
-import { HashMapContext } from '@rimbu/hashed/map-custom';
-import { List } from '@rimbu/list';
 import type { Stream, Streamable } from '@rimbu/stream';
+
 import type { HashMapCreators } from '@rimbu/hashed/map-custom';
+import type { Hasher } from '@rimbu/hashed/map';
+import type { Eq } from '@rimbu/common';
+
+import { createHashMapContext } from '@rimbu/hashed/map-custom';
 
 /**
  * A type-invariant immutable Map of key type K, and value type V.
@@ -87,25 +88,11 @@ export namespace HashMap {
   }
 }
 
-function createContext<UK>(options?: {
-  hasher?: Hasher<UK>;
-  eq?: Eq<UK>;
-  blockSizeBits?: number;
-  listContext?: List.Context;
-}): HashMap.Context<UK> {
-  return new HashMapContext(
-    options?.hasher ?? Hasher.defaultHasher(),
-    options?.eq ?? Eq.defaultEq(),
-    options?.blockSizeBits ?? 5,
-    options?.listContext ?? List.defaultContext()
-  );
-}
-
-const _defaultContext: HashMap.Context<any> = createContext();
+const _defaultContext: HashMap.Context<any> = createHashMapContext();
 
 export const HashMap: HashMapCreators = {
   ..._defaultContext,
-  createContext,
+  createContext: createHashMapContext,
   defaultContext<UK>(): HashMap.Context<UK> {
     return _defaultContext;
   },

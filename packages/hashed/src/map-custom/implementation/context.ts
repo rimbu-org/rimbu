@@ -1,17 +1,21 @@
 import { RMapBase } from '@rimbu/collection-types/map-custom';
-import type { Eq } from '@rimbu/common';
+import { Eq } from '@rimbu/common';
+import { List } from '@rimbu/list';
+
 import type { HashMap } from '@rimbu/hashed/map';
-import {
-  HashMapBlock,
-  HashMapBlockBuilder,
-  HashMapCollision,
-  HashMapEmpty,
-  HashMapNonEmptyBase,
+import type {
   MapBlockBuilderEntry,
   MapEntrySet,
 } from '@rimbu/hashed/map-custom';
-import type { List } from '@rimbu/list';
-import type { Hasher } from '../../common';
+
+import { Hasher } from '../../common';
+import {
+  HashMapNonEmptyBase,
+  HashMapEmpty,
+  HashMapBlock,
+  HashMapCollision,
+  HashMapBlockBuilder,
+} from '@rimbu/hashed/map-custom';
 
 export class HashMapContext<UK>
   extends RMapBase.ContextBase<UK, HashMap.Types>
@@ -100,4 +104,18 @@ export class HashMapContext<UK>
   ): obj is HashMapBlockBuilder<K, V> {
     return obj instanceof HashMapBlockBuilder;
   }
+}
+
+export function createHashMapContext<UK>(options?: {
+  hasher?: Hasher<UK>;
+  eq?: Eq<UK>;
+  blockSizeBits?: number;
+  listContext?: List.Context;
+}): HashMap.Context<UK> {
+  return new HashMapContext(
+    options?.hasher ?? Hasher.defaultHasher(),
+    options?.eq ?? Eq.defaultEq(),
+    options?.blockSizeBits ?? 5,
+    options?.listContext ?? List.defaultContext()
+  );
 }

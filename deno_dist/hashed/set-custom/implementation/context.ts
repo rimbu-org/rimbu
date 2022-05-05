@@ -1,18 +1,22 @@
 import { RSetBase } from '../../../collection-types/set-custom/index.ts';
-import type { Eq } from '../../../common/mod.ts';
+import { Eq } from '../../../common/mod.ts';
+import { List } from '../../../list/mod.ts';
+import type { StreamSource } from '../../../stream/mod.ts';
+
 import type { HashSet } from '../../../hashed/set/index.ts';
-import {
-  HashSetBlock,
-  HashSetBlockBuilder,
-  HashSetCollision,
-  HashSetEmpty,
-  HashSetNonEmptyBase,
+import type {
   SetBlockBuilderEntry,
   SetEntrySet,
 } from '../../../hashed/set-custom/index.ts';
-import type { List } from '../../../list/mod.ts';
-import type { StreamSource } from '../../../stream/mod.ts';
-import type { Hasher } from '../../common/index.ts';
+
+import { Hasher } from '../../common/index.ts';
+import {
+  HashSetNonEmptyBase,
+  HashSetEmpty,
+  HashSetBlock,
+  HashSetCollision,
+  HashSetBlockBuilder,
+} from '../../../hashed/set-custom/index.ts';
 
 export class HashSetContext<UT>
   extends RSetBase.ContextBase<UT, HashSet.Types>
@@ -110,4 +114,18 @@ export class HashSetContext<UT>
   ): obj is HashSetBlockBuilder<T> {
     return obj instanceof HashSetBlockBuilder;
   }
+}
+
+export function createHashSetContext<UT>(options?: {
+  hasher?: Hasher<UT>;
+  eq?: Eq<UT>;
+  blockSizeBits?: number;
+  listContext?: List.Context;
+}): HashSet.Context<UT> {
+  return new HashSetContext(
+    options?.hasher ?? Hasher.defaultHasher(),
+    options?.eq ?? Eq.defaultEq(),
+    options?.blockSizeBits ?? 5,
+    options?.listContext ?? List.defaultContext()
+  );
 }

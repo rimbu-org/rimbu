@@ -1,18 +1,22 @@
 import { RSetBase } from '@rimbu/collection-types/set-custom';
-import type { Eq } from '@rimbu/common';
+import { Eq } from '@rimbu/common';
+import { List } from '@rimbu/list';
+import type { StreamSource } from '@rimbu/stream';
+
 import type { HashSet } from '@rimbu/hashed/set';
-import {
-  HashSetBlock,
-  HashSetBlockBuilder,
-  HashSetCollision,
-  HashSetEmpty,
-  HashSetNonEmptyBase,
+import type {
   SetBlockBuilderEntry,
   SetEntrySet,
 } from '@rimbu/hashed/set-custom';
-import type { List } from '@rimbu/list';
-import type { StreamSource } from '@rimbu/stream';
-import type { Hasher } from '../../common';
+
+import { Hasher } from '../../common';
+import {
+  HashSetNonEmptyBase,
+  HashSetEmpty,
+  HashSetBlock,
+  HashSetCollision,
+  HashSetBlockBuilder,
+} from '@rimbu/hashed/set-custom';
 
 export class HashSetContext<UT>
   extends RSetBase.ContextBase<UT, HashSet.Types>
@@ -110,4 +114,18 @@ export class HashSetContext<UT>
   ): obj is HashSetBlockBuilder<T> {
     return obj instanceof HashSetBlockBuilder;
   }
+}
+
+export function createHashSetContext<UT>(options?: {
+  hasher?: Hasher<UT>;
+  eq?: Eq<UT>;
+  blockSizeBits?: number;
+  listContext?: List.Context;
+}): HashSet.Context<UT> {
+  return new HashSetContext(
+    options?.hasher ?? Hasher.defaultHasher(),
+    options?.eq ?? Eq.defaultEq(),
+    options?.blockSizeBits ?? 5,
+    options?.listContext ?? List.defaultContext()
+  );
 }

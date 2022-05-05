@@ -8,9 +8,14 @@ import {
   ToJSON,
   TraverseState,
 } from '../../../common/mod.ts';
+import { Stream, StreamSource } from '../../../stream/mod.ts';
+import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
+
 import type { SortedSet } from '../../../sorted/set/index.ts';
 import type { SortedSetContext } from '../../../sorted/set-custom/index.ts';
+
 import {
+  SortedIndex,
   innerDeleteMax,
   innerDeleteMin,
   innerDropInternal,
@@ -36,11 +41,8 @@ import {
   leafMutateJoinRight,
   leafMutateSplitRight,
   SortedEmpty,
-  SortedIndex,
   SortedNonEmptyBase,
-} from '../../../sorted/set-custom/index.ts';
-import { Stream, StreamSource } from '../../../stream/mod.ts';
-import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
+} from '../../common/index.ts';
 
 export class SortedSetEmpty<T = any>
   extends SortedEmpty
@@ -83,7 +85,10 @@ export class SortedSetEmpty<T = any>
   }
 
   union(other: StreamSource<T>): SortedSet<T> | any {
-    if (other instanceof SortedSetLeaf || other instanceof SortedSetNode) {
+    if (
+      this.context.isSortedSetLeaf(other) ||
+      this.context.isSortedSetNode(other)
+    ) {
       if (other.context === this.context) return other;
     }
 
@@ -278,7 +283,7 @@ export abstract class SortedSetNode<T>
     const otherIter = Stream.from(other)[Symbol.iterator]();
     const done = Symbol('Done');
 
-    if (other instanceof SortedSetNode) {
+    if (this.context.isSortedSetNode(other)) {
       const thisIt = this[Symbol.iterator]();
       let thisValue: T | typeof done = thisIt.fastNext(done);
       let otherValue: T | typeof done = otherIter.fastNext(done);

@@ -1,5 +1,6 @@
 import type { RSetBase } from '../../collection-types/set-custom/index.ts';
 import type { Comp } from '../../common/mod.ts';
+
 import type { SortedSet } from '../../sorted/set/index.ts';
 
 export interface SortedSetCreators extends RSetBase.Factory<SortedSet.Types> {

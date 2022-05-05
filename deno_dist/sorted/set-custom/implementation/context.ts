@@ -1,6 +1,8 @@
 import { RSetBase } from '../../../collection-types/set-custom/index.ts';
-import type { Comp } from '../../../common/mod.ts';
+import { Comp } from '../../../common/mod.ts';
+
 import type { SortedSet } from '../../../sorted/set/index.ts';
+
 import {
   SortedSetBuilder,
   SortedSetEmpty,
@@ -77,4 +79,30 @@ export class SortedSetContext<UT>
       size
     );
   }
+
+  isSortedSetEmpty(obj: any): obj is SortedSetEmpty {
+    return obj instanceof SortedSetEmpty;
+  }
+
+  isSortedSetLeaf<T>(obj: any): obj is SortedSetLeaf<T> {
+    return obj instanceof SortedSetLeaf;
+  }
+
+  isSortedSetInner<T>(obj: any): obj is SortedSetInner<T> {
+    return obj instanceof SortedSetInner;
+  }
+
+  isSortedSetNode<T>(obj: any): obj is SortedSetNode<T> {
+    return obj instanceof SortedSetNode;
+  }
+}
+
+export function createSortedSetContext<UT>(options?: {
+  comp?: Comp<UT>;
+  blockSizeBits?: number;
+}): SortedSet.Context<UT> {
+  return new SortedSetContext<UT>(
+    options?.blockSizeBits ?? 5,
+    options?.comp ?? Comp.defaultComp()
+  );
 }

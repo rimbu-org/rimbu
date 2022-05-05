@@ -8,9 +8,14 @@ import {
   ToJSON,
   TraverseState,
 } from '@rimbu/common';
+import { Stream, StreamSource } from '@rimbu/stream';
+import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
+
 import type { SortedSet } from '@rimbu/sorted/set';
 import type { SortedSetContext } from '@rimbu/sorted/set-custom';
+
 import {
+  SortedIndex,
   innerDeleteMax,
   innerDeleteMin,
   innerDropInternal,
@@ -36,11 +41,8 @@ import {
   leafMutateJoinRight,
   leafMutateSplitRight,
   SortedEmpty,
-  SortedIndex,
   SortedNonEmptyBase,
-} from '@rimbu/sorted/set-custom';
-import { Stream, StreamSource } from '@rimbu/stream';
-import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
+} from '../../common';
 
 export class SortedSetEmpty<T = any>
   extends SortedEmpty
@@ -83,7 +85,10 @@ export class SortedSetEmpty<T = any>
   }
 
   union(other: StreamSource<T>): SortedSet<T> | any {
-    if (other instanceof SortedSetLeaf || other instanceof SortedSetNode) {
+    if (
+      this.context.isSortedSetLeaf(other) ||
+      this.context.isSortedSetNode(other)
+    ) {
       if (other.context === this.context) return other;
     }
 
@@ -278,7 +283,7 @@ export abstract class SortedSetNode<T>
     const otherIter = Stream.from(other)[Symbol.iterator]();
     const done = Symbol('Done');
 
-    if (other instanceof SortedSetNode) {
+    if (this.context.isSortedSetNode(other)) {
       const thisIt = this[Symbol.iterator]();
       let thisValue: T | typeof done = thisIt.fastNext(done);
       let otherValue: T | typeof done = otherIter.fastNext(done);

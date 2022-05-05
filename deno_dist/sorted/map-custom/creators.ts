@@ -1,5 +1,6 @@
 import type { RMapBase } from '../../collection-types/map-custom/index.ts';
 import type { Comp } from '../../common/mod.ts';
+
 import type { SortedMap } from '../../sorted/map/index.ts';
 
 export interface SortedMapCreators extends RMapBase.Factory<SortedMap.Types> {

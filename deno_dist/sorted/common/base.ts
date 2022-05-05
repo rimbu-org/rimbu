@@ -2,6 +2,7 @@ import { Arr, RimbuError } from '../../base/mod.ts';
 import { EmptyBase, NonEmptyBase } from '../../collection-types/map-custom/index.ts';
 import { IndexRange, OptLazy, TraverseState } from '../../common/mod.ts';
 import { Stream } from '../../stream/mod.ts';
+
 import { SortedIndex } from './index.ts';
 
 export class SortedEmpty extends EmptyBase {

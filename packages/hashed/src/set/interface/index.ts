@@ -1,10 +1,11 @@
 import type { RSetBase } from '@rimbu/collection-types/set-custom';
-import { Eq } from '@rimbu/common';
-import { Hasher } from '@rimbu/hashed/set';
-import { HashSetContext } from '@rimbu/hashed/set-custom';
-import { List } from '@rimbu/list';
+import type { Eq } from '@rimbu/common';
 import type { Streamable } from '@rimbu/stream';
+
 import type { HashSetCreators } from '@rimbu/hashed/set-custom';
+
+import type { Hasher } from '../../common';
+import { createHashSetContext } from '@rimbu/hashed/set-custom';
 
 /**
  * A type-invariant immutable Set of value type T.
@@ -78,25 +79,11 @@ export namespace HashSet {
   }
 }
 
-function createContext<UT>(options?: {
-  hasher?: Hasher<UT>;
-  eq?: Eq<UT>;
-  blockSizeBits?: number;
-  listContext?: List.Context;
-}): HashSet.Context<UT> {
-  return new HashSetContext(
-    options?.hasher ?? Hasher.defaultHasher(),
-    options?.eq ?? Eq.defaultEq(),
-    options?.blockSizeBits ?? 5,
-    options?.listContext ?? List.defaultContext()
-  );
-}
-
-const _defaultContext: HashSet.Context<any> = createContext();
+const _defaultContext: HashSet.Context<any> = createHashSetContext();
 
 export const HashSet: HashSetCreators = {
   ..._defaultContext,
-  createContext,
+  createContext: createHashSetContext,
   defaultContext<UT>(): HashSet.Context<UT> {
     return _defaultContext;
   },

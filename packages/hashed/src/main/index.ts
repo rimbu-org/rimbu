@@ -10,5 +10,6 @@
  * - [`@rimbu/hashed/set`](./hashed/set)<br/>
  */
 
+export * from '../common';
 export * from '@rimbu/hashed/map';
 export * from '@rimbu/hashed/set';

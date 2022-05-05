@@ -5,9 +5,8 @@ import {
   innerGetSubIndex,
   innerStreamSliceIndex,
   innerTakeInternal,
-  SortedSetContext,
-  SortedSetInner,
-} from '@rimbu/sorted/set-custom';
+} from '../src/common';
+import { SortedSetContext, SortedSetInner } from '@rimbu/sorted/set-custom';
 
 const context = new SortedSetContext<number>(2, Comp.defaultComp());
 

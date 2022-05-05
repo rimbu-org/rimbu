@@ -10,12 +10,18 @@ import {
   TraverseState,
   Update,
 } from '@rimbu/common';
+
+import { Stream, StreamSource } from '@rimbu/stream';
+import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
+
 import type { SortedMap } from '@rimbu/sorted/map';
 import type {
   SortedMapBuilder,
   SortedMapContext,
 } from '@rimbu/sorted/map-custom';
+
 import {
+  SortedIndex,
   innerDeleteMax,
   innerDeleteMin,
   innerDropInternal,
@@ -41,11 +47,8 @@ import {
   leafMutateJoinRight,
   leafMutateSplitRight,
   SortedEmpty,
-  SortedIndex,
   SortedNonEmptyBase,
-} from '@rimbu/sorted/map-custom';
-import { Stream, StreamSource } from '@rimbu/stream';
-import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
+} from '../../common';
 
 export class SortedMapEmpty<K = any, V = any>
   extends SortedEmpty

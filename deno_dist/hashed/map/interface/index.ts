@@ -1,11 +1,12 @@
 import type { RMap } from '../../../collection-types/mod.ts';
 import type { RMapBase } from '../../../collection-types/map-custom/index.ts';
-import { Eq } from '../../../common/mod.ts';
-import { Hasher } from '../../../hashed/map/index.ts';
-import { HashMapContext } from '../../../hashed/map-custom/index.ts';
-import { List } from '../../../list/mod.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
+
 import type { HashMapCreators } from '../../../hashed/map-custom/index.ts';
+import type { Hasher } from '../../../hashed/map/index.ts';
+import type { Eq } from '../../../common/mod.ts';
+
+import { createHashMapContext } from '../../../hashed/map-custom/index.ts';
 
 /**
  * A type-invariant immutable Map of key type K, and value type V.
@@ -87,25 +88,11 @@ export namespace HashMap {
   }
 }
 
-function createContext<UK>(options?: {
-  hasher?: Hasher<UK>;
-  eq?: Eq<UK>;
-  blockSizeBits?: number;
-  listContext?: List.Context;
-}): HashMap.Context<UK> {
-  return new HashMapContext(
-    options?.hasher ?? Hasher.defaultHasher(),
-    options?.eq ?? Eq.defaultEq(),
-    options?.blockSizeBits ?? 5,
-    options?.listContext ?? List.defaultContext()
-  );
-}
-
-const _defaultContext: HashMap.Context<any> = createContext();
+const _defaultContext: HashMap.Context<any> = createHashMapContext();
 
 export const HashMap: HashMapCreators = {
   ..._defaultContext,
-  createContext,
+  createContext: createHashMapContext,
   defaultContext<UK>(): HashMap.Context<UK> {
     return _defaultContext;
   },

@@ -1,17 +1,21 @@
 import { RMapBase } from '../../../collection-types/map-custom/index.ts';
-import type { Eq } from '../../../common/mod.ts';
+import { Eq } from '../../../common/mod.ts';
+import { List } from '../../../list/mod.ts';
+
 import type { HashMap } from '../../../hashed/map/index.ts';
-import {
-  HashMapBlock,
-  HashMapBlockBuilder,
-  HashMapCollision,
-  HashMapEmpty,
-  HashMapNonEmptyBase,
+import type {
   MapBlockBuilderEntry,
   MapEntrySet,
 } from '../../../hashed/map-custom/index.ts';
-import type { List } from '../../../list/mod.ts';
-import type { Hasher } from '../../common/index.ts';
+
+import { Hasher } from '../../common/index.ts';
+import {
+  HashMapNonEmptyBase,
+  HashMapEmpty,
+  HashMapBlock,
+  HashMapCollision,
+  HashMapBlockBuilder,
+} from '../../../hashed/map-custom/index.ts';
 
 export class HashMapContext<UK>
   extends RMapBase.ContextBase<UK, HashMap.Types>
@@ -100,4 +104,18 @@ export class HashMapContext<UK>
   ): obj is HashMapBlockBuilder<K, V> {
     return obj instanceof HashMapBlockBuilder;
   }
+}
+
+export function createHashMapContext<UK>(options?: {
+  hasher?: Hasher<UK>;
+  eq?: Eq<UK>;
+  blockSizeBits?: number;
+  listContext?: List.Context;
+}): HashMap.Context<UK> {
+  return new HashMapContext(
+    options?.hasher ?? Hasher.defaultHasher(),
+    options?.eq ?? Eq.defaultEq(),
+    options?.blockSizeBits ?? 5,
+    options?.listContext ?? List.defaultContext()
+  );
 }

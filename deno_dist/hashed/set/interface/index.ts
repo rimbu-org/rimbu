@@ -1,10 +1,11 @@
 import type { RSetBase } from '../../../collection-types/set-custom/index.ts';
-import { Eq } from '../../../common/mod.ts';
-import { Hasher } from '../../../hashed/set/index.ts';
-import { HashSetContext } from '../../../hashed/set-custom/index.ts';
-import { List } from '../../../list/mod.ts';
+import type { Eq } from '../../../common/mod.ts';
 import type { Streamable } from '../../../stream/mod.ts';
+
 import type { HashSetCreators } from '../../../hashed/set-custom/index.ts';
+
+import type { Hasher } from '../../common/index.ts';
+import { createHashSetContext } from '../../../hashed/set-custom/index.ts';
 
 /**
  * A type-invariant immutable Set of value type T.
@@ -78,25 +79,11 @@ export namespace HashSet {
   }
 }
 
-function createContext<UT>(options?: {
-  hasher?: Hasher<UT>;
-  eq?: Eq<UT>;
-  blockSizeBits?: number;
-  listContext?: List.Context;
-}): HashSet.Context<UT> {
-  return new HashSetContext(
-    options?.hasher ?? Hasher.defaultHasher(),
-    options?.eq ?? Eq.defaultEq(),
-    options?.blockSizeBits ?? 5,
-    options?.listContext ?? List.defaultContext()
-  );
-}
-
-const _defaultContext: HashSet.Context<any> = createContext();
+const _defaultContext: HashSet.Context<any> = createHashSetContext();
 
 export const HashSet: HashSetCreators = {
   ..._defaultContext,
-  createContext,
+  createContext: createHashSetContext,
   defaultContext<UT>(): HashSet.Context<UT> {
     return _defaultContext;
   },
