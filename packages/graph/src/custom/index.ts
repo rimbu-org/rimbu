@@ -17,11 +17,11 @@ export * from './valued/implementation/non-empty';
 export * from './common';
 
 // circular dependencies
-export * from './non-valued/implementation/builder';
 export * from './non-valued/implementation/empty';
+export * from './non-valued/implementation/builder';
 
-export * from './valued/implementation/builder';
 export * from './valued/implementation/empty';
+export * from './valued/implementation/builder';
 
 export * from './non-valued/implementation/context';
 export * from './valued/implementation/context';

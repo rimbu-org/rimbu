@@ -17,11 +17,11 @@ export * from './valued/implementation/non-empty.ts';
 export * from './common/index.ts';
 
 // circular dependencies
-export * from './non-valued/implementation/builder.ts';
 export * from './non-valued/implementation/empty.ts';
+export * from './non-valued/implementation/builder.ts';
 
-export * from './valued/implementation/builder.ts';
 export * from './valued/implementation/empty.ts';
+export * from './valued/implementation/builder.ts';
 
 export * from './non-valued/implementation/context.ts';
 export * from './valued/implementation/context.ts';
