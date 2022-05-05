@@ -7,7 +7,7 @@ import type {
   ListContext,
   NonLeafBuilder,
 } from '@rimbu/list/custom';
-import { TreeBuilderBase } from '@rimbu/list/custom';
+import { TreeBuilderBase } from '../tree/tree-builder';
 
 export class LeafTreeBuilder<T>
   extends TreeBuilderBase<T, T>

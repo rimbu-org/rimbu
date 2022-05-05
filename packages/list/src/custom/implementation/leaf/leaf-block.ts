@@ -15,7 +15,7 @@ import type {
   LeafTree,
   ListContext,
 } from '@rimbu/list/custom';
-import { ListNonEmptyBase } from '@rimbu/list/custom';
+import { ListNonEmptyBase } from './non-empty';
 
 export class LeafBlock<T>
   extends ListNonEmptyBase<T>

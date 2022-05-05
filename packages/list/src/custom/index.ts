@@ -10,15 +10,12 @@ export * from './builder/leaf/leaf-builder';
 export * from './builder/nonleaf/nonleaf-builder';
 
 // pure classes and files
-export * from './implementation/tree/operations';
 export * from './implementation/cache-map';
 export * from './implementation/empty';
 export * from './implementation/nonleaf/nonleaf-block';
-export * from './implementation/leaf/non-empty';
 
 export * from './builder/gen-builder';
 export * from './builder/leaf/block-builder';
-export * from './builder/tree/tree-builder';
 export * from './builder/nonleaf/block-builder';
 
 // circular dependencies

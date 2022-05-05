@@ -11,7 +11,6 @@ import type { Stream, StreamSource } from '@rimbu/stream';
 import type { List } from '@rimbu/list';
 import type { LeafBlock, ListContext, NonLeaf, Tree } from '@rimbu/list/custom';
 import {
-  ListNonEmptyBase,
   treeAppend,
   treeForEach,
   treeGet,
@@ -19,7 +18,8 @@ import {
   treeStream,
   treeToArray,
   treeUpdate,
-} from '@rimbu/list/custom';
+} from '../tree/operations';
+import { ListNonEmptyBase } from './non-empty';
 
 export class LeafTree<T>
   extends ListNonEmptyBase<T>

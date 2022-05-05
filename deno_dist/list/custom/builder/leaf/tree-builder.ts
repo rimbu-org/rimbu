@@ -7,7 +7,7 @@ import type {
   ListContext,
   NonLeafBuilder,
 } from '../../../../list/custom/index.ts';
-import { TreeBuilderBase } from '../../../../list/custom/index.ts';
+import { TreeBuilderBase } from '../tree/tree-builder.ts';
 
 export class LeafTreeBuilder<T>
   extends TreeBuilderBase<T, T>

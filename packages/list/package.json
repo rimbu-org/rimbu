@@ -49,6 +49,7 @@
     "bundle:module": "tsc --p tsconfig.module.json",
     "bundle:types": "tsc --p tsconfig.types.json",
     "clean": "rimraf dist",
+    "circular": "npx -y madge --ts-config tsconfig.json --circular --extensions ts src/main/index.ts",
     "extract-api": "yarn extract-api:main && yarn extract-api:custom",
     "extract-api:custom": "api-extractor run --local --verbose --config config/api-extractor.custom.json",
     "extract-api:main": "api-extractor run --local --verbose --config config/api-extractor.main.json",
@@ -75,5 +76,12 @@
   "denoify": {
     "index": "src/main/index.ts",
     "replacer": "../../config/denoify-rimbu-replacer.js"
+  },
+  "madge": {
+    "detectiveOptions": {
+      "ts": {
+        "skipTypeImports": true
+      }
+    }
   }
 }

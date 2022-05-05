@@ -19,7 +19,7 @@ import {
   treeStream,
   treeToArray,
   treeUpdate,
-} from '@rimbu/list/custom';
+} from '../tree/operations';
 
 export class NonLeafTree<T, C extends Block<T, C>>
   implements Tree<T, NonLeafTree<T, C>, NonLeafBlock<T, C>, C>, NonLeaf<T>

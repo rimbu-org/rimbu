@@ -19,7 +19,7 @@ import {
   treeStream,
   treeToArray,
   treeUpdate,
-} from '../../../../list/custom/index.ts';
+} from '../tree/operations.ts';
 
 export class NonLeafTree<T, C extends Block<T, C>>
   implements Tree<T, NonLeafTree<T, C>, NonLeafBlock<T, C>, C>, NonLeaf<T>

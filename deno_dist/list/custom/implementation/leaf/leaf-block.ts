@@ -15,7 +15,7 @@ import type {
   LeafTree,
   ListContext,
 } from '../../../../list/custom/index.ts';
-import { ListNonEmptyBase } from '../../../../list/custom/index.ts';
+import { ListNonEmptyBase } from './non-empty.ts';
 
 export class LeafBlock<T>
   extends ListNonEmptyBase<T>

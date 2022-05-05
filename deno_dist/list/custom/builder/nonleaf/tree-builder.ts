@@ -8,7 +8,7 @@ import type {
   NonLeafBuilder,
   NonLeafTree,
 } from '../../../../list/custom/index.ts';
-import { TreeBuilderBase } from '../../../../list/custom/index.ts';
+import { TreeBuilderBase } from '../tree/tree-builder.ts';
 
 export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>
   extends TreeBuilderBase<T, C>
