@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/table",
-  "version": "0.9.9",
+  "version": "0.9.10",
   "description": "Immutable spreadsheet-like data structures containing row keys, column keys, and cell values",
   "keywords": [
     "table",
@@ -68,11 +68,11 @@
   "sideEffects": false,
   "dependencies": {
     "@rimbu/base": "^0.8.0",
-    "@rimbu/collection-types": "^0.9.7",
+    "@rimbu/collection-types": "^0.9.8",
     "@rimbu/common": "^0.9.0",
-    "@rimbu/hashed": "^0.8.9",
-    "@rimbu/sorted": "^0.9.7",
-    "@rimbu/stream": "^0.10.7",
+    "@rimbu/hashed": "^0.8.10",
+    "@rimbu/sorted": "^0.9.8",
+    "@rimbu/stream": "^0.10.8",
     "tslib": "^2.3.1"
   },
   "publishConfig": {
