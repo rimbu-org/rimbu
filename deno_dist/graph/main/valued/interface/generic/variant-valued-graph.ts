@@ -1,8 +1,9 @@
+import type { Stream, Streamable } from '../../../../../stream/mod.ts';
+
 import type {
   ValuedGraphElement,
   VariantValuedGraphBase,
 } from '../../../../../graph/custom/index.ts';
-import type { Stream, Streamable } from '../../../../../stream/mod.ts';
 
 /**
  * An type-variant immutable valued graph.

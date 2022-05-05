@@ -1,7 +1,8 @@
-import type { EdgeGraphHashed, EdgeGraphSorted } from '../../../../graph/mod.ts';
-import type { GraphBase } from '../../../../graph/custom/index.ts';
 import type { HashMap, HashSet } from '../../../../hashed/mod.ts';
 import type { SortedMap, SortedSet } from '../../../../sorted/mod.ts';
+
+import type { EdgeGraphHashed, EdgeGraphSorted } from '../../../../graph/mod.ts';
+import type { GraphBase } from '../../common/index.ts';
 
 export interface EdgeGraphHashedCreators
   extends GraphBase.Factory<EdgeGraphHashed.Types> {

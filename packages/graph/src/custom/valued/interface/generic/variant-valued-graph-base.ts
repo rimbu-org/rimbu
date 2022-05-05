@@ -1,12 +1,13 @@
 import type { VariantMap } from '@rimbu/collection-types';
 import type { OptLazy, RelatedTo } from '@rimbu/common';
+import type { Stream, Streamable } from '@rimbu/stream';
+
 import type {
   ValuedGraphElement,
   ValuedLink,
   VariantGraphBase,
   WithGraphValues,
-} from '@rimbu/graph/custom';
-import type { Stream, Streamable } from '@rimbu/stream';
+} from '../../../common';
 
 export interface VariantValuedGraphBase<
   N,

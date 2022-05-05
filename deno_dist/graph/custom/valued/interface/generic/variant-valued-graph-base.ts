@@ -1,12 +1,13 @@
 import type { VariantMap } from '../../../../../collection-types/mod.ts';
 import type { OptLazy, RelatedTo } from '../../../../../common/mod.ts';
+import type { Stream, Streamable } from '../../../../../stream/mod.ts';
+
 import type {
   ValuedGraphElement,
   ValuedLink,
   VariantGraphBase,
   WithGraphValues,
-} from '../../../../../graph/custom/index.ts';
-import type { Stream, Streamable } from '../../../../../stream/mod.ts';
+} from '../../../common/index.ts';
 
 export interface VariantValuedGraphBase<
   N,

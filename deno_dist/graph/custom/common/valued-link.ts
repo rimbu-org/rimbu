@@ -1,5 +1,6 @@
 import { OptLazy } from '../../../common/mod.ts';
-import type { Link } from '../../../graph/custom/index.ts';
+
+import type { Link } from './index.ts';
 
 /**
  * A valued connection between two nodes,

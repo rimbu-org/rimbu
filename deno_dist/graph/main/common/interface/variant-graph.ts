@@ -1,6 +1,7 @@
 import type { VariantMap, VariantSet } from '../../../../collection-types/mod.ts';
-import type { GraphElement, Link, VariantGraphBase } from '../../../../graph/custom/index.ts';
 import type { Stream, Streamable } from '../../../../stream/mod.ts';
+
+import type { GraphElement, Link, VariantGraphBase } from '../../../../graph/custom/index.ts';
 
 /**
  * An type-variant immutable graph.

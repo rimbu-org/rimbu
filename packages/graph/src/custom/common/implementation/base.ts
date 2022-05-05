@@ -1,6 +1,7 @@
-import { EmptyBase } from '@rimbu/collection-types/map-custom';
-import type { VariantGraphBase } from '@rimbu/graph/custom';
 import { Stream, StreamSource } from '@rimbu/stream';
+import { EmptyBase } from '@rimbu/collection-types/map-custom';
+
+import type { VariantGraphBase } from '..';
 
 export interface GraphValues<N = unknown, V = unknown> {
   readonly _N: N;

@@ -1,10 +1,11 @@
+import type { HashMap } from '../../../../../hashed/mod.ts';
+import type { SortedMap } from '../../../../../sorted/mod.ts';
+
 import type {
   ArrowValuedGraphHashed,
   ArrowValuedGraphSorted,
 } from '../../../../../graph/mod.ts';
 import type { ValuedGraphBase } from '../../../../../graph/custom/index.ts';
-import type { HashMap } from '../../../../../hashed/mod.ts';
-import type { SortedMap } from '../../../../../sorted/mod.ts';
 
 export interface ArrowValuedGraphHashedCreators
   extends ValuedGraphBase.Factory<ArrowValuedGraphHashed.Types> {

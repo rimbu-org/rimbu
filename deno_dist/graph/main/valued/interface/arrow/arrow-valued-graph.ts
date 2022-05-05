@@ -1,10 +1,9 @@
 import type { RMap } from '../../../../../collection-types/mod.ts';
-import {
-  ArrowValuedGraphBase,
-  ValuedGraphContext,
-  ValuedGraphElement,
-} from '../../../../../graph/custom/index.ts';
 import type { Stream, Streamable } from '../../../../../stream/mod.ts';
+
+import type { ValuedGraphElement } from '../../../../../graph/custom/index.ts';
+
+import { ArrowValuedGraphBase, ValuedGraphContext } from '../../../../../graph/custom/index.ts';
 
 /**
  * An type-invariant immutable valued arrow (directed) graph.

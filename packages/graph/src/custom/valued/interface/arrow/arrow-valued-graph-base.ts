@@ -1,6 +1,8 @@
 import type { RelatedTo } from '@rimbu/common';
-import type { ValuedGraphBase, ValuedGraphElement } from '@rimbu/graph/custom';
 import type { Stream, Streamable } from '@rimbu/stream';
+
+import type { ValuedGraphBase } from '@rimbu/graph/custom';
+import type { ValuedGraphElement } from '../../../common';
 
 export interface ArrowValuedGraphBase<
   N,

@@ -1,5 +1,6 @@
 import { OptLazy } from '@rimbu/common';
-import type { Link } from '@rimbu/graph/custom';
+
+import type { Link } from '.';
 
 /**
  * A valued connection between two nodes,

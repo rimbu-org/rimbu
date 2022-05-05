@@ -1,12 +1,12 @@
 import { RimbuError } from '../../../../base/mod.ts';
-import type { RelatedTo } from '../../../../common/mod.ts';
-import {
-  GraphElement,
-  GraphTypesContextImpl,
-  Link,
-  WithGraphValues,
-} from '../../../../graph/custom/index.ts';
 import { Stream, StreamSource } from '../../../../stream/mod.ts';
+
+import type { RelatedTo } from '../../../../common/mod.ts';
+
+import type { GraphTypesContextImpl } from '../../../../graph/custom/index.ts';
+import type { Link, WithGraphValues } from '../../common/index.ts';
+
+import { GraphElement } from '../../common/index.ts';
 
 export class GraphBuilder<
   N,

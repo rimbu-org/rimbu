@@ -1,11 +1,12 @@
-import {
-  EdgeGraphBase,
-  GraphContext,
+import { HashMap, HashSet } from '../../../../../hashed/mod.ts';
+import type { Stream, Streamable } from '../../../../../stream/mod.ts';
+
+import type {
   GraphElement,
   EdgeGraphHashedCreators,
 } from '../../../../../graph/custom/index.ts';
-import { HashMap, HashSet } from '../../../../../hashed/mod.ts';
-import type { Stream, Streamable } from '../../../../../stream/mod.ts';
+
+import { EdgeGraphBase, GraphContext } from '../../../../../graph/custom/index.ts';
 
 /**
  * An type-invariant immutable valued edge (undirected) graph.

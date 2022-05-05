@@ -1,14 +1,14 @@
 import type { RMap, RSet } from '../../../../collection-types/mod.ts';
 import type { ArrayNonEmpty, Reducer, RelatedTo } from '../../../../common/mod.ts';
+import type { Stream, Streamable, StreamSource } from '../../../../stream/mod.ts';
+
 import type {
   GraphConnect,
   GraphConnectNonEmpty,
-  GraphElement,
-  Link,
   VariantGraphBase,
   WithGraphValues,
-} from '../../../../graph/custom/index.ts';
-import type { Stream, Streamable, StreamSource } from '../../../../stream/mod.ts';
+} from '../index.ts';
+import type { GraphElement, Link } from '../../common/index.ts';
 
 export interface GraphBase<N, Tp extends GraphBase.Types = GraphBase.Types>
   extends VariantGraphBase<N, unknown, Tp>,

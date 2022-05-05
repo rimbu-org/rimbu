@@ -1,12 +1,12 @@
 import { RimbuError } from '@rimbu/base';
-import type { RelatedTo } from '@rimbu/common';
-import {
-  GraphElement,
-  GraphTypesContextImpl,
-  Link,
-  WithGraphValues,
-} from '@rimbu/graph/custom';
 import { Stream, StreamSource } from '@rimbu/stream';
+
+import type { RelatedTo } from '@rimbu/common';
+
+import type { GraphTypesContextImpl } from '@rimbu/graph/custom';
+import type { Link, WithGraphValues } from '../../common';
+
+import { GraphElement } from '../../common';
 
 export class GraphBuilder<
   N,

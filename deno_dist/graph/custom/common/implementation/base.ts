@@ -1,6 +1,7 @@
-import { EmptyBase } from '../../../../collection-types/map-custom/index.ts';
-import type { VariantGraphBase } from '../../../../graph/custom/index.ts';
 import { Stream, StreamSource } from '../../../../stream/mod.ts';
+import { EmptyBase } from '../../../../collection-types/map-custom/index.ts';
+
+import type { VariantGraphBase } from '../index.ts';
 
 export interface GraphValues<N = unknown, V = unknown> {
   readonly _N: N;

@@ -1,11 +1,13 @@
-import {
-  ArrowGraphBase,
+import type { Stream, Streamable } from '../../../../../stream/mod.ts';
+
+import { HashMap, HashSet } from '../../../../../hashed/mod.ts';
+
+import type {
   ArrowGraphHashedCreators,
-  GraphContext,
   GraphElement,
 } from '../../../../../graph/custom/index.ts';
-import { HashMap, HashSet } from '../../../../../hashed/mod.ts';
-import type { Stream, Streamable } from '../../../../../stream/mod.ts';
+
+import { ArrowGraphBase, GraphContext } from '../../../../../graph/custom/index.ts';
 
 /**
  * An type-invariant immutable valued arrow (directed) graph.

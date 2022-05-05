@@ -1,10 +1,11 @@
 import { OptLazy } from '@rimbu/common';
-import type { VariantGraphBase } from '@rimbu/graph/custom';
 import { HashSet } from '@rimbu/hashed';
 import { SortedSet } from '@rimbu/sorted';
 import { FastIterator, Stream } from '@rimbu/stream';
 import { FastIteratorBase, StreamBase } from '@rimbu/stream/custom';
+
 import type { LinkType } from './traverse-base';
+import type { VariantGraphBase } from '@rimbu/graph/custom';
 
 class GraphBreadthFirstStream<
   G extends VariantGraphBase.NonEmpty<N, any>,

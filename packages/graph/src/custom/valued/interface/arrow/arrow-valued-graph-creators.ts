@@ -1,10 +1,11 @@
+import type { HashMap } from '@rimbu/hashed';
+import type { SortedMap } from '@rimbu/sorted';
+
 import type {
   ArrowValuedGraphHashed,
   ArrowValuedGraphSorted,
 } from '@rimbu/graph';
 import type { ValuedGraphBase } from '@rimbu/graph/custom';
-import type { HashMap } from '@rimbu/hashed';
-import type { SortedMap } from '@rimbu/sorted';
 
 export interface ArrowValuedGraphHashedCreators
   extends ValuedGraphBase.Factory<ArrowValuedGraphHashed.Types> {

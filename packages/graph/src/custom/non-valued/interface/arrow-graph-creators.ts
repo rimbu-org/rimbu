@@ -1,7 +1,8 @@
-import type { ArrowGraphHashed, ArrowGraphSorted } from '@rimbu/graph';
-import type { GraphBase } from '@rimbu/graph/custom';
 import type { HashMap, HashSet } from '@rimbu/hashed';
 import type { SortedMap, SortedSet } from '@rimbu/sorted';
+
+import type { GraphBase } from '../../common';
+import type { ArrowGraphHashed, ArrowGraphSorted } from '@rimbu/graph';
 
 export interface ArrowGraphHashedCreators
   extends GraphBase.Factory<ArrowGraphHashed.Types> {

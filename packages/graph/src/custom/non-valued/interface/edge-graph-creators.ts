@@ -1,7 +1,8 @@
-import type { EdgeGraphHashed, EdgeGraphSorted } from '@rimbu/graph';
-import type { GraphBase } from '@rimbu/graph/custom';
 import type { HashMap, HashSet } from '@rimbu/hashed';
 import type { SortedMap, SortedSet } from '@rimbu/sorted';
+
+import type { EdgeGraphHashed, EdgeGraphSorted } from '@rimbu/graph';
+import type { GraphBase } from '../../common';
 
 export interface EdgeGraphHashedCreators
   extends GraphBase.Factory<EdgeGraphHashed.Types> {

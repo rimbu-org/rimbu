@@ -1,11 +1,13 @@
-import {
-  ArrowValuedGraphBase,
+import type { Stream, Streamable } from '../../../../../stream/mod.ts';
+
+import { SortedMap } from '../../../../../sorted/mod.ts';
+
+import type {
   ArrowValuedGraphSortedCreators,
-  ValuedGraphContext,
   ValuedGraphElement,
 } from '../../../../../graph/custom/index.ts';
-import { SortedMap } from '../../../../../sorted/mod.ts';
-import type { Stream, Streamable } from '../../../../../stream/mod.ts';
+
+import { ArrowValuedGraphBase, ValuedGraphContext } from '../../../../../graph/custom/index.ts';
 
 /**
  * An type-invariant immutable valued arrow (directed) graph.

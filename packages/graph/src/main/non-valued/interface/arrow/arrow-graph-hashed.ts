@@ -1,11 +1,13 @@
-import {
-  ArrowGraphBase,
+import type { Stream, Streamable } from '@rimbu/stream';
+
+import { HashMap, HashSet } from '@rimbu/hashed';
+
+import type {
   ArrowGraphHashedCreators,
-  GraphContext,
   GraphElement,
 } from '@rimbu/graph/custom';
-import { HashMap, HashSet } from '@rimbu/hashed';
-import type { Stream, Streamable } from '@rimbu/stream';
+
+import { ArrowGraphBase, GraphContext } from '@rimbu/graph/custom';
 
 /**
  * An type-invariant immutable valued arrow (directed) graph.

@@ -1,11 +1,13 @@
 import type { RelatedTo, ToJSON } from '../../../../common/mod.ts';
-import type { GraphValues, Link, WithGraphValues } from '../../../../graph/custom/index.ts';
 import type {
   FastIterable,
   Stream,
   Streamable,
   StreamSource,
 } from '../../../../stream/mod.ts';
+
+import type { GraphValues, WithGraphValues } from '../index.ts';
+import type { Link } from '../index.ts';
 
 export interface VariantGraphBase<
   N,

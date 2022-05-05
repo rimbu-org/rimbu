@@ -1,15 +1,17 @@
 import type { ArrayNonEmpty } from '@rimbu/common';
+import type { StreamSource } from '@rimbu/stream';
+
 import { Reducer } from '@rimbu/common';
+import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
+
+import type { ValuedGraphBase } from '@rimbu/graph/custom';
+import type { ValuedGraphElement, WithGraphValues } from '../../common';
+
 import {
-  ValuedGraphBase,
-  ValuedGraphBuilder,
-  ValuedGraphElement,
   ValuedGraphEmpty,
   ValuedGraphNonEmpty,
-  WithGraphValues,
+  ValuedGraphBuilder,
 } from '@rimbu/graph/custom';
-import type { StreamSource } from '@rimbu/stream';
-import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 export interface ValuedGraphTypesContextImpl extends ValuedGraphBase.Types {
   readonly context: ValuedGraphContext<this['_N'], string>;

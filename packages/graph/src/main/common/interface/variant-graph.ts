@@ -1,6 +1,7 @@
 import type { VariantMap, VariantSet } from '@rimbu/collection-types';
-import type { GraphElement, Link, VariantGraphBase } from '@rimbu/graph/custom';
 import type { Stream, Streamable } from '@rimbu/stream';
+
+import type { GraphElement, Link, VariantGraphBase } from '@rimbu/graph/custom';
 
 /**
  * An type-variant immutable graph.

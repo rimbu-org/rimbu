@@ -6,8 +6,13 @@
  * See the [Rimbu docs Graph page](/docs/collections/graph) for more information.
  */
 
+// pure interfaces
 export * from './common/interface/variant-graph.ts';
 export * from './common/interface/graph.ts';
+
+// pure classes and files
+
+// circular dependencies
 
 export * from './non-valued/interface/arrow/arrow-graph.ts';
 export * from './non-valued/interface/arrow/arrow-graph-hashed.ts';

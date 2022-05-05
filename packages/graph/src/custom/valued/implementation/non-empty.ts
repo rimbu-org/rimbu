@@ -1,4 +1,5 @@
 import type { Token } from '@rimbu/base';
+
 import { NonEmptyBase } from '@rimbu/collection-types/map-custom';
 import {
   OptLazy,
@@ -7,15 +8,18 @@ import {
   ToJSON,
   TraverseState,
 } from '@rimbu/common';
+import { Stream, StreamSource } from '@rimbu/stream';
+
+import type {
+  ValuedGraphBase,
+  ValuedGraphTypesContextImpl,
+} from '@rimbu/graph/custom';
 import type {
   Link,
-  ValuedGraphBase,
   ValuedGraphElement,
-  ValuedGraphTypesContextImpl,
   ValuedLink,
   WithGraphValues,
-} from '@rimbu/graph/custom';
-import { Stream, StreamSource } from '@rimbu/stream';
+} from '../../common';
 
 export class ValuedGraphNonEmpty<
     N,

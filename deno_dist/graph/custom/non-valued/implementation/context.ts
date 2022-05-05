@@ -1,15 +1,12 @@
 import type { ArrayNonEmpty } from '../../../../common/mod.ts';
-import { Reducer } from '../../../../common/mod.ts';
-import {
-  GraphBase,
-  GraphBuilder,
-  GraphElement,
-  GraphEmpty,
-  GraphNonEmpty,
-  WithGraphValues,
-} from '../../../../graph/custom/index.ts';
 import type { StreamSource } from '../../../../stream/mod.ts';
+
+import { Reducer } from '../../../../common/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../../stream/custom/index.ts';
+
+import type { GraphBase, GraphElement, WithGraphValues } from '../../common/index.ts';
+
+import { GraphEmpty, GraphNonEmpty, GraphBuilder } from '../../../../graph/custom/index.ts';
 
 export interface GraphTypesContextImpl extends GraphBase.Types {
   readonly context: GraphContext<this['_N'], string, boolean>;

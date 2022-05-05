@@ -1,13 +1,16 @@
-import { Token } from '../../../../base/mod.ts';
 import type { RMap } from '../../../../collection-types/mod.ts';
+
+import { Token } from '../../../../base/mod.ts';
 import { OptLazy, OptLazyOr, RelatedTo, ToJSON } from '../../../../common/mod.ts';
-import {
-  GraphEmptyBase,
+import { Stream, StreamSource } from '../../../../stream/mod.ts';
+
+import type {
   ValuedGraphBase,
   ValuedGraphTypesContextImpl,
-  WithGraphValues,
 } from '../../../../graph/custom/index.ts';
-import { Stream, StreamSource } from '../../../../stream/mod.ts';
+import type { WithGraphValues } from '../../common/index.ts';
+
+import { GraphEmptyBase } from '../../common/index.ts';
 
 export class ValuedGraphEmpty<
     N,

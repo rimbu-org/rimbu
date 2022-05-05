@@ -1,6 +1,9 @@
 import type { RMap, RSet } from '../../../../../collection-types/mod.ts';
-import { ArrowGraphBase, GraphContext, Link } from '../../../../../graph/custom/index.ts';
 import type { Stream, Streamable } from '../../../../../stream/mod.ts';
+
+import type { Link } from '../../../../../graph/custom/index.ts';
+
+import { ArrowGraphBase, GraphContext } from '../../../../../graph/custom/index.ts';
 
 /**
  * An type-invariant immutable arrow (directed) graph.

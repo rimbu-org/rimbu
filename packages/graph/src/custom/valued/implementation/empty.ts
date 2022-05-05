@@ -1,13 +1,16 @@
-import { Token } from '@rimbu/base';
 import type { RMap } from '@rimbu/collection-types';
+
+import { Token } from '@rimbu/base';
 import { OptLazy, OptLazyOr, RelatedTo, ToJSON } from '@rimbu/common';
-import {
-  GraphEmptyBase,
+import { Stream, StreamSource } from '@rimbu/stream';
+
+import type {
   ValuedGraphBase,
   ValuedGraphTypesContextImpl,
-  WithGraphValues,
 } from '@rimbu/graph/custom';
-import { Stream, StreamSource } from '@rimbu/stream';
+import type { WithGraphValues } from '../../common';
+
+import { GraphEmptyBase } from '../../common';
 
 export class ValuedGraphEmpty<
     N,

@@ -7,16 +7,17 @@ import type {
   Reducer,
   RelatedTo,
 } from '../../../../../common/mod.ts';
+import type { Stream, Streamable, StreamSource } from '../../../../../stream/mod.ts';
+
+import type { VariantValuedGraphBase } from '../../../../../graph/custom/index.ts';
 import type {
   GraphConnect,
   GraphConnectNonEmpty,
   Link,
   ValuedGraphElement,
   VariantGraphBase,
-  VariantValuedGraphBase,
   WithGraphValues,
-} from '../../../../../graph/custom/index.ts';
-import type { Stream, Streamable, StreamSource } from '../../../../../stream/mod.ts';
+} from '../../../common/index.ts';
 
 export interface ValuedGraphBase<
   N,

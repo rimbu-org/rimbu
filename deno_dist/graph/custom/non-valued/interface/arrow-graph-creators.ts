@@ -1,7 +1,8 @@
-import type { ArrowGraphHashed, ArrowGraphSorted } from '../../../../graph/mod.ts';
-import type { GraphBase } from '../../../../graph/custom/index.ts';
 import type { HashMap, HashSet } from '../../../../hashed/mod.ts';
 import type { SortedMap, SortedSet } from '../../../../sorted/mod.ts';
+
+import type { GraphBase } from '../../common/index.ts';
+import type { ArrowGraphHashed, ArrowGraphSorted } from '../../../../graph/mod.ts';
 
 export interface ArrowGraphHashedCreators
   extends GraphBase.Factory<ArrowGraphHashed.Types> {

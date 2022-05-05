@@ -1,15 +1,12 @@
 import type { ArrayNonEmpty } from '@rimbu/common';
-import { Reducer } from '@rimbu/common';
-import {
-  GraphBase,
-  GraphBuilder,
-  GraphElement,
-  GraphEmpty,
-  GraphNonEmpty,
-  WithGraphValues,
-} from '@rimbu/graph/custom';
 import type { StreamSource } from '@rimbu/stream';
+
+import { Reducer } from '@rimbu/common';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
+
+import type { GraphBase, GraphElement, WithGraphValues } from '../../common';
+
+import { GraphEmpty, GraphNonEmpty, GraphBuilder } from '@rimbu/graph/custom';
 
 export interface GraphTypesContextImpl extends GraphBase.Types {
   readonly context: GraphContext<this['_N'], string, boolean>;

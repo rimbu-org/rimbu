@@ -1,10 +1,11 @@
+import type { HashMap } from '../../../../../hashed/mod.ts';
+import type { SortedMap } from '../../../../../sorted/mod.ts';
+
 import type {
   EdgeValuedGraphHashed,
   EdgeValuedGraphSorted,
 } from '../../../../../graph/mod.ts';
 import type { ValuedGraphBase } from '../../../../../graph/custom/index.ts';
-import type { HashMap } from '../../../../../hashed/mod.ts';
-import type { SortedMap } from '../../../../../sorted/mod.ts';
 
 export interface EdgeValuedGraphHashedCreators
   extends ValuedGraphBase.Factory<EdgeValuedGraphHashed.Types> {

@@ -1,10 +1,9 @@
 import type { RMap } from '../../../../../collection-types/mod.ts';
-import {
-  EdgeValuedGraphBase,
-  ValuedGraphContext,
-  ValuedGraphElement,
-} from '../../../../../graph/custom/index.ts';
 import type { Stream, Streamable } from '../../../../../stream/mod.ts';
+
+import type { ValuedGraphElement } from '../../../../../graph/custom/index.ts';
+
+import { EdgeValuedGraphBase, ValuedGraphContext } from '../../../../../graph/custom/index.ts';
 
 /**
  * An type-invariant immutable valued edge (undirected) graph.

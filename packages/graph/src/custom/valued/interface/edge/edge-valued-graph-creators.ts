@@ -1,10 +1,11 @@
+import type { HashMap } from '@rimbu/hashed';
+import type { SortedMap } from '@rimbu/sorted';
+
 import type {
   EdgeValuedGraphHashed,
   EdgeValuedGraphSorted,
 } from '@rimbu/graph';
 import type { ValuedGraphBase } from '@rimbu/graph/custom';
-import type { HashMap } from '@rimbu/hashed';
-import type { SortedMap } from '@rimbu/sorted';
 
 export interface EdgeValuedGraphHashedCreators
   extends ValuedGraphBase.Factory<EdgeValuedGraphHashed.Types> {

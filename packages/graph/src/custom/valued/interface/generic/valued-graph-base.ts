@@ -7,16 +7,17 @@ import type {
   Reducer,
   RelatedTo,
 } from '@rimbu/common';
+import type { Stream, Streamable, StreamSource } from '@rimbu/stream';
+
+import type { VariantValuedGraphBase } from '@rimbu/graph/custom';
 import type {
   GraphConnect,
   GraphConnectNonEmpty,
   Link,
   ValuedGraphElement,
   VariantGraphBase,
-  VariantValuedGraphBase,
   WithGraphValues,
-} from '@rimbu/graph/custom';
-import type { Stream, Streamable, StreamSource } from '@rimbu/stream';
+} from '../../../common';
 
 export interface ValuedGraphBase<
   N,

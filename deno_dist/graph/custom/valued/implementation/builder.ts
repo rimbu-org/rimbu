@@ -1,12 +1,11 @@
 import { RimbuError, Token } from '../../../../base/mod.ts';
 import { OptLazy, OptLazyOr, RelatedTo } from '../../../../common/mod.ts';
-import {
-  Link,
-  ValuedGraphElement,
-  ValuedGraphTypesContextImpl,
-  WithGraphValues,
-} from '../../../../graph/custom/index.ts';
 import { Stream, StreamSource } from '../../../../stream/mod.ts';
+
+import type { ValuedGraphTypesContextImpl } from '../../../../graph/custom/index.ts';
+import type { Link, WithGraphValues } from '../../common/index.ts';
+
+import { ValuedGraphElement } from '../../common/index.ts';
 
 export class ValuedGraphBuilder<
   N,

@@ -1,10 +1,9 @@
 import type { RMap } from '@rimbu/collection-types';
-import {
-  EdgeValuedGraphBase,
-  ValuedGraphContext,
-  ValuedGraphElement,
-} from '@rimbu/graph/custom';
 import type { Stream, Streamable } from '@rimbu/stream';
+
+import type { ValuedGraphElement } from '@rimbu/graph/custom';
+
+import { EdgeValuedGraphBase, ValuedGraphContext } from '@rimbu/graph/custom';
 
 /**
  * An type-invariant immutable valued edge (undirected) graph.

@@ -1,12 +1,12 @@
 import type { RSet } from '../../../../collection-types/mod.ts';
 import type { ToJSON } from '../../../../common/mod.ts';
-import {
-  GraphBase,
-  GraphEmptyBase,
-  GraphTypesContextImpl,
-  WithGraphValues,
-} from '../../../../graph/custom/index.ts';
+
 import { Stream, StreamSource } from '../../../../stream/mod.ts';
+
+import type { GraphTypesContextImpl } from '../../../../graph/custom/index.ts';
+import type { GraphBase, WithGraphValues } from '../../common/index.ts';
+
+import { GraphEmptyBase } from '../../common/index.ts';
 
 export class GraphEmpty<
     N,

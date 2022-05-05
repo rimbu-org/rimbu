@@ -1,11 +1,13 @@
-import {
-  EdgeValuedGraphBase,
+import type { Stream, Streamable } from '../../../../../stream/mod.ts';
+
+import { SortedMap } from '../../../../../sorted/mod.ts';
+
+import type {
   EdgeValuedGrapSortedCreators,
-  ValuedGraphContext,
   ValuedGraphElement,
 } from '../../../../../graph/custom/index.ts';
-import { SortedMap } from '../../../../../sorted/mod.ts';
-import type { Stream, Streamable } from '../../../../../stream/mod.ts';
+
+import { EdgeValuedGraphBase, ValuedGraphContext } from '../../../../../graph/custom/index.ts';
 
 /**
  * An type-invariant immutable valued edge (undirected) graph.

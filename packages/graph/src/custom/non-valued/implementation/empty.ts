@@ -1,12 +1,12 @@
 import type { RSet } from '@rimbu/collection-types';
 import type { ToJSON } from '@rimbu/common';
-import {
-  GraphBase,
-  GraphEmptyBase,
-  GraphTypesContextImpl,
-  WithGraphValues,
-} from '@rimbu/graph/custom';
+
 import { Stream, StreamSource } from '@rimbu/stream';
+
+import type { GraphTypesContextImpl } from '@rimbu/graph/custom';
+import type { GraphBase, WithGraphValues } from '../../common';
+
+import { GraphEmptyBase } from '../../common';
 
 export class GraphEmpty<
     N,

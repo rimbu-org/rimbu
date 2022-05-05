@@ -1,4 +1,5 @@
 import type { Token } from '../../../../base/mod.ts';
+
 import { NonEmptyBase } from '../../../../collection-types/map-custom/index.ts';
 import {
   OptLazy,
@@ -7,15 +8,18 @@ import {
   ToJSON,
   TraverseState,
 } from '../../../../common/mod.ts';
+import { Stream, StreamSource } from '../../../../stream/mod.ts';
+
+import type {
+  ValuedGraphBase,
+  ValuedGraphTypesContextImpl,
+} from '../../../../graph/custom/index.ts';
 import type {
   Link,
-  ValuedGraphBase,
   ValuedGraphElement,
-  ValuedGraphTypesContextImpl,
   ValuedLink,
   WithGraphValues,
-} from '../../../../graph/custom/index.ts';
-import { Stream, StreamSource } from '../../../../stream/mod.ts';
+} from '../../common/index.ts';
 
 export class ValuedGraphNonEmpty<
     N,

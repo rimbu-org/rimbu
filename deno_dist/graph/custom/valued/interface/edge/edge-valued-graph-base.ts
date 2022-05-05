@@ -1,5 +1,7 @@
-import type { ValuedGraphBase, ValuedGraphElement } from '../../../../../graph/custom/index.ts';
 import type { Stream, Streamable } from '../../../../../stream/mod.ts';
+
+import type { ValuedGraphBase } from '../../../../../graph/custom/index.ts';
+import type { ValuedGraphElement } from '../../../common/index.ts';
 
 export interface EdgeValuedGraphBase<
   N,

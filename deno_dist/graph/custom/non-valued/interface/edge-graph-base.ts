@@ -1,5 +1,6 @@
-import type { GraphBase, GraphElement } from '../../../../graph/custom/index.ts';
 import type { Stream, Streamable } from '../../../../stream/mod.ts';
+
+import type { GraphBase, GraphElement } from '../../common/index.ts';
 
 export interface EdgeGraphBase<
   N,
