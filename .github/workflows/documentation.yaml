@@ -6,11 +6,8 @@ on:
       - main
     paths:
       - 'docs/**'
-  push:
-    branches:
-      - main
-    paths:
-      - 'docs/**'
+  release:
+    types: [published]
 
 jobs:
   checks:
