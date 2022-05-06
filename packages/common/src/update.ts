@@ -6,7 +6,7 @@ export type Update<T> = T | ((value: T) => T);
 /**
  * Returns the result of given `update` parameter, where it can either directly give a new value,
  * or it is a function receiving the given `value`, and returns a new value.
- * @param value - the current vale
+ * @param value - the current value
  * @param update - an `Update` value, either a new value or a function receiving the old value
  * and returning a new one.
  * @example

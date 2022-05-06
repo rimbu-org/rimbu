@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "@std/": "https://deno.land/std@0.137.0/",
+    "@rimbu/": "https://deno.land/x/rimbu@0.10.0/",
+    "~/": "./src/"
+  }
+}

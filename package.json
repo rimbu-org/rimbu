@@ -24,6 +24,7 @@
     "deno:build": "rimraf deno_dist && mkdir deno_dist && cp config/mod_root_ts_template deno_dist/mod.ts && lerna run build:deno && cp {README.md,LICENSE} deno_dist",
     "clean": "lerna run clean && lerna clean --yes && yarn setup",
     "commit": "yarn deno:build && git add deno_dist && git-cz",
+    "extract-api": "rimraf doc-gen/input && lerna run extract-api",
     "format": "yarn format:root & lerna run format --parallel",
     "format:check": "yarn format:root-check & lerna run format:check",
     "format:root": "yarn format:root-base --write",
@@ -49,7 +50,7 @@
     "*.{ts,tsx,js,json,md}--parallel": "prettier --write"
   },
   "devDependencies": {
-    "@microsoft/api-extractor": "^7.23.0",
+    "@microsoft/api-extractor": "7.19.3",
     "@types/jest": "^27.0.2",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",

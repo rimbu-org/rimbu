@@ -6,11 +6,8 @@ on:
       - main
     paths:
       - 'docs/**'
-  push:
-    branches:
-      - main
-    paths:
-      - 'docs/**'
+  release:
+    types: [published]
 
 jobs:
   checks:
@@ -21,6 +18,17 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '14.x'
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.17.0
+      - name: Extract API
+        run: |
+          yarn setup
+          lerna run bundle:types
+          yarn extract-api
+      - name: Generate API Docs
+        run: deno run --import-map import_map.json --allow-read --allow-write --no-check src/main.ts -i input -o ../docs/api
+        working-directory: doc-gen
       - name: Test Build
         run: |
           if [ -e yarn.lock ]; then
