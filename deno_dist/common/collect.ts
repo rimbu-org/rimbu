@@ -17,12 +17,12 @@ export type CollectFun<T, R> = (
 
 export namespace CollectFun {
   /**
-   * Indicates, when returned from a collect function, to skip the vale.
+   * Indicates, when returned from a collect function, to skip the value.
    */
   export const Skip = Symbol('Skip');
 
   /**
-   * Indicates, when returned from a collect function, to skip the vale.
+   * Indicates, when returned from a collect function, to skip the value.
    */
   export type Skip = typeof Skip;
 }
