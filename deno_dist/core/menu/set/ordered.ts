@@ -1,4 +1,4 @@
 export {
   OrderedHashSet as Hashed,
   OrderedSortedSet as Sorted,
-} from '../../../core/mod.ts';
+} from '../../../ordered/set/index.ts';

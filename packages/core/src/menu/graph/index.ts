@@ -1,4 +1,2 @@
-import * as NonValued from './non-valued';
-import * as Valued from './valued';
-
-export { NonValued, Valued };
+export * as NonValued from './non-valued';
+export * as Valued from './valued';

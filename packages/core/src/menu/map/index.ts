@@ -1,4 +1,4 @@
-export { HashMap as Hashed, SortedMap as Sorted } from '@rimbu/core';
-import * as Ordered from './ordered';
+export { HashMap as Hashed } from '@rimbu/hashed/map';
+export { SortedMap as Sorted } from '@rimbu/sorted/map';
 
-export { Ordered };
+export * as Ordered from './ordered';

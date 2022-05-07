@@ -1,4 +1,4 @@
 export {
   OrderedHashMap as Hashed,
   OrderedSortedMap as Sorted,
-} from '../../../core/mod.ts';
+} from '../../../ordered/map/index.ts';

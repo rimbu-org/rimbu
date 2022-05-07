@@ -1,4 +1,2 @@
-import * as NonValued from './non-valued/index.ts';
-import * as Valued from './valued/index.ts';
-
-export { NonValued, Valued };
+export * as NonValued from './non-valued/index.ts';
+export * as Valued from './valued/index.ts';

@@ -31,13 +31,12 @@ The main exported projects are:
 | [@rimbu/actor](packages/actor)     | A framework-agnostic synchronous state management library that uses immutable objects under the hood. |
 | [@rimbu/reactor](packages/reactor) | A framework that allows usage of `@rimbu/actor` objects in `React`.                                   |
 
-## Getting started with this monorepo
+## Development: Getting started with this monorepo
 
 1. Clone this repository
 2. Run `yarn setup`
 
 To build all the packages: `yarn build`
-To start the Rimbu Docs locally: `yarn docsify`
 To run the tests: `yarn test`
 
 ## Author

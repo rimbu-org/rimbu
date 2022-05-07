@@ -1,4 +1,2 @@
-import * as Arrow from './arrow';
-import * as Edge from './edge';
-
-export { Arrow, Edge };
+export * as Arrow from './arrow';
+export * as Edge from './edge';

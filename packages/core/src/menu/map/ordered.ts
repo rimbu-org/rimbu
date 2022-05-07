@@ -1,4 +1,4 @@
 export {
   OrderedHashMap as Hashed,
   OrderedSortedMap as Sorted,
-} from '@rimbu/core';
+} from '@rimbu/ordered/map';
