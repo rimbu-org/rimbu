@@ -1,4 +1,4 @@
 export {
   HashBiMultiMap as Hashed,
   SortedBiMultiMap as Sorted,
-} from '../../core/mod.ts';
+} from '../../bimultimap/mod.ts';

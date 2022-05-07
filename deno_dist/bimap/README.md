@@ -14,13 +14,13 @@ This package exports the following types:
 | `HashBiMap<K, V>`   | a BiMap between keys of type K and values of type V, where both the keys and values are hashed |
 | `SortedBiMap<K, V>` | a BiMap between keys of type K and values of type V, where both the keys and values are sorted |
 
-For complete documentation please visit the [BiMap page](https://rimbu.org/docs/collections/bimap) in the _[Rimbu Docs](https://rimbu.org)_.
+For complete documentation please visit the [BiMap page](https://rimbu.org/docs/collections/bimap) in the _[Rimbu Docs](https://rimbu.org)_, or directly see the _[Rimbu BiMap API Docs](https://rimbu.org/api/rimbu/bimap)_.
 
 Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
 
 ## Installation
 
-All types are exported through [`@rimbu/core`](../core). It is recommended to use that package.
+For convenience, all main types are also exported through [`@rimbu/core`](../core).
 
 To install this package only:
 
@@ -34,29 +34,40 @@ or
 
 ### Deno
 
-Create a file called `rimbu.ts` and add the following:
+For Deno, the following approach is recommended:
 
-> ```ts
-> export * from 'https://deno.land/x/rimbu/bimap/mod.ts';
-> ```
+In the root folder of your project, create or edit a file called `import_map.json` with the following contents (where you should replace `x.y.z` with the desired version of Rimbu):
 
-Or using a pinned version (`x.y.z`):
-
-> ```ts
-> export * from 'https://deno.land/x/rimbu/bimap@x.y.z/mod.ts';
-> ```
-
-Then import what you need from `rimbu.ts`:
-
-```ts
-import { HashBiMultiMap } from './rimbu.ts';
+```json
+{
+  "imports": {
+    "@rimbu/": "https://deno.land/x/rimbu@x.y.z/"
+  }
+}
 ```
 
-Because Rimbu uses complex types, it's recommended to use the `--no-check` flag (your editor should already have checked your code) and to specify a `tsconfig.json` file with the settings described below.
+**Note: The trailing slashes are important!**
 
-Running your script then becomes:
+In this way you can use relative imports from Rimbu in your code, like so:
 
-> `deno run --no-check --config tsconfig.json <your-script>.ts`
+```ts
+import { List } from '@rimbu/core/mod.ts';
+import { HashMap } from '@rimbu/hashed/mod.ts';
+```
+
+Note that for sub-packages, due to conversion limitations it is needed to import the `index.ts` instead of `mod.ts`, like so:
+
+```ts
+import { HashMap } from '@rimbu/hashed/map/index.ts';
+```
+
+To run your script (let's assume the entry point is in `src/main.ts`):
+
+`deno run --import-map import_map.json src/main.ts`
+
+Because Rimbu uses advanced types, this may slow down the type checking part when running your code. If you're able to rely on your code editor to provide type errors, you can skip the Deno type check using the `--no-check` flag:
+
+`deno run --import-map import_map.json --no-check src/main.ts`
 
 ## Usage
 
@@ -78,7 +89,7 @@ Feel very welcome to contribute to further improve Rimbu. Please read our [Contr
 
 ## Contributors
 
-<img src = "https://contrib.rocks/image?repo=vitoke/iternal"/>
+<img src = "https://contrib.rocks/image?repo=rimbu-org/rimbu"/>
 
 Made with [contributors-img](https://contrib.rocks).
 

@@ -1,4 +1,4 @@
-export { HashMap as Hashed, SortedMap as Sorted } from '../../../core/mod.ts';
-import * as Ordered from './ordered.ts';
+export { HashMap as Hashed } from '../../../hashed/map/index.ts';
+export { SortedMap as Sorted } from '../../../sorted/map/index.ts';
 
-export { Ordered };
+export * as Ordered from './ordered.ts';

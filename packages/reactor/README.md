@@ -6,6 +6,8 @@
 
 This package offers integration of `@rimbu/actor` in React.
 
+This package is still in an experimental stage.
+
 For complete documentation please visit the _[Rimbu Docs](https://rimbu.org)_.
 
 ## Installation
@@ -30,7 +32,7 @@ Feel very welcome to contribute to further improve Rimbu. Please read our [Contr
 
 ## Contributors
 
-<img src = "https://contrib.rocks/image?repo=vitoke/iternal"/>
+<img src = "https://contrib.rocks/image?repo=rimbu-org/rimbu"/>
 
 Made with [contributors-img](https://contrib.rocks).
 

@@ -1,4 +1,2 @@
-import * as Arrow from './arrow.ts';
-import * as Edge from './edge.ts';
-
-export { Arrow, Edge };
+export * as Arrow from './arrow.ts';
+export * as Edge from './edge.ts';
