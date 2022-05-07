@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkrimbu_docs=self.webpackChunkrimbu_docs||[]).push([[27064],{17219:function(a){a.exports=JSON.parse('{"label":"scala","permalink":"/blog/tags/scala","allTagsPath":"/blog/tags","count":1}')}}]);
