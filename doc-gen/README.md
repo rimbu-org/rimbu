@@ -4,6 +4,8 @@
 
 The Rimbu Doc Gen is a Deno application that takes JSON input files (exported with [Microsoft's API Extractor](https://api-extractor.com/)), and outputs a generated API documentation structure, mostly in the form of `.mdx` files that can be processed by [Docusaurus](https://docusaurus.io/).
 
+See the results at the [Rimbu API Docs](https://rimbu.org/api).
+
 ## How to run
 
 1. Ensure you have Deno installed.
@@ -31,7 +33,7 @@ Feel very welcome to contribute to further improve Rimbu. Please read our [Contr
 
 ## Contributors
 
-<img src = "https://contrib.rocks/image?repo=vitoke/iternal"/>
+<img src = "https://contrib.rocks/image?repo=rimbu-org/rimbu"/>
 
 Made with [contributors-img](https://contrib.rocks).
 
@@ -39,4 +41,4 @@ Made with [contributors-img](https://contrib.rocks).
 
 Licensed under the MIT License, Copyright © 2020-present Arvid Nicolaas.
 
-See [LICENSE](../LICENSE) for more information.
+See [LICENSE](./LICENSE) for more information.

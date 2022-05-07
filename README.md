@@ -61,7 +61,7 @@ Feel very welcome to contribute to further improve Rimbu. Please read our [Contr
 
 ## Contributors
 
-<img src = "https://contrib.rocks/image?repo=vitoke/iternal"/>
+<img src = "https://contrib.rocks/image?repo=rimbu-org/rimbu"/>
 
 Made with [contributors-img](https://contrib.rocks).
 
