@@ -1,23 +1,22 @@
 name: documentation
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'docs/**'
+  workflow_dispatch:
+
   release:
     types: [published]
 
 jobs:
   checks:
-    if: github.event_name != 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
           node-version: '14.x'
+      - uses: webfactory/ssh-agent@v0.5.0
+        with:
+          ssh-private-key: ${{ secrets.GH_PAGES_DEPLOY }}
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.17.0
@@ -29,28 +28,6 @@ jobs:
       - name: Generate API Docs
         run: deno run --import-map import_map.json --allow-read --allow-write --no-check src/main.ts -i input -o ../docs/api
         working-directory: doc-gen
-      - name: Test Build
-        run: |
-          if [ -e yarn.lock ]; then
-            yarn install --frozen-lockfile
-          elif [ -e package-lock.json ]; then
-            npm ci
-          else
-            npm i
-          fi
-          npm run build
-        working-directory: docs
-  gh-release:
-    if: github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '14.x'
-      - uses: webfactory/ssh-agent@v0.5.0
-        with:
-          ssh-private-key: ${{ secrets.GH_PAGES_DEPLOY }}
       - name: Release to GitHub Pages
         env:
           USE_SSH: true
