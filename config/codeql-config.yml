@@ -1,7 +1,7 @@
-name: "Custom CodeQL Config"
-    
-    queries:
-    - uses: security-and-quality
-    
-    paths:
-    - packages/**/src
+name: 'Rimbu CodeQL Config'
+
+queries:
+  - uses: security-and-quality
+
+paths:
+  - packages/**/src
