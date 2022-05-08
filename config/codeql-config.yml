@@ -13,3 +13,6 @@ paths-ignore:
   - docs
   - node_modules
   - performance
+  - packages/**/test
+  - packages/**/test-d
+  - packages/**/test-random
