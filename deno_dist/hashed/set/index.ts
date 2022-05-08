@@ -6,5 +6,4 @@
  * See the [Rimbu docs Set page](/docs/collections/set) for more information.
  */
 
-export * from '../common/index.ts';
 export * from './interface/index.ts';

@@ -61,7 +61,7 @@
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
     "test": "jest",
-    "test:random": "jest --config jest-random.config.json",
+    "test:random": "jest --config jest-random.config.json --runInBand",
     "test:types": "tsd",
     "typecheck": "tsc"
   },
@@ -73,7 +73,7 @@
     "@rimbu/hashed": "^0.8.11",
     "@rimbu/sorted": "^0.9.9",
     "@rimbu/stream": "^0.10.9",
-    "tslib": "^2.3.1"
+    "tslib": "^2.4.0"
   },
   "publishConfig": {
     "access": "public"

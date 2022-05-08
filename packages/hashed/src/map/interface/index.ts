@@ -3,7 +3,7 @@ import type { RMapBase } from '@rimbu/collection-types/map-custom';
 import type { Stream, Streamable } from '@rimbu/stream';
 
 import type { HashMapCreators } from '@rimbu/hashed/map-custom';
-import type { Hasher } from '@rimbu/hashed/map';
+import type { Hasher } from '../../common';
 import type { Eq } from '@rimbu/common';
 
 import { createHashMapContext } from '@rimbu/hashed/map-custom';

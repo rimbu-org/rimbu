@@ -4,15 +4,9 @@ import { HashSet } from '@rimbu/hashed';
 
 runSetRandomTestsWith('HashSet default', HashSet.defaultContext());
 
-runSetRandomTestsWith(
-  'SortedMap 2',
-  HashSet.createContext({ blockSizeBits: 2 })
-);
+runSetRandomTestsWith('HashSet 2', HashSet.createContext({ blockSizeBits: 2 }));
 
-runSetRandomTestsWith(
-  'SortedMap 3',
-  HashSet.createContext({ blockSizeBits: 3 })
-);
+runSetRandomTestsWith('HashSet 3', HashSet.createContext({ blockSizeBits: 3 }));
 
 describe('HashSet collision', () => {
   const ColHashSet = HashSet.createContext({ eq: Eq.objectIs });

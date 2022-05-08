@@ -3,7 +3,7 @@ import type { RMapBase } from '../../../collection-types/map-custom/index.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
 
 import type { HashMapCreators } from '../../../hashed/map-custom/index.ts';
-import type { Hasher } from '../../../hashed/map/index.ts';
+import type { Hasher } from '../../common/index.ts';
 import type { Eq } from '../../../common/mod.ts';
 
 import { createHashMapContext } from '../../../hashed/map-custom/index.ts';

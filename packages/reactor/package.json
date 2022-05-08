@@ -52,16 +52,17 @@
   },
   "sideEffects": false,
   "devDependencies": {
-    "@testing-library/react": "^11.2.7",
-    "@testing-library/react-hooks": "^7.0.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "@testing-library/react": "^13.2.0",
+    "@testing-library/react-hooks": "^8.0.0",
+    "jest-environment-jsdom": "^28.1.0",
+    "react": "<18.0.0",
+    "react-dom": "<18.0.0"
   },
   "dependencies": {
     "@rimbu/actor": "^0.8.1",
     "@rimbu/deep": "^0.9.1",
     "@rimbu/stream": "^0.10.9",
-    "tslib": "^2.3.1"
+    "tslib": "^2.4.0"
   },
   "peerDependencies": {
     "react": ">=16"
