@@ -211,13 +211,16 @@ export class HashSetBlockBuilder<T>
       // potential match in entrysets
       const entrySet = this.entrySets[index];
       const preSize = entrySet.size;
-      const changed = entrySet.removeInternal(value, hash);
 
-      if (changed) this.source = undefined;
+      if (!entrySet.removeInternal(value, hash)) {
+        return false;
+      }
+
+      this.source = undefined;
 
       this.size += entrySet.size - preSize;
 
-      if (entrySet.size > 1) return changed;
+      if (entrySet.size > 1) return true;
 
       // single entry needs to be pulled up
 
@@ -233,6 +236,18 @@ export class HashSetBlockBuilder<T>
       }
 
       delete this.entrySets[index];
+
+      // if the sparse emptySets array is empty, set it to an empty array
+      let hasEntrySets = false;
+      for (const _ in this.entrySets) {
+        hasEntrySets = true;
+        break;
+      }
+
+      if (!hasEntrySets) {
+        this.entrySets.length = 0;
+      }
+
       this.entries[index] = first;
       return true;
     }

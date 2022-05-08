@@ -2,7 +2,8 @@ import type { RSetBase } from '../../collection-types/set-custom/index.ts';
 import type { Eq } from '../../common/mod.ts';
 import type { List } from '../../list/mod.ts';
 
-import type { Hasher, HashSet } from '../../hashed/set/index.ts';
+import type { HashSet } from '../../hashed/set/index.ts';
+import type { Hasher } from '../common/index.ts';
 
 export interface HashSetCreators extends RSetBase.Factory<HashSet.Types> {
   /**

@@ -2,7 +2,8 @@ import type { RSetBase } from '@rimbu/collection-types/set-custom';
 import type { Eq } from '@rimbu/common';
 import type { List } from '@rimbu/list';
 
-import type { Hasher, HashSet } from '@rimbu/hashed/set';
+import type { HashSet } from '@rimbu/hashed/set';
+import type { Hasher } from '../common';
 
 export interface HashSetCreators extends RSetBase.Factory<HashSet.Types> {
   /**
