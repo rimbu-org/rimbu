@@ -5,3 +5,11 @@ queries:
 
 paths:
   - packages/**/src
+
+paths-ignore:
+  - config
+  - deno_dist
+  - doc_gen
+  - docs
+  - node_modules
+  - performance
