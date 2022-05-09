@@ -1,7 +1,6 @@
 import { Stream } from '@rimbu/stream/mod.ts';
 
 import { Variable } from '~/doc-model.ts';
-import { link } from '~/utils.ts';
 
 export function generateVariable(source: Variable) {
   const result = `\
