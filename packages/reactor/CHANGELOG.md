@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.8.10](https://github.com/rimbu-org/rimbu/compare/@rimbu/reactor@0.8.9...@rimbu/reactor@0.8.10) (2022-05-09)
+
+
+### Bug Fixes
+
+* improve 'menu' style exports for core, and improve documentation ([0729871](https://github.com/rimbu-org/rimbu/commit/0729871a8aae220ef5d9132c0c56e5a3cb2c19cb))
+
+
+
+
+
 ## [0.8.9](https://github.com/rimbu-org/rimbu/compare/@rimbu/reactor@0.8.8...@rimbu/reactor@0.8.9) (2022-05-06)
 
 **Note:** Version bump only for package @rimbu/reactor
