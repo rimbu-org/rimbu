@@ -477,7 +477,7 @@ export class AsyncFlatMapIterator<T, T2> extends AsyncFastIteratorBase<T2> {
 
     const done = Symbol('Done');
 
-    let nextValue: T2 | typeof done = done;
+    let nextValue: T2 | typeof done;
 
     while (
       null === this.currentIterator ||
