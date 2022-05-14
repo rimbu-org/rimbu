@@ -76,18 +76,20 @@ export namespace HashMultiSet {
 function createContext<UT>(options?: {
   countMapContext?: HashMap.Context<UT>;
 }): HashMultiSet.Context<UT> {
-  return new MultiSetContext<UT, 'HashMultiSet', any>(
-    'HashMultiSet',
-    options?.countMapContext ?? HashMap.defaultContext()
+  return Object.freeze(
+    new MultiSetContext<UT, 'HashMultiSet', any>(
+      'HashMultiSet',
+      options?.countMapContext ?? HashMap.defaultContext()
+    )
   );
 }
 
 const _defaultContext: HashMultiSet.Context<any> = createContext();
 
-export const HashMultiSet: HashMultiSetCreators = {
+export const HashMultiSet: HashMultiSetCreators = Object.freeze({
   ..._defaultContext,
   createContext,
   defaultContext<UT>(): HashMultiSet.Context<UT> {
     return _defaultContext;
   },
-};
+});

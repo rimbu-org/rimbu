@@ -98,21 +98,23 @@ function createContext<K, V>(options?: {
   keyValueMultiMapContext?: SortedMultiMapSortedValue.Context<K, V>;
   valueKeyMultiMapContext?: SortedMultiMapSortedValue.Context<V, K>;
 }): SortedBiMultiMap.Context<K, V> {
-  return new BiMultiMapContext<K, V, 'SortedBiMultiMap', any>(
-    'SortedBiMultiMap',
-    options?.keyValueMultiMapContext ??
-      SortedMultiMapSortedValue.defaultContext(),
-    options?.valueKeyMultiMapContext ??
-      SortedMultiMapSortedValue.defaultContext()
+  return Object.freeze(
+    new BiMultiMapContext<K, V, 'SortedBiMultiMap', any>(
+      'SortedBiMultiMap',
+      options?.keyValueMultiMapContext ??
+        SortedMultiMapSortedValue.defaultContext(),
+      options?.valueKeyMultiMapContext ??
+        SortedMultiMapSortedValue.defaultContext()
+    )
   );
 }
 
 const _defaultContext: SortedBiMultiMap.Context<any, any> = createContext();
 
-export const SortedBiMultiMap: BiMultiMapSorted.Creators = {
+export const SortedBiMultiMap: BiMultiMapSorted.Creators = Object.freeze({
   ..._defaultContext,
   createContext,
   defaultContext<UK, UV>(): SortedBiMultiMap.Context<UK, UV> {
     return _defaultContext;
   },
-};
+});

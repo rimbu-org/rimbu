@@ -70,19 +70,22 @@ function createContext<UK, UV>(options?: {
   keyValueMultiMapContext?: HashMultiMapHashValue.Context<UK, UV>;
   valueKeyMultiMapContext?: HashMultiMapHashValue.Context<UV, UK>;
 }): HashBiMultiMap.Context<UK, UV> {
-  return new BiMultiMapContext<UK, UV, 'HashBiMultiMap', any>(
-    'HashBiMultiMap',
-    options?.keyValueMultiMapContext ?? HashMultiMapHashValue.defaultContext(),
-    options?.valueKeyMultiMapContext ?? HashMultiMapHashValue.defaultContext()
+  return Object.freeze(
+    new BiMultiMapContext<UK, UV, 'HashBiMultiMap', any>(
+      'HashBiMultiMap',
+      options?.keyValueMultiMapContext ??
+        HashMultiMapHashValue.defaultContext(),
+      options?.valueKeyMultiMapContext ?? HashMultiMapHashValue.defaultContext()
+    )
   );
 }
 
 const _defaultContext: HashBiMultiMap.Context<any, any> = createContext();
 
-export const HashBiMultiMap: BiMultiMapHashed.Creators = {
+export const HashBiMultiMap: BiMultiMapHashed.Creators = Object.freeze({
   ..._defaultContext,
   createContext,
   defaultContext<UK, UV>(): HashBiMultiMap.Context<UK, UV> {
     return _defaultContext;
   },
-};
+});

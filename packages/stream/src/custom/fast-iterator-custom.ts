@@ -6,19 +6,19 @@ import {
 } from '@rimbu/stream/custom';
 import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
 
-export const fixedDoneIteratorResult: IteratorResult<any> = {
+export const fixedDoneIteratorResult: IteratorResult<any> = Object.freeze({
   done: true,
   value: undefined,
-};
+});
 
-export const emptyFastIterator: FastIterator<any> = {
+export const emptyFastIterator: FastIterator<any> = Object.freeze({
   fastNext<O>(otherwise?: OptLazy<O>): O {
     return OptLazy(otherwise) as O;
   },
   next(): IteratorResult<any> {
     return fixedDoneIteratorResult;
   },
-};
+});
 
 export function isFastIterator<T>(
   iterator: Iterator<T>

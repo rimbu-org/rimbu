@@ -26,11 +26,9 @@ export class OrderedMapContextImpl<
   }
 
   readonly typeTag = 'OrderedMap';
-  readonly _empty: WithKeyValue<Tp, any, any>['normal'] = new OrderedMapEmpty<
-    any,
-    any,
-    Tp
-  >(this as any) as any;
+  readonly _empty: WithKeyValue<Tp, any, any>['normal'] = Object.freeze(
+    new OrderedMapEmpty<any, any, Tp>(this as any) as any
+  );
 
   isNonEmptyInstance(source: any): source is any {
     return source instanceof OrderedMapNonEmpty;
@@ -40,7 +38,7 @@ export class OrderedMapContextImpl<
     return this.mapContext.isValidKey(key);
   }
 
-  builder = <K extends UK, V>(): WithKeyValue<Tp, K, V>['builder'] => {
+  readonly builder = <K extends UK, V>(): WithKeyValue<Tp, K, V>['builder'] => {
     return new OrderedMapBuilder<K, V, Tp>(this as any) as any;
   };
 

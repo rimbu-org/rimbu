@@ -130,5 +130,5 @@ export class Empty<T = any> extends EmptyBase implements List<T> {
 }
 
 export function createEmptyList(context: ListContext): List<any> {
-  return new Empty(context);
+  return Object.freeze(new Empty(context));
 }

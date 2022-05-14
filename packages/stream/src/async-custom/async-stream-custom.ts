@@ -1450,7 +1450,9 @@ export class FromResource<T, R> extends AsyncStreamBase<T> {
   }
 }
 
-export const emptyAsyncStream: AsyncStream<any> = new AsyncEmptyStream();
+export const emptyAsyncStream: AsyncStream<any> = Object.freeze(
+  new AsyncEmptyStream()
+);
 
 export function isEmptyAsyncStreamSourceInstance(
   source: AsyncStreamSource<any>
@@ -1525,86 +1527,87 @@ export const fromAsyncStreamSource: {
   return new FromSource(source);
 };
 
-export const AsyncStreamConstructorsImpl: AsyncStreamConstructors = {
-  of(...values) {
-    return new AsyncOfStream(values) as any;
-  },
-  from(...sources): any {
-    const [first, ...rest] = sources;
+export const AsyncStreamConstructorsImpl: AsyncStreamConstructors =
+  Object.freeze({
+    of(...values) {
+      return new AsyncOfStream(values) as any;
+    },
+    from(...sources): any {
+      const [first, ...rest] = sources;
 
-    if (rest.length <= 0) {
-      return fromAsyncStreamSource(first);
-    }
-
-    const [rest1, ...restOther] = rest;
-
-    return fromAsyncStreamSource(first).concat(rest1, ...restOther);
-  },
-  fromResource(open, createSource, close): any {
-    return new FromResource(open, createSource, close);
-  },
-  zipWith(...sources): any {
-    return (zipFun: any): any => {
-      if (sources.some(isEmptyAsyncStreamSourceInstance)) {
-        return emptyAsyncStream;
+      if (rest.length <= 0) {
+        return fromAsyncStreamSource(first);
       }
 
-      return new AsyncFromStream(
-        () => new AsyncZipWithIterator(sources, zipFun)
+      const [rest1, ...restOther] = rest;
+
+      return fromAsyncStreamSource(first).concat(rest1, ...restOther);
+    },
+    fromResource(open, createSource, close): any {
+      return new FromResource(open, createSource, close);
+    },
+    zipWith(...sources): any {
+      return (zipFun: any): any => {
+        if (sources.some(isEmptyAsyncStreamSourceInstance)) {
+          return emptyAsyncStream;
+        }
+
+        return new AsyncFromStream(
+          () => new AsyncZipWithIterator(sources, zipFun)
+        );
+      };
+    },
+    zip(...sources): any {
+      return AsyncStreamConstructorsImpl.zipWith(...sources)(Array);
+    },
+    zipAllWith(...sources): any {
+      return (fillValue: any, zipFun: any): any => {
+        if (sources.every(isEmptyAsyncStreamSourceInstance)) {
+          return emptyAsyncStream;
+        }
+
+        return new AsyncFromStream(
+          (): AsyncFastIterator<any> =>
+            new AsyncZipAllWithItererator(fillValue, sources, zipFun)
+        );
+      };
+    },
+    zipAll(fillValue, ...sources): any {
+      return AsyncStreamConstructorsImpl.zipAllWith(...(sources as any))(
+        fillValue,
+        Array
       );
-    };
-  },
-  zip(...sources): any {
-    return AsyncStreamConstructorsImpl.zipWith(...sources)(Array);
-  },
-  zipAllWith(...sources): any {
-    return (fillValue: any, zipFun: any): any => {
-      if (sources.every(isEmptyAsyncStreamSourceInstance)) {
-        return emptyAsyncStream;
+    },
+    flatten(source: any) {
+      return AsyncStreamConstructorsImpl.from(source).flatMap((s: any) => s);
+    },
+    unzip(source, length) {
+      if (isEmptyAsyncStreamSourceInstance(source)) {
+        return Stream.of(emptyAsyncStream).repeat(length).toArray();
       }
 
+      const result: AsyncStream<unknown>[] = [];
+      let i = -1;
+
+      while (++i < length) {
+        const index = i;
+        result[i] = source.map((t: any): unknown => t[index]);
+      }
+
+      return result as any;
+    },
+    empty<T>(): AsyncStream<T> {
+      return emptyAsyncStream;
+    },
+    always<T>(value: AsyncOptLazy<T>): AsyncStream.NonEmpty<T> {
+      return AsyncStreamConstructorsImpl.of(value).repeat();
+    },
+    unfold<T>(
+      init: T,
+      next: (current: T, index: number, stop: Token) => MaybePromise<T | Token>
+    ): AsyncStream.NonEmpty<T> {
       return new AsyncFromStream(
-        (): AsyncFastIterator<any> =>
-          new AsyncZipAllWithItererator(fillValue, sources, zipFun)
-      );
-    };
-  },
-  zipAll(fillValue, ...sources): any {
-    return AsyncStreamConstructorsImpl.zipAllWith(...(sources as any))(
-      fillValue,
-      Array
-    );
-  },
-  flatten(source: any) {
-    return AsyncStreamConstructorsImpl.from(source).flatMap((s: any) => s);
-  },
-  unzip(source, length) {
-    if (isEmptyAsyncStreamSourceInstance(source)) {
-      return Stream.of(emptyAsyncStream).repeat(length).toArray();
-    }
-
-    const result: AsyncStream<unknown>[] = [];
-    let i = -1;
-
-    while (++i < length) {
-      const index = i;
-      result[i] = source.map((t: any): unknown => t[index]);
-    }
-
-    return result as any;
-  },
-  empty<T>(): AsyncStream<T> {
-    return emptyAsyncStream;
-  },
-  always<T>(value: AsyncOptLazy<T>): AsyncStream.NonEmpty<T> {
-    return AsyncStreamConstructorsImpl.of(value).repeat();
-  },
-  unfold<T>(
-    init: T,
-    next: (current: T, index: number, stop: Token) => MaybePromise<T | Token>
-  ): AsyncStream.NonEmpty<T> {
-    return new AsyncFromStream(
-      (): AsyncFastIterator<T> => new AsyncUnfoldIterator<T>(init, next)
-    ) as unknown as AsyncStream.NonEmpty<T>;
-  },
-};
+        (): AsyncFastIterator<T> => new AsyncUnfoldIterator<T>(init, next)
+      ) as unknown as AsyncStream.NonEmpty<T>;
+    },
+  });

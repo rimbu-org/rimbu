@@ -87,7 +87,7 @@ export namespace OrderedMap {
   }
 }
 
-export const OrderedMap = {
+export const OrderedMap = Object.freeze({
   /**
    * Returns a new OrderedMap context instance based on the given `options`.
    * @typeparam UK - the upper key type for which the context can create instances
@@ -99,9 +99,11 @@ export const OrderedMap = {
     listContext?: List.Context;
     mapContext: RMap.Context<UK>;
   }): OrderedMap.Context<UK> {
-    return new OrderedMapContextImpl<UK>(
-      options.listContext ?? List.defaultContext(),
-      options.mapContext
+    return Object.freeze(
+      new OrderedMapContextImpl<UK>(
+        options.listContext ?? List.defaultContext(),
+        options.mapContext
+      )
     ) as any;
   },
-};
+});

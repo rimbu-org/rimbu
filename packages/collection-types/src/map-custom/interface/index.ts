@@ -974,11 +974,11 @@ export namespace RMapBase {
       return undefined as any;
     }
 
-    empty = <K extends UK, V>(): WithKeyValue<Tp, K, V>['normal'] => {
+    readonly empty = <K extends UK, V>(): WithKeyValue<Tp, K, V>['normal'] => {
       return this._empty;
     };
 
-    from: any = <K extends UK, V>(
+    readonly from: any = <K extends UK, V>(
       ...sources: ArrayNonEmpty<StreamSource<readonly [K, V]>>
     ): WithKeyValue<Tp, K, V>['normal'] => {
       let builder = this.builder<K, V>();
@@ -1007,13 +1007,13 @@ export namespace RMapBase {
       return builder.build();
     };
 
-    of = <K extends UK, V>(
+    readonly of = <K extends UK, V>(
       ...values: ArrayNonEmpty<readonly [K, V]>
     ): K extends UK ? WithKeyValue<Tp, K, V>['nonEmpty'] : never => {
       return this.from(values);
     };
 
-    reducer = <K extends UK, V>(
+    readonly reducer = <K extends UK, V>(
       source?: StreamSource<readonly [K, V]>
     ): Reducer<readonly [K, V], WithKeyValue<Tp, K, V>['normal']> => {
       return Reducer.create(
@@ -1031,7 +1031,7 @@ export namespace RMapBase {
       );
     };
 
-    mergeAllWith: any = <
+    readonly mergeAllWith: any = <
       K,
       I extends readonly [unknown, unknown, ...unknown[]]
     >(
@@ -1079,7 +1079,11 @@ export namespace RMapBase {
       };
     };
 
-    mergeAll: any = <O, K, I extends readonly [unknown, unknown, ...unknown[]]>(
+    readonly mergeAll: any = <
+      O,
+      K,
+      I extends readonly [unknown, unknown, ...unknown[]]
+    >(
       fillValue: O,
       ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
     ): any => {
@@ -1089,7 +1093,7 @@ export namespace RMapBase {
       );
     };
 
-    mergeWith: any = <I extends readonly [unknown, ...unknown[]], K>(
+    readonly mergeWith: any = <I extends readonly [unknown, ...unknown[]], K>(
       ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
     ): any => {
       return <R>(mergeFun: (key: K, ...values: I) => R): any => {
@@ -1154,7 +1158,7 @@ export namespace RMapBase {
       };
     };
 
-    merge: any = <K, I extends readonly [unknown, ...unknown[]]>(
+    readonly merge: any = <K, I extends readonly [unknown, ...unknown[]]>(
       ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
     ): any => {
       return this.mergeWith(...sources)(

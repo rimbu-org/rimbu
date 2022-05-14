@@ -77,18 +77,20 @@ export namespace SortedMultiSet {
 function createContext<UT>(options?: {
   countMapContext?: SortedMap.Context<UT>;
 }): SortedMultiSet.Context<UT> {
-  return new MultiSetContext<UT, 'SortedMultiSet', any>(
-    'SortedMultiSet',
-    options?.countMapContext ?? SortedMap.defaultContext()
+  return Object.freeze(
+    new MultiSetContext<UT, 'SortedMultiSet', any>(
+      'SortedMultiSet',
+      options?.countMapContext ?? SortedMap.defaultContext()
+    )
   );
 }
 
 const _defaultContext: SortedMultiSet.Context<any> = createContext();
 
-export const SortedMultiSet: SortedMultiSetCreators = {
+export const SortedMultiSet: SortedMultiSetCreators = Object.freeze({
   ..._defaultContext,
   createContext,
   defaultContext<UT>(): SortedMultiSet.Context<UT> {
     return _defaultContext;
   },
-};
+});

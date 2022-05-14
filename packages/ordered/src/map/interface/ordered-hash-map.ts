@@ -91,18 +91,20 @@ function createContext<UK>(options?: {
   listContext?: List.Context;
   mapContext?: HashMap.Context<UK>;
 }): OrderedHashMap.Context<UK> {
-  return new OrderedMapContextImpl<UK>(
-    options?.listContext ?? List.defaultContext(),
-    options?.mapContext ?? HashMap.defaultContext()
+  return Object.freeze(
+    new OrderedMapContextImpl<UK>(
+      options?.listContext ?? List.defaultContext(),
+      options?.mapContext ?? HashMap.defaultContext()
+    )
   ) as any;
 }
 
 const _defaultContext: OrderedHashMap.Context<any> = createContext();
 
-export const OrderedHashMap: OrderedHashMapCreators = {
+export const OrderedHashMap: OrderedHashMapCreators = Object.freeze({
   ..._defaultContext,
   createContext,
   defaultContext<UK>(): OrderedHashMap.Context<UK> {
     return _defaultContext;
   },
-};
+});

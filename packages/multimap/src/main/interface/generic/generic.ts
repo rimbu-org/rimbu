@@ -53,7 +53,7 @@ export namespace MultiMap {
   }
 }
 
-export const MultiMap = {
+export const MultiMap = Object.freeze({
   /**
    * Returns a new MultiMap context instance based on the given `options`.
    * @typeparam UK - the upper key type for which the context can create instances
@@ -66,10 +66,12 @@ export const MultiMap = {
     keyMapContext: RMap.Context<UK>;
     keyMapValuesContext: RSet.Context<UV>;
   }): MultiMap.Context<UK, UV> {
-    return new MultiMapContext<UK, UV, 'MultiMap', any>(
-      'MultiMap',
-      options.keyMapContext,
-      options.keyMapValuesContext
+    return Object.freeze(
+      new MultiMapContext<UK, UV, 'MultiMap', any>(
+        'MultiMap',
+        options.keyMapContext,
+        options.keyMapValuesContext
+      )
     );
   },
-};
+});

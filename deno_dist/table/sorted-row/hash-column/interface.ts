@@ -94,20 +94,23 @@ function createContext<UR, UC>(options?: {
   rowContext?: SortedMap.Context<UR>;
   columnContext?: HashMap.Context<UC>;
 }): SortedTableHashColumn.Context<UR, UC> {
-  return new TableContext<UR, UC, 'SortedTableHashColumn', any>(
-    'SortedTableHashColumn',
-    options?.rowContext ?? SortedMap.defaultContext(),
-    options?.columnContext ?? HashMap.defaultContext()
+  return Object.freeze(
+    new TableContext<UR, UC, 'SortedTableHashColumn', any>(
+      'SortedTableHashColumn',
+      options?.rowContext ?? SortedMap.defaultContext(),
+      options?.columnContext ?? HashMap.defaultContext()
+    )
   );
 }
 
 const _defaultContext: SortedTableHashColumn.Context<any, any> =
   createContext();
 
-export const SortedTableHashColumn: SortedTableHashColumnCreators = {
-  ..._defaultContext,
-  createContext,
-  defaultContext<UR, UC>(): SortedTableHashColumn.Context<UR, UC> {
-    return _defaultContext;
-  },
-};
+export const SortedTableHashColumn: SortedTableHashColumnCreators =
+  Object.freeze({
+    ..._defaultContext,
+    createContext,
+    defaultContext<UR, UC>(): SortedTableHashColumn.Context<UR, UC> {
+      return _defaultContext;
+    },
+  });

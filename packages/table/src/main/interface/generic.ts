@@ -65,7 +65,7 @@ export namespace Table {
   }
 }
 
-export const Table = {
+export const Table = Object.freeze({
   /**
    * Returns a new Table context instance based on the given `options`.
    * @typeparam UR - the upper row key type for which the context can create instances
@@ -78,10 +78,12 @@ export const Table = {
     rowContext: RMap.Context<UR>;
     columnContext: RMap.Context<UC>;
   }): Table.Context<UR, UC> {
-    return new TableContext<UR, UC, 'Table'>(
-      'Table',
-      options.rowContext,
-      options.columnContext
+    return Object.freeze(
+      new TableContext<UR, UC, 'Table'>(
+        'Table',
+        options.rowContext,
+        options.columnContext
+      )
     );
   },
-};
+});

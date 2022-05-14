@@ -90,10 +90,10 @@ export namespace HashMap {
 
 const _defaultContext: HashMap.Context<any> = createHashMapContext();
 
-export const HashMap: HashMapCreators = {
+export const HashMap: HashMapCreators = Object.freeze({
   ..._defaultContext,
   createContext: createHashMapContext,
   defaultContext<UK>(): HashMap.Context<UK> {
     return _defaultContext;
   },
-};
+});

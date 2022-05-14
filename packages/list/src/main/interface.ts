@@ -1072,10 +1072,10 @@ export namespace List {
 
 const _defaultContext = createListContext();
 
-export const List: ListCreators = {
+export const List: ListCreators = Object.freeze({
   createContext: createListContext,
   defaultContext() {
     return _defaultContext;
   },
   ..._defaultContext,
-};
+});

@@ -21,10 +21,14 @@ import type {
   AsyncStreamSource,
 } from '@rimbu/stream/async';
 
-export const fixedDoneAsyncIteratorResult = Promise.resolve({
-  done: true,
-  value: undefined,
-} as IteratorResult<any>);
+export const fixedDoneAsyncIteratorResult = Object.freeze(
+  Promise.resolve(
+    Object.freeze({
+      done: true,
+      value: undefined,
+    }) as IteratorResult<any>
+  )
+);
 
 export function isAsyncFastIterator<T>(
   iterator: AsyncIterator<T>
@@ -32,14 +36,14 @@ export function isAsyncFastIterator<T>(
   return `fastNext` in iterator;
 }
 
-export const emptyAsyncFastIterator: AsyncFastIterator<any> = {
+export const emptyAsyncFastIterator: AsyncFastIterator<any> = Object.freeze({
   fastNext<O>(otherwise?: AsyncOptLazy<O>): MaybePromise<O> {
     return AsyncOptLazy.toMaybePromise(otherwise!);
   },
   next(): Promise<IteratorResult<any>> {
     return fixedDoneAsyncIteratorResult;
   },
-};
+});
 
 export abstract class AsyncFastIteratorBase<T> implements AsyncFastIterator<T> {
   abstract fastNext<O>(otherwise?: AsyncOptLazy<O>): MaybePromise<T | O>;

@@ -26,19 +26,21 @@ export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>
     return undefined as any;
   }
 
-  readonly _empty: BiMap<any, any> = new BiMapEmpty<any, any>(this);
+  readonly _empty: BiMap<any, any> = Object.freeze(
+    new BiMapEmpty<any, any>(this)
+  );
 
-  empty = <K extends UK, V extends UV>(): BiMap<K, V> => {
+  readonly empty = <K extends UK, V extends UV>(): BiMap<K, V> => {
     return this._empty;
   };
 
-  of: any = <K, V>(
+  readonly of: any = <K, V>(
     ...entries: ArrayNonEmpty<readonly [K, V]>
   ): [K, V] extends [UK, UV] ? BiMap.NonEmpty<K, V> : never => {
     return this.from(entries);
   };
 
-  from = <K, V>(
+  readonly from = <K, V>(
     ...sources: ArrayNonEmpty<StreamSource<readonly [K, V]>>
   ): [K, V] extends [UK, UV] ? BiMap<K, V> | any : never => {
     if (sources.length === 1) {
@@ -72,11 +74,11 @@ export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>
     return builder.build() as any;
   };
 
-  builder = <K extends UK, V extends UV>(): BiMap.Builder<K, V> => {
+  readonly builder = <K extends UK, V extends UV>(): BiMap.Builder<K, V> => {
     return new BiMapBuilder(this as unknown as BiMapContext<K, V>);
   };
 
-  reducer = <K extends UK, V extends UV>(
+  readonly reducer = <K extends UK, V extends UV>(
     source?: StreamSource<readonly [K, V]>
   ): Reducer<readonly [K, V], BiMap<K, V>> => {
     return Reducer.create(

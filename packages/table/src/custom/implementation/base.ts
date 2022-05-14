@@ -888,12 +888,9 @@ export class TableContext<
     return undefined as any;
   }
 
-  readonly _empty = new TableEmpty<UR, UC, any, any>(this) as WithRow<
-    Tp,
-    UR,
-    UC,
-    any
-  >['normal'];
+  readonly _empty = Object.freeze(
+    new TableEmpty<UR, UC, any, any>(this) as WithRow<Tp, UR, UC, any>['normal']
+  );
 
   isNonEmptyInstance<R, C, V>(
     source: any
@@ -908,11 +905,16 @@ export class TableContext<
     return new TableNonEmpty<R, C, V, Tp>(this, rowMap, size) as any;
   }
 
-  empty = <R extends UR, C extends UC, V>(): WithRow<Tp, R, C, V>['normal'] => {
+  readonly empty = <R extends UR, C extends UC, V>(): WithRow<
+    Tp,
+    R,
+    C,
+    V
+  >['normal'] => {
     return this._empty;
   };
 
-  from: any = <R extends UR, C extends UC, V>(
+  readonly from: any = <R extends UR, C extends UC, V>(
     ...sources: ArrayNonEmpty<StreamSource<readonly [R, C, V]>>
   ): WithRow<Tp, R, C, V>['normal'] => {
     let builder = this.builder<R, C, V>();
@@ -940,13 +942,13 @@ export class TableContext<
     return builder.build();
   };
 
-  of: any = <R extends UR, C extends UC, V>(
+  readonly of: any = <R extends UR, C extends UC, V>(
     ...entries: ArrayNonEmpty<readonly [R, C, V]>
   ): any => {
     return this.from(entries);
   };
 
-  builder = <R extends UR, C extends UC, V>(): WithRow<
+  readonly builder = <R extends UR, C extends UC, V>(): WithRow<
     Tp,
     R,
     C,
@@ -955,7 +957,7 @@ export class TableContext<
     return new TableBuilder(this);
   };
 
-  reducer = <R extends UR, C extends UC, V>(
+  readonly reducer = <R extends UR, C extends UC, V>(
     source?: StreamSource<readonly [R, C, V]>
   ): Reducer<[R, C, V], WithRow<Tp, R, C, V>['normal']> => {
     return Reducer.create(

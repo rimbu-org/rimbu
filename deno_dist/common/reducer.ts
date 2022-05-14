@@ -467,7 +467,7 @@ export namespace Reducer {
   };
 
   /**
-   * Returns a `yaReducer` that joins the given input values into a string using the given options.
+   * Returns a `Reducer` that joins the given input values into a string using the given options.
    * @param options - an object containing:<br/>
    * - sep: (optional) a seperator string value between values in the output<br/>
    * - start: (optional) a start string to prepend to the output<br/>

@@ -96,20 +96,23 @@ function createContext<UN>(options?: {
   linkMapContext?: HashMap.Context<UN>;
   linkConnectionsContext?: HashMap.Context<UN>;
 }): ArrowValuedGraphHashed.Context<UN> {
-  return new ValuedGraphContext<UN, 'ArrowValuedGraphHashed', any>(
-    true,
-    'ArrowValuedGraphHashed',
-    options?.linkMapContext ?? HashMap.defaultContext(),
-    options?.linkConnectionsContext ?? HashMap.defaultContext()
+  return Object.freeze(
+    new ValuedGraphContext<UN, 'ArrowValuedGraphHashed', any>(
+      true,
+      'ArrowValuedGraphHashed',
+      options?.linkMapContext ?? HashMap.defaultContext(),
+      options?.linkConnectionsContext ?? HashMap.defaultContext()
+    )
   );
 }
 
 const _defaultContext: ArrowValuedGraphHashed.Context<any> = createContext();
 
-export const ArrowValuedGraphHashed: ArrowValuedGraphHashedCreators = {
-  ..._defaultContext,
-  createContext,
-  defaultContext<UN>(): ArrowValuedGraphHashed.Context<UN> {
-    return _defaultContext;
-  },
-};
+export const ArrowValuedGraphHashed: ArrowValuedGraphHashedCreators =
+  Object.freeze({
+    ..._defaultContext,
+    createContext,
+    defaultContext<UN>(): ArrowValuedGraphHashed.Context<UN> {
+      return _defaultContext;
+    },
+  });

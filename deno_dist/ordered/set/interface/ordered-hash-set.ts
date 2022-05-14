@@ -88,18 +88,20 @@ function createContext<UT>(options?: {
   listContext?: List.Context;
   setContext?: HashSet.Context<UT>;
 }): OrderedHashSet.Context<UT> {
-  return new OrderedSetContextImpl<UT>(
-    options?.listContext ?? List.defaultContext(),
-    options?.setContext ?? HashSet.defaultContext()
+  return Object.freeze(
+    new OrderedSetContextImpl<UT>(
+      options?.listContext ?? List.defaultContext(),
+      options?.setContext ?? HashSet.defaultContext()
+    )
   ) as any;
 }
 
 const _defaultContext: OrderedHashSet.Context<any> = createContext();
 
-export const OrderedHashSet: OrderedHashSetCreators = {
+export const OrderedHashSet: OrderedHashSetCreators = Object.freeze({
   ..._defaultContext,
   createContext,
   defaultContext<UT>(): OrderedHashSet.Context<UT> {
     return _defaultContext;
   },
-};
+});

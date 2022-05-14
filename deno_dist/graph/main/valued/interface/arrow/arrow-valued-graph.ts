@@ -78,11 +78,13 @@ export const ArrowValuedGraph = {
     linkMapContext: RMap.Context<UN>;
     linkConnectionsContext: RMap.Context<UN>;
   }): ArrowValuedGraph.Context<UN> {
-    return new ValuedGraphContext<UN, 'ArrowValuedGraph', any>(
-      true,
-      'ArrowValuedGraph',
-      options.linkMapContext,
-      options.linkConnectionsContext
+    return Object.freeze(
+      new ValuedGraphContext<UN, 'ArrowValuedGraph', any>(
+        true,
+        'ArrowValuedGraph',
+        options.linkMapContext,
+        options.linkConnectionsContext
+      )
     );
   },
 };

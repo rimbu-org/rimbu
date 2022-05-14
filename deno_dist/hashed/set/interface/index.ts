@@ -81,10 +81,10 @@ export namespace HashSet {
 
 const _defaultContext: HashSet.Context<any> = createHashSetContext();
 
-export const HashSet: HashSetCreators = {
+export const HashSet: HashSetCreators = Object.freeze({
   ..._defaultContext,
   createContext: createHashSetContext,
   defaultContext<UT>(): HashSet.Context<UT> {
     return _defaultContext;
   },
-};
+});

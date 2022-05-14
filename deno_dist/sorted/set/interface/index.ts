@@ -295,10 +295,10 @@ export namespace SortedSet {
 
 const _defaultContext: SortedSet.Context<any> = createSortedSetContext();
 
-export const SortedSet: SortedSetCreators = {
+export const SortedSet: SortedSetCreators = Object.freeze({
   ..._defaultContext,
   createContext: createSortedSetContext,
   defaultContext<UT>(): SortedSet.Context<UT> {
     return _defaultContext;
   },
-};
+});

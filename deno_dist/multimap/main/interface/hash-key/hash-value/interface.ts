@@ -107,20 +107,23 @@ function createContext<UK, UV>(options?: {
   keyMapContext?: HashMap.Context<UK>;
   keyMapValuesContext?: HashSet.Context<UV>;
 }): HashMultiMapHashValue.Context<UK, UV> {
-  return new MultiMapContext<UK, UV, 'HashMultiMapHashValue', any>(
-    'HashMultiMapHashValue',
-    options?.keyMapContext ?? HashMap.defaultContext(),
-    options?.keyMapValuesContext ?? HashSet.defaultContext()
+  return Object.freeze(
+    new MultiMapContext<UK, UV, 'HashMultiMapHashValue', any>(
+      'HashMultiMapHashValue',
+      options?.keyMapContext ?? HashMap.defaultContext(),
+      options?.keyMapValuesContext ?? HashSet.defaultContext()
+    )
   );
 }
 
 const _defaultContext: HashMultiMapHashValue.Context<any, any> =
   createContext();
 
-export const HashMultiMapHashValue: HashMultiMapHashValueCreators = {
-  ..._defaultContext,
-  createContext,
-  defaultContext<UK, UV>(): HashMultiMapHashValue.Context<UK, UV> {
-    return _defaultContext;
-  },
-};
+export const HashMultiMapHashValue: HashMultiMapHashValueCreators =
+  Object.freeze({
+    ..._defaultContext,
+    createContext,
+    defaultContext<UK, UV>(): HashMultiMapHashValue.Context<UK, UV> {
+      return _defaultContext;
+    },
+  });
