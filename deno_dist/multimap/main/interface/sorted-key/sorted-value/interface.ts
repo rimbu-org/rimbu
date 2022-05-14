@@ -110,20 +110,23 @@ function createContext<K, V>(options?: {
   keyMapContext?: SortedMap.Context<K>;
   keyMapValuesContext?: SortedSet.Context<V>;
 }): SortedMultiMapSortedValue.Context<K, V> {
-  return new MultiMapContext<K, V, 'SortedMultiMapSortedValue', any>(
-    'SortedMultiMapSortedValue',
-    options?.keyMapContext ?? SortedMap.defaultContext(),
-    options?.keyMapValuesContext ?? SortedSet.defaultContext()
+  return Object.freeze(
+    new MultiMapContext<K, V, 'SortedMultiMapSortedValue', any>(
+      'SortedMultiMapSortedValue',
+      options?.keyMapContext ?? SortedMap.defaultContext(),
+      options?.keyMapValuesContext ?? SortedSet.defaultContext()
+    )
   );
 }
 
 const _defaultContext: SortedMultiMapSortedValue.Context<any, any> =
   createContext();
 
-export const SortedMultiMapSortedValue: SortedMultiMapSortedValueCreators = {
-  ..._defaultContext,
-  createContext,
-  defaultContext<UK, UV>(): SortedMultiMapSortedValue.Context<UK, UV> {
-    return _defaultContext;
-  },
-};
+export const SortedMultiMapSortedValue: SortedMultiMapSortedValueCreators =
+  Object.freeze({
+    ..._defaultContext,
+    createContext,
+    defaultContext<UK, UV>(): SortedMultiMapSortedValue.Context<UK, UV> {
+      return _defaultContext;
+    },
+  });

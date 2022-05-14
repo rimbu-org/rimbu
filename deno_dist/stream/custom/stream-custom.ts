@@ -1648,7 +1648,7 @@ export class RangeStream extends StreamBase<number> {
   }
 }
 
-export const emptyStream: Stream<any> = new EmptyStream();
+export const emptyStream: Stream<any> = Object.freeze(new EmptyStream());
 
 export function isStream(obj: any): obj is Stream<any> {
   return obj instanceof StreamBase;
@@ -1692,7 +1692,7 @@ export function isEmptyStreamSourceInstance(
   return false;
 }
 
-export const StreamConstructorsImpl: StreamConstructors = {
+export const StreamConstructorsImpl: StreamConstructors = Object.freeze({
   empty<T>(): Stream<T> {
     return emptyStream;
   },
@@ -1878,4 +1878,4 @@ export const StreamConstructorsImpl: StreamConstructors = {
 
     return result as any;
   },
-};
+});

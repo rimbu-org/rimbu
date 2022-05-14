@@ -55,15 +55,17 @@ export namespace BiMultiMap {
   }
 }
 
-export const BiMultiMap: BiMultiMapGeneric.Creators = {
+export const BiMultiMap: BiMultiMapGeneric.Creators = Object.freeze({
   createContext<UK, UV>(options: {
     keyValueMultiMapContext: MultiMap.Context<UK, UV>;
     valueKeyMultiMapContext: MultiMap.Context<UV, UK>;
   }): BiMultiMap.Context<UK, UV> {
-    return new BiMultiMapContext<UK, UV, 'BiMultiMap', any>(
-      'BiMultiMap',
-      options.keyValueMultiMapContext,
-      options.valueKeyMultiMapContext
+    return Object.freeze(
+      new BiMultiMapContext<UK, UV, 'BiMultiMap', any>(
+        'BiMultiMap',
+        options.keyValueMultiMapContext,
+        options.valueKeyMultiMapContext
+      )
     );
   },
-};
+});

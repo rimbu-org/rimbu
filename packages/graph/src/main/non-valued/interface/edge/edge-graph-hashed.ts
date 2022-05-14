@@ -86,20 +86,22 @@ function createContext<UN>(options?: {
   linkMapContext?: HashMap.Context<UN>;
   linkConnectionsContext?: HashSet.Context<UN>;
 }): EdgeGraphHashed.Context<UN> {
-  return new GraphContext<UN, 'EdgeGraphHashed', false, any>(
-    false,
-    'EdgeGraphHashed',
-    options?.linkMapContext ?? HashMap.defaultContext(),
-    options?.linkConnectionsContext ?? HashSet.defaultContext()
+  return Object.freeze(
+    new GraphContext<UN, 'EdgeGraphHashed', false, any>(
+      false,
+      'EdgeGraphHashed',
+      options?.linkMapContext ?? HashMap.defaultContext(),
+      options?.linkConnectionsContext ?? HashSet.defaultContext()
+    )
   );
 }
 
 const _defaultContext: EdgeGraphHashed.Context<any> = createContext();
 
-export const EdgeGraphHashed: EdgeGraphHashedCreators = {
+export const EdgeGraphHashed: EdgeGraphHashedCreators = Object.freeze({
   ..._defaultContext,
   createContext,
   defaultContext<UN>(): EdgeGraphHashed.Context<UN> {
     return _defaultContext;
   },
-};
+});

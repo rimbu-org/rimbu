@@ -77,7 +77,7 @@ export namespace OrderedSet {
   }
 }
 
-export const OrderedSet = {
+export const OrderedSet = Object.freeze({
   /**
    * Returns a new OrderedSet context instance based on the given `options`.
    * @typeparam UT - the upper element type for which the context can create instances
@@ -94,4 +94,4 @@ export const OrderedSet = {
       options.setContext
     ) as any;
   },
-};
+});

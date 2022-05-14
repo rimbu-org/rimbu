@@ -60,7 +60,7 @@ export namespace Hasher {
   function createStringHasher(maxStepBits: number): Hasher<string> {
     const maxSteps = 1 << maxStepBits;
 
-    return {
+    return Object.freeze({
       isValid(obj: unknown): obj is string {
         return typeof obj === 'string';
       },
@@ -77,7 +77,7 @@ export namespace Hasher {
 
         return result;
       },
-    };
+    });
   }
 
   const _stringHasher: Hasher<string> = createStringHasher(MAX_STEP_BITS);
@@ -94,14 +94,14 @@ export namespace Hasher {
     return _stringHasher;
   }
 
-  const _anyToStringHasher: Hasher<any> = {
+  const _anyToStringHasher: Hasher<any> = Object.freeze({
     isValid(obj: unknown): obj is any {
       return true;
     },
     hash(value) {
       return _stringHasher.hash(Eq.convertAnyToString(value));
     },
-  };
+  });
 
   /**
    * Returns a Hasher instance that hashes the string representation of any value
@@ -118,14 +118,14 @@ export namespace Hasher {
     return createStringHasher(maxStepBits);
   }
 
-  const _anyJsonStringHasher: Hasher<any> = {
+  const _anyJsonStringHasher: Hasher<any> = Object.freeze({
     isValid(obj: unknown): obj is any {
       return true;
     },
     hash(value) {
       return _stringHasher.hash(JSON.stringify(value));
     },
-  };
+  });
 
   /**
    * Returns a Hasher instance that hashes any value by hashing the string resulting from
@@ -146,7 +146,7 @@ export namespace Hasher {
   ): Hasher<string> {
     const maxSteps = 1 << maxStepBits;
 
-    return {
+    return Object.freeze({
       isValid(obj: unknown): obj is string {
         return typeof obj === 'string';
       },
@@ -164,7 +164,7 @@ export namespace Hasher {
 
         return result;
       },
-    };
+    });
   }
 
   const _stringCaseInsensitiveHasher: Hasher<string> =
@@ -180,7 +180,7 @@ export namespace Hasher {
   ): Hasher<readonly T[]> {
     const maxSteps = 1 << maxStepBits;
 
-    return {
+    return Object.freeze({
       isValid(obj: unknown): obj is readonly T[] {
         return Array.isArray(obj);
       },
@@ -198,7 +198,7 @@ export namespace Hasher {
 
         return result;
       },
-    };
+    });
   }
 
   const _arrayAnyHasher: Hasher<readonly any[]> = createArrayHasher(
@@ -239,7 +239,7 @@ export namespace Hasher {
   ): Hasher<StreamSource<T>> {
     const maxSteps = 1 << maxStepBits;
 
-    return {
+    return Object.freeze({
       isValid(obj: unknown): obj is StreamSource<T> {
         return (
           typeof obj === 'object' && obj !== null && Symbol.iterator in obj
@@ -293,7 +293,7 @@ export namespace Hasher {
         // include length in hash
         return ((itemHash << 5) - itemHash + length) | 0;
       },
-    };
+    });
   }
 
   const _streamSourceAnyHasher: Hasher<StreamSource<any>> =
@@ -327,7 +327,7 @@ export namespace Hasher {
   const MIN_HASH = -Math.pow(2, 31);
   const MAX_HASH = Math.pow(2, 31) - 1;
 
-  const _numberHasher: Hasher<number> = {
+  const _numberHasher: Hasher<number> = Object.freeze({
     isValid(obj: unknown): obj is number {
       return typeof obj === 'number';
     },
@@ -348,7 +348,7 @@ export namespace Hasher {
       // not sure what else it could be
       return _anyToStringHasher.hash(value);
     },
-  };
+  });
 
   /**
    * Returns a Hasher instance that hashes numbers, including 'special' values like NaN and infinities.
@@ -365,14 +365,14 @@ export namespace Hasher {
     return _numberHasher;
   }
 
-  const _booleanHasher: Hasher<boolean> = {
+  const _booleanHasher: Hasher<boolean> = Object.freeze({
     isValid(obj: unknown): obj is boolean {
       return typeof obj === 'boolean';
     },
     hash(value) {
       return value ? BOOL_TRUE : BOOL_FALSE;
     },
-  };
+  });
 
   /**
    * Returns a Hasher instance that hashes booleans.
@@ -387,12 +387,12 @@ export namespace Hasher {
     return _booleanHasher;
   }
 
-  const _bigintHasher: Hasher<bigint> = {
+  const _bigintHasher: Hasher<bigint> = Object.freeze({
     isValid(obj: unknown): obj is bigint {
       return typeof obj === 'bigint';
     },
     hash: _anyToStringHasher.hash,
-  };
+  });
 
   /**
    * Returns a Hasher instance that hashes bigints.
@@ -431,14 +431,14 @@ export namespace Hasher {
     },
     valueHasher: Hasher<V> = anyFlatHasher()
   ): Hasher<T> {
-    return {
+    return Object.freeze({
       isValid(obj): obj is T {
         return obj instanceof cls;
       },
       hash(value): number {
         return valueHasher.hash(value.valueOf());
       },
-    };
+    });
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -502,7 +502,7 @@ export namespace Hasher {
     keyHasher: Hasher<unknown>,
     valueHasher: Hasher<unknown>
   ): Hasher<Record<any, any>> {
-    return {
+    return Object.freeze({
       isValid(obj): obj is Record<any, any> {
         return typeof obj === 'object';
       },
@@ -523,7 +523,7 @@ export namespace Hasher {
 
         return result;
       },
-    };
+    });
   }
 
   const _objectShallowHasher: Hasher<Record<any, any>> = createObjectHasher(
@@ -605,7 +605,7 @@ export namespace Hasher {
     mode: 'FLAT' | 'SHALLOW' | 'DEEP',
     maxStepBits = MAX_STEP_BITS
   ): Hasher<any> {
-    return {
+    return Object.freeze({
       isValid(obj): obj is any {
         return true;
       },
@@ -666,7 +666,7 @@ export namespace Hasher {
           }
         }
       },
-    };
+    });
   }
 
   /**
@@ -728,7 +728,7 @@ export namespace Hasher {
   export function tupleSymmetric<T>(
     hasher: Hasher<T> = anyShallowHasher()
   ): Hasher<readonly [T, T]> {
-    return {
+    return Object.freeze({
       isValid(obj: unknown): obj is readonly [T, T] {
         return (
           Array.isArray(obj) &&
@@ -740,6 +740,6 @@ export namespace Hasher {
       hash(value: readonly [T, T]): number {
         return (hasher.hash(value[0]) + hasher.hash(value[1])) | 0;
       },
-    };
+    });
   }
 }

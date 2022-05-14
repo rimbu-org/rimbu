@@ -50,7 +50,7 @@ export class ListContext implements List.Context {
     return undefined as any;
   }
 
-  builder = <T>(): GenBuilder<T> => {
+  readonly builder = <T>(): GenBuilder<T> => {
     return new GenBuilder<T>(this);
   };
 
@@ -74,16 +74,16 @@ export class ListContext implements List.Context {
 
   readonly _empty: List<any> = createEmptyList(this);
 
-  empty = <T>(): List<T> => {
+  readonly empty = <T>(): List<T> => {
     return this._empty;
   };
 
-  of = <T>(...values: ArrayNonEmpty<T>): List.NonEmpty<T> => {
+  readonly of = <T>(...values: ArrayNonEmpty<T>): List.NonEmpty<T> => {
     if (values.length <= this.maxBlockSize) return this.leafBlock(values);
     return this.from(values);
   };
 
-  from = <T>(...sources: ArrayNonEmpty<StreamSource<T>>): any => {
+  readonly from = <T>(...sources: ArrayNonEmpty<StreamSource<T>>): any => {
     if (sources.length === 1) {
       const source = sources[0];
       if ((source as any).context === this) return source;
@@ -120,11 +120,11 @@ export class ListContext implements List.Context {
     return result;
   };
 
-  fromString = (...sources: ArrayNonEmpty<string>): any => {
+  readonly fromString = (...sources: ArrayNonEmpty<string>): any => {
     return this.from(...sources);
   };
 
-  reducer = <T>(source?: StreamSource<T>): Reducer<T, List<T>> => {
+  readonly reducer = <T>(source?: StreamSource<T>): Reducer<T, List<T>> => {
     return Reducer.create(
       () =>
         undefined === source
@@ -138,9 +138,10 @@ export class ListContext implements List.Context {
     );
   };
 
-  flatten = (source: any): any => this.from(source).flatMap((s: any) => s);
+  readonly flatten = (source: any): any =>
+    this.from(source).flatMap((s: any) => s);
 
-  unzip = (source: any, length: number): any => {
+  readonly unzip = (source: any, length: number): any => {
     const streams = Stream.unzip(source, length) as any as Stream<any>[];
 
     return Stream.from(streams).mapPure(this.from) as any;
@@ -282,5 +283,5 @@ export class ListContext implements List.Context {
 export function createListContext(options?: {
   blockSizeBits?: number;
 }): List.Context {
-  return new ListContext(options?.blockSizeBits ?? 5);
+  return Object.freeze(new ListContext(options?.blockSizeBits ?? 5));
 }

@@ -96,20 +96,23 @@ function createContext<UN>(options?: {
   linkMapContext?: SortedMap.Context<UN>;
   linkConnectionsContext?: SortedMap.Context<UN>;
 }): ArrowValuedGraphSorted.Context<UN> {
-  return new ValuedGraphContext<UN, 'ArrowValuedGraphSorted', any>(
-    true,
-    'ArrowValuedGraphSorted',
-    options?.linkMapContext ?? SortedMap.defaultContext(),
-    options?.linkConnectionsContext ?? SortedMap.defaultContext()
+  return Object.freeze(
+    new ValuedGraphContext<UN, 'ArrowValuedGraphSorted', any>(
+      true,
+      'ArrowValuedGraphSorted',
+      options?.linkMapContext ?? SortedMap.defaultContext(),
+      options?.linkConnectionsContext ?? SortedMap.defaultContext()
+    )
   );
 }
 
 const _defaultContext: ArrowValuedGraphSorted.Context<any> = createContext();
 
-export const ArrowValuedGraphSorted: ArrowValuedGraphSortedCreators = {
-  ..._defaultContext,
-  createContext,
-  defaultContext<UN>(): ArrowValuedGraphSorted.Context<UN> {
-    return _defaultContext;
-  },
-};
+export const ArrowValuedGraphSorted: ArrowValuedGraphSortedCreators =
+  Object.freeze({
+    ..._defaultContext,
+    createContext,
+    defaultContext<UN>(): ArrowValuedGraphSorted.Context<UN> {
+      return _defaultContext;
+    },
+  });

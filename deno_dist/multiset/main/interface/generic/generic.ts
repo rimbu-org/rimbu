@@ -50,7 +50,7 @@ export namespace MultiSet {
   }
 }
 
-export const MultiSet = {
+export const MultiSet = Object.freeze({
   /**
    * Returns a new MultiSet context instance based on the given `options`.
    * @typeparam UT - the upper element type for which the context can create instances
@@ -60,9 +60,8 @@ export const MultiSet = {
   createContext<UT>(options: {
     countMapContext: RMap.Context<UT>;
   }): MultiSet.Context<UT> {
-    return new MultiSetContext<UT, 'MultiSet'>(
-      'MultiSet',
-      options.countMapContext
+    return Object.freeze(
+      new MultiSetContext<UT, 'MultiSet'>('MultiSet', options.countMapContext)
     );
   },
-};
+});

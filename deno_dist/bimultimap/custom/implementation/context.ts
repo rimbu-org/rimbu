@@ -41,23 +41,25 @@ export class BiMultiMapContext<
     return undefined as any;
   }
 
-  readonly _empty = new BiMultiMapEmpty<UK, UV, Tp>(this) as WithKeyValue<
-    Tp,
-    UK,
-    UV
-  >['normal'];
+  readonly _empty = Object.freeze(
+    new BiMultiMapEmpty<UK, UV, Tp>(this)
+  ) as WithKeyValue<Tp, UK, UV>['normal'];
 
-  empty = <K extends UK, V extends UV>(): WithKeyValue<Tp, K, V>['normal'] => {
+  readonly empty = <K extends UK, V extends UV>(): WithKeyValue<
+    Tp,
+    K,
+    V
+  >['normal'] => {
     return this._empty;
   };
 
-  of: any = <K extends UK, V extends UV>(
+  readonly of: any = <K extends UK, V extends UV>(
     ...entries: ArrayNonEmpty<readonly [K, V]>
   ): [K, V] extends [UK, UV] ? WithKeyValue<Tp, K, V>['nonEmpty'] : never => {
     return this.from(entries);
   };
 
-  from = <K extends UK, V extends UV>(
+  readonly from = <K extends UK, V extends UV>(
     ...sources: ArrayNonEmpty<StreamSource<readonly [K, V]>>
   ): [K, V] extends [UK, UV]
     ? WithKeyValue<Tp, K, V>['normal'] | any
@@ -93,7 +95,7 @@ export class BiMultiMapContext<
     return builder.build() as any;
   };
 
-  builder = <K extends UK, V extends UV>(): WithKeyValue<
+  readonly builder = <K extends UK, V extends UV>(): WithKeyValue<
     Tp,
     K,
     V
@@ -105,7 +107,7 @@ export class BiMultiMapContext<
     >['builder'];
   };
 
-  reducer = <K extends UK, V extends UV>(
+  readonly reducer = <K extends UK, V extends UV>(
     source?: StreamSource<readonly [K, V]>
   ): Reducer<[K, V], WithKeyValue<Tp, K, V>['normal']> => {
     return Reducer.create(

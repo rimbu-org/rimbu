@@ -26,8 +26,8 @@ export class OrderedSetContextImpl<
   }
 
   readonly typeTag = 'OrderedSet';
-  readonly _empty: OrderedSetBase<any, Tp> = new OrderedSetEmpty<any, Tp>(
-    this as any
+  readonly _empty: OrderedSetBase<any, Tp> = Object.freeze(
+    new OrderedSetEmpty<any, Tp>(this as any)
   );
 
   isNonEmptyInstance(source: any): source is any {
@@ -38,7 +38,7 @@ export class OrderedSetContextImpl<
     return this.setContext.isValidValue(value);
   }
 
-  builder = <T extends UT>(): WithElem<Tp, T>['builder'] => {
+  readonly builder = <T extends UT>(): WithElem<Tp, T>['builder'] => {
     return new OrderedSetBuilder<T, Tp>(this as any) as any;
   };
 

@@ -626,8 +626,8 @@ export class MultiSetContext<
     return this.countMapContext.isValidKey(elem);
   }
 
-  readonly _empty: WithElem<Tp, UT>['normal'] = new MultiSetEmpty<UT, Tp>(
-    this as any
+  readonly _empty: WithElem<Tp, UT>['normal'] = Object.freeze(
+    new MultiSetEmpty<UT, Tp>(this as any)
   ) as any;
 
   isNonEmptyInstance<T>(source: any): source is WithElem<Tp, T>['nonEmpty'] {
@@ -641,11 +641,11 @@ export class MultiSetContext<
     return new MultiSetNonEmpty<T, Tp>(this as any, countMap, size) as any;
   }
 
-  empty = <T extends UT>(): WithElem<Tp, T>['normal'] => {
+  readonly empty = <T extends UT>(): WithElem<Tp, T>['normal'] => {
     return this._empty;
   };
 
-  from: any = <T extends UT>(
+  readonly from: any = <T extends UT>(
     ...sources: ArrayNonEmpty<StreamSource<T>>
   ): WithElem<Tp, T>['normal'] => {
     let builder = this.builder<T>();
@@ -673,20 +673,20 @@ export class MultiSetContext<
     return builder.build();
   };
 
-  of = <T>(
+  readonly of = <T>(
     ...values: ArrayNonEmpty<T>
   ): T extends UT ? WithElem<Tp, T>['nonEmpty'] : never => {
     return this.from(values);
   };
 
-  builder = <T extends UT>(): WithElem<Tp, T>['builder'] => {
+  readonly builder = <T extends UT>(): WithElem<Tp, T>['builder'] => {
     return new MultiSetBuilder<T, Tp>(this as any) as WithElem<
       Tp,
       T
     >['builder'];
   };
 
-  reducer = <T extends UT>(
+  readonly reducer = <T extends UT>(
     source?: StreamSource<T>
   ): Reducer<T, WithElem<Tp, T>['normal']> => {
     return Reducer.create(

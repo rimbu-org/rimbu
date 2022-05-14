@@ -33,7 +33,7 @@ export class GraphContext<
       any
     >['linkConnectionsContext']
   ) {
-    this._empty = new GraphEmpty(isDirected, this) as any;
+    this._empty = Object.freeze(new GraphEmpty(isDirected, this)) as any;
   }
 
   isNonEmptyInstance(
@@ -42,11 +42,11 @@ export class GraphContext<
     return source instanceof GraphNonEmpty;
   }
 
-  empty = <N extends UN>(): any => {
+  readonly empty = <N extends UN>(): any => {
     return this._empty;
   };
 
-  from: any = <N extends UN>(
+  readonly from: any = <N extends UN>(
     ...sources: ArrayNonEmpty<StreamSource<GraphElement<N>>>
   ): any => {
     let builder = this.builder();
@@ -74,11 +74,11 @@ export class GraphContext<
     return builder.build();
   };
 
-  of = <N>(...values: ArrayNonEmpty<GraphElement<N>>): any => {
+  readonly of = <N>(...values: ArrayNonEmpty<GraphElement<N>>): any => {
     return this.from(values).assumeNonEmpty();
   };
 
-  builder = (): any => {
+  readonly builder = (): any => {
     return new GraphBuilder(this.isDirected, this);
   };
 

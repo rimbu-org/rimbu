@@ -40,8 +40,8 @@ export class HashMapContext<UK>
     this.blockMask = this.blockCapacity - 1;
     this.maxDepth = Math.ceil(32 / blockSizeBits);
 
-    this._empty = new HashMapEmpty<any, any>(this);
-    this._emptyBlock = new HashMapBlock(this, null, null, 0, 0);
+    this._empty = Object.freeze(new HashMapEmpty<any, any>(this));
+    this._emptyBlock = Object.freeze(new HashMapBlock(this, null, null, 0, 0));
   }
 
   readonly typeTag = 'HashMap';
@@ -59,7 +59,7 @@ export class HashMapContext<UK>
     return source instanceof HashMapNonEmptyBase;
   }
 
-  builder = <K extends UK, V>(): HashMap.Builder<K, V> => {
+  readonly builder = <K extends UK, V>(): HashMap.Builder<K, V> => {
     return new HashMapBlockBuilder<K, V>(this as any);
   };
 
@@ -112,10 +112,12 @@ export function createHashMapContext<UK>(options?: {
   blockSizeBits?: number;
   listContext?: List.Context;
 }): HashMap.Context<UK> {
-  return new HashMapContext(
-    options?.hasher ?? Hasher.defaultHasher(),
-    options?.eq ?? Eq.defaultEq(),
-    options?.blockSizeBits ?? 5,
-    options?.listContext ?? List.defaultContext()
+  return Object.freeze(
+    new HashMapContext(
+      options?.hasher ?? Hasher.defaultHasher(),
+      options?.eq ?? Eq.defaultEq(),
+      options?.blockSizeBits ?? 5,
+      options?.listContext ?? List.defaultContext()
+    )
   );
 }

@@ -578,11 +578,11 @@ export namespace RSetBase {
       return undefined as any;
     }
 
-    empty = <T extends UT>(): WithElem<Tp, T>['normal'] => {
+    readonly empty = <T extends UT>(): WithElem<Tp, T>['normal'] => {
       return this._empty;
     };
 
-    from: any = <T extends UT>(
+    readonly from: any = <T extends UT>(
       ...sources: ArrayNonEmpty<StreamSource<T>>
     ): WithElem<Tp, T>['normal'] => {
       let builder = this.builder<T>();
@@ -611,13 +611,13 @@ export namespace RSetBase {
       return builder.build();
     };
 
-    of = <T extends UT>(
+    readonly of = <T extends UT>(
       ...values: ArrayNonEmpty<T>
     ): T extends UT ? WithElem<Tp, T>['nonEmpty'] : never => {
       return this.from(values);
     };
 
-    reducer = <T extends UT>(
+    readonly reducer = <T extends UT>(
       source?: StreamSource<T>
     ): Reducer<T, WithElem<Tp, T>['normal']> => {
       return Reducer.create(

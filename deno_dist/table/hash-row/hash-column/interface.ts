@@ -90,19 +90,21 @@ function createContext<UR, UC>(options?: {
   rowContext?: HashMap.Context<UR>;
   columnContext?: HashMap.Context<UC>;
 }): HashTableHashColumn.Context<UR, UC> {
-  return new TableContext<UR, UC, 'HashTableHashColumn', any>(
-    'HashTableHashColumn',
-    options?.rowContext ?? HashMap.defaultContext(),
-    options?.columnContext ?? HashMap.defaultContext()
+  return Object.freeze(
+    new TableContext<UR, UC, 'HashTableHashColumn', any>(
+      'HashTableHashColumn',
+      options?.rowContext ?? HashMap.defaultContext(),
+      options?.columnContext ?? HashMap.defaultContext()
+    )
   );
 }
 
 const _defaultContext: HashTableHashColumn.Context<any, any> = createContext();
 
-export const HashTableHashColumn: HashTableHashColumnCreators = {
+export const HashTableHashColumn: HashTableHashColumnCreators = Object.freeze({
   ..._defaultContext,
   createContext,
   defaultContext<UR, UC>(): HashTableHashColumn.Context<UR, UC> {
     return _defaultContext;
   },
-};
+});

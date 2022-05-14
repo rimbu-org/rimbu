@@ -626,11 +626,13 @@ export class MultiMapContext<
     readonly keyMapValuesContext: (Tp & KeyValue<UK, UV>)['keyMapValuesContext']
   ) {}
 
-  readonly _empty = new MultiMapEmpty<UK, UV, Tp>(this as any) as WithKeyValue<
-    Tp,
-    UK,
-    UV
-  >['normal'];
+  readonly _empty = Object.freeze(
+    new MultiMapEmpty<UK, UV, Tp>(this as any) as WithKeyValue<
+      Tp,
+      UK,
+      UV
+    >['normal']
+  );
 
   isNonEmptyInstance<K, V>(
     source: any
@@ -649,11 +651,15 @@ export class MultiMapContext<
     ) as WithKeyValue<Tp, K, V>['nonEmpty'];
   }
 
-  empty = <K extends UK, V extends UV>(): WithKeyValue<Tp, K, V>['normal'] => {
+  readonly empty = <K extends UK, V extends UV>(): WithKeyValue<
+    Tp,
+    K,
+    V
+  >['normal'] => {
     return this._empty;
   };
 
-  from: any = <K extends UK, V extends UV>(
+  readonly from: any = <K extends UK, V extends UV>(
     ...sources: ArrayNonEmpty<StreamSource<readonly [K, V]>>
   ): WithKeyValue<Tp, K, V>['normal'] => {
     let builder = this.builder<K, V>();
@@ -681,13 +687,13 @@ export class MultiMapContext<
     return builder.build();
   };
 
-  of = <K extends UK, V extends UV>(
+  readonly of = <K extends UK, V extends UV>(
     ...entries: ArrayNonEmpty<readonly [K, V]>
   ): [K, V] extends [UK, UV] ? WithKeyValue<Tp, K, V>['nonEmpty'] : never => {
     return this.from(entries);
   };
 
-  builder = <K extends UK, V extends UV>(): WithKeyValue<
+  readonly builder = <K extends UK, V extends UV>(): WithKeyValue<
     Tp,
     K,
     V
@@ -699,7 +705,7 @@ export class MultiMapContext<
     >['builder'];
   };
 
-  reducer = <K extends UK, V extends UV>(
+  readonly reducer = <K extends UK, V extends UV>(
     source?: StreamSource<readonly [K, V]>
   ): Reducer<[K, V], WithKeyValue<Tp, K, V>['normal']> => {
     return Reducer.create(

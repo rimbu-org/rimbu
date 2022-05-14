@@ -472,10 +472,10 @@ export namespace SortedMap {
 
 const _defaultContext: SortedMap.Context<any> = createSortedMapContext();
 
-export const SortedMap: SortedMapCreators = {
+export const SortedMap: SortedMapCreators = Object.freeze({
   ..._defaultContext,
   createContext: createSortedMapContext,
   defaultContext<UK>(): SortedMap.Context<UK> {
     return _defaultContext;
   },
-};
+});

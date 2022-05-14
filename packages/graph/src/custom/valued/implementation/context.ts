@@ -37,7 +37,7 @@ export class ValuedGraphContext<
       any
     >['linkConnectionsContext']
   ) {
-    this._empty = new ValuedGraphEmpty(isDirected, this);
+    this._empty = Object.freeze(new ValuedGraphEmpty(isDirected, this));
   }
 
   isNonEmptyInstance(
@@ -46,11 +46,11 @@ export class ValuedGraphContext<
     return source instanceof ValuedGraphNonEmpty;
   }
 
-  empty = <N extends UN, V>(): any => {
+  readonly empty = <N extends UN, V>(): any => {
     return this._empty;
   };
 
-  from: any = <N extends UN, V>(
+  readonly from: any = <N extends UN, V>(
     ...sources: ArrayNonEmpty<StreamSource<ValuedGraphElement<N, V>>>
   ): any => {
     let builder = this.builder();
@@ -78,15 +78,17 @@ export class ValuedGraphContext<
     return builder.build();
   };
 
-  of: any = <N, V>(...values: ArrayNonEmpty<ValuedGraphElement<N, V>>): any => {
+  readonly of: any = <N, V>(
+    ...values: ArrayNonEmpty<ValuedGraphElement<N, V>>
+  ): any => {
     return this.from(values).assumeNonEmpty();
   };
 
-  builder = (): any => {
+  readonly builder = (): any => {
     return new ValuedGraphBuilder(this.isDirected, this);
   };
 
-  reducer = <N extends UN, V>(
+  readonly reducer = <N extends UN, V>(
     source?: StreamSource<ValuedGraphElement<N, V>>
   ): any => {
     return Reducer.create(

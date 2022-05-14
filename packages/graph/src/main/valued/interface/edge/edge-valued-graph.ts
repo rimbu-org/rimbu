@@ -78,11 +78,13 @@ export const EdgeValuedGraph = {
     linkMapContext: RMap.Context<UN>;
     linkConnectionsContext: RMap.Context<UN>;
   }): EdgeValuedGraph.Context<UN> {
-    return new ValuedGraphContext<UN, 'ArrowValuedGraph', any>(
-      true,
-      'ArrowValuedGraph',
-      options.linkMapContext,
-      options.linkConnectionsContext
+    return Object.freeze(
+      new ValuedGraphContext<UN, 'ArrowValuedGraph', any>(
+        true,
+        'ArrowValuedGraph',
+        options.linkMapContext,
+        options.linkConnectionsContext
+      )
     );
   },
 };

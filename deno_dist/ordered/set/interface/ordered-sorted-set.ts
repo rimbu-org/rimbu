@@ -88,18 +88,20 @@ function createContext<UT>(options?: {
   listContext?: List.Context;
   setContext?: SortedSet.Context<UT>;
 }): OrderedSortedSet.Context<UT> {
-  return new OrderedSetContextImpl<UT>(
-    options?.listContext ?? List.defaultContext(),
-    options?.setContext ?? SortedSet.defaultContext<UT>()
-  ) as any;
+  return Object.freeze(
+    new OrderedSetContextImpl<UT>(
+      options?.listContext ?? List.defaultContext(),
+      options?.setContext ?? SortedSet.defaultContext<UT>()
+    ) as any
+  );
 }
 
 const _defaultContext: OrderedSortedSet.Context<any> = createContext();
 
-export const OrderedSortedSet: OrderedSortedSetCreators = {
+export const OrderedSortedSet: OrderedSortedSetCreators = Object.freeze({
   ..._defaultContext,
   createContext,
   defaultContext<UT>(): OrderedSortedSet.Context<UT> {
     return _defaultContext;
   },
-};
+});

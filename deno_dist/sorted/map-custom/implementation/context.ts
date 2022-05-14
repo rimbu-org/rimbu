@@ -26,7 +26,7 @@ export class SortedMapContext<UK>
     this.maxEntries = 1 << blockSizeBits;
     this.minEntries = this.maxEntries >>> 1;
 
-    this._empty = new SortedMapEmpty<any, any>(this);
+    this._empty = Object.freeze(new SortedMapEmpty<any, any>(this));
   }
 
   readonly typeTag = 'SortedMap';
@@ -35,7 +35,7 @@ export class SortedMapContext<UK>
     return source instanceof SortedMapNode;
   }
 
-  builder = <K extends UK, V>(): SortedMapBuilder<K, V> => {
+  readonly builder = <K extends UK, V>(): SortedMapBuilder<K, V> => {
     return new SortedMapBuilder(this as any);
   };
 
@@ -95,8 +95,10 @@ export function createSortedMapContext<UK>(options?: {
   comp?: Comp<UK>;
   blockSizeBits?: number;
 }): SortedMap.Context<UK> {
-  return new SortedMapContext<UK>(
-    options?.blockSizeBits ?? 5,
-    options?.comp ?? Comp.defaultComp()
+  return Object.freeze(
+    new SortedMapContext<UK>(
+      options?.blockSizeBits ?? 5,
+      options?.comp ?? Comp.defaultComp()
+    )
   );
 }

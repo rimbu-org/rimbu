@@ -70,11 +70,13 @@ export const EdgeGraph = {
     linkMapContext: RMap.Context<UN>;
     linkConnectionsContext: RSet.Context<UN>;
   }): EdgeGraph.Context<UN> {
-    return new GraphContext<UN, 'EdgeGraph', false, any>(
-      false,
-      'EdgeGraph',
-      options.linkMapContext,
-      options.linkConnectionsContext
+    return Object.freeze(
+      new GraphContext<UN, 'EdgeGraph', false, any>(
+        false,
+        'EdgeGraph',
+        options.linkMapContext,
+        options.linkConnectionsContext
+      )
     );
   },
 };

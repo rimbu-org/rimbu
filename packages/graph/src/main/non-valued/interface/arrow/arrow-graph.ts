@@ -71,11 +71,13 @@ export const ArrowGraph = {
     linkMapContext: RMap.Context<UN>;
     linkConnectionsContext: RSet.Context<UN>;
   }): ArrowGraph.Context<UN> {
-    return new GraphContext<UN, 'ArrowGraph', true, any>(
-      true,
-      'ArrowGraph',
-      options.linkMapContext,
-      options.linkConnectionsContext
+    return Object.freeze(
+      new GraphContext<UN, 'ArrowGraph', true, any>(
+        true,
+        'ArrowGraph',
+        options.linkMapContext,
+        options.linkConnectionsContext
+      )
     );
   },
 };

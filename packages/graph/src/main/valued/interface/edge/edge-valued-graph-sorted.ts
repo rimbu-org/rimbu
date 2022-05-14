@@ -96,20 +96,23 @@ function createContext<UN>(options?: {
   linkMapContext?: SortedMap.Context<UN>;
   linkConnectionsContext?: SortedMap.Context<UN>;
 }): EdgeValuedGraphSorted.Context<UN> {
-  return new ValuedGraphContext<UN, 'EdgeValuedGraphSorted', any>(
-    false,
-    'EdgeValuedGraphSorted',
-    options?.linkMapContext ?? SortedMap.defaultContext(),
-    options?.linkConnectionsContext ?? SortedMap.defaultContext()
+  return Object.freeze(
+    new ValuedGraphContext<UN, 'EdgeValuedGraphSorted', any>(
+      false,
+      'EdgeValuedGraphSorted',
+      options?.linkMapContext ?? SortedMap.defaultContext(),
+      options?.linkConnectionsContext ?? SortedMap.defaultContext()
+    )
   );
 }
 
 const _defaultContext: EdgeValuedGraphSorted.Context<any> = createContext();
 
-export const EdgeValuedGraphSorted: EdgeValuedGrapSortedCreators = {
-  ..._defaultContext,
-  createContext,
-  defaultContext<UN>(): EdgeValuedGraphSorted.Context<UN> {
-    return _defaultContext;
-  },
-};
+export const EdgeValuedGraphSorted: EdgeValuedGrapSortedCreators =
+  Object.freeze({
+    ..._defaultContext,
+    createContext,
+    defaultContext<UN>(): EdgeValuedGraphSorted.Context<UN> {
+      return _defaultContext;
+    },
+  });

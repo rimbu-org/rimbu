@@ -39,7 +39,7 @@ class TraverseStateImpl implements TraverseState {
     return this.currentIndex++;
   }
 
-  halt = (): void => {
+  readonly halt = (): void => {
     this.halted = true;
   };
 

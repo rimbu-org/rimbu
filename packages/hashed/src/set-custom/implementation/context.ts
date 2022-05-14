@@ -41,8 +41,8 @@ export class HashSetContext<UT>
     this.blockMask = this.blockCapacity - 1;
     this.maxDepth = Math.ceil(32 / blockSizeBits);
 
-    this._empty = new HashSetEmpty<any>(this);
-    this._emptyBlock = new HashSetBlock(this, null, null, 0, 0);
+    this._empty = Object.freeze(new HashSetEmpty<any>(this));
+    this._emptyBlock = Object.freeze(new HashSetBlock(this, null, null, 0, 0));
   }
 
   readonly typeTag = 'HashSet';
@@ -68,7 +68,7 @@ export class HashSetContext<UT>
     return this.hasher.isValid(value);
   }
 
-  builder = <T extends UT>(): HashSet.Builder<T> => {
+  readonly builder = <T extends UT>(): HashSet.Builder<T> => {
     return new HashSetBlockBuilder<T>(this as any);
   };
 
@@ -122,10 +122,12 @@ export function createHashSetContext<UT>(options?: {
   blockSizeBits?: number;
   listContext?: List.Context;
 }): HashSet.Context<UT> {
-  return new HashSetContext(
-    options?.hasher ?? Hasher.defaultHasher(),
-    options?.eq ?? Eq.defaultEq(),
-    options?.blockSizeBits ?? 5,
-    options?.listContext ?? List.defaultContext()
+  return Object.freeze(
+    new HashSetContext(
+      options?.hasher ?? Hasher.defaultHasher(),
+      options?.eq ?? Eq.defaultEq(),
+      options?.blockSizeBits ?? 5,
+      options?.listContext ?? List.defaultContext()
+    )
   );
 }

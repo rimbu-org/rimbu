@@ -26,7 +26,7 @@ export class SortedSetContext<UT>
     this.maxEntries = 1 << this.blockSizeBits;
     this.minEntries = this.maxEntries >>> 1;
 
-    this._empty = new SortedSetEmpty<any>(this);
+    this._empty = Object.freeze(new SortedSetEmpty<any>(this));
   }
 
   readonly typeTag = 'SortedSet';
@@ -39,7 +39,7 @@ export class SortedSetContext<UT>
     return this.comp.isComparable(value);
   }
 
-  builder = <T extends UT>(): SortedSetBuilder<T> => {
+  readonly builder = <T extends UT>(): SortedSetBuilder<T> => {
     return new SortedSetBuilder(this as unknown as SortedSetContext<T>);
   };
 
@@ -101,8 +101,10 @@ export function createSortedSetContext<UT>(options?: {
   comp?: Comp<UT>;
   blockSizeBits?: number;
 }): SortedSet.Context<UT> {
-  return new SortedSetContext<UT>(
-    options?.blockSizeBits ?? 5,
-    options?.comp ?? Comp.defaultComp()
+  return Object.freeze(
+    new SortedSetContext<UT>(
+      options?.blockSizeBits ?? 5,
+      options?.comp ?? Comp.defaultComp()
+    )
   );
 }
