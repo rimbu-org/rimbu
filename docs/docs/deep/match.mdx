@@ -29,14 +29,14 @@ function process(person: Person) {
 }
 ```
 
-The `Match` object offers, in a similar fashion to `Patch`, a way to concisely define the conditions an (immutable) object should meet:
+The [`match`](/api/rimbu/deep) function offers, in a similar fashion to `patch`, a way to concisely define the conditions an (immutable) object should meet:
 
 ```ts
-import { Match } from '@rimbu/core';
+import { match } from '@rimbu/core';
 
 function process(person: Person) {
   if (
-    Match.any(person)({
+    match(person, {
       age: (v) => v < 18,
       name: 'Bart',
       address: {
@@ -49,6 +49,6 @@ function process(person: Person) {
 }
 ```
 
-The following CodeSandbox shows in more detail how `Match` can be used for more complex use cases:
+The following CodeSandbox shows in more detail how `match` can be used for more complex use cases:
 
 <SandBox path="deep/match.ts" />

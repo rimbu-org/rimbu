@@ -1,0 +1,8 @@
+import React from 'react';
+import { Redirect } from '@docusaurus/router';
+
+// This is a redirect to accomodate old references to 'Immutable', the previous name of 'Protected'.
+
+export default function Home() {
+  return <Redirect to="./protected" />;
+}
