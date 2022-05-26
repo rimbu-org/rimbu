@@ -2,10 +2,26 @@ import type { HashMap } from '../../../../../hashed/mod.ts';
 import type { SortedMap } from '../../../../../sorted/mod.ts';
 
 import type {
+  EdgeValuedGraph,
   EdgeValuedGraphHashed,
   EdgeValuedGraphSorted,
 } from '../../../../../graph/mod.ts';
 import type { ValuedGraphBase } from '../../../../../graph/custom/index.ts';
+import type { RMap } from '../../../../../collection-types/mod.ts';
+
+export interface EdgeValuedGraphCreators {
+  /**
+   * Returns a new EdgeValuedGraph context instance based on the given `options`.
+   * @typeparam UN - the upper node type for which the context can create instances
+   * @param options - an object containing the following properties:<br/>
+   * - linkMapContext - the map context to use to maintain link maps<br/>
+   * - linkConnectionsContext - the map context to use to maintain link connection maps
+   */
+  createContext<UN>(options: {
+    linkMapContext: RMap.Context<UN>;
+    linkConnectionsContext: RMap.Context<UN>;
+  }): EdgeValuedGraph.Context<UN>;
+}
 
 export interface EdgeValuedGraphHashedCreators
   extends ValuedGraphBase.Factory<EdgeValuedGraphHashed.Types> {

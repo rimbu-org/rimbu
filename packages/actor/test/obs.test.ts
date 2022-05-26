@@ -1,10 +1,10 @@
-import { Literal } from '@rimbu/deep';
 import { Obs } from '../src';
 import { OrderedHashMap } from '@rimbu/core';
+import { Patch, patchNested as $ } from '@rimbu/deep';
 
 describe('Obs', () => {
   it('asReadonly', () => {
-    const obs = Obs.create(5);
+    const obs = Obs.create({ a: 5 });
 
     expect(obs.asReadonly()).toBe(obs);
   });
@@ -18,7 +18,7 @@ describe('Obs', () => {
 
     expect(obs.state).toEqual(6);
 
-    obs.patchState((v) => v + 1);
+    obs.setState((v) => v + 1);
 
     expect(obs.state).toEqual(7);
   });
@@ -32,7 +32,7 @@ describe('Obs', () => {
 
     expect(obs.state).toEqual({ a: 1, b: { c: 4 } });
 
-    obs.patchState({ b: { c: (v) => v + 1 } });
+    obs.patchState({ b: $({ c: (v) => v + 1 }) });
 
     expect(obs.state).toEqual({ a: 1, b: { c: 5 } });
   });
@@ -51,7 +51,7 @@ describe('Obs', () => {
 
     expect(obs.state).toEqual({ a: 1, b: { c: 4 }, d: 5 });
 
-    obs.patchState({ b: { c: (v) => v + 1 } });
+    obs.patchState({ b: $({ c: (v) => v + 1 }) });
 
     expect(obs.state).toEqual({ a: 1, b: { c: 5 }, d: 6 });
   });
@@ -94,7 +94,7 @@ describe('Obs', () => {
   it('hasSubscribers', () => {
     const onChange = jest.fn();
 
-    const obs = Obs.create(5);
+    const obs = Obs.create({ a: 5 });
 
     expect(obs.hasSubscribers).toBe(false);
 
@@ -117,7 +117,7 @@ describe('Obs.mapReadonly', () => {
     expect(obs.state).toEqual(6);
     expect(mappedObs.state).toEqual(6);
 
-    obs.patchState((v) => v + 1);
+    obs.setState((v) => v + 1);
 
     expect(obs.state).toEqual(7);
     expect(mappedObs.state).toEqual(7);
@@ -135,7 +135,7 @@ describe('Obs.mapReadonly', () => {
     expect(obs.state).toEqual({ a: 1, b: { c: 4 } });
     expect(mappedObs.state).toEqual({ a: 1, b: { c: 4 } });
 
-    obs.patchState({ b: { c: (v) => v + 1 } });
+    obs.patchState({ b: $({ c: (v) => v + 1 }) });
 
     expect(obs.state).toEqual({ a: 1, b: { c: 5 } });
     expect(mappedObs.state).toEqual({ a: 1, b: { c: 5 } });
@@ -156,7 +156,7 @@ describe('Obs.mapReadonly', () => {
     expect(obs.state).toEqual({ a: 1, b: { c: 4 } });
     expect(mappedObs.state).toEqual({ a: 1, b: { c: 4 }, d: 5 });
 
-    obs.patchState({ b: { c: (v) => v + 1 } });
+    obs.patchState({ b: $({ c: (v) => v + 1 }) });
 
     expect(obs.state).toEqual({ a: 1, b: { c: 5 } });
     expect(mappedObs.state).toEqual({ a: 1, b: { c: 5 }, d: 6 });
@@ -204,7 +204,7 @@ describe('Obs.mapReadonly', () => {
   it('hasSubscribers', () => {
     const onChange = jest.fn();
 
-    const obs = Obs.create(5);
+    const obs = Obs.create({ a: 5 });
     const mappedObs = obs.mapReadonly((s) => s);
 
     expect(obs.hasSubscribers).toBe(false);
@@ -238,12 +238,12 @@ describe('Obs.map', () => {
     expect(obs.state).toEqual(7);
     expect(mappedObs.state).toEqual(7);
 
-    obs.patchState((v) => v + 1);
+    obs.setState((v) => v + 1);
 
     expect(obs.state).toEqual(8);
     expect(mappedObs.state).toEqual(8);
 
-    mappedObs.patchState((v) => v + 1);
+    mappedObs.setState((v) => v + 1);
 
     expect(obs.state).toEqual(9);
     expect(mappedObs.state).toEqual(9);
@@ -269,12 +269,12 @@ describe('Obs.map', () => {
     expect(obs.state).toEqual({ a: 2, b: { c: 5 } });
     expect(mappedObs.state).toEqual({ a: 2, b: { c: 5 } });
 
-    obs.patchState({ b: { c: (v) => v + 1 } });
+    obs.patchState({ b: $({ c: (v) => v + 1 }) });
 
     expect(obs.state).toEqual({ a: 2, b: { c: 6 } });
     expect(mappedObs.state).toEqual({ a: 2, b: { c: 6 } });
 
-    mappedObs.patchState({ b: { c: (v) => v + 1 } });
+    mappedObs.patchState({ b: $({ c: (v) => v + 1 }) });
 
     expect(obs.state).toEqual({ a: 2, b: { c: 7 } });
     expect(mappedObs.state).toEqual({ a: 2, b: { c: 7 } });
@@ -304,12 +304,12 @@ describe('Obs.map', () => {
     expect(obs.state).toEqual({ a: 2, b: { c: 5 } });
     expect(mappedObs.state).toEqual({ a: 2, b: { c: 5 }, d: 7 });
 
-    obs.patchState({ b: { c: (v) => v + 1 } });
+    obs.patchState({ b: $({ c: (v) => v + 1 }) });
 
     expect(obs.state).toEqual({ a: 2, b: { c: 6 } });
     expect(mappedObs.state).toEqual({ a: 2, b: { c: 6 }, d: 8 });
 
-    mappedObs.patchState({ b: { c: (v) => v + 1 } });
+    mappedObs.patchState({ b: $({ c: (v) => v + 1 }) });
 
     expect(obs.state).toEqual({ a: 2, b: { c: 7 } });
     expect(mappedObs.state).toEqual({ a: 2, b: { c: 7 }, d: 9 });
@@ -322,7 +322,7 @@ describe('Obs.map', () => {
 
     const mappedObs = obs.map(
       (s) => s.a,
-      (a) => ({ a: Literal.of(a) })
+      (a) => ({ a })
     );
 
     const unsubscribe = mappedObs.subscribe(onChange);
@@ -336,14 +336,14 @@ describe('Obs.map', () => {
 
     onChange.mockReset();
 
-    obs.patchState({ a: { b: (v) => v + 1 } });
+    obs.patchState({ a: $({ b: (v) => v + 1 }) });
 
     expect(onChange).toBeCalledTimes(1);
     expect(onChange).toBeCalledWith({ b: 3 }, { b: 2 });
 
     onChange.mockReset();
 
-    obs.patchState({ a: { b: 3 } });
+    obs.patchState({ a: $({ b: 3 }) });
 
     expect(onChange).not.toBeCalled();
 
@@ -355,7 +355,7 @@ describe('Obs.map', () => {
     unsubscribe();
     onChange.mockReset();
 
-    obs.patchState({ a: { b: (v) => v + 1 } });
+    obs.patchState({ a: $({ b: (v) => v + 1 }) });
     mappedObs.patchState({ b: 12 });
 
     expect(onChange).not.toBeCalled();
@@ -364,7 +364,7 @@ describe('Obs.map', () => {
   it('hasSubscribers', () => {
     const onChange = jest.fn();
 
-    const obs = Obs.create(5);
+    const obs = Obs.create({ a: 5 });
     const mappedObs = obs.map(
       (s) => s,
       (s) => s
@@ -382,27 +382,27 @@ describe('Obs.map', () => {
 
 describe('Obs.combineReadonly', () => {
   it('updates combined state from sources', () => {
-    const obs1 = Obs.create(5);
-    const obs2 = Obs.create('a');
+    const obs1 = Obs.create({ a: 5 });
+    const obs2 = Obs.create({ b: 'a' });
 
-    const obs = obs1.combineReadonly(obs2, (v1, v2) => ({ v1, v2 }));
+    const obs = obs1.combineReadonly(obs2, (v1, v2) => ({ ...v1, ...v2 }));
 
-    expect(obs.state).toEqual({ v1: 5, v2: 'a' });
+    expect(obs.state).toEqual({ a: 5, b: 'a' });
 
-    obs1.setState(8);
+    obs1.setState({ a: 8 });
 
-    expect(obs.state).toEqual({ v1: 8, v2: 'a' });
+    expect(obs.state).toEqual({ a: 8, b: 'a' });
 
-    obs2.setState('b');
+    obs2.setState({ b: 'b' });
 
-    expect(obs.state).toEqual({ v1: 8, v2: 'b' });
+    expect(obs.state).toEqual({ a: 8, b: 'b' });
   });
 
   it('subscription triggers when sources change', () => {
-    const obs1 = Obs.create(5);
-    const obs2 = Obs.create('a');
+    const obs1 = Obs.create({ a: 5 });
+    const obs2 = Obs.create({ b: 'a' });
 
-    const obs = obs1.combineReadonly(obs2, (v1, v2) => ({ v1, v2 }));
+    const obs = obs1.combineReadonly(obs2, (v1, v2) => ({ ...v1, ...v2 }));
 
     const onChange = jest.fn();
 
@@ -410,21 +410,21 @@ describe('Obs.combineReadonly', () => {
 
     expect(onChange).not.toBeCalled();
 
-    obs1.setState(8);
+    obs1.setState({ a: 8 });
 
-    expect(onChange).toBeCalledWith({ v1: 8, v2: 'a' }, { v1: 5, v2: 'a' });
+    expect(onChange).toBeCalledWith({ a: 8, b: 'a' }, { a: 5, b: 'a' });
 
     onChange.mockReset();
 
-    obs2.setState('b');
+    obs2.setState({ b: 'b' });
 
-    expect(onChange).toBeCalledWith({ v1: 8, v2: 'b' }, { v1: 8, v2: 'a' });
+    expect(onChange).toBeCalledWith({ a: 8, b: 'b' }, { a: 8, b: 'a' });
 
     unsubscribe();
     onChange.mockReset();
 
-    obs1.setState(10);
-    obs2.setState('b');
+    obs1.setState({ a: 10 });
+    obs2.setState({ b: 'b' });
 
     expect(onChange).not.toBeCalled();
   });
@@ -432,58 +432,58 @@ describe('Obs.combineReadonly', () => {
 
 describe('Obs.combine', () => {
   it('updates combined state from sources', () => {
-    const obs1 = Obs.create(5);
-    const obs2 = Obs.create('a');
+    const obs1 = Obs.create({ a: 5 });
+    const obs2 = Obs.create({ b: 'a' });
 
     const obs = obs1.combine(
       obs2,
-      (v1, v2) => ({ v1, v2 }),
-      ({ v1, v2 }) => Literal.of([v1, v2])
+      (v1, v2) => ({ ...v1, ...v2 }),
+      ({ a, b }) => [{ a }, { b }]
     );
 
-    expect(obs.state).toEqual({ v1: 5, v2: 'a' });
+    expect(obs.state).toEqual({ a: 5, b: 'a' });
 
-    obs1.setState(8);
+    obs1.setState({ a: 8 });
 
-    expect(obs.state).toEqual({ v1: 8, v2: 'a' });
+    expect(obs.state).toEqual({ a: 8, b: 'a' });
 
-    obs2.setState('b');
+    obs2.setState({ b: 'b' });
 
-    expect(obs.state).toEqual({ v1: 8, v2: 'b' });
+    expect(obs.state).toEqual({ a: 8, b: 'b' });
   });
 
   it('updates sources from combined state', () => {
-    const obs1 = Obs.create(5);
-    const obs2 = Obs.create('a');
+    const obs1 = Obs.create({ a: 5 });
+    const obs2 = Obs.create({ b: 'a' });
 
     const obs = obs1.combine(
       obs2,
-      (v1, v2) => ({ v1, v2 }),
-      ({ v1, v2 }) => Literal.of([v1, v2])
+      (v1, v2) => ({ ...v1, ...v2 }),
+      ({ a, b }) => [{ a }, { b }]
     );
 
-    expect(obs1.state).toBe(5);
-    expect(obs2.state).toBe('a');
+    expect(obs1.state.a).toBe(5);
+    expect(obs2.state.b).toBe('a');
 
-    obs.patchState({ v1: (v) => v + 1 });
+    obs.patchState({ a: (v) => v + 1 });
 
-    expect(obs1.state).toBe(6);
-    expect(obs2.state).toBe('a');
+    expect(obs1.state.a).toBe(6);
+    expect(obs2.state.b).toBe('a');
 
-    obs.patchState({ v2: 'b' });
+    obs.patchState({ b: 'b' });
 
-    expect(obs1.state).toBe(6);
-    expect(obs2.state).toBe('b');
+    expect(obs1.state.a).toBe(6);
+    expect(obs2.state.b).toBe('b');
   });
 
   it('subscription triggers when sources change', () => {
-    const obs1 = Obs.create(5);
-    const obs2 = Obs.create('a');
+    const obs1 = Obs.create({ a: 5 });
+    const obs2 = Obs.create({ b: 'a' });
 
     const obs = obs1.combine(
       obs2,
-      (v1, v2) => ({ v1, v2 }),
-      ({ v1, v2 }) => Literal.of([v1, v2])
+      (v1, v2) => ({ ...v1, ...v2 }),
+      ({ a, b }) => [Patch.create({ a }), Patch.create({ b })]
     );
 
     const onChange = jest.fn();
@@ -492,24 +492,24 @@ describe('Obs.combine', () => {
 
     expect(onChange).not.toBeCalled();
 
-    obs1.setState(8);
+    obs1.setState({ a: 8 });
 
     expect(onChange).toBeCalledTimes(1);
-    expect(onChange).toBeCalledWith({ v1: 8, v2: 'a' }, { v1: 5, v2: 'a' });
+    expect(onChange).toBeCalledWith({ a: 8, b: 'a' }, { a: 5, b: 'a' });
 
     onChange.mockReset();
 
-    obs2.setState('b');
+    obs2.setState({ b: 'b' });
 
     expect(onChange).toBeCalledTimes(1);
-    expect(onChange).toBeCalledWith({ v1: 8, v2: 'b' }, { v1: 8, v2: 'a' });
+    expect(onChange).toBeCalledWith({ a: 8, b: 'b' }, { a: 8, b: 'a' });
 
     unsubscribe();
     onChange.mockReset();
 
-    obs1.setState(12);
-    obs2.setState('z');
-    obs.setState({ v1: 13, v2: 'zz' });
+    obs1.setState({ a: 12 });
+    obs2.setState({ b: 'z' });
+    obs.setState({ a: 13, b: 'zz' });
 
     expect(onChange).not.toBeCalled();
   });
@@ -528,7 +528,7 @@ describe('Obs.selectReadonly', () => {
     expect(obs.state).toEqual({ a: 1, b: { c: 4 } });
     expect(mappedObs.state).toEqual({ c: 4 });
 
-    obs.patchState({ b: { c: (v) => v + 1 } });
+    obs.patchState({ b: $({ c: (v) => v + 1 }) });
 
     expect(obs.state).toEqual({ a: 1, b: { c: 5 } });
     expect(mappedObs.state).toEqual({ c: 5 });
@@ -549,7 +549,7 @@ describe('Obs.selectReadonly', () => {
     expect(obs.state).toEqual({ a: 1, b: { c: 4 } });
     expect(mappedObs.state).toEqual({ c: 4, d: 8 });
 
-    obs.patchState({ b: { c: (v) => v + 1 } });
+    obs.patchState({ b: $({ c: (v) => v + 1 }) });
 
     expect(obs.state).toEqual({ a: 1, b: { c: 5 } });
     expect(mappedObs.state).toEqual({ c: 5, d: 10 });
@@ -575,21 +575,21 @@ describe('Obs.selectReadonly', () => {
 
     onChange.mockReset();
 
-    obs.patchState({ a: { b: (v) => v + 1 } });
+    obs.patchState({ a: $({ b: (v) => v + 1 }) });
 
     expect(onChange).toBeCalledTimes(1);
     expect(onChange).toBeCalledWith({ b: 3, c: 6 }, { b: 2, c: 4 });
 
     onChange.mockReset();
 
-    obs.patchState({ a: { b: 3 } });
+    obs.patchState({ a: $({ b: 3 }) });
 
     expect(onChange).not.toBeCalled();
 
     unsubscribe();
     onChange.mockReset();
 
-    obs.patchState({ a: { b: (v) => v + 1 } });
+    obs.patchState({ a: $({ b: (v) => v + 1 }) });
 
     expect(onChange).not.toBeCalled();
   });
@@ -623,7 +623,7 @@ describe('Obs.select', () => {
     expect(obs.state).toEqual({ a: 1, b: { c: 4 } });
     expect(mappedObs.state).toEqual({ c: 4 });
 
-    obs.patchState({ b: { c: (v) => v + 1 } });
+    obs.patchState({ b: $({ c: (v) => v + 1 }) });
 
     expect(obs.state).toEqual({ a: 1, b: { c: 5 } });
     expect(mappedObs.state).toEqual({ c: 5 });
@@ -649,7 +649,7 @@ describe('Obs.select', () => {
     expect(obs.state).toEqual({ a: 1, b: { c: 4 } });
     expect(mappedObs.state).toEqual({ c: 4, d: 8 });
 
-    obs.patchState({ b: { c: (v) => v + 1 } });
+    obs.patchState({ b: $({ c: (v) => v + 1 }) });
 
     expect(obs.state).toEqual({ a: 1, b: { c: 5 } });
     expect(mappedObs.state).toEqual({ c: 5, d: 10 });
@@ -680,14 +680,14 @@ describe('Obs.select', () => {
 
     onChange.mockReset();
 
-    obs.patchState({ a: { b: (v) => v + 1 } });
+    obs.patchState({ a: $({ b: (v) => v + 1 }) });
 
     expect(onChange).toBeCalledTimes(1);
     expect(onChange).toBeCalledWith({ b: 3, c: 6 }, { b: 2, c: 4 });
 
     onChange.mockReset();
 
-    obs.patchState({ a: { b: 3 } });
+    obs.patchState({ a: $({ b: 3 }) });
 
     expect(onChange).not.toBeCalled();
 

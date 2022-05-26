@@ -1,5 +1,5 @@
 {
   "preset": "ts-jest",
   "testEnvironment": "jsdom",
-  "testMatch": ["**/test/**.test.ts"]
+  "testMatch": ["**/test/**.test.ts", "**/test/**.test.tsx"]
 }

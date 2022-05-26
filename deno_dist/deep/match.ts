@@ -1,227 +1,318 @@
-import { RimbuError } from '../base/mod.ts';
-import type { ArrayNonEmpty } from '../common/mod.ts';
-import { Immutable, Literal } from './internal.ts';
+import {
+  RimbuError,
+  type IsPlainObj,
+  type PlainObj,
+  isPlainObj,
+  isIterable,
+} from '../base/mod.ts';
+
+import type { Protected } from './internal.ts';
 
 /**
- * Type to determine the allowed input type for the `match` functions.
- * @typeparam T - the input type
- * @typeparam P - the parant type
- * @typeparam R - the root type
+ * The type to determine the allowed input values for the `match` functions.
+ * @typeparam T - the type of value to match
  */
-export type Match<T> = MatchHelper<T, T, T>;
-
-type MatchHelper<T, P, R> = T extends Literal.Obj
-  ? Match.MatchObj<T, P, R>
-  : T extends readonly any[]
-  ? Match.MatchArray<T, P, R>
-  : Match.Compare<T, P, R>;
+export type Match<T> = Match.Options<T, T>;
 
 export namespace Match {
   /**
-   * Type to determine the allowed input type for `match` functions given an object type T.
-   * @typeparam T - the input type, being an object
-   * @typeparam P - the parant type
-   * @typeparam R - the root type
+   * The types of supported match input.
+   * @typeparam T - the type of value to match
+   * @typeparam R - the root object type
    */
-  export type MatchObj<T, P, R> = (
-    | Match.Compare<T, P, R>
-    | { [K in keyof T]?: MatchHelper<T[K], T, R> }
-  ) &
-    Literal.NoIterable;
+  export type Options<T, R> =
+    | Every<T, R>
+    | Some<T, R>
+    | None<T, R>
+    | Single<T, R>
+    | Match.Obj<T, R>;
 
   /**
-   * Type representing at least one Match object for type T
-   * @typeparam T - the target type
+   * The type to determine allowed matchers for objects.
+   * @typeparam T - the type of value to match
+   * @typeparam R - the root object type
    */
-  export type Multi<T> = ArrayNonEmpty<Match<T>>;
+  export type Obj<T, R> = {
+    [K in keyof T]?:
+      | Match.ObjItem<T[K], R>
+      | ((
+          current: Protected<T[K]>,
+          parent: Protected<T>,
+          root: Protected<R>
+        ) => boolean | Match.ObjItem<T[K], R>);
+  };
 
   /**
-   * Type representing matchers for values that are not objects or arrays
-   * @typeparam T - the input type
-   * @typeparam P - the parant type
-   * @typeparam R - the root type
+   * The type to determine allowed matchers for object properties.
+   * @typeparam T - the type of value to match
+   * @typeparam R - the root object type
    */
-  export type Compare<T, P, R> =
-    | Literal.Value<T>
-    | ((
-        value: Immutable<T>,
-        parent: Immutable<P>,
-        root: Immutable<R>
-      ) => boolean);
+  export type ObjItem<T, R> = IsPlainObj<T> extends true
+    ? Match.Options<T, R>
+    : T extends Iterable<infer U>
+    ? T | Iterable<U>
+    : T;
 
   /**
-   * Type representing allowed matchers for arrays
-   * @typeparam T - the array type
-   * @typeparam P - the parent type
-   * @typeparam R - the root type
-   */
-  export type MatchArray<T extends readonly any[], P, R> = (
-    | Match.Compare<T, P, R>
-    | {
-        [K in { [K2 in keyof T]: K2 }[keyof T]]?: MatchHelper<T[K], T, R>;
-      }
-  ) &
-    Literal.NoIterable;
-
-  /**
-   * Returns true if the given `value` matches all of the given objects in the `matchers` array.
-   * @typeparam T - the type of the object to match
-   * @param value - the value to match
-   * @param matchers - one or more `Match` objects
+   * Returns a matcher that returns true if every given `matchItem` matches the given value.
+   * @typeparam T - the type of value to match
+   * @typeparam R - the root object type
+   * @typeparam Q - a utility type for the matcher
+   * @param matchItems - the match specifications to test
    * @example
    * ```ts
-   * matchAll({ g: { h: 'abc' }})({ g: { h: 'a' }}) => false
-   * matchAll({ g: { h: 'abc' }})({ g: { h: v => v.length > 1 }}) => true
+   * const input = { a: 1, b: { c: true, d: 'a' } }
+   * match(input, Match.every({ a: 1, { c: true } } )) // => true
+   * match(input, Match.every({ a: 1, { c: false } } )) // => false
    * ```
    */
-  export function all<T>(value: T): (...matchers: Match.Multi<T>) => boolean {
-    return (...matchers): boolean => {
-      for (const matcher of matchers) {
-        if (!matchSingle<any, any, any>(value, matcher, value, value)) {
-          return false;
-        }
-      }
-
-      return true;
-    };
+  export function every<T, R, Q extends T = T>(
+    ...matchItems: Match.Options<Q, R>[]
+  ): Every<T, R, Q> {
+    return new Every(matchItems);
+  }
+  /**
+   * Returns a matcher that returns true if at least one of given `matchItem` matches the given value.
+   * @typeparam T - the type of value to match
+   * @typeparam R - the root object type
+   * @typeparam Q - a utility type for the matcher
+   * @param matchItems - the match specifications to test
+   * @example
+   * ```ts
+   * const input = { a: 1, b: { c: true, d: 'a' } }
+   * match(input, Match.some({ a: 5, { c: true } } )) // => true
+   * match(input, Match.some({ a: 5, { c: false } } )) // => false
+   * ```
+   */
+  export function some<T, R, Q extends T = T>(
+    ...matchItems: Match.Options<Q, R>[]
+  ): Some<T, R, Q> {
+    return new Some(matchItems);
+  }
+  /**
+   * Returns a matcher that returns true if none of given `matchItem` matches the given value.
+   * @typeparam T - the type of value to match
+   * @typeparam R - the root object type
+   * @typeparam Q - a utility type for the matcher
+   * @param matchItems - the match specifications to test
+   * @example
+   * ```ts
+   * const input = { a: 1, b: { c: true, d: 'a' } }
+   * match(input, Match.none({ a: 5, { c: true } } )) // => false
+   * match(input, Match.none({ a: 5, { c: false } } )) // => true
+   * ```
+   */
+  export function none<T, R, Q extends T = T>(
+    ...matchItems: Match.Options<Q, R>[]
+  ): None<T, R, Q> {
+    return new None(matchItems);
+  }
+  /**
+   * Returns a matcher that returns true if exactly one of given `matchItem` matches the given value.
+   * @typeparam T - the type of value to match
+   * @typeparam R - the root object type
+   * @typeparam Q - a utility type for the matcher
+   * @param matchItems - the match specifications to test
+   * @example
+   * ```ts
+   * const input = { a: 1, b: { c: true, d: 'a' } }
+   * match(input, Match.single({ a: 1, { c: true } } )) // => false
+   * match(input, Match.single({ a: 1, { c: false } } )) // => true
+   * ```
+   */
+  export function single<T, R, Q extends T = T>(
+    ...matchItems: Match.Options<Q, R>[]
+  ): Single<T, R, Q> {
+    return new Single(matchItems);
   }
 
   /**
-   * Returns true if the given `value` matches any of the given objects in the `matchers` array.
-   * @typeparam T - the type of the object to match
-   * @param value - the value to match
-   * @param matchers - one or more `Match` objects
-   * @example
-   * ```ts
-   * matchAny({ g: { h: 'abc' }})({ g: { h: 'a' }}, { g: { h: v => v.length < 2 }}) => false
-   * matchAny({ g: { h: 'abc' }})({ g: { h: 'a' }}, { g: { h: v => v.length > 1 }}) => true
-   * ```
+   * The functions that are optionally provided to a match function.
    */
-  export function any<T>(value: T): (...matchers: Match.Multi<T>) => boolean {
-    return (...matchers): boolean => {
-      for (const matcher of matchers) {
-        if (matchSingle<any, any, any>(value, matcher, value, value)) {
-          return true;
-        }
-      }
-
-      return false;
-    };
-  }
-
-  /**
-   * Returns a function that takes a value of type T, and returns true if the value matches all the
-   * given `matches` array of Match instances.
-   * @typeparam T - the type of the object to match
-   * @typeparam T2 - the type to use for the Match, should be equal to T
-   * @param matches - at least one Match instance to perform on a given `value`
-   * @example
-   * ```ts
-   * type Person = { name: string, age: number }
-   * const m = Match.createAll<Person>({ age: v => v > 20 }, { name: v => v.length > 2 })
-   *
-   * console.log(m({ name: 'abc', age: 10 }))
-   * // => false
-   * console.log(m({ name: 'abc', age: 20 }))
-   * // => true
-   * console.log(m({ name: 'a', age: 20 }))
-   * // => false
-   * ```
-   */
-  export function createAll<T, T2 extends T = T>(
-    ...matches: Match.Multi<T2>
-  ): (value: T) => boolean {
-    return (value): boolean => Match.all<any>(value)(...matches);
-  }
-
-  /**
-   * Returns a function that takes a value of type T, and returns true if the value matches any of the
-   * given `matches` array of Match instances.
-   * @typeparam T - the type of the object to match
-   * @typeparam T2 - the type to use for the Match, should be equal to T
-   * @param matches - at least one Match instance to perform on a given `value`
-   * @example
-   * ```ts
-   * type Person = { name: string, age: number }
-   * const m = Match.createAny<Person>({ age: v => v > 20 }, { name: v => v.length > 2 })
-   *
-   * console.log(m({ name: 'abc', age: 10 }))
-   * // => true
-   * console.log(m({ name: 'abc', age: 20 }))
-   * // => true
-   * console.log(m({ name: 'a', age: 20 }))
-   * // => true
-   * console.log(m({ name: 'a', age: 10 }))
-   * // => false
-   * ```
-   */
-  export function createAny<T, T2 extends T = T>(
-    ...matches: Match.Multi<T2>
-  ): (value: T) => boolean {
-    return (value): boolean => Match.any<any>(value)(...matches);
-  }
+  export type Api = typeof Match;
 }
 
-function matchSingle<T, P, R>(
-  value: Immutable<T>,
-  matcher: MatchHelper<T, P, R>,
-  parent: Immutable<P>,
-  root: Immutable<R>
+class Every<T, R, Q extends T = T> {
+  constructor(readonly matchItems: Match.Options<Q, R>[]) {}
+}
+
+class Some<T, R, Q extends T = T> {
+  constructor(readonly matchItems: Match.Options<Q, R>[]) {}
+}
+
+class None<T, R, Q extends T = T> {
+  constructor(readonly matchItems: Match.Options<Q, R>[]) {}
+}
+
+class Single<T, R, Q extends T = T> {
+  constructor(readonly matchItems: Match.Options<Q, R>[]) {}
+}
+
+/**
+ * Returns true if the given `value` object matches the given `matcher`, false otherwise.
+ * @typeparam T - the input value type
+ * @param value - the value to match (should be a plain object)
+ * @param matcher - a matcher object or a function taking the matcher API and returning a match object
+ * @example
+ * ```ts
+ * const input = { a: 1, b: { c: true, d: 'a' } }
+ * match(input, { a: 1 }) // => true
+ * match(input, { a: 2 }) // => false
+ * match(input, { a: v => v > 10 }) // => false
+ * match(input, { b: { c: true }}) // => true
+ * match(input, ({ every }) => every({ a: v => v > 0 }, { b: { c: true } } )) // => true
+ * match(input, { b: { c: (v, parent, root) => v && parent.d.length > 0 && root.a > 0 } })
+ *  // => true
+ * ```
+ */
+export function match<T>(
+  value: T & PlainObj<T>,
+  matcher: Match<T> | ((matchApi: Match.Api) => Match<T>)
 ): boolean {
-  if (typeof matcher === 'function') {
-    return matcher(value, parent, root);
+  if (matcher instanceof Function) {
+    return matchOptions(value, value, matcher(Match));
   }
 
-  if (null === value || undefined === value || typeof value !== 'object') {
-    if (typeof matcher !== 'object' || null === matcher) {
-      return (matcher as any) === value;
+  return matchOptions(value, value, matcher);
+}
+
+function matchOptions<T, R>(
+  value: T,
+  root: R,
+  matcher: Match.Options<T, R>
+): boolean {
+  if (matcher instanceof Every) {
+    let i = -1;
+    const { matchItems } = matcher;
+    const len = matchItems.length;
+
+    while (++i < len) {
+      if (!matchOptions(value, root, matchItems[i])) {
+        return false;
+      }
     }
-    if (Literal.isLiteral(matcher)) {
-      return Literal.getValue(matcher) === value;
+
+    return true;
+  }
+  if (matcher instanceof Some) {
+    let i = -1;
+    const { matchItems } = matcher;
+    const len = matchItems.length;
+    while (++i < len) {
+      if (matchOptions(value, root, matchItems[i])) {
+        return true;
+      }
     }
-    return (matcher as any) === value;
+
+    return false;
+  }
+  if (matcher instanceof None) {
+    let i = -1;
+    const { matchItems } = matcher;
+    const len = matchItems.length;
+    while (++i < len) {
+      if (matchOptions(value, root, matchItems[i])) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+  if (matcher instanceof Single) {
+    let i = -1;
+    const { matchItems } = matcher;
+    const len = matchItems.length;
+    let matched = false;
+
+    while (++i < len) {
+      if (matchOptions(value, root, matchItems[i])) {
+        if (matched) {
+          return false;
+        }
+
+        matched = true;
+      }
+    }
+
+    return matched;
   }
 
-  if (Array.isArray(matcher)) {
+  if (isPlainObj(matcher)) {
+    return matchRecord(value, root, matcher);
+  }
+
+  return Object.is(value, matcher);
+}
+
+function matchRecord<T, R>(
+  value: T,
+  root: R,
+  matcher: Match.Obj<T, R>
+): boolean {
+  if (!isPlainObj(matcher)) {
     RimbuError.throwInvalidUsageError(
-      'Do not use arrays directly in match object, but use Literal.of(array) instead due to type limittions.'
+      'match: to prevent accidental errors, match only supports plain objects as input.'
     );
   }
 
-  if (typeof matcher !== 'object') RimbuError.throwInvalidStateError();
-
-  if (null === matcher) return false;
-
-  if (Literal.isLiteral(matcher)) {
-    return Literal.getValue(matcher) === value;
-  }
-
-  const valueIsArray = Array.isArray(value);
-
-  // check if plain object
-  if (!valueIsArray && !Literal.isPlainObject(value)) {
-    return (matcher as any) === value;
-  }
-
-  for (const key in matcher as any) {
+  for (const key in matcher) {
     if (!(key in value)) return false;
 
-    const matchKey = (matcher as any)[key];
+    const matchValue = matcher[key];
+    const target = value[key];
 
-    if (undefined === matchKey) {
-      RimbuError.throwInvalidUsageError(
-        'Do not use undefined directly in match objects, but use Literal.of(undefined) instead due to type limitations.'
-      );
+    if (matchValue instanceof Function) {
+      if (target instanceof Function && Object.is(target, matchValue)) {
+        return true;
+      }
+
+      const result = matchValue(target, value, root);
+
+      if (typeof result === 'boolean') {
+        if (result) {
+          continue;
+        }
+
+        return false;
+      }
+
+      if (!matchRecordItem(target, root, result)) {
+        return false;
+      }
+    } else {
+      if (!matchRecordItem(target, root, matchValue as any)) {
+        return false;
+      }
     }
-
-    const result = matchSingle<any, any, any>(
-      (value as any)[key],
-      matchKey,
-      value,
-      root
-    );
-    if (!result) return false;
   }
 
   return true;
+}
+
+function matchRecordItem<T, R>(
+  value: T,
+  root: R,
+  matcher: Match.ObjItem<T, R>
+): boolean {
+  if (isIterable(matcher) && isIterable(value)) {
+    const it1 = (value as any)[Symbol.iterator]() as Iterator<unknown>;
+    const it2 = (matcher as any)[Symbol.iterator]() as Iterator<unknown>;
+
+    while (true) {
+      const v1 = it1.next();
+      const v2 = it2.next();
+
+      if (v1.done !== v2.done || v1.value !== v2.value) {
+        return false;
+      }
+      if (v1.done) {
+        return true;
+      }
+    }
+  }
+  if (isPlainObj(value)) {
+    return matchOptions(value, root, matcher as any);
+  }
+
+  return Object.is(value, matcher);
 }

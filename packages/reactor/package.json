@@ -52,7 +52,7 @@
   },
   "sideEffects": false,
   "devDependencies": {
-    "@testing-library/react": "^13.2.0",
+    "@testing-library/react": "12.1.5",
     "@testing-library/react-hooks": "^8.0.0",
     "jest-environment-jsdom": "^28.1.0",
     "react": "<18.0.0",

@@ -2,7 +2,26 @@ import type { HashMap, HashSet } from '../../../../hashed/mod.ts';
 import type { SortedMap, SortedSet } from '../../../../sorted/mod.ts';
 
 import type { GraphBase } from '../../common/index.ts';
-import type { ArrowGraphHashed, ArrowGraphSorted } from '../../../../graph/mod.ts';
+import type {
+  ArrowGraph,
+  ArrowGraphHashed,
+  ArrowGraphSorted,
+} from '../../../../graph/mod.ts';
+import type { RMap, RSet } from '../../../../collection-types/mod.ts';
+
+export interface ArrowGraphCreators {
+  /**
+   * Returns a new ArrowGraph context instance based on the given `options`.
+   * @typeparam UN - the upper node type for which the context can create instances
+   * @param options - an object containing the following properties:<br/>
+   * - linkMapContext - the map context to use to maintain link maps<br/>
+   * - linkConnectionsContext - the set context to use to maintain link connection maps
+   */
+  createContext<UN>(options: {
+    linkMapContext: RMap.Context<UN>;
+    linkConnectionsContext: RSet.Context<UN>;
+  }): ArrowGraph.Context<UN>;
+}
 
 export interface ArrowGraphHashedCreators
   extends GraphBase.Factory<ArrowGraphHashed.Types> {

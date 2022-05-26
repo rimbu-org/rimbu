@@ -13,17 +13,17 @@ let m!: {
 };
 type M = typeof m;
 
-expectError(Path.getValue(m, ''));
-expectError(Path.getValue(m, 'a.'));
-expectError(Path.getValue(m, '.a'));
-expectError(Path.getValue(m, 'a.a'));
-expectError(Path.getValue(m, 'a.b'));
-expectError(Path.getValue(m, 'z'));
-expectError(Path.getValue(m, 'cc'));
-expectError(Path.getValue(m, 'cd'));
+expectError(Path.get(m, ''));
+expectError(Path.get(m, 'a.'));
+expectError(Path.get(m, '.a'));
+expectError(Path.get(m, 'a.a'));
+expectError(Path.get(m, 'a.b'));
+expectError(Path.get(m, 'z'));
+expectError(Path.get(m, 'cc'));
+expectError(Path.get(m, 'cd'));
 
-expectType<number>(Path.getValue(m, 'a'));
-expectType<string[]>(Path.getValue(m, 'b'));
-expectType<M['c']>(Path.getValue(m, 'c'));
-expectType<M['f']>(Path.getValue(m, 'f'));
-expectType<M['c']['e']>(Path.getValue(m, 'c.e'));
+expectType<number>(Path.get(m, 'a'));
+expectType<string[]>(Path.get(m, 'b'));
+expectType<M['c']>(Path.get(m, 'c'));
+expectType<M['f']>(Path.get(m, 'f'));
+expectType<M['c']['e']>(Path.get(m, 'c.e'));

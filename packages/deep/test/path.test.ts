@@ -1,5 +1,5 @@
 import { List } from '@rimbu/list';
-import { Literal, Path } from '../src';
+import { Path } from '../src';
 
 describe('Path', () => {
   const m = {
@@ -13,36 +13,20 @@ describe('Path', () => {
   };
 
   it('getValue', () => {
-    expect(Path.getValue(m, 'a')).toBe(1);
-    expect(Path.getValue(m, 'b')).toBe(m.b);
-    expect(Path.getValue(m, 'c')).toBe(m.c);
-    expect(Path.getValue(m, 'f')).toBe(m.f);
-    expect(Path.getValue(m, 'c.d')).toBe(true);
-    expect(Path.getValue(m, 'c.e')).toBe(m.c.e);
+    expect(Path.get(m, 'a')).toBe(1);
+    expect(Path.get(m, 'b')).toBe(m.b);
+    expect(Path.get(m, 'c')).toBe(m.c);
+    expect(Path.get(m, 'f')).toBe(m.f);
+    expect(Path.get(m, 'c.d')).toBe(true);
+    expect(Path.get(m, 'c.e')).toBe(m.c.e);
   });
 
-  it('patchValue', () => {
-    expect(Path.patchValue(m, 'a', 5)).toMatchObject({ a: 5 });
-    expect(Path.patchValue(m, 'a', (v: number) => v + 1)).toMatchObject({
-      a: 2,
-    });
-    expect(Path.patchValue(m, 'b', Literal.of(['abc']))).toMatchObject({
-      b: ['abc'],
-    });
-    expect(Path.patchValue(m, 'c.d', false)).toMatchObject({
+  it('updateValue', () => {
+    expect(Path.update(m, 'a', 1)).toBe(m);
+    expect(Path.update(m, 'a', 2)).toMatchObject({ a: 2 });
+    expect(Path.update(m, 'a', (v) => v + 1)).toMatchObject({ a: 2 });
+    expect(Path.update(m, 'c.d', false)).toMatchObject({
       c: { d: false },
-    });
-    expect(Path.patchValue(m, 'c.d', (v: boolean) => !v)).toMatchObject({
-      c: { d: false },
-    });
-    expect(Path.patchValue(m, 'c.e', Literal.of(null))).toMatchObject({
-      c: { e: null },
-    });
-    expect(Path.patchValue(m, 'a', 1)).toBe(m);
-
-    const l = List.of(5);
-    expect(Path.patchValue(m, 'f', Literal.of(l))).toMatchObject({
-      f: l,
     });
   });
 });

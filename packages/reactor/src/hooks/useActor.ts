@@ -1,5 +1,5 @@
 import type { Actor } from '@rimbu/actor';
-import type { Immutable } from '@rimbu/deep';
+import type { Protected } from '@rimbu/deep';
 import { useSubscribeUpdateUI } from '../internal';
 import { useConst } from './useConst';
 
@@ -34,7 +34,7 @@ export function useActor<
 >(
   getActor: (...args: Args) => A,
   ...args: Args
-): readonly [Immutable<Actor.StateType<A>>, A] {
+): readonly [Protected<Actor.StateType<A>>, A] {
   const stableObs = useConst(getActor, ...args);
   useSubscribeUpdateUI(() => stableObs);
   return [stableObs.state, stableObs];

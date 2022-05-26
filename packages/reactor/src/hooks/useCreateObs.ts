@@ -1,6 +1,6 @@
 import { Obs } from '@rimbu/actor';
 import { OptLazy } from '@rimbu/common';
-import type { Immutable } from '@rimbu/deep';
+import type { Protected } from '@rimbu/deep';
 import { useActor } from './useActor';
 
 /**
@@ -23,6 +23,6 @@ import { useActor } from './useActor';
  */
 export function useCreateObs<T>(
   initState: OptLazy<T>
-): readonly [Immutable<T>, Obs<T>] {
+): readonly [Protected<T>, Obs<T>] {
   return useActor(() => Obs.create<T>(OptLazy(initState)));
 }

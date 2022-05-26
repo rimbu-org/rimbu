@@ -1,4 +1,4 @@
-import type { Immutable } from '../deep/mod.ts';
+import type { Protected } from '../deep/mod.ts';
 import type { Obs } from './internal.ts';
 
 class Impl<T, P extends Record<string, unknown>, D> implements Actor<T, D> {
@@ -14,7 +14,7 @@ class Impl<T, P extends Record<string, unknown>, D> implements Actor<T, D> {
     return this.actor.obsReadonly;
   }
 
-  get state(): Immutable<T & D> {
+  get state(): Protected<T & D> {
     return this.actor.state;
   }
 }

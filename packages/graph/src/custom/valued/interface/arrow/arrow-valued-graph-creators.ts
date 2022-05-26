@@ -2,10 +2,26 @@ import type { HashMap } from '@rimbu/hashed';
 import type { SortedMap } from '@rimbu/sorted';
 
 import type {
+  ArrowValuedGraph,
   ArrowValuedGraphHashed,
   ArrowValuedGraphSorted,
 } from '@rimbu/graph';
 import type { ValuedGraphBase } from '@rimbu/graph/custom';
+import type { RMap } from '@rimbu/collection-types';
+
+export interface ArrowValuedGraphCreators {
+  /**
+   * Returns a new ArrowValuedGraph context instance based on the given `options`.
+   * @typeparam UN - the upper node type for which the context can create instances
+   * @param options - an object containing the following properties:<br/>
+   * - linkMapContext - the map context to use to maintain link maps<br/>
+   * - linkConnectionsContext - the map context to use to maintain link connection maps
+   */
+  createContext<UN>(options: {
+    linkMapContext: RMap.Context<UN>;
+    linkConnectionsContext: RMap.Context<UN>;
+  }): ArrowValuedGraph.Context<UN>;
+}
 
 export interface ArrowValuedGraphHashedCreators
   extends ValuedGraphBase.Factory<ArrowValuedGraphHashed.Types> {

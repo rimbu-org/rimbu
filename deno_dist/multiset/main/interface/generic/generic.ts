@@ -1,5 +1,9 @@
 import type { RMap } from '../../../../collection-types/map/index.ts';
-import { MultiSetBase, MultiSetContext } from '../../../../multiset/custom/index.ts';
+import {
+  type MultiSetBase,
+  MultiSetContext,
+  type MultiSetCreators,
+} from '../../../../multiset/custom/index.ts';
 import type { Streamable } from '../../../../stream/mod.ts';
 
 /**
@@ -50,13 +54,7 @@ export namespace MultiSet {
   }
 }
 
-export const MultiSet = Object.freeze({
-  /**
-   * Returns a new MultiSet context instance based on the given `options`.
-   * @typeparam UT - the upper element type for which the context can create instances
-   * @param options - an object containing the following properties:<br/>
-   * - countMapContext - the map context to use for key to count mapping
-   */
+export const MultiSet: MultiSetCreators = Object.freeze({
   createContext<UT>(options: {
     countMapContext: RMap.Context<UT>;
   }): MultiSet.Context<UT> {

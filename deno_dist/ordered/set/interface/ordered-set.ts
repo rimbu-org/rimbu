@@ -3,6 +3,7 @@ import { List } from '../../../list/mod.ts';
 import {
   OrderedSetBase,
   OrderedSetContextImpl,
+  type OrderedSetCreators,
 } from '../../../ordered/set-custom/index.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
 
@@ -77,21 +78,16 @@ export namespace OrderedSet {
   }
 }
 
-export const OrderedSet = Object.freeze({
-  /**
-   * Returns a new OrderedSet context instance based on the given `options`.
-   * @typeparam UT - the upper element type for which the context can create instances
-   * @param options - an object containing the following properties:<br/>
-   * - listContext - the list context to use for element ordering<br/>
-   * - setContext - the set context to use for element sets
-   */
+export const OrderedSet: OrderedSetCreators = Object.freeze({
   createContext<UT>(options: {
     listContext?: List.Context;
     setContext: RSet.Context<UT>;
   }): OrderedSet.Context<UT> {
-    return new OrderedSetContextImpl<UT>(
-      options.listContext ?? List.defaultContext(),
-      options.setContext
-    ) as any;
+    return Object.freeze(
+      new OrderedSetContextImpl<UT>(
+        options.listContext ?? List.defaultContext(),
+        options.setContext
+      ) as any
+    );
   },
 });
