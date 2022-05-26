@@ -1,7 +1,10 @@
 import type { RMap } from '@rimbu/collection-types';
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type { ValuedGraphElement } from '@rimbu/graph/custom';
+import type {
+  EdgeValuedGraphCreators,
+  ValuedGraphElement,
+} from '@rimbu/graph/custom';
 
 import { EdgeValuedGraphBase, ValuedGraphContext } from '@rimbu/graph/custom';
 
@@ -66,14 +69,7 @@ export namespace EdgeValuedGraph {
   }
 }
 
-export const EdgeValuedGraph = {
-  /**
-   * Returns a new EdgeValuedGraph context instance based on the given `options`.
-   * @typeparam UN - the upper node type for which the context can create instances
-   * @param options - an object containing the following properties:<br/>
-   * - linkMapContext - the map context to use to maintain link maps<br/>
-   * - linkConnectionsContext - the map context to use to maintain link connection maps
-   */
+export const EdgeValuedGraph: EdgeValuedGraphCreators = Object.freeze({
   createContext<UN>(options: {
     linkMapContext: RMap.Context<UN>;
     linkConnectionsContext: RMap.Context<UN>;
@@ -87,4 +83,4 @@ export const EdgeValuedGraph = {
       )
     );
   },
-};
+});

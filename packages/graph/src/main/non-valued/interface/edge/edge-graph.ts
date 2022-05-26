@@ -1,9 +1,10 @@
 import type { RMap, RSet } from '@rimbu/collection-types';
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type { GraphElement } from '@rimbu/graph/custom';
+import type { EdgeGraphCreators, GraphElement } from '@rimbu/graph/custom';
 
-import { EdgeGraphBase, GraphContext } from '@rimbu/graph/custom';
+import { type EdgeGraphBase, GraphContext } from '@rimbu/graph/custom';
+
 /**
  * An type-invariant immutable edge (undirected) graph.
  * See the [Graph documentation](https://rimbu.org/docs/collections/graph) and the [EdgeGraph API documentation](https://rimbu.org/api/rimbu/graph/EdgeGraph/interface)
@@ -58,14 +59,7 @@ export namespace EdgeGraph {
   }
 }
 
-export const EdgeGraph = {
-  /**
-   * Returns a new EdgeGraph context instance based on the given `options`.
-   * @typeparam UN - the upper node type for which the context can create instances
-   * @param options - an object containing the following properties:<br/>
-   * - linkMapContext - the map context to use to maintain link maps<br/>
-   * - linkConnectionsContext - the set context to use to maintain link connection maps
-   */
+export const EdgeGraph: EdgeGraphCreators = Object.freeze({
   createContext<UN>(options: {
     linkMapContext: RMap.Context<UN>;
     linkConnectionsContext: RSet.Context<UN>;
@@ -79,4 +73,4 @@ export const EdgeGraph = {
       )
     );
   },
-};
+});

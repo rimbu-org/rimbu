@@ -1,9 +1,15 @@
 import type { RMap } from '../../../../../collection-types/mod.ts';
 import type { Stream, Streamable } from '../../../../../stream/mod.ts';
 
-import type { ValuedGraphElement } from '../../../../../graph/custom/index.ts';
+import type {
+  ArrowValuedGraphCreators,
+  ValuedGraphElement,
+} from '../../../../../graph/custom/index.ts';
 
-import { ArrowValuedGraphBase, ValuedGraphContext } from '../../../../../graph/custom/index.ts';
+import {
+  type ArrowValuedGraphBase,
+  ValuedGraphContext,
+} from '../../../../../graph/custom/index.ts';
 
 /**
  * An type-invariant immutable valued arrow (directed) graph.
@@ -66,14 +72,7 @@ export namespace ArrowValuedGraph {
   }
 }
 
-export const ArrowValuedGraph = {
-  /**
-   * Returns a new ArrowValuedGraph context instance based on the given `options`.
-   * @typeparam UN - the upper node type for which the context can create instances
-   * @param options - an object containing the following properties:<br/>
-   * - linkMapContext - the map context to use to maintain link maps<br/>
-   * - linkConnectionsContext - the map context to use to maintain link connection maps
-   */
+export const ArrowValuedGraph: ArrowValuedGraphCreators = Object.freeze({
   createContext<UN>(options: {
     linkMapContext: RMap.Context<UN>;
     linkConnectionsContext: RMap.Context<UN>;
@@ -87,4 +86,4 @@ export const ArrowValuedGraph = {
       )
     );
   },
-};
+});

@@ -1,9 +1,9 @@
 import type { RMap, RSet } from '@rimbu/collection-types';
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type { Link } from '@rimbu/graph/custom';
+import type { ArrowGraphCreators, Link } from '@rimbu/graph/custom';
 
-import { ArrowGraphBase, GraphContext } from '@rimbu/graph/custom';
+import { type ArrowGraphBase, GraphContext } from '@rimbu/graph/custom';
 
 /**
  * An type-invariant immutable arrow (directed) graph.
@@ -59,14 +59,7 @@ export namespace ArrowGraph {
   }
 }
 
-export const ArrowGraph = {
-  /**
-   * Returns a new ArrowGraph context instance based on the given `options`.
-   * @typeparam UN - the upper node type for which the context can create instances
-   * @param options - an object containing the following properties:<br/>
-   * - linkMapContext - the map context to use to maintain link maps<br/>
-   * - linkConnectionsContext - the set context to use to maintain link connection maps
-   */
+export const ArrowGraph: ArrowGraphCreators = Object.freeze({
   createContext<UN>(options: {
     linkMapContext: RMap.Context<UN>;
     linkConnectionsContext: RSet.Context<UN>;
@@ -80,4 +73,4 @@ export const ArrowGraph = {
       )
     );
   },
-};
+});

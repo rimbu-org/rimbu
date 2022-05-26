@@ -1,9 +1,9 @@
 import type { RMap, RSet } from '../../../../../collection-types/mod.ts';
 import type { Stream, Streamable } from '../../../../../stream/mod.ts';
 
-import type { Link } from '../../../../../graph/custom/index.ts';
+import type { ArrowGraphCreators, Link } from '../../../../../graph/custom/index.ts';
 
-import { ArrowGraphBase, GraphContext } from '../../../../../graph/custom/index.ts';
+import { type ArrowGraphBase, GraphContext } from '../../../../../graph/custom/index.ts';
 
 /**
  * An type-invariant immutable arrow (directed) graph.
@@ -59,14 +59,7 @@ export namespace ArrowGraph {
   }
 }
 
-export const ArrowGraph = {
-  /**
-   * Returns a new ArrowGraph context instance based on the given `options`.
-   * @typeparam UN - the upper node type for which the context can create instances
-   * @param options - an object containing the following properties:<br/>
-   * - linkMapContext - the map context to use to maintain link maps<br/>
-   * - linkConnectionsContext - the set context to use to maintain link connection maps
-   */
+export const ArrowGraph: ArrowGraphCreators = Object.freeze({
   createContext<UN>(options: {
     linkMapContext: RMap.Context<UN>;
     linkConnectionsContext: RSet.Context<UN>;
@@ -80,4 +73,4 @@ export const ArrowGraph = {
       )
     );
   },
-};
+});

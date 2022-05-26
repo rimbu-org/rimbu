@@ -1,8 +1,27 @@
+import type { RMap } from '@rimbu/collection-types';
 import type { RMapBase } from '@rimbu/collection-types/map-custom';
 import type { HashMap } from '@rimbu/hashed';
 import type { List } from '@rimbu/list';
-import type { OrderedHashMap, OrderedSortedMap } from '@rimbu/ordered/map';
+import type {
+  OrderedHashMap,
+  OrderedMap,
+  OrderedSortedMap,
+} from '@rimbu/ordered/map';
 import type { SortedMap } from '@rimbu/sorted';
+
+export interface OrderedMapCreators {
+  /**
+   * Returns a new OrderedMap context instance based on the given `options`.
+   * @typeparam UK - the upper key type for which the context can create instances
+   * @param options - an object containing the following properties:<br/>
+   * - listContext - the list context to use for key ordering<br/>
+   * - mapContext - the map context to use for key value mapping
+   */
+  createContext<UK>(options: {
+    listContext?: List.Context;
+    mapContext: RMap.Context<UK>;
+  }): OrderedMap.Context<UK>;
+}
 
 export interface OrderedHashMapCreators
   extends RMapBase.Factory<OrderedHashMap.Types> {

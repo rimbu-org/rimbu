@@ -1,5 +1,9 @@
 import type { RMap, RSet } from '@rimbu/collection-types';
-import { MultiMapBase, MultiMapContext } from '@rimbu/multimap/custom';
+import {
+  type MultiMapBase,
+  MultiMapContext,
+  type MultiMapCreators,
+} from '@rimbu/multimap/custom';
 import type { Streamable } from '@rimbu/stream';
 
 /**
@@ -53,15 +57,7 @@ export namespace MultiMap {
   }
 }
 
-export const MultiMap = Object.freeze({
-  /**
-   * Returns a new MultiMap context instance based on the given `options`.
-   * @typeparam UK - the upper key type for which the context can create instances
-   * @typeparam UV - the upper value type for which the context can create instances
-   * @param options - an object containing the following properties:<br/>
-   * - keyMapContext - the map context to use for key to valueset mappings<br/>
-   * - keyMapValuesContext - the set context to use for value sets
-   */
+export const MultiMap: MultiMapCreators = Object.freeze({
   createContext<UK, UV>(options: {
     keyMapContext: RMap.Context<UK>;
     keyMapValuesContext: RSet.Context<UV>;

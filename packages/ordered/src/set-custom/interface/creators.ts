@@ -1,8 +1,27 @@
+import type { RSet } from '@rimbu/collection-types';
 import type { RSetBase } from '@rimbu/collection-types/set-custom';
 import type { HashSet } from '@rimbu/hashed';
 import type { List } from '@rimbu/list';
-import type { OrderedHashSet, OrderedSortedSet } from '@rimbu/ordered/set';
+import type {
+  OrderedHashSet,
+  OrderedSet,
+  OrderedSortedSet,
+} from '@rimbu/ordered/set';
 import type { SortedSet } from '@rimbu/sorted';
+
+export interface OrderedSetCreators {
+  /**
+   * Returns a new OrderedSet context instance based on the given `options`.
+   * @typeparam UT - the upper element type for which the context can create instances
+   * @param options - an object containing the following properties:<br/>
+   * - listContext - the list context to use for element ordering<br/>
+   * - setContext - the set context to use for element sets
+   */
+  createContext<UT>(options: {
+    listContext?: List.Context;
+    setContext: RSet.Context<UT>;
+  }): OrderedSet.Context<UT>;
+}
 
 export interface OrderedHashSetCreators
   extends RSetBase.Factory<OrderedHashSet.Types> {

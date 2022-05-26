@@ -3,6 +3,7 @@ import { List } from '@rimbu/list';
 import {
   OrderedMapBase,
   OrderedMapContextImpl,
+  type OrderedMapCreators,
 } from '@rimbu/ordered/map-custom';
 import type { Stream, Streamable } from '@rimbu/stream';
 
@@ -87,14 +88,7 @@ export namespace OrderedMap {
   }
 }
 
-export const OrderedMap = Object.freeze({
-  /**
-   * Returns a new OrderedMap context instance based on the given `options`.
-   * @typeparam UK - the upper key type for which the context can create instances
-   * @param options - an object containing the following properties:<br/>
-   * - listContext - the list context to use for key ordering<br/>
-   * - mapContext - the map context to use for key value mapping
-   */
+export const OrderedMap: OrderedMapCreators = {
   createContext<UK>(options: {
     listContext?: List.Context;
     mapContext: RMap.Context<UK>;
@@ -106,4 +100,4 @@ export const OrderedMap = Object.freeze({
       )
     ) as any;
   },
-});
+};

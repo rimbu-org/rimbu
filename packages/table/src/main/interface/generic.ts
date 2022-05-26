@@ -1,6 +1,10 @@
 import type { RMap } from '@rimbu/collection-types/map';
 import type { Streamable } from '@rimbu/stream';
-import { TableBase, TableContext } from '@rimbu/table/custom';
+import {
+  type TableBase,
+  TableContext,
+  type TableCreators,
+} from '@rimbu/table/custom';
 
 /**
  * A type-invariant immutable Table of row key type R, column key type C, and value type V.
@@ -65,15 +69,7 @@ export namespace Table {
   }
 }
 
-export const Table = Object.freeze({
-  /**
-   * Returns a new Table context instance based on the given `options`.
-   * @typeparam UR - the upper row key type for which the context can create instances
-   * @typeparam UC - the upper column key type for which the context can create instances
-   * @param options - an object containing the following properties:<br/>
-   * - rowContext - the map context to use to map row keys to columns<br/>
-   * - columnContext - the map context to use to map column keys to values
-   */
+export const Table: TableCreators = Object.freeze({
   createContext<UR, UC>(options: {
     rowContext: RMap.Context<UR>;
     columnContext: RMap.Context<UC>;

@@ -1,13 +1,29 @@
+import type { RMap, RSet } from '../../../collection-types/mod.ts';
 import type { HashMap, HashSet } from '../../../hashed/mod.ts';
 import type {
   HashMultiMapHashValue,
   HashMultiMapSortedValue,
+  MultiMap,
   SortedMultiMapHashValue,
   SortedMultiMapSortedValue,
 } from '../../../multimap/mod.ts';
 import type { MultiMapBase } from '../../../multimap/custom/index.ts';
 import type { SortedMap, SortedSet } from '../../../sorted/mod.ts';
 
+export interface MultiMapCreators {
+  /**
+   * Returns a new MultiMap context instance based on the given `options`.
+   * @typeparam UK - the upper key type for which the context can create instances
+   * @typeparam UV - the upper value type for which the context can create instances
+   * @param options - an object containing the following properties:<br/>
+   * - keyMapContext - the map context to use for key to valueset mappings<br/>
+   * - keyMapValuesContext - the set context to use for value sets
+   */
+  createContext<UK, UV>(options: {
+    keyMapContext: RMap.Context<UK>;
+    keyMapValuesContext: RSet.Context<UV>;
+  }): MultiMap.Context<UK, UV>;
+}
 export interface HashMultiMapHashValueCreators
   extends MultiMapBase.Factory<HashMultiMapHashValue.Types> {
   /**
