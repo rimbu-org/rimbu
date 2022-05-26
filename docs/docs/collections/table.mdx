@@ -24,19 +24,19 @@ Internally, a `Table<R, C, V>` is built on: `RMap<R, RMap<C, V>>`. So it is a Ma
 
 The `@rimbu/core` package exports the following _abstract_ Table TypeScript types:
 
-| Name                    | Description                                                         |
-| ----------------------- | ------------------------------------------------------------------- |
-| `VariantTable<R, C, V>` | a type-variant `Table` with row keys R, column keys C, and values V |
-| `Table<R, C, V>`        | a generic `Table` with row keys R, column keys C, and values V      |
+| Name                                                               | Description                                                         |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| [`VariantTable<R, C, V>`](/api/rimbu/table/VariantTable/namespace) | a type-variant `Table` with row keys R, column keys C, and values V |
+| [`Table<R, C, V>`](/api/rimbu/table/Table/namespace)               | a generic `Table` with row keys R, column keys C, and values V      |
 
 The `@rimbu/core` package exports the following _concrete_ Table types:
 
-| Name                               | Description                                                            |
-| ---------------------------------- | ---------------------------------------------------------------------- |
-| `HashTableHashColumn<R, C, V>`     | a `Table` where the row keys and column keys are hashed                |
-| `HashTableSortedColumn<R, C, V>`   | a `Table` where the row keys are hashed and the column keys are sorted |
-| `SortedTableHashColumn<R, C, V>`   | a `Table` where the row keys are sorted and the column keys are hashed |
-| `SortedTableSortedColumn<R, C, V>` | a `Table` where the row keys and column keys are sorted                |
+| Name                                                                                     | Description                                                            |
+| ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| [`HashTableHashColumn<R, C, V>`](/api/rimbu/table/HashTableSortedColumn/namespace)       | a `Table` where the row keys and column keys are hashed                |
+| [`HashTableSortedColumn<R, C, V>`](/api/rimbu/table/HashTableHashColumn/namespace)       | a `Table` where the row keys are hashed and the column keys are sorted |
+| [`SortedTableHashColumn<R, C, V>`](/api/rimbu/table/SortedTableHashColumn/namespace)     | a `Table` where the row keys are sorted and the column keys are hashed |
+| [`SortedTableSortedColumn<R, C, V>`](/api/rimbu/table/SortedTableSortedColumn/namespace) | a `Table` where the row keys and column keys are sorted                |
 
 ## Inheritance
 

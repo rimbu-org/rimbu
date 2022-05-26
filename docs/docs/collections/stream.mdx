@@ -14,6 +14,14 @@ Except for intentionally random sources, a `Stream` should satisfy the following
 
 - An iterator produced by the Stream should return the same values in the same order.
 
+## Exports
+
+The `@rimbu/core` package exports the following _concrete_ Stream types:
+
+| Name                                              | Description                                        |
+| ------------------------------------------------- | -------------------------------------------------- |
+| [`Stream<T>`](/api/rimbu/stream/Stream/namespace) | A possibly infinite sequence of elements of type T |
+
 ## Plumbing
 
 The `Stream` should be seen as the way to transfer values from one form to the other. All Rimbu collections can be both converted to a `Stream`, and created from a `Stream`. Creating a `Stream` is always an O(1) operation.

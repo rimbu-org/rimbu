@@ -22,7 +22,7 @@ It also contains less commonly used, but very useful collections, like [`MultiMa
 
 ### Immutable object utilities
 
-Next to collections, there are also tools to treat plain JS objects as immutable objects, most notable are [`Patch`](docs/deep/patch) [`Match`](docs/deep/match), and [`Path`](docs/deep/path). The
+Next to collections, there are also tools to treat plain JS objects as immutable or deep readonly objects, most notable are [`Patch`](docs/deep/patch) [`Match`](docs/deep/match), and [`Path`](docs/deep/path).
 
 All collections are designed to efficiently support data sets from small to really large (as long as it fits in memory). Persistence is maximally used to ensure that memory load is kept to a mimimum. This means that, when changing a collection instance, maximum effort is made to keep references to elements that did not change equal.
 

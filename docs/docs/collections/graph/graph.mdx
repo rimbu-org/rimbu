@@ -12,6 +12,17 @@ import { inheritance, inheritanceValued, inheritanceNonValued } from './graph';
 
 A Graph is a data structure consisting of nodes that can be connected through edges. Each node has a unique value or identifier. Edges can be directed, in which case we will call it an Arrow Graph, or undirected, in which case we will call it an Edge Graph. Furthermore, edges and arrows can also have values, in which case we call it a Valued Graph.
 
+## Exports
+
+The `@rimbu/core` package exports the following _abstract_ Graph TypeScript types:
+
+| Name                                                                       | Description                                                                 |
+| -------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| [`Graph<N>`](/api/rimbu/graph/Graph/namespace)                             | An type-invariant immutable graph of node type `N`                          |
+| [`ValuedGraph<N,V>`](/api/rimbu/graph/ValuedGraph/namespace)               | An type-invariant immutable valued graph of node type `N` and edge type `V` |
+| [`VariantGraph<N>`](/api/rimbu/graph/VariantGraph/namespace)               | An type-variant immutable graph of node type `N`                            |
+| [`VariantValuedGraph<N,V>`](/api/rimbu/graph/VariantValuedGraph/namespace) | An type-variant immutable graph of node type `N` and edge type `V`          |
+
 ## Graph types
 
 Rimbu offers TypeScript implementations for many types of immutable graphs, the main characteristics being valued or non-valued, and directed or undirected:

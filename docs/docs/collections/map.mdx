@@ -36,18 +36,18 @@ The `OrderedMap` maintains an extra `List` or the inserted keys in insertion ord
 
 The `@rimbu/core` package exports the following _abstract_ Map TypeScript types:
 
-| Name               | Description                                                    |
-| ------------------ | -------------------------------------------------------------- |
-| `VariantMap<K, V>` | a type-variant map with entries of key type K and value type V |
-| `RMap<K, V>`       | a generic map with entries of key type K and value type V      |
+| Name                                                                       | Description                                                    |
+| -------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| [`VariantMap<K, V>`](/api/rimbu/collection-types/map/VariantMap/namespace) | a type-variant map with entries of key type K and value type V |
+| [`RMap<K, V>`](/api/rimbu/collection-types/map/RMap/namespace)             | a generic map with entries of key type K and value type V      |
 
 The `@rimbu/core` package exports the following _concrete_ Map TypeScript types:
 
-| Name               | Description                                                                                |
-| ------------------ | ------------------------------------------------------------------------------------------ |
-| `HashMap<K, V>`    | a map with entries of key type K and value type V, where keys are hashed with a `Hasher`   |
-| `SortedMap<K, V>`  | a map with entries of key type K and value type V, where keys are sorted with a `Comp`     |
-| `OrderedMap<K, V>` | a map with entries of key type K and value type V, where key insertion order is maintained |
+| Name                                                          | Description                                                                                |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| [`HashMap<K, V>`](/api/rimbu/hashed/map/HashMap/namespace)    | a map with entries of key type K and value type V, where keys are hashed with a `Hasher`   |
+| [`SortedMap<K, V>`](/api/rimbu/sorted/SortedMap/namespace)    | a map with entries of key type K and value type V, where keys are sorted with a `Comp`     |
+| [`OrderedMap<K, V>`](/api/rimbu/ordered/OrderedMap/namespace) | a map with entries of key type K and value type V, where key insertion order is maintained |
 
 ## Inheritance
 
