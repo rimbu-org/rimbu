@@ -1,6 +1,6 @@
 import { List } from '@rimbu/list';
 import { expectError, expectType } from 'tsd';
-import $, { match, patch } from '../src';
+import { match, patch, patchNested as $ } from '../src';
 
 let m!: {
   a: number;
