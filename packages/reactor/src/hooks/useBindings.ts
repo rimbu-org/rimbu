@@ -1,5 +1,5 @@
 import type { Actor, Command } from '@rimbu/actor';
-import type { Immutable } from '@rimbu/deep';
+import type { Protected } from '@rimbu/deep';
 import type React from 'react';
 import { useConst, useSubscribeUpdateUI } from '../internal';
 
@@ -59,7 +59,7 @@ export function useBindings<B extends Binding.Def>(
  */
 export type Binding<T> = readonly [
   readonly Actor.Readonly<any>[],
-  Immutable<T>
+  Protected<T>
 ];
 
 export namespace Binding {

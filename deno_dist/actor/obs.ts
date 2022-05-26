@@ -1,8 +1,10 @@
-import { Immutable, Literal, patch, Patch, Path } from '../deep/mod.ts';
+import { type Protected, patch, Patch, Path } from '../deep/mod.ts';
+import type { PlainObj } from '../base/mod.ts';
+import { Update } from '../common/mod.ts';
 
 class NotifierBase<T> {
   readonly _subscribers = new Set<Obs.StateUpdate<T>>();
-  _onNoMoreSupscribers?: Obs.UnsubscribeFn;
+  _onNoMoreSubscribers?: Obs.UnsubscribeFn;
 
   constructor(
     readonly options?: { onFirstSubscription?: () => Obs.UnsubscribeFn }
@@ -14,7 +16,7 @@ class NotifierBase<T> {
 
   subscribe(onChange: Obs.StateUpdate<T>): Obs.UnsubscribeFn {
     if (!this.hasSubscribers) {
-      this._onNoMoreSupscribers = this.options?.onFirstSubscription?.();
+      this._onNoMoreSubscribers = this.options?.onFirstSubscription?.();
     }
 
     this._subscribers.add(onChange);
@@ -23,8 +25,8 @@ class NotifierBase<T> {
       this._subscribers.delete(onChange);
 
       if (!this.hasSubscribers) {
-        this._onNoMoreSupscribers?.();
-        this._onNoMoreSupscribers = undefined;
+        this._onNoMoreSubscribers?.();
+        this._onNoMoreSubscribers = undefined;
       }
     };
   }
@@ -36,23 +38,23 @@ class NotifierBase<T> {
   }
 }
 
-class Impl<T, D> extends NotifierBase<Immutable<T & D>> {
+class Impl<T, D> extends NotifierBase<Protected<T & D>> {
   //implements Obs<T, D> {
   constructor(
     public pureState: T,
     readonly options?: {
       onGetState?: () => void;
-      onSetState?: (newState: Immutable<T & D>) => void;
+      onSetState?: (newState: Protected<T & D>) => void;
       derive?: (
-        newState: Immutable<T>,
-        oldState: Immutable<T>,
-        oldDerived?: Immutable<D>
+        newState: Protected<T>,
+        oldState: Protected<T>,
+        oldDerived?: Protected<D>
       ) => D;
       onFirstSubscription?: () => Obs.UnsubscribeFn;
     },
     public derivedState = options?.derive?.(
-      pureState as Immutable<T>,
-      pureState as Immutable<T>
+      pureState as Protected<T>,
+      pureState as Protected<T>
     ),
     public fullState = (options?.derive
       ? { ...pureState, ...derivedState }
@@ -61,9 +63,9 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> {
     super(options);
   }
 
-  get state(): Immutable<T & D> {
+  get state(): Protected<T & D> {
     this.options?.onGetState?.();
-    return this.fullState as Immutable<T & D>;
+    return this.fullState as Protected<T & D>;
   }
 
   get obs(): this {
@@ -78,8 +80,10 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> {
     return this;
   }
 
-  setState(newPureState: T): void {
+  setState(updatePureState: Update<T>): void {
     const oldPureState = this.pureState;
+
+    const newPureState = Update(oldPureState, updatePureState);
 
     if (Object.is(newPureState, oldPureState)) return;
 
@@ -87,11 +91,11 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> {
 
     if (!this.options?.derive) {
       this.fullState = newPureState as T & D;
-      this.options?.onSetState?.(newPureState as Immutable<T & D>);
+      this.options?.onSetState?.(newPureState as Protected<T & D>);
 
       this.notify(
-        newPureState as Immutable<T & D>,
-        oldPureState as Immutable<T & D>
+        newPureState as Protected<T & D>,
+        oldPureState as Protected<T & D>
       );
       return;
     }
@@ -99,9 +103,9 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> {
     const oldDerivedState = this.derivedState;
 
     const newDerivedState = this.options.derive(
-      newPureState as Immutable<T>,
-      oldPureState as Immutable<T>,
-      oldDerivedState as Immutable<D>
+      newPureState as Protected<T>,
+      oldPureState as Protected<T>,
+      oldDerivedState as Protected<D>
     );
 
     const newFullState = { ...newPureState, ...newDerivedState };
@@ -110,35 +114,35 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> {
 
     const oldFullState = this.fullState;
     this.fullState = newFullState;
-    this.options?.onSetState?.(newPureState as Immutable<T & D>);
+    this.options?.onSetState?.(newPureState as Protected<T & D>);
 
     this.notify(
-      newFullState as Immutable<T & D>,
-      oldFullState as Immutable<T & D>
+      newFullState as Protected<T & D>,
+      oldFullState as Protected<T & D>
     );
   }
 
-  patchState(...patches: Patch.Multi<T>): void {
+  patchState(...patches: Patch<T>[]): void {
     const pureState = this.pureState;
 
-    const newState = patch(pureState as T)(...patches) as T;
+    const newState = patch(pureState as any, ...patches);
 
     this.setState(newState);
   }
 
   mapReadonly<T2, D2>(
-    mapTo: (newState: Immutable<T & D>) => T2,
+    mapTo: (newState: Protected<T & D>) => T2,
     options?: {
       derive?: (
-        newState: Immutable<T2>,
-        oldState: Immutable<T2>,
-        oldDerived?: Immutable<D2>
+        newState: Protected<T2>,
+        oldState: Protected<T2>,
+        oldDerived?: Protected<D2>
       ) => D2;
       onFirstSubscription?: () => Obs.UnsubscribeFn;
     }
   ): Obs.Readonly<T2 & D2> {
     const onFirstSubscription = (): Obs.UnsubscribeFn => {
-      const unsubscribe1 = this.subscribe((newState: Immutable<T & D>) =>
+      const unsubscribe1 = this.subscribe((newState: Protected<T & D>) =>
         result.setState(mapTo(newState))
       );
       const unsubscribe2 = options?.onFirstSubscription?.();
@@ -163,19 +167,19 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> {
   }
 
   map<T2, D2 = unknown>(
-    mapTo: (newState: Immutable<T & D>) => T2,
-    mapFrom: (newState: Immutable<T2>) => Patch<T>,
+    mapTo: (newState: Protected<T & D>) => T2,
+    mapFrom: (newMappedState: Protected<T2>) => Update<T>,
     options?: {
       derive?: (
-        newState: Immutable<T2>,
-        oldState: Immutable<T2>,
-        oldDerived?: Immutable<D2>
+        newState: Protected<T2>,
+        oldState: Protected<T2>,
+        oldDerived?: Protected<D2>
       ) => D2;
       onFirstSubscription?: () => Obs.UnsubscribeFn;
     }
   ): Obs<T2, D2> {
     const onFirstSubscription = (): Obs.UnsubscribeFn => {
-      const unsubscribe1 = this.subscribe((newState: Immutable<T & D>) => {
+      const unsubscribe1 = this.subscribe((newState: Protected<T & D>) => {
         result.setState(mapTo(newState));
       });
       const unsubscribe2 = options?.onFirstSubscription?.();
@@ -197,7 +201,7 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> {
       onSetState: (newState): void => {
         if (Object.is(mapTo(this.state), newState)) return;
 
-        this.patchState(mapFrom(newState));
+        this.setState(mapFrom(newState as any));
       },
     });
 
@@ -208,34 +212,22 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> {
     pathInState: P,
     options?: {
       derive?: (
-        newState: Immutable<Path.Result<T, P>>,
-        oldState: Immutable<Path.Result<T, P>>,
-        oldDerived?: Immutable<DR>
+        newState: Protected<Path.Result<T, P>>,
+        oldState: Protected<Path.Result<T, P>>,
+        oldDerived?: Protected<DR>
       ) => DR;
       onFirstSubscription?: () => Obs.UnsubscribeFn;
     }
   ): Obs<Path.Result<T, P>, DR> {
     return this.map<Path.Result<T, P>, DR>(
-      (newParentState: Immutable<T & D>) =>
-        Path.getValue(newParentState as T, pathInState),
-      (newChildState: Immutable<Path.Result<T, P>>): Patch<T> => {
-        const pathObj = {};
-        const parts = pathInState.split('.');
-
-        if (parts.length <= 0) return Literal.of(newChildState) as any;
-
-        const lastPart = parts.pop()!;
-
-        let obj: any = pathObj;
-
-        for (const part of parts) {
-          obj[part] = {};
-          obj = obj[part];
-        }
-
-        obj[lastPart] = Literal.of(newChildState);
-
-        return pathObj as any;
+      (newParentState: Protected<T & D>) =>
+        Path.get(newParentState as T & PlainObj<any>, pathInState),
+      (newChildState: Protected<Path.Result<T, P>>): T => {
+        return Path.update(
+          this.pureState as T & PlainObj<any>,
+          pathInState,
+          newChildState as any
+        );
       },
       options
     );
@@ -245,34 +237,34 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> {
     pathInState: P,
     options?: {
       derive?: (
-        newState: Immutable<Path.Result<T & D, P>>,
-        oldState: Immutable<Path.Result<T & D, P>>,
-        oldDerived?: Immutable<DR>
+        newState: Protected<Path.Result<T & D, P>>,
+        oldState: Protected<Path.Result<T & D, P>>,
+        oldDerived?: Protected<DR>
       ) => DR;
       onFirstSubscription?: () => Obs.UnsubscribeFn;
     }
   ): Obs.Readonly<Path.Result<T & D, P> & DR> {
     return this.mapReadonly<Path.Result<T & D, P>, DR>(
-      (newParentState: Immutable<T & D>) =>
-        Path.getValue(newParentState as T & D, pathInState),
+      (newParentState: Protected<T & D>) =>
+        Path.get(newParentState as T & D & PlainObj<any>, pathInState),
       options
     );
   }
 
   combineReadonly<T2, R, DR = unknown>(
     other: Obs.Readonly<T2>,
-    mapTo: (state1: Immutable<T & D>, state2: Immutable<T2>) => R,
+    mapTo: (state1: Protected<T & D>, state2: Protected<T2>) => R,
     options?: {
       derive?: (
-        newState: Immutable<R>,
-        oldState: Immutable<R>,
-        oldDerived?: Immutable<DR>
+        newState: Protected<R>,
+        oldState: Protected<R>,
+        oldDerived?: Protected<DR>
       ) => DR;
       onFirstSubscription?: () => Obs.UnsubscribeFn;
     }
   ): Obs.Readonly<R & DR> {
     const onFirstSubscription = (): Obs.UnsubscribeFn => {
-      const unsubscribe1 = this.subscribe((newState: Immutable<T & D>) => {
+      const unsubscribe1 = this.subscribe((newState: Protected<T & D>) => {
         result.setState(mapTo(newState, other.state));
       });
       const unsubscribe2 = other.subscribe((newState) => {
@@ -300,19 +292,19 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> {
 
   combine<T2, D2, R, DR = unknown>(
     other: Obs<T2, D2>,
-    mapTo: (state1: Immutable<T & D>, state2: Immutable<T2 & D2>) => R,
-    mapFrom: (state: Immutable<R & DR>) => Patch<readonly [T, T2]>,
+    mapTo: (state1: Protected<T & D>, state2: Protected<T2 & D2>) => R,
+    mapFrom: (state: Protected<R & DR>) => readonly [Update<T>, Update<T2>],
     options?: {
       derive?: (
-        newState: Immutable<R>,
-        oldState: Immutable<R>,
-        oldDerived?: Immutable<DR>
+        newState: Protected<R>,
+        oldState: Protected<R>,
+        oldDerived?: Protected<DR>
       ) => DR;
       onFirstSubscription?: () => Obs.UnsubscribeFn;
     }
   ): Obs<R> {
     const onFirstSubscription = (): Obs.UnsubscribeFn => {
-      const unsubscribe1 = this.subscribe((newState: Immutable<T & D>) => {
+      const unsubscribe1 = this.subscribe((newState: Protected<T & D>) => {
         result.setState(mapTo(newState, other.state));
       });
       const unsubscribe2 = other.subscribe((newState) => {
@@ -336,15 +328,10 @@ class Impl<T, D> extends NotifierBase<Immutable<T & D>> {
         }
       },
       onSetState: (newCombinedState): void => {
-        const parentPatch = mapFrom(newCombinedState);
+        const [newThisState, newOtherState] = mapFrom(newCombinedState);
 
-        const [newThisState, newOtherState] = patch([
-          this.state,
-          other.state,
-        ] as const)(parentPatch as any);
-
-        this.setState(newThisState as T);
-        other.setState(newOtherState as T2);
+        this.setState(newThisState);
+        other.setState(newOtherState);
       },
     });
 
@@ -368,7 +355,8 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    */
   asReadonly(): Obs.Readonly<T & D>;
   /**
-   * Sets the Obs state to the given `newState`, and notifies the listeners of the state change.
+   * Updates the Obs state to the given `newState`, and notifies the listeners of the state change.
+   * @param newState - either a new state object or an `Update` function taking the current state and returning a new one
    * @note will not update if the given state is equal to the current state
    * @example
    * ```ts
@@ -378,9 +366,11 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    * // => logs { a: 2, b: 'a' })
    * o.setState({ a: 2, b: 'a' });
    * // nothing happens since given state equal to current state
+   * o.setState((current) => ({ ...current, b: 'b' }))
+   * // => logs { a: 2, b: 'b' }
    * ```
    */
-  setState: (newState: T) => void;
+  setState: (newState: Update<T>) => void;
   /**
    * Patches the Obs state with the given `patches`.
    * @params patches - an array of patches to apply to the current state
@@ -395,7 +385,7 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    * // nothing happens since given state equal to current state
    * ```
    */
-  patchState: (...patches: Patch.Multi<T>) => void;
+  patchState: (...patches: Patch<T>[]) => void;
   /**
    * Returns a readonly Obs with the state resulting from applying the given `mapTo` function to
    * this state.
@@ -419,12 +409,12 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    * ```
    */
   mapReadonly: <T2, D2 = unknown>(
-    mapTo: (newState: Immutable<T & D>) => T2,
+    mapTo: (newState: Protected<T & D>) => T2,
     options?: {
       derive?: (
-        newState: Immutable<T2>,
-        oldState: Immutable<T2>,
-        oldDerived?: Immutable<D2>
+        newState: Protected<T2>,
+        oldState: Protected<T2>,
+        oldDerived?: Protected<D2>
       ) => D2;
       onFirstSubscription?: () => Obs.UnsubscribeFn;
     }
@@ -455,13 +445,13 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    * ```
    */
   map: <T2, D2 = unknown>(
-    mapTo: (newState: Immutable<T & D>) => T2,
-    mapFrom: (newState: Immutable<T2>) => Patch<T>,
+    mapTo: (newState: Protected<T & D>) => T2,
+    mapFrom: (newState: Protected<T2>) => Update<T>,
     options?: {
       derive?: (
-        newState: Immutable<T2>,
-        oldState: Immutable<T2>,
-        oldDerived?: Immutable<D2>
+        newState: Protected<T2>,
+        oldState: Protected<T2>,
+        oldDerived?: Protected<D2>
       ) => D2;
       onFirstSubscription?: () => Obs.UnsubscribeFn;
     }
@@ -492,9 +482,9 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
     pathInState: P,
     options?: {
       derive?: (
-        newState: Immutable<Path.Result<T & D, P>>,
-        oldState: Immutable<Path.Result<T & D, P>>,
-        oldDerived?: Immutable<DR>
+        newState: Protected<Path.Result<T & D, P>>,
+        oldState: Protected<Path.Result<T & D, P>>,
+        oldDerived?: Protected<DR>
       ) => DR;
       onFirstSubscription?: () => Obs.UnsubscribeFn;
     }
@@ -526,9 +516,9 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
     pathInState: P,
     options?: {
       derive?: (
-        newState: Immutable<Path.Result<T, P>>,
-        oldState: Immutable<Path.Result<T, P>>,
-        oldDerived?: Immutable<DR>
+        newState: Protected<Path.Result<T, P>>,
+        oldState: Protected<Path.Result<T, P>>,
+        oldDerived?: Protected<DR>
       ) => DR;
       onFirstSubscription?: () => Obs.UnsubscribeFn;
     }
@@ -563,12 +553,12 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    */
   combineReadonly<T2, R, DR = unknown>(
     other: Obs.Readonly<T2>,
-    mapTo: (state1: Immutable<T & D>, state2: Immutable<T2>) => R,
+    mapTo: (state1: Protected<T & D>, state2: Protected<T2>) => R,
     options?: {
       derive?: (
-        newState: Immutable<R>,
-        oldState: Immutable<R>,
-        oldDerived?: Immutable<DR>
+        newState: Protected<R>,
+        oldState: Protected<R>,
+        oldDerived?: Protected<DR>
       ) => DR;
       onFirstSubscription?: () => Obs.UnsubscribeFn;
     }
@@ -610,13 +600,13 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    */
   combine<T2, D2, R, DR = unknown>(
     other: Obs<T2, D2>,
-    mapTo: (state1: Immutable<T & D>, state2: Immutable<T2 & D2>) => R,
-    mapFrom: (state: R) => Patch<readonly [T, T2]>,
+    mapTo: (state1: Protected<T & D>, state2: Protected<T2 & D2>) => R,
+    mapFrom: (state: R) => readonly [Update<T>, Update<T2>],
     options?: {
       derive?: (
-        newState: Immutable<R>,
-        oldState: Immutable<R>,
-        oldDerived?: Immutable<DR>
+        newState: Protected<R>,
+        oldState: Protected<R>,
+        oldDerived?: Protected<DR>
       ) => DR;
       onFirstSubscription?: () => Obs.UnsubscribeFn;
     }
@@ -648,7 +638,7 @@ export namespace Obs {
      */
     readonly obsReadonly: Obs.Readonly<T>;
     /**
-     * Returns an immutable view of the current state.
+     * Returns an Protected view of the current state.
      * @example
      * ```ts
      * const o = Obs.create({ a: 1, b: 'a' })
@@ -656,7 +646,7 @@ export namespace Obs {
      * // => { a: 1, b: 'a' }
      * ```
      */
-    readonly state: Immutable<T>;
+    readonly state: Protected<T>;
     /**
      * Returns true if the Obs has at least one subscriber.
      * @example
@@ -675,7 +665,7 @@ export namespace Obs {
      * returns an unsubscribe function that, when called, removes the `onChange` function
      * from the subscribers.
      */
-    subscribe: (onChange: StateUpdate<Immutable<T>>) => UnsubscribeFn;
+    subscribe: (onChange: StateUpdate<Protected<T>>) => UnsubscribeFn;
     /**
      * Returns a readonly Obs with the state resulting from applying the given `mapTo` function to
      * this state.
@@ -699,12 +689,12 @@ export namespace Obs {
      * ```
      */
     mapReadonly: <T2, D2>(
-      mapTo: (newState: Immutable<T>) => T2,
+      mapTo: (newState: Protected<T>) => T2,
       options?: {
         derive?: (
-          newState: Immutable<T2>,
-          oldState: Immutable<T2>,
-          oldDerived?: Immutable<D2>
+          newState: Protected<T2>,
+          oldState: Protected<T2>,
+          oldDerived?: Protected<D2>
         ) => D2;
         onFirstSubscription?: () => Obs.UnsubscribeFn;
       }
@@ -735,9 +725,9 @@ export namespace Obs {
       pathInState: P,
       options?: {
         derive?: (
-          newState: Immutable<Path.Result<T, P>>,
-          oldState: Immutable<Path.Result<T, P>>,
-          oldDerived?: Immutable<DR>
+          newState: Protected<Path.Result<T, P>>,
+          oldState: Protected<Path.Result<T, P>>,
+          oldDerived?: Protected<DR>
         ) => DR;
         onFirstSubscription?: () => Obs.UnsubscribeFn;
       }
@@ -769,12 +759,12 @@ export namespace Obs {
      */
     combineReadonly<T2, R, DR = unknown>(
       other: Obs.Readonly<T2>,
-      mapTo: (state1: Immutable<T>, state2: Immutable<T2>) => R,
+      mapTo: (state1: Protected<T>, state2: Protected<T2>) => R,
       options?: {
         derive?: (
-          newState: Immutable<R>,
-          oldState: Immutable<R>,
-          oldDerived?: Immutable<DR>
+          newState: Protected<R>,
+          oldState: Protected<R>,
+          oldDerived?: Protected<DR>
         ) => DR;
         onFirstSubscription?: () => Obs.UnsubscribeFn;
       }
@@ -808,9 +798,9 @@ export namespace Obs {
     initState: T,
     options?: {
       derive?: (
-        newState: Immutable<T>,
-        oldState: Immutable<T>,
-        oldDerived?: Immutable<D>
+        newState: Protected<T>,
+        oldState: Protected<T>,
+        oldDerived?: Protected<D>
       ) => D;
       onFirstSubscription?: () => Obs.UnsubscribeFn;
     }

@@ -1,5 +1,5 @@
 import type { Actor, Obs } from '@rimbu/actor';
-import type { Immutable } from '@rimbu/deep';
+import type { Protected } from '@rimbu/deep';
 import React from 'react';
 
 /**
@@ -34,9 +34,9 @@ import React from 'react';
  */
 export function useActorSubscribe<T>(
   getActor: () => Actor.Readonly<T>,
-  onChange: Obs.StateUpdate<Immutable<T>>,
-  onStart?: (state: Immutable<T>) => void,
-  onEnd?: (state: Immutable<T>) => void
+  onChange: Obs.StateUpdate<Protected<T>>,
+  onStart?: (state: Protected<T>) => void,
+  onEnd?: (state: Protected<T>) => void
 ): void {
   React.useEffect(() => {
     const stableSubject = getActor();

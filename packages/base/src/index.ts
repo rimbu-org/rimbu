@@ -1,7 +1,6 @@
-import * as Arr from './arr';
-import * as Entry from './entry';
-import * as RimbuError from './rimbu-error';
-
-export { Arr, Entry, RimbuError };
+export * as Arr from './arr';
+export * as Entry from './entry';
+export * as RimbuError from './rimbu-error';
+export * from './plain-object';
 
 export * from './internal';

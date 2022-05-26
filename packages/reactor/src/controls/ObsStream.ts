@@ -1,5 +1,5 @@
 import type { Actor } from '@rimbu/actor';
-import type { Immutable } from '@rimbu/deep';
+import type { Protected } from '@rimbu/deep';
 import { Stream, StreamSource } from '@rimbu/stream';
 import React from 'react';
 import { useActorState } from '../internal';
@@ -32,14 +32,14 @@ import { useActorState } from '../internal';
 export const ObsStream: <T, P>(props: {
   source: () => Actor.Readonly<StreamSource<T>>;
   component: React.ComponentType<P>;
-  toKey: (item: Immutable<T>) => string;
-  toProps: (item: Immutable<T>) => P;
+  toKey: (item: Protected<T>) => string;
+  toProps: (item: Protected<T>) => P;
 }) => JSX.Element = React.memo(
   <T, P>(props: {
     source: () => Actor.Readonly<StreamSource<T>>;
     component: React.ComponentType<P>;
-    toKey: (item: Immutable<T>) => string;
-    toProps: (item: Immutable<T>) => P;
+    toKey: (item: Protected<T>) => string;
+    toProps: (item: Protected<T>) => P;
   }) => {
     const streamSource: StreamSource<T> = useActorState(
       props.source as any
@@ -51,7 +51,7 @@ export const ObsStream: <T, P>(props: {
 
     const newViews = Stream.from(streamSource)
       .map((item) => {
-        const i = item as Immutable<T>;
+        const i = item as Protected<T>;
 
         const key = props.toKey(i);
 

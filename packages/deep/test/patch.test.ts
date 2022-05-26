@@ -1,115 +1,138 @@
 import { HashMap } from '@rimbu/hashed';
 import { List } from '@rimbu/list';
-import { Literal, Patch, patch, Tuple } from '../src';
+import { Patch, patch, patchNested as $ } from '../src';
 
 describe('patch', () => {
   it('handles null', () => {
     expect(
-      patch({ value: 'a' as string | null, b: 1 })({ value: null })
+      patch({ value: 'a' as string | null, b: 1 }, { value: null })
     ).toEqual({
       value: null,
       b: 1,
     });
     expect(
-      patch({ value: 'a' as string | null, b: 1 })({ value: () => null })
+      patch({ value: 'a' as string | null, b: 1 }, { value: () => null })
     ).toEqual({
       value: null,
       b: 1,
     });
     expect(
-      patch({
-        value: { nested: 'a' } as { nested: string } | null,
-        b: 1,
-      })({ value: null })
+      patch(
+        {
+          value: { nested: 'a' } as { nested: string } | null,
+          b: 1,
+        },
+        { value: null }
+      )
     ).toEqual({
       value: null,
       b: 1,
     });
     expect(
-      patch({
-        value: { nested: 'a' } as { nested: string } | null,
-        b: 1,
-      })({ value: () => null })
+      patch(
+        {
+          value: { nested: 'a' } as { nested: string } | null,
+          b: 1,
+        },
+        { value: () => null }
+      )
     ).toEqual({
       value: null,
+      b: 1,
+    });
+    expect(
+      patch({ value: null as string | null, b: 1 }, { value: 'a' })
+    ).toEqual({
+      value: 'a',
+      b: 1,
+    });
+    expect(
+      patch({ value: null as string | null, b: 1 }, { value: () => 'a' })
+    ).toEqual({
+      value: 'a',
       b: 1,
     });
   });
 
   it('handles undefined', () => {
     expect(() =>
-      patch({ value: 'a' as string | undefined, b: 1 })({
-        value: undefined,
-      })
+      patch(
+        { value: 'a' as string | undefined, b: 1 },
+        {
+          value: undefined,
+        }
+      )
     ).toThrow();
 
     expect(
-      patch({ value: 'a' as string | undefined, b: 1 })({
-        value: Literal.of(undefined),
-      })
-    ).toEqual({ value: undefined, b: 1 });
-
-    expect(
-      patch({ value: 'a' as string | undefined, b: 1 })({
-        value: () => undefined,
-      })
+      patch(
+        { value: 'a' as string | undefined, b: 1 },
+        {
+          value: () => undefined,
+        }
+      )
     ).toEqual({
       value: undefined,
       b: 1,
     });
 
     expect(() =>
-      patch({
-        value: { nested: 'a' } as { nested: string } | undefined,
-        b: 1,
-      })({ value: undefined })
+      patch(
+        {
+          value: { nested: 'a' } as { nested: string } | undefined,
+          b: 1,
+        },
+        { value: undefined }
+      )
     ).toThrow();
 
     expect(
-      patch({
-        value: { nested: 'a' } as { nested: string } | undefined,
-        b: 1,
-      })({ value: Literal.of(undefined) })
+      patch(
+        {
+          value: { nested: 'a' } as { nested: string } | undefined,
+          b: 1,
+        },
+        { value: () => undefined }
+      )
     ).toEqual({
       value: undefined,
       b: 1,
     });
 
     expect(
-      patch({
-        value: { nested: 'a' } as { nested: string } | undefined,
-        b: 1,
-      })({ value: () => undefined })
+      patch(
+        {
+          value: undefined as { nested: string; b: number } | undefined,
+          b: 1,
+        },
+        { value: $({ nested: 'a' }) }
+      )
     ).toEqual({
       value: undefined,
       b: 1,
     });
 
     expect(
-      patch({
-        value: undefined as { nested: string; b: number } | undefined,
-        b: 1,
-      })({ value: { nested: 'a' } })
+      patch(
+        {
+          value: undefined as { nested: string; b: number } | undefined,
+          b: 1,
+        },
+        { value: $({ nested: 'a', b: 1 }) }
+      )
     ).toEqual({
       value: undefined,
       b: 1,
     });
 
     expect(
-      patch({
-        value: undefined as { nested: string; b: number } | undefined,
-        b: 1,
-      })({ value: Literal.of({ nested: 'a', b: 1 }) })
-    ).toEqual({
-      value: { nested: 'a', b: 1 },
-      b: 1,
-    });
-
-    expect(
-      patch({
-        value: undefined as { nested: string; b: number } | undefined,
-        b: 1,
-      })({ value: () => ({ nested: 'a', b: 1 }) })
+      patch(
+        {
+          value: undefined as { nested: string; b: number } | undefined,
+          b: 1,
+        },
+        { value: () => ({ nested: 'a', b: 1 }) }
+      )
     ).toEqual({
       value: { nested: 'a', b: 1 },
       b: 1,
@@ -117,11 +140,13 @@ describe('patch', () => {
   });
 
   it('does multiple updates', () => {
-    const obj = { v: 0 };
-    function inc(o: typeof obj) {
-      return { v: o.v + 1 };
-    }
-    expect(patch(obj)(inc, inc, inc)).toMatchObject({ v: 3 });
+    const obj = { value: 0 };
+    const inc: Patch<typeof obj> = {
+      value: (v) => v + 1,
+    };
+    expect(patch(obj, inc, inc, inc)).toEqual({ value: 3 });
+
+    expect(obj).toEqual({ value: 0 });
   });
 
   it('updates object', () => {
@@ -131,59 +156,62 @@ describe('patch', () => {
       nested2: { foo: 5 },
     };
 
-    expect(patch(obj)({ value: 2 })).toMatchObject({
+    expect(patch(obj, { value: 2 })).toMatchObject({
       value: 2,
       nested: { prop1: 'a', prop2: true },
       nested2: { foo: 5 },
     });
-    expect(patch(obj)({ value: (v) => v + 1 })).toMatchObject({
+    expect(patch(obj, { value: (v) => v + 1 })).toMatchObject({
       value: 2,
       nested: { prop1: 'a', prop2: true },
       nested2: { foo: 5 },
     });
-    expect(patch(obj)({ nested: { prop1: 'b' } })).toMatchObject({
+    expect(patch(obj, { nested: $({ prop1: 'b' }) })).toMatchObject({
       value: 1,
       nested: { prop1: 'b', prop2: true },
       nested2: { foo: 5 },
     });
     expect(
-      patch(obj)({ value: (v) => v + 1, nested: { prop1: 'b' } })
+      patch(obj, { value: (v) => v + 1, nested: $({ prop1: 'b' }) })
     ).toMatchObject({
       value: 2,
       nested: { prop1: 'b', prop2: true },
       nested2: { foo: 5 },
     });
+
     expect(
-      patch(obj)({ nested: { prop1: (v, p, r) => v + p.prop2 } })
+      patch(obj, { nested: $({ prop1: (v, p, r) => v + p.prop2 }) })
     ).toMatchObject({
       value: 1,
       nested: { prop1: 'atrue', prop2: true },
       nested2: { foo: 5 },
     });
     expect(
-      patch(obj)({ nested: { prop1: (v, p, r) => v + r.value } })
+      patch(obj, { nested: $({ prop1: (v, p, r) => v + r.value }) })
     ).toMatchObject({
       value: 1,
       nested: { prop1: 'a1', prop2: true },
       nested2: { foo: 5 },
     });
     expect(
-      patch(obj)({ value: 5 }, { nested: { prop1: (v, p, r) => v + r.value } })
+      patch(
+        obj,
+        { value: 5 },
+        {
+          nested: $({ prop1: (v, p, r) => v + r.value }),
+        }
+      )
     ).toMatchObject({
       value: 5,
       nested: { prop1: 'a5', prop2: true },
       nested2: { foo: 5 },
     });
 
-    // Should not compile:
-    // expect(
-    //   patch(obj,{
-    //     nested: n => {
-    //       n.prop1 = '';
-    //       return n;
-    //     }
-    //   })
-    // );
+    expect(obj).toEqual({
+      value: 1,
+      nested: { prop1: 'a', prop2: true },
+      nested2: { foo: 5 },
+    });
   });
 
   it('does not perform unnecessary updates', () => {
@@ -193,42 +221,47 @@ describe('patch', () => {
       nested2: { foo: 5 },
     };
 
-    expect(patch(obj)({ value: 1 })).toBe(obj);
-    expect(patch(obj)({ value: () => 1 })).toBe(obj);
-    expect(patch(obj)({ nested2: { foo: 5 } })).toBe(obj);
-    expect(patch(obj)({ nested2: { foo: () => 5 } })).toBe(obj);
-    expect(patch(obj)({ nested: { prop1: 'a', prop2: true } })).toBe(obj);
-    expect(patch(obj)({ nested: { prop1: () => 'a' } })).toBe(obj);
+    expect(patch(obj, { value: 1 })).toBe(obj);
+    expect(patch(obj, { value: () => 1 })).toBe(obj);
+    expect(patch(obj, { nested2: $({ foo: 5 }) })).toBe(obj);
+    expect(patch(obj, { nested2: $({ foo: () => 5 }) })).toBe(obj);
+    expect(patch(obj, { nested: $({ prop1: 'a', prop2: true }) })).toBe(obj);
+    expect(patch(obj, { nested: $({ prop1: () => 'a' }) })).toBe(obj);
+
+    expect(obj).toEqual({
+      value: 1,
+      nested: { prop1: 'a', prop2: true },
+      nested2: { foo: 5 },
+    });
   });
 
-  it('updates function', () => {
-    const f1 = () => 1;
-    const f2 = () => 2;
-    expect(patch({ a: f1 })({ a: () => f2 })).toEqual({ a: f2 });
-    expect(patch({ a: f1 })({ a: Literal.of(f2) })).toEqual({ a: f2 });
-  });
+  // it('updates function', () => {
+  //   const f1 = () => 1;
+  //   const f2 = () => 2;
+  //   expect(patch({ a: f1 }, { a: () => f2 })).toEqual({ a: f2 });
+  // });
 
   it('updates list', () => {
     const obj = {
       list: List.of(1),
     };
 
-    expect(patch(obj)({ list: Literal.of(List.of(2)) })).toEqual({
+    expect(patch(obj, { list: () => List.of(2) })).toEqual({
       list: List.of(2),
     });
-    expect(patch(obj)({ list: (v) => v.append(2) })).toEqual({
+    expect(patch(obj, { list: (v) => v.append(2) })).toEqual({
       list: List.of(1, 2),
     });
-    expect(patch(obj)({ list: (v) => v.remove(10).assumeNonEmpty() })).toEqual(
+    expect(patch(obj, { list: (v) => v.remove(10).assumeNonEmpty() })).toBe(
       obj
     );
     expect(
-      patch(obj as { list: List<number> })({ list: (v) => v.remove(10) })
-    ).toEqual(obj);
+      patch(obj as { list: List<number> }, { list: (v) => v.remove(10) })
+    ).toBe(obj);
 
-    // Should not compile
-    // expect(patch(obj)({ list: v => { length: 3 })).toEqual({ list: List.of(1, 2) });
-    // expect(patch(obj)({ list: v => v.remove(10) })).toEqual(obj);
+    expect(obj).toEqual({
+      list: List.of(1),
+    });
   });
 
   it('updates map', () => {
@@ -236,26 +269,32 @@ describe('patch', () => {
       personAge: HashMap.of(['Jim', 25], ['Bob', 56]),
     };
 
-    expect(patch(obj)({ personAge: (s) => s.updateAt('Jim', 26) })).toEqual({
+    expect(patch(obj, { personAge: (s) => s.updateAt('Jim', 26) })).toEqual({
       personAge: HashMap.of(['Jim', 26], ['Bob', 56]),
     });
 
     expect(
-      patch(obj)({ personAge: (m) => m.updateAt('Jim', (v) => v + 1) })
+      patch(obj, { personAge: (m) => m.updateAt('Jim', (v) => v + 1) })
     ).toEqual({
       personAge: HashMap.of(['Jim', 26], ['Bob', 56]),
     });
 
-    expect(patch(obj)({ personAge: (m) => m.set('Alice', 19) })).toEqual({
+    expect(patch(obj, { personAge: (m) => m.set('Alice', 19) })).toEqual({
       personAge: HashMap.of(['Jim', 25], ['Bob', 56], ['Alice', 19]),
+    });
+
+    expect(obj).toEqual({
+      personAge: HashMap.of(['Jim', 25], ['Bob', 56]),
     });
   });
 
   it('replaces values', () => {
     const obj = {
-      value: 1,
-      nested: { prop1: 'a', prop2: true },
-      nested2: { foo: 5 },
+      nest1: {
+        value: 1,
+        nested: { prop1: 'a', prop2: true },
+        nested2: { foo: 5 },
+      },
     };
 
     const repl = {
@@ -263,92 +302,94 @@ describe('patch', () => {
       nested: { prop1: 'b', prop2: false },
       nested2: { foo: 6 },
     };
-    expect(patch(obj)(Literal.of(repl))).toBe(repl);
-    expect(patch(obj)({ nested2: Literal.of({ foo: 6 }) })).toMatchObject({
-      value: 1,
-      nested: { prop1: 'a', prop2: true },
-      nested2: { foo: 6 },
-    });
+    expect(patch(obj, { nest1: repl }).nest1).toBe(repl);
     expect(
-      patch(obj)({ nested: Literal.of({ prop1: 'b', prop2: true }) })
-    ).toMatchObject({
-      value: 1,
-      nested: { prop1: 'b', prop2: true },
-      nested2: { foo: 5 },
-    });
+      patch(obj, { nest1: $({ nested2: repl.nested2 }) }).nest1.nested2
+    ).toBe(repl.nested2);
   });
 
   it('handles arrays', () => {
     // expect(() => patch({ a: [1, 2] })({ a: [3, 4] })).toThrow();
-    expect(patch({ a: [1, 2] })({ a: Literal.of([3, 4]) })).toEqual({
+    expect(patch({ a: [1, 2] }, { a: [3, 4] })).toEqual({
       a: [3, 4],
     });
-    expect(patch({ a: [1, 2] })({ a: { 0: (v) => v + 2 } })).toEqual({
-      a: [3, 2],
-    });
-    expect(patch({ a: [1, 2] })({ a: { 1: (v, p) => v + p[0] } })).toEqual({
-      a: [1, 3],
-    });
-    expect(patch({ a: [1, 2] })({ a: { 4: (v, p) => v + p[0] } })).toEqual({
-      a: [1, 2],
-    });
-  });
-
-  it('handles array Patch.map', () => {
-    expect(patch({ a: [1, 2] })({ a: { [Patch.MAP]: (v) => v + 1 } })).toEqual({
-      a: [2, 3],
-    });
-    expect(
-      patch({ a: [1, 2] })({
-        a: {
-          [Patch.MAP]: (v, p, r) => v + p.length + r.a.length,
-        },
-      })
-    ).toEqual({
-      a: [5, 6],
-    });
-    const arr = [1, 2];
-    expect(patch(arr)({ [Patch.MAP]: (v) => v })).toBe(arr);
-  });
-
-  it('handles tuples', () => {
-    expect(patch({ a: Tuple.of(1, 'a') })({ a: { 0: 2 } })).toEqual({
-      a: [2, 'a'],
-    });
-    expect(patch({ a: Tuple.of(1, 'a') })({ a: { 0: (v) => v + 1 } })).toEqual({
-      a: [2, 'a'],
-    });
-    expect(
-      patch({ a: { b: Tuple.of(1, 'a'), c: 3 }, e: 5 })({
-        a: { b: { 0: (v, p, r) => v + p[0] + r.e }, c: (v, p) => v + p.c },
-        e: (v, p) => v + p.e,
-      })
-    ).toEqual({
-      a: { b: [7, 'a'], c: 6 },
-      e: 10,
-    });
-  });
-
-  it('handles other cases', () => {
-    expect(patch(true)(Literal.of(false))).toBe(false);
-    expect(patch(true)(() => false)).toBe(false);
   });
 
   it('adds new props for indexed objects', () => {
-    expect(patch({ a: 1 } as Record<string, number>)({ b: 2 })).toEqual({
+    expect(patch({ a: 1 } as Record<string, number>, { b: 2 })).toEqual({
       a: 1,
       b: 2,
     });
   });
 
-  it('only updates existing props on indexed objects with update function', () => {
-    expect(
-      patch({ a: 1 } as Record<string, number>)({
+  it('throws an error when trying to update a non-existing key with a function', () => {
+    expect(() =>
+      patch({ a: 1 } as Record<string, number>, {
         a: (v) => v + 1,
         b: (v) => v + 1,
       })
-    ).toEqual({
-      a: 2,
+    ).toThrow();
+  });
+
+  it('throws when trying to update __proto__', () => {
+    expect(() =>
+      // simulate object mocking prototype override
+      patch({ a: 1 }, {
+        get __proto__() {
+          return null;
+        },
+      } as any)
+    ).toThrow();
+  });
+
+  it('allows setting constructor to a value', () => {
+    expect(patch({ constructor: 1 }, { constructor: 2 })).toEqual({
+      constructor: 2,
     });
+  });
+
+  it('throws when trying to set constructor to a new function', () => {
+    expect(() =>
+      patch<unknown>({ constructor: () => 1 }, { constructor: () => () => 2 })
+    ).toThrow();
+  });
+
+  it('throws when trying to update a non-plain object', () => {
+    class A {
+      v = 1;
+    }
+    const customClass = new A();
+    expect(() => patch(customClass, { v: 2 })).toThrow();
+  });
+
+  it('supplies correct parent and root values for sequential updates', () => {
+    const obj = {
+      v1: { v2: 3 },
+    };
+
+    expect(
+      patch(
+        obj,
+        { v1: $({ v2: (v) => v + 1 }) },
+        { v1: $({ v2: (_, p) => p.v2 + 1 }) },
+        { v1: $({ v2: (_, __, r) => r.v1.v2 + 1 }) }
+      )
+    ).toEqual({ v1: { v2: 6 } });
+  });
+
+  it('receives patch create function when passing function', () => {
+    expect(
+      patch({ a: { b: { c: 1, d: 'a' } } }, ($$) => ({
+        a: $$({ b: { c: 2, d: 'b' } }),
+      }))
+    ).toEqual({ a: { b: { c: 2, d: 'b' } } });
+
+    expect(
+      patch(
+        { a: { b: { c: 1 } } },
+        ($$) => ({ a: $$({ b: $$({ c: 2 }) }) }),
+        ($$) => ({ a: $$({ b: $$({ c: (v) => v + 1 }) }) })
+      )
+    ).toEqual({ a: { b: { c: 3 } } });
   });
 });
