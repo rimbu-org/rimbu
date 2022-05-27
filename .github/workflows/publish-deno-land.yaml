@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Invoke Deno.land publish webhook
-        uses: distributhor/workflow-webhook@v2
-        env:
-          webhook_url: https://api.deno.land/webhook/gh/rimbu?subdir=deno_dist%2F
-          webhook_secret: 'a'
+        uses: joelwmale/webhook-action@master
+        with:
+          url: https://api.deno.land/webhook/gh/rimbu?subdir=deno_dist%2F
