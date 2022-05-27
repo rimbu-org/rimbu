@@ -25,4 +25,4 @@ jobs:
         run: |
           deno install -Af --unstable https://x.nest.land/eggs@0.3.10/eggs.ts
           eggs link ${{ secrets.NESTAPIKEY }}
-          eggs publish rimbu --yes --no-check --version ${{ github.ref_name }} --description "Immutable collections and tools for TypeScript"
+          eggs publish rimbu --description 'Immutable collections and tools for TypeScript' --yes --no-check --version ${{ github.ref_name }}
