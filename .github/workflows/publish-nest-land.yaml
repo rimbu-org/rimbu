@@ -1,0 +1,28 @@
+name: Publish to nest.land
+
+on:
+  push:
+    tags:
+      - !@rimbu/*
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Deno
+        uses: maximousblk/setup-deno@v1
+        with:
+          deno-version: 1.13
+
+      - name: Publish
+        working-directory: ./deno_dist
+        run: |
+          cp ../config/egg.json .
+          deno install -Af --unstable https://x.nest.land/eggs@0.3.10/eggs.ts
+          eggs link ${{ secrets.NESTAPIKEY }}
+          eggs publish --yes --no-check --version ${{ github.event.release.tag_name }}
