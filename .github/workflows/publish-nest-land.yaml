@@ -26,4 +26,4 @@ jobs:
           cp ../config/egg.json .
           deno install -Af --unstable https://x.nest.land/eggs@0.3.10/eggs.ts
           eggs link ${{ secrets.NESTAPIKEY }}
-          eggs publish --yes --no-check --version ${{ github.event.release.tag_name }}
+          eggs publish --yes --no-check --version ${{ github.event.ref }}
