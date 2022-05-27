@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/reactor@0.8.10...@rimbu/reactor@0.9.0) (2022-05-27)
+
+
+### Features
+
+* improve deep package API and update dependent packages ([da8c240](https://github.com/rimbu-org/rimbu/commit/da8c2402745ff56f273b1d3503bd01fb2eedd411))
+
+
+
+
+
 ## [0.8.10](https://github.com/rimbu-org/rimbu/compare/@rimbu/reactor@0.8.9...@rimbu/reactor@0.8.10) (2022-05-09)
 
 

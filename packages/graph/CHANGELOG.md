@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.14](https://github.com/rimbu-org/rimbu/compare/@rimbu/graph@0.9.13...@rimbu/graph@0.9.14) (2022-05-27)
+
+
+### Bug Fixes
+
+* improve exported types and add Object.freeze to global objects where missing ([13a5a62](https://github.com/rimbu-org/rimbu/commit/13a5a625ab76dd3dcab544a7cc85485ab98688bd))
+* improve security by adding Object.freeze to global objects and local singletons ([426277d](https://github.com/rimbu-org/rimbu/commit/426277dd4512303a340554a9e9e85e38f464ac8d)), closes [#72](https://github.com/rimbu-org/rimbu/issues/72)
+
+
+
+
+
 ## [0.9.13](https://github.com/rimbu-org/rimbu/compare/@rimbu/graph@0.9.12...@rimbu/graph@0.9.13) (2022-05-09)
 
 

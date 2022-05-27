@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/deep@0.9.2...@rimbu/deep@0.10.0) (2022-05-27)
+
+
+### Features
+
+* improve deep package API and update dependent packages ([da8c240](https://github.com/rimbu-org/rimbu/commit/da8c2402745ff56f273b1d3503bd01fb2eedd411))
+* improve deep package structure ([14ee297](https://github.com/rimbu-org/rimbu/commit/14ee2973018046b448659d2ec41dee561394f7dd))
+
+
+### BREAKING CHANGES
+
+* the patch and match api's have changed
+
+
+
+
+
 ## [0.9.2](https://github.com/rimbu-org/rimbu/compare/@rimbu/deep@0.9.1...@rimbu/deep@0.9.2) (2022-05-09)
 
 

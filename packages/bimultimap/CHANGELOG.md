@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.13](https://github.com/rimbu-org/rimbu/compare/@rimbu/bimultimap@0.9.12...@rimbu/bimultimap@0.9.13) (2022-05-27)
+
+
+### Bug Fixes
+
+* improve security by adding Object.freeze to global objects and local singletons ([426277d](https://github.com/rimbu-org/rimbu/commit/426277dd4512303a340554a9e9e85e38f464ac8d)), closes [#72](https://github.com/rimbu-org/rimbu/issues/72)
+
+
+
+
+
 ## [0.9.12](https://github.com/rimbu-org/rimbu/compare/@rimbu/bimultimap@0.9.11...@rimbu/bimultimap@0.9.12) (2022-05-09)
 
 
