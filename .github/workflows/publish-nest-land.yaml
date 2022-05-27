@@ -3,7 +3,8 @@ name: Publish to nest.land
 on:
   push:
     tags:
-      - !@rimbu/*
+      - '*.*.*'
+      - '!@rimbu/*'
 
 jobs:
   publish:
