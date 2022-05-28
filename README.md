@@ -4,6 +4,8 @@
 
 [![codecov](https://codecov.io/gh/rimbu-org/rimbu/branch/main/graph/badge.svg?token=RSFK5B0N0Z)](https://codecov.io/gh/rimbu-org/rimbu)
 
+[![nest.land](https://nest.land/badge-block.svg)](https://nest.land/package/rimbu)
+
 # Immutable collections and tools for TypeScript
 
 Rimbu is a TypeScript library focused on _immutable, performant, and type-safe collections_ and other tools. Its main aim is to allow programmers to create safe and performant programs without getting in the way. It is inspired by various other collection libraries, mainly Java's Guava library, the Java 8 Collection library, and Scala's collection library plus various ideas from the Scala community.
@@ -11,11 +13,10 @@ Rimbu is a TypeScript library focused on _immutable, performant, and type-safe c
 ## Quick overview of features and benefits
 
 - Extensive set of collection types to cover many problems that would otherwise require more coding to solve.
-- Advanced typing uses the TS compiler to offer strict type inference without much explicit typing, and to prove collection non-emptiness.
-- Avoid 'monad' style programming / chaining (e.g. using types like Option) by offering flexible fallback options for simple methods that can 'fail'.
+- Strongly typed API: compiler wil prevent common errors and guide you towards safe code.
 - No external dependencies.
+- Available for Web, Node.js and Deno.
 - Provides sane defaults but allows extensive customization and configuration.
-- A novel and efficient immutable random-access List implementation.
 
 For complete documentation please visit the _[Rimbu Docs](https://rimbu.org)_ or the _[Rimbu API Docs](https://rimbu.org/api)_.
 
@@ -57,7 +58,7 @@ To run the tests: `yarn test`
 
 ## Contributing
 
-Feel very welcome to contribute to further improve Rimbu. Please read our [Contributing guide](/CONTRIBUTING.md).
+Feel very welcome to contribute to further improve Rimbu. Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
 
 ## Contributors
 
