@@ -1,7 +1,7 @@
 import type { Update } from '@rimbu/common';
 import type { IsPlainObj, PlainObj } from '@rimbu/base';
 
-import { patch } from './internal';
+import { patch, patchNested } from './internal';
 
 /**
  * A string representing a path into an (nested) object of type T.
@@ -92,8 +92,9 @@ export namespace Path {
     let current = root;
 
     for (const item of items) {
-      current[item] = {};
-      current = current[item];
+      const next = {};
+      current[item] = patchNested(next);
+      current = next;
     }
 
     current[last] = value;
