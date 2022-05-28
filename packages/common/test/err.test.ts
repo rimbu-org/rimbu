@@ -1,4 +1,4 @@
-import { Err, ErrBase } from '../src';
+import { Err, ErrBase } from '@rimbu/common';
 
 describe('Err/Base', () => {
   it('throws error', () => {

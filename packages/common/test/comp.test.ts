@@ -1,4 +1,4 @@
-import { Comp } from '../src';
+import { Comp } from '@rimbu/common';
 
 describe('Comp', () => {
   it('stringComp', () => {

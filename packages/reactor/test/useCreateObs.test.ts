@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react-hooks';
-import { useCreateObs } from '../src';
+import { useCreateObs } from '@rimbu/reactor';
 
 describe('useCreateObs', () => {
   it('creates basic obs', () => {

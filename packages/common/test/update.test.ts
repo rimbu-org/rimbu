@@ -1,4 +1,4 @@
-import { Update } from '../src';
+import { Update } from '@rimbu/common';
 
 describe('Update', () => {
   it('updates', () => {

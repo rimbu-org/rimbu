@@ -37,5 +37,5 @@ export function useActor<
 ): readonly [Protected<Actor.StateType<A>>, A] {
   const stableObs = useConst(getActor, ...args);
   useSubscribeUpdateUI(() => stableObs);
-  return [stableObs.state, stableObs];
+  return [stableObs.state as any, stableObs];
 }

@@ -1,4 +1,4 @@
-import { Range } from '../src';
+import { Range } from '@rimbu/common';
 
 describe('getNormalizedRange', () => {
   it('correctly returns range', () => {

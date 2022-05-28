@@ -1,5 +1,5 @@
 import { Obs } from '@rimbu/actor';
-import { useActorSubscribe } from '../src';
+import { useActorSubscribe } from '@rimbu/reactor';
 import { renderHook } from '@testing-library/react-hooks';
 
 describe('useActorSubscribe', () => {

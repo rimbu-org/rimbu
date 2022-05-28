@@ -1,9 +1,12 @@
 {
   "extends": "../../config/tsconfig.base.json",
-  "include": ["src"],
+  "include": ["src", "test"],
   "rootDir": "./src",
   "compilerOptions": {
     "outDir": "./dist",
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@rimbu/base": ["./src/index.ts"]
+    }
   }
 }

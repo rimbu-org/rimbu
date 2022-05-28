@@ -1,4 +1,4 @@
-import { AsyncOptLazy } from '../src';
+import { AsyncOptLazy } from '@rimbu/common';
 
 describe('AsyncOptLazy', () => {
   it('toMaybePromise', async () => {

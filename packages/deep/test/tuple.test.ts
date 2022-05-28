@@ -1,4 +1,4 @@
-import { Tuple } from '../src';
+import { Tuple } from '@rimbu/deep';
 
 describe('Tuple', () => {
   const tuple = Tuple.of(1, 'a', true);

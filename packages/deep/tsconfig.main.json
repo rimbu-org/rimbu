@@ -3,6 +3,9 @@
   "include": ["src"],
   "rootDir": "./src",
   "compilerOptions": {
-    "outDir": "./dist/main"
+    "outDir": "./dist/main",
+    "paths": {
+      "@rimbu/deep": ["./src/index.ts"]
+    }
   }
 }

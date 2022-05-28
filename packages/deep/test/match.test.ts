@@ -1,5 +1,5 @@
 import { SortedMap, List } from '@rimbu/core';
-import { match } from '../src';
+import { match } from '@rimbu/deep';
 
 describe('match', () => {
   beforeEach(() => {

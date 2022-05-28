@@ -1,5 +1,10 @@
 {
   "preset": "ts-jest",
   "testEnvironment": "node",
-  "testMatch": ["**/test/**.test.ts"]
+  "testMatch": ["**/test/**.test.ts"],
+  "moduleNameMapper": {
+    "@rimbu/multimap/custom": ["<rootDir>/src/custom/index.ts"],
+    "@rimbu/multimap": ["<rootDir>/src/main/index.ts"]
+  },
+  "collectCoverageFrom": ["src/**"]
 }

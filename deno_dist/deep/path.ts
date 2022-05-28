@@ -1,7 +1,7 @@
 import type { Update } from '../common/mod.ts';
 import type { IsPlainObj, PlainObj } from '../base/mod.ts';
 
-import { patch } from './internal.ts';
+import { patch, patchNested } from './internal.ts';
 
 /**
  * A string representing a path into an (nested) object of type T.
@@ -92,8 +92,9 @@ export namespace Path {
     let current = root;
 
     for (const item of items) {
-      current[item] = {};
-      current = current[item];
+      const next = {};
+      current[item] = patchNested(next);
+      current = next;
     }
 
     current[last] = value;

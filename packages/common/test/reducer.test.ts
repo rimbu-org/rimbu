@@ -1,7 +1,6 @@
 import { Stream } from '@rimbu/stream';
 
-// cannot import from '../src' due to CollectFun.Skip type mismatch
-import { Comp, Eq, Reducer } from '..';
+import { Comp, Eq, Reducer } from '@rimbu/common';
 
 describe('Reducer', () => {
   it('Init', () => {

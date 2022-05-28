@@ -1,5 +1,12 @@
 {
   "preset": "ts-jest",
   "testEnvironment": "node",
-  "testMatch": ["**/test/**.test.ts"]
+  "testMatch": ["**/test/**.test.ts"],
+  "moduleNameMapper": {
+    "@rimbu/table/custom": ["<rootDir>/src/custom/index.ts"],
+    "@rimbu/table/hash-row": ["<rootDir>/src/hash-row/index.ts"],
+    "@rimbu/table/sorted-row": ["<rootDir>/src/sorted-row/index.ts"],
+    "@rimbu/table": ["<rootDir>/src/main/index.ts"]
+  },
+  "collectCoverageFrom": ["src/**"]
 }

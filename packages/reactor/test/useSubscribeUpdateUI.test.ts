@@ -1,6 +1,6 @@
 import { Obs } from '@rimbu/actor';
 import { renderHook } from '@testing-library/react-hooks';
-import { useSubscribeUpdateUI, useUpdateUI } from '../src';
+import { useSubscribeUpdateUI, useUpdateUI } from '@rimbu/reactor';
 
 jest.mock('../src/hooks/useUpdateUI');
 

@@ -29,8 +29,12 @@ import { useActorState } from '../internal';
  * }
  * ```
  */
-export const ObsStream: <T, P>(props: {
-  source: () => Actor.Readonly<StreamSource<T>>;
+export const ObsStream: <
+  T,
+  P,
+  S extends StreamSource<T> = StreamSource<T>
+>(props: {
+  source: () => Actor.Readonly<S>;
   component: React.ComponentType<P>;
   toKey: (item: Protected<T>) => string;
   toProps: (item: Protected<T>) => P;

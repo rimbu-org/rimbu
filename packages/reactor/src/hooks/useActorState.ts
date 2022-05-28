@@ -30,8 +30,8 @@ import { useConst } from './useConst';
  * ```
  */
 export function useActorState<
-  A extends Actor.Readonly<unknown>,
-  Args extends readonly unknown[] = []
+  A extends Actor.Readonly<any>,
+  Args extends readonly any[] = []
 >(getActor: (...args: Args) => A, ...args: Args): A['state'] {
   const stableActor = useConst(getActor, ...args);
   useSubscribeUpdateUI(() => stableActor);

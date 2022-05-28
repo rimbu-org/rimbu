@@ -1,4 +1,4 @@
-import { Entry } from '../src';
+import { Entry } from '@rimbu/base';
 
 describe('Entry', () => {
   it('first', () => {

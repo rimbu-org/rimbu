@@ -3,6 +3,9 @@
   "include": ["src"],
   "rootDir": "./src",
   "compilerOptions": {
-    "outDir": "./dist/types"
+    "outDir": "./dist/types",
+    "paths": {
+      "@rimbu/actor": ["./src/index.ts"]
+    }
   }
 }

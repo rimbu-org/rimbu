@@ -1,4 +1,4 @@
-import { OptLazy, OptLazyOr } from '../src';
+import { OptLazy, OptLazyOr } from '@rimbu/common';
 
 describe('OptLazy', () => {
   it('default', () => {
