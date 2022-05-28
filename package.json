@@ -21,7 +21,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "build": "lerna run build",
-    "deno:build": "rimraf deno_dist && mkdir deno_dist && cp config/mod_root_ts_template deno_dist/mod.ts && lerna run build:deno && cp {README.md,LICENSE} deno_dist",
+    "deno:build": "rimraf deno_dist && mkdir deno_dist && cp config/mod_root_ts_template deno_dist/mod.ts && lerna run build:deno && cp {README.md,LICENSE} deno_dist && npx replace '\\(packages' '(.' deno_dist/README.md",
     "clean": "lerna run clean && lerna clean --yes && yarn setup",
     "commit": "yarn deno:build && git add deno_dist && git-cz",
     "extract-api": "rimraf doc-gen/input && lerna run extract-api",

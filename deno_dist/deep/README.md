@@ -84,7 +84,7 @@ console.log(
 
 ## Contributing
 
-Feel very welcome to contribute to further improve Rimbu. Please read our [Contributing guide](../../CONTRIBUTING.md).
+Feel very welcome to contribute to further improve Rimbu. Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
 
 ## Contributors
 

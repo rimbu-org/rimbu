@@ -4,12 +4,12 @@ import styles from './HomepageFeatures.module.css';
 
 const FeatureList = [
   {
-    title: 'Boost your Typescript code',
+    title: 'Boost your productivity',
     Svg: require('../../static/img/undraw_outer_space.svg').default,
     description: (
       <>
-        Rimbu has you covered for almost anything related to data loading,
-        processing, state management, and querying in an efficient way.
+        Offering many common and advanced collections out of the box, Rimbu
+        allows you to focus on what you are actually trying to achieve.
       </>
     ),
   },
@@ -24,12 +24,12 @@ const FeatureList = [
     ),
   },
   {
-    title: 'Leading the way',
+    title: 'Batteries included',
     Svg: require('../../static/img/undraw_powerful.svg').default,
     description: (
       <>
-        Rimbu incorporates many novel ideas, and intends to lead the way in
-        allowing developers to write cleaner and safer code.
+        Rimbu has no external dependencies and is natively available for Web,
+        Node.js, and Deno!
       </>
     ),
   },
