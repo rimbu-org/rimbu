@@ -1,4 +1,4 @@
-import { TraverseState } from '../src';
+import { TraverseState } from '@rimbu/common';
 
 describe('TraverseState', () => {
   it('default', () => {

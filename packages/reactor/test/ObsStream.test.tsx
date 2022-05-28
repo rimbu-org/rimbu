@@ -2,7 +2,7 @@ import { Obs } from '@rimbu/actor';
 import { List } from '@rimbu/core';
 import { act, render } from '@testing-library/react';
 import React from 'react';
-import { ObsStream } from '../src';
+import { ObsStream } from '@rimbu/reactor';
 
 describe('ObsStream', () => {
   it('renders empty list', () => {

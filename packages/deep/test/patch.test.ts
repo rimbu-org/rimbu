@@ -1,6 +1,6 @@
 import { HashMap } from '@rimbu/hashed';
 import { List } from '@rimbu/list';
-import { Patch, patch, patchNested as $ } from '../src';
+import { Patch, patch, patchNested as $ } from '@rimbu/deep';
 
 describe('patch', () => {
   it('handles null', () => {

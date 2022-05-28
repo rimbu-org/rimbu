@@ -1,4 +1,4 @@
-import { Obs, Command } from '../src';
+import { Obs, Command } from '@rimbu/actor';
 
 describe('Command', () => {
   it('executes command', () => {

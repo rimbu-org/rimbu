@@ -1,5 +1,13 @@
 {
   "preset": "ts-jest",
   "testEnvironment": "node",
-  "testMatch": ["**/test/**.test.ts"]
+  "testMatch": ["**/test/**.test.ts"],
+  "moduleNameMapper": {
+    "@rimbu/hashed/map-custom": ["<rootDir>/src/map-custom/index.ts"],
+    "@rimbu/hashed/set-custom": ["<rootDir>/src/set-custom/index.ts"],
+    "@rimbu/hashed/map": ["<rootDir>/src/map/index.ts"],
+    "@rimbu/hashed/set": ["<rootDir>/src/set/index.ts"],
+    "@rimbu/hashed": ["<rootDir>/src/main/index.ts"]
+  },
+  "collectCoverageFrom": ["src/**"]
 }

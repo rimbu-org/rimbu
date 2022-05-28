@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react-hooks';
-import { useConst } from '../src';
+import { useConst } from '@rimbu/reactor';
 
 describe('useConst', () => {
   it('returns the given value', () => {

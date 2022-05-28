@@ -1,4 +1,4 @@
-import { ProcessQueue } from '../src';
+import { ProcessQueue } from '@rimbu/actor';
 
 async function wait() {
   return new Promise((res) => setTimeout(res, 100));

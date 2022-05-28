@@ -9,7 +9,8 @@
       "@rimbu/hashed/map-custom": ["./src/map-custom/index.ts"],
       "@rimbu/hashed/set-custom": ["./src/set-custom/index.ts"],
       "@rimbu/hashed/map": ["./src/map/index.ts"],
-      "@rimbu/hashed/set": ["./src/set/index.ts"]
+      "@rimbu/hashed/set": ["./src/set/index.ts"],
+      "@rimbu/hashed": ["./src/main/index.ts"]
     }
   }
 }

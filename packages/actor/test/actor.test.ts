@@ -1,4 +1,4 @@
-import { Actor, Obs } from '../src';
+import { Actor, Obs } from '@rimbu/actor';
 
 describe('Actor', () => {
   it('sets initial state', () => {

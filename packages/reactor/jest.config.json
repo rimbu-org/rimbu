@@ -1,5 +1,9 @@
 {
   "preset": "ts-jest",
   "testEnvironment": "jsdom",
-  "testMatch": ["**/test/**.test.ts", "**/test/**.test.tsx"]
+  "testMatch": ["**/test/**.test.ts", "**/test/**.test.tsx"],
+  "moduleNameMapper": {
+    "@rimbu/reactor": ["<rootDir>/src/index.ts"]
+  },
+  "collectCoverageFrom": ["src/**"]
 }

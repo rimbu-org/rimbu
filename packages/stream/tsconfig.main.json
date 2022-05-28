@@ -6,10 +6,10 @@
     "outDir": "./dist/main",
     "baseUrl": ".",
     "paths": {
-      "@rimbu/stream": ["./src/main/index.ts"],
-      "@rimbu/stream/custom": ["./src/custom/index.ts"],
+      "@rimbu/stream/async-custom": ["./src/async-custom/index.ts"],
       "@rimbu/stream/async": ["./src/async/index.ts"],
-      "@rimbu/stream/async-custom": ["./src/async-custom/index.ts"]
+      "@rimbu/stream/custom": ["./src/custom/index.ts"],
+      "@rimbu/stream": ["./src/main/index.ts"]
     }
   }
 }

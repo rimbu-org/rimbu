@@ -1,6 +1,6 @@
 import { Command, Obs } from '@rimbu/actor';
 import { act, renderHook } from '@testing-library/react-hooks';
-import { Binding, useBindings } from '../src';
+import { Binding, useBindings } from '@rimbu/reactor';
 
 describe('useBindings', () => {
   it('Binding.command works', () => {

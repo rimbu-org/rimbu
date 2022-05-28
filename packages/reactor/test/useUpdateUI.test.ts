@@ -1,6 +1,6 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
-import { useUpdateUI } from '../src';
+import { useUpdateUI } from '@rimbu/reactor';
 
 describe('useUpdateUI', () => {
   it('calls setState', () => {

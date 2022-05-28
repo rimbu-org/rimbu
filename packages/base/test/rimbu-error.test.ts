@@ -1,4 +1,4 @@
-import { RimbuError } from '../src';
+import { RimbuError } from '@rimbu/base';
 
 describe('RimbuError', () => {
   it('throwEmptyCollectionAssumedNonEmptyError', () => {

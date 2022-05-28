@@ -1,6 +1,5 @@
 import { AsyncStream } from '@rimbu/stream';
-import { AsyncReducer } from '..';
-// import { AsyncReducer } from '../src';
+import { AsyncReducer } from '@rimbu/common';
 
 describe('AsyncReducer', () => {
   it('create', async () => {

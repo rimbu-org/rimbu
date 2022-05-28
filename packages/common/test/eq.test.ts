@@ -1,4 +1,4 @@
-import { Eq } from '../src';
+import { Eq } from '@rimbu/common';
 
 describe('Eq', () => {
   it('objectIs', () => {

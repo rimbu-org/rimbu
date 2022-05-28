@@ -1,5 +1,5 @@
 import { TraverseState } from '@rimbu/common';
-import { Arr } from '../src';
+import { Arr } from '@rimbu/base';
 
 const empty: number[] = [];
 

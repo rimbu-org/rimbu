@@ -1,4 +1,4 @@
-import { IndexRange } from '../src';
+import { IndexRange } from '@rimbu/common';
 
 describe('IndexRange', () => {
   it('getIndexRangeIndices', () => {

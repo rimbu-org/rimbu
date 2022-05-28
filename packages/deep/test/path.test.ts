@@ -1,5 +1,5 @@
 import { List } from '@rimbu/list';
-import { Path } from '../src';
+import { Path } from '@rimbu/deep';
 
 describe('Path', () => {
   const m = {

@@ -4,6 +4,9 @@
   "rootDir": "./src",
   "compilerOptions": {
     "outDir": "./dist",
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@rimbu/deep": ["./src/index.ts"]
+    }
   }
 }
