@@ -1,4 +1,4 @@
-import type { IsPlainObj } from '../base/mod.ts';
+import type { IsAny, IsPlainObj } from '../base/mod.ts';
 
 /**
  * A deep readonly typed version of given type T. Makes all properties or elements read only.
@@ -11,7 +11,9 @@ import type { IsPlainObj } from '../base/mod.ts';
  * - Any other type will not be mapped
  * @typeparam T - the input type
  */
-export type Protected<T> = T extends readonly any[] & infer A
+export type Protected<T> = IsAny<T> extends true
+  ? T
+  : T extends readonly any[] & infer A
   ? { readonly [K in keyof A]: Protected<A[K]> }
   : T extends Map<infer K, infer V>
   ? Map<Protected<K>, Protected<V>>

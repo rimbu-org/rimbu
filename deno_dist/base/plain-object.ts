@@ -33,7 +33,18 @@ export type IsPlainObj<T> = T extends
   ? false
   : IsObjWithoutFunctions<T>;
 
+/**
+ * Utility type that will only accept objects that are considered 'plain objects' according
+ * to the `IsPlainObj` predicate type.
+ * @typeparam T - the value type to test
+ */
 export type PlainObj<T> = IsPlainObj<T> extends true ? T : never;
+
+/**
+ * Utility type that will only return true if the input type T is equal to `any`.
+ * @typeparam T - the value type to test
+ */
+export type IsAny<T> = 0 extends 1 & T ? true : false;
 
 /**
  * Companion function to the `IsRecord<T>` type that checks whether the given object is a pure

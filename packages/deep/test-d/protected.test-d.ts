@@ -3,6 +3,9 @@ import type { Protected } from '../src';
 
 declare function p<T>(): Protected<T>;
 
+expectType<any>(p<any>());
+expectType<never>(p<never>());
+
 expectType<number>(p<number>());
 expectType<2>(p<2>());
 
@@ -33,6 +36,9 @@ expectType<readonly [number, string]>(p<[number, string]>());
 expectType<readonly [number, string]>(p<readonly [number, string]>());
 
 expectType<readonly { readonly a: number }[]>(p<{ a: number }[]>());
+expectType<readonly [{ readonly a: number }, { readonly b: string }]>(
+  p<[{ a: number }, { b: string }]>()
+);
 
 expectType<{ readonly a: readonly { readonly b: number }[] }>(
   p<{ a: { b: number }[] }>()
