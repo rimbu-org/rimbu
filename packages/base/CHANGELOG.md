@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/base@0.9.0...@rimbu/base@0.9.1) (2022-05-29)
+
+
+### Bug Fixes
+
+* ensure that the Protected type does not modify any or never input types ([5555afa](https://github.com/rimbu-org/rimbu/commit/5555afaf71ca0c37b2e573d25adee99e8f6c85a0))
+
+
+
+
+
 # [0.9.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/base@0.8.2...@rimbu/base@0.9.0) (2022-05-27)
 
 
