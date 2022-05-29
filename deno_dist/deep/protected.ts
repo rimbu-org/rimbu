@@ -38,8 +38,6 @@ export type Protected<T> = IsAny<T> extends true
  * obj.b.d.push(2)  // compiler error: d is a readonly array
  * (obj as any).b.d.push(2)  // will actually mutate the object
  * ```
-
- * '
  */
 export function Protected<T>(value: T): Protected<T> {
   return value as any;
