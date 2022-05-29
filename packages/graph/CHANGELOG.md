@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.15](https://github.com/rimbu-org/rimbu/compare/@rimbu/graph@0.9.14...@rimbu/graph@0.9.15) (2022-05-29)
+
+**Note:** Version bump only for package @rimbu/graph
+
+
+
+
+
 ## [0.9.14](https://github.com/rimbu-org/rimbu/compare/@rimbu/graph@0.9.13...@rimbu/graph@0.9.14) (2022-05-27)
 
 

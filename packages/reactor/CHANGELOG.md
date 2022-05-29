@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/reactor@0.9.0...@rimbu/reactor@0.9.1) (2022-05-29)
+
+
+### Bug Fixes
+
+* **reactor:** update type due to changes in the Protected type ([e5fc15c](https://github.com/rimbu-org/rimbu/commit/e5fc15c626926e86611b9ae78bd41c9950b6ba3a))
+
+
+
+
+
 # [0.9.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/reactor@0.8.10...@rimbu/reactor@0.9.0) (2022-05-27)
 
 

@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.10.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/deep@0.10.0...@rimbu/deep@0.10.1) (2022-05-29)
+
+
+### Bug Fixes
+
+* ensure that the Protected type does not modify any or never input types ([5555afa](https://github.com/rimbu-org/rimbu/commit/5555afaf71ca0c37b2e573d25adee99e8f6c85a0))
+* **deep:** fix Path.update not updating values correctly ([26df382](https://github.com/rimbu-org/rimbu/commit/26df38245fe681a2b159d41ddcfa8f93a7ead3b7)), closes [#79](https://github.com/rimbu-org/rimbu/issues/79)
+
+
+
+
+
 # [0.10.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/deep@0.9.2...@rimbu/deep@0.10.0) (2022-05-27)
 
 

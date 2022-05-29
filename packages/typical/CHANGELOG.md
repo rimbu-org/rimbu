@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/typical@0.4.0...@rimbu/typical@0.4.1) (2022-05-29)
+
+
+### Bug Fixes
+
+* improve 'menu' style exports for core, and improve documentation ([0729871](https://github.com/rimbu-org/rimbu/commit/0729871a8aae220ef5d9132c0c56e5a3cb2c19cb))
+
+
+
+
+
 # [0.4.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/typical@0.3.1...@rimbu/typical@0.4.0) (2022-05-01)
 
 
