@@ -726,7 +726,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
         index++;
       }
 
-      return Promise.all(
+      return await Promise.all(
         state.map((s: any, i: any): unknown => reducers[i].stateToResult(s))
       );
     } catch (e) {
