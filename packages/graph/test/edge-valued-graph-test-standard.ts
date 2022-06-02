@@ -519,6 +519,26 @@ export function runGraphTestsWith(
       });
     });
 
+    it('buildMapValues', () => {
+      const b = G.builder<string, number>();
+      expect(b.buildMapValues((v) => v + 1)).toBe(G.empty());
+
+      b.connect('b', 'b', 3);
+      expectEqual(
+        b.buildMapValues((v, s, t) => `${s}${v}${t}`),
+        [['b', 'b', 'b3b']]
+      );
+
+      forEachBuilder((b) => {
+        expect(b.buildMapValues((v) => v + 1).nodeSize).toBe(3);
+        expect(b.buildMapValues((v) => v + 1).connectionSize).toBe(3);
+        expectEqual(
+          b.buildMapValues((v) => v + 1),
+          arr3.map(([s, t, n]) => [s, t, n + 1])
+        );
+      });
+    });
+
     it('connect', () => {
       const b = G.builder<string, number>();
       expect(b.nodeSize).toBe(0);

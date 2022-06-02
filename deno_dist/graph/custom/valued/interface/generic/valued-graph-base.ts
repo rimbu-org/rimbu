@@ -424,6 +424,21 @@ export namespace ValuedGraphBase {
      * ```
      */
     build(): WithGraphValues<Tp, N, V>['normal'];
+    /**
+     * Returns an immutable graph containing the nodes and connections of this builder, where the values are mapped
+     * using the given `mapFun` function.
+     * @param mapFun - a function taking the value
+     * @example
+     * ```ts
+     * const b = ArrowValuedGraphHashed
+     *  .of([[1, 2, 'a'], [2, 3, 'b']])
+     *  .toBuilder()
+     * const g: ArrowValuedGraphHashed<number, string> = b.buildMapValues(v => v.toUpperCase())
+     * ```
+     */
+    buildMapValues<V2>(
+      mapFun: (value: V, node1: N, node2: N) => V2
+    ): WithGraphValues<Tp, N, V2>['normal'];
   }
 
   export interface Factory<Tp extends ValuedGraphBase.Types, UN = unknown> {
