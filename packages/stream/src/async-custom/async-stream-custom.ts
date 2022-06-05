@@ -6,7 +6,7 @@ import {
   Comp,
   Eq,
   MaybePromise,
-  Reducer,
+  OptLazy,
   ToJSON,
   TraverseState,
 } from '@rimbu/common';
@@ -180,6 +180,27 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     ) => AsyncStreamSource<T2>
   ): AsyncStream<T2> {
     return new AsyncFlatMapStream<T, T2>(this, flatMapFun);
+  }
+
+  flatZip<T2>(
+    flatMapFun: (
+      value: T,
+      index: number,
+      halt: () => void
+    ) => AsyncStreamSource<T2>
+  ): AsyncStream<[T, T2]> {
+    return this.flatMap((value, index, halt) =>
+      fromAsyncStreamSource(flatMapFun(value, index, halt)).map((result) => [
+        value,
+        result,
+      ])
+    );
+  }
+
+  flatReduceStream<R>(
+    reducer: AsyncReducer<T, AsyncStreamSource<R>>
+  ): AsyncStream<R> {
+    return AsyncStreamConstructorsImpl.flatten(this.reduceStream(reducer));
   }
 
   filter(
@@ -1404,13 +1425,13 @@ class AsyncEmptyStream<T = any>
     return this as any;
   }
   async reduce<O>(reducer: AsyncReducer<T, O>): Promise<O> {
-    return reducer.stateToResult(Reducer.Init(reducer.init));
+    return reducer.stateToResult(OptLazy(reducer.init));
   }
   reduceStream(): any {
     return this;
   }
   async reduceAll(...reducers: any): Promise<any> {
-    return reducers.map((p: any) => p.stateToResult(Reducer.Init(p.init)));
+    return reducers.map((p: any) => p.stateToResult(OptLazy(p.init)));
   }
   reduceAllStream(): AsyncStream<any> {
     return this;

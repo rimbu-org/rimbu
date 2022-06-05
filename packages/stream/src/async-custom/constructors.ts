@@ -127,14 +127,12 @@ export interface AsyncStreamConstructors {
    * await AsyncStream.flatten(AsyncStream.of(['ma', 'r', '', 'mot')).toArray()   // => ['m', 'a', 'r', 'm', 'o', 't']
    * ```
    */
-  flatten<T extends AsyncStreamSource.NonEmpty<unknown>>(
+  flatten<T extends AsyncStreamSource.NonEmpty<S>, S>(
     source: AsyncStreamSource.NonEmpty<T>
-  ): T extends AsyncStreamSource.NonEmpty<infer S>
-    ? AsyncStream.NonEmpty<S>
-    : never;
-  flatten<T extends AsyncStreamSource<unknown>>(
+  ): AsyncStream.NonEmpty<S>;
+  flatten<T extends AsyncStreamSource<S>, S>(
     source: AsyncStreamSource<T>
-  ): T extends AsyncStreamSource<infer S> ? AsyncStream<S> : never;
+  ): AsyncStream<S>;
   /**
    * Returns an array containing an AsyncStream for each tuple element resulting from given `source` AsyncStream.
    * @param source - a Stream containing tuple elements

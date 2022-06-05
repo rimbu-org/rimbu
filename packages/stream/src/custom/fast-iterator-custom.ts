@@ -534,7 +534,7 @@ export class ReduceIterator<I, R> extends FastIteratorBase<R> {
   ) {
     super();
 
-    this.state = Reducer.Init(reducer.init);
+    this.state = OptLazy(reducer.init);
   }
 
   halted = false;
@@ -568,7 +568,7 @@ export class ReduceAllIterator<I, R> extends FastIteratorBase<R> {
   ) {
     super();
 
-    this.state = reducers.map((d: any): unknown => Reducer.Init(d.init));
+    this.state = reducers.map((d: any): unknown => OptLazy(d.init));
     this.done = this.state.map((_: any, i: any): (() => void) => (): void => {
       this.done[i] = null;
     });

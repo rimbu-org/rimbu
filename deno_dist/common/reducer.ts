@@ -13,21 +13,6 @@ function identity<T>(value: T): T {
 
 export namespace Reducer {
   /**
-   * Ensures that all non-primitive type use lazy initialization to prevent accidental instance sharing.
-   */
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  export type Init<T> = T extends object | (() => any) ? () => T : T;
-
-  /**
-   * Returns the contained value for an `Init` instance.
-   * @param init - the `Init` value container
-   */
-  export function Init<T>(init: Reducer.Init<T>): T {
-    if (init instanceof Function) return init();
-    return init as T;
-  }
-
-  /**
    * The Implementation interface for a `Reducer`, which also exposes the internal state type.
    * @typeparam I - the input value type
    * @typeparam O - the output value type
@@ -37,7 +22,7 @@ export namespace Reducer {
     /**
      * The initial state value for the reducer algorithm.
      */
-    readonly init: Reducer.Init<S>;
+    readonly init: OptLazy<S>;
     /**
      * Returns the next state based on the given input values
      * @param state - the current state
@@ -68,6 +53,7 @@ export namespace Reducer {
     ): Reducer<I, O>;
     /**
      * Returns a `Reducer` instance that converts its input values using given `mapFun` before passing them to the reducer.
+     * @typeparam I2 - the resulting reducer input type
      * @param mapFun - a function that returns a new value to pass to the reducer based on the following inputs:<br/>
      * - value: the current input value<br/>
      * - index: the current input index
@@ -80,6 +66,7 @@ export namespace Reducer {
     mapInput<I2>(mapFun: (value: I2, index: number) => I): Reducer<I2, O>;
     /**
      * Returns a `Reducer` instance that converts or filters its input values using given `collectFun` before passing them to the reducer.
+     * @typeparam I2 - the resulting reducer input type
      * @param collectFun - a function receiving<br/>
      * - `value`: the next value<br/>
      * - `index`: the value index<br/>
@@ -95,6 +82,7 @@ export namespace Reducer {
     collectInput<I2>(collectFun: CollectFun<I2, I>): Reducer<I2, O>;
     /**
      * Returns a `Reducer` instance that converts its output values using given `mapFun`.
+     * @typeparam O2 - the resulting reducer output type
      * @param mapFun - a function that takes the current output value and converts it to a new output value
      * @example
      * ```ts
@@ -144,7 +132,7 @@ export namespace Reducer {
    */
   export class Base<I, O, S> implements Reducer.Impl<I, O, S> {
     constructor(
-      readonly init: Reducer.Init<S>,
+      readonly init: OptLazy<S>,
       readonly next: (state: S, elem: I, index: number, halt: () => void) => S,
       readonly stateToResult: (state: S) => O
     ) {}
@@ -155,7 +143,7 @@ export namespace Reducer {
       return create(
         (): { state: S; nextIndex: number } => ({
           nextIndex: 0,
-          state: Init(this.init),
+          state: OptLazy(this.init),
         }),
         (state, elem, index, halt): { state: S; nextIndex: number } => {
           if (pred(elem, index, halt)) {
@@ -180,7 +168,7 @@ export namespace Reducer {
       return create(
         (): { state: S; nextIndex: number } => ({
           nextIndex: 0,
-          state: Init(this.init),
+          state: OptLazy(this.init),
         }),
         (state, elem, index, halt): { state: S; nextIndex: number } => {
           const nextElem = collectFun(elem, index, CollectFun.Skip, halt);
@@ -259,7 +247,7 @@ export namespace Reducer {
    * ```
    */
   export function create<I, O = I, S = O>(
-    init: Reducer.Init<S>,
+    init: OptLazy<S>,
     next: (current: S, next: I, index: number, halt: () => void) => S,
     stateToResult: (state: S) => O
   ): Reducer<I, O> {
@@ -289,7 +277,7 @@ export namespace Reducer {
    * ```
    */
   export function createMono<T>(
-    init: Reducer.Init<T>,
+    init: OptLazy<T>,
     next: (current: T, next: T, index: number, halt: () => void) => T,
     stateToResult?: (state: T) => T
   ): Reducer<T> {
@@ -320,7 +308,7 @@ export namespace Reducer {
    * ```
    */
   export function createOutput<I, O = I>(
-    init: Reducer.Init<O>,
+    init: OptLazy<O>,
     next: (current: O, next: I, index: number, halt: () => void) => O,
     stateToResult?: (state: O) => O
   ): Reducer<I, O> {
@@ -630,8 +618,8 @@ export namespace Reducer {
    * @typeparam O - the fallback value type
    * @example
    * ```ts
-   * console.log(Stream.range{ amount: 10 }).reduce(Reducer.first())
-   * // => 0
+   * console.log(Stream.range{ amount: 10 }).reduce(Reducer.last())
+   * // => 9
    * ```
    */
   export const last: {
@@ -641,7 +629,7 @@ export namespace Reducer {
     const token = Symbol();
 
     return create<T, T | O, T | typeof token>(
-      token,
+      () => token,
       (_, next): T => next,
       (state): T | O => (token === state ? OptLazy(otherwise!) : state)
     );
@@ -649,6 +637,7 @@ export namespace Reducer {
 
   /**
    * Returns a `Reducer` that ouputs false as long as no input value satisfies given `pred`, true otherwise.
+   * @typeparam T - the element type
    * @param pred - a function taking an input value and its index, and returning true if the value satisfies the predicate
    * @example
    * ```ts
@@ -673,6 +662,7 @@ export namespace Reducer {
 
   /**
    * Returns a `Reducer` that ouputs true as long as all input values satisfy the given `pred`, false otherwise.
+   * @typeparam T - the element type
    * @param pred - a function taking an input value and its index, and returning true if the value satisfies the predicate
    * @example
    * ```ts
@@ -698,6 +688,7 @@ export namespace Reducer {
 
   /**
    * Returns a `Reducer` that outputs false as long as the given `elem` has not been encountered in the input values, true otherwise.
+   * @typeparam T - the element type
    * @param elem - the element to search for
    * @param eq - (optional) a comparison function that returns true if te two given input values are considered equal
    * @example
@@ -784,12 +775,14 @@ export namespace Reducer {
 
   /**
    * Returns a `Reducer` that collects received input values in an array, and returns a copy of that array as an output value when requested.
+   * @typeparam T - the element type
    * @example
    * ```ts
    * console.log(Stream.of(1, 2, 3).reduce(Reducer.toArray()))
    * // => [1, 2, 3]
    * ```
    */
+  export function toArray<T>(): Reducer<T, T[]>;
   export function toArray<T>(): Reducer<T, T[]> {
     return create(
       (): T[] => [],
@@ -804,6 +797,8 @@ export namespace Reducer {
   /**
    * Returns a `Reducer` that collects received input tuples into a mutable JS Map, and returns
    * a copy of that map when output is requested.
+   * @typeparam K - the map key type
+   * @typeparam V - the map value type
    * @example
    * ```ts
    * console.log(Stream.of([1, 'a'], [2, 'b']).reduce(Reducer.toJSMap()))
@@ -824,6 +819,7 @@ export namespace Reducer {
   /**
    * Returns a `Reducer` that collects received input values into a mutable JS Set, and returns
    * a copy of that map when output is requested.
+   * @typeparam T - the element type
    * @example
    * ```ts
    * console.log(Stream.of(1, 2, 3).reduce(Reducer.toJSSet()))
@@ -838,6 +834,31 @@ export namespace Reducer {
         return state;
       },
       (s): Set<T> => new Set(s)
+    );
+  }
+
+  /**
+   * Returns a `Reducer` that collects 2-tuples containing keys and values into a plain JS object, and
+   * returns a copy of that object when output is requested.
+   * @typeparam K - the result object key type
+   * @typeparam V - the result object value type
+   * @example
+   * ```ts
+   * console.log(Stream.of(['a', 1], ['b', true]).reduce(Reducer.toJSObject()))
+   * // { a: 1, b: true }
+   * ```
+   */
+  export function toJSObject<K extends string | number | symbol, V>(): Reducer<
+    [K, V],
+    Record<K, V>
+  > {
+    return create(
+      () => ({} as Record<K, V>),
+      (state, entry) => {
+        state[entry[0]] = entry[1];
+        return state;
+      },
+      (s) => ({ ...s })
     );
   }
 
@@ -870,7 +891,7 @@ export namespace Reducer {
           halt(): void {
             result.halted = true;
           },
-          state: Init(reducer.init),
+          state: OptLazy(reducer.init),
         };
 
         return result;

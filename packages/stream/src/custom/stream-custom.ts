@@ -151,6 +151,10 @@ export abstract class StreamBase<T> implements Stream<T> {
     );
   }
 
+  flatReduceStream<R>(reducer: Reducer<T, StreamSource<R>>): Stream<R> {
+    return StreamConstructorsImpl.flatten(this.reduceStream(reducer));
+  }
+
   filter(
     pred: (value: T, index: number, halt: () => void) => boolean
   ): Stream<T> {
@@ -476,14 +480,14 @@ export abstract class StreamBase<T> implements Stream<T> {
   }
 
   fold<R>(
-    init: Reducer.Init<R>,
+    init: OptLazy<R>,
     next: (current: R, value: T, index: number, halt: () => void) => R
   ): R {
     return this.reduce<R>(Reducer.createOutput<T, R>(init, next));
   }
 
   foldStream<R>(
-    init: Reducer.Init<R>,
+    init: OptLazy<R>,
     next: (current: R, value: T, index: number, halt: () => void) => R
   ): Stream<R> {
     return this.reduceStream<R>(Reducer.createOutput<T, R>(init, next));
@@ -498,7 +502,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 
     let index = 0;
     const next = reducer.next;
-    let state = Reducer.Init(reducer.init);
+    let state = OptLazy(reducer.init);
     const done = Symbol('Done');
     let value: T | typeof done;
     const iter = this[Symbol.iterator]();
@@ -515,7 +519,7 @@ export abstract class StreamBase<T> implements Stream<T> {
   }
 
   reduceAll(...reducers: any): any {
-    const state = reducers.map((d: any): unknown => Reducer.Init(d.init));
+    const state = reducers.map((d: any): unknown => OptLazy(d.init));
 
     const iteratorsDone: ((() => void) | null)[] = state.map(
       (_: any, i: any): (() => void) =>
@@ -1157,6 +1161,11 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   flatZip<T2>(): Stream<[T, T2]> {
     return this as any;
   }
+  flatReduceStream<R>(reducer: Reducer<T, StreamSource<R>>): Stream<R> {
+    return StreamConstructorsImpl.from(
+      reducer.stateToResult(OptLazy(reducer.init))
+    );
+  }
   filter(): Stream<T> {
     return this;
   }
@@ -1266,20 +1275,20 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   } = {}): Stream.NonEmpty<T> {
     return fromStreamSource(start).concat(end) as any;
   }
-  fold<R>(init: Reducer.Init<R>): R {
-    return Reducer.Init(init);
+  fold<R>(init: OptLazy<R>): R {
+    return OptLazy(init);
   }
   foldStream<R>(): Stream<R> {
     return this as any;
   }
   reduce<O>(reducer: Reducer<T, O>): O {
-    return reducer.stateToResult(Reducer.Init(reducer.init));
+    return reducer.stateToResult(OptLazy(reducer.init));
   }
   reduceStream(): any {
     return this;
   }
   reduceAll(...reducers: any): any {
-    return reducers.map((p: any) => p.stateToResult(Reducer.Init(p.init)));
+    return reducers.map((p: any) => p.stateToResult(OptLazy(p.init)));
   }
   reduceAllStream(): Stream<any> {
     return this;
@@ -1855,7 +1864,7 @@ export const StreamConstructorsImpl: StreamConstructors = Object.freeze({
     };
   },
   zipAll(fillValue, ...sources) {
-    return StreamConstructorsImpl.zipAllWith(...sources)(
+    return StreamConstructorsImpl.zipAllWith(...(sources as any))(
       fillValue,
       Array
     ) as any;
