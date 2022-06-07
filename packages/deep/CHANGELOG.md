@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/deep@0.10.1...@rimbu/deep@0.11.0) (2022-06-07)
+
+
+### Features
+
+* improve Stream and AsyncStream API and add more AsyncReducers ([9d758de](https://github.com/rimbu-org/rimbu/commit/9d758de6052946ffdac8b8b300415e0c1146e2e6))
+
+
+### BREAKING CHANGES
+
+* Reducer.Init is replaced by OptLazy
+
+
+
+
+
 ## [0.10.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/deep@0.10.0...@rimbu/deep@0.10.1) (2022-05-29)
 
 

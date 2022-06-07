@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.2](https://github.com/rimbu-org/rimbu/compare/@rimbu/base@0.9.1...@rimbu/base@0.9.2) (2022-06-07)
+
+
+### Bug Fixes
+
+* **base:** improve isPlainObj function and add tests ([d1d0c68](https://github.com/rimbu-org/rimbu/commit/d1d0c6885b8f13c28627e8de099156b0d6c3f547))
+
+
+
+
+
 ## [0.9.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/base@0.9.0...@rimbu/base@0.9.1) (2022-05-29)
 
 

@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@0.10.12...@rimbu/stream@0.11.0) (2022-06-07)
+
+
+### Bug Fixes
+
+* fix empty stream reduce and reduceAll functions and add tests for async reducers ([136c05c](https://github.com/rimbu-org/rimbu/commit/136c05c83376672987ec61b78adc1e4f2d263938))
+* **stream:** add await inside async try catch block ([59e368f](https://github.com/rimbu-org/rimbu/commit/59e368f9bb223d21015d1c4539c63301093ca092))
+
+
+### Features
+
+* improve Stream and AsyncStream API and add more AsyncReducers ([9d758de](https://github.com/rimbu-org/rimbu/commit/9d758de6052946ffdac8b8b300415e0c1146e2e6))
+
+
+### BREAKING CHANGES
+
+* Reducer.Init is replaced by OptLazy
+
+
+
+
+
 ## [0.10.12](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@0.10.11...@rimbu/stream@0.10.12) (2022-05-29)
 
 **Note:** Version bump only for package @rimbu/stream

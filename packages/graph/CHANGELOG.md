@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/graph@0.9.15...@rimbu/graph@0.10.0) (2022-06-07)
+
+
+### Features
+
+* **graph:** add buildMapValues method to valued graph builders ([9042001](https://github.com/rimbu-org/rimbu/commit/904200167a6517caa77b5ec12dd9655c17230f5f))
+
+
+
+
+
 ## [0.9.15](https://github.com/rimbu-org/rimbu/compare/@rimbu/graph@0.9.14...@rimbu/graph@0.9.15) (2022-05-29)
 
 **Note:** Version bump only for package @rimbu/graph
