@@ -3,12 +3,6 @@ import { Stream } from '@rimbu/stream';
 import { Comp, Eq, Reducer } from '@rimbu/common';
 
 describe('Reducer', () => {
-  it('Init', () => {
-    expect(Reducer.Init(5)).toBe(5);
-    const obj = { a: 1 };
-    expect(Reducer.Init(() => obj)).toBe(obj);
-  });
-
   it('create', () => {
     const r = Reducer.create<number, number>(
       5,
@@ -229,6 +223,20 @@ describe('Reducer', () => {
     expect(set2.size).toBe(3);
   });
 
+  it('toJSObject', () => {
+    const obj1 = Stream.empty<[string, number]>().reduce(Reducer.toJSObject());
+    expect(obj1).toEqual({});
+
+    const obj2 = Stream.of(['a', 1], ['b', 2], ['b', 3], ['c', 3]).reduce(
+      Reducer.toJSObject()
+    );
+    expect(obj2).toEqual({
+      a: 1,
+      b: 3,
+      c: 3,
+    });
+  });
+
   it('filterInput', () => {
     expect(
       Stream.of(1, 2, 3).reduce(Reducer.count().filterInput((v) => v > 2))
@@ -305,18 +313,22 @@ describe('Reducers', () => {
   });
 
   it('Reducer.combine', () => {
-    const r = Reducer.combine(Reducer.sum, Reducer.average);
+    const r = Reducer.combine(
+      Reducer.sum,
+      Reducer.average,
+      Reducer.toArray<number>()
+    );
 
-    expect(Stream.empty().reduce(r)).toEqual([0, 0]);
+    expect(Stream.empty().reduce(r)).toEqual([0, 0, []]);
     expect(Stream.of(0, 0, 0).reduceStream(r).toArray()).toEqual([
-      [0, 0],
-      [0, 0],
-      [0, 0],
+      [0, 0, [0]],
+      [0, 0, [0, 0]],
+      [0, 0, [0, 0, 0]],
     ]);
     expect(Stream.of(0, 2, 4).reduceStream(r).toArray()).toEqual([
-      [0, 0],
-      [2, 1],
-      [6, 2],
+      [0, 0, [0]],
+      [2, 1, [0, 2]],
+      [6, 2, [0, 2, 4]],
     ]);
   });
 

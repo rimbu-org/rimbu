@@ -54,21 +54,13 @@ export type IsAny<T> = 0 extends 1 & T ? true : false;
  * @note does not check whether a record's properties are not functions
  */
 export function isPlainObj(obj: any): boolean {
-  if (
-    undefined === obj ||
-    null === obj ||
-    typeof obj !== 'object' ||
-    (obj.constructor instanceof Function &&
-      obj.constructor.name !== 'Object') ||
-    Symbol.iterator in obj ||
-    Symbol.asyncIterator in obj
-  ) {
-    return false;
-  }
-
-  const prototype = Object.getPrototypeOf(obj);
-
-  return null === prototype || prototype === Object.prototype;
+  return (
+    typeof obj === 'object' &&
+    null !== obj &&
+    (obj.constructor === Object || !(obj.constructor instanceof Function)) &&
+    !(Symbol.iterator in obj) &&
+    !(Symbol.asyncIterator in obj)
+  );
 }
 
 /**

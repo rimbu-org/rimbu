@@ -84,61 +84,85 @@ expectType<[Stream<number>, Stream<string>]>(
 expectError(Stream.unzip(Stream.of(1), 2));
 expectError(Stream.unzip(Stream.of([1, 2] as const), 3));
 
-// // Stream.zip(..)
-// expectType<Stream<[number, string]>>(
-//   Stream.empty<number>().zip(Stream.empty<string>())
-// );
-// expectType<Stream<[number, string]>>(Stream.of(1).zip(Stream.empty<string>()));
-// expectType<Stream<[number, string]>>(
-//   Stream.empty<number>().zip(Stream.of('a'))
-// );
-// expectType<Stream.NonEmpty<[number, string]>>(Stream.of(1).zip(Stream.of('a')));
-// expectType<Stream<[number, string, boolean]>>(
-//   Stream.empty<number>().zip(Stream.of('a'), Stream.of(true, false))
-// );
-// expectType<Stream.NonEmpty<[number, string, boolean]>>(
-//   Stream.of(1).zip(Stream.of('a'), Stream.of(true, false))
-// );
-// TODO
-// expectError(Stream.zip());
+// Stream.zip
+expectType<Stream<[number, string]>>(
+  Stream.zip(Stream.empty<number>(), Stream.empty<string>())
+);
+expectType<Stream<[number, string]>>(
+  Stream.zip(Stream.of(1), Stream.empty<string>())
+);
+expectType<Stream<[number, string]>>(
+  Stream.zip(Stream.empty<number>(), Stream.of('a'))
+);
+expectType<Stream.NonEmpty<[number, string]>>(
+  Stream.zip(Stream.of(1), Stream.of('a'))
+);
+expectType<Stream<[number, string, boolean]>>(
+  Stream.zip(Stream.empty<number>(), Stream.of('a'), Stream.of(true, false))
+);
+expectType<Stream.NonEmpty<[number, string, boolean]>>(
+  Stream.zip(Stream.of(1), Stream.of('a'), Stream.of(true, false))
+);
 
-// // Stream.zipAll(..)
-// expectType<Stream<[number | true, string | true]>>(
-//   Stream.empty<number>().zipAll(true, Stream.empty<string>())
-// );
-// expectType<Stream.NonEmpty<[number | true, string | true]>>(
-//   Stream.of(1).zipAll(true, Stream.of('a'))
-// );
+expectType<Stream.NonEmpty<[number]>>(Stream.zip(Stream.of(1)));
+
+expectError(Stream.zip());
+
+// Stream.zipAll(..)
+expectType<Stream<[number | boolean, string | boolean]>>(
+  Stream.zipAll(true, Stream.empty<number>(), Stream.empty<string>())
+);
+expectType<Stream.NonEmpty<[number | boolean, string | boolean]>>(
+  Stream.zipAll(true, Stream.of(1), Stream.of('a'))
+);
+
+expectType<Stream.NonEmpty<[number | boolean]>>(
+  Stream.zipAll(true, Stream.of(1))
+);
 
 // TODO
-// expectError(Stream.zipAll());
-// expectType<Stream.NonEmpty<[number | boolean, string | boolean]>>(Stream.zipAll(true, Stream.empty<number>(), Stream.of('a')));
+// expectType<Stream.NonEmpty<[number | boolean, string | boolean]>>(
+//   Stream.zipAll(true, Stream.empty<number>(), Stream.of('a'))
+// );
+
+expectError(Stream.zipAll(true));
 
 // // Stream.zipWith(..)
-// expectType<Stream<[number, true, string]>>(
-//   Stream.empty<number>().zipWith((a, b) => [a, true, b], Stream.empty<string>())
-// );
-// expectType<Stream<[number, true, string]>>(
-//   Stream.of(1).zipWith((a, b) => [a, true, b], Stream.empty<string>())
-// );
-// expectType<Stream<[number, true, string]>>(
-//   Stream.empty<number>().zipWith((a, b) => [a, true, b], Stream.of('a'))
-// );
-// expectType<Stream.NonEmpty<[number, true, string]>>(
-//   Stream.of(1).zipWith((a, b) => [a, true, b], Stream.of('a'))
-// );
+expectType<Stream<[number, true, string]>>(
+  Stream.zipWith(
+    Stream.empty<number>(),
+    Stream.empty<string>()
+  )((a, b) => [a, true, b])
+);
+expectType<Stream<[number, true, string]>>(
+  Stream.zipWith(Stream.of(1), Stream.empty<string>())((a, b) => [a, true, b])
+);
+expectType<Stream<[number, true, string]>>(
+  Stream.zipWith(Stream.empty<number>(), Stream.of('a'))((a, b) => [a, true, b])
+);
+expectType<Stream.NonEmpty<[number, true, string]>>(
+  Stream.zipWith(Stream.of(1), Stream.of('a'))((a, b) => [a, true, b])
+);
+
+expectType<Stream.NonEmpty<[number]>>(Stream.zipWith(Stream.of(1))((a) => [a]));
+
+expectError(Stream.zipWith());
 
 // // Stream.zipAllWith()
-// expectType<Stream<[number | boolean, true, string | boolean]>>(
-//   Stream.empty<number>().zipAllWith(
-//     true,
-//     (a, b) => [a, true, b],
-//     Stream.empty<string>()
-//   )
-// );
-// expectType<Stream.NonEmpty<[number | boolean, true, string | boolean]>>(
-//   Stream.of(1).zipAllWith(true, (a, b) => [a, true, b], Stream.of('a'))
-// );
+expectType<Stream<[number | boolean, true, string | boolean]>>(
+  Stream.zipAllWith(Stream.empty<number>(), Stream.empty<string>())(
+    true,
+    (a, b) => [a, true, b]
+  )
+);
+expectType<Stream.NonEmpty<[number | boolean, true, string | boolean]>>(
+  Stream.zipAllWith(Stream.of(1), Stream.of('a'))(true, (a, b) => [a, true, b])
+);
+expectType<Stream.NonEmpty<[number | boolean]>>(
+  Stream.zipAllWith(Stream.of(1))(true, (a) => [a])
+);
+
+expectError(Stream.zipAllWith());
 
 // TODO
 // expectType<Stream.NonEmpty<[number | boolean, string | boolean]>>(
@@ -249,6 +273,34 @@ expectType<Stream<string>>(Stream.of(1).flatMap(() => Stream.empty<string>()));
 expectType<Stream<string>>(Stream.of(1).flatMap(() => Stream.empty<string>()));
 expectType<Stream.NonEmpty<string>>(Stream.of(1).flatMap(() => Stream.of('a')));
 
+// .flatZip(..)
+expectType<Stream<[number, string]>>(
+  Stream.empty<number>().flatZip((v) => [String(v)])
+);
+expectType<Stream<[number, string]>>(
+  Stream.of(1).flatZip(() => Stream.empty<string>())
+);
+expectType<Stream.NonEmpty<[number, string]>>(
+  Stream.of(1).flatZip((v) => [String(v)])
+);
+
+// .flatReducerStream(..)
+expectType<Stream<string>>(
+  Stream.empty<number>().flatReduceStream(
+    null as unknown as Reducer<number, Stream.NonEmpty<string>>
+  )
+);
+expectType<Stream<string>>(
+  Stream.of(1).flatReduceStream(
+    null as unknown as Reducer<number, Stream<string>>
+  )
+);
+expectType<Stream.NonEmpty<string>>(
+  Stream.of(1).flatReduceStream(
+    null as unknown as Reducer<number, Stream.NonEmpty<string>>
+  )
+);
+
 // .fold(..)
 expectType<string>(Stream.empty<number>().fold('a', () => 'b'));
 expectType<string>(Stream.of(1).fold('a', () => 'b'));
@@ -281,19 +333,15 @@ expectType<Stream<number>>(Stream.of('a').indicesOf('b'));
 expectType<Stream<number>>(Stream.empty<string>().indicesWhere(() => true));
 expectType<Stream<number>>(Stream.of('a').indicesWhere(() => true));
 
-// // .intersperse(..)
-// expectType<Stream<number | string>>(
-//   Stream.empty<number>().intersperse(Stream.empty<string>())
-// );
-// expectType<Stream.NonEmpty<number | string>>(
-//   Stream.of(1).intersperse(Stream.empty<string>())
-// );
-// expectType<Stream<number | string>>(
-//   Stream.empty<number>().intersperse(Stream.of('a'))
-// );
-// expectType<Stream.NonEmpty<number | string>>(
-//   Stream.of(1).intersperse(Stream.of('a'))
-// );
+// .intersperse(..)
+expectType<Stream<number>>(
+  Stream.empty<number>().intersperse(Stream.empty<number>())
+);
+expectType<Stream.NonEmpty<number>>(
+  Stream.of(1).intersperse(Stream.empty<number>())
+);
+expectType<Stream<number>>(Stream.empty<number>().intersperse(Stream.of(1)));
+expectType<Stream.NonEmpty<number>>(Stream.of(1).intersperse(Stream.of(1)));
 
 // .last(..)
 expectType<number | undefined>(Stream.empty<number>().last());
@@ -353,48 +401,50 @@ expectType<number | string>(
 );
 
 // // .mkGroup(..)
-// expectType<Stream<number>>(Stream.empty<number>().mkGroup({}));
-// expectType<Stream.NonEmpty<number>>(Stream.of(1).mkGroup({}));
+expectType<Stream<number>>(Stream.empty<number>().mkGroup({}));
+expectType<Stream.NonEmpty<number>>(Stream.of(1).mkGroup({}));
 
-// expectType<Stream<number | string>>(
-//   Stream.empty<number>().mkGroup({ start: Stream.empty<string>() })
-// );
-// expectType<Stream<number | string>>(
-//   Stream.empty<number>().mkGroup({ sep: Stream.empty<string>() })
-// );
-// expectType<Stream<number | string>>(
-//   Stream.empty<number>().mkGroup({ end: Stream.empty<string>() })
-// );
+expectType<Stream<number>>(
+  Stream.empty<number>().mkGroup({ start: Stream.empty<number>() })
+);
+expectType<Stream<number>>(
+  Stream.empty<number>().mkGroup({ sep: Stream.empty<number>() })
+);
+expectType<Stream<number>>(
+  Stream.empty<number>().mkGroup({ end: Stream.empty<number>() })
+);
 
-// expectType<Stream.NonEmpty<number | string>>(
-//   Stream.empty<number>().mkGroup({ start: Stream.of('a') })
-// );
-// expectType<Stream<number | string>>(
-//   Stream.empty<number>().mkGroup({ sep: Stream.of('a') })
-// );
-// expectType<Stream.NonEmpty<number | string>>(
-//   Stream.empty<number>().mkGroup({ end: Stream.of('a') })
-// );
+expectType<Stream<number>>(
+  Stream.empty<number>().mkGroup({ sep: Stream.of(1) })
+);
 
-// expectType<Stream.NonEmpty<number | string>>(
-//   Stream.of(1).mkGroup({ start: Stream.empty<string>() })
+// TODO
+// expectType<Stream.NonEmpty<number>>(
+//   Stream.empty<number>().mkGroup({ start: Stream.of(1) })
 // );
-// expectType<Stream.NonEmpty<number | string>>(
-//   Stream.of(1).mkGroup({ sep: Stream.empty<string>() })
-// );
-// expectType<Stream.NonEmpty<number | string>>(
-//   Stream.of(1).mkGroup({ end: Stream.empty<string>() })
+// expectType<Stream.NonEmpty<number>>(
+//   Stream.empty<number>().mkGroup({ end: Stream.of(1) })
 // );
 
-// expectType<Stream.NonEmpty<number | string>>(
-//   Stream.of(1).mkGroup({ start: Stream.of('a') })
-// );
-// expectType<Stream.NonEmpty<number | string>>(
-//   Stream.of(1).mkGroup({ sep: Stream.of('a') })
-// );
-// expectType<Stream.NonEmpty<number | string>>(
-//   Stream.of(1).mkGroup({ end: Stream.of('a') })
-// );
+expectType<Stream.NonEmpty<number>>(
+  Stream.of(1).mkGroup({ start: Stream.empty<number>() })
+);
+expectType<Stream.NonEmpty<number>>(
+  Stream.of(1).mkGroup({ sep: Stream.empty<number>() })
+);
+expectType<Stream.NonEmpty<number>>(
+  Stream.of(1).mkGroup({ end: Stream.empty<number>() })
+);
+
+expectType<Stream.NonEmpty<number>>(
+  Stream.of(1).mkGroup({ start: Stream.of(1) })
+);
+expectType<Stream.NonEmpty<number>>(
+  Stream.of(1).mkGroup({ sep: Stream.of(1) })
+);
+expectType<Stream.NonEmpty<number>>(
+  Stream.of(1).mkGroup({ end: Stream.of(1) })
+);
 
 // .prepend(..)
 expectType<Stream.NonEmpty<number>>(Stream.empty<number>().prepend(3));

@@ -274,10 +274,10 @@ export interface StreamConstructors {
    * ```
    * @note ends the Stream when any of the given streams ends
    */
-  zipWith<I extends readonly unknown[]>(
+  zipWith<I extends readonly [unknown, ...unknown[]]>(
     ...sources: { [K in keyof I]: StreamSource.NonEmpty<I[K]> } & unknown[]
   ): <R>(zipFun: (...values: I) => R) => Stream.NonEmpty<R>;
-  zipWith<I extends readonly unknown[]>(
+  zipWith<I extends readonly [unknown, ...unknown[]]>(
     ...sources: { [K in keyof I]: StreamSource<I[K]> } & unknown[]
   ): <R>(zipFun: (...values: I) => R) => Stream<R>;
   /**
@@ -289,10 +289,10 @@ export interface StreamConstructors {
    * ```
    * @note ends the Stream when any of the given streams ends
    */
-  zip<I extends readonly unknown[]>(
+  zip<I extends readonly [unknown, ...unknown[]]>(
     ...sources: { [K in keyof I]: StreamSource.NonEmpty<I[K]> } & unknown[]
   ): Stream.NonEmpty<I>;
-  zip<I extends readonly unknown[]>(
+  zip<I extends readonly [unknown, ...unknown[]]>(
     ...sources: { [K in keyof I]: StreamSource<I[K]> } & unknown[]
   ): Stream<I>;
   /**
@@ -314,13 +314,13 @@ export interface StreamConstructors {
    * // => [10, 13, 5]
    * ```
    */
-  zipAllWith<I extends readonly unknown[]>(
+  zipAllWith<I extends readonly [unknown, ...unknown[]]>(
     ...sources: { [K in keyof I]: StreamSource.NonEmpty<I[K]> } & unknown[]
   ): <O, R>(
     fillValue: OptLazy<O>,
     zipFun: (...values: { [K in keyof I]: I[K] | O }) => R
   ) => Stream.NonEmpty<R>;
-  zipAllWith<I extends readonly unknown[]>(
+  zipAllWith<I extends readonly [unknown, ...unknown[]]>(
     ...sources: { [K in keyof I]: StreamSource<I[K]> } & unknown[]
   ): <O, R>(
     fillValue: OptLazy<O>,
@@ -342,11 +342,11 @@ export interface StreamConstructors {
    * // => [[1, 4, 'a'], [2, 5, 'b'], [3, 0, 'c']]
    * ```
    */
-  zipAll<I extends readonly unknown[], O>(
+  zipAll<I extends readonly [unknown, ...unknown[]], O>(
     fillValue: OptLazy<O>,
     ...sources: { [K in keyof I]: StreamSource.NonEmpty<I[K]> } & unknown[]
   ): Stream.NonEmpty<{ [K in keyof I]: I[K] | O }>;
-  zipAll<I extends readonly unknown[], O>(
+  zipAll<I extends readonly [unknown, ...unknown[]], O>(
     fillValue: OptLazy<O>,
     ...sources: { [K in keyof I]: StreamSource<I[K]> } & unknown[]
   ): Stream<{ [K in keyof I]: I[K] | O }>;
@@ -358,12 +358,10 @@ export interface StreamConstructors {
    * Stream.flatten(Stream.of(['ma', 'r', '', 'mot')).toArray()   // => ['m', 'a', 'r', 'm', 'o', 't']
    * ```
    */
-  flatten<T extends StreamSource.NonEmpty<unknown>>(
+  flatten<T extends StreamSource.NonEmpty<S>, S>(
     source: StreamSource.NonEmpty<T>
-  ): T extends StreamSource.NonEmpty<infer S> ? Stream.NonEmpty<S> : never;
-  flatten<T extends StreamSource<unknown>>(
-    source: StreamSource<T>
-  ): T extends StreamSource<infer S> ? Stream<S> : never;
+  ): Stream.NonEmpty<S>;
+  flatten<T extends StreamSource<S>, S>(source: StreamSource<T>): Stream<S>;
   /**
    * Returns an array containing a Stream for each tuple element in this stream.
    * @param length - the stream element tuple length

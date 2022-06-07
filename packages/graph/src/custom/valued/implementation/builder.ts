@@ -416,4 +416,20 @@ export class ValuedGraphBuilder<
 
     return this.context.createNonEmpty(linkMap, this.connectionSize);
   };
+
+  buildMapValues = <V2>(
+    mapFun: (value: V, node1: N, node2: N) => V2
+  ): WithGraphValues<Tp, N, V2>['normal'] => {
+    if (undefined !== this.source) return this.source.mapValues(mapFun) as any;
+
+    if (this.isEmpty) return this.context.empty<N, V2>();
+
+    const linkMap = this.linkMap
+      .buildMapValues((targets, source) =>
+        targets.buildMapValues((value, target) => mapFun(value, source, target))
+      )
+      .assumeNonEmpty();
+
+    return this.context.createNonEmpty(linkMap, this.connectionSize) as any;
+  };
 }

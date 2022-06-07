@@ -110,6 +110,7 @@ export interface AsyncStream<T>
   ): Promise<void>;
   /**
    * Performs given function `f` for each element of the Stream, with the optionally given `args` as extra arguments.
+   * @typeparam A - the type of the arguments to be passed to the `f` function after each element
    * @param f - the potentially asynchronous function to perform for each element, optionally receiving given extra `args`.
    * @param args - (optional) a list of extra arguments to pass to given `f` for each element
    * @note if f is an async function, each call will be awaited consecutively
@@ -140,6 +141,7 @@ export interface AsyncStream<T>
   indexed(startIndex?: number): AsyncStream<[number, T]>;
   /**
    * Returns an AsyncStream where `mapFun` is applied to each element.
+   * @typeparam T2 - the resulting element type
    * @param mapFun - a potentially asynchronous function taking an element and its index, and returning some new element
    * @example
    * ```ts
@@ -155,6 +157,7 @@ export interface AsyncStream<T>
    * Returns an AsyncStream where the given `mapFun` is applied to each value in the stream, with optionally
    * as extra arguments the given `args`.
    * @typeparam T2 - the result value type
+   * @typeparam A - the type of arguments to be supplied to the mapFun after each element
    * @param mapFun - a potentially asynchronous function taking an element and the given args, and returning the resulting stream value
    * @param args - (optional) the extra arguments to pass to the given `mapFun`
    * @note is mostly aimed to increase performance so that an extra function is not required
@@ -174,6 +177,7 @@ export interface AsyncStream<T>
   ): AsyncStream<T2>;
   /**
    * Returns an AsyncStream consisting of the concatenation of `flatMapFun` applied to each element.
+   * @typeparam T2 - the resulting element type
    * @param flatMapFun - a potentially asynchronous function receiving the inputs described below and returning a `StreamSource` of new elements<br/>
    * - value: the next element<br/>
    * - index: the index of the element<br/>
@@ -195,6 +199,46 @@ export interface AsyncStream<T>
       halt: () => void
     ) => AsyncStreamSource<T2>
   ): AsyncStream<T2>;
+  /**
+   * Returns an AsyncStream consisting of the concatenation of `flatMapFun` applied to each element, zipped with the element that was provided to the function.
+   * @typeparam T2 - the result element type
+   * @param flatMapFun - a function receiving the inputs described below and returning a `StreamSource` of new elements<br/>
+   * - value: the next element<br/>
+   * - index: the index of the element<br/>
+   * - halt: a function that, if called, ensures that no new elements are passed
+   *
+   * @note O(1)
+   * @example
+   * ```ts
+   * await AsyncStream.of(1, 2, 3).flatZip((v, i, halt) => {
+   *   if (i >= 1) halt();
+   *   return [v, i, v + i]
+   * }).toArray()
+   * // => [[1, 1], [1, 0], [1, 1], [2, 2], [2, 1], [2, 3]]
+   * ```
+   */
+  flatZip<T2>(
+    flatMapFun: (
+      value: T,
+      index: number,
+      halt: () => void
+    ) => AsyncStreamSource<T2>
+  ): AsyncStream<[T, T2]>;
+  /**
+   * Returns an AsyncStream consisting of the concatenation of AsyncStreamSource elements resulting from applying the given `reducer` to each element.
+   * @typeparam R - the resulting element type
+   * @param reducer - an async reducer taking elements ot type T as input, and returing an `AsyncStreamSource` of element type R
+   *
+   * @note O(1)
+   * @example
+   * ```ts
+   * await AsyncStream.of(1, 2, 3, 4, 5, 6).flatReduceStream(Reducer.windowReducer(2)).toArray()
+   * // => [[1, 2, 3], [4, 5, 6]]
+   * ```
+   */
+  flatReduceStream<R>(
+    reducer: AsyncReducer<T, AsyncStreamSource<R>>
+  ): AsyncStream<R>;
   /**
    * Returns an AsyncStream containing only those elements from this stream for which the given `pred` function returns true.
    * @param pred - a potentially asynchronous function taking an element and its index, and returning true if the element should be included in the resulting stream.
@@ -223,6 +267,7 @@ export interface AsyncStream<T>
   ): AsyncStream<T>;
   /**
    * Returns an AsyncStream containing only those elements from this stream for which the given `pred` function returns true.
+   * @typeparam A - the type of the arguments to be passed to the `pred` function after each element
    * @param pred - a potentially asynchronous function taking an element the optionaly given `args`, and returning true if the element should be included in the resulting stream.
    * @param args - (optional) the extra arguments to pass to the given `mapFun`
    * @note O(1)
@@ -238,6 +283,7 @@ export interface AsyncStream<T>
   ): AsyncStream<T>;
   /**
    * Returns an AsyncStream containing only those elements from this stream for which the given `pred` function returns false.
+   * @typeparam A - the type of the arguments to be passed to the `pred` function after each element
    * @param pred - a potentially asynchronous function taking an element and the optionally given `args`, and returning false if the element should be included in the resulting stream.
    * @param args - (optional) the extra arguments to pass to the given `mapFun`
    * @note O(1)
@@ -253,6 +299,7 @@ export interface AsyncStream<T>
   ): AsyncStream<T>;
   /**
    * Returns an AsyncStream containing the resulting elements from applying the given `collectFun` to each element in this Stream.
+   * @typeparam R - the resulting element type
    * @param collectFun - a potentially asynchronous function taking the parameters below and returning a new element or a skip token<br/>
    * - value: the next element<br/>
    * - index: the element index<br/>
@@ -272,6 +319,7 @@ export interface AsyncStream<T>
   collect<R>(collectFun: AsyncCollectFun<T, R>): AsyncStream<R>;
   /**
    * Returns the first element of the AsyncStream, or a fallback value (default undefined) if the stream is empty.
+   * @typeparam O - the optional value type to return if the stream is empty
    * @param otherwise - (default: undefined) an `AsyncOptLazy` value to be returned if the stream is empty.
    * @example
    * ```ts
@@ -286,6 +334,7 @@ export interface AsyncStream<T>
   first<O>(otherwise: AsyncOptLazy<O>): Promise<T | O>;
   /**
    * Returns the last element of the AsyncStream, or a fallback value (default undefined) if the stream is empty.
+   * @typeparam O - the optional value type to return if the stream is empty
    * @param otherwise - (default: undefined) an `AsyncOptLazy` value to be returned if the stream is empty.
    * @example
    * ```ts
@@ -334,9 +383,10 @@ export interface AsyncStream<T>
   countNotElement(value: T, eq?: Eq<T>): Promise<number>;
   /**
    * Returns the first element for which the given `pred` function returns true, or a fallback value otherwise.
+   * @typeparam O - the optional value type to return no value was found
    * @param pred - a potentially asynchronous predicate function taking an element and its index
    * @param occurrance - (default: 1) the occurrance number to look for
-   * @param otherwise - (default: undefined) an `OptLazy` value to be returned if the Stream is empty
+   * @param otherwise - (default: undefined) an `OptLazy` value to be returned if no value was found
    * @example
    * ```ts
    * const isEven = async (v: number) => v % 2 === 0
@@ -358,8 +408,9 @@ export interface AsyncStream<T>
   ): Promise<T | O>;
   /**
    * Returns the element in the AsyncStream at the given index, or a fallback value (default undefined) otherwise.
+   * @typeparam O - the optional value type to return if the index is out of bounds
    * @param index - the index of the element to retrieve
-   * @param otherwise - (optional) an `AsyncOptLazy` value to be returned if the element does not exist
+   * @param otherwise - (optional) an `AsyncOptLazy` value to be returned if the index is out of bounds
    * @example
    * ```ts
    * await AsyncStream.of(1, 2, 3).elementAt(1)        // => 2
@@ -538,6 +589,7 @@ export interface AsyncStream<T>
   repeat(amount?: number): AsyncStream<T>;
   /**
    * Returns an AsyncStream containing the elements of this stream followed by all elements produced by the `others` array of AsyncStreamSources.
+   * @typeparam T2 - the element type of the stream to concatenate
    * @param others - a series of AsyncStreamSources to concatenate.
    * @example
    * ```ts
@@ -555,6 +607,7 @@ export interface AsyncStream<T>
   /**
    * Returns the mimimum element of the AsyncStream according to a default compare function, or the provided `otherwise` fallback value if the
    * stream is empty.
+   * @typeparam O - the optional value type to return if the stream is empty
    * @param otherwise - (default: undefined) the value to return if the stream is empty
    * @example
    * ```ts
@@ -570,6 +623,7 @@ export interface AsyncStream<T>
   /**
    * Returns the mimimum element of the AsyncStream according to the provided `compare` function, or the provided `otherwise` fallback value
    * if the stream is empty.
+   * @typeparam O - the optional value type to return if the stream is empty
    * @param otherwise - (default: undefined) the value to return if the Stream is empty
    * @example
    * ```ts
@@ -588,6 +642,7 @@ export interface AsyncStream<T>
   /**
    * Returns the maximum element of the AsyncStream according to a default compare function, or the provided `otherwise` fallback value if the
    * stream is empty.
+   * @typeparam O - the optional value type to return if the stream is empty
    * @param otherwise - (default: undefined) the value to return if the Stream is empty
    * @example
    * ```ts
@@ -602,6 +657,7 @@ export interface AsyncStream<T>
   /**
    * Returns the maximum element of the AsyncStream according to the provided `compare` function, or the provided `otherwise` fallback value
    * if the stream is empty.
+   * @typeparam O - the optional value type to return if the stream is empty
    * @param otherwise - (default: undefined) the value to return if the Stream is empty
    * @example
    * ```ts
@@ -667,16 +723,6 @@ export interface AsyncStream<T>
    */
   mkGroup(options: {
     sep?: AsyncStreamSource<T>;
-    start: AsyncStreamSource.NonEmpty<T>;
-    end?: AsyncStreamSource<T>;
-  }): AsyncStream.NonEmpty<T>;
-  mkGroup(options: {
-    sep?: AsyncStreamSource<T>;
-    start?: AsyncStreamSource<T>;
-    end: AsyncStreamSource.NonEmpty<T>;
-  }): AsyncStream.NonEmpty<T>;
-  mkGroup(options: {
-    sep?: AsyncStreamSource<T>;
     start?: AsyncStreamSource<T>;
     end?: AsyncStreamSource<T>;
   }): AsyncStream<T>;
@@ -709,6 +755,7 @@ export interface AsyncStream<T>
   /**
    * Returns the value resulting from applying the given the given `next` function to a current state (initially the given `init` value),
    * and the next stream value, and returning the new state. When all elements are processed, the resulting state is returned.
+   * @typeparam R - the resulting type
    * @param init - the initial result/state value
    * @param next - a potentially asynchronous function taking the parameters below and returning the new result/state value<br/>
    * - current: the current result/state value, initially `init`.<br/>
@@ -735,6 +782,7 @@ export interface AsyncStream<T>
   /**
    * Returns an AsyncStream containing the values resulting from applying the given the given `next` function to a current state (initially the given `init` value),
    * and the next stream value, and returning the new state.
+   * @typeparam R - the resulting element type
    * @param init - the initial result/state value
    * @param next - a function taking the parameters below and returning the new result/state value<br/>
    * - current: the current result/state value, initially `init`.<br/>
@@ -768,6 +816,7 @@ export interface AsyncStream<T>
   ): AsyncStream<R>;
   /**
    * Applies the given `(Async)Reducer` to each element in the AsyncStream, and returns the final result.
+   * @typeparam R - the resulting type
    * @param reducer - the `(Async)Reducer` instance to use to apply to all stream elements.
    * @example
    * ```ts
@@ -780,6 +829,7 @@ export interface AsyncStream<T>
   reduce<R>(reducer: AsyncReducer<T, R>): Promise<R>;
   /**
    * Returns an AsyncStream where the given `(Async)Reducer` is applied to each element in the stream.
+   * @typeparam R - the resulting element type
    * @param reducer - the `(Async)Reducer` instance to use to apply to all stream elements.
    * @example
    * ```ts
@@ -801,6 +851,7 @@ export interface AsyncStream<T>
   /**
    * Returns a tuple where each tuple element corresponds to result of applying all AsyncStream elements to the corresponding `(Async)Reducer` instance of
    * the given `reducers`.
+   * @typeparam R - the resulting tuple type
    * @param reducers - a non-empty array of `(Async)Reducer` instances to use to apply to all stream elements.
    * @note all reducers are processed in parallel, thus only one traversal is needed
    * @example
@@ -815,6 +866,7 @@ export interface AsyncStream<T>
   /**
    * Returns an AsyncStream of tuples where each tuple element corresponds to result of applying all stream elements to the corresponding `(Async)Reducer` instance of
    * the given `reducers`. Returns one element per input stream element.
+   * @typeparam R - the resulting tuple element type
    * @param reducers - a non-empty array of `(Async)Reducer` instances to use to apply to all stream elements.
    * @note all reducers are processed in parallel, thus only one traversal is needed
    * @example
@@ -901,6 +953,7 @@ export namespace AsyncStream {
     indexed(startIndex?: number): AsyncStream.NonEmpty<[number, T]>;
     /**
      * Returns a non-empty AsyncStream where `mapFun` is applied to each element.
+     * @typeparam T2 - the result element type
      * @param mapFun - a potentially asynchronous function taking an element and its index, and returning some new element
      * @example
      * ```ts
@@ -916,6 +969,7 @@ export namespace AsyncStream {
      * Returns a non-empty AsyncStream where the given `mapFun` is applied to each value in the stream, with optionally
      * as extra arguments the given `args`.
      * @typeparam T2 - the result value type
+     * @typeparam A - the type of the arguments to be passed to the `mapFun` function after each element
      * @param mapFun - a potentially asynchronous function taking an element and the given args, and returning the resulting stream value
      * @param args - (optional) the extra arguments to pass to the given `mapFun`
      * @note is mostly aimed to increase performance so that an extra function is not required
@@ -933,6 +987,23 @@ export namespace AsyncStream {
       mapFun: (value: T, ...args: A) => MaybePromise<T2>,
       ...args: A
     ): AsyncStream.NonEmpty<T2>;
+    /**
+     * Returns an AsyncStream consisting of the concatenation of `flatMapFun` applied to each element.
+     * @typeparam T2 - the result value type
+     * @param flatMapFun - a potentially asynchronous function receiving the inputs described below and returning a `StreamSource` of new elements<br/>
+     * - value: the next element<br/>
+     * - index: the index of the element<br/>
+     * - halt: a function that, if called, ensures that no new elements are passed
+     * @note O(1)
+     * @example
+     * ```ts
+     * await AsyncStream.of(1, 2, 3).flatMap(async (v, i, halt) => {
+     *   if (i >= 1) halt();
+     *   return [v, i, v + i]
+     * }).toArray()
+     * // => [1, 0, 1, 2, 1, 3]
+     * ```
+     */
     flatMap<T2>(
       flatMapFun: (value: T, index: number) => AsyncStreamSource.NonEmpty<T2>
     ): AsyncStream.NonEmpty<T2>;
@@ -943,6 +1014,52 @@ export namespace AsyncStream {
         halt: () => void
       ) => AsyncStreamSource<T2>
     ): AsyncStream<T2>;
+    /**
+     * Returns an AsyncStream consisting of the concatenation of `flatMapFun` applied to each element, zipped with the element that was provided to the function.
+     * @typeparam T2 - the result element type
+     * @param flatMapFun - a function receiving the inputs described below and returning a `StreamSource` of new elements<br/>
+     * - value: the next element<br/>
+     * - index: the index of the element<br/>
+     * - halt: a function that, if called, ensures that no new elements are passed
+     *
+     * @note O(1)
+     * @example
+     * ```ts
+     * await AsyncStream.of(1, 2, 3).flatZip((v, i, halt) => {
+     *   if (i >= 1) halt();
+     *   return [v, i, v + i]
+     * }).toArray()
+     * // => [[1, 1], [1, 0], [1, 1], [2, 2], [2, 1], [2, 3]]
+     * ```
+     */
+    flatZip<T2>(
+      flatMapFun: (value: T, index: number) => AsyncStreamSource.NonEmpty<T2>
+    ): AsyncStream.NonEmpty<[T, T2]>;
+    flatZip<T2>(
+      flatMapFun: (
+        value: T,
+        index: number,
+        halt: () => void
+      ) => AsyncStreamSource<T2>
+    ): AsyncStream<[T, T2]>;
+    /**
+     * Returns an AsyncStream consisting of the concatenation of AsyncStreamSource elements resulting from applying the given `reducer` to each element.
+     * @typeparam R - the resulting element type
+     * @param reducer - an async reducer taking elements ot type T as input, and returing an `AsyncStreamSource` of element type R
+     *
+     * @note O(1)
+     * @example
+     * ```ts
+     * await AsyncStream.of(1, 2, 3, 4, 5, 6).flatReduceStream(Reducer.windowReducer(2)).toArray()
+     * // => [[1, 2, 3], [4, 5, 6]]
+     * ```
+     */
+    flatReduceStream<R>(
+      reducer: AsyncReducer<T, AsyncStreamSource.NonEmpty<R>>
+    ): AsyncStream.NonEmpty<R>;
+    flatReduceStream<R>(
+      reducer: AsyncReducer<T, AsyncStreamSource<R>>
+    ): AsyncStream<R>;
     /**
      * Returns the first element of the AsyncStream.
      * @example
@@ -980,6 +1097,7 @@ export namespace AsyncStream {
     repeat(amount?: number): AsyncStream.NonEmpty<T>;
     /**
      * Returns a non-empty AsyncStream containing the elements of this stream followed by all elements produced by the `others` array of AsyncStreamSources.
+     * @typeparam T2 - the result value type
      * @param others - a series of AsyncStreamSources to concatenate.
      * @example
      * ```ts
@@ -1059,6 +1177,32 @@ export namespace AsyncStream {
       start?: AsyncStreamSource<T>;
       end?: AsyncStreamSource<T>;
     }): AsyncStream.NonEmpty<T>;
+    /**
+     * Returns an AsyncStream containing the values resulting from applying the given the given `next` function to a current state (initially the given `init` value),
+     * and the next stream value, and returning the new state.
+     * @typeparam R - the resulting element type
+     * @param init - the initial result/state value
+     * @param next - a function taking the parameters below and returning the new result/state value<br/>
+     * - current: the current result/state value, initially `init`.<br/>
+     * - value: the next Stream value<br/>
+     * - index: the index of the given value<br/>
+     * - halt: a function that, if called, ensures that no new elements are passed
+     * @example
+     * ```ts
+     * console.log(
+     *   await AsyncStream.empty<number>()
+     *     .foldStream(5, async (current, value) => current + value)
+     *     .toArray()
+     * )
+     * // => []
+     * console.log(
+     *   await AsyncStream.of(1, 2, 3)
+     *     .foldStream(() => 5, (current, value) => current + value)
+     *     .toArray()
+     * )
+     * // => [6, 8, 11]
+     * ```
+     */
     foldStream<R>(
       init: AsyncOptLazy<R>,
       next: (current: R, value: T, index: number) => MaybePromise<R>
