@@ -782,7 +782,6 @@ export namespace Reducer {
    * // => [1, 2, 3]
    * ```
    */
-  export function toArray<T>(): Reducer<T, T[]>;
   export function toArray<T>(): Reducer<T, T[]> {
     return create(
       (): T[] => [],
