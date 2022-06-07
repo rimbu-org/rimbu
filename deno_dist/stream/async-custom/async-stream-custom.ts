@@ -6,7 +6,6 @@ import {
   Comp,
   Eq,
   MaybePromise,
-  OptLazy,
   ToJSON,
   TraverseState,
 } from '../../common/mod.ts';
@@ -1425,13 +1424,19 @@ class AsyncEmptyStream<T = any>
     return this as any;
   }
   async reduce<O>(reducer: AsyncReducer<T, O>): Promise<O> {
-    return reducer.stateToResult(OptLazy(reducer.init));
+    return reducer.stateToResult(
+      await AsyncOptLazy.toMaybePromise(reducer.init)
+    );
   }
   reduceStream(): any {
     return this;
   }
-  async reduceAll(...reducers: any): Promise<any> {
-    return reducers.map((p: any) => p.stateToResult(OptLazy(p.init)));
+  reduceAll(...reducers: any): Promise<any> {
+    return Promise.all(
+      reducers.map(async (p: any) =>
+        p.stateToResult(await AsyncOptLazy.toMaybePromise(p.init))
+      )
+    );
   }
   reduceAllStream(): AsyncStream<any> {
     return this;

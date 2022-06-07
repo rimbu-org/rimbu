@@ -313,18 +313,22 @@ describe('Reducers', () => {
   });
 
   it('Reducer.combine', () => {
-    const r = Reducer.combine(Reducer.sum, Reducer.average);
+    const r = Reducer.combine(
+      Reducer.sum,
+      Reducer.average,
+      Reducer.toArray<number>()
+    );
 
-    expect(Stream.empty().reduce(r)).toEqual([0, 0]);
+    expect(Stream.empty().reduce(r)).toEqual([0, 0, []]);
     expect(Stream.of(0, 0, 0).reduceStream(r).toArray()).toEqual([
-      [0, 0],
-      [0, 0],
-      [0, 0],
+      [0, 0, [0]],
+      [0, 0, [0, 0]],
+      [0, 0, [0, 0, 0]],
     ]);
     expect(Stream.of(0, 2, 4).reduceStream(r).toArray()).toEqual([
-      [0, 0],
-      [2, 1],
-      [6, 2],
+      [0, 0, [0]],
+      [2, 1, [0, 2]],
+      [6, 2, [0, 2, 4]],
     ]);
   });
 
