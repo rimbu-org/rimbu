@@ -6,7 +6,7 @@ import {
   expectNotType,
   expectType,
 } from 'tsd';
-import { FastIterator, Stream } from '@rimbu/stream';
+import { FastIterator, Stream, Transformer } from '@rimbu/stream';
 
 // Variance
 expectAssignable<Stream<number | string>>(Stream.empty<number>());
@@ -127,7 +127,7 @@ expectType<Stream.NonEmpty<[number | boolean]>>(
 
 expectError(Stream.zipAll(true));
 
-// // Stream.zipWith(..)
+// Stream.zipWith(..)
 expectType<Stream<[number, true, string]>>(
   Stream.zipWith(
     Stream.empty<number>(),
@@ -148,7 +148,7 @@ expectType<Stream.NonEmpty<[number]>>(Stream.zipWith(Stream.of(1))((a) => [a]));
 
 expectError(Stream.zipWith());
 
-// // Stream.zipAllWith()
+// Stream.zipAllWith()
 expectType<Stream<[number | boolean, true, string | boolean]>>(
   Stream.zipAllWith(Stream.empty<number>(), Stream.empty<string>())(
     true,
@@ -227,9 +227,29 @@ expectType<number | string>(
   Stream.empty<number>().elementAt(1, () => '' as string)
 );
 
+// .forEach(..)
+expectType<void>(Stream.empty<number>().forEach(() => {}));
+expectType<void>(Stream.of(1).forEach(() => {}));
+
+// .forEachPure(..)
+expectType<void>(Stream.empty<number>().forEachPure(() => {}));
+expectType<void>(Stream.of(1).forEachPure(() => {}));
+
 // .filter(..)
 expectType<Stream<number>>(Stream.empty<number>().filter((v) => true));
 expectType<Stream<number>>(Stream.of(1).filter(() => true));
+
+// .filterNot(..)
+expectType<Stream<number>>(Stream.empty<number>().filterNot((v) => true));
+expectType<Stream<number>>(Stream.of(1).filterNot(() => true));
+
+// .filterPure(..)
+expectType<Stream<number>>(Stream.empty<number>().filterPure((v) => true));
+expectType<Stream<number>>(Stream.of(1).filterPure(() => true));
+
+// .filterNotPure(..)
+expectType<Stream<number>>(Stream.empty<number>().filterNotPure((v) => true));
+expectType<Stream<number>>(Stream.of(1).filterNotPure(() => true));
 
 // .find(..)
 expectType<number | undefined>(Stream.empty<number>().find(() => true));
@@ -265,6 +285,14 @@ expectType<number>(Stream.empty<number>().first(1));
 expectType<number>(Stream.of(1).first());
 expectType<number | string>(Stream.empty<number>().first('a' as string));
 
+// .single(..)
+expectType<number | undefined>(Stream.empty<number>().single());
+expectType<number>(Stream.empty<number>().single(1));
+expectType<number | string>(Stream.empty<number>().single('a' as string));
+expectType<number | undefined>(Stream.of(1).single());
+expectType<number>(Stream.of(1).single(1));
+expectType<number | string>(Stream.of(1).single('a' as string));
+
 // .flatMap(..)
 expectType<Stream<string>>(
   Stream.empty<number>().flatMap(() => Stream.empty<string>())
@@ -284,20 +312,23 @@ expectType<Stream.NonEmpty<[number, string]>>(
   Stream.of(1).flatZip((v) => [String(v)])
 );
 
-// .flatReducerStream(..)
+// .transform(..)
 expectType<Stream<string>>(
-  Stream.empty<number>().flatReduceStream(
-    null as unknown as Reducer<number, Stream.NonEmpty<string>>
+  Stream.empty<number>().transform(
+    null as unknown as Transformer<number, string>
   )
 );
 expectType<Stream<string>>(
-  Stream.of(1).flatReduceStream(
-    null as unknown as Reducer<number, Stream<string>>
+  Stream.empty<number>().transform(
+    null as unknown as Transformer.NonEmpty<number, string>
   )
+);
+expectType<Stream<string>>(
+  Stream.of(1).transform(null as unknown as Transformer<number, string>)
 );
 expectType<Stream.NonEmpty<string>>(
-  Stream.of(1).flatReduceStream(
-    null as unknown as Reducer<number, Stream.NonEmpty<string>>
+  Stream.of(1).transform(
+    null as unknown as Transformer.NonEmpty<number, string>
   )
 );
 
@@ -325,6 +356,14 @@ expectType<Stream.NonEmpty<string>>(Stream.of(1).foldStream('a', () => 'b'));
 expectType<Stream<[number, string]>>(Stream.empty<string>().indexed());
 expectType<Stream.NonEmpty<[number, string]>>(Stream.of('a').indexed());
 
+// .indexWhere(..)
+expectType<number | undefined>(Stream.empty<number>().indexWhere(() => true));
+expectType<number | undefined>(Stream.of(1).indexWhere(() => true));
+
+// .indexOf(..)
+expectType<number | undefined>(Stream.empty<number>().indexOf(2));
+expectType<number | undefined>(Stream.of(1).indexOf(2));
+
 // .indicesOf(..)
 expectType<Stream<number>>(Stream.empty<string>().indicesOf('b'));
 expectType<Stream<number>>(Stream.of('a').indicesOf('b'));
@@ -332,6 +371,24 @@ expectType<Stream<number>>(Stream.of('a').indicesOf('b'));
 // .indicesWhere(..)
 expectType<Stream<number>>(Stream.empty<string>().indicesWhere(() => true));
 expectType<Stream<number>>(Stream.of('a').indicesWhere(() => true));
+
+// .some(..)
+expectType<boolean>(Stream.empty<string>().some(() => true));
+expectType<boolean>(Stream.of('a').some(() => true));
+
+// .every(..)
+expectType<boolean>(Stream.empty<string>().every(() => true));
+expectType<boolean>(Stream.of('a').every(() => true));
+
+// .contains(..)
+expectType<boolean>(Stream.empty<number>().contains(2));
+expectType<boolean>(Stream.of(1).contains(2));
+expectError(Stream.of(1).contains('a'));
+
+// .containsSlice(..)
+expectType<boolean>(Stream.empty<number>().containsSlice([2]));
+expectType<boolean>(Stream.of(1).containsSlice([2]));
+expectError(Stream.of(1).containsSlice(['a']));
 
 // .intersperse(..)
 expectType<Stream<number>>(
@@ -355,6 +412,10 @@ expectType<number | string>(Stream.empty<number>().last('a' as string));
 // .map(..)
 expectType<Stream<string>>(Stream.empty<number>().map(() => 'a'));
 expectType<Stream.NonEmpty<string>>(Stream.of(1).map(() => 'a'));
+
+// .mapPure(..)
+expectType<Stream<string>>(Stream.empty<number>().mapPure(() => 'a'));
+expectType<Stream.NonEmpty<string>>(Stream.of(1).mapPure(() => 'a'));
 
 // .max(..)
 expectType<number | undefined>(Stream.empty<number>().max());
@@ -400,7 +461,7 @@ expectType<number | string>(
   Stream.empty<number>().minBy(() => 0, 'a' as string)
 );
 
-// // .mkGroup(..)
+// .mkGroup(..)
 expectType<Stream<number>>(Stream.empty<number>().mkGroup({}));
 expectType<Stream.NonEmpty<number>>(Stream.of(1).mkGroup({}));
 
@@ -510,3 +571,27 @@ expectType<Stream<number>>(Stream.of(1).takeWhile(() => true));
 // .toArray()
 expectType<number[]>(Stream.empty<number>().toArray());
 expectType<ArrayNonEmpty<number>>(Stream.of(1).toArray());
+
+// .equals(..)
+expectType<boolean>(Stream.empty<number>().equals([1]));
+expectType<boolean>(Stream.of(1).equals([1]));
+
+// .count()
+expectType<number>(Stream.empty<number>().count());
+expectType<number>(Stream.of(1).count());
+
+// .countElement(..)
+expectType<number>(Stream.empty<number>().countElement(1));
+expectType<number>(Stream.of(1).countElement(1));
+
+// .countNotElement(..)
+expectType<number>(Stream.empty<number>().countNotElement(1));
+expectType<number>(Stream.of(1).countNotElement(1));
+
+// .join(..)
+expectType<string>(Stream.empty<number>().join());
+expectType<string>(Stream.of(1).join());
+
+// .distinctPrevious(..)
+expectType<Stream<number>>(Stream.empty<number>().distinctPrevious());
+expectType<Stream.NonEmpty<number>>(Stream.of(1).distinctPrevious());

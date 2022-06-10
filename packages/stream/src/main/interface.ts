@@ -1182,6 +1182,43 @@ export namespace Stream {
       start?: StreamSource<T>;
       end?: StreamSource<T>;
     }): Stream.NonEmpty<T>;
+    /**
+     * Returns a non-empty Stream containing non-repetitive elements of the source stream, where repetitive elements
+     * are compared using the optionally given `eq` equality function.
+     * @param eq - the `Eq` instance to use to test equality of elements
+     * @example
+     * ```ts
+     * Stream.of(1, 1, 2, 2, 3, 1).distinctPrevious().toArray()
+     * // => [1, 2, 3, 1]
+     * ```
+     */
+    distinctPrevious(eq?: Eq<T>): Stream.NonEmpty<T>;
+    /**
+     * Returns a Stream containing the values resulting from applying the given the given `next` function to a current state (initially the given `init` value),
+     * and the next Stream value, and returning the new state.
+     * @typeparam R - the resulting element type
+     * @param init - the initial result/state value
+     * @param next - a function taking the parameters below and returning the new result/state value<br/>
+     * - current: the current result/state value, initially `init`.<br/>
+     * - value: the next Stream value<br/>
+     * - index: the index of the given value<br/>
+     * - halt: a function that, if called, ensures that no new elements are passed
+     * @example
+     * ```ts
+     * console.log(
+     *   Stream.empty<number>()
+     *     .foldStream(5, (current, value) => current + value)
+     *     .toArray()
+     * )
+     * // => []
+     * console.log(
+     *   Stream.of(1, 2, 3)
+     *     .foldStream(5, (current, value) => current + value)
+     *     .toArray()
+     * )
+     * // => [6, 8, 11]
+     * ```
+     */
     foldStream<R>(
       init: OptLazy<R>,
       next: (current: R, value: T, index: number) => R

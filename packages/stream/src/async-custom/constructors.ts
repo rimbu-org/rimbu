@@ -35,10 +35,10 @@ export interface AsyncStreamConstructors {
    * ```
    * @note ends the AsyncStream when any of the given streams ends
    */
-  zipWith<I extends readonly unknown[]>(
+  zipWith<I extends readonly [unknown, ...unknown[]]>(
     ...sources: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> } & unknown[]
   ): <R>(zipFun: (...values: I) => R) => AsyncStream.NonEmpty<R>;
-  zipWith<I extends readonly unknown[]>(
+  zipWith<I extends readonly [unknown, ...unknown[]]>(
     ...sources: { [K in keyof I]: AsyncStreamSource<I[K]> } & unknown[]
   ): <R>(zipFun: (...values: I) => R) => AsyncStream<R>;
   /**
@@ -55,10 +55,10 @@ export interface AsyncStreamConstructors {
    * ```
    * @note ends the AsyncStream when any of the given streams ends
    */
-  zip<I extends readonly unknown[]>(
+  zip<I extends readonly [unknown, ...unknown[]]>(
     ...sources: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> } & unknown[]
   ): AsyncStream.NonEmpty<I>;
-  zip<I extends readonly unknown[]>(
+  zip<I extends readonly [unknown, ...unknown[]]>(
     ...sources: { [K in keyof I]: AsyncStreamSource<I[K]> } & unknown[]
   ): AsyncStream<I>;
   /**
@@ -80,13 +80,13 @@ export interface AsyncStreamConstructors {
    * // => [10, 13, 5]
    * ```
    */
-  zipAllWith<I extends readonly unknown[]>(
+  zipAllWith<I extends readonly [unknown, ...unknown[]]>(
     ...sources: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> } & unknown[]
   ): <O, R>(
     fillValue: AsyncOptLazy<O>,
     zipFun: (...values: { [K in keyof I]: I[K] | O }) => MaybePromise<R>
   ) => AsyncStream.NonEmpty<R>;
-  zipAllWith<I extends readonly unknown[]>(
+  zipAllWith<I extends readonly [unknown, ...unknown[]]>(
     ...sources: { [K in keyof I]: AsyncStreamSource<I[K]> } & unknown[]
   ): <O, R>(
     fillValue: AsyncOptLazy<O>,
@@ -110,11 +110,11 @@ export interface AsyncStreamConstructors {
    * ```
    * @note ends the AsyncStream when any of the given streams ends
    */
-  zipAll<I extends readonly unknown[], O>(
+  zipAll<I extends readonly [unknown, ...unknown[]], O>(
     fillValue: AsyncOptLazy<O>,
     ...sources: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> } & unknown[]
   ): AsyncStream.NonEmpty<{ [K in keyof I]: I[K] | O }>;
-  zipAll<I extends readonly unknown[], O>(
+  zipAll<I extends readonly [unknown, ...unknown[]], O>(
     fillValue: AsyncOptLazy<O>,
     ...sources: { [K in keyof I]: AsyncStreamSource<I[K]> } & unknown[]
   ): AsyncStream<{ [K in keyof I]: I[K] | O }>;

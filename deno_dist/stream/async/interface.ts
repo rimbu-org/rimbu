@@ -1238,6 +1238,18 @@ export namespace AsyncStream {
       end?: AsyncStreamSource<T>;
     }): AsyncStream.NonEmpty<T>;
     /**
+     * Returns a non-empty AsyncStream containing non-repetitive elements of the source stream, where repetitive elements
+     * are compared using the optionally given `eq` equality function.
+     * @param eq - (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements
+     * @example
+     * ```ts
+     * await AsyncStream.of(1, 1, 2, 2, 3, 1).distinctPrevious().toArray()
+     * // => [1, 2, 3, 1]
+     * ```
+     */
+    distinctPrevious(eq?: Eq<T>): AsyncStream.NonEmpty<T>;
+
+    /**
      * Returns an AsyncStream containing the values resulting from applying the given the given `next` function to a current state (initially the given `init` value),
      * and the next stream value, and returning the new state.
      * @typeparam R - the resulting element type

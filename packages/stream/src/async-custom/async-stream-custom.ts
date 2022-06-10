@@ -1731,7 +1731,7 @@ export const AsyncStreamConstructorsImpl: AsyncStreamConstructors =
       };
     },
     zip(...sources): any {
-      return AsyncStreamConstructorsImpl.zipWith(...sources)(Array);
+      return AsyncStreamConstructorsImpl.zipWith(...(sources as any))(Array);
     },
     zipAllWith(...sources): any {
       return (fillValue: any, zipFun: any): any => {
