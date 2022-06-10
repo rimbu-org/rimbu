@@ -12,6 +12,7 @@ import type {
   AsyncFastIterable,
   AsyncStreamable,
   AsyncStreamSource,
+  AsyncTransformer,
 } from '../../stream/async/index.ts';
 import type { AsyncStreamConstructors } from '../../stream/async-custom/index.ts';
 import { AsyncStreamConstructorsImpl } from '../../stream/async-custom/index.ts';
@@ -227,18 +228,15 @@ export interface AsyncStream<T>
   /**
    * Returns an AsyncStream consisting of the concatenation of AsyncStreamSource elements resulting from applying the given `reducer` to each element.
    * @typeparam R - the resulting element type
-   * @param reducer - an async reducer taking elements ot type T as input, and returing an `AsyncStreamSource` of element type R
-   *
+   * @param transformer - an async reducer taking elements ot type T as input, and returing an `AsyncStreamSource` of element type R
    * @note O(1)
    * @example
    * ```ts
-   * await AsyncStream.of(1, 2, 3, 4, 5, 6).flatReduceStream(Reducer.windowReducer(2)).toArray()
+   * await AsyncStream.of(1, 2, 3, 4, 5, 6).transform(AsyncTransformer.window(3)).toArray()
    * // => [[1, 2, 3], [4, 5, 6]]
    * ```
    */
-  flatReduceStream<R>(
-    reducer: AsyncReducer<T, AsyncStreamSource<R>>
-  ): AsyncStream<R>;
+  transform<R>(transformer: AsyncTransformer<T, R>): AsyncStream<R>;
   /**
    * Returns an AsyncStream containing only those elements from this stream for which the given `pred` function returns true.
    * @param pred - a potentially asynchronous function taking an element and its index, and returning true if the element should be included in the resulting stream.
@@ -330,8 +328,22 @@ export interface AsyncStream<T>
    * ```
    * @note O(1)
    */
-  first(): MaybePromise<T | undefined>;
+  first(): Promise<T | undefined>;
   first<O>(otherwise: AsyncOptLazy<O>): Promise<T | O>;
+  /**
+   * Returns the first element of the Stream if it only has one element, or a fallback value if the Stream does not have exactly one value.
+   * @typeparam O - the optional value to return if the stream does not have exactly one value.
+   * @param otherwise - (default: undefined) an `OptLazy` value to return if the Stream does not have exactly one value.
+   * @example
+   * ```ts
+   * await AsyncStream.empty<number>().single()  // => undefined
+   * await AsyncStream.of(1, 2, 3).single()      // => undefined
+   * await AsyncStream.of(1).single()            // => 1
+   * await AsyncStream.of(1, 2, 3).single(0)     // => 0
+   * ```
+   */
+  single(): Promise<T | undefined>;
+  single<O>(otherwise: AsyncOptLazy<O>): Promise<T | O>;
   /**
    * Returns the last element of the AsyncStream, or a fallback value (default undefined) if the stream is empty.
    * @typeparam O - the optional value type to return if the stream is empty
@@ -524,6 +536,23 @@ export interface AsyncStream<T>
    * @note O(N)
    */
   contains(value: T, amount?: number, eq?: Eq<T>): Promise<boolean>;
+  /**
+   * Returns true if this stream contains the same sequence of elements as the given `source`,
+   * false otherwise.
+   * @param source - a non-empty async stream source containing the element sequence to find
+   * @param eq - (default: `Eq.objectIs`) the function to use to test element equality
+   * @example
+   * ```ts
+   * await AsyncStream.of(1, 2, 3, 4, 5).containsSlice([2, 3, 4])
+   * // => true
+   * await AsyncStream.of(1, 2, 3, 4, 5).containsSlice([4, 3, 2])
+   * // => false
+   * ```
+   */
+  containsSlice(
+    source: AsyncStreamSource.NonEmpty<T>,
+    eq?: Eq<T>
+  ): Promise<boolean>;
   /**
    * Returns an AsyncStream that contains the elements of this stream up to the first element that does not satisfy given `pred` function.
    * @param pred - a potentially asynchronous predicate function taking an element and its index
@@ -752,6 +781,40 @@ export interface AsyncStream<T>
    * @note O(1)
    */
   splitOn(sepElem: T, eq?: Eq<T>): AsyncStream<T[]>;
+  /**
+   * Returns an AsyncStream containing non-repetitive elements of the source stream, where repetitive elements
+   * are compared using the optionally given `eq` equality function.
+   * @param eq - (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements
+   * @example
+   * ```ts
+   * await AsyncStream.of(1, 1, 2, 2, 3, 1).distinctPrevious().toArray()
+   * // => [1, 2, 3, 1]
+   * ```
+   */
+  distinctPrevious(eq?: Eq<T>): AsyncStream<T>;
+  /**
+   * Returns an AsyncStream containing `windows` of `windowSize` consecutive elements of the source stream, with each
+   * window starting `skipAmount` elements after the previous one.
+   * @typeparam R - the collector reducer result type
+   * @param windowSize - the size in elements of the windows
+   * @param skipAmount - (default: `windowSize`) the amount of elements to skip to start the next window
+   * @param collector - (default: `AsyncArray.toArray()`) the async reducer to use to collect the window values
+   * @example
+   * ```ts
+   * await Stream.of(1, 2, 3, 4, 5, 6, 7).window(3).toArray()
+   * // => [[1, 2, 3], [4, 5, 6]]
+   * await Stream.of(1, 2, 3, 4, 5).window(3, 1).toArray()
+   * // => [[1, 2, 3], [2, 3, 4], [3, 4, 5]]
+   * await Stream.of(1, 2, 3, 4).window(2, 2, AsyncReducer.toJSSet()).toArray()
+   * // => [Set(1, 2), Set(3, 4)]
+   * ```
+   */
+  window(windowSize: number, skipAmount?: number): AsyncStream<T[]>;
+  window<R>(
+    windowSize: number,
+    skipAmount?: number,
+    collector?: AsyncReducer<T, R>
+  ): AsyncStream<R>;
   /**
    * Returns the value resulting from applying the given the given `next` function to a current state (initially the given `init` value),
    * and the next stream value, and returning the new state. When all elements are processed, the resulting state is returned.
@@ -1045,21 +1108,18 @@ export namespace AsyncStream {
     /**
      * Returns an AsyncStream consisting of the concatenation of AsyncStreamSource elements resulting from applying the given `reducer` to each element.
      * @typeparam R - the resulting element type
-     * @param reducer - an async reducer taking elements ot type T as input, and returing an `AsyncStreamSource` of element type R
-     *
+     * @param transformer - an async reducer taking elements ot type T as input, and returing an `AsyncStreamSource` of element type R.
      * @note O(1)
      * @example
      * ```ts
-     * await AsyncStream.of(1, 2, 3, 4, 5, 6).flatReduceStream(Reducer.windowReducer(2)).toArray()
+     * await AsyncStream.of(1, 2, 3, 4, 5, 6).transform(AsyncTransformer.window(3)).toArray()
      * // => [[1, 2, 3], [4, 5, 6]]
      * ```
      */
-    flatReduceStream<R>(
-      reducer: AsyncReducer<T, AsyncStreamSource.NonEmpty<R>>
+    transform<R>(
+      transformer: AsyncTransformer.NonEmpty<T, R>
     ): AsyncStream.NonEmpty<R>;
-    flatReduceStream<R>(
-      reducer: AsyncReducer<T, AsyncStreamSource<R>>
-    ): AsyncStream<R>;
+    transform<R>(transformer: AsyncTransformer<T, R>): AsyncStream<R>;
     /**
      * Returns the first element of the AsyncStream.
      * @example

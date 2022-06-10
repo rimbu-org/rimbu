@@ -1008,3 +1008,111 @@ export class MapPureIterator<
     return this.mapFun(next, ...this.args);
   }
 }
+
+export class DistinctPreviousIterator<T> extends FastIteratorBase<T> {
+  constructor(readonly source: FastIterator<T>, readonly eq: Eq<T>) {
+    super();
+  }
+
+  readonly previous = [] as T[];
+
+  fastNext<O>(otherwise?: OptLazy<O>): T | O {
+    const done = Symbol('Done');
+
+    let next: T | typeof done;
+    const source = this.source;
+    const previous = this.previous;
+
+    while (done !== (next = source.fastNext(done))) {
+      previous.push(next);
+
+      if (previous.length === 1) {
+        return next;
+      }
+
+      const prev = previous.shift()!;
+
+      if (!this.eq(prev, next)) {
+        return next;
+      }
+    }
+
+    return OptLazy(otherwise!);
+  }
+}
+
+export class WindowIterator<T, R> extends FastIteratorBase<R> {
+  constructor(
+    readonly source: FastIterator<T>,
+    readonly windowSize: number,
+    readonly skipAmount: number,
+    readonly collector: Reducer<T, R>
+  ) {
+    super();
+  }
+
+  state = new Set<{
+    result: unknown;
+    size: number;
+    halted: boolean;
+    halt: () => void;
+  }>();
+  index = 0;
+
+  fastNext<O>(otherwise?: OptLazy<O>): R | O {
+    const source = this.source;
+    const collector = this.collector;
+    const windowSize = this.windowSize;
+    const skipAmount = this.skipAmount;
+    const done = Symbol('Done');
+    const state = this.state;
+
+    let next: T | typeof done;
+    let result: R | typeof done = done;
+
+    while (done !== (next = source.fastNext(done))) {
+      for (const current of state) {
+        current.result = collector.next(
+          current.result,
+          next,
+          current.size,
+          current.halt
+        );
+        current.size++;
+
+        if (current.size >= windowSize || current.halted) {
+          result = collector.stateToResult(current.result);
+          state.delete(current);
+        }
+      }
+
+      if (this.index % skipAmount === 0) {
+        const newState = {
+          result: OptLazy(collector.init),
+          size: 1,
+          halted: false,
+          halt(): void {
+            this.halted = true;
+          },
+        };
+
+        newState.result = collector.next(
+          OptLazy(collector.init),
+          next,
+          0,
+          newState.halt
+        );
+
+        state.add(newState);
+      }
+
+      this.index++;
+
+      if (done !== result) {
+        return result;
+      }
+    }
+
+    return OptLazy(otherwise!);
+  }
+}
