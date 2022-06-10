@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.12.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@0.11.0...@rimbu/stream@0.12.0) (2022-06-10)
+
+
+### Bug Fixes
+
+* **stream:** improve Stream and AsyncStream API and fix and extend tsd tests ([050facc](https://github.com/rimbu-org/rimbu/commit/050facc230595601a569190cdd6d9531ba604f9c))
+
+
+### Features
+
+* **stream:** add stream transformers and additional methods to Stream and AsyncStream ([fcda14c](https://github.com/rimbu-org/rimbu/commit/fcda14cccef2d6d230cf187e1050fa0026b0f9b7))
+
+
+
+
+
 # [0.11.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@0.10.12...@rimbu/stream@0.11.0) (2022-06-07)
 
 
