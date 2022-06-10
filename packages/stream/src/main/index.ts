@@ -16,4 +16,6 @@ export * from './stream-source';
 
 export * from './interface';
 
+export * from './transformer';
+
 export * from '../async';

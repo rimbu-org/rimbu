@@ -717,6 +717,28 @@ describe('AsyncStream methods', () => {
     await createResourceStream([1, 2, 3]).last();
     expect(close).toBeCalledTimes(1);
   });
+  it('single', async () => {
+    expect(await AsyncStream.empty<number>().single()).toBeUndefined();
+    expect(await AsyncStream.empty<number>().single(1)).toBe(1);
+    expect(await AsyncStream.of(1).single()).toBe(1);
+    expect(await AsyncStream.of(1).single('a')).toBe(1);
+    expect(await AsyncStream.of(1, 2, 3).single()).toBeUndefined();
+    expect(await AsyncStream.of(1, 2, 3).single('a')).toBe('a');
+
+    for (const source of sources) {
+      const value =
+        (await source.count()) === 1 ? await source.first() : undefined;
+      expect(await source.single()).toBe(value);
+      expect(await source.single('a')).toBe(value ?? 'a');
+    }
+  });
+  it('last close', async () => {
+    await createResourceStream([1, 2, 3]).single();
+    expect(close).toBeCalledTimes(1);
+    close.mockReset();
+    await createResourceStream([1]).single();
+    expect(close).toBeCalledTimes(1);
+  });
   it('count', async () => {
     expect(await AsyncStream.empty<number>().count()).toBe(0);
     expect(await AsyncStream.of(1, 2, 3).count()).toBe(3);
@@ -981,6 +1003,27 @@ describe('AsyncStream methods', () => {
     expect(close).toBeCalledTimes(1);
     close.mockReset();
     await createResourceStream([1, 2, 3]).contains(100);
+    expect(close).toBeCalledTimes(1);
+  });
+  it('containsSlice', async () => {
+    expect(await AsyncStream.empty().containsSlice([1, 2, 3])).toBe(false);
+    expect(await AsyncStream.of(1, 2).containsSlice([1, 2, 3])).toBe(false);
+    expect(await AsyncStream.of(1, 2, 3).containsSlice([1, 2, 3])).toBe(true);
+    expect(await AsyncStream.of(9, 8, 1, 2, 3).containsSlice([1, 2, 3])).toBe(
+      true
+    );
+    expect(await AsyncStream.of(1, 2, 3, 9, 8).containsSlice([1, 2, 3])).toBe(
+      true
+    );
+    expect(
+      await AsyncStream.of(9, 8, 1, 2, 3, 9, 8).containsSlice([1, 2, 3])
+    ).toBe(true);
+  });
+  it('containsSlice close', async () => {
+    await createResourceStream([1, 2, 3]).containsSlice([2]);
+    expect(close).toBeCalledTimes(1);
+    close.mockReset();
+    await createResourceStream([1, 2, 3]).containsSlice([100]);
     expect(close).toBeCalledTimes(1);
   });
   it('takeWhile', async () => {
@@ -1458,6 +1501,97 @@ describe('AsyncStream methods', () => {
   it('splitOn close', async () => {
     await testResForEach(createResourceStream([1, 2, 3]).splitOn(2));
     await testResForEach(createResourceStream([1, 2, 3]).splitOn(10));
+  });
+  it('distinctPrevious', async () => {
+    expect(
+      await AsyncStream.empty<number>().distinctPrevious().toArray()
+    ).toEqual([]);
+    expect(await AsyncStream.of(1, 2, 3).distinctPrevious().toArray()).toEqual([
+      1, 2, 3,
+    ]);
+    expect(
+      await AsyncStream.of(1, 2, 2, 3).distinctPrevious().toArray()
+    ).toEqual([1, 2, 3]);
+    expect(
+      await AsyncStream.of(1, 2, 2, 3, 1, 1, 3).distinctPrevious().toArray()
+    ).toEqual([1, 2, 3, 1, 3]);
+  });
+  it('distinctPrevious close', async () => {
+    await testResForEach(createResourceStream([1, 2, 3]).distinctPrevious());
+    await testResForEach(
+      createResourceStream([1, 1, 1, 2, 2, 3, 1, 1, 3]).distinctPrevious()
+    );
+  });
+  it('window', async () => {
+    expect(await AsyncStream.empty<number>().window(3).toArray()).toEqual([]);
+    expect(await AsyncStream.of(1, 2).window(3).toArray()).toEqual([]);
+    expect(await AsyncStream.of(1, 2, 3).window(3).toArray()).toEqual([
+      [1, 2, 3],
+    ]);
+    expect(await AsyncStream.of(1, 2, 3, 4, 5).window(3).toArray()).toEqual([
+      [1, 2, 3],
+    ]);
+    expect(await AsyncStream.of(1, 2, 3, 4, 5, 6).window(3).toArray()).toEqual([
+      [1, 2, 3],
+      [4, 5, 6],
+    ]);
+    expect(
+      await AsyncStream.of(1, 2, 3, 4, 5, 6).window(3, 1).toArray()
+    ).toEqual([
+      [1, 2, 3],
+      [2, 3, 4],
+      [3, 4, 5],
+      [4, 5, 6],
+    ]);
+    expect(
+      await AsyncStream.of(1, 2, 3, 4, 5, 6).window(2, 3).toArray()
+    ).toEqual([
+      [1, 2],
+      [4, 5],
+    ]);
+  });
+  it('window collector', async () => {
+    expect(
+      await AsyncStream.empty<number>()
+        .window(3, undefined, AsyncReducer.toJSSet())
+        .toArray()
+    ).toEqual([]);
+    expect(
+      await AsyncStream.of(1, 2)
+        .window(3, undefined, AsyncReducer.toJSSet())
+        .toArray()
+    ).toEqual([]);
+    expect(
+      await AsyncStream.of(1, 2, 3)
+        .window(3, undefined, AsyncReducer.toJSSet())
+        .toArray()
+    ).toEqual([new Set([1, 2, 3])]);
+    expect(
+      await AsyncStream.of(1, 2, 3, 4, 5)
+        .window(3, undefined, AsyncReducer.toJSSet())
+        .toArray()
+    ).toEqual([new Set([1, 2, 3])]);
+    expect(
+      await AsyncStream.of(1, 2, 3, 4, 5, 6)
+        .window(3, undefined, AsyncReducer.toJSSet())
+        .toArray()
+    ).toEqual([new Set([1, 2, 3]), new Set([4, 5, 6])]);
+    expect(
+      await AsyncStream.of(1, 2, 3, 4, 5, 6)
+        .window(3, 1, AsyncReducer.toJSSet())
+        .toArray()
+    ).toEqual([
+      new Set([1, 2, 3]),
+      new Set([2, 3, 4]),
+      new Set([3, 4, 5]),
+      new Set([4, 5, 6]),
+    ]);
+  });
+  it('window close', async () => {
+    await testResForEach(createResourceStream([1, 2, 3]).window(2));
+    await testResForEach(
+      createResourceStream([1, 1, 1, 2, 2, 3, 1, 1, 3]).window(2, 3)
+    );
   });
   it('fold', async () => {
     async function sum(

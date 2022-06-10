@@ -12,3 +12,5 @@ export * from './async-fast-iterable';
 export * from './async-streamable';
 
 export * from './interface';
+
+export * from './async-transformer';

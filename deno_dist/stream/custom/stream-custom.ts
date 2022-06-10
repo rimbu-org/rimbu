@@ -11,7 +11,12 @@ import {
   ToJSON,
   TraverseState,
 } from '../../common/mod.ts';
-import type { FastIterator, Stream, StreamSource } from '../../stream/mod.ts';
+import type {
+  FastIterator,
+  Stream,
+  StreamSource,
+  Transformer,
+} from '../../stream/mod.ts';
 import type { StreamConstructors } from '../../stream/custom/index.ts';
 import {
   isFastIterator,
@@ -50,6 +55,8 @@ import {
   MapIterator,
   MapPureIterator,
   PrependIterator,
+  DistinctPreviousIterator,
+  WindowIterator,
 } from '../../stream/custom/index.ts';
 import { RimbuError, Token } from '../../base/mod.ts';
 
@@ -151,8 +158,8 @@ export abstract class StreamBase<T> implements Stream<T> {
     );
   }
 
-  flatReduceStream<R>(reducer: Reducer<T, StreamSource<R>>): Stream<R> {
-    return StreamConstructorsImpl.flatten(this.reduceStream(reducer));
+  transform<R>(transformer: Transformer<T, R>): Stream<R> {
+    return StreamConstructorsImpl.flatten(this.reduceStream(transformer));
   }
 
   filter(
@@ -201,6 +208,21 @@ export abstract class StreamBase<T> implements Stream<T> {
 
     if (done === lastValue) return OptLazy(otherwise) as O;
     return lastValue;
+  }
+
+  single<O>(otherwise?: OptLazy<O>): T | O {
+    const iterator = this[Symbol.iterator]();
+    const done = Symbol('Done');
+
+    const value = iterator.fastNext(done);
+
+    if (done !== value) {
+      if (done === iterator.fastNext(done)) {
+        return value;
+      }
+    }
+
+    return OptLazy(otherwise!);
   }
 
   count(): number {
@@ -358,6 +380,26 @@ export abstract class StreamBase<T> implements Stream<T> {
     return undefined !== this.indexOf(searchValue, amount, eq);
   }
 
+  containsSlice(source: StreamSource.NonEmpty<T>, eq = Eq.objectIs): boolean {
+    const iterator = this[Symbol.iterator]();
+    const sourceStream = fromStreamSource(source);
+    let sourceIterator = sourceStream[Symbol.iterator]();
+
+    const done = Symbol('Done');
+
+    while (true) {
+      const sourceValue = sourceIterator.fastNext(done);
+      if (done === sourceValue) return true;
+
+      const value = iterator.fastNext(done);
+      if (done === value) return false;
+
+      if (!eq(sourceValue, value)) {
+        sourceIterator = sourceStream[Symbol.iterator]();
+      }
+    }
+  }
+
   takeWhile(pred: (value: T, index: number) => boolean): Stream<T> {
     return new TakeWhileStream<T>(this, pred);
   }
@@ -477,6 +519,18 @@ export abstract class StreamBase<T> implements Stream<T> {
 
   splitOn(sepElem: T, eq: Eq<T> = Eq.objectIs): Stream<T[]> {
     return new SplitOnStream<T>(this, sepElem, eq);
+  }
+
+  distinctPrevious(eq: Eq<T> = Eq.objectIs): Stream<T> {
+    return new DistinctPreviousStream<T>(this, eq);
+  }
+
+  window<R>(
+    windowSize: number,
+    skipAmount = windowSize,
+    collector: Reducer<T, R> = Reducer.toArray() as any
+  ): Stream<R> {
+    return new WindowStream<T, R>(this, windowSize, skipAmount, collector);
   }
 
   fold<R>(
@@ -1138,14 +1192,29 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
     return emptyFastIterator;
   }
 
+  stream(): this {
+    return this;
+  }
   assumeNonEmpty(): never {
     RimbuError.throwEmptyCollectionAssumedNonEmptyError();
   }
+  equals(other: StreamSource<T>): boolean {
+    const done = Symbol('Done');
 
+    return done === fromStreamSource(other)[Symbol.iterator]().fastNext(done);
+  }
+  prepend(value: OptLazy<T>): Stream.NonEmpty<T> {
+    return StreamConstructorsImpl.of(OptLazy(value));
+  }
+  append(value: OptLazy<T>): Stream.NonEmpty<T> {
+    return StreamConstructorsImpl.of(OptLazy(value));
+  }
   forEach(): void {
     //
   }
-
+  forEachPure(): void {
+    //
+  }
   indexed(): Stream<[number, T]> {
     return this as any;
   }
@@ -1161,9 +1230,9 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   flatZip<T2>(): Stream<[T, T2]> {
     return this as any;
   }
-  flatReduceStream<R>(reducer: Reducer<T, StreamSource<R>>): Stream<R> {
+  transform<R>(transformer: Transformer<T, R>): Stream<R> {
     return StreamConstructorsImpl.from(
-      reducer.stateToResult(OptLazy(reducer.init))
+      transformer.stateToResult(OptLazy(transformer.init))
     );
   }
   filter(): Stream<T> {
@@ -1185,6 +1254,9 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
     return OptLazy(otherwise) as O;
   }
   last<O>(otherwise?: OptLazy<O>): O {
+    return OptLazy(otherwise) as O;
+  }
+  single<O>(otherwise?: OptLazy<O>): O {
     return OptLazy(otherwise) as O;
   }
   count(): 0 {
@@ -1225,6 +1297,9 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
     return true;
   }
   contains(): false {
+    return false;
+  }
+  containsSlice(): false {
     return false;
   }
   takeWhile(): Stream<T> {
@@ -1275,6 +1350,18 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   } = {}): Stream.NonEmpty<T> {
     return fromStreamSource(start).concat(end) as any;
   }
+  splitOn(): Stream<T[]> {
+    return this as any;
+  }
+  splitWhere(): Stream<T[]> {
+    return this as any;
+  }
+  distinctPrevious(): Stream<T> {
+    return this;
+  }
+  window<R>(): Stream<R> {
+    return this as any;
+  }
   fold<R>(init: OptLazy<R>): R {
     return OptLazy(init);
   }
@@ -1298,6 +1385,12 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   }
   toString(): string {
     return `Stream(<empty>)`;
+  }
+  toJSON(): ToJSON<T[], 'Stream'> {
+    return {
+      dataType: 'Stream',
+      value: [],
+    };
   }
 }
 
@@ -1654,6 +1747,39 @@ export class RangeStream extends StreamBase<number> {
       return new RangeUpIterator(this.start, this.end, this.delta);
     }
     return new RangeDownIterator(this.start, this.end, this.delta);
+  }
+}
+
+export class DistinctPreviousStream<T> extends StreamBase<T> {
+  constructor(readonly source: Stream<T>, readonly eq: Eq<T>) {
+    super();
+  }
+
+  [Symbol.iterator](): FastIterator<T> {
+    return new DistinctPreviousIterator(
+      this.source[Symbol.iterator](),
+      this.eq
+    );
+  }
+}
+
+export class WindowStream<T, R> extends StreamBase<R> {
+  constructor(
+    readonly source: Stream<T>,
+    readonly windowSize: number,
+    readonly skipAmount: number,
+    readonly collector: Reducer<T, R>
+  ) {
+    super();
+  }
+
+  [Symbol.iterator](): FastIterator<R> {
+    return new WindowIterator(
+      this.source[Symbol.iterator](),
+      this.windowSize,
+      this.skipAmount,
+      this.collector
+    );
   }
 }
 

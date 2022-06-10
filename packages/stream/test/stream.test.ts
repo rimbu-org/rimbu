@@ -517,6 +517,21 @@ describe('Stream methods', () => {
     });
   });
 
+  it('single', () => {
+    expect(Stream.empty<number>().single()).toBeUndefined();
+    expect(Stream.empty<number>().single(1)).toBe(1);
+    expect(Stream.of(1).single()).toBe(1);
+    expect(Stream.of(1).single('a')).toBe(1);
+    expect(Stream.of(1, 2, 3).single()).toBeUndefined();
+    expect(Stream.of(1, 2, 3).single('a')).toBe('a');
+
+    sources.forEach((source) => {
+      const value = source.count() === 1 ? source.first() : undefined;
+      expect(source.single()).toBe(value);
+      expect(source.single('a')).toBe(value ?? 'a');
+    });
+  });
+
   it('count', () => {
     expect(Stream.empty<number>().count()).toBe(0);
     expect(Stream.of(1, 2, 3).count()).toBe(3);
@@ -669,6 +684,15 @@ describe('Stream methods', () => {
       expect(source.contains(-50)).toBe(false);
       expect(source.contains(-50, 2)).toBe(false);
     });
+  });
+
+  it('containsSlice', () => {
+    expect(Stream.empty().containsSlice([1, 2, 3])).toBe(false);
+    expect(Stream.of(1, 2).containsSlice([1, 2, 3])).toBe(false);
+    expect(Stream.of(1, 2, 3).containsSlice([1, 2, 3])).toBe(true);
+    expect(Stream.of(9, 8, 1, 2, 3).containsSlice([1, 2, 3])).toBe(true);
+    expect(Stream.of(1, 2, 3, 9, 8).containsSlice([1, 2, 3])).toBe(true);
+    expect(Stream.of(9, 8, 1, 2, 3, 9, 8).containsSlice([1, 2, 3])).toBe(true);
   });
 
   it('takeWhile', () => {
@@ -1123,5 +1147,65 @@ describe('Stream methods', () => {
     );
     expect(u2l.toArray()).toEqual([1, 2]);
     expect(u2r.toArray()).toEqual(['a', 'b']);
+  });
+
+  it('distinctPrevious', () => {
+    expect(Stream.empty<number>().distinctPrevious().toArray()).toEqual([]);
+    expect(Stream.of(1, 2, 3).distinctPrevious().toArray()).toEqual([1, 2, 3]);
+    expect(Stream.of(1, 2, 2, 3).distinctPrevious().toArray()).toEqual([
+      1, 2, 3,
+    ]);
+    expect(Stream.of(1, 2, 2, 3, 1, 1, 3).distinctPrevious().toArray()).toEqual(
+      [1, 2, 3, 1, 3]
+    );
+  });
+
+  it('window', () => {
+    expect(Stream.empty<number>().window(3).toArray()).toEqual([]);
+    expect(Stream.of(1, 2).window(3).toArray()).toEqual([]);
+    expect(Stream.of(1, 2, 3).window(3).toArray()).toEqual([[1, 2, 3]]);
+    expect(Stream.of(1, 2, 3, 4, 5).window(3).toArray()).toEqual([[1, 2, 3]]);
+    expect(Stream.of(1, 2, 3, 4, 5, 6).window(3).toArray()).toEqual([
+      [1, 2, 3],
+      [4, 5, 6],
+    ]);
+    expect(Stream.of(1, 2, 3, 4, 5, 6).window(3, 1).toArray()).toEqual([
+      [1, 2, 3],
+      [2, 3, 4],
+      [3, 4, 5],
+      [4, 5, 6],
+    ]);
+    expect(Stream.of(1, 2, 3, 4, 5, 6).window(2, 3).toArray()).toEqual([
+      [1, 2],
+      [4, 5],
+    ]);
+  });
+
+  it('window collector', () => {
+    expect(
+      Stream.empty<number>().window(3, undefined, Reducer.toJSSet()).toArray()
+    ).toEqual([]);
+    expect(
+      Stream.of(1, 2).window(3, undefined, Reducer.toJSSet()).toArray()
+    ).toEqual([]);
+    expect(
+      Stream.of(1, 2, 3).window(3, undefined, Reducer.toJSSet()).toArray()
+    ).toEqual([new Set([1, 2, 3])]);
+    expect(
+      Stream.of(1, 2, 3, 4, 5).window(3, undefined, Reducer.toJSSet()).toArray()
+    ).toEqual([new Set([1, 2, 3])]);
+    expect(
+      Stream.of(1, 2, 3, 4, 5, 6)
+        .window(3, undefined, Reducer.toJSSet())
+        .toArray()
+    ).toEqual([new Set([1, 2, 3]), new Set([4, 5, 6])]);
+    expect(
+      Stream.of(1, 2, 3, 4, 5, 6).window(3, 1, Reducer.toJSSet()).toArray()
+    ).toEqual([
+      new Set([1, 2, 3]),
+      new Set([2, 3, 4]),
+      new Set([3, 4, 5]),
+      new Set([4, 5, 6]),
+    ]);
   });
 });

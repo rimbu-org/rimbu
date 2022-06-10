@@ -9,7 +9,12 @@ import type {
 } from '@rimbu/common';
 import type { StreamConstructors } from '@rimbu/stream/custom';
 import { StreamConstructorsImpl } from '@rimbu/stream/custom';
-import type { FastIterable, Streamable, StreamSource } from '@rimbu/stream';
+import type {
+  FastIterable,
+  Streamable,
+  StreamSource,
+  Transformer,
+} from '@rimbu/stream';
 
 /**
  * A possibly infinite sequence of elements of type T.
@@ -210,16 +215,17 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
   /**
    * Returns a Stream consisting of the concatenation of StreamSource elements resulting from applying the given `reducer` to each element.
    * @typeparam R - the resulting element type
-   * @param reducer - a reducer taking elements ot type T as input, and returing a `StreamSource` of element type R
-   *
+   * @param transformer - a reducer taking elements ot type T as input, and returing a `StreamSource` of element type R
    * @note O(1)
    * @example
    * ```ts
-   * Stream.of(1, 2, 3, 4, 5, 6).flatReduceStream(Reducer.windowReducer(2)).toArray()
+   * Stream.of(1, 2, 3, 4, 5, 6)
+   *   .transform(Transformer.window(3))
+   *   .toArray()
    * // => [[1, 2, 3], [4, 5, 6]]
    * ```
    */
-  flatReduceStream<R>(reducer: Reducer<T, StreamSource<R>>): Stream<R>;
+  transform<R>(transformer: Transformer<T, R>): Stream<R>;
   /**
    * Returns a Stream containing only those elements from this Stream for which the given `pred` function returns true.
    * @param pred - a function taking an element and its index, and returning true if the element should be included in the resulting Stream.
@@ -319,7 +325,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
   /**
    * Returns the last element of the Stream, or a fallback value (default undefined) if the Stream is empty.
    * @typeparam O - the optional value type to return if the stream is empty
-   * @param otherwise - (default: undefined) an `OptLazy` value to be returned if the Stream is empty.
+   * @param otherwise - (default: undefined) an `OptLazy` value to return if the Stream is empty.
    * @example
    * ```ts
    * Stream.of(1, 2, 3).last()      // => 3
@@ -330,6 +336,20 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    */
   last(): T | undefined;
   last<O>(otherwise: OptLazy<O>): T | O;
+  /**
+   * Returns the first element of the Stream if it only has one element, or a fallback value if the Stream does not have exactly one value.
+   * @typeparam O - the optional value to return if the stream does not have exactly one value.
+   * @param otherwise - (default: undefined) an `OptLazy` value to return if the Stream does not have exactly one value.
+   * @example
+   * ```ts
+   * Stream.empty<number>().single()  // => undefined
+   * Stream.of(1, 2, 3).single()      // => undefined
+   * Stream.of(1).single()            // => 1
+   * Stream.of(1, 2, 3).single(0)     // => 0
+   * ```
+   */
+  single(): T | undefined;
+  single<O>(otherwise: OptLazy<O>): T | O;
   /**
    * Returns the amount of elements in the Stream.
    * @example
@@ -497,6 +517,20 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * @note O(N)
    */
   contains(value: T, amount?: number, eq?: Eq<T>): boolean;
+  /**
+   * Returns true if this stream contains the same sequence of elements as the given `source`,
+   * false otherwise.
+   * @param source - a non-empty stream source containing the element sequence to find
+   * @param eq - (default: `Eq.objectIs`) the function to use to test element equality
+   * @example
+   * ```ts
+   * Stream.of(1, 2, 3, 4, 5).containsSlice([2, 3, 4])
+   * // => true
+   * Stream.of(1, 2, 3, 4, 5).containsSlice([4, 3, 2])
+   * // => false
+   * ```
+   */
+  containsSlice(source: StreamSource.NonEmpty<T>, eq?: Eq<T>): boolean;
   /**
    * Returns a Stream that contains the elements of this Stream up to the first element that does not satisfy given `pred` function.
    * @param pred - a predicate function taking an element and its index
@@ -708,6 +742,40 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * @note O(1)
    */
   splitOn(sepElem: T, eq?: Eq<T>): Stream<T[]>;
+  /**
+   * Returns a Stream containing non-repetitive elements of the source stream, where repetitive elements
+   * are compared using the optionally given `eq` equality function.
+   * @param eq - the `Eq` instance to use to test equality of elements
+   * @example
+   * ```ts
+   * Stream.of(1, 1, 2, 2, 3, 1).distinctPrevious().toArray()
+   * // => [1, 2, 3, 1]
+   * ```
+   */
+  distinctPrevious(eq?: Eq<T>): Stream<T>;
+  /**
+   * Returns a Stream containing `windows` of `windowSize` consecutive elements of the source stream, with each
+   * window starting `skipAmount` elements after the previous one.
+   * @typeparam R - the collector reducer result type
+   * @param windowSize - the size in elements of the windows
+   * @param skipAmount - (default: windowsize) the amount of elements to skip to start the next window
+   * @param collector - (optional, default: toArray reducer) the reducer to use to collect the window values
+   * @example
+   * ```ts
+   * console.log(Stream.of(1, 2, 3, 4, 5, 6, 7).window(3).toArray())
+   * // => [[1, 2, 3], [4, 5, 6]]
+   * console.log(Stream.of(1, 2, 3, 4, 5).window(3, 1).toArray())
+   * // => [[1, 2, 3], [2, 3, 4], [3, 4, 5]]
+   * console.log(Stream.of(1, 2, 3, 4).window(2, 2, Reducer.toJSSet()).toArray())
+   * // => [Set(1, 2), Set(3, 4)]
+   * ```
+   */
+  window(windowSize: number, skipAmount?: number): Stream<T[]>;
+  window<R>(
+    windowSize: number,
+    skipAmount?: number,
+    collector?: Reducer<T, R>
+  ): Stream<R>;
   /**
    * Returns the value resulting from applying the given the given `next` function to a current state (initially the given `init` value),
    * and the next Stream value, and returning the new state. When all elements are processed, the resulting state is returned.
@@ -987,19 +1055,18 @@ export namespace Stream {
     /**
      * Returns a Stream consisting of the concatenation of StreamSource elements resulting from applying the given `reducer` to each element.
      * @typeparam R - the resulting element type
-     * @param reducer - a reducer taking elements ot type T as input, and returing a `StreamSource` of element type R
-     *
+     * @param transformer - a reducer taking elements ot type T as input, and returing a `StreamSource` of element type R
      * @note O(1)
      * @example
      * ```ts
-     * Stream.of(1, 2, 3, 4, 5, 6).flatReduceStream(Reducer.createWindowReducer(2)).toArray()
+     * Stream.of(1, 2, 3, 4, 5, 6)
+     *   .transform(Transformer.window(3))
+     *   .toArray()
      * // => [[1, 2, 3], [4, 5, 6]]
      * ```
      */
-    flatReduceStream<R>(
-      reducer: Reducer<T, StreamSource.NonEmpty<R>>
-    ): Stream.NonEmpty<R>;
-    flatReduceStream<R>(reducer: Reducer<T, StreamSource<R>>): Stream<R>;
+    transform<R>(transformer: Transformer.NonEmpty<T, R>): Stream.NonEmpty<R>;
+    transform<R>(transformer: Transformer<T, R>): Stream<R>;
     /**
      * Returns the first element of the Stream.
      * @example
@@ -1115,6 +1182,43 @@ export namespace Stream {
       start?: StreamSource<T>;
       end?: StreamSource<T>;
     }): Stream.NonEmpty<T>;
+    /**
+     * Returns a non-empty Stream containing non-repetitive elements of the source stream, where repetitive elements
+     * are compared using the optionally given `eq` equality function.
+     * @param eq - the `Eq` instance to use to test equality of elements
+     * @example
+     * ```ts
+     * Stream.of(1, 1, 2, 2, 3, 1).distinctPrevious().toArray()
+     * // => [1, 2, 3, 1]
+     * ```
+     */
+    distinctPrevious(eq?: Eq<T>): Stream.NonEmpty<T>;
+    /**
+     * Returns a Stream containing the values resulting from applying the given the given `next` function to a current state (initially the given `init` value),
+     * and the next Stream value, and returning the new state.
+     * @typeparam R - the resulting element type
+     * @param init - the initial result/state value
+     * @param next - a function taking the parameters below and returning the new result/state value<br/>
+     * - current: the current result/state value, initially `init`.<br/>
+     * - value: the next Stream value<br/>
+     * - index: the index of the given value<br/>
+     * - halt: a function that, if called, ensures that no new elements are passed
+     * @example
+     * ```ts
+     * console.log(
+     *   Stream.empty<number>()
+     *     .foldStream(5, (current, value) => current + value)
+     *     .toArray()
+     * )
+     * // => []
+     * console.log(
+     *   Stream.of(1, 2, 3)
+     *     .foldStream(5, (current, value) => current + value)
+     *     .toArray()
+     * )
+     * // => [6, 8, 11]
+     * ```
+     */
     foldStream<R>(
       init: OptLazy<R>,
       next: (current: R, value: T, index: number) => R
