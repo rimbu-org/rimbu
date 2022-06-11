@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.14](https://github.com/rimbu-org/rimbu/compare/@rimbu/collection-types@0.9.13...@rimbu/collection-types@0.9.14) (2022-06-10)
+
+**Note:** Version bump only for package @rimbu/collection-types
+
+
+
+
+
 ## [0.9.13](https://github.com/rimbu-org/rimbu/compare/@rimbu/collection-types@0.9.12...@rimbu/collection-types@0.9.13) (2022-06-07)
 
 **Note:** Version bump only for package @rimbu/collection-types
