@@ -28,7 +28,7 @@ ${o.codeTokens()}
   sep: '\n',
 })}
 
-${generateTypeParams(source.overloads[0].typeParams)}
+${generateTypeParams(source.overloads[0].typeParams, '####')}
 
 ${Stream.from(source.overloads[0].params).join({
   valueToString: ({ name, description, type }) =>

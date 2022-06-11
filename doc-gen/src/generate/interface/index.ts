@@ -49,7 +49,7 @@ ${Stream.from(source.implementedBy).join({
   end: '\n\n',
   ifEmpty: '',
 })}\
-${generateTypeParams(source.typeParameters)}
+${generateTypeParams(source.typeParameters, '##')}
 ${Stream.from(source.docBlocks).join({
   valueToString: ([tag, text]) => `:::note ${tag}
 

@@ -23,7 +23,7 @@ ${source.codeTokens()}
 
 </code>
 
-${generateTypeParams(source.typeParams)}
+${generateTypeParams(source.typeParams, '#####')}
 
 ${Stream.from(source.params).join({
   valueToString: ({ name, description, type }) =>

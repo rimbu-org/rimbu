@@ -48,7 +48,7 @@ ${Stream.from(source.extendedBy).join({
   end: '\n',
   ifEmpty: '',
 })}
-${generateTypeParams(source.typeParameters)}
+${generateTypeParams(source.typeParameters, '##')}
 ${Stream.from(source.docBlocks).join({
   valueToString: ([tag, text]) => `:::note ${tag}
 
