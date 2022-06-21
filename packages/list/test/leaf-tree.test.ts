@@ -8,16 +8,15 @@ import {
   NonLeafTree,
 } from '@rimbu/list/custom';
 
-const context = new ListContext(2);
-
 function runLeafTreeTests(
   tag: string,
+  context: ListContext,
   createBlock: <T>(values: T[]) => LeafBlock<T>
 ) {
   describe(tag, () => {
-    it('_normalize', () => {
+    it('_normalize up to NonLeafBlock', () => {
       {
-        // merge to block to block
+        // merge to block
         const t = context.leafTree(
           createBlock([1, 2]),
           createBlock([11, 12]),
@@ -36,6 +35,17 @@ function runLeafTreeTests(
         );
         const n = t._normalize();
         expect(n).toBe(t);
+      }
+      {
+        // merge left middle and right into block
+        const t = context.leafTree(
+          createBlock([1]),
+          createBlock([11]),
+          context.nonLeafBlock(2, [createBlock([21, 22])], 1)
+        );
+        const n = t._normalize();
+        expect(n).toBeInstanceOf(LeafBlock);
+        expect(n.toArray()).toEqual([1, 21, 22, 11]);
       }
       {
         // merge middle with left
@@ -180,6 +190,18 @@ function runLeafTreeTests(
       const m2 = r2.middle as NonLeafBlock<any, any>;
       expect(m2.nrChildren).toBe(1);
       expect(m2.children[0]).toBe(b3);
+
+      const tr = context.leafTree(
+        createBlock([1, 2, 3, 4]),
+        createBlock([5]),
+        null
+      );
+      const r3 = tr.concatBlock(
+        createBlock([10, 11, 12, 13])
+      ) as LeafTree<number>;
+      expect(r3.left.toArray()).toEqual([1, 2, 3, 4]);
+      expect(r3.middle?.toArray()).toEqual([5, 10, 11, 12]);
+      expect(r3.right.toArray()).toEqual([13]);
     });
 
     it('concatTree', () => {
@@ -205,6 +227,17 @@ function runLeafTreeTests(
       const b3 = createBlock([1, 2, 3]);
       const t6 = context.leafTree(b3, b3, null);
       expect(t6.context).toBe(context);
+    });
+
+    it('copy', () => {
+      const b3 = createBlock([1, 2, 3]);
+      const t6 = context.leafTree(b3, b3, null);
+      expect(t6.copy()).toBe(t6);
+      const b2 = createBlock([1, 2]);
+      const c = t6.copy(b2);
+      expect(c.left).toBe(b2);
+      expect(c.right).toBe(b3);
+      expect(c.middle).toBeNull();
     });
 
     it('drop', () => {
@@ -336,6 +369,23 @@ function runLeafTreeTests(
       expect(t9.map((v) => v + 1).toArray()).toEqual([
         2, 3, 4, 2, 3, 4, 2, 3, 4,
       ]);
+      expect(t9.map((v) => v + 1, true).toArray()).toEqual([
+        4, 3, 2, 4, 3, 2, 4, 3, 2,
+      ]);
+    });
+
+    it('mapPure', () => {
+      const b3 = createBlock([1, 2, 3]);
+      const t9 = context.leafTree(b3, b3, context.nonLeafBlock(3, [b3], 1));
+
+      expect(t9.toArray()).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3]);
+      const mapped = t9.mapPure((v) => v + 1);
+      expect(mapped.toArray()).toEqual([2, 3, 4, 2, 3, 4, 2, 3, 4]);
+      expect(mapped.left).toBe(mapped.right);
+
+      const mappedRev = t9.mapPure((v) => v + 1, true);
+      expect(mappedRev.toArray()).toEqual([4, 3, 2, 4, 3, 2, 4, 3, 2]);
+      expect(mappedRev.left).toBe(mappedRev.right);
     });
 
     it('nonEmpty', () => {
@@ -501,6 +551,23 @@ function runLeafTreeTests(
       ]);
     });
 
+    it('structure', () => {
+      const b3 = createBlock([1, 2, 3]);
+      const t9 = context.leafTree(b3, b3, context.nonLeafBlock(3, [b3], 1));
+
+      const leafType = context.isReversedLeafBlock(b3) ? 'RLeaf' : 'Leaf';
+
+      expect(t9.structure()).toEqual(
+        `\
+<LeafTree len:9
+ l:<${leafType} 3>
+ m: 
+  <NLBlock(1) len:3 c:1 <${leafType} 3>>
+ r:<${leafType} 3>
+>`
+      );
+    });
+
     it('take', () => {
       const b3 = createBlock([1, 2, 3]);
       const t6 = context.leafTree(b3, b3, null);
@@ -604,7 +671,154 @@ function runLeafTreeTests(
   });
 }
 
-runLeafTreeTests('leaftree', (values) => context.leafBlock(values));
-runLeafTreeTests('leaftree with rev blocks', (values) =>
-  context.reversedLeaf(values.reverse())
+const context2 = new ListContext(2);
+
+runLeafTreeTests('leaftree', context2, (values) => context2.leafBlock(values));
+runLeafTreeTests('leaftree with rev blocks', context2, (values) =>
+  context2.reversedLeaf(values.reverse())
+);
+
+function leafTreeBlockSize3(
+  tag: string,
+  context: ListContext,
+  createBlock: <T>(values: T[]) => LeafBlock<T>
+) {
+  describe(tag, () => {
+    it('concatTree no middle', () => {
+      const t1 = context.leafTree(
+        createBlock([1, 2, 3, 4, 5, 6, 7, 8]),
+        createBlock([9]),
+        null
+      );
+      const t2 = context.leafTree(
+        createBlock([10]),
+        createBlock([11, 12, 13, 14, 15, 16, 17, 18]),
+        null
+      );
+
+      const r = t1.concatTree(t2);
+
+      expect(r.left.toArray()).toEqual([1, 2]);
+      expect(r.middle?.toArray()).toEqual([3, 4, 5, 6, 7, 8, 9, 10]);
+      expect(r.right.toArray()).toEqual([11, 12, 13, 14, 15, 16, 17, 18]);
+    });
+
+    it('concatTree with middle, joint not in max', () => {
+      const m1 = context.nonLeafBlock<number, LeafBlock<number>>(
+        8,
+        [createBlock([11, 12, 13, 14, 15, 16, 17, 18])],
+        1
+      );
+
+      const t1 = context.leafTree(
+        createBlock([1, 2, 3, 4, 5, 6, 7, 8]),
+        createBlock([21]),
+        m1
+      );
+      const t2 = context.leafTree(
+        createBlock([31]),
+        createBlock([41, 42, 43, 44, 45, 46, 47, 48]),
+        null
+      );
+
+      const r = t1.concatTree(t2);
+
+      expect(r.left.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+      expect(r.middle?.toArray()).toEqual([
+        11, 12, 13, 14, 15, 16, 17, 18, 21, 31,
+      ]);
+      expect(r.right.toArray()).toEqual([41, 42, 43, 44, 45, 46, 47, 48]);
+      const mt = r.middle as NonLeafBlock<number, LeafBlock<number>>;
+      expect(mt.nrChildren).toBe(2);
+      expect(mt.children[0].toArray()).toEqual([11, 12, 13, 14, 15]);
+      expect(context.isLeafBlock(mt.children[0])).toBe(true);
+      expect(mt.children[1].toArray()).toEqual([16, 17, 18, 21, 31]);
+      expect(context.isLeafBlock(mt.children[1])).toBe(true);
+    });
+  });
+
+  it('concatTree with middle, joint children in max', () => {
+    const m1 = context.nonLeafBlock<number, LeafBlock<number>>(
+      8,
+      [createBlock([11, 12, 13, 14, 15])],
+      1
+    );
+
+    const t1 = context.leafTree(
+      createBlock([1, 2, 3, 4, 5, 6, 7, 8]),
+      createBlock([21]),
+      m1
+    );
+    const t2 = context.leafTree(
+      createBlock([31]),
+      createBlock([41, 42, 43, 44, 45, 46, 47, 48]),
+      null
+    );
+
+    const r = t1.concatTree(t2);
+
+    expect(r.left.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(r.middle?.toArray()).toEqual([11, 12, 13, 14, 15, 21, 31]);
+    expect(r.right.toArray()).toEqual([41, 42, 43, 44, 45, 46, 47, 48]);
+    const mt = r.middle as NonLeafBlock<number, LeafBlock<number>>;
+    expect(mt.nrChildren).toBe(1);
+    expect(mt.children[0].toArray()).toEqual([11, 12, 13, 14, 15, 21, 31]);
+    expect(context.isLeafBlock(mt.children[0])).toBe(true);
+  });
+
+  it('concatTree no middle, jointLength > min < max', () => {
+    const t1 = context.leafTree(
+      createBlock([1, 2, 3, 4, 5, 6, 7, 8]),
+      createBlock([11, 12, 13]),
+      null
+    );
+    const t2 = context.leafTree(
+      createBlock([21, 22, 23]),
+      createBlock([31, 32, 33, 34, 35, 36, 37, 38]),
+      null
+    );
+
+    const r = t1.concatTree(t2);
+
+    expect(r.left.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(r.middle?.toArray()).toEqual([11, 12, 13, 21, 22, 23]);
+    expect(r.right.toArray()).toEqual([31, 32, 33, 34, 35, 36, 37, 38]);
+    const mt = r.middle as NonLeafBlock<number, LeafBlock<number>>;
+    expect(mt.nrChildren).toBe(1);
+    expect(context.isLeafBlock(mt.children[0])).toBe(true);
+  });
+
+  it('concatTree joinLength > max, right >= min && other.left >= min', () => {
+    const t1 = context.leafTree(
+      createBlock([1, 2, 3, 4, 5, 6, 7, 8]),
+      createBlock([11, 12, 13]),
+      null
+    );
+    const t2 = context.leafTree(
+      createBlock([21, 22, 23, 24, 25, 26]),
+      createBlock([31, 32, 33, 34, 35, 36, 37, 38]),
+      null
+    );
+
+    const r = t1.concatTree(t2);
+
+    expect(r.left.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(r.middle?.toArray()).toEqual([11, 12, 13, 21, 22, 23, 24, 25, 26]);
+    expect(r.right.toArray()).toEqual([31, 32, 33, 34, 35, 36, 37, 38]);
+    const mt = r.middle as NonLeafBlock<number, LeafBlock<number>>;
+    expect(mt.nrChildren).toBe(2);
+    expect(context.isLeafBlock(mt.children[0])).toBe(true);
+    expect(context.isLeafBlock(mt.children[1])).toBe(true);
+    expect(mt.children[0].children.length).toBe(4);
+    expect(mt.children[1].children.length).toBe(5);
+  });
+}
+
+const context3 = new ListContext(3);
+
+leafTreeBlockSize3('leafTree blockSize 3', context3, (values) =>
+  context3.leafBlock(values)
+);
+leafTreeBlockSize3('rev leafTree blockSize 3', context3, (values) =>
+  context3.reversedLeaf(values.reverse())
 );

@@ -12,6 +12,7 @@ import type {
 export interface NonLeaf<T, C extends Block<any, C> = any> {
   readonly length: number;
   readonly context: ListContext;
+  readonly level: number;
   get(index: number): T;
   prepend(child: C): NonLeaf<T, C>;
   append(child: C): NonLeaf<T, C>;

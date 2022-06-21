@@ -52,65 +52,96 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
 
   getCoordinates(index: number): [number, number] {
     const nrChildren = this.nrChildren;
+    const length = this.length;
+
+    if (index >= length) {
+      // always return end of last child
+      const lastChild = Arr.last(this.children);
+      return [nrChildren - 1, lastChild.length];
+    }
 
     const shiftBits = this.context.blockSizeBits << (this.level - 1);
 
     const regularSize = nrChildren << shiftBits;
 
-    if (this.length === regularSize) {
+    if (length === regularSize) {
+      // regular blocks, calculate coordinates
       const childSize = 1 << shiftBits;
       const mask = childSize - 1;
       const childIndex = index >>> shiftBits;
-
-      if (childIndex >= nrChildren) {
-        return [nrChildren - 1, childSize];
-      }
 
       const inChildIndex = index & mask;
       return [childIndex, inChildIndex];
     }
 
     // not regular, need to search per child
-
     const children = this.children;
 
-    let i = index;
-    for (let childIndex = 0; childIndex < nrChildren; childIndex++) {
-      const childLength = children[childIndex].length;
+    if (index <= length >>> 1) {
+      // search left to right
+      let i = index;
+      for (let childIndex = 0; childIndex < nrChildren; childIndex++) {
+        const childLength = children[childIndex].length;
 
-      if (i < childLength) {
-        return [childIndex, i];
+        if (i < childLength) {
+          return [childIndex, i];
+        }
+
+        i -= childLength;
       }
+    } else {
+      // search right to left
+      let i = length - index;
+      for (let childIndex = nrChildren - 1; childIndex >= 0; childIndex--) {
+        const childLength = children[childIndex].length;
 
-      i -= childLength;
+        if (i <= childLength) {
+          return [childIndex, childLength - i];
+        }
+
+        i -= childLength;
+      }
     }
 
-    const lastChild = Arr.last(children);
-
-    return [nrChildren - 1, lastChild.length];
+    RimbuError.throwInvalidStateError();
   }
 
   normalized(): NonLeafBuilder<T, C> | undefined {
-    if (this.nrChildren === 0) return undefined;
+    if (this.nrChildren === 0) {
+      // empty
+      return undefined;
+    }
 
-    const maxBlockSize = this.context.maxBlockSize;
+    const context = this.context;
+    const shiftBits = context.blockSizeBits << (this.level - 1);
+    const regularSize = this.nrChildren << shiftBits;
 
-    let i = 1;
-    while (i < this.nrChildren) {
-      const currentChild = this.children[i];
-      const prevChild = this.children[i - 1];
-      if (currentChild.nrChildren + prevChild.nrChildren <= maxBlockSize) {
-        prevChild.concat(currentChild);
-        this.children.splice(i, 1);
-      } else {
-        i++;
+    const maxBlockSize = context.maxBlockSize;
+
+    if (this.length !== regularSize) {
+      // check if children can be merged
+
+      let i = 1;
+      while (i < this.nrChildren) {
+        // check if child can be merged with previous
+        const currentChild = this.children[i];
+        const prevChild = this.children[i - 1];
+
+        if (currentChild.nrChildren + prevChild.nrChildren <= maxBlockSize) {
+          // child can be merged with previous
+          prevChild.concat(currentChild);
+          this.children.splice(i, 1);
+        } else {
+          i++;
+        }
       }
     }
 
-    if (this.nrChildren > this.context.maxBlockSize) {
+    if (this.nrChildren > maxBlockSize) {
+      // too many children, needs to split
       const middleLength = this.length;
 
-      return this.context.nonLeafTreeBuilder(
+      return context.nonLeafTreeBuilder(
         this.level + 1,
         this,
         this.splitRight(),
@@ -119,13 +150,17 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
       );
     }
 
+    // already normalized
     return this;
   }
 
-  get<O>(index: number, otherwise?: OptLazy<O>): T | O {
-    if (undefined !== this.source) return this.source.get(index);
+  get(index: number): T {
+    if (undefined !== this.source) {
+      return this.source.get(index);
+    }
 
     const [childIndex, inChildIndex] = this.getCoordinates(index);
+
     return this.children[childIndex].get(
       inChildIndex,
       RimbuError.throwInvalidStateError
@@ -154,34 +189,42 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
 
     this.length++;
 
+    // insert into child
     const child = this.children[childIndex];
 
     child.insert(inChildIndex, value);
 
-    if (child.nrChildren > this.context.maxBlockSize) {
-      const leftChild = this.children[childIndex - 1];
-      if (
-        undefined !== leftChild &&
-        leftChild.nrChildren < this.context.maxBlockSize
-      ) {
-        const shiftChild = child.dropFirst();
-        leftChild.append(shiftChild);
-        return;
-      }
-
-      const rightChild = this.children[childIndex + 1];
-      if (
-        undefined !== rightChild &&
-        rightChild.nrChildren < this.context.maxBlockSize
-      ) {
-        const shiftChild = child.dropLast();
-        rightChild.prepend(shiftChild);
-        return;
-      }
-
-      const newRightChild = child.splitRight();
-      this.children.splice(childIndex + 1, 0, newRightChild as C);
+    if (child.nrChildren <= this.context.maxBlockSize) {
+      // no need to normalize
+      return;
     }
+
+    // child is too large
+    const leftChild = this.children[childIndex - 1];
+    if (
+      undefined !== leftChild &&
+      leftChild.nrChildren < this.context.maxBlockSize
+    ) {
+      // shift to leftChild
+      const shiftChild = child.dropFirst();
+      leftChild.append(shiftChild);
+      return;
+    }
+
+    const rightChild = this.children[childIndex + 1];
+    if (
+      undefined !== rightChild &&
+      rightChild.nrChildren < this.context.maxBlockSize
+    ) {
+      // shift to rightChild
+      const shiftChild = child.dropLast();
+      rightChild.prepend(shiftChild);
+      return;
+    }
+
+    // cannot shift, split child
+    const newRightChild = child.splitRight();
+    this.children.splice(childIndex + 1, 0, newRightChild as C);
   }
 
   remove(index: number): T {
@@ -189,18 +232,22 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
 
     this.length--;
 
+    // remove from child
     const child = this.children[childIndex];
 
     const oldValue = child.remove(inChildIndex);
 
-    if (child.nrChildren >= this.context.minBlockSize || this.nrChildren <= 1)
+    if (child.nrChildren >= this.context.minBlockSize || this.nrChildren <= 1) {
+      // no need to normalize
       return oldValue;
+    }
 
     const leftChild = this.children[childIndex - 1];
     if (
       undefined !== leftChild &&
       leftChild.nrChildren > this.context.minBlockSize
     ) {
+      // can shift from left
       const shiftChild = leftChild.dropLast();
       child.prepend(shiftChild);
       return oldValue;
@@ -211,17 +258,20 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
       undefined !== rightChild &&
       rightChild.nrChildren > this.context.minBlockSize
     ) {
+      // can shift from right
       const shiftChild = rightChild.dropFirst();
       child.append(shiftChild);
       return oldValue;
     }
 
     if (undefined !== leftChild) {
+      // merge with left
       leftChild.concat(child);
       this.children.splice(childIndex, 1);
       return oldValue;
     }
 
+    // merge with right
     child.concat(rightChild);
     this.children.splice(childIndex + 1, 1);
     return oldValue;
@@ -292,7 +342,9 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
   }
 
   build(): NonLeafBlock<T, any> {
-    if (undefined !== this.source) return this.source;
+    if (undefined !== this.source) {
+      return this.source;
+    }
 
     return this.context.nonLeafBlock<T, any>(
       this.length,
@@ -302,7 +354,9 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
   }
 
   buildMap<T2>(f: (value: T) => T2): NonLeafBlock<T2, any> {
-    if (undefined !== this.source) return this.source.map(f);
+    if (undefined !== this.source) {
+      return this.source.map(f);
+    }
 
     return this.context.nonLeafBlock<T2, any>(
       this.length,

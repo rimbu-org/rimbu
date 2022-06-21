@@ -428,7 +428,10 @@ export class ReversedLeafBlock<T> extends LeafBlock<T> {
   }
 
   _mutateSplitRight(childIndex = this.children.length >>> 1): LeafBlock<T> {
-    const rightChildren = this.mutateChildren.splice(0, childIndex);
+    const rightChildren = this.mutateChildren.splice(
+      0,
+      this.children.length - childIndex
+    );
 
     return this.copy(rightChildren);
   }

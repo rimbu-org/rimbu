@@ -57,6 +57,7 @@ export abstract class TreeBuilderBase<T, C> {
     this.length += this.getChildLength(child);
 
     if (this.left.nrChildren < this.context.maxBlockSize) {
+      // can prepend to left
       this.left.prepend(child);
       return;
     }
@@ -74,14 +75,18 @@ export abstract class TreeBuilderBase<T, C> {
         }
       );
 
-      if (undefined !== delta) return;
+      if (undefined !== delta) {
+        return;
+      }
     } else if (this.right.nrChildren < this.context.maxBlockSize) {
+      // right not full, shift last left child to right
       const shiftChild = this.left.dropLast();
       this.left.prepend(child);
       this.right.prepend(shiftChild);
       return;
     }
 
+    // move current left to middle
     this.left.prepend(child);
     const toMiddle = this.left.splitRight(1);
 
@@ -112,6 +117,7 @@ export abstract class TreeBuilderBase<T, C> {
 
       if (undefined !== delta) return;
     } else if (this.left.nrChildren < this.context.maxBlockSize) {
+      // shift first right to left
       const shiftChild = this.right.dropFirst();
       this.right.append(child);
       this.left.append(shiftChild);

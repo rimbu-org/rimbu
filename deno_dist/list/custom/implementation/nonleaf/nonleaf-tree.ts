@@ -30,10 +30,16 @@ export class NonLeafTree<T, C extends Block<T, C>>
     readonly right: NonLeafBlock<T, C>,
     readonly middle: NonLeaf<T, NonLeafBlock<T, C>> | null,
     readonly level: number,
-    readonly length = left.length +
-      right.length +
-      (null === middle ? 0 : middle.length)
-  ) {}
+    readonly length = left.length + right.length + (middle?.length ?? 0)
+  ) {
+    if (
+      left.level !== level ||
+      right.level !== level ||
+      (middle !== null && middle.level !== level + 1)
+    ) {
+      RimbuError.throwInvalidStateError();
+    }
+  }
 
   getChildLength(child: C): number {
     return child.length;
@@ -47,6 +53,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
     if (left === this.left && right === this.right && middle === this.middle) {
       return this;
     }
+
     return this.context.nonLeafTree(left, right, middle, this.level);
   }
 
@@ -70,7 +77,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
     return treeGet(this, index);
   }
 
-  prepend(child: C): NonLeaf<T, C> {
+  prepend(child: C): NonLeafTree<T, C> {
     return treePrepend(this, child);
   }
 
@@ -79,6 +86,10 @@ export class NonLeafTree<T, C extends Block<T, C>>
   }
 
   prependMiddle(child: NonLeafBlock<T, C>): NonLeaf<T, NonLeafBlock<T, C>> {
+    if (child.level !== this.level) {
+      RimbuError.throwInvalidStateError();
+    }
+
     return (
       this.middle?.prepend(child) ??
       this.context.nonLeafBlock<T, NonLeafBlock<T, C>>(
@@ -90,6 +101,10 @@ export class NonLeafTree<T, C extends Block<T, C>>
   }
 
   appendMiddle(child: NonLeafBlock<T, C>): NonLeaf<T, NonLeafBlock<T, C>> {
+    if (child.level !== this.level) {
+      RimbuError.throwInvalidStateError();
+    }
+
     return (
       this.middle?.append(child) ??
       this.context.nonLeafBlock<T, NonLeafBlock<T, C>>(
@@ -118,17 +133,23 @@ export class NonLeafTree<T, C extends Block<T, C>>
   }
 
   dropLast(): [NonLeaf<T, C> | null, C] {
+    // drop last from the right block
     const [newRight, lastChild] = this.right.dropLast();
 
     if (null === newRight) {
-      if (null === this.middle) return [this.left, lastChild];
+      if (null === this.middle) {
+        // drop right
+        return [this.left, lastChild];
+      }
 
+      // move last middle to right
       const [newMiddle, toRight] = this.middle.dropLast();
       const newSelf = this.copy(undefined, toRight, newMiddle)._normalize();
 
       return [newSelf, lastChild];
     }
 
+    // set the new right to right
     const newSelf = this.copy(undefined, newRight)._normalize();
 
     return [newSelf, lastChild];
@@ -138,14 +159,20 @@ export class NonLeafTree<T, C extends Block<T, C>>
     const middleAmount = amount - this.left.length;
 
     if (middleAmount <= 0) {
+      // only left remains
       return this.left.takeInternal(amount);
     }
 
     if (null === this.middle) {
+      // update with take from right, no middle
       const [newRight, up, upAmount] = this.right.takeInternal(middleAmount);
 
-      if (null === newRight) return [this.left, up, upAmount];
+      if (null === newRight) {
+        // no right remains
+        return [this.left, up, upAmount];
+      }
 
+      // combine left with remaining right
       return [this.left.concat(newRight), up, upAmount];
     }
 
@@ -155,17 +182,20 @@ export class NonLeafTree<T, C extends Block<T, C>>
       const [newRight, up, upAmount] = this.right.takeInternal(rightAmount);
 
       if (null === newRight) {
+        // no right remains, move last middle up
         const [newMiddle, toRight] = this.middle.dropLast();
         const newSelf = this.copy(undefined, toRight, newMiddle)._normalize();
 
         return [newSelf, up, upAmount];
       }
 
+      // some right remains, update and normalize
       const newSelf = this.copy(undefined, newRight)._normalize();
 
       return [newSelf, up, upAmount];
     }
 
+    // take from middle
     const [newMiddle, upRight] = this.middle.takeInternal(middleAmount);
 
     const newSelf = this.copy(undefined, upRight, newMiddle)._normalize();
@@ -177,6 +207,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
 
     if (null === this.middle) {
       if (middleAmount < 0) {
+        // drop only from left no middle
         const [newLeft, upLeft, upLeftAmount] = this.left.dropInternal(amount);
 
         const newSelf =
@@ -184,20 +215,24 @@ export class NonLeafTree<T, C extends Block<T, C>>
 
         return [newSelf, upLeft, upLeftAmount];
       } else {
+        // drop only from right
         return this.right.dropInternal(middleAmount);
       }
     }
 
     if (middleAmount < 0) {
+      // drop only from left with middle
       const [newLeft, upLeft, upLeftAmount] = this.left.dropInternal(amount);
 
       if (null === newLeft) {
+        // all of left gone
         const [newMiddle, toLeft] = this.middle.dropFirst();
         const newSelf = this.copy(toLeft, undefined, newMiddle)._normalize();
 
         return [newSelf, upLeft, upLeftAmount];
       }
 
+      // left remaining
       const newSelf = this.copy(newLeft);
 
       return [newSelf, upLeft, upLeftAmount];
@@ -206,9 +241,11 @@ export class NonLeafTree<T, C extends Block<T, C>>
     const rightAmount = middleAmount - this.middle.length;
 
     if (rightAmount >= 0) {
+      // drop only from right
       return this.right.dropInternal(rightAmount);
     }
 
+    // drop from middle
     const [newMiddle, upLeft, inUpLeft] =
       this.middle.dropInternal(middleAmount);
     const newSelf = this.copy(upLeft, undefined, newMiddle)._normalize();
@@ -217,27 +254,36 @@ export class NonLeafTree<T, C extends Block<T, C>>
   }
 
   concat<T2>(other: NonLeaf<T2, C>): NonLeaf<T | T2, C> {
-    if (this.context.isNonLeafBlock(other))
+    if (this.context.isNonLeafBlock(other)) {
       return (this as any).concatBlock(other);
-    if (this.context.isNonLeafTree(other))
+    }
+    if (this.context.isNonLeafTree(other)) {
       return (this as any).concatTree(other);
+    }
 
     RimbuError.throwInvalidStateError();
   }
 
   concatBlock(other: NonLeafBlock<T, C>): NonLeaf<T, C> {
+    if (other.level !== this.level) {
+      RimbuError.throwInvalidStateError();
+    }
+
     if (this.right.nrChildren + other.nrChildren <= this.context.maxBlockSize) {
+      // append to right
       const newRight = this.right.concatChildren(other);
 
       return this.copy(undefined, newRight);
     }
 
     if (this.right.childrenInMin) {
+      // move current right to middle
       const newMiddle = this.appendMiddle(this.right);
 
       return this.copy(undefined, other, newMiddle)._normalize();
     }
 
+    // split new right
     const newRight = this.right.concatChildren(other);
     const newLast = newRight._mutateSplitRight(this.context.maxBlockSize);
     const newMiddle = this.appendMiddle(newRight);
@@ -246,10 +292,15 @@ export class NonLeafTree<T, C extends Block<T, C>>
   }
 
   concatTree(other: NonLeafTree<T, C>): NonLeaf<T, C> {
+    if (other.level !== this.level) {
+      RimbuError.throwInvalidStateError();
+    }
+
     if (
       this.right.nrChildren + other.left.nrChildren <=
       this.context.maxBlockSize
     ) {
+      // merge right and left
       const joint = this.right.concatChildren(other.left);
 
       const newThisMiddle = this.appendMiddle(joint);
@@ -262,6 +313,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
     }
 
     if (this.right.childrenInMin && other.left.childrenInMin) {
+      // append both
       const newThisMiddle = this.appendMiddle(this.right).append(other.left);
       const newMiddle =
         null === other.middle
@@ -271,6 +323,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
       return this.copy(undefined, other.right, newMiddle)._normalize();
     }
 
+    // merge and split
     const joint = this.right.concatChildren(other.left);
     const jointRight = joint._mutateSplitRight();
 
@@ -372,22 +425,43 @@ export class NonLeafTree<T, C extends Block<T, C>>
   }
 
   _normalize(): NonLeaf<T, C> {
-    const leftRightNrChildren = this.left.nrChildren + this.right.nrChildren;
-    if (leftRightNrChildren > this.context.maxBlockSize) return this;
-
-    if (null === this.middle) return this.left.concat(this.right);
-
-    if (
-      this.context.isNonLeafBlock(this.middle) &&
-      this.middle.nrChildren === 1
-    ) {
-      const tMiddle: NonLeafBlock<T, NonLeafBlock<T, C>> = this.middle;
-      const middleChild = tMiddle.children[0];
+    if (null === this.middle) {
       if (
-        leftRightNrChildren + middleChild.nrChildren <=
+        this.left.nrChildren + this.right.nrChildren <=
         this.context.maxBlockSize
       ) {
-        return this.left.concat(middleChild).concat(this.right);
+        // can merge left and right
+        return this.left.concatChildren(this.right);
+      }
+    } else if (this.context.isNonLeafBlock(this.middle)) {
+      const firstChild = this.middle.getChild(0);
+
+      if (
+        this.left.nrChildren + firstChild.nrChildren <=
+        this.context.maxBlockSize
+      ) {
+        // first middle child can be merged with left
+        const result = this.middle.dropFirst();
+        const newMiddle = result[0];
+        const block = result[1];
+        return this.copy(this.left.concatChildren(block), undefined, newMiddle);
+      }
+
+      const lastChild = this.middle.getChild(this.middle.nrChildren - 1);
+
+      if (
+        this.right.nrChildren + lastChild.nrChildren <=
+        this.context.maxBlockSize
+      ) {
+        // last middle child can be merged with right
+        const result = this.middle.dropLast();
+        const newMiddle = result[0];
+        const block = result[1];
+        return this.copy(
+          undefined,
+          block.concatChildren(this.right),
+          newMiddle
+        );
       }
     }
 
@@ -400,7 +474,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
 
   structure(): string {
     const space = ' '.padEnd(this.level * 2);
-    return `\n${space}<NLTree len:${
+    return `\n${space}<NLTree(${this.level}) len:${
       this.length
     }\n  l:${this.left.structure()}\n  m:${
       this.middle && this.middle.structure()

@@ -65,12 +65,14 @@ export class LeafBlockBuilder<T> implements LeafBuilder<T>, BlockBuilder<T> {
   }
 
   get<O>(index: number, otherwise?: OptLazy<O>): T | O {
-    if (undefined !== this.source) return this.source?.get(index, otherwise);
+    if (undefined !== this.source) {
+      return this.source.get(index, otherwise);
+    }
 
     return this.children[index];
   }
 
-  updateAt<O>(index: number, update: Update<T>, otherwise?: OptLazy<O>): T | O {
+  updateAt(index: number, update: Update<T>): T {
     const oldValue = this.children[index];
     const newValue = Update(oldValue, update);
     this.children[index] = newValue;

@@ -4,6 +4,7 @@ import {
   LeafBlock,
   ListContext,
   NonLeafBlock,
+  NonLeafBlockBuilder,
   NonLeafTree,
 } from '@rimbu/list/custom';
 import './setupTests';
@@ -11,6 +12,16 @@ import './setupTests';
 const context = new ListContext(2);
 
 describe('NonLeafBlock', () => {
+  it('_mutateRebalance', () => {
+    const b2 = context.leafBlock([1, 2]);
+
+    const nl = context.nonLeafBlock<number, LeafBlock<number>>(4, [b2, b2], 1);
+    nl._mutateRebalance();
+    expect(nl.nrChildren).toBe(1);
+    expect(nl.length).toBe(4);
+    expect(nl.children[0].toArray()).toEqual([1, 2, 1, 2]);
+  });
+
   it('append', () => {
     const b3 = context.leafBlock([1, 2, 3]);
     const b4 = context.leafBlock([4, 5, 6]);
@@ -138,6 +149,17 @@ describe('NonLeafBlock', () => {
       expect(r.right.children).toBeArrayOf([b3, b3, b3]);
       expect(r.length).toBe(18);
     }
+    {
+      const nl = context.nonLeafBlock<number, LeafBlock<number>>(
+        9,
+        [b3, b3, b3],
+        1
+      );
+      const nlt = context.nonLeafTree(nl, nl, null, 1);
+
+      const r = nl.concat(nlt);
+      expect(r.length).toBe(27);
+    }
   });
 
   it('concatBlock', () => {
@@ -198,10 +220,64 @@ describe('NonLeafBlock', () => {
     }
   });
 
+  it('concatTree', () => {
+    const b3 = context.leafBlock([1, 2, 3]);
+
+    {
+      const nl = context.nonLeafBlock<number, LeafBlock<number>>(
+        9,
+        [b3, b3],
+        1
+      );
+      const nlt = context.nonLeafTree(nl, nl, null, 1);
+
+      const r = nl.concatTree(nlt) as NonLeafTree<number, any>;
+      expect(r.left.nrChildren).toBe(4);
+    }
+
+    {
+      const nl = context.nonLeafBlock<number, LeafBlock<number>>(
+        9,
+        [b3, b3, b3, b3],
+        1
+      );
+      const nlt = context.nonLeafTree(
+        context.nonLeafBlock<number, LeafBlock<number>>(3, [b3], 1),
+        nl,
+        null,
+        1
+      );
+
+      const r = nl.concatTree(nlt) as NonLeafTree<number, any>;
+      expect(r.left.nrChildren).toBe(1);
+      expect(r.right.nrChildren).toBe(4);
+      const m = r.middle as NonLeafBlock<number, any>;
+      expect(r.middle).toBeInstanceOf(NonLeafBlock);
+      expect(m.nrChildren).toBe(1);
+      expect(m.children[0].nrChildren).toBe(4);
+    }
+  });
+
   it('context', () => {
     const b3 = context.leafBlock([1, 2, 3]);
     const nl = context.nonLeafBlock<number, LeafBlock<number>>(6, [b3, b3], 1);
     expect(nl.context).toBe(context);
+  });
+
+  it('createBlockBuilder', () => {
+    const b3 = context.leafBlock([1, 2, 3]);
+    const nl = context.nonLeafBlock<number, LeafBlock<number>>(6, [b3, b3], 1);
+    const b = nl.createBlockBuilder();
+    expect(b).toBeInstanceOf(NonLeafBlockBuilder);
+    expect(b.build()).toBe(nl);
+  });
+
+  it('createNonLeafBuilder', () => {
+    const b3 = context.leafBlock([1, 2, 3]);
+    const nl = context.nonLeafBlock<number, LeafBlock<number>>(6, [b3, b3], 1);
+    const b = nl.createNonLeafBuilder();
+    expect(b).toBeInstanceOf(NonLeafBlockBuilder);
+    expect(b.build()).toBe(nl);
   });
 
   it('dropChildren', () => {
@@ -382,9 +458,7 @@ describe('NonLeafBlock', () => {
       );
 
       expect(nl.getCoordinates(0, false, false)).toEqual([0, 0]);
-      // expect(nl.getCoordinates(0, true, false)).toEqual([0, 0]);
-      // expect(nl.getCoordinates(0, true, true)).toEqual([0, 0]);
-      // expect(nl.getCoordinates(0, false, true)).toEqual([0, 0]);
+      expect(nl.getCoordinates(0, false, true)).toEqual([0, 0]);
 
       expect(nl.getCoordinates(1, false, false)).toEqual([0, 1]);
       expect(nl.getCoordinates(1, true, false)).toEqual([0, 1]);
@@ -396,15 +470,10 @@ describe('NonLeafBlock', () => {
       expect(nl.getCoordinates(5, true, true)).toEqual([1, 1]);
       expect(nl.getCoordinates(5, false, true)).toEqual([1, 1]);
 
-      expect(nl.getCoordinates(9, false, false)).toEqual([2, 1]);
-      expect(nl.getCoordinates(9, true, false)).toEqual([2, 1]);
-      expect(nl.getCoordinates(9, true, true)).toEqual([2, 1]);
-      expect(nl.getCoordinates(9, false, true)).toEqual([2, 1]);
-
       expect(nl.getCoordinates(8, false, false)).toEqual([2, 0]);
       expect(nl.getCoordinates(8, true, false)).toEqual([1, 4]);
       expect(nl.getCoordinates(8, true, true)).toEqual([1, 4]);
-      expect(nl.getCoordinates(8, false, true)).toEqual([2, 0]);
+      expect(nl.getCoordinates(8, false, true)).toEqual([1, 3]);
 
       expect(nl.getCoordinates(7, false, false)).toEqual([1, 3]);
       expect(nl.getCoordinates(7, true, false)).toEqual([1, 3]);
@@ -467,13 +536,44 @@ describe('NonLeafBlock', () => {
     const b1 = context.leafBlock([1, 2, 3]);
     const b2 = context.leafBlock([4, 5, 6]);
     const nl = context.nonLeafBlock<number, LeafBlock<number>>(6, [b1, b2], 1);
-    const r = nl.map((v) => v + 1);
-    expect(r.length).toBe(6);
-    expect(r.level).toBe(1);
-    expect(r.children[0].toArray()).toEqual([2, 3, 4]);
-    expect(r.children[1].toArray()).toEqual([5, 6, 7]);
+    {
+      const r = nl.map((v) => v + 1);
+      expect(r.length).toBe(6);
+      expect(r.level).toBe(1);
+      expect(r.children[0].toArray()).toEqual([2, 3, 4]);
+      expect(r.children[1].toArray()).toEqual([5, 6, 7]);
+    }
+
+    {
+      const r = nl.map((v) => v + 1, true);
+      expect(r.length).toBe(6);
+      expect(r.level).toBe(1);
+      expect(r.children[0].toArray()).toEqual([7, 6, 5]);
+      expect(r.children[1].toArray()).toEqual([4, 3, 2]);
+    }
   });
 
+  it('mapPure', () => {
+    const b1 = context.leafBlock([1, 2, 3]);
+
+    const nl = context.nonLeafBlock<number, LeafBlock<number>>(6, [b1, b1], 1);
+    {
+      const r = nl.mapPure((v) => v + 1);
+      expect(r.length).toBe(6);
+      expect(r.level).toBe(1);
+      expect(r.children[0].toArray()).toEqual([2, 3, 4]);
+      expect(r.children[1].toArray()).toEqual([2, 3, 4]);
+      expect(r.children[0]).toBe(r.children[1]);
+    }
+    {
+      const r = nl.mapPure((v) => v + 1, true);
+      expect(r.length).toBe(6);
+      expect(r.level).toBe(1);
+      expect(r.children[0].toArray()).toEqual([4, 3, 2]);
+      expect(r.children[1].toArray()).toEqual([4, 3, 2]);
+      expect(r.children[0]).toBe(r.children[1]);
+    }
+  });
   it('nrChildren', () => {
     const b3 = context.leafBlock([1, 2, 3]);
     const nl = context.nonLeafBlock<number, LeafBlock<number>>(6, [b3, b3], 1);
@@ -581,6 +681,23 @@ describe('NonLeafBlock', () => {
     expect(nl.streamRange({ start: 3, amount: 4 }, true).toArray()).toEqual([
       7, 6, 5, 4,
     ]);
+
+    expect(nl.streamRange({ start: 3, amount: 2 }).toArray()).toEqual([4, 5]);
+
+    expect(nl.streamRange({ start: 1, amount: 7 }).toArray()).toEqual([
+      2, 3, 4, 5, 6, 7, 8,
+    ]);
+  });
+
+  it('structure', () => {
+    const b3 = context.leafBlock([1, 2, 3]);
+
+    const nl = context.nonLeafBlock<number, LeafBlock<number>>(6, [b3, b3], 1);
+
+    expect(nl.structure()).toMatchInlineSnapshot(`
+      "
+        <NLBlock(1) len:6 c:2 <Leaf 3> <Leaf 3>>"
+    `);
   });
 
   it('takeChildren', () => {
@@ -662,6 +779,9 @@ describe('NonLeafBlock', () => {
       9, 8, 7, 6, 5, 4, 3, 2, 1,
     ]);
     expect(nl.toArray({ start: 3, amount: 4 }, true)).toEqual([7, 6, 5, 4]);
+
+    expect(nl.toArray({ start: 3, amount: 2 })).toEqual([4, 5]);
+    expect(nl.toArray({ start: 3, amount: 2 }, true)).toEqual([5, 4]);
   });
 
   it('updateAt', () => {

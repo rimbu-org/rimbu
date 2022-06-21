@@ -90,6 +90,7 @@ export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>
         this.left.nrChildren + this.right.nrChildren <=
         this.context.maxBlockSize
       ) {
+        // combine left and right
         this.left.concat(this.right);
         return this.left;
       }
@@ -109,13 +110,17 @@ export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>
   }
 
   get<O>(index: number, otherwise?: OptLazy<O>): T | O {
-    if (undefined !== this.source) return this.source.get(index);
+    if (undefined !== this.source) {
+      return this.source.get(index);
+    }
 
     return super.get(index, otherwise);
   }
 
   build(): NonLeafTree<T, any> {
-    if (undefined !== this.source) return this.source;
+    if (undefined !== this.source) {
+      return this.source;
+    }
 
     return this.context.nonLeafTree(
       this.left.build(),
@@ -126,7 +131,9 @@ export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>
   }
 
   buildMap<T2>(f: (value: T) => T2): NonLeafTree<T2, any> {
-    if (undefined !== this.source) return this.source.map(f);
+    if (undefined !== this.source) {
+      return this.source.map(f);
+    }
 
     return this.context.nonLeafTree(
       this.left.buildMap(f),
