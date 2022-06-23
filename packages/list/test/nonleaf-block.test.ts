@@ -40,7 +40,9 @@ describe('NonLeafBlock', () => {
       );
       const r = nl.append(b4) as NonLeafTree<any, any>;
       expect(r.left).toBeInstanceOf(NonLeafBlock);
+      expect(r.left.level).toBe(1);
       expect(r.right).toBeInstanceOf(NonLeafBlock);
+      expect(r.right.level).toBe(1);
       expect(r.right.children[0]).toBe(b4);
       expect(r.middle).toBeNull();
       expect(r.length).toBe(15);
@@ -131,6 +133,7 @@ describe('NonLeafBlock', () => {
       );
       const r = nl.concat(nl) as NonLeafBlock<any, any>;
       expect(r).toBeInstanceOf(NonLeafBlock);
+      expect(r.level).toBe(1);
       expect(r.children).toBeArrayOf([b3, b3, b3, b3]);
       expect(r.length).toBe(12);
     }
@@ -143,9 +146,11 @@ describe('NonLeafBlock', () => {
       const r = nl.concat(nl) as NonLeafTree<any, any>;
       expect(r).toBeInstanceOf(NonLeafTree);
       expect(r.left).toBeInstanceOf(NonLeafBlock);
+      expect(r.left.level).toBe(1);
       expect(r.left.children).toBeArrayOf([b3, b3, b3]);
       expect(r.middle).toBeNull();
       expect(r.right).toBeInstanceOf(NonLeafBlock);
+      expect(r.right.level).toBe(1);
       expect(r.right.children).toBeArrayOf([b3, b3, b3]);
       expect(r.length).toBe(18);
     }
@@ -173,6 +178,7 @@ describe('NonLeafBlock', () => {
       );
       const r = nl.concatBlock(nl) as NonLeafBlock<any, any>;
       expect(r).toBeInstanceOf(NonLeafBlock);
+      expect(r.level).toBe(1);
       expect(r.children).toBeArrayOf([b3, b3, b3, b3]);
       expect(r.length).toBe(12);
     }
@@ -184,10 +190,13 @@ describe('NonLeafBlock', () => {
       );
       const r = nl.concatBlock(nl) as NonLeafTree<any, any>;
       expect(r).toBeInstanceOf(NonLeafTree);
+      expect(r.level).toBe(1);
       expect(r.left).toBeInstanceOf(NonLeafBlock);
+      expect(r.left.level).toBe(1);
       expect(r.left.children).toBeArrayOf([b3, b3, b3]);
       expect(r.middle).toBeNull();
       expect(r.right).toBeInstanceOf(NonLeafBlock);
+      expect(r.right.level).toBe(1);
       expect(r.right.children).toBeArrayOf([b3, b3, b3]);
       expect(r.length).toBe(18);
     }
@@ -204,6 +213,7 @@ describe('NonLeafBlock', () => {
       );
       const r = nl.concatChildren(nl) as NonLeafBlock<any, any>;
       expect(r).toBeInstanceOf(NonLeafBlock);
+      expect(r.level).toBe(1);
       expect(r.children).toBeArrayOf([b3, b3, b3, b3]);
       expect(r.length).toBe(12);
     }
@@ -215,6 +225,7 @@ describe('NonLeafBlock', () => {
       );
       const r = nl.concatChildren(nl);
       expect(r).toBeInstanceOf(NonLeafBlock);
+      expect(r.level).toBe(1);
       expect(r.children).toBeArrayOf([b3, b3, b3, b3, b3, b3]);
       expect(r.length).toBe(18);
     }
@@ -232,7 +243,9 @@ describe('NonLeafBlock', () => {
       const nlt = context.nonLeafTree(nl, nl, null, 1);
 
       const r = nl.concatTree(nlt) as NonLeafTree<number, any>;
+      expect(r.level).toBe(1);
       expect(r.left.nrChildren).toBe(4);
+      expect(r.left.level).toBe(1);
     }
 
     {
@@ -249,9 +262,13 @@ describe('NonLeafBlock', () => {
       );
 
       const r = nl.concatTree(nlt) as NonLeafTree<number, any>;
+      expect(r.level).toBe(1);
+      expect(r.left.level).toBe(1);
+      expect(r.right.level).toBe(1);
       expect(r.left.nrChildren).toBe(1);
       expect(r.right.nrChildren).toBe(4);
       const m = r.middle as NonLeafBlock<number, any>;
+      expect(m.level).toBe(2);
       expect(r.middle).toBeInstanceOf(NonLeafBlock);
       expect(m.nrChildren).toBe(1);
       expect(m.children[0].nrChildren).toBe(4);
@@ -269,6 +286,7 @@ describe('NonLeafBlock', () => {
     const nl = context.nonLeafBlock<number, LeafBlock<number>>(6, [b3, b3], 1);
     const b = nl.createBlockBuilder();
     expect(b).toBeInstanceOf(NonLeafBlockBuilder);
+    expect(b.level).toBe(1);
     expect(b.build()).toBe(nl);
   });
 
@@ -277,6 +295,7 @@ describe('NonLeafBlock', () => {
     const nl = context.nonLeafBlock<number, LeafBlock<number>>(6, [b3, b3], 1);
     const b = nl.createNonLeafBuilder();
     expect(b).toBeInstanceOf(NonLeafBlockBuilder);
+    expect(b.level).toBe(1);
     expect(b.build()).toBe(nl);
   });
 
@@ -295,6 +314,7 @@ describe('NonLeafBlock', () => {
 
     const r = nl.dropChildren(2);
     expect(r).toBeInstanceOf(NonLeafBlock);
+    expect(r?.level).toBe(1);
     expect(r?.length).toBe(3);
     expect(r?.children).toBeArrayOf([b3]);
   });
@@ -311,6 +331,7 @@ describe('NonLeafBlock', () => {
       const [r, u] = nl.dropFirst();
 
       expect(r).toBeInstanceOf(NonLeafBlock);
+      expect(r?.level).toBe(1);
       expect(r?.length).toBe(6);
       expect(r?.children).toBeArrayOf([b3, b3]);
       expect(u).toBeInstanceOf(LeafBlock);
@@ -378,6 +399,7 @@ describe('NonLeafBlock', () => {
       const [r, u] = nl.dropLast();
 
       expect(r).toBeInstanceOf(NonLeafBlock);
+      expect(r?.level).toBe(1);
       expect(r?.length).toBe(6);
       expect(r?.children).toBeArrayOf([b3, b3]);
       expect(u).toBeInstanceOf(LeafBlock);
@@ -598,6 +620,9 @@ describe('NonLeafBlock', () => {
       );
       const r = nl.prepend(b4) as NonLeafTree<any, any>;
       expect(r.left).toBeInstanceOf(NonLeafBlock);
+      expect(r.level).toBe(1);
+      expect(r.left.level).toBe(1);
+      expect(r.right.level).toBe(1);
       expect(r.left.children[0]).toBe(b4);
       expect(r.right).toBeInstanceOf(NonLeafBlock);
       expect(r.middle).toBeNull();
@@ -715,6 +740,7 @@ describe('NonLeafBlock', () => {
 
     const r = nl.takeChildren(2);
     expect(r).toBeInstanceOf(NonLeafBlock);
+    expect(r?.level).toBe(1);
     expect(r?.length).toBe(6);
     expect(r?.children).toBeArrayOf([b1, b2]);
   });

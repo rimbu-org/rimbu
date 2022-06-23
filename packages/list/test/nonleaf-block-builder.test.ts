@@ -9,7 +9,7 @@ import {
 
 const context = new ListContext(2);
 
-describe('NonLeafBuildBuilder', () => {
+describe('NonLeafBlockBuilder', () => {
   it('append', () => {
     const b = context.nonLeafBlockBuilder<number, LeafBlockBuilder<number>>(
       1,
@@ -565,6 +565,7 @@ describe('NonLeafBuildBuilder', () => {
       const b = context.nonLeafBlockBuilderSource(source);
       const n = b.normalized() as NonLeafBlockBuilder<number, any>;
       expect(n).toBeInstanceOf(NonLeafBlockBuilder);
+      expect(n.level).toBe(1);
       expect(n.nrChildren).toBe(4);
     }
     {
@@ -578,20 +579,23 @@ describe('NonLeafBuildBuilder', () => {
       const b = context.nonLeafBlockBuilderSource(source);
       const n = b.normalized() as NonLeafBlockBuilder<number, any>;
       expect(n).toBeInstanceOf(NonLeafBlockBuilder);
+      expect(n.level).toBe(1);
       expect(n.nrChildren).toBe(4);
     }
     {
-      // irregular, merge
-      const lb = context.leafBlock([1]);
-      const source = context.nonLeafBlock<number, LeafBlock<number>>(
-        4,
-        [lb, lb, lb, lb],
-        1
-      );
-      const b = context.nonLeafBlockBuilderSource(source);
-      const n = b.normalized() as NonLeafBlockBuilder<number, any>;
-      expect(n).toBeInstanceOf(NonLeafBlockBuilder);
-      expect(n.nrChildren).toBe(1);
+      // child merge has been disabled
+      // // irregular, merge
+      // const lb = context.leafBlock([1]);
+      // const source = context.nonLeafBlock<number, LeafBlock<number>>(
+      //   4,
+      //   [lb, lb, lb, lb],
+      //   1
+      // );
+      // const b = context.nonLeafBlockBuilderSource(source);
+      // const n = b.normalized() as NonLeafBlockBuilder<number, any>;
+      // expect(n).toBeInstanceOf(NonLeafBlockBuilder);
+      // expect(n.level).toBe(1);
+      // expect(n.nrChildren).toBe(1);
     }
     {
       // split
@@ -604,6 +608,7 @@ describe('NonLeafBuildBuilder', () => {
       const b = context.nonLeafBlockBuilderSource(source);
       const n = b.normalized() as NonLeafTreeBuilder<number, any>;
       expect(n).toBeInstanceOf(NonLeafTreeBuilder);
+      expect(n.level).toBe(1);
       expect(n.left.nrChildren).toBe(2);
       expect(n.right.nrChildren).toBe(3);
     }

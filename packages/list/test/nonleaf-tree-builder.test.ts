@@ -41,6 +41,7 @@ describe('NonLeafTreeBuilder', () => {
       const r = b.build();
       expect(r.length).toBe(24);
       expect(r).toBeInstanceOf(NonLeafTree);
+      expect(r.level).toBe(1);
     }
   });
 
@@ -62,6 +63,7 @@ describe('NonLeafTreeBuilder', () => {
       const b = context.nonLeafTreeBuilderSource(source);
       const r = b.buildMap((v) => v + 1);
       expect(r).toBeInstanceOf(NonLeafTree);
+      expect(r.level).toBe(1);
       expect(r.toArray()).toEqual(
         source
           .stream()
@@ -80,6 +82,7 @@ describe('NonLeafTreeBuilder', () => {
       const b = context.nonLeafTreeBuilder(1, nlb, nlb, undefined, 24);
       const r = b.buildMap((v) => v + 1);
       expect(r).toBeInstanceOf(NonLeafTree);
+      expect(r.level).toBe(1);
       expect(r.toArray()).toEqual(Stream.of(2, 3, 4, 5).repeat(6).toArray());
     }
   });
@@ -299,25 +302,24 @@ describe('NonLeafTreeBuilder', () => {
       expect(n).toBeInstanceOf(NonLeafBlockBuilder);
     }
     {
-      // normalize middle
-      const first = context.leafBlockBuilder([1, 2]);
-      const second = context.leafBlockBuilder([11, 12]);
-
-      const nlb = context.nonLeafBlockBuilder<number, LeafBlockBuilder<number>>(
-        1,
-        [first, second],
-        8
-      );
-      const nlb2 = context.nonLeafBlockBuilder<
-        number,
-        NonLeafBlockBuilder<number, any>
-      >(2, [nlb, nlb], 16);
-      nlb2.normalized = jest.fn();
-
-      const b = context.nonLeafTreeBuilder(1, nlb, nlb, nlb2, 16);
-      const n = b.normalized();
-      expect(nlb2.normalized).toBeCalledTimes(1);
-      expect(n).toBeInstanceOf(NonLeafTreeBuilder);
+      // recursive normalization is disabled
+      // // normalize middle
+      // const first = context.leafBlockBuilder([1, 2]);
+      // const second = context.leafBlockBuilder([11, 12]);
+      // const nlb = context.nonLeafBlockBuilder<number, LeafBlockBuilder<number>>(
+      //   1,
+      //   [first, second],
+      //   8
+      // );
+      // const nlb2 = context.nonLeafBlockBuilder<
+      //   number,
+      //   NonLeafBlockBuilder<number, any>
+      // >(2, [nlb, nlb], 16);
+      // nlb2.normalized = jest.fn();
+      // const b = context.nonLeafTreeBuilder(1, nlb, nlb, nlb2, 16);
+      // const n = b.normalized();
+      // expect(nlb2.normalized).toBeCalledTimes(1);
+      // expect(n).toBeInstanceOf(NonLeafTreeBuilder);
     }
   });
 

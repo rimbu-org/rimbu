@@ -119,6 +119,7 @@ function runLeafTreeTests(
 
       const r3 = t12.appendMiddle(b3);
       expect(r3).toBeInstanceOf(NonLeafTree);
+      expect(r3.level).toBe(1);
     });
 
     it('asNormal', () => {
@@ -170,6 +171,7 @@ function runLeafTreeTests(
       expect(t9.left).toBe(b3);
       expect(t9.right).toBe(b3);
       const m = t9.middle as NonLeafBlock<any, any>;
+      expect(m.level).toBe(1);
       expect(m.nrChildren).toBe(4);
       expect(m.children[1]).toBe(b3);
       expect(m.children[2]).toBe(b3);
@@ -188,6 +190,7 @@ function runLeafTreeTests(
       expect(r2.left).toBe(b3);
       expect(r2.right.toArray()).toEqual([10, 11]);
       const m2 = r2.middle as NonLeafBlock<any, any>;
+      expect(m2.level).toBe(1);
       expect(m2.nrChildren).toBe(1);
       expect(m2.children[0]).toBe(b3);
 
@@ -210,6 +213,7 @@ function runLeafTreeTests(
 
       const r1 = t6.concat(t6) as LeafTree<number>;
       const m1 = r1.middle as NonLeafBlock<any, any>;
+      expect(m1.level).toBe(1);
       expect(r1.left).toBe(b3);
       expect(r1.right).toBe(b3);
       expect(m1.nrChildren).toBe(2);
@@ -218,6 +222,7 @@ function runLeafTreeTests(
 
       const r2 = r1.concat(r1) as LeafTree<number>;
       const m2 = r2.middle as NonLeafTree<any, any>;
+      expect(m2.level).toBe(1);
       expect(m2.left.nrChildren).toBe(3);
       expect(m2.right.nrChildren).toBe(3);
       expect(m2.middle).toBeNull();
@@ -426,6 +431,7 @@ function runLeafTreeTests(
       expect(r3.left).toBeInstanceOf(LeafBlock);
       expect(r3.left.toArray()).toEqual([12]);
       expect(r3.middle).toBeInstanceOf(NonLeafBlock);
+      expect(r3.middle?.level).toBe(1);
       expect(r3.middle?.toArray()).toEqual([11, 10, 1, 2]);
       expect(r3.right).toBeInstanceOf(LeafBlock);
       expect(r3.right.toArray()).toEqual([3, 1, 2, 3]);
@@ -449,8 +455,9 @@ function runLeafTreeTests(
         context.nonLeafBlock(12, [b3, b3, b3, b3], 1)
       );
 
-      const r3 = t12.prependMiddle(b3);
+      const r3 = t12.prependMiddle(b3) as NonLeafTree<number, any>;
       expect(r3).toBeInstanceOf(NonLeafTree);
+      expect(r3.level).toBe(1);
     });
 
     it('remove', () => {

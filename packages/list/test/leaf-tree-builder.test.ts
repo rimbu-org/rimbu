@@ -3,6 +3,7 @@ import {
   LeafTree,
   LeafTreeBuilder,
   ListContext,
+  NonLeafTreeBuilder,
 } from '@rimbu/list/custom';
 
 const context = new ListContext(2);
@@ -134,6 +135,105 @@ describe('LeafTreeBuilder', () => {
     }
   });
 
+  it('appendMiddle', () => {
+    {
+      // no middle
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3]),
+        context.leafBlockBuilder([11, 12, 13]),
+        undefined,
+        6
+      );
+      const child = context.leafBlockBuilder([21, 22, 23]);
+      t.appendMiddle(child);
+      expect(t.length).toBe(6);
+      expect((t.middle as any).children[0]).toBe(child);
+    }
+    {
+      // middle, simple append
+      const middleBlock = context.leafBlockBuilder([21, 22, 23, 24]);
+
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3]),
+        context.leafBlockBuilder([11, 12, 13]),
+        context.nonLeafBlockBuilder(1, [middleBlock], 4),
+        10
+      );
+      const child = context.leafBlockBuilder([31, 32, 33]);
+      t.appendMiddle(child);
+      expect(t.length).toBe(10);
+      expect((t.middle as any).children[0]).toBe(middleBlock);
+      expect((t.middle as any).children[1]).toBe(child);
+    }
+    {
+      // middle, simple block merge
+      const middleBlock = context.leafBlockBuilder([21, 22, 23]);
+
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3]),
+        context.leafBlockBuilder([11, 12, 13]),
+        context.nonLeafBlockBuilder(1, [middleBlock], 3),
+        9
+      );
+      const child = context.leafBlockBuilder([31]);
+      t.appendMiddle(child);
+      expect(t.length).toBe(9);
+      expect((t.middle as any).children[0].children).toEqual([21, 22, 23, 31]);
+    }
+    {
+      // middle, prepend block
+      const middleBlock = context.leafBlockBuilder([21, 22, 23]);
+
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3]),
+        context.leafBlockBuilder([11, 12, 13]),
+        context.nonLeafBlockBuilder(1, [middleBlock], 3),
+        9
+      );
+      const child = context.leafBlockBuilder([31, 32, 33]);
+      t.appendMiddle(child);
+      expect(t.length).toBe(9);
+      expect((t.middle as any).children[0]).toBe(middleBlock);
+      expect(child.children).toEqual([31, 32, 33]);
+      expect((t.middle as any).children[1]).toBe(child);
+      expect(middleBlock.children).toEqual([21, 22, 23]);
+    }
+    {
+      // middle, marge and split and normalize
+      const middle = context.nonLeafBlockBuilder<
+        number,
+        LeafBlockBuilder<number>
+      >(
+        1,
+        [
+          context.leafBlockBuilder([21, 22, 23, 24]),
+          context.leafBlockBuilder([21, 22, 23, 24]),
+          context.leafBlockBuilder([21, 22, 23, 24]),
+          context.leafBlockBuilder([21, 22, 23, 24]),
+        ],
+        16
+      );
+
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3]),
+        context.leafBlockBuilder([11, 12, 13]),
+        middle,
+        22
+      );
+      const child = context.leafBlockBuilder([31]);
+      t.appendMiddle(child);
+      expect(t.length).toBe(22);
+      expect(t.middle).toBeInstanceOf(NonLeafTreeBuilder);
+      const newMiddle = t.middle as NonLeafTreeBuilder<number, any>;
+      expect(newMiddle.level).toBe(1);
+      expect(newMiddle.left).toBe(middle);
+      expect(newMiddle.left.nrChildren).toBe(2);
+      expect(newMiddle.right.nrChildren).toBe(3);
+      expect(newMiddle.right.children[1].children).toEqual([21, 22]);
+      expect(newMiddle.right.children[2].children).toEqual([23, 24, 31]);
+    }
+  });
+
   it('build', () => {
     {
       const t = context.leafTreeBuilder(
@@ -197,25 +297,234 @@ describe('LeafTreeBuilder', () => {
     ).toBe(context);
   });
 
-  it('length', () => {
+  it('dropFirst', () => {
     {
+      // simple drop left
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3, 4]),
+        context.leafBlockBuilder([11, 12, 13, 14]),
+        undefined,
+        8
+      );
+      expect(t.dropFirst()).toBe(1);
+      expect(t.left.children).toEqual([2, 3, 4]);
+      expect(t.length).toBe(7);
+    }
+    {
+      // assume parent normalization
       const t = context.leafTreeBuilder(
         context.leafBlockBuilder([1, 2]),
         context.leafBlockBuilder([11, 12]),
         undefined,
         4
       );
-      expect(t.length).toBe(4);
+      expect(t.dropFirst()).toBe(1);
+      expect(t.left.children).toEqual([2]);
+      expect(t.length).toBe(3);
     }
     {
-      const source = context.leafTree(
-        context.leafBlock([1, 2]),
-        context.leafBlock([11, 12]),
-        null
+      // shift from right
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2]),
+        context.leafBlockBuilder([11, 12, 13, 14]),
+        undefined,
+        6
+      );
+      expect(t.dropFirst()).toBe(1);
+      expect(t.left.children).toEqual([2, 11]);
+      expect(t.right.children).toEqual([12, 13, 14]);
+      expect(t.length).toBe(5);
+    }
+    {
+      // no normalization
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2]),
+        context.leafBlockBuilder([11, 12]),
+        undefined,
+        4
+      );
+      expect(t.dropFirst()).toBe(1);
+      expect(t.left.children).toEqual([2]);
+      expect(t.right.children).toEqual([11, 12]);
+      expect(t.length).toBe(3);
+    }
+    {
+      // middle, shift from first middle
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2]),
+        context.leafBlockBuilder([11, 12, 13, 14]),
+        context.nonLeafBlockBuilder(
+          1,
+          [context.leafBlockBuilder([21, 22, 23, 24])],
+          4
+        ),
+        10
       );
 
-      const t = context.leafTreeBuilderSource(source);
-      expect(t.length).toBe(4);
+      expect(t.dropFirst()).toBe(1);
+      expect(t.left.children).toEqual([2, 21]);
+      expect((t.middle as any).children[0].children).toEqual([22, 23, 24]);
+      expect(t.right.children).toEqual([11, 12, 13, 14]);
+    }
+    {
+      // middle, merge with first middle
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2]),
+        context.leafBlockBuilder([11, 12, 13, 14]),
+        context.nonLeafBlockBuilder(
+          1,
+          [context.leafBlockBuilder([21, 22, 23])],
+          3
+        ),
+        9
+      );
+
+      expect(t.dropFirst()).toBe(1);
+      expect(t.left.children).toEqual([2, 21, 22, 23]);
+      expect(t.middle).toBeUndefined();
+      expect(t.right.children).toEqual([11, 12, 13, 14]);
+    }
+  });
+
+  it('dropLast', () => {
+    {
+      // simple drop right
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3, 4]),
+        context.leafBlockBuilder([11, 12, 13, 14]),
+        undefined,
+        8
+      );
+      expect(t.dropLast()).toBe(14);
+      expect(t.right.children).toEqual([11, 12, 13]);
+      expect(t.length).toBe(7);
+    }
+    {
+      // assume parent normalization
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2]),
+        context.leafBlockBuilder([11, 12]),
+        undefined,
+        4
+      );
+      expect(t.dropLast()).toBe(12);
+      expect(t.right.children).toEqual([11]);
+      expect(t.length).toBe(3);
+    }
+    {
+      // shift from left
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3, 4]),
+        context.leafBlockBuilder([11, 12]),
+        undefined,
+        6
+      );
+      expect(t.dropLast()).toBe(12);
+      expect(t.left.children).toEqual([1, 2, 3]);
+      expect(t.right.children).toEqual([4, 11]);
+      expect(t.length).toBe(5);
+    }
+    {
+      // no normalization
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2]),
+        context.leafBlockBuilder([11, 12]),
+        undefined,
+        4
+      );
+      expect(t.dropLast()).toBe(12);
+      expect(t.left.children).toEqual([1, 2]);
+      expect(t.right.children).toEqual([11]);
+      expect(t.length).toBe(3);
+    }
+    {
+      // middle, shift from last middle
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3, 4]),
+        context.leafBlockBuilder([11, 12]),
+        context.nonLeafBlockBuilder(
+          1,
+          [context.leafBlockBuilder([21, 22, 23, 24])],
+          4
+        ),
+        10
+      );
+
+      expect(t.dropLast()).toBe(12);
+      expect(t.left.children).toEqual([1, 2, 3, 4]);
+      expect((t.middle as any).children[0].children).toEqual([21, 22, 23]);
+      expect(t.right.children).toEqual([24, 11]);
+    }
+    {
+      // middle, merge with last middle
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3, 4]),
+        context.leafBlockBuilder([11, 12]),
+        context.nonLeafBlockBuilder(
+          1,
+          [context.leafBlockBuilder([21, 22, 23])],
+          3
+        ),
+        9
+      );
+
+      expect(t.dropLast()).toBe(12);
+      expect(t.left.children).toEqual([1, 2, 3, 4]);
+      expect(t.middle).toBeUndefined();
+      expect(t.right.children).toEqual([21, 22, 23, 11]);
+    }
+  });
+
+  it('forEach', () => {
+    {
+      // no middle
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3, 4]),
+        context.leafBlockBuilder([11, 12, 13, 14]),
+        undefined,
+        8
+      );
+      const cb = jest.fn();
+      t.forEach(cb);
+      expect(cb).toBeCalledTimes(8);
+      expect(cb.mock.calls[1][0]).toBe(2);
+      expect(cb.mock.calls[1][1]).toBe(1);
+
+      cb.mockReset();
+
+      t.forEach((_, __, halt) => {
+        halt();
+        cb();
+      });
+
+      expect(cb).toBeCalledTimes(1);
+    }
+    {
+      //  middle
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3, 4]),
+        context.leafBlockBuilder([11, 12, 13, 14]),
+        context.nonLeafBlockBuilder(
+          1,
+          [context.leafBlockBuilder([21, 22, 23])],
+          3
+        ),
+        11
+      );
+      const cb = jest.fn();
+      t.forEach(cb);
+      expect(cb).toBeCalledTimes(11);
+      expect(cb.mock.calls[1][0]).toBe(2);
+      expect(cb.mock.calls[1][1]).toBe(1);
+
+      cb.mockReset();
+
+      t.forEach((_, __, halt) => {
+        halt();
+        cb();
+      });
+
+      expect(cb).toBeCalledTimes(1);
     }
   });
 
@@ -274,6 +583,173 @@ describe('LeafTreeBuilder', () => {
         )
         .getChildLength()
     ).toBe(1);
+  });
+
+  it('insert', () => {
+    {
+      // no middle, insert keeps same structure
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3]),
+        context.leafBlockBuilder([11, 12, 13]),
+        undefined,
+        6
+      );
+      t.insert(3, -1);
+      expect(t.length).toBe(7);
+      expect(t.left.children).toEqual([1, 2, 3, -1]);
+      expect(t.right.children).toEqual([11, 12, 13]);
+    }
+    {
+      // no middle, left shifts child to right
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3, 4]),
+        context.leafBlockBuilder([11, 12, 13]),
+        undefined,
+        7
+      );
+      t.insert(3, -1);
+      expect(t.length).toBe(8);
+      expect(t.left.children).toEqual([1, 2, 3, -1]);
+      expect(t.right.children).toEqual([4, 11, 12, 13]);
+    }
+    {
+      // no middle, right shifts child to left
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3]),
+        context.leafBlockBuilder([11, 12, 13, 14]),
+        undefined,
+        7
+      );
+      t.insert(4, -1);
+      expect(t.length).toBe(8);
+      expect(t.left.children).toEqual([1, 2, 3, 11]);
+      expect(t.right.children).toEqual([-1, 12, 13, 14]);
+    }
+    {
+      // middle, insert left needs to shift from left to middle
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3, 4]),
+        context.leafBlockBuilder([11, 12]),
+        context.nonLeafBlockBuilder(1, [context.leafBlockBuilder([21, 22])], 2),
+        8
+      );
+      t.insert(1, -1);
+      expect(t.length).toBe(9);
+      expect(t.left.children).toEqual([1, -1, 2, 3]);
+      expect((t.middle as any).children[0].children).toEqual([4, 21, 22]);
+      expect(t.right.children).toEqual([11, 12]);
+    }
+    {
+      // middle, insert right needs to shift from right to middle
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2]),
+        context.leafBlockBuilder([11, 12, 13, 14]),
+        context.nonLeafBlockBuilder(1, [context.leafBlockBuilder([21, 22])], 2),
+        8
+      );
+      t.insert(6, -1);
+      expect(t.length).toBe(9);
+      expect(t.left.children).toEqual([1, 2]);
+      expect((t.middle as any).children[0].children).toEqual([21, 22, 11]);
+      expect(t.right.children).toEqual([12, -1, 13, 14]);
+    }
+    {
+      // middle, insert left splits and adds to middle
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3, 4]),
+        context.leafBlockBuilder([11, 12]),
+        context.nonLeafBlockBuilder(
+          1,
+          [context.leafBlockBuilder([21, 22, 23, 24])],
+          4
+        ),
+        10
+      );
+      t.insert(2, -1);
+      expect(t.length).toBe(11);
+      expect(t.left.children).toEqual([1]);
+      expect((t.middle as any).children[0].children).toEqual([2, -1, 3, 4]);
+      expect((t.middle as any).children[1].children).toEqual([21, 22, 23, 24]);
+      expect(t.right.children).toEqual([11, 12]);
+    }
+    {
+      // middle, insert right splits and adds to middle
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2]),
+        context.leafBlockBuilder([11, 12, 13, 14]),
+        context.nonLeafBlockBuilder(
+          1,
+          [context.leafBlockBuilder([21, 22, 23, 24])],
+          4
+        ),
+        10
+      );
+      t.insert(8, -1);
+      expect(t.length).toBe(11);
+      expect(t.left.children).toEqual([1, 2]);
+      expect((t.middle as any).children[0].children).toEqual([21, 22, 23, 24]);
+      expect((t.middle as any).children[1].children).toEqual([11, 12, -1, 13]);
+      expect(t.right.children).toEqual([14]);
+    }
+    {
+      // insert into middle, no change to middle
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2]),
+        context.leafBlockBuilder([11, 12]),
+        context.nonLeafBlockBuilder(
+          1,
+          [context.leafBlockBuilder([21, 22, 23])],
+          3
+        ),
+        7
+      );
+      t.insert(4, -1);
+      expect(t.length).toBe(8);
+      expect(t.left.children).toEqual([1, 2]);
+      expect((t.middle as any).children[0].children).toEqual([21, 22, -1, 23]);
+      expect(t.right.children).toEqual([11, 12]);
+    }
+    {
+      // insert into middle, normalize middle
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2]),
+        context.leafBlockBuilder([11, 12]),
+        context.nonLeafBlockBuilder(
+          1,
+          [context.leafBlockBuilder([21, 22, 23, 24])],
+          3
+        ),
+        7
+      );
+      t.insert(4, -1);
+      expect(t.length).toBe(8);
+      expect(t.left.children).toEqual([1, 2]);
+      expect((t.middle as any).children[0].children).toEqual([21, 22]);
+      expect((t.middle as any).children[1].children).toEqual([23, -1, 24]);
+      expect(t.right.children).toEqual([11, 12]);
+    }
+  });
+
+  it('length', () => {
+    {
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2]),
+        context.leafBlockBuilder([11, 12]),
+        undefined,
+        4
+      );
+      expect(t.length).toBe(4);
+    }
+    {
+      const source = context.leafTree(
+        context.leafBlock([1, 2]),
+        context.leafBlock([11, 12]),
+        null
+      );
+
+      const t = context.leafTreeBuilderSource(source);
+      expect(t.length).toBe(4);
+    }
   });
 
   it('level', () => {
@@ -484,6 +960,105 @@ describe('LeafTreeBuilder', () => {
     }
   });
 
+  it('prependMiddle', () => {
+    {
+      // no middle
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3]),
+        context.leafBlockBuilder([11, 12, 13]),
+        undefined,
+        6
+      );
+      const child = context.leafBlockBuilder([21, 22, 23]);
+      t.prependMiddle(child);
+      expect(t.length).toBe(6);
+      expect((t.middle as any).children[0]).toBe(child);
+    }
+    {
+      // middle, simple prepend
+      const middleBlock = context.leafBlockBuilder([21, 22, 23, 24]);
+
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3]),
+        context.leafBlockBuilder([11, 12, 13]),
+        context.nonLeafBlockBuilder(1, [middleBlock], 4),
+        10
+      );
+      const child = context.leafBlockBuilder([31, 32, 33]);
+      t.prependMiddle(child);
+      expect(t.length).toBe(10);
+      expect((t.middle as any).children[0]).toBe(child);
+      expect((t.middle as any).children[1]).toBe(middleBlock);
+    }
+    {
+      // middle, simple block merge
+      const middleBlock = context.leafBlockBuilder([21, 22, 23]);
+
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3]),
+        context.leafBlockBuilder([11, 12, 13]),
+        context.nonLeafBlockBuilder(1, [middleBlock], 3),
+        9
+      );
+      const child = context.leafBlockBuilder([31]);
+      t.prependMiddle(child);
+      expect(t.length).toBe(9);
+      expect((t.middle as any).children[0].children).toEqual([31, 21, 22, 23]);
+    }
+    {
+      // middle, prepend block
+      const middleBlock = context.leafBlockBuilder([21, 22, 23]);
+
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3]),
+        context.leafBlockBuilder([11, 12, 13]),
+        context.nonLeafBlockBuilder(1, [middleBlock], 3),
+        9
+      );
+      const child = context.leafBlockBuilder([31, 32, 33]);
+      t.prependMiddle(child);
+      expect(t.length).toBe(9);
+      expect((t.middle as any).children[0]).toBe(child);
+      expect(child.children).toEqual([31, 32, 33]);
+      expect((t.middle as any).children[1]).toBe(middleBlock);
+      expect(middleBlock.children).toEqual([21, 22, 23]);
+    }
+    {
+      // middle, merge and split and normalize
+      const middle = context.nonLeafBlockBuilder<
+        number,
+        LeafBlockBuilder<number>
+      >(
+        1,
+        [
+          context.leafBlockBuilder([21, 22, 23, 24]),
+          context.leafBlockBuilder([21, 22, 23, 24]),
+          context.leafBlockBuilder([21, 22, 23, 24]),
+          context.leafBlockBuilder([21, 22, 23, 24]),
+        ],
+        16
+      );
+
+      const t = context.leafTreeBuilder(
+        context.leafBlockBuilder([1, 2, 3]),
+        context.leafBlockBuilder([11, 12, 13]),
+        middle,
+        22
+      );
+      const child = context.leafBlockBuilder([31]);
+      t.prependMiddle(child);
+      expect(t.length).toBe(22);
+      expect(t.middle).toBeInstanceOf(NonLeafTreeBuilder);
+      const newMiddle = t.middle as NonLeafTreeBuilder<number, any>;
+      expect(newMiddle.level).toBe(1);
+      expect(newMiddle.left).toBe(middle);
+      expect(newMiddle.left.nrChildren).toBe(2);
+      expect(newMiddle.right.nrChildren).toBe(3);
+      expect(newMiddle.left.children[0]).toBe(child);
+      expect(child.children).toEqual([31, 21]);
+    }
+  });
+
   it('remove', () => {
     {
       // no middle, remove keeps same structure
@@ -499,7 +1074,7 @@ describe('LeafTreeBuilder', () => {
       expect(t.right.children).toEqual([12, 13]);
     }
     {
-      // no middle, left get value from right
+      // no middle, left gets value from right
       const t = context.leafTreeBuilder(
         context.leafBlockBuilder([1, 2]),
         context.leafBlockBuilder([11, 12, 13]),
@@ -540,6 +1115,7 @@ describe('LeafTreeBuilder', () => {
       expect(t.length).toBe(7);
       expect(t.left.children).toEqual([2, 21]);
       expect((t.middle as any).children[0].children).toEqual([22, 23, 24]);
+      expect((t.middle as any).level).toBe(1);
       expect(t.right.children).toEqual([11, 12]);
     }
     {

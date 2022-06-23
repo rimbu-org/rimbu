@@ -22,7 +22,9 @@ export abstract class TreeBuilderBase<T, C> {
   get<O>(index: number, otherwise?: OptLazy<O>): T | O {
     const middleIndex = index - this.left.length;
 
-    if (middleIndex < 0) return this.left.get(index, otherwise);
+    if (middleIndex < 0) {
+      return this.left.get(index, otherwise);
+    }
 
     if (undefined === this.middle) {
       return this.right.get(middleIndex, otherwise);
@@ -196,8 +198,10 @@ export abstract class TreeBuilderBase<T, C> {
           }
         );
 
-        // if borrow was succesful
-        if (undefined !== delta) return oldValue;
+        if (undefined !== delta) {
+          //  borrow was succesful
+          return oldValue;
+        }
 
         // need to merge middle's last child with right
         const middleLast = this.middle.dropLast();
@@ -225,12 +229,16 @@ export abstract class TreeBuilderBase<T, C> {
     const middleIndex = index - this.left.length;
 
     if (middleIndex <= 0) {
+      // insert left
       this.left.insert(index, value);
 
-      if (this.left.nrChildren <= this.context.maxBlockSize) return;
+      if (this.left.nrChildren <= this.context.maxBlockSize) {
+        // no need to rebalance
+        return;
+      }
 
       if (undefined !== this.middle) {
-        // try shift to middle
+        // try shift child from left to middle
         const delta = this.middle.modifyFirstChild(
           (firstChild): number | undefined => {
             if (firstChild.nrChildren < this.context.maxBlockSize) {
@@ -243,16 +251,17 @@ export abstract class TreeBuilderBase<T, C> {
         );
 
         if (undefined !== delta) {
+          // shift succeeded
           return;
         }
       } else if (this.right.nrChildren < this.context.maxBlockSize) {
-        // try to shift to right
+        // try to shift child from left to right
         const shiftChild = this.left.dropLast();
         this.right.prepend(shiftChild);
         return;
       }
 
-      // prepend block to middle
+      // split left and prepend block to middle
       const toMiddle = this.left.splitRight(1);
       this.prependMiddle(toMiddle);
       return;
@@ -261,12 +270,16 @@ export abstract class TreeBuilderBase<T, C> {
     const rightIndex = middleIndex - (this.middle?.length ?? 0);
 
     if (undefined === this.middle || rightIndex >= 0) {
+      // insert in right block
       this.right.insert(rightIndex, value);
 
-      if (this.right.nrChildren <= this.context.maxBlockSize) return;
+      if (this.right.nrChildren <= this.context.maxBlockSize) {
+        // no need to rebalance
+        return;
+      }
 
       if (undefined !== this.middle) {
-        // try to shift child to middle last
+        // try to shift child from right to middle last
         const delta = this.middle.modifyLastChild(
           (lastChild): number | undefined => {
             if (lastChild.nrChildren < this.context.maxBlockSize) {
@@ -278,170 +291,216 @@ export abstract class TreeBuilderBase<T, C> {
           }
         );
 
-        if (undefined !== delta) return;
+        if (undefined !== delta) {
+          // shift succeeded
+          return;
+        }
       } else if (this.left.nrChildren < this.context.maxBlockSize) {
-        // try to shift child to left
+        // shift child from right to left
         const shiftChild = this.right.dropFirst();
         this.left.append(shiftChild);
         return;
       }
 
+      // split right and append block to middle
       const newRight = this.right.splitRight(this.context.maxBlockSize);
       this.appendMiddle(this.right);
       this.right = newRight;
       return;
     }
 
+    // insert into middle
     this.middle.insert(middleIndex, value);
     this.middle = this.middle.normalized();
   }
 
   prependMiddle(child: BlockBuilder<T, C>): void {
     if (undefined === this.middle) {
+      // no middle, create it with child
       this.middle = this.context.nonLeafBlockBuilder(
         this.level + 1,
         [child],
         child.length
       );
-    } else if (this.context.isNonLeafBlockBuilder(this.middle)) {
-      if (child.nrChildren < this.context.minBlockSize) {
-        this.middle.length += child.length;
-        const firstChild = this.middle.first();
-        child.concat(firstChild);
 
-        if (child.nrChildren <= this.context.maxBlockSize) {
-          this.middle.children[0] = child;
-          return;
-        }
-
-        const newRight = child.splitRight();
-        this.middle.children.splice(0, 1, child, newRight);
-
-        this.middle = this.middle.normalized();
-      } else if (this.middle.nrChildren >= this.context.maxBlockSize) {
-        const newLength = this.middle.length + child.length;
-        this.middle.prepend(child);
-        const newRight = this.middle.splitRight();
-        this.middle = this.context.nonLeafTreeBuilder(
-          this.level + 1,
-          this.middle,
-          newRight,
-          undefined,
-          newLength
-        );
-      } else {
-        this.middle.prepend(child);
-      }
-    } else {
-      this.middle.prepend(child);
+      return;
     }
+
+    if (child.nrChildren >= this.context.minBlockSize) {
+      // child size enough for its own middle block
+      this.middle.prepend(child);
+      this.middle = this.middle.normalized();
+
+      return;
+    }
+
+    // child size too small for own block, need to combine with first middle block
+    const firstMiddleChild = this.middle.first();
+
+    if (
+      child.nrChildren + firstMiddleChild.nrChildren <=
+      this.context.maxBlockSize
+    ) {
+      // can merge child into firstMiddleChild
+      firstMiddleChild.concat(child, true);
+      this.middle.length += child.length;
+
+      return;
+    }
+
+    // need to replace firstMiddleChild with two split blocks
+    this.middle.dropFirst();
+    child.concat(firstMiddleChild);
+    const newSecondChild = child.splitRight();
+    this.middle.prepend(newSecondChild);
+    this.middle.prepend(child);
+    this.middle = this.middle.normalized();
   }
 
   appendMiddle(child: BlockBuilder<T, C>): void {
     if (undefined === this.middle) {
+      // no middle, create it with child
       this.middle = this.context.nonLeafBlockBuilder(
         this.level + 1,
         [child],
         child.length
       );
-    } else if (this.context.isNonLeafBlockBuilder(this.middle)) {
-      if (child.nrChildren < this.context.minBlockSize) {
-        const lastChild = this.middle.last();
-        lastChild.concat(child);
 
-        if (lastChild.nrChildren <= this.context.maxBlockSize) return;
-
-        const newRight = lastChild.splitRight();
-        this.middle.append(newRight);
-
-        this.middle = this.middle.normalized();
-      } else if (this.middle.nrChildren >= this.context.maxBlockSize) {
-        const newLength = this.middle.length + child.length;
-        this.middle.append(child);
-        const newRight = this.middle.splitRight();
-        this.middle = this.context.nonLeafTreeBuilder(
-          this.level + 1,
-          this.middle,
-          newRight,
-          undefined,
-          newLength
-        );
-      } else {
-        this.middle.append(child);
-      }
-    } else {
-      this.middle.append(child);
+      return;
     }
+
+    if (child.nrChildren >= this.context.minBlockSize) {
+      // child size enough for its own middle block
+
+      this.middle.append(child);
+      this.middle = this.middle.normalized();
+
+      return;
+    }
+
+    // child size too small for own block, need to combine with last middle block
+    const lastMiddleChild = this.middle.last();
+
+    if (
+      child.nrChildren + lastMiddleChild.nrChildren <=
+      this.context.maxBlockSize
+    ) {
+      // can merge child into lastMiddleChild
+      lastMiddleChild.concat(child);
+      this.middle.length += child.length;
+
+      return;
+    }
+
+    // need to split lastMiddleChild and append new right
+    lastMiddleChild.concat(child);
+    const newLast = lastMiddleChild.splitRight();
+    this.middle.append(newLast);
+    this.middle = this.middle.normalized();
   }
 
   dropFirst(): C {
+    // remove first child from left
     const first = this.left.dropFirst();
     this.length -= this.getChildLength(first);
-    if (this.left.nrChildren >= this.context.minBlockSize) return first;
+
+    if (this.left.nrChildren >= this.context.minBlockSize) {
+      // enough children left, nothing else to do
+      return first;
+    }
+
+    // left does not have enough children
 
     if (undefined !== this.middle) {
-      const delta = this.middle.modifyFirstChild(
-        (firstChild): number | undefined => {
-          if (firstChild.nrChildren > this.context.minBlockSize) {
-            const shiftChild = firstChild.dropFirst();
-            this.left.append(shiftChild);
-            return -this.getChildLength(shiftChild);
-          }
-          return;
-        }
-      );
+      const firstMiddle = this.middle.first();
 
-      if (undefined !== delta) return first;
+      if (
+        this.left.nrChildren + firstMiddle.nrChildren <=
+        this.context.maxBlockSize
+      ) {
+        // can merge left and first middle
+        this.middle.dropFirst();
+        this.middle = this.middle.normalized();
+        this.left.concat(firstMiddle);
 
-      const middleFirst = this.middle.dropFirst();
-      this.middle = this.middle.normalized();
-      this.left.concat(middleFirst);
+        return first;
+      }
+
+      // can shift from first middle child
+      const shiftChild = firstMiddle.dropFirst();
+      this.middle.length -= this.getChildLength(shiftChild);
+      this.left.append(shiftChild);
+
       return first;
     }
 
-    if (this.right.nrChildren > this.context.minBlockSize) {
+    // no middle
+    // left size = min - 1
+    // if left + right <= max, parent needs to normalize
+    // otherwise, shift from right to left
+    if (
+      this.left.nrChildren + this.right.nrChildren >
+      this.context.maxBlockSize
+    ) {
       const shiftChild = this.right.dropFirst();
       this.left.append(shiftChild);
+
       return first;
     }
 
-    // parent will normalize
+    // assume parent will normalize
     return first;
   }
 
   dropLast(): C {
+    // remove last child from right
     const last = this.right.dropLast();
     this.length -= this.getChildLength(last);
-    if (this.right.nrChildren >= this.context.minBlockSize) return last;
+
+    if (this.right.nrChildren >= this.context.minBlockSize) {
+      // enough children left, nothing else to do
+      return last;
+    }
+
+    // right does not have enough children
 
     if (undefined !== this.middle) {
-      const delta = this.middle.modifyLastChild(
-        (lastChild): number | undefined => {
-          if (lastChild.nrChildren > this.context.minBlockSize) {
-            const shiftChild = lastChild.dropLast();
-            this.right.prepend(shiftChild);
-            return -this.getChildLength(shiftChild);
-          }
-          return;
-        }
-      );
+      const lastMiddle = this.middle.last();
 
-      if (undefined !== delta) return last;
+      if (
+        lastMiddle.nrChildren + this.right.nrChildren <=
+        this.context.maxBlockSize
+      ) {
+        // can merge last middle and right
+        this.middle.dropLast();
+        this.middle = this.middle.normalized();
+        this.right.concat(lastMiddle, true);
 
-      const middleLast = this.middle.dropLast();
-      middleLast.concat(this.right);
-      this.middle = this.middle.normalized();
-      this.right = middleLast;
+        return last;
+      }
+
+      const shiftChild = lastMiddle.dropLast();
+      this.middle.length -= this.getChildLength(shiftChild);
+      this.right.prepend(shiftChild);
+
       return last;
     }
 
-    if (this.left.nrChildren > this.context.minBlockSize) {
+    // no middle
+    // right size = min - 1
+    // if left + right <= max, parent needs to normalize
+    // otherwise, shift from left to right
+    if (
+      this.left.nrChildren + this.right.nrChildren >
+      this.context.maxBlockSize
+    ) {
       const shiftChild = this.left.dropLast();
       this.right.prepend(shiftChild);
+
       return last;
     }
 
-    // parent will normalize
+    // assume parent will normalize
     return last;
   }
 

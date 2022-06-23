@@ -11,7 +11,9 @@ export class GenBuilder<T> implements List.Builder<T> {
   _lock = 0;
 
   checkLock(): void {
-    if (this._lock) RimbuError.throwModifiedBuilderWhileLoopingOverItError();
+    if (this._lock) {
+      RimbuError.throwModifiedBuilderWhileLoopingOverItError();
+    }
   }
 
   get length(): number {
@@ -46,9 +48,12 @@ export class GenBuilder<T> implements List.Builder<T> {
       undefined === this.builder ||
       index >= this.length ||
       -index > this.length
-    )
+    ) {
       return OptLazy(otherwise) as O;
-    if (index < 0) return this.updateAt(this.length + index, update);
+    }
+    if (index < 0) {
+      return this.updateAt(this.length + index, update);
+    }
 
     return this.builder.updateAt(index, update);
   };
@@ -62,22 +67,11 @@ export class GenBuilder<T> implements List.Builder<T> {
 
     if (undefined === this.builder) {
       this.builder = this.context.leafBlockBuilder([value]);
-    } else if (
-      this.context.isLeafBlockBuilder(this.builder) &&
-      this.builder.nrChildren >= this.context.maxBlockSize
-    ) {
-      this.builder.prepend(value);
-      const newLength = this.length;
-      const newRight = this.builder.splitRight();
-      this.builder = this.context.leafTreeBuilder<T>(
-        this.builder,
-        newRight,
-        undefined,
-        newLength
-      );
-    } else {
-      this.builder.prepend(value);
+      return;
     }
+
+    this.builder.prepend(value);
+    this.builder = this.builder.normalized();
   };
 
   append = (value: T): void => {
@@ -85,22 +79,11 @@ export class GenBuilder<T> implements List.Builder<T> {
 
     if (undefined === this.builder) {
       this.builder = this.context.leafBlockBuilder([value]);
-    } else if (
-      this.context.isLeafBlockBuilder(this.builder) &&
-      this.builder.nrChildren >= this.context.maxBlockSize
-    ) {
-      this.builder.append(value);
-      const newLength = this.length;
-      const newRight = this.builder.splitRight();
-      this.builder = this.context.leafTreeBuilder<T>(
-        this.builder,
-        newRight,
-        undefined,
-        newLength
-      );
-    } else {
-      this.builder.append(value);
+      return;
     }
+
+    this.builder.append(value);
+    this.builder = this.builder.normalized();
   };
 
   appendAll = (values: StreamSource<T>): void => {
@@ -111,44 +94,67 @@ export class GenBuilder<T> implements List.Builder<T> {
       return;
     }
 
-    Stream.from(values).forEach(this.append);
+    Stream.from(values).forEachPure(this.append);
   };
 
-  appendArray(array: T[], from = 0): void {
-    this.checkLock();
-
-    if (array.length === 0 || from >= array.length) return;
+  appendFullOrLastWindow(window: T[]): void {
+    const leafBlockBuilder = this.context.leafBlockBuilder(window);
 
     if (undefined === this.builder) {
-      const items = array.slice(from, this.context.maxBlockSize);
-      this.builder = this.context.leafBlockBuilder(items);
-
-      return this.appendArray(array, from + items.length);
+      this.builder = leafBlockBuilder;
+      return;
     }
 
     if (this.context.isLeafBlockBuilder(this.builder)) {
-      if (this.builder.nrChildren < this.context.maxBlockSize) {
-        const items = array.slice(
-          from,
-          from + this.context.maxBlockSize - this.builder.nrChildren
-        );
-        this.builder.children = this.builder.children.concat(items);
-        return this.appendArray(array, from + items.length);
-      }
-
-      const secondItems = array.slice(from, from + this.context.maxBlockSize);
-      const secondBlock = this.context.leafBlockBuilder(secondItems);
-      this.builder = this.context.leafTreeBuilder<T>(
+      this.builder = this.context.leafTreeBuilder(
         this.builder,
-        secondBlock,
+        leafBlockBuilder,
         undefined,
-        this.builder.length + secondBlock.length
+        this.builder.length + leafBlockBuilder.length
       );
-      return this.appendArray(array, from + secondItems.length);
+      return;
     }
 
     if (this.context.isLeafTreeBuilder(this.builder)) {
-      this.builder.appendChildren(array, from);
+      this.builder.appendMiddle(this.builder.right);
+      this.builder.right = leafBlockBuilder;
+      this.builder.length += leafBlockBuilder.length;
+      return;
+    }
+
+    RimbuError.throwInvalidStateError();
+  }
+
+  appendArray(array: T[]): void {
+    let index = 0;
+    const blockSize = this.context.maxBlockSize;
+
+    // fill last child
+    if (undefined !== this.builder) {
+      if (this.context.isLeafBlockBuilder(this.builder)) {
+        index = blockSize - this.builder.length;
+
+        if (index > 0) {
+          const slice = array.slice(0, index);
+          this.builder.children = this.builder.children.concat(slice);
+        }
+      } else if (this.context.isLeafTreeBuilder(this.builder)) {
+        const left = this.builder.left;
+        index = blockSize - left.length;
+
+        if (index > 0) {
+          const slice = array.slice(0, index);
+          left.children = left.children.concat(slice);
+        }
+      }
+    }
+
+    // append blocks
+    while (index < array.length) {
+      const end = index + blockSize;
+      const window = array.slice(index, end);
+      this.appendFullOrLastWindow(window);
+      index = end;
     }
   }
 
@@ -196,25 +202,29 @@ export class GenBuilder<T> implements List.Builder<T> {
     f: (value: T, index: number, halt: () => void) => void,
     state: TraverseState = TraverseState()
   ): void => {
-    if (state.halted) return;
-
-    this._lock++;
-
     if (undefined !== this.builder) {
-      this.builder.forEach(f, state);
-    }
+      if (state.halted) return;
 
-    this._lock--;
+      this._lock++;
+
+      this.builder.forEach(f, state);
+
+      this._lock--;
+    }
   };
 
   build = (): List<T> => {
-    if (undefined === this.builder) return this.context.empty();
+    if (undefined === this.builder) {
+      return this.context.empty();
+    }
     const result = this.builder.build();
     return result;
   };
 
   buildMap = <T2>(f: (value: T) => T2): List<T2> => {
-    if (undefined === this.builder) return this.context.empty();
+    if (undefined === this.builder) {
+      return this.context.empty();
+    }
     return this.builder.buildMap(f);
   };
 }

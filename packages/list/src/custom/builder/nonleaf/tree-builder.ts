@@ -1,3 +1,4 @@
+import { RimbuError } from '@rimbu/base';
 import type { OptLazy } from '@rimbu/common';
 
 import type {
@@ -24,6 +25,14 @@ export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>
     public length = source?.length ?? 0
   ) {
     super();
+
+    if (
+      (_left !== undefined && _left.level !== level) ||
+      (_right !== undefined && _right.level !== level) ||
+      (_middle !== undefined && _middle.level !== level + 1)
+    ) {
+      RimbuError.throwInvalidStateError();
+    }
   }
 
   prepareMutate(): void {
@@ -85,17 +94,23 @@ export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>
   }
 
   normalized(): NonLeafBuilder<T, C> {
-    if (undefined === this.middle) {
-      if (
-        this.left.nrChildren + this.right.nrChildren <=
-        this.context.maxBlockSize
-      ) {
-        // combine left and right
-        this.left.concat(this.right);
-        return this.left;
-      }
-    } else {
-      this.middle = this.middle.normalized();
+    if (undefined !== this.middle) {
+      // should we recursively normalize?
+      // this.middle = this.middle.normalized();
+
+      return this;
+    }
+
+    // no middle
+
+    if (
+      this.left.nrChildren + this.right.nrChildren <=
+      this.context.maxBlockSize
+    ) {
+      // combine left and right
+      this.left.concat(this.right);
+
+      return this.left;
     }
 
     return this;
