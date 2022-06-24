@@ -12,7 +12,7 @@ export interface BlockBuilder<T, C = unknown> extends BuilderBase<T, C> {
   dropLast(): C;
   copy(children: C[], length: number): BlockBuilder<T, C>;
   splitRight(index?: number): BlockBuilder<T, C>;
-  concat(other: BlockBuilder<T, C>): void;
+  concat(other: BlockBuilder<T, C>, prependOther?: boolean): void;
   forEach(
     f: (value: T, index: number, halt: () => void) => void,
     state?: TraverseState

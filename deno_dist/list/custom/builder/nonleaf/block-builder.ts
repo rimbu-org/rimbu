@@ -113,36 +113,15 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
     }
 
     const context = this.context;
-    const shiftBits = context.blockSizeBits << (this.level - 1);
-    const regularSize = this.nrChildren << shiftBits;
 
     const maxBlockSize = context.maxBlockSize;
-
-    if (this.length !== regularSize) {
-      // check if children can be merged
-
-      let i = 1;
-      while (i < this.nrChildren) {
-        // check if child can be merged with previous
-        const currentChild = this.children[i];
-        const prevChild = this.children[i - 1];
-
-        if (currentChild.nrChildren + prevChild.nrChildren <= maxBlockSize) {
-          // child can be merged with previous
-          prevChild.concat(currentChild);
-          this.children.splice(i, 1);
-        } else {
-          i++;
-        }
-      }
-    }
 
     if (this.nrChildren > maxBlockSize) {
       // too many children, needs to split
       const middleLength = this.length;
 
       return context.nonLeafTreeBuilder(
-        this.level + 1,
+        this.level,
         this,
         this.splitRight(),
         undefined,
@@ -323,8 +302,10 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
     return this.copy(rightChildren, rightLength);
   }
 
-  concat(other: NonLeafBlockBuilder<T, C>): void {
-    this.children = this.children.concat(other.children);
+  concat(other: NonLeafBlockBuilder<T, C>, prependOther = false): void {
+    this.children = prependOther
+      ? other.children.concat(this.children)
+      : this.children.concat(other.children);
     this.length += other.length;
   }
 

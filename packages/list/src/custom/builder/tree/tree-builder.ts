@@ -1,3 +1,4 @@
+import { RimbuError } from '@rimbu/base';
 import { OptLazy, TraverseState, Update } from '@rimbu/common';
 
 import type {
@@ -143,7 +144,11 @@ export abstract class TreeBuilderBase<T, C> {
       // remove from left
       const oldValue = this.left.remove(index);
 
-      if (this.left.nrChildren >= this.context.minBlockSize) return oldValue;
+      if (this.left.nrChildren >= this.context.minBlockSize) {
+        // no rebalancing needed
+        return oldValue;
+      }
+
       // rebalancing is needed
 
       if (undefined !== this.middle) {
@@ -161,19 +166,25 @@ export abstract class TreeBuilderBase<T, C> {
         );
 
         // if borrow was succesful
-        if (undefined !== delta) return oldValue;
+        if (undefined !== delta) {
+          return oldValue;
+        }
 
         // need to merge middle's first child with left
         const middleFirst = this.middle.dropFirst();
         this.middle = this.middle.normalized();
         this.left.concat(middleFirst);
+
+        return oldValue;
       } else if (this.right.nrChildren > this.context.minBlockSize) {
         // left merges with right's first child
         const shiftChild = this.right.dropFirst();
         this.left.append(shiftChild);
+
+        return oldValue;
       }
 
-      return oldValue;
+      RimbuError.throwInvalidStateError();
     }
 
     const rightIndex = middleIndex - (this.middle?.length ?? 0);
@@ -182,7 +193,11 @@ export abstract class TreeBuilderBase<T, C> {
       // remove from right
       const oldValue = this.right.remove(rightIndex);
 
-      if (this.right.nrChildren >= this.context.minBlockSize) return oldValue;
+      if (this.right.nrChildren >= this.context.minBlockSize) {
+        // no rebalancing needed
+        return oldValue;
+      }
+
       // rebalancing is needed
 
       if (undefined !== this.middle) {
@@ -208,18 +223,23 @@ export abstract class TreeBuilderBase<T, C> {
         this.middle = this.middle.normalized();
         middleLast.concat(this.right);
         this.right = middleLast;
+
+        return oldValue;
       } else if (this.left.nrChildren > this.context.minBlockSize) {
         // right borrows from left
         const shiftChild = this.left.dropLast();
         this.right.prepend(shiftChild);
+
+        return oldValue;
       }
 
-      return oldValue;
+      RimbuError.throwInvalidStateError();
     }
 
     // remove from middle
     const oldValue = this.middle.remove(middleIndex);
     this.middle = this.middle.normalized();
+
     return oldValue;
   }
 

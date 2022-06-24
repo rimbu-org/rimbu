@@ -11,7 +11,7 @@ function runWith(nrOfBits: number): void {
     listBuilder = context.builder<number>();
     log: string[] = [];
 
-    disableList = false;
+    disableList = true;
     disableListBuilder = false;
     enableLog = false;
 
@@ -78,7 +78,6 @@ function runWith(nrOfBits: number): void {
 
     concat(other: Entangled): void {
       this.addLog('concat', this.arr.length, other.arr.length);
-      this.disableListBuilder = true;
       this.arr = this.arr.concat(other.arr);
       this.list = this.list.concat(other.list);
     }
@@ -179,11 +178,11 @@ function runWith(nrOfBits: number): void {
       }
     });
 
-    it('removes', () => {
+    fit('removes', () => {
       const ent = new Entangled();
 
       let i = 0;
-      const len = 3000;
+      const len = 4000;
       Stream.randomInt(0, len)
         .take(len)
         .forEach((v) => {

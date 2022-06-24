@@ -132,8 +132,10 @@ export class LeafBlockBuilder<T> implements LeafBuilder<T>, BlockBuilder<T> {
     return this.copy(rightChildren);
   }
 
-  concat(other: LeafBlockBuilder<T>): void {
-    this.children = this.children.concat(other.children);
+  concat(other: LeafBlockBuilder<T>, prependOther = false): void {
+    this.children = prependOther
+      ? other.children.concat(this.children)
+      : this.children.concat(other.children);
   }
 
   forEach(
