@@ -52,29 +52,41 @@ export class LeafBlockBuilder<T> implements LeafBuilder<T>, BlockBuilder<T> {
   }
 
   normalized(): LeafBuilder<T> | undefined {
-    if (this.nrChildren <= 0) return undefined;
-
-    if (this.nrChildren > this.context.maxBlockSize) {
-      const newLength = this.length;
-      const newRight = this.splitRight();
-
-      return this.context.leafTreeBuilder(this, newRight, undefined, newLength);
+    if (this.nrChildren <= 0) {
+      // block is empty
+      return undefined;
     }
 
-    return this;
+    if (this.nrChildren <= this.context.maxBlockSize) {
+      // block is normal
+      return this;
+    }
+
+    // need to split block and create tree
+    const newLength = this.length;
+    const newRight = this.splitRight();
+
+    return this.context.leafTreeBuilder(this, newRight, undefined, newLength);
   }
 
   get<O>(index: number, otherwise?: OptLazy<O>): T | O {
-    if (undefined !== this.source) return this.source?.get(index, otherwise);
+    if (undefined !== this.source) {
+      return this.source.get(index, otherwise);
+    }
 
     return this.children[index];
   }
 
-  updateAt<O>(index: number, update: Update<T>, otherwise?: OptLazy<O>): T | O {
+  updateAt(index: number, update: Update<T>): T {
     const oldValue = this.children[index];
     const newValue = Update(oldValue, update);
-    this.children[index] = newValue;
-    if (!Object.is(oldValue, newValue)) this.source = undefined;
+
+    if (!Object.is(oldValue, newValue)) {
+      // value changed
+      this.children[index] = newValue;
+      this.source = undefined;
+    }
+
     return oldValue;
   }
 
@@ -94,9 +106,9 @@ export class LeafBlockBuilder<T> implements LeafBuilder<T>, BlockBuilder<T> {
   }
 
   remove(index: number): T {
-    const [item] = this.children.splice(index, 1);
+    const [removed] = this.children.splice(index, 1);
     this.source = undefined;
-    return item;
+    return removed;
   }
 
   dropFirst(): T {
@@ -120,18 +132,17 @@ export class LeafBlockBuilder<T> implements LeafBuilder<T>, BlockBuilder<T> {
   }
 
   splitRight(index = this.nrChildren >>> 1): LeafBlockBuilder<T> {
-    const rightChildren = this.children.splice(
-      index,
-      this.context.maxBlockSize
-    );
+    const rightChildren = this.children.splice(index);
 
     this.source = undefined;
 
     return this.copy(rightChildren);
   }
 
-  concat(other: LeafBlockBuilder<T>): void {
-    this.children = this.children.concat(other.children);
+  concat(other: LeafBlockBuilder<T>, prependOther = false): void {
+    this.children = prependOther
+      ? other.children.concat(this.children)
+      : this.children.concat(other.children);
   }
 
   forEach(

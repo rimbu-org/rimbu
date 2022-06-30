@@ -1,6 +1,12 @@
 import { Stream } from '@rimbu/stream';
 import { List } from '@rimbu/list';
-import { ListContext, LeafBlock, LeafTree } from '@rimbu/list/custom';
+import {
+  ListContext,
+  LeafBlock,
+  LeafTree,
+  ReversedLeafBlock,
+  LeafBlockBuilder,
+} from '@rimbu/list/custom';
 
 describe('LeafBlock', () => {
   it('_mutateNormalize', () => {
@@ -20,13 +26,24 @@ describe('LeafBlock', () => {
   });
 
   it('_mutateSplitRight', () => {
-    const b6 = createBlock(1, 2, 3, 4, 5, 6);
+    {
+      const b6 = createBlock(1, 2, 3, 4, 5, 6);
 
-    expect(b6.children).toEqual([1, 2, 3, 4, 5, 6]);
-    const bn = b6._mutateSplitRight();
-    expect(bn).not.toBe(b6);
-    expect(b6.children).toEqual([1, 2, 3]);
-    expect(bn.children).toEqual([4, 5, 6]);
+      expect(b6.children).toEqual([1, 2, 3, 4, 5, 6]);
+      const bn = b6._mutateSplitRight();
+      expect(bn).not.toBe(b6);
+      expect(b6.children).toEqual([1, 2, 3]);
+      expect(bn.children).toEqual([4, 5, 6]);
+    }
+    {
+      const b6 = createBlock(1, 2, 3, 4, 5, 6);
+
+      expect(b6.children).toEqual([1, 2, 3, 4, 5, 6]);
+      const bn = b6._mutateSplitRight(4);
+      expect(bn).not.toBe(b6);
+      expect(b6.children).toEqual([1, 2, 3, 4]);
+      expect(bn.children).toEqual([5, 6]);
+    }
   });
 
   it('concat', () => {
@@ -42,6 +59,16 @@ describe('LeafBlock', () => {
     // no mutations for original collections
     expect(b2.children).toEqual([1, 2]);
     expect(b3.children).toEqual([1, 2, 3]);
+  });
+
+  it('concatTree', () => {
+    const tr3 = createBlock(1, 2, 3, 4).concatTree(
+      context.leafTree(createBlock(5), createBlock(6, 7, 8, 9), null)
+    );
+
+    expect(tr3.left.toArray()).toEqual([1]);
+    expect(tr3.middle?.toArray()).toEqual([2, 3, 4, 5]);
+    expect(tr3.right.toArray()).toEqual([6, 7, 8, 9]);
   });
 });
 
@@ -63,13 +90,22 @@ describe('ReversedLeafBlock', () => {
   });
 
   it('_mutateSplitRight', () => {
-    const b6 = createRevBlock(1, 2, 3, 4, 5, 6);
+    {
+      const b6 = createRevBlock(1, 2, 3, 4, 5, 6);
 
-    expect(b6.children).toEqual([6, 5, 4, 3, 2, 1]);
-    const bn = b6._mutateSplitRight();
-    expect(bn).not.toBe(b6);
-    expect(b6.children).toEqual([3, 2, 1]);
-    expect(bn.children).toEqual([6, 5, 4]);
+      expect(b6.children).toEqual([6, 5, 4, 3, 2, 1]);
+      const bn = b6._mutateSplitRight();
+      expect(bn).not.toBe(b6);
+      expect(b6.children).toEqual([3, 2, 1]);
+      expect(bn.children).toEqual([6, 5, 4]);
+    }
+    {
+      const b6 = createRevBlock(1, 2, 3, 4, 5, 6);
+      const bn = b6._mutateSplitRight(4);
+      expect(bn).not.toBe(b6);
+      expect(b6.children).toEqual([4, 3, 2, 1]);
+      expect(bn.children).toEqual([6, 5]);
+    }
   });
 
   it('concat', () => {
@@ -175,14 +211,12 @@ function runLeafBlockTests(
     it('concatTree', () => {
       const b1 = createBlock(10);
       const b3 = createBlock(10, 11, 12);
-      const t6 = createBlock(
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      )._mutateNormalize() as LeafTree<number>;
+
+      const t6 = context.leafTree(
+        createBlock(1, 2, 3),
+        createBlock(4, 5, 6),
+        null
+      );
 
       const tr1 = b1.concatTree(t6);
 
@@ -208,6 +242,12 @@ function runLeafBlockTests(
     it('copy2', () => {
       const b1 = createBlock(1);
       expect(b1.copy2([1]).children).toEqual([1]);
+    });
+
+    it('createBlockBuilder', () => {
+      const b1 = createBlock(1);
+      expect(b1.createBlockBuilder()).toBeInstanceOf(LeafBlockBuilder);
+      expect(b1.createBlockBuilder().build()).toBe(b1);
     });
 
     it('drop', () => {
@@ -324,6 +364,19 @@ function runLeafBlockTests(
       ).toEqual([4, 3, 2]);
     });
 
+    it('mapPure', () => {
+      expect(
+        createBlock(1, 2, 3)
+          .mapPure((v) => v + 1)
+          .toArray()
+      ).toEqual([2, 3, 4]);
+      expect(
+        createBlock(1, 2, 3)
+          .mapPure((v) => v + 1, true)
+          .toArray()
+      ).toEqual([4, 3, 2]);
+    });
+
     it('nonEmpty', () => {
       const b1 = createBlock(1);
       expect(b1.nonEmpty()).toBe(true);
@@ -344,6 +397,7 @@ function runLeafBlockTests(
     it('prepend', () => {
       expect(createBlock(1, 2, 3).prepend(4)).toBeInstanceOf(LeafBlock);
       expect(createBlock(1, 2, 3, 4).prepend(5)).toBeInstanceOf(LeafTree);
+      expect(createBlock(1).prepend(4)).toBeInstanceOf(ReversedLeafBlock);
     });
 
     it('prependInternal', () => {
@@ -442,6 +496,18 @@ function runLeafBlockTests(
       ]);
     });
 
+    it('structure', () => {
+      const b3 = createBlock(1, 2, 3);
+
+      const s = b3.structure();
+
+      if (context.isReversedLeafBlock(b3)) {
+        expect(s).toEqual('<RLeaf 3>');
+      } else {
+        expect(s).toEqual('<Leaf 3>');
+      }
+    });
+
     it('take', () => {
       const b5 = createBlock(1, 2, 3, 4, 5);
 
@@ -536,3 +602,22 @@ function createRevBlock<T>(...elems: T[]) {
 
 runLeafBlockTests('leaf', context, createBlock, createRevBlock);
 runLeafBlockTests('reversed leaf', context, createRevBlock, createBlock);
+
+describe('LeafBlock special cases', () => {
+  it('concatChildren', () => {
+    const b = context.leafBlock([1, 2, 3]);
+    const rb = context.reversedLeaf([6, 5, 4]);
+
+    const r1 = b.concatChildren(b);
+    expect(r1.toArray()).toEqual([1, 2, 3, 1, 2, 3]);
+
+    const r2 = b.concatChildren(rb);
+    expect(r2.toArray()).toEqual([1, 2, 3, 4, 5, 6]);
+
+    const r3 = rb.concatChildren(rb);
+    expect(r3.toArray()).toEqual([4, 5, 6, 4, 5, 6]);
+
+    const r4 = rb.concatChildren(b);
+    expect(r4.toArray()).toEqual([4, 5, 6, 1, 2, 3]);
+  });
+});

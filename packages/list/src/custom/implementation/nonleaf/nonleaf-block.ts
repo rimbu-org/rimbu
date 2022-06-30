@@ -249,8 +249,12 @@ export class NonLeafBlock<T, C extends Block<T, C>>
   }
 
   dropChildren(childAmount: number): NonLeafBlock<T, C> | null {
-    if (childAmount <= 0) return this;
-    if (childAmount >= this.nrChildren) return null;
+    if (childAmount <= 0) {
+      return this;
+    }
+    if (childAmount >= this.nrChildren) {
+      return null;
+    }
 
     const newChildren = Arr.splice(this.children, 0, childAmount);
 
@@ -268,6 +272,10 @@ export class NonLeafBlock<T, C extends Block<T, C>>
   takeInternal(amount: number): [NonLeafBlock<T, C> | null, C, number] {
     const [childIndex, inChildIndex] = this.getCoordinates(amount, true, false);
 
+    if (childIndex >= this.nrChildren) {
+      RimbuError.throwInvalidStateError();
+    }
+
     const lastChild = this.getChild(childIndex);
     const newSelf = this.takeChildren(childIndex);
 
@@ -281,6 +289,10 @@ export class NonLeafBlock<T, C extends Block<T, C>>
       false,
       false
     );
+
+    if (childIndex >= this.nrChildren) {
+      RimbuError.throwInvalidStateError();
+    }
 
     const firstChild = this.getChild(childIndex);
     const newSelf = this.dropChildren(childIndex + 1);
@@ -467,42 +479,63 @@ export class NonLeafBlock<T, C extends Block<T, C>>
     noEmptyLast: boolean
   ): [number, number] {
     const offSet = forTake ? 1 : 0;
-
     let indexWithOffset = index - offSet;
 
-    const shiftBits = this.context.blockSizeBits << (this.level - 1);
-
     const nrChildren = this.nrChildren;
+    const length = this.length;
+    const children = this.children;
 
-    const regularSize = nrChildren << shiftBits;
+    if (indexWithOffset >= length) {
+      // return the end
+      if (noEmptyLast) {
+        return [nrChildren - 1, Arr.last(children).length - 1];
+      }
 
-    if (this.length === regularSize) {
-      const mask = (1 << shiftBits) - 1;
-      const childIndex = indexWithOffset >>> shiftBits;
+      return [nrChildren, 0];
+    }
+
+    const levelBits = this.context.blockSizeBits << (this.level - 1);
+    const blockSize = 1 << levelBits;
+
+    const regularSize = nrChildren * blockSize;
+
+    if (length === regularSize) {
+      // regular blocks, calculate coordinates
+      const childIndex = indexWithOffset >>> levelBits;
+
+      const mask = blockSize - 1;
       const inChildIndex = indexWithOffset & mask;
-
       return [childIndex, inChildIndex + offSet];
     }
 
     // not regular, need to search per child
 
-    const children = this.children;
+    if (indexWithOffset <= length >>> 1) {
+      // search from left to right
+      for (let childIndex = 0; childIndex < nrChildren; childIndex++) {
+        const childLength = children[childIndex].length;
 
-    for (let childIndex = 0; childIndex < nrChildren; childIndex++) {
-      const childLength = children[childIndex].length;
+        if (indexWithOffset < childLength) {
+          return [childIndex, indexWithOffset + offSet];
+        }
 
-      if (indexWithOffset < childLength) {
-        return [childIndex, indexWithOffset + offSet];
+        indexWithOffset -= childLength;
       }
+    } else {
+      // search right to left
+      let i = length - indexWithOffset;
+      for (let childIndex = nrChildren - 1; childIndex >= 0; childIndex--) {
+        const childLength = children[childIndex].length;
 
-      indexWithOffset -= childLength;
+        if (i <= childLength) {
+          return [childIndex, childLength - i + offSet];
+        }
+
+        i -= childLength;
+      }
     }
 
-    if (noEmptyLast) {
-      return [nrChildren - 1, Arr.last(children).length - 1];
-    }
-
-    return [nrChildren, 0];
+    RimbuError.throwInvalidStateError();
   }
 
   _mutateRebalance(): NonLeafBlock<T, C> {
@@ -553,7 +586,7 @@ export class NonLeafBlock<T, C extends Block<T, C>>
 
   structure(): string {
     const space = ' '.padEnd(this.level * 2);
-    return `\n${space}<NLBlock len:${this.length} c:${
+    return `\n${space}<NLBlock(${this.level}) len:${this.length} c:${
       this.nrChildren
     } ${this.children.map((c): string => c.structure()).join(' ')}>`;
   }

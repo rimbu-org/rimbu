@@ -29,9 +29,7 @@ export class LeafTreeBuilder<T>
       this._left = this.context.leafBlockBuilderSource(this.source.left);
       this._right = this.context.leafBlockBuilderSource(this.source.right);
       this._middle =
-        null === this.source.middle
-          ? undefined
-          : (this.source.middle.createNonLeafBuilder() as any);
+        (this.source.middle?.createNonLeafBuilder?.() as any) ?? undefined;
       this.source = undefined;
     }
   }
@@ -78,6 +76,7 @@ export class LeafTreeBuilder<T>
     if (children.length === 0 || from >= children.length) return;
 
     if (this.right.nrChildren < this.context.maxBlockSize) {
+      // fill right, and append rest
       const items = children.slice(
         from,
         from + this.context.maxBlockSize - this.right.nrChildren
@@ -88,6 +87,7 @@ export class LeafTreeBuilder<T>
       return;
     }
 
+    // add current right to middle and split new
     const block = children.slice(from, from + this.context.maxBlockSize);
     this.appendMiddle(this.right);
     this.right = this.context.leafBlockBuilder(block);
@@ -97,18 +97,21 @@ export class LeafTreeBuilder<T>
 
   normalized(): LeafBuilder<T> {
     if (this.length <= this.context.maxBlockSize) {
+      // can collapse into block
       this.left.concat(this.right);
       return this.left;
     }
 
     if (undefined !== this.middle) {
       if (this.middle.length + this.left.length <= this.context.maxBlockSize) {
+        // can merge middle with left
         this.left.concat(this.middle.first());
         this.middle = undefined;
       } else if (
         this.middle.length + this.right.length <=
         this.context.maxBlockSize
       ) {
+        // can merge middle with right
         const newRight = this.middle.last();
         newRight.concat(this.right);
         this.right = newRight;
@@ -120,28 +123,34 @@ export class LeafTreeBuilder<T>
   }
 
   get<O>(index: number, otherwise?: OptLazy<O>): T | O {
-    if (undefined !== this.source) return this.source.get(index, otherwise);
+    if (undefined !== this.source) {
+      return this.source.get(index, otherwise);
+    }
 
     return super.get(index, otherwise);
   }
 
   build(): LeafTree<T> {
-    if (undefined !== this.source) return this.source;
+    if (undefined !== this.source) {
+      return this.source;
+    }
 
     return this.context.leafTree(
       this.left.build(),
       this.right.build(),
-      undefined === this.middle ? null : this.middle.build()
+      this.middle?.build?.() ?? null
     );
   }
 
   buildMap<T2>(f: (value: T) => T2): LeafTree<T2> {
-    if (undefined !== this.source) return this.source.map(f);
+    if (undefined !== this.source) {
+      return this.source.map(f);
+    }
 
     return this.context.leafTree(
       this.left.buildMap(f),
       this.right.buildMap(f),
-      undefined === this.middle ? null : (this.middle as any).buildMap(f)
+      this.middle?.buildMap?.(f) ?? null
     );
   }
 }

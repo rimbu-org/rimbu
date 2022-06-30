@@ -74,27 +74,38 @@ export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>
 
   modifyFirstChild(f: (child: C) => number | undefined): number | undefined {
     const delta = this.left.modifyFirstChild(f);
-    if (undefined !== delta) this.length += delta;
+    if (undefined !== delta) {
+      this.length += delta;
+    }
+
     return delta;
   }
 
   modifyLastChild(f: (child: C) => number | undefined): number | undefined {
     const delta = this.right.modifyLastChild(f);
-    if (undefined !== delta) this.length += delta;
+    if (undefined !== delta) {
+      this.length += delta;
+    }
+
     return delta;
   }
 
   normalized(): NonLeafBuilder<T, C> {
-    if (undefined === this.middle) {
-      if (
-        this.left.nrChildren + this.right.nrChildren <=
-        this.context.maxBlockSize
-      ) {
-        this.left.concat(this.right);
-        return this.left;
-      }
-    } else {
-      this.middle = this.middle.normalized();
+    if (undefined !== this.middle) {
+      // middle, nothing to normalize
+      return this;
+    }
+
+    // no middle
+
+    if (
+      this.left.nrChildren + this.right.nrChildren <=
+      this.context.maxBlockSize
+    ) {
+      // combine left and right
+      this.left.concat(this.right);
+
+      return this.left;
     }
 
     return this;
@@ -109,29 +120,35 @@ export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>
   }
 
   get<O>(index: number, otherwise?: OptLazy<O>): T | O {
-    if (undefined !== this.source) return this.source.get(index);
+    if (undefined !== this.source) {
+      return this.source.get(index);
+    }
 
     return super.get(index, otherwise);
   }
 
   build(): NonLeafTree<T, any> {
-    if (undefined !== this.source) return this.source;
+    if (undefined !== this.source) {
+      return this.source;
+    }
 
     return this.context.nonLeafTree(
       this.left.build(),
       this.right.build(),
-      undefined === this.middle ? null : this.middle.build(),
+      this.middle?.build?.() ?? null,
       this.level
     );
   }
 
   buildMap<T2>(f: (value: T) => T2): NonLeafTree<T2, any> {
-    if (undefined !== this.source) return this.source.map(f);
+    if (undefined !== this.source) {
+      return this.source.map(f);
+    }
 
     return this.context.nonLeafTree(
       this.left.buildMap(f),
       this.right.buildMap(f),
-      undefined === this.middle ? null : (this.middle as any).buildMap(f),
+      this.middle?.buildMap?.(f) ?? null,
       this.level
     );
   }

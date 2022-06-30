@@ -1,6 +1,11 @@
-// import fs from 'fs';
+import fs from 'fs';
 import { List } from '@rimbu/list';
 import { Stream } from '@rimbu/stream';
+
+type Action = {
+  name: string;
+  args: any[];
+};
 
 function runWith(nrOfBits: number): void {
   const context = List.createContext({ blockSizeBits: nrOfBits });
@@ -9,7 +14,7 @@ function runWith(nrOfBits: number): void {
     arr: number[] = [];
     list = context.empty<number>();
     listBuilder = context.builder<number>();
-    log: string[] = [];
+    log: Action[] = [];
 
     disableList = false;
     disableListBuilder = false;
@@ -26,12 +31,20 @@ function runWith(nrOfBits: number): void {
           expect(this.list.toArray()).toEqual(this.arr);
         }
       } catch (e) {
-        // const file = fs.createWriteStream('error.log');
-        // file.on('error', () => console.log('error writing log'));
-        // this.log.forEach(e => file.write(`${e}\n`));
-        // file.end();
+        if (this.enableLog) {
+          fs.writeFileSync('data.json', JSON.stringify(this.arr), {
+            encoding: 'utf-8',
+            flag: 'w',
+          });
+          fs.writeFileSync('log.json', JSON.stringify(this.log), {
+            encoding: 'utf-8',
+            flag: 'w',
+          });
+        }
         console.log('log:', this.log);
         console.log('expected:', this.arr);
+        console.log((this.listBuilder.build() as any).structure());
+        console.log('length', this.listBuilder.length);
         // console.log('str', (this.wv as any).structure());
         // console.log('actual wv: ', this.wv.toArray());
         // console.log('actual wb: ', this.wb.build().toArray());
@@ -39,11 +52,12 @@ function runWith(nrOfBits: number): void {
       }
     }
 
-    addLog(action: string, ...values: any[]): void {
+    addLog(name: string, ...args: any[]): void {
       if (!this.enableLog) return;
 
-      if (values.length > 0) this.log.push(`${action}: ${values}`);
-      else this.log.push(`${action}`);
+      this.log.push({ name, args });
+      // if (values.length > 0) this.log.push(`${action}: ${values}`);
+      // else this.log.push(`${action}`);
     }
 
     prepend(value: number): void {
@@ -70,15 +84,20 @@ function runWith(nrOfBits: number): void {
 
     remove(index: number): void {
       this.addLog('remove', index);
+      // const v = this.list.get(index);
+      // expect(this.listBuilder.remove(index)).toBe(this.list.get(index));
+      this.listBuilder.remove(index);
       const newList = this.list.remove(index);
       this.list = newList;
+
       this.arr.splice(index, 1);
-      this.listBuilder.remove(index);
+
+      // expect(this.listBuilder.get(index)).toBe(v);
+      // expect(this.listBuilder.remove(index)).toBe(v);
     }
 
     concat(other: Entangled): void {
       this.addLog('concat', this.arr.length, other.arr.length);
-      this.disableListBuilder = true;
       this.arr = this.arr.concat(other.arr);
       this.list = this.list.concat(other.list);
     }
@@ -183,7 +202,7 @@ function runWith(nrOfBits: number): void {
       const ent = new Entangled();
 
       let i = 0;
-      const len = 3000;
+      const len = 4000;
       Stream.randomInt(0, len)
         .take(len)
         .forEach((v) => {
@@ -393,5 +412,5 @@ function runWith(nrOfBits: number): void {
 }
 
 runWith(2);
-// runWith(3);
-// runWith(4);
+runWith(3);
+runWith(4);
