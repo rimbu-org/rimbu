@@ -286,10 +286,6 @@ export class NonLeafTree<T, C extends Block<T, C>>
   }
 
   concatTree(other: NonLeafTree<T, C>): NonLeaf<T, C> {
-    if (other.level !== this.level) {
-      RimbuError.throwInvalidStateError();
-    }
-
     if (
       this.right.nrChildren + other.left.nrChildren <=
       this.context.maxBlockSize

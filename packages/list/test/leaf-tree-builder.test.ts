@@ -362,8 +362,8 @@ describe('LeafTreeBuilder', () => {
       );
 
       expect(t.dropFirst()).toBe(1);
-      expect(t.left.children).toEqual([2, 21]);
-      expect((t.middle as any).children[0].children).toEqual([22, 23, 24]);
+      expect(t.left.children).toEqual([2]);
+      expect((t.middle as any).children[0].children).toEqual([21, 22, 23, 24]);
       expect(t.right.children).toEqual([11, 12, 13, 14]);
     }
     {
@@ -452,8 +452,8 @@ describe('LeafTreeBuilder', () => {
 
       expect(t.dropLast()).toBe(12);
       expect(t.left.children).toEqual([1, 2, 3, 4]);
-      expect((t.middle as any).children[0].children).toEqual([21, 22, 23]);
-      expect(t.right.children).toEqual([24, 11]);
+      expect((t.middle as any).children[0].children).toEqual([21, 22, 23, 24]);
+      expect(t.right.children).toEqual([11]);
     }
     {
       // middle, merge with last middle
@@ -667,8 +667,8 @@ describe('LeafTreeBuilder', () => {
       );
       t.insert(2, -1);
       expect(t.length).toBe(11);
-      expect(t.left.children).toEqual([1]);
-      expect((t.middle as any).children[0].children).toEqual([2, -1, 3, 4]);
+      expect(t.left.children).toEqual([1, 2]);
+      expect((t.middle as any).children[0].children).toEqual([-1, 3, 4]);
       expect((t.middle as any).children[1].children).toEqual([21, 22, 23, 24]);
       expect(t.right.children).toEqual([11, 12]);
     }
@@ -688,8 +688,8 @@ describe('LeafTreeBuilder', () => {
       expect(t.length).toBe(11);
       expect(t.left.children).toEqual([1, 2]);
       expect((t.middle as any).children[0].children).toEqual([21, 22, 23, 24]);
-      expect((t.middle as any).children[1].children).toEqual([11, 12, -1, 13]);
-      expect(t.right.children).toEqual([14]);
+      expect((t.middle as any).children[1].children).toEqual([11, 12]);
+      expect(t.right.children).toEqual([-1, 13, 14]);
     }
     {
       // insert into middle, no change to middle
