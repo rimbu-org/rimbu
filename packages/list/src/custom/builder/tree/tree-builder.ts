@@ -24,16 +24,22 @@ export abstract class TreeBuilderBase<T, C> {
     const middleIndex = index - this.left.length;
 
     if (middleIndex < 0) {
+      // index is in left part
       return this.left.get(index, otherwise);
     }
 
-    if (undefined === this.middle) {
-      return this.right.get(middleIndex, otherwise);
+    const rightIndex = middleIndex - (this.middle?.length ?? 0);
+
+    if (rightIndex >= 0) {
+      // index is in right part
+      return this.right.get(rightIndex, otherwise);
     }
 
-    const rightIndex = middleIndex - this.middle.length;
-    if (rightIndex >= 0) return this.right.get(rightIndex, otherwise);
+    if (undefined === this.middle) {
+      RimbuError.throwInvalidStateError();
+    }
 
+    // index is in middle part
     return this.middle.get(middleIndex, otherwise);
   }
 
@@ -41,22 +47,27 @@ export abstract class TreeBuilderBase<T, C> {
     const middleIndex = index - this.left.length;
 
     if (middleIndex < 0) {
+      // index is in left part
       return this.left.updateAt(index, update, otherwise);
     }
 
-    if (undefined === this.middle) {
-      return this.right.updateAt(middleIndex, update, otherwise);
-    }
+    const rightIndex = middleIndex - (this.middle?.length ?? 0);
 
-    const rightIndex = middleIndex - this.middle.length;
     if (rightIndex >= 0) {
+      // index is in right part
       return this.right.updateAt(rightIndex, update, otherwise);
     }
 
+    if (undefined === this.middle) {
+      RimbuError.throwInvalidStateError();
+    }
+
+    // index is in middle part
     return this.middle.updateAt(middleIndex, update, otherwise);
   }
 
   prepend(child: C): void {
+    // add child length to this length
     this.length += this.getChildLength(child);
 
     if (this.left.nrChildren < this.context.maxBlockSize) {
@@ -65,10 +76,14 @@ export abstract class TreeBuilderBase<T, C> {
       return;
     }
 
+    // left is already at maximum amount children
+
     if (undefined !== this.middle) {
+      // try to shift child to first middle
       const delta = this.middle.modifyFirstChild(
         (firstChild): number | undefined => {
           if (firstChild.nrChildren < this.context.maxBlockSize) {
+            // first child has room for shift
             const shiftChild = this.left.dropLast();
             this.left.prepend(child);
             firstChild.prepend(shiftChild);
@@ -79,9 +94,11 @@ export abstract class TreeBuilderBase<T, C> {
       );
 
       if (undefined !== delta) {
+        // shift succeeded, done
         return;
       }
     } else if (this.right.nrChildren < this.context.maxBlockSize) {
+      // no middle
       // right not full, shift last left child to right
       const shiftChild = this.left.dropLast();
       this.left.prepend(child);
@@ -89,7 +106,7 @@ export abstract class TreeBuilderBase<T, C> {
       return;
     }
 
-    // move current left to middle
+    // prepend and split full block to middle
     this.left.prepend(child);
     const toMiddle = this.left.splitRight(1);
 
@@ -97,18 +114,23 @@ export abstract class TreeBuilderBase<T, C> {
   }
 
   append(child: C): void {
+    // add child length to this length
     this.length += this.getChildLength(child);
 
     if (this.right.nrChildren < this.context.maxBlockSize) {
+      // caon append to right
       this.right.append(child);
       return;
     }
 
+    // right is already at maimum amount children
+
     if (undefined !== this.middle) {
-      // try to shift to last middle child
+      // try to shift child to last middle
       const delta = this.middle.modifyLastChild(
         (lastChild): number | undefined => {
           if (lastChild.nrChildren < this.context.maxBlockSize) {
+            // last child has room for shift
             const shiftChild = this.right.dropFirst();
             this.right.append(child);
             lastChild.append(shiftChild);
@@ -118,16 +140,20 @@ export abstract class TreeBuilderBase<T, C> {
         }
       );
 
-      if (undefined !== delta) return;
+      if (undefined !== delta) {
+        // shift succeeded, done
+        return;
+      }
     } else if (this.left.nrChildren < this.context.maxBlockSize) {
-      // shift first right to left
+      // no middle
+      // left not full, shift first right to left
       const shiftChild = this.right.dropFirst();
       this.right.append(child);
       this.left.append(shiftChild);
       return;
     }
 
-    // append right to middle
+    // append and split full block to middle
     this.right.append(child);
     const newRight = this.right.splitRight(this.context.maxBlockSize);
 
@@ -136,12 +162,13 @@ export abstract class TreeBuilderBase<T, C> {
   }
 
   remove(index: number): T {
+    // update length
     this.length--;
 
     const middleIndex = index - this.left.length;
 
     if (middleIndex < 0) {
-      // remove from left
+      // index is in left
       const oldValue = this.left.remove(index);
 
       if (this.left.nrChildren >= this.context.minBlockSize) {
@@ -165,8 +192,8 @@ export abstract class TreeBuilderBase<T, C> {
           }
         );
 
-        // if borrow was succesful
         if (undefined !== delta) {
+          // borrow was succesful
           return oldValue;
         }
 
@@ -189,8 +216,8 @@ export abstract class TreeBuilderBase<T, C> {
 
     const rightIndex = middleIndex - (this.middle?.length ?? 0);
 
-    if (undefined === this.middle || rightIndex >= 0) {
-      // remove from right
+    if (rightIndex >= 0) {
+      // index is in right
       const oldValue = this.right.remove(rightIndex);
 
       if (this.right.nrChildren >= this.context.minBlockSize) {
@@ -236,7 +263,11 @@ export abstract class TreeBuilderBase<T, C> {
       RimbuError.throwInvalidStateError();
     }
 
-    // remove from middle
+    if (undefined === this.middle) {
+      RimbuError.throwInvalidStateError();
+    }
+
+    // index is in middle
     const oldValue = this.middle.remove(middleIndex);
     this.middle = this.middle.normalized();
 
@@ -282,7 +313,7 @@ export abstract class TreeBuilderBase<T, C> {
       }
 
       // split left and prepend block to middle
-      const toMiddle = this.left.splitRight(1);
+      const toMiddle = this.left.splitRight();
       this.prependMiddle(toMiddle);
       return;
     }
@@ -323,7 +354,7 @@ export abstract class TreeBuilderBase<T, C> {
       }
 
       // split right and append block to middle
-      const newRight = this.right.splitRight(this.context.maxBlockSize);
+      const newRight = this.right.splitRight();
       this.appendMiddle(this.right);
       this.right = newRight;
       return;
@@ -355,21 +386,26 @@ export abstract class TreeBuilderBase<T, C> {
     }
 
     // child size too small for own block, need to combine with first middle block
-    const firstMiddleChild = this.middle.first();
 
-    if (
-      child.nrChildren + firstMiddleChild.nrChildren <=
-      this.context.maxBlockSize
-    ) {
-      // can merge child into firstMiddleChild
-      firstMiddleChild.concat(child, true);
-      this.middle.length += child.length;
+    const delta = this.middle.modifyFirstChild((firstMiddleChild) => {
+      if (
+        child.nrChildren + firstMiddleChild.nrChildren <=
+        this.context.maxBlockSize
+      ) {
+        // can merge child into firstMiddleChild
+        firstMiddleChild.concat(child, true);
+        return child.length;
+      }
 
+      return;
+    });
+
+    if (undefined !== delta) {
       return;
     }
 
     // need to replace firstMiddleChild with two split blocks
-    this.middle.dropFirst();
+    const firstMiddleChild = this.middle.dropFirst();
     child.concat(firstMiddleChild);
     const newSecondChild = child.splitRight();
     this.middle.prepend(newSecondChild);
@@ -391,7 +427,6 @@ export abstract class TreeBuilderBase<T, C> {
 
     if (child.nrChildren >= this.context.minBlockSize) {
       // child size enough for its own middle block
-
       this.middle.append(child);
       this.middle = this.middle.normalized();
 
@@ -399,20 +434,26 @@ export abstract class TreeBuilderBase<T, C> {
     }
 
     // child size too small for own block, need to combine with last middle block
-    const lastMiddleChild = this.middle.last();
 
-    if (
-      child.nrChildren + lastMiddleChild.nrChildren <=
-      this.context.maxBlockSize
-    ) {
-      // can merge child into lastMiddleChild
-      lastMiddleChild.concat(child);
-      this.middle.length += child.length;
+    const delta = this.middle.modifyLastChild((lastMiddleChild) => {
+      if (
+        child.nrChildren + lastMiddleChild.nrChildren <=
+        this.context.maxBlockSize
+      ) {
+        // can merge child into lastMiddleChild
+        lastMiddleChild.concat(child);
+        return child.length;
+      }
 
+      return;
+    });
+
+    if (undefined !== delta) {
       return;
     }
 
     // need to split lastMiddleChild and append new right
+    const lastMiddleChild = this.middle.last();
     lastMiddleChild.concat(child);
     const newLast = lastMiddleChild.splitRight();
     this.middle.append(newLast);
@@ -430,7 +471,6 @@ export abstract class TreeBuilderBase<T, C> {
     }
 
     // left does not have enough children
-
     if (undefined !== this.middle) {
       const firstMiddle = this.middle.first();
 
@@ -442,14 +482,7 @@ export abstract class TreeBuilderBase<T, C> {
         this.middle.dropFirst();
         this.middle = this.middle.normalized();
         this.left.concat(firstMiddle);
-
-        return first;
       }
-
-      // can shift from first middle child
-      const shiftChild = firstMiddle.dropFirst();
-      this.middle.length -= this.getChildLength(shiftChild);
-      this.left.append(shiftChild);
 
       return first;
     }
@@ -464,8 +497,6 @@ export abstract class TreeBuilderBase<T, C> {
     ) {
       const shiftChild = this.right.dropFirst();
       this.left.append(shiftChild);
-
-      return first;
     }
 
     // assume parent will normalize
@@ -483,7 +514,6 @@ export abstract class TreeBuilderBase<T, C> {
     }
 
     // right does not have enough children
-
     if (undefined !== this.middle) {
       const lastMiddle = this.middle.last();
 
@@ -495,13 +525,7 @@ export abstract class TreeBuilderBase<T, C> {
         this.middle.dropLast();
         this.middle = this.middle.normalized();
         this.right.concat(lastMiddle, true);
-
-        return last;
       }
-
-      const shiftChild = lastMiddle.dropLast();
-      this.middle.length -= this.getChildLength(shiftChild);
-      this.right.prepend(shiftChild);
 
       return last;
     }
@@ -516,8 +540,6 @@ export abstract class TreeBuilderBase<T, C> {
     ) {
       const shiftChild = this.left.dropLast();
       this.right.prepend(shiftChild);
-
-      return last;
     }
 
     // assume parent will normalize

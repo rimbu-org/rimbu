@@ -494,16 +494,17 @@ export class NonLeafBlock<T, C extends Block<T, C>>
       return [nrChildren, 0];
     }
 
-    const shiftBits = this.context.blockSizeBits << (this.level - 1);
+    const levelBits = this.context.blockSizeBits << (this.level - 1);
+    const blockSize = 1 << levelBits;
 
-    const regularSize = nrChildren << shiftBits;
+    const regularSize = nrChildren * blockSize;
 
     if (length === regularSize) {
       // regular blocks, calculate coordinates
-      const mask = (1 << shiftBits) - 1;
-      const childIndex = indexWithOffset >>> shiftBits;
-      const inChildIndex = indexWithOffset & mask;
+      const childIndex = indexWithOffset >>> levelBits;
 
+      const mask = blockSize - 1;
+      const inChildIndex = indexWithOffset & mask;
       return [childIndex, inChildIndex + offSet];
     }
 

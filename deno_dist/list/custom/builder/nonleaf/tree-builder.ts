@@ -1,4 +1,3 @@
-import { RimbuError } from '../../../../base/mod.ts';
 import type { OptLazy } from '../../../../common/mod.ts';
 
 import type {
@@ -25,14 +24,6 @@ export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>
     public length = source?.length ?? 0
   ) {
     super();
-
-    if (
-      (_left !== undefined && _left.level !== level) ||
-      (_right !== undefined && _right.level !== level) ||
-      (_middle !== undefined && _middle.level !== level + 1)
-    ) {
-      RimbuError.throwInvalidStateError();
-    }
   }
 
   prepareMutate(): void {
@@ -83,21 +74,25 @@ export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>
 
   modifyFirstChild(f: (child: C) => number | undefined): number | undefined {
     const delta = this.left.modifyFirstChild(f);
-    if (undefined !== delta) this.length += delta;
+    if (undefined !== delta) {
+      this.length += delta;
+    }
+
     return delta;
   }
 
   modifyLastChild(f: (child: C) => number | undefined): number | undefined {
     const delta = this.right.modifyLastChild(f);
-    if (undefined !== delta) this.length += delta;
+    if (undefined !== delta) {
+      this.length += delta;
+    }
+
     return delta;
   }
 
   normalized(): NonLeafBuilder<T, C> {
     if (undefined !== this.middle) {
-      // should we recursively normalize?
-      // this.middle = this.middle.normalized();
-
+      // middle, nothing to normalize
       return this;
     }
 
@@ -140,7 +135,7 @@ export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>
     return this.context.nonLeafTree(
       this.left.build(),
       this.right.build(),
-      undefined === this.middle ? null : this.middle.build(),
+      this.middle?.build?.() ?? null,
       this.level
     );
   }
@@ -153,7 +148,7 @@ export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>
     return this.context.nonLeafTree(
       this.left.buildMap(f),
       this.right.buildMap(f),
-      undefined === this.middle ? null : (this.middle as any).buildMap(f),
+      this.middle?.buildMap?.(f) ?? null,
       this.level
     );
   }

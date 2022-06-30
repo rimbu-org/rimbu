@@ -35,9 +35,6 @@ export class LeafTree<T>
       (null === middle ? 0 : middle.length)
   ) {
     super();
-    if (middle !== null && middle.level !== 1) {
-      RimbuError.throwInvalidStateError();
-    }
   }
 
   getChildLength(): 1 {

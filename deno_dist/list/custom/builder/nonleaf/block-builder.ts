@@ -60,16 +60,16 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
       return [nrChildren - 1, lastChild.length];
     }
 
-    const shiftBits = this.context.blockSizeBits << (this.level - 1);
+    const levelBits = this.context.blockSizeBits << (this.level - 1);
+    const blockSize = 1 << levelBits;
 
-    const regularSize = nrChildren << shiftBits;
+    const regularSize = nrChildren * blockSize;
 
     if (length === regularSize) {
       // regular blocks, calculate coordinates
-      const childSize = 1 << shiftBits;
-      const mask = childSize - 1;
-      const childIndex = index >>> shiftBits;
+      const childIndex = index >>> levelBits;
 
+      const mask = blockSize - 1;
       const inChildIndex = index & mask;
       return [childIndex, inChildIndex];
     }
@@ -120,13 +120,15 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
       // too many children, needs to split
       const middleLength = this.length;
 
-      return context.nonLeafTreeBuilder(
+      const result = context.nonLeafTreeBuilder(
         this.level,
         this,
         this.splitRight(),
         undefined,
         middleLength
       );
+
+      return result;
     }
 
     // already normalized
@@ -187,6 +189,7 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
       // shift to leftChild
       const shiftChild = child.dropFirst();
       leftChild.append(shiftChild);
+
       return;
     }
 
@@ -198,6 +201,7 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
       // shift to rightChild
       const shiftChild = child.dropLast();
       rightChild.prepend(shiftChild);
+
       return;
     }
 
@@ -229,6 +233,7 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
       // can shift from left
       const shiftChild = leftChild.dropLast();
       child.prepend(shiftChild);
+
       return oldValue;
     }
 
@@ -240,6 +245,7 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
       // can shift from right
       const shiftChild = rightChild.dropFirst();
       child.append(shiftChild);
+
       return oldValue;
     }
 
@@ -247,36 +253,47 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
       // merge with left
       leftChild.concat(child);
       this.children.splice(childIndex, 1);
+
       return oldValue;
     }
 
     // merge with right
     child.concat(rightChild);
     this.children.splice(childIndex + 1, 1);
+
     return oldValue;
   }
 
   dropFirst(): C {
     const first = this.children.shift()!;
     this.length -= first.length;
+
     return first;
   }
 
   dropLast(): C {
     const last = this.children.pop()!;
     this.length -= last.length;
+
     return last;
   }
 
   modifyFirstChild(f: (child: C) => number | undefined): number | undefined {
     const delta = f(this.first());
-    if (undefined !== delta) this.length += delta;
+
+    if (undefined !== delta) {
+      this.length += delta;
+    }
+
     return delta;
   }
 
   modifyLastChild(f: (child: C) => number | undefined): number | undefined {
     const delta = f(this.last());
-    if (undefined !== delta) this.length += delta;
+    if (undefined !== delta) {
+      this.length += delta;
+    }
+
     return delta;
   }
 
@@ -289,16 +306,14 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
   }
 
   splitRight(index = this.nrChildren >>> 1): NonLeafBlockBuilder<T, C> {
-    const rightChildren = this.children.splice(
-      index,
-      this.context.maxBlockSize
-    );
+    const rightChildren = this.children.splice(index);
     const oldLength = this.length;
     this.length = 0;
     for (let i = 0; i < this.nrChildren; i++) {
       this.length += this.children[i].length;
     }
     const rightLength = oldLength - this.length;
+
     return this.copy(rightChildren, rightLength);
   }
 
@@ -306,6 +321,7 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
     this.children = prependOther
       ? other.children.concat(this.children)
       : this.children.concat(other.children);
+
     this.length += other.length;
   }
 

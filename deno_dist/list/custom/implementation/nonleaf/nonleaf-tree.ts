@@ -31,15 +31,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
     readonly middle: NonLeaf<T, NonLeafBlock<T, C>> | null,
     readonly level: number,
     readonly length = left.length + right.length + (middle?.length ?? 0)
-  ) {
-    if (
-      left.level !== level ||
-      right.level !== level ||
-      (middle !== null && middle.level !== level + 1)
-    ) {
-      RimbuError.throwInvalidStateError();
-    }
-  }
+  ) {}
 
   getChildLength(child: C): number {
     return child.length;
@@ -119,7 +111,9 @@ export class NonLeafTree<T, C extends Block<T, C>>
     const [newLeft, firstChild] = this.left.dropFirst();
 
     if (null === newLeft) {
-      if (null === this.middle) return [this.right, firstChild];
+      if (null === this.middle) {
+        return [this.right, firstChild];
+      }
 
       const [newMiddle, toLeft] = this.middle.dropFirst();
       const newSelf = this.copy(toLeft, undefined, newMiddle)._normalize();

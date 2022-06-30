@@ -32,7 +32,9 @@ export class GenBuilder<T> implements List.Builder<T> {
     ) {
       return OptLazy(otherwise) as O;
     }
-    if (index < 0) return this.get(this.length + index, otherwise);
+    if (index < 0) {
+      return this.get(this.length + index, otherwise);
+    }
 
     return this.builder.get(index, otherwise);
   };
@@ -190,7 +192,9 @@ export class GenBuilder<T> implements List.Builder<T> {
       return OptLazy(otherwise) as O;
     }
 
-    if (index < 0) return this.remove(this.length + index);
+    if (index < 0) {
+      return this.remove(this.length + index);
+    }
 
     const result = this.builder.remove(index);
     this.builder = this.builder.normalized();
@@ -207,9 +211,11 @@ export class GenBuilder<T> implements List.Builder<T> {
 
       this._lock++;
 
-      this.builder.forEach(f, state);
-
-      this._lock--;
+      try {
+        this.builder.forEach(f, state);
+      } finally {
+        this._lock--;
+      }
     }
   };
 

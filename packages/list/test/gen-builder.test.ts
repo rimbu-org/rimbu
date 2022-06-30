@@ -335,6 +335,9 @@ describe('GenBuilder', () => {
       expect(g.remove(5, 'a')).toBe('a');
       expect(g.remove(5, () => 'a')).toBe('a');
       expect(g.remove(-1)).toBe(4);
+      expect(g.remove(-5)).toBeUndefined();
+      expect(g.remove(-5, 'a')).toBe('a');
+      expect(g.remove(-5, () => 'a')).toBe('a');
     }
   });
 
