@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.10.17](https://github.com/rimbu-org/rimbu/compare/@rimbu/list@0.10.16...@rimbu/list@0.10.17) (2022-06-30)
+
+
+### Bug Fixes
+
+* **list:** fix list builder creating incorrectly formed trees in rare cases, and more test cov ([c5a9470](https://github.com/rimbu-org/rimbu/commit/c5a9470a33be0db5ef591ea5dd79612035c41698))
+
+
+
+
+
 ## [0.10.16](https://github.com/rimbu-org/rimbu/compare/@rimbu/list@0.10.15...@rimbu/list@0.10.16) (2022-06-10)
 
 **Note:** Version bump only for package @rimbu/list
