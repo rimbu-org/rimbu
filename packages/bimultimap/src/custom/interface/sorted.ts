@@ -1,8 +1,10 @@
+import type { BiMultiMapBase } from '@rimbu/bimultimap/custom';
 import type { SortedBiMultiMap } from '@rimbu/bimultimap';
 import type { SortedMultiMapSortedValue } from '@rimbu/multimap';
 
 export namespace BiMultiMapSorted {
-  export interface Creators {
+  export interface Creators
+    extends BiMultiMapBase.Factory<unknown, unknown, SortedBiMultiMap.Types> {
     /**
      * Returns a new SortedBiMultiMap context instance based on the given `options`.
      * @typeparam UK - the upper key type for which the context can create instances
