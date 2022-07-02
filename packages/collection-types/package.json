@@ -64,7 +64,8 @@
   "dependencies": {
     "@rimbu/base": "^0.9.2",
     "@rimbu/common": "^0.10.0",
-    "@rimbu/stream": "^0.12.1"
+    "@rimbu/stream": "^0.12.1",
+    "tslib": "^2.4.0"
   },
   "publishConfig": {
     "access": "public"

@@ -80,7 +80,8 @@
     "@rimbu/ordered": "^0.8.17",
     "@rimbu/sorted": "^0.9.15",
     "@rimbu/stream": "^0.12.1",
-    "@rimbu/table": "^0.9.17"
+    "@rimbu/table": "^0.9.17",
+    "tslib": "^2.4.0"
   },
   "publishConfig": {
     "access": "public"

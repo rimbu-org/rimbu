@@ -76,8 +76,5 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
-  },
-  "dependencies": {
-    "tslib": "^2.4.0"
   }
 }
