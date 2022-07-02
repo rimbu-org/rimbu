@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.18](https://github.com/rimbu-org/rimbu/compare/@rimbu/bimultimap@0.9.17...@rimbu/bimultimap@0.9.18) (2022-07-02)
+
+
+### Bug Fixes
+
+* **sorted:** export factory methods for sortedbimultimap ([b720f2c](https://github.com/rimbu-org/rimbu/commit/b720f2cc1904ecca21f3bbe6b1c3dac39a6f11fe))
+
+
+
+
+
 ## [0.9.17](https://github.com/rimbu-org/rimbu/compare/@rimbu/bimultimap@0.9.16...@rimbu/bimultimap@0.9.17) (2022-06-30)
 
 **Note:** Version bump only for package @rimbu/bimultimap

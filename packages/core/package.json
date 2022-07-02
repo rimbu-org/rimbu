@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/core",
-  "version": "0.9.19",
+  "version": "0.9.20",
   "description": "Immutable collections and tools for TypeScript",
   "keywords": [
     "collection",
@@ -67,20 +67,20 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@rimbu/bimap": "^0.9.17",
-    "@rimbu/bimultimap": "^0.9.17",
-    "@rimbu/collection-types": "^0.9.15",
-    "@rimbu/common": "^0.10.0",
-    "@rimbu/deep": "^0.11.0",
-    "@rimbu/graph": "^0.10.2",
-    "@rimbu/hashed": "^0.8.17",
-    "@rimbu/list": "^0.10.17",
-    "@rimbu/multimap": "^0.9.17",
-    "@rimbu/multiset": "^0.9.17",
-    "@rimbu/ordered": "^0.8.17",
-    "@rimbu/sorted": "^0.9.15",
-    "@rimbu/stream": "^0.12.1",
-    "@rimbu/table": "^0.9.17"
+    "@rimbu/bimap": "^0.9.18",
+    "@rimbu/bimultimap": "^0.9.18",
+    "@rimbu/collection-types": "^0.9.16",
+    "@rimbu/common": "^0.10.1",
+    "@rimbu/deep": "^0.11.1",
+    "@rimbu/graph": "^0.10.3",
+    "@rimbu/hashed": "^0.8.18",
+    "@rimbu/list": "^0.10.18",
+    "@rimbu/multimap": "^0.9.18",
+    "@rimbu/multiset": "^0.9.18",
+    "@rimbu/ordered": "^0.8.18",
+    "@rimbu/sorted": "^0.9.16",
+    "@rimbu/stream": "^0.12.2",
+    "@rimbu/table": "^0.9.18"
   },
   "publishConfig": {
     "access": "public"
