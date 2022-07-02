@@ -74,8 +74,7 @@
     "@rimbu/hashed": "^0.8.17",
     "@rimbu/list": "^0.10.17",
     "@rimbu/sorted": "^0.9.15",
-    "@rimbu/stream": "^0.12.1",
-    "tslib": "^2.4.0"
+    "@rimbu/stream": "^0.12.1"
   },
   "publishConfig": {
     "access": "public"
