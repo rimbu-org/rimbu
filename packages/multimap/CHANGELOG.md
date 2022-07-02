@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.19](https://github.com/rimbu-org/rimbu/compare/@rimbu/multimap@0.9.18...@rimbu/multimap@0.9.19) (2022-07-02)
+
+
+### Reverts
+
+* move tslib dependency back from root to individual packages ([99cff5f](https://github.com/rimbu-org/rimbu/commit/99cff5f8e8da0b5536505332ae1cf01a28c25262))
+
+
+
+
+
 ## [0.9.18](https://github.com/rimbu-org/rimbu/compare/@rimbu/multimap@0.9.17...@rimbu/multimap@0.9.18) (2022-07-02)
 
 **Note:** Version bump only for package @rimbu/multimap

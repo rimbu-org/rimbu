@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.4](https://github.com/rimbu-org/rimbu/compare/@rimbu/base@0.9.3...@rimbu/base@0.9.4) (2022-07-02)
+
+
+### Reverts
+
+* move tslib dependency back from root to individual packages ([99cff5f](https://github.com/rimbu-org/rimbu/commit/99cff5f8e8da0b5536505332ae1cf01a28c25262))
+
+
+
+
+
 ## [0.9.3](https://github.com/rimbu-org/rimbu/compare/@rimbu/base@0.9.2...@rimbu/base@0.9.3) (2022-07-02)
 
 **Note:** Version bump only for package @rimbu/base

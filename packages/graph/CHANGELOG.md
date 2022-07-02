@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.10.4](https://github.com/rimbu-org/rimbu/compare/@rimbu/graph@0.10.3...@rimbu/graph@0.10.4) (2022-07-02)
+
+
+### Reverts
+
+* move tslib dependency back from root to individual packages ([99cff5f](https://github.com/rimbu-org/rimbu/commit/99cff5f8e8da0b5536505332ae1cf01a28c25262))
+
+
+
+
+
 ## [0.10.3](https://github.com/rimbu-org/rimbu/compare/@rimbu/graph@0.10.2...@rimbu/graph@0.10.3) (2022-07-02)
 
 **Note:** Version bump only for package @rimbu/graph

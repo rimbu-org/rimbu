@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/graph",
-  "version": "0.10.3",
+  "version": "0.10.4",
   "description": "Immutable Graph data structures for TypeScript",
   "keywords": [
     "graph",
@@ -66,12 +66,12 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@rimbu/base": "^0.9.3",
-    "@rimbu/collection-types": "^0.9.16",
-    "@rimbu/common": "^0.10.1",
-    "@rimbu/hashed": "^0.8.18",
-    "@rimbu/sorted": "^0.9.16",
-    "@rimbu/stream": "^0.12.2",
+    "@rimbu/base": "^0.9.4",
+    "@rimbu/collection-types": "^0.9.17",
+    "@rimbu/common": "^0.10.2",
+    "@rimbu/hashed": "^0.8.19",
+    "@rimbu/sorted": "^0.9.17",
+    "@rimbu/stream": "^0.12.3",
     "tslib": "^2.4.0"
   },
   "publishConfig": {
