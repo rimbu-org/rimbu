@@ -59,8 +59,5 @@
   "denoify": {
     "index": "src/index.ts",
     "replacer": "../../config/denoify-rimbu-replacer.js"
-  },
-  "dependencies": {
-    "tslib": "^2.4.0"
   }
 }
