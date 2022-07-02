@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.8.18](https://github.com/rimbu-org/rimbu/compare/@rimbu/hashed@0.8.17...@rimbu/hashed@0.8.18) (2022-07-02)
+
+**Note:** Version bump only for package @rimbu/hashed
+
+
+
+
+
 ## [0.8.17](https://github.com/rimbu-org/rimbu/compare/@rimbu/hashed@0.8.16...@rimbu/hashed@0.8.17) (2022-06-30)
 
 **Note:** Version bump only for package @rimbu/hashed
