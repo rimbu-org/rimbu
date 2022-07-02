@@ -856,9 +856,9 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 }
 
 export class AsyncFromStream<T> extends AsyncStreamBase<T> {
-  [Symbol.asyncIterator]: () => AsyncFastIterator<T>;
+  [Symbol.asyncIterator]: () => AsyncFastIterator<T> = undefined as any;
 
-  constructor(readonly createIterator: () => AsyncFastIterator<T>) {
+  constructor(createIterator: () => AsyncFastIterator<T>) {
     super();
     this[Symbol.asyncIterator] = createIterator;
   }
@@ -1701,7 +1701,7 @@ export const fromAsyncStreamSource: {
 };
 
 export const AsyncStreamConstructorsImpl: AsyncStreamConstructors =
-  Object.freeze({
+  Object.freeze<AsyncStreamConstructors>({
     of(...values) {
       return new AsyncOfStream(values) as any;
     },

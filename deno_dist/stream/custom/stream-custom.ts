@@ -637,9 +637,9 @@ export abstract class StreamBase<T> implements Stream<T> {
 }
 
 export class FromStream<T> extends StreamBase<T> {
-  [Symbol.iterator]: () => FastIterator<T>;
+  [Symbol.iterator]: () => FastIterator<T> = undefined as any;
 
-  constructor(readonly createIterator: () => FastIterator<T>) {
+  constructor(createIterator: () => FastIterator<T>) {
     super();
     this[Symbol.iterator] = createIterator;
   }
@@ -1827,190 +1827,197 @@ export function isEmptyStreamSourceInstance(
   return false;
 }
 
-export const StreamConstructorsImpl: StreamConstructors = Object.freeze({
-  empty<T>(): Stream<T> {
-    return emptyStream;
-  },
-  of<T>(...values: ArrayNonEmpty<T>): Stream.NonEmpty<T> {
-    return fromStreamSource(values) as any;
-  },
-  from<T>(...sources: ArrayNonEmpty<StreamSource<T>>): any {
-    const [first, ...rest] = sources;
-    if (rest.length <= 0) {
-      return fromStreamSource(first);
-    }
-
-    const [rest1, ...restOther] = rest;
-    return fromStreamSource(first).concat(rest1, ...restOther);
-  },
-  fromArray<T>(array: readonly T[], range?: IndexRange, reversed = false): any {
-    if (array.length === 0) return emptyStream;
-
-    if (undefined === range) {
-      return new ArrayStream(array, undefined, undefined, reversed);
-    }
-
-    const result = IndexRange.getIndicesFor(range, array.length);
-
-    if (result === 'empty') {
+export const StreamConstructorsImpl: StreamConstructors =
+  Object.freeze<StreamConstructors>({
+    empty<T>(): Stream<T> {
       return emptyStream;
-    }
-    if (result === 'all') {
-      return new ArrayStream(array, undefined, undefined, reversed);
-    }
-    return new ArrayStream(array, result[0], result[1], reversed);
-  },
-  fromObjectKeys<K extends string | number | symbol>(
-    obj: Record<K, any>
-  ): Stream<K> {
-    return StreamConstructorsImpl.fromArray(Object.keys(obj) as K[]);
-  },
-  fromObjectValues<V>(obj: Record<any, V> | readonly V[]): Stream<V> {
-    return StreamConstructorsImpl.fromArray(Object.values(obj));
-  },
-  fromObject<K extends string | number | symbol, V>(
-    obj: Record<K, V>
-  ): Stream<[K, V]> {
-    return StreamConstructorsImpl.fromArray(Object.entries(obj) as [K, V][]);
-  },
-  fromString(source: string, range?: IndexRange, reversed = false) {
-    return StreamConstructorsImpl.fromArray(
-      source as any,
-      range,
-      reversed
-    ) as any;
-  },
-  always<T>(value: T): Stream.NonEmpty<T> {
-    return new AlwaysStream(value) as any;
-  },
-  applyForEach<T extends readonly unknown[], A extends readonly unknown[]>(
-    source: StreamSource<Readonly<T>>,
-    f: (...args: [...T, ...A]) => void,
-    ...args: A
-  ): void {
-    const iter = StreamConstructorsImpl.from(source)[Symbol.iterator]();
-
-    const done = Symbol();
-    let values: T | typeof done;
-    while (done !== (values = iter.fastNext(done))) {
-      f(...values, ...args);
-    }
-  },
-  applyMap<T extends readonly unknown[], A extends readonly unknown[], R>(
-    source: StreamSource<Readonly<T>>,
-    mapFun: (...args: [...T, ...A]) => R,
-    ...args: A
-  ) {
-    return new MapApplyStream(source, mapFun, args) as any;
-  },
-  applyFilter<T extends readonly unknown[], A extends readonly unknown[]>(
-    source: StreamSource<Readonly<T>>,
-    pred: (...args: [...T, ...A]) => boolean,
-    ...args: A
-  ): Stream<T> {
-    return new FilterApplyStream(source, pred, args);
-  },
-  range(range: IndexRange, delta = 1): Stream<number> {
-    if (undefined !== range.amount) {
-      if (range.amount <= 0) return emptyStream;
-
-      let startIndex = 0;
-      if (undefined !== range.start) {
-        if (Array.isArray(range.start)) {
-          startIndex = range.start[0];
-          if (!range.start[1]) startIndex++;
-        } else startIndex = range.start;
+    },
+    of<T>(...values: ArrayNonEmpty<T>): Stream.NonEmpty<T> {
+      return fromStreamSource(values) as any;
+    },
+    from<T>(...sources: ArrayNonEmpty<StreamSource<T>>): any {
+      const [first, ...rest] = sources;
+      if (rest.length <= 0) {
+        return fromStreamSource(first);
       }
-      const endIndex = startIndex + range.amount - 1;
+
+      const [rest1, ...restOther] = rest;
+      return fromStreamSource(first).concat(rest1, ...restOther);
+    },
+    fromArray<T>(
+      array: readonly T[],
+      range?: IndexRange,
+      reversed = false
+    ): any {
+      if (array.length === 0) return emptyStream;
+
+      if (undefined === range) {
+        return new ArrayStream(array, undefined, undefined, reversed);
+      }
+
+      const result = IndexRange.getIndicesFor(range, array.length);
+
+      if (result === 'empty') {
+        return emptyStream;
+      }
+      if (result === 'all') {
+        return new ArrayStream(array, undefined, undefined, reversed);
+      }
+      return new ArrayStream(array, result[0], result[1], reversed);
+    },
+    fromObjectKeys<K extends string | number | symbol>(
+      obj: Record<K, any>
+    ): Stream<K> {
+      return StreamConstructorsImpl.fromArray(Object.keys(obj) as K[]);
+    },
+    fromObjectValues<V>(obj: Record<any, V> | readonly V[]): Stream<V> {
+      return StreamConstructorsImpl.fromArray(Object.values(obj));
+    },
+    fromObject<K extends string | number | symbol, V>(
+      obj: Record<K, V>
+    ): Stream<[K, V]> {
+      return StreamConstructorsImpl.fromArray(Object.entries(obj) as [K, V][]);
+    },
+    fromString(source: string, range?: IndexRange, reversed = false) {
+      return StreamConstructorsImpl.fromArray(
+        source as any,
+        range,
+        reversed
+      ) as any;
+    },
+    always<T>(value: T): Stream.NonEmpty<T> {
+      return new AlwaysStream(value) as any;
+    },
+    applyForEach<T extends readonly unknown[], A extends readonly unknown[]>(
+      source: StreamSource<Readonly<T>>,
+      f: (...args: [...T, ...A]) => void,
+      ...args: A
+    ): void {
+      const iter = StreamConstructorsImpl.from(source)[Symbol.iterator]();
+
+      const done = Symbol();
+      let values: T | typeof done;
+      while (done !== (values = iter.fastNext(done))) {
+        f(...values, ...args);
+      }
+    },
+    applyMap<T extends readonly unknown[], A extends readonly unknown[], R>(
+      source: StreamSource<Readonly<T>>,
+      mapFun: (...args: [...T, ...A]) => R,
+      ...args: A
+    ) {
+      return new MapApplyStream(source, mapFun, args) as any;
+    },
+    applyFilter<T extends readonly unknown[], A extends readonly unknown[]>(
+      source: StreamSource<Readonly<T>>,
+      pred: (...args: [...T, ...A]) => boolean,
+      ...args: A
+    ): Stream<T> {
+      return new FilterApplyStream(source, pred, args);
+    },
+    range(range: IndexRange, delta = 1): Stream<number> {
+      if (undefined !== range.amount) {
+        if (range.amount <= 0) return emptyStream;
+
+        let startIndex = 0;
+        if (undefined !== range.start) {
+          if (Array.isArray(range.start)) {
+            startIndex = range.start[0];
+            if (!range.start[1]) startIndex++;
+          } else startIndex = range.start;
+        }
+        const endIndex = startIndex + range.amount - 1;
+
+        return new RangeStream(startIndex, endIndex, delta);
+      }
+
+      const { start, end } = Range.getNormalizedRange(range);
+      let startIndex = 0;
+      let endIndex: number | undefined = undefined;
+      if (undefined !== start) {
+        startIndex = start[0];
+        if (!start[1]) startIndex++;
+      }
+      if (undefined !== end) {
+        endIndex = end[0];
+        if (!end[1]) endIndex--;
+      }
+
+      if (undefined !== endIndex) {
+        if (delta > 0 && endIndex < startIndex) return emptyStream;
+        else if (delta < 0 && startIndex <= endIndex) return emptyStream;
+      }
 
       return new RangeStream(startIndex, endIndex, delta);
-    }
-
-    const { start, end } = Range.getNormalizedRange(range);
-    let startIndex = 0;
-    let endIndex: number | undefined = undefined;
-    if (undefined !== start) {
-      startIndex = start[0];
-      if (!start[1]) startIndex++;
-    }
-    if (undefined !== end) {
-      endIndex = end[0];
-      if (!end[1]) endIndex--;
-    }
-
-    if (undefined !== endIndex) {
-      if (delta > 0 && endIndex < startIndex) return emptyStream;
-      else if (delta < 0 && startIndex <= endIndex) return emptyStream;
-    }
-
-    return new RangeStream(startIndex, endIndex, delta);
-  },
-  random(): Stream.NonEmpty<number> {
-    return new FromStream(
-      (): FastIterator<number> => new RandomIterator()
-    ) as unknown as Stream.NonEmpty<number>;
-  },
-  randomInt(min: number, max: number): Stream.NonEmpty<number> {
-    if (min >= max) ErrBase.msg('min should be smaller than max');
-
-    return new FromStream(
-      (): FastIterator<number> => new RandomIntIterator(min, max)
-    ) as unknown as Stream.NonEmpty<number>;
-  },
-  unfold<T>(
-    init: T,
-    next: (current: T, index: number, stop: Token) => T | Token
-  ): Stream.NonEmpty<T> {
-    return new FromStream(
-      (): FastIterator<T> => new UnfoldIterator<T>(init, next)
-    ) as unknown as Stream.NonEmpty<T>;
-  },
-  zipWith(...sources) {
-    return (zipFun): any => {
-      if (sources.some(isEmptyStreamSourceInstance)) {
-        return emptyStream;
-      }
-
-      return new FromStream(() => new ZipWithIterator(sources as any, zipFun));
-    };
-  },
-  zip(...sources) {
-    return StreamConstructorsImpl.zipWith(...(sources as any))(Array);
-  },
-  zipAllWith(...sources) {
-    return (fillValue, zipFun: any): any => {
-      if (sources.every(isEmptyStreamSourceInstance)) {
-        return emptyStream;
-      }
+    },
+    random(): Stream.NonEmpty<number> {
+      return new FromStream(
+        (): FastIterator<number> => new RandomIterator()
+      ) as unknown as Stream.NonEmpty<number>;
+    },
+    randomInt(min: number, max: number): Stream.NonEmpty<number> {
+      if (min >= max) ErrBase.msg('min should be smaller than max');
 
       return new FromStream(
-        (): FastIterator<any> =>
-          new ZipAllWithItererator(fillValue, sources, zipFun)
-      );
-    };
-  },
-  zipAll(fillValue, ...sources) {
-    return StreamConstructorsImpl.zipAllWith(...(sources as any))(
-      fillValue,
-      Array
-    ) as any;
-  },
-  flatten(source: any) {
-    return fromStreamSource(source).flatMap((s: any) => s);
-  },
-  unzip(source, length) {
-    if (isEmptyStreamSourceInstance(source)) {
-      return StreamConstructorsImpl.of(emptyStream).repeat(length).toArray();
-    }
+        (): FastIterator<number> => new RandomIntIterator(min, max)
+      ) as unknown as Stream.NonEmpty<number>;
+    },
+    unfold<T>(
+      init: T,
+      next: (current: T, index: number, stop: Token) => T | Token
+    ): Stream.NonEmpty<T> {
+      return new FromStream(
+        (): FastIterator<T> => new UnfoldIterator<T>(init, next)
+      ) as unknown as Stream.NonEmpty<T>;
+    },
+    zipWith(...sources) {
+      return (zipFun): any => {
+        if (sources.some(isEmptyStreamSourceInstance)) {
+          return emptyStream;
+        }
 
-    const result: Stream<unknown>[] = [];
-    let i = -1;
+        return new FromStream(
+          () => new ZipWithIterator(sources as any, zipFun)
+        );
+      };
+    },
+    zip(...sources) {
+      return StreamConstructorsImpl.zipWith(...(sources as any))(Array);
+    },
+    zipAllWith(...sources) {
+      return (fillValue, zipFun: any): any => {
+        if (sources.every(isEmptyStreamSourceInstance)) {
+          return emptyStream;
+        }
 
-    while (++i < length) {
-      const index = i;
-      result[i] = source.map((t: any): unknown => t[index]);
-    }
+        return new FromStream(
+          (): FastIterator<any> =>
+            new ZipAllWithItererator(fillValue, sources, zipFun)
+        );
+      };
+    },
+    zipAll(fillValue, ...sources) {
+      return StreamConstructorsImpl.zipAllWith(...(sources as any))(
+        fillValue,
+        Array
+      ) as any;
+    },
+    flatten(source: any) {
+      return fromStreamSource(source).flatMap((s: any) => s);
+    },
+    unzip(source, length) {
+      if (isEmptyStreamSourceInstance(source)) {
+        return StreamConstructorsImpl.of(emptyStream).repeat(length).toArray();
+      }
 
-    return result as any;
-  },
-});
+      const result: Stream<unknown>[] = [];
+      let i = -1;
+
+      while (++i < length) {
+        const index = i;
+        result[i] = source.map((t: any): unknown => t[index]);
+      }
+
+      return result as any;
+    },
+  });
