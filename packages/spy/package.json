@@ -1,0 +1,68 @@
+{
+  "name": "@rimbu/spy",
+  "version": "0.1.0",
+  "description": "Test utilities for spying, stubbing and mocking functions, objects and classes in TypeScript",
+  "keywords": [
+    "spy",
+    "stub",
+    "mock",
+    "fake",
+    "test",
+    "rimbu",
+    "typescript"
+  ],
+  "homepage": "https://rimbu.org",
+  "author": {
+    "name": "Arvid Nicolaas",
+    "email": "arvid@rimbu.org",
+    "url": "https://github.com/vitoke"
+  },
+  "license": "MIT",
+  "funding": [
+    {
+      "type": "individual",
+      "url": "https://github.com/sponsors/vitoke"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rimbu-org/rimbu.git",
+    "directory": "packages/spy"
+  },
+  "source": "src/index.ts",
+  "main": "dist/main/index.js",
+  "module": "dist/module/index.js",
+  "types": "dist/types/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "yarn clean && yarn bundle",
+    "build:deno": "rimraf deno_dist ../../deno_dist/spy && denoify && mv deno_dist ../../deno_dist/spy",
+    "bundle": "yarn bundle:main && yarn bundle:module && yarn bundle:types",
+    "bundle:main": "tsc --p tsconfig.main.json",
+    "bundle:module": "tsc --p tsconfig.module.json",
+    "bundle:types": "tsc --p tsconfig.types.json",
+    "clean": "rimraf dist",
+    "extract-api": "api-extractor run --local --verbose --config config/api-extractor.main.json",
+    "format": "yarn format:base --write",
+    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,json,md}\"",
+    "format:check": "yarn format:base --check",
+    "lint": "eslint src",
+    "test": "jest",
+    "test:types": "tsd",
+    "typecheck": "tsc"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "tslib": "^2.4.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "denoify": {
+    "index": "src/index.ts",
+    "replacer": "../../config/denoify-rimbu-replacer.js"
+  }
+}
