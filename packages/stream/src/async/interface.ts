@@ -730,11 +730,11 @@ export interface AsyncStream<T>
    * @note O(N)
    */
   join(options?: {
-    sep?: string;
-    start?: string;
-    end?: string;
-    valueToString?: (value: T) => MaybePromise<string>;
-    ifEmpty?: string;
+    sep?: string | undefined;
+    start?: string | undefined;
+    end?: string | undefined;
+    valueToString?: ((value: T) => MaybePromise<string>) | undefined;
+    ifEmpty?: string | undefined;
   }): Promise<string>;
   /**
    * Returns an AsyncStream starting with `options.sep`, then returning the elements of this Stream interspersed with `options.sep`, and ending with

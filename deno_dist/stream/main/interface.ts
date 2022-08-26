@@ -694,11 +694,11 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * @note O(N)
    */
   join(options?: {
-    sep?: string;
-    start?: string;
-    end?: string;
-    valueToString?: (value: T) => string;
-    ifEmpty?: string;
+    sep?: string | undefined;
+    start?: string | undefined;
+    end?: string | undefined;
+    valueToString?: ((value: T) => string) | undefined;
+    ifEmpty?: string | undefined;
   }): string;
   /**
    * Returns a Stream starting with `options.sep`, then returning the elements of this Stream interspersed with `options.sep`, and ending with

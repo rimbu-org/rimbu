@@ -384,7 +384,7 @@ export class DropIterator<T> extends FastIteratorBase<T> {
 
 export class RepeatIterator<T> extends FastIteratorBase<T> {
   iterator: FastIterator<T>;
-  remain?: number;
+  remain: number | undefined;
 
   constructor(readonly source: Stream<T>, readonly amount?: number) {
     super();

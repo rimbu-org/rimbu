@@ -10,19 +10,19 @@ import { SortedIndex, SortedBuilder } from '../../common';
 export class SortedSetBuilder<T> extends SortedBuilder<T> {
   constructor(
     readonly context: SortedSetContext<T>,
-    public source?: SortedSet<T>,
-    public _entries?: T[],
-    public _children?: SortedSetBuilder<T>[],
+    public source?: undefined | SortedSet<T>,
+    public _entries?: undefined | T[],
+    public _children?: undefined | SortedSetBuilder<T>[],
     public size = source?.size ?? 0
   ) {
     super();
   }
 
   createNew(
-    source?: SortedSet<T>,
-    entries?: T[],
-    children?: SortedSetBuilder<T>[],
-    size?: number
+    source?: undefined | SortedSet<T>,
+    entries?: undefined | T[],
+    children?: undefined | SortedSetBuilder<T>[],
+    size?: undefined | number
   ): SortedSetBuilder<T> {
     return new SortedSetBuilder(this.context, source, entries, children, size);
   }
