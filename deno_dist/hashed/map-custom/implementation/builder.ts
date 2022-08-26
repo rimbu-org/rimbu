@@ -30,9 +30,9 @@ export class HashMapBlockBuilder<K, V>
 {
   constructor(
     readonly context: HashMapContext<K>,
-    public source?: HashMapBlock<K, V>,
-    public _entries?: (readonly [K, V])[],
-    public _entrySets?: MapBlockBuilderEntry<K, V>[],
+    public source?: undefined | HashMapBlock<K, V>,
+    public _entries?: undefined | (readonly [K, V])[],
+    public _entrySets?: undefined | MapBlockBuilderEntry<K, V>[],
     public size = source?.size ?? 0,
     public level = source?.level ?? 0
   ) {
@@ -445,8 +445,8 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
 > {
   constructor(
     readonly context: HashMapContext<K>,
-    public source?: HashMapCollision<K, V>,
-    public _entries?: List.Builder<readonly [K, V]>
+    public source?: undefined | HashMapCollision<K, V>,
+    public _entries?: undefined | List.Builder<readonly [K, V]>
   ) {
     super();
   }
