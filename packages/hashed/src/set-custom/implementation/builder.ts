@@ -22,9 +22,9 @@ export class HashSetBlockBuilder<T>
 {
   constructor(
     readonly context: HashSetContext<T>,
-    public source?: HashSetBlock<T>,
-    public _entries?: T[],
-    public _entrySets?: SetBlockBuilderEntry<T>[],
+    public source?: undefined | HashSetBlock<T>,
+    public _entries?: undefined | T[],
+    public _entrySets?: undefined | SetBlockBuilderEntry<T>[],
     public size = source?.size ?? 0,
     public level = source?.level ?? 0
   ) {
@@ -288,8 +288,8 @@ export class HashSetBlockBuilder<T>
 export class HashSetCollisionBuilder<T> extends CollisionBuilderBase<T> {
   constructor(
     readonly context: HashSetContext<T>,
-    public source?: HashSetCollision<T>,
-    public _entries?: List.Builder<T>
+    public source?: undefined | HashSetCollision<T>,
+    public _entries?: undefined | List.Builder<T>
   ) {
     super();
   }

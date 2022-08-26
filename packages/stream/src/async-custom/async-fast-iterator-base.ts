@@ -47,7 +47,7 @@ export const emptyAsyncFastIterator: AsyncFastIterator<any> = Object.freeze({
 
 export abstract class AsyncFastIteratorBase<T> implements AsyncFastIterator<T> {
   abstract fastNext<O>(otherwise?: AsyncOptLazy<O>): MaybePromise<T | O>;
-  return?: () => Promise<any>;
+  return?: undefined | (() => Promise<any>);
 
   async next(): Promise<IteratorResult<T>> {
     const done = Symbol('Done');
@@ -286,7 +286,7 @@ export class FromIterator<T> extends AsyncFastIteratorBase<T> {
     this.return = close;
   }
 
-  return?: () => MaybePromise<any>;
+  return: undefined | (() => MaybePromise<any>);
 
   async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<T | O> {
     const result = this.iterator.next();
@@ -907,7 +907,7 @@ export class AsyncDropIterator<T> extends AsyncFastIteratorBase<T> {
 
 export class AsyncRepeatIterator<T> extends AsyncFastIteratorBase<T> {
   iterator: AsyncFastIterator<T>;
-  remain?: number;
+  remain: number | undefined;
 
   constructor(readonly source: AsyncStream<T>, readonly amount?: number) {
     super();

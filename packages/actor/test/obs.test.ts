@@ -1,6 +1,6 @@
 import { Obs } from '@rimbu/actor';
 import { OrderedHashMap } from '@rimbu/core';
-import { Patch, patchNested as $ } from '@rimbu/deep';
+import { patchNested as $, Patch } from '@rimbu/deep';
 
 describe('Obs', () => {
   it('asReadonly', () => {

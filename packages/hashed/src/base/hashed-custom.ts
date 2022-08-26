@@ -4,9 +4,9 @@ import { List } from '@rimbu/list';
 type GenBlockBuilderEntry<E> = BlockBuilderBase<E> | CollisionBuilderBase<E>;
 
 export abstract class BlockBuilderBase<E> {
-  abstract source?: GenSource<E>;
-  abstract _entries?: E[];
-  abstract _entrySets?: GenBlockBuilderEntry<E>[];
+  abstract source?: undefined | GenSource<E>;
+  abstract _entries?: undefined | E[];
+  abstract _entrySets?: undefined | GenBlockBuilderEntry<E>[];
   abstract get size(): number;
 
   get isEmpty(): boolean {
@@ -38,14 +38,16 @@ export abstract class BlockBuilderBase<E> {
 }
 
 export abstract class CollisionBuilderBase<E> {
-  abstract source?: {
-    size: number;
-    entries: List.NonEmpty<E>;
-    forEach(
-      f: (entry: E, index: number, halt: () => void) => void,
-      state: TraverseState
-    ): void;
-  };
+  abstract source?:
+    | undefined
+    | {
+        size: number;
+        entries: List.NonEmpty<E>;
+        forEach(
+          f: (entry: E, index: number, halt: () => void) => void,
+          state: TraverseState
+        ): void;
+      };
   abstract _entries?: List.Builder<E> | undefined;
 
   get size(): number {

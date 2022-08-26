@@ -663,26 +663,28 @@ export function innerStreamSliceIndex<E>(
 
 export abstract class SortedBuilder<E> {
   abstract get context(): { minEntries: number; maxEntries: number };
-  abstract source?: {
-    min<O>(otherwise?: OptLazy<O>): E | O;
-    max<O>(otherwise?: OptLazy<O>): E | O;
-    getAtIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
-    forEach(
-      f: (entry: E, index: number, halt: () => void) => void,
-      state?: TraverseState
-    ): void;
-  };
-  abstract _entries?: E[];
-  abstract _children?: SortedBuilder<E>[];
+  abstract source?:
+    | undefined
+    | {
+        min<O>(otherwise?: OptLazy<O>): E | O;
+        max<O>(otherwise?: OptLazy<O>): E | O;
+        getAtIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
+        forEach(
+          f: (entry: E, index: number, halt: () => void) => void,
+          state?: TraverseState
+        ): void;
+      };
+  abstract _entries?: undefined | E[];
+  abstract _children?: undefined | SortedBuilder<E>[];
   abstract get children(): SortedBuilder<E>[];
   abstract set children(value: SortedBuilder<E>[]);
   abstract size: number;
   abstract prepareMutate(): void;
   abstract createNew(
-    source?: unknown,
-    entries?: E[],
-    children?: SortedBuilder<E>[],
-    size?: number
+    source?: undefined | unknown,
+    entries?: undefined | E[],
+    children?: undefined | SortedBuilder<E>[],
+    size?: undefined | number
   ): SortedBuilder<E>;
 
   _lock = 0;

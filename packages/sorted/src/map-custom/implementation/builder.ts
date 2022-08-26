@@ -14,19 +14,19 @@ export class SortedMapBuilder<K, V>
 {
   constructor(
     readonly context: SortedMapContext<K>,
-    public source?: SortedMap<K, V>,
-    public _entries?: (readonly [K, V])[],
-    public _children?: SortedMapBuilder<K, V>[],
+    public source?: undefined | SortedMap<K, V>,
+    public _entries?: undefined | (readonly [K, V])[],
+    public _children?: undefined | SortedMapBuilder<K, V>[],
     public size = source?.size ?? 0
   ) {
     super();
   }
 
   createNew(
-    source?: SortedMap<K, V>,
-    _entries?: (readonly [K, V])[],
-    _children?: SortedMapBuilder<K, V>[],
-    size?: number
+    source?: undefined | SortedMap<K, V>,
+    _entries?: undefined | (readonly [K, V])[],
+    _children?: undefined | SortedMapBuilder<K, V>[],
+    size?: undefined | number
   ): SortedMapBuilder<K, V> {
     return new SortedMapBuilder(
       this.context,
