@@ -74,11 +74,11 @@ export interface ValuedGraphBase<
    * // => [[1, 2, 'a'], [2, 3, 'b'], [3, 4, 'c']]
    * g.modifyAt(3, 4, { ifNew: (none) => 1 < 2 ? none : 'c' }).toArray()
    * // => [[1, 2, 'a'], [2, 3, 'b']]
-   * g.modifyAt(1, 2, { ifExists: 'c' }).toArray()
+   * g.modifyAt(1, 2, { ifExists: () => 'c' }).toArray()
    * // => [[1, 2, 'c'], [2, 3, 'b']]
-   * g.modifyAt(1, 2, { ifExists: v => v + 'z' }).toArray()
+   * g.modifyAt(1, 2, { ifExists: (v) => v + 'z' }).toArray()
    * // => [[1, 2, 'az'], [2, 3, 'b']]
-   * g.modifyAt(2, 3, { ifExists: (v, remove) => v.length > 5 ? v : remove }).toArray()
+   * g.modifyAt(2, 3, { ifExists: (v, remove) => v === 'a' ? v : remove }).toArray()
    * // => [[1, 2, 'a']]
    * ```
    */
@@ -365,9 +365,9 @@ export namespace ValuedGraphBase {
      * b.modifyAt(3, 4, { ifNew: 'c' })                           // => true
      * g.modifyAt(4, 5, { ifNew: (none) => 1 < 2 ? none : 'c' })  // => false
      * g.modifyAt(1, 2, { ifNew: 'a' })                           // => false
-     * g.modifyAt(1, 2, { ifExists: 'c' })                        // => false
-     * g.modifyAt(1, 2, { ifExists: v => v + 'z' })               // => true
-     * g.modifyAt(2, 3, { ifExists: (v, remove) => v.length > 5 ? v : remove })
+     * g.modifyAt(1, 2, { ifExists: () => 'c' })                        // => false
+     * g.modifyAt(1, 2, { ifExists: (v) => v + 'z' })               // => true
+     * g.modifyAt(2, 3, { ifExists: (v, remove) => v === 'a' ? v : remove })
      * // => true
      * ```
      */

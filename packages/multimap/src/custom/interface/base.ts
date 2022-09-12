@@ -463,11 +463,11 @@ export interface MultiMapBase<
    * // => [[1, 'a'], [2, 'b'], [3, 'c'], [3, 'd']]
    * m.modifyAt(3, { ifNew: () => 1 < 2 ? [] : ['c'] }).toArray()
    * // => [[1, 'a'], [2, 'b']]
-   * m.modifyAt(2, { ifExists: ['c'] }).toArray()
+   * m.modifyAt(2, { ifExists: () => ['c'] }).toArray()
    * // => [[1, 'a'], [2, 'c']]
-   * m.modifyAt(2, { ifExists: v => v.add('d') }).toArray()
+   * m.modifyAt(2, { ifExists: (v) => v.add('d') }).toArray()
    * // => [[1, 'a'], [2, 'c'], [2, 'd']]
-   * m.modifyAt(2, { ifExists: (v) => v.length > 3 ? v : [] }).toArray()
+   * m.modifyAt(2, { ifExists: (v) => v.has('a') ? v : [] }).toArray()
    * // => [[1, 'a']]
    * ```
    */
