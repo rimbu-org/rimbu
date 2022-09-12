@@ -79,7 +79,7 @@ export namespace Spy {
    * The spied function type containing extra information about the function calls.
    * @typeparam F - the spied function type
    */
-  export interface Fn<F extends Func> extends FuncInterface<F>, FnMeta<F> {}
+  export interface Fn<F extends Func> extends FuncInterface<F>, Spy.FnMeta<F> {}
 
   /**
    * A single function stub return item.
@@ -96,7 +96,7 @@ export namespace Spy {
    * The allowed values to supply to a stub spy function implementation. Either a simple stub item or a sequence of stub items.
    * @typeparam F - the spied function type
    */
-  export type FnStub<F extends Func> = FnStubItem<F> | Spy.FnStubItem<F>[];
+  export type FnStub<F extends Func> = Spy.FnStubItem<F> | Spy.FnStubItem<F>[];
 
   /**
    * Returns a spied function instance that tracks the function calls and optionally uses some original or stub implementation.
@@ -104,6 +104,20 @@ export namespace Spy {
    * @param originalFn - (optional) the original function to spy on, if stubbed still useful to supply to get the correct types
    * @param originalStub - (optional) the default stub implementation to use when the function is called
    * @param onCall - (optional) a callback function that receives the parameters used on each function call
+   * @example
+   * ```ts
+   * function f(x: number, y: number) {
+   *   return x + y;
+   * }
+   *
+   * const spy = Spy.fn(f, (x) => -x);
+   * spy(4, 5);
+   * // => -4
+   * spy.nrCalls;
+   * // => 1
+   * spy.calls;
+   * // => [[4, 5]]
+   * ```
    */
   export function fn<F extends Func>(
     originalFn?: F,
@@ -275,7 +289,7 @@ export namespace Spy {
    */
   export function obj<
     T extends { readonly [key: string | number | symbol]: any }
-  >(originalObj?: T, stubs?: ObjStub<T>): Spy.Obj<T> {
+  >(originalObj?: T, stubs?: Spy.ObjStub<T>): Spy.Obj<T> {
     let callSequence: Spy.MethodCall<T>[] = [];
 
     function createAndCacheSpy<F extends Func>(
