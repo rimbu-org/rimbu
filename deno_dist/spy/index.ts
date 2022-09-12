@@ -1,1 +1,1 @@
-export * from "./spy.ts";
+export * from './spy.ts';
