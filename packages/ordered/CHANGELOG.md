@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.8.20](https://github.com/rimbu-org/rimbu/compare/@rimbu/ordered@0.8.19...@rimbu/ordered@0.8.20) (2022-09-12)
+
+**Note:** Version bump only for package @rimbu/ordered
+
+
+
+
+
 ## [0.8.19](https://github.com/rimbu-org/rimbu/compare/@rimbu/ordered@0.8.18...@rimbu/ordered@0.8.19) (2022-07-02)
 
 
