@@ -4,10 +4,12 @@ import { Update } from '../common/mod.ts';
 
 class NotifierBase<T> {
   readonly _subscribers = new Set<Obs.StateUpdate<T>>();
-  _onNoMoreSubscribers?: Obs.UnsubscribeFn;
+  _onNoMoreSubscribers?: undefined | Obs.UnsubscribeFn;
 
   constructor(
-    readonly options?: { onFirstSubscription?: () => Obs.UnsubscribeFn }
+    readonly options?: {
+      onFirstSubscription?: undefined | (() => Obs.UnsubscribeFn);
+    }
   ) {}
 
   get hasSubscribers(): boolean {
@@ -43,14 +45,16 @@ class Impl<T, D> extends NotifierBase<Protected<T & D>> {
   constructor(
     public pureState: T,
     readonly options?: {
-      onGetState?: () => void;
-      onSetState?: (newState: Protected<T & D>) => void;
-      derive?: (
-        newState: Protected<T>,
-        oldState: Protected<T>,
-        oldDerived?: Protected<D>
-      ) => D;
-      onFirstSubscription?: () => Obs.UnsubscribeFn;
+      onGetState?: undefined | (() => void);
+      onSetState?: undefined | ((newState: Protected<T & D>) => void);
+      derive?:
+        | undefined
+        | ((
+            newState: Protected<T>,
+            oldState: Protected<T>,
+            oldDerived?: Protected<D>
+          ) => D);
+      onFirstSubscription?: undefined | (() => Obs.UnsubscribeFn);
     },
     public derivedState = options?.derive?.(
       pureState as Protected<T>,

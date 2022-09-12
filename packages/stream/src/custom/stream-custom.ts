@@ -60,6 +60,28 @@ import {
 } from '@rimbu/stream/custom';
 import { RimbuError, Token } from '@rimbu/base';
 
+function* yieldObjKeys<K extends string | number | symbol>(
+  obj: Record<K, any>
+): Generator<K> {
+  for (const key in obj) {
+    yield key;
+  }
+}
+
+function* yieldObjValues<V>(obj: Record<any, V>): Generator<V> {
+  for (const key in obj) {
+    yield (obj as any)[key];
+  }
+}
+
+function* yieldObjEntries<K extends string | number | symbol, V>(
+  obj: Record<K, V>
+): Generator<[K, V]> {
+  for (const key in obj) {
+    yield [key, obj[key]];
+  }
+}
+
 export abstract class StreamBase<T> implements Stream<T> {
   abstract [Symbol.iterator](): FastIterator<T>;
 
@@ -1868,15 +1890,15 @@ export const StreamConstructorsImpl: StreamConstructors =
     fromObjectKeys<K extends string | number | symbol>(
       obj: Record<K, any>
     ): Stream<K> {
-      return StreamConstructorsImpl.fromArray(Object.keys(obj) as K[]);
+      return StreamConstructorsImpl.from(yieldObjKeys(obj));
     },
-    fromObjectValues<V>(obj: Record<any, V> | readonly V[]): Stream<V> {
-      return StreamConstructorsImpl.fromArray(Object.values(obj));
+    fromObjectValues<V>(obj: Record<any, V>): Stream<V> {
+      return StreamConstructorsImpl.from(yieldObjValues(obj));
     },
     fromObject<K extends string | number | symbol, V>(
       obj: Record<K, V>
     ): Stream<[K, V]> {
-      return StreamConstructorsImpl.fromArray(Object.entries(obj) as [K, V][]);
+      return StreamConstructorsImpl.from(yieldObjEntries(obj));
     },
     fromString(source: string, range?: IndexRange, reversed = false) {
       return StreamConstructorsImpl.fromArray(

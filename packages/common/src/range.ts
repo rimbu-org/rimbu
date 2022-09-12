@@ -24,8 +24,8 @@ export namespace Range {
    * @param range - the `Range` to use
    */
   export function getNormalizedRange<T>(range: Range<T>): {
-    start?: [T, boolean];
-    end?: [T, boolean];
+    start?: [T, boolean] | undefined;
+    end?: [T, boolean] | undefined;
   } {
     let start: [T, boolean] | undefined = undefined;
     let end: [T, boolean] | undefined = undefined;

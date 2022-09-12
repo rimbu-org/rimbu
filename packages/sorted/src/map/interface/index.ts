@@ -10,7 +10,7 @@ import { createSortedMapContext } from '@rimbu/sorted/map-custom';
  * A type-invariant immutable Map of key type K, and value type V.
  * In the Map, each key has exactly one value, and the Map cannot contain
  * duplicate keys.
- * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [SortedMap API documentation](https://rimbu.org/api/rimbu/ordered/map/SortedMap/interface)
+ * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [SortedMap API documentation](https://rimbu.org/api/rimbu/sorted/map/SortedMap/interface)
  * @note
  * - The `SortedMap` keeps the inserted keys in sorted order according to the
  * context's `comp` `Comp` instance.
@@ -291,7 +291,7 @@ export namespace SortedMap {
    * A non-empty type-invariant immutable Map of key type K, and value type V.
    * In the Map, each key has exactly one value, and the Map cannot contain
    * duplicate keys.
-   * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [SortedMap API documentation](https://rimbu.org/api/rimbu/ordered/map/SortedMap/interface)
+   * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [SortedMap API documentation](https://rimbu.org/api/rimbu/sorted/map/SortedMap/interface)
    * @note
    * - The `SortedMap` keeps the inserted keys in sorted order according to the
    * context's `comp` instance.
@@ -391,7 +391,7 @@ export namespace SortedMap {
 
   /**
    * A mutable `SortedMap` builder used to efficiently create new immutable instances.
-   * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [SortedMap.Builder API documentation](https://rimbu.org/api/rimbu/ordered/map/SortedMap/Builder/interface)
+   * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [SortedMap.Builder API documentation](https://rimbu.org/api/rimbu/sorted/map/SortedMap/Builder/interface)
    * @typeparam K - the key type
    * @typeparam V - the value type
    */

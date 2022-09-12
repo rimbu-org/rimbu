@@ -387,11 +387,11 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
    * // => [[1, 'a'], [2, 'b'], [3, 'c']]
    * m.modifyAt(3, { ifNew: (none) => 1 < 2 ? none : 'c' }).toArray()
    * // => [[1, 'a'], [2, 'b']]
-   * m.modifyAt(2, { ifExists: 'c' }).toArray()
+   * m.modifyAt(2, { ifExists: () => 'c' }).toArray()
    * // => [[1, 'a'], [2, 'c']]
-   * m.modifyAt(2, { ifExists: v => v + 'z' }).toArray()
+   * m.modifyAt(2, { ifExists: (v) => v + 'z' }).toArray()
    * // => [[1, 'a'], [2, 'bz']]
-   * m.modifyAt(2, { ifExists: (v, remove) => v.length > 5 ? v : remove }).toArray()
+   * m.modifyAt(2, { ifExists: (v, remove) => v === 'a' ? v : remove }).toArray()
    * // => [[1, 'a']]
    * ```
    */
@@ -882,11 +882,11 @@ export namespace RMapBase {
      * // => true
      * m.modifyAt(3, { ifNew: (none) => 1 < 2 ? none : 'c' })
      * // => false
-     * m.modifyAt(2, { ifExists: 'c' })
+     * m.modifyAt(2, { ifExists: () => 'c' })
      * // => true
-     * m.modifyAt(1, { ifExists: v => v + 'z' })
+     * m.modifyAt(1, { ifExists: (v) => v + 'z' })
      * // => true
-     * m.modifyAt(2, { ifExists: (v, remove) => v.length > 5 ? v : remove })
+     * m.modifyAt(2, { ifExists: (v, remove) => v === 'a' ? v : remove })
      * // => true
      * ```
      */
