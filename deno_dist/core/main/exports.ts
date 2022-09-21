@@ -2,7 +2,7 @@ export * from '../../bimap/mod.ts';
 export * from '../../bimultimap/mod.ts';
 export * from '../../collection-types/mod.ts';
 export * from '../../common/mod.ts';
-export * from '../../deep/mod.ts';
+export { Deep, Tuple } from '../../deep/mod.ts';
 export * from '../../graph/mod.ts';
 export * from '../../hashed/mod.ts';
 export * from '../../list/mod.ts';

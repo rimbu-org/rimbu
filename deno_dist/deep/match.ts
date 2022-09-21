@@ -1,318 +1,502 @@
 import {
-  RimbuError,
-  type IsPlainObj,
-  type PlainObj,
+  IsAnyFunc,
+  IsArray,
   isPlainObj,
-  isIterable,
+  IsPlainObj,
+  NotIterable,
 } from '../base/mod.ts';
-
 import type { Protected } from './internal.ts';
+import type { Tuple } from './tuple.ts';
 
 /**
- * The type to determine the allowed input values for the `match` functions.
+ * The type to determine the allowed input values for the `match` function.
  * @typeparam T - the type of value to match
+ * @typeparam C - utility type
  */
-export type Match<T> = Match.Options<T, T>;
+export type Match<T, C extends Partial<T> = Partial<T>> = Match.Entry<
+  T,
+  C,
+  T,
+  T
+>;
 
 export namespace Match {
   /**
-   * The types of supported match input.
-   * @typeparam T - the type of value to match
+   * Determines the various allowed match types for given type `T`.
+   * @typeparam T - the input value type
+   * @typeparam C - utility type
+   * @typeparam P - the parant type
    * @typeparam R - the root object type
    */
-  export type Options<T, R> =
-    | Every<T, R>
-    | Some<T, R>
-    | None<T, R>
-    | Single<T, R>
-    | Match.Obj<T, R>;
+  export type Entry<T, C, P, R> = IsAnyFunc<T> extends true
+    ? // function can only be directly matched
+      T
+    : IsPlainObj<T> extends true
+    ? // determine allowed match values for object
+      Match.WithResult<T, P, R, Match.Obj<T, C, P, R>>
+    : IsArray<T> extends true
+    ? // determine allowed match values for array or tuple
+      Match.Arr<T, C, P, R> | Match.Func<T, P, R, Match.Arr<T, C, P, R>>
+    : // only accept values with same interface
+      Match.WithResult<T, P, R, { [K in keyof C]: C[K & keyof T] }>;
 
   /**
-   * The type to determine allowed matchers for objects.
-   * @typeparam T - the type of value to match
+   * The type that determines allowed matchers for objects.
+   * @typeparam T - the input value type
+   * @typeparam C - utility type
+   * @typeparam P - the parant type
    * @typeparam R - the root object type
    */
-  export type Obj<T, R> = {
-    [K in keyof T]?:
-      | Match.ObjItem<T[K], R>
-      | ((
-          current: Protected<T[K]>,
-          parent: Protected<T>,
-          root: Protected<R>
-        ) => boolean | Match.ObjItem<T[K], R>);
-  };
+  export type Obj<T, C, P, R> =
+    | Match.ObjProps<T, C, R>
+    | Match.CompoundForObj<T, C, P, R>;
 
   /**
    * The type to determine allowed matchers for object properties.
-   * @typeparam T - the type of value to match
+   * @typeparam T - the input value type
+   * @typeparam C - utility type
    * @typeparam R - the root object type
    */
-  export type ObjItem<T, R> = IsPlainObj<T> extends true
-    ? Match.Options<T, R>
-    : T extends Iterable<infer U>
-    ? T | Iterable<U>
-    : T;
+  export type ObjProps<T, C, R> = {
+    [K in keyof C]?: K extends keyof T ? Match.Entry<T[K], C[K], T, R> : never;
+  };
 
   /**
-   * Returns a matcher that returns true if every given `matchItem` matches the given value.
-   * @typeparam T - the type of value to match
+   * The type that determines allowed matchers for arrays/tuples.
+   * @typeparam T - the input value type
+   * @typeparam C - utility type
+   * @typeparam P - the parant type
    * @typeparam R - the root object type
-   * @typeparam Q - a utility type for the matcher
-   * @param matchItems - the match specifications to test
-   * @example
-   * ```ts
-   * const input = { a: 1, b: { c: true, d: 'a' } }
-   * match(input, Match.every({ a: 1, { c: true } } )) // => true
-   * match(input, Match.every({ a: 1, { c: false } } )) // => false
-   * ```
    */
-  export function every<T, R, Q extends T = T>(
-    ...matchItems: Match.Options<Q, R>[]
-  ): Every<T, R, Q> {
-    return new Every(matchItems);
-  }
+  export type Arr<T, C, P, R> =
+    | C
+    | Match.CompoundForArr<T, C, P, R>
+    | (Match.TupIndices<T, C, R> & { [K in Match.CompoundType]?: never });
+
+  export type WithResult<T, P, R, S> = S | Match.Func<T, P, R, S>;
+
   /**
-   * Returns a matcher that returns true if at least one of given `matchItem` matches the given value.
-   * @typeparam T - the type of value to match
+   * Type used to determine the allowed function types. Always includes booleans.
+   * @typeparam T - the input value type
+   * @typeparam P - the parant type
    * @typeparam R - the root object type
-   * @typeparam Q - a utility type for the matcher
-   * @param matchItems - the match specifications to test
-   * @example
-   * ```ts
-   * const input = { a: 1, b: { c: true, d: 'a' } }
-   * match(input, Match.some({ a: 5, { c: true } } )) // => true
-   * match(input, Match.some({ a: 5, { c: false } } )) // => false
-   * ```
+   * @typeparam S - the allowed return value type
    */
-  export function some<T, R, Q extends T = T>(
-    ...matchItems: Match.Options<Q, R>[]
-  ): Some<T, R, Q> {
-    return new Some(matchItems);
-  }
+  export type Func<T, P, R, S> = (
+    current: Protected<T>,
+    parent: Protected<P>,
+    root: Protected<R>
+  ) => boolean | S;
+
   /**
-   * Returns a matcher that returns true if none of given `matchItem` matches the given value.
-   * @typeparam T - the type of value to match
+   * Type used to indicate an object containing matches for tuple indices.
+   * @typeparam T - the input value type
+   * @typeparam C - utility type
    * @typeparam R - the root object type
-   * @typeparam Q - a utility type for the matcher
-   * @param matchItems - the match specifications to test
-   * @example
-   * ```ts
-   * const input = { a: 1, b: { c: true, d: 'a' } }
-   * match(input, Match.none({ a: 5, { c: true } } )) // => false
-   * match(input, Match.none({ a: 5, { c: false } } )) // => true
-   * ```
    */
-  export function none<T, R, Q extends T = T>(
-    ...matchItems: Match.Options<Q, R>[]
-  ): None<T, R, Q> {
-    return new None(matchItems);
-  }
+  export type TupIndices<T, C, R> = {
+    [K in Tuple.KeysOf<C>]?: Match.Entry<T[K & keyof T], C[K], T, R>;
+  } & NotIterable;
+
   /**
-   * Returns a matcher that returns true if exactly one of given `matchItem` matches the given value.
-   * @typeparam T - the type of value to match
+   * Compound keys used to indicate the type of compound.
+   */
+  export type CompoundType = 'every' | 'some' | 'none' | 'single';
+
+  /**
+   * Compount matcher for objects, can only be an array staring with a compound type keyword.
+   * @typeparam T - the input value type
+   * @typeparam C - utility type
+   * @typeparam P - the parent type
    * @typeparam R - the root object type
-   * @typeparam Q - a utility type for the matcher
-   * @param matchItems - the match specifications to test
-   * @example
-   * ```ts
-   * const input = { a: 1, b: { c: true, d: 'a' } }
-   * match(input, Match.single({ a: 1, { c: true } } )) // => false
-   * match(input, Match.single({ a: 1, { c: false } } )) // => true
-   * ```
    */
-  export function single<T, R, Q extends T = T>(
-    ...matchItems: Match.Options<Q, R>[]
-  ): Single<T, R, Q> {
-    return new Single(matchItems);
-  }
+  export type CompoundForObj<T, C, P, R> = [
+    Match.CompoundType,
+    ...Match.Entry<T, C, P, R>[]
+  ];
 
   /**
-   * The functions that are optionally provided to a match function.
+   * Defines an object containing exactly one `CompoundType` key, having an array of matchers.
+   * @typeparam T - the input value type
+   * @typeparam C - utility type
+   * @typeparam P - the parent type
+   * @typeparam R - the root object type
    */
-  export type Api = typeof Match;
-}
+  export type CompoundForArr<T, C, P, R> = {
+    [K in CompoundType]: {
+      [K2 in CompoundType]?: K2 extends K ? Match.Entry<T, C, P, R>[] : never;
+    };
+  }[CompoundType];
 
-class Every<T, R, Q extends T = T> {
-  constructor(readonly matchItems: Match.Options<Q, R>[]) {}
-}
-
-class Some<T, R, Q extends T = T> {
-  constructor(readonly matchItems: Match.Options<Q, R>[]) {}
-}
-
-class None<T, R, Q extends T = T> {
-  constructor(readonly matchItems: Match.Options<Q, R>[]) {}
-}
-
-class Single<T, R, Q extends T = T> {
-  constructor(readonly matchItems: Match.Options<Q, R>[]) {}
+  /**
+   * Utility type for collecting errors
+   */
+  export type ErrorCollector = string[] | undefined;
 }
 
 /**
  * Returns true if the given `value` object matches the given `matcher`, false otherwise.
  * @typeparam T - the input value type
- * @param value - the value to match (should be a plain object)
+ * @typeparam C - utility type
+ * @param source - the value to match (should be a plain object)
  * @param matcher - a matcher object or a function taking the matcher API and returning a match object
+ * @param errorCollector - (optional) a string array that can be passed to collect reasons why the match failed
  * @example
  * ```ts
  * const input = { a: 1, b: { c: true, d: 'a' } }
  * match(input, { a: 1 }) // => true
  * match(input, { a: 2 }) // => false
- * match(input, { a: v => v > 10 }) // => false
+ * match(input, { a: (v) => v > 10 }) // => false
  * match(input, { b: { c: true }}) // => true
- * match(input, ({ every }) => every({ a: v => v > 0 }, { b: { c: true } } )) // => true
+ * match(input, (['every', { a: (v) => v > 0 }, { b: { c: true } }]) // => true
  * match(input, { b: { c: (v, parent, root) => v && parent.d.length > 0 && root.a > 0 } })
  *  // => true
  * ```
  */
-export function match<T>(
-  value: T & PlainObj<T>,
-  matcher: Match<T> | ((matchApi: Match.Api) => Match<T>)
+export function match<T, C extends Partial<T> = Partial<T>>(
+  source: T,
+  matcher: Match<T, C>,
+  errorCollector: Match.ErrorCollector = undefined
 ): boolean {
-  if (matcher instanceof Function) {
-    return matchOptions(value, value, matcher(Match));
-  }
-
-  return matchOptions(value, value, matcher);
+  return matchEntry(source, source, source, matcher as any, errorCollector);
 }
 
-function matchOptions<T, R>(
-  value: T,
+/**
+ * Match a generic match entry against the given source.
+ */
+function matchEntry<T, C, P, R>(
+  source: T,
+  parent: P,
   root: R,
-  matcher: Match.Options<T, R>
+  matcher: Match.Entry<T, C, P, R>,
+  errorCollector: Match.ErrorCollector
 ): boolean {
-  if (matcher instanceof Every) {
-    let i = -1;
-    const { matchItems } = matcher;
-    const len = matchItems.length;
-
-    while (++i < len) {
-      if (!matchOptions(value, root, matchItems[i])) {
-        return false;
-      }
-    }
-
+  if (Object.is(source, matcher)) {
+    // value and target are exactly the same, always will be true
     return true;
   }
-  if (matcher instanceof Some) {
-    let i = -1;
-    const { matchItems } = matcher;
-    const len = matchItems.length;
-    while (++i < len) {
-      if (matchOptions(value, root, matchItems[i])) {
-        return true;
-      }
-    }
+
+  if (matcher === null || matcher === undefined) {
+    // these matchers can only be direct matches, and previously it was determined that
+    // they are not equal
+    errorCollector?.push(
+      `value ${JSON.stringify(source)} did not match matcher ${matcher}`
+    );
 
     return false;
   }
-  if (matcher instanceof None) {
-    let i = -1;
-    const { matchItems } = matcher;
-    const len = matchItems.length;
-    while (++i < len) {
-      if (matchOptions(value, root, matchItems[i])) {
-        return false;
-      }
+
+  if (typeof source === 'function') {
+    // function source values can only be directly matched
+    const result = Object.is(source, matcher);
+
+    if (!result) {
+      errorCollector?.push(
+        `both value and matcher are functions, but they do not have the same reference`
+      );
     }
 
-    return true;
+    return result;
   }
-  if (matcher instanceof Single) {
-    let i = -1;
-    const { matchItems } = matcher;
-    const len = matchItems.length;
-    let matched = false;
 
-    while (++i < len) {
-      if (matchOptions(value, root, matchItems[i])) {
-        if (matched) {
-          return false;
-        }
+  if (typeof matcher === 'function') {
+    // resolve match function first
+    const matcherResult = matcher(source, parent, root);
 
-        matched = true;
+    if (typeof matcherResult === 'boolean') {
+      // function resulted in a direct match result
+
+      if (!matcherResult) {
+        errorCollector?.push(
+          `function matcher returned false for value ${JSON.stringify(source)}`
+        );
       }
+
+      return matcherResult;
     }
 
-    return matched;
+    // function resulted in a value that needs to be further matched
+    return matchEntry(source, parent, root, matcherResult, errorCollector);
   }
 
-  if (isPlainObj(matcher)) {
-    return matchRecord(value, root, matcher);
+  if (isPlainObj(source)) {
+    // source ia a plain object, can be partially matched
+    return matchPlainObj(source, parent, root, matcher as any, errorCollector);
   }
 
-  return Object.is(value, matcher);
+  if (Array.isArray(source)) {
+    // source is an array
+    return matchArr(source, root, matcher as any, errorCollector);
+  }
+
+  // already determined above that the source and matcher are not equal
+
+  errorCollector?.push(
+    `value ${JSON.stringify(
+      source
+    )} does not match given matcher ${JSON.stringify(matcher)}`
+  );
+
+  return false;
 }
 
-function matchRecord<T, R>(
-  value: T,
+/**
+ * Match an array matcher against the given source.
+ */
+function matchArr<T extends any[], C, P, R>(
+  source: T,
   root: R,
-  matcher: Match.Obj<T, R>
+  matcher: Match.Arr<T, C, P, R>,
+  errorCollector: Match.ErrorCollector
 ): boolean {
-  if (!isPlainObj(matcher)) {
-    RimbuError.throwInvalidUsageError(
-      'match: to prevent accidental errors, match only supports plain objects as input.'
-    );
-  }
+  if (Array.isArray(matcher)) {
+    // directly compare array contents
+    const length = source.length;
 
-  for (const key in matcher) {
-    if (!(key in value)) return false;
+    if (length !== matcher.length) {
+      // if lengths not equal, arrays are not equal
 
-    const matchValue = matcher[key];
-    const target = value[key];
+      errorCollector?.push(
+        `array lengths are not equal: value length ${source.length} !== matcher length ${matcher.length}`
+      );
 
-    if (matchValue instanceof Function) {
-      if (target instanceof Function && Object.is(target, matchValue)) {
-        return true;
-      }
+      return false;
+    }
 
-      const result = matchValue(target, value, root);
+    // loop over arrays, matching every value
+    let index = -1;
+    while (++index < length) {
+      if (!Object.is(source[index], matcher[index])) {
+        // item did not match, return false
 
-      if (typeof result === 'boolean') {
-        if (result) {
-          continue;
-        }
+        errorCollector?.push(
+          `index ${index} does not match with value ${JSON.stringify(
+            source[index]
+          )} and matcher ${matcher[index]}`
+        );
 
-        return false;
-      }
-
-      if (!matchRecordItem(target, root, result)) {
-        return false;
-      }
-    } else {
-      if (!matchRecordItem(target, root, matchValue as any)) {
         return false;
       }
     }
+
+    // all items are equal
+    return true;
   }
+
+  // matcher is plain object with index keys
+
+  for (const index in matcher as any) {
+    const matcherAtIndex = (matcher as any)[index];
+
+    if (!(index in source)) {
+      // source does not have item at given index
+
+      errorCollector?.push(
+        `index ${index} does not exist in source ${JSON.stringify(
+          source
+        )} but should match matcher ${JSON.stringify(matcherAtIndex)}`
+      );
+
+      return false;
+    }
+
+    // match the source item at the given index
+    const result = matchEntry(
+      (source as any)[index],
+      source,
+      root,
+      matcherAtIndex,
+      errorCollector
+    );
+
+    if (!result) {
+      // item did not match
+
+      errorCollector?.push(
+        `index ${index} does not match with value ${JSON.stringify(
+          (source as any)[index]
+        )} and matcher ${JSON.stringify(matcherAtIndex)}`
+      );
+
+      return false;
+    }
+  }
+
+  // all items match
 
   return true;
 }
 
-function matchRecordItem<T, R>(
-  value: T,
+/**
+ * Match an object matcher against the given source.
+ */
+function matchPlainObj<T, C, P, R>(
+  source: T,
+  parent: P,
   root: R,
-  matcher: Match.ObjItem<T, R>
+  matcher: Match.Obj<T, C, P, R>,
+  errorCollector: Match.ErrorCollector
 ): boolean {
-  if (isIterable(matcher) && isIterable(value)) {
-    const it1 = (value as any)[Symbol.iterator]() as Iterator<unknown>;
-    const it2 = (matcher as any)[Symbol.iterator]() as Iterator<unknown>;
+  if (Array.isArray(matcher)) {
+    // the matcher is of compound type
+    return matchCompound(source, parent, root, matcher as any, errorCollector);
+  }
 
-    while (true) {
-      const v1 = it1.next();
-      const v2 = it2.next();
+  // partial object props matcher
 
-      if (v1.done !== v2.done || v1.value !== v2.value) {
-        return false;
-      }
-      if (v1.done) {
-        return true;
-      }
+  for (const key in matcher) {
+    if (!(key in source)) {
+      // the source does not have the given key
+
+      errorCollector?.push(
+        `key ${key} is specified in matcher but not present in value ${JSON.stringify(
+          source
+        )}`
+      );
+
+      return false;
+    }
+
+    // match the source value at the given key with the matcher at given key
+    const result = matchEntry(
+      (source as any)[key],
+      source,
+      root,
+      matcher[key],
+      errorCollector
+    );
+
+    if (!result) {
+      errorCollector?.push(
+        `key ${key} does not match in value ${JSON.stringify(
+          (source as any)[key]
+        )} with matcher ${JSON.stringify(matcher[key])}`
+      );
+      return false;
     }
   }
-  if (isPlainObj(value)) {
-    return matchOptions(value, root, matcher as any);
-  }
 
-  return Object.is(value, matcher);
+  // all properties match
+
+  return true;
+}
+
+/**
+ * Match a compound matcher against the given source.
+ */
+function matchCompound<T, C, P, R>(
+  source: T,
+  parent: P,
+  root: R,
+  compound: [Match.CompoundType, ...Match.Entry<T, C, P, R>[]],
+  errorCollector: string[] | undefined
+): boolean {
+  // first item indicates compound match type
+  const matchType = compound[0];
+
+  const length = compound.length;
+
+  // start at index 1
+  let index = 0;
+
+  type Entry = Match.Entry<T, C, P, R>;
+
+  switch (matchType) {
+    case 'every': {
+      while (++index < length) {
+        // if any item does not match, return false
+        const result = matchEntry(
+          source,
+          parent,
+          root,
+          compound[index] as Entry,
+          errorCollector
+        );
+
+        if (!result) {
+          errorCollector?.push(
+            `in compound "every": match at index ${index} failed`
+          );
+
+          return false;
+        }
+      }
+
+      return true;
+    }
+    case 'none': {
+      // if any item matches, return false
+      while (++index < length) {
+        const result = matchEntry(
+          source,
+          parent,
+          root,
+          compound[index] as Entry,
+          errorCollector
+        );
+
+        if (result) {
+          errorCollector?.push(
+            `in compound "none": match at index ${index} succeeded`
+          );
+
+          return false;
+        }
+      }
+
+      return true;
+    }
+    case 'single': {
+      // if not exactly one item matches, return false
+      let onePassed = false;
+
+      while (++index < length) {
+        const result = matchEntry(
+          source,
+          parent,
+          root,
+          compound[index] as Entry,
+          errorCollector
+        );
+
+        if (result) {
+          if (onePassed) {
+            errorCollector?.push(
+              `in compound "single": multiple matches succeeded`
+            );
+
+            return false;
+          }
+
+          onePassed = true;
+        }
+      }
+
+      if (!onePassed) {
+        errorCollector?.push(`in compound "single": no matches succeeded`);
+      }
+
+      return onePassed;
+    }
+    case 'some': {
+      // if any item matches, return true
+      while (++index < length) {
+        const result = matchEntry(
+          source,
+          parent,
+          root,
+          compound[index] as Entry,
+          errorCollector
+        );
+
+        if (result) {
+          return true;
+        }
+      }
+
+      errorCollector?.push(`in compound "some": no matches succeeded`);
+
+      return false;
+    }
+  }
 }

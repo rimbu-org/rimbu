@@ -12,33 +12,22 @@ import type { IsAny, IsPlainObj } from '../base/mod.ts';
  * @typeparam T - the input type
  */
 export type Protected<T> = IsAny<T> extends true
-  ? T
+  ? // to prevent infinite recursion, any will be any
+    T
   : T extends readonly any[] & infer A
-  ? { readonly [K in keyof A]: Protected<A[K]> }
+  ? // convert all keys to readonly and all values to `Protected`
+    { readonly [K in keyof A]: Protected<A[K]> }
   : T extends Map<infer K, infer V>
-  ? Map<Protected<K>, Protected<V>>
+  ? // return keys and values as `Protected` and omit mutable methods
+    Omit<Map<Protected<K>, Protected<V>>, 'clear' | 'delete' | 'set'>
   : T extends Set<infer E>
-  ? Set<Protected<E>>
+  ? // return values as `Protected` and omit mutable methods
+    Omit<Set<Protected<E>>, 'add' | 'clear' | 'delete'>
   : T extends Promise<infer E>
-  ? Promise<Protected<E>>
+  ? // return promise value as `Protected`
+    Promise<Protected<E>>
   : IsPlainObj<T> extends true
-  ? { readonly [K in keyof T]: Protected<T[K]> }
-  : T;
-
-/**
- * Returns the same value wrapped in the `Protected` type.
- * @param value - the value to wrap
- * @note does not perform any runtime protection, it is only a utility to easily add the `Protected`
- * type to a value
- * @example
- * ```ts
- * const obj = Protected({ a: 1, b: { c: true, d: [1] } })
- * obj.a = 2        // compiler error: a is readonly
- * obj.b.c = false  // compiler error: c is readonly
- * obj.b.d.push(2)  // compiler error: d is a readonly array
- * (obj as any).b.d.push(2)  // will actually mutate the object
- * ```
- */
-export function Protected<T>(value: T): Protected<T> {
-  return value as any;
-}
+  ? // convert all keys to readonly and all values to `Protected`
+    { readonly [K in keyof T]: Protected<T[K]> }
+  : // nothing to do, just return `T`
+    T;

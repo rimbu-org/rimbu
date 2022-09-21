@@ -129,6 +129,10 @@ export function getCodeTokenWithLinks(
   )
     .map((token) => {
       if (token.kind === 'Content') {
+        if (token.text.includes('`')) {
+          return `%%%${token.text}%%%`;
+        }
+
         return `\`${token.text}\``;
       }
 
@@ -145,7 +149,8 @@ export function getCodeTokenWithLinks(
     .replaceAll(/\n/g, '`<br/>`')
     .replaceAll(/  /g, '`&nbsp;`')
     .replaceAll(/\|/g, '`<code>&#124;</code>`')
-    .replaceAll(/``/g, '');
+    .replaceAll(/``/g, '')
+    .replaceAll(/%%%/g, '``');
 }
 
 export function getTokenRange(

@@ -6,6 +6,8 @@ title: Deep Patch
 
 import { SandBox } from '/js/sandbox';
 
+## Overview
+
 The `Protected` function and type allow easy creation of plain objects that cannot be modified in TypeScript. However, it is quite useful to create immutable copies of these objects that change some of its properties.
 
 The main example is Redux state management, which requires any changes to object data to copy the entire object. However, copying deeply nested objects is a lot of work:
@@ -34,14 +36,15 @@ const newState = {
 
 There are libraries that solve this problem in various ways, for example, the [Immer](https://github.com/immerjs/immer) library allows you to write mutable code that will in the end result in a new object containing those changes.
 
-Rimbu offers the `patch` function, which has a kind of 'contract' to specify how a specific object should be updated. The contract uses a quite concise but powerful notation, making it quite handy or many use cases. It also only copies those parts that have changes, and maintains references to the original parts that didn't change.
+Rimbu offers the `patch` and related functions, which has a kind of 'contract' to specify how a specific object should be updated. The contract uses a quite concise but powerful notation, making it quite handy for many use cases. It also only copies those parts that have changes, and maintains references to the original parts that didn't change.
 
-## Usage
+### Usage
 
-The [`patch`](/api/rimbu/deep) function takes the plain (immutable) object to update, and one or more `Update` objects or functions specifying how the object should be updated. It then returns an updated object:
+The [`patch`](/api/rimbu/deep) function takes value to update, and a second value matching the corresponding Patch type. This type defines ways in which the object can be updated. The `patch` function executes the patch, and if
+any value has changed, it returns an updated object:
 
 ```ts
-import { patch, patchNested } from '@rimbu/core';
+import { Deep } from '@rimbu/core';
 
 const state = {
   a: 1,
@@ -51,14 +54,142 @@ const state = {
   },
 };
 
-const newState = patch(state, {
-  a: (v) => v + 1,
-  b: patchNested({ c: 'newText' }),
-});
+const newState = Deep.patch(state, [
+  {
+    a: (v) => v + 1,
+    b: [{ c: 'newText' }],
+  },
+]);
 
 // newState => { a: 2, b: { c: 'newText', d: true } }
 ```
 
+### Example sandbox
+
 The following CodeSandbox shows more example of how to use `patch`:
 
 <SandBox path="deep/patch.ts" />
+
+## Details of the Rimbu Patch Notation
+
+The `patch` function is quite powerful, but it does require some knowledge of the allowed
+notation. This section goes into more details about the notation.
+
+### Update functions
+
+To patch values, it is allowed to directly set a new value, but it is also allowed to provide
+an update function, like so:
+
+```ts
+patch([1, 2, 3], (v) => [...v, 4]);
+```
+
+The update function receives three arguments:
+
+- value: the current value of the item to patch
+- parent: if nested in an object or array, this is the item one level up, otherwise, will be equal to `value`.
+- root: if nested in an object or array, this is the root object provided to the patch function, otherwise, will be equal to `value`.
+
+This can be convenient to access other paths in the object to patch.
+
+```ts
+// in this example, the update function receives the following:
+// - value will be the value of `a`
+// - parent will be the value of `b`
+// - root will be the whole object given as parameter
+patch(
+  {
+     a: 1,
+     b: { c: 2, d; 3 }
+      },
+  [{ b: { d: (value, parent, root) => v + parent.c + root.a } }]
+);
+```
+
+### Simple values
+
+Patching a simple value has the following options:
+
+```ts
+// direct
+patch(1, 2);
+
+// update function
+patch(1, (v) => v + 1);
+```
+
+### Plain objects
+
+Plain objects have the following options:
+
+```ts
+const n = { a: 1, b: { c: 'a' } };
+
+// direct (must be exactly the same type)
+patch(n, { a: 1, b: { c: 'b' } });
+
+// partial (must be in an array)
+patch(n, [{ a: 2 }]);
+patch(n, [{ a: (v) => v + 1 }]);
+patch(n, [{ b: [{ c: 'q' }] }]);
+
+// update function returning a full new object
+patch(n, (v) => ({ ...n, a: 2 }));
+
+// update function returning a patch
+patch(n, (v) => [{ a: v.b.c.length }]);
+```
+
+When using partial matches, it is also possible to supply multiple separate updates in
+the array. These will be updated one by one, and the result of the previous patch is the
+input of the following patch. This makes some use cases easier to achieve.
+
+```ts
+// the state has a counter, and a value that keeps the sum of all counters
+const state = { count: 5, sumCount: 50 };
+
+// this patch does not correctly update the sumCount.
+// parent.count is 5, but should be the new value, which is 6
+patch(state, [
+  {
+    count: (v) => v + 1,
+    sumCount: (v, parent) => v + parent.count,
+  },
+]);
+
+// this patch updates correctly:
+// first count is increased
+// then the sumCount receives the new value for count
+patch(state, [
+  { count: (v) => v + 1 },
+  { sumCount: (v, parent) => v + parent.count },
+]);
+```
+
+### Tuples
+
+Tuples (arrays of fixed length) have the following options:
+
+```
+// direct
+patch(Tuple.of(1, 'a'), Tuple.of(2, 'b'));
+
+// index patch object
+patch(Tuple.of(1, 'a'), { 1: 'b' }); // patches the item at index 1
+patch(Tuple.of(1, 'a'), { 0: (v) => v + 1 }); // patches the item at index 0
+
+// update function
+patch(Tuple.of(1, 'a'), () => ({ 1: 'b' })); // patches the item at index 1
+```
+
+### Arrays and non-plain objects
+
+Arrays and non-plain objects have the following options:
+
+```
+// direct
+patch([1, 2, 3], [4, 5, 6]);
+
+// update function
+patch([1, 2, 3], (v) => [...v, 4]);
+```

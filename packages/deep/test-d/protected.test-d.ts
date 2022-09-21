@@ -44,12 +44,19 @@ expectType<{ readonly a: readonly { readonly b: number }[] }>(
   p<{ a: { b: number }[] }>()
 );
 
-expectType<Set<string>>(p<Set<string>>());
-expectType<Set<{ readonly a: number }>>(p<Set<{ a: number }>>());
+// expectAssignable<Set<string>>(p<Set<string>>());
+// expectAssignable<Set<{ readonly a: number }>>(p<Set<{ a: number }>>());
+expectType<{ readonly a: number }>([...p<Set<{ a: number }>>()][0]);
 
-expectType<Map<string, number>>(p<Map<string, number>>());
-expectType<Map<{ readonly a: number }, { readonly b: number }>>(
-  p<Map<{ a: number }, { b: number }>>()
+// expectAssignable<Map<string, number>>(p<Map<string, number>>());
+// expectAssignable<Map<{ readonly a: number }, { readonly b: number }>>(
+//   p<Map<{ a: number }, { b: number }>>()
+// );
+expectType<{ readonly a: number }>(
+  [...p<Map<{ a: number }, { b: number }>>()][0][0]
+);
+expectType<{ readonly b: number }>(
+  [...p<Map<{ a: number }, { b: number }>>()][0][1]
 );
 
 expectType<Promise<number>>(p<Promise<number>>());

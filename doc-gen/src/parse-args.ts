@@ -41,7 +41,7 @@ export function parseArgs() {
     },
   });
 
-  if (args.help) {
+  if (args.help || !args.input || !args.output) {
     showHelp();
     Deno.exit(0);
   }

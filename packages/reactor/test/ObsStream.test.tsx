@@ -66,7 +66,7 @@ describe('ObsStream', () => {
     expect(Component).toBeCalledTimes(3);
     Component.mockClear();
 
-    act(() => itemObs.patchState({ items: (v) => v.concat([4, 5]) }));
+    act(() => itemObs.patchState([{ items: (v) => v.concat([4, 5]) }]));
 
     expect(container.children.length).toBe(5);
     expect(Component).toBeCalledTimes(2);
@@ -98,7 +98,7 @@ describe('ObsStream', () => {
     Component.mockClear();
 
     act(() =>
-      itemObs.patchState({ items: (v) => v.concat([4, 5]), value: 'b' })
+      itemObs.patchState([{ items: (v) => v.concat([4, 5]), value: 'b' }])
     );
 
     expect(container.children.length).toBe(5);
@@ -132,7 +132,7 @@ describe('ObsStream', () => {
     expect(Component).toBeCalledTimes(3);
     Component.mockClear();
 
-    act(() => itemObs.patchState({ items: (v) => v.drop(1) }));
+    act(() => itemObs.patchState([{ items: (v) => v.drop(1) }]));
 
     expect(container.children.length).toBe(2);
     expect(Component).not.toBeCalled();

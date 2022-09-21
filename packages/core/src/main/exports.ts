@@ -2,7 +2,7 @@ export * from '@rimbu/bimap';
 export * from '@rimbu/bimultimap';
 export * from '@rimbu/collection-types';
 export * from '@rimbu/common';
-export * from '@rimbu/deep';
+export { Deep, Tuple } from '@rimbu/deep';
 export * from '@rimbu/graph';
 export * from '@rimbu/hashed';
 export * from '@rimbu/list';

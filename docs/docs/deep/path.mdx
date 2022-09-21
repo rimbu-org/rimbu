@@ -6,28 +6,87 @@ title: Deep Path
 
 import { SandBox } from '/js/sandbox';
 
-`Path` is a function to easily retrieve and update a possibly nested property in an (immutable) object in TypeScript. As shown in the `Patch` documentation, it can be quite hard to update an immutable object without helpers. That `Path` object allows you to specify the location of a nested property using a string:
+## Overview
+
+`Path` is a function to easily retrieve and update a possibly nested property in an (immutable) object in TypeScript.
+As shown in the `Patch` documentation, it can be quite hard to update an immutable object without helpers.
+That `Path` object allows you to specify the location of a nested property using a string:
 
 ```ts
-import { Path } from '@rimbu/core';
+import { Deep } from '@rimbu/core';
 
-type Person = {
-  name: string;
+const person = {
+  name: 'Bart',
   address: {
-    street: string;
-    number: number;
-  };
+    street: 'Evergreen Terrace',
+    number: 742,
+  },
 };
 
-function updateAddressNumber(person: Person, value: number): Person {
-  return Path.patchValue(person, 'address.number', value);
-}
+// set the address number to 760
+const updatedPerson1 = Deep.patchAt(person, 'address.number', 760);
 
-function getPersonStreet(person: Person): string {
-  return Path.getValue(person, 'address.number');
-}
+// get the person street
+// usually not very useful, but has its use cases
+const street = Deep.getAt(person, 'address.street');
 ```
+
+### Example sandbox
 
 The following CodeSandbox shows more examples of how to use the `Path` object:
 
 <SandBox path="deep/path.ts" />
+
+## Details of the `Path` types.
+
+Paths into values can be of two types: **read-only** or **writeable**. Read-only paths are
+used in methods like `Deep.getAt` to retrieve values in objects. In this case, optional
+chaining is allowed, so that undefined is returned if any value in the path is null or undefined.
+
+Writeable paths are used in methods like `Deep.patchAt`. Here the value needs to be read, but also updated
+back into the result object. Having optional chaining would complicate the behavior of such methods. For
+this reason, optional chaining is not allowed for these methods.
+
+The `Path.Result` type determines the result of applying a specific string path to a given value.
+
+Paths have a similar format to normal TypeScript chaining:
+
+```ts
+const v = {
+  a: [1, 2],
+  b: {
+    c: { d: true } as { d: boolean } | null,
+  },
+};
+
+// equivalent
+const r1 = v.a[0];
+const r2 = Deep.getAt(v, 'a[0]');
+
+// equivalent
+const r3 = v.b.c?.d;
+const r4 = Deep.getAt(v, 'b.c?.d');
+```
+
+### Read-only paths, `Path.Get<T>`
+
+The `Path.Get` type represents a read-only path supporting optional chaining.
+
+This includes:
+
+- simple property access, e.g. for `{ a: { b: 2 } }` -> `"a.b"`
+- simple array access, e.g. for `{ a: [1, 2] }` -> `"a[0]"`
+- simple tuple access, e.g. for `{ a: [1, { b: 3 }] as [number, { b: number }] }` -> `"a[1].b"`
+- optional array nested content access, e.g. for `{ a: [{ b: 1 }] as { b: number}[] }` -> `"a[0]?.b"`
+- optional property chaining, e.g. for `{ a: null as { b: number} | null }` -> `"a?.b"`
+
+### Writeable patths, `Path.Set<T>`
+
+The `Path.Set` type represents a writeable path into values, which are
+more limited than read-only paths.
+
+Writeable paths support:
+
+- simple property access, e.g. for `{ a: { b: 2 } }` -> `"a.b"`
+- simple array access, e.g. for `{ a: [1, 2] }` -> `"a[0]"`
+- simple tuple access, e.g. for `{ a: [1, { b: 3 }] as [number, { b: number }] }` -> `"a[1].b"`
