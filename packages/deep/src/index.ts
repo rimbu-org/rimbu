@@ -6,14 +6,18 @@
  * See the [Rimbu docs Deep overview page](/docs/deep/overview) for more information.
  */
 
-export {
-  patch,
-  patchNested,
-  Patch,
-  match,
-  Match,
-  Path,
-  Protected,
-} from './internal';
-
 export { Tuple } from './tuple';
+
+export type { Protected, Patch } from './internal';
+export { Path, type Selector, type Match } from './internal';
+
+export * from './deep';
+
+import * as Deep from './deep';
+export {
+  /**
+   * Convenience namespace offering access to most common functions used in the `@rimbu/deep` package.
+   * These are mainly utilities to patch and match plain JavaScript objects.
+   */
+  Deep,
+};

@@ -23,12 +23,12 @@ obj.b.c = false; // => no error!
 obj.d.push(5); // => no error!
 ```
 
-To create plain JS objects that can be considered deep readonly in TypeScript, Rimbu offers the [`Protected`](/api/rimbu/deep) function and type:
+To create plain JS objects that can be considered deep readonly in TypeScript, Rimbu offers the [`Deep.protect`](/api/rimbu/deep) function and type:
 
 ```ts
-import { Protected } from '@rimbu/core';
+import { Deep } from '@rimbu/core';
 
-const obj = Protected({
+const obj = Deep.protect({
   a: 1,
   b: { c: true },
   d: [1],
@@ -40,19 +40,18 @@ obj.d.push(5); // => compiler error
 
 Like `Readonly`, `Protected` does not have any effect on the object itself, but only instructs the compiler that all its properties and nested properties are read-only.
 
-`Protected` has the following properties:
+`Protected<T>` has the following properties:
 
-- it casts arrays of element `E` into readonly arrays of element `Protected<E>`
-- it casts `Map<K, V>` into `Map<Protected<K>, Protected<V>>`
-- it casts `Set<E>` into `Set<Protected<E>>`
+- if type T is any, the result is also any (this prevents the compiler from infinite recursion)
+- if type T is a tuple or array, it will return a readonly array of which each element `E` is converted to `Protected<E>`
+- it casts `Map<K, V>` into `Map<Protected<K>, Protected<V>>` with all mutable methods hidden
+- it casts `Set<E>` into `Set<Protected<E>>` with all mutable methods hidden
 - it casts `Promise<E>` into `Promise<Protected<E>>`
-- for plain objects (objects without functions), it casts `Record<string, V>` into `Record<string, Protected<V>>`
-- any other type will not be affected
+- for plain objects (objects without functions), it maps all keys as readonly and all values `V` to `Protected<V>`
+- any other type will not be affected (again, to prevent infinite compiler recursion)
 
 Caveats:
 
-- There is no built-in readonly `Map` or `Set` type, so if these types are used, the compiler will not prevent
-  the user from adding or removing elements
 - It is hard to create a sane definition of a 'plain object' that works well in TypeScript. Currently, an object type is considered a plain object if:
   - if is not a primitive type (number, string, etc) or null or undefined
   - it is not a function

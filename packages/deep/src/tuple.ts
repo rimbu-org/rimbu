@@ -17,6 +17,18 @@ export namespace Tuple {
    */
   export type Source = readonly unknown[];
 
+  export type IsTuple<T> = T extends { length: infer L }
+    ? 0 extends L
+      ? false
+      : true
+    : false;
+
+  /**
+   * Returns the indices/keys that are in a tuple.
+   * @typeparam T - the input tuple type
+   */
+  export type KeysOf<T> = { [K in keyof T]: K }[keyof T & number];
+
   /**
    * Convenience method to type Tuple types
    * @param values - the values of the tuple

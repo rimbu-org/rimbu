@@ -1,5 +1,7 @@
-import { SortedMap, List } from '@rimbu/core';
+import { List } from '@rimbu/list';
+import { SortedMap } from '@rimbu/sorted';
 import { match } from '@rimbu/deep';
+import { Tuple } from '../src';
 
 describe('match', () => {
   beforeEach(() => {
@@ -42,9 +44,13 @@ describe('match', () => {
 
   it('matches null', () => {
     expect(match({ v: null as null }, {})).toBe(true);
+    expect(match({ v: null as null }, { v: null })).toBe(true);
     expect(match({ v: { a: 1 } as { a: number } | null }, { v: null })).toBe(
       false
     );
+    expect(
+      match({ v: null as { a: number } | null }, { v: (q) => q?.a === 1 })
+    ).toBe(false);
   });
 
   it('matches undefined', () => {
@@ -64,10 +70,38 @@ describe('match', () => {
 
   it('handles array', () => {
     expect(match({ s: [1] }, { s: [] })).toBe(false);
-    expect(match({ s: [1] }, { s: [1] })).toBe(true);
+    expect(match({ s: [1, 2, 3] }, { s: [1, 2, 3] })).toBe(true);
+    expect(match({ s: [1, 2, 3] }, { s: [1, 2, 4] })).toBe(false);
     expect(match({ s: [1] }, { s: [1, 2] })).toBe(false);
     expect(match({ s: [1] }, { s: (v) => v.length > 3 })).toBe(false);
     expect(match({ s: [1] }, { s: (v) => v.length < 3 })).toBe(true);
+    expect(match({ s: [1, 2, 3] }, { s: { 1: 2, 2: 3 } })).toBe(true);
+    expect(match({ s: [1, 2, 3] }, { s: { 1: 2, 3: 5 } })).toBe(false);
+  });
+
+  it('handles tuples', () => {
+    expect(
+      match({ s: Tuple.of(true, { q: 5 }) }, { s: Tuple.of(true, { q: 5 }) })
+    ).toBe(false);
+    expect(match({ s: Tuple.of(true, { q: 5 }) }, { s: { 0: true } })).toBe(
+      true
+    );
+    expect(match({ s: Tuple.of(true, { q: 5 }) }, { s: { 1: { q: 5 } } })).toBe(
+      true
+    );
+    expect(match({ s: Tuple.of(true, { q: 5 }) }, { s: { 1: { q: 3 } } })).toBe(
+      false
+    );
+    expect(
+      match({ s: Tuple.of(true, { q: 5 }) }, () => ({
+        s: { 1: { q: (v: number) => v > 3 } },
+      }))
+    ).toBe(true);
+    expect(
+      match({ s: Tuple.of(true, { q: 5 }) }, () => ({
+        s: { 1: { q: (v: number) => v < 3 } },
+      }))
+    ).toBe(false);
   });
 
   it('matches object', () => {
@@ -110,16 +144,18 @@ describe('match', () => {
     const f = () => 1;
     expect(match({ a: { b: f } }, { a: { b: f } })).toBe(true);
     expect(match({ a: { b: f } }, { a: () => ({ b: f }) })).toBe(true);
+    expect(match({ a: { b: f } }, { a: () => ({ b: () => 1 }) })).toBe(false);
     expect(match({ a: { b: f } }, { a: (v) => v.b === (() => 1) })).toBe(false);
   });
 
   it('matches list', () => {
-    expect(match({ s: List.of(1) }, { s: List.of(1) })).toBe(true);
-    expect(match({ s: List.of(1) }, { s: List.of(1, 2) })).toBe(false);
-    expect(match({ s: List.of(1, 2) }, { s: List.of(1) })).toBe(false);
-    expect(match({ s: List.of(1) }, { s: [1] })).toBe(true);
-    expect(match({ s: List.of(1) }, { s: [1, 2] })).toBe(false);
-    expect(match({ s: List.of(1, 2) }, { s: [1] })).toBe(false);
+    const l = List.of(1);
+    expect(match({ s: l }, { s: l })).toBe(true);
+    expect(match({ s: l }, { s: () => l })).toBe(true);
+    expect(match({ s: l }, { s: List.of(1) })).toBe(false);
+    expect(match({ s: l }, { s: (v) => v.stream().equals(List.of(1)) })).toBe(
+      true
+    );
   });
 
   it('matches map', () => {
@@ -143,64 +179,60 @@ describe('match', () => {
     ).toBe(false);
   });
 
-  it('matches some matchers using the some provider', () => {
-    expect(
-      match({ a: 1 }, ({ every }) => every({ a: 1 }, { a: (v) => v > 0 }))
-    ).toBe(true);
-    expect(
-      match({ a: 1 }, ({ every }) => every({ a: 2 }, { a: (v) => v > 0 }))
-    ).toBe(false);
-    expect(
-      match({ a: 1 }, ({ every }) => every({ a: 1 }, { a: (v) => v > 10 }))
-    ).toBe(false);
-    expect(
-      match({ a: 1 }, ({ every }) => every({ a: 2 }, { a: (v) => v > 10 }))
-    ).toBe(false);
+  it('matches some matchers using the `some` provider', () => {
+    expect(match({ a: 1 }, ['some', { a: 1 }, { a: (v) => v > 0 }])).toBe(true);
+    expect(match({ a: 1 }, ['some', { a: 2 }, { a: (v) => v > 0 }])).toBe(true);
+    expect(match({ a: 1 }, ['some', { a: 1 }, { a: (v) => v > 10 }])).toBe(
+      true
+    );
+    expect(match({ a: 1 }, ['some', { a: 2 }, { a: (v) => v > 10 }])).toBe(
+      false
+    );
   });
 
-  it('matches every matchers using the every provider', () => {
-    expect(
-      match({ a: 1 }, ({ some }) => some({ a: 1 }, { a: (v) => v > 0 }))
-    ).toBe(true);
-    expect(
-      match({ a: 1 }, ({ some }) => some({ a: 2 }, { a: (v) => v > 0 }))
-    ).toBe(true);
-    expect(
-      match({ a: 1 }, ({ some }) => some({ a: 1 }, { a: (v) => v > 10 }))
-    ).toBe(true);
-    expect(
-      match({ a: 1 }, ({ some }) => some({ a: 2 }, { a: (v) => v > 10 }))
-    ).toBe(false);
+  it('matches every matchers using the `every` provider', () => {
+    expect(match({ a: 1 }, ['every', { a: 1 }, { a: (v) => v > 0 }])).toBe(
+      true
+    );
+    expect(match({ a: 1 }, ['every', { a: 2 }, { a: (v) => v > 0 }])).toBe(
+      false
+    );
+    expect(match({ a: 1 }, ['every', { a: 1 }, { a: (v) => v > 10 }])).toBe(
+      false
+    );
+    expect(match({ a: 1 }, ['every', { a: 2 }, { a: (v) => v > 10 }])).toBe(
+      false
+    );
   });
 
-  it('matches none matchers using the none provider', () => {
-    expect(
-      match({ a: 1 }, ({ none }) => none({ a: 1 }, { a: (v) => v > 0 }))
-    ).toBe(false);
-    expect(
-      match({ a: 1 }, ({ none }) => none({ a: 2 }, { a: (v) => v > 0 }))
-    ).toBe(false);
-    expect(
-      match({ a: 1 }, ({ none }) => none({ a: 1 }, { a: (v) => v > 10 }))
-    ).toBe(false);
-    expect(
-      match({ a: 1 }, ({ none }) => none({ a: 2 }, { a: (v) => v > 10 }))
-    ).toBe(true);
+  it('matches none matchers using the `none` provider', () => {
+    expect(match({ a: 1 }, ['none', { a: 1 }, { a: (v) => v > 0 }])).toBe(
+      false
+    );
+    expect(match({ a: 1 }, ['none', { a: 2 }, { a: (v) => v > 0 }])).toBe(
+      false
+    );
+    expect(match({ a: 1 }, ['none', { a: 1 }, { a: (v) => v > 10 }])).toBe(
+      false
+    );
+    expect(match({ a: 1 }, ['none', { a: 2 }, { a: (v) => v > 10 }])).toBe(
+      true
+    );
   });
 
-  it('matches one matcher using the single provider', () => {
-    expect(
-      match({ a: 1 }, ({ single }) => single({ a: 1 }, { a: (v) => v > 0 }))
-    ).toBe(false);
-    expect(
-      match({ a: 1 }, ({ single }) => single({ a: 2 }, { a: (v) => v > 0 }))
-    ).toBe(true);
-    expect(
-      match({ a: 1 }, ({ single }) => single({ a: 1 }, { a: (v) => v > 10 }))
-    ).toBe(true);
-    expect(
-      match({ a: 1 }, ({ single }) => single({ a: 2 }, { a: (v) => v > 10 }))
-    ).toBe(false);
+  it('matches one matcher using the `single` provider', () => {
+    expect(match({ a: 1 }, ['single', { a: 1 }, { a: (v) => v > 0 }])).toBe(
+      false
+    );
+    expect(match({ a: 1 }, ['single', { a: 2 }, { a: (v) => v > 0 }])).toBe(
+      true
+    );
+    expect(match({ a: 1 }, ['single', { a: 1 }, { a: (v) => v > 10 }])).toBe(
+      true
+    );
+    expect(match({ a: 1 }, ['single', { a: 2 }, { a: (v) => v > 10 }])).toBe(
+      false
+    );
   });
 
   it('matches booleans', () => {
@@ -215,30 +247,47 @@ describe('match', () => {
     expect(match({ a: false }, { a: () => true })).toBe(true);
   });
 
-  it('matches non-pure data objects as references', () => {
-    const cls = new (class B {
-      b = 1;
-    })();
+  it('matches non-plain data objects', () => {
+    class B {
+      constructor(readonly b: number) {}
+    }
+    const cls1 = new B(1);
+    const cls2 = new B(2);
 
-    expect(match({ a: { b: 1 } }, { a: cls })).toBe(false);
-
-    expect(match({ a: cls }, { a: cls })).toBe(true);
+    expect(match({ a: cls1 }, { a: cls1 })).toBe(true);
+    expect(match({ a: cls1 }, { a: cls2 })).toBe(false);
   });
 
-  it('matches objects that are not plain objects by reference', () => {
+  it('matches source objects that are not plain objects by reference', () => {
+    class B {
+      b: number;
+      constructor(b: number) {
+        this.b = b;
+      }
+    }
+    const cls = new B(1);
+
     expect(
       match(
         {
-          a: new (class B {
-            b = 1;
-          })(),
+          a: cls,
         },
         { a: { b: 1 } }
       )
     ).toBe(false);
+
+    expect(
+      match(
+        {
+          a: { b: 1 },
+        },
+        { a: cls }
+      )
+    ).toBe(true);
   });
 
   it('always returns false when receiving match keys that are not in the source object', () => {
-    expect(match({ a: 1 }, { b: 1 } as any)).toEqual(false);
+    expect(match({ a: 1 }, { a: 1, b: 1 } as any)).toEqual(false);
+    expect(match({ a: 1 }, () => ({ a: 1, b: 1 } as any))).toEqual(false);
   });
 });

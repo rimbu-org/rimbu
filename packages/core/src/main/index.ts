@@ -1,7 +1,7 @@
 /**
  * @packageDocumentation
  *
- * The `@rimbu/core` package is a convenience package that exports everything from the following packages:<br/>
+ * The `@rimbu/core` package is a convenience package that exports most items from the following packages:<br/>
  * <br/>
  * - [`@rimbu/bimap`](./bimap)<br/>
  * - [`@rimbu/bimultimap`](./bimultimap)<br/>

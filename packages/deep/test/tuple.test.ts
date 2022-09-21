@@ -40,4 +40,8 @@ describe('Tuple', () => {
   it('tail', () => {
     expect(Tuple.tail(tuple)).toEqual(['a', true]);
   });
+
+  it('append', () => {
+    expect(Tuple.append(tuple, 'q')).toEqual([...tuple, 'q']);
+  });
 });

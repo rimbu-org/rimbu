@@ -6,6 +6,8 @@ title: Deep Match
 
 import { SandBox } from '/js/sandbox';
 
+## Overview
+
 Sometimes it is useful in TypeScript to have have a complex condition on a (nested) object. This can lead to long `if` statements that are also hard to read.
 
 ```ts
@@ -32,11 +34,11 @@ function process(person: Person) {
 The [`match`](/api/rimbu/deep) function offers, in a similar fashion to `patch`, a way to concisely define the conditions an (immutable) object should meet:
 
 ```ts
-import { match } from '@rimbu/core';
+import { Deep } from '@rimbu/core';
 
 function process(person: Person) {
   if (
-    match(person, {
+    Deep.match(person, {
       age: (v) => v < 18,
       name: 'Bart',
       address: {
@@ -49,6 +51,149 @@ function process(person: Person) {
 }
 ```
 
+### Example sandbox
+
 The following CodeSandbox shows in more detail how `match` can be used for more complex use cases:
 
 <SandBox path="deep/match.ts" />
+
+## Details for the match methods
+
+The Rimbu Match Notation offers a flexible way to match many conditions on values in one go.
+The match functions evaluate the given conditions and return either true if all the conditions
+are met, or false otherwise.
+
+The match notation has similarities to the `patch` notation, but is a bit more relaxed in terms of requirements.
+
+This section goes into more details about the match notation.
+
+### Match simple values
+
+To match simple values, all that is needed is to provide a value to compare to.
+
+```ts
+match(1, 1); // -> true
+match('a', 'b'); // -> false
+match(true, false); // -> false
+```
+
+### Match objects
+
+To match objects, the following options are available:
+
+- partial match, will match all the given property values to the corresponding matchers
+- compound match, an array starting with the compound type, and a number of matchers to test
+
+```ts
+// partial first-level match
+match({ a: 1, b: { c: 'q' } }, { a: 1 }); // -> true
+
+// partial deep match
+match({ a: 1, b: { c: 'q' } }, { b: { c: 'z' } }); // -> false
+
+// compound match
+match(
+  {
+    a: 1,
+    b: { c: 'q' },
+  },
+  ['some', { a: (v) => v > 5 }, { b: { c: 'q' } }]
+); // -> true, the second item matches
+```
+
+### Arrays and Tuples
+
+To match arrays and tuples, there are two options:
+
+- match each element by `Object.is`
+- provide an object with matchers for specific indices
+- compound matches wrapped in an object
+
+```ts
+const arr: number[] = [1, 2, 3];
+
+match(arr, [1, 2, 3]); // -> true, each element matches
+match(arr, { 1: 10 }); // -> false, element at index 1 is not 10
+
+const tup = [1, true, 'a'] as [number, boolean, string];
+
+match(tup, [1, false, 'a']); // -> false, element 1 does not match
+match(tup, { 0: 1, 2: 'a' }); // -> true, elements at index 0 and 2 match
+
+// compound matches
+match(
+  [
+    { x: 1, y: 2 },
+    { x: 3, y: 0 },
+  ],
+  { some: [{ x: (v) => v > 5 }, { y: (v) => v < 2 }] }
+); // -> true, matches the first item
+```
+
+### Function matchers
+
+At all places where a match is provided, it is also allowed to provide a function returning
+either a value to match, or a boolean indicating the result of a custom match.
+
+The matcher function receives three arguments:
+
+- value: the value of the item to match
+- parent: if nested in an object or array, this is the item one level up, otherwise, will be equal to `value`.
+- root: if nested in an object or array, this is the root object provided to the patch function, otherwise, will be equal to `value`.
+
+```ts
+match(1, (v) => v > 0); // => true
+
+match(
+  {
+    a: 1,
+    b: { c: 2, d: { e: 3 } },
+  },
+  {
+    b: {
+      d: { e: (value, parent, root) => value === parent.c + root.a },
+    },
+  }
+); // => true
+
+// instead of returning the boolean in the previous statement, it is also possible to directly match the value
+match(
+  {
+    a: 1,
+    b: { c: 2, d: { e: 3 } },
+  },
+  {
+    b: {
+      d: { e: (value, parent, root) => parent.c + root.a },
+    },
+  }
+); // => true
+```
+
+#### Caveat
+
+In the case of matching booleans with functions, there is a conflict between the ability to match the
+value returned by a function, and the ability to return a boolean for the match result.
+
+In this case, the return value will be considered to indicate whether the match succeeded.
+
+```ts
+match(false, false); // -> true
+match(false, () => false); // -> false, function indicates match result
+```
+
+### Match by reference
+
+By default the match functions will inspect value contents when possible. However,
+sometimes it is needed to match values by reference. The easiest way to achieve this
+is to provide a function doing the reference check and returning a boolean.
+
+```ts
+const l = List.of(1, 2, 3);
+
+// this will traverse the entire object tree, probably not desired
+match(l, l);
+
+// match by reference
+match(l, (v) => v === l);
+```

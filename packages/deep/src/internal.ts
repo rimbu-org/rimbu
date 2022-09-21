@@ -1,5 +1,8 @@
-export * from './protected';
+export type { Protected } from './protected';
+export { Path } from './path';
+export { type Match } from './match';
+export type { Patch } from './patch';
+export type { Selector } from './selector';
 
-export * from './match';
-export * from './patch';
-export * from './path';
+import * as Deep from './deep';
+export { Deep };

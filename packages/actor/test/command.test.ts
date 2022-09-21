@@ -67,7 +67,7 @@ describe('Command', () => {
     expect(command.state).toBe(false);
     expect(execute).not.toBeCalled();
 
-    actor.patchState({ a: 10 });
+    actor.patchState([{ a: 10 }]);
 
     expect(command.state).toBe(true);
     expect(execute).not.toBeCalled();
@@ -90,11 +90,11 @@ describe('Command', () => {
 
     expect(command.state).toBe(false);
 
-    actor.patchState({ a: 10 });
+    actor.patchState([{ a: 10 }]);
 
     expect(command.state).toBe(true);
 
-    actor.patchState({ a: 1 });
+    actor.patchState([{ a: 1 }]);
 
     expect(command.state).toBe(false);
   });

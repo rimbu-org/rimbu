@@ -1,5 +1,4 @@
-import { type Protected, patch, Patch, Path } from '@rimbu/deep';
-import type { PlainObj } from '@rimbu/base';
+import { type Protected, type Patch, type Path, Deep } from '@rimbu/deep';
 import { Update } from '@rimbu/common';
 
 class NotifierBase<T> {
@@ -89,7 +88,9 @@ class Impl<T, D> extends NotifierBase<Protected<T & D>> {
 
     const newPureState = Update(oldPureState, updatePureState);
 
-    if (Object.is(newPureState, oldPureState)) return;
+    if (Object.is(newPureState, oldPureState)) {
+      return;
+    }
 
     this.pureState = newPureState;
 
@@ -126,10 +127,10 @@ class Impl<T, D> extends NotifierBase<Protected<T & D>> {
     );
   }
 
-  patchState(...patches: Patch<T>[]): void {
+  patchState(patchItem: Patch<T>): void {
     const pureState = this.pureState;
 
-    const newState = patch(pureState as any, ...patches);
+    const newState = Deep.patch(pureState, patchItem);
 
     this.setState(newState);
   }
@@ -212,7 +213,7 @@ class Impl<T, D> extends NotifierBase<Protected<T & D>> {
     return result as any;
   }
 
-  select<P extends Path<T>, DR = unknown>(
+  select<P extends Path.Set<T>, DR = unknown>(
     pathInState: P,
     options?: {
       derive?: (
@@ -225,10 +226,10 @@ class Impl<T, D> extends NotifierBase<Protected<T & D>> {
   ): Obs<Path.Result<T, P>, DR> {
     return this.map<Path.Result<T, P>, DR>(
       (newParentState: Protected<T & D>) =>
-        Path.get(newParentState as T & PlainObj<any>, pathInState),
+        Deep.getAt(newParentState as T, pathInState as any) as any,
       (newChildState: Protected<Path.Result<T, P>>): T => {
-        return Path.update(
-          this.pureState as T & PlainObj<any>,
+        return Deep.patchAt(
+          this.pureState as T,
           pathInState,
           newChildState as any
         );
@@ -237,7 +238,7 @@ class Impl<T, D> extends NotifierBase<Protected<T & D>> {
     );
   }
 
-  selectReadonly<P extends Path<T & D>, DR>(
+  selectReadonly<P extends Path.Get<T & D>, DR>(
     pathInState: P,
     options?: {
       derive?: (
@@ -250,7 +251,7 @@ class Impl<T, D> extends NotifierBase<Protected<T & D>> {
   ): Obs.Readonly<Path.Result<T & D, P> & DR> {
     return this.mapReadonly<Path.Result<T & D, P>, DR>(
       (newParentState: Protected<T & D>) =>
-        Path.get(newParentState as T & D & PlainObj<any>, pathInState),
+        Deep.getAt(newParentState as T & D, pathInState),
       options
     );
   }
@@ -482,7 +483,7 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    * // => { c: 5 }
    * ```
    */
-  selectReadonly: <P extends Path<T & D>, DR = unknown>(
+  selectReadonly: <P extends Path.Get<T & D>, DR = unknown>(
     pathInState: P,
     options?: {
       derive?: (
@@ -516,7 +517,7 @@ export interface Obs<T, D = unknown> extends Obs.Readonly<T & D> {
    * // => { a: 1, b: { c: 5 } }
    * ```
    */
-  select: <P extends Path<T>, DR = unknown>(
+  select: <P extends Path.Set<T>, DR = unknown>(
     pathInState: P,
     options?: {
       derive?: (
@@ -725,7 +726,7 @@ export namespace Obs {
      * // => { c: 5 }
      * ```
      */
-    selectReadonly: <P extends Path<T>, DR = unknown>(
+    selectReadonly: <P extends Path.Get<T>, DR = unknown>(
       pathInState: P,
       options?: {
         derive?: (
