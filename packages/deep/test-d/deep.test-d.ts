@@ -65,3 +65,52 @@ expectType<{ readonly q: boolean }[]>([m].map(wt.selectWith({ q: 'c.d' })));
 expectType<{ readonly q: boolean }[]>(
   [m].map(wt.selectAtWith('c', { q: 'd' }))
 );
+
+const person = {
+  name: 'Alice',
+  age: 34,
+  address: {
+    street: 'Random street',
+    number: 45,
+  },
+  friends: ['Bob', 'Carol'],
+};
+
+type Person = typeof person;
+
+expectType<Person>(
+  Deep.patch(person, [
+    {
+      address: [{ street: 'ABC' }],
+    },
+    {
+      name: 'James',
+    },
+  ])
+);
+
+expectType<Person>(
+  Deep.patchAt(person, 'address', [{ street: 'ABC' }, { number: 34 }])
+);
+
+expectType<Person[]>(
+  [person].map(Deep.patchAtWith('address', [{ street: 'ABC' }, { number: 34 }]))
+);
+
+expectType<Person[]>(
+  [person].map(
+    Deep.patchWith([{ name: 'James' }, { address: [{ street: 'ABC' }] }])
+  )
+);
+
+const personUpdate1 = Deep.withType<Person>().patchWith([
+  { name: 'James' },
+  { address: [{ street: 'ABC' }] },
+]);
+expectType<Person>(personUpdate1(person));
+
+const personUpdate2 = Deep.withType<Person>().patchAtWith('address', [
+  { street: 'ABC' },
+  { number: 34 },
+]);
+expectType<Person>(personUpdate2(person));

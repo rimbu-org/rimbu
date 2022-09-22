@@ -60,9 +60,9 @@ export function getAtWith<T, P extends Path.Get<T>>(
  * ```
  */
 export function patchWith<T, TE extends T = T, TT = T>(
-  patchItem: Patch<TE, TT>
-): (source: T) => T {
-  return (source) => Deep.patch(source, patchItem);
+  patchItem: Patch<TT, TE>
+): (source: TE) => T {
+  return (source) => Deep.patch(source, patchItem as any);
 }
 
 /**
@@ -258,7 +258,9 @@ export interface WithType<T> {
    * // => { a: 2, b: 'a' }
    * ```
    */
-  patchWith<TT = T>(patchItem: Patch<T, TT>): (source: T) => T;
+  patchWith<TE extends T = T, TT = T>(
+    patchItem: Patch<TT, TE>
+  ): (source: TE) => T;
   /**
    * Returns a function that patches a given `value` with the given `patchItems` at the given `path`.
    * @typeparam P - the string literal path type in the object

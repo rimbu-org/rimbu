@@ -385,7 +385,7 @@ export function getAt<T, P extends Path.Get<T>>(
 export function patchAt<T, P extends Path.Set<T>, C = Path.Result<T, P>>(
   source: T,
   path: P,
-  patchItem: Patch<Path.Result<T, P>, C>
+  patchItem: Patch<Path.Result<T, P>, Path.Result<T, P> & C>
 ): T {
   if (path === '') {
     return Deep.patch(source, patchItem as any);
