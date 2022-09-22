@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/deep@0.12.0...@rimbu/deep@0.12.1) (2022-09-22)
+
+
+### Bug Fixes
+
+* **deep:** fix patch methods not inferring correct types for multi-part patches ([7ba337e](https://github.com/rimbu-org/rimbu/commit/7ba337ec5e2506351b523ffe8a64b501253067af))
+
+
+
+
+
 # [0.12.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/deep@0.11.3...@rimbu/deep@0.12.0) (2022-09-22)
 
 
