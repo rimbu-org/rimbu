@@ -109,13 +109,13 @@ expectType<ArrayNonEmpty<readonly [number, string]>>(bNonEmpty.toArray());
 expectType<BiMap.Builder<number, string>>(bEmpty.toBuilder());
 expectType<BiMap.Builder<number, string>>(bNonEmpty.toBuilder());
 
-// .updateKeyAt(..)
-expectType<B_Empty>(bEmpty.updateKeyAt('b', 2));
-expectType<B_NonEmpty>(bNonEmpty.updateKeyAt('b', 2));
+// .updateKeyAtValue(..)
+expectType<B_Empty>(bEmpty.updateKeyAtValue(2, 'b'));
+expectType<B_NonEmpty>(bNonEmpty.updateKeyAtValue(2, 'b'));
 
-// .updateValueAt(..)
-expectType<B_Empty>(bEmpty.updateValueAt(2, 'b'));
-expectType<B_NonEmpty>(bNonEmpty.updateValueAt(2, 'b'));
+// .updateValueAtKey(..)
+expectType<B_Empty>(bEmpty.updateValueAtKey(2, 'b'));
+expectType<B_NonEmpty>(bNonEmpty.updateValueAtKey(2, 'b'));
 
 // From Builder
 expectType<B_Empty>(bEmpty.toBuilder().build());

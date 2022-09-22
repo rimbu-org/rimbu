@@ -419,30 +419,30 @@ describe('BiMap methods', () => {
     expect(map3_1.toString()).toBe(`BiMap(1 <-> a, 2 <-> b, 3 <-> c)`);
   });
 
-  it('updateKeyAt', () => {
-    expect(mapEmpty.updateKeyAt('b', 10)).toBe(mapEmpty);
-    expect(mapEmpty.updateKeyAt('b', (v) => v + v)).toBe(mapEmpty);
+  it('updateKeyAtValue', () => {
+    expect(mapEmpty.updateKeyAtValue(10, 'b')).toBe(mapEmpty);
+    expect(mapEmpty.updateKeyAtValue((v) => v + v, 'b')).toBe(mapEmpty);
 
-    expect(map3_1.updateKeyAt('b', 10).getKey('b')).toBe(10);
-    expect(map3_1.updateKeyAt('b', (v) => v + v).getKey('b')).toBe(4);
-    expect(map3_1.updateKeyAt('z', 10)).toBe(map3_1);
+    expect(map3_1.updateKeyAtValue(10, 'b').getKey('b')).toBe(10);
+    expect(map3_1.updateKeyAtValue((v) => v + v, 'b').getKey('b')).toBe(4);
+    expect(map3_1.updateKeyAtValue(10, 'z')).toBe(map3_1);
 
-    expect(map6_1.updateKeyAt('b', 10).getKey('b')).toBe(10);
-    expect(map6_1.updateKeyAt('b', (v) => v + v).getKey('b')).toBe(4);
-    expect(map6_1.updateKeyAt('z', 10)).toBe(map6_1);
+    expect(map6_1.updateKeyAtValue(10, 'b').getKey('b')).toBe(10);
+    expect(map6_1.updateKeyAtValue((v) => v + v, 'b').getKey('b')).toBe(4);
+    expect(map6_1.updateKeyAtValue(10, 'z')).toBe(map6_1);
   });
 
-  it('updateValueAt', () => {
-    expect(mapEmpty.updateValueAt(2, 'z')).toBe(mapEmpty);
-    expect(mapEmpty.updateValueAt(2, (v) => v + v)).toBe(mapEmpty);
+  it('updateValueAtKey', () => {
+    expect(mapEmpty.updateValueAtKey(2, 'z')).toBe(mapEmpty);
+    expect(mapEmpty.updateValueAtKey(2, (v) => v + v)).toBe(mapEmpty);
 
-    expect(map3_1.updateValueAt(2, 'z').getValue(2)).toBe('z');
-    expect(map3_1.updateValueAt(2, (v) => v + v).getValue(2)).toBe('bb');
-    expect(map3_1.updateValueAt(10, 'z')).toBe(map3_1);
+    expect(map3_1.updateValueAtKey(2, 'z').getValue(2)).toBe('z');
+    expect(map3_1.updateValueAtKey(2, (v) => v + v).getValue(2)).toBe('bb');
+    expect(map3_1.updateValueAtKey(10, 'z')).toBe(map3_1);
 
-    expect(map6_1.updateValueAt(2, 'z').getValue(2)).toBe('z');
-    expect(map6_1.updateValueAt(2, (v) => v + v).getValue(2)).toBe('bb');
-    expect(map6_1.updateValueAt(10, 'z')).toBe(map6_1);
+    expect(map6_1.updateValueAtKey(2, 'z').getValue(2)).toBe('z');
+    expect(map6_1.updateValueAtKey(2, (v) => v + v).getValue(2)).toBe('bb');
+    expect(map6_1.updateValueAtKey(10, 'z')).toBe(map6_1);
   });
 });
 
