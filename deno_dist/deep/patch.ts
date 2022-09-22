@@ -110,7 +110,7 @@ export namespace Patch {
  */
 export function patch<T, TE extends T = T, TT = T>(
   value: T,
-  patchItem: Patch<TE, TT>
+  patchItem: Patch<TE, T & TT>
 ): T {
   return patchEntry(value, value, value, patchItem as Patch<T>);
 }
