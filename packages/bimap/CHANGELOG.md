@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/bimap@0.9.20...@rimbu/bimap@0.10.0) (2022-09-22)
+
+
+### Features
+
+* **bimap:** change update method names and reverse parameters for updateKeyAt method ([24a6af1](https://github.com/rimbu-org/rimbu/commit/24a6af1cfb91be314b762e4e5284fb5187439035))
+
+
+### BREAKING CHANGES
+
+* **bimap:** changed updateKeyAt to updateKeyAtValue, and updateValueAt to updateValueAtKey, and
+reversed parameter order for updateKeyAtValue to always have key first
+
+
+
+
+
 ## [0.9.20](https://github.com/rimbu-org/rimbu/compare/@rimbu/bimap@0.9.19...@rimbu/bimap@0.9.20) (2022-09-12)
 
 **Note:** Version bump only for package @rimbu/bimap
