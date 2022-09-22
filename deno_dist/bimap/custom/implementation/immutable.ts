@@ -89,11 +89,11 @@ export class BiMapEmpty<K = any, V = any>
     return this;
   }
 
-  updateKeyAt(): this {
+  updateKeyAtValue(): this {
     return this;
   }
 
-  updateValueAt(): this {
+  updateValueAtKey(): this {
     return this;
   }
 
@@ -345,22 +345,22 @@ export class BiMapNonEmptyImpl<K, V>
     return builder.build();
   }
 
-  updateValueAt(key: K, update: Update<V>): BiMap.NonEmpty<K, V> {
+  updateValueAtKey(key: K, valueUpdate: Update<V>): BiMap.NonEmpty<K, V> {
     const token = Symbol();
     const currentValue = this.getValue(key, token);
     if (token === currentValue) return this;
 
-    const newValue = Update(currentValue, update);
+    const newValue = Update(currentValue, valueUpdate);
     if (Object.is(newValue, currentValue)) return this;
     return this.set(key, newValue);
   }
 
-  updateKeyAt(value: V, update: Update<K>): BiMap.NonEmpty<K, V> {
+  updateKeyAtValue(keyUpdate: Update<K>, value: V): BiMap.NonEmpty<K, V> {
     const token = Symbol();
     const result = this.getKey(value, token);
     if (token === result) return this;
 
-    const newKey = Update(result, update);
+    const newKey = Update(result, keyUpdate);
     if (Object.is(newKey, result)) return this;
     return this.set(newKey, value);
   }

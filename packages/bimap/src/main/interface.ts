@@ -262,37 +262,43 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
    */
   removeValues<UV = V>(value: StreamSource<RelatedTo<V, UV>>): BiMap<K, V>;
   /**
-   * Returns the collection where the value associated with given `key` is updated with the given `update` value or update function.
+   * Returns the collection where the value associated with given `key` is updated with the given `valueUpdate` value or update function.
    * @param key - the key of the entry to update
-   * @param update - a new value or function taking the current value and returning a new value
+   * @param valueUpdate - a new value or function taking the current value and returning a new value
    * @example
    * ```ts
    * const m = BiMap.of([1, 1], [2, 2])
-   * m.updateValueAt(3, 3).toArray()
+   * m.updateValueAtKey(3, 3).toArray()
    * // => [[1, 1], [2, 2]]
-   * m.updateValueAt(2, 10).toArray()
+   * m.updateValueAtKey(2, 10).toArray()
    * // => [[1, 1], [2, 10]]
-   * m.updateValueAt(1, v => v + 1)
+   * m.updateValueAtKey(1, v => v + 1)
    * // => [[1, 2]]
    * ```
    */
-  updateValueAt<UK = K>(key: RelatedTo<K, UK>, update: Update<V>): BiMap<K, V>;
+  updateValueAtKey<UK = K>(
+    key: RelatedTo<K, UK>,
+    valueUpdate: Update<V>
+  ): BiMap<K, V>;
   /**
-   * Returns the collection where the key associated with given `value` is updated with the given `update` value or update function.
+   * Returns the collection where the key associated with given `value` is updated with the given `keyUpdate` value or update function.
+   * @param keyUpdate - a new value or function taking the current key and returning a new key
    * @param value - the value of the entry to update
-   * @param update - a new value or function taking the current key and returning a new key
    * @example
    * ```ts
    * const m = BiMap.of([1, 1], [2, 2])
-   * m.updateKeyAt(3, 3).toArray()
+   * m.updateKeyAtValue(3, 3).toArray()
    * // => [[1, 1], [2, 2]]
-   * m.updateKeyAt(2, 10).toArray()
+   * m.updateKeyAtValue(10, 2).toArray()
    * // => [[1, 1], [10, 2]]
-   * m.updateKeyAt(1, v => v + 1)
+   * m.updateKeyAtValue((v) => v + 1, 1)
    * // => [[2, 1]]
    * ```
    */
-  updateKeyAt<UV = V>(value: RelatedTo<V, UV>, update: Update<K>): BiMap<K, V>;
+  updateKeyAtValue<UV = V>(
+    keyUpdate: Update<K>,
+    value: RelatedTo<V, UV>
+  ): BiMap<K, V>;
   /**
    * Returns a `Stream` containing all entries of this collection as tuples of key and value.
    * @example
@@ -462,7 +468,7 @@ export namespace BiMap {
     /**
      * Returns the collection where the value associated with given `key` is updated with the given `update` value or update function.
      * @param key - the key of the entry to update
-     * @param update - a new value or function taking the current value and returning a new value
+     * @param valueUpdate - a new value or function taking the current value and returning a new value
      * @example
      * ```ts
      * const m = BiMap.of([1, 1], [2, 2])
@@ -474,28 +480,28 @@ export namespace BiMap {
      * // => [[1, 2]]
      * ```
      */
-    updateValueAt<UK = K>(
+    updateValueAtKey<UK = K>(
       key: RelatedTo<K, UK>,
-      update: Update<V>
+      valueUpdate: Update<V>
     ): BiMap.NonEmpty<K, V>;
     /**
      * Returns the collection where the key associated with given `value` is updated with the given `update` value or update function.
+     * @param keyUpdate - a new value or function taking the current key and returning a new key
      * @param value - the value of the entry to update
-     * @param update - a new value or function taking the current key and returning a new key
      * @example
      * ```ts
      * const m = BiMap.of([1, 1], [2, 2])
-     * m.updateKeyAt(3, 3).toArray()
+     * m.updateKeyAtValue(3, 3).toArray()
      * // => [[1, 1], [2, 2]]
-     * m.updateKeyAt(2, 10).toArray()
+     * m.updateKeyAtValue(10, 2).toArray()
      * // => [[1, 1], [10, 2]]
-     * m.updateKeyAt(1, v => v + 1)
+     * m.updateKeyAtValue((v) => v + 1, 1)
      * // => [[2, 1]]
      * ```
      */
-    updateKeyAt<UV = V>(
-      value: RelatedTo<V, UV>,
-      update: Update<K>
+    updateKeyAtValue<UV = V>(
+      keyUpdate: Update<K>,
+      value: RelatedTo<V, UV>
     ): BiMap.NonEmpty<K, V>;
     /**
      * Returns a non-empty `Stream` containing all entries of this collection as tuples of key and value.
