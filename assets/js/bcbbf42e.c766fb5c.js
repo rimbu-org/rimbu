@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkrimbu_docs=self.webpackChunkrimbu_docs||[]).push([[52606],{26090:s=>{s.exports=JSON.parse('{"label":"typescript","permalink":"/blog/tags/typescript","allTagsPath":"/blog/tags","count":3}')}}]);

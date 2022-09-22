@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkrimbu_docs=self.webpackChunkrimbu_docs||[]).push([[36336],{4813:s=>{s.exports=JSON.parse('{"label":"rimbu","permalink":"/blog/tags/rimbu","allTagsPath":"/blog/tags","count":3}')}}]);
