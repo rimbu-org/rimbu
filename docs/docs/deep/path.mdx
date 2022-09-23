@@ -39,11 +39,11 @@ The following CodeSandbox shows more examples of how to use the `Path` object:
 
 ## Details of the `Path` types.
 
-Paths into values can be of two types: **read-only** or **writeable**. Read-only paths are
+Paths into values can be of two types: **read-only** or **writable**. Read-only paths are
 used in methods like `Deep.getAt` to retrieve values in objects. In this case, optional
 chaining is allowed, so that undefined is returned if any value in the path is null or undefined.
 
-Writeable paths are used in methods like `Deep.patchAt`. Here the value needs to be read, but also updated
+Writable paths are used in methods like `Deep.patchAt`. Here the value needs to be read, but also updated
 back into the result object. Having optional chaining would complicate the behavior of such methods. For
 this reason, optional chaining is not allowed for these methods.
 
@@ -80,12 +80,12 @@ This includes:
 - optional array nested content access, e.g. for `{ a: [{ b: 1 }] as { b: number}[] }` -> `"a[0]?.b"`
 - optional property chaining, e.g. for `{ a: null as { b: number} | null }` -> `"a?.b"`
 
-### Writeable patths, `Path.Set<T>`
+### Writable paths, `Path.Set<T>`
 
-The `Path.Set` type represents a writeable path into values, which are
+The `Path.Set` type represents a writable path into values, which are
 more limited than read-only paths.
 
-Writeable paths support:
+Writable paths support:
 
 - simple property access, e.g. for `{ a: { b: 2 } }` -> `"a.b"`
 - simple array access, e.g. for `{ a: [1, 2] }` -> `"a[0]"`

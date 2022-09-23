@@ -94,7 +94,7 @@ This can be convenient to access other paths in the object to patch.
 
 ```ts
 // in this example, the update function receives the following:
-// - value will be the value of `a`
+// - value will be the value of `b.d`
 // - parent will be the value of `b`
 // - root will be the whole object given as parameter
 patch(
@@ -170,7 +170,7 @@ patch(state, [
 
 Tuples (arrays of fixed length) have the following options:
 
-```
+```ts
 // direct
 patch(Tuple.of(1, 'a'), Tuple.of(2, 'b'));
 
@@ -186,7 +186,7 @@ patch(Tuple.of(1, 'a'), () => ({ 1: 'b' })); // patches the item at index 1
 
 Arrays and non-plain objects have the following options:
 
-```
+```ts
 // direct
 patch([1, 2, 3], [4, 5, 6]);
 
