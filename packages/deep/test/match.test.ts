@@ -1,6 +1,6 @@
 import { List } from '@rimbu/list';
 import { SortedMap } from '@rimbu/sorted';
-import { match } from '@rimbu/deep';
+import { match } from '../src';
 import { Tuple } from '../src';
 
 describe('match', () => {
@@ -77,12 +77,71 @@ describe('match', () => {
     expect(match({ s: [1] }, { s: (v) => v.length < 3 })).toBe(true);
     expect(match({ s: [1, 2, 3] }, { s: { 1: 2, 2: 3 } })).toBe(true);
     expect(match({ s: [1, 2, 3] }, { s: { 1: 2, 3: 5 } })).toBe(false);
+    expect(match({ s: [1, 2, 3] }, { s: { some: [{ 0: 1 }, { 1: 3 }] } })).toBe(
+      true
+    );
+    expect(
+      match({ s: [1, 2, 3] }, { s: { every: [{ 0: 1 }, { 1: 3 }] } })
+    ).toBe(false);
+    expect(match({ s: [1, 2, 3] }, { s: { none: [{ 0: 1 }, { 1: 3 }] } })).toBe(
+      false
+    );
+    expect(
+      match({ s: [1, 2, 3] }, { s: { single: [{ 0: 1 }, { 1: 3 }] } })
+    ).toBe(true);
+  });
+
+  it('handles deep array', () => {
+    const values = [
+      { x: [1, 2, 3], y: 6 },
+      { x: [10, 11], y: 10 },
+    ];
+    expect(match(values, values)).toBe(true);
+    expect(match(values, [{ x: { 0: 1 } }, { y: 10 }])).toBe(true);
+    expect(match(values, [{ x: { 0: 1 } }, { y: 12 }])).toBe(false);
+
+    expect(match(values, { someItem: { x: { someItem: 2 } } })).toBe(true);
+    expect(match(values, { someItem: { x: { someItem: 0 } } })).toBe(false);
+
+    expect(match(values, { someItem: { y: (v) => v > 8 } })).toBe(true);
+    expect(match(values, { everyItem: { y: (v) => v > 8 } })).toBe(false);
+  });
+
+  it('handles array traversal', () => {
+    const values = [
+      { a: 1, b: 2 },
+      { a: 3, b: 4 },
+    ];
+
+    expect(match(values, { someItem: { a: 0 } })).toBe(false);
+    expect(match(values, { someItem: { a: 3 } })).toBe(true);
+
+    expect(match(values, { everyItem: { a: 1 } })).toBe(false);
+    expect(match(values, { everyItem: { a: (v) => v > 0 } })).toBe(true);
+
+    expect(match(values, { noneItem: { a: 1 } })).toBe(false);
+    expect(match(values, { noneItem: { a: 0 } })).toBe(true);
+
+    expect(match(values, { singleItem: { a: 1 } })).toBe(true);
+    expect(match(values, { singleItem: { a: 0 } })).toBe(false);
+    expect(match(values, { singleItem: { a: (v) => v > 0 } })).toBe(false);
+
+    expect(
+      match(
+        { values },
+        {
+          values: {
+            everyItem: (v, p, r) => p[0].a === r.values[0].a,
+          },
+        }
+      )
+    ).toBe(true);
   });
 
   it('handles tuples', () => {
     expect(
       match({ s: Tuple.of(true, { q: 5 }) }, { s: Tuple.of(true, { q: 5 }) })
-    ).toBe(false);
+    ).toBe(true);
     expect(match({ s: Tuple.of(true, { q: 5 }) }, { s: { 0: true } })).toBe(
       true
     );
