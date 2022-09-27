@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.13.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/deep@0.12.1...@rimbu/deep@0.13.0) (2022-09-27)
+
+
+### Features
+
+* **deep:** add array item traversal matching, update and fix docs ([513bd76](https://github.com/rimbu-org/rimbu/commit/513bd76c09208a6f2bf35ebc7f6c674023472fb5))
+
+
+
+
+
 ## [0.12.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/deep@0.12.0...@rimbu/deep@0.12.1) (2022-09-22)
 
 
