@@ -25,7 +25,7 @@ export namespace Match {
    * Determines the various allowed match types for given type `T`.
    * @typeparam T - the input value type
    * @typeparam C - utility type
-   * @typeparam P - the parant type
+   * @typeparam P - the parent type
    * @typeparam R - the root object type
    */
   export type Entry<T, C, P, R> = IsAnyFunc<T> extends true
@@ -36,7 +36,15 @@ export namespace Match {
       Match.WithResult<T, P, R, Match.Obj<T, C, P, R>>
     : IsArray<T> extends true
     ? // determine allowed match values for array or tuple
-      Match.Arr<T, C, P, R> | Match.Func<T, P, R, Match.Arr<T, C, P, R>>
+      | Match.Arr<T, C, P, R>
+        | Match.Entry<T[number & keyof T], C[number & keyof C], P, R>[]
+        | Match.Func<
+            T,
+            P,
+            R,
+            | Match.Arr<T, C, P, R>
+            | Match.Entry<T[number & keyof T], C[number & keyof C], P, R>[]
+          >
     : // only accept values with same interface
       Match.WithResult<T, P, R, { [K in keyof C]: C[K & keyof T] }>;
 
@@ -44,7 +52,7 @@ export namespace Match {
    * The type that determines allowed matchers for objects.
    * @typeparam T - the input value type
    * @typeparam C - utility type
-   * @typeparam P - the parant type
+   * @typeparam P - the parent type
    * @typeparam R - the root object type
    */
   export type Obj<T, C, P, R> =
@@ -65,20 +73,31 @@ export namespace Match {
    * The type that determines allowed matchers for arrays/tuples.
    * @typeparam T - the input value type
    * @typeparam C - utility type
-   * @typeparam P - the parant type
+   * @typeparam P - the parent type
    * @typeparam R - the root object type
    */
   export type Arr<T, C, P, R> =
     | C
     | Match.CompoundForArr<T, C, P, R>
-    | (Match.TupIndices<T, C, R> & { [K in Match.CompoundType]?: never });
+    | Match.TraversalForArr<T, C, R>
+    | (Match.TupIndices<T, C, R> & {
+        [K in Match.CompoundType | Match.ArrayTraversalType]?: never;
+      });
 
+  /**
+   * A type that either directly results in result type `S` or is a function taking the value, parent, and root values, and
+   * returns a value of type `S`.
+   * @typeparam T - the input value type
+   * @typeparam P - the parent type
+   * @typeparam R - the root object type
+   * @typeparam S - the result type
+   */
   export type WithResult<T, P, R, S> = S | Match.Func<T, P, R, S>;
 
   /**
    * Type used to determine the allowed function types. Always includes booleans.
    * @typeparam T - the input value type
-   * @typeparam P - the parant type
+   * @typeparam P - the parent type
    * @typeparam R - the root object type
    * @typeparam S - the allowed return value type
    */
@@ -104,6 +123,11 @@ export namespace Match {
   export type CompoundType = 'every' | 'some' | 'none' | 'single';
 
   /**
+   * Keys used to indicate an array match traversal.
+   */
+  export type ArrayTraversalType = `${CompoundType}Item`;
+
+  /**
    * Compount matcher for objects, can only be an array staring with a compound type keyword.
    * @typeparam T - the input value type
    * @typeparam C - utility type
@@ -123,15 +147,31 @@ export namespace Match {
    * @typeparam R - the root object type
    */
   export type CompoundForArr<T, C, P, R> = {
-    [K in CompoundType]: {
-      [K2 in CompoundType]?: K2 extends K ? Match.Entry<T, C, P, R>[] : never;
+    [K in Match.CompoundType]: {
+      [K2 in Match.CompoundType]?: K2 extends K
+        ? Match.Entry<T, C, P, R>[]
+        : never;
     };
-  }[CompoundType];
+  }[Match.CompoundType];
 
   /**
-   * Utility type for collecting errors
+   * Defines an object containing exactly one `TraversalType` key, having a matcher for the array element type.
+   * @typeparam T - the input value type
+   * @typeparam C - utility type
+   * @typeparam R - the root object type
    */
-  export type ErrorCollector = string[] | undefined;
+  export type TraversalForArr<T, C, R> = {
+    [K in Match.ArrayTraversalType]: {
+      [K2 in Match.ArrayTraversalType]?: K2 extends K
+        ? Match.Entry<T[number & keyof T], C[number & keyof C], T, R>
+        : never;
+    };
+  }[Match.ArrayTraversalType];
+
+  /**
+   * Utility type for collecting match failure reasons
+   */
+  export type FailureLog = string[];
 }
 
 /**
@@ -140,7 +180,7 @@ export namespace Match {
  * @typeparam C - utility type
  * @param source - the value to match (should be a plain object)
  * @param matcher - a matcher object or a function taking the matcher API and returning a match object
- * @param errorCollector - (optional) a string array that can be passed to collect reasons why the match failed
+ * @param failureLog - (optional) a string array that can be passed to collect reasons why the match failed
  * @example
  * ```ts
  * const input = { a: 1, b: { c: true, d: 'a' } }
@@ -156,9 +196,9 @@ export namespace Match {
 export function match<T, C extends Partial<T> = Partial<T>>(
   source: T,
   matcher: Match<T, C>,
-  errorCollector: Match.ErrorCollector = undefined
+  failureLog?: Match.FailureLog
 ): boolean {
-  return matchEntry(source, source, source, matcher as any, errorCollector);
+  return matchEntry(source, source, source, matcher as any, failureLog);
 }
 
 /**
@@ -169,7 +209,7 @@ function matchEntry<T, C, P, R>(
   parent: P,
   root: R,
   matcher: Match.Entry<T, C, P, R>,
-  errorCollector: Match.ErrorCollector
+  failureLog?: Match.FailureLog
 ): boolean {
   if (Object.is(source, matcher)) {
     // value and target are exactly the same, always will be true
@@ -179,7 +219,7 @@ function matchEntry<T, C, P, R>(
   if (matcher === null || matcher === undefined) {
     // these matchers can only be direct matches, and previously it was determined that
     // they are not equal
-    errorCollector?.push(
+    failureLog?.push(
       `value ${JSON.stringify(source)} did not match matcher ${matcher}`
     );
 
@@ -191,7 +231,7 @@ function matchEntry<T, C, P, R>(
     const result = Object.is(source, matcher);
 
     if (!result) {
-      errorCollector?.push(
+      failureLog?.push(
         `both value and matcher are functions, but they do not have the same reference`
       );
     }
@@ -207,7 +247,7 @@ function matchEntry<T, C, P, R>(
       // function resulted in a direct match result
 
       if (!matcherResult) {
-        errorCollector?.push(
+        failureLog?.push(
           `function matcher returned false for value ${JSON.stringify(source)}`
         );
       }
@@ -216,22 +256,22 @@ function matchEntry<T, C, P, R>(
     }
 
     // function resulted in a value that needs to be further matched
-    return matchEntry(source, parent, root, matcherResult, errorCollector);
+    return matchEntry(source, parent, root, matcherResult, failureLog);
   }
 
   if (isPlainObj(source)) {
     // source ia a plain object, can be partially matched
-    return matchPlainObj(source, parent, root, matcher as any, errorCollector);
+    return matchPlainObj(source, parent, root, matcher as any, failureLog);
   }
 
   if (Array.isArray(source)) {
     // source is an array
-    return matchArr(source, root, matcher as any, errorCollector);
+    return matchArr(source, parent, root, matcher as any, failureLog);
   }
 
   // already determined above that the source and matcher are not equal
 
-  errorCollector?.push(
+  failureLog?.push(
     `value ${JSON.stringify(
       source
     )} does not match given matcher ${JSON.stringify(matcher)}`
@@ -245,9 +285,10 @@ function matchEntry<T, C, P, R>(
  */
 function matchArr<T extends any[], C, P, R>(
   source: T,
+  parent: P,
   root: R,
   matcher: Match.Arr<T, C, P, R>,
-  errorCollector: Match.ErrorCollector
+  failureLog?: Match.FailureLog
 ): boolean {
   if (Array.isArray(matcher)) {
     // directly compare array contents
@@ -256,7 +297,7 @@ function matchArr<T extends any[], C, P, R>(
     if (length !== matcher.length) {
       // if lengths not equal, arrays are not equal
 
-      errorCollector?.push(
+      failureLog?.push(
         `array lengths are not equal: value length ${source.length} !== matcher length ${matcher.length}`
       );
 
@@ -266,10 +307,12 @@ function matchArr<T extends any[], C, P, R>(
     // loop over arrays, matching every value
     let index = -1;
     while (++index < length) {
-      if (!Object.is(source[index], matcher[index])) {
+      if (
+        !matchEntry(source[index], source, root, matcher[index], failureLog)
+      ) {
         // item did not match, return false
 
-        errorCollector?.push(
+        failureLog?.push(
           `index ${index} does not match with value ${JSON.stringify(
             source[index]
           )} and matcher ${matcher[index]}`
@@ -283,6 +326,81 @@ function matchArr<T extends any[], C, P, R>(
     return true;
   }
 
+  // matcher is plain object
+
+  if (`every` in matcher) {
+    return matchCompound(
+      source,
+      parent,
+      root,
+      ['every', ...(matcher.every as any)],
+      failureLog
+    );
+  }
+  if (`some` in matcher) {
+    return matchCompound(
+      source,
+      parent,
+      root,
+      ['some', ...(matcher.some as any)],
+      failureLog
+    );
+  }
+  if (`none` in matcher) {
+    return matchCompound(
+      source,
+      parent,
+      root,
+      ['none', ...(matcher.none as any)],
+      failureLog
+    );
+  }
+  if (`single` in matcher) {
+    return matchCompound(
+      source,
+      parent,
+      root,
+      ['single', ...(matcher.single as any)],
+      failureLog
+    );
+  }
+  if (`someItem` in matcher) {
+    return matchTraversal(
+      source,
+      root,
+      'someItem',
+      matcher.someItem as any,
+      failureLog
+    );
+  }
+  if (`everyItem` in matcher) {
+    return matchTraversal(
+      source,
+      root,
+      'everyItem',
+      matcher.everyItem as any,
+      failureLog
+    );
+  }
+  if (`noneItem` in matcher) {
+    return matchTraversal(
+      source,
+      root,
+      'noneItem',
+      matcher.noneItem as any,
+      failureLog
+    );
+  }
+  if (`singleItem` in matcher) {
+    return matchTraversal(
+      source,
+      root,
+      'singleItem',
+      matcher.singleItem as any,
+      failureLog
+    );
+  }
+
   // matcher is plain object with index keys
 
   for (const index in matcher as any) {
@@ -291,7 +409,7 @@ function matchArr<T extends any[], C, P, R>(
     if (!(index in source)) {
       // source does not have item at given index
 
-      errorCollector?.push(
+      failureLog?.push(
         `index ${index} does not exist in source ${JSON.stringify(
           source
         )} but should match matcher ${JSON.stringify(matcherAtIndex)}`
@@ -306,13 +424,13 @@ function matchArr<T extends any[], C, P, R>(
       source,
       root,
       matcherAtIndex,
-      errorCollector
+      failureLog
     );
 
     if (!result) {
       // item did not match
 
-      errorCollector?.push(
+      failureLog?.push(
         `index ${index} does not match with value ${JSON.stringify(
           (source as any)[index]
         )} and matcher ${JSON.stringify(matcherAtIndex)}`
@@ -335,11 +453,11 @@ function matchPlainObj<T, C, P, R>(
   parent: P,
   root: R,
   matcher: Match.Obj<T, C, P, R>,
-  errorCollector: Match.ErrorCollector
+  failureLog?: Match.FailureLog
 ): boolean {
   if (Array.isArray(matcher)) {
     // the matcher is of compound type
-    return matchCompound(source, parent, root, matcher as any, errorCollector);
+    return matchCompound(source, parent, root, matcher as any, failureLog);
   }
 
   // partial object props matcher
@@ -348,7 +466,7 @@ function matchPlainObj<T, C, P, R>(
     if (!(key in source)) {
       // the source does not have the given key
 
-      errorCollector?.push(
+      failureLog?.push(
         `key ${key} is specified in matcher but not present in value ${JSON.stringify(
           source
         )}`
@@ -363,11 +481,11 @@ function matchPlainObj<T, C, P, R>(
       source,
       root,
       matcher[key],
-      errorCollector
+      failureLog
     );
 
     if (!result) {
-      errorCollector?.push(
+      failureLog?.push(
         `key ${key} does not match in value ${JSON.stringify(
           (source as any)[key]
         )} with matcher ${JSON.stringify(matcher[key])}`
@@ -389,7 +507,7 @@ function matchCompound<T, C, P, R>(
   parent: P,
   root: R,
   compound: [Match.CompoundType, ...Match.Entry<T, C, P, R>[]],
-  errorCollector: string[] | undefined
+  failureLog?: Match.FailureLog
 ): boolean {
   // first item indicates compound match type
   const matchType = compound[0];
@@ -410,11 +528,11 @@ function matchCompound<T, C, P, R>(
           parent,
           root,
           compound[index] as Entry,
-          errorCollector
+          failureLog
         );
 
         if (!result) {
-          errorCollector?.push(
+          failureLog?.push(
             `in compound "every": match at index ${index} failed`
           );
 
@@ -432,11 +550,11 @@ function matchCompound<T, C, P, R>(
           parent,
           root,
           compound[index] as Entry,
-          errorCollector
+          failureLog
         );
 
         if (result) {
-          errorCollector?.push(
+          failureLog?.push(
             `in compound "none": match at index ${index} succeeded`
           );
 
@@ -456,12 +574,12 @@ function matchCompound<T, C, P, R>(
           parent,
           root,
           compound[index] as Entry,
-          errorCollector
+          failureLog
         );
 
         if (result) {
           if (onePassed) {
-            errorCollector?.push(
+            failureLog?.push(
               `in compound "single": multiple matches succeeded`
             );
 
@@ -473,7 +591,7 @@ function matchCompound<T, C, P, R>(
       }
 
       if (!onePassed) {
-        errorCollector?.push(`in compound "single": no matches succeeded`);
+        failureLog?.push(`in compound "single": no matches succeeded`);
       }
 
       return onePassed;
@@ -486,7 +604,7 @@ function matchCompound<T, C, P, R>(
           parent,
           root,
           compound[index] as Entry,
-          errorCollector
+          failureLog
         );
 
         if (result) {
@@ -494,9 +612,87 @@ function matchCompound<T, C, P, R>(
         }
       }
 
-      errorCollector?.push(`in compound "some": no matches succeeded`);
+      failureLog?.push(`in compound "some": no matches succeeded`);
 
       return false;
+    }
+  }
+}
+
+function matchTraversal<T extends any[], C extends any[], R>(
+  source: T,
+  root: R,
+  matchType: Match.ArrayTraversalType,
+  matcher: Match.Entry<T[keyof T], C[keyof C], T, R>,
+  failureLog?: Match.FailureLog
+): boolean {
+  let index = -1;
+  const length = source.length;
+
+  switch (matchType) {
+    case 'someItem': {
+      while (++index < length) {
+        if (matchEntry(source[index], source, root, matcher, failureLog)) {
+          return true;
+        }
+      }
+
+      failureLog?.push(
+        `in array traversal "someItem": no items matched given matcher`
+      );
+
+      return false;
+    }
+    case 'everyItem': {
+      while (++index < length) {
+        if (!matchEntry(source[index], source, root, matcher, failureLog)) {
+          failureLog?.push(
+            `in array traversal "everyItem": at least one item did not match given matcher`
+          );
+          return false;
+        }
+      }
+
+      return true;
+    }
+    case 'noneItem': {
+      while (++index < length) {
+        if (matchEntry(source[index], source, root, matcher, failureLog)) {
+          failureLog?.push(
+            `in array traversal "noneItem": at least one item matched given matcher`
+          );
+          return false;
+        }
+      }
+
+      return true;
+    }
+    case 'singleItem': {
+      let singleMatched = false;
+
+      while (++index < length) {
+        if (matchEntry(source[index], source, root, matcher, failureLog)) {
+          if (singleMatched) {
+            failureLog?.push(
+              `in array traversal "singleItem": more than one item matched given matcher`
+            );
+
+            return false;
+          }
+
+          singleMatched = true;
+        }
+      }
+
+      if (!singleMatched) {
+        failureLog?.push(
+          `in array traversal "singleItem": no item matched given matcher`
+        );
+
+        return false;
+      }
+
+      return true;
     }
   }
 }

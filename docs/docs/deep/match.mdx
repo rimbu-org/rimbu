@@ -103,11 +103,12 @@ match(
 
 ### Arrays and Tuples
 
-To match arrays and tuples, there are two options:
+To match arrays and tuples, the following options are available:
 
-- match each element by `Object.is`
+- provide an array of matchers that will match each element at the corresponding index
 - provide an object with matchers for specific indices
-- compound matches wrapped in an object
+- traversal matches to apply to each element in the array
+- compound matches for the entire array wrapped in an object
 
 ```ts
 const arr: number[] = [1, 2, 3];
@@ -120,14 +121,20 @@ const tup = [1, true, 'a'] as [number, boolean, string];
 match(tup, [1, false, 'a']); // -> false, element 1 does not match
 match(tup, { 0: 1, 2: 'a' }); // -> true, elements at index 0 and 2 match
 
+// traversal matches
+match(arr, { someItem: 2 }); // -> true, 2 matches an element is in the array
+match(arr, { everyItem: (v) => v < 3 }); // -> false, last item does not match
+
 // compound matches
 match(
   [
     { x: 1, y: 2 },
     { x: 3, y: 0 },
   ],
-  { some: [{ x: (v) => v > 5 }, { y: (v) => v < 2 }] }
-); // -> true, matches the first item
+  { some: [{ someItem: { x: 2 } }, { someItem: { y: 0 } }] }
+); // -> true, matches the second condition, because there is an item in the array with y = 0
+
+// explained fully, this last match looks for some element in the array where x = 2 or y = 0
 ```
 
 ### Function matchers
@@ -143,6 +150,7 @@ The matcher function receives three arguments:
 
 ```ts
 match(1, (v) => v > 0); // => true
+match(1, (v) => v * 2 - 1); // => true
 
 match(
   {
@@ -151,7 +159,7 @@ match(
   },
   {
     b: {
-      d: { e: (value, parent, root) => value === parent.c + root.a },
+      c: (value, parent, root) => value === parent.d.e - root.a,
     },
   }
 ); // => true
@@ -164,7 +172,7 @@ match(
   },
   {
     b: {
-      d: { e: (value, parent, root) => parent.c + root.a },
+      c: (value, parent, root) => parent.d.e - root.a,
     },
   }
 ); // => true
