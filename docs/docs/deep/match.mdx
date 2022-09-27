@@ -159,7 +159,7 @@ match(
   },
   {
     b: {
-      d: { e: (value, parent, root) => value === parent.c + root.a },
+      c: (value, parent, root) => value === parent.d.e - root.a,
     },
   }
 ); // => true
@@ -172,7 +172,7 @@ match(
   },
   {
     b: {
-      d: { e: (value, parent, root) => parent.c + root.a },
+      c: (value, parent, root) => parent.d.e - root.a,
     },
   }
 ); // => true
