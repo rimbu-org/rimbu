@@ -105,7 +105,8 @@ export namespace AsyncReducer {
      * // this reducer will convert all its results to string before returning them
      * ```
      */
-    mapOutput<O2>(mapFun: (value: O) => MaybePromise<O2>): AsyncReducer<I, O2>;
+    mapOutput<O2>(mapFun: (value: O) => O2): AsyncReducer<I, O2>;
+    mapOutput<O2>(mapFun: (value: O) => Promise<O2>): AsyncReducer<I, O2>;
     /**
      * Returns an `AsyncReducer` instance that takes at most the given `amount` of input elements, and will ignore subsequent elements.
      * @param amount - the amount of elements to accept

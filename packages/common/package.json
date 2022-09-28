@@ -50,6 +50,7 @@
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
     "test": "jest",
+    "test:types": "tsd",
     "typecheck": "tsc"
   },
   "sideEffects": false,
