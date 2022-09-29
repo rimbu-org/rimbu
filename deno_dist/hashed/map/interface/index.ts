@@ -15,7 +15,7 @@ import { createHashMapContext } from '../../../hashed/map-custom/index.ts';
  * - The `HashMap` uses the context's `hasher` instance to hash keys for performance.<br/>
  * - The `HashMap` uses the context's `eq` function to determine equivalence between keys.<br/>
  *
- * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [HashMap API documentation](https://rimbu.org/api/rimbu/hashed/HashMap/interface)
+ * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [HashMap API documentation](https://rimbu.org/api/rimbu/hashed/map/HashMap/interface)
  * @typeparam K - the key type
  * @typeparam V - the value type
  * @example
@@ -34,7 +34,7 @@ export namespace HashMap {
    * - The `HashMap` uses the context's `hasher` instance to hash keys for performance.<br/>
    * - The `HashMap` uses the context's `eq` function to determine equivalence between keys.<br/>
    *
-   * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [HashMap API documentation](https://rimbu.org/api/rimbu/hashed/HashMap/interface)
+   * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [HashMap API documentation](https://rimbu.org/api/rimbu/hashed/map/HashMap/interface)
    * @typeparam K - the key type
    * @typeparam V - the value type
    * @example
