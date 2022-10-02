@@ -574,15 +574,15 @@ export namespace AsyncReducer {
    * ```
    */
   export const count: {
-    (): AsyncReducer<any, number>;
+    (): AsyncReducer<never, number>;
     <T>(pred: (value: T, index: number) => MaybePromise<boolean>): AsyncReducer<
       T,
       number
     >;
   } = (
     pred?: (value: any, index: number) => MaybePromise<boolean>
-  ): AsyncReducer<any, number> => {
-    if (undefined === pred) return createMono(0, (_, __, i): number => i + 1);
+  ): AsyncReducer<never, number> => {
+    if (undefined === pred) return createOutput(0, (_, __, i): number => i + 1);
 
     return createOutput(0, async (state, next, i): Promise<number> => {
       if (await pred?.(next, i)) return state + 1;
@@ -843,7 +843,7 @@ export namespace AsyncReducer {
    * // => false
    * ```
    */
-  export const isEmpty = createOutput<any, boolean>(
+  export const isEmpty = createOutput<never, boolean>(
     true,
     (_, __, ___, halt): false => {
       halt();
@@ -859,7 +859,7 @@ export namespace AsyncReducer {
    * // => true
    * ```
    */
-  export const nonEmpty = createOutput<any, boolean>(
+  export const nonEmpty = createOutput<never, boolean>(
     false,
     (_, __, ___, halt): true => {
       halt();
@@ -956,16 +956,18 @@ export namespace AsyncReducer {
   }
 
   /**
-   * Returns a `Reducer` that combines multiple input `reducers` by providing input values to all of them and collecting the outputs in an array.
+   * Returns an `AsyncReducer` that combines multiple input `reducers` by providing input values to all of them and collecting the outputs in an array.
    * @param reducers - 2 or more reducers to combine
    * @example
    * ```ts
-   * const red = Reducer.combine(Reducer.sum, Reducer.average)
-   * console.log(Stream.range({amount: 9 }).reduce(red))
+   * const red = AsyncReducer.combineArr(AsyncReducer.sum, AsyncReducer.average)
+   *
+   * await AsyncStream.from(Stream.range({ amount: 9 }))
+   *  .reduce(red)
    * // => [36, 4]
    * ```
    */
-  export function combine<
+  export function combineArr<
     T,
     R extends readonly [unknown, unknown, ...unknown[]]
   >(
@@ -1034,6 +1036,113 @@ export namespace AsyncReducer {
         Promise.all(
           allState.map((st) => st.reducer.stateToResult(st.state))
         ) as any
+    );
+  }
+
+  /**
+   * Returns an `AsyncReducer` that combines multiple input `reducers` by providing input values to all of them and collecting the outputs in the shape of the given object.
+   * @typeparam T - the input type for all the reducers
+   * @typeparam R - the result object shape
+   * @param reducerObj - an object of keys, and reducers corresponding to those keys
+   * @example
+   * ```ts
+   * const red = AsyncReducer.combineObj({
+   *   theSum: Reducer.sum,
+   *   theAverage: Reducer.average
+   * });
+   *
+   * await AsyncStream.from(Stream.range({ amount: 9 }))
+   *   .reduce(red));
+   * // => { theSum: 36, theAverage: 4 }
+   * ```
+   */
+  export function combineObj<T, R extends { readonly [key: string]: unknown }>(
+    reducerObj: { readonly [K in keyof R]: AsyncReducer<T, R[K]> } & Record<
+      string,
+      AsyncReducer<T, unknown>
+    >
+  ): AsyncReducer<T, R> {
+    const createState = async (): Promise<
+      Record<
+        keyof R,
+        {
+          reducer: AsyncReducer<T, unknown>;
+          halted: boolean;
+          halt(): void;
+          state: unknown;
+        }
+      >
+    > => {
+      const entries = await Promise.all(
+        Object.entries(reducerObj).map(async ([key, reducer]) => {
+          const result = {
+            reducer,
+            halted: false,
+            halt(): void {
+              result.halted = true;
+            },
+            state: await AsyncOptLazy.toMaybePromise(reducer.init),
+          };
+
+          return [key, result] as const;
+        })
+      );
+
+      return Object.fromEntries(entries) as any;
+    };
+
+    return create<
+      T,
+      R,
+      Record<
+        keyof R,
+        {
+          reducer: AsyncReducer<T, unknown>;
+          halted: boolean;
+          halt(): void;
+          state: unknown;
+        }
+      >
+    >(
+      createState,
+      async (allState, next, index, halt) => {
+        let anyNotHalted = false;
+
+        await Promise.all(
+          Object.values(allState).map(async (red) => {
+            if (red.halted) {
+              return;
+            }
+
+            red.state = await red.reducer.next(
+              red.state,
+              next,
+              index,
+              red.halt
+            );
+
+            if (!red.halted) {
+              anyNotHalted = true;
+            }
+          })
+        );
+
+        if (!anyNotHalted) {
+          halt();
+        }
+
+        return allState;
+      },
+      async (allState) => {
+        const entries = await Promise.all(
+          Object.entries(allState).map(
+            async ([key, st]) =>
+              [key, await st.reducer.stateToResult(st.state)] as const
+          )
+        );
+
+        return Object.fromEntries(entries) as any;
+      }
     );
   }
 }
