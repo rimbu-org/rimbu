@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/ordered",
-  "version": "0.8.21",
+  "version": "0.8.22",
   "description": "Immutable OrderedMap and OrderedSet implementations for TypeScript",
   "keywords": [
     "orderedmap",
@@ -68,13 +68,13 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@rimbu/base": "^0.10.0",
-    "@rimbu/collection-types": "^0.9.19",
-    "@rimbu/common": "^0.10.3",
-    "@rimbu/hashed": "^0.8.21",
-    "@rimbu/list": "^0.10.21",
-    "@rimbu/sorted": "^0.9.19",
-    "@rimbu/stream": "^0.12.5",
+    "@rimbu/base": "^0.10.1",
+    "@rimbu/collection-types": "^0.9.20",
+    "@rimbu/common": "^0.11.0",
+    "@rimbu/hashed": "^0.8.22",
+    "@rimbu/list": "^0.10.22",
+    "@rimbu/sorted": "^0.9.20",
+    "@rimbu/stream": "^0.12.6",
     "tslib": "^2.4.0"
   },
   "publishConfig": {

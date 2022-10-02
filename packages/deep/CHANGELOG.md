@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.13.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/deep@0.13.0...@rimbu/deep@0.13.1) (2022-10-02)
+
+**Note:** Version bump only for package @rimbu/deep
+
+
+
+
+
 # [0.13.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/deep@0.12.1...@rimbu/deep@0.13.0) (2022-09-27)
 
 

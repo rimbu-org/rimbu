@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.6](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@0.12.5...@rimbu/stream@0.12.6) (2022-10-02)
+
+**Note:** Version bump only for package @rimbu/stream
+
+
+
+
+
 ## [0.12.5](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@0.12.4...@rimbu/stream@0.12.5) (2022-09-22)
 
 **Note:** Version bump only for package @rimbu/stream

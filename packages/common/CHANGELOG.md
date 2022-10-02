@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/common@0.10.3...@rimbu/common@0.11.0) (2022-10-02)
+
+
+### Bug Fixes
+
+* **common:** make Reducer instances assignable to AsyncReducer type ([f484c13](https://github.com/rimbu-org/rimbu/commit/f484c13e2c3e25007082c5e78553d3e803418890))
+
+
+### Features
+
+* **common:** add reducer combineObj method and rename old combine to combineArr ([86e451c](https://github.com/rimbu-org/rimbu/commit/86e451cbb606486fe9b4a68f3d7b969ab240f7c5))
+
+
+### BREAKING CHANGES
+
+* **common:** reducer and asyncReducer combine method has been renamed to combineArr
+
+
+
+
+
 ## [0.10.3](https://github.com/rimbu-org/rimbu/compare/@rimbu/common@0.10.2...@rimbu/common@0.10.3) (2022-09-12)
 
 **Note:** Version bump only for package @rimbu/common
