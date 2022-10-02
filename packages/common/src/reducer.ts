@@ -501,10 +501,12 @@ export namespace Reducer {
    * ```
    */
   export const count: {
-    (): Reducer<any, number>;
+    (): Reducer<never, number>;
     <T>(pred: (value: T, index: number) => boolean): Reducer<T, number>;
-  } = (pred?: (value: any, index: number) => boolean): Reducer<any, number> => {
-    if (undefined === pred) return createMono(0, (_, __, i): number => i + 1);
+  } = (
+    pred?: (value: unknown, index: number) => boolean
+  ): Reducer<never, number> => {
+    if (undefined === pred) return createOutput(0, (_, __, i): number => i + 1);
 
     return createOutput(0, (state, next, i): number => {
       if (pred?.(next, i)) return state + 1;
@@ -749,7 +751,7 @@ export namespace Reducer {
    * // => false
    * ```
    */
-  export const isEmpty = createOutput<any, boolean>(
+  export const isEmpty = createOutput<never, boolean>(
     true,
     (_, __, ___, halt): false => {
       halt();
@@ -765,7 +767,7 @@ export namespace Reducer {
    * // => true
    * ```
    */
-  export const nonEmpty = createOutput<any, boolean>(
+  export const nonEmpty = createOutput<never, boolean>(
     false,
     (_, __, ___, halt): true => {
       halt();
@@ -866,12 +868,12 @@ export namespace Reducer {
    * @param reducers - 2 or more reducers to combine
    * @example
    * ```ts
-   * const red = Reducer.combine(Reducer.sum, Reducer.average)
+   * const red = Reducer.combineArr(Reducer.sum, Reducer.average)
    * console.log(Stream.range({amount: 9 }).reduce(red))
    * // => [36, 4]
    * ```
    */
-  export function combine<
+  export function combineArr<
     T,
     R extends readonly [unknown, unknown, ...unknown[]]
   >(
@@ -904,21 +906,118 @@ export namespace Reducer {
 
         let i = -1;
         const len = allState.length;
+
         while (++i < len) {
           const red = allState[i];
 
-          if (red.halted) continue;
+          if (red.halted) {
+            continue;
+          }
 
           red.state = red.reducer.next(red.state, next, index, red.halt);
-          if (!red.halted) anyNotHalted = true;
+
+          if (!red.halted) {
+            anyNotHalted = true;
+          }
         }
 
-        if (!anyNotHalted) halt();
+        if (!anyNotHalted) {
+          halt();
+        }
 
         return allState;
       },
       (allState) =>
         allState.map((st) => st.reducer.stateToResult(st.state)) as any
+    );
+  }
+
+  /**
+   * Returns a `Reducer` that combines multiple input `reducers` by providing input values to all of them and collecting the outputs in the shape of the given object.
+   * @typeparam T - the input type for all the reducers
+   * @typeparam R - the result object shape
+   * @param reducerObj - an object of keys, and reducers corresponding to those keys
+   * @example
+   * ```ts
+   * const red = Reducer.combineObj({
+   *   theSum: Reducer.sum,
+   *   theAverage: Reducer.average
+   * });
+   *
+   * Stream.range({ amount: 9 }).reduce(red);
+   * // => { theSum: 36, theAverage: 4 }
+   * ```
+   */
+  export function combineObj<T, R extends { readonly [key: string]: unknown }>(
+    reducerObj: { readonly [K in keyof R]: Reducer<T, R[K]> } & Record<
+      string,
+      Reducer<T, unknown>
+    >
+  ): Reducer<T, R> {
+    const createState = (): Record<
+      keyof R,
+      {
+        reducer: Reducer<T, unknown>;
+        halted: boolean;
+        halt(): void;
+        state: unknown;
+      }
+    > => {
+      const allState: any = {};
+
+      for (const key in reducerObj) {
+        const reducer = reducerObj[key];
+
+        const result = {
+          reducer,
+          halted: false,
+          halt(): void {
+            result.halted = true;
+          },
+          state: OptLazy(reducer.init),
+        };
+
+        allState[key] = result;
+      }
+
+      return allState;
+    };
+
+    return create<T, R, ReturnType<typeof createState>>(
+      createState,
+      (allState, next, index, halt) => {
+        let anyNotHalted = false;
+
+        for (const key in allState) {
+          const red = allState[key];
+
+          if (red.halted) {
+            continue;
+          }
+
+          red.state = red.reducer.next(red.state, next, index, red.halt);
+
+          if (!red.halted) {
+            anyNotHalted = true;
+          }
+        }
+
+        if (!anyNotHalted) {
+          halt();
+        }
+
+        return allState;
+      },
+      (allState) => {
+        const result: any = {};
+
+        for (const key in allState) {
+          const st = allState[key];
+          result[key] = st.reducer.stateToResult(st.state);
+        }
+
+        return result;
+      }
     );
   }
 }

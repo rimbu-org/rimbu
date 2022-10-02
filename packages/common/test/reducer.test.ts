@@ -312,8 +312,8 @@ describe('Reducers', () => {
     ]);
   });
 
-  it('Reducer.combine', () => {
-    const r = Reducer.combine(
+  it('Reducer.combineArr', () => {
+    const r = Reducer.combineArr(
       Reducer.sum,
       Reducer.average,
       Reducer.toArray<number>()
@@ -332,8 +332,8 @@ describe('Reducers', () => {
     ]);
   });
 
-  it('Reducer.combine with halt', () => {
-    const r = Reducer.combine(Reducer.sum, Reducer.product);
+  it('Reducer.combineArr with halt', () => {
+    const r = Reducer.combineArr(Reducer.sum, Reducer.product);
 
     expect(Stream.empty().reduce(r)).toEqual([0, 1]);
     expect(Stream.of(0, 0, 0).reduceStream(r).toArray()).toEqual([
@@ -348,8 +348,8 @@ describe('Reducers', () => {
     ]);
   });
 
-  it('Reducer.combine with stateToResult', () => {
-    const r = Reducer.combine(
+  it('Reducer.combineArr with stateToResult', () => {
+    const r = Reducer.combineArr(
       Reducer.sum.mapOutput((v) => v + 1),
       Reducer.product
     );
@@ -364,6 +364,61 @@ describe('Reducers', () => {
       [1, 0],
       [3, 0],
       [7, 0],
+    ]);
+  });
+
+  it('Reducer.combineObj', () => {
+    const r = Reducer.combineObj({
+      sum: Reducer.sum,
+      avg: Reducer.average,
+      arr: Reducer.toArray<number>(),
+    });
+
+    expect(Stream.empty().reduce(r)).toEqual({ sum: 0, avg: 0, arr: [] });
+    expect(Stream.of(0, 0, 0).reduceStream(r).toArray()).toEqual([
+      { sum: 0, avg: 0, arr: [0] },
+      { sum: 0, avg: 0, arr: [0, 0] },
+      { sum: 0, avg: 0, arr: [0, 0, 0] },
+    ]);
+    expect(Stream.of(0, 2, 4).reduceStream(r).toArray()).toEqual([
+      { sum: 0, avg: 0, arr: [0] },
+      { sum: 2, avg: 1, arr: [0, 2] },
+      { sum: 6, avg: 2, arr: [0, 2, 4] },
+    ]);
+  });
+
+  it('Reducer.combineObj with halt', () => {
+    const r = Reducer.combineObj({ sum: Reducer.sum, prod: Reducer.product });
+
+    expect(Stream.empty().reduce(r)).toEqual({ sum: 0, prod: 1 });
+    expect(Stream.of(0, 0, 0).reduceStream(r).toArray()).toEqual([
+      { sum: 0, prod: 0 },
+      { sum: 0, prod: 0 },
+      { sum: 0, prod: 0 },
+    ]);
+    expect(Stream.of(0, 2, 4).reduceStream(r).toArray()).toEqual([
+      { sum: 0, prod: 0 },
+      { sum: 2, prod: 0 },
+      { sum: 6, prod: 0 },
+    ]);
+  });
+
+  it('Reducer.combineObj with stateToResult', () => {
+    const r = Reducer.combineObj({
+      sum: Reducer.sum.mapOutput((v) => v + 1),
+      prod: Reducer.product,
+    });
+
+    expect(Stream.empty().reduce(r)).toEqual({ sum: 1, prod: 1 });
+    expect(Stream.of(0, 0, 0).reduceStream(r).toArray()).toEqual([
+      { sum: 1, prod: 0 },
+      { sum: 1, prod: 0 },
+      { sum: 1, prod: 0 },
+    ]);
+    expect(Stream.of(0, 2, 4).reduceStream(r).toArray()).toEqual([
+      { sum: 1, prod: 0 },
+      { sum: 3, prod: 0 },
+      { sum: 7, prod: 0 },
     ]);
   });
 

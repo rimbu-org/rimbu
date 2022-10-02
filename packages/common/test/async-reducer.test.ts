@@ -515,8 +515,8 @@ describe('AsyncReducers', () => {
     ).toEqual([0, 1, 2]);
   });
 
-  it('AsyncReducer.combine', async () => {
-    const r = AsyncReducer.combine(AsyncReducer.sum, AsyncReducer.average);
+  it('AsyncReducer.combineArr', async () => {
+    const r = AsyncReducer.combineArr(AsyncReducer.sum, AsyncReducer.average);
 
     expect(await AsyncStream.empty().reduce(r)).toEqual([0, 0]);
     expect(await AsyncStream.of(0, 0, 0).reduceStream(r).toArray()).toEqual([
@@ -531,8 +531,8 @@ describe('AsyncReducers', () => {
     ]);
   });
 
-  it('AsyncReducer.combine with halt', async () => {
-    const r = AsyncReducer.combine(AsyncReducer.sum, AsyncReducer.product);
+  it('AsyncReducer.combineArr with halt', async () => {
+    const r = AsyncReducer.combineArr(AsyncReducer.sum, AsyncReducer.product);
 
     expect(await AsyncStream.empty().reduce(r)).toEqual([0, 1]);
     expect(await AsyncStream.of(0, 0, 0).reduceStream(r).toArray()).toEqual([
@@ -547,8 +547,8 @@ describe('AsyncReducers', () => {
     ]);
   });
 
-  it('AsyncReducer.combine with stateToResult', async () => {
-    const r = AsyncReducer.combine(
+  it('AsyncReducer.combineArr with stateToResult', async () => {
+    const r = AsyncReducer.combineArr(
       AsyncReducer.sum.mapOutput(async (v) => v + 1),
       AsyncReducer.product
     );
@@ -563,6 +563,63 @@ describe('AsyncReducers', () => {
       [1, 0],
       [3, 0],
       [7, 0],
+    ]);
+  });
+
+  it('AsyncReducer.combineObj', async () => {
+    const r = AsyncReducer.combineObj({
+      sum: AsyncReducer.sum,
+      avg: AsyncReducer.average,
+    });
+
+    expect(await AsyncStream.empty().reduce(r)).toEqual({ sum: 0, avg: 0 });
+    expect(await AsyncStream.of(0, 0, 0).reduceStream(r).toArray()).toEqual([
+      { sum: 0, avg: 0 },
+      { sum: 0, avg: 0 },
+      { sum: 0, avg: 0 },
+    ]);
+    expect(await AsyncStream.of(0, 2, 4).reduceStream(r).toArray()).toEqual([
+      { sum: 0, avg: 0 },
+      { sum: 2, avg: 1 },
+      { sum: 6, avg: 2 },
+    ]);
+  });
+
+  it('AsyncReducer.combineObj with halt', async () => {
+    const r = AsyncReducer.combineObj({
+      sum: AsyncReducer.sum,
+      prod: AsyncReducer.product,
+    });
+
+    expect(await AsyncStream.empty().reduce(r)).toEqual({ sum: 0, prod: 1 });
+    expect(await AsyncStream.of(0, 0, 0).reduceStream(r).toArray()).toEqual([
+      { sum: 0, prod: 0 },
+      { sum: 0, prod: 0 },
+      { sum: 0, prod: 0 },
+    ]);
+    expect(await AsyncStream.of(0, 2, 4).reduceStream(r).toArray()).toEqual([
+      { sum: 0, prod: 0 },
+      { sum: 2, prod: 0 },
+      { sum: 6, prod: 0 },
+    ]);
+  });
+
+  it('AsyncReducer.combineObj with stateToResult', async () => {
+    const r = AsyncReducer.combineObj({
+      sum: AsyncReducer.sum.mapOutput(async (v) => v + 1),
+      prod: AsyncReducer.product,
+    });
+
+    expect(await AsyncStream.empty().reduce(r)).toEqual({ sum: 1, prod: 1 });
+    expect(await AsyncStream.of(0, 0, 0).reduceStream(r).toArray()).toEqual([
+      { sum: 1, prod: 0 },
+      { sum: 1, prod: 0 },
+      { sum: 1, prod: 0 },
+    ]);
+    expect(await AsyncStream.of(0, 2, 4).reduceStream(r).toArray()).toEqual([
+      { sum: 1, prod: 0 },
+      { sum: 3, prod: 0 },
+      { sum: 7, prod: 0 },
     ]);
   });
 
