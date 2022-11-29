@@ -473,4 +473,36 @@ describe('patch', () => {
     expect(patch(value, undefined)).toBeUndefined();
     expect(patch(undefined as typeof value, value)).toBe(value);
   });
+
+  it('returns updated object as parent', () => {
+    expect(
+      patch({ count: 0, total: 10 }, [
+        { count: (v) => v + 1 },
+        { total: (v, p) => v + p.count },
+      ])
+    ).toEqual({ count: 1, total: 11 });
+
+    expect(
+      patch({ nest: { count: 0, total: 10 } }, [
+        { nest: [{ count: (v) => v + 1 }] },
+        { nest: [{ total: (v, p) => v + p.count }] },
+      ])
+    ).toEqual({ nest: { count: 1, total: 11 } });
+  });
+
+  it('returns updated object as root', () => {
+    expect(
+      patch({ count: 0, total: 10 }, [
+        { count: (v) => v + 1 },
+        { total: (v, p, r) => v + r.count },
+      ])
+    ).toEqual({ count: 1, total: 11 });
+
+    expect(
+      patch({ nest: { count: 0, total: 10 } }, [
+        { nest: [{ count: (v) => v + 1 }] },
+        { nest: [{ total: (v, p, r) => v + r.nest.count }] },
+      ])
+    ).toEqual({ nest: { count: 1, total: 11 } });
+  });
 });
