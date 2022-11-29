@@ -19,6 +19,17 @@ export interface AsyncStreamConstructors {
     createSource: (resource: R) => MaybePromise<AsyncStreamSource<T>>,
     close: (resource: R) => MaybePromise<void>
   ): AsyncStream<T>;
+  /**
+   * Returns a tuple of a controller and a stream, where the controller can be used to
+   * submit values and close the stream, and the stream will emit the submitted values, with
+   * a buffer of maximum length thte given `maxSize`. Each stream client will start buffering
+   * from the moment that it is created.
+   * @param maxSize - the maximum buffer size
+   * @typeparam T - the element type
+   */
+  live<T>(
+    maxSize?: number
+  ): [{ submit(value: T): void; close: () => void }, AsyncStream<T>];
   /** Returns an AsyncStream with the result of applying given `zipFun` to each successive value resulting from the given `sources`.
    * @param sources - the input async stream sources
    * @param zipFun - a potentially asynchronous function taking one element from each given Stream, and returning a result value
