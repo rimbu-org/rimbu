@@ -395,6 +395,27 @@ describe('AsyncStream methods', () => {
       expect(close).toBeCalledTimes(1);
     }
   });
+  it('live', async () => {
+    {
+      const [control, stream] = AsyncStream.live<number>();
+
+      setTimeout(() => {
+        control.submit(1);
+        control.submit(2);
+        control.submit(3);
+        control.close();
+      }, 100);
+
+      expect(await stream.toArray()).toEqual([1, 2, 3]);
+    }
+
+    {
+      const [control, stream] = AsyncStream.live<number>();
+      control.close();
+
+      expect(await stream.toArray()).toEqual([]);
+    }
+  });
   it('indexed', async () => {
     expect(AsyncStream.empty().indexed()).toBe(AsyncStream.empty());
     expect(await AsyncStream.of(1).indexed().toArray()).toEqual([[0, 1]]);
