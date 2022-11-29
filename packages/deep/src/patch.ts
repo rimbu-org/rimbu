@@ -176,13 +176,16 @@ function patchPlainObj<T, C, R>(
     // update root if needed
     const currentRoot = (value as any) === root ? { ...result } : root;
 
+    // keep current updated result as parent
+    const parent = { ...result };
+
     // loop over all the patch keys
     for (const key in entry as T) {
       // patch the value at the given key with the patch at that key
       const currentValue = result[key];
       const newValue = patchEntry(
         currentValue,
-        value,
+        parent,
         currentRoot,
         (entry as any)[key]
       );
