@@ -1,1 +1,1 @@
-export * from './internal';
+export { Reactor, useForceRerender } from './internal';

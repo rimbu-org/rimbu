@@ -17,6 +17,11 @@ const urlBase = '..';
 
 makeThisModuleAnExecutableReplacer(async (args) => {
   const { parsedImportExportStatement, destDirPath } = args;
+  
+  if (parsedImportExportStatement.parsedArgument.type !== "DEPENDENCY") {
+    return undefined;
+  }
+
   const { nodeModuleName, specificImportPath } =
     parsedImportExportStatement.parsedArgument;
 
@@ -29,16 +34,13 @@ makeThisModuleAnExecutableReplacer(async (args) => {
     url = `${url}/..`;
   }
 
-  const [rootPackage, subPackage] = specificImportPath.split('/');
+  const [scope, rootPackage] = nodeModuleName.split('/');
 
-  if (nodeModuleName === '@rimbu') {
-    // const package = require(`../packages/${rootPackage}/package.json`);
-    // const name = package.name;
-
-    if (subPackage) {
+  if (scope === '@rimbu') {
+    if (specificImportPath) {
       return replaceImportArgument(
         parsedImportExportStatement,
-        `${url}/${rootPackage}/${subPackage}/index.ts`
+        `${url}/${rootPackage}/${specificImportPath}/index.ts`
       );
     }
 

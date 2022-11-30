@@ -63,9 +63,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "denoify": {
-    "index": "src/index.ts",
-    "replacer": "../../config/denoify-rimbu-replacer.js"
   }
 }
