@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/core@0.10.3...@rimbu/core@0.11.0) (2022-11-30)
+
+
+### Features
+
+* re-implemented actor and reactor packages, and updated denoifier ([ad43faf](https://github.com/rimbu-org/rimbu/commit/ad43faf1154d43fae79eea418d8b3bea28b04a2f))
+
+
+### BREAKING CHANGES
+
+* The @rimbu/actor and @rimbu/reactor packages have a completely new API (but they
+were and are still experimental)
+
+
+
+
+
 ## [0.10.3](https://github.com/rimbu-org/rimbu/compare/@rimbu/core@0.10.2...@rimbu/core@0.10.3) (2022-10-02)
 
 **Note:** Version bump only for package @rimbu/core

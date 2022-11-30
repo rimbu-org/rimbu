@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/ordered@0.8.22...@rimbu/ordered@0.9.0) (2022-11-30)
+
+
+### Features
+
+* re-implemented actor and reactor packages, and updated denoifier ([ad43faf](https://github.com/rimbu-org/rimbu/commit/ad43faf1154d43fae79eea418d8b3bea28b04a2f))
+
+
+### BREAKING CHANGES
+
+* The @rimbu/actor and @rimbu/reactor packages have a completely new API (but they
+were and are still experimental)
+
+
+
+
+
 ## [0.8.22](https://github.com/rimbu-org/rimbu/compare/@rimbu/ordered@0.8.21...@rimbu/ordered@0.8.22) (2022-10-02)
 
 **Note:** Version bump only for package @rimbu/ordered
