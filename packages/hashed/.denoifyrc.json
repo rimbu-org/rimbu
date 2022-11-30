@@ -1,0 +1,5 @@
+{
+  "index": "src/main/index.ts",
+  "replacer": "../../config/denoify-rimbu-replacer.js",
+  "includes": ["README.md", "LICENSE", "CHANGELOG.md"]
+}

@@ -3,11 +3,9 @@
   "version": "0.10.3",
   "description": "State management tools to create stateful logic that can be easily integrated in any framework",
   "keywords": [
+    "redux",
     "state management",
-    "observable",
-    "actor",
-    "reactive",
-    "state",
+    "immutable",
     "rimbu",
     "typescript"
   ],
@@ -29,13 +27,16 @@
     "url": "https://github.com/rimbu-org/rimbu.git",
     "directory": "packages/actor"
   },
-  "source": "src/index.ts",
-  "main": "dist/main/index.js",
-  "module": "dist/module/index.js",
-  "types": "dist/types/index.d.ts",
+  "source": "src/main/index.ts",
+  "main": "dist/main/main/index.js",
+  "module": "dist/module/main/index.js",
+  "types": "dist/types/main/index.d.ts",
   "files": [
     "dist",
-    "src"
+    "src",
+    "immer",
+    "patch",
+    "stream"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
@@ -55,15 +56,15 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@rimbu/base": "^0.10.1",
-    "@rimbu/deep": "^0.13.1",
+    "@rimbu/common": "^0.11.0",
     "tslib": "^2.4.0"
   },
   "publishConfig": {
     "access": "public"
   },
-  "denoify": {
-    "index": "src/index.ts",
-    "replacer": "../../config/denoify-rimbu-replacer.js"
+  "devDependencies": {
+    "@rimbu/deep": "^0.13.1",
+    "@rimbu/stream": "^0.12.6",
+    "immer": "^9.0.16"
   }
 }

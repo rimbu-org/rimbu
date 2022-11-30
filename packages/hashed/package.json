@@ -79,10 +79,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "denoify": {
-    "index": "src/main/index.ts",
-    "replacer": "../../config/denoify-rimbu-replacer.js"
-  },
   "madge": {
     "detectiveOptions": {
       "ts": {
