@@ -65,10 +65,6 @@ To run your script (let's assume the entry point is in `src/main.ts`):
 
 `deno run --import-map import_map.json src/main.ts`
 
-Because Rimbu uses advanced types, this may slow down the type checking part when running your code. If you're able to rely on your code editor to provide type errors, you can skip the Deno type check using the `--no-check` flag:
-
-`deno run --import-map import_map.json --no-check src/main.ts`
-
 ## Usage
 
 ```ts
