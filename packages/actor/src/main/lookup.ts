@@ -1,4 +1,4 @@
-import { OptLazy, Reducer } from '@rimbu/common';
+import { Reducer, type OptLazy } from '@rimbu/common';
 
 import type { ActionBase } from './internal';
 

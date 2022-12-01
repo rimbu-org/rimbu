@@ -1,6 +1,6 @@
 import { Reducer } from '@rimbu/common';
 
-import { Action, Actor, SliceConfig } from './internal';
+import { Action, SliceConfig, type Actor } from './internal';
 import type { Tail } from './utils';
 
 /**

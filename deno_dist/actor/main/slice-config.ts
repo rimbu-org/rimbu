@@ -1,6 +1,6 @@
 import type { OptLazy } from '../../common/mod.ts';
 
-import { type ActionBase, Lookup, Slice } from './internal.ts';
+import { Lookup, type ActionBase, type Slice } from './internal.ts';
 
 /**
  * Utility type to determine the types to be used in the slice configuration.

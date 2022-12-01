@@ -1,4 +1,4 @@
-import { OptLazy, Reducer } from '@rimbu/common';
+import { OptLazy, type Reducer } from '@rimbu/common';
 
 import type { ActionBase } from './internal';
 
@@ -30,7 +30,7 @@ export namespace Actor {
   }
 
   export type ActionsDefinition = {
-    [key: string]: Actor.DispatchFunction | ActionsDefinition;
+    [key: string]: Actor.DispatchFunction | ActionsDefinition | undefined;
   };
 
   export interface Actions<

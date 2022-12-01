@@ -1,4 +1,4 @@
-import { OptLazy, Reducer } from '../../common/mod.ts';
+import { Reducer, type OptLazy } from '../../common/mod.ts';
 
 import type { ActionBase } from './internal.ts';
 
