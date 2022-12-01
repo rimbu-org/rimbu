@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.11.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/reactor@0.11.0...@rimbu/reactor@0.11.1) (2022-12-01)
+
+
+### Bug Fixes
+
+* improve imports in actor and reactor packages to fix code sandbox ([50cf605](https://github.com/rimbu-org/rimbu/commit/50cf6051c36447a86e308e8f17c2862ee28257f7))
+
+
+
+
+
 # [0.11.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/reactor@0.10.3...@rimbu/reactor@0.11.0) (2022-11-30)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/actor",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "description": "State management tools to create stateful logic that can be easily integrated in any framework",
   "keywords": [
     "redux",
