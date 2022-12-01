@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.13.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@0.12.6...@rimbu/stream@0.13.0) (2022-11-30)
+
+
+### Features
+
+* re-implemented actor and reactor packages, and updated denoifier ([ad43faf](https://github.com/rimbu-org/rimbu/commit/ad43faf1154d43fae79eea418d8b3bea28b04a2f))
+* **stream:** adds a `live` async stream constructor that can be used to broadcast values ([2fffd9e](https://github.com/rimbu-org/rimbu/commit/2fffd9e4dde08396fd884dedc5c1bcd760e265fd))
+
+
+### BREAKING CHANGES
+
+* The @rimbu/actor and @rimbu/reactor packages have a completely new API (but they
+were and are still experimental)
+
+
+
+
+
 ## [0.12.6](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@0.12.5...@rimbu/stream@0.12.6) (2022-10-02)
 
 **Note:** Version bump only for package @rimbu/stream

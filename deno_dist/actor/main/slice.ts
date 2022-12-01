@@ -1,6 +1,6 @@
 import { Reducer } from '../../common/mod.ts';
 
-import { Action, Actor, SliceConfig } from './internal.ts';
+import { Action, SliceConfig, type Actor } from './internal.ts';
 import type { Tail } from './utils.ts';
 
 /**

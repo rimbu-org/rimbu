@@ -1,4 +1,4 @@
-import { OptLazy, Reducer } from '../../common/mod.ts';
+import { OptLazy, type Reducer } from '../../common/mod.ts';
 
 import type { ActionBase } from './internal.ts';
 
@@ -30,7 +30,7 @@ export namespace Actor {
   }
 
   export type ActionsDefinition = {
-    [key: string]: Actor.DispatchFunction | ActionsDefinition;
+    [key: string]: Actor.DispatchFunction | ActionsDefinition | undefined;
   };
 
   export interface Actions<
