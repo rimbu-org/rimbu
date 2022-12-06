@@ -1,5 +1,5 @@
-import { RimbuError } from '@rimbu/base';
-import type { ArrayNonEmpty } from '@rimbu/common';
+import { Instances, RimbuError } from '@rimbu/base';
+import { generateUUID, type ArrayNonEmpty } from '@rimbu/common';
 import { Reducer } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
@@ -28,15 +28,22 @@ import {
 } from '@rimbu/list/custom';
 
 export class ListContext implements List.Context {
+  readonly blockSizeBits: number;
+  readonly contextId: string;
   readonly maxBlockSize: number;
   readonly minBlockSize: number;
 
-  constructor(readonly blockSizeBits: number) {
+  constructor(options: List.Context.Options = {}) {
+    const { blockSizeBits = 5, contextId = generateUUID() } = options;
+
     if (blockSizeBits < 2) {
       RimbuError.throwInvalidUsageError(
         'List: blockSizeBits should be at least 2'
       );
     }
+
+    this.blockSizeBits = blockSizeBits;
+    this.contextId = contextId;
 
     this.maxBlockSize = 1 << blockSizeBits;
     this.minBlockSize = this.maxBlockSize >>> 1;
@@ -278,10 +285,20 @@ export class ListContext implements List.Context {
   createCacheMap(): CacheMap {
     return new CacheMap();
   }
+
+  isImmutableInstance = <T = unknown>(source: any): source is List<T> =>
+    typeof source === 'object' &&
+    source?.context?.typeTag === this.typeTag &&
+    Instances.isImmutableInstance(source);
+
+  isBuilderInstance = <T = unknown>(source: any): source is List<T> =>
+    typeof source === 'object' &&
+    source?.context?.typeTag === this.typeTag &&
+    Instances.isBuilderInstance(source);
 }
 
-export function createListContext(options?: {
-  blockSizeBits?: number;
-}): List.Context {
-  return Object.freeze(new ListContext(options?.blockSizeBits ?? 5));
+export function createListContext(
+  options?: List.Context.Options
+): List.Context {
+  return Object.freeze(new ListContext(options));
 }

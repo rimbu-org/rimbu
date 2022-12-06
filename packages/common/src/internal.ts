@@ -11,3 +11,4 @@ export * from './types';
 export * from './update';
 export * from './async-optlazy';
 export * from './async-reducer';
+export * from './generate-uuid';

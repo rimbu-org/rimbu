@@ -65,6 +65,33 @@ describe('List creators', () => {
       expect(result.toArray()).toEqual([1, 2, 3, ...source.toArray()]);
     }
   });
+
+  it('isImmutableInstance', () => {
+    expect(List.isImmutableInstance(List.empty())).toBe(true);
+    expect(List.isImmutableInstance(List.of(1, 2, 3))).toBe(true);
+    expect(List.isImmutableInstance(List.of(1, 2, 3).toBuilder())).toBe(false);
+    expect(List.isImmutableInstance(0)).toBe(false);
+    expect(ListSrc.createContext().isImmutableInstance(List.empty())).toBe(
+      true
+    );
+    expect(ListSrc.createContext().isImmutableInstance(List.of(1, 2, 3))).toBe(
+      true
+    );
+  });
+
+  it('isBuilderInstance', () => {
+    expect(List.isBuilderInstance(List.empty())).toBe(false);
+    expect(List.isBuilderInstance(List.of(1, 2, 3))).toBe(false);
+    expect(List.isBuilderInstance(List.of(1, 2, 3).toBuilder())).toBe(true);
+    expect(List.isBuilderInstance(0)).toBe(false);
+    expect(ListSrc.createContext().isBuilderInstance(List.builder())).toBe(
+      true
+    );
+  });
+
+  it('context id', () => {
+    expect(ListSrc.createContext({ contextId: 'abc' }).contextId).toBe('abc');
+  });
 });
 
 describe('List methods', () => {

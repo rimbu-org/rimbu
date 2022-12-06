@@ -7,7 +7,7 @@ import {
 } from '@rimbu/list/custom';
 import { Stream } from '@rimbu/stream';
 
-const context = new ListContext(2);
+const context = new ListContext({ blockSizeBits: 2 });
 
 function builder(obj: any) {
   return new GenBuilder(context, obj);

@@ -1,4 +1,4 @@
-import { RimbuError } from '@rimbu/base';
+import { Instances, RimbuError } from '@rimbu/base';
 import { OptLazy, TraverseState, Update } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 
@@ -7,6 +7,10 @@ import type { LeafBuilder, ListContext } from '@rimbu/list/custom';
 
 export class GenBuilder<T> implements List.Builder<T> {
   constructor(readonly context: ListContext, public builder?: LeafBuilder<T>) {}
+
+  get [Instances.instanceTypeTag](): symbol {
+    return Instances.builderInstanceIndicator;
+  }
 
   _lock = 0;
 

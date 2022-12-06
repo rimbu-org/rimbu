@@ -9,7 +9,7 @@ import {
 import './setupTests';
 import { TraverseState } from '@rimbu/common';
 
-const context = new ListContext(2);
+const context = new ListContext({ blockSizeBits: 2 });
 
 describe('NonLeafTree', () => {
   const b1 = context.leafBlock([1, 2, 3]);

@@ -1,4 +1,4 @@
-import { RimbuError } from '@rimbu/base';
+import { Instances, RimbuError } from '@rimbu/base';
 import { NonEmptyBase } from '@rimbu/collection-types/set-custom';
 import {
   ArrayNonEmpty,
@@ -48,6 +48,10 @@ export abstract class ListNonEmptyBase<T>
   abstract reversed(cache?: CacheMap): List.NonEmpty<T>;
   abstract toArray(range?: IndexRange, reversed?: boolean): T[] | any;
   abstract structure(): string;
+
+  get [Instances.instanceTypeTag](): symbol {
+    return Instances.immutableInstanceIndicator;
+  }
 
   [Symbol.iterator](): FastIterator<T> {
     return this.stream()[Symbol.iterator]();
@@ -220,10 +224,14 @@ export abstract class ListNonEmptyBase<T>
     return this.stream().join({ start: 'List(', sep: ', ', end: ')' });
   }
 
-  toJSON(): ToJSON<T[], this['context']['typeTag']> {
+  toJSON(): ToJSON<T[], this['context']['typeTag'], List.Context.Options> {
     return {
       dataType: this.context.typeTag,
       value: this.toArray(),
+      attributes: {
+        contextId: this.context.contextId,
+        blockSizeBits: this.context.blockSizeBits,
+      },
     };
   }
 }

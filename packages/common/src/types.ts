@@ -34,7 +34,8 @@ export type StringNonEmpty<T> = T extends string
  * @typeparam V - the `value` type
  * @typeparam D - the `dataType` tag string type
  */
-export interface ToJSON<V, D extends string = string> {
+export interface ToJSON<V, D extends string = string, A = unknown> {
   readonly dataType: D;
   readonly value: V;
+  readonly attributes: A;
 }

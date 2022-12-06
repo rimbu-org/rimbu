@@ -112,15 +112,30 @@ export interface ListFactory {
    * @note uses a List builder under the hood. If the given `source` is a List in the same context, it will directly call `.toBuilder()`.
    */
   reducer<T>(source?: StreamSource<T>): Reducer<T, List<T>>;
+  /**
+   * Returns true if the given item is a `List` instance.
+   * @param source - the value to test
+   * @typeparam T - (optional) an element type for the list
+   * @note does not test if the element types are actually of type T
+   */
+  isImmutableInstance<T = unknown>(source: any): source is List<T>;
+  /**
+   * Returns true if the given item is a `List.Builder` instance.
+   * @param source - the value to test
+   * @typeparam T - (optional) an element type for the list
+   * @note does not test if the element types are actually of type T
+   */
+  isBuilderInstance<T = unknown>(source: any): source is List<T>;
 }
 
 export interface ListCreators extends ListFactory {
   /**
    * Returns a new `List.Creators` instance using the provided options.
    * @param options - (optional) an object containing the following properties:
-   * @param blockSizeBits - (default: 5) the power of 2 to to `blockSizeBits` to use as block size for all `List` instances that are created from the context.
+   *  - blockSizeBits - (default: 5) the power of 2 to to `blockSizeBits` to use as block size for all `List` instances that are created from the context.
+   *  - contextId - (default: random generated UUID) the unique context identifier
    */
-  createContext(options?: { blockSizeBits?: number }): List.Context;
+  createContext(options?: List.Context.Options): List.Context;
   /**
    * Returns the default `List.Context` instance.
    */

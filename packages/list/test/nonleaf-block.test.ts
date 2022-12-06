@@ -9,7 +9,7 @@ import {
 } from '@rimbu/list/custom';
 import './setupTests';
 
-const context = new ListContext(2);
+const context = new ListContext({ blockSizeBits: 2 });
 
 describe('NonLeafBlock', () => {
   it('_mutateRebalance', () => {

@@ -628,7 +628,7 @@ function runLeafTreeTests(
       const b3 = createBlock([1, 2, 3]);
       const t6 = context.leafTree(b3, b3, null);
 
-      expect(t6.toJSON()).toEqual({
+      expect(t6.toJSON()).toMatchObject({
         dataType: 'List',
         value: [1, 2, 3, 1, 2, 3],
       });
@@ -678,7 +678,7 @@ function runLeafTreeTests(
   });
 }
 
-const context2 = new ListContext(2);
+const context2 = new ListContext({ blockSizeBits: 2 });
 
 runLeafTreeTests('leaftree', context2, (values) => context2.leafBlock(values));
 runLeafTreeTests('leaftree with rev blocks', context2, (values) =>
@@ -821,7 +821,7 @@ function leafTreeBlockSize3(
   });
 }
 
-const context3 = new ListContext(3);
+const context3 = new ListContext({ blockSizeBits: 3 });
 
 leafTreeBlockSize3('leafTree blockSize 3', context3, (values) =>
   context3.leafBlock(values)

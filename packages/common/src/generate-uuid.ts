@@ -2,9 +2,11 @@
  * Internal function to generate a UUID.
  */
 export function generateUUID(): string {
-  const context = window ?? global;
-  if (undefined !== context?.crypto?.randomUUID) {
-    return crypto.randomUUID();
+  if (typeof window === 'object' && undefined !== window?.crypto?.randomUUID) {
+    return window.crypto.randomUUID();
+  }
+  if (typeof global === 'object' && undefined !== global?.crypto?.randomUUID) {
+    return global.crypto.randomUUID();
   }
 
   // Public Domain/MIT

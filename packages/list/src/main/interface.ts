@@ -1059,6 +1059,15 @@ export namespace List {
     readonly _types: List.Types;
 
     readonly typeTag: 'List';
+
+    readonly contextId: string;
+  }
+
+  export namespace Context {
+    export interface Options {
+      blockSizeBits?: number;
+      contextId?: string;
+    }
   }
 
   /**

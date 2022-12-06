@@ -544,7 +544,7 @@ function runLeafBlockTests(
     it('toJSON', () => {
       const b3 = createBlock(1, 2, 3);
 
-      expect(b3.toJSON()).toEqual({
+      expect(b3.toJSON()).toMatchObject({
         dataType: 'List',
         value: [1, 2, 3],
       });
@@ -590,7 +590,7 @@ function runLeafBlockTests(
   });
 }
 
-const context = new ListContext(2);
+const context = new ListContext({ blockSizeBits: 2 });
 
 function createBlock<T>(...elems: T[]) {
   return context.leafBlock(elems);

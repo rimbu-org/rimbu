@@ -4,10 +4,15 @@ import { Stream, StreamSource } from '@rimbu/stream';
 
 import type { List } from '@rimbu/list';
 import type { ListContext } from '@rimbu/list/custom';
+import { Instances } from '@rimbu/base';
 
 export class Empty<T = any> extends EmptyBase implements List<T> {
   constructor(readonly context: ListContext) {
     super();
+  }
+
+  get [Instances.instanceTypeTag](): symbol {
+    return Instances.immutableInstanceIndicator;
   }
 
   streamRange(): Stream<T> {
@@ -121,10 +126,14 @@ export class Empty<T = any> extends EmptyBase implements List<T> {
     return `List()`;
   }
 
-  toJSON(): ToJSON<any[], this['context']['typeTag']> {
+  toJSON(): ToJSON<any[], this['context']['typeTag'], List.Context.Options> {
     return {
       dataType: this.context.typeTag,
       value: [],
+      attributes: {
+        contextId: this.context.contextId,
+        blockSizeBits: this.context.blockSizeBits,
+      },
     };
   }
 }

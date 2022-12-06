@@ -1,4 +1,4 @@
-import { generateUUID } from './generate-uuid';
+import { generateUUID } from '@rimbu/common';
 import type { ActionBase } from './internal';
 
 /**

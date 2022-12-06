@@ -1,6 +1,6 @@
 import { LeafTreeBuilder, ListContext } from '@rimbu/list/custom';
 
-const context = new ListContext(2);
+const context = new ListContext({ blockSizeBits: 2 });
 
 function createBlockBuilder<T>(...elems: T[]) {
   return context.leafBlockBuilder(elems);

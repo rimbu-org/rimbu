@@ -7,7 +7,7 @@ import {
   NonLeafTreeBuilder,
 } from '@rimbu/list/custom';
 
-const context = new ListContext(2);
+const context = new ListContext({ blockSizeBits: 2 });
 
 describe('NonLeafBlockBuilder', () => {
   it('append', () => {
