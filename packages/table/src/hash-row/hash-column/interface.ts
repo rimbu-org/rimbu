@@ -52,6 +52,14 @@ export namespace HashTableHashColumn {
   export interface Context<UR, UC>
     extends TableBase.Context<UR, UC, HashTableHashColumn.Types> {}
 
+  export namespace Context {
+    export interface Options<UR, UC> {
+      contextId?: string;
+      rowContext?: HashMap.Context<UR>;
+      columnContext?: HashMap.Context<UC>;
+    }
+  }
+
   export interface Builder<R, C, V>
     extends TableBase.Builder<R, C, V, HashTableHashColumn.Types> {}
 
@@ -86,20 +94,24 @@ export namespace HashTableHashColumn {
   }
 }
 
-function createContext<UR, UC>(options?: {
-  rowContext?: HashMap.Context<UR>;
-  columnContext?: HashMap.Context<UC>;
-}): HashTableHashColumn.Context<UR, UC> {
+function createContext<UR, UC>(
+  options?: HashTableHashColumn.Context.Options<UR, UC>
+): HashTableHashColumn.Context<UR, UC> {
   return Object.freeze(
     new TableContext<UR, UC, 'HashTableHashColumn', any>(
       'HashTableHashColumn',
-      options?.rowContext ?? HashMap.defaultContext(),
-      options?.columnContext ?? HashMap.defaultContext()
+      {
+        ...options,
+        rowContext: options?.rowContext ?? HashMap.defaultContext(),
+        columnContext: options?.columnContext ?? HashMap.defaultContext(),
+      }
     )
   );
 }
 
-const _defaultContext: HashTableHashColumn.Context<any, any> = createContext();
+const _defaultContext: HashTableHashColumn.Context<any, any> = createContext({
+  contextId: 'default',
+});
 
 export const HashTableHashColumn: HashTableHashColumnCreators = Object.freeze({
   ..._defaultContext,

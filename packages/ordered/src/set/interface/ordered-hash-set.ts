@@ -1,5 +1,5 @@
 import { HashSet } from '@rimbu/hashed/set';
-import { List } from '@rimbu/list';
+import type { List } from '@rimbu/list';
 import type {
   OrderedHashSetCreators,
   OrderedSetBase,
@@ -70,6 +70,21 @@ export namespace OrderedHashSet {
   export interface Context<UT>
     extends OrderedSetBase.Context<UT, OrderedHashSet.Types> {}
 
+  export namespace Context {
+    export interface Options<UT> {
+      contextId?: string;
+      listContext?: List.Context;
+      setContext?: HashSet.Context<UT>;
+    }
+
+    export interface Serialized {
+      typeTag: string;
+      contextId: string;
+      listContext: List.Context.Serialized;
+      setContext: HashSet.Context.Serialized;
+    }
+  }
+
   /**
    * Utility interface that provides higher-kinded types for this collection.
    */
@@ -84,19 +99,20 @@ export namespace OrderedHashSet {
   }
 }
 
-function createContext<UT>(options?: {
-  listContext?: List.Context;
-  setContext?: HashSet.Context<UT>;
-}): OrderedHashSet.Context<UT> {
+function createContext<UT>(
+  options?: OrderedHashSet.Context.Options<UT>
+): OrderedHashSet.Context<UT> {
   return Object.freeze(
-    new OrderedSetContextImpl<UT>(
-      options?.listContext ?? List.defaultContext(),
-      options?.setContext ?? HashSet.defaultContext()
-    )
+    new OrderedSetContextImpl<UT>({
+      ...options,
+      setContext: options?.setContext ?? HashSet.defaultContext(),
+    })
   ) as any;
 }
 
-const _defaultContext: OrderedHashSet.Context<any> = createContext();
+const _defaultContext: OrderedHashSet.Context<any> = createContext({
+  contextId: 'default',
+});
 
 export const OrderedHashSet: OrderedHashSetCreators = Object.freeze({
   ..._defaultContext,

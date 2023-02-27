@@ -64,10 +64,15 @@ export class HashSetEmpty<T = any> extends EmptyBase implements HashSet<T> {
     return `HashSet()`;
   }
 
-  toJSON(): ToJSON<T[]> {
+  toJSON(): ToJSON<
+    T[],
+    this['context']['typeTag'],
+    { context: HashSet.Context.Serialized }
+  > {
     return {
       dataType: this.context.typeTag,
       value: [],
+      attributes: { context: this.context.toJSON() },
     };
   }
 }
@@ -169,17 +174,22 @@ export abstract class HashSetNonEmptyBase<T>
   }
 
   toBuilder(): HashSet.Builder<T> {
-    return this.context.createBuilder(this);
+    return this.context.createBuilder(this as any);
   }
 
   toString(): string {
     return this.stream().join({ start: 'HashSet(', sep: ', ', end: ')' });
   }
 
-  toJSON(): ToJSON<T[]> {
+  toJSON(): ToJSON<
+    T[],
+    this['context']['typeTag'],
+    { context: HashSet.Context.Serialized }
+  > {
     return {
       dataType: this.context.typeTag,
       value: [],
+      attributes: { context: this.context.toJSON() },
     };
   }
 }
@@ -237,12 +247,12 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
   has<U>(value: RelatedTo<T, U>, inHash?: number): boolean {
     if (!this.context.hasher.isValid(value)) return false;
 
-    const hash = inHash ?? this.context.hash(value);
+    const hash = inHash ?? this.context.hash(value as T);
     const atKeyIndex = this.context.getKeyIndex(this.level, hash);
 
     if (null !== this.entries && atKeyIndex in this.entries) {
       const entry = this.entries[atKeyIndex];
-      return this.context.eq(entry, value);
+      return this.context.eq.areEqual(entry, value as T);
     }
 
     if (null !== this.entrySets && atKeyIndex in this.entrySets) {
@@ -258,7 +268,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 
     if (null !== this.entries && atKeyIndex in this.entries) {
       const currentValue = this.entries[atKeyIndex];
-      if (this.context.eq(value, currentValue)) return this;
+      if (this.context.eq.areEqual(value, currentValue)) return this;
 
       let newEntries: T[] | null = Arr.copySparse(this.entries);
       delete newEntries[atKeyIndex];
@@ -319,14 +329,14 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
   remove<U>(value: RelatedTo<T, U>, hash?: number): HashSet<T> {
     if (!this.context.hasher.isValid(value)) return this;
 
-    const valueHash = hash ?? this.context.hash(value);
+    const valueHash = hash ?? this.context.hash(value as T);
 
     const atKeyIndex = this.context.getKeyIndex(this.level, valueHash);
 
     if (null !== this.entries && atKeyIndex in this.entries) {
       const currentValue = this.entries[atKeyIndex];
 
-      if (!this.context.eq(currentValue, value)) return this;
+      if (!this.context.eq.areEqual(currentValue, value as T)) return this;
 
       if (this.size === 1) return this.context.empty();
 
@@ -449,7 +459,7 @@ export class HashSetCollision<T> extends HashSetNonEmptyBase<T> {
 
   has<U>(value: RelatedTo<T, U>, inHash?: number): boolean {
     if (!this.context.hasher.isValid(value)) return false;
-    return this.stream().contains(value, undefined, this.context.eq);
+    return this.stream().contains(value as T, undefined, this.context.eq);
   }
 
   add(value: T): HashSetCollision<T> {
@@ -470,7 +480,7 @@ export class HashSetCollision<T> extends HashSetNonEmptyBase<T> {
     if (!this.context.hasher.isValid(value)) return this;
 
     const currentIndex = this.stream().indexOf(
-      value,
+      value as T,
       undefined,
       this.context.eq
     );

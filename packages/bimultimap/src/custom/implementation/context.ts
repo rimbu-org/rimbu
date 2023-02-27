@@ -1,3 +1,4 @@
+import { Instances } from '@rimbu/base';
 import {
   BiMultiMapBase,
   BiMultiMapBuilder,
@@ -5,8 +6,7 @@ import {
   BiMultiMapNonEmpty,
 } from '@rimbu/bimultimap/custom';
 import type { WithKeyValue } from '@rimbu/collection-types/map-custom';
-import type { ArrayNonEmpty } from '@rimbu/common';
-import { Reducer } from '@rimbu/common';
+import { generateUUID, Reducer, type ArrayNonEmpty } from '@rimbu/common';
 import type { StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
@@ -32,7 +32,8 @@ export class BiMultiMapContext<
       Tp,
       UK,
       UV
-    >['valueKeyMultiMapContext']
+    >['valueKeyMultiMapContext'],
+    readonly contextId = generateUUID()
   ) {}
 
   readonly _fixTypes!: any;
@@ -143,4 +144,32 @@ export class BiMultiMapContext<
       valueKeyMultiMap
     ) as WithKeyValue<Tp, K, V>['nonEmpty'];
   }
+
+  readonly toJSON = (): {
+    typeTag: string;
+    contextId: string;
+    keyValueMultiMapContext: Record<string, any>;
+    valueKeyMultiMapContext: Record<string, any>;
+  } => {
+    return {
+      typeTag: this.typeTag,
+      contextId: this.contextId,
+      keyValueMultiMapContext: this.keyValueMultiMapContext.toJSON(),
+      valueKeyMultiMapContext: this.valueKeyMultiMapContext.toJSON(),
+    };
+  };
+
+  readonly isImmutableInstance = <K = unknown, V = unknown>(
+    source: any
+  ): source is WithKeyValue<Tp, K, V>['normal'] =>
+    typeof source === 'object' &&
+    source?.context?.typeTag === this.typeTag &&
+    Instances.isImmutableInstance(source);
+
+  readonly isBuilderInstance = <K = unknown, V = unknown>(
+    source: any
+  ): source is WithKeyValue<Tp, K, V>['builder'] =>
+    typeof source === 'object' &&
+    source?.context?.typeTag === this.typeTag &&
+    Instances.isBuilderInstance(source);
 }

@@ -1,6 +1,7 @@
 import { NonEmptyBase, WithElem } from '@rimbu/collection-types/set-custom';
 import { ArrayNonEmpty, RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
 import type { List } from '@rimbu/list';
+import type { OrderedSet } from '@rimbu/ordered';
 import type {
   OrderedSetBase,
   OrderedSetTypes,
@@ -169,10 +170,17 @@ export class OrderedSetNonEmpty<
     return this.stream().join({ start: 'OrderedSet(', sep: ', ', end: ')' });
   }
 
-  toJSON(): ToJSON<T[]> {
+  toJSON(): ToJSON<
+    T[],
+    this['context']['typeTag'],
+    { context: OrderedSet.Context.Serialized }
+  > {
     return {
       dataType: this.context.typeTag,
       value: this.sourceSet.toJSON().value,
+      attributes: {
+        context: this.context.toJSON(),
+      },
     };
   }
 }

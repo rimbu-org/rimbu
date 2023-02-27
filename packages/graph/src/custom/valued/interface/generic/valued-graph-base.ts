@@ -535,6 +535,27 @@ export namespace ValuedGraphBase {
      * Returns true if the graphs created by this context are arrow (directed) graphs.
      */
     readonly isDirected: boolean;
+
+    /**
+     * Returns true if the given item is a `Graph` instance.
+     * @param source - the value to test
+     * @typeparam N - the node value type
+     * @typeparam V - the edge value type
+     * @note does not test if the key and value types are correct
+     */
+    isImmutableInstance<N extends UN, V>(
+      source: any
+    ): source is WithGraphValues<Tp, N, V>['normal'];
+    /**
+     * Returns true if the given item is a `Graph.Builder` instance.
+     * @param source - the value to test
+     * @typeparam N - the node value type
+     * @typeparam V - the edge value type
+     * @note does not test if the key and value types are correct
+     */
+    isBuilderInstance<N extends UN, V>(
+      source: any
+    ): source is WithGraphValues<Tp, N, V>['builder'];
   }
 
   /**

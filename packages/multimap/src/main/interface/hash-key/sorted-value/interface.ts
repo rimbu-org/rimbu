@@ -75,6 +75,15 @@ export namespace HashMultiMapSortedValue {
     readonly keyMapValuesContext: SortedSet.Context<UV>;
   }
 
+  export namespace Context {
+    export interface Options<UK, UV>
+      extends MultiMapBase.Context.Options<
+        UK,
+        UV,
+        HashMultiMapSortedValue.Types
+      > {}
+  }
+
   /**
    * A mutable `HashMultiMapSortedValue` builder used to efficiently create new immutable instances.
    * See the [MultiMap documentation](https://rimbu.org/docs/collections/multimap) and the [HashMultiMapSortedValue.Builder API documentation](https://rimbu.org/api/rimbu/multimap/HashMultiMapSortedValue/Builder/interface)
@@ -104,21 +113,23 @@ export namespace HashMultiMapSortedValue {
   }
 }
 
-function createContext<K, V>(options?: {
-  keyMapContext?: HashMap.Context<K>;
-  keyMapValuesContext?: SortedSet.Context<V>;
-}): HashMultiMapSortedValue.Context<K, V> {
+function createContext<UK, UV>(
+  options?: HashMultiMapSortedValue.Context.Options<UK, UV>
+): HashMultiMapSortedValue.Context<UK, UV> {
   return Object.freeze(
-    new MultiMapContext<K, V, 'HashMultiMapSortedValue', any>(
+    new MultiMapContext<UK, UV, 'HashMultiMapSortedValue', any>(
       'HashMultiMapSortedValue',
       options?.keyMapContext ?? HashMap.defaultContext(),
-      options?.keyMapValuesContext ?? SortedSet.defaultContext()
+      options?.keyMapValuesContext ?? SortedSet.defaultContext(),
+      options?.contextId
     )
   );
 }
 
 const _defaultContext: HashMultiMapSortedValue.Context<any, any> =
-  createContext();
+  createContext({
+    contextId: 'default',
+  });
 
 export const HashMultiMapSortedValue: HashMultiMapSortedValueCreators =
   Object.freeze({

@@ -1,4 +1,4 @@
-import { RimbuError } from '@rimbu/base';
+import { Instances, RimbuError } from '@rimbu/base';
 import type {
   BiMultiMapBase,
   ContextTypesImpl,
@@ -22,6 +22,10 @@ export class BiMultiMapBuilder<
     readonly context: TpG['context'],
     public source?: TpG['nonEmpty']
   ) {}
+
+  get [Instances.instanceTypeTag](): symbol {
+    return Instances.builderInstanceIndicator;
+  }
 
   _keyValueMultiMap?: MultiMap.Builder<K, V>;
 

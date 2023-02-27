@@ -68,6 +68,14 @@ export namespace ArrowValuedGraphSorted {
     readonly typeTag: 'ArrowValuedGraphSorted';
   }
 
+  export namespace Context {
+    export interface Options<UN> {
+      contextId?: string;
+      linkMapContext?: SortedMap.Context<UN>;
+      linkConnectionsContext?: SortedMap.Context<UN>;
+    }
+  }
+
   /**
    * Utility interface that provides higher-kinded types for this collection.
    */
@@ -92,21 +100,23 @@ export namespace ArrowValuedGraphSorted {
   }
 }
 
-function createContext<UN>(options?: {
-  linkMapContext?: SortedMap.Context<UN>;
-  linkConnectionsContext?: SortedMap.Context<UN>;
-}): ArrowValuedGraphSorted.Context<UN> {
+function createContext<UN>(
+  options?: ArrowValuedGraphSorted.Context.Options<UN>
+): ArrowValuedGraphSorted.Context<UN> {
   return Object.freeze(
     new ValuedGraphContext<UN, 'ArrowValuedGraphSorted', any>(
       true,
       'ArrowValuedGraphSorted',
       options?.linkMapContext ?? SortedMap.defaultContext(),
-      options?.linkConnectionsContext ?? SortedMap.defaultContext()
+      options?.linkConnectionsContext ?? SortedMap.defaultContext(),
+      options?.contextId
     )
   );
 }
 
-const _defaultContext: ArrowValuedGraphSorted.Context<any> = createContext();
+const _defaultContext: ArrowValuedGraphSorted.Context<any> = createContext({
+  contextId: 'default',
+});
 
 export const ArrowValuedGraphSorted: ArrowValuedGraphSortedCreators =
   Object.freeze({

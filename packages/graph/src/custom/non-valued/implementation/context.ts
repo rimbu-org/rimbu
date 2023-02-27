@@ -1,4 +1,4 @@
-import type { ArrayNonEmpty } from '@rimbu/common';
+import { ArrayNonEmpty, generateUUID } from '@rimbu/common';
 import type { StreamSource } from '@rimbu/stream';
 
 import { Reducer } from '@rimbu/common';
@@ -7,6 +7,7 @@ import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 import type { GraphBase, GraphElement, WithGraphValues } from '../../common';
 
 import { GraphEmpty, GraphNonEmpty, GraphBuilder } from '@rimbu/graph/custom';
+import { Instances } from '@rimbu/base';
 
 export interface GraphTypesContextImpl extends GraphBase.Types {
   readonly context: GraphContext<this['_N'], string, boolean>;
@@ -31,7 +32,8 @@ export class GraphContext<
       Tp,
       UN,
       any
-    >['linkConnectionsContext']
+    >['linkConnectionsContext'],
+    readonly contextId = generateUUID()
   ) {
     this._empty = Object.freeze(new GraphEmpty(isDirected, this)) as any;
   }
@@ -111,4 +113,34 @@ export class GraphContext<
       connectionSize
     ) as any;
   }
+
+  toJSON(): {
+    typeTag: string;
+    contextId: string;
+    isDirected: boolean;
+    linkMapContext: Record<string, any>;
+    linkConnectionsContext: Record<string, any>;
+  } {
+    return {
+      typeTag: this.typeTag,
+      contextId: this.contextId,
+      isDirected: this.isDirected,
+      linkMapContext: this.linkMapContext.toJSON(),
+      linkConnectionsContext: this.linkConnectionsContext.toJSON(),
+    };
+  }
+
+  isImmutableInstance = <N extends UN>(
+    source: any
+  ): source is WithGraphValues<Tp, N, unknown>['normal'] =>
+    typeof source === 'object' &&
+    source?.context?.typeTag === this.typeTag &&
+    Instances.isImmutableInstance(source);
+
+  isBuilderInstance = <N extends UN>(
+    source: any
+  ): source is WithGraphValues<Tp, N, unknown>['builder'] =>
+    typeof source === 'object' &&
+    source?.context?.typeTag === this.typeTag &&
+    Instances.isBuilderInstance(source);
 }

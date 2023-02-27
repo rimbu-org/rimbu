@@ -129,7 +129,7 @@ export namespace Transformer {
           if (state.length === 1) {
             return Stream.of(state[0]);
           }
-          if (!eq(state[0], state[1])) {
+          if (!eq.areEqual(state[0], state[1])) {
             return Stream.of(state[1]);
           }
         }

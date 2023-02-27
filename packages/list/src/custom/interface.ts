@@ -112,20 +112,6 @@ export interface ListFactory {
    * @note uses a List builder under the hood. If the given `source` is a List in the same context, it will directly call `.toBuilder()`.
    */
   reducer<T>(source?: StreamSource<T>): Reducer<T, List<T>>;
-  /**
-   * Returns true if the given item is a `List` instance.
-   * @param source - the value to test
-   * @typeparam T - (optional) an element type for the list
-   * @note does not test if the element types are actually of type T
-   */
-  isImmutableInstance<T = unknown>(source: any): source is List<T>;
-  /**
-   * Returns true if the given item is a `List.Builder` instance.
-   * @param source - the value to test
-   * @typeparam T - (optional) an element type for the list
-   * @note does not test if the element types are actually of type T
-   */
-  isBuilderInstance<T = unknown>(source: any): source is List<T>;
 }
 
 export interface ListCreators extends ListFactory {

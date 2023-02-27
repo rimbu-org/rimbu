@@ -1,6 +1,6 @@
 import type { RMap } from '@rimbu/collection-types';
 
-import { Token } from '@rimbu/base';
+import { Instances, Token } from '@rimbu/base';
 import { OptLazy, OptLazyOr, RelatedTo, ToJSON } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 
@@ -93,7 +93,7 @@ export class ValuedGraphEmpty<
   ): WithGraphValues<Tp, N, V>['normal'] {
     if (undefined === options.ifNew) return this as any;
 
-    const newValue = OptLazyOr(options.ifNew, Token);
+    const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
 
     if (Token === newValue) return this as any;
 
@@ -108,10 +108,17 @@ export class ValuedGraphEmpty<
     return `${this.context.typeTag}()`;
   }
 
-  toJSON(): ToJSON<any[]> {
+  toJSON(): ToJSON<
+    any[],
+    this['context']['typeTag'],
+    { context: Record<string, any> }
+  > {
     return {
       dataType: this.context.typeTag,
       value: [],
+      attributes: {
+        context: this.context.toJSON(),
+      },
     };
   }
 

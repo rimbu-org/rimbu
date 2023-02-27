@@ -328,7 +328,7 @@ export class SortedMapBuilder<K, V>
     if (!this.hasChildren) {
       if (undefined === options.ifNew) return false;
 
-      const newValue = OptLazyOr(options.ifNew, Token);
+      const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
 
       if (Token === newValue) return false;
 

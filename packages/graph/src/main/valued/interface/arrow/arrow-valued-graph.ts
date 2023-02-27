@@ -74,6 +74,7 @@ export namespace ArrowValuedGraph {
 
 export const ArrowValuedGraph: ArrowValuedGraphCreators = Object.freeze({
   createContext<UN>(options: {
+    contextId?: string;
     linkMapContext: RMap.Context<UN>;
     linkConnectionsContext: RMap.Context<UN>;
   }): ArrowValuedGraph.Context<UN> {
@@ -82,7 +83,8 @@ export const ArrowValuedGraph: ArrowValuedGraphCreators = Object.freeze({
         true,
         'ArrowValuedGraph',
         options.linkMapContext,
-        options.linkConnectionsContext
+        options.linkConnectionsContext,
+        options.contextId
       )
     );
   },

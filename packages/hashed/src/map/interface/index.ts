@@ -7,6 +7,7 @@ import type { Hasher } from '../../common';
 import type { Eq } from '@rimbu/common';
 
 import { createHashMapContext } from '@rimbu/hashed/map-custom';
+import type { List } from '@rimbu/list';
 
 /**
  * A type-invariant immutable Map of key type K, and value type V.
@@ -68,6 +69,25 @@ export namespace HashMap {
     readonly eq: Eq<UK>;
   }
 
+  export namespace Context {
+    export interface Options<UK> {
+      contextId?: string;
+      hasher?: Hasher<UK>;
+      eq?: Eq<UK>;
+      blockSizeBits?: number;
+      listContext?: List.Context;
+    }
+
+    export interface Serialized {
+      typeTag: string;
+      contextId: string;
+      hasherId: string;
+      eqId: string;
+      blockSizeBits: number;
+      listContext: List.Context.Serialized;
+    }
+  }
+
   /**
    * A mutable `HashMap` builder used to efficiently create new immutable instances.
    * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [HashMap.Builder API documentation](https://rimbu.org/api/rimbu/hashed/HashMap/Builder/interface)
@@ -88,7 +108,9 @@ export namespace HashMap {
   }
 }
 
-const _defaultContext: HashMap.Context<any> = createHashMapContext();
+const _defaultContext: HashMap.Context<any> = createHashMapContext({
+  contextId: 'default',
+});
 
 export const HashMap: HashMapCreators = Object.freeze({
   ..._defaultContext,

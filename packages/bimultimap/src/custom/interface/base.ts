@@ -587,6 +587,27 @@ export namespace BiMultiMapBase {
       UK,
       UV
     >['valueKeyMultiMapContext'];
+
+    /**
+     * Returns true if the given item is a `BiMultiMap` instance.
+     * @param source - the value to test
+     * @typeparam K - (optional) a key type for the bimultimap
+     * @typeparma V - (optional) a value type for the bimultimap
+     * @note does not test if the key and value types are correct
+     */
+    isImmutableInstance<K = unknown, V = unknown>(
+      source: any
+    ): source is WithKeyValue<Tp, K, V>['normal'];
+    /**
+     * Returns true if the given item is a `BiMultiMap.Builder` instance.
+     * @param source - the value to test
+     * @typeparam K - (optional) a key type for the bimultimap
+     * @typeparma V - (optional) a value type for the bimultimap
+     * @note does not test if the key and value types are correct
+     */
+    isBuilderInstance<K = unknown, V = unknown>(
+      source: any
+    ): source is WithKeyValue<Tp, K, V>['builder'];
   }
 
   export interface Builder<

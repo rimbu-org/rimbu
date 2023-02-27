@@ -1,5 +1,5 @@
 import { RSetBase } from '@rimbu/collection-types/set-custom';
-import { Eq } from '@rimbu/common';
+import { Eq, generateUUID } from '@rimbu/common';
 import { List } from '@rimbu/list';
 import type { StreamSource } from '@rimbu/stream';
 
@@ -9,14 +9,14 @@ import type {
   SetEntrySet,
 } from '@rimbu/hashed/set-custom';
 
-import { Hasher } from '../../common';
 import {
-  HashSetNonEmptyBase,
-  HashSetEmpty,
   HashSetBlock,
-  HashSetCollision,
   HashSetBlockBuilder,
+  HashSetCollision,
+  HashSetEmpty,
+  HashSetNonEmptyBase,
 } from '@rimbu/hashed/set-custom';
+import { Hasher } from '../../common';
 
 export class HashSetContext<UT>
   extends RSetBase.ContextBase<UT, HashSet.Types>
@@ -30,10 +30,12 @@ export class HashSetContext<UT>
   readonly _emptyBlock: HashSetBlock<any>;
 
   constructor(
-    readonly hasher: Hasher<UT>,
-    readonly eq: Eq<UT>,
-    readonly blockSizeBits: number,
-    readonly listContext: List.Context
+    options: HashSet.Context.Options<UT> = {},
+    readonly hasher = options.hasher ?? Hasher.defaultHasher(),
+    readonly eq = options.eq ?? Eq.defaultEq(),
+    readonly blockSizeBits = options.blockSizeBits ?? 5,
+    readonly listContext = options.listContext ?? List.defaultContext(),
+    readonly contextId = options.contextId ?? generateUUID()
   ) {
     super();
 
@@ -114,20 +116,21 @@ export class HashSetContext<UT>
   ): obj is HashSetBlockBuilder<T> {
     return obj instanceof HashSetBlockBuilder;
   }
+
+  toJSON(): HashSet.Context.Serialized {
+    return {
+      typeTag: this.typeTag,
+      contextId: this.contextId,
+      hasherId: this.hasher.id,
+      eqId: this.eq.id,
+      blockSizeBits: this.blockSizeBits,
+      listContext: this.listContext.toJSON(),
+    };
+  }
 }
 
-export function createHashSetContext<UT>(options?: {
-  hasher?: Hasher<UT>;
-  eq?: Eq<UT>;
-  blockSizeBits?: number;
-  listContext?: List.Context;
-}): HashSet.Context<UT> {
-  return Object.freeze(
-    new HashSetContext(
-      options?.hasher ?? Hasher.defaultHasher(),
-      options?.eq ?? Eq.defaultEq(),
-      options?.blockSizeBits ?? 5,
-      options?.listContext ?? List.defaultContext()
-    )
-  );
+export function createHashSetContext<UT>(
+  options?: HashSet.Context.Options<UT>
+): HashSet.Context<UT> {
+  return Object.freeze(new HashSetContext(options));
 }

@@ -61,6 +61,7 @@ export namespace EdgeGraph {
 
 export const EdgeGraph: EdgeGraphCreators = Object.freeze({
   createContext<UN>(options: {
+    contextId?: string;
     linkMapContext: RMap.Context<UN>;
     linkConnectionsContext: RSet.Context<UN>;
   }): EdgeGraph.Context<UN> {
@@ -69,7 +70,8 @@ export const EdgeGraph: EdgeGraphCreators = Object.freeze({
         false,
         'EdgeGraph',
         options.linkMapContext,
-        options.linkConnectionsContext
+        options.linkConnectionsContext,
+        options.contextId
       )
     );
   },

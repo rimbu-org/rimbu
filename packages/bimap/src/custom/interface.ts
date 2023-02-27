@@ -1,7 +1,6 @@
 import type { BiMap } from '@rimbu/bimap';
 import type { ArrayNonEmpty, Reducer } from '@rimbu/common';
 import type { StreamSource } from '@rimbu/stream';
-import type { RMap } from '@rimbu/collection-types';
 
 export interface BiMapFactory<UK = unknown, UV = unknown> {
   /**
@@ -72,10 +71,9 @@ export interface BiMapCreators extends BiMapFactory {
    * - keyValueContext - (optional) the map context to use for key value mappings<br/>
    * - valueKeyContext - (optional) the map context to use for value key mappings
    */
-  createContext<UK, UV>(options?: {
-    keyValueContext?: RMap.Context<UK>;
-    valueKeyContext?: RMap.Context<UV>;
-  }): BiMap.Context<UK, UV>;
+  createContext<UK, UV>(
+    options?: BiMap.Context.Options<UK, UV>
+  ): BiMap.Context<UK, UV>;
   /**
    * Returns the default context for BiMaps.
    * @typeparam UK - the upper key type for which the context can create instances

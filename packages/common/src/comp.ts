@@ -5,6 +5,7 @@ import { Eq } from './internal';
  * @typeparam K - the value type
  */
 export interface Comp<K> {
+  readonly id: string;
   /**
    * Returns 0 if given `value1` and `value2` are equal, a positive value is `value1` is greater than
    * `value2`, and a negative value otherwise.
@@ -50,6 +51,7 @@ export namespace Comp {
   }
 
   const _numberComp: Comp<number> = {
+    id: 'numberComp',
     isComparable(obj): obj is number {
       return typeof obj === 'number';
     },
@@ -88,6 +90,7 @@ export namespace Comp {
   }
 
   const _booleanComp: Comp<boolean> = {
+    id: 'booleanComp',
     isComparable(obj): obj is boolean {
       return typeof obj === 'boolean';
     },
@@ -112,6 +115,7 @@ export namespace Comp {
   }
 
   const _bigIntComp: Comp<bigint> = {
+    id: 'bigIntComp',
     isComparable(obj): obj is bigint {
       return typeof obj === 'bigint';
     },
@@ -133,6 +137,7 @@ export namespace Comp {
   const _defaultCollator = Intl.Collator('und');
 
   const _stringComp: Comp<string> = {
+    id: 'stringComp',
     isComparable(obj): obj is string {
       return typeof obj === 'string';
     },
@@ -140,6 +145,7 @@ export namespace Comp {
   };
 
   const _anyStringJSONComp: Comp<any> = {
+    id: 'anyStringComp',
     isComparable(obj): obj is any {
       return true;
     },
@@ -160,14 +166,16 @@ export namespace Comp {
    * @param locales - (optional) a locale or list of locales
    * @param options - (optional) see String.localeCompare for details
    */
-  export function stringComp(
-    ...args: ConstructorParameters<typeof Intl.Collator>
-  ): Comp<string> {
-    if (args.length === 0) return _stringComp;
+  export function stringComp(options?: {
+    id: string;
+    collator: Intl.Collator;
+  }): Comp<string> {
+    if (undefined === options) return _stringComp;
 
-    const collator = Intl.Collator(...args);
+    const { id, collator } = options;
 
     return {
+      id,
       isComparable(obj): obj is string {
         return typeof obj === 'string';
       },
@@ -179,10 +187,14 @@ export namespace Comp {
    * Returns a `Comp` instance that compares strings in a case-insensitive way.
    */
   export function stringCaseInsensitiveComp(): Comp<string> {
-    return stringComp('und', { sensitivity: 'accent' });
+    return stringComp({
+      id: 'stringCaseInsensitiveComp',
+      collator: Intl.Collator('und', { sensitivity: 'accent' }),
+    });
   }
 
   const _stringCharCodeComp: Comp<string> = {
+    id: 'stringCharCodeComp',
     isComparable(obj: any): obj is any {
       return typeof obj === 'string';
     },
@@ -208,6 +220,7 @@ export namespace Comp {
   }
 
   const _anyToStringComp: Comp<any> = {
+    id: 'anyToStringComp',
     isComparable(obj: any): obj is any {
       return true;
     },
@@ -232,12 +245,14 @@ export namespace Comp {
    * @param valueComp - (optional) the Comp instance to use on the .valueOf values
    */
   export function createValueOfComp<T extends { valueOf(): V }, V>(
+    id: string,
     cls: {
       new (): T;
     },
     valueComp: Comp<V> = anyShallowComp()
   ): Comp<T> {
     return {
+      id,
       isComparable(obj): obj is T {
         return obj instanceof cls;
       },
@@ -247,7 +262,11 @@ export namespace Comp {
     };
   }
 
-  const _DateComp: Comp<Date> = createValueOfComp(Date, _numberComp);
+  const _DateComp: Comp<Date> = createValueOfComp(
+    'DateComp',
+    Date,
+    _numberComp
+  );
 
   /**
    * Returns a Date Comp instance that orders Dates according to their `.valueOf` value.
@@ -258,6 +277,7 @@ export namespace Comp {
 
   function createIterableComp<T>(itemComp: Comp<T>): Comp<Iterable<T>> {
     return {
+      id: `iterableComp(${itemComp.id})`,
       isComparable(obj): obj is Iterable<T> {
         // unfortunately we cannot check element compatability
         return (
@@ -305,9 +325,9 @@ export namespace Comp {
     return createIterableComp(itemComp);
   }
 
-  const _BooleanComp = createValueOfComp(Boolean, _booleanComp);
-  const _NumberComp = createValueOfComp(Number, _numberComp);
-  const _StringComp = createValueOfComp(String, _stringComp);
+  const _BooleanComp = createValueOfComp('BooleanComp', Boolean, _booleanComp);
+  const _NumberComp = createValueOfComp('NumberComp', Number, _numberComp);
+  const _StringComp = createValueOfComp('StringComp', String, _stringComp);
 
   const _wrappedComps: Comp<unknown>[] = [
     _BooleanComp,
@@ -336,6 +356,7 @@ export namespace Comp {
     valueComp: Comp<any> = defaultComp()
   ): Comp<Record<any, any>> {
     return {
+      id: `objectComp(${keyComp.id},${valueComp.id})`,
       isComparable(obj): obj is Record<any, any> {
         return true;
       },
@@ -410,11 +431,14 @@ export namespace Comp {
   }): Comp<Record<any, any>> {
     if (undefined === options) return _objectAnyComp;
 
-    return createObjectComp(options.keyComp, options.valueComp);
+    const { keyComp, valueComp } = options;
+
+    return createObjectComp(keyComp, valueComp);
   }
 
   function createAnyComp(mode: 'FLAT' | 'SHALLOW' | 'DEEP'): Comp<any> {
     return {
+      id: `anyComp_${mode}`,
       isComparable(obj): obj is any {
         return true;
       },
@@ -545,6 +569,7 @@ export namespace Comp {
    */
   export function withUndefined<T>(comp: Comp<T>): Comp<T | undefined> {
     return {
+      id: `withUndefined(${comp.id})`,
       isComparable(obj): obj is T | undefined {
         return undefined === obj || comp.isComparable(obj);
       },
@@ -574,6 +599,7 @@ export namespace Comp {
    */
   export function withNull<T>(comp: Comp<T>): Comp<T | null> {
     return {
+      id: `withNull(${comp.id})`,
       isComparable(obj): obj is T | null {
         return null === obj || comp.isComparable(obj);
       },
@@ -602,6 +628,7 @@ export namespace Comp {
    */
   export function invert<T>(comp: Comp<T>): Comp<T> {
     return {
+      id: `invert(${comp.id})`,
       compare(v1, v2): number {
         return comp.compare(v2, v1);
       },
@@ -619,7 +646,10 @@ export namespace Comp {
    * // => true
    * ```
    */
-  export function toEq<T>(comp: Comp<T>): Eq<T> {
-    return (v1: T, v2: T): boolean => comp.compare(v1, v2) === 0;
+  export function toEq<T>(id: string, comp: Comp<T>): Eq<T> {
+    return {
+      id,
+      areEqual: (v1: T, v2: T): boolean => comp.compare(v1, v2) === 0,
+    };
   }
 }

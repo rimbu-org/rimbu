@@ -8,6 +8,7 @@ import {
 } from '@rimbu/collection-types/map-custom';
 import {
   ArrayNonEmpty,
+  generateUUID,
   OptLazy,
   Reducer,
   RelatedTo,
@@ -126,10 +127,15 @@ export class MultiMapEmpty<K, V, Tp extends ContextImplTypes>
     return `${this.context.typeTag}()`;
   }
 
-  toJSON(): ToJSON<[K, V[]][]> {
+  toJSON(): ToJSON<
+    [K, V[]][],
+    this['context']['typeTag'],
+    { context: MultiMap.Context.Serialized }
+  > {
     return {
       dataType: this.context.typeTag,
       value: [],
+      attributes: { context: this.context.toJSON() },
     };
   }
 }
@@ -382,13 +388,20 @@ export class MultiMapNonEmpty<
     });
   }
 
-  toJSON(): ToJSON<[K, V[]][]> {
+  toJSON(): ToJSON<
+    [K, V[]][],
+    this['context']['typeTag'],
+    { context: MultiMap.Context.Serialized }
+  > {
     return {
       dataType: this.context.typeTag,
       value: this.keyMap
         .stream()
         .map((entry) => [entry[0], entry[1].toArray()] as [K, V[]])
         .toArray(),
+      attributes: {
+        context: this.context.toJSON(),
+      },
     };
   }
 
@@ -623,7 +636,9 @@ export class MultiMapContext<
   constructor(
     readonly typeTag: N,
     readonly keyMapContext: (Tp & KeyValue<UK, UV>)['keyMapContext'],
-    readonly keyMapValuesContext: (Tp & KeyValue<UK, UV>)['keyMapValuesContext']
+    readonly keyMapValuesContext: (Tp &
+      KeyValue<UK, UV>)['keyMapValuesContext'],
+    readonly contextId: string = generateUUID()
   ) {}
 
   readonly _empty = Object.freeze(
@@ -729,5 +744,19 @@ export class MultiMapContext<
       K,
       V
     >['builder'];
+  }
+
+  toJSON(): {
+    typeTag: string;
+    contextId: string;
+    keyMapContext: Record<string, any>;
+    keyMapValuesContext: Record<string, any>;
+  } {
+    return {
+      typeTag: this.typeTag,
+      contextId: this.contextId,
+      keyMapContext: this.keyMapContext.toJSON(),
+      keyMapValuesContext: this.keyMapValuesContext.toJSON(),
+    };
   }
 }

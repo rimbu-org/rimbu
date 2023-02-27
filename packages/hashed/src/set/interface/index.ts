@@ -6,6 +6,7 @@ import type { HashSetCreators } from '@rimbu/hashed/set-custom';
 
 import type { Hasher } from '../../common';
 import { createHashSetContext } from '@rimbu/hashed/set-custom';
+import type { List } from '@rimbu/list';
 
 /**
  * A type-invariant immutable Set of value type T.
@@ -61,6 +62,24 @@ export namespace HashSet {
     readonly eq: Eq<UT>;
   }
 
+  export namespace Context {
+    export interface Options<UT> {
+      contextId?: string;
+      hasher?: Hasher<UT>;
+      eq?: Eq<UT>;
+      blockSizeBits?: number;
+      listContext?: List.Context;
+    }
+
+    export interface Serialized {
+      typeTag: string;
+      contextId: string;
+      hasherId: string;
+      eqId: string;
+      blockSizeBits: number;
+      listContext: List.Context.Serialized;
+    }
+  }
   /**
    * A mutable `HashSet` builder used to efficiently create new immutable instances.
    * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [HashSet.Builder API documentation](https://rimbu.org/api/rimbu/hashed/HashSet/Builder/interface)
@@ -79,7 +98,9 @@ export namespace HashSet {
   }
 }
 
-const _defaultContext: HashSet.Context<any> = createHashSetContext();
+const _defaultContext: HashSet.Context<any> = createHashSetContext({
+  contextId: 'default',
+});
 
 export const HashSet: HashSetCreators = Object.freeze({
   ..._defaultContext,

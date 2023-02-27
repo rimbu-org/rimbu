@@ -1,6 +1,5 @@
 import { Instances, RimbuError } from '@rimbu/base';
-import { generateUUID, type ArrayNonEmpty } from '@rimbu/common';
-import { Reducer } from '@rimbu/common';
+import { generateUUID, Reducer, type ArrayNonEmpty } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
@@ -15,27 +14,27 @@ import type {
 import {
   CacheMap,
   createEmptyList,
-  LeafBlock,
-  ReversedLeafBlock,
-  LeafTree,
-  NonLeafBlock,
-  NonLeafTree,
   GenBuilder,
+  LeafBlock,
   LeafBlockBuilder,
-  NonLeafBlockBuilder,
+  LeafTree,
   LeafTreeBuilder,
+  NonLeafBlock,
+  NonLeafBlockBuilder,
+  NonLeafTree,
   NonLeafTreeBuilder,
+  ReversedLeafBlock,
 } from '@rimbu/list/custom';
 
 export class ListContext implements List.Context {
-  readonly blockSizeBits: number;
-  readonly contextId: string;
   readonly maxBlockSize: number;
   readonly minBlockSize: number;
 
-  constructor(options: List.Context.Options = {}) {
-    const { blockSizeBits = 5, contextId = generateUUID() } = options;
-
+  constructor(
+    options: List.Context.Options = {},
+    readonly blockSizeBits = options.blockSizeBits ?? 5,
+    readonly contextId = options.contextId ?? generateUUID()
+  ) {
     if (blockSizeBits < 2) {
       RimbuError.throwInvalidUsageError(
         'List: blockSizeBits should be at least 2'
@@ -295,6 +294,12 @@ export class ListContext implements List.Context {
     typeof source === 'object' &&
     source?.context?.typeTag === this.typeTag &&
     Instances.isBuilderInstance(source);
+
+  toJSON = (): List.Context.Serialized => ({
+    typeTag: this.typeTag,
+    blockSizeBits: this.blockSizeBits,
+    contextId: this.contextId,
+  });
 }
 
 export function createListContext(

@@ -6,7 +6,10 @@ import {
   SortedSetLeaf,
 } from '@rimbu/sorted/set-custom';
 
-const context = new SortedSetContext(2, Comp.defaultComp());
+const context = new SortedSetContext({
+  blockSizeBits: 2,
+  comp: Comp.defaultComp(),
+});
 
 describe('SortedSetLeaf', () => {
   it('addInternal', () => {

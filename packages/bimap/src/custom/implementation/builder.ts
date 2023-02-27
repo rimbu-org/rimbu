@@ -1,4 +1,4 @@
-import { RimbuError } from '@rimbu/base';
+import { Instances, RimbuError } from '@rimbu/base';
 import type { RMap } from '@rimbu/collection-types/map';
 import { OptLazy, RelatedTo, TraverseState } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
@@ -16,6 +16,10 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
   _valueKeyMap?: RMap.Builder<V, K>;
 
   _lock = 0;
+
+  get [Instances.instanceTypeTag](): symbol {
+    return Instances.builderInstanceIndicator;
+  }
 
   checkLock(): void {
     if (this._lock) RimbuError.throwModifiedBuilderWhileLoopingOverItError();

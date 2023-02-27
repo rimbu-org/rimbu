@@ -1,4 +1,4 @@
-import { RimbuError, Token } from '@rimbu/base';
+import { Instances, RimbuError, Token } from '@rimbu/base';
 import { OptLazy, OptLazyOr, RelatedTo } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 
@@ -21,6 +21,10 @@ export class ValuedGraphBuilder<
     public source?: TpG['nonEmpty']
   ) {
     if (undefined !== source) this.connectionSize = source.connectionSize;
+  }
+
+  get [Instances.instanceTypeTag](): symbol {
+    return Instances.builderInstanceIndicator;
   }
 
   _linkMap?: TpG['linkMapBuilder'];
@@ -242,7 +246,7 @@ export class ValuedGraphBuilder<
       ifNew: (none) => {
         if (undefined === options.ifNew) return none;
 
-        const newValue = OptLazyOr(options.ifNew, none);
+        const newValue = OptLazyOr<V, Token>(options.ifNew, none);
 
         if (none === newValue) return none;
 
@@ -266,7 +270,7 @@ export class ValuedGraphBuilder<
           ifNew: (none) => {
             if (undefined === options.ifNew) return none;
 
-            const newValue = OptLazyOr(options.ifNew, none);
+            const newValue = OptLazyOr<V, Token>(options.ifNew, none);
 
             if (none === newValue) return none;
 

@@ -1,5 +1,5 @@
 import type { RSet } from '@rimbu/collection-types/set';
-import { List } from '@rimbu/list';
+import type { List } from '@rimbu/list';
 import {
   OrderedSetBase,
   OrderedSetContextImpl,
@@ -64,6 +64,21 @@ export namespace OrderedSet {
   export interface Context<UT>
     extends OrderedSetBase.Context<UT, OrderedSet.Types> {}
 
+  export namespace Context {
+    export interface Options<UT> {
+      contextId?: string;
+      listContext?: List.Context;
+      setContext: RSet.Context<UT>;
+    }
+
+    export interface Serialized {
+      typeTag: string;
+      contextId: string;
+      listContext: List.Context.Serialized;
+      setContext: Record<string, any>;
+    }
+  }
+
   /**
    * Utility interface that provides higher-kinded types for this collection.
    */
@@ -79,15 +94,9 @@ export namespace OrderedSet {
 }
 
 export const OrderedSet: OrderedSetCreators = Object.freeze({
-  createContext<UT>(options: {
-    listContext?: List.Context;
-    setContext: RSet.Context<UT>;
-  }): OrderedSet.Context<UT> {
-    return Object.freeze(
-      new OrderedSetContextImpl<UT>(
-        options.listContext ?? List.defaultContext(),
-        options.setContext
-      ) as any
-    );
+  createContext<UT>(
+    options: OrderedSet.Context.Options<UT>
+  ): OrderedSet.Context<UT> {
+    return Object.freeze(new OrderedSetContextImpl<UT>(options) as any);
   },
 });

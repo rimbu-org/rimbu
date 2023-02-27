@@ -1,4 +1,4 @@
-import { RimbuError } from '@rimbu/base';
+import { Instances, RimbuError } from '@rimbu/base';
 import { Stream, StreamSource } from '@rimbu/stream';
 
 import type { RelatedTo } from '@rimbu/common';
@@ -28,6 +28,10 @@ export class GraphBuilder<
 
   checkLock(): void {
     if (this._lock) RimbuError.throwModifiedBuilderWhileLoopingOverItError();
+  }
+
+  get [Instances.instanceTypeTag](): symbol {
+    return Instances.builderInstanceIndicator;
   }
 
   get linkMap(): TpG['linkMapBuilder'] {

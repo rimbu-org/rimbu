@@ -1,7 +1,7 @@
 import type { RMap, RSet } from '@rimbu/collection-types';
 import {
-  type MultiMapBase,
   MultiMapContext,
+  type MultiMapBase,
   type MultiMapCreators,
 } from '@rimbu/multimap/custom';
 import type { Streamable } from '@rimbu/stream';
@@ -37,6 +37,21 @@ export namespace MultiMap {
   export interface Context<UK, UV>
     extends MultiMapBase.Context<UK, UV, MultiMap.Types> {}
 
+  export namespace Context {
+    export interface Options<UK, UV> {
+      contextId?: string;
+      keyMapContext: RMap.Context<UK>;
+      keyMapValuesContext: RSet.Context<UV>;
+    }
+
+    export interface Serialized {
+      typeTag: string;
+      contextId: string;
+      keyMapContext: Record<string, any>;
+      keyMapValuesContext: Record<string, any>;
+    }
+  }
+
   /**
    * A mutable `MultiMap` builder used to efficiently create new immutable instances.
    * See the [MultiMap documentation](https://rimbu.org/docs/collections/multimap) and the [MultiMap.Builder API documentation](https://rimbu.org/api/rimbu/multimap/MultiMap/Builder/interface)
@@ -58,15 +73,15 @@ export namespace MultiMap {
 }
 
 export const MultiMap: MultiMapCreators = Object.freeze({
-  createContext<UK, UV>(options: {
-    keyMapContext: RMap.Context<UK>;
-    keyMapValuesContext: RSet.Context<UV>;
-  }): MultiMap.Context<UK, UV> {
+  createContext<UK, UV>(
+    options: MultiMap.Context.Options<UK, UV>
+  ): MultiMap.Context<UK, UV> {
     return Object.freeze(
       new MultiMapContext<UK, UV, 'MultiMap', any>(
         'MultiMap',
         options.keyMapContext,
-        options.keyMapValuesContext
+        options.keyMapValuesContext,
+        options.contextId
       )
     );
   },

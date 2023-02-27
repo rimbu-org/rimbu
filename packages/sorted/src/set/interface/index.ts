@@ -1,6 +1,6 @@
 import type { RSet } from '@rimbu/collection-types/set';
 import type { RSetBase } from '@rimbu/collection-types/set-custom';
-import type { IndexRange, OptLazy, Range } from '@rimbu/common';
+import type { Comp, IndexRange, OptLazy, Range } from '@rimbu/common';
 import type { Stream, Streamable } from '@rimbu/stream';
 
 import type { SortedSetCreators } from '@rimbu/sorted/set-custom';
@@ -214,6 +214,21 @@ export namespace SortedSet {
     readonly typeTag: 'SortedSet';
   }
 
+  export namespace Context {
+    export interface Options<UT> {
+      contextId?: string;
+      comp?: Comp<UT>;
+      blockSizeBits?: number;
+    }
+
+    export interface Serialized {
+      typeTag: string;
+      contextId: string;
+      compId: string;
+      blockSizeBits: number;
+    }
+  }
+
   /**
    * A mutable `SortedSet` builder used to efficiently create new immutable instances.
    * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [SortedSet.Builder API documentation](https://rimbu.org/api/rimbu/ordered/set/SortedSet/Builder/interface)
@@ -293,7 +308,9 @@ export namespace SortedSet {
   }
 }
 
-const _defaultContext: SortedSet.Context<any> = createSortedSetContext();
+const _defaultContext: SortedSet.Context<any> = createSortedSetContext({
+  contextId: 'default',
+});
 
 export const SortedSet: SortedSetCreators = Object.freeze({
   ..._defaultContext,

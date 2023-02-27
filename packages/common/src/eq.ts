@@ -1,9 +1,19 @@
 /**
  * A function returning true if given `v1` and `v2` should be considered equal.
  */
-export type Eq<T> = (v1: T, v2: T) => boolean;
+export interface Eq<T> {
+  readonly id: string;
+  areEqual(v1: T, v2: T): boolean;
+}
 
 export namespace Eq {
+  export function from<T>(id: string, areEqual: (v1: T, v2: T) => boolean) {
+    return {
+      id,
+      areEqual,
+    };
+  }
+
   export function convertAnyToString(value: any): string {
     if (
       typeof value !== 'object' ||
@@ -40,10 +50,15 @@ export namespace Eq {
    * // => false
    * ```
    */
-  export const objectIs: Eq<any> = Object.is;
+  export const objectIs: Eq<any> = {
+    id: 'objectIs',
+    areEqual: Object.is,
+  };
 
-  const _valueOfEq: Eq<{ valueOf(): any }> = (v1, v2) =>
-    Object.is(v1.valueOf(), v2.valueOf());
+  const _valueOfEq: Eq<{ valueOf(): any }> = {
+    id: 'valueOfEq',
+    areEqual: (v1, v2) => Object.is(v1.valueOf(), v2.valueOf()),
+  };
 
   /**
    * Returns an Eq instance for objects that have a `valueOf` method. It returns true if the `.valueOf` values of both given objects are equal.
@@ -78,20 +93,23 @@ export namespace Eq {
   }
 
   function createIterableEq<T>(itemEq: Eq<T>): Eq<Iterable<T>> {
-    return (v1, v2) => {
-      if (Object.is(v1, v2)) return true;
+    return {
+      id: `iterableEq(${itemEq.id})`,
+      areEqual: (v1, v2) => {
+        if (Object.is(v1, v2)) return true;
 
-      const iter1 = v1[Symbol.iterator]();
-      const iter2 = v2[Symbol.iterator]();
+        const iter1 = v1[Symbol.iterator]();
+        const iter2 = v2[Symbol.iterator]();
 
-      while (true) {
-        const value1 = iter1.next();
-        const value2 = iter2.next();
+        while (true) {
+          const value1 = iter1.next();
+          const value2 = iter2.next();
 
-        if (value1.done || value2.done) return value1.done === value2.done;
+          if (value1.done || value2.done) return value1.done === value2.done;
 
-        if (!itemEq(value1.value, value2.value)) return false;
-      }
+          if (!itemEq.areEqual(value1.value, value2.value)) return false;
+        }
+      },
     };
   }
 
@@ -117,27 +135,30 @@ export namespace Eq {
   }
 
   function createObjectEq(valueEq: Eq<any>): Eq<Record<any, any>> {
-    return (v1, v2) => {
-      if (Object.is(v1, v2)) return true;
+    return {
+      id: `objectEq(${valueEq.id})`,
+      areEqual: (v1, v2) => {
+        if (Object.is(v1, v2)) return true;
 
-      if (v1.constructor !== v2.constructor) return false;
+        if (v1.constructor !== v2.constructor) return false;
 
-      for (const key in v1) {
-        if (!(key in v2)) return false;
-      }
+        for (const key in v1) {
+          if (!(key in v2)) return false;
+        }
 
-      for (const key in v2) {
-        if (!(key in v1)) return false;
-      }
+        for (const key in v2) {
+          if (!(key in v1)) return false;
+        }
 
-      for (const key in v1) {
-        const value1 = v1[key];
-        const value2 = v2[key];
+        for (const key in v1) {
+          const value1 = v1[key];
+          const value2 = v2[key];
 
-        if (!valueEq(value1, value2)) return false;
-      }
+          if (!valueEq.areEqual(value1, value2)) return false;
+        }
 
-      return true;
+        return true;
+      },
     };
   }
 
@@ -164,59 +185,62 @@ export namespace Eq {
   }
 
   function createAnyEq(mode: 'FLAT' | 'SHALLOW' | 'DEEP'): Eq<any> {
-    const result: Eq<any> = (v1, v2): boolean => {
-      if (Object.is(v1, v2)) return true;
+    const result: Eq<any> = {
+      id: `anyEq_${mode}`,
+      areEqual: (v1, v2): boolean => {
+        if (Object.is(v1, v2)) return true;
 
-      const type1 = typeof v1;
-      const type2 = typeof v2;
+        const type1 = typeof v1;
+        const type2 = typeof v2;
 
-      if (type1 !== type2) return false;
+        if (type1 !== type2) return false;
 
-      switch (type1) {
-        case 'undefined':
-        case 'bigint':
-        case 'boolean':
-        case 'number':
-        case 'string':
-        case 'symbol':
-        case 'function':
-          return Object.is(v1, v2);
-        case 'object': {
-          if (v1 === null || v2 === null) return false;
+        switch (type1) {
+          case 'undefined':
+          case 'bigint':
+          case 'boolean':
+          case 'number':
+          case 'string':
+          case 'symbol':
+          case 'function':
+            return Object.is(v1, v2);
+          case 'object': {
+            if (v1 === null || v2 === null) return false;
 
-          if (v1.constructor !== v2.constructor) {
-            return false;
-          }
+            if (v1.constructor !== v2.constructor) {
+              return false;
+            }
 
-          if (
-            v1 instanceof Boolean ||
-            v1 instanceof Date ||
-            v1 instanceof Number ||
-            v1 instanceof String
-          ) {
-            return _valueOfEq(v1, v2);
-          }
+            if (
+              v1 instanceof Boolean ||
+              v1 instanceof Date ||
+              v1 instanceof Number ||
+              v1 instanceof String
+            ) {
+              return _valueOfEq.areEqual(v1, v2);
+            }
 
-          if (mode !== 'FLAT') {
-            if (Symbol.iterator in v1 && Symbol.iterator in v2) {
-              if (mode === 'SHALLOW') {
-                return createIterableEq(_anyFlatEq)(v1, v2);
+            if (mode !== 'FLAT') {
+              if (Symbol.iterator in v1 && Symbol.iterator in v2) {
+                if (mode === 'SHALLOW') {
+                  return createIterableEq(_anyFlatEq).areEqual(v1, v2);
+                }
+
+                return createIterableEq(result).areEqual(v1, v2);
               }
 
-              return createIterableEq(result)(v1, v2);
+              if (mode === 'SHALLOW') {
+                return createObjectEq(_anyFlatEq).areEqual(v1, v2);
+              }
+
+              return _objectEq.areEqual(v1, v2);
             }
 
-            if (mode === 'SHALLOW') {
-              return createObjectEq(_anyFlatEq)(v1, v2);
-            }
-
-            return _objectEq(v1, v2);
+            // cannot establish that they are equal in flat mode
+            return false;
           }
-
-          // cannot establish that they are equal in flat mode
-          return false;
         }
-      }
+      },
     };
 
     return result;
@@ -282,8 +306,10 @@ export namespace Eq {
 
   const _defaultCollator = Intl.Collator('und');
 
-  const _defaultStringCollatorEq: Eq<any> = (v1, v2) =>
-    _defaultCollator.compare(v1, v2) === 0;
+  const _defaultStringCollatorEq: Eq<any> = {
+    id: 'defaultStringCollatorEq',
+    areEqual: (v1, v2) => _defaultCollator.compare(v1, v2) === 0,
+  };
 
   /**
    * Returns an Eq instance that considers strings equal taking the given or default locale into account.
@@ -298,18 +324,25 @@ export namespace Eq {
    * // => false
    * ```
    */
-  export function createStringCollatorEq(
-    ...args: ConstructorParameters<typeof Intl.Collator>
-  ): Eq<string> {
-    if (args.length === 0) return _defaultStringCollatorEq;
+  export function createStringCollatorEq(options?: {
+    id: string;
+    collator: Intl.Collator;
+  }): Eq<string> {
+    if (undefined === options) return _defaultStringCollatorEq;
 
-    const collator = Intl.Collator(...args);
+    const { id, collator } = options;
 
-    return (v1, v2) => collator.compare(v1, v2) === 0;
+    return {
+      id,
+      areEqual: (v1, v2) => collator.compare(v1, v2) === 0,
+    };
   }
 
-  const _stringCaseInsensitiveEq: Eq<string> = createStringCollatorEq('und', {
-    sensitivity: 'accent',
+  const _stringCaseInsensitiveEq: Eq<string> = createStringCollatorEq({
+    id: 'stringCasseInsensitiveEq',
+    collator: Intl.Collator('und', {
+      sensitivity: 'accent',
+    }),
   });
 
   /**
@@ -327,18 +360,21 @@ export namespace Eq {
     return _stringCaseInsensitiveEq;
   }
 
-  const _stringCharCodeEq: Eq<string> = (v1, v2) => {
-    const len = v1.length;
+  const _stringCharCodeEq: Eq<string> = {
+    id: 'stringCharCodeEq',
+    areEqual: (v1, v2) => {
+      const len = v1.length;
 
-    if (len !== v2.length) return false;
+      if (len !== v2.length) return false;
 
-    let i = -1;
+      let i = -1;
 
-    while (++i < len) {
-      if (v1.charCodeAt(i) !== v2.charCodeAt(i)) return false;
-    }
+      while (++i < len) {
+        if (v1.charCodeAt(i) !== v2.charCodeAt(i)) return false;
+      }
 
-    return true;
+      return true;
+    },
   };
 
   /**
@@ -356,16 +392,19 @@ export namespace Eq {
     return _stringCharCodeEq;
   }
 
-  const _anyToStringEq: Eq<any> = (v1, v2) =>
-    convertAnyToString(v1) === convertAnyToString(v2);
+  const _anyToStringEq: Eq<any> = {
+    id: `anyToStringEq`,
+    areEqual: (v1, v2) => convertAnyToString(v1) === convertAnyToString(v2),
+  };
 
   export function anyToStringEq(): Eq<any> {
     return _anyToStringEq;
   }
 
-  const _anyJsonEq: Eq<any> = (v1, v2) =>
-    JSON.stringify(v1) === JSON.stringify(v2);
-
+  const _anyJsonEq: Eq<any> = {
+    id: 'anyJsonEq',
+    areEqual: (v1, v2) => JSON.stringify(v1) === JSON.stringify(v2),
+  };
   /**
    * Returns an Eq instance that considers values equal their JSON.stringify values are equal.
    * @example
@@ -399,8 +438,11 @@ export namespace Eq {
   export function tupleSymmetric<T>(
     eq: Eq<T> = defaultEq()
   ): Eq<readonly [T, T]> {
-    return (tup1: readonly [T, T], tup2: readonly [T, T]): boolean =>
-      (eq(tup1[0], tup2[0]) && eq(tup1[1], tup2[1])) ||
-      (eq(tup1[0], tup2[1]) && eq(tup1[1], tup2[0]));
+    return {
+      id: `tupleSymmetric(${eq.id})`,
+      areEqual: (tup1: readonly [T, T], tup2: readonly [T, T]): boolean =>
+        (eq.areEqual(tup1[0], tup2[0]) && eq.areEqual(tup1[1], tup2[1])) ||
+        (eq.areEqual(tup1[0], tup2[1]) && eq.areEqual(tup1[1], tup2[0])),
+    };
   }
 }

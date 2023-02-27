@@ -71,7 +71,7 @@ export class HashMapEmpty<K = any, V = any>
     }
   ): HashMap<K, V> {
     if (undefined !== options.ifNew) {
-      const value = OptLazyOr(options.ifNew, Token);
+      const value = OptLazyOr<V, Token>(options.ifNew, Token);
 
       if (Token === value) return this;
 
@@ -96,10 +96,17 @@ export class HashMapEmpty<K = any, V = any>
     return `HashMap()`;
   }
 
-  toJSON(): ToJSON<(readonly [K, V])[]> {
+  toJSON(): ToJSON<
+    (readonly [K, V])[],
+    this['context']['typeTag'],
+    { context: HashMap.Context.Serialized }
+  > {
     return {
       dataType: this.context.typeTag,
       value: [],
+      attributes: {
+        context: this.context.toJSON(),
+      },
     };
   }
 }
@@ -180,7 +187,7 @@ export abstract class HashMapNonEmptyBase<K, V>
 
   removeKey<UK>(key: RelatedTo<K, UK>): HashMap<K, V> {
     if (!this.context.hasher.isValid(key)) return this;
-    return this.modifyAt(key, {
+    return this.modifyAt(key as K, {
       ifExists: (_, remove): typeof remove => remove,
     });
   }
@@ -191,7 +198,7 @@ export abstract class HashMapNonEmptyBase<K, V>
     const token = Symbol();
     let currentValue: V | typeof token = token;
 
-    const newMap = this.modifyAt(key, {
+    const newMap = this.modifyAt(key as K, {
       ifExists: (value, remove): V | typeof remove => {
         currentValue = value;
         return remove;
@@ -228,10 +235,17 @@ export abstract class HashMapNonEmptyBase<K, V>
     });
   }
 
-  toJSON(): ToJSON<(readonly [K, V])[]> {
+  toJSON(): ToJSON<
+    (readonly [K, V])[],
+    this['context']['typeTag'],
+    { context: HashMap.Context.Serialized }
+  > {
     return {
       dataType: this.context.typeTag,
       value: this.toArray(),
+      attributes: {
+        context: this.context.toJSON(),
+      },
     };
   }
 }
@@ -289,13 +303,13 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
     hash?: number
   ): V | O {
     if (!this.context.hasher.isValid(key)) return OptLazy(otherwise) as O;
-    const keyHash = hash ?? this.context.hash(key);
+    const keyHash = hash ?? this.context.hash(key as K);
 
     const atKeyIndex = this.context.getKeyIndex(this.level, keyHash);
 
     if (null !== this.entries && atKeyIndex in this.entries) {
       const entry = this.entries[atKeyIndex];
-      if (this.context.eq(entry[0], key)) return entry[1];
+      if (this.context.eq.areEqual(entry[0], key as K)) return entry[1];
       return OptLazy(otherwise) as O;
     }
 
@@ -316,7 +330,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
     if (null !== this.entries && atKeyIndex in this.entries) {
       const currentEntry = this.entries[atKeyIndex];
 
-      if (this.context.eq(entry[0], currentEntry[0])) {
+      if (this.context.eq.areEqual(entry[0], currentEntry[0])) {
         if (Object.is(entry[1], currentEntry[1])) return this;
 
         const newEntries = Arr.copySparse(this.entries);
@@ -395,7 +409,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
     if (null !== this.entries && atKeyIndex in this.entries) {
       const currentEntry = this.entries[atKeyIndex];
 
-      if (this.context.eq(atKey, currentEntry[0])) {
+      if (this.context.eq.areEqual(atKey, currentEntry[0])) {
         // exact key match
         if (undefined === options.ifExists) return this;
 
@@ -425,7 +439,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
       // no exact match, but key collision
       if (undefined === options.ifNew) return this;
 
-      const newValue = OptLazyOr(options.ifNew, Token);
+      const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
 
       if (Token === newValue) return this;
 
@@ -506,7 +520,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 
     if (undefined === options.ifNew) return this;
 
-    const newValue = OptLazyOr(options.ifNew, Token);
+    const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
 
     if (Token === newValue) return this;
 
@@ -656,7 +670,7 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
     if (undefined === currentIndex) {
       if (undefined === options.ifNew) return this;
 
-      const newValue = OptLazyOr(options.ifNew, Token);
+      const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
 
       if (Token === newValue) return this;
 

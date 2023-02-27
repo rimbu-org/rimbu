@@ -1,4 +1,4 @@
-import { List } from '@rimbu/list';
+import type { List } from '@rimbu/list';
 import {
   OrderedMapBase,
   OrderedMapContextImpl,
@@ -78,6 +78,21 @@ export namespace OrderedSortedMap {
   export interface Context<UK>
     extends OrderedMapBase.Context<UK, OrderedSortedMap.Types> {}
 
+  export namespace Context {
+    export interface Options<UK> {
+      contextId?: string;
+      listContext?: List.Context;
+      mapContext?: SortedMap.Context<UK>;
+    }
+
+    export interface Serialized {
+      typeTag: string;
+      contextId: string;
+      listContext: List.Context.Serialized;
+      mapContext: SortedMap.Context.Serialized;
+    }
+  }
+
   /**
    * Utility interface that provides higher-kinded types for this collection.
    */
@@ -92,19 +107,20 @@ export namespace OrderedSortedMap {
   }
 }
 
-function createContext<UK>(options?: {
-  listContext?: List.Context;
-  mapContext?: SortedMap.Context<UK>;
-}): OrderedSortedMap.Context<UK> {
+function createContext<UK>(
+  options?: OrderedSortedMap.Context.Options<UK>
+): OrderedSortedMap.Context<UK> {
   return Object.freeze(
-    new OrderedMapContextImpl<UK>(
-      options?.listContext ?? List.defaultContext(),
-      options?.mapContext ?? SortedMap.defaultContext()
-    )
-  ) as any;
+    new OrderedMapContextImpl<UK>({
+      ...options,
+      mapContext: options?.mapContext ?? SortedMap.defaultContext(),
+    }) as any
+  );
 }
 
-const _defaultContext: OrderedSortedMap.Context<any> = createContext();
+const _defaultContext: OrderedSortedMap.Context<any> = createContext({
+  contextId: 'default',
+});
 
 export const OrderedSortedMap: OrderedSortedMapCreators = Object.freeze({
   ..._defaultContext,

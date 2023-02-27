@@ -10,6 +10,7 @@ import {
   Update,
 } from '@rimbu/common';
 import type { List } from '@rimbu/list';
+import type { OrderedMap } from '@rimbu/ordered';
 import type {
   OrderedMapBase,
   OrderedMapTypes,
@@ -255,10 +256,17 @@ export class OrderedMapNonEmpty<
     });
   }
 
-  toJSON(): ToJSON<(readonly [K, V])[]> {
+  toJSON(): ToJSON<
+    (readonly [K, V])[],
+    this['context']['typeTag'],
+    { context: OrderedMap.Context.Serialized }
+  > {
     return {
       dataType: this.context.typeTag,
       value: this.sourceMap.toJSON().value,
+      attributes: {
+        context: this.context.toJSON(),
+      },
     };
   }
 }

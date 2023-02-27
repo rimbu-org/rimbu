@@ -1,3 +1,4 @@
+import { RimbuError, Token } from '@rimbu/base';
 import {
   ArrayNonEmpty,
   CollectFun,
@@ -19,46 +20,45 @@ import type {
 } from '@rimbu/stream';
 import type { StreamConstructors } from '@rimbu/stream/custom';
 import {
-  isFastIterator,
-  emptyFastIterator,
-  FlatMapIterator,
-  ConcatIterator,
-  FilterIterator,
-  FilterPureIterator,
-  IndicesWhereIterator,
-  IndicesOfIterator,
-  TakeWhileIterator,
-  DropWhileIterator,
-  TakeIterator,
-  DropIterator,
-  IntersperseIterator,
-  SplitWhereIterator,
-  SplitOnIterator,
-  ReduceIterator,
-  ReduceAllIterator,
-  RepeatIterator,
-  CollectIterator,
+  AlwaysIterator,
+  AppendIterator,
   ArrayIterator,
   ArrayReverseIterator,
-  AlwaysIterator,
-  MapApplyIterator,
+  CollectIterator,
+  ConcatIterator,
+  DistinctPreviousIterator,
+  DropIterator,
+  DropWhileIterator,
+  emptyFastIterator,
   FilterApplyIterator,
-  RangeDownIterator,
-  RangeUpIterator,
-  RandomIntIterator,
-  RandomIterator,
-  UnfoldIterator,
-  ZipAllWithItererator,
-  ZipWithIterator,
-  AppendIterator,
+  FilterIterator,
+  FilterPureIterator,
+  FlatMapIterator,
   IndexedIterator,
+  IndicesOfIterator,
+  IndicesWhereIterator,
+  IntersperseIterator,
+  isFastIterator,
+  MapApplyIterator,
   MapIterator,
   MapPureIterator,
   PrependIterator,
-  DistinctPreviousIterator,
+  RandomIntIterator,
+  RandomIterator,
+  RangeDownIterator,
+  RangeUpIterator,
+  ReduceAllIterator,
+  ReduceIterator,
+  RepeatIterator,
+  SplitOnIterator,
+  SplitWhereIterator,
+  TakeIterator,
+  TakeWhileIterator,
+  UnfoldIterator,
   WindowIterator,
+  ZipAllWithItererator,
+  ZipWithIterator,
 } from '@rimbu/stream/custom';
-import { RimbuError, Token } from '@rimbu/base';
 
 function* yieldObjKeys<K extends string | number | symbol>(
   obj: Record<K, any>
@@ -98,7 +98,7 @@ export abstract class StreamBase<T> implements Stream<T> {
       const v1 = it1.fastNext(done);
       const v2 = it2.fastNext(done);
       if (done === v1 || done === v2) return Object.is(v1, v2);
-      if (!eq(v1, v2)) return false;
+      if (!eq.areEqual(v1, v2)) return false;
     }
   }
 
@@ -266,7 +266,7 @@ export abstract class StreamBase<T> implements Stream<T> {
     let current: T | typeof done;
 
     while (done !== (current = iterator.fastNext(done))) {
-      if (eq(value, current)) result++;
+      if (eq.areEqual(value, current)) result++;
     }
 
     return result;
@@ -280,7 +280,7 @@ export abstract class StreamBase<T> implements Stream<T> {
     let current: T | typeof done;
 
     while (done !== (current = iterator.fastNext(done))) {
-      if (!eq(value, current)) result++;
+      if (!eq.areEqual(value, current)) result++;
     }
 
     return result;
@@ -370,7 +370,7 @@ export abstract class StreamBase<T> implements Stream<T> {
     while (done !== (value = iterator.fastNext(done))) {
       const i = index++;
 
-      if (eq(value, searchValue)) {
+      if (eq.areEqual(value, searchValue)) {
         occ++;
         if (occ >= occurrance) return i;
       }
@@ -416,7 +416,7 @@ export abstract class StreamBase<T> implements Stream<T> {
       const value = iterator.fastNext(done);
       if (done === value) return false;
 
-      if (!eq(sourceValue, value)) {
+      if (!eq.areEqual(sourceValue, value)) {
         sourceIterator = sourceStream[Symbol.iterator]();
       }
     }
@@ -654,6 +654,7 @@ export abstract class StreamBase<T> implements Stream<T> {
     return {
       dataType: 'Stream',
       value: this.toArray(),
+      attributes: undefined,
     };
   }
 }
@@ -1412,6 +1413,7 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
     return {
       dataType: 'Stream',
       value: [],
+      attributes: undefined,
     };
   }
 }
@@ -1565,7 +1567,7 @@ export class ArrayStream<T> extends StreamBase<T> {
   indexOf(
     searchValue: T,
     occurrance = 1,
-    eq: Eq<T> = Object.is
+    eq: Eq<T> = Eq.objectIs
   ): number | undefined {
     if (occurrance <= 0) return undefined;
 
@@ -1578,19 +1580,21 @@ export class ArrayStream<T> extends StreamBase<T> {
     if (!this.reversed) {
       let i = startIndex - 1;
       while (++i <= endIndex) {
-        if (eq(array[i], searchValue) && --remain <= 0) return i - startIndex;
+        if (eq.areEqual(array[i], searchValue) && --remain <= 0)
+          return i - startIndex;
       }
     } else {
       let i = endIndex + 1;
       while (--i >= startIndex) {
-        if (eq(array[i], searchValue) && --remain <= 0) return endIndex - i;
+        if (eq.areEqual(array[i], searchValue) && --remain <= 0)
+          return endIndex - i;
       }
     }
 
     return undefined;
   }
 
-  contains(searchValue: T, amount = 1, eq: Eq<T> = Object.is): boolean {
+  contains(searchValue: T, amount = 1, eq: Eq<T> = Eq.objectIs): boolean {
     if (amount <= 0) return true;
 
     return undefined !== this.indexOf(searchValue, amount, eq);

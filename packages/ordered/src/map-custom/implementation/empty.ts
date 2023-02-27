@@ -2,6 +2,7 @@ import { Token } from '@rimbu/base';
 import { EmptyBase, WithKeyValue } from '@rimbu/collection-types/map-custom';
 import { OptLazy, OptLazyOr, ToJSON } from '@rimbu/common';
 import type { List } from '@rimbu/list';
+import type { OrderedMap } from '@rimbu/ordered';
 import type {
   OrderedMapBase,
   OrderedMapTypes,
@@ -70,7 +71,7 @@ export class OrderedMapEmpty<
   ): WithKeyValue<Tp, K, V>['normal'] {
     if (undefined === options.ifNew) return this as any;
 
-    const value = OptLazyOr(options.ifNew, Token);
+    const value = OptLazyOr<V, Token>(options.ifNew, Token);
 
     if (Token === value) return this as any;
 
@@ -105,10 +106,17 @@ export class OrderedMapEmpty<
     return 'OrderedMap()';
   }
 
-  toJSON(): ToJSON<any[]> {
+  toJSON(): ToJSON<
+    any[],
+    this['context']['typeTag'],
+    { context: OrderedMap.Context.Serialized }
+  > {
     return {
       dataType: this.context.typeTag,
       value: [],
+      attributes: {
+        context: this.context.toJSON(),
+      },
     };
   }
 }

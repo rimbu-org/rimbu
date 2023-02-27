@@ -1,5 +1,5 @@
 import { HashMap } from '@rimbu/hashed/map';
-import { List } from '@rimbu/list';
+import type { List } from '@rimbu/list';
 import type { OrderedMapBase } from '@rimbu/ordered/map-custom';
 import { OrderedMapContextImpl } from '@rimbu/ordered/map-custom';
 import type { Stream, Streamable } from '@rimbu/stream';
@@ -73,6 +73,20 @@ export namespace OrderedHashMap {
   export interface Context<UK>
     extends OrderedMapBase.Context<UK, OrderedHashMap.Types> {}
 
+  export namespace Context {
+    export interface Options<UK> {
+      contextId?: string;
+      listContext?: List.Context;
+      mapContext?: HashMap.Context<UK>;
+    }
+
+    export interface Serialized {
+      typeTag: string;
+      contextId: string;
+      listContext: List.Context.Serialized;
+      mapContext: HashMap.Context.Serialized;
+    }
+  }
   /**
    * Utility interface that provides higher-kinded types for this collection.
    */
@@ -87,19 +101,20 @@ export namespace OrderedHashMap {
   }
 }
 
-function createContext<UK>(options?: {
-  listContext?: List.Context;
-  mapContext?: HashMap.Context<UK>;
-}): OrderedHashMap.Context<UK> {
+function createContext<UK>(
+  options?: OrderedHashMap.Context.Options<UK>
+): OrderedHashMap.Context<UK> {
   return Object.freeze(
-    new OrderedMapContextImpl<UK>(
-      options?.listContext ?? List.defaultContext(),
-      options?.mapContext ?? HashMap.defaultContext()
-    )
+    new OrderedMapContextImpl<UK>({
+      ...options,
+      mapContext: options?.mapContext ?? HashMap.defaultContext(),
+    })
   ) as any;
 }
 
-const _defaultContext: OrderedHashMap.Context<any> = createContext();
+const _defaultContext: OrderedHashMap.Context<any> = createContext({
+  contextId: 'default',
+});
 
 export const OrderedHashMap: OrderedHashMapCreators = Object.freeze({
   ..._defaultContext,

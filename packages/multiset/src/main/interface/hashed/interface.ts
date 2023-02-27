@@ -51,6 +51,19 @@ export namespace HashMultiSet {
     readonly typeTag: 'HashMultiSet';
   }
 
+  export namespace Context {
+    export interface Options<UT> {
+      contextId?: string;
+      countMapContext?: HashMap.Context<UT>;
+    }
+
+    export interface Serialized {
+      typeTag: string;
+      contextId: string;
+      countMapContext: HashMap.Context.Serialized;
+    }
+  }
+
   /**
    * A mutable `HashMultiSet` builder used to efficiently create new immutable instances.
    * See the [MultiSet documentation](https://rimbu.org/docs/collections/multiset) and the [HashMultiSet.Builder API documentation](https://rimbu.org/api/rimbu/multiset/HashMultiSet/Builder/interface)
@@ -73,18 +86,21 @@ export namespace HashMultiSet {
   }
 }
 
-function createContext<UT>(options?: {
-  countMapContext?: HashMap.Context<UT>;
-}): HashMultiSet.Context<UT> {
+function createContext<UT>(
+  options?: HashMultiSet.Context.Options<UT>
+): HashMultiSet.Context<UT> {
   return Object.freeze(
     new MultiSetContext<UT, 'HashMultiSet', any>(
       'HashMultiSet',
-      options?.countMapContext ?? HashMap.defaultContext()
+      options?.countMapContext ?? HashMap.defaultContext(),
+      options?.contextId
     )
   );
 }
 
-const _defaultContext: HashMultiSet.Context<any> = createContext();
+const _defaultContext: HashMultiSet.Context<any> = createContext({
+  contextId: 'default',
+});
 
 export const HashMultiSet: HashMultiSetCreators = Object.freeze({
   ..._defaultContext,

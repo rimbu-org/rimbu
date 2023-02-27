@@ -255,7 +255,10 @@ describe('AsyncReducer', () => {
     );
     expect(
       await AsyncStream.of(1, 2, 3).reduce(
-        AsyncReducer.contains(2, (v1, v2) => v1 + v2 === v1)
+        AsyncReducer.contains(
+          2,
+          Eq.from('', (v1, v2) => v1 + v2 === v1)
+        )
       )
     ).toBe(false);
     expect(

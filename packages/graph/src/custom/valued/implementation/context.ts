@@ -1,4 +1,4 @@
-import type { ArrayNonEmpty } from '@rimbu/common';
+import { ArrayNonEmpty, generateUUID } from '@rimbu/common';
 import type { StreamSource } from '@rimbu/stream';
 
 import { Reducer } from '@rimbu/common';
@@ -7,10 +7,11 @@ import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 import type { ValuedGraphBase } from '@rimbu/graph/custom';
 import type { ValuedGraphElement, WithGraphValues } from '../../common';
 
+import { Instances } from '@rimbu/base';
 import {
+  ValuedGraphBuilder,
   ValuedGraphEmpty,
   ValuedGraphNonEmpty,
-  ValuedGraphBuilder,
 } from '@rimbu/graph/custom';
 
 export interface ValuedGraphTypesContextImpl extends ValuedGraphBase.Types {
@@ -35,7 +36,8 @@ export class ValuedGraphContext<
       Tp,
       UN,
       any
-    >['linkConnectionsContext']
+    >['linkConnectionsContext'],
+    readonly contextId = generateUUID()
   ) {
     this._empty = Object.freeze(new ValuedGraphEmpty(isDirected, this));
   }
@@ -123,4 +125,30 @@ export class ValuedGraphContext<
       connectionSize
     ) as any;
   }
+
+  toJSON = (): {
+    typeTag: string;
+    contextId: string;
+    isDirected: boolean;
+    linkMapContext: Record<string, any>;
+    linkConnectionsContext: Record<string, any>;
+  } => {
+    return {
+      typeTag: this.typeTag,
+      contextId: this.contextId,
+      isDirected: this.isDirected,
+      linkMapContext: this.linkMapContext.toJSON(),
+      linkConnectionsContext: this.linkConnectionsContext.toJSON(),
+    };
+  };
+
+  isImmutableInstance = (source: any): source is any =>
+    typeof source === 'object' &&
+    source?.context?.typeTag === this.typeTag &&
+    Instances.isImmutableInstance(source);
+
+  isBuilderInstance = (source: any): source is any =>
+    typeof source === 'object' &&
+    source?.context?.typeTag === this.typeTag &&
+    Instances.isBuilderInstance(source);
 }

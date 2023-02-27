@@ -56,6 +56,14 @@ export namespace SortedTableHashColumn {
     readonly typeTag: 'SortedTableHashColumn';
   }
 
+  export namespace Context {
+    export interface Options<UR, UC> {
+      contextId?: string;
+      rowContext?: SortedMap.Context<UR>;
+      columnContext?: HashMap.Context<UC>;
+    }
+  }
+
   export interface Builder<R, C, V>
     extends TableBase.Builder<R, C, V, SortedTableHashColumn.Types> {}
 
@@ -90,21 +98,24 @@ export namespace SortedTableHashColumn {
   }
 }
 
-function createContext<UR, UC>(options?: {
-  rowContext?: SortedMap.Context<UR>;
-  columnContext?: HashMap.Context<UC>;
-}): SortedTableHashColumn.Context<UR, UC> {
+function createContext<UR, UC>(
+  options?: SortedTableHashColumn.Context.Options<UR, UC>
+): SortedTableHashColumn.Context<UR, UC> {
   return Object.freeze(
     new TableContext<UR, UC, 'SortedTableHashColumn', any>(
       'SortedTableHashColumn',
-      options?.rowContext ?? SortedMap.defaultContext(),
-      options?.columnContext ?? HashMap.defaultContext()
+      {
+        ...options,
+        rowContext: options?.rowContext ?? SortedMap.defaultContext(),
+        columnContext: options?.columnContext ?? HashMap.defaultContext(),
+      }
     )
   );
 }
 
-const _defaultContext: SortedTableHashColumn.Context<any, any> =
-  createContext();
+const _defaultContext: SortedTableHashColumn.Context<any, any> = createContext({
+  contextId: 'default',
+});
 
 export const SortedTableHashColumn: SortedTableHashColumnCreators =
   Object.freeze({

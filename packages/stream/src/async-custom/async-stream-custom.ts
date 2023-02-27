@@ -93,7 +93,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
         return false;
       }
 
-      if (!eq(v1, v2)) {
+      if (!eq.areEqual(v1, v2)) {
         await closeIters(it1, it2);
         return false;
       }
@@ -306,7 +306,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 
     try {
       while (done !== (current = await iterator.fastNext(done))) {
-        if (eq(value, current)) result++;
+        if (eq.areEqual(value, current)) result++;
       }
 
       return result;
@@ -324,7 +324,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 
     try {
       while (done !== (current = await iterator.fastNext(done))) {
-        if (!eq(value, current)) result++;
+        if (!eq.areEqual(value, current)) result++;
       }
 
       return result;
@@ -442,7 +442,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
       while (done !== (value = await iterator.fastNext(done))) {
         const i = index++;
 
-        if (eq(value, searchValue)) {
+        if (eq.areEqual(value, searchValue)) {
           occ++;
           if (occ >= occurrance) {
             return i;
@@ -512,7 +512,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
         return false;
       }
 
-      if (!eq(sourceValue, value)) {
+      if (!eq.areEqual(sourceValue, value)) {
         sourceIterator = sourceStream[Symbol.asyncIterator]();
       }
     }
@@ -852,6 +852,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     return {
       dataType: 'AsyncStream',
       value: await this.toArray(),
+      attributes: undefined,
     };
   }
 }
@@ -1593,6 +1594,7 @@ class AsyncEmptyStream<T = any>
     return {
       dataType: 'AsyncStream',
       value: [],
+      attributes: undefined,
     };
   }
 }

@@ -533,6 +533,12 @@ export namespace MultiSetBase {
      * ```
      */
     isValidElem(key: any): key is UT;
+
+    toJSON(): {
+      typeTag: string;
+      contextId: string;
+      countMapContext: Record<string, any>;
+    };
   }
 
   export interface Builder<

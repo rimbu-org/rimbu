@@ -113,10 +113,17 @@ export class BiMapEmpty<K = any, V = any>
     return `BiMap()`;
   }
 
-  toJSON(): ToJSON<(readonly [K, V])[], this['context']['typeTag']> {
+  toJSON(): ToJSON<
+    (readonly [K, V])[],
+    this['context']['typeTag'],
+    { context: BiMap.Context.Serialized }
+  > {
     return {
       dataType: this.context.typeTag,
       value: [],
+      attributes: {
+        context: this.context,
+      },
     };
   }
 }
@@ -402,10 +409,17 @@ export class BiMapNonEmptyImpl<K, V>
     });
   }
 
-  toJSON(): ToJSON<(readonly [K, V])[], this['context']['typeTag']> {
+  toJSON(): ToJSON<
+    (readonly [K, V])[],
+    this['context']['typeTag'],
+    { context: BiMap.Context.Serialized }
+  > {
     return {
       dataType: this.context.typeTag,
       value: this.toArray(),
+      attributes: {
+        context: this.context.toJSON(),
+      },
     };
   }
 }

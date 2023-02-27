@@ -42,6 +42,14 @@ export namespace HashBiMultiMap {
     readonly typeTag: 'HashBiMultiMap';
   }
 
+  export namespace Context {
+    export interface Options<UK, UV> {
+      contextId?: string;
+      keyValueMultiMapContext?: HashMultiMapHashValue.Context<UK, UV>;
+      valueKeyMultiMapContext?: HashMultiMapHashValue.Context<UV, UK>;
+    }
+  }
+
   /**
    * A mutable `HashBiMultiMap` builder used to efficiently create new immutable instances.
    * See the [BiMultiMap documentation](https://rimbu.org/docs/collections/bimultimap) and the [HashBiMultiMap.Builder API documentation](https://rimbu.org/api/rimbu/bimultimap/HashBiMultiMap/Builder/interface)
@@ -66,21 +74,24 @@ export namespace HashBiMultiMap {
   }
 }
 
-function createContext<UK, UV>(options?: {
-  keyValueMultiMapContext?: HashMultiMapHashValue.Context<UK, UV>;
-  valueKeyMultiMapContext?: HashMultiMapHashValue.Context<UV, UK>;
-}): HashBiMultiMap.Context<UK, UV> {
+function createContext<UK, UV>(
+  options?: HashBiMultiMap.Context.Options<UK, UV>
+): HashBiMultiMap.Context<UK, UV> {
   return Object.freeze(
     new BiMultiMapContext<UK, UV, 'HashBiMultiMap', any>(
       'HashBiMultiMap',
       options?.keyValueMultiMapContext ??
         HashMultiMapHashValue.defaultContext(),
-      options?.valueKeyMultiMapContext ?? HashMultiMapHashValue.defaultContext()
+      options?.valueKeyMultiMapContext ??
+        HashMultiMapHashValue.defaultContext(),
+      options?.contextId
     )
   );
 }
 
-const _defaultContext: HashBiMultiMap.Context<any, any> = createContext();
+const _defaultContext: HashBiMultiMap.Context<any, any> = createContext({
+  contextId: 'default',
+});
 
 export const HashBiMultiMap: BiMultiMapHashed.Creators = Object.freeze({
   ..._defaultContext,

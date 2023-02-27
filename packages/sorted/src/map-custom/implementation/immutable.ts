@@ -137,7 +137,7 @@ export class SortedMapEmpty<K = any, V = any>
     }
   ): SortedMap<K, V> {
     if (undefined !== options.ifNew) {
-      const value = OptLazyOr(options.ifNew, Token);
+      const value = OptLazyOr<V, Token>(options.ifNew, Token);
 
       if (Token === value) return this;
 
@@ -167,10 +167,17 @@ export class SortedMapEmpty<K = any, V = any>
     return `SortedMap()`;
   }
 
-  toJSON(): ToJSON<any[]> {
+  toJSON(): ToJSON<
+    any[],
+    this['context']['typeTag'],
+    { context: SortedMap.Context.Serialized }
+  > {
     return {
       dataType: this.context.typeTag,
       value: [],
+      attributes: {
+        context: this.context.toJSON(),
+      },
     };
   }
 }
@@ -429,10 +436,17 @@ export abstract class SortedMapNode<K, V>
     });
   }
 
-  toJSON(): ToJSON<(readonly [K, V])[]> {
+  toJSON(): ToJSON<
+    (readonly [K, V])[],
+    this['context']['typeTag'],
+    { context: SortedMap.Context.Serialized }
+  > {
     return {
       dataType: this.context.typeTag,
       value: this.toArray(),
+      attributes: {
+        context: this.context.toJSON(),
+      },
     };
   }
 }
@@ -571,7 +585,7 @@ export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
 
     if (undefined === options.ifNew) return this;
 
-    const newValue = OptLazyOr(options.ifNew, Token);
+    const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
 
     if (Token === newValue) return this;
 

@@ -61,6 +61,14 @@ export namespace EdgeGraphSorted {
     readonly typeTag: 'EdgeGraphSorted';
   }
 
+  export namespace Context {
+    export interface Options<UN> {
+      contextId?: string;
+      linkMapContext?: SortedMap.Context<UN>;
+      linkConnectionsContext?: SortedSet.Context<UN>;
+    }
+  }
+
   /**
    * Utility interface that provides higher-kinded types for this collection.
    */
@@ -85,21 +93,23 @@ export namespace EdgeGraphSorted {
   }
 }
 
-function createContext<UN>(options?: {
-  linkMapContext?: SortedMap.Context<UN>;
-  linkConnectionsContext?: SortedSet.Context<UN>;
-}): EdgeGraphSorted.Context<UN> {
+function createContext<UN>(
+  options?: EdgeGraphSorted.Context.Options<UN>
+): EdgeGraphSorted.Context<UN> {
   return Object.freeze(
     new GraphContext<UN, 'EdgeGraphSorted', false, any>(
       false,
       'EdgeGraphSorted',
       options?.linkMapContext ?? SortedMap.defaultContext(),
-      options?.linkConnectionsContext ?? SortedSet.defaultContext()
+      options?.linkConnectionsContext ?? SortedSet.defaultContext(),
+      options?.contextId
     )
   );
 }
 
-const _defaultContext: EdgeGraphSorted.Context<any> = createContext();
+const _defaultContext: EdgeGraphSorted.Context<any> = createContext({
+  contextId: 'default',
+});
 
 export const EdgeGraphSorted: EdgeGraphSortedCreators = Object.freeze({
   ..._defaultContext,

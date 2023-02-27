@@ -8,7 +8,10 @@ import {
 } from '../src/common';
 import { SortedSetContext, SortedSetInner } from '@rimbu/sorted/set-custom';
 
-const context = new SortedSetContext<number>(2, Comp.defaultComp());
+const context = new SortedSetContext<number>({
+  blockSizeBits: 2,
+  comp: Comp.defaultComp(),
+});
 
 function createInner(base = 0) {
   return context.inner(

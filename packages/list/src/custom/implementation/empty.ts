@@ -126,14 +126,15 @@ export class Empty<T = any> extends EmptyBase implements List<T> {
     return `List()`;
   }
 
-  toJSON(): ToJSON<any[], this['context']['typeTag'], List.Context.Options> {
+  toJSON(): ToJSON<
+    any[],
+    this['context']['typeTag'],
+    { context: List.Context.Serialized }
+  > {
     return {
       dataType: this.context.typeTag,
       value: [],
-      attributes: {
-        contextId: this.context.contextId,
-        blockSizeBits: this.context.blockSizeBits,
-      },
+      attributes: { context: this.context.toJSON() },
     };
   }
 }

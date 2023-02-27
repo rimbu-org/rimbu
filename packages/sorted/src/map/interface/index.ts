@@ -389,6 +389,21 @@ export namespace SortedMap {
     readonly comp: Comp<UK>;
   }
 
+  export namespace Context {
+    export interface Options<UK> {
+      contextId?: string;
+      comp?: Comp<UK>;
+      blockSizeBits?: number;
+    }
+
+    export interface Serialized {
+      typeTag: string;
+      contextId: string;
+      compId: string;
+      blockSizeBits: number;
+    }
+  }
+
   /**
    * A mutable `SortedMap` builder used to efficiently create new immutable instances.
    * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [SortedMap.Builder API documentation](https://rimbu.org/api/rimbu/sorted/map/SortedMap/Builder/interface)
@@ -470,7 +485,9 @@ export namespace SortedMap {
   }
 }
 
-const _defaultContext: SortedMap.Context<any> = createSortedMapContext();
+const _defaultContext: SortedMap.Context<any> = createSortedMapContext({
+  contextId: 'default',
+});
 
 export const SortedMap: SortedMapCreators = Object.freeze({
   ..._defaultContext,

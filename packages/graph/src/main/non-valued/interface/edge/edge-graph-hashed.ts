@@ -61,6 +61,14 @@ export namespace EdgeGraphHashed {
     readonly typeTag: 'EdgeGraphHashed';
   }
 
+  export namespace Context {
+    export interface Options<UN> {
+      contextId?: string;
+      linkMapContext?: HashMap.Context<UN>;
+      linkConnectionsContext?: HashSet.Context<UN>;
+    }
+  }
+
   /**
    * Utility interface that provides higher-kinded types for this collection.
    */
@@ -82,21 +90,23 @@ export namespace EdgeGraphHashed {
   }
 }
 
-function createContext<UN>(options?: {
-  linkMapContext?: HashMap.Context<UN>;
-  linkConnectionsContext?: HashSet.Context<UN>;
-}): EdgeGraphHashed.Context<UN> {
+function createContext<UN>(
+  options?: EdgeGraphHashed.Context.Options<UN>
+): EdgeGraphHashed.Context<UN> {
   return Object.freeze(
     new GraphContext<UN, 'EdgeGraphHashed', false, any>(
       false,
       'EdgeGraphHashed',
       options?.linkMapContext ?? HashMap.defaultContext(),
-      options?.linkConnectionsContext ?? HashSet.defaultContext()
+      options?.linkConnectionsContext ?? HashSet.defaultContext(),
+      options?.contextId
     )
   );
 }
 
-const _defaultContext: EdgeGraphHashed.Context<any> = createContext();
+const _defaultContext: EdgeGraphHashed.Context<any> = createContext({
+  contextId: 'default',
+});
 
 export const EdgeGraphHashed: EdgeGraphHashedCreators = Object.freeze({
   ..._defaultContext,

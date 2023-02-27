@@ -71,6 +71,7 @@ export namespace EdgeValuedGraph {
 
 export const EdgeValuedGraph: EdgeValuedGraphCreators = Object.freeze({
   createContext<UN>(options: {
+    contextId?: string;
     linkMapContext: RMap.Context<UN>;
     linkConnectionsContext: RMap.Context<UN>;
   }): EdgeValuedGraph.Context<UN> {
@@ -79,7 +80,8 @@ export const EdgeValuedGraph: EdgeValuedGraphCreators = Object.freeze({
         true,
         'ArrowValuedGraph',
         options.linkMapContext,
-        options.linkConnectionsContext
+        options.linkConnectionsContext,
+        options.contextId
       )
     );
   },

@@ -843,7 +843,7 @@ export class AsyncIndicesOfIterator<T> extends AsyncFastIteratorBase<number> {
     const eq = this.eq;
 
     while (done !== (value = await source.fastNext(done))) {
-      if (eq(searchValue, value)) return this.index++;
+      if (eq.areEqual(searchValue, value)) return this.index++;
       this.index++;
     }
 
@@ -1134,7 +1134,7 @@ export class AsyncSplitOnIterator<T> extends AsyncFastIteratorBase<T[]> {
 
     while (done !== (value = await source.fastNext(done))) {
       processed = true;
-      if (eq(value, sepElem)) return result;
+      if (eq.areEqual(value, sepElem)) return result;
       result.push(value);
     }
 
@@ -1324,7 +1324,7 @@ export class AsyncDistinctPreviousIterator<T> extends AsyncFastIteratorBase<T> {
 
       const prev = previous.shift()!;
 
-      if (!this.eq(prev, next)) {
+      if (!this.eq.areEqual(prev, next)) {
         return next;
       }
     }

@@ -1,0 +1,78 @@
+{
+  "name": "@rimbu/serialize",
+  "version": "0.1.0",
+  "description": "Serializer for Rimbu collections",
+  "keywords": [
+    "serialize",
+    "serialization",
+    "deserialize",
+    "immutable",
+    "collection",
+    "rimbu",
+    "typescript"
+  ],
+  "homepage": "https://rimbu.org",
+  "author": {
+    "name": "Arvid Nicolaas",
+    "email": "arvid@rimbu.org",
+    "url": "https://github.com/vitoke"
+  },
+  "license": "MIT",
+  "funding": [
+    {
+      "type": "individual",
+      "url": "https://github.com/sponsors/vitoke"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rimbu-org/rimbu.git",
+    "directory": "packages/serialize"
+  },
+  "source": "src/main/index.ts",
+  "main": "dist/main/main/index.js",
+  "module": "dist/module/main/index.js",
+  "types": "dist/types/main/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "yarn clean && yarn bundle",
+    "build:deno": "rimraf deno_dist ../../deno_dist/serialize && denoify && mv deno_dist ../../deno_dist/serialize",
+    "bundle": "yarn bundle:main && yarn bundle:module && yarn bundle:types",
+    "bundle:main": "tsc --p tsconfig.main.json",
+    "bundle:module": "tsc --p tsconfig.module.json",
+    "bundle:types": "tsc --p tsconfig.types.json",
+    "clean": "rimraf dist",
+    "circular": "npx -y madge --ts-config tsconfig.json --circular --extensions ts src/main/index.ts",
+    "extract-api": "yarn extract-api:main && yarn extract-api:custom && yarn extract-api:async && yarn extract-api:async-custom",
+    "extract-api:main": "api-extractor run --local --verbose --config config/api-extractor.main.json",
+    "extract-api:custom": "api-extractor run --local --verbose --config config/api-extractor.custom.json",
+    "extract-api:async": "api-extractor run --local --verbose --config config/api-extractor.async.json",
+    "extract-api:async-custom": "api-extractor run --local --verbose --config config/api-extractor.async-custom.json",
+    "format": "yarn format:base --write",
+    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,json,md}\"",
+    "format:check": "yarn format:base --check",
+    "lint": "eslint src",
+    "test": "jest",
+    "test:types": "tsd",
+    "typecheck": "tsc"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "@rimbu/base": "^0.11.0",
+    "@rimbu/common": "^0.12.0",
+    "tslib": "^2.4.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "madge": {
+    "detectiveOptions": {
+      "ts": {
+        "skipTypeImports": true
+      }
+    }
+  }
+}

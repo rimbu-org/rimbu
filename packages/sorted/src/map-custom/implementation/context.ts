@@ -1,14 +1,14 @@
 import { RMapBase } from '@rimbu/collection-types/map-custom';
-import { Comp } from '@rimbu/common';
+import { Comp, generateUUID } from '@rimbu/common';
 
 import type { SortedMap } from '@rimbu/sorted/map';
 
 import {
-  SortedMapEmpty,
-  SortedMapNode,
-  SortedMapLeaf,
-  SortedMapInner,
   SortedMapBuilder,
+  SortedMapEmpty,
+  SortedMapInner,
+  SortedMapLeaf,
+  SortedMapNode,
 } from '@rimbu/sorted/map-custom';
 
 export class SortedMapContext<UK>
@@ -20,7 +20,12 @@ export class SortedMapContext<UK>
 
   readonly _empty: SortedMap<any, any>;
 
-  constructor(readonly blockSizeBits: number, readonly comp: Comp<UK>) {
+  constructor(
+    options: SortedMap.Context.Options<UK> = {},
+    readonly blockSizeBits = options.blockSizeBits ?? 5,
+    readonly comp: Comp<UK> = options.comp ?? Comp.defaultComp(),
+    readonly contextId = options.contextId ?? generateUUID()
+  ) {
     super();
 
     this.maxEntries = 1 << blockSizeBits;
@@ -89,16 +94,19 @@ export class SortedMapContext<UK>
   isSortedMapInner<K, V>(obj: any): obj is SortedMapInner<K, V> {
     return obj instanceof SortedMapInner;
   }
+
+  toJSON(): SortedMap.Context.Serialized {
+    return {
+      typeTag: this.typeTag,
+      contextId: this.contextId,
+      compId: this.comp.id,
+      blockSizeBits: this.blockSizeBits,
+    };
+  }
 }
 
-export function createSortedMapContext<UK>(options?: {
-  comp?: Comp<UK>;
-  blockSizeBits?: number;
-}): SortedMap.Context<UK> {
-  return Object.freeze(
-    new SortedMapContext<UK>(
-      options?.blockSizeBits ?? 5,
-      options?.comp ?? Comp.defaultComp()
-    )
-  );
+export function createSortedMapContext<UK>(
+  options?: SortedMap.Context.Options<UK>
+): SortedMap.Context<UK> {
+  return Object.freeze(new SortedMapContext<UK>(options));
 }

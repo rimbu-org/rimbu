@@ -1,21 +1,25 @@
-import type { RMap } from '@rimbu/collection-types/map';
-import type { ArrayNonEmpty } from '@rimbu/common';
-import { Reducer } from '@rimbu/common';
-import type { StreamSource } from '@rimbu/stream';
+import { Instances } from '@rimbu/base';
+import type { BiMap } from '@rimbu/bimap';
 import {
   BiMapBuilder,
   BiMapEmpty,
   BiMapNonEmptyImpl,
 } from '@rimbu/bimap/custom';
-import type { BiMap } from '@rimbu/bimap';
+import { ArrayNonEmpty, generateUUID, Reducer } from '@rimbu/common';
+import { HashMap } from '@rimbu/hashed';
+import type { StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>
   implements BiMap.Context<UK, UV>
 {
   constructor(
-    readonly keyValueContext: RMap.Context<UK>,
-    readonly valueKeyContext: RMap.Context<UV>
+    options: BiMap.Context.Options<UK, UV> = {},
+    readonly keyValueContext = options.keyValueContext ??
+      HashMap.defaultContext(),
+    readonly valueKeyContext = options.valueKeyContext ??
+      HashMap.defaultContext(),
+    readonly contextId = options.contextId ?? generateUUID()
   ) {}
 
   get typeTag(): 'BiMap' {
@@ -93,4 +97,25 @@ export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>
       (builder) => builder.build()
     );
   };
+
+  readonly isImmutableInstance = <K = unknown, V = unknown>(
+    source: any
+  ): source is BiMap<K, V> =>
+    typeof source === 'object' &&
+    source?.context?.typeTag === this.typeTag &&
+    Instances.isImmutableInstance(source);
+
+  readonly isBuilderInstance = <K = unknown, V = unknown>(
+    source: any
+  ): source is BiMap.Builder<K, V> =>
+    typeof source === 'object' &&
+    source?.context?.typeTag === this.typeTag &&
+    Instances.isBuilderInstance(source);
+
+  readonly toJSON = (): BiMap.Context.Serialized => ({
+    typeTag: this.typeTag,
+    contextId: this.contextId,
+    keyValueContext: this.keyValueContext.toJSON(),
+    valueKeyContext: this.valueKeyContext.toJSON(),
+  });
 }

@@ -701,11 +701,11 @@ export namespace Reducer {
    */
   export function contains<T>(
     elem: T,
-    eq: Eq<T> = Object.is
+    eq: Eq<T> = Eq.objectIs
   ): Reducer<T, boolean> {
     return createOutput<T, boolean>(false, (state, next, _, halt): boolean => {
       if (state) return state;
-      const satisfies = eq(next, elem);
+      const satisfies = eq.areEqual(next, elem);
 
       if (satisfies) {
         halt();

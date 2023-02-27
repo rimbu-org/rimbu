@@ -1061,12 +1061,37 @@ export namespace List {
     readonly typeTag: 'List';
 
     readonly contextId: string;
+
+    readonly blockSizeBits: number;
+
+    toJSON(): List.Context.Serialized;
+
+    /**
+     * Returns true if the given item is a `List` instance.
+     * @param source - the value to test
+     * @typeparam T - (optional) an element type for the list
+     * @note does not test if the element types are actually of type T
+     */
+    isImmutableInstance<T = unknown>(source: any): source is List<T>;
+    /**
+     * Returns true if the given item is a `List.Builder` instance.
+     * @param source - the value to test
+     * @typeparam T - (optional) an element type for the list
+     * @note does not test if the element types are actually of type T
+     */
+    isBuilderInstance<T = unknown>(source: any): source is List<T>;
   }
 
   export namespace Context {
     export interface Options {
       blockSizeBits?: number;
       contextId?: string;
+    }
+
+    export interface Serialized {
+      typeTag: string;
+      contextId: string;
+      blockSizeBits: number;
     }
   }
 
@@ -1079,7 +1104,9 @@ export namespace List {
   }
 }
 
-const _defaultContext = createListContext();
+const _defaultContext = createListContext({
+  contextId: 'default',
+});
 
 export const List: ListCreators = Object.freeze({
   createContext: createListContext,

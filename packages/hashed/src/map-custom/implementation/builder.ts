@@ -98,14 +98,15 @@ export class HashMapBlockBuilder<K, V>
 
     if (!this.context.hasher.isValid(key)) return OptLazy(otherwise) as O;
 
-    const keyHash = hash ?? this.context.hash(key);
+    const keyHash = hash ?? this.context.hash(key as K);
 
     const keyIndex = this.context.getKeyIndex(this.level, keyHash);
 
     if (keyIndex in this.entries) {
       const currentEntry = this.entries[keyIndex];
 
-      if (this.context.eq(key, currentEntry[0])) return currentEntry[1];
+      if (this.context.eq.areEqual(key as K, currentEntry[0]))
+        return currentEntry[1];
       return OptLazy(otherwise) as O;
     }
 
@@ -145,7 +146,7 @@ export class HashMapBlockBuilder<K, V>
     if (keyIndex in this.entries) {
       const currentEntry = this.entries[keyIndex];
 
-      if (this.context.eq(entry[0], currentEntry[0])) {
+      if (this.context.eq.areEqual(entry[0], currentEntry[0])) {
         if (Object.is(entry[1], currentEntry[1])) return false;
 
         this.source = undefined;
@@ -231,7 +232,7 @@ export class HashMapBlockBuilder<K, V>
       const currentEntry = this.entries[keyIndex];
       const [currentKey, currentValue] = currentEntry;
 
-      if (this.context.eq(key, currentKey)) {
+      if (this.context.eq.areEqual(key, currentKey)) {
         // exact match
         if (undefined === options.ifExists) return false;
 
@@ -258,7 +259,7 @@ export class HashMapBlockBuilder<K, V>
       if (undefined === options.ifNew) return false;
 
       // no match, replace entry with entryset containing both entries
-      const newValue = OptLazyOr(options.ifNew, Token);
+      const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
 
       if (Token === newValue) return false;
 
@@ -319,7 +320,7 @@ export class HashMapBlockBuilder<K, V>
     if (undefined === options.ifNew) return false;
 
     // no matching entry or entrySet
-    const newValue = OptLazyOr(options.ifNew, Token);
+    const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
 
     if (Token === newValue) return false;
 
@@ -356,7 +357,7 @@ export class HashMapBlockBuilder<K, V>
     let removedValue: V;
     let found = false;
 
-    this.modifyAt(key, {
+    this.modifyAt(key as K, {
       ifExists: (currentValue, remove): typeof remove => {
         removedValue = currentValue;
         found = true;
@@ -463,7 +464,7 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
     const token = Symbol();
     let result: V | typeof token = token;
     this.entries.forEach((e, _, halt): void => {
-      if (this.context.eq(key, e[0])) {
+      if (this.context.eq.areEqual(key as K, e[0])) {
         result = e[1];
         halt();
       }
@@ -476,7 +477,7 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
   addEntryInternal(entry: readonly [K, V]): boolean {
     let index = -1;
     this.entries.forEach((e, i, halt) => {
-      if (this.context.eq(e[0], entry[0])) {
+      if (this.context.eq.areEqual(e[0], entry[0])) {
         index = i;
         halt();
       }
@@ -524,7 +525,7 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
     let foundEntry: readonly [K, V] | undefined = undefined;
 
     this.entries.forEach((e, i, halt) => {
-      if (this.context.eq(e[0], atKey)) {
+      if (this.context.eq.areEqual(e[0], atKey)) {
         index = i;
         foundEntry = e;
         halt();
@@ -534,7 +535,7 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
     if (undefined === foundEntry) {
       if (undefined === options.ifNew) return false;
 
-      const newValue = OptLazyOr(options.ifNew, Token);
+      const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
 
       if (Token === newValue) return false;
 

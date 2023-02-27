@@ -8,15 +8,19 @@
 
 # Immutable collections and tools for TypeScript
 
-Rimbu is a TypeScript library focused on _immutable, performant, and type-safe collections_ and other tools. Its main aim is to allow programmers to create safe and performant programs without getting in the way. It is inspired by various other collection libraries, mainly Java's Guava library, the Java 8 Collection library, and Scala's collection library plus various ideas from the Scala community.
+Rimbu is a TypeScript library focused on _immutable, performant, and type-safe collections_ and more. It offers a powerful and efficient way to work with data in a safe and predictable manner. With Rimbu, you can easily create and manipulate collections of data, such as lists and maps, without the risk of accidentally modifying the original data. This not only ensures data integrity, but also makes it easier to reason about your code and catch bugs early on. Plus, our library is fully compatible with TypeScript, providing you with improved type safety and a seamless development experience. Get started with our immutable collections library today and experience the benefits of working with truly immutable data.
 
 ## Quick overview of features and benefits
 
-- Extensive set of collection types to cover many problems that would otherwise require more coding to solve.
-- Strongly typed API: compiler wil prevent common errors and guide you towards safe code.
-- No external dependencies.
+- Ensures data integrity by preventing accidental modifications to original data
+- Makes it easier to reason about your code and catch bugs early on
+- Provides improved type safety through full compatibility with TypeScript
+- Offers a seamless development experience
+- Increases performance by reducing the need for deep copies
+- Enables functional programming techniques such as immutability-based change detection and simpler undo/redo
+- Encourages the use of immutable data structures which has benefits in concurrent and parallel programming
+- Simplifies testing by eliminating the need to account for side-effects
 - Available for Web, Node.js and Deno.
-- Provides sane defaults but allows extensive customization and configuration.
 
 For complete documentation please visit the _[Rimbu Docs](https://rimbu.org)_ or the _[Rimbu API Docs](https://rimbu.org/api)_.
 

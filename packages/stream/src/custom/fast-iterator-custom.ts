@@ -280,7 +280,7 @@ export class IndicesOfIterator<T> extends FastIteratorBase<number> {
     const eq = this.eq;
 
     while (done !== (value = source.fastNext(done))) {
-      if (eq(searchValue, value)) return this.index++;
+      if (eq.areEqual(searchValue, value)) return this.index++;
       this.index++;
     }
 
@@ -515,7 +515,7 @@ export class SplitOnIterator<T> extends FastIteratorBase<T[]> {
 
     while (done !== (value = source.fastNext(done))) {
       processed = true;
-      if (eq(value, sepElem)) return result;
+      if (eq.areEqual(value, sepElem)) return result;
       result.push(value);
     }
 
@@ -1032,7 +1032,7 @@ export class DistinctPreviousIterator<T> extends FastIteratorBase<T> {
 
       const prev = previous.shift()!;
 
-      if (!this.eq(prev, next)) {
+      if (!this.eq.areEqual(prev, next)) {
         return next;
       }
     }

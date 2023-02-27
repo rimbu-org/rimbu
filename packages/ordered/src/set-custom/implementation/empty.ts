@@ -1,6 +1,7 @@
 import { EmptyBase, WithElem } from '@rimbu/collection-types/set-custom';
 import type { ToJSON } from '@rimbu/common';
 import type { List } from '@rimbu/list';
+import type { OrderedSet } from '@rimbu/ordered';
 import {
   OrderedSetBase,
   OrderedSetNonEmpty,
@@ -79,10 +80,17 @@ export class OrderedSetEmpty<
     return 'OrderedSet()';
   }
 
-  toJSON(): ToJSON<any[]> {
+  toJSON(): ToJSON<
+    any[],
+    this['context']['typeTag'],
+    { context: OrderedSet.Context.Serialized }
+  > {
     return {
       dataType: this.context.typeTag,
       value: [],
+      attributes: {
+        context: this.context.toJSON(),
+      },
     };
   }
 }

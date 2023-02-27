@@ -1,5 +1,5 @@
 import type { RMap } from '@rimbu/collection-types/map';
-import { List } from '@rimbu/list';
+import type { List } from '@rimbu/list';
 import {
   OrderedMapBase,
   OrderedMapContextImpl,
@@ -74,6 +74,21 @@ export namespace OrderedMap {
    */
   export interface Context<UK> extends OrderedMapBase.Context<UK> {}
 
+  export namespace Context {
+    export interface Options<UK> {
+      contextId?: string;
+      listContext?: List.Context;
+      mapContext: RMap.Context<UK>;
+    }
+
+    export interface Serialized {
+      typeTag: string;
+      contextId: string;
+      listContext: List.Context.Serialized;
+      mapContext: Record<string, any>;
+    }
+  }
+
   /**
    * Utility interface that provides higher-kinded types for this collection.
    */
@@ -89,15 +104,9 @@ export namespace OrderedMap {
 }
 
 export const OrderedMap: OrderedMapCreators = {
-  createContext<UK>(options: {
-    listContext?: List.Context;
-    mapContext: RMap.Context<UK>;
-  }): OrderedMap.Context<UK> {
-    return Object.freeze(
-      new OrderedMapContextImpl<UK>(
-        options.listContext ?? List.defaultContext(),
-        options.mapContext
-      )
-    ) as any;
+  createContext<UK>(
+    options: OrderedMap.Context.Options<UK>
+  ): OrderedMap.Context<UK> {
+    return Object.freeze(new OrderedMapContextImpl<UK>(options)) as any;
   },
 };

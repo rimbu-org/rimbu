@@ -8,6 +8,7 @@ import {
 } from '@rimbu/collection-types/map-custom';
 import {
   ArrayNonEmpty,
+  generateUUID,
   OptLazy,
   OptLazyOr,
   Reducer,
@@ -112,7 +113,7 @@ export class TableEmpty<R, C, V, Tp extends ContextImplTypes>
     options: { ifNew?: OptLazyOr<V, Token> }
   ): WithRow<Tp, R, C, V>['normal'] {
     if (undefined !== options.ifNew) {
-      const value = OptLazyOr(options.ifNew, Token);
+      const value = OptLazyOr<V, Token>(options.ifNew, Token);
       if (Token === value) return this as any;
 
       return this.set(row, column, value) as any;
@@ -140,10 +141,13 @@ export class TableEmpty<R, C, V, Tp extends ContextImplTypes>
     return `${this.context.typeTag}()`;
   }
 
-  toJSON(): ToJSON<[R, [C, V][]][]> {
+  toJSON(): ToJSON<[R, [C, V][]][], this['context']['typeTag']> {
     return {
       dataType: this.context.typeTag,
       value: [],
+      attributes: {
+        context: this.context.toJSON(),
+      },
     };
   }
 }
@@ -280,7 +284,7 @@ export class TableNonEmpty<
 
     if (undefined !== ifNew) {
       passOptions.ifNew = (none): RMap.NonEmpty<C, V> | Token => {
-        const value = OptLazyOr(ifNew, Token);
+        const value = OptLazyOr<V, Token>(ifNew, Token);
 
         if (Token === value) return none;
 
@@ -510,13 +514,16 @@ export class TableNonEmpty<
     });
   }
 
-  toJSON(): ToJSON<[R, [C, V][]][]> {
+  toJSON(): ToJSON<[R, [C, V][]][], this['context']['typeTag']> {
     return {
       dataType: this.context.typeTag,
       value: this.rowMap
         .stream()
         .map((entry) => [entry[0], entry[1].toJSON().value] as any)
         .toArray(),
+      attributes: {
+        context: this.context.toJSON(),
+      },
     };
   }
 
@@ -879,8 +886,20 @@ export class TableContext<
 {
   constructor(
     readonly typeTag: N,
-    readonly rowContext: WithRow<Tp, UR, UC, any>['rowContext'],
-    readonly columnContext: WithRow<Tp, UR, UC, any>['columnContext']
+    options: TableBase.Context.Options<UR, UC, Tp>,
+    readonly rowContext: WithRow<
+      Tp,
+      UR,
+      UC,
+      any
+    >['rowContext'] = options.rowContext,
+    readonly columnContext: WithRow<
+      Tp,
+      UR,
+      UC,
+      any
+    >['columnContext'] = options.columnContext,
+    readonly contextId = options.contextId ?? generateUUID()
   ) {}
   readonly _fixedKeys!: readonly [UR, UC];
 
@@ -977,5 +996,19 @@ export class TableContext<
     source?: Table.NonEmpty<R, C, V>
   ): WithRow<Tp, R, C, V>['builder'] {
     return new TableBuilder<R, C, V, Tp>(this, source) as any;
+  }
+
+  toJSON(): {
+    typeTag: string;
+    contextId: string;
+    rowContext: Record<string, any>;
+    columnContext: Record<string, any>;
+  } {
+    return {
+      typeTag: this.typeTag,
+      contextId: this.contextId,
+      rowContext: this.rowContext.toJSON(),
+      columnContext: this.columnContext.toJSON(),
+    };
   }
 }

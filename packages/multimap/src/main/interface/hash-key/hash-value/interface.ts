@@ -74,6 +74,15 @@ export namespace HashMultiMapHashValue {
     readonly keyMapValuesContext: HashSet.Context<UV>;
   }
 
+  export namespace Context {
+    export interface Options<UK, UV>
+      extends MultiMapBase.Context.Options<
+        UK,
+        UV,
+        HashMultiMapHashValue.Types
+      > {}
+  }
+
   /**
    * A mutable `HashMultiMapHashValue` builder used to efficiently create new immutable instances.
    * See the [MultiMap documentation](https://rimbu.org/docs/collections/multimap) and the [HashMultiMapHashValue.Builder API documentation](https://rimbu.org/api/rimbu/multimap/HashMultiMapHashValue/Builder/interface)
@@ -103,21 +112,22 @@ export namespace HashMultiMapHashValue {
   }
 }
 
-function createContext<UK, UV>(options?: {
-  keyMapContext?: HashMap.Context<UK>;
-  keyMapValuesContext?: HashSet.Context<UV>;
-}): HashMultiMapHashValue.Context<UK, UV> {
+function createContext<UK, UV>(
+  options?: HashMultiMapHashValue.Context.Options<UK, UV>
+): HashMultiMapHashValue.Context<UK, UV> {
   return Object.freeze(
     new MultiMapContext<UK, UV, 'HashMultiMapHashValue', any>(
       'HashMultiMapHashValue',
       options?.keyMapContext ?? HashMap.defaultContext(),
-      options?.keyMapValuesContext ?? HashSet.defaultContext()
+      options?.keyMapValuesContext ?? HashSet.defaultContext(),
+      options?.contextId
     )
   );
 }
 
-const _defaultContext: HashMultiMapHashValue.Context<any, any> =
-  createContext();
+const _defaultContext: HashMultiMapHashValue.Context<any, any> = createContext({
+  contextId: 'default',
+});
 
 export const HashMultiMapHashValue: HashMultiMapHashValueCreators =
   Object.freeze({

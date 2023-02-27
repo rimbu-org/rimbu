@@ -1,11 +1,11 @@
-import { SortedMultiMapSortedValue } from '@rimbu/multimap';
-import type { Streamable } from '@rimbu/stream';
 import {
-  BiMultiMapSorted,
   BiMultiMapBase,
   BiMultiMapContext,
+  BiMultiMapSorted,
 } from '@rimbu/bimultimap/custom';
+import { SortedMultiMapSortedValue } from '@rimbu/multimap';
 import type { SortedSet } from '@rimbu/sorted';
+import type { Streamable } from '@rimbu/stream';
 
 /**
  * A type-invariant immutable bi-directional MultiMap where keys and values have a
@@ -46,6 +46,14 @@ export namespace SortedBiMultiMap {
   export interface Context<UK, UV>
     extends BiMultiMapBase.Context<UK, UV, SortedBiMultiMap.Types> {
     readonly typeTag: 'SortedBiMultiMap';
+  }
+
+  export namespace Context {
+    export interface Options<UK, UV> {
+      contextId?: string;
+      keyValueMultiMapContext?: SortedMultiMapSortedValue.Context<UK, UV>;
+      valueKeyMultiMapContext?: SortedMultiMapSortedValue.Context<UV, UK>;
+    }
   }
 
   /**
@@ -94,22 +102,24 @@ export namespace SortedBiMultiMap {
   }
 }
 
-function createContext<K, V>(options?: {
-  keyValueMultiMapContext?: SortedMultiMapSortedValue.Context<K, V>;
-  valueKeyMultiMapContext?: SortedMultiMapSortedValue.Context<V, K>;
-}): SortedBiMultiMap.Context<K, V> {
+function createContext<UK, UV>(
+  options?: SortedBiMultiMap.Context.Options<UK, UV>
+): SortedBiMultiMap.Context<UK, UV> {
   return Object.freeze(
-    new BiMultiMapContext<K, V, 'SortedBiMultiMap', any>(
+    new BiMultiMapContext<UK, UV, 'SortedBiMultiMap', any>(
       'SortedBiMultiMap',
       options?.keyValueMultiMapContext ??
         SortedMultiMapSortedValue.defaultContext(),
       options?.valueKeyMultiMapContext ??
-        SortedMultiMapSortedValue.defaultContext()
+        SortedMultiMapSortedValue.defaultContext(),
+      options?.contextId
     )
   );
 }
 
-const _defaultContext: SortedBiMultiMap.Context<any, any> = createContext();
+const _defaultContext: SortedBiMultiMap.Context<any, any> = createContext({
+  contextId: 'default',
+});
 
 export const SortedBiMultiMap: BiMultiMapSorted.Creators = Object.freeze({
   ..._defaultContext,

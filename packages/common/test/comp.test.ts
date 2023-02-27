@@ -284,7 +284,10 @@ describe('Comp', () => {
   });
 
   it('toEq', () => {
-    const e = Comp.toEq(Comp.stringCaseInsensitiveComp());
+    const { areEqual: e } = Comp.toEq(
+      'caseEq',
+      Comp.stringCaseInsensitiveComp()
+    );
 
     expect(e('b', 'b')).toBe(true);
     expect(e('b', 'a')).toBe(false);

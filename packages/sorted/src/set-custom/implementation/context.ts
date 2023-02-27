@@ -1,5 +1,5 @@
 import { RSetBase } from '@rimbu/collection-types/set-custom';
-import { Comp } from '@rimbu/common';
+import { Comp, generateUUID } from '@rimbu/common';
 
 import type { SortedSet } from '@rimbu/sorted/set';
 
@@ -20,7 +20,12 @@ export class SortedSetContext<UT>
 
   readonly _empty: SortedSet<any>;
 
-  constructor(readonly blockSizeBits: number, readonly comp: Comp<UT>) {
+  constructor(
+    options: SortedSet.Context.Options<UT> = {},
+    readonly blockSizeBits = options.blockSizeBits ?? 5,
+    readonly comp = options.comp ?? Comp.defaultComp(),
+    readonly contextId = options.contextId ?? generateUUID()
+  ) {
     super();
 
     this.maxEntries = 1 << this.blockSizeBits;
@@ -95,16 +100,19 @@ export class SortedSetContext<UT>
   isSortedSetNode<T>(obj: any): obj is SortedSetNode<T> {
     return obj instanceof SortedSetNode;
   }
+
+  toJSON(): SortedSet.Context.Serialized {
+    return {
+      typeTag: this.typeTag,
+      contextId: this.contextId,
+      compId: this.comp.id,
+      blockSizeBits: this.blockSizeBits,
+    };
+  }
 }
 
-export function createSortedSetContext<UT>(options?: {
-  comp?: Comp<UT>;
-  blockSizeBits?: number;
-}): SortedSet.Context<UT> {
-  return Object.freeze(
-    new SortedSetContext<UT>(
-      options?.blockSizeBits ?? 5,
-      options?.comp ?? Comp.defaultComp()
-    )
-  );
+export function createSortedSetContext<UT>(
+  options?: SortedSet.Context.Options<UT>
+): SortedSet.Context<UT> {
+  return Object.freeze(new SortedSetContext<UT>(options));
 }

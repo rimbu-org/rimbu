@@ -161,7 +161,12 @@ describe('Reducer', () => {
     expect(Stream.of(1, 2, 3).reduce(Reducer.contains(5))).toBe(false);
     expect(Stream.of(1, 2, 3).reduce(Reducer.contains(2))).toBe(true);
     expect(
-      Stream.of(1, 2, 3).reduce(Reducer.contains(2, (v1, v2) => v1 + v2 === v1))
+      Stream.of(1, 2, 3).reduce(
+        Reducer.contains(
+          2,
+          Eq.from('', (v1, v2) => v1 + v2 === v1)
+        )
+      )
     ).toBe(false);
     expect(
       Stream.of([1, 2], [2, 3], [3, 4]).reduce(Reducer.contains([2, 1]))

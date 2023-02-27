@@ -91,6 +91,37 @@ describe('BiMap creators', () => {
       ]);
     }
   });
+
+  it('isImmutableInstance', () => {
+    expect(BiMap.isImmutableInstance(BiMap.empty())).toBe(true);
+    expect(BiMap.isImmutableInstance(BiMap.of(['a', 1]))).toBe(true);
+    expect(BiMap.isImmutableInstance(BiMap.of(['a', 1]).toBuilder())).toBe(
+      false
+    );
+    expect(BiMap.isImmutableInstance(0)).toBe(false);
+    expect(BiMap.createContext().isImmutableInstance(BiMap.empty())).toBe(true);
+    expect(BiMap.createContext().isImmutableInstance(BiMap.of(['a', 1]))).toBe(
+      true
+    );
+  });
+
+  it('isBuilderInstance', () => {
+    expect(BiMap.isBuilderInstance(BiMap.empty())).toBe(false);
+    expect(BiMap.isBuilderInstance(BiMap.of(['a', 1]))).toBe(false);
+    expect(BiMap.isBuilderInstance(BiMap.of(['a', 1]).toBuilder())).toBe(true);
+    expect(BiMap.isBuilderInstance(0)).toBe(false);
+    expect(BiMap.createContext().isBuilderInstance(BiMap.builder())).toBe(true);
+  });
+
+  it('toJSON', () => {
+    const context = BiMap.defaultContext();
+    expect(BiMap.defaultContext().toJSON()).toEqual({
+      typeTag: context.typeTag,
+      contextId: context.contextId,
+      keyValueContext: context.keyValueContext.toJSON(),
+      valueKeyContext: context.valueKeyContext.toJSON(),
+    });
+  });
 });
 
 describe('BiMap methods', () => {

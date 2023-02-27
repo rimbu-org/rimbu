@@ -1,7 +1,11 @@
-import { RimbuError } from '@rimbu/base';
+import { Instances, RimbuError } from '@rimbu/base';
 import { FastIterable, FastIterator, Stream } from '@rimbu/stream';
 
 export abstract class EmptyBase {
+  get [Instances.instanceTypeTag](): symbol {
+    return Instances.immutableInstanceIndicator;
+  }
+
   [Symbol.iterator](): FastIterator<any> {
     return Stream.empty()[Symbol.iterator]();
   }
@@ -49,6 +53,10 @@ export abstract class EmptyBase {
 
 export abstract class NonEmptyBase<E> implements FastIterable<E> {
   abstract stream(): Stream.NonEmpty<E>;
+
+  get [Instances.instanceTypeTag](): symbol {
+    return Instances.immutableInstanceIndicator;
+  }
 
   [Symbol.iterator](): FastIterator<E> {
     return this.stream()[Symbol.iterator]();

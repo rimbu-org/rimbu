@@ -55,6 +55,14 @@ export namespace SortedTableSortedColumn {
     readonly typeTag: 'SortedTableSortedColumn';
   }
 
+  export namespace Context {
+    export interface Options<UR, UC> {
+      contextId?: string;
+      rowContext?: SortedMap.Context<UR>;
+      columnContext?: SortedMap.Context<UC>;
+    }
+  }
+
   export interface Builder<R, C, V>
     extends TableBase.Builder<R, C, V, SortedTableSortedColumn.Types> {}
 
@@ -93,21 +101,25 @@ export namespace SortedTableSortedColumn {
   }
 }
 
-function createContext<UR, UC>(options?: {
-  rowContext?: SortedMap.Context<UR>;
-  columnContext?: SortedMap.Context<UC>;
-}): SortedTableSortedColumn.Context<UR, UC> {
+function createContext<UR, UC>(
+  options?: SortedTableSortedColumn.Context.Options<UR, UC>
+): SortedTableSortedColumn.Context<UR, UC> {
   return Object.freeze(
     new TableContext<UR, UC, 'SortedTableSortedColumn', any>(
       'SortedTableSortedColumn',
-      options?.rowContext ?? SortedMap.defaultContext(),
-      options?.columnContext ?? SortedMap.defaultContext()
+      {
+        ...options,
+        rowContext: options?.rowContext ?? SortedMap.defaultContext(),
+        columnContext: options?.columnContext ?? SortedMap.defaultContext(),
+      }
     )
   );
 }
 
 const _defaultContext: SortedTableSortedColumn.Context<any, any> =
-  createContext();
+  createContext({
+    contextId: 'default',
+  });
 
 export const SortedTableSortedColumn: SortedTableSortedColumnCreators =
   Object.freeze({

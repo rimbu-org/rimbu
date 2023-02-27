@@ -407,6 +407,7 @@ export namespace RSetBase {
   export interface Context<UT, Tp extends RSetBase.Types = RSetBase.Types>
     extends RSetBase.Factory<Tp, UT> {
     readonly _fixedElementType: (element: UT) => never;
+    readonly contextId: string;
 
     /**
      * A string tag defining the specific collection type
@@ -436,6 +437,8 @@ export namespace RSetBase {
      * HashSet.empty<string>()    // => HashSet<string>
      * ```
      */
+
+    toJSON(): { typeTag: string; contextId: string; [key: string]: any };
   }
 
   export interface Builder<T, Tp extends RSetBase.Types = RSetBase.Types> {
@@ -564,6 +567,7 @@ export namespace RSetBase {
   > implements RSetBase.Context<UT, Tp>
   {
     abstract get typeTag(): string;
+    abstract get contextId(): string;
     abstract get _empty(): (Tp & Elem<any>)['normal'];
 
     abstract isValidValue(value: any): value is UT;
@@ -571,6 +575,11 @@ export namespace RSetBase {
       source: any
     ): source is WithElem<Tp, T>['nonEmpty'];
     abstract builder<T extends UT>(): WithElem<Tp, T>['builder'];
+    abstract toJSON(): {
+      contextId: string;
+      typeTag: string;
+      [key: string]: any;
+    };
 
     readonly _fixedElementType!: any;
 

@@ -734,6 +734,8 @@ export namespace TableBase {
      */
     readonly typeTag: string;
 
+    readonly contextId: string;
+
     readonly _types: Tp;
 
     /**
@@ -744,6 +746,21 @@ export namespace TableBase {
      * The context used for the internal column map instances.
      */
     readonly columnContext: (Tp & Row<UR, UC, any>)['columnContext'];
+
+    toJSON(): {
+      typeTag: string;
+      contextId: string;
+      rowContext: Record<string, any>;
+      columnContext: Record<string, any>;
+    };
+  }
+
+  export namespace Context {
+    export interface Options<UR, UC, Tp extends TableBase.Types> {
+      contextId?: string;
+      rowContext: (Tp & Row<UR, UC, any>)['rowContext'];
+      columnContext: (Tp & Row<UR, UC, any>)['columnContext'];
+    }
   }
 
   export interface Builder<

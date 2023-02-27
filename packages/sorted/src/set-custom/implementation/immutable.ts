@@ -115,10 +115,15 @@ export class SortedSetEmpty<T = any>
     return `SortedSet()`;
   }
 
-  toJSON(): ToJSON<T[]> {
+  toJSON(): ToJSON<
+    T[],
+    this['context']['typeTag'],
+    { context: SortedSet.Context.Serialized }
+  > {
     return {
       dataType: this.context.typeTag,
       value: [],
+      attributes: { context: this.context.toJSON() },
     };
   }
 }
@@ -199,7 +204,7 @@ export abstract class SortedSetNode<T>
 
   remove<U>(value: RelatedTo<T, U>): SortedSet<T> {
     if (!this.context.comp.isComparable(value)) return this;
-    return this.removeInternal(value).normalize();
+    return this.removeInternal(value as T).normalize();
   }
 
   removeAll<U>(values: StreamSource<RelatedTo<T, U>>): SortedSet<T> {
@@ -332,10 +337,17 @@ export abstract class SortedSetNode<T>
     return this.stream().join({ start: 'SortedSet(', sep: ', ', end: ')' });
   }
 
-  toJSON(): ToJSON<T[]> {
+  toJSON(): ToJSON<
+    T[],
+    this['context']['typeTag'],
+    { context: SortedSet.Context.Serialized }
+  > {
     return {
       dataType: this.context.typeTag,
       value: this.toArray(),
+      attributes: {
+        context: this.context.toJSON(),
+      },
     };
   }
 }
@@ -379,7 +391,7 @@ export class SortedSetLeaf<T> extends SortedSetNode<T> {
 
   has<U>(value: RelatedTo<T, U>): boolean {
     if (!this.context.comp.isComparable(value)) return false;
-    return this.context.findIndex(value, this.entries) >= 0;
+    return this.context.findIndex(value as T, this.entries) >= 0;
   }
 
   getAtIndex<O>(index: number, otherwise?: OptLazy<O>): T | O {
@@ -551,7 +563,7 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
   has<U>(value: RelatedTo<T, U>): boolean {
     if (!this.context.comp.isComparable(value)) return false;
 
-    const index = this.context.findIndex(value, this.entries);
+    const index = this.context.findIndex(value as T, this.entries);
 
     if (index >= 0) return true;
 

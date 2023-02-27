@@ -224,14 +224,15 @@ export abstract class ListNonEmptyBase<T>
     return this.stream().join({ start: 'List(', sep: ', ', end: ')' });
   }
 
-  toJSON(): ToJSON<T[], this['context']['typeTag'], List.Context.Options> {
+  toJSON(): ToJSON<
+    T[],
+    this['context']['typeTag'],
+    { context: List.Context.Serialized }
+  > {
     return {
       dataType: this.context.typeTag,
       value: this.toArray(),
-      attributes: {
-        contextId: this.context.contextId,
-        blockSizeBits: this.context.blockSizeBits,
-      },
+      attributes: { context: this.context.toJSON() },
     };
   }
 }

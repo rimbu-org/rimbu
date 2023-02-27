@@ -83,7 +83,7 @@ export class HashSetBlockBuilder<T>
 
     if (!this.context.hasher.isValid(value)) return false;
 
-    return this.hasInternal(value);
+    return this.hasInternal(value as T);
   };
 
   hasInternal(value: T, hash = this.context.hash(value)): boolean {
@@ -92,7 +92,7 @@ export class HashSetBlockBuilder<T>
     const keyIndex = this.context.getKeyIndex(this.level, hash);
 
     if (keyIndex in this.entries) {
-      return this.context.eq(value, this.entries[keyIndex]);
+      return this.context.eq.areEqual(value, this.entries[keyIndex]);
     }
 
     if (keyIndex in this.entrySets) {
@@ -121,7 +121,7 @@ export class HashSetBlockBuilder<T>
     if (keyIndex in this.entries) {
       const currentEntry = this.entries[keyIndex];
 
-      if (this.context.eq(value, currentEntry)) return false;
+      if (this.context.eq.areEqual(value, currentEntry)) return false;
 
       this.source = undefined;
 
@@ -176,12 +176,12 @@ export class HashSetBlockBuilder<T>
     return true;
   }
 
-  remove = <ST>(value: ST): boolean => {
+  remove = <ST>(value: RelatedTo<ST, T>): boolean => {
     this.checkLock();
 
     if (!this.context.hasher.isValid(value)) return false;
 
-    return this.removeInternal(value);
+    return this.removeInternal(value as T);
   };
 
   removeAll = <ST>(values: StreamSource<ST>): boolean => {
@@ -197,7 +197,7 @@ export class HashSetBlockBuilder<T>
       // potential match in entries
       const currentValue = this.entries[index];
 
-      if (!this.context.eq(value, currentValue)) return false;
+      if (!this.context.eq.areEqual(value, currentValue)) return false;
 
       // exact match
       this.source = undefined;
@@ -299,7 +299,7 @@ export class HashSetCollisionBuilder<T> extends CollisionBuilderBase<T> {
 
     let result = false;
     this.entries.forEach((v, _, halt): void => {
-      if (this.context.eq(v, value)) {
+      if (this.context.eq.areEqual(v, value)) {
         result = true;
         halt();
       }
@@ -310,7 +310,7 @@ export class HashSetCollisionBuilder<T> extends CollisionBuilderBase<T> {
   addInternal(value: T): boolean {
     let index = -1;
     this.entries.forEach((v, i, halt): void => {
-      if (this.context.eq(v, value)) {
+      if (this.context.eq.areEqual(v, value)) {
         index = i;
         halt();
       }
@@ -326,7 +326,8 @@ export class HashSetCollisionBuilder<T> extends CollisionBuilderBase<T> {
     const token = Symbol();
     const oldValue = this.entries.set(index, value, token);
 
-    const changed = token === oldValue || !this.context.eq(oldValue, value);
+    const changed =
+      token === oldValue || !this.context.eq.areEqual(oldValue, value);
 
     if (changed) this.source = undefined;
 
@@ -337,7 +338,7 @@ export class HashSetCollisionBuilder<T> extends CollisionBuilderBase<T> {
     let index = -1;
 
     this.entries.forEach((v, i, halt): void => {
-      if (this.context.eq(v, value)) {
+      if (this.context.eq.areEqual(v, value)) {
         index = i;
         halt();
       }

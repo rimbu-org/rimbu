@@ -61,6 +61,7 @@ export namespace ArrowGraph {
 
 export const ArrowGraph: ArrowGraphCreators = Object.freeze({
   createContext<UN>(options: {
+    contextId?: string;
     linkMapContext: RMap.Context<UN>;
     linkConnectionsContext: RSet.Context<UN>;
   }): ArrowGraph.Context<UN> {
@@ -69,7 +70,8 @@ export const ArrowGraph: ArrowGraphCreators = Object.freeze({
         true,
         'ArrowGraph',
         options.linkMapContext,
-        options.linkConnectionsContext
+        options.linkConnectionsContext,
+        options.contextId
       )
     );
   },

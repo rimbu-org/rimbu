@@ -6,6 +6,7 @@ import { Stream, StreamSource } from '@rimbu/stream';
 import type { GraphTypesContextImpl } from '@rimbu/graph/custom';
 import type { GraphBase, WithGraphValues } from '../../common';
 
+import { Instances } from '@rimbu/base';
 import { GraphEmptyBase } from '../../common';
 
 export class GraphEmpty<
@@ -75,10 +76,17 @@ export class GraphEmpty<
     return `${this.context.typeTag}()`;
   }
 
-  toJSON(): ToJSON<any[]> {
+  toJSON(): ToJSON<
+    any[],
+    this['context']['typeTag'],
+    { context: Record<string, any> }
+  > {
     return {
       dataType: this.context.typeTag,
       value: [],
+      attributes: {
+        context: this.context.toJSON(),
+      },
     };
   }
 

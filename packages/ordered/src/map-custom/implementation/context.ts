@@ -1,5 +1,7 @@
 import { RMapBase, WithKeyValue } from '@rimbu/collection-types/map-custom';
-import type { List } from '@rimbu/list';
+import { generateUUID } from '@rimbu/common';
+import { List } from '@rimbu/list';
+import type { OrderedMap } from '@rimbu/ordered';
 import {
   OrderedMapBase,
   OrderedMapBuilder,
@@ -19,8 +21,18 @@ export class OrderedMapContextImpl<
   implements OrderedMapBase.Context<UK, Tp>
 {
   constructor(
-    readonly listContext: List.Context,
-    readonly mapContext: WithKeyValue<Tp, UK, any>['sourceContext']
+    options: OrderedMap.Context.Options<UK>,
+    readonly listContext = options.listContext ?? List.defaultContext(),
+    readonly mapContext: WithKeyValue<
+      Tp,
+      UK,
+      any
+    >['sourceContext'] = options.mapContext as WithKeyValue<
+      Tp,
+      UK,
+      any
+    >['sourceContext'],
+    readonly contextId = options.contextId ?? generateUUID()
   ) {
     super();
   }
@@ -55,5 +67,14 @@ export class OrderedMapContextImpl<
       order,
       sourceMap
     ) as any;
+  }
+
+  toJSON(): OrderedMap.Context.Serialized {
+    return {
+      typeTag: this.typeTag,
+      contextId: this.contextId,
+      listContext: this.listContext.toJSON(),
+      mapContext: this.mapContext.toJSON(),
+    };
   }
 }

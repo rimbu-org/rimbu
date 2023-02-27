@@ -706,6 +706,7 @@ export namespace RMapBase {
   export interface Context<UK, Tp extends RMapBase.Types = RMapBase.Types>
     extends RMapBase.Factory<Tp, UK> {
     readonly _fixedKeyType: (key: UK) => never;
+    readonly contextId: string;
 
     /**
      * A string tag defining the specific collection type
@@ -727,6 +728,8 @@ export namespace RMapBase {
      * ```
      */
     isValidKey(obj: any): obj is UK;
+
+    toJSON(): { typeTag: string; contextId: string; [key: string]: any };
   }
 
   export interface Builder<K, V, Tp extends RMapBase.Types = RMapBase.Types> {
@@ -960,6 +963,7 @@ export namespace RMapBase {
   > implements RMapBase.Context<UK, Tp>
   {
     abstract get typeTag(): string;
+    abstract get contextId(): string;
     abstract get _empty(): (Tp & KeyValue<any, any>)['normal'];
 
     abstract isValidKey(key: any): key is UK;
@@ -967,6 +971,11 @@ export namespace RMapBase {
       source: any
     ): source is WithKeyValue<Tp, K, V>['nonEmpty'];
     abstract builder: <K extends UK, V>() => WithKeyValue<Tp, K, V>['builder'];
+    abstract toJSON(): {
+      contextId: string;
+      typeTag: string;
+      [key: string]: any;
+    };
 
     _fixedKeyType!: any;
 

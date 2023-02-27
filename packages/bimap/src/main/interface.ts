@@ -1,5 +1,10 @@
+import type { BiMapFactory } from '@rimbu/bimap/custom';
 import { BiMapContext, BiMapCreators } from '@rimbu/bimap/custom';
 import type { RMap } from '@rimbu/collection-types/map';
+import type {
+  KeyValue,
+  WithKeyValue,
+} from '@rimbu/collection-types/map-custom';
 import type {
   ArrayNonEmpty,
   OptLazy,
@@ -8,15 +13,12 @@ import type {
   TraverseState,
   Update,
 } from '@rimbu/common';
-import { HashMap } from '@rimbu/hashed';
 import type {
   FastIterable,
   Stream,
   Streamable,
   StreamSource,
 } from '@rimbu/stream';
-import type { BiMapFactory } from '@rimbu/bimap/custom';
-import type { KeyValue } from '@rimbu/collection-types/map-custom';
 
 /**
  * A type-invariant immutable bi-directional Map where keys and values have a one-to-one mapping.
@@ -392,7 +394,11 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
    * BiMap.of([1, 'a'], [2, 'b']).toJSON()   // => { dataType: 'BiMap', value: [[1, 'a'], [2, 'b']] }
    * ```
    */
-  toJSON(): ToJSON<(readonly [K, V])[], this['context']['typeTag']>;
+  toJSON(): ToJSON<
+    (readonly [K, V])[],
+    this['context']['typeTag'],
+    { context: BiMap.Context.Serialized }
+  >;
 }
 
 export namespace BiMap {
@@ -554,9 +560,49 @@ export namespace BiMap {
      * ```
      */
     readonly typeTag: 'BiMap';
-    readonly _types: Tp;
+    readonly contextId: string;
     readonly keyValueContext: RMap.Context<UK>;
     readonly valueKeyContext: RMap.Context<UV>;
+
+    readonly _types: Tp;
+
+    toJSON(): BiMap.Context.Serialized;
+
+    /**
+     * Returns true if the given item is a `BiMap` instance.
+     * @param source - the value to test
+     * @typeparam K - (optional) a key type for the bimap
+     * @typeparma V - (optional) a value type for the bimap
+     * @note does not test if the key and value types are correct
+     */
+    isImmutableInstance<K = unknown, V = unknown>(
+      source: any
+    ): source is WithKeyValue<Tp, K, V>['normal'];
+    /**
+     * Returns true if the given item is a `BiMap.Builder` instance.
+     * @param source - the value to test
+     * @typeparam K - (optional) a key type for the bimap
+     * @typeparma V - (optional) a value type for the bimap
+     * @note does not test if the key and value types are correct
+     */
+    isBuilderInstance<K = unknown, V = unknown>(
+      source: any
+    ): source is WithKeyValue<Tp, K, V>['builder'];
+  }
+
+  export namespace Context {
+    export interface Options<UK, UV> {
+      keyValueContext?: RMap.Context<UK>;
+      valueKeyContext?: RMap.Context<UV>;
+      contextId?: string;
+    }
+
+    export interface Serialized {
+      typeTag: string;
+      contextId: string;
+      keyValueContext: Record<string, any>;
+      valueKeyContext: Record<string, any>;
+    }
   }
 
   /**
@@ -772,22 +818,22 @@ export namespace BiMap {
      * The 'non-empty' collection type (higher-kinded type).
      */
     readonly nonEmpty: BiMap.NonEmpty<this['_K'], this['_V']>;
+    /**
+     * The 'builder' collection type (higher kinded type).
+     */
+    readonly builder: BiMap.Builder<this['_K'], this['_V']>;
   }
 }
 
-function createContext<UK, UV>(options?: {
-  keyValueContext?: RMap.Context<UK>;
-  valueKeyContext?: RMap.Context<UV>;
-}): BiMap.Context<UK, UV> {
-  return Object.freeze(
-    new BiMapContext<UK, UV>(
-      options?.keyValueContext ?? HashMap.defaultContext(),
-      options?.valueKeyContext ?? HashMap.defaultContext()
-    )
-  );
+function createContext<UK, UV>(
+  options?: BiMap.Context.Options<UK, UV>
+): BiMap.Context<UK, UV> {
+  return Object.freeze(new BiMapContext<UK, UV>(options));
 }
 
-const _defaultContext: BiMap.Context<any, any> = createContext();
+const _defaultContext: BiMap.Context<any, any> = createContext({
+  contextId: 'default',
+});
 
 export const BiMap: BiMapCreators = Object.freeze({
   ..._defaultContext,

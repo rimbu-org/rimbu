@@ -16,6 +16,7 @@ import {
 import type { MultiSetBase } from '@rimbu/multiset/custom';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
+import { generateUUID } from '@rimbu/common';
 
 export interface ContextImplTypes extends MultiSetBase.Types {
   readonly context: MultiSetContext<this['_T'], string>;
@@ -119,10 +120,13 @@ export class MultiSetEmpty<T, Tp extends ContextImplTypes>
     return `${this.context.typeTag}()`;
   }
 
-  toJSON(): ToJSON<[any, number][]> {
+  toJSON(): ToJSON<[any, number][], string, { context: Record<string, any> }> {
     return {
       dataType: this.context.typeTag,
       value: [],
+      attributes: {
+        context: this.context.toJSON(),
+      },
     };
   }
 }
@@ -364,10 +368,15 @@ export class MultiSetNonEmpty<
     });
   }
 
-  toJSON(): ToJSON<(readonly [T, number])[]> {
+  toJSON(): ToJSON<
+    (readonly [T, number])[],
+    this['context']['typeTag'],
+    { context: Record<string, any> }
+  > {
     return {
       dataType: this.context.typeTag,
       value: this.countMap.toArray(),
+      attributes: { context: this.context.toJSON() },
     };
   }
 
@@ -615,7 +624,8 @@ export class MultiSetContext<
 {
   constructor(
     readonly typeTag: N,
-    readonly countMapContext: (Tp & Elem<UT>)['countMapContext']
+    readonly countMapContext: (Tp & Elem<UT>)['countMapContext'],
+    readonly contextId = generateUUID()
   ) {}
 
   get _types(): Tp {
@@ -709,5 +719,17 @@ export class MultiSetContext<
       Tp,
       T
     >['builder'];
+  }
+
+  toJSON(): {
+    typeTag: N;
+    contextId: string;
+    countMapContext: Record<string, any>;
+  } {
+    return {
+      typeTag: this.typeTag,
+      contextId: this.contextId,
+      countMapContext: this.countMapContext.toJSON(),
+    };
   }
 }

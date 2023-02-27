@@ -9,6 +9,7 @@ import {
 } from '@rimbu/collection-types/map-custom';
 import type { RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
+import { Instances } from '@rimbu/base';
 
 export class BiMultiMapEmpty<K, V, Tp extends ContextTypesImpl>
   extends EmptyBase
@@ -114,10 +115,17 @@ export class BiMultiMapEmpty<K, V, Tp extends ContextTypesImpl>
     return `${this.context.typeTag}()`;
   }
 
-  toJSON(): ToJSON<any[]> {
+  toJSON(): ToJSON<
+    any[],
+    this['context']['typeTag'],
+    { context: Record<string, any> }
+  > {
     return {
       dataType: this.context.typeTag,
       value: [],
+      attributes: {
+        context: this.context.toJSON(),
+      },
     };
   }
 
@@ -361,10 +369,17 @@ export class BiMultiMapNonEmpty<
     });
   }
 
-  toJSON(): ToJSON<[K, V[]][], this['context']['typeTag']> {
+  toJSON(): ToJSON<
+    [K, V[]][],
+    this['context']['typeTag'],
+    { context: Record<string, any> }
+  > {
     return {
       dataType: this.context.typeTag,
       value: this.keyValueMultiMap.toJSON().value,
+      attributes: {
+        context: this.context.toJSON(),
+      },
     };
   }
 

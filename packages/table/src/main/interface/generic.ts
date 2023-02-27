@@ -1,8 +1,8 @@
-import type { RMap } from '@rimbu/collection-types/map';
 import type { Streamable } from '@rimbu/stream';
 import {
-  type TableBase,
   TableContext,
+  type ContextImplTypes,
+  type TableBase,
   type TableCreators,
 } from '@rimbu/table/custom';
 
@@ -70,16 +70,9 @@ export namespace Table {
 }
 
 export const Table: TableCreators = Object.freeze({
-  createContext<UR, UC>(options: {
-    rowContext: RMap.Context<UR>;
-    columnContext: RMap.Context<UC>;
-  }): Table.Context<UR, UC> {
-    return Object.freeze(
-      new TableContext<UR, UC, 'Table'>(
-        'Table',
-        options.rowContext,
-        options.columnContext
-      )
-    );
+  createContext<UR, UC>(
+    options: TableBase.Context.Options<UR, UC, ContextImplTypes>
+  ): Table.Context<UR, UC> {
+    return Object.freeze(new TableContext<UR, UC, 'Table'>('Table', options));
   },
 });

@@ -1,8 +1,9 @@
 import type { RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
 
-import { Stream, StreamSource } from '@rimbu/stream';
 import { NonEmptyBase } from '@rimbu/collection-types/map-custom';
+import { Stream, StreamSource } from '@rimbu/stream';
 
+import { Instances } from '@rimbu/base';
 import type { GraphTypesContextImpl } from '@rimbu/graph/custom';
 import type {
   GraphBase,
@@ -281,7 +282,11 @@ export class GraphNonEmpty<
     });
   }
 
-  toJSON(): ToJSON<[N, [N][]][]> {
+  toJSON(): ToJSON<
+    [N, [N][]][],
+    this['context']['typeTag'],
+    { context: Record<string, any> }
+  > {
     return {
       dataType: this.context.typeTag,
       value: this.linkMap
@@ -297,6 +302,9 @@ export class GraphNonEmpty<
             ] as [N, [N][]]
         )
         .toArray(),
+      attributes: {
+        context: this.context.toJSON(),
+      },
     };
   }
 

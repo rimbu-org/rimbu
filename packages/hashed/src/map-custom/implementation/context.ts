@@ -1,5 +1,5 @@
 import { RMapBase } from '@rimbu/collection-types/map-custom';
-import { Eq } from '@rimbu/common';
+import { Eq, generateUUID } from '@rimbu/common';
 import { List } from '@rimbu/list';
 
 import type { HashMap } from '@rimbu/hashed/map';
@@ -29,10 +29,12 @@ export class HashMapContext<UK>
   readonly _emptyBlock: HashMapBlock<any, any>;
 
   constructor(
-    readonly hasher: Hasher<UK>,
-    readonly eq: Eq<UK>,
-    readonly blockSizeBits: number,
-    readonly listContext: List.Context
+    options: HashMap.Context.Options<UK> = {},
+    readonly hasher = options.hasher ?? Hasher.defaultHasher(),
+    readonly eq = options.eq ?? Eq.defaultEq(),
+    readonly blockSizeBits = options.blockSizeBits ?? 5,
+    readonly listContext = options.listContext ?? List.defaultContext(),
+    readonly contextId = options.contextId ?? generateUUID()
   ) {
     super();
 
@@ -104,20 +106,21 @@ export class HashMapContext<UK>
   ): obj is HashMapBlockBuilder<K, V> {
     return obj instanceof HashMapBlockBuilder;
   }
+
+  toJSON(): HashMap.Context.Serialized {
+    return {
+      typeTag: this.typeTag,
+      contextId: this.contextId,
+      hasherId: this.hasher.id,
+      eqId: this.eq.id,
+      blockSizeBits: this.blockSizeBits,
+      listContext: this.listContext.toJSON(),
+    };
+  }
 }
 
-export function createHashMapContext<UK>(options?: {
-  hasher?: Hasher<UK>;
-  eq?: Eq<UK>;
-  blockSizeBits?: number;
-  listContext?: List.Context;
-}): HashMap.Context<UK> {
-  return Object.freeze(
-    new HashMapContext(
-      options?.hasher ?? Hasher.defaultHasher(),
-      options?.eq ?? Eq.defaultEq(),
-      options?.blockSizeBits ?? 5,
-      options?.listContext ?? List.defaultContext()
-    )
-  );
+export function createHashMapContext<UK>(
+  options?: HashMap.Context.Options<UK>
+): HashMap.Context<UK> {
+  return Object.freeze(new HashMapContext(options));
 }

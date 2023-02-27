@@ -605,14 +605,36 @@ export namespace MultiMapBase {
      */
     readonly typeTag: string;
     /**
+     * A string representing the unique ID for the context
+     */
+    readonly contextId: string;
+    /**
      * The context used for the internal keymap instances.
      */
     readonly keyMapContext: WithKeyValue<Tp, UK, UV>['keyMapContext'];
+    /**
+     * The context used for the internal data structure used to store values for a key
+     */
     readonly keyMapValuesContext: WithKeyValue<
       Tp,
       UK,
       UV
     >['keyMapValuesContext'];
+
+    toJSON(): {
+      typeTag: string;
+      contextId: string;
+      keyMapContext: Record<string, any>;
+      keyMapValuesContext: Record<string, any>;
+    };
+  }
+
+  export namespace Context {
+    export interface Options<UK, UV, Tp extends MultiMapBase.Types> {
+      contextId?: string;
+      keyMapContext?: WithKeyValue<Tp, UK, UV>['keyMapContext'];
+      keyMapValuesContext?: WithKeyValue<Tp, UK, UV>['keyMapValuesContext'];
+    }
   }
 
   export interface Builder<

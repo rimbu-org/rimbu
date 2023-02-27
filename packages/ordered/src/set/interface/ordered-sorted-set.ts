@@ -1,4 +1,4 @@
-import { List } from '@rimbu/list';
+import type { List } from '@rimbu/list';
 import {
   OrderedSetBase,
   OrderedSetContextImpl,
@@ -70,6 +70,21 @@ export namespace OrderedSortedSet {
   export interface Context<UT>
     extends OrderedSetBase.Context<UT, OrderedSortedSet.Types> {}
 
+  export namespace Context {
+    export interface Options<UT> {
+      contextId?: string;
+      listContext?: List.Context;
+      setContext?: SortedSet.Context<UT>;
+    }
+
+    export interface Serialized {
+      typeTag: string;
+      contextId: string;
+      listContext: List.Context.Serialized;
+      setContext: SortedSet.Context.Serialized;
+    }
+  }
+
   /**
    * Utility interface that provides higher-kinded types for this collection.
    */
@@ -84,19 +99,20 @@ export namespace OrderedSortedSet {
   }
 }
 
-function createContext<UT>(options?: {
-  listContext?: List.Context;
-  setContext?: SortedSet.Context<UT>;
-}): OrderedSortedSet.Context<UT> {
+function createContext<UT>(
+  options?: OrderedSortedSet.Context.Options<UT>
+): OrderedSortedSet.Context<UT> {
   return Object.freeze(
-    new OrderedSetContextImpl<UT>(
-      options?.listContext ?? List.defaultContext(),
-      options?.setContext ?? SortedSet.defaultContext<UT>()
-    ) as any
+    new OrderedSetContextImpl<UT>({
+      ...options,
+      setContext: options?.setContext ?? SortedSet.defaultContext(),
+    }) as any
   );
 }
 
-const _defaultContext: OrderedSortedSet.Context<any> = createContext();
+const _defaultContext: OrderedSortedSet.Context<any> = createContext({
+  contextId: 'default',
+});
 
 export const OrderedSortedSet: OrderedSortedSetCreators = Object.freeze({
   ..._defaultContext,

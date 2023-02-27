@@ -62,6 +62,14 @@ export namespace ArrowGraphHashed {
     readonly typeTag: 'ArrowGraphHashed';
   }
 
+  export namespace Context {
+    export interface Options<UN> {
+      contextId?: string;
+      linkMapContext?: HashMap.Context<UN>;
+      linkConnectionsContext?: HashSet.Context<UN>;
+    }
+  }
+
   /**
    * Utility interface that provides higher-kinded types for this collection.
    */
@@ -83,21 +91,23 @@ export namespace ArrowGraphHashed {
   }
 }
 
-function createContext<UN>(options?: {
-  linkMapContext?: HashMap.Context<UN>;
-  linkConnectionsContext?: HashSet.Context<UN>;
-}): ArrowGraphHashed.Context<UN> {
+function createContext<UN>(
+  options?: ArrowGraphHashed.Context.Options<UN>
+): ArrowGraphHashed.Context<UN> {
   return Object.freeze(
     new GraphContext<UN, 'ArrowGraphHashed', true, any>(
       true,
       'ArrowGraphHashed',
       options?.linkMapContext ?? HashMap.defaultContext(),
-      options?.linkConnectionsContext ?? HashSet.defaultContext()
+      options?.linkConnectionsContext ?? HashSet.defaultContext(),
+      options?.contextId
     )
   );
 }
 
-const _defaultContext: ArrowGraphHashed.Context<any> = createContext();
+const _defaultContext: ArrowGraphHashed.Context<any> = createContext({
+  contextId: 'default',
+});
 
 export const ArrowGraphHashed: ArrowGraphHashedCreators = Object.freeze({
   ..._defaultContext,

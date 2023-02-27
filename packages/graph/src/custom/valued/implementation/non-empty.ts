@@ -1,4 +1,4 @@
-import type { Token } from '@rimbu/base';
+import { Instances, Token } from '@rimbu/base';
 
 import { NonEmptyBase } from '@rimbu/collection-types/map-custom';
 import {
@@ -255,7 +255,7 @@ export class ValuedGraphNonEmpty<
       ifNew: (none) => {
         if (undefined === options.ifNew) return none;
 
-        const newValue = OptLazyOr(options.ifNew, none);
+        const newValue = OptLazyOr<V, Token>(options.ifNew, none);
 
         if (none === newValue) return none;
 
@@ -274,7 +274,7 @@ export class ValuedGraphNonEmpty<
           ifNew: (none) => {
             if (undefined === options.ifNew) return none;
 
-            const newValue = OptLazyOr(options.ifNew, none);
+            const newValue = OptLazyOr<V, Token>(options.ifNew, none);
 
             if (none === newValue) return none;
 
@@ -425,7 +425,11 @@ export class ValuedGraphNonEmpty<
     });
   }
 
-  toJSON(): ToJSON<[N, (readonly [N, V])[]][]> {
+  toJSON(): ToJSON<
+    [N, (readonly [N, V])[]][],
+    this['context']['typeTag'],
+    { context: Record<string, any> }
+  > {
     return {
       dataType: this.context.typeTag,
       value: this.linkMap
@@ -434,6 +438,9 @@ export class ValuedGraphNonEmpty<
           (entry) => [entry[0], entry[1].toArray()] as [N, (readonly [N, V])[]]
         )
         .toArray(),
+      attributes: {
+        context: this.context.toJSON(),
+      },
     };
   }
 

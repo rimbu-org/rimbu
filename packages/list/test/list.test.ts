@@ -92,6 +92,16 @@ describe('List creators', () => {
   it('context id', () => {
     expect(ListSrc.createContext({ contextId: 'abc' }).contextId).toBe('abc');
   });
+
+  it('toJSON', () => {
+    const context = ListSrc.createContext();
+
+    expect(context.toJSON()).toEqual({
+      typeTag: 'List',
+      contextId: context.contextId,
+      blockSizeBits: context.blockSizeBits,
+    });
+  });
 });
 
 describe('List methods', () => {
@@ -900,6 +910,36 @@ describe('List methods', () => {
     expect(List.flatten(List.of([1, 2], [3, 4, 5])).toArray()).toEqual([
       1, 2, 3, 4, 5,
     ]);
+  });
+
+  it('toJSON', () => {
+    expect(JSON.stringify(List.empty())).toEqual(
+      JSON.stringify({
+        dataType: List.typeTag,
+        value: [],
+        attributes: {
+          context: {
+            typeTag: 'List',
+            blockSizeBits: List.blockSizeBits,
+            contextId: List.contextId,
+          },
+        },
+      })
+    );
+
+    expect(JSON.stringify(List.of(1, 2, 3))).toEqual(
+      JSON.stringify({
+        dataType: List.typeTag,
+        value: [1, 2, 3],
+        attributes: {
+          context: {
+            typeTag: 'List',
+            blockSizeBits: List.blockSizeBits,
+            contextId: List.contextId,
+          },
+        },
+      })
+    );
   });
 });
 

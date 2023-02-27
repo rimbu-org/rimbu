@@ -1,5 +1,7 @@
 import { RSetBase, WithElem } from '@rimbu/collection-types/set-custom';
-import type { List } from '@rimbu/list';
+import { generateUUID } from '@rimbu/common';
+import { List } from '@rimbu/list';
+import type { OrderedSet } from '@rimbu/ordered';
 import {
   OrderedSetBase,
   OrderedSetBuilder,
@@ -19,8 +21,16 @@ export class OrderedSetContextImpl<
   implements OrderedSetBase.Context<UT, Tp>
 {
   constructor(
-    readonly listContext: List.Context,
-    readonly setContext: WithElem<Tp, UT>['sourceContext']
+    options: OrderedSet.Context.Options<UT>,
+    readonly listContext = options.listContext ?? List.defaultContext(),
+    readonly setContext: WithElem<
+      Tp,
+      UT
+    >['sourceContext'] = options.setContext as WithElem<
+      Tp,
+      UT
+    >['sourceContext'],
+    readonly contextId = options.contextId ?? generateUUID()
   ) {
     super();
   }
@@ -53,5 +63,14 @@ export class OrderedSetContextImpl<
     sourceSet: any
   ): WithElem<Tp, T>['nonEmpty'] {
     return new OrderedSetNonEmpty<T, Tp>(this as any, order, sourceSet) as any;
+  }
+
+  toJSON(): OrderedSet.Context.Serialized {
+    return {
+      typeTag: this.typeTag,
+      contextId: this.contextId,
+      listContext: this.listContext.toJSON(),
+      setContext: this.setContext.toJSON(),
+    };
   }
 }

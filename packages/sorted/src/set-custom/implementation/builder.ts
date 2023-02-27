@@ -94,7 +94,7 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
 
     if (!this.context.comp.isComparable(value)) return false;
 
-    const result = this.removeInternal(value);
+    const result = this.removeInternal(value as T);
     this.normalize();
     return result;
   };

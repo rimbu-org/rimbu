@@ -1,7 +1,7 @@
 import type { RelatedTo } from '@rimbu/common';
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type { GraphBase, GraphElement } from '../../common';
+import type { GraphBase, GraphElement, WithGraphValues } from '../../common';
 
 export interface ArrowGraphBase<
   N,
@@ -70,6 +70,25 @@ export namespace ArrowGraphBase {
     Tp extends ArrowGraphBase.Types = ArrowGraphBase.Types
   > extends GraphBase.Context<UN, Tp> {
     readonly isDirected: true;
+
+    /**
+     * Returns true if the given item is a `Graph` instance.
+     * @param source - the value to test
+     * @typeparam N - the node value type
+     * @note does not test if the key and value types are correct
+     */
+    isImmutableInstance<N extends UN>(
+      source: any
+    ): source is WithGraphValues<Tp, N, unknown>['normal'];
+    /**
+     * Returns true if the given item is a `Graph.Builder` instance.
+     * @param source - the value to test
+     * @typeparam N - the node value type
+     * @note does not test if the key and value types are correct
+     */
+    isBuilderInstance<N extends UN>(
+      source: any
+    ): source is WithGraphValues<Tp, N, unknown>['builder'];
   }
 
   /**

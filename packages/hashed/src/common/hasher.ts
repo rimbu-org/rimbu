@@ -9,6 +9,7 @@ import { Stream, StreamSource } from '@rimbu/stream';
  * bitwise operator to it, e.g. if x is a number, use x | 0.
  */
 export interface Hasher<UK> {
+  id: string;
   /**
    * Returns true if this hasher can be applied to the given `obj` object.
    * @param obj - the object to check
@@ -61,6 +62,7 @@ export namespace Hasher {
     const maxSteps = 1 << maxStepBits;
 
     return Object.freeze({
+      id: `stringHasher(${maxStepBits})`,
       isValid(obj: unknown): obj is string {
         return typeof obj === 'string';
       },
@@ -95,6 +97,7 @@ export namespace Hasher {
   }
 
   const _anyToStringHasher: Hasher<any> = Object.freeze({
+    id: 'anyToStringHasher',
     isValid(obj: unknown): obj is any {
       return true;
     },
@@ -119,6 +122,7 @@ export namespace Hasher {
   }
 
   const _anyJsonStringHasher: Hasher<any> = Object.freeze({
+    id: 'anyJsonStringHasher',
     isValid(obj: unknown): obj is any {
       return true;
     },
@@ -147,6 +151,7 @@ export namespace Hasher {
     const maxSteps = 1 << maxStepBits;
 
     return Object.freeze({
+      id: `stringCaseInsensitiveHasher(${maxStepBits})`,
       isValid(obj: unknown): obj is string {
         return typeof obj === 'string';
       },
@@ -181,6 +186,7 @@ export namespace Hasher {
     const maxSteps = 1 << maxStepBits;
 
     return Object.freeze({
+      id: `arrayHasher(${itemHasher.id},${maxStepBits})`,
       isValid(obj: unknown): obj is readonly T[] {
         return Array.isArray(obj);
       },
@@ -240,6 +246,7 @@ export namespace Hasher {
     const maxSteps = 1 << maxStepBits;
 
     return Object.freeze({
+      id: `streamSourceHasher(${itemHasher.id},${maxStepBits})`,
       isValid(obj: unknown): obj is StreamSource<T> {
         return (
           typeof obj === 'object' && obj !== null && Symbol.iterator in obj
@@ -328,6 +335,7 @@ export namespace Hasher {
   const MAX_HASH = Math.pow(2, 31) - 1;
 
   const _numberHasher: Hasher<number> = Object.freeze({
+    id: 'numberHasher',
     isValid(obj: unknown): obj is number {
       return typeof obj === 'number';
     },
@@ -366,6 +374,7 @@ export namespace Hasher {
   }
 
   const _booleanHasher: Hasher<boolean> = Object.freeze({
+    id: 'booleanHasher',
     isValid(obj: unknown): obj is boolean {
       return typeof obj === 'boolean';
     },
@@ -388,6 +397,7 @@ export namespace Hasher {
   }
 
   const _bigintHasher: Hasher<bigint> = Object.freeze({
+    id: 'bigintHasher',
     isValid(obj: unknown): obj is bigint {
       return typeof obj === 'bigint';
     },
@@ -426,12 +436,14 @@ export namespace Hasher {
    * ```
    */
   export function createValueOfHasher<T extends { valueOf(): V }, V>(
+    id: string,
     cls: {
       new (): T;
     },
     valueHasher: Hasher<V> = anyFlatHasher()
   ): Hasher<T> {
     return Object.freeze({
+      id,
       isValid(obj): obj is T {
         return obj instanceof cls;
       },
@@ -443,11 +455,16 @@ export namespace Hasher {
 
   // eslint-disable-next-line @typescript-eslint/ban-types
   const _BooleanHasher: Hasher<Boolean> = createValueOfHasher(
+    'BooleanHasher',
     Boolean,
     _booleanHasher
   );
 
-  const _DateHasher: Hasher<Date> = createValueOfHasher(Date, _numberHasher);
+  const _DateHasher: Hasher<Date> = createValueOfHasher(
+    'DateHasher',
+    Date,
+    _numberHasher
+  );
 
   /**
    * Returns a Hasher instance that hashes Dates.
@@ -466,12 +483,14 @@ export namespace Hasher {
 
   // eslint-disable-next-line @typescript-eslint/ban-types
   const _NumberHasher: Hasher<Number> = createValueOfHasher(
+    'NumberHasher',
     Number,
     _numberHasher
   );
 
   // eslint-disable-next-line @typescript-eslint/ban-types
   const _StringHasher: Hasher<String> = createValueOfHasher(
+    'StringHasher',
     String,
     _stringHasher
   );
@@ -503,6 +522,7 @@ export namespace Hasher {
     valueHasher: Hasher<unknown>
   ): Hasher<Record<any, any>> {
     return Object.freeze({
+      id: `objectHasher(${keyHasher.id},${valueHasher.id})`,
       isValid(obj): obj is Record<any, any> {
         return typeof obj === 'object';
       },
@@ -606,6 +626,7 @@ export namespace Hasher {
     maxStepBits = MAX_STEP_BITS
   ): Hasher<any> {
     return Object.freeze({
+      id: `anyHasher(${mode}${maxStepBits})`,
       isValid(obj): obj is any {
         return true;
       },
@@ -729,6 +750,7 @@ export namespace Hasher {
     hasher: Hasher<T> = anyShallowHasher()
   ): Hasher<readonly [T, T]> {
     return Object.freeze({
+      id: `tupleSymmetric(${hasher.id})`,
       isValid(obj: unknown): obj is readonly [T, T] {
         return (
           Array.isArray(obj) &&

@@ -52,6 +52,19 @@ export namespace SortedMultiSet {
     readonly typeTag: 'SortedMultiSet';
   }
 
+  export namespace Context {
+    export interface Options<UT> {
+      contextId?: string;
+      countMapContext?: SortedMap.Context<UT>;
+    }
+
+    export interface Serialized {
+      typeTag: string;
+      contextId: string;
+      countMapContext: SortedMap.Context.Serialized;
+    }
+  }
+
   /**
    * A mutable `SortedMultiSet` builder used to efficiently create new immutable instances.
    * See the [MultiSet documentation](https://rimbu.org/docs/collections/multiset) and the [SortedMultiSet.Builder API documentation](https://rimbu.org/api/rimbu/multiset/SortedMultiSet/Builder/interface)
@@ -74,18 +87,21 @@ export namespace SortedMultiSet {
   }
 }
 
-function createContext<UT>(options?: {
-  countMapContext?: SortedMap.Context<UT>;
-}): SortedMultiSet.Context<UT> {
+function createContext<UT>(
+  options?: SortedMultiSet.Context.Options<UT>
+): SortedMultiSet.Context<UT> {
   return Object.freeze(
     new MultiSetContext<UT, 'SortedMultiSet', any>(
       'SortedMultiSet',
-      options?.countMapContext ?? SortedMap.defaultContext()
+      options?.countMapContext ?? SortedMap.defaultContext(),
+      options?.contextId
     )
   );
 }
 
-const _defaultContext: SortedMultiSet.Context<any> = createContext();
+const _defaultContext: SortedMultiSet.Context<any> = createContext({
+  contextId: 'default',
+});
 
 export const SortedMultiSet: SortedMultiSetCreators = Object.freeze({
   ..._defaultContext,
