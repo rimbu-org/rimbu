@@ -51,7 +51,7 @@
     "*.{ts,tsx,js,json,md}--parallel": "prettier --write"
   },
   "devDependencies": {
-    "@microsoft/api-extractor": "7.19.3",
+    "@microsoft/api-extractor": "^7.34.4",
     "@types/jest": "^28.1.4",
     "@typescript-eslint/eslint-plugin": "^5.30.0",
     "@typescript-eslint/parser": "^5.30.0",
