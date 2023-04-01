@@ -65,7 +65,7 @@
     "@rimbu/multimap": "^0.10.0",
     "@rimbu/sorted": "^0.10.0",
     "@rimbu/stream": "^0.13.0",
-    "tslib": "^2.4.0"
+    "tslib": "^2.5.0"
   },
   "publishConfig": {
     "access": "public"

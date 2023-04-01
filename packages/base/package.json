@@ -53,7 +53,7 @@
   "sideEffects": false,
   "dependencies": {
     "@rimbu/common": "^0.12.0",
-    "tslib": "^2.4.0"
+    "tslib": "^2.5.0"
   },
   "publishConfig": {
     "access": "public"
