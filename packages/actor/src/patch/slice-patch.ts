@@ -1,6 +1,6 @@
-import { Patch, patch } from '@rimbu/deep';
+import { type Patch, patch } from '@rimbu/deep';
 
-import { Action, SliceConfig } from '../main';
+import { Action, SliceConfig } from '../main/internal';
 
 export namespace SlicePatch {
   export interface Config extends SliceConfig {

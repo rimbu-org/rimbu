@@ -1,6 +1,6 @@
 import { AsyncStream } from '@rimbu/stream';
 
-import type { ActionBase, Actor } from '../main';
+import type { ActionBase, Actor } from '../main/internal';
 
 export type ActorStream<A extends Actor.Base<S>, S> = AsyncStream<
   ActorStream.Event<A, S>
