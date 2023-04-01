@@ -1,8 +1,8 @@
 import { AsyncStream } from '@rimbu/stream/mod.ts';
 
+import { Class, Interface, Namespace } from '~/doc-model.ts';
 import { loadPackage } from '~/load-package.ts';
 import { processLoadedPackages } from '~/process/loaded-package.ts';
-import { Class, Interface, Namespace } from '~/doc-model.ts';
 
 export async function loadModel(input: string) {
   const inputFiles = Deno.readDirSync(input);

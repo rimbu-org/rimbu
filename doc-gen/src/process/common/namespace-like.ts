@@ -1,13 +1,13 @@
 import { SortedMap, Stream } from '@rimbu/mod.ts';
 
-import { HasItemContainer, BaseDocumentedItem } from '~/json-model/base.ts';
 import { Model, Namespace, TypeAlias } from '~/doc-model.ts';
+import { BaseDocumentedItem, HasItemContainer } from '~/json-model/base.ts';
 import {
   canonicalToSlug,
   findTokenRef,
   getCodeTokenWithLinks,
-  wrap,
   getTokenRange,
+  wrap,
 } from '~/utils.ts';
 
 import { processClass } from '../class/index.ts';
@@ -54,7 +54,7 @@ export function processNamespaceLike(
           const typeRef = findTokenRef(
             member.excerptTokens,
             member.variableTypeTokenRange
-          );
+          )?.replace('~', '');
 
           targetNamespace.variables.set(member.name, {
             kind: 'variable',
