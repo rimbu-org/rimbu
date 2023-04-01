@@ -328,77 +328,79 @@ function matchArr<T extends any[], C, P, R>(
 
   // matcher is plain object
 
-  if (`every` in matcher) {
-    return matchCompound(
-      source,
-      parent,
-      root,
-      ['every', ...(matcher.every as any)],
-      failureLog
-    );
-  }
-  if (`some` in matcher) {
-    return matchCompound(
-      source,
-      parent,
-      root,
-      ['some', ...(matcher.some as any)],
-      failureLog
-    );
-  }
-  if (`none` in matcher) {
-    return matchCompound(
-      source,
-      parent,
-      root,
-      ['none', ...(matcher.none as any)],
-      failureLog
-    );
-  }
-  if (`single` in matcher) {
-    return matchCompound(
-      source,
-      parent,
-      root,
-      ['single', ...(matcher.single as any)],
-      failureLog
-    );
-  }
-  if (`someItem` in matcher) {
-    return matchTraversal(
-      source,
-      root,
-      'someItem',
-      matcher.someItem as any,
-      failureLog
-    );
-  }
-  if (`everyItem` in matcher) {
-    return matchTraversal(
-      source,
-      root,
-      'everyItem',
-      matcher.everyItem as any,
-      failureLog
-    );
-  }
-  if (`noneItem` in matcher) {
-    return matchTraversal(
-      source,
-      root,
-      'noneItem',
-      matcher.noneItem as any,
-      failureLog
-    );
-  }
-  if (`singleItem` in matcher) {
-    return matchTraversal(
-      source,
-      root,
-      'singleItem',
-      matcher.singleItem as any,
-      failureLog
-    );
+  if (typeof matcher === 'object' && null !== matcher) {
+    if (`every` in matcher) {
+      return matchCompound(
+        source,
+        parent,
+        root,
+        ['every', ...(matcher.every as any)],
+        failureLog
+      );
+    }
+    if (`some` in matcher) {
+      return matchCompound(
+        source,
+        parent,
+        root,
+        ['some', ...(matcher.some as any)],
+        failureLog
+      );
+    }
+    if (`none` in matcher) {
+      return matchCompound(
+        source,
+        parent,
+        root,
+        ['none', ...(matcher.none as any)],
+        failureLog
+      );
+    }
+    if (`single` in matcher) {
+      return matchCompound(
+        source,
+        parent,
+        root,
+        ['single', ...(matcher.single as any)],
+        failureLog
+      );
+    }
+    if (`someItem` in matcher) {
+      return matchTraversal(
+        source,
+        root,
+        'someItem',
+        matcher.someItem as any,
+        failureLog
+      );
+    }
+    if (`everyItem` in matcher) {
+      return matchTraversal(
+        source,
+        root,
+        'everyItem',
+        matcher.everyItem as any,
+        failureLog
+      );
+    }
+    if (`noneItem` in matcher) {
+      return matchTraversal(
+        source,
+        root,
+        'noneItem',
+        matcher.noneItem as any,
+        failureLog
+      );
+    }
+    if (`singleItem` in matcher) {
+      return matchTraversal(
+        source,
+        root,
+        'singleItem',
+        matcher.singleItem as any,
+        failureLog
+      );
+    }
   }
 
   // matcher is plain object with index keys
@@ -448,7 +450,7 @@ function matchArr<T extends any[], C, P, R>(
 /**
  * Match an object matcher against the given source.
  */
-function matchPlainObj<T, C, P, R>(
+function matchPlainObj<T extends object, C, P, R>(
   source: T,
   parent: P,
   root: R,

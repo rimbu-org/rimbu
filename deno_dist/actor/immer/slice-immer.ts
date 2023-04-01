@@ -33,12 +33,12 @@ export namespace SliceImmer {
     ) => {
       const draft = createDraft(state as any) as S;
       handler(draft, ...action.payload);
-      return finishDraft(draft);
+      return finishDraft(draft) as S;
     },
     applyIncluder: (state, action, includeHandler) => {
       const draft = createDraft(state as any) as typeof state;
       includeHandler(draft, action);
-      return finishDraft(draft);
+      return finishDraft(draft) as typeof state;
     },
     applyHandlerResult: (state, action, result) => result,
     createAction: (sliceName, actionName) =>

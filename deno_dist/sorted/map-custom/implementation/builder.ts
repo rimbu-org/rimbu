@@ -4,9 +4,9 @@ import { Stream, StreamSource } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 import type { SortedMap } from '../../../sorted/map/index.ts';
-import type { SortedMapNode, SortedMapContext } from '../../../sorted/map-custom/index.ts';
+import type { SortedMapContext, SortedMapNode } from '../../../sorted/map-custom/index.ts';
 
-import { SortedIndex, SortedBuilder } from '../../common/index.ts';
+import { SortedBuilder, SortedIndex } from '../../common/index.ts';
 
 export class SortedMapBuilder<K, V>
   extends SortedBuilder<readonly [K, V]>
@@ -328,7 +328,7 @@ export class SortedMapBuilder<K, V>
     if (!this.hasChildren) {
       if (undefined === options.ifNew) return false;
 
-      const newValue = OptLazyOr(options.ifNew, Token);
+      const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
 
       if (Token === newValue) return false;
 

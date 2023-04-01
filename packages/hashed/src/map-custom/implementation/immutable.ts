@@ -71,7 +71,7 @@ export class HashMapEmpty<K = any, V = any>
     }
   ): HashMap<K, V> {
     if (undefined !== options.ifNew) {
-      const value = OptLazyOr(options.ifNew, Token);
+      const value = OptLazyOr<V, Token>(options.ifNew, Token);
 
       if (Token === value) return this;
 
@@ -425,7 +425,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
       // no exact match, but key collision
       if (undefined === options.ifNew) return this;
 
-      const newValue = OptLazyOr(options.ifNew, Token);
+      const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
 
       if (Token === newValue) return this;
 
@@ -506,7 +506,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 
     if (undefined === options.ifNew) return this;
 
-    const newValue = OptLazyOr(options.ifNew, Token);
+    const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
 
     if (Token === newValue) return this;
 
@@ -656,7 +656,7 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
     if (undefined === currentIndex) {
       if (undefined === options.ifNew) return this;
 
-      const newValue = OptLazyOr(options.ifNew, Token);
+      const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
 
       if (Token === newValue) return this;
 

@@ -17,9 +17,9 @@ import {
   Update,
 } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
+import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 import type { Table } from '@rimbu/table';
 import type { TableBase } from '@rimbu/table/custom';
-import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 export interface ContextImplTypes extends TableBase.Types {
   readonly context: TableContext<this['_R'], this['_C'], string>;
@@ -112,7 +112,7 @@ export class TableEmpty<R, C, V, Tp extends ContextImplTypes>
     options: { ifNew?: OptLazyOr<V, Token> }
   ): WithRow<Tp, R, C, V>['normal'] {
     if (undefined !== options.ifNew) {
-      const value = OptLazyOr(options.ifNew, Token);
+      const value = OptLazyOr<V, Token>(options.ifNew, Token);
       if (Token === value) return this as any;
 
       return this.set(row, column, value) as any;
@@ -280,7 +280,7 @@ export class TableNonEmpty<
 
     if (undefined !== ifNew) {
       passOptions.ifNew = (none): RMap.NonEmpty<C, V> | Token => {
-        const value = OptLazyOr(ifNew, Token);
+        const value = OptLazyOr<V, Token>(ifNew, Token);
 
         if (Token === value) return none;
 
