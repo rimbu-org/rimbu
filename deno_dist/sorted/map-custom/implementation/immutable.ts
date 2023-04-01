@@ -21,7 +21,9 @@ import type {
 } from '../../../sorted/map-custom/index.ts';
 
 import {
+  SortedEmpty,
   SortedIndex,
+  SortedNonEmptyBase,
   innerDeleteMax,
   innerDeleteMin,
   innerDropInternal,
@@ -46,8 +48,6 @@ import {
   leafMutateJoinLeft,
   leafMutateJoinRight,
   leafMutateSplitRight,
-  SortedEmpty,
-  SortedNonEmptyBase,
 } from '../../common/index.ts';
 
 export class SortedMapEmpty<K = any, V = any>
@@ -137,7 +137,7 @@ export class SortedMapEmpty<K = any, V = any>
     }
   ): SortedMap<K, V> {
     if (undefined !== options.ifNew) {
-      const value = OptLazyOr(options.ifNew, Token);
+      const value = OptLazyOr<V, Token>(options.ifNew, Token);
 
       if (Token === value) return this;
 
@@ -571,7 +571,7 @@ export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
 
     if (undefined === options.ifNew) return this;
 
-    const newValue = OptLazyOr(options.ifNew, Token);
+    const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
 
     if (Token === newValue) return this;
 

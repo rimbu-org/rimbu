@@ -70,7 +70,7 @@ export class OrderedMapEmpty<
   ): WithKeyValue<Tp, K, V>['normal'] {
     if (undefined === options.ifNew) return this as any;
 
-    const value = OptLazyOr(options.ifNew, Token);
+    const value = OptLazyOr<V, Token>(options.ifNew, Token);
 
     if (Token === value) return this as any;
 

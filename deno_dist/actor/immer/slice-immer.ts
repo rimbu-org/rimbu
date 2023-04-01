@@ -1,6 +1,6 @@
 import { createDraft, finishDraft } from 'npm:immer@9.0.16';
 
-import { Action, SliceConfig } from '../main/index.ts';
+import { Action, SliceConfig } from '../main/internal.ts';
 import type { Tail } from '../main/utils.ts';
 
 export namespace SliceImmer {
@@ -33,12 +33,12 @@ export namespace SliceImmer {
     ) => {
       const draft = createDraft(state as any) as S;
       handler(draft, ...action.payload);
-      return finishDraft(draft);
+      return finishDraft(draft) as S;
     },
     applyIncluder: (state, action, includeHandler) => {
       const draft = createDraft(state as any) as typeof state;
       includeHandler(draft, action);
-      return finishDraft(draft);
+      return finishDraft(draft) as any;
     },
     applyHandlerResult: (state, action, result) => result,
     createAction: (sliceName, actionName) =>

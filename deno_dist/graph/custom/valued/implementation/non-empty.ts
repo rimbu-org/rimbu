@@ -255,7 +255,7 @@ export class ValuedGraphNonEmpty<
       ifNew: (none) => {
         if (undefined === options.ifNew) return none;
 
-        const newValue = OptLazyOr(options.ifNew, none);
+        const newValue = OptLazyOr<V, Token>(options.ifNew, none);
 
         if (none === newValue) return none;
 
@@ -274,7 +274,7 @@ export class ValuedGraphNonEmpty<
           ifNew: (none) => {
             if (undefined === options.ifNew) return none;
 
-            const newValue = OptLazyOr(options.ifNew, none);
+            const newValue = OptLazyOr<V, Token>(options.ifNew, none);
 
             if (none === newValue) return none;
 

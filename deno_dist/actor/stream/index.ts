@@ -1,6 +1,6 @@
 import { AsyncStream } from '../../stream/mod.ts';
 
-import type { ActionBase, Actor } from '../main/index.ts';
+import type { ActionBase, Actor } from '../main/internal.ts';
 
 export type ActorStream<A extends Actor.Base<S>, S> = AsyncStream<
   ActorStream.Event<A, S>

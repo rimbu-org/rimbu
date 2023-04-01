@@ -258,7 +258,7 @@ export class HashMapBlockBuilder<K, V>
       if (undefined === options.ifNew) return false;
 
       // no match, replace entry with entryset containing both entries
-      const newValue = OptLazyOr(options.ifNew, Token);
+      const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
 
       if (Token === newValue) return false;
 
@@ -319,7 +319,7 @@ export class HashMapBlockBuilder<K, V>
     if (undefined === options.ifNew) return false;
 
     // no matching entry or entrySet
-    const newValue = OptLazyOr(options.ifNew, Token);
+    const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
 
     if (Token === newValue) return false;
 
@@ -534,7 +534,7 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
     if (undefined === foundEntry) {
       if (undefined === options.ifNew) return false;
 
-      const newValue = OptLazyOr(options.ifNew, Token);
+      const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
 
       if (Token === newValue) return false;
 

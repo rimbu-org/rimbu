@@ -76,7 +76,7 @@ export type NotIterable = {
  * @returns true if the given object is a pure data object
  * @note does not check whether a record's properties are not functions
  */
-export function isPlainObj(obj: any): boolean {
+export function isPlainObj(obj: any): obj is object {
   return (
     typeof obj === 'object' &&
     null !== obj &&

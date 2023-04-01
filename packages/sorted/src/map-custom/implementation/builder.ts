@@ -4,9 +4,9 @@ import { Stream, StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 import type { SortedMap } from '@rimbu/sorted/map';
-import type { SortedMapNode, SortedMapContext } from '@rimbu/sorted/map-custom';
+import type { SortedMapContext, SortedMapNode } from '@rimbu/sorted/map-custom';
 
-import { SortedIndex, SortedBuilder } from '../../common';
+import { SortedBuilder, SortedIndex } from '../../common';
 
 export class SortedMapBuilder<K, V>
   extends SortedBuilder<readonly [K, V]>
@@ -328,7 +328,7 @@ export class SortedMapBuilder<K, V>
     if (!this.hasChildren) {
       if (undefined === options.ifNew) return false;
 
-      const newValue = OptLazyOr(options.ifNew, Token);
+      const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
 
       if (Token === newValue) return false;
 

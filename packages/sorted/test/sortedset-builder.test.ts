@@ -1,7 +1,7 @@
-import { Stream } from '@rimbu/stream';
 import { Reducer } from '@rimbu/common';
 import { SortedSet } from '@rimbu/sorted';
 import type { SortedSetBuilder } from '@rimbu/sorted/set-custom';
+import { Stream } from '@rimbu/stream';
 
 function runWith(name: string, context: SortedSet.Context<number>) {
   describe('builder specific', () => {
@@ -12,7 +12,7 @@ function runWith(name: string, context: SortedSet.Context<number>) {
 
       const [min, values] = Stream.randomInt(0, 100)
         .take(100)
-        .reduceAll(Reducer.min(), Reducer.toArray());
+        .reduceAll(Reducer.min(), Reducer.toArray<number>());
 
       builder.addAll(values);
       expect(builder.min()).toBe(min);
@@ -24,7 +24,7 @@ function runWith(name: string, context: SortedSet.Context<number>) {
 
       const [min, values] = Stream.randomInt(0, 100)
         .take(100)
-        .reduceAll(Reducer.max(), Reducer.toArray());
+        .reduceAll(Reducer.max(), Reducer.toArray<number>());
 
       builder.addAll(values);
       expect(builder.max()).toBe(min);

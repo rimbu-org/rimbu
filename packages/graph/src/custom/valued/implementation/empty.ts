@@ -93,7 +93,7 @@ export class ValuedGraphEmpty<
   ): WithGraphValues<Tp, N, V>['normal'] {
     if (undefined === options.ifNew) return this as any;
 
-    const newValue = OptLazyOr(options.ifNew, Token);
+    const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
 
     if (Token === newValue) return this as any;
 
