@@ -62,7 +62,7 @@
     "@rimbu/actor": "^0.11.1",
     "@rimbu/deep": "^0.14.0",
     "@rimbu/stream": "^0.13.0",
-    "tslib": "^2.4.0"
+    "tslib": "^2.5.0"
   },
   "peerDependencies": {
     "react": ">=16"
