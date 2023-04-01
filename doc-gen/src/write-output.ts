@@ -1,13 +1,13 @@
 import { dirname } from '@std/path/mod.ts';
 
-import { canonicalToFileName, packagePath } from '~/utils.ts';
+import { Model, Namespace, Package } from '~/doc-model.ts';
+import { generateClass } from '~/generate/class/index.ts';
 import { generateInterface } from '~/generate/interface/index.ts';
 import { generateNamespace } from '~/generate/namespace/index.ts';
 import { generatePackage } from '~/generate/package/index.ts';
-import { generateClass } from '~/generate/class/index.ts';
 import { generateTypeAlias } from '~/generate/typealias/index.ts';
 import { generateVariable } from '~/generate/variable/index.ts';
-import { Model, Namespace, Package } from '~/doc-model.ts';
+import { canonicalToFileName, packagePath } from '~/utils.ts';
 
 export function writeOutput(output: string, model: Model) {
   function write(ref: string, contents: string, subPackage?: string) {

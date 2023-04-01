@@ -6,5 +6,8 @@
   "docModel": {
     "enabled": true,
     "apiJsonFilePath": "<projectFolder>/../../doc-gen/input/<unscopedPackageName>!async.api.json"
+  },
+  "compiler": {
+    "tsconfigFilePath": "<projectFolder>/tsconfig.extractor.json"
   }
 }

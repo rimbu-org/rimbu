@@ -1,8 +1,8 @@
 import { Stream } from '@rimbu/stream/mod.ts';
 
-import { ApiInterface, ApiClass, ApiItem } from '~/json-model/api.ts';
-import { ExcerptToken, ExcerptTokenRange } from '~/json-model/elements.ts';
 import { Model } from '~/doc-model.ts';
+import { ApiClass, ApiInterface, ApiItem } from '~/json-model/api.ts';
+import { ExcerptToken, ExcerptTokenRange } from '~/json-model/elements.ts';
 
 export function findTokenRef(
   excerptTokens: ExcerptToken[],

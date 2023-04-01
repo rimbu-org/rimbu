@@ -1,0 +1,16 @@
+{
+  "extends": "../../config/tsconfig.types.base.json",
+  "include": ["src"],
+  "rootDir": "./src",
+  "compilerOptions": {
+    "outDir": "./dist/types",
+    "baseUrl": "./dist/types",
+    "paths": {
+      "@rimbu/collection-types/map-custom": ["./map-custom/index.d.ts"],
+      "@rimbu/collection-types/set-custom": ["./set-custom/index.d.ts"],
+      "@rimbu/collection-types/map": ["./map/index.d.ts"],
+      "@rimbu/collection-types/set": ["./set/index.d.ts"],
+      "@rimbu/collection-types": ["./main/index.d.ts"]
+    }
+  }
+}

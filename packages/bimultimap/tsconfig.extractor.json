@@ -1,0 +1,13 @@
+{
+  "extends": "../../config/tsconfig.types.base.json",
+  "include": ["src"],
+  "rootDir": "./src",
+  "compilerOptions": {
+    "outDir": "./dist/types",
+    "baseUrl": "./dist/types",
+    "paths": {
+      "@rimbu/bimultimap/custom": ["./custom/index.d.ts"],
+      "@rimbu/bimultimap": ["./main/index.d.ts"]
+    }
+  }
+}
