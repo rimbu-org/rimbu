@@ -11,14 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Setup Deno
         uses: maximousblk/setup-deno@v1
         with:
-          deno-version: 1.13
+          deno-version: v1.x
 
       - name: Publish
         working-directory: ./deno_dist
