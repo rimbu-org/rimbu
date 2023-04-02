@@ -19,11 +19,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 16
           registry-url: 'https://registry.npmjs.org'
+          cache: 'yarn'
           # Defaults to the user or organization that owns the workflow file
           scope: '@rimbu'
       - run: yarn setup
@@ -34,6 +35,6 @@ jobs:
       # - run: yarn test:types
       - run: yarn test:cov
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

@@ -10,16 +10,17 @@ jobs:
   checks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - uses: webfactory/ssh-agent@v0.5.0
+          cache: 'yarn'
+      - uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.GH_PAGES_DEPLOY }}
       - uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.21.2
+          deno-version: v1.x
       - name: Extract API
         run: |
           yarn setup
