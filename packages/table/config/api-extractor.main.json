@@ -8,6 +8,6 @@
     "apiJsonFilePath": "<projectFolder>/../../doc-gen/input/<unscopedPackageName>.api.json"
   },
   "compiler": {
-    "tsconfigFilePath": "<projectFolder>/tsconfig.json"
+    "tsconfigFilePath": "<projectFolder>/tsconfig.extractor.json"
   }
 }
