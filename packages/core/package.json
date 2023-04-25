@@ -47,16 +47,16 @@
   "exports": {
     ".": {
       "types": "./dist/types/main/index.d.ts",
+      "bun": "./src/main/index.ts",
       "import": "./dist/module/main/index.js",
       "require": "./dist/main/main/index.js",
-      "bun": "./src/main/index.ts",
       "default": "./dist/module/main/index.js"
     },
     "./menu": {
       "types": "./dist/types/menu/index.d.ts",
+      "bun": "./src/menu/index.ts",
       "import": "./dist/module/menu/index.js",
       "require": "./dist/main/menu/index.js",
-      "bun": "./src/menu/index.ts",
       "default": "./dist/module/menu/index.js"
     }
   },
