@@ -1,11 +1,10 @@
 {
   "extends": "../../config/tsconfig.base.json",
   "include": ["src"],
-  "rootDir": "./src",
   "compilerOptions": {
     "outDir": "./dist",
     "noEmit": true,
-    "baseUrl": ".",
+    "rootDir": "./src",
     "paths": {
       "@rimbu/stream/async-custom": ["./src/async-custom/index.ts"],
       "@rimbu/stream/async": ["./src/async/index.ts"],

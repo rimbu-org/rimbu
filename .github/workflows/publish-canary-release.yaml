@@ -1,10 +1,7 @@
 name: Publish canary release to NPM
 on:
-  push:
-    branches:
-      - '!*'
-    tags:
-      - 'c*'
+  workflow_dispatch:
+
 jobs:
   publish:
     runs-on: ubuntu-latest

@@ -1,18 +1,9 @@
 {
   "extends": "../../config/tsconfig.base.json",
   "include": ["src", "test"],
-  "rootDir": "./src",
   "compilerOptions": {
     "outDir": "./dist",
     "noEmit": true,
-    "baseUrl": ".",
-    "paths": {
-      "@rimbu/sorted/map-custom": ["./src/map-custom/index.ts"],
-      "@rimbu/sorted/set-custom": ["./src/set-custom/index.ts"],
-      "@rimbu/sorted/map": ["./src/map/index.ts"],
-      "@rimbu/sorted/set": ["./src/set/index.ts"],
-      "@rimbu/sorted/common": ["./src/common/index.ts"],
-      "@rimbu/sorted": ["./src/main/index.ts"]
-    }
+    "rootDir": "./src"
   }
 }

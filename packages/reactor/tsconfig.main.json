@@ -1,13 +1,10 @@
 {
   "extends": "../../config/tsconfig.main.base.json",
   "include": ["src"],
-  "rootDir": "./src",
   "compilerOptions": {
     "outDir": "./dist/main",
     "jsx": "react",
     "lib": ["esnext", "dom"],
-    "paths": {
-      "@rimbu/reactor": ["./src/index.ts"]
-    }
+    "rootDir": "./src"
   }
 }
