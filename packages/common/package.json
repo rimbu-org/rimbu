@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/common",
-  "version": "0.12.1",
+  "version": "0.12.2",
   "description": "Common types and objects used in many other Rimbu packages",
   "keywords": [
     "common",
