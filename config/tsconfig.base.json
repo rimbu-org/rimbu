@@ -3,7 +3,7 @@
     // targets
     "target": "es2015",
     "module": "commonjs",
-    "moduleResolution": "node",
+    "moduleResolution": "node16",
     // common
     "lib": ["esnext"],
     "importHelpers": true,
@@ -18,7 +18,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true,
-    "baseUrl": "./",
     "isolatedModules": true,
     "importsNotUsedAsValues": "error"
   }

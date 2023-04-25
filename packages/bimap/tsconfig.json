@@ -1,14 +1,9 @@
 {
   "extends": "../../config/tsconfig.base.json",
   "include": ["src", "test"],
-  "rootDir": "./src",
   "compilerOptions": {
     "outDir": "./dist",
     "noEmit": true,
-    "baseUrl": ".",
-    "paths": {
-      "@rimbu/bimap/custom": ["./src/custom/index.ts"],
-      "@rimbu/bimap": ["./src/main/index.ts"]
-    }
+    "rootDir": "./src"
   }
 }

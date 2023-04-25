@@ -32,10 +32,26 @@
     "url": "https://github.com/rimbu-org/rimbu.git",
     "directory": "packages/multimap"
   },
-  "source": "src/main/index.ts",
-  "main": "dist/main/main/index.js",
-  "module": "dist/module/main/index.js",
-  "types": "dist/types/main/index.d.ts",
+  "source": "./src/main/index.ts",
+  "main": "./dist/main/main/index.js",
+  "module": "./dist/module/main/index.js",
+  "types": "./dist/types/main/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/main/index.d.ts",
+      "import": "./dist/module/main/index.js",
+      "require": "./dist/main/main/index.js",
+      "bun": "./src/main/index.ts",
+      "default": "./dist/module/main/index.js"
+    },
+    "./custom": {
+      "types": "./dist/types/custom/index.d.ts",
+      "import": "./dist/module/custom/index.js",
+      "require": "./dist/main/custom/index.js",
+      "bun": "./src/custom/index.ts",
+      "default": "./dist/module/custom/index.js"
+    }
+  },
   "files": [
     "dist",
     "src",

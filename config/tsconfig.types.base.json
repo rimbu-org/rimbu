@@ -2,7 +2,7 @@
   "compilerOptions": {
     // targets
     "target": "ES2020",
-    "moduleResolution": "node",
+    "moduleResolution": "node16",
     // standard
     "lib": ["esnext"],
     "importHelpers": true,
@@ -17,7 +17,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true,
-    "baseUrl": "./",
     "isolatedModules": true,
     "importsNotUsedAsValues": "error",
     // custom

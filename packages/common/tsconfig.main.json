@@ -1,11 +1,8 @@
 {
   "extends": "../../config/tsconfig.main.base.json",
   "include": ["src"],
-  "rootDir": "./src",
   "compilerOptions": {
     "outDir": "./dist/main",
-    "paths": {
-      "@rimbu/common": ["./src/index.ts"]
-    }
+    "rootDir": "./src"
   }
 }

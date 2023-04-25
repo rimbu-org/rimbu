@@ -28,10 +28,19 @@
     "url": "https://github.com/rimbu-org/rimbu.git",
     "directory": "packages/common"
   },
-  "source": "src/index.ts",
-  "main": "dist/main/index.js",
-  "module": "dist/module/index.js",
-  "types": "dist/types/index.d.ts",
+  "source": "./src/index.ts",
+  "main": "./dist/main/index.js",
+  "module": "./dist/module/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/module/index.js",
+      "require": "./dist/main/index.js",
+      "bun": "./src/index.ts",
+      "default": "./dist/module/index.js"
+    }
+  },
   "files": [
     "dist",
     "src"
