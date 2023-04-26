@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/list",
-  "version": "0.11.1",
+  "version": "0.11.2",
   "description": "An efficient immutable ordered sequence of elements akin to a Vector",
   "keywords": [
     "list",
@@ -80,10 +80,10 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@rimbu/base": "^0.11.1",
-    "@rimbu/collection-types": "^0.10.1",
-    "@rimbu/common": "^0.12.1",
-    "@rimbu/stream": "^0.13.1",
+    "@rimbu/base": "^0.11.2",
+    "@rimbu/collection-types": "^0.10.2",
+    "@rimbu/common": "^0.12.2",
+    "@rimbu/stream": "^0.13.2",
     "tslib": "^2.5.0"
   },
   "publishConfig": {

@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/typical",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Type-level numeric and string operations",
   "keywords": [
     "typelevel",
