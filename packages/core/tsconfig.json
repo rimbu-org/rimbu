@@ -4,7 +4,7 @@
   "compilerOptions": {
     "outDir": "./dist",
     "noEmit": true,
-    "rootDir": "./src"
+    "rootDir": ".."
   },
   "collectCoverageFrom": ["src/**"]
 }
