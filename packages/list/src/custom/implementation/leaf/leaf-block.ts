@@ -86,7 +86,7 @@ export class LeafBlock<T>
   }
 
   prepend(value: T): List.NonEmpty<T> {
-    if (this.length === 1 && !this.context.isReversedLeafBlock<any>(this)) {
+    if (this.length === 1 && !this.context.isReversedLeafBlock(this as any)) {
       return this.context.reversedLeaf([this.children[0], value]);
     }
     if (this.canAddChild) {
@@ -148,7 +148,7 @@ export class LeafBlock<T>
   }
 
   concatChildren(other: LeafBlock<T>): LeafBlock<T> {
-    const addChildren = this.context.isReversedLeafBlock<any>(other)
+    const addChildren = this.context.isReversedLeafBlock(other as any)
       ? Arr.reverse(other.children)
       : other.children;
 
@@ -367,7 +367,7 @@ export class ReversedLeafBlock<T> extends LeafBlock<T> {
   }
 
   concatChildren(other: LeafBlock<T>): LeafBlock<T> {
-    if (other.context.isReversedLeafBlock<any>(other)) {
+    if (other.context.isReversedLeafBlock(other as any)) {
       return this.copy(other.children.concat(this.children));
     }
 

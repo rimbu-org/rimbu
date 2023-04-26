@@ -19,7 +19,6 @@
     "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true,
     "isolatedModules": true,
-    "importsNotUsedAsValues": "error",
     "paths": {
       "@rimbu/actor": ["../packages/actor/src/index.ts"],
       "@rimbu/actor/immer": ["../packages/actor/src/immer/index.ts"],
