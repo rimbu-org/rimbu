@@ -1,8 +1,0 @@
-{
-  "name": "set",
-  "private": true,
-  "source": "../src/set/index.ts",
-  "main": "../dist/main/set/index.js",
-  "module": "../dist/module/set/index.js",
-  "types": "../dist/types/set/index.d.ts"
-}

@@ -4,10 +4,6 @@
   "compilerOptions": {
     "outDir": "./dist",
     "noEmit": true,
-    "rootDir": "./src",
-    "paths": {
-      "@rimbu/graph/custom": ["./src/custom/index.ts"],
-      "@rimbu/graph": ["./src/main/index.ts"]
-    }
+    "rootDir": ".."
   }
 }

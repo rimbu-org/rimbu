@@ -39,61 +39,57 @@
   "exports": {
     ".": {
       "types": "./dist/types/main/index.d.ts",
+      "bun": "./src/main/index.ts",
       "import": "./dist/module/main/index.js",
       "require": "./dist/main/main/index.js",
-      "bun": "./src/main/index.ts",
       "default": "./dist/module/main/index.js"
     },
     "./common": {
       "types": "./dist/types/common/index.d.ts",
+      "bun": "./src/common/index.ts",
       "import": "./dist/module/common/index.js",
       "require": "./dist/main/common/index.js",
-      "bun": "./src/common/index.ts",
       "default": "./dist/module/common/index.js"
     },
     "./custom": {
       "types": "./dist/types/custom/index.d.ts",
+      "bun": "./src/custom/index.ts",
       "import": "./dist/module/custom/index.js",
       "require": "./dist/main/custom/index.js",
-      "bun": "./src/custom/index.ts",
       "default": "./dist/module/custom/index.js"
     },
     "./map": {
       "types": "./dist/types/map/index.d.ts",
+      "bun": "./src/map/index.ts",
       "import": "./dist/module/map/index.js",
       "require": "./dist/main/map/index.js",
-      "bun": "./src/map/index.ts",
       "default": "./dist/module/map/index.js"
     },
     "./map-custom": {
       "types": "./dist/types/map-custom/index.d.ts",
+      "bun": "./src/map-custom/index.ts",
       "import": "./dist/module/map-custom/index.js",
       "require": "./dist/main/map-custom/index.js",
-      "bun": "./src/map-custom/index.ts",
       "default": "./dist/module/map-custom/index.js"
     },
     "./set": {
       "types": "./dist/types/set/index.d.ts",
+      "bun": "./src/set/index.ts",
       "import": "./dist/module/set/index.js",
       "require": "./dist/main/set/index.js",
-      "bun": "./src/set/index.ts",
       "default": "./dist/module/set/index.js"
     },
     "./set-custom": {
       "types": "./dist/types/set-custom/index.d.ts",
+      "bun": "./src/set-custom/index.ts",
       "import": "./dist/module/set-custom/index.js",
       "require": "./dist/main/set-custom/index.js",
-      "bun": "./src/set-custom/index.ts",
       "default": "./dist/module/set-custom/index.js"
     }
   },
   "files": [
     "dist",
-    "src",
-    "map",
-    "map-custom",
-    "set",
-    "set-custom"
+    "src"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",

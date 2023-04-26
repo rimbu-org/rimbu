@@ -1,13 +1,10 @@
 {
   "extends": "../../config/tsconfig.types.base.json",
   "include": ["src"],
-  "rootDir": "./src",
+  "rootDir": "..",
   "compilerOptions": {
     "outDir": "./dist/types",
     "baseUrl": "./dist/types",
-    "paths": {
-      "@rimbu/list": ["./main/index.d.ts"],
-      "@rimbu/list/custom": ["./custom/index.d.ts"]
-    }
+    "rootDir": ".."
   }
 }

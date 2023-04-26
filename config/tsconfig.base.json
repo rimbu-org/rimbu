@@ -19,6 +19,87 @@
     "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true,
     "isolatedModules": true,
-    "importsNotUsedAsValues": "error"
+    "importsNotUsedAsValues": "error",
+    "paths": {
+      "@rimbu/actor": ["../packages/actor/src/index.ts"],
+      "@rimbu/actor/immer": ["../packages/actor/src/immer/index.ts"],
+      "@rimbu/actor/patch": ["../packages/actor/src/patch/index.ts"],
+      "@rimbu/actor/stream": ["../packages/actor/src/stream/index.ts"],
+      "@rimbu/base": ["../packages/base/src/index.ts"],
+      "@rimbu/bimap": ["../packages/bimap/src/main/index.ts"],
+      "@rimbu/bimap/custom": ["../packages/bimap/src/custom/index.ts"],
+      "@rimbu/bimultimap": ["../packages/bimultimap/src/main/index.ts"],
+      "@rimbu/bimultimap/custom": [
+        "../packages/bimultimap/src/custom/index.ts"
+      ],
+      "@rimbu/collection-types": [
+        "../packages/collection-types/src/main/index.ts"
+      ],
+      "@rimbu/collection-types/map": [
+        "../packages/collection-types/src/map/index.ts"
+      ],
+      "@rimbu/collection-types/map-custom": [
+        "../packages/collection-types/src/map-custom/index.ts"
+      ],
+      "@rimbu/collection-types/set": [
+        "../packages/collection-types/src/set/index.ts"
+      ],
+      "@rimbu/collection-types/set-custom": [
+        "../packages/collection-types/src/set-custom/index.ts"
+      ],
+      "@rimbu/common": ["../common/src/index.ts"],
+      "@rimbu/core": ["../packages/core/src/main/index.ts"],
+      "@rimbu/core/menu": ["../packages/core/src/menu/index.ts"],
+      "@rimbu/deep": ["../packages/deep/src/index.ts"],
+      "@rimbu/graph": ["../packages/graph/src/main/index.ts"],
+      "@rimbu/graph/custom": ["../packages/graph/src/custom/index.ts"],
+      "@rimbu/hashed": ["../packages/hashed/src/main/index.ts"],
+      "@rimbu/hashed/map": ["../packages/hashed/src/map/index.ts"],
+      "@rimbu/hashed/map-custom": [
+        "../packages/hashed/src/map-custom/index.ts"
+      ],
+      "@rimbu/hashed/set": ["../packages/hashed/src/set/index.ts"],
+      "@rimbu/hashed/set-custom": [
+        "../packages/hashed/src/set-custom/index.ts"
+      ],
+      "@rimbu/list": ["../packages/list/src/main/index.ts"],
+      "@rimbu/list/custom": ["../packages/list/src/custom/index.ts"],
+      "@rimbu/multimap": ["../packages/multimap/src/main/index.ts"],
+      "@rimbu/multimap/custom": ["../packages/multimap/src/custom/index.ts"],
+      "@rimbu/multiset": ["../packages/multiset/src/main/index.ts"],
+      "@rimbu/multiset/custom": ["../packages/multiset/src/custom/index.ts"],
+      "@rimbu/ordered": ["../packages/ordered/src/main/index.ts"],
+      "@rimbu/ordered/map": ["../packages/ordered/src/map/index.ts"],
+      "@rimbu/ordered/map-custom": [
+        "../packages/ordered/src/map-custom/index.ts"
+      ],
+      "@rimbu/ordered/set": ["../packages/ordered/src/set/index.ts"],
+      "@rimbu/ordered/set-custom": [
+        "../packages/ordered/src/set-custom/index.ts"
+      ],
+      "@rimbu/reactor": ["../packages/reactor/src/index.ts"],
+      "@rimbu/sorted": ["../packages/sorted/src/main/index.ts"],
+      "@rimbu/sorted/common": ["../packages/sorted/src/common/index.ts"],
+      "@rimbu/sorted/map": ["../packages/sorted/src/map/index.ts"],
+      "@rimbu/sorted/map-custom": [
+        "../packages/sorted/src/map-custom/index.ts"
+      ],
+      "@rimbu/sorted/set": ["../packages/sorted/src/set/index.ts"],
+      "@rimbu/sorted/set-custom": [
+        "../packages/sorted/src/set-custom/index.ts"
+      ],
+      "@rimbu/spy": ["../packages/spy/src/index.ts"],
+      "@rimbu/stream": ["../packages/stream/src/main/index.ts"],
+      "@rimbu/stream/async": ["../packages/stream/src/async/index.ts"],
+      "@rimbu/stream/async-custom": [
+        "../packages/stream/src/async-custom/index.ts"
+      ],
+      "@rimbu/stream/custom": ["../packages/stream/src/custom/index.ts"],
+      "@rimbu/table": ["../packages/table/src/main/index.ts"],
+      "@rimbu/table/custom": ["../packages/table/src/custom/index.ts"],
+      "@rimbu/table/hash-row": ["../packages/table/src/hash-row/index.ts"],
+      "@rimbu/table/sorted-row": ["../packages/table/src/sorted-row/index.ts"],
+      "@rimbu/typical": ["../packages/typical/src/index.ts"]
+    }
   }
 }

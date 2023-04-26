@@ -39,39 +39,36 @@
   "exports": {
     ".": {
       "types": "./dist/types/main/index.d.ts",
+      "bun": "./src/main/index.ts",
       "import": "./dist/module/main/index.js",
       "require": "./dist/main/main/index.js",
-      "bun": "./src/main/index.ts",
       "default": "./dist/module/main/index.js"
     },
     "./async": {
       "types": "./dist/types/async/index.d.ts",
+      "bun": "./src/async/index.ts",
       "import": "./dist/module/async/index.js",
       "require": "./dist/main/async/index.js",
-      "bun": "./src/async/index.ts",
       "default": "./dist/module/async/index.js"
     },
     "./async-custom": {
       "types": "./dist/types/async-custom/index.d.ts",
+      "bun": "./src/async-custom/index.ts",
       "import": "./dist/module/async-custom/index.js",
       "require": "./dist/main/async-custom/index.js",
-      "bun": "./src/async-custom/index.ts",
       "default": "./dist/module/async-custom/index.js"
     },
     "./custom": {
       "types": "./dist/types/custom/index.d.ts",
+      "bun": "./src/custom/index.ts",
       "import": "./dist/module/custom/index.js",
       "require": "./dist/main/custom/index.js",
-      "bun": "./src/custom/index.ts",
       "default": "./dist/module/custom/index.js"
     }
   },
   "files": [
     "dist",
-    "src",
-    "async",
-    "async-custom",
-    "custom"
+    "src"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",

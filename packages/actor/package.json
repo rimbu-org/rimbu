@@ -34,39 +34,36 @@
   "exports": {
     ".": {
       "types": "./dist/types/main/index.d.ts",
+      "bun": "./src/main/index.ts",
       "import": "./dist/module/main/index.js",
       "require": "./dist/main/main/index.js",
-      "bun": "./src/main/index.ts",
       "default": "./dist/module/main/index.js"
     },
     "./immer": {
       "types": "./dist/types/immer/index.d.ts",
+      "bun": "./src/immer/index.ts",
       "import": "./dist/module/immer/index.js",
       "require": "./dist/main/immer/index.js",
-      "bun": "./src/immer/index.ts",
       "default": "./dist/module/immer/index.js"
     },
     "./patch": {
       "types": "./dist/types/patch/index.d.ts",
+      "bun": "./src/patch/index.ts",
       "import": "./dist/module/patch/index.js",
       "require": "./dist/main/patch/index.js",
-      "bun": "./src/patch/index.ts",
       "default": "./dist/module/patch/index.js"
     },
     "./stream": {
       "types": "./dist/types/stream/index.d.ts",
+      "bun": "./src/stream/index.ts",
       "import": "./dist/module/stream/index.js",
       "require": "./dist/main/stream/index.js",
-      "bun": "./src/stream/index.ts",
       "default": "./dist/module/stream/index.js"
     }
   },
   "files": [
     "dist",
-    "src",
-    "immer",
-    "patch",
-    "stream"
+    "src"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
