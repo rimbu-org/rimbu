@@ -74,11 +74,7 @@
   },
   "files": [
     "dist",
-    "src",
-    "map",
-    "set",
-    "map-custom",
-    "set-custom"
+    "src"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",

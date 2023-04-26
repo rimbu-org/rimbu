@@ -63,10 +63,7 @@
   },
   "files": [
     "dist",
-    "src",
-    "immer",
-    "patch",
-    "stream"
+    "src"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",

@@ -68,10 +68,7 @@
   },
   "files": [
     "dist",
-    "src",
-    "custom",
-    "hash-row",
-    "sorted-row"
+    "src"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",

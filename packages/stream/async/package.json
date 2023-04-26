@@ -1,8 +1,0 @@
-{
-  "name": "async",
-  "private": true,
-  "source": "../src/async/index.ts",
-  "main": "../dist/main/async/index.js",
-  "module": "../dist/module/async/index.js",
-  "types": "../dist/types/async/index.d.ts"
-}

@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.11.3](https://github.com/rimbu-org/rimbu/compare/@rimbu/actor@0.11.2...@rimbu/actor@0.11.3) (2023-04-25)
+
+**Note:** Version bump only for package @rimbu/actor
+
 ## [0.11.2](https://github.com/rimbu-org/rimbu/compare/@rimbu/actor@0.11.1...@rimbu/actor@0.11.2) (2023-04-02)
 
 **Note:** Version bump only for package @rimbu/actor

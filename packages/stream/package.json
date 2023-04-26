@@ -68,10 +68,7 @@
   },
   "files": [
     "dist",
-    "src",
-    "async",
-    "async-custom",
-    "custom"
+    "src"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",

@@ -1,8 +1,0 @@
-{
-  "name": "custom",
-  "private": true,
-  "source": "../src/custom/index.ts",
-  "main": "../dist/main/custom/index.js",
-  "module": "../dist/module/custom/index.js",
-  "types": "../dist/types/custom/index.d.ts"
-}
