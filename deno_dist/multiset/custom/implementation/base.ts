@@ -457,7 +457,7 @@ export class MultiSetBuilder<
   remove = <U>(value: RelatedTo<T, U>, amount: number | 'ALL' = 1): number => {
     this.checkLock();
 
-    if (amount <= 0) return 0;
+    if (typeof amount === 'number' && amount <= 0) return 0;
     if (!this.context.isValidElem(value)) return 0;
 
     let removed = 0;

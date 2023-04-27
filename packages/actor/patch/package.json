@@ -1,0 +1,8 @@
+{
+  "name": "patch",
+  "private": true,
+  "source": "../src/patch/index.ts",
+  "main": "../dist/main/patch/index.js",
+  "module": "../dist/module/patch/index.js",
+  "types": "../dist/types/patch/index.d.ts"
+}

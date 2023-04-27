@@ -18,7 +18,6 @@
     "forceConsistentCasingInFileNames": true,
     "downlevelIteration": true,
     "isolatedModules": true,
-    "importsNotUsedAsValues": "error",
     // custom
     "declaration": true,
     "emitDeclarationOnly": true

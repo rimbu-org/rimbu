@@ -1,10 +1,7 @@
 {
-  "extends": "../../config/tsconfig.types.base.json",
+  "extends": "../../config/tsconfig.extractor.base.json",
   "include": ["src"],
-  "rootDir": "..",
   "compilerOptions": {
-    "outDir": "./dist/types",
-    "baseUrl": "./dist/types",
     "rootDir": ".."
   }
 }

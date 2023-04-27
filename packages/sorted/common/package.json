@@ -1,0 +1,8 @@
+{
+  "name": "common",
+  "private": true,
+  "source": "../src/common/index.ts",
+  "main": "../dist/main/common/index.js",
+  "module": "../dist/module/common/index.js",
+  "types": "../dist/types/common/index.d.ts"
+}

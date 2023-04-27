@@ -1,0 +1,8 @@
+{
+  "name": "map",
+  "private": true,
+  "source": "../src/map/index.ts",
+  "main": "../dist/main/map/index.js",
+  "module": "../dist/module/map/index.js",
+  "types": "../dist/types/map/index.d.ts"
+}
