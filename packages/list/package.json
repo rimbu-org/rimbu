@@ -54,7 +54,8 @@
   },
   "files": [
     "dist",
-    "src"
+    "src",
+    "custom"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
