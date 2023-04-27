@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/reactor",
-  "version": "0.11.4",
+  "version": "0.11.5",
   "description": "React state management based on Rimbu Actors",
   "keywords": [
     "state management",
@@ -68,9 +68,9 @@
     "react-dom": "<18.0.0"
   },
   "dependencies": {
-    "@rimbu/actor": "^0.11.4",
-    "@rimbu/deep": "^0.14.3",
-    "@rimbu/stream": "^0.13.3",
+    "@rimbu/actor": "^0.11.5",
+    "@rimbu/deep": "^0.14.4",
+    "@rimbu/stream": "^0.13.4",
     "tslib": "^2.5.0"
   },
   "peerDependencies": {
