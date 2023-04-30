@@ -1,10 +1,7 @@
 import { Token } from '../../base/mod.ts';
 import { CollectFun, Eq, OptLazy, Reducer, TraverseState } from '../../common/mod.ts';
-import {
-  fromStreamSource,
-  isEmptyStreamSourceInstance,
-} from '../../stream/custom/index.ts';
 import type { FastIterator, Stream, StreamSource } from '../../stream/mod.ts';
+import type { StreamSourceHelpers } from '../../stream/custom/index.ts';
 
 export const fixedDoneIteratorResult: IteratorResult<any> = Object.freeze({
   done: true,
@@ -50,7 +47,8 @@ export class FlatMapIterator<T, T2> extends FastIteratorBase<T2> {
       value: T,
       index: number,
       halt: () => void
-    ) => StreamSource<T2>
+    ) => StreamSource<T2>,
+    readonly streamSourceHelpers: StreamSourceHelpers
   ) {
     super();
     this.iterator = this.source[Symbol.iterator]();
@@ -87,7 +85,9 @@ export class FlatMapIterator<T, T2> extends FastIteratorBase<T2> {
         state.halt
       );
 
-      this.currentIterator = fromStreamSource(nextSource)[Symbol.iterator]();
+      this.currentIterator = this.streamSourceHelpers
+        .fromStreamSource(nextSource)
+        [Symbol.iterator]();
     }
 
     return nextValue;
@@ -99,7 +99,8 @@ export class ConcatIterator<T> extends FastIteratorBase<T> {
 
   constructor(
     readonly source: Stream<T>,
-    readonly otherSources: StreamSource<T>[]
+    readonly otherSources: StreamSource<T>[],
+    readonly streamSourceHelpers: StreamSourceHelpers
   ) {
     super();
 
@@ -112,18 +113,21 @@ export class ConcatIterator<T> extends FastIteratorBase<T> {
     const done = Symbol('Done');
     let value: T | typeof done;
     const length = this.otherSources.length;
+    const { streamSourceHelpers } = this;
 
     while (done === (value = this.iterator.fastNext(done))) {
       if (this.sourceIndex >= length) return OptLazy(otherwise) as O;
 
       let nextSource: StreamSource<T> = this.otherSources[this.sourceIndex++];
 
-      while (isEmptyStreamSourceInstance(nextSource)) {
+      while (streamSourceHelpers.isEmptyStreamSourceInstance(nextSource)) {
         if (this.sourceIndex >= length) return OptLazy(otherwise) as O;
         nextSource = this.otherSources[this.sourceIndex++];
       }
 
-      this.iterator = fromStreamSource(nextSource)[Symbol.iterator]();
+      this.iterator = streamSourceHelpers
+        .fromStreamSource(nextSource)
+        [Symbol.iterator]();
     }
 
     return value;
@@ -663,10 +667,11 @@ export class MapApplyIterator<
   constructor(
     source: StreamSource<T>,
     readonly f: (...args: [...T, ...A]) => R,
-    readonly args: A
+    readonly args: A,
+    streamSourceHelpers: StreamSourceHelpers
   ) {
     super();
-    this.iter = fromStreamSource(source)[Symbol.iterator]();
+    this.iter = streamSourceHelpers.fromStreamSource(source)[Symbol.iterator]();
   }
 
   iter: FastIterator<T>;
@@ -689,10 +694,11 @@ export class FilterApplyIterator<
     source: StreamSource<T>,
     readonly pred: (...args: [...T, ...A]) => boolean,
     readonly args: A,
-    readonly invert: boolean
+    readonly invert: boolean,
+    streamSourceHelpers: StreamSourceHelpers
   ) {
     super();
-    this.iter = fromStreamSource(source)[Symbol.iterator]();
+    this.iter = streamSourceHelpers.fromStreamSource(source)[Symbol.iterator]();
   }
 
   iter: FastIterator<T>;
@@ -826,12 +832,14 @@ export class ZipWithIterator<
 > extends FastIteratorBase<R> {
   constructor(
     readonly iterables: { [K in keyof I]: StreamSource<I[K]> },
-    readonly zipFun: (...values: I) => R
+    readonly zipFun: (...values: I) => R,
+    streamSourceHelpers: StreamSourceHelpers
   ) {
     super();
 
     this.sources = iterables.map(
-      (source): FastIterator<any> => fromStreamSource(source)[Symbol.iterator]()
+      (source): FastIterator<any> =>
+        streamSourceHelpers.fromStreamSource(source)[Symbol.iterator]()
     );
   }
 
@@ -865,12 +873,14 @@ export class ZipAllWithItererator<
   constructor(
     readonly fillValue: OptLazy<F>,
     readonly iters: { [K in keyof I]: StreamSource<I[K]> },
-    readonly zipFun: (...values: { [K in keyof I]: I[K] | F }) => R
+    readonly zipFun: (...values: { [K in keyof I]: I[K] | F }) => R,
+    streamSourceHelpers: StreamSourceHelpers
   ) {
     super();
 
     this.sources = iters.map(
-      (o): FastIterator<any> => fromStreamSource(o)[Symbol.iterator]()
+      (o): FastIterator<any> =>
+        streamSourceHelpers.fromStreamSource(o)[Symbol.iterator]()
     );
   }
 

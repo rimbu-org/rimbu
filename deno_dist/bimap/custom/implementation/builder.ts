@@ -1,10 +1,10 @@
 import { RimbuError } from '../../../base/mod.ts';
+import type { BiMap } from '../../../bimap/mod.ts';
+import type { BiMapContext, BiMapNonEmptyImpl } from '../../../bimap/custom/index.ts';
 import type { RMap } from '../../../collection-types/map/index.ts';
 import { OptLazy, RelatedTo, TraverseState } from '../../../common/mod.ts';
 import { Stream, StreamSource } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
-import { BiMapContext, BiMapNonEmptyImpl } from '../../../bimap/custom/index.ts';
-import type { BiMap } from '../../../bimap/mod.ts';
 
 export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
   constructor(
@@ -217,8 +217,7 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
     if (undefined !== this.source) return this.source;
     if (this.size === 0) return this.context.empty();
 
-    return new BiMapNonEmptyImpl(
-      this.context,
+    return this.context.createNonEmptyImpl(
       this.keyValueMap.build().assumeNonEmpty(),
       this.valueKeyMap.build().assumeNonEmpty()
     );

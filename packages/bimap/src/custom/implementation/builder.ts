@@ -1,10 +1,10 @@
 import { RimbuError } from '@rimbu/base';
+import type { BiMap } from '@rimbu/bimap';
+import type { BiMapContext, BiMapNonEmptyImpl } from '@rimbu/bimap/custom';
 import type { RMap } from '@rimbu/collection-types/map';
 import { OptLazy, RelatedTo, TraverseState } from '@rimbu/common';
 import { Stream, StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
-import { BiMapContext, BiMapNonEmptyImpl } from '@rimbu/bimap/custom';
-import type { BiMap } from '@rimbu/bimap';
 
 export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
   constructor(
@@ -217,8 +217,7 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
     if (undefined !== this.source) return this.source;
     if (this.size === 0) return this.context.empty();
 
-    return new BiMapNonEmptyImpl(
-      this.context,
+    return this.context.createNonEmptyImpl(
       this.keyValueMap.build().assumeNonEmpty(),
       this.valueKeyMap.build().assumeNonEmpty()
     );

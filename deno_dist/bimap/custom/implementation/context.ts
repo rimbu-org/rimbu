@@ -1,13 +1,13 @@
-import type { RMap } from '../../../collection-types/map/index.ts';
-import type { ArrayNonEmpty } from '../../../common/mod.ts';
-import { Reducer } from '../../../common/mod.ts';
-import type { StreamSource } from '../../../stream/mod.ts';
+import type { BiMap } from '../../../bimap/mod.ts';
 import {
   BiMapBuilder,
   BiMapEmpty,
   BiMapNonEmptyImpl,
 } from '../../../bimap/custom/index.ts';
-import type { BiMap } from '../../../bimap/mod.ts';
+import type { RMap } from '../../../collection-types/map/index.ts';
+import type { ArrayNonEmpty } from '../../../common/mod.ts';
+import { Reducer } from '../../../common/mod.ts';
+import type { StreamSource } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>
@@ -93,4 +93,17 @@ export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>
       (builder) => builder.build()
     );
   };
+
+  createNonEmptyImpl<K extends UK, V extends UV>(
+    keyValueMap: RMap.NonEmpty<K, V>,
+    valueKeyMap: RMap.NonEmpty<V, K>
+  ): BiMapNonEmptyImpl<K, V> {
+    return new BiMapNonEmptyImpl(this as any, keyValueMap, valueKeyMap);
+  }
+
+  createBuilder<K extends UK, V extends UV>(
+    source?: BiMapNonEmptyImpl<K, V>
+  ): BiMapBuilder<K, V> {
+    return new BiMapBuilder(this as any, source);
+  }
 }

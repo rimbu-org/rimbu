@@ -1,3 +1,4 @@
+import { RimbuError, Token } from '@rimbu/base';
 import {
   ArrayNonEmpty,
   CollectFun,
@@ -19,46 +20,45 @@ import type {
 } from '@rimbu/stream';
 import type { StreamConstructors } from '@rimbu/stream/custom';
 import {
-  isFastIterator,
-  emptyFastIterator,
-  FlatMapIterator,
-  ConcatIterator,
-  FilterIterator,
-  FilterPureIterator,
-  IndicesWhereIterator,
-  IndicesOfIterator,
-  TakeWhileIterator,
-  DropWhileIterator,
-  TakeIterator,
-  DropIterator,
-  IntersperseIterator,
-  SplitWhereIterator,
-  SplitOnIterator,
-  ReduceIterator,
-  ReduceAllIterator,
-  RepeatIterator,
-  CollectIterator,
+  AlwaysIterator,
+  AppendIterator,
   ArrayIterator,
   ArrayReverseIterator,
-  AlwaysIterator,
-  MapApplyIterator,
+  CollectIterator,
+  ConcatIterator,
+  DistinctPreviousIterator,
+  DropIterator,
+  DropWhileIterator,
   FilterApplyIterator,
-  RangeDownIterator,
-  RangeUpIterator,
-  RandomIntIterator,
-  RandomIterator,
-  UnfoldIterator,
-  ZipAllWithItererator,
-  ZipWithIterator,
-  AppendIterator,
+  FilterIterator,
+  FilterPureIterator,
+  FlatMapIterator,
   IndexedIterator,
+  IndicesOfIterator,
+  IndicesWhereIterator,
+  IntersperseIterator,
+  MapApplyIterator,
   MapIterator,
   MapPureIterator,
   PrependIterator,
-  DistinctPreviousIterator,
+  RandomIntIterator,
+  RandomIterator,
+  RangeDownIterator,
+  RangeUpIterator,
+  ReduceAllIterator,
+  ReduceIterator,
+  RepeatIterator,
+  SplitOnIterator,
+  SplitWhereIterator,
+  TakeIterator,
+  TakeWhileIterator,
+  UnfoldIterator,
   WindowIterator,
+  ZipAllWithItererator,
+  ZipWithIterator,
+  emptyFastIterator,
+  isFastIterator,
 } from '@rimbu/stream/custom';
-import { RimbuError, Token } from '@rimbu/base';
 
 function* yieldObjKeys<K extends string | number | symbol>(
   obj: Record<K, any>
@@ -858,7 +858,11 @@ class FlatMapStream<T, T2> extends StreamBase<T2> {
   }
 
   [Symbol.iterator](): FastIterator<T2> {
-    return new FlatMapIterator<T, T2>(this.source, this.flatmapFun);
+    return new FlatMapIterator<T, T2>(
+      this.source,
+      this.flatmapFun,
+      streamSourceHelpers
+    );
   }
 }
 
@@ -871,7 +875,11 @@ class ConcatStream<T> extends StreamBase<T> {
   }
 
   [Symbol.iterator](): FastIterator<T> {
-    return new ConcatIterator<T>(this.source, this.otherSources);
+    return new ConcatIterator<T>(
+      this.source,
+      this.otherSources,
+      streamSourceHelpers
+    );
   }
 
   forEach(
@@ -1728,7 +1736,12 @@ export class MapApplyStream<
   }
 
   [Symbol.iterator](): FastIterator<R> {
-    return new MapApplyIterator(this.source, this.f, this.args);
+    return new MapApplyIterator(
+      this.source,
+      this.f,
+      this.args,
+      streamSourceHelpers
+    );
   }
 }
 
@@ -1750,7 +1763,8 @@ export class FilterApplyStream<
       this.source,
       this.pred,
       this.args,
-      this.invert
+      this.invert,
+      streamSourceHelpers
     );
   }
 }
@@ -1848,6 +1862,13 @@ export function isEmptyStreamSourceInstance(
 
   return false;
 }
+
+const streamSourceHelpers = {
+  fromStreamSource,
+  isEmptyStreamSourceInstance,
+};
+
+export type StreamSourceHelpers = typeof streamSourceHelpers;
 
 export const StreamConstructorsImpl: StreamConstructors =
   Object.freeze<StreamConstructors>({
@@ -1999,7 +2020,7 @@ export const StreamConstructorsImpl: StreamConstructors =
         }
 
         return new FromStream(
-          () => new ZipWithIterator(sources as any, zipFun)
+          () => new ZipWithIterator(sources as any, zipFun, streamSourceHelpers)
         );
       };
     },
@@ -2014,7 +2035,12 @@ export const StreamConstructorsImpl: StreamConstructors =
 
         return new FromStream(
           (): FastIterator<any> =>
-            new ZipAllWithItererator(fillValue, sources, zipFun)
+            new ZipAllWithItererator(
+              fillValue,
+              sources,
+              zipFun,
+              streamSourceHelpers
+            )
         );
       };
     },

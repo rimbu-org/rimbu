@@ -1,5 +1,5 @@
 import type { BiMap } from '../../../bimap/mod.ts';
-import { BiMapBuilder, BiMapContext } from '../../../bimap/custom/index.ts';
+import type { BiMapContext } from '../../../bimap/custom/index.ts';
 import type { RMap } from '../../../collection-types/map/index.ts';
 import { EmptyBase, NonEmptyBase } from '../../../collection-types/map-custom/index.ts';
 import {
@@ -386,7 +386,7 @@ export class BiMapNonEmptyImpl<K, V>
   }
 
   toBuilder(): BiMap.Builder<K, V> {
-    return new BiMapBuilder(this.context, this);
+    return this.context.createBuilder(this);
   }
 
   toArray(): ArrayNonEmpty<readonly [K, V]> {
