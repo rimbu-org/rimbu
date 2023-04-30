@@ -17,8 +17,8 @@ const urlBase = '..';
 
 makeThisModuleAnExecutableReplacer(async (args) => {
   const { parsedImportExportStatement, destDirPath } = args;
-  
-  if (parsedImportExportStatement.parsedArgument.type !== "DEPENDENCY") {
+
+  if (parsedImportExportStatement.parsedArgument.type !== 'DEPENDENCY') {
     return undefined;
   }
 

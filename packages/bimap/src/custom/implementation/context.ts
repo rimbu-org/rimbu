@@ -1,13 +1,13 @@
-import type { RMap } from '@rimbu/collection-types/map';
-import type { ArrayNonEmpty } from '@rimbu/common';
-import { Reducer } from '@rimbu/common';
-import type { StreamSource } from '@rimbu/stream';
+import type { BiMap } from '@rimbu/bimap';
 import {
   BiMapBuilder,
   BiMapEmpty,
   BiMapNonEmptyImpl,
 } from '@rimbu/bimap/custom';
-import type { BiMap } from '@rimbu/bimap';
+import type { RMap } from '@rimbu/collection-types/map';
+import type { ArrayNonEmpty } from '@rimbu/common';
+import { Reducer } from '@rimbu/common';
+import type { StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>
@@ -93,4 +93,17 @@ export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>
       (builder) => builder.build()
     );
   };
+
+  createNonEmptyImpl<K extends UK, V extends UV>(
+    keyValueMap: RMap.NonEmpty<K, V>,
+    valueKeyMap: RMap.NonEmpty<V, K>
+  ): BiMapNonEmptyImpl<K, V> {
+    return new BiMapNonEmptyImpl(this as any, keyValueMap, valueKeyMap);
+  }
+
+  createBuilder<K extends UK, V extends UV>(
+    source?: BiMapNonEmptyImpl<K, V>
+  ): BiMapBuilder<K, V> {
+    return new BiMapBuilder(this as any, source);
+  }
 }

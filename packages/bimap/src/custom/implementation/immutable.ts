@@ -1,5 +1,5 @@
 import type { BiMap } from '@rimbu/bimap';
-import { BiMapBuilder, BiMapContext } from '@rimbu/bimap/custom';
+import type { BiMapContext } from '@rimbu/bimap/custom';
 import type { RMap } from '@rimbu/collection-types/map';
 import { EmptyBase, NonEmptyBase } from '@rimbu/collection-types/map-custom';
 import {
@@ -386,7 +386,7 @@ export class BiMapNonEmptyImpl<K, V>
   }
 
   toBuilder(): BiMap.Builder<K, V> {
-    return new BiMapBuilder(this.context, this);
+    return this.context.createBuilder(this);
   }
 
   toArray(): ArrayNonEmpty<readonly [K, V]> {

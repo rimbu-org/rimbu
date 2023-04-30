@@ -1,9 +1,8 @@
 import { EmptyBase, WithElem } from '@rimbu/collection-types/set-custom';
 import type { ToJSON } from '@rimbu/common';
 import type { List } from '@rimbu/list';
-import {
+import type {
   OrderedSetBase,
-  OrderedSetNonEmpty,
   OrderedSetTypes,
 } from '@rimbu/ordered/set-custom';
 import type { StreamSource } from '@rimbu/stream';
@@ -52,7 +51,10 @@ export class OrderedSetEmpty<
   }
 
   union(other: StreamSource<T>): TpG['normal'] | any {
-    if (other instanceof OrderedSetNonEmpty && other.context === this.context) {
+    if (
+      this.context.isNonEmptyInstance(other) &&
+      (other as any).context === this.context
+    ) {
       return other;
     }
 
