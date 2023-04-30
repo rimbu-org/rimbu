@@ -1,3 +1,4 @@
+import { RimbuError, Token } from '../../base/mod.ts';
 import {
   ArrayNonEmpty,
   AsyncCollectFun,
@@ -9,8 +10,9 @@ import {
   ToJSON,
   TraverseState,
 } from '../../common/mod.ts';
-import { RimbuError, Token } from '../../base/mod.ts';
 
+import type { StreamSource } from '../../stream/mod.ts';
+import { Stream } from '../../stream/mod.ts';
 import type {
   AsyncFastIterator,
   AsyncStream,
@@ -18,22 +20,11 @@ import type {
   AsyncTransformer,
 } from '../../stream/async/index.ts';
 import {
-  closeIters,
-  emptyAsyncFastIterator,
-  FromAsyncIterator,
-  FromIterator,
-  FromPromise,
-  isAsyncFastIterator,
-  FromResourceIterator,
-  AsyncUnfoldIterator,
-  AsyncZipWithIterator,
-  AsyncZipAllWithItererator,
   AsyncAppendIterator,
   AsyncCollectIterator,
   AsyncConcatIterator,
-  AsyncDropIterator,
-  AsyncSplitWhereIterator,
   AsyncDistinctPreviousIterator,
+  AsyncDropIterator,
   AsyncDropWhileIterator,
   AsyncFilterIterator,
   AsyncFilterPureIterator,
@@ -43,6 +34,7 @@ import {
   AsyncIndicesOfIterator,
   AsyncIndicesWhereIterator,
   AsyncIntersperseIterator,
+  AsyncLiveIterator,
   AsyncMapIterator,
   AsyncMapPureIterator,
   AsyncOfIterator,
@@ -51,14 +43,22 @@ import {
   AsyncReduceIterator,
   AsyncRepeatIterator,
   AsyncSplitOnIterator,
+  AsyncSplitWhereIterator,
   AsyncStreamConstructors,
   AsyncTakeIterator,
   AsyncTakeWhileIterator,
+  AsyncUnfoldIterator,
   AsyncWindowIterator,
-  AsyncLiveIterator,
+  AsyncZipAllWithItererator,
+  AsyncZipWithIterator,
+  FromAsyncIterator,
+  FromIterator,
+  FromPromise,
+  FromResourceIterator,
+  closeIters,
+  emptyAsyncFastIterator,
+  isAsyncFastIterator,
 } from '../../stream/async-custom/index.ts';
-import { Stream } from '../../stream/mod.ts';
-import type { StreamSource } from '../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../stream/custom/index.ts';
 
 export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
@@ -1047,7 +1047,11 @@ class AsyncFlatMapStream<T, T2> extends AsyncStreamBase<T2> {
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T2> {
-    return new AsyncFlatMapIterator<T, T2>(this.source, this.flatmapFun);
+    return new AsyncFlatMapIterator<T, T2>(
+      this.source,
+      this.flatmapFun,
+      asyncStreamSourceHelpers
+    );
   }
 }
 
@@ -1060,7 +1064,11 @@ class AsyncConcatStream<T> extends AsyncStreamBase<T> {
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
-    return new AsyncConcatIterator(this.source, this.others);
+    return new AsyncConcatIterator(
+      this.source,
+      this.others,
+      asyncStreamSourceHelpers
+    );
   }
 }
 
@@ -1620,7 +1628,12 @@ export class FromResource<T, R> extends AsyncStreamBase<T> {
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
-    return new FromResourceIterator(this.open, this.createSource, this.close);
+    return new FromResourceIterator(
+      this.open,
+      this.createSource,
+      this.close,
+      asyncStreamSourceHelpers
+    );
   }
 }
 
@@ -1642,7 +1655,7 @@ export function asyncStreamSourceToIterator<T>(
   close?: () => MaybePromise<void>
 ): AsyncFastIterator<T> {
   if (source instanceof Function) {
-    return new FromPromise(source as any, close);
+    return new FromPromise(source as any, asyncStreamSourceHelpers, close);
   }
 
   if (isEmptyAsyncStreamSourceInstance(source)) {
@@ -1700,6 +1713,13 @@ export const fromAsyncStreamSource: {
 
   return new FromSource(source);
 };
+
+const asyncStreamSourceHelpers = {
+  fromAsyncStreamSource,
+  isEmptyAsyncStreamSourceInstance,
+};
+
+export type AsyncStreamSourceHelpers = typeof asyncStreamSourceHelpers;
 
 export const AsyncStreamConstructorsImpl: AsyncStreamConstructors =
   Object.freeze<AsyncStreamConstructors>({
@@ -1777,7 +1797,8 @@ export const AsyncStreamConstructorsImpl: AsyncStreamConstructors =
         }
 
         return new AsyncFromStream(
-          () => new AsyncZipWithIterator(sources, zipFun)
+          () =>
+            new AsyncZipWithIterator(sources, zipFun, asyncStreamSourceHelpers)
         );
       };
     },
@@ -1792,7 +1813,12 @@ export const AsyncStreamConstructorsImpl: AsyncStreamConstructors =
 
         return new AsyncFromStream(
           (): AsyncFastIterator<any> =>
-            new AsyncZipAllWithItererator(fillValue, sources, zipFun)
+            new AsyncZipAllWithItererator(
+              fillValue,
+              sources,
+              zipFun,
+              asyncStreamSourceHelpers
+            )
         );
       };
     },

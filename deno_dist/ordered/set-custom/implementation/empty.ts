@@ -1,9 +1,8 @@
 import { EmptyBase, WithElem } from '../../../collection-types/set-custom/index.ts';
 import type { ToJSON } from '../../../common/mod.ts';
 import type { List } from '../../../list/mod.ts';
-import {
+import type {
   OrderedSetBase,
-  OrderedSetNonEmpty,
   OrderedSetTypes,
 } from '../../../ordered/set-custom/index.ts';
 import type { StreamSource } from '../../../stream/mod.ts';
@@ -52,7 +51,10 @@ export class OrderedSetEmpty<
   }
 
   union(other: StreamSource<T>): TpG['normal'] | any {
-    if (other instanceof OrderedSetNonEmpty && other.context === this.context) {
+    if (
+      this.context.isNonEmptyInstance(other) &&
+      (other as any).context === this.context
+    ) {
       return other;
     }
 

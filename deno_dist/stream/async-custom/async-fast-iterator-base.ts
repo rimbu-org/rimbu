@@ -10,16 +10,15 @@ import {
   TraverseState,
 } from '../../common/mod.ts';
 
-import {
-  closeIters,
-  fromAsyncStreamSource,
-  isEmptyAsyncStreamSourceInstance,
-} from '../../stream/async-custom/index.ts';
 import type {
   AsyncFastIterator,
   AsyncStream,
   AsyncStreamSource,
 } from '../../stream/async/index.ts';
+import {
+  closeIters,
+  type AsyncStreamSourceHelpers,
+} from '../../stream/async-custom/index.ts';
 
 export const fixedDoneAsyncIteratorResult = Object.freeze(
   Promise.resolve(
@@ -78,7 +77,8 @@ export class FromResourceIterator<T, R> extends AsyncFastIteratorBase<T> {
   constructor(
     readonly open: () => MaybePromise<R>,
     readonly createSource: (resource: R) => MaybePromise<AsyncStreamSource<T>>,
-    readonly close: (resource: R) => MaybePromise<void>
+    readonly close: (resource: R) => MaybePromise<void>,
+    readonly asyncStreamSourceHelpers: AsyncStreamSourceHelpers
   ) {
     super();
 
@@ -96,7 +96,9 @@ export class FromResourceIterator<T, R> extends AsyncFastIteratorBase<T> {
       const resource = await this.open();
       this.resource = resource;
       const source = await this.createSource(resource);
-      this.iterator = fromAsyncStreamSource(source)[Symbol.asyncIterator]();
+      this.iterator = this.asyncStreamSourceHelpers
+        .fromAsyncStreamSource(source)
+        [Symbol.asyncIterator]();
     }
 
     return this.iterator.fastNext(async () => {
@@ -148,13 +150,16 @@ export class AsyncZipWithIterator<
 > extends AsyncFastIteratorBase<R> {
   constructor(
     readonly iterables: { [K in keyof I]: AsyncStreamSource<I[K]> },
-    readonly zipFun: (...values: I) => MaybePromise<R>
+    readonly zipFun: (...values: I) => MaybePromise<R>,
+    readonly asyncStreamSourceHelpers: AsyncStreamSourceHelpers
   ) {
     super();
 
     this.sources = iterables.map(
       (source): AsyncFastIterator<any> =>
-        fromAsyncStreamSource(source)[Symbol.asyncIterator]()
+        this.asyncStreamSourceHelpers
+          .fromAsyncStreamSource(source)
+          [Symbol.asyncIterator]()
     );
 
     this.sourcesToClose = new Set(this.sources);
@@ -198,13 +203,16 @@ export class AsyncZipAllWithItererator<
     readonly iters: { [K in keyof I]: AsyncStreamSource<I[K]> },
     readonly zipFun: (
       ...values: { [K in keyof I]: I[K] | F }
-    ) => MaybePromise<R>
+    ) => MaybePromise<R>,
+    readonly asyncStreamSourceHelpers: AsyncStreamSourceHelpers
   ) {
     super();
 
     this.sources = iters.map(
       (o): AsyncFastIterator<any> =>
-        fromAsyncStreamSource(o)[Symbol.asyncIterator]()
+        this.asyncStreamSourceHelpers
+          .fromAsyncStreamSource(o)
+          [Symbol.asyncIterator]()
     );
 
     this.sourcesToClose = new Set(this.sources);
@@ -302,6 +310,7 @@ export class FromIterator<T> extends AsyncFastIteratorBase<T> {
 export class FromPromise<T> extends AsyncFastIteratorBase<T> {
   constructor(
     readonly promise: () => Promise<AsyncStreamSource<T>>,
+    readonly asyncStreamSourceHelpers: AsyncStreamSourceHelpers,
     close?: () => MaybePromise<void>
   ) {
     super();
@@ -316,9 +325,9 @@ export class FromPromise<T> extends AsyncFastIteratorBase<T> {
   async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<T | O> {
     if (this.iterator === undefined) {
       const source = await this.promise();
-      this.iterator = fromAsyncStreamSource(source)[
-        Symbol.asyncIterator
-      ]() as any;
+      this.iterator = this.asyncStreamSourceHelpers
+        .fromAsyncStreamSource(source)
+        [Symbol.asyncIterator]() as any;
     }
 
     return this.iterator!.fastNext(otherwise!);
@@ -513,7 +522,8 @@ export class AsyncFlatMapIterator<T, T2> extends AsyncFastIteratorBase<T2> {
       value: T,
       index: number,
       halt: () => void
-    ) => AsyncStreamSource<T2>
+    ) => AsyncStreamSource<T2>,
+    readonly asyncStreamSourceHelpers: AsyncStreamSourceHelpers
   ) {
     super();
     this.iterator = this.source[Symbol.asyncIterator]();
@@ -537,6 +547,8 @@ export class AsyncFlatMapIterator<T, T2> extends AsyncFastIteratorBase<T2> {
 
     let nextValue: T2 | typeof done;
 
+    const { asyncStreamSourceHelpers } = this;
+
     while (
       null === this.currentIterator ||
       done === (nextValue = await this.currentIterator.fastNext(done))
@@ -554,8 +566,9 @@ export class AsyncFlatMapIterator<T, T2> extends AsyncFastIteratorBase<T2> {
         state.halt
       );
 
-      const currentIterator =
-        fromAsyncStreamSource(nextSource)[Symbol.asyncIterator]();
+      const currentIterator = asyncStreamSourceHelpers
+        .fromAsyncStreamSource(nextSource)
+        [Symbol.asyncIterator]();
 
       this.currentIterator = currentIterator;
     }
@@ -569,7 +582,8 @@ export class AsyncConcatIterator<T> extends AsyncFastIteratorBase<T> {
 
   constructor(
     readonly source: AsyncStream<T>,
-    readonly otherSources: AsyncStreamSource<T>[]
+    readonly otherSources: AsyncStreamSource<T>[],
+    readonly asyncStreamSourceHelpers: AsyncStreamSourceHelpers
   ) {
     super();
 
@@ -583,6 +597,7 @@ export class AsyncConcatIterator<T> extends AsyncFastIteratorBase<T> {
     const done = Symbol('Done');
     let value: T | typeof done;
     const length = this.otherSources.length;
+    const { asyncStreamSourceHelpers } = this;
 
     while (done === (value = await this.iterator.fastNext(done))) {
       if (this.sourceIndex >= length) {
@@ -592,14 +607,18 @@ export class AsyncConcatIterator<T> extends AsyncFastIteratorBase<T> {
       let nextSource: AsyncStreamSource<T> =
         this.otherSources[this.sourceIndex++];
 
-      while (isEmptyAsyncStreamSourceInstance(nextSource)) {
+      while (
+        asyncStreamSourceHelpers.isEmptyAsyncStreamSourceInstance(nextSource)
+      ) {
         if (this.sourceIndex >= length) {
           return AsyncOptLazy.toMaybePromise(otherwise!);
         }
         nextSource = this.otherSources[this.sourceIndex++];
       }
 
-      this.iterator = fromAsyncStreamSource(nextSource)[Symbol.asyncIterator]();
+      this.iterator = asyncStreamSourceHelpers
+        .fromAsyncStreamSource(nextSource)
+        [Symbol.asyncIterator]();
     }
 
     return value;
