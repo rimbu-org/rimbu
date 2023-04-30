@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/actor",
-  "version": "0.11.5",
+  "version": "0.11.6",
   "description": "State management tools to create stateful logic that can be easily integrated in any framework",
   "keywords": [
     "redux",
@@ -90,7 +90,7 @@
   },
   "devDependencies": {
     "@rimbu/deep": "^0.14.4",
-    "@rimbu/stream": "^0.13.4",
+    "@rimbu/stream": "^0.13.5",
     "immer": "^9.0.16"
   }
 }

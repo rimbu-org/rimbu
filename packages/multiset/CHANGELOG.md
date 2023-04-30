@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.11.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/multiset@0.11.0...@rimbu/multiset@0.11.1) (2023-04-30)
+
+**Note:** Version bump only for package @rimbu/multiset
+
 # [0.11.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/multiset@0.10.3...@rimbu/multiset@0.11.0) (2023-04-27)
 
 ### Features
