@@ -102,9 +102,9 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@rimbu/base": "^0.11.3",
-    "@rimbu/common": "^0.12.3",
-    "@rimbu/stream": "^0.13.5",
+    "@rimbu/base": "*",
+    "@rimbu/common": "*",
+    "@rimbu/stream": "*",
     "tslib": "^2.5.0"
   },
   "publishConfig": {

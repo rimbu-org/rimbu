@@ -61,7 +61,7 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@rimbu/common": "^0.12.3",
+    "@rimbu/common": "*",
     "tslib": "^2.5.0"
   },
   "publishConfig": {

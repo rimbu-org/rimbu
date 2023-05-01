@@ -89,8 +89,8 @@
     "access": "public"
   },
   "devDependencies": {
-    "@rimbu/deep": "^0.14.4",
-    "@rimbu/stream": "^0.13.5",
+    "@rimbu/deep": "*",
+    "@rimbu/stream": "*",
     "immer": "^9.0.16"
   }
 }
