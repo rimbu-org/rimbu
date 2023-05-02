@@ -1,10 +1,14 @@
 {
   "plugins": ["@typescript-eslint", "unused-imports"],
-  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
+  "parser": "@typescript-eslint/parser",
   "rules": {
     "no-constant-condition": "warn",
     "no-inner-declarations": "warn",
-    "no-unexpected-multiline": "warn",
     "@typescript-eslint/no-namespace": "off",
     "@typescript-eslint/no-empty-interface": "warn",
     "@typescript-eslint/explicit-function-return-type": "error",

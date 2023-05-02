@@ -1,0 +1,90 @@
+{
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": [
+          "build",
+          "build:deno",
+          "bundle",
+          "bundle:main",
+          "bundle:module",
+          "bundle:types",
+          "format",
+          "format:check",
+          "lint",
+          "test",
+          "typecheck",
+          "test:types",
+          "extract-api",
+          "extract-api:custom",
+          "extract-api:main",
+          "extract-api:map",
+          "extract-api:map-custom",
+          "extract-api:set",
+          "extract-api:set-custom",
+          "extract-api:async",
+          "extract-api:async-custom",
+          "extract-api:hash-row",
+          "extract-api:sorted-row"
+        ]
+      }
+    }
+  },
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"]
+    },
+    "bundle": {
+      "dependsOn": ["^bundle"]
+    },
+    "bundle:main": {
+      "dependsOn": ["^bundle:main"],
+      "outputs": ["{projectRoot}/dist/main"]
+    },
+    "bundle:module": {
+      "dependsOn": ["^bundle:module"],
+      "outputs": ["{projectRoot}/dist/module"]
+    },
+    "bundle:types": {
+      "dependsOn": ["^bundle:types"],
+      "outputs": ["{projectRoot}/dist/types"]
+    },
+    "build:deno": {
+      "outputs": ["{projectRoot}/../../deno_dist"]
+    },
+    "extract-api": {
+      "outputs": ["{projectRoot}/../../doc-gen/input"]
+    },
+    "extract-api:custom": {
+      "outputs": ["{projectRoot}/../../doc-gen/input"]
+    },
+    "extract-api:main": {
+      "outputs": ["{projectRoot}/../../doc-gen/input"]
+    },
+    "extract-api:map": {
+      "outputs": ["{projectRoot}/../../doc-gen/input"]
+    },
+    "extract-api:map-custom": {
+      "outputs": ["{projectRoot}/../../doc-gen/input"]
+    },
+    "extract-api:set": {
+      "outputs": ["{projectRoot}/../../doc-gen/input"]
+    },
+    "extract-api:set-custom": {
+      "outputs": ["{projectRoot}/../../doc-gen/input"]
+    },
+    "extract-api:async": {
+      "outputs": ["{projectRoot}/../../doc-gen/input"]
+    },
+    "extract-api:async-custom": {
+      "outputs": ["{projectRoot}/../../doc-gen/input"]
+    },
+    "extract-api:hash-row": {
+      "outputs": ["{projectRoot}/../../doc-gen/input"]
+    },
+    "extract-api:sorted-row": {
+      "outputs": ["{projectRoot}/../../doc-gen/input"]
+    }
+  }
+}

@@ -74,13 +74,13 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@rimbu/base": "^0.11.3",
-    "@rimbu/collection-types": "^0.10.5",
-    "@rimbu/common": "^0.12.3",
-    "@rimbu/hashed": "^0.9.5",
-    "@rimbu/multimap": "^0.10.5",
-    "@rimbu/sorted": "^0.10.5",
-    "@rimbu/stream": "^0.13.5",
+    "@rimbu/base": "*",
+    "@rimbu/collection-types": "*",
+    "@rimbu/common": "*",
+    "@rimbu/hashed": "*",
+    "@rimbu/multimap": "*",
+    "@rimbu/sorted": "*",
+    "@rimbu/stream": "*",
     "tslib": "^2.5.0"
   },
   "publishConfig": {

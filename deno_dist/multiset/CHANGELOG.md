@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.11.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/multiset@0.11.0...@rimbu/multiset@0.11.1) (2023-04-30)
+
+**Note:** Version bump only for package @rimbu/multiset
+
+# [0.11.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/multiset@0.10.3...@rimbu/multiset@0.11.0) (2023-04-27)
+
+### Features
+
+- update from TypeScript 4 to latest version 5 ([7085d75](https://github.com/rimbu-org/rimbu/commit/7085d758f8874c2ce822de1d95732ec4bc98ee43))
+
 ## [0.10.3](https://github.com/rimbu-org/rimbu/compare/@rimbu/multiset@0.10.2...@rimbu/multiset@0.10.3) (2023-04-26)
 
 **Note:** Version bump only for package @rimbu/multiset

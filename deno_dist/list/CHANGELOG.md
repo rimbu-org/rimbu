@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/list@0.12.0...@rimbu/list@0.12.1) (2023-04-30)
+
+**Note:** Version bump only for package @rimbu/list
+
+# [0.12.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/list@0.11.3...@rimbu/list@0.12.0) (2023-04-27)
+
+### Features
+
+- update from TypeScript 4 to latest version 5 ([7085d75](https://github.com/rimbu-org/rimbu/commit/7085d758f8874c2ce822de1d95732ec4bc98ee43))
+
 ## [0.11.3](https://github.com/rimbu-org/rimbu/compare/@rimbu/list@0.11.2...@rimbu/list@0.11.3) (2023-04-26)
 
 **Note:** Version bump only for package @rimbu/list
