@@ -18,14 +18,11 @@ export type Protected<T> = IsAny<T> extends true
   ? // convert all keys to readonly and all values to `Protected`
     { readonly [K in keyof A]: Protected<A[K]> }
   : T extends Map<infer K, infer V>
-  ? // return keys and values as `Protected` and omit mutable methods
-    Omit<Map<Protected<K>, Protected<V>>, 'clear' | 'delete' | 'set'>
+  ? ReadonlyMap<Protected<K>, Protected<V>>
   : T extends Set<infer E>
-  ? // return values as `Protected` and omit mutable methods
-    Omit<Set<Protected<E>>, 'add' | 'clear' | 'delete'>
+  ? ReadonlySet<Protected<E>>
   : T extends Promise<infer E>
-  ? // return promise value as `Protected`
-    Promise<Protected<E>>
+  ? Promise<Protected<E>>
   : IsPlainObj<T> extends true
   ? // convert all keys to readonly and all values to `Protected`
     { readonly [K in keyof T]: Protected<T[K]> }

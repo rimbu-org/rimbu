@@ -2,6 +2,10 @@
     <img src="https://github.com/rimbu-org/rimbu/raw/main/assets/rimbu_logo.svg" />
 </p>
 
+[![npm version](https://badge.fury.io/js/@rimbu%2Fmultiset.svg)](https://www.npmjs.com/package/@rimbu/multiset) [![Deno](https://shield.deno.dev/x/rimbu)](http://deno.land/x/rimbu)
+
+![Licence](https://img.shields.io/github/license/rimbu-org/rimbu)
+
 # @rimbu/multiset
 
 A Rimbu MultiSet is a Set-like structure where each unique element can be added multiple times. Each element in the MultiSet occurs one or more times. The MultiSet keeps track of the amount of times an element was added.
@@ -21,17 +25,30 @@ Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/mai
 
 ## Installation
 
+### Compabitity
+
+- [`Node >= 16` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
+- [`Deno` ![Deno JS](https://img.shields.io/badge/deno%20js-000000?logo=deno&logoColor=white)](https://deno.com/runtime)
+- [`Bun >= 0.6.0` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
+- `Web` ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
+
+### Yarn / NPM / Bun
+
 For convenience, all main types are also exported through [`@rimbu/core`](../core).
 
-To install separately:
+To install this package only:
 
-### Yarn/NPM
+For `yarn`:
 
 > `yarn add @rimbu/multiset`
 
-or
+For `npm`:
 
 > `npm i @rimbu/multiset`
+
+For `bun`:
+
+> `bun add @rimbu/multiset`
 
 ### Deno
 

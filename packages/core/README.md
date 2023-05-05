@@ -2,6 +2,10 @@
     <img src="https://github.com/rimbu-org/rimbu/raw/main/assets/rimbu_logo.svg" />
 </p>
 
+[![npm version](https://badge.fury.io/js/@rimbu%2Fcore.svg)](https://www.npmjs.com/package/@rimbu/core) [![Deno](https://shield.deno.dev/x/rimbu)](http://deno.land/x/rimbu)
+
+![Licence](https://img.shields.io/github/license/rimbu-org/rimbu)
+
 # @rimbu/core
 
 This package exports all the Rimbu collections, plus the contents of the `@rimbu/common` package. Its aim is to provide an easy to use access point for the collections.
@@ -12,17 +16,28 @@ Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/mai
 
 ## Installation
 
+### Compabitity
+
+- [`Node >= 16` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
+- [`Deno` ![Deno JS](https://img.shields.io/badge/deno%20js-000000?logo=deno&logoColor=white)](https://deno.com/runtime)
+- [`Bun >= 0.6.0` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
+- `Web` ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
+
+### Yarn / NPM / Bun
+
 To get started with the immutable collections, which are exported through `@rimbu/core`, you can use the following.
 
-### Yarn/NPM
-
-For yarn:
+For `yarn`:
 
 > `yarn add @rimbu/core`
 
-For npm:
+For `npm`:
 
 > `npm i @rimbu/core`
+
+For `bun`:
+
+> `bun add @rimbu/core`
 
 ### Deno
 
