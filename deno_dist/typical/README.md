@@ -2,6 +2,10 @@
     <img src="https://github.com/rimbu-org/rimbu/raw/main/assets/rimbu_logo.svg" />
 </p>
 
+[![npm version](https://badge.fury.io/js/@rimbu%2Ftypical.svg)](https://www.npmjs.com/package/@rimbu/typical) [![Deno](https://shield.deno.dev/x/rimbu)](http://deno.land/x/rimbu)
+
+![Licence](https://img.shields.io/github/license/rimbu-org/rimbu)
+
 # @rimbu/typical
 
 Rimbu Typical is a type-level library offering string and numeric operations on types instead of values. It allows you to prevent the compiler from accepting certain
@@ -30,15 +34,21 @@ Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/mai
 
 ## Installation
 
-### Yarn/NPM
+### Yarn / NPM / Bun
 
 This library only contains type definitions. You should therefore install it as a dev dependency:
 
+For `yarn`:
+
 > `yarn add --dev @rimbu/typical`
 
-or
+For `npm`:
 
 > `npm i @rimbu/typical --save-dev`
+
+For `bun`:
+
+> `bun add --development @rimbu/typical`
 
 ### Deno
 

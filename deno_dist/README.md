@@ -2,9 +2,9 @@
     <img src="https://github.com/rimbu-org/rimbu/raw/main/assets/rimbu_logo.svg" />
 </p>
 
-[![codecov](https://codecov.io/gh/rimbu-org/rimbu/branch/main/graph/badge.svg?token=RSFK5B0N0Z)](https://codecov.io/gh/rimbu-org/rimbu)
+[![npm version](https://badge.fury.io/js/@rimbu%2Fcore.svg)](https://www.npmjs.com/package/@rimbu/core) [![Deno](https://shield.deno.dev/x/rimbu)](http://deno.land/x/rimbu)
 
-[![nest.land](https://nest.land/badge-block.svg)](https://nest.land/package/rimbu)
+![Licence](https://img.shields.io/github/license/rimbu-org/rimbu) [![codecov](https://codecov.io/gh/rimbu-org/rimbu/branch/main/graph/badge.svg?token=RSFK5B0N0Z)](https://codecov.io/gh/rimbu-org/rimbu)
 
 # Immutable collections and tools for TypeScript
 
@@ -25,6 +25,47 @@ Rimbu is a TypeScript library focused on _immutable, performant, and type-safe c
 For complete documentation please visit the _[Rimbu Docs](https://rimbu.org)_ or the _[Rimbu API Docs](https://rimbu.org/api)_.
 
 Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
+
+## Installation
+
+### Compabitity
+
+- [`Node >= 16` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
+- [`Deno` ![Deno JS](https://img.shields.io/badge/deno%20js-000000?logo=deno&logoColor=white)](https://deno.com/runtime)
+- [`Bun >= 0.6.0` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
+- `Web` ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
+
+To get started with the immutable collections, which are exported through `@rimbu/core`, you can use the following.
+
+### Yarn / NPM / Bun
+
+For `yarn`:
+
+> `yarn add @rimbu/core`
+
+For `npm`:
+
+> `npm i @rimbu/core`
+
+For `bun`:
+
+> `bun add @rimbu/core`
+
+### Deno
+
+For Deno, the following approach is recommended:
+
+In the root folder of your project, create or edit a file called `import_map.json` with the following contents (where you should replace `x.y.z` with the desired version of Rimbu):
+
+```json
+{
+  "imports": {
+    "@rimbu/": "https://deno.land/x/rimbu@x.y.z/"
+  }
+}
+```
+
+**Note: The trailing slashes are important!**
 
 ## Main exports
 
