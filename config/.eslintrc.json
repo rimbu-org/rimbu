@@ -10,9 +10,10 @@
     "no-constant-condition": "warn",
     "no-inner-declarations": "warn",
     "@typescript-eslint/no-namespace": "off",
-    "@typescript-eslint/no-empty-interface": "warn",
+    "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/explicit-function-return-type": "error",
-    "unused-imports/no-unused-imports": "error"
+    "unused-imports/no-unused-imports": "error",
+    "@typescript-eslint/no-explicit-any": "off"
   },
   "ignorePatterns": ["test", "test-d", "docs", "*.js", "doc-gen", "deno_dist"]
 }
