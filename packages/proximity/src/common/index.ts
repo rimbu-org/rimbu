@@ -1,2 +1,2 @@
 export * from './distanceFunction';
-export * from './linearScan';
+export * from './keyMatching';

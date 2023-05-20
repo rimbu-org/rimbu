@@ -12,7 +12,7 @@ import {
 import type { Stream, StreamSource, FastIterator } from '@rimbu/stream';
 import { wrapHashMap } from '../wrapping';
 import type { ProximityMap } from '../../map';
-import { getValueWithNearestKey } from '../../common';
+import { findNearestKeyMatch } from '../../common';
 
 const toStringBeginning = /^[^(]+/;
 
@@ -96,13 +96,13 @@ export class ProximityMapNonEmpty<K, V> implements ProximityMap.NonEmpty<K, V> {
   get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
   get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
   get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O | undefined {
-    const bestValue = getValueWithNearestKey(
+    const keyMatch = findNearestKeyMatch(
       this.context.distanceFunction,
       key as K,
       this.internalMap
     );
 
-    return bestValue ?? OptLazy(otherwise);
+    return keyMatch ? keyMatch.value : OptLazy(otherwise);
   }
 
   hasKey<UK = K>(key: RelatedTo<K, UK>): boolean {
