@@ -1,3 +1,4 @@
+import { Token } from '@rimbu/base';
 import type { DistanceFunction } from './distanceFunction';
 
 /**
@@ -9,7 +10,7 @@ import type { DistanceFunction } from './distanceFunction';
  * @param distanceFunction Returns the distance between 2 points
  * @param key The key used to find the closest key
  * @param entries The [key, value] entries
- * @returns The value associated with the closest key; it returns undefined if:
+ * @returns The value associated with the closest key; it returns Token if:
  * * the collection is empty
  * * all the items have `POSITIVE_INFINITY` distance
  */
@@ -17,8 +18,8 @@ export function getValueWithNearestKey<K, V>(
   distanceFunction: DistanceFunction<K>,
   key: K,
   entries: Iterable<readonly [K, V]>
-): V | undefined {
-  let bestValue: V | undefined = undefined;
+): V | Token {
+  let bestValue: V | Token = Token;
   let bestDistance = Number.POSITIVE_INFINITY;
 
   for (const [currentKey, currentValue] of entries) {

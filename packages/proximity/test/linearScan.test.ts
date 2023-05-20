@@ -1,3 +1,4 @@
+import { Token } from '@rimbu/base';
 import { DistanceFunction, getValueWithNearestKey } from '../src/common';
 
 describe('Getting the value associated with the nearest key', () => {
@@ -22,14 +23,14 @@ describe('Getting the value associated with the nearest key', () => {
       });
 
       describe('when there is no match', () => {
-        it('should return undefined', () => {
+        it('should return the Token', () => {
           const retrievedValue = getValueWithNearestKey(
             DistanceFunction.defaultFunction,
             '<INEXISTING>',
             entries
           );
 
-          expect(retrievedValue).toBeUndefined();
+          expect(retrievedValue).toBe(Token);
         });
       });
     });
@@ -54,14 +55,46 @@ describe('Getting the value associated with the nearest key', () => {
       });
 
       describe('when there is no match', () => {
-        it('should return undefined', () => {
+        it('should return the Token', () => {
           const retrievedValue = getValueWithNearestKey(
             DistanceFunction.defaultFunction,
             100,
             entries
           );
 
+          expect(retrievedValue).toBe(Token);
+        });
+      });
+    });
+
+    describe('with possibly undefined numbers', () => {
+      const entries: readonly [number, number | undefined][] = [
+        [0, 90],
+        [2, 92],
+        [8, undefined],
+      ];
+
+      describe('when there is a match', () => {
+        it('should return the value associated with the matching key', () => {
+          const retrievedValue = getValueWithNearestKey(
+            DistanceFunction.defaultFunction,
+            8,
+            entries
+          );
+
           expect(retrievedValue).toBeUndefined();
+        });
+      });
+
+      describe('when there is no match', () => {
+        it('should return the Token', () => {
+          const retrievedValue = getValueWithNearestKey(
+            DistanceFunction.defaultFunction,
+            100,
+            entries
+          );
+
+          expect(retrievedValue).toBe(Token);
         });
       });
     });
@@ -87,14 +120,14 @@ describe('Getting the value associated with the nearest key', () => {
       });
 
       describe('when there is no match', () => {
-        it('should return undefined', () => {
+        it('should return the Token', () => {
           const retrievedValue = getValueWithNearestKey(
             DistanceFunction.defaultFunction,
             bubu,
             entries
           );
 
-          expect(retrievedValue).toBeUndefined();
+          expect(retrievedValue).toBe(Token);
         });
       });
     });
