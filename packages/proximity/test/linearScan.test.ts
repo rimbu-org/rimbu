@@ -1,174 +1,134 @@
 import { Token } from '@rimbu/base';
 import { DistanceFunction, getValueWithNearestKey } from '../src/common';
 
+type TestSuite<TKey, TValue> = {
+  keyTypeDescription: string;
+  entries: readonly (readonly [TKey, TValue | undefined])[];
+  matchingKey: TKey;
+  valueForMatchingKey: TValue;
+  nonMatchingKey: TKey;
+  matchingKeyWithUndefinedValue: TKey;
+  distanceFunction?: DistanceFunction<TKey>;
+};
+
+function runTestSuite<TKey, TValue>({
+  keyTypeDescription,
+  entries,
+  matchingKey,
+  valueForMatchingKey,
+  nonMatchingKey,
+  matchingKeyWithUndefinedValue,
+  distanceFunction,
+}: TestSuite<TKey, TValue>) {
+  describe(`with ${keyTypeDescription} keys`, () => {
+    const actualDistanceFunction =
+      distanceFunction ?? DistanceFunction.defaultFunction;
+
+    describe('when there is a matching key', () => {
+      it('should return the associated value', () => {
+        const retrievedValue = getValueWithNearestKey(
+          actualDistanceFunction,
+          matchingKey,
+          entries
+        );
+
+        expect(retrievedValue).toBe(valueForMatchingKey);
+      });
+    });
+
+    describe('when there is no match', () => {
+      it('should return the Token', () => {
+        const retrievedValue = getValueWithNearestKey(
+          actualDistanceFunction,
+          nonMatchingKey,
+          entries
+        );
+
+        expect(retrievedValue).toBe(Token);
+      });
+    });
+
+    describe('when the matching key has an undefined value', () => {
+      it('should actually return undefined', () => {
+        const retrievedValue = getValueWithNearestKey(
+          actualDistanceFunction,
+          matchingKeyWithUndefinedValue,
+          entries
+        );
+
+        expect(retrievedValue).toBeUndefined();
+      });
+    });
+  });
+}
+
 describe('Getting the value associated with the nearest key', () => {
   describe('when using the default distance', () => {
-    describe('with strings', () => {
-      const entries: readonly [string, number][] = [
+    runTestSuite({
+      keyTypeDescription: 'string',
+      entries: [
         ['alpha', 90],
         ['beta', 92],
-        ['gamma', 3],
-      ];
-
-      describe('when there is a match', () => {
-        it('should return the value associated with the matching key', () => {
-          const retrievedValue = getValueWithNearestKey(
-            DistanceFunction.defaultFunction,
-            'beta',
-            entries
-          );
-
-          expect(retrievedValue).toBe(92);
-        });
-      });
-
-      describe('when there is no match', () => {
-        it('should return the Token', () => {
-          const retrievedValue = getValueWithNearestKey(
-            DistanceFunction.defaultFunction,
-            '<INEXISTING>',
-            entries
-          );
-
-          expect(retrievedValue).toBe(Token);
-        });
-      });
+        ['gamma', undefined],
+      ],
+      matchingKey: 'beta',
+      valueForMatchingKey: 92,
+      nonMatchingKey: '<INEXISTING>',
+      matchingKeyWithUndefinedValue: 'gamma',
     });
 
-    describe('with numbers', () => {
-      const entries: readonly [number, number][] = [
-        [0, 90],
-        [2, 92],
-        [8, 98],
-      ];
-
-      describe('when there is a match', () => {
-        it('should return the value associated with the matching key', () => {
-          const retrievedValue = getValueWithNearestKey(
-            DistanceFunction.defaultFunction,
-            8,
-            entries
-          );
-
-          expect(retrievedValue).toBe(98);
-        });
-      });
-
-      describe('when there is no match', () => {
-        it('should return the Token', () => {
-          const retrievedValue = getValueWithNearestKey(
-            DistanceFunction.defaultFunction,
-            100,
-            entries
-          );
-
-          expect(retrievedValue).toBe(Token);
-        });
-      });
-    });
-
-    describe('with possibly undefined numbers', () => {
-      const entries: readonly [number, number | undefined][] = [
+    runTestSuite({
+      keyTypeDescription: 'number',
+      entries: [
         [0, 90],
         [2, 92],
         [8, undefined],
-      ];
-
-      describe('when there is a match', () => {
-        it('should return the value associated with the matching key', () => {
-          const retrievedValue = getValueWithNearestKey(
-            DistanceFunction.defaultFunction,
-            8,
-            entries
-          );
-
-          expect(retrievedValue).toBeUndefined();
-        });
-      });
-
-      describe('when there is no match', () => {
-        it('should return the Token', () => {
-          const retrievedValue = getValueWithNearestKey(
-            DistanceFunction.defaultFunction,
-            100,
-            entries
-          );
-
-          expect(retrievedValue).toBe(Token);
-        });
-      });
+      ],
+      matchingKey: 2,
+      valueForMatchingKey: 92,
+      nonMatchingKey: 100,
+      matchingKeyWithUndefinedValue: 8,
     });
 
-    describe('with objects', () => {
-      type Animal = { species: string; name: string };
+    type Animal = { species: string; name: string };
 
-      const yogi: Animal = { species: 'bear', name: 'yogi' };
-      const bubu: Animal = { species: 'bear', name: 'bubu' };
+    const yogi: Animal = { species: 'bear', name: 'yogi' };
+    const otherYogiInstance: Animal = { species: 'bear', name: 'yogi' };
+    const bubu: Animal = { species: 'bear', name: 'bubu' };
 
-      const entries: readonly [Animal, number][] = [[yogi, 90]];
-
-      describe('when there is a match', () => {
-        it('should return the value associated with the matching key', () => {
-          const retrievedValue = getValueWithNearestKey(
-            DistanceFunction.defaultFunction,
-            yogi,
-            entries
-          );
-
-          expect(retrievedValue).toBe(90);
-        });
-      });
-
-      describe('when there is no match', () => {
-        it('should return the Token', () => {
-          const retrievedValue = getValueWithNearestKey(
-            DistanceFunction.defaultFunction,
-            bubu,
-            entries
-          );
-
-          expect(retrievedValue).toBe(Token);
-        });
-      });
+    runTestSuite({
+      keyTypeDescription: 'object',
+      entries: [
+        [yogi, 90],
+        [bubu, undefined],
+      ],
+      matchingKey: yogi,
+      valueForMatchingKey: 90,
+      nonMatchingKey: otherYogiInstance,
+      matchingKeyWithUndefinedValue: bubu,
     });
   });
 
   describe('when using a custom distance', () => {
-    type IHaveLength = { length: number };
+    type IHaveLength = Readonly<{ length: number }>;
 
     const customDistance: DistanceFunction<IHaveLength> = (x, y) =>
-      Math.abs(x.length - y.length);
+      x.length && y.length
+        ? Math.abs(x.length - y.length)
+        : Number.POSITIVE_INFINITY;
 
-    describe('with strings', () => {
-      const entries: readonly [string, number][] = [
+    runTestSuite({
+      keyTypeDescription: 'string',
+      entries: [
         ['a', 90],
         ['bbb', 92],
-        ['ccccccccccccc', 98],
-      ];
-
-      describe('when there is a perfect match', () => {
-        it('should return the value associated with the matching key', () => {
-          const retrievedValue = getValueWithNearestKey(
-            customDistance,
-            'ddd',
-            entries
-          );
-
-          expect(retrievedValue).toBe(92);
-        });
-      });
-
-      describe('when there is a partial match', () => {
-        it('should return the value associated with the closest key', () => {
-          const retrievedValue = getValueWithNearestKey(
-            customDistance,
-            'DDDDD',
-            entries
-          );
-
-          expect(retrievedValue).toBe(92);
-        });
-      });
+        ['ccccccccccccc', undefined],
+      ],
+      matchingKey: 'ddddd',
+      valueForMatchingKey: 92,
+      nonMatchingKey: '',
+      matchingKeyWithUndefinedValue: 'aaaaaaaaaaaaaaaaaaaaa',
+      distanceFunction: customDistance,
     });
   });
 
