@@ -18,6 +18,7 @@
     "ordered",
     "sorted",
     "hashed",
+    "proximity",
     "library",
     "rimbu",
     "typescript"
@@ -28,6 +29,13 @@
     "email": "arvid@rimbu.org",
     "url": "https://github.com/vitoke"
   },
+  "contributors": [
+    {
+      "name": "Gianluca Costa",
+      "email": "gianluca@gianlucacosta.info",
+      "url": "https://gianlucacosta.info/"
+    }
+  ],
   "license": "MIT",
   "funding": [
     {
@@ -94,6 +102,7 @@
     "@rimbu/multimap": "*",
     "@rimbu/multiset": "*",
     "@rimbu/ordered": "*",
+    "@rimbu/proximity": "*",
     "@rimbu/sorted": "*",
     "@rimbu/stream": "*",
     "@rimbu/table": "*",
