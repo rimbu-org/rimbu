@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/hashed",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "description": "Immutable HashMap and HashSet implementations for TypeScript",
   "keywords": [
     "hashmap",
@@ -106,11 +106,11 @@
   },
   "sideEffects": false,
   "dependencies": {
-    "@rimbu/base": "*",
-    "@rimbu/collection-types": "*",
+    "@rimbu/base": "^0.11.4",
+    "@rimbu/collection-types": "^0.10.6",
     "@rimbu/common": "*",
-    "@rimbu/list": "*",
-    "@rimbu/stream": "*",
+    "@rimbu/list": "^0.12.2",
+    "@rimbu/stream": "^0.13.6",
     "tslib": "^2.5.0"
   },
   "publishConfig": {
