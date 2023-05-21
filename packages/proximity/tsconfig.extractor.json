@@ -1,0 +1,7 @@
+{
+  "extends": "../../config/tsconfig.extractor.base.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "rootDir": ".."
+  }
+}

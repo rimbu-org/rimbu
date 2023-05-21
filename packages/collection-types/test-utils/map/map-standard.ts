@@ -238,6 +238,11 @@ export function runMapTestsWith(name: string, GMap: RMap.Context<any>): void {
     const map3 = GMap.from(arr3);
     const map6 = GMap.from(arr6);
 
+    const mapWithUndefinedValue = GMap.of<string, number | undefined>([
+      'a',
+      undefined,
+    ]);
+
     it('iterator', () => {
       expect(new Map(mapEmpty)).toEqual(new Map());
       expect(new Map(map3)).toEqual(new Map(arr3));
@@ -347,6 +352,9 @@ export function runMapTestsWith(name: string, GMap: RMap.Context<any>): void {
       expect(map6.get(2, 'z')).toBe('b');
       expect(map6.get(10)).toBe(undefined);
       expect(map6.get(10, 'z')).toBe('z');
+
+      expect(mapWithUndefinedValue.get('a', 5)).toBeUndefined();
+      expect(mapWithUndefinedValue.get('b', 5)).toBe(5);
     });
 
     it('hasKey', () => {

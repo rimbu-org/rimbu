@@ -14,7 +14,6 @@
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
     "noUnusedParameters": false,
-    "importsNotUsedAsValues": "error",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -47,7 +46,7 @@
       "@rimbu/collection-types/set-custom": [
         "../packages/collection-types/src/set-custom/index.ts"
       ],
-      "@rimbu/common": ["../common/src/index.ts"],
+      "@rimbu/common": ["../packages/common/src/index.ts"],
       "@rimbu/core": ["../packages/core/src/main/index.ts"],
       "@rimbu/core/menu": ["../packages/core/src/menu/index.ts"],
       "@rimbu/deep": ["../packages/deep/src/index.ts"],
@@ -76,6 +75,11 @@
       "@rimbu/ordered/set": ["../packages/ordered/src/set/index.ts"],
       "@rimbu/ordered/set-custom": [
         "../packages/ordered/src/set-custom/index.ts"
+      ],
+      "@rimbu/proximity": ["../packages/proximity/src/main/index.ts"],
+      "@rimbu/proximity/map": ["../packages/proximity/src/map/index.ts"],
+      "@rimbu/proximity/map-custom": [
+        "../packages/proximity/src/map-custom/index.ts"
       ],
       "@rimbu/reactor": ["../packages/reactor/src/index.ts"],
       "@rimbu/sorted": ["../packages/sorted/src/main/index.ts"],
