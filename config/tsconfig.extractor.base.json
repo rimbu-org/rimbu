@@ -71,6 +71,7 @@
         "../packages/ordered/dist/types/set-custom"
       ],
       "@rimbu/proximity": ["../packages/proximity/dist/types/main"],
+      "@rimbu/proximity/common": ["../packages/proximity/dist/types/common"],
       "@rimbu/proximity/map": ["../packages/proximity/dist/types/map"],
       "@rimbu/proximity/map-custom": [
         "../packages/proximity/dist/types/map-custom"

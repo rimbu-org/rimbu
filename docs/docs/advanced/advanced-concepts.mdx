@@ -101,6 +101,6 @@ The Rimbu Builder API's are generally not as expressive as the immutable ones, s
 
 ### No iterators
 
-Rimbu Builders are not iterable. Iterating over a mutable object is inherantly unsafe, since in the iteration it is possible to mutate the object, causing all kinds of nasty side-effects.
+Rimbu Builders are not iterable. Iterating over a mutable object is inherently unsafe, since in the iteration it is possible to mutate the object, causing all kinds of nasty side-effects.
 
 The only way to perform logic on all the elements in a builder, is to use the `.forEach(...)` methods. When performing a `forEach` on a builder, performing any mutation on the builder will throw a runtime error. This is to protect against unpredictable behaviors.

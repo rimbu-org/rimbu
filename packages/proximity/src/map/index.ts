@@ -21,8 +21,8 @@ import { ProximityMapContext } from '../map-custom';
  * The `get()` method is designed to perform an interruptible linear scan of all the keys,
  * returning the value associated with the key closest to the input key.
  *
- * See the [Map documentation](https://rimbu.org/docs/collections/map) and the
- * [ProximityMap API documentation](https://rimbu.org/api/rimbu/proximity/map/ProximityMap/interface)
+ * See the [Map documentation](/collections/map) and the
+ * [ProximityMap API documentation](/api/rimbu/proximity/map/ProximityMap/interface)
  * @typeparam K - the key type
  * @typeparam V - the value type
  * @example
@@ -45,8 +45,8 @@ export namespace ProximityMap {
    * however, optimized distance functions can greatly improve efficiency by
    * preventing a full scan.
    *
-   * See the [Map documentation](https://rimbu.org/docs/collections/map) and the
-   * [ProximityMap API documentation](https://rimbu.org/api/rimbu/proximity/map/ProximityMap/interface)
+   * See the [Map documentation](/docs/collections/map) and the
+   * [ProximityMap API documentation](/api/rimbu/proximity/map/ProximityMap/interface)
    * @typeparam K - the key type
    * @typeparam V - the value type
    * @example
@@ -94,8 +94,8 @@ export namespace ProximityMap {
 
   /**
    * A mutable `ProximityMap` builder used to efficiently create new immutable instances.
-   * See the [Map documentation](https://rimbu.org/docs/collections/map) and the
-   * [ProximityMap.Builder API documentation](https://rimbu.org/api/rimbu/proximity/ProximityMap/Builder/interface)
+   * See the [Map documentation](/docs/collections/map) and the
+   * [ProximityMap.Builder API documentation](/api/rimbu/proximity/ProximityMap/Builder/interface)
    * @typeparam K - the key type
    * @typeparam V - the value type
    */

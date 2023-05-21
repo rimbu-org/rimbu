@@ -10,4 +10,5 @@ Streamable <|.. VariantMap;
 VariantMap <|-- RMap;
 RMap <|-- HashMap;
 RMap <|-- SortedMap;
+RMap <|-- ProximityMap;
 `;
