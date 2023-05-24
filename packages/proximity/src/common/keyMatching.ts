@@ -24,10 +24,10 @@ export type NearestKeyMatch<K, V> = Readonly<{
  *
  * Performs a full linear scan unless a distance equal to 0 is encountered, in which
  * case the function returns immediately; otherwise, the algorithm selects the
- * smallest non-infinite distance: if multiple keys happen to have such distance,
+ * smallest *non-infinite* distance: if multiple keys happen to have such distance,
  * the selection order is not guaranteed.
  *
- * @param distanceFunction Returns the distance between 2 keys
+ * @param distanceFunction Returns the distance between two keys
  * @param key The key used as a reference to find the closest key
  * @param entries The [key, value] entries
  * @returns A `NearestKeyMatch` object if a closest key -
