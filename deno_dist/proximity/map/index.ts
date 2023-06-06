@@ -6,12 +6,12 @@
  * See the [Rimbu docs Map page](/docs/collections/map) for more information.
  */
 
-import type { RMap } from '@rimbu/collection-types';
-import type { RMapBase } from '@rimbu/collection-types/map-custom';
-import type { Stream, Streamable } from '@rimbu/stream';
-import { HashMap } from '@rimbu/hashed/map';
-import { DistanceFunction } from '../common';
-import { ProximityMapContext } from '../map-custom';
+import type { RMap } from '../../collection-types/mod.ts';
+import type { RMapBase } from '../../collection-types/map-custom/index.ts';
+import type { Stream, Streamable } from '../../stream/mod.ts';
+import { HashMap } from '../../hashed/map/index.ts';
+import { DistanceFunction } from '../common/index.ts';
+import { ProximityMapContext } from '../map-custom/index.ts';
 
 /**
  * A type-invariant immutable Map of key type K, and value type V.

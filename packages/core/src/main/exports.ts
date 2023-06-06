@@ -9,7 +9,7 @@ export * from '@rimbu/list';
 export * from '@rimbu/multimap';
 export * from '@rimbu/multiset';
 export * from '@rimbu/ordered';
-export * from '@rimbu/proximity';
+export { ProximityMap } from '@rimbu/proximity';
 export * from '@rimbu/sorted';
 export * from '@rimbu/stream';
 export * from '@rimbu/stream/async';

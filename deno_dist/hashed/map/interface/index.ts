@@ -11,13 +11,13 @@ import { createHashMapContext } from '../../../hashed/map-custom/index.ts';
 /**
  * A type-invariant immutable Map of key type K, and value type V.
  * In the Map, each key has exactly one value, and the Map cannot contain
- * duplicate keys.<br/>
- * - The `HashMap` uses the context's `hasher` instance to hash keys for performance.<br/>
- * - The `HashMap` uses the context's `eq` function to determine equivalence between keys.<br/>
- *
+ * duplicate keys.
  * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [HashMap API documentation](https://rimbu.org/api/rimbu/hashed/map/HashMap/interface)
  * @typeparam K - the key type
  * @typeparam V - the value type
+ * @note
+ * - The `HashMap` uses the context's `hasher` instance to hash keys for performance.<br/>
+ * - The `HashMap` uses the context's `eq` function to determine equivalence between keys.
  * @example
  * ```ts
  * const m1 = HashMap.empty<number, string>()
@@ -30,11 +30,11 @@ export namespace HashMap {
   /**
    * A non-empty type-invariant immutable Map of key type K, and value type V.
    * In the Map, each key has exactly one value, and the Map cannot contain
-   * duplicate keys.<br/>
-   * - The `HashMap` uses the context's `hasher` instance to hash keys for performance.<br/>
-   * - The `HashMap` uses the context's `eq` function to determine equivalence between keys.<br/>
-   *
+   * duplicate keys.
    * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [HashMap API documentation](https://rimbu.org/api/rimbu/hashed/map/HashMap/interface)
+   * @note
+   * - The `HashMap` uses the context's `hasher` instance to hash keys for performance.<br/>
+   * - The `HashMap` uses the context's `eq` function to determine equivalence between keys.
    * @typeparam K - the key type
    * @typeparam V - the value type
    * @example
