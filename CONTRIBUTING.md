@@ -9,7 +9,7 @@ Be sure to read our [Code of Conduct](./CODE_OF_CONDUCT.md)
 
 We use Github to host code, to track issues and feature requests, as well as accept pull requests.
 
-As development process we use [Github Flow](https://guides.github.com/introduction/flow/index.html), so all code changes happen through pull requests.
+As development process we use [Github Flow](https://docs.github.com/get-started/quickstart/github-flow), so all code changes happen through pull requests.
 
 Pull requests are the only way to propose changes to the codebase. We actively welcome your pull requests.
 
