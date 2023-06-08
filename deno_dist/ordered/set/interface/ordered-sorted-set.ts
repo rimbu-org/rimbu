@@ -14,9 +14,9 @@ import type { Stream, Streamable } from '../../../stream/mod.ts';
  * @typeparam T - the value type
  * @note
  * - The OrderedSortedSet keeps the insertion order of values, thus
- * iterators and stream will also reflect this order.
+ * iterators and stream will also reflect this order.<br/>
  * - The OrderedSortedSet wraps around a SortedSet instance, thus has the same time complexity
- * as the SortedSet.
+ * as the SortedSet.<br/>
  * - The OrderedSortedSet keeps the key insertion order in a List, thus its space
  * complexity is higher than a regular SortedSet.
  * @example
@@ -36,9 +36,9 @@ export namespace OrderedSortedSet {
    * @typeparam T - the value type
    * @note
    * - The OrderedSortedSet keeps the insertion order of values, thus
-   * iterators and stream will also reflect this order.
+   * iterators and stream will also reflect this order.<br/>
    * - The OrderedSortedSet wraps around a SortedSet instance, thus has the same time complexity
-   * as the SortedSet.
+   * as the SortedSet.<br/>
    * - The OrderedSortedSet keeps the key insertion order in a List, thus its space
    * complexity is higher than a regular SortedSet.
    * @example

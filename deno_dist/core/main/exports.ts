@@ -9,6 +9,7 @@ export * from '../../list/mod.ts';
 export * from '../../multimap/mod.ts';
 export * from '../../multiset/mod.ts';
 export * from '../../ordered/mod.ts';
+export { ProximityMap } from '../../proximity/mod.ts';
 export * from '../../sorted/mod.ts';
 export * from '../../stream/mod.ts';
 export * from '../../stream/async/index.ts';

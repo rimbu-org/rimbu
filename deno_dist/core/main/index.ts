@@ -14,6 +14,7 @@
  * - [`@rimbu/multimap`](./multimap)<br/>
  * - [`@rimbu/multiset`](./multiset)<br/>
  * - [`@rimbu/ordered`](./ordered)<br/>
+ * - [`@rimbu/proximity`](./proximity)<br/>
  * - [`@rimbu/sorted`](./sorted)<br/>
  * - [`@rimbu/stream`](./stream)<br/>
  * - [`@rimbu/table`](./table)<br/>

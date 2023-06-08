@@ -123,6 +123,7 @@ This package exports everything from the following packages:
 | [@rimbu/multimap](../multimap)                 | provides a map in which keys and values have a one-to-many mapping                                                                           |
 | [@rimbu/multiset](../multiset)                 | provides a set in which elements can occur multiple times                                                                                    |
 | [@rimbu/ordered](../ordered)                   | provides the OrderedSet and OrderedMap collections, that keep insertion order                                                                |
+| [@rimbu/proximity](../proximity)               | provides ProximityMap, that retrieves values based on key proximity                                                                          |
 | [@rimbu/sorted](../sorted)                     | provides a SortedMap and SortedSet implementation, using compare functions to efficiently keep the elements sorted                           |
 | [@rimbu/stream](../stream)                     | contains methods to easily manipulate sequences of data                                                                                      |
 | [@rimbu/table](../table)                       | provides various Table data structures where a combination of a row key and column key maps to a single value.                               |
