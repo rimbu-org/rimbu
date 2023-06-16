@@ -3,6 +3,7 @@ import { NonEmptyBase } from '@rimbu/collection-types/set-custom';
 import {
   ArrayNonEmpty,
   CollectFun,
+  Comp,
   IndexRange,
   OptLazy,
   ToJSON,
@@ -91,6 +92,12 @@ export abstract class ListNonEmptyBase<T>
 
     if (!reversed) return values;
     return values.reversed();
+  }
+
+  sort(comp?: Comp<T>): List.NonEmpty<T> {
+    const sortedArray = this.toArray().sort(comp?.compare);
+
+    return this.context.from(sortedArray);
   }
 
   splice({
