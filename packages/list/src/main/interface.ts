@@ -221,6 +221,10 @@ export interface List<T> extends FastIterable<T> {
   /**
    * Returns the values sorted according to the given, optional Comp.
    *
+   * **Performance warning**: this method is not designed for frequent calls;
+   * should you need to keep in order a collection with potentially duplicate values,
+   * please consider `SortedMultiSet` instead.
+   *
    * @param comp The comparison logic to use; if missing, the default JavaScript sorting algorithm is applied
    * @returns A sorted copy of the list
    */
@@ -785,6 +789,10 @@ export namespace List {
 
     /**
      * Returns the values sorted according to the given, optional Comp.
+     *
+     * **Performance warning**: this method is not designed for frequent calls;
+     * should you need to keep in order a collection with potentially duplicate values,
+     * please consider `SortedMultiSet` instead.
      *
      * @param comp The comparison logic to use; if missing, the default JavaScript sorting algorithm is applied
      * @returns A sorted copy of the list
