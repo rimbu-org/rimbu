@@ -95,7 +95,7 @@ export abstract class ListNonEmptyBase<T>
   }
 
   sort(comp?: Comp<T>): List.NonEmpty<T> {
-    const sortedArray = this.toArray().sort(comp?.compare);
+    const sortedArray = this.toArray().sort(comp?.compare.bind(comp));
 
     return this.context.from(sortedArray);
   }

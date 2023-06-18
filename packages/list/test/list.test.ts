@@ -4,6 +4,28 @@ import { List as ListSrc } from '@rimbu/list';
 
 const List = ListSrc.createContext({ blockSizeBits: 2 });
 
+class PriorityNumberComp implements Comp<number> {
+  private readonly defaultComp: Comp<number> = Comp.numberComp();
+
+  constructor(private readonly priorityNumber: number) {}
+
+  compare(value1: number, value2: number): number {
+    if (value1 == this.priorityNumber) {
+      return -1;
+    }
+
+    if (value2 == this.priorityNumber) {
+      return 1;
+    }
+
+    return this.defaultComp.compare(value1, value2);
+  }
+
+  isComparable(obj: any): obj is number {
+    return this.defaultComp.isComparable(obj);
+  }
+}
+
 describe('List creators', () => {
   it('empty', () => {
     expect(List.empty<number>()).toBe(List.empty<string>());
@@ -322,6 +344,10 @@ describe('List methods', () => {
         new Date(2000, 10, 10),
       ])
     );
+
+    expect(
+      List.from([4, 8, 100, 7, 90, 1, 9]).sort(new PriorityNumberComp(90))
+    ).toEqual(List.from([90, 1, 4, 7, 8, 9, 100]));
   });
 
   it('splice', () => {
