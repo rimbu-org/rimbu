@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.3](https://github.com/rimbu-org/rimbu/compare/@rimbu/list@0.12.2...@rimbu/list@0.12.3) (2023-06-20)
+
+### Reverts
+
+- Revert "Increase version number" ([9c0b4ba](https://github.com/rimbu-org/rimbu/commit/9c0b4baa3f16f1dce4a8e276c0ec8c89ce1eb72c))
+
 ## [0.12.2](https://github.com/rimbu-org/rimbu/compare/@rimbu/list@0.12.1...@rimbu/list@0.12.2) (2023-05-21)
 
 **Note:** Version bump only for package @rimbu/list

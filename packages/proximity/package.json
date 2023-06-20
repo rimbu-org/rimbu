@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/proximity",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Immutable ProximityMap implementation for TypeScript",
   "keywords": [
     "proximitymap",
@@ -96,7 +96,7 @@
     "@rimbu/base": "^0.11.4",
     "@rimbu/collection-types": "^0.10.6",
     "@rimbu/common": "*",
-    "@rimbu/hashed": "^0.9.6",
+    "@rimbu/hashed": "^0.9.7",
     "@rimbu/stream": "^0.13.6",
     "tslib": "^2.5.0"
   },
