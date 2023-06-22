@@ -1,3 +1,5 @@
+import { Stream } from '@rimbu/stream';
+
 import {
   LeafBlock,
   LeafBlockBuilder,
@@ -5,8 +7,7 @@ import {
   NonLeafBlockBuilder,
   NonLeafTree,
   NonLeafTreeBuilder,
-} from '@rimbu/list/custom';
-import { Stream } from '@rimbu/stream';
+} from '../src/custom/index.mjs';
 
 const context = new ListContext(2);
 
@@ -315,7 +316,7 @@ describe('NonLeafTreeBuilder', () => {
       //   number,
       //   NonLeafBlockBuilder<number, any>
       // >(2, [nlb, nlb], 16);
-      // nlb2.normalized = jest.fn();
+      // nlb2.normalized = vi.fn();
       // const b = context.nonLeafTreeBuilder(1, nlb, nlb, nlb2, 16);
       // const n = b.normalized();
       // expect(nlb2.normalized).toBeCalledTimes(1);
@@ -356,7 +357,7 @@ describe('NonLeafTreeBuilder', () => {
       12
     );
     const b = context.nonLeafTreeBuilder(1, nlb, nlb, undefined, 24);
-    const fn = jest.fn();
+    const fn = vi.fn();
     b.prepareMutate = fn;
     b.left;
     expect(fn).toBeCalledTimes(1);

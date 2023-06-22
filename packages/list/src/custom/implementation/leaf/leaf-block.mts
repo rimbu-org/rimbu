@@ -1,21 +1,16 @@
 import { Arr, RimbuError } from '@rimbu/base';
 import {
-  ArrayNonEmpty,
+  type ArrayNonEmpty,
   IndexRange,
   OptLazy,
   TraverseState,
   Update,
 } from '@rimbu/common';
-import { Stream, StreamSource } from '@rimbu/stream';
+import { Stream, type StreamSource } from '@rimbu/stream';
 
-import type { List } from '@rimbu/list';
-import type {
-  Block,
-  BlockBuilder,
-  LeafTree,
-  ListContext,
-} from '@rimbu/list/custom';
-import { ListNonEmptyBase } from './non-empty';
+import type { List } from '#list/main';
+import type { Block, BlockBuilder, LeafTree, ListContext } from '#list/custom';
+import { ListNonEmptyBase } from './non-empty.mjs';
 
 export class LeafBlock<T>
   extends ListNonEmptyBase<T>

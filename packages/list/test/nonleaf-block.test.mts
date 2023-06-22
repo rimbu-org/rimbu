@@ -1,12 +1,14 @@
 import { TraverseState } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
+
 import {
   LeafBlock,
   ListContext,
   NonLeafBlock,
   NonLeafBlockBuilder,
   NonLeafTree,
-} from '@rimbu/list/custom';
+} from '../src/custom/index.mjs';
+
 import './setupTests';
 
 const context = new ListContext(2);
@@ -423,7 +425,7 @@ describe('NonLeafBlock', () => {
       1
     );
 
-    const cb = jest.fn();
+    const cb = vi.fn();
     nl.forEach(cb, TraverseState());
     expect(cb).toBeCalledTimes(9);
     expect(cb.mock.calls[1][0]).toBe(2);

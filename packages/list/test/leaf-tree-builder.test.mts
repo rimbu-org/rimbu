@@ -4,13 +4,13 @@ import {
   LeafTreeBuilder,
   ListContext,
   NonLeafTreeBuilder,
-} from '@rimbu/list/custom';
+} from '../src/custom/index.mjs';
 
 const context = new ListContext(2);
 
 describe('LeafTreeBuilder', () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('append', () => {
@@ -484,7 +484,7 @@ describe('LeafTreeBuilder', () => {
         undefined,
         8
       );
-      const cb = jest.fn();
+      const cb = vi.fn();
       t.forEach(cb);
       expect(cb).toBeCalledTimes(8);
       expect(cb.mock.calls[1][0]).toBe(2);
@@ -511,7 +511,7 @@ describe('LeafTreeBuilder', () => {
         ),
         11
       );
-      const cb = jest.fn();
+      const cb = vi.fn();
       t.forEach(cb);
       expect(cb).toBeCalledTimes(11);
       expect(cb.mock.calls[1][0]).toBe(2);
@@ -856,7 +856,7 @@ describe('LeafTreeBuilder', () => {
       undefined,
       4
     );
-    const fn = jest.fn();
+    const fn = vi.fn();
     t.prepareMutate = fn;
 
     t.left;

@@ -1,6 +1,7 @@
 import fs from 'fs';
-import { List } from '@rimbu/list';
 import { Stream } from '@rimbu/stream';
+
+import { List } from '../src/main/index.mjs';
 
 type Action = {
   name: string;

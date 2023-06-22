@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/list",
-  "version": "0.12.3",
+  "version": "0.12.2",
   "description": "An efficient immutable ordered sequence of elements akin to a Vector",
   "keywords": [
     "list",
@@ -32,24 +32,42 @@
     "url": "https://github.com/rimbu-org/rimbu.git",
     "directory": "packages/list"
   },
-  "source": "./src/main/index.ts",
-  "main": "./dist/main/main/index.js",
-  "module": "./dist/module/main/index.js",
-  "types": "./dist/types/main/index.d.ts",
+  "type": "module",
+  "main": "./dist/cjs/main/index.js",
+  "module": "./dist/esm/main/index.mjs",
+  "types": "./dist/types/main/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/types/main/index.d.ts",
-      "bun": "./src/main/index.ts",
-      "import": "./dist/module/main/index.js",
-      "require": "./dist/main/main/index.js",
-      "default": "./dist/module/main/index.js"
+      "types": "./dist/types/main/index.d.mts",
+      "bun": "./dist/bun/main/index.mts",
+      "import": "./dist/esm/main/index.mjs",
+      "require": "./dist/cjs/main/index.js",
+      "default": "./dist/esm/main/index.mjs"
     },
     "./custom": {
-      "types": "./dist/types/custom/index.d.ts",
-      "bun": "./src/custom/index.ts",
-      "import": "./dist/module/custom/index.js",
-      "require": "./dist/main/custom/index.js",
-      "default": "./dist/main/custom/index.js"
+      "types": "./dist/types/custom/index.d.mts",
+      "bun": "./dist/bun/custom/index.mts",
+      "import": "./dist/esm/custom/index.mjs",
+      "require": "./dist/cjs/custom/index.js",
+      "default": "./dist/cjs/custom/index.mjs"
+    }
+  },
+  "imports": {
+    "#list/*.mts": {
+      "bun": "./dist/bun/*.mts"
+    },
+    "#list/*.mjs": {
+      "types": "./dist/types/*.d.mts",
+      "import": "./dist/esm/*.mjs",
+      "require": "./dist/cjs/*.js",
+      "default": "./dist/esm/*.mjs"
+    },
+    "#list/*": {
+      "types": "./dist/types/*/index.d.mts",
+      "bun": "./dist/bun/*/index.mts",
+      "import": "./dist/esm/*/index.mjs",
+      "require": "./dist/cjs/*/index.js",
+      "default": "./dist/esm/*/index.mjs"
     }
   },
   "files": [
@@ -59,26 +77,32 @@
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
-    "build:deno": "rimraf deno_dist ../../deno_dist/list && denoify && mv deno_dist ../../deno_dist/list",
-    "bundle": "yarn bundle:types && yarn bundle:main && yarn bundle:module",
-    "bundle:main": "tsc --p tsconfig.main.json",
-    "bundle:module": "tsc --p tsconfig.module.json",
+    "build:deno": "yarn bundle:deno-prepare && yarn bundle:deno-convert && yarn bundle:deno-move && yarn bundle:deno-clean",
+    "bundle": "yarn bundle:cjs && yarn bundle:esm && yarn bundle:types && yarn bundle:bun",
+    "bundle:bun": "node ../../config/bunnify.mjs",
+    "bundle:cjs": "tsup src --format cjs --clean -d dist/cjs --loader '.mts=ts' --legacy-output",
+    "bundle:deno-prepare": "node ../../config/prepare-denoify.mjs",
+    "bundle:deno-convert": "denoify --src _deno_prepare/src",
+    "bundle:deno-move": "rimraf ../../deno_dist/list && mv deno_dist ../../deno_dist/list",
+    "bundle:deno-clean": "rimraf _deno_prepare",
+    "bundle:esm": "tsc --p tsconfig.esm.json",
     "bundle:types": "tsc --p tsconfig.types.json",
     "clean": "rimraf dist",
     "circular": "npx -y madge --ts-config tsconfig.json --circular --extensions ts src/main/index.ts",
     "extract-api": "yarn extract-api:main && yarn extract-api:custom",
-    "extract-api:custom": "api-extractor run --local --verbose --config config/api-extractor.custom.json",
-    "extract-api:main": "api-extractor run --local --verbose --config config/api-extractor.main.json",
+    "extract-api:custom": "ts-node ../../config/api-extractor.ts config/api-extractor.custom.json",
+    "extract-api:main": "ts-node ../../config/api-extractor.ts config/api-extractor.main.json",
     "format": "yarn format:base --write",
-    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,json,md}\"",
+    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
-    "test": "jest",
-    "test:random": "jest --config jest-random.config.json --runInBand",
-    "test:types": "tsd",
+    "test": "vitest run",
+    "test:cov": "vitest run --coverage",
+    "test:watch": "vitest",
+    "test:random": "vitest run --config vitest.random.config.ts",
+    "test:types": "tsd --files test-d",
     "typecheck": "tsc"
   },
-  "sideEffects": false,
   "dependencies": {
     "@rimbu/base": "^0.11.4",
     "@rimbu/collection-types": "^0.10.6",

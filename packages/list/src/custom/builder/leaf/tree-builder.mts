@@ -6,8 +6,8 @@ import type {
   LeafTree,
   ListContext,
   NonLeafBuilder,
-} from '@rimbu/list/custom';
-import { TreeBuilderBase } from '../tree/tree-builder';
+} from '#list/custom';
+import { TreeBuilderBase } from '../tree/tree-builder.mjs';
 
 export class LeafTreeBuilder<T>
   extends TreeBuilderBase<T, T>

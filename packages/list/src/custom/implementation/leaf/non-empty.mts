@@ -1,20 +1,19 @@
 import { RimbuError } from '@rimbu/base';
 import { NonEmptyBase } from '@rimbu/collection-types/set-custom';
 import {
-  ArrayNonEmpty,
+  type ArrayNonEmpty,
   CollectFun,
-  Comp,
   IndexRange,
   OptLazy,
-  ToJSON,
+  type ToJSON,
   TraverseState,
   Update,
 } from '@rimbu/common';
 import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-import type { List } from '@rimbu/list';
-import type { CacheMap, ListContext } from '@rimbu/list/custom';
+import type { List } from '#list/main';
+import type { CacheMap, ListContext } from '#list/custom';
 
 export abstract class ListNonEmptyBase<T>
   extends NonEmptyBase<T>
@@ -92,12 +91,6 @@ export abstract class ListNonEmptyBase<T>
 
     if (!reversed) return values;
     return values.reversed();
-  }
-
-  sort(comp?: Comp<T>): List.NonEmpty<T> {
-    const sortedArray = this.toArray().sort(comp?.compare);
-
-    return this.context.from(sortedArray);
   }
 
   splice({
@@ -213,7 +206,7 @@ export abstract class ListNonEmptyBase<T>
     let value: T | typeof done;
 
     while (done !== (value = iterator.fastNext(done))) {
-      result = result.concat(flatMapFun(value, index++));
+      result = result.concat<T2>(flatMapFun(value, index++));
     }
 
     return result;

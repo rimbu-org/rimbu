@@ -1,7 +1,7 @@
 import type { OptLazy } from '@rimbu/common';
 
-import type { List } from '@rimbu/list';
-import type { NonLeaf } from '@rimbu/list/custom';
+import type { List } from '#list/main';
+import type { NonLeaf } from '#list/custom';
 
 export interface BuilderBase<T, C = unknown> {
   readonly length: number;

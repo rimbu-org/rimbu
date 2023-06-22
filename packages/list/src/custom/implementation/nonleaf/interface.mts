@@ -7,7 +7,7 @@ import type {
   CacheMap,
   ListContext,
   NonLeafBuilder,
-} from '@rimbu/list/custom';
+} from '#list/custom';
 
 export interface NonLeaf<T, C extends Block<any, C> = any> {
   readonly length: number;

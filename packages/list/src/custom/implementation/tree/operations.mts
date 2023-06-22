@@ -2,7 +2,7 @@ import { Arr, RimbuError } from '@rimbu/base';
 import { IndexRange, TraverseState, Update } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
 
-import type { Block, Tree } from '@rimbu/list/custom';
+import type { Block, Tree } from '#list/custom';
 
 export function treeStream<
   T,
@@ -21,14 +21,14 @@ export function treeStream<
     const leftStream = tree.left.stream(reversed);
 
     if (null === tree.middle) {
-      if (reversed) return rightStream.concat(leftStream);
-      return leftStream.concat(rightStream);
+      if (reversed) return rightStream.concat<T>(leftStream);
+      return leftStream.concat<T>(rightStream);
     }
 
     const middleStream = tree.middle.stream(reversed);
 
-    if (reversed) return rightStream.concat(middleStream, leftStream);
-    return leftStream.concat(middleStream, rightStream);
+    if (reversed) return rightStream.concat<T>(middleStream, leftStream);
+    return leftStream.concat<T>(middleStream, rightStream);
   }
 
   const [start, end] = indexRange;
@@ -46,8 +46,8 @@ export function treeStream<
       reversed
     );
 
-    if (reversed) return rightStream.concat(leftStream);
-    return leftStream.concat(rightStream);
+    if (reversed) return rightStream.concat<T>(leftStream);
+    return leftStream.concat<T>(rightStream);
   }
 
   const middleStart = Math.max(0, start - tree.left.length);
@@ -64,16 +64,16 @@ export function treeStream<
   const rightEnd = middleEnd - tree.middle.length;
 
   if (rightEnd < 0) {
-    if (reversed) return middleStream.concat(leftStream);
-    return leftStream.concat(middleStream);
+    if (reversed) return middleStream.concat<T>(leftStream);
+    return leftStream.concat<T>(middleStream);
   }
   const rightStream = tree.right.streamRange(
     { start: rightStart, end: rightEnd },
     reversed
   );
 
-  if (reversed) return rightStream.concat(middleStream, leftStream);
-  return leftStream.concat(middleStream, rightStream);
+  if (reversed) return rightStream.concat<T>(middleStream, leftStream);
+  return leftStream.concat<T>(middleStream, rightStream);
 }
 
 export function treeGet<

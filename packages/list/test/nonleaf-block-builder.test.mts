@@ -5,7 +5,7 @@ import {
   NonLeafBlock,
   NonLeafBlockBuilder,
   NonLeafTreeBuilder,
-} from '@rimbu/list/custom';
+} from '../src/custom/index.mjs';
 
 const context = new ListContext(2);
 
@@ -206,7 +206,7 @@ describe('NonLeafBlockBuilder', () => {
         [first, second],
         8
       );
-      const cb = jest.fn();
+      const cb = vi.fn();
       b.forEach(cb);
       expect(cb).toBeCalledTimes(8);
       expect(cb.mock.calls[1][0]).toBe(2);
@@ -231,7 +231,7 @@ describe('NonLeafBlockBuilder', () => {
         [first, second],
         7
       );
-      const cb = jest.fn();
+      const cb = vi.fn();
       b.forEach(cb);
       expect(cb).toBeCalledTimes(7);
       expect(cb.mock.calls[1][0]).toBe(2);

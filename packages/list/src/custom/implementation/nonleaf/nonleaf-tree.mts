@@ -10,7 +10,7 @@ import type {
   NonLeafBlock,
   NonLeafBuilder,
   Tree,
-} from '@rimbu/list/custom';
+} from '#list/custom';
 import {
   treeAppend,
   treeForEach,
@@ -19,7 +19,7 @@ import {
   treeStream,
   treeToArray,
   treeUpdate,
-} from '../tree/operations';
+} from '../tree/operations.mjs';
 
 export class NonLeafTree<T, C extends Block<T, C>>
   implements Tree<T, NonLeafTree<T, C>, NonLeafBlock<T, C>, C>, NonLeaf<T>

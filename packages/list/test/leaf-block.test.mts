@@ -1,12 +1,13 @@
 import { Stream } from '@rimbu/stream';
-import { List } from '@rimbu/list';
+
+import { List } from '../src/main/index.mjs';
 import {
   ListContext,
   LeafBlock,
   LeafTree,
   ReversedLeafBlock,
   LeafBlockBuilder,
-} from '@rimbu/list/custom';
+} from '../src/custom/index.mjs';
 
 describe('LeafBlock', () => {
   it('_mutateNormalize', () => {
@@ -291,7 +292,7 @@ function runLeafBlockTests(
 
     it('forEach', () => {
       const b3 = createBlock(1, 2, 3);
-      const cb = jest.fn();
+      const cb = vi.fn();
       b3.forEach(cb);
       expect(cb).toBeCalledTimes(3);
       expect(cb.mock.calls[1][0]).toBe(2);

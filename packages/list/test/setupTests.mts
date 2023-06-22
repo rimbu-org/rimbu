@@ -33,7 +33,7 @@ expect.extend({
 });
 
 declare global {
-  namespace jest {
+  namespace vi {
     interface Matchers<R> {
       toBeArrayOf<E>(expected: E[]): CustomMatcherResult;
     }

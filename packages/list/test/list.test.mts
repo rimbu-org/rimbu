@@ -1,6 +1,7 @@
-import { Comp, type CollectFun } from '@rimbu/common';
+import type { CollectFun } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
-import { List as ListSrc } from '@rimbu/list';
+
+import { List as ListSrc } from '../src/main/index.mjs';
 
 const List = ListSrc.createContext({ blockSizeBits: 2 });
 
@@ -270,58 +271,6 @@ describe('List methods', () => {
     expect(list6_2.slice({ start: 2, amount: 3 }, true).toArray()).toEqual([
       5, 4, 3,
     ]);
-  });
-
-  it('sort', () => {
-    //Empty list
-    expect(List.empty().sort()).toBe(List.empty());
-
-    //Empty list, using arbitrary Comp
-    expect(List.empty().sort(Comp.numberComp())).toBe(List.empty());
-
-    //Strings
-    expect(List.from(['C', 'E', 'B', 'A', 'D']).sort()).toEqual(
-      List.from(['A', 'B', 'C', 'D', 'E'])
-    );
-
-    //Strings, with duplicates
-    expect(List.from(['A', 'C', 'B', 'A', 'B', 'C', 'A']).sort()).toEqual(
-      List.from(['A', 'A', 'A', 'B', 'B', 'C', 'C'])
-    );
-
-    //Default number sorting
-    expect(List.from([90, 4, 8, 100, 7, 1, 9]).sort()).toEqual(
-      List.from([1, 100, 4, 7, 8, 9, 90])
-    );
-
-    //Comp-based number sorting
-    expect(List.from([90, 4, 8, 100, 7, 1, 9]).sort(Comp.numberComp())).toEqual(
-      List.from([1, 4, 7, 8, 9, 90, 100])
-    );
-
-    //Duplicate numbers
-    expect(
-      List.from([90, 4, 7, 90, 8, 100, 7, 1, 9, 7]).sort(Comp.numberComp())
-    ).toEqual(List.from([1, 4, 7, 7, 7, 8, 9, 90, 90, 100]));
-
-    //Dates, with duplicates
-    expect(
-      List.from([
-        new Date(2000, 10, 10),
-        new Date(2000, 3, 3),
-        new Date(1986, 3, 29),
-        new Date(2000, 3, 3),
-        new Date(1998, 5, 13),
-      ]).sort(Comp.dateComp())
-    ).toEqual(
-      List.from([
-        new Date(1986, 3, 29),
-        new Date(1998, 5, 13),
-        new Date(2000, 3, 3),
-        new Date(2000, 3, 3),
-        new Date(2000, 10, 10),
-      ])
-    );
   });
 
   it('splice', () => {

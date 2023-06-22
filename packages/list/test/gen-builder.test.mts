@@ -1,11 +1,12 @@
 import { TraverseState } from '@rimbu/common';
+import { Stream } from '@rimbu/stream';
+
 import {
   ListContext,
   GenBuilder,
   LeafBlockBuilder,
   LeafTreeBuilder,
-} from '@rimbu/list/custom';
-import { Stream } from '@rimbu/stream';
+} from '../src/custom/index.mjs';
 
 const context = new ListContext(2);
 
@@ -203,13 +204,13 @@ describe('GenBuilder', () => {
     {
       // no sub builder
       const b = context.createBuilder();
-      const f = jest.fn();
+      const f = vi.fn();
       b.forEach(f);
       expect(f).not.toHaveBeenCalled();
     }
     {
       // has sub builder
-      const forEach = jest.fn();
+      const forEach = vi.fn();
 
       const b = builder({ forEach });
       const f = () => {};
@@ -342,7 +343,7 @@ describe('GenBuilder', () => {
   });
 
   it('set', () => {
-    const updateAt = jest.fn().mockReturnValue(5);
+    const updateAt = vi.fn().mockReturnValue(5);
     const g = builder({ length: 10, updateAt });
     expect(g.set(4, 5)).toBe(5);
     expect(updateAt).toBeCalledWith(4, 5);
@@ -351,7 +352,7 @@ describe('GenBuilder', () => {
   });
 
   it('updateAt', () => {
-    const updateAt = jest.fn().mockReturnValue(5);
+    const updateAt = vi.fn().mockReturnValue(5);
     const g = builder({ length: 10, updateAt });
     expect(g.updateAt(4, 2)).toBe(5);
     expect(updateAt).toBeCalledWith(4, 2);

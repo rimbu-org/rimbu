@@ -1,6 +1,6 @@
 import { RimbuError } from '@rimbu/base';
 import {
-  ArrayNonEmpty,
+  type ArrayNonEmpty,
   IndexRange,
   OptLazy,
   TraverseState,
@@ -8,8 +8,8 @@ import {
 } from '@rimbu/common';
 import type { Stream, StreamSource } from '@rimbu/stream';
 
-import type { List } from '@rimbu/list';
-import type { LeafBlock, ListContext, NonLeaf, Tree } from '@rimbu/list/custom';
+import type { List } from '#list/main';
+import type { LeafBlock, ListContext, NonLeaf, Tree } from '#list/custom';
 import {
   treeAppend,
   treeForEach,
@@ -18,8 +18,8 @@ import {
   treeStream,
   treeToArray,
   treeUpdate,
-} from '../tree/operations';
-import { ListNonEmptyBase } from './non-empty';
+} from '../tree/operations.mjs';
+import { ListNonEmptyBase } from './non-empty.mjs';
 
 export class LeafTree<T>
   extends ListNonEmptyBase<T>

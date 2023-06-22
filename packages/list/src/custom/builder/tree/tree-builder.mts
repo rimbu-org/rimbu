@@ -1,11 +1,7 @@
 import { RimbuError } from '@rimbu/base';
 import { OptLazy, TraverseState, Update } from '@rimbu/common';
 
-import type {
-  BlockBuilder,
-  ListContext,
-  NonLeafBuilder,
-} from '@rimbu/list/custom';
+import type { BlockBuilder, ListContext, NonLeafBuilder } from '#list/custom';
 
 export abstract class TreeBuilderBase<T, C> {
   abstract get context(): ListContext;

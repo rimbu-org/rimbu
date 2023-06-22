@@ -1,13 +1,15 @@
 import { Stream } from '@rimbu/stream';
+import { TraverseState } from '@rimbu/common';
+
 import {
   LeafBlock,
   ListContext,
   NonLeafBlock,
   NonLeafTree,
   NonLeafTreeBuilder,
-} from '@rimbu/list/custom';
+} from '../src/custom/index.mjs';
+
 import './setupTests';
-import { TraverseState } from '@rimbu/common';
 
 const context = new ListContext(2);
 
@@ -211,7 +213,7 @@ describe('NonLeafTree', () => {
     }
   });
 
-  describe('concatTree', () => {
+  it('concatTree', () => {
     {
       // append right and left to middle
       const t = createTree();
@@ -463,7 +465,7 @@ describe('NonLeafTree', () => {
   it('forEach', () => {
     const t = createTree();
 
-    const cb = jest.fn();
+    const cb = vi.fn();
     t.forEach(cb, TraverseState());
     expect(cb).toBeCalledTimes(36);
     expect(cb.mock.calls[1][0]).toBe(2);

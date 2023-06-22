@@ -1,4 +1,4 @@
-import { LeafTreeBuilder, ListContext } from '@rimbu/list/custom';
+import { LeafTreeBuilder, ListContext } from '../src/custom/index.mjs';
 
 const context = new ListContext(2);
 
@@ -161,7 +161,7 @@ describe('LeafBlockBuilder', () => {
   it('forEach', () => {
     {
       const b = context.leafBlockBuilder([1, 2, 3]);
-      const cb = jest.fn();
+      const cb = vi.fn();
       b.forEach(cb);
       expect(cb).toBeCalledTimes(3);
       expect(cb.mock.calls[1][0]).toBe(2);
@@ -178,7 +178,7 @@ describe('LeafBlockBuilder', () => {
     }
     {
       const b = context.leafBlockBuilderSource(context.leafBlock([1, 2, 3]));
-      const cb = jest.fn();
+      const cb = vi.fn();
       b.forEach(cb);
       expect(cb).toBeCalledTimes(3);
       expect(cb.mock.calls[1][0]).toBe(2);

@@ -1,29 +1,29 @@
 // pure interfaces
-export * from './interface';
-export * from './implementation/tree/interface';
-export * from './implementation/block';
-export * from './implementation/nonleaf/interface';
+export * from './interface.mjs';
+export * from './implementation/tree/interface.mjs';
+export * from './implementation/block.mjs';
+export * from './implementation/nonleaf/interface.mjs';
 
-export * from './builder/block-builder';
-export * from './builder/builder-base';
-export * from './builder/leaf/leaf-builder';
-export * from './builder/nonleaf/nonleaf-builder';
+export * from './builder/block-builder.mjs';
+export * from './builder/builder-base.mjs';
+export * from './builder/leaf/leaf-builder.mjs';
+export * from './builder/nonleaf/nonleaf-builder.mjs';
 
 // pure classes and files
-export * from './implementation/cache-map';
-export * from './implementation/empty';
-export * from './implementation/nonleaf/nonleaf-block';
+export * from './implementation/cache-map.mjs';
+export * from './implementation/empty.mjs';
+export * from './implementation/nonleaf/nonleaf-block.mjs';
 
-export * from './builder/gen-builder';
-export * from './builder/leaf/block-builder';
-export * from './builder/nonleaf/block-builder';
+export * from './builder/gen-builder.mjs';
+export * from './builder/leaf/block-builder.mjs';
+export * from './builder/nonleaf/block-builder.mjs';
 
 // circular dependencies
-export * from './implementation/nonleaf/nonleaf-tree';
-export * from './implementation/leaf/leaf-block';
-export * from './implementation/leaf/leaf-tree';
+export * from './implementation/nonleaf/nonleaf-tree.mjs';
+export * from './implementation/leaf/leaf-block.mjs';
+export * from './implementation/leaf/leaf-tree.mjs';
 
-export * from './builder/leaf/tree-builder';
-export * from './builder/nonleaf/tree-builder';
+export * from './builder/leaf/tree-builder.mjs';
+export * from './builder/nonleaf/tree-builder.mjs';
 
-export * from './context';
+export * from './context.mjs';

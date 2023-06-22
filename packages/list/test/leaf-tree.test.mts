@@ -1,12 +1,13 @@
 import { Stream } from '@rimbu/stream';
-import { List } from '@rimbu/list';
+
+import { List } from '../src/main/index.mjs';
 import {
   LeafBlock,
   LeafTree,
   ListContext,
   NonLeafBlock,
   NonLeafTree,
-} from '@rimbu/list/custom';
+} from '../src/custom/index.mjs';
 
 function runLeafTreeTests(
   tag: string,
@@ -299,7 +300,7 @@ function runLeafTreeTests(
       const b3 = createBlock([1, 2, 3]);
       const t6 = context.leafTree(b3, b3, null);
 
-      const cb = jest.fn();
+      const cb = vi.fn();
       t6.forEach(cb);
       expect(cb).toBeCalledTimes(6);
       expect(cb.mock.calls[1][0]).toBe(2);
