@@ -1,11 +1,12 @@
-import { RSetBase, WithElem } from '@rimbu/collection-types/set-custom';
+import { RSetBase, type WithElem } from '@rimbu/collection-types/set-custom';
 import type { List } from '@rimbu/list';
+
 import {
-  OrderedSetBase,
+  type OrderedSetBase,
   OrderedSetBuilder,
   OrderedSetEmpty,
   OrderedSetNonEmpty,
-} from '@rimbu/ordered/set-custom';
+} from '#ordered/set-custom';
 
 export interface OrderedSetTypes extends OrderedSetBase.Types {
   readonly context: OrderedSetContextImpl<this['_T']>;

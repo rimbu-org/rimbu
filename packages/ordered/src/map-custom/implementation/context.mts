@@ -1,11 +1,15 @@
-import { RMapBase, WithKeyValue } from '@rimbu/collection-types/map-custom';
-import type { List } from '@rimbu/list';
 import {
-  OrderedMapBase,
+  RMapBase,
+  type WithKeyValue,
+} from '@rimbu/collection-types/map-custom';
+import type { List } from '@rimbu/list';
+
+import {
+  type OrderedMapBase,
   OrderedMapBuilder,
   OrderedMapEmpty,
   OrderedMapNonEmpty,
-} from '@rimbu/ordered/map-custom';
+} from '#ordered/map-custom';
 
 export interface OrderedMapTypes extends OrderedMapBase.Types {
   readonly context: OrderedMapContextImpl<this['_K']>;

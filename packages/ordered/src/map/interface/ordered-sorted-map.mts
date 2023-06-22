@@ -1,11 +1,12 @@
 import { List } from '@rimbu/list';
-import {
-  OrderedMapBase,
-  OrderedMapContextImpl,
-  OrderedSortedMapCreators,
-} from '@rimbu/ordered/map-custom';
 import { SortedMap } from '@rimbu/sorted/map';
 import type { Stream, Streamable } from '@rimbu/stream';
+
+import {
+  type OrderedMapBase,
+  OrderedMapContextImpl,
+  type OrderedSortedMapCreators,
+} from '#ordered/map-custom';
 
 /**
  * A type-invariant immutable Ordered SortedMap of key type K, and value type V.

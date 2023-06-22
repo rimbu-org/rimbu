@@ -1,5 +1,6 @@
-import { runSetTestsWith } from '@rimbu/collection-types/test-utils/set/set-standard';
-import { OrderedHashSet, OrderedSortedSet } from '@rimbu/ordered';
+import { runSetTestsWith } from '../../collection-types/test-utils/set/set-standard.mjs';
+
+import { OrderedHashSet, OrderedSortedSet } from '../src/main/index.mjs';
 
 runSetTestsWith(
   'OrderedHashSet default',

@@ -1,11 +1,12 @@
 import { HashSet } from '@rimbu/hashed/set';
 import { List } from '@rimbu/list';
+import type { Stream, Streamable } from '@rimbu/stream';
+
 import type {
   OrderedHashSetCreators,
   OrderedSetBase,
-} from '@rimbu/ordered/set-custom';
-import { OrderedSetContextImpl } from '@rimbu/ordered/set-custom';
-import type { Stream, Streamable } from '@rimbu/stream';
+} from '#ordered/set-custom';
+import { OrderedSetContextImpl } from '#ordered/set-custom';
 
 /**
  * A type-invariant immutable Ordered HashSet of value type T.

@@ -1,11 +1,9 @@
-import { EmptyBase, WithElem } from '@rimbu/collection-types/set-custom';
+import { EmptyBase, type WithElem } from '@rimbu/collection-types/set-custom';
 import type { ToJSON } from '@rimbu/common';
 import type { List } from '@rimbu/list';
-import type {
-  OrderedSetBase,
-  OrderedSetTypes,
-} from '@rimbu/ordered/set-custom';
 import type { StreamSource } from '@rimbu/stream';
+
+import type { OrderedSetBase, OrderedSetTypes } from '#ordered/set-custom';
 
 export class OrderedSetEmpty<
     T,

@@ -2,17 +2,15 @@ import { RimbuError, Token } from '@rimbu/base';
 import {
   OptLazy,
   OptLazyOr,
-  RelatedTo,
+  type RelatedTo,
   TraverseState,
   Update,
 } from '@rimbu/common';
 import type { List } from '@rimbu/list';
-import { Stream, StreamSource } from '@rimbu/stream';
-import type {
-  OrderedMapBase,
-  OrderedMapTypes,
-} from '@rimbu/ordered/map-custom';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import type { WithKeyValue } from '@rimbu/collection-types/map-custom';
+
+import type { OrderedMapBase, OrderedMapTypes } from '#ordered/map-custom';
 
 export class OrderedMapBuilder<
   K,
@@ -65,7 +63,8 @@ export class OrderedMapBuilder<
     return this.size === 0;
   }
 
-  hasKey = <UK>(key: RelatedTo<K, UK>): boolean => {
+  // prettier-ignore
+  hasKey = <UK,>(key: RelatedTo<K, UK>): boolean => {
     return this.source?.hasKey(key) ?? this.mapBuilder.hasKey(key);
   };
 
@@ -122,7 +121,8 @@ export class OrderedMapBuilder<
     return removedValue;
   };
 
-  removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
+  // prettier-ignore
+  removeKeys = <UK,>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
     this.checkLock();
 
     const notFound = Symbol();
@@ -134,7 +134,8 @@ export class OrderedMapBuilder<
     );
   };
 
-  updateAt = <O>(key: K, update: Update<V>, otherwise?: OptLazy<O>): V | O => {
+  // prettier-ignore
+  updateAt = <O,>(key: K, update: Update<V>, otherwise?: OptLazy<O>): V | O => {
     let oldValue: V;
     let found = false;
 
@@ -204,7 +205,8 @@ export class OrderedMapBuilder<
     this._lock = false;
   };
 
-  buildMapValues = <V2>(
+  // prettier-ignore
+  buildMapValues = <V2,>(
     f: (value: V, key: K) => V2
   ): WithKeyValue<Tp, K, V2>['normal'] => {
     if (undefined !== this.source) return this.source.mapValues<V2>(f) as any;

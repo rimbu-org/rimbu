@@ -1,5 +1,6 @@
-import { runMapTestsWith } from '@rimbu/collection-types/test-utils/map/map-standard';
-import { OrderedHashMap, OrderedSortedMap } from '@rimbu/ordered';
+import { runMapTestsWith } from '../../collection-types/test-utils/map/map-standard.mjs';
+
+import { OrderedHashMap, OrderedSortedMap } from '../src/main/index.mjs';
 
 runMapTestsWith(
   'OrderedHashMap default',

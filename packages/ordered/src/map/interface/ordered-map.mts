@@ -1,11 +1,12 @@
 import type { RMap } from '@rimbu/collection-types/map';
 import { List } from '@rimbu/list';
+import type { Stream, Streamable } from '@rimbu/stream';
+
 import {
-  OrderedMapBase,
+  type OrderedMapBase,
   OrderedMapContextImpl,
   type OrderedMapCreators,
-} from '@rimbu/ordered/map-custom';
-import type { Stream, Streamable } from '@rimbu/stream';
+} from '#ordered/map-custom';
 
 /**
  * A type-invariant immutable Ordered Map of key type K, and value type V.

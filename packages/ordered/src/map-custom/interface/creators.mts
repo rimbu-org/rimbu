@@ -2,12 +2,13 @@ import type { RMap } from '@rimbu/collection-types';
 import type { RMapBase } from '@rimbu/collection-types/map-custom';
 import type { HashMap } from '@rimbu/hashed';
 import type { List } from '@rimbu/list';
+import type { SortedMap } from '@rimbu/sorted';
+
 import type {
   OrderedHashMap,
   OrderedMap,
   OrderedSortedMap,
-} from '@rimbu/ordered/map';
-import type { SortedMap } from '@rimbu/sorted';
+} from '#ordered/map';
 
 export interface OrderedMapCreators {
   /**

@@ -2,12 +2,13 @@ import type { RSet } from '@rimbu/collection-types';
 import type { RSetBase } from '@rimbu/collection-types/set-custom';
 import type { HashSet } from '@rimbu/hashed';
 import type { List } from '@rimbu/list';
+import type { SortedSet } from '@rimbu/sorted';
+
 import type {
   OrderedHashSet,
   OrderedSet,
   OrderedSortedSet,
-} from '@rimbu/ordered/set';
-import type { SortedSet } from '@rimbu/sorted';
+} from '#ordered/set';
 
 export interface OrderedSetCreators {
   /**

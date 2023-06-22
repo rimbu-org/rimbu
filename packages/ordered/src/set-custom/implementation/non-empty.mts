@@ -1,12 +1,18 @@
-import { NonEmptyBase, WithElem } from '@rimbu/collection-types/set-custom';
-import { ArrayNonEmpty, RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
+import {
+  NonEmptyBase,
+  type WithElem,
+} from '@rimbu/collection-types/set-custom';
+import {
+  type ArrayNonEmpty,
+  type RelatedTo,
+  type ToJSON,
+  TraverseState,
+} from '@rimbu/common';
 import type { List } from '@rimbu/list';
-import type {
-  OrderedSetBase,
-  OrderedSetTypes,
-} from '@rimbu/ordered/set-custom';
-import { Stream, StreamSource } from '@rimbu/stream';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
+
+import type { OrderedSetBase, OrderedSetTypes } from '#ordered/set-custom';
 
 export class OrderedSetNonEmpty<
     T,

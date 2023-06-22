@@ -1,21 +1,22 @@
 import { RimbuError, Token } from '@rimbu/base';
-import { NonEmptyBase, WithKeyValue } from '@rimbu/collection-types/map-custom';
 import {
-  ArrayNonEmpty,
+  NonEmptyBase,
+  type WithKeyValue,
+} from '@rimbu/collection-types/map-custom';
+import {
+  type ArrayNonEmpty,
   OptLazy,
   OptLazyOr,
-  RelatedTo,
-  ToJSON,
+  type RelatedTo,
+  type ToJSON,
   TraverseState,
   Update,
 } from '@rimbu/common';
 import type { List } from '@rimbu/list';
-import type {
-  OrderedMapBase,
-  OrderedMapTypes,
-} from '@rimbu/ordered/map-custom';
 import type { Stream, StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
+
+import type { OrderedMapBase, OrderedMapTypes } from '#ordered/map-custom';
 
 export class OrderedMapNonEmpty<
     K,

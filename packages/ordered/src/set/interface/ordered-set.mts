@@ -1,11 +1,12 @@
 import type { RSet } from '@rimbu/collection-types/set';
 import { List } from '@rimbu/list';
+import type { Stream, Streamable } from '@rimbu/stream';
+
 import {
-  OrderedSetBase,
+  type OrderedSetBase,
   OrderedSetContextImpl,
   type OrderedSetCreators,
-} from '@rimbu/ordered/set-custom';
-import type { Stream, Streamable } from '@rimbu/stream';
+} from '#ordered/set-custom';
 
 /**
  * A type-invariant immutable Ordered Set of value type T.

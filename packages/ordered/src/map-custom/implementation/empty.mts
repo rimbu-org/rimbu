@@ -1,13 +1,14 @@
 import { Token } from '@rimbu/base';
-import { EmptyBase, WithKeyValue } from '@rimbu/collection-types/map-custom';
-import { OptLazy, OptLazyOr, ToJSON } from '@rimbu/common';
+import {
+  EmptyBase,
+  type WithKeyValue,
+} from '@rimbu/collection-types/map-custom';
+import { OptLazy, OptLazyOr, type ToJSON } from '@rimbu/common';
 import type { List } from '@rimbu/list';
-import type {
-  OrderedMapBase,
-  OrderedMapTypes,
-} from '@rimbu/ordered/map-custom';
-import { Stream, StreamSource } from '@rimbu/stream';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
+
+import type { OrderedMapBase, OrderedMapTypes } from '#ordered/map-custom';
 
 export class OrderedMapEmpty<
     K = any,
