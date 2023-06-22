@@ -1,25 +1,6 @@
 {
+  "extends": "./tsconfig.common.json",
   "compilerOptions": {
-    // targets
-    "target": "ES2015",
-    "module": "ES2020",
-    "moduleResolution": "node16",
-    // standard
-    "lib": ["esnext"],
-    "importHelpers": true,
-    "sourceMap": true,
-    "strict": true,
-    "exactOptionalPropertyTypes": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": false,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "downlevelIteration": true,
-    "isolatedModules": true,
-    // custom
     "declaration": false
   }
 }
