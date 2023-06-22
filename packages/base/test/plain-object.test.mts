@@ -1,4 +1,4 @@
-import { isPlainObj } from '@rimbu/base';
+import { isPlainObj } from '../src/index.mjs';
 
 describe('isPlainObj', () => {
   it('returns false for primitive types', () => {

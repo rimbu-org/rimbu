@@ -1,8 +1,7 @@
 {
-  "extends": "../../config/tsconfig.module.base.json",
+  "extends": ["../../config/tsconfig.esm.base.json", "./tsconfig.common.json"],
   "include": ["src"],
   "compilerOptions": {
-    "outDir": "./dist/module",
-    "rootDir": "./src"
+    "outDir": "./dist/esm",
   }
 }

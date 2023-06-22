@@ -1,4 +1,4 @@
-import { RimbuError } from '@rimbu/base';
+import { RimbuError } from '../src/index.mjs';
 
 describe('RimbuError', () => {
   it('throwEmptyCollectionAssumedNonEmptyError', () => {

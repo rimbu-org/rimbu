@@ -1,4 +1,4 @@
-import { Entry } from '@rimbu/base';
+import { Entry } from '../src/index.mjs';
 
 describe('Entry', () => {
   it('first', () => {
