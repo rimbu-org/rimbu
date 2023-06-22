@@ -1,4 +1,4 @@
-import { Action, ActionBase, Lookup } from '../src/main';
+import { Action, type ActionBase, Lookup } from '../src/main/index.mjs';
 
 describe('Lookup', () => {
   it('empty lookup creates reducer that does not change state', () => {

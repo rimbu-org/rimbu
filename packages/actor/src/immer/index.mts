@@ -1,1 +1,1 @@
-export * from './slice-immer';
+export * from './slice-immer.mjs';

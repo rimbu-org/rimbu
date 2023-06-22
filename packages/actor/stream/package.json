@@ -1,8 +1,7 @@
 {
   "name": "stream",
   "private": true,
-  "source": "../src/stream/index.ts",
-  "main": "../dist/main/stream/index.js",
-  "module": "../dist/module/stream/index.js",
-  "types": "../dist/types/stream/index.d.ts"
+  "main": "../dist/cjs/stream/index.js",
+  "module": "../dist/esm/stream/index.mjs",
+  "types": "../dist/types/stream/index.d.mts"
 }

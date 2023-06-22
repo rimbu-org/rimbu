@@ -1,7 +1,7 @@
 import { Reducer } from '@rimbu/common';
 
-import { Action, SliceConfig, type Actor } from './internal';
-import type { Tail } from './utils';
+import { Action, SliceConfig, type Actor } from './internal.mjs';
+import type { Tail } from './utils.mjs';
 
 /**
  * An actor slice containing an action reducer for state of type S, and potentially action definitions.

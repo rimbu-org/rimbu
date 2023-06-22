@@ -1,6 +1,6 @@
 import type { OptLazy } from '@rimbu/common';
 
-import { Lookup, type ActionBase, type Slice } from './internal';
+import { Lookup, type ActionBase, type Slice } from './internal.mjs';
 
 /**
  * Utility type to determine the types to be used in the slice configuration.

@@ -1,4 +1,4 @@
-import { Action, Slice } from '../src/main';
+import { Action, Slice } from '../src/main/index.mjs';
 
 describe('Slice', () => {
   it('empty slice', () => {

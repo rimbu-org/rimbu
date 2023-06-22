@@ -1,6 +1,6 @@
 import { Reducer, type OptLazy } from '@rimbu/common';
 
-import type { ActionBase } from './internal';
+import type { ActionBase } from './internal.mjs';
 
 /**
  * Interface to define a lookup algorithm based on actions and a fallback.

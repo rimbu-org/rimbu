@@ -1,7 +1,8 @@
-import { Actor } from '../src/main';
-import { SlicePatch } from '../src/patch';
-import { ActorStream } from '../src/stream';
 import { Spy } from '@rimbu/spy';
+
+import { Actor } from '../src/main/index.mjs';
+import { SlicePatch } from '../src/patch/index.mjs';
+import { ActorStream } from '../src/stream/index.mjs';
 
 function delay(amount = 100) {
   return new Promise((res) => setTimeout(res, amount));

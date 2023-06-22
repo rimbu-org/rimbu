@@ -1,3 +1,8 @@
+declare global {
+  export const self: any;
+  export const crypto: any;
+}
+
 /**
  * Internal function to generate a UUID.
  */

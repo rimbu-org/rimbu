@@ -1,5 +1,5 @@
-import { generateUUID } from './generate-uuid';
-import type { ActionBase } from './internal';
+import { generateUUID } from './generate-uuid.mjs';
+import type { ActionBase } from './internal.mjs';
 
 /**
  * The default action interface, containing an optional payload.

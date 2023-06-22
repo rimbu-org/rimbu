@@ -27,60 +27,87 @@
     "url": "https://github.com/rimbu-org/rimbu.git",
     "directory": "packages/actor"
   },
-  "source": "./src/main/index.ts",
-  "main": "./dist/main/main/index.js",
-  "module": "./dist/module/main/index.js",
-  "types": "./dist/types/main/index.d.ts",
+  "type": "module",
+  "main": "./dist/cjs/main/index.js",
+  "module": "./dist/esm/main/index.mjs",
+  "types": "./dist/types/main/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/types/main/index.d.ts",
-      "bun": "./src/main/index.ts",
-      "import": "./dist/module/main/index.js",
-      "require": "./dist/main/main/index.js",
-      "default": "./dist/module/main/index.js"
+      "types": "./dist/types/main/index.d.mts",
+      "bun": "./dist/bun/main/index.mts",
+      "import": "./dist/esm/main/index.mjs",
+      "require": "./dist/cjs/main/index.js",
+      "default": "./dist/esm/main/index.mjs"
     },
     "./immer": {
-      "types": "./dist/types/immer/index.d.ts",
-      "bun": "./src/immer/index.ts",
-      "import": "./dist/module/immer/index.js",
-      "require": "./dist/main/immer/index.js",
-      "default": "./dist/module/immer/index.js"
+      "types": "./dist/types/immer/index.d.mts",
+      "bun": "./dist/bun/immer/index.mts",
+      "import": "./dist/esm/immer/index.mjs",
+      "require": "./dist/cjs/immer/index.js",
+      "default": "./dist/esm/immer/index.mjs"
     },
     "./patch": {
-      "types": "./dist/types/patch/index.d.ts",
-      "bun": "./src/patch/index.ts",
-      "import": "./dist/module/patch/index.js",
-      "require": "./dist/main/patch/index.js",
-      "default": "./dist/module/patch/index.js"
+      "types": "./dist/types/patch/index.d.mts",
+      "bun": "./dist/bun/patch/index.mts",
+      "import": "./dist/esm/patch/index.mjs",
+      "require": "./dist/cjs/patch/index.js",
+      "default": "./dist/esm/patch/index.mjs"
     },
     "./stream": {
-      "types": "./dist/types/stream/index.d.ts",
-      "bun": "./src/stream/index.ts",
-      "import": "./dist/module/stream/index.js",
-      "require": "./dist/main/stream/index.js",
-      "default": "./dist/module/stream/index.js"
+      "types": "./dist/types/stream/index.d.mts",
+      "bun": "./dist/bun/stream/index.mts",
+      "import": "./dist/esm/stream/index.mjs",
+      "require": "./dist/cjs/stream/index.js",
+      "default": "./dist/esm/stream/index.mjs"
+    }
+  },
+  "imports": {
+    "#actor/*.mts": {
+      "bun": "./dist/bun/*.mts"
+    },
+    "#actor/*.mjs": {
+      "types": "./dist/types/*.d.mts",
+      "import": "./dist/esm/*.mjs",
+      "require": "./dist/cjs/*.js",
+      "default": "./dist/esm/*.mjs"
+    },
+    "#actor/*": {
+      "types": "./dist/types/*/index.d.mts",
+      "bun": "./dist/bun/*/index.mts",
+      "import": "./dist/esm/*/index.mjs",
+      "require": "./dist/cjs/*/index.js",
+      "default": "./dist/esm/*/index.mjs"
     }
   },
   "files": [
     "dist",
-    "src"
+    "src",
+    "immer",
+    "patch",
+    "stream"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
-    "build:deno": "rimraf deno_dist ../../deno_dist/actor && denoify && mv deno_dist ../../deno_dist/actor",
-    "bundle": "yarn bundle:main && yarn bundle:module && yarn bundle:types",
-    "bundle:main": "tsc --p tsconfig.main.json",
-    "bundle:module": "tsc --p tsconfig.module.json",
+    "build:deno": "yarn bundle:deno-prepare && yarn bundle:deno-convert && yarn bundle:deno-move && yarn bundle:deno-clean",
+    "bundle": "yarn bundle:cjs && yarn bundle:esm && yarn bundle:types && yarn bundle:bun",
+    "bundle:bun": "node ../../config/bunnify.mjs",
+    "bundle:cjs": "tsup src --format cjs --clean -d dist/cjs --loader '.mts=ts' --legacy-output",
+    "bundle:deno-prepare": "node ../../config/prepare-denoify.mjs",
+    "bundle:deno-convert": "denoify --src _deno_prepare/src",
+    "bundle:deno-move": "rimraf ../../deno_dist/actor && mv deno_dist ../../deno_dist/actor",
+    "bundle:deno-clean": "rimraf _deno_prepare",
+    "bundle:esm": "tsc --p tsconfig.esm.json",
     "bundle:types": "tsc --p tsconfig.types.json",
     "clean": "rimraf dist",
     "format": "yarn format:base --write",
-    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,json,md}\"",
+    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
-    "test": "jest",
+    "test": "vitest run",
+    "test:cov": "vitest run --coverage",
+    "test:watch": "vitest",
     "typecheck": "tsc"
   },
-  "sideEffects": false,
   "dependencies": {
     "@rimbu/common": "^0.12.3",
     "tslib": "^2.5.0"
@@ -89,8 +116,8 @@
     "access": "public"
   },
   "devDependencies": {
-    "@rimbu/deep": "^0.14.5",
     "@rimbu/stream": "^0.13.6",
+    "happy-dom": "^9.20.3",
     "immer": "^9.0.16"
   }
 }

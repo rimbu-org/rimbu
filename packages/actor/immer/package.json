@@ -1,8 +1,7 @@
 {
   "name": "immer",
   "private": true,
-  "source": "../src/immer/index.ts",
-  "main": "../dist/main/immer/index.js",
-  "module": "../dist/module/immer/index.js",
-  "types": "../dist/types/immer/index.d.ts"
+  "main": "../dist/cjs/immer/index.js",
+  "module": "../dist/esm/immer/index.mjs",
+  "types": "../dist/types/immer/index.d.mts"
 }

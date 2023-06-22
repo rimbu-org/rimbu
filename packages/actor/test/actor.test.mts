@@ -1,8 +1,8 @@
 import { Reducer } from '@rimbu/common';
 import { Spy } from '@rimbu/spy';
 
-import { Action, ActionBase, Actor, Slice } from '../src/main';
-import { SlicePatch } from '../src/patch';
+import { Action, type ActionBase, Actor, Slice } from '../src/main/index.mjs';
+import { SlicePatch } from '../src/patch/index.mjs';
 
 describe('Actor', () => {
   const action = Action.create();

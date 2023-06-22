@@ -1,5 +1,6 @@
-import { SliceImmer } from '../src/immer';
-import { Action } from '../src/main';
+import { SliceImmer } from '../src/immer/index.mjs';
+
+import { Action } from '../src/main/index.mjs';
 
 describe('SliceImmer', () => {
   it('empty slice', () => {

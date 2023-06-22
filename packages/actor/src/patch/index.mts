@@ -1,1 +1,1 @@
-export * from './slice-patch';
+export * from './slice-patch.mjs';

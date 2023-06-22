@@ -1,15 +1,15 @@
-import { generateUUID } from '../src/main/generate-uuid';
+import { generateUUID } from '../src/main/generate-uuid.mjs';
 
 describe('generateUUID', () => {
   beforeEach(() => {
     window.crypto = undefined as any;
     global.crypto = undefined as any;
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('generates UUID with crypto if crypto is defined in window', () => {
-    const spyNow = jest.spyOn(performance, 'now');
-    const randomUUID = jest.fn().mockReturnValue('abc');
+    const spyNow = vi.spyOn(performance, 'now');
+    const randomUUID = vi.fn().mockReturnValue('abc');
     window.crypto = {
       randomUUID,
     } as any;
@@ -20,8 +20,8 @@ describe('generateUUID', () => {
   });
 
   it('generates UUID with crypto if crypto is defined in global', () => {
-    const spyNow = jest.spyOn(performance, 'now');
-    const randomUUID = jest.fn().mockReturnValue('abc');
+    const spyNow = vi.spyOn(performance, 'now');
+    const randomUUID = vi.fn().mockReturnValue('abc');
     global.crypto = {
       randomUUID,
     } as any;
@@ -32,7 +32,7 @@ describe('generateUUID', () => {
   });
 
   it('generated UUID without crypto if crypto is not defined', () => {
-    const spyNow = jest.spyOn(performance, 'now');
+    const spyNow = vi.spyOn(performance, 'now');
     expect(generateUUID().length).toBe(36);
     expect(spyNow).toBeCalledTimes(1);
   });

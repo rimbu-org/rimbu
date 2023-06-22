@@ -1,5 +1,5 @@
-import { Action } from '../src/main';
-import { SlicePatch } from '../src/patch';
+import { Action } from '../src/main/index.mjs';
+import { SlicePatch } from '../src/patch/index.mjs';
 
 describe('SlicePatch', () => {
   it('empty slice', () => {

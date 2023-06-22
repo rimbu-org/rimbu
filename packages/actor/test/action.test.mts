@@ -1,11 +1,12 @@
-import { Action } from '../src/main';
 import crypto from 'crypto';
 
-const mockRandomUUID = jest.fn();
+import { Action } from '../src/main/index.mjs';
+
+const mockRandomUUID = vi.fn();
 
 describe('Action', () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     crypto.randomUUID = mockRandomUUID;
   });
 

@@ -1,9 +1,9 @@
 // no internal dependencies
-export * from './action-base';
-export * from './action';
-export * from './lookup';
-export * from './actor';
+export * from './action-base.mjs';
+export * from './action.mjs';
+export * from './lookup.mjs';
+export * from './actor.mjs';
 
 // internal dependencies
-export * from './slice-config';
-export * from './slice';
+export * from './slice-config.mjs';
+export * from './slice.mjs';
