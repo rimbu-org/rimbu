@@ -1,2 +1,2 @@
-export * from './types';
-export * from './base';
+export * from './types.mjs';
+export * from './base.mjs';

@@ -1,5 +1,4 @@
-import type { VariantSetBase } from '@rimbu/collection-types/set-custom';
-import type { Streamable } from '@rimbu/stream';
+import type { VariantSetBase } from '#collection-types/set-custom';
 
 /**
  * A type-variant immutable Set of value type T.
@@ -26,8 +25,7 @@ export namespace VariantSet {
    */
   export interface NonEmpty<T>
     extends VariantSetBase.NonEmpty<T, VariantSet.Types>,
-      Omit<VariantSet<T>, keyof VariantSetBase.NonEmpty<any, any>>,
-      Streamable.NonEmpty<T> {}
+      Omit<VariantSet<T>, keyof VariantSetBase.NonEmpty<any, any>> {}
 
   /**
    * Utility interface that provides higher-kinded types for this collection.

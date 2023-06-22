@@ -1,6 +1,6 @@
 import { Stream } from '@rimbu/stream';
 import type { RSet } from '@rimbu/collection-types';
-import { HashSet } from '../../../hashed';
+import { HashSet } from '@rimbu/hashed';
 
 function expectEqual(set: RSet<number>, arr: number[]): void {
   expect(new Set(set)).toEqual(new Set(arr));

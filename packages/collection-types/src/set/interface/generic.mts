@@ -1,5 +1,4 @@
-import type { RSetBase } from '@rimbu/collection-types/set-custom';
-import type { Streamable } from '@rimbu/stream';
+import type { RSetBase } from '#collection-types/set-custom';
 
 /**
  * A type-invariant immutable Set of value type T.
@@ -18,8 +17,7 @@ export namespace RSet {
    */
   export interface NonEmpty<T>
     extends RSetBase.NonEmpty<T, RSet.Types>,
-      Omit<RSet<T>, keyof RSetBase<any, any>>,
-      Streamable.NonEmpty<T> {}
+      Omit<RSet<T>, keyof RSetBase<any, any>> {}
 
   /**
    * A context instance for Map implementations that acts as a factory for every instance of this

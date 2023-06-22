@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "rootDirs": [".", ".."],
+    "paths": {
+      "#collection-types/*.mjs": ["./src/*.mjs"],
+      "#collection-types/*": ["./src/*/index.mjs"]
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import { RimbuError } from '@rimbu/base';
-import { FastIterable, FastIterator, Stream } from '@rimbu/stream';
+import { type FastIterable, type FastIterator, Stream } from '@rimbu/stream';
 
 export abstract class EmptyBase {
   [Symbol.iterator](): FastIterator<any> {
@@ -51,7 +51,7 @@ export abstract class NonEmptyBase<E> implements FastIterable<E> {
   abstract stream(): Stream.NonEmpty<E>;
 
   [Symbol.iterator](): FastIterator<E> {
-    return this.stream()[Symbol.iterator]();
+    return (this.stream() as any)[Symbol.iterator]();
   }
 
   get isEmpty(): false {

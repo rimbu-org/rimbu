@@ -1,2 +1,2 @@
-export * from '../common';
-export * from './interface/base';
+export * from '../common/index.mjs';
+export * from './interface/base.mjs';

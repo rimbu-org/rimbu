@@ -1,8 +1,6 @@
+import type { KeyValue, WithKeyValue } from '#collection-types/map-custom';
+
 import type { Token } from '@rimbu/base';
-import type {
-  KeyValue,
-  WithKeyValue,
-} from '@rimbu/collection-types/map-custom';
 import type {
   ArrayNonEmpty,
   OptLazy,
@@ -12,7 +10,12 @@ import type {
   TraverseState,
 } from '@rimbu/common';
 import { Reducer } from '@rimbu/common';
-import { FastIterable, Stream, Streamable, StreamSource } from '@rimbu/stream';
+import {
+  Stream,
+  type FastIterable,
+  type StreamSource,
+  type Streamable,
+} from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 export interface VariantMapBase<
@@ -1096,7 +1099,8 @@ export namespace RMapBase {
     readonly mergeWith: any = <I extends readonly [unknown, ...unknown[]], K>(
       ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
     ): any => {
-      return <R>(mergeFun: (key: K, ...values: I) => R): any => {
+      // prettier-ignore
+      return <R,>(mergeFun: (key: K, ...values: I) => R): any => {
         if (Stream.from(sources).some(isEmptyStreamSourceInstance)) {
           return this.empty();
         }

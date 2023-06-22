@@ -5,5 +5,5 @@
  * See [Rimbu docs Set page](/docs/collections/set) for more information.
  */
 
-export * from './interface/variant';
-export * from './interface/generic';
+export * from './interface/variant.mjs';
+export * from './interface/generic.mjs';

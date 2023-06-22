@@ -1,5 +1,4 @@
-import type { VariantMapBase } from '@rimbu/collection-types/map-custom';
-import type { Streamable } from '@rimbu/stream';
+import type { VariantMapBase } from '#collection-types/map-custom';
 
 /**
  * A type-variant immutable Map of key type K, and value type V.
@@ -31,8 +30,7 @@ export namespace VariantMap {
    */
   export interface NonEmpty<K, V>
     extends VariantMapBase.NonEmpty<K, V, VariantMap.Types>,
-      Omit<VariantMap<K, V>, keyof VariantMapBase.NonEmpty<any, any, any>>,
-      Streamable.NonEmpty<readonly [K, V]> {}
+      Omit<VariantMap<K, V>, keyof VariantMapBase.NonEmpty<any, any, any>> {}
 
   /**
    * Utility interface that provides higher-kinded types for this collection.

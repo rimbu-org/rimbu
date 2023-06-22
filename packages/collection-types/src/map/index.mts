@@ -5,5 +5,5 @@
  * See the [Rimbu docs Map page](/docs/collections/map)
  */
 
-export * from './interface/variant';
-export * from './interface/generic';
+export * from './interface/variant.mjs';
+export * from './interface/generic.mjs';
