@@ -1,4 +1,13 @@
 import type {
+  AsyncFastIterable,
+  AsyncStreamSource,
+  AsyncStreamable,
+  AsyncTransformer,
+} from '#stream/main';
+import type { AsyncStreamConstructors } from '#stream/async-custom';
+import { AsyncStreamConstructorsImpl } from '#stream/async-custom';
+
+import type {
   ArrayNonEmpty,
   AsyncCollectFun,
   AsyncOptLazy,
@@ -8,14 +17,6 @@ import type {
   ToJSON,
   TraverseState,
 } from '@rimbu/common';
-import type {
-  AsyncFastIterable,
-  AsyncStreamable,
-  AsyncStreamSource,
-  AsyncTransformer,
-} from '@rimbu/stream/async';
-import type { AsyncStreamConstructors } from '@rimbu/stream/async-custom';
-import { AsyncStreamConstructorsImpl } from '@rimbu/stream/async-custom';
 
 /**
  * A possibly infinite asynchronous sequence of elements of type T.

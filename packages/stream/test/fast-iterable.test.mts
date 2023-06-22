@@ -1,9 +1,10 @@
 import { OptLazy } from '@rimbu/common';
+
 import {
   emptyFastIterator,
   FastIteratorBase,
   fixedDoneIteratorResult,
-} from '@rimbu/stream/custom';
+} from '../src/custom/index.mjs';
 
 describe('FastIterator', () => {
   it('fixedDone', () => {

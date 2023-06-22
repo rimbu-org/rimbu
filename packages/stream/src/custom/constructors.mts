@@ -5,7 +5,8 @@ import type {
   OptLazy,
   StringNonEmpty,
 } from '@rimbu/common';
-import type { Stream, StreamSource } from '@rimbu/stream';
+
+import type { Stream, StreamSource } from '#stream/main';
 
 export interface StreamConstructors {
   /**

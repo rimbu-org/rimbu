@@ -1,7 +1,8 @@
 import { Arr } from '@rimbu/base';
 import { AsyncReducer, Eq, Err, Reducer } from '@rimbu/common';
-import { Stream } from '@rimbu/stream';
-import { AsyncStream, AsyncStreamSource } from '@rimbu/stream/async';
+
+import { Stream } from '../src/main/index.mjs';
+import { AsyncStream, type AsyncStreamSource } from '../src//async/index.mjs';
 
 const streamRange1 = Stream.range({ amount: 100 });
 const streamRange2 = Stream.from(streamRange1.toArray());
@@ -30,8 +31,8 @@ const sources = (
   ] as Stream<number>[]
 ).map((s) => AsyncStream.from<number>(s));
 
-const open = jest.fn().mockReturnValue(1);
-const close = jest.fn();
+const open = vi.fn().mockReturnValue(1);
+const close = vi.fn();
 
 function createResourceStream<T>(
   source: AsyncStreamSource<T>,
@@ -124,8 +125,8 @@ describe('AsyncStream constructors', () => {
   });
 
   it('fromResource', async () => {
-    const open = jest.fn().mockReturnValue(1);
-    const close = jest.fn();
+    const open = vi.fn().mockReturnValue(1);
+    const close = vi.fn();
     const s = AsyncStream.fromResource(open, () => [1, 2, 3], close);
     expect(open).not.toBeCalled();
     expect(close).not.toBeCalled();
@@ -177,7 +178,7 @@ describe('AsyncStream constructors', () => {
       await AsyncStream.flatten(AsyncStream.of([1, 2], [3], [4])).toArray()
     ).toEqual([1, 2, 3, 4]);
 
-    // const closeInner = jest.fn();
+    // const closeInner = vi.fn();
     // const s = createResourceStream(
     //   createResourceStream([1, 2, 3], closeInner),
     //   close
@@ -240,7 +241,7 @@ describe('AsyncStream methods', () => {
   it('equals close', async () => {
     const rs1 = createResourceStream([1, 2, 3]);
     {
-      const close2 = jest.fn();
+      const close2 = vi.fn();
       const rs2 = createResourceStream([1, 2, 3], close2);
 
       await rs1.equals(rs2);
@@ -250,7 +251,7 @@ describe('AsyncStream methods', () => {
 
     {
       close.mockReset();
-      const close2 = jest.fn();
+      const close2 = vi.fn();
       const rs2 = createResourceStream([1, 2], close2);
 
       await rs1.equals(rs2);
@@ -260,7 +261,7 @@ describe('AsyncStream methods', () => {
 
     {
       close.mockReset();
-      const close2 = jest.fn();
+      const close2 = vi.fn();
       const rs2 = createResourceStream([1, 2], close2);
 
       await rs2.equals(rs1);
@@ -360,13 +361,13 @@ describe('AsyncStream methods', () => {
     await testResForEach(createResourceStream([1, 2, 3]));
 
     try {
-      await createErrorStream().forEach(jest.fn());
+      await createErrorStream().forEach(vi.fn());
     } catch {}
     expect(close).toBeCalledTimes(1);
   });
   it('forEachPure', async () => {
     const s = AsyncStream.of(1, 2, 3);
-    const op = jest.fn();
+    const op = vi.fn();
     await s.forEachPure(op);
     expect(op).toBeCalledTimes(3);
     expect(op).toHaveBeenNthCalledWith(1, 1);
@@ -376,7 +377,7 @@ describe('AsyncStream methods', () => {
   it('forEachPure close', async () => {
     {
       const res = createResourceStream([1, 2, 3]);
-      await res.forEachPure(jest.fn());
+      await res.forEachPure(vi.fn());
       expect(close).toBeCalledTimes(1);
     }
     close.mockReset();
@@ -390,7 +391,7 @@ describe('AsyncStream methods', () => {
     close.mockReset();
     {
       try {
-        await createErrorStream().forEachPure(jest.fn());
+        await createErrorStream().forEachPure(vi.fn());
       } catch {}
       expect(close).toBeCalledTimes(1);
     }
@@ -512,11 +513,11 @@ describe('AsyncStream methods', () => {
   });
   it('flatMap close', async () => {
     const s1 = createResourceStream([1, 2, 3]);
-    const close2 = jest.fn();
-    // const close3 = jest.fn();
+    const close2 = vi.fn();
+    // const close3 = vi.fn();
     const s2 = createResourceStream([4, 5, 6], close2);
     // const s3 = createResourceStream([7, 8, 9], close3);
-    const closeE = jest.fn();
+    const closeE = vi.fn();
     const se = createErrorStream(closeE);
 
     await s1.flatMap((v) => s2).count();
@@ -1230,7 +1231,7 @@ describe('AsyncStream methods', () => {
   });
   it('concat close', async () => {
     const s = createResourceStream([1, 2, 3]);
-    const close2 = jest.fn();
+    const close2 = vi.fn();
     const s2 = createResourceStream([4, 5, 6], close2);
     const c = s.concat(s2);
 
@@ -1333,7 +1334,7 @@ describe('AsyncStream methods', () => {
   });
   it('intersperse close', async () => {
     const s1 = createResourceStream([1, 2, 3]);
-    const close2 = jest.fn();
+    const close2 = vi.fn();
     const s2 = createResourceStream([4, 5], close2);
 
     const c = s1.intersperse(s2);
@@ -1415,11 +1416,11 @@ describe('AsyncStream methods', () => {
   });
   it('mkGroup close', async () => {
     const s = createResourceStream([1, 2, 3]);
-    const closeStart = jest.fn();
+    const closeStart = vi.fn();
     const start = createResourceStream([4, 5], closeStart);
-    const closeSep = jest.fn();
+    const closeSep = vi.fn();
     const sep = createResourceStream([6, 7], closeSep);
-    const closeEnd = jest.fn();
+    const closeEnd = vi.fn();
     const end = createResourceStream([8, 9], closeEnd);
 
     const group = s.mkGroup({ sep, start, end });
@@ -1712,7 +1713,7 @@ describe('AsyncStream methods', () => {
     expect(close).toBeCalledTimes(1);
   });
   it('reducer close reducer', async () => {
-    const endReducer = jest.fn();
+    const endReducer = vi.fn();
 
     const asyncSum = AsyncReducer.createMono<number>(
       async () => 0,
@@ -1837,8 +1838,8 @@ describe('AsyncStream methods', () => {
       )
     );
 
-    const exit1 = jest.fn();
-    const exit2 = jest.fn();
+    const exit1 = vi.fn();
+    const exit2 = vi.fn();
 
     try {
       await createErrorStream()
@@ -1954,7 +1955,7 @@ describe('AsyncStream methods', () => {
     const s1 = createResourceStream([1, 2, 3]);
 
     {
-      const close2 = jest.fn();
+      const close2 = vi.fn();
       const s2 = createResourceStream([4, 5, 6], close2);
       const res = AsyncStream.zipWith(s1, s2)((v1, v2) => [v1, v2] as const);
       await res.count();
@@ -1964,7 +1965,7 @@ describe('AsyncStream methods', () => {
 
     {
       close.mockReset();
-      const close2 = jest.fn();
+      const close2 = vi.fn();
       const s2 = createResourceStream([4, 5], close2);
       const res = AsyncStream.zipWith(s1, s2)((v1, v2) => [v1, v2] as const);
       await res.count();
@@ -1974,7 +1975,7 @@ describe('AsyncStream methods', () => {
 
     {
       close.mockReset();
-      const close2 = jest.fn();
+      const close2 = vi.fn();
       const s2 = createResourceStream([4, 5], close2);
       const res = AsyncStream.zipWith(s2, s1)((v1, v2) => [v1, v2] as const);
       await res.count();
@@ -2028,7 +2029,7 @@ describe('AsyncStream methods', () => {
     const s1 = createResourceStream([1, 2, 3]);
 
     {
-      const close2 = jest.fn();
+      const close2 = vi.fn();
       const s2 = createResourceStream([4, 5, 6], close2);
       const res = AsyncStream.zip(s1, s2);
       await res.count();
@@ -2038,7 +2039,7 @@ describe('AsyncStream methods', () => {
 
     {
       close.mockReset();
-      const close2 = jest.fn();
+      const close2 = vi.fn();
       const s2 = createResourceStream([4, 5], close2);
       const res = AsyncStream.zip(s1, s2);
       await res.count();
@@ -2048,7 +2049,7 @@ describe('AsyncStream methods', () => {
 
     {
       close.mockReset();
-      const close2 = jest.fn();
+      const close2 = vi.fn();
       const s2 = createResourceStream([4, 5], close2);
       const res = AsyncStream.zip(s2, s1);
       await res.count();
@@ -2098,7 +2099,7 @@ describe('AsyncStream methods', () => {
     const s1 = createResourceStream([1, 2, 3]);
 
     {
-      const close2 = jest.fn();
+      const close2 = vi.fn();
       const s2 = createResourceStream([4, 5, 6], close2);
       const res = AsyncStream.zipAllWith(s1, s2)(-1, (v1, v2) => v1);
       await res.count();
@@ -2108,7 +2109,7 @@ describe('AsyncStream methods', () => {
 
     {
       close.mockReset();
-      const close2 = jest.fn();
+      const close2 = vi.fn();
       const s2 = createResourceStream([4, 5], close2);
       const res = AsyncStream.zipAllWith(s1, s2)(
         -1,
@@ -2121,7 +2122,7 @@ describe('AsyncStream methods', () => {
 
     {
       close.mockReset();
-      const close2 = jest.fn();
+      const close2 = vi.fn();
       const s2 = createResourceStream([4, 5], close2);
       const res = AsyncStream.zipAllWith(s2, s1)(
         -1,
@@ -2178,7 +2179,7 @@ describe('AsyncStream methods', () => {
     const s1 = createResourceStream([1, 2, 3]);
 
     {
-      const close2 = jest.fn();
+      const close2 = vi.fn();
       const s2 = createResourceStream([4, 5, 6], close2);
       const res = AsyncStream.zipAll(-1, s1, s2);
       await res.count();
@@ -2188,7 +2189,7 @@ describe('AsyncStream methods', () => {
 
     {
       close.mockReset();
-      const close2 = jest.fn();
+      const close2 = vi.fn();
       const s2 = createResourceStream([4, 5], close2);
       const res = AsyncStream.zipAll(-1, s1, s2);
       await res.count();
@@ -2198,7 +2199,7 @@ describe('AsyncStream methods', () => {
 
     {
       close.mockReset();
-      const close2 = jest.fn();
+      const close2 = vi.fn();
       const s2 = createResourceStream([4, 5], close2);
       const res = AsyncStream.zipAll(-1, s2, s1);
       await res.count();

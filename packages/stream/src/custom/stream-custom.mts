@@ -1,6 +1,6 @@
 import { RimbuError, Token } from '@rimbu/base';
 import {
-  ArrayNonEmpty,
+  type ArrayNonEmpty,
   CollectFun,
   Comp,
   Eq,
@@ -9,16 +9,17 @@ import {
   OptLazy,
   Range,
   Reducer,
-  ToJSON,
+  type ToJSON,
   TraverseState,
 } from '@rimbu/common';
+
 import type {
   FastIterator,
   Stream,
   StreamSource,
   Transformer,
-} from '@rimbu/stream';
-import type { StreamConstructors } from '@rimbu/stream/custom';
+} from '#stream/main';
+import type { StreamConstructors } from '#stream/custom';
 import {
   AlwaysIterator,
   AppendIterator,
@@ -58,7 +59,7 @@ import {
   ZipWithIterator,
   emptyFastIterator,
   isFastIterator,
-} from '@rimbu/stream/custom';
+} from '#stream/custom';
 
 function* yieldObjKeys<K extends string | number | symbol>(
   obj: Record<K, any>
@@ -1828,7 +1829,7 @@ export function isStream(obj: any): obj is Stream<any> {
 export const fromStreamSource: {
   <T>(source: StreamSource.NonEmpty<T>): Stream.NonEmpty<T>;
   <T>(source: StreamSource<T>): Stream<T>;
-} = <T>(source: StreamSource<T>): any => {
+} = (source: StreamSource<any>): any => {
   if (undefined === source || isEmptyStreamSourceInstance(source))
     return emptyStream;
   if (isStream(source)) return source;

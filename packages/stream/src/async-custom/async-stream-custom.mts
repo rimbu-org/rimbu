@@ -1,24 +1,22 @@
 import { RimbuError, Token } from '@rimbu/base';
 import {
-  ArrayNonEmpty,
-  AsyncCollectFun,
+  type ArrayNonEmpty,
+  type AsyncCollectFun,
   AsyncOptLazy,
   AsyncReducer,
   Comp,
   Eq,
-  MaybePromise,
-  ToJSON,
+  type MaybePromise,
+  type ToJSON,
   TraverseState,
 } from '@rimbu/common';
 
-import type { StreamSource } from '@rimbu/stream';
-import { Stream } from '@rimbu/stream';
 import type {
   AsyncFastIterator,
   AsyncStream,
   AsyncStreamSource,
   AsyncTransformer,
-} from '@rimbu/stream/async';
+} from '#stream/async';
 import {
   AsyncAppendIterator,
   AsyncCollectIterator,
@@ -44,7 +42,7 @@ import {
   AsyncRepeatIterator,
   AsyncSplitOnIterator,
   AsyncSplitWhereIterator,
-  AsyncStreamConstructors,
+  type AsyncStreamConstructors,
   AsyncTakeIterator,
   AsyncTakeWhileIterator,
   AsyncUnfoldIterator,
@@ -58,8 +56,10 @@ import {
   closeIters,
   emptyAsyncFastIterator,
   isAsyncFastIterator,
-} from '@rimbu/stream/async-custom';
-import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
+} from '#stream/async-custom';
+import { isEmptyStreamSourceInstance } from '#stream/custom';
+import type { StreamSource } from '#stream/main';
+import { Stream } from '#stream/main';
 
 export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   abstract [Symbol.asyncIterator](): AsyncFastIterator<T>;
@@ -1703,10 +1703,11 @@ export function asyncStreamSourceToIterator<T>(
   throw Error('unknown async stream source');
 }
 
+// prettier-ignore
 export const fromAsyncStreamSource: {
   <T>(source: AsyncStreamSource.NonEmpty<T>): AsyncStream.NonEmpty<T>;
   <T>(source: AsyncStreamSource<T>): AsyncStream<T>;
-} = <T>(source: AsyncStreamSource<T>): any => {
+} = <T,>(source: AsyncStreamSource<T>): any => {
   if (undefined === source) return emptyAsyncStream;
   if (isAsyncStream(source)) return source;
   if (isEmptyAsyncStreamSourceInstance(source)) return emptyAsyncStream;

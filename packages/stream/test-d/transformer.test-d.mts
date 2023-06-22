@@ -1,5 +1,6 @@
-import { Transformer, AsyncTransformer } from '../src/main';
 import { expectAssignable } from 'tsd';
+
+import { Transformer, type AsyncTransformer } from '../src/main/index.mjs';
 
 const transformer = Transformer.distinctPrevious<number>();
 

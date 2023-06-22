@@ -1,5 +1,5 @@
-import { Stream } from '@rimbu/stream';
-import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
+import { Stream } from '../src/main/index.mjs';
+import { isEmptyStreamSourceInstance } from '../src/custom/index.mjs';
 
 describe('isEmptyStreamSourceInstance', () => {
   it('correctly detects empty instances', () => {

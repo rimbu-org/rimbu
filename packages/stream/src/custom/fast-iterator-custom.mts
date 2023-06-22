@@ -1,7 +1,8 @@
 import { Token } from '@rimbu/base';
 import { CollectFun, Eq, OptLazy, Reducer, TraverseState } from '@rimbu/common';
-import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
-import type { StreamSourceHelpers } from '@rimbu/stream/custom';
+
+import type { FastIterator, Stream, StreamSource } from '#stream/main';
+import type { StreamSourceHelpers } from '#stream/custom';
 
 export const fixedDoneIteratorResult: IteratorResult<any> = Object.freeze({
   done: true,

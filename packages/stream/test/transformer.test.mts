@@ -1,5 +1,6 @@
 import { Reducer } from '@rimbu/common';
-import { Stream, Transformer } from '@rimbu/stream';
+
+import { Stream, Transformer } from '../src/main/index.mjs';
 
 describe('Collector', () => {
   it('window', () => {

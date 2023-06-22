@@ -1,12 +1,12 @@
 import { Token } from '@rimbu/base';
 import {
-  ArrayNonEmpty,
-  AsyncCollectFun,
+  type ArrayNonEmpty,
+  type AsyncCollectFun,
   AsyncOptLazy,
   AsyncReducer,
   CollectFun,
   Eq,
-  MaybePromise,
+  type MaybePromise,
   TraverseState,
 } from '@rimbu/common';
 
@@ -14,11 +14,11 @@ import type {
   AsyncFastIterator,
   AsyncStream,
   AsyncStreamSource,
-} from '@rimbu/stream/async';
+} from '#stream/async';
 import {
   closeIters,
   type AsyncStreamSourceHelpers,
-} from '@rimbu/stream/async-custom';
+} from '#stream/async-custom';
 
 export const fixedDoneAsyncIteratorResult = Object.freeze(
   Promise.resolve(

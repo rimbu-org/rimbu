@@ -1,4 +1,4 @@
-import type { Stream } from '@rimbu/stream';
+import type { Stream } from '#stream/main';
 
 /**
  * An object that can create a Stream of elements of type `T`.

@@ -7,14 +7,15 @@ import type {
   ToJSON,
   TraverseState,
 } from '@rimbu/common';
-import type { StreamConstructors } from '@rimbu/stream/custom';
-import { StreamConstructorsImpl } from '@rimbu/stream/custom';
+
+import type { StreamConstructors } from '#stream/custom';
+import { StreamConstructorsImpl } from '#stream/custom';
 import type {
   FastIterable,
   Streamable,
   StreamSource,
   Transformer,
-} from '@rimbu/stream';
+} from './index.mjs';
 
 /**
  * A possibly infinite sequence of elements of type T.

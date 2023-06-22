@@ -1,5 +1,6 @@
 import { AsyncReducer } from '@rimbu/common';
-import { AsyncStream, AsyncTransformer } from '@rimbu/stream/async';
+
+import { AsyncStream, AsyncTransformer } from '../src/async/index.mjs';
 
 describe('AsyncCollector', () => {
   it('window', async () => {

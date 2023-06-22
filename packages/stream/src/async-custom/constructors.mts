@@ -1,7 +1,7 @@
 import type { Token } from '@rimbu/base';
 import type { ArrayNonEmpty, AsyncOptLazy, MaybePromise } from '@rimbu/common';
 
-import type { AsyncStream, AsyncStreamSource } from '@rimbu/stream/async';
+import type { AsyncStream, AsyncStreamSource } from '#stream/async';
 
 export interface AsyncStreamConstructors {
   of<T>(...values: ArrayNonEmpty<AsyncOptLazy<T>>): AsyncStream.NonEmpty<T>;
