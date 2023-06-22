@@ -1,5 +1,6 @@
 import { expectError, expectType } from 'tsd';
-import { Tuple, match } from '../src';
+
+import { Tuple, match } from '../src/index.mjs';
 
 expectType<boolean>(match(undefined, undefined));
 expectType<boolean>(match(null, null));

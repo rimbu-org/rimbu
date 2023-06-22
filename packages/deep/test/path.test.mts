@@ -1,6 +1,6 @@
 import { List } from '@rimbu/list';
 
-import { getAt, patchAt, Tuple } from '../src';
+import { getAt, patchAt, Tuple } from '../src/index.mjs';
 
 const m = {
   a: 1,

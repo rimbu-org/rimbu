@@ -1,4 +1,4 @@
-import { Tuple } from '@rimbu/deep';
+import { Tuple } from '../src/index.mjs';
 
 describe('Tuple', () => {
   const tuple = Tuple.of(1, 'a', true);

@@ -1,5 +1,5 @@
 import { expectType } from 'tsd';
-import type { Protected } from '../src';
+import type { Protected } from '../src/index.mjs';
 
 declare function p<T>(): Protected<T>;
 

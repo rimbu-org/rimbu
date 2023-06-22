@@ -1,5 +1,6 @@
 import { expectError, expectType } from 'tsd';
-import { Tuple, patch } from '../src';
+
+import { Tuple, patch } from '../src/index.mjs';
 
 const num = 1 as number;
 const str = 'b' as string;

@@ -1,5 +1,6 @@
 import { List } from '@rimbu/list';
-import { select } from '../src';
+
+import { select } from '../src/index.mjs';
 
 describe('Selector', () => {
   const m = {

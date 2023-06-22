@@ -1,6 +1,7 @@
 import type { List } from '@rimbu/list';
 import { expectError, expectType } from 'tsd';
-import { Deep } from '../src';
+
+import { Deep } from '../src/index.mjs';
 
 let m!: {
   a: number;

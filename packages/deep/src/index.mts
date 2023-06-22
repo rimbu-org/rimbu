@@ -6,14 +6,14 @@
  * See the [Rimbu docs Deep overview page](/docs/deep/overview) for more information.
  */
 
-export { Tuple } from './tuple';
+export { Tuple } from './tuple.mjs';
 
-export type { Protected, Patch } from './internal';
-export { Path, type Selector, type Match } from './internal';
+export type { Protected, Patch } from './internal.mjs';
+export { Path, type Selector, type Match } from './internal.mjs';
 
-export * from './deep';
+export * from './deep.mjs';
 
-import * as Deep from './deep';
+import * as Deep from './deep.mjs';
 export {
   /**
    * Convenience namespace offering access to most common functions used in the `@rimbu/deep` package.

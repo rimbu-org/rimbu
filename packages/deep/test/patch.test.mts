@@ -1,5 +1,6 @@
 import { List } from '@rimbu/list';
-import { Tuple, patch } from '../src';
+
+import { Tuple, patch } from '../src/index.mjs';
 
 describe('patch', () => {
   it('undefined', () => {

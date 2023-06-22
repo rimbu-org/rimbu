@@ -1,7 +1,12 @@
-import { IsAnyFunc, IsArray, isPlainObj, IsPlainObj } from '@rimbu/base';
+import {
+  type IsAnyFunc,
+  type IsArray,
+  isPlainObj,
+  type IsPlainObj,
+} from '@rimbu/base';
 
-import type { Protected } from './internal';
-import type { Tuple } from './tuple';
+import type { Protected } from './internal.mjs';
+import type { Tuple } from './tuple.mjs';
 
 /**
  * A type to determine the allowed input type for the `patch` function.

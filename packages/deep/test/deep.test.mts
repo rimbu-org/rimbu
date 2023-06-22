@@ -1,5 +1,6 @@
-import { Deep } from '../src';
 import { List } from '@rimbu/list';
+
+import { Deep } from '../src/index.mjs';
 
 describe('Deep', () => {
   const m = {

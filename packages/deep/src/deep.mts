@@ -1,11 +1,11 @@
-import type { Match, Patch, Path, Protected, Selector } from './internal';
-import { Deep } from './internal';
+import type { Match, Patch, Path, Protected, Selector } from './internal.mjs';
+import { Deep } from './internal.mjs';
 
-export { match, type Match } from './match';
-export { patch, type Patch } from './patch';
-export { getAt, patchAt, type Path } from './path';
-export { select, type Selector } from './selector';
-export type { Protected } from './protected';
+export { match, type Match } from './match.mjs';
+export { patch, type Patch } from './patch.mjs';
+export { getAt, patchAt, type Path } from './path.mjs';
+export type { Protected } from './protected.mjs';
+export { select, type Selector } from './selector.mjs';
 
 /**
  * Returns the same value wrapped in the `Protected` type.

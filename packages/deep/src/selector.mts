@@ -1,5 +1,5 @@
 import type { IsAnyFunc, IsArray } from '@rimbu/base';
-import { Deep, Path, type Protected } from './internal';
+import { Deep, Path, type Protected } from './internal.mjs';
 
 /**
  * Type defining the allowed selectors on an object of type `T`.

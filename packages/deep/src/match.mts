@@ -1,12 +1,12 @@
 import {
-  IsAnyFunc,
-  IsArray,
+  type IsAnyFunc,
+  type IsArray,
   isPlainObj,
-  IsPlainObj,
-  NotIterable,
+  type IsPlainObj,
+  type NotIterable,
 } from '@rimbu/base';
-import type { Protected } from './internal';
-import type { Tuple } from './tuple';
+import type { Protected } from './internal.mjs';
+import type { Tuple } from './tuple.mjs';
 
 /**
  * The type to determine the allowed input values for the `match` function.

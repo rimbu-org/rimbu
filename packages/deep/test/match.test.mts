@@ -1,13 +1,9 @@
 import { List } from '@rimbu/list';
 import { SortedMap } from '@rimbu/sorted';
-import { match } from '../src';
-import { Tuple } from '../src';
+
+import { match, Tuple } from '../src/index.mjs';
 
 describe('match', () => {
-  beforeEach(() => {
-    jest.resetAllMocks();
-  });
-
   it('matches simple', () => {
     expect(match({ a: 1 }, { a: 1 })).toBe(true);
     expect(match({ a: 1 }, { a: 2 })).toBe(false);

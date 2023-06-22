@@ -1,5 +1,6 @@
 import { expectError, expectType } from 'tsd';
-import { Tuple } from '../src';
+
+import { Tuple } from '../src/index.mjs';
 
 expectType<readonly [number, string]>(Tuple.of(1, 'a'));
 expectType<readonly [number, string, boolean]>(Tuple.of(1, 'a', true));

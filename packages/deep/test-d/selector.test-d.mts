@@ -1,5 +1,6 @@
 import { expectError, expectType } from 'tsd';
-import { select, Tuple } from '../src';
+
+import { select, Tuple } from '../src/index.mjs';
 
 const m = {
   a: 1,

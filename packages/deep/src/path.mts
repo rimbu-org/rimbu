@@ -1,6 +1,6 @@
 import type { IsAnyFunc, IsArray, IsPlainObj } from '@rimbu/base';
-import { Deep, Patch } from './internal';
-import type { Tuple } from './tuple';
+import { Deep, type Patch } from './internal.mjs';
+import type { Tuple } from './tuple.mjs';
 
 export namespace Path {
   /**
