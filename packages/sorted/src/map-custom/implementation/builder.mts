@@ -1,12 +1,12 @@
 import { Token } from '@rimbu/base';
-import { OptLazy, OptLazyOr, RelatedTo, Update } from '@rimbu/common';
-import { Stream, StreamSource } from '@rimbu/stream';
+import { OptLazy, OptLazyOr, type RelatedTo, Update } from '@rimbu/common';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-import type { SortedMap } from '@rimbu/sorted/map';
-import type { SortedMapContext, SortedMapNode } from '@rimbu/sorted/map-custom';
+import type { SortedMap } from '#sorted/map';
+import type { SortedMapContext, SortedMapNode } from '#sorted/map-custom';
 
-import { SortedBuilder, SortedIndex } from '../../common';
+import { SortedBuilder, SortedIndex } from '#sorted/common';
 
 export class SortedMapBuilder<K, V>
   extends SortedBuilder<readonly [K, V]>
@@ -91,7 +91,8 @@ export class SortedMapBuilder<K, V>
     return OptLazy(otherwise) as O;
   };
 
-  hasKey = <UK>(key: RelatedTo<K, UK>): boolean => {
+  // prettier-ignore
+  hasKey = <UK,>(key: RelatedTo<K, UK>): boolean => {
     return Token !== this.get(key, Token);
   };
 
@@ -123,7 +124,8 @@ export class SortedMapBuilder<K, V>
     return result;
   };
 
-  removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
+  // prettier-ignore
+  removeKeys = <UK,>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
     this.checkLock();
 
     if (isEmptyStreamSourceInstance(keys)) return false;
@@ -151,7 +153,8 @@ export class SortedMapBuilder<K, V>
     return result;
   };
 
-  updateAt = <O>(key: K, update: Update<V>, otherwise?: OptLazy<O>): V | O => {
+  // prettier-ignore
+  updateAt = <O,>(key: K, update: Update<V>, otherwise?: OptLazy<O>): V | O => {
     let result: V;
     let found = false;
 
@@ -183,7 +186,8 @@ export class SortedMapBuilder<K, V>
     );
   };
 
-  buildMapValues = <V2>(f: (value: V, key: K) => V2): SortedMap<K, V2> => {
+  // prettier-ignore
+  buildMapValues = <V2,>(f: (value: V, key: K) => V2): SortedMap<K, V2> => {
     if (undefined !== this.source) return this.source.mapValues(f);
     if (this.size === 0) return this.context.empty();
 

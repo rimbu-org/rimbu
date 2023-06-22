@@ -1,8 +1,7 @@
 {
   "name": "map-custom",
   "private": true,
-  "source": "../src/map-custom/index.ts",
-  "main": "../dist/main/map-custom/index.js",
-  "module": "../dist/module/map-custom/index.js",
-  "types": "../dist/types/map-custom/index.d.ts"
+  "main": "../dist/cjs/map-custom/index.js",
+  "module": "../dist/esm/map-custom/index.mjs",
+  "types": "../dist/types/map-custom/index.d.mts"
 }

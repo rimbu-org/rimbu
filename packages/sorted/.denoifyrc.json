@@ -1,5 +1,6 @@
 {
-  "index": "src/main/index.ts",
+  "index": "./_deno_prepare/src/main/index.ts",
   "replacer": "../../config/denoify-rimbu-replacer.js",
-  "includes": ["README.md", "LICENSE", "CHANGELOG.md"]
+  "includes": ["README.md", "LICENSE", "CHANGELOG.md"],
+  "out": "./deno_dist"
 }

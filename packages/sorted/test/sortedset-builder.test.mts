@@ -1,7 +1,8 @@
 import { Reducer } from '@rimbu/common';
-import { SortedSet } from '@rimbu/sorted';
-import type { SortedSetBuilder } from '@rimbu/sorted/set-custom';
 import { Stream } from '@rimbu/stream';
+
+import { SortedSet } from '../src/main/index.mjs';
+import type { SortedSetBuilder } from '../src/set-custom/index.mjs';
 
 function runWith(name: string, context: SortedSet.Context<number>) {
   describe('builder specific', () => {

@@ -1,7 +1,7 @@
 import { RMapBase } from '@rimbu/collection-types/map-custom';
 import { Comp } from '@rimbu/common';
 
-import type { SortedMap } from '@rimbu/sorted/map';
+import type { SortedMap } from '#sorted/map';
 
 import {
   SortedMapEmpty,
@@ -9,7 +9,7 @@ import {
   SortedMapLeaf,
   SortedMapInner,
   SortedMapBuilder,
-} from '@rimbu/sorted/map-custom';
+} from '#sorted/map-custom';
 
 export class SortedMapContext<UK>
   extends RMapBase.ContextBase<UK, SortedMap.Types>

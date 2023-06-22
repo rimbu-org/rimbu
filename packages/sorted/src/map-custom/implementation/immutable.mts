@@ -1,24 +1,21 @@
 import { Arr, Entry, RimbuError, Token } from '@rimbu/base';
 import {
-  ArrayNonEmpty,
+  type ArrayNonEmpty,
   IndexRange,
   OptLazy,
   OptLazyOr,
   Range,
-  RelatedTo,
-  ToJSON,
+  type RelatedTo,
+  type ToJSON,
   TraverseState,
   Update,
 } from '@rimbu/common';
 
-import { Stream, StreamSource } from '@rimbu/stream';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-import type { SortedMap } from '@rimbu/sorted/map';
-import type {
-  SortedMapBuilder,
-  SortedMapContext,
-} from '@rimbu/sorted/map-custom';
+import type { SortedMap } from '#sorted/map';
+import type { SortedMapBuilder, SortedMapContext } from '#sorted/map-custom';
 
 import {
   SortedEmpty,
@@ -48,7 +45,7 @@ import {
   leafMutateJoinLeft,
   leafMutateJoinRight,
   leafMutateSplitRight,
-} from '../../common';
+} from '#sorted/common';
 
 export class SortedMapEmpty<K = any, V = any>
   extends SortedEmpty

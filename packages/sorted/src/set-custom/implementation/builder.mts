@@ -1,11 +1,11 @@
 import type { RelatedTo } from '@rimbu/common';
 
-import { Stream, StreamSource } from '@rimbu/stream';
+import { Stream, type StreamSource } from '@rimbu/stream';
 
-import type { SortedSet } from '@rimbu/sorted/set';
-import type { SortedSetContext, SortedSetNode } from '@rimbu/sorted/set-custom';
+import type { SortedSet } from '#sorted/set';
+import type { SortedSetContext, SortedSetNode } from '#sorted/set-custom';
 
-import { SortedIndex, SortedBuilder } from '../../common';
+import { SortedIndex, SortedBuilder } from '#sorted/common';
 
 export class SortedSetBuilder<T> extends SortedBuilder<T> {
   constructor(
@@ -58,7 +58,8 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
     this._children = value;
   }
 
-  has = <U>(value: RelatedTo<T, U>): boolean => {
+  // prettier-ignore
+  has = <U,>(value: RelatedTo<T, U>): boolean => {
     if (!this.context.comp.isComparable(value)) return false;
 
     if (undefined !== this.source) return this.source.has<U>(value);
@@ -89,7 +90,8 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
     return Stream.from(source).filterPure(this.add).count() > 0;
   };
 
-  remove = <U>(value: RelatedTo<T, U>): boolean => {
+  // prettier-ignore
+  remove = <U,>(value: RelatedTo<T, U>): boolean => {
     this.checkLock();
 
     if (!this.context.comp.isComparable(value)) return false;
@@ -99,7 +101,8 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
     return result;
   };
 
-  removeAll = <U>(values: StreamSource<RelatedTo<T, U>>): boolean => {
+  // prettier-ignore
+  removeAll = <U,>(values: StreamSource<RelatedTo<T, U>>): boolean => {
     this.checkLock();
 
     return Stream.from(values).filterPure(this.remove).count() > 0;

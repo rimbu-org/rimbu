@@ -1,6 +1,7 @@
 import { Reducer } from '@rimbu/common';
-import { SortedSet } from '@rimbu/sorted';
 import { Stream } from '@rimbu/stream';
+
+import { SortedSet } from '../src/main/index.mjs';
 
 function runWith(name: string, context: SortedSet.Context<number>): void {
   describe(name, () => {

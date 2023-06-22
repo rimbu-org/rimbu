@@ -1,2 +1,2 @@
-export * from './sorted-index';
-export * from './base';
+export * from './sorted-index.mjs';
+export * from './base.mjs';

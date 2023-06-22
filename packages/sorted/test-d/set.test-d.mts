@@ -2,7 +2,8 @@ import type { RSet } from '@rimbu/collection-types';
 import type { ArrayNonEmpty } from '@rimbu/common';
 import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-import type { SortedSet } from '@rimbu/sorted';
+
+import type { SortedSet } from '../src/main/index.mjs';
 
 type GE<T> = SortedSet<T>;
 type GNE<T> = SortedSet.NonEmpty<T>;

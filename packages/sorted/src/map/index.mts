@@ -6,4 +6,4 @@
  * See the [Rimbu docs Map page](/docs/collections/map) for more information.
  */
 
-export * from './interface';
+export * from './interface/index.mjs';

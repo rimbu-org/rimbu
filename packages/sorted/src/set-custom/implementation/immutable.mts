@@ -1,18 +1,18 @@
 import { Arr, RimbuError } from '@rimbu/base';
 import {
-  ArrayNonEmpty,
+  type ArrayNonEmpty,
   IndexRange,
   OptLazy,
   Range,
-  RelatedTo,
-  ToJSON,
+  type RelatedTo,
+  type ToJSON,
   TraverseState,
 } from '@rimbu/common';
-import { Stream, StreamSource } from '@rimbu/stream';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-import type { SortedSet } from '@rimbu/sorted/set';
-import type { SortedSetContext } from '@rimbu/sorted/set-custom';
+import type { SortedSet } from '#sorted/set';
+import type { SortedSetContext } from '#sorted/set-custom';
 
 import {
   SortedIndex,
@@ -42,7 +42,7 @@ import {
   leafMutateSplitRight,
   SortedEmpty,
   SortedNonEmptyBase,
-} from '../../common';
+} from '#sorted/common';
 
 export class SortedSetEmpty<T = any>
   extends SortedEmpty
