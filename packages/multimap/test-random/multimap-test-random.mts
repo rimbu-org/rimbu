@@ -1,6 +1,7 @@
 import type { RSet } from '@rimbu/collection-types';
-import type { MultiMap } from '@rimbu/multimap';
 import { Stream } from '@rimbu/stream';
+
+import type { MultiMap } from '../src/main/index.mjs';
 
 function expectMultiMap(s: MultiMap<number, number>): {
   toEqual(...entries: [number, number[]][]): void;

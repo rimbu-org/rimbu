@@ -1,7 +1,8 @@
 import { Entry } from '@rimbu/base';
 import type { ArrayNonEmpty } from '@rimbu/common';
-import { Stream, Streamable } from '@rimbu/stream';
-import { HashMultiMapHashValue, MultiMap } from '@rimbu/multimap';
+import { Stream, type Streamable } from '@rimbu/stream';
+
+import { HashMultiMapHashValue, MultiMap } from '../src/main/index.mjs';
 
 function expectEqual<K, V>(map: Streamable<readonly [K, V]>, arr: [K, V][]) {
   expect(new Set(map.stream())).toEqual(new Set(arr));

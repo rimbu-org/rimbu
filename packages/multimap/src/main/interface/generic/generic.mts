@@ -1,10 +1,11 @@
 import type { RMap, RSet } from '@rimbu/collection-types';
+import type { Streamable } from '@rimbu/stream';
+
 import {
   type MultiMapBase,
   MultiMapContext,
   type MultiMapCreators,
-} from '@rimbu/multimap/custom';
-import type { Streamable } from '@rimbu/stream';
+} from '#multimap/custom';
 
 /**
  * A type-invariant immutable MultiMap of key type K, and value type V.

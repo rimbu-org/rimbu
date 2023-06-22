@@ -1,10 +1,11 @@
-import {
-  MultiMapBase,
-  MultiMapContext,
-  SortedMultiMapSortedValueCreators,
-} from '@rimbu/multimap/custom';
 import { SortedMap, SortedSet } from '@rimbu/sorted';
 import type { Stream, Streamable } from '@rimbu/stream';
+
+import {
+  type MultiMapBase,
+  MultiMapContext,
+  type SortedMultiMapSortedValueCreators,
+} from '#multimap/custom';
 
 /**
  * A type-invariant immutable MultiMap of key type K, and value type V.

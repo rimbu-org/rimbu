@@ -1,5 +1,6 @@
-import { HashMultiMapHashValue } from '@rimbu/multimap';
-import { runMultiMapTestsWith } from './multimap-test-standard';
+import { runMultiMapTestsWith } from './multimap-test-standard.mjs';
+
+import { HashMultiMapHashValue } from '../src/main/index.mjs';
 
 runMultiMapTestsWith(
   'HashMultiMapHashValue',

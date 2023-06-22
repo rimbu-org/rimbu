@@ -3,7 +3,8 @@ import type { HashSet } from '@rimbu/hashed';
 import type { SortedMap } from '@rimbu/sorted';
 import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-import type { SortedMultiMapHashValue } from '@rimbu/multimap';
+
+import type { SortedMultiMapHashValue } from '../src/main/index.mjs';
 
 type GE<K, V> = SortedMultiMapHashValue<K, V>;
 type GNE<K, V> = SortedMultiMapHashValue.NonEmpty<K, V>;

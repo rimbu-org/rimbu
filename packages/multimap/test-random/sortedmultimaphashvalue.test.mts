@@ -1,6 +1,8 @@
 import { HashSet } from '@rimbu/hashed';
-import { SortedMultiMapHashValue } from '@rimbu/multimap';
-import { runMultiMapRandomTestsWith } from './multimap-test-random';
+
+import { runMultiMapRandomTestsWith } from './multimap-test-random.mjs';
+
+import { SortedMultiMapHashValue } from '../src/main/index.mjs';
 
 runMultiMapRandomTestsWith(
   'SortedMultiMapHashValue default',

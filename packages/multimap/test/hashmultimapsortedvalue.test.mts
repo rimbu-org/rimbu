@@ -1,5 +1,6 @@
-import { HashMultiMapSortedValue } from '@rimbu/multimap';
-import { runMultiMapTestsWith } from './multimap-test-standard';
+import { runMultiMapTestsWith } from './multimap-test-standard.mjs';
+
+import { HashMultiMapSortedValue } from '../src/main/index.mjs';
 
 runMultiMapTestsWith(
   'HashMultiMapSortedValue',

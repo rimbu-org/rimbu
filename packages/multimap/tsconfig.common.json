@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "rootDirs": [".", ".."],
+    "paths": {
+      "#multimap/*.mjs": ["./src/*.mjs"],
+      "#multimap/*": ["./src/*/index.mjs"]
+    }
+  }
+}

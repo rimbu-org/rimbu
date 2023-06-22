@@ -1,14 +1,15 @@
 import type { RMap, RSet } from '@rimbu/collection-types';
 import type { HashMap, HashSet } from '@rimbu/hashed';
+import type { SortedMap, SortedSet } from '@rimbu/sorted';
+
 import type {
   HashMultiMapHashValue,
   HashMultiMapSortedValue,
   MultiMap,
   SortedMultiMapHashValue,
   SortedMultiMapSortedValue,
-} from '@rimbu/multimap';
-import type { MultiMapBase } from '@rimbu/multimap/custom';
-import type { SortedMap, SortedSet } from '@rimbu/sorted';
+} from '#multimap/main';
+import type { MultiMapBase } from '#multimap/custom';
 
 export interface MultiMapCreators {
   /**

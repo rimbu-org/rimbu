@@ -1,11 +1,12 @@
 import { HashMap } from '@rimbu/hashed/map';
-import {
-  HashMultiMapSortedValueCreators,
-  MultiMapBase,
-  MultiMapContext,
-} from '@rimbu/multimap/custom';
 import { SortedSet } from '@rimbu/sorted/set';
 import type { Stream, Streamable } from '@rimbu/stream';
+
+import {
+  type HashMultiMapSortedValueCreators,
+  type MultiMapBase,
+  MultiMapContext,
+} from '#multimap/custom';
 
 /**
  * A type-invariant immutable MultiMap of key type K, and value type V.
