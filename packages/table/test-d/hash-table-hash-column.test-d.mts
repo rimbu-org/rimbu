@@ -2,7 +2,8 @@ import type { ArrayNonEmpty } from '@rimbu/common';
 import type { HashMap } from '@rimbu/hashed';
 import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-import type { HashTableHashColumn } from '@rimbu/table';
+
+import type { HashTableHashColumn } from '../src/main/index.mjs';
 
 type GE<R, C, V> = HashTableHashColumn<R, C, V>;
 type GNE<R, C, V> = HashTableHashColumn.NonEmpty<R, C, V>;

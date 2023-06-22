@@ -1,10 +1,11 @@
 import type { RMap } from '@rimbu/collection-types/map';
 import type { Streamable } from '@rimbu/stream';
+
 import {
   type TableBase,
   TableContext,
   type TableCreators,
-} from '@rimbu/table/custom';
+} from '#table/custom';
 
 /**
  * A type-invariant immutable Table of row key type R, column key type C, and value type V.

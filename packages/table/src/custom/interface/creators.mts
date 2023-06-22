@@ -1,14 +1,15 @@
 import type { RMap } from '@rimbu/collection-types';
 import type { HashMap } from '@rimbu/hashed';
 import type { SortedMap } from '@rimbu/sorted';
+
 import type {
   HashTableHashColumn,
   HashTableSortedColumn,
   SortedTableHashColumn,
   SortedTableSortedColumn,
   Table,
-} from '@rimbu/table';
-import type { TableBase } from '@rimbu/table/custom';
+} from '#table/main';
+import type { TableBase } from '#table/custom';
 
 export interface TableCreators {
   /**

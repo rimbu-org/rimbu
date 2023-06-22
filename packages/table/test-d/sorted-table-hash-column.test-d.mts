@@ -3,7 +3,8 @@ import type { HashMap } from '@rimbu/hashed';
 import type { SortedMap } from '@rimbu/sorted';
 import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-import type { SortedTableHashColumn } from '@rimbu/table';
+
+import type { SortedTableHashColumn } from '../src/main/index.mjs';
 
 type GE<R, C, V> = SortedTableHashColumn<R, C, V>;
 type GNE<R, C, V> = SortedTableHashColumn.NonEmpty<R, C, V>;

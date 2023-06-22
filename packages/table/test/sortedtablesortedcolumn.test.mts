@@ -1,5 +1,6 @@
-import { runTableTestsWith } from '../test-utils/table-standard-test';
-import { SortedTableSortedColumn } from '@rimbu/table';
+import { runTableTestsWith } from '../test-utils/table-standard-test.mjs';
+
+import { SortedTableSortedColumn } from '../src/main/index.mjs';
 
 runTableTestsWith(
   'SortedTableSortedColumn default',

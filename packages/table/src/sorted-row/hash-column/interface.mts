@@ -1,11 +1,12 @@
 import { HashMap } from '@rimbu/hashed/map';
 import { SortedMap } from '@rimbu/sorted/map';
 import type { Streamable } from '@rimbu/stream';
+
 import {
-  SortedTableHashColumnCreators,
-  TableBase,
+  type SortedTableHashColumnCreators,
+  type TableBase,
   TableContext,
-} from '@rimbu/table/custom';
+} from '#table/custom';
 
 /**
  * A type-invariant immutable Table of row key type R, column key type C, and value type V.

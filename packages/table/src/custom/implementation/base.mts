@@ -3,23 +3,24 @@ import type { RMap } from '@rimbu/collection-types/map';
 import {
   EmptyBase,
   NonEmptyBase,
-  Row,
-  WithRow,
+  type Row,
+  type WithRow,
 } from '@rimbu/collection-types/map-custom';
 import {
-  ArrayNonEmpty,
+  type ArrayNonEmpty,
   OptLazy,
   OptLazyOr,
   Reducer,
-  RelatedTo,
-  ToJSON,
+  type RelatedTo,
+  type ToJSON,
   TraverseState,
   Update,
 } from '@rimbu/common';
-import { Stream, StreamSource } from '@rimbu/stream';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
-import type { Table } from '@rimbu/table';
-import type { TableBase } from '@rimbu/table/custom';
+
+import type { Table } from '#table/main';
+import type { TableBase } from '#table/custom';
 
 export interface ContextImplTypes extends TableBase.Types {
   readonly context: TableContext<this['_R'], this['_C'], string>;
@@ -590,7 +591,8 @@ export class TableBuilder<
     return result.get<UC, O>(column, otherwise!);
   };
 
-  getRow = <UR>(row: RelatedTo<R, UR>): any => {
+  // prettier-ignore
+  getRow = <UR,>(row: RelatedTo<R, UR>): any => {
     if (undefined !== this.source) return this.source.getRow(row);
 
     const token = Symbol();
@@ -609,7 +611,8 @@ export class TableBuilder<
     return token !== this.get(row, column, token);
   };
 
-  hasRowKey = <UR>(row: RelatedTo<R, UR>): boolean => {
+  // prettier-ignore
+  hasRowKey = <UR,>(row: RelatedTo<R, UR>): boolean => {
     return this.source?.hasRowKey(row) ?? this.rowMap.hasKey(row);
   };
 
@@ -690,7 +693,8 @@ export class TableBuilder<
     return removedValue;
   };
 
-  removeRow = <UR>(row: RelatedTo<R, UR>): boolean => {
+  // prettier-ignore
+  removeRow = <UR,>(row: RelatedTo<R, UR>): boolean => {
     this.checkLock();
 
     if (!this.context.rowContext.isValidKey(row)) return false;
@@ -704,7 +708,8 @@ export class TableBuilder<
     });
   };
 
-  removeRows = <UR>(rows: StreamSource<RelatedTo<R, UR>>): boolean => {
+  // prettier-ignore
+  removeRows = <UR,>(rows: StreamSource<RelatedTo<R, UR>>): boolean => {
     this.checkLock();
 
     return Stream.from(rows).filterPure(this.removeRow).count() > 0;
@@ -782,7 +787,8 @@ export class TableBuilder<
     return changed;
   };
 
-  updateAt = <O>(
+  // prettier-ignore
+  updateAt = <O,>(
     row: R,
     column: C,
     update: Update<V>,
@@ -848,7 +854,8 @@ export class TableBuilder<
     ) as any;
   };
 
-  buildMapValues = <V2>(mapFun: (value: V, row: R, column: C) => V2): any => {
+  // prettier-ignore
+  buildMapValues = <V2,>(mapFun: (value: V, row: R, column: C) => V2): any => {
     if (undefined !== this.source) return this.source.mapValues<V2>(mapFun);
 
     if (this.isEmpty) return this.context.empty() as any;

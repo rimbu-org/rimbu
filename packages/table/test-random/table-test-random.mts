@@ -1,5 +1,6 @@
-import type { Table } from '@rimbu/table';
 import { Stream } from '@rimbu/stream';
+
+import type { Table } from '../src/main/index.mjs';
 
 export function runTableRandomTestsWith(
   name: string,

@@ -2,7 +2,8 @@ import type { ArrayNonEmpty } from '@rimbu/common';
 import type { SortedMap } from '@rimbu/sorted';
 import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-import type { SortedTableSortedColumn } from '@rimbu/table';
+
+import type { SortedTableSortedColumn } from '../src/main/index.mjs';
 
 type GE<R, C, V> = SortedTableSortedColumn<R, C, V>;
 type GNE<R, C, V> = SortedTableSortedColumn.NonEmpty<R, C, V>;

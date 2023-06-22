@@ -6,5 +6,5 @@
  * See the [Rimbu docs Table page](/docs/collections/table) for more information.
  */
 
-export * from './hash-column/interface';
-export * from './sorted-column/interface';
+export * from './hash-column/interface.mjs';
+export * from './sorted-column/interface.mjs';

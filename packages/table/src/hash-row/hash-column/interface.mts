@@ -1,10 +1,11 @@
 import { HashMap } from '@rimbu/hashed/map';
 import type { Streamable } from '@rimbu/stream';
+
 import {
-  HashTableHashColumnCreators,
-  TableBase,
+  type HashTableHashColumnCreators,
+  type TableBase,
   TableContext,
-} from '@rimbu/table/custom';
+} from '#table/custom';
 /**
  * A type-invariant immutable Table of row key type R, column key type C, and value type V.
  * In the Table, a combination of a row and column key has exactly one value.

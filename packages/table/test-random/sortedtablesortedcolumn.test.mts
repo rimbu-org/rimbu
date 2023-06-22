@@ -1,5 +1,6 @@
-import { runTableRandomTestsWith } from '@rimbu/table/test-random/table-test-random';
-import { SortedTableSortedColumn } from '@rimbu/table';
+import { runTableRandomTestsWith } from './table-test-random.mjs';
+
+import { SortedTableSortedColumn } from '../src/main/index.mjs';
 
 runTableRandomTestsWith(
   'SortedTableSortedColumn default',
