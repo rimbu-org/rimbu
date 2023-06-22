@@ -1,4 +1,4 @@
-import { Spy } from '../src';
+import { Spy } from '../src/index.mjs';
 
 describe('Spy.fn', () => {
   function add(x: number, y: number): number {

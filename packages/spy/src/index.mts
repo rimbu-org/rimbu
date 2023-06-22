@@ -1,1 +1,1 @@
-export * from './spy';
+export * from './spy.mjs';
