@@ -2,20 +2,17 @@ import { RMapBase } from '@rimbu/collection-types/map-custom';
 import { Eq } from '@rimbu/common';
 import { List } from '@rimbu/list';
 
-import type { HashMap } from '@rimbu/hashed/map';
-import type {
-  MapBlockBuilderEntry,
-  MapEntrySet,
-} from '@rimbu/hashed/map-custom';
+import type { HashMap } from '#hashed/map';
+import type { MapBlockBuilderEntry, MapEntrySet } from '#hashed/map-custom';
 
-import { Hasher } from '../../common';
+import { Hasher } from '../../common/index.mjs';
 import {
   HashMapNonEmptyBase,
   HashMapEmpty,
   HashMapBlock,
   HashMapCollision,
   HashMapBlockBuilder,
-} from '@rimbu/hashed/map-custom';
+} from '#hashed/map-custom';
 
 export class HashMapContext<UK>
   extends RMapBase.ContextBase<UK, HashMap.Types>

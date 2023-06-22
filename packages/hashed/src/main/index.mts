@@ -10,6 +10,6 @@
  * - [`@rimbu/hashed/set`](./hashed/set)<br/>
  */
 
-export * from '../common';
-export * from '@rimbu/hashed/map';
-export * from '@rimbu/hashed/set';
+export * from '../common/index.mjs';
+export * from '#hashed/map';
+export * from '#hashed/set';

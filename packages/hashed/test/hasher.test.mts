@@ -1,5 +1,6 @@
 import { Stream } from '@rimbu/stream';
-import { Hasher } from '@rimbu/hashed';
+
+import { Hasher } from '../src/main/index.mjs';
 
 describe('Hasher', () => {
   it('defaultHasher', () => {

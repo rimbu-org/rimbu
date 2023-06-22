@@ -2,23 +2,23 @@ import { Arr, RimbuError, Token } from '@rimbu/base';
 import {
   OptLazy,
   OptLazyOr,
-  RelatedTo,
+  type RelatedTo,
   TraverseState,
   Update,
 } from '@rimbu/common';
 import { List } from '@rimbu/list';
-import { Stream, StreamSource } from '@rimbu/stream';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-import type { HashMap } from '@rimbu/hashed/map';
+import type { HashMap } from '#hashed/map';
 import type {
   HashMapBlock,
   HashMapCollision,
   HashMapContext,
   MapEntrySet,
-} from '@rimbu/hashed/map-custom';
+} from '#hashed/map-custom';
 
-import { BlockBuilderBase, CollisionBuilderBase } from '../../base';
+import { BlockBuilderBase, CollisionBuilderBase } from '#hashed/base';
 
 export type MapBlockBuilderEntry<K, V> =
   | HashMapBlockBuilder<K, V>
@@ -117,7 +117,8 @@ export class HashMapBlockBuilder<K, V>
     return OptLazy(otherwise) as O;
   };
 
-  hasKey = <UK>(key: RelatedTo<K, UK>): boolean => {
+  // prettier-ignore
+  hasKey = <UK,>(key: RelatedTo<K, UK>): boolean => {
     const token = Symbol();
     return token !== this.get(key, token);
   };
@@ -331,7 +332,8 @@ export class HashMapBlockBuilder<K, V>
     return true;
   };
 
-  updateAt = <O>(key: K, update: Update<V>, otherwise?: OptLazy<O>): V | O => {
+  // prettier-ignore
+  updateAt = <O,>(key: K, update: Update<V>, otherwise?: OptLazy<O>): V | O => {
     let result: V;
     let found = false;
 
@@ -369,7 +371,8 @@ export class HashMapBlockBuilder<K, V>
     return removedValue!;
   };
 
-  removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
+  // prettier-ignore
+  removeKeys = <UK,>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
     this.checkLock();
 
     if (isEmptyStreamSourceInstance(keys)) return false;
@@ -413,7 +416,8 @@ export class HashMapBlockBuilder<K, V>
     return this.context.block(entries, entrySets, this.size, this.level);
   }
 
-  buildMapValues = <V2>(f: (value: V, key: K) => V2): HashMap<K, V2> => {
+  // prettier-ignore
+  buildMapValues = <V2,>(f: (value: V, key: K) => V2): HashMap<K, V2> => {
     if (this.size === 0) {
       return this.context.empty() as unknown as HashMap<K, V2>;
     }

@@ -6,4 +6,4 @@
  * See the [Rimbu docs Set page](/docs/collections/set) for more information.
  */
 
-export * from './interface';
+export * from './interface/index.mjs';

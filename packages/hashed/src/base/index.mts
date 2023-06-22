@@ -1,1 +1,1 @@
-export * from './hashed-custom';
+export * from './hashed-custom.mjs';

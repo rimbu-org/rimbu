@@ -2,8 +2,8 @@ import type { RMapBase } from '@rimbu/collection-types/map-custom';
 import type { Eq } from '@rimbu/common';
 import type { List } from '@rimbu/list';
 
-import type { HashMap } from '@rimbu/hashed/map';
-import type { Hasher } from '../common';
+import type { HashMap } from '#hashed/map';
+import type { Hasher } from '../common/index.mjs';
 
 export interface HashMapCreators extends RMapBase.Factory<HashMap.Types> {
   /**

@@ -1,5 +1,6 @@
-import { runMapTestsWith } from '@rimbu/collection-types/test-utils/map/map-standard';
-import { Hasher, HashMap } from '@rimbu/hashed';
+import { runMapTestsWith } from '../../collection-types/test-utils/map/map-standard.mjs';
+
+import { Hasher, HashMap } from '../src/main/index.mjs';
 
 const collisionHasher: Hasher<any> = {
   hash: () => 1,

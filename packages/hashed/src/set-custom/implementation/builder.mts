@@ -1,16 +1,16 @@
 import { Arr, RimbuError } from '@rimbu/base';
-import { RelatedTo, TraverseState } from '@rimbu/common';
+import { type RelatedTo, TraverseState } from '@rimbu/common';
 import { List } from '@rimbu/list';
-import { Stream, StreamSource } from '@rimbu/stream';
+import { Stream, type StreamSource } from '@rimbu/stream';
 
-import type { HashSet } from '@rimbu/hashed/set';
+import type { HashSet } from '#hashed/set';
 import type {
   HashSetBlock,
   HashSetCollision,
   HashSetContext,
-} from '@rimbu/hashed/set-custom';
+} from '#hashed/set-custom';
 
-import { BlockBuilderBase, CollisionBuilderBase } from '../../base';
+import { BlockBuilderBase, CollisionBuilderBase } from '#hashed/base';
 
 export type SetBlockBuilderEntry<T> =
   | HashSetBlockBuilder<T>
@@ -78,7 +78,8 @@ export class HashSetBlockBuilder<T>
     return this._entrySets!;
   }
 
-  has = <U>(value: RelatedTo<T, U>): boolean => {
+  // prettier-ignore
+  has = <U,>(value: RelatedTo<T, U>): boolean => {
     if (undefined !== this.source) return this.source.has(value);
 
     if (!this.context.hasher.isValid(value)) return false;
@@ -176,7 +177,8 @@ export class HashSetBlockBuilder<T>
     return true;
   }
 
-  remove = <ST>(value: ST): boolean => {
+  // prettier-ignore
+  remove = <ST,>(value: ST): boolean => {
     this.checkLock();
 
     if (!this.context.hasher.isValid(value)) return false;
@@ -184,7 +186,8 @@ export class HashSetBlockBuilder<T>
     return this.removeInternal(value);
   };
 
-  removeAll = <ST>(values: StreamSource<ST>): boolean => {
+  // prettier-ignore
+  removeAll = <ST,>(values: StreamSource<ST>): boolean => {
     this.checkLock();
 
     return Stream.from(values).filterPure(this.remove).count() > 0;

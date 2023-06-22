@@ -3,20 +3,17 @@ import { Eq } from '@rimbu/common';
 import { List } from '@rimbu/list';
 import type { StreamSource } from '@rimbu/stream';
 
-import type { HashSet } from '@rimbu/hashed/set';
-import type {
-  SetBlockBuilderEntry,
-  SetEntrySet,
-} from '@rimbu/hashed/set-custom';
+import type { HashSet } from '#hashed/set';
+import type { SetBlockBuilderEntry, SetEntrySet } from '#hashed/set-custom';
 
-import { Hasher } from '../../common';
+import { Hasher } from '../../common/index.mjs';
 import {
   HashSetNonEmptyBase,
   HashSetEmpty,
   HashSetBlock,
   HashSetCollision,
   HashSetBlockBuilder,
-} from '@rimbu/hashed/set-custom';
+} from '#hashed/set-custom';
 
 export class HashSetContext<UT>
   extends RSetBase.ContextBase<UT, HashSet.Types>

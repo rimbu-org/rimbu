@@ -1,12 +1,17 @@
 import { Arr, RimbuError } from '@rimbu/base';
 import { EmptyBase, NonEmptyBase } from '@rimbu/collection-types/set-custom';
-import { ArrayNonEmpty, RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
+import {
+  type ArrayNonEmpty,
+  type RelatedTo,
+  type ToJSON,
+  TraverseState,
+} from '@rimbu/common';
 import type { List } from '@rimbu/list';
-import { Stream, StreamSource } from '@rimbu/stream';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-import type { HashSet } from '@rimbu/hashed/set';
-import type { HashSetContext } from '@rimbu/hashed/set-custom';
+import type { HashSet } from '#hashed/set';
+import type { HashSetContext } from '#hashed/set-custom';
 
 export class HashSetEmpty<T = any> extends EmptyBase implements HashSet<T> {
   readonly addAll: any;

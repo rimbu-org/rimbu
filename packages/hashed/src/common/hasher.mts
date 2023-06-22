@@ -1,5 +1,5 @@
 import { Eq } from '@rimbu/common';
-import { Stream, StreamSource } from '@rimbu/stream';
+import { Stream, type StreamSource } from '@rimbu/stream';
 
 /**
  * Interface used to hash objects for hashed collections.

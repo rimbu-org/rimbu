@@ -1,6 +1,8 @@
-import { runSetRandomTestsWith } from '@rimbu/collection-types/test-utils/set/set-random';
 import { Eq } from '@rimbu/common';
-import { HashSet } from '@rimbu/hashed';
+
+import { runSetRandomTestsWith } from '../../collection-types/test-utils/set/set-random.mjs';
+
+import { HashSet } from '../src/main/index.mjs';
 
 runSetRandomTestsWith('HashSet default', HashSet.defaultContext());
 

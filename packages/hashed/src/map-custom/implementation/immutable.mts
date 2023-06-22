@@ -1,20 +1,20 @@
 import { Arr, Entry, RimbuError, Token } from '@rimbu/base';
 import { EmptyBase, NonEmptyBase } from '@rimbu/collection-types/map-custom';
 import {
-  ArrayNonEmpty,
+  type ArrayNonEmpty,
   OptLazy,
   OptLazyOr,
-  RelatedTo,
-  ToJSON,
+  type RelatedTo,
+  type ToJSON,
   TraverseState,
   Update,
 } from '@rimbu/common';
 import type { List } from '@rimbu/list';
-import { Stream, StreamSource } from '@rimbu/stream';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-import type { HashMap } from '@rimbu/hashed/map';
-import type { HashMapContext } from '@rimbu/hashed/map-custom';
+import type { HashMap } from '#hashed/map';
+import type { HashMapContext } from '#hashed/map-custom';
 
 export class HashMapEmpty<K = any, V = any>
   extends EmptyBase
@@ -271,7 +271,8 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 
       return Stream.fromObjectValues(this.entries).concat(
         Stream.fromObjectValues(this.entrySets).flatMap(
-          (entrySet): Stream.NonEmpty<readonly [K, V]> => entrySet.stream()
+          (entrySet: MapEntrySet<K, V>): Stream.NonEmpty<readonly [K, V]> =>
+            entrySet.stream()
         )
       ) as Stream.NonEmpty<readonly [K, V]>;
     }
@@ -279,7 +280,8 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
     if (null === this.entrySets) RimbuError.throwInvalidStateError();
 
     return Stream.fromObjectValues(this.entrySets).flatMap(
-      (entrySet): Stream.NonEmpty<readonly [K, V]> => entrySet.stream()
+      (entrySet: MapEntrySet<K, V>): Stream.NonEmpty<readonly [K, V]> =>
+        entrySet.stream()
     ) as Stream.NonEmpty<readonly [K, V]>;
   }
 
@@ -347,7 +349,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
         return this.copy(newEntries, newEntrySets, this.size + 1);
       }
 
-      const newEntrySet = this.context.collision(
+      const newEntrySet = this.context.collision<V>(
         this.context.listContext.of(currentEntry, entry)
       );
       const newEntrySets =
@@ -455,7 +457,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 
       // create collision
       const newEntry: [K, V] = [atKey, newValue];
-      const newEntrySet = this.context.collision(
+      const newEntrySet = this.context.collision<V>(
         this.context.listContext.of(currentEntry, newEntry)
       );
       const newEntrySets =
@@ -574,9 +576,11 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
       result = Stream.fromObjectValues(this.entries).toArray();
     }
     if (null !== this.entrySets) {
-      Stream.fromObjectValues(this.entrySets).forEach((entrySet): void => {
-        result = result.concat(entrySet.toArray());
-      });
+      Stream.fromObjectValues(this.entrySets).forEach(
+        (entrySet: MapEntrySet<K, V>): void => {
+          result = result.concat(entrySet.toArray());
+        }
+      );
     }
 
     return result as ArrayNonEmpty<[K, V]>;

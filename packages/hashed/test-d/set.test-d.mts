@@ -1,8 +1,9 @@
 import type { RSet } from '@rimbu/collection-types';
 import type { ArrayNonEmpty } from '@rimbu/common';
-import type { HashSet } from '@rimbu/hashed';
 import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
+
+import type { HashSet } from '../src/main/index.mjs';
 
 type GE<T> = HashSet<T>;
 type GNE<T> = HashSet.NonEmpty<T>;
