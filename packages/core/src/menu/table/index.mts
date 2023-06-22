@@ -1,2 +1,2 @@
-export * as HashRow from './hash-row';
-export * as SortedRow from './sorted-row';
+export * as HashRow from './hash-row.mjs';
+export * as SortedRow from './sorted-row.mjs';

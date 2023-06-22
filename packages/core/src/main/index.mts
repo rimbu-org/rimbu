@@ -20,4 +20,4 @@
  * - [`@rimbu/table`](./table)<br/>
  */
 
-export * from './exports';
+export * from './exports.mjs';

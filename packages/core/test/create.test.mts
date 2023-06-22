@@ -1,4 +1,4 @@
-import Menu from '@rimbu/core/menu';
+import Menu from '../src/menu/index.mjs';
 
 describe('Create', () => {
   it('creates', () => {

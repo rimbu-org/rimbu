@@ -1,3 +1,3 @@
-import * as Menu from './menu';
+import * as Menu from './menu.mjs';
 
 export default Menu;
