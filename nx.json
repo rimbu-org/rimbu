@@ -1,4 +1,12 @@
 {
+  "pluginsConfig": {
+    "@nx/js": {
+      "analyzeSourceFiles": false
+    },
+    "@nrwl/js": {
+      "analyzeSourceFiles": false
+    }
+  },
   "tasksRunnerOptions": {
     "default": {
       "runner": "nx/tasks-runners/default",
@@ -26,13 +34,13 @@
     "bundle": {
       "dependsOn": ["^bundle"]
     },
-    "bundle:main": {
-      "dependsOn": ["^bundle:main"],
-      "outputs": ["{projectRoot}/dist/main"]
+    "bundle:cjs": {
+      "dependsOn": ["^bundle:cjs"],
+      "outputs": ["{projectRoot}/dist/cjs"]
     },
-    "bundle:module": {
-      "dependsOn": ["^bundle:module"],
-      "outputs": ["{projectRoot}/dist/module"]
+    "bundle:esm": {
+      "dependsOn": ["^bundle:esm"],
+      "outputs": ["{projectRoot}/dist/esm"]
     },
     "bundle:types": {
       "dependsOn": ["^bundle:types"],
