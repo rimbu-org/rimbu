@@ -2,7 +2,8 @@ import type { ArrayNonEmpty } from '@rimbu/common';
 import type { HashMap } from '@rimbu/hashed';
 import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-import type { HashMultiSet } from '@rimbu/multiset';
+
+import type { HashMultiSet } from '../src/main/index.mjs';
 
 type GE<T> = HashMultiSet<T>;
 type GNE<T> = HashMultiSet.NonEmpty<T>;

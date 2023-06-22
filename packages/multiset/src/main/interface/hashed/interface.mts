@@ -1,7 +1,8 @@
 import { HashMap } from '@rimbu/hashed/map';
-import { MultiSetBase, MultiSetContext } from '@rimbu/multiset/custom';
 import type { Stream, Streamable } from '@rimbu/stream';
-import type { HashMultiSetCreators } from '@rimbu/multiset/custom';
+
+import { type MultiSetBase, MultiSetContext } from '#multiset/custom';
+import type { HashMultiSetCreators } from '#multiset/custom';
 
 /**
  * A type-invariant immutable MultiSet of value type T.

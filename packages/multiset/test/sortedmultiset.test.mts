@@ -1,4 +1,5 @@
-import { SortedMultiSet } from '@rimbu/multiset';
-import { runMultiSetTestsWith } from './multiset-test-standard';
+import { SortedMultiSet } from '../src/main/index.mjs';
+
+import { runMultiSetTestsWith } from './multiset-test-standard.mjs';
 
 runMultiSetTestsWith('SortedMultiSet', SortedMultiSet.defaultContext());

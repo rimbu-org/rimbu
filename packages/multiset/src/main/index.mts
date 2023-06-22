@@ -6,8 +6,8 @@
  * See the [Rimbu docs MultiSet page](/docs/collections/multiset) for more information.
  */
 
-export * from './interface/generic/variant';
-export * from './interface/generic/generic';
+export * from './interface/generic/variant.mjs';
+export * from './interface/generic/generic.mjs';
 
-export * from './interface/hashed/interface';
-export * from './interface/sorted/interface';
+export * from './interface/hashed/interface.mjs';
+export * from './interface/sorted/interface.mjs';

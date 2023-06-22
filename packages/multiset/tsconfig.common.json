@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "rootDirs": [".", ".."],
+    "paths": {
+      "#multiset/*.mjs": ["./src/*.mjs"],
+      "#multiset/*": ["./src/*/index.mjs"]
+    }
+  }
+}

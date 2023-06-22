@@ -1,10 +1,11 @@
 import type { RMap } from '@rimbu/collection-types/map';
+import type { Streamable } from '@rimbu/stream';
+
 import {
   type MultiSetBase,
   MultiSetContext,
   type MultiSetCreators,
-} from '@rimbu/multiset/custom';
-import type { Streamable } from '@rimbu/stream';
+} from '#multiset/custom';
 
 /**
  * A type-invariant immutable MultiSet of value type T.
