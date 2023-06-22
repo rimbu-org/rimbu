@@ -1,14 +1,12 @@
-import type {
-  BiMultiMapBase,
-  ContextTypesImpl,
-} from '@rimbu/bimultimap/custom';
+import type { BiMultiMapBase, ContextTypesImpl } from '#bimultimap/custom';
+
 import {
   EmptyBase,
   NonEmptyBase,
-  WithKeyValue,
+  type WithKeyValue,
 } from '@rimbu/collection-types/map-custom';
 import type { RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
-import { Stream, StreamSource } from '@rimbu/stream';
+import { Stream, type StreamSource } from '@rimbu/stream';
 
 export class BiMultiMapEmpty<K, V, Tp extends ContextTypesImpl>
   extends EmptyBase

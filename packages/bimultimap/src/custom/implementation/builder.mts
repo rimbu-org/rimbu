@@ -1,13 +1,11 @@
+import type { BiMultiMapBase, ContextTypesImpl } from '#bimultimap/custom';
+
 import { RimbuError } from '@rimbu/base';
-import type {
-  BiMultiMapBase,
-  ContextTypesImpl,
-} from '@rimbu/bimultimap/custom';
 import type { RSet } from '@rimbu/collection-types';
 import type { WithKeyValue } from '@rimbu/collection-types/map-custom';
 import type { RelatedTo, TraverseState } from '@rimbu/common';
 import type { MultiMap } from '@rimbu/multimap';
-import { Stream, StreamSource } from '@rimbu/stream';
+import { Stream, type StreamSource } from '@rimbu/stream';
 
 export class BiMultiMapBuilder<
   K,
@@ -67,11 +65,13 @@ export class BiMultiMapBuilder<
     return this.size === 0;
   }
 
-  hasKey = <UK = K>(key: RelatedTo<K, UK>): boolean => {
+  // prettier-ignore
+  hasKey = <UK = K,>(key: RelatedTo<K, UK>): boolean => {
     return this.source?.hasKey(key) ?? this.keyValueMultiMap.hasKey(key);
   };
 
-  hasValue = <UV = V>(value: RelatedTo<V, UV>): boolean => {
+  // prettier-ignore
+  hasValue = <UV = V,>(value: RelatedTo<V, UV>): boolean => {
     return this.source?.hasValue(value) ?? this.valueKeyMultiMap.hasKey(value);
   };
 
@@ -85,7 +85,8 @@ export class BiMultiMapBuilder<
     );
   };
 
-  getValues = <UK = K>(
+  // prettier-ignore
+  getValues = <UK = K,>(
     key: RelatedTo<K, UK>
   ): WithKeyValue<Tp, K, V>['keyMultiMapValues'] => {
     if (undefined !== this.source) {
@@ -103,7 +104,8 @@ export class BiMultiMapBuilder<
     >['keyMultiMapValues'];
   };
 
-  getKeys = <UV = V>(
+  // prettier-ignore
+  getKeys = <UV = V,>(
     value: RelatedTo<V, UV>
   ): WithKeyValue<Tp, K, V>['valueMultiMapValues'] => {
     if (undefined !== this.source) {
@@ -155,7 +157,8 @@ export class BiMultiMapBuilder<
     return Stream.applyFilter(entries, this.add).count() > 0;
   };
 
-  removeKey = <UK = K>(key: RelatedTo<K, UK>): boolean => {
+  // prettier-ignore
+  removeKey = <UK = K,>(key: RelatedTo<K, UK>): boolean => {
     this.checkLock();
 
     const values = this.getValues(key) as RSet<V>;
@@ -171,13 +174,15 @@ export class BiMultiMapBuilder<
     );
   };
 
-  removeKeys = <UK = K>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
+  // prettier-ignore
+  removeKeys = <UK = K,>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
     this.checkLock();
 
     return Stream.from(keys).filterPure(this.removeKey).count() > 0;
   };
 
-  removeValue = <UV = V>(value: RelatedTo<V, UV>): boolean => {
+  // prettier-ignore
+  removeValue = <UV = V,>(value: RelatedTo<V, UV>): boolean => {
     this.checkLock();
 
     const keys = this.getKeys(value) as RSet<K>;
@@ -193,7 +198,8 @@ export class BiMultiMapBuilder<
     );
   };
 
-  removeValues = <UV = V>(values: StreamSource<RelatedTo<V, UV>>): boolean => {
+  // prettier-ignore
+  removeValues = <UV = V,>(values: StreamSource<RelatedTo<V, UV>>): boolean => {
     this.checkLock();
 
     return Stream.from(values).filterPure(this.removeValue).count() > 0;

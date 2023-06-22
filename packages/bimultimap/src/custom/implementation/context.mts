@@ -1,9 +1,10 @@
 import {
-  BiMultiMapBase,
+  type BiMultiMapBase,
   BiMultiMapBuilder,
   BiMultiMapEmpty,
   BiMultiMapNonEmpty,
-} from '@rimbu/bimultimap/custom';
+} from '#bimultimap/custom';
+
 import type { WithKeyValue } from '@rimbu/collection-types/map-custom';
 import type { ArrayNonEmpty } from '@rimbu/common';
 import { Reducer } from '@rimbu/common';

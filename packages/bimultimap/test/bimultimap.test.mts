@@ -1,11 +1,12 @@
 import { Entry } from '@rimbu/base';
 import type { ArrayNonEmpty } from '@rimbu/common';
-import { Stream, Streamable } from '@rimbu/stream';
+import { Stream, type Streamable } from '@rimbu/stream';
+
 import {
   BiMultiMap,
   HashBiMultiMap,
   SortedBiMultiMap,
-} from '@rimbu/bimultimap';
+} from '../src/main/index.mjs';
 
 function expectEqual<K, V>(map: Streamable<readonly [K, V]>, arr: [K, V][]) {
   expect(new Set(map.stream())).toEqual(new Set(arr));

@@ -1,8 +1,8 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
   "extends": "<projectFolder>/../../config/api-extractor.json",
-  "mainEntryPointFilePath": "<projectFolder>dist/types/custom/index.d.ts",
-  "bundledPackages": [],
+  "mainEntryPointFilePath": "<projectFolder>dist/types/custom/index.d.mts",
+  "bundledPackages": ["@rimbu/bimultimap"],
   "docModel": {
     "enabled": true,
     "apiJsonFilePath": "<projectFolder>/../../doc-gen/input/<unscopedPackageName>!custom.api.json"

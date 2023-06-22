@@ -1,10 +1,11 @@
+import {
+  type BiMultiMapSorted,
+  type BiMultiMapBase,
+  BiMultiMapContext,
+} from '#bimultimap/custom';
+
 import { SortedMultiMapSortedValue } from '@rimbu/multimap';
 import type { Streamable } from '@rimbu/stream';
-import {
-  BiMultiMapSorted,
-  BiMultiMapBase,
-  BiMultiMapContext,
-} from '@rimbu/bimultimap/custom';
 import type { SortedSet } from '@rimbu/sorted';
 
 /**
