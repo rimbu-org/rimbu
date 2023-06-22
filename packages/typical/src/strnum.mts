@@ -1,4 +1,4 @@
-import type { Str, U } from './index';
+import type { Str, U } from './index.mjs';
 
 /**
  * Positive numeric digits as strings

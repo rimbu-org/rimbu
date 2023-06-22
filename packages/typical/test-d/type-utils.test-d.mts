@@ -1,5 +1,6 @@
 import { expectType } from 'tsd';
-import type { U } from '../src/index';
+
+import type { U } from '../src/index.mjs';
 
 declare function g<T>(): T;
 

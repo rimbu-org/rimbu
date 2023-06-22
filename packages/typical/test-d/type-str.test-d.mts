@@ -1,5 +1,6 @@
 import { expectType } from 'tsd';
-import type { Str } from '../src/index';
+
+import type { Str } from '../src/index.mjs';
 
 declare function g<T>(): T;
 

@@ -1,4 +1,4 @@
-import type { Num, U } from './index';
+import type { Num, U } from './index.mjs';
 
 /**
  * Returns the length of the given string S.

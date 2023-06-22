@@ -1,5 +1,6 @@
 import { expectType } from 'tsd';
-import type { StrNum } from '../src/index';
+
+import type { StrNum } from '../src/index.mjs';
 
 declare function g<T>(): T;
 

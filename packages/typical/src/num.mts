@@ -1,4 +1,4 @@
-import type { StrNum, U } from './index';
+import type { StrNum, U } from './index.mjs';
 
 /**
  * Returns the sum of given numbers.
