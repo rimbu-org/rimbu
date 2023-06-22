@@ -1,8 +1,8 @@
 import {
   registerSelector,
-  SelectorCache,
+  type SelectorCache,
   unregisterSelector,
-} from '../src/internal';
+} from '../src/internal.mjs';
 
 describe('unregisterSelector', () => {
   it('removes listener with count 1', () => {

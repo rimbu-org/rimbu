@@ -1,7 +1,7 @@
 import type { Actor } from '@rimbu/actor';
 import type { Deep } from '@rimbu/deep';
 
-import type { SelectorCache } from './internal';
+import type { SelectorCache } from './internal.mjs';
 
 export function unregisterSelector(
   selector: Deep.Selector.Shape<any>,

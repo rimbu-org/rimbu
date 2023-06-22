@@ -1,14 +1,14 @@
 import type { Actor } from '@rimbu/actor';
 import { Deep } from '@rimbu/deep';
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 
 import {
   updateSelectorValue,
   registerSelector,
   useForceRerender,
-  SelectorEntry,
+  type SelectorEntry,
   unregisterSelector,
-} from './internal';
+} from './internal.mjs';
 
 export type Reactor<
   A extends Actor.Base<S> & Actor.Dispatch<D>,
@@ -76,9 +76,9 @@ export namespace Reactor {
         selector: Deep.Selector.Shape<SL>,
         deps?: React.DependencyList
       ): Deep.Selector.Result<S, SL> {
-        const entry = useRef<SelectorEntry>();
+        const entry = React.useRef<SelectorEntry>();
 
-        useEffect(() => {
+        React.useEffect(() => {
           // register selector
           entry.current = registerSelector(
             actor.getState(),

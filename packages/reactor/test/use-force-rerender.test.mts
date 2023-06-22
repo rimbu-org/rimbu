@@ -1,13 +1,13 @@
 import { renderHook } from '@testing-library/react-hooks';
 import React from 'react';
 
-import { useForceRerender } from '../src';
+import { useForceRerender } from '../src/index.mjs';
 
 describe('useUpdateUI', () => {
   it('calls setState', () => {
-    const setState = jest.fn();
+    const setState = vi.fn();
 
-    jest.spyOn(React, 'useState').mockImplementation(() => [{}, setState]);
+    vi.spyOn(React, 'useState').mockImplementation(() => [{}, setState]);
 
     const { result } = renderHook(() => useForceRerender());
 
@@ -17,9 +17,9 @@ describe('useUpdateUI', () => {
   });
 
   it('calls setState on rerender', () => {
-    const setState = jest.fn();
+    const setState = vi.fn();
 
-    jest.spyOn(React, 'useState').mockImplementation(() => [{}, setState]);
+    vi.spyOn(React, 'useState').mockImplementation(() => [{}, setState]);
 
     const { result, rerender } = renderHook(() => useForceRerender());
 

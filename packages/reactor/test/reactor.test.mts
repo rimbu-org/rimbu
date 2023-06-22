@@ -3,11 +3,11 @@ import { SlicePatch } from '@rimbu/actor/patch';
 import { renderHook } from '@testing-library/react-hooks';
 import React from 'react';
 
-import { Reactor } from '../src';
+import { Reactor } from '../src/index.mjs';
 
 describe('Reactor.enhancer', () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('rerenders on state change', () => {
@@ -22,9 +22,9 @@ describe('Reactor.enhancer', () => {
       enhancer: Reactor.enhancer,
     });
 
-    const setState = jest.fn();
+    const setState = vi.fn();
 
-    jest.spyOn(React, 'useState').mockImplementation(() => [{}, setState]);
+    vi.spyOn(React, 'useState').mockImplementation(() => [{}, setState]);
 
     const { result, rerender } = renderHook(() => {
       const { useSelect } = actor.use();
@@ -53,9 +53,9 @@ describe('Reactor.enhancer', () => {
       enhancer: Reactor.enhancer,
     });
 
-    const setState = jest.fn();
+    const setState = vi.fn();
 
-    jest.spyOn(React, 'useState').mockImplementation(() => [{}, setState]);
+    vi.spyOn(React, 'useState').mockImplementation(() => [{}, setState]);
 
     const { result, rerender } = renderHook(() => {
       const { useSelect } = actor.use();
@@ -81,9 +81,9 @@ describe('Reactor.enhancer', () => {
       enhancer: Reactor.enhancer,
     });
 
-    const setState = jest.fn();
+    const setState = vi.fn();
 
-    jest.spyOn(React, 'useState').mockImplementation(() => [{}, setState]);
+    vi.spyOn(React, 'useState').mockImplementation(() => [{}, setState]);
 
     const { result, rerender } = renderHook(() => {
       const { useSelect } = actor.use();
@@ -115,9 +115,9 @@ describe('Reactor.enhancer', () => {
       enhancer: Reactor.enhancer,
     });
 
-    const setState = jest.fn();
+    const setState = vi.fn();
 
-    jest.spyOn(React, 'useState').mockImplementation(() => [{}, setState]);
+    vi.spyOn(React, 'useState').mockImplementation(() => [{}, setState]);
 
     const { result, unmount } = renderHook(() => {
       const { useSelect } = actor.use();

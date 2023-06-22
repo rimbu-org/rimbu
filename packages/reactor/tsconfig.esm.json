@@ -1,10 +1,7 @@
 {
-  "extends": "../../config/tsconfig.module.base.json",
+  "extends": ["../../config/tsconfig.esm.base.json", "./tsconfig.common.json"],
   "include": ["src"],
   "compilerOptions": {
-    "outDir": "./dist/module",
-    "jsx": "react",
-    "lib": ["esnext", "dom"],
-    "rootDir": "./src"
+    "outDir": "./dist/esm"
   }
 }

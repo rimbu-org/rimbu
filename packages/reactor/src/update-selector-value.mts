@@ -1,6 +1,6 @@
 import { Deep } from '@rimbu/deep';
 
-import type { SelectorCache } from './internal';
+import type { SelectorCache } from './internal.mjs';
 
 export function updateSelectorValue<S>(
   state: S,

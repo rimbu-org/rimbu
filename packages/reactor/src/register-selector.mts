@@ -1,7 +1,7 @@
 import type { Actor } from '@rimbu/actor';
 import { Deep } from '@rimbu/deep';
 
-import type { SelectorCache, SelectorEntry } from './internal';
+import type { SelectorCache, SelectorEntry } from './internal.mjs';
 
 export function registerSelector<S>(
   state: S,

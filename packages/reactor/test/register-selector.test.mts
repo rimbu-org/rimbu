@@ -1,5 +1,5 @@
-import { registerSelector } from '../src/register-selector';
-import type { SelectorCache } from '../src/types';
+import { registerSelector } from '../src/register-selector.mjs';
+import type { SelectorCache } from '../src/types.mjs';
 
 describe('registerSelector', () => {
   it('adds a new simple selector', () => {

@@ -1,4 +1,4 @@
-import { updateSelectorValue, SelectorCache } from '../src/internal';
+import { updateSelectorValue, type SelectorCache } from '../src/internal.mjs';
 
 describe('updateSelectorValue', () => {
   it('returns the selector value for simple selector', () => {

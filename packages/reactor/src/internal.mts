@@ -1,9 +1,9 @@
 // no dependencies
-export * from './types';
-export * from './use-force-rerender';
-export * from './update-selector-value';
-export * from './register-selector';
-export * from './unregister-selector';
+export * from './types.mjs';
+export * from './use-force-rerender.mjs';
+export * from './update-selector-value.mjs';
+export * from './register-selector.mjs';
+export * from './unregister-selector.mjs';
 
 // internal dependencies
-export * from './reactor';
+export * from './reactor.mjs';
