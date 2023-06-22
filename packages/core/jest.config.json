@@ -1,9 +1,0 @@
-{
-  "preset": "ts-jest",
-  "testEnvironment": "node",
-  "testMatch": ["**/test/**.test.ts"],
-  "moduleNameMapper": {
-    "@rimbu/core/menu": ["<rootDir>/src/menu/index.ts"],
-    "@rimbu/core": ["<rootDir>/src/main/index.ts"]
-  }
-}
