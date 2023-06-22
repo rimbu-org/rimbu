@@ -1,6 +1,8 @@
+import type { Elem } from '@rimbu/collection-types/set-custom';
 import type {
   ArrayNonEmpty,
   CollectFun,
+  Comp,
   IndexRange,
   OptLazy,
   ToJSON,
@@ -10,10 +12,9 @@ import type {
 import type {
   FastIterable,
   Stream,
-  Streamable,
   StreamSource,
+  Streamable,
 } from '@rimbu/stream';
-import type { Elem } from '@rimbu/collection-types/set-custom';
 
 import type { ListCreators, ListFactory } from '#list/custom';
 import { createListContext } from '#list/custom';
@@ -216,6 +217,19 @@ export interface List<T> extends FastIterable<T> {
    * @note O(logB(N)) for block size B
    */
   slice(range: IndexRange, reversed?: boolean): List<T>;
+
+  /**
+   * Returns the values sorted according to the given, optional Comp.
+   *
+   * **Performance warning**: this method is not designed for frequent calls;
+   * should you need to keep in order a collection with potentially duplicate values,
+   * please consider `SortedMultiSet` instead.
+   *
+   * @param comp The comparison logic to use; if missing, the default JavaScript sorting algorithm is applied
+   * @returns A sorted copy of the list
+   */
+  sort(comp?: Comp<T>): List<T>;
+
   /**
    * Returns the List, where at the given `index` the `remove` amount of values are replaced by the values
    * from the optionally given `insert` `StreamSource`.
@@ -772,6 +786,19 @@ export namespace List {
       range?: IndexRange,
       reversed?: boolean
     ): List<T2>;
+
+    /**
+     * Returns the values sorted according to the given, optional Comp.
+     *
+     * **Performance warning**: this method is not designed for frequent calls;
+     * should you need to keep in order a collection with potentially duplicate values,
+     * please consider `SortedMultiSet` instead.
+     *
+     * @param comp The comparison logic to use; if missing, the default JavaScript sorting algorithm is applied
+     * @returns A sorted copy of the list
+     */
+    sort(comp?: Comp<T>): List.NonEmpty<T>;
+
     /**
      * Returns the List, where at the given `index` the `remove` amount of values are replaced by the values
      * from the optionally given `insert` `StreamSource`.

@@ -46,6 +46,10 @@ export class Empty<T = any> extends EmptyBase implements List<T> {
     return this;
   }
 
+  sort(): this {
+    return this;
+  }
+
   splice(options: { insert?: StreamSource<T> }): any {
     if (undefined === options.insert) return this;
 
