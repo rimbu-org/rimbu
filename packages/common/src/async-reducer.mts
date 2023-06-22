@@ -43,7 +43,7 @@ export namespace AsyncReducer {
      * @param state - the final reducer state
      * @param error - (optional) if an error has occured, it ix passed here
      */
-    onClose?(state: S, error?: unknown): MaybePromise<void>;
+    onClose?: ((state: S, error?: unknown) => MaybePromise<void>) | undefined;
     /**
      * Returns an `AsyncReducer` instance that only passes values to the reducer that satisy the given `pred` predicate.
      * @param pred - a potaentially asynchronous function that returns true if the value should be passed to the reducer based on the following inputs:<br/>
@@ -270,7 +270,9 @@ export namespace AsyncReducer {
     }
 
     dropInput(amount: number): AsyncReducer<I, O> {
-      if (amount <= 0) return this;
+      if (amount <= 0) {
+        return this as AsyncReducer<I, O>;
+      }
 
       return this.filterInput((_, i): boolean => i >= amount);
     }
@@ -308,7 +310,12 @@ export namespace AsyncReducer {
     stateToResult: (state: S) => MaybePromise<O>,
     onClose?: (state: S, error?: unknown) => MaybePromise<void>
   ): AsyncReducer<I, O> {
-    return new AsyncReducer.Base(init, next, stateToResult, onClose);
+    return new AsyncReducer.Base(
+      init,
+      next,
+      stateToResult,
+      onClose
+    ) as AsyncReducer<I, O>;
   }
 
   /**
