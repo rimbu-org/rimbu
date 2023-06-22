@@ -4,9 +4,8 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type {
   EdgeValuedGraphCreators,
   ValuedGraphElement,
-} from '@rimbu/graph/custom';
-
-import { EdgeValuedGraphBase, ValuedGraphContext } from '@rimbu/graph/custom';
+} from '#graph/custom';
+import { type EdgeValuedGraphBase, ValuedGraphContext } from '#graph/custom';
 
 /**
  * An type-invariant immutable valued edge (undirected) graph.

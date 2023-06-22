@@ -1,7 +1,7 @@
 import type { RelatedTo } from '@rimbu/common';
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type { GraphBase, GraphElement } from '../../common';
+import type { GraphBase, GraphElement } from '../../common/index.mjs';
 
 export interface ArrowGraphBase<
   N,

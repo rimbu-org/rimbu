@@ -7,8 +7,8 @@ import type {
   GraphConnectNonEmpty,
   VariantGraphBase,
   WithGraphValues,
-} from '..';
-import type { GraphElement, Link } from '../../common';
+} from '../index.mjs';
+import type { GraphElement, Link } from '../../common/index.mjs';
 
 export interface GraphBase<N, Tp extends GraphBase.Types = GraphBase.Types>
   extends VariantGraphBase<N, unknown, Tp>,

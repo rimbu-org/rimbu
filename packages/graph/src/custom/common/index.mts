@@ -1,7 +1,7 @@
-export * from './interface/variant-graph-base';
-export * from './interface/graph-base';
+export * from './interface/variant-graph-base.mjs';
+export * from './interface/graph-base.mjs';
 
-export * from './link';
-export * from './valued-link';
+export * from './link.mjs';
+export * from './valued-link.mjs';
 
-export * from './implementation/base';
+export * from './implementation/base.mjs';

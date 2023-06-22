@@ -1,25 +1,24 @@
 import type { Token } from '@rimbu/base';
-
 import { NonEmptyBase } from '@rimbu/collection-types/map-custom';
 import {
   OptLazy,
   OptLazyOr,
-  RelatedTo,
-  ToJSON,
+  type RelatedTo,
+  type ToJSON,
   TraverseState,
 } from '@rimbu/common';
-import { Stream, StreamSource } from '@rimbu/stream';
+import { Stream, type StreamSource } from '@rimbu/stream';
 
 import type {
   ValuedGraphBase,
   ValuedGraphTypesContextImpl,
-} from '@rimbu/graph/custom';
+} from '#graph/custom';
 import type {
   Link,
   ValuedGraphElement,
   ValuedLink,
   WithGraphValues,
-} from '../../common';
+} from '../../common/index.mjs';
 
 export class ValuedGraphNonEmpty<
     N,

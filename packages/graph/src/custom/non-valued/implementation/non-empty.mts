@@ -1,15 +1,14 @@
 import type { RelatedTo, ToJSON, TraverseState } from '@rimbu/common';
-
-import { Stream, StreamSource } from '@rimbu/stream';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { NonEmptyBase } from '@rimbu/collection-types/map-custom';
 
-import type { GraphTypesContextImpl } from '@rimbu/graph/custom';
+import type { GraphTypesContextImpl } from '#graph/custom';
 import type {
   GraphBase,
   GraphElement,
   Link,
   WithGraphValues,
-} from '../../common';
+} from '../../common/index.mjs';
 
 export class GraphNonEmpty<
     N,

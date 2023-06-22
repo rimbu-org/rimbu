@@ -1,7 +1,8 @@
 import type { ArrayNonEmpty } from '@rimbu/common';
-import type { EdgeValuedGraph } from '@rimbu/graph';
-import type { ValuedGraphElement, ValuedLink } from '@rimbu/graph/custom';
-import { Stream, StreamSource } from '@rimbu/stream';
+import { Stream, type StreamSource } from '@rimbu/stream';
+
+import type { ValuedGraphElement, ValuedLink } from '../src/custom/index.mjs';
+import type { EdgeValuedGraph } from '../src/main/index.mjs';
 
 function symmetric<N, V>(source: StreamSource<ValuedLink<N, V>>): [N, N, V][] {
   return Stream.from(source)

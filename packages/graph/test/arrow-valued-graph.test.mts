@@ -1,5 +1,8 @@
-import { ArrowValuedGraphHashed, ArrowValuedGraphSorted } from '@rimbu/graph';
-import { runGraphTestsWith } from './arrow-valued-graph-test-standard';
+import {
+  ArrowValuedGraphHashed,
+  ArrowValuedGraphSorted,
+} from '../src/main/index.mjs';
+import { runGraphTestsWith } from './arrow-valued-graph-test-standard.mjs';
 
 runGraphTestsWith(
   'ArrowValuedGraphHashed',

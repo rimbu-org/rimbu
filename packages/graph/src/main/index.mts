@@ -7,31 +7,31 @@
  */
 
 // pure interfaces
-export * from './common/interface/variant-graph';
-export * from './common/interface/graph';
+export * from './common/interface/variant-graph.mjs';
+export * from './common/interface/graph.mjs';
 
 // pure classes and files
 
 // circular dependencies
 
-export * from './non-valued/interface/arrow/arrow-graph';
-export * from './non-valued/interface/arrow/arrow-graph-hashed';
-export * from './non-valued/interface/arrow/arrow-graph-sorted';
+export * from './non-valued/interface/arrow/arrow-graph.mjs';
+export * from './non-valued/interface/arrow/arrow-graph-hashed.mjs';
+export * from './non-valued/interface/arrow/arrow-graph-sorted.mjs';
 
-export * from './non-valued/interface/edge/edge-graph';
-export * from './non-valued/interface/edge/edge-graph-hashed';
-export * from './non-valued/interface/edge/edge-graph-sorted';
+export * from './non-valued/interface/edge/edge-graph.mjs';
+export * from './non-valued/interface/edge/edge-graph-hashed.mjs';
+export * from './non-valued/interface/edge/edge-graph-sorted.mjs';
 
-export * from './valued/interface/generic/variant-valued-graph';
-export * from './valued/interface/generic/valued-graph';
+export * from './valued/interface/generic/variant-valued-graph.mjs';
+export * from './valued/interface/generic/valued-graph.mjs';
 
-export * from './valued/interface/arrow/arrow-valued-graph';
-export * from './valued/interface/arrow/arrow-valued-graph-hashed';
-export * from './valued/interface/arrow/arrow-valued-graph-sorted';
+export * from './valued/interface/arrow/arrow-valued-graph.mjs';
+export * from './valued/interface/arrow/arrow-valued-graph-hashed.mjs';
+export * from './valued/interface/arrow/arrow-valued-graph-sorted.mjs';
 
-export * from './valued/interface/edge/edge-valued-graph';
-export * from './valued/interface/edge/edge-valued-graph-hashed';
-export * from './valued/interface/edge/edge-valued-graph-sorted';
+export * from './valued/interface/edge/edge-valued-graph.mjs';
+export * from './valued/interface/edge/edge-valued-graph-hashed.mjs';
+export * from './valued/interface/edge/edge-valued-graph-sorted.mjs';
 
-import * as Traverse from './traverse';
+import * as Traverse from './traverse/index.mjs';
 export { Traverse };

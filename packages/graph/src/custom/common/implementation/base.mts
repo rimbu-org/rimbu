@@ -1,7 +1,7 @@
-import { Stream, StreamSource } from '@rimbu/stream';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { EmptyBase } from '@rimbu/collection-types/map-custom';
 
-import type { VariantGraphBase } from '..';
+import type { VariantGraphBase } from '../index.mjs';
 
 export interface GraphValues<N = unknown, V = unknown> {
   readonly _N: N;

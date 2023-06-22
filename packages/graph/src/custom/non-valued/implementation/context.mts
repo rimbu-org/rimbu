@@ -1,12 +1,14 @@
 import type { ArrayNonEmpty } from '@rimbu/common';
 import type { StreamSource } from '@rimbu/stream';
-
 import { Reducer } from '@rimbu/common';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-import type { GraphBase, GraphElement, WithGraphValues } from '../../common';
-
-import { GraphEmpty, GraphNonEmpty, GraphBuilder } from '@rimbu/graph/custom';
+import type {
+  GraphBase,
+  GraphElement,
+  WithGraphValues,
+} from '../../common/index.mjs';
+import { GraphEmpty, GraphNonEmpty, GraphBuilder } from '#graph/custom';
 
 export interface GraphTypesContextImpl extends GraphBase.Types {
   readonly context: GraphContext<this['_N'], string, boolean>;
@@ -74,7 +76,8 @@ export class GraphContext<
     return builder.build();
   };
 
-  readonly of = <N>(...values: ArrayNonEmpty<GraphElement<N>>): any => {
+  // prettier-ignore
+  readonly of = <N,>(...values: ArrayNonEmpty<GraphElement<N>>): any => {
     return this.from(values).assumeNonEmpty();
   };
 

@@ -1,10 +1,14 @@
 import type { ArrayNonEmpty } from '@rimbu/common';
-import { ArrowGraphSorted, EdgeGraphSorted } from '@rimbu/graph';
-import type { Link, ValuedLink } from '@rimbu/graph/custom';
-import { ArrowValuedGraphSorted } from '@rimbu/graph';
-import { EdgeValuedGraphSorted } from '@rimbu/graph';
 import { Stream } from '@rimbu/stream';
-import { Traverse } from '@rimbu/graph';
+
+import type { Link, ValuedLink } from '../src/custom/index.mjs';
+import {
+  ArrowGraphSorted,
+  ArrowValuedGraphSorted,
+  EdgeGraphSorted,
+  EdgeValuedGraphSorted,
+  Traverse,
+} from '../src/main/index.mjs';
 
 const { traverseDepthFirstSorted } = Traverse;
 

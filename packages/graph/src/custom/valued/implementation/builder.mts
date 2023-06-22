@@ -1,11 +1,10 @@
 import { RimbuError, Token } from '@rimbu/base';
-import { OptLazy, OptLazyOr, RelatedTo } from '@rimbu/common';
-import { Stream, StreamSource } from '@rimbu/stream';
+import { OptLazy, OptLazyOr, type RelatedTo } from '@rimbu/common';
+import { Stream, type StreamSource } from '@rimbu/stream';
 
-import type { ValuedGraphTypesContextImpl } from '@rimbu/graph/custom';
-import type { Link, WithGraphValues } from '../../common';
-
-import { ValuedGraphElement } from '../../common';
+import type { ValuedGraphTypesContextImpl } from '#graph/custom';
+import type { Link, WithGraphValues } from '../../common/index.mjs';
+import { ValuedGraphElement } from '../../common/index.mjs';
 
 export class ValuedGraphBuilder<
   N,
@@ -54,12 +53,14 @@ export class ValuedGraphBuilder<
     return this.linkMap.size;
   }
 
-  hasNode = <UN>(node: RelatedTo<N, UN>): boolean => {
+  // prettier-ignore
+  hasNode = <UN,>(node: RelatedTo<N, UN>): boolean => {
     if (this.source) return this.source.hasNode(node);
     return this.linkMap.hasKey(node);
   };
 
-  hasConnection = <UN>(
+  // prettier-ignore
+  hasConnection = <UN,>(
     node1: RelatedTo<N, UN>,
     node2: RelatedTo<N, UN>
   ): boolean => {
@@ -108,7 +109,8 @@ export class ValuedGraphBuilder<
     return Stream.from(nodes).filterPure(this.addNodeInternal).count() > 0;
   };
 
-  removeNodeInternal = <UN>(node: RelatedTo<N, UN>): boolean => {
+  // prettier-ignore
+  removeNodeInternal = <UN,>(node: RelatedTo<N, UN>): boolean => {
     const targets = this.linkMap.removeKey(node);
 
     if (!targets) return false;
@@ -135,13 +137,15 @@ export class ValuedGraphBuilder<
     return true;
   };
 
-  removeNode = <UN>(node: RelatedTo<N, UN>): boolean => {
+  // prettier-ignore
+  removeNode = <UN,>(node: RelatedTo<N, UN>): boolean => {
     this.checkLock();
 
     return this.removeNodeInternal(node);
   };
 
-  removeNodes = <UN>(nodes: StreamSource<RelatedTo<N, UN>>): boolean => {
+  // prettier-ignore
+  removeNodes = <UN,>(nodes: StreamSource<RelatedTo<N, UN>>): boolean => {
     this.checkLock();
 
     return Stream.from(nodes).filterPure(this.removeNodeInternal).count() > 0;
@@ -348,7 +352,8 @@ export class ValuedGraphBuilder<
     return true;
   };
 
-  disconnectInternal = <UN>(
+  // prettier-ignore
+  disconnectInternal = <UN,>(
     node1: RelatedTo<N, UN>,
     node2: RelatedTo<N, UN>
   ): boolean => {
@@ -383,7 +388,8 @@ export class ValuedGraphBuilder<
     return changed;
   };
 
-  disconnect = <UN>(
+  // prettier-ignore
+  disconnect = <UN,>(
     node1: RelatedTo<N, UN>,
     node2: RelatedTo<N, UN>
   ): boolean => {
@@ -392,7 +398,8 @@ export class ValuedGraphBuilder<
     return this.disconnectInternal(node1, node2);
   };
 
-  disconnectAll = <UN>(
+  // prettier-ignore
+  disconnectAll = <UN,>(
     connections: StreamSource<Link<RelatedTo<N, UN>>>
   ): boolean => {
     this.checkLock();
@@ -417,7 +424,8 @@ export class ValuedGraphBuilder<
     return this.context.createNonEmpty(linkMap, this.connectionSize);
   };
 
-  buildMapValues = <V2>(
+  // prettier-ignore
+  buildMapValues = <V2,>(
     mapFun: (value: V, node1: N, node2: N) => V2
   ): WithGraphValues<Tp, N, V2>['normal'] => {
     if (undefined !== this.source) return this.source.mapValues(mapFun) as any;

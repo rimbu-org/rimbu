@@ -1,6 +1,6 @@
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type { GraphBase, GraphElement } from '../../common';
+import type { GraphBase, GraphElement } from '../../common/index.mjs';
 
 export interface EdgeGraphBase<
   N,

@@ -1,12 +1,8 @@
 import { SortedMap, SortedSet } from '@rimbu/sorted';
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type {
-  EdgeGraphSortedCreators,
-  GraphElement,
-} from '@rimbu/graph/custom';
-
-import { EdgeGraphBase, GraphContext } from '@rimbu/graph/custom';
+import type { EdgeGraphSortedCreators, GraphElement } from '#graph/custom';
+import { type EdgeGraphBase, GraphContext } from '#graph/custom';
 
 /**
  * An type-invariant immutable valued edge (undirected) graph.

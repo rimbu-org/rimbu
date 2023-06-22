@@ -1,6 +1,6 @@
 import { OptLazy } from '@rimbu/common';
 
-import type { Link } from '.';
+import type { Link } from './index.mjs';
 
 /**
  * A valued connection between two nodes,

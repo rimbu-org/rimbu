@@ -1,5 +1,8 @@
-import { EdgeValuedGraphHashed, EdgeValuedGraphSorted } from '@rimbu/graph';
-import { runGraphTestsWith } from './edge-valued-graph-test-standard';
+import {
+  EdgeValuedGraphHashed,
+  EdgeValuedGraphSorted,
+} from '../src/main/index.mjs';
+import { runGraphTestsWith } from './edge-valued-graph-test-standard.mjs';
 
 runGraphTestsWith(
   'EdgeValuedGraphHashed',

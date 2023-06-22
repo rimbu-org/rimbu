@@ -1,13 +1,11 @@
 import type { Stream, Streamable } from '@rimbu/stream';
-
 import { SortedMap } from '@rimbu/sorted';
 
 import type {
   ArrowValuedGraphSortedCreators,
   ValuedGraphElement,
-} from '@rimbu/graph/custom';
-
-import { ArrowValuedGraphBase, ValuedGraphContext } from '@rimbu/graph/custom';
+} from '#graph/custom';
+import { type ArrowValuedGraphBase, ValuedGraphContext } from '#graph/custom';
 
 /**
  * An type-invariant immutable valued arrow (directed) graph.

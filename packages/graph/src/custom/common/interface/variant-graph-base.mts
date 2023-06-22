@@ -6,8 +6,8 @@ import type {
   StreamSource,
 } from '@rimbu/stream';
 
-import type { GraphValues, WithGraphValues } from '..';
-import type { Link } from '..';
+import type { GraphValues, WithGraphValues } from '../index.mjs';
+import type { Link } from '../index.mjs';
 
 export interface VariantGraphBase<
   N,

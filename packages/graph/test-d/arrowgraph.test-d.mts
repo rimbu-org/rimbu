@@ -1,8 +1,9 @@
 import type { RSet } from '@rimbu/collection-types';
-import type { ArrowGraph } from '@rimbu/graph';
-import type { GraphElement } from '@rimbu/graph/custom';
 import type { FastIterator } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
+
+import type { ArrowGraph } from '../src/main/index.mjs';
+import type { GraphElement } from '../src/custom/index.mjs';
 
 type GE<N> = ArrowGraph<N>;
 type GNE<N> = ArrowGraph.NonEmpty<N>;

@@ -1,13 +1,13 @@
 import type { HashMap } from '@rimbu/hashed';
 import type { SortedMap } from '@rimbu/sorted';
+import type { RMap } from '@rimbu/collection-types';
 
 import type {
   ArrowValuedGraph,
   ArrowValuedGraphHashed,
   ArrowValuedGraphSorted,
-} from '@rimbu/graph';
-import type { ValuedGraphBase } from '@rimbu/graph/custom';
-import type { RMap } from '@rimbu/collection-types';
+} from '#graph/main';
+import type { ValuedGraphBase } from '#graph/custom';
 
 export interface ArrowValuedGraphCreators {
   /**

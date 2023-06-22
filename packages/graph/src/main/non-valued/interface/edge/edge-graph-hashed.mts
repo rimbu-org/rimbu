@@ -1,12 +1,8 @@
 import { HashMap, HashSet } from '@rimbu/hashed';
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type {
-  GraphElement,
-  EdgeGraphHashedCreators,
-} from '@rimbu/graph/custom';
-
-import { EdgeGraphBase, GraphContext } from '@rimbu/graph/custom';
+import type { GraphElement, EdgeGraphHashedCreators } from '#graph/custom';
+import { type EdgeGraphBase, GraphContext } from '#graph/custom';
 
 /**
  * An type-invariant immutable valued edge (undirected) graph.

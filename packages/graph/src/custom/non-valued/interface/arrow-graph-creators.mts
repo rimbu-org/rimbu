@@ -1,13 +1,13 @@
 import type { HashMap, HashSet } from '@rimbu/hashed';
 import type { SortedMap, SortedSet } from '@rimbu/sorted';
+import type { RMap, RSet } from '@rimbu/collection-types';
 
-import type { GraphBase } from '../../common';
+import type { GraphBase } from '../../common/index.mjs';
 import type {
   ArrowGraph,
   ArrowGraphHashed,
   ArrowGraphSorted,
-} from '@rimbu/graph';
-import type { RMap, RSet } from '@rimbu/collection-types';
+} from '#graph/main';
 
 export interface ArrowGraphCreators {
   /**

@@ -7,7 +7,7 @@ import type {
   ValuedLink,
   VariantGraphBase,
   WithGraphValues,
-} from '../../../common';
+} from '../../../common/index.mjs';
 
 export interface VariantValuedGraphBase<
   N,

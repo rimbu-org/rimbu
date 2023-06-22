@@ -3,7 +3,7 @@ import type {
   ValuedLink,
   VariantGraphBase,
   VariantValuedGraphBase,
-} from '@rimbu/graph/custom';
+} from '#graph/custom';
 
 /**
  * Utility type to determine if a graph has valued or unvalued links
