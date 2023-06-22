@@ -1,4 +1,4 @@
-import { DistanceFunction } from '../src/common';
+import { DistanceFunction } from '../src/common/index.mjs';
 
 describe('Default distance function', () => {
   describe.each([

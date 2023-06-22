@@ -10,5 +10,5 @@
  * - [`@rimbu/proximity/map`](/api/rimbu/proximity/map)<br/>
  */
 
-export * from '../common';
-export * from '../map';
+export * from '#proximity/common';
+export * from '#proximity/map';

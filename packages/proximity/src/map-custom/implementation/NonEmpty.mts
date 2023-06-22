@@ -2,17 +2,18 @@ import type { HashMap } from '@rimbu/hashed/map';
 import type { Token } from '@rimbu/base';
 import type { RMapBase } from '@rimbu/collection-types/map-custom';
 import {
-  RelatedTo,
-  ArrayNonEmpty,
+  type RelatedTo,
+  type ArrayNonEmpty,
   OptLazy,
   TraverseState,
-  ToJSON,
+  type ToJSON,
   OptLazyOr,
 } from '@rimbu/common';
 import type { Stream, StreamSource, FastIterator } from '@rimbu/stream';
-import { wrapHashMap } from '../wrapping';
-import type { ProximityMap } from '../../map';
-import { findNearestKeyMatch } from '../../common';
+
+import { wrapHashMap } from '../wrapping.mjs';
+import type { ProximityMap } from '#proximity/map';
+import { findNearestKeyMatch } from '#proximity/common';
 
 const toStringBeginning = /^[^(]+/;
 

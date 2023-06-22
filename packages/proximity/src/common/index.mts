@@ -1,2 +1,2 @@
-export * from './distanceFunction';
-export * from './keyMatching';
+export * from './distanceFunction.mjs';
+export * from './keyMatching.mjs';

@@ -1,4 +1,4 @@
-import type { Distance, DistanceFunction } from './distanceFunction';
+import type { Distance, DistanceFunction } from './distanceFunction.mjs';
 
 /**
  * Match between a reference key and the closest key in a [key, value] collection:

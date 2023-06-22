@@ -1,4 +1,8 @@
-import { Distance, DistanceFunction, findNearestKeyMatch } from '../src/common';
+import {
+  type Distance,
+  DistanceFunction,
+  findNearestKeyMatch,
+} from '../src/common/index.mjs';
 
 type TestSuite<TKey, TValue> = {
   keyTypeDescription: string;

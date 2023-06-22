@@ -2,7 +2,8 @@ import type { RMap } from '@rimbu/collection-types';
 import type { ArrayNonEmpty } from '@rimbu/common';
 import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-import type { ProximityMap } from '../src/map';
+
+import type { ProximityMap } from '../src/map/index.mjs';
 
 type GE<K, V> = ProximityMap<K, V>;
 type GNE<K, V> = ProximityMap.NonEmpty<K, V>;

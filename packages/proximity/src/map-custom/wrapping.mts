@@ -1,6 +1,6 @@
 import type { HashMap } from '@rimbu/hashed/map';
-import type { ProximityMap } from '../map';
-import { ProximityMapNonEmpty } from './implementation';
+import type { ProximityMap } from '#proximity/map';
+import { ProximityMapNonEmpty } from './implementation/index.mjs';
 
 export function wrapHashMap<K, V>(
   context: ProximityMap.Context<K>,

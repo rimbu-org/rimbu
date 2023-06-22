@@ -1,9 +1,13 @@
 import { RMapBase } from '@rimbu/collection-types/map-custom';
 import type { HashMap } from '@rimbu/hashed/map';
-import type { DistanceFunction } from '../common';
-import type { ProximityMap } from '../map';
-import { ProximityMapEmpty, ProximityMapNonEmpty } from './implementation';
-import { ProximityMapBuilder } from './builder';
+
+import type { DistanceFunction } from '#proximity/common';
+import type { ProximityMap } from '#proximity/map';
+import {
+  ProximityMapEmpty,
+  ProximityMapNonEmpty,
+} from './implementation/index.mjs';
+import { ProximityMapBuilder } from './builder.mjs';
 
 export class ProximityMapContext<UK>
   extends RMapBase.ContextBase<UK, ProximityMap.Types>

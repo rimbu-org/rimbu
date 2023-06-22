@@ -1,8 +1,9 @@
 import { Token } from '@rimbu/base';
 import { EmptyBase } from '@rimbu/collection-types/map-custom';
-import { OptLazy, OptLazyOr, ToJSON } from '@rimbu/common';
-import { Stream, StreamSource } from '@rimbu/stream';
-import type { ProximityMap } from '../../map';
+import { OptLazy, OptLazyOr, type ToJSON } from '@rimbu/common';
+import { Stream, type StreamSource } from '@rimbu/stream';
+
+import type { ProximityMap } from '#proximity/map';
 
 export class ProximityMapEmpty<K = any, V = any>
   extends EmptyBase
