@@ -1,9 +1,10 @@
+import type { BiMapContext, BiMapNonEmptyImpl } from '#bimap/custom';
+import type { BiMap } from '#bimap/main';
+
 import { RimbuError } from '@rimbu/base';
-import type { BiMap } from '@rimbu/bimap';
-import type { BiMapContext, BiMapNonEmptyImpl } from '@rimbu/bimap/custom';
 import type { RMap } from '@rimbu/collection-types/map';
-import { OptLazy, RelatedTo, TraverseState } from '@rimbu/common';
-import { Stream, StreamSource } from '@rimbu/stream';
+import { OptLazy, type RelatedTo, TraverseState } from '@rimbu/common';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
@@ -63,7 +64,8 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
     return this.keyValueMap.get(key, otherwise!);
   };
 
-  hasKey = <UK>(key: RelatedTo<K, UK>): boolean => {
+  // prettier-ignore
+  hasKey = <UK,>(key: RelatedTo<K, UK>): boolean => {
     const token = Symbol();
     return token !== this.getValue(key, token);
   };
@@ -73,7 +75,8 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
     return this.valueKeyMap.get(value, otherwise!);
   };
 
-  hasValue = <UV>(value: RelatedTo<V, UV>): boolean => {
+  // prettier-ignore
+  hasValue = <UV,>(value: RelatedTo<V, UV>): boolean => {
     const token = Symbol();
     return token !== this.getKey(value, token);
   };
@@ -148,7 +151,8 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
     return value;
   };
 
-  removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
+  // prettier-ignore
+  removeKeys = <UK,>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
     this.checkLock();
 
     if (isEmptyStreamSourceInstance(keys)) return false;
@@ -185,7 +189,8 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
     return key;
   };
 
-  removeValues = <UV>(values: StreamSource<RelatedTo<V, UV>>): boolean => {
+  // prettier-ignore
+  removeValues = <UV,>(values: StreamSource<RelatedTo<V, UV>>): boolean => {
     this.checkLock();
 
     if (isEmptyStreamSourceInstance(values)) return false;

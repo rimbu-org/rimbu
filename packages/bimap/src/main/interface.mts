@@ -1,5 +1,8 @@
-import { BiMapContext, BiMapCreators } from '@rimbu/bimap/custom';
+import type { BiMapFactory } from '#bimap/custom';
+import { BiMapContext, type BiMapCreators } from '#bimap/custom';
+
 import type { RMap } from '@rimbu/collection-types/map';
+import type { KeyValue } from '@rimbu/collection-types/map-custom';
 import type {
   ArrayNonEmpty,
   OptLazy,
@@ -12,11 +15,9 @@ import { HashMap } from '@rimbu/hashed';
 import type {
   FastIterable,
   Stream,
-  Streamable,
   StreamSource,
+  Streamable,
 } from '@rimbu/stream';
-import type { BiMapFactory } from '@rimbu/bimap/custom';
-import type { KeyValue } from '@rimbu/collection-types/map-custom';
 
 /**
  * A type-invariant immutable bi-directional Map where keys and values have a one-to-one mapping.

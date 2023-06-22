@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "rootDirs": [".", ".."],
+    "paths": {
+      "#bimap/*.mjs": ["./src/*.mjs"],
+      "#bimap/*": ["./src/*/index.mjs"]
+    }
+  }
+}

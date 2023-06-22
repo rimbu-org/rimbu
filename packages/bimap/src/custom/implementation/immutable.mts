@@ -1,16 +1,17 @@
-import type { BiMap } from '@rimbu/bimap';
-import type { BiMapContext } from '@rimbu/bimap/custom';
+import type { BiMapContext } from '#bimap/custom';
+import type { BiMap } from '#bimap/main';
+
 import type { RMap } from '@rimbu/collection-types/map';
 import { EmptyBase, NonEmptyBase } from '@rimbu/collection-types/map-custom';
 import {
-  ArrayNonEmpty,
+  type ArrayNonEmpty,
   OptLazy,
-  RelatedTo,
-  ToJSON,
+  type RelatedTo,
+  type ToJSON,
   TraverseState,
   Update,
 } from '@rimbu/common';
-import { Stream, StreamSource } from '@rimbu/stream';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 export class BiMapEmpty<K = any, V = any>

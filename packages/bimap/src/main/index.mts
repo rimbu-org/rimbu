@@ -6,4 +6,4 @@
  * See the [Rimbu docs BiMap page](/docs/collections/bimap) for more information.
  */
 
-export * from './interface';
+export * from './interface.mjs';

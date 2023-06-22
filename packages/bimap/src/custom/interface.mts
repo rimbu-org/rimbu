@@ -1,7 +1,8 @@
-import type { BiMap } from '@rimbu/bimap';
+import type { BiMap } from '#bimap/main';
+
+import type { RMap } from '@rimbu/collection-types';
 import type { ArrayNonEmpty, Reducer } from '@rimbu/common';
 import type { StreamSource } from '@rimbu/stream';
-import type { RMap } from '@rimbu/collection-types';
 
 export interface BiMapFactory<UK = unknown, UV = unknown> {
   /**
