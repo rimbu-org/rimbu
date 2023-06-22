@@ -1,11 +1,11 @@
 import {
-  AsyncCollectFun,
+  type AsyncCollectFun,
   AsyncOptLazy,
   CollectFun,
-  MaybePromise,
+  type MaybePromise,
   Reducer,
   Eq,
-} from './internal';
+} from './internal.mjs';
 
 /**
  * An `AsyncReducer` is a stand-alone asynchronous calculation that takes input values of type I,
@@ -456,10 +456,11 @@ export namespace AsyncReducer {
    * // => 3
    * ```
    */
+  // prettier-ignore
   export const min: {
     (): AsyncReducer<number, number | undefined>;
     <O>(otherwise: AsyncOptLazy<O>): AsyncReducer<number, number | O>;
-  } = <O>(otherwise?: AsyncOptLazy<O>) => {
+  } = <O,>(otherwise?: AsyncOptLazy<O>) => {
     return create<number, number | O, number | undefined>(
       undefined,
       (state, next): number =>
@@ -514,10 +515,11 @@ export namespace AsyncReducer {
    * // => 7
    * ```
    */
+  // prettier-ignore
   export const max: {
     (): AsyncReducer<number, number | undefined>;
     <O>(otherwise: AsyncOptLazy<O>): AsyncReducer<number, number | O>;
-  } = <O>(otherwise?: AsyncOptLazy<O>): AsyncReducer<number, number | O> => {
+  } = <O,>(otherwise?: AsyncOptLazy<O>): AsyncReducer<number, number | O> => {
     return create<number, number | O, number | undefined>(
       undefined,
       (state, next): number =>

@@ -1,4 +1,4 @@
-import { TraverseState } from '@rimbu/common';
+import { TraverseState } from '../src/index.mjs';
 
 describe('TraverseState', () => {
   it('default', () => {

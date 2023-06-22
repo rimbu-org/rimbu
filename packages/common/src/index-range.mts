@@ -1,4 +1,4 @@
-import type { Range } from './internal';
+import type { Range } from './internal.mjs';
 
 /**
  * A flexible range specification for numeric indices.

@@ -1,5 +1,6 @@
 import { AsyncStream } from '@rimbu/stream';
-import { AsyncReducer, Comp, Eq } from '@rimbu/common';
+
+import { AsyncReducer, Comp, Eq } from '../src/index.mjs';
 
 describe('AsyncReducer', () => {
   const FB = 'a';
@@ -377,7 +378,7 @@ describe('AsyncReducer', () => {
   });
 
   it('filterInput', async () => {
-    const close = jest.fn();
+    const close = vi.fn();
     const sumDouble = AsyncReducer.createMono(
       async () => 0,
       async (c, v) => c + v,
@@ -390,7 +391,7 @@ describe('AsyncReducer', () => {
   });
 
   it('mapInput', async () => {
-    const close = jest.fn();
+    const close = vi.fn();
     const sumDouble = AsyncReducer.createMono(
       async () => 0,
       async (c, v) => c + v,
@@ -405,7 +406,7 @@ describe('AsyncReducer', () => {
   });
 
   it('collectInput', async () => {
-    const close = jest.fn();
+    const close = vi.fn();
     const sumDouble = AsyncReducer.createMono(
       async () => 0,
       async (c, v) => c + v,
@@ -428,7 +429,7 @@ describe('AsyncReducer', () => {
   });
 
   it('mapOutput', async () => {
-    const close = jest.fn();
+    const close = vi.fn();
     const sumDouble = AsyncReducer.createMono(
       async () => 0,
       async (c, v) => c + v,
@@ -441,7 +442,7 @@ describe('AsyncReducer', () => {
   });
 
   it('takeInput', async () => {
-    const close = jest.fn();
+    const close = vi.fn();
     const sumDouble = AsyncReducer.createMono(
       async () => 0,
       async (c, v) => c + v,
@@ -454,7 +455,7 @@ describe('AsyncReducer', () => {
   });
 
   it('dropInput', async () => {
-    const close = jest.fn();
+    const close = vi.fn();
     const sumDouble = AsyncReducer.createMono(
       async () => 0,
       async (c, v) => c + v,
@@ -467,7 +468,7 @@ describe('AsyncReducer', () => {
   });
 
   it('sliceInput', async () => {
-    const close = jest.fn();
+    const close = vi.fn();
     const sumDouble = AsyncReducer.createMono(
       async () => 0,
       async (c, v) => c + v,

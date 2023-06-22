@@ -1,4 +1,4 @@
-import { Comp } from '@rimbu/common';
+import { Comp } from '../src/index.mjs';
 
 describe('Comp', () => {
   it('stringComp', () => {

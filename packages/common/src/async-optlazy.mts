@@ -1,4 +1,4 @@
-import type { OptLazy } from './internal';
+import type { OptLazy } from './internal.mjs';
 
 /**
  * A type that is either a value T or a promise yielding a value of type T.

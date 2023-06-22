@@ -1,4 +1,4 @@
-import { Update } from '@rimbu/common';
+import { Update } from '../src/index.mjs';
 
 describe('Update', () => {
   it('updates', () => {

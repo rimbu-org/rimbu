@@ -1,4 +1,4 @@
-import { Range } from '@rimbu/common';
+import { Range } from '../src/index.mjs';
 
 describe('getNormalizedRange', () => {
   it('correctly returns range', () => {

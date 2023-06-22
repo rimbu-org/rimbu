@@ -1,6 +1,6 @@
 import { expectAssignable } from 'tsd';
 
-import { Reducer, AsyncReducer, OptLazy, AsyncOptLazy } from '../src';
+import { Reducer, AsyncReducer, OptLazy, AsyncOptLazy } from '../src/index.mjs';
 
 const reducer = Reducer.sum;
 

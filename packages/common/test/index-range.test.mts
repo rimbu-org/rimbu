@@ -1,4 +1,4 @@
-import { IndexRange } from '@rimbu/common';
+import { IndexRange } from '../src/index.mjs';
 
 describe('IndexRange', () => {
   it('getIndexRangeIndices', () => {

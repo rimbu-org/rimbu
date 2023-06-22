@@ -1,4 +1,4 @@
-import { Err, ErrBase } from '@rimbu/common';
+import { Err, ErrBase } from '../src/index.mjs';
 
 describe('Err/Base', () => {
   it('throws error', () => {

@@ -1,6 +1,7 @@
 import { Stream } from '@rimbu/stream';
-import { Reducer } from '@rimbu/common';
 import { expectType } from 'tsd';
+
+import { Reducer } from '@rimbu/common';
 
 expectType<Reducer<number, [number[], number]>>(
   Reducer.combineArr(Reducer.toArray(), Reducer.sum)

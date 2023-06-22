@@ -1,4 +1,4 @@
-import type { MaybePromise } from './internal';
+import type { MaybePromise } from './internal.mjs';
 
 /**
  * A function used in `collect` methods to collect values from a collection. This is basically a single-pass map and filter.

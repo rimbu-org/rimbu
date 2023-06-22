@@ -1,4 +1,4 @@
-import { Eq } from '@rimbu/common';
+import { Eq } from '../src/index.mjs';
 
 describe('Eq', () => {
   it('objectIs', () => {

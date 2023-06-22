@@ -1,6 +1,6 @@
 import { Stream } from '@rimbu/stream';
 
-import { Comp, Eq, Reducer } from '@rimbu/common';
+import { Comp, Eq, Reducer } from '../src/index.mjs';
 
 describe('Reducer', () => {
   it('create', () => {

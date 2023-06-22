@@ -1,4 +1,4 @@
-import { Eq } from './internal';
+import { Eq } from './internal.mjs';
 
 /**
  * An object providing methods to compare two values of type `K`.
