@@ -1,4 +1,4 @@
-import { Reducer } from '@rimbu/common';
+import { Comp, Reducer } from '@rimbu/common';
 import { SortedSet } from '@rimbu/sorted';
 import type { SortedSetBuilder } from '@rimbu/sorted/set-custom';
 import { Stream } from '@rimbu/stream';
@@ -222,5 +222,54 @@ describe('builder specific', () => {
     expect(builder.size).toBe(10);
     expect(builder.entries).toEqual([10, 20]);
     expect(builder.children[2].entries).toEqual([22, 25]);
+  });
+});
+
+class Letter {
+  constructor(readonly name: string) {}
+}
+
+function createLetterComp(): Comp<Letter> {
+  return {
+    compare(value1: Letter, value2: Letter): number {
+      return value1.name.localeCompare(value2.name, ['es']);
+    },
+
+    isComparable(obj): obj is Letter {
+      return obj instanceof Letter;
+    },
+  };
+}
+
+describe('builder with classes', () => {
+  it('add', () => {
+    const comp = createLetterComp();
+
+    const builder = SortedSet.createContext({
+      comp,
+    }).builder();
+
+    const alpha = new Letter('Alpha');
+    const beta = new Letter('Beta');
+
+    const equalAlpha = new Letter(alpha.name);
+    const equalBeta = new Letter(beta.name);
+
+    expect(comp.compare(alpha, alpha)).toBe(0);
+    expect(comp.compare(alpha, equalAlpha)).toBe(0);
+    expect(comp.compare(beta, beta)).toBe(0);
+    expect(comp.compare(beta, equalBeta)).toBe(0);
+    expect(comp.compare(alpha, beta)).not.toBe(0);
+
+    expect(builder.add(alpha)).toBe(true);
+    expect(builder.add(beta)).toBe(true);
+
+    expect(builder.add(alpha)).toBe(false);
+
+    expect(builder.add(equalAlpha)).toBe(false);
+    expect(builder.add(equalBeta)).toBe(false);
+
+    const actualSet = builder.build();
+    expect(actualSet.size).toBe(2);
   });
 });
