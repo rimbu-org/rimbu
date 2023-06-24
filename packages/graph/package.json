@@ -106,12 +106,12 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@rimbu/base": "^0.11.4",
-    "@rimbu/collection-types": "^0.10.6",
-    "@rimbu/common": "*",
-    "@rimbu/hashed": "^0.9.6",
-    "@rimbu/sorted": "^0.10.6",
-    "@rimbu/stream": "^0.13.6",
+    "@rimbu/base": "file:../base",
+    "@rimbu/collection-types": "file:../collection-types",
+    "@rimbu/common": "file:../common",
+    "@rimbu/hashed": "file:../hashed",
+    "@rimbu/sorted": "file:../sorted",
+    "@rimbu/stream": "file:../stream",
     "tslib": "^2.5.3"
   },
   "publishConfig": {

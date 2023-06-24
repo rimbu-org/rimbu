@@ -91,7 +91,7 @@
     "build:deno": "yarn bundle:deno-prepare && yarn bundle:deno-convert && yarn bundle:deno-move && yarn bundle:deno-clean",
     "bundle": "yarn bundle:cjs && yarn bundle:esm && yarn bundle:types && yarn bundle:bun",
     "bundle:bun": "node ../../config/bunnify.mjs",
-    "bundle:cjs": "tsup src --format cjs --clean -d dist/cjs --loader '.mts=ts' --legacy-output",
+    "bundle:cjs": "tsup src --format cjs --clean -d dist/cjs --loader '.mts=ts' --legacy-output --external @rimbu/base --external @rimbu/stream",
     "bundle:deno-prepare": "node ../../config/prepare-denoify.mjs",
     "bundle:deno-convert": "denoify --src _deno_prepare/src",
     "bundle:deno-move": "rimraf ../../deno_dist/actor && mv deno_dist ../../deno_dist/actor",
@@ -109,14 +109,14 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@rimbu/common": "^0.12.3",
+    "@rimbu/common": "file:../common",
     "tslib": "^2.5.3"
   },
   "publishConfig": {
     "access": "public"
   },
   "devDependencies": {
-    "@rimbu/stream": "^0.13.6",
+    "@rimbu/stream": "file:../stream",
     "happy-dom": "^9.20.3",
     "immer": "^9.0.16"
   }
