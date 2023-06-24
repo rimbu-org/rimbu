@@ -1,8 +1,8 @@
 import { RimbuError } from '../../../base/mod.ts';
 import { OptLazy, TraverseState, Update } from '../../../common/mod.ts';
-import { Stream, StreamSource } from '../../../stream/mod.ts';
+import { Stream, type StreamSource } from '../../../stream/mod.ts';
 
-import type { List } from '../../../list/mod.ts';
+import type { List } from '../../../list/main/index.ts';
 import type { LeafBuilder, ListContext } from '../../../list/custom/index.ts';
 
 export class GenBuilder<T> implements List.Builder<T> {
@@ -24,7 +24,8 @@ export class GenBuilder<T> implements List.Builder<T> {
     return this.length === 0;
   }
 
-  get = <O>(index: number, otherwise?: OptLazy<O>): T | O => {
+  // prettier-ignore
+  get = <O,>(index: number, otherwise?: OptLazy<O>): T | O => {
     if (
       undefined === this.builder ||
       index >= this.length ||
@@ -39,7 +40,8 @@ export class GenBuilder<T> implements List.Builder<T> {
     return this.builder.get(index, otherwise);
   };
 
-  updateAt = <O>(
+  // prettier-ignore
+  updateAt = <O,>(
     index: number,
     update: Update<T>,
     otherwise?: OptLazy<O>
@@ -60,7 +62,8 @@ export class GenBuilder<T> implements List.Builder<T> {
     return this.builder.updateAt(index, update);
   };
 
-  set = <O>(index: number, value: T, otherwise?: OptLazy<O>): T | O => {
+  // prettier-ignore
+  set = <O,>(index: number, value: T, otherwise?: OptLazy<O>): T | O => {
     return this.updateAt(index, value, otherwise);
   };
 
@@ -181,7 +184,8 @@ export class GenBuilder<T> implements List.Builder<T> {
     }
   };
 
-  remove = <O>(index: number, otherwise?: OptLazy<O>): T | O => {
+  // prettier-ignore
+  remove = <O,>(index: number, otherwise?: OptLazy<O>): T | O => {
     this.checkLock();
 
     if (
@@ -227,7 +231,8 @@ export class GenBuilder<T> implements List.Builder<T> {
     return result;
   };
 
-  buildMap = <T2>(f: (value: T) => T2): List<T2> => {
+  // prettier-ignore
+  buildMap = <T2,>(f: (value: T) => T2): List<T2> => {
     if (undefined === this.builder) {
       return this.context.empty();
     }

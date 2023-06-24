@@ -1,5 +1,4 @@
 import type { VariantMapBase } from '../../../collection-types/map-custom/index.ts';
-import type { Streamable } from '../../../stream/mod.ts';
 
 /**
  * A type-variant immutable Map of key type K, and value type V.
@@ -31,8 +30,7 @@ export namespace VariantMap {
    */
   export interface NonEmpty<K, V>
     extends VariantMapBase.NonEmpty<K, V, VariantMap.Types>,
-      Omit<VariantMap<K, V>, keyof VariantMapBase.NonEmpty<any, any, any>>,
-      Streamable.NonEmpty<readonly [K, V]> {}
+      Omit<VariantMap<K, V>, keyof VariantMapBase.NonEmpty<any, any, any>> {}
 
   /**
    * Utility interface that provides higher-kinded types for this collection.

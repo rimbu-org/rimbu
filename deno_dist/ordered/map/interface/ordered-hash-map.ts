@@ -1,8 +1,9 @@
 import { HashMap } from '../../../hashed/map/index.ts';
 import { List } from '../../../list/mod.ts';
+import type { Stream, Streamable } from '../../../stream/mod.ts';
+
 import type { OrderedMapBase } from '../../../ordered/map-custom/index.ts';
 import { OrderedMapContextImpl } from '../../../ordered/map-custom/index.ts';
-import type { Stream, Streamable } from '../../../stream/mod.ts';
 import type { OrderedHashMapCreators } from '../../../ordered/map-custom/index.ts';
 
 /**

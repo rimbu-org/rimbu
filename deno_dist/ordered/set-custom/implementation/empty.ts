@@ -1,11 +1,9 @@
-import { EmptyBase, WithElem } from '../../../collection-types/set-custom/index.ts';
+import { EmptyBase, type WithElem } from '../../../collection-types/set-custom/index.ts';
 import type { ToJSON } from '../../../common/mod.ts';
 import type { List } from '../../../list/mod.ts';
-import type {
-  OrderedSetBase,
-  OrderedSetTypes,
-} from '../../../ordered/set-custom/index.ts';
 import type { StreamSource } from '../../../stream/mod.ts';
+
+import type { OrderedSetBase, OrderedSetTypes } from '../../../ordered/set-custom/index.ts';
 
 export class OrderedSetEmpty<
     T,

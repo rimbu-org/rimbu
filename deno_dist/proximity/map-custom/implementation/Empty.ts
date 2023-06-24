@@ -1,8 +1,9 @@
 import { Token } from '../../../base/mod.ts';
 import { EmptyBase } from '../../../collection-types/map-custom/index.ts';
-import { OptLazy, OptLazyOr, ToJSON } from '../../../common/mod.ts';
-import { Stream, StreamSource } from '../../../stream/mod.ts';
-import type { ProximityMap } from '../../map/index.ts';
+import { OptLazy, OptLazyOr, type ToJSON } from '../../../common/mod.ts';
+import { Stream, type StreamSource } from '../../../stream/mod.ts';
+
+import type { ProximityMap } from '../../../proximity/map/index.ts';
 
 export class ProximityMapEmpty<K = any, V = any>
   extends EmptyBase

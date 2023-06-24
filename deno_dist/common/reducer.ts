@@ -389,10 +389,11 @@ export namespace Reducer {
    * // => 3
    * ```
    */
+  // prettier-ignore
   export const min: {
     (): Reducer<number, number | undefined>;
     <O>(otherwise: OptLazy<O>): Reducer<number, number | O>;
-  } = <O>(otherwise?: OptLazy<O>) => {
+  } = <O,>(otherwise?: OptLazy<O>) => {
     return create<number, number | O, number | undefined>(
       undefined,
       (state, next): number =>
@@ -442,10 +443,11 @@ export namespace Reducer {
    * // => 7
    * ```
    */
+  // prettier-ignore
   export const max: {
     (): Reducer<number, number | undefined>;
     <O>(otherwise: OptLazy<O>): Reducer<number, number | O>;
-  } = <O>(otherwise?: OptLazy<O>): Reducer<number, number | O> => {
+  } = <O,>(otherwise?: OptLazy<O>): Reducer<number, number | O> => {
     return create<number, number | O, number | undefined>(
       undefined,
       (state, next): number =>

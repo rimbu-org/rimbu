@@ -1,9 +1,10 @@
-import { RimbuError } from '../../../base/mod.ts';
-import type { BiMap } from '../../../bimap/mod.ts';
 import type { BiMapContext, BiMapNonEmptyImpl } from '../../../bimap/custom/index.ts';
+import type { BiMap } from '../../../bimap/main/index.ts';
+
+import { RimbuError } from '../../../base/mod.ts';
 import type { RMap } from '../../../collection-types/map/index.ts';
-import { OptLazy, RelatedTo, TraverseState } from '../../../common/mod.ts';
-import { Stream, StreamSource } from '../../../stream/mod.ts';
+import { OptLazy, type RelatedTo, TraverseState } from '../../../common/mod.ts';
+import { Stream, type StreamSource } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
@@ -63,7 +64,8 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
     return this.keyValueMap.get(key, otherwise!);
   };
 
-  hasKey = <UK>(key: RelatedTo<K, UK>): boolean => {
+  // prettier-ignore
+  hasKey = <UK,>(key: RelatedTo<K, UK>): boolean => {
     const token = Symbol();
     return token !== this.getValue(key, token);
   };
@@ -73,7 +75,8 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
     return this.valueKeyMap.get(value, otherwise!);
   };
 
-  hasValue = <UV>(value: RelatedTo<V, UV>): boolean => {
+  // prettier-ignore
+  hasValue = <UV,>(value: RelatedTo<V, UV>): boolean => {
     const token = Symbol();
     return token !== this.getKey(value, token);
   };
@@ -148,7 +151,8 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
     return value;
   };
 
-  removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
+  // prettier-ignore
+  removeKeys = <UK,>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
     this.checkLock();
 
     if (isEmptyStreamSourceInstance(keys)) return false;
@@ -185,7 +189,8 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
     return key;
   };
 
-  removeValues = <UV>(values: StreamSource<RelatedTo<V, UV>>): boolean => {
+  // prettier-ignore
+  removeValues = <UV,>(values: StreamSource<RelatedTo<V, UV>>): boolean => {
     this.checkLock();
 
     if (isEmptyStreamSourceInstance(values)) return false;

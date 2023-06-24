@@ -1,6 +1,5 @@
 import type { RelatedTo, ToJSON, TraverseState } from '../../../../common/mod.ts';
-
-import { Stream, StreamSource } from '../../../../stream/mod.ts';
+import { Stream, type StreamSource } from '../../../../stream/mod.ts';
 import { NonEmptyBase } from '../../../../collection-types/map-custom/index.ts';
 
 import type { GraphTypesContextImpl } from '../../../../graph/custom/index.ts';

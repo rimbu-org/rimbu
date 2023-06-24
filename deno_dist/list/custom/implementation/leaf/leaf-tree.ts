@@ -1,6 +1,6 @@
 import { RimbuError } from '../../../../base/mod.ts';
 import {
-  ArrayNonEmpty,
+  type ArrayNonEmpty,
   IndexRange,
   OptLazy,
   TraverseState,
@@ -8,7 +8,7 @@ import {
 } from '../../../../common/mod.ts';
 import type { Stream, StreamSource } from '../../../../stream/mod.ts';
 
-import type { List } from '../../../../list/mod.ts';
+import type { List } from '../../../../list/main/index.ts';
 import type { LeafBlock, ListContext, NonLeaf, Tree } from '../../../../list/custom/index.ts';
 import {
   treeAppend,

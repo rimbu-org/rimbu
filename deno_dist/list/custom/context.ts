@@ -1,10 +1,10 @@
 import { RimbuError } from '../../base/mod.ts';
 import type { ArrayNonEmpty } from '../../common/mod.ts';
 import { Reducer } from '../../common/mod.ts';
-import { Stream, StreamSource } from '../../stream/mod.ts';
+import { Stream, type StreamSource } from '../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../stream/custom/index.ts';
 
-import type { List } from '../../list/mod.ts';
+import type { List } from '../../list/main/index.ts';
 import type {
   Block,
   BlockBuilder,
@@ -50,7 +50,8 @@ export class ListContext implements List.Context {
     return undefined as any;
   }
 
-  readonly builder = <T>(): GenBuilder<T> => {
+  // prettier-ignore
+  readonly builder = <T,>(): GenBuilder<T> => {
     return new GenBuilder<T>(this);
   };
 
@@ -74,16 +75,21 @@ export class ListContext implements List.Context {
 
   readonly _empty: List<any> = createEmptyList(this);
 
-  readonly empty = <T>(): List<T> => {
+  // prettier-ignore
+  readonly empty = <T,>(): List<T> => {
     return this._empty;
   };
 
-  readonly of = <T>(...values: ArrayNonEmpty<T>): List.NonEmpty<T> => {
-    if (values.length <= this.maxBlockSize) return this.leafBlock(values);
+  // prettier-ignore
+  readonly of = <T,>(...values: ArrayNonEmpty<T>): List.NonEmpty<T> => {
+    if (values.length <= this.maxBlockSize) {
+      return this.leafBlock<T>(values);
+    }
     return this.from(values);
   };
 
-  readonly from = <T>(...sources: ArrayNonEmpty<StreamSource<T>>): any => {
+  // prettier-ignore
+  readonly from = <T,>(...sources: ArrayNonEmpty<StreamSource<T>>): any => {
     if (sources.length === 1) {
       const source = sources[0];
       if ((source as any).context === this) return source;
@@ -100,7 +106,7 @@ export class ListContext implements List.Context {
       if (!isEmptyStreamSourceInstance(source)) {
         if ((source as any).context === this) {
           if (null === result) result = source as any as List<T>;
-          else result = result.concat(source);
+          else result = result.concat<T>(source);
         } else {
           const builder = this.builder<T>();
 
@@ -124,7 +130,8 @@ export class ListContext implements List.Context {
     return this.from(...sources);
   };
 
-  readonly reducer = <T>(source?: StreamSource<T>): Reducer<T, List<T>> => {
+  // prettier-ignore
+  readonly reducer = <T,>(source?: StreamSource<T>): Reducer<T, List<T>> => {
     return Reducer.create(
       () =>
         undefined === source

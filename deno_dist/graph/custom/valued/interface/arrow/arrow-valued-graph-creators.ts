@@ -1,13 +1,13 @@
 import type { HashMap } from '../../../../../hashed/mod.ts';
 import type { SortedMap } from '../../../../../sorted/mod.ts';
+import type { RMap } from '../../../../../collection-types/mod.ts';
 
 import type {
   ArrowValuedGraph,
   ArrowValuedGraphHashed,
   ArrowValuedGraphSorted,
-} from '../../../../../graph/mod.ts';
+} from '../../../../../graph/main/index.ts';
 import type { ValuedGraphBase } from '../../../../../graph/custom/index.ts';
-import type { RMap } from '../../../../../collection-types/mod.ts';
 
 export interface ArrowValuedGraphCreators {
   /**

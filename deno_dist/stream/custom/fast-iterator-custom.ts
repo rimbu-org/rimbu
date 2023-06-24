@@ -1,6 +1,7 @@
 import { Token } from '../../base/mod.ts';
 import { CollectFun, Eq, OptLazy, Reducer, TraverseState } from '../../common/mod.ts';
-import type { FastIterator, Stream, StreamSource } from '../../stream/mod.ts';
+
+import type { FastIterator, Stream, StreamSource } from '../../stream/main/index.ts';
 import type { StreamSourceHelpers } from '../../stream/custom/index.ts';
 
 export const fixedDoneIteratorResult: IteratorResult<any> = Object.freeze({

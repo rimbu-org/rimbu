@@ -5,7 +5,8 @@ import type {
   OptLazy,
   StringNonEmpty,
 } from '../../common/mod.ts';
-import type { Stream, StreamSource } from '../../stream/mod.ts';
+
+import type { Stream, StreamSource } from '../../stream/main/index.ts';
 
 export interface StreamConstructors {
   /**

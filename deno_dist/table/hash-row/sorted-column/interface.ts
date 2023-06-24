@@ -1,9 +1,10 @@
 import { HashMap } from '../../../hashed/map/index.ts';
 import { SortedMap } from '../../../sorted/map/index.ts';
 import type { Streamable } from '../../../stream/mod.ts';
+
 import {
-  HashTableSortedColumnCreators,
-  TableBase,
+  type HashTableSortedColumnCreators,
+  type TableBase,
   TableContext,
 } from '../../../table/custom/index.ts';
 

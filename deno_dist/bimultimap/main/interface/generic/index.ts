@@ -1,10 +1,11 @@
+import {
+  type BiMultiMapBase,
+  BiMultiMapContext,
+  type BiMultiMapGeneric,
+} from '../../../../bimultimap/custom/index.ts';
+
 import type { MultiMap } from '../../../../multimap/mod.ts';
 import type { Streamable } from '../../../../stream/mod.ts';
-import {
-  BiMultiMapBase,
-  BiMultiMapContext,
-  BiMultiMapGeneric,
-} from '../../../../bimultimap/custom/index.ts';
 
 /**
  * A type-invariant immutable bi-directional MultiMap where keys and values have a

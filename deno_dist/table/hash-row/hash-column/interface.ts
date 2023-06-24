@@ -1,8 +1,9 @@
 import { HashMap } from '../../../hashed/map/index.ts';
 import type { Streamable } from '../../../stream/mod.ts';
+
 import {
-  HashTableHashColumnCreators,
-  TableBase,
+  type HashTableHashColumnCreators,
+  type TableBase,
   TableContext,
 } from '../../../table/custom/index.ts';
 /**

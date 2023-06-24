@@ -1,4 +1,4 @@
-import type { Stream, Streamable } from '../../stream/mod.ts';
+import type { Stream, Streamable } from '../../stream/main/index.ts';
 
 /**
  * Any object that is Iterable, a Stream, or can produce a Stream.

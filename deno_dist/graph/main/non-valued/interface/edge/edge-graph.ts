@@ -2,7 +2,6 @@ import type { RMap, RSet } from '../../../../../collection-types/mod.ts';
 import type { Stream, Streamable } from '../../../../../stream/mod.ts';
 
 import type { EdgeGraphCreators, GraphElement } from '../../../../../graph/custom/index.ts';
-
 import { type EdgeGraphBase, GraphContext } from '../../../../../graph/custom/index.ts';
 
 /**

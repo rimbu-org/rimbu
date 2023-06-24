@@ -1,12 +1,10 @@
 import { RimbuError } from '../../../base/mod.ts';
 import type { WithElem } from '../../../collection-types/set-custom/index.ts';
-import { RelatedTo, TraverseState } from '../../../common/mod.ts';
+import { type RelatedTo, TraverseState } from '../../../common/mod.ts';
 import type { List } from '../../../list/mod.ts';
-import type {
-  OrderedSetBase,
-  OrderedSetTypes,
-} from '../../../ordered/set-custom/index.ts';
-import { Stream, StreamSource } from '../../../stream/mod.ts';
+import { Stream, type StreamSource } from '../../../stream/mod.ts';
+
+import type { OrderedSetBase, OrderedSetTypes } from '../../../ordered/set-custom/index.ts';
 
 export class OrderedSetBuilder<
   T,
@@ -58,7 +56,8 @@ export class OrderedSetBuilder<
     return this.size === 0;
   }
 
-  has = <U>(value: RelatedTo<T, U>): boolean => {
+  // prettier-ignore
+  has = <U,>(value: RelatedTo<T, U>): boolean => {
     return this.source?.has(value) ?? this.setBuilder.has(value);
   };
 
@@ -81,7 +80,8 @@ export class OrderedSetBuilder<
     return Stream.from(source).filterPure(this.add).count() > 0;
   };
 
-  remove = <U>(value: RelatedTo<T, U>): boolean => {
+  // prettier-ignore
+  remove = <U,>(value: RelatedTo<T, U>): boolean => {
     this.checkLock();
 
     if (!this.context.setContext.isValidValue(value)) return false;
@@ -104,7 +104,8 @@ export class OrderedSetBuilder<
     return changed;
   };
 
-  removeAll = <U>(values: StreamSource<RelatedTo<T, U>>): boolean => {
+  // prettier-ignore
+  removeAll = <U,>(values: StreamSource<RelatedTo<T, U>>): boolean => {
     this.checkLock();
 
     return Stream.from(values).filterPure(this.remove).count() > 0;

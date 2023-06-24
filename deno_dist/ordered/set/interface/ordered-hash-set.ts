@@ -1,11 +1,12 @@
 import { HashSet } from '../../../hashed/set/index.ts';
 import { List } from '../../../list/mod.ts';
+import type { Stream, Streamable } from '../../../stream/mod.ts';
+
 import type {
   OrderedHashSetCreators,
   OrderedSetBase,
 } from '../../../ordered/set-custom/index.ts';
 import { OrderedSetContextImpl } from '../../../ordered/set-custom/index.ts';
-import type { Stream, Streamable } from '../../../stream/mod.ts';
 
 /**
  * A type-invariant immutable Ordered HashSet of value type T.

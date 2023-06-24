@@ -2,12 +2,13 @@ import type { RMap } from '../../../collection-types/mod.ts';
 import type { RMapBase } from '../../../collection-types/map-custom/index.ts';
 import type { HashMap } from '../../../hashed/mod.ts';
 import type { List } from '../../../list/mod.ts';
+import type { SortedMap } from '../../../sorted/mod.ts';
+
 import type {
   OrderedHashMap,
   OrderedMap,
   OrderedSortedMap,
 } from '../../../ordered/map/index.ts';
-import type { SortedMap } from '../../../sorted/mod.ts';
 
 export interface OrderedMapCreators {
   /**

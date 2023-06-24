@@ -1,4 +1,4 @@
-import type { FastIterator } from '../../stream/mod.ts';
+import type { FastIterator } from './index.ts';
 
 /**
  * An interface that extends the standard `Iterable` interface to return

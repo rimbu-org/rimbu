@@ -1,6 +1,6 @@
 import { RimbuError, Token } from '../../base/mod.ts';
 import {
-  ArrayNonEmpty,
+  type ArrayNonEmpty,
   CollectFun,
   Comp,
   Eq,
@@ -9,15 +9,16 @@ import {
   OptLazy,
   Range,
   Reducer,
-  ToJSON,
+  type ToJSON,
   TraverseState,
 } from '../../common/mod.ts';
+
 import type {
   FastIterator,
   Stream,
   StreamSource,
   Transformer,
-} from '../../stream/mod.ts';
+} from '../../stream/main/index.ts';
 import type { StreamConstructors } from '../../stream/custom/index.ts';
 import {
   AlwaysIterator,
@@ -1828,7 +1829,7 @@ export function isStream(obj: any): obj is Stream<any> {
 export const fromStreamSource: {
   <T>(source: StreamSource.NonEmpty<T>): Stream.NonEmpty<T>;
   <T>(source: StreamSource<T>): Stream<T>;
-} = <T>(source: StreamSource<T>): any => {
+} = (source: StreamSource<any>): any => {
   if (undefined === source || isEmptyStreamSourceInstance(source))
     return emptyStream;
   if (isStream(source)) return source;

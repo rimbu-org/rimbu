@@ -1,5 +1,8 @@
-import { BiMapContext, BiMapCreators } from '../../bimap/custom/index.ts';
+import type { BiMapFactory } from '../../bimap/custom/index.ts';
+import { BiMapContext, type BiMapCreators } from '../../bimap/custom/index.ts';
+
 import type { RMap } from '../../collection-types/map/index.ts';
+import type { KeyValue } from '../../collection-types/map-custom/index.ts';
 import type {
   ArrayNonEmpty,
   OptLazy,
@@ -12,11 +15,9 @@ import { HashMap } from '../../hashed/mod.ts';
 import type {
   FastIterable,
   Stream,
-  Streamable,
   StreamSource,
+  Streamable,
 } from '../../stream/mod.ts';
-import type { BiMapFactory } from '../../bimap/custom/index.ts';
-import type { KeyValue } from '../../collection-types/map-custom/index.ts';
 
 /**
  * A type-invariant immutable bi-directional Map where keys and values have a one-to-one mapping.

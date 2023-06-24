@@ -1,11 +1,12 @@
 import { List } from '../../../list/mod.ts';
-import {
-  OrderedMapBase,
-  OrderedMapContextImpl,
-  OrderedSortedMapCreators,
-} from '../../../ordered/map-custom/index.ts';
 import { SortedMap } from '../../../sorted/map/index.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
+
+import {
+  type OrderedMapBase,
+  OrderedMapContextImpl,
+  type OrderedSortedMapCreators,
+} from '../../../ordered/map-custom/index.ts';
 
 /**
  * A type-invariant immutable Ordered SortedMap of key type K, and value type V.

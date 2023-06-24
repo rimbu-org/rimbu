@@ -1,13 +1,14 @@
 import type { RMap } from '../../../collection-types/mod.ts';
 import type { HashMap } from '../../../hashed/mod.ts';
 import type { SortedMap } from '../../../sorted/mod.ts';
+
 import type {
   HashTableHashColumn,
   HashTableSortedColumn,
   SortedTableHashColumn,
   SortedTableSortedColumn,
   Table,
-} from '../../../table/mod.ts';
+} from '../../../table/main/index.ts';
 import type { TableBase } from '../../../table/custom/index.ts';
 
 export interface TableCreators {

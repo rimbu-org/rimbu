@@ -1,7 +1,8 @@
-import { RSetBase, WithElem } from '../../../collection-types/set-custom/index.ts';
+import { RSetBase, type WithElem } from '../../../collection-types/set-custom/index.ts';
 import type { List } from '../../../list/mod.ts';
+
 import {
-  OrderedSetBase,
+  type OrderedSetBase,
   OrderedSetBuilder,
   OrderedSetEmpty,
   OrderedSetNonEmpty,

@@ -1,5 +1,6 @@
-import type { VariantMultiSetBase } from '../../../../multiset/custom/index.ts';
 import type { Streamable } from '../../../../stream/mod.ts';
+
+import type { VariantMultiSetBase } from '../../../../multiset/custom/index.ts';
 
 /**
  * A type-variant immutable MultiSet of value type T.

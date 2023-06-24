@@ -1,9 +1,10 @@
 import {
-  BiMultiMapBase,
+  type BiMultiMapBase,
   BiMultiMapBuilder,
   BiMultiMapEmpty,
   BiMultiMapNonEmpty,
 } from '../../../bimultimap/custom/index.ts';
+
 import type { WithKeyValue } from '../../../collection-types/map-custom/index.ts';
 import type { ArrayNonEmpty } from '../../../common/mod.ts';
 import { Reducer } from '../../../common/mod.ts';

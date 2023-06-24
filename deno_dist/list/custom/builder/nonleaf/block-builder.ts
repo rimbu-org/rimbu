@@ -1,7 +1,7 @@
 import { Arr, RimbuError } from '../../../../base/mod.ts';
 import { OptLazy, TraverseState, Update } from '../../../../common/mod.ts';
 
-import type { List } from '../../../../list/mod.ts';
+import type { List } from '../../../../list/main/index.ts';
 import type {
   BlockBuilder,
   ListContext,

@@ -1,10 +1,11 @@
 import type { RMap } from '../../../../collection-types/map/index.ts';
+import type { Streamable } from '../../../../stream/mod.ts';
+
 import {
   type MultiSetBase,
   MultiSetContext,
   type MultiSetCreators,
 } from '../../../../multiset/custom/index.ts';
-import type { Streamable } from '../../../../stream/mod.ts';
 
 /**
  * A type-invariant immutable MultiSet of value type T.

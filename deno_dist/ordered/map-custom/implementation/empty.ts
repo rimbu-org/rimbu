@@ -1,13 +1,14 @@
 import { Token } from '../../../base/mod.ts';
-import { EmptyBase, WithKeyValue } from '../../../collection-types/map-custom/index.ts';
-import { OptLazy, OptLazyOr, ToJSON } from '../../../common/mod.ts';
+import {
+  EmptyBase,
+  type WithKeyValue,
+} from '../../../collection-types/map-custom/index.ts';
+import { OptLazy, OptLazyOr, type ToJSON } from '../../../common/mod.ts';
 import type { List } from '../../../list/mod.ts';
-import type {
-  OrderedMapBase,
-  OrderedMapTypes,
-} from '../../../ordered/map-custom/index.ts';
-import { Stream, StreamSource } from '../../../stream/mod.ts';
+import { Stream, type StreamSource } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
+
+import type { OrderedMapBase, OrderedMapTypes } from '../../../ordered/map-custom/index.ts';
 
 export class OrderedMapEmpty<
     K = any,

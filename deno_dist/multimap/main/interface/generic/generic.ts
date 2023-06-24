@@ -1,10 +1,11 @@
 import type { RMap, RSet } from '../../../../collection-types/mod.ts';
+import type { Streamable } from '../../../../stream/mod.ts';
+
 import {
   type MultiMapBase,
   MultiMapContext,
   type MultiMapCreators,
 } from '../../../../multimap/custom/index.ts';
-import type { Streamable } from '../../../../stream/mod.ts';
 
 /**
  * A type-invariant immutable MultiMap of key type K, and value type V.
