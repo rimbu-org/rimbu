@@ -135,7 +135,7 @@
     "@rimbu/common": "*",
     "@rimbu/list": "^0.12.2",
     "@rimbu/stream": "^0.13.6",
-    "tslib": "^2.5.0"
+    "tslib": "^2.5.3"
   },
   "publishConfig": {
     "access": "public"

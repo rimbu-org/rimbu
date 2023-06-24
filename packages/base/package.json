@@ -68,7 +68,7 @@
   },
   "dependencies": {
     "@rimbu/common": "*",
-    "tslib": "^2.5.0"
+    "tslib": "^2.5.3"
   },
   "publishConfig": {
     "access": "public"

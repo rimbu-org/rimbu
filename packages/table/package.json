@@ -127,7 +127,7 @@
     "@rimbu/hashed": "^0.9.6",
     "@rimbu/sorted": "^0.10.6",
     "@rimbu/stream": "^0.13.6",
-    "tslib": "^2.5.0"
+    "tslib": "^2.5.3"
   },
   "publishConfig": {
     "access": "public"

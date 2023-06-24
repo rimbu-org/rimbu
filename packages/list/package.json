@@ -108,7 +108,7 @@
     "@rimbu/collection-types": "^0.10.6",
     "@rimbu/common": "*",
     "@rimbu/stream": "^0.13.6",
-    "tslib": "^2.5.0"
+    "tslib": "^2.5.3"
   },
   "publishConfig": {
     "access": "public"
