@@ -1,15 +1,8 @@
-import tsconfigPaths from 'vite-tsconfig-paths';
-import { defineConfig } from 'vitest/config';
+import commonConfig from '../../config/vitest.config.common';
+import { mergeConfig } from 'vitest/config';
 
-export default defineConfig({
+export default mergeConfig(commonConfig, {
   test: {
     environment: 'happy-dom',
-    globals: true,
-    include: ['test/**/*.test.mts'],
-    coverage: {
-      all: true,
-      include: ['src'],
-    },
   },
-  plugins: [tsconfigPaths()],
 });

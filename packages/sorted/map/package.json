@@ -2,6 +2,6 @@
   "name": "map",
   "private": true,
   "main": "../dist/cjs/map/index.js",
-  "module": "../dist/esm/map/index.js",
+  "module": "../dist/esm/map/index.mjs",
   "types": "../dist/types/map/index.d.mts"
 }
