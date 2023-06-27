@@ -124,12 +124,7 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
     const entryIndex = this.context.findIndex(value, this.entries);
 
     if (entryIndex >= 0) {
-      if (Object.is(this.entries[entryIndex], value)) return false;
-
-      this.source = undefined;
-
-      this.entries[entryIndex] = value;
-      return true;
+      return false;
     }
 
     const childIndex = SortedIndex.next(entryIndex);
