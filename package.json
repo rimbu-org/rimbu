@@ -21,7 +21,7 @@
   "scripts": {
     "build": "lerna run build",
     "deno:build": "rimraf deno_dist && mkdir deno_dist && cp config/mod_root_ts_template deno_dist/mod.ts && lerna run build:deno && cp {README.md,LICENSE} deno_dist && npx replace '\\(packages' '(./rimbu' deno_dist/README.md",
-    "clean": "lerna run clean && lerna clean --yes && yarn setup",
+    "clean": "lerna run clean && lerna clean --yes && yarn",
     "commit": "yarn deno:build && git add deno_dist && git-cz",
     "docs": "deno run --import-map doc-gen/import_map.json --allow-read --allow-write --no-check doc-gen/src/main.ts -i doc-gen/input -o docs/api",
     "extract-api": "rimraf doc-gen/input && lerna run extract-api",
@@ -34,7 +34,6 @@
     "postinstall": "husky install",
     "prerelease": "yarn typecheck && yarn test:types && yarn test && yarn test:random",
     "publish:ci": "lerna publish from-package --no-verify-access --yes",
-    "setup": "yarn",
     "test": "lerna run test",
     "test:cov": "lerna run test:cov",
     "test:types": "lerna run test:types",
@@ -46,7 +45,7 @@
     "version:graduate": "lerna version --yes --conventional-commits --conventional-graduate --message 'chore(release): graduate prerelease packages'"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,json}": "eslint -c ./config/.eslintrc.json --cache",
+    "*.{ts,tsx,js,mts,mjs,json}": "eslint -c ./config/.eslintrc.json --cache",
     "*.{ts,tsx,js,mts,mjs,json,md}--parallel": "prettier --write"
   },
   "devDependencies": {
@@ -72,9 +71,12 @@
     "vite-tsconfig-paths": "^4.2.0",
     "vitest": "^0.32.2"
   },
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "performance"
+    ]
+  },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"

@@ -23,7 +23,7 @@ jobs:
           deno-version: v1.x
       - name: Extract API
         run: |
-          yarn setup
+          yarn
           lerna run bundle:types
           yarn extract-api
       - name: Generate API Docs

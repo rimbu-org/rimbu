@@ -98,13 +98,13 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@rimbu/base": "file:../base",
-    "@rimbu/collection-types": "file:../collection-types",
-    "@rimbu/common": "file:../common",
-    "@rimbu/hashed": "file:../hashed",
-    "@rimbu/multimap": "file:../multimap",
-    "@rimbu/sorted": "file:../sorted",
-    "@rimbu/stream": "file:../stream",
+    "@rimbu/base": "*",
+    "@rimbu/collection-types": "*",
+    "@rimbu/common": "*",
+    "@rimbu/hashed": "*",
+    "@rimbu/multimap": "*",
+    "@rimbu/sorted": "*",
+    "@rimbu/stream": "*",
     "tslib": "^2.5.3"
   },
   "publishConfig": {

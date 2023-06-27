@@ -72,8 +72,8 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@rimbu/base": "file:../base",
-    "@rimbu/common": "file:../common",
+    "@rimbu/base": "*",
+    "@rimbu/common": "*",
     "tslib": "^2.5.3"
   },
   "publishConfig": {

@@ -109,14 +109,14 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@rimbu/common": "file:../common",
+    "@rimbu/common": "*",
     "tslib": "^2.5.3"
   },
   "publishConfig": {
     "access": "public"
   },
   "devDependencies": {
-    "@rimbu/stream": "file:../stream",
+    "@rimbu/stream": "*",
     "happy-dom": "^9.20.3",
     "immer": "^9.0.16"
   }

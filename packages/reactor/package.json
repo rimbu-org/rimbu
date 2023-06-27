@@ -75,9 +75,9 @@
     "react-dom": "<18.0.0"
   },
   "dependencies": {
-    "@rimbu/actor": "file:../actor",
-    "@rimbu/deep": "file:../deep",
-    "@rimbu/stream": "file:../stream",
+    "@rimbu/actor": "*",
+    "@rimbu/deep": "*",
+    "@rimbu/stream": "*",
     "tslib": "^2.5.3"
   },
   "peerDependencies": {

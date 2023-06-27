@@ -9,7 +9,7 @@ This package is a private package used to add performance measurements for Rimbu
 ## Usage
 
 1. Clone this monorepo
-2. In the root of the monorepo, run `yarn setup && yarn build`
+2. In the root of the monorepo, run `yarn && yarn build`
 3. In this folder, run `yarn start`
 4. Wait until the benchmarks complete
 

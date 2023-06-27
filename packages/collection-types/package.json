@@ -124,9 +124,9 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@rimbu/base": "file:../base",
-    "@rimbu/common": "file:../common",
-    "@rimbu/stream": "file:../stream",
+    "@rimbu/base": "*",
+    "@rimbu/common": "*",
+    "@rimbu/stream": "*",
     "tslib": "^2.5.3"
   },
   "publishConfig": {
