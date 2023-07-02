@@ -1,4 +1,9 @@
-import { IsAnyFunc, IsArray, isPlainObj, IsPlainObj } from '../base/mod.ts';
+import {
+  type IsAnyFunc,
+  type IsArray,
+  isPlainObj,
+  type IsPlainObj,
+} from '../base/mod.ts';
 
 import type { Protected } from './internal.ts';
 import type { Tuple } from './tuple.ts';

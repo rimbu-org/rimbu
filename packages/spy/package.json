@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/spy",
-  "version": "0.4.3",
+  "version": "0.5.0-alpha.0",
   "description": "Test utilities for spying, stubbing and mocking functions, objects and classes in TypeScript",
   "keywords": [
     "spy",
@@ -29,17 +29,17 @@
     "url": "https://github.com/rimbu-org/rimbu.git",
     "directory": "packages/spy"
   },
-  "source": "./src/index.ts",
-  "main": "./dist/main/index.js",
-  "module": "./dist/module/index.js",
-  "types": "./dist/types/index.d.ts",
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.mjs",
+  "types": "./dist/types/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/types/index.d.ts",
-      "bun": "./src/index.ts",
-      "import": "./dist/module/index.js",
-      "require": "./dist/main/index.js",
-      "default": "./dist/module/index.js"
+      "types": "./dist/types/index.d.mts",
+      "bun": "./dist/bun/index.mts",
+      "import": "./dist/esm/index.mjs",
+      "require": "./dist/cjs/index.js",
+      "default": "./dist/esm/index.mjs"
     }
   },
   "files": [
@@ -48,23 +48,29 @@
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
-    "build:deno": "rimraf deno_dist ../../deno_dist/spy && denoify && mv deno_dist ../../deno_dist/spy",
-    "bundle": "yarn bundle:main && yarn bundle:module && yarn bundle:types",
-    "bundle:main": "tsc --p tsconfig.main.json",
-    "bundle:module": "tsc --p tsconfig.module.json",
+    "build:deno": "yarn bundle:deno-prepare && yarn bundle:deno-convert && yarn bundle:deno-move && yarn bundle:deno-clean",
+    "bundle": "yarn bundle:cjs && yarn bundle:esm && yarn bundle:types && yarn bundle:bun",
+    "bundle:bun": "node ../../config/bunnify.mjs",
+    "bundle:cjs": "tsup src --format cjs --clean -d dist/cjs --loader '.mts=ts' --legacy-output",
+    "bundle:deno-prepare": "node ../../config/prepare-denoify.mjs",
+    "bundle:deno-convert": "denoify --src _deno_prepare/src",
+    "bundle:deno-move": "rimraf ../../deno_dist/spy && mv deno_dist ../../deno_dist/spy",
+    "bundle:deno-clean": "rimraf _deno_prepare",
+    "bundle:esm": "tsc --p tsconfig.esm.json",
     "bundle:types": "tsc --p tsconfig.types.json",
     "clean": "rimraf dist",
-    "extract-api": "api-extractor run --local --verbose --config config/api-extractor.main.json",
+    "extract-api": "ts-node ../../config/api-extractor.ts config/api-extractor.main.json",
     "format": "yarn format:base --write",
-    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,json,md}\"",
+    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
-    "test": "jest",
+    "test": "vitest run",
+    "test:cov": "vitest run --coverage",
+    "test:watch": "vitest",
     "typecheck": "tsc"
   },
-  "sideEffects": false,
   "dependencies": {
-    "tslib": "^2.5.0"
+    "tslib": "^2.5.3"
   },
   "publishConfig": {
     "access": "public"

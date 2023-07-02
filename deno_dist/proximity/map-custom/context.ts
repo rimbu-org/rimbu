@@ -1,8 +1,12 @@
 import { RMapBase } from '../../collection-types/map-custom/index.ts';
 import type { HashMap } from '../../hashed/map/index.ts';
-import type { DistanceFunction } from '../common/index.ts';
-import type { ProximityMap } from '../map/index.ts';
-import { ProximityMapEmpty, ProximityMapNonEmpty } from './implementation/index.ts';
+
+import type { DistanceFunction } from '../../proximity/common/index.ts';
+import type { ProximityMap } from '../../proximity/map/index.ts';
+import {
+  ProximityMapEmpty,
+  ProximityMapNonEmpty,
+} from './implementation/index.ts';
 import { ProximityMapBuilder } from './builder.ts';
 
 export class ProximityMapContext<UK>

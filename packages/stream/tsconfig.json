@@ -1,9 +1,10 @@
 {
-  "extends": "../../config/tsconfig.base.json",
-  "include": ["src"],
+  "extends": ["../../config/tsconfig.base.json", "./tsconfig.common.json"],
+  "include": ["src", "test", "test-d"],
   "compilerOptions": {
-    "outDir": "./dist",
-    "noEmit": true,
-    "rootDir": ".."
+    "paths": {
+      "#stream/*.mjs": ["./src/*.mjs"],
+      "#stream/*": ["./src/*/index.mjs"]
+    }
   }
 }

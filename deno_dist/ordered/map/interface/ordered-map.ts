@@ -1,11 +1,12 @@
 import type { RMap } from '../../../collection-types/map/index.ts';
 import { List } from '../../../list/mod.ts';
+import type { Stream, Streamable } from '../../../stream/mod.ts';
+
 import {
-  OrderedMapBase,
+  type OrderedMapBase,
   OrderedMapContextImpl,
   type OrderedMapCreators,
 } from '../../../ordered/map-custom/index.ts';
-import type { Stream, Streamable } from '../../../stream/mod.ts';
 
 /**
  * A type-invariant immutable Ordered Map of key type K, and value type V.

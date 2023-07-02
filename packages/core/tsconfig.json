@@ -1,10 +1,5 @@
 {
-  "extends": "../../config/tsconfig.base.json",
+  "extends": ["../../config/tsconfig.base.json", "./tsconfig.common.json"],
   "include": ["src", "test"],
-  "compilerOptions": {
-    "outDir": "./dist",
-    "noEmit": true,
-    "rootDir": ".."
-  },
-  "collectCoverageFrom": ["src/**"]
+  "compilerOptions": {}
 }

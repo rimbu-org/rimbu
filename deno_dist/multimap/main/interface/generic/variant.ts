@@ -1,5 +1,6 @@
-import type { VariantMultiMapBase } from '../../../../multimap/custom/index.ts';
 import type { Streamable } from '../../../../stream/mod.ts';
+
+import type { VariantMultiMapBase } from '../../../../multimap/custom/index.ts';
 
 /**
  * A type-variant immutable MultiMap of key type K, and value type V.

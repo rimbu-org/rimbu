@@ -4,8 +4,8 @@ import { Deep } from './internal.ts';
 export { match, type Match } from './match.ts';
 export { patch, type Patch } from './patch.ts';
 export { getAt, patchAt, type Path } from './path.ts';
-export { select, type Selector } from './selector.ts';
 export type { Protected } from './protected.ts';
+export { select, type Selector } from './selector.ts';
 
 /**
  * Returns the same value wrapped in the `Protected` type.

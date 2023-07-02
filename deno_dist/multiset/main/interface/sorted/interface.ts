@@ -1,6 +1,7 @@
-import { MultiSetBase, MultiSetContext } from '../../../../multiset/custom/index.ts';
 import { SortedMap } from '../../../../sorted/map/index.ts';
 import type { Stream, Streamable } from '../../../../stream/mod.ts';
+
+import { type MultiSetBase, MultiSetContext } from '../../../../multiset/custom/index.ts';
 import type { SortedMultiSetCreators } from '../../../../multiset/custom/index.ts';
 
 /**

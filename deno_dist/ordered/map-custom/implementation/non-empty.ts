@@ -1,21 +1,22 @@
 import { RimbuError, Token } from '../../../base/mod.ts';
-import { NonEmptyBase, WithKeyValue } from '../../../collection-types/map-custom/index.ts';
 import {
-  ArrayNonEmpty,
+  NonEmptyBase,
+  type WithKeyValue,
+} from '../../../collection-types/map-custom/index.ts';
+import {
+  type ArrayNonEmpty,
   OptLazy,
   OptLazyOr,
-  RelatedTo,
-  ToJSON,
+  type RelatedTo,
+  type ToJSON,
   TraverseState,
   Update,
 } from '../../../common/mod.ts';
 import type { List } from '../../../list/mod.ts';
-import type {
-  OrderedMapBase,
-  OrderedMapTypes,
-} from '../../../ordered/map-custom/index.ts';
 import type { Stream, StreamSource } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
+
+import type { OrderedMapBase, OrderedMapTypes } from '../../../ordered/map-custom/index.ts';
 
 export class OrderedMapNonEmpty<
     K,

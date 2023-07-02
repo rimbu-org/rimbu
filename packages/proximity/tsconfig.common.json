@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "rootDirs": [".", ".."],
+    "paths": {
+      "#proximity/*.mjs": ["./src/*.mjs"],
+      "#proximity/*": ["./src/*/index.mjs"]
+    }
+  }
+}

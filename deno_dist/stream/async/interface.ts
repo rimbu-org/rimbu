@@ -1,4 +1,13 @@
 import type {
+  AsyncFastIterable,
+  AsyncStreamSource,
+  AsyncStreamable,
+  AsyncTransformer,
+} from '../../stream/main/index.ts';
+import type { AsyncStreamConstructors } from '../../stream/async-custom/index.ts';
+import { AsyncStreamConstructorsImpl } from '../../stream/async-custom/index.ts';
+
+import type {
   ArrayNonEmpty,
   AsyncCollectFun,
   AsyncOptLazy,
@@ -8,14 +17,6 @@ import type {
   ToJSON,
   TraverseState,
 } from '../../common/mod.ts';
-import type {
-  AsyncFastIterable,
-  AsyncStreamable,
-  AsyncStreamSource,
-  AsyncTransformer,
-} from '../../stream/async/index.ts';
-import type { AsyncStreamConstructors } from '../../stream/async-custom/index.ts';
-import { AsyncStreamConstructorsImpl } from '../../stream/async-custom/index.ts';
 
 /**
  * A possibly infinite asynchronous sequence of elements of type T.

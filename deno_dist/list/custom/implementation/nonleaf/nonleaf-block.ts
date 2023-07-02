@@ -63,7 +63,7 @@ export class NonLeafBlock<T, C extends Block<T, C>>
 
   stream(reversed = false): Stream.NonEmpty<T> {
     return Stream.fromArray(this.children, undefined, reversed).flatMap(
-      (child): Stream.NonEmpty<T> => child.stream(reversed)
+      (child: C): Stream.NonEmpty<T> => child.stream(reversed)
     ) as Stream.NonEmpty<T>;
   }
 
@@ -72,7 +72,7 @@ export class NonLeafBlock<T, C extends Block<T, C>>
 
     if (indexRange === 'all') {
       return Stream.fromArray(this.children, undefined, reversed).flatMap(
-        (child): Stream.NonEmpty<T> => child.stream(reversed)
+        (child: C): Stream.NonEmpty<T> => child.stream(reversed)
       ) as Stream.NonEmpty<T>;
     }
 
@@ -111,7 +111,7 @@ export class NonLeafBlock<T, C extends Block<T, C>>
       reversed
     );
 
-    return childStream.flatMap((child): Stream<T> => {
+    return childStream.flatMap((child: C): Stream<T> => {
       if (child === startChild)
         return child.streamRange({ start: inStartChildIndex }, reversed);
       if (child === endChild)

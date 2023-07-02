@@ -1,8 +1,6 @@
+import type { KeyValue, WithKeyValue } from '../../../collection-types/map-custom/index.ts';
+
 import type { Token } from '../../../base/mod.ts';
-import type {
-  KeyValue,
-  WithKeyValue,
-} from '../../../collection-types/map-custom/index.ts';
 import type {
   ArrayNonEmpty,
   OptLazy,
@@ -12,7 +10,12 @@ import type {
   TraverseState,
 } from '../../../common/mod.ts';
 import { Reducer } from '../../../common/mod.ts';
-import { FastIterable, Stream, Streamable, StreamSource } from '../../../stream/mod.ts';
+import {
+  Stream,
+  type FastIterable,
+  type StreamSource,
+  type Streamable,
+} from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 export interface VariantMapBase<
@@ -1096,7 +1099,8 @@ export namespace RMapBase {
     readonly mergeWith: any = <I extends readonly [unknown, ...unknown[]], K>(
       ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
     ): any => {
-      return <R>(mergeFun: (key: K, ...values: I) => R): any => {
+      // prettier-ignore
+      return <R,>(mergeFun: (key: K, ...values: I) => R): any => {
         if (Stream.from(sources).some(isEmptyStreamSourceInstance)) {
           return this.empty();
         }

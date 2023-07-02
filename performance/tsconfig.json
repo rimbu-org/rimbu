@@ -1,9 +1,12 @@
 {
-  "extends": "../config/tsconfig.base.json",
+  "extends": "../config/tsconfig.esm.base.json",
   "include": ["src"],
   "compilerOptions": {
-    "outDir": "./dist",
-    "noEmit": true,
-    "rootDir": ".."
+    "rootDir": ".",
+    "outDir": "bin",
+    "paths": {
+      "@rimbu/base": ["../packages/base"],
+      "@rimbu/core": ["../packages/core"]
+    }
   }
 }

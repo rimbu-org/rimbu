@@ -1,4 +1,4 @@
-import { Stream, StreamSource } from '../../../../stream/mod.ts';
+import { Stream, type StreamSource } from '../../../../stream/mod.ts';
 import { EmptyBase } from '../../../../collection-types/map-custom/index.ts';
 
 import type { VariantGraphBase } from '../index.ts';

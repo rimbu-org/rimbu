@@ -1,8 +1,7 @@
 {
   "name": "hash-row",
   "private": true,
-  "source": "../src/hash-row/index.ts",
-  "main": "../dist/main/hash-row/index.js",
-  "module": "../dist/module/hash-row/index.js",
-  "types": "../dist/types/hash-row/index.d.ts"
+  "main": "../dist/cjs/hash-row/index.js",
+  "module": "../dist/esm/hash-row/index.mjs",
+  "types": "../dist/types/hash-row/index.d.mts"
 }

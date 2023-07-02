@@ -1,14 +1,12 @@
-import type {
-  BiMultiMapBase,
-  ContextTypesImpl,
-} from '../../../bimultimap/custom/index.ts';
+import type { BiMultiMapBase, ContextTypesImpl } from '../../../bimultimap/custom/index.ts';
+
 import {
   EmptyBase,
   NonEmptyBase,
-  WithKeyValue,
+  type WithKeyValue,
 } from '../../../collection-types/map-custom/index.ts';
 import type { RelatedTo, ToJSON, TraverseState } from '../../../common/mod.ts';
-import { Stream, StreamSource } from '../../../stream/mod.ts';
+import { Stream, type StreamSource } from '../../../stream/mod.ts';
 
 export class BiMultiMapEmpty<K, V, Tp extends ContextTypesImpl>
   extends EmptyBase

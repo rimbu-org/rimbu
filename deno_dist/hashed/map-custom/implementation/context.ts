@@ -3,10 +3,7 @@ import { Eq } from '../../../common/mod.ts';
 import { List } from '../../../list/mod.ts';
 
 import type { HashMap } from '../../../hashed/map/index.ts';
-import type {
-  MapBlockBuilderEntry,
-  MapEntrySet,
-} from '../../../hashed/map-custom/index.ts';
+import type { MapBlockBuilderEntry, MapEntrySet } from '../../../hashed/map-custom/index.ts';
 
 import { Hasher } from '../../common/index.ts';
 import {

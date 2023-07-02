@@ -1,5 +1,6 @@
 import type { RMap } from '../../../collection-types/map/index.ts';
 import type { Streamable } from '../../../stream/mod.ts';
+
 import {
   type TableBase,
   TableContext,

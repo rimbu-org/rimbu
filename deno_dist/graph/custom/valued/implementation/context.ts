@@ -1,11 +1,13 @@
 import type { ArrayNonEmpty } from '../../../../common/mod.ts';
 import type { StreamSource } from '../../../../stream/mod.ts';
-
 import { Reducer } from '../../../../common/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../../stream/custom/index.ts';
 
 import type { ValuedGraphBase } from '../../../../graph/custom/index.ts';
-import type { ValuedGraphElement, WithGraphValues } from '../../common/index.ts';
+import type {
+  ValuedGraphElement,
+  WithGraphValues,
+} from '../../common/index.ts';
 
 import {
   ValuedGraphEmpty,

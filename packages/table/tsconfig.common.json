@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "rootDirs": [".", ".."],
+    "paths": {
+      "#table/*.mjs": ["./src/*.mjs"],
+      "#table/*": ["./src/*/index.mjs"]
+    }
+  }
+}

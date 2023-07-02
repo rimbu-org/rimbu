@@ -1,5 +1,4 @@
 import type { RMapBase } from '../../../collection-types/map-custom/index.ts';
-import type { Streamable } from '../../../stream/mod.ts';
 
 /**
  * A type-invariant immutable Map of key type K, and value type V.
@@ -22,8 +21,7 @@ export namespace RMap {
    */
   export interface NonEmpty<K, V>
     extends RMapBase.NonEmpty<K, V, RMap.Types>,
-      Omit<RMap<K, V>, keyof RMapBase<any, any, any>>,
-      Streamable.NonEmpty<readonly [K, V]> {}
+      Omit<RMap<K, V>, keyof RMapBase<any, any, any>> {}
 
   /**
    * A context instance for `RMap` implementations that acts as a factory for every instance of this

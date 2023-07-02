@@ -1,21 +1,22 @@
 import { Arr, RimbuError } from '../../../base/mod.ts';
 import type { RMap } from '../../../collection-types/map/index.ts';
 import {
-  Elem,
+  type Elem,
   EmptyBase,
   NonEmptyBase,
-  WithElem,
+  type WithElem,
 } from '../../../collection-types/map-custom/index.ts';
+import { Stream, type StreamSource } from '../../../stream/mod.ts';
+import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
+
 import {
-  ArrayNonEmpty,
+  type ArrayNonEmpty,
   Reducer,
-  RelatedTo,
-  ToJSON,
+  type RelatedTo,
+  type ToJSON,
   TraverseState,
 } from '../../../common/mod.ts';
 import type { MultiSetBase } from '../../../multiset/custom/index.ts';
-import { Stream, StreamSource } from '../../../stream/mod.ts';
-import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 export interface ContextImplTypes extends MultiSetBase.Types {
   readonly context: MultiSetContext<this['_T'], string>;
@@ -425,7 +426,8 @@ export class MultiSetBuilder<
     return 0 === this.size;
   }
 
-  has = <U>(value: RelatedTo<T, U>): boolean => {
+  // prettier-ignore
+  has = <U,>(value: RelatedTo<T, U>): boolean => {
     return this.source?.has(value) ?? this.countMap.hasKey(value);
   };
 
@@ -454,7 +456,8 @@ export class MultiSetBuilder<
     return Stream.applyFilter(entries, this.add).count() > 0;
   };
 
-  remove = <U>(value: RelatedTo<T, U>, amount: number | 'ALL' = 1): number => {
+  // prettier-ignore
+  remove = <U,>(value: RelatedTo<T, U>, amount: number | 'ALL' = 1): number => {
     this.checkLock();
 
     if (typeof amount === 'number' && amount <= 0) return 0;
@@ -540,11 +543,13 @@ export class MultiSetBuilder<
     return changed;
   };
 
-  count = <U>(value: RelatedTo<T, U>): number => {
+  // prettier-ignore
+  count = <U,>(value: RelatedTo<T, U>): number => {
     return this.source?.count(value) ?? this.countMap.get(value, 0);
   };
 
-  removeAll = <U>(
+  // prettier-ignore
+  removeAll = <U,>(
     values: StreamSource<RelatedTo<T, U>>,
     mode: 'SINGLE' | 'ALL'
   ): boolean => {
@@ -559,11 +564,13 @@ export class MultiSetBuilder<
     );
   };
 
-  removeAllSingle = <U>(values: StreamSource<RelatedTo<T, U>>): boolean => {
+  // prettier-ignore
+  removeAllSingle = <U,>(values: StreamSource<RelatedTo<T, U>>): boolean => {
     return this.removeAll(values, 'SINGLE');
   };
 
-  removeAllEvery = <U>(values: StreamSource<RelatedTo<T, U>>): boolean => {
+  // prettier-ignore
+  removeAllEvery = <U,>(values: StreamSource<RelatedTo<T, U>>): boolean => {
     return this.removeAll(values, 'ALL');
   };
 
@@ -673,7 +680,8 @@ export class MultiSetContext<
     return builder.build();
   };
 
-  readonly of = <T>(
+  // prettier-ignore
+  readonly of = <T,>(
     ...values: ArrayNonEmpty<T>
   ): T extends UT ? WithElem<Tp, T>['nonEmpty'] : never => {
     return this.from(values);

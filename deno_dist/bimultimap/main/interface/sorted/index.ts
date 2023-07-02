@@ -1,10 +1,11 @@
-import { SortedMultiMapSortedValue } from '../../../../multimap/mod.ts';
-import type { Streamable } from '../../../../stream/mod.ts';
 import {
-  BiMultiMapSorted,
-  BiMultiMapBase,
+  type BiMultiMapSorted,
+  type BiMultiMapBase,
   BiMultiMapContext,
 } from '../../../../bimultimap/custom/index.ts';
+
+import { SortedMultiMapSortedValue } from '../../../../multimap/mod.ts';
+import type { Streamable } from '../../../../stream/mod.ts';
 import type { SortedSet } from '../../../../sorted/mod.ts';
 
 /**

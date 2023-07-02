@@ -2,22 +2,23 @@ import { RimbuError } from '../../../base/mod.ts';
 import type { RMap, RSet } from '../../../collection-types/mod.ts';
 import {
   EmptyBase,
-  KeyValue,
+  type KeyValue,
   NonEmptyBase,
-  WithKeyValue,
+  type WithKeyValue,
 } from '../../../collection-types/map-custom/index.ts';
 import {
-  ArrayNonEmpty,
+  type ArrayNonEmpty,
   OptLazy,
   Reducer,
-  RelatedTo,
-  ToJSON,
+  type RelatedTo,
+  type ToJSON,
   TraverseState,
 } from '../../../common/mod.ts';
-import type { MultiMap } from '../../../multimap/mod.ts';
-import type { MultiMapBase } from '../../../multimap/custom/index.ts';
-import { Stream, StreamSource } from '../../../stream/mod.ts';
+import { Stream, type StreamSource } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
+
+import type { MultiMap } from '../../../multimap/main/index.ts';
+import type { MultiMapBase } from '../../../multimap/custom/index.ts';
 
 export interface ContextImplTypes extends MultiMapBase.Types {
   readonly context: MultiMapContext<this['_K'], this['_V'], string>;
@@ -442,7 +443,8 @@ export class MultiMapBuilder<
     return this.size === 0;
   }
 
-  getValues = <UK>(key: RelatedTo<K, UK>): any => {
+  // prettier-ignore
+  getValues = <UK,>(key: RelatedTo<K, UK>): any => {
     return (
       this.source?.getValues(key) ??
       this.keyMap.get(key)?.build() ??
@@ -450,11 +452,13 @@ export class MultiMapBuilder<
     );
   };
 
-  hasKey = <UK>(key: RelatedTo<K, UK>): boolean => {
+  // prettier-ignore
+  hasKey = <UK,>(key: RelatedTo<K, UK>): boolean => {
     return this.source?.hasKey(key) ?? this.keyMap.hasKey(key);
   };
 
-  hasEntry = <UK>(key: RelatedTo<K, UK>, value: V): boolean => {
+  // prettier-ignore
+  hasEntry = <UK,>(key: RelatedTo<K, UK>, value: V): boolean => {
     return (
       this.source?.hasEntry(key, value) ??
       this.keyMap.get(key)?.has(value) ??
@@ -557,7 +561,8 @@ export class MultiMapBuilder<
     return Stream.applyFilter(entries, this.removeEntry).count() > 0;
   };
 
-  removeKey = <UK>(key: RelatedTo<K, UK>): boolean => {
+  // prettier-ignore
+  removeKey = <UK,>(key: RelatedTo<K, UK>): boolean => {
     this.checkLock();
 
     if (!this.context.keyMapContext.isValidKey(key)) return false;
@@ -574,7 +579,8 @@ export class MultiMapBuilder<
     return changed;
   };
 
-  removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
+  // prettier-ignore
+  removeKeys = <UK,>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
     this.checkLock();
 
     return Stream.from(keys).filterPure(this.removeKey).count() > 0;

@@ -1,14 +1,15 @@
 import type { RMap, RSet } from '../../../collection-types/mod.ts';
 import type { HashMap, HashSet } from '../../../hashed/mod.ts';
+import type { SortedMap, SortedSet } from '../../../sorted/mod.ts';
+
 import type {
   HashMultiMapHashValue,
   HashMultiMapSortedValue,
   MultiMap,
   SortedMultiMapHashValue,
   SortedMultiMapSortedValue,
-} from '../../../multimap/mod.ts';
+} from '../../../multimap/main/index.ts';
 import type { MultiMapBase } from '../../../multimap/custom/index.ts';
-import type { SortedMap, SortedSet } from '../../../sorted/mod.ts';
 
 export interface MultiMapCreators {
   /**

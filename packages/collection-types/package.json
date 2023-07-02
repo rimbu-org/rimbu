@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/collection-types",
-  "version": "0.10.6",
+  "version": "1.0.0-alpha.0",
   "description": "Type definitions for the basic generic Rimbu collections",
   "keywords": [
     "definitions",
@@ -27,48 +27,66 @@
     "url": "https://github.com/rimbu-org/rimbu.git",
     "directory": "packages/collection-types"
   },
-  "source": "./src/index.ts",
-  "main": "./dist/main/main/index.js",
-  "module": "./dist/module/main/index.js",
-  "types": "./dist/types/main/index.d.ts",
+  "type": "module",
+  "main": "./dist/cjs/main/index.js",
+  "module": "./dist/esm/main/index.mjs",
+  "types": "./dist/types/main/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/types/main/index.d.ts",
-      "bun": "./src/main/index.ts",
-      "import": "./dist/module/main/index.js",
-      "require": "./dist/main/main/index.js",
-      "default": "./dist/module/main/index.js"
+      "types": "./dist/types/main/index.d.mts",
+      "bun": "./dist/bun/main/index.mts",
+      "import": "./dist/esm/main/index.mjs",
+      "require": "./dist/cjs/main/index.js",
+      "default": "./dist/esm/main/index.mjs"
     },
     "./map": {
-      "types": "./dist/types/map/index.d.ts",
-      "bun": "./src/map/index.ts",
-      "import": "./dist/module/map/index.js",
-      "require": "./dist/main/map/index.js",
-      "default": "./dist/module/map/index.js"
+      "types": "./dist/types/map/index.d.mts",
+      "bun": "./dist/bun/map/index.mts",
+      "import": "./dist/esm/map/index.mjs",
+      "require": "./dist/cjs/map/index.js",
+      "default": "./dist/esm/map/index.mjs"
     },
     "./map-custom": {
-      "types": "./dist/types/map-custom/index.d.ts",
-      "bun": "./src/map-custom/index.ts",
-      "import": "./dist/module/map-custom/index.js",
-      "require": "./dist/main/map-custom/index.js",
-      "default": "./dist/module/map-custom/index.js"
+      "types": "./dist/types/map-custom/index.d.mts",
+      "bun": "./dist/bun/map-custom/index.mts",
+      "import": "./dist/esm/map-custom/index.mjs",
+      "require": "./dist/cjs/map-custom/index.js",
+      "default": "./dist/esm/map-custom/index.mjs"
     },
     "./set": {
-      "types": "./dist/types/set/index.d.ts",
-      "bun": "./src/set/index.ts",
-      "import": "./dist/module/set/index.js",
-      "require": "./dist/main/set/index.js",
-      "default": "./dist/module/set/index.js"
+      "types": "./dist/types/set/index.d.mts",
+      "bun": "./dist/bun/set/index.mts",
+      "import": "./dist/esm/set/index.mjs",
+      "require": "./dist/cjs/set/index.js",
+      "default": "./dist/esm/set/index.mjs"
     },
     "./set-custom": {
-      "types": "./dist/types/set-custom/index.d.ts",
-      "bun": "./src/set-custom/index.ts",
-      "import": "./dist/module/set-custom/index.js",
-      "require": "./dist/main/set-custom/index.js",
-      "default": "./dist/module/set-custom/index.js"
+      "types": "./dist/types/set-custom/index.d.mts",
+      "bun": "./dist/bun/set-custom/index.mts",
+      "import": "./dist/esm/set-custom/index.mjs",
+      "require": "./dist/cjs/set-custom/index.js",
+      "default": "./dist/esm/set-custom/index.mjs"
     },
     "./test-utils/*": {
       "default": "./test-utils/*.ts"
+    }
+  },
+  "imports": {
+    "#collection-types/*.mts": {
+      "bun": "./dist/bun/*.mts"
+    },
+    "#collection-types/*.mjs": {
+      "types": "./dist/types/*.d.mts",
+      "import": "./dist/esm/*.mjs",
+      "require": "./dist/cjs/*.js",
+      "default": "./dist/esm/*.mjs"
+    },
+    "#collection-types/*": {
+      "types": "./dist/types/*/index.d.mts",
+      "bun": "./dist/bun/*/index.mts",
+      "import": "./dist/esm/*/index.mjs",
+      "require": "./dist/cjs/*/index.js",
+      "default": "./dist/esm/*/index.mjs"
     }
   },
   "files": [
@@ -81,31 +99,35 @@
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
-    "build:deno": "rimraf deno_dist ../../deno_dist/collection-types && denoify && mv deno_dist ../../deno_dist/collection-types",
-    "bundle": "yarn bundle:main && yarn bundle:module && yarn bundle:types",
-    "bundle:main": "tsc --p tsconfig.main.json",
-    "bundle:module": "tsc --p tsconfig.module.json",
+    "build:deno": "yarn bundle:deno-prepare && yarn bundle:deno-convert && yarn bundle:deno-move && yarn bundle:deno-clean",
+    "bundle": "yarn bundle:cjs && yarn bundle:esm && yarn bundle:types && yarn bundle:bun",
+    "bundle:bun": "node ../../config/bunnify.mjs",
+    "bundle:cjs": "tsup src --format cjs --clean -d dist/cjs --loader '.mts=ts' --legacy-output",
+    "bundle:deno-prepare": "node ../../config/prepare-denoify.mjs",
+    "bundle:deno-convert": "denoify --src _deno_prepare/src",
+    "bundle:deno-move": "rimraf ../../deno_dist/collection-types && mv deno_dist ../../deno_dist/collection-types",
+    "bundle:deno-clean": "rimraf _deno_prepare",
+    "bundle:esm": "tsc --p tsconfig.esm.json",
     "bundle:types": "tsc --p tsconfig.types.json",
     "clean": "rimraf dist",
     "extract-api": "yarn extract-api:main && yarn extract-api:map && yarn extract-api:map-custom && yarn extract-api:set && yarn extract-api:set-custom",
-    "extract-api:main": "api-extractor run --local --verbose --config config/api-extractor.main.json",
-    "extract-api:map": "api-extractor run --local --verbose --config config/api-extractor.map.json",
-    "extract-api:map-custom": "api-extractor run --local --verbose --config config/api-extractor.map-custom.json",
-    "extract-api:set": "api-extractor run --local --verbose --config config/api-extractor.set.json",
-    "extract-api:set-custom": "api-extractor run --local --verbose --config config/api-extractor.set-custom.json",
+    "extract-api:main": "ts-node ../../config/api-extractor.ts config/api-extractor.main.json",
+    "extract-api:map": "ts-node ../../config/api-extractor.ts config/api-extractor.map.json",
+    "extract-api:map-custom": "ts-node ../../config/api-extractor.ts config/api-extractor.map-custom.json",
+    "extract-api:set": "ts-node ../../config/api-extractor.ts config/api-extractor.set.json",
+    "extract-api:set-custom": "ts-node ../../config/api-extractor.ts config/api-extractor.set-custom.json",
     "format": "yarn format:base --write",
-    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,json,md}\"",
+    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
-    "test:types": "tsd",
+    "test:types": "tsd --files test-d",
     "typecheck": "tsc"
   },
-  "sideEffects": false,
   "dependencies": {
-    "@rimbu/base": "^0.11.4",
-    "@rimbu/common": "*",
-    "@rimbu/stream": "^0.13.6",
-    "tslib": "^2.5.0"
+    "@rimbu/base": "^1.0.0-alpha.0",
+    "@rimbu/common": "^1.0.0-alpha.0",
+    "@rimbu/stream": "^1.0.0-alpha.0",
+    "tslib": "^2.5.3"
   },
   "publishConfig": {
     "access": "public"

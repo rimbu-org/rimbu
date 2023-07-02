@@ -1,8 +1,9 @@
 import { SortedMap } from '../../../sorted/map/index.ts';
 import type { Streamable } from '../../../stream/mod.ts';
+
 import {
-  SortedTableSortedColumnCreators,
-  TableBase,
+  type SortedTableSortedColumnCreators,
+  type TableBase,
   TableContext,
 } from '../../../table/custom/index.ts';
 

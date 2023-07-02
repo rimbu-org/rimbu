@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "rootDirs": [".", ".."],
+    "paths": {
+      "#stream/*.mjs": ["./src/*.mjs"],
+      "#stream/*": ["./src/*/index.mjs"]
+    }
+  }
+}

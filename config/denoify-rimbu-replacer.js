@@ -38,6 +38,13 @@ makeThisModuleAnExecutableReplacer(async (args) => {
 
   if (scope === '@rimbu') {
     if (specificImportPath) {
+      if (specificImportPath.endsWith('.mjs')) {
+        return replaceImportArgument(
+          parsedImportExportStatement,
+          `${url}/${rootPackage}/${specificImportPath.replace('.mjs', '.ts')}`
+        );
+      }
+
       return replaceImportArgument(
         parsedImportExportStatement,
         `${url}/${rootPackage}/${specificImportPath}/index.ts`

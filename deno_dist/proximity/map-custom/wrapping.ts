@@ -1,5 +1,5 @@
 import type { HashMap } from '../../hashed/map/index.ts';
-import type { ProximityMap } from '../map/index.ts';
+import type { ProximityMap } from '../../proximity/map/index.ts';
 import { ProximityMapNonEmpty } from './implementation/index.ts';
 
 export function wrapHashMap<K, V>(

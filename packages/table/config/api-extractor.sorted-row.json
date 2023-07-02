@@ -1,8 +1,8 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
   "extends": "<projectFolder>/../../config/api-extractor.json",
-  "mainEntryPointFilePath": "<projectFolder>dist/types/sorted-row/index.d.ts",
-  "bundledPackages": [],
+  "mainEntryPointFilePath": "<projectFolder>dist/types/sorted-row/index.d.mts",
+  "bundledPackages": ["@rimbu/table"],
   "docModel": {
     "enabled": true,
     "apiJsonFilePath": "<projectFolder>/../../doc-gen/input/<unscopedPackageName>!sorted-row.api.json"

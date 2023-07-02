@@ -1,8 +1,9 @@
 import type { BiMultiMapHashed } from '../../../../bimultimap/custom/index.ts';
+import { type BiMultiMapBase, BiMultiMapContext } from '../../../../bimultimap/custom/index.ts';
+
+import type { HashSet } from '../../../../hashed/mod.ts';
 import { HashMultiMapHashValue } from '../../../../multimap/mod.ts';
 import type { Streamable } from '../../../../stream/mod.ts';
-import { BiMultiMapBase, BiMultiMapContext } from '../../../../bimultimap/custom/index.ts';
-import type { HashSet } from '../../../../hashed/mod.ts';
 
 /**
  * A type-invariant immutable bi-directional MultiMap where keys and values have a

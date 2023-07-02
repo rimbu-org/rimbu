@@ -1,13 +1,11 @@
 import type { Stream, Streamable } from '../../../../../stream/mod.ts';
-
 import { HashMap } from '../../../../../hashed/mod.ts';
 
 import type {
   EdgeValuedGraphHashedCreators,
   ValuedGraphElement,
 } from '../../../../../graph/custom/index.ts';
-
-import { EdgeValuedGraphBase, ValuedGraphContext } from '../../../../../graph/custom/index.ts';
+import { type EdgeValuedGraphBase, ValuedGraphContext } from '../../../../../graph/custom/index.ts';
 
 /**
  * An type-invariant immutable valued edge (undirected) graph.

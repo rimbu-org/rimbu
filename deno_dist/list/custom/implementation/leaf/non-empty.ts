@@ -1,19 +1,20 @@
 import { RimbuError } from '../../../../base/mod.ts';
 import { NonEmptyBase } from '../../../../collection-types/set-custom/index.ts';
 import {
-  ArrayNonEmpty,
   CollectFun,
+  Comp,
   IndexRange,
   OptLazy,
-  ToJSON,
   TraverseState,
   Update,
+  type ArrayNonEmpty,
+  type ToJSON,
 } from '../../../../common/mod.ts';
 import type { FastIterator, Stream, StreamSource } from '../../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../../stream/custom/index.ts';
 
-import type { List } from '../../../../list/mod.ts';
 import type { CacheMap, ListContext } from '../../../../list/custom/index.ts';
+import type { List } from '../../../../list/main/index.ts';
 
 export abstract class ListNonEmptyBase<T>
   extends NonEmptyBase<T>
@@ -91,6 +92,12 @@ export abstract class ListNonEmptyBase<T>
 
     if (!reversed) return values;
     return values.reversed();
+  }
+
+  sort(comp?: Comp<T>): List.NonEmpty<T> {
+    const sortedArray = this.toArray().sort(comp?.compare);
+
+    return this.context.from(sortedArray);
   }
 
   splice({

@@ -1,18 +1,16 @@
 import { RimbuError, Token } from '../../base/mod.ts';
 import {
-  ArrayNonEmpty,
-  AsyncCollectFun,
+  type ArrayNonEmpty,
+  type AsyncCollectFun,
   AsyncOptLazy,
   AsyncReducer,
   Comp,
   Eq,
-  MaybePromise,
-  ToJSON,
+  type MaybePromise,
+  type ToJSON,
   TraverseState,
 } from '../../common/mod.ts';
 
-import type { StreamSource } from '../../stream/mod.ts';
-import { Stream } from '../../stream/mod.ts';
 import type {
   AsyncFastIterator,
   AsyncStream,
@@ -44,7 +42,7 @@ import {
   AsyncRepeatIterator,
   AsyncSplitOnIterator,
   AsyncSplitWhereIterator,
-  AsyncStreamConstructors,
+  type AsyncStreamConstructors,
   AsyncTakeIterator,
   AsyncTakeWhileIterator,
   AsyncUnfoldIterator,
@@ -60,6 +58,8 @@ import {
   isAsyncFastIterator,
 } from '../../stream/async-custom/index.ts';
 import { isEmptyStreamSourceInstance } from '../../stream/custom/index.ts';
+import type { StreamSource } from '../../stream/main/index.ts';
+import { Stream } from '../../stream/main/index.ts';
 
 export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   abstract [Symbol.asyncIterator](): AsyncFastIterator<T>;
@@ -1703,10 +1703,11 @@ export function asyncStreamSourceToIterator<T>(
   throw Error('unknown async stream source');
 }
 
+// prettier-ignore
 export const fromAsyncStreamSource: {
   <T>(source: AsyncStreamSource.NonEmpty<T>): AsyncStream.NonEmpty<T>;
   <T>(source: AsyncStreamSource<T>): AsyncStream<T>;
-} = <T>(source: AsyncStreamSource<T>): any => {
+} = <T,>(source: AsyncStreamSource<T>): any => {
   if (undefined === source) return emptyAsyncStream;
   if (isAsyncStream(source)) return source;
   if (isEmptyAsyncStreamSourceInstance(source)) return emptyAsyncStream;

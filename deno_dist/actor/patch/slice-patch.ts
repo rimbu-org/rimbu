@@ -1,6 +1,6 @@
 import { type Patch, patch } from '../../deep/mod.ts';
 
-import { Action, SliceConfig } from '../main/internal.ts';
+import { Action, SliceConfig } from '../../actor/main/internal.ts';
 
 export namespace SlicePatch {
   export interface Config extends SliceConfig {

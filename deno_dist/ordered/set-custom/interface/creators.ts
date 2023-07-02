@@ -2,12 +2,13 @@ import type { RSet } from '../../../collection-types/mod.ts';
 import type { RSetBase } from '../../../collection-types/set-custom/index.ts';
 import type { HashSet } from '../../../hashed/mod.ts';
 import type { List } from '../../../list/mod.ts';
+import type { SortedSet } from '../../../sorted/mod.ts';
+
 import type {
   OrderedHashSet,
   OrderedSet,
   OrderedSortedSet,
 } from '../../../ordered/set/index.ts';
-import type { SortedSet } from '../../../sorted/mod.ts';
 
 export interface OrderedSetCreators {
   /**

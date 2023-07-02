@@ -1,5 +1,5 @@
 import { AsyncOptLazy, AsyncReducer, Eq } from '../../common/mod.ts';
-import { AsyncStream, AsyncStreamSource } from '../../stream/async/index.ts';
+import { AsyncStream, type AsyncStreamSource } from '../../stream/async/index.ts';
 
 /**
  * An AsyncReducer that produces instances of `AsyncStreamSource`.

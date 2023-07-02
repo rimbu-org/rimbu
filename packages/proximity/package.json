@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/proximity",
-  "version": "0.1.2",
+  "version": "1.0.0-alpha.0",
   "description": "Immutable ProximityMap implementation for TypeScript",
   "keywords": [
     "proximitymap",
@@ -36,31 +36,49 @@
     "url": "https://github.com/rimbu-org/rimbu.git",
     "directory": "packages/proximity"
   },
-  "source": "./src/main/index.ts",
-  "main": "./dist/main/main/index.js",
-  "module": "./dist/module/main/index.js",
-  "types": "./dist/types/main/index.d.ts",
+  "type": "module",
+  "main": "./dist/cjs/main/index.js",
+  "module": "./dist/esm/main/index.mjs",
+  "types": "./dist/types/main/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/types/main/index.d.ts",
-      "bun": "./src/main/index.ts",
-      "import": "./dist/module/main/index.js",
-      "require": "./dist/main/main/index.js",
-      "default": "./dist/module/main/index.js"
+      "types": "./dist/types/main/index.d.mts",
+      "bun": "./dist/bun/main/index.mts",
+      "import": "./dist/esm/main/index.mjs",
+      "require": "./dist/cjs/main/index.js",
+      "default": "./dist/esm/main/index.mjs"
     },
     "./map": {
-      "types": "./dist/types/map/index.d.ts",
-      "bun": "./src/map/index.ts",
-      "import": "./dist/module/map/index.js",
-      "require": "./dist/main/map/index.js",
-      "default": "./dist/module/map/index.js"
+      "types": "./dist/types/map/index.d.mts",
+      "bun": "./dist/bun/map/index.mts",
+      "import": "./dist/esm/map/index.mjs",
+      "require": "./dist/cjs/map/index.js",
+      "default": "./dist/esm/map/index.mjs"
     },
     "./map-custom": {
-      "types": "./dist/types/map-custom/index.d.ts",
-      "bun": "./src/map-custom/index.ts",
-      "import": "./dist/module/map-custom/index.js",
-      "require": "./dist/main/map-custom/index.js",
-      "default": "./dist/module/map-custom/index.js"
+      "types": "./dist/types/map-custom/index.d.mts",
+      "bun": "./dist/bun/map-custom/index.mts",
+      "import": "./dist/esm/map-custom/index.mjs",
+      "require": "./dist/cjs/map-custom/index.js",
+      "default": "./dist/esm/map-custom/index.mjs"
+    }
+  },
+  "imports": {
+    "#proximity/*.mts": {
+      "bun": "./dist/bun/*.mts"
+    },
+    "#proximity/*.mjs": {
+      "types": "./dist/types/*.d.mts",
+      "import": "./dist/esm/*.mjs",
+      "require": "./dist/cjs/*.js",
+      "default": "./dist/esm/*.mjs"
+    },
+    "#proximity/*": {
+      "types": "./dist/types/*/index.d.mts",
+      "bun": "./dist/bun/*/index.mts",
+      "import": "./dist/esm/*/index.mjs",
+      "require": "./dist/cjs/*/index.js",
+      "default": "./dist/esm/*/index.mjs"
     }
   },
   "files": [
@@ -71,34 +89,40 @@
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
-    "build:deno": "rimraf deno_dist ../../deno_dist/proximity && denoify && mv deno_dist ../../deno_dist/proximity",
-    "bundle": "yarn bundle:main && yarn bundle:module && yarn bundle:types",
-    "bundle:main": "tsc --p tsconfig.main.json",
-    "bundle:module": "tsc --p tsconfig.module.json",
+    "build:deno": "yarn bundle:deno-prepare && yarn bundle:deno-convert && yarn bundle:deno-move && yarn bundle:deno-clean",
+    "bundle": "yarn bundle:cjs && yarn bundle:esm && yarn bundle:types && yarn bundle:bun",
+    "bundle:bun": "node ../../config/bunnify.mjs",
+    "bundle:cjs": "tsup src --format cjs --clean -d dist/cjs --loader '.mts=ts' --legacy-output",
+    "bundle:deno-prepare": "node ../../config/prepare-denoify.mjs",
+    "bundle:deno-convert": "denoify --src _deno_prepare/src",
+    "bundle:deno-move": "rimraf ../../deno_dist/proximity && mv deno_dist ../../deno_dist/proximity",
+    "bundle:deno-clean": "rimraf _deno_prepare",
+    "bundle:esm": "tsc --p tsconfig.esm.json",
     "bundle:types": "tsc --p tsconfig.types.json",
     "clean": "rimraf dist",
-    "circular": "npx -y madge --ts-config tsconfig.json --circular --extensions ts src/map-custom/index.ts",
+    "circular": "npx -y madge --ts-config tsconfig.json --circular --extensions ts dist/bun/map-custom/index.ts",
     "extract-api": "yarn extract-api:main && yarn extract-api:map && yarn extract-api:map-custom",
-    "extract-api:main": "api-extractor run --local --verbose --config config/api-extractor.main.json",
-    "extract-api:map": "api-extractor run --local --verbose --config config/api-extractor.map.json",
-    "extract-api:map-custom": "api-extractor run --local --verbose --config config/api-extractor.map-custom.json",
+    "extract-api:main": "ts-node ../../config/api-extractor.ts config/api-extractor.main.json",
+    "extract-api:map": "ts-node ../../config/api-extractor.ts config/api-extractor.map.json",
+    "extract-api:map-custom": "ts-node ../../config/api-extractor.ts config/api-extractor.map-custom.json",
     "format": "yarn format:base --write",
-    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,json,md}\"",
+    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
-    "test": "jest",
-    "test:random": "jest --config jest-random.config.json --runInBand",
-    "test:types": "tsd",
+    "test": "vitest run",
+    "test:cov": "vitest run --coverage",
+    "test:watch": "vitest",
+    "test:random": "vitest run --config vitest.random.config.ts",
+    "test:types": "tsd --files test-d",
     "typecheck": "tsc"
   },
-  "sideEffects": false,
   "dependencies": {
-    "@rimbu/base": "^0.11.4",
-    "@rimbu/collection-types": "^0.10.6",
-    "@rimbu/common": "*",
-    "@rimbu/hashed": "^0.9.7",
-    "@rimbu/stream": "^0.13.6",
-    "tslib": "^2.5.0"
+    "@rimbu/base": "^1.0.0-alpha.0",
+    "@rimbu/collection-types": "^1.0.0-alpha.0",
+    "@rimbu/common": "^1.0.0-alpha.0",
+    "@rimbu/hashed": "^1.0.0-alpha.0",
+    "@rimbu/stream": "^1.0.0-alpha.0",
+    "tslib": "^2.5.3"
   },
   "publishConfig": {
     "access": "public"

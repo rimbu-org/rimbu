@@ -1,5 +1,5 @@
 import type { IsAnyFunc, IsArray, IsPlainObj } from '../base/mod.ts';
-import { Deep, Patch } from './internal.ts';
+import { Deep, type Patch } from './internal.ts';
 import type { Tuple } from './tuple.ts';
 
 export namespace Path {

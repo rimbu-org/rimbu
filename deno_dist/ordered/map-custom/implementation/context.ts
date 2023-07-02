@@ -1,7 +1,11 @@
-import { RMapBase, WithKeyValue } from '../../../collection-types/map-custom/index.ts';
-import type { List } from '../../../list/mod.ts';
 import {
-  OrderedMapBase,
+  RMapBase,
+  type WithKeyValue,
+} from '../../../collection-types/map-custom/index.ts';
+import type { List } from '../../../list/mod.ts';
+
+import {
+  type OrderedMapBase,
   OrderedMapBuilder,
   OrderedMapEmpty,
   OrderedMapNonEmpty,

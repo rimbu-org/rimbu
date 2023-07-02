@@ -1,10 +1,11 @@
 import { HashMap, HashSet } from '../../../../../hashed/mod.ts';
+import type { Stream, Streamable } from '../../../../../stream/mod.ts';
+
 import {
-  HashMultiMapHashValueCreators,
-  MultiMapBase,
+  type HashMultiMapHashValueCreators,
+  type MultiMapBase,
   MultiMapContext,
 } from '../../../../../multimap/custom/index.ts';
-import type { Stream, Streamable } from '../../../../../stream/mod.ts';
 
 /**
  * A type-invariant immutable MultiMap of key type K, and value type V.

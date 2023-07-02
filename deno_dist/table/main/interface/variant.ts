@@ -1,4 +1,5 @@
 import type { Streamable } from '../../../stream/mod.ts';
+
 import type { VariantTableBase } from '../../../table/custom/index.ts';
 
 /**

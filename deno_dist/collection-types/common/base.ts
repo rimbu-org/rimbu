@@ -1,5 +1,5 @@
 import { RimbuError } from '../../base/mod.ts';
-import { FastIterable, FastIterator, Stream } from '../../stream/mod.ts';
+import { type FastIterable, type FastIterator, Stream } from '../../stream/mod.ts';
 
 export abstract class EmptyBase {
   [Symbol.iterator](): FastIterator<any> {
@@ -51,7 +51,7 @@ export abstract class NonEmptyBase<E> implements FastIterable<E> {
   abstract stream(): Stream.NonEmpty<E>;
 
   [Symbol.iterator](): FastIterator<E> {
-    return this.stream()[Symbol.iterator]();
+    return (this.stream() as any)[Symbol.iterator]();
   }
 
   get isEmpty(): false {

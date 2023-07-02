@@ -1,11 +1,12 @@
 import { List } from '../../../list/mod.ts';
-import {
-  OrderedSetBase,
-  OrderedSetContextImpl,
-  OrderedSortedSetCreators,
-} from '../../../ordered/set-custom/index.ts';
 import { SortedSet } from '../../../sorted/set/index.ts';
 import type { Stream, Streamable } from '../../../stream/mod.ts';
+
+import {
+  type OrderedSetBase,
+  OrderedSetContextImpl,
+  type OrderedSortedSetCreators,
+} from '../../../ordered/set-custom/index.ts';
 
 /**
  * A type-invariant immutable Ordered SortedSet of value type T.

@@ -1,6 +1,6 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
-  "extends": "<projectFolder>/../../config/api-extractor.json",
+  "extends": "<projectFolder>/api-extractor.json",
   "mainEntryPointFilePath": "<projectFolder>dist/types/index.d.ts",
   "bundledPackages": [],
   "docModel": {

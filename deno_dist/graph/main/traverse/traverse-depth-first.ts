@@ -1,7 +1,7 @@
 import { OptLazy } from '../../../common/mod.ts';
 import { HashSet } from '../../../hashed/mod.ts';
 import { SortedSet } from '../../../sorted/mod.ts';
-import { FastIterator, Stream } from '../../../stream/mod.ts';
+import { type FastIterator, Stream } from '../../../stream/mod.ts';
 import { FastIteratorBase, StreamBase } from '../../../stream/custom/index.ts';
 
 import type { VariantGraphBase } from '../../../graph/custom/index.ts';

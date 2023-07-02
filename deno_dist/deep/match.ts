@@ -1,9 +1,9 @@
 import {
-  IsAnyFunc,
-  IsArray,
+  type IsAnyFunc,
+  type IsArray,
   isPlainObj,
-  IsPlainObj,
-  NotIterable,
+  type IsPlainObj,
+  type NotIterable,
 } from '../base/mod.ts';
 import type { Protected } from './internal.ts';
 import type { Tuple } from './tuple.ts';

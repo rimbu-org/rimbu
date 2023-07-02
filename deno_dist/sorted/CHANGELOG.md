@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.10.7](https://github.com/rimbu-org/rimbu/compare/@rimbu/sorted@0.10.6...@rimbu/sorted@0.10.7) (2023-06-30)
+
+**Note:** Version bump only for package @rimbu/sorted
+
 ## [0.10.6](https://github.com/rimbu-org/rimbu/compare/@rimbu/sorted@0.10.5...@rimbu/sorted@0.10.6) (2023-05-21)
 
 **Note:** Version bump only for package @rimbu/sorted

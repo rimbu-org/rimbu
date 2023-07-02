@@ -1,8 +1,7 @@
 {
   "name": "menu",
   "private": true,
-  "source": "../src/menu/index.ts",
-  "main": "../dist/main/menu/index.js",
-  "module": "../dist/module/menu/index.js",
-  "types": "../dist/types/menu/index.d.ts"
+  "main": "../dist/cjs/menu/index.js",
+  "module": "../dist/esm/menu/index.mjs",
+  "types": "../dist/types/menu/index.d.mts"
 }

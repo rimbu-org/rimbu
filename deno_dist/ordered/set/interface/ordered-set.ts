@@ -1,11 +1,12 @@
 import type { RSet } from '../../../collection-types/set/index.ts';
 import { List } from '../../../list/mod.ts';
+import type { Stream, Streamable } from '../../../stream/mod.ts';
+
 import {
-  OrderedSetBase,
+  type OrderedSetBase,
   OrderedSetContextImpl,
   type OrderedSetCreators,
 } from '../../../ordered/set-custom/index.ts';
-import type { Stream, Streamable } from '../../../stream/mod.ts';
 
 /**
  * A type-invariant immutable Ordered Set of value type T.

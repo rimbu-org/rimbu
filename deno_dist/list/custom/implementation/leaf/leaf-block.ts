@@ -1,20 +1,15 @@
 import { Arr, RimbuError } from '../../../../base/mod.ts';
 import {
-  ArrayNonEmpty,
+  type ArrayNonEmpty,
   IndexRange,
   OptLazy,
   TraverseState,
   Update,
 } from '../../../../common/mod.ts';
-import { Stream, StreamSource } from '../../../../stream/mod.ts';
+import { Stream, type StreamSource } from '../../../../stream/mod.ts';
 
-import type { List } from '../../../../list/mod.ts';
-import type {
-  Block,
-  BlockBuilder,
-  LeafTree,
-  ListContext,
-} from '../../../../list/custom/index.ts';
+import type { List } from '../../../../list/main/index.ts';
+import type { Block, BlockBuilder, LeafTree, ListContext } from '../../../../list/custom/index.ts';
 import { ListNonEmptyBase } from './non-empty.ts';
 
 export class LeafBlock<T>

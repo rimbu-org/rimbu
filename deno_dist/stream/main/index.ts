@@ -18,4 +18,4 @@ export * from './interface.ts';
 
 export * from './transformer.ts';
 
-export * from '../async/index.ts';
+export * from '../../stream/async/index.ts';

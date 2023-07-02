@@ -10,5 +10,5 @@
  * - [`@rimbu/proximity/map`](/api/rimbu/proximity/map)<br/>
  */
 
-export * from '../common/index.ts';
-export * from '../map/index.ts';
+export * from '../../proximity/common/index.ts';
+export * from '../../proximity/map/index.ts';

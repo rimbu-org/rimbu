@@ -1,11 +1,12 @@
 import { HashSet } from '../../../../../hashed/set/index.ts';
-import {
-  MultiMapBase,
-  MultiMapContext,
-  SortedMultiMapHashValueCreators,
-} from '../../../../../multimap/custom/index.ts';
 import { SortedMap } from '../../../../../sorted/map/index.ts';
 import type { Stream, Streamable } from '../../../../../stream/mod.ts';
+
+import {
+  type MultiMapBase,
+  MultiMapContext,
+  type SortedMultiMapHashValueCreators,
+} from '../../../../../multimap/custom/index.ts';
 
 /**
  * A type-invariant immutable MultiMap of key type K, and value type V.

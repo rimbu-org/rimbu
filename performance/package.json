@@ -20,22 +20,18 @@
     "url": "https://github.com/rimbu-org/rimbu.git",
     "directory": "packages/performance"
   },
+  "type": "module",
   "scripts": {
     "format": "yarn format:base --write",
-    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,json,md}\"",
+    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts, mjs, json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
-    "start": "NODE_OPTIONS=--max-old-space-size=8192 npx ts-node -O '{\"module\":\"commonjs\"}' src/benchmark.ts",
-    "start:single": "NODE_OPTIONS=--max-old-space-size=8192 npx ts-node -O '{\"module\":\"commonjs\"}'"
-  },
-  "sideEffects": false,
-  "devDependencies": {
-    "eslint": "^8.3.0",
-    "prettier": "^2.4.1",
-    "ts-node": "^10.9.1"
+    "start": "NODE_OPTIONS=--max-old-space-size=8192 ts-node --esm src/benchmark.mts",
+    "start:single": "NODE_OPTIONS=--max-old-space-size=8192 ts-node --esm"
   },
   "dependencies": {
-    "@rimbu/core": "file:../packages/core",
+    "@rimbu/bimap": "*",
+    "@rimbu/core": "*",
     "benny": "^3.6.15"
   }
 }

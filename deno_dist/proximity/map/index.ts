@@ -10,8 +10,9 @@ import type { RMap } from '../../collection-types/mod.ts';
 import type { RMapBase } from '../../collection-types/map-custom/index.ts';
 import type { Stream, Streamable } from '../../stream/mod.ts';
 import { HashMap } from '../../hashed/map/index.ts';
-import { DistanceFunction } from '../common/index.ts';
-import { ProximityMapContext } from '../map-custom/index.ts';
+
+import { DistanceFunction } from '../../proximity/common/index.ts';
+import { ProximityMapContext } from '../../proximity/map-custom/index.ts';
 
 /**
  * A type-invariant immutable Map of key type K, and value type V.

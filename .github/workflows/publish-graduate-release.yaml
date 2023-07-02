@@ -18,7 +18,7 @@ jobs:
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
           registry-url: 'https://registry.npmjs.org'
           cache: 'yarn'
           # Defaults to the user or organization that owns the workflow file
@@ -27,7 +27,7 @@ jobs:
         run: npm whoami
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - run: yarn setup
+      - run: yarn
       - name: Build
         run: yarn build
       - name: Bump versions and publish packages

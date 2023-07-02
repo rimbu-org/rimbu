@@ -92,7 +92,7 @@ The main exported packages are:
 ## Development: Getting started with this monorepo
 
 1. Clone this repository
-2. Run `yarn setup`
+2. Run `yarn`
 
 To build all the packages: `yarn build`
 To run the tests: `yarn test`

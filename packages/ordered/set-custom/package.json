@@ -1,8 +1,7 @@
 {
   "name": "set-custom",
   "private": true,
-  "source": "../src/set-custom/index.ts",
-  "main": "../dist/main/set-custom/index.js",
-  "module": "../dist/module/set-custom/index.js",
-  "types": "../dist/types/set-custom/index.d.ts"
+  "main": "../dist/src/set-custom/index.js",
+  "module": "../dist/esm/set-custom/index.mjs",
+  "types": "../dist/types/set-custom/index.d.mts"
 }

@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/typical",
-  "version": "0.5.2",
+  "version": "0.6.0-alpha.0",
   "description": "Type-level numeric and string operations",
   "keywords": [
     "typelevel",
@@ -27,17 +27,15 @@
     "url": "https://github.com/rimbu-org/rimbu.git",
     "directory": "packages/typical"
   },
-  "source": "./src/index.ts",
-  "main": "./dist/main/index.js",
-  "module": "./dist/module/index.js",
-  "types": "./dist/types/index.d.ts",
+  "type": "module",
+  "module": "./dist/esm/index.mjs",
+  "types": "./dist/types/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/types/index.d.ts",
-      "bun": "./src/index.ts",
-      "import": "./dist/module/index.js",
-      "require": "./dist/main/index.js",
-      "default": "./dist/module/index.js"
+      "types": "./dist/types/index.d.mts",
+      "bun": "./src/index.mts",
+      "import": "./dist/esm/index.mjs",
+      "default": "./dist/esm/index.mjs"
     }
   },
   "files": [
@@ -46,21 +44,27 @@
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
-    "build:deno": "rimraf deno_dist ../../deno_dist/typical && denoify && mv deno_dist ../../deno_dist/typical",
-    "bundle": "yarn bundle:main && yarn bundle:module && yarn bundle:types",
-    "bundle:main": "tsc --p tsconfig.main.json",
-    "bundle:module": "tsc --p tsconfig.module.json",
+    "build:deno": "yarn bundle:deno-prepare && yarn bundle:deno-convert && yarn bundle:deno-move && yarn bundle:deno-clean",
+    "bundle": "yarn bundle:esm && yarn bundle:types && yarn bundle:bun",
+    "bundle:bun": "node ../../config/bunnify.mjs",
+    "bundle:deno-prepare": "node ../../config/prepare-denoify.mjs",
+    "bundle:deno-convert": "denoify --src _deno_prepare/src",
+    "bundle:deno-move": "rimraf ../../deno_dist/typical && mv deno_dist ../../deno_dist/typical",
+    "bundle:deno-clean": "rimraf _deno_prepare",
+    "bundle:esm": "tsc --p tsconfig.esm.json",
     "bundle:types": "tsc --p tsconfig.types.json",
     "clean": "rimraf dist",
     "format": "yarn format:base --write",
-    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,json,md}\"",
+    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
-    "test:types": "tsd",
+    "test:types": "tsd --files test-d",
     "typecheck": "tsc"
   },
-  "sideEffects": false,
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "tslib": "^2.5.3"
   }
 }

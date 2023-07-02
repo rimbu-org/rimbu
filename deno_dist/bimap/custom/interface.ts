@@ -1,7 +1,8 @@
-import type { BiMap } from '../../bimap/mod.ts';
+import type { BiMap } from '../../bimap/main/index.ts';
+
+import type { RMap } from '../../collection-types/mod.ts';
 import type { ArrayNonEmpty, Reducer } from '../../common/mod.ts';
 import type { StreamSource } from '../../stream/mod.ts';
-import type { RMap } from '../../collection-types/mod.ts';
 
 export interface BiMapFactory<UK = unknown, UV = unknown> {
   /**

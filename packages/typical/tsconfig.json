@@ -1,9 +1,5 @@
 {
-  "extends": "../../config/tsconfig.base.json",
-  "include": ["src"],
-  "compilerOptions": {
-    "outDir": "./dist",
-    "noEmit": true,
-    "rootDir": ".."
-  }
+  "extends": ["../../config/tsconfig.base.json", "./tsconfig.common.json"],
+  "include": ["src", "test", "test-d"],
+  "compilerOptions": {}
 }

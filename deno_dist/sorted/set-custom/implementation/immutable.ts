@@ -1,14 +1,14 @@
 import { Arr, RimbuError } from '../../../base/mod.ts';
 import {
-  ArrayNonEmpty,
+  type ArrayNonEmpty,
   IndexRange,
   OptLazy,
   Range,
-  RelatedTo,
-  ToJSON,
+  type RelatedTo,
+  type ToJSON,
   TraverseState,
 } from '../../../common/mod.ts';
-import { Stream, StreamSource } from '../../../stream/mod.ts';
+import { Stream, type StreamSource } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 import type { SortedSet } from '../../../sorted/set/index.ts';
@@ -42,7 +42,7 @@ import {
   leafMutateSplitRight,
   SortedEmpty,
   SortedNonEmptyBase,
-} from '../../common/index.ts';
+} from '../../../sorted/common/index.ts';
 
 export class SortedSetEmpty<T = any>
   extends SortedEmpty
