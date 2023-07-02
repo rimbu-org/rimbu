@@ -81,5 +81,10 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "engines": {
+    "node": ">= 18",
+    "npm": "please-use-yarn",
+    "yarn": ">= 1.22.19"
   }
 }
