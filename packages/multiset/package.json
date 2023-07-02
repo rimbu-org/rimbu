@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/multiset",
-  "version": "0.11.4",
+  "version": "1.0.0-alpha.0",
   "description": "An immutable Set where each element can occur multiple times",
   "keywords": [
     "multiset",
@@ -102,12 +102,12 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@rimbu/base": "*",
-    "@rimbu/collection-types": "*",
-    "@rimbu/common": "*",
-    "@rimbu/hashed": "*",
-    "@rimbu/sorted": "*",
-    "@rimbu/stream": "*",
+    "@rimbu/base": "^1.0.0-alpha.0",
+    "@rimbu/collection-types": "^1.0.0-alpha.0",
+    "@rimbu/common": "^1.0.0-alpha.0",
+    "@rimbu/hashed": "^1.0.0-alpha.0",
+    "@rimbu/sorted": "^1.0.0-alpha.0",
+    "@rimbu/stream": "^1.0.0-alpha.0",
     "tslib": "^2.5.3"
   },
   "publishConfig": {

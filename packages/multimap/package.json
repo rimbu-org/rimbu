@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/multimap",
-  "version": "0.10.8",
+  "version": "1.0.0-alpha.0",
   "description": "An immutable Map where each key can have multiple values",
   "keywords": [
     "multimap",
@@ -103,12 +103,12 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@rimbu/base": "*",
-    "@rimbu/collection-types": "*",
-    "@rimbu/common": "*",
-    "@rimbu/hashed": "*",
-    "@rimbu/sorted": "*",
-    "@rimbu/stream": "*",
+    "@rimbu/base": "^1.0.0-alpha.0",
+    "@rimbu/collection-types": "^1.0.0-alpha.0",
+    "@rimbu/common": "^1.0.0-alpha.0",
+    "@rimbu/hashed": "^1.0.0-alpha.0",
+    "@rimbu/sorted": "^1.0.0-alpha.0",
+    "@rimbu/stream": "^1.0.0-alpha.0",
     "tslib": "^2.5.3"
   },
   "publishConfig": {
