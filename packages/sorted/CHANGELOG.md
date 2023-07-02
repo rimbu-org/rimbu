@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/sorted@0.10.7...@rimbu/sorted@1.0.0-alpha.1) (2023-07-02)
+
+### Bug Fixes
+
+- **sorted:** incorporate PR [#168](https://github.com/rimbu-org/rimbu/issues/168) from giancosta86 on main branch into esm branch ([f06fff9](https://github.com/rimbu-org/rimbu/commit/f06fff98a34e7777fd45947dde89350cd24d274e))
+
 ## [0.10.7](https://github.com/rimbu-org/rimbu/compare/@rimbu/sorted@0.10.6...@rimbu/sorted@0.10.7) (2023-06-30)
 
 **Note:** Version bump only for package @rimbu/sorted
