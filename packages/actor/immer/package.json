@@ -1,7 +1,7 @@
 {
   "name": "immer",
   "private": true,
-  "main": "../dist/cjs/immer/index.js",
+  "main": "../dist/cjs/immer/index.cjs",
   "module": "../dist/esm/immer/index.mjs",
   "types": "../dist/types/immer/index.d.mts"
 }

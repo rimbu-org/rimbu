@@ -49,7 +49,7 @@
     "directory": "packages/core"
   },
   "type": "module",
-  "main": "./dist/cjs/main/index.js",
+  "main": "./dist/cjs/main/index.cjs",
   "module": "./dist/esm/main/index.mjs",
   "types": "./dist/types/main/index.d.mts",
   "exports": {
@@ -57,14 +57,14 @@
       "types": "./dist/types/main/index.d.mts",
       "bun": "./dist/bun/main/index.mts",
       "import": "./dist/esm/main/index.mjs",
-      "require": "./dist/cjs/main/index.js",
+      "require": "./dist/cjs/main/index.cjs",
       "default": "./dist/esm/main/index.mjs"
     },
     "./menu": {
       "types": "./dist/types/menu/index.d.mts",
       "bun": "./dist/bun/menu/index.mts",
       "import": "./dist/esm/menu/index.mjs",
-      "require": "./dist/cjs/menu/index.js",
+      "require": "./dist/cjs/menu/index.cjs",
       "default": "./dist/esm/menu/index.mjs"
     }
   },
@@ -78,7 +78,7 @@
     "build:deno": "yarn bundle:deno-prepare && yarn bundle:deno-convert && yarn bundle:deno-move && yarn bundle:deno-clean",
     "bundle": "yarn bundle:cjs && yarn bundle:esm && yarn bundle:types && yarn bundle:bun",
     "bundle:bun": "node ../../config/bunnify.mjs",
-    "bundle:cjs": "tsup src --format cjs --clean -d dist/cjs --loader '.mts=ts' --legacy-output",
+    "bundle:cjs": "tsup src --format cjs --clean -d dist/cjs --loader '.mts=ts'",
     "bundle:deno-prepare": "node ../../config/prepare-denoify.mjs",
     "bundle:deno-convert": "denoify --src _deno_prepare/src",
     "bundle:deno-move": "rimraf ../../deno_dist/core && mv deno_dist ../../deno_dist/core",

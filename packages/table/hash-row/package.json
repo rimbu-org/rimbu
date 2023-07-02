@@ -1,7 +1,7 @@
 {
   "name": "hash-row",
   "private": true,
-  "main": "../dist/cjs/hash-row/index.js",
+  "main": "../dist/cjs/hash-row/index.cjs",
   "module": "../dist/esm/hash-row/index.mjs",
   "types": "../dist/types/hash-row/index.d.mts"
 }

@@ -1,7 +1,7 @@
 {
   "name": "patch",
   "private": true,
-  "main": "../dist/cjs/patch/index.js",
+  "main": "../dist/cjs/patch/index.cjs",
   "module": "../dist/esm/patch/index.mjs",
   "types": "../dist/types/patch/index.d.mts"
 }

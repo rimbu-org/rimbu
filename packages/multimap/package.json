@@ -33,7 +33,7 @@
     "directory": "packages/multimap"
   },
   "type": "module",
-  "main": "./dist/cjs/main/index.js",
+  "main": "./dist/cjs/main/index.cjs",
   "module": "./dist/esm/main/index.mjs",
   "types": "./dist/types/main/index.d.mts",
   "exports": {
@@ -41,14 +41,14 @@
       "types": "./dist/types/main/index.d.mts",
       "bun": "./dist/bun/main/index.mts",
       "import": "./dist/esm/main/index.mjs",
-      "require": "./dist/cjs/main/index.js",
+      "require": "./dist/cjs/main/index.cjs",
       "default": "./dist/esm/main/index.mjs"
     },
     "./custom": {
       "types": "./dist/types/custom/index.d.mts",
       "bun": "./dist/bun/custom/index.mts",
       "import": "./dist/esm/custom/index.mjs",
-      "require": "./dist/cjs/custom/index.js",
+      "require": "./dist/cjs/custom/index.cjs",
       "default": "./dist/esm/custom/index.mjs"
     }
   },
@@ -59,14 +59,14 @@
     "#multimap/*.mjs": {
       "types": "./dist/types/*.d.mts",
       "import": "./dist/esm/*.mjs",
-      "require": "./dist/cjs/*.js",
+      "require": "./dist/cjs/*.cjs",
       "default": "./dist/esm/*.mjs"
     },
     "#multimap/*": {
       "types": "./dist/types/*/index.d.mts",
       "bun": "./dist/bun/*/index.mts",
       "import": "./dist/esm/*/index.mjs",
-      "require": "./dist/cjs/*/index.js",
+      "require": "./dist/cjs/*/index.cjs",
       "default": "./dist/esm/*/index.mjs"
     }
   },
@@ -80,7 +80,7 @@
     "build:deno": "yarn bundle:deno-prepare && yarn bundle:deno-convert && yarn bundle:deno-move && yarn bundle:deno-clean",
     "bundle": "yarn bundle:cjs && yarn bundle:esm && yarn bundle:types && yarn bundle:bun",
     "bundle:bun": "node ../../config/bunnify.mjs",
-    "bundle:cjs": "tsup src --format cjs --clean -d dist/cjs --loader '.mts=ts' --legacy-output",
+    "bundle:cjs": "tsup src --format cjs --clean -d dist/cjs --loader '.mts=ts'",
     "bundle:deno-prepare": "node ../../config/prepare-denoify.mjs",
     "bundle:deno-convert": "denoify --src _deno_prepare/src",
     "bundle:deno-move": "rimraf ../../deno_dist/multimap && mv deno_dist ../../deno_dist/multimap",

@@ -1,7 +1,7 @@
 {
   "name": "async",
   "private": true,
-  "main": "../dist/cjs/async/index.js",
+  "main": "../dist/cjs/async/index.cjs",
   "module": "../dist/esm/async/index.mjs",
   "types": "../dist/types/async/index.d.mts"
 }

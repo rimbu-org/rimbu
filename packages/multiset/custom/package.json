@@ -1,7 +1,7 @@
 {
   "name": "custom",
   "private": true,
-  "main": "../dist/cjs/custom/index.js",
+  "main": "../dist/cjs/custom/index.cjs",
   "module": "../dist/esm/custom/index.mjs",
   "types": "../dist/types/custom/index.d.mts"
 }

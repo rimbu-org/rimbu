@@ -33,43 +33,43 @@
     "directory": "packages/ordered"
   },
   "type": "module",
-  "main": "./dist/cjs/main/index.js",
-  "module": "./dist/esm/main/index.js",
+  "main": "./dist/cjs/main/index.cjs",
+  "module": "./dist/esm/main/index.mjs",
   "types": "./dist/types/main/index.d.mts",
   "exports": {
     ".": {
       "types": "./dist/types/main/index.d.mts",
       "bun": "./dist/bun/main/index.mts",
       "import": "./dist/esm/main/index.mjs",
-      "require": "./dist/cjs/main/index.js",
+      "require": "./dist/cjs/main/index.cjs",
       "default": "./dist/esm/main/index.mjs"
     },
     "./map": {
       "types": "./dist/types/map/index.d.mts",
       "bun": "./dist/bun/map/index.mts",
       "import": "./dist/esm/map/index.mjs",
-      "require": "./dist/cjs/map/index.js",
+      "require": "./dist/cjs/map/index.cjs",
       "default": "./dist/esm/map/index.mjs"
     },
     "./map-custom": {
       "types": "./dist/types/map-custom/index.d.mts",
       "bun": "./dist/bun/map-custom/index.mts",
       "import": "./dist/esm/map-custom/index.mjs",
-      "require": "./dist/cjs/map-custom/index.js",
+      "require": "./dist/cjs/map-custom/index.cjs",
       "default": "./dist/esm/map-custom/index.mjs"
     },
     "./set": {
       "types": "./dist/types/set/index.d.mts",
       "bun": "./dist/bun/set/index.mts",
       "import": "./dist/esm/set/index.mjs",
-      "require": "./dist/cjs/set/index.js",
+      "require": "./dist/cjs/set/index.cjs",
       "default": "./dist/esm/set/index.mjs"
     },
     "./set-custom": {
       "types": "./dist/types/set-custom/index.d.mts",
       "bun": "./dist/bun/set-custom/index.mts",
       "import": "./dist/esm/set-custom/index.mjs",
-      "require": "./dist/cjs/set-custom/index.js",
+      "require": "./dist/cjs/set-custom/index.cjs",
       "default": "./dist/esm/set-custom/index.mjs"
     }
   },
@@ -80,14 +80,14 @@
     "#ordered/*.mjs": {
       "types": "./dist/types/*.d.mts",
       "import": "./dist/esm/*.mjs",
-      "require": "./dist/cjs/*.js",
+      "require": "./dist/cjs/*.cjs",
       "default": "./dist/esm/*.mjs"
     },
     "#ordered/*": {
       "types": "./dist/types/*/index.d.mts",
       "bun": "./dist/bun/*/index.mts",
       "import": "./dist/esm/*/index.mjs",
-      "require": "./dist/cjs/*/index.js",
+      "require": "./dist/cjs/*/index.cjs",
       "default": "./dist/esm/*/index.mjs"
     }
   },
@@ -104,7 +104,7 @@
     "build:deno": "yarn bundle:deno-prepare && yarn bundle:deno-convert && yarn bundle:deno-move && yarn bundle:deno-clean",
     "bundle": "yarn bundle:cjs && yarn bundle:esm && yarn bundle:types && yarn bundle:bun",
     "bundle:bun": "node ../../config/bunnify.mjs",
-    "bundle:cjs": "tsup src --format cjs --clean -d dist/cjs --loader '.mts=ts' --legacy-output",
+    "bundle:cjs": "tsup src --format cjs --clean -d dist/cjs --loader '.mts=ts'",
     "bundle:deno-prepare": "node ../../config/prepare-denoify.mjs",
     "bundle:deno-convert": "denoify --src _deno_prepare/src",
     "bundle:deno-move": "rimraf ../../deno_dist/ordered && mv deno_dist ../../deno_dist/ordered",

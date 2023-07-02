@@ -28,7 +28,7 @@
     "directory": "packages/actor"
   },
   "type": "module",
-  "main": "./dist/cjs/main/index.js",
+  "main": "./dist/cjs/main/index.cjs",
   "module": "./dist/esm/main/index.mjs",
   "types": "./dist/types/main/index.d.mts",
   "exports": {
@@ -36,28 +36,28 @@
       "types": "./dist/types/main/index.d.mts",
       "bun": "./dist/bun/main/index.mts",
       "import": "./dist/esm/main/index.mjs",
-      "require": "./dist/cjs/main/index.js",
+      "require": "./dist/cjs/main/index.cjs",
       "default": "./dist/esm/main/index.mjs"
     },
     "./immer": {
       "types": "./dist/types/immer/index.d.mts",
       "bun": "./dist/bun/immer/index.mts",
       "import": "./dist/esm/immer/index.mjs",
-      "require": "./dist/cjs/immer/index.js",
+      "require": "./dist/cjs/immer/index.cjs",
       "default": "./dist/esm/immer/index.mjs"
     },
     "./patch": {
       "types": "./dist/types/patch/index.d.mts",
       "bun": "./dist/bun/patch/index.mts",
       "import": "./dist/esm/patch/index.mjs",
-      "require": "./dist/cjs/patch/index.js",
+      "require": "./dist/cjs/patch/index.cjs",
       "default": "./dist/esm/patch/index.mjs"
     },
     "./stream": {
       "types": "./dist/types/stream/index.d.mts",
       "bun": "./dist/bun/stream/index.mts",
       "import": "./dist/esm/stream/index.mjs",
-      "require": "./dist/cjs/stream/index.js",
+      "require": "./dist/cjs/stream/index.cjs",
       "default": "./dist/esm/stream/index.mjs"
     }
   },
@@ -68,14 +68,14 @@
     "#actor/*.mjs": {
       "types": "./dist/types/*.d.mts",
       "import": "./dist/esm/*.mjs",
-      "require": "./dist/cjs/*.js",
+      "require": "./dist/cjs/*.cjs",
       "default": "./dist/esm/*.mjs"
     },
     "#actor/*": {
       "types": "./dist/types/*/index.d.mts",
       "bun": "./dist/bun/*/index.mts",
       "import": "./dist/esm/*/index.mjs",
-      "require": "./dist/cjs/*/index.js",
+      "require": "./dist/cjs/*/index.cjs",
       "default": "./dist/esm/*/index.mjs"
     }
   },
@@ -91,7 +91,7 @@
     "build:deno": "yarn bundle:deno-prepare && yarn bundle:deno-convert && yarn bundle:deno-move && yarn bundle:deno-clean",
     "bundle": "yarn bundle:cjs && yarn bundle:esm && yarn bundle:types && yarn bundle:bun",
     "bundle:bun": "node ../../config/bunnify.mjs",
-    "bundle:cjs": "tsup src --format cjs --clean -d dist/cjs --loader '.mts=ts' --legacy-output --external @rimbu/base --external @rimbu/stream",
+    "bundle:cjs": "tsup src --format cjs --clean -d dist/cjs --loader '.mts=ts' --external @rimbu/base --external @rimbu/stream",
     "bundle:deno-prepare": "node ../../config/prepare-denoify.mjs",
     "bundle:deno-convert": "denoify --src _deno_prepare/src",
     "bundle:deno-move": "rimraf ../../deno_dist/actor && mv deno_dist ../../deno_dist/actor",
