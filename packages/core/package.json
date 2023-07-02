@@ -55,14 +55,14 @@
   "exports": {
     ".": {
       "types": "./dist/types/main/index.d.mts",
-      "bun": "./src/main/index.mts",
+      "bun": "./dist/bun/main/index.mts",
       "import": "./dist/esm/main/index.mjs",
       "require": "./dist/cjs/main/index.js",
       "default": "./dist/esm/main/index.mjs"
     },
     "./menu": {
       "types": "./dist/types/menu/index.d.mts",
-      "bun": "./src/menu/index.mts",
+      "bun": "./dist/bun/menu/index.mts",
       "import": "./dist/esm/menu/index.mjs",
       "require": "./dist/cjs/menu/index.js",
       "default": "./dist/esm/menu/index.mjs"

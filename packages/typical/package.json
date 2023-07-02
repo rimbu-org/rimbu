@@ -33,7 +33,7 @@
   "exports": {
     ".": {
       "types": "./dist/types/index.d.mts",
-      "bun": "./src/index.mts",
+      "bun": "./dist/bun/index.mts",
       "import": "./dist/esm/index.mjs",
       "default": "./dist/esm/index.mjs"
     }
