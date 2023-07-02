@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/core",
-  "version": "0.11.6",
+  "version": "0.11.8",
   "description": "Immutable collections and tools for TypeScript",
   "keywords": [
     "collection",

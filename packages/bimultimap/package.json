@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/bimultimap",
-  "version": "0.10.6",
+  "version": "0.10.8",
   "description": "A bidirectional immutable MultiMap of keys and values for TypeScript",
   "keywords": [
     "bimultimap",

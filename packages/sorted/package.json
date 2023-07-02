@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/sorted",
-  "version": "0.10.6",
+  "version": "0.10.7",
   "description": "Immutable SortedMap and SortedSet implementations for TypeScript",
   "keywords": [
     "sortedmap",
