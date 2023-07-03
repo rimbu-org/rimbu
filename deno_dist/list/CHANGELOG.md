@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/list@1.0.0-alpha.2...@rimbu/list@1.0.0) (2023-07-03)
+
+**Note:** Version bump only for package @rimbu/list
+
+# [1.0.0-alpha.2](https://github.com/rimbu-org/rimbu/compare/@rimbu/list@1.0.0-alpha.1...@rimbu/list@1.0.0-alpha.2) (2023-07-02)
+
+**Note:** Version bump only for package @rimbu/list
+
 # [1.0.0-alpha.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/list@0.12.3...@rimbu/list@1.0.0-alpha.1) (2023-07-02)
 
 **Note:** Version bump only for package @rimbu/list

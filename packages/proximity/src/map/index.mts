@@ -96,7 +96,7 @@ export namespace ProximityMap {
   /**
    * A mutable `ProximityMap` builder used to efficiently create new immutable instances.
    * See the [Map documentation](/docs/collections/map) and the
-   * [ProximityMap.Builder API documentation](/api/rimbu/proximity/ProximityMap/Builder/interface)
+   * [ProximityMap.Builder API documentation](/api/rimbu/proximity/map/ProximityMap/Builder/interface)
    * @typeparam K - the key type
    * @typeparam V - the value type
    */
