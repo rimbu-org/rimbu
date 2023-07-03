@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/deep",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0",
   "description": "Tools to use handle plain JS objects as immutable objects",
   "keywords": [
     "immutable",
@@ -72,8 +72,8 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@rimbu/base": "^1.0.0-alpha.2",
-    "@rimbu/common": "^1.0.0-alpha.2",
+    "@rimbu/base": "^1.0.0",
+    "@rimbu/common": "^1.0.0",
     "tslib": "^2.5.3"
   },
   "publishConfig": {
