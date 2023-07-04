@@ -4,6 +4,7 @@
   "compilerOptions": {
     "rootDir": "..",
     "paths": {
+      "#stream/*": ["./dist/types/*/index.d.mts"],
       "@rimbu/bimap": ["../bimap/dist/types/main/index.d.mts"],
       "@rimbu/bimultimap": ["../bimultimap/dist/types/main/index.d.mts"],
       "@rimbu/collection-types": [

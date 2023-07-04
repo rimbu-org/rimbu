@@ -1,9 +1,5 @@
 {
   "compilerOptions": {
-    "rootDirs": [".", ".."],
-    "paths": {
-      "#hashed/*.mjs": ["./src/*.mjs"],
-      "#hashed/*": ["./src/*/index.mjs"]
-    }
+    "rootDirs": [".", ".."]
   }
 }
