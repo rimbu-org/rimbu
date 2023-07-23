@@ -106,7 +106,8 @@ export class LeafTree<T>
     );
   }
 
-  take(amount: number): List<T> | any {
+  take(amountInput: number): List<T> | any {
+    const amount = Math.floor(amountInput);
     if (amount === 0) return this.context.empty();
     if (amount >= this.length || -amount > this.length) return this;
     if (amount < 0) return this.drop(this.length + amount);
