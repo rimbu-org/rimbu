@@ -1,14 +1,14 @@
-import { RimbuError, Token } from '@rimbu/base';
+import { RimbuError, type Token } from '@rimbu/base';
 import {
-  type ArrayNonEmpty,
-  type AsyncCollectFun,
   AsyncOptLazy,
   AsyncReducer,
   Comp,
   Eq,
+  TraverseState,
+  type ArrayNonEmpty,
+  type AsyncCollectFun,
   type MaybePromise,
   type ToJSON,
-  TraverseState,
 } from '@rimbu/common';
 
 import type {
@@ -32,7 +32,6 @@ import {
   AsyncIndicesOfIterator,
   AsyncIndicesWhereIterator,
   AsyncIntersperseIterator,
-  AsyncLiveIterator,
   AsyncMapIterator,
   AsyncMapPureIterator,
   AsyncOfIterator,
@@ -42,7 +41,6 @@ import {
   AsyncRepeatIterator,
   AsyncSplitOnIterator,
   AsyncSplitWhereIterator,
-  type AsyncStreamConstructors,
   AsyncTakeIterator,
   AsyncTakeWhileIterator,
   AsyncUnfoldIterator,
@@ -56,6 +54,7 @@ import {
   closeIters,
   emptyAsyncFastIterator,
   isAsyncFastIterator,
+  type AsyncStreamConstructors,
 } from '#stream/async-custom';
 import { isEmptyStreamSourceInstance } from '#stream/custom';
 import type { StreamSource } from '#stream/main';
@@ -1740,56 +1739,6 @@ export const AsyncStreamConstructorsImpl: AsyncStreamConstructors =
     },
     fromResource(open, createSource, close): any {
       return new FromResource(open, createSource, close);
-    },
-    live<T>(
-      maxSize = 100
-    ): [{ submit(value: T): void; close(): void }, AsyncStream<T>] {
-      const listenerIterators = new Set<AsyncLiveIterator<T>>();
-
-      let closed = false;
-
-      function subscribe(iter: AsyncLiveIterator<T>): void {
-        if (closed) {
-          iter.close();
-          return;
-        }
-
-        listenerIterators.add(iter);
-      }
-
-      function submit(value: T): void {
-        if (closed) {
-          return;
-        }
-
-        for (const listenerIterator of listenerIterators) {
-          listenerIterator.submit(value);
-        }
-      }
-
-      function close(): void {
-        if (closed) {
-          return;
-        }
-
-        closed = true;
-        for (const listener of listenerIterators) {
-          listener.close();
-        }
-        listenerIterators.clear();
-      }
-
-      const stream = new AsyncFromStream(() => {
-        if (closed) {
-          return emptyAsyncFastIterator;
-        }
-
-        const iter = new AsyncLiveIterator<T>(maxSize);
-        subscribe(iter);
-        return iter;
-      });
-
-      return [{ submit, close }, stream];
     },
     zipWith(...sources): any {
       return (zipFun: any): any => {

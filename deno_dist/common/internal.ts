@@ -11,3 +11,4 @@ export * from './types.ts';
 export * from './update.ts';
 export * from './async-optlazy.ts';
 export * from './async-reducer.ts';
+export * from './static-only.ts';

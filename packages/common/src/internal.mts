@@ -11,3 +11,4 @@ export * from './types.mjs';
 export * from './update.mjs';
 export * from './async-optlazy.mjs';
 export * from './async-reducer.mjs';
+export * from './static-only.mjs';

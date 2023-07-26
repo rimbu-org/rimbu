@@ -69,7 +69,7 @@ export interface BiMapCreators extends BiMapFactory {
    * Returns a new BiMap context instance based on the given `options`.
    * @typeparam UK - the upper key type for which the context can create instances
    * @typeparam UV - the upper value type for which the context can create instances
-   * @param options - (optiona) an object containing the following properties:<br/>
+   * @param options - (optional) an object containing the following properties:<br/>
    * - keyValueContext - (optional) the map context to use for key value mappings<br/>
    * - valueKeyContext - (optional) the map context to use for value key mappings
    */
