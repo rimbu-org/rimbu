@@ -337,6 +337,60 @@ export class FromPromise<T> extends AsyncFastIteratorBase<T> {
   }
 }
 
+export class AsyncLiveIterator<T> extends AsyncFastIteratorBase<T> {
+  constructor(readonly maxSize: number) {
+    super();
+  }
+
+  readonly queue: T[] = [];
+
+  waitPromise: Promise<void> | undefined;
+
+  wakeUp: (() => void) | undefined;
+
+  submit = (value: T): void => {
+    if (this.halted) {
+      return;
+    }
+
+    this.queue.unshift(value);
+
+    if (this.queue.length > this.maxSize) {
+      this.queue.length = this.maxSize;
+    }
+    this.wakeUp?.();
+  };
+
+  halted = false;
+
+  close = (): void => {
+    this.halted = true;
+    this.wakeUp?.();
+  };
+
+  async fastNext<O>(otherwise?: AsyncOptLazy<O> | undefined): Promise<T | O> {
+    const { queue } = this;
+
+    if (queue.length > 0) {
+      const item = queue.pop()!;
+
+      return item;
+    }
+
+    if (this.halted) {
+      return AsyncOptLazy.toMaybePromise(otherwise!);
+    }
+
+    const waitPromise = new Promise<void>((res) => {
+      this.wakeUp = res;
+    });
+    await waitPromise;
+    this.wakeUp = undefined;
+
+    return this.fastNext(otherwise);
+  }
+}
+
 export class AsyncPrependIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(
     readonly source: AsyncFastIterator<T>,

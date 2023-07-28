@@ -16,6 +16,8 @@ export namespace CrossChannel {
   /**
    * A pair of CrossChannels in which the send module of the first is connected to the receive of the second,
    * and the send module of the second is connected to the receive module of the first.
+   * @typeparam TSend - the send message type
+   * @typeparam TReceive - the receive message type
    */
   export type Pair<TSend, TReceive> = readonly [
     crossSendCh: CrossChannel<TSend, TReceive>,
@@ -26,15 +28,26 @@ export namespace CrossChannel {
    * Configuration options for creating a CrossChannel
    */
   export interface Config {
+    /**
+     * The write channel configuration.
+     */
     write?: Channel.Config;
+    /**
+     * The read channel configuration.
+     */
     read?: Channel.Config;
   }
 
+  /**
+   * Defines the static `CrossChannel` API.
+   */
   export interface Constructors {
     /**
      * Returns a pair of connected CrossChannels of which the send module of the first is connected to the
      * receive module of the second, and the send module of the second is connected to the receive module
      * of the first.
+     * @typeparam TSend - the send message type
+     * @typeparam TReceive - the receive message type
      */
     createPair<TSend = void, TReceive = TSend>(
       config?: CrossChannel.Config
@@ -43,13 +56,15 @@ export namespace CrossChannel {
     /**
      * Returns a CrossChannel where the send module comprises the given `writeCh`, and the receive module
      * conists of the given `readCh`.
+     * @typeparam TSend - the send message type
+     * @typeparam TReceive - the receive message type
      * @param writeCh - the write channel to use for sending messages
      * @param readCh - the read channel to use for receiving messages
      */
-    combine<TWrite = void, TRead = TWrite>(
-      writeCh: Channel.Write<TWrite>,
-      readCh: Channel.Read<TRead>
-    ): CrossChannel<TWrite, TRead>;
+    combine<TSend = void, TReceive = TSend>(
+      writeCh: Channel.Write<TSend>,
+      readCh: Channel.Read<TReceive>
+    ): CrossChannel<TSend, TReceive>;
   }
 }
 
@@ -67,11 +82,11 @@ export const CrossChannel: CrossChannel.Constructors = Object.freeze(
       return [crossSendCh, crossReceiveCh];
     }
 
-    static combine<TWrite = void, TRead = TWrite>(
-      writeCh: Channel.Write<TWrite>,
-      readCh: Channel.Read<TRead>
-    ): CrossChannel<TWrite, TRead> {
-      const result: CrossChannel<TWrite, TRead> = {
+    static combine<TSend = void, TReceive = TSend>(
+      writeCh: Channel.Write<TSend>,
+      readCh: Channel.Read<TReceive>
+    ): CrossChannel<TSend, TReceive> {
+      const result: CrossChannel<TSend, TReceive> = {
         get capacity() {
           return readCh.capacity;
         },

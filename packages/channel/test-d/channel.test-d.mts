@@ -1,29 +1,31 @@
 import { expectNever, expectNotAssignable, expectType } from 'tsd';
 
-import { Channel, DualChannel } from '@rimbu/channel';
+import { Channel, CrossChannel } from '@rimbu/channel';
 
 expectType<Channel>(Channel.create());
-expectType<DualChannel>(Channel.create());
+expectType<CrossChannel>(Channel.create());
 expectType<Channel<void>>(Channel.create());
-expectType<DualChannel<void>>(Channel.create());
+expectType<CrossChannel<void>>(Channel.create());
 expectNotAssignable<Channel>(Channel.create<string>());
-expectNotAssignable<DualChannel>(Channel.create<string>());
+expectNotAssignable<CrossChannel>(Channel.create<string>());
 expectType<Channel<string>>(Channel.create<string>());
-expectType<DualChannel<string>>(Channel.create<string>());
-expectType<DualChannel<string, string>>(Channel.create<string>());
+expectType<CrossChannel<string>>(Channel.create<string>());
+expectType<CrossChannel<string, string>>(Channel.create<string>());
 
-expectType<Channel>(DualChannel.create());
-expectType<DualChannel>(DualChannel.create());
-expectType<Channel<void>>(DualChannel.create());
-expectType<DualChannel<void>>(DualChannel.create());
-expectNotAssignable<Channel>(DualChannel.create<string>());
-expectNotAssignable<DualChannel>(DualChannel.create<string>());
-expectType<Channel<string>>(DualChannel.create<string>());
-expectType<DualChannel<string>>(DualChannel.create<string>());
-expectType<DualChannel<string, string>>(DualChannel.create<string>());
-expectType<DualChannel<string, number>>(DualChannel.create<string, number>());
+expectType<Channel>(CrossChannel.createPair()[0]);
+expectType<CrossChannel>(CrossChannel.createPair()[0]);
+expectType<Channel<void>>(CrossChannel.createPair()[0]);
+expectType<CrossChannel<void>>(CrossChannel.createPair()[0]);
+expectNotAssignable<Channel>(CrossChannel.createPair<string>()[0]);
+expectNotAssignable<CrossChannel>(CrossChannel.createPair<string>()[0]);
+expectType<Channel<string>>(CrossChannel.createPair<string>()[0]);
+expectType<CrossChannel<string>>(CrossChannel.createPair<string>()[0]);
+expectType<CrossChannel<string, string>>(CrossChannel.createPair<string>()[0]);
+expectType<CrossChannel<string, number>>(
+  CrossChannel.createPair<string, number>()[0]
+);
 
-const ch = DualChannel.create<number, string>();
+const ch = CrossChannel.createPair<number, string>()[0];
 
 expectType<undefined | Channel.Error>(await ch.send(1));
 expectType<void>(await ch.send(1, { catchChannelErrors: undefined }));
@@ -42,11 +44,11 @@ expectType<string | boolean>(await ch.receive({ recover: () => true }));
 expectType<Channel.Read<string>>(ch.readable());
 expectType<Channel.Write<number>>(ch.writable());
 
-expectType<DualChannel<string, number>>(
-  DualChannel.combine(Channel.create<string>(), Channel.create<number>())
+expectType<CrossChannel<string, number>>(
+  CrossChannel.combine(Channel.create<string>(), Channel.create<number>())
 );
 
-const ch2 = DualChannel.create<boolean, symbol>();
+const ch2 = CrossChannel.createPair<boolean, symbol>()[0];
 
 expectNever(await Channel.select([]));
 

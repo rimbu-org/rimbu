@@ -21,6 +21,9 @@ export interface Mutex {
 }
 
 export namespace Mutex {
+  /**
+   * Defines the static `Mutex` API.
+   */
   export interface Constructors {
     /**
      * Returns a new `Mutex` instance that can be used to enforce single access to a shared resource.

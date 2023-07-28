@@ -9,7 +9,7 @@ import { SemaphoreError, SemaphoreImpl, type Mutex } from '../index.ts';
  */
 export interface Semaphore extends Mutex {
   /**
-   * The maxixmum simultaneous "weight" that the semaphore allows access to the shared resource.
+   * The maximum simultaneous "weight" that the semaphore allows access to for the shared resource.
    */
   readonly maxSize: number;
   /**
@@ -37,6 +37,9 @@ export namespace Semaphore {
    */
   export type Error = SemaphoreError.SemaphoreError;
 
+  /**
+   * Defines the static `Semaphore` API.
+   */
   export interface Constructors {
     /**
      * Returns the available Semaphore errors and utilities.

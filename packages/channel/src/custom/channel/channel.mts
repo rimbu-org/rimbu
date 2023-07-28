@@ -147,10 +147,21 @@ export namespace Channel {
    * The configuration options for creating a Channel.
    */
   export interface Config {
+    /**
+     * Tha channel capacity, indicating the amount of messages a channel will buffer
+     * before sending to the channel will block.
+     */
     capacity?: number | undefined;
+    /**
+     * A validation function that is used when sending values. If the provided value returns true, the
+     * value is valid and will be sent. If the value is false, an exception will be thrown.
+     */
     validator?: ((value: any) => boolean) | undefined;
   }
 
+  /**
+   * Defines the static `Channel` API.
+   */
   export interface Constructors {
     /**
      * The types of possible Channel errors.
@@ -159,12 +170,24 @@ export namespace Channel {
 
     /**
      * Returns a new Channel instance that can be used to synchronize asynchronous processes within a single thread.
+     * @typeparam T - the channel message type
      * @param options - (optional) the options used to create the channel<br/>
      * - capacity: (optional) the buffer size of the channel<br/>
      * - validator: (optional) a function taking a message and returning true if the message is of a valid type, false otherwise
      */
     create<T = void>(options?: Channel.Config): Channel<T>;
 
+    /**
+     * Resolves, from the given channel array, to the channel value that is received first, taking into account the provided
+     * options.
+     * @typeparam CS - an array of typed read channels
+     * @typeparam RT - when recover is provided, the recover type
+     * @param channels - an array of (read) channels to receive a value from
+     * @param options - (optional) additional options:<br/>
+     * - signal: an abortsignal that can be provided to abort waiting for a value<br/>
+     * - timeoutMs: if none of the channels receives a value within the given amount of milliseconds, will throw<br/>
+     * - recover: when given, catches any `Channel.Error` instance and allows returning a backup value
+     */
     select: {
       <CS extends Channel.Read<any>[], RT>(
         channels: CS,
@@ -193,6 +216,18 @@ export namespace Channel {
       >;
     };
 
+    /**
+     * Resolves, from the given tuples of channels and channel value handlers, the result of applying the corresponding channel handler to the
+     * first channel value that is received.
+     * options.
+     * @typeparam TS - an array of channel message types
+     * @typeparam HS - an array of tuple containing a read channel for the message type, and a handler for the message
+     * @param options - options to take into account:<br/>
+     * - signal: an abortsignal that can be provided to abort waiting for a value<br/>
+     * - timeoutMs: if none of the channels receives a value within the given amount of milliseconds, will throw<br/>
+     * - recover: when given, catches any `Channel.Error` instance and allows returning a backup value
+     * @param cases - a number of tuples, each tuple containing a (read) channel and a handler for converting the received value into another value
+     */
     selectMap: {
       <
         TS extends any[],

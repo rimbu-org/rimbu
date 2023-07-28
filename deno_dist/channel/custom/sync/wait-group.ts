@@ -12,8 +12,9 @@ export interface WaitGroup {
   add(amount?: number): void;
   /**
    * Informs the WaitGroup that a process has completed.
+   * @param amount - (default: 1) the amount of processes to add
    */
-  done(): void;
+  done(amount?: number): void;
   /**
    * Blocks until all the processes in the WaitGroup have completed.
    */
@@ -21,6 +22,9 @@ export interface WaitGroup {
 }
 
 export namespace WaitGroup {
+  /**
+   * Defines the static `WaitGroup` API.
+   */
   export interface Constructors {
     /**
      * Returns a new `WaitGroup` that can be used to wait for fan-out processes to complete.

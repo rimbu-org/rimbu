@@ -67,8 +67,7 @@
     "bundle:esm": "tsc --p tsconfig.esm.json",
     "bundle:types": "tsc --p tsconfig.types.json",
     "clean": "rimraf dist",
-    "extract-api": "yarn extract-api:main && yarn extract-api:custom",
-    "extract-api:custom": "ts-node ../../config/api-extractor.ts config/api-extractor.custom.json",
+    "extract-api": "yarn extract-api:main",
     "extract-api:main": "ts-node ../../config/api-extractor.ts config/api-extractor.main.json",
     "format": "yarn format:base --write",
     "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
@@ -83,7 +82,7 @@
   "dependencies": {
     "@rimbu/common": "^1.0.0",
     "@rimbu/stream": "^1.0.0",
-    "tslib": "^2.5.3"
+    "tslib": "^2.6.1"
   },
   "publishConfig": {
     "access": "public"

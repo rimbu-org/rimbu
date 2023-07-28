@@ -1,3 +1,12 @@
+/**
+ * @packageDocumentation
+ *
+ * The `@rimbu/channel` package provides various channel implementations in the spirit of Go. Channels are ways to exechange synchronous messages
+ * in an asynchronous context.<br/>
+ * <br/>
+ * See the [Rimbu docs Channel API page](/api/rimbu/channel) for more information.
+ */
+
 export {
   Channel,
   CrossChannel,

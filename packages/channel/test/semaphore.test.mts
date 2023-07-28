@@ -2,6 +2,12 @@ import { timeout } from '../src/custom/index.mjs';
 import { Semaphore } from '../src/main/index.mjs';
 
 describe('Semaphore', () => {
+  it('throws if maxSize < 1', () => {
+    expect(() => Semaphore.create({ maxSize: 0 })).toThrow(
+      Semaphore.Error.InvalidConfigError
+    );
+  });
+
   it('does not block acquiring when capacity available', async () => {
     const sem = Semaphore.create({ maxSize: 1 });
 
@@ -9,6 +15,13 @@ describe('Semaphore', () => {
     await timeout(100);
 
     expect(() => sem.release()).not.toThrow();
+  });
+
+  it('does not block when acquiring 0 or negative capacity', async () => {
+    const sem = Semaphore.create({ maxSize: 1 });
+
+    await sem.acquire();
+    await sem.acquire(0);
   });
 
   it('blocks acquiring when at full capacity', async () => {
@@ -28,13 +41,15 @@ describe('Semaphore', () => {
   it('throws when acquiring more than size', async () => {
     const sem = Semaphore.create({ maxSize: 1 });
 
-    await expect(sem.acquire(2)).rejects.toThrow();
+    await expect(sem.acquire(2)).rejects.toThrow(
+      Semaphore.Error.InsufficientCapacityError
+    );
   });
 
   it('throws when releasing more than current size', async () => {
     const sem = Semaphore.create({ maxSize: 1 });
 
-    expect(() => sem.release()).toThrow();
+    expect(() => sem.release()).toThrow(Semaphore.Error.CapacityUnderflowError);
   });
 
   it('will provide access first to later smaller task', async () => {

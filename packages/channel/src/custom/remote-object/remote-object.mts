@@ -38,8 +38,14 @@ export namespace RemoteObject {
     RemoteObject.Call
   >;
 
+  /**
+   * The RemoteObject Error type.
+   */
   export type Error = RemoteObjectError.RemoteObjectError;
 
+  /**
+   * Defines the static `RemoteObject` API.
+   */
   export interface Constructors {
     /**
      * Object containing the possible remote object errors.
@@ -48,12 +54,14 @@ export namespace RemoteObject {
 
     /**
      * Returns a new `RpcProxy` that can be used to perform remote operations on a RemoteObject server.
+     * @typeparam T - the remote object interface type
      * @param commCh - the cross-channel to use for communication
      */
     createClient<T>(commCh: RemoteObject.ClientCrossChannel): RpcProxy<T>;
 
     /**
      * Creates a remote object server that allows clients to perform remote operations on the given `source` object.
+     * @typeparam T - the type of the object to serve remotely
      * @param commCh - the cross-channel to use for communication
      */
     createServer<T>(

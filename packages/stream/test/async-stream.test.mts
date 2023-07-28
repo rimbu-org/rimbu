@@ -2,7 +2,7 @@ import { Arr } from '@rimbu/base';
 import { AsyncReducer, Eq, Err, Reducer } from '@rimbu/common';
 
 import { Stream } from '../src/main/index.mjs';
-import { AsyncStream, type AsyncStreamSource } from '../src/async/index.mjs';
+import { AsyncStream, type AsyncStreamSource } from '../src//async/index.mjs';
 
 const streamRange1 = Stream.range({ amount: 100 });
 const streamRange2 = Stream.from(streamRange1.toArray());
@@ -394,6 +394,27 @@ describe('AsyncStream methods', () => {
         await createErrorStream().forEachPure(vi.fn());
       } catch {}
       expect(close).toBeCalledTimes(1);
+    }
+  });
+  it('live', async () => {
+    {
+      const [control, stream] = AsyncStream.live<number>();
+
+      setTimeout(() => {
+        control.submit(1);
+        control.submit(2);
+        control.submit(3);
+        control.close();
+      }, 100);
+
+      expect(await stream.toArray()).toEqual([1, 2, 3]);
+    }
+
+    {
+      const [control, stream] = AsyncStream.live<number>();
+      control.close();
+
+      expect(await stream.toArray()).toEqual([]);
     }
   });
   it('indexed', async () => {

@@ -152,11 +152,12 @@ export namespace RemoteChannel {
   }
 
   /**
-   * Interface defining the static methods of the RemoteChannel object.
+   * Defines the static `RemoteChannel` API.
    */
   export interface Constructors {
     /**
      * Resolves to a new read-only RemoteChannel using the given configuration.
+     * @typeparam T - the message type
      * @param config - the channel configuration
      */
     createRead<T = void>(
@@ -166,6 +167,7 @@ export namespace RemoteChannel {
 
     /**
      * Resolves to a new write-only RemoteChannel using the given configuration.
+     * @typeparam T - the message type
      * @param config - the channel configuration
      */
     createWrite<T = void>(
@@ -175,12 +177,14 @@ export namespace RemoteChannel {
 
     /**
      * Resolves to a new cross-channel RemoteChannel using the given configuration.
+     * @typeparam TSend - the send message type
+     * @typeparam TReceive - the receive message type
      * @param config - the channel configuration
      */
-    createCross<TWrite = void, TRead = TWrite>(
+    createCross<TSend = void, TReceive = TSend>(
       port: RemoteChannel.SimpleMessagePort,
       config: RemoteChannel.CrossConfig
-    ): Promise<CrossChannel<TWrite, TRead>>;
+    ): Promise<CrossChannel<TSend, TReceive>>;
   }
 }
 
@@ -204,14 +208,14 @@ export const RemoteChannel: RemoteChannel.Constructors = Object.freeze(
       return ch;
     }
 
-    static async createCross<TWrite = void, TRead = TWrite>(
+    static async createCross<TSend = void, TReceive = TSend>(
       port: RemoteChannel.SimpleMessagePort,
       config: RemoteChannel.CrossConfig
-    ): Promise<CrossChannel<TWrite, TRead>> {
+    ): Promise<CrossChannel<TSend, TReceive>> {
       const { write, read } = config;
       const [writeCh, readCh] = await Promise.all([
-        RemoteChannel.createWrite<TWrite>(port, write),
-        RemoteChannel.createRead<TRead>(port, read),
+        RemoteChannel.createWrite<TSend>(port, write),
+        RemoteChannel.createRead<TReceive>(port, read),
       ]);
 
       return CrossChannel.combine(writeCh, readCh);
