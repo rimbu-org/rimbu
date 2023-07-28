@@ -1,9 +1,9 @@
 import { Arr } from '../../../../base/mod.ts';
-import { OptLazy, TraverseState, Update } from '../../../../common/mod.ts';
+import { TraverseState, Update, type OptLazy } from '../../../../common/mod.ts';
 
 import type {
-  LeafBlock,
   BlockBuilder,
+  LeafBlock,
   LeafBuilder,
   ListContext,
 } from '../../../../list/custom/index.ts';

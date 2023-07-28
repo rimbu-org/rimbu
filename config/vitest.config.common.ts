@@ -13,6 +13,7 @@ export default defineConfig({
     coverage: {
       all: true,
       include: ['src'],
+      reporter: ['text', 'html', 'clover', 'json', 'lcov'],
     },
   },
   plugins: [tsconfigPaths()],

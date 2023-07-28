@@ -1,16 +1,16 @@
-import { RimbuError, Token } from '@rimbu/base';
+import { RimbuError, type Token } from '@rimbu/base';
 import {
   NonEmptyBase,
   type WithKeyValue,
 } from '@rimbu/collection-types/map-custom';
 import {
+  TraverseState,
   type ArrayNonEmpty,
-  OptLazy,
-  OptLazyOr,
+  type OptLazy,
+  type OptLazyOr,
   type RelatedTo,
   type ToJSON,
-  TraverseState,
-  Update,
+  type Update,
 } from '@rimbu/common';
 import type { List } from '@rimbu/list';
 import type { Stream, StreamSource } from '@rimbu/stream';

@@ -1,5 +1,5 @@
 import { Arr, RimbuError } from '../../../../base/mod.ts';
-import { IndexRange, TraverseState, Update } from '../../../../common/mod.ts';
+import { IndexRange, type TraverseState, type Update } from '../../../../common/mod.ts';
 import { Stream } from '../../../../stream/mod.ts';
 
 import type {

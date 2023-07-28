@@ -110,7 +110,7 @@
   },
   "dependencies": {
     "@rimbu/common": "^1.0.0",
-    "tslib": "^2.5.3"
+    "tslib": "^2.6.1"
   },
   "publishConfig": {
     "access": "public"

@@ -5,7 +5,7 @@ import {
   OptLazyOr,
   type RelatedTo,
   type ToJSON,
-  TraverseState,
+  type TraverseState,
 } from '../../../../common/mod.ts';
 import { Stream, type StreamSource } from '../../../../stream/mod.ts';
 

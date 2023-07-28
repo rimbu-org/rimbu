@@ -1,13 +1,13 @@
 import { Token } from '../../base/mod.ts';
 import {
+  AsyncOptLazy,
+  CollectFun,
+  TraverseState,
   type ArrayNonEmpty,
   type AsyncCollectFun,
-  AsyncOptLazy,
-  AsyncReducer,
-  CollectFun,
-  Eq,
+  type AsyncReducer,
+  type Eq,
   type MaybePromise,
-  TraverseState,
 } from '../../common/mod.ts';
 
 import type {

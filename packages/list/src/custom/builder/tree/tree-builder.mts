@@ -1,5 +1,5 @@
 import { RimbuError } from '@rimbu/base';
-import { OptLazy, TraverseState, Update } from '@rimbu/common';
+import { TraverseState, type OptLazy, type Update } from '@rimbu/common';
 
 import type { BlockBuilder, ListContext, NonLeafBuilder } from '#list/custom';
 

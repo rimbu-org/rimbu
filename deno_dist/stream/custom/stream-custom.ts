@@ -1,7 +1,5 @@
-import { RimbuError, Token } from '../../base/mod.ts';
+import { RimbuError, type Token } from '../../base/mod.ts';
 import {
-  type ArrayNonEmpty,
-  CollectFun,
   Comp,
   Eq,
   ErrBase,
@@ -9,16 +7,12 @@ import {
   OptLazy,
   Range,
   Reducer,
-  type ToJSON,
   TraverseState,
+  type ArrayNonEmpty,
+  type CollectFun,
+  type ToJSON,
 } from '../../common/mod.ts';
 
-import type {
-  FastIterator,
-  Stream,
-  StreamSource,
-  Transformer,
-} from '../../stream/main/index.ts';
 import type { StreamConstructors } from '../../stream/custom/index.ts';
 import {
   AlwaysIterator,
@@ -60,6 +54,12 @@ import {
   emptyFastIterator,
   isFastIterator,
 } from '../../stream/custom/index.ts';
+import type {
+  FastIterator,
+  Stream,
+  StreamSource,
+  Transformer,
+} from '../../stream/main/index.ts';
 
 function* yieldObjKeys<K extends string | number | symbol>(
   obj: Record<K, any>

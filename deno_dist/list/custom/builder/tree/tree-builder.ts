@@ -1,5 +1,5 @@
 import { RimbuError } from '../../../../base/mod.ts';
-import { OptLazy, TraverseState, Update } from '../../../../common/mod.ts';
+import { TraverseState, type OptLazy, type Update } from '../../../../common/mod.ts';
 
 import type { BlockBuilder, ListContext, NonLeafBuilder } from '../../../../list/custom/index.ts';
 

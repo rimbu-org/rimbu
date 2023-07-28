@@ -5,7 +5,7 @@ import {
   OptLazyOr,
   type RelatedTo,
   type ToJSON,
-  TraverseState,
+  type TraverseState,
 } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 

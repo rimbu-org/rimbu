@@ -9,11 +9,15 @@
   "rules": {
     "no-constant-condition": "warn",
     "no-inner-declarations": "warn",
-    "@typescript-eslint/no-namespace": "off",
-    "@typescript-eslint/no-empty-interface": "off",
-    "@typescript-eslint/explicit-function-return-type": "error",
     "unused-imports/no-unused-imports": "error",
-    "@typescript-eslint/no-explicit-any": "off"
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      { "fixStyle": "inline-type-imports" }
+    ],
+    "@typescript-eslint/explicit-function-return-type": "error",
+    "@typescript-eslint/no-empty-interface": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-namespace": "off"
   },
   "ignorePatterns": ["test", "test-d", "docs", "*.js", "doc-gen", "deno_dist"]
 }

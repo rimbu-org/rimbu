@@ -1,4 +1,4 @@
-import { RimbuError, Token } from '../../../../base/mod.ts';
+import { RimbuError, type Token } from '../../../../base/mod.ts';
 import { OptLazy, OptLazyOr, type RelatedTo } from '../../../../common/mod.ts';
 import { Stream, type StreamSource } from '../../../../stream/mod.ts';
 

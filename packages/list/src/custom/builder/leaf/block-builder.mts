@@ -1,9 +1,9 @@
 import { Arr } from '@rimbu/base';
-import { OptLazy, TraverseState, Update } from '@rimbu/common';
+import { TraverseState, Update, type OptLazy } from '@rimbu/common';
 
 import type {
-  LeafBlock,
   BlockBuilder,
+  LeafBlock,
   LeafBuilder,
   ListContext,
 } from '#list/custom';

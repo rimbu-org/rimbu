@@ -1,19 +1,19 @@
-import type { HashMap } from '../../../hashed/map/index.ts';
 import type { Token } from '../../../base/mod.ts';
 import type { RMapBase } from '../../../collection-types/map-custom/index.ts';
 import {
-  type RelatedTo,
-  type ArrayNonEmpty,
   OptLazy,
-  TraverseState,
+  type ArrayNonEmpty,
+  type OptLazyOr,
+  type RelatedTo,
   type ToJSON,
-  OptLazyOr,
+  type TraverseState,
 } from '../../../common/mod.ts';
-import type { Stream, StreamSource, FastIterator } from '../../../stream/mod.ts';
+import type { HashMap } from '../../../hashed/map/index.ts';
+import type { FastIterator, Stream, StreamSource } from '../../../stream/mod.ts';
 
-import { wrapHashMap } from '../wrapping.ts';
-import type { ProximityMap } from '../../../proximity/map/index.ts';
 import { findNearestKeyMatch } from '../../../proximity/common/index.ts';
+import type { ProximityMap } from '../../../proximity/map/index.ts';
+import { wrapHashMap } from '../wrapping.ts';
 
 const toStringBeginning = /^[^(]+/;
 

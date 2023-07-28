@@ -1,5 +1,5 @@
 import { Arr, RimbuError } from '@rimbu/base';
-import { IndexRange, TraverseState, Update } from '@rimbu/common';
+import { IndexRange, type TraverseState, type Update } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
 
 import type { Block, Tree } from '#list/custom';

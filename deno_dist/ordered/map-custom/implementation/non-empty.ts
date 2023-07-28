@@ -1,16 +1,16 @@
-import { RimbuError, Token } from '../../../base/mod.ts';
+import { RimbuError, type Token } from '../../../base/mod.ts';
 import {
   NonEmptyBase,
   type WithKeyValue,
 } from '../../../collection-types/map-custom/index.ts';
 import {
+  TraverseState,
   type ArrayNonEmpty,
-  OptLazy,
-  OptLazyOr,
+  type OptLazy,
+  type OptLazyOr,
   type RelatedTo,
   type ToJSON,
-  TraverseState,
-  Update,
+  type Update,
 } from '../../../common/mod.ts';
 import type { List } from '../../../list/mod.ts';
 import type { Stream, StreamSource } from '../../../stream/mod.ts';

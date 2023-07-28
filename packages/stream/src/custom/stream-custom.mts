@@ -1,7 +1,5 @@
-import { RimbuError, Token } from '@rimbu/base';
+import { RimbuError, type Token } from '@rimbu/base';
 import {
-  type ArrayNonEmpty,
-  CollectFun,
   Comp,
   Eq,
   ErrBase,
@@ -9,16 +7,12 @@ import {
   OptLazy,
   Range,
   Reducer,
-  type ToJSON,
   TraverseState,
+  type ArrayNonEmpty,
+  type CollectFun,
+  type ToJSON,
 } from '@rimbu/common';
 
-import type {
-  FastIterator,
-  Stream,
-  StreamSource,
-  Transformer,
-} from '#stream/main';
 import type { StreamConstructors } from '#stream/custom';
 import {
   AlwaysIterator,
@@ -60,6 +54,12 @@ import {
   emptyFastIterator,
   isFastIterator,
 } from '#stream/custom';
+import type {
+  FastIterator,
+  Stream,
+  StreamSource,
+  Transformer,
+} from '#stream/main';
 
 function* yieldObjKeys<K extends string | number | symbol>(
   obj: Record<K, any>

@@ -1,5 +1,6 @@
 import type { IsAnyFunc, IsArray } from '../base/mod.ts';
-import { Deep, Path, type Protected } from './internal.ts';
+
+import { Deep, type Path, type Protected } from './internal.ts';
 
 /**
  * Type defining the allowed selectors on an object of type `T`.

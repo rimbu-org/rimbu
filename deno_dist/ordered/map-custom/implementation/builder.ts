@@ -1,14 +1,14 @@
-import { RimbuError, Token } from '../../../base/mod.ts';
+import { RimbuError, type Token } from '../../../base/mod.ts';
+import type { WithKeyValue } from '../../../collection-types/map-custom/index.ts';
 import {
   OptLazy,
-  OptLazyOr,
-  type RelatedTo,
   TraverseState,
   Update,
+  type OptLazyOr,
+  type RelatedTo,
 } from '../../../common/mod.ts';
 import type { List } from '../../../list/mod.ts';
 import { Stream, type StreamSource } from '../../../stream/mod.ts';
-import type { WithKeyValue } from '../../../collection-types/map-custom/index.ts';
 
 import type { OrderedMapBase, OrderedMapTypes } from '../../../ordered/map-custom/index.ts';
 

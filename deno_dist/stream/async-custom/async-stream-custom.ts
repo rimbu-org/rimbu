@@ -1,14 +1,14 @@
-import { RimbuError, Token } from '../../base/mod.ts';
+import { RimbuError, type Token } from '../../base/mod.ts';
 import {
-  type ArrayNonEmpty,
-  type AsyncCollectFun,
   AsyncOptLazy,
   AsyncReducer,
   Comp,
   Eq,
+  TraverseState,
+  type ArrayNonEmpty,
+  type AsyncCollectFun,
   type MaybePromise,
   type ToJSON,
-  TraverseState,
 } from '../../common/mod.ts';
 
 import type {
@@ -42,7 +42,6 @@ import {
   AsyncRepeatIterator,
   AsyncSplitOnIterator,
   AsyncSplitWhereIterator,
-  type AsyncStreamConstructors,
   AsyncTakeIterator,
   AsyncTakeWhileIterator,
   AsyncUnfoldIterator,
@@ -56,6 +55,7 @@ import {
   closeIters,
   emptyAsyncFastIterator,
   isAsyncFastIterator,
+  type AsyncStreamConstructors,
 } from '../../stream/async-custom/index.ts';
 import { isEmptyStreamSourceInstance } from '../../stream/custom/index.ts';
 import type { StreamSource } from '../../stream/main/index.ts';
