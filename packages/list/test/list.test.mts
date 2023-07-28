@@ -1107,3 +1107,43 @@ describe('List.Builder', () => {
     expect(l3.buildMap(addOne).toArray()).toEqual([2, 3, 4, 5, 6, 7]);
   });
 });
+
+describe('List inserts', () => {
+  /* produced array after 28 iterations is correct:
+  [
+    1,  3,  5,  7,  9, 11, 13, 15, 17,
+   19, 21, 23, 25, 27, 28, 26, 24, 22,
+   20, 18, 16, 14, 12, 10,  8,  6,  4,
+    2,  0
+ ]
+ produced array after 29 iterations contains two 28 and one 29
+ [
+    1,  3,  5,  7,  9, 11, 13, 15, 17,
+   19, 21, 23, 25, 27, 28, 29, 28, 26,
+   24, 22, 20, 18, 16, 14, 12, 10,  8,
+    6,  4,  2,  0
+ ]
+ */
+  it('inserts in the middle', () => {
+    const maxInserts = 1000; // test a lot of cases, because this happend only "sometimes", first occurence is 29
+    let list = List.empty<number>();
+    for (let i = 0; i < maxInserts; i++) {
+      const index = list.length / 2; // caution this can produce .5 values
+      list = list.insert(index, [i]);
+
+      expect(list.length).toBe(i + 1);
+    }
+  });
+});
+
+/*
+Reason for insert bug is take with an non intereg rational number as arugment, test for isolation
+*/
+describe('List take', () => {
+  it('take as much as wanted and no more', () => {
+    const list = List.from<number>(Stream.range({ amount: 5 }));
+
+    const mutatedList = list.take(3.5); //.concat([i + 1], list.drop(i));
+    expect(mutatedList.length).toBe(3);
+  });
+});
