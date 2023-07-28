@@ -8,6 +8,10 @@
 
 # @rimbu/channel
 
+This package provides various channel implementation in the spirit of Go to allow synchronous or buffered one-to-one communication in an asynchronous context. The `Channel` offers communication between asynchronous processes in the same thread. `CrossChannel` consist of pairs of channels that allow different types of messages for sending and receiving. `RemoteChannel` offers communication between (worker) threads. `RemoteObject` offers a way to interact with a remote API/object as though it is available locally over a channel. `RemoteChannelServer` and `RemoteChannelClient` allow easy cross-thread creation of new channels. Finally, this package offers various cross-process synchronization utilities like `Mutex`, `Semaphore` and `WaitGroup`.
+
+For complete documentation please visit the _[Rimbu Docs](https://rimbu.org)_, or directly see the _[Rimbu Core API Docs](https://rimbu.org/api/rimbu/channel)_.
+
 ## Installation
 
 ### Compabitity
@@ -52,14 +56,13 @@ In the root folder of your project, create or edit a file called `import_map.jso
 In this way you can use relative imports from Rimbu in your code, like so:
 
 ```ts
-import { List } from '@rimbu/channel/mod.ts';
-import { HashMap } from '@rimbu/hashed/mod.ts';
+import { Channel } from '@rimbu/channel/mod.ts';
 ```
 
 Note that for sub-packages, due to conversion limitations it is needed to import the `index.ts` instead of `mod.ts`, like so:
 
 ```ts
-import { HashMap } from '@rimbu/hashed/map/index.ts';
+import { Channel } from '@rimbu/channel/custom/index.ts';
 ```
 
 To run your script (let's assume the entry point is in `src/main.ts`):
@@ -69,7 +72,34 @@ To run your script (let's assume the entry point is in `src/main.ts`):
 ## Usage
 
 ```ts
+import { Channel } from '@rimbu/channel';
 
+async function produce(ch: Channel.Write<number>) {
+  for (let i = 0; i < 6; i++) {
+    console.log('sending', i);
+    await ch.send(i);
+    console.log('sent', i);
+  }
+
+  ch.close();
+}
+
+async function consume(ch: Channel.Read<number>) {
+  let sum = 0;
+
+  while (!ch.isExhausted) {
+    console.log('receiving');
+    const value = await ch.receive();
+    console.log('received', value);
+    sum += value;
+  }
+
+  console.log({ sum });
+}
+
+const channel = Channel.create<number>();
+produce(channel);
+consume(channel);
 ```
 
 ## Author

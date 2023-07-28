@@ -280,4 +280,33 @@ describe('web examples', () => {
       await ch.asyncStream().reduceStream(Reducer.sum).toArray()
     );
   });
+
+  it('readme example', async () => {
+    async function produce(ch: Channel.Write<number>) {
+      for (let i = 0; i < 6; i++) {
+        console.log('sending', i);
+        await ch.send(i);
+        console.log('sent', i);
+      }
+
+      ch.close();
+    }
+
+    async function consume(ch: Channel.Read<number>) {
+      let sum = 0;
+
+      while (!ch.isExhausted) {
+        console.log('receiving');
+        const value = await ch.receive();
+        console.log('received', value);
+        sum += value;
+      }
+
+      console.log({ sum });
+    }
+
+    const channel = Channel.create<number>();
+    produce(channel);
+    consume(channel);
+  });
 });
