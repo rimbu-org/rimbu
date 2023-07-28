@@ -1,4 +1,4 @@
-import { OptLazy, type AsyncOptLazy } from '../../../common/mod.ts';
+import { AsyncOptLazy } from '../../../common/mod.ts';
 import { AsyncStream, type AsyncStreamSource } from '../../../stream/async/index.ts';
 import {
   AsyncFastIteratorBase,
@@ -21,7 +21,7 @@ export class ChannelFastIterator<T> extends AsyncFastIteratorBase<T> {
     try {
       return await this.sourceCh.receive();
     } catch {
-      return OptLazy(otherwise!);
+      return AsyncOptLazy.toPromise(otherwise!);
     }
   }
 }

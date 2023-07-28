@@ -1,4 +1,4 @@
-import { OptLazy, type AsyncOptLazy } from '@rimbu/common';
+import { AsyncOptLazy } from '@rimbu/common';
 import { AsyncStream, type AsyncStreamSource } from '@rimbu/stream/async';
 import {
   AsyncFastIteratorBase,
@@ -21,7 +21,7 @@ export class ChannelFastIterator<T> extends AsyncFastIteratorBase<T> {
     try {
       return await this.sourceCh.receive();
     } catch {
-      return OptLazy(otherwise!);
+      return AsyncOptLazy.toPromise(otherwise!);
     }
   }
 }
