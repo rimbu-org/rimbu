@@ -1,14 +1,14 @@
 import { RimbuError } from '@rimbu/base';
 import { NonEmptyBase } from '@rimbu/collection-types/set-custom';
 import {
-  CollectFun,
-  Comp,
   IndexRange,
-  OptLazy,
-  TraverseState,
-  Update,
   type ArrayNonEmpty,
+  type CollectFun,
+  type Comp,
+  type OptLazy,
   type ToJSON,
+  type TraverseState,
+  type Update,
 } from '@rimbu/common';
 import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';

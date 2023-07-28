@@ -1,14 +1,14 @@
-import { RimbuError, Token } from '@rimbu/base';
+import { RimbuError, type Token } from '@rimbu/base';
+import type { WithKeyValue } from '@rimbu/collection-types/map-custom';
 import {
   OptLazy,
-  OptLazyOr,
-  type RelatedTo,
   TraverseState,
   Update,
+  type OptLazyOr,
+  type RelatedTo,
 } from '@rimbu/common';
 import type { List } from '@rimbu/list';
 import { Stream, type StreamSource } from '@rimbu/stream';
-import type { WithKeyValue } from '@rimbu/collection-types/map-custom';
 
 import type { OrderedMapBase, OrderedMapTypes } from '#ordered/map-custom';
 

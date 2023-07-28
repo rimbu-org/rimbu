@@ -1,13 +1,13 @@
 import type { Token } from '@rimbu/base';
+import type { RMapBase } from '@rimbu/collection-types/map-custom';
 import type {
   OptLazy,
   OptLazyOr,
   RelatedTo,
   TraverseState,
 } from '@rimbu/common';
+import { type HashMap } from '@rimbu/hashed/map';
 import type { StreamSource } from '@rimbu/stream';
-import type { RMapBase } from '@rimbu/collection-types/map-custom';
-import { HashMap } from '@rimbu/hashed/map';
 
 import type { ProximityMap } from '#proximity/map';
 import { wrapHashMap } from './wrapping.mjs';

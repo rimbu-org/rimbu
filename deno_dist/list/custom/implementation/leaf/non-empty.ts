@@ -1,14 +1,14 @@
 import { RimbuError } from '../../../../base/mod.ts';
 import { NonEmptyBase } from '../../../../collection-types/set-custom/index.ts';
 import {
-  CollectFun,
-  Comp,
   IndexRange,
-  OptLazy,
-  TraverseState,
-  Update,
   type ArrayNonEmpty,
+  type CollectFun,
+  type Comp,
+  type OptLazy,
   type ToJSON,
+  type TraverseState,
+  type Update,
 } from '../../../../common/mod.ts';
 import type { FastIterator, Stream, StreamSource } from '../../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../../stream/custom/index.ts';

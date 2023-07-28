@@ -1,13 +1,13 @@
 import type { Token } from '../../base/mod.ts';
+import type { RMapBase } from '../../collection-types/map-custom/index.ts';
 import type {
   OptLazy,
   OptLazyOr,
   RelatedTo,
   TraverseState,
 } from '../../common/mod.ts';
+import { type HashMap } from '../../hashed/map/index.ts';
 import type { StreamSource } from '../../stream/mod.ts';
-import type { RMapBase } from '../../collection-types/map-custom/index.ts';
-import { HashMap } from '../../hashed/map/index.ts';
 
 import type { ProximityMap } from '../../proximity/map/index.ts';
 import { wrapHashMap } from './wrapping.ts';

@@ -1,7 +1,6 @@
 import { Arr, RimbuError } from '../../../../base/mod.ts';
-import { OptLazy, TraverseState, Update } from '../../../../common/mod.ts';
+import { TraverseState, type OptLazy, type Update } from '../../../../common/mod.ts';
 
-import type { List } from '../../../../list/main/index.ts';
 import type {
   BlockBuilder,
   ListContext,
@@ -9,6 +8,7 @@ import type {
   NonLeafBlock,
   NonLeafBuilder,
 } from '../../../../list/custom/index.ts';
+import type { List } from '../../../../list/main/index.ts';
 
 export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
   implements BlockBuilder<T, C>

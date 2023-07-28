@@ -1,15 +1,15 @@
 import { RimbuError } from '@rimbu/base';
 import {
-  type ArrayNonEmpty,
-  IndexRange,
   OptLazy,
   TraverseState,
-  Update,
+  type ArrayNonEmpty,
+  type IndexRange,
+  type Update,
 } from '@rimbu/common';
 import type { Stream, StreamSource } from '@rimbu/stream';
 
-import type { List } from '#list/main';
 import type { LeafBlock, ListContext, NonLeaf, Tree } from '#list/custom';
+import type { List } from '#list/main';
 import {
   treeAppend,
   treeForEach,

@@ -1,4 +1,4 @@
-import { RimbuError, Token } from '@rimbu/base';
+import { RimbuError, type Token } from '@rimbu/base';
 import { OptLazy, OptLazyOr, type RelatedTo } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
