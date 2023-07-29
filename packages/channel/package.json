@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/channel",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Channel implementation for TypeScript akin to Go Channels",
   "keywords": [
     "channel",
@@ -80,8 +80,8 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@rimbu/common": "^1.0.0",
-    "@rimbu/stream": "^1.0.0",
+    "@rimbu/common": "^1.1.0",
+    "@rimbu/stream": "^1.1.0",
     "tslib": "^2.6.1"
   },
   "publishConfig": {

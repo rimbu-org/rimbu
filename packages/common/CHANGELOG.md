@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/common@1.0.0...@rimbu/common@1.1.0) (2023-07-29)
+
+### Features
+
+- add @rimbu/channel package ([6518576](https://github.com/rimbu-org/rimbu/commit/65185763e97e2ddc3aa2c543c3b7a96d069c8dcd))
+- **common:** remove unused staticonly utilities ([aa74534](https://github.com/rimbu-org/rimbu/commit/aa74534083c0982cd2d21365a158fa4239159548))
+- update tslib version and extend channel documentation ([6eb46d0](https://github.com/rimbu-org/rimbu/commit/6eb46d07b9b7469febd316306146b04f43b1ebb5))
+
 # [1.0.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/common@1.0.0-alpha.2...@rimbu/common@1.0.0) (2023-07-03)
 
 **Note:** Version bump only for package @rimbu/common
