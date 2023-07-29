@@ -3,7 +3,7 @@ import type {
   AsyncStreamSource,
   AsyncStreamable,
   AsyncTransformer,
-} from '../../stream/main/index.ts';
+} from '../../stream/mod.ts';
 import type { AsyncStreamConstructors } from '../../stream/async-custom/index.ts';
 import { AsyncStreamConstructorsImpl } from '../../stream/async-custom/index.ts';
 

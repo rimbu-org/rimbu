@@ -2,8 +2,10 @@
   "compilerOptions": {
     "rootDirs": [".", ".."],
     "paths": {
-      "#collection-types/*.mjs": ["./src/*.mjs"],
-      "#collection-types/*": ["./src/*/index.mjs"]
+      "@rimbu/collection-types/map-custom": ["./src/map-custom/index.mjs"],
+      "@rimbu/collection-types/map": ["./src/map/index.mjs"],
+      "@rimbu/collection-types/set-custom": ["./src/set-custom/index.mjs"],
+      "@rimbu/collection-types/set": ["./src/set/index.mjs"]
     }
   }
 }

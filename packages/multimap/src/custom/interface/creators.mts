@@ -8,8 +8,8 @@ import type {
   MultiMap,
   SortedMultiMapHashValue,
   SortedMultiMapSortedValue,
-} from '#multimap/main';
-import type { MultiMapBase } from '#multimap/custom';
+} from '@rimbu/multimap';
+import type { MultiMapBase } from '@rimbu/multimap/custom';
 
 export interface MultiMapCreators {
   /**

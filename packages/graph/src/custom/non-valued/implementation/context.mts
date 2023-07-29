@@ -8,7 +8,7 @@ import type {
   GraphElement,
   WithGraphValues,
 } from '../../common/index.mjs';
-import { GraphEmpty, GraphNonEmpty, GraphBuilder } from '#graph/custom';
+import { GraphEmpty, GraphNonEmpty, GraphBuilder } from '@rimbu/graph/custom';
 
 export interface GraphTypesContextImpl extends GraphBase.Types {
   readonly context: GraphContext<this['_N'], string, boolean>;

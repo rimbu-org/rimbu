@@ -7,7 +7,7 @@ import type {
   NonLeafBlockBuilder,
   NonLeafBuilder,
   NonLeafTree,
-} from '#list/custom';
+} from '@rimbu/list/custom';
 import { TreeBuilderBase } from '../tree/tree-builder.mjs';
 
 export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>

@@ -16,7 +16,7 @@ import type {
   AsyncStream,
   AsyncStreamSource,
   AsyncTransformer,
-} from '#stream/async';
+} from '@rimbu/stream/async';
 import {
   AsyncAppendIterator,
   AsyncCollectIterator,
@@ -56,10 +56,10 @@ import {
   emptyAsyncFastIterator,
   isAsyncFastIterator,
   type AsyncStreamConstructors,
-} from '#stream/async-custom';
-import { isEmptyStreamSourceInstance } from '#stream/custom';
-import type { StreamSource } from '#stream/main';
-import { Stream } from '#stream/main';
+} from '@rimbu/stream/async-custom';
+import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
+import type { StreamSource } from '@rimbu/stream';
+import { Stream } from '@rimbu/stream';
 
 export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   abstract [Symbol.asyncIterator](): AsyncFastIterator<T>;

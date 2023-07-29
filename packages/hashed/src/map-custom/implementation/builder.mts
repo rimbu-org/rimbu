@@ -2,23 +2,22 @@ import { Arr, RimbuError, Token } from '@rimbu/base';
 import {
   OptLazy,
   OptLazyOr,
-  type RelatedTo,
   TraverseState,
   Update,
+  type RelatedTo,
 } from '@rimbu/common';
 import { List } from '@rimbu/list';
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-import type { HashMap } from '#hashed/map';
+import { BlockBuilderBase, CollisionBuilderBase } from '@rimbu/hashed/common';
+import type { HashMap } from '@rimbu/hashed/map';
 import type {
   HashMapBlock,
   HashMapCollision,
   HashMapContext,
   MapEntrySet,
-} from '#hashed/map-custom';
-
-import { BlockBuilderBase, CollisionBuilderBase } from '#hashed/base';
+} from '@rimbu/hashed/map-custom';
 
 export type MapBlockBuilderEntry<K, V> =
   | HashMapBlockBuilder<K, V>

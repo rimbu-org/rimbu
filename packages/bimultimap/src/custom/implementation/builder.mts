@@ -1,4 +1,7 @@
-import type { BiMultiMapBase, ContextTypesImpl } from '#bimultimap/custom';
+import type {
+  BiMultiMapBase,
+  ContextTypesImpl,
+} from '@rimbu/bimultimap/custom';
 
 import { RimbuError } from '@rimbu/base';
 import type { RSet } from '@rimbu/collection-types';

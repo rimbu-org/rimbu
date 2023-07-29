@@ -1,5 +1,5 @@
 import { AsyncOptLazy, AsyncReducer, Eq } from '@rimbu/common';
-import { AsyncStream, type AsyncStreamSource } from '#stream/async';
+import { AsyncStream, type AsyncStreamSource } from '@rimbu/stream/async';
 
 /**
  * An AsyncReducer that produces instances of `AsyncStreamSource`.

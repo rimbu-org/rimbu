@@ -13,7 +13,7 @@ import {
   type ToJSON,
 } from '@rimbu/common';
 
-import type { StreamConstructors } from '#stream/custom';
+import type { StreamConstructors } from '@rimbu/stream/custom';
 import {
   AlwaysIterator,
   AppendIterator,
@@ -53,13 +53,13 @@ import {
   ZipWithIterator,
   emptyFastIterator,
   isFastIterator,
-} from '#stream/custom';
+} from '@rimbu/stream/custom';
 import type {
   FastIterator,
   Stream,
   StreamSource,
   Transformer,
-} from '#stream/main';
+} from '@rimbu/stream';
 
 function* yieldObjKeys<K extends string | number | symbol>(
   obj: Record<K, any>

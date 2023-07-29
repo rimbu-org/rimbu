@@ -8,7 +8,7 @@ import type {
   OrderedHashSet,
   OrderedSet,
   OrderedSortedSet,
-} from '#ordered/set';
+} from '@rimbu/ordered/set';
 
 export interface OrderedSetCreators {
   /**

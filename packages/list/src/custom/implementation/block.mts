@@ -1,7 +1,7 @@
 import type { IndexRange, OptLazy, TraverseState, Update } from '@rimbu/common';
 import type { Stream } from '@rimbu/stream';
 
-import type { BlockBuilder, CacheMap } from '#list/custom';
+import type { BlockBuilder, CacheMap } from '@rimbu/list/custom';
 
 export interface Block<T, TS extends Block<T, TS, C> = any, C = any> {
   readonly length: number;

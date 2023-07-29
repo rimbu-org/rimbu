@@ -6,7 +6,7 @@ import {
   OrderedSetBuilder,
   OrderedSetEmpty,
   OrderedSetNonEmpty,
-} from '#ordered/set-custom';
+} from '@rimbu/ordered/set-custom';
 
 export interface OrderedSetTypes extends OrderedSetBase.Types {
   readonly context: OrderedSetContextImpl<this['_T']>;

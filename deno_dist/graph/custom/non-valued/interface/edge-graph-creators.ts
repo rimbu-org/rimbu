@@ -2,7 +2,7 @@ import type { HashMap, HashSet } from '../../../../hashed/mod.ts';
 import type { SortedMap, SortedSet } from '../../../../sorted/mod.ts';
 import type { RMap, RSet } from '../../../../collection-types/mod.ts';
 
-import type { EdgeGraph, EdgeGraphHashed, EdgeGraphSorted } from '../../../../graph/main/index.ts';
+import type { EdgeGraph, EdgeGraphHashed, EdgeGraphSorted } from '../../../../graph/mod.ts';
 import type { GraphBase } from '../../common/index.ts';
 
 export interface EdgeGraphCreators {

@@ -6,7 +6,7 @@ import type {
   EdgeValuedGraph,
   EdgeValuedGraphHashed,
   EdgeValuedGraphSorted,
-} from '../../../../../graph/main/index.ts';
+} from '../../../../../graph/mod.ts';
 import type { ValuedGraphBase } from '../../../../../graph/custom/index.ts';
 
 export interface EdgeValuedGraphCreators {

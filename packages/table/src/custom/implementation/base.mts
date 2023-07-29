@@ -19,8 +19,8 @@ import {
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-import type { Table } from '#table/main';
-import type { TableBase } from '#table/custom';
+import type { Table } from '@rimbu/table';
+import type { TableBase } from '@rimbu/table/custom';
 
 export interface ContextImplTypes extends TableBase.Types {
   readonly context: TableContext<this['_R'], this['_C'], string>;

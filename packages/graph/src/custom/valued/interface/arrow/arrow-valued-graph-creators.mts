@@ -6,8 +6,8 @@ import type {
   ArrowValuedGraph,
   ArrowValuedGraphHashed,
   ArrowValuedGraphSorted,
-} from '#graph/main';
-import type { ValuedGraphBase } from '#graph/custom';
+} from '@rimbu/graph';
+import type { ValuedGraphBase } from '@rimbu/graph/custom';
 
 export interface ArrowValuedGraphCreators {
   /**

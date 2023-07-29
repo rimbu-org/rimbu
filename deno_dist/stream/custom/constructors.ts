@@ -6,7 +6,7 @@ import type {
   StringNonEmpty,
 } from '../../common/mod.ts';
 
-import type { Stream, StreamSource } from '../../stream/main/index.ts';
+import type { Stream, StreamSource } from '../../stream/mod.ts';
 
 export interface StreamConstructors {
   /**

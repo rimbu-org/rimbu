@@ -1,7 +1,11 @@
 import { RimbuError } from '../../../../base/mod.ts';
 import { TraverseState, type OptLazy, type Update } from '../../../../common/mod.ts';
 
-import type { BlockBuilder, ListContext, NonLeafBuilder } from '../../../../list/custom/index.ts';
+import type {
+  BlockBuilder,
+  ListContext,
+  NonLeafBuilder,
+} from '../../../../list/custom/index.ts';
 
 export abstract class TreeBuilderBase<T, C> {
   abstract get context(): ListContext;

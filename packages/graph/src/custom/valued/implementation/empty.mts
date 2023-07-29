@@ -6,7 +6,7 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 import type {
   ValuedGraphBase,
   ValuedGraphTypesContextImpl,
-} from '#graph/custom';
+} from '@rimbu/graph/custom';
 import type { WithGraphValues } from '../../common/index.mjs';
 import { GraphEmptyBase } from '../../common/index.mjs';
 

@@ -3,9 +3,9 @@ import type {
   AsyncStreamSource,
   AsyncStreamable,
   AsyncTransformer,
-} from '#stream/main';
-import type { AsyncStreamConstructors } from '#stream/async-custom';
-import { AsyncStreamConstructorsImpl } from '#stream/async-custom';
+} from '@rimbu/stream';
+import type { AsyncStreamConstructors } from '@rimbu/stream/async-custom';
+import { AsyncStreamConstructorsImpl } from '@rimbu/stream/async-custom';
 
 import type {
   ArrayNonEmpty,

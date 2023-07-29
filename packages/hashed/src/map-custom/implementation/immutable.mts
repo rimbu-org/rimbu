@@ -13,8 +13,8 @@ import type { List } from '@rimbu/list';
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-import type { HashMap } from '#hashed/map';
-import type { HashMapContext } from '#hashed/map-custom';
+import type { HashMap } from '@rimbu/hashed/map';
+import type { HashMapContext } from '@rimbu/hashed/map-custom';
 
 export class HashMapEmpty<K = any, V = any>
   extends EmptyBase

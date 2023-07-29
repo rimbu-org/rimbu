@@ -1,6 +1,6 @@
 import type { OptLazy, TraverseState, Update } from '@rimbu/common';
 
-import type { BuilderBase } from '#list/custom';
+import type { BuilderBase } from '@rimbu/list/custom';
 
 export interface BlockBuilder<T, C = unknown> extends BuilderBase<T, C> {
   level: number;

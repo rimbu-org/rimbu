@@ -17,7 +17,7 @@ import {
 import { Stream, type StreamSource } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
-import type { MultiMap } from '../../../multimap/main/index.ts';
+import type { MultiMap } from '../../../multimap/mod.ts';
 import type { MultiMapBase } from '../../../multimap/custom/index.ts';
 
 export interface ContextImplTypes extends MultiMapBase.Types {

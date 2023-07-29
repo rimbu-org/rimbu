@@ -3,9 +3,9 @@ import type { RSetBase } from '@rimbu/collection-types/set-custom';
 import type { IndexRange, OptLazy, Range } from '@rimbu/common';
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type { SortedSetCreators } from '#sorted/set-custom';
+import type { SortedSetCreators } from '@rimbu/sorted/set-custom';
 
-import { createSortedSetContext } from '#sorted/set-custom';
+import { createSortedSetContext } from '@rimbu/sorted/set-custom';
 
 /**
  * A type-invariant immutable Set of value type T.

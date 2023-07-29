@@ -1,4 +1,4 @@
-import type { VariantMapBase } from '#collection-types/map-custom';
+import type { VariantMapBase } from '@rimbu/collection-types/map-custom';
 
 /**
  * A type-variant immutable Map of key type K, and value type V.

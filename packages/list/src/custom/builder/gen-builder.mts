@@ -2,8 +2,8 @@ import { RimbuError } from '@rimbu/base';
 import { OptLazy, TraverseState, type Update } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-import type { LeafBuilder, ListContext } from '#list/custom';
-import type { List } from '#list/main';
+import type { LeafBuilder, ListContext } from '@rimbu/list/custom';
+import type { List } from '@rimbu/list';
 
 export class GenBuilder<T> implements List.Builder<T> {
   constructor(readonly context: ListContext, public builder?: LeafBuilder<T>) {}

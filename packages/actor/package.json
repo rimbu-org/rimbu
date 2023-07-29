@@ -61,24 +61,6 @@
       "default": "./dist/esm/stream/index.mjs"
     }
   },
-  "imports": {
-    "#actor/*.mts": {
-      "bun": "./dist/bun/*.mts"
-    },
-    "#actor/*.mjs": {
-      "types": "./dist/types/*.d.mts",
-      "import": "./dist/esm/*.mjs",
-      "require": "./dist/cjs/*.cjs",
-      "default": "./dist/esm/*.mjs"
-    },
-    "#actor/*": {
-      "types": "./dist/types/*/index.d.mts",
-      "bun": "./dist/bun/*/index.mts",
-      "import": "./dist/esm/*/index.mjs",
-      "require": "./dist/cjs/*/index.cjs",
-      "default": "./dist/esm/*/index.mjs"
-    }
-  },
   "files": [
     "dist",
     "src",

@@ -7,8 +7,8 @@ import type {
   NonLeaf,
   NonLeafBlock,
   NonLeafBuilder,
-} from '#list/custom';
-import type { List } from '#list/main';
+} from '@rimbu/list/custom';
+import type { List } from '@rimbu/list';
 
 export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
   implements BlockBuilder<T, C>

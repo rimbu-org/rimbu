@@ -13,5 +13,5 @@
 export * from './interface/variant.mjs';
 export * from './interface/generic.mjs';
 
-export * from '#table/hash-row';
-export * from '#table/sorted-row';
+export * from '@rimbu/table/hash-row';
+export * from '@rimbu/table/sorted-row';

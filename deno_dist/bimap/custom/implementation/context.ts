@@ -1,5 +1,9 @@
-import { BiMapBuilder, BiMapEmpty, BiMapNonEmptyImpl } from '../../../bimap/custom/index.ts';
-import type { BiMap } from '../../../bimap/main/index.ts';
+import {
+  BiMapBuilder,
+  BiMapEmpty,
+  BiMapNonEmptyImpl,
+} from '../../../bimap/custom/index.ts';
+import type { BiMap } from '../../../bimap/mod.ts';
 
 import type { RMap } from '../../../collection-types/map/index.ts';
 import type { ArrayNonEmpty } from '../../../common/mod.ts';

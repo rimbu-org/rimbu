@@ -6,7 +6,7 @@ import {
   type OrderedMapBase,
   OrderedMapContextImpl,
   type OrderedSortedMapCreators,
-} from '#ordered/map-custom';
+} from '@rimbu/ordered/map-custom';
 
 /**
  * A type-invariant immutable Ordered SortedMap of key type K, and value type V.

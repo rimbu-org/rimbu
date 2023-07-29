@@ -2,7 +2,7 @@ import type { RSet } from '@rimbu/collection-types';
 import type { ToJSON } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-import type { GraphTypesContextImpl } from '#graph/custom';
+import type { GraphTypesContextImpl } from '@rimbu/graph/custom';
 import type { GraphBase, WithGraphValues } from '../../common/index.mjs';
 import { GraphEmptyBase } from '../../common/index.mjs';
 

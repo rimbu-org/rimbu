@@ -2,8 +2,8 @@ import { EmptyBase } from '@rimbu/collection-types/set-custom';
 import { type ArrayNonEmpty, OptLazy, type ToJSON } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-import type { List } from '#list/main';
-import type { ListContext } from '#list/custom';
+import type { List } from '@rimbu/list';
+import type { ListContext } from '@rimbu/list/custom';
 
 export class Empty<T = any> extends EmptyBase implements List<T> {
   constructor(readonly context: ListContext) {

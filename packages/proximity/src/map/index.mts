@@ -11,8 +11,8 @@ import type { RMapBase } from '@rimbu/collection-types/map-custom';
 import type { Stream, Streamable } from '@rimbu/stream';
 import { HashMap } from '@rimbu/hashed/map';
 
-import { DistanceFunction } from '#proximity/common';
-import { ProximityMapContext } from '#proximity/map-custom';
+import { DistanceFunction } from '@rimbu/proximity/common';
+import { ProximityMapContext } from '@rimbu/proximity/map-custom';
 
 /**
  * A type-invariant immutable Map of key type K, and value type V.

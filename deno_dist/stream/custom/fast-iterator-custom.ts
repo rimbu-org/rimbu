@@ -8,7 +8,7 @@ import {
 } from '../../common/mod.ts';
 
 import type { StreamSourceHelpers } from '../../stream/custom/index.ts';
-import type { FastIterator, Stream, StreamSource } from '../../stream/main/index.ts';
+import type { FastIterator, Stream, StreamSource } from '../../stream/mod.ts';
 
 export const fixedDoneIteratorResult: IteratorResult<any> = Object.freeze({
   done: true,

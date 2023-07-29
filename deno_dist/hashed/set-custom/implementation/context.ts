@@ -4,7 +4,10 @@ import { List } from '../../../list/mod.ts';
 import type { StreamSource } from '../../../stream/mod.ts';
 
 import type { HashSet } from '../../../hashed/set/index.ts';
-import type { SetBlockBuilderEntry, SetEntrySet } from '../../../hashed/set-custom/index.ts';
+import type {
+  SetBlockBuilderEntry,
+  SetEntrySet,
+} from '../../../hashed/set-custom/index.ts';
 
 import { Hasher } from '../../common/index.ts';
 import {

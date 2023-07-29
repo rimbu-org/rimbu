@@ -2,8 +2,8 @@ import type { RMap } from '@rimbu/collection-types';
 import type { HashMap } from '@rimbu/hashed';
 import type { SortedMap } from '@rimbu/sorted';
 
-import type { HashMultiSet, MultiSet, SortedMultiSet } from '#multiset/main';
-import type { MultiSetBase } from '#multiset/custom';
+import type { HashMultiSet, MultiSet, SortedMultiSet } from '@rimbu/multiset';
+import type { MultiSetBase } from '@rimbu/multiset/custom';
 
 export interface MultiSetCreators {
   /**

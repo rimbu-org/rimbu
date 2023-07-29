@@ -3,7 +3,7 @@ import {
   BiMultiMapBuilder,
   BiMultiMapEmpty,
   BiMultiMapNonEmpty,
-} from '#bimultimap/custom';
+} from '@rimbu/bimultimap/custom';
 
 import type { WithKeyValue } from '@rimbu/collection-types/map-custom';
 import type { ArrayNonEmpty } from '@rimbu/common';

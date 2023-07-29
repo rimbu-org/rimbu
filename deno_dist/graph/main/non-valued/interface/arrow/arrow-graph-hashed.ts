@@ -1,7 +1,10 @@
 import type { Stream, Streamable } from '../../../../../stream/mod.ts';
 import { HashMap, HashSet } from '../../../../../hashed/mod.ts';
 
-import type { ArrowGraphHashedCreators, GraphElement } from '../../../../../graph/custom/index.ts';
+import type {
+  ArrowGraphHashedCreators,
+  GraphElement,
+} from '../../../../../graph/custom/index.ts';
 import { type ArrowGraphBase, GraphContext } from '../../../../../graph/custom/index.ts';
 
 /**

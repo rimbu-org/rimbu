@@ -2,8 +2,11 @@
   "compilerOptions": {
     "rootDirs": [".", ".."],
     "paths": {
-      "#sorted/*.mjs": ["./src/*.mjs"],
-      "#sorted/*": ["./src/*/index.mjs"]
+      "@rimbu/sorted/common": ["./src/common/index.mjs"],
+      "@rimbu/sorted/map": ["./src/map/index.mjs"],
+      "@rimbu/sorted/map-custom": ["./src/map-custom/index.mjs"],
+      "@rimbu/sorted/set": ["./src/set/index.mjs"],
+      "@rimbu/sorted/set-custom": ["./src/set-custom/index.mjs"]
     }
   }
 }

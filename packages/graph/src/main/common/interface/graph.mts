@@ -1,6 +1,6 @@
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type { GraphBase, GraphElement } from '#graph/custom';
+import type { GraphBase, GraphElement } from '@rimbu/graph/custom';
 
 /**
  * An type-invariant immutable graph.

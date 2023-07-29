@@ -14,8 +14,11 @@ import {
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-import type { SortedMap } from '#sorted/map';
-import type { SortedMapBuilder, SortedMapContext } from '#sorted/map-custom';
+import type { SortedMap } from '@rimbu/sorted/map';
+import type {
+  SortedMapBuilder,
+  SortedMapContext,
+} from '@rimbu/sorted/map-custom';
 
 import {
   SortedEmpty,
@@ -45,7 +48,7 @@ import {
   leafMutateJoinLeft,
   leafMutateJoinRight,
   leafMutateSplitRight,
-} from '#sorted/common';
+} from '@rimbu/sorted/common';
 
 export class SortedMapEmpty<K = any, V = any>
   extends SortedEmpty

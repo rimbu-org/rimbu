@@ -11,5 +11,5 @@
  */
 
 export * from '../common/index.mjs';
-export * from '#hashed/map';
-export * from '#hashed/set';
+export * from '@rimbu/hashed/map';
+export * from '@rimbu/hashed/set';

@@ -16,7 +16,7 @@ import {
   type ToJSON,
   TraverseState,
 } from '@rimbu/common';
-import type { MultiSetBase } from '#multiset/custom';
+import type { MultiSetBase } from '@rimbu/multiset/custom';
 
 export interface ContextImplTypes extends MultiSetBase.Types {
   readonly context: MultiSetContext<this['_T'], string>;

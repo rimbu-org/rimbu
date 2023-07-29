@@ -14,7 +14,7 @@ import type { FastIterator, Stream, StreamSource } from '../../../../stream/mod.
 import { isEmptyStreamSourceInstance } from '../../../../stream/custom/index.ts';
 
 import type { CacheMap, ListContext } from '../../../../list/custom/index.ts';
-import type { List } from '../../../../list/main/index.ts';
+import type { List } from '../../../../list/mod.ts';
 
 export abstract class ListNonEmptyBase<T>
   extends NonEmptyBase<T>

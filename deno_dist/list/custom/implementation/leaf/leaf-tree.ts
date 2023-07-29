@@ -9,7 +9,7 @@ import {
 import type { Stream, StreamSource } from '../../../../stream/mod.ts';
 
 import type { LeafBlock, ListContext, NonLeaf, Tree } from '../../../../list/custom/index.ts';
-import type { List } from '../../../../list/main/index.ts';
+import type { List } from '../../../../list/mod.ts';
 import {
   treeAppend,
   treeForEach,

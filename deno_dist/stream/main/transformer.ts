@@ -1,6 +1,6 @@
 import { Eq, OptLazy, Reducer } from '../../common/mod.ts';
 
-import { Stream, type StreamSource } from '../../stream/main/index.ts';
+import { Stream, type StreamSource } from '../../stream/mod.ts';
 
 /**
  * A Reducer that produces instances of `StreamSource`.

@@ -1,7 +1,10 @@
 import { HashMap, HashSet } from '../../../../../hashed/mod.ts';
 import type { Stream, Streamable } from '../../../../../stream/mod.ts';
 
-import type { GraphElement, EdgeGraphHashedCreators } from '../../../../../graph/custom/index.ts';
+import type {
+  GraphElement,
+  EdgeGraphHashedCreators,
+} from '../../../../../graph/custom/index.ts';
 import { type EdgeGraphBase, GraphContext } from '../../../../../graph/custom/index.ts';
 
 /**

@@ -2,8 +2,8 @@
   "compilerOptions": {
     "rootDirs": [".", ".."],
     "paths": {
-      "#bimap/*.mjs": ["./src/*.mjs"],
-      "#bimap/*": ["./src/*/index.mjs"]
+      "@rimbu/bimap/custom": ["./src/custom/index.mjs"],
+      "@rimbu/bimap": ["./src/main/index.mjs"]
     }
   }
 }

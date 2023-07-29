@@ -1,6 +1,6 @@
 import { type Patch, patch } from '@rimbu/deep';
 
-import { Action, SliceConfig } from '#actor/main/internal.mjs';
+import { Action, SliceConfig } from '@rimbu/actor';
 
 export namespace SlicePatch {
   export interface Config extends SliceConfig {

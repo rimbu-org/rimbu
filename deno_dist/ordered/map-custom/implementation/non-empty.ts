@@ -16,7 +16,10 @@ import type { List } from '../../../list/mod.ts';
 import type { Stream, StreamSource } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
-import type { OrderedMapBase, OrderedMapTypes } from '../../../ordered/map-custom/index.ts';
+import type {
+  OrderedMapBase,
+  OrderedMapTypes,
+} from '../../../ordered/map-custom/index.ts';
 
 export class OrderedMapNonEmpty<
     K,

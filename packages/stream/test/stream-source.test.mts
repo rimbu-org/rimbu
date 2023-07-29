@@ -1,4 +1,5 @@
 import { Stream } from '../src/main/index.mjs';
+
 import { isEmptyStreamSourceInstance } from '../src/custom/index.mjs';
 
 describe('isEmptyStreamSourceInstance', () => {

@@ -2,7 +2,7 @@ import {
   type BiMultiMapBase,
   BiMultiMapContext,
   type BiMultiMapGeneric,
-} from '#bimultimap/custom';
+} from '@rimbu/bimultimap/custom';
 
 import type { MultiMap } from '@rimbu/multimap';
 import type { Streamable } from '@rimbu/stream';

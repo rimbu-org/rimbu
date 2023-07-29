@@ -19,7 +19,7 @@ import {
 import { Stream, type StreamSource } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
-import type { Table } from '../../../table/main/index.ts';
+import type { Table } from '../../../table/mod.ts';
 import type { TableBase } from '../../../table/custom/index.ts';
 
 export interface ContextImplTypes extends TableBase.Types {

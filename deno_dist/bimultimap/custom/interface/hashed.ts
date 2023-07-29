@@ -1,5 +1,5 @@
 import type { BiMultiMapBase } from '../../../bimultimap/custom/index.ts';
-import type { HashBiMultiMap } from '../../../bimultimap/main/index.ts';
+import type { HashBiMultiMap } from '../../../bimultimap/mod.ts';
 
 import type { HashMultiMapHashValue } from '../../../multimap/mod.ts';
 

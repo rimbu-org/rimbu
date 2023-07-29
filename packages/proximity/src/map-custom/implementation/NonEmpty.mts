@@ -11,8 +11,8 @@ import {
 import type { HashMap } from '@rimbu/hashed/map';
 import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
 
-import { findNearestKeyMatch } from '#proximity/common';
-import type { ProximityMap } from '#proximity/map';
+import { findNearestKeyMatch } from '@rimbu/proximity/common';
+import type { ProximityMap } from '@rimbu/proximity/map';
 import { wrapHashMap } from '../wrapping.mjs';
 
 const toStringBeginning = /^[^(]+/;

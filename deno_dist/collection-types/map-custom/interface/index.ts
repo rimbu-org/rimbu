@@ -1,4 +1,7 @@
-import type { KeyValue, WithKeyValue } from '../../../collection-types/map-custom/index.ts';
+import type {
+  KeyValue,
+  WithKeyValue,
+} from '../../../collection-types/map-custom/index.ts';
 
 import type { Token } from '../../../base/mod.ts';
 import type {

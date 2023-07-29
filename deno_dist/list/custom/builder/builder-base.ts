@@ -1,6 +1,6 @@
 import type { OptLazy } from '../../../common/mod.ts';
 
-import type { List } from '../../../list/main/index.ts';
+import type { List } from '../../../list/mod.ts';
 import type { NonLeaf } from '../../../list/custom/index.ts';
 
 export interface BuilderBase<T, C = unknown> {

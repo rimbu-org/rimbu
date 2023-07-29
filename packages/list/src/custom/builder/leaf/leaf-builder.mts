@@ -1,7 +1,7 @@
 import type { OptLazy, TraverseState, Update } from '@rimbu/common';
 
-import type { List } from '#list/main';
-import type { BuilderBase } from '#list/custom';
+import type { List } from '@rimbu/list';
+import type { BuilderBase } from '@rimbu/list/custom';
 
 export interface LeafBuilder<T> extends BuilderBase<T, T> {
   updateAt<O>(index: number, update: Update<T>, otherwise?: OptLazy<O>): T | O;

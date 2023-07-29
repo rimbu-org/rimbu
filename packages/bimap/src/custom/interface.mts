@@ -1,4 +1,4 @@
-import type { BiMap } from '#bimap/main';
+import type { BiMap } from '@rimbu/bimap';
 
 import type { RMap } from '@rimbu/collection-types';
 import type { ArrayNonEmpty, Reducer } from '@rimbu/common';

@@ -7,7 +7,7 @@ import type {
   ArrowGraph,
   ArrowGraphHashed,
   ArrowGraphSorted,
-} from '../../../../graph/main/index.ts';
+} from '../../../../graph/mod.ts';
 
 export interface ArrowGraphCreators {
   /**

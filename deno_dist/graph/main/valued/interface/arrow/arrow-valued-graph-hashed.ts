@@ -6,7 +6,10 @@ import type {
   ArrowValuedGraphHashedCreators,
   ValuedGraphElement,
 } from '../../../../../graph/custom/index.ts';
-import { type ArrowValuedGraphBase, ValuedGraphContext } from '../../../../../graph/custom/index.ts';
+import {
+  type ArrowValuedGraphBase,
+  ValuedGraphContext,
+} from '../../../../../graph/custom/index.ts';
 
 /**
  * An type-invariant immutable valued arrow (directed) graph.

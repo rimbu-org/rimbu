@@ -3,14 +3,14 @@ import { type RelatedTo, TraverseState } from '@rimbu/common';
 import { List } from '@rimbu/list';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-import type { HashSet } from '#hashed/set';
+import type { HashSet } from '@rimbu/hashed/set';
 import type {
   HashSetBlock,
   HashSetCollision,
   HashSetContext,
-} from '#hashed/set-custom';
+} from '@rimbu/hashed/set-custom';
 
-import { BlockBuilderBase, CollisionBuilderBase } from '#hashed/base';
+import { BlockBuilderBase, CollisionBuilderBase } from '@rimbu/hashed/common';
 
 export type SetBlockBuilderEntry<T> =
   | HashSetBlockBuilder<T>

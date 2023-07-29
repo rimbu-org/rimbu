@@ -8,8 +8,8 @@ import type {
   SortedTableHashColumn,
   SortedTableSortedColumn,
   Table,
-} from '#table/main';
-import type { TableBase } from '#table/custom';
+} from '@rimbu/table';
+import type { TableBase } from '@rimbu/table/custom';
 
 export interface TableCreators {
   /**

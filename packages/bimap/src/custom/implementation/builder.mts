@@ -1,5 +1,5 @@
-import type { BiMapContext, BiMapNonEmptyImpl } from '#bimap/custom';
-import type { BiMap } from '#bimap/main';
+import type { BiMapContext, BiMapNonEmptyImpl } from '@rimbu/bimap/custom';
+import type { BiMap } from '@rimbu/bimap';
 
 import { RimbuError } from '@rimbu/base';
 import type { RMap } from '@rimbu/collection-types/map';

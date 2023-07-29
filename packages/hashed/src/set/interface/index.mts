@@ -2,10 +2,10 @@ import type { RSetBase } from '@rimbu/collection-types/set-custom';
 import type { Eq } from '@rimbu/common';
 import type { Streamable } from '@rimbu/stream';
 
-import type { HashSetCreators } from '#hashed/set-custom';
+import type { HashSetCreators } from '@rimbu/hashed/set-custom';
 
 import type { Hasher } from '../../common/index.mjs';
-import { createHashSetContext } from '#hashed/set-custom';
+import { createHashSetContext } from '@rimbu/hashed/set-custom';
 
 /**
  * A type-invariant immutable Set of value type T.

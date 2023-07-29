@@ -9,7 +9,7 @@ import type {
 } from '@rimbu/common';
 import type { Stream, Streamable, StreamSource } from '@rimbu/stream';
 
-import type { VariantValuedGraphBase } from '#graph/custom';
+import type { VariantValuedGraphBase } from '@rimbu/graph/custom';
 import type {
   GraphConnect,
   GraphConnectNonEmpty,

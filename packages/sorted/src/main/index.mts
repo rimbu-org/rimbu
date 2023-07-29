@@ -10,5 +10,5 @@
  * - [`@rimbu/sorted/set`](./sorted/set)<br/>
  */
 
-export * from '#sorted/map';
-export * from '#sorted/set';
+export * from '@rimbu/sorted/map';
+export * from '@rimbu/sorted/set';

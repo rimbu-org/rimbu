@@ -2,7 +2,7 @@ import type { RMap } from '../../../collection-types/mod.ts';
 import type { HashMap } from '../../../hashed/mod.ts';
 import type { SortedMap } from '../../../sorted/mod.ts';
 
-import type { HashMultiSet, MultiSet, SortedMultiSet } from '../../../multiset/main/index.ts';
+import type { HashMultiSet, MultiSet, SortedMultiSet } from '../../../multiset/mod.ts';
 import type { MultiSetBase } from '../../../multiset/custom/index.ts';
 
 export interface MultiSetCreators {

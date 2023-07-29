@@ -8,7 +8,7 @@ import type {
   OrderedHashMap,
   OrderedMap,
   OrderedSortedMap,
-} from '#ordered/map';
+} from '@rimbu/ordered/map';
 
 export interface OrderedMapCreators {
   /**

@@ -2,9 +2,9 @@ import { HashMap } from '@rimbu/hashed/map';
 import { List } from '@rimbu/list';
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type { OrderedMapBase } from '#ordered/map-custom';
-import { OrderedMapContextImpl } from '#ordered/map-custom';
-import type { OrderedHashMapCreators } from '#ordered/map-custom';
+import type { OrderedMapBase } from '@rimbu/ordered/map-custom';
+import { OrderedMapContextImpl } from '@rimbu/ordered/map-custom';
+import type { OrderedHashMapCreators } from '@rimbu/ordered/map-custom';
 
 /**
  * A type-invariant immutable Ordered HashMap of key type K, and value type V.

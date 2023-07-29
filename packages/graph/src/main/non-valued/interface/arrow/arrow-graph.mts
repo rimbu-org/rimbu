@@ -1,8 +1,8 @@
 import type { RMap, RSet } from '@rimbu/collection-types';
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type { ArrowGraphCreators, Link } from '#graph/custom';
-import { type ArrowGraphBase, GraphContext } from '#graph/custom';
+import type { ArrowGraphCreators, Link } from '@rimbu/graph/custom';
+import { type ArrowGraphBase, GraphContext } from '@rimbu/graph/custom';
 
 /**
  * An type-invariant immutable arrow (directed) graph.

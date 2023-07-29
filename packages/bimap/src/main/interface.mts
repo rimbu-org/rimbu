@@ -1,5 +1,5 @@
-import type { BiMapFactory } from '#bimap/custom';
-import { BiMapContext, type BiMapCreators } from '#bimap/custom';
+import type { BiMapFactory } from '@rimbu/bimap/custom';
+import { BiMapContext, type BiMapCreators } from '@rimbu/bimap/custom';
 
 import type { RMap } from '@rimbu/collection-types/map';
 import type { KeyValue } from '@rimbu/collection-types/map-custom';
