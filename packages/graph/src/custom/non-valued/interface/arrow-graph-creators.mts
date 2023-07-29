@@ -7,7 +7,7 @@ import type {
   ArrowGraph,
   ArrowGraphHashed,
   ArrowGraphSorted,
-} from '#graph/main';
+} from '@rimbu/graph';
 
 export interface ArrowGraphCreators {
   /**

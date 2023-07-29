@@ -1,7 +1,8 @@
 import { createDraft, finishDraft } from 'immer';
 
-import { Action, SliceConfig } from '#actor/main/internal.mjs';
-import type { Tail } from '#actor/main/utils.mjs';
+import { Action, SliceConfig } from '@rimbu/actor';
+
+import type { Tail } from '../main/utils.mjs';
 
 export namespace SliceImmer {
   export interface Config extends SliceConfig {

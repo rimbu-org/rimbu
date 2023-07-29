@@ -4,8 +4,11 @@ import { SortedMap } from '@rimbu/sorted';
 import type {
   ArrowValuedGraphSortedCreators,
   ValuedGraphElement,
-} from '#graph/custom';
-import { type ArrowValuedGraphBase, ValuedGraphContext } from '#graph/custom';
+} from '@rimbu/graph/custom';
+import {
+  type ArrowValuedGraphBase,
+  ValuedGraphContext,
+} from '@rimbu/graph/custom';
 
 /**
  * An type-invariant immutable valued arrow (directed) graph.

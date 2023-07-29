@@ -1,5 +1,5 @@
 import type { AsyncStream, AsyncStreamable } from '../../stream/async/index.ts';
-import type { StreamSource } from '../../stream/main/index.ts';
+import type { StreamSource } from '../../stream/mod.ts';
 
 import type { MaybePromise } from '../../common/mod.ts';
 

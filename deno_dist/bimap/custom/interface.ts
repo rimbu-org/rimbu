@@ -1,4 +1,4 @@
-import type { BiMap } from '../../bimap/main/index.ts';
+import type { BiMap } from '../../bimap/mod.ts';
 
 import type { RMap } from '../../collection-types/mod.ts';
 import type { ArrayNonEmpty, Reducer } from '../../common/mod.ts';

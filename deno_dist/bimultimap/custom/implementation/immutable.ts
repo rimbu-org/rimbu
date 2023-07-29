@@ -1,4 +1,7 @@
-import type { BiMultiMapBase, ContextTypesImpl } from '../../../bimultimap/custom/index.ts';
+import type {
+  BiMultiMapBase,
+  ContextTypesImpl,
+} from '../../../bimultimap/custom/index.ts';
 
 import {
   EmptyBase,

@@ -1,4 +1,4 @@
-import type { Elem, WithElem } from '#collection-types/set-custom';
+import type { Elem, WithElem } from '@rimbu/collection-types/set-custom';
 
 import type {
   ArrayNonEmpty,

@@ -1,5 +1,5 @@
 import type { BiMultiMapBase } from '../../../bimultimap/custom/index.ts';
-import type { SortedBiMultiMap } from '../../../bimultimap/main/index.ts';
+import type { SortedBiMultiMap } from '../../../bimultimap/mod.ts';
 
 import type { SortedMultiMapSortedValue } from '../../../multimap/mod.ts';
 

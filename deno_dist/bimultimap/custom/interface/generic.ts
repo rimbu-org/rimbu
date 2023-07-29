@@ -1,4 +1,4 @@
-import type { BiMultiMap } from '../../../bimultimap/main/index.ts';
+import type { BiMultiMap } from '../../../bimultimap/mod.ts';
 
 import type { MultiMap } from '../../../multimap/mod.ts';
 

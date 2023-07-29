@@ -2,10 +2,10 @@ import type { RelatedTo } from '@rimbu/common';
 
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-import type { SortedSet } from '#sorted/set';
-import type { SortedSetContext, SortedSetNode } from '#sorted/set-custom';
+import type { SortedSet } from '@rimbu/sorted/set';
+import type { SortedSetContext, SortedSetNode } from '@rimbu/sorted/set-custom';
 
-import { SortedIndex, SortedBuilder } from '#sorted/common';
+import { SortedIndex, SortedBuilder } from '@rimbu/sorted/common';
 
 export class SortedSetBuilder<T> extends SortedBuilder<T> {
   constructor(

@@ -2,8 +2,8 @@
   "compilerOptions": {
     "rootDirs": [".", ".."],
     "paths": {
-      "#multimap/*.mjs": ["./src/*.mjs"],
-      "#multimap/*": ["./src/*/index.mjs"]
+      "@rimbu/multimap/custom": ["./src/custom/index.mjs"],
+      "@rimbu/multimap": ["./src/main/index.mjs"]
     }
   }
 }

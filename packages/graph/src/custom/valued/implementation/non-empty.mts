@@ -12,7 +12,7 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 import type {
   ValuedGraphBase,
   ValuedGraphTypesContextImpl,
-} from '#graph/custom';
+} from '@rimbu/graph/custom';
 import type {
   Link,
   ValuedGraphElement,

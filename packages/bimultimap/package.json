@@ -49,24 +49,6 @@
       "default": "./dist/esm/custom/index.mjs"
     }
   },
-  "imports": {
-    "#bimultimap/*.mts": {
-      "bun": "./dist/bun/*.mts"
-    },
-    "#bimultimap/*.mjs": {
-      "types": "./dist/types/*.d.mts",
-      "import": "./dist/esm/*.mjs",
-      "require": "./dist/cjs/*.cjs",
-      "default": "./dist/esm/*.mjs"
-    },
-    "#bimultimap/*": {
-      "types": "./dist/types/*/index.d.mts",
-      "bun": "./dist/bun/*/index.mts",
-      "import": "./dist/esm/*/index.mjs",
-      "require": "./dist/cjs/*/index.cjs",
-      "default": "./dist/esm/*/index.mjs"
-    }
-  },
   "files": [
     "dist",
     "src",

@@ -12,7 +12,10 @@ import type { List } from '@rimbu/list';
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-import type { OrderedSetBase, OrderedSetTypes } from '#ordered/set-custom';
+import type {
+  OrderedSetBase,
+  OrderedSetTypes,
+} from '@rimbu/ordered/set-custom';
 
 export class OrderedSetNonEmpty<
     T,

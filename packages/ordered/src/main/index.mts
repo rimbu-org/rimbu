@@ -10,5 +10,5 @@
  * - [`@rimbu/ordered/set`](./ordered/set)
  */
 
-export * from '#ordered/map';
-export * from '#ordered/set';
+export * from '@rimbu/ordered/map';
+export * from '@rimbu/ordered/set';

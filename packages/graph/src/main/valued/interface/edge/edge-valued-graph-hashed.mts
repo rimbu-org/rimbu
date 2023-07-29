@@ -4,8 +4,11 @@ import { HashMap } from '@rimbu/hashed';
 import type {
   EdgeValuedGraphHashedCreators,
   ValuedGraphElement,
-} from '#graph/custom';
-import { type EdgeValuedGraphBase, ValuedGraphContext } from '#graph/custom';
+} from '@rimbu/graph/custom';
+import {
+  type EdgeValuedGraphBase,
+  ValuedGraphContext,
+} from '@rimbu/graph/custom';
 
 /**
  * An type-invariant immutable valued edge (undirected) graph.

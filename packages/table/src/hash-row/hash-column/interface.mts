@@ -5,7 +5,7 @@ import {
   type HashTableHashColumnCreators,
   type TableBase,
   TableContext,
-} from '#table/custom';
+} from '@rimbu/table/custom';
 /**
  * A type-invariant immutable Table of row key type R, column key type C, and value type V.
  * In the Table, a combination of a row and column key has exactly one value.

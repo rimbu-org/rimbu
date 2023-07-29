@@ -8,7 +8,10 @@ import type { List } from '@rimbu/list';
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-import type { OrderedMapBase, OrderedMapTypes } from '#ordered/map-custom';
+import type {
+  OrderedMapBase,
+  OrderedMapTypes,
+} from '@rimbu/ordered/map-custom';
 
 export class OrderedMapEmpty<
     K = any,

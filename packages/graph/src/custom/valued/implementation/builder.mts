@@ -2,7 +2,7 @@ import { RimbuError, type Token } from '@rimbu/base';
 import { OptLazy, OptLazyOr, type RelatedTo } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-import type { ValuedGraphTypesContextImpl } from '#graph/custom';
+import type { ValuedGraphTypesContextImpl } from '@rimbu/graph/custom';
 import type { Link, WithGraphValues } from '../../common/index.mjs';
 import { ValuedGraphElement } from '../../common/index.mjs';
 

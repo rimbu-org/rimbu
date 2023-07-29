@@ -2,7 +2,7 @@ import { EmptyBase } from '../../../collection-types/set-custom/index.ts';
 import { type ArrayNonEmpty, OptLazy, type ToJSON } from '../../../common/mod.ts';
 import { Stream, type StreamSource } from '../../../stream/mod.ts';
 
-import type { List } from '../../../list/main/index.ts';
+import type { List } from '../../../list/mod.ts';
 import type { ListContext } from '../../../list/custom/index.ts';
 
 export class Empty<T = any> extends EmptyBase implements List<T> {

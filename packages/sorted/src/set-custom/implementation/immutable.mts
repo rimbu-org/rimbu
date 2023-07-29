@@ -11,8 +11,8 @@ import {
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-import type { SortedSet } from '#sorted/set';
-import type { SortedSetContext } from '#sorted/set-custom';
+import type { SortedSet } from '@rimbu/sorted/set';
+import type { SortedSetContext } from '@rimbu/sorted/set-custom';
 
 import {
   SortedIndex,
@@ -42,7 +42,7 @@ import {
   leafMutateSplitRight,
   SortedEmpty,
   SortedNonEmptyBase,
-} from '#sorted/common';
+} from '@rimbu/sorted/common';
 
 export class SortedSetEmpty<T = any>
   extends SortedEmpty

@@ -3,7 +3,7 @@ import { OptLazy, TraverseState, type Update } from '../../../common/mod.ts';
 import { Stream, type StreamSource } from '../../../stream/mod.ts';
 
 import type { LeafBuilder, ListContext } from '../../../list/custom/index.ts';
-import type { List } from '../../../list/main/index.ts';
+import type { List } from '../../../list/mod.ts';
 
 export class GenBuilder<T> implements List.Builder<T> {
   constructor(readonly context: ListContext, public builder?: LeafBuilder<T>) {}

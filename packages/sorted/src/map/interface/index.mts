@@ -2,9 +2,9 @@ import type { RMapBase } from '@rimbu/collection-types/map-custom';
 import type { Stream, Streamable } from '@rimbu/stream';
 import type { Comp, IndexRange, OptLazy, Range } from '@rimbu/common';
 
-import type { SortedMapCreators } from '#sorted/map-custom';
+import type { SortedMapCreators } from '@rimbu/sorted/map-custom';
 
-import { createSortedMapContext } from '#sorted/map-custom';
+import { createSortedMapContext } from '@rimbu/sorted/map-custom';
 
 /**
  * A type-invariant immutable Map of key type K, and value type V.

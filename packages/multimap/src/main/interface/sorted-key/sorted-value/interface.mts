@@ -5,7 +5,7 @@ import {
   type MultiMapBase,
   MultiMapContext,
   type SortedMultiMapSortedValueCreators,
-} from '#multimap/custom';
+} from '@rimbu/multimap/custom';
 
 /**
  * A type-invariant immutable MultiMap of key type K, and value type V.

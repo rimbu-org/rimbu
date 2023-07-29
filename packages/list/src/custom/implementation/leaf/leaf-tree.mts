@@ -8,8 +8,8 @@ import {
 } from '@rimbu/common';
 import type { Stream, StreamSource } from '@rimbu/stream';
 
-import type { LeafBlock, ListContext, NonLeaf, Tree } from '#list/custom';
-import type { List } from '#list/main';
+import type { LeafBlock, ListContext, NonLeaf, Tree } from '@rimbu/list/custom';
+import type { List } from '@rimbu/list';
 import {
   treeAppend,
   treeForEach,

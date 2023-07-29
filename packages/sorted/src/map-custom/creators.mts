@@ -1,7 +1,7 @@
 import type { RMapBase } from '@rimbu/collection-types/map-custom';
 import type { Comp } from '@rimbu/common';
 
-import type { SortedMap } from '#sorted/map';
+import type { SortedMap } from '@rimbu/sorted/map';
 
 export interface SortedMapCreators extends RMapBase.Factory<SortedMap.Types> {
   /**

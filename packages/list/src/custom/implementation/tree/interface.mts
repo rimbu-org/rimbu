@@ -1,4 +1,4 @@
-import type { Block, ListContext, NonLeaf } from '#list/custom';
+import type { Block, ListContext, NonLeaf } from '@rimbu/list/custom';
 
 export interface Tree<
   T,

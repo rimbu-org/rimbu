@@ -1,6 +1,6 @@
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type { ValuedGraphBase } from '#graph/custom';
+import type { ValuedGraphBase } from '@rimbu/graph/custom';
 import type { ValuedGraphElement } from '../../../common/index.mjs';
 
 export interface EdgeValuedGraphBase<

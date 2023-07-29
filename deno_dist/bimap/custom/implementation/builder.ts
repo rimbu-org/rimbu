@@ -1,5 +1,5 @@
 import type { BiMapContext, BiMapNonEmptyImpl } from '../../../bimap/custom/index.ts';
-import type { BiMap } from '../../../bimap/main/index.ts';
+import type { BiMap } from '../../../bimap/mod.ts';
 
 import { RimbuError } from '../../../base/mod.ts';
 import type { RMap } from '../../../collection-types/map/index.ts';

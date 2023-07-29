@@ -10,7 +10,7 @@ import type {
   NonLeafBlock,
   NonLeafBuilder,
   Tree,
-} from '#list/custom';
+} from '@rimbu/list/custom';
 import {
   treeAppend,
   treeForEach,

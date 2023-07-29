@@ -43,6 +43,13 @@
       "require": "./dist/cjs/main/index.cjs",
       "default": "./dist/esm/main/index.mjs"
     },
+    "./common": {
+      "types": "./dist/types/common/index.d.mts",
+      "bun": "./dist/bun/common/index.mts",
+      "import": "./dist/esm/common/index.mjs",
+      "require": "./dist/cjs/common/index.cjs",
+      "default": "./dist/esm/common/index.mjs"
+    },
     "./map": {
       "types": "./dist/types/map/index.d.mts",
       "bun": "./dist/bun/map/index.mts",
@@ -72,27 +79,10 @@
       "default": "./dist/esm/set-custom/index.mjs"
     }
   },
-  "imports": {
-    "#hashed/*.mts": {
-      "bun": "./dist/bun/*.mts"
-    },
-    "#hashed/*.mjs": {
-      "types": "./dist/types/*.d.mts",
-      "import": "./dist/esm/*.mjs",
-      "require": "./dist/cjs/*.cjs",
-      "default": "./dist/esm/*.mjs"
-    },
-    "#hashed/*": {
-      "types": "./dist/types/*/index.d.mts",
-      "bun": "./dist/bun/*/index.mts",
-      "import": "./dist/esm/*/index.mjs",
-      "require": "./dist/cjs/*/index.cjs",
-      "default": "./dist/esm/*/index.mjs"
-    }
-  },
   "files": [
     "dist",
     "src",
+    "common",
     "map",
     "map-custom",
     "set",

@@ -17,8 +17,8 @@ import {
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-import type { MultiMap } from '#multimap/main';
-import type { MultiMapBase } from '#multimap/custom';
+import type { MultiMap } from '@rimbu/multimap';
+import type { MultiMapBase } from '@rimbu/multimap/custom';
 
 export interface ContextImplTypes extends MultiMapBase.Types {
   readonly context: MultiMapContext<this['_K'], this['_V'], string>;

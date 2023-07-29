@@ -3,7 +3,7 @@ import { EmptyBase } from '@rimbu/collection-types/map-custom';
 import { OptLazy, OptLazyOr, type ToJSON } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-import type { ProximityMap } from '#proximity/map';
+import type { ProximityMap } from '@rimbu/proximity/map';
 
 export class ProximityMapEmpty<K = any, V = any>
   extends EmptyBase

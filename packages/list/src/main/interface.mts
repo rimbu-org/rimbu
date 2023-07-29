@@ -16,8 +16,8 @@ import type {
   Streamable,
 } from '@rimbu/stream';
 
-import type { ListCreators, ListFactory } from '#list/custom';
-import { createListContext } from '#list/custom';
+import type { ListCreators, ListFactory } from '@rimbu/list/custom';
+import { createListContext } from '@rimbu/list/custom';
 
 /**
  * A random accessible immutable sequence of values of type T.

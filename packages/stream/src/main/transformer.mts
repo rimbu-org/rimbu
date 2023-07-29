@@ -1,6 +1,6 @@
 import { Eq, OptLazy, Reducer } from '@rimbu/common';
 
-import { Stream, type StreamSource } from '#stream/main';
+import { Stream, type StreamSource } from '@rimbu/stream';
 
 /**
  * A Reducer that produces instances of `StreamSource`.

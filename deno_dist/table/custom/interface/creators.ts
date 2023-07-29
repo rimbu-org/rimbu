@@ -8,7 +8,7 @@ import type {
   SortedTableHashColumn,
   SortedTableSortedColumn,
   Table,
-} from '../../../table/main/index.ts';
+} from '../../../table/mod.ts';
 import type { TableBase } from '../../../table/custom/index.ts';
 
 export interface TableCreators {

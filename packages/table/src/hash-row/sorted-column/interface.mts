@@ -6,7 +6,7 @@ import {
   type HashTableSortedColumnCreators,
   type TableBase,
   TableContext,
-} from '#table/custom';
+} from '@rimbu/table/custom';
 
 /**
  * A type-invariant immutable Table of row key type R, column key type C, and value type V.

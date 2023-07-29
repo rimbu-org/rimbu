@@ -2,8 +2,11 @@
   "compilerOptions": {
     "rootDirs": [".", ".."],
     "paths": {
-      "#hashed/*.mjs": ["./src/*.mjs"],
-      "#hashed/*": ["./src/*/index.mjs"]
+      "@rimbu/hashed/common": ["./src/common/index.mjs"],
+      "@rimbu/hashed/map": ["./src/map/index.mjs"],
+      "@rimbu/hashed/map-custom": ["./src/map-custom/index.mjs"],
+      "@rimbu/hashed/set": ["./src/set/index.mjs"],
+      "@rimbu/hashed/set-custom": ["./src/set-custom/index.mjs"]
     }
   }
 }

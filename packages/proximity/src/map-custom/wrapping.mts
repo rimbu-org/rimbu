@@ -1,5 +1,5 @@
 import type { HashMap } from '@rimbu/hashed/map';
-import type { ProximityMap } from '#proximity/map';
+import type { ProximityMap } from '@rimbu/proximity/map';
 import { ProximityMapNonEmpty } from './implementation/index.mjs';
 
 export function wrapHashMap<K, V>(

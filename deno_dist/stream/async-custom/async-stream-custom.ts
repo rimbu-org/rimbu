@@ -58,8 +58,8 @@ import {
   type AsyncStreamConstructors,
 } from '../../stream/async-custom/index.ts';
 import { isEmptyStreamSourceInstance } from '../../stream/custom/index.ts';
-import type { StreamSource } from '../../stream/main/index.ts';
-import { Stream } from '../../stream/main/index.ts';
+import type { StreamSource } from '../../stream/mod.ts';
+import { Stream } from '../../stream/mod.ts';
 
 export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   abstract [Symbol.asyncIterator](): AsyncFastIterator<T>;

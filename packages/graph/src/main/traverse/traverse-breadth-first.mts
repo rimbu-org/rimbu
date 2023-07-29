@@ -5,7 +5,7 @@ import { type FastIterator, Stream } from '@rimbu/stream';
 import { FastIteratorBase, StreamBase } from '@rimbu/stream/custom';
 
 import type { LinkType } from './traverse-base.mjs';
-import type { VariantGraphBase } from '#graph/custom';
+import type { VariantGraphBase } from '@rimbu/graph/custom';
 
 class GraphBreadthFirstStream<
   G extends VariantGraphBase.NonEmpty<N, any>,

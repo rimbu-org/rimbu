@@ -1,7 +1,7 @@
 import type { ArrayNonEmpty, Reducer, StringNonEmpty } from '../../common/mod.ts';
 import type { StreamSource } from '../../stream/mod.ts';
 
-import type { List } from '../../list/main/index.ts';
+import type { List } from '../../list/mod.ts';
 
 export interface ListFactory {
   /**

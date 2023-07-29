@@ -8,8 +8,8 @@ import type {
   TraverseState,
 } from '@rimbu/common';
 
-import type { StreamConstructors } from '#stream/custom';
-import { StreamConstructorsImpl } from '#stream/custom';
+import type { StreamConstructors } from '@rimbu/stream/custom';
+import { StreamConstructorsImpl } from '@rimbu/stream/custom';
 import type {
   FastIterable,
   Streamable,

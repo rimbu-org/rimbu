@@ -4,7 +4,7 @@ import { SortedSet } from '@rimbu/sorted';
 import { type FastIterator, Stream } from '@rimbu/stream';
 import { FastIteratorBase, StreamBase } from '@rimbu/stream/custom';
 
-import type { VariantGraphBase } from '#graph/custom';
+import type { VariantGraphBase } from '@rimbu/graph/custom';
 import type { LinkType } from './traverse-base.mjs';
 
 class GraphDepthFirstStream<

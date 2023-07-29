@@ -5,7 +5,10 @@ import type {
   EdgeValuedGraphCreators,
   ValuedGraphElement,
 } from '../../../../../graph/custom/index.ts';
-import { type EdgeValuedGraphBase, ValuedGraphContext } from '../../../../../graph/custom/index.ts';
+import {
+  type EdgeValuedGraphBase,
+  ValuedGraphContext,
+} from '../../../../../graph/custom/index.ts';
 
 /**
  * An type-invariant immutable valued edge (undirected) graph.

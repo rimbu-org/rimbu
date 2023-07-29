@@ -15,7 +15,10 @@ import { Stream, type StreamSource } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 import type { SortedMap } from '../../../sorted/map/index.ts';
-import type { SortedMapBuilder, SortedMapContext } from '../../../sorted/map-custom/index.ts';
+import type {
+  SortedMapBuilder,
+  SortedMapContext,
+} from '../../../sorted/map-custom/index.ts';
 
 import {
   SortedEmpty,

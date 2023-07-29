@@ -1,4 +1,7 @@
-import type { BiMultiMapBase, ContextTypesImpl } from '../../../bimultimap/custom/index.ts';
+import type {
+  BiMultiMapBase,
+  ContextTypesImpl,
+} from '../../../bimultimap/custom/index.ts';
 
 import { RimbuError } from '../../../base/mod.ts';
 import type { RSet } from '../../../collection-types/mod.ts';

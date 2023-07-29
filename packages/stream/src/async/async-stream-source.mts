@@ -1,5 +1,5 @@
-import type { AsyncStream, AsyncStreamable } from '#stream/async';
-import type { StreamSource } from '#stream/main';
+import type { AsyncStream, AsyncStreamable } from '@rimbu/stream/async';
+import type { StreamSource } from '@rimbu/stream';
 
 import type { MaybePromise } from '@rimbu/common';
 

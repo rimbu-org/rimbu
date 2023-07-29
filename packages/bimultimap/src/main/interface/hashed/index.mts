@@ -1,5 +1,8 @@
-import type { BiMultiMapHashed } from '#bimultimap/custom';
-import { type BiMultiMapBase, BiMultiMapContext } from '#bimultimap/custom';
+import type { BiMultiMapHashed } from '@rimbu/bimultimap/custom';
+import {
+  type BiMultiMapBase,
+  BiMultiMapContext,
+} from '@rimbu/bimultimap/custom';
 
 import type { HashSet } from '@rimbu/hashed';
 import { HashMultiMapHashValue } from '@rimbu/multimap';

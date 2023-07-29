@@ -59,7 +59,7 @@ import type {
   Stream,
   StreamSource,
   Transformer,
-} from '../../stream/main/index.ts';
+} from '../../stream/mod.ts';
 
 function* yieldObjKeys<K extends string | number | symbol>(
   obj: Record<K, any>

@@ -4,14 +4,14 @@ import { Reducer } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-import type { List } from '#list/main';
+import type { List } from '@rimbu/list';
 import type {
   Block,
   BlockBuilder,
   LeafBuilder,
   NonLeaf,
   NonLeafBuilder,
-} from '#list/custom';
+} from '@rimbu/list/custom';
 import {
   CacheMap,
   createEmptyList,
@@ -25,7 +25,7 @@ import {
   NonLeafBlockBuilder,
   LeafTreeBuilder,
   NonLeafTreeBuilder,
-} from '#list/custom';
+} from '@rimbu/list/custom';
 
 export class ListContext implements List.Context {
   readonly maxBlockSize: number;

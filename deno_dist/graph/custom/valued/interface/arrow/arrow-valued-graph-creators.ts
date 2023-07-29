@@ -6,7 +6,7 @@ import type {
   ArrowValuedGraph,
   ArrowValuedGraphHashed,
   ArrowValuedGraphSorted,
-} from '../../../../../graph/main/index.ts';
+} from '../../../../../graph/mod.ts';
 import type { ValuedGraphBase } from '../../../../../graph/custom/index.ts';
 
 export interface ArrowValuedGraphCreators {

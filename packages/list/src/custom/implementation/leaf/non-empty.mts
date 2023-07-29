@@ -13,8 +13,8 @@ import {
 import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-import type { CacheMap, ListContext } from '#list/custom';
-import type { List } from '#list/main';
+import type { CacheMap, ListContext } from '@rimbu/list/custom';
+import type { List } from '@rimbu/list';
 
 export abstract class ListNonEmptyBase<T>
   extends NonEmptyBase<T>

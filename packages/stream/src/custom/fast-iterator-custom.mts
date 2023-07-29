@@ -7,8 +7,8 @@ import {
   type Reducer,
 } from '@rimbu/common';
 
-import type { StreamSourceHelpers } from '#stream/custom';
-import type { FastIterator, Stream, StreamSource } from '#stream/main';
+import type { StreamSourceHelpers } from '@rimbu/stream/custom';
+import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
 
 export const fixedDoneIteratorResult: IteratorResult<any> = Object.freeze({
   done: true,

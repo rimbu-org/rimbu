@@ -14,11 +14,11 @@ import type {
   AsyncFastIterator,
   AsyncStream,
   AsyncStreamSource,
-} from '#stream/async';
+} from '@rimbu/stream/async';
 import {
   closeIters,
   type AsyncStreamSourceHelpers,
-} from '#stream/async-custom';
+} from '@rimbu/stream/async-custom';
 
 export const fixedDoneAsyncIteratorResult = Object.freeze(
   Promise.resolve(

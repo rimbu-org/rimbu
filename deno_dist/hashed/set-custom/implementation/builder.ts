@@ -10,7 +10,7 @@ import type {
   HashSetContext,
 } from '../../../hashed/set-custom/index.ts';
 
-import { BlockBuilderBase, CollisionBuilderBase } from '../../../hashed/base/index.ts';
+import { BlockBuilderBase, CollisionBuilderBase } from '../../../hashed/common/index.ts';
 
 export type SetBlockBuilderEntry<T> =
   | HashSetBlockBuilder<T>

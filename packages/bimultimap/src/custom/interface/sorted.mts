@@ -1,5 +1,5 @@
-import type { BiMultiMapBase } from '#bimultimap/custom';
-import type { SortedBiMultiMap } from '#bimultimap/main';
+import type { BiMultiMapBase } from '@rimbu/bimultimap/custom';
+import type { SortedBiMultiMap } from '@rimbu/bimultimap';
 
 import type { SortedMultiMapSortedValue } from '@rimbu/multimap';
 

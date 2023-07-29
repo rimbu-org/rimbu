@@ -1,8 +1,8 @@
 import { RMapBase } from '@rimbu/collection-types/map-custom';
 import type { HashMap } from '@rimbu/hashed/map';
 
-import type { DistanceFunction } from '#proximity/common';
-import type { ProximityMap } from '#proximity/map';
+import type { DistanceFunction } from '@rimbu/proximity/common';
+import type { ProximityMap } from '@rimbu/proximity/map';
 import {
   ProximityMapEmpty,
   ProximityMapNonEmpty,

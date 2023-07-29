@@ -9,7 +9,7 @@ import type {
   NonLeaf,
   NonLeafBuilder,
   NonLeafTree,
-} from '#list/custom';
+} from '@rimbu/list/custom';
 
 export class NonLeafBlock<T, C extends Block<T, C>>
   implements Block<T, NonLeafBlock<T, C>, C>, NonLeaf<T, Block<T>>

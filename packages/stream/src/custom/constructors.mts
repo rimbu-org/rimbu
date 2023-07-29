@@ -6,7 +6,7 @@ import type {
   StringNonEmpty,
 } from '@rimbu/common';
 
-import type { Stream, StreamSource } from '#stream/main';
+import type { Stream, StreamSource } from '@rimbu/stream';
 
 export interface StreamConstructors {
   /**

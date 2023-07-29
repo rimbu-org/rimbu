@@ -5,7 +5,7 @@ import {
   type MultiSetBase,
   MultiSetContext,
   type MultiSetCreators,
-} from '#multiset/custom';
+} from '@rimbu/multiset/custom';
 
 /**
  * A type-invariant immutable MultiSet of value type T.

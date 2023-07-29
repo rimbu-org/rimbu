@@ -3,7 +3,7 @@ import type { StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/common';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-import type { ValuedGraphBase } from '#graph/custom';
+import type { ValuedGraphBase } from '@rimbu/graph/custom';
 import type {
   ValuedGraphElement,
   WithGraphValues,
@@ -13,7 +13,7 @@ import {
   ValuedGraphEmpty,
   ValuedGraphNonEmpty,
   ValuedGraphBuilder,
-} from '#graph/custom';
+} from '@rimbu/graph/custom';
 
 export interface ValuedGraphTypesContextImpl extends ValuedGraphBase.Types {
   readonly context: ValuedGraphContext<this['_N'], string>;

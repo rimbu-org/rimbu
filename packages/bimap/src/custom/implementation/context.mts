@@ -1,5 +1,9 @@
-import { BiMapBuilder, BiMapEmpty, BiMapNonEmptyImpl } from '#bimap/custom';
-import type { BiMap } from '#bimap/main';
+import {
+  BiMapBuilder,
+  BiMapEmpty,
+  BiMapNonEmptyImpl,
+} from '@rimbu/bimap/custom';
+import type { BiMap } from '@rimbu/bimap';
 
 import type { RMap } from '@rimbu/collection-types/map';
 import type { ArrayNonEmpty } from '@rimbu/common';

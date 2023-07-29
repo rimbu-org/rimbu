@@ -2,7 +2,7 @@ import {
   type BiMultiMapSorted,
   type BiMultiMapBase,
   BiMultiMapContext,
-} from '#bimultimap/custom';
+} from '@rimbu/bimultimap/custom';
 
 import { SortedMultiMapSortedValue } from '@rimbu/multimap';
 import type { Streamable } from '@rimbu/stream';

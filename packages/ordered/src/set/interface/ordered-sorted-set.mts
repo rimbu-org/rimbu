@@ -6,7 +6,7 @@ import {
   type OrderedSetBase,
   OrderedSetContextImpl,
   type OrderedSortedSetCreators,
-} from '#ordered/set-custom';
+} from '@rimbu/ordered/set-custom';
 
 /**
  * A type-invariant immutable Ordered SortedSet of value type T.

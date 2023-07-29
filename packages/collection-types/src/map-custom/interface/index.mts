@@ -1,4 +1,7 @@
-import type { KeyValue, WithKeyValue } from '#collection-types/map-custom';
+import type {
+  KeyValue,
+  WithKeyValue,
+} from '@rimbu/collection-types/map-custom';
 
 import type { Token } from '@rimbu/base';
 import type {

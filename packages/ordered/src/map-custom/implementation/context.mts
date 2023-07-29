@@ -9,7 +9,7 @@ import {
   OrderedMapBuilder,
   OrderedMapEmpty,
   OrderedMapNonEmpty,
-} from '#ordered/map-custom';
+} from '@rimbu/ordered/map-custom';
 
 export interface OrderedMapTypes extends OrderedMapBase.Types {
   readonly context: OrderedMapContextImpl<this['_K']>;

@@ -3,10 +3,10 @@ import { OptLazy, OptLazyOr, type RelatedTo, Update } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
-import type { SortedMap } from '#sorted/map';
-import type { SortedMapContext, SortedMapNode } from '#sorted/map-custom';
+import type { SortedMap } from '@rimbu/sorted/map';
+import type { SortedMapContext, SortedMapNode } from '@rimbu/sorted/map-custom';
 
-import { SortedBuilder, SortedIndex } from '#sorted/common';
+import { SortedBuilder, SortedIndex } from '@rimbu/sorted/common';
 
 export class SortedMapBuilder<K, V>
   extends SortedBuilder<readonly [K, V]>

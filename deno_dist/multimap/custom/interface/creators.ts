@@ -8,7 +8,7 @@ import type {
   MultiMap,
   SortedMultiMapHashValue,
   SortedMultiMapSortedValue,
-} from '../../../multimap/main/index.ts';
+} from '../../../multimap/mod.ts';
 import type { MultiMapBase } from '../../../multimap/custom/index.ts';
 
 export interface MultiMapCreators {

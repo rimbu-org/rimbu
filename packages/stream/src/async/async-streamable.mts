@@ -1,4 +1,4 @@
-import type { AsyncStream } from '#stream/async';
+import type { AsyncStream } from '@rimbu/stream/async';
 
 export interface AsyncStreamable<T> {
   asyncStream(): AsyncStream<T>;

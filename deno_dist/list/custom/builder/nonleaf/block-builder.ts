@@ -8,7 +8,7 @@ import type {
   NonLeafBlock,
   NonLeafBuilder,
 } from '../../../../list/custom/index.ts';
-import type { List } from '../../../../list/main/index.ts';
+import type { List } from '../../../../list/mod.ts';
 
 export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
   implements BlockBuilder<T, C>

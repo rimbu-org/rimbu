@@ -6,7 +6,7 @@ import type {
   LeafTree,
   ListContext,
   NonLeafBuilder,
-} from '#list/custom';
+} from '@rimbu/list/custom';
 import { TreeBuilderBase } from '../tree/tree-builder.mjs';
 
 export class LeafTreeBuilder<T>

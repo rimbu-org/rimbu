@@ -2,14 +2,15 @@ import { Arr, RimbuError, Token } from '../../../base/mod.ts';
 import {
   OptLazy,
   OptLazyOr,
-  type RelatedTo,
   TraverseState,
   Update,
+  type RelatedTo,
 } from '../../../common/mod.ts';
 import { List } from '../../../list/mod.ts';
 import { Stream, type StreamSource } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
+import { BlockBuilderBase, CollisionBuilderBase } from '../../../hashed/common/index.ts';
 import type { HashMap } from '../../../hashed/map/index.ts';
 import type {
   HashMapBlock,
@@ -17,8 +18,6 @@ import type {
   HashMapContext,
   MapEntrySet,
 } from '../../../hashed/map-custom/index.ts';
-
-import { BlockBuilderBase, CollisionBuilderBase } from '../../../hashed/base/index.ts';
 
 export type MapBlockBuilderEntry<K, V> =
   | HashMapBlockBuilder<K, V>

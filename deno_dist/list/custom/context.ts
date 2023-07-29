@@ -4,7 +4,7 @@ import { Reducer } from '../../common/mod.ts';
 import { Stream, type StreamSource } from '../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../stream/custom/index.ts';
 
-import type { List } from '../../list/main/index.ts';
+import type { List } from '../../list/mod.ts';
 import type {
   Block,
   BlockBuilder,

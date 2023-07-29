@@ -1,7 +1,8 @@
 import { createDraft, finishDraft } from 'npm:immer@9.0.21';
 
-import { Action, SliceConfig } from '../../actor/main/internal.ts';
-import type { Tail } from '../../actor/main/utils.ts';
+import { Action, SliceConfig } from '../../actor/mod.ts';
+
+import type { Tail } from '../main/utils.ts';
 
 export namespace SliceImmer {
   export interface Config extends SliceConfig {

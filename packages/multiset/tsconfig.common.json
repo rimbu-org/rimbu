@@ -2,8 +2,8 @@
   "compilerOptions": {
     "rootDirs": [".", ".."],
     "paths": {
-      "#multiset/*.mjs": ["./src/*.mjs"],
-      "#multiset/*": ["./src/*/index.mjs"]
+      "@rimbu/multiset/custom": ["./src/custom/index.mjs"],
+      "@rimbu/multiset": ["./src/main/index.mjs"]
     }
   }
 }

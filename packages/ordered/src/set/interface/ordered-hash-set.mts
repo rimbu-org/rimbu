@@ -5,8 +5,8 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type {
   OrderedHashSetCreators,
   OrderedSetBase,
-} from '#ordered/set-custom';
-import { OrderedSetContextImpl } from '#ordered/set-custom';
+} from '@rimbu/ordered/set-custom';
+import { OrderedSetContextImpl } from '@rimbu/ordered/set-custom';
 
 /**
  * A type-invariant immutable Ordered HashSet of value type T.

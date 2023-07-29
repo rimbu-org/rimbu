@@ -1,4 +1,7 @@
-import type { BiMultiMapBase, ContextTypesImpl } from '#bimultimap/custom';
+import type {
+  BiMultiMapBase,
+  ContextTypesImpl,
+} from '@rimbu/bimultimap/custom';
 
 import {
   EmptyBase,

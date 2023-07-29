@@ -18,4 +18,4 @@ export * from './interface.mjs';
 
 export * from './transformer.mjs';
 
-export * from '#stream/async';
+export * from '@rimbu/stream/async';

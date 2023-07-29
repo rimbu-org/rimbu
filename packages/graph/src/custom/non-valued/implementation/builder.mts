@@ -3,7 +3,7 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 
 import type { RelatedTo } from '@rimbu/common';
 
-import type { GraphTypesContextImpl } from '#graph/custom';
+import type { GraphTypesContextImpl } from '@rimbu/graph/custom';
 import type { Link, WithGraphValues } from '../../common/index.mjs';
 
 import { GraphElement } from '../../common/index.mjs';

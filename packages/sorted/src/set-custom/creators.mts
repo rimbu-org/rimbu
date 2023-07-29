@@ -1,7 +1,7 @@
 import type { RSetBase } from '@rimbu/collection-types/set-custom';
 import type { Comp } from '@rimbu/common';
 
-import type { SortedSet } from '#sorted/set';
+import type { SortedSet } from '@rimbu/sorted/set';
 
 export interface SortedSetCreators extends RSetBase.Factory<SortedSet.Types> {
   /**

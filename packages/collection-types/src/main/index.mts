@@ -10,5 +10,5 @@
  * the [Rimbu docs Set page](https://rimbu.org/docs/collections/set) for more information.
  */
 
-export * from '#collection-types/map';
-export * from '#collection-types/set';
+export * from '@rimbu/collection-types/map';
+export * from '@rimbu/collection-types/set';

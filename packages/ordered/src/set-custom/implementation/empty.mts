@@ -3,7 +3,10 @@ import type { ToJSON } from '@rimbu/common';
 import type { List } from '@rimbu/list';
 import type { StreamSource } from '@rimbu/stream';
 
-import type { OrderedSetBase, OrderedSetTypes } from '#ordered/set-custom';
+import type {
+  OrderedSetBase,
+  OrderedSetTypes,
+} from '@rimbu/ordered/set-custom';
 
 export class OrderedSetEmpty<
     T,

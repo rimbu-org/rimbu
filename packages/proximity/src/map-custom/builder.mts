@@ -9,7 +9,7 @@ import type {
 import { type HashMap } from '@rimbu/hashed/map';
 import type { StreamSource } from '@rimbu/stream';
 
-import type { ProximityMap } from '#proximity/map';
+import type { ProximityMap } from '@rimbu/proximity/map';
 import { wrapHashMap } from './wrapping.mjs';
 
 export class ProximityMapBuilder<K, V> implements ProximityMap.Builder<K, V> {

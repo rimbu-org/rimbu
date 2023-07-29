@@ -1,7 +1,7 @@
 import { RSetBase } from '@rimbu/collection-types/set-custom';
 import { Comp } from '@rimbu/common';
 
-import type { SortedSet } from '#sorted/set';
+import type { SortedSet } from '@rimbu/sorted/set';
 
 import {
   SortedSetBuilder,
@@ -9,7 +9,7 @@ import {
   SortedSetInner,
   SortedSetLeaf,
   SortedSetNode,
-} from '#sorted/set-custom';
+} from '@rimbu/sorted/set-custom';
 
 export class SortedSetContext<UT>
   extends RSetBase.ContextBase<UT, SortedSet.Types>

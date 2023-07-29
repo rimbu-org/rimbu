@@ -6,7 +6,7 @@ import type {
   LeafBlock,
   LeafBuilder,
   ListContext,
-} from '#list/custom';
+} from '@rimbu/list/custom';
 
 export class LeafBlockBuilder<T> implements LeafBuilder<T>, BlockBuilder<T> {
   constructor(

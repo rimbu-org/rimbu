@@ -1,7 +1,10 @@
 import { SortedMap, SortedSet } from '../../../../../sorted/mod.ts';
 import type { Stream, Streamable } from '../../../../../stream/mod.ts';
 
-import type { EdgeGraphSortedCreators, GraphElement } from '../../../../../graph/custom/index.ts';
+import type {
+  EdgeGraphSortedCreators,
+  GraphElement,
+} from '../../../../../graph/custom/index.ts';
 import { type EdgeGraphBase, GraphContext } from '../../../../../graph/custom/index.ts';
 
 /**

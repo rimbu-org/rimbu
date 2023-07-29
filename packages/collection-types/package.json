@@ -71,24 +71,6 @@
       "default": "./test-utils/*.ts"
     }
   },
-  "imports": {
-    "#collection-types/*.mts": {
-      "bun": "./dist/bun/*.mts"
-    },
-    "#collection-types/*.mjs": {
-      "types": "./dist/types/*.d.mts",
-      "import": "./dist/esm/*.mjs",
-      "require": "./dist/cjs/*.cjs",
-      "default": "./dist/esm/*.mjs"
-    },
-    "#collection-types/*": {
-      "types": "./dist/types/*/index.d.mts",
-      "bun": "./dist/bun/*/index.mts",
-      "import": "./dist/esm/*/index.mjs",
-      "require": "./dist/cjs/*/index.cjs",
-      "default": "./dist/esm/*/index.mjs"
-    }
-  },
   "files": [
     "dist",
     "src",
