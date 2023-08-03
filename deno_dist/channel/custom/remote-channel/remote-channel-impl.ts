@@ -34,15 +34,15 @@ export namespace RemoteChannelBase {
 }
 
 export abstract class RemoteChannelBase {
-  readonly @rimbu/port;
-  readonly @rimbu/channelId;
+  readonly #port;
+  readonly #channelId;
 
   constructor(
     port: RemoteChannel.SimpleMessagePort,
     config: RemoteChannel.ReadConfig
   ) {
-    this.@rimbu/port = port;
-    this.@rimbu/channelId = config.channelId;
+    this.#port = port;
+    this.#channelId = config.channelId;
   }
 
   abstract get initialized(): Promise<void>;
@@ -60,7 +60,7 @@ export abstract class RemoteChannelBase {
     const data = {
       ...message,
       type,
-      channelId: this.@rimbu/channelId,
+      channelId: this.#channelId,
       sourceInstanceId: this.instanceId,
       targetInstanceId: this.otherInstanceId,
     };
@@ -70,7 +70,7 @@ export abstract class RemoteChannelBase {
     //   other: this.otherInstanceId,
     // });
 
-    this.@rimbu/port.postMessage(data);
+    this.#port.postMessage(data);
   }
 
   protected async receiveMessage<T extends RemoteChannelBase.MessageTypes>(
@@ -89,7 +89,7 @@ export abstract class RemoteChannelBase {
       const listener = ({ data }: { data: any }): void => {
         if (
           data.type === type &&
-          data.channelId === this.@rimbu/channelId &&
+          data.channelId === this.#channelId &&
           (this.instanceId === undefined ||
             data.targetInstanceId === this.instanceId) &&
           (this.otherInstanceId === undefined ||
@@ -104,11 +104,11 @@ export abstract class RemoteChannelBase {
         }
       };
 
-      this.@rimbu/port.addEventListener('message', listener);
+      this.#port.addEventListener('message', listener);
 
       cleaner.add(
         () => {
-          this.@rimbu/port.removeEventListener('message', listener);
+          this.#port.removeEventListener('message', listener);
         },
         timeoutAction(
           () => reject(new Channel.Error.TimeoutError()),
@@ -128,12 +128,12 @@ export class RemoteChannelWrite<T>
   extends RemoteChannelBase
   implements Channel.Write<T>
 {
-  readonly @rimbu/closeController = new AbortController();
+  readonly #closeController = new AbortController();
 
-  readonly @rimbu/initialized;
-  readonly @rimbu/validator;
+  readonly #initialized;
+  readonly #validator;
 
-  @rimbu/isSending = false;
+  #isSending = false;
 
   constructor(
     port: RemoteChannel.SimpleMessagePort,
@@ -141,17 +141,17 @@ export class RemoteChannelWrite<T>
   ) {
     super(port, config);
 
-    this.@rimbu/validator = config.validator;
+    this.#validator = config.validator;
 
-    this.@rimbu/initialized = this.@rimbu/performHandshake(config);
+    this.#initialized = this.#performHandshake(config);
   }
 
   get initialized(): Promise<void> {
-    return this.@rimbu/initialized;
+    return this.#initialized;
   }
 
   get isClosed(): boolean {
-    return this.@rimbu/closeController.signal.aborted;
+    return this.#closeController.signal.aborted;
   }
 
   writable(): Channel.Write<T> {
@@ -179,15 +179,15 @@ export class RemoteChannelWrite<T>
         throw new Channel.Error.OperationAbortedError();
       }
 
-      if (this.@rimbu/isSending) {
+      if (this.#isSending) {
         throw new Channel.Error.AlreadyBusySendingError();
       }
 
-      if (this.@rimbu/validator?.(value) === false) {
+      if (this.#validator?.(value) === false) {
         throw new Channel.Error.InvalidMessageTypeError(value);
       }
 
-      this.@rimbu/isSending = true;
+      this.#isSending = true;
 
       const localController = new AbortController();
 
@@ -195,7 +195,7 @@ export class RemoteChannelWrite<T>
 
       cleaner.add(
         attachAbort(signal, () => localController.abort()),
-        attachAbort(this.@rimbu/closeController.signal, () => {
+        attachAbort(this.#closeController.signal, () => {
           specificError = new Channel.Error.ChannelClosedError();
           localController.abort();
         }),
@@ -229,7 +229,7 @@ export class RemoteChannelWrite<T>
 
       throw err;
     } finally {
-      this.@rimbu/isSending = false;
+      this.#isSending = false;
     }
   }
 
@@ -255,12 +255,12 @@ export class RemoteChannelWrite<T>
       throw new Channel.Error.ChannelClosedError();
     }
 
-    this.@rimbu/closeController.abort();
+    this.#closeController.abort();
 
     this.postMessage('CLOSE_CHANNEL_INFORM', {});
   }
 
-  async @rimbu/performHandshake(config: RemoteChannel.WriteConfig): Promise<void> {
+  async #performHandshake(config: RemoteChannel.WriteConfig): Promise<void> {
     const { maxHandshakeAttempts = 100, handshakeAttemptTimeoutMs = 100 } =
       config;
 
@@ -304,11 +304,11 @@ export class RemoteChannelRead<T>
   extends RemoteChannelBase
   implements Channel.Read<T>
 {
-  readonly @rimbu/closedController = new AbortController();
-  readonly @rimbu/exhaustedController = new AbortController();
+  readonly #closedController = new AbortController();
+  readonly #exhaustedController = new AbortController();
 
-  readonly @rimbu/initialized;
-  readonly @rimbu/receiveBufferCh;
+  readonly #initialized;
+  readonly #receiveBufferCh;
 
   constructor(
     port: RemoteChannel.SimpleMessagePort,
@@ -316,34 +316,34 @@ export class RemoteChannelRead<T>
   ) {
     super(port, config);
 
-    this.@rimbu/receiveBufferCh = Channel.create<T>({
+    this.#receiveBufferCh = Channel.create<T>({
       validator: config.validator,
       capacity: config.capacity,
     });
 
-    attachAbort(this.@rimbu/closedController.signal, () => {
-      this.@rimbu/receiveBufferCh.close();
+    attachAbort(this.#closedController.signal, () => {
+      this.#receiveBufferCh.close();
     });
 
-    this.@rimbu/initialized = this.@rimbu/performHandshake(config).then(() => {
-      return this.@rimbu/startMain();
+    this.#initialized = this.#performHandshake(config).then(() => {
+      return this.#startMain();
     });
   }
 
   get initialized(): Promise<void> {
-    return this.@rimbu/initialized;
+    return this.#initialized;
   }
 
   get capacity(): number {
-    return this.@rimbu/receiveBufferCh.capacity;
+    return this.#receiveBufferCh.capacity;
   }
 
   get length(): number {
-    return this.@rimbu/receiveBufferCh.length;
+    return this.#receiveBufferCh.length;
   }
 
   get isExhausted(): boolean {
-    return this.@rimbu/receiveBufferCh.isExhausted;
+    return this.#receiveBufferCh.isExhausted;
   }
 
   [Symbol.asyncIterator](): AsyncIterator<T> {
@@ -365,10 +365,10 @@ export class RemoteChannelRead<T>
       recover?: ((channelError: Channel.Error) => RT) | undefined;
     } = {}
   ): Promise<T | RT> {
-    return await this.@rimbu/receiveBufferCh.receive(options as any);
+    return await this.#receiveBufferCh.receive(options as any);
   }
 
-  async @rimbu/performHandshake(config: RemoteChannel.ReadConfig): Promise<void> {
+  async #performHandshake(config: RemoteChannel.ReadConfig): Promise<void> {
     const { maxHandshakeAttempts = 10, handshakeAttemptTimeoutMs = 1000 } =
       config;
 
@@ -412,26 +412,26 @@ export class RemoteChannelRead<T>
     }
   }
 
-  async @rimbu/startMain(): Promise<void> {
-    this.@rimbu/startCloseChannelInformHandler();
-    this.@rimbu/startReceiveHandler();
+  async #startMain(): Promise<void> {
+    this.#startCloseChannelInformHandler();
+    this.#startReceiveHandler();
   }
 
-  async @rimbu/startCloseChannelInformHandler(): Promise<void> {
+  async #startCloseChannelInformHandler(): Promise<void> {
     await this.receiveMessage('CLOSE_CHANNEL_INFORM');
-    this.@rimbu/closedController.abort();
+    this.#closedController.abort();
   }
 
-  async @rimbu/startReceiveHandler(): Promise<void> {
+  async #startReceiveHandler(): Promise<void> {
     while (!this.isExhausted) {
       try {
         const { value } = await this.receiveMessage('SEND_VALUE_REQUEST', {
-          signal: this.@rimbu/exhaustedController.signal,
+          signal: this.#exhaustedController.signal,
         });
 
         const cancelController = new AbortController();
 
-        const receivePromise = this.@rimbu/receiveBufferCh.send(value, {
+        const receivePromise = this.#receiveBufferCh.send(value, {
           signal: cancelController.signal,
         });
 

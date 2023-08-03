@@ -27,11 +27,11 @@ export class ChannelFastIterator<T> extends AsyncFastIteratorBase<T> {
 }
 
 export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
-  readonly @rimbu/closeController = new AbortController();
-  readonly @rimbu/getNextValueQueue = new Set<() => T>();
+  readonly #closeController = new AbortController();
+  readonly #getNextValueQueue = new Set<() => T>();
 
-  readonly @rimbu/capacity;
-  readonly @rimbu/validator;
+  readonly #capacity;
+  readonly #validator;
 
   constructor(
     options: {
@@ -39,12 +39,12 @@ export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
       validator?: ((value: any) => boolean) | undefined;
     } = {}
   ) {
-    this.@rimbu/capacity = options.capacity ?? 0;
-    this.@rimbu/validator = options.validator;
+    this.#capacity = options.capacity ?? 0;
+    this.#validator = options.validator;
   }
 
-  @rimbu/blockedReceiver: ((value: T) => void) | undefined;
-  @rimbu/isSending = false;
+  #blockedReceiver: ((value: T) => void) | undefined;
+  #isSending = false;
 
   [Symbol.asyncIterator](): AsyncIterator<T> {
     return this.asyncStream()[Symbol.asyncIterator]();
@@ -55,31 +55,31 @@ export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
   }
 
   get capacity(): number {
-    return this.@rimbu/capacity;
+    return this.#capacity;
   }
 
   get length(): number {
-    return Math.min(this.@rimbu/bufferSize, this.capacity);
+    return Math.min(this.#bufferSize, this.capacity);
   }
 
   get isClosed(): boolean {
-    return this.@rimbu/closeController.signal.aborted;
+    return this.#closeController.signal.aborted;
   }
 
   get isExhausted(): boolean {
-    return this.isClosed && this.@rimbu/bufferSize <= 0;
+    return this.isClosed && this.#bufferSize <= 0;
   }
 
-  get @rimbu/bufferSize(): number {
-    return this.@rimbu/getNextValueQueue.size;
+  get #bufferSize(): number {
+    return this.#getNextValueQueue.size;
   }
 
-  get @rimbu/bufferEmpty(): boolean {
-    return this.@rimbu/bufferSize <= 0;
+  get #bufferEmpty(): boolean {
+    return this.#bufferSize <= 0;
   }
 
-  get @rimbu/bufferFull(): boolean {
-    return this.@rimbu/bufferSize >= this.capacity;
+  get #bufferFull(): boolean {
+    return this.#bufferSize >= this.capacity;
   }
 
   readable(): Channel.Read<T> {
@@ -109,37 +109,37 @@ export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
         throw new Channel.Error.OperationAbortedError();
       }
 
-      if (this.@rimbu/isSending) {
+      if (this.#isSending) {
         throw new Channel.Error.AlreadyBusySendingError();
       }
 
-      if (this.@rimbu/validator?.(value) === false) {
+      if (this.#validator?.(value) === false) {
         throw new Channel.Error.InvalidMessageTypeError(value);
       }
 
-      if (this.@rimbu/bufferFull && timeoutMs !== undefined && timeoutMs <= 0) {
+      if (this.#bufferFull && timeoutMs !== undefined && timeoutMs <= 0) {
         throw new Channel.Error.TimeoutError();
       }
 
       {
-        const receiver = this.@rimbu/blockedReceiver;
+        const receiver = this.#blockedReceiver;
 
-        if (this.@rimbu/bufferEmpty && receiver !== undefined) {
+        if (this.#bufferEmpty && receiver !== undefined) {
           receiver(value);
           return;
         }
       }
 
-      if (!this.@rimbu/bufferFull) {
+      if (!this.#bufferFull) {
         // store in buffer, no way to cancel send
-        this.@rimbu/getNextValueQueue.add(() => value);
+        this.#getNextValueQueue.add(() => value);
         return;
       }
 
       const cleaner = createCleaner();
 
       return await new Promise<void>((resolve, reject) => {
-        this.@rimbu/isSending = true;
+        this.#isSending = true;
 
         const getNextValue = (): T => {
           resolve();
@@ -147,10 +147,10 @@ export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
         };
 
         // store in buffer and wait for consumption or cancellation
-        this.@rimbu/getNextValueQueue.add(getNextValue);
+        this.#getNextValueQueue.add(getNextValue);
 
         const cancel = (reason?: Channel.Error): void => {
-          this.@rimbu/getNextValueQueue.delete(getNextValue);
+          this.#getNextValueQueue.delete(getNextValue);
           reject(reason);
         };
 
@@ -164,7 +164,7 @@ export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
         );
       }).finally(() => {
         cleaner.cleanup();
-        this.@rimbu/isSending = false;
+        this.#isSending = false;
       });
     } catch (err) {
       if (catchChannelErrors && Channel.Error.isChannelError(err)) {
@@ -210,13 +210,13 @@ export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
         throw new Channel.Error.OperationAbortedError();
       }
 
-      if (this.@rimbu/blockedReceiver !== undefined) {
+      if (this.#blockedReceiver !== undefined) {
         throw new Channel.Error.AlreadyBusyReceivingError();
       }
 
-      if (!this.@rimbu/bufferEmpty) {
-        const [getNextValue] = this.@rimbu/getNextValueQueue;
-        this.@rimbu/getNextValueQueue.delete(getNextValue);
+      if (!this.#bufferEmpty) {
+        const [getNextValue] = this.#getNextValueQueue;
+        this.#getNextValueQueue.delete(getNextValue);
         const value = getNextValue();
 
         return value;
@@ -226,21 +226,21 @@ export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
 
       return await new Promise<T>((resolve, reject) => {
         const receiveValue = (value: T): void => {
-          if (this.@rimbu/validator?.(value) === false) {
+          if (this.#validator?.(value) === false) {
             reject(new Channel.Error.InvalidMessageTypeError(value));
           } else {
             resolve(value);
           }
         };
 
-        this.@rimbu/blockedReceiver = receiveValue;
+        this.#blockedReceiver = receiveValue;
 
         cleaner.add(
           attachAbort(signal, () => {
             reject(new Channel.Error.OperationAbortedError());
           }),
-          attachAbort(this.@rimbu/closeController.signal, () => {
-            if (this.@rimbu/bufferEmpty) {
+          attachAbort(this.#closeController.signal, () => {
+            if (this.#bufferEmpty) {
               reject(new Channel.Error.ChannelExhaustedError());
             }
           }),
@@ -250,7 +250,7 @@ export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
         );
       }).finally(() => {
         cleaner.cleanup();
-        this.@rimbu/blockedReceiver = undefined;
+        this.#blockedReceiver = undefined;
       });
     } catch (err) {
       if (recover !== undefined && Channel.Error.isChannelError(err)) {
@@ -266,6 +266,6 @@ export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
       throw new Channel.Error.ChannelClosedError();
     }
 
-    this.@rimbu/closeController.abort();
+    this.#closeController.abort();
   }
 }

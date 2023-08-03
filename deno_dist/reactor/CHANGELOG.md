@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.13.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/reactor@0.12.0...@rimbu/reactor@0.13.0) (2023-07-29)
+
+### Features
+
+- update tslib version and extend channel documentation ([6eb46d0](https://github.com/rimbu-org/rimbu/commit/6eb46d07b9b7469febd316306146b04f43b1ebb5))
+
 # [0.12.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/reactor@0.12.0-alpha.2...@rimbu/reactor@0.12.0) (2023-07-03)
 
 **Note:** Version bump only for package @rimbu/reactor

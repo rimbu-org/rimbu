@@ -44,9 +44,10 @@ try {
       }
 
       const contents = fs.readFileSync(file, { encoding: 'utf-8' });
-      const result = contents.replaceAll(/#(\w+)/g, '@rimbu/$1');
+      // This was needed for import maps, but they have been removed.
+      // const result = contents.replaceAll(/#(\w+)/g, '@rimbu/$1');
 
-      fs.writeFileSync(fullDestPath, result, { encoding: 'utf-8' });
+      fs.writeFileSync(fullDestPath, contents, { encoding: 'utf-8' });
       //   fs.copyFileSync(file, fullDestPath);
     }
   }

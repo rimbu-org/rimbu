@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/core@1.0.0...@rimbu/core@1.1.0) (2023-07-29)
+
+### Features
+
+- update tslib version and extend channel documentation ([6eb46d0](https://github.com/rimbu-org/rimbu/commit/6eb46d07b9b7469febd316306146b04f43b1ebb5))
+
 # [1.0.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/core@1.0.0-alpha.2...@rimbu/core@1.0.0) (2023-07-03)
 
 **Note:** Version bump only for package @rimbu/core
