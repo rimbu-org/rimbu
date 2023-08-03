@@ -86,7 +86,7 @@
     "bundle:esm": "tsc --p tsconfig.esm.json",
     "bundle:types": "tsc --p tsconfig.types.json",
     "clean": "rimraf dist",
-    "circular": "npx -y madge --ts-config tsconfig.json --circular --extensions ts src/main/index.ts",
+    "circular": "npx -y madge --ts-config tsconfig.json --circular --extensions mts src/main/index.mts",
     "extract-api": "yarn extract-api:main && yarn extract-api:custom && yarn extract-api:async && yarn extract-api:async-custom",
     "extract-api:main": "ts-node ../../config/api-extractor.ts config/api-extractor.main.json",
     "extract-api:custom": "ts-node ../../config/api-extractor.ts config/api-extractor.custom.json",

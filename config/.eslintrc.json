@@ -19,5 +19,13 @@
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-namespace": "off"
   },
-  "ignorePatterns": ["test", "test-d", "docs", "*.js", "doc-gen", "deno_dist"]
+  "ignorePatterns": [
+    "test",
+    "test-d",
+    "docs",
+    "*.js",
+    "*.mjs",
+    "doc-gen",
+    "deno_dist"
+  ]
 }

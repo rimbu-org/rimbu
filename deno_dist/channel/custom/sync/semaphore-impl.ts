@@ -7,16 +7,16 @@ export class SemaphoreImpl implements Semaphore {
     }
   }
 
-  readonly @rimbu/blockChannels = new Map<Channel, number>();
+  readonly #blockChannels = new Map<Channel, number>();
 
-  @rimbu/currentSize = 0;
+  #currentSize = 0;
 
   canAcquire(weight = 1): boolean {
     if (weight <= 0) {
       return true;
     }
 
-    return this.@rimbu/currentSize + weight <= this.maxSize;
+    return this.#currentSize + weight <= this.maxSize;
   }
 
   async acquire(weight = 1): Promise<void> {
@@ -28,13 +28,13 @@ export class SemaphoreImpl implements Semaphore {
       throw new Semaphore.Error.InsufficientCapacityError();
     }
 
-    if (this.@rimbu/currentSize + weight <= this.maxSize) {
+    if (this.#currentSize + weight <= this.maxSize) {
       // there are no blocked channels and the requested weight fits in the available semaphore size
-      this.@rimbu/currentSize += weight;
+      this.#currentSize += weight;
       return;
     }
 
-    const blockChannels = this.@rimbu/blockChannels;
+    const blockChannels = this.#blockChannels;
 
     const blockCh = Channel.create();
     blockChannels.set(blockCh, weight);
@@ -47,27 +47,27 @@ export class SemaphoreImpl implements Semaphore {
       return;
     }
 
-    if (this.@rimbu/currentSize < weight) {
+    if (this.#currentSize < weight) {
       throw new Semaphore.Error.CapacityUnderflowError();
     }
 
-    this.@rimbu/currentSize -= weight;
+    this.#currentSize -= weight;
 
-    if (this.@rimbu/blockChannels.size <= 0) {
+    if (this.#blockChannels.size <= 0) {
       return;
     }
 
-    let availableCapacity = this.maxSize - this.@rimbu/currentSize;
+    let availableCapacity = this.maxSize - this.#currentSize;
 
-    for (const [itemCh, itemWeight] of this.@rimbu/blockChannels) {
+    for (const [itemCh, itemWeight] of this.#blockChannels) {
       if (availableCapacity <= 0) {
         return;
       }
 
       if (itemWeight <= availableCapacity) {
-        this.@rimbu/currentSize += itemWeight;
+        this.#currentSize += itemWeight;
         availableCapacity -= itemWeight;
-        this.@rimbu/blockChannels.delete(itemCh);
+        this.#blockChannels.delete(itemCh);
 
         itemCh.send();
       }
