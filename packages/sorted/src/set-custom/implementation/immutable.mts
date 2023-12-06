@@ -64,6 +64,10 @@ export class SortedSetEmpty<T = any>
     return false;
   }
 
+  findIndex(): number {
+    return -1;
+  }
+
   add(value: T): SortedSet.NonEmpty<T> {
     return this.context.leaf([value]);
   }
@@ -136,6 +140,7 @@ export abstract class SortedSetNode<T>
     traverseState?: TraverseState
   ): void;
   abstract has<U>(value: RelatedTo<T, U>): boolean;
+  abstract findIndex<U>(value: RelatedTo<T, U>): number;
   abstract min(): T;
   abstract max(): T;
   abstract toArray(): ArrayNonEmpty<T>;
@@ -382,6 +387,11 @@ export class SortedSetLeaf<T> extends SortedSetNode<T> {
     return this.context.findIndex(value, this.entries) >= 0;
   }
 
+  findIndex<U>(value: RelatedTo<T, U>): number {
+    if (!this.context.comp.isComparable(value)) throw new Error();
+    return this.context.findIndex(value, this.entries);
+  }
+
   getAtIndex<O>(index: number, otherwise?: OptLazy<O>): T | O {
     if (index >= this.size || -index > this.size) {
       return OptLazy(otherwise) as O;
@@ -559,6 +569,20 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
     const child = this.children[childIndex];
 
     return child.has<U>(value);
+  }
+
+  findIndex<U>(value: RelatedTo<T, U>): number {
+    if (!this.context.comp.isComparable(value)) throw new Error();
+
+    const index = this.context.findIndex(value, this.entries);
+
+    if (index >= 0) return this.children.slice(0, index + 1).reduce((x, y) => x + y.size, 0) + index;
+
+    const childIndex = SortedIndex.next(index);
+    const child = this.children[childIndex];
+
+    const index$ = child.findIndex<U>(value);
+    return index$ + (index$ >= 0 ? 1 : -1) * (this.children.slice(0, childIndex).reduce((x, y) => x + y.size, 0) - index - 1)
   }
 
   getAtIndex<O>(index: number, otherwise?: OptLazy<O>): T | O {
