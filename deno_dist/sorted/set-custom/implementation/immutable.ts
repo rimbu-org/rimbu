@@ -432,7 +432,7 @@ export class SortedSetLeaf<T> extends SortedSetNode<T> {
 
     const currentValue = this.entries[entryIndex];
 
-    if (currentValue !== value) return this;
+    if (this.context.comp.compare(currentValue, value) !== 0) return this;
 
     const newEntries = Arr.splice(this.mutateEntries, entryIndex, 1);
     return this.copy(newEntries);
