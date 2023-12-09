@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@1.1.0...@rimbu/stream@1.1.1) (2023-12-09)
+
+### Bug Fixes
+
+- fix @rimbu/channel not working in Deno ddue to wrong transpilation ([91f9144](https://github.com/rimbu-org/rimbu/commit/91f9144c4a35f28266b6154110db63dafb3dbd22))
+
 # [1.1.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@1.0.0...@rimbu/stream@1.1.0) (2023-07-29)
 
 ### Bug Fixes

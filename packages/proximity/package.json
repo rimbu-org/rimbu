@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/proximity",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Immutable ProximityMap implementation for TypeScript",
   "keywords": [
     "proximitymap",
@@ -108,10 +108,10 @@
   },
   "dependencies": {
     "@rimbu/base": "^1.1.0",
-    "@rimbu/collection-types": "^1.1.0",
+    "@rimbu/collection-types": "^1.1.1",
     "@rimbu/common": "^1.1.0",
-    "@rimbu/hashed": "^1.1.0",
-    "@rimbu/stream": "^1.1.0",
+    "@rimbu/hashed": "^1.1.1",
+    "@rimbu/stream": "^1.1.1",
     "tslib": "^2.6.1"
   },
   "publishConfig": {
