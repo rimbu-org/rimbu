@@ -853,6 +853,8 @@ export abstract class SortedBuilder<E> {
     }
   }
 
+  // check whether child at given `childIndex` has gotten too small
+  // get from neighbouring children if it is too small so child increases
   normalizeChildIncrease(childIndex: number): void {
     const child = this.children[childIndex];
     if (child.entries.length >= this.context.minEntries) return;
@@ -869,6 +871,7 @@ export abstract class SortedBuilder<E> {
       // cannot shift
       if (undefined !== leftChild) {
         // join left
+        leftChild.source = undefined;
         const [down] = this.entries.splice(childIndex - 1, 1);
         leftChild.entries.push(down);
         leftChild.entries = leftChild.entries.concat(child.entries);
@@ -882,6 +885,8 @@ export abstract class SortedBuilder<E> {
       }
 
       // join right
+      rightChild.source = undefined;
+      child.source = undefined;
       const [down] = this.entries.splice(childIndex, 1);
       rightChild.entries.unshift(down);
       rightChild.entries = child.entries.concat(rightChild.entries);
@@ -900,6 +905,8 @@ export abstract class SortedBuilder<E> {
         rightChild.entries.length < leftChild.entries.length)
     ) {
       // get from left
+      child.source = undefined;
+      leftChild.source = undefined;
       child.entries.unshift(this.entries[childIndex - 1]);
       child.size++;
       this.entries[childIndex - 1] = leftChild.entries.pop()!;
@@ -916,6 +923,8 @@ export abstract class SortedBuilder<E> {
     }
 
     // get from right
+    child.source = undefined;
+    rightChild.source = undefined;
     child.entries.push(this.entries[childIndex]);
     child.size++;
     this.entries[childIndex] = rightChild.entries.shift()!;
@@ -929,8 +938,11 @@ export abstract class SortedBuilder<E> {
     }
   }
 
+  // check whether child at given `childIndex` has gotten too large
+  // shift to neighbouring children if it is too large so child decreases
   normalizeChildDecrease(childIndex: number): void {
     const child = this.children[childIndex];
+
     if (child.entries.length <= this.context.maxEntries) return;
 
     const leftChild = this.children[childIndex - 1];
@@ -943,6 +955,7 @@ export abstract class SortedBuilder<E> {
         rightChild.entries.length >= this.context.maxEntries)
     ) {
       // need to split child
+      child.source = undefined;
       const index = (child.entries.length >>> 1) + 1;
       const preSize = child.size;
       const rightEntries = child.entries.splice(index);
@@ -980,6 +993,9 @@ export abstract class SortedBuilder<E> {
         rightChild.entries.length >= leftChild.entries.length)
     ) {
       // shiftleft
+      leftChild.source = undefined;
+      child.source = undefined;
+
       leftChild.entries.push(this.entries[childIndex - 1]);
       leftChild.size++;
       this.entries[childIndex - 1] = child.entries.shift()!;
@@ -995,6 +1011,8 @@ export abstract class SortedBuilder<E> {
       return;
     }
 
+    rightChild.source = undefined;
+    child.source = undefined;
     rightChild.entries.unshift(this.entries[childIndex]);
     rightChild.size++;
     this.entries[childIndex] = child.entries.pop()!;
