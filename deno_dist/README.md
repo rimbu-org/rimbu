@@ -111,6 +111,12 @@ Feel very welcome to contribute to further improve Rimbu. Please read our [Contr
 
 Made with [contributors-img](https://contrib.rocks).
 
+## Mentions
+
+Special thanks go to:
+
+- Github user [bglgwyng](https://github.com/bglgwyng) for being the very first Rimbu sponsor! Awesome!
+
 ## License
 
 Licensed under the MIT License, Copyright © 2020-present Arvid Nicolaas.
