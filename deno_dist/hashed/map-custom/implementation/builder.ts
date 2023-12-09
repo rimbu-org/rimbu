@@ -237,7 +237,7 @@ export class HashMapBlockBuilder<K, V>
 
         const newValue = options.ifExists(currentValue, Token);
 
-        if (newValue === currentValue) {
+        if (Object.is(newValue, currentValue)) {
           return false;
         }
 

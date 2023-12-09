@@ -618,7 +618,7 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
     const token = Symbol();
     const stream = this.stream();
     const foundEntry = stream.find(
-      (entry): boolean => entry[0] === key,
+      (entry): boolean => this.context.eq(entry[0], key),
       undefined,
       token
     );
@@ -629,8 +629,8 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
   }
 
   addEntry(entry: readonly [K, V], hash?: number): HashMapCollision<K, V> {
-    const currentIndex = this.stream().indexWhere(
-      (currentEntry): boolean => currentEntry[0] === entry[0]
+    const currentIndex = this.stream().indexWhere((currentEntry): boolean =>
+      this.context.eq(currentEntry[0], entry[0])
     );
 
     if (undefined === currentIndex) {
@@ -639,7 +639,7 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
 
     return this.copy(
       this.entries.updateAt(currentIndex, (currentEntry): readonly [K, V] => {
-        if (currentEntry[1] === entry[1]) return currentEntry;
+        if (Object.is(currentEntry[1], entry[1])) return currentEntry;
         return entry;
       })
     );
@@ -653,8 +653,8 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
     },
     atKeyHash?: number
   ): HashMap<K, V> | any {
-    const currentIndex = this.stream().indexWhere(
-      (entry): boolean => entry[0] === atKey
+    const currentIndex = this.stream().indexWhere((entry): boolean =>
+      this.context.eq(entry[0], atKey)
     );
 
     if (undefined === currentIndex) {
