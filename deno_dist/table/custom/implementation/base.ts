@@ -775,6 +775,10 @@ export class TableBuilder<
       },
     });
 
+    if (changed) {
+      this.source = undefined;
+    }
+
     return changed;
   };
 
