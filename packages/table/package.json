@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/table",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Immutable spreadsheet-like data structures containing row keys, column keys, and cell values",
   "keywords": [
     "table",

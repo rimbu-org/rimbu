@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.2](https://github.com/rimbu-org/rimbu/compare/@rimbu/table@1.1.1...@rimbu/table@1.1.2) (2023-12-25)
+
+### Bug Fixes
+
+- **table:** fix Table.Builder modifyAt not updating values in some cases ([ccde660](https://github.com/rimbu-org/rimbu/commit/ccde6608d5c1836013a781866d9696a5b9d75960))
+
 ## [1.1.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/table@1.1.0...@rimbu/table@1.1.1) (2023-12-09)
 
 **Note:** Version bump only for package @rimbu/table
