@@ -701,6 +701,7 @@ export function runTableTestsWith(
           expect(b.modifyAt(1, 'a', { ifExists: () => true })).toBe(false);
           expect(b.modifyAt(1, 'a', { ifExists: () => false })).toBe(true);
           expect(b.modifyAt(1, 'b', { ifNew: true })).toBe(true);
+          expect(b.get(1, 'b')).toBe(true);
           expect(b.modifyAt(1, 'b', { ifExists: () => true })).toBe(false);
           expect(b.modifyAt(1, 'b', { ifExists: () => false })).toBe(true);
           expect(b.modifyAt(10, 'a', { ifNew: (none) => none })).toBe(false);
