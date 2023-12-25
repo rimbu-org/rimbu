@@ -671,6 +671,8 @@ export function runTableTestsWith(
         expect(b.build().size).toBe(0);
 
         expect(b.modifyAt(1, 'a', { ifNew: true })).toBe(true);
+        expect(b.modifyAt(10, 'a', { ifNew: (none) => none })).toBe(false);
+        expect(b.modifyAt(1, 'z', { ifNew: (none) => none })).toBe(false);
         expect(b.size).toBe(1);
         expect(b.get(1, 'a')).toBe(true);
         expect(b.build().get(1, 'a')).toBe(true);
@@ -693,6 +695,20 @@ export function runTableTestsWith(
         expect(b.build().get(1, 'a')).toBe(undefined);
         expect(b.get(2, 'a')).toBe(true);
         expect(b.build().get(2, 'a')).toBe(true);
+
+        forEachBuilder((b) => {
+          expect(b.modifyAt(1, 'a', { ifNew: true })).toBe(false);
+          expect(b.modifyAt(1, 'a', { ifExists: () => true })).toBe(false);
+          expect(b.modifyAt(1, 'a', { ifExists: () => false })).toBe(true);
+          expect(b.modifyAt(1, 'b', { ifNew: true })).toBe(true);
+          expect(b.modifyAt(1, 'b', { ifExists: () => true })).toBe(false);
+          expect(b.modifyAt(1, 'b', { ifExists: () => false })).toBe(true);
+          expect(b.modifyAt(10, 'a', { ifNew: (none) => none })).toBe(false);
+          expect(b.modifyAt(1, 'z', { ifNew: (none) => none })).toBe(false);
+          expect(b.modifyAt(1, 'a', { ifExists: (_, remove) => remove })).toBe(
+            true
+          );
+        });
       });
 
       it('remove', () => {

@@ -269,48 +269,41 @@ export class TableNonEmpty<
   ): TpR['normal'] {
     let newSize = this.size;
 
-    const { ifNew, ifExists } = options;
+    const newRowMap = this.rowMap.modifyAt(row, {
+      ifNew: (none) => {
+        const { ifNew } = options;
 
-    const passOptions: {
-      ifNew?: (none: Token) => RMap.NonEmpty<C, V> | Token;
-      ifExists?: (
-        currentEntry: RMap.NonEmpty<C, V>,
-        remove: typeof Token
-      ) => typeof Token | RMap.NonEmpty<C, V>;
-    } = {};
+        if (undefined === ifNew) {
+          return none;
+        }
+        const value = OptLazyOr<V, Token>(ifNew, none);
 
-    if (undefined !== ifNew) {
-      passOptions.ifNew = (none): RMap.NonEmpty<C, V> | Token => {
-        const value = OptLazyOr<V, Token>(ifNew, Token);
-
-        if (Token === value) return none;
+        if (none === value) {
+          return none;
+        }
 
         newSize++;
 
         return this.context.columnContext.of([column, value]);
-      };
-    }
+      },
+      ifExists: (row, remove) => {
+        const newRow = row.modifyAt(column, options);
 
-    if (undefined !== ifExists) {
-      passOptions.ifExists = (
-        columns: RMap.NonEmpty<C, V>,
-        remove: Token
-      ): typeof columns | typeof remove => {
-        const newColumns = columns.modifyAt(column, options);
-
-        if (newColumns === columns) return columns;
-
-        if (newColumns.nonEmpty()) {
-          newSize += newColumns.size - columns.size;
-          return newColumns;
+        if (newRow === row) {
+          return row;
         }
 
-        newSize -= columns.size;
-        return remove;
-      };
-    }
+        if (!newRow.nonEmpty()) {
+          return remove;
+        }
 
-    return this.copyE(this.rowMap.modifyAt(row, passOptions as any), newSize);
+        newSize += newRow.size - row.size;
+
+        return newRow;
+      },
+    });
+
+    return this.copyE(newRowMap, newSize);
   }
 
   updateAt<UR, UC>(
@@ -741,48 +734,46 @@ export class TableBuilder<
 
     let changed = false;
 
-    const { ifNew, ifExists } = options;
+    this.rowMap.modifyAt(row, {
+      ifNew: (none) => {
+        const { ifNew } = options;
 
-    const passOptions: {
-      ifNew?: (none: Token) => RMap.Builder<C, V> | Token;
-      ifExists?: (
-        currentValue: RMap.Builder<C, V>,
-        remove: typeof Token
-      ) => typeof Token | RMap.Builder<C, V>;
-    } = {};
+        if (undefined === ifNew) {
+          return none;
+        }
 
-    if (undefined !== ifNew) {
-      passOptions.ifNew = (none): RMap.Builder<C, V> | Token => {
-        const columnBuilder = this.context.columnContext.builder<C, V>();
-        changed = columnBuilder.modifyAt(column, options);
+        const newValue = OptLazyOr<V, Token>(ifNew, none);
 
-        if (!changed) return none;
+        if (newValue === none) {
+          return none;
+        }
 
+        const rowMap = this.context.columnContext.builder<C, V>();
+
+        rowMap.set(column, newValue);
+
+        changed = true;
         this._size++;
 
-        return columnBuilder;
-      };
-    }
+        return rowMap;
+      },
+      ifExists: (curMap, remove) => {
+        const preSize = curMap.size;
+        changed = curMap.modifyAt(column, options);
 
-    if (undefined !== ifExists) {
-      passOptions.ifExists = (
-        columnBuilder,
-        remove
-      ): RMap.Builder<C, V> | typeof remove => {
-        const preSize = columnBuilder.size;
+        if (changed) {
+          const postSize = curMap.size;
 
-        changed = columnBuilder.modifyAt(column, options);
+          this._size += postSize - preSize;
 
-        this._size += columnBuilder.size - preSize;
+          if (postSize <= 0) {
+            return remove;
+          }
+        }
 
-        if (columnBuilder.isEmpty) return remove;
-        return columnBuilder;
-      };
-    }
-
-    this.rowMap.modifyAt(row, passOptions);
-
-    if (changed) this.source = undefined;
+        return curMap;
+      },
+    });
 
     return changed;
   };
