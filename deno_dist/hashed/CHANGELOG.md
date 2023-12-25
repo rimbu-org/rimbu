@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/hashed@1.1.0...@rimbu/hashed@1.1.1) (2023-12-09)
+
+### Bug Fixes
+
+- fix @rimbu/channel not working in Deno ddue to wrong transpilation ([91f9144](https://github.com/rimbu-org/rimbu/commit/91f9144c4a35f28266b6154110db63dafb3dbd22))
+- **hashed:** fix HashMap using === instead of context.eq for get, addEntry and modifyAt ([ace8d5b](https://github.com/rimbu-org/rimbu/commit/ace8d5b352bca79af3e3d21d01341011561b9e2b))
+
 # [1.1.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/hashed@1.0.0...@rimbu/hashed@1.1.0) (2023-07-29)
 
 ### Bug Fixes
