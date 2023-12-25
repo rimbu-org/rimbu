@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.3](https://github.com/rimbu-org/rimbu/compare/@rimbu/table@1.1.2...@rimbu/table@1.1.3) (2023-12-25)
+
+### Bug Fixes
+
+- **table:** modifyAt did not correctly remove reference to immutable instance on change ([c333cd0](https://github.com/rimbu-org/rimbu/commit/c333cd05d46b24540f06cc0af4b446723cc7694f))
+
 ## [1.1.2](https://github.com/rimbu-org/rimbu/compare/@rimbu/table@1.1.1...@rimbu/table@1.1.2) (2023-12-25)
 
 ### Bug Fixes
