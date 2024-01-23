@@ -1,14 +1,14 @@
 import type { RMap, RSet } from '@rimbu/collection-types';
-import type { ArrayNonEmpty, Reducer, RelatedTo } from '@rimbu/common';
-import type { Stream, Streamable, StreamSource } from '@rimbu/stream';
+import type { ArrayNonEmpty, RelatedTo, TraverseState } from '@rimbu/common';
+import type { Reducer, Stream, StreamSource, Streamable } from '@rimbu/stream';
 
+import type { GraphElement, Link } from '../../common/index.mjs';
 import type {
   GraphConnect,
   GraphConnectNonEmpty,
   VariantGraphBase,
   WithGraphValues,
 } from '../index.mjs';
-import type { GraphElement, Link } from '../../common/index.mjs';
 
 export interface GraphBase<N, Tp extends GraphBase.Types = GraphBase.Types>
   extends VariantGraphBase<N, unknown, Tp>,
@@ -334,6 +334,33 @@ export namespace GraphBase {
     disconnectAll<UN = N>(
       connections: StreamSource<Link<RelatedTo<N, UN>>>
     ): boolean;
+    /**
+     * Performs given function `f` for each entry of the collection, using given `state` as initial traversal state.
+     * @param f - the function to perform for each entry, receiving:<br/>
+     * - `entry`: the next graph element<br/>
+     * - `index`: the index of the element<br/>
+     * - `halt`: a function that, if called, ensures that no new elements are passed
+     * @param options - object containing the following<br/>
+     * - state: (optional) the traverse state
+     * @example
+     * ```ts
+     * const b = ArrowGraphHashed.of([1], [2, 3], [4]).toBuilder();
+     * b.forEach((entry, i, halt) => {
+     *   console.log([entry]);
+     *   if (i >= 1) halt();
+     * })
+     * // => logs [1]  [2, 3]
+     * ```
+     * @note O(N)
+     */
+    forEach(
+      f: (
+        entry: [N] | WithGraphValues<Tp, N, unknown>['link'],
+        index: number,
+        halt: () => void
+      ) => void,
+      options?: { state?: TraverseState }
+    ): void;
     /**
      * Returns an immutable Graph containing the links in this Builder instance.
      * @example

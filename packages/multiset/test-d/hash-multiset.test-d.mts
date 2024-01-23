@@ -77,8 +77,8 @@ expectType<true>(genNonEmpty.nonEmpty());
 expectType<G_Empty>(genEmpty.remove(3));
 expectType<G_Empty>(genNonEmpty.remove(3));
 
-expectType<G_Empty>(genEmpty.remove(3, 3));
-expectType<G_Empty>(genNonEmpty.remove(3, 3));
+expectType<G_Empty>(genEmpty.remove(3, { amount: 3 }));
+expectType<G_Empty>(genNonEmpty.remove(3, { amount: 3 }));
 
 // .removeAllEvery(..)
 expectType<G_Empty>(genEmpty.removeAllEvery([3, 4]));

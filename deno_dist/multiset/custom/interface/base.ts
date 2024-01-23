@@ -2,16 +2,16 @@ import type { RMap, VariantMap } from '../../../collection-types/map/index.ts';
 import type { Elem, WithElem } from '../../../collection-types/map-custom/index.ts';
 import type {
   ArrayNonEmpty,
-  Reducer,
   RelatedTo,
   ToJSON,
   TraverseState,
 } from '../../../common/mod.ts';
 import type {
   FastIterable,
+  Reducer,
   Stream,
-  Streamable,
   StreamSource,
+  Streamable,
 } from '../../../stream/mod.ts';
 
 export interface VariantMultiSetBase<
@@ -100,7 +100,8 @@ export interface VariantMultiSetBase<
    * Returns the collection where the given `amount` (default: 'ALL') of the given `value`
    * are removed.
    * @param value - the value to remove
-   * @param amount - the amount of values to remove, or 'ALL' to remove all values.
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - amount: (default: 'ALL') the amount of values to remove, or 'ALL' to remove all values.
    * @example
    * ```ts
    * const m = HashMultiSet.of(1, 2, 2)
@@ -111,7 +112,7 @@ export interface VariantMultiSetBase<
    */
   remove<U = T>(
     value: RelatedTo<T, U>,
-    amount?: number | 'ALL'
+    options?: { amount?: number | 'ALL' }
   ): WithElem<Tp, T>['normal'];
   /**
    * Returns the collection where every single value from given `values` `StreamSource` is
@@ -170,7 +171,8 @@ export interface VariantMultiSetBase<
    * - `value`: the next value<br/>
    * - `index`: the index of the value<br/>
    * - `halt`: a function that, if called, ensures that no new values are passed
-   * @param state
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - state: (optional) the traversal state
    * @example
    * ```ts
    * HashMultiSet.of(1, 2, 2, 3).forEach((entry, i, halt) => {
@@ -182,7 +184,7 @@ export interface VariantMultiSetBase<
    */
   forEach(
     f: (value: T, index: number, halt: () => void) => void,
-    state?: TraverseState
+    options?: { state?: TraverseState }
   ): void;
   /**
    * Returns the collection containing only those values for which the given `pred` function returns true.
@@ -190,6 +192,8 @@ export interface VariantMultiSetBase<
    * - `entry`: the next entry consisting of the value and its count<br/>
    * - `index`: the entry index<br/>
    * - `halt`: a function that, when called, ensures no next entries are passed
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - negate: (default: false) when true will negate the predicate
    * @example
    * ```ts
    * HashMultiSet.of(1, 2, 2, 3)
@@ -199,7 +203,8 @@ export interface VariantMultiSetBase<
    * ```
    */
   filterEntries(
-    pred: (entry: readonly [T, number], index: number) => boolean
+    pred: (entry: readonly [T, number], index: number) => boolean,
+    options?: { negate?: boolean }
   ): WithElem<Tp, T>['normal'];
   /**
    * Returns an array containing all values in this collection.
@@ -702,7 +707,8 @@ export namespace MultiSetBase {
      * - `value`: the next value<br/>
      * - `index`: the index of the value<br/>
      * - `halt`: a function that, if called, ensures that no new values are passed
-     * @param state
+     * @param options - (optional) an object containing the following properties:<br/>
+     * - state: (optional) the traversal state
      * @throws RibuError.ModifiedBuilderWhileLoopingOverItError if the builder is modified while
      * looping over it
      * @example
@@ -716,7 +722,7 @@ export namespace MultiSetBase {
      */
     forEach(
       f: (value: T, index: number, halt: () => void) => void,
-      state?: TraverseState
+      options?: { state?: TraverseState }
     ): void;
     /**
      * Returns an immutable instance containing the values in this builder.

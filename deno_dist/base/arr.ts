@@ -1,7 +1,11 @@
-import { Update, TraverseState, type ArrayNonEmpty } from '../common/mod.ts';
+import { TraverseState, Update, type ArrayNonEmpty } from '../common/mod.ts';
 
 // Returns a copy of the array with the given value appended
 export function append<T>(array: readonly T[], value: T): ArrayNonEmpty<T> {
+  if (`toSpliced` in (array as any)) {
+    return array.toSpliced(array.length, 0, value) as ArrayNonEmpty<T>;
+  }
+
   const clone = array.slice();
   clone.push(value);
   return clone as ArrayNonEmpty<T>;
@@ -20,16 +24,27 @@ export function concat<T>(
 // Returns an copy of the array between the start and end indices, with the elements in reversed order.
 export function reverse<T>(
   array: readonly T[],
-  start = 0,
-  end = array.length - 1
+  start?: number,
+  end?: number
 ): T[] {
-  const length = end - start + 1;
+  if ('toReversed' in (array as any)) {
+    const source =
+      undefined !== start || undefined !== end
+        ? array.slice(start ?? 0, (end ?? array.length - 1) + 1)
+        : array;
+
+    return source.toReversed();
+  }
+
+  const _start = start ?? 0;
+  const _end = end ?? array.length - 1;
+  const length = _end - _start + 1;
   const res = [] as T[];
 
-  let arrayIndex = start - 1;
+  let arrayIndex = _start - 1;
   let resIndex = length - 1;
 
-  while (++arrayIndex <= end) res[resIndex--] = array[arrayIndex];
+  while (++arrayIndex <= _end) res[resIndex--] = array[arrayIndex];
 
   return res;
 }
@@ -67,6 +82,11 @@ export function map<T, R>(
   f: (value: T, index: number) => R,
   indexOffset = 0
 ): R[] {
+  if (indexOffset === 0) {
+    // without offset, can use standard array map
+    return array.map(f);
+  }
+
   const result: R[] = [];
 
   let index = indexOffset;
@@ -97,6 +117,9 @@ export function reverseMap<T, R>(
 
 // Returns a copy of the given array with the given value added at the start
 export function prepend<T>(array: readonly T[], value: T): ArrayNonEmpty<T> {
+  if (`toSpliced` in (array as any)) {
+    return array.toSpliced(0, 0, value) as ArrayNonEmpty<T>;
+  }
   const clone = array.slice();
   clone.unshift(value);
   return clone as ArrayNonEmpty<T>;
@@ -104,7 +127,7 @@ export function prepend<T>(array: readonly T[], value: T): ArrayNonEmpty<T> {
 
 // Returns the last element of the array
 export function last<T>(arr: readonly T[]): T {
-  return arr[arr.length - 1];
+  return arr.at(-1)!;
 }
 
 // Returns a copy of the array where the element at given index is replaced by the given updater.
@@ -114,11 +137,20 @@ export function update<T>(
   index: number,
   updater: Update<T>
 ): readonly T[] {
-  if (index < 0 || index >= arr.length) return arr;
+  if (index < 0 || index >= arr.length) {
+    return arr;
+  }
   const curValue = arr[index];
 
   const newValue = Update(curValue, updater);
-  if (Object.is(newValue, curValue)) return arr;
+  if (Object.is(newValue, curValue)) {
+    return arr;
+  }
+
+  if (`with` in (arr as any)) {
+    return arr.with(index, newValue);
+  }
+
   const newArr = arr.slice();
   newArr[index] = newValue;
   return newArr;
@@ -131,11 +163,21 @@ export function mod<T>(
   index: number,
   f: (value: T) => T
 ): readonly T[] {
-  if (index < 0 || index >= arr.length) return arr;
+  if (index < 0 || index >= arr.length) {
+    return arr;
+  }
 
   const curValue = arr[index];
   const newValue = f(curValue);
-  if (Object.is(newValue, curValue)) return arr;
+
+  if (Object.is(newValue, curValue)) {
+    return arr;
+  }
+
+  if (`with` in (arr as any)) {
+    return arr.with(index, newValue);
+  }
+
   const newArr = arr.slice();
   newArr[index] = newValue;
   return newArr;
@@ -143,6 +185,10 @@ export function mod<T>(
 
 // Returns a copy of the array where at given index the given value is inserted
 export function insert<T>(arr: readonly T[], index: number, value: T): T[] {
+  if (`toSpliced` in (arr as any)) {
+    return arr.toSpliced(index, 0, value);
+  }
+
   const clone = arr.slice();
   clone.splice(index, 0, value);
   return clone;
@@ -165,6 +211,10 @@ export function splice<T>(
   deleteCount: number,
   ...items: T[]
 ): T[] {
+  if (`toSpliced` in (arr as any)) {
+    return arr.toSpliced(start, deleteCount, ...items);
+  }
+
   const clone = arr.slice();
   clone.splice(start, deleteCount, ...items);
   return clone;

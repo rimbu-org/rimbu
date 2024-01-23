@@ -1,20 +1,24 @@
 import { Arr, RimbuError } from '../../../base/mod.ts';
 import type { RMap } from '../../../collection-types/map/index.ts';
 import {
-  type Elem,
   EmptyBase,
   NonEmptyBase,
+  type Elem,
   type WithElem,
 } from '../../../collection-types/map-custom/index.ts';
-import { Stream, type StreamSource } from '../../../stream/mod.ts';
+import {
+  Reducer,
+  Stream,
+  type FastIterator,
+  type StreamSource,
+} from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 import {
+  TraverseState,
   type ArrayNonEmpty,
-  Reducer,
   type RelatedTo,
   type ToJSON,
-  TraverseState,
 } from '../../../common/mod.ts';
 import type { MultiSetBase } from '../../../multiset/custom/index.ts';
 
@@ -264,7 +268,12 @@ export class MultiSetNonEmpty<
     return this.copyE(newCountMap, this.size + sizeDelta);
   }
 
-  remove<U>(elem: RelatedTo<T, U>, amount: number | 'ALL' = 1): TpG['normal'] {
+  remove<U>(
+    elem: RelatedTo<T, U>,
+    options: { amount?: number | 'ALL' } = {}
+  ): TpG['normal'] {
+    const { amount = 1 } = options;
+
     if (!this.context.isValidElem(elem)) return this as any;
 
     let newSize = this.size;
@@ -308,11 +317,16 @@ export class MultiSetNonEmpty<
 
   forEach(
     f: (value: T, index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { reversed?: boolean; state?: TraverseState } = {}
   ): void {
+    const { reversed = false, state = TraverseState() } = options;
+
     if (state.halted) return;
 
-    const it = this.countMap.stream()[Symbol.iterator]();
+    const it = (this.countMap.stream as any)({ reversed })[
+      Symbol.iterator
+    ]() as FastIterator<[T, number]>;
+
     let entry: readonly [T, number] | undefined;
     const { halt } = state;
 
@@ -327,11 +341,15 @@ export class MultiSetNonEmpty<
   }
 
   filterEntries(
-    pred: (entry: readonly [T, number], index: number) => boolean
+    pred: (entry: readonly [T, number], index: number) => boolean,
+    options: { negate?: boolean } = {}
   ): TpG['normal'] {
     const builder = this.context.builder();
 
-    Stream.applyForEach(this.countMap.stream().filter(pred), builder.setCount);
+    Stream.applyForEach(
+      this.countMap.stream().filter(pred, options),
+      builder.setCount
+    );
 
     if (builder.size === this.size) return this as any;
 
@@ -447,13 +465,13 @@ export class MultiSetBuilder<
   addAll = (source: StreamSource<T>): boolean => {
     this.checkLock();
 
-    return Stream.from(source).filterPure(this.add, 1).count() > 0;
+    return Stream.from(source).filterPure({ pred: this.add }, 1).count() > 0;
   };
 
   addEntries = (entries: StreamSource<readonly [T, number]>): boolean => {
     this.checkLock();
 
-    return Stream.applyFilter(entries, this.add).count() > 0;
+    return Stream.applyFilter(entries, { pred: this.add }).count() > 0;
   };
 
   // prettier-ignore
@@ -560,7 +578,7 @@ export class MultiSetBuilder<
     return (
       Stream.from(values)
         .mapPure(this.remove, mode === 'SINGLE' ? 1 : 'ALL')
-        .countNotElement(0) > 0
+        .countElement(0, { negate: true }) > 0
     );
   };
 
@@ -576,8 +594,10 @@ export class MultiSetBuilder<
 
   forEach = (
     f: (value: T, index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { state?: TraverseState } = {}
   ): void => {
+    const { state = TraverseState() } = options;
+
     if (state.halted) return;
 
     this._lock++;

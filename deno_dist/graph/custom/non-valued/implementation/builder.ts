@@ -89,7 +89,9 @@ export class GraphBuilder<
   addNodes = (nodes: StreamSource<N>): boolean => {
     this.checkLock();
 
-    return Stream.from(nodes).filterPure(this.addNodeInternal).count() > 0;
+    return (
+      Stream.from(nodes).filterPure({ pred: this.addNodeInternal }).count() > 0
+    );
   };
 
   // prettier-ignore
@@ -130,7 +132,7 @@ export class GraphBuilder<
   removeNodes = <UN,>(nodes: StreamSource<RelatedTo<N, UN>>): boolean => {
     this.checkLock();
 
-    return Stream.from(nodes).filterPure(this.removeNodeInternal).count() > 0;
+    return Stream.from(nodes).filterPure({ pred: this.removeNodeInternal }).count() > 0;
   };
 
   connectInternal = (node1: N, node2: N): boolean => {
@@ -182,10 +184,9 @@ export class GraphBuilder<
     this.checkLock();
 
     return (
-      Stream.applyFilter(
-        connections as StreamSource<[N, N]>,
-        this.connectInternal
-      ).count() > 0
+      Stream.applyFilter(connections as StreamSource<[N, N]>, {
+        pred: this.connectInternal,
+      }).count() > 0
     );
   };
 
@@ -223,7 +224,10 @@ export class GraphBuilder<
   };
 
   addGraphElements = (elements: StreamSource<GraphElement<N>>): boolean => {
-    return Stream.from(elements).filterPure(this.addGraphElement).count() > 0;
+    return (
+      Stream.from(elements).filterPure({ pred: this.addGraphElement }).count() >
+      0
+    );
   };
 
   // prettier-ignore
@@ -279,7 +283,7 @@ export class GraphBuilder<
     return (
       Stream.applyFilter(
         connections as StreamSource<[RelatedTo<N, UN>, RelatedTo<N, UN>]>,
-        this.disconnectInternal
+        { pred: this.disconnectInternal }
       ).count() > 0
     );
   };

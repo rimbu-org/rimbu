@@ -9,43 +9,53 @@ function entries<T>(...keys: T[]): [T, T][] {
 function runWith(name: string, context: SortedMap.Context<number>): void {
   describe(name, () => {
     it('stream reversed', () => {
-      expect(context.empty().stream(true).toArray()).toEqual([]);
-      expect(context.from(entries(8, 3, 5, 2)).stream(true).toArray()).toEqual(
-        entries(8, 5, 3, 2)
-      );
+      expect(context.empty().stream({ reversed: true }).toArray()).toEqual([]);
+      expect(
+        context.from(entries(8, 3, 5, 2)).stream({ reversed: true }).toArray()
+      ).toEqual(entries(8, 5, 3, 2));
       const map = context.from(
         Stream.range({ amount: 100 }).map((v) => [v, v])
       );
-      expect(map.stream(true).toArray()).toEqual(
-        Stream.range({ start: 99, end: 0 }, -1)
+      expect(map.stream({ reversed: true }).toArray()).toEqual(
+        Stream.range({ start: 99, end: 0 }, { delta: -1 })
           .map((v) => [v, v])
           .toArray()
       );
     });
 
     it('streamKeys reversed', () => {
-      expect(context.empty().streamKeys(true).toArray()).toEqual([]);
+      expect(context.empty().streamKeys({ reversed: true }).toArray()).toEqual(
+        []
+      );
       expect(
-        context.from(entries(8, 3, 5, 2)).streamKeys(true).toArray()
+        context
+          .from(entries(8, 3, 5, 2))
+          .streamKeys({ reversed: true })
+          .toArray()
       ).toEqual([8, 5, 3, 2]);
       const map = context.from(
         Stream.range({ amount: 100 }).map((v) => [v, v])
       );
-      expect(map.streamKeys(true).toArray()).toEqual(
-        Stream.range({ start: 99, end: 0 }, -1).toArray()
+      expect(map.streamKeys({ reversed: true }).toArray()).toEqual(
+        Stream.range({ start: 99, end: 0 }, { delta: -1 }).toArray()
       );
     });
 
     it('streamValues reversed', () => {
-      expect(context.empty().streamValues(true).toArray()).toEqual([]);
       expect(
-        context.from(entries(8, 3, 5, 2)).streamValues(true).toArray()
+        context.empty().streamValues({ reversed: true }).toArray()
+      ).toEqual([]);
+      expect(
+        context
+          .from(entries(8, 3, 5, 2))
+          .streamValues({ reversed: true })
+          .toArray()
       ).toEqual([8, 5, 3, 2]);
       const map = context.from(
         Stream.range({ amount: 100 }).map((v) => [v, v])
       );
-      expect(map.streamValues(true).toArray()).toEqual(
-        Stream.range({ start: 99, end: 0 }, -1).toArray()
+      expect(map.streamValues({ reversed: true }).toArray()).toEqual(
+        Stream.range({ start: 99, end: 0 }, { delta: -1 }).toArray()
       );
     });
 
@@ -180,54 +190,72 @@ function runWith(name: string, context: SortedMap.Context<number>): void {
     });
 
     it('streamSliceIndex reversed', () => {
-      expect(context.empty().streamSliceIndex({ amount: 10 }, true)).toBe(
-        Stream.empty()
-      );
+      expect(
+        context.empty().streamSliceIndex({ amount: 10 }, { reversed: true })
+      ).toBe(Stream.empty());
       const map = context.from(
         Stream.range({ amount: 100 }).map((v) => [v, v])
       );
-      expect(map.streamSliceIndex({ amount: 3 }, true).toArray()).toEqual(
-        entries(2, 1, 0)
-      );
       expect(
-        map.streamSliceIndex({ start: 3, amount: 3 }, true).toArray()
+        map.streamSliceIndex({ amount: 3 }, { reversed: true }).toArray()
+      ).toEqual(entries(2, 1, 0));
+      expect(
+        map
+          .streamSliceIndex({ start: 3, amount: 3 }, { reversed: true })
+          .toArray()
       ).toEqual(entries(5, 4, 3));
       expect(
-        map.streamSliceIndex({ start: [3, false], amount: 3 }, true).toArray()
+        map
+          .streamSliceIndex(
+            { start: [3, false], amount: 3 },
+            { reversed: true }
+          )
+          .toArray()
       ).toEqual(entries(6, 5, 4));
-      expect(map.streamSliceIndex({ end: 3 }, true).toArray()).toEqual(
-        entries(3, 2, 1, 0)
-      );
-      expect(map.streamSliceIndex({ end: [3, false] }, true).toArray()).toEqual(
-        entries(2, 1, 0)
-      );
-      expect(map.streamSliceIndex({ start: 97 }, true).toArray()).toEqual(
-        entries(99, 98, 97)
-      );
       expect(
-        map.streamSliceIndex({ start: [97, false] }, true).toArray()
+        map.streamSliceIndex({ end: 3 }, { reversed: true }).toArray()
+      ).toEqual(entries(3, 2, 1, 0));
+      expect(
+        map.streamSliceIndex({ end: [3, false] }, { reversed: true }).toArray()
+      ).toEqual(entries(2, 1, 0));
+      expect(
+        map.streamSliceIndex({ start: 97 }, { reversed: true }).toArray()
+      ).toEqual(entries(99, 98, 97));
+      expect(
+        map
+          .streamSliceIndex({ start: [97, false] }, { reversed: true })
+          .toArray()
       ).toEqual(entries(99, 98));
       expect(
-        map.streamSliceIndex({ start: 0, end: 3 }, true).toArray()
+        map.streamSliceIndex({ start: 0, end: 3 }, { reversed: true }).toArray()
       ).toEqual(entries(3, 2, 1, 0));
       expect(
         map
-          .streamSliceIndex({ start: [0, false], end: [3, false] }, true)
+          .streamSliceIndex(
+            { start: [0, false], end: [3, false] },
+            { reversed: true }
+          )
           .toArray()
       ).toEqual(entries(2, 1));
 
-      expect(map.streamSliceIndex({ start: -3 }, true).toArray()).toEqual(
-        entries(99, 98, 97)
-      );
       expect(
-        map.streamSliceIndex({ start: [-3, false] }, true).toArray()
+        map.streamSliceIndex({ start: -3 }, { reversed: true }).toArray()
+      ).toEqual(entries(99, 98, 97));
+      expect(
+        map
+          .streamSliceIndex({ start: [-3, false] }, { reversed: true })
+          .toArray()
       ).toEqual(entries(99, 98));
 
       expect(
-        map.streamSliceIndex({ start: -3, end: -2 }, true).toArray()
+        map
+          .streamSliceIndex({ start: -3, end: -2 }, { reversed: true })
+          .toArray()
       ).toEqual(entries(98, 97));
       expect(
-        map.streamSliceIndex({ start: -3, amount: 2 }, true).toArray()
+        map
+          .streamSliceIndex({ start: -3, amount: 2 }, { reversed: true })
+          .toArray()
       ).toEqual(entries(98, 97));
     });
 
@@ -275,48 +303,56 @@ function runWith(name: string, context: SortedMap.Context<number>): void {
     });
 
     it('streamRange reversed', () => {
-      expect(context.empty().streamRange({ start: 3 }, true)).toBe(
-        Stream.empty()
-      );
+      expect(
+        context.empty().streamRange({ start: 3 }, { reversed: true })
+      ).toBe(Stream.empty());
       const map = context.from(
         Stream.range({ amount: 100 }).map((v) => [v, v])
       );
-      expect(map.streamRange({ end: 3 }, true).toArray()).toEqual(
-        entries(3, 2, 1, 0)
-      );
-      expect(map.streamRange({ end: [3, false] }, true).toArray()).toEqual(
-        entries(2, 1, 0)
-      );
-      expect(map.streamRange({ end: 3.5 }, true).toArray()).toEqual(
-        entries(3, 2, 1, 0)
-      );
-      expect(map.streamRange({ end: [3.5, false] }, true).toArray()).toEqual(
-        entries(3, 2, 1, 0)
-      );
-      expect(map.streamRange({ start: 97 }, true).toArray()).toEqual(
-        entries(99, 98, 97)
-      );
-      expect(map.streamRange({ start: [97, false] }, true).toArray()).toEqual(
-        entries(99, 98)
-      );
-      expect(map.streamRange({ start: 0, end: 3 }, true).toArray()).toEqual(
+      expect(map.streamRange({ end: 3 }, { reversed: true }).toArray()).toEqual(
         entries(3, 2, 1, 0)
       );
       expect(
-        map.streamRange({ start: [0, false], end: [3, false] }, true).toArray()
-      ).toEqual(entries(2, 1));
-      expect(map.streamRange({ start: 97.5 }, true).toArray()).toEqual(
-        entries(99, 98)
-      );
-      expect(map.streamRange({ start: [97.5, false] }, true).toArray()).toEqual(
-        entries(99, 98)
-      );
-      expect(map.streamRange({ start: 0.5, end: 3.5 }, true).toArray()).toEqual(
-        entries(3, 2, 1)
-      );
+        map.streamRange({ end: [3, false] }, { reversed: true }).toArray()
+      ).toEqual(entries(2, 1, 0));
+      expect(
+        map.streamRange({ end: 3.5 }, { reversed: true }).toArray()
+      ).toEqual(entries(3, 2, 1, 0));
+      expect(
+        map.streamRange({ end: [3.5, false] }, { reversed: true }).toArray()
+      ).toEqual(entries(3, 2, 1, 0));
+      expect(
+        map.streamRange({ start: 97 }, { reversed: true }).toArray()
+      ).toEqual(entries(99, 98, 97));
+      expect(
+        map.streamRange({ start: [97, false] }, { reversed: true }).toArray()
+      ).toEqual(entries(99, 98));
+      expect(
+        map.streamRange({ start: 0, end: 3 }, { reversed: true }).toArray()
+      ).toEqual(entries(3, 2, 1, 0));
       expect(
         map
-          .streamRange({ start: [0.5, false], end: [3.5, false] }, true)
+          .streamRange(
+            { start: [0, false], end: [3, false] },
+            { reversed: true }
+          )
+          .toArray()
+      ).toEqual(entries(2, 1));
+      expect(
+        map.streamRange({ start: 97.5 }, { reversed: true }).toArray()
+      ).toEqual(entries(99, 98));
+      expect(
+        map.streamRange({ start: [97.5, false] }, { reversed: true }).toArray()
+      ).toEqual(entries(99, 98));
+      expect(
+        map.streamRange({ start: 0.5, end: 3.5 }, { reversed: true }).toArray()
+      ).toEqual(entries(3, 2, 1));
+      expect(
+        map
+          .streamRange(
+            { start: [0.5, false], end: [3.5, false] },
+            { reversed: true }
+          )
           .toArray()
       ).toEqual(entries(3, 2, 1));
     });

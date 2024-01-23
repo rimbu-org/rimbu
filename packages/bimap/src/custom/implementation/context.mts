@@ -7,8 +7,7 @@ import type { BiMap } from '@rimbu/bimap';
 
 import type { RMap } from '@rimbu/collection-types/map';
 import type { ArrayNonEmpty } from '@rimbu/common';
-import { Reducer } from '@rimbu/common';
-import type { StreamSource } from '@rimbu/stream';
+import { Reducer, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>

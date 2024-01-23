@@ -50,9 +50,9 @@ export class ProximityMapBuilder<K, V> implements ProximityMap.Builder<K, V> {
 
   forEach = (
     f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-    state?: TraverseState | undefined
+    options: { state?: TraverseState } = {}
   ): void => {
-    this.internalBuilder.forEach(f, state);
+    this.internalBuilder.forEach(f, options);
   };
 
   addEntry = (entry: readonly [K, V]): boolean => {
@@ -108,10 +108,12 @@ export class ProximityMapBuilder<K, V> implements ProximityMap.Builder<K, V> {
     key: K,
     options: {
       ifNew?: OptLazyOr<V, typeof Token>;
-      ifExists?: <V2 extends V = V>(
-        currentValue: V & V2,
-        remove: typeof Token
-      ) => V | typeof Token;
+      ifExists?:
+        | (<V2 extends V = V>(
+            currentValue: V & V2,
+            remove: typeof Token
+          ) => V | typeof Token)
+        | V;
     }
   ): boolean => {
     const hasChanged = this.internalBuilder.modifyAt(key, options);
@@ -137,7 +139,7 @@ export class ProximityMapBuilder<K, V> implements ProximityMap.Builder<K, V> {
 
     const newValue = this.internalBuilder.get(key);
 
-    if (previousValue !== newValue) {
+    if (!Object.is(previousValue, newValue)) {
       this.source = undefined;
     }
 

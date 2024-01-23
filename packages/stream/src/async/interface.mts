@@ -3,6 +3,7 @@ import type {
   AsyncStreamSource,
   AsyncStreamable,
   AsyncTransformer,
+  AsyncReducer,
 } from '@rimbu/stream';
 import type { AsyncStreamConstructors } from '@rimbu/stream/async-custom';
 import { AsyncStreamConstructorsImpl } from '@rimbu/stream/async-custom';
@@ -11,7 +12,6 @@ import type {
   ArrayNonEmpty,
   AsyncCollectFun,
   AsyncOptLazy,
-  AsyncReducer,
   Eq,
   MaybePromise,
   ToJSON,
@@ -44,7 +44,9 @@ export interface AsyncStream<T>
   /**
    * Returns true if the sequence of elements in this stream are equal to the sequence in the `other` stream according to the provided `eq` function.
    * @param other - the other stream to compare
-   * @param eq - (optional) the equality function
+   * @param options - (optional) object specifying the following properties<br/>
+   * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
+   * - negate: (default: false) when true will negate the `eq` function
    * @example
    * ```ts
    * await AsyncStream.of(1, 2, 3).equals([1, 2, 3])     // => true
@@ -53,7 +55,10 @@ export interface AsyncStream<T>
    * @note don't use on potentially infinite streams
    * @note O(N)
    */
-  equals(other: AsyncStreamSource<T>, eq?: Eq<T>): Promise<boolean>;
+  equals(
+    other: AsyncStreamSource<T>,
+    options?: { eq?: Eq<T>; negate?: boolean }
+  ): Promise<boolean>;
   /**
    * Returns the stream as a non-empty instance.
    * @throws RimbuError.EmptyCollectionAssumedNonEmptyError if the stream is known to be empty.
@@ -94,7 +99,8 @@ export interface AsyncStream<T>
    * - value: the next element<br/>
    * - index: the index of the element<br/>
    * - halt: a function that, if called, ensures that no new elements are passed
-   * @param state - (optional) the traverse state
+   * @param options - (optional) object specifying the following properties<br/>
+   * - state: (optional) the traverse state
    * @note if f is an async function, each call will be awaited consecutively
    * @example
    * ```ts
@@ -108,13 +114,13 @@ export interface AsyncStream<T>
    */
   forEach(
     f: (value: T, index: number, halt: () => void) => MaybePromise<void>,
-    state?: TraverseState
+    options?: { state?: TraverseState }
   ): Promise<void>;
   /**
    * Performs given function `f` for each element of the Stream, with the optionally given `args` as extra arguments.
    * @typeparam A - the type of the arguments to be passed to the `f` function after each element
    * @param f - the potentially asynchronous function to perform for each element, optionally receiving given extra `args`.
-   * @param args - (optional) a list of extra arguments to pass to given `f` for each element
+   * @param args - a list of extra arguments to pass to given `f` for each element when needed
    * @note if f is an async function, each call will be awaited consecutively
    * @example
    * ```ts
@@ -132,7 +138,8 @@ export interface AsyncStream<T>
   ): Promise<void>;
   /**
    * Returns an AsyncStream where each element in this stream is paired with its index
-   * @param startIndex - (optional) an alternative start index to use
+   * @param options - (optional) object specifying the following properties<br/>
+   * - startIndex: (optional) an alternative start index to use
    * @example
    * ```ts
    * await AsyncStream.of(1, 2, 3).indexed().toArray()
@@ -140,7 +147,7 @@ export interface AsyncStream<T>
    * ```
    * @note O(1)
    */
-  indexed(startIndex?: number): AsyncStream<[number, T]>;
+  indexed(options?: { startIndex?: number }): AsyncStream<[number, T]>;
   /**
    * Returns an AsyncStream where `mapFun` is applied to each element.
    * @typeparam T2 - the resulting element type
@@ -161,7 +168,7 @@ export interface AsyncStream<T>
    * @typeparam T2 - the result value type
    * @typeparam A - the type of arguments to be supplied to the mapFun after each element
    * @param mapFun - a potentially asynchronous function taking an element and the given args, and returning the resulting stream value
-   * @param args - (optional) the extra arguments to pass to the given `mapFun`
+   * @param args - (optional) the extra arguments to pass to the given `mapFun` when needed
    * @note is mostly aimed to increase performance so that an extra function is not required
    * @note can be used on function that really expect 1 argument, since the normal map will also pass more arguments
    * @example
@@ -204,11 +211,10 @@ export interface AsyncStream<T>
   /**
    * Returns an AsyncStream consisting of the concatenation of `flatMapFun` applied to each element, zipped with the element that was provided to the function.
    * @typeparam T2 - the result element type
-   * @param flatMapFun - a function receiving the inputs described below and returning a `StreamSource` of new elements<br/>
+   * @param flatMapFun - a function receiving the inputs described below and returning an `AsyncStreamSource` of new elements<br/>
    * - value: the next element<br/>
    * - index: the index of the element<br/>
    * - halt: a function that, if called, ensures that no new elements are passed
-   *
    * @note O(1)
    * @example
    * ```ts
@@ -241,59 +247,44 @@ export interface AsyncStream<T>
   /**
    * Returns an AsyncStream containing only those elements from this stream for which the given `pred` function returns true.
    * @param pred - a potentially asynchronous function taking an element and its index, and returning true if the element should be included in the resulting stream.
+   * @param options - (optional) object specifying the following properties<br/>
+   * - negate: (default: false) when true will negate the given predicate
+   *
    * @note O(1)
    * @example
    * ```ts
    * await AsyncStream.of(1, 2, 3).filter(async (v, i) => v + i !== 3).toArray()
    * // => [1, 3]
-   * ```
-   */
-  filter(
-    pred: (value: T, index: number, halt: () => void) => MaybePromise<boolean>
-  ): AsyncStream<T>;
-  /**
-   * Returns an AsyncStream containing only those elements from this stream for which the given `pred` function returns false.
-   * @param pred - a potentially asynchronous function taking an element and its index, and returning false if the element should be included in the resulting stream.
-   * @note O(1)
-   * @example
-   * ```ts
-   * await AsyncStream.of(1, 2, 3).filterNot(async (v, i) => v + i !== 3).toArray()
+   * await AsyncStream.of(1, 2, 3).filter(async (v, i) => v + i !== 3, { negate: true }).toArray()
    * // => [2]
    * ```
    */
-  filterNot(
-    pred: (value: T, index: number, halt: () => void) => MaybePromise<boolean>
+  filter(
+    pred: (value: T, index: number, halt: () => void) => MaybePromise<boolean>,
+    options?: { negate?: boolean }
   ): AsyncStream<T>;
   /**
    * Returns an AsyncStream containing only those elements from this stream for which the given `pred` function returns true.
    * @typeparam A - the type of the arguments to be passed to the `pred` function after each element
-   * @param pred - a potentially asynchronous function taking an element the optionaly given `args`, and returning true if the element should be included in the resulting stream.
+   * @param options - object specifying the following properties<br/>
+   * - pred: a potentially asynchronous function taking an element the optionaly given `args`, and returning true if the element should be included in the resulting stream.<br/>
+   * - negate: (default: false) when true will negate the given predicate
    * @param args - (optional) the extra arguments to pass to the given `mapFun`
+   *
    * @note O(1)
    * @example
    * ```ts
-   * await AsyncStream.of(1, 2, 3).filterPure(Object.is, 2).toArray()
+   * await AsyncStream.of(1, 2, 3).filterPure({ pred: Object.is }, 2).toArray()
    * // => [2]
-   * ```
-   */
-  filterPure<A extends readonly unknown[]>(
-    pred: (value: T, ...args: A) => MaybePromise<boolean>,
-    ...args: A
-  ): AsyncStream<T>;
-  /**
-   * Returns an AsyncStream containing only those elements from this stream for which the given `pred` function returns false.
-   * @typeparam A - the type of the arguments to be passed to the `pred` function after each element
-   * @param pred - a potentially asynchronous function taking an element and the optionally given `args`, and returning false if the element should be included in the resulting stream.
-   * @param args - (optional) the extra arguments to pass to the given `mapFun`
-   * @note O(1)
-   * @example
-   * ```ts
-   * await AsyncStream.of(1, 2, 3).filterNotPure(Object.is, 2).toArray()
+   * await AsyncStream.of(1, 2, 3).filterPure({ pred: Object.is, negate: true }, 2).toArray()
    * // => [1, 3]
    * ```
    */
-  filterNotPure<A extends readonly unknown[]>(
-    pred: (value: T, ...args: A) => MaybePromise<boolean>,
+  filterPure<A extends readonly unknown[]>(
+    options: {
+      pred: (value: T, ...args: A) => MaybePromise<boolean>;
+      negate?: boolean;
+    },
     ...args: A
   ): AsyncStream<T>;
   /**
@@ -332,20 +323,6 @@ export interface AsyncStream<T>
   first(): Promise<T | undefined>;
   first<O>(otherwise: AsyncOptLazy<O>): Promise<T | O>;
   /**
-   * Returns the first element of the Stream if it only has one element, or a fallback value if the Stream does not have exactly one value.
-   * @typeparam O - the optional value to return if the stream does not have exactly one value.
-   * @param otherwise - (default: undefined) an `OptLazy` value to return if the Stream does not have exactly one value.
-   * @example
-   * ```ts
-   * await AsyncStream.empty<number>().single()  // => undefined
-   * await AsyncStream.of(1, 2, 3).single()      // => undefined
-   * await AsyncStream.of(1).single()            // => 1
-   * await AsyncStream.of(1, 2, 3).single(0)     // => 0
-   * ```
-   */
-  single(): Promise<T | undefined>;
-  single<O>(otherwise: AsyncOptLazy<O>): Promise<T | O>;
-  /**
    * Returns the last element of the AsyncStream, or a fallback value (default undefined) if the stream is empty.
    * @typeparam O - the optional value type to return if the stream is empty
    * @param otherwise - (default: undefined) an `AsyncOptLazy` value to be returned if the stream is empty.
@@ -361,6 +338,20 @@ export interface AsyncStream<T>
   last(): Promise<T | undefined>;
   last<O>(otherwise: AsyncOptLazy<O>): Promise<T | O>;
   /**
+   * Returns the first element of the Stream if it only has one element, or a fallback value if the Stream does not have exactly one value.
+   * @typeparam O - the optional value to return if the stream does not have exactly one value.
+   * @param otherwise - (default: undefined) an `OptLazy` value to return if the Stream does not have exactly one value.
+   * @example
+   * ```ts
+   * await AsyncStream.empty<number>().single()  // => undefined
+   * await AsyncStream.of(1, 2, 3).single()      // => undefined
+   * await AsyncStream.of(1).single()            // => 1
+   * await AsyncStream.of(1, 2, 3).single(0)     // => 0
+   * ```
+   */
+  single(): Promise<T | undefined>;
+  single<O>(otherwise: AsyncOptLazy<O>): Promise<T | O>;
+  /**
    * Returns the amount of elements in the AsyncStream.
    * @example
    * ```ts
@@ -373,52 +364,51 @@ export interface AsyncStream<T>
   /**
    * Returns the amount of elements that are equal according to the given `eq` to the given `value` in the AsyncStream.
    * @param value - the value to compare to
-   * @param eq - (optional) the Eq instance to use to test equality
+   * @param options - (optional) object specifying the following properties<br/>
+   * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
+   * - negate: (default: false) when true will negate the given Eq function
    * @example
    * ```ts
    * await AsyncStream.of(1, 2, 3).countElement(2) // => 1
+   * await AsyncStream.of(1, 2, 3).countElement(2, { negate: true }) // => 2
    * ```
    * @note O(N)
    * @note be careful not to use on infinite streams
    */
-  countElement(value: T, eq?: Eq<T>): Promise<number>;
-  /**
-   * Returns the amount of elements that are not equal according to the given `eq` to the given `value` in the AsyncStream.
-   * @param value - the value to compare to
-   * @param eq - (optional) the Eq instance to use to test equality
-   * @example
-   * ```ts
-   * await AsyncStream.of(1, 2, 3).countNotElement(2) // => 2
-   * ```
-   * @note O(N)
-   * @note be careful not to use on infinite streams
-   */
-  countNotElement(value: T, eq?: Eq<T>): Promise<number>;
+  countElement(
+    value: T,
+    options?: { eq?: Eq<T>; negate?: boolean }
+  ): Promise<number>;
   /**
    * Returns the first element for which the given `pred` function returns true, or a fallback value otherwise.
    * @typeparam O - the optional value type to return no value was found
    * @param pred - a potentially asynchronous predicate function taking an element and its index
-   * @param occurrance - (default: 1) the occurrance number to look for
-   * @param otherwise - (default: undefined) an `OptLazy` value to be returned if no value was found
+   * @param options - (optional) object specifying the following properties<br/>
+   * - occurrance: (default: 1) the occurrance number to look for<br/>
+   * - otherwise: (default: undefined) an `OptLazy` value to be returned if the Stream is empty
    * @example
    * ```ts
    * const isEven = async (v: number) => v % 2 === 0
    * await AsyncStream.of(1, 2, 3, 4).find(isEven)           // => 2
-   * await AsyncStream.of(1, 2, 3, 4).find(isEven, 2)        // => 4
-   * await AsyncStream.of(1, 2, 3, 4).find(isEven, 3)        // => undefined
-   * await AsyncStream.of(1, 2, 3, 4).find(isEven, 3, 'a')   // => 'a'
+   * await AsyncStream.of(1, 2, 3, 4).find(isEven, { occurrance: 2 })        // => 4
+   * await AsyncStream.of(1, 2, 3, 4).find(isEven, { occurrance: 3 })        // => undefined
+   * await AsyncStream.of(1, 2, 3, 4).find(isEven, { occurrance: 3, otherwise: 'a' })
+   * // => 'a'
    * ```
    * @note O(N)
    */
-  find(
-    pred: (value: T, index: number) => MaybePromise<boolean>,
-    occurrance?: number
-  ): Promise<T | undefined>;
   find<O>(
     pred: (value: T, index: number) => MaybePromise<boolean>,
-    occurrance: number | undefined,
-    otherwise: AsyncOptLazy<O>
+    options?: {
+      occurrance?: number;
+      negate?: boolean;
+      otherwise: AsyncOptLazy<O>;
+    }
   ): Promise<T | O>;
+  find(
+    pred: (value: T, index: number) => MaybePromise<boolean>,
+    options?: { occurrance?: number; negate?: boolean; otherwise?: undefined }
+  ): Promise<T | undefined>;
   /**
    * Returns the element in the AsyncStream at the given index, or a fallback value (default undefined) otherwise.
    * @typeparam O - the optional value type to return if the index is out of bounds
@@ -438,6 +428,8 @@ export interface AsyncStream<T>
   /**
    * Returns an AsyncStream containing the indices of the elements for which the given `pred` function returns true.
    * @param pred - a potentially asynchronous predicate function taking an element
+   * @param options - (optional) object specifying the following properties<br/>
+   * - negate: (default: false) when true will negate the given predicate
    * @example
    * ```ts
    * await AsyncStream.of(1, 2, 3).indicesWhere((v, i) => v + i !== 3).toArray()
@@ -445,11 +437,16 @@ export interface AsyncStream<T>
    * ```
    * @note O(N)
    */
-  indicesWhere(pred: (value: T) => MaybePromise<boolean>): AsyncStream<number>;
+  indicesWhere(
+    pred: (value: T) => MaybePromise<boolean>,
+    options?: { negate?: boolean }
+  ): AsyncStream<number>;
   /**
    * Returns an AsyncStream containing the indicies of the occurrance of the given `searchValue`, according to given `eq` function.
    * @param searchValue - the value to search for
-   * @param eq - (optional) the equality function to use
+   * @param options - (optional) object specifying the following properties<br/>
+   * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
+   * - negate: (default: false) when true will negate the given Eq function
    * @example
    * ```ts
    * await AsyncStream.from('marmot').indicesOf('m').toArray()
@@ -457,47 +454,55 @@ export interface AsyncStream<T>
    * ```
    * @note O(N)
    */
-  indicesOf(searchValue: T, eq?: Eq<T>): AsyncStream<number>;
+  indicesOf(
+    searchValue: T,
+    options?: { eq?: Eq<T>; negate?: boolean }
+  ): AsyncStream<number>;
   /**
    * Returns the index of the given `occurrance` instance of the element in the AsyncStream that satisfies given `pred` function,
    * or undefined if no such instance is found.
    * @param pred - a potentially asynchronous predicate function taking an element and its index
-   * @param occurrance - (default: 1) the occurrance to search for
+   * @param options - (optional) object specifying the following properties<br/>
+   * - occurrance: (default: 1) the occurrance to search for<br/>
+   * - negate: (default: false) when true will negate the given predicate
    * @example
    * ```ts
    * await AsyncStream.of(1, 2, 3).indexWhere((v, i) => v + i > 2)      // => 1
-   * await AsyncStream.of(1, 2, 3).indexWhere(async (v, i) => v + i > 2, 2)   // => 2
+   * await AsyncStream.of(1, 2, 3).indexWhere(async (v, i) => v + i > 2, { occurrance: 2 })   // => 2
    * ```
    * @note O(N)
    */
   indexWhere(
     pred: (value: T, index: number) => MaybePromise<boolean>,
-    occurrance?: number
+    options?: { occurrance?: number; negate?: boolean }
   ): Promise<number | undefined>;
   /**
    * Returns the index of the `occurrance` instance of given `searchValue` in the AsyncStream, using given `eq` function,
    * or undefined if no such value is found.
    * @param searchValue  - the element to search for
-   * @param occurrance - (default: 1) the occurrance to search for
-   * @param eq - (optional) the equality function to use
+   * @param options - (optional) object specifying the following properties<br/>
+   * - occurrance - (default: 1) the occurrance to search for<br/>
+   * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
+   * - negate: (default: false) when true will negate the given Eq function
    * @example
    * ```ts
    * const source = AsyncStream.from('marmot')
    * await source.indexOf('m')     // => 0
-   * await source.indexOf('m', 2)  // => 3
-   * await source.indexOf('m', 3)  // => undefined
+   * await source.indexOf('m', { occurrance: 2 })  // => 3
+   * await source.indexOf('m', { occurrance: 3 })  // => undefined
    * await source.indexOf('q')     // => undefined
    * ```
    * @note O(N)
    */
   indexOf(
     searchValue: T,
-    occurrance?: number,
-    eq?: Eq<T>
+    options?: { occurrance?: number; eq?: Eq<T>; negate?: boolean }
   ): Promise<number | undefined>;
   /**
    * Returns true if any element of the AsyncStream satifies given `pred` function.
    * @param pred - a potentially asynchonous predicate function taking an element and its index
+   * @param options - (optional) object specifying the following properties<br/>
+   * - negate: (default: false) when true will negate the given predicate
    * @example
    * ```ts
    * await AsyncStream.of(1, 2, 3).some((v, i) => v + i > 10) // => false
@@ -506,11 +511,14 @@ export interface AsyncStream<T>
    * @note O(N)
    */
   some(
-    pred: (value: T, index: number) => MaybePromise<boolean>
+    pred: (value: T, index: number) => MaybePromise<boolean>,
+    options?: { negate?: boolean }
   ): Promise<boolean>;
   /**
    * Returns true if every element of the AsyncStream satifies given `pred` function.
    * @param pred - a potentially asynchronous predicate function taking an element and its index
+   * @param options - (optional) object specifying the following properties<br/>
+   * - negate: (default: false) when true will negate the given predicate
    * @example
    * ```ts
    * await AsyncStream.of(1, 2, 3).every((v, i) => v + i > 10)  // => false
@@ -519,13 +527,16 @@ export interface AsyncStream<T>
    * @note O(N)
    */
   every(
-    pred: (value: T, index: number) => MaybePromise<boolean>
+    pred: (value: T, index: number) => MaybePromise<boolean>,
+    options?: { negate?: boolean }
   ): Promise<boolean>;
   /**
    * Returns true if the AsyncStream contains given `amount` instances of given `value`, using given `eq` function.
    * @param value - the value to search for
-   * @param amount - (default: 1) the amount of values the Stream should contain
-   * @param eq - (optional) the equality function to use
+   * @param options - (optional) object specifying the following properties<br/>
+   * = amount: (default: 1) the amount of values the Stream should contain<br/>
+   * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements
+   * - negate: (default: false) when true will negate the given predicate
    * @example
    * ```ts
    * const source = Stream.from('marmot')
@@ -536,12 +547,17 @@ export interface AsyncStream<T>
    * ```
    * @note O(N)
    */
-  contains(value: T, amount?: number, eq?: Eq<T>): Promise<boolean>;
+  contains(
+    value: T,
+    options?: { amount?: number; eq?: Eq<T>; negate?: boolean }
+  ): Promise<boolean>;
   /**
    * Returns true if this stream contains the same sequence of elements as the given `source`,
    * false otherwise.
    * @param source - a non-empty async stream source containing the element sequence to find
-   * @param eq - (default: `Eq.objectIs`) the function to use to test element equality
+   * @param options - (optional) object specifying the following properties<br/>
+   * - eq: (default: `Eq.objectIs`) the function to use to test element equality
+   * - negate: (default: false) when true will negate the given Eq function
    * @example
    * ```ts
    * await AsyncStream.of(1, 2, 3, 4, 5).containsSlice([2, 3, 4])
@@ -552,11 +568,13 @@ export interface AsyncStream<T>
    */
   containsSlice(
     source: AsyncStreamSource.NonEmpty<T>,
-    eq?: Eq<T>
+    options?: { eq?: Eq<T> }
   ): Promise<boolean>;
   /**
    * Returns an AsyncStream that contains the elements of this stream up to the first element that does not satisfy given `pred` function.
    * @param pred - a potentially asynchronous predicate function taking an element and its index
+   * @param options - (optional) object specifying the following properties<br/>
+   * - negate: (default: false) when true will negate the given predicate
    * @example
    * ```ts
    * await AsyncStream.of(1, 2, 3).takeWhile(async v => v < 3).toArray()
@@ -565,11 +583,14 @@ export interface AsyncStream<T>
    * @note O(N)
    */
   takeWhile(
-    pred: (value: T, index: number) => MaybePromise<boolean>
+    pred: (value: T, index: number) => MaybePromise<boolean>,
+    options?: { negate?: boolean }
   ): AsyncStream<T>;
   /**
    * Returns an AsyncStream that contains the elements of this stream starting from the first element that does not satisfy given `pred` function.
    * @param pred - a potentially asynchronous predicate function taking an element and its index
+   * @param options - (optional) object specifying the following properties<br/>
+   * - negate: (default: false) when true will negate the given predicate
    * @example
    * ```ts
    * await AsyncStream.of(1, 2, 3).dropWhile(async v => v < 2).toArray()
@@ -578,7 +599,8 @@ export interface AsyncStream<T>
    * @note O(N)
    */
   dropWhile(
-    pred: (value: T, index: number) => MaybePromise<boolean>
+    pred: (value: T, index: number) => MaybePromise<boolean>,
+    options?: { negate?: boolean }
   ): AsyncStream<T>;
   /**
    * Returns an AsyncStream that contains the elements of this stream up to a maximum of `amount` elements.
@@ -757,9 +779,12 @@ export interface AsyncStream<T>
     end?: AsyncStreamSource<T>;
   }): AsyncStream<T>;
   /**
-   * Returns an AsyncStream of arrays of stream elements, where each array is filled with elements of this stream up to the next element that
+   * Returns an AsyncStream of collections of stream elements, where each array is filled with elements of this stream up to the next element that
    * satisfies give function `pred`.
    * @param pred - a potentially asynchronous predicate function taking an element and its index
+   * @param options - (optional) object specifying the following properties<br/>
+   * - negate: (default: false) when true will negate the given predicate
+   * - collector: (default: `AsyncArray.toArray()`) the async reducer to use to collect the resulting values
    * @example
    * ```ts
    * await AsyncStream.of(1, 2, 3, 4).splitWhere(async v => v == 3).toArray()
@@ -767,39 +792,78 @@ export interface AsyncStream<T>
    * ```
    * @note O(1)
    */
+  splitWhere<R>(
+    pred: (value: T, index: number) => MaybePromise<boolean>,
+    options: { negate?: boolean; collector: AsyncReducer<T, R> }
+  ): AsyncStream<R>;
   splitWhere(
-    pred: (value: T, index: number) => MaybePromise<boolean>
+    pred: (value: T, index: number) => MaybePromise<boolean>,
+    options?: { negate?: boolean; collector?: undefined }
   ): AsyncStream<T[]>;
   /**
-   * Returns an AsyncStream of arrays of stream elements, where each array is filled with elements of this stream up to the next element that
+   * Returns an AsyncStream of collections of stream elements, where each array is filled with elements of this stream up to the next element that
    * equals given `sepElem` according to the given `eq` function.
    * @param sepElem - the separator element to look for
-   * @param eq - (optional) the equality function to use
+   * @param options - (optional) object specifying the following properties<br/>
+   * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
+   * - negate: (default: false) when true will negate the given Eq function
+   * - collector: (default: `AsyncArray.toArray()`) the async reducer to use to collect the resulting values
    * @example
    * ```ts
    * await AsyncStream.from('marmot').splitOn('m').toArray()  // => [[], ['a', 'r'], ['o', 't']]
    * ```
    * @note O(1)
    */
-  splitOn(sepElem: T, eq?: Eq<T>): AsyncStream<T[]>;
+  splitOn<R, T2 extends T = T>(
+    sepElem: T2,
+    options?: { eq?: Eq<T2>; negate?: boolean; collector: AsyncReducer<T, R> }
+  ): AsyncStream<R>;
+  splitOn(
+    sepElem: T,
+    options?: { eq?: Eq<T>; negate?: boolean; collector?: undefined }
+  ): AsyncStream<T[]>;
+  /**
+   * Returns an AsyncStream of collections of stream elements, where each array is filled with elements of this stream up to the next sequence of elements that
+   * matches given `sepSeq` ordered elements with the given `eq` function.
+   * @param sepSeq - an `AsyncStreamSource` contaning the sequence to find
+   * @param options - (optional) object specifying the following properties<br/>
+   * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
+   * - collector: (default: `AsyncArray.toArray()`) the async reducer to use to collect the resulting values
+   * @example
+   * ```ts
+   * await AsyncStream.from('marmalade').splitSeq('ma').toArray()  // => [[], ['r'], ['l', 'a', 'd', 'e']]
+   * ```
+   * @note O(1)
+   */
+  splitOnSeq<R, T2 extends T = T>(
+    sepSeq: AsyncStreamSource<T2>,
+    options: { eq?: Eq<T2>; collector: AsyncReducer<T, R> }
+  ): AsyncStream<R>;
+  splitOnSeq(
+    sepSeq: AsyncStreamSource<T>,
+    options?: { eq?: Eq<T>; collector?: undefined }
+  ): AsyncStream<T[]>;
   /**
    * Returns an AsyncStream containing non-repetitive elements of the source stream, where repetitive elements
    * are compared using the optionally given `eq` equality function.
-   * @param eq - (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements
+   * @param options - (optional) object specifying the following properties<br/>
+   * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
+   * - negate: (default: false) when true will negate the given predicate
    * @example
    * ```ts
    * await AsyncStream.of(1, 1, 2, 2, 3, 1).distinctPrevious().toArray()
    * // => [1, 2, 3, 1]
    * ```
    */
-  distinctPrevious(eq?: Eq<T>): AsyncStream<T>;
+  distinctPrevious(options?: { eq?: Eq<T>; negate?: boolean }): AsyncStream<T>;
   /**
    * Returns an AsyncStream containing `windows` of `windowSize` consecutive elements of the source stream, with each
    * window starting `skipAmount` elements after the previous one.
    * @typeparam R - the collector reducer result type
    * @param windowSize - the size in elements of the windows
-   * @param skipAmount - (default: `windowSize`) the amount of elements to skip to start the next window
-   * @param collector - (default: `AsyncArray.toArray()`) the async reducer to use to collect the window values
+   * @param options - (optional) object specifying the following properties<br/>
+   * - skipAmount: (default: `windowSize`) the amount of elements to skip to start the next window
+   * - collector: (default: `AsyncArray.toArray()`) the async reducer to use to collect the window values
    * @example
    * ```ts
    * await Stream.of(1, 2, 3, 4, 5, 6, 7).window(3).toArray()
@@ -810,12 +874,17 @@ export interface AsyncStream<T>
    * // => [Set(1, 2), Set(3, 4)]
    * ```
    */
-  window(windowSize: number, skipAmount?: number): AsyncStream<T[]>;
   window<R>(
     windowSize: number,
-    skipAmount?: number,
-    collector?: AsyncReducer<T, R>
+    options: {
+      skipAmount?: number;
+      collector: AsyncReducer<T, R>;
+    }
   ): AsyncStream<R>;
+  window(
+    windowSize: number,
+    options?: { skipAmount?: number; collector?: undefined }
+  ): AsyncStream<T[]>;
   /**
    * Returns the value resulting from applying the given the given `next` function to a current state (initially the given `init` value),
    * and the next stream value, and returning the new state. When all elements are processed, the resulting state is returned.
@@ -881,6 +950,7 @@ export interface AsyncStream<T>
   /**
    * Applies the given `(Async)Reducer` to each element in the AsyncStream, and returns the final result.
    * @typeparam R - the resulting type
+   * @typeparam S - a shape defining a combined reducer definition
    * @param reducer - the `(Async)Reducer` instance to use to apply to all stream elements.
    * @example
    * ```ts
@@ -892,7 +962,20 @@ export interface AsyncStream<T>
    */
   reduce<R>(reducer: AsyncReducer<T, R>): Promise<R>;
   /**
-   * Returns an AsyncStream where the given `(Async)Reducer` is applied to each element in the stream.
+   * Applies the given combined `(Async)Reducer` to each element in the AsyncStream, and returns the final result.
+   * @typeparam S - a shape defining a combined reducer definition
+   * @param shape - the `(Async)Reducer` combined instance to use to apply to all stream elements.
+   * @example
+   * ```ts
+   * console.log(await AsyncStream.of(1, 2, 4).reduce([AsyncReducer.sum, { prod: AsyncReducer.product }]))
+   * // => [7, { prod: 8 }]
+   * ```
+   */
+  reduce<const S extends AsyncReducer.CombineShape<T>>(
+    shape: S & AsyncReducer.CombineShape<T>
+  ): Promise<AsyncReducer.CombineResult<S>>;
+  /**
+   * Returns an AsyncStream where the given `AsyncReducer` is applied to each element in the stream.
    * @typeparam R - the resulting element type
    * @param reducer - the `(Async)Reducer` instance to use to apply to all stream elements.
    * @example
@@ -913,39 +996,22 @@ export interface AsyncStream<T>
    */
   reduceStream<R>(reducer: AsyncReducer<T, R>): AsyncStream<R>;
   /**
-   * Returns a tuple where each tuple element corresponds to result of applying all AsyncStream elements to the corresponding `(Async)Reducer` instance of
-   * the given `reducers`.
-   * @typeparam R - the resulting tuple type
-   * @param reducers - a non-empty array of `(Async)Reducer` instances to use to apply to all stream elements.
-   * @note all reducers are processed in parallel, thus only one traversal is needed
-   * @example
-   * ```ts
-   * console.log(await AsyncStream.of(1, 2, 4).reduceAll(Reducer.sum, Reducer.product))
-   * // => [7, 8]
-   * ```
-   */
-  reduceAll<R extends [unknown, unknown, ...unknown[]]>(
-    ...reducers: { [K in keyof R]: AsyncReducer<T, R[K]> }
-  ): Promise<R>;
-  /**
-   * Returns an AsyncStream of tuples where each tuple element corresponds to result of applying all stream elements to the corresponding `(Async)Reducer` instance of
-   * the given `reducers`. Returns one element per input stream element.
-   * @typeparam R - the resulting tuple element type
-   * @param reducers - a non-empty array of `(Async)Reducer` instances to use to apply to all stream elements.
-   * @note all reducers are processed in parallel, thus only one traversal is needed
+   * Returns an AsyncStream where the given shape containing `AsyncReducers` is applied to each element in the stream.
+   * @typeparam S - the reducer shape type
+   * @param shape - the reducer shape containing instances of AsyncReducers to use to apply to all stream elements.
    * @example
    * ```ts
    * console.log(
-   *   await ASyncStream.of(1, 2, 4)
-   *     .reduceAllStream(Reducer.sum, Reducer.product)
+   *   await AsyncStream.of(1, 2, 4)
+   *     .reduceStream([Reducer.sum, { prod: AsyncReducer.product }])
    *     .toArray()
    * )
-   * // => [[1, 1], [3, 2], [7, 8]]
+   * // => [[1, { prod: 1 }], [3, { prod: 2 }], [7, { prod: 9 }]]
    * ```
    */
-  reduceAllStream<R extends [unknown, unknown, ...unknown[]]>(
-    ...reducers: { [K in keyof R]: AsyncReducer<T, R[K]> }
-  ): AsyncStream<R>;
+  reduceStream<const S extends AsyncReducer.CombineShape<T>>(
+    shape: S & AsyncReducer.CombineShape<T>
+  ): AsyncStream<AsyncReducer.CombineResult<S>>;
   /**
    * Returns an Array containing all elements in the AsyncStream.
    * @example
@@ -1006,7 +1072,8 @@ export namespace AsyncStream {
     asyncStream(): this;
     /**
      * Returns a non-empty AsyncStream where each element in this stream is paired with its index
-     * @param startIndex - (optional) an alternative start index to use
+     * @param options - (optional) object specifying the following properties<br/>
+     * - startIndex: (optional) an alternative start index to use
      * @example
      * ```ts
      * await AsyncStream.of(1, 2, 3).indexed().toArray()
@@ -1014,7 +1081,9 @@ export namespace AsyncStream {
      * ```
      * @note O(1)
      */
-    indexed(startIndex?: number): AsyncStream.NonEmpty<[number, T]>;
+    indexed(options?: {
+      startIndex?: number;
+    }): AsyncStream.NonEmpty<[number, T]>;
     /**
      * Returns a non-empty AsyncStream where `mapFun` is applied to each element.
      * @typeparam T2 - the result element type
@@ -1241,15 +1310,19 @@ export namespace AsyncStream {
     /**
      * Returns a non-empty AsyncStream containing non-repetitive elements of the source stream, where repetitive elements
      * are compared using the optionally given `eq` equality function.
-     * @param eq - (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements
+     * @param options - (optional) object specifying the following properties<br/>
+     * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
+     * - negate: (default: false) when true will negate the given predicate
      * @example
      * ```ts
      * await AsyncStream.of(1, 1, 2, 2, 3, 1).distinctPrevious().toArray()
      * // => [1, 2, 3, 1]
      * ```
      */
-    distinctPrevious(eq?: Eq<T>): AsyncStream.NonEmpty<T>;
-
+    distinctPrevious(options?: {
+      eq?: Eq<T>;
+      negate?: boolean;
+    }): AsyncStream.NonEmpty<T>;
     /**
      * Returns an AsyncStream containing the values resulting from applying the given the given `next` function to a current state (initially the given `init` value),
      * and the next stream value, and returning the new state.

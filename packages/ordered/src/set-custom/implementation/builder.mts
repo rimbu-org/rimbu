@@ -80,7 +80,7 @@ export class OrderedSetBuilder<
   addAll = (source: StreamSource<T>): boolean => {
     this.checkLock();
 
-    return Stream.from(source).filterPure(this.add).count() > 0;
+    return Stream.from(source).filterPure({ pred: this.add }).count() > 0;
   };
 
   // prettier-ignore
@@ -111,19 +111,24 @@ export class OrderedSetBuilder<
   removeAll = <U,>(values: StreamSource<RelatedTo<T, U>>): boolean => {
     this.checkLock();
 
-    return Stream.from(values).filterPure(this.remove).count() > 0;
+    return Stream.from(values).filterPure({ pred: this.remove }).count() > 0;
   };
 
   forEach = (
     f: (value: T, index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { reversed?: boolean; state?: TraverseState } = {}
   ): void => {
+    const { reversed = false, state = TraverseState() } = options;
+
     if (state.halted) return;
 
     this._lock++;
 
-    if (undefined !== this.source) this.source.forEach(f, state);
-    else this.orderBuilder.forEach(f, state);
+    if (undefined !== this.source) {
+      this.source.order.forEach(f, { reversed, state });
+    } else {
+      this.orderBuilder.forEach(f, { reversed, state });
+    }
 
     this._lock--;
   };

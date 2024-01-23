@@ -22,11 +22,16 @@ export abstract class ListNonEmptyBase<T>
 {
   abstract get context(): ListContext;
   abstract get length(): number;
-  abstract stream(reversed?: boolean): Stream.NonEmpty<T>;
-  abstract streamRange(range: IndexRange, reversed?: boolean): Stream<T>;
+  abstract stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
+  abstract streamRange(
+    range: IndexRange,
+    options?: {
+      reversed?: boolean;
+    }
+  ): Stream<T>;
   abstract forEach(
     f: (value: T, index: number, halt: () => void) => void,
-    traverseState?: TraverseState
+    options?: { reversed?: boolean; state?: TraverseState }
   ): void;
   abstract get<O>(index: number, otherwise?: OptLazy<O>): T | O;
   abstract prepend(value: T): List.NonEmpty<T>;
@@ -39,15 +44,20 @@ export abstract class ListNonEmptyBase<T>
   abstract updateAt(index: number, update: Update<T>): List.NonEmpty<T>;
   abstract mapPure<T2>(
     mapFun: (value: T) => T2,
-    reversed?: boolean,
-    cacheMap?: CacheMap
+    options?: {
+      reversed?: boolean;
+      cacheMap?: CacheMap;
+    }
   ): List.NonEmpty<T2>;
   abstract map<T2>(
     mapFun: (value: T, index: number) => T2,
-    reversed?: boolean
+    options?: { reversed?: boolean }
   ): List.NonEmpty<T2>;
   abstract reversed(cache?: CacheMap): List.NonEmpty<T>;
-  abstract toArray(range?: IndexRange, reversed?: boolean): T[] | any;
+  abstract toArray(options?: {
+    range?: IndexRange | undefined;
+    reversed?: boolean;
+  }): T[] | any;
   abstract structure(): string;
 
   [Symbol.iterator](): FastIterator<T> {
@@ -78,7 +88,9 @@ export abstract class ListNonEmptyBase<T>
     return this.get(this.length - 1, RimbuError.throwInvalidStateError);
   }
 
-  slice(range: IndexRange, reversed: boolean): List<T> {
+  slice(range: IndexRange, options: { reversed?: boolean } = {}): List<T> {
+    const { reversed = false } = options;
+
     const result = IndexRange.getIndicesFor(range, this.length);
 
     if (result === 'all') {
@@ -94,8 +106,16 @@ export abstract class ListNonEmptyBase<T>
     return values.reversed();
   }
 
-  sort(comp?: Comp<T>): List.NonEmpty<T> {
-    const sortedArray = this.toArray().sort(comp?.compare);
+  sort(comp?: Comp<T>, options: { inverse?: boolean } = {}): List.NonEmpty<T> {
+    const { inverse = false } = options;
+
+    const compareFn =
+      comp === undefined
+        ? undefined
+        : inverse
+        ? (a: T, b: T): number => comp.compare(b, a)
+        : comp.compare;
+    const sortedArray = this.toArray().sort(compareFn);
 
     return this.context.from(sortedArray);
   }
@@ -127,7 +147,9 @@ export abstract class ListNonEmptyBase<T>
     return this.splice({ index, insert: values });
   }
 
-  remove(index: number, amount = 1): List<T> {
+  remove(index: number, options: { amount?: number } = {}): List<T> {
+    const { amount = 1 } = options;
+
     return this.splice({ index, remove: amount });
   }
 
@@ -155,7 +177,13 @@ export abstract class ListNonEmptyBase<T>
       .assumeNonEmpty();
   }
 
-  padTo(length: number, fill: T, positionPercentage = 0): List.NonEmpty<T> {
+  padTo(
+    length: number,
+    fill: T,
+    options: { positionPercentage?: number } = {}
+  ): List.NonEmpty<T> {
+    const { positionPercentage = 0 } = options;
+
     if (this.length >= length) return this;
 
     const diff = length - this.length;
@@ -167,45 +195,56 @@ export abstract class ListNonEmptyBase<T>
 
   filter(
     pred: (value: T, index: number, halt: () => void) => boolean,
-    range?: IndexRange,
-    reversed = false
+    options: { range?: IndexRange; reversed?: boolean; negate?: boolean } = {}
   ): List<T> {
+    const { range, reversed = false, negate = false } = options;
+
     const stream =
       undefined === range
-        ? this.stream(reversed)
-        : this.streamRange(range, reversed);
+        ? this.stream({ reversed })
+        : this.streamRange(range, { reversed });
 
-    const result: List<T> = this.context.from(stream.filter(pred));
+    const result: List<T> = this.context.from(stream.filter(pred, { negate }));
 
-    if (result.length !== this.length) return result;
-    if (!reversed) return this;
-    return this.reversed();
+    if (result.length !== this.length) {
+      return result;
+    }
+
+    return this;
   }
 
   collect<T2>(
     collectFun: CollectFun<T, T2>,
-    range?: IndexRange,
-    reversed = false
+    options: {
+      range?: IndexRange;
+      reversed?: boolean;
+    } = {}
   ): List<T2> {
+    const { range, reversed = false } = options;
+
     const stream =
       undefined === range
-        ? this.stream(reversed)
-        : this.streamRange(range, reversed);
+        ? this.stream({ reversed })
+        : this.streamRange(range, { reversed });
 
     return this.context.from(stream.collect(collectFun));
   }
 
   flatMap<T2>(
     flatMapFun: (value: T, index: number) => StreamSource<T2>,
-    range?: IndexRange,
-    reversed = false
+    options: {
+      range?: IndexRange | undefined;
+      reversed?: boolean;
+    } = {}
   ): List<T2> | any {
+    const { range, reversed = false } = options;
+
     let result = this.context.empty<T2>();
 
     const stream =
       undefined === range
-        ? this.stream(reversed)
-        : this.streamRange(range, reversed);
+        ? this.stream({ reversed })
+        : this.streamRange(range, { reversed });
     const iterator = stream[Symbol.iterator]();
 
     let index = 0;

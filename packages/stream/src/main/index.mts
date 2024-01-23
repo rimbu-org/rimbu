@@ -16,6 +16,7 @@ export * from './stream-source.mjs';
 
 export * from './interface.mjs';
 
+export * from './reducer.mjs';
 export * from './transformer.mjs';
 
 export * from '@rimbu/stream/async';

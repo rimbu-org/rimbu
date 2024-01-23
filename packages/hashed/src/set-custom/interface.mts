@@ -12,8 +12,8 @@ export interface HashSetCreators extends RSetBase.Factory<HashSet.Types> {
    * @param options - (optional) an object containing the following properties:<br/.
    * - hasher - (optional) a `Hasher` instance used to hash the map keys<br/>
    * - eq - (optional) an `Eq` instance used to determine key equality<br/>
-   * - blockSizeBits - (optional) determines the maximum block size as 2 to the power of `blockSizeBits`<br/>
-   * - listContext - (optional) the context to use to create list instances (for collisions)
+   * - blockSizeBits: (optional) determines the maximum block size as 2 to the power of `blockSizeBits`<br/>
+   * - listContext: (optional) the context to use to create list instances (for collisions)
    */
   createContext<UT>(options?: {
     hasher?: Hasher<UT>;

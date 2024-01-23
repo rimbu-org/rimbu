@@ -2,10 +2,10 @@ import {
   NonEmptyBase,
   type WithElem,
 } from '@rimbu/collection-types/set-custom';
-import {
-  type ArrayNonEmpty,
-  type RelatedTo,
-  type ToJSON,
+import type {
+  ArrayNonEmpty,
+  RelatedTo,
+  ToJSON,
   TraverseState,
 } from '@rimbu/common';
 import type { List } from '@rimbu/list';
@@ -49,8 +49,8 @@ export class OrderedSetNonEmpty<
     return this.context.createNonEmpty<T>(order, sourceSet as any);
   }
 
-  stream(): Stream.NonEmpty<T> {
-    return this.order.stream();
+  stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
+    return this.order.stream(options);
   }
 
   has<U>(value: RelatedTo<T, U>): boolean {
@@ -98,19 +98,18 @@ export class OrderedSetNonEmpty<
 
   forEach(
     f: (value: T, index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { reversed?: boolean; state?: TraverseState } = {}
   ): void {
-    if (state.halted) return;
-
-    this.order.forEach(f, state);
+    this.order.forEach(f, options);
   }
 
   filter(
-    pred: (value: T, index: number, halt: () => void) => boolean
+    pred: (value: T, index: number, halt: () => void) => boolean,
+    options: { negate?: boolean } = {}
   ): TpG['normal'] {
     const builder = this.context.builder<T>();
 
-    builder.addAll(this.stream().filter(pred));
+    builder.addAll(this.stream().filter(pred, options));
 
     if (builder.size === this.size) return this as any;
 
@@ -161,7 +160,9 @@ export class OrderedSetNonEmpty<
 
     const builder = this.toBuilder();
 
-    Stream.from(other).filterNotPure(builder.remove).forEach(builder.add);
+    Stream.from(other)
+      .filterPure({ pred: builder.remove, negate: true })
+      .forEach(builder.add);
 
     return builder.build();
   }

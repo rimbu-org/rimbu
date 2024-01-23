@@ -106,7 +106,9 @@ export class ValuedGraphBuilder<
   addNodes = (nodes: StreamSource<N>): boolean => {
     this.checkLock();
 
-    return Stream.from(nodes).filterPure(this.addNodeInternal).count() > 0;
+    return (
+      Stream.from(nodes).filterPure({ pred: this.addNodeInternal }).count() > 0
+    );
   };
 
   // prettier-ignore
@@ -148,7 +150,7 @@ export class ValuedGraphBuilder<
   removeNodes = <UN,>(nodes: StreamSource<RelatedTo<N, UN>>): boolean => {
     this.checkLock();
 
-    return Stream.from(nodes).filterPure(this.removeNodeInternal).count() > 0;
+    return Stream.from(nodes).filterPure({ pred: this.removeNodeInternal }).count() > 0;
   };
 
   connectInternal = (node1: N, node2: N, value: V): boolean => {
@@ -207,10 +209,9 @@ export class ValuedGraphBuilder<
     this.checkLock();
 
     return (
-      Stream.applyFilter(
-        connections as StreamSource<[N, N, V]>,
-        this.connectInternal
-      ).count() > 0
+      Stream.applyFilter(connections as StreamSource<[N, N, V]>, {
+        pred: this.connectInternal,
+      }).count() > 0
     );
   };
 
@@ -225,7 +226,10 @@ export class ValuedGraphBuilder<
   addGraphElements = (
     elements: StreamSource<ValuedGraphElement<N, V>>
   ): boolean => {
-    return Stream.from(elements).filterPure(this.addGraphElement).count() > 0;
+    return (
+      Stream.from(elements).filterPure({ pred: this.addGraphElement }).count() >
+      0
+    );
   };
 
   modifyAt = (
@@ -233,7 +237,7 @@ export class ValuedGraphBuilder<
     node2: N,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: (value: V, remove: Token) => V | Token;
+      ifExists?: ((value: V, remove: Token) => V | Token) | V;
     }
   ): boolean => {
     this.checkLock();
@@ -282,7 +286,10 @@ export class ValuedGraphBuilder<
             return newValue;
           },
           ifExists: (currentValue, remove) => {
-            const newValue = ifExists(currentValue, remove);
+            const newValue =
+              ifExists instanceof Function
+                ? ifExists(currentValue, remove)
+                : ifExists;
 
             if (Object.is(newValue, currentValue)) return currentValue;
 
@@ -407,7 +414,7 @@ export class ValuedGraphBuilder<
     return (
       Stream.applyFilter(
         connections as StreamSource<[N, N]>,
-        this.disconnectInternal
+        { pred: this.disconnectInternal }
       ).count() > 0
     );
   };

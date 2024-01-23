@@ -375,7 +375,7 @@ function runLeafTreeTests(
       expect(t9.map((v) => v + 1).toArray()).toEqual([
         2, 3, 4, 2, 3, 4, 2, 3, 4,
       ]);
-      expect(t9.map((v) => v + 1, true).toArray()).toEqual([
+      expect(t9.map((v) => v + 1, { reversed: true }).toArray()).toEqual([
         4, 3, 2, 4, 3, 2, 4, 3, 2,
       ]);
     });
@@ -389,7 +389,7 @@ function runLeafTreeTests(
       expect(mapped.toArray()).toEqual([2, 3, 4, 2, 3, 4, 2, 3, 4]);
       expect(mapped.left).toBe(mapped.right);
 
-      const mappedRev = t9.mapPure((v) => v + 1, true);
+      const mappedRev = t9.mapPure((v) => v + 1, { reversed: true });
       expect(mappedRev.toArray()).toEqual([4, 3, 2, 4, 3, 2, 4, 3, 2]);
       expect(mappedRev.left).toBe(mappedRev.right);
     });
@@ -408,7 +408,9 @@ function runLeafTreeTests(
       expect(t6.padTo(1, 3)).toBe(t6);
       expect(t6.padTo(8, 9).toArray()).toEqual([1, 2, 3, 1, 2, 3, 9, 9]);
 
-      expect(t6.padTo(8, 9, 50).toArray()).toEqual([9, 1, 2, 3, 1, 2, 3, 9]);
+      expect(t6.padTo(8, 9, { positionPercentage: 50 }).toArray()).toEqual([
+        9, 1, 2, 3, 1, 2, 3, 9,
+      ]);
     });
 
     it('prepend', () => {
@@ -465,9 +467,11 @@ function runLeafTreeTests(
       const b3 = createBlock([1, 2, 3]);
       const t9 = context.leafTree(b3, b3, context.nonLeafBlock(3, [b3], 1));
 
-      expect(t9.remove(0, 10)).toBe(context.empty());
-      expect(t9.remove(4, 0)).toBe(t9);
-      expect(t9.remove(1, 2).toArray()).toEqual([1, 1, 2, 3, 1, 2, 3]);
+      expect(t9.remove(0, { amount: 10 })).toBe(context.empty());
+      expect(t9.remove(4, { amount: 0 })).toBe(t9);
+      expect(t9.remove(1, { amount: 2 }).toArray()).toEqual([
+        1, 1, 2, 3, 1, 2, 3,
+      ]);
     });
 
     it('repeat', () => {
@@ -503,16 +507,16 @@ function runLeafTreeTests(
       const b3 = createBlock([1, 2, 3]);
       const t9 = context.leafTree(b3, b3, context.nonLeafBlock(3, [b3], 1));
 
-      expect(t9.slice({ amount: 10 }, false)).toBe(t9);
-      expect(t9.slice({ amount: 10 }, true).toArray()).toEqual(
+      expect(t9.slice({ amount: 10 })).toBe(t9);
+      expect(t9.slice({ amount: 10 }, { reversed: true }).toArray()).toEqual(
         t9.reversed().toArray()
       );
-      expect(t9.slice({ amount: 3 }, false)).toBe(b3);
-      const r1 = t9.slice({ start: 1, amount: 4 }, false);
+      expect(t9.slice({ amount: 3 })).toBe(b3);
+      const r1 = t9.slice({ start: 1, amount: 4 });
       expect(r1).toBeInstanceOf(LeafBlock);
       expect(r1.toArray()).toEqual([2, 3, 1, 2]);
 
-      const r2 = t9.slice({ start: 1, amount: 4 }, true);
+      const r2 = t9.slice({ start: 1, amount: 4 }, { reversed: true });
       expect(r2).toBeInstanceOf(LeafBlock);
       expect(r2.toArray()).toEqual([2, 1, 3, 2]);
     });
@@ -538,7 +542,9 @@ function runLeafTreeTests(
       const t9 = context.leafTree(b3, b3, context.nonLeafBlock(3, [b3], 1));
 
       expect(t9.stream().toArray()).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3]);
-      expect(t9.stream(true).toArray()).toEqual([3, 2, 1, 3, 2, 1, 3, 2, 1]);
+      expect(t9.stream({ reversed: true }).toArray()).toEqual([
+        3, 2, 1, 3, 2, 1, 3, 2, 1,
+      ]);
     });
 
     it('streamRange', () => {
@@ -547,23 +553,25 @@ function runLeafTreeTests(
 
       expect(t9.streamRange({ amount: 0 })).toBe(Stream.empty());
       expect(t9.streamRange({ amount: 4 }).toArray()).toEqual([1, 2, 3, 1]);
-      expect(t9.streamRange({ amount: 4 }, true).toArray()).toEqual([
-        1, 3, 2, 1,
-      ]);
+      expect(
+        t9.streamRange({ amount: 4 }, { reversed: true }).toArray()
+      ).toEqual([1, 3, 2, 1]);
 
       expect(t9.streamRange({ start: 4, amount: 4 }).toArray()).toEqual([
         2, 3, 1, 2,
       ]);
-      expect(t9.streamRange({ start: 4, amount: 4 }, true).toArray()).toEqual([
-        2, 1, 3, 2,
-      ]);
+      expect(
+        t9.streamRange({ start: 4, amount: 4 }, { reversed: true }).toArray()
+      ).toEqual([2, 1, 3, 2]);
     });
 
     it('structure', () => {
       const b3 = createBlock([1, 2, 3]);
       const t9 = context.leafTree(b3, b3, context.nonLeafBlock(3, [b3], 1));
 
-      const leafType = context.isReversedLeafBlock(b3) ? 'RLeaf' : 'Leaf';
+      const leafType = context.isReversedLeafBlock<number>(b3)
+        ? 'RLeaf'
+        : 'Leaf';
 
       expect(t9.structure()).toEqual(
         `\
@@ -605,12 +613,20 @@ function runLeafTreeTests(
       const t9 = context.leafTree(b3, b3, context.nonLeafBlock(3, [b3], 1));
 
       expect(t9.toArray()).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3]);
-      expect(t9.toArray({ amount: 4 })).toEqual([1, 2, 3, 1]);
-      expect(t9.toArray({ start: 5, amount: 4 })).toEqual([3, 1, 2, 3]);
+      expect(t9.toArray({ range: { amount: 4 } })).toEqual([1, 2, 3, 1]);
+      expect(t9.toArray({ range: { start: 5, amount: 4 } })).toEqual([
+        3, 1, 2, 3,
+      ]);
 
-      expect(t9.toArray(undefined, true)).toEqual([3, 2, 1, 3, 2, 1, 3, 2, 1]);
-      expect(t9.toArray({ amount: 4 }, true)).toEqual([1, 3, 2, 1]);
-      expect(t9.toArray({ start: 5, amount: 4 }, true)).toEqual([3, 2, 1, 3]);
+      expect(t9.toArray({ reversed: true })).toEqual([
+        3, 2, 1, 3, 2, 1, 3, 2, 1,
+      ]);
+      expect(t9.toArray({ range: { amount: 4 }, reversed: true })).toEqual([
+        1, 3, 2, 1,
+      ]);
+      expect(
+        t9.toArray({ range: { start: 5, amount: 4 }, reversed: true })
+      ).toEqual([3, 2, 1, 3]);
     });
 
     it('toBuilder', () => {
@@ -650,7 +666,7 @@ function runLeafTreeTests(
       ]);
       const t6 = context.leafTree(b3, b3, null);
 
-      const [l1, l2] = List.unzip(t6, 2);
+      const [l1, l2] = List.unzip(t6, { length: 2 });
 
       expect(l1.toArray()).toEqual([1, 2, 3, 1, 2, 3]);
       expect(l2.toArray()).toEqual(['a', 'b', 'c', 'a', 'b', 'c']);
@@ -739,9 +755,9 @@ function leafTreeBlockSize3(
       const mt = r.middle as NonLeafBlock<number, LeafBlock<number>>;
       expect(mt.nrChildren).toBe(2);
       expect(mt.children[0].toArray()).toEqual([11, 12, 13, 14, 15]);
-      expect(context.isLeafBlock(mt.children[0])).toBe(true);
+      expect(context.isLeafBlock<number>(mt.children[0])).toBe(true);
       expect(mt.children[1].toArray()).toEqual([16, 17, 18, 21, 31]);
-      expect(context.isLeafBlock(mt.children[1])).toBe(true);
+      expect(context.isLeafBlock<number>(mt.children[1])).toBe(true);
     });
   });
 
@@ -771,7 +787,7 @@ function leafTreeBlockSize3(
     const mt = r.middle as NonLeafBlock<number, LeafBlock<number>>;
     expect(mt.nrChildren).toBe(1);
     expect(mt.children[0].toArray()).toEqual([11, 12, 13, 14, 15, 21, 31]);
-    expect(context.isLeafBlock(mt.children[0])).toBe(true);
+    expect(context.isLeafBlock<number>(mt.children[0])).toBe(true);
   });
 
   it('concatTree no middle, jointLength > min < max', () => {
@@ -793,7 +809,7 @@ function leafTreeBlockSize3(
     expect(r.right.toArray()).toEqual([31, 32, 33, 34, 35, 36, 37, 38]);
     const mt = r.middle as NonLeafBlock<number, LeafBlock<number>>;
     expect(mt.nrChildren).toBe(1);
-    expect(context.isLeafBlock(mt.children[0])).toBe(true);
+    expect(context.isLeafBlock<number>(mt.children[0])).toBe(true);
   });
 
   it('concatTree joinLength > max, right >= min && other.left >= min', () => {
@@ -815,8 +831,8 @@ function leafTreeBlockSize3(
     expect(r.right.toArray()).toEqual([31, 32, 33, 34, 35, 36, 37, 38]);
     const mt = r.middle as NonLeafBlock<number, LeafBlock<number>>;
     expect(mt.nrChildren).toBe(2);
-    expect(context.isLeafBlock(mt.children[0])).toBe(true);
-    expect(context.isLeafBlock(mt.children[1])).toBe(true);
+    expect(context.isLeafBlock<number>(mt.children[0])).toBe(true);
+    expect(context.isLeafBlock<number>(mt.children[1])).toBe(true);
     expect(mt.children[0].children.length).toBe(4);
     expect(mt.children[1].children.length).toBe(5);
   });

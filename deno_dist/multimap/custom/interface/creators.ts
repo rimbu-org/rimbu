@@ -17,8 +17,8 @@ export interface MultiMapCreators {
    * @typeparam UK - the upper key type for which the context can create instances
    * @typeparam UV - the upper value type for which the context can create instances
    * @param options - an object containing the following properties:<br/>
-   * - keyMapContext - the map context to use for key to valueset mappings<br/>
-   * - keyMapValuesContext - the set context to use for value sets
+   * - keyMapContext: the map context to use for key to valueset mappings<br/>
+   * - keyMapValuesContext: the set context to use for value sets
    */
   createContext<UK, UV>(options: {
     keyMapContext: RMap.Context<UK>;
@@ -32,8 +32,8 @@ export interface HashMultiMapHashValueCreators
    * @typeparam UK - the upper key type for which the context can create instances
    * @typeparam UV - the upper value type for which the context can create instances
    * @param options - (optional) an object containing the following properties:<br/>
-   * - keyMapContext - (optional) the map context to use for key to valueset mappings<br/>
-   * - keyMapValuesContext - (optional) the set context to use for value sets
+   * - keyMapContext: (optional) the map context to use for key to valueset mappings<br/>
+   * - keyMapValuesContext: (optional) the set context to use for value sets
    */
   createContext<UK, UV>(options?: {
     keyMapContext?: HashMap.Context<UK>;
@@ -54,8 +54,8 @@ export interface HashMultiMapSortedValueCreators
    * @typeparam UK - the upper key type for which the context can create instances
    * @typeparam UV - the upper value type for which the context can create instances
    * @param options - (optional) an object containing the following properties:<br/>
-   * - keyMapContext - (optional) the map context to use for key to valueset mappings<br/>
-   * - keyMapValuesContext - (optional) the set context to use for value sets
+   * - keyMapContext: (optional) the map context to use for key to valueset mappings<br/>
+   * - keyMapValuesContext: (optional) the set context to use for value sets
    */
   createContext<K, V>(options?: {
     keyMapContext?: HashMap.Context<K>;
@@ -76,8 +76,8 @@ export interface SortedMultiMapHashValueCreators
    * @typeparam UK - the upper key type for which the context can create instances
    * @typeparam UV - the upper value type for which the context can create instances
    * @param options - (optional) an object containing the following properties:<br/>
-   * - keyMapContext - (optional) the map context to use for key to valueset mappings<br/>
-   * - keyMapValuesContext - (optional) the set context to use for value sets
+   * - keyMapContext: (optional) the map context to use for key to valueset mappings<br/>
+   * - keyMapValuesContext: (optional) the set context to use for value sets
    */
   createContext<K, V>(options?: {
     keyMapContext?: SortedMap.Context<K>;
@@ -98,8 +98,8 @@ export interface SortedMultiMapSortedValueCreators
    * @typeparam UK - the upper key type for which the context can create instances
    * @typeparam UV - the upper value type for which the context can create instances
    * @param options - (optional) an object containing the following properties:<br/>
-   * - keyMapContext - (optional) the map context to use for key to valueset mappings<br/>
-   * - keyMapValuesContext - (optional) the set context to use for value sets
+   * - keyMapContext: (optional) the map context to use for key to valueset mappings<br/>
+   * - keyMapValuesContext: (optional) the set context to use for value sets
    */
   createContext<K, V>(options?: {
     keyMapContext?: SortedMap.Context<K>;

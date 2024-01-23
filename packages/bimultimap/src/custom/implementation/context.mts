@@ -1,14 +1,13 @@
 import {
-  type BiMultiMapBase,
   BiMultiMapBuilder,
   BiMultiMapEmpty,
   BiMultiMapNonEmpty,
+  type BiMultiMapBase,
 } from '@rimbu/bimultimap/custom';
 
 import type { WithKeyValue } from '@rimbu/collection-types/map-custom';
 import type { ArrayNonEmpty } from '@rimbu/common';
-import { Reducer } from '@rimbu/common';
-import type { StreamSource } from '@rimbu/stream';
+import { Reducer, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 export interface ContextTypesImpl extends BiMultiMapBase.Types {

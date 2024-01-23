@@ -57,21 +57,21 @@ export async function RemoteChannelServerImpl(config: {
 
       switch (openMessage.channelType) {
         case 'write': {
-          const ch = await RemoteChannel.createWrite(port, {
+          const ch = await RemoteChannel.createWrite<unknown>(port, {
             channelId: openMessage.channelId,
           });
           await writeChannelCh.send(ch);
           break;
         }
         case 'read': {
-          const ch = await RemoteChannel.createRead(port, {
+          const ch = await RemoteChannel.createRead<unknown>(port, {
             channelId: openMessage.channelId,
           });
           await readChannelCh.send(ch);
           break;
         }
         case 'cross': {
-          const crossCh = await RemoteChannel.createCross(port, {
+          const crossCh = await RemoteChannel.createCross<unknown>(port, {
             read: openMessage.read,
             write: openMessage.write,
           });

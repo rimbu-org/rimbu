@@ -208,15 +208,17 @@ export class GenBuilder<T> implements List.Builder<T> {
 
   forEach = (
     f: (value: T, index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { reversed?: boolean; state?: TraverseState } = {}
   ): void => {
+    const { reversed = false, state = TraverseState() } = options;
+
     if (undefined !== this.builder) {
       if (state.halted) return;
 
       this._lock++;
 
       try {
-        this.builder.forEach(f, state);
+        this.builder.forEach(f, { reversed, state });
       } finally {
         this._lock--;
       }

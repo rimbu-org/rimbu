@@ -15,8 +15,8 @@ export interface OrderedMapCreators {
    * Returns a new OrderedMap context instance based on the given `options`.
    * @typeparam UK - the upper key type for which the context can create instances
    * @param options - an object containing the following properties:<br/>
-   * - listContext - the list context to use for key ordering<br/>
-   * - mapContext - the map context to use for key value mapping
+   * - listContext: the list context to use for key ordering<br/>
+   * - mapContext: the map context to use for key value mapping
    */
   createContext<UK>(options: {
     listContext?: List.Context;
@@ -30,8 +30,8 @@ export interface OrderedHashMapCreators
    * Returns a new OrderedHashMap context instance based on the given `options`.
    * @typeparam UK - the upper key type for which the context can create instances
    * @param options - (optional) an object containing the following properties:<br/>
-   * - listContext - (optional) the list context to use for key ordering<br/>
-   * - mapContext - (optional) the map context to use for key value mapping
+   * - listContext: (optional) the list context to use for key ordering<br/>
+   * - mapContext: (optional) the map context to use for key value mapping
    */
   createContext<UK>(options?: {
     listContext?: List.Context;
@@ -50,8 +50,8 @@ export interface OrderedSortedMapCreators
    * Returns a new OrderedSortedMap context instance based on the given `options`.
    * @typeparam UK - the upper key type for which the context can create instances
    * @param options - (optional) an object containing the following properties:<br/>
-   * - listContext - (optional) the list context to use for key ordering<br/>
-   * - mapContext - (optional) the map context to use for key value mapping
+   * - listContext: (optional) the list context to use for key ordering<br/>
+   * - mapContext: (optional) the map context to use for key value mapping
    */
   createContext<UK>(options?: {
     listContext?: List.Context;

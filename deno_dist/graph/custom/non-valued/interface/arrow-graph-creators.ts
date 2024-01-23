@@ -14,8 +14,8 @@ export interface ArrowGraphCreators {
    * Returns a new ArrowGraph context instance based on the given `options`.
    * @typeparam UN - the upper node type for which the context can create instances
    * @param options - an object containing the following properties:<br/>
-   * - linkMapContext - the map context to use to maintain link maps<br/>
-   * - linkConnectionsContext - the set context to use to maintain link connection maps
+   * - linkMapContext: the map context to use to maintain link maps<br/>
+   * - linkConnectionsContext: the set context to use to maintain link connection maps
    */
   createContext<UN>(options: {
     linkMapContext: RMap.Context<UN>;
@@ -29,8 +29,8 @@ export interface ArrowGraphHashedCreators
    * Returns a new ArrowValuedGraphHashed context instance based on the given `options`.
    * @typeparam UN - the upper node type for which the context can create instances
    * @param options - (optional) an object containing the following properties:<br/>
-   * - linkMapContext - (optional) the map context to use to maintain link maps<br/>
-   * - linkConnectionsContext - (optional) the set context to use to maintain link connections
+   * - linkMapContext: (optional) the map context to use to maintain link maps<br/>
+   * - linkConnectionsContext: (optional) the set context to use to maintain link connections
    */
   createContext<UN>(options?: {
     linkMapContext?: HashMap.Context<UN>;
@@ -49,8 +49,8 @@ export interface ArrowGraphSortedCreators
    * Returns a new ArrowValuedGraphSorted context instance based on the given `options`.
    * @typeparam UN - the upper node type for which the context can create instances
    * @param options - (optional) an object containing the following properties:<br/>
-   * - linkMapContext - (optional) the map context to use to maintain link maps<br/>
-   * - linkConnectionsContext - (optional) the set context to use to maintain link connections
+   * - linkMapContext: (optional) the map context to use to maintain link maps<br/>
+   * - linkConnectionsContext: (optional) the set context to use to maintain link connections
    */
   createContext<UN>(options?: {
     linkMapContext?: SortedMap.Context<UN>;

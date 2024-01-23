@@ -360,7 +360,7 @@ function runLeafBlockTests(
 
       expect(
         createBlock(1, 2, 3)
-          .map((v) => v + 1, true)
+          .map((v) => v + 1, { reversed: true })
           .toArray()
       ).toEqual([4, 3, 2]);
     });
@@ -373,7 +373,7 @@ function runLeafBlockTests(
       ).toEqual([2, 3, 4]);
       expect(
         createBlock(1, 2, 3)
-          .mapPure((v) => v + 1, true)
+          .mapPure((v) => v + 1, { reversed: true })
           .toArray()
       ).toEqual([4, 3, 2]);
     });
@@ -390,7 +390,9 @@ function runLeafBlockTests(
 
       expect(b1.padTo(3, 3).toArray()).toEqual([1, 3, 3]);
 
-      expect(b1.padTo(3, 3, 50).toArray()).toEqual([3, 1, 3]);
+      expect(b1.padTo(3, 3, { positionPercentage: 50 }).toArray()).toEqual([
+        3, 1, 3,
+      ]);
 
       expect(b1.padTo(10, 3)).not.toBeInstanceOf(LeafBlock);
     });
@@ -414,9 +416,9 @@ function runLeafBlockTests(
       const b3 = createBlock(1, 2, 3);
       expect(b3.remove(1).toArray()).toEqual([1, 3]);
       expect(b3.remove(-1).toArray()).toEqual([1, 2]);
-      expect(b3.remove(1, 2).toArray()).toEqual([1]);
-      expect(b3.remove(0, 3)).toBe(context.empty());
-      expect(b3.remove(1, 0)).toBe(b3);
+      expect(b3.remove(1, { amount: 2 }).toArray()).toEqual([1]);
+      expect(b3.remove(0, { amount: 3 })).toBe(context.empty());
+      expect(b3.remove(1, { amount: 0 })).toBe(b3);
     });
 
     it('repeat', () => {
@@ -449,15 +451,15 @@ function runLeafBlockTests(
 
     it('slice', () => {
       const b5 = createBlock(1, 2, 3, 4, 5);
-      expect(b5.slice({ start: 2 }, false).toArray()).toEqual([3, 4, 5]);
-      expect(b5.slice({ start: 2 }, true).toArray()).toEqual([5, 4, 3]);
+      expect(b5.slice({ start: 2 }).toArray()).toEqual([3, 4, 5]);
+      expect(b5.slice({ start: 2 }, { reversed: true }).toArray()).toEqual([
+        5, 4, 3,
+      ]);
 
-      expect(b5.slice({ start: -3, amount: 2 }, false).toArray()).toEqual([
-        3, 4,
-      ]);
-      expect(b5.slice({ start: -3, amount: 2 }, true).toArray()).toEqual([
-        4, 3,
-      ]);
+      expect(b5.slice({ start: -3, amount: 2 }).toArray()).toEqual([3, 4]);
+      expect(
+        b5.slice({ start: -3, amount: 2 }, { reversed: true }).toArray()
+      ).toEqual([4, 3]);
     });
 
     it('splice', () => {
@@ -481,7 +483,7 @@ function runLeafBlockTests(
       const b5 = createBlock(1, 2, 3, 4, 5);
 
       expect(b5.stream().toArray()).toEqual([1, 2, 3, 4, 5]);
-      expect(b5.stream(true).toArray()).toEqual([5, 4, 3, 2, 1]);
+      expect(b5.stream({ reversed: true }).toArray()).toEqual([5, 4, 3, 2, 1]);
     });
 
     it('streamRange', () => {
@@ -489,12 +491,14 @@ function runLeafBlockTests(
 
       expect(b5.streamRange({ amount: 0 })).toBe(Stream.empty());
       expect(b5.streamRange({ amount: 2 }).toArray()).toEqual([1, 2]);
-      expect(b5.streamRange({ amount: 2 }, true).toArray()).toEqual([2, 1]);
+      expect(
+        b5.streamRange({ amount: 2 }, { reversed: true }).toArray()
+      ).toEqual([2, 1]);
 
       expect(b5.streamRange({ start: 2, amount: 2 }).toArray()).toEqual([3, 4]);
-      expect(b5.streamRange({ start: 2, amount: 2 }, true).toArray()).toEqual([
-        4, 3,
-      ]);
+      expect(
+        b5.streamRange({ start: 2, amount: 2 }, { reversed: true }).toArray()
+      ).toEqual([4, 3]);
     });
 
     it('structure', () => {
@@ -502,7 +506,7 @@ function runLeafBlockTests(
 
       const s = b3.structure();
 
-      if (context.isReversedLeafBlock(b3)) {
+      if (context.isReversedLeafBlock<number>(b3)) {
         expect(s).toEqual('<RLeaf 3>');
       } else {
         expect(s).toEqual('<Leaf 3>');
@@ -527,10 +531,14 @@ function runLeafBlockTests(
     it('toArray', () => {
       const b5 = createBlock(1, 2, 3, 4, 5);
       expect(b5.toArray()).toEqual([1, 2, 3, 4, 5]);
-      expect(b5.toArray(undefined, true)).toEqual([5, 4, 3, 2, 1]);
-      expect(b5.toArray({ start: 3 })).toEqual([4, 5]);
-      expect(b5.toArray({ start: 3 }, true)).toEqual([5, 4]);
-      expect(b5.toArray({ start: 2, amount: 2 }, true)).toEqual([4, 3]);
+      expect(b5.toArray({ reversed: true })).toEqual([5, 4, 3, 2, 1]);
+      expect(b5.toArray({ range: { start: 3 } })).toEqual([4, 5]);
+      expect(b5.toArray({ range: { start: 3 }, reversed: true })).toEqual([
+        5, 4,
+      ]);
+      expect(
+        b5.toArray({ range: { start: 2, amount: 2 }, reversed: true })
+      ).toEqual([4, 3]);
     });
 
     it('toBuilder', () => {
@@ -559,7 +567,9 @@ function runLeafBlockTests(
 
     it('unzip', () => {
       {
-        const [l1, l2] = List.unzip(createBlock<[number, string]>([1, 'a']), 2);
+        const [l1, l2] = List.unzip(createBlock<[number, string]>([1, 'a']), {
+          length: 2,
+        });
 
         expect(l1.toArray()).toEqual([1]);
         expect(l2.toArray()).toEqual(['a']);
@@ -568,7 +578,7 @@ function runLeafBlockTests(
       {
         const [l1, l2] = List.unzip(
           createBlock<[number, string]>([1, 'a'], [2, 'b']),
-          2
+          { length: 2 }
         );
 
         expect(l1.toArray()).toEqual([1, 2]);

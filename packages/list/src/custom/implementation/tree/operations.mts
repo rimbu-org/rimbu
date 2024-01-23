@@ -1,5 +1,5 @@
 import { Arr, RimbuError } from '@rimbu/base';
-import { IndexRange, type TraverseState, type Update } from '@rimbu/common';
+import { IndexRange, TraverseState, type Update } from '@rimbu/common';
 import { Stream } from '@rimbu/stream';
 
 import type { Block, Tree } from '@rimbu/list/custom';
@@ -17,15 +17,15 @@ export function treeStream<
 
   if (indexRange === 'empty') return Stream.empty() as Stream.NonEmpty<T>;
   if (indexRange === 'all') {
-    const rightStream = tree.right.stream(reversed);
-    const leftStream = tree.left.stream(reversed);
+    const rightStream = tree.right.stream({ reversed });
+    const leftStream = tree.left.stream({ reversed });
 
     if (null === tree.middle) {
       if (reversed) return rightStream.concat<T>(leftStream);
       return leftStream.concat<T>(rightStream);
     }
 
-    const middleStream = tree.middle.stream(reversed);
+    const middleStream = tree.middle.stream({ reversed });
 
     if (reversed) return rightStream.concat<T>(middleStream, leftStream);
     return leftStream.concat<T>(middleStream, rightStream);
@@ -33,7 +33,7 @@ export function treeStream<
 
   const [start, end] = indexRange;
 
-  const leftStream = tree.left.streamRange({ start, end }, reversed);
+  const leftStream = tree.left.streamRange({ start, end }, { reversed });
 
   if (null === tree.middle) {
     const rightStart = Math.max(0, start - tree.left.length);
@@ -43,7 +43,7 @@ export function treeStream<
 
     const rightStream = tree.right.streamRange(
       { start: rightStart, end: rightEnd },
-      reversed
+      { reversed }
     );
 
     if (reversed) return rightStream.concat<T>(leftStream);
@@ -57,7 +57,7 @@ export function treeStream<
 
   const middleStream = tree.middle.streamRange(
     { start: middleStart, end: middleEnd },
-    reversed
+    { reversed }
   );
 
   const rightStart = Math.max(0, middleStart - tree.middle.length);
@@ -69,7 +69,7 @@ export function treeStream<
   }
   const rightStream = tree.right.streamRange(
     { start: rightStart, end: rightEnd },
-    reversed
+    { reversed }
   );
 
   if (reversed) return rightStream.concat<T>(middleStream, leftStream);
@@ -235,15 +235,15 @@ export function treeToArray<
 
   if (indexRange === 'empty') return [];
   if (indexRange === 'all') {
-    const leftArray = tree.left.toArray(undefined, reversed);
-    const rightArray = tree.right.toArray(undefined, reversed);
+    const leftArray = tree.left.toArray({ reversed });
+    const rightArray = tree.right.toArray({ reversed });
 
     if (null === tree.middle) {
       if (reversed) return rightArray.concat(leftArray);
       return leftArray.concat(rightArray);
     }
 
-    const middleArray = tree.middle.toArray(undefined, reversed);
+    const middleArray = tree.middle.toArray({ reversed });
 
     if (reversed) return rightArray.concat(middleArray, leftArray);
     return leftArray.concat(middleArray, rightArray);
@@ -251,7 +251,7 @@ export function treeToArray<
 
   const [start, end] = indexRange;
 
-  const leftArray = tree.left.toArray({ start, end }, reversed);
+  const leftArray = tree.left.toArray({ range: { start, end }, reversed });
 
   if (null === tree.middle) {
     const rightStart = Math.max(0, start - tree.left.length);
@@ -259,10 +259,10 @@ export function treeToArray<
 
     if (rightEnd < 0) return leftArray;
 
-    const rightArray = tree.right.toArray(
-      { start: rightStart, end: rightEnd },
-      reversed
-    );
+    const rightArray = tree.right.toArray({
+      range: { start: rightStart, end: rightEnd },
+      reversed,
+    });
 
     if (reversed) return rightArray.concat(leftArray);
     return leftArray.concat(rightArray);
@@ -273,10 +273,10 @@ export function treeToArray<
 
   if (middleEnd < 0) return leftArray;
 
-  const middleArray = tree.middle.toArray(
-    { start: middleStart, end: middleEnd },
-    reversed
-  );
+  const middleArray = tree.middle.toArray({
+    range: { start: middleStart, end: middleEnd },
+    reversed,
+  });
 
   const rightStart = Math.max(0, middleStart - tree.middle.length);
   const rightEnd = middleEnd - tree.middle.length;
@@ -286,10 +286,10 @@ export function treeToArray<
     return leftArray.concat(middleArray);
   }
 
-  const rightArray = tree.right.toArray(
-    { start: rightStart, end: rightEnd },
-    reversed
-  );
+  const rightArray = tree.right.toArray({
+    range: { start: rightStart, end: rightEnd },
+    reversed,
+  });
 
   if (reversed) return rightArray.concat(middleArray, leftArray);
   return leftArray.concat(middleArray, rightArray);
@@ -303,19 +303,21 @@ export function treeForEach<
 >(
   tree: Tree<T, TS, TB, C>,
   f: (value: T, index: number, halt: () => void) => void,
-  state: TraverseState
+  options: { reversed?: boolean; state?: TraverseState } = {}
 ): void {
+  const { reversed = false, state = TraverseState() } = options;
+
   if (state.halted) return;
 
-  tree.left.forEach(f, state);
+  (reversed ? tree.right : tree.left).forEach(f, { state });
 
   if (state.halted) return;
 
   if (null !== tree.middle) {
-    tree.middle.forEach(f, state);
+    tree.middle.forEach(f, { reversed, state });
   }
 
   if (state.halted) return;
 
-  tree.right.forEach(f, state);
+  (reversed ? tree.left : tree.right).forEach(f, { state });
 }

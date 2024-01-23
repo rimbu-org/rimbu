@@ -149,8 +149,11 @@ export function leafMutateJoinRight<S extends LeafMutateSource<S, E>, E>(
 export interface InnerChild<E> {
   readonly size: number;
   getAtIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
-  stream(reversed: boolean): Stream<E>;
-  streamSliceIndex(range: IndexRange, reversed: boolean): Stream<E>;
+  stream(options?: { reversed?: boolean }): Stream<E>;
+  streamSliceIndex(
+    range: IndexRange,
+    options?: { reversed?: boolean }
+  ): Stream<E>;
   readonly entries: readonly E[];
   takeInternal(amount: number): InnerChild<E>;
   dropInternal(amount: number): InnerChild<E>;
@@ -180,7 +183,7 @@ export interface InnerMutateSource<TS extends InnerMutateSource<TS, E>, E> {
   mutateEntries: E[];
   children: readonly InnerChild<E>[];
   mutateChildren: InnerChild<E>[];
-  stream(reversed: boolean): Stream.NonEmpty<E>;
+  stream(options?: { reversed?: boolean }): Stream.NonEmpty<E>;
   copy(
     entries?: readonly E[],
     children?: readonly InnerChild<E>[],
@@ -596,7 +599,7 @@ export function innerStreamSliceIndex<E>(
 ): Stream<E> {
   const result = IndexRange.getIndicesFor(range, source.size);
 
-  if (result === 'all') return source.stream(reversed);
+  if (result === 'all') return source.stream({ reversed });
   if (result === 'empty') return Stream.empty();
 
   const [startIndex, endIndex] = result;
@@ -632,7 +635,7 @@ export function innerStreamSliceIndex<E>(
         start: inStartElemIndex,
         end: inEndElemIndex,
       },
-      reversed
+      { reversed }
     );
   }
 
@@ -651,13 +654,13 @@ export function innerStreamSliceIndex<E>(
     const child = source.children[childIndex];
 
     if (index === startElemIndex) {
-      return child.streamSliceIndex({ start: inStartElemIndex }, reversed);
+      return child.streamSliceIndex({ start: inStartElemIndex }, { reversed });
     }
     if (index === endElemIndex) {
-      return child.streamSliceIndex({ end: inEndElemIndex }, reversed);
+      return child.streamSliceIndex({ end: inEndElemIndex }, { reversed });
     }
 
-    return child.stream(reversed);
+    return child.stream({ reversed });
   });
 }
 
@@ -671,7 +674,7 @@ export abstract class SortedBuilder<E> {
         getAtIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
         forEach(
           f: (entry: E, index: number, halt: () => void) => void,
-          state?: TraverseState
+          options?: { state?: TraverseState }
         ): void;
       };
   abstract _entries?: undefined | E[];
@@ -765,14 +768,16 @@ export abstract class SortedBuilder<E> {
 
   forEach(
     f: (entry: E, index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { state?: TraverseState } = {}
   ): void {
+    const { state = TraverseState() } = options;
+
     if (state.halted || this.isEmpty) return;
 
     this._lock++;
 
     if (undefined !== this.source) {
-      this.source.forEach(f, state);
+      this.source.forEach(f, { state });
     } else {
       if (!this.hasChildren) {
         Arr.forEach(this.entries, f, state);
@@ -785,7 +790,7 @@ export abstract class SortedBuilder<E> {
           if (i >= 0) f(this.entries[i], state.nextIndex(), halt);
           else {
             const childIndex = SortedIndex.next(i);
-            this.children[childIndex].forEach(f, state);
+            this.children[childIndex].forEach(f, { state });
           }
           i = SortedIndex.next(i);
         }

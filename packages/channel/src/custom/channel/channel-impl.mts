@@ -51,7 +51,7 @@ export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
   }
 
   asyncStream(): AsyncStream<T> {
-    return new AsyncFromStream(() => new ChannelFastIterator<T>(this));
+    return new AsyncFromStream<T>(() => new ChannelFastIterator<T>(this));
   }
 
   get capacity(): number {

@@ -15,10 +15,12 @@ export abstract class BlockBuilderBase<E> {
 
   forEach(
     f: (entry: E, index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { state?: TraverseState } = {}
   ): void {
+    const { state = TraverseState() } = options;
+
     if (this.isEmpty || state.halted) return;
-    if (undefined !== this.source) return this.source.forEach(f, state);
+    if (undefined !== this.source) return this.source.forEach(f, { state });
 
     const { halt } = state;
 
@@ -30,7 +32,7 @@ export abstract class BlockBuilderBase<E> {
     }
     if (undefined !== this._entrySets) {
       for (const key in this._entrySets) {
-        this._entrySets[key].forEach(f, state);
+        this._entrySets[key].forEach(f, { state });
         if (state.halted) break;
       }
     }
@@ -45,7 +47,7 @@ export abstract class CollisionBuilderBase<E> {
         entries: List.NonEmpty<E>;
         forEach(
           f: (entry: E, index: number, halt: () => void) => void,
-          state: TraverseState
+          options?: { state?: TraverseState }
         ): void;
       };
   abstract _entries?: List.Builder<E> | undefined;
@@ -70,15 +72,17 @@ export abstract class CollisionBuilderBase<E> {
 
   forEach(
     f: (entry: E, index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { state?: TraverseState } = {}
   ): void {
+    const { state = TraverseState() } = options;
+
     if (state.halted) return;
 
     if (undefined !== this.source) {
-      return this.source.forEach(f, state);
+      return this.source.forEach(f, { state });
     }
 
-    this.entries.forEach(f, state);
+    this.entries.forEach(f, { state });
   }
 }
 
@@ -87,6 +91,6 @@ export interface GenSource<E> {
   entrySets: readonly GenBlockBuilderEntry<E>[] | null;
   forEach(
     f: (entry: E, index: number, halt: () => void) => void,
-    state?: TraverseState
+    options?: { state?: TraverseState }
   ): void;
 }

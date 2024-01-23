@@ -12,8 +12,8 @@ import type {
   ToJSON,
   TraverseState,
 } from '../../../common/mod.ts';
-import { Reducer } from '../../../common/mod.ts';
 import {
+  Reducer,
   Stream,
   type FastIterable,
   type StreamSource,
@@ -167,7 +167,8 @@ export interface VariantMapBase<
    * - `entry`: the next tuple of a key and value<br/>
    * - `index`: the index of the element<br/>
    * - `halt`: a function that, if called, ensures that no new elements are passed
-   * @param state - (optional) the traverse state
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - state:: (optional) the traversal state
    * @example
    * ```ts
    * HashMap.of([1, 'a'], [2, 'b'], [3, 'c']).forEach((entry, i, halt) => {
@@ -180,7 +181,7 @@ export interface VariantMapBase<
    */
   forEach(
     f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-    state?: TraverseState
+    options?: { state?: TraverseState }
   ): void;
   /**
    * Returns a collection with the same keys, but where the given `mapFun` function is applied to each entry value.
@@ -200,6 +201,8 @@ export interface VariantMapBase<
    * - `entry`: the next entry<br/>
    * - `index`: the entry index<br/>
    * - `halt`: a function that, when called, ensures no next elements are passed
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - negate: (default: false) when true will negate the predicate
    * @example
    * ```ts
    * HashMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(entry => entry[0] === 2 || entry[1] === 'c').toArray()
@@ -207,7 +210,8 @@ export interface VariantMapBase<
    * ```
    */
   filter(
-    pred: (entry: readonly [K, V], index: number, halt: () => void) => boolean
+    pred: (entry: readonly [K, V], index: number, halt: () => void) => boolean,
+    options?: { negate?: boolean }
   ): WithKeyValue<Tp, K, V>['normal'];
   /**
    * Returns an array containing all entries in this collection.
@@ -405,10 +409,9 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
     atKey: K,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: <V2 extends V = V>(
-        currentEntry: V & V2,
-        remove: Token
-      ) => V | Token;
+      ifExists?:
+        | (<V2 extends V = V>(currentEntry: V & V2, remove: Token) => V | Token)
+        | V;
     }
   ): WithKeyValue<Tp, K, V>['normal'];
   /**
@@ -804,7 +807,7 @@ export namespace RMapBase {
      */
     forEach(
       f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-      state?: TraverseState
+      options?: { state?: TraverseState }
     ): void;
     /**
      * Adds given `entry` to the builder.
@@ -900,10 +903,12 @@ export namespace RMapBase {
       key: K,
       options: {
         ifNew?: OptLazyOr<V, Token>;
-        ifExists?: <V2 extends V = V>(
-          currentValue: V & V2,
-          remove: Token
-        ) => V | Token;
+        ifExists?:
+          | (<V2 extends V = V>(
+              currentValue: V & V2,
+              remove: Token
+            ) => V | Token)
+          | V;
       }
     ): boolean;
     /**

@@ -1,5 +1,9 @@
-import { AsyncOptLazy, AsyncReducer, Eq } from '../../common/mod.ts';
-import { AsyncStream, type AsyncStreamSource } from '../../stream/async/index.ts';
+import { Eq } from '../../common/mod.ts';
+import {
+  AsyncReducer,
+  AsyncStream,
+  type AsyncStreamSource,
+} from '../../stream/async/index.ts';
 
 /**
  * An AsyncReducer that produces instances of `AsyncStreamSource`.
@@ -26,8 +30,9 @@ export namespace AsyncTransformer {
    * @typeparam T - the input element type
    * @typeparam R - the window type
    * @param windowSize - the amount of elements for each window
-   * @param skipAmount - (default: `windowSize`) the amount of elements between the start of each window
-   * @param collector - (default: Reducer.toArray()) the reducer to use to convert elements to windows
+   * @param options - (optional) object specifying the following properties<br/>
+   * - skipAmount: (default: `windowSize`) the amount of elements between the start of each window<br/>
+   * - collector: (default: Reducer.toArray()) the reducer to use to convert elements to windows
    * @example
    * ```ts
    * await AsyncStream.of(1, 2, 3, 4, 5, 6)
@@ -37,68 +42,55 @@ export namespace AsyncTransformer {
    * ```
    */
   export const window: {
-    <T>(windowSize: number, skipAmount?: number): AsyncTransformer<T, T[]>;
     <T, R>(
       windowSize: number,
-      skipAmount?: number,
-      collector?: AsyncReducer<T, R>
+      options: {
+        skipAmount?: number;
+        collector: AsyncReducer<T, R>;
+      }
     ): AsyncTransformer<T, R>;
+    <T>(
+      windowSize: number,
+      options?: { skipAmount?: number }
+    ): AsyncTransformer<T, T[]>;
   } = <T, R>(
     windowSize: number,
-    skipAmount = windowSize,
-    collector = AsyncReducer.toArray()
+    options: { skipAmount?: number; collector?: AsyncReducer<T, R> } = {}
   ) => {
+    const {
+      skipAmount = windowSize,
+      collector = AsyncReducer.toArray() as AsyncReducer<T, R>,
+    } = options;
+
     return AsyncReducer.create<
       T,
       AsyncStream<R>,
-      Set<{ result: unknown; size: number; halted: boolean; halt: () => void }>
+      Set<AsyncReducer.Instance<T, R>>
     >(
       () => new Set(),
       async (state, elem, index) => {
-        for (const current of state) {
-          if (current.size >= windowSize || current.halted) {
-            state.delete(current);
+        for (const instance of state) {
+          if (instance.index >= windowSize || instance.halted) {
+            state.delete(instance);
+          } else {
+            await instance.next(elem);
           }
-
-          current.result = await collector.next(
-            current.result,
-            elem,
-            current.size,
-            current.halt
-          );
-          current.size++;
         }
 
         if (index % skipAmount === 0) {
-          const newState = {
-            result: await AsyncOptLazy.toMaybePromise(collector.init),
-            size: 1,
-            halted: false,
-            halt(): void {
-              this.halted = true;
-            },
-          };
+          const newInstance = collector.compile();
 
-          newState.result = collector.next(
-            await AsyncOptLazy.toMaybePromise(collector.init),
-            elem,
-            0,
-            newState.halt
-          );
+          await newInstance.next(elem);
 
-          state.add(newState);
+          state.add(newInstance);
         }
 
         return state;
       },
-      (current) => {
-        return AsyncStream.from(current)
-          .collect((v, _, skip) =>
-            v.size === windowSize
-              ? AsyncStream.of<R>(collector.stateToResult(v.result) as any)
-              : skip
-          )
-          .first(AsyncStream.empty());
+      async (state) => {
+        return AsyncStream.from(state).collect((instance, _, skip) =>
+          instance.index === windowSize ? instance.getOutput() : skip
+        );
       }
     );
   };
@@ -106,7 +98,9 @@ export namespace AsyncTransformer {
   /**
    * Returns an async transformer that returns only those elements from the input that are different to previous element
    * according to the optionally given `eq` function.
-   * @param eq - (default: `Eq.objectIs`) the equality testing function
+   * @param options - (optional) object specifying the following properties<br/>
+   * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
+   * - negate: (default: false) when true will negate the given predicate
    * @example
    * ```ts
    * await AsyncStream.of(1, 1, 2, 3, 2, 2)
@@ -116,8 +110,13 @@ export namespace AsyncTransformer {
    * ```
    */
   export function distinctPrevious<T>(
-    eq: Eq<T> = Eq.objectIs
+    options: {
+      eq?: Eq<T>;
+      negate?: boolean;
+    } = {}
   ): AsyncTransformer<T> {
+    const { eq = Eq.objectIs, negate = false } = options;
+
     return AsyncReducer.create(
       () => [] as T[],
       (current, elem) => {
@@ -134,7 +133,7 @@ export namespace AsyncTransformer {
           if (state.length === 1) {
             return AsyncStream.of(state[0]);
           }
-          if (!eq(state[0], state[1])) {
+          if (eq(state[0], state[1]) === negate) {
             return AsyncStream.of(state[1]);
           }
         }

@@ -15,6 +15,6 @@ export interface BlockBuilder<T, C = unknown> extends BuilderBase<T, C> {
   concat(other: BlockBuilder<T, C>, prependOther?: boolean): void;
   forEach(
     f: (value: T, index: number, halt: () => void) => void,
-    state?: TraverseState
+    options?: { reversed?: boolean; state?: TraverseState }
   ): void;
 }

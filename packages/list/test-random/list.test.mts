@@ -111,7 +111,7 @@ function runWith(nrOfBits: number): void {
       } else {
         const valueStream = Stream.range(
           { start: [length, false], end: 0 },
-          -1
+          { delta: -1 }
         );
         this.list = context.from(valueStream).reversed();
         this.arr = valueStream.toArray().reverse();
@@ -296,23 +296,27 @@ function runWith(nrOfBits: number): void {
     it('toArray', () => {
       const list = context.from(Stream.range({ amount: 10 }));
       expect(list.toArray()).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-      expect(list.toArray(undefined, true)).toEqual([
+      expect(list.toArray({ reversed: true })).toEqual([
         9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
       ]);
-      expect(list.toArray({ start: 5 })).toEqual([5, 6, 7, 8, 9]);
-      expect(list.toArray({ end: 5 })).toEqual([0, 1, 2, 3, 4, 5]);
-      expect(list.toArray({ start: 3, end: 5 })).toEqual([3, 4, 5]);
-      expect(list.toArray({ start: 3, end: 5 }, true)).toEqual([5, 4, 3]);
+      expect(list.toArray({ range: { start: 5 } })).toEqual([5, 6, 7, 8, 9]);
+      expect(list.toArray({ range: { end: 5 } })).toEqual([0, 1, 2, 3, 4, 5]);
+      expect(list.toArray({ range: { start: 3, end: 5 } })).toEqual([3, 4, 5]);
+      expect(
+        list.toArray({ range: { start: 3, end: 5 }, reversed: true })
+      ).toEqual([5, 4, 3]);
 
       const list2 = list.reversed();
       expect(list2.toArray()).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
-      expect(list2.toArray(undefined, true)).toEqual([
+      expect(list2.toArray({ reversed: true })).toEqual([
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
       ]);
-      expect(list2.toArray({ start: 5 })).toEqual([4, 3, 2, 1, 0]);
-      expect(list2.toArray({ end: 5 })).toEqual([9, 8, 7, 6, 5, 4]);
-      expect(list2.toArray({ start: 3, end: 5 })).toEqual([6, 5, 4]);
-      expect(list2.toArray({ start: 3, end: 5 }, true)).toEqual([4, 5, 6]);
+      expect(list2.toArray({ range: { start: 5 } })).toEqual([4, 3, 2, 1, 0]);
+      expect(list2.toArray({ range: { end: 5 } })).toEqual([9, 8, 7, 6, 5, 4]);
+      expect(list2.toArray({ range: { start: 3, end: 5 } })).toEqual([6, 5, 4]);
+      expect(
+        list2.toArray({ range: { start: 3, end: 5 }, reversed: true })
+      ).toEqual([4, 5, 6]);
     });
 
     it('take', () => {

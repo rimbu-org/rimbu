@@ -113,7 +113,7 @@ export class HashSetBlockBuilder<T>
   addAll = (source: StreamSource<T>): boolean => {
     this.checkLock();
 
-    return Stream.from(source).filterPure(this.add).count() > 0;
+    return Stream.from(source).filterPure({ pred: this.add }).count() > 0;
   };
 
   addInternal(value: T, hash = this.context.hash(value)): boolean {
@@ -190,7 +190,7 @@ export class HashSetBlockBuilder<T>
   removeAll = <ST,>(values: StreamSource<ST>): boolean => {
     this.checkLock();
 
-    return Stream.from(values).filterPure(this.remove).count() > 0;
+    return Stream.from(values).filterPure({ pred: this.remove }).count() > 0;
   };
 
   removeInternal(value: T, hash = this.context.hash(value)): boolean {
@@ -260,10 +260,12 @@ export class HashSetBlockBuilder<T>
 
   forEach = (
     f: (value: T, index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { state?: TraverseState } = {}
   ): void => {
+    const { state = TraverseState() } = options;
+
     this._lock++;
-    super.forEach(f, state);
+    super.forEach(f, { state });
     this._lock--;
   };
 

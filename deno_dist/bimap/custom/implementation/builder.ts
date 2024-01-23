@@ -129,7 +129,7 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
   addEntries = (source: StreamSource<readonly [K, V]>): boolean => {
     this.checkLock();
 
-    return Stream.from(source).filterPure(this.addEntry).count() > 0;
+    return Stream.from(source).filterPure({ pred: this.addEntry }).count() > 0;
   };
 
   removeKey = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
@@ -162,7 +162,7 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
     return (
       Stream.from(keys)
         .mapPure(this.removeKey, notFound)
-        .countNotElement(notFound) > 0
+        .countElement(notFound, { negate: true }) > 0
     );
   };
 
@@ -200,19 +200,21 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
     return (
       Stream.from(values)
         .mapPure(this.removeValue, notFound)
-        .countNotElement(notFound) > 0
+        .countElement(notFound, { negate: true }) > 0
     );
   };
 
   forEach = (
     f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { state?: TraverseState } = {}
   ): void => {
+    const { state = TraverseState() } = options;
+
     this._lock++;
 
     if (!this.isEmpty && !state.halted) {
-      if (undefined !== this.source) this.source.forEach(f, state);
-      else this.keyValueMap.forEach(f, state);
+      if (undefined !== this.source) this.source.forEach(f, { state });
+      else this.keyValueMap.forEach(f, { state });
     }
 
     this._lock--;

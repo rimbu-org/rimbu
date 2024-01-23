@@ -330,7 +330,8 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
    * - `entry`: the next tuple of a key and value<br/>
    * - `index`: the index of the element<br/>
    * - `halt`: a function that, if called, ensures that no new elements are passed
-   * @param state - (optional) the traverse state
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - state: (optional) the traverse state
    * @example
    * ```ts
    * BiMap.of([1, 'a'], [2, 'b'], [3, 'c']).forEach((entry, i, halt) => {
@@ -343,7 +344,7 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
    */
   forEach(
     f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-    state?: TraverseState
+    options?: { state?: TraverseState }
   ): void;
   /**
    * Returns a collection containing only those entries that satisfy given `pred` predicate.
@@ -351,6 +352,8 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
    * - `entry`: the next entry<br/>
    * - `index`: the entry index<br/>
    * - `halt`: a function that, when called, ensures no next elements are passed
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - negate: (default: false) when true will negate the given predicate
    * @example
    * ```ts
    * BiMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(entry => entry[0] === 2 || entry[1] === 'c').toArray()
@@ -358,7 +361,8 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
    * ```
    */
   filter(
-    pred: (entry: readonly [K, V], index: number, halt: () => void) => boolean
+    pred: (entry: readonly [K, V], index: number, halt: () => void) => boolean,
+    options?: { negate?: boolean }
   ): BiMap<K, V>;
   /**
    * Returns a builder object containing the entries of this collection.
@@ -734,6 +738,8 @@ export namespace BiMap {
      * - `entry`: the next key-value entry<br/>
      * - `index`: the index of the element<br/>
      * - `halt`: a function that, if called, ensures that no new elements are passed
+     * @param options - (optional) an object containing the following properties:<br/>
+     * - state: (optional) the traverse state
      * @throws RibuError.ModifiedBuilderWhileLoopingOverItError if the builder is modified while
      * looping over it
      * @example
@@ -748,7 +754,7 @@ export namespace BiMap {
      */
     forEach(
       f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-      state?: TraverseState
+      options?: { state?: TraverseState }
     ): void;
     /**
      * Returns an immutable collection instance containing the entries in this builder.

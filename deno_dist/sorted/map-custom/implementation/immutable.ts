@@ -181,14 +181,16 @@ export abstract class SortedMapNode<K, V>
 {
   abstract get context(): SortedMapContext<K>;
   abstract get size(): number;
-  abstract stream(reversed?: boolean): Stream.NonEmpty<readonly [K, V]>;
+  abstract stream(options?: {
+    reversed?: boolean;
+  }): Stream.NonEmpty<readonly [K, V]>;
   abstract streamSliceIndex(
     range: IndexRange,
-    reversed?: boolean
+    options?: { reversed?: boolean }
   ): Stream<readonly [K, V]>;
   abstract forEach(
     f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-    traverseState?: TraverseState
+    options?: { state?: TraverseState }
   ): void;
   abstract get<U, O>(key: RelatedTo<K, U>, otherwise?: OptLazy<O>): V | O;
   abstract addInternal(
@@ -199,7 +201,7 @@ export abstract class SortedMapNode<K, V>
     atKey: K,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: (currentEntry: V, remove: Token) => V | Token;
+      ifExists?: ((currentEntry: V, remove: Token) => V | Token) | V;
     }
   ): SortedMapNode<K, V>;
   abstract getInsertIndexOf(key: K): number;
@@ -241,15 +243,18 @@ export abstract class SortedMapNode<K, V>
     return { startIndex, endIndex };
   }
 
-  streamKeys(reversed?: boolean): Stream.NonEmpty<K> {
-    return this.stream(reversed).map(Entry.first);
+  streamKeys(options: { reversed?: boolean } = {}): Stream.NonEmpty<K> {
+    return this.stream(options).map(Entry.first);
   }
 
-  streamValues(reversed?: boolean): Stream.NonEmpty<V> {
-    return this.stream(reversed).map(Entry.second);
+  streamValues(options: { reversed?: boolean } = {}): Stream.NonEmpty<V> {
+    return this.stream(options).map(Entry.second);
   }
 
-  streamRange(keyRange: Range<K>, reversed?: boolean): Stream<readonly [K, V]> {
+  streamRange(
+    keyRange: Range<K>,
+    options: { reversed?: boolean } = {}
+  ): Stream<readonly [K, V]> {
     const { startIndex, endIndex } = this.getSliceRange(keyRange);
 
     return this.streamSliceIndex(
@@ -257,7 +262,7 @@ export abstract class SortedMapNode<K, V>
         start: [startIndex, true],
         end: [endIndex, true],
       },
-      reversed
+      options
     );
   }
 
@@ -312,7 +317,7 @@ export abstract class SortedMapNode<K, V>
     atKey: K,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: (currentEntry: V, remove: Token) => V | Token;
+      ifExists?: ((currentEntry: V, remove: Token) => V | Token) | V;
     }
   ): SortedMap<K, V> {
     return this.modifyAtInternal(atKey, options).normalize();
@@ -370,10 +375,11 @@ export abstract class SortedMapNode<K, V>
   }
 
   filter(
-    pred: (entry: readonly [K, V], index: number, halt: () => void) => boolean
+    pred: (entry: readonly [K, V], index: number, halt: () => void) => boolean,
+    options: { negate?: boolean } = {}
   ): SortedMap<K, V> {
     const builder = this.context.builder<K, V>();
-    builder.addEntries(this.stream().filter(pred));
+    builder.addEntries(this.stream().filter(pred, options));
 
     if (builder.size === this.size) return this;
 
@@ -454,19 +460,19 @@ export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
     return this.entries.length;
   }
 
-  stream(reversed?: boolean): Stream.NonEmpty<readonly [K, V]> {
-    return Stream.fromArray(
-      this.entries,
-      undefined,
-      reversed
-    ) as Stream.NonEmpty<[K, V]>;
+  stream(
+    options: { reversed?: boolean } = {}
+  ): Stream.NonEmpty<readonly [K, V]> {
+    return Stream.fromArray(this.entries, options) as Stream.NonEmpty<[K, V]>;
   }
 
   streamSliceIndex(
     range: IndexRange,
-    reversed?: boolean
+    options: { reversed?: boolean } = {}
   ): Stream<readonly [K, V]> {
-    return Stream.fromArray(this.entries, range, reversed);
+    const { reversed = false } = options;
+
+    return Stream.fromArray(this.entries, { range, reversed });
   }
 
   min(): readonly [K, V] {
@@ -497,8 +503,10 @@ export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
 
   forEach(
     f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { state?: TraverseState } = {}
   ): void {
+    const { state = TraverseState() } = options;
+
     if (state.halted) return;
 
     Arr.forEach(this.entries, f, state);
@@ -543,7 +551,7 @@ export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
     key: K,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: (currentEntry: V, remove: Token) => V | Token;
+      ifExists?: ((currentEntry: V, remove: Token) => V | Token) | V;
     }
   ): SortedMapNode<K, V> {
     const entryIndex = this.context.findIndex(key, this.entries);
@@ -553,7 +561,10 @@ export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
 
       const currentEntry = this.entries[entryIndex];
       const currentValue = currentEntry[1];
-      const newValue = options.ifExists(currentValue, Token);
+      const newValue =
+        options.ifExists instanceof Function
+          ? options.ifExists(currentValue, Token)
+          : options.ifExists;
 
       if (Object.is(newValue, currentValue)) return this;
 
@@ -680,23 +691,26 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
     return this.context.inner(entries, children, size);
   }
 
-  stream(reversed?: boolean): Stream.NonEmpty<readonly [K, V]> {
+  stream(
+    options: { reversed?: boolean } = {}
+  ): Stream.NonEmpty<readonly [K, V]> {
     const token = Symbol();
     return Stream.zipAll(
       token,
-      Stream.fromArray(this.children, undefined, reversed),
-      Stream.fromArray(this.entries, undefined, reversed)
+      Stream.fromArray(this.children, options),
+      Stream.fromArray(this.entries, options)
     ).flatMap(([child, e]): Stream.NonEmpty<readonly [K, V]> => {
       if (token === child) RimbuError.throwInvalidStateError();
-      if (token === e) return child.stream(reversed);
-      return child.stream(reversed).append(e);
+      if (token === e) return child.stream(options);
+      return child.stream(options).append(e);
     }) as Stream.NonEmpty<readonly [K, V]>;
   }
 
   streamSliceIndex(
     range: IndexRange,
-    reversed?: boolean
+    options: { reversed?: boolean } = {}
   ): Stream<readonly [K, V]> {
+    const { reversed = false } = options;
     return innerStreamSliceIndex<readonly [K, V]>(this, range, reversed);
   }
 
@@ -727,8 +741,10 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 
   forEach(
     f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { state?: TraverseState } = {}
   ): void {
+    const { state = TraverseState() } = options;
+
     let i = -1;
     const entryLength = this.entries.length;
     const { halt } = state;
@@ -737,7 +753,7 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
       if (i >= 0) f(this.entries[i], state.nextIndex(), halt);
       else {
         const childIndex = SortedIndex.next(i);
-        this.children[childIndex].forEach(f, state);
+        this.children[childIndex].forEach(f, { state });
       }
       i = SortedIndex.next(i);
     }
@@ -835,7 +851,7 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
     key: K,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: (currentEntry: V, remove: Token) => V | Token;
+      ifExists?: ((currentEntry: V, remove: Token) => V | Token) | V;
     }
   ): SortedMapInner<K, V> {
     const entryIndex = this.context.findIndex(key, this.entries);
@@ -845,7 +861,10 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 
       const currentEntry = this.entries[entryIndex];
       const currentValue = currentEntry[1];
-      const newValue = options.ifExists(currentValue, Token);
+      const newValue =
+        options.ifExists instanceof Function
+          ? options.ifExists(currentValue, Token)
+          : options.ifExists;
 
       if (Object.is(newValue, currentValue)) return this;
 

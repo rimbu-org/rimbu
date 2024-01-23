@@ -2,19 +2,18 @@ import { RimbuError } from '../../../base/mod.ts';
 import type { RMap, RSet } from '../../../collection-types/mod.ts';
 import {
   EmptyBase,
-  type KeyValue,
   NonEmptyBase,
+  type KeyValue,
   type WithKeyValue,
 } from '../../../collection-types/map-custom/index.ts';
 import {
-  type ArrayNonEmpty,
   OptLazy,
-  Reducer,
+  TraverseState,
+  type ArrayNonEmpty,
   type RelatedTo,
   type ToJSON,
-  TraverseState,
 } from '../../../common/mod.ts';
-import { Stream, type StreamSource } from '../../../stream/mod.ts';
+import { Reducer, Stream, type StreamSource } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 import type { MultiMap } from '../../../multimap/mod.ts';
@@ -301,11 +300,12 @@ export class MultiMapNonEmpty<
   }
 
   filter(
-    pred: (entry: [K, V], index: number, halt: () => void) => boolean
+    pred: (entry: [K, V], index: number, halt: () => void) => boolean,
+    options: { negate?: boolean } = {}
   ): TpG['normal'] {
     const builder = this.context.builder();
 
-    builder.addEntries(this.stream().filter(pred));
+    builder.addEntries(this.stream().filter(pred, options));
 
     if (builder.size === this.size) return this as any;
     return builder.build();
@@ -313,20 +313,22 @@ export class MultiMapNonEmpty<
 
   forEach(
     f: (entry: [K, V], index: number, halt: () => void) => void,
-    state = TraverseState()
+    options: { state?: TraverseState } = {}
   ): void {
+    const { state = TraverseState() } = options;
+
     if (state.halted) return;
 
-    this.stream().forEach(f, state);
+    this.stream().forEach(f, { state });
   }
 
   modifyAt(
     atKey: K,
     options: {
       ifNew?: OptLazy<StreamSource<V>>;
-      ifExists?: (
-        currentValues: TpG['keyMapValuesNonEmpty']
-      ) => StreamSource<V>;
+      ifExists?:
+        | ((currentValues: TpG['keyMapValuesNonEmpty']) => StreamSource<V>)
+        | StreamSource<V>;
     }
   ): TpG['normal'] {
     let newSize = this.size;
@@ -349,7 +351,8 @@ export class MultiMapNonEmpty<
       ifExists: (currentValues, remove) => {
         if (undefined === ifExists) return currentValues;
 
-        const newValueStream = ifExists(currentValues);
+        const newValueStream =
+          ifExists instanceof Function ? ifExists(currentValues) : ifExists;
         const newValues = this.context.keyMapValuesContext.from(newValueStream);
 
         if (!newValues.nonEmpty()) {
@@ -496,7 +499,7 @@ export class MultiMapBuilder<
   addEntries = (source: StreamSource<readonly [K, V]>): boolean => {
     this.checkLock();
 
-    return Stream.applyFilter(source, this.add).count() > 0;
+    return Stream.applyFilter(source, { pred: this.add }).count() > 0;
   };
 
   setValues = (key: K, source: StreamSource<V>): boolean => {
@@ -558,7 +561,7 @@ export class MultiMapBuilder<
   ): boolean => {
     this.checkLock();
 
-    return Stream.applyFilter(entries, this.removeEntry).count() > 0;
+    return Stream.applyFilter(entries, { pred: this.removeEntry }).count() > 0;
   };
 
   // prettier-ignore
@@ -583,24 +586,29 @@ export class MultiMapBuilder<
   removeKeys = <UK,>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
     this.checkLock();
 
-    return Stream.from(keys).filterPure(this.removeKey).count() > 0;
+    return Stream.from(keys).filterPure({ pred: this.removeKey }).count() > 0;
   };
 
   forEach = (
     f: (entry: [K, V], index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { reversed?: boolean; state?: TraverseState } = {}
   ): void => {
+    const { reversed = false, state = TraverseState() } = options;
+
     if (state.halted) return;
 
     this._lock++;
 
-    this.keyMap.forEach(([key, values], _, outerHalt): void => {
-      values.forEach(
-        (value, index, halt): void => f([key, value], index, halt),
-        state
-      );
-      if (state.halted) outerHalt();
-    });
+    this.keyMap.forEach(
+      ([key, values], _, outerHalt): void => {
+        values.forEach(
+          (value, index, halt): void => f([key, value], index, halt),
+          { reversed, state } as any
+        );
+        if (state.halted) outerHalt();
+      },
+      { reversed } as any
+    );
 
     this._lock--;
   };

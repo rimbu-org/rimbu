@@ -1,4 +1,4 @@
-import { Reducer } from '@rimbu/common';
+import { Reducer } from '@rimbu/stream';
 
 import { Action, SliceConfig, type Actor } from './internal.mjs';
 import type { Tail } from './utils.mjs';
@@ -83,7 +83,7 @@ export namespace Slice {
     }
 
     return {
-      reducer: Reducer.combineObj(reducers),
+      reducer: Reducer.combine(reducers) as any,
       actions,
     };
   }

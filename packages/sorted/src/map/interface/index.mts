@@ -23,12 +23,14 @@ import { createSortedMapContext } from '@rimbu/sorted/map-custom';
  * ```
  */
 export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
-  stream(reversed?: boolean): Stream<readonly [K, V]>;
-  streamKeys(reversed?: boolean): Stream<K>;
-  streamValues(reversed?: boolean): Stream<V>;
+  stream(options?: { reversed?: boolean }): Stream<readonly [K, V]>;
+  streamKeys(options?: { reversed?: boolean }): Stream<K>;
+  streamValues(options?: { reversed?: boolean }): Stream<V>;
   /**
    * Returns a Stream of sorted entries of this collection within the given `keyRange`.
    * @param keyRange - the range of keys to include in the stream
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - reversed: (default: false) when true reverses the stream element order
    * @example
    * ```ts
    * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);
@@ -36,7 +38,10 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
    * // => ['b', 'c']
    * ```
    */
-  streamRange(keyRange: Range<K>, reversed?: boolean): Stream<readonly [K, V]>;
+  streamRange(
+    keyRange: Range<K>,
+    options?: { reversed?: boolean }
+  ): Stream<readonly [K, V]>;
   /**
    * Returns a Stream of sorted entries of this collection within the given `range` index range.
    * @param range - the range of keys to include in the stream
@@ -49,7 +54,7 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
    */
   streamSliceIndex(
     range: IndexRange,
-    reversed?: boolean
+    options?: { reversed?: boolean }
   ): Stream<readonly [K, V]>;
   /**
    * Returns the entry with the minimum key of the SortedMap, or a fallback value (default: undefined)
@@ -307,9 +312,9 @@ export namespace SortedMap {
     extends RMapBase.NonEmpty<K, V, SortedMap.Types>,
       Omit<SortedMap<K, V>, keyof RMapBase.NonEmpty<any, any, any>>,
       Streamable.NonEmpty<readonly [K, V]> {
-    stream(reversed?: boolean): Stream.NonEmpty<readonly [K, V]>;
-    streamKeys(reversed?: boolean): Stream.NonEmpty<K>;
-    streamValues(reversed?: boolean): Stream.NonEmpty<V>;
+    stream(options?: { reversed?: boolean }): Stream.NonEmpty<readonly [K, V]>;
+    streamKeys(options?: { reversed?: boolean }): Stream.NonEmpty<K>;
+    streamValues(options?: { reversed?: boolean }): Stream.NonEmpty<V>;
     /**
      * Returns the entry with the minimum key of the SortedMap.
      * @example

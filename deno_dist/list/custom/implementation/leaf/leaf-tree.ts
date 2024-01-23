@@ -8,7 +8,13 @@ import {
 } from '../../../../common/mod.ts';
 import type { Stream, StreamSource } from '../../../../stream/mod.ts';
 
-import type { LeafBlock, ListContext, NonLeaf, Tree } from '../../../../list/custom/index.ts';
+import type {
+  CacheMap,
+  LeafBlock,
+  ListContext,
+  NonLeaf,
+  Tree,
+} from '../../../../list/custom/index.ts';
 import type { List } from '../../../../list/mod.ts';
 import {
   treeAppend,
@@ -61,7 +67,9 @@ export class LeafTree<T>
     return this.context.leafTree(left, right, middle);
   }
 
-  stream(reversed = false): Stream.NonEmpty<T> {
+  stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
+    const { reversed = false } = options;
+
     return treeStream<T, LeafTree<T>, LeafBlock<T>, T>(
       this,
       undefined,
@@ -69,7 +77,12 @@ export class LeafTree<T>
     ) as Stream.NonEmpty<T>;
   }
 
-  streamRange(range: IndexRange, reversed = false): Stream<T> {
+  streamRange(
+    range: IndexRange,
+    options: { reversed?: boolean } = {}
+  ): Stream<T> {
+    const { reversed = false } = options;
+
     return treeStream<T, LeafTree<T>, LeafBlock<T>, T>(this, range, reversed);
   }
 
@@ -174,9 +187,9 @@ export class LeafTree<T>
     const asList: List<T | T2> = this.context.from(...sources);
 
     if (asList.nonEmpty()) {
-      if (this.context.isLeafBlock(asList)) {
+      if (this.context.isLeafBlock<T | T2>(asList)) {
         return (this as LeafTree<T | T2>).concatBlock(asList);
-      } else if (this.context.isLeafTree(asList)) {
+      } else if (this.context.isLeafTree<T | T2>(asList)) {
         return (this as LeafTree<T | T2>).concatTree(asList);
       } else {
         RimbuError.throwInvalidStateError();
@@ -286,27 +299,31 @@ export class LeafTree<T>
 
   forEach(
     f: (value: T, index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { reversed?: boolean; state?: TraverseState } = {}
   ): void {
+    const { reversed = false, state = TraverseState() } = options;
+
     if (state.halted) return;
 
-    treeForEach<T, LeafTree<T>, LeafBlock<T>, T>(this, f, state);
+    treeForEach<T, LeafTree<T>, LeafBlock<T>, T>(this, f, { reversed, state });
   }
 
   mapPure<T2>(
     mapFun: (value: T) => T2,
-    reversed = false,
-    cacheMap = this.context.createCacheMap()
+    options: { reversed?: boolean; cacheMap?: CacheMap } = {}
   ): LeafTree<T2> {
+    const { reversed = false, cacheMap = this.context.createCacheMap() } =
+      options;
+
     const currentValue = cacheMap.get(this);
     if (currentValue) return currentValue;
 
-    const mappedLeft = this.left.mapPure(mapFun, reversed, cacheMap);
+    const mappedLeft = this.left.mapPure(mapFun, { reversed, cacheMap });
     const mappedMiddle =
       null === this.middle
         ? null
-        : this.middle.mapPure(mapFun, reversed, cacheMap);
-    const mappedRight = this.right.mapPure(mapFun, reversed, cacheMap);
+        : this.middle.mapPure(mapFun, { reversed, cacheMap });
+    const mappedRight = this.right.mapPure(mapFun, { reversed, cacheMap });
 
     const result = reversed
       ? this.copy2(mappedRight, mappedLeft, mappedMiddle)
@@ -317,33 +334,44 @@ export class LeafTree<T>
 
   map<T2>(
     mapFun: (value: T, index: number) => T2,
-    reversed = false,
-    indexOffset = 0
+    options: { reversed?: boolean; indexOffset?: number } = {}
   ): LeafTree<T2> {
+    const { reversed = false, indexOffset = 0 } = options;
+
     let offset = indexOffset;
 
     if (reversed) {
-      const newLeft = this.right.map(mapFun, true, offset);
+      const newLeft = this.right.map(mapFun, {
+        reversed: true,
+        indexOffset: offset,
+      });
       offset += this.right.length;
 
       const newMiddle =
-        null === this.middle ? null : this.middle.map(mapFun, true, offset);
+        null === this.middle
+          ? null
+          : this.middle.map(mapFun, { reversed: true, indexOffset: offset });
       if (null !== this.middle) offset += this.middle.length;
 
-      const newRight = this.left.map(mapFun, true, offset);
+      const newRight = this.left.map(mapFun, {
+        reversed: true,
+        indexOffset: offset,
+      });
 
       return this.copy2(newLeft, newRight, newMiddle);
     }
 
-    const newLeft = this.left.map(mapFun, false, offset);
+    const newLeft = this.left.map(mapFun, { indexOffset: offset });
     offset += this.left.length;
 
     const newMiddle =
-      null === this.middle ? null : this.middle.map(mapFun, false, offset);
+      null === this.middle
+        ? null
+        : this.middle.map(mapFun, { indexOffset: offset });
 
     if (null !== this.middle) offset += this.middle.length;
 
-    const newRight = this.right.map(mapFun, false, offset);
+    const newRight = this.right.map(mapFun, { indexOffset: offset });
 
     return this.copy2(newLeft, newRight, newMiddle);
   }
@@ -361,7 +389,11 @@ export class LeafTree<T>
     return cacheMap.setAndReturn(this, reversedThis);
   }
 
-  toArray(range?: IndexRange, reversed = false): T[] | any {
+  toArray(
+    options: { range?: IndexRange | undefined; reversed?: boolean } = {}
+  ): T[] | any {
+    const { range, reversed = false } = options;
+
     return treeToArray<T, LeafTree<T>, LeafBlock<T>, T>(this, range, reversed);
   }
 

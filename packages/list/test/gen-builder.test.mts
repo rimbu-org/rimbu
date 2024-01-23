@@ -23,7 +23,7 @@ describe('GenBuilder', () => {
       expect(g.get(0)).toBe(1);
     }
     {
-      const g = context.createBuilder(context.of(11, 12, 13));
+      const g = context.createBuilder<number>(context.of(11, 12, 13));
       g.append(1);
       expect(g.builder).toBeInstanceOf(LeafBlockBuilder);
       expect((g.builder as LeafBlockBuilder<number>).children).toEqual([
@@ -31,7 +31,7 @@ describe('GenBuilder', () => {
       ]);
     }
     {
-      const g = context.createBuilder(context.of(11, 12, 13, 14));
+      const g = context.createBuilder<number>(context.of(11, 12, 13, 14));
       g.append(1);
       expect(g.builder).toBeInstanceOf(LeafTreeBuilder);
       expect((g.builder as LeafTreeBuilder<number>).left.children).toEqual([
@@ -70,7 +70,7 @@ describe('GenBuilder', () => {
     }
     {
       // non-empty: adds values from array
-      const g = context.createBuilder(context.of(1, 2, 3, 4, 5, 6));
+      const g = context.createBuilder<number>(context.of(1, 2, 3, 4, 5, 6));
       g.appendAll([11, 12, 13, 14, 15, 16]);
       expect(g.builder).toBeInstanceOf(LeafTreeBuilder);
       expect(g.length).toBe(12);
@@ -80,7 +80,7 @@ describe('GenBuilder', () => {
     }
     {
       // non-empty: adds values from stream
-      const g = context.createBuilder(context.of(1, 2, 3, 4, 5, 6));
+      const g = context.createBuilder<number>(context.of(1, 2, 3, 4, 5, 6));
       g.appendAll(Stream.of(11, 12, 13, 14, 15, 16));
       expect(g.builder).toBeInstanceOf(LeafTreeBuilder);
       expect(g.length).toBe(12);
@@ -215,8 +215,12 @@ describe('GenBuilder', () => {
       const b = builder({ forEach });
       const f = () => {};
       const s = TraverseState();
-      b.forEach(f, s);
-      expect(forEach).toBeCalledWith(f, s);
+      b.forEach(f, { state: s });
+      expect(forEach).toBeCalledWith(f, { reversed: false, state: s });
+
+      forEach.mockReset();
+      b.forEach(f, { reversed: true, state: s });
+      expect(forEach).toBeCalledWith(f, { reversed: true, state: s });
     }
   });
 
@@ -298,7 +302,7 @@ describe('GenBuilder', () => {
       expect(g.get(0)).toBe(1);
     }
     {
-      const g = context.createBuilder(context.of(11, 12, 13));
+      const g = context.createBuilder<number>(context.of(11, 12, 13));
       g.prepend(1);
       expect(g.builder).toBeInstanceOf(LeafBlockBuilder);
       expect((g.builder as LeafBlockBuilder<number>).children).toEqual([
@@ -306,7 +310,7 @@ describe('GenBuilder', () => {
       ]);
     }
     {
-      const g = context.createBuilder(context.of(11, 12, 13, 14));
+      const g = context.createBuilder<number>(context.of(11, 12, 13, 14));
       g.prepend(1);
       expect(g.builder).toBeInstanceOf(LeafTreeBuilder);
       expect((g.builder as LeafTreeBuilder<number>).left.children).toEqual([

@@ -8,7 +8,7 @@ export interface LeafBuilder<T> extends BuilderBase<T, T> {
   normalized(): LeafBuilder<T> | undefined;
   forEach(
     f: (value: T, index: number, halt: () => void) => void,
-    state?: TraverseState
+    options?: { reversed?: boolean; state?: TraverseState }
   ): void;
   build(): List<T>;
   buildMap<T2>(f: (value: T) => T2): List<T2>;

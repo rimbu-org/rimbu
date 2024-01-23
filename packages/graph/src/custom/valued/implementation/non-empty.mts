@@ -3,9 +3,9 @@ import { NonEmptyBase } from '@rimbu/collection-types/map-custom';
 import {
   OptLazy,
   OptLazyOr,
+  TraverseState,
   type RelatedTo,
   type ToJSON,
-  type TraverseState,
 } from '@rimbu/common';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
@@ -19,6 +19,7 @@ import type {
   ValuedLink,
   WithGraphValues,
 } from '../../common/index.mjs';
+import type { RMap } from '@rimbu/collection-types';
 
 export class ValuedGraphNonEmpty<
     N,
@@ -64,10 +65,37 @@ export class ValuedGraphNonEmpty<
   }
 
   forEach(
-    f: (node: N, index: number, halt: () => void) => void,
-    state?: TraverseState
+    f: (
+      entry: ValuedGraphElement<N, V>,
+      index: number,
+      halt: () => void
+    ) => void,
+    options: { state?: TraverseState } = {}
   ): void {
-    this.linkMap.streamKeys().forEach(f, state);
+    const { state = TraverseState() } = options;
+
+    const mapIter = this.linkMap[Symbol.iterator]();
+    const done = Symbol();
+    let targetsEntry: readonly [N, RMap<N, V>] | typeof done;
+
+    while (!state.halted && done !== (targetsEntry = mapIter.fastNext(done))) {
+      const [node, targets] = targetsEntry;
+
+      if (targets.isEmpty) {
+        f([node], state.nextIndex(), state.halt);
+      } else {
+        const targetsIter = targets[Symbol.iterator]();
+        let target: readonly [N, V] | typeof done;
+
+        while (
+          !state.halted &&
+          done !== (target = targetsIter.fastNext(done))
+        ) {
+          const [targetNode, value] = target;
+          f([node, targetNode, value], state.nextIndex(), state.halt);
+        }
+      }
+    }
   }
 
   stream(): Stream.NonEmpty<ValuedGraphElement<N, V>> {

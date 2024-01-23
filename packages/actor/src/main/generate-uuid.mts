@@ -6,10 +6,11 @@ declare global {
 /**
  * Internal function to generate a UUID.
  */
-export function generateUUID(): string {
-  const context = self;
+export function generateUUID(
+  context: { crypto?: { randomUUID?: () => string } } = self
+): string {
   if (undefined !== context?.crypto?.randomUUID) {
-    return crypto.randomUUID();
+    return context.crypto.randomUUID();
   }
 
   // Public Domain/MIT

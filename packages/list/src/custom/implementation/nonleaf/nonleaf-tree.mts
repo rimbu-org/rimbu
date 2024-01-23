@@ -5,6 +5,7 @@ import type { Stream } from '@rimbu/stream';
 import type {
   Block,
   BlockBuilder,
+  CacheMap,
   ListContext,
   NonLeaf,
   NonLeafBlock,
@@ -57,11 +58,18 @@ export class NonLeafTree<T, C extends Block<T, C>>
     return this.context.nonLeafTree(left, right, middle, this.level);
   }
 
-  stream(reversed = false): Stream.NonEmpty<T> {
+  stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
+    const { reversed = false } = options;
+
     return treeStream(this, undefined, reversed) as Stream.NonEmpty<T>;
   }
 
-  streamRange(range: IndexRange, reversed = false): Stream<T> {
+  streamRange(
+    range: IndexRange,
+    options: { reversed?: boolean } = {}
+  ): Stream<T> {
+    const { reversed = false } = options;
+
     return treeStream(this, range, reversed);
   }
 
@@ -336,27 +344,31 @@ export class NonLeafTree<T, C extends Block<T, C>>
 
   forEach(
     f: (value: T, index: number, halt: () => void) => void,
-    state: TraverseState
+    options: { reversed: boolean; state: TraverseState }
   ): void {
+    const { state } = options;
+
     if (state.halted) return;
 
-    treeForEach(this, f, state);
+    treeForEach(this, f, options);
   }
 
   mapPure<T2>(
     mapFun: (value: T) => T2,
-    reversed = false,
-    cacheMap = this.context.createCacheMap()
+    options: { reversed?: boolean; cacheMap?: CacheMap } = {}
   ): NonLeafTree<T2, any> {
+    const { reversed = false, cacheMap = this.context.createCacheMap() } =
+      options;
+
     const cachedThis = cacheMap.get(this);
     if (cachedThis) return cachedThis;
 
-    const mappedLeft = this.left.mapPure(mapFun, reversed, cacheMap);
+    const mappedLeft = this.left.mapPure(mapFun, { reversed, cacheMap });
     const mappedMiddle =
       null === this.middle
         ? null
-        : this.middle.mapPure(mapFun, reversed, cacheMap);
-    const mappedRight = this.right.mapPure(mapFun, reversed, cacheMap);
+        : this.middle.mapPure(mapFun, { reversed, cacheMap });
+    const mappedRight = this.right.mapPure(mapFun, { reversed, cacheMap });
 
     const result = reversed
       ? this.copy2(mappedRight, mappedLeft, mappedMiddle)
@@ -367,9 +379,10 @@ export class NonLeafTree<T, C extends Block<T, C>>
 
   map<T2>(
     mapFun: (value: T, index: number) => T2,
-    reversed = false,
-    indexOffset = 0
+    options: { reversed?: boolean; indexOffset?: number } = {}
   ): NonLeafTree<T2, any> {
+    const { reversed = false, indexOffset = 0 } = options;
+
     let offset = indexOffset;
 
     const left = this.left;
@@ -377,26 +390,34 @@ export class NonLeafTree<T, C extends Block<T, C>>
     const right = this.right;
 
     if (reversed) {
-      const newLeft = right.map(mapFun, true, offset);
+      const newLeft = right.map(mapFun, {
+        reversed: true,
+        indexOffset: offset,
+      });
       offset += right.length;
 
       const newMiddle =
-        null === middle ? null : middle.map(mapFun, true, offset);
+        null === middle
+          ? null
+          : middle.map(mapFun, { reversed: true, indexOffset: offset });
       if (null !== middle) offset += middle.length;
 
-      const newRight = left.map(mapFun, true, offset);
+      const newRight = left.map(mapFun, {
+        reversed: true,
+        indexOffset: offset,
+      });
 
       return this.copy2(newLeft, newRight, newMiddle);
     }
 
-    const newLeft = left.map(mapFun, false, offset);
+    const newLeft = left.map(mapFun, { indexOffset: offset });
     offset += left.length;
 
     const newMiddle =
-      null === middle ? null : middle.map(mapFun, false, offset);
+      null === middle ? null : middle.map(mapFun, { indexOffset: offset });
     if (null !== middle) offset += middle.length;
 
-    const newRight = right.map(mapFun, false, offset);
+    const newRight = right.map(mapFun, { indexOffset: offset });
 
     return this.copy2(newLeft, newRight, newMiddle);
   }
@@ -458,7 +479,11 @@ export class NonLeafTree<T, C extends Block<T, C>>
     return this;
   }
 
-  toArray(range?: IndexRange, reversed = false): T[] | any {
+  toArray(
+    options: { range?: IndexRange | undefined; reversed?: boolean } = {}
+  ): T[] | any {
+    const { range, reversed = false } = options;
+
     return treeToArray(this, range, reversed);
   }
 

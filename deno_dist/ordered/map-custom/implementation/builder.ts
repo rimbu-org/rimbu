@@ -100,7 +100,7 @@ export class OrderedMapBuilder<
   addEntries = (entries: StreamSource<readonly [K, V]>): boolean => {
     this.checkLock();
 
-    return Stream.from(entries).filterPure(this.addEntry).count() > 0;
+    return Stream.from(entries).filterPure({ pred: this.addEntry }).count() > 0;
   };
 
   removeKey = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
@@ -133,7 +133,7 @@ export class OrderedMapBuilder<
     return (
       Stream.from(keys)
         .mapPure(this.removeKey, notFound)
-        .countNotElement(notFound) > 0
+        .countElement(notFound, { negate: true }) > 0
     );
   };
 
@@ -161,7 +161,7 @@ export class OrderedMapBuilder<
     key: K,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: (currentValue: V, remove: Token) => V | Token;
+      ifExists?: ((currentValue: V, remove: Token) => V | Token) | V;
     }
   ): boolean => {
     this.checkLock();
@@ -184,25 +184,30 @@ export class OrderedMapBuilder<
 
   forEach = (
     f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { reversed?: boolean; state?: TraverseState } = {}
   ): void => {
+    const { reversed = false, state = TraverseState() } = options;
+
     if (state.halted) return;
 
     this._lock = true;
 
-    if (undefined !== this.source) this.source.forEach(f, state);
+    if (undefined !== this.source) this.source.forEach(f, options);
     else {
       const { halt } = state;
       const mapBuilder = this.mapBuilder;
 
-      this.keyOrderBuilder.forEach((key, _, outerHalt): void => {
-        f(
-          [key, mapBuilder.get(key, RimbuError.throwInvalidStateError)],
-          state.nextIndex(),
-          halt
-        );
-        if (state.halted) outerHalt();
-      });
+      this.keyOrderBuilder.forEach(
+        (key, _, outerHalt): void => {
+          f(
+            [key, mapBuilder.get(key, RimbuError.throwInvalidStateError)],
+            state.nextIndex(),
+            halt
+          );
+          if (state.halted) outerHalt();
+        },
+        { reversed }
+      );
     }
 
     this._lock = false;

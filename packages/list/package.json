@@ -90,7 +90,7 @@
     "@rimbu/collection-types": "^1.1.1",
     "@rimbu/common": "^1.1.0",
     "@rimbu/stream": "^1.1.1",
-    "tslib": "^2.6.1"
+    "tslib": "^2.6.2"
   },
   "publishConfig": {
     "access": "public"
@@ -101,5 +101,6 @@
         "skipTypeImports": true
       }
     }
-  }
+  },
+  "devDependencies": {}
 }

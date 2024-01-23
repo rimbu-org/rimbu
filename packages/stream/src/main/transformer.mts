@@ -1,6 +1,6 @@
-import { Eq, OptLazy, Reducer } from '@rimbu/common';
+import { Eq } from '@rimbu/common';
 
-import { Stream, type StreamSource } from '@rimbu/stream';
+import { Reducer, Stream, type StreamSource } from '@rimbu/stream';
 
 /**
  * A Reducer that produces instances of `StreamSource`.
@@ -35,68 +35,51 @@ export namespace Transformer {
    * ```
    */
   export const window: {
-    <T>(windowSize: number, skipAmount?: number): Transformer<T, T[]>;
     <T, R>(
       windowSize: number,
-      skipAmount?: number,
-      collector?: Reducer<T, R>
+      options: {
+        skipAmount?: number;
+        collector: Reducer<T, R>;
+      }
     ): Transformer<T, R>;
+    <T>(windowSize: number, options?: { skipAmount?: number }): Transformer<
+      T,
+      T[]
+    >;
   } = <T, R>(
     windowSize: number,
-    skipAmount = windowSize,
-    collector = Reducer.toArray()
+    options: { skipAmount?: number; collector?: Reducer<T, R> } = {}
   ) => {
-    return Reducer.create<
-      T,
-      Stream<R>,
-      Set<{ result: unknown; size: number; halted: boolean; halt: () => void }>
-    >(
+    const {
+      skipAmount = windowSize,
+      collector = Reducer.toArray() as Reducer<T, R>,
+    } = options;
+
+    return Reducer.create<T, Stream<R>, Set<Reducer.Instance<T, R>>>(
       () => new Set(),
       (state, elem, index) => {
-        for (const current of state) {
-          if (current.size >= windowSize || current.halted) {
-            state.delete(current);
+        for (const instance of state) {
+          if (instance.index >= windowSize || instance.halted) {
+            state.delete(instance);
+          } else {
+            instance.next(elem);
           }
-
-          current.result = collector.next(
-            current.result,
-            elem,
-            current.size,
-            current.halt
-          );
-          current.size++;
         }
 
         if (index % skipAmount === 0) {
-          const newState = {
-            result: OptLazy(collector.init),
-            size: 1,
-            halted: false,
-            halt(): void {
-              this.halted = true;
-            },
-          };
+          const newInstance = collector.compile();
 
-          newState.result = collector.next(
-            OptLazy(collector.init),
-            elem,
-            0,
-            newState.halt
-          );
+          newInstance.next(elem);
 
-          state.add(newState);
+          state.add(newInstance);
         }
 
         return state;
       },
-      (current) => {
-        return Stream.from(current)
-          .collect((v, _, skip) =>
-            v.size === windowSize
-              ? Stream.of<R>(collector.stateToResult(v.result) as any)
-              : skip
-          )
-          .first(Stream.empty());
+      (state) => {
+        return Stream.from(state).collect((instance, _, skip) =>
+          instance.index === windowSize ? instance.getOutput() : skip
+        );
       }
     );
   };

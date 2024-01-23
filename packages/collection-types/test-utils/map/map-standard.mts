@@ -55,11 +55,6 @@ export function runMapTestsWith(name: string, GMap: RMap.Context<any>): void {
         const m = GMap.from(arr3);
         expect(GMap.from(m)).toBe(m);
       }
-      // {
-      //   const c = HashMap.createContext();
-      //   const m = c.from(arr3);
-      //   expect(GMap.from(m)).not.toBe(m);
-      // }
     });
 
     it('builder', () => {
@@ -321,6 +316,20 @@ export function runMapTestsWith(name: string, GMap: RMap.Context<any>): void {
         [6, 'f'],
       ]);
       expect(map6.filter(first2).size).toBe(2);
+
+      expect(mapEmpty.filter(isEvenKey, { negate: true })).toBe(mapEmpty);
+      expectEqual(map3.filter(isEvenKey, { negate: true }), [
+        [1, 'a'],
+        [3, 'c'],
+      ]);
+      expectEqual(map3.filter(first2, { negate: true }), []);
+
+      expectEqual(map6.filter(isEvenKey, { negate: true }), [
+        [1, 'a'],
+        [3, 'c'],
+        [5, 'e'],
+      ]);
+      expect(map6.filter(first2, { negate: true }).size).toBe(0);
     });
 
     it('forEach', () => {

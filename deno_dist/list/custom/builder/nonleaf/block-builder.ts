@@ -327,14 +327,24 @@ export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
 
   forEach(
     f: (value: T, index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { reversed?: boolean; state?: TraverseState } = {}
   ): void {
+    const { reversed = false, state = TraverseState() } = options;
+
     if (state.halted) return;
 
-    let i = -1;
     const length = this.children.length;
-    while (!state.halted && ++i < length) {
-      this.children[i].forEach(f, state);
+
+    if (!reversed) {
+      let i = -1;
+      while (!state.halted && ++i < length) {
+        this.children[i].forEach(f, { state });
+      }
+    } else {
+      let i = length;
+      while (!state.halted && --i >= 0) {
+        this.children[i].forEach(f, { reversed, state });
+      }
     }
   }
 

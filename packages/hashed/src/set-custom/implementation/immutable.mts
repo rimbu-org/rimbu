@@ -86,7 +86,7 @@ export abstract class HashSetNonEmptyBase<T>
   abstract stream(): Stream.NonEmpty<T>;
   abstract forEach(
     f: (value: T, index: number, halt: () => void) => void,
-    traverseState?: TraverseState
+    options?: { state?: TraverseState }
   ): void;
   abstract has<U>(value: RelatedTo<T, U>): boolean;
   abstract add(value: T): HashSetNonEmptyBase<T>;
@@ -114,11 +114,12 @@ export abstract class HashSetNonEmptyBase<T>
   }
 
   filter(
-    pred: (value: T, index: number, halt: () => void) => boolean
+    pred: (value: T, index: number, halt: () => void) => boolean,
+    options: { negate?: boolean } = {}
   ): HashSet<T> {
     const builder = this.context.builder();
 
-    builder.addAll(this.stream().filter(pred));
+    builder.addAll(this.stream().filter(pred, options));
 
     if (builder.size === this.size) return this;
 
@@ -168,7 +169,9 @@ export abstract class HashSetNonEmptyBase<T>
 
     const builder = this.toBuilder();
 
-    Stream.from(other).filterNot(builder.remove).forEach(builder.add);
+    Stream.from(other)
+      .filterPure({ pred: builder.remove, negate: true })
+      .forEach(builder.add);
 
     return builder.build();
   }
@@ -393,8 +396,10 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 
   forEach(
     f: (entry: T, index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { state?: TraverseState } = {}
   ): void {
+    const { state = TraverseState() } = options;
+
     if (state.halted) return;
 
     const { halt } = state;
@@ -407,7 +412,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
     }
     if (null !== this.entrySets) {
       for (const key in this.entrySets) {
-        this.entrySets[key].forEach(f, state);
+        this.entrySets[key].forEach(f, { state });
         if (state.halted) return;
       }
     }
@@ -454,15 +459,11 @@ export class HashSetCollision<T> extends HashSetNonEmptyBase<T> {
 
   has<U>(value: RelatedTo<T, U>, inHash?: number): boolean {
     if (!this.context.hasher.isValid(value)) return false;
-    return this.stream().contains(value, undefined, this.context.eq);
+    return this.stream().contains(value, { eq: this.context.eq });
   }
 
   add(value: T): HashSetCollision<T> {
-    const currentIndex = this.stream().indexOf(
-      value,
-      undefined,
-      this.context.eq
-    );
+    const currentIndex = this.stream().indexOf(value, { eq: this.context.eq });
 
     if (undefined === currentIndex) {
       return this.copy(this.entries.append(value));
@@ -474,25 +475,23 @@ export class HashSetCollision<T> extends HashSetNonEmptyBase<T> {
   remove<U>(value: RelatedTo<T, U>, hash?: number): HashSet<T> {
     if (!this.context.hasher.isValid(value)) return this;
 
-    const currentIndex = this.stream().indexOf(
-      value,
-      undefined,
-      this.context.eq
-    );
+    const currentIndex = this.stream().indexOf(value, { eq: this.context.eq });
 
     if (undefined === currentIndex) return this;
 
-    const newEntries = this.entries.remove(currentIndex, 1).assumeNonEmpty();
+    const newEntries = this.entries.remove(currentIndex).assumeNonEmpty();
     return this.copy(newEntries);
   }
 
   forEach(
     f: (entry: T, index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { state?: TraverseState } = {}
   ): void {
+    const { state = TraverseState() } = options;
+
     if (state.halted) return;
 
-    this.entries.forEach(f, state);
+    this.entries.forEach(f, { state });
   }
 
   toArray(): ArrayNonEmpty<T> {

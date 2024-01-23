@@ -1,4 +1,4 @@
-import { type ArrayNonEmpty, Reducer } from '@rimbu/common';
+import { type ArrayNonEmpty } from '@rimbu/common';
 import {
   expectAssignable,
   expectError,
@@ -7,7 +7,12 @@ import {
   expectType,
 } from 'tsd';
 
-import { type FastIterator, Stream, Transformer } from '../src/main/index.mjs';
+import {
+  Reducer,
+  Stream,
+  Transformer,
+  type FastIterator,
+} from '../src/main/index.mjs';
 
 // Variance
 expectAssignable<Stream<number | string>>(Stream.empty<number>());
@@ -45,7 +50,9 @@ expectType<Stream<number>>(Stream.from(new Set([1])));
 expectType<Stream<number>>(Stream.fromArray([] as number[]));
 expectType<Stream.NonEmpty<number>>(Stream.fromArray([1, 2, 3]));
 expectType<Stream<number>>(Stream.fromArray([1, 2, 3] as number[]));
-expectType<Stream<number>>(Stream.fromArray([1, 2, 3], { amount: 2 }, true));
+expectType<Stream<number>>(
+  Stream.fromArray([1, 2, 3], { range: { amount: 2 }, reversed: true })
+);
 
 // Stream.fromObject(..)
 expectAssignable<Stream<[string, number]>>(Stream.fromObject({ a: 1 }));
@@ -77,13 +84,13 @@ expectType<Stream.NonEmpty<number>>(Stream.unfold(0, (v) => v + 1));
 
 // Stream.unzip(..)
 expectType<[Stream.NonEmpty<number>, Stream.NonEmpty<string>]>(
-  Stream.unzip(Stream.of<[number, string]>([0, 'a'], [1, 'b']), 2)
+  Stream.unzip(Stream.of<[number, string]>([0, 'a'], [1, 'b']), { length: 2 })
 );
 expectType<[Stream<number>, Stream<string>]>(
-  Stream.unzip(Stream.from(new Map<number, string>()), 2)
+  Stream.unzip(Stream.from(new Map<number, string>()), { length: 2 })
 );
-expectError(Stream.unzip(Stream.of(1), 2));
-expectError(Stream.unzip(Stream.of([1, 2] as const), 3));
+expectError(Stream.unzip(Stream.of(1), { length: 2 }));
+expectError(Stream.unzip(Stream.of([1, 2] as const), { length: 3 }));
 
 // Stream.zip
 expectType<Stream<[number, string]>>(
@@ -240,42 +247,44 @@ expectType<void>(Stream.of(1).forEachPure(() => {}));
 expectType<Stream<number>>(Stream.empty<number>().filter((v) => true));
 expectType<Stream<number>>(Stream.of(1).filter(() => true));
 
-// .filterNot(..)
-expectType<Stream<number>>(Stream.empty<number>().filterNot((v) => true));
-expectType<Stream<number>>(Stream.of(1).filterNot(() => true));
+// .filter(..) negate
+expectType<Stream<number>>(
+  Stream.empty<number>().filter((v) => true, { negate: true })
+);
+expectType<Stream<number>>(Stream.of(1).filter(() => true, { negate: true }));
 
 // .filterPure(..)
-expectType<Stream<number>>(Stream.empty<number>().filterPure((v) => true));
-expectType<Stream<number>>(Stream.of(1).filterPure(() => true));
+expectType<Stream<number>>(
+  Stream.empty<number>().filterPure({ pred: (v) => true })
+);
+expectType<Stream<number>>(Stream.of(1).filterPure({ pred: () => true }));
 
-// .filterNotPure(..)
-expectType<Stream<number>>(Stream.empty<number>().filterNotPure((v) => true));
-expectType<Stream<number>>(Stream.of(1).filterNotPure(() => true));
+// .filterPure(..) negate
+expectType<Stream<number>>(
+  Stream.empty<number>().filterPure({ pred: (v) => true, negate: true })
+);
+expectType<Stream<number>>(
+  Stream.of(1).filterPure({ pred: () => true, negate: true })
+);
 
 // .find(..)
 expectType<number | undefined>(Stream.empty<number>().find(() => true));
-expectType<number | undefined>(Stream.empty<number>().find(() => true, 1));
+expectType<number | undefined>(
+  Stream.empty<number>().find(() => true, { occurrance: 1 })
+);
 expectType<number | undefined>(Stream.of(1).find(() => true));
-expectType<number | undefined>(Stream.of(1).find(() => true, 1));
-expectType<number>(
-  Stream.empty<number>().find(
-    () => true,
-    undefined,
-    () => 1
-  )
+expectType<number | undefined>(
+  Stream.of(1).find(() => true, { occurrance: 1 })
 );
 expectType<number>(
-  Stream.of(1).find(
-    () => true,
-    undefined,
-    () => 1
-  )
+  Stream.empty<number>().find(() => true, { otherwise: () => 1 })
+);
+expectType<number>(Stream.of(1).find(() => true, { otherwise: () => 1 }));
+expectType<number | string>(
+  Stream.empty<number>().find(() => true, { otherwise: 'a' as string })
 );
 expectType<number | string>(
-  Stream.empty<number>().find(() => true, undefined, 'a' as string)
-);
-expectType<number | string>(
-  Stream.of(1).find(() => true, undefined, 'a' as string)
+  Stream.of(1).find(() => true, { otherwise: 'a' as string })
 );
 
 // .first(..)
@@ -516,24 +525,32 @@ expectType<Stream.NonEmpty<number>>(Stream.of(1).prepend(3));
 expectType<boolean>(Stream.empty<number>().reduce(Reducer.isEmpty));
 expectType<boolean>(Stream.of(1).reduce(Reducer.isEmpty));
 
-// .reduceAll(..)
+// .reduce(..) shape
 expectType<[boolean, number, string]>(
-  Stream.empty<number>().reduceAll(Reducer.isEmpty, Reducer.sum, Reducer.join())
+  Stream.empty<number>().reduce([
+    Reducer.isEmpty,
+    Reducer.sum,
+    Reducer.join<number>(),
+  ])
 );
 expectType<[boolean, number, string]>(
-  Stream.of(1).reduceAll(Reducer.isEmpty, Reducer.sum, Reducer.join())
+  Stream.of(1).reduce([Reducer.isEmpty, Reducer.sum, Reducer.join<number>()])
 );
 
 // .reduceAllStream(..)
 expectType<Stream<[boolean, number, string]>>(
-  Stream.empty<number>().reduceAllStream(
+  Stream.empty<number>().reduceStream([
     Reducer.isEmpty,
     Reducer.sum,
-    Reducer.join()
-  )
+    Reducer.join<number>(),
+  ])
 );
 expectType<Stream<[boolean, number, string]>>(
-  Stream.of(1).reduceAllStream(Reducer.isEmpty, Reducer.sum, Reducer.join())
+  Stream.of(1).reduceStream([
+    Reducer.isEmpty,
+    Reducer.sum,
+    Reducer.join<number>(),
+  ])
 );
 
 // .reduceStream(..)
@@ -585,9 +602,9 @@ expectType<number>(Stream.of(1).count());
 expectType<number>(Stream.empty<number>().countElement(1));
 expectType<number>(Stream.of(1).countElement(1));
 
-// .countNotElement(..)
-expectType<number>(Stream.empty<number>().countNotElement(1));
-expectType<number>(Stream.of(1).countNotElement(1));
+// .countElement(..) negate
+expectType<number>(Stream.empty<number>().countElement(1, { negate: true }));
+expectType<number>(Stream.of(1).countElement(1, { negate: true }));
 
 // .join(..)
 expectType<string>(Stream.empty<number>().join());

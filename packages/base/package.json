@@ -67,10 +67,10 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@rimbu/common": "^1.1.0",
-    "tslib": "^2.6.1"
+    "@rimbu/common": "^1.1.0"
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "devDependencies": {}
 }

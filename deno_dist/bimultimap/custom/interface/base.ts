@@ -5,7 +5,6 @@ import type {
 } from '../../../collection-types/map-custom/index.ts';
 import type {
   ArrayNonEmpty,
-  Reducer,
   RelatedTo,
   ToJSON,
   TraverseState,
@@ -13,9 +12,10 @@ import type {
 import type { MultiMap } from '../../../multimap/mod.ts';
 import type {
   FastIterable,
+  Reducer,
   Stream,
-  Streamable,
   StreamSource,
+  Streamable,
 } from '../../../stream/mod.ts';
 
 export interface BiMultiMapBase<
@@ -336,7 +336,8 @@ export interface BiMultiMapBase<
    * - `entry`: the next tuple of a key and value<br/>
    * - `index`: the index of the element<br/>
    * - `halt`: a function that, if called, ensures that no new elements are passed
-   * @param state - (optional) the traverse state
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - state: (optional) the traversal state
    * @example
    * ```ts
    * HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).forEach((entry, i, halt) => {
@@ -349,7 +350,7 @@ export interface BiMultiMapBase<
    */
   forEach(
     f: (entry: [K, V], index: number, halt: () => void) => void,
-    state?: TraverseState
+    options?: { state?: TraverseState }
   ): void;
   /**
    * Returns a collection containing only those entries that satisfy given `pred` predicate.
@@ -357,6 +358,8 @@ export interface BiMultiMapBase<
    * - `entry`: the next entry<br/>
    * - `index`: the entry index<br/>
    * - `halt`: a function that, when called, ensures no next elements are passed
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - negate: (default: false) when true will negate the given predicate
    * @example
    * ```ts
    * HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(entry => entry[0] === 2 || entry[1] === 'c').toArray()
@@ -364,7 +367,8 @@ export interface BiMultiMapBase<
    * ```
    */
   filter(
-    pred: (entry: [K, V], index: number, halt: () => void) => boolean
+    pred: (entry: [K, V], index: number, halt: () => void) => boolean,
+    options?: { negate?: boolean }
   ): WithKeyValue<Tp, K, V>['normal'];
   /**
    * Returns an array containing all entries in this collection.
@@ -826,7 +830,7 @@ export namespace BiMultiMapBase {
      */
     forEach(
       f: (entry: [K, V], index: number, halt: () => void) => void,
-      state?: TraverseState
+      options?: { state?: TraverseState }
     ): void;
     /**
      * Returns an immutable collection instance containing the entries in this builder.

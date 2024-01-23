@@ -368,18 +368,21 @@ export class BiMapNonEmptyImpl<K, V>
 
   forEach(
     f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { state?: TraverseState } = {}
   ): void {
+    const { state = TraverseState() } = options;
+
     if (state.halted) return;
-    this.keyValueMap.forEach(f, state);
+    this.keyValueMap.forEach(f, { state });
   }
 
   filter(
-    pred: (entry: readonly [K, V], index: number, halt: () => void) => boolean
+    pred: (entry: readonly [K, V], index: number, halt: () => void) => boolean,
+    options: { negate?: boolean } = {}
   ): BiMap<K, V> {
     const builder = this.context.builder();
 
-    builder.addEntries(this.stream().filter(pred));
+    builder.addEntries(this.stream().filter(pred, options));
 
     if (builder.size === this.size) return this;
 

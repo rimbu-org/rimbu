@@ -1,4 +1,4 @@
-import type { OptLazy } from '../../common/mod.ts';
+import { type OptLazy } from '../../common/mod.ts';
 
 import { Lookup, type ActionBase, type Slice } from './internal.ts';
 

@@ -1,6 +1,5 @@
 import type { ArrayNonEmpty } from '../../../../common/mod.ts';
-import type { StreamSource } from '../../../../stream/mod.ts';
-import { Reducer } from '../../../../common/mod.ts';
+import { Reducer, type StreamSource } from '../../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../../stream/custom/index.ts';
 
 import type { ValuedGraphBase } from '../../../../graph/custom/index.ts';
@@ -10,9 +9,9 @@ import type {
 } from '../../common/index.ts';
 
 import {
+  ValuedGraphBuilder,
   ValuedGraphEmpty,
   ValuedGraphNonEmpty,
-  ValuedGraphBuilder,
 } from '../../../../graph/custom/index.ts';
 
 export interface ValuedGraphTypesContextImpl extends ValuedGraphBase.Types {

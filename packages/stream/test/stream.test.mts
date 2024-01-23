@@ -1,7 +1,7 @@
 import { Arr } from '@rimbu/base';
-import { Eq, Reducer } from '@rimbu/common';
+import { Eq } from '@rimbu/common';
 
-import { Stream } from '../src/main/index.mjs';
+import { Stream, Reducer } from '../src/main/index.mjs';
 
 function isNonEmpty(it: Stream.NonEmpty<any>) {
   //
@@ -17,8 +17,8 @@ const streamRange5 = Stream.range({ amount: 100 }).map((v) => v);
 const streamRange6 = Stream.range({ amount: 99 }).append(99);
 const streamRange7 = Stream.range({ start: 1, amount: 99 }).prepend(0);
 const streamRange8 = Stream.range({ amount: 100 }).filter(() => true);
-const arr = Stream.range({ start: 99, end: 0 }, -1).toArray();
-const streamRange9 = Stream.fromArray(arr, undefined, true);
+const arr = Stream.range({ start: 99, end: 0 }, { delta: -1 }).toArray();
+const streamRange9 = Stream.fromArray(arr, { reversed: true });
 
 const sources = [
   streamRange1,
@@ -61,11 +61,15 @@ describe('Stream constructors', () => {
     expect(Stream.fromArray([])).toBe(Stream.empty());
     const arr = [1, 2, 3, 4];
     expect(Stream.fromArray(arr).toArray()).toEqual(arr);
-    expect(Stream.fromArray(arr, undefined, true).toArray()).toEqual([
+    expect(Stream.fromArray(arr, { reversed: true }).toArray()).toEqual([
       4, 3, 2, 1,
     ]);
-    expect(Stream.fromArray(arr, { start: 2 }).toArray()).toEqual([3, 4]);
-    expect(Stream.fromArray(arr, { start: 2 }, true).toArray()).toEqual([4, 3]);
+    expect(Stream.fromArray(arr, { range: { start: 2 } }).toArray()).toEqual([
+      3, 4,
+    ]);
+    expect(
+      Stream.fromArray(arr, { range: { start: 2 }, reversed: true }).toArray()
+    ).toEqual([4, 3]);
   });
 
   it('fromObject', () => {
@@ -99,13 +103,17 @@ describe('Stream constructors', () => {
     expect(Stream.fromString('')).toBe(Stream.empty());
     expect(Stream.fromString('')).toBe(Stream.empty());
     expect(Stream.fromString('abc').toArray()).toEqual(['a', 'b', 'c']);
-    expect(Stream.fromString('abc', { amount: 2 }, true).toArray()).toEqual([
-      'b',
-      'a',
-    ]);
+    expect(
+      Stream.fromString('abc', {
+        range: { amount: 2 },
+        reversed: true,
+      }).toArray()
+    ).toEqual(['b', 'a']);
     expect(Stream.fromString('abc').join()).toEqual('abc');
-    expect(Stream.fromString('abc', undefined, true).join()).toEqual('cba');
-    expect(Stream.fromString('abc', { amount: 2 }, true).join()).toEqual('ba');
+    expect(Stream.fromString('abc', { reversed: true }).join()).toEqual('cba');
+    expect(
+      Stream.fromString('abc', { range: { amount: 2 }, reversed: true }).join()
+    ).toEqual('ba');
   });
 
   it('always', () => {
@@ -128,11 +136,13 @@ describe('Stream constructors', () => {
     expect(Stream.range({ start: 0, end: 5 }).toArray()).toEqual([
       0, 1, 2, 3, 4, 5,
     ]);
-    expect(Stream.range({ start: 5, end: 0 }, -1).toArray()).toEqual([
-      5, 4, 3, 2, 1, 0,
-    ]);
+    expect(Stream.range({ start: 5, end: 0 }, { delta: -1 }).toArray()).toEqual(
+      [5, 4, 3, 2, 1, 0]
+    );
     expect(Stream.range({ start: 0, end: -5 })).toBe(Stream.empty());
-    expect(Stream.range({ start: 0, end: 5 }, -1)).toBe(Stream.empty());
+    expect(Stream.range({ start: 0, end: 5 }, { delta: -1 })).toBe(
+      Stream.empty()
+    );
     expect([...Stream.range({ start: 0, end: 5 })]).toEqual([0, 1, 2, 3, 4, 5]);
     expect(Stream.range({ end: 5 }).toArray()).toEqual([0, 1, 2, 3, 4, 5]);
     expect(Stream.range({ amount: 5 }).toArray()).toEqual([0, 1, 2, 3, 4]);
@@ -187,7 +197,9 @@ describe('Stream methods', () => {
     expect(s2.equals(s2)).toBe(true);
     expect(Stream.of('a', 'b').equals(['A', 'B'])).toBe(false);
     expect(
-      Stream.of('a', 'b').equals(['A', 'B'], Eq.stringCaseInsentitiveEq())
+      Stream.of('a', 'b').equals(['A', 'B'], {
+        eq: Eq.stringCaseInsentitiveEq(),
+      })
     ).toBe(true);
 
     sources.forEach((source) => {
@@ -303,7 +315,7 @@ describe('Stream methods', () => {
       [1, 2],
       [2, 3],
     ]);
-    expect(Stream.of(1, 2, 3).indexed(5).toArray()).toEqual([
+    expect(Stream.of(1, 2, 3).indexed({ startIndex: 5 }).toArray()).toEqual([
       [5, 1],
       [6, 2],
       [7, 3],
@@ -405,33 +417,110 @@ describe('Stream methods', () => {
     });
   });
 
-  it('filterPure', () => {
-    expect(Stream.empty().filterPure((v) => true)).toBe(Stream.empty());
+  it('filter negate', () => {
+    expect(Stream.empty().filter((v) => true, { negate: true })).toBe(
+      Stream.empty()
+    );
     expect(
       Stream.of(1, 2, 3)
-        .filterPure((v) => true)
+        .filter((v) => false, { negate: true })
         .toArray()
     ).toEqual([1, 2, 3]);
     expect(
       Stream.of(1, 2, 3)
-        .filterPure((v) => false)
+        .filter((v) => true, { negate: true })
         .toArray()
     ).toEqual([]);
     expect(
       Stream.of(1, 2, 3)
-        .filterPure((v) => v % 2 === 1)
+        .filter((v) => v % 2 === 0, { negate: true })
         .toArray()
     ).toEqual([1, 3]);
 
     sources.forEach((source) => {
-      expect(source.filterPure((v) => false).toArray()).toEqual([]);
-      expect(source.filterPure((v) => v % 30 === 0).toArray()).toEqual([
-        0, 30, 60, 90,
-      ]);
+      expect(source.filter((v) => true, { negate: true }).toArray()).toEqual(
+        []
+      );
+      expect(
+        source.filter((v) => v % 30 > 0, { negate: true }).toArray()
+      ).toEqual([0, 30, 60, 90]);
+      expect(
+        source.filter((v, i) => i % 30 > 0, { negate: true }).toArray()
+      ).toEqual([0, 30, 60, 90]);
       expect(
         source
-          .filterPure((v) => v % 15 === 0)
-          .filterPure((v) => v % 20 === 0)
+          .filter((v) => v % 15 > 0, { negate: true })
+          .filter((v) => v % 20 > 0, { negate: true })
+          .toArray()
+      ).toEqual([0, 60]);
+    });
+  });
+
+  it('filterPure', () => {
+    expect(Stream.empty().filterPure({ pred: (v) => true })).toBe(
+      Stream.empty()
+    );
+    expect(
+      Stream.of(1, 2, 3)
+        .filterPure({ pred: (v) => true })
+        .toArray()
+    ).toEqual([1, 2, 3]);
+    expect(
+      Stream.of(1, 2, 3)
+        .filterPure({ pred: (v) => false })
+        .toArray()
+    ).toEqual([]);
+    expect(
+      Stream.of(1, 2, 3)
+        .filterPure({ pred: (v) => v % 2 === 1 })
+        .toArray()
+    ).toEqual([1, 3]);
+
+    sources.forEach((source) => {
+      expect(source.filterPure({ pred: (v) => false }).toArray()).toEqual([]);
+      expect(
+        source.filterPure({ pred: (v) => v % 30 === 0 }).toArray()
+      ).toEqual([0, 30, 60, 90]);
+      expect(
+        source
+          .filterPure({ pred: (v) => v % 15 === 0 })
+          .filterPure({ pred: (v) => v % 20 === 0 })
+          .toArray()
+      ).toEqual([0, 60]);
+    });
+  });
+
+  it('filterPure negate', () => {
+    expect(
+      Stream.empty().filterPure({ pred: (v) => false, negate: true })
+    ).toBe(Stream.empty());
+    expect(
+      Stream.of(1, 2, 3)
+        .filterPure({ pred: (v) => false, negate: true })
+        .toArray()
+    ).toEqual([1, 2, 3]);
+    expect(
+      Stream.of(1, 2, 3)
+        .filterPure({ pred: (v) => true, negate: true })
+        .toArray()
+    ).toEqual([]);
+    expect(
+      Stream.of(1, 2, 3)
+        .filterPure({ pred: (v) => v % 2 === 0, negate: true })
+        .toArray()
+    ).toEqual([1, 3]);
+
+    sources.forEach((source) => {
+      expect(
+        source.filterPure({ pred: (v) => true, negate: true }).toArray()
+      ).toEqual([]);
+      expect(
+        source.filterPure({ pred: (v) => v % 30 > 0, negate: true }).toArray()
+      ).toEqual([0, 30, 60, 90]);
+      expect(
+        source
+          .filterPure({ pred: (v) => v % 15 > 0, negate: true })
+          .filterPure({ pred: (v) => v % 20 > 0, negate: true })
           .toArray()
       ).toEqual([0, 60]);
     });
@@ -546,17 +635,57 @@ describe('Stream methods', () => {
   });
 
   it('find', () => {
-    expect(Stream.empty().find((v) => false, 1)).toBe(undefined);
-    expect(Stream.empty().find((v) => false, 1, 'a')).toBe('a');
-    expect(Stream.empty().find((v) => true, 1)).toBe(undefined);
-    expect(Stream.empty().find((v) => true, 1, 'a')).toBe('a');
-    expect(Stream.of(1, 2, 3).find((v) => v === 2, 1, 'a')).toBe(2);
-    expect(Stream.of(1, 2, 3).find((v) => v === 10, 1, 'a')).toBe('a');
-    expect(Stream.of(1, 2, 1, 4).find((v) => v > 1, 2, 'a')).toBe(4);
+    expect(Stream.empty().find((v) => false)).toBe(undefined);
+    expect(Stream.empty().find((v) => false, { otherwise: 'a' })).toBe('a');
+    expect(Stream.empty().find((v) => true)).toBe(undefined);
+    expect(Stream.empty().find((v) => true, { otherwise: 'a' })).toBe('a');
+    expect(Stream.of(1, 2, 3).find((v) => v === 2, { otherwise: 'a' })).toBe(2);
+    expect(Stream.of(1, 2, 3).find((v) => v === 10, { otherwise: 'a' })).toBe(
+      'a'
+    );
+    expect(
+      Stream.of(1, 2, 1, 4).find((v) => v > 1, {
+        occurrance: 2,
+        otherwise: 'a',
+      })
+    ).toBe(4);
 
     sources.forEach((source) => {
-      expect(source.find((v) => v === 70, 1, 'a')).toBe(70);
-      expect(source.find((v) => v === -10, 1, 'a')).toBe('a');
+      expect(source.find((v) => v === 70, { otherwise: 'a' })).toBe(70);
+      expect(source.find((v) => v === -10, { otherwise: 'a' })).toBe('a');
+    });
+  });
+
+  it('find negate', () => {
+    expect(Stream.empty().find((v) => true, { negate: true })).toBe(undefined);
+    expect(
+      Stream.empty().find((v) => true, { negate: true, otherwise: 'a' })
+    ).toBe('a');
+    expect(Stream.empty().find((v) => false, { negate: true })).toBe(undefined);
+    expect(
+      Stream.empty().find((v) => false, { negate: true, otherwise: 'a' })
+    ).toBe('a');
+    expect(
+      Stream.of(1, 2, 3).find((v) => v !== 2, { negate: true, otherwise: 'a' })
+    ).toBe(2);
+    expect(
+      Stream.of(1, 2, 3).find((v) => v !== 10, { negate: true, otherwise: 'a' })
+    ).toBe('a');
+    expect(
+      Stream.of(1, 2, 1, 4).find((v) => v <= 1, {
+        negate: true,
+        occurrance: 2,
+        otherwise: 'a',
+      })
+    ).toBe(4);
+
+    sources.forEach((source) => {
+      expect(
+        source.find((v) => v !== 70, { negate: true, otherwise: 'a' })
+      ).toBe(70);
+      expect(
+        source.find((v) => v !== -10, { negate: true, otherwise: 'a' })
+      ).toBe('a');
     });
   });
 
@@ -599,6 +728,35 @@ describe('Stream methods', () => {
     });
   });
 
+  it('indicesWhere negate', () => {
+    expect(
+      Stream.empty<number>().indicesWhere((v) => v > 0, { negate: true })
+    ).toBe(Stream.empty());
+    expect(
+      Stream.of(1)
+        .indicesWhere((v) => v <= 0, { negate: true })
+        .toArray()
+    ).toEqual([0]);
+    expect(
+      Stream.of(1)
+        .indicesWhere((v) => v >= 0, { negate: true })
+        .toArray()
+    ).toEqual([]);
+    expect(
+      Stream.of(1, 2, 1)
+        .indicesWhere((v) => v >= 2, { negate: true })
+        .toArray()
+    ).toEqual([0, 2]);
+    sources.forEach((source) => {
+      expect(
+        source.indicesWhere((v) => v < 97, { negate: true }).toArray()
+      ).toEqual([97, 98, 99]);
+      expect(
+        source.indicesWhere((v) => v >= 0, { negate: true }).toArray()
+      ).toEqual([]);
+    });
+  });
+
   it('indicesOf', () => {
     expect(Stream.empty<number>().indicesOf(1)).toBe(Stream.empty());
     expect(Stream.of(1).indicesOf(1).toArray()).toEqual([0]);
@@ -610,19 +768,80 @@ describe('Stream methods', () => {
     });
   });
 
+  it('indicesOf negate', () => {
+    expect(Stream.empty<number>().indicesOf(1, { negate: true })).toBe(
+      Stream.empty()
+    );
+    expect(Stream.of(1).indicesOf(3, { negate: true }).toArray()).toEqual([0]);
+    expect(Stream.of(1).indicesOf(1, { negate: true }).toArray()).toEqual([]);
+    expect(Stream.of(1, 2, 1).indicesOf(2, { negate: true }).toArray()).toEqual(
+      [0, 2]
+    );
+    sources.forEach((source) => {
+      expect(source.indicesOf(50, { negate: true }).toArray().length).toBe(99);
+      expect(source.indicesOf(-1, { negate: true }).toArray().length).toBe(100);
+    });
+  });
+
   it('indexWhere', () => {
     expect(Stream.empty<number>().indexWhere((v) => v >= 0)).toBe(undefined);
     expect(Stream.of(1).indexWhere((v) => v >= 0)).toBe(0);
     expect(Stream.of(1).indexWhere((v) => v < 0)).toBe(undefined);
-    expect(Stream.of(1).indexWhere((v) => v >= 0, 2)).toBe(undefined);
+    expect(Stream.of(1).indexWhere((v) => v >= 0, { occurrance: 2 })).toBe(
+      undefined
+    );
     expect(Stream.of(1, 2, 1).indexWhere((v) => v >= 2)).toBe(1);
     expect(Stream.of(1, 2, 1).indexWhere((v) => v < 0)).toBe(undefined);
-    expect(Stream.of(1, 2, 1).indexWhere((v) => v < 2, 2)).toBe(2);
-    expect(Stream.of(1, 2, 1).indexWhere((v) => v < 2, 3)).toBe(undefined);
+    expect(Stream.of(1, 2, 1).indexWhere((v) => v < 2, { occurrance: 2 })).toBe(
+      2
+    );
+    expect(Stream.of(1, 2, 1).indexWhere((v) => v < 2, { occurrance: 3 })).toBe(
+      undefined
+    );
     sources.forEach((source) => {
       expect(source.indexWhere((v) => v >= 50)).toEqual(50);
-      expect(source.indexWhere((v) => v >= 50, 10)).toEqual(59);
+      expect(source.indexWhere((v) => v >= 50, { occurrance: 10 })).toEqual(59);
       expect(source.indexWhere((v) => v < 0)).toEqual(undefined);
+    });
+  });
+
+  it('indexWhere negate', () => {
+    expect(
+      Stream.empty<number>().indexWhere((v) => v < 0, { negate: true })
+    ).toBe(undefined);
+    expect(Stream.of(1).indexWhere((v) => v < 0, { negate: true })).toBe(0);
+    expect(Stream.of(1).indexWhere((v) => v >= 0, { negate: true })).toBe(
+      undefined
+    );
+    expect(
+      Stream.of(1).indexWhere((v) => v < 0, { negate: true, occurrance: 2 })
+    ).toBe(undefined);
+    expect(Stream.of(1, 2, 1).indexWhere((v) => v < 2, { negate: true })).toBe(
+      1
+    );
+    expect(Stream.of(1, 2, 1).indexWhere((v) => v >= 0, { negate: true })).toBe(
+      undefined
+    );
+    expect(
+      Stream.of(1, 2, 1).indexWhere((v) => v >= 2, {
+        negate: true,
+        occurrance: 2,
+      })
+    ).toBe(2);
+    expect(
+      Stream.of(1, 2, 1).indexWhere((v) => v >= 2, {
+        negate: true,
+        occurrance: 3,
+      })
+    ).toBe(undefined);
+    sources.forEach((source) => {
+      expect(source.indexWhere((v) => v < 50, { negate: true })).toEqual(50);
+      expect(
+        source.indexWhere((v) => v < 50, { negate: true, occurrance: 10 })
+      ).toEqual(59);
+      expect(source.indexWhere((v) => v >= 0, { negate: true })).toEqual(
+        undefined
+      );
     });
   });
 
@@ -630,15 +849,41 @@ describe('Stream methods', () => {
     expect(Stream.empty<number>().indexOf(1)).toBe(undefined);
     expect(Stream.of(1).indexOf(1)).toBe(0);
     expect(Stream.of(1).indexOf(2)).toBe(undefined);
-    expect(Stream.of(1).indexOf(1, 2)).toBe(undefined);
+    expect(Stream.of(1).indexOf(1, { occurrance: 2 })).toBe(undefined);
     expect(Stream.of(1, 2, 1).indexOf(2)).toBe(1);
     expect(Stream.of(1, 2, 1).indexOf(3)).toBe(undefined);
-    expect(Stream.of(1, 2, 1).indexOf(1, 2)).toBe(2);
-    expect(Stream.of(1, 2, 1).indexOf(1, 3)).toBe(undefined);
+    expect(Stream.of(1, 2, 1).indexOf(1, { occurrance: 2 })).toBe(2);
+    expect(Stream.of(1, 2, 1).indexOf(1, { occurrance: 3 })).toBe(undefined);
     sources.forEach((source) => {
       expect(source.indexOf(50)).toEqual(50);
-      expect(source.indexOf(50, 2)).toEqual(undefined);
+      expect(source.indexOf(50, { occurrance: 2 })).toEqual(undefined);
       expect(source.indexOf(-1)).toEqual(undefined);
+    });
+  });
+
+  it('indexOf negate', () => {
+    expect(Stream.empty<number>().indexOf(1, { negate: true })).toBe(undefined);
+    expect(Stream.of(1).indexOf(5, { negate: true })).toBe(0);
+    expect(Stream.of(1).indexOf(1, { negate: true })).toBe(undefined);
+    expect(Stream.of(1).indexOf(5, { negate: true, occurrance: 2 })).toBe(
+      undefined
+    );
+    expect(Stream.of(1, 2, 1).indexOf(1, { negate: true })).toBe(1);
+    expect(Stream.of(1, 2, 1).indexOf(2, { negate: true })).toBe(0);
+    expect(Stream.of(1, 2, 1).indexOf(1, { negate: true, occurrance: 2 })).toBe(
+      undefined
+    );
+    expect(
+      Stream.of(1, 2, 1, 2).indexOf(1, { negate: true, occurrance: 2 })
+    ).toBe(3);
+    expect(Stream.of(1, 2, 1).indexOf(2, { negate: true, occurrance: 3 })).toBe(
+      undefined
+    );
+    sources.forEach((source) => {
+      expect(source.indexOf(10, { negate: true })).toEqual(0);
+      expect(source.indexOf(50, { negate: true, occurrance: 2 })).toEqual(1);
+      expect(source.indexOf(50, { negate: true, occurrance: 20 })).toEqual(19);
+      expect(source.indexOf(-1, { negate: true })).toEqual(0);
     });
   });
 
@@ -652,6 +897,24 @@ describe('Stream methods', () => {
       expect(source.some((v) => v === -50)).toBe(false);
       expect(source.some((v, i) => i === 50)).toBe(true);
       expect(source.some((v, i) => i === -50)).toBe(false);
+    });
+  });
+
+  it('some negate', () => {
+    expect(Stream.empty().some((v) => false, { negate: true })).toBe(false);
+    expect(Stream.empty().some((v) => true, { negate: true })).toBe(false);
+    expect(Stream.of(1, 2, 3).some((v) => v !== 2, { negate: true })).toBe(
+      true
+    );
+    expect(Stream.of(1, 2, 3).some((v) => v !== 10, { negate: true })).toBe(
+      false
+    );
+
+    sources.forEach((source) => {
+      expect(source.some((v) => v !== 50, { negate: true })).toBe(true);
+      expect(source.some((v) => v !== -50, { negate: true })).toBe(false);
+      expect(source.some((v, i) => i !== 50, { negate: true })).toBe(true);
+      expect(source.some((v, i) => i !== -50, { negate: true })).toBe(false);
     });
   });
 
@@ -670,20 +933,69 @@ describe('Stream methods', () => {
     });
   });
 
+  it('every negate', () => {
+    expect(Stream.empty().every(() => false, { negate: true })).toBe(true);
+    expect(Stream.empty().every(() => true, { negate: true })).toBe(true);
+    expect(Stream.of(1, 2, 3).every((v) => v <= 0, { negate: true })).toBe(
+      true
+    );
+    expect(Stream.of(1, 2, 3).every((v) => v >= 3, { negate: true })).toBe(
+      false
+    );
+    expect(Stream.of(1, 2, 3).every((v, i) => i < 0, { negate: true })).toBe(
+      true
+    );
+    expect(Stream.of(1, 2, 3).every((v, i) => i >= 2, { negate: true })).toBe(
+      false
+    );
+
+    sources.forEach((source) => {
+      expect(source.every((v) => v >= 50, { negate: true })).toBe(false);
+      expect(source.every((v) => v < 0, { negate: true })).toBe(true);
+      expect(source.every((v, i) => i >= 50, { negate: true })).toBe(false);
+      expect(source.every((v, i) => i < 0, { negate: true })).toBe(true);
+    });
+  });
+
   it('contains', () => {
     expect(Stream.empty().contains(1)).toBe(false);
     expect(Stream.of(1).contains(1)).toBe(true);
-    expect(Stream.of(1).contains(1, 2)).toBe(false);
-    expect(Stream.of(1).contains(1, 0)).toBe(true);
+    expect(Stream.of(1).contains(1, { amount: 2 })).toBe(false);
+    expect(Stream.of(1).contains(1, { amount: 0 })).toBe(true);
     expect(Stream.of(1).contains(2)).toBe(false);
-    expect(Stream.of(1, 2, 1, 2, 1, 2).contains(2, 2)).toBe(true);
-    expect(Stream.of(1, 2, 1, 2, 1, 2).contains(2, 3)).toBe(true);
-    expect(Stream.of(1, 2, 1, 2, 1, 2).contains(2, 4)).toBe(false);
+    expect(Stream.of(1, 2, 1, 2, 1, 2).contains(2, { amount: 2 })).toBe(true);
+    expect(Stream.of(1, 2, 1, 2, 1, 2).contains(2, { amount: 3 })).toBe(true);
+    expect(Stream.of(1, 2, 1, 2, 1, 2).contains(2, { amount: 4 })).toBe(false);
     sources.forEach((source) => {
       expect(source.contains(50)).toBe(true);
-      expect(source.contains(50, 2)).toBe(false);
+      expect(source.contains(50, { amount: 2 })).toBe(false);
       expect(source.contains(-50)).toBe(false);
-      expect(source.contains(-50, 2)).toBe(false);
+      expect(source.contains(-50, { amount: 2 })).toBe(false);
+    });
+  });
+
+  it('contains negate', () => {
+    expect(Stream.empty().contains(1, { negate: true })).toBe(false);
+    expect(Stream.of(1).contains(1, { negate: true })).toBe(false);
+    expect(Stream.of(1).contains(1, { negate: true, amount: 2 })).toBe(false);
+    expect(Stream.of(1).contains(1, { negate: true, amount: 0 })).toBe(true);
+    expect(Stream.of(1).contains(2, { negate: true })).toBe(true);
+    expect(
+      Stream.of(1, 2, 1, 2, 1, 2).contains(1, { negate: true, amount: 2 })
+    ).toBe(true);
+    expect(
+      Stream.of(1, 2, 1, 2, 1, 2).contains(1, { negate: true, amount: 3 })
+    ).toBe(true);
+    expect(
+      Stream.of(1, 2, 1, 2, 1, 2).contains(2, { negate: true, amount: 4 })
+    ).toBe(false);
+
+    sources.forEach((source) => {
+      expect(source.contains(50, { negate: true })).toBe(true);
+      expect(source.contains(50, { negate: true, amount: 100 })).toBe(false);
+      expect(source.contains(-50, { negate: true })).toBe(true);
+      expect(source.contains(-50, { negate: true, amount: 100 })).toBe(true);
+      expect(source.contains(-50, { negate: true, amount: 101 })).toBe(false);
     });
   });
 
@@ -694,6 +1006,7 @@ describe('Stream methods', () => {
     expect(Stream.of(9, 8, 1, 2, 3).containsSlice([1, 2, 3])).toBe(true);
     expect(Stream.of(1, 2, 3, 9, 8).containsSlice([1, 2, 3])).toBe(true);
     expect(Stream.of(9, 8, 1, 2, 3, 9, 8).containsSlice([1, 2, 3])).toBe(true);
+    expect(Stream.of(9, 8, 1, 2, 3, 9, 8).containsSlice([1, 2, 4])).toBe(false);
   });
 
   it('takeWhile', () => {
@@ -716,6 +1029,34 @@ describe('Stream methods', () => {
     });
   });
 
+  it('takeWhile negate', () => {
+    expect(Stream.empty().takeWhile((v) => false, { negate: true })).toBe(
+      Stream.empty()
+    );
+    expect(Stream.empty().takeWhile((v) => true, { negate: true })).toBe(
+      Stream.empty()
+    );
+    expect(
+      Stream.of(1)
+        .takeWhile((v) => false, { negate: true })
+        .toArray()
+    ).toEqual([1]);
+    expect(
+      Stream.of(1)
+        .takeWhile((v) => true, { negate: true })
+        .toArray()
+    ).toEqual([]);
+
+    sources.forEach((source) => {
+      expect(source.takeWhile((v) => true, { negate: true }).toArray()).toEqual(
+        []
+      );
+      expect(
+        source.takeWhile((v) => v >= 3, { negate: true }).toArray()
+      ).toEqual([0, 1, 2]);
+    });
+  });
+
   it('dropWhile', () => {
     expect(Stream.empty().dropWhile((v) => true)).toBe(Stream.empty());
     expect(Stream.empty().dropWhile((v) => false)).toBe(Stream.empty());
@@ -735,6 +1076,36 @@ describe('Stream methods', () => {
       expect(source.dropWhile((v, i) => i < 97).toArray()).toEqual([
         97, 98, 99,
       ]);
+    });
+  });
+
+  it('dropWhile negate', () => {
+    expect(Stream.empty().dropWhile((v) => false, { negate: true })).toBe(
+      Stream.empty()
+    );
+    expect(Stream.empty().dropWhile((v) => true, { negate: true })).toBe(
+      Stream.empty()
+    );
+    expect(
+      Stream.of(1)
+        .dropWhile((v) => false, { negate: true })
+        .toArray()
+    ).toEqual([]);
+    expect(
+      Stream.of(1)
+        .dropWhile((v) => true, { negate: true })
+        .toArray()
+    ).toEqual([1]);
+    sources.forEach((source) => {
+      expect(
+        source.dropWhile((v) => false, { negate: true }).toArray()
+      ).toEqual([]);
+      expect(
+        source.dropWhile((v) => v >= 97, { negate: true }).toArray()
+      ).toEqual([97, 98, 99]);
+      expect(
+        source.dropWhile((v, i) => i >= 97, { negate: true }).toArray()
+      ).toEqual([97, 98, 99]);
     });
   });
 
@@ -918,6 +1289,36 @@ describe('Stream methods', () => {
     ]);
   });
 
+  it('splitWhere negate', () => {
+    function isOdd(v: number) {
+      return v % 2 === 1;
+    }
+
+    expect(
+      Stream.empty<number>().splitWhere(isOdd, { negate: true }).toArray()
+    ).toEqual([]);
+
+    expect(
+      Stream.of(1, 3, 5).splitWhere(isOdd, { negate: true }).toArray()
+    ).toEqual([[1, 3, 5]]);
+
+    expect(
+      Stream.of(1, 2, 5).splitWhere(isOdd, { negate: true }).toArray()
+    ).toEqual([[1], [5]]);
+
+    expect(
+      Stream.of(2, 2, 5).splitWhere(isOdd, { negate: true }).toArray()
+    ).toEqual([[], [], [5]]);
+
+    expect(
+      Stream.of(2, 5, 2).splitWhere(isOdd, { negate: true }).toArray()
+    ).toEqual([[], [5]]);
+
+    expect(
+      Stream.of(2, 2, 2).splitWhere(isOdd, { negate: true }).toArray()
+    ).toEqual([[], [], []]);
+  });
+
   it('splitOn', () => {
     expect(Stream.empty<number>().splitOn(2).toArray()).toEqual([]);
 
@@ -930,6 +1331,52 @@ describe('Stream methods', () => {
     expect(Stream.of(2, 5, 2).splitOn(2).toArray()).toEqual([[], [5]]);
 
     expect(Stream.of(2, 2, 2).splitOn(2).toArray()).toEqual([[], [], []]);
+  });
+
+  it('splitOn negate', () => {
+    expect(
+      Stream.empty<number>().splitOn(2, { negate: true }).toArray()
+    ).toEqual([]);
+
+    expect(Stream.of(1, 3, 5).splitOn(2, { negate: true }).toArray()).toEqual([
+      [],
+      [],
+      [],
+    ]);
+
+    expect(Stream.of(1, 2, 5).splitOn(2, { negate: true }).toArray()).toEqual([
+      [],
+      [2],
+    ]);
+
+    expect(Stream.of(2, 2, 5).splitOn(2, { negate: true }).toArray()).toEqual([
+      [2, 2],
+    ]);
+
+    expect(Stream.of(2, 5, 2).splitOn(2, { negate: true }).toArray()).toEqual([
+      [2],
+      [2],
+    ]);
+
+    expect(Stream.of(2, 2, 2).splitOn(2, { negate: true }).toArray()).toEqual([
+      [2, 2, 2],
+    ]);
+  });
+
+  it('splitOnSeq', () => {
+    expect(Stream.empty<number>().splitOnSeq([1, 2, 3]).toArray()).toEqual([]);
+    expect(Stream.of(1, 2).splitOnSeq([1, 2, 3]).toArray()).toEqual([[1, 2]]);
+    expect(Stream.of(1, 2, 3).splitOnSeq([1, 2, 3]).toArray()).toEqual([[]]);
+    expect(Stream.of(1, 1, 2, 3).splitOnSeq([1, 2, 3]).toArray()).toEqual([
+      [1],
+    ]);
+    expect(Stream.of(1, 1, 2, 3, 3).splitOnSeq([1, 2, 3]).toArray()).toEqual([
+      [1],
+      [3],
+    ]);
+    expect(
+      Stream.of(1, 1, 2, 3, 1, 2, 1, 2, 3, 1).splitOnSeq([1, 2, 3]).toArray()
+    ).toEqual([[1], [1, 2], [1]]);
   });
 
   it('fold', () => {
@@ -982,30 +1429,30 @@ describe('Stream methods', () => {
     ]);
   });
 
-  it('reduceAll', () => {
+  it('reduce multi array', () => {
     expect(
-      Stream.empty<number>().reduceAll(Reducer.sum, Reducer.count())
+      Stream.empty<number>().reduce([Reducer.sum, Reducer.count()])
     ).toEqual([0, 0]);
-    expect(Stream.of(1, 2, 3).reduceAll(Reducer.sum, Reducer.count())).toEqual([
+    expect(Stream.of(1, 2, 3).reduce([Reducer.sum, Reducer.count()])).toEqual([
       6, 3,
     ]);
 
     expect(
-      Stream.range({ start: 0 }).reduceAll(
+      Stream.range({ start: 0 }).reduce([
         Reducer.first<number>(),
-        Reducer.first<number>()
-      )
+        Reducer.first<number>(),
+      ])
     ).toEqual([0, 0]);
   });
 
-  it('reduceAllStream', () => {
+  it('reduceStream multi array', () => {
     expect(
       Stream.empty<number>()
-        .reduceAllStream(Reducer.sum, Reducer.count())
+        .reduceStream([Reducer.sum, Reducer.count()])
         .toArray()
     ).toEqual([]);
     expect(
-      Stream.of(1, 2, 3).reduceAllStream(Reducer.sum, Reducer.count()).toArray()
+      Stream.of(1, 2, 3).reduceStream([Reducer.sum, Reducer.count()]).toArray()
     ).toEqual([
       [1, 1],
       [3, 2],
@@ -1138,13 +1585,15 @@ describe('Stream methods', () => {
   });
 
   it('unzip', () => {
-    const [u1l, u1r] = Stream.unzip(Stream.empty<[number, string]>(), 2);
+    const [u1l, u1r] = Stream.unzip(Stream.empty<[number, string]>(), {
+      length: 2,
+    });
     expect(u1l.toArray()).toEqual([]);
     expect(u1r.toArray()).toEqual([]);
 
     const [u2l, u2r] = Stream.unzip(
       Stream.of<[number, string]>([1, 'a'], [2, 'b']),
-      2
+      { length: 2 }
     );
     expect(u2l.toArray()).toEqual([1, 2]);
     expect(u2r.toArray()).toEqual(['a', 'b']);
@@ -1170,13 +1619,17 @@ describe('Stream methods', () => {
       [1, 2, 3],
       [4, 5, 6],
     ]);
-    expect(Stream.of(1, 2, 3, 4, 5, 6).window(3, 1).toArray()).toEqual([
+    expect(
+      Stream.of(1, 2, 3, 4, 5, 6).window(3, { skipAmount: 1 }).toArray()
+    ).toEqual([
       [1, 2, 3],
       [2, 3, 4],
       [3, 4, 5],
       [4, 5, 6],
     ]);
-    expect(Stream.of(1, 2, 3, 4, 5, 6).window(2, 3).toArray()).toEqual([
+    expect(
+      Stream.of(1, 2, 3, 4, 5, 6).window(2, { skipAmount: 3 }).toArray()
+    ).toEqual([
       [1, 2],
       [4, 5],
     ]);
@@ -1184,24 +1637,30 @@ describe('Stream methods', () => {
 
   it('window collector', () => {
     expect(
-      Stream.empty<number>().window(3, undefined, Reducer.toJSSet()).toArray()
+      Stream.empty<number>()
+        .window(3, { collector: Reducer.toJSSet() })
+        .toArray()
     ).toEqual([]);
     expect(
-      Stream.of(1, 2).window(3, undefined, Reducer.toJSSet()).toArray()
+      Stream.of(1, 2).window(3, { collector: Reducer.toJSSet() }).toArray()
     ).toEqual([]);
     expect(
-      Stream.of(1, 2, 3).window(3, undefined, Reducer.toJSSet()).toArray()
+      Stream.of(1, 2, 3).window(3, { collector: Reducer.toJSSet() }).toArray()
     ).toEqual([new Set([1, 2, 3])]);
     expect(
-      Stream.of(1, 2, 3, 4, 5).window(3, undefined, Reducer.toJSSet()).toArray()
+      Stream.of(1, 2, 3, 4, 5)
+        .window(3, { collector: Reducer.toJSSet() })
+        .toArray()
     ).toEqual([new Set([1, 2, 3])]);
     expect(
       Stream.of(1, 2, 3, 4, 5, 6)
-        .window(3, undefined, Reducer.toJSSet())
+        .window(3, { collector: Reducer.toJSSet() })
         .toArray()
     ).toEqual([new Set([1, 2, 3]), new Set([4, 5, 6])]);
     expect(
-      Stream.of(1, 2, 3, 4, 5, 6).window(3, 1, Reducer.toJSSet()).toArray()
+      Stream.of(1, 2, 3, 4, 5, 6)
+        .window(3, { skipAmount: 1, collector: Reducer.toJSSet() })
+        .toArray()
     ).toEqual([
       new Set([1, 2, 3]),
       new Set([2, 3, 4]),

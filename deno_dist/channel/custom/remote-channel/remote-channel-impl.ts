@@ -351,7 +351,7 @@ export class RemoteChannelRead<T>
   }
 
   asyncStream(): AsyncStream<T> {
-    return new AsyncFromStream(() => new ChannelFastIterator<T>(this));
+    return new AsyncFromStream<T>(() => new ChannelFastIterator<T>(this));
   }
 
   readable(): Channel.Read<T> {

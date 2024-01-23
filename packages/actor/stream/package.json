@@ -1,7 +1,0 @@
-{
-  "name": "stream",
-  "private": true,
-  "main": "../dist/cjs/stream/index.cjs",
-  "module": "../dist/esm/stream/index.mjs",
-  "types": "../dist/types/stream/index.d.mts"
-}

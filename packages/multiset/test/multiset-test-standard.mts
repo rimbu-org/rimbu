@@ -298,22 +298,22 @@ export function runMultiSetTestsWith(name: string, MS: MultiSet.Context<any>) {
 
     it('remove', () => {
       expect(set_empty.remove('b')).toBe(set_empty);
-      expect(set_empty.remove('b', 0)).toBe(set_empty);
-      expect(set_empty.remove('b', 10)).toBe(set_empty);
-      expect(set_empty.remove('b', 'ALL')).toBe(set_empty);
+      expect(set_empty.remove('b', { amount: 0 })).toBe(set_empty);
+      expect(set_empty.remove('b', { amount: 10 })).toBe(set_empty);
+      expect(set_empty.remove('b', { amount: 'ALL' })).toBe(set_empty);
 
       expect(set_4.remove('z')).toBe(set_4);
-      expect(set_4.remove('b', 0)).toBe(set_4);
+      expect(set_4.remove('b', { amount: 0 })).toBe(set_4);
       expectEqual(set_4.remove('c'), [
         ['a', 1],
         ['b', 1],
         ['c', 1],
       ]);
-      expectEqual(set_4.remove('c', 10), [
+      expectEqual(set_4.remove('c', { amount: 10 }), [
         ['a', 1],
         ['b', 1],
       ]);
-      expectEqual(set_4.remove('c', 'ALL'), [
+      expectEqual(set_4.remove('c', { amount: 'ALL' }), [
         ['a', 1],
         ['b', 1],
       ]);

@@ -1,7 +1,6 @@
 import { RimbuError } from '@rimbu/base';
 import type { ArrayNonEmpty } from '@rimbu/common';
-import { Reducer } from '@rimbu/common';
-import { Stream, type StreamSource } from '@rimbu/stream';
+import { Reducer, Stream, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 import type { List } from '@rimbu/list';
@@ -14,17 +13,17 @@ import type {
 } from '@rimbu/list/custom';
 import {
   CacheMap,
-  createEmptyList,
-  LeafBlock,
-  ReversedLeafBlock,
-  LeafTree,
-  NonLeafBlock,
-  NonLeafTree,
   GenBuilder,
+  LeafBlock,
   LeafBlockBuilder,
-  NonLeafBlockBuilder,
+  LeafTree,
   LeafTreeBuilder,
+  NonLeafBlock,
+  NonLeafBlockBuilder,
+  NonLeafTree,
   NonLeafTreeBuilder,
+  ReversedLeafBlock,
+  createEmptyList,
 } from '@rimbu/list/custom';
 
 export class ListContext implements List.Context {
@@ -148,8 +147,8 @@ export class ListContext implements List.Context {
   readonly flatten = (source: any): any =>
     this.from(source).flatMap((s: any) => s);
 
-  readonly unzip = (source: any, length: number): any => {
-    const streams = Stream.unzip(source, length) as any as Stream<any>[];
+  readonly unzip = (source: any, options: { length: number }): any => {
+    const streams = Stream.unzip(source, options) as any as Stream<any>[];
 
     return Stream.from(streams).mapPure(this.from) as any;
   };

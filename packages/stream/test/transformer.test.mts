@@ -1,6 +1,4 @@
-import { Reducer } from '@rimbu/common';
-
-import { Stream, Transformer } from '../src/main/index.mjs';
+import { Stream, Transformer, Reducer } from '../src/main/index.mjs';
 
 describe('Collector', () => {
   it('window', () => {
@@ -26,7 +24,9 @@ describe('Collector', () => {
 
   it('sliding window', () => {
     expect(
-      Stream.of(1, 2, 3, 4, 5, 6).transform(Transformer.window(3, 1)).toArray()
+      Stream.of(1, 2, 3, 4, 5, 6)
+        .transform(Transformer.window(3, { skipAmount: 1 }))
+        .toArray()
     ).toEqual([
       [1, 2, 3],
       [2, 3, 4],
@@ -38,7 +38,9 @@ describe('Collector', () => {
   it('collects to different targets', () => {
     expect(
       Stream.of(1, 2, 3, 4, 5, 6)
-        .transform(Transformer.window(3, 1, Reducer.toJSSet()))
+        .transform(
+          Transformer.window(3, { skipAmount: 1, collector: Reducer.toJSSet() })
+        )
         .toArray()
     ).toEqual([
       new Set([1, 2, 3]),

@@ -191,6 +191,20 @@ describe('BiMap methods', () => {
       [6, 'f'],
     ]);
     expect(map6_1.filter(first2).size).toBe(2);
+
+    expect(mapEmpty.filter(isEvenKey, { negate: true })).toBe(mapEmpty);
+    expectEqual(map3_1.filter(isEvenKey, { negate: true }), [
+      [1, 'a'],
+      [3, 'c'],
+    ]);
+    expectEqual(map3_1.filter(first2, { negate: true }), []);
+
+    expectEqual(map6_1.filter(isEvenKey, { negate: true }), [
+      [1, 'a'],
+      [3, 'c'],
+      [5, 'e'],
+    ]);
+    expect(map6_1.filter(first2, { negate: true }).size).toBe(0);
   });
 
   it('forEach', () => {

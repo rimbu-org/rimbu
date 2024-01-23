@@ -90,9 +90,10 @@
     "@rimbu/hashed": "^1.1.1",
     "@rimbu/sorted": "^1.1.1",
     "@rimbu/stream": "^1.1.1",
-    "tslib": "^2.6.1"
+    "tslib": "^2.6.2"
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "devDependencies": {}
 }
