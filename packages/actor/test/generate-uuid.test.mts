@@ -32,7 +32,7 @@ describe('generateUUID', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.5);
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2023/01/01'));
-    expect(generateUUID(context)).toBe('80151e2e-d098-4c8d-bce1-888888888888');
+    expect(generateUUID(context)).toBe('8804822e-d098-4c8d-bce1-888888888888');
     expect(mockPerformanceNow).toBeCalledTimes(1);
   });
 
@@ -41,7 +41,7 @@ describe('generateUUID', () => {
     const spyMathRandom = vi.spyOn(Math, 'random').mockReturnValue(0.5);
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2023/01/01'));
-    expect(generateUUID(context)).toBe('80151e2e-d098-4888-8888-888888888888');
+    expect(generateUUID(context)).toBe('8804822e-d098-4888-8888-888888888888');
     expect(spyMathRandom).toBeCalledTimes(31);
   });
 });

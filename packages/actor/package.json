@@ -85,9 +85,9 @@
     "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
-    "test": "vitest run",
-    "test:cov": "vitest run --coverage",
-    "test:watch": "vitest",
+    "test": "TZ=UTC vitest run",
+    "test:cov": "TZ=UTC vitest run --coverage",
+    "test:watch": "TZ=UTC vitest",
     "typecheck": "tsc"
   },
   "dependencies": {
