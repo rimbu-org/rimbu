@@ -4,7 +4,7 @@
     "module": "Node16",
     "moduleResolution": "node16",
     "verbatimModuleSyntax": true,
-    "lib": ["ES2023"],
+    "lib": ["ESNext"],
     "importHelpers": true,
     "sourceMap": true,
     "strict": true,

@@ -87,5 +87,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/node": "^20.11.6"
+  }
 }
