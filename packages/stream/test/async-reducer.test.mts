@@ -659,7 +659,7 @@ describe('AsyncReducer', () => {
     expect(await AsyncStream.of(0, 1, 2).reduce(red)).toEqual('0');
   });
 
-  it.only('chain', async () => {
+  it('chain', async () => {
     {
       const red = AsyncReducer.toArray<number>()
         .takeInput(2)
