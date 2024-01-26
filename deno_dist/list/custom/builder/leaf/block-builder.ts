@@ -22,7 +22,7 @@ export class LeafBlockBuilder<T> implements LeafBuilder<T>, BlockBuilder<T> {
   get children(): T[] {
     if (undefined === this._children) {
       if (undefined !== this.source) {
-        if (this.context.isReversedLeafBlock(this.source)) {
+        if (this.context.isReversedLeafBlock<T>(this.source)) {
           this._children = Arr.reverse(this.source.children);
         } else {
           this._children = (this.source as LeafBlock<T>).children.slice();
@@ -147,8 +147,10 @@ export class LeafBlockBuilder<T> implements LeafBuilder<T>, BlockBuilder<T> {
 
   forEach(
     f: (value: T, index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { reversed?: boolean; state?: TraverseState } = {}
   ): void {
-    Arr.forEach(this.children, f, state);
+    const { reversed = false, state = TraverseState() } = options;
+
+    Arr.forEach(this.children, f, state, reversed);
   }
 }

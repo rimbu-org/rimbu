@@ -112,7 +112,7 @@
     "@rimbu/common": "^1.1.0",
     "@rimbu/hashed": "^1.1.1",
     "@rimbu/stream": "^1.1.1",
-    "tslib": "^2.6.1"
+    "tslib": "^2.6.2"
   },
   "publishConfig": {
     "access": "public"
@@ -123,5 +123,6 @@
         "skipTypeImports": true
       }
     }
-  }
+  },
+  "devDependencies": {}
 }

@@ -1,4 +1,4 @@
-import type { RelatedTo, ToJSON } from '../../../../common/mod.ts';
+import type { RelatedTo, ToJSON, TraverseState } from '../../../../common/mod.ts';
 import type {
   FastIterable,
   Stream,
@@ -212,6 +212,33 @@ export interface VariantGraphBase<
    * ```
    */
   removeUnconnectedNodes(): WithGraphValues<Tp, N, V>['normal'];
+  /**
+   * Performs given function `f` for each entry of the collection, using given `state` as initial traversal state.
+   * @param f - the function to perform for each entry, receiving:<br/>
+   * - `entry`: the next graph element<br/>
+   * - `index`: the index of the element<br/>
+   * - `halt`: a function that, if called, ensures that no new elements are passed
+   * @param options - object containing the following<br/>
+   * - state: (optional) the traverse state
+   * @example
+   * ```ts
+   * const g = ArrowGraphHashed.of([1], [2, 3], [4])
+   * g.forEach((entry, i, halt) => {
+   *   console.log([entry]);
+   *   if (i >= 1) halt();
+   * })
+   * // => logs [1]  [2, 3]
+   * ```
+   * @note O(N)
+   */
+  forEach(
+    f: (
+      entry: [N] | WithGraphValues<Tp, N, V>['link'],
+      index: number,
+      halt: () => void
+    ) => void,
+    options?: { state?: TraverseState }
+  ): void;
   /**
    * Returns a string representation of this collection.
    * @example

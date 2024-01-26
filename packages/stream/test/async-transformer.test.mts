@@ -1,8 +1,10 @@
-import { AsyncReducer } from '@rimbu/common';
+import {
+  AsyncReducer,
+  AsyncStream,
+  AsyncTransformer,
+} from '../src/main/index.mjs';
 
-import { AsyncStream, AsyncTransformer } from '../src/main/index.mjs';
-
-describe('AsyncCollector', () => {
+describe('AsyncTransformer', () => {
   it('window', async () => {
     expect(
       await AsyncStream.empty().transform(AsyncTransformer.window(3)).toArray()
@@ -33,7 +35,7 @@ describe('AsyncCollector', () => {
   it('sliding window', async () => {
     expect(
       await AsyncStream.of(1, 2, 3, 4, 5, 6)
-        .transform(AsyncTransformer.window(3, 1))
+        .transform(AsyncTransformer.window(3, { skipAmount: 1 }))
         .toArray()
     ).toEqual([
       [1, 2, 3],
@@ -46,7 +48,12 @@ describe('AsyncCollector', () => {
   it('collects to different targets', async () => {
     expect(
       await AsyncStream.of(1, 2, 3, 4, 5, 6)
-        .transform(AsyncTransformer.window(3, 1, AsyncReducer.toJSSet()))
+        .transform(
+          AsyncTransformer.window(3, {
+            skipAmount: 1,
+            collector: AsyncReducer.toJSSet(),
+          })
+        )
         .toArray()
     ).toEqual([
       new Set([1, 2, 3]),

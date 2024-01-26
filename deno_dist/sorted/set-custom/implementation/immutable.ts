@@ -129,11 +129,14 @@ export abstract class SortedSetNode<T>
 {
   abstract get context(): SortedSetContext<T>;
   abstract get size(): number;
-  abstract stream(reversed?: boolean): Stream.NonEmpty<T>;
-  abstract streamSliceIndex(range: IndexRange, reversed?: boolean): Stream<T>;
+  abstract stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
+  abstract streamSliceIndex(
+    range: IndexRange,
+    options?: { reversed?: boolean }
+  ): Stream<T>;
   abstract forEach(
     f: (value: T, index: number, halt: () => void) => void,
-    traverseState?: TraverseState
+    options?: { state?: TraverseState }
   ): void;
   abstract has<U>(value: RelatedTo<T, U>): boolean;
   abstract min(): T;
@@ -173,7 +176,7 @@ export abstract class SortedSetNode<T>
     return { startIndex, endIndex };
   }
 
-  streamRange(range: Range<T>, reversed = false): Stream<T> {
+  streamRange(range: Range<T>, options?: { reversed?: boolean }): Stream<T> {
     const { startIndex, endIndex } = this.getSliceRange(range);
 
     return this.streamSliceIndex(
@@ -181,7 +184,7 @@ export abstract class SortedSetNode<T>
         start: [startIndex, true],
         end: [endIndex, true],
       },
-      reversed
+      options
     );
   }
 
@@ -211,11 +214,12 @@ export abstract class SortedSetNode<T>
   }
 
   filter(
-    pred: (value: T, index: number, halt: () => void) => boolean
+    pred: (value: T, index: number, halt: () => void) => boolean,
+    options: { negate?: boolean } = {}
   ): SortedSet<T> {
     const builder = this.context.builder();
 
-    builder.addAll(this.stream().filter(pred));
+    builder.addAll(this.stream().filter(pred, options));
 
     if (builder.size === this.size) return this;
     return builder.build();
@@ -319,7 +323,9 @@ export abstract class SortedSetNode<T>
 
     const builder = this.toBuilder();
 
-    Stream.from(other).filterNotPure(builder.remove).forEach(builder.add);
+    Stream.from(other)
+      .filterPure({ pred: builder.remove, negate: true })
+      .forEach(builder.add);
 
     return builder.build();
   }
@@ -357,16 +363,17 @@ export class SortedSetLeaf<T> extends SortedSetNode<T> {
     return this.entries.length;
   }
 
-  stream(reversed = false): Stream.NonEmpty<T> {
-    return Stream.fromArray(
-      this.entries,
-      undefined,
-      reversed
-    ) as Stream.NonEmpty<T>;
+  stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
+    return Stream.fromArray(this.entries, options) as Stream.NonEmpty<T>;
   }
 
-  streamSliceIndex(range: IndexRange, reversed = false): Stream<T> {
-    return Stream.fromArray(this.entries, range, reversed);
+  streamSliceIndex(
+    range: IndexRange,
+    options: { reversed?: boolean } = {}
+  ): Stream<T> {
+    const { reversed = false } = options;
+
+    return Stream.fromArray(this.entries, { range, reversed });
   }
 
   min(): T {
@@ -395,8 +402,10 @@ export class SortedSetLeaf<T> extends SortedSetNode<T> {
 
   forEach(
     f: (value: T, index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { state?: TraverseState } = {}
   ): void {
+    const { state = TraverseState() } = options;
+
     if (state.halted) return;
 
     Arr.forEach(this.entries, f, state);
@@ -522,21 +531,26 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
     return this.context.inner(entries, children, size);
   }
 
-  stream(reversed = false): Stream.NonEmpty<T> {
+  stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
     const token = Symbol();
 
     return Stream.zipAll(
       token,
-      Stream.fromArray(this.children, undefined, reversed),
-      Stream.fromArray(this.entries, undefined, reversed)
+      Stream.fromArray(this.children, options),
+      Stream.fromArray(this.entries, options)
     ).flatMap(([child, e]): Stream.NonEmpty<T> => {
       if (token === child) RimbuError.throwInvalidStateError();
-      if (token === e) return child.stream(reversed);
-      return child.stream(reversed).append(e);
+      if (token === e) return child.stream(options);
+      return child.stream(options).append(e);
     }) as Stream.NonEmpty<T>;
   }
 
-  streamSliceIndex(range: IndexRange, reversed = false): Stream<T> {
+  streamSliceIndex(
+    range: IndexRange,
+    options: { reversed?: boolean } = {}
+  ): Stream<T> {
+    const { reversed = false } = options;
+
     return innerStreamSliceIndex<T>(this, range, reversed);
   }
 
@@ -567,8 +581,10 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
 
   forEach(
     f: (value: T, index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { state?: TraverseState } = {}
   ): void {
+    const { state = TraverseState() } = options;
+
     let i = -1;
 
     const { halt } = state;
@@ -577,7 +593,7 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
       if (i >= 0) f(this.entries[i], state.nextIndex(), halt);
       else {
         const childIndex = SortedIndex.next(i);
-        this.children[childIndex].forEach(f, state);
+        this.children[childIndex].forEach(f, { state });
       }
       i = SortedIndex.next(i);
     }

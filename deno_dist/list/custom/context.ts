@@ -1,7 +1,6 @@
 import { RimbuError } from '../../base/mod.ts';
 import type { ArrayNonEmpty } from '../../common/mod.ts';
-import { Reducer } from '../../common/mod.ts';
-import { Stream, type StreamSource } from '../../stream/mod.ts';
+import { Reducer, Stream, type StreamSource } from '../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../stream/custom/index.ts';
 
 import type { List } from '../../list/mod.ts';
@@ -14,17 +13,17 @@ import type {
 } from '../../list/custom/index.ts';
 import {
   CacheMap,
-  createEmptyList,
-  LeafBlock,
-  ReversedLeafBlock,
-  LeafTree,
-  NonLeafBlock,
-  NonLeafTree,
   GenBuilder,
+  LeafBlock,
   LeafBlockBuilder,
-  NonLeafBlockBuilder,
+  LeafTree,
   LeafTreeBuilder,
+  NonLeafBlock,
+  NonLeafBlockBuilder,
+  NonLeafTree,
   NonLeafTreeBuilder,
+  ReversedLeafBlock,
+  createEmptyList,
 } from '../../list/custom/index.ts';
 
 export class ListContext implements List.Context {
@@ -148,8 +147,8 @@ export class ListContext implements List.Context {
   readonly flatten = (source: any): any =>
     this.from(source).flatMap((s: any) => s);
 
-  readonly unzip = (source: any, length: number): any => {
-    const streams = Stream.unzip(source, length) as any as Stream<any>[];
+  readonly unzip = (source: any, options: { length: number }): any => {
+    const streams = Stream.unzip(source, options) as any as Stream<any>[];
 
     return Stream.from(streams).mapPure(this.from) as any;
   };

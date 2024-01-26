@@ -117,13 +117,13 @@ export abstract class HashMapNonEmptyBase<K, V>
   ): HashMap.NonEmpty<K, V>;
   abstract forEach(
     f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-    traverseState?: TraverseState
+    options?: { state?: TraverseState }
   ): void;
   abstract modifyAt(
     atKey: K,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: (currentEntry: V, remove: Token) => V | Token;
+      ifExists?: ((currentEntry: V, remove: Token) => V | Token) | V;
     }
   ): HashMap<K, V> | any;
   abstract mapValues<V2>(
@@ -204,11 +204,12 @@ export abstract class HashMapNonEmptyBase<K, V>
   }
 
   filter(
-    pred: (entry: readonly [K, V], index: number, halt: () => void) => boolean
+    pred: (entry: readonly [K, V], index: number, halt: () => void) => boolean,
+    options: { negate?: boolean } = {}
   ): HashMap<K, V> {
     const builder = this.context.builder<K, V>();
 
-    builder.addEntries(this.stream().filter(pred));
+    builder.addEntries(this.stream().filter(pred, options));
 
     if (builder.size === this.size) return this;
 
@@ -388,7 +389,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
     atKey: K,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: (currentEntry: V, remove: Token) => V | Token;
+      ifExists?: ((currentEntry: V, remove: Token) => V | Token) | V;
     },
     atKeyHash = this.context.hash(atKey)
   ): HashMap<K, V> {
@@ -402,7 +403,10 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
         if (undefined === options.ifExists) return this;
 
         const currentValue = currentEntry[1];
-        const newValue = options.ifExists(currentValue, Token);
+        const newValue =
+          options.ifExists instanceof Function
+            ? options.ifExists(currentValue, Token)
+            : options.ifExists;
 
         if (Object.is(newValue, currentValue)) return this;
 
@@ -523,8 +527,10 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 
   forEach(
     f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { state?: TraverseState } = {}
   ): void {
+    const { state = TraverseState() } = options;
+
     if (state.halted) return;
 
     const { halt } = state;
@@ -537,7 +543,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
     }
     if (null !== this.entrySets) {
       for (const key in this.entrySets) {
-        this.entrySets[key].forEach(f, state);
+        this.entrySets[key].forEach(f, { state });
         if (state.halted) return;
       }
     }
@@ -619,8 +625,7 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
     const stream = this.stream();
     const foundEntry = stream.find(
       (entry): boolean => this.context.eq(entry[0], key),
-      undefined,
-      token
+      { otherwise: token } as const
     );
 
     if (token === foundEntry) return OptLazy(otherwise) as O;
@@ -649,7 +654,7 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
     atKey: K,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: (currentValue: V, remove: Token) => V | Token;
+      ifExists?: ((currentValue: V, remove: Token) => V | Token) | V;
     },
     atKeyHash?: number
   ): HashMap<K, V> | any {
@@ -675,10 +680,13 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
       RimbuError.throwInvalidStateError
     );
     const currentValue = currentEntry[1];
-    const newValue = options.ifExists(currentValue, Token);
+    const newValue =
+      options.ifExists instanceof Function
+        ? options.ifExists(currentValue, Token)
+        : options.ifExists;
 
     if (Token === newValue) {
-      const newEntries = this.entries.remove(currentIndex, 1).assumeNonEmpty();
+      const newEntries = this.entries.remove(currentIndex).assumeNonEmpty();
       return this.copy(newEntries);
     }
 
@@ -691,11 +699,13 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
 
   forEach(
     f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-    state: TraverseState
+    options: { state?: TraverseState } = {}
   ): void {
+    const { state = TraverseState() } = options;
+
     if (state.halted) return;
 
-    this.entries.forEach(f, state);
+    this.entries.forEach(f, { state });
   }
 
   mapValues<V2>(mapFun: (value: V, key: K) => V2): HashMap.NonEmpty<K, V2> {

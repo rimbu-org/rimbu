@@ -5,7 +5,6 @@ import type {
   ArrayNonEmpty,
   OptLazy,
   OptLazyOr,
-  Reducer,
   RelatedTo,
   ToJSON,
   TraverseState,
@@ -13,9 +12,10 @@ import type {
 } from '../../../common/mod.ts';
 import type {
   FastIterable,
+  Reducer,
   Stream,
-  Streamable,
   StreamSource,
+  Streamable,
 } from '../../../stream/mod.ts';
 
 export interface VariantTableBase<
@@ -266,7 +266,8 @@ export interface VariantTableBase<
    * - `entry`: the next tuple of a row key, column key, and value<br/>
    * - `index`: the index of the element<br/>
    * - `halt`: a function that, if called, ensures that no new elements are passed
-   * @param state - (optional) the traverse state
+   * @param options - object containing the following<br/>
+   * - state: (optional) the traverse state
    * @example
    * ```ts
    * HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])
@@ -280,7 +281,7 @@ export interface VariantTableBase<
    */
   forEach(
     f: (entry: [R, C, V], index: number, halt: () => void) => void,
-    state?: TraverseState
+    options?: { state?: TraverseState }
   ): void;
   /**
    * Returns a collection containing only those entries that satisfy given `pred` predicate.
@@ -288,6 +289,8 @@ export interface VariantTableBase<
    * - `entry`: the next entry<br/>
    * - `index`: the entry index<br/>
    * - `halt`: a function that, when called, ensures no next elements are passed
+   * @param options - object containing the following<br/>
+   * - negate: (default: false) when true will negate the given predicate
    * @example
    * ```ts
    * HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])
@@ -296,7 +299,8 @@ export interface VariantTableBase<
    * ```
    */
   filter(
-    pred: (entry: [R, C, V], index: number, halt: () => void) => boolean
+    pred: (entry: [R, C, V], index: number, halt: () => void) => boolean,
+    options?: { negate?: boolean }
   ): WithRow<Tp, R, C, V>['normal'];
   /**
    * Returns a collection containing only those rows that satisfy given `pred` predicate.
@@ -304,6 +308,8 @@ export interface VariantTableBase<
    * - `entry`: the next entry of the row key and a collection representing its columns and values<br/>
    * - `index`: the entry index<b/>
    * - `halt`: a function that, when called, ensures no next elements are passed
+   * @param options - object containing the following<br/>
+   * - negate: (default: false) when true will negate the given predicate
    * @example
    * ```ts
    * HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])
@@ -316,7 +322,8 @@ export interface VariantTableBase<
       entry: readonly [R, WithRow<Tp, R, C, V>['rowNonEmpty']],
       index: number,
       halt: () => void
-    ) => boolean
+    ) => boolean,
+    options?: { negate?: boolean }
   ): WithRow<Tp, R, C, V>['normal'];
   /**
    * Returns a collection with the same row and column keys, but where the given `mapFun` function is applied to each entry value.
@@ -567,7 +574,7 @@ export interface TableBase<
     column: C,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: (value: V, remove: Token) => V | Token;
+      ifExists?: ((value: V, remove: Token) => V | Token) | V;
     }
   ): WithRow<Tp, R, C, V>['normal'];
   /**
@@ -953,7 +960,8 @@ export namespace TableBase {
      * - `entry`: the next tuple of a row key, column key, and value<br/>
      * - `index`: the index of the element<br/>
      * - `halt`: a function that, if called, ensures that no new elements are passed
-     * @param state - (optional) the traverse state
+     * @param options - object containing the following<br/>
+     * - state: (optional) the traverse state
      * @example
      * ```ts
      * HashTableHashColumn.of([1, 2, 3], [1, 4, 5], [2, 3, 5])
@@ -968,7 +976,7 @@ export namespace TableBase {
      */
     forEach(
       f: (entry: [R, C, V], index: number, halt: () => void) => void,
-      state?: TraverseState
+      options?: { state?: TraverseState }
     ): void;
     /**
      * Modifies the value at given `row` and `column` keys according to given `options`.
@@ -999,7 +1007,7 @@ export namespace TableBase {
       column: C,
       options: {
         ifNew?: OptLazyOr<V, Token>;
-        ifExists?: (currentValue: V, remove: Token) => V | Token;
+        ifExists?: (currentValue: V, remove: Token) => V | Token | V;
       }
     ): boolean;
     /**

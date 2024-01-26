@@ -1,5 +1,5 @@
-import { Comp, Reducer } from '@rimbu/common';
-import { Stream } from '@rimbu/stream';
+import { Comp } from '@rimbu/common';
+import { Reducer, Stream } from '@rimbu/stream';
 
 import { SortedSet } from '../src/main/index.mjs';
 import type { SortedSetBuilder } from '../src/set-custom/index.mjs';
@@ -13,7 +13,7 @@ function runWith(name: string, context: SortedSet.Context<number>) {
 
       const [min, values] = Stream.randomInt(0, 100)
         .take(100)
-        .reduceAll(Reducer.min(), Reducer.toArray<number>());
+        .reduce([Reducer.min(), Reducer.toArray<number>()]);
 
       builder.addAll(values);
       expect(builder.min()).toBe(min);
@@ -25,7 +25,7 @@ function runWith(name: string, context: SortedSet.Context<number>) {
 
       const [min, values] = Stream.randomInt(0, 100)
         .take(100)
-        .reduceAll(Reducer.max(), Reducer.toArray<number>());
+        .reduce([Reducer.max(), Reducer.toArray<number>()]);
 
       builder.addAll(values);
       expect(builder.max()).toBe(min);

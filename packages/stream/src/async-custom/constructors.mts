@@ -9,27 +9,16 @@ export interface AsyncStreamConstructors {
     ...sources: ArrayNonEmpty<AsyncStreamSource.NonEmpty<T>>
   ): AsyncStream.NonEmpty<T>;
   from<T>(...sources: ArrayNonEmpty<AsyncStreamSource<T>>): AsyncStream<T>;
-  fromResource<T, R>(
-    open: () => MaybePromise<R>,
-    createSource: (resource: R) => AsyncStreamSource.NonEmpty<T>,
-    close: (resource: R) => MaybePromise<void>
-  ): AsyncStream.NonEmpty<T>;
-  fromResource<T, R>(
-    open: () => MaybePromise<R>,
-    createSource: (resource: R) => MaybePromise<AsyncStreamSource<T>>,
-    close: (resource: R) => MaybePromise<void>
-  ): AsyncStream<T>;
-  /**
-   * Returns a tuple of a controller and a stream, where the controller can be used to
-   * submit values and close the stream, and the stream will emit the submitted values, with
-   * a buffer of maximum length thte given `maxSize`. Each stream client will start buffering
-   * from the moment that it is created.
-   * @param maxSize - the maximum buffer size
-   * @typeparam T - the element type
-   */
-  live<T>(
-    maxSize?: number
-  ): [{ submit(value: T): void; close: () => void }, AsyncStream<T>];
+  fromResource<T, R>(options: {
+    open: () => MaybePromise<R>;
+    createSource: (resource: R) => AsyncStreamSource.NonEmpty<T>;
+    close?: (resource: R) => MaybePromise<void>;
+  }): AsyncStream.NonEmpty<T>;
+  fromResource<T, R>(options: {
+    open: () => MaybePromise<R>;
+    createSource: (resource: R) => MaybePromise<AsyncStreamSource<T>>;
+    close?: (resource: R) => MaybePromise<void>;
+  }): AsyncStream<T>;
   /** Returns an AsyncStream with the result of applying given `zipFun` to each successive value resulting from the given `sources`.
    * @param sources - the input async stream sources
    * @param zipFun - a potentially asynchronous function taking one element from each given Stream, and returning a result value
@@ -157,11 +146,11 @@ export interface AsyncStreamConstructors {
    */
   unzip<T extends readonly unknown[] & { length: L }, L extends number>(
     source: AsyncStream.NonEmpty<T>,
-    length: L
+    options: { length: L }
   ): { [K in keyof T]: AsyncStream.NonEmpty<T[K]> };
   unzip<T extends readonly unknown[] & { length: L }, L extends number>(
     source: AsyncStream<T>,
-    length: L
+    options: { length: L }
   ): { [K in keyof T]: AsyncStream<T[K]> };
   empty<T>(): AsyncStream<T>;
   always<T>(value: AsyncOptLazy<T>): AsyncStream.NonEmpty<T>;

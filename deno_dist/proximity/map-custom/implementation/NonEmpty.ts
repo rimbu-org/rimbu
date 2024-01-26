@@ -134,15 +134,16 @@ export class ProximityMapNonEmpty<K, V> implements ProximityMap.NonEmpty<K, V> {
 
   forEach(
     f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-    state?: TraverseState | undefined
+    options: { state?: TraverseState } = {}
   ): void {
-    return this.internalMap.forEach(f, state);
+    return this.internalMap.forEach(f, options);
   }
 
   filter(
-    pred: (entry: readonly [K, V], index: number, halt: () => void) => boolean
+    pred: (entry: readonly [K, V], index: number, halt: () => void) => boolean,
+    options: { negate?: boolean } = {}
   ): ProximityMap<K, V> {
-    return this.plugInternalMap(this.internalMap.filter(pred));
+    return this.plugInternalMap(this.internalMap.filter(pred, options));
   }
 
   toString(): string {

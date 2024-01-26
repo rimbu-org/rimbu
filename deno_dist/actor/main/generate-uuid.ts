@@ -1,23 +1,25 @@
 declare global {
   export const self: any;
-  export const crypto: any;
+}
+
+interface Context {
+  crypto?: { randomUUID?: () => string };
+  performance?: { now?: () => number };
 }
 
 /**
  * Internal function to generate a UUID.
  */
-export function generateUUID(): string {
-  const context = self;
-  if (undefined !== context?.crypto?.randomUUID) {
-    return crypto.randomUUID();
+export function generateUUID(context: Context = self): string {
+  if (typeof context?.crypto?.randomUUID === 'function') {
+    return context.crypto.randomUUID();
   }
 
   // Public Domain/MIT
   let d = new Date().getTime(); //Timestamp
   let d2 =
-    (typeof performance !== 'undefined' &&
-      performance.now &&
-      performance.now() * 1000) ||
+    (typeof context?.performance?.now === 'function' &&
+      context.performance.now() * 1000) ||
     0; //Time in microseconds since page-load or 0 if unsupported
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     let r = Math.random() * 16; //random number between 0 and 16

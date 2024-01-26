@@ -5,6 +5,7 @@ import { Stream } from '../../../../stream/mod.ts';
 import type {
   Block,
   BlockBuilder,
+  CacheMap,
   ListContext,
   NonLeaf,
   NonLeafBuilder,
@@ -61,18 +62,21 @@ export class NonLeafBlock<T, C extends Block<T, C>>
     return this.context.nonLeafBlock(length, children, this.level);
   }
 
-  stream(reversed = false): Stream.NonEmpty<T> {
-    return Stream.fromArray(this.children, undefined, reversed).flatMap(
-      (child: C): Stream.NonEmpty<T> => child.stream(reversed)
+  stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
+    return Stream.fromArray(this.children, options).flatMap(
+      (child: C): Stream.NonEmpty<T> => child.stream(options)
     ) as Stream.NonEmpty<T>;
   }
 
-  streamRange(range: IndexRange, reversed = false): Stream<T> {
+  streamRange(
+    range: IndexRange,
+    options: { reversed?: boolean } = {}
+  ): Stream<T> {
     const indexRange = IndexRange.getIndicesFor(range, this.length);
 
     if (indexRange === 'all') {
-      return Stream.fromArray(this.children, undefined, reversed).flatMap(
-        (child: C): Stream.NonEmpty<T> => child.stream(reversed)
+      return Stream.fromArray(this.children, options).flatMap(
+        (child: C): Stream.NonEmpty<T> => child.stream(options)
       ) as Stream.NonEmpty<T>;
     }
 
@@ -99,24 +103,25 @@ export class NonLeafBlock<T, C extends Block<T, C>>
           start: inStartChildIndex,
           end: inEndChildIndex,
         },
-        reversed
+        options
       );
     }
 
+    const { reversed = false } = options;
+
     const startChild = this.children[startChildIndex];
     const endChild = this.children[endChildIndex];
-    const childStream = Stream.fromArray(
-      this.children,
-      { start: startChildIndex, end: endChildIndex },
-      reversed
-    );
+    const childStream = Stream.fromArray(this.children, {
+      range: { start: startChildIndex, end: endChildIndex },
+      reversed,
+    });
 
     return childStream.flatMap((child: C): Stream<T> => {
       if (child === startChild)
-        return child.streamRange({ start: inStartChildIndex }, reversed);
+        return child.streamRange({ start: inStartChildIndex }, options);
       if (child === endChild)
-        return child.streamRange({ end: inEndChildIndex }, reversed);
-      return child.stream(reversed);
+        return child.streamRange({ end: inEndChildIndex }, options);
+      return child.stream(options);
     });
   }
 
@@ -316,31 +321,45 @@ export class NonLeafBlock<T, C extends Block<T, C>>
 
   forEach(
     f: (value: T, index: number, halt: () => void) => void,
-    state: TraverseState
+    options: { reversed: boolean; state: TraverseState }
   ): void {
+    const { reversed, state } = options;
+
     if (state.halted) return;
 
     const length = this.children.length;
-    let i = -1;
-    const children = this.children;
 
-    while (!state.halted && ++i < length) {
-      children[i].forEach(f, state);
+    if (!reversed) {
+      let i = -1;
+      const children = this.children;
+
+      while (!state.halted && ++i < length) {
+        children[i].forEach(f, options);
+      }
+    } else {
+      let i = length;
+      const children = this.children;
+
+      while (!state.halted && --i >= 0) {
+        children[i].forEach(f, options);
+      }
     }
   }
 
   mapPure<T2>(
     mapFun: (value: T) => T2,
-    reversed = false,
-    cacheMap = this.context.createCacheMap()
+    options: { reversed?: boolean; cacheMap?: CacheMap } = {}
   ): NonLeafBlock<T2, Block<T2>> {
+    const { reversed = false, cacheMap = this.context.createCacheMap() } =
+      options;
+
     const cachedThis = cacheMap.get(this);
     if (cachedThis) return cachedThis;
 
     const fn = reversed ? Arr.reverseMap : Arr.map;
 
     const newChildren = fn(this.children, (c: C): any =>
-      c.mapPure(mapFun, reversed, cacheMap)
+      c.mapPure(mapFun, { reversed, cacheMap })
     );
 
     return cacheMap.setAndReturn(this, this.copy2(newChildren));
@@ -348,9 +367,10 @@ export class NonLeafBlock<T, C extends Block<T, C>>
 
   map<T2>(
     mapFun: (value: T, index: number) => T2,
-    reversed = false,
-    indexOffset = 0
+    options: { reversed?: boolean; indexOffset?: number } = {}
   ): NonLeafBlock<T2, Block<T2>> {
+    const { reversed = false, indexOffset = 0 } = options;
+
     let offset = indexOffset;
     const children = this.children;
 
@@ -360,7 +380,9 @@ export class NonLeafBlock<T, C extends Block<T, C>>
       let i = children.length;
       while (--i >= 0) {
         const child = children[i];
-        newChildren.push(child.map(mapFun, true, offset));
+        newChildren.push(
+          child.map(mapFun, { reversed: true, indexOffset: offset })
+        );
         offset += child.length;
       }
 
@@ -372,7 +394,7 @@ export class NonLeafBlock<T, C extends Block<T, C>>
       const length = children.length;
       while (++i < length) {
         const child = children[i];
-        newChildren.push(child.map(mapFun, false, offset));
+        newChildren.push(child.map(mapFun, { indexOffset: offset }));
         offset += child.length;
       }
 
@@ -393,7 +415,11 @@ export class NonLeafBlock<T, C extends Block<T, C>>
     return cacheMap.setAndReturn(this, reversedThis);
   }
 
-  toArray(range?: IndexRange, reversed = false): T[] | any {
+  toArray(
+    options: { range?: IndexRange | undefined; reversed?: boolean } = {}
+  ): T[] | any {
+    const { range, reversed = false } = options;
+
     let start = 0;
     let end = this.length - 1;
 
@@ -422,26 +448,26 @@ export class NonLeafBlock<T, C extends Block<T, C>>
     if (startChildIndex === endChildIndex) {
       const child = children[startChildIndex];
 
-      return child.toArray(
-        {
+      return child.toArray({
+        range: {
           start: inStartChildIndex,
           end: inEndChildIndex,
         },
-        reversed
-      );
+        reversed,
+      });
     }
 
-    const firstArray = children[startChildIndex].toArray(
-      {
+    const firstArray = children[startChildIndex].toArray({
+      range: {
         start: inStartChildIndex,
       },
-      reversed
-    );
+      reversed,
+    });
 
-    const lastArray = children[endChildIndex].toArray(
-      { end: inEndChildIndex },
-      reversed
-    );
+    const lastArray = children[endChildIndex].toArray({
+      range: { end: inEndChildIndex },
+      reversed,
+    });
 
     if (reversed) {
       let result: readonly T[] = lastArray;
@@ -453,7 +479,7 @@ export class NonLeafBlock<T, C extends Block<T, C>>
       ) {
         result = Arr.concat(
           result,
-          children[childIndex].toArray(undefined, true)
+          children[childIndex].toArray({ reversed: true })
         );
       }
 

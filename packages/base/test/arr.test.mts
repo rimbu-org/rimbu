@@ -17,6 +17,11 @@ describe('Arr', () => {
     expect(Arr.append(nonEmpty, 0)).toEqual([1, 2, 3, 0]);
   });
 
+  it('_appendOld', () => {
+    expect(Arr._appendOld(empty, 0)).toEqual([0]);
+    expect(Arr._appendOld(nonEmpty, 0)).toEqual([1, 2, 3, 0]);
+  });
+
   it('concat', () => {
     expect(Arr.concat(empty, empty)).toBe(empty);
     expect(Arr.concat(empty, nonEmpty)).toBe(nonEmpty);
@@ -76,9 +81,25 @@ describe('Arr', () => {
     }
   });
 
+  it('_insertOld', () => {
+    expect(Arr._insertOld(empty, 0, 0)).toEqual([0]);
+    expect(Arr._insertOld(empty, 100, 0)).toEqual([0]);
+
+    for (let i = -5; i <= 15; i++) {
+      const res = nonEmpty.slice();
+      res.splice(i, 0, 0);
+      expect(Arr._insertOld(nonEmpty, i, 0)).toEqual(res);
+    }
+  });
+
   it('last', () => {
     expect(Arr.last(empty)).toEqual(undefined);
     expect(Arr.last(nonEmpty)).toEqual(3);
+  });
+
+  it('_lastOld', () => {
+    expect(Arr._lastOld(empty)).toEqual(undefined);
+    expect(Arr._lastOld(nonEmpty)).toEqual(3);
   });
 
   it('map', () => {
@@ -96,9 +117,23 @@ describe('Arr', () => {
     expect(Arr.mod(nonEmpty, 1, (v) => v)).toBe(nonEmpty);
   });
 
+  it('_modOld', () => {
+    expect(Arr._modOld(empty, 0, (v) => v + 1)).toEqual([]);
+    expect(Arr._modOld(nonEmpty, 0, (v) => v + 1)).toEqual([2, 2, 3]);
+    expect(Arr._modOld(nonEmpty, 2, (v) => v + 1)).toEqual([1, 2, 4]);
+    expect(Arr._modOld(nonEmpty, -1, (v) => v + 1)).toBe(nonEmpty);
+    expect(Arr._modOld(nonEmpty, 5, (v) => v + 1)).toBe(nonEmpty);
+    expect(Arr._modOld(nonEmpty, 1, (v) => v)).toBe(nonEmpty);
+  });
+
   it('prepend', () => {
     expect(Arr.prepend(empty, 0)).toEqual([0]);
     expect(Arr.prepend(nonEmpty, 0)).toEqual([0, 1, 2, 3]);
+  });
+
+  it('_prependOld', () => {
+    expect(Arr._prependOld(empty, 0)).toEqual([0]);
+    expect(Arr._prependOld(nonEmpty, 0)).toEqual([0, 1, 2, 3]);
   });
 
   it('reverse', () => {
@@ -109,6 +144,16 @@ describe('Arr', () => {
     expect(Arr.reverse(nonEmpty, 1, 1)).toEqual([2]);
     expect(Arr.reverse(nonEmpty, 1, 2)).toEqual([3, 2]);
     expect(Arr.reverse(nonEmpty, 0, 2)).toEqual([3, 2, 1]);
+  });
+
+  it('_reverseOld', () => {
+    expect(Arr._reverseOld(empty)).toEqual([]);
+    expect(Arr._reverseOld(nonEmpty)).toEqual([3, 2, 1]);
+    expect(Arr._reverseOld(Arr._reverseOld(nonEmpty))).toEqual(nonEmpty);
+    expect(Arr._reverseOld(nonEmpty, 0, 1)).toEqual([2, 1]);
+    expect(Arr._reverseOld(nonEmpty, 1, 1)).toEqual([2]);
+    expect(Arr._reverseOld(nonEmpty, 1, 2)).toEqual([3, 2]);
+    expect(Arr._reverseOld(nonEmpty, 0, 2)).toEqual([3, 2, 1]);
   });
 
   it('reverseMap', () => {
@@ -127,6 +172,16 @@ describe('Arr', () => {
     expect(Arr.splice(nonEmpty, 1, 2, 10, 11)).toEqual([1, 10, 11]);
   });
 
+  it('_spliceOld', () => {
+    expect(Arr._spliceOld(empty, 0, 0)).toEqual(empty);
+    expect(Arr._spliceOld(empty, 1, 1)).toEqual(empty);
+    expect(Arr._spliceOld(empty, 1, 1, 1, 2, 3)).toEqual([1, 2, 3]);
+    expect(Arr._spliceOld(nonEmpty, 0, 0)).toEqual(nonEmpty);
+    expect(Arr._spliceOld(nonEmpty, 0, 1)).toEqual([2, 3]);
+    expect(Arr._spliceOld(nonEmpty, 1, 2)).toEqual([1]);
+    expect(Arr._spliceOld(nonEmpty, 1, 2, 10, 11)).toEqual([1, 10, 11]);
+  });
+
   it('tail', () => {
     expect(Arr.tail(empty)).toEqual(empty);
     expect(Arr.tail(nonEmpty)).toEqual([2, 3]);
@@ -139,6 +194,15 @@ describe('Arr', () => {
     expect(Arr.update(nonEmpty, -100, -100)).toBe(nonEmpty);
     expect(Arr.update(nonEmpty, 100, -100)).toBe(nonEmpty);
     expect(Arr.update(nonEmpty, 1, 2)).toBe(nonEmpty);
+  });
+
+  it('_updateOld', () => {
+    expect(Arr._updateOld(empty, 0, 100)).toEqual([]);
+    expect(Arr._updateOld(nonEmpty, 0, 100)).toEqual([100, 2, 3]);
+    expect(Arr._updateOld(nonEmpty, 1, 100)).toEqual([1, 100, 3]);
+    expect(Arr._updateOld(nonEmpty, -100, -100)).toBe(nonEmpty);
+    expect(Arr._updateOld(nonEmpty, 100, -100)).toBe(nonEmpty);
+    expect(Arr._updateOld(nonEmpty, 1, 2)).toBe(nonEmpty);
   });
 
   it('copySparse', () => {

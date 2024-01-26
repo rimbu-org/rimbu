@@ -1,4 +1,5 @@
-import { type ArrayNonEmpty, AsyncReducer } from '@rimbu/common';
+import { type ArrayNonEmpty } from '@rimbu/common';
+
 import {
   expectAssignable,
   expectError,
@@ -8,9 +9,10 @@ import {
 } from 'tsd';
 
 import {
-  type AsyncFastIterator,
+  AsyncReducer,
   AsyncStream,
   AsyncTransformer,
+  type AsyncFastIterator,
 } from '../src/async/index.mjs';
 import type { Stream } from '../src/main/index.mjs';
 
@@ -67,13 +69,15 @@ expectType<AsyncStream.NonEmpty<number>>(AsyncStream.unfold(0, (v) => v + 1));
 
 // AsyncStream.unzip(..)
 expectType<[AsyncStream.NonEmpty<number>, AsyncStream.NonEmpty<string>]>(
-  AsyncStream.unzip(AsyncStream.of<[number, string]>([0, 'a'], [1, 'b']), 2)
+  AsyncStream.unzip(AsyncStream.of<[number, string]>([0, 'a'], [1, 'b']), {
+    length: 2,
+  })
 );
 expectType<[AsyncStream<number>, AsyncStream<string>]>(
-  AsyncStream.unzip(AsyncStream.from(new Map<number, string>()), 2)
+  AsyncStream.unzip(AsyncStream.from(new Map<number, string>()), { length: 2 })
 );
-expectError(AsyncStream.unzip(AsyncStream.of(1), 2));
-expectError(AsyncStream.unzip(AsyncStream.of([1, 2] as const), 3));
+expectError(AsyncStream.unzip(AsyncStream.of(1), { length: 2 }));
+expectError(AsyncStream.unzip(AsyncStream.of([1, 2] as const), { length: 3 }));
 
 // AsyncStream.zip
 expectType<AsyncStream<[number, string]>>(
@@ -211,9 +215,11 @@ expectType<number>(await AsyncStream.of(1).count());
 expectType<number>(await AsyncStream.empty<number>().countElement(1));
 expectType<number>(await AsyncStream.of(1).countElement(1));
 
-// .countNotElement(..)
-expectType<number>(await AsyncStream.empty<number>().countNotElement(1));
-expectType<number>(await AsyncStream.of(1).countNotElement(1));
+// .countElement(..) negate
+expectType<number>(
+  await AsyncStream.empty<number>().countElement(1, { negate: true })
+);
+expectType<number>(await AsyncStream.of(1).countElement(1, { negate: true }));
 
 // .contains(..)
 expectType<boolean>(await AsyncStream.empty<number>().contains(1));
@@ -280,52 +286,54 @@ expectType<number | string>(
 expectType<AsyncStream<number>>(AsyncStream.empty<number>().filter(() => true));
 expectType<AsyncStream<number>>(AsyncStream.of(1).filter(() => true));
 
-// .filterNot(..)
+// .filter(..) negate
 expectType<AsyncStream<number>>(
-  AsyncStream.empty<number>().filterNot(() => true)
+  AsyncStream.empty<number>().filter(() => true, { negate: true })
 );
-expectType<AsyncStream<number>>(AsyncStream.of(1).filterNot(() => true));
+expectType<AsyncStream<number>>(
+  AsyncStream.of(1).filter(() => true, { negate: true })
+);
 
 // .filterPure(..)
 expectType<AsyncStream<number>>(
-  AsyncStream.empty<number>().filterPure(() => true)
+  AsyncStream.empty<number>().filterPure({ pred: () => true })
 );
-expectType<AsyncStream<number>>(AsyncStream.of(1).filterPure(() => true));
-
-// .filterNotPure(..)
 expectType<AsyncStream<number>>(
-  AsyncStream.empty<number>().filterNotPure(() => true)
+  AsyncStream.of(1).filterPure({ pred: () => true })
 );
-expectType<AsyncStream<number>>(AsyncStream.of(1).filterNotPure(() => true));
+
+// .filterPure(..) negate
+expectType<AsyncStream<number>>(
+  AsyncStream.empty<number>().filterPure({ pred: () => true, negate: true })
+);
+expectType<AsyncStream<number>>(
+  AsyncStream.of(1).filterPure({ pred: () => true, negate: true })
+);
 
 // .find(..)
 expectType<number | undefined>(
   await AsyncStream.empty<number>().find(() => true)
 );
 expectType<number | undefined>(
-  await AsyncStream.empty<number>().find(() => true, 1)
+  await AsyncStream.empty<number>().find(() => true, { occurrance: 1 })
 );
 expectType<number | undefined>(await AsyncStream.of(1).find(() => true));
-expectType<number | undefined>(await AsyncStream.of(1).find(() => true, 1));
-expectType<number>(
-  await AsyncStream.empty<number>().find(
-    () => true,
-    undefined,
-    () => 1
-  )
+expectType<number | undefined>(
+  await AsyncStream.of(1).find(() => true, { occurrance: 1 })
 );
 expectType<number>(
-  await AsyncStream.of(1).find(
-    () => true,
-    undefined,
-    () => 1
-  )
+  await AsyncStream.empty<number>().find(() => true, { otherwise: () => 1 })
+);
+expectType<number>(
+  await AsyncStream.of(1).find(() => true, { otherwise: () => 1 })
 );
 expectType<number | string>(
-  await AsyncStream.empty<number>().find(() => true, undefined, 'a' as string)
+  await AsyncStream.empty<number>().find(() => true, {
+    otherwise: 'a' as string,
+  })
 );
 expectType<number | string>(
-  await AsyncStream.of(1).find(() => true, undefined, 'a' as string)
+  await AsyncStream.of(1).find(() => true, { otherwise: 'a' as string })
 );
 
 // .first(..)
@@ -620,36 +628,36 @@ expectType<boolean>(
 );
 expectType<boolean>(await AsyncStream.of(1).reduce(AsyncReducer.isEmpty));
 
-// .reduceAll(..)
+// .reduce(..) shape
 expectType<[boolean, number, string]>(
-  await AsyncStream.empty<number>().reduceAll(
+  await AsyncStream.empty<number>().reduce([
     AsyncReducer.isEmpty,
     AsyncReducer.sum,
-    AsyncReducer.join()
-  )
+    AsyncReducer.join<number>(),
+  ])
 );
 expectType<[boolean, number, string]>(
-  await AsyncStream.of(1).reduceAll(
+  await AsyncStream.of(1).reduce([
     AsyncReducer.isEmpty,
     AsyncReducer.sum,
-    AsyncReducer.join()
-  )
+    AsyncReducer.join<number>(),
+  ])
 );
 
-// .reduceAllStream(..)
+// .reduceStream(..) shape
 expectType<AsyncStream<[boolean, number, string]>>(
-  AsyncStream.empty<number>().reduceAllStream(
+  AsyncStream.empty<number>().reduceStream([
     AsyncReducer.isEmpty,
     AsyncReducer.sum,
-    AsyncReducer.join()
-  )
+    AsyncReducer.join<number>(),
+  ])
 );
 expectType<AsyncStream<[boolean, number, string]>>(
-  AsyncStream.of(1).reduceAllStream(
+  AsyncStream.of(1).reduceStream([
     AsyncReducer.isEmpty,
     AsyncReducer.sum,
-    AsyncReducer.join()
-  )
+    AsyncReducer.join<number>(),
+  ])
 );
 
 // .reduceStream(..)

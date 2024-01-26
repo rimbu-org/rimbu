@@ -10,10 +10,10 @@ describe('SlicePatch', () => {
     const action = Action.create();
 
     expect(slice.actions).toEqual({});
-    expect(slice.reducer.init).toBe(initState);
-    expect(slice.reducer.next(slice.reducer.init, action(), 0, () => {})).toBe(
-      initState
-    );
+    expect(slice.reducer.init()).toBe(initState);
+    expect(
+      slice.reducer.next(slice.reducer.init(), action(), 0, () => {})
+    ).toBe(initState);
   });
 
   it('creates and handles actions', () => {
@@ -27,7 +27,7 @@ describe('SlicePatch', () => {
     });
 
     expect(
-      slice.reducer.next(slice.reducer.init, slice.actions.inc(), 0, () => {})
+      slice.reducer.next(slice.reducer.init(), slice.actions.inc(), 0, () => {})
     ).toEqual({ count: 1 });
   });
 
@@ -47,7 +47,7 @@ describe('SlicePatch', () => {
 
     expect(
       slice.reducer.next(
-        slice.reducer.init,
+        slice.reducer.init(),
         slice.actions.inc(1, 2),
         0,
         () => {}
@@ -71,13 +71,13 @@ describe('SlicePatch', () => {
     });
 
     expect(
-      slice.reducer.next(slice.reducer.init, slice.actions.inc(), 0, () => {})
+      slice.reducer.next(slice.reducer.init(), slice.actions.inc(), 0, () => {})
     ).toEqual({ count: 1 });
 
     const action = Action.create();
 
     expect(
-      slice.reducer.next(slice.reducer.init, action(), 0, () => {})
+      slice.reducer.next(slice.reducer.init(), action(), 0, () => {})
     ).toEqual({ count: -3 });
   });
 
@@ -99,17 +99,17 @@ describe('SlicePatch', () => {
     });
 
     expect(
-      slice.reducer.next(slice.reducer.init, slice.actions.inc(), 0, () => {})
+      slice.reducer.next(slice.reducer.init(), slice.actions.inc(), 0, () => {})
     ).toEqual({ count: 1 });
 
     expect(
-      slice.reducer.next(slice.reducer.init, action(), 0, () => {})
+      slice.reducer.next(slice.reducer.init(), action(), 0, () => {})
     ).toEqual({ count: -3 });
 
     const action2 = Action.create();
 
     expect(
-      slice.reducer.next(slice.reducer.init, action2(), 0, () => {})
+      slice.reducer.next(slice.reducer.init(), action2(), 0, () => {})
     ).toEqual({ count: 0 });
   });
 
@@ -133,11 +133,11 @@ describe('SlicePatch', () => {
     });
 
     expect(
-      slice.reducer.next(slice.reducer.init, slice.actions.inc(), 0, () => {})
+      slice.reducer.next(slice.reducer.init(), slice.actions.inc(), 0, () => {})
     ).toEqual({ count: 1 });
 
     expect(
-      slice.reducer.next(slice.reducer.init, increaseAction(5), 0, () => {})
+      slice.reducer.next(slice.reducer.init(), increaseAction(5), 0, () => {})
     ).toEqual({ count: 5 });
   });
 });

@@ -11,16 +11,16 @@ import type {
 import type {
   ArrayNonEmpty,
   OptLazy,
-  Reducer,
   RelatedTo,
   ToJSON,
   TraverseState,
 } from '@rimbu/common';
 import type {
   FastIterable,
+  Reducer,
   Stream,
-  Streamable,
   StreamSource,
+  Streamable,
 } from '@rimbu/stream';
 
 export interface VariantMultiMapBase<
@@ -247,7 +247,7 @@ export interface VariantMultiMapBase<
    */
   forEach(
     f: (entry: [K, V], index: number, halt: () => void) => void,
-    state?: TraverseState
+    options?: { state?: TraverseState }
   ): void;
   /**
    * Returns a collection containing only those entries that satisfy given `pred` predicate.
@@ -255,6 +255,8 @@ export interface VariantMultiMapBase<
    * - `entry`: the next entry<br/>
    * - `index`: the entry index<br/>
    * - `halt`: a function that, when called, ensures no next entries are passed
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - negate: (default: false) when true will negate the predicate
    * @example
    * ```ts
    * HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c'])
@@ -264,7 +266,8 @@ export interface VariantMultiMapBase<
    * ```
    */
   filter(
-    pred: (entry: [K, V], index: number, halt: () => void) => boolean
+    pred: (entry: [K, V], index: number, halt: () => void) => boolean,
+    options?: { negate?: boolean }
   ): WithKeyValue<Tp, K, V>['normal'];
   /**
    * Returns an array containing all entries in this collection.
@@ -475,9 +478,11 @@ export interface MultiMapBase<
     atKey: K,
     options: {
       ifNew?: OptLazy<StreamSource<V>>;
-      ifExists?: (
-        currentValues: WithKeyValue<Tp, K, V>['keyMapValuesNonEmpty']
-      ) => StreamSource<V>;
+      ifExists?:
+        | ((
+            currentValues: WithKeyValue<Tp, K, V>['keyMapValuesNonEmpty']
+          ) => StreamSource<V>)
+        | StreamSource<V>;
     }
   ): WithKeyValue<Tp, K, V>['normal'];
   /**
@@ -786,7 +791,7 @@ export namespace MultiMapBase {
      */
     forEach(
       f: (entry: [K, V], index: number, value: () => void) => void,
-      state?: TraverseState
+      options?: { state?: TraverseState }
     ): void;
     /**
      * Returns an immutable collection instance containing the entries in this builder.

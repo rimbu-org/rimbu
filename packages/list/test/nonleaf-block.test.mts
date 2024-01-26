@@ -426,10 +426,17 @@ describe('NonLeafBlock', () => {
     );
 
     const cb = vi.fn();
-    nl.forEach(cb, TraverseState());
+    nl.forEach(cb, { reversed: false, state: TraverseState() });
     expect(cb).toBeCalledTimes(9);
-    expect(cb.mock.calls[1][0]).toBe(2);
-    expect(cb.mock.calls[1][1]).toBe(1);
+    expect(cb.mock.calls[2][0]).toBe(3);
+    expect(cb.mock.calls[2][1]).toBe(2);
+
+    cb.mockReset();
+
+    nl.forEach(cb, { reversed: true, state: TraverseState() });
+    expect(cb).toBeCalledTimes(9);
+    expect(cb.mock.calls[2][0]).toBe(1);
+    expect(cb.mock.calls[2][1]).toBe(2);
 
     cb.mockReset();
 
@@ -569,7 +576,7 @@ describe('NonLeafBlock', () => {
     }
 
     {
-      const r = nl.map((v) => v + 1, true);
+      const r = nl.map((v) => v + 1, { reversed: true });
       expect(r.length).toBe(6);
       expect(r.level).toBe(1);
       expect(r.children[0].toArray()).toEqual([7, 6, 5]);
@@ -590,7 +597,7 @@ describe('NonLeafBlock', () => {
       expect(r.children[0]).toBe(r.children[1]);
     }
     {
-      const r = nl.mapPure((v) => v + 1, true);
+      const r = nl.mapPure((v) => v + 1, { reversed: true });
       expect(r.length).toBe(6);
       expect(r.level).toBe(1);
       expect(r.children[0].toArray()).toEqual([4, 3, 2]);
@@ -684,7 +691,9 @@ describe('NonLeafBlock', () => {
     );
 
     expect(nl.stream().toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    expect(nl.stream(true).toArray()).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1]);
+    expect(nl.stream({ reversed: true }).toArray()).toEqual([
+      9, 8, 7, 6, 5, 4, 3, 2, 1,
+    ]);
   });
 
   it('streamRange', () => {
@@ -705,9 +714,9 @@ describe('NonLeafBlock', () => {
     expect(nl.streamRange({ start: 3, amount: 4 }).toArray()).toEqual([
       4, 5, 6, 7,
     ]);
-    expect(nl.streamRange({ start: 3, amount: 4 }, true).toArray()).toEqual([
-      7, 6, 5, 4,
-    ]);
+    expect(
+      nl.streamRange({ start: 3, amount: 4 }, { reversed: true }).toArray()
+    ).toEqual([7, 6, 5, 4]);
 
     expect(nl.streamRange({ start: 3, amount: 2 }).toArray()).toEqual([4, 5]);
 
@@ -798,18 +807,26 @@ describe('NonLeafBlock', () => {
     );
 
     expect(nl.toArray()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    expect(nl.toArray({ amount: 0 })).toEqual([]);
-    expect(nl.toArray({ amount: 10 })).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    expect(nl.toArray({ start: 3, amount: 4 })).toEqual([4, 5, 6, 7]);
+    expect(nl.toArray({ range: { amount: 0 } })).toEqual([]);
+    expect(nl.toArray({ range: { amount: 10 } })).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8, 9,
+    ]);
+    expect(nl.toArray({ range: { start: 3, amount: 4 } })).toEqual([
+      4, 5, 6, 7,
+    ]);
 
-    expect(nl.toArray(undefined, true)).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1]);
-    expect(nl.toArray({ amount: 10 }, true)).toEqual([
+    expect(nl.toArray({ reversed: true })).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1]);
+    expect(nl.toArray({ range: { amount: 10 }, reversed: true })).toEqual([
       9, 8, 7, 6, 5, 4, 3, 2, 1,
     ]);
-    expect(nl.toArray({ start: 3, amount: 4 }, true)).toEqual([7, 6, 5, 4]);
+    expect(
+      nl.toArray({ range: { start: 3, amount: 4 }, reversed: true })
+    ).toEqual([7, 6, 5, 4]);
 
-    expect(nl.toArray({ start: 3, amount: 2 })).toEqual([4, 5]);
-    expect(nl.toArray({ start: 3, amount: 2 }, true)).toEqual([5, 4]);
+    expect(nl.toArray({ range: { start: 3, amount: 2 } })).toEqual([4, 5]);
+    expect(
+      nl.toArray({ range: { start: 3, amount: 2 }, reversed: true })
+    ).toEqual([5, 4]);
   });
 
   it('updateAt', () => {

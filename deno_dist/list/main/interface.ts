@@ -77,26 +77,28 @@ export interface List<T> extends FastIterable<T> {
   assumeNonEmpty(): List.NonEmpty<T>;
   /**
    * Returns a Stream containing the values in order of the List, or in reverse order if `reversed` is true.
-   * @param reversed - (default: false) if true reverses the order of the elements
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - reversed: (default: false) if true reverses the order of the elements
    * @example
    * ```ts
    * List.of(0, 1, 2).stream().toArray()      // => [0, 1, 2]
    * List.of(0, 1, 2).stream(true).toArray()  // => [2, 1, 0]
    * ```
    */
-  stream(reversed?: boolean): Stream<T>;
+  stream(options?: { reversed?: boolean }): Stream<T>;
   /**
    * Returns a Stream containing the values contained in the given index `range`, in order of the List,
    * or in reverse order if `reversed` is true.
-   * @param range - the index range to include from the list
-   * @param reversed - (default: false) if true reverses the order of the included elements
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - range: (optional) the index range to include from the list<br/>
+   * - reversed: (default: false) if true reverses the order of the included elements
    * @example
    * ```ts
    * List.of(0, 1, 2, 3, 4).streamRange({ start: 1, end: 2 }).toArray()             // => [0, 1, 2]
    * List.of(0, 1, 2, 3, 4).streamRange({ start: 1, amount: 2 }, true).toArray()    // => [2, 1]
    * ```
    */
-  streamRange(range: IndexRange, reversed?: boolean): Stream<T>;
+  streamRange(range: IndexRange, options?: { reversed?: boolean }): Stream<T>;
   /**
    * Returns the first value of the List, or the `otherwise` value if the list is empty.
    * @param otherwise - (default: undefined) an `OptLazy` value to return if the List is empty
@@ -203,7 +205,8 @@ export interface List<T> extends FastIterable<T> {
    * Returns the List containing the values within the given index `range`, potentially
    * reversed in order if `reversed` is true.
    * @param range - the index range to include
-   * @param reversed - (default: false) if true reverses the order of the elements
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - reversed: (default: false) if true reverses the order of the elements
    *
    * @note a negative `index` will be treated as follows:<br/>
    * - -1: the last element in the list<br/>
@@ -216,7 +219,7 @@ export interface List<T> extends FastIterable<T> {
    * ```
    * @note O(logB(N)) for block size B
    */
-  slice(range: IndexRange, reversed?: boolean): List<T>;
+  slice(range: IndexRange, options?: { reversed?: boolean }): List<T>;
 
   /**
    * Returns the values sorted according to the given, optional Comp.
@@ -226,9 +229,11 @@ export interface List<T> extends FastIterable<T> {
    * please consider `SortedMultiSet` instead.
    *
    * @param comp The comparison logic to use; if missing, the default JavaScript sorting algorithm is applied
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - inverse: (default: false) when true will invert the sorting order
    * @returns A sorted copy of the list
    */
-  sort(comp?: Comp<T>): List<T>;
+  sort(comp?: Comp<T>, options?: { inverse?: boolean }): List<T>;
 
   /**
    * Returns the List, where at the given `index` the `remove` amount of values are replaced by the values
@@ -280,7 +285,8 @@ export interface List<T> extends FastIterable<T> {
   /**
    * Returns the List with the given `amount` of values removed at the given `index`.
    * @param index - the index at which to remove values
-   * @param amount - the amount of elements to remove
+   * @param options - object containing the following<br/>
+   * - amount: (default: 1) the amount of elements to remove
    *
    * @note  a negative `index` will be treated as follows:<br/>
    * - -1: the last element in the list<br/>
@@ -293,7 +299,7 @@ export interface List<T> extends FastIterable<T> {
    * ```
    * @note O(logB(N)) for block size B
    */
-  remove(index: number, amount?: number): List<T>;
+  remove(index: number, options?: { amount?: number }): List<T>;
   /**
    * Returns the List succeeded by the values from all given `StreamSource` instances given in `sources`.
    * @param sources - an array of `StreamSource` instances containing values to be added to the list
@@ -342,7 +348,8 @@ export interface List<T> extends FastIterable<T> {
    * of the List according to the `positionPercentage` such that the result length is equal to `length`.
    * @param length - the target length of the resulting list
    * @param fill - the element used to fill up empty space in the resulting List
-   * @param positionPercentage - a percentage indicating how much of the filling elements should be on the left
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - positionPercentage: (default: 0) a percentage indicating how much of the filling elements should be to the right
    * side of the current List
    * @example
    * ```ts
@@ -353,7 +360,11 @@ export interface List<T> extends FastIterable<T> {
    * ```
    * @note O(logB(N)) for block size B
    */
-  padTo(length: number, fill: T, positionPercentage?: number): List<T>;
+  padTo(
+    length: number,
+    fill: T,
+    options?: { positionPercentage?: number }
+  ): List<T>;
   /**
    * Returns the List where at the given `index` the value is replaced or updated by the given `update`.
    * @param index - the index at which to update the value
@@ -379,8 +390,9 @@ export interface List<T> extends FastIterable<T> {
    * - `value`: the next value<br/>
    * - `index`: the value index<br/>
    * - `halt`: a function that, when called, ensures no next elements are passed
-   * @param range - (optional) the range of the list to include in the filtering process
-   * @param reversed - (default: false) if true reverses the elements within the given range
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - range: (optional) the range of the list to include in the filtering process<br/>
+   * - reversed: (default: false) if true reverses the elements within the given range
    * @example
    * ```ts
    * List.of(0, 1, 2, 3).filter(v => v < 2)           // -> List(0, 1)
@@ -394,8 +406,7 @@ export interface List<T> extends FastIterable<T> {
    */
   filter(
     pred: (value: T, index: number, halt: () => void) => boolean,
-    range?: IndexRange,
-    reversed?: boolean
+    options?: { range?: IndexRange; reversed?: boolean; negate?: boolean }
   ): List<T>;
   /**
    * Returns a List containing the values resulting from applying given `collectFun` to each value in this List.
@@ -404,8 +415,9 @@ export interface List<T> extends FastIterable<T> {
    * - `index`: the value index<br/>
    * - `skip`: a token that, when returned, will not add a value to the resulting collection<br/>
    * - `halt`: a function that, when called, ensures no next elements are passed
-   * @param range - (optional) the range of the list to include in the filtering process
-   * @param reversed - (default: false) if true reverses the elements within the given range
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - range: (optional) the range of the list to include in the filtering process<br/>
+   * - reversed: (default: false) if true reverses the elements within the given range
    * @typeparam T2 - the result element type
    * @example
    * ```ts
@@ -422,8 +434,10 @@ export interface List<T> extends FastIterable<T> {
    */
   collect<T2>(
     collectFun: CollectFun<T, T2>,
-    range?: IndexRange,
-    reversed?: boolean
+    options?: {
+      range?: IndexRange;
+      reversed?: boolean;
+    }
   ): List<T2>;
   /**
    * Performs given function `f` for each value of the List.
@@ -431,6 +445,9 @@ export interface List<T> extends FastIterable<T> {
    * - `value`: the next value<br/>
    * - `index`: the index of the value<br/>
    * - `halt`: a function that, if called, ensures that no new elements are passed
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - reversed: (default: false) when true will reverse the element order
+   * - state: (optional) the traversal state
    * @example
    * ```ts
    * List.of(0, 1, 2, 3).forEach((value, i, halt) => {
@@ -443,13 +460,14 @@ export interface List<T> extends FastIterable<T> {
    */
   forEach(
     f: (value: T, index: number, halt: () => void) => void,
-    state?: TraverseState
+    options?: { reversed?: boolean; state?: TraverseState }
   ): void;
   /**
    * Returns a List containing the result of applying given `mapFun` to each value in this List.
    * If `reversed` is true, the order of the values is reversed.
    * @param mapFun - a function receiving a value and its index, and returning a new value
-   * @param reversed - (default: false) if true, reverses the order of the values
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - reversed: (default: false) if true, reverses the order of the values
    * @typeparam T2 - the result element type
    * @example
    * ```ts
@@ -459,7 +477,7 @@ export interface List<T> extends FastIterable<T> {
    */
   map<T2>(
     mapFun: (value: T, index: number) => T2,
-    reversed?: boolean
+    options?: { reversed?: boolean }
   ): List<T2>;
   /**
    * Returns a List containing the result of applying given `mapFun` to each value in this List.
@@ -467,7 +485,8 @@ export interface List<T> extends FastIterable<T> {
    * @note The given `mapFun` is expected to be side-effect free, so that structural sharing can be kept
    * in place.
    * @param mapFun - a function receiving a value, and returning a new value
-   * @param reversed - (default: false) if true, reverses the order of the values
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - reversed: (default: false) if true, reverses the order of the values
    * @typeparam T2 - the result element type
    * @example
    * ```ts
@@ -475,13 +494,17 @@ export interface List<T> extends FastIterable<T> {
    * // => ['value 2', 'value 3', 'value 3']
    * ```
    */
-  mapPure<T2>(mapFun: (value: T) => T2, reversed?: boolean): List<T2>;
+  mapPure<T2>(
+    mapFun: (value: T) => T2,
+    options?: { reversed?: boolean }
+  ): List<T2>;
   /**
    * Returns a List containing the joined results of applying given `flatMapFun` to each value in this List.
    * @param flatMapFun - a function taking the next value and its index, and returning a `StreamSource`
    * of value to include in the resulting collection
-   * @param range - (optional) the range of the list to include in the filtering process
-   * @param reversed - (default: false) if true reverses the elements within the given range
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - range: (optional) the range of the list to include in the filtering process<br/>
+   * - reversed: (default: false) if true reverses the elements within the given range
    * @typeparam T2 - the result element type
    * @example
    * ```ts
@@ -491,8 +514,10 @@ export interface List<T> extends FastIterable<T> {
    */
   flatMap<T2>(
     flatMapFun: (value: T, index: number) => StreamSource<T2>,
-    range?: IndexRange,
-    reversed?: boolean
+    options?: {
+      range?: IndexRange;
+      reversed?: boolean;
+    }
   ): List<T2>;
   /**
    * Returns the List in reversed order.
@@ -506,8 +531,9 @@ export interface List<T> extends FastIterable<T> {
   /**
    * Returns an array containing the values within given `range` (default: all) in this collection.
    * If `reversed` is true, reverses the order of the values.
-   * @param range - (optional) the range of the list to include in the filtering process
-   * @param reversed - (default: false) if true reverses the elements within the given range
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - range: (optional) the range of the list to include in the filtering process<br/>
+   * - reversed: (default: false) if true reverses the elements within the given range
    * @example
    * ```ts
    * List.of(0, 1, 2, 3).toArray()                      // => [0, 1, 2, 3]
@@ -517,7 +543,7 @@ export interface List<T> extends FastIterable<T> {
    * @note O(logB(N)) for block size B
    * @note it is safe to mutate the returned array, however, the array elements are not copied, thus should be treated as read-only
    */
-  toArray(range?: IndexRange, reversed?: boolean): T[];
+  toArray(options?: { range?: IndexRange; reversed?: boolean }): T[];
   /**
    * Returns a builder object containing the values of this collection.
    * @example
@@ -590,14 +616,15 @@ export namespace List {
     asNormal(): List<T>;
     /**
      * Returns a non-empty Stream containing the values in order of the List, or in reverse order if `reversed` is true.
-     * @param reversed - (default: false) if true reverses the order of the elements
+     * @param options - (optional) an object containing the following properties:<br/>
+     * - reversed: (default: false) if true reverses the order of the elements
      * @example
      * ```ts
      * List.of(0, 1, 2).stream().toArray()      // => [0, 1, 2]
      * List.of(0, 1, 2).stream(true).toArray()  // => [2, 1, 0]
      * ```
      */
-    stream(reversed?: boolean): Stream.NonEmpty<T>;
+    stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
     /**
      * Returns the first value of the List.
      * @example
@@ -679,7 +706,8 @@ export namespace List {
      * of the List according to the `positionPercentage` such that the result length is equal to `length`.
      * @param length - the target length of the resulting list
      * @param fill - the element used to fill up empty space in the resulting List
-     * @param positionPercentage - (optional) a percentage indicating how much of the filling elements should be on the left
+     * @param options - (optional) an object containing the following properties:<br/>
+     * - positionPercentage: (default: 0) a percentage indicating how much of the filling elements should be to the right
      * side of the current List
      * @example
      * ```ts
@@ -693,7 +721,7 @@ export namespace List {
     padTo(
       length: number,
       fill: T,
-      positionPercentage?: number
+      options?: { positionPercentage?: number }
     ): List.NonEmpty<T>;
     /**
      * Returns the non-empty List where at the given `index` the value is replaced or updated by the given `update`.
@@ -734,7 +762,8 @@ export namespace List {
      * Returns a non-empty List containing the result of applying given `mapFun` to each value in this List.
      * If `reversed` is true, the order of the values is reversed.
      * @param mapFun - a function receiving a value and its index, and returning a new value
-     * @param reversed - (default: false) if true, reverses the order of the values
+     * @param options - (optional) an object containing the following properties:<br/>
+     * - reversed: (default: false) if true, reverses the order of the values
      * @example
      * ```ts
      * List.of(1, 2, 3).map(v => `value: ${v + 2}`).toArray()
@@ -743,7 +772,7 @@ export namespace List {
      */
     map<T2>(
       mapFun: (value: T, index: number) => T2,
-      reversed?: boolean
+      options?: { reversed?: boolean }
     ): List.NonEmpty<T2>;
     /**
      * Returns a non-empty List containing the result of applying given `mapFun` to each value in this List.
@@ -751,7 +780,8 @@ export namespace List {
      * @note The given `mapFun` is expected to be side-effect free, so that structural sharing can be kept
      * in place.
      * @param mapFun - a function receiving a value and returning a new value
-     * @param reversed - (default: false) if true, reverses the order of the values
+     * @param options - (optional) an object containing the following properties:<br/>
+     * - reversed: (default: false) if true, reverses the order of the values
      * @typeparam T2 - the result element type
      * @example
      * ```ts
@@ -761,14 +791,15 @@ export namespace List {
      */
     mapPure<T2>(
       mapFun: (value: T) => T2,
-      reversed?: boolean
+      options?: { reversed?: boolean }
     ): List.NonEmpty<T2>;
     /**
      * Returns a List containing the joined results of applying given `flatMapFun` to each value in this List.
      * @param flatMapFun - a function taking the next value and its index, and returning a `StreamSource`
      * of value to include in the resulting collection
-     * @param range - (optional) the range of the list to include in the filtering process
-     * @param reversed - (default: false) if true reverses the elements within the given range
+     * @param options - (optional) an object containing the following properties:<br/>
+     * - range: (optional) the range of the list to include in the filtering process<br/>
+     * - reversed: (default: false) if true reverses the elements within the given range
      * @typeparam T2 - the result element type
      * @example
      * ```ts
@@ -778,13 +809,11 @@ export namespace List {
      */
     flatMap<T2>(
       flatMapFun: (value: T, index: number) => StreamSource.NonEmpty<T2>,
-      range?: undefined,
-      reversed?: boolean
+      options?: { range?: undefined; reversed?: boolean }
     ): List.NonEmpty<T2>;
     flatMap<T2>(
       flatMapFun: (value: T, index: number) => StreamSource<T2>,
-      range?: IndexRange,
-      reversed?: boolean
+      options?: { range?: IndexRange; reversed?: boolean }
     ): List<T2>;
 
     /**
@@ -795,9 +824,11 @@ export namespace List {
      * please consider `SortedMultiSet` instead.
      *
      * @param comp The comparison logic to use; if missing, the default JavaScript sorting algorithm is applied
+     * @param options - (optional) an object containing the following properties:<br/>
+     * - inverse: (default: false) when true will reverse the sorting order
      * @returns A sorted copy of the list
      */
-    sort(comp?: Comp<T>): List.NonEmpty<T>;
+    sort(comp?: Comp<T>, options?: { inverse?: boolean }): List.NonEmpty<T>;
 
     /**
      * Returns the List, where at the given `index` the `remove` amount of values are replaced by the values
@@ -840,8 +871,9 @@ export namespace List {
     /**
      * Returns an array containing the values within given `range` (default: all) in this collection.
      * If `reversed` is true, reverses the order of the values.
-     * @param range - (optional) the range of the list to include in the filtering process
-     * @param reversed - (default: false) if true reverses the elements within the given range
+     * @param options - (optional) an object containing the following properties:<br/>
+     * - range: (optional) the range of the list to include in the filtering process<br/>
+     * - reversed: (default: false) if true reverses the elements within the given range
      * @example
      * ```ts
      * List.of(0, 1, 2, 3).toArray()                      // => [0, 1, 2, 3]
@@ -851,8 +883,11 @@ export namespace List {
      * @note O(logB(N)) for block size B
      * @note it is safe to mutate the returned array, however, the array elements are not copied, thus should be treated as read-only
      */
-    toArray(range?: undefined, reversed?: boolean): ArrayNonEmpty<T>;
-    toArray(range?: IndexRange, reversed?: boolean): T[];
+    toArray(options?: {
+      range?: undefined;
+      reversed?: boolean;
+    }): ArrayNonEmpty<T>;
+    toArray(options?: { range?: IndexRange; reversed?: boolean }): T[];
   }
 
   /**
@@ -1038,6 +1073,8 @@ export namespace List {
      * - `value`: the next value<br/>
      * - `index`: the index of the value<br/>
      * - `halt`: a function that, if called, ensures that no new elements are passed
+     * @param options - (optional) an object containing the following properties:<br/>
+     * - state: (optional) the traversal state
      * @throws RibuError.ModifiedBuilderWhileLoopingOverItError if the builder is modified while
      * looping over it
      * @example
@@ -1052,7 +1089,7 @@ export namespace List {
      */
     forEach(
       f: (value: T, index: number, halt: () => void) => void,
-      state?: TraverseState
+      options?: { reversed?: boolean; state?: TraverseState }
     ): void;
     /**
      * Returns an immutable instance containing the values in this builder.

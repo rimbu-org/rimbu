@@ -7,8 +7,7 @@ import type { BiMap } from '../../../bimap/mod.ts';
 
 import type { RMap } from '../../../collection-types/map/index.ts';
 import type { ArrayNonEmpty } from '../../../common/mod.ts';
-import { Reducer } from '../../../common/mod.ts';
-import type { StreamSource } from '../../../stream/mod.ts';
+import { Reducer, type StreamSource } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>

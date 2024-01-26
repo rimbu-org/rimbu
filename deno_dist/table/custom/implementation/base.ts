@@ -7,16 +7,15 @@ import {
   type WithRow,
 } from '../../../collection-types/map-custom/index.ts';
 import {
-  type ArrayNonEmpty,
   OptLazy,
   OptLazyOr,
-  Reducer,
-  type RelatedTo,
-  type ToJSON,
   TraverseState,
   Update,
+  type ArrayNonEmpty,
+  type RelatedTo,
+  type ToJSON,
 } from '../../../common/mod.ts';
-import { Stream, type StreamSource } from '../../../stream/mod.ts';
+import { Reducer, Stream, type StreamSource } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 import type { Table } from '../../../table/mod.ts';
@@ -264,7 +263,7 @@ export class TableNonEmpty<
     column: C,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: (value: V, remove: Token) => V | Token;
+      ifExists?: ((value: V, remove: Token) => V | Token) | V;
     }
   ): TpR['normal'] {
     let newSize = this.size;
@@ -410,8 +409,10 @@ export class TableNonEmpty<
 
   forEach(
     f: (entry: [R, C, V], index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { state?: TraverseState } = {}
   ): void {
+    const { state = TraverseState() } = options;
+
     if (state.halted) return;
 
     const rowIt = this.rowMap[Symbol.iterator]();
@@ -437,11 +438,12 @@ export class TableNonEmpty<
   }
 
   filter(
-    pred: (entry: [R, C, V], index: number, halt: () => void) => boolean
+    pred: (entry: [R, C, V], index: number, halt: () => void) => boolean,
+    options: { negate?: boolean } = {}
   ): TpR['normal'] {
     const builder = this.context.builder<R, C, V>();
 
-    builder.addEntries(this.stream().filter(pred));
+    builder.addEntries(this.stream().filter(pred, options));
 
     if (builder.size === this.size) return this as any;
 
@@ -453,12 +455,15 @@ export class TableNonEmpty<
       entry: readonly [R, TpR['rowNonEmpty']],
       index: number,
       halt: () => void
-    ) => boolean
+    ) => boolean,
+    options: { negate?: boolean } = {}
   ): TpR['normal'] {
+    const { negate = false } = options;
+
     let newSize = 0;
     const newRowMap = this.rowMap.filter((e, i, halt): boolean => {
       const result = pred(e, i, halt);
-      if (result) newSize += e[1].size;
+      if (result !== negate) newSize += e[1].size;
       return result;
     });
 
@@ -650,7 +655,7 @@ export class TableBuilder<
   addEntries = (source: StreamSource<readonly [R, C, V]>): boolean => {
     this.checkLock();
 
-    return Stream.applyFilter(source, this.set).count() > 0;
+    return Stream.applyFilter(source, { pred: this.set }).count() > 0;
   };
 
   remove = <UR, UC, O>(
@@ -705,7 +710,7 @@ export class TableBuilder<
   removeRows = <UR,>(rows: StreamSource<RelatedTo<R, UR>>): boolean => {
     this.checkLock();
 
-    return Stream.from(rows).filterPure(this.removeRow).count() > 0;
+    return Stream.from(rows).filterPure({ pred: this.removeRow }).count() > 0;
   };
 
   removeEntries = <UR = R, UC = C>(
@@ -716,9 +721,9 @@ export class TableBuilder<
     const notFound = Symbol();
 
     return (
-      Stream.applyMap(entries, this.remove, notFound).countNotElement(
-        notFound
-      ) > 0
+      Stream.applyMap(entries, this.remove, notFound).countElement(notFound, {
+        negate: true,
+      }) > 0
     );
   };
 
@@ -727,7 +732,7 @@ export class TableBuilder<
     column: C,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: (currentValue: V, remove: Token) => V | Token;
+      ifExists?: ((currentValue: V, remove: Token) => V | Token) | V;
     }
   ): boolean => {
     this.checkLock();
@@ -811,14 +816,16 @@ export class TableBuilder<
 
   forEach = (
     f: (entry: [R, C, V], index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { state?: TraverseState } = {}
   ): void => {
+    const { state = TraverseState() } = options;
+
     if (state.halted) return;
 
     this._lock++;
 
     if (undefined !== this.source) {
-      this.source.forEach(f, state);
+      this.source.forEach(f, { state });
     } else {
       const { halt } = state;
 

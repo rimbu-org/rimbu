@@ -548,18 +548,34 @@ export abstract class TreeBuilderBase<T, C> {
 
   forEach(
     f: (value: T, index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { reversed?: boolean; state?: TraverseState } = {}
   ): void {
-    if (state.halted) return;
-    this.left.forEach(f, state);
+    const { reversed = false, state = TraverseState() } = options;
 
     if (state.halted) return;
 
-    if (undefined !== this.middle) {
-      this.middle.forEach(f, state);
+    if (!reversed) {
+      this.left.forEach(f, { state });
+
       if (state.halted) return;
-    }
 
-    this.right.forEach(f, state);
+      if (undefined !== this.middle) {
+        this.middle.forEach(f, { state });
+        if (state.halted) return;
+      }
+
+      this.right.forEach(f, { state });
+    } else {
+      this.right.forEach(f, { reversed, state });
+
+      if (state.halted) return;
+
+      if (undefined !== this.middle) {
+        this.middle.forEach(f, { reversed, state });
+        if (state.halted) return;
+      }
+
+      this.left.forEach(f, { reversed, state });
+    }
   }
 }

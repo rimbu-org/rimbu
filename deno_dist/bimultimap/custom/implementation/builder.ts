@@ -6,7 +6,7 @@ import type {
 import { RimbuError } from '../../../base/mod.ts';
 import type { RSet } from '../../../collection-types/mod.ts';
 import type { WithKeyValue } from '../../../collection-types/map-custom/index.ts';
-import type { RelatedTo, TraverseState } from '../../../common/mod.ts';
+import { TraverseState, type RelatedTo } from '../../../common/mod.ts';
 import type { MultiMap } from '../../../multimap/mod.ts';
 import { Stream, type StreamSource } from '../../../stream/mod.ts';
 
@@ -157,7 +157,7 @@ export class BiMultiMapBuilder<
   addEntries = (entries: StreamSource<readonly [K, V]>): boolean => {
     this.checkLock();
 
-    return Stream.applyFilter(entries, this.add).count() > 0;
+    return Stream.applyFilter(entries, { pred: this.add }).count() > 0;
   };
 
   // prettier-ignore
@@ -181,7 +181,7 @@ export class BiMultiMapBuilder<
   removeKeys = <UK = K,>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
     this.checkLock();
 
-    return Stream.from(keys).filterPure(this.removeKey).count() > 0;
+    return Stream.from(keys).filterPure({ pred: this.removeKey }).count() > 0;
   };
 
   // prettier-ignore
@@ -205,7 +205,7 @@ export class BiMultiMapBuilder<
   removeValues = <UV = V,>(values: StreamSource<RelatedTo<V, UV>>): boolean => {
     this.checkLock();
 
-    return Stream.from(values).filterPure(this.removeValue).count() > 0;
+    return Stream.from(values).filterPure({ pred: this.removeValue }).count() > 0;
   };
 
   removeEntry = <UK = K, UV = V>(
@@ -226,16 +226,18 @@ export class BiMultiMapBuilder<
   ): boolean => {
     this.checkLock();
 
-    return Stream.applyFilter(entries, this.removeEntry).count() > 0;
+    return Stream.applyFilter(entries, { pred: this.removeEntry }).count() > 0;
   };
 
   forEach = (
     f: (entry: [K, V], index: number, halt: () => void) => void,
-    state?: TraverseState
+    options: { state?: TraverseState } = {}
   ): void => {
+    const { state = TraverseState() } = options;
+
     this._lock++;
 
-    this.keyValueMultiMap.forEach(f, state);
+    this.keyValueMultiMap.forEach(f, { state });
 
     this._lock--;
   };

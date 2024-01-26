@@ -116,10 +116,10 @@ expectType<V_Empty>(varNonEmpty.remove(3));
 expectType<G_Empty>(genEmpty.remove(3));
 expectType<G_Empty>(genNonEmpty.remove(3));
 
-expectType<V_Empty>(varEmpty.remove(3, 3));
-expectType<V_Empty>(varNonEmpty.remove(3, 3));
-expectType<G_Empty>(genEmpty.remove(3, 3));
-expectType<G_Empty>(genNonEmpty.remove(3, 3));
+expectType<V_Empty>(varEmpty.remove(3, { amount: 3 }));
+expectType<V_Empty>(varNonEmpty.remove(3, { amount: 3 }));
+expectType<G_Empty>(genEmpty.remove(3, { amount: 3 }));
+expectType<G_Empty>(genNonEmpty.remove(3, { amount: 3 }));
 
 // .removeAll(..)
 expectType<V_Empty>(varEmpty.removeAllEvery([3, 4]));

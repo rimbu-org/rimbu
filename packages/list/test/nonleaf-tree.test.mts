@@ -297,7 +297,7 @@ describe('NonLeafTree', () => {
       const [next, remain] = t.dropFirst();
       expect(remain).toBe(b1);
       expect(next?.length).toBe(33);
-      expect(next?.toArray()).toEqual(t.toArray({ start: 3 }));
+      expect(next?.toArray()).toEqual(t.toArray({ range: { start: 3 } }));
       expect(next).toBeInstanceOf(NonLeafTree);
     }
     {
@@ -311,7 +311,7 @@ describe('NonLeafTree', () => {
       const [next, remain] = t.dropFirst();
       expect(remain).toBe(b1);
       expect(next?.length).toBe(9);
-      expect(next?.toArray()).toEqual(t.toArray({ start: 3 }));
+      expect(next?.toArray()).toEqual(t.toArray({ range: { start: 3 } }));
       expect(next).toBeInstanceOf(NonLeafBlock);
     }
     {
@@ -325,7 +325,7 @@ describe('NonLeafTree', () => {
       const [next, remain] = t.dropFirst();
       expect(remain).toBe(b1);
       expect(next?.length).toBe(27);
-      expect(next?.toArray()).toEqual(t.toArray({ start: 3 }));
+      expect(next?.toArray()).toEqual(t.toArray({ range: { start: 3 } }));
       expect(next).toBeInstanceOf(NonLeafTree);
     }
   });
@@ -337,7 +337,7 @@ describe('NonLeafTree', () => {
       const [next, remain] = t.dropLast();
       expect(remain).toBe(b3);
       expect(next?.length).toBe(t.length - 3);
-      expect(next?.toArray()).toEqual(t.toArray({ end: -4 }));
+      expect(next?.toArray()).toEqual(t.toArray({ range: { end: -4 } }));
       expect(next).toBeInstanceOf(NonLeafTree);
       expect((next as any).right).toEqual(
         context.nonLeafBlock<number, any>(6, [b1, b2], 1)
@@ -354,7 +354,7 @@ describe('NonLeafTree', () => {
       const [next, remain] = t.dropLast();
       expect(remain).toBe(b2);
       expect(next?.length).toBe(t.length - 3);
-      expect(next?.toArray()).toEqual(t.toArray({ end: -4 }));
+      expect(next?.toArray()).toEqual(t.toArray({ range: { end: -4 } }));
       expect(next).toBeInstanceOf(NonLeafBlock);
     }
     {
@@ -368,7 +368,7 @@ describe('NonLeafTree', () => {
       const [next, remain] = t.dropLast();
       expect(remain).toBe(b1);
       expect(next?.length).toBe(27);
-      expect(next?.toArray()).toEqual(t.toArray({ end: -4 }));
+      expect(next?.toArray()).toEqual(t.toArray({ range: { end: -4 } }));
       expect((next as any).right).toBe(nlb2);
     }
     {
@@ -382,7 +382,7 @@ describe('NonLeafTree', () => {
       const [next, remain] = t.dropLast();
       expect(remain).toBe(b1);
       expect(next?.length).toBe(9);
-      expect(next?.toArray()).toEqual(t.toArray({ end: -4 }));
+      expect(next?.toArray()).toEqual(t.toArray({ range: { end: -4 } }));
       expect(next).toBe(nlb1);
     }
   });
@@ -394,7 +394,7 @@ describe('NonLeafTree', () => {
       const [newT, up, upAmount] = t.dropInternal(1);
       expect(upAmount).toBe(1);
       expect(up).toBe(b1);
-      expect(newT?.toArray()).toEqual(t.toArray({ start: 3 }));
+      expect(newT?.toArray()).toEqual(t.toArray({ range: { start: 3 } }));
       expect(newT).toBeInstanceOf(NonLeafTree);
     }
     {
@@ -403,7 +403,7 @@ describe('NonLeafTree', () => {
       const [newT, up, upAmount] = t.dropInternal(9);
       expect(upAmount).toBe(0);
       expect(up).toBe(b1);
-      expect(newT?.toArray()).toEqual(t.toArray({ start: 12 }));
+      expect(newT?.toArray()).toEqual(t.toArray({ range: { start: 12 } }));
       expect(newT).toBeInstanceOf(NonLeafTree);
     }
     {
@@ -412,7 +412,7 @@ describe('NonLeafTree', () => {
       const [newT, up, upAmount] = t.dropInternal(8);
       expect(upAmount).toBe(2);
       expect(up).toBe(b3);
-      expect(newT?.toArray()).toEqual(t.toArray({ start: 9 }));
+      expect(newT?.toArray()).toEqual(t.toArray({ range: { start: 9 } }));
       expect(newT).toBeInstanceOf(NonLeafTree);
     }
     {
@@ -426,7 +426,7 @@ describe('NonLeafTree', () => {
       const [newT, up, upAmount] = t.dropInternal(1);
       expect(upAmount).toBe(1);
       expect(up).toBe(b1);
-      expect(newT?.toArray()).toEqual(t.toArray({ start: 3 }));
+      expect(newT?.toArray()).toEqual(t.toArray({ range: { start: 3 } }));
       expect(newT).toBeInstanceOf(NonLeafTree);
     }
     {
@@ -440,7 +440,7 @@ describe('NonLeafTree', () => {
       const [newT, up, upAmount] = t.dropInternal(9);
       expect(upAmount).toBe(0);
       expect(up).toBe(b1);
-      expect(newT?.toArray()).toEqual(t.toArray({ start: 12 }));
+      expect(newT?.toArray()).toEqual(t.toArray({ range: { start: 12 } }));
       expect(newT).toBeInstanceOf(NonLeafBlock);
     }
     {
@@ -449,7 +449,7 @@ describe('NonLeafTree', () => {
       const [newT, up, upAmount] = t.dropInternal(18);
       expect(upAmount).toBe(0);
       expect(up).toBe(b1);
-      expect(newT?.toArray()).toEqual(t.toArray({ start: 18 + 3 }));
+      expect(newT?.toArray()).toEqual(t.toArray({ range: { start: 18 + 3 } }));
       expect(newT).toBeInstanceOf(NonLeafTree);
     }
     {
@@ -466,17 +466,27 @@ describe('NonLeafTree', () => {
     const t = createTree();
 
     const cb = vi.fn();
-    t.forEach(cb, TraverseState());
+    t.forEach(cb, { reversed: false, state: TraverseState() });
     expect(cb).toBeCalledTimes(36);
     expect(cb.mock.calls[1][0]).toBe(2);
     expect(cb.mock.calls[1][1]).toBe(1);
 
     cb.mockReset();
 
-    t.forEach((_, __, halt) => {
-      halt();
-      cb();
-    }, TraverseState());
+    t.forEach(cb, { reversed: true, state: TraverseState() });
+    expect(cb).toBeCalledTimes(36);
+    expect(cb.mock.calls[1][0]).toBe(8);
+    expect(cb.mock.calls[1][1]).toBe(1);
+
+    cb.mockReset();
+
+    t.forEach(
+      (_, __, halt) => {
+        halt();
+        cb();
+      },
+      { reversed: false, state: TraverseState() }
+    );
 
     expect(cb).toBeCalledTimes(1);
   });
@@ -509,12 +519,12 @@ describe('NonLeafTree', () => {
     }
     {
       const t = context.nonLeafTree(nlb1, nlb1, nlb3, 1);
-      const r = t.map((v) => v + 1, true);
+      const r = t.map((v) => v + 1, { reversed: true });
       expect(r.length).toBe(t.length);
       expect(r.level).toBe(t.level);
       expect(r.toArray()).toEqual(
         t
-          .stream(true)
+          .stream({ reversed: true })
           .map((v) => v + 1)
           .toArray()
       );
@@ -533,7 +543,7 @@ describe('NonLeafTree', () => {
     }
     {
       const t = context.nonLeafTree(nlb1, nlb1, nlb3, 1);
-      const r = t.mapPure((v) => v + 1, true);
+      const r = t.mapPure((v) => v + 1, { reversed: true });
       expect(r.length).toBe(t.length);
       expect(r.level).toBe(t.level);
       expect(r.left.nrChildren).toBe(t.left.nrChildren);
@@ -607,7 +617,7 @@ describe('NonLeafTree', () => {
     const t = context.nonLeafTree(nlb1, nlb1, nlb3, 1);
     const r = t.reversed();
     expect(r.left).toBe(r.right);
-    expect(r.toArray()).toEqual(t.toArray(undefined, true));
+    expect(r.toArray()).toEqual(t.toArray({ reversed: true }));
   });
 
   it('structure', () => {
@@ -632,7 +642,7 @@ describe('NonLeafTree', () => {
     expect(t.stream().toArray()).toEqual(
       nlb1.stream().concat(nlb2, nlb3).toArray()
     );
-    expect(t.stream(true).toArray()).toEqual(
+    expect(t.stream({ reversed: true }).toArray()).toEqual(
       nlb1.stream().concat(nlb2, nlb3).toArray().reverse()
     );
   });
@@ -643,7 +653,7 @@ describe('NonLeafTree', () => {
     expect(t.stream().toArray()).toEqual(
       nlb1.stream().concat(nlb2, nlb3).toArray()
     );
-    expect(t.stream(true).toArray()).toEqual(
+    expect(t.stream({ reversed: true }).toArray()).toEqual(
       nlb1.stream().concat(nlb2, nlb3).toArray().reverse()
     );
 
@@ -652,9 +662,9 @@ describe('NonLeafTree', () => {
     expect(t.streamRange({ start: 4, amount: 4 }).toArray()).toEqual([
       5, 6, 7, 8,
     ]);
-    expect(t.streamRange({ start: 4, amount: 4 }, true).toArray()).toEqual([
-      8, 7, 6, 5,
-    ]);
+    expect(
+      t.streamRange({ start: 4, amount: 4 }, { reversed: true }).toArray()
+    ).toEqual([8, 7, 6, 5]);
   });
 
   it('takeInternal', () => {
@@ -672,7 +682,7 @@ describe('NonLeafTree', () => {
       const [newT, up, upAmount] = t.takeInternal(18);
       expect(upAmount).toBe(3);
       expect(up).toBe(b3);
-      expect(newT?.toArray()).toEqual(t.toArray({ amount: 18 - 3 }));
+      expect(newT?.toArray()).toEqual(t.toArray({ range: { amount: 18 - 3 } }));
       expect(newT).toBeInstanceOf(NonLeafTree);
     }
     {
@@ -681,7 +691,7 @@ describe('NonLeafTree', () => {
       const [newT, up, upAmount] = t.takeInternal(35);
       expect(upAmount).toBe(2);
       expect(up).toBe(b3);
-      expect(newT?.toArray()).toEqual(t.toArray({ amount: 33 }));
+      expect(newT?.toArray()).toEqual(t.toArray({ range: { amount: 33 } }));
       expect(newT).toBeInstanceOf(NonLeafTree);
     }
     {
@@ -695,7 +705,7 @@ describe('NonLeafTree', () => {
       const [newT, up, upAmount] = t.takeInternal(28);
       expect(upAmount).toBe(1);
       expect(up).toBe(b3);
-      expect(newT?.toArray()).toEqual(t.toArray({ amount: 28 - 1 }));
+      expect(newT?.toArray()).toEqual(t.toArray({ range: { amount: 28 - 1 } }));
       expect(newT).toBeInstanceOf(NonLeafTree);
     }
     {
@@ -709,7 +719,7 @@ describe('NonLeafTree', () => {
       const [newRight, up, upAmount] = t.takeInternal(17);
       expect(upAmount).toBe(2);
       expect(up).toBe(b3);
-      expect(newRight?.toArray()).toEqual(t.toArray({ amount: 15 }));
+      expect(newRight?.toArray()).toEqual(t.toArray({ range: { amount: 15 } }));
       expect(newRight).toBeInstanceOf(NonLeafTree);
     }
     {
@@ -723,7 +733,7 @@ describe('NonLeafTree', () => {
       const [newRight, up, upAmount] = t.takeInternal(15);
       expect(upAmount).toBe(3);
       expect(up).toBe(b2);
-      expect(newRight?.toArray()).toEqual(t.toArray({ amount: 12 }));
+      expect(newRight?.toArray()).toEqual(t.toArray({ range: { amount: 12 } }));
       expect(newRight).toBeInstanceOf(NonLeafBlock);
     }
     {
@@ -737,7 +747,9 @@ describe('NonLeafTree', () => {
       const [newRight, up, upAmount] = t.takeInternal(10);
       expect(upAmount).toBe(1);
       expect(up).toBe(b3);
-      expect(newRight?.toArray()).toEqual(t.toArray({ amount: 10 - 1 }));
+      expect(newRight?.toArray()).toEqual(
+        t.toArray({ range: { amount: 10 - 1 } })
+      );
       expect(newRight).toBeInstanceOf(NonLeafBlock);
     }
   });

@@ -125,13 +125,17 @@ describe('List methods', () => {
   it('stream', () => {
     expect(listEmpty.stream()).toBe(Stream.empty());
     expect(list3_1.stream().toArray()).toEqual([1, 2, 3]);
-    expect(list3_1.stream(true).toArray()).toEqual([3, 2, 1]);
+    expect(list3_1.stream({ reversed: true }).toArray()).toEqual([3, 2, 1]);
     expect(list3_2.stream().toArray()).toEqual([1, 2, 3]);
-    expect(list3_2.stream(true).toArray()).toEqual([3, 2, 1]);
+    expect(list3_2.stream({ reversed: true }).toArray()).toEqual([3, 2, 1]);
     expect(list6_1.stream().toArray()).toEqual([1, 2, 3, 4, 5, 6]);
-    expect(list6_1.stream(true).toArray()).toEqual([6, 5, 4, 3, 2, 1]);
+    expect(list6_1.stream({ reversed: true }).toArray()).toEqual([
+      6, 5, 4, 3, 2, 1,
+    ]);
     expect(list6_2.stream().toArray()).toEqual([1, 2, 3, 4, 5, 6]);
-    expect(list6_2.stream(true).toArray()).toEqual([6, 5, 4, 3, 2, 1]);
+    expect(list6_2.stream({ reversed: true }).toArray()).toEqual([
+      6, 5, 4, 3, 2, 1,
+    ]);
   });
 
   it('streamRange', () => {
@@ -144,6 +148,22 @@ describe('List methods', () => {
     expect(list3_2.streamRange({ start: 1, amount: 2 }).toArray()).toEqual([
       2, 3,
     ]);
+
+    expect(listEmpty.streamRange({ amount: 100 }, { reversed: true })).toBe(
+      Stream.empty()
+    );
+    expect(
+      list3_1.streamRange({ amount: 100 }, { reversed: true }).toArray()
+    ).toEqual([3, 2, 1]);
+    expect(
+      list3_1.streamRange({ start: 1, amount: 2 }, { reversed: true }).toArray()
+    ).toEqual([3, 2]);
+    expect(
+      list3_2.streamRange({ amount: 100 }, { reversed: true }).toArray()
+    ).toEqual([3, 2, 1]);
+    expect(
+      list3_2.streamRange({ start: 1, amount: 2 }, { reversed: true }).toArray()
+    ).toEqual([3, 2]);
   });
 
   it('first', () => {
@@ -265,12 +285,12 @@ describe('List methods', () => {
     expect(list3_2.slice({ start: 1, amount: 1 }).toArray()).toEqual([2]);
     expect(list6_1.slice({ start: 2, amount: 3 }).toArray()).toEqual([3, 4, 5]);
     expect(list6_2.slice({ start: 2, amount: 3 }).toArray()).toEqual([3, 4, 5]);
-    expect(list6_1.slice({ start: 2, amount: 3 }, true).toArray()).toEqual([
-      5, 4, 3,
-    ]);
-    expect(list6_2.slice({ start: 2, amount: 3 }, true).toArray()).toEqual([
-      5, 4, 3,
-    ]);
+    expect(
+      list6_1.slice({ start: 2, amount: 3 }, { reversed: true }).toArray()
+    ).toEqual([5, 4, 3]);
+    expect(
+      list6_2.slice({ start: 2, amount: 3 }, { reversed: true }).toArray()
+    ).toEqual([5, 4, 3]);
   });
 
   it('sort', () => {
@@ -299,6 +319,13 @@ describe('List methods', () => {
     expect(List.from([90, 4, 8, 100, 7, 1, 9]).sort(Comp.numberComp())).toEqual(
       List.from([1, 4, 7, 8, 9, 90, 100])
     );
+
+    //Comp-based number sorting inverse
+    expect(
+      List.from([90, 4, 8, 100, 7, 1, 9]).sort(Comp.numberComp(), {
+        inverse: true,
+      })
+    ).toEqual(List.from([1, 4, 7, 8, 9, 90, 100]).reversed());
 
     //Duplicate numbers
     expect(
@@ -401,11 +428,11 @@ describe('List methods', () => {
   });
 
   it('remove', () => {
-    expect(listEmpty.remove(1, 0)).toBe(listEmpty);
-    expect(list3_1.remove(1, 0)).toBe(list3_1);
-    expect(list3_2.remove(1, 0)).toBe(list3_2);
-    expect(list6_1.remove(1, 0)).toBe(list6_1);
-    expect(list6_2.remove(1, 0)).toBe(list6_2);
+    expect(listEmpty.remove(1, { amount: 0 })).toBe(listEmpty);
+    expect(list3_1.remove(1, { amount: 0 })).toBe(list3_1);
+    expect(list3_2.remove(1, { amount: 0 })).toBe(list3_2);
+    expect(list6_1.remove(1, { amount: 0 })).toBe(list6_1);
+    expect(list6_2.remove(1, { amount: 0 })).toBe(list6_2);
 
     expect(listEmpty.remove(1)).toBe(listEmpty);
     expect(list3_1.remove(1).toArray()).toEqual([1, 3]);
@@ -413,17 +440,17 @@ describe('List methods', () => {
     expect(list6_1.remove(1).toArray()).toEqual([1, 3, 4, 5, 6]);
     expect(list6_2.remove(1).toArray()).toEqual([1, 3, 4, 5, 6]);
 
-    expect(listEmpty.remove(1, 2)).toBe(listEmpty);
-    expect(list3_1.remove(1, 2).toArray()).toEqual([1]);
-    expect(list3_2.remove(1, 2).toArray()).toEqual([1]);
-    expect(list6_1.remove(1, 2).toArray()).toEqual([1, 4, 5, 6]);
-    expect(list6_2.remove(1, 2).toArray()).toEqual([1, 4, 5, 6]);
+    expect(listEmpty.remove(1, { amount: 2 })).toBe(listEmpty);
+    expect(list3_1.remove(1, { amount: 2 }).toArray()).toEqual([1]);
+    expect(list3_2.remove(1, { amount: 2 }).toArray()).toEqual([1]);
+    expect(list6_1.remove(1, { amount: 2 }).toArray()).toEqual([1, 4, 5, 6]);
+    expect(list6_2.remove(1, { amount: 2 }).toArray()).toEqual([1, 4, 5, 6]);
 
-    expect(listEmpty.remove(-3, 2)).toBe(listEmpty);
-    expect(list3_1.remove(-3, 2).toArray()).toEqual([3]);
-    expect(list3_2.remove(-3, 2).toArray()).toEqual([3]);
-    expect(list6_1.remove(-3, 2).toArray()).toEqual([1, 2, 3, 6]);
-    expect(list6_2.remove(-3, 2).toArray()).toEqual([1, 2, 3, 6]);
+    expect(listEmpty.remove(-3, { amount: 2 })).toBe(listEmpty);
+    expect(list3_1.remove(-3, { amount: 2 }).toArray()).toEqual([3]);
+    expect(list3_2.remove(-3, { amount: 2 }).toArray()).toEqual([3]);
+    expect(list6_1.remove(-3, { amount: 2 }).toArray()).toEqual([1, 2, 3, 6]);
+    expect(list6_2.remove(-3, { amount: 2 }).toArray()).toEqual([1, 2, 3, 6]);
   });
 
   it('concat', () => {
@@ -522,25 +549,37 @@ describe('List methods', () => {
     expect(list6_1.padTo(8, -1).toArray()).toEqual([1, 2, 3, 4, 5, 6, -1, -1]);
     expect(list6_2.padTo(8, -1).toArray()).toEqual([1, 2, 3, 4, 5, 6, -1, -1]);
 
-    expect(listEmpty.padTo(3, -1, 50).toArray()).toEqual([-1, -1, -1]);
-    expect(list3_1.padTo(5, -1, 50).toArray()).toEqual([-1, 1, 2, 3, -1]);
-    expect(list3_2.padTo(5, -1, 50).toArray()).toEqual([-1, 1, 2, 3, -1]);
-    expect(list6_1.padTo(8, -1, 50).toArray()).toEqual([
+    expect(
+      listEmpty.padTo(3, -1, { positionPercentage: 50 }).toArray()
+    ).toEqual([-1, -1, -1]);
+    expect(list3_1.padTo(5, -1, { positionPercentage: 50 }).toArray()).toEqual([
+      -1, 1, 2, 3, -1,
+    ]);
+    expect(list3_2.padTo(5, -1, { positionPercentage: 50 }).toArray()).toEqual([
+      -1, 1, 2, 3, -1,
+    ]);
+    expect(list6_1.padTo(8, -1, { positionPercentage: 50 }).toArray()).toEqual([
       -1, 1, 2, 3, 4, 5, 6, -1,
     ]);
-    expect(list6_2.padTo(8, -1, 50).toArray()).toEqual([
+    expect(list6_2.padTo(8, -1, { positionPercentage: 50 }).toArray()).toEqual([
       -1, 1, 2, 3, 4, 5, 6, -1,
     ]);
 
-    expect(listEmpty.padTo(3, -1, 100).toArray()).toEqual([-1, -1, -1]);
-    expect(list3_1.padTo(5, -1, 100).toArray()).toEqual([-1, -1, 1, 2, 3]);
-    expect(list3_2.padTo(5, -1, 100).toArray()).toEqual([-1, -1, 1, 2, 3]);
-    expect(list6_1.padTo(8, -1, 100).toArray()).toEqual([
-      -1, -1, 1, 2, 3, 4, 5, 6,
-    ]);
-    expect(list6_2.padTo(8, -1, 100).toArray()).toEqual([
-      -1, -1, 1, 2, 3, 4, 5, 6,
-    ]);
+    expect(
+      listEmpty.padTo(3, -1, { positionPercentage: 100 }).toArray()
+    ).toEqual([-1, -1, -1]);
+    expect(list3_1.padTo(5, -1, { positionPercentage: 100 }).toArray()).toEqual(
+      [-1, -1, 1, 2, 3]
+    );
+    expect(list3_2.padTo(5, -1, { positionPercentage: 100 }).toArray()).toEqual(
+      [-1, -1, 1, 2, 3]
+    );
+    expect(list6_1.padTo(8, -1, { positionPercentage: 100 }).toArray()).toEqual(
+      [-1, -1, 1, 2, 3, 4, 5, 6]
+    );
+    expect(list6_2.padTo(8, -1, { positionPercentage: 100 }).toArray()).toEqual(
+      [-1, -1, 1, 2, 3, 4, 5, 6]
+    );
   });
 
   it('updateAt', () => {
@@ -588,29 +627,31 @@ describe('List methods', () => {
     expect(list6_1.filter(isEven).toArray()).toEqual([2, 4, 6]);
     expect(list6_2.filter(isEven).toArray()).toEqual([2, 4, 6]);
 
-    expect(listEmpty.filter(isEven, undefined, true)).toBe(listEmpty);
-    expect(list3_1.filter(isEven, undefined, true).toArray()).toEqual([2]);
-    expect(list3_2.filter(isEven, undefined, true).toArray()).toEqual([2]);
-    expect(list6_1.filter(isEven, undefined, true).toArray()).toEqual([
+    expect(listEmpty.filter(isEven, { reversed: true })).toBe(listEmpty);
+    expect(list3_1.filter(isEven, { reversed: true }).toArray()).toEqual([2]);
+    expect(list3_2.filter(isEven, { reversed: true }).toArray()).toEqual([2]);
+    expect(list6_1.filter(isEven, { reversed: true }).toArray()).toEqual([
       6, 4, 2,
     ]);
-    expect(list6_2.filter(isEven, undefined, true).toArray()).toEqual([
+    expect(list6_2.filter(isEven, { reversed: true }).toArray()).toEqual([
       6, 4, 2,
     ]);
 
-    expect(listEmpty.filter(isEven, { start: 1, amount: 2 })).toBe(listEmpty);
-    expect(list3_1.filter(isEven, { start: 1, amount: 2 }).toArray()).toEqual([
-      2,
-    ]);
-    expect(list3_2.filter(isEven, { start: 1, amount: 2 }).toArray()).toEqual([
-      2,
-    ]);
-    expect(list6_1.filter(isEven, { start: 1, amount: 2 }).toArray()).toEqual([
-      2,
-    ]);
-    expect(list6_2.filter(isEven, { start: 1, amount: 2 }).toArray()).toEqual([
-      2,
-    ]);
+    expect(listEmpty.filter(isEven, { range: { start: 1, amount: 2 } })).toBe(
+      listEmpty
+    );
+    expect(
+      list3_1.filter(isEven, { range: { start: 1, amount: 2 } }).toArray()
+    ).toEqual([2]);
+    expect(
+      list3_2.filter(isEven, { range: { start: 1, amount: 2 } }).toArray()
+    ).toEqual([2]);
+    expect(
+      list6_1.filter(isEven, { range: { start: 1, amount: 2 } }).toArray()
+    ).toEqual([2]);
+    expect(
+      list6_2.filter(isEven, { range: { start: 1, amount: 2 } }).toArray()
+    ).toEqual([2]);
 
     const indexLargerThanOne = (_: any, index: number) => index > 1;
 
@@ -632,6 +673,103 @@ describe('List methods', () => {
     expect(list6_2.filter(passOnlyFirst).toArray()).toEqual([1]);
   });
 
+  it('filter negate', () => {
+    expect(listEmpty.filter(() => false, { negate: true })).toBe(listEmpty);
+    expect(list3_1.filter(() => false, { negate: true })).toBe(list3_1);
+    expect(list3_2.filter(() => false, { negate: true })).toBe(list3_2);
+    expect(list6_1.filter(() => false, { negate: true })).toBe(list6_1);
+    expect(list6_2.filter(() => false, { negate: true })).toBe(list6_2);
+
+    const isOdd = (value: number) => value % 2 !== 0;
+
+    expect(listEmpty.filter(isOdd, { negate: true })).toBe(listEmpty);
+    expect(list3_1.filter(isOdd, { negate: true }).toArray()).toEqual([2]);
+    expect(list3_2.filter(isOdd, { negate: true }).toArray()).toEqual([2]);
+    expect(list6_1.filter(isOdd, { negate: true }).toArray()).toEqual([
+      2, 4, 6,
+    ]);
+    expect(list6_2.filter(isOdd, { negate: true }).toArray()).toEqual([
+      2, 4, 6,
+    ]);
+
+    expect(listEmpty.filter(isOdd, { negate: true, reversed: true })).toBe(
+      listEmpty
+    );
+    expect(
+      list3_1.filter(isOdd, { negate: true, reversed: true }).toArray()
+    ).toEqual([2]);
+    expect(
+      list3_2.filter(isOdd, { negate: true, reversed: true }).toArray()
+    ).toEqual([2]);
+    expect(
+      list6_1.filter(isOdd, { negate: true, reversed: true }).toArray()
+    ).toEqual([6, 4, 2]);
+    expect(
+      list6_2.filter(isOdd, { negate: true, reversed: true }).toArray()
+    ).toEqual([6, 4, 2]);
+
+    expect(
+      listEmpty.filter(isOdd, { negate: true, range: { start: 1, amount: 2 } })
+    ).toBe(listEmpty);
+    expect(
+      list3_1
+        .filter(isOdd, { negate: true, range: { start: 1, amount: 2 } })
+        .toArray()
+    ).toEqual([2]);
+    expect(
+      list3_2
+        .filter(isOdd, { negate: true, range: { start: 1, amount: 2 } })
+        .toArray()
+    ).toEqual([2]);
+    expect(
+      list6_1
+        .filter(isOdd, { negate: true, range: { start: 1, amount: 2 } })
+        .toArray()
+    ).toEqual([2]);
+    expect(
+      list6_2
+        .filter(isOdd, { negate: true, range: { start: 1, amount: 2 } })
+        .toArray()
+    ).toEqual([2]);
+
+    const indexNotLargerThanOne = (_: any, index: number) => index <= 1;
+
+    expect(listEmpty.filter(indexNotLargerThanOne, { negate: true })).toBe(
+      listEmpty
+    );
+    expect(
+      list3_1.filter(indexNotLargerThanOne, { negate: true }).toArray()
+    ).toEqual([3]);
+    expect(
+      list3_2.filter(indexNotLargerThanOne, { negate: true }).toArray()
+    ).toEqual([3]);
+    expect(
+      list6_1.filter(indexNotLargerThanOne, { negate: true }).toArray()
+    ).toEqual([3, 4, 5, 6]);
+    expect(
+      list6_2.filter(indexNotLargerThanOne, { negate: true }).toArray()
+    ).toEqual([3, 4, 5, 6]);
+
+    const rejectFirst = (_: any, __: any, halt: () => void) => {
+      halt();
+      return false;
+    };
+
+    expect(listEmpty.filter(rejectFirst, { negate: true })).toBe(listEmpty);
+    expect(list3_1.filter(rejectFirst, { negate: true }).toArray()).toEqual([
+      1,
+    ]);
+    expect(list3_2.filter(rejectFirst, { negate: true }).toArray()).toEqual([
+      1,
+    ]);
+    expect(list6_1.filter(rejectFirst, { negate: true }).toArray()).toEqual([
+      1,
+    ]);
+    expect(list6_2.filter(rejectFirst, { negate: true }).toArray()).toEqual([
+      1,
+    ]);
+  });
+
   it('collect', () => {
     const isEven = (value: number, _: any, skip: CollectFun.Skip) =>
       value % 2 === 0 ? value : skip;
@@ -642,29 +780,31 @@ describe('List methods', () => {
     expect(list6_1.collect(isEven).toArray()).toEqual([2, 4, 6]);
     expect(list6_2.collect(isEven).toArray()).toEqual([2, 4, 6]);
 
-    expect(listEmpty.collect(isEven, undefined, true)).toBe(listEmpty);
-    expect(list3_1.collect(isEven, undefined, true).toArray()).toEqual([2]);
-    expect(list3_2.collect(isEven, undefined, true).toArray()).toEqual([2]);
-    expect(list6_1.collect(isEven, undefined, true).toArray()).toEqual([
+    expect(listEmpty.collect(isEven, { reversed: true })).toBe(listEmpty);
+    expect(list3_1.collect(isEven, { reversed: true }).toArray()).toEqual([2]);
+    expect(list3_2.collect(isEven, { reversed: true }).toArray()).toEqual([2]);
+    expect(list6_1.collect(isEven, { reversed: true }).toArray()).toEqual([
       6, 4, 2,
     ]);
-    expect(list6_2.collect(isEven, undefined, true).toArray()).toEqual([
+    expect(list6_2.collect(isEven, { reversed: true }).toArray()).toEqual([
       6, 4, 2,
     ]);
 
-    expect(listEmpty.collect(isEven, { start: 1, amount: 2 })).toBe(listEmpty);
-    expect(list3_1.collect(isEven, { start: 1, amount: 2 }).toArray()).toEqual([
-      2,
-    ]);
-    expect(list3_2.collect(isEven, { start: 1, amount: 2 }).toArray()).toEqual([
-      2,
-    ]);
-    expect(list6_1.collect(isEven, { start: 1, amount: 2 }).toArray()).toEqual([
-      2,
-    ]);
-    expect(list6_2.collect(isEven, { start: 1, amount: 2 }).toArray()).toEqual([
-      2,
-    ]);
+    expect(listEmpty.collect(isEven, { range: { start: 1, amount: 2 } })).toBe(
+      listEmpty
+    );
+    expect(
+      list3_1.collect(isEven, { range: { start: 1, amount: 2 } }).toArray()
+    ).toEqual([2]);
+    expect(
+      list3_2.collect(isEven, { range: { start: 1, amount: 2 } }).toArray()
+    ).toEqual([2]);
+    expect(
+      list6_1.collect(isEven, { range: { start: 1, amount: 2 } }).toArray()
+    ).toEqual([2]);
+    expect(
+      list6_2.collect(isEven, { range: { start: 1, amount: 2 } }).toArray()
+    ).toEqual([2]);
 
     const indexLargerThanOne = (
       value: number,
@@ -741,6 +881,52 @@ describe('List methods', () => {
     expect(result).toEqual([1]);
   });
 
+  it('forEach reversed', () => {
+    let result = [] as number[];
+    listEmpty.forEach((v) => result.push(v), { reversed: true });
+    expect(result).toEqual([]);
+    result = [];
+    list3_1.forEach((v, i) => result.push(v + i), { reversed: true });
+    expect(result).toEqual([3, 3, 3]);
+
+    result = [];
+    list3_2.forEach((v, i) => result.push(v + i), { reversed: true });
+    expect(result).toEqual([3, 3, 3]);
+
+    result = [];
+    list6_1.forEach((v, i) => result.push(v + i), { reversed: true });
+    expect(result).toEqual([6, 6, 6, 6, 6, 6]);
+
+    result = [];
+    list6_2.forEach((v, i) => result.push(v + i), { reversed: true });
+    expect(result).toEqual([6, 6, 6, 6, 6, 6]);
+
+    const onlyFirst = (v: number, i: number, halt: () => void) => {
+      halt();
+      result.push(v + i);
+    };
+
+    result = [];
+    listEmpty.forEach(onlyFirst, { reversed: true });
+    expect(result).toEqual([]);
+
+    result = [];
+    list3_1.forEach(onlyFirst, { reversed: true });
+    expect(result).toEqual([3]);
+
+    result = [];
+    list3_2.forEach(onlyFirst, { reversed: true });
+    expect(result).toEqual([3]);
+
+    result = [];
+    list6_1.forEach(onlyFirst, { reversed: true });
+    expect(result).toEqual([6]);
+
+    result = [];
+    list6_2.forEach(onlyFirst, { reversed: true });
+    expect(result).toEqual([6]);
+  });
+
   it('map', () => {
     expect(listEmpty.map((v, i) => v + i)).toBe(listEmpty);
     expect(list3_1.map((v, i) => v + i).toArray()).toEqual([1, 3, 5]);
@@ -748,13 +934,17 @@ describe('List methods', () => {
     expect(list6_1.map((v, i) => v + i).toArray()).toEqual([1, 3, 5, 7, 9, 11]);
     expect(list6_2.map((v, i) => v + i).toArray()).toEqual([1, 3, 5, 7, 9, 11]);
 
-    expect(listEmpty.map((v, i) => v + i, true)).toBe(listEmpty);
-    expect(list3_1.map((v, i) => v + i, true).toArray()).toEqual([3, 3, 3]);
-    expect(list3_2.map((v, i) => v + i, true).toArray()).toEqual([3, 3, 3]);
-    expect(list6_1.map((v, i) => v + i, true).toArray()).toEqual([
+    expect(listEmpty.map((v, i) => v + i, { reversed: true })).toBe(listEmpty);
+    expect(list3_1.map((v, i) => v + i, { reversed: true }).toArray()).toEqual([
+      3, 3, 3,
+    ]);
+    expect(list3_2.map((v, i) => v + i, { reversed: true }).toArray()).toEqual([
+      3, 3, 3,
+    ]);
+    expect(list6_1.map((v, i) => v + i, { reversed: true }).toArray()).toEqual([
       6, 6, 6, 6, 6, 6,
     ]);
-    expect(list6_2.map((v, i) => v + i, true).toArray()).toEqual([
+    expect(list6_2.map((v, i) => v + i, { reversed: true }).toArray()).toEqual([
       6, 6, 6, 6, 6, 6,
     ]);
   });
@@ -774,53 +964,73 @@ describe('List methods', () => {
       0, 1, 0, 3, 0, 5, 0, 7, 0, 9, 0, 11,
     ]);
 
-    expect(listEmpty.flatMap((v, i) => [0, v + i], undefined, true)).toBe(
+    expect(listEmpty.flatMap((v, i) => [0, v + i], { reversed: true })).toBe(
       listEmpty
     );
     expect(
-      list3_1.flatMap((v, i) => [0, v + i], undefined, true).toArray()
+      list3_1.flatMap((v, i) => [0, v + i], { reversed: true }).toArray()
     ).toEqual([0, 3, 0, 3, 0, 3]);
     expect(
-      list3_2.flatMap((v, i) => [0, v + i], undefined, true).toArray()
+      list3_2.flatMap((v, i) => [0, v + i], { reversed: true }).toArray()
     ).toEqual([0, 3, 0, 3, 0, 3]);
     expect(
-      list6_1.flatMap((v, i) => [0, v + i], undefined, true).toArray()
+      list6_1.flatMap((v, i) => [0, v + i], { reversed: true }).toArray()
     ).toEqual([0, 6, 0, 6, 0, 6, 0, 6, 0, 6, 0, 6]);
     expect(
-      list6_2.flatMap((v, i) => [0, v + i], undefined, true).toArray()
+      list6_2.flatMap((v, i) => [0, v + i], { reversed: true }).toArray()
     ).toEqual([0, 6, 0, 6, 0, 6, 0, 6, 0, 6, 0, 6]);
 
     expect(
-      list3_1.flatMap((v, i) => [0, v + i], { start: 1, amount: 2 }).toArray()
+      list3_1
+        .flatMap((v, i) => [0, v + i], { range: { start: 1, amount: 2 } })
+        .toArray()
     ).toEqual([0, 2, 0, 4]);
     expect(
-      list3_2.flatMap((v, i) => [0, v + i], { start: 1, amount: 2 }).toArray()
+      list3_2
+        .flatMap((v, i) => [0, v + i], { range: { start: 1, amount: 2 } })
+        .toArray()
     ).toEqual([0, 2, 0, 4]);
     expect(
-      list6_1.flatMap((v, i) => [0, v + i], { start: 1, amount: 2 }).toArray()
+      list6_1
+        .flatMap((v, i) => [0, v + i], { range: { start: 1, amount: 2 } })
+        .toArray()
     ).toEqual([0, 2, 0, 4]);
     expect(
-      list6_2.flatMap((v, i) => [0, v + i], { start: 1, amount: 2 }).toArray()
+      list6_2
+        .flatMap((v, i) => [0, v + i], { range: { start: 1, amount: 2 } })
+        .toArray()
     ).toEqual([0, 2, 0, 4]);
 
     expect(
       list3_1
-        .flatMap((v, i) => [0, v + i], { start: 1, amount: 2 }, true)
+        .flatMap((v, i) => [0, v + i], {
+          range: { start: 1, amount: 2 },
+          reversed: true,
+        })
         .toArray()
     ).toEqual([0, 3, 0, 3]);
     expect(
       list3_2
-        .flatMap((v, i) => [0, v + i], { start: 1, amount: 2 }, true)
+        .flatMap((v, i) => [0, v + i], {
+          range: { start: 1, amount: 2 },
+          reversed: true,
+        })
         .toArray()
     ).toEqual([0, 3, 0, 3]);
     expect(
       list6_1
-        .flatMap((v, i) => [0, v + i], { start: 1, amount: 2 }, true)
+        .flatMap((v, i) => [0, v + i], {
+          range: { start: 1, amount: 2 },
+          reversed: true,
+        })
         .toArray()
     ).toEqual([0, 3, 0, 3]);
     expect(
       list6_2
-        .flatMap((v, i) => [0, v + i], { start: 1, amount: 2 }, true)
+        .flatMap((v, i) => [0, v + i], {
+          range: { start: 1, amount: 2 },
+          reversed: true,
+        })
         .toArray()
     ).toEqual([0, 3, 0, 3]);
   });
@@ -840,17 +1050,27 @@ describe('List methods', () => {
     expect(list6_1.toArray()).toEqual([1, 2, 3, 4, 5, 6]);
     expect(list6_2.toArray()).toEqual([1, 2, 3, 4, 5, 6]);
 
-    expect(listEmpty.toArray({ start: 1 })).toEqual([]);
-    expect(list3_1.toArray({ start: 1 })).toEqual([2, 3]);
-    expect(list3_2.toArray({ start: 1 })).toEqual([2, 3]);
-    expect(list6_1.toArray({ start: 1 })).toEqual([2, 3, 4, 5, 6]);
-    expect(list6_2.toArray({ start: 1 })).toEqual([2, 3, 4, 5, 6]);
+    expect(listEmpty.toArray({ range: { start: 1 } })).toEqual([]);
+    expect(list3_1.toArray({ range: { start: 1 } })).toEqual([2, 3]);
+    expect(list3_2.toArray({ range: { start: 1 } })).toEqual([2, 3]);
+    expect(list6_1.toArray({ range: { start: 1 } })).toEqual([2, 3, 4, 5, 6]);
+    expect(list6_2.toArray({ range: { start: 1 } })).toEqual([2, 3, 4, 5, 6]);
 
-    expect(listEmpty.toArray({ start: 1 }, true)).toEqual([]);
-    expect(list3_1.toArray({ start: 1 }, true)).toEqual([3, 2]);
-    expect(list3_2.toArray({ start: 1 }, true)).toEqual([3, 2]);
-    expect(list6_1.toArray({ start: 1 }, true)).toEqual([6, 5, 4, 3, 2]);
-    expect(list6_2.toArray({ start: 1 }, true)).toEqual([6, 5, 4, 3, 2]);
+    expect(listEmpty.toArray({ range: { start: 1 }, reversed: true })).toEqual(
+      []
+    );
+    expect(list3_1.toArray({ range: { start: 1 }, reversed: true })).toEqual([
+      3, 2,
+    ]);
+    expect(list3_2.toArray({ range: { start: 1 }, reversed: true })).toEqual([
+      3, 2,
+    ]);
+    expect(list6_1.toArray({ range: { start: 1 }, reversed: true })).toEqual([
+      6, 5, 4, 3, 2,
+    ]);
+    expect(list6_2.toArray({ range: { start: 1 }, reversed: true })).toEqual([
+      6, 5, 4, 3, 2,
+    ]);
   });
 
   it('toBuilder', () => {
@@ -905,7 +1125,9 @@ describe('List methods', () => {
 
   it('unzip', () => {
     {
-      const [l1, l2] = List.unzip(List.empty<[number, string]>(), 2);
+      const [l1, l2] = List.unzip(List.empty<[number, string]>(), {
+        length: 2,
+      });
 
       expect(l1).toBe(List.empty());
       expect(l2).toBe(List.empty());
@@ -913,7 +1135,7 @@ describe('List methods', () => {
     {
       const [l1, l2] = List.unzip(
         List.of<[number, string]>([1, 'a'], [2, 'b']),
-        2
+        { length: 2 }
       );
 
       expect(l1.toArray()).toEqual([1, 2]);

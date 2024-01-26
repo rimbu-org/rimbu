@@ -13,4 +13,5 @@ export * from './async-streamable.mjs';
 
 export * from './interface.mjs';
 
+export * from './async-reducer.mjs';
 export * from './async-transformer.mjs';

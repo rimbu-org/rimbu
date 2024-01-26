@@ -1,5 +1,5 @@
-import type { ArrayNonEmpty, Reducer, StringNonEmpty } from '../../common/mod.ts';
-import type { StreamSource } from '../../stream/mod.ts';
+import type { ArrayNonEmpty, StringNonEmpty } from '../../common/mod.ts';
+import type { Reducer, StreamSource } from '../../stream/mod.ts';
 
 import type { List } from '../../list/mod.ts';
 
@@ -71,7 +71,8 @@ export interface ListFactory {
   /**
    * Returns an array of Lists, where each list contains the values of the corresponding index of tuple T.
    * @param source - a `StreamSource` containing tuples of type T to unzip
-   * @param length - the length of the tuples in type T
+   * @param options - an object containing the following properties:<br/>
+   * - length: the length of the tuples in type T
    * @typeparam T - the StreamSource tuple element type
    * @typeparam L - the tuple element length
    * @example
@@ -82,11 +83,11 @@ export interface ListFactory {
    */
   unzip<T extends readonly unknown[] & { length: L }, L extends number>(
     source: StreamSource.NonEmpty<T>,
-    length: L
+    options: { length: L }
   ): { [K in keyof T]: List.NonEmpty<T[K]> };
   unzip<T extends readonly unknown[] & { length: L }, L extends number>(
     source: StreamSource<T>,
-    length: L
+    options: { length: L }
   ): { [K in keyof T]: List<T[K]> };
 
   /**

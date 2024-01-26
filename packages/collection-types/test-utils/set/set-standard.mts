@@ -139,6 +139,14 @@ export function runSetTestsWith(
 
       expectEqual(set6_1.filter(isEven), [2, 4, 6]);
       expect(set6_1.filter(first2).size).toBe(2);
+
+      expect(setEmpty.filter(isEven, { negate: true })).toBe(setEmpty);
+
+      expectEqual(set3_1.filter(isEven, { negate: true }), [1, 3]);
+      expect(set3_1.filter(first2, { negate: true }).size).toBe(0);
+
+      expectEqual(set6_1.filter(isEven, { negate: true }), [1, 3, 5]);
+      expect(set6_1.filter(first2, { negate: true }).size).toBe(0);
     });
 
     it('forEach', () => {

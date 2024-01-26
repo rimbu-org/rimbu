@@ -12,6 +12,7 @@ import type { List } from '../../../../list/mod.ts';
 import type {
   Block,
   BlockBuilder,
+  CacheMap,
   LeafTree,
   ListContext,
 } from '../../../../list/custom/index.ts';
@@ -58,20 +59,19 @@ export class LeafBlock<T>
     return this.children.length < this.context.maxBlockSize;
   }
 
-  stream(reversed = false): Stream.NonEmpty<T> {
-    return Stream.fromArray(
-      this.children,
-      undefined,
-      reversed
-    ) as Stream.NonEmpty<T>;
+  stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
+    return Stream.fromArray(this.children, options) as Stream.NonEmpty<T>;
   }
 
-  streamRange(range: IndexRange, reversed = false): Stream<T> {
-    return Stream.fromArray(
-      this.children,
+  streamRange(
+    range: IndexRange,
+    options: { reversed?: boolean } = {}
+  ): Stream<T> {
+    const { reversed = false } = options;
+    return Stream.fromArray(this.children, {
       range,
-      reversed
-    ) as Stream.NonEmpty<T>;
+      reversed,
+    }) as Stream.NonEmpty<T>;
   }
 
   get<O>(index: number, otherwise?: OptLazy<O>): T | O {
@@ -163,7 +163,7 @@ export class LeafBlock<T>
     const asList: List<T | T2> = this.context.from(...sources);
 
     if (asList.nonEmpty()) {
-      if (this.context.isLeafBlock(asList)) {
+      if (this.context.isLeafBlock<T | T2>(asList)) {
         if (
           asList === this &&
           this.children.length > this.context.minBlockSize
@@ -172,7 +172,7 @@ export class LeafBlock<T>
         }
         return (this as LeafBlock<T | T2>).concatBlock(asList);
       }
-      if (this.context.isLeafTree(asList)) {
+      if (this.context.isLeafTree<T | T2>(asList)) {
         return (this as LeafBlock<T | T2>).concatTree(asList);
       }
       RimbuError.throwInvalidStateError();
@@ -219,23 +219,27 @@ export class LeafBlock<T>
 
   forEach(
     f: (value: T, index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { reversed?: boolean; state?: TraverseState } = {}
   ): void {
+    const { reversed = false, state = TraverseState() } = options;
+
     if (state.halted) return;
 
     Arr.forEach(
       this.children,
       f,
       state,
-      this.context.isReversedLeafBlock(this)
+      this.context.isReversedLeafBlock<T>(this) !== reversed
     );
   }
 
   mapPure<T2>(
     mapFun: (value: T) => T2,
-    reversed = false,
-    cacheMap = this.context.createCacheMap()
+    options: { reversed?: boolean; cacheMap?: CacheMap } = {}
   ): LeafBlock<T2> {
+    const { reversed = false, cacheMap = this.context.createCacheMap() } =
+      options;
+
     const currentValue = cacheMap.get(this);
     if (currentValue) return currentValue;
 
@@ -247,9 +251,10 @@ export class LeafBlock<T>
 
   map<T2>(
     mapFun: (value: T, index: number) => T2,
-    reversed = false,
-    indexOffset = 0
+    options: { reversed?: boolean; indexOffset?: number } = {}
   ): LeafBlock<T2> {
+    const { reversed = false, indexOffset = 0 } = options;
+
     if (reversed) {
       const newChildren = Arr.reverseMap(this.children, mapFun, indexOffset);
       return this.copy2(newChildren);
@@ -283,7 +288,11 @@ export class LeafBlock<T>
     return this.copy(rightChildren);
   }
 
-  toArray(range?: IndexRange, reversed = false): T[] | any {
+  toArray(
+    options: { range?: IndexRange | undefined; reversed?: boolean } = {}
+  ): T[] | any {
+    const { range, reversed = false } = options;
+
     let result: readonly T[];
     if (undefined === range) result = this.children;
     else {
@@ -321,22 +330,30 @@ export class ReversedLeafBlock<T> extends LeafBlock<T> {
     return this.context.reversedLeaf(children);
   }
 
-  stream(reversed = false): Stream.NonEmpty<T> {
-    return Stream.fromArray(
-      this.children,
-      undefined,
-      !reversed
-    ) as Stream.NonEmpty<T>;
+  stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
+    const { reversed = false } = options;
+
+    return Stream.fromArray(this.children, {
+      reversed: !reversed,
+    }) as Stream.NonEmpty<T>;
   }
 
-  streamRange(range: IndexRange, reversed = false): Stream<T> {
+  streamRange(
+    range: IndexRange,
+    options: { reversed?: boolean } = {}
+  ): Stream<T> {
+    const { reversed = false } = options;
+
     const indices = IndexRange.getIndicesFor(range, this.length);
     if (indices === 'empty') return Stream.empty();
-    if (indices === 'all') return this.stream(reversed);
+    if (indices === 'all') return this.stream({ reversed });
 
     const start = this.length - 1 - indices[1];
     const end = this.length - 1 - indices[0];
-    return Stream.fromArray(this.children, { start, end }, !reversed);
+    return Stream.fromArray(this.children, {
+      range: { start, end },
+      reversed: !reversed,
+    });
   }
 
   get<O>(index: number, otherwise?: OptLazy<O>): T | O {
@@ -383,9 +400,10 @@ export class ReversedLeafBlock<T> extends LeafBlock<T> {
 
   map<T2>(
     mapFun: (value: T, index: number) => T2,
-    reversed = false,
-    indexOffset = 0
+    options: { reversed?: boolean; indexOffset?: number } = {}
   ): LeafBlock<T2> {
+    const { reversed = false, indexOffset = 0 } = options;
+
     if (!reversed) {
       const newChildren = Arr.reverseMap(this.children, mapFun, indexOffset);
       return super.copy2(newChildren);
@@ -405,7 +423,11 @@ export class ReversedLeafBlock<T> extends LeafBlock<T> {
     return cacheMap.setAndReturn(this, reversedThis);
   }
 
-  toArray(range?: IndexRange, reversed = false): T[] | any {
+  toArray(
+    options: { range?: IndexRange | undefined; reversed?: boolean } = {}
+  ): T[] | any {
+    const { range, reversed = false } = options;
+
     let result: readonly T[];
 
     if (undefined === range) result = this.children;

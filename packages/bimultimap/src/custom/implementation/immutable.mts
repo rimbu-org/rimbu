@@ -327,17 +327,18 @@ export class BiMultiMapNonEmpty<
 
   forEach(
     f: (entry: [K, V], index: number, halt: () => void) => void,
-    state?: TraverseState
+    options: { state?: TraverseState } = {}
   ): void {
-    this.keyValueMultiMap.forEach(f, state);
+    this.keyValueMultiMap.forEach(f, options);
   }
 
   filter(
-    pred: (entry: [K, V], index: number, halt: () => void) => boolean
+    pred: (entry: [K, V], index: number, halt: () => void) => boolean,
+    options: { negate?: boolean } = {}
   ): WithKeyValue<Tp, K, V>['normal'] {
     const builder = this.context.builder<K, V>();
 
-    builder.addEntries(this.stream().filter(pred));
+    builder.addEntries(this.stream().filter(pred, options));
 
     if (builder.size === this.size) return this as any;
 

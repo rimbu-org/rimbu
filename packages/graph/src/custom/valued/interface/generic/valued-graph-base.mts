@@ -4,10 +4,9 @@ import type {
   ArrayNonEmpty,
   OptLazy,
   OptLazyOr,
-  Reducer,
   RelatedTo,
 } from '@rimbu/common';
-import type { Stream, Streamable, StreamSource } from '@rimbu/stream';
+import type { Reducer, Stream, StreamSource, Streamable } from '@rimbu/stream';
 
 import type { VariantValuedGraphBase } from '@rimbu/graph/custom';
 import type {
@@ -87,7 +86,7 @@ export interface ValuedGraphBase<
     node2: N,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: (value: V, remove: Token) => V | Token;
+      ifExists?: ((value: V, remove: Token) => V | Token) | V;
     }
   ): WithGraphValues<Tp, N, V>['normal'];
   /**

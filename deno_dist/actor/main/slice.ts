@@ -1,4 +1,4 @@
-import { Reducer } from '../../common/mod.ts';
+import { Reducer } from '../../stream/mod.ts';
 
 import { Action, SliceConfig, type Actor } from './internal.ts';
 import type { Tail } from './utils.ts';
@@ -83,7 +83,7 @@ export namespace Slice {
     }
 
     return {
-      reducer: Reducer.combineObj(reducers),
+      reducer: Reducer.combine(reducers) as any,
       actions,
     };
   }

@@ -6,12 +6,12 @@ import type {
   ToJSON,
   TraverseState,
 } from '../../../common/mod.ts';
-import { Reducer } from '../../../common/mod.ts';
+import { Reducer } from '../../../stream/mod.ts';
 import type {
   FastIterable,
   Stream,
-  Streamable,
   StreamSource,
+  Streamable,
 } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
@@ -110,7 +110,7 @@ export interface VariantSetBase<
    */
   forEach(
     f: (value: T, index: number, halt: () => void) => void,
-    state?: TraverseState
+    options?: { state?: TraverseState }
   ): void;
   /**
    * Returns a collection containing only those entries that satisfy given `pred` predicate.
@@ -118,6 +118,8 @@ export interface VariantSetBase<
    * - `value`: the next value<br/>
    * - `index`: the entry index<br/>
    * - `halt`: a function that, when called, ensures no next elements are passed
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - negate: (default: false) when true will negate the predicate
    * @example
    * ```ts
    * HashSet.of(1, 2, 3).filter(value < 3).toArray()
@@ -125,7 +127,8 @@ export interface VariantSetBase<
    * ```
    */
   filter(
-    pred: (value: T, index: number, halt: () => void) => boolean
+    pred: (value: T, index: number, halt: () => void) => boolean,
+    options?: { negate?: boolean }
   ): WithElem<Tp, T>['normal'];
   /**
    * Returns a collection where each value of given `other` `StreamSource` is removed from this collection.
@@ -522,6 +525,8 @@ export namespace RSetBase {
      * - `value`: the next element<br/>
      * - `index`: the index of the element<br/>
      * - `halt`: a function that, if called, ensures that no new elements are passed
+     * @param options - (optional) an object containing the following properties:<br/>
+     * - state: (optional) the traversal state
      * @throws RibuError.ModifiedBuilderWhileLoopingOverItError if the builder is modified while
      * looping over it
      * @example
@@ -536,7 +541,7 @@ export namespace RSetBase {
      */
     forEach(
       f: (value: T, index: number, halt: () => void) => void,
-      state?: TraverseState
+      options?: { state?: TraverseState }
     ): void;
     /**
      * Returns an immutable instance containing the values in this builder.

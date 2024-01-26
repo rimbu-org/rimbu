@@ -1,14 +1,13 @@
 import {
-  type BiMultiMapBase,
   BiMultiMapBuilder,
   BiMultiMapEmpty,
   BiMultiMapNonEmpty,
+  type BiMultiMapBase,
 } from '../../../bimultimap/custom/index.ts';
 
 import type { WithKeyValue } from '../../../collection-types/map-custom/index.ts';
 import type { ArrayNonEmpty } from '../../../common/mod.ts';
-import { Reducer } from '../../../common/mod.ts';
-import type { StreamSource } from '../../../stream/mod.ts';
+import { Reducer, type StreamSource } from '../../../stream/mod.ts';
 import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 export interface ContextTypesImpl extends BiMultiMapBase.Types {

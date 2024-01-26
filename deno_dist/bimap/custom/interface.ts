@@ -1,8 +1,8 @@
 import type { BiMap } from '../../bimap/mod.ts';
 
 import type { RMap } from '../../collection-types/mod.ts';
-import type { ArrayNonEmpty, Reducer } from '../../common/mod.ts';
-import type { StreamSource } from '../../stream/mod.ts';
+import type { ArrayNonEmpty } from '../../common/mod.ts';
+import type { Reducer, StreamSource } from '../../stream/mod.ts';
 
 export interface BiMapFactory<UK = unknown, UV = unknown> {
   /**
@@ -70,8 +70,8 @@ export interface BiMapCreators extends BiMapFactory {
    * @typeparam UK - the upper key type for which the context can create instances
    * @typeparam UV - the upper value type for which the context can create instances
    * @param options - (optional) an object containing the following properties:<br/>
-   * - keyValueContext - (optional) the map context to use for key value mappings<br/>
-   * - valueKeyContext - (optional) the map context to use for value key mappings
+   * - keyValueContext: (optional) the map context to use for key value mappings<br/>
+   * - valueKeyContext: (optional) the map context to use for value key mappings
    */
   createContext<UK, UV>(options?: {
     keyValueContext?: RMap.Context<UK>;

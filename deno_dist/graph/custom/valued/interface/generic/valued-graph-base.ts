@@ -4,10 +4,9 @@ import type {
   ArrayNonEmpty,
   OptLazy,
   OptLazyOr,
-  Reducer,
   RelatedTo,
 } from '../../../../../common/mod.ts';
-import type { Stream, Streamable, StreamSource } from '../../../../../stream/mod.ts';
+import type { Reducer, Stream, StreamSource, Streamable } from '../../../../../stream/mod.ts';
 
 import type { VariantValuedGraphBase } from '../../../../../graph/custom/index.ts';
 import type {
@@ -87,7 +86,7 @@ export interface ValuedGraphBase<
     node2: N,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: (value: V, remove: Token) => V | Token;
+      ifExists?: ((value: V, remove: Token) => V | Token) | V;
     }
   ): WithGraphValues<Tp, N, V>['normal'];
   /**

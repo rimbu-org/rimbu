@@ -10,7 +10,7 @@ export interface MultiSetCreators {
    * Returns a new MultiSet context instance based on the given `options`.
    * @typeparam UT - the upper element type for which the context can create instances
    * @param options - an object containing the following properties:<br/>
-   * - countMapContext - the map context to use for key to count mapping
+   * - countMapContext: the map context to use for key to count mapping
    */
   createContext<UT>(options: {
     countMapContext: RMap.Context<UT>;
@@ -23,7 +23,7 @@ export interface HashMultiSetCreators
    * Returns a new HashMultiSet context instance based on the given `options`.
    * @typeparam UT - the upper element type for which the context can create instances
    * @param options - (optional) an object containing the following properties:<br/>
-   * - countMapContext - (optional) the map context to use for key to count mapping
+   * - countMapContext: (optional) the map context to use for key to count mapping
    */
   createContext<UT>(options?: {
     countMapContext?: HashMap.Context<UT>;
@@ -41,7 +41,7 @@ export interface SortedMultiSetCreators
    * Returns a new HashMultiSet context instance based on the given `options`.
    * @typeparam UT - the upper element type for which the context can create instances
    * @param options - (optional) an object containing the following properties:<br/>
-   * - countMapContext - (optional) the map context to use for key to count mapping
+   * - countMapContext: (optional) the map context to use for key to count mapping
    */
   createContext<UT>(options?: {
     countMapContext?: SortedMap.Context<UT>;

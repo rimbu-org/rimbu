@@ -75,14 +75,14 @@ export function runMultiSetRandomTestsWith(
         }
       }
       this.builder.remove(value, amount);
-      this.immm = this.immm.remove(value, amount);
+      this.immm = this.immm.remove(value, { amount });
     }
 
     removeAllValues(value: number): void {
       this.addLog('removeAllValues', value);
       this.jsmap.delete(value);
       this.builder.remove(value, 'ALL');
-      this.immm = this.immm.remove(value, 'ALL');
+      this.immm = this.immm.remove(value, { amount: 'ALL' });
     }
   }
 

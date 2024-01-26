@@ -1,5 +1,4 @@
-import { Reducer } from '@rimbu/common';
-import { AsyncStream } from '@rimbu/stream/async';
+import { AsyncReducer, AsyncStream } from '@rimbu/stream';
 
 import { timeout } from '../src/custom/index.mjs';
 import { Channel, Mutex, WaitGroup } from '../src/main/index.mjs';
@@ -277,7 +276,7 @@ describe('web examples', () => {
 
     console.log(
       'progressive sum',
-      await ch.asyncStream().reduceStream(Reducer.sum).toArray()
+      await ch.asyncStream().reduceStream(AsyncReducer.sum).toArray()
     );
   });
 

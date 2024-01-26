@@ -199,11 +199,13 @@ export class OrderedMapNonEmpty<
 
   forEach(
     f: (entry: [K, V], index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { reversed?: boolean; state?: TraverseState } = {}
   ): void {
+    const { reversed = false, state = TraverseState() } = options;
+
     if (state.halted) return;
 
-    const keyIter = this.keyOrder[Symbol.iterator]();
+    const keyIter = this.keyOrder.stream({ reversed })[Symbol.iterator]();
 
     const done = Symbol('Done');
     let key: K | typeof done;
@@ -220,11 +222,14 @@ export class OrderedMapNonEmpty<
   }
 
   filter(
-    pred: (entry: [K, V], index: number, halt: () => void) => boolean
+    pred: (entry: [K, V], index: number, halt: () => void) => boolean,
+    options: { negate?: boolean } = {}
   ): TpG['normal'] {
+    const { negate = false } = options;
+
     const builder = this.context.builder<K, V>();
 
-    builder.addEntries(this.stream().filter(pred));
+    builder.addEntries(this.stream().filter(pred, { negate }));
 
     if (builder.size === this.size) return this as any;
 

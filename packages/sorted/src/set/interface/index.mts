@@ -22,10 +22,12 @@ import { createSortedSetContext } from '@rimbu/sorted/set-custom';
  * ```
  */
 export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
-  stream(reversed?: boolean): Stream<T>;
+  stream(options?: { reversed?: boolean }): Stream<T>;
   /**
    * Returns a Stream of sorted values of this collection within the given `keyRange`.
    * @param keyRange - the range of values to include in the stream
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - reversed: (default: false) when true will reverse the stream element order
    * @example
    * ```ts
    * const m = SortedSet.of('b', 'd', 'a', 'c');
@@ -33,10 +35,12 @@ export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
    * // => ['b', 'c']
    * ```
    */
-  streamRange(range: Range<T>, reversed?: boolean): Stream<T>;
+  streamRange(range: Range<T>, options?: { reversed?: boolean }): Stream<T>;
   /**
    * Returns a Stream of sorted values of this collection within the given `range` index range.
    * @param range - the range of values to include in the stream
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - reversed: (default: false) when true will reverse the stream element order
    * @example
    * ```ts
    * const m = SortedSet.of('b', 'd', 'a', 'c');
@@ -44,7 +48,10 @@ export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
    * // => ['b', 'c']
    * ```
    */
-  streamSliceIndex(range: IndexRange, reversed?: boolean): Stream<T>;
+  streamSliceIndex(
+    range: IndexRange,
+    options?: { reversed?: boolean }
+  ): Stream<T>;
   /**
    * Returns the minimum value of the SortedSet, or a fallback value (default: undefined)
    * if the SortedSet is empty.
@@ -179,7 +186,7 @@ export namespace SortedSet {
     extends RSetBase.NonEmpty<T, SortedSet.Types>,
       Omit<SortedSet<T>, keyof RSetBase.NonEmpty<any, any>>,
       Streamable.NonEmpty<T> {
-    stream(reversed?: boolean): Stream.NonEmpty<T>;
+    stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
     /**
      * Returns the minimum value of the SortedSet.
      * @example

@@ -1,11 +1,11 @@
-import { Stream } from '@rimbu/stream';
+import { Comp, Eq } from '@rimbu/common';
 
-import { Comp, Eq, Reducer } from '../src/index.mjs';
+import { Reducer, Stream } from '../src/main/index.mjs';
 
 describe('Reducer', () => {
   it('create', () => {
-    const r = Reducer.create<number, number>(
-      5,
+    const r = Reducer.create<number>(
+      () => 5,
       (v, n, i) => v + n + i,
       (v) => v + 1
     );
@@ -15,7 +15,7 @@ describe('Reducer', () => {
 
   it('createMono', () => {
     const r = Reducer.createMono(
-      5,
+      () => 5,
       (v, n, i) => v + n + i,
       (v) => v + 1
     );
@@ -24,7 +24,10 @@ describe('Reducer', () => {
   });
 
   it('createOutput', () => {
-    const r = Reducer.createOutput<number>(5, (v, n, i) => v + n + i);
+    const r = Reducer.createOutput<number>(
+      () => 5,
+      (v, n, i) => v + n + i
+    );
     expect(r.next(6, 7, 8, () => {})).toBe(6 + 7 + 8);
     expect(r.stateToResult(5)).toBe(5);
   });
@@ -103,16 +106,50 @@ describe('Reducer', () => {
     expect(Stream.empty<number>().reduce(Reducer.count())).toBe(0);
     expect(Stream.of(1, 2, 3).reduce(Reducer.count())).toBe(3);
     expect(Stream.of(1, 2, 3).reduce(Reducer.count((v) => v > 2))).toBe(1);
+    expect(
+      Stream.of(1, 2, 3).reduce(Reducer.count((v) => v > 2, { negate: true }))
+    ).toBe(2);
   });
 
   it('firstWhere', () => {
     const s = Stream.of(1, 2, 3);
     expect(s.reduce(Reducer.firstWhere((v) => v === 2))).toBe(2);
-    expect(s.reduce(Reducer.firstWhere((v) => v === 2, 'a'))).toBe(2);
+    expect(
+      s.reduce(Reducer.firstWhere((v) => v === 2, { otherwise: 'a' }))
+    ).toBe(2);
     expect(s.reduce(Reducer.firstWhere((v) => v > 10))).toBe(undefined);
-    expect(s.reduce(Reducer.firstWhere((v) => v > 10, 'a'))).toBe('a');
+    expect(
+      s.reduce(Reducer.firstWhere((v) => v > 10, { otherwise: 'a' }))
+    ).toBe('a');
     expect(s.reduce(Reducer.firstWhere((v) => v < 10))).toBe(1);
-    expect(s.reduce(Reducer.firstWhere((v) => v < 10, 'a'))).toBe(1);
+    expect(
+      s.reduce(Reducer.firstWhere((v) => v < 10, { otherwise: 'a' }))
+    ).toBe(1);
+
+    expect(s.reduce(Reducer.firstWhere((v) => v === 2, { negate: true }))).toBe(
+      1
+    );
+    expect(
+      s.reduce(
+        Reducer.firstWhere((v) => v === 2, { negate: true, otherwise: 'a' })
+      )
+    ).toBe(1);
+    expect(s.reduce(Reducer.firstWhere((v) => v < 10, { negate: true }))).toBe(
+      undefined
+    );
+    expect(
+      s.reduce(
+        Reducer.firstWhere((v) => v < 10, { negate: true, otherwise: 'a' })
+      )
+    ).toBe('a');
+    expect(s.reduce(Reducer.firstWhere((v) => v > 10, { negate: true }))).toBe(
+      1
+    );
+    expect(
+      s.reduce(
+        Reducer.firstWhere((v) => v > 10, { negate: true, otherwise: 'a' })
+      )
+    ).toBe(1);
   });
 
   it('first', () => {
@@ -125,11 +162,42 @@ describe('Reducer', () => {
   it('lastWhere', () => {
     const s = Stream.of(1, 2, 3);
     expect(s.reduce(Reducer.lastWhere((v) => v === 2))).toBe(2);
-    expect(s.reduce(Reducer.lastWhere((v) => v === 2, 'a'))).toBe(2);
+    expect(
+      s.reduce(Reducer.lastWhere((v) => v === 2, { otherwise: 'a' }))
+    ).toBe(2);
     expect(s.reduce(Reducer.lastWhere((v) => v > 10))).toBe(undefined);
-    expect(s.reduce(Reducer.lastWhere((v) => v > 10, 'a'))).toBe('a');
+    expect(s.reduce(Reducer.lastWhere((v) => v > 10, { otherwise: 'a' }))).toBe(
+      'a'
+    );
     expect(s.reduce(Reducer.lastWhere((v) => v < 10))).toBe(3);
-    expect(s.reduce(Reducer.lastWhere((v) => v < 10, 'a'))).toBe(3);
+    expect(s.reduce(Reducer.lastWhere((v) => v < 10, { otherwise: 'a' }))).toBe(
+      3
+    );
+
+    expect(s.reduce(Reducer.lastWhere((v) => v === 2, { negate: true }))).toBe(
+      3
+    );
+    expect(
+      s.reduce(
+        Reducer.lastWhere((v) => v === 2, { negate: true, otherwise: 'a' })
+      )
+    ).toBe(3);
+    expect(s.reduce(Reducer.lastWhere((v) => v < 10, { negate: true }))).toBe(
+      undefined
+    );
+    expect(
+      s.reduce(
+        Reducer.lastWhere((v) => v < 10, { negate: true, otherwise: 'a' })
+      )
+    ).toBe('a');
+    expect(s.reduce(Reducer.lastWhere((v) => v > 10, { negate: true }))).toBe(
+      3
+    );
+    expect(
+      s.reduce(
+        Reducer.lastWhere((v) => v > 10, { negate: true, otherwise: 'a' })
+      )
+    ).toBe(3);
   });
 
   it('last', () => {
@@ -154,6 +222,21 @@ describe('Reducer', () => {
     expect(Stream.of(1, 2, 3).reduce(Reducer.every((v) => v > 2))).toBe(false);
     expect(Stream.of(1, 2, 3).reduce(Reducer.every((v) => v > 10))).toBe(false);
     expect(Stream.of(1, 2, 3).reduce(Reducer.every((v) => v > 0))).toBe(true);
+
+    expect(
+      Stream.empty<number>().reduce(
+        Reducer.every((v) => v <= 2, { negate: true })
+      )
+    ).toBe(true);
+    expect(
+      Stream.of(1, 2, 3).reduce(Reducer.every((v) => v <= 2, { negate: true }))
+    ).toBe(false);
+    expect(
+      Stream.of(1, 2, 3).reduce(Reducer.every((v) => v <= 10, { negate: true }))
+    ).toBe(false);
+    expect(
+      Stream.of(1, 2, 3).reduce(Reducer.every((v) => v <= 0, { negate: true }))
+    ).toBe(true);
   });
 
   it('contains', () => {
@@ -161,20 +244,34 @@ describe('Reducer', () => {
     expect(Stream.of(1, 2, 3).reduce(Reducer.contains(5))).toBe(false);
     expect(Stream.of(1, 2, 3).reduce(Reducer.contains(2))).toBe(true);
     expect(
-      Stream.of(1, 2, 3).reduce(Reducer.contains(2, (v1, v2) => v1 + v2 === v1))
+      Stream.of(1, 2, 3).reduce(
+        Reducer.contains(2, { eq: (v1, v2) => v1 + v2 === v1 })
+      )
     ).toBe(false);
     expect(
       Stream.of([1, 2], [2, 3], [3, 4]).reduce(Reducer.contains([2, 1]))
     ).toBe(false);
     expect(
       Stream.of<readonly [number, number]>([1, 2], [2, 3], [3, 4]).reduce(
-        Reducer.contains([2, 1], Eq.tupleSymmetric())
+        Reducer.contains([2, 1], { eq: Eq.tupleSymmetric() })
       )
     ).toBe(true);
     expect(
       Stream.of<readonly [Number, number]>([1, 2], [2, 3], [3, 4]).reduce(
-        Reducer.contains([3, 1], Eq.tupleSymmetric())
+        Reducer.contains([3, 1], { eq: Eq.tupleSymmetric() })
       )
+    ).toBe(false);
+
+    expect(
+      Stream.of(1, 2, 3).reduce(Reducer.contains(5, { negate: true }))
+    ).toBe(true);
+
+    expect(
+      Stream.of(5, 5, 3, 5).reduce(Reducer.contains(5, { negate: true }))
+    ).toBe(true);
+
+    expect(
+      Stream.of(5, 5, 5, 5).reduce(Reducer.contains(5, { negate: true }))
     ).toBe(false);
   });
 
@@ -202,7 +299,13 @@ describe('Reducer', () => {
 
   it('toArray', () => {
     expect(Stream.empty<number>().reduce(Reducer.toArray())).toEqual([]);
+    expect(
+      Stream.empty<number>().reduce(Reducer.toArray({ reversed: true }))
+    ).toEqual([]);
     expect(Stream.of(1, 2, 3).reduce(Reducer.toArray())).toEqual([1, 2, 3]);
+    expect(
+      Stream.of(1, 2, 3).reduce(Reducer.toArray({ reversed: true }))
+    ).toEqual([3, 2, 1]);
   });
 
   it('toJSMap', () => {
@@ -249,6 +352,12 @@ describe('Reducer', () => {
     ).toBe(4);
   });
 
+  it('flatMapInput', () => {
+    expect(
+      Stream.of(1, 2, 3).reduce(Reducer.sum.flatMapInput((v) => [v, v]))
+    ).toBe(12);
+  });
+
   it('collectInput', () => {
     expect(
       Stream.of(1, 2, 3).reduce(
@@ -285,6 +394,39 @@ describe('Reducer', () => {
     expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput(2, 0))).toBe(0);
     expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput(2, 1))).toBe(3);
   });
+
+  it('pipe', () => {
+    const red = Reducer.sum.pipe(Reducer.join({ sep: ', ' }));
+    expect(Stream.empty<number>().reduce(red)).toEqual('');
+    expect(Stream.of(1).reduce(red)).toEqual('1');
+    expect(Stream.of(1, 2, 3).reduce(red)).toEqual('1, 3, 6');
+  });
+
+  it('pipe 2', () => {
+    const red = Reducer.sum.pipe(Reducer.product, Reducer.join({ sep: ', ' }));
+    expect(Stream.empty<number>().reduce(red)).toEqual('');
+    expect(Stream.of(1).reduce(red)).toEqual('1');
+    expect(Stream.of(1, 2, 3).reduce(red)).toEqual('1, 3, 18');
+    expect(Stream.of(0, 1, 2).reduce(red)).toEqual('0');
+  });
+
+  it('chain', () => {
+    {
+      const red = Reducer.toArray<number>()
+        .takeInput(2)
+        .chain(Reducer.toArray<number>().takeInput(2));
+
+      expect(Stream.of(1, 2, 3, 4, 5).reduce(red)).toEqual([3, 4]);
+    }
+
+    {
+      const red = Reducer.sum
+        .takeInput(2)
+        .chain((v) => Reducer.product.mapOutput((o) => o + v));
+
+      expect(Stream.of(1, 2, 3, 4).reduce(red)).toEqual(15);
+    }
+  });
 });
 
 describe('Reducers', () => {
@@ -312,12 +454,12 @@ describe('Reducers', () => {
     ]);
   });
 
-  it('Reducer.combineArr', () => {
-    const r = Reducer.combineArr(
+  it('Reducer.combine array', () => {
+    const r = Reducer.combine([
       Reducer.sum,
       Reducer.average,
-      Reducer.toArray<number>()
-    );
+      Reducer.toArray<number>(),
+    ]);
 
     expect(Stream.empty().reduce(r)).toEqual([0, 0, []]);
     expect(Stream.of(0, 0, 0).reduceStream(r).toArray()).toEqual([
@@ -332,8 +474,8 @@ describe('Reducers', () => {
     ]);
   });
 
-  it('Reducer.combineArr with halt', () => {
-    const r = Reducer.combineArr(Reducer.sum, Reducer.product);
+  it('Reducer.combine array with halt', () => {
+    const r = Reducer.combine([Reducer.sum, Reducer.product]);
 
     expect(Stream.empty().reduce(r)).toEqual([0, 1]);
     expect(Stream.of(0, 0, 0).reduceStream(r).toArray()).toEqual([
@@ -348,11 +490,11 @@ describe('Reducers', () => {
     ]);
   });
 
-  it('Reducer.combineArr with stateToResult', () => {
-    const r = Reducer.combineArr(
+  it('Reducer.combine array with stateToResult', () => {
+    const r = Reducer.combine([
       Reducer.sum.mapOutput((v) => v + 1),
-      Reducer.product
-    );
+      Reducer.product,
+    ]);
 
     expect(Stream.empty().reduce(r)).toEqual([1, 1]);
     expect(Stream.of(0, 0, 0).reduceStream(r).toArray()).toEqual([
@@ -367,8 +509,8 @@ describe('Reducers', () => {
     ]);
   });
 
-  it('Reducer.combineObj', () => {
-    const r = Reducer.combineObj({
+  it('Reducer.combine object', () => {
+    const r = Reducer.combine({
       sum: Reducer.sum,
       avg: Reducer.average,
       arr: Reducer.toArray<number>(),
@@ -387,8 +529,8 @@ describe('Reducers', () => {
     ]);
   });
 
-  it('Reducer.combineObj with halt', () => {
-    const r = Reducer.combineObj({ sum: Reducer.sum, prod: Reducer.product });
+  it('Reducer.combine object with halt', () => {
+    const r = Reducer.combine({ sum: Reducer.sum, prod: Reducer.product });
 
     expect(Stream.empty().reduce(r)).toEqual({ sum: 0, prod: 1 });
     expect(Stream.of(0, 0, 0).reduceStream(r).toArray()).toEqual([
@@ -403,8 +545,8 @@ describe('Reducers', () => {
     ]);
   });
 
-  it('Reducer.combineObj with stateToResult', () => {
-    const r = Reducer.combineObj({
+  it('Reducer.combine object with stateToResult', () => {
+    const r = Reducer.combine({
       sum: Reducer.sum.mapOutput((v) => v + 1),
       prod: Reducer.product,
     });
@@ -420,6 +562,25 @@ describe('Reducers', () => {
       { sum: 3, prod: 0 },
       { sum: 7, prod: 0 },
     ]);
+  });
+
+  it('Reducer.combine shapes', () => {
+    const r1 = Reducer.combine({
+      sum: Reducer.sum,
+      prod: Reducer.product,
+    });
+    const r2 = Reducer.combine([Reducer.sum, Reducer.product]);
+    const r3 = Reducer.combine(Reducer.sum);
+    const r4 = Reducer.combine({
+      a: Reducer.sum,
+      b: { c: { d: [Reducer.product] } },
+    });
+
+    const s = Stream.range({ start: 1, amount: 5 });
+    expect(s.reduce(r1)).toEqual({ sum: 15, prod: 120 });
+    expect(s.reduce(r2)).toEqual([15, 120]);
+    expect(s.reduce(r3)).toEqual(15);
+    expect(s.reduce(r4)).toEqual({ a: 15, b: { c: { d: [120] } } });
   });
 
   it('Reducer.contains', () => {
@@ -455,7 +616,7 @@ describe('Reducers', () => {
 
   it('Reducer.firstWhere', () => {
     const r1 = Reducer.firstWhere((v: number) => v >= 5);
-    const r2 = Reducer.firstWhere((v: number) => v >= 5, -5);
+    const r2 = Reducer.firstWhere((v: number) => v >= 5, { otherwise: -5 });
 
     expect(Stream.empty().reduce(r1)).toBeUndefined();
     expect(Stream.empty().reduce(r2)).toBe(-5);
@@ -491,7 +652,7 @@ describe('Reducers', () => {
 
   it('Reducer.lastWhere', () => {
     const r1 = Reducer.lastWhere((v: number) => v >= 5);
-    const r2 = Reducer.lastWhere((v: number) => v >= 5, -5);
+    const r2 = Reducer.lastWhere((v: number) => v >= 5, { otherwise: -5 });
 
     expect(Stream.empty().reduce(r1)).toBeUndefined();
     expect(Stream.empty().reduce(r2)).toBe(-5);
@@ -609,15 +770,29 @@ describe('Reducers', () => {
   });
 
   it('Reducer.some', () => {
-    const r = Reducer.some((v: number) => v > 5);
-    expect(Stream.empty().reduce(r)).toBe(false);
-    expect(Stream.of(1, 2, 3).reduce(r)).toBe(false);
-    expect(Stream.of(1, 8, 3).reduce(r)).toBe(true);
-    expect(Stream.of(1, 2, 7, 3).reduceStream(r).toArray()).toEqual([
-      false,
-      false,
-      true,
-    ]);
+    {
+      const r = Reducer.some((v: number) => v > 5);
+      expect(Stream.empty().reduce(r)).toBe(false);
+      expect(Stream.of(1, 2, 3).reduce(r)).toBe(false);
+      expect(Stream.of(1, 8, 3).reduce(r)).toBe(true);
+      expect(Stream.of(1, 2, 7, 3).reduceStream(r).toArray()).toEqual([
+        false,
+        false,
+        true,
+      ]);
+    }
+
+    {
+      const r = Reducer.some((v: number) => v <= 5, { negate: true });
+      expect(Stream.empty().reduce(r)).toBe(false);
+      expect(Stream.of(1, 2, 3).reduce(r)).toBe(false);
+      expect(Stream.of(1, 8, 3).reduce(r)).toBe(true);
+      expect(Stream.of(1, 2, 7, 3).reduceStream(r).toArray()).toEqual([
+        false,
+        false,
+        true,
+      ]);
+    }
   });
 
   it('Reducer.sum', () => {

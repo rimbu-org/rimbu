@@ -1,4 +1,4 @@
-import type { OptLazy } from '@rimbu/common';
+import { type OptLazy } from '@rimbu/common';
 
 import { Lookup, type ActionBase, type Slice } from './internal.mjs';
 

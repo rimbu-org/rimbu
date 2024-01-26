@@ -1,7 +1,6 @@
 import { RimbuError, type Token } from '../../base/mod.ts';
 import {
   AsyncOptLazy,
-  AsyncReducer,
   Comp,
   Eq,
   TraverseState,
@@ -11,6 +10,7 @@ import {
   type ToJSON,
 } from '../../common/mod.ts';
 
+import type { StreamSource } from '../../stream/mod.ts';
 import type {
   AsyncFastIterator,
   AsyncStream,
@@ -32,12 +32,10 @@ import {
   AsyncIndicesOfIterator,
   AsyncIndicesWhereIterator,
   AsyncIntersperseIterator,
-  AsyncLiveIterator,
   AsyncMapIterator,
   AsyncMapPureIterator,
   AsyncOfIterator,
   AsyncPrependIterator,
-  AsyncReduceAllIterator,
   AsyncReduceIterator,
   AsyncRepeatIterator,
   AsyncSplitOnIterator,
@@ -56,10 +54,13 @@ import {
   emptyAsyncFastIterator,
   isAsyncFastIterator,
   type AsyncStreamConstructors,
+  AsyncSplitOnSeqIterator,
 } from '../../stream/async-custom/index.ts';
-import { isEmptyStreamSourceInstance } from '../../stream/custom/index.ts';
-import type { StreamSource } from '../../stream/mod.ts';
-import { Stream } from '../../stream/mod.ts';
+import {
+  StreamConstructorsImpl,
+  isEmptyStreamSourceInstance,
+} from '../../stream/custom/index.ts';
+import { AsyncReducer } from '../../stream/async/index.ts';
 
 export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   abstract [Symbol.asyncIterator](): AsyncFastIterator<T>;
@@ -70,8 +71,10 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 
   async equals(
     other: AsyncStreamSource<T>,
-    eq: Eq<T> = Eq.objectIs
+    options: { eq?: Eq<T>; negate?: boolean } = {}
   ): Promise<boolean> {
+    const { eq = Eq.objectIs, negate = false } = options;
+
     const it1 = this[Symbol.asyncIterator]();
     const it2 = fromAsyncStreamSource(other)[Symbol.asyncIterator]();
 
@@ -93,7 +96,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
         return false;
       }
 
-      if (!eq(v1, v2)) {
+      if (eq(v1, v2) === negate) {
         await closeIters(it1, it2);
         return false;
       }
@@ -118,8 +121,10 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 
   async forEach(
     f: (value: T, index: number, halt: () => void) => MaybePromise<void>,
-    state = TraverseState()
+    options: { state?: TraverseState } = {}
   ): Promise<void> {
+    const { state = TraverseState() } = options;
+
     if (state.halted) return;
 
     const done = Symbol('Done');
@@ -152,13 +157,16 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
       while (done !== (value = await iterator.fastNext(done))) {
         await f(value, ...args);
       }
-    } catch (e) {
-      await closeIters(iterator);
-      throw e;
+    } finally {
+      if (done !== value!) {
+        await closeIters(iterator);
+      }
     }
   }
 
-  indexed(startIndex = 0): AsyncStream<[number, T]> {
+  indexed(options: { startIndex?: number } = {}): AsyncStream<[number, T]> {
+    const { startIndex = 0 } = options;
+
     return new AsyncIndexedStream<T>(this, startIndex);
   }
 
@@ -207,29 +215,24 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   }
 
   filter(
-    pred: (value: T, index: number, halt: () => void) => MaybePromise<boolean>
+    pred: (value: T, index: number, halt: () => void) => MaybePromise<boolean>,
+    options: { negate?: boolean } = {}
   ): AsyncStream<T> {
-    return new AsyncFilterStream<T>(this, pred);
-  }
+    const { negate = false } = options;
 
-  filterNot(
-    pred: (value: T, index: number, halt: () => void) => MaybePromise<boolean>
-  ): AsyncStream<T> {
-    return new AsyncFilterStream<T>(this, pred, true);
+    return new AsyncFilterStream<T>(this, pred, negate);
   }
 
   filterPure<A extends readonly unknown[]>(
-    pred: (value: T, ...args: A) => MaybePromise<boolean>,
+    options: {
+      pred: (value: T, ...args: A) => MaybePromise<boolean>;
+      negate?: boolean;
+    },
     ...args: A
   ): AsyncStream<T> {
-    return new AsyncFilterPureStream<T, A>(this, pred, args);
-  }
+    const { pred, negate = false } = options;
 
-  filterNotPure<A extends readonly unknown[]>(
-    pred: (value: T, ...args: A) => MaybePromise<boolean>,
-    ...args: A
-  ): AsyncStream<T> {
-    return new AsyncFilterPureStream<T, A>(this, pred, args, true);
+    return new AsyncFilterPureStream<T, A>(this, pred, args, negate);
   }
 
   collect<R>(collectFun: AsyncCollectFun<T, R>): AsyncStream<R> {
@@ -240,45 +243,69 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     const done = Symbol('done');
     const iter = this[Symbol.asyncIterator]();
 
-    const value = await iter.fastNext(done);
+    let value: T | typeof done = done;
 
-    if (done === value) {
-      return AsyncOptLazy.toPromise(otherwise!);
+    try {
+      value = await iter.fastNext(done);
+
+      if (done === value) {
+        return AsyncOptLazy.toPromise(otherwise!);
+      }
+
+      return value;
+    } finally {
+      if (done !== value) {
+        await closeIters(iter);
+      }
     }
-    await closeIters(iter);
-    return value;
   }
 
   async last<O>(otherwise?: AsyncOptLazy<O>): Promise<T | O> {
     const done = Symbol('Done');
-    let value: T | typeof done;
-    let lastValue: T | typeof done = done;
     const iterator = this[Symbol.asyncIterator]();
 
-    while (done !== (value = await iterator.fastNext(done))) {
-      lastValue = value;
+    try {
+      let value: T | typeof done = done;
+      let lastValue: T | typeof done = done;
+
+      while (done !== (value = await iterator.fastNext(done))) {
+        lastValue = value;
+      }
+
+      if (done === lastValue) {
+        return AsyncOptLazy.toPromise(otherwise!);
+      }
+
+      return lastValue;
+    } catch (err) {
+      await closeIters(iterator);
+      throw err;
     }
-
-    if (done === lastValue) return AsyncOptLazy.toPromise(otherwise!);
-
-    return lastValue;
   }
 
   async single<O>(otherwise?: AsyncOptLazy<O>): Promise<T | O> {
     const iterator = this[Symbol.asyncIterator]();
     const done = Symbol('Done');
 
-    const value = await iterator.fastNext(done);
+    let value: T | typeof done = done;
 
-    if (done !== value) {
-      if (done === (await iterator.fastNext(done))) {
-        return value;
+    try {
+      value = await iterator.fastNext(done);
+
+      if (done !== value) {
+        const resultValue = value;
+
+        if (done === (value = await iterator.fastNext(done))) {
+          return resultValue;
+        }
+      }
+
+      return AsyncOptLazy.toPromise(otherwise!);
+    } finally {
+      if (done !== value) {
+        await closeIters(iterator);
       }
     }
-
-    await closeIters(iterator);
-
-    return AsyncOptLazy.toPromise(otherwise!);
   }
 
   async count(): Promise<number> {
@@ -291,53 +318,46 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
       while (done !== (await iterator.fastNext(done))) result++;
 
       return result;
-    } catch (e) {
+    } catch (err) {
       await closeIters(iterator);
-      throw e;
+      throw err;
     }
   }
 
-  async countElement(value: T, eq = Eq.objectIs): Promise<number> {
-    let result = 0;
+  async countElement(
+    value: T,
+    options: { eq?: Eq<T>; negate?: boolean } = {}
+  ): Promise<number> {
+    const { eq = Eq.objectIs, negate = false } = options;
 
     const done = Symbol('Done');
     const iterator = this[Symbol.asyncIterator]();
-    let current: T | typeof done;
 
     try {
+      let result = 0;
+      let current: T | typeof done;
+
       while (done !== (current = await iterator.fastNext(done))) {
-        if (eq(value, current)) result++;
+        if (eq(value, current) !== negate) result++;
       }
 
       return result;
-    } finally {
-      if (done !== current!) await closeIters(iterator);
-    }
-  }
-
-  async countNotElement(value: T, eq = Eq.objectIs): Promise<number> {
-    let result = 0;
-
-    const done = Symbol('Done');
-    const iterator = this[Symbol.asyncIterator]();
-    let current: T | typeof done;
-
-    try {
-      while (done !== (current = await iterator.fastNext(done))) {
-        if (!eq(value, current)) result++;
-      }
-
-      return result;
-    } finally {
-      if (done !== current!) await closeIters(iterator);
+    } catch (err) {
+      await closeIters(iterator);
+      throw err;
     }
   }
 
   async find<O>(
     pred: (value: T, index: number) => MaybePromise<boolean>,
-    occurrance = 1,
-    otherwise?: AsyncOptLazy<O>
+    options: {
+      occurrance?: number;
+      negate?: boolean;
+      otherwise?: AsyncOptLazy<O>;
+    } = {}
   ): Promise<T | O> {
+    const { occurrance = 1, negate = false, otherwise } = options;
+
     if (occurrance <= 0) return AsyncOptLazy.toPromise(otherwise!);
 
     const done = Symbol('Done');
@@ -349,14 +369,16 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     try {
       while (done !== (value = await iterator.fastNext(done))) {
         const cond = await pred(value, index++);
-        if (cond && --remain <= 0) {
+        if (cond !== negate && --remain <= 0) {
           return value;
         }
       }
 
       return AsyncOptLazy.toPromise(otherwise!);
     } finally {
-      if (done !== value!) await closeIters(iterator);
+      if (done !== value!) {
+        await closeIters(iterator);
+      }
     }
   }
 
@@ -381,22 +403,36 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 
       return AsyncOptLazy.toPromise(otherwise!);
     } finally {
-      if (done !== value!) await closeIters(iterator);
+      if (done !== value!) {
+        await closeIters(iterator);
+      }
     }
   }
 
-  indicesWhere(pred: (value: T) => MaybePromise<boolean>): AsyncStream<number> {
-    return new AsyncIndicesWhereStream<T>(this, pred);
+  indicesWhere(
+    pred: (value: T) => MaybePromise<boolean>,
+    options: { negate?: boolean } = {}
+  ): AsyncStream<number> {
+    const { negate = false } = options;
+
+    return new AsyncIndicesWhereStream<T>(this, pred, negate);
   }
 
-  indicesOf(searchValue: T, eq: Eq<T> = Eq.objectIs): AsyncStream<number> {
-    return new AsyncIndicesOfStream<T>(this, searchValue, eq);
+  indicesOf(
+    searchValue: T,
+    options: { eq?: Eq<T>; negate?: boolean } = {}
+  ): AsyncStream<number> {
+    const { eq = Eq.objectIs, negate = false } = options;
+
+    return new AsyncIndicesOfStream<T>(this, searchValue, eq, negate);
   }
 
   async indexWhere(
     pred: (value: T, index: number) => MaybePromise<boolean>,
-    occurrance = 1
+    options: { occurrance?: number; negate?: boolean } = {}
   ): Promise<number | undefined> {
+    const { occurrance = 1, negate = false } = options;
+
     if (occurrance <= 0) return undefined;
 
     const done = Symbol('Done');
@@ -411,7 +447,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 
         const cond = await pred(value, i);
 
-        if (cond) {
+        if (cond === !negate) {
           occ++;
           if (occ >= occurrance) {
             return i;
@@ -421,15 +457,22 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 
       return undefined;
     } finally {
-      if (done !== value!) await closeIters(iterator);
+      if (done !== value!) {
+        await closeIters(iterator);
+      }
     }
   }
 
   async indexOf(
     searchValue: T,
-    occurrance = 1,
-    eq: Eq<T> = Eq.objectIs
+    options: {
+      occurrance?: number | undefined;
+      eq?: Eq<T> | undefined;
+      negate?: boolean | undefined;
+    } = {}
   ): Promise<number | undefined> {
+    const { occurrance = 1, eq = Eq.objectIs, negate = false } = options;
+
     if (occurrance <= 0) return undefined;
 
     const done = Symbol('Done');
@@ -442,7 +485,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
       while (done !== (value = await iterator.fastNext(done))) {
         const i = index++;
 
-        if (eq(value, searchValue)) {
+        if (eq(value, searchValue) !== negate) {
           occ++;
           if (occ >= occurrance) {
             return i;
@@ -452,82 +495,98 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 
       return undefined;
     } finally {
-      if (done !== value!) await closeIters(iterator);
+      if (done !== value!) {
+        await closeIters(iterator);
+      }
     }
   }
 
   async some(
-    pred: (value: T, index: number) => MaybePromise<boolean>
+    pred: (value: T, index: number) => MaybePromise<boolean>,
+    options: { negate?: boolean } = {}
   ): Promise<boolean> {
-    return undefined !== (await this.indexWhere(pred));
+    return undefined !== (await this.indexWhere(pred, options));
   }
 
   async every(
-    pred: (value: T, index: number) => MaybePromise<boolean>
+    pred: (value: T, index: number) => MaybePromise<boolean>,
+    options: { negate?: boolean } = {}
   ): Promise<boolean> {
-    const iterator = this[Symbol.asyncIterator]();
-    const done = Symbol('Done');
-    let value: T | typeof done;
-    let index = 0;
+    const { negate = false } = options;
 
-    try {
-      while (done !== (value = await iterator.fastNext(done))) {
-        const cond = await pred(value, index++);
-        if (!cond) {
-          return false;
-        }
-      }
-
-      return true;
-    } finally {
-      if (done !== value!) await closeIters(iterator);
-    }
+    return undefined === (await this.indexWhere(pred, { negate: !negate }));
   }
 
-  async contains(searchValue: T, amount = 1, eq?: Eq<T>): Promise<boolean> {
+  async contains(
+    searchValue: T,
+    options: { amount?: number; eq?: Eq<T>; negate?: boolean } = {}
+  ): Promise<boolean> {
+    const { amount = 1 } = options;
+
     if (amount <= 0) return true;
 
-    return undefined !== (await this.indexOf(searchValue, amount, eq));
+    const { eq = Eq.objectIs, negate = false } = options;
+
+    return (
+      undefined !==
+      (await this.indexOf(searchValue, { occurrance: amount, eq, negate }))
+    );
   }
 
   async containsSlice(
     source: AsyncStreamSource.NonEmpty<T>,
-    eq = Eq.objectIs
+    options: { eq?: Eq<T>; negate?: boolean } = {}
   ): Promise<boolean> {
+    const { eq = Eq.objectIs, negate = false } = options;
+
     const iterator = this[Symbol.asyncIterator]();
     const sourceStream = fromAsyncStreamSource(source);
     let sourceIterator = sourceStream[Symbol.asyncIterator]();
 
     const done = Symbol('Done');
 
-    while (true) {
-      const sourceValue = await sourceIterator.fastNext(done);
-      if (done === sourceValue) {
+    let value: T | typeof done = done;
+
+    try {
+      while (true) {
+        const sourceValue = await sourceIterator.fastNext(done);
+
+        if (done === sourceValue) {
+          return true;
+        }
+
+        value = await iterator.fastNext(done);
+        if (done === value) {
+          return false;
+        }
+
+        if (eq(sourceValue, value) === negate) {
+          sourceIterator = sourceStream[Symbol.asyncIterator]();
+        }
+      }
+    } finally {
+      if (done !== value) {
         await closeIters(iterator);
-        return true;
-      }
-
-      const value = await iterator.fastNext(done);
-      if (done === value) {
-        return false;
-      }
-
-      if (!eq(sourceValue, value)) {
-        sourceIterator = sourceStream[Symbol.asyncIterator]();
       }
     }
   }
 
   takeWhile(
-    pred: (value: T, index: number) => MaybePromise<boolean>
+    pred: (value: T, index: number) => MaybePromise<boolean>,
+    options: { negate?: boolean } = {}
   ): AsyncStream<T> {
-    return new AsyncTakeWhileStream(this, pred);
+    const { negate = false } = options;
+
+    return new AsyncTakeWhileStream(this, pred, negate);
   }
 
   dropWhile(
-    pred: (value: T, index: number) => MaybePromise<boolean>
+    pred: (value: T, index: number) => MaybePromise<boolean>,
+    options: { negate?: boolean } = {}
   ): AsyncStream<T> {
-    return new AsyncDropWhileStream(this, pred);
+    const { negate = false } = options;
+
+    return new AsyncDropWhileStream(this, pred, negate);
   }
 
   take(amount: number): AsyncStream<T> {
@@ -582,8 +641,9 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
       }
 
       return result;
-    } finally {
-      if (done !== result! && done !== value!) await closeIters(iterator);
+    } catch (err) {
+      await closeIters(iterator);
+      throw err;
     }
   }
 
@@ -598,21 +658,23 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     const done = Symbol('Done');
     const iterator = this[Symbol.asyncIterator]();
 
-    let result: T | typeof done;
-    let value: T | typeof done;
-
     try {
-      result = await iterator.fastNext(done);
+      let result: T | typeof done = await iterator.fastNext(done);
 
-      if (done === result) return AsyncOptLazy.toPromise(otherwise!);
+      if (done === result) {
+        return AsyncOptLazy.toPromise(otherwise!);
+      }
+
+      let value: T | typeof done;
 
       while (done !== (value = await iterator.fastNext(done))) {
         if (compare(value, result) > 0) result = value;
       }
 
       return result;
-    } finally {
-      if (done !== result! && done !== value!) await closeIters(iterator);
+    } catch (err) {
+      await closeIters(iterator);
+      throw err;
     }
   }
 
@@ -650,8 +712,9 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
       }
 
       return result.concat(end);
-    } finally {
-      if (done !== value!) await closeIters(iterator);
+    } catch (err) {
+      await closeIters(iterator);
+      throw err;
     }
   }
 
@@ -663,25 +726,70 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     return fromAsyncStreamSource(start).concat(this.intersperse(sep), end);
   }
 
-  splitWhere(
-    pred: (value: T, index: number) => MaybePromise<boolean>
-  ): AsyncStream<T[]> {
-    return new AsyncSplitWhereStream<T>(this, pred);
+  splitWhere<R>(
+    pred: (value: T, index: number) => MaybePromise<boolean>,
+    options: {
+      negate?: boolean;
+      collector?: AsyncReducer<T, R> | undefined;
+    } = {}
+  ): AsyncStream<R> {
+    const {
+      negate = false,
+      collector = AsyncReducer.toArray() as AsyncReducer<T, R>,
+    } = options;
+
+    return new AsyncSplitWhereStream<T, R>(this, pred, negate, collector);
   }
 
-  splitOn(sepElem: T, eq: Eq<T> = Eq.objectIs): AsyncStream<T[]> {
-    return new AsyncSplitOnStream<T>(this, sepElem, eq);
+  splitOn<R>(
+    sepElem: T,
+    options: {
+      eq?: Eq<T>;
+      negate?: boolean;
+      collector?: AsyncReducer<T, R> | undefined;
+    } = {}
+  ): AsyncStream<R> {
+    const {
+      eq = Eq.objectIs,
+      negate = false,
+      collector = AsyncReducer.toArray() as AsyncReducer<T, R>,
+    } = options;
+
+    return new AsyncSplitOnStream<T, R>(this, sepElem, eq, negate, collector);
   }
 
-  distinctPrevious(eq: Eq<T> = Eq.objectIs): AsyncStream<T> {
-    return new AsyncDistinctPreviousStream<T>(this, eq);
+  splitOnSeq<R>(
+    sepSeq: AsyncStreamSource<T>,
+    options: { eq?: Eq<T>; collector?: AsyncReducer<T, R> | undefined } = {}
+  ): AsyncStream<R> {
+    const {
+      eq = Object.is,
+      collector = AsyncReducer.toArray() as AsyncReducer<T, R>,
+    } = options;
+
+    return new AsyncSplitOnSeq<T, R>(this, sepSeq, eq, collector);
+  }
+
+  distinctPrevious(
+    options: { eq?: Eq<T>; negate?: boolean } = {}
+  ): AsyncStream<T> {
+    const { eq = Eq.objectIs, negate = false } = options;
+
+    return new AsyncDistinctPreviousStream<T>(this, eq, negate);
   }
 
   window<R>(
     windowSize: number,
-    skipAmount = windowSize,
-    collector: AsyncReducer<T, R> = AsyncReducer.toArray() as any
+    options: {
+      skipAmount?: number;
+      collector?: AsyncReducer<T, R> | undefined;
+    } = {}
   ): AsyncStream<R> {
+    const {
+      skipAmount = windowSize,
+      collector = AsyncReducer.toArray() as AsyncReducer<T, R>,
+    } = options;
+
     return new AsyncWindowStream<T, R>(this, windowSize, skipAmount, collector);
   }
 
@@ -694,25 +802,9 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
       halt: () => void
     ) => MaybePromise<R>
   ): Promise<R> {
-    let current = await AsyncOptLazy.toMaybePromise(init);
-
-    const state = TraverseState();
-    const done = Symbol('done');
-    const iterator = this[Symbol.asyncIterator]();
-    let value: T | typeof done;
-
-    try {
-      while (
-        !state.halted &&
-        done !== (value = await iterator.fastNext(done))
-      ) {
-        current = await next(current, value, state.nextIndex(), state.halt);
-      }
-
-      return current;
-    } finally {
-      if (done !== value!) await closeIters(iterator);
-    }
+    return this.reduce(
+      AsyncReducer.createOutput(() => AsyncOptLazy.toMaybePromise(init), next)
+    );
   }
 
   foldStream<R>(
@@ -730,101 +822,44 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     );
   }
 
-  async reduce<R>(reducer: AsyncReducer<T, R>): Promise<R> {
-    const traverseState = TraverseState();
+  async reduce<const S extends AsyncReducer.CombineShape<T>>(
+    shape: S & AsyncReducer.CombineShape<T>
+  ): Promise<AsyncReducer.CombineResult<S>> {
+    const reducerInstance = AsyncReducer.combine(
+      shape
+    ).compile() as AsyncReducer.Instance<T, AsyncReducer.CombineResult<S>>;
 
-    const next = reducer.next;
-    let state = await AsyncOptLazy.toMaybePromise(reducer.init);
     const done = Symbol('Done');
-    let value: T | typeof done;
+    let value: T | typeof done = done;
     const iter = this[Symbol.asyncIterator]();
 
     try {
       while (
-        !traverseState.halted &&
+        !reducerInstance.halted &&
         done !== (value = await iter.fastNext(done))
       ) {
-        state = await next(
-          state,
-          value,
-          traverseState.nextIndex(),
-          traverseState.halt
-        );
+        await reducerInstance.next(value);
       }
-    } catch (err) {
-      await reducer.onClose?.(state, err);
-      throw err;
+
+      return await reducerInstance.getOutput();
     } finally {
-      if (done !== value!) await closeIters(iter);
+      await reducerInstance.onClose();
+
+      if (done !== value) {
+        await closeIters(iter);
+      }
     }
-
-    await reducer.onClose?.(state);
-
-    return reducer.stateToResult(state);
   }
 
-  reduceStream<R>(reducer: AsyncReducer<T, R>): AsyncStream<R> {
+  reduceStream<const S extends AsyncReducer.CombineShape<T>>(
+    shape: S & AsyncReducer.CombineShape<T>
+  ): AsyncStream<AsyncReducer.CombineResult<S>> {
+    const reducer = AsyncReducer.combine(shape) as AsyncReducer<
+      T,
+      AsyncReducer.CombineResult<S>
+    >;
+
     return new AsyncReduceStream(this, reducer);
-  }
-
-  async reduceAll<R extends [unknown, unknown, ...unknown[]]>(
-    ...reducers: { [K in keyof R]: AsyncReducer<T, R[K]> }
-  ): Promise<any> {
-    let state = await Promise.all(
-      reducers.map((d: any): unknown => AsyncOptLazy.toMaybePromise(d.init))
-    );
-
-    const reducersToClose = new Set(reducers);
-
-    const iter = this[Symbol.asyncIterator]();
-
-    const done = Symbol('Done');
-    let value: T | typeof done;
-    let index = 0;
-    let err: any;
-
-    try {
-      while (done !== (value = await iter.fastNext(done))) {
-        const v = value;
-
-        state = await Promise.all(
-          reducers.map((red, i) => {
-            const st = state[i];
-
-            if (!reducersToClose.has(red)) return st;
-
-            return red.next(st, v, index, async () => {
-              reducersToClose.delete(red);
-              await red.onClose?.(st);
-              return st;
-            });
-          })
-        );
-
-        if (reducersToClose.size === 0) {
-          break;
-        }
-        index++;
-      }
-
-      return await Promise.all(
-        state.map((s: any, i: any): unknown => reducers[i].stateToResult(s))
-      );
-    } catch (e) {
-      err = e;
-    } finally {
-      if (done !== value!) await closeIters(iter);
-      await Promise.all(
-        [...reducersToClose].map((r, i) => r.onClose?.(state[i], err))
-      );
-    }
-    if (err) throw err;
-  }
-
-  reduceAllStream<R extends [unknown, unknown, ...unknown[]]>(
-    ...reducers: { [K in keyof R]: AsyncReducer<T, R[K]> }
-  ): any {
-    return new AsyncReduceAllStream<T, R>(this, reducers);
   }
 
   async toArray(): Promise<T[]> {
@@ -839,8 +874,9 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
       }
 
       return result;
-    } finally {
-      if (done !== value!) await closeIters(iterator);
+    } catch (err) {
+      await closeIters(iterator);
+      throw err;
     }
   }
 
@@ -1096,7 +1132,7 @@ class AsyncFilterStream<T> extends AsyncStreamBase<T> {
       index: number,
       halt: () => void
     ) => MaybePromise<boolean>,
-    readonly invert = false
+    readonly negate = false
   ) {
     super();
   }
@@ -1105,7 +1141,7 @@ class AsyncFilterStream<T> extends AsyncStreamBase<T> {
     return new AsyncFilterIterator<T>(
       this.source[Symbol.asyncIterator](),
       this.pred,
-      this.invert
+      this.negate
     );
   }
 
@@ -1128,7 +1164,7 @@ class AsyncFilterPureStream<
     readonly source: AsyncStream<T>,
     readonly pred: (value: T, ...args: A) => MaybePromise<boolean>,
     readonly args: A,
-    readonly invert = false
+    readonly negate = false
   ) {
     super();
   }
@@ -1138,7 +1174,7 @@ class AsyncFilterPureStream<
       this.source[Symbol.asyncIterator](),
       this.pred,
       this.args,
-      this.invert
+      this.negate
     );
   }
 }
@@ -1162,7 +1198,8 @@ class AsyncCollectStream<T, R> extends AsyncStreamBase<R> {
 class AsyncIndicesWhereStream<T> extends AsyncStreamBase<number> {
   constructor(
     readonly source: AsyncStream<T>,
-    readonly pred: (value: T) => MaybePromise<boolean>
+    readonly pred: (value: T) => MaybePromise<boolean>,
+    readonly negate: boolean
   ) {
     super();
   }
@@ -1170,7 +1207,8 @@ class AsyncIndicesWhereStream<T> extends AsyncStreamBase<number> {
   [Symbol.asyncIterator](): AsyncFastIterator<number> {
     return new AsyncIndicesWhereIterator<T>(
       this.source[Symbol.asyncIterator](),
-      this.pred
+      this.pred,
+      this.negate
     );
   }
 }
@@ -1179,7 +1217,8 @@ class AsyncIndicesOfStream<T> extends AsyncStreamBase<number> {
   constructor(
     readonly source: AsyncStream<T>,
     readonly searchValue: T,
-    readonly eq: Eq<T>
+    readonly eq: Eq<T>,
+    readonly negate: boolean
   ) {
     super();
   }
@@ -1188,7 +1227,8 @@ class AsyncIndicesOfStream<T> extends AsyncStreamBase<number> {
     return new AsyncIndicesOfIterator<T>(
       this.source[Symbol.asyncIterator](),
       this.searchValue,
-      this.eq
+      this.eq,
+      this.negate
     );
   }
 }
@@ -1196,7 +1236,8 @@ class AsyncIndicesOfStream<T> extends AsyncStreamBase<number> {
 class AsyncTakeWhileStream<T> extends AsyncStreamBase<T> {
   constructor(
     readonly source: AsyncStream<T>,
-    readonly pred: (value: T, index: number) => MaybePromise<boolean>
+    readonly pred: (value: T, index: number) => MaybePromise<boolean>,
+    readonly negate: boolean
   ) {
     super();
   }
@@ -1204,7 +1245,8 @@ class AsyncTakeWhileStream<T> extends AsyncStreamBase<T> {
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
     return new AsyncTakeWhileIterator<T>(
       this.source[Symbol.asyncIterator](),
-      this.pred
+      this.pred,
+      this.negate
     );
   }
 }
@@ -1212,7 +1254,8 @@ class AsyncTakeWhileStream<T> extends AsyncStreamBase<T> {
 class AsyncDropWhileStream<T> extends AsyncStreamBase<T> {
   constructor(
     readonly source: AsyncStream<T>,
-    readonly pred: (value: T, index: number) => MaybePromise<boolean>
+    readonly pred: (value: T, index: number) => MaybePromise<boolean>,
+    readonly negate: boolean
   ) {
     super();
   }
@@ -1220,7 +1263,8 @@ class AsyncDropWhileStream<T> extends AsyncStreamBase<T> {
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
     return new AsyncDropWhileIterator<T>(
       this.source[Symbol.asyncIterator](),
-      this.pred
+      this.pred,
+      this.negate
     );
   }
 }
@@ -1261,49 +1305,82 @@ class AsyncDropStream<T> extends AsyncStreamBase<T> {
   }
 }
 
-class AsyncSplitWhereStream<T> extends AsyncStreamBase<T[]> {
+class AsyncSplitWhereStream<T, R> extends AsyncStreamBase<R> {
   constructor(
     readonly source: AsyncStream<T>,
-    readonly pred: (value: T, index: number) => MaybePromise<boolean>
+    readonly pred: (value: T, index: number) => MaybePromise<boolean>,
+    readonly negate: boolean,
+    readonly collector: AsyncReducer<T, R>
   ) {
     super();
   }
 
-  [Symbol.asyncIterator](): AsyncFastIterator<T[]> {
-    return new AsyncSplitWhereIterator<T>(
+  [Symbol.asyncIterator](): AsyncFastIterator<R> {
+    return new AsyncSplitWhereIterator<T, R>(
       this.source[Symbol.asyncIterator](),
-      this.pred
+      this.pred,
+      this.negate,
+      this.collector
     );
   }
 }
 
-class AsyncSplitOnStream<T> extends AsyncStreamBase<T[]> {
+class AsyncSplitOnStream<T, R> extends AsyncStreamBase<R> {
   constructor(
     readonly source: AsyncStream<T>,
     readonly sepElem: T,
-    readonly eq: Eq<T>
+    readonly eq: Eq<T>,
+    readonly negate: boolean,
+    readonly collector: AsyncReducer<T, R>
   ) {
     super();
   }
 
-  [Symbol.asyncIterator](): AsyncFastIterator<T[]> {
-    return new AsyncSplitOnIterator<T>(
+  [Symbol.asyncIterator](): AsyncFastIterator<R> {
+    return new AsyncSplitOnIterator<T, R>(
       this.source[Symbol.asyncIterator](),
       this.sepElem,
-      this.eq
+      this.eq,
+      this.negate,
+      this.collector
+    );
+  }
+}
+
+class AsyncSplitOnSeq<T, R> extends AsyncStreamBase<R> {
+  constructor(
+    readonly source: AsyncStream<T>,
+    readonly sepSeq: AsyncStreamSource<T>,
+    readonly eq: Eq<T>,
+    readonly collector: AsyncReducer<T, R>
+  ) {
+    super();
+  }
+
+  [Symbol.asyncIterator](): AsyncFastIterator<R> {
+    return new AsyncSplitOnSeqIterator<T, R>(
+      this.source[Symbol.asyncIterator](),
+      this.sepSeq,
+      this.eq,
+      this.collector
     );
   }
 }
 
 class AsyncDistinctPreviousStream<T> extends AsyncStreamBase<T> {
-  constructor(readonly source: AsyncStream<T>, readonly eq: Eq<T>) {
+  constructor(
+    readonly source: AsyncStream<T>,
+    readonly eq: Eq<T>,
+    readonly negate: boolean
+  ) {
     super();
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
     return new AsyncDistinctPreviousIterator<T>(
       this.source[Symbol.asyncIterator](),
-      this.eq
+      this.eq,
+      this.negate
     );
   }
 }
@@ -1331,7 +1408,7 @@ class AsyncWindowStream<T, R> extends AsyncStreamBase<R> {
 class AsyncReduceStream<I, R> extends AsyncStreamBase<R> {
   constructor(
     readonly source: AsyncStream<I>,
-    readonly reducerDef: AsyncReducer<I, R>
+    readonly reducer: AsyncReducer<I, R>
   ) {
     super();
   }
@@ -1339,23 +1416,7 @@ class AsyncReduceStream<I, R> extends AsyncStreamBase<R> {
   [Symbol.asyncIterator](): AsyncFastIterator<R> {
     return new AsyncReduceIterator<I, R>(
       this.source[Symbol.asyncIterator](),
-      this.reducerDef
-    );
-  }
-}
-
-class AsyncReduceAllStream<I, R> extends AsyncStreamBase<R> {
-  constructor(
-    readonly source: AsyncStream<I>,
-    readonly reducers: AsyncReducer<I, any>[]
-  ) {
-    super();
-  }
-
-  [Symbol.asyncIterator](): AsyncFastIterator<R> {
-    return new AsyncReduceAllIterator<I, R>(
-      this.source[Symbol.asyncIterator](),
-      this.reducers
+      this.reducer.compile()
     );
   }
 }
@@ -1431,10 +1492,7 @@ class AsyncEmptyStream<T = any>
   }
   transform<R>(transformer: AsyncTransformer<T, R>): AsyncStream<R> {
     return AsyncStreamConstructorsImpl.from<R>(
-      async () =>
-        await transformer.stateToResult(
-          await AsyncOptLazy.toMaybePromise(transformer.init)
-        )
+      async () => await transformer.stateToResult(await transformer.init())
     );
   }
   filter(): AsyncStream<T> {
@@ -1472,9 +1530,10 @@ class AsyncEmptyStream<T = any>
   }
   find<O>(
     pred: (value: any, index: number) => boolean,
-    occurrance?: number,
-    otherwise?: AsyncOptLazy<O>
+    options: { otherwise?: AsyncOptLazy<O> } = {}
   ): Promise<O> {
+    const { otherwise } = options;
+
     return AsyncOptLazy.toPromise(otherwise!);
   }
   elementAt<O>(index: number, otherwise?: AsyncOptLazy<O>): Promise<O> {
@@ -1557,10 +1616,13 @@ class AsyncEmptyStream<T = any>
   } = {}): AsyncStream.NonEmpty<T> {
     return fromAsyncStreamSource(start).concat(end) as any;
   }
-  splitOn(): AsyncStream<T[]> {
+  splitOn<R>(): AsyncStream<R> {
     return this as any;
   }
-  splitWhere(): AsyncStream<T[]> {
+  splitWhere<R>(): AsyncStream<R> {
+    return this as any;
+  }
+  splitOnSeq<R>(): AsyncStream<R> {
     return this as any;
   }
   distinctPrevious(): AsyncStream<T> {
@@ -1575,20 +1637,12 @@ class AsyncEmptyStream<T = any>
   foldStream<R>(): AsyncStream<R> {
     return this as any;
   }
-  async reduce<O>(reducer: AsyncReducer<T, O>): Promise<O> {
-    return reducer.stateToResult(await AsyncOptLazy.toPromise(reducer.init));
+  async reduce(shape: any): Promise<any> {
+    const reducer = AsyncReducer.combine(shape);
+
+    return reducer.stateToResult(await reducer.init());
   }
   reduceStream(): any {
-    return this;
-  }
-  reduceAll(...reducers: any): Promise<any> {
-    return Promise.all(
-      reducers.map(async (p: any) =>
-        p.stateToResult(await AsyncOptLazy.toMaybePromise(p.init))
-      )
-    );
-  }
-  reduceAllStream(): AsyncStream<any> {
     return this;
   }
   async toArray(): Promise<[]> {
@@ -1622,7 +1676,7 @@ export class FromResource<T, R> extends AsyncStreamBase<T> {
   constructor(
     readonly open: () => MaybePromise<R>,
     readonly createSource: (resource: R) => MaybePromise<AsyncStreamSource<T>>,
-    readonly close: (resource: R) => MaybePromise<void>
+    readonly close?: (resource: R) => MaybePromise<void>
   ) {
     super();
   }
@@ -1738,58 +1792,9 @@ export const AsyncStreamConstructorsImpl: AsyncStreamConstructors =
 
       return fromAsyncStreamSource(first).concat(rest1, ...restOther);
     },
-    fromResource(open, createSource, close): any {
+    fromResource(options): any {
+      const { open, createSource, close } = options;
       return new FromResource(open, createSource, close);
-    },
-    live<T>(
-      maxSize = 100
-    ): [{ submit(value: T): void; close(): void }, AsyncStream<T>] {
-      const listenerIterators = new Set<AsyncLiveIterator<T>>();
-
-      let closed = false;
-
-      function subscribe(iter: AsyncLiveIterator<T>): void {
-        if (closed) {
-          iter.close();
-          return;
-        }
-
-        listenerIterators.add(iter);
-      }
-
-      function submit(value: T): void {
-        if (closed) {
-          return;
-        }
-
-        for (const listenerIterator of listenerIterators) {
-          listenerIterator.submit(value);
-        }
-      }
-
-      function close(): void {
-        if (closed) {
-          return;
-        }
-
-        closed = true;
-        for (const listener of listenerIterators) {
-          listener.close();
-        }
-        listenerIterators.clear();
-      }
-
-      const stream = new AsyncFromStream(() => {
-        if (closed) {
-          return emptyAsyncFastIterator;
-        }
-
-        const iter = new AsyncLiveIterator<T>(maxSize);
-        subscribe(iter);
-        return iter;
-      });
-
-      return [{ submit, close }, stream];
     },
     zipWith(...sources): any {
       return (zipFun: any): any => {
@@ -1832,9 +1837,13 @@ export const AsyncStreamConstructorsImpl: AsyncStreamConstructors =
     flatten(source: any) {
       return AsyncStreamConstructorsImpl.from(source).flatMap((s: any) => s);
     },
-    unzip(source, length) {
+    unzip(source, options) {
+      const { length } = options;
+
       if (isEmptyAsyncStreamSourceInstance(source)) {
-        return Stream.of(emptyAsyncStream).repeat(length).toArray();
+        return StreamConstructorsImpl.of(emptyAsyncStream)
+          .repeat(length)
+          .toArray();
       }
 
       const result: AsyncStream<unknown>[] = [];

@@ -52,7 +52,7 @@ export namespace OrderedHashSet {
     extends OrderedSetBase.NonEmpty<T, OrderedHashSet.Types>,
       Omit<OrderedHashSet<T>, keyof OrderedSetBase.NonEmpty<any, any>>,
       Streamable.NonEmpty<T> {
-    stream(): Stream.NonEmpty<T>;
+    stream(options?: { reverse?: boolean }): Stream.NonEmpty<T>;
   }
 
   /**

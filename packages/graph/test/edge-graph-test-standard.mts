@@ -196,6 +196,20 @@ export function runEdgeGraphTestsWith(name: string, G: EdgeGraph.Context<any>) {
       expect(graph3.disconnectAll(arr3).nodeSize).toBe(3);
     });
 
+    it('forEach', () => {
+      let counter = 0;
+      graphEmpty.forEach(() => counter++);
+      expect(counter).toEqual(0);
+
+      counter = 0;
+      graph3.forEach(() => counter++);
+      expect(counter).toEqual(6);
+
+      counter = 0;
+      graph6.forEach(() => counter++);
+      expect(counter).toEqual(12);
+    });
+
     it('getConnectionStreamFrom', () => {
       expect(graphEmpty.getConnectionStreamFrom('a')).toBe(Stream.empty());
       expect(graph3.getConnectionStreamFrom('z')).toBe(Stream.empty());

@@ -19,7 +19,9 @@ import type { SortedMultiSetCreators } from '@rimbu/multiset/custom';
  * ```
  */
 export interface SortedMultiSet<T>
-  extends MultiSetBase<T, SortedMultiSet.Types> {}
+  extends MultiSetBase<T, SortedMultiSet.Types> {
+  stream(options?: { reversed?: boolean }): Stream<T>;
+}
 
 export namespace SortedMultiSet {
   /**
@@ -40,7 +42,7 @@ export namespace SortedMultiSet {
     extends MultiSetBase.NonEmpty<T, SortedMultiSet.Types>,
       Omit<SortedMultiSet<T>, keyof MultiSetBase.NonEmpty<any, any>>,
       Streamable.NonEmpty<T> {
-    stream(): Stream.NonEmpty<T>;
+    stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
   }
 
   /**

@@ -211,8 +211,8 @@ export namespace Hasher {
    * the given `itemHasher` to hash the sampled elements.
    * @typeparam T - the array element type
    * @param options - (optional) an object containing the following items:<br/>
-   * - itemHasher - (optional) a Hasher instance used to hash elements in the array<br/>
-   * - maxStepBits - (optional) the amount of bits to determine the maximum amount of array
+   * - itemHasher: (optional) a Hasher instance used to hash elements in the array<br/>
+   * - maxStepBits: (optional) the amount of bits to determine the maximum amount of array
    * elements to process
    * @example
    * ```ts
@@ -304,8 +304,8 @@ export namespace Hasher {
    * of elements to prevent haning on infinite streams.
    * @typeparam T - the StreamSource element type
    * @param options - (optional) an object containing the following items:<br/>
-   * - itemHasher - (optional) a Hasher instance used to hash elements in the array<br/>
-   * - maxStepBits - (optional) the amount of bits to determine the maximum amount of array
+   * - itemHasher: (optional) a Hasher instance used to hash elements in the array<br/>
+   * - maxStepBits: (optional) the amount of bits to determine the maximum amount of array
    * elements to process
    * @example
    * ```ts
@@ -541,8 +541,8 @@ export namespace Hasher {
    * @typeparam K - the key type
    * @typeparam V - the value type
    * @param options - (optional) an object containing:<br/>
-   * - keyHasher - (optional) a Hasher instance that is used to hash object keys<br/>
-   * - valueHasher - (optional) a Hasher instance that is used to hash object values
+   * - keyHasher: (optional) a Hasher instance that is used to hash object keys<br/>
+   * - valueHasher: (optional) a Hasher instance that is used to hash object values
    * @example
    * ```ts
    * const h = Hasher.objectHasher()

@@ -1,7 +1,7 @@
-import { Reducer } from '@rimbu/common';
 import { Spy } from '@rimbu/spy';
+import { Reducer } from '@rimbu/stream';
 
-import { Action, type ActionBase, Actor, Slice } from '../src/main/index.mjs';
+import { Action, Actor, Slice, type ActionBase } from '../src/main/index.mjs';
 import { SlicePatch } from '../src/patch/index.mjs';
 
 describe('Actor', () => {
@@ -9,7 +9,7 @@ describe('Actor', () => {
 
   it('can be empty', () => {
     const act = Actor.configure({
-      reducer: Reducer.combineObj({}),
+      reducer: Reducer.combine({}),
     });
 
     expect(act.getState()).toEqual({});

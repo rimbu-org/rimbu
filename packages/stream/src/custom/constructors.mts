@@ -47,24 +47,29 @@ export interface StreamConstructors {
    * Returns a Stream returning elements from the given `array`, taking into account the given options.
    * @typeparam T - the Stream element type
    * @param array - the source of the values for the Stream
-   * @param range - (optional) a sub index range of the array
-   * @param reversed - (optional) if true reverses the order of the Stream
+   * @param options - (optional) the options used to create the Stream, containing:<br/>
+   * - range: (optional) a sub index range of the array<br/>
+   * - reversed: (default: false) if true reverses the order of the Stream
    * @example
    * ```ts
-   * Stream.fromArray([1, 2, 3]).toArray()                       // => [1, 2, 3]
-   * Stream.fromArray([1, 2, 3], { start: -2 }).toArray()        // => [1, 2]
-   * Stream.fromArray([1, 2, 3], { start: 1 }, true).toArray()   // => [3, 2]
+   * Stream.fromArray([1, 2, 3]).toArray()                                            // => [1, 2, 3]
+   * Stream.fromArray([1, 2, 3], { range: { start: -2 } }).toArray()                  // => [1, 2]
+   * Stream.fromArray([1, 2, 3], { range: { start: 1 }, reversed: true }).toArray()   // => [3, 2]
    * ```
    */
   fromArray<T>(
     array: ArrayNonEmpty<T>,
-    range?: undefined,
-    reversed?: boolean
+    options?: {
+      range?: undefined;
+      reversed?: boolean;
+    }
   ): Stream.NonEmpty<T>;
   fromArray<T>(
     array: readonly T[],
-    range?: IndexRange,
-    reversed?: boolean
+    options?: {
+      range?: IndexRange | undefined;
+      reversed?: boolean;
+    }
   ): Stream<T>;
   /**
    * Returns a Stream consisting of the object keys from the given `obj` object.
@@ -106,24 +111,29 @@ export interface StreamConstructors {
    * options.
    * @typeparam S - the input string type
    * @param source - the source string
-   * @param range - (optional) a sub index range of the string
-   * @param reversed - (optional) if true reverses the order of the Stream
+   * @param options - (optional) the options used to create the Stream, containing:<br/>
+   * - range: (optional) a sub index range of the string<br/>
+   * - reversed: (default: false) if true reverses the order of the Stream
    * @example
    * ```ts
    * Stream.fromString('marmot').toArray()                       // => ['m', 'a', 'r', 'm', 'o', 't']
-   * Stream.fromString('marmot', { start: -3 }).toArray()        // => ['m', 'o', 't']
-   * Stream.fromString('marmot', { amount: 3 }, true).toArray()  // => ['r', 'a', 'm']
+   * Stream.fromString('marmot', { range: { start: -3 } }).toArray()        // => ['m', 'o', 't']
+   * Stream.fromString('marmot', { range: { amount: 3 }, reversed: true}).toArray()  // => ['r', 'a', 'm']
    * ```
    */
   fromString<S extends string>(
     source: StringNonEmpty<S>,
-    range?: undefined,
-    reversed?: boolean
+    options?: {
+      range?: undefined;
+      reversed?: boolean;
+    }
   ): Stream.NonEmpty<string>;
   fromString(
     source: string,
-    range?: IndexRange,
-    reversed?: boolean
+    options?: {
+      range?: IndexRange;
+      reversed?: boolean;
+    }
   ): Stream<string>;
   /**
    * Returns a Stream that eternally returns the given `value`.
@@ -194,17 +204,17 @@ export interface StreamConstructors {
    * @typeparam T - the Stream element type, should be a tuple
    * @typeparam A - the optional arguments type
    * @param source - a Stream of tuples
-   * @param pred - a function receiving the tuple elements as arguments, and optionally receiving given extra `args`, and returning true if the element should be included
-   * in the result stream.
-   * @param args - (optional) extra arguments to pass to given `mapFun` for each element
-   *
+   * @param options - the options used to create the Stream, containing:<br/>
+   * - pred: a function receiving the tuple elements as arguments, and optionally receiving given extra `args`, and returning true if the element should be included in the result stream.<br/>
+   * - negate: (default: false) if true will negate the predicate
+   * @param args: given extra arguments to supply to the predicated if needed
    * @note used mostly for performance since a new function is not needed to spread the tuples to arguments
    * @example
    * ```ts
    * function sumEq(a: number, b: number, total: number): boolean {
    *   return a + b === total
    * }
-   * const s = Stream.applyFilter([[1, 3], [2, 4], [3, 3]], sumEq, 6)
+   * const s = Stream.applyFilter([[1, 3], [2, 4], [3, 3]], { pred: sumEq }, 6)
    * console.log(s.toArray())
    * // => [[2, 4], [3, 3]]
    * ```
@@ -212,21 +222,25 @@ export interface StreamConstructors {
    */
   applyFilter<T extends readonly unknown[], A extends readonly unknown[]>(
     source: StreamSource<Readonly<T>>,
-    pred: (...args: [...T, ...A]) => boolean,
+    options: {
+      pred: (...args: [...T, ...A]) => boolean;
+      negate?: boolean;
+    },
     ...args: A
   ): Stream<T>;
   /**
    * Returns a Stream of numbers within the given `range`, increasing or decreasing with optionally given `delta`.
    * @param range - the range of numbers the Stream can contain
-   * @param delta - (default: 1) the difference between a number and the next returned number
+   * @param options - the options used to create the Stream, containing:<br/>
+   * - delta: (default: 1) the difference between a number and the next returned number
    * @example
    * ```ts
    * Stream.range({ amount: 3 }).toArray()              // => [0, 1, 2]
    * Stream.range({ start: 2, amount: 3 }).toArray()    // => [2, 3, 4]
-   * Stream.range({ start: 5 }, 2).toArray()            // => [5, 7, 9, .... ]
+   * Stream.range({ start: 5 }, { delta: 2 }).toArray()            // => [5, 7, 9, .... ]
    * ```
    */
-  range(range: IndexRange, delta?: number): Stream<number>;
+  range(range: IndexRange, options?: { delta?: number }): Stream<number>;
   /**
    * Returns an infinite Stream containing random numbers between 0 and 1.
    * @example
@@ -365,7 +379,8 @@ export interface StreamConstructors {
   flatten<T extends StreamSource<S>, S>(source: StreamSource<T>): Stream<S>;
   /**
    * Returns an array containing a Stream for each tuple element in this stream.
-   * @param length - the stream element tuple length
+   * @param options - the options used to create the result, containing:<br/>
+   * - length: the stream element tuple length
    * @example
    * ```ts
    * const [a, b] = Stream.unzip(Stream.of([[1, 'a'], [2, 'b']]), 2)
@@ -375,10 +390,12 @@ export interface StreamConstructors {
    */
   unzip<T extends readonly unknown[] & { length: L }, L extends number>(
     source: Stream.NonEmpty<T>,
-    length: L
+    options: {
+      length: L;
+    }
   ): { [K in keyof T]: Stream.NonEmpty<T[K]> };
   unzip<T extends readonly unknown[] & { length: L }, L extends number>(
     source: Stream<T>,
-    length: L
+    options: { length: L }
   ): { [K in keyof T]: Stream<T[K]> };
 }

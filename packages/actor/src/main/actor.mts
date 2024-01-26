@@ -1,7 +1,7 @@
-import { OptLazy, type Reducer } from '@rimbu/common';
+import { OptLazy } from '@rimbu/common';
+import type { Reducer } from '@rimbu/stream';
 
 import type { ActionBase } from './internal.mjs';
-
 /**
  *
  */

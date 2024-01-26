@@ -1,4 +1,4 @@
-import type { RelatedTo, ToJSON, TraverseState } from '../../../../common/mod.ts';
+import { TraverseState, type RelatedTo, type ToJSON } from '../../../../common/mod.ts';
 import { Stream, type StreamSource } from '../../../../stream/mod.ts';
 import { NonEmptyBase } from '../../../../collection-types/map-custom/index.ts';
 
@@ -9,6 +9,7 @@ import type {
   Link,
   WithGraphValues,
 } from '../../common/index.ts';
+import type { RSet } from '../../../../collection-types/mod.ts';
 
 export class GraphNonEmpty<
     N,
@@ -50,10 +51,32 @@ export class GraphNonEmpty<
   }
 
   forEach(
-    f: (node: N, index: number, halt: () => void) => void,
-    state?: TraverseState
+    f: (node: GraphElement<N>, index: number, halt: () => void) => void,
+    options: { state?: TraverseState } = {}
   ): void {
-    this.linkMap.streamKeys().forEach(f, state);
+    const { state = TraverseState() } = options;
+
+    const mapIter = this.linkMap[Symbol.iterator]();
+    const done = Symbol();
+    let targetsEntry: readonly [N, RSet<N>] | typeof done;
+
+    while (!state.halted && done !== (targetsEntry = mapIter.fastNext(done))) {
+      const [node, targets] = targetsEntry;
+
+      if (targets.isEmpty) {
+        f([node], state.nextIndex(), state.halt);
+      } else {
+        const targetsIter = targets[Symbol.iterator]();
+        let target: N | typeof done;
+
+        while (
+          !state.halted &&
+          done !== (target = targetsIter.fastNext(done))
+        ) {
+          f([node, target], state.nextIndex(), state.halt);
+        }
+      }
+    }
   }
 
   stream(): Stream.NonEmpty<GraphElement<N>> {

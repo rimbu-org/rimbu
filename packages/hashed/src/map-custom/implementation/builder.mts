@@ -133,7 +133,7 @@ export class HashMapBlockBuilder<K, V>
 
     if (isEmptyStreamSourceInstance(source)) return false;
 
-    return Stream.from(source).filter(this.addEntry).count() > 0;
+    return Stream.from(source).filterPure({ pred: this.addEntry }).count() > 0;
   };
 
   addEntryInternal(
@@ -217,7 +217,7 @@ export class HashMapBlockBuilder<K, V>
     key: K,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: (currentValue: V, remove: Token) => V | Token;
+      ifExists?: ((currentValue: V, remove: Token) => V | Token) | V;
     },
     keyHash = this.context.hash(key)
   ): boolean => {
@@ -235,7 +235,10 @@ export class HashMapBlockBuilder<K, V>
         // exact match
         if (undefined === options.ifExists) return false;
 
-        const newValue = options.ifExists(currentValue, Token);
+        const newValue =
+          options.ifExists instanceof Function
+            ? options.ifExists(currentValue, Token)
+            : options.ifExists;
 
         if (Object.is(newValue, currentValue)) {
           return false;
@@ -381,17 +384,18 @@ export class HashMapBlockBuilder<K, V>
     return (
       Stream.from(keys)
         .mapPure(this.removeKey, notFound)
-        .countNotElement(notFound) > 0
+        .countElement(notFound, { negate: true }) > 0
     );
   };
 
   forEach = (
     f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-    state: TraverseState = TraverseState()
+    options: { state?: TraverseState } = {}
   ): void => {
+    const { state = TraverseState() } = options;
     this._lock++;
 
-    super.forEach(f, state);
+    super.forEach(f, { state });
 
     this._lock--;
   };
@@ -520,7 +524,7 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
     atKey: K,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: (currentEntry: V, remove: Token) => V | Token;
+      ifExists?: ((currentEntry: V, remove: Token) => V | Token) | V;
     }
   ): boolean {
     let index = -1;
@@ -550,7 +554,10 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
 
     if (undefined === options.ifExists) return false;
 
-    const newValue = options.ifExists(foundEntry[1], Token);
+    const newValue =
+      options.ifExists instanceof Function
+        ? options.ifExists(foundEntry[1], Token)
+        : options.ifExists;
 
     if (Object.is(newValue, foundEntry[1])) return false;
 

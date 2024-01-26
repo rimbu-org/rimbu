@@ -13,4 +13,5 @@ export * from './async-streamable.ts';
 
 export * from './interface.ts';
 
+export * from './async-reducer.ts';
 export * from './async-transformer.ts';

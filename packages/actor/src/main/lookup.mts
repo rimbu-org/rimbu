@@ -1,4 +1,5 @@
-import { Reducer, type OptLazy } from '@rimbu/common';
+import { OptLazy } from '@rimbu/common';
+import { Reducer } from '@rimbu/stream';
 
 import type { ActionBase } from './internal.mjs';
 
@@ -49,18 +50,21 @@ export namespace Lookup {
   ): Reducer<ActionBase, S> {
     const { actions, fallback } = lookup;
 
-    return Reducer.createOutput(initState, (state, action) => {
-      if (undefined !== actions && action.tag in actions) {
-        const lookupValue = actions[action.tag];
+    return Reducer.createOutput(
+      () => OptLazy(initState),
+      (state, action) => {
+        if (undefined !== actions && action.tag in actions) {
+          const lookupValue = actions[action.tag];
 
-        return applyLookupValue(state, action, lookupValue);
+          return applyLookupValue(state, action, lookupValue);
+        }
+
+        if (undefined !== fallback) {
+          return applyFallback(state, action, fallback);
+        }
+
+        return state;
       }
-
-      if (undefined !== fallback) {
-        return applyFallback(state, action, fallback);
-      }
-
-      return state;
-    });
+    );
   }
 }

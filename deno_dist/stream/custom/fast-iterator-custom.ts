@@ -1,14 +1,9 @@
 import { Token } from '../../base/mod.ts';
-import {
-  CollectFun,
-  OptLazy,
-  TraverseState,
-  type Eq,
-  type Reducer,
-} from '../../common/mod.ts';
+import { CollectFun, OptLazy, TraverseState, type Eq } from '../../common/mod.ts';
+import { type Reducer } from '../../stream/mod.ts';
 
 import type { StreamSourceHelpers } from '../../stream/custom/index.ts';
-import type { FastIterator, Stream, StreamSource } from '../../stream/mod.ts';
+import { Stream, type FastIterator, type StreamSource } from '../../stream/mod.ts';
 
 export const fixedDoneIteratorResult: IteratorResult<any> = Object.freeze({
   done: true,
@@ -145,7 +140,7 @@ export class FilterIterator<T> extends FastIteratorBase<T> {
   constructor(
     readonly source: FastIterator<T>,
     readonly pred: (value: T, index: number, halt: () => void) => boolean,
-    readonly invert: boolean
+    readonly negate: boolean
   ) {
     super();
   }
@@ -161,15 +156,10 @@ export class FilterIterator<T> extends FastIteratorBase<T> {
     const source = this.source;
     const pred = this.pred;
     const halt = state.halt;
+    const negate = this.negate;
 
-    if (this.invert) {
-      while (!state.halted && done !== (value = source.fastNext(done))) {
-        if (!pred(value, state.nextIndex(), halt)) return value;
-      }
-    } else {
-      while (!state.halted && done !== (value = source.fastNext(done))) {
-        if (pred(value, state.nextIndex(), halt)) return value;
-      }
+    while (!state.halted && done !== (value = source.fastNext(done))) {
+      if (pred(value, state.nextIndex(), halt) !== negate) return value;
     }
 
     return OptLazy(otherwise) as O;
@@ -184,7 +174,7 @@ export class FilterPureIterator<
     readonly source: FastIterator<T>,
     readonly pred: (value: T, ...args: A) => boolean,
     readonly args: A,
-    readonly invert: boolean
+    readonly negate: boolean
   ) {
     super();
   }
@@ -195,15 +185,10 @@ export class FilterPureIterator<
     const source = this.source;
     const pred = this.pred;
     const args = this.args;
+    const negate = this.negate;
 
-    if (this.invert) {
-      while (done !== (value = source.fastNext(done))) {
-        if (!pred(value, ...args)) return value;
-      }
-    } else {
-      while (done !== (value = source.fastNext(done))) {
-        if (pred(value, ...args)) return value;
-      }
+    while (done !== (value = source.fastNext(done))) {
+      if (pred(value, ...args) !== negate) return value;
     }
 
     return OptLazy(otherwise) as O;
@@ -250,7 +235,8 @@ export class CollectIterator<T, R> extends FastIteratorBase<R> {
 export class IndicesWhereIterator<T> extends FastIteratorBase<number> {
   constructor(
     readonly source: FastIterator<T>,
-    readonly pred: (value: T) => boolean
+    readonly pred: (value: T) => boolean,
+    readonly negate: boolean
   ) {
     super();
   }
@@ -262,9 +248,10 @@ export class IndicesWhereIterator<T> extends FastIteratorBase<number> {
     let value: T | typeof done;
     const source = this.source;
     const pred = this.pred;
+    const negate = this.negate;
 
     while (done !== (value = source.fastNext(done))) {
-      if (pred(value)) return this.index++;
+      if (pred(value) !== negate) return this.index++;
       this.index++;
     }
 
@@ -276,7 +263,8 @@ export class IndicesOfIterator<T> extends FastIteratorBase<number> {
   constructor(
     readonly source: FastIterator<T>,
     readonly searchValue: T,
-    readonly eq: Eq<T>
+    readonly eq: Eq<T>,
+    readonly negate: boolean
   ) {
     super();
   }
@@ -289,9 +277,10 @@ export class IndicesOfIterator<T> extends FastIteratorBase<number> {
     const source = this.source;
     const searchValue = this.searchValue;
     const eq = this.eq;
+    const negate = this.negate;
 
     while (done !== (value = source.fastNext(done))) {
-      if (eq(searchValue, value)) return this.index++;
+      if (eq(searchValue, value) !== negate) return this.index++;
       this.index++;
     }
 
@@ -302,7 +291,8 @@ export class IndicesOfIterator<T> extends FastIteratorBase<number> {
 export class TakeWhileIterator<T> extends FastIteratorBase<T> {
   constructor(
     readonly source: FastIterator<T>,
-    readonly pred: (value: T, index: number) => boolean
+    readonly pred: (value: T, index: number) => boolean,
+    readonly negate: boolean
   ) {
     super();
   }
@@ -321,7 +311,7 @@ export class TakeWhileIterator<T> extends FastIteratorBase<T> {
       return OptLazy(otherwise) as O;
     }
 
-    if (this.pred(next, this.index++)) return next;
+    if (this.pred(next, this.index++) !== this.negate) return next;
 
     this.isDone = true;
     return OptLazy(otherwise) as O;
@@ -331,7 +321,8 @@ export class TakeWhileIterator<T> extends FastIteratorBase<T> {
 export class DropWhileIterator<T> extends FastIteratorBase<T> {
   constructor(
     readonly source: FastIterator<T>,
-    readonly pred: (value: T, index: number) => boolean
+    readonly pred: (value: T, index: number) => boolean,
+    readonly negate: boolean
   ) {
     super();
   }
@@ -346,8 +337,10 @@ export class DropWhileIterator<T> extends FastIteratorBase<T> {
     const done = Symbol('Done');
     let value: T | typeof done;
 
+    const negate = this.negate;
+
     while (done !== (value = source.fastNext(done))) {
-      this.pass = !this.pred(value, this.index++);
+      this.pass = this.pred(value, this.index++) === negate;
       if (this.pass) return value;
     }
 
@@ -474,48 +467,58 @@ export class IntersperseIterator<T> extends FastIteratorBase<T> {
   }
 }
 
-export class SplitWhereIterator<T> extends FastIteratorBase<T[]> {
+export class SplitWhereIterator<T, R> extends FastIteratorBase<R> {
   constructor(
     readonly source: FastIterator<T>,
-    readonly pred: (value: T, index: number) => boolean
+    readonly pred: (value: T, index: number) => boolean,
+    readonly negate: boolean,
+    readonly collector: Reducer<T, R>
   ) {
     super();
   }
 
   index = 0;
 
-  fastNext<O>(otherwise?: OptLazy<O>): T[] | O {
-    const result: T[] = [];
+  fastNext<O>(otherwise?: OptLazy<O>): R | O {
+    const collectorInstance = this.collector.compile();
 
     const source = this.source;
     const done = Symbol('Done');
     let value: T | typeof done;
     const pred = this.pred;
+    const negate = this.negate;
 
     const startIndex = this.index;
 
     while (done !== (value = source.fastNext(done))) {
-      if (pred(value, this.index++)) return result;
-      result.push(value);
+      if (pred(value, this.index++) !== negate) {
+        return collectorInstance.getOutput();
+      }
+
+      collectorInstance.next(value);
     }
 
-    if (startIndex === this.index) return OptLazy(otherwise) as O;
+    if (startIndex === this.index) {
+      return OptLazy(otherwise) as O;
+    }
 
-    return result;
+    return collectorInstance.getOutput();
   }
 }
 
-export class SplitOnIterator<T> extends FastIteratorBase<T[]> {
+export class SplitOnIterator<T, R> extends FastIteratorBase<R> {
   constructor(
     readonly source: FastIterator<T>,
     readonly sepElem: T,
-    readonly eq: Eq<T>
+    readonly eq: Eq<T>,
+    readonly negate: boolean,
+    readonly collector: Reducer<T, R>
   ) {
     super();
   }
 
-  fastNext<O>(otherwise?: OptLazy<O>): T[] | O {
-    const result: T[] = [];
+  fastNext<O>(otherwise?: OptLazy<O>): R | O {
+    const collectorInstance = this.collector.compile();
 
     const source = this.source;
     const done = Symbol('Done');
@@ -523,100 +526,189 @@ export class SplitOnIterator<T> extends FastIteratorBase<T[]> {
     let processed = false;
     const eq = this.eq;
     const sepElem = this.sepElem;
+    const negate = this.negate;
 
     while (done !== (value = source.fastNext(done))) {
       processed = true;
-      if (eq(value, sepElem)) return result;
-      result.push(value);
+      if (eq(value, sepElem) !== negate) {
+        return collectorInstance.getOutput();
+      }
+
+      collectorInstance.next(value);
     }
 
-    if (!processed) return OptLazy(otherwise) as O;
+    if (!processed) {
+      return OptLazy(otherwise) as O;
+    }
 
-    return result;
+    return collectorInstance.getOutput();
+  }
+}
+
+export class SplitOnSeqIterator<T, R> extends FastIteratorBase<R> {
+  constructor(
+    readonly source: FastIterator<T>,
+    readonly sepSeq: StreamSource<T>,
+    readonly eq: Eq<T>,
+    readonly collector: Reducer<T, R>
+  ) {
+    super();
+  }
+
+  isDone = false;
+
+  fastNext<O>(otherwise?: OptLazy<O>): R | O {
+    if (this.isDone) {
+      return OptLazy(otherwise) as O;
+    }
+
+    const collectorInstance = this.collector.compile();
+
+    const source = this.source;
+    const done = Symbol('Done');
+
+    const eq = this.eq;
+
+    let processed = false;
+    let buffer: T[] = [];
+    let value: T | typeof done;
+
+    let sepSeqIter = Stream.from(this.sepSeq)[Symbol.iterator]();
+    let seqValue = sepSeqIter.fastNext(done);
+
+    while (done !== (value = source.fastNext(done))) {
+      processed = true;
+
+      if (done === seqValue) {
+        collectorInstance.next(value);
+        return collectorInstance.getOutput();
+      }
+
+      if (eq(value, seqValue)) {
+        buffer.push(value);
+        seqValue = sepSeqIter.fastNext(done);
+      } else {
+        Stream.from(buffer).forEachPure(collectorInstance.next);
+        buffer = [];
+
+        sepSeqIter = Stream.from(this.sepSeq)[Symbol.iterator]();
+        seqValue = sepSeqIter.fastNext(done);
+
+        if (done !== seqValue) {
+          if (eq(value, seqValue)) {
+            seqValue = sepSeqIter.fastNext(done);
+          } else {
+            collectorInstance.next(value);
+          }
+        }
+      }
+
+      if (done === seqValue) {
+        return collectorInstance.getOutput();
+      }
+    }
+
+    this.isDone = true;
+
+    if (!processed) {
+      return OptLazy(otherwise) as O;
+    }
+
+    if (done !== seqValue) {
+      Stream.from(buffer).forEachPure(collectorInstance.next);
+    }
+
+    return collectorInstance.getOutput();
   }
 }
 
 export class ReduceIterator<I, R> extends FastIteratorBase<R> {
-  state: unknown;
-
   constructor(
     readonly source: FastIterator<I>,
     readonly reducer: Reducer<I, R>
   ) {
     super();
-
-    this.state = OptLazy(reducer.init);
   }
 
-  halted = false;
-  index = 0;
+  #_reducerInstance: Reducer.Instance<I, R> | undefined;
 
-  halt = (): void => {
-    this.halted = true;
-  };
+  get #reducerInstance(): Reducer.Instance<I, R> {
+    if (undefined === this.#_reducerInstance) {
+      this.#_reducerInstance = this.reducer.compile();
+    }
+
+    return this.#_reducerInstance;
+  }
 
   fastNext<O>(otherwise?: OptLazy<O>): R | O {
-    if (this.halted) return OptLazy(otherwise) as O;
+    const reducerInstance = this.#reducerInstance;
+
+    if (reducerInstance.halted) {
+      return OptLazy(otherwise) as O;
+    }
+
     const done = Symbol('Done');
     const value = this.source.fastNext(done);
 
     if (done === value) return OptLazy(otherwise) as O;
 
-    const reducer = this.reducer;
-    this.state = reducer.next(this.state, value, this.index++, this.halt);
+    reducerInstance.next(value);
 
-    return reducer.stateToResult(this.state);
+    return reducerInstance.getOutput();
   }
 }
 
 export class ReduceAllIterator<I, R> extends FastIteratorBase<R> {
-  readonly state: unknown[];
-  readonly done: ((() => void) | null)[];
-
   constructor(
     readonly source: FastIterator<I>,
     readonly reducers: Reducer<I, any>[]
   ) {
     super();
-
-    this.state = reducers.map((d: any): unknown => OptLazy(d.init));
-    this.done = this.state.map((_: any, i: any): (() => void) => (): void => {
-      this.done[i] = null;
-    });
   }
 
-  halted = false;
-  index = 0;
+  #_reducerInstances: Reducer.Instance<I, any>[] | undefined;
+
+  get #reducerInstances(): Reducer.Instance<I, any>[] {
+    if (undefined === this.#_reducerInstances) {
+      this.#_reducerInstances = this.reducers.map((reducer) =>
+        reducer.compile()
+      );
+    }
+
+    return this.#_reducerInstances;
+  }
+
   isDone = false;
 
   fastNext<O>(otherwise?: OptLazy<O>): R | O {
-    if (this.halted || this.isDone) return OptLazy(otherwise) as O;
+    if (this.isDone) return OptLazy(otherwise) as O;
 
     const done = Symbol('Done');
     const value = this.source.fastNext(done);
 
     if (done === value) return OptLazy(otherwise) as O;
 
-    const reducers = this.reducers;
-    const length = reducers.length;
+    const reducerInstances = this.#reducerInstances;
+    const length = reducerInstances.length;
     let i = -1;
     let anyNotDone = false;
 
     while (++i < length) {
-      const halt = this.done[i];
-      if (null !== halt) {
-        anyNotDone = true;
-        const reducer = reducers[i];
-        this.state[i] = reducer.next(this.state[i], value, this.index, halt);
+      const reducerInstance = reducerInstances[i];
+
+      if (!reducerInstance.halted) {
+        reducerInstance.next(value);
+
+        anyNotDone = anyNotDone || !reducerInstance.halted;
       }
     }
-    this.isDone = !anyNotDone;
-    if (!anyNotDone) return OptLazy(otherwise) as O;
-    this.index++;
 
-    return this.state.map((s, i) =>
-      reducers[i].stateToResult(s)
-    ) as unknown as O;
+    if (!anyNotDone) {
+      this.isDone = true;
+      return OptLazy(otherwise) as O;
+    }
+
+    return reducerInstances.map((instance) => instance.getOutput()) as R;
   }
 }
 
@@ -701,7 +793,7 @@ export class FilterApplyIterator<
     source: StreamSource<T>,
     readonly pred: (...args: [...T, ...A]) => boolean,
     readonly args: A,
-    readonly invert: boolean,
+    readonly negate: boolean,
     streamSourceHelpers: StreamSourceHelpers
   ) {
     super();
@@ -717,15 +809,10 @@ export class FilterApplyIterator<
     const pred = this.pred;
     const iter = this.iter;
     const args = this.args;
+    const negate = this.negate;
 
-    if (this.invert) {
-      while (done !== (next = iter.fastNext(done))) {
-        if (!pred(...next, ...args)) return next;
-      }
-    } else {
-      while (done !== (next = iter.fastNext(done))) {
-        if (pred(...next, ...args)) return next;
-      }
+    while (done !== (next = iter.fastNext(done))) {
+      if (pred(...next, ...args) !== negate) return next;
     }
 
     return OptLazy(otherwise)!;
@@ -1027,7 +1114,11 @@ export class MapPureIterator<
 }
 
 export class DistinctPreviousIterator<T> extends FastIteratorBase<T> {
-  constructor(readonly source: FastIterator<T>, readonly eq: Eq<T>) {
+  constructor(
+    readonly source: FastIterator<T>,
+    readonly eq: Eq<T>,
+    readonly negate: boolean
+  ) {
     super();
   }
 
@@ -1039,6 +1130,7 @@ export class DistinctPreviousIterator<T> extends FastIteratorBase<T> {
     let next: T | typeof done;
     const source = this.source;
     const previous = this.previous;
+    const negate = this.negate;
 
     while (done !== (next = source.fastNext(done))) {
       previous.push(next);
@@ -1049,7 +1141,7 @@ export class DistinctPreviousIterator<T> extends FastIteratorBase<T> {
 
       const prev = previous.shift()!;
 
-      if (!this.eq(prev, next)) {
+      if (this.eq(prev, next) === negate) {
         return next;
       }
     }

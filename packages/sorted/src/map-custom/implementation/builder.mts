@@ -107,7 +107,7 @@ export class SortedMapBuilder<K, V>
   addEntries = (source: StreamSource<readonly [K, V]>): boolean => {
     this.checkLock();
 
-    return Stream.from(source).filterPure(this.addEntry).count() > 0;
+    return Stream.from(source).filterPure({ pred: this.addEntry }).count() > 0;
   };
 
   set = (key: K, value: V): boolean => {
@@ -135,7 +135,7 @@ export class SortedMapBuilder<K, V>
     return (
       Stream.from(keys)
         .mapPure(this.removeKey, notFound)
-        .countNotElement(notFound) > 0
+        .countElement(notFound, { negate: true }) > 0
     );
   };
 
@@ -143,7 +143,7 @@ export class SortedMapBuilder<K, V>
     key: K,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: (currentValue: V, remove: Token) => V | Token;
+      ifExists?: ((currentValue: V, remove: Token) => V | Token) | V;
     }
   ): boolean => {
     this.checkLock();
@@ -302,7 +302,7 @@ export class SortedMapBuilder<K, V>
     key: K,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: (currentValue: V, remove: Token) => V | Token;
+      ifExists?: ((currentValue: V, remove: Token) => V | Token) | V;
     }
   ): boolean {
     const entryIndex = this.context.findIndex(key, this.entries);
@@ -312,7 +312,10 @@ export class SortedMapBuilder<K, V>
 
       const currentEntry = this.entries[entryIndex];
       const currentValue = currentEntry[1];
-      const newValue = options.ifExists(currentValue, Token);
+      const newValue =
+        options.ifExists instanceof Function
+          ? options.ifExists(currentValue, Token)
+          : options.ifExists;
 
       if (newValue === currentValue) return false;
 

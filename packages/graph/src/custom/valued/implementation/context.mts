@@ -1,6 +1,5 @@
 import type { ArrayNonEmpty } from '@rimbu/common';
-import type { StreamSource } from '@rimbu/stream';
-import { Reducer } from '@rimbu/common';
+import { Reducer, type StreamSource } from '@rimbu/stream';
 import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
 
 import type { ValuedGraphBase } from '@rimbu/graph/custom';
@@ -10,9 +9,9 @@ import type {
 } from '../../common/index.mjs';
 
 import {
+  ValuedGraphBuilder,
   ValuedGraphEmpty,
   ValuedGraphNonEmpty,
-  ValuedGraphBuilder,
 } from '@rimbu/graph/custom';
 
 export interface ValuedGraphTypesContextImpl extends ValuedGraphBase.Types {
