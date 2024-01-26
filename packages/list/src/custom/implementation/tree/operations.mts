@@ -309,7 +309,7 @@ export function treeForEach<
 
   if (state.halted) return;
 
-  (reversed ? tree.right : tree.left).forEach(f, { state });
+  (reversed ? tree.right : tree.left).forEach(f, { reversed, state });
 
   if (state.halted) return;
 
@@ -319,5 +319,5 @@ export function treeForEach<
 
   if (state.halted) return;
 
-  (reversed ? tree.left : tree.right).forEach(f, { state });
+  (reversed ? tree.left : tree.right).forEach(f, { reversed, state });
 }

@@ -291,11 +291,18 @@ function runLeafBlockTests(
     });
 
     it('forEach', () => {
-      const b3 = createBlock(1, 2, 3);
+      const b3 = createBlock(1, 2, 3, 4);
       const cb = vi.fn();
       b3.forEach(cb);
-      expect(cb).toBeCalledTimes(3);
+      expect(cb).toBeCalledTimes(4);
       expect(cb.mock.calls[1][0]).toBe(2);
+      expect(cb.mock.calls[1][1]).toBe(1);
+
+      cb.mockReset();
+
+      b3.forEach(cb, { reversed: true });
+      expect(cb).toBeCalledTimes(4);
+      expect(cb.mock.calls[1][0]).toBe(3);
       expect(cb.mock.calls[1][1]).toBe(1);
 
       cb.mockReset();

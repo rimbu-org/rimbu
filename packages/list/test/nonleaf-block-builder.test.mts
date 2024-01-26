@@ -214,6 +214,13 @@ describe('NonLeafBlockBuilder', () => {
 
       cb.mockReset();
 
+      b.forEach(cb, { reversed: true });
+      expect(cb).toBeCalledTimes(8);
+      expect(cb.mock.calls[1][0]).toBe(13);
+      expect(cb.mock.calls[1][1]).toBe(1);
+
+      cb.mockReset();
+
       b.forEach((_, __, halt) => {
         halt();
         cb();
@@ -235,6 +242,13 @@ describe('NonLeafBlockBuilder', () => {
       b.forEach(cb);
       expect(cb).toBeCalledTimes(7);
       expect(cb.mock.calls[1][0]).toBe(2);
+      expect(cb.mock.calls[1][1]).toBe(1);
+
+      cb.mockReset();
+
+      b.forEach(cb, { reversed: true });
+      expect(cb).toBeCalledTimes(7);
+      expect(cb.mock.calls[1][0]).toBe(13);
       expect(cb.mock.calls[1][1]).toBe(1);
 
       cb.mockReset();

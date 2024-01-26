@@ -881,6 +881,52 @@ describe('List methods', () => {
     expect(result).toEqual([1]);
   });
 
+  it('forEach reversed', () => {
+    let result = [] as number[];
+    listEmpty.forEach((v) => result.push(v), { reversed: true });
+    expect(result).toEqual([]);
+    result = [];
+    list3_1.forEach((v, i) => result.push(v + i), { reversed: true });
+    expect(result).toEqual([3, 3, 3]);
+
+    result = [];
+    list3_2.forEach((v, i) => result.push(v + i), { reversed: true });
+    expect(result).toEqual([3, 3, 3]);
+
+    result = [];
+    list6_1.forEach((v, i) => result.push(v + i), { reversed: true });
+    expect(result).toEqual([6, 6, 6, 6, 6, 6]);
+
+    result = [];
+    list6_2.forEach((v, i) => result.push(v + i), { reversed: true });
+    expect(result).toEqual([6, 6, 6, 6, 6, 6]);
+
+    const onlyFirst = (v: number, i: number, halt: () => void) => {
+      halt();
+      result.push(v + i);
+    };
+
+    result = [];
+    listEmpty.forEach(onlyFirst, { reversed: true });
+    expect(result).toEqual([]);
+
+    result = [];
+    list3_1.forEach(onlyFirst, { reversed: true });
+    expect(result).toEqual([3]);
+
+    result = [];
+    list3_2.forEach(onlyFirst, { reversed: true });
+    expect(result).toEqual([3]);
+
+    result = [];
+    list6_1.forEach(onlyFirst, { reversed: true });
+    expect(result).toEqual([6]);
+
+    result = [];
+    list6_2.forEach(onlyFirst, { reversed: true });
+    expect(result).toEqual([6]);
+  });
+
   it('map', () => {
     expect(listEmpty.map((v, i) => v + i)).toBe(listEmpty);
     expect(list3_1.map((v, i) => v + i).toArray()).toEqual([1, 3, 5]);

@@ -473,6 +473,13 @@ describe('NonLeafTree', () => {
 
     cb.mockReset();
 
+    t.forEach(cb, { reversed: true, state: TraverseState() });
+    expect(cb).toBeCalledTimes(36);
+    expect(cb.mock.calls[1][0]).toBe(8);
+    expect(cb.mock.calls[1][1]).toBe(1);
+
+    cb.mockReset();
+
     t.forEach(
       (_, __, halt) => {
         halt();

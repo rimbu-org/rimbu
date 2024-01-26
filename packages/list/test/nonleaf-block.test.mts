@@ -428,8 +428,15 @@ describe('NonLeafBlock', () => {
     const cb = vi.fn();
     nl.forEach(cb, { reversed: false, state: TraverseState() });
     expect(cb).toBeCalledTimes(9);
-    expect(cb.mock.calls[1][0]).toBe(2);
-    expect(cb.mock.calls[1][1]).toBe(1);
+    expect(cb.mock.calls[2][0]).toBe(3);
+    expect(cb.mock.calls[2][1]).toBe(2);
+
+    cb.mockReset();
+
+    nl.forEach(cb, { reversed: true, state: TraverseState() });
+    expect(cb).toBeCalledTimes(9);
+    expect(cb.mock.calls[2][0]).toBe(1);
+    expect(cb.mock.calls[2][1]).toBe(2);
 
     cb.mockReset();
 

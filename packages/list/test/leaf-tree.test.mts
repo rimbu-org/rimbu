@@ -303,8 +303,15 @@ function runLeafTreeTests(
       const cb = vi.fn();
       t6.forEach(cb);
       expect(cb).toBeCalledTimes(6);
-      expect(cb.mock.calls[1][0]).toBe(2);
-      expect(cb.mock.calls[1][1]).toBe(1);
+      expect(cb.mock.calls[2][0]).toBe(3);
+      expect(cb.mock.calls[2][1]).toBe(2);
+
+      cb.mockReset();
+
+      t6.forEach(cb, { reversed: true });
+      expect(cb).toBeCalledTimes(6);
+      expect(cb.mock.calls[2][0]).toBe(1);
+      expect(cb.mock.calls[2][1]).toBe(2);
 
       cb.mockReset();
 

@@ -160,11 +160,18 @@ describe('LeafBlockBuilder', () => {
 
   it('forEach', () => {
     {
-      const b = context.leafBlockBuilder([1, 2, 3]);
+      const b = context.leafBlockBuilder([1, 2, 3, 4]);
       const cb = vi.fn();
       b.forEach(cb);
-      expect(cb).toBeCalledTimes(3);
+      expect(cb).toBeCalledTimes(4);
       expect(cb.mock.calls[1][0]).toBe(2);
+      expect(cb.mock.calls[1][1]).toBe(1);
+
+      cb.mockReset();
+
+      b.forEach(cb, { reversed: true });
+      expect(cb).toBeCalledTimes(4);
+      expect(cb.mock.calls[1][0]).toBe(3);
       expect(cb.mock.calls[1][1]).toBe(1);
 
       cb.mockReset();
@@ -177,11 +184,18 @@ describe('LeafBlockBuilder', () => {
       expect(cb).toBeCalledTimes(1);
     }
     {
-      const b = context.leafBlockBuilderSource(context.leafBlock([1, 2, 3]));
+      const b = context.leafBlockBuilderSource(context.leafBlock([1, 2, 3, 4]));
       const cb = vi.fn();
       b.forEach(cb);
-      expect(cb).toBeCalledTimes(3);
+      expect(cb).toBeCalledTimes(4);
       expect(cb.mock.calls[1][0]).toBe(2);
+      expect(cb.mock.calls[1][1]).toBe(1);
+
+      cb.mockReset();
+
+      b.forEach(cb, { reversed: true });
+      expect(cb).toBeCalledTimes(4);
+      expect(cb.mock.calls[1][0]).toBe(3);
       expect(cb.mock.calls[1][1]).toBe(1);
 
       cb.mockReset();

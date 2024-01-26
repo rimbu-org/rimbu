@@ -272,7 +272,7 @@ export class ValuedGraphNonEmpty<
     node2: N,
     options: {
       ifNew?: OptLazyOr<V, Token>;
-      ifExists?: (value: V, remove: Token) => V | Token;
+      ifExists?: ((value: V, remove: Token) => V | Token) | V;
     }
   ): TpG['nonEmpty'] {
     let newConnectionSize = this.connectionSize;
@@ -312,7 +312,10 @@ export class ValuedGraphNonEmpty<
             return newValue;
           },
           ifExists: (currentValue, remove) => {
-            const newValue = ifExists(currentValue, remove);
+            const newValue =
+              ifExists instanceof Function
+                ? ifExists(currentValue, remove)
+                : ifExists;
 
             if (Object.is(newValue, currentValue)) return currentValue;
 

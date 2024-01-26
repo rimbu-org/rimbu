@@ -492,6 +492,13 @@ describe('LeafTreeBuilder', () => {
 
       cb.mockReset();
 
+      t.forEach(cb, { reversed: true });
+      expect(cb).toBeCalledTimes(8);
+      expect(cb.mock.calls[1][0]).toBe(13);
+      expect(cb.mock.calls[1][1]).toBe(1);
+
+      cb.mockReset();
+
       t.forEach((_, __, halt) => {
         halt();
         cb();

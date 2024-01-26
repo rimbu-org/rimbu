@@ -207,6 +207,9 @@ describe('GenBuilder', () => {
       const f = vi.fn();
       b.forEach(f);
       expect(f).not.toHaveBeenCalled();
+
+      b.forEach(f, { reversed: true });
+      expect(f).not.toHaveBeenCalled();
     }
     {
       // has sub builder
