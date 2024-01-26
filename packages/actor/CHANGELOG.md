@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.14.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/actor@0.13.1...@rimbu/actor@0.14.0) (2024-01-26)
+
+### Bug Fixes
+
+- **actor:** ensure generateUUID works with both node 18 and node 20 ([4e2448a](https://github.com/rimbu-org/rimbu/commit/4e2448ae7aa816e2b79bbec6f29fca322ccbc463))
+
+### Features
+
+- major API improvements accross all packages, performance improvements for newer runtimes ([312e473](https://github.com/rimbu-org/rimbu/commit/312e473261696a8e8749399491b9fd29bb5c38ec))
+
+### BREAKING CHANGES
+
+- Many methods now take an options object instead of positional arguments for
+  readability
+
 ## [0.13.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/actor@0.13.0...@rimbu/actor@0.13.1) (2023-12-09)
 
 **Note:** Version bump only for package @rimbu/actor

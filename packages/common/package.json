@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/common",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Common types and objects used in many other Rimbu packages",
   "keywords": [
     "common",
@@ -74,6 +74,5 @@
   },
   "dependencies": {
     "tslib": "^2.6.2"
-  },
-  "devDependencies": {}
+  }
 }

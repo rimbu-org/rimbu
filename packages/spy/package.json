@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/spy",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Test utilities for spying, stubbing and mocking functions, objects and classes in TypeScript",
   "keywords": [
     "spy",
@@ -74,6 +74,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "devDependencies": {}
+  }
 }

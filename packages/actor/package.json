@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/actor",
-  "version": "0.13.1",
+  "version": "0.14.0",
   "description": "State management tools to create stateful logic that can be easily integrated in any framework",
   "keywords": [
     "redux",
@@ -91,14 +91,14 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@rimbu/common": "^1.1.0",
+    "@rimbu/common": "^2.0.0",
     "tslib": "^2.6.2"
   },
   "publishConfig": {
     "access": "public"
   },
   "devDependencies": {
-    "@rimbu/stream": "^1.1.1",
+    "@rimbu/stream": "^2.0.0",
     "happy-dom": "^9.20.3",
     "immer": "^9.0.16"
   }
