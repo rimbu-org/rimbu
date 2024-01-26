@@ -27,7 +27,7 @@ jobs:
         run: npm whoami
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - run: yarn
+      - run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
       - name: Bump versions and publish packages
