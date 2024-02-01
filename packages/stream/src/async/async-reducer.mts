@@ -775,9 +775,12 @@ export namespace AsyncReducer {
 
   export function from<I, O>(reducer: Reducer<I, O>): AsyncReducer<I, O> {
     return AsyncReducer.create(
-      reducer.init,
+      () =>
+        reducer.init(() => {
+          //
+        }),
       reducer.next,
-      reducer.stateToResult
+      reducer.stateToResult as any
     );
   }
 

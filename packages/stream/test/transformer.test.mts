@@ -60,4 +60,18 @@ describe('Collector', () => {
         .toArray()
     ).toEqual([1, 2, 3, 1, 3]);
   });
+
+  it('flatMap', () => {
+    expect(
+      Stream.empty<number>()
+        .transform(Transformer.flatMap((v) => [v, v]))
+        .toArray()
+    ).toEqual([]);
+
+    expect(
+      Stream.of(1, 2, 3)
+        .transform(Transformer.flatMap((v) => [v, v]))
+        .toArray()
+    ).toEqual([1, 1, 2, 2, 3, 3]);
+  });
 });

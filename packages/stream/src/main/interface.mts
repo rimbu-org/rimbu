@@ -794,22 +794,22 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
   /**
    * Returns a Stream of collections of Stream elements, where each collection is filled with elements of this Stream up to the next sequence of elements that
    * equal the given `sepSeq` sequence of elements according to the given `eq` function.
-   * @param sepSeq - a sequence of elements that serves as a separator
+   * @param sepSlice - a sequence of elements that serves as a separator
    * @param options - (optional) object specifying the following properties<br/>
    * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
    * - collector: (default: `Reducer.toArray()`) the reducer to use to collect the window values
    * @example
    * ```ts
-   * Stream.from('marmot').splitOnSeq('mo').toArray()  // => [['m', 'a', 'r'], ['t']]
+   * Stream.from('marmot').splitOnSlice('mo').toArray()  // => [['m', 'a', 'r'], ['t']]
    * ```
    * @note O(1)
    */
-  splitOnSeq<R, T2 extends T = T>(
-    sepSeq: StreamSource<T2>,
+  splitOnSlice<R, T2 extends T = T>(
+    sepSlice: StreamSource<T2>,
     options: { eq?: Eq<T2>; collector: Reducer<T, R> }
   ): Stream<R>;
-  splitOnSeq(
-    sepSeq: StreamSource<T>,
+  splitOnSlice(
+    sepSlice: StreamSource<T>,
     options?: { eq?: Eq<T>; collector?: undefined }
   ): Stream<T[]>;
   /**

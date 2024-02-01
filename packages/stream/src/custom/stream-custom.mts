@@ -12,6 +12,13 @@ import {
   type ToJSON,
 } from '@rimbu/common';
 
+import {
+  Reducer,
+  Transformer,
+  type FastIterator,
+  type Stream,
+  type StreamSource,
+} from '@rimbu/stream';
 import type { StreamConstructors } from '@rimbu/stream/custom';
 import {
   AlwaysIterator,
@@ -20,17 +27,11 @@ import {
   ArrayReverseIterator,
   CollectIterator,
   ConcatIterator,
-  DistinctPreviousIterator,
   DropIterator,
   DropWhileIterator,
   FilterApplyIterator,
   FilterIterator,
   FilterPureIterator,
-  FlatMapIterator,
-  IndexedIterator,
-  IndicesOfIterator,
-  IndicesWhereIterator,
-  IntersperseIterator,
   MapApplyIterator,
   MapIterator,
   MapPureIterator,
@@ -39,27 +40,18 @@ import {
   RandomIterator,
   RangeDownIterator,
   RangeUpIterator,
-  ReduceIterator,
+  ReducerFastIterator,
   RepeatIterator,
-  SplitOnIterator,
-  SplitOnSeqIterator,
   SplitWhereIterator,
   TakeIterator,
   TakeWhileIterator,
+  TransformerFastIterator,
   UnfoldIterator,
-  WindowIterator,
   ZipAllWithItererator,
   ZipWithIterator,
   emptyFastIterator,
   isFastIterator,
 } from '@rimbu/stream/custom';
-import { Reducer } from '@rimbu/stream';
-import type {
-  FastIterator,
-  Stream,
-  StreamSource,
-  Transformer,
-} from '@rimbu/stream';
 
 function* yieldObjKeys<K extends string | number | symbol>(
   obj: Record<K, any>
@@ -156,7 +148,8 @@ export abstract class StreamBase<T> implements Stream<T> {
 
   indexed(options: { startIndex?: number } = {}): Stream<[number, T]> {
     const { startIndex = 0 } = options;
-    return new IndexedStream<T>(this, startIndex);
+
+    return this.map((value, index) => [index + startIndex, value]);
   }
 
   map<T2>(mapFun: (value: T, index: number) => T2): Stream<T2> {
@@ -173,22 +166,17 @@ export abstract class StreamBase<T> implements Stream<T> {
   flatMap<T2>(
     flatMapFun: (value: T, index: number, halt: () => void) => StreamSource<T2>
   ): Stream<T2> {
-    return new FlatMapStream<T, T2>(this, flatMapFun);
+    return this.transform(Transformer.flatMap(flatMapFun));
   }
 
   flatZip<T2>(
     flatMapFun: (value: T, index: number, halt: () => void) => StreamSource<T2>
   ): Stream<[T, T2]> {
-    return this.flatMap((value, index, halt) =>
-      fromStreamSource(flatMapFun(value, index, halt)).map((result) => [
-        value,
-        result,
-      ])
-    );
+    return this.transform(Transformer.flatZip(flatMapFun));
   }
 
   transform<R>(transformer: Transformer<T, R>): Stream<R> {
-    return StreamConstructorsImpl.flatten(this.reduceStream(transformer));
+    return new TransformerStream(this, transformer);
   }
 
   filter(
@@ -217,7 +205,7 @@ export abstract class StreamBase<T> implements Stream<T> {
   }
 
   first<O>(otherwise?: OptLazy<O>): T | O {
-    return this[Symbol.iterator]().fastNext(otherwise!);
+    return this[Symbol.iterator]().fastNext(otherwise as OptLazy<O>);
   }
 
   last<O>(otherwise?: OptLazy<O>): T | O {
@@ -324,17 +312,14 @@ export abstract class StreamBase<T> implements Stream<T> {
     pred: (value: T) => boolean,
     options: { negate?: boolean } = {}
   ): Stream<number> {
-    const { negate = false } = options;
-    return new IndicesWhereStream<T>(this, pred, negate);
+    return this.transform(Transformer.indicesWhere(pred, options));
   }
 
   indicesOf(
     searchValue: T,
     options: { eq?: Eq<T>; negate?: boolean } = {}
   ): Stream<number> {
-    const { eq = Eq.objectIs, negate = false } = options;
-
-    return new IndicesOfStream<T>(this, searchValue, eq, negate);
+    return this.transform(Transformer.indicesOf(searchValue, options));
   }
 
   indexWhere(
@@ -428,27 +413,9 @@ export abstract class StreamBase<T> implements Stream<T> {
 
   containsSlice(
     source: StreamSource.NonEmpty<T>,
-    options: { eq?: Eq<T> } = {}
+    options: { eq?: Eq<T>; amount?: number } = {}
   ): boolean {
-    const { eq = Eq.objectIs } = options;
-
-    const iterator = this[Symbol.iterator]();
-    const sourceStream = fromStreamSource(source);
-    let sourceIterator = sourceStream[Symbol.iterator]();
-
-    const done = Symbol('Done');
-
-    while (true) {
-      const sourceValue = sourceIterator.fastNext(done);
-      if (done === sourceValue) return true;
-
-      const value = iterator.fastNext(done);
-      if (done === value) return false;
-
-      if (!eq(sourceValue, value)) {
-        sourceIterator = sourceStream[Symbol.iterator]();
-      }
-    }
+    return this.reduce(Reducer.containsSlice(source, options));
   }
 
   takeWhile(
@@ -536,9 +503,7 @@ export abstract class StreamBase<T> implements Stream<T> {
   intersperse(sep: StreamSource<T>): Stream<T> {
     if (isEmptyStreamSourceInstance(sep)) return this;
 
-    const sepStream = fromStreamSource(sep);
-
-    return new IntersperseStream<T>(this, sepStream);
+    return this.transform(Transformer.intersperse(sep));
   }
 
   join({
@@ -592,42 +557,28 @@ export abstract class StreamBase<T> implements Stream<T> {
       collector?: Reducer<T, R> | undefined;
     } = {}
   ): Stream<R> {
-    const {
-      eq = Object.is,
-      negate = false,
-      collector = Reducer.toArray() as Reducer<T, R>,
-    } = options;
-
-    return new SplitOnStream<T, R>(this, sepElem, eq, negate, collector);
+    return this.transform(Transformer.splitOn(sepElem, options));
   }
 
-  splitOnSeq<R>(
+  splitOnSlice<R>(
     sepSeq: StreamSource<T>,
     options: { eq?: Eq<T>; collector?: Reducer<T, R> | undefined } = {}
   ): Stream<R> {
-    const { eq = Object.is, collector = Reducer.toArray() as Reducer<T, R> } =
-      options;
-
-    return new SplitOnSeq<T, R>(this, sepSeq, eq, collector);
+    return this.transform(Transformer.splitOnSlice(sepSeq, options));
   }
 
   distinctPrevious(options: { eq?: Eq<T>; negate?: boolean } = {}): Stream<T> {
-    const { eq = Eq.objectIs, negate = false } = options;
-
-    return new DistinctPreviousStream<T>(this, eq, negate);
+    return this.transform(Transformer.distinctPrevious(options));
   }
 
   window<R>(
     windowSize: number,
     options: {
-      skipAmount?: number;
+      skipAmount?: number | undefined;
       collector?: Reducer<T, R> | undefined;
     } = {}
   ): Stream<R> {
-    const { skipAmount = windowSize, collector = Reducer.toArray() as any } =
-      options;
-
-    return new WindowStream<T, R>(this, windowSize, skipAmount, collector);
+    return this.transform(Transformer.window(windowSize, options as any));
   }
 
   fold<R>(
@@ -672,7 +623,7 @@ export abstract class StreamBase<T> implements Stream<T> {
       Reducer.CombineResult<S>
     >;
 
-    return new ReduceStream(this, reducer);
+    return new ReducerStream(this, reducer);
   }
 
   toArray(): T[] {
@@ -783,23 +734,6 @@ class AppendStream<T> extends StreamBase<T> {
   }
 }
 
-class IndexedStream<T> extends StreamBase<[number, T]> {
-  constructor(readonly source: Stream<T>, readonly startIndex: number) {
-    super();
-  }
-
-  [Symbol.iterator](): FastIterator<[number, T]> {
-    return new IndexedIterator<T>(
-      this.source[Symbol.iterator](),
-      this.startIndex
-    );
-  }
-
-  count(): number {
-    return this.source.count();
-  }
-}
-
 class MapStream<T, T2> extends StreamBase<T2> {
   constructor(
     readonly source: Stream<T>,
@@ -840,6 +774,15 @@ class MapStream<T, T2> extends StreamBase<T2> {
   map<T3>(mapFun: (value: T2, index: number) => T3): Stream<T3> {
     return new MapStream<T, T3>(this.source, (value, index) =>
       mapFun(this.mapFun(value, index), index)
+    );
+  }
+
+  mapPure<T3, A extends readonly unknown[]>(
+    mapFun: (value: T2, ...args: A) => T3,
+    ...args: A
+  ): Stream<T3> {
+    return new MapStream<T, T3>(this.source, (value, index) =>
+      mapFun(this.mapFun(value, index), ...args)
     );
   }
 }
@@ -889,25 +832,21 @@ class MapPureStream<
     if (done === value) return OptLazy(otherwise) as O;
     return this.mapFun(value, ...this.args);
   }
-}
 
-class FlatMapStream<T, T2> extends StreamBase<T2> {
-  constructor(
-    readonly source: Stream<T>,
-    readonly flatmapFun: (
-      value: T,
-      index: number,
-      halt: () => void
-    ) => StreamSource<T2>
-  ) {
-    super();
+  map<T3>(mapFun: (value: T2, index: number) => T3): Stream<T3> {
+    return new MapStream<T, T3>(this.source, (value, index) =>
+      mapFun(this.mapFun(value, ...this.args), index)
+    );
   }
 
-  [Symbol.iterator](): FastIterator<T2> {
-    return new FlatMapIterator<T, T2>(
+  mapPure<T3, A2 extends readonly unknown[]>(
+    mapFun: (value: T2, ...args: A2) => T3,
+    ...args: A2
+  ): Stream<T3> {
+    return new MapPureStream<T, A2, T3>(
       this.source,
-      this.flatmapFun,
-      streamSourceHelpers
+      (value, ...args) => mapFun(this.mapFun(value, ...this.args), ...args),
+      args
     );
   }
 }
@@ -1027,19 +966,6 @@ class FilterStream<T> extends StreamBase<T> {
       this.negate
     );
   }
-
-  filter(
-    pred: (value: T, index: number, halt: () => void) => boolean,
-    options: { negate?: boolean } = {}
-  ): Stream<T> {
-    const { negate = false } = options;
-
-    return new FilterStream<T>(
-      this.source,
-      (v, i, halt) =>
-        this.pred(v, i, halt) !== this.negate && pred(v, i, halt) !== negate
-    );
-  }
 }
 
 class FilterPureStream<T, A extends readonly unknown[]> extends StreamBase<T> {
@@ -1076,43 +1002,35 @@ class CollectStream<T, R> extends StreamBase<R> {
       this.collectFun
     );
   }
-}
 
-class IndicesWhereStream<T> extends StreamBase<number> {
-  constructor(
-    readonly source: Stream<T>,
-    readonly pred: (value: T) => boolean,
-    readonly negate: boolean
-  ) {
-    super();
+  mapPure<R2, A extends readonly unknown[]>(
+    mapFun: (value: R, ...args: A) => R2,
+    ...args: A
+  ): Stream<R2> {
+    return new CollectStream<T, R2>(this.source, (value, index, skip, halt) => {
+      const result = this.collectFun(value, index, skip, halt);
+
+      return skip === result ? skip : mapFun(result, ...args);
+    });
   }
 
-  [Symbol.iterator](): FastIterator<number> {
-    return new IndicesWhereIterator<T>(
-      this.source[Symbol.iterator](),
-      this.pred,
-      this.negate
-    );
-  }
-}
+  filterPure<A extends readonly unknown[]>(
+    options: { pred: (value: R, ...args: A) => boolean; negate?: boolean },
+    ...args: A
+  ): Stream<R> {
+    return new CollectStream<T, R>(this.source, (value, index, skip, halt) => {
+      const result = this.collectFun(value, index, skip, halt);
 
-class IndicesOfStream<T> extends StreamBase<number> {
-  constructor(
-    readonly source: Stream<T>,
-    readonly searchValue: T,
-    readonly eq: Eq<T>,
-    readonly negate: boolean
-  ) {
-    super();
-  }
+      if (skip === result) return skip;
 
-  [Symbol.iterator](): FastIterator<number> {
-    return new IndicesOfIterator<T>(
-      this.source[Symbol.iterator](),
-      this.searchValue,
-      this.eq,
-      this.negate
-    );
+      const { pred, negate = false } = options;
+
+      if (pred(result, ...args) !== negate) {
+        return result;
+      }
+
+      return skip;
+    });
   }
 }
 
@@ -1182,19 +1100,6 @@ class DropStream<T> extends StreamBase<T> {
   }
 }
 
-class IntersperseStream<T> extends StreamBase<T> {
-  constructor(readonly source: Stream<T>, readonly sepStream: Stream<T>) {
-    super();
-  }
-
-  [Symbol.iterator](): FastIterator<T> {
-    return new IntersperseIterator<T>(
-      this.source[Symbol.iterator](),
-      this.sepStream
-    );
-  }
-}
-
 class SplitWhereStream<T, R> extends StreamBase<R> {
   constructor(
     readonly source: Stream<T>,
@@ -1211,61 +1116,6 @@ class SplitWhereStream<T, R> extends StreamBase<R> {
       this.pred,
       this.negate,
       this.collector
-    );
-  }
-}
-
-class SplitOnStream<T, R> extends StreamBase<R> {
-  constructor(
-    readonly source: Stream<T>,
-    readonly sepElem: T,
-    readonly eq: Eq<T>,
-    readonly negate: boolean,
-    readonly collector: Reducer<T, R>
-  ) {
-    super();
-  }
-
-  [Symbol.iterator](): FastIterator<R> {
-    return new SplitOnIterator<T, R>(
-      this.source[Symbol.iterator](),
-      this.sepElem,
-      this.eq,
-      this.negate,
-      this.collector
-    );
-  }
-}
-
-class SplitOnSeq<T, R> extends StreamBase<R> {
-  constructor(
-    readonly source: Stream<T>,
-    readonly sepSeq: StreamSource<T>,
-    readonly eq: Eq<T>,
-    readonly collector: Reducer<T, R>
-  ) {
-    super();
-  }
-
-  [Symbol.iterator](): FastIterator<R> {
-    return new SplitOnSeqIterator<T, R>(
-      this.source[Symbol.iterator](),
-      this.sepSeq,
-      this.eq,
-      this.collector
-    );
-  }
-}
-
-class ReduceStream<I, R> extends StreamBase<R> {
-  constructor(readonly source: Stream<I>, readonly reducerDef: Reducer<I, R>) {
-    super();
-  }
-
-  [Symbol.iterator](): FastIterator<R> {
-    return new ReduceIterator<I, R>(
-      this.source[Symbol.iterator](),
-      this.reducerDef
     );
   }
 }
@@ -1342,9 +1192,7 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
     return this as any;
   }
   transform<R>(transformer: Transformer<T, R>): Stream<R> {
-    return StreamConstructorsImpl.from(
-      transformer.stateToResult(transformer.init())
-    );
+    return StreamConstructorsImpl.from(transformer.compile().getOutput());
   }
   filter(): Stream<T> {
     return this;
@@ -1468,7 +1316,7 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   splitWhere<R>(): Stream<R> {
     return this as any;
   }
-  splitOnSeq<R>(): Stream<R> {
+  splitOnSlice<R>(): Stream<R> {
     return this as any;
   }
   distinctPrevious(): Stream<T> {
@@ -1485,8 +1333,9 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   }
   reduce(shape: any): any {
     const reducer = Reducer.combine(shape);
+    const instance = reducer.compile();
 
-    return reducer.stateToResult(reducer.init());
+    return instance.getOutput();
   }
   reduceStream(): any {
     return this;
@@ -1878,20 +1727,31 @@ export class RangeStream extends StreamBase<number> {
   }
 }
 
-export class DistinctPreviousStream<T> extends StreamBase<T> {
+export class ReducerStream<T, R = T> extends StreamBase<R> {
+  constructor(readonly source: Stream<T>, readonly reducer: Reducer<T, R>) {
+    super();
+  }
+
+  [Symbol.iterator](): FastIterator<R> {
+    return new ReducerFastIterator<T, R>(
+      this.source[Symbol.iterator](),
+      this.reducer.compile()
+    );
+  }
+}
+
+export class TransformerStream<T, R = T> extends StreamBase<R> {
   constructor(
     readonly source: Stream<T>,
-    readonly eq: Eq<T>,
-    readonly negate: boolean
+    readonly transformer: Transformer<T, R>
   ) {
     super();
   }
 
-  [Symbol.iterator](): FastIterator<T> {
-    return new DistinctPreviousIterator(
+  [Symbol.iterator](): FastIterator<R> {
+    return new TransformerFastIterator<T, R>(
       this.source[Symbol.iterator](),
-      this.eq,
-      this.negate
+      this.transformer.compile()
     );
   }
 }
@@ -1907,11 +1767,12 @@ export class WindowStream<T, R> extends StreamBase<R> {
   }
 
   [Symbol.iterator](): FastIterator<R> {
-    return new WindowIterator(
+    return new TransformerFastIterator<T, R>(
       this.source[Symbol.iterator](),
-      this.windowSize,
-      this.skipAmount,
-      this.collector
+      Transformer.window(this.windowSize, {
+        skipAmount: this.skipAmount,
+        collector: this.collector,
+      }).compile()
     );
   }
 }

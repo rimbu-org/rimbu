@@ -1363,20 +1363,31 @@ describe('Stream methods', () => {
     ]);
   });
 
-  it('splitOnSeq', () => {
-    expect(Stream.empty<number>().splitOnSeq([1, 2, 3]).toArray()).toEqual([]);
-    expect(Stream.of(1, 2).splitOnSeq([1, 2, 3]).toArray()).toEqual([[1, 2]]);
-    expect(Stream.of(1, 2, 3).splitOnSeq([1, 2, 3]).toArray()).toEqual([[]]);
-    expect(Stream.of(1, 1, 2, 3).splitOnSeq([1, 2, 3]).toArray()).toEqual([
+  it('splitOnSlice', () => {
+    expect(Stream.empty<number>().splitOnSlice([1, 2, 3]).toArray()).toEqual(
+      []
+    );
+    expect(Stream.of(1, 2).splitOnSlice([10]).toArray()).toEqual([[1, 2]]);
+    expect(Stream.of(1, 2).splitOnSlice([1, 2, 3]).toArray()).toEqual([[1, 2]]);
+    expect(Stream.of(1, 2, 3).splitOnSlice([1, 2, 3]).toArray()).toEqual([[]]);
+    expect(Stream.of(2, 1, 2, 3).splitOnSlice([1, 2, 3]).toArray()).toEqual([
+      [2],
+    ]);
+    expect(Stream.of(1, 1, 2, 3).splitOnSlice([1, 2, 3]).toArray()).toEqual([
       [1],
     ]);
-    expect(Stream.of(1, 1, 2, 3, 3).splitOnSeq([1, 2, 3]).toArray()).toEqual([
+    expect(Stream.of(1, 1, 2, 3, 3).splitOnSlice([1, 2, 3]).toArray()).toEqual([
       [1],
       [3],
     ]);
     expect(
-      Stream.of(1, 1, 2, 3, 1, 2, 1, 2, 3, 1).splitOnSeq([1, 2, 3]).toArray()
+      Stream.of(1, 1, 2, 3, 1, 2, 1, 2, 3, 1).splitOnSlice([1, 2, 3]).toArray()
     ).toEqual([[1], [1, 2], [1]]);
+    expect(
+      Stream.of(1, 1, 2, 3, 1, 2, 3, 1, 2, 1, 2, 3, 1)
+        .splitOnSlice([1, 2, 3])
+        .toArray()
+    ).toEqual([[1], [], [1, 2], [1]]);
   });
 
   it('fold', () => {

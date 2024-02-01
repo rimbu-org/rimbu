@@ -1,5 +1,6 @@
-import { CollectFun, type Eq, ErrBase, OptLazy } from '@rimbu/common';
-import { Stream, type StreamSource } from '@rimbu/stream';
+import { RimbuError } from '@rimbu/base';
+import { CollectFun, Eq, ErrBase, OptLazy } from '@rimbu/common';
+import { Stream, type FastIterator, type StreamSource } from '@rimbu/stream';
 
 /**
  * A `Reducer` is a stand-alone calculation that takes input values of type I, and, when requested, produces an output value of type O.
@@ -100,7 +101,7 @@ export namespace Reducer {
     /**
      * A function that produces the initial state value for the reducer algorithm.
      */
-    readonly init: () => S;
+    readonly init: (initHalt: () => void) => S;
     /**
      * Returns the next state based on the given input values:
      * @param state - the current state
@@ -113,7 +114,7 @@ export namespace Reducer {
      * Returns the output value based on the given `state`.
      * @param state - the current state
      */
-    stateToResult(state: S): O;
+    stateToResult(state: S, index: number, halted: boolean): O;
     /**
      * Returns a `Reducer` instance that only passes values to the reducer that satisy the given `pred` predicate.
      * @param pred - a function that returns true if the value should be passed to the reducer based on the following inputs:<br/>
@@ -219,6 +220,11 @@ export namespace Reducer {
      * ```
      */
     sliceInput(from?: number, amount?: number): Reducer<I, O>;
+    takeOutput(amount: number): Reducer<I, O>;
+    takeOutputWhile(
+      pred: (value: O, index: number) => boolean,
+      options?: { negate?: boolean }
+    ): Reducer<I, O>;
     /**
      * Returns a `Reducer` instance that first applies this reducer, and then applies the given `next` reducer to each output produced
      * by the previous reducer.
@@ -333,9 +339,9 @@ export namespace Reducer {
    */
   export class Base<I, O, S> implements Reducer.Impl<I, O, S> {
     constructor(
-      readonly init: () => S,
+      readonly init: (initHalt: () => void) => S,
       readonly next: (state: S, elem: I, index: number, halt: () => void) => S,
-      readonly stateToResult: (state: S) => O
+      readonly stateToResult: (state: S, index: number, halted: boolean) => O
     ) {}
 
     filterInput(
@@ -425,7 +431,54 @@ export namespace Reducer {
       return create(
         this.init,
         this.next,
-        (state): O2 => mapFun(this.stateToResult(state))
+        (state, index, halted): O2 =>
+          mapFun(this.stateToResult(state, index, halted))
+      );
+    }
+
+    takeOutput(amount: number): Reducer<I, O> {
+      if (amount <= 0) {
+        return create(
+          (initHalt) => {
+            initHalt();
+            return this.init(initHalt);
+          },
+          this.next,
+          this.stateToResult
+        );
+      }
+
+      return create(
+        this.init,
+        (state, next, index, halt) => {
+          if (index >= amount) {
+            halt();
+          }
+          return this.next(state, next, index, halt);
+        },
+        this.stateToResult
+      );
+    }
+
+    takeOutputWhile(
+      pred: (value: O, index: number) => boolean,
+      options: { negate?: boolean } = {}
+    ): Reducer<I, O> {
+      const { negate = false } = options;
+      return create(
+        this.init,
+        (state, next, index, halt) => {
+          const nextState = this.next(state, next, index, halt);
+
+          const nextOutput = this.stateToResult(nextState, index, false);
+
+          if (pred(nextOutput, index) === negate) {
+            halt();
+          }
+
+          return state;
+        },
+        this.stateToResult
       );
     }
 
@@ -468,10 +521,19 @@ export namespace Reducer {
       }
 
       return Reducer.create(
-        () => ({
-          thisInstance: this.compile(),
-          nextInstance: nextReducer.compile(),
-        }),
+        (initHalt) => {
+          const thisInstance = this.compile();
+          const nextInstance = nextReducer.compile();
+
+          if (thisInstance.halted || nextInstance.halted) {
+            initHalt();
+          }
+
+          return {
+            thisInstance,
+            nextInstance,
+          };
+        },
         (state, next, index, halt) => {
           const { thisInstance, nextInstance } = state;
 
@@ -484,7 +546,13 @@ export namespace Reducer {
 
           return state;
         },
-        (state) => state.nextInstance.getOutput()
+        (state, index, halted) => {
+          if (halted && index === 0) {
+            state.nextInstance.next(state.thisInstance.getOutput());
+          }
+
+          return state.nextInstance.getOutput();
+        }
       );
     }
 
@@ -529,32 +597,21 @@ export namespace Reducer {
   export interface Instance<I, O> {
     get halted(): boolean;
     get index(): number;
+    halt(): void;
     next(value: I): void;
     getOutput(): O;
   }
 
   export class InstanceImpl<I, O, S> implements Reducer.Instance<I, O> {
-    constructor(readonly reducer: Reducer.Impl<I, O, S>) {}
+    constructor(readonly reducer: Reducer.Impl<I, O, S>) {
+      this.#state = reducer.init(this.halt);
+    }
 
-    #initialized = false;
-    #_state: S | undefined;
+    #state: S;
     #index = 0;
     #halted = false;
 
-    get #state(): S {
-      if (!this.#initialized) {
-        this.#_state = this.reducer.init();
-        this.#initialized = true;
-      }
-
-      return this.#_state as S;
-    }
-
-    set #state(value: S) {
-      this.#_state = value;
-    }
-
-    #halt = (): void => {
+    halt = (): void => {
       this.#halted = true;
     };
 
@@ -575,12 +632,16 @@ export namespace Reducer {
         this.#state,
         value,
         this.#index++,
-        this.#halt
+        this.halt
       );
     };
 
     getOutput(): O {
-      return this.reducer.stateToResult(this.#state as S);
+      return this.reducer.stateToResult(
+        this.#state as S,
+        this.index,
+        this.halted
+      );
     }
   }
 
@@ -609,24 +670,11 @@ export namespace Reducer {
    * ```
    */
   export function create<I, O = I, S = O>(
-    init: () => S,
+    init: (initHalt: () => void) => S,
     next: (current: S, next: I, index: number, halt: () => void) => S,
-    stateToResult: (state: S) => O
+    stateToResult: (state: S, index: number, halted: boolean) => O
   ): Reducer<I, O> {
     return new Reducer.Base(init, next, stateToResult);
-  }
-
-  export function fixed<O>(output: O): Reducer<any, O> {
-    return create(
-      () => {
-        //
-      },
-      (state, next, index, halt) => {
-        halt();
-        return state;
-      },
-      () => output
-    );
   }
 
   /**
@@ -654,7 +702,7 @@ export namespace Reducer {
   export function createMono<T>(
     init: () => T,
     next: (current: T, next: T, index: number, halt: () => void) => T,
-    stateToResult?: (state: T) => T
+    stateToResult?: (state: T, index: number, halted: boolean) => T
   ): Reducer<T> {
     return create(init, next, stateToResult ?? identity);
   }
@@ -685,9 +733,16 @@ export namespace Reducer {
   export function createOutput<I, O = I>(
     init: () => O,
     next: (current: O, next: I, index: number, halt: () => void) => O,
-    stateToResult?: (state: O) => O
+    stateToResult?: (state: O, index: number, halted: boolean) => O
   ): Reducer<I, O> {
     return create(init, next, stateToResult ?? identity);
+  }
+
+  export function fold<T, R>(
+    init: OptLazy<R>,
+    next: (current: R, value: T, index: number, halt: () => void) => R
+  ): Reducer<T, R> {
+    return Reducer.createOutput(() => OptLazy(init), next);
   }
 
   /**
@@ -751,10 +806,14 @@ export namespace Reducer {
     >;
   } = <T, O>(compFun: (v1: T, v2: T) => number, otherwise?: OptLazy<O>) => {
     const token = Symbol();
+
     return create<T, T | O, T | typeof token>(
       () => token,
       (state, next): T => {
-        if (token === state) return next;
+        if (token === state) {
+          return next;
+        }
+
         return compFun(state, next) < 0 ? state : next;
       },
       (state): T | O => (token === state ? OptLazy(otherwise!) : state)
@@ -805,10 +864,13 @@ export namespace Reducer {
     otherwise?: OptLazy<O>
   ): Reducer<T, T | O> => {
     const token = Symbol();
+
     return create<T, T | O, T | typeof token>(
       () => token,
       (state, next): T => {
-        if (token === state) return next;
+        if (token === state) {
+          return next;
+        }
         return compFun(state, next) > 0 ? state : next;
       },
       (state): T | O => (token === state ? OptLazy(otherwise!) : state)
@@ -856,111 +918,38 @@ export namespace Reducer {
     valueToString = String as (value: T) => string,
   } = {}): Reducer<T, string> {
     return create(
-      () => ({ result: '', curSep: '', curStart: start }),
-      (state, next) => {
-        state.result = state.curStart.concat(
-          state.result,
-          state.curSep,
-          valueToString(next)
-        );
-        state.curSep = sep;
-        state.curStart = '';
+      () => '',
+      (state, next, index) => {
+        const valueString = valueToString(next);
 
-        return state;
+        if (index <= 0) {
+          return start.concat(valueString);
+        }
+
+        return state.concat(sep, valueToString(next));
       },
-      (state): string => state.result.concat(end)
+      (state): string => state.concat(end)
     );
   }
 
   /**
    * Returns a `Reducer` that remembers the amount of input items provided.
-   * @param pred - (optional) a predicate that returns false if the item should not be counted given:<br/>
-   * - value: the current input value<br/>
-   * - index: the input value index
    * @example
    * ```ts
    * const stream = Stream.range({ amount: 10 })
    * console.log(stream.reduce(Reducer.count()))
    * // => 10
-   * console.log(stream.reduce(Reducer.count(v => v < 5)))
-   * // => 5
    * ```
    */
-  export const count: {
-    (): Reducer<never, number>;
-    <T>(
-      pred: (value: T, index: number) => boolean,
-      options?: { negate?: boolean }
-    ): Reducer<T, number>;
-  } = (
-    pred?: (value: unknown, index: number) => boolean,
-    options: { negate?: boolean } = {}
-  ): Reducer<never, number> => {
-    if (undefined === pred) {
-      return createOutput(
-        () => 0,
-        (_, __, i): number => i + 1
-      );
-    }
-
-    const { negate = false } = options;
-
-    return createOutput(
-      () => 0,
-      (state, next, i): number => {
-        if (pred(next, i) !== negate) return state + 1;
-        return state;
-      }
-    );
-  };
-
-  /**
-   * Returns a `Reducer` that remembers the first input value for which the given `pred` function returns true.
-   * @param pred - a function taking an input value and its index, and returning true if the value should be remembered
-   * @param otherwise - (default: undefined) a fallback value to output if no input value yet has satisfied the given predicate
-   * @typeparam T - the input value type
-   * @typeparam O - the fallback value type
-   * @example
-   * ```ts
-   * console.log(Stream.range({ amount: 10 }).reduce(Reducer.firstWhere(v => v > 5)))
-   * // => 6
-   * ```
-   */
-  export const firstWhere: {
-    <T>(
-      pred: (value: T, index: number) => boolean,
-      options?: { negate?: boolean }
-    ): Reducer<T, T | undefined>;
-    <T, O>(
-      pred: (value: T, index: number) => boolean,
-      options: {
-        negate?: boolean;
-        otherwise: OptLazy<O>;
-      }
-    ): Reducer<T, T | O>;
-  } = <T, O>(
-    pred: (value: T, index: number) => boolean,
-    options: {
-      negate?: boolean;
-      otherwise?: OptLazy<O>;
-    } = {}
-  ) => {
-    const { negate = false, otherwise } = options;
-
-    const token = Symbol();
-
-    return create<T, T | O, T | typeof token>(
-      () => token,
-      (state, next, i, halt): T | typeof token => {
-        if (token === state && pred(next, i) !== negate) {
-          halt();
-          return next;
-        }
-        return state;
+  export function count(): Reducer<never, number> {
+    return create<never, number, void>(
+      () => {
+        //
       },
-      (state): T | O => (token === state ? OptLazy(otherwise!) : state)
+      identity,
+      (_, index) => index
     );
-  };
+  }
 
   /**
    * Returns a `Reducer` that remembers the first input value.
@@ -983,52 +972,7 @@ export namespace Reducer {
       () => token,
       (state, next, _, halt): T => {
         halt();
-        if (token === state) return next;
-        return state;
-      },
-      (state): T | O => (token === state ? OptLazy(otherwise!) : state)
-    );
-  };
-
-  /**
-   * Returns a `Reducer` that remembers the last input value for which the given `pred` function returns true.
-   * @param pred - a function taking an input value and its index, and returning true if the value should be remembered
-   * @param otherwise - (default: undefined) a fallback value to output if no input value yet has satisfied the given predicate
-   * @typeparam T - the input value type
-   * @typeparam O - the fallback value type
-   * @example
-   * ```ts
-   * console.log(Stream.range({ amount: 10 }).reduce(Reducer.lastWhere(v => v > 5)))
-   * // => 9
-   * ```
-   */
-  export const lastWhere: {
-    <T>(
-      pred: (value: T, index: number) => boolean,
-      options?: { negate?: boolean }
-    ): Reducer<T, T | undefined>;
-    <T, O>(
-      pred: (value: T, index: number) => boolean,
-      options: {
-        negate?: boolean;
-        otherwise: OptLazy<O>;
-      }
-    ): Reducer<T, T | O>;
-  } = <T, O>(
-    pred: (value: T, index: number) => boolean,
-    options: {
-      negate?: boolean;
-      otherwise?: OptLazy<O>;
-    } = {}
-  ) => {
-    const { negate = false, otherwise } = options;
-    const token = Symbol();
-
-    return create<T, T | O, T | typeof token>(
-      () => token,
-      (state, next, i): T | typeof token => {
-        if (pred(next, i) !== negate) return next;
-        return state;
+        return next;
       },
       (state): T | O => (token === state ? OptLazy(otherwise!) : state)
     );
@@ -1058,6 +1002,26 @@ export namespace Reducer {
     );
   };
 
+  export const single: {
+    <T>(): Reducer<T, T | undefined>;
+    <T, O>(otherwise: OptLazy<O>): Reducer<T, T | O>;
+  } = <T, O>(otherwise?: OptLazy<O>): Reducer<T, T | O> => {
+    const token = Symbol();
+
+    return create<T, T | O, T | typeof token>(
+      () => token,
+      (state, next, _, halt): T => {
+        if (token === state) {
+          return next;
+        }
+        halt();
+        return state;
+      },
+      (state, index, halted): T | O =>
+        halted || token === state ? OptLazy(otherwise!) : state
+    );
+  };
+
   /**
    * Returns a `Reducer` that ouputs false as long as no input value satisfies given `pred`, true otherwise.
    * @typeparam T - the element type
@@ -1072,22 +1036,7 @@ export namespace Reducer {
     pred: (value: T, index: number) => boolean,
     options: { negate?: boolean } = {}
   ): Reducer<T, boolean> {
-    const { negate = false } = options;
-
-    return createOutput<T, boolean>(
-      () => false,
-      (state, next, i, halt): boolean => {
-        if (state) return state;
-
-        const satisfies = pred(next, i) !== negate;
-
-        if (satisfies) {
-          halt();
-        }
-
-        return satisfies;
-      }
-    );
+    return nonEmpty.filterInput(pred, options);
   }
 
   /**
@@ -1106,19 +1055,52 @@ export namespace Reducer {
   ): Reducer<T, boolean> {
     const { negate = false } = options;
 
-    return createOutput<T, boolean>(
-      () => true,
-      (state, next, i, halt): boolean => {
-        if (!state) return state;
+    return isEmpty.filterInput(pred, { negate: !negate });
+  }
 
-        const satisfies = pred(next, i) !== negate;
+  export function equals<T>(
+    other: StreamSource<T>,
+    options: { eq?: Eq<T>; negate?: boolean } = {}
+  ): Reducer<T, boolean> {
+    const { eq = Eq.objectIs, negate = false } = options;
 
-        if (!satisfies) {
+    const sliceStream = Stream.from(other);
+    const done = Symbol();
+
+    return Reducer.create<
+      T,
+      boolean,
+      { iter: FastIterator<T>; nextSeq: T | typeof done; result: boolean }
+    >(
+      () => {
+        const iter = sliceStream[Symbol.iterator]();
+
+        const nextSeq = iter.fastNext(done);
+
+        return { iter, nextSeq, result: false };
+      },
+      (state, next, _, halt) => {
+        if (done === state.nextSeq) {
           halt();
+          state.result = false;
+          return state;
         }
 
-        return satisfies;
-      }
+        if (eq(next, state.nextSeq) === negate) {
+          halt();
+          state.result = false;
+          return state;
+        }
+
+        state.nextSeq = state.iter.fastNext(done);
+
+        if (done === state.nextSeq) {
+          state.result = true;
+        }
+
+        return state;
+      },
+      (state, index, halted) => !halted && done === state.nextSeq
     );
   }
 
@@ -1136,24 +1118,149 @@ export namespace Reducer {
   export function contains<T>(
     elem: T,
     options: {
+      amount?: number;
       eq?: Eq<T>;
       negate?: boolean;
     } = {}
   ): Reducer<T, boolean> {
-    const { eq = Object.is, negate = false } = options;
+    const { amount = 1, eq = Object.is, negate = false } = options;
 
-    return createOutput<T, boolean>(
-      () => false,
-      (state, next, _, halt): boolean => {
-        if (state) return state;
+    return Reducer.create<T, boolean, number>(
+      (initHalt) => {
+        if (amount <= 0) {
+          initHalt();
+        }
+
+        return amount;
+      },
+      (state, next, _, halt): number => {
         const satisfies = eq(next, elem) !== negate;
 
-        if (satisfies) {
+        if (!satisfies) {
+          return state;
+        }
+
+        const newRemain = state - 1;
+
+        if (newRemain <= 0) {
           halt();
         }
 
-        return satisfies;
+        return newRemain;
+      },
+      (state) => state <= 0
+    );
+  }
+
+  export function startsWithSlice<T>(
+    slice: StreamSource<T>,
+    options: { eq?: Eq<T> | undefined; amount?: number } = {}
+  ): Reducer<T, boolean> {
+    const sliceStream = Stream.from(slice);
+    const done = Symbol();
+    const { eq = Eq.objectIs, amount = 1 } = options;
+
+    return Reducer.create<
+      T,
+      boolean,
+      {
+        sliceIter: FastIterator<T>;
+        sliceValue: T | typeof done;
+        remain: number;
       }
+    >(
+      (initHalt) => {
+        const sliceIter = sliceStream[Symbol.iterator]();
+        const sliceValue = sliceIter.fastNext(done);
+
+        if (done === sliceValue || amount <= 0) {
+          initHalt();
+          return { sliceIter, sliceValue, remain: 0 };
+        }
+
+        return {
+          sliceIter,
+          sliceValue: sliceValue,
+          remain: amount,
+        };
+      },
+      (state, next, _, halt) => {
+        if (done === state.sliceValue) {
+          RimbuError.throwInvalidStateError();
+        }
+
+        if (eq(next, state.sliceValue)) {
+          state.sliceValue = state.sliceIter.fastNext(done);
+
+          if (done === state.sliceValue) {
+            state.remain--;
+            if (state.remain <= 0) {
+              halt();
+            } else {
+              state.sliceIter = sliceStream[Symbol.iterator]();
+              state.sliceValue = state.sliceIter.fastNext(done);
+            }
+          }
+        } else {
+          halt();
+        }
+
+        return state;
+      },
+      (state) => state.remain <= 0
+    );
+  }
+
+  export function endsWithSlice<T>(
+    slice: StreamSource<T>,
+    options: { eq?: Eq<T> | undefined; amount?: number } = {}
+  ): Reducer<T, boolean> {
+    const sliceStream = Stream.from(slice);
+    const done = Symbol();
+
+    const newReducerSpec = Reducer.startsWithSlice(slice, options);
+
+    return Reducer.create<T, boolean, Set<Reducer.Instance<T, boolean>>>(
+      (initHalt) => {
+        const sliceIter = sliceStream[Symbol.iterator]();
+        const sliceValue = sliceIter.fastNext(done);
+
+        if (done === sliceValue) {
+          initHalt();
+        }
+
+        return new Set([newReducerSpec.compile()]);
+      },
+      (state, nextValue) => {
+        for (const instance of state) {
+          if (instance.halted) {
+            state.delete(instance);
+          } else {
+            instance.next(nextValue);
+          }
+        }
+
+        const newReducerInstance = newReducerSpec.compile();
+        newReducerInstance.next(nextValue);
+
+        state.add(newReducerInstance);
+
+        return state;
+      },
+      (state) =>
+        state.size === 0 ||
+        Stream.from(state).some((instance) => instance.getOutput())
+    );
+  }
+
+  export function containsSlice<T>(
+    slice: StreamSource<T>,
+    options: { eq?: Eq<T> | undefined; amount?: number } = {}
+  ): Reducer<T, boolean> {
+    const { eq, amount = 1 } = options;
+
+    return endsWithSlice(slice, { eq }).pipe(
+      Reducer.contains(true, { amount })
     );
   }
 
@@ -1168,8 +1275,10 @@ export namespace Reducer {
   export const and = createMono(
     () => true,
     (state, next, _, halt): boolean => {
-      if (!state) return state;
-      if (!next) halt();
+      if (!next) {
+        halt();
+      }
+
       return next;
     }
   );
@@ -1185,8 +1294,10 @@ export namespace Reducer {
   export const or = createMono(
     () => false,
     (state, next, _, halt): boolean => {
-      if (state) return state;
-      if (next) halt();
+      if (next) {
+        halt();
+      }
+
       return next;
     }
   );
@@ -1222,6 +1333,61 @@ export namespace Reducer {
       return true;
     }
   );
+
+  export function constant<T>(value: OptLazy<T>): Reducer<never, T> {
+    return Reducer.create<never, T, void>(
+      (initHalt) => {
+        initHalt();
+      },
+      identity,
+      () => OptLazy(value)
+    );
+  }
+
+  export const combineFirstDone: {
+    <T, R, O>(reducers: Reducer<T, R>[], otherwise: OptLazy<O>): Reducer<
+      T,
+      R | O
+    >;
+    <T, R>(reducers: Reducer<T, R>[]): Reducer<T, R | undefined>;
+  } = <T, R, O>(reducers: Reducer<T, R>[], otherwise?: OptLazy<O>) => {
+    return Reducer.create<
+      T,
+      R | O,
+      {
+        instances: Reducer.Instance<T, R>[];
+        doneInstance: Reducer.Instance<T, R> | undefined;
+      }
+    >(
+      (initHalt) => {
+        const instances = reducers.map((reducer) => reducer.compile());
+        const doneInstance = instances.find((instance) => instance.halted);
+
+        if (undefined !== doneInstance) {
+          initHalt();
+        }
+
+        return { instances, doneInstance };
+      },
+      (state, next, _, halt) => {
+        for (const instance of state.instances) {
+          instance.next(next);
+
+          if (instance.halted) {
+            state.doneInstance = instance;
+            halt();
+            return state;
+          }
+        }
+
+        return state;
+      },
+      (state) =>
+        state.doneInstance === undefined
+          ? OptLazy(otherwise)!
+          : state.doneInstance.getOutput()
+    );
+  };
 
   /**
    * Returns a `Reducer` that collects received input values in an array, and returns a copy of that array as an output value when requested.
