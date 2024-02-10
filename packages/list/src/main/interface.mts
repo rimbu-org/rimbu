@@ -404,6 +404,22 @@ export interface List<T> extends FastIterable<T> {
    *   .filter((_, i) => i > 1, undefined, true)      // -> List(1, 0)
    * ```
    */
+  filter<TF extends T>(
+    pred: (value: T, index: number, halt: () => void) => value is TF,
+    options?: {
+      range?: IndexRange;
+      reversed?: boolean;
+      negate?: false | undefined;
+    }
+  ): List<TF>;
+  filter<TF extends T>(
+    pred: (value: T, index: number, halt: () => void) => value is TF,
+    options: {
+      range?: IndexRange;
+      reversed?: boolean;
+      negate: true;
+    }
+  ): List<Exclude<T, TF>>;
   filter(
     pred: (value: T, index: number, halt: () => void) => boolean,
     options?: { range?: IndexRange; reversed?: boolean; negate?: boolean }

@@ -71,9 +71,7 @@ export namespace Transformer {
 
         if (index % skipAmount === 0) {
           const newInstance = collector.compile();
-
           newInstance.next(elem);
-
           state.add(newInstance);
         }
 
@@ -83,6 +81,7 @@ export namespace Transformer {
         if (halted) {
           return Stream.empty<R>();
         }
+
         return Stream.from(state).collect((instance, _, skip) =>
           instance.index === windowSize ? instance.getOutput() : skip
         );
@@ -103,54 +102,18 @@ export namespace Transformer {
    * ```
    */
   export function distinctPrevious<T>(
-    options: { eq?: Eq<T>; negate?: boolean } = {}
+    options: { eq?: Eq<T> | undefined; negate?: boolean | undefined } = {}
   ): Transformer<T> {
     const { eq = Eq.objectIs, negate = false } = options;
+    const token = Symbol();
 
     return Reducer.create(
-      () => [] as T[],
-      (current, elem) => {
-        current.push(elem);
-
-        if (current.length > 2) {
-          current.shift();
-        }
-
-        return current;
-      },
-      (state, _, halted) => {
-        if (!halted && state.length > 0) {
-          if (state.length === 1) {
-            return Stream.of(state[0]);
-          }
-          if (eq(state[0], state[1]) === negate) {
-            return Stream.of(state[1]);
-          }
-        }
-
-        return Stream.empty();
-      }
+      () => token as T | typeof token,
+      (state, next) =>
+        token === state || eq(state, next) === negate ? next : token,
+      (state, _, halted) =>
+        halted || token === state ? Stream.empty() : Stream.of(state)
     );
-  }
-
-  export function filter<T>(
-    pred: (value: T, index: number, halt: () => void) => boolean,
-    options: { negate?: boolean } = {}
-  ): Transformer<T> {
-    const { negate = false } = options;
-
-    return flatMap((value, index, halt) =>
-      pred(value, index, halt) !== negate ? Stream.of(value) : Stream.empty()
-    );
-  }
-
-  export function collect<T, R>(
-    collectFun: CollectFun<T, R>
-  ): Transformer<T, R> {
-    return flatMap((value, index, halt) => {
-      const result = collectFun(value, index, CollectFun.Skip, halt);
-      return CollectFun.Skip === result ? Stream.empty() : Stream.of(result);
-    });
   }
 
   export function flatMap<T, T2>(
@@ -167,11 +130,45 @@ export namespace Transformer {
     flatMapFun: (value: T, index: number, halt: () => void) => StreamSource<T2>
   ): Transformer<T, [T, T2]> {
     return flatMap((value, index, halt) =>
-      Stream.from(flatMapFun(value, index, halt)).map((stream) => [
+      Stream.from(flatMapFun(value, index, halt)).mapPure((stream) => [
         value,
         stream,
       ])
     );
+  }
+
+  export const filter: {
+    <T, TF extends T>(
+      pred: (value: T, index: number, halt: () => void) => value is TF,
+      options?: { negate?: boolean | undefined }
+    ): Transformer<T, TF>;
+    <T, TF extends T>(
+      pred: (value: T, index: number, halt: () => void) => value is TF,
+      options: { negate: true }
+    ): Transformer<T, Exclude<T, TF>>;
+    <T>(
+      pred: (value: T, index: number, halt: () => void) => boolean,
+      options?: { negate?: boolean | undefined }
+    ): Transformer<T>;
+  } = <T, TF>(
+    pred: (value: T, index: number, halt: () => void) => boolean,
+    options: { negate?: boolean | undefined } = {}
+  ): Transformer<never> => {
+    const { negate = false } = options;
+
+    return flatMap((value, index, halt) =>
+      pred(value, index, halt) !== negate ? Stream.of(value) : Stream.empty()
+    );
+  };
+
+  export function collect<T, R>(
+    collectFun: CollectFun<T, R>
+  ): Transformer<T, R> {
+    return flatMap((value, index, halt) => {
+      const result = collectFun(value, index, CollectFun.Skip, halt);
+
+      return CollectFun.Skip === result ? Stream.empty() : Stream.of(result);
+    });
   }
 
   export function intersperse<T>(sep: StreamSource<T>): Transformer<T> {
@@ -182,7 +179,7 @@ export namespace Transformer {
 
   export function indicesWhere<T>(
     pred: (value: T) => boolean,
-    options: { negate?: boolean } = {}
+    options: { negate?: boolean | undefined } = {}
   ): Transformer<T, number> {
     const { negate = false } = options;
 
@@ -193,7 +190,7 @@ export namespace Transformer {
 
   export function indicesOf<T>(
     searchValue: T,
-    options: { eq?: Eq<T>; negate?: boolean } = {}
+    options: { eq?: Eq<T> | undefined; negate?: boolean | undefined } = {}
   ): Transformer<T, number> {
     const { eq = Eq.objectIs, negate = false } = options;
 
@@ -204,7 +201,10 @@ export namespace Transformer {
 
   export function splitWhere<T, R>(
     pred: (value: T, index: number) => boolean,
-    options: { negate?: boolean; collector?: Reducer<T, R> } = {}
+    options: {
+      negate?: boolean | undefined;
+      collector?: Reducer<T, R> | undefined;
+    } = {}
   ): Transformer<T, R> {
     const { negate = false, collector = Reducer.toArray() as Reducer<T, R> } =
       options;
@@ -217,7 +217,7 @@ export namespace Transformer {
           state.collection = collector.compile();
         }
 
-        if (pred(nextValue, index) !== negate) {
+        if (pred(nextValue, index) === negate) {
           state.collection.next(nextValue);
         } else {
           state.done = true;
@@ -225,16 +225,18 @@ export namespace Transformer {
 
         return state;
       },
-      (state) =>
-        state.done ? Stream.of(state.collection.getOutput()) : Stream.empty()
+      (state, _, halted) =>
+        state.done !== halted
+          ? Stream.of(state.collection.getOutput())
+          : Stream.empty()
     );
   }
 
   export function splitOn<T, R>(
     sepElem: T,
     options: {
-      eq?: Eq<T>;
-      negate?: boolean;
+      eq?: Eq<T> | undefined;
+      negate?: boolean | undefined;
       collector?: Reducer<T, R> | undefined;
     } = {}
   ): Transformer<T, R> {
@@ -269,7 +271,10 @@ export namespace Transformer {
 
   export function splitOnSlice<T, R>(
     sepSlice: StreamSource<T>,
-    options: { eq?: Eq<T>; collector?: Reducer<T, R> | undefined } = {}
+    options: {
+      eq?: Eq<T> | undefined;
+      collector?: Reducer<T, R> | undefined;
+    } = {}
   ): Transformer<T, R> {
     const { eq = Eq.objectIs, collector = Reducer.toArray() as Reducer<T, R> } =
       options;
@@ -314,7 +319,9 @@ export namespace Transformer {
           }
         }
 
-        const nextStartsWith = Reducer.startsWithSlice(sepSlice).compile();
+        const nextStartsWith = Reducer.startsWithSlice(sepSlice, {
+          eq,
+        }).compile();
         nextStartsWith.next(nextValue);
 
         if (nextStartsWith.getOutput()) {

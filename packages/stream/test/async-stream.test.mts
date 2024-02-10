@@ -6,6 +6,7 @@ import {
   AsyncStream,
   Stream,
   type AsyncStreamSource,
+  Reducer,
 } from '../src/main/index.mjs';
 
 const streamRange1 = Stream.range({ amount: 100 });
@@ -1571,25 +1572,25 @@ describe('AsyncStream methods', () => {
       await AsyncStream.of(1, 2, 2, 3, 1, 1, 3).distinctPrevious().toArray()
     ).toEqual([1, 2, 3, 1, 3]);
   });
-  it('splitOnSeq', async () => {
+  it('splitOnSlice', async () => {
     expect(
-      await AsyncStream.empty<number>().splitOnSeq([1, 2, 3]).toArray()
+      await AsyncStream.empty<number>().splitOnSlice([1, 2, 3]).toArray()
     ).toEqual([]);
-    expect(await AsyncStream.of(1, 2).splitOnSeq([1, 2, 3]).toArray()).toEqual([
-      [1, 2],
-    ]);
     expect(
-      await AsyncStream.of(1, 2, 3).splitOnSeq([1, 2, 3]).toArray()
+      await AsyncStream.of(1, 2).splitOnSlice([1, 2, 3]).toArray()
+    ).toEqual([[1, 2]]);
+    expect(
+      await AsyncStream.of(1, 2, 3).splitOnSlice([1, 2, 3]).toArray()
     ).toEqual([[]]);
     expect(
-      await AsyncStream.of(1, 1, 2, 3).splitOnSeq([1, 2, 3]).toArray()
+      await AsyncStream.of(1, 1, 2, 3).splitOnSlice([1, 2, 3]).toArray()
     ).toEqual([[1]]);
     expect(
-      await AsyncStream.of(1, 1, 2, 3, 3).splitOnSeq([1, 2, 3]).toArray()
+      await AsyncStream.of(1, 1, 2, 3, 3).splitOnSlice([1, 2, 3]).toArray()
     ).toEqual([[1], [3]]);
     expect(
       await AsyncStream.of(1, 1, 2, 3, 1, 2, 1, 2, 3, 1)
-        .splitOnSeq([1, 2, 3])
+        .splitOnSlice([1, 2, 3])
         .toArray()
     ).toEqual([[1], [1, 2], [1]]);
   });
@@ -1632,34 +1633,36 @@ describe('AsyncStream methods', () => {
     ]);
   });
   it('window collector', async () => {
+    const setCollector = AsyncReducer.from(Reducer.toJSSet<number>());
+
     expect(
       await AsyncStream.empty<number>()
-        .window(3, { collector: AsyncReducer.toJSSet() })
+        .window(3, { collector: setCollector })
         .toArray()
     ).toEqual([]);
     expect(
       await AsyncStream.of(1, 2)
-        .window(3, { collector: AsyncReducer.toJSSet() })
+        .window(3, { collector: setCollector })
         .toArray()
     ).toEqual([]);
     expect(
       await AsyncStream.of(1, 2, 3)
-        .window(3, { collector: AsyncReducer.toJSSet() })
+        .window(3, { collector: setCollector })
         .toArray()
     ).toEqual([new Set([1, 2, 3])]);
     expect(
       await AsyncStream.of(1, 2, 3, 4, 5)
-        .window(3, { collector: AsyncReducer.toJSSet() })
+        .window(3, { collector: setCollector })
         .toArray()
     ).toEqual([new Set([1, 2, 3])]);
     expect(
       await AsyncStream.of(1, 2, 3, 4, 5, 6)
-        .window(3, { collector: AsyncReducer.toJSSet() })
+        .window(3, { collector: setCollector })
         .toArray()
     ).toEqual([new Set([1, 2, 3]), new Set([4, 5, 6])]);
     expect(
       await AsyncStream.of(1, 2, 3, 4, 5, 6)
-        .window(3, { skipAmount: 1, collector: AsyncReducer.toJSSet() })
+        .window(3, { skipAmount: 1, collector: setCollector })
         .toArray()
     ).toEqual([
       new Set([1, 2, 3]),
@@ -1741,11 +1744,17 @@ describe('AsyncStream methods', () => {
     );
   });
   it('reduce', async () => {
-    expect(await AsyncStream.empty<number>().reduce(AsyncReducer.sum)).toBe(0);
-    expect(await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.sum)).toBe(6);
+    expect(
+      await AsyncStream.empty<number>().reduce(AsyncReducer.from(Reducer.sum))
+    ).toBe(0);
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.from(Reducer.sum))
+    ).toBe(6);
   });
   it('reduce close', async () => {
-    await createResourceStream([1, 2, 3]).reduce(AsyncReducer.count());
+    await createResourceStream([1, 2, 3]).reduce(
+      AsyncReducer.from(Reducer.count)
+    );
     expect(close).toBeCalledTimes(1);
 
     close.mockReset();
@@ -1754,7 +1763,7 @@ describe('AsyncStream methods', () => {
 
     close.mockReset();
     try {
-      await createErrorStream().reduce(AsyncReducer.sum);
+      await createErrorStream().reduce(AsyncReducer.from(Reducer.sum));
     } catch {}
     expect(close).toBeCalledTimes(1);
 
@@ -1800,15 +1809,21 @@ describe('AsyncStream methods', () => {
   });
   it('reduceStream', async () => {
     expect(
-      await AsyncStream.empty<number>().reduceStream(AsyncReducer.sum).toArray()
+      await AsyncStream.empty<number>()
+        .reduceStream(AsyncReducer.from(Reducer.sum))
+        .toArray()
     ).toEqual([]);
     expect(
-      await AsyncStream.of(1, 2, 3).reduceStream(AsyncReducer.sum).toArray()
+      await AsyncStream.of(1, 2, 3)
+        .reduceStream(AsyncReducer.from(Reducer.sum))
+        .toArray()
     ).toEqual([1, 3, 6]);
   });
   it('reduceStream close', async () => {
     await testResForEach(
-      createResourceStream([1, 2, 3]).reduceStream(AsyncReducer.count())
+      createResourceStream([1, 2, 3]).reduceStream(
+        AsyncReducer.from(Reducer.count)
+      )
     );
     await testResForEach(
       createResourceStream([1, 2, 3]).reduceStream(AsyncReducer.first())
@@ -1817,14 +1832,14 @@ describe('AsyncStream methods', () => {
   it('reduceAll', async () => {
     expect(
       await AsyncStream.empty<number>().reduce([
-        AsyncReducer.sum,
-        AsyncReducer.count(),
+        AsyncReducer.from(Reducer.sum),
+        AsyncReducer.from(Reducer.count),
       ])
     ).toEqual([0, 0]);
     expect(
       await AsyncStream.of(1, 2, 3).reduce([
-        AsyncReducer.sum,
-        AsyncReducer.count(),
+        AsyncReducer.from(Reducer.sum),
+        AsyncReducer.from(Reducer.count),
       ])
     ).toEqual([6, 3]);
     expect(
@@ -1836,8 +1851,8 @@ describe('AsyncStream methods', () => {
   });
   it('reduceAll close', async () => {
     await createResourceStream([1, 2, 3]).reduce([
-      AsyncReducer.count(),
-      AsyncReducer.count(),
+      AsyncReducer.from(Reducer.count),
+      AsyncReducer.from(Reducer.count),
     ]);
     expect(close).toBeCalledTimes(1);
     close.mockReset();
@@ -1851,12 +1866,18 @@ describe('AsyncStream methods', () => {
   it('reduceStream array shape', async () => {
     expect(
       await AsyncStream.empty<number>()
-        .reduceStream([AsyncReducer.sum, AsyncReducer.count()])
+        .reduceStream([
+          AsyncReducer.from(Reducer.sum),
+          AsyncReducer.from(Reducer.count),
+        ])
         .toArray()
     ).toEqual([]);
     expect(
       await AsyncStream.of(1, 2, 3)
-        .reduceStream([AsyncReducer.sum, AsyncReducer.count()])
+        .reduceStream([
+          AsyncReducer.from(Reducer.sum),
+          AsyncReducer.from(Reducer.count),
+        ])
         .toArray()
     ).toEqual([
       [1, 1],
@@ -1867,8 +1888,8 @@ describe('AsyncStream methods', () => {
   it('reduceStream array shape close', async () => {
     await testResForEach(
       createResourceStream([1, 2, 3]).reduceStream([
-        AsyncReducer.count(),
-        AsyncReducer.count(),
+        AsyncReducer.from(Reducer.count),
+        AsyncReducer.from(Reducer.count),
       ])
     );
     await testResForEach(

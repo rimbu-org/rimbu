@@ -1,4 +1,4 @@
-import { Eq } from '../../common/mod.ts';
+import { CollectFun, Eq } from '../../common/mod.ts';
 
 import { Reducer, Stream, type StreamSource } from '../../stream/mod.ts';
 
@@ -38,17 +38,20 @@ export namespace Transformer {
     <T, R>(
       windowSize: number,
       options: {
-        skipAmount?: number;
+        skipAmount?: number | undefined;
         collector: Reducer<T, R>;
       }
     ): Transformer<T, R>;
-    <T>(windowSize: number, options?: { skipAmount?: number }): Transformer<
-      T,
-      T[]
-    >;
+    <T>(
+      windowSize: number,
+      options?: { skipAmount?: number | undefined; collector?: undefined }
+    ): Transformer<T, T[]>;
   } = <T, R>(
     windowSize: number,
-    options: { skipAmount?: number; collector?: Reducer<T, R> } = {}
+    options: {
+      skipAmount?: number | undefined;
+      collector?: Reducer<T, R> | undefined;
+    } = {}
   ) => {
     const {
       skipAmount = windowSize,
@@ -68,15 +71,17 @@ export namespace Transformer {
 
         if (index % skipAmount === 0) {
           const newInstance = collector.compile();
-
           newInstance.next(elem);
-
           state.add(newInstance);
         }
 
         return state;
       },
-      (state) => {
+      (state, _, halted) => {
+        if (halted) {
+          return Stream.empty<R>();
+        }
+
         return Stream.from(state).collect((instance, _, skip) =>
           instance.index === windowSize ? instance.getOutput() : skip
         );
@@ -96,29 +101,258 @@ export namespace Transformer {
    * // => [1, 2, 3, 2]
    * ```
    */
-  export function distinctPrevious<T>(eq: Eq<T> = Eq.objectIs): Transformer<T> {
+  export function distinctPrevious<T>(
+    options: { eq?: Eq<T> | undefined; negate?: boolean | undefined } = {}
+  ): Transformer<T> {
+    const { eq = Eq.objectIs, negate = false } = options;
+    const token = Symbol();
+
     return Reducer.create(
-      () => [] as T[],
-      (current, elem) => {
-        current.push(elem);
+      () => token as T | typeof token,
+      (state, next) =>
+        token === state || eq(state, next) === negate ? next : token,
+      (state, _, halted) =>
+        halted || token === state ? Stream.empty() : Stream.of(state)
+    );
+  }
 
-        if (current.length > 2) {
-          current.shift();
+  export function flatMap<T, T2>(
+    flatMapFun: (value: T, index: number, halt: () => void) => StreamSource<T2>
+  ): Transformer<T, T2> {
+    return Reducer.createOutput<T, StreamSource<T2>>(
+      () => Stream.empty<T2>(),
+      (state, next, index, halt) => flatMapFun(next, index, halt),
+      (state, _, halted) => (halted ? Stream.empty() : state)
+    );
+  }
+
+  export function flatZip<T, T2>(
+    flatMapFun: (value: T, index: number, halt: () => void) => StreamSource<T2>
+  ): Transformer<T, [T, T2]> {
+    return flatMap((value, index, halt) =>
+      Stream.from(flatMapFun(value, index, halt)).mapPure((stream) => [
+        value,
+        stream,
+      ])
+    );
+  }
+
+  export const filter: {
+    <T, TF extends T>(
+      pred: (value: T, index: number, halt: () => void) => value is TF,
+      options?: { negate?: boolean | undefined }
+    ): Transformer<T, TF>;
+    <T, TF extends T>(
+      pred: (value: T, index: number, halt: () => void) => value is TF,
+      options: { negate: true }
+    ): Transformer<T, Exclude<T, TF>>;
+    <T>(
+      pred: (value: T, index: number, halt: () => void) => boolean,
+      options?: { negate?: boolean | undefined }
+    ): Transformer<T>;
+  } = <T, TF>(
+    pred: (value: T, index: number, halt: () => void) => boolean,
+    options: { negate?: boolean | undefined } = {}
+  ): Transformer<never> => {
+    const { negate = false } = options;
+
+    return flatMap((value, index, halt) =>
+      pred(value, index, halt) !== negate ? Stream.of(value) : Stream.empty()
+    );
+  };
+
+  export function collect<T, R>(
+    collectFun: CollectFun<T, R>
+  ): Transformer<T, R> {
+    return flatMap((value, index, halt) => {
+      const result = collectFun(value, index, CollectFun.Skip, halt);
+
+      return CollectFun.Skip === result ? Stream.empty() : Stream.of(result);
+    });
+  }
+
+  export function intersperse<T>(sep: StreamSource<T>): Transformer<T> {
+    return flatMap((value, index) =>
+      index === 0 ? Stream.of(value) : Stream.from(sep).append(value)
+    );
+  }
+
+  export function indicesWhere<T>(
+    pred: (value: T) => boolean,
+    options: { negate?: boolean | undefined } = {}
+  ): Transformer<T, number> {
+    const { negate = false } = options;
+
+    return flatMap((value, index) =>
+      pred(value) !== negate ? Stream.of(index) : Stream.empty()
+    );
+  }
+
+  export function indicesOf<T>(
+    searchValue: T,
+    options: { eq?: Eq<T> | undefined; negate?: boolean | undefined } = {}
+  ): Transformer<T, number> {
+    const { eq = Eq.objectIs, negate = false } = options;
+
+    return flatMap((value, index) =>
+      eq(value, searchValue) !== negate ? Stream.of(index) : Stream.empty()
+    );
+  }
+
+  export function splitWhere<T, R>(
+    pred: (value: T, index: number) => boolean,
+    options: {
+      negate?: boolean | undefined;
+      collector?: Reducer<T, R> | undefined;
+    } = {}
+  ): Transformer<T, R> {
+    const { negate = false, collector = Reducer.toArray() as Reducer<T, R> } =
+      options;
+
+    return Reducer.create(
+      () => ({ collection: collector.compile(), done: false }),
+      (state, nextValue, index) => {
+        if (state.done) {
+          state.done = false;
+          state.collection = collector.compile();
         }
 
-        return current;
+        if (pred(nextValue, index) === negate) {
+          state.collection.next(nextValue);
+        } else {
+          state.done = true;
+        }
+
+        return state;
       },
-      (state) => {
-        if (state.length > 0) {
-          if (state.length === 1) {
-            return Stream.of(state[0]);
+      (state, _, halted) =>
+        state.done !== halted
+          ? Stream.of(state.collection.getOutput())
+          : Stream.empty()
+    );
+  }
+
+  export function splitOn<T, R>(
+    sepElem: T,
+    options: {
+      eq?: Eq<T> | undefined;
+      negate?: boolean | undefined;
+      collector?: Reducer<T, R> | undefined;
+    } = {}
+  ): Transformer<T, R> {
+    const {
+      eq = Eq.objectIs,
+      negate = false,
+      collector = Reducer.toArray() as Reducer<T, R>,
+    } = options;
+
+    return Reducer.create(
+      () => ({ collection: collector.compile(), done: false }),
+      (state, nextValue) => {
+        if (state.done) {
+          state.done = false;
+          state.collection = collector.compile();
+        }
+
+        if (eq(nextValue, sepElem) === negate) {
+          state.collection.next(nextValue);
+        } else {
+          state.done = true;
+        }
+
+        return state;
+      },
+      (state, _, halted) =>
+        state.done !== halted
+          ? Stream.of(state.collection.getOutput())
+          : Stream.empty()
+    );
+  }
+
+  export function splitOnSlice<T, R>(
+    sepSlice: StreamSource<T>,
+    options: {
+      eq?: Eq<T> | undefined;
+      collector?: Reducer<T, R> | undefined;
+    } = {}
+  ): Transformer<T, R> {
+    const { eq = Eq.objectIs, collector = Reducer.toArray() as Reducer<T, R> } =
+      options;
+
+    return Reducer.create<
+      T,
+      Stream<R>,
+      {
+        done: boolean;
+        instances: Map<Reducer.Instance<T, boolean>, number>;
+        buffer: T[];
+        result: Reducer.Instance<T, R>;
+      }
+    >(
+      () => ({
+        done: false,
+        instances: new Map(),
+        buffer: [],
+        result: collector.compile(),
+      }),
+      (state, nextValue) => {
+        if (state.done) {
+          state.result = collector.compile();
+          state.done = false;
+        }
+
+        for (const [instance, startIndex] of state.instances) {
+          instance.next(nextValue);
+
+          if (instance.halted) {
+            state.instances.delete(instance);
           }
-          if (!eq(state[0], state[1])) {
-            return Stream.of(state[1]);
+
+          if (instance.getOutput()) {
+            state.done = true;
+            Stream.fromArray(state.buffer, {
+              range: { end: [startIndex, false] },
+            }).forEachPure(state.result.next);
+            state.buffer = [];
+            state.instances.clear();
+            return state;
           }
         }
 
-        return Stream.empty();
+        const nextStartsWith = Reducer.startsWithSlice(sepSlice, {
+          eq,
+        }).compile();
+        nextStartsWith.next(nextValue);
+
+        if (nextStartsWith.getOutput()) {
+          state.done = true;
+          Stream.fromArray(state.buffer).forEachPure(state.result.next);
+          state.buffer = [];
+          state.instances.clear();
+          return state;
+        } else if (!nextStartsWith.halted) {
+          state.instances.set(nextStartsWith, state.buffer.length);
+        }
+
+        if (state.instances.size === 0) {
+          state.result.next(nextValue);
+        } else {
+          state.buffer.push(nextValue);
+        }
+
+        return state;
+      },
+      (state, _, halted) => {
+        if (state.done === halted) {
+          return Stream.empty();
+        }
+
+        if (halted) {
+          Stream.fromArray(state.buffer).forEachPure(state.result.next);
+          state.buffer = [];
+        }
+
+        return Stream.of(state.result.getOutput());
       }
     );
   }

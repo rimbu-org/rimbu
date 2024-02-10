@@ -57,7 +57,7 @@ export interface AsyncStream<T>
    */
   equals(
     other: AsyncStreamSource<T>,
-    options?: { eq?: Eq<T>; negate?: boolean }
+    options?: { eq?: Eq<T> | undefined; negate?: boolean | undefined }
   ): Promise<boolean>;
   /**
    * Returns the stream as a non-empty instance.
@@ -114,7 +114,7 @@ export interface AsyncStream<T>
    */
   forEach(
     f: (value: T, index: number, halt: () => void) => MaybePromise<void>,
-    options?: { state?: TraverseState }
+    options?: { state?: TraverseState | undefined }
   ): Promise<void>;
   /**
    * Performs given function `f` for each element of the Stream, with the optionally given `args` as extra arguments.
@@ -147,7 +147,9 @@ export interface AsyncStream<T>
    * ```
    * @note O(1)
    */
-  indexed(options?: { startIndex?: number }): AsyncStream<[number, T]>;
+  indexed(options?: {
+    startIndex?: number | undefined;
+  }): AsyncStream<[number, T]>;
   /**
    * Returns an AsyncStream where `mapFun` is applied to each element.
    * @typeparam T2 - the resulting element type
@@ -243,7 +245,7 @@ export interface AsyncStream<T>
    * // => [[1, 2, 3], [4, 5, 6]]
    * ```
    */
-  transform<R>(transformer: AsyncTransformer<T, R>): AsyncStream<R>;
+  transform<R>(transformer: AsyncTransformer.Accept<T, R>): AsyncStream<R>;
   /**
    * Returns an AsyncStream containing only those elements from this stream for which the given `pred` function returns true.
    * @param pred - a potentially asynchronous function taking an element and its index, and returning true if the element should be included in the resulting stream.
@@ -259,9 +261,17 @@ export interface AsyncStream<T>
    * // => [2]
    * ```
    */
+  filter<TF extends T>(
+    pred: (value: T, index: number, halt: () => void) => value is TF,
+    options?: { negate?: false | undefined }
+  ): AsyncStream<TF>;
+  filter<TF extends T>(
+    pred: (value: T, index: number, halt: () => void) => value is TF,
+    options: { negate: true }
+  ): AsyncStream<Exclude<T, TF>>;
   filter(
     pred: (value: T, index: number, halt: () => void) => MaybePromise<boolean>,
-    options?: { negate?: boolean }
+    options?: { negate?: boolean | undefined }
   ): AsyncStream<T>;
   /**
    * Returns an AsyncStream containing only those elements from this stream for which the given `pred` function returns true.
@@ -280,10 +290,24 @@ export interface AsyncStream<T>
    * // => [1, 3]
    * ```
    */
+  filterPure<A extends readonly unknown[], TF extends T>(
+    options: {
+      pred: (value: T, ...args: A) => value is TF;
+      negate?: false | undefined;
+    },
+    ...args: A
+  ): AsyncStream<T>;
+  filterPure<A extends readonly unknown[], TF extends T>(
+    options: {
+      pred: (value: T, ...args: A) => value is TF;
+      negate: true;
+    },
+    ...args: A
+  ): AsyncStream<Exclude<T, TF>>;
   filterPure<A extends readonly unknown[]>(
     options: {
       pred: (value: T, ...args: A) => MaybePromise<boolean>;
-      negate?: boolean;
+      negate?: boolean | undefined;
     },
     ...args: A
   ): AsyncStream<T>;
@@ -377,7 +401,7 @@ export interface AsyncStream<T>
    */
   countElement(
     value: T,
-    options?: { eq?: Eq<T>; negate?: boolean }
+    options?: { eq?: Eq<T> | undefined; negate?: boolean | undefined }
   ): Promise<number>;
   /**
    * Returns the first element for which the given `pred` function returns true, or a fallback value otherwise.
@@ -397,17 +421,53 @@ export interface AsyncStream<T>
    * ```
    * @note O(N)
    */
+  find<O, TF extends T>(
+    pred: (value: T, index: number) => value is TF,
+    options?: {
+      occurrance?: number | undefined;
+      negate?: false | undefined;
+      otherwise: AsyncOptLazy<O>;
+    }
+  ): Promise<TF | O>;
+  find<O, TF extends T>(
+    pred: (value: T, index: number) => value is TF,
+    options: {
+      occurrance?: number | undefined;
+      negate: true;
+      otherwise: AsyncOptLazy<O>;
+    }
+  ): Promise<Exclude<T, TF> | O>;
+  find<TF extends T>(
+    pred: (value: T, index: number) => value is TF,
+    options?: {
+      occurrance?: number | undefined;
+      negate?: false | undefined;
+      otherwise?: undefined;
+    }
+  ): Promise<T | undefined>;
+  find<TF extends T>(
+    pred: (value: T, index: number) => value is TF,
+    options: {
+      occurrance?: number | undefined;
+      negate: true;
+      otherwise?: undefined;
+    }
+  ): Promise<Exclude<T, TF> | undefined>;
   find<O>(
     pred: (value: T, index: number) => MaybePromise<boolean>,
     options?: {
-      occurrance?: number;
-      negate?: boolean;
+      occurrance?: number | undefined;
+      negate?: boolean | undefined;
       otherwise: AsyncOptLazy<O>;
     }
   ): Promise<T | O>;
   find(
     pred: (value: T, index: number) => MaybePromise<boolean>,
-    options?: { occurrance?: number; negate?: boolean; otherwise?: undefined }
+    options?: {
+      occurrance?: number | undefined;
+      negate?: boolean | undefined;
+      otherwise?: undefined;
+    }
   ): Promise<T | undefined>;
   /**
    * Returns the element in the AsyncStream at the given index, or a fallback value (default undefined) otherwise.
@@ -439,7 +499,7 @@ export interface AsyncStream<T>
    */
   indicesWhere(
     pred: (value: T) => MaybePromise<boolean>,
-    options?: { negate?: boolean }
+    options?: { negate?: boolean | undefined }
   ): AsyncStream<number>;
   /**
    * Returns an AsyncStream containing the indicies of the occurrance of the given `searchValue`, according to given `eq` function.
@@ -456,7 +516,7 @@ export interface AsyncStream<T>
    */
   indicesOf(
     searchValue: T,
-    options?: { eq?: Eq<T>; negate?: boolean }
+    options?: { eq?: Eq<T> | undefined; negate?: boolean | undefined }
   ): AsyncStream<number>;
   /**
    * Returns the index of the given `occurrance` instance of the element in the AsyncStream that satisfies given `pred` function,
@@ -474,7 +534,7 @@ export interface AsyncStream<T>
    */
   indexWhere(
     pred: (value: T, index: number) => MaybePromise<boolean>,
-    options?: { occurrance?: number; negate?: boolean }
+    options?: { occurrance?: number | undefined; negate?: boolean | undefined }
   ): Promise<number | undefined>;
   /**
    * Returns the index of the `occurrance` instance of given `searchValue` in the AsyncStream, using given `eq` function,
@@ -496,7 +556,11 @@ export interface AsyncStream<T>
    */
   indexOf(
     searchValue: T,
-    options?: { occurrance?: number; eq?: Eq<T>; negate?: boolean }
+    options?: {
+      occurrance?: number | undefined;
+      eq?: Eq<T> | undefined;
+      negate?: boolean | undefined;
+    }
   ): Promise<number | undefined>;
   /**
    * Returns true if any element of the AsyncStream satifies given `pred` function.
@@ -512,7 +576,7 @@ export interface AsyncStream<T>
    */
   some(
     pred: (value: T, index: number) => MaybePromise<boolean>,
-    options?: { negate?: boolean }
+    options?: { negate?: boolean | undefined }
   ): Promise<boolean>;
   /**
    * Returns true if every element of the AsyncStream satifies given `pred` function.
@@ -528,7 +592,7 @@ export interface AsyncStream<T>
    */
   every(
     pred: (value: T, index: number) => MaybePromise<boolean>,
-    options?: { negate?: boolean }
+    options?: { negate?: boolean | undefined }
   ): Promise<boolean>;
   /**
    * Returns true if the AsyncStream contains given `amount` instances of given `value`, using given `eq` function.
@@ -549,7 +613,11 @@ export interface AsyncStream<T>
    */
   contains(
     value: T,
-    options?: { amount?: number; eq?: Eq<T>; negate?: boolean }
+    options?: {
+      amount?: number | undefined;
+      eq?: Eq<T> | undefined;
+      negate?: boolean | undefined;
+    }
   ): Promise<boolean>;
   /**
    * Returns true if this stream contains the same sequence of elements as the given `source`,
@@ -568,7 +636,7 @@ export interface AsyncStream<T>
    */
   containsSlice(
     source: AsyncStreamSource.NonEmpty<T>,
-    options?: { eq?: Eq<T> }
+    options?: { eq?: Eq<T> | undefined }
   ): Promise<boolean>;
   /**
    * Returns an AsyncStream that contains the elements of this stream up to the first element that does not satisfy given `pred` function.
@@ -584,7 +652,7 @@ export interface AsyncStream<T>
    */
   takeWhile(
     pred: (value: T, index: number) => MaybePromise<boolean>,
-    options?: { negate?: boolean }
+    options?: { negate?: boolean | undefined }
   ): AsyncStream<T>;
   /**
    * Returns an AsyncStream that contains the elements of this stream starting from the first element that does not satisfy given `pred` function.
@@ -600,7 +668,7 @@ export interface AsyncStream<T>
    */
   dropWhile(
     pred: (value: T, index: number) => MaybePromise<boolean>,
-    options?: { negate?: boolean }
+    options?: { negate?: boolean | undefined }
   ): AsyncStream<T>;
   /**
    * Returns an AsyncStream that contains the elements of this stream up to a maximum of `amount` elements.
@@ -638,7 +706,7 @@ export interface AsyncStream<T>
    * @note amount < 1 will be normalized to amount = 1
    * @note O(1)
    */
-  repeat(amount?: number): AsyncStream<T>;
+  repeat(amount?: number | undefined): AsyncStream<T>;
   /**
    * Returns an AsyncStream containing the elements of this stream followed by all elements produced by the `others` array of AsyncStreamSources.
    * @typeparam T2 - the element type of the stream to concatenate
@@ -774,9 +842,9 @@ export interface AsyncStream<T>
    * @note O(N)
    */
   mkGroup(options: {
-    sep?: AsyncStreamSource<T>;
-    start?: AsyncStreamSource<T>;
-    end?: AsyncStreamSource<T>;
+    sep?: AsyncStreamSource<T> | undefined;
+    start?: AsyncStreamSource<T> | undefined;
+    end?: AsyncStreamSource<T> | undefined;
   }): AsyncStream<T>;
   /**
    * Returns an AsyncStream of collections of stream elements, where each array is filled with elements of this stream up to the next element that
@@ -794,11 +862,14 @@ export interface AsyncStream<T>
    */
   splitWhere<R>(
     pred: (value: T, index: number) => MaybePromise<boolean>,
-    options: { negate?: boolean; collector: AsyncReducer<T, R> }
+    options: {
+      negate?: boolean | undefined;
+      collector: AsyncReducer.Accept<T, R>;
+    }
   ): AsyncStream<R>;
   splitWhere(
     pred: (value: T, index: number) => MaybePromise<boolean>,
-    options?: { negate?: boolean; collector?: undefined }
+    options?: { negate?: boolean | undefined; collector?: undefined }
   ): AsyncStream<T[]>;
   /**
    * Returns an AsyncStream of collections of stream elements, where each array is filled with elements of this stream up to the next element that
@@ -816,16 +887,24 @@ export interface AsyncStream<T>
    */
   splitOn<R, T2 extends T = T>(
     sepElem: T2,
-    options?: { eq?: Eq<T2>; negate?: boolean; collector: AsyncReducer<T, R> }
+    options?: {
+      eq?: Eq<T2> | undefined;
+      negate?: boolean | undefined;
+      collector: AsyncReducer.Accept<T, R>;
+    }
   ): AsyncStream<R>;
   splitOn(
     sepElem: T,
-    options?: { eq?: Eq<T>; negate?: boolean; collector?: undefined }
+    options?: {
+      eq?: Eq<T> | undefined;
+      negate?: boolean | undefined;
+      collector?: undefined;
+    }
   ): AsyncStream<T[]>;
   /**
    * Returns an AsyncStream of collections of stream elements, where each array is filled with elements of this stream up to the next sequence of elements that
    * matches given `sepSeq` ordered elements with the given `eq` function.
-   * @param sepSeq - an `AsyncStreamSource` contaning the sequence to find
+   * @param sepSlice - an `AsyncStreamSource` contaning the sequence to find
    * @param options - (optional) object specifying the following properties<br/>
    * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
    * - collector: (default: `AsyncArray.toArray()`) the async reducer to use to collect the resulting values
@@ -835,13 +914,16 @@ export interface AsyncStream<T>
    * ```
    * @note O(1)
    */
-  splitOnSeq<R, T2 extends T = T>(
-    sepSeq: AsyncStreamSource<T2>,
-    options: { eq?: Eq<T2>; collector: AsyncReducer<T, R> }
+  splitOnSlice<R, T2 extends T = T>(
+    sepSlice: AsyncStreamSource<T & T2>,
+    options: {
+      eq?: Eq<T> | undefined;
+      collector: AsyncReducer.Accept<T & T2, R>;
+    }
   ): AsyncStream<R>;
-  splitOnSeq(
-    sepSeq: AsyncStreamSource<T>,
-    options?: { eq?: Eq<T>; collector?: undefined }
+  splitOnSlice<T2 extends T = T>(
+    sepSlice: AsyncStreamSource<T & T2>,
+    options?: { eq?: Eq<T> | undefined; collector?: undefined }
   ): AsyncStream<T[]>;
   /**
    * Returns an AsyncStream containing non-repetitive elements of the source stream, where repetitive elements
@@ -855,7 +937,10 @@ export interface AsyncStream<T>
    * // => [1, 2, 3, 1]
    * ```
    */
-  distinctPrevious(options?: { eq?: Eq<T>; negate?: boolean }): AsyncStream<T>;
+  distinctPrevious(options?: {
+    eq?: Eq<T> | undefined;
+    negate?: boolean | undefined;
+  }): AsyncStream<T>;
   /**
    * Returns an AsyncStream containing `windows` of `windowSize` consecutive elements of the source stream, with each
    * window starting `skipAmount` elements after the previous one.
@@ -877,14 +962,54 @@ export interface AsyncStream<T>
   window<R>(
     windowSize: number,
     options: {
-      skipAmount?: number;
-      collector: AsyncReducer<T, R>;
+      skipAmount?: number | undefined;
+      collector: AsyncReducer.Accept<T, R>;
     }
   ): AsyncStream<R>;
   window(
     windowSize: number,
-    options?: { skipAmount?: number; collector?: undefined }
+    options?: { skipAmount?: number | undefined; collector?: undefined }
   ): AsyncStream<T[]>;
+  partition<T2 extends T, RT, RF = RT>(
+    pred: (value: T, index: number) => value is T2,
+    options: {
+      collectorTrue: AsyncReducer.Accept<T2, RT>;
+      collectorFalse: AsyncReducer.Accept<Exclude<T, T2>, RF>;
+    }
+  ): Promise<[true: RT, false: RF]>;
+  partition<T2 extends T>(
+    pred: (value: T, index: number) => value is T2,
+    options?: {
+      collectorTrue?: undefined;
+      collectorFalse?: undefined;
+    }
+  ): Promise<[true: T2[], false: Exclude<T, T2>[]]>;
+  partition<RT, RF = RT>(
+    pred: (value: T, index: number) => MaybePromise<boolean>,
+    options: {
+      collectorTrue: AsyncReducer.Accept<T, RT>;
+      collectorFalse: AsyncReducer.Accept<T, RF>;
+    }
+  ): Promise<[true: RT, false: RF]>;
+  partition(
+    pred: (value: T, index: number) => MaybePromise<boolean>,
+    options?: {
+      collectorTrue?: undefined;
+      collectorFalse?: undefined;
+    }
+  ): Promise<[true: T[], false: T[]]>;
+  groupBy<K, R>(
+    valueToKey: (value: T, index: number) => MaybePromise<K>,
+    options: {
+      collector: AsyncReducer.Accept<[K, T], R>;
+    }
+  ): Promise<R>;
+  groupBy<K>(
+    valueToKey: (value: T, index: number) => MaybePromise<K>,
+    options?: {
+      collector?: undefined;
+    }
+  ): Promise<Map<K, T[]>>;
   /**
    * Returns the value resulting from applying the given the given `next` function to a current state (initially the given `init` value),
    * and the next stream value, and returning the new state. When all elements are processed, the resulting state is returned.
@@ -960,7 +1085,7 @@ export interface AsyncStream<T>
    * // => 8
    * ```
    */
-  reduce<R>(reducer: AsyncReducer<T, R>): Promise<R>;
+  reduce<R>(reducer: AsyncReducer.Accept<T, R>): Promise<R>;
   /**
    * Applies the given combined `(Async)Reducer` to each element in the AsyncStream, and returns the final result.
    * @typeparam S - a shape defining a combined reducer definition
@@ -994,7 +1119,7 @@ export interface AsyncStream<T>
    * // => [1, 2, 8]
    * ```
    */
-  reduceStream<R>(reducer: AsyncReducer<T, R>): AsyncStream<R>;
+  reduceStream<R>(reducer: AsyncReducer.Accept<T, R>): AsyncStream<R>;
   /**
    * Returns an AsyncStream where the given shape containing `AsyncReducers` is applied to each element in the stream.
    * @typeparam S - the reducer shape type
@@ -1082,7 +1207,7 @@ export namespace AsyncStream {
      * @note O(1)
      */
     indexed(options?: {
-      startIndex?: number;
+      startIndex?: number | undefined;
     }): AsyncStream.NonEmpty<[number, T]>;
     /**
      * Returns a non-empty AsyncStream where `mapFun` is applied to each element.
@@ -1187,9 +1312,9 @@ export namespace AsyncStream {
      * ```
      */
     transform<R>(
-      transformer: AsyncTransformer.NonEmpty<T, R>
+      transformer: AsyncTransformer.AcceptNonEmpty<T, R>
     ): AsyncStream.NonEmpty<R>;
-    transform<R>(transformer: AsyncTransformer<T, R>): AsyncStream<R>;
+    transform<R>(transformer: AsyncTransformer.Accept<T, R>): AsyncStream<R>;
     /**
      * Returns the first element of the AsyncStream.
      * @example
@@ -1224,7 +1349,7 @@ export namespace AsyncStream {
      * @note amount < 1 will be normalized to amount = 1
      * @note O(1)
      */
-    repeat(amount?: number): AsyncStream.NonEmpty<T>;
+    repeat(amount?: number | undefined): AsyncStream.NonEmpty<T>;
     /**
      * Returns a non-empty AsyncStream containing the elements of this stream followed by all elements produced by the `others` array of AsyncStreamSources.
      * @typeparam T2 - the result value type
@@ -1303,9 +1428,9 @@ export namespace AsyncStream {
      * @note O(N)
      */
     mkGroup(options: {
-      sep?: AsyncStreamSource<T>;
-      start?: AsyncStreamSource<T>;
-      end?: AsyncStreamSource<T>;
+      sep?: AsyncStreamSource<T> | undefined;
+      start?: AsyncStreamSource<T> | undefined;
+      end?: AsyncStreamSource<T> | undefined;
     }): AsyncStream.NonEmpty<T>;
     /**
      * Returns a non-empty AsyncStream containing non-repetitive elements of the source stream, where repetitive elements
@@ -1320,8 +1445,8 @@ export namespace AsyncStream {
      * ```
      */
     distinctPrevious(options?: {
-      eq?: Eq<T>;
-      negate?: boolean;
+      eq?: Eq<T> | undefined;
+      negate?: boolean | undefined;
     }): AsyncStream.NonEmpty<T>;
     /**
      * Returns an AsyncStream containing the values resulting from applying the given the given `next` function to a current state (initially the given `init` value),

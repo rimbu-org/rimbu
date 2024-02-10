@@ -103,8 +103,8 @@ describe('Reducer', () => {
   });
 
   it('count', () => {
-    expect(Stream.empty<number>().reduce(Reducer.count())).toBe(0);
-    expect(Stream.of(1, 2, 3).reduce(Reducer.count())).toBe(3);
+    expect(Stream.empty<number>().reduce(Reducer.count)).toBe(0);
+    expect(Stream.of(1, 2, 3).reduce(Reducer.count)).toBe(3);
   });
 
   it('first', () => {
@@ -479,7 +479,7 @@ describe('Reducer', () => {
 
   it('filterInput', () => {
     expect(
-      Stream.of(1, 2, 3).reduce(Reducer.count().filterInput((v) => v > 2))
+      Stream.of(1, 2, 3).reduce(Reducer.count.filterInput((v) => v > 2))
     ).toBe(1);
   });
 

@@ -342,7 +342,7 @@ export class MultiSetNonEmpty<
 
   filterEntries(
     pred: (entry: readonly [T, number], index: number) => boolean,
-    options: { negate?: boolean } = {}
+    options: { negate?: boolean | undefined } = {}
   ): TpG['normal'] {
     const builder = this.context.builder();
 

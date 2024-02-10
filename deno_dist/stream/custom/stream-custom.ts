@@ -12,6 +12,13 @@ import {
   type ToJSON,
 } from '../../common/mod.ts';
 
+import {
+  Reducer,
+  Transformer,
+  type FastIterator,
+  type Stream,
+  type StreamSource,
+} from '../../stream/mod.ts';
 import type { StreamConstructors } from '../../stream/custom/index.ts';
 import {
   AlwaysIterator,
@@ -20,17 +27,12 @@ import {
   ArrayReverseIterator,
   CollectIterator,
   ConcatIterator,
-  DistinctPreviousIterator,
   DropIterator,
   DropWhileIterator,
   FilterApplyIterator,
   FilterIterator,
   FilterPureIterator,
-  FlatMapIterator,
   IndexedIterator,
-  IndicesOfIterator,
-  IndicesWhereIterator,
-  IntersperseIterator,
   MapApplyIterator,
   MapIterator,
   MapPureIterator,
@@ -39,27 +41,16 @@ import {
   RandomIterator,
   RangeDownIterator,
   RangeUpIterator,
-  ReduceIterator,
+  ReducerFastIterator,
   RepeatIterator,
-  SplitOnIterator,
-  SplitOnSeqIterator,
-  SplitWhereIterator,
   TakeIterator,
-  TakeWhileIterator,
+  TransformerFastIterator,
   UnfoldIterator,
-  WindowIterator,
   ZipAllWithItererator,
   ZipWithIterator,
   emptyFastIterator,
   isFastIterator,
 } from '../../stream/custom/index.ts';
-import { Reducer } from '../../stream/mod.ts';
-import type {
-  FastIterator,
-  Stream,
-  StreamSource,
-  Transformer,
-} from '../../stream/mod.ts';
 
 function* yieldObjKeys<K extends string | number | symbol>(
   obj: Record<K, any>
@@ -96,13 +87,19 @@ export abstract class StreamBase<T> implements Stream<T> {
   ): boolean {
     const it1 = this[Symbol.iterator]();
     const it2 = fromStreamSource(other)[Symbol.iterator]();
-
     const done = Symbol('Done');
+
     while (true) {
       const v1 = it1.fastNext(done);
       const v2 = it2.fastNext(done);
-      if (done === v1 || done === v2) return Object.is(v1, v2);
-      if (eq(v1, v2) === negate) return false;
+
+      if (done === v1 || done === v2) {
+        return Object.is(v1, v2);
+      }
+
+      if (eq(v1, v2) === negate) {
+        return false;
+      }
     }
   }
 
@@ -156,7 +153,29 @@ export abstract class StreamBase<T> implements Stream<T> {
 
   indexed(options: { startIndex?: number } = {}): Stream<[number, T]> {
     const { startIndex = 0 } = options;
-    return new IndexedStream<T>(this, startIndex);
+
+    return new IndexedStream(this, startIndex);
+  }
+
+  filter(
+    pred: (value: T, index: number, halt: () => void) => boolean,
+    options: { negate?: boolean | undefined } = {}
+  ): any {
+    const { negate = false } = options;
+
+    return new FilterStream(this, pred, negate) as any;
+  }
+
+  filterPure<A extends readonly unknown[]>(
+    options: {
+      pred: (value: T, ...args: A) => boolean;
+      negate?: boolean | undefined;
+    },
+    ...args: A
+  ): any {
+    const { pred, negate = false } = options;
+
+    return new FilterPureStream(this, pred, args, negate) as any;
   }
 
   map<T2>(mapFun: (value: T, index: number) => T2): Stream<T2> {
@@ -170,54 +189,28 @@ export abstract class StreamBase<T> implements Stream<T> {
     return new MapPureStream<T, A, T2>(this, mapFun, args);
   }
 
+  collect<R>(collectFun: CollectFun<T, R>): Stream<R> {
+    return new CollectStream<T, R>(this, collectFun);
+  }
+
   flatMap<T2>(
     flatMapFun: (value: T, index: number, halt: () => void) => StreamSource<T2>
   ): Stream<T2> {
-    return new FlatMapStream<T, T2>(this, flatMapFun);
+    return this.transform(Transformer.flatMap(flatMapFun));
   }
 
   flatZip<T2>(
     flatMapFun: (value: T, index: number, halt: () => void) => StreamSource<T2>
   ): Stream<[T, T2]> {
-    return this.flatMap((value, index, halt) =>
-      fromStreamSource(flatMapFun(value, index, halt)).map((result) => [
-        value,
-        result,
-      ])
-    );
+    return this.transform(Transformer.flatZip(flatMapFun));
   }
 
   transform<R>(transformer: Transformer<T, R>): Stream<R> {
-    return StreamConstructorsImpl.flatten(this.reduceStream(transformer));
-  }
-
-  filter(
-    pred: (value: T, index: number, halt: () => void) => boolean,
-    options: { negate?: boolean } = {}
-  ): Stream<T> {
-    const { negate = false } = options;
-
-    return new FilterStream<T>(this, pred, negate);
-  }
-
-  filterPure<A extends readonly unknown[]>(
-    options: {
-      pred: (value: T, ...args: A) => boolean;
-      negate?: boolean;
-    },
-    ...args: A
-  ): Stream<T> {
-    const { pred, negate = false } = options;
-
-    return new FilterPureStream<T, A>(this, pred, args, negate);
-  }
-
-  collect<R>(collectFun: CollectFun<T, R>): Stream<R> {
-    return new CollectStream<T, R>(this, collectFun);
+    return new TransformerStream(this, transformer);
   }
 
   first<O>(otherwise?: OptLazy<O>): T | O {
-    return this[Symbol.iterator]().fastNext(otherwise!);
+    return this[Symbol.iterator]().fastNext(otherwise as OptLazy<O>);
   }
 
   last<O>(otherwise?: OptLazy<O>): T | O {
@@ -230,7 +223,10 @@ export abstract class StreamBase<T> implements Stream<T> {
       lastValue = value;
     }
 
-    if (done === lastValue) return OptLazy(otherwise) as O;
+    if (done === lastValue) {
+      return OptLazy(otherwise) as O;
+    }
+
     return lastValue;
   }
 
@@ -255,7 +251,9 @@ export abstract class StreamBase<T> implements Stream<T> {
     const done = Symbol('Done');
     const iterator = this[Symbol.iterator]();
 
-    while (done !== iterator.fastNext(done)) result++;
+    while (done !== iterator.fastNext(done)) {
+      result++;
+    }
 
     return result;
   }
@@ -273,7 +271,9 @@ export abstract class StreamBase<T> implements Stream<T> {
     let current: T | typeof done;
 
     while (done !== (current = iterator.fastNext(done))) {
-      if (eq(value, current) !== negate) result++;
+      if (eq(value, current) !== negate) {
+        result++;
+      }
     }
 
     return result;
@@ -282,14 +282,16 @@ export abstract class StreamBase<T> implements Stream<T> {
   find<O>(
     pred: (value: T, index: number) => boolean,
     options: {
-      occurrance?: number;
-      negate?: boolean;
+      occurrance?: number | undefined;
+      negate?: boolean | undefined;
       otherwise?: OptLazy<O>;
     } = {}
   ): T | O {
     const { occurrance = 1, negate = false, otherwise } = options;
 
-    if (occurrance <= 0) return OptLazy(otherwise) as O;
+    if (occurrance <= 0) {
+      return OptLazy(otherwise) as O;
+    }
 
     const done = Symbol('Done');
     const iterator = this[Symbol.iterator]();
@@ -298,14 +300,18 @@ export abstract class StreamBase<T> implements Stream<T> {
     let index = 0;
 
     while (done !== (value = iterator.fastNext(done))) {
-      if (pred(value, index++) !== negate && --remain <= 0) return value;
+      if (pred(value, index++) !== negate && --remain <= 0) {
+        return value;
+      }
     }
 
     return OptLazy(otherwise) as O;
   }
 
   elementAt<O>(index: number, otherwise?: OptLazy<O>): T | O {
-    if (index < 0) return OptLazy(otherwise) as O;
+    if (index < 0) {
+      return OptLazy(otherwise) as O;
+    }
 
     const done = Symbol('Done');
     const iterator = this[Symbol.iterator]();
@@ -313,7 +319,9 @@ export abstract class StreamBase<T> implements Stream<T> {
     let i = 0;
 
     while (i <= index && done !== (value = iterator.fastNext(done))) {
-      if (i === index) return value;
+      if (i === index) {
+        return value;
+      }
       i++;
     }
 
@@ -324,17 +332,14 @@ export abstract class StreamBase<T> implements Stream<T> {
     pred: (value: T) => boolean,
     options: { negate?: boolean } = {}
   ): Stream<number> {
-    const { negate = false } = options;
-    return new IndicesWhereStream<T>(this, pred, negate);
+    return this.transform(Transformer.indicesWhere(pred, options));
   }
 
   indicesOf(
     searchValue: T,
     options: { eq?: Eq<T>; negate?: boolean } = {}
   ): Stream<number> {
-    const { eq = Eq.objectIs, negate = false } = options;
-
-    return new IndicesOfStream<T>(this, searchValue, eq, negate);
+    return this.transform(Transformer.indicesOf(searchValue, options));
   }
 
   indexWhere(
@@ -346,7 +351,9 @@ export abstract class StreamBase<T> implements Stream<T> {
   ): number | undefined {
     const { occurrance = 1, negate = false } = options;
 
-    if (occurrance <= 0) return undefined;
+    if (occurrance <= 0) {
+      return undefined;
+    }
 
     const done = Symbol('Done');
     let value: T | typeof done;
@@ -359,7 +366,9 @@ export abstract class StreamBase<T> implements Stream<T> {
 
       if (pred(value, i) !== negate) {
         occ++;
-        if (occ >= occurrance) return i;
+        if (occ >= occurrance) {
+          return i;
+        }
       }
     }
 
@@ -368,11 +377,17 @@ export abstract class StreamBase<T> implements Stream<T> {
 
   indexOf(
     searchValue: T,
-    options: { occurrance?: number; eq?: Eq<T>; negate?: boolean } = {}
+    options: {
+      occurrance?: number | undefined;
+      eq?: Eq<T> | undefined;
+      negate?: boolean | undefined;
+    } = {}
   ): number | undefined {
     const { occurrance = 1 } = options;
 
-    if (occurrance <= 0) return undefined;
+    if (occurrance <= 0) {
+      return undefined;
+    }
 
     const { eq = Eq.objectIs, negate = false } = options;
 
@@ -387,7 +402,10 @@ export abstract class StreamBase<T> implements Stream<T> {
 
       if (eq(value, searchValue) !== negate) {
         occ++;
-        if (occ >= occurrance) return i;
+
+        if (occ >= occurrance) {
+          return i;
+        }
       }
     }
 
@@ -416,9 +434,11 @@ export abstract class StreamBase<T> implements Stream<T> {
   ): boolean {
     const { amount = 1 } = options;
 
-    if (amount <= 0) return true;
+    if (amount <= 0) {
+      return true;
+    }
 
-    const { eq = Eq.objectIs, negate = false } = options;
+    const { eq, negate } = options;
 
     return (
       undefined !==
@@ -428,27 +448,9 @@ export abstract class StreamBase<T> implements Stream<T> {
 
   containsSlice(
     source: StreamSource.NonEmpty<T>,
-    options: { eq?: Eq<T> } = {}
+    options: { eq?: Eq<T>; amount?: number } = {}
   ): boolean {
-    const { eq = Eq.objectIs } = options;
-
-    const iterator = this[Symbol.iterator]();
-    const sourceStream = fromStreamSource(source);
-    let sourceIterator = sourceStream[Symbol.iterator]();
-
-    const done = Symbol('Done');
-
-    while (true) {
-      const sourceValue = sourceIterator.fastNext(done);
-      if (done === sourceValue) return true;
-
-      const value = iterator.fastNext(done);
-      if (done === value) return false;
-
-      if (!eq(sourceValue, value)) {
-        sourceIterator = sourceStream[Symbol.iterator]();
-      }
-    }
+    return this.reduce(Reducer.containsSlice(source, options));
   }
 
   takeWhile(
@@ -457,7 +459,15 @@ export abstract class StreamBase<T> implements Stream<T> {
   ): Stream<T> {
     const { negate = false } = options;
 
-    return new TakeWhileStream<T>(this, pred, negate);
+    return this.filter((value, index, halt) => {
+      const result = pred(value, index) !== negate;
+
+      if (!result) {
+        halt();
+      }
+
+      return result;
+    });
   }
 
   dropWhile(
@@ -470,19 +480,25 @@ export abstract class StreamBase<T> implements Stream<T> {
   }
 
   take(amount: number): Stream<T> {
-    if (amount <= 0) return emptyStream;
+    if (amount <= 0) {
+      return emptyStream;
+    }
 
     return new TakeStream<T>(this, amount);
   }
 
   drop(amount: number): Stream<T> {
-    if (amount <= 0) return this;
+    if (amount <= 0) {
+      return this;
+    }
 
     return new DropStream<T>(this, amount);
   }
 
   repeat(amount?: number): Stream<T> {
-    if (undefined !== amount && amount <= 1) return this;
+    if (undefined !== amount && amount <= 1) {
+      return this;
+    }
 
     return new FromStream<T>(() => new RepeatIterator<T>(this, amount));
   }
@@ -534,11 +550,11 @@ export abstract class StreamBase<T> implements Stream<T> {
   }
 
   intersperse(sep: StreamSource<T>): Stream<T> {
-    if (isEmptyStreamSourceInstance(sep)) return this;
+    if (isEmptyStreamSourceInstance(sep)) {
+      return this;
+    }
 
-    const sepStream = fromStreamSource(sep);
-
-    return new IntersperseStream<T>(this, sepStream);
+    return this.transform(Transformer.intersperse(sep));
   }
 
   join({
@@ -553,7 +569,10 @@ export abstract class StreamBase<T> implements Stream<T> {
     let value: T | typeof done = iterator.fastNext(done);
 
     if (done === value) {
-      if (undefined !== ifEmpty) return ifEmpty;
+      if (undefined !== ifEmpty) {
+        return ifEmpty;
+      }
+
       return start.concat(end);
     }
 
@@ -576,74 +595,75 @@ export abstract class StreamBase<T> implements Stream<T> {
 
   splitWhere<R>(
     pred: (value: T, index: number) => boolean,
-    options: { negate?: boolean; collector?: Reducer<T, R> | undefined } = {}
+    options: {
+      negate?: boolean | undefined;
+      collector?: Reducer<T, R> | undefined;
+    } = {}
   ): Stream<R> {
-    const { negate = false, collector = Reducer.toArray() as Reducer<T, R> } =
-      options;
-
-    return new SplitWhereStream<T, R>(this, pred, negate, collector);
+    return this.transform(Transformer.splitWhere(pred, options));
   }
 
   splitOn<R>(
     sepElem: T,
     options: {
-      eq?: Eq<T>;
-      negate?: boolean;
+      eq?: Eq<T> | undefined;
+      negate?: boolean | undefined;
       collector?: Reducer<T, R> | undefined;
     } = {}
   ): Stream<R> {
-    const {
-      eq = Object.is,
-      negate = false,
-      collector = Reducer.toArray() as Reducer<T, R>,
-    } = options;
-
-    return new SplitOnStream<T, R>(this, sepElem, eq, negate, collector);
+    return this.transform(Transformer.splitOn(sepElem, options));
   }
 
-  splitOnSeq<R>(
+  splitOnSlice<R>(
     sepSeq: StreamSource<T>,
-    options: { eq?: Eq<T>; collector?: Reducer<T, R> | undefined } = {}
+    options: {
+      eq?: Eq<T> | undefined;
+      collector?: Reducer<T, R> | undefined;
+    } = {}
   ): Stream<R> {
-    const { eq = Object.is, collector = Reducer.toArray() as Reducer<T, R> } =
-      options;
-
-    return new SplitOnSeq<T, R>(this, sepSeq, eq, collector);
+    return this.transform(Transformer.splitOnSlice(sepSeq, options));
   }
 
   distinctPrevious(options: { eq?: Eq<T>; negate?: boolean } = {}): Stream<T> {
-    const { eq = Eq.objectIs, negate = false } = options;
-
-    return new DistinctPreviousStream<T>(this, eq, negate);
+    return this.transform(Transformer.distinctPrevious(options));
   }
 
   window<R>(
     windowSize: number,
     options: {
-      skipAmount?: number;
+      skipAmount?: number | undefined;
       collector?: Reducer<T, R> | undefined;
     } = {}
   ): Stream<R> {
-    const { skipAmount = windowSize, collector = Reducer.toArray() as any } =
-      options;
+    return this.transform(Transformer.window(windowSize, options as any));
+  }
 
-    return new WindowStream<T, R>(this, windowSize, skipAmount, collector);
+  partition(
+    pred: (value: T, index: number) => any,
+    options: { collectorTrue?: any; collectorFalse?: any } = {}
+  ): [any, any] {
+    return this.reduce(Reducer.partition(pred, options));
+  }
+
+  groupBy<K, R>(
+    valueToKey: (value: T, index: number) => K,
+    options: { collector?: Reducer<[K, T], R> | undefined } = {}
+  ): R {
+    return this.reduce(Reducer.groupBy<T, K, R>(valueToKey, options as any));
   }
 
   fold<R>(
     init: OptLazy<R>,
     next: (current: R, value: T, index: number, halt: () => void) => R
   ): R {
-    return this.reduce(Reducer.createOutput<T, R>(() => OptLazy(init), next));
+    return this.reduce(Reducer.fold(init, next));
   }
 
   foldStream<R>(
     init: OptLazy<R>,
     next: (current: R, value: T, index: number, halt: () => void) => R
   ): Stream<R> {
-    return this.reduceStream(
-      Reducer.createOutput<T, R>(() => OptLazy(init), next)
-    );
+    return this.reduceStream(Reducer.fold(init, next));
   }
 
   reduce<const S extends Reducer.CombineShape<T>>(
@@ -672,7 +692,7 @@ export abstract class StreamBase<T> implements Stream<T> {
       Reducer.CombineResult<S>
     >;
 
-    return new ReduceStream(this, reducer);
+    return new ReducerStream(this, reducer);
   }
 
   toArray(): T[] {
@@ -700,7 +720,7 @@ export abstract class StreamBase<T> implements Stream<T> {
   }
 }
 
-export class FromStream<T> extends StreamBase<T> {
+class FromStream<T> extends StreamBase<T> {
   [Symbol.iterator]: () => FastIterator<T> = undefined as any;
 
   constructor(createIterator: () => FastIterator<T>) {
@@ -744,6 +764,83 @@ class PrependStream<T> extends StreamBase<T> {
 
     this.source.forEach(f, { state });
   }
+
+  mapPure<T2, A extends readonly unknown[]>(
+    mapFun: (value: T, ...args: A) => T2,
+    ...args: A
+  ): Stream<T2> {
+    return new PrependStream(this.source.mapPure(mapFun, ...args), () =>
+      mapFun(OptLazy(this.item), ...args)
+    );
+  }
+
+  take(amount: number): Stream<T> {
+    if (amount <= 0) {
+      return emptyStream;
+    }
+
+    if (amount === 1) {
+      return StreamConstructorsImpl.of(OptLazy(this.item));
+    }
+
+    return new PrependStream(this.source.take(amount - 1), this.item);
+  }
+
+  drop(amount: number): Stream<T> {
+    if (amount <= 0) {
+      return this;
+    }
+
+    if (amount === 1) {
+      return this.source;
+    }
+
+    return this.source.drop(amount - 1);
+  }
+
+  minBy<O>(compare: (v1: T, v2: T) => number): T | O {
+    const token = Symbol();
+    const result = this.source.minBy(compare, token);
+    const itemValue = OptLazy(this.item);
+
+    if (token === result) {
+      return itemValue;
+    }
+
+    return compare(result, itemValue) <= 0 ? result : itemValue;
+  }
+
+  maxBy<O>(compare: (v1: T, v2: T) => number): T | O {
+    const token = Symbol();
+    const result = this.source.maxBy(compare, token);
+    const itemValue = OptLazy(this.item);
+
+    if (token === result) {
+      return itemValue;
+    }
+
+    return compare(result, itemValue) > 0 ? result : itemValue;
+  }
+
+  join({
+    sep = '',
+    start = '',
+    end = '',
+    valueToString = String,
+  } = {}): string {
+    return this.source.join({
+      sep,
+      start: `${start}${valueToString(OptLazy(this.item))}`,
+      end,
+      valueToString,
+    });
+  }
+
+  toArray(): T[] {
+    const result = this.source.toArray();
+    result.unshift(OptLazy(this.item));
+    return result;
+  }
 }
 
 class AppendStream<T> extends StreamBase<T> {
@@ -781,22 +878,58 @@ class AppendStream<T> extends StreamBase<T> {
 
     f(OptLazy(this.item), state.nextIndex(), state.halt);
   }
-}
 
-class IndexedStream<T> extends StreamBase<[number, T]> {
-  constructor(readonly source: Stream<T>, readonly startIndex: number) {
-    super();
-  }
-
-  [Symbol.iterator](): FastIterator<[number, T]> {
-    return new IndexedIterator<T>(
-      this.source[Symbol.iterator](),
-      this.startIndex
+  mapPure<T2, A extends readonly unknown[]>(
+    mapFun: (value: T, ...args: A) => T2,
+    ...args: A
+  ): Stream<T2> {
+    return new AppendStream(this.source.mapPure(mapFun, ...args), () =>
+      mapFun(OptLazy(this.item), ...args)
     );
   }
 
-  count(): number {
-    return this.source.count();
+  minBy<O>(compare: (v1: T, v2: T) => number): T | O {
+    const token = Symbol();
+    const result = this.source.minBy(compare, token);
+    const itemValue = OptLazy(this.item);
+
+    if (token === result) {
+      return itemValue;
+    }
+
+    return compare(result, itemValue) <= 0 ? result : itemValue;
+  }
+
+  maxBy<O>(compare: (v1: T, v2: T) => number): T | O {
+    const token = Symbol();
+    const result = this.source.maxBy(compare, token);
+    const itemValue = OptLazy(this.item);
+
+    if (token === result) {
+      return itemValue;
+    }
+
+    return compare(result, itemValue) > 0 ? result : itemValue;
+  }
+
+  join({
+    sep = '',
+    start = '',
+    end = '',
+    valueToString = String,
+  } = {}): string {
+    return this.source.join({
+      sep,
+      start,
+      end: `${valueToString(OptLazy(this.item))}${end}`,
+      valueToString,
+    });
+  }
+
+  toArray(): T[] {
+    const result = this.source.toArray();
+    result.push(OptLazy(this.item));
+    return result;
   }
 }
 
@@ -841,6 +974,22 @@ class MapStream<T, T2> extends StreamBase<T2> {
     return new MapStream<T, T3>(this.source, (value, index) =>
       mapFun(this.mapFun(value, index), index)
     );
+  }
+
+  take(amount: number): Stream<T2> {
+    if (amount <= 0) {
+      return emptyStream;
+    }
+
+    return new MapStream(this.source.take(amount), this.mapFun);
+  }
+
+  drop(amount: number): Stream<T2> {
+    if (amount <= 0) {
+      return this;
+    }
+
+    return new MapStream(this.source.drop(amount), this.mapFun);
   }
 }
 
@@ -889,26 +1038,32 @@ class MapPureStream<
     if (done === value) return OptLazy(otherwise) as O;
     return this.mapFun(value, ...this.args);
   }
-}
 
-class FlatMapStream<T, T2> extends StreamBase<T2> {
-  constructor(
-    readonly source: Stream<T>,
-    readonly flatmapFun: (
-      value: T,
-      index: number,
-      halt: () => void
-    ) => StreamSource<T2>
-  ) {
-    super();
+  mapPure<T3, A2 extends readonly unknown[]>(
+    mapFun: (value: T2, ...args: A2) => T3,
+    ...args: A2
+  ): Stream<T3> {
+    return new MapPureStream<T, A2, T3>(
+      this.source,
+      (value, ...args) => mapFun(this.mapFun(value, ...this.args), ...args),
+      args
+    );
   }
 
-  [Symbol.iterator](): FastIterator<T2> {
-    return new FlatMapIterator<T, T2>(
-      this.source,
-      this.flatmapFun,
-      streamSourceHelpers
-    );
+  take(amount: number): Stream<T2> {
+    if (amount <= 0) {
+      return emptyStream;
+    }
+
+    return new MapPureStream(this.source.take(amount), this.mapFun, this.args);
+  }
+
+  drop(amount: number): Stream<T2> {
+    if (amount <= 0) {
+      return this;
+    }
+
+    return new MapPureStream(this.source.drop(amount), this.mapFun, this.args);
   }
 }
 
@@ -951,6 +1106,25 @@ class ConcatStream<T> extends StreamBase<T> {
     }
   }
 
+  forEachPure<A extends readonly unknown[]>(
+    f: (value: T, ...args: A) => void,
+    ...args: A
+  ): void {
+    this.source.forEachPure(f, ...args);
+
+    let sourceIndex = -1;
+    const sources = this.otherSources;
+    const length = sources.length;
+
+    while (++sourceIndex < length) {
+      const source = sources[sourceIndex];
+
+      if (!isEmptyStreamSourceInstance(source)) {
+        fromStreamSource(source).forEachPure(f, ...args);
+      }
+    }
+  }
+
   last<O>(otherwise?: OptLazy<O>): T | O {
     const sources = this.otherSources;
     let sourceIndex = sources.length;
@@ -985,6 +1159,33 @@ class ConcatStream<T> extends StreamBase<T> {
     return result;
   }
 
+  filterPure<A extends readonly unknown[]>(
+    options: {
+      pred: (value: T, ...args: A) => boolean;
+      negate?: boolean | undefined;
+    },
+    ...args: A
+  ): any {
+    return new ConcatStream(
+      this.source.filterPure(options, ...args),
+      this.otherSources.map((source) =>
+        fromStreamSource(source).filterPure(options, ...args)
+      )
+    ) as any;
+  }
+
+  mapPure<T2, A extends readonly unknown[]>(
+    mapFun: (value: T, ...args: A) => T2,
+    ...args: A
+  ): Stream<T2> {
+    return new ConcatStream(
+      this.source.mapPure(mapFun, ...args),
+      this.otherSources.map((source) =>
+        fromStreamSource(source).mapPure(mapFun, ...args)
+      )
+    );
+  }
+
   concat<T2>(...others2: StreamSource<T2>[]): any {
     return new ConcatStream<T | T2>(
       this.source,
@@ -1011,6 +1212,70 @@ class ConcatStream<T> extends StreamBase<T> {
   }
 }
 
+class IndexedStream<T> extends StreamBase<[number, T]> {
+  constructor(readonly source: Stream<T>, readonly startIndex: number) {
+    super();
+  }
+
+  [Symbol.iterator](): FastIterator<[number, T]> {
+    return new IndexedIterator<T>(
+      this.source[Symbol.iterator](),
+      this.startIndex
+    );
+  }
+
+  first<O>(otherwise?: OptLazy<O> | undefined): [number, T] | O {
+    const token = Symbol();
+    const sourceFirst = this.source.first(token);
+
+    if (token === sourceFirst) {
+      return OptLazy(otherwise) as O;
+    }
+
+    return [0, sourceFirst];
+  }
+
+  count(): number {
+    return this.source.count();
+  }
+
+  elementAt<O>(
+    index: number,
+    otherwise?: OptLazy<O> | undefined
+  ): [number, T] | O {
+    const token = Symbol();
+    const elementAtSource = this.source.elementAt(index, token);
+
+    if (token === elementAtSource) {
+      return OptLazy(otherwise) as O;
+    }
+
+    return [index, elementAtSource];
+  }
+
+  take(amount: number): Stream<[number, T]> {
+    if (amount <= 0) {
+      return emptyStream;
+    }
+
+    return new IndexedStream(this.source.take(amount), this.startIndex);
+  }
+
+  toArray(): Array<[number, T]> {
+    let index = this.startIndex;
+    const iterator = this.source[Symbol.iterator]();
+    const result: Array<[number, T]> = [];
+    const done = Symbol('Done');
+    let value: T | typeof done;
+
+    while (done !== (value = iterator.fastNext(done))) {
+      result.push([index++, value]);
+    }
+
+    return result;
+  }
+}
+
 class FilterStream<T> extends StreamBase<T> {
   constructor(
     readonly source: Stream<T>,
@@ -1028,16 +1293,32 @@ class FilterStream<T> extends StreamBase<T> {
     );
   }
 
-  filter(
-    pred: (value: T, index: number, halt: () => void) => boolean,
-    options: { negate?: boolean } = {}
-  ): Stream<T> {
-    const { negate = false } = options;
+  filterPure<A extends readonly unknown[]>(
+    options: {
+      pred: (value: T, ...args: A) => boolean;
+      negate?: boolean | undefined;
+    },
+    ...args: A
+  ): Stream<never> {
+    const { pred, negate = false } = options;
+    const { pred: thisPred, negate: thisNegate } = this;
 
-    return new FilterStream<T>(
+    return new FilterStream(
       this.source,
-      (v, i, halt) =>
-        this.pred(v, i, halt) !== this.negate && pred(v, i, halt) !== negate
+      (value, index, halt) =>
+        thisPred(value, index, halt) !== thisNegate &&
+        pred(value, ...args) !== negate
+    ) as any;
+  }
+
+  mapPure<T2, A extends readonly unknown[]>(
+    mapFun: (value: T, ...args: A) => T2,
+    ...args: A
+  ): Stream<T2> {
+    const { pred, negate } = this;
+
+    return new CollectStream(this.source, (value, index, skip, halt) =>
+      pred(value, index, halt) !== negate ? mapFun(value, ...args) : skip
     );
   }
 }
@@ -1060,6 +1341,42 @@ class FilterPureStream<T, A extends readonly unknown[]> extends StreamBase<T> {
       this.negate
     );
   }
+
+  filterPure<A extends readonly unknown[]>(
+    options: {
+      pred: (value: T, ...args: A) => boolean;
+      negate?: boolean | undefined;
+    },
+    ...args: A
+  ): Stream<never> {
+    const { pred, negate = false } = options;
+
+    const thisPred = this.pred;
+    const thisArgs = this.args;
+    const thisNegate = this.negate;
+
+    return new FilterPureStream(
+      this.source,
+      (value, ...args) => {
+        return (
+          thisPred(value, ...thisArgs) !== thisNegate &&
+          pred(value, ...args) !== negate
+        );
+      },
+      args
+    ) as any;
+  }
+
+  mapPure<T2, A extends readonly unknown[]>(
+    mapFun: (value: T, ...args: A) => T2,
+    ...args: A
+  ): Stream<T2> {
+    const { pred, negate, args: thisArgs } = this;
+
+    return new CollectStream(this.source, (value, _, skip) =>
+      pred(value, ...thisArgs) !== negate ? mapFun(value, ...args) : skip
+    );
+  }
 }
 
 class CollectStream<T, R> extends StreamBase<R> {
@@ -1076,61 +1393,43 @@ class CollectStream<T, R> extends StreamBase<R> {
       this.collectFun
     );
   }
-}
 
-class IndicesWhereStream<T> extends StreamBase<number> {
-  constructor(
-    readonly source: Stream<T>,
-    readonly pred: (value: T) => boolean,
-    readonly negate: boolean
-  ) {
-    super();
+  filterPure<A extends readonly unknown[]>(
+    options: {
+      pred: (value: R, ...args: A) => boolean;
+      negate?: boolean | undefined;
+    },
+    ...args: A
+  ): any {
+    const { pred, negate = false } = options;
+    const { collectFun } = this;
+
+    return new CollectStream(this.source, (value, index, skip, halt) => {
+      const result = collectFun(value, index, skip, halt);
+
+      if (skip === result || pred(result, ...args) === negate) {
+        return skip;
+      }
+
+      return result;
+    }) as any;
   }
 
-  [Symbol.iterator](): FastIterator<number> {
-    return new IndicesWhereIterator<T>(
-      this.source[Symbol.iterator](),
-      this.pred,
-      this.negate
-    );
-  }
-}
+  mapPure<T2, A extends readonly unknown[]>(
+    mapFun: (value: R, ...args: A) => T2,
+    ...args: A
+  ): Stream<T2> {
+    const { collectFun } = this;
 
-class IndicesOfStream<T> extends StreamBase<number> {
-  constructor(
-    readonly source: Stream<T>,
-    readonly searchValue: T,
-    readonly eq: Eq<T>,
-    readonly negate: boolean
-  ) {
-    super();
-  }
+    return new CollectStream(this.source, (value, index, skip, halt) => {
+      const result = collectFun(value, index, skip, halt);
 
-  [Symbol.iterator](): FastIterator<number> {
-    return new IndicesOfIterator<T>(
-      this.source[Symbol.iterator](),
-      this.searchValue,
-      this.eq,
-      this.negate
-    );
-  }
-}
+      if (skip === result) {
+        return skip;
+      }
 
-class TakeWhileStream<T> extends StreamBase<T> {
-  constructor(
-    readonly source: Stream<T>,
-    readonly pred: (value: T, index: number) => boolean,
-    readonly negate: boolean
-  ) {
-    super();
-  }
-
-  [Symbol.iterator](): FastIterator<T> {
-    return new TakeWhileIterator<T>(
-      this.source[Symbol.iterator](),
-      this.pred,
-      this.negate
-    );
+      return mapFun(result, ...args);
+    });
   }
 }
 
@@ -1162,7 +1461,14 @@ class TakeStream<T> extends StreamBase<T> {
   }
 
   take(amount: number): Stream<T> {
-    if (amount === this.amount) return this;
+    if (amount <= 0) {
+      return emptyStream;
+    }
+
+    if (amount >= this.amount) {
+      return this;
+    }
+
     return this.source.take(amount);
   }
 }
@@ -1177,96 +1483,11 @@ class DropStream<T> extends StreamBase<T> {
   }
 
   drop(amount: number): Stream<T> {
-    if (amount <= 0) return this;
+    if (amount <= 0) {
+      return this;
+    }
+
     return this.source.drop(this.amount + amount);
-  }
-}
-
-class IntersperseStream<T> extends StreamBase<T> {
-  constructor(readonly source: Stream<T>, readonly sepStream: Stream<T>) {
-    super();
-  }
-
-  [Symbol.iterator](): FastIterator<T> {
-    return new IntersperseIterator<T>(
-      this.source[Symbol.iterator](),
-      this.sepStream
-    );
-  }
-}
-
-class SplitWhereStream<T, R> extends StreamBase<R> {
-  constructor(
-    readonly source: Stream<T>,
-    readonly pred: (value: T, index: number) => boolean,
-    readonly negate: boolean,
-    readonly collector: Reducer<T, R>
-  ) {
-    super();
-  }
-
-  [Symbol.iterator](): FastIterator<R> {
-    return new SplitWhereIterator<T, R>(
-      this.source[Symbol.iterator](),
-      this.pred,
-      this.negate,
-      this.collector
-    );
-  }
-}
-
-class SplitOnStream<T, R> extends StreamBase<R> {
-  constructor(
-    readonly source: Stream<T>,
-    readonly sepElem: T,
-    readonly eq: Eq<T>,
-    readonly negate: boolean,
-    readonly collector: Reducer<T, R>
-  ) {
-    super();
-  }
-
-  [Symbol.iterator](): FastIterator<R> {
-    return new SplitOnIterator<T, R>(
-      this.source[Symbol.iterator](),
-      this.sepElem,
-      this.eq,
-      this.negate,
-      this.collector
-    );
-  }
-}
-
-class SplitOnSeq<T, R> extends StreamBase<R> {
-  constructor(
-    readonly source: Stream<T>,
-    readonly sepSeq: StreamSource<T>,
-    readonly eq: Eq<T>,
-    readonly collector: Reducer<T, R>
-  ) {
-    super();
-  }
-
-  [Symbol.iterator](): FastIterator<R> {
-    return new SplitOnSeqIterator<T, R>(
-      this.source[Symbol.iterator](),
-      this.sepSeq,
-      this.eq,
-      this.collector
-    );
-  }
-}
-
-class ReduceStream<I, R> extends StreamBase<R> {
-  constructor(readonly source: Stream<I>, readonly reducerDef: Reducer<I, R>) {
-    super();
-  }
-
-  [Symbol.iterator](): FastIterator<R> {
-    return new ReduceIterator<I, R>(
-      this.source[Symbol.iterator](),
-      this.reducerDef
-    );
   }
 }
 
@@ -1279,12 +1500,16 @@ class SlowIteratorAdapter<T> implements FastIterator<T> {
 
   fastNext<O>(otherwise?: OptLazy<O>): T | O {
     const result = this.source.next();
-    if (result.done) return OptLazy(otherwise) as O;
+
+    if (result.done) {
+      return OptLazy(otherwise) as O;
+    }
+
     return result.value;
   }
 }
 
-export class FromIterable<T> extends StreamBase<T> {
+class FromIterable<T> extends StreamBase<T> {
   constructor(readonly iterable: Iterable<T>) {
     super();
   }
@@ -1342,20 +1567,12 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
     return this as any;
   }
   transform<R>(transformer: Transformer<T, R>): Stream<R> {
-    return StreamConstructorsImpl.from(
-      transformer.stateToResult(transformer.init())
-    );
+    return fromStreamSource(transformer.compile().getOutput());
   }
-  filter(): Stream<T> {
+  filter(): any {
     return this;
   }
-  filterNot(): Stream<T> {
-    return this;
-  }
-  filterPure(): Stream<T> {
-    return this;
-  }
-  filterNotPure(): Stream<T> {
+  filterPure(): any {
     return this;
   }
   collect<R>(): Stream<R> {
@@ -1376,12 +1593,9 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   countElement(): 0 {
     return 0;
   }
-  countNotElement(): 0 {
-    return 0;
-  }
   find<O>(
     pred: (value: any, index: number) => boolean,
-    options: { otherwise?: OptLazy<O>; occurrance?: number } = {}
+    options: { otherwise?: OptLazy<O>; occurrance?: number | undefined } = {}
   ): O {
     const { otherwise } = options;
 
@@ -1468,7 +1682,7 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   splitWhere<R>(): Stream<R> {
     return this as any;
   }
-  splitOnSeq<R>(): Stream<R> {
+  splitOnSlice<R>(): Stream<R> {
     return this as any;
   }
   distinctPrevious(): Stream<T> {
@@ -1476,6 +1690,23 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   }
   window<R>(): Stream<R> {
     return this as any;
+  }
+  partition(
+    pred: any,
+    options: {
+      collectorTrue?: Reducer<T, any> | undefined;
+      collectorFalse?: Reducer<T, any> | undefined;
+    } = {}
+  ): [any, any] {
+    const {
+      collectorTrue = Reducer.toArray(),
+      collectorFalse = Reducer.toArray(),
+    } = options;
+
+    return [
+      collectorTrue.compile().getOutput(),
+      collectorFalse.compile().getOutput(),
+    ];
   }
   fold<R>(init: OptLazy<R>): R {
     return OptLazy(init);
@@ -1485,8 +1716,9 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   }
   reduce(shape: any): any {
     const reducer = Reducer.combine(shape);
+    const instance = reducer.compile();
 
-    return reducer.stateToResult(reducer.init());
+    return instance.getOutput();
   }
   reduceStream(): any {
     return this;
@@ -1505,7 +1737,7 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   }
 }
 
-export class ArrayStream<T> extends StreamBase<T> {
+class ArrayStream<T> extends StreamBase<T> {
   readonly length: number;
 
   constructor(
@@ -1550,16 +1782,26 @@ export class ArrayStream<T> extends StreamBase<T> {
   }
 
   first<O>(otherwise?: OptLazy<O>): T | O {
-    if (this.length <= 0) return OptLazy(otherwise) as O;
+    if (this.length <= 0) {
+      return OptLazy(otherwise) as O;
+    }
 
-    if (!this.reversed) return this.array[this.startIndex];
+    if (!this.reversed) {
+      return this.array[this.startIndex];
+    }
+
     return this.array[this.endIndex];
   }
 
   last<O>(otherwise?: OptLazy<O>): T | O {
-    if (this.length <= 0) return OptLazy(otherwise) as O;
+    if (this.length <= 0) {
+      return OptLazy(otherwise) as O;
+    }
 
-    if (!this.reversed) return this.array[this.endIndex];
+    if (!this.reversed) {
+      return this.array[this.endIndex];
+    }
+
     return this.array[this.startIndex];
   }
 
@@ -1570,8 +1812,8 @@ export class ArrayStream<T> extends StreamBase<T> {
   find<O>(
     pred: (value: T, index: number) => boolean,
     options: {
-      occurrance?: number;
-      negate?: boolean;
+      occurrance?: number | undefined;
+      negate?: boolean | undefined;
       otherwise?: OptLazy<O>;
     } = {}
   ): T | O {
@@ -1603,52 +1845,24 @@ export class ArrayStream<T> extends StreamBase<T> {
   }
 
   elementAt<O>(index: number, otherwise?: OptLazy<O>): T | O {
-    if (index < 0 || index >= this.length) return OptLazy(otherwise) as O;
+    if (index < 0 || index >= this.length) {
+      return OptLazy(otherwise) as O;
+    }
 
-    if (!this.reversed) return this.array[index + this.startIndex];
+    if (!this.reversed) {
+      return this.array[index + this.startIndex];
+    }
 
     return this.array[this.endIndex - index];
   }
 
-  some(
-    pred: (value: T, index: number) => boolean,
-    options: { negate?: boolean } = {}
-  ): boolean {
-    const { negate = false } = options;
-    const startIndex = this.startIndex;
-    const endIndex = this.endIndex;
-    const array = this.array;
-    let index = 0;
-
-    if (!this.reversed) {
-      let i = this.startIndex - 1;
-      while (++i <= endIndex) {
-        const value = array[i];
-        if (pred(value, index++) !== negate) return true;
-      }
-    } else {
-      let i = this.endIndex + 1;
-      while (--i >= startIndex) {
-        const value = array[i];
-        if (pred(value, index++) !== negate) return true;
-      }
-    }
-
-    return false;
-  }
-
-  every(
-    pred: (value: T, index: number) => boolean,
-    options: { negate?: boolean } = {}
-  ): boolean {
-    const { negate = false } = options;
-
-    return !this.some(pred, { negate: !negate });
-  }
-
   indexOf(
     searchValue: T,
-    options: { occurrance?: number; eq?: Eq<T>; negate?: boolean } = {}
+    options: {
+      occurrance?: number | undefined;
+      eq?: Eq<T> | undefined;
+      negate?: boolean | undefined;
+    } = {}
   ): number | undefined {
     const { occurrance = 1 } = options;
 
@@ -1677,22 +1891,6 @@ export class ArrayStream<T> extends StreamBase<T> {
     }
 
     return undefined;
-  }
-
-  contains(
-    searchValue: T,
-    options: { amount?: number; eq?: Eq<T>; negate?: boolean } = {}
-  ): boolean {
-    const { amount = 1 } = options;
-
-    if (amount <= 0) return true;
-
-    const { eq = Eq.objectIs, negate = false } = options;
-
-    return (
-      undefined !==
-      this.indexOf(searchValue, { occurrance: amount, eq, negate })
-    );
   }
 
   take(amount: number): Stream<T> {
@@ -1746,12 +1944,16 @@ export class ArrayStream<T> extends StreamBase<T> {
       return super.toArray();
     }
 
-    if (this.reversed) return super.toArray();
+    if (this.reversed) {
+      // use normal iterator
+      return super.toArray();
+    }
+
     return array.slice(this.startIndex, this.endIndex + 1);
   }
 }
 
-export class AlwaysStream<T> extends StreamBase<T> {
+class AlwaysStream<T> extends StreamBase<T> {
   constructor(readonly value: T) {
     super();
   }
@@ -1781,9 +1983,9 @@ export class AlwaysStream<T> extends StreamBase<T> {
     }
   }
 
-  last(): T {
-    return this.value;
-  }
+  // last(): T {
+  //   return this.value;
+  // }
 
   elementAt(): T {
     return this.value;
@@ -1814,7 +2016,7 @@ export class AlwaysStream<T> extends StreamBase<T> {
   }
 }
 
-export class MapApplyStream<
+class MapApplyStream<
   T extends readonly unknown[],
   A extends readonly unknown[],
   R
@@ -1835,9 +2037,22 @@ export class MapApplyStream<
       streamSourceHelpers
     );
   }
+
+  mapPure<T2, A extends readonly unknown[]>(
+    mapFun: (value: R, ...args: A) => T2,
+    ...args: A
+  ): Stream<T2> {
+    const { f, args: thisArgs } = this;
+
+    return new MapApplyStream(
+      this.source,
+      (...args2) => mapFun(f(...args2), ...args),
+      thisArgs
+    );
+  }
 }
 
-export class FilterApplyStream<
+class FilterApplyStream<
   T extends readonly unknown[],
   A extends readonly unknown[]
 > extends StreamBase<T> {
@@ -1861,7 +2076,7 @@ export class FilterApplyStream<
   }
 }
 
-export class RangeStream extends StreamBase<number> {
+class RangeStream extends StreamBase<number> {
   constructor(
     readonly start: number,
     readonly end?: number,
@@ -1878,47 +2093,38 @@ export class RangeStream extends StreamBase<number> {
   }
 }
 
-export class DistinctPreviousStream<T> extends StreamBase<T> {
-  constructor(
-    readonly source: Stream<T>,
-    readonly eq: Eq<T>,
-    readonly negate: boolean
-  ) {
+class ReducerStream<T, R = T> extends StreamBase<R> {
+  constructor(readonly source: Stream<T>, readonly reducer: Reducer<T, R>) {
     super();
   }
 
-  [Symbol.iterator](): FastIterator<T> {
-    return new DistinctPreviousIterator(
+  [Symbol.iterator](): FastIterator<R> {
+    return new ReducerFastIterator<T, R>(
       this.source[Symbol.iterator](),
-      this.eq,
-      this.negate
+      this.reducer.compile()
     );
   }
 }
 
-export class WindowStream<T, R> extends StreamBase<R> {
+class TransformerStream<T, R = T> extends StreamBase<R> {
   constructor(
     readonly source: Stream<T>,
-    readonly windowSize: number,
-    readonly skipAmount: number,
-    readonly collector: Reducer<T, R>
+    readonly transformer: Transformer<T, R>
   ) {
     super();
   }
 
   [Symbol.iterator](): FastIterator<R> {
-    return new WindowIterator(
+    return new TransformerFastIterator<T, R>(
       this.source[Symbol.iterator](),
-      this.windowSize,
-      this.skipAmount,
-      this.collector
+      this.transformer.compile()
     );
   }
 }
 
-export const emptyStream: Stream<any> = Object.freeze(new EmptyStream());
+const emptyStream: Stream<any> = Object.freeze(new EmptyStream());
 
-export function isStream(obj: any): obj is Stream<any> {
+function isStream(obj: any): obj is Stream<any> {
   return obj instanceof StreamBase;
 }
 
@@ -1947,11 +2153,11 @@ export const fromStreamSource: {
  * means that it is not known if it is empty.
  */
 export function isEmptyStreamSourceInstance(
-  source: StreamSource<unknown>
+  source: StreamSource<any>
 ): boolean {
   if (source === '') return true;
   if (typeof source === 'object') {
-    if (source === emptyStream) return true;
+    if (source === emptyStream || source === null) return true;
     if (`length` in source && (source as any).length === 0) return true;
     if (`size` in source && (source as any).size === 0) return true;
     if (`isEmpty` in source && (source as any).isEmpty === true) return true;
@@ -2012,15 +2218,15 @@ export const StreamConstructorsImpl: StreamConstructors =
     fromObjectKeys<K extends string | number | symbol>(
       obj: Record<K, any>
     ): Stream<K> {
-      return StreamConstructorsImpl.from(yieldObjKeys(obj));
+      return fromStreamSource(yieldObjKeys(obj));
     },
     fromObjectValues<V>(obj: Record<any, V>): Stream<V> {
-      return StreamConstructorsImpl.from(yieldObjValues(obj));
+      return fromStreamSource(yieldObjValues(obj));
     },
     fromObject<K extends string | number | symbol, V>(
       obj: Record<K, V>
     ): Stream<[K, V]> {
-      return StreamConstructorsImpl.from(yieldObjEntries(obj));
+      return fromStreamSource(yieldObjEntries(obj));
     },
     fromString(
       source: string,
@@ -2036,7 +2242,7 @@ export const StreamConstructorsImpl: StreamConstructors =
       f: (...args: [...T, ...A]) => void,
       ...args: A
     ): void {
-      const iter = StreamConstructorsImpl.from(source)[Symbol.iterator]();
+      const iter = fromStreamSource(source)[Symbol.iterator]();
 
       const done = Symbol();
       let values: T | typeof done;

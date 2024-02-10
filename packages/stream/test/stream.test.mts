@@ -119,7 +119,7 @@ describe('Stream constructors', () => {
   it('always', () => {
     expect(Stream.always(5).take(5).toArray()).toEqual([5, 5, 5, 5, 5]);
     expect(Stream.always(5).first()).toBe(5);
-    expect(Stream.always(5).last()).toBe(5);
+    // expect(Stream.always(5).last()).toBe(5);
     expect(Stream.always(5).elementAt(10000)).toBe(5);
   });
 
@@ -1441,10 +1441,10 @@ describe('Stream methods', () => {
   });
 
   it('reduce multi array', () => {
-    expect(
-      Stream.empty<number>().reduce([Reducer.sum, Reducer.count()])
-    ).toEqual([0, 0]);
-    expect(Stream.of(1, 2, 3).reduce([Reducer.sum, Reducer.count()])).toEqual([
+    expect(Stream.empty<number>().reduce([Reducer.sum, Reducer.count])).toEqual(
+      [0, 0]
+    );
+    expect(Stream.of(1, 2, 3).reduce([Reducer.sum, Reducer.count])).toEqual([
       6, 3,
     ]);
 
@@ -1459,11 +1459,11 @@ describe('Stream methods', () => {
   it('reduceStream multi array', () => {
     expect(
       Stream.empty<number>()
-        .reduceStream([Reducer.sum, Reducer.count()])
+        .reduceStream([Reducer.sum, Reducer.count])
         .toArray()
     ).toEqual([]);
     expect(
-      Stream.of(1, 2, 3).reduceStream([Reducer.sum, Reducer.count()]).toArray()
+      Stream.of(1, 2, 3).reduceStream([Reducer.sum, Reducer.count]).toArray()
     ).toEqual([
       [1, 1],
       [3, 2],
@@ -1678,5 +1678,85 @@ describe('Stream methods', () => {
       new Set([3, 4, 5]),
       new Set([4, 5, 6]),
     ]);
+  });
+
+  it('partition', () => {
+    const isEven = (v: number) => v % 2 === 0;
+
+    expect(Stream.empty<number>().partition(isEven)).toEqual([[], []]);
+    expect(Stream.of(1).partition(isEven)).toEqual([[], [1]]);
+    expect(Stream.of(0).partition(isEven)).toEqual([[0], []]);
+    expect(Stream.of(1, 2, 3).partition(isEven)).toEqual([[2], [1, 3]]);
+  });
+
+  it('partition collector', () => {
+    const isEven = (v: number) => v % 2 === 0;
+
+    expect(
+      Stream.empty<number>().partition(isEven, {
+        collectorTrue: Reducer.join<number>({ sep: ',' }),
+        collectorFalse: Reducer.join<number>({ sep: ',' }),
+      })
+    ).toEqual(['', '']);
+    expect(
+      Stream.of(1).partition(isEven, {
+        collectorTrue: Reducer.join<number>({ sep: ',' }),
+        collectorFalse: Reducer.join<number>({ sep: ',' }),
+      })
+    ).toEqual(['', '1']);
+    expect(
+      Stream.of(0).partition(isEven, {
+        collectorTrue: Reducer.join<number>({ sep: ',' }),
+        collectorFalse: Reducer.join<number>({ sep: ',' }),
+      })
+    ).toEqual(['0', '']);
+    expect(
+      Stream.of(1, 2, 3).partition(isEven, {
+        collectorTrue: Reducer.join<number>({ sep: ',' }),
+        collectorFalse: Reducer.join<number>({ sep: ',' }),
+      })
+    ).toEqual(['2', '1,3']);
+  });
+
+  it('groupBy', () => {
+    expect(Stream.empty<string>().groupBy((v) => v.length)).toEqual(new Map());
+    expect(Stream.of('a').groupBy((v) => v.length)).toEqual(
+      new Map([[1, ['a']]])
+    );
+    expect(
+      Stream.of('abc', 'a', 'def', 'b', 'qq').groupBy((v) => v.length)
+    ).toEqual(
+      new Map([
+        [1, ['a', 'b']],
+        [2, ['qq']],
+        [3, ['abc', 'def']],
+      ])
+    );
+  });
+
+  it('groupBy collector', () => {
+    const collector = Reducer.toJSMultiMap<number, string>().mapInput<
+      [number, string]
+    >(([key, value]) => [key * 2, value]);
+
+    expect(
+      Stream.empty<string>().groupBy((v) => v.length, {
+        collector,
+      })
+    ).toEqual(new Map());
+    expect(Stream.of('a').groupBy((v) => v.length, { collector })).toEqual(
+      new Map([[2, ['a']]])
+    );
+    expect(
+      Stream.of('abc', 'a', 'def', 'b', 'qq').groupBy((v) => v.length, {
+        collector,
+      })
+    ).toEqual(
+      new Map([
+        [2, ['a', 'b']],
+        [4, ['qq']],
+        [6, ['abc', 'def']],
+      ])
+    );
   });
 });

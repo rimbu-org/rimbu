@@ -20,17 +20,27 @@ function combineObj<T, R extends { readonly [key: string]: unknown }>(
   >
 ): Reducer<T, R> {
   return Reducer.create(
-    () => {
+    (initHalt) => {
       const result: Record<string, Reducer.Instance<T, any>> = {};
 
+      let allHalted = true;
+
       for (const key in reducerObj) {
-        result[key] = reducerObj[key].compile();
+        const instance = reducerObj[key].compile();
+
+        allHalted = allHalted && instance.halted;
+
+        result[key] = instance;
+      }
+
+      if (allHalted) {
+        initHalt();
       }
 
       return result;
     },
     (state, elem, index, halt) => {
-      let anyNotHalted = false;
+      let allHalted = true;
 
       for (const key in state) {
         const reducerInstance = state[key];
@@ -38,11 +48,11 @@ function combineObj<T, R extends { readonly [key: string]: unknown }>(
         if (!reducerInstance.halted) {
           reducerInstance.next(elem);
 
-          anyNotHalted = anyNotHalted || !reducerInstance.halted;
+          allHalted = allHalted && reducerInstance.halted;
         }
       }
 
-      if (!anyNotHalted) {
+      if (allHalted) {
         halt();
       }
 
@@ -64,9 +74,25 @@ function combineArr<T, R extends readonly [unknown, unknown, ...unknown[]]>(
   ...reducers: { [K in keyof R]: Reducer<T, R[K]> } & Reducer<T, unknown>[]
 ): Reducer<T, R> {
   return Reducer.create<T, any, Reducer.Instance<T, unknown>[]>(
-    () => reducers.map((reducer) => reducer.compile()),
+    (initHalt) => {
+      let allHalted = true;
+
+      const result = reducers.map((reducer) => {
+        const instance = reducer.compile();
+
+        allHalted = allHalted && instance.halted;
+
+        return instance;
+      });
+
+      if (allHalted) {
+        initHalt();
+      }
+
+      return result;
+    },
     (state, elem, index, halt) => {
-      let anyNotHalted = false;
+      let allHalted = true;
 
       let i = -1;
       const len = state.length;
@@ -76,11 +102,12 @@ function combineArr<T, R extends readonly [unknown, unknown, ...unknown[]]>(
 
         if (!reducerInstance.halted) {
           reducerInstance.next(elem);
-          anyNotHalted = anyNotHalted || !reducerInstance.halted;
+
+          allHalted = allHalted && reducerInstance.halted;
         }
       }
 
-      if (!anyNotHalted) {
+      if (allHalted) {
         halt();
       }
 
@@ -129,9 +156,17 @@ export namespace Reducer {
      * // this reducer will only sum values larger than 10
      * ```
      */
+    filterInput<IF extends I>(
+      pred: (value: I, index: number, halt: () => void) => value is IF,
+      options?: { negate?: false | undefined }
+    ): Reducer<IF, O>;
+    filterInput<IF extends I>(
+      pred: (value: I, index: number, halt: () => void) => value is IF,
+      options: { negate: true }
+    ): Reducer<Exclude<I, IF>, O>;
     filterInput(
       pred: (value: I, index: number, halt: () => void) => boolean,
-      options?: { negate?: boolean }
+      options?: { negate?: boolean | undefined }
     ): Reducer<I, O>;
     /**
      * Returns a `Reducer` instance that converts its input values using given `mapFun` before passing them to this reducer.
@@ -346,8 +381,8 @@ export namespace Reducer {
 
     filterInput(
       pred: (value: I, index: number, halt: () => void) => boolean,
-      options: { negate?: boolean } = {}
-    ): Reducer<I, O> {
+      options: { negate?: boolean | undefined } = {}
+    ): Reducer<never, O> {
       const { negate = false } = options;
 
       return create(
@@ -465,6 +500,7 @@ export namespace Reducer {
       options: { negate?: boolean } = {}
     ): Reducer<I, O> {
       const { negate = false } = options;
+
       return create(
         this.init,
         (state, next, index, halt) => {
@@ -497,7 +533,9 @@ export namespace Reducer {
     }
 
     dropInput(amount: number): Reducer<I, O> {
-      if (amount <= 0) return this;
+      if (amount <= 0) {
+        return this;
+      }
 
       return this.filterInput((_, i): boolean => i >= amount);
     }
@@ -506,6 +544,7 @@ export namespace Reducer {
       if (undefined === amount) return this.dropInput(from);
       if (amount <= 0) return create(this.init, identity, this.stateToResult);
       if (from <= 0) return this.takeInput(amount);
+
       return this.takeInput(amount).dropInput(from);
     }
 
@@ -568,10 +607,12 @@ export namespace Reducer {
               return state;
             }
 
-            state.activeInstance = OptLazy(
+            const nextReducer = OptLazy(
               nextReducers[++state.activeIndex],
               state.activeInstance.getOutput()
-            ).compile();
+            );
+
+            state.activeInstance = nextReducer.compile();
           }
 
           state.activeInstance.next(next);
@@ -637,11 +678,7 @@ export namespace Reducer {
     };
 
     getOutput(): O {
-      return this.reducer.stateToResult(
-        this.#state as S,
-        this.index,
-        this.halted
-      );
+      return this.reducer.stateToResult(this.#state, this.index, this.halted);
     }
   }
 
@@ -700,7 +737,7 @@ export namespace Reducer {
    * ```
    */
   export function createMono<T>(
-    init: () => T,
+    init: (initHalt: () => void) => T,
     next: (current: T, next: T, index: number, halt: () => void) => T,
     stateToResult?: (state: T, index: number, halted: boolean) => T
   ): Reducer<T> {
@@ -731,7 +768,7 @@ export namespace Reducer {
    * ```
    */
   export function createOutput<I, O = I>(
-    init: () => O,
+    init: (initHalt: () => void) => O,
     next: (current: O, next: I, index: number, halt: () => void) => O,
     stateToResult?: (state: O, index: number, halted: boolean) => O
   ): Reducer<I, O> {
@@ -937,19 +974,17 @@ export namespace Reducer {
    * @example
    * ```ts
    * const stream = Stream.range({ amount: 10 })
-   * console.log(stream.reduce(Reducer.count()))
+   * console.log(stream.reduce(Reducer.count))
    * // => 10
    * ```
    */
-  export function count(): Reducer<never, number> {
-    return create<never, number, void>(
-      () => {
-        //
-      },
-      identity,
-      (_, index) => index
-    );
-  }
+  export const count: Reducer<never, number> = create<never, number, void>(
+    () => {
+      //
+    },
+    identity,
+    (_, index) => index
+  );
 
   /**
    * Returns a `Reducer` that remembers the first input value.
@@ -966,15 +1001,13 @@ export namespace Reducer {
     <T>(): Reducer<T, T | undefined>;
     <T, O>(otherwise: OptLazy<O>): Reducer<T, T | O>;
   } = <T, O>(otherwise?: OptLazy<O>): Reducer<T, T | O> => {
-    const token = Symbol();
-
-    return create<T, T | O, T | typeof token>(
-      () => token,
+    return create<T, T | O, T | undefined>(
+      () => undefined,
       (state, next, _, halt): T => {
         halt();
         return next;
       },
-      (state): T | O => (token === state ? OptLazy(otherwise!) : state)
+      (state, index): T | O => (index <= 0 ? OptLazy(otherwise!) : state!)
     );
   };
 
@@ -993,12 +1026,10 @@ export namespace Reducer {
     <T>(): Reducer<T, T | undefined>;
     <T, O>(otherwise: OptLazy<O>): Reducer<T, T | O>;
   } = <T, O>(otherwise?: OptLazy<O>): Reducer<T, T | O> => {
-    const token = Symbol();
-
-    return create<T, T | O, T | typeof token>(
-      () => token,
+    return create<T, T | O, T | undefined>(
+      () => undefined,
       (_, next): T => next,
-      (state): T | O => (token === state ? OptLazy(otherwise!) : state)
+      (state, index): T | O => (index <= 0 ? OptLazy(otherwise!) : state!)
     );
   };
 
@@ -1006,19 +1037,16 @@ export namespace Reducer {
     <T>(): Reducer<T, T | undefined>;
     <T, O>(otherwise: OptLazy<O>): Reducer<T, T | O>;
   } = <T, O>(otherwise?: OptLazy<O>): Reducer<T, T | O> => {
-    const token = Symbol();
-
-    return create<T, T | O, T | typeof token>(
-      () => token,
-      (state, next, _, halt): T => {
-        if (token === state) {
-          return next;
+    return create<T, T | O, T | undefined>(
+      () => undefined,
+      (state, next, index, halt): T => {
+        if (index > 1) {
+          halt();
         }
-        halt();
-        return state;
+
+        return next;
       },
-      (state, index, halted): T | O =>
-        halted || token === state ? OptLazy(otherwise!) : state
+      (state, index): T | O => (index !== 1 ? OptLazy(otherwise!) : state!)
     );
   };
 
@@ -1310,7 +1338,7 @@ export namespace Reducer {
    * // => false
    * ```
    */
-  export const isEmpty = createOutput<never, boolean>(
+  export const isEmpty = createOutput<any, boolean>(
     () => true,
     (_, __, ___, halt): false => {
       halt();
@@ -1326,7 +1354,7 @@ export namespace Reducer {
    * // => true
    * ```
    */
-  export const nonEmpty = createOutput<never, boolean>(
+  export const nonEmpty = createOutput<any, boolean>(
     () => false,
     (_, __, ___, halt): true => {
       halt();
@@ -1343,6 +1371,93 @@ export namespace Reducer {
       () => OptLazy(value)
     );
   }
+
+  export const partition: {
+    <T, T2 extends T, RT, RF = RT>(
+      pred: (value: T, index: number) => value is T2,
+      options: {
+        collectorTrue: Reducer<T2, RT>;
+        collectorFalse: Reducer<Exclude<T, T2>, RF>;
+      }
+    ): Reducer<T, [true: RT, false: RF]>;
+    <T, T2 extends T>(
+      pred: (value: T, index: number) => value is T2,
+      options?: {
+        collectorTrue?: undefined;
+        collectorFalse?: undefined;
+      }
+    ): Reducer<T, [true: T2[], false: Exclude<T, T2>[]]>;
+    <T, RT, RF = RT>(
+      pred: (value: T, index: number) => boolean,
+      options: {
+        collectorTrue: Reducer<T, RT>;
+        collectorFalse: Reducer<T, RF>;
+      }
+    ): Reducer<T, [true: RT, false: RF]>;
+    <T>(
+      pred: (value: T, index: number) => boolean,
+      options?: {
+        collectorTrue?: undefined;
+        collectorFalse?: undefined;
+      }
+    ): Reducer<T, [true: T[], false: T[]]>;
+  } = <T, RT, RF = RT>(
+    pred: (value: T, index: number) => boolean,
+    options: {
+      collectorTrue?: Reducer<T, RT> | undefined;
+      collectorFalse?: Reducer<T, RF> | undefined;
+    } = {}
+  ): Reducer<T, [true: RT, false: RF]> => {
+    const {
+      collectorTrue = Reducer.toArray() as Reducer<T, RT>,
+      collectorFalse = Reducer.toArray() as Reducer<T, RF>,
+    } = options;
+
+    return Reducer.create(
+      () => [collectorTrue.compile(), collectorFalse.compile()],
+      (state, value, index) => {
+        const instanceIndex = pred(value, index) ? 0 : 1;
+
+        state[instanceIndex].next(value);
+
+        return state;
+      },
+      (state) => state.map((v) => v.getOutput()) as [RT, RF]
+    );
+  };
+
+  export const groupBy: {
+    <T, K, R>(
+      valueToKey: (value: T, index: number) => K,
+      options: {
+        collector: Reducer<[K, T], R>;
+      }
+    ): Reducer<T, R>;
+    <T, K>(
+      valueToKey: (value: T, index: number) => K,
+      options?: {
+        collector?: undefined;
+      }
+    ): Reducer<T, Map<K, T[]>>;
+  } = <T, K, R>(
+    valueToKey: (value: T, index: number) => K,
+    options: {
+      collector?: Reducer<[K, T], R> | undefined;
+    } = {}
+  ): Reducer<T, R> => {
+    const { collector = Reducer.toJSMultiMap() as Reducer<[K, T], R> } =
+      options;
+
+    return Reducer.create(
+      () => collector.compile(),
+      (state, value, index) => {
+        const key = valueToKey(value, index);
+        state.next([key, value]);
+        return state;
+      },
+      (state) => state.getOutput()
+    );
+  };
 
   export const combineFirstDone: {
     <T, R, O>(reducers: Reducer<T, R>[], otherwise: OptLazy<O>): Reducer<
@@ -1437,7 +1552,23 @@ export namespace Reducer {
         state.set(next[0], next[1]);
         return state;
       },
-      (s): Map<K, V> => new Map(s)
+      (state): Map<K, V> => new Map(state)
+    );
+  }
+
+  export function toJSMultiMap<K, V>(): Reducer<[K, V], Map<K, V[]>> {
+    return create(
+      (): Map<K, V[]> => new Map(),
+      (state, [key, value]) => {
+        const entry = state.get(key);
+        if (undefined === entry) {
+          state.set(key, [value]);
+        } else {
+          entry.push(value);
+        }
+        return state;
+      },
+      (state) => new Map(state)
     );
   }
 

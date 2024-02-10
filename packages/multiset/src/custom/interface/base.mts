@@ -202,6 +202,14 @@ export interface VariantMultiSetBase<
    * // => [[2, 2]]
    * ```
    */
+  filterEntries<TF extends T>(
+    pred: (entry: readonly [T, number], index: number) => entry is [TF, number],
+    options?: { negate?: false | undefined }
+  ): WithElem<Tp, TF>['normal'];
+  filterEntries<TF extends T>(
+    pred: (entry: readonly [T, number], index: number) => entry is [TF, number],
+    options: { negate: true }
+  ): WithElem<Tp, Exclude<T, TF>>['normal'];
   filterEntries(
     pred: (entry: readonly [T, number], index: number) => boolean,
     options?: { negate?: boolean }

@@ -2,6 +2,8 @@ import {
   AsyncReducer,
   AsyncStream,
   AsyncTransformer,
+  Reducer,
+  Transformer,
 } from '../src/main/index.mjs';
 
 describe('AsyncTransformer', () => {
@@ -51,7 +53,7 @@ describe('AsyncTransformer', () => {
         .transform(
           AsyncTransformer.window(3, {
             skipAmount: 1,
-            collector: AsyncReducer.toJSSet(),
+            collector: AsyncReducer.from(Reducer.toJSSet()),
           })
         )
         .toArray()
@@ -66,12 +68,12 @@ describe('AsyncTransformer', () => {
   it('distinctPrevious', async () => {
     expect(
       await AsyncStream.empty<number>()
-        .transform(AsyncTransformer.distinctPrevious())
+        .transform(AsyncTransformer.from(Transformer.distinctPrevious()))
         .toArray()
     ).toEqual([]);
     expect(
       await AsyncStream.of(1, 2, 2, 3, 1, 1, 3)
-        .transform(AsyncTransformer.distinctPrevious())
+        .transform(AsyncTransformer.from(Transformer.distinctPrevious()))
         .toArray()
     ).toEqual([1, 2, 3, 1, 3]);
   });
