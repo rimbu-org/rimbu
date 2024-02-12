@@ -9,18 +9,46 @@ import {
   Reducer,
 } from '../src/main/index.mjs';
 
-const streamRange1 = Stream.range({ amount: 100 });
-const streamRange2 = Stream.from(streamRange1.toArray());
-const streamRange3 = Stream.from(new Set(streamRange1.toArray()));
-const streamRange4 = Stream.range({ amount: 10 }).concat(
+const streamRange1 = AsyncStream.from(Stream.range({ amount: 100 }));
+const streamRange2 = AsyncStream.from(Stream.range({ amount: 100 }).toArray());
+const streamRange3 = AsyncStream.from(
+  new Set(Stream.range({ amount: 100 }).toArray())
+);
+const streamRange4 = AsyncStream.from(Stream.range({ amount: 10 })).concat(
   Stream.range({ start: 10, end: [100, false] }).toArray()
 );
-const streamRange5 = Stream.range({ amount: 100 }).map((v) => v);
-const streamRange6 = Stream.range({ amount: 99 }).append(99);
-const streamRange7 = Stream.range({ start: 1, amount: 99 }).prepend(0);
-const streamRange8 = Stream.range({ amount: 100 }).filter(() => true);
+const streamRange5 = AsyncStream.from(Stream.range({ amount: 100 })).map(
+  (v) => v
+);
+const streamRange6 = AsyncStream.from(Stream.range({ amount: 99 })).append(99);
+const streamRange7 = AsyncStream.from(
+  Stream.range({ start: 1, amount: 99 })
+).prepend(0);
+const streamRange8 = AsyncStream.from(Stream.range({ amount: 100 })).filter(
+  () => true
+);
 const arr = Stream.range({ start: 99, end: 0 }, { delta: -1 }).toArray();
-const streamRange9 = Stream.fromArray(arr, { reversed: true });
+const streamRange9 = AsyncStream.from(
+  Stream.fromArray(arr, { reversed: true })
+);
+const streamRange10 = AsyncStream.from(Stream.range({ amount: 100 })).mapPure(
+  (v) => v
+);
+const streamRange11 = AsyncStream.from(
+  Stream.range({ amount: 100 })
+).filterPure({
+  pred: (v) => true,
+});
+const streamRange12 = AsyncStream.from(Stream.range({ amount: 100 }))
+  .indexed()
+  .map(([v]) => v);
+const streamRange13 = AsyncStream.from(Stream.range({ amount: 100 })).collect(
+  (v) => v
+);
+const streamRange14 = AsyncStream.from(Stream.range({ amount: 200 })).take(100);
+const streamRange15 = AsyncStream.from(
+  Stream.range({ start: -100, amount: 200 })
+).drop(100);
 
 const sources = (
   [
@@ -33,7 +61,13 @@ const sources = (
     streamRange7,
     streamRange8,
     streamRange9,
-  ] as Stream<number>[]
+    streamRange10,
+    streamRange11,
+    streamRange12,
+    streamRange13,
+    streamRange14,
+    streamRange15,
+  ] as AsyncStream<number>[]
 ).map((s) => AsyncStream.from<number>(s));
 
 const open = vi.fn().mockReturnValue(1);
@@ -473,6 +507,7 @@ describe('AsyncStream methods', () => {
   it('mapPure close', async () => {
     await testResForEach(createResourceStream([1, 2, 3]).mapPure((v) => v + 1));
   });
+
   it('flatMap', async () => {
     expect(AsyncStream.empty().flatMap((v) => AsyncStream.of(1))).toBe(
       AsyncStream.empty()
@@ -508,6 +543,7 @@ describe('AsyncStream methods', () => {
       );
     }
   });
+
   it('flatMap close', async () => {
     const s1 = createResourceStream([1, 2, 3]);
     const close2 = vi.fn();
@@ -528,6 +564,84 @@ describe('AsyncStream methods', () => {
     expect(close).toBeCalledTimes(1);
     expect(closeE).toBeCalledTimes(1);
   });
+
+  it('flatZip', async () => {
+    expect(await AsyncStream.empty().flatZip((v) => Stream.of(1))).toBe(
+      AsyncStream.empty()
+    );
+    expect(
+      await AsyncStream.of(1)
+        .flatZip((v) => Stream.empty())
+        .toArray()
+    ).toEqual([]);
+    expect(
+      await AsyncStream.of(1)
+        .flatZip((v) => Stream.of(2, 3))
+        .toArray()
+    ).toEqual([
+      [1, 2],
+      [1, 3],
+    ]);
+    expect(
+      await AsyncStream.of(1, 2, 3)
+        .flatZip((v) => AsyncStream.of(v + 1))
+        .toArray()
+    ).toEqual([
+      [1, 2],
+      [2, 3],
+      [3, 4],
+    ]);
+    expect(
+      await AsyncStream.of(1, 2, 3)
+        .flatZip((v, i) => [i + 1])
+        .toArray()
+    ).toEqual([
+      [1, 1],
+      [2, 2],
+      [3, 3],
+    ]);
+
+    expect(
+      await AsyncStream.of(1, 2, 3)
+        .flatZip((v, i) => [v, v])
+        .toArray()
+    ).toEqual([
+      [1, 1],
+      [1, 1],
+      [2, 2],
+      [2, 2],
+      [3, 3],
+      [3, 3],
+    ]);
+
+    await AsyncStream.from(sources).forEach(async (source) => {
+      expect(await source.flatZip((v) => [v]).toArray()).toEqual(
+        await source.map((v) => [v, v]).toArray()
+      );
+    });
+  });
+
+  it('flatZip close', async () => {
+    const s1 = createResourceStream([1, 2, 3]);
+    const close2 = vi.fn();
+    // const close3 = vi.fn();
+    const s2 = createResourceStream([4, 5, 6], close2);
+    // const s3 = createResourceStream([7, 8, 9], close3);
+    const closeE = vi.fn();
+    const se = createErrorStream(closeE);
+
+    await s1.flatZip((v) => s2).count();
+    expect(close).toBeCalledTimes(1);
+    expect(close2).toBeCalledTimes(3);
+
+    close.mockReset();
+    try {
+      await s1.flatZip((v) => se).count();
+    } catch {}
+    expect(close).toBeCalledTimes(1);
+    expect(closeE).toBeCalledTimes(1);
+  });
+
   it('filter', async () => {
     expect(AsyncStream.empty().filter((v) => true)).toBe(AsyncStream.empty());
     expect(
@@ -561,6 +675,7 @@ describe('AsyncStream methods', () => {
       ).toEqual([0, 60]);
     }
   });
+
   it('filter close', async () => {
     await testResForEach(createResourceStream([1, 2, 3]).filter((v) => true));
 
@@ -577,6 +692,7 @@ describe('AsyncStream methods', () => {
     } catch {}
     expect(close).toBeCalledTimes(1);
   });
+
   it('filterPure', async () => {
     expect(AsyncStream.empty().filterPure({ pred: (v) => true })).toBe(
       AsyncStream.empty()
@@ -611,6 +727,7 @@ describe('AsyncStream methods', () => {
       ).toEqual([0, 60]);
     }
   });
+
   it('filterPure close', async () => {
     await testResForEach(
       createResourceStream([1, 2, 3]).filterPure({ pred: (v) => true })
@@ -725,6 +842,12 @@ describe('AsyncStream methods', () => {
   it('first close', async () => {
     await createResourceStream([1, 2, 3]).first();
     expect(close).toBeCalledTimes(1);
+    close.mockReset();
+    await createResourceStream([1, Err, 3]).first();
+    expect(close).toBeCalledTimes(1);
+    close.mockReset();
+    await createResourceStream([Err, 2, 3]).first();
+    expect(close).toBeCalledTimes(1);
   });
   it('last', async () => {
     expect(await AsyncStream.empty<number>().last()).toBeUndefined();
@@ -738,6 +861,9 @@ describe('AsyncStream methods', () => {
   });
   it('last close', async () => {
     await createResourceStream([1, 2, 3]).last();
+    expect(close).toBeCalledTimes(1);
+    close.mockReset();
+    await createResourceStream([1, Err, 3]).last();
     expect(close).toBeCalledTimes(1);
   });
   it('single', async () => {
@@ -761,6 +887,9 @@ describe('AsyncStream methods', () => {
     close.mockReset();
     await createResourceStream([1]).single();
     expect(close).toBeCalledTimes(1);
+    close.mockReset();
+    await createResourceStream([Err]).single();
+    expect(close).toBeCalledTimes(1);
   });
   it('count', async () => {
     expect(await AsyncStream.empty<number>().count()).toBe(0);
@@ -772,6 +901,7 @@ describe('AsyncStream methods', () => {
       );
     }
   });
+
   it('count close', async () => {
     await createResourceStream([1, 2, 3]).count();
     expect(close).toBeCalledTimes(1);
@@ -781,6 +911,7 @@ describe('AsyncStream methods', () => {
     } catch {}
     expect(close).toBeCalledTimes(1);
   });
+
   it('countElement', async () => {
     expect(await AsyncStream.empty<number>().countElement(1)).toBe(0);
     expect(await AsyncStream.of(1, 2, 3, 2).countElement(2)).toBe(2);
@@ -1600,6 +1731,7 @@ describe('AsyncStream methods', () => {
       createResourceStream([1, 1, 1, 2, 2, 3, 1, 1, 3]).distinctPrevious()
     );
   });
+
   it('window', async () => {
     expect(await AsyncStream.empty<number>().window(3).toArray()).toEqual([]);
     expect(await AsyncStream.of(1, 2).window(3).toArray()).toEqual([]);
@@ -1632,6 +1764,7 @@ describe('AsyncStream methods', () => {
       [4, 5],
     ]);
   });
+
   it('window collector', async () => {
     const setCollector = AsyncReducer.from(Reducer.toJSSet<number>());
 
@@ -1671,6 +1804,7 @@ describe('AsyncStream methods', () => {
       new Set([4, 5, 6]),
     ]);
   });
+
   it('window close', async () => {
     await testResForEach(createResourceStream([1, 2, 3]).window(2));
     await testResForEach(
@@ -1679,6 +1813,109 @@ describe('AsyncStream methods', () => {
       })
     );
   });
+
+  it('partition', () => {
+    const isEven = (v: number) => v % 2 === 0;
+
+    expect(Stream.empty<number>().partition(isEven)).toEqual([[], []]);
+    expect(Stream.of(1).partition(isEven)).toEqual([[], [1]]);
+    expect(Stream.of(0).partition(isEven)).toEqual([[0], []]);
+    expect(Stream.of(1, 2, 3).partition(isEven)).toEqual([[2], [1, 3]]);
+  });
+
+  it('partition collector', async () => {
+    const isEven = async (v: number) => v % 2 === 0;
+
+    expect(
+      await AsyncStream.empty<number>().partition(isEven, {
+        collectorTrue: Reducer.join<number>({ sep: ',' }),
+        collectorFalse: Reducer.join<number>({ sep: ',' }),
+      })
+    ).toEqual(['', '']);
+    expect(
+      await AsyncStream.of(1).partition(isEven, {
+        collectorTrue: Reducer.join<number>({ sep: ',' }),
+        collectorFalse: Reducer.join<number>({ sep: ',' }),
+      })
+    ).toEqual(['', '1']);
+    expect(
+      await AsyncStream.of(0).partition(isEven, {
+        collectorTrue: Reducer.join<number>({ sep: ',' }),
+        collectorFalse: Reducer.join<number>({ sep: ',' }),
+      })
+    ).toEqual(['0', '']);
+    expect(
+      await AsyncStream.of(1, 2, 3).partition(isEven, {
+        collectorTrue: Reducer.join<number>({ sep: ',' }),
+        collectorFalse: Reducer.join<number>({ sep: ',' }),
+      })
+    ).toEqual(['2', '1,3']);
+
+    await AsyncStream.from(sources).forEach(async (source) => {
+      const [left, right] = await source.partition((v) => v % 2 === 0);
+      expect(left.length).toBe(50);
+      expect(right.length).toBe(50);
+    });
+  });
+
+  it('groupBy', async () => {
+    expect(
+      await AsyncStream.empty<string>().groupBy(async (v) => v.length)
+    ).toEqual(new Map());
+    expect(await AsyncStream.of('a').groupBy(async (v) => v.length)).toEqual(
+      new Map([[1, ['a']]])
+    );
+    expect(
+      await AsyncStream.of('abc', 'a', 'def', 'b', 'qq').groupBy(
+        async (v) => v.length
+      )
+    ).toEqual(
+      new Map([
+        [1, ['a', 'b']],
+        [2, ['qq']],
+        [3, ['abc', 'def']],
+      ])
+    );
+
+    AsyncStream.from(sources).forEach(async (source) => {
+      const result = await source.groupBy(async (v) => v % 4);
+      for (let i = 0; i < 4; i++) {
+        expect(result.get(i)?.length).toBe(25);
+      }
+    });
+  });
+
+  it('groupBy collector', async () => {
+    const collector = AsyncReducer.from(
+      Reducer.toJSMultiMap<number, string>().mapInput<[number, string]>(
+        ([key, value]) => [key * 2, value]
+      )
+    );
+
+    expect(
+      await AsyncStream.empty<string>().groupBy((v) => v.length, {
+        collector,
+      })
+    ).toEqual(new Map());
+    expect(
+      await AsyncStream.of('a').groupBy((v) => v.length, { collector })
+    ).toEqual(new Map([[2, ['a']]]));
+    expect(
+      await AsyncStream.of('abc', 'a', 'def', 'b', 'qq').groupBy(
+        (v) => v.length,
+        {
+          collector,
+        }
+      )
+    ).toEqual(
+      new Map([
+        [2, ['a', 'b']],
+        [4, ['qq']],
+        [6, ['abc', 'def']],
+      ])
+    );
+  });
+
   it('fold', async () => {
     async function sum(
       current: number,
@@ -1957,7 +2194,7 @@ describe('AsyncStream methods', () => {
     expect(await AsyncStream.empty().toArray()).toEqual([]);
     expect(await AsyncStream.of(1).toArray()).toEqual([1]);
     expect(await AsyncStream.from([1, 2, 3]).toArray()).toEqual([1, 2, 3]);
-    const a1 = streamRange1.toArray();
+    const a1 = await streamRange1.toArray();
     for (const source of sources) {
       expect(await source.toArray()).toEqual(a1);
     }

@@ -615,7 +615,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    */
   containsSlice(
     source: StreamSource.NonEmpty<T>,
-    options?: { eq?: Eq<T> | undefined }
+    options?: { eq?: Eq<T> | undefined; amount?: number | undefined }
   ): boolean;
   /**
    * Returns a Stream that contains the elements of this Stream up to the first element that does not satisfy given `pred` function.

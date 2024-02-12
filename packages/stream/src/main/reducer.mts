@@ -256,7 +256,7 @@ export namespace Reducer {
      */
     sliceInput(from?: number, amount?: number): Reducer<I, O>;
     takeOutput(amount: number): Reducer<I, O>;
-    takeOutputWhile(
+    takeOutputUntil(
       pred: (value: O, index: number) => boolean,
       options?: { negate?: boolean }
     ): Reducer<I, O>;
@@ -486,7 +486,7 @@ export namespace Reducer {
       return create(
         this.init,
         (state, next, index, halt) => {
-          if (index >= amount) {
+          if (index >= amount - 1) {
             halt();
           }
           return this.next(state, next, index, halt);
@@ -495,7 +495,7 @@ export namespace Reducer {
       );
     }
 
-    takeOutputWhile(
+    takeOutputUntil(
       pred: (value: O, index: number) => boolean,
       options: { negate?: boolean } = {}
     ): Reducer<I, O> {
@@ -508,11 +508,11 @@ export namespace Reducer {
 
           const nextOutput = this.stateToResult(nextState, index, false);
 
-          if (pred(nextOutput, index) === negate) {
+          if (pred(nextOutput, index) !== negate) {
             halt();
           }
 
-          return state;
+          return nextState;
         },
         this.stateToResult
       );
@@ -1459,7 +1459,7 @@ export namespace Reducer {
     );
   };
 
-  export const combineFirstDone: {
+  export const race: {
     <T, R, O>(reducers: Reducer<T, R>[], otherwise: OptLazy<O>): Reducer<
       T,
       R | O

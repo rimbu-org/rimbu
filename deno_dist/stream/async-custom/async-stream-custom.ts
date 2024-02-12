@@ -34,6 +34,7 @@ import {
   AsyncReduceIterator,
   AsyncRepeatIterator,
   AsyncTakeIterator,
+  AsyncTransformerFastIterator,
   AsyncUnfoldIterator,
   AsyncZipAllWithItererator,
   AsyncZipWithIterator,
@@ -45,7 +46,6 @@ import {
   emptyAsyncFastIterator,
   isAsyncFastIterator,
   type AsyncStreamConstructors,
-  AsyncTransformerFastIterator,
 } from '../../stream/async-custom/index.ts';
 import {
   StreamConstructorsImpl,
@@ -522,7 +522,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 
   async containsSlice(
     source: AsyncStreamSource.NonEmpty<T>,
-    options: { eq?: Eq<T>; negate?: boolean } = {}
+    options: { eq?: Eq<T>; amount?: number } = {}
   ): Promise<boolean> {
     return (this as AsyncStream<T>).reduce(
       AsyncReducer.containsSlice(source, options)
@@ -965,22 +965,6 @@ class AsyncPrependStream<T> extends AsyncStreamBase<T> {
     return compare(result, itemValue) > 0 ? result : itemValue;
   }
 
-  async join({
-    sep = '',
-    start = '',
-    end = '',
-    valueToString = String,
-  } = {}): Promise<string> {
-    return this.source.join({
-      sep,
-      start: `${start}${valueToString(
-        await AsyncOptLazy.toMaybePromise(this.item)
-      )}`,
-      end,
-      valueToString,
-    });
-  }
-
   async toArray(): Promise<T[]> {
     const result = await this.source.toArray();
     result.unshift(await AsyncOptLazy.toMaybePromise(this.item));
@@ -1063,22 +1047,6 @@ class AsyncAppendStream<T> extends AsyncStreamBase<T> {
     }
 
     return compare(result, itemValue) > 0 ? result : itemValue;
-  }
-
-  async join({
-    sep = '',
-    start = '',
-    end = '',
-    valueToString = String,
-  } = {}): Promise<string> {
-    return this.source.join({
-      sep,
-      start,
-      end: `${valueToString(
-        await AsyncOptLazy.toMaybePromise(this.item)
-      )}${end}`,
-      valueToString,
-    });
   }
 
   async toArray(): Promise<T[]> {

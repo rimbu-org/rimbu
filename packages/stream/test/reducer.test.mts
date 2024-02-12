@@ -383,53 +383,41 @@ describe('Reducer', () => {
     expect(redInstance.getOutput()).toBe(1);
   });
 
-  it('combineFirstDone', () => {
-    expect(
-      Stream.empty<number>().reduce(Reducer.combineFirstDone([Reducer.sum]))
-    ).toBe(undefined);
-    expect(
-      Stream.empty<number>().reduce(Reducer.combineFirstDone([Reducer.sum], 2))
-    ).toBe(2);
+  it('race', () => {
+    expect(Stream.empty<number>().reduce(Reducer.race([Reducer.sum]))).toBe(
+      undefined
+    );
+    expect(Stream.empty<number>().reduce(Reducer.race([Reducer.sum], 2))).toBe(
+      2
+    );
 
     expect(
       Stream.empty<number>().reduce(
-        Reducer.combineFirstDone([
-          Reducer.sum.dropInput(2),
-          Reducer.constant(2),
-        ])
+        Reducer.race([Reducer.sum.dropInput(2), Reducer.constant(2)])
       )
     ).toBe(2);
 
     expect(
       Stream.of(1, 2, 3).reduce(
-        Reducer.combineFirstDone([
-          Reducer.sum.dropInput(2),
-          Reducer.constant(2),
-        ])
+        Reducer.race([Reducer.sum.dropInput(2), Reducer.constant(2)])
       )
     ).toBe(2);
 
     expect(
       Stream.of(1, 2, 3).reduce(
-        Reducer.combineFirstDone([Reducer.constant(3), Reducer.constant(2)])
+        Reducer.race([Reducer.constant(3), Reducer.constant(2)])
       )
     ).toBe(3);
 
     expect(
       Stream.of(1, 2, 4).reduce(
-        Reducer.combineFirstDone([
-          Reducer.sum.takeInput(3),
-          Reducer.product.takeInput(3),
-        ])
+        Reducer.race([Reducer.sum.takeInput(3), Reducer.product.takeInput(3)])
       )
     ).toBe(7);
 
     expect(
       Stream.of(1, 2, 4).reduce(
-        Reducer.combineFirstDone([
-          Reducer.product.takeInput(3),
-          Reducer.sum.takeInput(3),
-        ])
+        Reducer.race([Reducer.product.takeInput(3), Reducer.sum.takeInput(3)])
       )
     ).toBe(8);
   });
@@ -507,6 +495,17 @@ describe('Reducer', () => {
     expect(
       Stream.of(1, 2, 3).reduce(Reducer.average.mapOutput((v) => v * 2))
     ).toBe(4);
+  });
+
+  it('takeOutput', () => {
+    expect(Stream.of(1, 2, 3).reduce(Reducer.sum.takeOutput(0))).toBe(0);
+    expect(Stream.of(1, 2, 3).reduce(Reducer.sum.takeOutput(2))).toBe(3);
+  });
+
+  it('takeOutputUntil', () => {
+    expect(
+      Stream.of(1, 2, 3).reduce(Reducer.sum.takeOutputUntil((v) => v >= 3))
+    ).toBe(3);
   });
 
   it('takeInput', () => {

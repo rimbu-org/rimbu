@@ -636,7 +636,7 @@ export interface AsyncStream<T>
    */
   containsSlice(
     source: AsyncStreamSource.NonEmpty<T>,
-    options?: { eq?: Eq<T> | undefined }
+    options?: { eq?: Eq<T> | undefined; amount?: number }
   ): Promise<boolean>;
   /**
    * Returns an AsyncStream that contains the elements of this stream up to the first element that does not satisfy given `pred` function.

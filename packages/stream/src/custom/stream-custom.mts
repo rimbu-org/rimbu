@@ -822,20 +822,6 @@ class PrependStream<T> extends StreamBase<T> {
     return compare(result, itemValue) > 0 ? result : itemValue;
   }
 
-  join({
-    sep = '',
-    start = '',
-    end = '',
-    valueToString = String,
-  } = {}): string {
-    return this.source.join({
-      sep,
-      start: `${start}${valueToString(OptLazy(this.item))}`,
-      end,
-      valueToString,
-    });
-  }
-
   toArray(): T[] {
     const result = this.source.toArray();
     result.unshift(OptLazy(this.item));
@@ -910,20 +896,6 @@ class AppendStream<T> extends StreamBase<T> {
     }
 
     return compare(result, itemValue) > 0 ? result : itemValue;
-  }
-
-  join({
-    sep = '',
-    start = '',
-    end = '',
-    valueToString = String,
-  } = {}): string {
-    return this.source.join({
-      sep,
-      start,
-      end: `${valueToString(OptLazy(this.item))}${end}`,
-      valueToString,
-    });
   }
 
   toArray(): T[] {

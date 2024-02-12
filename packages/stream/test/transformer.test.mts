@@ -74,4 +74,39 @@ describe('Collector', () => {
         .toArray()
     ).toEqual([1, 1, 2, 2, 3, 3]);
   });
+
+  it('filter', () => {
+    function isEven(v: number) {
+      return v % 2 === 0;
+    }
+
+    expect(
+      Stream.empty<number>().transform(Transformer.filter(isEven)).toArray()
+    ).toEqual([]);
+    expect(
+      Stream.of(1, 2, 3).transform(Transformer.filter(isEven)).toArray()
+    ).toEqual([2]);
+    expect(
+      Stream.of(1, 2, 3)
+        .transform(Transformer.filter(isEven, { negate: true }))
+        .toArray()
+    ).toEqual([1, 3]);
+  });
+
+  it('collect', () => {
+    expect(
+      Stream.empty<number>()
+        .transform(
+          Transformer.collect((v, _, skip) => (v % 2 === 0 ? String(v) : skip))
+        )
+        .toArray()
+    ).toEqual([]);
+    expect(
+      Stream.of(1, 2, 3, 4)
+        .transform(
+          Transformer.collect((v, _, skip) => (v % 2 === 0 ? String(v) : skip))
+        )
+        .toArray()
+    ).toEqual(['2', '4']);
+  });
 });

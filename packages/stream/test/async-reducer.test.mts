@@ -1,4 +1,4 @@
-import { Comp, Eq } from '@rimbu/common';
+import { Comp } from '@rimbu/common';
 
 import { AsyncReducer, AsyncStream, Reducer } from '../src/main/index.mjs';
 
@@ -153,6 +153,285 @@ describe('AsyncReducer', () => {
     ).toBe(3);
   });
 
+  it('single', async () => {
+    expect(
+      await AsyncStream.empty<number>().reduce(AsyncReducer.single())
+    ).toBe(undefined);
+    expect(
+      await AsyncStream.empty<number>().reduce(AsyncReducer.single('a'))
+    ).toBe('a');
+    expect(await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.single())).toBe(
+      undefined
+    );
+    expect(await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.single('a'))).toBe(
+      'a'
+    );
+    expect(await AsyncStream.of(1).reduce(AsyncReducer.single())).toBe(1);
+    expect(await AsyncStream.of(1).reduce(AsyncReducer.single('a'))).toBe(1);
+  });
+
+  it('some', async () => {
+    expect(
+      await AsyncStream.empty<number>().reduce(
+        AsyncReducer.some(async (v) => v > 2)
+      )
+    ).toBe(false);
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(
+        AsyncReducer.some(async (v) => v > 2)
+      )
+    ).toBe(true);
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(
+        AsyncReducer.some(async (v) => v > 10)
+      )
+    ).toBe(false);
+  });
+
+  it('every', async () => {
+    expect(
+      await AsyncStream.empty<number>().reduce(
+        AsyncReducer.every(async (v) => v > 2)
+      )
+    ).toBe(true);
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(
+        AsyncReducer.every(async (v) => v > 2)
+      )
+    ).toBe(false);
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(
+        AsyncReducer.every(async (v) => v > 10)
+      )
+    ).toBe(false);
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(
+        AsyncReducer.every(async (v) => v > 0)
+      )
+    ).toBe(true);
+
+    expect(
+      await AsyncStream.empty<number>().reduce(
+        AsyncReducer.every(async (v) => v <= 2, { negate: true })
+      )
+    ).toBe(true);
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(
+        AsyncReducer.every(async (v) => v <= 2, { negate: true })
+      )
+    ).toBe(false);
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(
+        AsyncReducer.every(async (v) => v <= 10, { negate: true })
+      )
+    ).toBe(false);
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(
+        AsyncReducer.every(async (v) => v <= 0, { negate: true })
+      )
+    ).toBe(true);
+  });
+
+  it('equals', async () => {
+    expect(
+      await AsyncStream.empty<number>().reduce(AsyncReducer.equals([]))
+    ).toBe(true);
+    expect(
+      await AsyncStream.empty<number>().reduce(AsyncReducer.equals([1, 2, 3]))
+    ).toBe(false);
+    expect(await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.equals([]))).toBe(
+      false
+    );
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.equals([1, 2, 3]))
+    ).toBe(true);
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.equals([1, 2]))
+    ).toBe(false);
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.equals([1, 2, 3, 4]))
+    ).toBe(false);
+  });
+
+  it('startsWithSlice', async () => {
+    expect(
+      await AsyncStream.empty<number>().reduce(AsyncReducer.startsWithSlice([]))
+    ).toBe(true);
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.startsWithSlice([]))
+    ).toBe(true);
+
+    expect(
+      await AsyncStream.empty<number>().reduce(
+        AsyncReducer.startsWithSlice([1, 2, 3])
+      )
+    ).toBe(false);
+    expect(
+      await AsyncStream.of(1, 2).reduce(AsyncReducer.startsWithSlice([1, 2, 3]))
+    ).toBe(false);
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(
+        AsyncReducer.startsWithSlice([1, 2, 3])
+      )
+    ).toBe(true);
+    expect(
+      await AsyncStream.of(1, 2, 3, 4).reduce(
+        AsyncReducer.startsWithSlice([1, 2, 3])
+      )
+    ).toBe(true);
+    expect(
+      await AsyncStream.of(1, 1, 2, 3, 4).reduce(
+        AsyncReducer.startsWithSlice([1, 2, 3])
+      )
+    ).toBe(false);
+    expect(
+      await AsyncStream.of(2, 1, 2, 3, 4).reduce(
+        AsyncReducer.startsWithSlice([1, 2, 3])
+      )
+    ).toBe(false);
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(
+        AsyncReducer.startsWithSlice([1, 2, 3], { amount: 2 })
+      )
+    ).toBe(false);
+    expect(
+      await AsyncStream.of(1, 2, 3, 1, 2, 3).reduce(
+        AsyncReducer.startsWithSlice([1, 2, 3], { amount: 2 })
+      )
+    ).toBe(true);
+    expect(
+      await AsyncStream.of(1, 2, 3, 1, 2, 4).reduce(
+        AsyncReducer.startsWithSlice([1, 2, 3], { amount: 2 })
+      )
+    ).toBe(false);
+    expect(
+      await AsyncStream.of(1, 2, 3, 1, 2, 3, 1, 2, 3).reduce(
+        AsyncReducer.startsWithSlice([1, 2, 3], { amount: 2 })
+      )
+    ).toBe(true);
+  });
+
+  it('endsWithSlice', async () => {
+    expect(
+      await AsyncStream.empty<number>().reduce(AsyncReducer.endsWithSlice([]))
+    ).toBe(true);
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.endsWithSlice([]))
+    ).toBe(true);
+
+    expect(
+      await AsyncStream.empty<number>().reduce(AsyncReducer.endsWithSlice([1]))
+    ).toBe(false);
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.endsWithSlice([1]))
+    ).toBe(false);
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(
+        AsyncReducer.endsWithSlice([1, 2, 3])
+      )
+    ).toBe(true);
+    expect(
+      await AsyncStream.of(1, 2, 3, 4).reduce(
+        AsyncReducer.endsWithSlice([1, 2, 3])
+      )
+    ).toBe(false);
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(
+        AsyncReducer.endsWithSlice([1, 2, 3, 4])
+      )
+    ).toBe(false);
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.endsWithSlice([1, 2]))
+    ).toBe(false);
+
+    expect(
+      await AsyncStream.of(1, 2, 3, 1, 2, 3).reduce(
+        AsyncReducer.endsWithSlice([1, 2, 3], { amount: 2 })
+      )
+    ).toBe(true);
+    expect(
+      await AsyncStream.of(1, 2, 3, 1, 2, 3).reduce(
+        AsyncReducer.endsWithSlice([1, 2, 3], { amount: 3 })
+      )
+    ).toBe(false);
+
+    expect(
+      await AsyncStream.of(1, 1, 2, 3).reduce(
+        AsyncReducer.endsWithSlice([1, 2, 3])
+      )
+    ).toBe(true);
+    expect(
+      await AsyncStream.of(1, 1, 1, 2, 3).reduce(
+        AsyncReducer.endsWithSlice([1, 2, 3])
+      )
+    ).toBe(true);
+    expect(
+      await AsyncStream.of(1, 2, 1, 2, 3).reduce(
+        AsyncReducer.endsWithSlice([1, 2, 3])
+      )
+    ).toBe(true);
+  });
+
+  it('containsSlice', async () => {
+    expect(
+      await AsyncStream.empty<number>().reduce(AsyncReducer.containsSlice([]))
+    ).toBe(true);
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.containsSlice([]))
+    ).toBe(true);
+
+    expect(
+      await AsyncStream.empty<number>().reduce(
+        AsyncReducer.containsSlice([1, 2])
+      )
+    ).toBe(false);
+    expect(
+      await AsyncStream.of(1, 2).reduce(AsyncReducer.containsSlice([1, 2]))
+    ).toBe(true);
+    expect(
+      await AsyncStream.of(1, 2, 3, 4).reduce(
+        AsyncReducer.containsSlice([1, 2])
+      )
+    ).toBe(true);
+    expect(
+      await AsyncStream.of(1, 2, 3, 4).reduce(
+        AsyncReducer.containsSlice([2, 3])
+      )
+    ).toBe(true);
+    expect(
+      await AsyncStream.of(1, 2, 3, 4).reduce(
+        AsyncReducer.containsSlice([3, 4])
+      )
+    ).toBe(true);
+    expect(
+      await AsyncStream.of(1, 2, 3, 4).reduce(
+        AsyncReducer.containsSlice([1, 4])
+      )
+    ).toBe(false);
+
+    expect(
+      await AsyncStream.of(1, 2, 3, 4).reduce(
+        AsyncReducer.containsSlice([2, 3], { amount: 2 })
+      )
+    ).toBe(false);
+    expect(
+      await AsyncStream.of(1, 2, 3, 4, 2, 3, 4).reduce(
+        AsyncReducer.containsSlice([2, 3], { amount: 2 })
+      )
+    ).toBe(true);
+    expect(
+      await AsyncStream.of(1, 2, 3, 4, 2, 3, 4).reduce(
+        AsyncReducer.containsSlice([2, 3], { amount: 3 })
+      )
+    ).toBe(false);
+
+    expect(
+      await AsyncStream.of(1, 1, 1, 2, 3, 4).reduce(
+        AsyncReducer.containsSlice([1, 1, 2, 3])
+      )
+    ).toBe(true);
+  });
+
   it('isEmpty', async () => {
     expect(await AsyncStream.empty<number>().reduce(AsyncReducer.isEmpty)).toBe(
       true
@@ -169,6 +448,61 @@ describe('AsyncReducer', () => {
     expect(await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.nonEmpty)).toBe(
       true
     );
+  });
+
+  it('race', async () => {
+    expect(
+      await AsyncStream.empty<number>().reduce(
+        AsyncReducer.race([AsyncReducer.from(Reducer.sum)])
+      )
+    ).toBe(undefined);
+    expect(
+      await AsyncStream.empty<number>().reduce(
+        AsyncReducer.race([AsyncReducer.from(Reducer.sum)], 2)
+      )
+    ).toBe(2);
+
+    expect(
+      await AsyncStream.empty<number>().reduce(
+        AsyncReducer.race([
+          AsyncReducer.from(Reducer.sum).dropInput(2),
+          Reducer.constant(2),
+        ])
+      )
+    ).toBe(2);
+
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(
+        AsyncReducer.race([
+          AsyncReducer.from(Reducer.sum).dropInput(2),
+          Reducer.constant(2),
+        ])
+      )
+    ).toBe(2);
+
+    expect(
+      await AsyncStream.of(1, 2, 3).reduce(
+        AsyncReducer.race([Reducer.constant(3), Reducer.constant(2)])
+      )
+    ).toBe(3);
+
+    expect(
+      await AsyncStream.of(1, 2, 4).reduce(
+        AsyncReducer.race([
+          AsyncReducer.from(Reducer.sum).takeInput(3),
+          Reducer.product.takeInput(3),
+        ])
+      )
+    ).toBe(7);
+
+    expect(
+      await AsyncStream.of(1, 2, 4).reduce(
+        AsyncReducer.race([
+          Reducer.product.takeInput(3),
+          AsyncReducer.from(Reducer.sum).takeInput(3),
+        ])
+      )
+    ).toBe(8);
   });
 
   it('filterInput', async () => {
@@ -215,6 +549,22 @@ describe('AsyncReducer', () => {
     expect(close).toBeCalledTimes(1);
   });
 
+  it('flatMapInput', async () => {
+    const close = vi.fn();
+    const sumDouble = AsyncReducer.createMono(
+      async () => 0,
+      async (c, v) => c + v,
+      async (s) => s,
+      close
+    ).flatMapInput(async (v: string) => [
+      Number.parseInt(v),
+      Number.parseInt(v),
+    ]);
+
+    expect(await AsyncStream.of('1', '2', '3').reduce(sumDouble)).toBe(12);
+    expect(close).toBeCalledTimes(1);
+  });
+
   it('collectInput', async () => {
     const close = vi.fn();
     const sumDouble = AsyncReducer.createMono(
@@ -249,6 +599,32 @@ describe('AsyncReducer', () => {
     expect(close).toBeCalledTimes(1);
   });
 
+  it('takeOutput', async () => {
+    const close = vi.fn();
+    const sumDouble = AsyncReducer.createMono(
+      async () => 0,
+      async (c, v) => c + v,
+      async (s) => s * 2,
+      close
+    ).takeOutput(2);
+
+    expect(await AsyncStream.of(1, 2, 4).reduce(sumDouble)).toBe(6);
+    expect(close).toBeCalledTimes(1);
+  });
+
+  it('takeOutputUntil', async () => {
+    const close = vi.fn();
+    const sumDouble = AsyncReducer.createMono(
+      async () => 0,
+      async (c, v) => c + v,
+      async (s) => s,
+      close
+    ).takeOutputUntil(async (v) => v >= 3);
+
+    expect(await AsyncStream.of(1, 2, 4).reduce(sumDouble)).toBe(3);
+    expect(close).toBeCalledTimes(1);
+  });
+
   it('takeInput', async () => {
     const close = vi.fn();
     const sumDouble = AsyncReducer.createMono(
@@ -273,6 +649,8 @@ describe('AsyncReducer', () => {
 
     expect(await AsyncStream.of(1, 2, 3).reduce(sumDouble)).toBe(10);
     expect(close).toBeCalledTimes(1);
+
+    expect(sumDouble.dropInput(0)).toBe(sumDouble);
   });
 
   it('sliceInput', async () => {
@@ -330,7 +708,7 @@ describe('AsyncReducer', () => {
 });
 
 describe('AsyncReducers', () => {
-  it('AsyncReducer.combineArr', async () => {
+  it('AsyncReducer.combine array shape', async () => {
     const r = AsyncReducer.combine([
       AsyncReducer.from(Reducer.sum),
       Reducer.average,
@@ -349,7 +727,7 @@ describe('AsyncReducers', () => {
     ]);
   });
 
-  it('AsyncReducer.combineArr with halt', async () => {
+  it('AsyncReducer.combine array shape with halt', async () => {
     const r = AsyncReducer.combine([
       AsyncReducer.from(Reducer.sum),
       AsyncReducer.from(Reducer.product),
@@ -368,7 +746,7 @@ describe('AsyncReducers', () => {
     ]);
   });
 
-  it('AsyncReducer.combineArr with stateToResult', async () => {
+  it('AsyncReducer.combine array shape with stateToResult', async () => {
     const r = AsyncReducer.combine([
       AsyncReducer.from(Reducer.sum).mapOutput(async (v) => v + 1),
       AsyncReducer.from(Reducer.product),
@@ -387,7 +765,7 @@ describe('AsyncReducers', () => {
     ]);
   });
 
-  it('AsyncReducer.combineObj', async () => {
+  it('AsyncReducer.combine object shape', async () => {
     const r = AsyncReducer.combine({
       sum: AsyncReducer.from(Reducer.sum),
       avg: AsyncReducer.from(Reducer.average),
@@ -406,7 +784,7 @@ describe('AsyncReducers', () => {
     ]);
   });
 
-  it('AsyncReducer.combineObj with halt', async () => {
+  it('AsyncReducer.combine object shape with halt', async () => {
     const r = AsyncReducer.combine({
       sum: AsyncReducer.from(Reducer.sum),
       prod: AsyncReducer.from(Reducer.product),
@@ -425,7 +803,7 @@ describe('AsyncReducers', () => {
     ]);
   });
 
-  it('AsyncReducer.combineObj with stateToResult', async () => {
+  it('AsyncReducer.combine object shape with stateToResult', async () => {
     const r = AsyncReducer.combine({
       sum: AsyncReducer.from(Reducer.sum).mapOutput(async (v) => v + 1),
       prod: AsyncReducer.from(Reducer.product),

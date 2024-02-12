@@ -328,7 +328,7 @@ export namespace AsyncReducer {
      */
     sliceInput(from?: number, amount?: number): AsyncReducer<I, O>;
     takeOutput(amount: number): AsyncReducer<I, O>;
-    takeOutputWhile(
+    takeOutputUntil(
       pred: (value: O, index: number) => MaybePromise<boolean>,
       options?: { negate?: boolean }
     ): AsyncReducer<I, O>;
@@ -585,7 +585,7 @@ export namespace AsyncReducer {
       return create(
         this.init,
         (state, next, index, halt) => {
-          if (index >= amount) {
+          if (index >= amount - 1) {
             halt();
           }
           return this.next(state, next, index, halt);
@@ -595,7 +595,7 @@ export namespace AsyncReducer {
       );
     }
 
-    takeOutputWhile(
+    takeOutputUntil(
       pred: (value: O, index: number) => MaybePromise<boolean>,
       options: { negate?: boolean } = {}
     ): AsyncReducer<I, O> {
@@ -608,11 +608,11 @@ export namespace AsyncReducer {
 
           const nextOutput = await this.stateToResult(nextState, index, false);
 
-          if ((await pred(nextOutput, index)) === negate) {
+          if ((await pred(nextOutput, index)) !== negate) {
             halt();
           }
 
-          return state;
+          return nextState;
         },
         this.stateToResult,
         this.onClose
@@ -783,9 +783,6 @@ export namespace AsyncReducer {
     halt = (): void => {
       if (this.#closed) {
         throw new AsyncReducer.ReducerClosedError();
-      }
-      if (!this.#initialized) {
-        throw new AsyncReducer.ReducerNotInitializedError();
       }
 
       this.#halted = true;
@@ -1161,7 +1158,7 @@ export namespace AsyncReducer {
   }
 
   export function every<T>(
-    pred: (value: T, index: number) => boolean,
+    pred: (value: T, index: number) => MaybePromise<boolean>,
     options: { negate?: boolean } = {}
   ): AsyncReducer<T, boolean> {
     const { negate = false } = options;
@@ -1251,7 +1248,7 @@ export namespace AsyncReducer {
     slice: AsyncStreamSource<T>,
     options: { eq?: Eq<T> | undefined; amount?: number } = {}
   ): AsyncReducer<T, boolean> {
-    const sliceStream = AsyncStreamConstructorsImpl.from(slice);
+    const sliceStream = fromAsyncStreamSource(slice);
     const done = Symbol();
     const { eq = Eq.objectIs, amount = 1 } = options;
 
@@ -1275,7 +1272,7 @@ export namespace AsyncReducer {
 
         return {
           sliceIter,
-          sliceValue: sliceValue,
+          sliceValue,
           remain: amount,
         };
       },
@@ -1335,7 +1332,7 @@ export namespace AsyncReducer {
           if (instance.halted) {
             state.delete(instance);
           } else {
-            instance.next(nextValue);
+            await instance.next(nextValue);
           }
         }
 
@@ -1460,7 +1457,7 @@ export namespace AsyncReducer {
     );
   };
 
-  export const combineFirstDone: {
+  export const race: {
     <T, R, O>(
       reducers: AsyncReducer.Accept<T, R>[],
       otherwise: AsyncOptLazy<O>
