@@ -120,6 +120,7 @@ export interface VariantSetBase<
    * - `halt`: a function that, when called, ensures no next elements are passed
    * @param options - (optional) an object containing the following properties:<br/>
    * - negate: (default: false) when true will negate the predicate
+   * @note if the predicate is a type guard, the return type is automatically inferred
    * @example
    * ```ts
    * HashSet.of(1, 2, 3).filter(value < 3).toArray()

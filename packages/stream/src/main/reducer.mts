@@ -13,6 +13,11 @@ function identity<T>(value: T): T {
   return value;
 }
 
+/**
+ * Combines multiple reducers in an object's values of the same input type into a single reducer that
+ * forwards each incoming value to all reducers, and when output is requested will return an object containing
+ * the corresponding output of each reducer at the matching object property.
+ */
 function combineObj<T, R extends { readonly [key: string]: unknown }>(
   reducerObj: { readonly [K in keyof R]: Reducer<T, R[K]> } & Record<
     string,
@@ -70,6 +75,11 @@ function combineObj<T, R extends { readonly [key: string]: unknown }>(
   );
 }
 
+/**
+ * Combines multiple reducers in an array of the same input type into a single reducer that
+ * forwards each incoming value to all reducers, and when output is requested will return an array containing
+ * the corresponding output of each reducer.
+ */
 function combineArr<T, R extends readonly [unknown, unknown, ...unknown[]]>(
   ...reducers: { [K in keyof R]: Reducer<T, R[K]> } & Reducer<T, unknown>[]
 ): Reducer<T, R> {
@@ -127,6 +137,7 @@ export namespace Reducer {
   export interface Impl<I, O, S = unknown> {
     /**
      * A function that produces the initial state value for the reducer algorithm.
+     * @param initHalt - a callback function that, if called, indicates that the reducer does not accept any input.
      */
     readonly init: (initHalt: () => void) => S;
     /**
@@ -140,6 +151,8 @@ export namespace Reducer {
     /**
      * Returns the output value based on the given `state`.
      * @param state - the current state
+     * @param index - the value index
+     * @param halted - a boolean indicating whether the reducer is halted
      */
     stateToResult(state: S, index: number, halted: boolean): O;
     /**
@@ -150,6 +163,7 @@ export namespace Reducer {
      * - halt: function that, when called, ensures no more new values are passed to the reducer
      * @param options - (optional) an object containing the following properties:<br/>
      * - negate: (default: false) when true will invert the given predicate
+     * @note if the predicate is a type guard, the return type is automatically inferred
      * @example
      * ```ts
      * Reducer.sum.filterInput(v => v > 10)
@@ -170,10 +184,10 @@ export namespace Reducer {
     ): Reducer<I, O>;
     /**
      * Returns a `Reducer` instance that converts its input values using given `mapFun` before passing them to this reducer.
-     * @typeparam I2 - the resulting reducer input type
      * @param mapFun - a function that returns a new value to pass to the reducer based on the following inputs:<br/>
      * - value: the current input value<br/>
      * - index: the current input index
+     * @typeparam I2 - the resulting reducer input type
      * @example
      * ```ts
      * Reducer.sum.mapInput(v => v * 2)
@@ -199,12 +213,12 @@ export namespace Reducer {
     ): Reducer<I2, O>;
     /**
      * Returns a `Reducer` instance that converts or filters its input values using given `collectFun` before passing them to the reducer.
-     * @typeparam I2 - the resulting reducer input type
      * @param collectFun - a function receiving<br/>
      * - `value`: the next value<br/>
      * - `index`: the value index<br/>
      * - `skip`: a token that, when returned, will not add a value to the resulting collection<br/>
      * - `halt`: a function that, when called, ensures no next elements are passed
+     * @typeparam I2 - the resulting reducer input type
      * @example
      * ```ts
      * Reducer.sum.collectInput((v, _, skip) => v <= 10 ? skip : v * 2)
@@ -217,6 +231,7 @@ export namespace Reducer {
      * Returns a `Reducer` instance that converts its output values using given `mapFun`.
      * @typeparam O2 - the resulting reducer output type
      * @param mapFun - a function that takes the current output value and converts it to a new output value
+     * @typeparam O2 - the new output type
      * @example
      * ```ts
      * Reducer.sum.mapOutput(String)
@@ -255,7 +270,21 @@ export namespace Reducer {
      * ```
      */
     sliceInput(from?: number, amount?: number): Reducer<I, O>;
+    /**
+     * Returns an 'AsyncReducer` instance that produces at most `amount` values.
+     * @param amount - the maximum amount of values to produce.
+     */
     takeOutput(amount: number): Reducer<I, O>;
+    /**
+     * Returns a 'Reducer` instance that produces until the given `pred` predicate returns true for
+     * the output value.
+     * @param pred - a function that returns true if the value should be passed to the reducer based on the following inputs:<br/>
+     * - value: the current input value<br/>
+     * - index: the current input index<br/>
+     * - halt: function that, when called, ensures no more new values are passed to the reducer
+     * @param options - (optional) an object containing the following properties:<br/>
+     * - negate: (default: false) when true will invert the given predicate
+     */
     takeOutputUntil(
       pred: (value: O, index: number) => boolean,
       options?: { negate?: boolean }
@@ -635,14 +664,42 @@ export namespace Reducer {
     }
   }
 
+  /**
+   * A reducer instance that manages its own state based on the reducer definition that
+   * was used to create this instance.
+   * @typeparam I - the input element type
+   * @typeparam O - the output element type
+   */
   export interface Instance<I, O> {
+    /**
+     * Returns true if the reducer instance does not receive any more values, false otherwise.
+     */
     get halted(): boolean;
+    /**
+     * Returns the index of the last received value.
+     */
     get index(): number;
+    /**
+     * Method that, when called, halts the reducer instance so that it will no longer receive values.
+     */
     halt(): void;
+    /**
+     * Sends a new value into the reducer instance.
+     * @param value - the next input value
+     */
     next(value: I): void;
+    /**
+     * Returns the output value based on the current given input values.
+     */
     getOutput(): O;
   }
 
+  /**
+   * The default `Reducer.Impl` implementation.
+   * @typeparam I - the input element type
+   * @typeparam O - the output element type
+   * @typeparam S - the reducer state type
+   */
   export class InstanceImpl<I, O, S> implements Reducer.Instance<I, O> {
     constructor(readonly reducer: Reducer.Impl<I, O, S>) {
       this.#state = reducer.init(this.halt);
@@ -775,6 +832,18 @@ export namespace Reducer {
     return create(init, next, stateToResult ?? identity);
   }
 
+  /**
+   * Returns a `Reducer` that uses the given `init` and `next` values to fold the input values into
+   * result values.
+   * @param init - an (optionally lazy) initial result value
+   * @param next - a function taking the following arguments:<br/>
+   * - current - the current result value<br/>
+   * - value - the next input value<br/>
+   * - index: the input index value<br/>
+   * - halt: function that, when called, ensures no more elements are passed to the reducer
+   * @typeparam T - the input type
+   * @typeparam R - the output type
+   */
   export function fold<T, R>(
     init: OptLazy<R>,
     next: (current: R, value: T, index: number, halt: () => void) => R
@@ -828,6 +897,8 @@ export namespace Reducer {
    * Returns a `Reducer` that remembers the minimum value of the inputs using the given `compFun` to compare input values
    * @param compFun - a comparison function for two input values, returning 0 when equal, positive when greater, negetive when smaller
    * @param otherwise - (default: undefineds) a fallback value when there were no input values given
+   * @typeparam T - the element type
+   * @typeparam O - the fallback value type
    * @example
    * ```ts
    * const stream = Stream.of('abc', 'a', 'abcde', 'ab')
@@ -860,6 +931,7 @@ export namespace Reducer {
   /**
    * Returns a `Reducer` that remembers the minimum value of the numberic inputs.
    * @param otherwise - (default: undefined) a fallback value when there were no input values given
+   * @typeparam O - the fallback value type
    * @example
    * ```ts
    * console.log(Stream.of(5, 3, 7, 4).reduce(Reducer.min()))
@@ -883,6 +955,8 @@ export namespace Reducer {
    * Returns a `Reducer` that remembers the maximum value of the inputs using the given `compFun` to compare input values
    * @param compFun - a comparison function for two input values, returning 0 when equal, positive when greater, negetive when smaller
    * @param otherwise - (default: undefined) a fallback value when there were no input values given
+   * @typeparam T - the element type
+   * @typeparam O - the fallback value type
    * @example
    * ```ts
    * const stream = Stream.of('abc', 'a', 'abcde', 'ab')
@@ -917,6 +991,7 @@ export namespace Reducer {
   /**
    * Returns a `Reducer` that remembers the maximum value of the numberic inputs.
    * @param otherwise - (default: undefined) a fallback value when there were no input values given
+   * @typeparam O - the fallback value type
    * @example
    * ```ts
    * console.log(Stream.of(5, 3, 7, 4).reduce(Reducer.max()))
@@ -942,6 +1017,7 @@ export namespace Reducer {
    * - sep: (optional) a seperator string value between values in the output<br/>
    * - start: (optional) a start string to prepend to the output<br/>
    * - end: (optional) an end string to append to the output<br/>
+   * @typeparam T - the input element type
    * @example
    * ```ts
    * console.log(Stream.of(1, 2, 3).reduce(Reducer.join({ sep: '-' })))
@@ -970,7 +1046,7 @@ export namespace Reducer {
   }
 
   /**
-   * Returns a `Reducer` that remembers the amount of input items provided.
+   * A `Reducer` that remembers the amount of input items provided.
    * @example
    * ```ts
    * const stream = Stream.range({ amount: 10 })
@@ -978,7 +1054,7 @@ export namespace Reducer {
    * // => 10
    * ```
    */
-  export const count: Reducer<never, number> = create<never, number, void>(
+  export const count: Reducer<any, number> = create<any, number, void>(
     () => {
       //
     },
@@ -1033,6 +1109,13 @@ export namespace Reducer {
     );
   };
 
+  /**
+   * Returns a Reducer that only produces an output value when having receives exactly one
+   * input value, otherwise will return the `otherwise` value or undefined.
+   * @param otherwise - the fallback value to return when more or less than one value is received.
+   * @typeparam T - the element type
+   * @typeparam O - the fallback value type
+   */
   export const single: {
     <T>(): Reducer<T, T | undefined>;
     <T, O>(otherwise: OptLazy<O>): Reducer<T, T | O>;
@@ -1054,6 +1137,8 @@ export namespace Reducer {
    * Returns a `Reducer` that ouputs false as long as no input value satisfies given `pred`, true otherwise.
    * @typeparam T - the element type
    * @param pred - a function taking an input value and its index, and returning true if the value satisfies the predicate
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - negate: (default: false) when true will invert the given predicate
    * @example
    * ```ts
    * console.log(Stream.range{ amount: 10 }).reduce(Reducer.some(v => v > 5))
@@ -1071,6 +1156,8 @@ export namespace Reducer {
    * Returns a `Reducer` that ouputs true as long as all input values satisfy the given `pred`, false otherwise.
    * @typeparam T - the element type
    * @param pred - a function taking an input value and its index, and returning true if the value satisfies the predicate
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - negate: (default: false) when true will invert the given predicate
    * @example
    * ```ts
    * console.log(Stream.range{ amount: 10 }).reduce(Reducer.every(v => v < 5))
@@ -1086,6 +1173,14 @@ export namespace Reducer {
     return isEmpty.filterInput(pred, { negate: !negate });
   }
 
+  /**
+   * Returns a `Reducer` that ouputs true when the received elements match the given `other` stream source according to the `eq` instance, false otherwise.
+   * @typeparam T - the element type
+   * @param other - a stream source containg elements to match against
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - eq: (default: Eq.objectIs) the `Eq` instance to use to compare elements
+   * - negate: (default: false) when true will invert the given predicate
+   */
   export function equals<T>(
     other: StreamSource<T>,
     options: { eq?: Eq<T>; negate?: boolean } = {}
@@ -1133,10 +1228,13 @@ export namespace Reducer {
   }
 
   /**
-   * Returns a `Reducer` that outputs false as long as the given `elem` has not been encountered in the input values, true otherwise.
+   * Returns a `Reducer` that outputs false as long as the given `elem` has not been encountered the given `amount` of times in the input values, true otherwise.
    * @typeparam T - the element type
    * @param elem - the element to search for
-   * @param eq - (optional) a comparison function that returns true if te two given input values are considered equal
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - amount: (detaulf: 1) the amount of elements to find
+   * - eq: (default: Eq.objectIs) the `Eq` instance to use to compare elements
+   * - negate: (default: false) when true will invert the given predicate
    * @example
    * ```ts
    * console.log(Stream.range({ amount: 10 }).reduce(Reducer.contains(5)))
@@ -1180,6 +1278,14 @@ export namespace Reducer {
     );
   }
 
+  /**
+   * Returns a `Reducer` that returns true if the first input values match the given `slice` values repeated `amount` times. Otherwise,
+   * returns false.
+   * @param slice - a sequence of elements to match against
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - amount: (detaulf: 1) the amount of elements to find
+   * - eq: (default: Eq.objectIs) the `Eq` instance to use to compare elements
+   */
   export function startsWithSlice<T>(
     slice: StreamSource<T>,
     options: { eq?: Eq<T> | undefined; amount?: number } = {}
@@ -1239,6 +1345,14 @@ export namespace Reducer {
     );
   }
 
+  /**
+   * Returns a `Reducer` that returns true if the last input values match the given `slice` values repeated `amount` times. Otherwise,
+   * returns false.
+   * @param slice - a sequence of elements to match against
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - amount: (detaulf: 1) the amount of elements to find
+   * - eq: (default: Eq.objectIs) the `Eq` instance to use to compare elements
+   */
   export function endsWithSlice<T>(
     slice: StreamSource<T>,
     options: { eq?: Eq<T> | undefined; amount?: number } = {}
@@ -1281,6 +1395,14 @@ export namespace Reducer {
     );
   }
 
+  /**
+   * Returns a `Reducer` that returns true if the input values contain the given `slice` sequence `amount` times. Otherwise,
+   * returns false.
+   * @param slice - a sequence of elements to match against
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - amount: (detaulf: 1) the amount of elements to find
+   * - eq: (default: Eq.objectIs) the `Eq` instance to use to compare elements
+   */
   export function containsSlice<T>(
     slice: StreamSource<T>,
     options: { eq?: Eq<T> | undefined; amount?: number } = {}
@@ -1293,7 +1415,7 @@ export namespace Reducer {
   }
 
   /**
-   * Returns a `Reducer` that takes boolean values and outputs true if all input values are true, and false otherwise.
+   * A `Reducer` that takes boolean values and outputs true if all input values are true, and false otherwise.
    * @example
    * ```ts
    * console.log(Stream.of(true, false, true)).reduce(Reducer.and))
@@ -1312,7 +1434,7 @@ export namespace Reducer {
   );
 
   /**
-   * Returns a `Reducer` that takes boolean values and outputs true if one or more input values are true, and false otherwise.
+   * A `Reducer` that takes boolean values and outputs true if one or more input values are true, and false otherwise.
    * @example
    * ```ts
    * console.log(Stream.of(true, false, true)).reduce(Reducer.or))
@@ -1331,7 +1453,7 @@ export namespace Reducer {
   );
 
   /**
-   * Returns a `Reducer` that outputs true if no input values are received, false otherwise.
+   * A `Reducer` that outputs true if no input values are received, false otherwise.
    * @example
    * ```ts
    * console.log(Stream.of(1, 2, 3).reduce(Reducer.isEmpty))
@@ -1347,7 +1469,7 @@ export namespace Reducer {
   );
 
   /**
-   * Returns a `Reducer` that outputs true if one or more input values are received, false otherwise.
+   * A `Reducer` that outputs true if one or more input values are received, false otherwise.
    * @example
    * ```ts
    * console.log(Stream.of(1, 2, 3).reduce(Reducer.nonEmpty))
@@ -1362,8 +1484,11 @@ export namespace Reducer {
     }
   );
 
-  export function constant<T>(value: OptLazy<T>): Reducer<never, T> {
-    return Reducer.create<never, T, void>(
+  /**
+   * Returns a `Reducer` that always outputs the given `value`, and does not accept input values.
+   */
+  export function constant<T>(value: OptLazy<T>): Reducer<any, T> {
+    return Reducer.create<any, T, void>(
       (initHalt) => {
         initHalt();
       },
@@ -1372,6 +1497,35 @@ export namespace Reducer {
     );
   }
 
+  /**
+   * Returns a `Reducer` that splits the incoming values into two separate outputs based on the given `pred` predicate. Values for which the predicate is true
+   * are fed into the `collectorTrue` reducer, and other values are fed into the `collectorFalse` instance. If no collectors are provided the values are collected
+   * into arrays.
+   * @param pred - a predicate receiving the value and its index
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - collectorTrue: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is true<br/>
+   * - collectorFalse: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is false
+   * @typeparam T - the input element type
+   * @typeparam RT - the reducer result type for the `collectorTrue` value
+   * @typeparam RF - the reducer result type for the `collectorFalse` value
+   * @note if the predicate is a type guard, the return type is automatically inferred
+   * @example
+   * ```ts
+   * Stream.of(1, 2, 3).partition((v) => v % 2 === 0)
+   * // => [[2], [1, 3]]
+   *
+   * Stream.of<number | string>(1, 'a', 'b', 2)
+   *   .partition((v): v is string => typeof v === 'string')
+   * // => [['a', 'b'], [1, 2]]
+   * // return type is: [string[], number[]]
+   *
+   * Stream.of(1, 2, 3, 4).partition(
+   *   (v) => v % 2 === 0,
+   *   { collectorTrue: Reducer.toJSSet(), collectorFalse: Reducer.sum }
+   * )
+   * // => [Set(2, 4), 4]
+   * ```
+   */
   export const partition: {
     <T, T2 extends T, RT, RF = RT>(
       pred: (value: T, index: number) => value is T2,
@@ -1426,6 +1580,22 @@ export namespace Reducer {
     );
   };
 
+  /**
+   * Returns a `Reducer` that uses the `valueToKey` function to calculate a key for each value, and feeds the tuple of the key and the value to the
+   * `collector` reducer. Finally, it returns the output of the `collector`. If no collector is given, the default collector will return a JS multimap
+   * of the type `Map<K, V[]>`.
+   * @param valueToKey - function taking a value and its index, and returning the corresponding key
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - collector: (default: Reducer.toArray()) a reducer that collects the incoming tuple of key and value, and provides the output
+   * @typeparam T - the input value type
+   * @typeparam K - the key type
+   * @typeparam R - the collector output type
+   * @example
+   * ```ts
+   * Stream.of(1, 2, 3).groupBy((v) => v % 2)
+   * // => Map {0 => [2], 1 => [1, 3]}
+   * ```
+   */
   export const groupBy: {
     <T, K, R>(
       valueToKey: (value: T, index: number) => K,
@@ -1459,13 +1629,25 @@ export namespace Reducer {
     );
   };
 
+  /**
+   * Returns a `Reducer` that feeds incoming values to all reducers in the provided `reducers` source, and halts when the first
+   * reducer in the array is halted and returns the output of that reducer. Returns the `otherwise` value if no reducer is yet halted.
+   * @param reducers - a stream source of reducers that will receive the incoming values
+   * @param otherwise - a fallback value to return if none of the reducers has been halted
+   * @typeparam T - the input value type
+   * @typeparam R - the output value type
+   * @typeparam O - the fallback value type
+   */
   export const race: {
-    <T, R, O>(reducers: Reducer<T, R>[], otherwise: OptLazy<O>): Reducer<
-      T,
-      R | O
-    >;
-    <T, R>(reducers: Reducer<T, R>[]): Reducer<T, R | undefined>;
-  } = <T, R, O>(reducers: Reducer<T, R>[], otherwise?: OptLazy<O>) => {
+    <T, R, O>(
+      reducers: StreamSource<Reducer<T, R>>,
+      otherwise: OptLazy<O>
+    ): Reducer<T, R | O>;
+    <T, R>(reducers: StreamSource<Reducer<T, R>>): Reducer<T, R | undefined>;
+  } = <T, R, O>(
+    reducers: StreamSource<Reducer<T, R>>,
+    otherwise?: OptLazy<O>
+  ) => {
     return Reducer.create<
       T,
       R | O,
@@ -1475,7 +1657,9 @@ export namespace Reducer {
       }
     >(
       (initHalt) => {
-        const instances = reducers.map((reducer) => reducer.compile());
+        const instances = Stream.from(reducers)
+          .map((reducer) => reducer.compile())
+          .toArray();
         const doneInstance = instances.find((instance) => instance.halted);
 
         if (undefined !== doneInstance) {
@@ -1556,6 +1740,17 @@ export namespace Reducer {
     );
   }
 
+  /**
+   * Returns a `Reducer` that collects received input tuples into a mutable JS multimap, and returns
+   * a copy of that map when output is requested.
+   * @typeparam K - the map key type
+   * @typeparam V - the map value type
+   * @example
+   * ```ts
+   * console.log(Stream.of([1, 'a'], [2, 'b']).reduce(Reducer.toJSMap()))
+   * // Map { 1 => 'a', 2 => 'b' }
+   * ```
+   */
   export function toJSMultiMap<K, V>(): Reducer<[K, V], Map<K, V[]>> {
     return create(
       (): Map<K, V[]> => new Map(),
@@ -1618,11 +1813,19 @@ export namespace Reducer {
     );
   }
 
+  /**
+   * Type defining the allowed shape of reducer combinations.
+   * @typeparam T - the input type
+   */
   export type CombineShape<T = unknown> =
     | Reducer<T, unknown>
     | CombineShape<T>[]
     | { [key: string]: CombineShape<T> };
 
+  /**
+   * Type defining the result type of a reducer combination for a given shape.
+   * @typeparam S - the reducer combination shape
+   */
   export type CombineResult<S extends CombineShape> =
     /* tuple */ S extends readonly CombineShape[]
       ? /* is array? */ 0 extends S['length']
