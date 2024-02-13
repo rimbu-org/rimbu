@@ -43,7 +43,7 @@ export interface AsyncStream<T>
   asyncStream(): this;
   /**
    * Returns true if the sequence of elements in this stream are equal to the sequence in the `other` stream according to the provided `eq` function.
-   * @param other - the other stream to compare
+   * @param other - the other async stream to compare
    * @param options - (optional) object specifying the following properties<br/>
    * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
    * - negate: (default: false) when true will negate the `eq` function
@@ -121,6 +121,7 @@ export interface AsyncStream<T>
    * @typeparam A - the type of the arguments to be passed to the `f` function after each element
    * @param f - the potentially asynchronous function to perform for each element, optionally receiving given extra `args`.
    * @param args - a list of extra arguments to pass to given `f` for each element when needed
+   * @typeparam A - the type of the extra arguments to pass
    * @note if f is an async function, each call will be awaited consecutively
    * @example
    * ```ts
@@ -251,7 +252,7 @@ export interface AsyncStream<T>
    * @param pred - a potentially asynchronous function taking an element and its index, and returning true if the element should be included in the resulting stream.
    * @param options - (optional) object specifying the following properties<br/>
    * - negate: (default: false) when true will negate the given predicate
-   *
+   * @note if the predicate is a type guard, the return type is automatically inferred
    * @note O(1)
    * @example
    * ```ts
@@ -280,7 +281,7 @@ export interface AsyncStream<T>
    * - pred: a potentially asynchronous function taking an element the optionaly given `args`, and returning true if the element should be included in the resulting stream.<br/>
    * - negate: (default: false) when true will negate the given predicate
    * @param args - (optional) the extra arguments to pass to the given `mapFun`
-   *
+   * @note if the predicate is a type guard, the return type is automatically inferred
    * @note O(1)
    * @example
    * ```ts
@@ -410,6 +411,7 @@ export interface AsyncStream<T>
    * @param options - (optional) object specifying the following properties<br/>
    * - occurrance: (default: 1) the occurrance number to look for<br/>
    * - otherwise: (default: undefined) an `OptLazy` value to be returned if the Stream is empty
+   * @note if the predicate is a type guard, the return type is automatically inferred
    * @example
    * ```ts
    * const isEven = async (v: number) => v % 2 === 0
@@ -636,7 +638,7 @@ export interface AsyncStream<T>
    */
   containsSlice(
     source: AsyncStreamSource.NonEmpty<T>,
-    options?: { eq?: Eq<T> | undefined; amount?: number }
+    options?: { eq?: Eq<T> | undefined; amount?: number | undefined }
   ): Promise<boolean>;
   /**
    * Returns an AsyncStream that contains the elements of this stream up to the first element that does not satisfy given `pred` function.
@@ -853,6 +855,7 @@ export interface AsyncStream<T>
    * @param options - (optional) object specifying the following properties<br/>
    * - negate: (default: false) when true will negate the given predicate
    * - collector: (default: `AsyncArray.toArray()`) the async reducer to use to collect the resulting values
+   * @typeparam R - the result type of the collector and the resulting stream element type
    * @example
    * ```ts
    * await AsyncStream.of(1, 2, 3, 4).splitWhere(async v => v == 3).toArray()
@@ -879,6 +882,7 @@ export interface AsyncStream<T>
    * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
    * - negate: (default: false) when true will negate the given Eq function
    * - collector: (default: `AsyncArray.toArray()`) the async reducer to use to collect the resulting values
+   * @typeparam R - the result type of the collector and the resulting stream element type
    * @example
    * ```ts
    * await AsyncStream.from('marmot').splitOn('m').toArray()  // => [[], ['a', 'r'], ['o', 't']]
@@ -908,6 +912,7 @@ export interface AsyncStream<T>
    * @param options - (optional) object specifying the following properties<br/>
    * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
    * - collector: (default: `AsyncArray.toArray()`) the async reducer to use to collect the resulting values
+   * @typeparam R - the result type of the collector and the resulting stream element type
    * @example
    * ```ts
    * await AsyncStream.from('marmalade').splitSeq('ma').toArray()  // => [[], ['r'], ['l', 'a', 'd', 'e']]
@@ -970,6 +975,19 @@ export interface AsyncStream<T>
     windowSize: number,
     options?: { skipAmount?: number | undefined; collector?: undefined }
   ): AsyncStream<T[]>;
+  /**
+   * Returns a promise resolving to a tuple of which the first element is the result of collecting the elements for which the given `predicate` is true, and
+   * the second one the result of collecting the other elements. Own reducers can be provided as collectors, by default the values are
+   * collected into an array.
+   * @param pred - a potentially async predicate receiving the value and its index
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - collectorTrue: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is true<br/>
+   * - collectorFalse: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is false
+   * @typeparam T - the input element type
+   * @typeparam RT - the reducer result type for the `collectorTrue` value
+   * @typeparam RF - the reducer result type for the `collectorFalse` value
+   * @note if the predicate is a type guard, the return type is automatically inferred
+   */
   partition<T2 extends T, RT, RF = RT>(
     pred: (value: T, index: number) => value is T2,
     options: {
@@ -998,6 +1016,22 @@ export interface AsyncStream<T>
       collectorFalse?: undefined;
     }
   ): Promise<[true: T[], false: T[]]>;
+  /**
+   * Returns a promise resolving to the result of applying the `valueToKey` function to calculate a key for each value, and feeding the tuple of the key and the value to the
+   * `collector` reducer, and finally returning its result. If no collector is given, the default collector will return a JS multimap
+   * of the type `Map<K, V[]>`.
+   * @param valueToKey - potentially async function taking a value and its index, and returning the corresponding key
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - collector: (default: Reducer.toArray()) a reducer that collects the incoming tuple of key and value, and provides the output
+   * @typeparam T - the input value type
+   * @typeparam K - the key type
+   * @typeparam R - the collector output type
+   * @example
+   * ```ts
+   * await AsyncStream.of(1, 2, 3).groupBy((v) => v % 2)
+   * // => Map {0 => [2], 1 => [1, 3]}
+   * ```
+   */
   groupBy<K, R>(
     valueToKey: (value: T, index: number) => MaybePromise<K>,
     options: {

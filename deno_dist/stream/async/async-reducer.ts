@@ -357,7 +357,10 @@ export namespace AsyncReducer {
      * // => 3
      * ```
      */
-    sliceInput(from?: number, amount?: number): AsyncReducer<I, O>;
+    sliceInput(
+      from?: number | undefined,
+      amount?: number | undefined
+    ): AsyncReducer<I, O>;
     /**
      * Returns an 'AsyncReducer` instance that produces at most `amount` values.
      * @param amount - the maximum amount of values to produce.
@@ -375,7 +378,7 @@ export namespace AsyncReducer {
      */
     takeOutputUntil(
       pred: (value: O, index: number) => MaybePromise<boolean>,
-      options?: { negate?: boolean }
+      options?: { negate?: boolean | undefined }
     ): AsyncReducer<I, O>;
     /**
      * Returns an `AsyncReducer` instance that first applies this reducer, and then applies the given `next` reducer to each output produced
@@ -1264,7 +1267,7 @@ export namespace AsyncReducer {
    */
   export function some<T>(
     pred: (value: T, index: number) => MaybePromise<boolean>,
-    options: { negate?: boolean } = {}
+    options: { negate?: boolean | undefined } = {}
   ): AsyncReducer<T, boolean> {
     return nonEmpty.filterInput(pred, options);
   }
@@ -1278,7 +1281,7 @@ export namespace AsyncReducer {
    */
   export function every<T>(
     pred: (value: T, index: number) => MaybePromise<boolean>,
-    options: { negate?: boolean } = {}
+    options: { negate?: boolean | undefined } = {}
   ): AsyncReducer<T, boolean> {
     const { negate = false } = options;
 
@@ -1295,7 +1298,7 @@ export namespace AsyncReducer {
    */
   export function equals<T>(
     other: AsyncStreamSource<T>,
-    options: { eq?: Eq<T>; negate?: boolean } = {}
+    options: { eq?: Eq<T> | undefined; negate?: boolean | undefined } = {}
   ): AsyncReducer<T, boolean> {
     const { eq = Eq.objectIs, negate = false } = options;
 
@@ -1504,7 +1507,7 @@ export namespace AsyncReducer {
    */
   export function containsSlice<T>(
     slice: AsyncStreamSource<T>,
-    options: { eq?: Eq<T> | undefined; amount?: number } = {}
+    options: { eq?: Eq<T> | undefined; amount?: number | undefined } = {}
   ): AsyncReducer<T, boolean> {
     const { eq, amount = 1 } = options;
 
@@ -1525,21 +1528,6 @@ export namespace AsyncReducer {
    * @typeparam RT - the reducer result type for the `collectorTrue` value
    * @typeparam RF - the reducer result type for the `collectorFalse` value
    * @note if the predicate is a type guard, the return type is automatically inferred
-   * @example
-   * ```ts
-   * Stream.of(1, 2, 3).partition((v) => v % 2 === 0)
-   * // => [[2], [1, 3]]
-   *
-   * Stream.of<number | string>(1, 'a', 'b', 2)
-   *   .partition((v): v is string => typeof v === 'string')
-   * // => [['a', 'b'], [1, 2]]
-   * // return type is: [string[], number[]]
-   *
-   * Stream.of(1, 2, 3, 4).partition(
-   *   (v) => v % 2 === 0,
-   *   { collectorTrue: Reducer.toJSSet(), collectorFalse: Reducer.sum }
-   * )
-   * // => [Set(2, 4), 4]
    * ```
    */
   export const partition: {
@@ -1613,10 +1601,6 @@ export namespace AsyncReducer {
    * @typeparam T - the input value type
    * @typeparam K - the key type
    * @typeparam R - the collector output type
-   * @example
-   * ```ts
-   * await AsyncStream.of(1, 2, 3).groupBy((v) => v % 2)
-   * // => Map {0 => [2], 1 => [1, 3]}
    * ```
    */
   export const groupBy: {
