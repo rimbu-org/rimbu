@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/bimap@2.0.0...@rimbu/bimap@2.0.1) (2024-02-14)
+
+**Note:** Version bump only for package @rimbu/bimap
+
 # [2.0.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/bimap@1.1.1...@rimbu/bimap@2.0.0) (2024-01-26)
 
 ### Features
