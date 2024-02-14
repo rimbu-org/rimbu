@@ -2,6 +2,8 @@ import {
   AsyncReducer,
   AsyncStream,
   AsyncTransformer,
+  Reducer,
+  Transformer,
 } from '../src/main/index.mjs';
 
 describe('AsyncTransformer', () => {
@@ -51,7 +53,7 @@ describe('AsyncTransformer', () => {
         .transform(
           AsyncTransformer.window(3, {
             skipAmount: 1,
-            collector: AsyncReducer.toJSSet(),
+            collector: Reducer.toJSSet<number>(),
           })
         )
         .toArray()
@@ -66,13 +68,74 @@ describe('AsyncTransformer', () => {
   it('distinctPrevious', async () => {
     expect(
       await AsyncStream.empty<number>()
-        .transform(AsyncTransformer.distinctPrevious())
+        .transform(
+          AsyncTransformer.from(Transformer.distinctPrevious<number>())
+        )
         .toArray()
     ).toEqual([]);
     expect(
       await AsyncStream.of(1, 2, 2, 3, 1, 1, 3)
-        .transform(AsyncTransformer.distinctPrevious())
+        .transform(
+          AsyncTransformer.from(Transformer.distinctPrevious<number>())
+        )
         .toArray()
     ).toEqual([1, 2, 3, 1, 3]);
+  });
+
+  it('flatMap', async () => {
+    expect(
+      await AsyncStream.empty<number>()
+        .transform(AsyncTransformer.flatMap(async (v) => [v, v]))
+        .toArray()
+    ).toEqual([]);
+
+    expect(
+      await AsyncStream.of(1, 2, 3)
+        .transform(AsyncTransformer.flatMap(async (v) => [v, v]))
+        .toArray()
+    ).toEqual([1, 1, 2, 2, 3, 3]);
+  });
+
+  it('filter', async () => {
+    async function isEven(v: number) {
+      return v % 2 === 0;
+    }
+
+    expect(
+      await AsyncStream.empty<number>()
+        .transform(AsyncTransformer.filter(isEven))
+        .toArray()
+    ).toEqual([]);
+    expect(
+      await AsyncStream.of(1, 2, 3)
+        .transform(AsyncTransformer.filter(isEven))
+        .toArray()
+    ).toEqual([2]);
+    expect(
+      await AsyncStream.of(1, 2, 3)
+        .transform(AsyncTransformer.filter(isEven, { negate: true }))
+        .toArray()
+    ).toEqual([1, 3]);
+  });
+
+  it('collect', async () => {
+    expect(
+      await AsyncStream.empty<number>()
+        .transform(
+          AsyncTransformer.collect(async (v, _, skip) =>
+            v % 2 === 0 ? String(v) : skip
+          )
+        )
+        .toArray()
+    ).toEqual([]);
+    expect(
+      await AsyncStream.of(1, 2, 3, 4)
+        .transform(
+          AsyncTransformer.collect(async (v, _, skip) =>
+            v % 2 === 0 ? String(v) : skip
+          )
+        )
+        .toArray()
+    ).toEqual(['2', '4']);
   });
 });

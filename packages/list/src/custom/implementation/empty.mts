@@ -85,7 +85,7 @@ export class Empty<T = any> extends EmptyBase implements List<T> {
     return this;
   }
 
-  filter(): this {
+  filter(): any {
     return this;
   }
 

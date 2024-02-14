@@ -1,4 +1,3 @@
-import { OptLazy } from '../../common/mod.ts';
 import type { Reducer } from '../../stream/mod.ts';
 
 import type { ActionBase } from './internal.ts';
@@ -83,14 +82,15 @@ export namespace Actor {
   }): EnhancedActor {
     const { reducer, middleware, enhancer, actions } = config;
 
-    let reducerState = OptLazy(reducer.init);
-
-    let index = 0;
     let halted = false;
 
     const halt = (): void => {
       halted = true;
     };
+
+    let reducerState = reducer.init(halt);
+
+    let index = 0;
 
     const listeners = new Set<Actor.Listener>();
 
@@ -121,7 +121,7 @@ export namespace Actor {
     const actor: any = {
       getState: (): S => {
         if (STALE_STATE === cacheState) {
-          cacheState = reducer.stateToResult(reducerState);
+          cacheState = reducer.stateToResult(reducerState, index, halted);
         }
 
         return cacheState;

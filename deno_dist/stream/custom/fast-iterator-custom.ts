@@ -1,9 +1,16 @@
 import { Token } from '../../base/mod.ts';
-import { CollectFun, OptLazy, TraverseState, type Eq } from '../../common/mod.ts';
+import { CollectFun, OptLazy, TraverseState } from '../../common/mod.ts';
 import { type Reducer } from '../../stream/mod.ts';
 
-import type { StreamSourceHelpers } from '../../stream/custom/index.ts';
-import { Stream, type FastIterator, type StreamSource } from '../../stream/mod.ts';
+import {
+  type FastIterator,
+  type Stream,
+  type StreamSource,
+} from '../../stream/mod.ts';
+import {
+  fromStreamSource,
+  type StreamSourceHelpers,
+} from '../../stream/custom/index.ts';
 
 export const fixedDoneIteratorResult: IteratorResult<any> = Object.freeze({
   done: true,
@@ -40,56 +47,72 @@ export abstract class FastIteratorBase<T> implements FastIterator<T> {
   }
 }
 
-export class FlatMapIterator<T, T2> extends FastIteratorBase<T2> {
-  iterator: FastIterator<T>;
-
+export class ReducerFastIterator<T, R> extends FastIteratorBase<R> {
   constructor(
-    readonly source: Stream<T>,
-    readonly flatMapFun: (
-      value: T,
-      index: number,
-      halt: () => void
-    ) => StreamSource<T2>,
-    readonly streamSourceHelpers: StreamSourceHelpers
+    readonly sourceIterator: FastIterator<T>,
+    readonly reducerInstance: Reducer.Instance<T, R>
   ) {
     super();
-    this.iterator = this.source[Symbol.iterator]();
   }
 
-  readonly state = TraverseState();
+  fastNext<O>(otherwise?: OptLazy<O>): R | O {
+    if (this.reducerInstance.halted) {
+      return OptLazy(otherwise) as O;
+    }
 
-  done = false;
-  currentIterator: null | FastIterator<T2> = null;
+    const done = Symbol('done');
+    const nextInput = this.sourceIterator.fastNext(done);
 
-  fastNext<O>(otherwise?: OptLazy<O>): T2 | O {
-    const state = this.state;
+    if (done === nextInput) {
+      this.reducerInstance.halt();
+      return OptLazy(otherwise) as O;
+    }
 
-    if (state.halted || this.done) return OptLazy(otherwise) as O;
+    this.reducerInstance.next(nextInput);
 
-    const done = Symbol('Done');
+    return this.reducerInstance.getOutput();
+  }
+}
 
-    let nextValue: T2 | typeof done;
+export class TransformerFastIterator<T, R> extends FastIteratorBase<R> {
+  constructor(
+    readonly sourceIterator: FastIterator<T>,
+    readonly transformerInstance: Reducer.Instance<T, StreamSource<R>>
+  ) {
+    super();
+  }
+
+  #done = false;
+  #currentValues: FastIterator<R> | undefined;
+
+  fastNext<O>(otherwise?: OptLazy<O>): R | O {
+    if (this.#done) {
+      return OptLazy(otherwise) as O;
+    }
+
+    const done = Symbol('done');
+
+    let nextValue: R | typeof done;
 
     while (
-      null === this.currentIterator ||
-      done === (nextValue = this.currentIterator.fastNext(done))
+      undefined === this.#currentValues ||
+      done === (nextValue = this.#currentValues.fastNext(done))
     ) {
-      const nextIter = this.iterator.fastNext(done);
+      const nextSource = this.sourceIterator.fastNext(done);
 
-      if (done === nextIter) {
-        this.done = true;
-        return OptLazy(otherwise) as O;
+      if (done === nextSource) {
+        if (this.transformerInstance.halted) {
+          return OptLazy(otherwise) as O;
+        }
+        this.#done = true;
+        this.transformerInstance.halt();
+      } else {
+        this.transformerInstance.next(nextSource);
       }
 
-      const nextSource = this.flatMapFun(
-        nextIter,
-        state.nextIndex(),
-        state.halt
-      );
-
-      this.currentIterator = this.streamSourceHelpers
-        .fromStreamSource(nextSource)
-        [Symbol.iterator]();
+      const nextValuesSource = this.transformerInstance.getOutput();
+      this.#currentValues =
+        fromStreamSource(nextValuesSource)[Symbol.iterator]();
     }
 
     return nextValue;
@@ -133,6 +156,25 @@ export class ConcatIterator<T> extends FastIteratorBase<T> {
     }
 
     return value;
+  }
+}
+
+export class IndexedIterator<T> extends FastIteratorBase<[number, T]> {
+  constructor(readonly source: FastIterator<T>, readonly startIndex: number) {
+    super();
+  }
+
+  index = this.startIndex;
+
+  fastNext<O>(otherwise?: OptLazy<O> | undefined): [number, T] | O {
+    const done = Symbol('Done');
+    const value = this.source.fastNext(done);
+
+    if (done === value) {
+      return OptLazy(otherwise) as O;
+    }
+
+    return [this.index++, value];
   }
 }
 
@@ -229,92 +271,6 @@ export class CollectIterator<T, R> extends FastIteratorBase<R> {
     }
 
     return OptLazy(otherwise as O);
-  }
-}
-
-export class IndicesWhereIterator<T> extends FastIteratorBase<number> {
-  constructor(
-    readonly source: FastIterator<T>,
-    readonly pred: (value: T) => boolean,
-    readonly negate: boolean
-  ) {
-    super();
-  }
-
-  index = 0;
-
-  fastNext<O>(otherwise?: OptLazy<O>): number | O {
-    const done = Symbol('Done');
-    let value: T | typeof done;
-    const source = this.source;
-    const pred = this.pred;
-    const negate = this.negate;
-
-    while (done !== (value = source.fastNext(done))) {
-      if (pred(value) !== negate) return this.index++;
-      this.index++;
-    }
-
-    return OptLazy(otherwise) as O;
-  }
-}
-
-export class IndicesOfIterator<T> extends FastIteratorBase<number> {
-  constructor(
-    readonly source: FastIterator<T>,
-    readonly searchValue: T,
-    readonly eq: Eq<T>,
-    readonly negate: boolean
-  ) {
-    super();
-  }
-
-  index = 0;
-
-  fastNext<O>(otherwise?: OptLazy<O>): number | O {
-    const done = Symbol('Done');
-    let value: T | typeof done;
-    const source = this.source;
-    const searchValue = this.searchValue;
-    const eq = this.eq;
-    const negate = this.negate;
-
-    while (done !== (value = source.fastNext(done))) {
-      if (eq(searchValue, value) !== negate) return this.index++;
-      this.index++;
-    }
-
-    return OptLazy(otherwise) as O;
-  }
-}
-
-export class TakeWhileIterator<T> extends FastIteratorBase<T> {
-  constructor(
-    readonly source: FastIterator<T>,
-    readonly pred: (value: T, index: number) => boolean,
-    readonly negate: boolean
-  ) {
-    super();
-  }
-
-  isDone = false;
-  index = 0;
-
-  fastNext<O>(otherwise?: OptLazy<O>): T | O {
-    const done = Symbol('Done');
-    if (this.isDone) return OptLazy(otherwise) as O;
-
-    const next = this.source.fastNext(done);
-
-    if (done === next) {
-      this.isDone = true;
-      return OptLazy(otherwise) as O;
-    }
-
-    if (this.pred(next, this.index++) !== this.negate) return next;
-
-    this.isDone = true;
-    return OptLazy(otherwise) as O;
   }
 }
 
@@ -421,294 +377,6 @@ export class RepeatIterator<T> extends FastIteratorBase<T> {
     if (done === value) return OptLazy(otherwise) as O;
 
     return value;
-  }
-}
-
-export class IntersperseIterator<T> extends FastIteratorBase<T> {
-  constructor(readonly source: FastIterator<T>, readonly sepStream: Stream<T>) {
-    super();
-  }
-
-  sepIterator: FastIterator<T> | undefined;
-  nextValue!: T;
-  isInitialized = false;
-
-  fastNext<O>(otherwise?: OptLazy<O>): T | O {
-    const done = Symbol('Done');
-
-    if (undefined !== this.sepIterator) {
-      const sepNext = this.sepIterator.fastNext(done);
-      if (done !== sepNext) return sepNext;
-      this.sepIterator = undefined;
-    }
-
-    if (this.isInitialized) {
-      const newNextValue = this.source.fastNext(done);
-      if (done === newNextValue) {
-        this.isInitialized = false;
-        return this.nextValue;
-      }
-      const currentNextValue = this.nextValue;
-      this.nextValue = newNextValue;
-      this.sepIterator = this.sepStream[Symbol.iterator]();
-      return currentNextValue;
-    }
-
-    const nextValue = this.source.fastNext(done);
-    if (done === nextValue) return OptLazy(otherwise) as O;
-
-    const newNextValue = this.source.fastNext(done);
-    if (done === newNextValue) return nextValue;
-
-    this.nextValue = newNextValue;
-    this.isInitialized = true;
-    this.sepIterator = this.sepStream[Symbol.iterator]();
-    return nextValue;
-  }
-}
-
-export class SplitWhereIterator<T, R> extends FastIteratorBase<R> {
-  constructor(
-    readonly source: FastIterator<T>,
-    readonly pred: (value: T, index: number) => boolean,
-    readonly negate: boolean,
-    readonly collector: Reducer<T, R>
-  ) {
-    super();
-  }
-
-  index = 0;
-
-  fastNext<O>(otherwise?: OptLazy<O>): R | O {
-    const collectorInstance = this.collector.compile();
-
-    const source = this.source;
-    const done = Symbol('Done');
-    let value: T | typeof done;
-    const pred = this.pred;
-    const negate = this.negate;
-
-    const startIndex = this.index;
-
-    while (done !== (value = source.fastNext(done))) {
-      if (pred(value, this.index++) !== negate) {
-        return collectorInstance.getOutput();
-      }
-
-      collectorInstance.next(value);
-    }
-
-    if (startIndex === this.index) {
-      return OptLazy(otherwise) as O;
-    }
-
-    return collectorInstance.getOutput();
-  }
-}
-
-export class SplitOnIterator<T, R> extends FastIteratorBase<R> {
-  constructor(
-    readonly source: FastIterator<T>,
-    readonly sepElem: T,
-    readonly eq: Eq<T>,
-    readonly negate: boolean,
-    readonly collector: Reducer<T, R>
-  ) {
-    super();
-  }
-
-  fastNext<O>(otherwise?: OptLazy<O>): R | O {
-    const collectorInstance = this.collector.compile();
-
-    const source = this.source;
-    const done = Symbol('Done');
-    let value: T | typeof done;
-    let processed = false;
-    const eq = this.eq;
-    const sepElem = this.sepElem;
-    const negate = this.negate;
-
-    while (done !== (value = source.fastNext(done))) {
-      processed = true;
-      if (eq(value, sepElem) !== negate) {
-        return collectorInstance.getOutput();
-      }
-
-      collectorInstance.next(value);
-    }
-
-    if (!processed) {
-      return OptLazy(otherwise) as O;
-    }
-
-    return collectorInstance.getOutput();
-  }
-}
-
-export class SplitOnSeqIterator<T, R> extends FastIteratorBase<R> {
-  constructor(
-    readonly source: FastIterator<T>,
-    readonly sepSeq: StreamSource<T>,
-    readonly eq: Eq<T>,
-    readonly collector: Reducer<T, R>
-  ) {
-    super();
-  }
-
-  isDone = false;
-
-  fastNext<O>(otherwise?: OptLazy<O>): R | O {
-    if (this.isDone) {
-      return OptLazy(otherwise) as O;
-    }
-
-    const collectorInstance = this.collector.compile();
-
-    const source = this.source;
-    const done = Symbol('Done');
-
-    const eq = this.eq;
-
-    let processed = false;
-    let buffer: T[] = [];
-    let value: T | typeof done;
-
-    let sepSeqIter = Stream.from(this.sepSeq)[Symbol.iterator]();
-    let seqValue = sepSeqIter.fastNext(done);
-
-    while (done !== (value = source.fastNext(done))) {
-      processed = true;
-
-      if (done === seqValue) {
-        collectorInstance.next(value);
-        return collectorInstance.getOutput();
-      }
-
-      if (eq(value, seqValue)) {
-        buffer.push(value);
-        seqValue = sepSeqIter.fastNext(done);
-      } else {
-        Stream.from(buffer).forEachPure(collectorInstance.next);
-        buffer = [];
-
-        sepSeqIter = Stream.from(this.sepSeq)[Symbol.iterator]();
-        seqValue = sepSeqIter.fastNext(done);
-
-        if (done !== seqValue) {
-          if (eq(value, seqValue)) {
-            seqValue = sepSeqIter.fastNext(done);
-          } else {
-            collectorInstance.next(value);
-          }
-        }
-      }
-
-      if (done === seqValue) {
-        return collectorInstance.getOutput();
-      }
-    }
-
-    this.isDone = true;
-
-    if (!processed) {
-      return OptLazy(otherwise) as O;
-    }
-
-    if (done !== seqValue) {
-      Stream.from(buffer).forEachPure(collectorInstance.next);
-    }
-
-    return collectorInstance.getOutput();
-  }
-}
-
-export class ReduceIterator<I, R> extends FastIteratorBase<R> {
-  constructor(
-    readonly source: FastIterator<I>,
-    readonly reducer: Reducer<I, R>
-  ) {
-    super();
-  }
-
-  #_reducerInstance: Reducer.Instance<I, R> | undefined;
-
-  get #reducerInstance(): Reducer.Instance<I, R> {
-    if (undefined === this.#_reducerInstance) {
-      this.#_reducerInstance = this.reducer.compile();
-    }
-
-    return this.#_reducerInstance;
-  }
-
-  fastNext<O>(otherwise?: OptLazy<O>): R | O {
-    const reducerInstance = this.#reducerInstance;
-
-    if (reducerInstance.halted) {
-      return OptLazy(otherwise) as O;
-    }
-
-    const done = Symbol('Done');
-    const value = this.source.fastNext(done);
-
-    if (done === value) return OptLazy(otherwise) as O;
-
-    reducerInstance.next(value);
-
-    return reducerInstance.getOutput();
-  }
-}
-
-export class ReduceAllIterator<I, R> extends FastIteratorBase<R> {
-  constructor(
-    readonly source: FastIterator<I>,
-    readonly reducers: Reducer<I, any>[]
-  ) {
-    super();
-  }
-
-  #_reducerInstances: Reducer.Instance<I, any>[] | undefined;
-
-  get #reducerInstances(): Reducer.Instance<I, any>[] {
-    if (undefined === this.#_reducerInstances) {
-      this.#_reducerInstances = this.reducers.map((reducer) =>
-        reducer.compile()
-      );
-    }
-
-    return this.#_reducerInstances;
-  }
-
-  isDone = false;
-
-  fastNext<O>(otherwise?: OptLazy<O>): R | O {
-    if (this.isDone) return OptLazy(otherwise) as O;
-
-    const done = Symbol('Done');
-    const value = this.source.fastNext(done);
-
-    if (done === value) return OptLazy(otherwise) as O;
-
-    const reducerInstances = this.#reducerInstances;
-    const length = reducerInstances.length;
-    let i = -1;
-    let anyNotDone = false;
-
-    while (++i < length) {
-      const reducerInstance = reducerInstances[i];
-
-      if (!reducerInstance.halted) {
-        reducerInstance.next(value);
-
-        anyNotDone = anyNotDone || !reducerInstance.halted;
-      }
-    }
-
-    if (!anyNotDone) {
-      this.isDone = true;
-      return OptLazy(otherwise) as O;
-    }
-
-    return reducerInstances.map((instance) => instance.getOutput()) as R;
   }
 }
 
@@ -1021,7 +689,9 @@ export class PrependIterator<T> extends FastIteratorBase<T> {
   prependDone = false;
 
   fastNext<O>(otherwise?: OptLazy<O>): T | O {
-    if (this.prependDone) return this.source.fastNext(otherwise!);
+    if (this.prependDone) {
+      return this.source.fastNext(otherwise!);
+    }
     this.prependDone = true;
     return OptLazy(this.item);
   }
@@ -1045,24 +715,6 @@ export class AppendIterator<T> extends FastIteratorBase<T> {
 
     this.appendDone = true;
     return OptLazy(this.item);
-  }
-}
-
-export class IndexedIterator<T> extends FastIteratorBase<[number, T]> {
-  index: number;
-
-  constructor(readonly source: FastIterator<T>, readonly startIndex = 0) {
-    super();
-    this.index = startIndex;
-  }
-
-  fastNext<O>(otherwise?: OptLazy<O>): [number, T] | O {
-    const done = Symbol('Done');
-    const value = this.source.fastNext(done);
-
-    if (done === value) return OptLazy(otherwise) as O;
-
-    return [this.index++, value];
   }
 }
 
@@ -1110,118 +762,5 @@ export class MapPureIterator<
     if (done === next) return OptLazy(otherwise) as O;
 
     return this.mapFun(next, ...this.args);
-  }
-}
-
-export class DistinctPreviousIterator<T> extends FastIteratorBase<T> {
-  constructor(
-    readonly source: FastIterator<T>,
-    readonly eq: Eq<T>,
-    readonly negate: boolean
-  ) {
-    super();
-  }
-
-  readonly previous = [] as T[];
-
-  fastNext<O>(otherwise?: OptLazy<O>): T | O {
-    const done = Symbol('Done');
-
-    let next: T | typeof done;
-    const source = this.source;
-    const previous = this.previous;
-    const negate = this.negate;
-
-    while (done !== (next = source.fastNext(done))) {
-      previous.push(next);
-
-      if (previous.length === 1) {
-        return next;
-      }
-
-      const prev = previous.shift()!;
-
-      if (this.eq(prev, next) === negate) {
-        return next;
-      }
-    }
-
-    return OptLazy(otherwise!);
-  }
-}
-
-export class WindowIterator<T, R> extends FastIteratorBase<R> {
-  constructor(
-    readonly source: FastIterator<T>,
-    readonly windowSize: number,
-    readonly skipAmount: number,
-    readonly collector: Reducer<T, R>
-  ) {
-    super();
-  }
-
-  state = new Set<{
-    result: unknown;
-    size: number;
-    halted: boolean;
-    halt: () => void;
-  }>();
-  index = 0;
-
-  fastNext<O>(otherwise?: OptLazy<O>): R | O {
-    const source = this.source;
-    const collector = this.collector;
-    const windowSize = this.windowSize;
-    const skipAmount = this.skipAmount;
-    const done = Symbol('Done');
-    const state = this.state;
-
-    let next: T | typeof done;
-    let result: R | typeof done = done;
-
-    while (done !== (next = source.fastNext(done))) {
-      for (const current of state) {
-        current.result = collector.next(
-          current.result,
-          next,
-          current.size,
-          current.halt
-        );
-        current.size++;
-
-        if (current.size >= windowSize || current.halted) {
-          result = collector.stateToResult(current.result);
-          state.delete(current);
-        }
-      }
-
-      if (this.index % skipAmount === 0) {
-        const newState = {
-          result: OptLazy(collector.init),
-          size: 1,
-          halted: false,
-          halt(): void {
-            this.halted = true;
-          },
-        };
-
-        newState.result = collector.next(
-          OptLazy(collector.init),
-          next,
-          0,
-          newState.halt
-        );
-
-        state.add(newState);
-      }
-
-      this.index++;
-
-      if (done !== result) {
-        return result;
-      }
-    }
-
-    return OptLazy(otherwise!);
   }
 }

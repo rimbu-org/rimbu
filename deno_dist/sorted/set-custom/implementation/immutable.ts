@@ -215,8 +215,8 @@ export abstract class SortedSetNode<T>
 
   filter(
     pred: (value: T, index: number, halt: () => void) => boolean,
-    options: { negate?: boolean } = {}
-  ): SortedSet<T> {
+    options: { negate?: boolean | undefined } = {}
+  ): any {
     const builder = this.context.builder();
 
     builder.addAll(this.stream().filter(pred, options));

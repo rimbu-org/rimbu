@@ -194,6 +194,7 @@ export interface VariantMultiSetBase<
    * - `halt`: a function that, when called, ensures no next entries are passed
    * @param options - (optional) an object containing the following properties:<br/>
    * - negate: (default: false) when true will negate the predicate
+   * @note if the predicate is a type guard, the return type is automatically inferred
    * @example
    * ```ts
    * HashMultiSet.of(1, 2, 2, 3)
@@ -202,6 +203,14 @@ export interface VariantMultiSetBase<
    * // => [[2, 2]]
    * ```
    */
+  filterEntries<TF extends T>(
+    pred: (entry: readonly [T, number], index: number) => entry is [TF, number],
+    options?: { negate?: false | undefined }
+  ): WithElem<Tp, TF>['normal'];
+  filterEntries<TF extends T>(
+    pred: (entry: readonly [T, number], index: number) => entry is [TF, number],
+    options: { negate: true }
+  ): WithElem<Tp, Exclude<T, TF>>['normal'];
   filterEntries(
     pred: (entry: readonly [T, number], index: number) => boolean,
     options?: { negate?: boolean }

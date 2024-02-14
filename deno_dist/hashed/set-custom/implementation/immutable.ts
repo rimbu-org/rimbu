@@ -115,8 +115,8 @@ export abstract class HashSetNonEmptyBase<T>
 
   filter(
     pred: (value: T, index: number, halt: () => void) => boolean,
-    options: { negate?: boolean } = {}
-  ): HashSet<T> {
+    options: { negate?: boolean | undefined } = {}
+  ): any {
     const builder = this.context.builder();
 
     builder.addAll(this.stream().filter(pred, options));

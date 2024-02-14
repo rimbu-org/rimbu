@@ -195,8 +195,12 @@ export abstract class ListNonEmptyBase<T>
 
   filter(
     pred: (value: T, index: number, halt: () => void) => boolean,
-    options: { range?: IndexRange; reversed?: boolean; negate?: boolean } = {}
-  ): List<T> {
+    options: {
+      range?: IndexRange | undefined;
+      reversed?: boolean | undefined;
+      negate?: boolean | undefined;
+    } = {}
+  ): any {
     const { range, reversed = false, negate = false } = options;
 
     const stream =

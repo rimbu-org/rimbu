@@ -14,7 +14,7 @@ import {
   AsyncTransformer,
   type AsyncFastIterator,
 } from '../src/async/index.mjs';
-import type { Stream } from '../src/main/index.mjs';
+import { Reducer, type Stream } from '../src/main/index.mjs';
 
 // Variance
 expectAssignable<AsyncStream<number | string>>(AsyncStream.empty<number>());
@@ -632,15 +632,15 @@ expectType<boolean>(await AsyncStream.of(1).reduce(AsyncReducer.isEmpty));
 expectType<[boolean, number, string]>(
   await AsyncStream.empty<number>().reduce([
     AsyncReducer.isEmpty,
-    AsyncReducer.sum,
-    AsyncReducer.join<number>(),
+    Reducer.sum,
+    Reducer.join<number>(),
   ])
 );
 expectType<[boolean, number, string]>(
   await AsyncStream.of(1).reduce([
     AsyncReducer.isEmpty,
-    AsyncReducer.sum,
-    AsyncReducer.join<number>(),
+    Reducer.sum,
+    Reducer.join<number>(),
   ])
 );
 
@@ -648,15 +648,15 @@ expectType<[boolean, number, string]>(
 expectType<AsyncStream<[boolean, number, string]>>(
   AsyncStream.empty<number>().reduceStream([
     AsyncReducer.isEmpty,
-    AsyncReducer.sum,
-    AsyncReducer.join<number>(),
+    Reducer.sum,
+    Reducer.join<number>(),
   ])
 );
 expectType<AsyncStream<[boolean, number, string]>>(
   AsyncStream.of(1).reduceStream([
     AsyncReducer.isEmpty,
-    AsyncReducer.sum,
-    AsyncReducer.join<number>(),
+    Reducer.sum,
+    Reducer.join<number>(),
   ])
 );
 

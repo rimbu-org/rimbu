@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/base@1.1.0...@rimbu/base@2.0.0) (2024-01-26)
+
+### Features
+
+- major API improvements accross all packages, performance improvements for newer runtimes ([312e473](https://github.com/rimbu-org/rimbu/commit/312e473261696a8e8749399491b9fd29bb5c38ec))
+
+### Performance Improvements
+
+- **base:** export most performant arr methods based on available array methods ([714e66e](https://github.com/rimbu-org/rimbu/commit/714e66ed60289bc5eefff827e7ae167e8131cfb7))
+
+### BREAKING CHANGES
+
+- Many methods now take an options object instead of positional arguments for
+  readability
+
 # [1.1.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/base@1.0.0...@rimbu/base@1.1.0) (2023-07-29)
 
 ### Features

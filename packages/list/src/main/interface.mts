@@ -393,6 +393,7 @@ export interface List<T> extends FastIterable<T> {
    * @param options - (optional) an object containing the following properties:<br/>
    * - range: (optional) the range of the list to include in the filtering process<br/>
    * - reversed: (default: false) if true reverses the elements within the given range
+   * @note if the predicate is a type guard, the return type is automatically inferred
    * @example
    * ```ts
    * List.of(0, 1, 2, 3).filter(v => v < 2)           // -> List(0, 1)
@@ -404,6 +405,22 @@ export interface List<T> extends FastIterable<T> {
    *   .filter((_, i) => i > 1, undefined, true)      // -> List(1, 0)
    * ```
    */
+  filter<TF extends T>(
+    pred: (value: T, index: number, halt: () => void) => value is TF,
+    options?: {
+      range?: IndexRange;
+      reversed?: boolean;
+      negate?: false | undefined;
+    }
+  ): List<TF>;
+  filter<TF extends T>(
+    pred: (value: T, index: number, halt: () => void) => value is TF,
+    options: {
+      range?: IndexRange;
+      reversed?: boolean;
+      negate: true;
+    }
+  ): List<Exclude<T, TF>>;
   filter(
     pred: (value: T, index: number, halt: () => void) => boolean,
     options?: { range?: IndexRange; reversed?: boolean; negate?: boolean }

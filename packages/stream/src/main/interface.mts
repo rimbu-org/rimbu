@@ -54,7 +54,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    */
   equals(
     other: StreamSource<T>,
-    options?: { eq?: Eq<T>; negate?: boolean }
+    options?: { eq?: Eq<T> | undefined; negate?: boolean | undefined }
   ): boolean;
   /**
    * Returns the stream as a non-empty instance.
@@ -110,13 +110,14 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    */
   forEach(
     f: (value: T, index: number, halt: () => void) => void,
-    options?: { state?: TraverseState }
+    options?: { state?: TraverseState | undefined }
   ): void;
   /**
    * Performs given function `f` for each element of the Stream, with the optionally given `args` as extra arguments.
    * @typeparam A - the type of the arguments to be passed to the `f` function after each element
    * @param f - the function to perform for each element, optionally receiving given extra `args`.
    * @param args - a list of extra arguments to pass to given `f` for each element when needed
+   * @typeparam A - the type of the extra arguments to pass
    * @example
    * ```ts
    * Stream.of(1, 2, 3).forEachPure(console.log, 'sheep')
@@ -142,7 +143,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * ```
    * @note O(1)
    */
-  indexed(options?: { startIndex?: number }): Stream<[number, T]>;
+  indexed(options?: { startIndex?: number | undefined }): Stream<[number, T]>;
   /**
    * Returns a Stream where `mapFun` is applied to each element.
    * @typeparam T2 - the resulting element type
@@ -249,10 +250,18 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * // => [2]
    * ```
    */
+  filter<TF extends T>(
+    pred: (value: T, index: number, halt: () => void) => value is TF,
+    options?: { negate?: false | undefined }
+  ): Stream<TF>;
+  filter<TF extends T>(
+    pred: (value: T, index: number, halt: () => void) => value is TF,
+    options: { negate: true }
+  ): Stream<Exclude<T, TF>>;
   filter(
     pred: (value: T, index: number, halt: () => void) => boolean,
     options?: {
-      negate?: boolean;
+      negate?: boolean | undefined;
     }
   ): Stream<T>;
   /**
@@ -272,10 +281,18 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * // => [1, 3]
    * ```
    */
+  filterPure<A extends readonly unknown[], TF extends T>(options: {
+    pred: (value: T, ...args: A) => value is TF;
+    negate?: false | undefined;
+  }): Stream<TF>;
+  filterPure<A extends readonly unknown[], TF extends T>(options: {
+    pred: (value: T, ...args: A) => value is TF;
+    negate: true;
+  }): Stream<Exclude<T, TF>>;
   filterPure<A extends readonly unknown[]>(
     options: {
       pred: (value: T, ...args: A) => boolean;
-      negate?: boolean;
+      negate?: boolean | undefined;
     },
     ...args: A
   ): Stream<T>;
@@ -365,7 +382,10 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * @note O(N) for most types of Stream
    * @note be careful not to use on infinite streams
    */
-  countElement(value: T, options?: { eq?: Eq<T>; negate?: boolean }): number;
+  countElement(
+    value: T,
+    options?: { eq?: Eq<T> | undefined; negate?: boolean | undefined }
+  ): number;
   /**
    * Returns the first element for which the given `pred` function returns true, or a fallback value otherwise.
    * @typeparam O - the optional value type to return if no match is found
@@ -384,13 +404,53 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * ```
    * @note O(N) for most types of Stream
    */
+  find<O, TF extends T>(
+    pred: (value: T, index: number) => value is TF,
+    options: {
+      occurrance?: number | undefined;
+      negate?: false | undefined;
+      otherwise: OptLazy<O>;
+    }
+  ): TF | O;
+  find<O, TF extends T>(
+    pred: (value: T, index: number) => value is TF,
+    options: {
+      occurrance?: number | undefined;
+      negate: true;
+      otherwise: OptLazy<O>;
+    }
+  ): Exclude<T, TF> | O;
+  find<TF extends T>(
+    pred: (value: T, index: number) => value is TF,
+    options?: {
+      occurrance?: number | undefined;
+      negate?: false | undefined;
+      otherwise?: undefined;
+    }
+  ): TF | undefined;
+  find<TF extends T>(
+    pred: (value: T, index: number) => value is TF,
+    options?: {
+      occurrance?: number | undefined;
+      negate: true;
+      otherwise?: undefined;
+    }
+  ): Exclude<T, TF> | undefined;
   find<O>(
     pred: (value: T, index: number) => boolean,
-    options: { occurrance?: number; negate?: boolean; otherwise: OptLazy<O> }
+    options: {
+      occurrance?: number | undefined;
+      negate?: boolean | undefined;
+      otherwise: OptLazy<O>;
+    }
   ): T | O;
   find(
     pred: (value: T, index: number) => boolean,
-    options?: { occurrance?: number; negate?: boolean; otherwise?: undefined }
+    options?: {
+      occurrance?: number | undefined;
+      negate?: boolean | undefined;
+      otherwise?: undefined;
+    }
   ): T | undefined;
   /**
    * Returns the element in the Stream at the given index, or a fallback value (default undefined) otherwise.
@@ -421,7 +481,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    */
   indicesWhere(
     pred: (value: T) => boolean,
-    options?: { negate?: boolean }
+    options?: { negate?: boolean | undefined }
   ): Stream<number>;
   /**
    * Returns a Stream containing the indicies of the occurrance of the given `searchValue`, according to given `eq` function.
@@ -438,7 +498,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    */
   indicesOf(
     searchValue: T,
-    options?: { eq?: Eq<T>; negate?: boolean }
+    options?: { eq?: Eq<T> | undefined; negate?: boolean | undefined }
   ): Stream<number>;
   /**
    * Returns the index of the given `occurrance` instance of the element in the Stream that satisfies given `pred` function,
@@ -456,7 +516,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    */
   indexWhere(
     pred: (value: T, index: number) => boolean,
-    options?: { occurrance?: number; negate?: boolean }
+    options?: { occurrance?: number | undefined; negate?: boolean | undefined }
   ): number | undefined;
   /**
    * Returns the index of the `occurrance` instance of given `searchValue` in the Stream, using given `eq` function,
@@ -478,7 +538,11 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    */
   indexOf(
     searchValue: T,
-    options?: { occurrance?: number; eq?: Eq<T>; negate?: boolean }
+    options?: {
+      occurrance?: number | undefined;
+      eq?: Eq<T> | undefined;
+      negate?: boolean | undefined;
+    }
   ): number | undefined;
   /**
    * Returns true if any element of the Stream satifies given `pred` function.
@@ -494,7 +558,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    */
   some(
     pred: (value: T, index: number) => boolean,
-    options?: { negate?: boolean }
+    options?: { negate?: boolean | undefined }
   ): boolean;
   /**
    * Returns true if every element of the Stream satifies given `pred` function.
@@ -510,7 +574,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    */
   every(
     pred: (value: T, index: number) => boolean,
-    options?: { negate?: boolean }
+    options?: { negate?: boolean | undefined }
   ): boolean;
   /**
    * Returns true if the Stream contains given `amount` instances of given `value`, using given `eq` function.
@@ -530,7 +594,11 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    */
   contains(
     value: T,
-    options?: { amount?: number; eq?: Eq<T>; negate?: boolean }
+    options?: {
+      amount?: number | undefined;
+      eq?: Eq<T> | undefined;
+      negate?: boolean | undefined;
+    }
   ): boolean;
   /**
    * Returns true if this stream contains the same sequence of elements as the given `source`,
@@ -548,7 +616,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    */
   containsSlice(
     source: StreamSource.NonEmpty<T>,
-    options?: { eq?: Eq<T> }
+    options?: { eq?: Eq<T> | undefined; amount?: number | undefined }
   ): boolean;
   /**
    * Returns a Stream that contains the elements of this Stream up to the first element that does not satisfy given `pred` function.
@@ -564,7 +632,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    */
   takeWhile(
     pred: (value: T, index: number) => boolean,
-    options?: { negate?: boolean }
+    options?: { negate?: boolean | undefined }
   ): Stream<T>;
   /**
    * Returns a Stream that contains the elements of this Stream starting from the first element that does not satisfy given `pred` function.
@@ -580,7 +648,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    */
   dropWhile(
     pred: (value: T, index: number) => boolean,
-    options?: { negate?: boolean }
+    options?: { negate?: boolean | undefined }
   ): Stream<T>;
   /**
    * Returns a stream that contains the elements of this Stream up to a maximum of `amount` elements.
@@ -617,7 +685,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * @note amount < 1 will be normalized to amount = 1
    * @note O(1)
    */
-  repeat(amount?: number): Stream<T>;
+  repeat(amount?: number | undefined): Stream<T>;
   /**
    * Returns a Stream containing the elements of this Stream followed by all elements produced by the `others` array of StreamSources.
    * @typeparam T2 - the element type of the stream to concatenate
@@ -744,9 +812,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * @note O(N)
    */
   mkGroup(options: {
-    sep?: StreamSource<T>;
-    start?: StreamSource<T>;
-    end?: StreamSource<T>;
+    sep?: StreamSource<T> | undefined;
+    start?: StreamSource<T> | undefined;
+    end?: StreamSource<T> | undefined;
   }): Stream<T>;
   /**
    * Returns a Stream of collections of Stream elements, where each collection is filled with elements of this Stream up to the next element that
@@ -755,6 +823,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * @param options - (optional) object specifying the following properties<br/>
    * - negate: (default: false) when true will negate the given predicate
    * - collector: (default: `Reducer.toArray()`) the reducer to use to collect the window values
+   * @typeparam R - the result type of the collector and the resulting stream element type
    * @example
    * ```ts
    * Stream.of(1, 2, 3, 4).splitWhere(v => v == 3).toArray()  // => [[1, 2], [4]]
@@ -763,11 +832,11 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    */
   splitWhere<R>(
     pred: (value: T, index: number) => boolean,
-    options: { negate?: boolean; collector: Reducer<T, R> }
+    options: { negate?: boolean | undefined; collector: Reducer<T, R> }
   ): Stream<R>;
   splitWhere(
     pred: (value: T, index: number) => boolean,
-    options?: { negate?: boolean; collector?: undefined }
+    options?: { negate?: boolean | undefined; collector?: undefined }
   ): Stream<T[]>;
   /**
    * Returns a Stream of collections of Stream elements, where each collection is filled with elements of this Stream up to the next element that
@@ -777,6 +846,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
    * - negate: (default: false) when true will negate the given Eq function
    * - collector: (default: `Reducer.toArray()`) the reducer to use to collect the window values
+   * @typeparam R - the result type of the collector and the resulting stream element type
    * @example
    * ```ts
    * Stream.from('marmot').splitOn('m').toArray()  // => [[], ['a', 'r'], ['o', 't']]
@@ -785,32 +855,41 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    */
   splitOn<R, T2 extends T = T>(
     sepElem: T2,
-    options: { eq?: Eq<T2>; negate?: boolean; collector: Reducer<T, R> }
+    options: {
+      eq?: Eq<T2> | undefined;
+      negate?: boolean | undefined;
+      collector: Reducer<T, R>;
+    }
   ): Stream<T[]>;
   splitOn(
     sepElem: T,
-    options?: { eq?: Eq<T>; negate?: boolean; collector?: undefined }
+    options?: {
+      eq?: Eq<T> | undefined;
+      negate?: boolean | undefined;
+      collector?: undefined;
+    }
   ): Stream<T[]>;
   /**
    * Returns a Stream of collections of Stream elements, where each collection is filled with elements of this Stream up to the next sequence of elements that
    * equal the given `sepSeq` sequence of elements according to the given `eq` function.
-   * @param sepSeq - a sequence of elements that serves as a separator
+   * @param sepSlice - a sequence of elements that serves as a separator
    * @param options - (optional) object specifying the following properties<br/>
    * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
    * - collector: (default: `Reducer.toArray()`) the reducer to use to collect the window values
+   * @typeparam R - the result type of the collector and the resulting stream element type
    * @example
    * ```ts
-   * Stream.from('marmot').splitOnSeq('mo').toArray()  // => [['m', 'a', 'r'], ['t']]
+   * Stream.from('marmot').splitOnSlice('mo').toArray()  // => [['m', 'a', 'r'], ['t']]
    * ```
    * @note O(1)
    */
-  splitOnSeq<R, T2 extends T = T>(
-    sepSeq: StreamSource<T2>,
-    options: { eq?: Eq<T2>; collector: Reducer<T, R> }
+  splitOnSlice<R, T2 extends T = T>(
+    sepSlice: StreamSource<T & T2>,
+    options: { eq?: Eq<T> | undefined; collector: Reducer<T & T2, R> }
   ): Stream<R>;
-  splitOnSeq(
-    sepSeq: StreamSource<T>,
-    options?: { eq?: Eq<T>; collector?: undefined }
+  splitOnSlice<T2 extends T = T>(
+    sepSlice: StreamSource<T & T2>,
+    options?: { eq?: Eq<T> | undefined; collector?: undefined }
   ): Stream<T[]>;
   /**
    * Returns a Stream containing non-repetitive elements of the source stream, where repetitive elements
@@ -824,7 +903,10 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * // => [1, 2, 3, 1]
    * ```
    */
-  distinctPrevious(options?: { eq?: Eq<T>; negate?: boolean }): Stream<T>;
+  distinctPrevious(options?: {
+    eq?: Eq<T> | undefined;
+    negate?: boolean | undefined;
+  }): Stream<T>;
   /**
    * Returns a Stream containing `windows` of `windowSize` consecutive elements of the source stream, with each
    * window starting `skipAmount` elements after the previous one.
@@ -846,14 +928,83 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
   window<R>(
     windowSize: number,
     options: {
-      skipAmount?: number;
+      skipAmount?: number | undefined;
       collector: Reducer<T, R>;
     }
   ): Stream<R>;
   window(
     windowSize: number,
-    options?: { skipAmount?: number; collector?: undefined }
+    options?: { skipAmount?: number | undefined; collector?: undefined }
   ): Stream<T[]>;
+  /**
+   * Returns a tuple of which the first element is the result of collecting the elements for which the given `predicate` is true, and
+   * the second one the result of collecting the other elements. Own reducers can be provided as collectors, by default the values are
+   * collected into an array.
+   * @param pred - a predicate receiving the value and its index
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - collectorTrue: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is true<br/>
+   * - collectorFalse: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is false
+   * @typeparam T - the input element type
+   * @typeparam RT - the reducer result type for the `collectorTrue` value
+   * @typeparam RF - the reducer result type for the `collectorFalse` value
+   * @note if the predicate is a type guard, the return type is automatically inferred
+   */
+  partition<T2 extends T, RT, RF>(
+    pred: (value: T, index: number) => value is T2,
+    options: {
+      collectorTrue: Reducer<T2, RT>;
+      collectorFalse: Reducer<Exclude<T, T2>, RF>;
+    }
+  ): [true: RT, false: RF];
+  partition<T2 extends T>(
+    pred: (value: T, index: number) => value is T2,
+    options?: {
+      collectorTrue?: undefined;
+      collectorFalse?: undefined;
+    }
+  ): [true: T2[], false: Exclude<T, T2>[]];
+  partition<RT, RF>(
+    pred: (value: T, index: number) => boolean,
+    options: {
+      collectorTrue: Reducer<T, RT>;
+      collectorFalse: Reducer<T, RF>;
+    }
+  ): [true: RT, false: RF];
+  partition(
+    pred: (value: T, index: number) => boolean,
+    options?: {
+      collectorTrue?: undefined;
+      collectorFalse?: undefined;
+    }
+  ): [true: T[], false: T[]];
+  /**
+   * Returns the result of applying the `valueToKey` function to calculate a key for each value, and feeding the tuple of the key and the value to the
+   * `collector` reducer, and finally returning its result. If no collector is given, the default collector will return a JS multimap
+   * of the type `Map<K, V[]>`.
+   * @param valueToKey - function taking a value and its index, and returning the corresponding key
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - collector: (default: Reducer.toArray()) a reducer that collects the incoming tuple of key and value, and provides the output
+   * @typeparam T - the input value type
+   * @typeparam K - the key type
+   * @typeparam R - the collector output type
+   * @example
+   * ```ts
+   * Stream.of(1, 2, 3).groupBy((v) => v % 2)
+   * // => Map {0 => [2], 1 => [1, 3]}
+   * ```
+   */
+  groupBy<K, R>(
+    valueToKey: (value: T, index: number) => K,
+    options: {
+      collector: Reducer<[K, T], R>;
+    }
+  ): R;
+  groupBy<K>(
+    valueToKey: (value: T, index: number) => K,
+    options?: {
+      collector?: undefined;
+    }
+  ): Map<K, T[]>;
   /**
    * Returns the value resulting from applying the given the given `next` function to a current state (initially the given `init` value),
    * and the next Stream value, and returning the new state. When all elements are processed, the resulting state is returned.
@@ -1033,7 +1184,9 @@ export namespace Stream {
      * ```
      * @note O(1)
      */
-    indexed(options?: { startIndex?: number }): Stream.NonEmpty<[number, T]>;
+    indexed(options?: {
+      startIndex?: number | undefined;
+    }): Stream.NonEmpty<[number, T]>;
     /**
      * Returns a non-empty Stream where `mapFun` is applied to each element.
      * @typeparam T2 - the result value type
@@ -1173,7 +1326,7 @@ export namespace Stream {
      * @note amount < 1 will be normalized to amount = 1
      * @note O(1)
      */
-    repeat(amount?: number): Stream.NonEmpty<T>;
+    repeat(amount?: number | undefined): Stream.NonEmpty<T>;
     /**
      * Returns a Stream containing the elements of this Stream followed by all elements produced by the `others` array of StreamSources.
      * @param others - a series of StreamSources to concatenate.
@@ -1251,9 +1404,9 @@ export namespace Stream {
      * @note O(N)
      */
     mkGroup(options: {
-      sep?: StreamSource<T>;
-      start?: StreamSource<T>;
-      end?: StreamSource<T>;
+      sep?: StreamSource<T> | undefined;
+      start?: StreamSource<T> | undefined;
+      end?: StreamSource<T> | undefined;
     }): Stream.NonEmpty<T>;
     /**
      * Returns a non-empty Stream containing non-repetitive elements of the source stream, where repetitive elements
@@ -1268,8 +1421,8 @@ export namespace Stream {
      * ```
      */
     distinctPrevious(options?: {
-      eq?: Eq<T>;
-      negate?: boolean;
+      eq?: Eq<T> | undefined;
+      negate?: boolean | undefined;
     }): Stream.NonEmpty<T>;
     /**
      * Returns a Stream containing the values resulting from applying the given the given `next` function to a current state (initially the given `init` value),

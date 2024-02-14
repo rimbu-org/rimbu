@@ -1,13 +1,22 @@
+import { RimbuError } from '../../base/mod.ts';
 import {
   AsyncOptLazy,
+  CollectFun,
+  Eq,
+  ErrBase,
   type AsyncCollectFun,
   type MaybePromise,
-  CollectFun,
-  type Eq,
-  ErrBase,
 } from '../../common/mod.ts';
-import { Stream, type AsyncStreamSource, type Reducer } from '../../stream/mod.ts';
-import { fromAsyncStreamSource } from '../async-custom/async-stream-custom.ts';
+import {
+  Reducer,
+  Stream,
+  type AsyncFastIterator,
+  type AsyncStreamSource,
+} from '../../stream/mod.ts';
+import {
+  AsyncStreamConstructorsImpl,
+  fromAsyncStreamSource,
+} from '../async-custom/async-stream-custom.ts';
 
 /**
  * An `AsyncReducer` is a stand-alone asynchronous calculation that takes input values of type I,
@@ -21,30 +30,51 @@ function identity<T>(value: T): T {
   return value;
 }
 
+/**
+ * Combines multiple (asynchronous) reducers in an array of the same input type into a single reducer that
+ * forwards each incoming value to all reducers, and when output is requested will return an array containing
+ * the corresponding output of each reducer.
+ */
 function combineArr<T, R extends readonly [unknown, unknown, ...unknown[]]>(
-  ...reducers: { [K in keyof R]: AsyncReducer<T, R[K]> } & AsyncReducer<
+  ...reducers: { [K in keyof R]: AsyncReducer.Accept<T, R[K]> } & AsyncReducer<
     T,
     unknown
   >[]
 ): AsyncReducer<T, R> {
   return AsyncReducer.create<T, any, AsyncReducer.Instance<T, unknown>[]>(
-    () => reducers.map((reducer) => reducer.compile()),
+    async (initHalt) => {
+      let allHalted = true;
+
+      const result = await Promise.all(
+        reducers.map(async (reducer) => {
+          const instance = await AsyncReducer.from(reducer).compile();
+
+          allHalted = allHalted && instance.halted;
+
+          return instance;
+        })
+      );
+
+      if (allHalted) {
+        initHalt();
+      }
+
+      return result;
+    },
     async (state, elem, index, halt) => {
-      let anyNotHalted = false;
+      let allHalted = true;
 
       await Promise.all(
-        Stream.from(state).map(async (reducer) => {
+        Stream.from(state).mapPure(async (reducer) => {
           if (reducer.halted) return;
 
           await reducer.next(elem);
 
-          if (!reducer.halted) {
-            anyNotHalted = true;
-          }
+          allHalted = allHalted && reducer.halted;
         })
       );
 
-      if (!anyNotHalted) {
+      if (allHalted) {
         halt();
       }
 
@@ -52,45 +82,65 @@ function combineArr<T, R extends readonly [unknown, unknown, ...unknown[]]>(
     },
     (state) =>
       Promise.all(
-        Stream.from(state).map((reducerInstance) => reducerInstance.getOutput())
+        Stream.from(state).mapPure((reducerInstance) =>
+          reducerInstance.getOutput()
+        )
       ),
     async (state, err) => {
       await Promise.all(
-        Stream.from(state).map((reducer) => reducer.onClose(err))
+        Stream.from(state).mapPure((reducer) => reducer.onClose(err))
       );
     }
   );
 }
 
+/**
+ * Combines multiple (asynchronous) reducers in an object's values of the same input type into a single reducer that
+ * forwards each incoming value to all reducers, and when output is requested will return an object containing
+ * the corresponding output of each reducer at the matching object property.
+ */
 function combineObj<T, R extends { readonly [key: string]: unknown }>(
-  reducerObj: { readonly [K in keyof R]: AsyncReducer<T, R[K]> } & Record<
-    string,
-    AsyncReducer<T, unknown>
-  >
+  reducerObj: {
+    readonly [K in keyof R]: AsyncReducer.Accept<T, R[K]>;
+  } & Record<string, AsyncReducer.Accept<T, unknown>>
 ): AsyncReducer<T, R> {
   return AsyncReducer.create(
-    () => {
+    async (initHalt) => {
       const result: Record<string, AsyncReducer.Instance<T, any>> = {};
 
-      for (const key in reducerObj) {
-        result[key] = reducerObj[key].compile();
+      let allHalted = true;
+
+      await Promise.all(
+        Stream.fromObject(
+          reducerObj as Record<string, AsyncReducer.Accept<T, unknown>>
+        ).mapPure(async ([key, reducer]) => {
+          const instance = await AsyncReducer.from(reducer).compile();
+          result[key] = instance;
+
+          allHalted = allHalted && instance.halted;
+        })
+      );
+
+      if (allHalted) {
+        initHalt();
       }
 
       return result;
     },
     async (state, elem, index, halt) => {
-      let anyNotHalted = false;
+      let allHalted = true;
 
       await Promise.all(
-        Stream.fromObjectValues(state).map(async (reducerInstance) => {
+        Stream.fromObjectValues(state).mapPure(async (reducerInstance) => {
           if (!reducerInstance.halted) {
             await reducerInstance.next(elem);
-            anyNotHalted = anyNotHalted || !reducerInstance.halted;
+
+            allHalted = allHalted && reducerInstance.halted;
           }
         })
       );
 
-      if (!anyNotHalted) {
+      if (allHalted) {
         halt();
       }
 
@@ -100,7 +150,7 @@ function combineObj<T, R extends { readonly [key: string]: unknown }>(
       const result: any = {};
 
       await Promise.all(
-        Stream.fromObject(state).map(async ([key, reducerInstance]) => {
+        Stream.fromObject(state).mapPure(async ([key, reducerInstance]) => {
           result[key] = await reducerInstance.getOutput();
         })
       );
@@ -109,7 +159,7 @@ function combineObj<T, R extends { readonly [key: string]: unknown }>(
     },
     async (state, err) => {
       await Promise.all(
-        Stream.fromObjectValues(state).map((reducerInstance) =>
+        Stream.fromObjectValues(state).mapPure((reducerInstance) =>
           reducerInstance.onClose(err)
         )
       );
@@ -118,11 +168,25 @@ function combineObj<T, R extends { readonly [key: string]: unknown }>(
 }
 
 export namespace AsyncReducer {
+  /**
+   * Convenience type to allow synchronous reducers to be supplied to functions that accept async reducers.
+   * @typeparam I - the input type
+   * @typeparam O - the output type
+   */
+  export type Accept<I, O> = AsyncReducer<I, O> | Reducer<I, O>;
+
+  /**
+   * The AsyncReducer implementation interface defining the required methods.
+   * @typeparam I - the input type
+   * @typeparam O - the output type
+   * @typeparam S - the state type
+   */
   export interface Impl<I, O, S> {
     /**
      * The initial state value for the reducer algorithm.
+     * @param initHalt - a callback function that, if called, indicates that the reducer does not accept any input.
      */
-    readonly init: () => MaybePromise<S>;
+    readonly init: (initHalt: () => void) => MaybePromise<S>;
     /**
      * Returns the next state based on the given input values
      * @param state - the current state
@@ -134,8 +198,10 @@ export namespace AsyncReducer {
     /**
      * Returns the output value based on the given `state`
      * @param state - the current state
+     * @param index - the value index
+     * @param halted - a boolean indicating whether the reducer is halted
      */
-    stateToResult(state: S): MaybePromise<O>;
+    stateToResult(state: S, index: number, halted: boolean): MaybePromise<O>;
     /**
      * An optional function that is called when the reducer will no longer receive values.
      * @param state - the final reducer state
@@ -148,6 +214,9 @@ export namespace AsyncReducer {
      * - value: the current input value<br/>
      * - index: the current input index<br/>
      * - halt: function that, when called, ensures no more new values are passed to the reducer
+     * @param options - (optional) an object containing the following properties:<br/>
+     * - negate: (default: false) when true will invert the given predicate
+     * @note if the predicate is a type guard, the return type is automatically inferred
      * @example
      * ```ts
      * AsyncReducer
@@ -156,14 +225,28 @@ export namespace AsyncReducer {
      * // this reducer will only sum values larger than 10
      * ```
      */
+    filterInput<IF extends I>(
+      pred: (value: I, index: number, halt: () => void) => value is IF,
+      options?: { negate?: false | undefined }
+    ): AsyncReducer<IF, O>;
+    filterInput<IF extends I>(
+      pred: (value: I, index: number, halt: () => void) => value is IF,
+      options: { negate: true }
+    ): AsyncReducer<Exclude<I, IF>, O>;
     filterInput(
-      pred: (value: I, index: number, halt: () => void) => MaybePromise<boolean>
+      pred: (
+        value: I,
+        index: number,
+        halt: () => void
+      ) => MaybePromise<boolean>,
+      options?: { negate?: boolean | undefined }
     ): AsyncReducer<I, O>;
     /**
      * Returns an `AsyncReducer` instance that converts its input values using given `mapFun` before passing them to the reducer.
      * @param mapFun - a potentially asynchronous function that returns a new value to pass to the reducer based on the following inputs:<br/>
      * - value: the current input value<br/>
      * - index: the current input index
+     * @typeparam I2 - the new input type
      * @example
      * ```ts
      * AsyncReducer
@@ -180,12 +263,13 @@ export namespace AsyncReducer {
      * @param flatMapFun - a potentially asynchronous function that returns am arbitrary number of new values to pass to the reducer based on the following inputs:<br/>
      * - value: the current input value<br/>
      * - index: the current input index
+     * @typeparam I2 - the new input type
      * @example
      * ```ts
      * AsyncReducer
      *   .createMono(0, async (c, v) => c + v)
-     *   .mapInput(async v => v * 2)
-     * // this reducer will double all input values before summing them
+     *   .flatMapInput(async v => [v, v])
+     * // this reducer will include all input values twice before summing them
      * ```
      */
     flatMapInput<I2>(
@@ -196,7 +280,8 @@ export namespace AsyncReducer {
     ): AsyncReducer<I2, O>;
     /**
      * Returns an `AsyncReducer` instance that converts or filters its input values using given `collectFun` before passing them to the reducer.
-     * @param collectFun - a function receiving<br/>
+     * @typeparam I2 - the new input type
+     * @param collectFun - a (potentially async) function receiving<br/>
      * - `value`: the next value<br/>
      * - `index`: the value index<br/>
      * - `skip`: a token that, when returned, will not add a value to the resulting collection<br/>
@@ -214,6 +299,7 @@ export namespace AsyncReducer {
     /**
      * Returns an `AsyncReducer` instance that converts its output values using given `mapFun`.
      * @param mapFun - a potentially asynchronous function that takes the current output value and converts it to a new output value
+     * @typeparam O2 - the new output type
      * @example
      * ```ts
      * AsyncReducer
@@ -271,7 +357,29 @@ export namespace AsyncReducer {
      * // => 3
      * ```
      */
-    sliceInput(from?: number, amount?: number): AsyncReducer<I, O>;
+    sliceInput(
+      from?: number | undefined,
+      amount?: number | undefined
+    ): AsyncReducer<I, O>;
+    /**
+     * Returns an 'AsyncReducer` instance that produces at most `amount` values.
+     * @param amount - the maximum amount of values to produce.
+     */
+    takeOutput(amount: number): AsyncReducer<I, O>;
+    /**
+     * Returns an 'AsyncReducer` instance that produces until the given `pred` predicate returns true for
+     * the output value.
+     * @param pred - a potaentially asynchronous function that returns true if the value should be passed to the reducer based on the following inputs:<br/>
+     * - value: the current input value<br/>
+     * - index: the current input index<br/>
+     * - halt: function that, when called, ensures no more new values are passed to the reducer
+     * @param options - (optional) an object containing the following properties:<br/>
+     * - negate: (default: false) when true will invert the given predicate
+     */
+    takeOutputUntil(
+      pred: (value: O, index: number) => MaybePromise<boolean>,
+      options?: { negate?: boolean | undefined }
+    ): AsyncReducer<I, O>;
     /**
      * Returns an `AsyncReducer` instance that first applies this reducer, and then applies the given `next` reducer to each output produced
      * by the previous reducer.
@@ -296,28 +404,28 @@ export namespace AsyncReducer {
      * // => 9
      * ```
      */
-    pipe<O1>(nextReducer1: AsyncReducer<O, O1>): AsyncReducer<I, O1>;
+    pipe<O1>(nextReducer1: AsyncReducer.Accept<O, O1>): AsyncReducer<I, O1>;
     pipe<O1, O2>(
-      nextReducer1: AsyncReducer<O, O1>,
-      nextReducer2: AsyncReducer<O1, O2>
+      nextReducer1: AsyncReducer.Accept<O, O1>,
+      nextReducer2: AsyncReducer.Accept<O1, O2>
     ): AsyncReducer<I, O2>;
     pipe<O1, O2, O3>(
-      nextReducer1: AsyncReducer<O, O1>,
-      nextReducer2: AsyncReducer<O1, O2>,
-      nextReducer3: AsyncReducer<O2, O3>
+      nextReducer1: AsyncReducer.Accept<O, O1>,
+      nextReducer2: AsyncReducer.Accept<O1, O2>,
+      nextReducer3: AsyncReducer.Accept<O2, O3>
     ): AsyncReducer<I, O3>;
     pipe<O1, O2, O3, O4>(
-      nextReducer1: AsyncReducer<O, O1>,
-      nextReducer2: AsyncReducer<O1, O2>,
-      nextReducer3: AsyncReducer<O2, O3>,
-      nextReducer4: AsyncReducer<O3, O4>
+      nextReducer1: AsyncReducer.Accept<O, O1>,
+      nextReducer2: AsyncReducer.Accept<O1, O2>,
+      nextReducer3: AsyncReducer.Accept<O2, O3>,
+      nextReducer4: AsyncReducer.Accept<O3, O4>
     ): AsyncReducer<I, O4>;
     pipe<O1, O2, O3, O4, O5>(
-      nextReducer1: AsyncReducer<O, O1>,
-      nextReducer2: AsyncReducer<O1, O2>,
-      nextReducer3: AsyncReducer<O2, O3>,
-      nextReducer4: AsyncReducer<O3, O4>,
-      nextReducer5: AsyncReducer<O4, O5>
+      nextReducer1: AsyncReducer.Accept<O, O1>,
+      nextReducer2: AsyncReducer.Accept<O1, O2>,
+      nextReducer3: AsyncReducer.Accept<O2, O3>,
+      nextReducer4: AsyncReducer.Accept<O3, O4>,
+      nextReducer5: AsyncReducer.Accept<O4, O5>
     ): AsyncReducer<I, O5>;
     /**
      * Returns a reducer that applies the given `nextReducers` sequentially after this reducer
@@ -339,32 +447,32 @@ export namespace AsyncReducer {
      * ```
      */
     chain<O1>(
-      nextReducer1: AsyncOptLazy<AsyncReducer<I, O1>, [O]>
+      nextReducer1: AsyncOptLazy<AsyncReducer.Accept<I, O1>, [O]>
     ): AsyncReducer<I, O1>;
     chain<O1, O2>(
-      nextReducer1: AsyncOptLazy<AsyncReducer<I, O1>, [O]>,
-      nextReducer2: AsyncOptLazy<AsyncReducer<I, O2>, [O1]>
+      nextReducer1: AsyncOptLazy<AsyncReducer.Accept<I, O1>, [O]>,
+      nextReducer2: AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O1]>
     ): AsyncReducer<I, O2>;
     chain<O1, O2, O3>(
-      nextReducer1: AsyncOptLazy<AsyncReducer<I, O1>, [O]>,
-      nextReducer2: AsyncOptLazy<AsyncReducer<I, O2>, [O1]>,
-      nextReducer3: AsyncOptLazy<AsyncReducer<I, O3>, [O2]>
+      nextReducer1: AsyncOptLazy<AsyncReducer.Accept<I, O1>, [O]>,
+      nextReducer2: AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O1]>,
+      nextReducer3: AsyncOptLazy<AsyncReducer.Accept<I, O3>, [O2]>
     ): AsyncReducer<I, O3>;
     chain<O1, O2, O3, O4>(
-      nextReducer1: AsyncOptLazy<AsyncReducer<I, O1>, [O]>,
-      nextReducer2: AsyncOptLazy<AsyncReducer<I, O2>, [O1]>,
-      nextReducer3: AsyncOptLazy<AsyncReducer<I, O3>, [O2]>,
-      nextReducer4: AsyncOptLazy<AsyncReducer<I, O4>, [O3]>
+      nextReducer1: AsyncOptLazy<AsyncReducer.Accept<I, O1>, [O]>,
+      nextReducer2: AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O1]>,
+      nextReducer3: AsyncOptLazy<AsyncReducer.Accept<I, O3>, [O2]>,
+      nextReducer4: AsyncOptLazy<AsyncReducer.Accept<I, O4>, [O3]>
     ): AsyncReducer<I, O4>;
     chain<O1, O2, O3, O4, O5>(
-      nextReducer1: AsyncOptLazy<AsyncReducer<I, O1>, [O]>,
-      nextReducer2: AsyncOptLazy<AsyncReducer<I, O2>, [O1]>,
-      nextReducer3: AsyncOptLazy<AsyncReducer<I, O3>, [O2]>,
-      nextReducer4: AsyncOptLazy<AsyncReducer<I, O4>, [O3]>,
-      nextReducer5: AsyncOptLazy<AsyncReducer<I, O5>, [O4]>
+      nextReducer1: AsyncOptLazy<AsyncReducer.Accept<I, O1>, [O]>,
+      nextReducer2: AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O1]>,
+      nextReducer3: AsyncOptLazy<AsyncReducer.Accept<I, O3>, [O2]>,
+      nextReducer4: AsyncOptLazy<AsyncReducer.Accept<I, O4>, [O3]>,
+      nextReducer5: AsyncOptLazy<AsyncReducer.Accept<I, O5>, [O4]>
     ): AsyncReducer<I, O5>;
     /**
-     * Returns a 'runnable' instance of the current reducer specification. This instance maintains its own state
+     * Returns a promise that resolves to a 'runnable' instance of the current reducer specification. This instance maintains its own state
      * and indices, so that the instance only needs to be provided the input values, and output values can be
      * retrieved when needed. The state is kept private.
      * @example
@@ -377,7 +485,7 @@ export namespace AsyncReducer {
      * // => 16
      * ```
      */
-    compile(): AsyncReducer.Instance<I, O>;
+    compile(): Promise<AsyncReducer.Instance<I, O>>;
   }
 
   /**
@@ -388,14 +496,18 @@ export namespace AsyncReducer {
    */
   export class Base<I, O, S> implements AsyncReducer.Impl<I, O, S> {
     constructor(
-      readonly init: () => MaybePromise<S>,
+      readonly init: (initHalt: () => void) => MaybePromise<S>,
       readonly next: (
         state: S,
         elem: I,
         index: number,
         halt: () => void
       ) => MaybePromise<S>,
-      readonly stateToResult: (state: S) => MaybePromise<O>,
+      readonly stateToResult: (
+        state: S,
+        index: number,
+        halted: boolean
+      ) => MaybePromise<O>,
       readonly onClose?: (state: S, error?: unknown) => MaybePromise<void>
     ) {}
 
@@ -405,11 +517,11 @@ export namespace AsyncReducer {
         index: number,
         halt: () => void
       ) => MaybePromise<boolean>,
-      options: { negate?: boolean } = {}
-    ): AsyncReducer<I, O> {
+      options: { negate?: boolean | undefined } = {}
+    ): any {
       const { negate = false } = options;
 
-      return create(
+      return create<I, any>(
         () => this.compile(),
         async (state, elem, index, halt) => {
           if ((await pred(elem, index, halt)) !== negate) {
@@ -499,7 +611,58 @@ export namespace AsyncReducer {
       return create(
         this.init,
         this.next,
-        async (state): Promise<O2> => mapFun(await this.stateToResult(state)),
+        async (state, index, halted): Promise<O2> =>
+          mapFun(await this.stateToResult(state, index, halted)),
+        this.onClose
+      );
+    }
+
+    takeOutput(amount: number): AsyncReducer<I, O> {
+      if (amount <= 0) {
+        return create(
+          (initHalt) => {
+            initHalt();
+            return this.init(initHalt);
+          },
+          this.next,
+          this.stateToResult,
+          this.onClose
+        );
+      }
+
+      return create(
+        this.init,
+        (state, next, index, halt) => {
+          if (index >= amount - 1) {
+            halt();
+          }
+          return this.next(state, next, index, halt);
+        },
+        this.stateToResult,
+        this.onClose
+      );
+    }
+
+    takeOutputUntil(
+      pred: (value: O, index: number) => MaybePromise<boolean>,
+      options: { negate?: boolean } = {}
+    ): AsyncReducer<I, O> {
+      const { negate = false } = options;
+
+      return create(
+        this.init,
+        async (state, next, index, halt) => {
+          const nextState = await this.next(state, next, index, halt);
+
+          const nextOutput = await this.stateToResult(nextState, index, false);
+
+          if ((await pred(nextOutput, index)) !== negate) {
+            halt();
+          }
+
+          return nextState;
+        },
+        this.stateToResult,
         this.onClose
       );
     }
@@ -534,22 +697,36 @@ export namespace AsyncReducer {
       return this.takeInput(amount).dropInput(from);
     }
 
-    pipe<O2>(...nextReducers: AsyncReducer<O, O2>[]): AsyncReducer<I, O2> {
+    pipe<O2>(
+      ...nextReducers: AsyncReducer.Accept<O, O2>[]
+    ): AsyncReducer<I, O2> {
       if (nextReducers.length <= 0) {
         return this as any;
       }
 
-      const [nextReducer, ...others] = nextReducers as AsyncReducer<any, any>[];
+      const [nextReducer, ...others] = nextReducers as AsyncReducer.Accept<
+        any,
+        any
+      >[];
 
       if (others.length > 0) {
         return (this.pipe(nextReducer).pipe as any)(...others);
       }
 
       return AsyncReducer.create(
-        () => ({
-          thisInstance: this.compile(),
-          nextInstance: nextReducer.compile(),
-        }),
+        async (inithalt) => {
+          const thisInstance = await this.compile();
+          const nextInstance = await AsyncReducer.from(nextReducer).compile();
+
+          if (thisInstance.halted || nextInstance.halted) {
+            inithalt();
+          }
+
+          return {
+            thisInstance,
+            nextInstance,
+          };
+        },
         async (state, next, index, halt) => {
           const { thisInstance, nextInstance } = state;
 
@@ -562,7 +739,13 @@ export namespace AsyncReducer {
 
           return state;
         },
-        (state) => state.nextInstance.getOutput(),
+        async (state, index, halted) => {
+          if (halted && index === 0) {
+            await state.nextInstance.next(await state.thisInstance.getOutput());
+          }
+
+          return state.nextInstance.getOutput();
+        },
         async (state, err) => {
           await Promise.all([
             state.thisInstance.onClose(err),
@@ -573,12 +756,12 @@ export namespace AsyncReducer {
     }
 
     chain(
-      ...nextReducers: AsyncOptLazy<AsyncReducer<I, any>, [any]>[]
+      ...nextReducers: AsyncOptLazy<AsyncReducer.Accept<I, any>, [any]>[]
     ): AsyncReducer<I, O> {
       return AsyncReducer.create(
-        () => ({
+        async () => ({
           activeIndex: -1,
-          activeInstance: this.compile() as AsyncReducer.Instance<I, O>,
+          activeInstance: (await this.compile()) as AsyncReducer.Instance<I, O>,
         }),
         async (state, next, index, halt) => {
           while (state.activeInstance.halted) {
@@ -590,7 +773,9 @@ export namespace AsyncReducer {
               nextReducers[++state.activeIndex],
               await state.activeInstance.getOutput()
             );
-            state.activeInstance = nextReducer.compile();
+            state.activeInstance = await AsyncReducer.from(
+              nextReducer
+            ).compile();
           }
 
           await state.activeInstance.next(next);
@@ -609,42 +794,77 @@ export namespace AsyncReducer {
       );
     }
 
-    compile(): AsyncReducer.Instance<I, O> {
-      return new AsyncReducer.InstanceImpl(this);
+    async compile(): Promise<AsyncReducer.Instance<I, O>> {
+      const instance = new AsyncReducer.InstanceImpl(this);
+      await instance.initialize();
+      return instance;
     }
   }
 
+  /**
+   * An async reducer instance that manages its own state based on the reducer definition that
+   * was used to create this instance.
+   * @typeparam I - the input element type
+   * @typeparam O - the output element type
+   */
   export interface Instance<I, O> {
+    /**
+     * Returns true if the reducer instance does not receive any more values, false otherwise.
+     */
     get halted(): boolean;
+    /**
+     * Returns the index of the last received value.
+     */
     get index(): number;
+    /**
+     * Method that, when called, halts the reducer instance so that it will no longer receive values.
+     */
+    halt(): void;
+    /**
+     * Sends a new value into the reducer instance.
+     * @param value - the next input value
+     */
     next(value: I): MaybePromise<void>;
+    /**
+     * Returns the output value based on the current given input values.
+     */
     getOutput(): MaybePromise<O>;
+    /**
+     * Closes any resources that may have been opened.
+     * @param err - (optional) if an error occurrerd it can be supplied
+     */
     onClose(err?: unknown): Promise<void>;
   }
 
+  /**
+   * The default `AsyncReducer.Impl` implementation.
+   * @typeparam I - the input element type
+   * @typeparam O - the output element type
+   * @typeparam S - the reducer state type
+   */
   export class InstanceImpl<I, O, S> implements AsyncReducer.Instance<I, O> {
     constructor(readonly reducer: AsyncReducer.Impl<I, O, S>) {}
 
-    #initialized = false;
-    #_state: S | undefined;
+    #state: S | undefined;
     #index = 0;
+    #initialized = false;
     #halted = false;
     #closed = false;
 
-    async #getState(): Promise<S> {
-      if (!this.#initialized) {
-        this.#_state = await this.reducer.init();
-        this.#initialized = true;
+    async initialize(): Promise<void> {
+      if (this.#closed) {
+        throw new AsyncReducer.ReducerClosedError();
       }
 
-      return this.#_state as S;
+      this.#state = await this.reducer.init(this.halt);
+      this.#initialized = true;
     }
 
-    set #state(value: S) {
-      this.#_state = value;
-    }
+    halt = (): void => {
+      if (this.#closed) {
+        throw new AsyncReducer.ReducerClosedError();
+      }
 
-    #halt = (): void => {
       this.#halted = true;
     };
 
@@ -657,30 +877,40 @@ export namespace AsyncReducer {
     }
 
     next = async (value: I): Promise<void> => {
+      if (!this.#initialized) {
+        throw new AsyncReducer.ReducerNotInitializedError();
+      }
+      if (this.#closed) {
+        throw new AsyncReducer.ReducerClosedError();
+      }
       if (this.#halted) {
         throw new AsyncReducer.ReducerHaltedError();
       }
 
       this.#state = await this.reducer.next(
-        await this.#getState(),
+        this.#state!,
         value,
         this.#index++,
-        this.#halt
+        this.halt
       );
     };
 
     async getOutput(): Promise<O> {
-      return this.reducer.stateToResult(await this.#getState());
+      if (!this.#initialized) {
+        throw new AsyncReducer.ReducerNotInitializedError();
+      }
+
+      return this.reducer.stateToResult(this.#state!, this.index, this.halted);
     }
 
     async onClose(err?: unknown): Promise<void> {
       if (this.#closed) {
-        throw Error('already closed');
+        throw new AsyncReducer.ReducerClosedError();
       }
 
       this.#closed = true;
 
-      await this.reducer.onClose?.(await this.#getState(), err);
+      await this.reducer.onClose?.(this.#state!, err);
     }
   }
 
@@ -699,14 +929,18 @@ export namespace AsyncReducer {
    * @typeparam S - the internal state type
    */
   export function create<I, O = I, S = O>(
-    init: () => MaybePromise<S>,
+    init: (initHalt: () => void) => MaybePromise<S>,
     next: (
       current: S,
       next: I,
       index: number,
       halt: () => void
     ) => MaybePromise<S>,
-    stateToResult: (state: S) => MaybePromise<O>,
+    stateToResult: (
+      state: S,
+      index: number,
+      halted: boolean
+    ) => MaybePromise<O>,
     onClose?: (state: S, error?: unknown) => MaybePromise<void>
   ): AsyncReducer<I, O> {
     return new AsyncReducer.Base(
@@ -727,19 +961,21 @@ export namespace AsyncReducer {
    * - halt: function that, when called, ensures no more elements are passed to the reducer
    * @param stateToResult - a potentially asynchronous function that converts the current state to an output value
    * @param onClose - (optional) a function that will be called when the reducer will no longer receive values
-   * @typeparam I - the input value type
-   * @typeparam O - the output value type
-   * @typeparam S - the internal state type
+   * @typeparam T - the overall value type
    */
   export function createMono<T>(
-    init: () => MaybePromise<T>,
+    init: (initHalt: () => void) => MaybePromise<T>,
     next: (
       current: T,
       next: T,
       index: number,
       halt: () => void
     ) => MaybePromise<T>,
-    stateToResult?: (state: T) => MaybePromise<T>,
+    stateToResult?: (
+      state: T,
+      index: number,
+      halted: boolean
+    ) => MaybePromise<T>,
     onClose?: (state: T, error?: unknown) => MaybePromise<void>
   ): AsyncReducer<T> {
     return create(init, next, stateToResult ?? identity, onClose);
@@ -757,76 +993,78 @@ export namespace AsyncReducer {
    * @param onClose - (optional) a function that will be called when the reducer will no longer receive values
    * @typeparam I - the input value type
    * @typeparam O - the output value type
-   * @typeparam S - the internal state type
    */
   export function createOutput<I, O = I>(
-    init: () => MaybePromise<O>,
+    init: (initHalt: () => void) => MaybePromise<O>,
     next: (
       current: O,
       next: I,
       index: number,
       halt: () => void
     ) => MaybePromise<O>,
-    stateToResult?: (state: O) => MaybePromise<O>,
+    stateToResult?: (
+      state: O,
+      index: number,
+      halted: boolean
+    ) => MaybePromise<O>,
     onClose?: (state: O, error?: unknown) => MaybePromise<void>
   ): AsyncReducer<I, O> {
     return create(init, next, stateToResult ?? identity, onClose);
   }
 
-  export function from<I, O>(reducer: Reducer<I, O>): AsyncReducer<I, O> {
-    return AsyncReducer.create(
-      reducer.init,
-      reducer.next,
-      reducer.stateToResult
+  /**
+   * Returns an `AsyncReducer` that uses the given `init` and `next` values to fold the input values into
+   * result values.
+   * @param init - an (optionally lazy) initial result value
+   * @param next - a (potentially async) function taking the following arguments:<br/>
+   * - current - the current result value<br/>
+   * - value - the next input value<br/>
+   * - index: the input index value<br/>
+   * - halt: function that, when called, ensures no more elements are passed to the reducer
+   * @typeparam T - the input type
+   * @typeparam R - the output type
+   */
+  export function fold<T, R>(
+    init: AsyncOptLazy<R>,
+    next: (
+      current: R,
+      value: T,
+      index: number,
+      halt: () => void
+    ) => MaybePromise<R>
+  ): AsyncReducer<T, R> {
+    return AsyncReducer.createOutput(
+      () => AsyncOptLazy.toMaybePromise(init),
+      next
     );
   }
 
   /**
-   * A `Reducer` that sums all given numeric input values.
-   * @example
-   * ```ts
-   * console.log(Stream.range({ amount: 5 }).reduce(Reducer.sum))
-   * // => 10
-   * ```
+   * Returns an `AsyncReducer` from a given `Reducer` or `AsyncReducer` instance.
+   * @param reducer - the input reducer to convert
+   * @typeparam I - the input element type
+   * @typeparam O - the output element type
    */
-  export const sum = createMono(
-    () => 0,
-    (state, next): number => state + next
-  );
-
-  /**
-   * A `Reducer` that calculates the product of all given numeric input values.
-   * @example
-   * ```ts
-   * console.log(Stream.range({ start: 1, amount: 5 }).reduce(product))
-   * // => 120
-   * ```
-   */
-  export const product = createMono(
-    () => 1,
-    (state, next, _, halt): number => {
-      if (0 === next) halt();
-      return state * next;
+  export function from<I, O>(
+    reducer: AsyncReducer.Accept<I, O>
+  ): AsyncReducer<I, O> {
+    if (reducer instanceof AsyncReducer.Base) {
+      return reducer;
     }
-  );
 
-  /**
-   * A `Reducer` that calculates the average of all given numberic input values.
-   * @example
-   * ```ts
-   * console.log(Stream.range({ amount: 5 }).reduce(Reducer.average));
-   * // => 2
-   * ```
-   */
-  export const average = createMono(
-    () => 0,
-    (avg, value, index): number => avg + (value - avg) / (index + 1)
-  );
+    return AsyncReducer.create(
+      reducer.init,
+      reducer.next,
+      reducer.stateToResult as any
+    );
+  }
 
   /**
    * Returns a `Reducer` that remembers the minimum value of the inputs using the given `compFun` to compare input values
    * @param compFun - a comparison function for two input values, returning 0 when equal, positive when greater, negetive when smaller
    * @param otherwise - (default: undefineds) a fallback value when there were no input values given
+   * @typeparam T - the element type
+   * @typeparam O - the fallback value type
    * @example
    * ```ts
    * const stream = Stream.of('abc', 'a', 'abcde', 'ab')
@@ -848,6 +1086,7 @@ export namespace AsyncReducer {
     otherwise?: AsyncOptLazy<O>
   ) => {
     const token = Symbol();
+
     return create<T, T | O, T | typeof token>(
       () => token,
       async (state, next): Promise<T> => {
@@ -862,6 +1101,7 @@ export namespace AsyncReducer {
   /**
    * Returns a `Reducer` that remembers the minimum value of the numberic inputs.
    * @param otherwise - (default: undefined) a fallback value when there were no input values given
+   * @typeparam O - the fallback value type
    * @example
    * ```ts
    * console.log(Stream.of(5, 3, 7, 4).reduce(Reducer.min()))
@@ -886,6 +1126,8 @@ export namespace AsyncReducer {
    * Returns a `Reducer` that remembers the maximum value of the inputs using the given `compFun` to compare input values
    * @param compFun - a comparison function for two input values, returning 0 when equal, positive when greater, negetive when smaller
    * @param otherwise - (default: undefined) a fallback value when there were no input values given
+   * @typeparam T - the element type
+   * @typeparam O - the fallback value type
    * @example
    * ```ts
    * const stream = Stream.of('abc', 'a', 'abcde', 'ab')
@@ -922,6 +1164,7 @@ export namespace AsyncReducer {
   /**
    * Returns a `Reducer` that remembers the maximum value of the numberic inputs.
    * @param otherwise - (default: undefined) a fallback value when there were no input values given
+   * @typeparam O - the fallback value type
    * @example
    * ```ts
    * console.log(Stream.of(5, 3, 7, 4).reduce(Reducer.max()))
@@ -943,124 +1186,6 @@ export namespace AsyncReducer {
   };
 
   /**
-   * Returns a `Reducer` that joins the given input values into a string using the given options.
-   * @param options - an object containing:<br/>
-   * - sep: (optional) a seperator string value between values in the output<br/>
-   * - start: (optional) a start string to prepend to the output<br/>
-   * - end: (optional) an end string to append to the output<br/>
-   * @example
-   * ```ts
-   * console.log(Stream.of(1, 2, 3).reduce(Reducer.join({ sep: '-' })))
-   * // => '1-2-3'
-   * ```
-   */
-  export function join<T>({
-    sep = '',
-    start = '',
-    end = '',
-    valueToString = String as (value: T) => string,
-  } = {}): AsyncReducer<T, string> {
-    return create(
-      () => ({ result: '', curSep: '', curStart: start }),
-      (state, next) => {
-        state.result = state.curStart.concat(
-          state.result,
-          state.curSep,
-          valueToString(next)
-        );
-        state.curSep = sep;
-        state.curStart = '';
-
-        return state;
-      },
-      (state): string => state.result.concat(end)
-    );
-  }
-
-  /**
-   * Returns an `AsyncReducer` that remembers the amount of input items provided.
-   * @param pred - (optional) a predicate that returns false if the item should not be counted given:<br/>
-   * - value: the current input value<br/>
-   * - index: the input value index
-   * @example
-   * ```ts
-   * const stream = AsyncStream.from(Stream.range({ amount: 10 }))
-   * console.log(await stream.reduce(AsyncReducer.count()))
-   * // => 10
-   * console.log(await stream.reduce(AsyncReducer.count(async v => v < 5)))
-   * // => 5
-   * ```
-   */
-  export const count: {
-    (): AsyncReducer<never, number>;
-    <T>(
-      pred: (value: T, index: number) => MaybePromise<boolean>,
-      options?: { negate?: boolean }
-    ): AsyncReducer<T, number>;
-  } = (
-    pred?: (value: any, index: number) => MaybePromise<boolean>,
-    options: { negate?: boolean } = {}
-  ): AsyncReducer<never, number> => {
-    if (undefined === pred)
-      return createOutput(
-        () => 0,
-        (_, __, i): number => i + 1
-      );
-
-    const { negate = false } = options;
-
-    return createOutput(
-      () => 0,
-      async (state, next, i): Promise<number> => {
-        if ((await pred(next, i)) !== negate) return state + 1;
-        return state;
-      }
-    );
-  };
-
-  /**
-   * Returns an `AsyncReducer` that remembers the first input value for which the given `pred` function returns true.
-   * @param pred - a function taking an input value and its index, and returning true if the value should be remembered
-   * @param otherwise - (default: undefined) a fallback value to output if no input value yet has satisfied the given predicate
-   * @typeparam T - the input value type
-   * @typeparam O - the fallback value type
-   * @example
-   * ```ts
-   * await AsyncStream.from(Stream.range({ amount: 10 })).reduce(AsyncReducer.firstWhere(async v => v > 5)))
-   * // => 6
-   * ```
-   */
-  export const firstWhere: {
-    <T>(
-      pred: (value: T, index: number) => MaybePromise<boolean>,
-      options?: { negate?: boolean }
-    ): AsyncReducer<T, T | undefined>;
-    <T, O>(
-      pred: (value: T, index: number) => MaybePromise<boolean>,
-      options?: { negate?: boolean; otherwise: AsyncOptLazy<O> }
-    ): AsyncReducer<T, T | O>;
-  } = <T, O>(
-    pred: (value: T, index: number) => MaybePromise<boolean>,
-    options: { negate?: boolean; otherwise?: AsyncOptLazy<O> } = {}
-  ) => {
-    const token = Symbol();
-    const { negate = false, otherwise } = options;
-
-    return create<T, T | O, T | typeof token>(
-      () => token,
-      async (state, next, i, halt): Promise<T | typeof token> => {
-        if (token === state && (await pred(next, i)) !== negate) {
-          halt();
-          return next;
-        }
-        return state;
-      },
-      (state): MaybePromise<T | O> =>
-        token === state ? AsyncOptLazy.toMaybePromise(otherwise!) : state
-    );
-  };
-
-  /**
    * Returns an `AsyncReducer` that remembers the first input value.
    * @param otherwise - (default: undefined) a fallback value to output if no input value has been provided
    * @typeparam T - the input value type
@@ -1075,56 +1200,14 @@ export namespace AsyncReducer {
     <T>(): AsyncReducer<T, T | undefined>;
     <T, O>(otherwise: AsyncOptLazy<O>): AsyncReducer<T, T | O>;
   } = <T, O>(otherwise?: AsyncOptLazy<O>): AsyncReducer<T, T | O> => {
-    const token = Symbol();
-
-    return create<T, T | O, T | typeof token>(
-      () => token,
+    return create<T, T | O, T | undefined>(
+      () => undefined,
       (state, next, _, halt): T => {
         halt();
-        if (token === state) return next;
-        return state;
+        return next;
       },
-      (state): MaybePromise<T | O> =>
-        token === state ? AsyncOptLazy.toMaybePromise(otherwise!) : state
-    );
-  };
-
-  /**
-   * Returns an `AsyncReducer` that remembers the last input value for which the given `pred` function returns true.
-   * @param pred - a function taking an input value and its index, and returning true if the value should be remembered
-   * @param otherwise - (default: undefined) a fallback value to output if no input value yet has satisfied the given predicate
-   * @typeparam T - the input value type
-   * @typeparam O - the fallback value type
-   * @example
-   * ```ts
-   * await AsyncStream.from(Stream.range({ amount: 10 })).reduce(AsyncReducer.lastWhere(async v => v > 5)))
-   * // => 9
-   * ```
-   */
-  export const lastWhere: {
-    <T>(
-      pred: (value: T, index: number) => MaybePromise<boolean>,
-      options?: { negate?: boolean }
-    ): AsyncReducer<T, T | undefined>;
-    <T, O>(
-      pred: (value: T, index: number) => MaybePromise<boolean>,
-      options: { negate?: boolean; otherwise: AsyncOptLazy<O> }
-    ): AsyncReducer<T, T | O>;
-  } = <T, O>(
-    pred: (value: T, index: number) => MaybePromise<boolean>,
-    options: { negate?: boolean; otherwise?: AsyncOptLazy<O> } = {}
-  ) => {
-    const { negate = false, otherwise } = options;
-    const token = Symbol();
-
-    return create<T, T | O, T | typeof token>(
-      () => token,
-      async (state, next, i): Promise<T | typeof token> => {
-        if ((await pred(next, i)) !== negate) return next;
-        return state;
-      },
-      (state): MaybePromise<T | O> =>
-        token === state ? AsyncOptLazy.toMaybePromise(otherwise!) : state
+      (state, index): MaybePromise<T | O> =>
+        index <= 0 ? AsyncOptLazy.toMaybePromise(otherwise!) : state!
     );
   };
 
@@ -1143,154 +1226,131 @@ export namespace AsyncReducer {
     <T>(): AsyncReducer<T, T | undefined>;
     <T, O>(otherwise: AsyncOptLazy<O>): AsyncReducer<T, T | O>;
   } = <T, O>(otherwise?: AsyncOptLazy<O>): AsyncReducer<T, T | O> => {
-    const token = Symbol();
-
-    return create<T, T | O, T | typeof token>(
-      () => token,
+    return create<T, T | O, T | undefined>(
+      () => undefined,
       (_, next): T => next,
-      (state): MaybePromise<T | O> =>
-        token === state ? AsyncOptLazy.toMaybePromise(otherwise!) : state
+      (state, index): MaybePromise<T | O> =>
+        index <= 0 ? AsyncOptLazy.toMaybePromise(otherwise!) : state!
     );
   };
 
   /**
-   * Returns a `Reducer` that ouputs false as long as no input value satisfies given `pred`, true otherwise.
+   * Returns an AsyncReducer that only produces an output value when having receives exactly one
+   * input value, otherwise will return the `otherwise` value or undefined.
+   * @param otherwise - the fallback value to return when more or less than one value is received.
    * @typeparam T - the element type
-   * @param pred - a function taking an input value and its index, and returning true if the value satisfies the predicate
-   * @example
-   * ```ts
-   * await AsyncStream.from(Stream.range{ amount: 10 })).reduce(AsyncReducer.some(async v => v > 5))
-   * // => true
-   * ```
+   * @typeparam O - the fallback value type
+   */
+  export const single: {
+    <T>(): AsyncReducer<T, T | undefined>;
+    <T, O>(otherwise: AsyncOptLazy<O>): AsyncReducer<T, T | O>;
+  } = <T, O>(otherwise?: AsyncOptLazy<O>): AsyncReducer<T, T | O> => {
+    return create<T, T | O, T | undefined>(
+      () => undefined,
+      (state, next, index, halt): T => {
+        if (index > 1) {
+          halt();
+        }
+        return next;
+      },
+      (state, index): MaybePromise<T | O> =>
+        index !== 1 ? AsyncOptLazy.toMaybePromise(otherwise!) : state!
+    );
+  };
+
+  /**
+   * Returns an `AsyncReducer` that ouputs false as long as no input value satisfies given `pred`, true otherwise.
+   * @typeparam T - the element type
+   * @param pred - a potentiall async function taking an input value and its index, and returning true if the value satisfies the predicate
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - negate: (default: false) when true will invert the given predicate
    */
   export function some<T>(
     pred: (value: T, index: number) => MaybePromise<boolean>,
-    options: { negate?: boolean } = {}
+    options: { negate?: boolean | undefined } = {}
   ): AsyncReducer<T, boolean> {
-    const { negate = false } = options;
-
-    return createOutput<T, boolean>(
-      () => false,
-      async (state, next, i, halt): Promise<boolean> => {
-        if (state) return state;
-        const satisfies = (await pred(next, i)) !== negate;
-
-        if (satisfies) {
-          halt();
-        }
-
-        return satisfies;
-      }
-    );
+    return nonEmpty.filterInput(pred, options);
   }
 
   /**
    * Returns an `AsyncReducer` that ouputs true as long as all input values satisfy the given `pred`, false otherwise.
    * @typeparam T - the element type
-   * @param pred - a function taking an input value and its index, and returning true if the value satisfies the predicate
-   * @example
-   * ```ts
-   * await AsyncStream.from(Stream.range{ amount: 10 })).reduce(AsyncReducer.every(async v => v < 5))
-   * // => false
-   * ```
+   * @param pred - a potentially async function taking an input value and its index, and returning true if the value satisfies the predicate
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - negate: (default: false) when true will invert the given predicate
    */
   export function every<T>(
     pred: (value: T, index: number) => MaybePromise<boolean>,
-    options: { negate?: boolean } = {}
+    options: { negate?: boolean | undefined } = {}
   ): AsyncReducer<T, boolean> {
     const { negate = false } = options;
 
-    return createOutput<T, boolean>(
-      () => true,
-      async (state, next, i, halt): Promise<boolean> => {
-        if (!state) return state;
-
-        const satisfies = (await pred(next, i)) !== negate;
-
-        if (!satisfies) {
-          halt();
-        }
-
-        return satisfies;
-      }
-    );
+    return isEmpty.filterInput(pred, { negate: !negate });
   }
 
   /**
-   * Returns an `AsyncReducer` that outputs false as long as the given `elem` has not been encountered in the input values, true otherwise.
+   * Returns an `AsyncReducer` that ouputs true when the received elements match the given `other` async stream source according to the `eq` instance, false otherwise.
    * @typeparam T - the element type
-   * @param elem - the element to search for
-   * @param eq - (optional) a comparison function that returns true if te two given input values are considered equal
-   * @example
-   * ```ts
-   * await AsyncStream.from(Stream.range({ amount: 10 })).reduce(AsyncReducer.contains(5)))
-   * // => true
-   * ```
+   * @param other - an async stream source containg elements to match against
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - eq: (default: Eq.objectIs) the `Eq` instance to use to compare elements
+   * - negate: (default: false) when true will invert the given predicate
    */
-  export function contains<T>(
-    elem: T,
-    options: { eq?: Eq<T>; negate?: boolean } = {}
+  export function equals<T>(
+    other: AsyncStreamSource<T>,
+    options: { eq?: Eq<T> | undefined; negate?: boolean | undefined } = {}
   ): AsyncReducer<T, boolean> {
-    const { eq = Object.is, negate = false } = options;
+    const { eq = Eq.objectIs, negate = false } = options;
 
-    return createOutput<T, boolean>(
-      () => false,
-      (state, next, _, halt): boolean => {
-        if (state) return state;
-        const satisfies = eq(next, elem) !== negate;
+    const sliceStream = fromAsyncStreamSource(other);
+    const done = Symbol();
 
-        if (satisfies) {
+    return AsyncReducer.create<
+      T,
+      boolean,
+      { iter: AsyncFastIterator<T>; nextSeq: T | typeof done; result: boolean }
+    >(
+      async () => {
+        const iter = sliceStream[Symbol.asyncIterator]();
+
+        const nextSeq = await iter.fastNext(done);
+
+        return { iter, nextSeq, result: false };
+      },
+      async (state, next, _, halt) => {
+        if (done === state.nextSeq) {
           halt();
+          state.result = false;
+          return state;
         }
 
-        return satisfies;
-      }
+        if (eq(next, state.nextSeq) === negate) {
+          halt();
+          state.result = false;
+          return state;
+        }
+
+        state.nextSeq = await state.iter.fastNext(done);
+
+        if (done === state.nextSeq) {
+          state.result = true;
+        }
+
+        return state;
+      },
+      (state, index, halted) => !halted && done === state.nextSeq
     );
   }
 
   /**
-   * Returns an `AsyncReducer` that takes boolean values and outputs true if all input values are true, and false otherwise.
-   * @example
-   * ```ts
-   * await AsyncStream.of(true, false, true)).reduce(AsyncReducer.and))
-   * // => false
-   * ```
-   */
-  export const and = createMono(
-    () => true,
-    (state, next, _, halt): boolean => {
-      if (!state) return state;
-      if (!next) halt();
-      return next;
-    }
-  );
-
-  /**
-   * Returns an `AsyncReducer` that takes boolean values and outputs true if one or more input values are true, and false otherwise.
-   * @example
-   * ```ts
-   * await AsyncStream.of(true, false, true)).reduce(AsyncReducer.or))
-   * // => true
-   * ```
-   */
-  export const or = createMono(
-    () => false,
-    (state, next, _, halt): boolean => {
-      if (state) return state;
-      if (next) halt();
-      return next;
-    }
-  );
-
-  /**
-   * Returns an `AsyncReducer` that outputs true if no input values are received, false otherwise.
+   * An `AsyncReducer` that outputs true if no input values are received, false otherwise.
    * @example
    * ```ts
    * await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.isEmpty))
    * // => false
    * ```
    */
-  export const isEmpty = createOutput<never, boolean>(
+  export const isEmpty = createOutput<any, boolean>(
     () => true,
     (_, __, ___, halt): false => {
       halt();
@@ -1299,14 +1359,14 @@ export namespace AsyncReducer {
   );
 
   /**
-   * Returns an `AsyncReducer` that outputs true if one or more input values are received, false otherwise.
+   * An `AsyncReducer` that outputs true if one or more input values are received, false otherwise.
    * @example
    * ```ts
    * await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.nonEmpty))
    * // => true
    * ```
    */
-  export const nonEmpty = createOutput<never, boolean>(
+  export const nonEmpty = createOutput<any, boolean>(
     () => false,
     (_, __, ___, halt): true => {
       halt();
@@ -1315,116 +1375,359 @@ export namespace AsyncReducer {
   );
 
   /**
-   * Returns an `AsyncReducer` that collects received input values in an array, and returns a copy of that array as an output value when requested.
-   * @typeparam T - the element type
-   * @example
-   * ```ts
-   * await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.toArray()))
-   * // => [1, 2, 3]
-   * ```
+   * Returns a `AsyncReducer` that returns true if the first input values match the given `slice` values repeated `amount` times. Otherwise,
+   * returns false.
+   * @param slice - a async sequence of elements to match against
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - amount: (detaulf: 1) the amount of elements to find
+   * - eq: (default: Eq.objectIs) the `Eq` instance to use to compare elements
    */
-  export function toArray<T>(
-    options: { reversed?: boolean } = {}
-  ): AsyncReducer<T, T[]> {
-    const { reversed = false } = options;
+  export function startsWithSlice<T>(
+    slice: AsyncStreamSource<T>,
+    options: { eq?: Eq<T> | undefined; amount?: number } = {}
+  ): AsyncReducer<T, boolean> {
+    const sliceStream = fromAsyncStreamSource(slice);
+    const done = Symbol();
+    const { eq = Eq.objectIs, amount = 1 } = options;
 
-    return create(
-      (): T[] => [],
-      (state, next): T[] => {
-        if (reversed) state.unshift(next);
-        else state.push(next);
+    return AsyncReducer.create<
+      T,
+      boolean,
+      {
+        sliceIter: AsyncFastIterator<T>;
+        sliceValue: T | typeof done;
+        remain: number;
+      }
+    >(
+      async (initHalt) => {
+        const sliceIter = sliceStream[Symbol.asyncIterator]();
+        const sliceValue = await sliceIter.fastNext(done);
+
+        if (done === sliceValue || amount <= 0) {
+          initHalt();
+          return { sliceIter, sliceValue, remain: 0 };
+        }
+
+        return {
+          sliceIter,
+          sliceValue,
+          remain: amount,
+        };
+      },
+      async (state, next, _, halt) => {
+        if (done === state.sliceValue) {
+          RimbuError.throwInvalidStateError();
+        }
+
+        if (eq(next, state.sliceValue)) {
+          state.sliceValue = await state.sliceIter.fastNext(done);
+
+          if (done === state.sliceValue) {
+            state.remain--;
+            if (state.remain <= 0) {
+              halt();
+            } else {
+              state.sliceIter = sliceStream[Symbol.asyncIterator]();
+              state.sliceValue = await state.sliceIter.fastNext(done);
+            }
+          }
+        } else {
+          halt();
+        }
 
         return state;
       },
-      (state): T[] => state.slice()
+      (state) => state.remain <= 0
     );
   }
 
   /**
-   * Returns a `AsyncReducer` that collects received input tuples into a mutable JS Map, and returns
-   * a copy of that map when output is requested.
-   * @typeparam K - the map key type
-   * @typeparam V - the map value type
-   * @example
-   * ```ts
-   * await AsyncStream.of([1, 'a'], [2, 'b']).reduce(AsyncReducer.toJSMap()))
-   * // Map { 1 => 'a', 2 => 'b' }
-   * ```
+   * Returns an `AsyncReducer` that returns true if the last input values match the given `slice` values repeated `amount` times. Otherwise,
+   * returns false.
+   * @param slice - a async sequence of elements to match against
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - amount: (detaulf: 1) the amount of elements to find
+   * - eq: (default: Eq.objectIs) the `Eq` instance to use to compare elements
    */
-  export function toJSMap<K, V>(): AsyncReducer<[K, V], Map<K, V>> {
-    return create(
-      (): Map<K, V> => new Map(),
-      (state, next): Map<K, V> => {
-        state.set(next[0], next[1]);
+  export function endsWithSlice<T>(
+    slice: AsyncStreamSource<T>,
+    options: { eq?: Eq<T> | undefined; amount?: number } = {}
+  ): AsyncReducer<T, boolean> {
+    const sliceStream = AsyncStreamConstructorsImpl.from(slice);
+    const done = Symbol();
+
+    const newReducerSpec = AsyncReducer.startsWithSlice(slice, options);
+
+    return AsyncReducer.create<
+      T,
+      boolean,
+      Set<AsyncReducer.Instance<T, boolean>>
+    >(
+      async (initHalt) => {
+        const sliceIter = sliceStream[Symbol.asyncIterator]();
+        const sliceValue = await sliceIter.fastNext(done);
+
+        if (done === sliceValue) {
+          initHalt();
+        }
+
+        return new Set([await newReducerSpec.compile()]);
+      },
+      async (state, nextValue) => {
+        for (const instance of state) {
+          if (instance.halted) {
+            state.delete(instance);
+          } else {
+            await instance.next(nextValue);
+          }
+        }
+
+        const newReducerInstance = await newReducerSpec.compile();
+        await newReducerInstance.next(nextValue);
+
+        state.add(newReducerInstance);
+
         return state;
       },
-      (s): Map<K, V> => new Map(s)
+      (state) =>
+        state.size === 0 ||
+        AsyncStreamConstructorsImpl.from(state).some((instance) =>
+          instance.getOutput()
+        )
     );
   }
 
   /**
-   * Returns an `AsyncReducer` that collects received input values into a mutable JS Set, and returns
-   * a copy of that map when output is requested.
-   * @typeparam T - the element type
-   * @example
-   * ```ts
-   * await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.toJSSet()))
-   * // Set {1, 2, 3}
-   * ```
+   * Returns an `AsyncReducer` that returns true if the input values contain the given `slice` sequence `amount` times. Otherwise,
+   * returns false.
+   * @param slice - a async sequence of elements to match against
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - amount: (detaulf: 1) the amount of elements to find
+   * - eq: (default: Eq.objectIs) the `Eq` instance to use to compare elements
    */
-  export function toJSSet<T>(): AsyncReducer<T, Set<T>> {
-    return create(
-      (): Set<T> => new Set<T>(),
-      (state, next): Set<T> => {
-        state.add(next);
-        return state;
-      },
-      (s): Set<T> => new Set(s)
+  export function containsSlice<T>(
+    slice: AsyncStreamSource<T>,
+    options: { eq?: Eq<T> | undefined; amount?: number | undefined } = {}
+  ): AsyncReducer<T, boolean> {
+    const { eq, amount = 1 } = options;
+
+    return endsWithSlice(slice, { eq }).pipe(
+      Reducer.contains(true, { amount })
     );
   }
 
   /**
-   * Returns an `AsyncReducer` that collects 2-tuples containing keys and values into a plain JS object, and
-   * returns a copy of that object when output is requested.
-   * @typeparam K - the result object key type
-   * @typeparam V - the result object value type
-   * @example
-   * ```ts
-   * await AsyncStream.of(['a', 1], ['b', true]).reduce(AsyncReducer.toJSObject()))
-   * // { a: 1, b: true }
+   * Returns an `AsyncReducer` that splits the incoming values into two separate outputs based on the given `pred` predicate. Values for which the predicate is true
+   * are fed into the `collectorTrue` reducer, and other values are fed into the `collectorFalse` instance. If no collectors are provided the values are collected
+   * into arrays.
+   * @param pred - a potentially async predicate receiving the value and its index
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - collectorTrue: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is true<br/>
+   * - collectorFalse: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is false
+   * @typeparam T - the input element type
+   * @typeparam RT - the reducer result type for the `collectorTrue` value
+   * @typeparam RF - the reducer result type for the `collectorFalse` value
+   * @note if the predicate is a type guard, the return type is automatically inferred
    * ```
    */
-  export function toJSObject<
-    K extends string | number | symbol,
-    V
-  >(): AsyncReducer<[K, V], Record<K, V>> {
-    return create(
-      () => ({} as Record<K, V>),
-      (state, entry) => {
-        state[entry[0]] = entry[1];
+  export const partition: {
+    <T, T2 extends T, RT, RF = RT>(
+      pred: (value: T, index: number) => value is T2,
+      options: {
+        collectorTrue: AsyncReducer.Accept<T2, RT>;
+        collectorFalse: AsyncReducer.Accept<Exclude<T, T2>, RF>;
+      }
+    ): AsyncReducer<T, [true: RT, false: RF]>;
+    <T, T2 extends T>(
+      pred: (value: T, index: number) => value is T2,
+      options?: {
+        collectorTrue?: undefined;
+        collectorFalse?: undefined;
+      }
+    ): AsyncReducer<T, [true: T2[], false: Exclude<T, T2>[]]>;
+    <T, RT, RF = RT>(
+      pred: (value: T, index: number) => MaybePromise<boolean>,
+      options: {
+        collectorTrue: AsyncReducer.Accept<T, RT>;
+        collectorFalse: AsyncReducer.Accept<T, RF>;
+      }
+    ): AsyncReducer<T, [true: RT, false: RF]>;
+    <T>(
+      pred: (value: T, index: number) => MaybePromise<boolean>,
+      options?: {
+        collectorTrue?: undefined;
+        collectorFalse?: undefined;
+      }
+    ): AsyncReducer<T, [true: T[], false: T[]]>;
+  } = <T, RT, RF = RT>(
+    pred: (value: T, index: number) => MaybePromise<boolean>,
+    options: {
+      collectorTrue?: any;
+      collectorFalse?: any;
+    } = {}
+  ): AsyncReducer<T, [true: RT, false: RF]> => {
+    const {
+      collectorTrue = Reducer.toArray() as AsyncReducer.Accept<T, RT>,
+      collectorFalse = Reducer.toArray() as AsyncReducer.Accept<T, RF>,
+    } = options;
+
+    return AsyncReducer.create(
+      () =>
+        Promise.all([
+          AsyncReducer.from(collectorTrue).compile(),
+          AsyncReducer.from(collectorFalse).compile(),
+        ]),
+      async (state, value, index) => {
+        const instanceIndex = (await pred(value, index)) ? 0 : 1;
+
+        await state[instanceIndex].next(value);
+
         return state;
       },
-      (s) => ({ ...s })
+      (state) =>
+        Promise.all(
+          Stream.from(state).mapPure((v) => v.getOutput())
+        ) as Promise<[RT, RF]>
     );
-  }
+  };
 
+  /**
+   * Returns an `AsyncReducer` that uses the `valueToKey` function to calculate a key for each value, and feeds the tuple of the key and the value to the
+   * `collector` reducer. Finally, it returns the output of the `collector`. If no collector is given, the default collector will return a JS multimap
+   * of the type `Map<K, V[]>`.
+   * @param valueToKey - potentially async function taking a value and its index, and returning the corresponding key
+   * @param options - (optional) an object containing the following properties:<br/>
+   * - collector: (default: Reducer.toArray()) a reducer that collects the incoming tuple of key and value, and provides the output
+   * @typeparam T - the input value type
+   * @typeparam K - the key type
+   * @typeparam R - the collector output type
+   * ```
+   */
+  export const groupBy: {
+    <T, K, R>(
+      valueToKey: (value: T, index: number) => MaybePromise<K>,
+      options: {
+        collector: AsyncReducer.Accept<[K, T], R>;
+      }
+    ): AsyncReducer<T, R>;
+    <T, K>(
+      valueToKey: (value: T, index: number) => MaybePromise<K>,
+      options?: {
+        collector?: undefined;
+      }
+    ): AsyncReducer<T, Map<K, T[]>>;
+  } = <T, K, R>(
+    valueToKey: (value: T, index: number) => MaybePromise<K>,
+    options: {
+      collector?: AsyncReducer.Accept<[K, T], R> | undefined;
+    } = {}
+  ): AsyncReducer<T, R> => {
+    const {
+      collector = Reducer.toJSMultiMap() as AsyncReducer.Accept<[K, T], R>,
+    } = options;
+
+    return AsyncReducer.create(
+      () => AsyncReducer.from(collector).compile(),
+      async (state, value, index) => {
+        const key = await valueToKey(value, index);
+        await state.next([key, value]);
+        return state;
+      },
+      (state) => state.getOutput()
+    );
+  };
+
+  /**
+   * Returns an `AsyncReducer` that feeds incoming values to all reducers in the provided `reducers` source, and halts when the first
+   * reducer in the array is halted and returns the output of that reducer. Returns the `otherwise` value if no reducer is yet halted.
+   * @param reducers - a stream source of async reducers that will receive the incoming values
+   * @param otherwise - a fallback value to return if none of the reducers has been halted
+   * @typeparam T - the input value type
+   * @typeparam R - the output value type
+   * @typeparam O - the fallback value type
+   */
+  export const race: {
+    <T, R, O>(
+      reducers: AsyncReducer.Accept<T, R>[],
+      otherwise: AsyncOptLazy<O>
+    ): AsyncReducer<T, R | O>;
+    <T, R>(reducers: AsyncReducer.Accept<T, R>[]): AsyncReducer<
+      T,
+      R | undefined
+    >;
+  } = <T, R, O>(
+    reducers: AsyncReducer.Accept<T, R>[],
+    otherwise?: AsyncOptLazy<O>
+  ) => {
+    return AsyncReducer.create<
+      T,
+      R | O,
+      {
+        instances: AsyncReducer.Instance<T, R>[];
+        doneInstance: AsyncReducer.Instance<T, R> | undefined;
+      }
+    >(
+      async (initHalt) => {
+        const instances = await Promise.all(
+          Stream.from(reducers).mapPure((reducer) =>
+            AsyncReducer.from(reducer).compile()
+          )
+        );
+        const doneInstance = instances.find((instance) => instance.halted);
+
+        if (undefined !== doneInstance) {
+          initHalt();
+        }
+
+        return { instances, doneInstance };
+      },
+      async (state, next, _, halt) => {
+        for (const instance of state.instances) {
+          await instance.next(next);
+
+          if (instance.halted) {
+            state.doneInstance = instance;
+            halt();
+            return state;
+          }
+        }
+
+        return state;
+      },
+      (state) =>
+        state.doneInstance === undefined
+          ? AsyncOptLazy.toMaybePromise(otherwise!)
+          : state.doneInstance.getOutput()
+    );
+  };
+
+  /**
+   * Type defining the allowed shape of async reducer combinations.
+   * @typeparam T - the input type
+   */
   export type CombineShape<T = unknown> =
-    | AsyncReducer<T, unknown>
-    | CombineShape<T>[]
-    | { [key: string]: CombineShape<T> };
+    | AsyncReducer.Accept<T, unknown>
+    | AsyncReducer.CombineShape<T>[]
+    | { [key: string]: AsyncReducer.CombineShape<T> };
 
-  export type CombineResult<S extends CombineShape> =
-    /* tuple */ S extends readonly CombineShape[]
+  /**
+   * Type defining the result type of an async reducer combination for a given shape.
+   * @typeparam S - the reducer combination shape
+   */
+  export type CombineResult<S extends AsyncReducer.CombineShape<any>> =
+    /* tuple */ S extends readonly AsyncReducer.CombineShape[]
       ? /* is array? */ 0 extends S['length']
         ? /* no support for arrays */ never
         : /* only tuples */ {
-            [K in keyof S]: S[K] extends CombineShape
-              ? CombineResult<S[K]>
+            [K in keyof S]: S[K] extends AsyncReducer.CombineShape
+              ? AsyncReducer.CombineResult<S[K]>
               : never;
           }
-      : /* plain object */ S extends { [key: string]: CombineShape }
-      ? { [K in keyof S]: CombineResult<S[K]> }
-      : /* simple reducer */ S extends AsyncReducer<unknown, infer R>
+      : /* plain object */ S extends {
+          [key: string]: AsyncReducer.CombineShape;
+        }
+      ? { [K in keyof S]: AsyncReducer.CombineResult<S[K]> }
+      : /* simple reducer */ S extends AsyncReducer.Accept<unknown, infer R>
       ? R
       : never;
 
@@ -1440,17 +1743,23 @@ export namespace AsyncReducer {
     }
   }
 
+  export class ReducerClosedError extends ErrBase.CustomError {
+    constructor() {
+      super('A closed async reducer cannot perform more actions');
+    }
+  }
+
+  export class ReducerNotInitializedError extends ErrBase.CustomError {
+    constructor() {
+      super('The async reducer instance was not yet initialized');
+    }
+  }
+
   /**
-   * Returns a `Reducer` that combines multiple input `reducers` according to the given "shape" by providing input values to all of them and collecting the outputs in the shape.
+   * Returns an `AsyncReducer` that combines multiple input `reducers` according to the given "shape" by providing input values to all of them and collecting the outputs in the shape.
    * @typeparam T - the input value type for all the reducers
    * @typeparam S - the desired result shape type
    * @param shape - a shape defining where reducer outputs will be located in the result. It can consist of a single reducer, an array of shapes, or an object with string keys and shapes as values.
-   * @example
-   * ```ts
-   * const red = Reducer.combine([Reducer.sum, { av: [Reducer.average] }])
-   * console.log(Stream.range({amount: 9 }).reduce(red))
-   * // => [36, { av: [4] }]
-   * ```
    */
   export function combine<T, const S extends AsyncReducer.CombineShape<T>>(
     shape: S & AsyncReducer.CombineShape<T>
@@ -1458,10 +1767,13 @@ export namespace AsyncReducer {
     if (shape instanceof AsyncReducer.Base) {
       return shape as any;
     }
+    if (shape instanceof Reducer.Base) {
+      return AsyncReducer.from(shape) as any;
+    }
 
     if (Array.isArray(shape)) {
       return combineArr(
-        ...(shape.map((item) => AsyncReducer.combine(item)) as any)
+        ...(shape.map((item) => AsyncReducer.combine(item as any)) as any)
       ) as any;
     }
 

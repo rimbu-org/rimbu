@@ -105,13 +105,13 @@ export class OrderedSetNonEmpty<
 
   filter(
     pred: (value: T, index: number, halt: () => void) => boolean,
-    options: { negate?: boolean } = {}
-  ): TpG['normal'] {
+    options: { negate?: boolean | undefined } = {}
+  ): any {
     const builder = this.context.builder<T>();
 
     builder.addAll(this.stream().filter(pred, options));
 
-    if (builder.size === this.size) return this as any;
+    if (builder.size === this.size) return this;
 
     return builder.build();
   }
