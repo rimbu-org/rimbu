@@ -32,11 +32,11 @@ expectAssignable<Promise<{ a: number[]; s: number }>>(
 
 // AsyncReducer.combineFirstDone
 expectType<AsyncReducer<number, number | undefined>>(
-  AsyncReducer.combineFirstDone([Reducer.sum, Reducer.product])
+  AsyncReducer.race([Reducer.sum, Reducer.product])
 );
 
 expectType<AsyncReducer<number, number>>(
-  AsyncReducer.combineFirstDone([Reducer.sum, Reducer.product], 5)
+  AsyncReducer.race([Reducer.sum, Reducer.product], 5)
 );
 
 // AsyncReducer.groupBy
@@ -133,7 +133,7 @@ expectType<AsyncReducer<number, number[]>>(
 
 // .takeOutputWhile
 expectType<AsyncReducer<number, number[]>>(
-  AsyncReducer.from(Reducer.toArray<number>()).takeOutputWhile(() => true)
+  AsyncReducer.from(Reducer.toArray<number>()).takeOutputUntil(() => true)
 );
 
 // .mapInput

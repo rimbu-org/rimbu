@@ -22,7 +22,7 @@ expectAssignable<Reducer<number, { a: number[]; s: number }>>(
 expectAssignable<{ a: number[]; s: number }>(
   Stream.of(1, 2).reduce(
     Reducer.combine({
-      a: Reducer.toArray(),
+      a: Reducer.toArray<number>(),
       s: Reducer.sum,
     })
   )
@@ -30,11 +30,11 @@ expectAssignable<{ a: number[]; s: number }>(
 
 // Reducer.combineFirstDone
 expectType<Reducer<number, number | undefined>>(
-  Reducer.combineFirstDone([Reducer.sum, Reducer.product])
+  Reducer.race([Reducer.sum, Reducer.product])
 );
 
 expectType<Reducer<number, number>>(
-  Reducer.combineFirstDone([Reducer.sum, Reducer.product], 5)
+  Reducer.race([Reducer.sum, Reducer.product], 5)
 );
 
 // Reducer.groupBy
@@ -116,7 +116,7 @@ expectType<Reducer<number, number[]>>(Reducer.toArray<number>().takeOutput(5));
 
 // .takeOutputWhile
 expectType<Reducer<number, number[]>>(
-  Reducer.toArray<number>().takeOutputWhile(() => true)
+  Reducer.toArray<number>().takeOutputUntil(() => true)
 );
 
 // .mapInput
