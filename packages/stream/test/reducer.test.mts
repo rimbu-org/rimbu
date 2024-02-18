@@ -550,7 +550,7 @@ describe('Reducer', () => {
     {
       const red = Reducer.toArray<number>()
         .takeInput(2)
-        .chain(Reducer.toArray<number>().takeInput(2));
+        .chain([Reducer.toArray<number>().takeInput(2)]);
 
       expect(Stream.of(1, 2, 3, 4, 5).reduce(red)).toEqual([3, 4]);
     }
@@ -558,9 +558,18 @@ describe('Reducer', () => {
     {
       const red = Reducer.sum
         .takeInput(2)
-        .chain((v) => Reducer.product.mapOutput((o) => o + v));
+        .chain([(v) => Reducer.product.mapOutput((o) => o + v)]);
 
       expect(Stream.of(1, 2, 3, 4).reduce(red)).toEqual(15);
+    }
+
+    {
+      const red = Reducer.toArray<number>()
+        .takeInput(2)
+        .chain([Reducer.isEmpty]);
+
+      expect(Stream.of(1, 2, 3, 4).reduce(red)).toEqual(false);
+      expect(Stream.of(1, 2).reduce(red)).toEqual(true);
     }
   });
 });

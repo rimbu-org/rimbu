@@ -308,7 +308,9 @@ export namespace AsyncReducer {
      * // this reducer will convert all its results to string before returning them
      * ```
      */
-    mapOutput<O2>(mapFun: (value: O) => MaybePromise<O2>): AsyncReducer<I, O2>;
+    mapOutput<O2>(
+      mapFun: (value: O, index: number, halted: boolean) => MaybePromise<O2>
+    ): AsyncReducer<I, O2>;
     /**
      * Returns an `AsyncReducer` instance that takes at most the given `amount` of input elements, and will ignore subsequent elements.
      * @param amount - the amount of elements to accept
@@ -447,30 +449,42 @@ export namespace AsyncReducer {
      * ```
      */
     chain<O1>(
-      nextReducer1: AsyncOptLazy<AsyncReducer.Accept<I, O1>, [O]>
+      nextReducers: [AsyncOptLazy<AsyncReducer.Accept<I, O1>, [O]>]
     ): AsyncReducer<I, O1>;
     chain<O1, O2>(
-      nextReducer1: AsyncOptLazy<AsyncReducer.Accept<I, O1>, [O]>,
-      nextReducer2: AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O1]>
+      nextReducer: [
+        AsyncOptLazy<AsyncReducer.Accept<I, O1>, [O]>,
+        AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O1]>
+      ]
     ): AsyncReducer<I, O2>;
     chain<O1, O2, O3>(
-      nextReducer1: AsyncOptLazy<AsyncReducer.Accept<I, O1>, [O]>,
-      nextReducer2: AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O1]>,
-      nextReducer3: AsyncOptLazy<AsyncReducer.Accept<I, O3>, [O2]>
+      nextReducers: [
+        AsyncOptLazy<AsyncReducer.Accept<I, O1>, [O]>,
+        AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O1]>,
+        AsyncOptLazy<AsyncReducer.Accept<I, O3>, [O2]>
+      ]
     ): AsyncReducer<I, O3>;
     chain<O1, O2, O3, O4>(
-      nextReducer1: AsyncOptLazy<AsyncReducer.Accept<I, O1>, [O]>,
-      nextReducer2: AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O1]>,
-      nextReducer3: AsyncOptLazy<AsyncReducer.Accept<I, O3>, [O2]>,
-      nextReducer4: AsyncOptLazy<AsyncReducer.Accept<I, O4>, [O3]>
+      nextReducers: [
+        AsyncOptLazy<AsyncReducer.Accept<I, O1>, [O]>,
+        AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O1]>,
+        AsyncOptLazy<AsyncReducer.Accept<I, O3>, [O2]>,
+        AsyncOptLazy<AsyncReducer.Accept<I, O4>, [O3]>
+      ]
     ): AsyncReducer<I, O4>;
     chain<O1, O2, O3, O4, O5>(
-      nextReducer1: AsyncOptLazy<AsyncReducer.Accept<I, O1>, [O]>,
-      nextReducer2: AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O1]>,
-      nextReducer3: AsyncOptLazy<AsyncReducer.Accept<I, O3>, [O2]>,
-      nextReducer4: AsyncOptLazy<AsyncReducer.Accept<I, O4>, [O3]>,
-      nextReducer5: AsyncOptLazy<AsyncReducer.Accept<I, O5>, [O4]>
+      nextReducers: [
+        AsyncOptLazy<AsyncReducer.Accept<I, O1>, [O]>,
+        AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O1]>,
+        AsyncOptLazy<AsyncReducer.Accept<I, O3>, [O2]>,
+        AsyncOptLazy<AsyncReducer.Accept<I, O4>, [O3]>,
+        AsyncOptLazy<AsyncReducer.Accept<I, O5>, [O4]>
+      ]
     ): AsyncReducer<I, O5>;
+    chain(
+      nextReducers: AsyncStreamSource<AsyncOptLazy<AsyncReducer<I, any>, [any]>>
+    ): AsyncReducer<I, unknown>;
+
     /**
      * Returns a promise that resolves to a 'runnable' instance of the current reducer specification. This instance maintains its own state
      * and indices, so that the instance only needs to be provided the input values, and output values can be
@@ -607,12 +621,14 @@ export namespace AsyncReducer {
       );
     }
 
-    mapOutput<O2>(mapFun: (value: O) => MaybePromise<O2>): AsyncReducer<I, O2> {
+    mapOutput<O2>(
+      mapFun: (value: O, index: number, halted: boolean) => MaybePromise<O2>
+    ): AsyncReducer<I, O2> {
       return create(
         this.init,
         this.next,
         async (state, index, halted): Promise<O2> =>
-          mapFun(await this.stateToResult(state, index, halted)),
+          mapFun(await this.stateToResult(state, index, halted), index, halted),
         this.onClose
       );
     }
@@ -756,23 +772,31 @@ export namespace AsyncReducer {
     }
 
     chain(
-      ...nextReducers: AsyncOptLazy<AsyncReducer.Accept<I, any>, [any]>[]
+      nextReducers: AsyncStreamSource<
+        AsyncOptLazy<AsyncReducer.Accept<I, any>, [any]>
+      >
     ): AsyncReducer<I, O> {
       return AsyncReducer.create(
         async () => ({
-          activeIndex: -1,
           activeInstance: (await this.compile()) as AsyncReducer.Instance<I, O>,
+          iterator: fromAsyncStreamSource(nextReducers)[Symbol.asyncIterator](),
         }),
         async (state, next, index, halt) => {
+          const done = Symbol();
+
           while (state.activeInstance.halted) {
-            if (state.activeIndex >= nextReducers.length - 1) {
+            const nextItem = await state.iterator.fastNext(done);
+
+            if (done === nextItem) {
+              halt();
               return state;
             }
 
             const nextReducer = await AsyncOptLazy.toMaybePromise(
-              nextReducers[++state.activeIndex],
+              nextItem,
               await state.activeInstance.getOutput()
             );
+
             state.activeInstance = await AsyncReducer.from(
               nextReducer
             ).compile();
@@ -780,11 +804,22 @@ export namespace AsyncReducer {
 
           await state.activeInstance.next(next);
 
-          if (
-            state.activeInstance.halted &&
-            state.activeIndex >= nextReducers.length - 1
-          ) {
-            halt();
+          while (state.activeInstance.halted) {
+            const nextItem = await state.iterator.fastNext(done);
+
+            if (done === nextItem) {
+              halt();
+              return state;
+            }
+
+            const nextReducer = await AsyncOptLazy.toMaybePromise(
+              nextItem,
+              await state.activeInstance.getOutput()
+            );
+
+            state.activeInstance = await AsyncReducer.from(
+              nextReducer
+            ).compile();
           }
 
           return state;
@@ -1717,7 +1752,7 @@ export namespace AsyncReducer {
   export type CombineResult<S extends AsyncReducer.CombineShape<any>> =
     /* tuple */ S extends readonly AsyncReducer.CombineShape[]
       ? /* is array? */ 0 extends S['length']
-        ? /* no support for arrays */ never
+        ? AsyncReducer.CombineResult<S[number]>[]
         : /* only tuples */ {
             [K in keyof S]: S[K] extends AsyncReducer.CombineShape
               ? AsyncReducer.CombineResult<S[K]>

@@ -690,7 +690,7 @@ describe('AsyncReducer', () => {
     {
       const red = AsyncReducer.from(Reducer.toArray<number>())
         .takeInput(2)
-        .chain(Reducer.toArray<number>().takeInput(2));
+        .chain([Reducer.toArray<number>().takeInput(2)]);
 
       expect(await AsyncStream.of(1, 2, 3, 4, 5).reduce(red)).toEqual([3, 4]);
     }
@@ -698,9 +698,9 @@ describe('AsyncReducer', () => {
     {
       const red = AsyncReducer.from(Reducer.sum)
         .takeInput(2)
-        .chain((v) =>
-          AsyncReducer.from(Reducer.product).mapOutput((o) => o + v)
-        );
+        .chain([
+          (v) => AsyncReducer.from(Reducer.product).mapOutput((o) => o + v),
+        ]);
 
       expect(await AsyncStream.of(1, 2, 3, 4).reduce(red)).toEqual(15);
     }

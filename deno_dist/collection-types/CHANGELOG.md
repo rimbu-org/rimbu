@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/collection-types@2.0.0...@rimbu/collection-types@2.1.0) (2024-02-14)
+
+### Features
+
+- refactor Stream package, add more reducers and Stream methods ([6840c4f](https://github.com/rimbu-org/rimbu/commit/6840c4f28bf45767bd3019835b3abbaa51ccf311))
+
 # [2.0.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/collection-types@1.1.1...@rimbu/collection-types@2.0.0) (2024-01-26)
 
 ### Features

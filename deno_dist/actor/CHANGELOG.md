@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.15.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/actor@0.14.0...@rimbu/actor@0.15.0) (2024-02-14)
+
+### Features
+
+- refactor Stream package, add more reducers and Stream methods ([6840c4f](https://github.com/rimbu-org/rimbu/commit/6840c4f28bf45767bd3019835b3abbaa51ccf311))
+
 # [0.14.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/actor@0.13.1...@rimbu/actor@0.14.0) (2024-01-26)
 
 ### Bug Fixes

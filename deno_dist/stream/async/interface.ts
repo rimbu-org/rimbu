@@ -768,7 +768,7 @@ export interface AsyncStream<T>
    * @param otherwise - (default: undefined) the value to return if the Stream is empty
    * @example
    * ```ts
-   * await AsyncStream.of(5, 1, 3).max()         // => 1
+   * await AsyncStream.of(5, 1, 3).max()         // => 5
    * await AsyncStream.empty<number>().max()     // => undefined
    * await AsyncStream.empty<number>().max('a')  // => 'a'
    * ```
@@ -1421,7 +1421,7 @@ export namespace AsyncStream {
      * Returns the maximum element of the AsyncStream according to a default compare function.
      * @example
      * ```ts
-     * await AsyncStream.of(5, 1, 3).max()         // => 1
+     * await AsyncStream.of(5, 1, 3).max()         // => 5
      * ```
      * @note O(N)
      */

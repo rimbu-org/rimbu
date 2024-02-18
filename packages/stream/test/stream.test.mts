@@ -1,5 +1,6 @@
 import { Arr } from '@rimbu/base';
 import { Eq } from '@rimbu/common';
+import { List } from '@rimbu/list';
 
 import { Stream, Reducer } from '../src/main/index.mjs';
 
@@ -37,6 +38,7 @@ const streamRange17 = Stream.applyFilter(
   streamRange1.map((v) => [v]),
   { pred: () => true }
 ).map(([v]) => v);
+const streamRange18 = List.from(streamRange1).stream();
 
 const sources = [
   streamRange1,
@@ -56,6 +58,7 @@ const sources = [
   streamRange15,
   streamRange16,
   streamRange17,
+  streamRange18,
 ];
 
 const artificialEmpty = Stream.range({ amount: 3 }).filter(() => false);

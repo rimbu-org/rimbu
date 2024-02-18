@@ -739,7 +739,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * @param otherwise - (default: undefined) the value to return if the Stream is empty
    * @example
    * ```ts
-   * Stream.of(5, 1, 3).max()         // => 1
+   * Stream.of(5, 1, 3).max()         // => 5
    * Stream.empty<number>().max()     // => undefined
    * Stream.empty<number>().max('a')  // => 'a'
    * ```
@@ -1363,7 +1363,7 @@ export namespace Stream {
      * Returns the maximum element of the Stream according to a default compare function.
      * @example
      * ```ts
-     * Stream.of(5, 1, 3).max()         // => 1
+     * Stream.of(5, 1, 3).max()         // => 5
      * ```
      * @note O(N)
      */

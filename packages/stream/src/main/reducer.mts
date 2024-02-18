@@ -238,7 +238,9 @@ export namespace Reducer {
      * // this reducer will convert all its results to string before returning them
      * ```
      */
-    mapOutput<O2>(mapFun: (value: O) => O2): Reducer<I, O2>;
+    mapOutput<O2>(
+      mapFun: (value: O, index: number, halted: boolean) => O2
+    ): Reducer<I, O2>;
     /**
      * Returns a `Reducer` instance that takes at most the given `amount` of input elements, and will ignore subsequent elements.
      * @param amount - the amount of elements to accept
@@ -347,36 +349,47 @@ export namespace Reducer {
      *    Reducer.sum
      *      .takeInput(3)
      *      .chain(
-     *        v => v > 10 ? Reducer.product : Reducer.sum
+     *        [v => v > 10 ? Reducer.product : Reducer.sum]
      *      )
      *    )
      * console.log(result)
      * // => 21
      * ```
      */
-    chain<O1>(nextReducer1: OptLazy<Reducer<I, O1>, [O]>): Reducer<I, O1>;
+    chain<O1>(nextReducers: [OptLazy<Reducer<I, O1>, [O]>]): Reducer<I, O1>;
     chain<O1, O2>(
-      nextReducer1: OptLazy<Reducer<I, O1>, [O]>,
-      nextReducer2: OptLazy<Reducer<I, O2>, [O1]>
+      nextReducers: [
+        OptLazy<Reducer<I, O1>, [O]>,
+        OptLazy<Reducer<I, O2>, [O1]>
+      ]
     ): Reducer<I, O2>;
     chain<O1, O2, O3>(
-      nextReducer1: OptLazy<Reducer<I, O1>, [O]>,
-      nextReducer2: OptLazy<Reducer<I, O2>, [O1]>,
-      nextReducer3: OptLazy<Reducer<I, O3>, [O2]>
+      nextReducers: [
+        OptLazy<Reducer<I, O1>, [O]>,
+        OptLazy<Reducer<I, O2>, [O1]>,
+        OptLazy<Reducer<I, O3>, [O2]>
+      ]
     ): Reducer<I, O3>;
     chain<O1, O2, O3, O4>(
-      nextReducer1: OptLazy<Reducer<I, O1>, [O]>,
-      nextReducer2: OptLazy<Reducer<I, O2>, [O1]>,
-      nextReducer3: OptLazy<Reducer<I, O3>, [O2]>,
-      nextReducer4: OptLazy<Reducer<I, O4>, [O3]>
+      nextReducers: [
+        OptLazy<Reducer<I, O1>, [O]>,
+        OptLazy<Reducer<I, O2>, [O1]>,
+        OptLazy<Reducer<I, O3>, [O2]>,
+        OptLazy<Reducer<I, O4>, [O3]>
+      ]
     ): Reducer<I, O4>;
     chain<O1, O2, O3, O4, O5>(
-      nextReducer1: OptLazy<Reducer<I, O1>, [O]>,
-      nextReducer2: OptLazy<Reducer<I, O2>, [O1]>,
-      nextReducer3: OptLazy<Reducer<I, O3>, [O2]>,
-      nextReducer4: OptLazy<Reducer<I, O4>, [O3]>,
-      nextReducer5: OptLazy<Reducer<I, O5>, [O4]>
+      nextReducers: [
+        OptLazy<Reducer<I, O1>, [O]>,
+        OptLazy<Reducer<I, O2>, [O1]>,
+        OptLazy<Reducer<I, O3>, [O2]>,
+        OptLazy<Reducer<I, O4>, [O3]>,
+        OptLazy<Reducer<I, O5>, [O4]>
+      ]
     ): Reducer<I, O5>;
+    chain(
+      nextReducers: StreamSource<OptLazy<Reducer<I, any>, [any]>>
+    ): Reducer<I, unknown>;
     /**
      * Returns a 'runnable' instance of the current reducer specification. This instance maintains its own state
      * and indices, so that the instance only needs to be provided the input values, and output values can be
@@ -391,7 +404,6 @@ export namespace Reducer {
      * // => 16
      * ```
      */
-
     compile(): Reducer.Instance<I, O>;
   }
 
@@ -491,12 +503,14 @@ export namespace Reducer {
       );
     }
 
-    mapOutput<O2>(mapFun: (value: O) => O2): Reducer<I, O2> {
+    mapOutput<O2>(
+      mapFun: (value: O, index: number, halted: boolean) => O2
+    ): Reducer<I, O2> {
       return create(
         this.init,
         this.next,
         (state, index, halted): O2 =>
-          mapFun(this.stateToResult(state, index, halted))
+          mapFun(this.stateToResult(state, index, halted), index, halted)
       );
     }
 
@@ -624,20 +638,27 @@ export namespace Reducer {
       );
     }
 
-    chain(...nextReducers: OptLazy<Reducer<I, any>, [any]>[]): Reducer<I, O> {
+    chain(
+      nextReducers: StreamSource<OptLazy<Reducer<I, any>, [any]>>
+    ): Reducer<I, O> {
       return Reducer.create(
         () => ({
-          activeIndex: -1,
           activeInstance: this.compile() as Reducer.Instance<I, O>,
+          iterator: Stream.from(nextReducers)[Symbol.iterator](),
         }),
         (state, next, index, halt) => {
+          const done = Symbol();
+
           while (state.activeInstance.halted) {
-            if (state.activeIndex >= nextReducers.length - 1) {
+            const nextItem = state.iterator.fastNext(done);
+
+            if (done === nextItem) {
+              halt();
               return state;
             }
 
             const nextReducer = OptLazy(
-              nextReducers[++state.activeIndex],
+              nextItem,
               state.activeInstance.getOutput()
             );
 
@@ -646,11 +667,20 @@ export namespace Reducer {
 
           state.activeInstance.next(next);
 
-          if (
-            state.activeInstance.halted &&
-            state.activeIndex >= nextReducers.length - 1
-          ) {
-            halt();
+          while (state.activeInstance.halted) {
+            const nextItem = state.iterator.fastNext(done);
+
+            if (done === nextItem) {
+              halt();
+              return state;
+            }
+
+            const nextReducer = OptLazy(
+              nextItem,
+              state.activeInstance.getOutput()
+            );
+
+            state.activeInstance = nextReducer.compile();
           }
 
           return state;
@@ -1829,7 +1859,7 @@ export namespace Reducer {
   export type CombineResult<S extends CombineShape> =
     /* tuple */ S extends readonly CombineShape[]
       ? /* is array? */ 0 extends S['length']
-        ? /* no support for arrays */ never
+        ? CombineResult<S[number]>[]
         : /* only tuples */ {
             [K in keyof S]: S[K] extends CombineShape
               ? CombineResult<S[K]>
