@@ -50,6 +50,8 @@
   },
   "type": "module",
   "main": "./dist/main/index.cjs",
+  "module": "./dist/main/index.js",
+  "types": "./dist/main/index.d.ts",
   "exports": {
     ".": {
       "import": {
@@ -59,10 +61,6 @@
       "require": {
         "types": "./dist/main/index.d.cts",
         "default": "./dist/main/index.cjs"
-      },
-      "default": {
-        "types": "./dist/main/index.d.ts",
-        "default": "./dist/main/index.js"
       },
       "bun": "./dist/bun/main/index.mts"
     },
@@ -74,10 +72,6 @@
       "require": {
         "types": "./dist/menu/index.d.cts",
         "node": "./dist/menu/index.cjs"
-      },
-      "default": {
-        "types": "./dist/menu/index.d.ts",
-        "default": "./dist/menu/index.js"
       },
       "bun": "./dist/bun/menu/index.mts"
     }

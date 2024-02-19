@@ -6,5 +6,8 @@ export default defineConfig({
   clean: true,
   dts: true,
   legacyOutput: false,
-  format: ["esm", "cjs"]
+  cjsInterop: true,
+  format: ["esm", "cjs"],
+  bundle: true,
+  noExternal: [/@rimbu\/.+/],
 })
