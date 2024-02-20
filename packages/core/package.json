@@ -49,23 +49,31 @@
     "directory": "packages/core"
   },
   "type": "module",
-  "main": "./dist/cjs/main/index.cjs",
-  "module": "./dist/esm/main/index.mjs",
-  "types": "./dist/types/main/index.d.mts",
+  "main": "./dist/main/index.cjs",
+  "module": "./dist/main/index.js",
+  "types": "./dist/main/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/types/main/index.d.mts",
-      "bun": "./dist/bun/main/index.mts",
-      "import": "./dist/esm/main/index.mjs",
-      "require": "./dist/cjs/main/index.cjs",
-      "default": "./dist/esm/main/index.mjs"
+      "import": {
+        "types": "./dist/main/index.d.ts",
+        "default": "./dist/main/index.js"
+      },
+      "require": {
+        "types": "./dist/main/index.d.cts",
+        "default": "./dist/main/index.cjs"
+      },
+      "bun": "./dist/bun/main/index.mts"
     },
     "./menu": {
-      "types": "./dist/types/menu/index.d.mts",
-      "bun": "./dist/bun/menu/index.mts",
-      "import": "./dist/esm/menu/index.mjs",
-      "require": "./dist/cjs/menu/index.cjs",
-      "default": "./dist/esm/menu/index.mjs"
+      "import": {
+        "types": "./dist/menu/index.d.ts",
+        "default": "./dist/menu/index.js"
+      },
+      "require": {
+        "types": "./dist/menu/index.d.cts",
+        "node": "./dist/menu/index.cjs"
+      },
+      "bun": "./dist/bun/menu/index.mts"
     }
   },
   "files": [
@@ -76,15 +84,12 @@
   "scripts": {
     "build": "yarn clean && yarn bundle",
     "build:deno": "yarn bundle:deno-prepare && yarn bundle:deno-convert && yarn bundle:deno-move && yarn bundle:deno-clean",
-    "bundle": "yarn bundle:cjs && yarn bundle:esm && yarn bundle:types && yarn bundle:bun",
+    "bundle": "yarn tsup && yarn bundle:bun && yarn",
     "bundle:bun": "node ../../config/bunnify.mjs",
-    "bundle:cjs": "tsup src --format cjs --clean -d dist/cjs --loader '.mts=ts'",
     "bundle:deno-prepare": "node ../../config/prepare-denoify.mjs",
     "bundle:deno-convert": "denoify --src _deno_prepare/src",
     "bundle:deno-move": "rimraf ../../deno_dist/core && mv deno_dist ../../deno_dist/core",
     "bundle:deno-clean": "rimraf _deno_prepare",
-    "bundle:esm": "tsc --p tsconfig.esm.json",
-    "bundle:types": "tsc --p tsconfig.types.json",
     "clean": "rimraf dist",
     "extract-api": "ts-node ../../config/api-extractor.ts config/api-extractor.main.json",
     "format": "yarn format:base --write",
