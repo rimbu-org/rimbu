@@ -667,19 +667,23 @@ describe('AsyncReducer', () => {
   });
 
   it('pipe', async () => {
-    const red = AsyncReducer.from(Reducer.sum).pipe(
+    const red = AsyncReducer.pipe(
+      Reducer.sum,
       Reducer.join<number>({ sep: ', ' })
     );
+
     expect(await AsyncStream.empty<number>().reduce(red)).toEqual('');
     expect(await AsyncStream.of(1).reduce(red)).toEqual('1');
-    // expect(await AsyncStream.of(1, 2, 3).reduce(red)).toEqual('1, 3, 6');
+    expect(await AsyncStream.of(1, 2, 3).reduce(red)).toEqual('1, 3, 6');
   });
 
   it('pipe 2', async () => {
-    const red = AsyncReducer.from(Reducer.sum).pipe(
+    const red = AsyncReducer.pipe(
+      Reducer.sum,
       AsyncReducer.from(Reducer.product),
       AsyncReducer.from(Reducer.join({ sep: ', ' }))
     );
+
     expect(await AsyncStream.empty<number>().reduce(red)).toEqual('');
     expect(await AsyncStream.of(1).reduce(red)).toEqual('1');
     expect(await AsyncStream.of(1, 2, 3).reduce(red)).toEqual('1, 3, 18');

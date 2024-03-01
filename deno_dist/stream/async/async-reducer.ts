@@ -255,9 +255,9 @@ export namespace AsyncReducer {
      * // this reducer will double all input values before summing them
      * ```
      */
-    mapInput<I2>(
+    mapInput: <I2>(
       mapFun: (value: I2, index: number) => MaybePromise<I>
-    ): AsyncReducer<I2, O>;
+    ) => AsyncReducer<I2, O>;
     /**
      * Returns an `AsyncReducer` instance that converts its input values using given `flatMapFun` before passing them to the reducer.
      * @param flatMapFun - a potentially asynchronous function that returns am arbitrary number of new values to pass to the reducer based on the following inputs:<br/>
@@ -383,53 +383,6 @@ export namespace AsyncReducer {
       options?: { negate?: boolean | undefined }
     ): AsyncReducer<I, O>;
     /**
-     * Returns an `AsyncReducer` instance that first applies this reducer, and then applies the given `next` reducer to each output produced
-     * by the previous reducer.
-     * @typeparam O1 - the output type of the `nextReducer1` reducer
-     * @typeparam O2 - the output type of the `nextReducer2` reducer
-     * @typeparam O3 - the output type of the `nextReducer3` reducer
-     * @typeparam O4 - the output type of the `nextReducer4` reducer
-     * @typeparam O5 - the output type of the `nextReducer5` reducer
-     * @param nextReducer1 - the next reducer to apply to each output of this reducer.
-     * @param nextReducer2 - (optional) the next reducer to apply to each output of this reducer.
-     * @param nextReducer3 - (optional) the next reducer to apply to each output of this reducer.
-     * @param nextReducer4 - (optional) the next reducer to apply to each output of this reducer.
-     * @param nextReducer5 - (optional) the next reducer to apply to each output of this reducer.
-     * @example
-     * ```ts
-     * AsyncStream
-     *  .from(Stream.of(1, 2, 3))
-     *  .reduce(
-     *    AsyncReducer.product
-     *      .pipe(AsyncReducer.sum)
-     *  )
-     * // => 9
-     * ```
-     */
-    pipe<O1>(nextReducer1: AsyncReducer.Accept<O, O1>): AsyncReducer<I, O1>;
-    pipe<O1, O2>(
-      nextReducer1: AsyncReducer.Accept<O, O1>,
-      nextReducer2: AsyncReducer.Accept<O1, O2>
-    ): AsyncReducer<I, O2>;
-    pipe<O1, O2, O3>(
-      nextReducer1: AsyncReducer.Accept<O, O1>,
-      nextReducer2: AsyncReducer.Accept<O1, O2>,
-      nextReducer3: AsyncReducer.Accept<O2, O3>
-    ): AsyncReducer<I, O3>;
-    pipe<O1, O2, O3, O4>(
-      nextReducer1: AsyncReducer.Accept<O, O1>,
-      nextReducer2: AsyncReducer.Accept<O1, O2>,
-      nextReducer3: AsyncReducer.Accept<O2, O3>,
-      nextReducer4: AsyncReducer.Accept<O3, O4>
-    ): AsyncReducer<I, O4>;
-    pipe<O1, O2, O3, O4, O5>(
-      nextReducer1: AsyncReducer.Accept<O, O1>,
-      nextReducer2: AsyncReducer.Accept<O1, O2>,
-      nextReducer3: AsyncReducer.Accept<O2, O3>,
-      nextReducer4: AsyncReducer.Accept<O3, O4>,
-      nextReducer5: AsyncReducer.Accept<O4, O5>
-    ): AsyncReducer<I, O5>;
-    /**
      * Returns a reducer that applies the given `nextReducers` sequentially after this reducer
      * has halted, and moving on to the next provided reducer until it is halted. Optionally, it provides the last output
      * value of the previous reducer.
@@ -438,52 +391,21 @@ export namespace AsyncReducer {
      * ```ts
      * const result = await AsyncStream.range({ amount: 6 })
      *  .reduce(
-     *    AsyncReducer.sum
+     *    Reducer.sum
      *      .takeInput(3)
      *      .chain(
-     *        v => v > 10 ? AsyncReducer.product : AsyncReducer.sum
+     *        v => v > 10 ? Reducer.product : Reducer.sum
      *      )
      *    )
      * console.log(result)
      * // => 21
      * ```
      */
-    chain<O1>(
-      nextReducers: [AsyncOptLazy<AsyncReducer.Accept<I, O1>, [O]>]
-    ): AsyncReducer<I, O1>;
-    chain<O1, O2>(
-      nextReducer: [
-        AsyncOptLazy<AsyncReducer.Accept<I, O1>, [O]>,
-        AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O1]>
-      ]
+    chain<O2 extends O>(
+      nextReducers: AsyncStreamSource<
+        AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O2]>
+      >
     ): AsyncReducer<I, O2>;
-    chain<O1, O2, O3>(
-      nextReducers: [
-        AsyncOptLazy<AsyncReducer.Accept<I, O1>, [O]>,
-        AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O1]>,
-        AsyncOptLazy<AsyncReducer.Accept<I, O3>, [O2]>
-      ]
-    ): AsyncReducer<I, O3>;
-    chain<O1, O2, O3, O4>(
-      nextReducers: [
-        AsyncOptLazy<AsyncReducer.Accept<I, O1>, [O]>,
-        AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O1]>,
-        AsyncOptLazy<AsyncReducer.Accept<I, O3>, [O2]>,
-        AsyncOptLazy<AsyncReducer.Accept<I, O4>, [O3]>
-      ]
-    ): AsyncReducer<I, O4>;
-    chain<O1, O2, O3, O4, O5>(
-      nextReducers: [
-        AsyncOptLazy<AsyncReducer.Accept<I, O1>, [O]>,
-        AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O1]>,
-        AsyncOptLazy<AsyncReducer.Accept<I, O3>, [O2]>,
-        AsyncOptLazy<AsyncReducer.Accept<I, O4>, [O3]>,
-        AsyncOptLazy<AsyncReducer.Accept<I, O5>, [O4]>
-      ]
-    ): AsyncReducer<I, O5>;
-    chain(
-      nextReducers: AsyncStreamSource<AsyncOptLazy<AsyncReducer<I, any>, [any]>>
-    ): AsyncReducer<I, unknown>;
 
     /**
      * Returns a promise that resolves to a 'runnable' instance of the current reducer specification. This instance maintains its own state
@@ -491,7 +413,7 @@ export namespace AsyncReducer {
      * retrieved when needed. The state is kept private.
      * @example
      * ```ts
-     * const reducer = AsyncReducer.sum.mapOutput(v => v * 2);
+     * const reducer = AsyncReducer.from(Reducer.sum.mapOutput(v => v * 2));
      * const instance = reducer.compile();
      * await instance.next(3);
      * await instance.next(5);
@@ -713,108 +635,72 @@ export namespace AsyncReducer {
       return this.takeInput(amount).dropInput(from);
     }
 
-    pipe<O2>(
-      ...nextReducers: AsyncReducer.Accept<O, O2>[]
+    chain<O2 extends O>(
+      nextReducers: AsyncStreamSource<
+        AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O2]>
+      >
     ): AsyncReducer<I, O2> {
-      if (nextReducers.length <= 0) {
-        return this as any;
-      }
-
-      const [nextReducer, ...others] = nextReducers as AsyncReducer.Accept<
-        any,
-        any
-      >[];
-
-      if (others.length > 0) {
-        return (this.pipe(nextReducer).pipe as any)(...others);
-      }
-
       return AsyncReducer.create(
-        async (inithalt) => {
-          const thisInstance = await this.compile();
-          const nextInstance = await AsyncReducer.from(nextReducer).compile();
+        async (
+          initHalt
+        ): Promise<{
+          activeInstance: AsyncReducer.Instance<I, O2>;
+          iterator: AsyncFastIterator<
+            AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O2]>
+          >;
+        }> => {
+          const iterator =
+            fromAsyncStreamSource(nextReducers)[Symbol.asyncIterator]();
+          let activeInstance = (await this.compile()) as AsyncReducer.Instance<
+            I,
+            O2
+          >;
 
-          if (thisInstance.halted || nextInstance.halted) {
-            inithalt();
+          if (undefined !== activeInstance && activeInstance.halted) {
+            let output = await activeInstance.getOutput();
+
+            do {
+              const creator = await iterator.fastNext();
+
+              if (undefined === creator) {
+                initHalt();
+
+                return {
+                  activeInstance,
+                  iterator,
+                };
+              }
+              const nextReducer = await AsyncOptLazy.toMaybePromise(
+                creator,
+                output
+              );
+
+              activeInstance = await AsyncReducer.from(nextReducer).compile();
+              output = await activeInstance.getOutput();
+            } while (activeInstance.halted);
           }
 
           return {
-            thisInstance,
-            nextInstance,
+            activeInstance,
+            iterator,
           };
         },
         async (state, next, index, halt) => {
-          const { thisInstance, nextInstance } = state;
-
-          await thisInstance.next(next);
-          await nextInstance.next(await thisInstance.getOutput());
-
-          if (thisInstance.halted || nextInstance.halted) {
-            halt();
-          }
-
-          return state;
-        },
-        async (state, index, halted) => {
-          if (halted && index === 0) {
-            await state.nextInstance.next(await state.thisInstance.getOutput());
-          }
-
-          return state.nextInstance.getOutput();
-        },
-        async (state, err) => {
-          await Promise.all([
-            state.thisInstance.onClose(err),
-            state.nextInstance.onClose(err),
-          ]);
-        }
-      );
-    }
-
-    chain(
-      nextReducers: AsyncStreamSource<
-        AsyncOptLazy<AsyncReducer.Accept<I, any>, [any]>
-      >
-    ): AsyncReducer<I, O> {
-      return AsyncReducer.create(
-        async () => ({
-          activeInstance: (await this.compile()) as AsyncReducer.Instance<I, O>,
-          iterator: fromAsyncStreamSource(nextReducers)[Symbol.asyncIterator](),
-        }),
-        async (state, next, index, halt) => {
-          const done = Symbol();
-
-          while (state.activeInstance.halted) {
-            const nextItem = await state.iterator.fastNext(done);
-
-            if (done === nextItem) {
-              halt();
-              return state;
-            }
-
-            const nextReducer = await AsyncOptLazy.toMaybePromise(
-              nextItem,
-              await state.activeInstance.getOutput()
-            );
-
-            state.activeInstance = await AsyncReducer.from(
-              nextReducer
-            ).compile();
-          }
-
           await state.activeInstance.next(next);
 
           while (state.activeInstance.halted) {
-            const nextItem = await state.iterator.fastNext(done);
+            const output = await state.activeInstance.getOutput();
+            const creator = await state.iterator.fastNext();
 
-            if (done === nextItem) {
+            if (undefined === creator) {
               halt();
+
               return state;
             }
 
             const nextReducer = await AsyncOptLazy.toMaybePromise(
-              nextItem,
-              await state.activeInstance.getOutput()
+              creator,
+              output
             );
 
             state.activeInstance = await AsyncReducer.from(
@@ -824,8 +710,7 @@ export namespace AsyncReducer {
 
           return state;
         },
-        (state) => state.activeInstance.getOutput(),
-        (state, err) => state.activeInstance.onClose(err)
+        (state) => state.activeInstance.getOutput()
       );
     }
 
@@ -1546,7 +1431,8 @@ export namespace AsyncReducer {
   ): AsyncReducer<T, boolean> {
     const { eq, amount = 1 } = options;
 
-    return endsWithSlice(slice, { eq }).pipe(
+    return AsyncReducer.pipe(
+      endsWithSlice(slice, { eq }),
       Reducer.contains(true, { amount })
     );
   }
@@ -1639,10 +1525,10 @@ export namespace AsyncReducer {
    * ```
    */
   export const groupBy: {
-    <T, K, R>(
+    <T, K, R, T2 extends readonly [K, T] = [K, T]>(
       valueToKey: (value: T, index: number) => MaybePromise<K>,
       options: {
-        collector: AsyncReducer.Accept<[K, T], R>;
+        collector: AsyncReducer.Accept<[K, T] | T2, R>;
       }
     ): AsyncReducer<T, R>;
     <T, K>(
@@ -1654,11 +1540,14 @@ export namespace AsyncReducer {
   } = <T, K, R>(
     valueToKey: (value: T, index: number) => MaybePromise<K>,
     options: {
-      collector?: AsyncReducer.Accept<[K, T], R> | undefined;
+      collector?: AsyncReducer.Accept<readonly [K, T], R> | undefined;
     } = {}
   ): AsyncReducer<T, R> => {
     const {
-      collector = Reducer.toJSMultiMap() as AsyncReducer.Accept<[K, T], R>,
+      collector = Reducer.toJSMultiMap() as AsyncReducer.Accept<
+        readonly [K, T],
+        R
+      >,
     } = options;
 
     return AsyncReducer.create(
@@ -1740,8 +1629,8 @@ export namespace AsyncReducer {
    * Type defining the allowed shape of async reducer combinations.
    * @typeparam T - the input type
    */
-  export type CombineShape<T = unknown> =
-    | AsyncReducer.Accept<T, unknown>
+  export type CombineShape<T> =
+    | AsyncReducer.Accept<T, any>
     | AsyncReducer.CombineShape<T>[]
     | { [key: string]: AsyncReducer.CombineShape<T> };
 
@@ -1750,19 +1639,19 @@ export namespace AsyncReducer {
    * @typeparam S - the reducer combination shape
    */
   export type CombineResult<S extends AsyncReducer.CombineShape<any>> =
-    /* tuple */ S extends readonly AsyncReducer.CombineShape[]
+    /* tuple */ S extends readonly AsyncReducer.CombineShape<any>[]
       ? /* is array? */ 0 extends S['length']
         ? AsyncReducer.CombineResult<S[number]>[]
         : /* only tuples */ {
-            [K in keyof S]: S[K] extends AsyncReducer.CombineShape
+            [K in keyof S]: S[K] extends AsyncReducer.CombineShape<any>
               ? AsyncReducer.CombineResult<S[K]>
               : never;
           }
       : /* plain object */ S extends {
-          [key: string]: AsyncReducer.CombineShape;
+          [key: string]: AsyncReducer.CombineShape<any>;
         }
       ? { [K in keyof S]: AsyncReducer.CombineResult<S[K]> }
-      : /* simple reducer */ S extends AsyncReducer.Accept<unknown, infer R>
+      : /* simple reducer */ S extends AsyncReducer.Accept<any, infer R>
       ? R
       : never;
 
@@ -1824,4 +1713,114 @@ export namespace AsyncReducer {
 
     throw new AsyncReducer.InvalidCombineShapeError();
   }
+
+  /**
+   * Returns an `AsyncReducer` instance that first applies this reducer, and then applies the given `next` reducer to each output produced
+   * by the previous reducer.
+   * @typeparam I - the input type of the `reducer1` reducer
+   * @typeparam O1 - the output type of the `reducer1` reducer
+   * @typeparam O2 - the output type of the `reducer2` reducer
+   * @typeparam O3 - the output type of the `reducer3` reducer
+   * @typeparam O4 - the output type of the `reducer4` reducer
+   * @typeparam O5 - the output type of the `reducer5` reducer
+   * @param reducer1 - the next reducer to apply to each output of this reducer.
+   * @param reducer2 - (optional) the next reducer to apply to each output of this reducer.
+   * @param reducer3 - (optional) the next reducer to apply to each output of this reducer.
+   * @param reducer4 - (optional) the next reducer to apply to each output of this reducer.
+   * @param reducer5 - (optional) the next reducer to apply to each output of this reducer.
+   * @example
+   * ```ts
+   * AsyncStream
+   *  .from(Stream.of(1, 2, 3))
+   *  .reduce(
+   *    AsyncReducer.pipe(Reducer.product, Reducer.sum)
+   *  )
+   * // => 9
+   * ```
+   */
+  export const pipe: {
+    <I, O1, O2>(
+      reducer1: AsyncReducer.Accept<I, O1>,
+      reducer2: AsyncReducer.Accept<O1, O2>
+    ): AsyncReducer<I, O2>;
+    <I, O1, O2, O3>(
+      reducer1: AsyncReducer.Accept<I, O1>,
+      reducer2: AsyncReducer.Accept<O1, O2>,
+      reducer3: AsyncReducer.Accept<O2, O3>
+    ): AsyncReducer<I, O3>;
+    <I, O1, O2, O3, O4>(
+      reducer1: AsyncReducer.Accept<I, O1>,
+      reducer2: AsyncReducer.Accept<O1, O2>,
+      reducer3: AsyncReducer.Accept<O2, O3>,
+      reducer4: AsyncReducer.Accept<O2, O4>
+    ): AsyncReducer<I, O4>;
+    <I, O1, O2, O3, O4, O5>(
+      reducer1: AsyncReducer.Accept<I, O1>,
+      reducer2: AsyncReducer.Accept<O1, O2>,
+      reducer3: AsyncReducer.Accept<O2, O3>,
+      reducer4: AsyncReducer.Accept<O2, O4>,
+      reducer5: AsyncReducer.Accept<O2, O5>
+    ): AsyncReducer<I, O5>;
+  } = (...nextReducers: AsyncReducer.Accept<any, any>[]): any => {
+    if (nextReducers.length < 2) {
+      RimbuError.throwInvalidUsageError(
+        'Reducer.pipe should have at least two arguments'
+      );
+    }
+
+    const [current, next, ...others] = nextReducers as AsyncReducer.Accept<
+      any,
+      any
+    >[];
+
+    if (others.length > 0) {
+      return AsyncReducer.pipe(
+        current,
+        (AsyncReducer.pipe as any)(next, ...others)
+      );
+    }
+
+    return AsyncReducer.create(
+      async (inithalt) => {
+        const currentInstance = await AsyncReducer.from(current).compile();
+        const nextInstance = await AsyncReducer.from(next).compile();
+
+        if (currentInstance.halted || nextInstance.halted) {
+          inithalt();
+        }
+
+        return {
+          currentInstance,
+          nextInstance,
+        };
+      },
+      async (state, next, index, halt) => {
+        const { currentInstance, nextInstance } = state;
+
+        await currentInstance.next(next);
+        await nextInstance.next(await currentInstance.getOutput());
+
+        if (currentInstance.halted || nextInstance.halted) {
+          halt();
+        }
+
+        return state;
+      },
+      async (state, index, halted) => {
+        if (halted && index === 0) {
+          await state.nextInstance.next(
+            await state.currentInstance.getOutput()
+          );
+        }
+
+        return state.nextInstance.getOutput();
+      },
+      async (state, err) => {
+        await Promise.all([
+          state.currentInstance.onClose(err),
+          state.nextInstance.onClose(err),
+        ]);
+      }
+    );
+  };
 }

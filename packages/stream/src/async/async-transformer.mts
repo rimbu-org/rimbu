@@ -93,7 +93,7 @@ export namespace AsyncTransformer {
       skipAmount?: number | undefined;
       collector?: AsyncReducer.Accept<T, R> | undefined;
     } = {}
-  ) => {
+  ): AsyncTransformer<T, R> => {
     const {
       skipAmount = windowSize,
       collector = Reducer.toArray() as AsyncReducer.Accept<T, R>,
@@ -101,7 +101,7 @@ export namespace AsyncTransformer {
 
     return AsyncReducer.create<
       T,
-      AsyncStream<R>,
+      AsyncStreamSource<R>,
       Set<AsyncReducer.Instance<T, R>>
     >(
       () => new Set(),
@@ -301,7 +301,11 @@ export namespace AsyncTransformer {
       collector = Reducer.toArray() as AsyncReducer.Accept<T, R>,
     } = options;
 
-    return AsyncReducer.create(
+    return AsyncReducer.create<
+      T,
+      AsyncStreamSource<R>,
+      { collection: AsyncReducer.Instance<T, R>; done: boolean }
+    >(
       async () => ({
         collection: await AsyncReducer.from(collector).compile(),
         done: false,
@@ -352,7 +356,11 @@ export namespace AsyncTransformer {
       collector = Reducer.toArray() as AsyncReducer.Accept<T, R>,
     } = options;
 
-    return AsyncReducer.create(
+    return AsyncReducer.create<
+      T,
+      AsyncStreamSource<R>,
+      { collection: AsyncReducer.Instance<T, R>; done: boolean }
+    >(
       async () => ({
         collection: await AsyncReducer.from(collector).compile(),
         done: false,
@@ -402,7 +410,7 @@ export namespace AsyncTransformer {
 
     return AsyncReducer.create<
       T,
-      AsyncStream<R>,
+      AsyncStreamSource<R>,
       {
         done: boolean;
         instances: Map<AsyncReducer.Instance<T, boolean>, number>;

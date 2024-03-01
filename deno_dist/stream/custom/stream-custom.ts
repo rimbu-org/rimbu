@@ -178,6 +178,26 @@ export abstract class StreamBase<T> implements Stream<T> {
     return new FilterPureStream(this, pred, args, negate) as any;
   }
 
+  withOnly<F extends T>(values: F[]): Stream<F> {
+    if (values.length <= 0) {
+      return this as any;
+    }
+
+    const set = new Set<T>(values);
+
+    return this.filterPure({ pred: (v) => set.has(v) });
+  }
+
+  without<F extends T>(values: F[]): any {
+    if (values.length <= 0) {
+      return this as any;
+    }
+
+    const set = new Set<T>(values);
+
+    return this.filterPure({ pred: (v) => set.has(v), negate: true });
+  }
+
   map<T2>(mapFun: (value: T, index: number) => T2): Stream<T2> {
     return new MapStream<T, T2>(this, mapFun);
   }
@@ -647,7 +667,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 
   groupBy<K, R>(
     valueToKey: (value: T, index: number) => K,
-    options: { collector?: Reducer<[K, T], R> | undefined } = {}
+    options: { collector?: Reducer<readonly [K, T], R> | undefined } = {}
   ): R {
     return this.reduce(Reducer.groupBy<T, K, R>(valueToKey, options as any));
   }
@@ -666,8 +686,8 @@ export abstract class StreamBase<T> implements Stream<T> {
     return this.reduceStream(Reducer.fold(init, next));
   }
 
-  reduce<const S extends Reducer.CombineShape<T>>(
-    shape: S & Reducer.CombineShape<T>
+  reduce<const S extends Reducer.CombineShape<T2>, T2 extends T = T>(
+    shape: S & Reducer.CombineShape<T2>
   ): Reducer.CombineResult<S> {
     const reducerInstance = Reducer.combine(
       shape
@@ -684,11 +704,11 @@ export abstract class StreamBase<T> implements Stream<T> {
     return reducerInstance.getOutput();
   }
 
-  reduceStream<const S extends Reducer.CombineShape<T>>(
-    shape: S & Reducer.CombineShape<T>
+  reduceStream<const S extends Reducer.CombineShape<T2>, T2 extends T = T>(
+    shape: S & Reducer.CombineShape<T2>
   ): Stream<Reducer.CombineResult<S>> {
     const reducer = Reducer.combine(shape) as Reducer<
-      T,
+      T2,
       Reducer.CombineResult<S>
     >;
 
@@ -1547,6 +1567,12 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   filterPure(): any {
     return this;
   }
+  withOnly(): any {
+    return this;
+  }
+  without(): any {
+    return this;
+  }
   collect<R>(): Stream<R> {
     return this as any;
   }
@@ -1666,8 +1692,8 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   partition(
     pred: any,
     options: {
-      collectorTrue?: Reducer<T, any> | undefined;
-      collectorFalse?: Reducer<T, any> | undefined;
+      collectorTrue?: any;
+      collectorFalse?: any;
     } = {}
   ): [any, any] {
     const {
@@ -1954,10 +1980,6 @@ class AlwaysStream<T> extends StreamBase<T> {
       f(value, state.nextIndex(), state.halt);
     }
   }
-
-  // last(): T {
-  //   return this.value;
-  // }
 
   elementAt(): T {
     return this.value;

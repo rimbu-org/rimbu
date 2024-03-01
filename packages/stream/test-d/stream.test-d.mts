@@ -1,4 +1,6 @@
 import { type ArrayNonEmpty } from '@rimbu/common';
+import { HashMap } from '@rimbu/hashed';
+import { HashMultiMapHashValue } from '@rimbu/multimap';
 import {
   expectAssignable,
   expectError,
@@ -17,7 +19,6 @@ import {
 // Variance
 expectAssignable<Stream<number | string>>(Stream.empty<number>());
 expectNotAssignable<Stream<number>>(Stream.empty<number | string>());
-
 expectAssignable<Stream<number | string>>(Stream.of(1));
 expectNotAssignable<Stream<number>>(Stream.of<number | string>(1));
 
@@ -189,6 +190,14 @@ expectType<Stream.NonEmpty<number | string>>(
 );
 expectType<Stream.NonEmpty<number | string>>(
   Stream.of(1 as number | string).append('a')
+);
+
+// .chain(...)
+expectType<number>(
+  Stream.empty<number>().reduce(Reducer.sum.chain([Reducer.product]))
+);
+expectType<boolean>(
+  Stream.empty<number>().reduce(Reducer.contains(1).chain([Reducer.isEmpty]))
 );
 
 // .collect(..)
@@ -427,6 +436,18 @@ expectType<string>(
     collector: Reducer.join<[number, string]>(),
   })
 );
+expectType<HashMap<number, string>>(
+  Stream.empty<string>().groupBy((v) => v.length, {
+    // accepts readonly tuples
+    collector: HashMap.reducer(),
+  })
+);
+expectType<HashMultiMapHashValue<number, string>>(
+  Stream.empty<string>().groupBy((v) => v.length, {
+    // accepts normal tuples
+    collector: HashMultiMapHashValue.reducer(),
+  })
+);
 
 // .indexed()
 expectType<Stream<[number, string]>>(Stream.empty<string>().indexed());
@@ -609,6 +630,9 @@ expectType<Stream.NonEmpty<number>>(Stream.of(1).prepend(3));
 // .reduce(..)
 expectType<boolean>(Stream.empty<number>().reduce(Reducer.isEmpty));
 expectType<boolean>(Stream.of(1).reduce(Reducer.isEmpty));
+expectError<number | boolean>(
+  Stream.empty<number | boolean>().reduce(Reducer.sum)
+);
 
 // .reduce(..) shape
 expectType<[boolean, number, string]>(
@@ -717,4 +741,22 @@ expectType<Stream.NonEmpty<number>>(Stream.of(1).distinctPrevious());
 expectType<Stream<number[]>>(Stream.of(1).window(2));
 expectType<Stream<Set<number>>>(
   Stream.of(1).window(2, { collector: Reducer.toJSSet() })
+);
+
+// .withOnly(...)
+expectType<Stream<undefined>>(
+  Stream.empty<number | undefined>().withOnly([undefined])
+);
+expectType<Stream<1>>(Stream.empty<number | undefined>().withOnly([1]));
+expectType<Stream<1 | 2>>(Stream.empty<number | undefined>().withOnly([1, 2]));
+
+// .without(...)
+expectType<Stream<number>>(
+  Stream.empty<number | undefined>().without([undefined])
+);
+expectType<Stream<number | undefined>>(
+  Stream.empty<number | undefined>().without([1])
+);
+expectType<Stream<1 | 3>>(
+  Stream.empty<1 | 2 | 3 | undefined>().without([undefined, 2])
 );

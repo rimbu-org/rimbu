@@ -91,17 +91,22 @@ export class TransformerFastIterator<T, R> extends FastIteratorBase<R> {
     }
 
     const done = Symbol('done');
-
     let nextValue: R | typeof done;
 
     while (
       undefined === this.#currentValues ||
       done === (nextValue = this.#currentValues.fastNext(done))
     ) {
+      if (this.transformerInstance.halted) {
+        this.#done = true;
+        return OptLazy(otherwise) as O;
+      }
+
       const nextSource = this.sourceIterator.fastNext(done);
 
       if (done === nextSource) {
         if (this.transformerInstance.halted) {
+          this.#done = true;
           return OptLazy(otherwise) as O;
         }
         this.#done = true;
@@ -146,7 +151,9 @@ export class ConcatIterator<T> extends FastIteratorBase<T> {
       let nextSource: StreamSource<T> = this.otherSources[this.sourceIndex++];
 
       while (streamSourceHelpers.isEmptyStreamSourceInstance(nextSource)) {
-        if (this.sourceIndex >= length) return OptLazy(otherwise) as O;
+        if (this.sourceIndex >= length) {
+          return OptLazy(otherwise) as O;
+        }
         nextSource = this.otherSources[this.sourceIndex++];
       }
 

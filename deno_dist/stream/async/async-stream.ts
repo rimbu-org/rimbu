@@ -4,9 +4,9 @@ import type {
   AsyncStreamable,
   AsyncTransformer,
   AsyncReducer,
-} from '@rimbu/stream';
-import type { AsyncStreamConstructors } from '@rimbu/stream/async-custom';
-import { AsyncStreamConstructorsImpl } from '@rimbu/stream/async-custom';
+} from '../../stream/mod.ts';
+import type { AsyncStreamConstructors } from '../../stream/async-custom/index.ts';
+import { AsyncStreamConstructorsImpl } from '../../stream/async-custom/index.ts';
 
 import type {
   ArrayNonEmpty,
@@ -16,7 +16,7 @@ import type {
   MaybePromise,
   ToJSON,
   TraverseState,
-} from '@rimbu/common';
+} from '../../common/mod.ts';
 
 /**
  * A possibly infinite asynchronous sequence of elements of type T.
@@ -246,7 +246,9 @@ export interface AsyncStream<T>
    * // => [[1, 2, 3], [4, 5, 6]]
    * ```
    */
-  transform<R>(transformer: AsyncTransformer.Accept<T, R>): AsyncStream<R>;
+  transform<R, T2 extends T = T>(
+    transformer: AsyncTransformer.Accept<T | T2, R>
+  ): AsyncStream<R>;
   /**
    * Returns an AsyncStream containing only those elements from this stream for which the given `pred` function returns true.
    * @param pred - a potentially asynchronous function taking an element and its index, and returning true if the element should be included in the resulting stream.
@@ -312,6 +314,20 @@ export interface AsyncStream<T>
     },
     ...args: A
   ): AsyncStream<T>;
+  /**
+   * Returns an AsyncStream containing only those elements that are in the given `values` array.
+   * @typeparam F - a subtype of T to indicate the resulting element type
+   * @param values - an array of values to include
+   */
+  withOnly<F extends T>(values: F[]): AsyncStream<F>;
+  /**
+   * Returns an AsyncStream containing all elements except the elements in the given `values` array.
+   * @typeparam F - a subtype of T to indicate the resulting element type
+   * @param values - an array of values to exclude
+   */
+  without<F extends T>(
+    values: F[]
+  ): AsyncStream<T extends Exclude<T, F> ? T : Exclude<T, F>>;
   /**
    * Returns an AsyncStream containing the resulting elements from applying the given `collectFun` to each element in this Stream.
    * @typeparam R - the resulting element type
@@ -863,11 +879,11 @@ export interface AsyncStream<T>
    * ```
    * @note O(1)
    */
-  splitWhere<R>(
+  splitWhere<R, T2 extends T = T>(
     pred: (value: T, index: number) => MaybePromise<boolean>,
     options: {
       negate?: boolean | undefined;
-      collector: AsyncReducer.Accept<T, R>;
+      collector: AsyncReducer.Accept<T | T2, R>;
     }
   ): AsyncStream<R>;
   splitWhere(
@@ -890,11 +906,11 @@ export interface AsyncStream<T>
    * @note O(1)
    */
   splitOn<R, T2 extends T = T>(
-    sepElem: T2,
+    sepElem: T,
     options?: {
-      eq?: Eq<T2> | undefined;
+      eq?: Eq<T> | undefined;
       negate?: boolean | undefined;
-      collector: AsyncReducer.Accept<T, R>;
+      collector: AsyncReducer.Accept<T | T2, R>;
     }
   ): AsyncStream<R>;
   splitOn(
@@ -920,14 +936,14 @@ export interface AsyncStream<T>
    * @note O(1)
    */
   splitOnSlice<R, T2 extends T = T>(
-    sepSlice: AsyncStreamSource<T & T2>,
+    sepSlice: AsyncStreamSource<T>,
     options: {
       eq?: Eq<T> | undefined;
-      collector: AsyncReducer.Accept<T & T2, R>;
+      collector: AsyncReducer.Accept<T | T2, R>;
     }
   ): AsyncStream<R>;
-  splitOnSlice<T2 extends T = T>(
-    sepSlice: AsyncStreamSource<T & T2>,
+  splitOnSlice(
+    sepSlice: AsyncStreamSource<T>,
     options?: { eq?: Eq<T> | undefined; collector?: undefined }
   ): AsyncStream<T[]>;
   /**
@@ -964,11 +980,11 @@ export interface AsyncStream<T>
    * // => [Set(1, 2), Set(3, 4)]
    * ```
    */
-  window<R>(
+  window<R, T2 extends T = T>(
     windowSize: number,
     options: {
       skipAmount?: number | undefined;
-      collector: AsyncReducer.Accept<T, R>;
+      collector: AsyncReducer.Accept<T | T2, R>;
     }
   ): AsyncStream<R>;
   window(
@@ -1002,11 +1018,11 @@ export interface AsyncStream<T>
       collectorFalse?: undefined;
     }
   ): Promise<[true: T2[], false: Exclude<T, T2>[]]>;
-  partition<RT, RF = RT>(
+  partition<RT, RF = RT, T2 extends T = T>(
     pred: (value: T, index: number) => MaybePromise<boolean>,
     options: {
-      collectorTrue: AsyncReducer.Accept<T, RT>;
-      collectorFalse: AsyncReducer.Accept<T, RF>;
+      collectorTrue: AsyncReducer.Accept<T | T2, RT>;
+      collectorFalse: AsyncReducer.Accept<T | T2, RF>;
     }
   ): Promise<[true: RT, false: RF]>;
   partition(
@@ -1032,10 +1048,10 @@ export interface AsyncStream<T>
    * // => Map {0 => [2], 1 => [1, 3]}
    * ```
    */
-  groupBy<K, R>(
+  groupBy<K, R, T2 extends readonly [K, T] = [K, T]>(
     valueToKey: (value: T, index: number) => MaybePromise<K>,
     options: {
-      collector: AsyncReducer.Accept<[K, T], R>;
+      collector: AsyncReducer.Accept<[K, T] | T2, R>;
     }
   ): Promise<R>;
   groupBy<K>(
@@ -1119,7 +1135,9 @@ export interface AsyncStream<T>
    * // => 8
    * ```
    */
-  reduce<R>(reducer: AsyncReducer.Accept<T, R>): Promise<R>;
+  reduce<R, T2 extends T = T>(
+    reducer: AsyncReducer.Accept<T | T2, R>
+  ): Promise<R>;
   /**
    * Applies the given combined `(Async)Reducer` to each element in the AsyncStream, and returns the final result.
    * @typeparam S - a shape defining a combined reducer definition
@@ -1153,7 +1171,9 @@ export interface AsyncStream<T>
    * // => [1, 2, 8]
    * ```
    */
-  reduceStream<R>(reducer: AsyncReducer.Accept<T, R>): AsyncStream<R>;
+  reduceStream<R, T2 extends T = T>(
+    reducer: AsyncReducer.Accept<T | T2, R>
+  ): AsyncStream<R>;
   /**
    * Returns an AsyncStream where the given shape containing `AsyncReducers` is applied to each element in the stream.
    * @typeparam S - the reducer shape type
@@ -1345,10 +1365,12 @@ export namespace AsyncStream {
      * // => [[1, 2, 3], [4, 5, 6]]
      * ```
      */
-    transform<R>(
-      transformer: AsyncTransformer.AcceptNonEmpty<T, R>
+    transform<R, T2 extends T = T>(
+      transformer: AsyncTransformer.AcceptNonEmpty<T | T2, R>
     ): AsyncStream.NonEmpty<R>;
-    transform<R>(transformer: AsyncTransformer.Accept<T, R>): AsyncStream<R>;
+    transform<R, T2 extends T = T>(
+      transformer: AsyncTransformer.Accept<T | T2, R>
+    ): AsyncStream<R>;
     /**
      * Returns the first element of the AsyncStream.
      * @example

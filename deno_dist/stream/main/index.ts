@@ -14,7 +14,7 @@ export * from './fast-iterable.ts';
 export * from './streamable.ts';
 export * from './stream-source.ts';
 
-export * from './interface.ts';
+export * from './stream.ts';
 
 export * from './reducer.ts';
 export * from './transformer.ts';

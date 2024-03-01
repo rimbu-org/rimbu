@@ -1,7 +1,15 @@
 import { AsyncStream, Reducer } from '@rimbu/stream';
-import { expectAssignable, expectType } from 'tsd';
+import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
 
 import { AsyncReducer } from '../src/main/index.mjs';
+
+// Variance
+expectAssignable<AsyncReducer<number, boolean | string>>(
+  null as any as AsyncReducer<number, boolean>
+);
+expectNotAssignable<AsyncReducer<number | string, boolean>>(
+  null as any as AsyncReducer<number, boolean>
+);
 
 // AsyncReducer.combine shapes
 expectType<AsyncReducer<number, [number[], number]>>(
@@ -30,7 +38,7 @@ expectAssignable<Promise<{ a: number[]; s: number }>>(
   )
 );
 
-// AsyncReducer.combineFirstDone
+// AsyncReducer.race
 expectType<AsyncReducer<number, number | undefined>>(
   AsyncReducer.race([Reducer.sum, Reducer.product])
 );
@@ -62,17 +70,27 @@ expectType<AsyncReducer<number, [Set<number>, string]>>(
   })
 );
 
+expectType<AsyncReducer<number | string, [number[], string[]]>>(
+  AsyncReducer.partition((v): v is number => true)
+);
+expectType<AsyncReducer<number | string, [Set<number>, string]>>(
+  AsyncReducer.partition((v: number | string): v is number => true, {
+    collectorTrue: Reducer.toJSSet<number>(),
+    collectorFalse: Reducer.join<string>(),
+  })
+);
+
 // AsyncReducer methods
 
 // .chain()
 expectType<Promise<number>>(
   AsyncStream.of(1, 2, 3).reduce(
-    AsyncReducer.first<number>().chain(AsyncReducer.min(5))
+    AsyncReducer.first<number>().chain([AsyncReducer.min(5)])
   )
 );
-expectType<Promise<number[]>>(
+expectType<Promise<number>>(
   AsyncStream.of(1, 2, 3).reduce(
-    AsyncReducer.first<number>().chain(Reducer.sum, Reducer.toArray<number>())
+    AsyncReducer.first<number>().chain([Reducer.sum, Reducer.count])
   )
 );
 
@@ -149,15 +167,12 @@ expectType<AsyncReducer<string, number>>(
 // .pipe()
 expectType<Promise<string>>(
   AsyncStream.of(1, 2, 3).reduce(
-    AsyncReducer.from(Reducer.sum).pipe(Reducer.join<number>())
+    AsyncReducer.pipe(Reducer.sum, Reducer.join<number>())
   )
 );
 expectType<Promise<boolean>>(
   AsyncStream.of(1, 2, 3).reduce(
-    AsyncReducer.from(Reducer.sum).pipe(
-      Reducer.toArray<number>(),
-      Reducer.nonEmpty
-    )
+    AsyncReducer.pipe(Reducer.sum, Reducer.toArray<number>(), Reducer.nonEmpty)
   )
 );
 

@@ -968,7 +968,7 @@ export class TableContext<
 
   readonly reducer = <R extends UR, C extends UC, V>(
     source?: StreamSource<readonly [R, C, V]>
-  ): Reducer<[R, C, V], WithRow<Tp, R, C, V>['normal']> => {
+  ): Reducer<readonly [R, C, V], WithRow<Tp, R, C, V>['normal']> => {
     return Reducer.create(
       () =>
         undefined === source

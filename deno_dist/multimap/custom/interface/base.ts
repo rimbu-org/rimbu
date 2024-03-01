@@ -590,7 +590,7 @@ export namespace MultiMapBase {
      */
     reducer<K extends UK, V extends UV>(
       source?: StreamSource<readonly [K, V]>
-    ): Reducer<[K, V], WithKeyValue<Tp, K, V>['normal']>;
+    ): Reducer<readonly [K, V], WithKeyValue<Tp, K, V>['normal']>;
   }
 
   /**

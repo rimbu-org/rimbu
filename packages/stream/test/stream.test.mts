@@ -650,6 +650,24 @@ describe('Stream methods', () => {
     });
   });
 
+  it('withOnly', () => {
+    const s3 = Stream.of(1, 2, 3);
+
+    expect(s3.withOnly([])).toBe(s3);
+    expect(s3.withOnly([1, 2, 3]).toArray()).toEqual([1, 2, 3]);
+    expect(s3.withOnly([2]).toArray()).toEqual([2]);
+    expect(s3.withOnly([4]).toArray()).toEqual([]);
+  });
+
+  it('without', () => {
+    const s3 = Stream.of(1, 2, 3);
+
+    expect(s3.without([])).toBe(s3);
+    expect(s3.without([1, 2, 3]).toArray()).toEqual([]);
+    expect(s3.without([2]).toArray()).toEqual([1, 3]);
+    expect(s3.without([4]).toArray()).toEqual([1, 2, 3]);
+  });
+
   it('collect', () => {
     expect(Stream.empty<number>().collect((v) => v + 1)).toBe(Stream.empty());
     expect(
