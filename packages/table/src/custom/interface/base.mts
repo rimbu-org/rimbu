@@ -726,7 +726,7 @@ export namespace TableBase {
      */
     reducer<R extends UR, C extends UC, V>(
       source?: StreamSource<readonly [R, C, V]>
-    ): Reducer<[R, C, V], WithRow<Tp, R, C, V>['normal']>;
+    ): Reducer<readonly [R, C, V], WithRow<Tp, R, C, V>['normal']>;
   }
 
   export interface Context<UR, UC, Tp extends TableBase.Types = TableBase.Types>

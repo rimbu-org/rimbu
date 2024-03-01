@@ -194,7 +194,7 @@ export namespace Reducer {
      * // this reducer will double all input values before summing them
      * ```
      */
-    mapInput<I2>(mapFun: (value: I2, index: number) => I): Reducer<I2, O>;
+    mapInput: <I2>(mapFun: (value: I2, index: number) => I) => Reducer<I2, O>;
     /**
      * Returns a `Reducer` instance that converts each output value from some source reducer into an arbitrary number of output values
      * using given `flatMapFun` before passing them to this reducer.
@@ -238,7 +238,9 @@ export namespace Reducer {
      * // this reducer will convert all its results to string before returning them
      * ```
      */
-    mapOutput<O2>(mapFun: (value: O) => O2): Reducer<I, O2>;
+    mapOutput<O2>(
+      mapFun: (value: O, index: number, halted: boolean) => O2
+    ): Reducer<I, O2>;
     /**
      * Returns a `Reducer` instance that takes at most the given `amount` of input elements, and will ignore subsequent elements.
      * @param amount - the amount of elements to accept
@@ -290,55 +292,8 @@ export namespace Reducer {
       options?: { negate?: boolean }
     ): Reducer<I, O>;
     /**
-     * Returns a `Reducer` instance that first applies this reducer, and then applies the given `next` reducer to each output produced
-     * by the previous reducer.
-     * @typeparam O1 - the output type of the `nextReducer1` reducer
-     * @typeparam O2 - the output type of the `nextReducer2` reducer
-     * @typeparam O3 - the output type of the `nextReducer3` reducer
-     * @typeparam O4 - the output type of the `nextReducer4` reducer
-     * @typeparam O5 - the output type of the `nextReducer5` reducer
-     * @param nextReducer1 - the next reducer to apply to each output of this reducer.
-     * @param nextReducer2 - (optional) the next reducer to apply to each output of this reducer.
-     * @param nextReducer3 - (optional) the next reducer to apply to each output of this reducer.
-     * @param nextReducer4 - (optional) the next reducer to apply to each output of this reducer.
-     * @param nextReducer5 - (optional) the next reducer to apply to each output of this reducer.
-     * @example
-     * ```ts
-     * Stream.of(1, 2, 3)
-     *  .reduce(
-     *    Reducer.product
-     *      .pipe(Reducer.sum)
-     *    )
-     * // => 9
-     * ```
-     */
-    pipe<O1>(nextReducer1: Reducer<O, O1>): Reducer<I, O1>;
-    pipe<O1, O2>(
-      nextReducer1: Reducer<O, O1>,
-      nextReducer2: Reducer<O1, O2>
-    ): Reducer<I, O2>;
-    pipe<O1, O2, O3>(
-      nextReducer1: Reducer<O, O1>,
-      nextReducer2: Reducer<O1, O2>,
-      nextReducer3: Reducer<O2, O3>
-    ): Reducer<I, O3>;
-    pipe<O1, O2, O3, O4>(
-      nextReducer1: Reducer<O, O1>,
-      nextReducer2: Reducer<O1, O2>,
-      nextReducer3: Reducer<O2, O3>,
-      nextReducer4: Reducer<O3, O4>
-    ): Reducer<I, O4>;
-    pipe<O1, O2, O3, O4, O5>(
-      nextReducer1: Reducer<O, O1>,
-      nextReducer2: Reducer<O1, O2>,
-      nextReducer3: Reducer<O2, O3>,
-      nextReducer4: Reducer<O3, O4>,
-      nextReducer5: Reducer<O4, O5>
-    ): Reducer<I, O5>;
-    /**
-     * Returns a reducer that applies the given `nextReducers` sequentially after this reducer
-     * has halted, and moving on to the next provided reducer until it is halted. Optionally, it provides the last output
-     * value of the previous reducer.
+     * Returns a reducer that applies this reducer and then the `nextReducers` sequentially on halting of each reducer.
+     * It provides the last output value of the active reducer.
      * @param nextReducers - an number of reducers consuming and producing the same types as the current reducer.
      * @example
      * ```ts
@@ -347,36 +302,16 @@ export namespace Reducer {
      *    Reducer.sum
      *      .takeInput(3)
      *      .chain(
-     *        v => v > 10 ? Reducer.product : Reducer.sum
+     *        [v => v > 10 ? Reducer.product : Reducer.sum]
      *      )
      *    )
      * console.log(result)
      * // => 21
      * ```
      */
-    chain<O1>(nextReducer1: OptLazy<Reducer<I, O1>, [O]>): Reducer<I, O1>;
-    chain<O1, O2>(
-      nextReducer1: OptLazy<Reducer<I, O1>, [O]>,
-      nextReducer2: OptLazy<Reducer<I, O2>, [O1]>
+    chain<O2 extends O>(
+      nextReducers: StreamSource<OptLazy<Reducer<I, O2>, [O2]>>
     ): Reducer<I, O2>;
-    chain<O1, O2, O3>(
-      nextReducer1: OptLazy<Reducer<I, O1>, [O]>,
-      nextReducer2: OptLazy<Reducer<I, O2>, [O1]>,
-      nextReducer3: OptLazy<Reducer<I, O3>, [O2]>
-    ): Reducer<I, O3>;
-    chain<O1, O2, O3, O4>(
-      nextReducer1: OptLazy<Reducer<I, O1>, [O]>,
-      nextReducer2: OptLazy<Reducer<I, O2>, [O1]>,
-      nextReducer3: OptLazy<Reducer<I, O3>, [O2]>,
-      nextReducer4: OptLazy<Reducer<I, O4>, [O3]>
-    ): Reducer<I, O4>;
-    chain<O1, O2, O3, O4, O5>(
-      nextReducer1: OptLazy<Reducer<I, O1>, [O]>,
-      nextReducer2: OptLazy<Reducer<I, O2>, [O1]>,
-      nextReducer3: OptLazy<Reducer<I, O3>, [O2]>,
-      nextReducer4: OptLazy<Reducer<I, O4>, [O3]>,
-      nextReducer5: OptLazy<Reducer<I, O5>, [O4]>
-    ): Reducer<I, O5>;
     /**
      * Returns a 'runnable' instance of the current reducer specification. This instance maintains its own state
      * and indices, so that the instance only needs to be provided the input values, and output values can be
@@ -391,7 +326,6 @@ export namespace Reducer {
      * // => 16
      * ```
      */
-
     compile(): Reducer.Instance<I, O>;
   }
 
@@ -411,10 +345,10 @@ export namespace Reducer {
     filterInput(
       pred: (value: I, index: number, halt: () => void) => boolean,
       options: { negate?: boolean | undefined } = {}
-    ): Reducer<never, O> {
+    ): any {
       const { negate = false } = options;
 
-      return create(
+      return create<I, O, Reducer.Instance<I, O>>(
         () => this.compile(),
         (state, elem, index, halt) => {
           if (pred(elem, index, halt) !== negate) {
@@ -491,12 +425,14 @@ export namespace Reducer {
       );
     }
 
-    mapOutput<O2>(mapFun: (value: O) => O2): Reducer<I, O2> {
+    mapOutput<O2>(
+      mapFun: (value: O, index: number, halted: boolean) => O2
+    ): Reducer<I, O2> {
       return create(
         this.init,
         this.next,
         (state, index, halted): O2 =>
-          mapFun(this.stateToResult(state, index, halted))
+          mapFun(this.stateToResult(state, index, halted), index, halted)
       );
     }
 
@@ -577,80 +513,57 @@ export namespace Reducer {
       return this.takeInput(amount).dropInput(from);
     }
 
-    pipe<O2>(...nextReducers: Reducer<O, O2>[]): Reducer<I, O2> {
-      if (nextReducers.length <= 0) {
-        return this as any;
-      }
-
-      const [nextReducer, ...others] = nextReducers as Reducer<any, any>[];
-
-      if (others.length > 0) {
-        return (this.pipe(nextReducer).pipe as any)(...others);
-      }
-
+    chain<O2 extends O>(
+      nextReducers: StreamSource<OptLazy<Reducer<I, O2>, [O2]>>
+    ): Reducer<I, O2> {
       return Reducer.create(
-        (initHalt) => {
-          const thisInstance = this.compile();
-          const nextInstance = nextReducer.compile();
+        (
+          initHalt
+        ): {
+          activeInstance: Reducer.Instance<I, O2>;
+          iterator: FastIterator<OptLazy<Reducer<I, O2>, [O2]>>;
+        } => {
+          const iterator = Stream.from(nextReducers)[Symbol.iterator]();
+          let activeInstance = this.compile() as Reducer.Instance<I, O2>;
 
-          if (thisInstance.halted || nextInstance.halted) {
-            initHalt();
+          if (undefined !== activeInstance && activeInstance.halted) {
+            let output = activeInstance.getOutput();
+
+            do {
+              const creator = iterator.fastNext();
+
+              if (undefined === creator) {
+                initHalt();
+
+                return {
+                  activeInstance,
+                  iterator,
+                };
+              }
+              activeInstance = OptLazy(creator, output).compile();
+              output = activeInstance.getOutput();
+            } while (activeInstance.halted);
           }
 
           return {
-            thisInstance,
-            nextInstance,
+            activeInstance,
+            iterator,
           };
         },
         (state, next, index, halt) => {
-          const { thisInstance, nextInstance } = state;
+          state.activeInstance.next(next);
 
-          thisInstance.next(next);
-          nextInstance.next(thisInstance.getOutput());
-
-          if (thisInstance.halted || nextInstance.halted) {
-            halt();
-          }
-
-          return state;
-        },
-        (state, index, halted) => {
-          if (halted && index === 0) {
-            state.nextInstance.next(state.thisInstance.getOutput());
-          }
-
-          return state.nextInstance.getOutput();
-        }
-      );
-    }
-
-    chain(...nextReducers: OptLazy<Reducer<I, any>, [any]>[]): Reducer<I, O> {
-      return Reducer.create(
-        () => ({
-          activeIndex: -1,
-          activeInstance: this.compile() as Reducer.Instance<I, O>,
-        }),
-        (state, next, index, halt) => {
           while (state.activeInstance.halted) {
-            if (state.activeIndex >= nextReducers.length - 1) {
+            const output = state.activeInstance.getOutput();
+            const creator = state.iterator.fastNext();
+
+            if (undefined === creator) {
+              halt();
+
               return state;
             }
 
-            const nextReducer = OptLazy(
-              nextReducers[++state.activeIndex],
-              state.activeInstance.getOutput()
-            );
-
-            state.activeInstance = nextReducer.compile();
-          }
-
-          state.activeInstance.next(next);
-
-          if (
-            state.activeInstance.halted &&
-            state.activeIndex >= nextReducers.length - 1
-          ) {
-            halt();
+            state.activeInstance = OptLazy(creator, output).compile();
           }
 
           return state;
@@ -1241,11 +1154,11 @@ export namespace Reducer {
    * // => true
    * ```
    */
-  export function contains<T>(
-    elem: T,
+  export function contains<T, T2 extends T = T>(
+    elem: T2,
     options: {
       amount?: number;
-      eq?: Eq<T>;
+      eq?: Eq<T | T2>;
       negate?: boolean;
     } = {}
   ): Reducer<T, boolean> {
@@ -1409,7 +1322,8 @@ export namespace Reducer {
   ): Reducer<T, boolean> {
     const { eq, amount = 1 } = options;
 
-    return endsWithSlice(slice, { eq }).pipe(
+    return Reducer.pipe(
+      endsWithSlice(slice, { eq }),
       Reducer.contains(true, { amount })
     );
   }
@@ -1557,17 +1471,18 @@ export namespace Reducer {
     ): Reducer<T, [true: T[], false: T[]]>;
   } = <T, RT, RF = RT>(
     pred: (value: T, index: number) => boolean,
-    options: {
-      collectorTrue?: Reducer<T, RT> | undefined;
-      collectorFalse?: Reducer<T, RF> | undefined;
-    } = {}
-  ): Reducer<T, [true: RT, false: RF]> => {
-    const {
-      collectorTrue = Reducer.toArray() as Reducer<T, RT>,
-      collectorFalse = Reducer.toArray() as Reducer<T, RF>,
-    } = options;
+    options: any = {}
+  ): any => {
+    const collectorTrue: Reducer<T, RT> =
+      options.collectorTrue ?? Reducer.toArray();
+    const collectorFalse: Reducer<T, RF> =
+      options.collectorFalse ?? Reducer.toArray();
 
-    return Reducer.create(
+    return Reducer.create<
+      T,
+      [RT, RF],
+      [Reducer.Instance<T, RT>, Reducer.Instance<T, RF>]
+    >(
       () => [collectorTrue.compile(), collectorFalse.compile()],
       (state, value, index) => {
         const instanceIndex = pred(value, index) ? 0 : 1;
@@ -1597,10 +1512,10 @@ export namespace Reducer {
    * ```
    */
   export const groupBy: {
-    <T, K, R>(
+    <T, K, R, T2 extends readonly [K, T] = [K, T]>(
       valueToKey: (value: T, index: number) => K,
       options: {
-        collector: Reducer<[K, T], R>;
+        collector: Reducer<[K, T] | T2, R>;
       }
     ): Reducer<T, R>;
     <T, K>(
@@ -1612,11 +1527,12 @@ export namespace Reducer {
   } = <T, K, R>(
     valueToKey: (value: T, index: number) => K,
     options: {
-      collector?: Reducer<[K, T], R> | undefined;
+      collector?: Reducer<readonly [K, T], R> | undefined;
     } = {}
   ): Reducer<T, R> => {
-    const { collector = Reducer.toJSMultiMap() as Reducer<[K, T], R> } =
-      options;
+    const {
+      collector = Reducer.toJSMultiMap() as Reducer<readonly [K, T], R>,
+    } = options;
 
     return Reducer.create(
       () => collector.compile(),
@@ -1729,7 +1645,7 @@ export namespace Reducer {
    * // Map { 1 => 'a', 2 => 'b' }
    * ```
    */
-  export function toJSMap<K, V>(): Reducer<[K, V], Map<K, V>> {
+  export function toJSMap<K, V>(): Reducer<readonly [K, V], Map<K, V>> {
     return create(
       (): Map<K, V> => new Map(),
       (state, next): Map<K, V> => {
@@ -1751,7 +1667,7 @@ export namespace Reducer {
    * // Map { 1 => 'a', 2 => 'b' }
    * ```
    */
-  export function toJSMultiMap<K, V>(): Reducer<[K, V], Map<K, V[]>> {
+  export function toJSMultiMap<K, V>(): Reducer<readonly [K, V], Map<K, V[]>> {
     return create(
       (): Map<K, V[]> => new Map(),
       (state, [key, value]) => {
@@ -1817,27 +1733,29 @@ export namespace Reducer {
    * Type defining the allowed shape of reducer combinations.
    * @typeparam T - the input type
    */
-  export type CombineShape<T = unknown> =
-    | Reducer<T, unknown>
-    | CombineShape<T>[]
-    | { [key: string]: CombineShape<T> };
+  export type CombineShape<T> =
+    | Reducer<T, any>
+    | Reducer.CombineShape<T>[]
+    | { [key: string]: Reducer.CombineShape<T> };
 
   /**
    * Type defining the result type of a reducer combination for a given shape.
    * @typeparam S - the reducer combination shape
    */
-  export type CombineResult<S extends CombineShape> =
-    /* tuple */ S extends readonly CombineShape[]
+  export type CombineResult<S extends Reducer.CombineShape<any>> =
+    /* tuple */ S extends readonly Reducer.CombineShape<any>[]
       ? /* is array? */ 0 extends S['length']
-        ? /* no support for arrays */ never
+        ? Reducer.CombineResult<S[number]>[]
         : /* only tuples */ {
-            [K in keyof S]: S[K] extends CombineShape
-              ? CombineResult<S[K]>
+            [K in keyof S]: S[K] extends Reducer.CombineShape<any>
+              ? Reducer.CombineResult<S[K]>
               : never;
           }
-      : /* plain object */ S extends { [key: string]: CombineShape }
-      ? { [K in keyof S]: CombineResult<S[K]> }
-      : /* simple reducer */ S extends Reducer<unknown, infer R>
+      : /* plain object */ S extends {
+          [key: string]: Reducer.CombineShape<any>;
+        }
+      ? { [K in keyof S]: Reducer.CombineResult<S[K]> }
+      : /* simple reducer */ S extends Reducer<any, infer R>
       ? R
       : never;
 
@@ -1890,4 +1808,99 @@ export namespace Reducer {
 
     throw new Reducer.InvalidCombineShapeError();
   }
+
+  /**
+   * Returns a `Reducer` instance that first applies this reducer, and then applies the given `next` reducer to each output produced
+   * by the previous reducer.
+   * @typeparam I - the input type of the `reducer1` reducer
+   * @typeparam O1 - the output type of the `reducer1` reducer
+   * @typeparam O2 - the output type of the `reducer2` reducer
+   * @typeparam O3 - the output type of the `reducer3` reducer
+   * @typeparam O4 - the output type of the `reducer4` reducer
+   * @typeparam O5 - the output type of the `reducer5` reducer
+   * @param reducer1 - the next reducer to apply to each output of this reducer.
+   * @param reducer2 - (optional) the next reducer to apply to each output of this reducer.
+   * @param reducer3 - (optional) the next reducer to apply to each output of this reducer.
+   * @param reducer4 - (optional) the next reducer to apply to each output of this reducer.
+   * @param reducer5 - (optional) the next reducer to apply to each output of this reducer.
+   * @example
+   * ```ts
+   * Stream.of(1, 2, 3)
+   *  .reduce(
+   *    Reducer.pipe(Reducer.product, Reducer.sum)
+   *  )
+   * // => 9
+   * ```
+   */
+  export const pipe: {
+    <I, O1, O2>(reducer1: Reducer<I, O1>, reducer2: Reducer<O1, O2>): Reducer<
+      I,
+      O2
+    >;
+    <I, O1, O2, O3>(
+      reducer1: Reducer<I, O1>,
+      reducer2: Reducer<O1, O2>,
+      reducer3: Reducer<O2, O3>
+    ): Reducer<I, O3>;
+    <I, O1, O2, O3, O4>(
+      reducer1: Reducer<I, O1>,
+      reducer2: Reducer<O1, O2>,
+      reducer3: Reducer<O2, O3>,
+      reducer4: Reducer<O2, O4>
+    ): Reducer<I, O4>;
+    <I, O1, O2, O3, O4, O5>(
+      reducer1: Reducer<I, O1>,
+      reducer2: Reducer<O1, O2>,
+      reducer3: Reducer<O2, O3>,
+      reducer4: Reducer<O2, O4>,
+      reducer5: Reducer<O2, O5>
+    ): Reducer<I, O5>;
+  } = (...nextReducers: Reducer<any, any>[]): any => {
+    if (nextReducers.length < 2) {
+      RimbuError.throwInvalidUsageError(
+        'Reducer.pipe should have at least two arguments'
+      );
+    }
+
+    const [current, next, ...others] = nextReducers as Reducer<any, any>[];
+
+    if (others.length > 0) {
+      return Reducer.pipe(current, (Reducer.pipe as any)(next, ...others));
+    }
+
+    return Reducer.create(
+      (inithalt) => {
+        const currentInstance = current.compile();
+        const nextInstance = next.compile();
+
+        if (currentInstance.halted || nextInstance.halted) {
+          inithalt();
+        }
+
+        return {
+          currentInstance,
+          nextInstance,
+        };
+      },
+      (state, next, index, halt) => {
+        const { currentInstance, nextInstance } = state;
+
+        currentInstance.next(next);
+        nextInstance.next(currentInstance.getOutput());
+
+        if (currentInstance.halted || nextInstance.halted) {
+          halt();
+        }
+
+        return state;
+      },
+      (state, index, halted) => {
+        if (halted && index === 0) {
+          state.nextInstance.next(state.currentInstance.getOutput());
+        }
+
+        return state.nextInstance.getOutput();
+      }
+    );
+  };
 }

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@2.0.0...@rimbu/stream@2.1.0) (2024-02-14)
+
+### Bug Fixes
+
+- **stream:** extend test set and fix incorrect logic ([59065eb](https://github.com/rimbu-org/rimbu/commit/59065eb598e2908aed8c188aa5822d6990416c22))
+
+### Features
+
+- refactor Stream package, add more reducers and Stream methods ([6840c4f](https://github.com/rimbu-org/rimbu/commit/6840c4f28bf45767bd3019835b3abbaa51ccf311))
+- **stream:** add transformers and refactor stream ([7b32e14](https://github.com/rimbu-org/rimbu/commit/7b32e14b07e4d6670a192b06fc8ed0225a79b573))
+
 # [2.0.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@1.1.1...@rimbu/stream@2.0.0) (2024-01-26)
 
 ### Features

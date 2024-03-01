@@ -190,10 +190,10 @@ export namespace Transformer {
   } = <T, TF>(
     pred: (value: T, index: number, halt: () => void) => boolean,
     options: { negate?: boolean | undefined } = {}
-  ): Transformer<never> => {
+  ): any => {
     const { negate = false } = options;
 
-    return flatMap((value, index, halt) =>
+    return flatMap<T, T>((value, index, halt) =>
       pred(value, index, halt) !== negate ? Stream.of(value) : Stream.empty()
     );
   };

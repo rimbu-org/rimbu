@@ -191,6 +191,8 @@ expectError(AsyncStream.zipAllWith());
 //   AsyncStream.zipAllWith(true, (a, b) => [a, true, b], AsyncStream.empty<number>(), AsyncStream.of('a'))
 // );
 
+// AsyncStream methods
+
 // .assumeNonEmpty()
 expectType<AsyncStream.NonEmpty<number>>(
   AsyncStream.empty<number>().assumeNonEmpty()
@@ -627,6 +629,7 @@ expectType<boolean>(
   await AsyncStream.empty<number>().reduce(AsyncReducer.isEmpty)
 );
 expectType<boolean>(await AsyncStream.of(1).reduce(AsyncReducer.isEmpty));
+expectError(AsyncStream.empty<number | boolean>().reduce([Reducer.sum]));
 
 // .reduce(..) shape
 expectType<[boolean, number, string]>(
@@ -706,3 +709,25 @@ expectType<ArrayNonEmpty<number>>(await AsyncStream.of(1).toArray());
 // .equals()
 expectType<boolean>(await AsyncStream.empty<number>().equals([1, 2]));
 expectType<boolean>(await AsyncStream.of(1, 2).equals([1, 2]));
+
+// .withOnly(...)
+expectType<AsyncStream<undefined>>(
+  AsyncStream.empty<number | undefined>().withOnly([undefined])
+);
+expectType<AsyncStream<1>>(
+  AsyncStream.empty<number | undefined>().withOnly([1])
+);
+expectType<AsyncStream<1 | 2>>(
+  AsyncStream.empty<number | undefined>().withOnly([1, 2])
+);
+
+// .without(...)
+expectType<AsyncStream<number>>(
+  AsyncStream.empty<number | undefined>().without([undefined])
+);
+expectType<AsyncStream<number | undefined>>(
+  AsyncStream.empty<number | undefined>().without([1])
+);
+expectType<AsyncStream<1 | 3>>(
+  AsyncStream.empty<1 | 2 | 3 | undefined>().without([undefined, 2])
+);

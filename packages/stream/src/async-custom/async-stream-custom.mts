@@ -181,6 +181,26 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     return new AsyncFilterPureStream<T, A>(this, pred, args, negate);
   }
 
+  withOnly<F extends T>(values: F[]): AsyncStream<F> {
+    if (values.length <= 0) {
+      return this as any;
+    }
+
+    const set = new Set<T>(values);
+
+    return this.filterPure({ pred: (v) => set.has(v) });
+  }
+
+  without<F extends T>(values: F[]): any {
+    if (values.length <= 0) {
+      return this as any;
+    }
+
+    const set = new Set<T>(values);
+
+    return this.filterPure({ pred: (v) => set.has(v), negate: true });
+  }
+
   map<T2>(
     mapFun: (value: T, index: number) => MaybePromise<T2>
   ): AsyncStream<T2> {
@@ -757,7 +777,9 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 
   groupBy<K, R>(
     valueToKey: (value: T, index: number) => MaybePromise<K>,
-    options: { collector?: AsyncReducer.Accept<[K, T], R> | undefined } = {}
+    options: {
+      collector?: AsyncReducer.Accept<readonly [K, T], R> | undefined;
+    } = {}
   ): Promise<R> {
     return (this as AsyncStream<T>).reduce(
       AsyncReducer.groupBy<T, K, R>(valueToKey, options as any)

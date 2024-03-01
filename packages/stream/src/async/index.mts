@@ -11,7 +11,7 @@ export * from './async-fast-iterator.mjs';
 export * from './async-fast-iterable.mjs';
 export * from './async-streamable.mjs';
 
-export * from './interface.mjs';
+export * from './async-stream.mjs';
 
 export * from './async-reducer.mjs';
 export * from './async-transformer.mjs';

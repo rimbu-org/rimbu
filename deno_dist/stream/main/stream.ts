@@ -234,7 +234,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * // => [[1, 2, 3], [4, 5, 6]]
    * ```
    */
-  transform<R>(transformer: Transformer<T, R>): Stream<R>;
+  transform<R, T2 extends T = T>(
+    transformer: Transformer<T | T2, R>
+  ): Stream<R>;
   /**
    * Returns a Stream containing only those elements from this Stream for which the given `pred` function returns true.
    * @param pred - a function taking an element and its index, and returning true if the element should be included in the resulting Stream.
@@ -296,6 +298,20 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
     },
     ...args: A
   ): Stream<T>;
+  /**
+   * Returns a Stream containing only those elements that are in the given `values` array.
+   * @typeparam F - a subtype of T to indicate the resulting element type
+   * @param values - an array of values to include
+   */
+  withOnly<F extends T>(values: F[]): Stream<F>;
+  /**
+   * Returns a Stream containing all elements except the elements in the given `values` array.
+   * @typeparam F - a subtype of T to indicate the resulting element type
+   * @param values - an array of values to exclude
+   */
+  without<F extends T>(
+    values: F[]
+  ): Stream<T extends Exclude<T, F> ? T : Exclude<T, F>>;
   /**
    * Returns a Stream containing the resulting elements from applying the given `collectFun` to each element in this Stream.
    * @typeparam R - the result element type
@@ -739,7 +755,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * @param otherwise - (default: undefined) the value to return if the Stream is empty
    * @example
    * ```ts
-   * Stream.of(5, 1, 3).max()         // => 1
+   * Stream.of(5, 1, 3).max()         // => 5
    * Stream.empty<number>().max()     // => undefined
    * Stream.empty<number>().max('a')  // => 'a'
    * ```
@@ -830,9 +846,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * ```
    * @note O(1)
    */
-  splitWhere<R>(
+  splitWhere<R, T2 extends T = T>(
     pred: (value: T, index: number) => boolean,
-    options: { negate?: boolean | undefined; collector: Reducer<T, R> }
+    options: { negate?: boolean | undefined; collector: Reducer<T | T2, R> }
   ): Stream<R>;
   splitWhere(
     pred: (value: T, index: number) => boolean,
@@ -854,13 +870,13 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * @note O(1)
    */
   splitOn<R, T2 extends T = T>(
-    sepElem: T2,
+    sepElem: T,
     options: {
-      eq?: Eq<T2> | undefined;
+      eq?: Eq<T> | undefined;
       negate?: boolean | undefined;
-      collector: Reducer<T, R>;
+      collector: Reducer<T | T2, R>;
     }
-  ): Stream<T[]>;
+  ): Stream<R>;
   splitOn(
     sepElem: T,
     options?: {
@@ -884,11 +900,11 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * @note O(1)
    */
   splitOnSlice<R, T2 extends T = T>(
-    sepSlice: StreamSource<T & T2>,
-    options: { eq?: Eq<T> | undefined; collector: Reducer<T & T2, R> }
+    sepSlice: StreamSource<T>,
+    options: { eq?: Eq<T> | undefined; collector: Reducer<T | T2, R> }
   ): Stream<R>;
-  splitOnSlice<T2 extends T = T>(
-    sepSlice: StreamSource<T & T2>,
+  splitOnSlice(
+    sepSlice: StreamSource<T>,
     options?: { eq?: Eq<T> | undefined; collector?: undefined }
   ): Stream<T[]>;
   /**
@@ -925,11 +941,11 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * // => [Set(1, 2), Set(3, 4)]
    * ```
    */
-  window<R>(
+  window<R, T2 extends T = T>(
     windowSize: number,
     options: {
       skipAmount?: number | undefined;
-      collector: Reducer<T, R>;
+      collector: Reducer<T | T2, R>;
     }
   ): Stream<R>;
   window(
@@ -963,11 +979,11 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
       collectorFalse?: undefined;
     }
   ): [true: T2[], false: Exclude<T, T2>[]];
-  partition<RT, RF>(
+  partition<RT, RF, T2 extends T = T>(
     pred: (value: T, index: number) => boolean,
     options: {
-      collectorTrue: Reducer<T, RT>;
-      collectorFalse: Reducer<T, RF>;
+      collectorTrue: Reducer<T | T2, RT>;
+      collectorFalse: Reducer<T | T2, RF>;
     }
   ): [true: RT, false: RF];
   partition(
@@ -993,10 +1009,10 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * // => Map {0 => [2], 1 => [1, 3]}
    * ```
    */
-  groupBy<K, R>(
+  groupBy<K, R, T2 extends readonly [K, T] = [K, T]>(
     valueToKey: (value: T, index: number) => K,
     options: {
-      collector: Reducer<[K, T], R>;
+      collector: Reducer<[K, T] | T2, R>;
     }
   ): R;
   groupBy<K>(
@@ -1069,7 +1085,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * // => 8
    * ```
    */
-  reduce<R>(reducer: Reducer<T, R>): R;
+  reduce<R, T2 = T>(reducer: Reducer<T | T2, R>): R;
   /**
    * Applies the given combined `Reducer` to each element in the Stream, and returns the final result.
    * @typeparam S - a shape defining a combined reducer definition
@@ -1103,7 +1119,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * // => [1, 2, 8]
    * ```
    */
-  reduceStream<R>(reducer: Reducer<T, R>): Stream<R>;
+  reduceStream<R, T2 = T>(reducer: Reducer<T | T2, R>): Stream<R>;
   /**
    * Returns a Stream where the given shape containing `Reducers` is applied to each element in the stream.
    * @typeparam S - the reducer shape type
@@ -1291,8 +1307,12 @@ export namespace Stream {
      * // => [[1, 2, 3], [4, 5, 6]]
      * ```
      */
-    transform<R>(transformer: Transformer.NonEmpty<T, R>): Stream.NonEmpty<R>;
-    transform<R>(transformer: Transformer<T, R>): Stream<R>;
+    transform<R, T2 extends T = T>(
+      transformer: Transformer.NonEmpty<T | T2, R>
+    ): Stream.NonEmpty<R>;
+    transform<R, T2 extends T = T>(
+      transformer: Transformer<T | T2, R>
+    ): Stream<R>;
     /**
      * Returns the first element of the Stream.
      * @example
@@ -1363,7 +1383,7 @@ export namespace Stream {
      * Returns the maximum element of the Stream according to a default compare function.
      * @example
      * ```ts
-     * Stream.of(5, 1, 3).max()         // => 1
+     * Stream.of(5, 1, 3).max()         // => 5
      * ```
      * @note O(N)
      */

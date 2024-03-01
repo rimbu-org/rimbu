@@ -14,7 +14,7 @@ export * from './fast-iterable.mjs';
 export * from './streamable.mjs';
 export * from './stream-source.mjs';
 
-export * from './interface.mjs';
+export * from './stream.mjs';
 
 export * from './reducer.mjs';
 export * from './transformer.mjs';

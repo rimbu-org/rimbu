@@ -1,7 +1,11 @@
 import { Stream } from '@rimbu/stream';
-import { expectAssignable, expectType } from 'tsd';
+import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
 
 import { Reducer } from '../src/main/index.mjs';
+
+//Variance
+expectAssignable<Reducer<number, number | string>>(Reducer.sum);
+expectNotAssignable<Reducer<number | string, number>>(Reducer.sum);
 
 // Reducer.combine shapes
 expectType<Reducer<number, [number[], number]>>(
@@ -28,7 +32,7 @@ expectAssignable<{ a: number[]; s: number }>(
   )
 );
 
-// Reducer.combineFirstDone
+// Reducer.race
 expectType<Reducer<number, number | undefined>>(
   Reducer.race([Reducer.sum, Reducer.product])
 );
@@ -48,6 +52,12 @@ expectType<Reducer<string, string>>(
   })
 );
 
+expectType<Reducer<string, string>>(
+  Reducer.groupBy((value: string) => value.length, {
+    collector: Reducer.join<[number, string]>(),
+  })
+);
+
 // Reducer.toArray
 expectType<Reducer<number, number[]>>(Reducer.toArray<number>());
 
@@ -63,16 +73,24 @@ expectType<Reducer<number, [Set<number>, string]>>(
   })
 );
 
+expectType<Reducer<number | string, [number[], string[]]>>(
+  Reducer.partition((v: number | string): v is number => true)
+);
+expectType<Reducer<number | string, [Set<number>, string]>>(
+  Reducer.partition((v: number | string): v is number => true, {
+    collectorTrue: Reducer.toJSSet<number>(),
+    collectorFalse: Reducer.join(),
+  })
+);
+
 // Reducer methods
 
 // .chain()
 expectType<number>(
-  Stream.of(1, 2, 3).reduce(Reducer.sum.chain(Reducer.product))
+  Stream.of(1, 2, 3).reduce(Reducer.sum.chain([Reducer.product]))
 );
-expectType<number[]>(
-  Stream.of(1, 2, 3).reduce(
-    Reducer.sum.chain(Reducer.product, Reducer.toArray())
-  )
+expectType<number>(
+  Stream.of(1, 2, 3).reduce(Reducer.sum.chain([Reducer.product, Reducer.count]))
 );
 
 // .collectInput
@@ -130,10 +148,12 @@ expectType<Reducer<string, number>>(
 );
 
 // .pipe()
-expectType<string>(Stream.of(1, 2, 3).reduce(Reducer.sum.pipe(Reducer.join())));
+expectType<string>(
+  Stream.of(1, 2, 3).reduce(Reducer.pipe(Reducer.sum, Reducer.join()))
+);
 expectType<boolean>(
   Stream.of(1, 2, 3).reduce(
-    Reducer.sum.pipe(Reducer.toArray(), Reducer.nonEmpty)
+    Reducer.pipe(Reducer.sum, Reducer.toArray(), Reducer.nonEmpty)
   )
 );
 

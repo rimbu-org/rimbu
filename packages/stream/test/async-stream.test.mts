@@ -802,6 +802,22 @@ describe('AsyncStream methods', () => {
       ).toEqual([0, 1, 2, 3, 4, 5]);
     }
   });
+  it('withOnly', async () => {
+    const s3 = AsyncStream.of(1, 2, 3);
+
+    expect(s3.withOnly([])).toBe(s3);
+    expect(await s3.withOnly([1, 2, 3]).toArray()).toEqual([1, 2, 3]);
+    expect(await s3.withOnly([2]).toArray()).toEqual([2]);
+    expect(await s3.withOnly([4]).toArray()).toEqual([]);
+  });
+  it('without', async () => {
+    const s3 = AsyncStream.of(1, 2, 3);
+
+    expect(s3.without([])).toBe(s3);
+    expect(await s3.without([1, 2, 3]).toArray()).toEqual([]);
+    expect(await s3.without([2]).toArray()).toEqual([1, 3]);
+    expect(await s3.without([4]).toArray()).toEqual([1, 2, 3]);
+  });
   it('collect close', async () => {
     await testResForEach(createResourceStream([1, 2, 3]).collect((v) => true));
     await testResForEach(

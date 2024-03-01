@@ -1,5 +1,6 @@
 import { Arr } from '@rimbu/base';
 import { Eq } from '@rimbu/common';
+import { List } from '@rimbu/list';
 
 import { Stream, Reducer } from '../src/main/index.mjs';
 
@@ -37,6 +38,7 @@ const streamRange17 = Stream.applyFilter(
   streamRange1.map((v) => [v]),
   { pred: () => true }
 ).map(([v]) => v);
+const streamRange18 = List.from(streamRange1).stream();
 
 const sources = [
   streamRange1,
@@ -56,6 +58,7 @@ const sources = [
   streamRange15,
   streamRange16,
   streamRange17,
+  streamRange18,
 ];
 
 const artificialEmpty = Stream.range({ amount: 3 }).filter(() => false);
@@ -645,6 +648,24 @@ describe('Stream methods', () => {
           .toArray()
       ).toEqual([0, 60]);
     });
+  });
+
+  it('withOnly', () => {
+    const s3 = Stream.of(1, 2, 3);
+
+    expect(s3.withOnly([])).toBe(s3);
+    expect(s3.withOnly([1, 2, 3]).toArray()).toEqual([1, 2, 3]);
+    expect(s3.withOnly([2]).toArray()).toEqual([2]);
+    expect(s3.withOnly([4]).toArray()).toEqual([]);
+  });
+
+  it('without', () => {
+    const s3 = Stream.of(1, 2, 3);
+
+    expect(s3.without([])).toBe(s3);
+    expect(s3.without([1, 2, 3]).toArray()).toEqual([]);
+    expect(s3.without([2]).toArray()).toEqual([1, 3]);
+    expect(s3.without([4]).toArray()).toEqual([1, 2, 3]);
   });
 
   it('collect', () => {
