@@ -1716,7 +1716,7 @@ export namespace Reducer {
    * ```
    */
   export function toJSObject<K extends string | number | symbol, V>(): Reducer<
-    [K, V],
+    readonly [K, V],
     Record<K, V>
   > {
     return create(
