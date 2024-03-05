@@ -79,7 +79,6 @@
     "bundle:deno-move": "rimraf ../../deno_dist/list && mv deno_dist ../../deno_dist/list",
     "bundle:deno-clean": "rimraf _deno_prepare",
     "bundle:esm": "tsc --p tsconfig.esm.json",
-    "bundle:types": "tsc --p tsconfig.types.json",
     "clean": "rimraf dist",
     "circular": "npx -y madge --ts-config tsconfig.json --circular --extensions mts src/main/index.mts",
     "extract-api": "yarn extract-api:main && yarn extract-api:custom",

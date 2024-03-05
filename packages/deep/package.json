@@ -65,7 +65,6 @@
     "bundle:deno-move": "rimraf ../../deno_dist/deep && mv deno_dist ../../deno_dist/deep",
     "bundle:deno-clean": "rimraf _deno_prepare",
     "bundle:esm": "tsc --p tsconfig.esm.json",
-    "bundle:types": "tsc --p tsconfig.types.json",
     "clean": "rimraf dist",
     "extract-api": "ts-node ../../config/api-extractor.ts config/api-extractor.main.json",
     "format": "yarn format:base --write",
