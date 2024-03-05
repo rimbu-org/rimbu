@@ -1,11 +1,15 @@
 {
   "compilerOptions": {
     "rootDirs": [".", ".."],
+    "baseUrl": "./src",
     "paths": {
-      "@rimbu/stream/async": ["./src/async/index.mjs"],
-      "@rimbu/stream/async-custom": ["./src/async-custom/index.mjs"],
-      "@rimbu/stream/custom": ["./src/custom/index.mjs"],
-      "@rimbu/stream": ["./src/main/index.mjs"]
+      "@rimbu/stream/async": ["async/index.mts", "async/index.cts"],
+      "@rimbu/stream/async-custom": [
+        "async-custom/index.mts",
+        "async-custom/index.cts"
+      ],
+      "@rimbu/stream/custom": ["custom/index.mts", "custom/index.cts"],
+      "@rimbu/stream": ["main/index.mts", "main/index.cts"]
     }
   }
 }

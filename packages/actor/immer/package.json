@@ -3,5 +3,5 @@
   "private": true,
   "main": "../dist/cjs/immer/index.cjs",
   "module": "../dist/esm/immer/index.mjs",
-  "types": "../dist/types/immer/index.d.mts"
+  "types": "../dist/cjs/immer/index.d.cts"
 }

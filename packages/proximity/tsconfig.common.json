@@ -1,10 +1,14 @@
 {
   "compilerOptions": {
     "rootDirs": [".", ".."],
+    "baseUrl": "./src",
     "paths": {
-      "@rimbu/proximity/common": ["./src/common/index.mjs"],
-      "@rimbu/proximity/map": ["./src/map/index.mjs"],
-      "@rimbu/proximity/map-custom": ["./src/map-custom/index.mjs"]
+      "@rimbu/proximity/common": ["common/index.mjs", "common/index.cts"],
+      "@rimbu/proximity/map": ["map/index.mjs", "map/index.cts"],
+      "@rimbu/proximity/map-custom": [
+        "map-custom/index.mjs",
+        "map-custom/index.cts"
+      ]
     }
   }
 }

@@ -1,10 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
-  "extends": "<projectFolder>/api-extractor.json",
-  "mainEntryPointFilePath": "<projectFolder>dist/types/index.d.ts",
+  "extends": "<projectFolder>/../../config/api-extractor.json",
+  "mainEntryPointFilePath": "<projectFolder>dist/esm/index.d.mts",
   "bundledPackages": [],
   "docModel": {
     "enabled": true,
     "apiJsonFilePath": "<projectFolder>/../../doc-gen/input/<unscopedPackageName>.api.json"
+  },
+  "compiler": {
+    "tsconfigFilePath": "<projectFolder>/tsconfig.extractor.json"
   }
 }

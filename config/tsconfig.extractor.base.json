@@ -1,6 +1,26 @@
 {
   "extends": "./tsconfig.common.json",
   "compilerOptions": {
-    "declaration": false
+    "declaration": false,
+    "rootDir": "..",
+    "baseUrl": "./packages",
+    "paths": {
+      "@rimbu/bimap": ["bimap/dist/esm/main/index.d.mts"],
+      "@rimbu/bimultimap": ["bimultimap/dist/esm/main/index.d.mts"],
+      "@rimbu/collection-types": ["collection-types/dist/esm/main/index.d.mts"],
+      "@rimbu/common": ["common/dist/esm/index.d.mts"],
+      "@rimbu/core": ["core/dist/esm/main/index.d.mts"],
+      "@rimbu/deep": ["deep/dist/esm/index.d.mts"],
+      "@rimbu/graph": ["graph/dist/esm/main/index.d.mts"],
+      "@rimbu/hashed": ["hashed/dist/esm/main/index.d.mts"],
+      "@rimbu/list": ["list/dist/esm/main/index.d.mts"],
+      "@rimbu/multimap": ["multimap/dist/esm/main/index.d.mts"],
+      "@rimbu/multiset": ["multiset/dist/esm/main/index.d.mts"],
+      "@rimbu/ordered": ["ordered/dist/esm/main/index.d.mts"],
+      "@rimbu/proximity": ["proximity/dist/esm/main/index.d.mts"],
+      "@rimbu/sorted": ["sorted/dist/esm/main/index.d.mts"],
+      "@rimbu/stream": ["stream/dist/esm/main/index.d.mts"],
+      "@rimbu/table": ["table/dist/esm/main/index.d.mts"]
+    }
   }
 }

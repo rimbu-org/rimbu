@@ -1,8 +1,7 @@
 {
   "name": "menu",
   "private": true,
-  "type": "commonjs",
-  "main": "../dist/menu/index.cjs",
-  "module": "../dist/menu/index.js",
-  "types": "../dist/menu/index.d.cts"
+  "main": "../dist/cjs/menu/index.cjs",
+  "module": "../dist/esm/menu/index.mjs",
+  "types": "../dist/cjs/menu/index.d.cts"
 }

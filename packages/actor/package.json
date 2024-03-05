@@ -30,56 +30,62 @@
   "type": "module",
   "main": "./dist/cjs/main/index.cjs",
   "module": "./dist/esm/main/index.mjs",
-  "types": "./dist/types/main/index.d.mts",
+  "types": "./dist/cjs/main/index.d.cts",
   "exports": {
     ".": {
-      "types": "./dist/types/main/index.d.mts",
-      "bun": "./dist/bun/main/index.mts",
-      "import": "./dist/esm/main/index.mjs",
-      "require": "./dist/cjs/main/index.cjs",
-      "default": "./dist/esm/main/index.mjs"
+      "import": {
+        "types": "./dist/esm/main/index.d.mts",
+        "default": "./dist/esm/main/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/main/index.d.cts",
+        "default": "./dist/cjs/main/index.cjs"
+      },
+      "bun": "./dist/bun/main/index.mts"
     },
     "./immer": {
-      "types": "./dist/types/immer/index.d.mts",
-      "bun": "./dist/bun/immer/index.mts",
-      "import": "./dist/esm/immer/index.mjs",
-      "require": "./dist/cjs/immer/index.cjs",
-      "default": "./dist/esm/immer/index.mjs"
+      "import": {
+        "types": "./dist/esm/immer/index.d.mts",
+        "default": "./dist/esm/immer/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/immer/index.d.cts",
+        "default": "./dist/cjs/immer/index.cjs"
+      },
+      "bun": "./dist/bun/immer/index.mts"
     },
     "./patch": {
-      "types": "./dist/types/patch/index.d.mts",
-      "bun": "./dist/bun/patch/index.mts",
-      "import": "./dist/esm/patch/index.mjs",
-      "require": "./dist/cjs/patch/index.cjs",
-      "default": "./dist/esm/patch/index.mjs"
-    },
-    "./stream": {
-      "types": "./dist/types/stream/index.d.mts",
-      "bun": "./dist/bun/stream/index.mts",
-      "import": "./dist/esm/stream/index.mjs",
-      "require": "./dist/cjs/stream/index.cjs",
-      "default": "./dist/esm/stream/index.mjs"
+      "import": {
+        "types": "./dist/esm/patch/index.d.mts",
+        "default": "./dist/esm/patch/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/patch/index.d.cts",
+        "default": "./dist/cjs/patch/index.cjs"
+      },
+      "bun": "./dist/bun/patch/index.mts"
     }
   },
   "files": [
     "dist",
     "src",
     "immer",
-    "patch",
-    "stream"
+    "patch"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
     "build:deno": "yarn bundle:deno-prepare && yarn bundle:deno-convert && yarn bundle:deno-move && yarn bundle:deno-clean",
-    "bundle": "yarn bundle:cjs && yarn bundle:esm && yarn bundle:types && yarn bundle:bun",
-    "bundle:bun": "node ../../config/bunnify.mjs",
-    "bundle:cjs": "tsup src --format cjs --clean -d dist/cjs --loader '.mts=ts' --external @rimbu/base --external @rimbu/stream",
+    "bundle": "yarn bundle:cjs && yarn bundle:esm && yarn bundle:bun",
+    "bundle:bun": "node ../../config/bunnify.mjs -mode bun",
+    "bundle:cjs": "yarn bundle:cjs-prepare && yarn bundle:cjs-build && yarn bundle:cjs-clean",
+    "bundle:cjs-prepare": "node ../../config/bunnify.mjs -mode cjs",
+    "bundle:cjs-build": "tsc -p tsconfig.cjs.json",
+    "bundle:cjs-clean": "rimraf _cjs_prepare",
     "bundle:deno-prepare": "node ../../config/prepare-denoify.mjs",
     "bundle:deno-convert": "denoify --src _deno_prepare/src",
     "bundle:deno-move": "rimraf ../../deno_dist/actor && mv deno_dist ../../deno_dist/actor",
     "bundle:deno-clean": "rimraf _deno_prepare",
     "bundle:esm": "tsc --p tsconfig.esm.json",
-    "bundle:types": "tsc --p tsconfig.types.json",
     "clean": "rimraf dist",
     "format": "yarn format:base --write",
     "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
@@ -100,6 +106,9 @@
   "devDependencies": {
     "@rimbu/stream": "^2.1.0",
     "happy-dom": "^9.20.3",
-    "immer": "^9.0.16"
+    "immer": "^10.0.3"
+  },
+  "optionalDependencies": {
+    "immer": "^10.0.3"
   }
 }

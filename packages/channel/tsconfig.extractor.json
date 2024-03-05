@@ -1,28 +1,5 @@
 {
   "extends": "../../config/tsconfig.extractor.base.json",
   "include": ["src"],
-  "compilerOptions": {
-    "rootDir": "..",
-    "paths": {
-      "@rimbu/bimap": ["../bimap/dist/types/main/index.d.mts"],
-      "@rimbu/bimultimap": ["../bimultimap/dist/types/main/index.d.mts"],
-      "@rimbu/channel": ["./dist/types/main/index.d.mts"],
-      "@rimbu/collection-types": [
-        "../collection-types/dist/types/main/index.d.mts"
-      ],
-      "@rimbu/common": ["../common/dist/types/index.d.mts"],
-      "@rimbu/core": ["../core/dist/types/main/index.d.mts"],
-      "@rimbu/deep": ["../deep/dist/types/index.d.mts"],
-      "@rimbu/graph": ["../graph/dist/types/main/index.d.mts"],
-      "@rimbu/hashed": ["../hashed/dist/types/main/index.d.mts"],
-      "@rimbu/list": ["../list/dist/types/main/index.d.mts"],
-      "@rimbu/multimap": ["../multimap/dist/types/main/index.d.mts"],
-      "@rimbu/multiset": ["../multiset/dist/types/main/index.d.mts"],
-      "@rimbu/ordered": ["../ordered/dist/types/main/index.d.mts"],
-      "@rimbu/proximity": ["../proximity/dist/types/main/index.d.mts"],
-      "@rimbu/sorted": ["../sorted/dist/types/main/index.d.mts"],
-      // "@rimbu/stream": ["../stream/dist/types/main/index.d.mts"],
-      "@rimbu/table": ["../table/dist/types/main/index.d.mts"]
-    }
-  }
+  "compilerOptions": {}
 }
