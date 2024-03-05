@@ -1,12 +1,19 @@
 {
   "compilerOptions": {
     "rootDirs": [".", ".."],
+    "baseUrl": "./src",
     "paths": {
-      "@rimbu/sorted/common": ["./src/common/index.mjs"],
-      "@rimbu/sorted/map": ["./src/map/index.mjs"],
-      "@rimbu/sorted/map-custom": ["./src/map-custom/index.mjs"],
-      "@rimbu/sorted/set": ["./src/set/index.mjs"],
-      "@rimbu/sorted/set-custom": ["./src/set-custom/index.mjs"]
+      "@rimbu/sorted/common": ["common/index.mjs", "common/index.cts"],
+      "@rimbu/sorted/map": ["map/index.mjs", "map/index.cts"],
+      "@rimbu/sorted/map-custom": [
+        "map-custom/index.mjs",
+        "map-custom/index.cts"
+      ],
+      "@rimbu/sorted/set": ["set/index.mjs", "set/index.cts"],
+      "@rimbu/sorted/set-custom": [
+        "set-custom/index.mjs",
+        "set-custom/index.cts"
+      ]
     }
   }
 }

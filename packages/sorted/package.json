@@ -35,49 +35,73 @@
   "type": "module",
   "main": "./dist/cjs/main/index.cjs",
   "module": "./dist/esm/main/index.mjs",
-  "types": "./dist/types/main/index.d.mts",
+  "types": "./dist/cjs/main/index.d.cts",
   "exports": {
     ".": {
-      "types": "./dist/types/main/index.d.mts",
-      "bun": "./dist/bun/main/index.mts",
-      "import": "./dist/esm/main/index.mjs",
-      "require": "./dist/cjs/main/index.cjs",
-      "default": "./dist/esm/main/index.mjs"
+      "import": {
+        "types": "./dist/esm/main/index.d.mts",
+        "default": "./dist/esm/main/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/main/index.d.cts",
+        "default": "./dist/cjs/main/index.cjs"
+      },
+      "bun": "./dist/bun/main/index.mts"
     },
     "./common": {
-      "types": "./dist/types/common/index.d.mts",
-      "bun": "./dist/bun/common/index.mts",
-      "import": "./dist/esm/common/index.mjs",
-      "require": "./dist/cjs/common/index.cjs",
-      "default": "./dist/esm/common/index.mjs"
+      "import": {
+        "types": "./dist/esm/common/index.d.mts",
+        "default": "./dist/esm/common/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/common/index.d.cts",
+        "default": "./dist/cjs/common/index.cjs"
+      },
+      "bun": "./dist/bun/common/index.mts"
     },
     "./map": {
-      "types": "./dist/types/map/index.d.mts",
-      "bun": "./dist/bun/map/index.mts",
-      "import": "./dist/esm/map/index.mjs",
-      "require": "./dist/cjs/map/index.cjs",
-      "default": "./dist/esm/map/index.mjs"
+      "import": {
+        "types": "./dist/esm/map/index.d.mts",
+        "default": "./dist/esm/map/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/map/index.d.cts",
+        "default": "./dist/cjs/map/index.cjs"
+      },
+      "bun": "./dist/bun/map/index.mts"
     },
     "./map-custom": {
-      "types": "./dist/types/map-custom/index.d.mts",
-      "bun": "./dist/bun/map-custom/index.mts",
-      "import": "./dist/esm/map-custom/index.mjs",
-      "require": "./dist/cjs/map-custom/index.cjs",
-      "default": "./dist/esm/map-custom/index.mjs"
+      "import": {
+        "types": "./dist/esm/map-custom/index.d.mts",
+        "default": "./dist/esm/map-custom/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/map-custom/index.d.cts",
+        "default": "./dist/cjs/map-custom/index.cjs"
+      },
+      "bun": "./dist/bun/map-custom/index.mts"
     },
     "./set": {
-      "types": "./dist/types/set/index.d.mts",
-      "bun": "./dist/bun/set/index.mts",
-      "import": "./dist/esm/set/index.mjs",
-      "require": "./dist/cjs/set/index.cjs",
-      "default": "./dist/esm/set/index.mjs"
+      "import": {
+        "types": "./dist/esm/set/index.d.mts",
+        "default": "./dist/esm/set/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/set/index.d.cts",
+        "default": "./dist/cjs/set/index.cjs"
+      },
+      "bun": "./dist/bun/set/index.mts"
     },
     "./set-custom": {
-      "types": "./dist/types/set-custom/index.d.mts",
-      "bun": "./dist/bun/set-custom/index.mts",
-      "import": "./dist/esm/set-custom/index.mjs",
-      "require": "./dist/cjs/set-custom/index.cjs",
-      "default": "./dist/esm/set-custom/index.mjs"
+      "import": {
+        "types": "./dist/esm/set-custom/index.d.mts",
+        "default": "./dist/esm/set-custom/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/set-custom/index.d.cts",
+        "default": "./dist/cjs/set-custom/index.cjs"
+      },
+      "bun": "./dist/bun/set-custom/index.mts"
     }
   },
   "files": [
@@ -92,15 +116,17 @@
   "scripts": {
     "build": "yarn clean && yarn bundle",
     "build:deno": "yarn bundle:deno-prepare && yarn bundle:deno-convert && yarn bundle:deno-move && yarn bundle:deno-clean",
-    "bundle": "yarn bundle:cjs && yarn bundle:esm && yarn bundle:types && yarn bundle:bun",
-    "bundle:bun": "node ../../config/bunnify.mjs",
-    "bundle:cjs": "tsup src --format cjs --clean -d dist/cjs --loader '.mts=ts'",
+    "bundle": "yarn bundle:cjs && yarn bundle:esm && yarn bundle:bun",
+    "bundle:bun": "node ../../config/bunnify.mjs -mode bun",
+    "bundle:cjs": "yarn bundle:cjs-prepare && yarn bundle:cjs-build && yarn bundle:cjs-clean",
+    "bundle:cjs-prepare": "node ../../config/bunnify.mjs -mode cjs",
+    "bundle:cjs-build": "tsc -p tsconfig.cjs.json",
+    "bundle:cjs-clean": "rimraf _cjs_prepare",
     "bundle:deno-prepare": "node ../../config/prepare-denoify.mjs",
     "bundle:deno-convert": "denoify --src _deno_prepare/src",
     "bundle:deno-move": "rimraf ../../deno_dist/sorted && mv deno_dist ../../deno_dist/sorted",
     "bundle:deno-clean": "rimraf _deno_prepare",
     "bundle:esm": "tsc --p tsconfig.esm.json",
-    "bundle:types": "tsc --p tsconfig.types.json",
     "clean": "rimraf dist",
     "extract-api": "yarn extract-api:main && yarn extract-api:map && yarn extract-api:map-custom && yarn extract-api:set && yarn extract-api:set-custom",
     "extract-api:main": "ts-node ../../config/api-extractor.ts config/api-extractor.main.json",

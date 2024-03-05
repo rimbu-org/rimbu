@@ -1,11 +1,15 @@
 {
   "compilerOptions": {
     "rootDirs": [".", ".."],
+    "baseUrl": "./src",
     "paths": {
-      "@rimbu/table/custom": ["./src/custom/index.mjs"],
-      "@rimbu/table/hash-row": ["./src/hash-row/index.mjs"],
-      "@rimbu/table/sorted-row": ["./src/sorted-row/index.mjs"],
-      "@rimbu/table": ["./src/main/index.mjs"]
+      "@rimbu/table/custom": ["custom/index.mjs", "custom/index.cts"],
+      "@rimbu/table/hash-row": ["hash-row/index.mjs", "hash-row/index.cts"],
+      "@rimbu/table/sorted-row": [
+        "sorted-row/index.mjs",
+        "sorted-row/index.cts"
+      ],
+      "@rimbu/table": ["main/index.mjs", "main/index.cts"]
     }
   }
 }

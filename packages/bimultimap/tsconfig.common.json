@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
     "rootDirs": [".", ".."],
+    "baseUrl": "./src",
     "paths": {
-      "@rimbu/bimultimap/custom": ["./src/custom/index.mjs"],
-      "@rimbu/bimultimap": ["./src/main/index.mjs"]
+      "@rimbu/bimultimap/custom": ["custom/index.mjs", "custom/index.cts"],
+      "@rimbu/bimultimap": ["main/index.mjs", "main/index.cts"]
     }
   }
 }

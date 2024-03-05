@@ -1,6 +1,5 @@
-import { SliceImmer } from '../src/immer/index.mjs';
-
-import { Action } from '../src/main/index.mjs';
+import { SliceImmer } from '@rimbu/actor/immer';
+import { Action } from '@rimbu/actor';
 
 describe('SliceImmer', () => {
   it('empty slice', () => {
@@ -11,9 +10,14 @@ describe('SliceImmer', () => {
     const action = Action.create();
 
     expect(slice.actions).toEqual({});
-    expect(slice.reducer.init()).toBe(initState);
+    expect(slice.reducer.init(() => {})).toBe(initState);
     expect(
-      slice.reducer.next(slice.reducer.init(), action(), 0, () => {})
+      slice.reducer.next(
+        slice.reducer.init(() => {}),
+        action(),
+        0,
+        () => {}
+      )
     ).toBe(initState);
   });
 
@@ -30,7 +34,12 @@ describe('SliceImmer', () => {
     });
 
     expect(
-      slice.reducer.next(slice.reducer.init(), slice.actions.inc(), 0, () => {})
+      slice.reducer.next(
+        slice.reducer.init(() => {}),
+        slice.actions.inc(),
+        0,
+        () => {}
+      )
     ).toEqual({ count: 1 });
   });
 
@@ -48,7 +57,7 @@ describe('SliceImmer', () => {
 
     expect(
       slice.reducer.next(
-        slice.reducer.init(),
+        slice.reducer.init(() => {}),
         slice.actions.inc(1, 2),
         0,
         () => {}
@@ -72,13 +81,23 @@ describe('SliceImmer', () => {
     });
 
     expect(
-      slice.reducer.next(slice.reducer.init(), slice.actions.inc(), 0, () => {})
+      slice.reducer.next(
+        slice.reducer.init(() => {}),
+        slice.actions.inc(),
+        0,
+        () => {}
+      )
     ).toEqual({ count: 1 });
 
     const action = Action.create();
 
     expect(
-      slice.reducer.next(slice.reducer.init(), action(), 0, () => {})
+      slice.reducer.next(
+        slice.reducer.init(() => {}),
+        action(),
+        0,
+        () => {}
+      )
     ).toEqual({ count: -3 });
   });
 
@@ -102,17 +121,32 @@ describe('SliceImmer', () => {
     });
 
     expect(
-      slice.reducer.next(slice.reducer.init(), slice.actions.inc(), 0, () => {})
+      slice.reducer.next(
+        slice.reducer.init(() => {}),
+        slice.actions.inc(),
+        0,
+        () => {}
+      )
     ).toEqual({ count: 1 });
 
     expect(
-      slice.reducer.next(slice.reducer.init(), action(), 0, () => {})
+      slice.reducer.next(
+        slice.reducer.init(() => {}),
+        action(),
+        0,
+        () => {}
+      )
     ).toEqual({ count: -3 });
 
     const action2 = Action.create();
 
     expect(
-      slice.reducer.next(slice.reducer.init(), action2(), 0, () => {})
+      slice.reducer.next(
+        slice.reducer.init(() => {}),
+        action2(),
+        0,
+        () => {}
+      )
     ).toEqual({ count: 0 });
   });
 
@@ -136,11 +170,21 @@ describe('SliceImmer', () => {
     });
 
     expect(
-      slice.reducer.next(slice.reducer.init(), slice.actions.inc(), 0, () => {})
+      slice.reducer.next(
+        slice.reducer.init(() => {}),
+        slice.actions.inc(),
+        0,
+        () => {}
+      )
     ).toEqual({ count: 1 });
 
     expect(
-      slice.reducer.next(slice.reducer.init(), increaseAction(5), 0, () => {})
+      slice.reducer.next(
+        slice.reducer.init(() => {}),
+        increaseAction(5),
+        0,
+        () => {}
+      )
     ).toEqual({ count: 5 });
   });
 });

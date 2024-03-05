@@ -16,7 +16,6 @@
           "bundle",
           "bundle:main",
           "bundle:module",
-          "bundle:types",
           "format",
           "format:check",
           "lint",
@@ -41,10 +40,6 @@
     "bundle:esm": {
       "dependsOn": ["^bundle:esm"],
       "outputs": ["{projectRoot}/dist/esm"]
-    },
-    "bundle:types": {
-      "dependsOn": ["^bundle:types"],
-      "outputs": ["{projectRoot}/dist/types"]
     },
     "build:deno": {
       "outputs": ["{projectRoot}/../../deno_dist"]

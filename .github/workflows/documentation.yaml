@@ -24,7 +24,7 @@ jobs:
       - name: Extract API
         run: |
           yarn install --frozen-lockfile
-          lerna run bundle:types
+          lerna run bundle:esm
           yarn extract-api
       - name: Generate API Docs
         run: deno run --import-map import_map.json --allow-read --allow-write --no-check src/main.ts -i input -o ../docs/api

@@ -3,5 +3,5 @@
   "private": true,
   "main": "../dist/cjs/map/index.cjs",
   "module": "../dist/esm/map/index.mjs",
-  "types": "../dist/types/map/index.d.mts"
+  "types": "../dist/cjs/map/index.d.cts"
 }

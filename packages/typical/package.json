@@ -28,14 +28,20 @@
     "directory": "packages/typical"
   },
   "type": "module",
+  "main": "./dist/cjs/index.cjs",
   "module": "./dist/esm/index.mjs",
-  "types": "./dist/types/index.d.mts",
+  "types": "./dist/cjs/index.d.cts",
   "exports": {
     ".": {
-      "types": "./dist/types/index.d.mts",
-      "bun": "./dist/bun/index.mts",
-      "import": "./dist/esm/index.mjs",
-      "default": "./dist/esm/index.mjs"
+      "import": {
+        "types": "./dist/esm/index.d.mts",
+        "default": "./dist/esm/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.cts",
+        "default": "./dist/cjs/index.cjs"
+      },
+      "bun": "./dist/bun/index.mts"
     }
   },
   "files": [
@@ -45,14 +51,17 @@
   "scripts": {
     "build": "yarn clean && yarn bundle",
     "build:deno": "yarn bundle:deno-prepare && yarn bundle:deno-convert && yarn bundle:deno-move && yarn bundle:deno-clean",
-    "bundle": "yarn bundle:esm && yarn bundle:types && yarn bundle:bun",
-    "bundle:bun": "node ../../config/bunnify.mjs",
+    "bundle": "yarn bundle:cjs && yarn bundle:esm && yarn bundle:bun",
+    "bundle:bun": "node ../../config/bunnify.mjs -mode bun",
+    "bundle:cjs": "yarn bundle:cjs-prepare && yarn bundle:cjs-build && yarn bundle:cjs-clean",
+    "bundle:cjs-prepare": "node ../../config/bunnify.mjs -mode cjs",
+    "bundle:cjs-build": "tsc -p tsconfig.cjs.json",
+    "bundle:cjs-clean": "rimraf _cjs_prepare",
     "bundle:deno-prepare": "node ../../config/prepare-denoify.mjs",
     "bundle:deno-convert": "denoify --src _deno_prepare/src",
     "bundle:deno-move": "rimraf ../../deno_dist/typical && mv deno_dist ../../deno_dist/typical",
     "bundle:deno-clean": "rimraf _deno_prepare",
     "bundle:esm": "tsc --p tsconfig.esm.json",
-    "bundle:types": "tsc --p tsconfig.types.json",
     "clean": "rimraf dist",
     "format": "yarn format:base --write",
     "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",

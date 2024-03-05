@@ -3,5 +3,5 @@
   "private": true,
   "main": "../dist/cjs/async-custom/index.cjs",
   "module": "../dist/esm/async-custom/index.mjs",
-  "types": "../dist/types/async-custom/index.d.mts"
+  "types": "../dist/cjs/async-custom/index.d.cts"
 }

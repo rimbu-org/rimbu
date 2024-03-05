@@ -1,4 +1,4 @@
-import { createDraft, finishDraft } from 'npm:immer@9.0.21';
+import { createDraft, finishDraft } from 'npm:immer@10.0.3';
 
 import { Action, SliceConfig } from '../../actor/mod.ts';
 
