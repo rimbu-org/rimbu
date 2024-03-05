@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.1.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/bimultimap@2.0.1...@rimbu/bimultimap@2.1.0) (2024-03-05)
+
+### Features
+
+- **stream:** improve typings and add new methods to (async)stream and (async)reducer ([02b094b](https://github.com/rimbu-org/rimbu/commit/02b094b8c361ed97e11b4d7c4206ce17d4eaa85b))
+
 ## [2.0.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/bimultimap@2.0.0...@rimbu/bimultimap@2.0.1) (2024-02-14)
 
 **Note:** Version bump only for package @rimbu/bimultimap

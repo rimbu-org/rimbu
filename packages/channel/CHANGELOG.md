@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/channel@0.3.0...@rimbu/channel@0.3.1) (2024-03-05)
+
+**Note:** Version bump only for package @rimbu/channel
+
 # [0.3.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/channel@0.2.0...@rimbu/channel@0.3.0) (2024-02-14)
 
 ### Features

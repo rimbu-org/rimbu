@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/base",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Utilities to implement Rimbu collections",
   "keywords": [
     "array",
@@ -73,7 +73,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@rimbu/common": "^2.0.0"
+    "@rimbu/common": "^2.0.1"
   },
   "publishConfig": {
     "access": "public"
