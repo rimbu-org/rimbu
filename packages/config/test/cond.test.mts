@@ -1,10 +1,10 @@
-import { cond, condFn } from '../src/index.mjs';
+import { Cond } from '../src/index.mjs';
 
 function condResultFor(value: any, ...cases: any[]) {
-  return cond(...cases)(value)[0];
+  return Cond.match(...cases)(value)[0];
 }
 
-describe('cond', () => {
+describe('Cond.match', () => {
   it('throws error when no conditions match', () => {
     expect(() => condResultFor(0)).toThrow();
     expect(() => condResultFor(0, [1, 1])).toThrow();
@@ -41,10 +41,10 @@ describe('cond', () => {
 });
 
 function condFnResultFor(value: any, createCases: any) {
-  return condFn(createCases)(value)[0];
+  return Cond.matchInput(createCases)(value)[0];
 }
 
-describe('condFn', () => {
+describe('Cond.matchInput', () => {
   it('throws error when no conditions match', () => {
     expect(() => condFnResultFor(0, () => [])).toThrow();
     expect(() => condFnResultFor(0, () => [[1, 1]])).toThrow();

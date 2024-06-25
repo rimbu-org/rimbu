@@ -1,1 +1,1 @@
-export { Config, cond, condFn } from './internal.mjs';
+export { Config, Cond } from './internal.mjs';

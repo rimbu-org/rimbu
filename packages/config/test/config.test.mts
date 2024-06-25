@@ -1,4 +1,4 @@
-import { Config, cond, condFn } from '../src/index.mjs';
+import { Config, Cond } from '../src/index.mjs';
 
 describe('Config.context no default', () => {
   const context = Config.context(['dev', 'prod']);
@@ -292,7 +292,7 @@ describe('translation', () => {
 
     // define a basic reusable config
     const basics = context.compile({
-      count: condFn((amount: number) => [
+      count: Cond.matchInput((amount: number) => [
         [0, { en: 'zero', nl: 'nul' }],
         [1, { en: 'one', nl: 'één' }],
         [2, { en: 'two', nl: 'twee' }],
@@ -303,7 +303,7 @@ describe('translation', () => {
 
     // define another reusable config
     const inventory = context.compile({
-      item: cond(
+      item: Cond.match(
         [1, { en: 'item', nl: 'artikel' }],
         [true, { en: 'items', nl: 'artikelen' }]
       ),
@@ -327,7 +327,7 @@ describe('translation', () => {
     });
 
     function basketMessage(
-      dict: Config.InstanceType<typeof screen1>,
+      dict: Config.DictionaryType<typeof screen1>,
       amountItems: number
     ) {
       return `${dict.basketContents} ${dict.amountItems(amountItems)}`;

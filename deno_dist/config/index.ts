@@ -1,1 +1,1 @@
-export { Config, cond, condFn } from './internal.ts';
+export { Config, Cond } from './internal.ts';
