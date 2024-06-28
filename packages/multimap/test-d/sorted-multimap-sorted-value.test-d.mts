@@ -79,7 +79,7 @@ expectAssignable<SortedMap.NonEmpty<number, SortedSet.NonEmpty<string>>>(
 
 // .nonEmpty()
 expectType<boolean>(genEmpty.nonEmpty());
-expectType<true>(genNonEmpty.nonEmpty());
+expectType<boolean>(genNonEmpty.nonEmpty());
 
 // .removeKey(..)
 expectType<G_Empty>(genEmpty.removeEntries([[3, 'a']]));

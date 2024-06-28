@@ -121,9 +121,9 @@ expectAssignable<RMap.NonEmpty<number, RSet.NonEmpty<string>>>(
 
 // .nonEmpty()
 expectType<boolean>(varEmpty.nonEmpty());
-expectType<true>(varNonEmpty.nonEmpty());
+expectType<boolean>(varNonEmpty.nonEmpty());
 expectType<boolean>(genEmpty.nonEmpty());
-expectType<true>(genNonEmpty.nonEmpty());
+expectType<boolean>(genNonEmpty.nonEmpty());
 
 // .removeKey(..)
 expectType<V_Empty>(varEmpty.removeEntries([[3, 'a']]));

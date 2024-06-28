@@ -418,7 +418,7 @@ export namespace VariantTableBase {
      * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).nonEmpty()   // => true
      * ```
      */
-    nonEmpty(): true;
+    nonEmpty(): this is WithRow<Tp, R, C, V>['nonEmpty'];
     /**
      * Returns a non-empty Stream containing all entries of this collection as tuples of row key,
      * column key, and value.

@@ -30,6 +30,8 @@ export class OrderedMapNonEmpty<
   extends NonEmptyBase<[K, V]>
   implements OrderedMapBase.NonEmpty<K, V, Tp>
 {
+  _NonEmptyType!: Tp['nonEmpty'];
+
   constructor(
     readonly context: TpG['context'],
     readonly keyOrder: List.NonEmpty<K>,
@@ -48,22 +50,6 @@ export class OrderedMapNonEmpty<
 
   get size(): number {
     return this.keyOrder.length;
-  }
-
-  get isEmpty(): false {
-    return false;
-  }
-
-  nonEmpty(): true {
-    return true;
-  }
-
-  asNormal(): any {
-    return this;
-  }
-
-  assumeNonEmpty(): any {
-    return this;
   }
 
   stream(): Stream.NonEmpty<[K, V]> {

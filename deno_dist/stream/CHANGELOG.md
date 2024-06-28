@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.2.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@2.1.0...@rimbu/stream@2.2.0) (2024-03-05)
+
+### Bug Fixes
+
+- **stream:** ensure toJSObject reducer can receive readonly tuples ([e962669](https://github.com/rimbu-org/rimbu/commit/e96266997e14e57dcf8f90b7ec0393ce73348eb8))
+
+### Features
+
+- **stream:** improve (Async)Stream mapOutput, chain, and combine shape methods ([2623af0](https://github.com/rimbu-org/rimbu/commit/2623af094e62e0e1e61bc73fe3e0c511d4112092))
+- **stream:** improve typings and add new methods to (async)stream and (async)reducer ([02b094b](https://github.com/rimbu-org/rimbu/commit/02b094b8c361ed97e11b4d7c4206ce17d4eaa85b))
+
 # [2.1.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@2.0.0...@rimbu/stream@2.1.0) (2024-02-14)
 
 ### Bug Fixes

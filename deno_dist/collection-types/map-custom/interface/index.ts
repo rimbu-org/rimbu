@@ -263,7 +263,7 @@ export namespace VariantMapBase {
      * HashMap.of([1, 1], [2, 2]).nonEmpty()   // => true
      * ```
      */
-    nonEmpty(): true;
+    nonEmpty(): this is WithKeyValue<Tp, K, V>['nonEmpty'];
     /**
      * Returns a self reference since this collection is known to be non-empty.
      * @example

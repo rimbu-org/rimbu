@@ -14,6 +14,8 @@ import type { HashSet } from '../../../hashed/set/index.ts';
 import type { HashSetContext } from '../../../hashed/set-custom/index.ts';
 
 export class HashSetEmpty<T = any> extends EmptyBase implements HashSet<T> {
+  _NonEmptyType!: HashSet.NonEmpty<T>;
+
   readonly addAll: any;
 
   constructor(readonly context: HashSetContext<T>) {
@@ -81,6 +83,8 @@ export abstract class HashSetNonEmptyBase<T>
   extends NonEmptyBase<T>
   implements HashSet.NonEmpty<T>
 {
+  _NonEmptyType!: HashSet.NonEmpty<T>;
+
   abstract get context(): HashSetContext<T>;
   abstract get size(): number;
   abstract stream(): Stream.NonEmpty<T>;

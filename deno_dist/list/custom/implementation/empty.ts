@@ -6,6 +6,8 @@ import type { List } from '../../../list/mod.ts';
 import type { ListContext } from '../../../list/custom/index.ts';
 
 export class Empty<T = any> extends EmptyBase implements List<T> {
+  _NonEmptyType!: List.NonEmpty<T>;
+
   constructor(readonly context: ListContext) {
     super();
   }

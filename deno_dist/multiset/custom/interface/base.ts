@@ -273,7 +273,7 @@ export namespace VariantMultiSetBase {
      * HashMultiSet.of(1, 2, 2).nonEmpty()   // => true
      * ```
      */
-    nonEmpty(): true;
+    nonEmpty(): this is WithElem<Tp, T>['nonEmpty'];
     /**
      * Returns this collection typed as a 'possibly empty' collection.
      * @example

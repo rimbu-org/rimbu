@@ -16,6 +16,8 @@ export class OrderedSetEmpty<
   extends EmptyBase
   implements OrderedSetBase<T, Tp>
 {
+  _NonEmptyType!: Tp['nonEmpty'];
+
   constructor(readonly context: WithElem<Tp, T>['context']) {
     super();
   }

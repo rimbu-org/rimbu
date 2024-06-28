@@ -71,7 +71,7 @@ expectAssignable<SortedMap.NonEmpty<number, number>>(genNonEmpty.countMap);
 
 // .nonEmpty()
 expectType<boolean>(genEmpty.nonEmpty());
-expectType<true>(genNonEmpty.nonEmpty());
+expectType<boolean>(genNonEmpty.nonEmpty());
 
 // .remove(..)
 expectType<G_Empty>(genEmpty.remove(3));

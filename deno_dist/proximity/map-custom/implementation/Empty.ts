@@ -9,6 +9,8 @@ export class ProximityMapEmpty<K = any, V = any>
   extends EmptyBase
   implements ProximityMap<K, V>
 {
+  _NonEmptyType!: ProximityMap.NonEmpty<K, V>;
+
   constructor(readonly context: ProximityMap.Context<K>) {
     super();
   }

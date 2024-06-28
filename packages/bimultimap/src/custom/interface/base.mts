@@ -485,7 +485,7 @@ export namespace BiMultiMapBase {
      * HashBiMultiMap.of([1, 1], [2, 2]).nonEmpty()   // => true
      * ```
      */
-    nonEmpty(): true;
+    nonEmpty(): this is WithKeyValue<Tp, K, V>['nonEmpty'];
     /**
      * Returns the collection with the entries from the given `StreamSource` `entries` added.
      * @param entries - a `StreamSource` containing tuples with a key and value

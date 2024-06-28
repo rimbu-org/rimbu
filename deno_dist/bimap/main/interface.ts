@@ -424,7 +424,7 @@ export namespace BiMap {
      * BiMap.of([1, 1], [2, 2]).nonEmpty()   // => true
      * ```
      */
-    nonEmpty(): true;
+    nonEmpty(): this is BiMap.NonEmpty<K, V>;
     /**
      * Returns a self reference since this collection is known to be non-empty.
      * @example

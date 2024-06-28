@@ -89,7 +89,7 @@ expectType<GE<number, string>>(genNonEmpty.modifyAt(2, {}));
 
 // .nonEmpty()
 expectType<boolean>(genEmpty.nonEmpty());
-expectType<true>(genNonEmpty.nonEmpty());
+expectType<boolean>(genNonEmpty.nonEmpty());
 
 // .removeKey(..)
 expectType<G_Empty>(genEmpty.removeKey(3));

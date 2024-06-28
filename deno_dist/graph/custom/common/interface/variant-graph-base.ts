@@ -281,7 +281,7 @@ export namespace VariantGraphBase {
      * ArrowGraphHashed.of([1], [2, 3]).nonEmpty()   // => true
      * ```
      */
-    nonEmpty(): true;
+    nonEmpty(): this is WithGraphValues<Tp, N, V>['nonEmpty'];
     /**
      * Returns this collection typed as a 'possibly empty' collection.
      * @example

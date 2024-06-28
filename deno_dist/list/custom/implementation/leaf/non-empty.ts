@@ -68,7 +68,7 @@ export abstract class ListNonEmptyBase<T>
     return false;
   }
 
-  nonEmpty(): true {
+  nonEmpty(): this is List.NonEmpty<T> {
     return true;
   }
 

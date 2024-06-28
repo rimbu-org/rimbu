@@ -6,6 +6,8 @@ import type { List } from '@rimbu/list';
 import type { ListContext } from '@rimbu/list/custom';
 
 export class Empty<T = any> extends EmptyBase implements List<T> {
+  _NonEmptyType!: List.NonEmpty<T>;
+
   constructor(readonly context: ListContext) {
     super();
   }
