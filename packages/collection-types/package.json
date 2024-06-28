@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/collection-types",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Type definitions for the basic generic Rimbu collections",
   "keywords": [
     "definitions",
