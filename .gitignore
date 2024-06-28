@@ -15,3 +15,5 @@ lerna-debug.log
 **/.DS_Store
 
 .nx
+
+**/_cjs_prepare/*

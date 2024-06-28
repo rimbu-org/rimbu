@@ -347,7 +347,7 @@ export namespace VariantMultiMapBase {
      * HashMultiMapHashValue.of([1, 1], [2, 2]).nonEmpty()   // => true
      * ```
      */
-    nonEmpty(): true;
+    nonEmpty(): this is WithKeyValue<Tp, K, V>['nonEmpty'];
     /**
      * Returns a non-empty Stream containing all entries of this collection as tuples of key and value.
      * @example

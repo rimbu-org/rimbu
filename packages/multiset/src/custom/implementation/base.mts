@@ -30,6 +30,8 @@ export class MultiSetEmpty<T, Tp extends ContextImplTypes>
   extends EmptyBase
   implements MultiSetBase<T, Tp>
 {
+  _NonEmptyType!: WithElem<Tp, T>['nonEmpty'];
+
   constructor(readonly context: WithElem<Tp, T>['context']) {
     super();
   }
@@ -140,6 +142,8 @@ export class MultiSetNonEmpty<
   extends NonEmptyBase<T>
   implements MultiSetBase.NonEmpty<T, Tp>
 {
+  _NonEmptyType!: TpG['nonEmpty'];
+
   constructor(
     readonly context: TpG['context'],
     readonly countMap: TpG['countMapNonEmpty'],
@@ -149,10 +153,6 @@ export class MultiSetNonEmpty<
   }
 
   assumeNonEmpty(): any {
-    return this;
-  }
-
-  asNormal(): any {
     return this;
   }
 

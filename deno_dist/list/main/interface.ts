@@ -613,7 +613,7 @@ export namespace List {
      * List.of(0, 1, 2).nonEmpty()   // => true
      * ```
      */
-    nonEmpty(): true;
+    nonEmpty(): this is List.NonEmpty<T>;
     /**
      * Returns a self reference since this collection is known to be non-empty.
      * @example

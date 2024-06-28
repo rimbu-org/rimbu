@@ -18,6 +18,8 @@ import { wrapHashMap } from '../wrapping.mjs';
 const toStringBeginning = /^[^(]+/;
 
 export class ProximityMapNonEmpty<K, V> implements ProximityMap.NonEmpty<K, V> {
+  _NonEmptyType!: ProximityMap.NonEmpty<K, V>;
+
   readonly isEmpty = false;
 
   constructor(
@@ -58,7 +60,7 @@ export class ProximityMapNonEmpty<K, V> implements ProximityMap.NonEmpty<K, V> {
     return this.plugInternalMap(this.internalMap.updateAt(key, update));
   }
 
-  nonEmpty(): true {
+  nonEmpty(): this is ProximityMap.NonEmpty<K, V> {
     return true;
   }
 

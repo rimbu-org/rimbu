@@ -110,9 +110,9 @@ expectType<false>(genNonEmpty.isEmpty);
 
 // .nonEmpty()
 expectType<boolean>(varEmpty.nonEmpty());
-expectType<true>(varNonEmpty.nonEmpty());
+expectType<boolean>(varNonEmpty.nonEmpty());
 expectType<boolean>(genEmpty.nonEmpty());
-expectType<true>(genNonEmpty.nonEmpty());
+expectType<boolean>(genNonEmpty.nonEmpty());
 
 // .remove(..)
 expectType<V_Empty>(varEmpty.remove(3));

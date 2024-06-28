@@ -2,6 +2,8 @@ import { RimbuError } from '@rimbu/base';
 import { type FastIterable, type FastIterator, Stream } from '@rimbu/stream';
 
 export abstract class EmptyBase {
+  readonly _NonEmptyType: unknown;
+
   [Symbol.iterator](): FastIterator<any> {
     return Stream.empty()[Symbol.iterator]();
   }
@@ -26,7 +28,7 @@ export abstract class EmptyBase {
     return true;
   }
 
-  nonEmpty(): false {
+  nonEmpty(): this is this['_NonEmptyType'] {
     return false;
   }
 
@@ -48,6 +50,8 @@ export abstract class EmptyBase {
 }
 
 export abstract class NonEmptyBase<E> implements FastIterable<E> {
+  readonly _NonEmptyType: unknown;
+
   abstract stream(): Stream.NonEmpty<E>;
 
   [Symbol.iterator](): FastIterator<E> {
@@ -58,7 +62,7 @@ export abstract class NonEmptyBase<E> implements FastIterable<E> {
     return false;
   }
 
-  nonEmpty(): true {
+  nonEmpty(): this is this['_NonEmptyType'] {
     return true;
   }
 

@@ -129,7 +129,7 @@ expectType<List.NonEmpty<string>>(List.of(1).map(() => 'a'));
 
 // .nonEmpty()
 expectType<boolean>(List.empty<number>().nonEmpty());
-expectType<true>(List.of(1).nonEmpty());
+expectType<boolean>(List.of(1).nonEmpty());
 
 // .padTo(..)
 expectType<List<number>>(List.empty<number>().padTo(1, 3));

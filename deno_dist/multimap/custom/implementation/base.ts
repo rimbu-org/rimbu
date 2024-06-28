@@ -27,6 +27,8 @@ export class MultiMapEmpty<K, V, Tp extends ContextImplTypes>
   extends EmptyBase
   implements MultiMapBase<K, V, Tp>
 {
+  _NonEmptyType!: WithKeyValue<Tp, K, V>['nonEmpty'];
+
   constructor(readonly context: WithKeyValue<Tp, K, V>['context']) {
     super();
   }
@@ -143,6 +145,8 @@ export class MultiMapNonEmpty<
   extends NonEmptyBase<[K, V]>
   implements MultiMapBase.NonEmpty<K, V, Tp>
 {
+  _NonEmptyType!: TpG['nonEmpty'];
+
   constructor(
     readonly context: TpG['context'],
     readonly keyMap: TpG['keyMapNonEmpty'],

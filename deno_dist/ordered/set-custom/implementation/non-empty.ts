@@ -25,6 +25,8 @@ export class OrderedSetNonEmpty<
   extends NonEmptyBase<T>
   implements OrderedSetBase.NonEmpty<T, Tp>
 {
+  _NonEmptyType!: Tp['nonEmpty'];
+
   constructor(
     readonly context: WithElem<Tp, T>['context'],
     readonly order: List.NonEmpty<T>,

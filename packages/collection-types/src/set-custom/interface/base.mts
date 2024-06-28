@@ -210,7 +210,7 @@ export namespace VariantSetBase {
      * HashSet.of(1, 2, 3).nonEmpty()   // => true
      * ```
      */
-    nonEmpty(): true;
+    nonEmpty(): this is WithElem<Tp, T>['nonEmpty'];
     /**
      * Returns a self reference since this collection is known to be non-empty.
      * @example

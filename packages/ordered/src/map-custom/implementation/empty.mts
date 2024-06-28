@@ -21,6 +21,8 @@ export class OrderedMapEmpty<
   extends EmptyBase
   implements OrderedMapBase<K, V, Tp>
 {
+  _NonEmptyType!: Tp['nonEmpty'];
+
   constructor(readonly context: WithKeyValue<Tp, K, V>['context']) {
     super();
   }

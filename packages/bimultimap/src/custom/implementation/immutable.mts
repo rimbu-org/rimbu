@@ -15,6 +15,8 @@ export class BiMultiMapEmpty<K, V, Tp extends ContextTypesImpl>
   extends EmptyBase
   implements BiMultiMapBase<K, V, Tp>
 {
+  _NonEmptyType!: WithKeyValue<Tp, K, V>['nonEmpty'];
+
   constructor(readonly context: WithKeyValue<Tp, K, V>['context']) {
     super();
   }
@@ -136,6 +138,8 @@ export class BiMultiMapNonEmpty<
   extends NonEmptyBase<[K, V]>
   implements BiMultiMapBase.NonEmpty<K, V, Tp>
 {
+  _NonEmptyType!: TpG['nonEmpty'];
+
   constructor(
     readonly context: WithKeyValue<Tp, K, V>['context'],
     readonly keyValueMultiMap: TpG['keyValueMultiMapNonEmpty'],

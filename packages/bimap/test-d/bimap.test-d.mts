@@ -68,7 +68,7 @@ expectType<RMap.NonEmpty<number, string>>(bNonEmpty.keyValueMap);
 
 // .nonEmpty()
 expectType<boolean>(bEmpty.nonEmpty());
-expectType<true>(bNonEmpty.nonEmpty());
+expectType<boolean>(bNonEmpty.nonEmpty());
 
 // .removeKey(..)
 expectType<B_Empty>(bEmpty.removeKey(3));
