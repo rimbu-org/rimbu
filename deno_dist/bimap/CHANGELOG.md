@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3](https://github.com/rimbu-org/rimbu/compare/@rimbu/bimap@2.0.2...@rimbu/bimap@2.0.3) (2024-06-28)
+
+### Bug Fixes
+
+- ensure type predicates are typed according to new rules of TypeScript 5.5.2 ([91103f7](https://github.com/rimbu-org/rimbu/commit/91103f76d6fffe35101e54fbdeb57ffc254b66f5))
+
 ## [2.0.2](https://github.com/rimbu-org/rimbu/compare/@rimbu/bimap@2.0.1...@rimbu/bimap@2.0.2) (2024-03-05)
 
 **Note:** Version bump only for package @rimbu/bimap

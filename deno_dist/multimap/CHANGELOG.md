@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/multimap@2.1.0...@rimbu/multimap@2.1.1) (2024-06-28)
+
+### Bug Fixes
+
+- ensure type predicates are typed according to new rules of TypeScript 5.5.2 ([91103f7](https://github.com/rimbu-org/rimbu/commit/91103f76d6fffe35101e54fbdeb57ffc254b66f5))
+
 # [2.1.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/multimap@2.0.1...@rimbu/multimap@2.1.0) (2024-03-05)
 
 ### Features

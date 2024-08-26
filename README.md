@@ -3,59 +3,60 @@
 </p>
 
 [![npm version](https://badge.fury.io/js/@rimbu%2Fcore.svg)](https://www.npmjs.com/package/@rimbu/core) [![Deno](https://shield.deno.dev/x/rimbu)](http://deno.land/x/rimbu)
-
 ![Licence](https://img.shields.io/github/license/rimbu-org/rimbu) [![codecov](https://codecov.io/gh/rimbu-org/rimbu/branch/main/graph/badge.svg?token=RSFK5B0N0Z)](https://codecov.io/gh/rimbu-org/rimbu)
 
-# Immutable collections and tools for TypeScript
+# Rimbu: Immutable Collections and Tools for TypeScript
 
-Rimbu is a TypeScript library focused on _immutable, performant, and type-safe collections_ and more. It offers a powerful and efficient way to work with data in a safe and predictable manner. With Rimbu, you can easily create and manipulate collections of data, such as lists and maps, without the risk of accidentally modifying the original data. This not only ensures data integrity, but also makes it easier to reason about your code and catch bugs early on. Plus, our library is fully compatible with TypeScript, providing you with improved type safety and a seamless development experience. Get started with our immutable collections library today and experience the benefits of working with truly immutable data.
+Welcome to **Rimbu**—your go-to TypeScript library for highly performant, type-safe, and immutable collections. With Rimbu, your data manipulation tasks become more efficient and predictable, offering enhanced data integrity and type safety.
 
-## Quick overview of features and benefits
+## Why Choose Rimbu?
 
-- Ensures data integrity by preventing accidental modifications to original data
-- Makes it easier to reason about your code and catch bugs early on
-- Provides improved type safety through full compatibility with TypeScript
-- Offers a seamless development experience
-- Increases performance by reducing the need for deep copies
-- Enables functional programming techniques such as immutability-based change detection and simpler undo/redo
-- Encourages the use of immutable data structures which has benefits in concurrent and parallel programming
-- Simplifies testing by eliminating the need to account for side-effects
-- Available for Web, Node.js and Deno.
+- **Data Integrity**: Prevent accidental modifications and safeguard your original data.
+- **Debugging Made Easy**: Simplify reasoning about your code and catch bugs early.
+- **Type Safety**: Full compatibility with TypeScript ensures robust code.
+- **Performance Boost**: Reduce the need for deep copies.
+- **Functional Programming**: Supports immutability-based change detection, undo/redo features, and safe concurrent programming.
+- **Simplified Testing**: Eliminate side effects and simplify your tests.
+- **Versatile**: Works seamlessly across Web, Node.js, Bun, and Deno environments.
 
-For complete documentation please visit the _[Rimbu Docs](https://rimbu.org)_ or the _[Rimbu API Docs](https://rimbu.org/api)_.
+## Quick Links
 
-Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
+- 📚 [Rimbu Docs](https://rimbu.org)
+- 🗂 [Rimbu API Docs](https://rimbu.org/api)
+- 🎮 [Try Rimbu in CodeSandBox](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts)
 
 ## Installation
 
-### Compabitity
+### Compatibility
 
-- [`Node >= 16` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
+- [`Node` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
 - [`Deno` ![Deno JS](https://img.shields.io/badge/deno%20js-000000?logo=deno&logoColor=white)](https://deno.com/runtime)
-- [`Bun >= 0.6.0` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
+- [`Bun` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
 - `Web` ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
 
-To get started with the immutable collections, which are exported through `@rimbu/core`, you can use the following.
+### Package Managers
 
-### Yarn / NPM / Bun
+**Yarn:**
 
-For `yarn`:
+```sh
+yarn add @rimbu/core
+```
 
-> `yarn add @rimbu/core`
+**npm:**
 
-For `npm`:
+```sh
+npm install @rimbu/core
+```
 
-> `npm i @rimbu/core`
+**Bun:**
 
-For `bun`:
+```sh
+bun add @rimbu/core
+```
 
-> `bun add @rimbu/core`
+### Deno Setup
 
-### Deno
-
-For Deno, the following approach is recommended:
-
-In the root folder of your project, create or edit a file called `import_map.json` with the following contents (where you should replace `x.y.z` with the desired version of Rimbu):
+Create or edit `import_map.json` in your project root:
 
 ```json
 {
@@ -65,60 +66,53 @@ In the root folder of your project, create or edit a file called `import_map.jso
 }
 ```
 
-**Note: The trailing slashes are important!**
+_Replace `x.y.z` with the desired version._
 
-## Main exports
+## Main Packages
 
-The main exported packages are:
+| Package                                              | Description                                                |
+| ---------------------------------------------------- | ---------------------------------------------------------- |
+| [@rimbu/bimap](packages/bimap)                       | Bidirectional map with one-to-one key-value mapping        |
+| [@rimbu/bimultimap](packages/bimultimap)             | Bidirectional multimap with many-to-many key-value mapping |
+| [@rimbu/collection-types](packages/collection-types) | Generic collection types definitions                       |
+| [@rimbu/common](packages/common)                     | Common types and functions across the library              |
+| [@rimbu/core](packages/core)                         | Exports most main types from other packages                |
+| [@rimbu/deep](packages/deep)                         | Tools for treating JS objects as immutable                 |
+| [@rimbu/graph](packages/graph)                       | Graph implementations with nodes and edges                 |
+| [@rimbu/hashed](packages/hashed)                     | HashMap and HashSet implementations                        |
+| [@rimbu/list](packages/list)                         | Efficiently ordered sequence manipulations                 |
+| [@rimbu/multimap](packages/multimap)                 | Map with one-to-many key-value mapping                     |
+| [@rimbu/multiset](packages/multiset)                 | Set allowing multiple occurrences of elements              |
+| [@rimbu/ordered](packages/ordered)                   | OrderedSet and OrderedMap collections                      |
+| [@rimbu/sorted](packages/sorted)                     | SortedMap and SortedSet with efficient sorting             |
+| [@rimbu/stream](packages/stream)                     | Data sequence manipulation methods                         |
+| [@rimbu/table](packages/table)                       | Table structures with row and column key mapping           |
 
-| Name                                                 | Description                                                                                                                                  |
-| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| [@rimbu/bimap](packages/bimap)                       | a bidirectional map in which keys and values have a one-to-one mapping                                                                       |
-| [@rimbu/bimultimap](packages/bimultimap)             | a bidirectional multimap in which keys and values have a many-to-many mapping                                                                |
-| [@rimbu/collection-types](packages/collection-types) | definitions for many of the generic collection types, used to derive more specific implementations                                           |
-| [@rimbu/common](packages/common)                     | contains public types and functions that are used throughout the whole library                                                               |
-| [@rimbu/core](packages/core)                         | a convenience package that exports most of the main types from the other packages                                                            |
-| [@rimbu/deep](packages/deep)                         | offers tools to use handle plain JS objects as immutable objects. library                                                                    |
-| [@rimbu/graph](packages/graph)                       | provides various graph implementations to represent data in forms of nodes and edges                                                         |
-| [@rimbu/hashed](packages/hashed)                     | provides a HashMap and HashSet implementation, using hash functions to efficiently retrieve keys                                             |
-| [@rimbu/list](packages/list)                         | provides the List datastructure containing an ordered sequence of elements that can be manipulated and accessed randomly in an efficient way |
-| [@rimbu/multimap](packages/multimap)                 | provides a map in which keys and values have a one-to-many mapping                                                                           |
-| [@rimbu/multiset](packages/multiset)                 | provides a set in which elements can occur multiple times                                                                                    |
-| [@rimbu/ordered](packages/ordered)                   | provides the OrderedSet and OrderedMap collections, that keep insertion order                                                                |
-| [@rimbu/sorted](packages/sorted)                     | provides a SortedMap and SortedSet implementation, using compare functions to efficiently keep the elements sorted                           |
-| [@rimbu/stream](packages/stream)                     | contains methods to easily manipulate sequences of data                                                                                      |
-| [@rimbu/table](packages/table)                       | provides various Table data structures where a combination of a row key and column key maps to a single                                      |
+## Development Setup
 
-## Development: Getting started with this monorepo
-
-1. Clone this repository
-2. Run `yarn`
-
-To build all the packages: `yarn build`
-To run the tests: `yarn test`
+1. Clone the repository.
+2. Run `yarn` to install dependencies.
+3. To build packages, use `yarn build`.
+4. Run tests with `yarn test`.
 
 ## Author
 
-[Arvid Nicolaas](https://github.com/vitoke)
+Created and maintained by [Arvid Nicolaas](https://github.com/vitoke).
 
 ## Contributing
 
-Feel very welcome to contribute to further improve Rimbu. Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
+We welcome contributions! Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
 
 ## Contributors
 
 <img src = "https://contrib.rocks/image?repo=rimbu-org/rimbu"/>
 
-Made with [contributors-img](https://contrib.rocks).
+_Made with [contributors-img](https://contrib.rocks)._
 
-## Mentions
+## Acknowledgements
 
-Special thanks go to:
-
-- Github user [bglgwyng](https://github.com/bglgwyng) for being the very first Rimbu sponsor! Awesome!
+Special thanks to [bglgwyng](https://github.com/bglgwyng) for being the first Rimbu sponsor. You're awesome!
 
 ## License
 
-Licensed under the MIT License, Copyright © 2020-present Arvid Nicolaas.
-
-See [LICENSE](./LICENSE) for more information.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) for details.
