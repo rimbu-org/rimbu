@@ -8,51 +8,61 @@
 
 # @rimbu/sorted
 
-This package contains the implementation for the `SortedMap` and `SortedSet` types, which form the basis of all Rimbu Sorted collections. The collections use a `Comp` instance that is configurable to determine the equality and order of values/objects.
+Welcome to `@rimbu/sorted`! This package provides robust implementations for `SortedMap` and `SortedSet`, forming the foundation of all Rimbu Sorted collections. These collections use a configurable `Comp` instance to determine the equality and order of values/objects, ensuring efficient and reliable data management.
 
-This package exports the following types:
+### Key Features:
 
-| Name              | Description                                                                            |
-| ----------------- | -------------------------------------------------------------------------------------- |
-| `SortedMap<K, V>` | a map with entries of key type K and value type V, where keys are sorted with a `Comp` |
-| `SortedSet<T>`    | a set of value type T where items are sorted with a `Comp`                             |
+- **Sorted Collections**: Maintain elements in a sorted order based on a configurable comparator.
+- **Efficient Lookups**: Optimized for fast retrieval and manipulation of data.
+- **Flexible Configurations**: Customize how elements are compared and ordered.
 
-For complete documentation please visit the [Map](https://rimbu.org/docs/collections/map) or [Se](https://rimbu.org/docs/collections/set) page in the _[Rimbu Docs](https://rimbu.org)_, or directly see the _[Rimbu Sorted API Docs](https://rimbu.org/api/rimbu/sorted)_.
+### Exported Types:
 
-Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
+| Name              | Description                                                                                 |
+| ----------------- | ------------------------------------------------------------------------------------------- |
+| `SortedMap<K, V>` | A map with entries of key type `K` and value type `V`, where keys are sorted with a `Comp`. |
+| `SortedSet<T>`    | A set of value type `T` where items are sorted with a `Comp`.                               |
+
+### Documentation
+
+For complete documentation, please visit the [Map](https://rimbu.org/docs/collections/map) or [Set](https://rimbu.org/docs/collections/set) pages in the [Rimbu Docs](https://rimbu.org), or directly explore the [Rimbu Sorted API Docs](https://rimbu.org/api/rimbu/sorted).
+
+### Try It Out
+
+Experience `@rimbu/sorted` in action! [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) on CodeSandBox.
 
 ## Installation
 
 ### Compabitity
 
-- [`Node >= 16` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
+- [`Node` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
 - [`Deno` ![Deno JS](https://img.shields.io/badge/deno%20js-000000?logo=deno&logoColor=white)](https://deno.com/runtime)
-- [`Bun >= 0.6.0` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
+- [`Bun` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
 - `Web` ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
 
-### Yarn / NPM / Bun
+### Package Managers
 
-For convenience, all main types are also exported through [`@rimbu/core`](../core).
+**Yarn:**
 
-To install this package only:
+```sh
+yarn add @rimbu/sorted
+```
 
-For `yarn`:
+**npm:**
 
-> `yarn add @rimbu/sorted`
+```sh
+npm install @rimbu/sorted
+```
 
-For `npm`:
+**Bun:**
 
-> `npm i @rimbu/sorted`
+```sh
+bun add @rimbu/sorted
+```
 
-For `bun`:
+### Deno Setup
 
-> `bun add @rimbu/sorted`
-
-### Deno
-
-For Deno, the following approach is recommended:
-
-In the root folder of your project, create or edit a file called `import_map.json` with the following contents (where you should replace `x.y.z` with the desired version of Rimbu):
+Create or edit `import_map.json` in your project root:
 
 ```json
 {
@@ -62,7 +72,7 @@ In the root folder of your project, create or edit a file called `import_map.jso
 }
 ```
 
-**Note: The trailing slashes are important!**
+_Replace `x.y.z` with the desired version._
 
 In this way you can use relative imports from Rimbu in your code, like so:
 
@@ -91,20 +101,18 @@ console.log(SortedSet.of(1, 3, 4, 2, 3).toString());
 
 ## Author
 
-[Arvid Nicolaas](https://github.com/vitoke)
+Created and maintained by [Arvid Nicolaas](https://github.com/vitoke).
 
 ## Contributing
 
-Feel very welcome to contribute to further improve Rimbu. Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
+We welcome contributions! Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
 
 ## Contributors
 
 <img src = "https://contrib.rocks/image?repo=rimbu-org/rimbu"/>
 
-Made with [contributors-img](https://contrib.rocks).
+_Made with [contributors-img](https://contrib.rocks)._
 
 ## License
 
-Licensed under the MIT License, Copyright © 2020-present Arvid Nicolaas.
-
-See [LICENSE](./LICENSE) for more information.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) for details.

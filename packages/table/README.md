@@ -8,51 +8,61 @@
 
 # @rimbu/table
 
-A `Table` is an immutable 2-dimensional Map, containing row keys and column keys, where a combination of a row and column key can contain one value.
+Welcome to `@rimbu/table`! A `Table` is an immutable 2-dimensional Map, containing row keys and column keys, where a combination of a row and column key can contain one value. This structure is ideal for scenarios where you need to manage data in a grid-like format.
 
-This package exports the following main types:
+### Key Features:
 
-| Name                    | Description                                                         |
-| ----------------------- | ------------------------------------------------------------------- |
-| `Table<R, C, V>`        | a generic `Table` with row keys R, column keys C, and values V      |
-| `VariantTable<R, C, V>` | a type-variant `Table` with row keys R, column keys C, and values V |
+- **Immutable Structure**: Ensures data integrity by preventing modifications to the original table.
+- **2-Dimensional Mapping**: Efficiently map combinations of row and column keys to values.
+- **Flexible and Type-Safe**: Supports generic and type-variant tables for robust type safety.
 
-For complete documentation please visit the [Table page](https://rimbu.org/docs/collections/table) in the _[Rimbu Docs](https://rimbu.org)_, or directly see the _[Rimbu Table API Docs](https://rimbu.org/api/rimbu/table)_.
+### Exported Types:
 
-Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
+| Name                    | Description                                                                                        |
+| ----------------------- | -------------------------------------------------------------------------------------------------- |
+| `Table<R, C, V>`        | A generic `Table` with row keys of type `R`, column keys of type `C`, and values of type `V`.      |
+| `VariantTable<R, C, V>` | A type-variant `Table` with row keys of type `R`, column keys of type `C`, and values of type `V`. |
+
+### Documentation
+
+For complete documentation, please visit the [Table page](https://rimbu.org/docs/collections/table) in the [Rimbu Docs](https://rimbu.org), or directly explore the [Rimbu Table API Docs](https://rimbu.org/api/rimbu/table).
+
+### Try It Out
+
+Experience `@rimbu/table` in action! [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) on CodeSandBox.
 
 ## Installation
 
 ### Compabitity
 
-- [`Node >= 16` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
+- [`Node` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
 - [`Deno` ![Deno JS](https://img.shields.io/badge/deno%20js-000000?logo=deno&logoColor=white)](https://deno.com/runtime)
-- [`Bun >= 0.6.0` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
+- [`Bun` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
 - `Web` ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
 
-### Yarn / NPM / Bun
+### Package Managers
 
-For convenience, all main types are also exported through [`@rimbu/core`](../core).
+**Yarn:**
 
-To install this package only:
+```sh
+yarn add @rimbu/table
+```
 
-For `yarn`:
+**npm:**
 
-> `yarn add @rimbu/table`
+```sh
+npm install @rimbu/table
+```
 
-For `npm`:
+**Bun:**
 
-> `npm i @rimbu/table`
+```sh
+bun add @rimbu/table
+```
 
-For `bun`:
+### Deno Setup
 
-> `bun add @rimbu/table`
-
-### Deno
-
-For Deno, the following approach is recommended:
-
-In the root folder of your project, create or edit a file called `import_map.json` with the following contents (where you should replace `x.y.z` with the desired version of Rimbu):
+Create or edit `import_map.json` in your project root:
 
 ```json
 {
@@ -62,7 +72,7 @@ In the root folder of your project, create or edit a file called `import_map.jso
 }
 ```
 
-**Note: The trailing slashes are important!**
+_Replace `x.y.z` with the desired version._
 
 In this way you can use relative imports from Rimbu in your code, like so:
 
@@ -83,20 +93,18 @@ To run your script (let's assume the entry point is in `src/main.ts`):
 
 ## Author
 
-[Arvid Nicolaas](https://github.com/vitoke)
+Created and maintained by [Arvid Nicolaas](https://github.com/vitoke).
 
 ## Contributing
 
-Feel very welcome to contribute to further improve Rimbu. Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
+We welcome contributions! Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
 
 ## Contributors
 
 <img src = "https://contrib.rocks/image?repo=rimbu-org/rimbu"/>
 
-Made with [contributors-img](https://contrib.rocks).
+_Made with [contributors-img](https://contrib.rocks)._
 
 ## License
 
-Licensed under the MIT License, Copyright © 2020-present Arvid Nicolaas.
-
-See [LICENSE](./LICENSE) for more information.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) for details.

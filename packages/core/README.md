@@ -8,42 +8,54 @@
 
 # @rimbu/core
 
-This package exports all the Rimbu collections, plus the contents of the `@rimbu/common` package. Its aim is to provide an easy to use access point for the collections.
+Welcome to `@rimbu/core`! This package is your all-in-one access point to the powerful Rimbu collections, along with the essential utilities from the `@rimbu/common` package. It is designed to provide a seamless and efficient experience for managing collections in your applications.
 
-For complete documentation please visit the _[Rimbu Docs](https://rimbu.org)_, or directly see the _[Rimbu Core API Docs](https://rimbu.org/api/rimbu/core)_.
+### Key Features:
 
-Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
+- **Comprehensive Collections**: Access all Rimbu collections in one place.
+- **Utility Integration**: Includes all the utilities from `@rimbu/common` for enhanced functionality.
+- **Ease of Use**: Simplifies the process of working with collections and utilities.
+
+### Documentation
+
+For complete documentation, please visit the [Rimbu Docs](https://rimbu.org), or directly explore the [Rimbu Core API Docs](https://rimbu.org/api/rimbu/core).
+
+### Try It Out
+
+Experience the power of `@rimbu/core` in action! [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) on CodeSandBox.
 
 ## Installation
 
 ### Compabitity
 
-- [`Node >= 16` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
+- [`Node` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
 - [`Deno` ![Deno JS](https://img.shields.io/badge/deno%20js-000000?logo=deno&logoColor=white)](https://deno.com/runtime)
-- [`Bun >= 0.6.0` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
+- [`Bun` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
 - `Web` ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
 
-### Yarn / NPM / Bun
+### Package Managers
 
-To get started with the immutable collections, which are exported through `@rimbu/core`, you can use the following.
+**Yarn:**
 
-For `yarn`:
+```sh
+yarn add @rimbu/core
+```
 
-> `yarn add @rimbu/core`
+**npm:**
 
-For `npm`:
+```sh
+npm install @rimbu/core
+```
 
-> `npm i @rimbu/core`
+**Bun:**
 
-For `bun`:
+```sh
+bun add @rimbu/core
+```
 
-> `bun add @rimbu/core`
+### Deno Setup
 
-### Deno
-
-For Deno, the following approach is recommended:
-
-In the root folder of your project, create or edit a file called `import_map.json` with the following contents (where you should replace `x.y.z` with the desired version of Rimbu):
+Create or edit `import_map.json` in your project root:
 
 ```json
 {
@@ -53,7 +65,7 @@ In the root folder of your project, create or edit a file called `import_map.jso
 }
 ```
 
-**Note: The trailing slashes are important!**
+_Replace `x.y.z` with the desired version._
 
 In this way you can use relative imports from Rimbu in your code, like so:
 
@@ -108,42 +120,40 @@ console.log(map.toArray());
 
 ## Contents
 
-This package exports everything from the following packages:
+This package exports everything from the following sub-packages, each designed to provide specialized data structures and utilities:
 
-| Name                                           | Description                                                                                                                                  |
-| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| [@rimbu/bimap](../bimap)                       | a bidirectional map in which keys and values have a one-to-one mapping                                                                       |
-| [@rimbu/bimultimap](../bimultimap)             | a bidirectional multimap in which keys and values have a many-to-many mapping                                                                |
-| [@rimbu/collection-types](../collection-types) | definitions for many of the generic collection types, used to derive more specific implementations                                           |
-| [@rimbu/common](../common)                     | contains public types and functions that are used throughout the whole library                                                               |
-| [@rimbu/deep](../deep)                         | offers tools to use handle plain JS objects as immutable objects. library                                                                    |
-| [@rimbu/graph](../graph)                       | provides various graph implementations to represent data in forms of nodes and edges                                                         |
-| [@rimbu/hashed](../hashed)                     | provides a HashMap and HashSet implementation, using hash functions to efficiently retrieve keys                                             |
-| [@rimbu/list](../list)                         | provides the List datastructure containing an ordered sequence of elements that can be manipulated and accessed randomly in an efficient way |
-| [@rimbu/multimap](../multimap)                 | provides a map in which keys and values have a one-to-many mapping                                                                           |
-| [@rimbu/multiset](../multiset)                 | provides a set in which elements can occur multiple times                                                                                    |
-| [@rimbu/ordered](../ordered)                   | provides the OrderedSet and OrderedMap collections, that keep insertion order                                                                |
-| [@rimbu/proximity](../proximity)               | provides ProximityMap, that retrieves values based on key proximity                                                                          |
-| [@rimbu/sorted](../sorted)                     | provides a SortedMap and SortedSet implementation, using compare functions to efficiently keep the elements sorted                           |
-| [@rimbu/stream](../stream)                     | contains methods to easily manipulate sequences of data                                                                                      |
-| [@rimbu/table](../table)                       | provides various Table data structures where a combination of a row key and column key maps to a single value.                               |
+| Package                                        | Description                                                                                          |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| [@rimbu/bimap](../bimap)                       | A bidirectional map where each key maps to a unique value and vice versa.                            |
+| [@rimbu/bimultimap](../bimultimap)             | A bidirectional multimap allowing many-to-many mappings between keys and values.                     |
+| [@rimbu/collection-types](../collection-types) | Definitions for generic collection types, serving as the foundation for specific implementations.    |
+| [@rimbu/common](../common)                     | Public types and functions used throughout the entire library.                                       |
+| [@rimbu/deep](../deep)                         | Tools for handling plain JavaScript objects as immutable objects.                                    |
+| [@rimbu/graph](../graph)                       | Various graph implementations to represent data as nodes and edges.                                  |
+| [@rimbu/hashed](../hashed)                     | HashMap and HashSet implementations using hash functions for efficient key retrieval.                |
+| [@rimbu/list](../list)                         | List data structure for ordered sequences of elements with efficient random access and manipulation. |
+| [@rimbu/multimap](../multimap)                 | A map where each key can map to multiple values.                                                     |
+| [@rimbu/multiset](../multiset)                 | A set where elements can occur multiple times.                                                       |
+| [@rimbu/ordered](../ordered)                   | OrderedSet and OrderedMap collections that maintain insertion order.                                 |
+| [@rimbu/proximity](../proximity)               | ProximityMap for retrieving values based on key proximity.                                           |
+| [@rimbu/sorted](../sorted)                     | SortedMap and SortedSet implementations using compare functions to keep elements sorted.             |
+| [@rimbu/stream](../stream)                     | Methods for manipulating sequences of data.                                                          |
+| [@rimbu/table](../table)                       | Table data structures where a combination of row and column keys maps to a single value.             |
 
 ## Author
 
-[Arvid Nicolaas](https://github.com/vitoke)
+Created and maintained by [Arvid Nicolaas](https://github.com/vitoke).
 
 ## Contributing
 
-Feel very welcome to contribute to further improve Rimbu. Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
+We welcome contributions! Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
 
 ## Contributors
 
 <img src = "https://contrib.rocks/image?repo=rimbu-org/rimbu"/>
 
-Made with [contributors-img](https://contrib.rocks).
+_Made with [contributors-img](https://contrib.rocks)._
 
 ## License
 
-Licensed under the MIT License, Copyright © 2020-present Arvid Nicolaas.
-
-See [LICENSE](./LICENSE) for more information.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) for details.

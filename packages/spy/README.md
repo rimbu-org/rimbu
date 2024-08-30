@@ -8,23 +8,29 @@
 
 # @rimbu/spy
 
-This package supports testing through utilities that can create spies and mocks for functions, objects, classes. It is still in experimental phase.
+Welcome to `@rimbu/spy`! This package provides utilities for creating spies and mocks for functions, objects, and classes, aimed at enhancing your testing experience. Note that it is currently in the experimental phase.
 
 ## Motivation
 
-With frameworks like Deno and ES Modules it becomes much harder/impossible to mock modules like for example Jest does. Deno [recommends](https://deno.land/manual@v1.25.2/testing/mocking) to use specific ways to expose dependencies so that they can be replaced without mocking modules.
+Testing frameworks like Deno and ES Modules present challenges for module mocking, unlike Jest. Deno [recommends](https://deno.land/manual@v1.25.2/testing/mocking) exposing dependencies in a way that allows replacement without module mocking.
 
-Alternatives like [vitest](https://vitest.dev/) do offer support for ES Modules, so if you like (to keep) this way of testing, that may be a viable option.
+While alternatives like [Vitest](https://vitest.dev/) support ES Modules and may be a viable option for those who prefer module mocking, `@rimbu/spy` focuses on testing without module mocking. This means you cannot replace functions inside other files/modules directly. Instead, dependencies should be encapsulated in an object passed into the dependent code, which can then be spied/mocked.
 
-It is important to note that `@rimbu/spy` is aimed at testing without module mocking. This means that it is not possible to replace functions inside of other files/modules. The only way is to ensure the dependencies are in an object that is passed into the code that depends on it. This object can then be spied/mocked and passed into the code.
+### Key Benefits
 
-One motivation to use an external spying/mocking framework is to be independent of a specific testing framework, so that the pain of switching becomes much less if one decides to switch.
+- **Framework Independence**: Using an external spying/mocking framework reduces dependency on a specific testing framework, easing the transition if you decide to switch.
+- **Minimal and Simple API**: `@rimbu/spy` offers a straightforward API that is easy to learn and use, ensuring type consistency with original implementations.
+- **Alternative to Sinon JS**: While [Sinon JS](https://sinonjs.org/) provides extensive functionality, `@rimbu/spy` offers a simpler, more minimalistic approach.
 
-A popular external spying/mocking framework is [Sinon JS](https://sinonjs.org/), which offers probably most of the functionality available in this package. Like `@rimbu/spy` it is also aimed at spying/mocking without module mocking.
+### Why Use `@rimbu/spy`?
 
-The `@rimbu/spy` package however offers a more simple and minimal API that is easy to learn and use. It also takes care that types are consistent with their original implementations.
+- **No Module Mocking**: Ideal for scenarios where module mocking is not feasible or desired.
+- **Consistent Types**: Ensures that types remain consistent with their original implementations.
+- **Ease of Use**: Designed to be easy to learn and integrate into your testing workflow.
 
-It depends on preference and also use case coverage whether this package offers a full alternative. Please feel free to try it out and provide feedback, and don't forget to create issues if you find anything that is not working correctly.
+### Feedback and Contributions
+
+We encourage you to try out `@rimbu/spy` and provide feedback. If you encounter any issues or have suggestions for improvement, please don't hesitate to create issues on our repository.
 
 ## Docs
 
@@ -36,9 +42,9 @@ Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/mai
 
 ### Compabitity
 
-- [`Node >= 16` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
+- [`Node` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
 - [`Deno` ![Deno JS](https://img.shields.io/badge/deno%20js-000000?logo=deno&logoColor=white)](https://deno.com/runtime)
-- [`Bun >= 0.6.0` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
+- [`Bun` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
 - `Web` ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
 
 ### Yarn / NPM / Bun
@@ -102,20 +108,18 @@ spyConsole[Spy.META].callSequence;
 
 ## Author
 
-[Arvid Nicolaas](https://github.com/vitoke)
+Created and maintained by [Arvid Nicolaas](https://github.com/vitoke).
 
 ## Contributing
 
-Feel very welcome to contribute to further improve Rimbu. Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
+We welcome contributions! Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
 
 ## Contributors
 
 <img src = "https://contrib.rocks/image?repo=rimbu-org/rimbu"/>
 
-Made with [contributors-img](https://contrib.rocks).
+_Made with [contributors-img](https://contrib.rocks)._
 
 ## License
 
-Licensed under the MIT License, Copyright © 2020-present Arvid Nicolaas.
-
-See [LICENSE](./LICENSE) for more information.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) for details.

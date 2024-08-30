@@ -34,27 +34,38 @@ Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/mai
 
 ## Installation
 
-### Yarn / NPM / Bun
+### Compabitity
+
+- [`Node` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
+- [`Deno` ![Deno JS](https://img.shields.io/badge/deno%20js-000000?logo=deno&logoColor=white)](https://deno.com/runtime)
+- [`Bun` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
+- `Web` ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
+
+### Package Managers
 
 This library only contains type definitions. You should therefore install it as a dev dependency:
 
-For `yarn`:
+**Yarn:**
 
-> `yarn add --dev @rimbu/typical`
+```sh
+yarn add --dev @rimbu/typical
+```
 
-For `npm`:
+**npm:**
 
-> `npm i @rimbu/typical --save-dev`
+```sh
+npm i @rimbu/typical --save-dev
+```
 
-For `bun`:
+**Bun:**
 
-> `bun add --development @rimbu/typical`
+```sh
+bun add --development @rimbu/typical
+```
 
-### Deno
+### Deno Setup
 
-For Deno, the following approach is recommended:
-
-In the root folder of your project, create or edit a file called `import_map.json` with the following contents (where you should replace `x.y.z` with the desired version of Rimbu):
+Create or edit `import_map.json` in your project root:
 
 ```json
 {
@@ -64,7 +75,7 @@ In the root folder of your project, create or edit a file called `import_map.jso
 }
 ```
 
-**Note: The trailing slashes are important!**
+_Replace `x.y.z` with the desired version._
 
 In this way you can use relative imports from Rimbu in your code, like so:
 
@@ -119,20 +130,18 @@ limitedString('abc'); // compiler error
 
 ## Author
 
-[Arvid Nicolaas](https://github.com/vitoke)
+Created and maintained by [Arvid Nicolaas](https://github.com/vitoke).
 
 ## Contributing
 
-Feel very welcome to contribute to further improve Rimbu. Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
+We welcome contributions! Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
 
 ## Contributors
 
 <img src = "https://contrib.rocks/image?repo=rimbu-org/rimbu"/>
 
-Made with [contributors-img](https://contrib.rocks).
+_Made with [contributors-img](https://contrib.rocks)._
 
 ## License
 
-Licensed under the MIT License, Copyright © 2020-present Arvid Nicolaas.
-
-See [LICENSE](./LICENSE) for more information.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) for details.

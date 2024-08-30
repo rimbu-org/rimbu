@@ -2,46 +2,63 @@
     <img src="https://github.com/rimbu-org/rimbu/raw/main/assets/rimbu_logo.svg" />
 </p>
 
-[![npm version](https://badge.fury.io/js/@rimbu%2Fordered.svg)](https://www.npmjs.com/package/@rimbu/ordered) [![Deno](https://shield.deno.dev/x/rimbu)](http://deno.land/x/rimbu)
-
+[![npm version](https://badge.fury.io/js/@rimbu%channel.svg)](https://www.npmjs.com/package/@rimbu/channel)
+[![Deno](https://shield.deno.dev/x/rimbu)](http://deno.land/x/rimbu)
 ![Licence](https://img.shields.io/github/license/rimbu-org/rimbu)
 
 # @rimbu/channel
 
-This package provides various channel implementation in the spirit of Go to allow synchronous or buffered one-to-one communication in an asynchronous context. The `Channel` offers communication between asynchronous processes in the same thread. `CrossChannel` consist of pairs of channels that allow different types of messages for sending and receiving. `RemoteChannel` offers communication between (worker) threads. `RemoteObject` offers a way to interact with a remote API/object as though it is available locally over a channel. `RemoteChannelServer` and `RemoteChannelClient` allow easy cross-thread creation of new channels. Finally, this package offers various cross-process synchronization utilities like `Mutex`, `Semaphore` and `WaitGroup`.
+Welcome to the `@rimbu/channel` package! This package brings you powerful channel implementations inspired by Go, designed to facilitate synchronous or buffered one-to-one communication in an asynchronous context.
 
-For complete documentation please visit the _[Rimbu Docs](https://rimbu.org)_, or directly see the _[Rimbu Core API Docs](https://rimbu.org/api/rimbu/channel)_.
+### Key Features:
+
+- **Channel**: Seamlessly communicate between asynchronous processes within the same thread.
+- **CrossChannel**: Utilize pairs of channels for sending and receiving different types of messages.
+- **RemoteChannel**: Enable communication between (worker) threads effortlessly.
+- **RemoteObject**: Interact with remote APIs/objects as if they are available locally over a channel.
+- **RemoteChannelServer & RemoteChannelClient**: Easily create new channels across threads.
+- **Synchronization Utilities**: Leverage cross-process synchronization tools like `Mutex`, `Semaphore`, and `WaitGroup`.
+
+### Why Use `@rimbu/channel`?
+
+- **Simplicity**: Simplifies complex asynchronous communication patterns.
+- **Flexibility**: Supports various communication models and synchronization mechanisms.
+- **Efficiency**: Optimized for performance in concurrent environments.
+
+For complete documentation, please visit the [Rimbu Docs](https://rimbu.org), or directly explore the [Rimbu Core API Docs](https://rimbu.org/api/rimbu/channel).
 
 ## Installation
 
 ### Compabitity
 
-- [`Node >= 16` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
+- [`Node` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
 - [`Deno` ![Deno JS](https://img.shields.io/badge/deno%20js-000000?logo=deno&logoColor=white)](https://deno.com/runtime)
-- [`Bun >= 0.6.0` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
+- [`Bun` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
 - `Web` ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
 
-### Yarn / NPM / Bun
+### Package Managers
 
-To install this package:
+**Yarn:**
 
-For `yarn`:
+```sh
+yarn add @rimbu/channel
+```
 
-> `yarn add @rimbu/channel`
+**npm:**
 
-For `npm`:
+```sh
+npm install @rimbu/channel
+```
 
-> `npm i @rimbu/channel`
+**Bun:**
 
-For `bun`:
+```sh
+bun add @rimbu/channel
+```
 
-> `bun add @rimbu/channel`
+### Deno Setup
 
-### Deno
-
-For Deno, the following approach is recommended:
-
-In the root folder of your project, create or edit a file called `import_map.json` with the following contents (where you should replace `x.y.z` with the desired version of Rimbu):
+Create or edit `import_map.json` in your project root:
 
 ```json
 {
@@ -51,7 +68,7 @@ In the root folder of your project, create or edit a file called `import_map.jso
 }
 ```
 
-**Note: The trailing slashes are important!**
+_Replace `x.y.z` with the desired version._
 
 In this way you can use relative imports from Rimbu in your code, like so:
 
@@ -104,20 +121,18 @@ consume(channel);
 
 ## Author
 
-[Arvid Nicolaas](https://github.com/vitoke)
+Created and maintained by [Arvid Nicolaas](https://github.com/vitoke).
 
 ## Contributing
 
-Feel very welcome to contribute to further improve Rimbu. Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
+We welcome contributions! Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
 
 ## Contributors
 
 <img src = "https://contrib.rocks/image?repo=rimbu-org/rimbu"/>
 
-Made with [contributors-img](https://contrib.rocks).
+_Made with [contributors-img](https://contrib.rocks)._
 
 ## License
 
-Licensed under the MIT License, Copyright © 2020-present Arvid Nicolaas.
-
-See [LICENSE](./LICENSE) for more information.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) for details.

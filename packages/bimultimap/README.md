@@ -8,52 +8,62 @@
 
 # @rimbu/bimultimap
 
-A BiMultiMap is a bidirectional MultiMap of keys and values, where each key-value association also has an inverse value-key association. There is a many-to-many mapping between keys and values.
+Welcome to `@rimbu/bimultimap`! A BiMultiMap is a powerful bidirectional MultiMap that allows many-to-many mappings between keys and values. Each key-value association also has an inverse value-key association, making it easy to navigate in both directions.
 
-This package exports the following types:
+### Key Features:
 
-| Name                     | Description                                                      |
-| ------------------------ | ---------------------------------------------------------------- |
-| `BiMultiMap<K, V>`       | a generic BiMultiMap between keys of type K and values of type V |
-| `HashBiMultiMap<K, V>`   | a BiMultiMap implementation where keys and values are hashed     |
-| `SortedBiMultiMap<K, V>` | a BiMultiMap implementation where keys and values are sorted     |
+- **Bidirectional MultiMap**: Navigate seamlessly between keys and values and vice versa.
+- **Many-to-Many Mapping**: Supports multiple values for a single key and multiple keys for a single value.
+- **Flexible Implementations**: Choose between hashed and sorted implementations based on your needs.
 
-For complete documentation please visit the [BiMultiap page](https://rimbu.org/docs/collections/bimultimap) in the _[Rimbu Docs](https://rimbu.org)_, or directly see the _[Rimbu BiMultiMap API Docs](https://rimbu.org/api/rimbu/bimultimap)_.
+### Exported Types:
 
-Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
+| Name                     | Description                                                                                  |
+| ------------------------ | -------------------------------------------------------------------------------------------- |
+| `BiMultiMap<K, V>`       | A generic BiMultiMap for keys of type `K` and values of type `V`.                            |
+| `HashBiMultiMap<K, V>`   | A BiMultiMap where both keys and values are hashed for efficient lookups.                    |
+| `SortedBiMultiMap<K, V>` | A BiMultiMap where both keys and values are sorted, providing ordered traversal and lookups. |
+
+### Documentation
+
+For complete documentation, please visit the [BiMultiMap page](https://rimbu.org/docs/collections/bimultimap) in the [Rimbu Docs](https://rimbu.org), or directly explore the [Rimbu BiMultiMap API Docs](https://rimbu.org/api/rimbu/bimultimap).
+
+### Try It Out
+
+Experience `@rimbu/bimultimap` in action! [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) on CodeSandBox.
 
 ## Installation
 
 ### Compabitity
 
-- [`Node >= 16` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
+- [`Node` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
 - [`Deno` ![Deno JS](https://img.shields.io/badge/deno%20js-000000?logo=deno&logoColor=white)](https://deno.com/runtime)
-- [`Bun >= 0.6.0` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
+- [`Bun` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
 - `Web` ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
 
-### Yarn / NPM / Bun
+### Package Managers
 
-For convenience, all main types are also exported through [`@rimbu/core`](../core).
+**Yarn:**
 
-To install this package only:
+```sh
+yarn add @rimbu/bimultimap
+```
 
-For `yarn`:
+**npm:**
 
-> `yarn add @rimbu/bimultimap`
+```sh
+npm install @rimbu/bimultimap
+```
 
-For `npm`:
+**Bun:**
 
-> `npm i @rimbu/bimultimap`
+```sh
+bun add @rimbu/bimultimap
+```
 
-For `bun`:
+### Deno Setup
 
-> `bun add @rimbu/bimultimap`
-
-### Deno
-
-For Deno, the following approach is recommended:
-
-In the root folder of your project, create or edit a file called `import_map.json` with the following contents (where you should replace `x.y.z` with the desired version of Rimbu):
+Create or edit `import_map.json` in your project root:
 
 ```json
 {
@@ -63,7 +73,7 @@ In the root folder of your project, create or edit a file called `import_map.jso
 }
 ```
 
-**Note: The trailing slashes are important!**
+_Replace `x.y.z` with the desired version._
 
 In this way you can use relative imports from Rimbu in your code, like so:
 
@@ -99,20 +109,18 @@ console.log(biMultiMap.getKeys('b').toArray());
 
 ## Author
 
-[Arvid Nicolaas](https://github.com/vitoke)
+Created and maintained by [Arvid Nicolaas](https://github.com/vitoke).
 
 ## Contributing
 
-Feel very welcome to contribute to further improve Rimbu. Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
+We welcome contributions! Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
 
 ## Contributors
 
 <img src = "https://contrib.rocks/image?repo=rimbu-org/rimbu"/>
 
-Made with [contributors-img](https://contrib.rocks).
+_Made with [contributors-img](https://contrib.rocks)._
 
 ## License
 
-Licensed under the MIT License, Copyright © 2020-present Arvid Nicolaas.
-
-See [LICENSE](./LICENSE) for more information.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) for details.
