@@ -8,49 +8,61 @@
 
 # @rimbu/multimap
 
-A Rimbu MultiMap is a Map in which each key has one or more values. For each key, it's associated values are unique, that is, the values for each key are kept in a `Set`.
+Welcome to `@rimbu/multimap`! A Rimbu MultiMap is a powerful data structure where each key can have one or more unique values, stored in a `Set`. This ensures that each key's associated values are unique and easily manageable.
 
-This package exports the following types:
+### Key Features:
 
-| Name                              | Description                                                            |
-| --------------------------------- | ---------------------------------------------------------------------- |
-| `HashMultiMapHashValue<K, V>`     | a multimap between hashed values of type K and hashed values of type V |
-| `HashMultiMapSortedValue<K, V>`   | a multimap between hashed values of type K and sorted values of type V |
-| `MultiMap<K, V>`                  | a generic multimap between values of type K and values of type V       |
-| `SortedMultiMapHashValue<K, V>`   | a multimap between sorted values of type K and hashed values of type V |
-| `SortedMultiMapSortedValue<K, V>` | a multimap between sorted values of type K and sorted values of type V |
-| `VariantMultiMap<K, V>`           | a type-variant multimap between values of type K and values of type V  |
+- **Multiple Values per Key**: Each key can map to multiple unique values.
+- **Unique Values**: Values for each key are stored in a `Set`, ensuring uniqueness.
+- **Flexible Implementations**: Choose between hashed and sorted implementations based on your needs.
 
-For complete documentation please visit the [MultiMap page](https://rimbu.org/docs/collections/multimap) in the _[Rimbu Docs](https://rimbu.org)_, or directly see the _[Rimbu MultiMap API Docs](https://rimbu.org/api/rimbu/multimap)_.
+### Exported Types:
 
-Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
+| Name                              | Description                                                          |
+| --------------------------------- | -------------------------------------------------------------------- |
+| `HashMultiMapHashValue<K, V>`     | A multimap with hashed keys and hashed values.                       |
+| `HashMultiMapSortedValue<K, V>`   | A multimap with hashed keys and sorted values.                       |
+| `MultiMap<K, V>`                  | A generic multimap for keys of type `K` and values of type `V`.      |
+| `SortedMultiMapHashValue<K, V>`   | A multimap with sorted keys and hashed values.                       |
+| `SortedMultiMapSortedValue<K, V>` | A multimap with sorted keys and sorted values.                       |
+| `VariantMultiMap<K, V>`           | A type-variant multimap for keys of type `K` and values of type `V`. |
+
+### Documentation
+
+For complete documentation, please visit the [MultiMap page](https://rimbu.org/docs/collections/multimap) in the [Rimbu Docs](https://rimbu.org), or directly explore the [Rimbu MultiMap API Docs](https://rimbu.org/api/rimbu/multimap).
+
+### Try It Out
+
+Experience `@rimbu/multimap` in action! [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) on CodeSandBox.
 
 ## Installation
 
 ### Compabitity
 
-- [`Node >= 16` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
+- [`Node` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
 - [`Deno` ![Deno JS](https://img.shields.io/badge/deno%20js-000000?logo=deno&logoColor=white)](https://deno.com/runtime)
-- [`Bun >= 0.6.0` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
+- [`Bun` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
 - `Web` ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
 
-### Yarn / NPM / Bun
+### Package Managers
 
-For convenience, all main types are also exported through [`@rimbu/core`](../core).
+**Yarn:**
 
-To install this package only:
+```sh
+yarn add @rimbu/multimap
+```
 
-For `yarn`:
+**npm:**
 
-> `yarn add @rimbu/multimap`
+```sh
+npm install @rimbu/multimap
+```
 
-For `npm`:
+**Bun:**
 
-> `npm i @rimbu/multimap`
-
-For `bun`:
-
-> `bun add @rimbu/multimap`
+```sh
+bun add @rimbu/multimap
+```
 
 ### Deno
 
@@ -97,20 +109,18 @@ console.log(HashMultiMapHashValue.of([1, 2], [1, 3], [2, 3]).toString());
 
 ## Author
 
-[Arvid Nicolaas](https://github.com/vitoke)
+Created and maintained by [Arvid Nicolaas](https://github.com/vitoke).
 
 ## Contributing
 
-Feel very welcome to contribute to further improve Rimbu. Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
+We welcome contributions! Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
 
 ## Contributors
 
 <img src = "https://contrib.rocks/image?repo=rimbu-org/rimbu"/>
 
-Made with [contributors-img](https://contrib.rocks).
+_Made with [contributors-img](https://contrib.rocks)._
 
 ## License
 
-Licensed under the MIT License, Copyright © 2020-present Arvid Nicolaas.
-
-See [LICENSE](./LICENSE) for more information.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) for details.

@@ -8,59 +8,69 @@
 
 # @rimbu/graph
 
-A Graph is a data structure consisting of nodes that can be connected through edges. Each node has a unique value or identifier. Edges can be directed, in which case we will call it an Arrow Graph, or undirected, in which case we will call it an Edge Graph. Furthermore, edges and arrows can also have values, in which case we call it a Valued Graph.
+Welcome to `@rimbu/graph`! This package provides a versatile and powerful Graph data structure, allowing you to model complex relationships between nodes with ease.
 
-This package exports the following main types:
+### Key Features:
 
-| Name                       | Description                                                                   |
-| -------------------------- | ----------------------------------------------------------------------------- |
-| `ArrowGraph<N>`            | a generic directed graph with nodes of type N                                 |
-| `ArrowGraphHashed<N>`      | a directed graph with hashed nodes of type N                                  |
-| `ArrowGraphSorted<N>`      | a directed graph with sorted nodes of type N                                  |
-| `EdgeGraph<N>`             | a generic undirected graph with nodes of type N                               |
-| `EdgeGraphHashed<N>`       | an undirected graph with hashed nodes of type N                               |
-| `EdgeGraphSorted<N>`       | an undirected graph with sorted nodes of type N                               |
-| `Graph<N>`                 | a generic graph with nodes of type N                                          |
-| `ValuedGraph<N, V>`        | a generic graph with nodes of type N and edges with value type V              |
-| `VariantGraph<N>`          | a generic type-variant graph with nodes of type N                             |
-| `VariantValuedGraph<N, V>` | a generic type-variant graph with nodes of type N and edges with value type V |
+- **Directed and Undirected Graphs**: Choose between Arrow Graphs (directed) and Edge Graphs (undirected) based on your needs.
+- **Valued Graphs**: Add values to your edges for richer data representation.
+- **Hashed and Sorted Implementations**: Optimize your graphs with hashed or sorted nodes for efficient lookups and ordered traversal.
 
-For complete documentation please visit the [Graph page](https://rimbu.org/docs/collections/graph) _[Rimbu Docs](https://rimbu.org)_, or directly see the _[Rimbu Graph API Docs](https://rimbu.org/api/rimbu/graph)_.
+### Exported Types:
 
-Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
+| Name                       | Description                                                                        |
+| -------------------------- | ---------------------------------------------------------------------------------- |
+| `ArrowGraph<N>`            | A generic directed graph with nodes of type `N`.                                   |
+| `ArrowGraphHashed<N>`      | A directed graph with hashed nodes of type `N`.                                    |
+| `ArrowGraphSorted<N>`      | A directed graph with sorted nodes of type `N`.                                    |
+| `EdgeGraph<N>`             | A generic undirected graph with nodes of type `N`.                                 |
+| `EdgeGraphHashed<N>`       | An undirected graph with hashed nodes of type `N`.                                 |
+| `EdgeGraphSorted<N>`       | An undirected graph with sorted nodes of type `N`.                                 |
+| `Graph<N>`                 | A generic graph with nodes of type `N`.                                            |
+| `ValuedGraph<N, V>`        | A generic graph with nodes of type `N` and edges with value type `V`.              |
+| `VariantGraph<N>`          | A generic type-variant graph with nodes of type `N`.                               |
+| `VariantValuedGraph<N, V>` | A generic type-variant graph with nodes of type `N` and edges with value type `V`. |
+
+### Documentation
+
+For complete documentation, please visit the [Graph page](https://rimbu.org/docs/collections/graph) in the [Rimbu Docs](https://rimbu.org), or directly explore the [Rimbu Graph API Docs](https://rimbu.org/api/rimbu/graph).
+
+### Try It Out
+
+Experience `@rimbu/graph` in action! [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) on CodeSandBox.
 
 ## Installation
 
 ### Compabitity
 
-- [`Node >= 16` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
+- [`Node` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
 - [`Deno` ![Deno JS](https://img.shields.io/badge/deno%20js-000000?logo=deno&logoColor=white)](https://deno.com/runtime)
-- [`Bun >= 0.6.0` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
+- [`Bun` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
 - `Web` ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
 
-### Yarn / NPM / Bun
+### Package Managers
 
-For convenience, all main types are also exported through [`@rimbu/core`](../core).
+**Yarn:**
 
-To install this package only:
+```sh
+yarn add @rimbu/graph
+```
 
-For `yarn`:
+**npm:**
 
-> `yarn add @rimbu/graph`
+```sh
+npm install @rimbu/graph
+```
 
-For `npm`:
+**Bun:**
 
-> `npm i @rimbu/graph`
+```sh
+bun add @rimbu/graph
+```
 
-For `bun`:
+### Deno Setup
 
-> `bun add @rimbu/graph`
-
-### Deno
-
-For Deno, the following approach is recommended:
-
-In the root folder of your project, create or edit a file called `import_map.json` with the following contents (where you should replace `x.y.z` with the desired version of Rimbu):
+Create or edit `import_map.json` in your project root:
 
 ```json
 {
@@ -70,7 +80,7 @@ In the root folder of your project, create or edit a file called `import_map.jso
 }
 ```
 
-**Note: The trailing slashes are important!**
+_Replace `x.y.z` with the desired version._
 
 In this way you can use relative imports from Rimbu in your code, like so:
 
@@ -99,20 +109,18 @@ console.log(EdgeGraphSorted.of([1, 2], [2, 3], [3, 1], [5]).toString());
 
 ## Author
 
-[Arvid Nicolaas](https://github.com/vitoke)
+Created and maintained by [Arvid Nicolaas](https://github.com/vitoke).
 
 ## Contributing
 
-Feel very welcome to contribute to further improve Rimbu. Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
+We welcome contributions! Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
 
 ## Contributors
 
 <img src = "https://contrib.rocks/image?repo=rimbu-org/rimbu"/>
 
-Made with [contributors-img](https://contrib.rocks).
+_Made with [contributors-img](https://contrib.rocks)._
 
 ## License
 
-Licensed under the MIT License, Copyright © 2020-present Arvid Nicolaas.
-
-See [LICENSE](./LICENSE) for more information.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) for details.

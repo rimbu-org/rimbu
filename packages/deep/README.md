@@ -8,44 +8,56 @@
 
 # @rimbu/deep
 
-Offers tools to use handle plain JS objects as immutable objects. The [`Patch` object](https://rimbu.org/docs/deep/patch) allows convenient immutable modification of simple objects. The [`Match` object](https://rimbu.org/docs/deep/match) allows easy matching on plain objects. The [`Path` object](https://rimbu.org/docs/deep/path) allows easy querying of nested values. The [`Immutable` type](https://rimbu.org/docs/deep/immutable) makes it easy to create plain objects that that have compile-time protection against mutation. The [`Tuple` type](https://rimbu.org/docs/deep/tuple) is a utility to have similar functionality as `as const` but less strict.
+Welcome to `@rimbu/deep`! This package offers powerful tools to handle plain JavaScript objects as immutable objects, making your code more robust and maintainable.
 
-For complete documentation please visit the [Immutable Objects overview](https://rimbu.org/docs/deep/overview) in the _[Rimbu Docs](https://rimbu.org)_, or directly see the _[Rimbu Deep API Docs](https://rimbu.org/api/rimbu/deep)_.
+### Key Features:
 
-Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) in CodeSandBox.
+- **Immutable Modification**: Use the [`Patch` object](https://rimbu.org/docs/deep/patch) for convenient and immutable modifications of simple objects.
+- **Pattern Matching**: The [`Match` object](https://rimbu.org/docs/deep/match) allows easy pattern matching on plain objects.
+- **Nested Value Querying**: Easily query nested values with the [`Path` object](https://rimbu.org/docs/deep/path).
+- **Compile-Time Protection**: The [`Immutable` type](https://rimbu.org/docs/deep/immutable) helps create plain objects with compile-time protection against mutation.
+- **Flexible Tuples**: The [`Tuple` type](https://rimbu.org/docs/deep/tuple) provides similar functionality to `as const` but with more flexibility.
+
+### Documentation
+
+For complete documentation, please visit the [Immutable Objects overview](https://rimbu.org/docs/deep/overview) in the [Rimbu Docs](https://rimbu.org), or directly explore the [Rimbu Deep API Docs](https://rimbu.org/api/rimbu/deep).
+
+### Try It Out
+
+Experience `@rimbu/deep` in action! [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) on CodeSandBox.
 
 ## Installation
 
 ### Compabitity
 
-- [`Node >= 16` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
+- [`Node` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
 - [`Deno` ![Deno JS](https://img.shields.io/badge/deno%20js-000000?logo=deno&logoColor=white)](https://deno.com/runtime)
-- [`Bun >= 0.6.0` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
+- [`Bun` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
 - `Web` ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
 
-### Yarn / NPM / Bun
+### Package Managers
 
-For convenience, all main types are also exported through [`@rimbu/core`](../core).
+**Yarn:**
 
-To install this package only:
+```sh
+yarn add @rimbu/deep
+```
 
-For `yarn`:
+**npm:**
 
-> `yarn add @rimbu/deep`
+```sh
+npm install @rimbu/deep
+```
 
-For `npm`:
+**Bun:**
 
-> `npm i @rimbu/deep`
+```sh
+bun add @rimbu/deep
+```
 
-For `bun`:
+### Deno Setup
 
-> `bun add @rimbu/deep`
-
-### Deno
-
-For Deno, the following approach is recommended:
-
-In the root folder of your project, create or edit a file called `import_map.json` with the following contents (where you should replace `x.y.z` with the desired version of Rimbu):
+Create or edit `import_map.json` in your project root:
 
 ```json
 {
@@ -55,7 +67,7 @@ In the root folder of your project, create or edit a file called `import_map.jso
 }
 ```
 
-**Note: The trailing slashes are important!**
+_Replace `x.y.z` with the desired version._
 
 In this way you can use relative imports from Rimbu in your code, like so:
 
@@ -93,20 +105,18 @@ console.log(
 
 ## Author
 
-[Arvid Nicolaas](https://github.com/vitoke)
+Created and maintained by [Arvid Nicolaas](https://github.com/vitoke).
 
 ## Contributing
 
-Feel very welcome to contribute to further improve Rimbu. Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
+We welcome contributions! Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
 
 ## Contributors
 
 <img src = "https://contrib.rocks/image?repo=rimbu-org/rimbu"/>
 
-Made with [contributors-img](https://contrib.rocks).
+_Made with [contributors-img](https://contrib.rocks)._
 
 ## License
 
-Licensed under the MIT License, Copyright © 2020-present Arvid Nicolaas.
-
-See [LICENSE](./LICENSE) for more information.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) for details.

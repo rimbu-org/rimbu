@@ -2,8 +2,10 @@
     <img src="https://github.com/rimbu-org/rimbu/raw/main/assets/rimbu_logo.svg" />
 </p>
 
-[![npm version](https://badge.fury.io/js/@rimbu%2Fcore.svg)](https://www.npmjs.com/package/@rimbu/core) [![Deno](https://shield.deno.dev/x/rimbu)](http://deno.land/x/rimbu)
-![Licence](https://img.shields.io/github/license/rimbu-org/rimbu) [![codecov](https://codecov.io/gh/rimbu-org/rimbu/branch/main/graph/badge.svg?token=RSFK5B0N0Z)](https://codecov.io/gh/rimbu-org/rimbu)
+[![npm version](https://badge.fury.io/js/@rimbu%2Fcore.svg)](https://www.npmjs.com/package/@rimbu/core)
+[![Deno](https://shield.deno.dev/x/rimbu)](http://deno.land/x/rimbu)
+![Licence](https://img.shields.io/github/license/rimbu-org/rimbu)
+[![codecov](https://codecov.io/gh/rimbu-org/rimbu/branch/main/graph/badge.svg?token=RSFK5B0N0Z)](https://codecov.io/gh/rimbu-org/rimbu)
 
 # Rimbu: Immutable Collections and Tools for TypeScript
 
