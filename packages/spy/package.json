@@ -35,6 +35,7 @@
   "types": "./dist/cjs/index.d.cts",
   "exports": {
     ".": {
+      "bun": "./dist/bun/index.mts",
       "import": {
         "types": "./dist/esm/index.d.mts",
         "default": "./dist/esm/index.mjs"
@@ -42,8 +43,7 @@
       "require": {
         "types": "./dist/cjs/index.d.cts",
         "default": "./dist/cjs/index.cjs"
-      },
-      "bun": "./dist/bun/index.mts"
+      }
     }
   },
   "files": [
@@ -65,7 +65,7 @@
     "bundle:deno-clean": "rimraf _deno_prepare",
     "bundle:esm": "tsc --p tsconfig.esm.json",
     "clean": "rimraf dist",
-    "extract-api": "ts-node ../../config/api-extractor.ts config/api-extractor.main.json",
+    "extract-api": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
     "format": "yarn format:base --write",
     "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
     "format:check": "yarn format:base --check",

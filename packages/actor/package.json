@@ -33,6 +33,7 @@
   "types": "./dist/cjs/main/index.d.cts",
   "exports": {
     ".": {
+      "bun": "./dist/bun/main/index.mts",
       "import": {
         "types": "./dist/esm/main/index.d.mts",
         "default": "./dist/esm/main/index.mjs"
@@ -40,10 +41,10 @@
       "require": {
         "types": "./dist/cjs/main/index.d.cts",
         "default": "./dist/cjs/main/index.cjs"
-      },
-      "bun": "./dist/bun/main/index.mts"
+      }
     },
     "./immer": {
+      "bun": "./dist/bun/immer/index.mts",
       "import": {
         "types": "./dist/esm/immer/index.d.mts",
         "default": "./dist/esm/immer/index.mjs"
@@ -51,10 +52,10 @@
       "require": {
         "types": "./dist/cjs/immer/index.d.cts",
         "default": "./dist/cjs/immer/index.cjs"
-      },
-      "bun": "./dist/bun/immer/index.mts"
+      }
     },
     "./patch": {
+      "bun": "./dist/bun/patch/index.mts",
       "import": {
         "types": "./dist/esm/patch/index.d.mts",
         "default": "./dist/esm/patch/index.mjs"
@@ -62,8 +63,7 @@
       "require": {
         "types": "./dist/cjs/patch/index.d.cts",
         "default": "./dist/cjs/patch/index.cjs"
-      },
-      "bun": "./dist/bun/patch/index.mts"
+      }
     }
   },
   "files": [

@@ -135,8 +135,8 @@ export namespace Channel {
     C extends Channel.Read<infer T>
       ? T
       : C extends Channel.Write<infer T>
-      ? T
-      : never;
+        ? T
+        : never;
 
   /**
    * The Channel Error type.
@@ -233,7 +233,7 @@ export namespace Channel {
         TS extends any[],
         HS extends {
           [K in keyof TS]: [Channel.Read<TS[K]>, (value: TS[K]) => any];
-        }
+        },
       >(
         options?: {
           signal?: AbortSignal | undefined;
@@ -249,7 +249,7 @@ export namespace Channel {
         HS extends {
           [K in keyof TS]: [Channel.Read<TS[K]>, (value: TS[K]) => any];
         },
-        RT
+        RT,
       >(
         options: {
           signal?: AbortSignal | undefined;
@@ -339,7 +339,7 @@ export const Channel: Channel.Constructors = Object.freeze(
       HS extends {
         [K in keyof TS]: [Channel.Read<TS[K]>, (value: TS[K]) => any];
       },
-      RT
+      RT,
     >(
       options: {
         signal?: AbortSignal | undefined;

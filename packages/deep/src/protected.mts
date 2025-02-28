@@ -11,20 +11,21 @@ import type { IsAny, IsPlainObj } from '@rimbu/base';
  * - Any other type will not be mapped
  * @typeparam T - the input type
  */
-export type Protected<T> = IsAny<T> extends true
-  ? // to prevent infinite recursion, any will be any
-    T
-  : T extends readonly any[] & infer A
-  ? // convert all keys to readonly and all values to `Protected`
-    { readonly [K in keyof A]: Protected<A[K]> }
-  : T extends Map<infer K, infer V>
-  ? ReadonlyMap<Protected<K>, Protected<V>>
-  : T extends Set<infer E>
-  ? ReadonlySet<Protected<E>>
-  : T extends Promise<infer E>
-  ? Promise<Protected<E>>
-  : IsPlainObj<T> extends true
-  ? // convert all keys to readonly and all values to `Protected`
-    { readonly [K in keyof T]: Protected<T[K]> }
-  : // nothing to do, just return `T`
-    T;
+export type Protected<T> =
+  IsAny<T> extends true
+    ? // to prevent infinite recursion, any will be any
+      T
+    : T extends readonly any[] & infer A
+      ? // convert all keys to readonly and all values to `Protected`
+        { readonly [K in keyof A]: Protected<A[K]> }
+      : T extends Map<infer K, infer V>
+        ? ReadonlyMap<Protected<K>, Protected<V>>
+        : T extends Set<infer E>
+          ? ReadonlySet<Protected<E>>
+          : T extends Promise<infer E>
+            ? Promise<Protected<E>>
+            : IsPlainObj<T> extends true
+              ? // convert all keys to readonly and all values to `Protected`
+                { readonly [K in keyof T]: Protected<T[K]> }
+              : // nothing to do, just return `T`
+                T;

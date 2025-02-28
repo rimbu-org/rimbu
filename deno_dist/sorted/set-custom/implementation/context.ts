@@ -20,7 +20,10 @@ export class SortedSetContext<UT>
 
   readonly _empty: SortedSet<any>;
 
-  constructor(readonly blockSizeBits: number, readonly comp: Comp<UT>) {
+  constructor(
+    readonly blockSizeBits: number,
+    readonly comp: Comp<UT>
+  ) {
     super();
 
     this.maxEntries = 1 << this.blockSizeBits;

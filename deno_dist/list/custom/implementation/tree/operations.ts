@@ -8,7 +8,7 @@ export function treeStream<
   T,
   TS extends Tree<T, TS, TB, C>,
   TB extends Block<T, TB, C>,
-  C
+  C,
 >(tree: Tree<T, TS, TB, C>, range?: IndexRange, reversed = false): Stream<T> {
   const indexRange = IndexRange.getIndicesFor(
     range ?? { start: 0 },
@@ -80,7 +80,7 @@ export function treeGet<
   T,
   TS extends Tree<T, TS, TB, C>,
   TB extends Block<T, TB, C>,
-  C
+  C,
 >(tree: Tree<T, TS, TB, C>, index: number): T {
   const middleIndex = index - tree.left.length;
 
@@ -103,7 +103,7 @@ export function treePrepend<
   T,
   TS extends Tree<T, TS, TB, C>,
   TB extends Block<T, TB, C>,
-  C
+  C,
 >(tree: Tree<T, TS, TB, C>, child: C): TS {
   if (tree.left.canAddChild) {
     const newLeft = tree.left.prependInternal(child);
@@ -150,7 +150,7 @@ export function treeAppend<
   T,
   TS extends Tree<T, TS, TB, C>,
   TB extends Block<T, TB, C>,
-  C
+  C,
 >(tree: Tree<T, TS, TB, C>, child: C): TS {
   if (tree.right.canAddChild) {
     const newRight = tree.right.appendInternal(child);
@@ -197,7 +197,7 @@ export function treeUpdate<
   T,
   TS extends Tree<T, TS, TB, C>,
   TB extends Block<T, TB, C>,
-  C
+  C,
 >(tree: any, index: number, update: Update<T>): TS {
   const middleIndex = index - tree.left.length;
 
@@ -226,7 +226,7 @@ export function treeToArray<
   T,
   TS extends Tree<T, TS, TB, C>,
   TB extends Block<T, TB, C>,
-  C
+  C,
 >(tree: Tree<T, TS, TB, C>, range?: IndexRange, reversed = false): T[] {
   const indexRange = IndexRange.getIndicesFor(
     range ?? { start: 0 },
@@ -299,7 +299,7 @@ export function treeForEach<
   T,
   TS extends Tree<T, TS, TB, C>,
   TB extends Block<T, TB, C>,
-  C
+  C,
 >(
   tree: Tree<T, TS, TB, C>,
   f: (value: T, index: number, halt: () => void) => void,

@@ -17,7 +17,7 @@ export class GraphContext<
   UN,
   TT extends string,
   Dir extends boolean,
-  Tp extends GraphTypesContextImpl = GraphTypesContextImpl
+  Tp extends GraphTypesContextImpl = GraphTypesContextImpl,
 > implements GraphBase.Context<UN, Tp>
 {
   readonly _fixedType!: any;

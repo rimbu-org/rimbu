@@ -7,7 +7,7 @@ import type { ActionBase } from './internal.ts';
 export interface Actor<
   S,
   D extends (...args: any[]) => any = (action: ActionBase) => void,
-  ACS extends Actor.ActionsDefinition = Record<string, never>
+  ACS extends Actor.ActionsDefinition = Record<string, never>,
 > extends Actor.Base<S>,
     Actor.Dispatch<D>,
     Actor.ActionsDispatch<ACS, D> {}
@@ -23,7 +23,7 @@ export namespace Actor {
   export type DispatchFunction = (...args: any[]) => any;
 
   export interface Dispatch<
-    D extends Actor.DispatchFunction = (action: ActionBase) => void
+    D extends Actor.DispatchFunction = (action: ActionBase) => void,
   > {
     dispatch: D;
   }
@@ -33,14 +33,14 @@ export namespace Actor {
   };
 
   export interface Actions<
-    AC extends Actor.ActionsDefinition = Record<string, never>
+    AC extends Actor.ActionsDefinition = Record<string, never>,
   > {
     actions: AC;
   }
 
   export type ActionsToDispatch<
     AC extends Actor.ActionsDefinition,
-    D extends Actor.DispatchFunction
+    D extends Actor.DispatchFunction,
   > = {
     [K in keyof AC]: AC[K] extends (...args: any[]) => any
       ? (...args: Parameters<AC[K]>) => ReturnType<D>
@@ -49,16 +49,13 @@ export namespace Actor {
 
   export interface ActionsDispatch<
     AC extends Actor.ActionsDefinition,
-    D extends Actor.DispatchFunction
+    D extends Actor.DispatchFunction,
   > {
     actions: Actor.ActionsToDispatch<AC, D>;
   }
 
-  export type StateType<A extends Actor.Base<any>> = A extends Actor.Base<
-    infer S
-  >
-    ? S
-    : unknown;
+  export type StateType<A extends Actor.Base<any>> =
+    A extends Actor.Base<infer S> ? S : unknown;
 
   export type Listener = () => void;
 
@@ -71,7 +68,7 @@ export namespace Actor {
     EnhancedActor extends Actor.Dispatch<any> &
       Actor.Actions<any> & { actionCreators: AC } = Actor<S, D, AC> & {
       actionCreators: AC;
-    }
+    },
   >(config: {
     reducer: Actor.ActionReducer<S>;
     actions?: AC | undefined;
@@ -152,7 +149,7 @@ export namespace Actor {
 
 function createDispatchActions<
   A extends Actor.ActionsDefinition,
-  D extends Actor.DispatchFunction
+  D extends Actor.DispatchFunction,
 >(
   source: A | undefined,
   actor: { dispatch: D }

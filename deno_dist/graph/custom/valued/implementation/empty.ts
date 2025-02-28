@@ -14,14 +14,17 @@ export class ValuedGraphEmpty<
     N,
     V,
     Tp extends ValuedGraphTypesContextImpl,
-    TpG extends WithGraphValues<Tp, N, V> = WithGraphValues<Tp, N, V>
+    TpG extends WithGraphValues<Tp, N, V> = WithGraphValues<Tp, N, V>,
   >
   extends GraphEmptyBase
   implements ValuedGraphBase<N, V, Tp>
 {
   _NonEmptyType!: TpG['nonEmpty'];
 
-  constructor(readonly isDirected: boolean, readonly context: TpG['context']) {
+  constructor(
+    readonly isDirected: boolean,
+    readonly context: TpG['context']
+  ) {
     super();
   }
 

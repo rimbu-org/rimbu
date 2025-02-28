@@ -343,6 +343,6 @@ describe('match', () => {
 
   it('always returns false when receiving match keys that are not in the source object', () => {
     expect(match({ a: 1 }, { a: 1, b: 1 } as any)).toEqual(false);
-    expect(match({ a: 1 }, () => ({ a: 1, b: 1 } as any))).toEqual(false);
+    expect(match({ a: 1 }, () => ({ a: 1, b: 1 }) as any)).toEqual(false);
   });
 });

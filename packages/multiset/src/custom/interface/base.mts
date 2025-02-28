@@ -16,7 +16,7 @@ import type {
 
 export interface VariantMultiSetBase<
   T,
-  Tp extends VariantMultiSetBase.Types = VariantMultiSetBase.Types
+  Tp extends VariantMultiSetBase.Types = VariantMultiSetBase.Types,
 > extends FastIterable<T> {
   /**
    * Returns true if the collection is empty.
@@ -246,7 +246,7 @@ export interface VariantMultiSetBase<
 export namespace VariantMultiSetBase {
   export interface NonEmpty<
     T,
-    Tp extends VariantMultiSetBase.Types = VariantMultiSetBase.Types
+    Tp extends VariantMultiSetBase.Types = VariantMultiSetBase.Types,
   > extends VariantMultiSetBase<T, Tp>,
       Streamable.NonEmpty<T> {
     /**
@@ -323,7 +323,7 @@ export namespace VariantMultiSetBase {
 
 export interface MultiSetBase<
   T,
-  Tp extends MultiSetBase.Types = MultiSetBase.Types
+  Tp extends MultiSetBase.Types = MultiSetBase.Types,
 > extends VariantMultiSetBase<T, Tp> {
   /**
    * Returns the `context` associated to this collection instance.
@@ -412,7 +412,7 @@ export interface MultiSetBase<
 export namespace MultiSetBase {
   export interface NonEmpty<
     T,
-    Tp extends MultiSetBase.Types = MultiSetBase.Types
+    Tp extends MultiSetBase.Types = MultiSetBase.Types,
   > extends VariantMultiSetBase.NonEmpty<T, Tp>,
       Omit<MultiSetBase<T, Tp>, keyof VariantMultiSetBase.NonEmpty<any, any>>,
       Streamable.NonEmpty<T> {
@@ -521,7 +521,7 @@ export namespace MultiSetBase {
 
   export interface Context<
     UT,
-    Tp extends MultiSetBase.Types = MultiSetBase.Types
+    Tp extends MultiSetBase.Types = MultiSetBase.Types,
   > extends MultiSetBase.Factory<Tp, UT> {
     /**
      * A string tag defining the specific collection type
@@ -551,7 +551,7 @@ export namespace MultiSetBase {
 
   export interface Builder<
     T,
-    Tp extends MultiSetBase.Types = MultiSetBase.Types
+    Tp extends MultiSetBase.Types = MultiSetBase.Types,
   > {
     /**
      * Returns the amount of values in the builder.

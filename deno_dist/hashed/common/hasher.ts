@@ -441,7 +441,6 @@ export namespace Hasher {
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
   const _BooleanHasher: Hasher<Boolean> = createValueOfHasher(
     Boolean,
     _booleanHasher
@@ -464,13 +463,11 @@ export namespace Hasher {
     return _DateHasher;
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
   const _NumberHasher: Hasher<Number> = createValueOfHasher(
     Number,
     _numberHasher
   );
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
   const _StringHasher: Hasher<String> = createValueOfHasher(
     String,
     _stringHasher
@@ -552,7 +549,7 @@ export namespace Hasher {
    */
   export function objectHasher<
     K extends string | number | symbol,
-    V = any
+    V = any,
   >(options?: {
     keyHasher: Hasher<K>;
     valueHasher: Hasher<V>;
@@ -576,7 +573,7 @@ export namespace Hasher {
    */
   export function objectShallowHasher<
     K extends string | number | symbol,
-    V = any
+    V = any,
   >(): Hasher<Record<K, V>> {
     return _objectShallowHasher;
   }
@@ -596,7 +593,7 @@ export namespace Hasher {
    */
   export function objectDeepHasher<
     K extends string | number | symbol,
-    V = any
+    V = any,
   >(): Hasher<Record<K, V>> {
     return _objectDeepHasher;
   }

@@ -22,32 +22,34 @@ export namespace Selector {
    * Type defining the shape of allowed selectors, used to improve compiler checking.
    * @typeparam SL - the selector type
    */
-  export type Shape<SL> = IsAnyFunc<SL> extends true
-    ? // functions are allowed, type provided by `Selector`
-      SL
-    : IsArray<SL> extends true
-    ? // ensure tuple type is preserved
-      readonly [...(SL extends readonly unknown[] ? SL : never)]
-    : SL extends { readonly [key: string | number | symbol]: unknown }
-    ? // ensure all object properties satisfy `Shape`
-      { readonly [K in keyof SL]: Selector.Shape<SL[K]> }
-    : // nothing to check
-      SL;
+  export type Shape<SL> =
+    IsAnyFunc<SL> extends true
+      ? // functions are allowed, type provided by `Selector`
+        SL
+      : IsArray<SL> extends true
+        ? // ensure tuple type is preserved
+          readonly [...(SL extends readonly unknown[] ? SL : never)]
+        : SL extends { readonly [key: string | number | symbol]: unknown }
+          ? // ensure all object properties satisfy `Shape`
+            { readonly [K in keyof SL]: Selector.Shape<SL[K]> }
+          : // nothing to check
+            SL;
 
   /**
    * Type defining the result type of applying the SL selector type to the T value type.
    * @typeparam T - the source value type
    * @typeparam SL - the selector type
    */
-  export type Result<T, SL> = Selector<T> extends SL
-    ? never
-    : SL extends (...args: any[]) => infer R
-    ? R
-    : SL extends string
-    ? Path.Result<T, SL>
-    : {
-        readonly [K in keyof SL]: Selector.Result<T, SL[K]>;
-      };
+  export type Result<T, SL> =
+    Selector<T> extends SL
+      ? never
+      : SL extends (...args: any[]) => infer R
+        ? R
+        : SL extends string
+          ? Path.Result<T, SL>
+          : {
+              readonly [K in keyof SL]: Selector.Result<T, SL[K]>;
+            };
 }
 
 /**

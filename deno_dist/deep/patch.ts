@@ -22,15 +22,16 @@ export namespace Patch {
    * @typeparam P - the parent type
    * @typeparam R - the root object type
    */
-  export type Entry<T, C, P, R> = IsAnyFunc<T> extends true
-    ? T
-    : IsPlainObj<T> extends true
-    ? Patch.WithResult<T, P, R, Patch.Obj<T, C, R>>
-    : Tuple.IsTuple<T> extends true
-    ? Patch.WithResult<T, P, R, T | Patch.Tup<T, C, R>>
-    : IsArray<T> extends true
-    ? Patch.WithResult<T, P, R, T>
-    : Patch.WithResult<T, P, R, T>;
+  export type Entry<T, C, P, R> =
+    IsAnyFunc<T> extends true
+      ? T
+      : IsPlainObj<T> extends true
+        ? Patch.WithResult<T, P, R, Patch.Obj<T, C, R>>
+        : Tuple.IsTuple<T> extends true
+          ? Patch.WithResult<T, P, R, T | Patch.Tup<T, C, R>>
+          : IsArray<T> extends true
+            ? Patch.WithResult<T, P, R, T>
+            : Patch.WithResult<T, P, R, T>;
 
   /**
    * Either result type S, or a patch function with the value type, the parent type, and the root type.

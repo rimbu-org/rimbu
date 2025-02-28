@@ -11,7 +11,10 @@ function runWith(name: string, context: SortedMap.Context<number>): void {
     it('stream reversed', () => {
       expect(context.empty().stream({ reversed: true }).toArray()).toEqual([]);
       expect(
-        context.from(entries(8, 3, 5, 2)).stream({ reversed: true }).toArray()
+        context
+          .from(entries(8, 3, 5, 2))
+          .stream({ reversed: true })
+          .toArray()
       ).toEqual(entries(8, 5, 3, 2));
       const map = context.from(
         Stream.range({ amount: 100 }).map((v) => [v, v])

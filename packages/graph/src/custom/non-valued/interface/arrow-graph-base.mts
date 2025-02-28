@@ -5,7 +5,7 @@ import type { GraphBase, GraphElement } from '../../common/index.mjs';
 
 export interface ArrowGraphBase<
   N,
-  Tp extends ArrowGraphBase.Types = ArrowGraphBase.Types
+  Tp extends ArrowGraphBase.Types = ArrowGraphBase.Types,
 > extends GraphBase<N, Tp> {
   /**
    * Returns true since this is an arrow (directed) graph instance.
@@ -40,7 +40,7 @@ export interface ArrowGraphBase<
 export namespace ArrowGraphBase {
   export interface NonEmpty<
     N,
-    Tp extends ArrowGraphBase.Types = ArrowGraphBase.Types
+    Tp extends ArrowGraphBase.Types = ArrowGraphBase.Types,
   > extends GraphBase.NonEmpty<N, Tp>,
       Omit<ArrowGraphBase<N, Tp>, keyof GraphBase.NonEmpty<any, any>>,
       Streamable.NonEmpty<GraphElement<N>> {
@@ -62,12 +62,12 @@ export namespace ArrowGraphBase {
 
   export interface Builder<
     N,
-    Tp extends ArrowGraphBase.Types = ArrowGraphBase.Types
+    Tp extends ArrowGraphBase.Types = ArrowGraphBase.Types,
   > extends GraphBase.Builder<N, Tp> {}
 
   export interface Context<
     UN,
-    Tp extends ArrowGraphBase.Types = ArrowGraphBase.Types
+    Tp extends ArrowGraphBase.Types = ArrowGraphBase.Types,
   > extends GraphBase.Context<UN, Tp> {
     readonly isDirected: true;
   }

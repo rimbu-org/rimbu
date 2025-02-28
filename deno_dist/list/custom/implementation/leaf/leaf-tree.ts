@@ -253,8 +253,8 @@ export class LeafTree<T>
         null === newMiddle
           ? other.prependMiddle(newOtherLeft).prepend(joint)
           : null === other.middle
-          ? newMiddle.append(joint).append(newOtherLeft)
-          : newMiddle.append(joint).append(newOtherLeft).concat(other.middle);
+            ? newMiddle.append(joint).append(newOtherLeft)
+            : newMiddle.append(joint).append(newOtherLeft).concat(other.middle);
       return this.copy(undefined, other.right, newMiddle2);
     }
 
@@ -376,7 +376,7 @@ export class LeafTree<T>
     return this.copy2(newLeft, newRight, newMiddle);
   }
 
-  reversed(cacheMap = this.context.createCacheMap()): LeafTree<T> {
+  reversed(cacheMap: CacheMap = this.context.createCacheMap()): LeafTree<T> {
     const cachedThis = cacheMap.get(this);
     if (cachedThis !== undefined) return cachedThis;
 

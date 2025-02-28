@@ -6,7 +6,7 @@ import type { ValuedGraphElement } from '../../../common/index.mjs';
 export interface EdgeValuedGraphBase<
   N,
   V,
-  Tp extends EdgeValuedGraphBase.Types = EdgeValuedGraphBase.Types
+  Tp extends EdgeValuedGraphBase.Types = EdgeValuedGraphBase.Types,
 > extends ValuedGraphBase<N, V, Tp> {
   /**
    * Returns false since this is an edge (undirected) graph instance.
@@ -18,7 +18,7 @@ export namespace EdgeValuedGraphBase {
   export interface NonEmpty<
     N,
     V,
-    Tp extends EdgeValuedGraphBase.Types = EdgeValuedGraphBase.Types
+    Tp extends EdgeValuedGraphBase.Types = EdgeValuedGraphBase.Types,
   > extends ValuedGraphBase.NonEmpty<N, V, Tp>,
       Omit<
         EdgeValuedGraphBase<N, V, Tp>,
@@ -39,12 +39,12 @@ export namespace EdgeValuedGraphBase {
   export interface Builder<
     N,
     V,
-    Tp extends EdgeValuedGraphBase.Types = EdgeValuedGraphBase.Types
+    Tp extends EdgeValuedGraphBase.Types = EdgeValuedGraphBase.Types,
   > extends ValuedGraphBase.Builder<N, V, Tp> {}
 
   export interface Context<
     UN,
-    Tp extends EdgeValuedGraphBase.Types = EdgeValuedGraphBase.Types
+    Tp extends EdgeValuedGraphBase.Types = EdgeValuedGraphBase.Types,
   > extends ValuedGraphBase.Context<UN, Tp> {}
 
   /**

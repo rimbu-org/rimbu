@@ -34,15 +34,16 @@ export namespace RpcProxy {
    * type be asynchronous.
    * @typeparam T - the source type to unpromise
    */
-  export type Unpromise<T> = T extends Promise<infer R>
-    ? Unpromise<R>
-    : T extends (...args: infer A) => infer R
-    ? (...args: A) => Unpromise<R>
-    : T extends readonly any[]
-    ? { readonly [K in keyof T]: Unpromise<T[K]> }
-    : T extends Record<any, any>
-    ? { readonly [K in keyof T]: Unpromise<T[K]> }
-    : T;
+  export type Unpromise<T> =
+    T extends Promise<infer R>
+      ? Unpromise<R>
+      : T extends (...args: infer A) => infer R
+        ? (...args: A) => Unpromise<R>
+        : T extends readonly any[]
+          ? { readonly [K in keyof T]: Unpromise<T[K]> }
+          : T extends Record<any, any>
+            ? { readonly [K in keyof T]: Unpromise<T[K]> }
+            : T;
 
   /**
    * The RpcProxy error type

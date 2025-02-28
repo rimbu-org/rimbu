@@ -160,7 +160,7 @@ export class AsyncUnfoldIterator<T> extends AsyncFastIteratorBase<T> {
 
 export class AsyncZipWithIterator<
   I extends readonly unknown[],
-  R
+  R,
 > extends AsyncFastIteratorBase<R> {
   constructor(
     readonly iterables: { [K in keyof I]: AsyncStreamSource<I[K]> },
@@ -210,7 +210,7 @@ export class AsyncZipWithIterator<
 export class AsyncZipAllWithItererator<
   I extends readonly unknown[],
   F,
-  R
+  R,
 > extends AsyncFastIteratorBase<R> {
   constructor(
     readonly fillValue: AsyncOptLazy<F>,
@@ -413,7 +413,10 @@ export class AsyncIndexedIterator<T> extends AsyncFastIteratorBase<
 > {
   index: number;
 
-  constructor(readonly source: AsyncFastIterator<T>, readonly startIndex = 0) {
+  constructor(
+    readonly source: AsyncFastIterator<T>,
+    readonly startIndex = 0
+  ) {
     super();
     this.index = startIndex;
     this.return = (): Promise<void> => closeIters(source);
@@ -459,7 +462,7 @@ export class AsyncMapIterator<T, T2> extends AsyncFastIteratorBase<T2> {
 export class AsyncMapPureIterator<
   T,
   A extends readonly unknown[],
-  T2
+  T2,
 > extends AsyncFastIteratorBase<T2> {
   constructor(
     readonly source: AsyncFastIterator<T>,
@@ -573,7 +576,7 @@ export class AsyncFilterIterator<T> extends AsyncFastIteratorBase<T> {
 
 export class AsyncFilterPureIterator<
   T,
-  A extends readonly unknown[]
+  A extends readonly unknown[],
 > extends AsyncFastIteratorBase<T> {
   constructor(
     readonly source: AsyncFastIterator<T>,
@@ -681,7 +684,10 @@ export class AsyncDropWhileIterator<T> extends AsyncFastIteratorBase<T> {
 }
 
 export class AsyncTakeIterator<T> extends AsyncFastIteratorBase<T> {
-  constructor(readonly source: AsyncFastIterator<T>, readonly amount: number) {
+  constructor(
+    readonly source: AsyncFastIterator<T>,
+    readonly amount: number
+  ) {
     super();
     this.return = (): Promise<void> => closeIters(source);
   }
@@ -704,7 +710,10 @@ export class AsyncTakeIterator<T> extends AsyncFastIteratorBase<T> {
 export class AsyncDropIterator<T> extends AsyncFastIteratorBase<T> {
   remain: number;
 
-  constructor(readonly source: AsyncFastIterator<T>, readonly amount: number) {
+  constructor(
+    readonly source: AsyncFastIterator<T>,
+    readonly amount: number
+  ) {
     super();
 
     this.return = (): Promise<void> => closeIters(source);
@@ -733,7 +742,10 @@ export class AsyncRepeatIterator<T> extends AsyncFastIteratorBase<T> {
   iterator: AsyncFastIterator<T>;
   remain: number | undefined;
 
-  constructor(readonly source: AsyncStream<T>, readonly amount?: number) {
+  constructor(
+    readonly source: AsyncStream<T>,
+    readonly amount?: number
+  ) {
     super();
 
     this.iterator = source[Symbol.asyncIterator]();
@@ -836,7 +848,7 @@ export class AsyncReduceIterator<I, R> extends AsyncFastIteratorBase<R> {
 
 export class AsyncTransformerFastIterator<
   T,
-  R
+  R,
 > extends AsyncFastIteratorBase<R> {
   constructor(
     readonly sourceIterator: AsyncFastIterator<T>,

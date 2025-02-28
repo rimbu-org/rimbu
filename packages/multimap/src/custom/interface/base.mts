@@ -26,7 +26,7 @@ import type {
 export interface VariantMultiMapBase<
   K,
   V,
-  Tp extends VariantMultiMapBase.Types = VariantMultiMapBase.Types
+  Tp extends VariantMultiMapBase.Types = VariantMultiMapBase.Types,
 > extends FastIterable<[K, V]> {
   /**
    * Returns true if the collection is empty.
@@ -225,7 +225,7 @@ export interface VariantMultiMapBase<
   ):
     | [
         WithKeyValue<Tp, K, V>['normal'],
-        WithKeyValue<Tp, K, V>['keyMapValuesNonEmpty']
+        WithKeyValue<Tp, K, V>['keyMapValuesNonEmpty'],
       ]
     | undefined;
   /**
@@ -303,7 +303,7 @@ export namespace VariantMultiMapBase {
   export interface NonEmpty<
     K,
     V,
-    Tp extends VariantMultiMapBase.Types = VariantMultiMapBase.Types
+    Tp extends VariantMultiMapBase.Types = VariantMultiMapBase.Types,
   > extends VariantMultiMapBase<K, V, Tp>,
       Streamable.NonEmpty<[K, V]> {
     /**
@@ -403,7 +403,7 @@ export namespace VariantMultiMapBase {
 export interface MultiMapBase<
   K,
   V,
-  Tp extends MultiMapBase.Types = MultiMapBase.Types
+  Tp extends MultiMapBase.Types = MultiMapBase.Types,
 > extends VariantMultiMapBase<K, V, Tp> {
   /**
    * Returns the `context` associated to this collection instance.
@@ -500,7 +500,7 @@ export namespace MultiMapBase {
   export interface NonEmpty<
     K,
     V,
-    Tp extends MultiMapBase.Types = MultiMapBase.Types
+    Tp extends MultiMapBase.Types = MultiMapBase.Types,
   > extends VariantMultiMapBase.NonEmpty<K, V, Tp>,
       Omit<
         MultiMapBase<K, V, Tp>,
@@ -532,7 +532,7 @@ export namespace MultiMapBase {
   export interface Factory<
     Tp extends MultiMapBase.Types,
     UK = unknown,
-    UV = unknown
+    UV = unknown,
   > {
     /**
      * Returns the (singleton) empty instance of this type and context with given key and value types.
@@ -599,7 +599,7 @@ export namespace MultiMapBase {
   export interface Context<
     UK,
     UV,
-    Tp extends MultiMapBase.Types = MultiMapBase.Types
+    Tp extends MultiMapBase.Types = MultiMapBase.Types,
   > extends MultiMapBase.Factory<Tp, UK, UV> {
     /**
      * A string tag defining the specific collection type
@@ -623,7 +623,7 @@ export namespace MultiMapBase {
   export interface Builder<
     K,
     V,
-    Tp extends MultiMapBase.Types = MultiMapBase.Types
+    Tp extends MultiMapBase.Types = MultiMapBase.Types,
   > {
     /**
      * Returns the amount of entries in the builder.

@@ -36,7 +36,7 @@ export namespace Path {
       T,
       Write extends boolean,
       Maybe extends boolean,
-      First extends boolean = false
+      First extends boolean = false,
     > = `${IsAnyFunc<T> extends true
       ? // functions can not be further decomposed
         ''
@@ -54,20 +54,21 @@ export namespace Path {
       T,
       Write extends boolean,
       Maybe extends boolean,
-      First extends boolean
-    > = Path.Internal.IsOptional<T> extends true
-      ? // the value T may be null or undefined, check whether further chaining is allowed
-        Write extends false
-        ? // path is not used to write to, so optional chaining is allowed
-          Path.Internal.Generic<Exclude<T, undefined | null>, Write, true>
-        : // path can be written to, no optional chaining allowed
-          never
-      : // determine separator, and continue with non-optional value
-        `${Path.Internal.Separator<
-          First,
-          Maybe,
-          IsArray<T>
-        >}${Path.Internal.NonOptional<T, Write, Maybe>}`;
+      First extends boolean,
+    > =
+      Path.Internal.IsOptional<T> extends true
+        ? // the value T may be null or undefined, check whether further chaining is allowed
+          Write extends false
+          ? // path is not used to write to, so optional chaining is allowed
+            Path.Internal.Generic<Exclude<T, undefined | null>, Write, true>
+          : // path can be written to, no optional chaining allowed
+            never
+        : // determine separator, and continue with non-optional value
+          `${Path.Internal.Separator<
+            First,
+            Maybe,
+            IsArray<T>
+          >}${Path.Internal.NonOptional<T, Write, Maybe>}`;
 
     /**
      * Determines the allowed paths into a non-optional value of type `T`.
@@ -76,25 +77,22 @@ export namespace Path {
      * @typeparam Maybe - if true the value at the current path is optional
      * @typeparam First - if true this is the root call
      */
-    export type NonOptional<
-      T,
-      Write extends boolean,
-      Maybe extends boolean
-    > = Tuple.IsTuple<T> extends true
-      ? // determine allowed paths for tuple
-        Path.Internal.Tup<T, Write, Maybe>
-      : T extends readonly any[]
-      ? // determine allowed paths for array
-        Write extends false
-        ? // path is not writable so arrays are allowed
-          Path.Internal.Arr<T>
-        : // path is writable, no arrays allowed
-          never
-      : IsPlainObj<T> extends true
-      ? // determine allowed paths for object
-        Path.Internal.Obj<T, Write, Maybe>
-      : // no match
-        never;
+    export type NonOptional<T, Write extends boolean, Maybe extends boolean> =
+      Tuple.IsTuple<T> extends true
+        ? // determine allowed paths for tuple
+          Path.Internal.Tup<T, Write, Maybe>
+        : T extends readonly any[]
+          ? // determine allowed paths for array
+            Write extends false
+            ? // path is not writable so arrays are allowed
+              Path.Internal.Arr<T>
+            : // path is writable, no arrays allowed
+              never
+          : IsPlainObj<T> extends true
+            ? // determine allowed paths for object
+              Path.Internal.Obj<T, Write, Maybe>
+            : // no match
+              never;
 
     /**
      * Determines the allowed paths for a tuple. Since tuples have fixed types, they do not
@@ -104,11 +102,7 @@ export namespace Path {
      * @typeparam Maybe - if true the value at the current path is optional
      */
     export type Tup<T, Write extends boolean, Maybe extends boolean> = {
-      [K in Tuple.KeysOf<T>]: `[${K}]${Path.Internal.Generic<
-        T[K],
-        Write,
-        Maybe
-      >}`;
+      [K in Tuple.KeysOf<T>]: `[${K}]${Path.Internal.Generic<T[K], Write, Maybe>}`;
     }[Tuple.KeysOf<T>];
 
     /**
@@ -143,7 +137,7 @@ export namespace Path {
     export type Separator<
       First extends boolean,
       Maybe extends boolean,
-      IsArray extends boolean
+      IsArray extends boolean,
     > = Maybe extends true
       ? First extends true
         ? // first optional value cannot have separator
@@ -151,13 +145,13 @@ export namespace Path {
         : // non-first optional value must have separator
           '?.'
       : First extends true
-      ? // first non-optional value has empty separator
-        ''
-      : IsArray extends true
-      ? // array selectors do not have separator
-        ''
-      : // normal separator
-        '.';
+        ? // first non-optional value has empty separator
+          ''
+        : IsArray extends true
+          ? // array selectors do not have separator
+            ''
+          : // normal separator
+            '.';
 
     /**
      * Determines whether the given type `T` is optional, that is, whether it can be null or undefined.
@@ -169,10 +163,10 @@ export namespace Path {
       ? // is optional
         True
       : null extends T
-      ? // is optional
-        True
-      : // not optional
-        False;
+        ? // is optional
+          True
+        : // not optional
+          False;
 
     /**
      * Returns type `T` if `Maybe` is false, `T | undefined` otherwise.
@@ -190,7 +184,7 @@ export namespace Path {
      */
     export type AppendIfNotEmpty<
       A extends string[],
-      T extends string
+      T extends string,
     > = T extends ''
       ? // empty string, do not add
         A
@@ -224,23 +218,23 @@ export namespace Path {
     export type For<
       T,
       Tokens,
-      Maybe extends boolean = Path.Internal.IsOptional<T>
+      Maybe extends boolean = Path.Internal.IsOptional<T>,
     > = Tokens extends []
       ? // no more token
         Path.Internal.MaybeValue<T, Maybe>
       : Path.Internal.IsOptional<T> extends true
-      ? // T can be null or undefined, so continue with Maybe set to true
-        Path.Result.For<Exclude<T, undefined | null>, Tokens, Maybe>
-      : Tokens extends ['?.', infer Key, ...infer Rest]
-      ? // optional chaining, process first part and set Maybe to true
-        Path.Result.For<Path.Result.Part<T, Key, Maybe>, Rest, true>
-      : Tokens extends ['.', infer Key, ...infer Rest]
-      ? // normal chaining, process first part and continue
-        Path.Result.For<Path.Result.Part<T, Key, false>, Rest, Maybe>
-      : Tokens extends [infer Key, ...infer Rest]
-      ? // process first part, and continue
-        Path.Result.For<Path.Result.Part<T, Key, false>, Rest, Maybe>
-      : never;
+        ? // T can be null or undefined, so continue with Maybe set to true
+          Path.Result.For<Exclude<T, undefined | null>, Tokens, Maybe>
+        : Tokens extends ['?.', infer Key, ...infer Rest]
+          ? // optional chaining, process first part and set Maybe to true
+            Path.Result.For<Path.Result.Part<T, Key, Maybe>, Rest, true>
+          : Tokens extends ['.', infer Key, ...infer Rest]
+            ? // normal chaining, process first part and continue
+              Path.Result.For<Path.Result.Part<T, Key, false>, Rest, Maybe>
+            : Tokens extends [infer Key, ...infer Rest]
+              ? // process first part, and continue
+                Path.Result.For<Path.Result.Part<T, Key, false>, Rest, Maybe>
+              : never;
 
     /**
      * Determines the result of getting the property/index `K` from type `T`, taking into
@@ -249,15 +243,16 @@ export namespace Path {
      * @typeparam K - the key to get from the source type
      * @typeparam Maybe - if true indicates that the path may be undefined
      */
-    export type Part<T, K, Maybe extends boolean> = IsArray<T> extends true
-      ? // for arrays, Maybe needs to be set to true to force optional chaining
-        // for tuples, Maybe should be false
-        Path.Internal.MaybeValue<
-          T[K & keyof T],
-          Tuple.IsTuple<T> extends true ? Maybe : true
-        >
-      : // Return the type at the given key, and take `Maybe` into account
-        Path.Internal.MaybeValue<T[K & keyof T], Maybe>;
+    export type Part<T, K, Maybe extends boolean> =
+      IsArray<T> extends true
+        ? // for arrays, Maybe needs to be set to true to force optional chaining
+          // for tuples, Maybe should be false
+          Path.Internal.MaybeValue<
+            T[K & keyof T],
+            Tuple.IsTuple<T> extends true ? Maybe : true
+          >
+        : // Return the type at the given key, and take `Maybe` into account
+          Path.Internal.MaybeValue<T[K & keyof T], Maybe>;
 
     /**
      * Converts a path string into separate tokens in a string array.
@@ -268,31 +263,35 @@ export namespace Path {
     export type Tokenize<
       P extends string,
       Token extends string = '',
-      Res extends string[] = []
+      Res extends string[] = [],
     > = P extends ''
       ? // no more input to process, return result
         Path.Internal.AppendIfNotEmpty<Res, Token>
       : P extends `[${infer Index}]${infer Rest}`
-      ? // input is an array selector, append index to tokens. Continue with new token
-        Tokenize<
-          Rest,
-          '',
-          [...Path.Internal.AppendIfNotEmpty<Res, Token>, Index]
-        >
-      : P extends `?.${infer Rest}`
-      ? // optional chaining, append to tokens. Continue with new token
-        Tokenize<
-          Rest,
-          '',
-          [...Path.Internal.AppendIfNotEmpty<Res, Token>, '?.']
-        >
-      : P extends `.${infer Rest}`
-      ? // normal chaining, append to tokens. Continue with new token
-        Tokenize<Rest, '', [...Path.Internal.AppendIfNotEmpty<Res, Token>, '.']>
-      : P extends `${infer First}${infer Rest}`
-      ? // process next character
-        Tokenize<Rest, `${Token}${First}`, Res>
-      : never;
+        ? // input is an array selector, append index to tokens. Continue with new token
+          Tokenize<
+            Rest,
+            '',
+            [...Path.Internal.AppendIfNotEmpty<Res, Token>, Index]
+          >
+        : P extends `?.${infer Rest}`
+          ? // optional chaining, append to tokens. Continue with new token
+            Tokenize<
+              Rest,
+              '',
+              [...Path.Internal.AppendIfNotEmpty<Res, Token>, '?.']
+            >
+          : P extends `.${infer Rest}`
+            ? // normal chaining, append to tokens. Continue with new token
+              Tokenize<
+                Rest,
+                '',
+                [...Path.Internal.AppendIfNotEmpty<Res, Token>, '.']
+              >
+            : P extends `${infer First}${infer Rest}`
+              ? // process next character
+                Tokenize<Rest, `${Token}${First}`, Res>
+              : never;
   }
 
   /**

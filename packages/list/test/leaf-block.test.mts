@@ -585,7 +585,9 @@ function runLeafBlockTests(
       {
         const [l1, l2] = List.unzip(
           createBlock<[number, string]>([1, 'a'], [2, 'b']),
-          { length: 2 }
+          {
+            length: 2,
+          }
         );
 
         expect(l1.toArray()).toEqual([1, 2]);

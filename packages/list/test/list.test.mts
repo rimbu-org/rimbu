@@ -301,36 +301,44 @@ describe('List methods', () => {
     expect(List.empty().sort(Comp.numberComp())).toBe(List.empty());
 
     //Strings
-    expect(List.from(['C', 'E', 'B', 'A', 'D']).sort()).toEqual(
-      List.from(['A', 'B', 'C', 'D', 'E'])
-    );
+    expect(List.from(['C', 'E', 'B', 'A', 'D']).sort().toArray()).toEqual([
+      'A',
+      'B',
+      'C',
+      'D',
+      'E',
+    ]);
 
     //Strings, with duplicates
-    expect(List.from(['A', 'C', 'B', 'A', 'B', 'C', 'A']).sort()).toEqual(
-      List.from(['A', 'A', 'A', 'B', 'B', 'C', 'C'])
-    );
+    expect(
+      List.from(['A', 'C', 'B', 'A', 'B', 'C', 'A']).sort().toArray()
+    ).toEqual(['A', 'A', 'A', 'B', 'B', 'C', 'C']);
 
     //Default number sorting
-    expect(List.from([90, 4, 8, 100, 7, 1, 9]).sort()).toEqual(
-      List.from([1, 100, 4, 7, 8, 9, 90])
-    );
+    expect(List.from([90, 4, 8, 100, 7, 1, 9]).sort().toArray()).toEqual([
+      1, 100, 4, 7, 8, 9, 90,
+    ]);
 
     //Comp-based number sorting
-    expect(List.from([90, 4, 8, 100, 7, 1, 9]).sort(Comp.numberComp())).toEqual(
-      List.from([1, 4, 7, 8, 9, 90, 100])
-    );
+    expect(
+      List.from([90, 4, 8, 100, 7, 1, 9]).sort(Comp.numberComp()).toArray()
+    ).toEqual([1, 4, 7, 8, 9, 90, 100]);
 
     //Comp-based number sorting inverse
     expect(
-      List.from([90, 4, 8, 100, 7, 1, 9]).sort(Comp.numberComp(), {
-        inverse: true,
-      })
-    ).toEqual(List.from([1, 4, 7, 8, 9, 90, 100]).reversed());
+      List.from([90, 4, 8, 100, 7, 1, 9])
+        .sort(Comp.numberComp(), {
+          inverse: true,
+        })
+        .toArray()
+    ).toEqual([1, 4, 7, 8, 9, 90, 100].toReversed());
 
     //Duplicate numbers
     expect(
-      List.from([90, 4, 7, 90, 8, 100, 7, 1, 9, 7]).sort(Comp.numberComp())
-    ).toEqual(List.from([1, 4, 7, 7, 7, 8, 9, 90, 90, 100]));
+      List.from([90, 4, 7, 90, 8, 100, 7, 1, 9, 7])
+        .sort(Comp.numberComp())
+        .toArray()
+    ).toEqual([1, 4, 7, 7, 7, 8, 9, 90, 90, 100]);
 
     //Dates, with duplicates
     expect(
@@ -340,16 +348,16 @@ describe('List methods', () => {
         new Date(1986, 3, 29),
         new Date(2000, 3, 3),
         new Date(1998, 5, 13),
-      ]).sort(Comp.dateComp())
-    ).toEqual(
-      List.from([
-        new Date(1986, 3, 29),
-        new Date(1998, 5, 13),
-        new Date(2000, 3, 3),
-        new Date(2000, 3, 3),
-        new Date(2000, 10, 10),
       ])
-    );
+        .sort(Comp.dateComp())
+        .toArray()
+    ).toEqual([
+      new Date(1986, 3, 29),
+      new Date(1998, 5, 13),
+      new Date(2000, 3, 3),
+      new Date(2000, 3, 3),
+      new Date(2000, 10, 10),
+    ]);
   });
 
   it('splice', () => {

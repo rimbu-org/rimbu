@@ -378,7 +378,9 @@ export class RemoteChannelRead<T>
       try {
         const { sourceInstanceId } = await this.receiveMessage(
           'OPEN_CHANNEL_REQUEST',
-          { timeoutMs: handshakeAttemptTimeoutMs }
+          {
+            timeoutMs: handshakeAttemptTimeoutMs,
+          }
         );
 
         let instanceId = getRandomSequenceNumber();
@@ -446,7 +448,7 @@ export class RemoteChannelRead<T>
         });
 
         this.postMessage('SEND_VALUE_RESPONSE', { accepted: true });
-      } catch (err) {
+      } catch {
         this.postMessage('SEND_VALUE_RESPONSE', { accepted: false });
       }
     }

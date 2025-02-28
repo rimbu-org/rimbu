@@ -13,7 +13,7 @@ import {
 export type Reactor<
   A extends Actor.Base<S> & Actor.Dispatch<D>,
   S,
-  D extends (...args: any[]) => any
+  D extends (...args: any[]) => any,
 > = A & {
   use(): Actor.Dispatch<D> & {
     useSelect<SL extends Deep.Selector<S>>(
@@ -27,7 +27,7 @@ export namespace Reactor {
   export function enhancer<
     S,
     A extends Actor.Base<S> & Actor.Dispatch<D>,
-    D extends (...args: any[]) => any
+    D extends (...args: any[]) => any,
   >(actor: A & Actor.Base<S>): Reactor<A, S, D> {
     const selectorCache = new Map<Deep.Selector.Shape<any>, SelectorEntry>();
 
@@ -88,7 +88,7 @@ export namespace Reactor {
           );
 
           // return unregister function
-          return () => {
+          return (): void => {
             unregisterSelector(selector, forceRerender, selectorCache);
             entry.current = undefined;
           };

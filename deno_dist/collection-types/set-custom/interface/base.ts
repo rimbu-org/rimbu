@@ -17,7 +17,7 @@ import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 
 export interface VariantSetBase<
   T,
-  Tp extends VariantSetBase.Types = VariantSetBase.Types
+  Tp extends VariantSetBase.Types = VariantSetBase.Types,
 > extends FastIterable<T> {
   /**
    * Returns the number of values in the collection.
@@ -192,7 +192,7 @@ export interface VariantSetBase<
 export namespace VariantSetBase {
   export interface NonEmpty<
     T,
-    Tp extends VariantSetBase.Types = VariantSetBase.Types
+    Tp extends VariantSetBase.Types = VariantSetBase.Types,
   > extends VariantSetBase<T, Tp>,
       Streamable.NonEmpty<T> {
     /**
@@ -575,7 +575,7 @@ export namespace RSetBase {
 
   export abstract class ContextBase<
     UT,
-    Tp extends RSetBase.Types = RSetBase.Types
+    Tp extends RSetBase.Types = RSetBase.Types,
   > implements RSetBase.Context<UT, Tp>
   {
     abstract get typeTag(): string;

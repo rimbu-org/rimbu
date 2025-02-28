@@ -16,7 +16,7 @@ import type {
 export class OrderedMapEmpty<
     K = any,
     V = any,
-    Tp extends OrderedMapTypes = OrderedMapTypes
+    Tp extends OrderedMapTypes = OrderedMapTypes,
   >
   extends EmptyBase
   implements OrderedMapBase<K, V, Tp>

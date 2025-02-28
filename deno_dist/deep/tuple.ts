@@ -138,7 +138,7 @@ export namespace Tuple {
    */
   export function append<
     T extends Tuple.Source,
-    V extends readonly [unknown, ...unknown[]]
+    V extends readonly [unknown, ...unknown[]],
   >(tuple: T, ...values: V): readonly [...T, ...V] {
     return [...tuple, ...values];
   }

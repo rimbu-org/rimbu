@@ -19,7 +19,7 @@ export class LeafTreeBuilder<T>
     public _left?: LeafBlockBuilder<T>,
     public _right?: LeafBlockBuilder<T>,
     public _middle?: NonLeafBuilder<T, LeafBlockBuilder<T>>,
-    public length = source?.length ?? 0
+    public length: number = source?.length ?? 0
   ) {
     super();
   }

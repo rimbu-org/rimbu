@@ -89,13 +89,13 @@ export namespace ValuedGraphElement {
   export function getLinkElement<
     N,
     V,
-    K extends keyof ValuedGraphElement<N, V>
+    K extends keyof ValuedGraphElement<N, V>,
   >(e: ValuedGraphElement<N, V>, key: K): ValuedLink<N, V>[K] | undefined;
   export function getLinkElement<
     N,
     V,
     K extends keyof ValuedGraphElement<N, V>,
-    O
+    O,
   >(
     e: ValuedGraphElement<N, V>,
     key: K,

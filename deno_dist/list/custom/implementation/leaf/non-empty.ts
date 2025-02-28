@@ -113,8 +113,8 @@ export abstract class ListNonEmptyBase<T>
       comp === undefined
         ? undefined
         : inverse
-        ? (a: T, b: T): number => comp.compare(b, a)
-        : comp.compare;
+          ? (a: T, b: T): number => comp.compare(b, a)
+          : comp.compare;
     const sortedArray = this.toArray().sort(compareFn);
 
     return this.context.from(sortedArray);

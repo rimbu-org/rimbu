@@ -185,7 +185,7 @@ export function selectWith<T, SL extends Selector<T>>(
 export function selectAt<
   T,
   P extends Path.Get<T>,
-  SL extends Selector<Path.Result<T, P>>
+  SL extends Selector<Path.Result<T, P>>,
 >(
   source: T,
   path: P,
@@ -211,7 +211,7 @@ export function selectAt<
 export function selectAtWith<
   T,
   P extends Path.Get<T>,
-  SL extends Selector<Path.Result<T, P>>
+  SL extends Selector<Path.Result<T, P>>,
 >(
   path: P,
   selector: Selector.Shape<SL>

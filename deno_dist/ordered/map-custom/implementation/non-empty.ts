@@ -25,7 +25,7 @@ export class OrderedMapNonEmpty<
     K,
     V,
     Tp extends OrderedMapTypes = OrderedMapTypes,
-    TpG extends WithKeyValue<Tp, K, V> = WithKeyValue<Tp, K, V>
+    TpG extends WithKeyValue<Tp, K, V> = WithKeyValue<Tp, K, V>,
   >
   extends NonEmptyBase<[K, V]>
   implements OrderedMapBase.NonEmpty<K, V, Tp>

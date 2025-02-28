@@ -10,7 +10,7 @@ import type { Stream, Streamable } from '@rimbu/stream';
 export interface OrderedMapBase<
   K,
   V,
-  Tp extends OrderedMapBase.Types = OrderedMapBase.Types
+  Tp extends OrderedMapBase.Types = OrderedMapBase.Types,
 > extends RMapBase<K, V, Tp> {
   /**
    * Returns a `List` instance containing the key order of the Map.
@@ -38,7 +38,7 @@ export namespace OrderedMapBase {
   export interface NonEmpty<
     K,
     V,
-    Tp extends OrderedMapBase.Types = OrderedMapBase.Types
+    Tp extends OrderedMapBase.Types = OrderedMapBase.Types,
   > extends RMapBase.NonEmpty<K, V, Tp>,
       Omit<OrderedMapBase<K, V, Tp>, keyof RMapBase.NonEmpty<any, any, any>>,
       Streamable.NonEmpty<readonly [K, V]> {
@@ -68,12 +68,12 @@ export namespace OrderedMapBase {
   export interface Builder<
     K,
     V,
-    Tp extends OrderedMapBase.Types = OrderedMapBase.Types
+    Tp extends OrderedMapBase.Types = OrderedMapBase.Types,
   > extends RMapBase.Builder<K, V, Tp> {}
 
   export interface Context<
     UK,
-    Tp extends OrderedMapBase.Types = OrderedMapBase.Types
+    Tp extends OrderedMapBase.Types = OrderedMapBase.Types,
   > extends RMapBase.Context<UK, Tp> {
     readonly typeTag: 'OrderedMap';
 

@@ -4,7 +4,7 @@ import type { GraphBase, GraphElement } from '../../common/index.mjs';
 
 export interface EdgeGraphBase<
   N,
-  Tp extends EdgeGraphBase.Types = EdgeGraphBase.Types
+  Tp extends EdgeGraphBase.Types = EdgeGraphBase.Types,
 > extends GraphBase<N, Tp> {
   /**
    * Returns false since this is an arrow (directed) graph instance.
@@ -15,7 +15,7 @@ export interface EdgeGraphBase<
 export namespace EdgeGraphBase {
   export interface NonEmpty<
     N,
-    Tp extends EdgeGraphBase.Types = EdgeGraphBase.Types
+    Tp extends EdgeGraphBase.Types = EdgeGraphBase.Types,
   > extends GraphBase.NonEmpty<N, Tp>,
       Omit<EdgeGraphBase<N, Tp>, keyof GraphBase.NonEmpty<any, any>>,
       Streamable.NonEmpty<GraphElement<N>> {
@@ -32,12 +32,12 @@ export namespace EdgeGraphBase {
 
   export interface Builder<
     N,
-    Tp extends EdgeGraphBase.Types = EdgeGraphBase.Types
+    Tp extends EdgeGraphBase.Types = EdgeGraphBase.Types,
   > extends GraphBase.Builder<N, Tp> {}
 
   export interface Context<
     UN,
-    Tp extends EdgeGraphBase.Types = EdgeGraphBase.Types
+    Tp extends EdgeGraphBase.Types = EdgeGraphBase.Types,
   > extends GraphBase.Context<UN, Tp> {
     readonly isDirected: false;
   }

@@ -9,8 +9,6 @@ import {
   NonLeafTree,
 } from '../src/custom/index.mjs';
 
-import './setupTests';
-
 const context = new ListContext(2);
 
 describe('NonLeafBlock', () => {
