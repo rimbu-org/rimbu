@@ -18,7 +18,7 @@ export namespace ErrBase {
   export abstract class CustomError {
     constructor(readonly message: string) {}
 
-    get name() {
+    get name(): string {
       return this.constructor.name;
     }
   }

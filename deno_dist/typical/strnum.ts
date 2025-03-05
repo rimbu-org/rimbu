@@ -19,14 +19,12 @@ export type Digit = '0' | PosDigit;
  * PosNum<'0'> => never
  * ```
  */
-export type PosNum<N extends string> = N extends Str.Append<
-  PosDigit,
-  infer Rest
->
-  ? Rest extends Str.TakeWhile<Rest, Digit>
-    ? N
-    : never
-  : never;
+export type PosNum<N extends string> =
+  N extends Str.Append<PosDigit, infer Rest>
+    ? Rest extends Str.TakeWhile<Rest, Digit>
+      ? N
+      : never
+    : never;
 
 /**
  * Type that will return the incoming type if the value is a valid natural number,
@@ -48,14 +46,12 @@ export type NatNum<N extends string> = N extends '0' ? '0' : PosNum<N>;
  * IsPosNum<-5> => false
  * ```
  */
-export type IsPosNum<N extends string> = N extends Str.Append<
-  PosDigit,
-  infer Rest
->
-  ? Str.DropWhile<Rest, Digit> extends ''
-    ? true
-    : false
-  : false;
+export type IsPosNum<N extends string> =
+  N extends Str.Append<PosDigit, infer Rest>
+    ? Str.DropWhile<Rest, Digit> extends ''
+      ? true
+      : false
+    : false;
 
 /**
  * Returns true if the given string is a valid natural number, false otherwise.
@@ -103,63 +99,72 @@ export type SymTup<A, B> = [A, B] | [B, A];
 export type AddDigit<D1 extends Digit, D2 extends Digit> = D1 extends '0'
   ? [D2, false]
   : D2 extends '0'
-  ? [D1, false]
-  : [D1, D2] extends
-      | SymTup<'1', '9'>
-      | SymTup<'2', '8'>
-      | SymTup<'3', '7'>
-      | SymTup<'4', '6'>
-      | '5'[]
-  ? ['0', true]
-  : [D1, D2] extends
-      | SymTup<'2', '9'>
-      | SymTup<'3', '8'>
-      | SymTup<'4', '7'>
-      | SymTup<'5', '6'>
-  ? ['1', true]
-  : [D1, D2] extends '1'[]
-  ? ['2', false]
-  : [D1, D2] extends
-      | SymTup<'3', '9'>
-      | SymTup<'4', '8'>
-      | SymTup<'5', '7'>
-      | '6'[]
-  ? ['2', true]
-  : [D1, D2] extends SymTup<'1', '2'>
-  ? ['3', false]
-  : [D1, D2] extends SymTup<'4', '9'> | SymTup<'5', '8'> | SymTup<'6', '7'>
-  ? ['3', true]
-  : [D1, D2] extends SymTup<'1', '3'> | '2'[]
-  ? ['4', false]
-  : [D1, D2] extends SymTup<'5', '9'> | SymTup<'6', '8'> | '7'[]
-  ? ['4', true]
-  : [D1, D2] extends SymTup<'1', '4'> | SymTup<'2', '3'>
-  ? ['5', false]
-  : [D1, D2] extends SymTup<'6', '9'> | SymTup<'7', '8'>
-  ? ['5', true]
-  : [D1, D2] extends SymTup<'1', '5'> | SymTup<'2', '4'> | '3'[]
-  ? ['6', false]
-  : [D1, D2] extends SymTup<'7', '9'> | '8'[]
-  ? ['6', true]
-  : [D1, D2] extends SymTup<'1', '6'> | SymTup<'2', '5'> | SymTup<'3', '4'>
-  ? ['7', false]
-  : [D1, D2] extends SymTup<'8', '9'>
-  ? ['7', true]
-  : [D1, D2] extends
-      | SymTup<'1', '7'>
-      | SymTup<'2', '6'>
-      | SymTup<'3', '5'>
-      | '4'[]
-  ? ['8', false]
-  : [D1, D2] extends '9'[]
-  ? ['8', true]
-  : [D1, D2] extends
-      | SymTup<'1', '8'>
-      | SymTup<'2', '7'>
-      | SymTup<'3', '6'>
-      | SymTup<'4', '5'>
-  ? ['9', false]
-  : never;
+    ? [D1, false]
+    : [D1, D2] extends
+          | SymTup<'1', '9'>
+          | SymTup<'2', '8'>
+          | SymTup<'3', '7'>
+          | SymTup<'4', '6'>
+          | '5'[]
+      ? ['0', true]
+      : [D1, D2] extends
+            | SymTup<'2', '9'>
+            | SymTup<'3', '8'>
+            | SymTup<'4', '7'>
+            | SymTup<'5', '6'>
+        ? ['1', true]
+        : [D1, D2] extends '1'[]
+          ? ['2', false]
+          : [D1, D2] extends
+                | SymTup<'3', '9'>
+                | SymTup<'4', '8'>
+                | SymTup<'5', '7'>
+                | '6'[]
+            ? ['2', true]
+            : [D1, D2] extends SymTup<'1', '2'>
+              ? ['3', false]
+              : [D1, D2] extends
+                    | SymTup<'4', '9'>
+                    | SymTup<'5', '8'>
+                    | SymTup<'6', '7'>
+                ? ['3', true]
+                : [D1, D2] extends SymTup<'1', '3'> | '2'[]
+                  ? ['4', false]
+                  : [D1, D2] extends SymTup<'5', '9'> | SymTup<'6', '8'> | '7'[]
+                    ? ['4', true]
+                    : [D1, D2] extends SymTup<'1', '4'> | SymTup<'2', '3'>
+                      ? ['5', false]
+                      : [D1, D2] extends SymTup<'6', '9'> | SymTup<'7', '8'>
+                        ? ['5', true]
+                        : [D1, D2] extends
+                              | SymTup<'1', '5'>
+                              | SymTup<'2', '4'>
+                              | '3'[]
+                          ? ['6', false]
+                          : [D1, D2] extends SymTup<'7', '9'> | '8'[]
+                            ? ['6', true]
+                            : [D1, D2] extends
+                                  | SymTup<'1', '6'>
+                                  | SymTup<'2', '5'>
+                                  | SymTup<'3', '4'>
+                              ? ['7', false]
+                              : [D1, D2] extends SymTup<'8', '9'>
+                                ? ['7', true]
+                                : [D1, D2] extends
+                                      | SymTup<'1', '7'>
+                                      | SymTup<'2', '6'>
+                                      | SymTup<'3', '5'>
+                                      | '4'[]
+                                  ? ['8', false]
+                                  : [D1, D2] extends '9'[]
+                                    ? ['8', true]
+                                    : [D1, D2] extends
+                                          | SymTup<'1', '8'>
+                                          | SymTup<'2', '7'>
+                                          | SymTup<'3', '6'>
+                                          | SymTup<'4', '5'>
+                                      ? ['9', false]
+                                      : never;
 
 /**
  * Returns the result of adding the two given string-numbers.
@@ -181,7 +186,7 @@ export type Add<N1 extends string, N2 extends string> =
           ? // Calculate new digit and overflow
             AddDigit<N1LastDigit & Digit, N2LastDigit & Digit> extends [
               infer NewDigit,
-              infer Overflow
+              infer Overflow,
             ]
             ? Overflow extends true
               ? // check if more digits
@@ -212,31 +217,122 @@ export type Add<N1 extends string, N2 extends string> =
 export type SubDigit<D1 extends Digit, D2 extends Digit> = D2 extends '0'
   ? [D1, false]
   : D1 extends D2
-  ? ['0', false]
-  : Str.Append<D1, D2> extends infer DD
-  ? DD extends '09' | '21' | '32' | '43' | '54' | '65' | '76' | '87' | '98'
-    ? ['1', U.Extends<DD, '09'>]
-    : DD extends '08' | '19' | '31' | '42' | '53' | '64' | '75' | '86' | '97'
-    ? ['2', U.Extends<DD, '08' | '19'>]
-    : DD extends '07' | '18' | '29' | '41' | '52' | '63' | '74' | '85' | '96'
-    ? ['3', U.Extends<DD, '07' | '18' | '29'>]
-    : DD extends '06' | '17' | '28' | '39' | '51' | '62' | '73' | '84' | '95'
-    ? ['4', U.Extends<DD, '06' | '17' | '28' | '39'>]
-    : DD extends '05' | '16' | '27' | '38' | '49' | '61' | '72' | '83' | '94'
-    ? ['5', U.Extends<DD, '05' | '16' | '27' | '38' | '49'>]
-    : DD extends '04' | '15' | '26' | '37' | '48' | '59' | '71' | '82' | '93'
-    ? ['6', U.Extends<DD, '04' | '15' | '26' | '37' | '48' | '59'>]
-    : DD extends '03' | '14' | '25' | '36' | '47' | '58' | '69' | '81' | '92'
-    ? ['7', U.Extends<DD, '03' | '14' | '25' | '36' | '47' | '58' | '69'>]
-    : DD extends '02' | '13' | '24' | '35' | '46' | '57' | '68' | '79' | '91'
-    ? [
-        '8',
-        U.Extends<DD, '02' | '13' | '24' | '35' | '46' | '57' | '68' | '79'>
-      ]
-    : DD extends '01' | '12' | '23' | '34' | '45' | '56' | '67' | '78' | '89'
-    ? ['9', true]
-    : never
-  : never;
+    ? ['0', false]
+    : Str.Append<D1, D2> extends infer DD
+      ? DD extends '09' | '21' | '32' | '43' | '54' | '65' | '76' | '87' | '98'
+        ? ['1', U.Extends<DD, '09'>]
+        : DD extends
+              | '08'
+              | '19'
+              | '31'
+              | '42'
+              | '53'
+              | '64'
+              | '75'
+              | '86'
+              | '97'
+          ? ['2', U.Extends<DD, '08' | '19'>]
+          : DD extends
+                | '07'
+                | '18'
+                | '29'
+                | '41'
+                | '52'
+                | '63'
+                | '74'
+                | '85'
+                | '96'
+            ? ['3', U.Extends<DD, '07' | '18' | '29'>]
+            : DD extends
+                  | '06'
+                  | '17'
+                  | '28'
+                  | '39'
+                  | '51'
+                  | '62'
+                  | '73'
+                  | '84'
+                  | '95'
+              ? ['4', U.Extends<DD, '06' | '17' | '28' | '39'>]
+              : DD extends
+                    | '05'
+                    | '16'
+                    | '27'
+                    | '38'
+                    | '49'
+                    | '61'
+                    | '72'
+                    | '83'
+                    | '94'
+                ? ['5', U.Extends<DD, '05' | '16' | '27' | '38' | '49'>]
+                : DD extends
+                      | '04'
+                      | '15'
+                      | '26'
+                      | '37'
+                      | '48'
+                      | '59'
+                      | '71'
+                      | '82'
+                      | '93'
+                  ? [
+                      '6',
+                      U.Extends<DD, '04' | '15' | '26' | '37' | '48' | '59'>,
+                    ]
+                  : DD extends
+                        | '03'
+                        | '14'
+                        | '25'
+                        | '36'
+                        | '47'
+                        | '58'
+                        | '69'
+                        | '81'
+                        | '92'
+                    ? [
+                        '7',
+                        U.Extends<
+                          DD,
+                          '03' | '14' | '25' | '36' | '47' | '58' | '69'
+                        >,
+                      ]
+                    : DD extends
+                          | '02'
+                          | '13'
+                          | '24'
+                          | '35'
+                          | '46'
+                          | '57'
+                          | '68'
+                          | '79'
+                          | '91'
+                      ? [
+                          '8',
+                          U.Extends<
+                            DD,
+                            | '02'
+                            | '13'
+                            | '24'
+                            | '35'
+                            | '46'
+                            | '57'
+                            | '68'
+                            | '79'
+                          >,
+                        ]
+                      : DD extends
+                            | '01'
+                            | '12'
+                            | '23'
+                            | '34'
+                            | '45'
+                            | '56'
+                            | '67'
+                            | '78'
+                            | '89'
+                        ? ['9', true]
+                        : never
+      : never;
 
 /**
  * Returns the result of subtracting the second from the first given string-number,
@@ -252,43 +348,43 @@ export type Subtract<N1 extends string, N2 extends string> = N1 extends N2
   ? // input is equal
     '0'
   : // check if N1 is non-empty
-  N1 extends Str.Append<infer N1Start, Digit>
-  ? // check if N2 is non-empty
-    N2 extends Str.Append<infer N2Start, Digit>
-    ? // Retrieve last digit of N1
-      N1 extends Str.Append<N1Start, infer N1LastDigit>
-      ? // Retrieve last digit of N2
-        N2 extends Str.Append<N2Start, infer N2LastDigit>
-        ? // Calculate new digit and underflow
-          SubDigit<Digit & N1LastDigit, Digit & N2LastDigit> extends [
-            infer NewDigit,
-            infer Underflow
-          ]
-          ? Underflow extends true
-            ? // there is underflow, but no more digits to process, would be negative so stop processing
-              N1Start extends ''
-              ? never
-              : // underflow so subtract 1 from the start digits
-              Subtract<Subtract<N1Start, N2Start>, '1'> extends infer Start
-              ? // Number should never start with 0, so skip 0
-                Start extends '0'
-                ? Digit & NewDigit
-                : Str.Append<string & Start, Digit & NewDigit>
-              : never
-            : // No underflow, calculate rest (start)
-            Subtract<N1Start, N2Start> extends infer Start
-            ? // Number should never start with 0, so skip 0
-              Start extends '0'
-              ? Digit & NewDigit
-              : Str.Append<string & Start, Digit & NewDigit>
+    N1 extends Str.Append<infer N1Start, Digit>
+    ? // check if N2 is non-empty
+      N2 extends Str.Append<infer N2Start, Digit>
+      ? // Retrieve last digit of N1
+        N1 extends Str.Append<N1Start, infer N1LastDigit>
+        ? // Retrieve last digit of N2
+          N2 extends Str.Append<N2Start, infer N2LastDigit>
+          ? // Calculate new digit and underflow
+            SubDigit<Digit & N1LastDigit, Digit & N2LastDigit> extends [
+              infer NewDigit,
+              infer Underflow,
+            ]
+            ? Underflow extends true
+              ? // there is underflow, but no more digits to process, would be negative so stop processing
+                N1Start extends ''
+                ? never
+                : // underflow so subtract 1 from the start digits
+                  Subtract<Subtract<N1Start, N2Start>, '1'> extends infer Start
+                  ? // Number should never start with 0, so skip 0
+                    Start extends '0'
+                    ? Digit & NewDigit
+                    : Str.Append<string & Start, Digit & NewDigit>
+                  : never
+              : // No underflow, calculate rest (start)
+                Subtract<N1Start, N2Start> extends infer Start
+                ? // Number should never start with 0, so skip 0
+                  Start extends '0'
+                  ? Digit & NewDigit
+                  : Str.Append<string & Start, Digit & NewDigit>
+                : never
             : never
           : never
         : never
-      : never
-    : // N2 is empty, return rest of N1
-      N1
-  : // N1 is empty, either it is not valid or N2 is larger
-    never;
+      : // N2 is empty, return rest of N1
+        N1
+    : // N1 is empty, either it is not valid or N2 is larger
+      never;
 
 /**
  * Converts a natural number to a string-number, otherwise never.
@@ -332,15 +428,13 @@ export type DigitToTup<T extends unknown[] = [unknown]> = {
  */
 export type BuildTuple<N extends string> = BuildTupleHelper<N, []>;
 
-type BuildTupleHelper<
-  N extends string,
-  Result extends unknown[]
-> = N extends Str.Append<Digit & infer D, infer Rest>
-  ? BuildTupleHelper<
-      Rest,
-      [...DigitToTup[Digit & D], ...DigitToTup<Result>['10']]
-    >
-  : Result;
+type BuildTupleHelper<N extends string, Result extends unknown[]> =
+  N extends Str.Append<Digit & infer D, infer Rest>
+    ? BuildTupleHelper<
+        Rest,
+        [...DigitToTup[Digit & D], ...DigitToTup<Result>['10']]
+      >
+    : Result;
 
 /**
  * Converts the given string-number to its corresponding number.
@@ -359,62 +453,60 @@ export type ToNumber<N extends string> = TupleLength<BuildTuple<N>>;
 export type MultDigit<N1 extends string, D extends Digit> = N1 extends '0'
   ? '0'
   : N1 extends '1'
-  ? D
-  : D extends '0'
-  ? '0'
-  : D extends '1'
-  ? N1
-  : D extends '2'
-  ? Add<N1, N1>
-  : D extends '3'
-  ? Add<N1, Add<N1, N1>>
-  : D extends '4'
-  ? Add<N1, N1> extends infer T
-    ? Add<string & T, string & T>
-    : never
-  : D extends '5'
-  ? Add<N1, MultDigit<N1, '4'>>
-  : D extends '6'
-  ? MultDigit<N1, '3'> extends infer T
-    ? Add<string & T, string & T>
-    : never
-  : D extends '7'
-  ? Add<N1, MultDigit<N1, '6'>>
-  : D extends '8'
-  ? MultDigit<N1, '4'> extends infer T
-    ? Add<string & T, string & T>
-    : never
-  : D extends '9'
-  ? Add<N1, MultDigit<N1, '8'>>
-  : never;
+    ? D
+    : D extends '0'
+      ? '0'
+      : D extends '1'
+        ? N1
+        : D extends '2'
+          ? Add<N1, N1>
+          : D extends '3'
+            ? Add<N1, Add<N1, N1>>
+            : D extends '4'
+              ? Add<N1, N1> extends infer T
+                ? Add<string & T, string & T>
+                : never
+              : D extends '5'
+                ? Add<N1, MultDigit<N1, '4'>>
+                : D extends '6'
+                  ? MultDigit<N1, '3'> extends infer T
+                    ? Add<string & T, string & T>
+                    : never
+                  : D extends '7'
+                    ? Add<N1, MultDigit<N1, '6'>>
+                    : D extends '8'
+                      ? MultDigit<N1, '4'> extends infer T
+                        ? Add<string & T, string & T>
+                        : never
+                      : D extends '9'
+                        ? Add<N1, MultDigit<N1, '8'>>
+                        : never;
 
-export type Mult<N1 extends string, N2 extends string> = N2 extends Str.Append<
-  infer N2Start,
-  Digit
->
-  ? N2Start extends ''
-    ? MultDigit<N1, Digit & N2>
-    : N2 extends Str.Append<N2Start, infer N2Last>
-    ? Add<MultDigit<N1, Digit & N2Last>, Str.Append<Mult<N1, N2Start>, '0'>>
-    : never
-  : never;
+export type Mult<N1 extends string, N2 extends string> =
+  N2 extends Str.Append<infer N2Start, Digit>
+    ? N2Start extends ''
+      ? MultDigit<N1, Digit & N2>
+      : N2 extends Str.Append<N2Start, infer N2Last>
+        ? Add<MultDigit<N1, Digit & N2Last>, Str.Append<Mult<N1, N2Start>, '0'>>
+        : never
+    : never;
 
 export type AmountTimesIn<
   Small extends string,
-  Large extends string
+  Large extends string,
 > = AmountTimesInHelper<Small, Large, '0'>;
 
 type AmountTimesInHelper<
   Small extends string,
   Large extends string,
-  Am extends string
+  Am extends string,
 > = Small extends Large
   ? [Add<Am, '1'>, '0']
   : Subtract<Large, Small> extends never
-  ? [Am, Large]
-  : Subtract<Large, Small> extends infer Result
-  ? AmountTimesInHelper<Small, string & Result, Add<Am, '1'>>
-  : never;
+    ? [Am, Large]
+    : Subtract<Large, Small> extends infer Result
+      ? AmountTimesInHelper<Small, string & Result, Add<Am, '1'>>
+      : never;
 
 export type AppendDigit<N extends string, D extends Digit> = N extends '0'
   ? D
@@ -431,13 +523,13 @@ type DivideHelper<
   N extends string,
   M extends string,
   Q extends string,
-  R extends string
+  R extends string,
 > = M extends '0'
   ? never
   : N extends Str.Append<infer Dig, infer Rest>
-  ? AppendDigit<R, Digit & Dig> extends infer D
-    ? AmountTimesIn<M, string & D> extends [infer B, infer NewR]
-      ? DivideHelper<Rest, M, AppendDigit<Q, Digit & B>, string & NewR>
+    ? AppendDigit<R, Digit & Dig> extends infer D
+      ? AmountTimesIn<M, string & D> extends [infer B, infer NewR]
+        ? DivideHelper<Rest, M, AppendDigit<Q, Digit & B>, string & NewR>
+        : never
       : never
-    : never
-  : [Q, R];
+    : [Q, R];

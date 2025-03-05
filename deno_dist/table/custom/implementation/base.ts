@@ -155,7 +155,7 @@ export class TableNonEmpty<
     C,
     V,
     Tp extends ContextImplTypes,
-    TpR extends WithRow<Tp, R, C, V> = WithRow<Tp, R, C, V>
+    TpR extends WithRow<Tp, R, C, V> = WithRow<Tp, R, C, V>,
   >
   extends NonEmptyBase<[R, C, V]>
   implements TableBase.NonEmpty<R, C, V, Tp>
@@ -533,7 +533,7 @@ export class TableBuilder<
   C,
   V,
   Tp extends ContextImplTypes,
-  TpR extends Tp & Row<R, C, V> = Tp & Row<R, C, V>
+  TpR extends Tp & Row<R, C, V> = Tp & Row<R, C, V>,
 > {
   //implements TableBase.Builder<R, C, V>
   _lock = 0;
@@ -887,7 +887,7 @@ export class TableContext<
   UR,
   UC,
   N extends string,
-  Tp extends ContextImplTypes = ContextImplTypes
+  Tp extends ContextImplTypes = ContextImplTypes,
 > implements TableBase.Context<UR, UC, Tp>
 {
   constructor(

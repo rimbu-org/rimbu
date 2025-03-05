@@ -133,7 +133,7 @@ export class BiMultiMapNonEmpty<
     K,
     V,
     Tp extends ContextTypesImpl,
-    TpG extends WithKeyValue<Tp, K, V> = WithKeyValue<Tp, K, V>
+    TpG extends WithKeyValue<Tp, K, V> = WithKeyValue<Tp, K, V>,
   >
   extends NonEmptyBase<[K, V]>
   implements BiMultiMapBase.NonEmpty<K, V, Tp>

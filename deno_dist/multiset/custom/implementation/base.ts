@@ -137,7 +137,7 @@ export class MultiSetEmpty<T, Tp extends ContextImplTypes>
 export class MultiSetNonEmpty<
     T,
     Tp extends ContextImplTypes,
-    TpG extends WithElem<Tp, T> = WithElem<Tp, T>
+    TpG extends WithElem<Tp, T> = WithElem<Tp, T>,
   >
   extends NonEmptyBase<T>
   implements MultiSetBase.NonEmpty<T, Tp>
@@ -401,7 +401,7 @@ export class MultiSetNonEmpty<
 export class MultiSetBuilder<
   T,
   Tp extends ContextImplTypes,
-  TpG extends WithElem<Tp, T> = WithElem<Tp, T>
+  TpG extends WithElem<Tp, T> = WithElem<Tp, T>,
 > implements MultiSetBase.Builder<T, Tp>
 {
   _lock = 0;
@@ -637,7 +637,7 @@ export class MultiSetBuilder<
 export class MultiSetContext<
   UT,
   N extends string,
-  Tp extends ContextImplTypes = ContextImplTypes
+  Tp extends ContextImplTypes = ContextImplTypes,
 > implements MultiSetBase.Context<UT, Tp>
 {
   constructor(

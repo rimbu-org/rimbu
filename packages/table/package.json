@@ -38,6 +38,7 @@
   "types": "./dist/cjs/main/index.d.cts",
   "exports": {
     ".": {
+      "bun": "./dist/bun/main/index.mts",
       "import": {
         "types": "./dist/esm/main/index.d.mts",
         "default": "./dist/esm/main/index.mjs"
@@ -45,10 +46,10 @@
       "require": {
         "types": "./dist/cjs/main/index.d.cts",
         "default": "./dist/cjs/main/index.cjs"
-      },
-      "bun": "./dist/bun/main/index.mts"
+      }
     },
     "./custom": {
+      "bun": "./dist/bun/custom/index.mts",
       "import": {
         "types": "./dist/esm/custom/index.d.mts",
         "default": "./dist/esm/custom/index.mjs"
@@ -56,10 +57,10 @@
       "require": {
         "types": "./dist/cjs/custom/index.d.cts",
         "default": "./dist/cjs/custom/index.cjs"
-      },
-      "bun": "./dist/bun/custom/index.mts"
+      }
     },
     "./hash-row": {
+      "bun": "./dist/bun/hash-row/index.mts",
       "import": {
         "types": "./dist/esm/hash-row/index.d.mts",
         "default": "./dist/esm/hash-row/index.mjs"
@@ -67,10 +68,10 @@
       "require": {
         "types": "./dist/cjs/hash-row/index.d.cts",
         "default": "./dist/cjs/hash-row/index.cjs"
-      },
-      "bun": "./dist/bun/hash-row/index.mts"
+      }
     },
     "./sorted-row": {
+      "bun": "./dist/bun/sorted-row/index.mts",
       "import": {
         "types": "./dist/esm/sorted-row/index.d.mts",
         "default": "./dist/esm/sorted-row/index.mjs"
@@ -78,8 +79,7 @@
       "require": {
         "types": "./dist/cjs/sorted-row/index.d.cts",
         "default": "./dist/cjs/sorted-row/index.cjs"
-      },
-      "bun": "./dist/bun/sorted-row/index.mts"
+      }
     }
   },
   "files": [
@@ -105,10 +105,10 @@
     "bundle:esm": "tsc --p tsconfig.esm.json",
     "clean": "rimraf dist",
     "extract-api": "yarn extract-api:custom && yarn extract-api:main && yarn extract-api:hash-row && yarn extract-api:sorted-row",
-    "extract-api:custom": "ts-node ../../config/api-extractor.ts config/api-extractor.custom.json",
-    "extract-api:main": "ts-node ../../config/api-extractor.ts config/api-extractor.main.json",
-    "extract-api:hash-row": "ts-node ../../config/api-extractor.ts config/api-extractor.hash-row.json",
-    "extract-api:sorted-row": "ts-node ../../config/api-extractor.ts config/api-extractor.sorted-row.json",
+    "extract-api:custom": "tsx ../../config/api-extractor.ts config/api-extractor.custom.json",
+    "extract-api:main": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
+    "extract-api:hash-row": "tsx ../../config/api-extractor.ts config/api-extractor.hash-row.json",
+    "extract-api:sorted-row": "tsx ../../config/api-extractor.ts config/api-extractor.sorted-row.json",
     "format": "yarn format:base --write",
     "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
     "format:check": "yarn format:base --check",

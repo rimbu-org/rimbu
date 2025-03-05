@@ -31,7 +31,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
     readonly right: NonLeafBlock<T, C>,
     readonly middle: NonLeaf<T, NonLeafBlock<T, C>> | null,
     readonly level: number,
-    readonly length = left.length + right.length + (middle?.length ?? 0)
+    readonly length: number = left.length + right.length + (middle?.length ?? 0)
   ) {}
 
   getChildLength(child: C): number {
@@ -422,7 +422,9 @@ export class NonLeafTree<T, C extends Block<T, C>>
     return this.copy2(newLeft, newRight, newMiddle);
   }
 
-  reversed(cacheMap = this.context.createCacheMap()): NonLeafTree<T, C> {
+  reversed(
+    cacheMap: CacheMap = this.context.createCacheMap()
+  ): NonLeafTree<T, C> {
     const cachedThis = cacheMap.get(this);
     if (cachedThis !== undefined) return cachedThis;
 

@@ -703,9 +703,8 @@ export namespace AsyncReducer {
               output
             );
 
-            state.activeInstance = await AsyncReducer.from(
-              nextReducer
-            ).compile();
+            state.activeInstance =
+              await AsyncReducer.from(nextReducer).compile();
           }
 
           return state;
@@ -993,10 +992,9 @@ export namespace AsyncReducer {
    * ```
    */
   export const minBy: {
-    <T>(compFun: (v1: T, v2: T) => MaybePromise<number>): AsyncReducer<
-      T,
-      T | undefined
-    >;
+    <T>(
+      compFun: (v1: T, v2: T) => MaybePromise<number>
+    ): AsyncReducer<T, T | undefined>;
     <T, O>(
       compFun: (v1: T, v2: T) => MaybePromise<number>,
       otherwise: AsyncOptLazy<O>
@@ -1056,10 +1054,9 @@ export namespace AsyncReducer {
    * ```
    */
   export const maxBy: {
-    <T>(compFun: (v1: T, v2: T) => MaybePromise<number>): AsyncReducer<
-      T,
-      T | undefined
-    >;
+    <T>(
+      compFun: (v1: T, v2: T) => MaybePromise<number>
+    ): AsyncReducer<T, T | undefined>;
     <T, O>(
       compFun: (v1: T, v2: T) => MaybePromise<number>,
       otherwise: AsyncOptLazy<O>
@@ -1575,10 +1572,9 @@ export namespace AsyncReducer {
       reducers: AsyncReducer.Accept<T, R>[],
       otherwise: AsyncOptLazy<O>
     ): AsyncReducer<T, R | O>;
-    <T, R>(reducers: AsyncReducer.Accept<T, R>[]): AsyncReducer<
-      T,
-      R | undefined
-    >;
+    <T, R>(
+      reducers: AsyncReducer.Accept<T, R>[]
+    ): AsyncReducer<T, R | undefined>;
   } = <T, R, O>(
     reducers: AsyncReducer.Accept<T, R>[],
     otherwise?: AsyncOptLazy<O>
@@ -1648,12 +1644,12 @@ export namespace AsyncReducer {
               : never;
           }
       : /* plain object */ S extends {
-          [key: string]: AsyncReducer.CombineShape<any>;
-        }
-      ? { [K in keyof S]: AsyncReducer.CombineResult<S[K]> }
-      : /* simple reducer */ S extends AsyncReducer.Accept<any, infer R>
-      ? R
-      : never;
+            [key: string]: AsyncReducer.CombineShape<any>;
+          }
+        ? { [K in keyof S]: AsyncReducer.CombineResult<S[K]> }
+        : /* simple reducer */ S extends AsyncReducer.Accept<any, infer R>
+          ? R
+          : never;
 
   export class InvalidCombineShapeError extends ErrBase.CustomError {
     constructor() {

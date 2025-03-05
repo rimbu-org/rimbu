@@ -20,7 +20,10 @@ export class SortedMapContext<UK>
 
   readonly _empty: SortedMap<any, any>;
 
-  constructor(readonly blockSizeBits: number, readonly comp: Comp<UK>) {
+  constructor(
+    readonly blockSizeBits: number,
+    readonly comp: Comp<UK>
+  ) {
     super();
 
     this.maxEntries = 1 << blockSizeBits;

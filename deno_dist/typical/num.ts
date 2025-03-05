@@ -60,10 +60,10 @@ export type IsNegative<N extends number> = U.Not<IsNatural<N>>;
 export type Subtract<N1 extends number, N2 extends number> = N1 extends never
   ? never
   : N2 extends never
-  ? never
-  : StrNum.ToNumber<
-      StrNum.Subtract<StrNum.FromNumber<N1>, StrNum.FromNumber<N2>>
-    >;
+    ? never
+    : StrNum.ToNumber<
+        StrNum.Subtract<StrNum.FromNumber<N1>, StrNum.FromNumber<N2>>
+      >;
 
 /**
  * Add 1 to the given natural number.
@@ -122,10 +122,10 @@ export type IsOdd<N extends number> = StrNum.IsOdd<StrNum.FromNumber<N>>;
 export type Min<N1 extends number, N2 extends number> = N1 extends never
   ? never
   : N2 extends never
-  ? never
-  : Subtract<N1 & U.Check<N1>, N2 & U.Check<N2>> extends never
-  ? N1
-  : N2;
+    ? never
+    : Subtract<N1 & U.Check<N1>, N2 & U.Check<N2>> extends never
+      ? N1
+      : N2;
 
 /**
  * Returns the largest of the given 2 natural numbers, of never otherwise
@@ -139,10 +139,10 @@ export type Min<N1 extends number, N2 extends number> = N1 extends never
 export type Max<N1 extends number, N2 extends number> = N1 extends never
   ? never
   : N2 extends never
-  ? never
-  : Subtract<N1, N2> extends never
-  ? N2
-  : N1;
+    ? never
+    : Subtract<N1, N2> extends never
+      ? N2
+      : N1;
 
 /**
  * Returns true if the given numbers are equal.
@@ -181,12 +181,8 @@ export type NotEqual<N1 extends number, N2 extends number> = N1 extends N2
  * GreaterThanOrEqual<15, 6> => never
  * ```
  */
-export type GreaterThanOrEqual<N1 extends number, N2 extends number> = Subtract<
-  N1,
-  N2
-> extends never
-  ? false
-  : true;
+export type GreaterThanOrEqual<N1 extends number, N2 extends number> =
+  Subtract<N1, N2> extends never ? false : true;
 
 /**
  * Returns true if the first given number is greater than the second.
@@ -210,12 +206,8 @@ export type GreaterThan<N1 extends number, N2 extends number> = N1 extends N2
  * LessThan<3, 7> => true
  * ```
  */
-export type LessThan<N1 extends number, N2 extends number> = Subtract<
-  N1,
-  N2
-> extends never
-  ? true
-  : false;
+export type LessThan<N1 extends number, N2 extends number> =
+  Subtract<N1, N2> extends never ? true : false;
 
 /**
  * Returns true if the first given number is less than or equal to the second.
@@ -228,7 +220,7 @@ export type LessThan<N1 extends number, N2 extends number> = Subtract<
  */
 export type LessThanOrEqual<
   N1 extends number,
-  N2 extends number
+  N2 extends number,
 > = N1 extends N2 ? true : LessThan<N1, N2>;
 
 /**
@@ -244,7 +236,7 @@ export type LessThanOrEqual<
 export type InRange<
   N extends number,
   L extends number,
-  H extends number
+  H extends number,
 > = GreaterThanOrEqual<N, L> & LessThanOrEqual<N, H> extends never
   ? false
   : true;
@@ -261,12 +253,14 @@ export type InRange<
 export type Mult<N1 extends number, N2 extends number> = N1 extends 0
   ? 0
   : N2 extends 0
-  ? 0
-  : N1 extends 1
-  ? N2
-  : N2 extends 1
-  ? N1
-  : StrNum.ToNumber<StrNum.Mult<StrNum.FromNumber<N1>, StrNum.FromNumber<N2>>>;
+    ? 0
+    : N1 extends 1
+      ? N2
+      : N2 extends 1
+        ? N1
+        : StrNum.ToNumber<
+            StrNum.Mult<StrNum.FromNumber<N1>, StrNum.FromNumber<N2>>
+          >;
 
 /**
  * Returns a tuple containing the quotient and remainer of dividing the first number
@@ -280,15 +274,15 @@ export type Mult<N1 extends number, N2 extends number> = N1 extends 0
 export type DivMod<N1 extends number, N2 extends number> = N2 extends 0
   ? never
   : N1 extends 0
-  ? [0, 0]
-  : N1 extends N2
-  ? [1, 0]
-  : StrNum.Divide<StrNum.FromNumber<N1>, StrNum.FromNumber<N2>> extends [
-      infer Q,
-      infer R
-    ]
-  ? [StrNum.ToNumber<string & Q>, StrNum.ToNumber<string & R>]
-  : never;
+    ? [0, 0]
+    : N1 extends N2
+      ? [1, 0]
+      : StrNum.Divide<StrNum.FromNumber<N1>, StrNum.FromNumber<N2>> extends [
+            infer Q,
+            infer R,
+          ]
+        ? [StrNum.ToNumber<string & Q>, StrNum.ToNumber<string & R>]
+        : never;
 
 /**
  * Returns the result of dividing the first given natural number by the second.
@@ -302,12 +296,12 @@ export type DivMod<N1 extends number, N2 extends number> = N2 extends 0
 export type Div<N1 extends number, N2 extends number> = N2 extends 0
   ? never
   : N1 extends 0
-  ? 0
-  : N1 extends N2
-  ? 1
-  : StrNum.ToNumber<
-      StrNum.Divide<StrNum.FromNumber<N1>, StrNum.FromNumber<N2>>[0]
-    >;
+    ? 0
+    : N1 extends N2
+      ? 1
+      : StrNum.ToNumber<
+          StrNum.Divide<StrNum.FromNumber<N1>, StrNum.FromNumber<N2>>[0]
+        >;
 
 /**
  * Returns the remainder after dividing the first given natural number by the second.
@@ -321,12 +315,12 @@ export type Div<N1 extends number, N2 extends number> = N2 extends 0
 export type Mod<N1 extends number, N2 extends number> = N2 extends 0
   ? never
   : N1 extends 0
-  ? 0
-  : N1 extends N2
-  ? 0
-  : StrNum.ToNumber<
-      StrNum.Divide<StrNum.FromNumber<N1>, StrNum.FromNumber<N2>>[1]
-    >;
+    ? 0
+    : N1 extends N2
+      ? 0
+      : StrNum.ToNumber<
+          StrNum.Divide<StrNum.FromNumber<N1>, StrNum.FromNumber<N2>>[1]
+        >;
 
 /**
  * Returns the power of the first natural number to the second given natural number.
@@ -340,11 +334,11 @@ export type Mod<N1 extends number, N2 extends number> = N2 extends 0
 export type Pow<N1 extends number, N2 extends number> = N1 extends 0
   ? 0
   : N2 extends 0
-  ? 1
-  : N2 extends 1
-  ? N1
-  : N2 extends 2
-  ? Mult<N1, N1>
-  : IsEven<N2> extends true
-  ? Pow<Mult<N1, N1>, Div<N2, 2>>
-  : Mult<N1, Pow<N1, Decr<N2>>>;
+    ? 1
+    : N2 extends 1
+      ? N1
+      : N2 extends 2
+        ? Mult<N1, N1>
+        : IsEven<N2> extends true
+          ? Pow<Mult<N1, N1>, Div<N2, 2>>
+          : Mult<N1, Pow<N1, Decr<N2>>>;

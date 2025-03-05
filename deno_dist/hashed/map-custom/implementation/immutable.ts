@@ -629,7 +629,9 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
     const stream = this.stream();
     const foundEntry = stream.find(
       (entry): boolean => this.context.eq(entry[0], key),
-      { otherwise: token } as const
+      {
+        otherwise: token,
+      } as const
     );
 
     if (token === foundEntry) return OptLazy(otherwise) as O;

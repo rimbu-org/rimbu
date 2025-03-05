@@ -21,7 +21,7 @@ import type {
 export interface ValuedGraphBase<
   N,
   V,
-  Tp extends ValuedGraphBase.Types = ValuedGraphBase.Types
+  Tp extends ValuedGraphBase.Types = ValuedGraphBase.Types,
 > extends VariantValuedGraphBase<N, V, Tp>,
     GraphConnect<N, V, Tp> {
   /**
@@ -103,7 +103,7 @@ export namespace ValuedGraphBase {
   export interface NonEmpty<
     N,
     V,
-    Tp extends ValuedGraphBase.Types = ValuedGraphBase.Types
+    Tp extends ValuedGraphBase.Types = ValuedGraphBase.Types,
   > extends VariantValuedGraphBase.NonEmpty<N, V, Tp>,
       Omit<
         GraphConnectNonEmpty<N, V, Tp>,
@@ -129,7 +129,7 @@ export namespace ValuedGraphBase {
   export interface Builder<
     N,
     V,
-    Tp extends ValuedGraphBase.Types = ValuedGraphBase.Types
+    Tp extends ValuedGraphBase.Types = ValuedGraphBase.Types,
   > {
     /**
      * Returns the `context` associated to this collection instance.
@@ -505,7 +505,7 @@ export namespace ValuedGraphBase {
 
   export interface Context<
     UN,
-    Tp extends ValuedGraphBase.Types = ValuedGraphBase.Types
+    Tp extends ValuedGraphBase.Types = ValuedGraphBase.Types,
   > extends Factory<Tp, UN> {
     readonly _fixedType: UN;
 

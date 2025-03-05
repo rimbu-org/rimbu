@@ -7,7 +7,7 @@ import type { ValuedGraphElement } from '../../../common/index.ts';
 export interface ArrowValuedGraphBase<
   N,
   V,
-  Tp extends ArrowValuedGraphBase.Types = ArrowValuedGraphBase.Types
+  Tp extends ArrowValuedGraphBase.Types = ArrowValuedGraphBase.Types,
 > extends ValuedGraphBase<N, V, Tp> {
   /**
    * Returns true since this is an arrow (directed) graph instance.
@@ -43,7 +43,7 @@ export namespace ArrowValuedGraphBase {
   export interface NonEmpty<
     N,
     V,
-    Tp extends ArrowValuedGraphBase.Types = ArrowValuedGraphBase.Types
+    Tp extends ArrowValuedGraphBase.Types = ArrowValuedGraphBase.Types,
   > extends ValuedGraphBase.NonEmpty<N, V, Tp>,
       Omit<
         ArrowValuedGraphBase<N, V, Tp>,
@@ -64,12 +64,12 @@ export namespace ArrowValuedGraphBase {
   export interface Builder<
     N,
     V,
-    Tp extends ArrowValuedGraphBase.Types = ArrowValuedGraphBase.Types
+    Tp extends ArrowValuedGraphBase.Types = ArrowValuedGraphBase.Types,
   > extends ValuedGraphBase.Builder<N, V, Tp> {}
 
   export interface Context<
     UN,
-    Tp extends ArrowValuedGraphBase.Types = ArrowValuedGraphBase.Types
+    Tp extends ArrowValuedGraphBase.Types = ArrowValuedGraphBase.Types,
   > extends ValuedGraphBase.Context<UN, Tp> {}
 
   /**

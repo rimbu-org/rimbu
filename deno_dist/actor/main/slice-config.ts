@@ -94,7 +94,7 @@ export namespace SliceConfig {
    * @typeparam C - the slice configuration type
    */
   export type ActionIncluder<S, C extends SliceConfig> = <
-    AC extends ActionBase
+    AC extends ActionBase,
   >(
     action: ActionBase.Creator<AC, any[]>,
     handler: (C & { _STATE: S; _INCLUDE_ACTION_TYPE: AC })['_INCLUDE_HANDLER']

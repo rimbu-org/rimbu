@@ -21,7 +21,7 @@ export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>
     public _left?: NonLeafBlockBuilder<T, C>,
     public _right?: NonLeafBlockBuilder<T, C>,
     public _middle?: NonLeafBuilder<T, NonLeafBlockBuilder<T, C>>,
-    public length = source?.length ?? 0
+    public length: number = source?.length ?? 0
   ) {
     super();
   }

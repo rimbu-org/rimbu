@@ -21,7 +21,7 @@ export interface ValuedGraphTypesContextImpl extends ValuedGraphBase.Types {
 export class ValuedGraphContext<
   UN,
   TT extends string,
-  Tp extends ValuedGraphTypesContextImpl = ValuedGraphTypesContextImpl
+  Tp extends ValuedGraphTypesContextImpl = ValuedGraphTypesContextImpl,
 > implements ValuedGraphBase.Context<UN, Tp>
 {
   readonly _fixedType!: UN;

@@ -26,8 +26,8 @@
     "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts, mjs, json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
-    "start": "NODE_OPTIONS=--max-old-space-size=8192 ts-node --esm src/benchmark.mts",
-    "start:single": "NODE_OPTIONS=--max-old-space-size=8192 ts-node --esm"
+    "start": "NODE_OPTIONS=--max-old-space-size=8192 tsx src/benchmark.mts",
+    "start:single": "NODE_OPTIONS=--max-old-space-size=8192 tsx"
   },
   "dependencies": {
     "@rimbu/bimap": "*",

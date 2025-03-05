@@ -410,12 +410,17 @@ describe('patch', () => {
     ).toEqual({ a: 3, b: 2 });
     expect(
       patch(value, [{ a: (v, p, r) => r.b + 1, b: (v, p, r) => r.a + 1 }])
-    ).toEqual({ a: 3, b: 2 });
+    ).toEqual({
+      a: 3,
+      b: 2,
+    });
     expect(
       patch({ q: value }, [
         { q: [{ a: (v, p) => p.b + 1, b: (v, p) => p.a + 1 }] },
       ])
-    ).toEqual({ q: { a: 3, b: 2 } });
+    ).toEqual({
+      q: { a: 3, b: 2 },
+    });
     expect(
       patch({ q: value }, [
         { q: [{ a: (v, p, r) => r.q.b + 1, b: (v, p, r) => r.q.a + 1 }] },

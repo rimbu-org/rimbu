@@ -402,7 +402,9 @@ export class NonLeafBlock<T, C extends Block<T, C>>
     }
   }
 
-  reversed(cacheMap = this.context.createCacheMap()): NonLeafBlock<T, C> {
+  reversed(
+    cacheMap: CacheMap = this.context.createCacheMap()
+  ): NonLeafBlock<T, C> {
     const cachedThis = cacheMap.get(this);
     if (cachedThis !== undefined) return cachedThis;
 

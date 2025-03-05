@@ -2536,7 +2536,9 @@ describe('AsyncStream methods', () => {
     expect(await u1r.toArray()).toEqual([]);
     const [u2l, u2r] = AsyncStream.unzip(
       AsyncStream.of<[number, string]>([1, 'a'], [2, 'b']),
-      { length: 2 }
+      {
+        length: 2,
+      }
     );
     expect(await u2l.toArray()).toEqual([1, 2]);
     expect(await u2r.toArray()).toEqual(['a', 'b']);

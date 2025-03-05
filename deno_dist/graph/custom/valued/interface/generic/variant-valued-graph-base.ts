@@ -12,7 +12,7 @@ import type {
 export interface VariantValuedGraphBase<
   N,
   V,
-  Tp extends VariantValuedGraphBase.Types = VariantValuedGraphBase.Types
+  Tp extends VariantValuedGraphBase.Types = VariantValuedGraphBase.Types,
 > extends VariantGraphBase<N, V, Tp> {
   /**
    * Returns the nested Map representation of the graph connections.
@@ -64,7 +64,7 @@ export namespace VariantValuedGraphBase {
   export interface NonEmpty<
     N,
     V,
-    Tp extends VariantValuedGraphBase.Types = VariantValuedGraphBase.Types
+    Tp extends VariantValuedGraphBase.Types = VariantValuedGraphBase.Types,
   > extends VariantGraphBase.NonEmpty<N, V, Tp>,
       Omit<
         VariantValuedGraphBase<N, V, Tp>,

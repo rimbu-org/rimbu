@@ -24,7 +24,7 @@ import { isEmptyStreamSourceInstance } from '../../../stream/custom/index.ts';
 export interface VariantMapBase<
   K,
   V,
-  Tp extends VariantMapBase.Types = VariantMapBase.Types
+  Tp extends VariantMapBase.Types = VariantMapBase.Types,
 > extends FastIterable<readonly [K, V]> {
   /**
    * Returns true if the collection is empty.
@@ -245,7 +245,7 @@ export namespace VariantMapBase {
   export interface NonEmpty<
     K,
     V,
-    Tp extends VariantMapBase.Types = VariantMapBase.Types
+    Tp extends VariantMapBase.Types = VariantMapBase.Types,
   > extends VariantMapBase<K, V, Tp>,
       Streamable.NonEmpty<readonly [K, V]> {
     /**
@@ -569,7 +569,7 @@ export namespace RMapBase {
     mergeAll<
       O,
       I extends readonly [unknown, unknown, ...unknown[]],
-      K extends UK
+      K extends UK,
     >(
       fillValue: O,
       ...sources: {
@@ -579,7 +579,7 @@ export namespace RMapBase {
     mergeAll<
       O,
       I extends readonly [unknown, unknown, ...unknown[]],
-      K extends UK
+      K extends UK,
     >(
       fillValue: O,
       ...sources: {
@@ -616,7 +616,7 @@ export namespace RMapBase {
      */
     mergeAllWith<
       I extends readonly [unknown, unknown, ...unknown[]],
-      K extends UK
+      K extends UK,
     >(
       ...sources: {
         [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
@@ -627,7 +627,7 @@ export namespace RMapBase {
     ) => WithKeyValue<Tp, K, R>['nonEmpty'];
     mergeAllWith<
       I extends readonly [unknown, unknown, ...unknown[]],
-      K extends UK
+      K extends UK,
     >(
       ...sources: {
         [KT in keyof I]: StreamSource<readonly [K, I[KT]]>;
@@ -689,7 +689,7 @@ export namespace RMapBase {
      */
     mergeWith<
       I extends readonly [unknown, unknown, ...unknown[]],
-      K extends UK
+      K extends UK,
     >(
       ...sources: {
         [KT in keyof I]: StreamSource.NonEmpty<readonly [K, I[KT]]>;
@@ -699,7 +699,7 @@ export namespace RMapBase {
     ) => WithKeyValue<Tp, K, R>['nonEmpty'];
     mergeWith<
       I extends readonly [unknown, unknown, ...unknown[]],
-      K extends UK
+      K extends UK,
     >(
       ...sources: {
         [KT in keyof I]: StreamSource<readonly [K, I[KT]]>;
@@ -967,7 +967,7 @@ export namespace RMapBase {
 
   export abstract class ContextBase<
     UK,
-    Tp extends RMapBase.Types = RMapBase.Types
+    Tp extends RMapBase.Types = RMapBase.Types,
   > implements RMapBase.Context<UK, Tp>
   {
     abstract get typeTag(): string;
@@ -1044,7 +1044,7 @@ export namespace RMapBase {
 
     readonly mergeAllWith: any = <
       K,
-      I extends readonly [unknown, unknown, ...unknown[]]
+      I extends readonly [unknown, unknown, ...unknown[]],
     >(
       ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
     ): any => {
@@ -1093,7 +1093,7 @@ export namespace RMapBase {
     readonly mergeAll: any = <
       O,
       K,
-      I extends readonly [unknown, unknown, ...unknown[]]
+      I extends readonly [unknown, unknown, ...unknown[]],
     >(
       fillValue: O,
       ...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }

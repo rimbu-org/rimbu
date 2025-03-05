@@ -33,7 +33,7 @@ export class SortedEmpty extends EmptyBase {
 
 export abstract class SortedNonEmptyBase<
   E,
-  TS extends SortedNonEmptyBase<E, TS>
+  TS extends SortedNonEmptyBase<E, TS>,
 > extends NonEmptyBase<E> {
   abstract getAtIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
 
@@ -335,7 +335,7 @@ export function innerMutateJoinRight<S extends InnerMutateSource<S, E>, E>(
 
 export function innerNormalizeDownsizeChild<
   S extends InnerMutateSource<S, E>,
-  E
+  E,
 >(source: S, childIndex: number, newChild: InnerChild<E>, newSize: number): S {
   // try to shift
   const leftChild = source.children[childIndex - 1];
@@ -399,7 +399,7 @@ export function innerNormalizeDownsizeChild<
 
 export function innerNormalizeIncreaseChild<
   S extends InnerMutateSource<S, E>,
-  E
+  E,
 >(source: S, childIndex: number, newChild: InnerChild<E>, newSize: number): S {
   if (newChild.entries.length >= source.context.minEntries) {
     const newChildren = Arr.update(source.children, childIndex, newChild);

@@ -21,7 +21,7 @@ import type {
 export interface BiMultiMapBase<
   K,
   V,
-  Tp extends BiMultiMapBase.Types = BiMultiMapBase.Types
+  Tp extends BiMultiMapBase.Types = BiMultiMapBase.Types,
 > extends FastIterable<[K, V]> {
   /**
    * Returns the `context` associated to this collection instance.
@@ -409,7 +409,7 @@ export namespace BiMultiMapBase {
   export interface NonEmpty<
     K,
     V,
-    Tp extends BiMultiMapBase.Types = BiMultiMapBase.Types
+    Tp extends BiMultiMapBase.Types = BiMultiMapBase.Types,
   > extends BiMultiMapBase<K, V, Tp>,
       Streamable.NonEmpty<[K, V]> {
     /**
@@ -503,7 +503,7 @@ export namespace BiMultiMapBase {
   export interface Factory<
     UK = unknown,
     UV = unknown,
-    Tp extends BiMultiMapBase.Types = BiMultiMapBase.Types
+    Tp extends BiMultiMapBase.Types = BiMultiMapBase.Types,
   > {
     /**
      * Returns the (singleton) empty instance of this type and context with given key and value types.
@@ -567,7 +567,7 @@ export namespace BiMultiMapBase {
   export interface Context<
     UK,
     UV,
-    Tp extends BiMultiMapBase.Types = BiMultiMapBase.Types
+    Tp extends BiMultiMapBase.Types = BiMultiMapBase.Types,
   > extends BiMultiMapBase.Factory<UK, UV, Tp> {
     readonly _fixTypes: readonly [UK, UV];
 
@@ -596,7 +596,7 @@ export namespace BiMultiMapBase {
   export interface Builder<
     K,
     V,
-    Tp extends BiMultiMapBase.Types = BiMultiMapBase.Types
+    Tp extends BiMultiMapBase.Types = BiMultiMapBase.Types,
   > {
     /**
      * Returns the amount of entries in the builder.

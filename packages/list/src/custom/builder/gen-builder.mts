@@ -6,7 +6,10 @@ import type { LeafBuilder, ListContext } from '@rimbu/list/custom';
 import type { List } from '@rimbu/list';
 
 export class GenBuilder<T> implements List.Builder<T> {
-  constructor(readonly context: ListContext, public builder?: LeafBuilder<T>) {}
+  constructor(
+    readonly context: ListContext,
+    public builder?: LeafBuilder<T>
+  ) {}
 
   _lock = 0;
 

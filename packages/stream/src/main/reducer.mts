@@ -821,10 +821,10 @@ export namespace Reducer {
    */
   export const minBy: {
     <T>(compFun: (v1: T, v2: T) => number): Reducer<T, T | undefined>;
-    <T, O>(compFun: (v1: T, v2: T) => number, otherwise: OptLazy<O>): Reducer<
-      T,
-      T | O
-    >;
+    <T, O>(
+      compFun: (v1: T, v2: T) => number,
+      otherwise: OptLazy<O>
+    ): Reducer<T, T | O>;
   } = <T, O>(compFun: (v1: T, v2: T) => number, otherwise?: OptLazy<O>) => {
     const token = Symbol();
 
@@ -879,10 +879,10 @@ export namespace Reducer {
    */
   export const maxBy: {
     <T>(compFun: (v1: T, v2: T) => number): Reducer<T, T | undefined>;
-    <T, O>(compFun: (v1: T, v2: T) => number, otherwise: OptLazy<O>): Reducer<
-      T,
-      T | O
-    >;
+    <T, O>(
+      compFun: (v1: T, v2: T) => number,
+      otherwise: OptLazy<O>
+    ): Reducer<T, T | O>;
   } = <T, O>(
     compFun: (v1: T, v2: T) => number,
     otherwise?: OptLazy<O>
@@ -1720,7 +1720,7 @@ export namespace Reducer {
     Record<K, V>
   > {
     return create(
-      () => ({} as Record<K, V>),
+      () => ({}) as Record<K, V>,
       (state, entry) => {
         state[entry[0]] = entry[1];
         return state;
@@ -1752,12 +1752,12 @@ export namespace Reducer {
               : never;
           }
       : /* plain object */ S extends {
-          [key: string]: Reducer.CombineShape<any>;
-        }
-      ? { [K in keyof S]: Reducer.CombineResult<S[K]> }
-      : /* simple reducer */ S extends Reducer<any, infer R>
-      ? R
-      : never;
+            [key: string]: Reducer.CombineShape<any>;
+          }
+        ? { [K in keyof S]: Reducer.CombineResult<S[K]> }
+        : /* simple reducer */ S extends Reducer<any, infer R>
+          ? R
+          : never;
 
   export class InvalidCombineShapeError extends ErrBase.CustomError {
     constructor() {
@@ -1833,10 +1833,10 @@ export namespace Reducer {
    * ```
    */
   export const pipe: {
-    <I, O1, O2>(reducer1: Reducer<I, O1>, reducer2: Reducer<O1, O2>): Reducer<
-      I,
-      O2
-    >;
+    <I, O1, O2>(
+      reducer1: Reducer<I, O1>,
+      reducer2: Reducer<O1, O2>
+    ): Reducer<I, O2>;
     <I, O1, O2, O3>(
       reducer1: Reducer<I, O1>,
       reducer2: Reducer<O1, O2>,

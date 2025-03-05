@@ -28,7 +28,9 @@ describe('SlicePatch', () => {
 
     expect(
       slice.reducer.next(slice.reducer.init(), slice.actions.inc(), 0, () => {})
-    ).toEqual({ count: 1 });
+    ).toEqual({
+      count: 1,
+    });
   });
 
   it('creates and handles actions with parameters', () => {
@@ -52,7 +54,9 @@ describe('SlicePatch', () => {
         0,
         () => {}
       )
-    ).toEqual({ count: 3 });
+    ).toEqual({
+      count: 3,
+    });
   });
 
   it('handles fallback', () => {
@@ -72,7 +76,9 @@ describe('SlicePatch', () => {
 
     expect(
       slice.reducer.next(slice.reducer.init(), slice.actions.inc(), 0, () => {})
-    ).toEqual({ count: 1 });
+    ).toEqual({
+      count: 1,
+    });
 
     const action = Action.create();
 
@@ -100,7 +106,9 @@ describe('SlicePatch', () => {
 
     expect(
       slice.reducer.next(slice.reducer.init(), slice.actions.inc(), 0, () => {})
-    ).toEqual({ count: 1 });
+    ).toEqual({
+      count: 1,
+    });
 
     expect(
       slice.reducer.next(slice.reducer.init(), action(), 0, () => {})
@@ -134,10 +142,14 @@ describe('SlicePatch', () => {
 
     expect(
       slice.reducer.next(slice.reducer.init(), slice.actions.inc(), 0, () => {})
-    ).toEqual({ count: 1 });
+    ).toEqual({
+      count: 1,
+    });
 
     expect(
       slice.reducer.next(slice.reducer.init(), increaseAction(5), 0, () => {})
-    ).toEqual({ count: 5 });
+    ).toEqual({
+      count: 5,
+    });
   });
 });

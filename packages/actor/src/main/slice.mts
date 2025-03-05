@@ -24,7 +24,7 @@ export namespace Slice {
   export interface Config extends SliceConfig {
     _ACTION_HANDLER_ARGS: [
       this['_STATE'],
-      ...this['_ACTION_HANDLER_UNKNOWN'][]
+      ...this['_ACTION_HANDLER_UNKNOWN'][],
     ];
 
     _ACTION_HANDLER_RESULT: this['_STATE'];
@@ -33,7 +33,7 @@ export namespace Slice {
 
     _INCLUDE_HANDLER_ARGS: [
       state: this['_STATE'],
-      action: this['_INCLUDE_ACTION_TYPE']
+      action: this['_INCLUDE_ACTION_TYPE'],
     ];
 
     _ACTION_TYPE: Action<Tail<Parameters<this['_ACTION_HANDLER']>>>;
@@ -57,7 +57,7 @@ export namespace Slice {
   });
 
   export interface CombinedSlice<
-    SDef extends Record<string, Slice<any, Record<string, any>>>
+    SDef extends Record<string, Slice<any, Record<string, any>>>,
   > {
     reducer: Actor.ActionReducer<{
       [K in keyof SDef]: Slice.StateType<SDef[K]>;

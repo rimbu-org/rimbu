@@ -17,7 +17,7 @@ export interface OrderedMapTypes extends OrderedMapBase.Types {
 
 export class OrderedMapContextImpl<
     UK,
-    Tp extends OrderedMapTypes = OrderedMapTypes
+    Tp extends OrderedMapTypes = OrderedMapTypes,
   >
   extends RMapBase.ContextBase<UK, Tp>
   implements OrderedMapBase.Context<UK, Tp>

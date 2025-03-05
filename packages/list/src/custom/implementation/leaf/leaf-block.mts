@@ -22,7 +22,10 @@ export class LeafBlock<T>
   extends ListNonEmptyBase<T>
   implements Block<T, LeafBlock<T>, T>
 {
-  constructor(readonly context: ListContext, readonly children: readonly T[]) {
+  constructor(
+    readonly context: ListContext,
+    readonly children: readonly T[]
+  ) {
     super();
   }
 
@@ -264,7 +267,7 @@ export class LeafBlock<T>
     return this.copy2(newChildren);
   }
 
-  reversed(cacheMap = this.context.createCacheMap()): LeafBlock<T> {
+  reversed(cacheMap: CacheMap = this.context.createCacheMap()): LeafBlock<T> {
     if (this.length === 1) return this;
 
     const cachedThis = cacheMap.get(this);
@@ -413,7 +416,7 @@ export class ReversedLeafBlock<T> extends LeafBlock<T> {
     return super.copy2(newChildren);
   }
 
-  reversed(cacheMap = this.context.createCacheMap()): LeafBlock<T> {
+  reversed(cacheMap: CacheMap = this.context.createCacheMap()): LeafBlock<T> {
     if (this.length === 1) return this;
 
     const cachedThis = cacheMap.get(this);

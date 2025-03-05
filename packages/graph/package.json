@@ -41,6 +41,7 @@
   "types": "./dist/cjs/main/index.d.cts",
   "exports": {
     ".": {
+      "bun": "./dist/bun/main/index.mts",
       "import": {
         "types": "./dist/esm/main/index.d.mts",
         "default": "./dist/esm/main/index.mjs"
@@ -48,10 +49,10 @@
       "require": {
         "types": "./dist/cjs/main/index.d.cts",
         "default": "./dist/cjs/main/index.cjs"
-      },
-      "bun": "./dist/bun/main/index.mts"
+      }
     },
     "./custom": {
+      "bun": "./dist/bun/custom/index.mts",
       "import": {
         "types": "./dist/esm/custom/index.d.mts",
         "default": "./dist/esm/custom/index.mjs"
@@ -59,8 +60,7 @@
       "require": {
         "types": "./dist/cjs/custom/index.d.cts",
         "default": "./dist/cjs/custom/index.cjs"
-      },
-      "bun": "./dist/bun/custom/index.mts"
+      }
     }
   },
   "files": [
@@ -85,8 +85,8 @@
     "clean": "rimraf dist",
     "circular": "npx -y madge --ts-config tsconfig.json --circular --extensions mts src/main/index.mts",
     "extract-api": "yarn extract-api:main && yarn extract-api:custom",
-    "extract-api:custom": "ts-node ../../config/api-extractor.ts config/api-extractor.custom.json",
-    "extract-api:main": "ts-node ../../config/api-extractor.ts config/api-extractor.main.json",
+    "extract-api:custom": "tsx ../../config/api-extractor.ts config/api-extractor.custom.json",
+    "extract-api:main": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
     "format": "yarn format:base --write",
     "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
     "format:check": "yarn format:base --check",

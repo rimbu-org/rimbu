@@ -25,7 +25,7 @@ export class ValuedGraphNonEmpty<
     N,
     V,
     Tp extends ValuedGraphTypesContextImpl,
-    TpG extends WithGraphValues<Tp, N, V> = WithGraphValues<Tp, N, V>
+    TpG extends WithGraphValues<Tp, N, V> = WithGraphValues<Tp, N, V>,
   >
   extends NonEmptyBase<ValuedGraphElement<N, V>>
   implements ValuedGraphBase.NonEmpty<N, V, Tp>

@@ -22,7 +22,7 @@ export interface VariantTableBase<
   R,
   C,
   V,
-  Tp extends VariantTableBase.Types = VariantTableBase.Types
+  Tp extends VariantTableBase.Types = VariantTableBase.Types,
 > extends FastIterable<[R, C, V]> {
   /**
    * Returns the Map representation of this collection.
@@ -374,7 +374,7 @@ export namespace VariantTableBase {
     R,
     C,
     V,
-    Tp extends VariantTableBase.Types = VariantTableBase.Types
+    Tp extends VariantTableBase.Types = VariantTableBase.Types,
   > extends VariantTableBase<R, C, V, Tp>,
       Streamable.NonEmpty<[R, C, V]> {
     /**
@@ -500,7 +500,7 @@ export interface TableBase<
   R,
   C,
   V,
-  Tp extends TableBase.Types = TableBase.Types
+  Tp extends TableBase.Types = TableBase.Types,
 > extends VariantTableBase<R, C, V, Tp> {
   /**
    * Returns the `context` associated to this collection instance.
@@ -613,7 +613,7 @@ export namespace TableBase {
     R,
     C,
     V,
-    Tp extends TableBase.Types = TableBase.Types
+    Tp extends TableBase.Types = TableBase.Types,
   > extends VariantTableBase.NonEmpty<R, C, V, Tp>,
       Omit<
         TableBase<R, C, V, Tp>,
@@ -668,7 +668,7 @@ export namespace TableBase {
   export interface Factory<
     Tp extends TableBase.Types,
     UR = unknown,
-    UC = unknown
+    UC = unknown,
   > {
     /**
      * Returns the (singleton) empty instance of this type and context with given key and value types.
@@ -757,7 +757,7 @@ export namespace TableBase {
     R,
     C,
     V,
-    Tp extends TableBase.Types = TableBase.Types
+    Tp extends TableBase.Types = TableBase.Types,
   > {
     /**
      * Returns the amount of entries in the builder.

@@ -69,5 +69,5 @@ export type Pred<V> = V extends false ? false : true;
 export type Not<V extends boolean> = boolean extends V
   ? never
   : V extends true
-  ? false
-  : true;
+    ? false
+    : true;

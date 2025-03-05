@@ -12,7 +12,7 @@ import type { Link } from '../index.ts';
 export interface VariantGraphBase<
   N,
   V,
-  Tp extends VariantGraphBase.Types = VariantGraphBase.Types
+  Tp extends VariantGraphBase.Types = VariantGraphBase.Types,
 > extends FastIterable<[N] | WithGraphValues<Tp, N, V>['link']> {
   /**
    * Returns true if the graph is an arrow (directed) graph.
@@ -262,7 +262,7 @@ export namespace VariantGraphBase {
   export interface NonEmpty<
     N,
     V,
-    Tp extends VariantGraphBase.Types = VariantGraphBase.Types
+    Tp extends VariantGraphBase.Types = VariantGraphBase.Types,
   > extends VariantGraphBase<N, V, Tp>,
       Streamable.NonEmpty<[N] | WithGraphValues<Tp, N, V>['link']> {
     /**

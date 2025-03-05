@@ -750,7 +750,10 @@ class FromStream<T> extends StreamBase<T> {
 }
 
 class PrependStream<T> extends StreamBase<T> {
-  constructor(readonly source: Stream<T>, readonly item: OptLazy<T>) {
+  constructor(
+    readonly source: Stream<T>,
+    readonly item: OptLazy<T>
+  ) {
     super();
   }
 
@@ -850,7 +853,10 @@ class PrependStream<T> extends StreamBase<T> {
 }
 
 class AppendStream<T> extends StreamBase<T> {
-  constructor(readonly source: Stream<T>, readonly item: OptLazy<T>) {
+  constructor(
+    readonly source: Stream<T>,
+    readonly item: OptLazy<T>
+  ) {
     super();
   }
 
@@ -988,7 +994,7 @@ class MapStream<T, T2> extends StreamBase<T2> {
 class MapPureStream<
   T,
   A extends readonly unknown[],
-  T2
+  T2,
 > extends StreamBase<T2> {
   constructor(
     readonly source: Stream<T>,
@@ -1205,7 +1211,10 @@ class ConcatStream<T> extends StreamBase<T> {
 }
 
 class IndexedStream<T> extends StreamBase<[number, T]> {
-  constructor(readonly source: Stream<T>, readonly startIndex: number) {
+  constructor(
+    readonly source: Stream<T>,
+    readonly startIndex: number
+  ) {
     super();
   }
 
@@ -1444,7 +1453,10 @@ class DropWhileStream<T> extends StreamBase<T> {
 }
 
 class TakeStream<T> extends StreamBase<T> {
-  constructor(readonly source: Stream<T>, readonly amount: number) {
+  constructor(
+    readonly source: Stream<T>,
+    readonly amount: number
+  ) {
     super();
   }
 
@@ -1466,7 +1478,10 @@ class TakeStream<T> extends StreamBase<T> {
 }
 
 class DropStream<T> extends StreamBase<T> {
-  constructor(readonly source: Stream<T>, readonly amount: number) {
+  constructor(
+    readonly source: Stream<T>,
+    readonly amount: number
+  ) {
     super();
   }
 
@@ -2013,7 +2028,7 @@ class AlwaysStream<T> extends StreamBase<T> {
 class MapApplyStream<
   T extends readonly unknown[],
   A extends readonly unknown[],
-  R
+  R,
 > extends StreamBase<R> {
   constructor(
     readonly source: StreamSource<T>,
@@ -2048,7 +2063,7 @@ class MapApplyStream<
 
 class FilterApplyStream<
   T extends readonly unknown[],
-  A extends readonly unknown[]
+  A extends readonly unknown[],
 > extends StreamBase<T> {
   constructor(
     readonly source: StreamSource<T>,
@@ -2088,7 +2103,10 @@ class RangeStream extends StreamBase<number> {
 }
 
 class ReducerStream<T, R = T> extends StreamBase<R> {
-  constructor(readonly source: Stream<T>, readonly reducer: Reducer<T, R>) {
+  constructor(
+    readonly source: Stream<T>,
+    readonly reducer: Reducer<T, R>
+  ) {
     super();
   }
 

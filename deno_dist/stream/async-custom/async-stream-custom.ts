@@ -887,7 +887,10 @@ export class AsyncFromStream<T> extends AsyncStreamBase<T> {
 }
 
 class AsyncPrependStream<T> extends AsyncStreamBase<T> {
-  constructor(readonly source: AsyncStream<T>, readonly item: AsyncOptLazy<T>) {
+  constructor(
+    readonly source: AsyncStream<T>,
+    readonly item: AsyncOptLazy<T>
+  ) {
     super();
   }
 
@@ -995,7 +998,10 @@ class AsyncPrependStream<T> extends AsyncStreamBase<T> {
 }
 
 class AsyncAppendStream<T> extends AsyncStreamBase<T> {
-  constructor(readonly source: AsyncStream<T>, readonly item: AsyncOptLazy<T>) {
+  constructor(
+    readonly source: AsyncStream<T>,
+    readonly item: AsyncOptLazy<T>
+  ) {
     super();
   }
 
@@ -1079,7 +1085,10 @@ class AsyncAppendStream<T> extends AsyncStreamBase<T> {
 }
 
 class AsyncIndexedStream<T> extends AsyncStreamBase<[number, T]> {
-  constructor(readonly source: AsyncStream<T>, readonly startIndex: number) {
+  constructor(
+    readonly source: AsyncStream<T>,
+    readonly startIndex: number
+  ) {
     super();
   }
 
@@ -1166,7 +1175,7 @@ class AsyncMapStream<T, T2> extends AsyncStreamBase<T2> {
 class AsyncMapPureStream<
   T,
   A extends readonly unknown[],
-  T2
+  T2,
 > extends AsyncStreamBase<T2> {
   constructor(
     readonly source: AsyncStream<T>,
@@ -1451,7 +1460,7 @@ class AsyncFilterStream<T> extends AsyncStreamBase<T> {
 
 class AsyncFilterPureStream<
   T,
-  A extends readonly unknown[]
+  A extends readonly unknown[],
 > extends AsyncStreamBase<T> {
   constructor(
     readonly source: AsyncStream<T>,
@@ -1589,7 +1598,10 @@ class AsyncDropWhileStream<T> extends AsyncStreamBase<T> {
 }
 
 class AsyncTakeStream<T> extends AsyncStreamBase<T> {
-  constructor(readonly source: AsyncStream<T>, readonly amount: number) {
+  constructor(
+    readonly source: AsyncStream<T>,
+    readonly amount: number
+  ) {
     super();
   }
 
@@ -1614,7 +1626,10 @@ class AsyncTakeStream<T> extends AsyncStreamBase<T> {
 }
 
 class AsyncDropStream<T> extends AsyncStreamBase<T> {
-  constructor(readonly source: AsyncStream<T>, readonly amount: number) {
+  constructor(
+    readonly source: AsyncStream<T>,
+    readonly amount: number
+  ) {
     super();
   }
 

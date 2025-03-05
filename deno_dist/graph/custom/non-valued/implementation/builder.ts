@@ -11,7 +11,7 @@ import { GraphElement } from '../../common/index.ts';
 export class GraphBuilder<
   N,
   Tp extends GraphTypesContextImpl,
-  TpG extends WithGraphValues<Tp, N, any> = WithGraphValues<Tp, N, any>
+  TpG extends WithGraphValues<Tp, N, any> = WithGraphValues<Tp, N, any>,
 > {
   connectionSize = 0;
 

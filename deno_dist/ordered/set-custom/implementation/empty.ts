@@ -11,7 +11,7 @@ import type {
 export class OrderedSetEmpty<
     T,
     Tp extends OrderedSetTypes,
-    TpG extends WithElem<Tp, T> = WithElem<Tp, T>
+    TpG extends WithElem<Tp, T> = WithElem<Tp, T>,
   >
   extends EmptyBase
   implements OrderedSetBase<T, Tp>

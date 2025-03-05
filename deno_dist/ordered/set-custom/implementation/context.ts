@@ -14,7 +14,7 @@ export interface OrderedSetTypes extends OrderedSetBase.Types {
 
 export class OrderedSetContextImpl<
     UT,
-    Tp extends OrderedSetTypes = OrderedSetTypes
+    Tp extends OrderedSetTypes = OrderedSetTypes,
   >
   extends RSetBase.ContextBase<UT, Tp>
   implements OrderedSetBase.Context<UT, Tp>

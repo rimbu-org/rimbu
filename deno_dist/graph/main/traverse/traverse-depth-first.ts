@@ -9,7 +9,7 @@ import type { LinkType } from './traverse-base.ts';
 
 class GraphDepthFirstStream<
   G extends VariantGraphBase.NonEmpty<N, any>,
-  N
+  N,
 > extends StreamBase<LinkType<G, N>> {
   constructor(
     readonly node: N,
@@ -30,7 +30,7 @@ class GraphDepthFirstStream<
 
 class GraphDepthFirstIterable<
   G extends VariantGraphBase.NonEmpty<N, any>,
-  N
+  N,
 > extends FastIteratorBase<LinkType<G, N>> {
   constructor(
     readonly node: N,

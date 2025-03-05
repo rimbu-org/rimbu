@@ -34,6 +34,7 @@
   "types": "./dist/cjs/index.d.cts",
   "exports": {
     ".": {
+      "bun": "./dist/bun/index.mts",
       "import": {
         "types": "./dist/esm/index.d.mts",
         "default": "./dist/esm/index.mjs"
@@ -41,8 +42,7 @@
       "require": {
         "types": "./dist/cjs/index.d.cts",
         "default": "./dist/cjs/index.cjs"
-      },
-      "bun": "./dist/bun/index.mts"
+      }
     }
   },
   "files": [

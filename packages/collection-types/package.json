@@ -33,6 +33,7 @@
   "types": "./dist/cjs/main/index.d.cts",
   "exports": {
     ".": {
+      "bun": "./dist/bun/main/index.mts",
       "import": {
         "types": "./dist/esm/main/index.d.mts",
         "default": "./dist/esm/main/index.mjs"
@@ -40,10 +41,10 @@
       "require": {
         "types": "./dist/cjs/main/index.d.cts",
         "default": "./dist/cjs/main/index.cjs"
-      },
-      "bun": "./dist/bun/main/index.mts"
+      }
     },
     "./map": {
+      "bun": "./dist/bun/map/index.mts",
       "import": {
         "types": "./dist/esm/map/index.d.mts",
         "default": "./dist/esm/map/index.mjs"
@@ -51,10 +52,10 @@
       "require": {
         "types": "./dist/cjs/map/index.d.cts",
         "default": "./dist/cjs/map/index.cjs"
-      },
-      "bun": "./dist/bun/map/index.mts"
+      }
     },
     "./map-custom": {
+      "bun": "./dist/bun/map-custom/index.mts",
       "import": {
         "types": "./dist/esm/map-custom/index.d.mts",
         "default": "./dist/esm/map-custom/index.mjs"
@@ -62,10 +63,10 @@
       "require": {
         "types": "./dist/cjs/map-custom/index.d.cts",
         "default": "./dist/cjs/map-custom/index.cjs"
-      },
-      "bun": "./dist/bun/map-custom/index.mts"
+      }
     },
     "./set": {
+      "bun": "./dist/bun/set/index.mts",
       "import": {
         "types": "./dist/esm/set/index.d.mts",
         "default": "./dist/esm/set/index.mjs"
@@ -73,10 +74,10 @@
       "require": {
         "types": "./dist/cjs/set/index.d.cts",
         "default": "./dist/cjs/set/index.cjs"
-      },
-      "bun": "./dist/bun/set/index.mts"
+      }
     },
     "./set-custom": {
+      "bun": "./dist/bun/set-custom/index.mts",
       "import": {
         "types": "./dist/esm/set-custom/index.d.mts",
         "default": "./dist/esm/set-custom/index.mjs"
@@ -84,8 +85,7 @@
       "require": {
         "types": "./dist/cjs/set-custom/index.d.cts",
         "default": "./dist/cjs/set-custom/index.cjs"
-      },
-      "bun": "./dist/bun/set-custom/index.mts"
+      }
     },
     "./test-utils/*": {
       "default": "./test-utils/*.ts"
@@ -115,11 +115,11 @@
     "bundle:esm": "tsc --p tsconfig.esm.json",
     "clean": "rimraf dist",
     "extract-api": "yarn extract-api:main && yarn extract-api:map && yarn extract-api:map-custom && yarn extract-api:set && yarn extract-api:set-custom",
-    "extract-api:main": "ts-node ../../config/api-extractor.ts config/api-extractor.main.json",
-    "extract-api:map": "ts-node ../../config/api-extractor.ts config/api-extractor.map.json",
-    "extract-api:map-custom": "ts-node ../../config/api-extractor.ts config/api-extractor.map-custom.json",
-    "extract-api:set": "ts-node ../../config/api-extractor.ts config/api-extractor.set.json",
-    "extract-api:set-custom": "ts-node ../../config/api-extractor.ts config/api-extractor.set-custom.json",
+    "extract-api:main": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
+    "extract-api:map": "tsx ../../config/api-extractor.ts config/api-extractor.map.json",
+    "extract-api:map-custom": "tsx ../../config/api-extractor.ts config/api-extractor.map-custom.json",
+    "extract-api:set": "tsx ../../config/api-extractor.ts config/api-extractor.set.json",
+    "extract-api:set-custom": "tsx ../../config/api-extractor.ts config/api-extractor.set-custom.json",
     "format": "yarn format:base --write",
     "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
     "format:check": "yarn format:base --check",

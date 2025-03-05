@@ -270,7 +270,7 @@ export namespace Spy {
    */
   export type MethodCall<T, K extends keyof T = keyof T> = readonly [
     method: K,
-    ...args: T[K] extends Func ? Parameters<T[K]> : unknown[]
+    ...args: T[K] extends Func ? Parameters<T[K]> : unknown[],
   ];
 
   /**
@@ -288,7 +288,7 @@ export namespace Spy {
    * @param stubs - (optional) a partial implementation of the object type containing default stubs
    */
   export function obj<
-    T extends { readonly [key: string | number | symbol]: any }
+    T extends { readonly [key: string | number | symbol]: any },
   >(originalObj?: T, stubs?: Spy.ObjStub<T>): Spy.Obj<T> {
     let callSequence: Spy.MethodCall<T>[] = [];
 
@@ -469,7 +469,7 @@ export namespace Spy {
    */
   export function cls<
     I,
-    A extends any[] = I extends Construct ? ConstructorParameters<I> : []
+    A extends any[] = I extends Construct ? ConstructorParameters<I> : [],
   >(
     originalClass?: Construct<A, I>,
     originalStubs?: Partial<I>,

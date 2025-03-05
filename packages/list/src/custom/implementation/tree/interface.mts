@@ -4,7 +4,7 @@ export interface Tree<
   T,
   TS extends Tree<T, TS, TB, C>,
   TB extends Block<T, TB, C>,
-  C
+  C,
 > {
   readonly context: ListContext;
   readonly left: TB;

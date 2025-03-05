@@ -9,7 +9,7 @@ import type { VariantGraphBase } from '@rimbu/graph/custom';
 
 class GraphBreadthFirstStream<
   G extends VariantGraphBase.NonEmpty<N, any>,
-  N
+  N,
 > extends StreamBase<LinkType<G, N>> {
   constructor(
     readonly node: N,
@@ -30,7 +30,7 @@ class GraphBreadthFirstStream<
 
 class DirectedGraphBreadthFirstIterable<
   G extends VariantGraphBase.NonEmpty<N, any>,
-  N
+  N,
 > extends FastIteratorBase<LinkType<G, N>> {
   constructor(
     readonly node: N,
@@ -98,7 +98,7 @@ class DirectedGraphBreadthFirstIterable<
  */
 export function traverseBreadthFirstCustom<
   G extends VariantGraphBase<N, any>,
-  N
+  N,
 >(
   graph: G,
   startNode: N,
@@ -126,7 +126,7 @@ export function traverseBreadthFirstCustom<
 export function traverseBreadthFirstHashed<
   G extends VariantGraphBase<N, V>,
   N,
-  V
+  V,
 >(graph: G, startNode: N): Stream<LinkType<G, N>> {
   if (!graph.nonEmpty() || !graph.hasNode(startNode)) return Stream.empty();
 
@@ -150,7 +150,7 @@ export function traverseBreadthFirstHashed<
  */
 export function traverseBreadthFirstSorted<
   G extends VariantGraphBase<N, any>,
-  N
+  N,
 >(graph: G, startNode: N): Stream<LinkType<G, N>> {
   if (!graph.nonEmpty() || !graph.hasNode(startNode)) return Stream.empty();
 

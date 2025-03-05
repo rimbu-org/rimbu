@@ -97,7 +97,7 @@ describe('Channel buffer 0', () => {
 
     const controller = new AbortController();
     controller.abort();
-    expect(() =>
+    await expect(() =>
       ch.send(MSG, {
         signal: controller.signal,
       })
@@ -109,7 +109,7 @@ describe('Channel buffer 0', () => {
 
     const controller = new AbortController();
     setTimeout(() => controller.abort(), 100);
-    expect(() =>
+    await expect(() =>
       ch.send(MSG, {
         signal: controller.signal,
       })

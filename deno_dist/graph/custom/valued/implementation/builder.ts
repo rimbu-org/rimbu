@@ -10,7 +10,7 @@ export class ValuedGraphBuilder<
   N,
   V,
   Tp extends ValuedGraphTypesContextImpl,
-  TpG extends WithGraphValues<Tp, N, V> = WithGraphValues<Tp, N, V>
+  TpG extends WithGraphValues<Tp, N, V> = WithGraphValues<Tp, N, V>,
 > {
   connectionSize = 0;
 

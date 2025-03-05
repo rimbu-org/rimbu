@@ -61,7 +61,7 @@ export class HashMapBlockBuilder<K, V>
         this._entrySets =
           null === this.source.entrySets
             ? []
-            : Arr.mapSparse(
+            : (Arr.mapSparse(
                 this.source.entrySets,
                 (entrySet): MapBlockBuilderEntry<K, V> => {
                   if (this.context.isHashMapBlock(entrySet)) {
@@ -69,7 +69,7 @@ export class HashMapBlockBuilder<K, V>
                   }
                   return new HashMapCollisionBuilder(this.context, entrySet);
                 }
-              ) ?? [];
+              ) ?? []);
       } else {
         this._entrySets = [];
       }

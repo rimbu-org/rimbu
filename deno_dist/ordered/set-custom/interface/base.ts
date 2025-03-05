@@ -4,7 +4,7 @@ import type { Streamable } from '../../../stream/mod.ts';
 
 export interface OrderedSetBase<
   T,
-  Tp extends OrderedSetBase.Types = OrderedSetBase.Types
+  Tp extends OrderedSetBase.Types = OrderedSetBase.Types,
 > extends RSetBase<T, Tp> {
   /**
    * Returns a `List` instance containing the order of the elements.
@@ -31,7 +31,7 @@ export interface OrderedSetBase<
 export namespace OrderedSetBase {
   export interface NonEmpty<
     T,
-    Tp extends OrderedSetBase.Types = OrderedSetBase.Types
+    Tp extends OrderedSetBase.Types = OrderedSetBase.Types,
   > extends RSetBase.NonEmpty<T, Tp>,
       Streamable.NonEmpty<T> {
     /**
@@ -58,12 +58,12 @@ export namespace OrderedSetBase {
 
   export interface Builder<
     T,
-    Tp extends OrderedSetBase.Types = OrderedSetBase.Types
+    Tp extends OrderedSetBase.Types = OrderedSetBase.Types,
   > extends RSetBase.Builder<T, Tp> {}
 
   export interface Context<
     UT,
-    Tp extends OrderedSetBase.Types = OrderedSetBase.Types
+    Tp extends OrderedSetBase.Types = OrderedSetBase.Types,
   > extends RSetBase.Context<UT, Tp> {
     readonly typeTag: 'OrderedSet';
 

@@ -140,7 +140,7 @@ export class MultiMapNonEmpty<
     K,
     V,
     Tp extends ContextImplTypes,
-    TpG extends WithKeyValue<Tp, K, V> = WithKeyValue<Tp, K, V>
+    TpG extends WithKeyValue<Tp, K, V> = WithKeyValue<Tp, K, V>,
   >
   extends NonEmptyBase<[K, V]>
   implements MultiMapBase.NonEmpty<K, V, Tp>
@@ -384,9 +384,7 @@ export class MultiMapNonEmpty<
       sep: ', ',
       end: ')',
       valueToString: ([key, values]) =>
-        `${key} -> ${values
-          .stream()
-          .join({ start: '[', sep: ', ', end: ']' })}`,
+        `${key} -> ${values.stream().join({ start: '[', sep: ', ', end: ']' })}`,
     });
   }
 
@@ -409,7 +407,7 @@ export class MultiMapBuilder<
   K,
   V,
   Tp extends ContextImplTypes,
-  TpG extends WithKeyValue<Tp, K, V> = WithKeyValue<Tp, K, V>
+  TpG extends WithKeyValue<Tp, K, V> = WithKeyValue<Tp, K, V>,
 > implements MultiMapBase.Builder<K, V, Tp>
 {
   _lock = 0;
@@ -607,7 +605,10 @@ export class MultiMapBuilder<
       ([key, values], _, outerHalt): void => {
         values.forEach(
           (value, index, halt): void => f([key, value], index, halt),
-          { reversed, state } as any
+          {
+            reversed,
+            state,
+          } as any
         );
         if (state.halted) outerHalt();
       },
@@ -635,7 +636,7 @@ export class MultiMapContext<
   UK,
   UV,
   N extends string,
-  Tp extends ContextImplTypes = ContextImplTypes
+  Tp extends ContextImplTypes = ContextImplTypes,
 > implements MultiMapBase.Context<UK, UV, Tp>
 {
   constructor(

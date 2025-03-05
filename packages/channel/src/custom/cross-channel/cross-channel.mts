@@ -21,7 +21,7 @@ export namespace CrossChannel {
    */
   export type Pair<TSend, TReceive> = readonly [
     crossSendCh: CrossChannel<TSend, TReceive>,
-    crossReceiveCh: CrossChannel<TReceive, TSend>
+    crossReceiveCh: CrossChannel<TReceive, TSend>,
   ];
 
   /**

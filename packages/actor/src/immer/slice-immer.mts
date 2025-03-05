@@ -8,7 +8,7 @@ export namespace SliceImmer {
   export interface Config extends SliceConfig {
     _ACTION_HANDLER_ARGS: [
       this['_STATE'],
-      ...this['_ACTION_HANDLER_UNKNOWN'][]
+      ...this['_ACTION_HANDLER_UNKNOWN'][],
     ];
 
     _ACTION_HANDLER: (...args: this['_ACTION_HANDLER_ARGS']) => void;
@@ -17,7 +17,7 @@ export namespace SliceImmer {
 
     _INCLUDE_HANDLER_ARGS: [
       state: this['_STATE'],
-      action: this['_INCLUDE_ACTION_TYPE']
+      action: this['_INCLUDE_ACTION_TYPE'],
     ];
 
     _INCLUDE_HANDLER: (...args: this['_INCLUDE_HANDLER_ARGS']) => void;

@@ -9,8 +9,6 @@ import {
   NonLeafTreeBuilder,
 } from '../src/custom/index.mjs';
 
-import './setupTests';
-
 const context = new ListContext(2);
 
 describe('NonLeafTree', () => {

@@ -28,25 +28,31 @@ export namespace Match {
    * @typeparam P - the parent type
    * @typeparam R - the root object type
    */
-  export type Entry<T, C, P, R> = IsAnyFunc<T> extends true
-    ? // function can only be directly matched
-      T
-    : IsPlainObj<T> extends true
-    ? // determine allowed match values for object
-      Match.WithResult<T, P, R, Match.Obj<T, C, P, R>>
-    : IsArray<T> extends true
-    ? // determine allowed match values for array or tuple
-      | Match.Arr<T, C, P, R>
-        | Match.Entry<T[number & keyof T], C[number & keyof C], P, R>[]
-        | Match.Func<
-            T,
-            P,
-            R,
+  export type Entry<T, C, P, R> =
+    IsAnyFunc<T> extends true
+      ? // function can only be directly matched
+        T
+      : IsPlainObj<T> extends true
+        ? // determine allowed match values for object
+          Match.WithResult<T, P, R, Match.Obj<T, C, P, R>>
+        : IsArray<T> extends true
+          ? // determine allowed match values for array or tuple
             | Match.Arr<T, C, P, R>
-            | Match.Entry<T[number & keyof T], C[number & keyof C], P, R>[]
-          >
-    : // only accept values with same interface
-      Match.WithResult<T, P, R, { [K in keyof C]: C[K & keyof T] }>;
+              | Match.Entry<T[number & keyof T], C[number & keyof C], P, R>[]
+              | Match.Func<
+                  T,
+                  P,
+                  R,
+                  | Match.Arr<T, C, P, R>
+                  | Match.Entry<
+                      T[number & keyof T],
+                      C[number & keyof C],
+                      P,
+                      R
+                    >[]
+                >
+          : // only accept values with same interface
+            Match.WithResult<T, P, R, { [K in keyof C]: C[K & keyof T] }>;
 
   /**
    * The type that determines allowed matchers for objects.
@@ -136,7 +142,7 @@ export namespace Match {
    */
   export type CompoundForObj<T, C, P, R> = [
     Match.CompoundType,
-    ...Match.Entry<T, C, P, R>[]
+    ...Match.Entry<T, C, P, R>[],
   ];
 
   /**
@@ -272,9 +278,7 @@ function matchEntry<T, C, P, R>(
   // already determined above that the source and matcher are not equal
 
   failureLog?.push(
-    `value ${JSON.stringify(
-      source
-    )} does not match given matcher ${JSON.stringify(matcher)}`
+    `value ${JSON.stringify(source)} does not match given matcher ${JSON.stringify(matcher)}`
   );
 
   return false;
@@ -469,9 +473,7 @@ function matchPlainObj<T extends object, C, P, R>(
       // the source does not have the given key
 
       failureLog?.push(
-        `key ${key} is specified in matcher but not present in value ${JSON.stringify(
-          source
-        )}`
+        `key ${key} is specified in matcher but not present in value ${JSON.stringify(source)}`
       );
 
       return false;

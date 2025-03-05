@@ -12,7 +12,7 @@ import type {
 export class OrderedSetBuilder<
   T,
   Tp extends OrderedSetTypes = OrderedSetTypes,
-  TpG extends WithElem<Tp, T> = WithElem<Tp, T>
+  TpG extends WithElem<Tp, T> = WithElem<Tp, T>,
 > implements OrderedSetBase.Builder<T, Tp>
 {
   constructor(

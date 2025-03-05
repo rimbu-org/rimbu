@@ -18,7 +18,7 @@ export class BiMultiMapContext<
   UK,
   UV,
   N extends string,
-  Tp extends ContextTypesImpl = ContextTypesImpl
+  Tp extends ContextTypesImpl = ContextTypesImpl,
 > implements BiMultiMapBase.Context<UK, UV, Tp>
 {
   constructor(

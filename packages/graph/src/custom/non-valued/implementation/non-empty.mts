@@ -14,7 +14,7 @@ import type { RSet } from '@rimbu/collection-types';
 export class GraphNonEmpty<
     N,
     Tp extends GraphTypesContextImpl,
-    TpG extends WithGraphValues<Tp, N, any> = WithGraphValues<Tp, N, any>
+    TpG extends WithGraphValues<Tp, N, any> = WithGraphValues<Tp, N, any>,
   >
   extends NonEmptyBase<GraphElement<N>>
   implements GraphBase.NonEmpty<N, Tp>
@@ -299,9 +299,7 @@ export class GraphNonEmpty<
       sep: ',\n  ',
       end: '\n)',
       valueToString: ([node, targets]) =>
-        `${node} ${connector} ${targets
-          .stream()
-          .join({ start: '[', sep: ', ', end: ']' })}`,
+        `${node} ${connector} ${targets.stream().join({ start: '[', sep: ', ', end: ']' })}`,
     });
   }
 

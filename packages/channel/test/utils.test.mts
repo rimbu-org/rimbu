@@ -59,6 +59,10 @@ describe('utils', () => {
   });
 
   describe('timeout', () => {
+    beforeEach(() => {
+      vi.resetAllMocks();
+    });
+
     it('resolves immediately when undefined', async () => {
       const spy = vi.spyOn(window, 'setTimeout');
       await timeout();
@@ -80,6 +84,10 @@ describe('utils', () => {
   });
 
   describe('defer', () => {
+    beforeEach(() => {
+      vi.resetAllMocks();
+    });
+
     it('called setTimeout internally', async () => {
       const spy = vi.spyOn(window, 'setTimeout');
 
