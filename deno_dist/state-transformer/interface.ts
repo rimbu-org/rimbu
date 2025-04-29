@@ -1,6 +1,6 @@
-import { type Reducer } from '../stream/mod.ts';
-import { Impl } from 'node:implementation.mjs';
-import type { Last, Prepend } from 'node:utils.mjs';
+import type { Reducer } from '../stream/mod.ts';
+import { Impl } from './implementation.ts';
+import type { Last, Prepend } from './utils.ts';
 
 /**
  * A function that transforms a state and input value into an output value and a new state.

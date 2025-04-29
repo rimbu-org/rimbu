@@ -1,4 +1,4 @@
-import { CHAIN_SYMBOL } from 'constants.mjs';
+import { CHAIN_SYMBOL } from './constants.mjs';
 import type { StateTransformer } from './interface.mjs';
 
 export function executeTransformers(

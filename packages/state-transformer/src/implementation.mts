@@ -1,6 +1,6 @@
 import { Reducer } from '@rimbu/stream';
-import { chainTransformers } from 'chain-transformers.mjs';
-import type { StateTransformer } from 'interface.mjs';
+import { chainTransformers } from './chain-transformers.mjs';
+import type { StateTransformer } from './interface.mjs';
 
 export const Impl: StateTransformer.Context = {
   setValue: (value) => (state) => [state, value],

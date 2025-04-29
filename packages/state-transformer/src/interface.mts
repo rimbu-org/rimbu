@@ -1,6 +1,6 @@
-import { type Reducer } from '@rimbu/stream';
-import { Impl } from 'implementation.mjs';
-import type { Last, Prepend } from 'utils.mjs';
+import type { Reducer } from '@rimbu/stream';
+import { Impl } from './implementation.mjs';
+import type { Last, Prepend } from './utils.mjs';
 
 /**
  * A function that transforms a state and input value into an output value and a new state.

@@ -1,6 +1,6 @@
 import { Reducer } from '../stream/mod.ts';
-import { chainTransformers } from 'node:chain-transformers.mjs';
-import type { StateTransformer } from 'node:interface.mjs';
+import { chainTransformers } from './chain-transformers.ts';
+import type { StateTransformer } from './interface.ts';
 
 export const Impl: StateTransformer.Context = {
   setValue: (value) => (state) => [state, value],

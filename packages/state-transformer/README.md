@@ -29,7 +29,7 @@ Managing state transformations in complex applications can be challenging. `@rim
 
 ### Feedback and Contributions
 
-We encourage you to try out `@rimbu/state-transformers` and provide feedback. If you encounter any issues or have suggestions for improvement, please don't hesitate to create issues on our repository.
+We encourage you to try out `@rimbu/state-transformer` and provide feedback. If you encounter any issues or have suggestions for improvement, please don't hesitate to create issues on our repository.
 
 ## Docs
 
