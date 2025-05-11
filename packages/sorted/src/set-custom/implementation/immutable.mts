@@ -592,6 +592,7 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
 
   findIndex(value: T): number {
     if (!this.context.comp.isComparable(value)) return -1;
+
     const index = this.context.findIndex(value, this.entries);
     if (index >= 0)
       return (
@@ -601,13 +602,16 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
     const childIndex = SortedIndex.next(index);
     const child = this.children[childIndex];
     const index$ = child.findIndex(value);
-    return (
-      index$ +
-      (index$ >= 0 ? 1 : -1) *
+    if (index$ >= 0) {
+      return (
+        index$ +
         (this.children.slice(0, childIndex).reduce((x, y) => x + y.size, 0) -
           index -
           1)
-    );
+      );
+    }
+
+    return -1;
   }
 
   getAtIndex<O>(index: number, otherwise?: OptLazy<O>): T | O {

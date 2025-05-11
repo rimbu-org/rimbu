@@ -305,6 +305,10 @@ function runWith(name: string, context: SortedSet.Context<number>): void {
       expect(largeSet.findIndex(50)).toBe(50);
       expect(largeSet.findIndex(99)).toBe(99);
       expect(largeSet.findIndex(100)).toBe(-1);
+
+      for (const value of largeSet) {
+        expect(largeSet.findIndex(value)).toBe(value);
+      }
     });
   });
 }
