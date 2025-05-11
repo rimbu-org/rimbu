@@ -289,6 +289,23 @@ function runWith(name: string, context: SortedSet.Context<number>): void {
       ]);
       expect(set.max()).toBe(max);
     });
+
+    it('findIndex', () => {
+      expect(context.empty().findIndex(5)).toBe(-1);
+
+      const set = context.of(8, 3, 5, 2);
+      expect(set.findIndex(2)).toBe(0);
+      expect(set.findIndex(3)).toBe(1);
+      expect(set.findIndex(5)).toBe(2);
+      expect(set.findIndex(8)).toBe(3);
+      expect(set.findIndex(10 as any)).toBe(-1);
+
+      const largeSet = context.from(Stream.range({ amount: 100 }));
+      expect(largeSet.findIndex(0)).toBe(0);
+      expect(largeSet.findIndex(50)).toBe(50);
+      expect(largeSet.findIndex(99)).toBe(99);
+      expect(largeSet.findIndex(100)).toBe(-1);
+    });
   });
 }
 
