@@ -152,6 +152,19 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
   maxKey(): K | undefined;
   maxKey<O>(otherwise: OptLazy<O>): K | O;
   /**
+   * Returns the index of the given key in the SortedMap, or -1 if the key is not present.
+   * @param key - the key to find the index for
+   * @example
+   * ```ts
+   * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);
+   * console.log(m.findIndex('c'))
+   * // => 2
+   * console.log(m.findIndex('q'))
+   * // => -1
+   * ```
+   */
+  findIndex(key: K): number;
+  /**
    * Returns the value associated with the maximum key of the SortedMap, or a fallback value (default: undefined)
    * if the SortedMap is empty.
    * @param otherwise - (default: undefined) the fallback value to return if the SortedMap is empty.
