@@ -91,6 +91,19 @@ export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
   max(): T | undefined;
   max<O>(otherwise: OptLazy<O>): T | O;
   /**
+   * Returns the index of the given value in the SortedSet, or -1 if the value is not present.
+   * @param value - the value to find the index for
+   * @example
+   * ```ts
+   * const m = SortedSet.of('b', 'd', 'a', 'c');
+   * console.log(m.findIndex('c'))
+   * // => 2
+   * console.log(m.findIndex('q'))
+   * // => -1
+   * ```
+   */
+  findIndex(value: T): number;
+  /**
    * Returns the value at the given index of the value sort order of the SortedSet, or a fallback value (default: undefined)
    * if the index is out of bounds.
    * @param index - the index in the key sort order

@@ -359,6 +359,29 @@ function runWith(name: string, context: SortedMap.Context<number>): void {
           .toArray()
       ).toEqual(entries(3, 2, 1));
     });
+
+    it('findIndex', () => {
+      expect(context.empty().findIndex(5)).toBe(-1);
+
+      const map = context.from(entries(8, 3, 5, 2));
+      expect(map.findIndex(2)).toBe(0);
+      expect(map.findIndex(3)).toBe(1);
+      expect(map.findIndex(5)).toBe(2);
+      expect(map.findIndex(8)).toBe(3);
+      expect(map.findIndex(10 as any)).toBe(-1);
+
+      const largeMap = context.from(
+        Stream.range({ amount: 100 }).map((v) => [v, v])
+      );
+      expect(largeMap.findIndex(0)).toBe(0);
+      expect(largeMap.findIndex(50)).toBe(50);
+      expect(largeMap.findIndex(99)).toBe(99);
+      expect(largeMap.findIndex(100)).toBe(-1);
+
+      for (const key of largeMap.streamKeys()) {
+        expect(largeMap.findIndex(key)).toBe(key);
+      }
+    });
   });
 }
 
