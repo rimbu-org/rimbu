@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkrimbu_docs=self.webpackChunkrimbu_docs||[]).push([[37225],{53608:s=>{s.exports=JSON.parse('{"label":"vitoke","permalink":"/blog/tags/vitoke","allTagsPath":"/blog/tags","count":1}')}}]);

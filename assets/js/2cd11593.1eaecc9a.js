@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkrimbu_docs=self.webpackChunkrimbu_docs||[]).push([[11057],{29574:a=>{a.exports=JSON.parse('{"label":"immmutable","permalink":"/blog/tags/immmutable","allTagsPath":"/blog/tags","count":1}')}}]);

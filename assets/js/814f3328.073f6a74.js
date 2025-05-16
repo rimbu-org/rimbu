@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkrimbu_docs=self.webpackChunkrimbu_docs||[]).push([[67472],{55513:t=>{t.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"Introducing Rimbu","permalink":"/blog/introducing-rimbu"},{"title":"How it all got started","permalink":"/blog/how-it-got-started"},{"title":"Introducing Myself","permalink":"/blog/introducing-myself"}]}')}}]);
