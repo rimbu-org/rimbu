@@ -1,0 +1,82 @@
+{
+  "name": "@rimbu/parser",
+  "version": "0.0.1",
+  "description": "",
+  "keywords": [
+    "rimbu",
+    "typescript"
+  ],
+  "homepage": "https://rimbu.org",
+  "author": {
+    "name": "Arvid Nicolaas",
+    "email": "arvid@rimbu.org",
+    "url": "https://github.com/vitoke"
+  },
+  "license": "MIT",
+  "funding": [
+    {
+      "type": "individual",
+      "url": "https://github.com/sponsors/vitoke"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rimbu-org/rimbu.git",
+    "directory": "packages/parser"
+  },
+  "type": "module",
+  "main": "./dist/cjs/index.cjs",
+  "module": "./dist/esm/index.mjs",
+  "types": "./dist/cjs/index.d.cts",
+  "exports": {
+    ".": {
+      "bun": "./dist/bun/index.mts",
+      "import": {
+        "types": "./dist/esm/index.d.mts",
+        "default": "./dist/esm/index.mjs"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.cts",
+        "default": "./dist/cjs/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "yarn clean && yarn bundle",
+    "build:deno": "yarn bundle:deno-prepare && yarn bundle:deno-convert && yarn bundle:deno-move && yarn bundle:deno-clean",
+    "bundle": "yarn bundle:cjs && yarn bundle:esm && yarn bundle:bun",
+    "bundle:bun": "node ../../config/bunnify.mjs -mode bun",
+    "bundle:cjs": "yarn bundle:cjs-prepare && yarn bundle:cjs-build && yarn bundle:cjs-clean",
+    "bundle:cjs-prepare": "node ../../config/bunnify.mjs -mode cjs",
+    "bundle:cjs-build": "tsc -p tsconfig.cjs.json",
+    "bundle:cjs-clean": "rimraf _cjs_prepare",
+    "bundle:deno-prepare": "node ../../config/prepare-denoify.mjs",
+    "bundle:deno-convert": "denoify --src _deno_prepare/src",
+    "bundle:deno-move": "rimraf ../../deno_dist/parser && mv deno_dist ../../deno_dist/parser",
+    "bundle:deno-clean": "rimraf _deno_prepare",
+    "bundle:esm": "tsc --p tsconfig.esm.json",
+    "clean": "rimraf dist",
+    "extract-api": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
+    "format": "yarn format:base --write",
+    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
+    "format:check": "yarn format:base --check",
+    "lint": "eslint src",
+    "test": "vitest run",
+    "test:cov": "vitest run --coverage",
+    "test:types": "tsd --files test-d",
+    "test:watch": "vitest",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@rimbu/state-transformer": "0.0.1",
+    "@rimbu/stream": "^2.2.0",
+    "tslib": "^2.6.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
