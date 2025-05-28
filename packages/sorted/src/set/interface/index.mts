@@ -1,6 +1,6 @@
 import type { RSet } from '@rimbu/collection-types/set';
 import type { RSetBase } from '@rimbu/collection-types/set-custom';
-import type { IndexRange, OptLazy, Range } from '@rimbu/common';
+import type { Comp, IndexRange, OptLazy, Range } from '@rimbu/common';
 import type { Stream, Streamable } from '@rimbu/stream';
 
 import type { SortedSetCreators } from '@rimbu/sorted/set-custom';
@@ -232,6 +232,11 @@ export namespace SortedSet {
    */
   export interface Context<UT> extends RSetBase.Context<UT, SortedSet.Types> {
     readonly typeTag: 'SortedSet';
+
+    /**
+     * A `Comp` instance used to sort the set values.
+     */
+    readonly comp: Comp<UT>;
   }
 
   /**
