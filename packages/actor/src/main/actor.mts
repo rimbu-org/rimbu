@@ -34,7 +34,8 @@ function builder<Tp extends Actor.Types, AC extends Actor.ActionsDefinition>(
         actionsDefinition
       ) as any;
     },
-    addEnhancer: (fn) => builder({ ...actor, ...fn(actor) }) as any,
+    addEnhancer: (fn) =>
+      builder({ ...actor, ...fn(actor) }, actionsDefinition) as any,
   };
 }
 
