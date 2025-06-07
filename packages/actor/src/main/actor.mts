@@ -1,84 +1,101 @@
 import type { Reducer } from '@rimbu/stream';
 
 import type { ActionBase } from './internal.mjs';
+import type { Override, Simplify } from './utils.mjs';
+
 /**
  *
  */
-export interface Actor<
-  S,
-  D extends (...args: any[]) => any = (action: ActionBase) => void,
-  ACS extends Actor.ActionsDefinition = Record<string, never>,
-> extends Actor.Base<S>,
-    Actor.Dispatch<D>,
-    Actor.ActionsDispatch<ACS, D> {}
+export type Actor<Tp extends Actor.Types = Actor.Types> = Override<
+  {
+    readonly actions: Actor.ActionsToDispatch<Tp['_actions'], Tp['_dispatch']>;
+    readonly dispatch: Tp['_dispatch'];
+    getState(): Tp['_state'];
+    subscribe(listener: Actor.Listener): Actor.Unsubscribe;
+  },
+  Tp['_enhanced']
+>;
+
+function builder<Tp extends Actor.Types, AC extends Actor.ActionsDefinition>(
+  actor: Actor<Tp>,
+  actionsDefinition?: AC | undefined
+): Actor.Builder<Tp> {
+  return {
+    build: () => actor,
+    addMiddleware: (fn): any => {
+      const dispatch = fn(actor);
+
+      return builder(
+        {
+          ...actor,
+          dispatch,
+          actions: createDispatchActions(actionsDefinition, dispatch) as any,
+        } as any,
+        actionsDefinition
+      ) as any;
+    },
+    addEnhancer: (fn) => builder({ ...actor, ...fn(actor) }) as any,
+  };
+}
 
 export namespace Actor {
   export type ActionReducer<S> = Reducer<ActionBase, S>;
 
-  export interface Base<S> {
-    getState(): S;
-    subscribe(listener: Actor.Listener): Actor.Unsubscribe;
+  export interface Builder<Tp extends Actor.Types> {
+    build(): Actor<Tp>;
+    addMiddleware<D extends Actor.BaseDispatchFunction>(
+      fn: (actor: Actor<Tp>) => D
+    ): Builder<Override<Tp, { _dispatch: D }>>;
+    addEnhancer<E>(
+      fn: (actor: Actor<Tp>) => E
+    ): Builder<Override<Tp, { _enhanced: Simplify<Tp['_enhanced'] & E> }>>;
   }
 
-  export type DispatchFunction = (...args: any[]) => any;
-
-  export interface Dispatch<
-    D extends Actor.DispatchFunction = (action: ActionBase) => void,
-  > {
-    dispatch: D;
+  export interface Types {
+    _state: unknown;
+    _actions: Actor.ActionsDefinition;
+    _dispatch: Actor.BaseDispatchFunction;
+    _enhanced: unknown;
   }
+
+  export type BaseDispatchFunction = (...args: any[]) => any;
+
+  export type DefaultDispatchFunction = (action: ActionBase) => void;
 
   export type ActionsDefinition = {
-    [key: string]: Actor.DispatchFunction | ActionsDefinition | undefined;
+    [key: string]:
+      | ActionBase.Creator<any, any[]>
+      | ActionsDefinition
+      | undefined;
   };
-
-  export interface Actions<
-    AC extends Actor.ActionsDefinition = Record<string, never>,
-  > {
-    actions: AC;
-  }
 
   export type ActionsToDispatch<
     AC extends Actor.ActionsDefinition,
-    D extends Actor.DispatchFunction,
+    D extends Actor.BaseDispatchFunction,
   > = {
-    [K in keyof AC]: AC[K] extends (...args: any[]) => any
+    [K in keyof AC]: AC[K] extends D
       ? (...args: Parameters<AC[K]>) => ReturnType<D>
       : ActionsToDispatch<AC[K] & Actor.ActionsDefinition, D>;
   };
-
-  export interface ActionsDispatch<
-    AC extends Actor.ActionsDefinition,
-    D extends Actor.DispatchFunction,
-  > {
-    actions: Actor.ActionsToDispatch<AC, D>;
-  }
-
-  export type StateType<A extends Actor.Base<any>> =
-    A extends Actor.Base<infer S> ? S : unknown;
 
   export type Listener = () => void;
 
   export type Unsubscribe = () => void;
 
-  export function configure<
-    S,
-    D extends Actor.DispatchFunction = (action: ActionBase) => void,
-    AC extends Actor.ActionsDefinition = Record<string, never>,
-    EnhancedActor extends Actor.Dispatch<any> &
-      Actor.Actions<any> & { actionCreators: AC } = Actor<S, D, AC> & {
-      actionCreators: AC;
-    },
-  >(config: {
+  export interface Config<S, AC extends Actor.ActionsDefinition> {
     reducer: Actor.ActionReducer<S>;
     actions?: AC | undefined;
-    middleware?: (actor: Actor<S, (action: ActionBase) => void, any>) => D;
-    enhancer?: (
-      actor: Actor<S, D, AC> & { actionCreators: AC }
-    ) => EnhancedActor;
-  }): EnhancedActor {
-    const { reducer, middleware, enhancer, actions } = config;
+  }
 
+  export function configure<S, AC extends Actor.ActionsDefinition>(
+    config: Actor.Config<S, AC>
+  ): Builder<{
+    _state: S;
+    _actions: AC;
+    _dispatch: Actor.DefaultDispatchFunction;
+    _enhanced: unknown;
+  }> {
+    const { reducer } = config;
     let halted = false;
 
     const halt = (): void => {
@@ -86,18 +103,13 @@ export namespace Actor {
     };
 
     let reducerState = reducer.init(halt);
-
     let index = 0;
-
     const listeners = new Set<Actor.Listener>();
-
     const STALE_STATE = Symbol();
-
     let cacheState: S | typeof STALE_STATE = STALE_STATE;
 
     const dispatch = (action: ActionBase): void => {
       const currentListeners = new Set(listeners);
-
       if (!halted) {
         const newReducerState = reducer.next(
           reducerState,
@@ -105,7 +117,6 @@ export namespace Actor {
           index++,
           halt
         );
-
         reducerState = newReducerState;
         cacheState = STALE_STATE;
       }
@@ -115,45 +126,29 @@ export namespace Actor {
       }
     };
 
-    const actor: any = {
+    const actor: Actor = {
+      actions: createDispatchActions(config.actions, dispatch),
       getState: (): S => {
         if (STALE_STATE === cacheState) {
           cacheState = reducer.stateToResult(reducerState, index, halted);
         }
-
         return cacheState;
       },
       dispatch,
       subscribe: (listener: Actor.Listener): Actor.Unsubscribe => {
         listeners.add(listener);
-
         return () => listeners.delete(listener);
       },
     };
 
-    if (undefined !== middleware) {
-      actor.dispatch = middleware(actor);
-    }
-
-    const actorWithEnhancer: EnhancedActor = enhancer?.(actor) ?? actor;
-
-    actorWithEnhancer.actions = createDispatchActions(
-      actions,
-      actorWithEnhancer
-    );
-    actorWithEnhancer.actionCreators = actions!;
-
-    return actorWithEnhancer;
+    return builder(actor) as any;
   }
 }
 
 function createDispatchActions<
   A extends Actor.ActionsDefinition,
-  D extends Actor.DispatchFunction,
->(
-  source: A | undefined,
-  actor: { dispatch: D }
-): Actor.ActionsToDispatch<A, D> {
+  D extends Actor.BaseDispatchFunction,
+>(source: A | undefined, dispatch: D): Actor.ActionsToDispatch<A, D> {
   const result: any = {};
 
   if (undefined === source) {
@@ -164,9 +159,9 @@ function createDispatchActions<
     const item = source[key];
 
     if (typeof item === 'function') {
-      result[key] = (...args: any[]): any => actor.dispatch(item(...args));
+      result[key] = (...args: any[]): any => dispatch(item(...args));
     } else {
-      result[key] = createDispatchActions(item, actor);
+      result[key] = createDispatchActions(item, dispatch);
     }
   }
 

@@ -10,7 +10,7 @@ describe('Actor', () => {
   it('can be empty', () => {
     const act = Actor.configure({
       reducer: Reducer.combine({}),
-    });
+    }).build();
 
     expect(act.getState()).toEqual({});
 
@@ -29,7 +29,7 @@ describe('Actor', () => {
 
     const act = Actor.configure({
       ...slice,
-    });
+    }).build();
 
     expect(act.getState()).toEqual({ count: 0, total: 10 });
 
@@ -63,7 +63,7 @@ describe('Actor', () => {
         counter,
         toggle,
       }),
-    });
+    }).build();
 
     expect(act.getState()).toEqual({
       counter: { count: 0, total: 10 },
@@ -95,7 +95,7 @@ describe('Actor', () => {
 
     const act = Actor.configure({
       ...slice,
-    });
+    }).build();
 
     const fn = Spy.fn();
 
@@ -118,7 +118,7 @@ describe('Actor', () => {
 
     const act = Actor.configure({
       ...slice,
-    });
+    }).build();
 
     const fn = Spy.fn();
 
@@ -145,7 +145,7 @@ describe('Actor', () => {
 
     const act = Actor.configure({
       ...slice,
-    });
+    }).build();
 
     const fn = Spy.fn();
 
@@ -174,7 +174,8 @@ describe('Actor', () => {
 
     const act = Actor.configure({
       ...slice,
-      middleware: (actor) => {
+    })
+      .addMiddleware((actor) => {
         const originalDispatch = actor.dispatch;
 
         return (action: ActionBase) => {
@@ -187,8 +188,8 @@ describe('Actor', () => {
             postState: actor.getState(),
           };
         };
-      },
-    });
+      })
+      .build();
 
     const result = act.actions.inc();
 
@@ -208,14 +209,15 @@ describe('Actor', () => {
 
     const act = Actor.configure({
       ...slice,
-      enhancer: (actor) => ({
+    })
+      .addEnhancer((actor) => ({
         ...actor,
         dispatchTwice(action: ActionBase) {
           actor.dispatch(action);
           actor.dispatch(action);
         },
-      }),
-    });
+      }))
+      .build();
 
     act.dispatchTwice(slice.actions.inc());
 
@@ -243,7 +245,7 @@ describe('Actor', () => {
 
     const act = Actor.configure({
       ...Slice.combine({ counter, toggle }),
-    });
+    }).build();
 
     expect(act.actions.counter.inc).not.toBeUndefined();
     expect(act.actions.toggle).not.toBeUndefined();
@@ -260,7 +262,7 @@ describe('Actor', () => {
     const act = Actor.configure({
       reducer: slice.reducer.takeInput(0),
       actions: slice.actions,
-    });
+    }).build();
 
     act.actions.inc();
 
