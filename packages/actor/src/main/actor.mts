@@ -1,7 +1,8 @@
 import type { Reducer } from '@rimbu/stream';
 
+import { type Path, getAt, type Selector, select } from '@rimbu/deep';
 import type { ActionBase } from './internal.mjs';
-import type { Override, Simplify } from './utils.mjs';
+import type { Override, Simplify, SimplyOverride } from './utils.mjs';
 
 /**
  *
@@ -12,43 +13,87 @@ export type Actor<Tp extends Actor.Types = Actor.Types> = Override<
     readonly dispatch: Tp['_dispatch'];
     getState(): Tp['_state'];
     subscribe(listener: Actor.Listener): Actor.Unsubscribe;
+    focus<P extends Path.Set<Tp['_state']> & Path.Set<Tp['_actions']>>(
+      path: P
+    ): Actor<
+      SimplyOverride<
+        Tp,
+        {
+          _state: Path.Result<Tp['_state'], P>;
+          _actions: Path.Result<Tp['_actions'], P>;
+        }
+      >
+    >;
+    select<SL extends Selector<Tp['_state']>>(
+      selector: SL
+    ): Actor<SimplyOverride<Tp, { _state: Selector.Result<Tp['_state'], SL> }>>;
   },
   Tp['_enhanced']
 >;
 
 function builder<Tp extends Actor.Types, AC extends Actor.ActionsDefinition>(
   actor: Actor<Tp>,
-  actionsDefinition?: AC | undefined
+  actionsDefinition: AC | undefined
 ): Actor.Builder<Tp> {
   return {
-    build: () => actor,
+    build: (): Actor<Tp> => {
+      const actions = createDispatchActions(
+        actionsDefinition,
+        actor.dispatch as any
+      );
+
+      return {
+        ...actor,
+        actions,
+        focus: (path: any): any => {
+          return {
+            ...actor,
+            actions: getAt(actions, path),
+            getState: () => getAt((actor.getState as any)(), path),
+          };
+        },
+        select: (selector: any): any => {
+          return {
+            ...actor,
+            getState: () => select((actor.getState as any)(), selector),
+          };
+        },
+      };
+    },
     addMiddleware: (fn): any => {
-      const dispatch = fn(actor);
+      const dispatch = fn({
+        getState: actor.getState,
+        dispatch: actor.dispatch,
+      } as any);
 
       return builder(
         {
           ...actor,
           dispatch,
-          actions: createDispatchActions(actionsDefinition, dispatch) as any,
         } as any,
         actionsDefinition
       ) as any;
     },
-    addEnhancer: (fn) =>
-      builder({ ...actor, ...fn(actor) }, actionsDefinition) as any,
+    addEnhancer: (fn): any =>
+      builder({ ...actor, ...fn(actor) } as Actor, actionsDefinition),
   };
 }
 
 export namespace Actor {
   export type ActionReducer<S> = Reducer<ActionBase, S>;
 
+  export interface AddMidlewareSource<Tp extends Actor.Types> {
+    readonly dispatch: Tp['_dispatch'];
+    getState(): Tp['_state'];
+  }
+
   export interface Builder<Tp extends Actor.Types> {
     build(): Actor<Tp>;
     addMiddleware<D extends Actor.BaseDispatchFunction>(
-      fn: (actor: Actor<Tp>) => D
+      fn: (actor: Actor.AddMidlewareSource<Tp>) => D
     ): Builder<Override<Tp, { _dispatch: D }>>;
     addEnhancer<E>(
-      fn: (actor: Actor<Tp>) => E
+      fn: (actor: Actor<Tp>) => E & { dispatch?: never }
     ): Builder<Override<Tp, { _enhanced: Simplify<Tp['_enhanced'] & E> }>>;
   }
 
@@ -74,7 +119,7 @@ export namespace Actor {
     AC extends Actor.ActionsDefinition,
     D extends Actor.BaseDispatchFunction,
   > = {
-    [K in keyof AC]: AC[K] extends D
+    [K in keyof AC]: AC[K] extends Actor.BaseDispatchFunction
       ? (...args: Parameters<AC[K]>) => ReturnType<D>
       : ActionsToDispatch<AC[K] & Actor.ActionsDefinition, D>;
   };
@@ -110,17 +155,14 @@ export namespace Actor {
     let cacheState: S | typeof STALE_STATE = STALE_STATE;
 
     const dispatch = (action: ActionBase): void => {
-      const currentListeners = new Set(listeners);
-      if (!halted) {
-        const newReducerState = reducer.next(
-          reducerState,
-          action,
-          index++,
-          halt
-        );
-        reducerState = newReducerState;
-        cacheState = STALE_STATE;
+      if (halted) {
+        return;
       }
+
+      const currentListeners = new Set(listeners);
+
+      reducerState = reducer.next(reducerState, action, index++, halt);
+      cacheState = STALE_STATE;
 
       for (const listener of currentListeners) {
         listener();
@@ -128,7 +170,7 @@ export namespace Actor {
     };
 
     const actor: Actor = {
-      actions: createDispatchActions(config.actions, dispatch),
+      actions: undefined as any,
       getState: (): S => {
         if (STALE_STATE === cacheState) {
           cacheState = reducer.stateToResult(reducerState, index, halted);
@@ -140,9 +182,11 @@ export namespace Actor {
         listeners.add(listener);
         return () => listeners.delete(listener);
       },
+      focus: undefined as any,
+      select: undefined as any,
     };
 
-    return builder(actor) as any;
+    return builder(actor, config.actions) as any;
   }
 }
 

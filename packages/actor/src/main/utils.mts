@@ -13,3 +13,5 @@ export type Override<T, O> = {} & {
 };
 
 export type Simplify<T> = T extends object ? { [K in keyof T]: T[K] } : T;
+
+export type SimplyOverride<T, O> = Simplify<Override<T, O>>;

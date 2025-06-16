@@ -211,7 +211,6 @@ describe('Actor', () => {
       ...slice,
     })
       .addEnhancer((actor) => ({
-        ...actor,
         dispatchTwice(action: ActionBase) {
           actor.dispatch(action);
           actor.dispatch(action);
@@ -271,4 +270,44 @@ describe('Actor', () => {
       total: 10,
     });
   });
+
+  it('can focus on substate', () => {
+    const countSlice = SlicePatch.create({
+      initState: { count: 0 },
+      actions: {
+        inc: () => [{ count: v => v + 1 }],
+      },
+    });
+    const toggleSlice = SlicePatch.create({
+      initState: { toggle: false },
+      actions: {
+        toggle: () => [{ toggle: v => !v }]
+      }
+    })
+
+    const combinedSlice = Slice.combine({
+      count: countSlice,
+      toggle: toggleSlice
+    });
+
+    const act = Actor.configure({
+      ...combinedSlice,
+    }).build();
+
+    const countAct = act.focus('count');
+    const toggleAct = act.focus('toggle');
+
+    expect(countAct.getState()).toEqual({ count: 0 });
+    expect(toggleAct.getState()).toEqual({ toggle: false });
+
+    countAct.actions.inc();
+
+    expect(countAct.getState()).toEqual({ count: 1 });
+    expect(toggleAct.getState()).toEqual({ toggle: false });
+
+    toggleAct.actions.toggle();
+
+    expect(countAct.getState()).toEqual({ count: 1 });
+    expect(toggleAct.getState()).toEqual({ toggle: true });
+  })
 });
