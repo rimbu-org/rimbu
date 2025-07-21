@@ -1,6 +1,7 @@
 import { CollectFun, Eq } from '@rimbu/common';
 
 import { Reducer, Stream, type StreamSource } from '@rimbu/stream';
+import { createState } from '@rimbu/stream/custom';
 
 /**
  * A Reducer that produces instances of `StreamSource`.
@@ -59,33 +60,78 @@ export namespace Transformer {
       collector = Reducer.toArray() as Reducer<T, R>,
     } = options;
 
-    return Reducer.create<T, Stream<R>, Set<Reducer.Instance<T, R>>>(
+    return Reducer.create<
+      T,
+      Stream<R>,
+      Set<{ index: number; halted: boolean; state: any }>
+    >(
       () => new Set(),
-      (state, elem, index) => {
-        for (const instance of state) {
-          if (instance.index >= windowSize || instance.halted) {
-            state.delete(instance);
+      (combinedStateSet, elem, index) => {
+        for (const reducerState of combinedStateSet) {
+          if (reducerState.index >= windowSize || reducerState.halted) {
+            combinedStateSet.delete(reducerState);
           } else {
-            instance.next(elem);
+            reducerState.state = collector.next(
+              reducerState.state,
+              elem,
+              reducerState.index++,
+              () => {
+                reducerState.halted = true;
+              }
+            );
           }
         }
 
         if (index % skipAmount === 0) {
-          const newInstance = collector.compile();
-          newInstance.next(elem);
-          state.add(newInstance);
+          const initState = createState(
+            {
+              index: 0,
+              halted: false,
+            },
+            (baseState) => ({
+              state: collector.init(() => {
+                baseState.halted = true;
+              }),
+            })
+          );
+          combinedStateSet.add(initState);
+          if (!initState.halted) {
+            initState.state = collector.next(
+              initState.state,
+              elem,
+              initState.index++,
+              () => {
+                initState.halted = true;
+              }
+            );
+          }
         }
 
-        return state;
+        return combinedStateSet;
       },
-      (state, _, halted) => {
+      (combinedStateSet, _, halted) => {
         if (halted) {
           return Stream.empty<R>();
         }
 
-        return Stream.from(state).collect((instance, _, skip) =>
-          instance.index === windowSize ? instance.getOutput() : skip
+        return Stream.from(combinedStateSet).collect((reducerState, _, skip) =>
+          reducerState.index === windowSize
+            ? collector.stateToResult(
+                reducerState.state,
+                reducerState.index,
+                reducerState.halted
+              )
+            : skip
         );
+      },
+      {
+        cloneState: (combinedStateSet) =>
+          new Set(
+            [...combinedStateSet].map((combinedState) => ({
+              ...combinedState,
+              state: collector.cloneState(combinedState.state),
+            }))
+          ),
       }
     );
   };
@@ -136,7 +182,12 @@ export namespace Transformer {
     return Reducer.createOutput<T, StreamSource<T2>>(
       () => Stream.empty<T2>(),
       (state, next, index, halt) => flatMapFun(next, index, halt),
-      (state, _, halted) => (halted ? Stream.empty() : state)
+      (state, _, halted) => (halted ? Stream.empty() : state),
+      {
+        cloneState: () => {
+          throw Error('cloneState for operation not yet supported');
+        },
+      }
     );
   }
 
@@ -288,25 +339,46 @@ export namespace Transformer {
       options;
 
     return Reducer.create(
-      () => ({ collection: collector.compile(), done: false }),
-      (state, nextValue, index) => {
-        if (state.done) {
-          state.done = false;
-          state.collection = collector.compile();
+      (initHalt) => ({
+        sliceState: collector.init(initHalt),
+        sliceIndex: 0,
+        sliceDone: false,
+      }),
+      (combinedState, nextValue, index, halt) => {
+        if (combinedState.sliceDone) {
+          combinedState.sliceDone = false;
+          combinedState.sliceState = collector.init(halt);
+          combinedState.sliceIndex = 0;
         }
 
         if (pred(nextValue, index) === negate) {
-          state.collection.next(nextValue);
+          combinedState.sliceState = collector.next(
+            combinedState.sliceState,
+            nextValue,
+            combinedState.sliceIndex++,
+            halt
+          );
         } else {
-          state.done = true;
+          combinedState.sliceDone = true;
         }
 
-        return state;
+        return combinedState;
       },
-      (state, _, halted) =>
-        state.done !== halted
-          ? Stream.of(state.collection.getOutput())
-          : Stream.empty()
+      (combinedState, _, halted) =>
+        combinedState.sliceDone !== halted
+          ? Stream.of(
+              collector.stateToResult(
+                combinedState.sliceState,
+                combinedState.sliceIndex,
+                halted
+              )
+            )
+          : Stream.empty(),
+      {
+        cloneState: () => {
+          throw Error('cloneState for operation not yet supported');
+        },
+      }
     );
   }
 
@@ -336,25 +408,46 @@ export namespace Transformer {
     } = options;
 
     return Reducer.create(
-      () => ({ collection: collector.compile(), done: false }),
-      (state, nextValue) => {
-        if (state.done) {
-          state.done = false;
-          state.collection = collector.compile();
+      (initHalt) => ({
+        sliceState: collector.init(initHalt),
+        sliceIndex: 0,
+        sliceDone: false,
+      }),
+      (combinedState, nextValue, _, halt) => {
+        if (combinedState.sliceDone) {
+          combinedState.sliceDone = false;
+          combinedState.sliceState = collector.init(halt);
+          combinedState.sliceIndex = 0;
         }
 
         if (eq(nextValue, sepElem) === negate) {
-          state.collection.next(nextValue);
+          combinedState.sliceState = collector.next(
+            combinedState.sliceState,
+            nextValue,
+            combinedState.sliceIndex++,
+            halt
+          );
         } else {
-          state.done = true;
+          combinedState.sliceDone = true;
         }
 
-        return state;
+        return combinedState;
       },
-      (state, _, halted) =>
-        state.done !== halted
-          ? Stream.of(state.collection.getOutput())
-          : Stream.empty()
+      (combinedState, _, halted) =>
+        combinedState.sliceDone !== halted
+          ? Stream.of(
+              collector.stateToResult(
+                combinedState.sliceState,
+                combinedState.sliceIndex,
+                halted
+              )
+            )
+          : Stream.empty(),
+      {
+        cloneState: () => {
+          throw Error('cloneState for operation not yet supported');
+        },
+      }
     );
   }
 
@@ -378,80 +471,218 @@ export namespace Transformer {
     const { eq = Eq.objectIs, collector = Reducer.toArray() as Reducer<T, R> } =
       options;
 
+    const nextStartsWithReducer = Reducer.startsWithSlice(sepSlice, {
+      eq,
+    });
+
     return Reducer.create<
       T,
       Stream<R>,
       {
         done: boolean;
-        instances: Map<Reducer.Instance<T, boolean>, number>;
+        nextStartsWithStates: Map<
+          { index: number; halted: boolean; state: any },
+          number
+        >;
         buffer: T[];
-        result: Reducer.Instance<T, R>;
+        collectorState: { index: number; halted: boolean; state: any };
       }
     >(
-      () => ({
-        done: false,
-        instances: new Map(),
-        buffer: [],
-        result: collector.compile(),
-      }),
-      (state, nextValue) => {
-        if (state.done) {
-          state.result = collector.compile();
-          state.done = false;
-        }
+      () => {
+        const collectorState = createState(
+          {
+            index: 0,
+            halted: false,
+          },
+          (baseState) => ({
+            state: collector.init(() => {
+              baseState.halted = true;
+            }),
+          })
+        );
 
-        for (const [instance, startIndex] of state.instances) {
-          instance.next(nextValue);
-
-          if (instance.halted) {
-            state.instances.delete(instance);
-          }
-
-          if (instance.getOutput()) {
-            state.done = true;
-            Stream.fromArray(state.buffer, {
-              range: { end: [startIndex, false] },
-            }).forEachPure(state.result.next);
-            state.buffer = [];
-            state.instances.clear();
-            return state;
-          }
-        }
-
-        const nextStartsWith = Reducer.startsWithSlice(sepSlice, {
-          eq,
-        }).compile();
-        nextStartsWith.next(nextValue);
-
-        if (nextStartsWith.getOutput()) {
-          state.done = true;
-          Stream.fromArray(state.buffer).forEachPure(state.result.next);
-          state.buffer = [];
-          state.instances.clear();
-          return state;
-        } else if (!nextStartsWith.halted) {
-          state.instances.set(nextStartsWith, state.buffer.length);
-        }
-
-        if (state.instances.size === 0) {
-          state.result.next(nextValue);
-        } else {
-          state.buffer.push(nextValue);
-        }
-
-        return state;
+        return {
+          done: false,
+          nextStartsWithStates: new Map(),
+          buffer: [],
+          collectorState,
+        };
       },
-      (state, _, halted) => {
-        if (state.done === halted) {
+      (combinedState, nextValue) => {
+        if (combinedState.done) {
+          const collectorState = createState(
+            {
+              index: 0,
+              halted: false,
+            },
+            (baseState) => ({
+              state: collector.init(() => {
+                baseState.halted = true;
+              }),
+            })
+          );
+          combinedState.collectorState = collectorState;
+          combinedState.done = false;
+        }
+
+        const { nextStartsWithStates } = combinedState;
+
+        for (const [nextStartsWithState, startIndex] of nextStartsWithStates) {
+          nextStartsWithState.state = nextStartsWithReducer.next(
+            nextStartsWithState.state,
+            nextValue,
+            nextStartsWithState.index++,
+            () => {
+              nextStartsWithState.halted = true;
+            }
+          );
+
+          if (nextStartsWithState.halted) {
+            nextStartsWithStates.delete(nextStartsWithState);
+          }
+
+          if (
+            nextStartsWithReducer.stateToResult(
+              nextStartsWithState.state,
+              nextStartsWithState.index,
+              nextStartsWithState.halted
+            )
+          ) {
+            combinedState.done = true;
+            const { collectorState } = combinedState;
+
+            Stream.fromArray(combinedState.buffer, {
+              range: { end: [startIndex, false] },
+            }).forEach((item, _, halt) => {
+              collectorState.state = collector.next(
+                collectorState.state,
+                item,
+                collectorState.index++,
+                () => {
+                  collectorState.halted = true;
+                  halt();
+                }
+              );
+            });
+
+            combinedState.buffer = [];
+            nextStartsWithStates.clear();
+            return combinedState;
+          }
+        }
+
+        const nextStartsWithReducerState = createState(
+          {
+            index: 0,
+            halted: false,
+          },
+          (baseState) => ({
+            state: nextStartsWithReducer.init(() => {
+              baseState.halted = true;
+            }),
+          })
+        );
+
+        if (!nextStartsWithReducerState.halted) {
+          nextStartsWithReducerState.state = nextStartsWithReducer.next(
+            nextStartsWithReducerState.state,
+            nextValue,
+            nextStartsWithReducerState.index++,
+            () => {
+              nextStartsWithReducerState.halted = true;
+            }
+          );
+        }
+
+        if (
+          nextStartsWithReducer.stateToResult(
+            nextStartsWithReducerState.state,
+            nextStartsWithReducerState.index,
+            nextStartsWithReducerState.halted
+          )
+        ) {
+          combinedState.done = true;
+          const { collectorState } = combinedState;
+
+          Stream.fromArray(combinedState.buffer).forEach((item, _, halt) => {
+            if (collectorState.halted) {
+              halt();
+              return;
+            }
+            collectorState.state = nextStartsWithReducer.next(
+              collectorState.state,
+              item,
+              collectorState.index++,
+              () => {
+                collectorState.halted = true;
+                halt();
+              }
+            );
+          });
+
+          combinedState.buffer = [];
+          nextStartsWithStates.clear();
+          return combinedState;
+        } else if (!nextStartsWithReducerState.halted) {
+          nextStartsWithStates.set(
+            nextStartsWithReducerState,
+            combinedState.buffer.length
+          );
+        }
+
+        if (nextStartsWithStates.size === 0) {
+          const { collectorState } = combinedState;
+          collectorState.state = collector.next(
+            collectorState.state,
+            nextValue,
+            collectorState.index++,
+            () => {
+              collectorState.halted = true;
+            }
+          );
+        } else {
+          combinedState.buffer.push(nextValue);
+        }
+
+        return combinedState;
+      },
+      (combinedState, _, halted) => {
+        if (combinedState.done === halted) {
           return Stream.empty();
         }
 
+        const { collectorState } = combinedState;
+
         if (halted) {
-          Stream.fromArray(state.buffer).forEachPure(state.result.next);
-          state.buffer = [];
+          Stream.fromArray(combinedState.buffer).forEach((item, _, halt) => {
+            if (collectorState.halted) {
+              halt();
+              return;
+            }
+            collectorState.state = collector.next(
+              collectorState.state,
+              item,
+              collectorState.index++,
+              () => {
+                collectorState.halted = true;
+              }
+            );
+          });
+          combinedState.buffer = [];
         }
 
-        return Stream.of(state.result.getOutput());
+        return Stream.of(
+          collector.stateToResult(
+            collectorState.state,
+            collectorState.index,
+            collectorState.halted
+          )
+        );
+      },
+      {
+        cloneState: () => {
+          throw Error('cloneState for operation not yet supported');
+        },
       }
     );
   }

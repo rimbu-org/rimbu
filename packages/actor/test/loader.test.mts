@@ -1,28 +1,25 @@
-import { Actor } from 'main/actor.mjs';
-import { createLoader, withLoader } from 'main/loader.mjs';
+import { Actor, createLoader, withLoader } from 'main/index.mjs';
 
 describe('Loader', () => {
   it('works for sync functions', async () => {
     const loaderSlice = createLoader<{ value: number }>();
 
-    const actor = Actor.configure({
-      ...loaderSlice,
-    }).build();
+    const actor = Actor.configure(loaderSlice).build();
 
     const fn = vitest.fn().mockReturnValue({ value: 1 });
 
     const loader = withLoader(actor, fn);
-    expect(actor.getState()).toEqual({ type: 'idle' });
+    expect(actor.state).toEqual({ type: 'idle' });
     await loader.load();
-    expect(actor.getState()).toEqual({ type: 'loaded', data: { value: 1 } });
+    expect(actor.state).toEqual({ type: 'loaded', data: { value: 1 } });
     const error = Error('error');
     fn.mockImplementation(() => {
       throw error;
     });
     await loader.load();
-    expect(actor.getState()).toEqual({ type: 'error', error });
+    expect(actor.state).toEqual({ type: 'error', error });
     await loader.unload();
-    expect(actor.getState()).toEqual({ type: 'idle' });
+    expect(actor.state).toEqual({ type: 'idle' });
   });
 
   it('works for async functions', async () => {
@@ -35,15 +32,15 @@ describe('Loader', () => {
     const fn = vitest.fn().mockResolvedValue({ value: 1 });
 
     const loader = withLoader(actor, fn);
-    expect(actor.getState()).toEqual({ type: 'idle' });
+    expect(actor.state).toEqual({ type: 'idle' });
     await loader.load();
-    expect(actor.getState()).toEqual({ type: 'loaded', data: { value: 1 } });
+    expect(actor.state).toEqual({ type: 'loaded', data: { value: 1 } });
     const error = Error('error');
     fn.mockRejectedValue(error);
     await loader.load();
-    expect(actor.getState()).toEqual({ type: 'error', error });
+    expect(actor.state).toEqual({ type: 'error', error });
     await loader.unload();
-    expect(actor.getState()).toEqual({ type: 'idle' });
+    expect(actor.state).toEqual({ type: 'idle' });
   });
 
   it('sets state to loading while promise is not resolved', async () => {
@@ -63,26 +60,24 @@ describe('Loader', () => {
 
     const op = loader.load();
 
-    expect(actor.getState()).toEqual({ type: 'loading' });
+    expect(actor.state).toEqual({ type: 'loading' });
 
     resolve({ value: 1 } as any);
     await op;
 
-    expect(actor.getState()).toEqual({ type: 'loaded', data: { value: 1 } });
+    expect(actor.state).toEqual({ type: 'loaded', data: { value: 1 } });
   });
 
   it('propagates arguments to load', async () => {
     const loaderSlice = createLoader<{ value: number }>();
 
-    const actor = Actor.configure({
-      ...loaderSlice,
-    }).build();
+    const actor = Actor.configure(loaderSlice).build();
 
     const loader = withLoader(actor, async (value: number) => ({ value }));
     await loader.load(5);
-    expect(actor.getState()).toEqual({ type: 'loaded', data: { value: 5 } });
+    expect(actor.state).toEqual({ type: 'loaded', data: { value: 5 } });
 
     await loader.load(3);
-    expect(actor.getState()).toEqual({ type: 'loaded', data: { value: 3 } });
+    expect(actor.state).toEqual({ type: 'loaded', data: { value: 3 } });
   });
 });

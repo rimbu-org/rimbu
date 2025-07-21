@@ -1,6 +1,7 @@
 import { RimbuError } from '@rimbu/base';
 import { CollectFun, Eq, ErrBase, OptLazy } from '@rimbu/common';
 import { Stream, type FastIterator, type StreamSource } from '@rimbu/stream';
+import { createState } from '@rimbu/stream/custom';
 
 /**
  * A `Reducer` is a stand-alone calculation that takes input values of type I, and, when requested, produces an output value of type O.
@@ -12,6 +13,8 @@ export type Reducer<I, O = I> = Reducer.Impl<I, O, unknown>;
 function identity<T>(value: T): T {
   return value;
 }
+
+const NONE = Symbol('none');
 
 /**
  * Combines multiple reducers in an object's values of the same input type into a single reducer that
@@ -26,51 +29,100 @@ function combineObj<T, R extends { readonly [key: string]: unknown }>(
 ): Reducer<T, R> {
   return Reducer.create(
     (initHalt) => {
-      const result: Record<string, Reducer.Instance<T, any>> = {};
+      const combinedState = {} as Record<
+        string,
+        { state: any; index: number; halted: boolean }
+      >;
 
-      let allHalted = true;
+      let haltedBalance = 0;
 
       for (const key in reducerObj) {
-        const instance = reducerObj[key].compile();
+        haltedBalance--;
 
-        allHalted = allHalted && instance.halted;
+        const reducer = reducerObj[key];
 
-        result[key] = instance;
+        const reducerState = createState(
+          {
+            halted: false,
+            index: 0,
+          },
+          (baseState) => ({
+            state: reducer.init(() => {
+              baseState.halted = true;
+              haltedBalance++;
+            }),
+          })
+        );
+
+        combinedState[key] = reducerState;
       }
 
-      if (allHalted) {
+      if (haltedBalance === 0) {
         initHalt();
       }
 
-      return result;
+      return combinedState;
     },
-    (state, elem, index, halt) => {
-      let allHalted = true;
+    (combinedState, elem, _, halt) => {
+      let haltedBalance = 0;
 
-      for (const key in state) {
-        const reducerInstance = state[key];
+      for (const key in reducerObj) {
+        const reducerState = combinedState[key];
 
-        if (!reducerInstance.halted) {
-          reducerInstance.next(elem);
-
-          allHalted = allHalted && reducerInstance.halted;
+        if (reducerState.halted) {
+          continue;
         }
+
+        haltedBalance--;
+
+        const reducer = reducerObj[key];
+
+        reducerState.state = reducer.next(
+          reducerState.state,
+          elem,
+          reducerState.index++,
+          () => {
+            reducerState.halted = true;
+            haltedBalance++;
+          }
+        );
       }
 
-      if (allHalted) {
+      if (haltedBalance === 0) {
         halt();
       }
 
-      return state;
+      return combinedState;
     },
-    (state) => {
-      const result: any = {};
+    (combinedState) => {
+      const result: Record<string, any> = {};
 
-      for (const key in state) {
-        result[key] = state[key].getOutput();
+      for (const key in reducerObj) {
+        const reducer = reducerObj[key];
+        const reducerState = combinedState[key];
+
+        result[key] = reducer.stateToResult(
+          reducerState.state,
+          reducerState.index,
+          reducerState.halted
+        );
       }
 
       return result as R;
+    },
+    {
+      cloneState: (state) => {
+        const clonedState: Record<string, any> = {};
+
+        for (const key in reducerObj) {
+          clonedState[key] = {
+            ...state[key],
+            state: reducerObj[key].cloneState(state[key].state),
+          };
+        }
+
+        return clonedState;
+      },
     }
   );
 }
@@ -83,47 +135,112 @@ function combineObj<T, R extends { readonly [key: string]: unknown }>(
 function combineArr<T, R extends readonly [unknown, unknown, ...unknown[]]>(
   ...reducers: { [K in keyof R]: Reducer<T, R[K]> } & Reducer<T, unknown>[]
 ): Reducer<T, R> {
-  return Reducer.create<T, any, Reducer.Instance<T, unknown>[]>(
+  return Reducer.create(
     (initHalt) => {
-      let allHalted = true;
+      const combinedStates = [] as Array<{
+        state: any;
+        index: number;
+        halted: boolean;
+      }>;
 
-      const result = reducers.map((reducer) => {
-        const instance = reducer.compile();
+      let remainingCount = reducers.length;
 
-        allHalted = allHalted && instance.halted;
+      let reducerIndex = -1;
 
-        return instance;
-      });
+      while (++reducerIndex < reducers.length) {
+        const reducer = reducers[reducerIndex];
 
-      if (allHalted) {
+        const reducerState = createState(
+          {
+            halted: false,
+            index: 0,
+          },
+          (baseState) => ({
+            state: reducer.init(() => {
+              baseState.halted = true;
+              remainingCount--;
+            }),
+          })
+        );
+
+        combinedStates.push(reducerState);
+      }
+
+      if (remainingCount === 0) {
         initHalt();
       }
 
-      return result;
+      return combinedStates;
     },
-    (state, elem, index, halt) => {
-      let allHalted = true;
+    (combinedState, elem, _, halt) => {
+      let remainingCount = reducers.length;
+      let reducerIndex = -1;
 
-      let i = -1;
-      const len = state.length;
+      while (++reducerIndex < reducers.length) {
+        const reducerState = combinedState[reducerIndex];
 
-      while (++i < len) {
-        const reducerInstance = state[i];
-
-        if (!reducerInstance.halted) {
-          reducerInstance.next(elem);
-
-          allHalted = allHalted && reducerInstance.halted;
+        if (reducerState.halted) {
+          remainingCount--;
+          continue;
         }
+
+        const reducer = reducers[reducerIndex];
+
+        reducerState.state = reducer.next(
+          reducerState.state,
+          elem,
+          reducerState.index++,
+          () => {
+            reducerState.halted = true;
+            remainingCount--;
+          }
+        );
       }
 
-      if (allHalted) {
+      if (remainingCount === 0) {
         halt();
       }
 
-      return state;
+      return combinedState;
     },
-    (state) => state.map((reducerInstance) => reducerInstance.getOutput())
+    (combinedState) => {
+      const result: any[] = [];
+
+      let reducerIndex = -1;
+
+      while (++reducerIndex < reducers.length) {
+        const reducer = reducers[reducerIndex];
+        const reducerState = combinedState[reducerIndex];
+
+        result.push(
+          reducer.stateToResult(
+            reducerState.state,
+            reducerState.index,
+            reducerState.halted
+          )
+        );
+      }
+
+      return result as any as R;
+    },
+    {
+      cloneState: (combinedState) => {
+        const clonedState: any[] = [];
+
+        let reducerIndex = -1;
+
+        while (++reducerIndex < reducers.length) {
+          clonedState.push({
+            ...combinedState[reducerIndex],
+            state: reducers[reducerIndex].cloneState(
+              combinedState[reducerIndex].state
+            ),
+          });
+        }
+
+        return clonedState;
+      },
+    }
   );
 }
 
@@ -312,21 +429,7 @@ export namespace Reducer {
     chain<O2 extends O>(
       nextReducers: StreamSource<OptLazy<Reducer<I, O2>, [O2]>>
     ): Reducer<I, O2>;
-    /**
-     * Returns a 'runnable' instance of the current reducer specification. This instance maintains its own state
-     * and indices, so that the instance only needs to be provided the input values, and output values can be
-     * retrieved when needed. The state is kept private.
-     * @example
-     * ```ts
-     * const reducer = Reducer.sum.mapOutput(v => v * 2);
-     * const instance = reducer.compile();
-     * instance.next(3);
-     * instance.next(5);
-     * console.log(instance.getOutput());
-     * // => 16
-     * ```
-     */
-    compile(): Reducer.Instance<I, O>;
+    cloneState: (state: S) => S;
   }
 
   /**
@@ -339,8 +442,13 @@ export namespace Reducer {
     constructor(
       readonly init: (initHalt: () => void) => S,
       readonly next: (state: S, elem: I, index: number, halt: () => void) => S,
-      readonly stateToResult: (state: S, index: number, halted: boolean) => O
+      readonly stateToResult: (state: S, index: number, halted: boolean) => O,
+      readonly options: Reducer.Options<S> = {}
     ) {}
+
+    get cloneState(): (state: S) => S {
+      return this.options?.cloneState ?? identity;
+    }
 
     filterInput(
       pred: (value: I, index: number, halt: () => void) => boolean,
@@ -348,20 +456,32 @@ export namespace Reducer {
     ): any {
       const { negate = false } = options;
 
-      return create<I, O, Reducer.Instance<I, O>>(
-        () => this.compile(),
-        (state, elem, index, halt) => {
+      return create<I, O, { state: S; index: number }>(
+        (initHalt) => ({
+          index: 0,
+          state: this.init(initHalt),
+        }),
+        (combinedState, elem, index, halt) => {
           if (pred(elem, index, halt) !== negate) {
-            state.next(elem);
-
-            if (state.halted) {
-              halt();
-            }
+            combinedState.state = this.next(
+              combinedState.state,
+              elem,
+              combinedState.index++,
+              halt
+            );
           }
 
-          return state;
+          return combinedState;
         },
-        (state): O => state.getOutput()
+        (combinedState, _, halted) =>
+          this.stateToResult(combinedState.state, combinedState.index, halted),
+        {
+          ...this.options,
+          cloneState: (combinedState) => ({
+            ...combinedState,
+            state: this.cloneState(combinedState.state),
+          }),
+        }
       );
     }
 
@@ -370,58 +490,82 @@ export namespace Reducer {
         this.init,
         (state, elem, index, halt): S =>
           this.next(state, mapFun(elem, index), index, halt),
-        this.stateToResult
+        this.stateToResult,
+        this.options
       );
     }
 
     flatMapInput<I2>(
       flatMapFun: (value: I2, index: number) => StreamSource<I>
     ): Reducer<I2, O> {
-      return create<I2, O, Reducer.Instance<I, O>>(
-        () => this.compile(),
-        (state, elem, index, halt) => {
-          if (state.halted) {
-            halt();
-            return state;
-          }
-
+      return create<I2, O, { state: S; index: number }>(
+        (initHalt) => ({
+          index: 0,
+          state: this.init(initHalt),
+        }),
+        (combinedState, elem, index, halt) => {
           const elems = flatMapFun(elem, index);
 
           const iter = Stream.from(elems)[Symbol.iterator]();
           const done = Symbol();
           let value: I | typeof done;
+          let halted = false;
 
-          while (done !== (value = iter.fastNext(done))) {
-            state.next(value);
-
-            if (state.halted) {
-              halt();
-              break;
-            }
+          while (!halted && done !== (value = iter.fastNext(done))) {
+            combinedState.state = this.next(
+              combinedState.state,
+              value,
+              combinedState.index++,
+              () => {
+                halted = true;
+                halt();
+              }
+            );
           }
 
-          return state;
+          return combinedState;
         },
-        (state) => state.getOutput()
+        (combinedState, _, halted) =>
+          this.stateToResult(combinedState.state, combinedState.index, halted),
+        {
+          ...this.options,
+          cloneState: (combinedState) => {
+            const state = this.cloneState(combinedState.state);
+            return { ...combinedState, state };
+          },
+        }
       );
     }
 
     collectInput<I2>(collectFun: CollectFun<I2, I>): Reducer<I2, O> {
-      return create(
-        () => this.compile(),
-        (state, elem, index, halt) => {
+      return create<I2, O, { state: S; index: number }>(
+        (initHalt) => ({
+          index: 0,
+          state: this.init(initHalt),
+        }),
+        (combinedState, elem, index, halt) => {
           const nextElem = collectFun(elem, index, CollectFun.Skip, halt);
 
           if (CollectFun.Skip !== nextElem) {
-            state.next(nextElem);
-            if (state.halted) {
-              halt();
-            }
+            combinedState.state = this.next(
+              combinedState.state,
+              nextElem,
+              combinedState.index++,
+              halt
+            );
           }
 
-          return state;
+          return combinedState;
         },
-        (state): O => state.getOutput()
+        (combinedState, _, halted) =>
+          this.stateToResult(combinedState.state, combinedState.index, halted),
+        {
+          ...this.options,
+          cloneState: (combinedState) => {
+            const state = this.cloneState(combinedState.state);
+            return { ...combinedState, state };
+          },
+        }
       );
     }
 
@@ -432,7 +576,8 @@ export namespace Reducer {
         this.init,
         this.next,
         (state, index, halted): O2 =>
-          mapFun(this.stateToResult(state, index, halted), index, halted)
+          mapFun(this.stateToResult(state, index, halted), index, halted),
+        this.options
       );
     }
 
@@ -444,7 +589,8 @@ export namespace Reducer {
             return this.init(initHalt);
           },
           this.next,
-          this.stateToResult
+          this.stateToResult,
+          this.options
         );
       }
 
@@ -456,7 +602,8 @@ export namespace Reducer {
           }
           return this.next(state, next, index, halt);
         },
-        this.stateToResult
+        this.stateToResult,
+        this.options
       );
     }
 
@@ -470,7 +617,6 @@ export namespace Reducer {
         this.init,
         (state, next, index, halt) => {
           const nextState = this.next(state, next, index, halt);
-
           const nextOutput = this.stateToResult(nextState, index, false);
 
           if (pred(nextOutput, index) !== negate) {
@@ -479,13 +625,22 @@ export namespace Reducer {
 
           return nextState;
         },
-        this.stateToResult
+        this.stateToResult,
+        this.options
       );
     }
 
     takeInput(amount: number): Reducer<I, O> {
       if (amount <= 0) {
-        return create(this.init, identity, this.stateToResult);
+        return create(
+          (initHalt) => {
+            initHalt();
+            return this.init(initHalt);
+          },
+          identity,
+          this.stateToResult,
+          this.options
+        );
       }
 
       return this.filterInput((_, i, halt): boolean => {
@@ -499,7 +654,7 @@ export namespace Reducer {
 
     dropInput(amount: number): Reducer<I, O> {
       if (amount <= 0) {
-        return this;
+        return this as Reducer<I, O>;
       }
 
       return this.filterInput((_, i): boolean => i >= amount);
@@ -520,14 +675,33 @@ export namespace Reducer {
         (
           initHalt
         ): {
-          activeInstance: Reducer.Instance<I, O2>;
+          activeReducerState: {
+            index: number;
+            halted: boolean;
+            state: any;
+          };
+          activeReducer: Reducer.Impl<I, O2, any>;
           iterator: FastIterator<OptLazy<Reducer<I, O2>, [O2]>>;
         } => {
-          const iterator = Stream.from(nextReducers)[Symbol.iterator]();
-          let activeInstance = this.compile() as Reducer.Instance<I, O2>;
+          let activeReducer: Reducer.Impl<I, O2, any> = this as any;
 
-          if (undefined !== activeInstance && activeInstance.halted) {
-            let output = activeInstance.getOutput();
+          let activeReducerState = createState(
+            { index: 0, halted: false },
+            (baseState) => ({
+              state: activeReducer.init(() => {
+                baseState.halted = true;
+              }),
+            })
+          );
+
+          const iterator = Stream.from(nextReducers)[Symbol.iterator]();
+
+          if (activeReducerState.halted) {
+            let output = activeReducer.stateToResult(
+              activeReducerState.state,
+              activeReducerState.index,
+              activeReducerState.halted
+            );
 
             do {
               const creator = iterator.fastNext();
@@ -536,120 +710,99 @@ export namespace Reducer {
                 initHalt();
 
                 return {
-                  activeInstance,
+                  activeReducer,
+                  activeReducerState,
                   iterator,
                 };
               }
-              activeInstance = OptLazy(creator, output).compile();
-              output = activeInstance.getOutput();
-            } while (activeInstance.halted);
+              activeReducer = OptLazy(creator, output as O2);
+
+              activeReducerState = createState(
+                {
+                  index: 0,
+                  halted: false,
+                },
+                (baseState) => ({
+                  state: activeReducer.init(() => {
+                    baseState.halted = true;
+                  }),
+                })
+              );
+              output = activeReducer.stateToResult(
+                activeReducerState.state,
+                0,
+                false
+              );
+            } while (activeReducerState.halted);
           }
 
           return {
-            activeInstance,
+            activeReducer,
+            activeReducerState,
             iterator,
           };
         },
-        (state, next, index, halt) => {
-          state.activeInstance.next(next);
+        (combinedState, input, _, halt) => {
+          const { iterator } = combinedState;
 
-          while (state.activeInstance.halted) {
-            const output = state.activeInstance.getOutput();
-            const creator = state.iterator.fastNext();
+          combinedState.activeReducerState.state =
+            combinedState.activeReducer.next(
+              combinedState.activeReducerState.state,
+              input,
+              combinedState.activeReducerState.index++,
+              () => {
+                combinedState.activeReducerState.halted = true;
+              }
+            );
+
+          while (combinedState.activeReducerState.halted) {
+            const output = combinedState.activeReducer.stateToResult(
+              combinedState.activeReducerState.state,
+              combinedState.activeReducerState.index,
+              combinedState.activeReducerState.halted
+            );
+            const creator = iterator.fastNext();
 
             if (undefined === creator) {
               halt();
 
-              return state;
+              return combinedState;
             }
 
-            state.activeInstance = OptLazy(creator, output).compile();
+            combinedState.activeReducer = OptLazy(creator, output);
+            combinedState.activeReducerState = createState(
+              {
+                index: 0,
+                halted: false,
+              },
+              (baseState) => ({
+                state: combinedState.activeReducer.init(() => {
+                  baseState.halted = true;
+                }),
+              })
+            );
           }
 
-          return state;
+          return combinedState;
         },
-        (state) => state.activeInstance.getOutput()
+        ({ activeReducer, activeReducerState }) =>
+          activeReducer.stateToResult(
+            activeReducerState.state,
+            activeReducerState.index,
+            activeReducerState.halted
+          ),
+        {
+          ...this.options,
+          cloneState: () => {
+            throw Error('cloneState for operation not yet supported');
+          },
+        }
       );
-    }
-
-    compile(): Reducer.Instance<I, O> {
-      return new Reducer.InstanceImpl(this);
     }
   }
 
-  /**
-   * A reducer instance that manages its own state based on the reducer definition that
-   * was used to create this instance.
-   * @typeparam I - the input element type
-   * @typeparam O - the output element type
-   */
-  export interface Instance<I, O> {
-    /**
-     * Returns true if the reducer instance does not receive any more values, false otherwise.
-     */
-    get halted(): boolean;
-    /**
-     * Returns the index of the last received value.
-     */
-    get index(): number;
-    /**
-     * Method that, when called, halts the reducer instance so that it will no longer receive values.
-     */
-    halt(): void;
-    /**
-     * Sends a new value into the reducer instance.
-     * @param value - the next input value
-     */
-    next(value: I): void;
-    /**
-     * Returns the output value based on the current given input values.
-     */
-    getOutput(): O;
-  }
-
-  /**
-   * The default `Reducer.Impl` implementation.
-   * @typeparam I - the input element type
-   * @typeparam O - the output element type
-   * @typeparam S - the reducer state type
-   */
-  export class InstanceImpl<I, O, S> implements Reducer.Instance<I, O> {
-    constructor(readonly reducer: Reducer.Impl<I, O, S>) {
-      this.#state = reducer.init(this.halt);
-    }
-
-    #state: S;
-    #index = 0;
-    #halted = false;
-
-    halt = (): void => {
-      this.#halted = true;
-    };
-
-    get halted(): boolean {
-      return this.#halted;
-    }
-
-    get index(): number {
-      return this.#index;
-    }
-
-    next = (value: I): void => {
-      if (this.#halted) {
-        throw new Reducer.ReducerHaltedError();
-      }
-
-      this.#state = this.reducer.next(
-        this.#state,
-        value,
-        this.#index++,
-        this.halt
-      );
-    };
-
-    getOutput(): O {
-      return this.reducer.stateToResult(this.#state, this.index, this.halted);
-    }
+  export interface Options<S> {
+    cloneState?: ((state: S) => S) | undefined;
   }
 
   /**
@@ -679,9 +832,10 @@ export namespace Reducer {
   export function create<I, O = I, S = O>(
     init: (initHalt: () => void) => S,
     next: (current: S, next: I, index: number, halt: () => void) => S,
-    stateToResult: (state: S, index: number, halted: boolean) => O
+    stateToResult: (state: S, index: number, halted: boolean) => O,
+    options?: Reducer.Options<S> | undefined
   ): Reducer<I, O> {
-    return new Reducer.Base(init, next, stateToResult);
+    return new Reducer.Base<I, O, any>(init, next, stateToResult, options);
   }
 
   /**
@@ -709,9 +863,10 @@ export namespace Reducer {
   export function createMono<T>(
     init: (initHalt: () => void) => T,
     next: (current: T, next: T, index: number, halt: () => void) => T,
-    stateToResult?: (state: T, index: number, halted: boolean) => T
+    stateToResult?: (state: T, index: number, halted: boolean) => T,
+    options?: Reducer.Options<T> | undefined
   ): Reducer<T> {
-    return create(init, next, stateToResult ?? identity);
+    return create(init, next, stateToResult ?? identity, options);
   }
 
   /**
@@ -740,9 +895,10 @@ export namespace Reducer {
   export function createOutput<I, O = I>(
     init: (initHalt: () => void) => O,
     next: (current: O, next: I, index: number, halt: () => void) => O,
-    stateToResult?: (state: O, index: number, halted: boolean) => O
+    stateToResult?: (state: O, index: number, halted: boolean) => O,
+    options?: Options<O> | undefined
   ): Reducer<I, O> {
-    return create(init, next, stateToResult ?? identity);
+    return create(init, next, stateToResult ?? identity, options);
   }
 
   /**
@@ -759,9 +915,10 @@ export namespace Reducer {
    */
   export function fold<T, R>(
     init: OptLazy<R>,
-    next: (current: R, value: T, index: number, halt: () => void) => R
+    next: (current: R, value: T, index: number, halt: () => void) => R,
+    options?: Reducer.Options<R> | undefined
   ): Reducer<T, R> {
-    return Reducer.createOutput(() => OptLazy(init), next);
+    return Reducer.createOutput(() => OptLazy(init), next, undefined, options);
   }
 
   /**
@@ -967,10 +1124,8 @@ export namespace Reducer {
    * // => 10
    * ```
    */
-  export const count: Reducer<any, number> = create<any, number, void>(
-    () => {
-      //
-    },
+  export const count: Reducer<any, number> = create<any, number, undefined>(
+    () => undefined,
     identity,
     (_, index) => index
   );
@@ -990,13 +1145,13 @@ export namespace Reducer {
     <T>(): Reducer<T, T | undefined>;
     <T, O>(otherwise: OptLazy<O>): Reducer<T, T | O>;
   } = <T, O>(otherwise?: OptLazy<O>): Reducer<T, T | O> => {
-    return create<T, T | O, T | undefined>(
-      () => undefined,
-      (state, next, _, halt): T => {
+    return create<T, T | O, T | typeof NONE>(
+      () => NONE,
+      (_, next, __, halt): T => {
         halt();
         return next;
       },
-      (state, index): T | O => (index <= 0 ? OptLazy(otherwise!) : state!)
+      (state): T | O => (NONE === state ? OptLazy(otherwise!) : state)
     );
   };
 
@@ -1015,10 +1170,10 @@ export namespace Reducer {
     <T>(): Reducer<T, T | undefined>;
     <T, O>(otherwise: OptLazy<O>): Reducer<T, T | O>;
   } = <T, O>(otherwise?: OptLazy<O>): Reducer<T, T | O> => {
-    return create<T, T | O, T | undefined>(
-      () => undefined,
+    return create<T, T | O, T | typeof NONE>(
+      () => NONE,
       (_, next): T => next,
-      (state, index): T | O => (index <= 0 ? OptLazy(otherwise!) : state!)
+      (state): T | O => (NONE === state ? OptLazy(otherwise!) : state)
     );
   };
 
@@ -1035,7 +1190,7 @@ export namespace Reducer {
   } = <T, O>(otherwise?: OptLazy<O>): Reducer<T, T | O> => {
     return create<T, T | O, T | undefined>(
       () => undefined,
-      (state, next, index, halt): T => {
+      (_, next, index, halt): T => {
         if (index > 1) {
           halt();
         }
@@ -1136,7 +1291,12 @@ export namespace Reducer {
 
         return state;
       },
-      (state, index, halted) => !halted && done === state.nextSeq
+      (state, _, halted) => !halted && done === state.nextSeq,
+      {
+        cloneState: () => {
+          throw Error('cloneState for operation not yet supported');
+        },
+      }
     );
   }
 
@@ -1254,7 +1414,12 @@ export namespace Reducer {
 
         return state;
       },
-      (state) => state.remain <= 0
+      (state) => state.remain <= 0,
+      {
+        cloneState: () => {
+          throw Error('cloneState for operation not yet supported');
+        },
+      }
     );
   }
 
@@ -1273,9 +1438,16 @@ export namespace Reducer {
     const sliceStream = Stream.from(slice);
     const done = Symbol();
 
-    const newReducerSpec = Reducer.startsWithSlice(slice, options);
+    const startsWithSliceReducer = Reducer.startsWithSlice(
+      slice,
+      options
+    ) as Reducer.Impl<T, boolean, any>;
 
-    return Reducer.create<T, boolean, Set<Reducer.Instance<T, boolean>>>(
+    return Reducer.create<
+      T,
+      boolean,
+      Set<{ index: number; halted: boolean; state: any }>
+    >(
       (initHalt) => {
         const sliceIter = sliceStream[Symbol.iterator]();
         const sliceValue = sliceIter.fastNext(done);
@@ -1284,27 +1456,77 @@ export namespace Reducer {
           initHalt();
         }
 
-        return new Set([newReducerSpec.compile()]);
+        const startsWithSliceState = createState(
+          {
+            index: 0,
+            halted: false,
+          },
+          (baseState) => {
+            return {
+              state: startsWithSliceReducer.init(() => {
+                baseState.halted = true;
+              }),
+            };
+          }
+        );
+
+        return new Set([startsWithSliceState]);
       },
-      (state, nextValue) => {
-        for (const instance of state) {
-          if (instance.halted) {
-            state.delete(instance);
+      (combinedStateSet, nextValue) => {
+        for (const startsWithSliceState of combinedStateSet) {
+          if (startsWithSliceState.halted) {
+            combinedStateSet.delete(startsWithSliceState);
           } else {
-            instance.next(nextValue);
+            startsWithSliceState.state = startsWithSliceReducer.next(
+              startsWithSliceState.state,
+              nextValue,
+              startsWithSliceState.index++,
+              () => {
+                startsWithSliceState.halted = true;
+              }
+            );
           }
         }
 
-        const newReducerInstance = newReducerSpec.compile();
-        newReducerInstance.next(nextValue);
+        const startsWithSliceState = createState(
+          {
+            index: 0,
+            halted: false,
+          },
+          (baseState) => ({
+            state: startsWithSliceReducer.init(() => {
+              baseState.halted = true;
+            }),
+          })
+        );
 
-        state.add(newReducerInstance);
+        startsWithSliceState.state = startsWithSliceReducer.next(
+          startsWithSliceState.state,
+          nextValue,
+          startsWithSliceState.index++,
+          () => {
+            startsWithSliceState.halted = true;
+          }
+        );
 
-        return state;
+        combinedStateSet.add(startsWithSliceState);
+
+        return combinedStateSet;
       },
-      (state) =>
-        state.size === 0 ||
-        Stream.from(state).some((instance) => instance.getOutput())
+      (combinedState) =>
+        combinedState.size === 0 ||
+        Stream.from(combinedState).some((startsWithSliceState) =>
+          startsWithSliceReducer.stateToResult(
+            startsWithSliceState.state,
+            startsWithSliceState.index,
+            startsWithSliceState.halted
+          )
+        ),
+      {
+        cloneState: () => {
+          throw Error('cloneState for operation not yet supported');
+        },
+      }
     );
   }
 
@@ -1338,7 +1560,7 @@ export namespace Reducer {
    */
   export const and = createMono(
     () => true,
-    (state, next, _, halt): boolean => {
+    (_, next, __, halt): boolean => {
       if (!next) {
         halt();
       }
@@ -1357,7 +1579,7 @@ export namespace Reducer {
    */
   export const or = createMono(
     () => false,
-    (state, next, _, halt): boolean => {
+    (_, next, __, halt): boolean => {
       if (next) {
         halt();
       }
@@ -1481,17 +1703,92 @@ export namespace Reducer {
     return Reducer.create<
       T,
       [RT, RF],
-      [Reducer.Instance<T, RT>, Reducer.Instance<T, RF>]
+      [
+        { index: number; halted: boolean; state: any },
+        { index: number; halted: boolean; state: any },
+      ]
     >(
-      () => [collectorTrue.compile(), collectorFalse.compile()],
-      (state, value, index) => {
-        const instanceIndex = pred(value, index) ? 0 : 1;
+      (initHalt) => {
+        const trueState = createState(
+          {
+            index: 0,
+            halted: false,
+          },
+          (baseState) => ({
+            state: collectorTrue.init(() => {
+              baseState.halted = true;
+            }),
+          })
+        );
+        const falseState = createState(
+          {
+            index: 0,
+            halted: false,
+          },
+          (baseState) => ({
+            state: collectorFalse.init(() => {
+              baseState.halted = true;
+            }),
+          })
+        );
 
-        state[instanceIndex].next(value);
+        if (trueState.halted && falseState.halted) {
+          initHalt();
+        }
 
-        return state;
+        return [trueState, falseState] as const;
       },
-      (state) => state.map((v) => v.getOutput()) as [RT, RF]
+      (combinedState, value, index, halt) => {
+        const [trueState, falseState] = combinedState;
+        const [state, collector, otherState] = pred(value, index)
+          ? [trueState, collectorTrue, falseState]
+          : [falseState, collectorFalse, trueState];
+
+        if (!state.halted) {
+          state.state = collector.next(
+            state.state,
+            value,
+            state.index++,
+            () => {
+              state.halted = true;
+              if (otherState.halted) {
+                halt();
+              }
+            }
+          );
+        } else if (otherState.halted) {
+          halt();
+        }
+
+        return combinedState;
+      },
+      (combinedState) => {
+        const [trueState, falseState] = combinedState;
+        return [
+          collectorTrue.stateToResult(
+            trueState.state,
+            trueState.index,
+            trueState.halted
+          ),
+          collectorFalse.stateToResult(
+            falseState.state,
+            falseState.index,
+            falseState.halted
+          ),
+        ] as const;
+      },
+      {
+        cloneState: ([trueCombinedState, falseCombinedState]) => [
+          {
+            ...trueCombinedState,
+            state: collectorTrue.cloneState(trueCombinedState.state),
+          },
+          {
+            ...falseCombinedState,
+            state: collectorFalse.cloneState(falseCombinedState.state),
+          },
+        ],
+      }
     );
   };
 
@@ -1535,13 +1832,13 @@ export namespace Reducer {
     } = options;
 
     return Reducer.create(
-      () => collector.compile(),
-      (state, value, index) => {
+      collector.init,
+      (state, value, index, halt) => {
         const key = valueToKey(value, index);
-        state.next([key, value]);
-        return state;
+        return collector.next(state, [key, value], index, halt);
       },
-      (state) => state.getOutput()
+      collector.stateToResult,
+      { cloneState: collector.cloneState }
     );
   };
 
@@ -1561,46 +1858,101 @@ export namespace Reducer {
     ): Reducer<T, R | O>;
     <T, R>(reducers: StreamSource<Reducer<T, R>>): Reducer<T, R | undefined>;
   } = <T, R, O>(
-    reducers: StreamSource<Reducer<T, R>>,
+    reducers: StreamSource<Reducer.Impl<T, R, any>>,
     otherwise?: OptLazy<O>
   ) => {
+    const reducersStream = Stream.from(reducers);
+
     return Reducer.create<
       T,
       R | O,
       {
-        instances: Reducer.Instance<T, R>[];
-        doneInstance: Reducer.Instance<T, R> | undefined;
+        reducerStates: Array<readonly [reducer: Reducer<T, R>, { state: any }]>;
+        doneReducerWithState:
+          | readonly [reducer: Reducer<T, R>, { state: any }]
+          | undefined;
       }
     >(
       (initHalt) => {
-        const instances = Stream.from(reducers)
-          .map((reducer) => reducer.compile())
+        let doneReducerWithState:
+          | readonly [Reducer<T, R>, { state: any }]
+          | undefined = undefined;
+
+        const reducerStates = reducersStream
+          .collect((reducer, _, __, halt) => {
+            let halted = false;
+
+            const state = reducer.init(() => {
+              halted = true;
+              halt();
+              initHalt();
+            });
+
+            const result = [reducer, { state }] as const;
+
+            if (halted) {
+              doneReducerWithState = result;
+            }
+
+            return result;
+          })
           .toArray();
-        const doneInstance = instances.find((instance) => instance.halted);
 
-        if (undefined !== doneInstance) {
-          initHalt();
-        }
-
-        return { instances, doneInstance };
+        return { reducerStates, doneReducerWithState };
       },
-      (state, next, _, halt) => {
-        for (const instance of state.instances) {
-          instance.next(next);
+      (combinedState, next, index, halt) => {
+        for (const [reducer, reducerState] of combinedState.reducerStates) {
+          reducerState.state = reducer.next(
+            reducerState.state,
+            next,
+            index,
+            () => {
+              combinedState.doneReducerWithState = [reducer, reducerState];
+              halt();
+            }
+          );
 
-          if (instance.halted) {
-            state.doneInstance = instance;
-            halt();
-            return state;
+          if (combinedState.doneReducerWithState) {
+            break;
           }
         }
 
-        return state;
+        return combinedState;
       },
-      (state) =>
-        state.doneInstance === undefined
-          ? OptLazy(otherwise)!
-          : state.doneInstance.getOutput()
+      (combinedState, index, halted) => {
+        if (undefined === combinedState.doneReducerWithState) {
+          return OptLazy(otherwise)!;
+        }
+
+        const [reducer, reducerState] = combinedState.doneReducerWithState;
+
+        return reducer.stateToResult(reducerState.state, index, halted);
+      },
+      {
+        cloneState: (combinedState) => {
+          const { doneReducerWithState } = combinedState;
+          let clonedDoneReducerWithState: typeof doneReducerWithState =
+            undefined;
+
+          if (undefined !== doneReducerWithState) {
+            const [reducer, reducerState] = doneReducerWithState;
+
+            clonedDoneReducerWithState = [
+              reducer,
+              { state: reducer.cloneState(reducerState.state) },
+            ];
+          }
+          return {
+            reducerStates: combinedState.reducerStates.map(
+              ([reducer, { state }]) => [
+                reducer,
+                { state: reducer.cloneState(state) },
+              ]
+            ),
+            doneReducerWithState: clonedDoneReducerWithState,
+          };
+        },
+      }
     );
   };
 
@@ -1630,7 +1982,10 @@ export namespace Reducer {
 
         return state;
       },
-      (state): T[] => state.slice()
+      (state): T[] => state.slice(),
+      {
+        cloneState: (state) => state.slice(),
+      }
     );
   }
 
@@ -1652,7 +2007,10 @@ export namespace Reducer {
         state.set(next[0], next[1]);
         return state;
       },
-      (state): Map<K, V> => new Map(state)
+      (state): Map<K, V> => new Map(state),
+      {
+        cloneState: (state) => new Map(state),
+      }
     );
   }
 
@@ -1679,7 +2037,10 @@ export namespace Reducer {
         }
         return state;
       },
-      (state) => new Map(state)
+      (state) => new Map(state),
+      {
+        cloneState: (state) => new Map(state),
+      }
     );
   }
 
@@ -1700,7 +2061,10 @@ export namespace Reducer {
         state.add(next);
         return state;
       },
-      (s): Set<T> => new Set(s)
+      (s): Set<T> => new Set(s),
+      {
+        cloneState: (state) => new Set(state),
+      }
     );
   }
 
@@ -1725,7 +2089,10 @@ export namespace Reducer {
         state[entry[0]] = entry[1];
         return state;
       },
-      (s) => ({ ...s })
+      (state) => ({ ...state }),
+      {
+        cloneState: (state) => ({ ...state }),
+      }
     );
   }
 
@@ -1869,37 +2236,74 @@ export namespace Reducer {
     }
 
     return Reducer.create(
-      (inithalt) => {
-        const currentInstance = current.compile();
-        const nextInstance = next.compile();
+      (initHalt) => ({
+        currentState: {
+          halted: false,
+          state: current.init(initHalt),
+        },
+        nextState: {
+          index: 0,
+          halted: false,
+          state: next.init(initHalt),
+        },
+      }),
+      (combinedState, item, index, halt) => {
+        const { currentState, nextState } = combinedState;
 
-        if (currentInstance.halted || nextInstance.halted) {
-          inithalt();
-        }
+        currentState.state = current.next(
+          currentState.state,
+          item,
+          index,
+          () => {
+            currentState.halted = true;
+            halt();
+          }
+        );
+        nextState.state = next.next(
+          nextState.state,
+          current.stateToResult(currentState.state, index, currentState.halted),
+          nextState.index++,
+          () => {
+            nextState.halted = true;
+            halt();
+          }
+        );
 
-        return {
-          currentInstance,
-          nextInstance,
-        };
+        return combinedState;
       },
-      (state, next, index, halt) => {
-        const { currentInstance, nextInstance } = state;
-
-        currentInstance.next(next);
-        nextInstance.next(currentInstance.getOutput());
-
-        if (currentInstance.halted || nextInstance.halted) {
-          halt();
-        }
-
-        return state;
-      },
-      (state, index, halted) => {
+      (combinedState, index, halted) => {
         if (halted && index === 0) {
-          state.nextInstance.next(state.currentInstance.getOutput());
+          combinedState.nextState.state = next.next(
+            combinedState.nextState.state,
+            current.stateToResult(
+              combinedState.currentState.state,
+              index,
+              combinedState.currentState.halted
+            ),
+            combinedState.nextState.index,
+            () => {
+              combinedState.nextState.halted = true;
+            }
+          );
         }
 
-        return state.nextInstance.getOutput();
+        return next.stateToResult(
+          combinedState.nextState.state,
+          combinedState.nextState.index,
+          combinedState.nextState.halted
+        );
+      },
+      {
+        cloneState: (combinedState) => ({
+          currentState: {
+            ...combinedState.currentState,
+            state: current.cloneState(combinedState.currentState.state),
+          },
+          nextState: {
+            ...combinedState.nextState,
+            state: next.cloneState(combinedState.nextState.state),
+          },
+        }),
       }
     );
   };

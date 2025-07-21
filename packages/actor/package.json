@@ -94,6 +94,7 @@
     "test": "TZ=UTC vitest run",
     "test:cov": "TZ=UTC vitest run --coverage",
     "test:watch": "TZ=UTC vitest",
+    "test:types": "tsd --files test-d",
     "typecheck": "tsc"
   },
   "dependencies": {

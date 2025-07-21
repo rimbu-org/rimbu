@@ -4,20 +4,20 @@ import { Action, SliceConfig } from '@rimbu/actor';
 
 export namespace SlicePatch {
   export interface Config extends SliceConfig {
-    _ACTION_HANDLER_ARGS: this['_ACTION_HANDLER_UNKNOWN'][];
+    _action_handler_args: this['_action_handler_unknown'][];
 
-    _ACTION_HANDLER_RESULT: Patch<
-      unknown extends this['_STATE'] ? unknown : this['_STATE']
+    _action_handler_result: Patch<
+      unknown extends this['_state'] ? unknown : this['_state']
     >;
 
-    _ACTION_HANDLER: (
-      ...args: this['_ACTION_HANDLER_ARGS']
-    ) => this['_ACTION_HANDLER_RESULT'];
+    _action_handler: (
+      ...args: this['_action_handler_args']
+    ) => this['_action_handler_result'];
 
-    _INCLUDE_HANDLER_ARGS: [action: this['_INCLUDE_ACTION_TYPE']];
+    _include_handler_args: [action: this['_include_action_type']];
 
-    _ACTION_TYPE: Action<Parameters<this['_ACTION_HANDLER']>>;
-    _ACTION_CREATOR_PARAMS: Parameters<this['_ACTION_HANDLER']>;
+    _action_type: Action<Parameters<this['_action_handler']>>;
+    _action_creator_params: Parameters<this['_action_handler']>;
   }
 
   export const { create } = SliceConfig.configure<SlicePatch.Config>({
@@ -30,7 +30,7 @@ export namespace SlicePatch {
     applyHandlerResult: (state, action, result) => patch(state, result),
     createAction: (sliceName, actionName) =>
       Action.create({
-        type: `${sliceName}_${actionName}`,
+        type: `${sliceName}.${actionName}`,
         createPayload: Array.of,
       }),
   });

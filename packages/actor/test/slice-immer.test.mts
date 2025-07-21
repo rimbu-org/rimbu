@@ -1,5 +1,6 @@
 import { SliceImmer } from '@rimbu/actor/immer';
-import { Action } from '@rimbu/actor';
+
+import { Action } from 'main/index.mjs';
 
 describe('SliceImmer', () => {
   it('empty slice', () => {

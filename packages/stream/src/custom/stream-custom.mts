@@ -689,19 +689,29 @@ export abstract class StreamBase<T> implements Stream<T> {
   reduce<const S extends Reducer.CombineShape<T2>, T2 extends T = T>(
     shape: S & Reducer.CombineShape<T2>
   ): Reducer.CombineResult<S> {
-    const reducerInstance = Reducer.combine(
-      shape
-    ).compile() as Reducer.Instance<T, Reducer.CombineResult<S>>;
+    const reducer = Reducer.combine(shape);
 
-    const done = Symbol('Done');
-    let value: T | typeof done;
-    const iter = this[Symbol.iterator]();
+    let halted = false;
+    const halt = (): void => {
+      halted = true;
+    };
 
-    while (!reducerInstance.halted && done !== (value = iter.fastNext(done))) {
-      reducerInstance.next(value);
+    let reducerState = reducer.init(halt);
+
+    if (halted) {
+      return reducer.stateToResult(reducerState, 0, halted) as any;
     }
 
-    return reducerInstance.getOutput();
+    const done = Symbol('Done');
+    const iter = this[Symbol.iterator]();
+    let index = 0;
+    let value: T | typeof done;
+
+    while (!halted && done !== (value = iter.fastNext(done))) {
+      reducerState = reducer.next(reducerState, value as T2, index++, halt);
+    }
+
+    return reducer.stateToResult(reducerState, index, halted) as any;
   }
 
   reduceStream<const S extends Reducer.CombineShape<T2>, T2 extends T = T>(
@@ -1574,7 +1584,13 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
     return this as any;
   }
   transform<R>(transformer: Transformer<T, R>): Stream<R> {
-    return fromStreamSource(transformer.compile().getOutput());
+    let halted = false;
+    const state = transformer.init(() => {
+      halted = true;
+    });
+    const result = transformer.stateToResult(state, 0, halted);
+
+    return fromStreamSource(result);
   }
   filter(): any {
     return this;
@@ -1716,9 +1732,18 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
       collectorFalse = Reducer.toArray(),
     } = options;
 
+    let trueHalted = false;
+    let falseHalted = false;
+    const initTrue = collectorTrue.init(() => {
+      trueHalted = true;
+    });
+    const initFalse = collectorFalse.init(() => {
+      falseHalted = true;
+    });
+
     return [
-      collectorTrue.compile().getOutput(),
-      collectorFalse.compile().getOutput(),
+      collectorTrue.stateToResult(initTrue, 0, trueHalted),
+      collectorFalse.stateToResult(initFalse, 0, falseHalted),
     ];
   }
   fold<R>(init: OptLazy<R>): R {
@@ -1729,9 +1754,11 @@ class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
   }
   reduce(shape: any): any {
     const reducer = Reducer.combine(shape);
-    const instance = reducer.compile();
-
-    return instance.getOutput();
+    let halted = false;
+    const initState = reducer.init(() => {
+      halted = true;
+    });
+    return reducer.stateToResult(initState, 0, halted);
   }
   reduceStream(): any {
     return this;
@@ -2113,7 +2140,7 @@ class ReducerStream<T, R = T> extends StreamBase<R> {
   [Symbol.iterator](): FastIterator<R> {
     return new ReducerFastIterator<T, R>(
       this.source[Symbol.iterator](),
-      this.reducer.compile()
+      this.reducer
     );
   }
 }
@@ -2129,7 +2156,7 @@ class TransformerStream<T, R = T> extends StreamBase<R> {
   [Symbol.iterator](): FastIterator<R> {
     return new TransformerFastIterator<T, R>(
       this.source[Symbol.iterator](),
-      this.transformer.compile()
+      this.transformer
     );
   }
 }

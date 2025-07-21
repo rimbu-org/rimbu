@@ -511,7 +511,7 @@ describe('AsyncReducer', () => {
       async () => 0,
       async (c, v) => c + v,
       async (s) => s * 2,
-      close
+      { onClose: close }
     ).filterInput((v) => v > 1);
 
     expect(await AsyncStream.of(1, 2, 3).reduce(sumDouble)).toBe(10);
@@ -526,7 +526,7 @@ describe('AsyncReducer', () => {
         throw Error('');
       },
       async (s) => s * 2,
-      close
+      { onClose: close }
     ).filterInput((v) => v > 1);
 
     await expect(() =>
@@ -542,7 +542,7 @@ describe('AsyncReducer', () => {
       async () => 0,
       async (c, v) => c + v,
       async (s) => s * 2,
-      close
+      { onClose: close }
     ).mapInput((v: string) => Number.parseInt(v));
 
     expect(await AsyncStream.of('1', '2', '3').reduce(sumDouble)).toBe(12);
@@ -555,7 +555,7 @@ describe('AsyncReducer', () => {
       async () => 0,
       async (c, v) => c + v,
       async (s) => s,
-      close
+      { onClose: close }
     ).flatMapInput(async (v: string) => [
       Number.parseInt(v),
       Number.parseInt(v),
@@ -571,7 +571,7 @@ describe('AsyncReducer', () => {
       async () => 0,
       async (c, v) => c + v,
       async (s) => s * 2,
-      close
+      { onClose: close }
     ).collectInput((v: string, _, skip, halt) => {
       const value = Number.parseInt(v);
       if (value === 1) return skip;
@@ -592,7 +592,7 @@ describe('AsyncReducer', () => {
       async () => 0,
       async (c, v) => c + v,
       async (s) => s * 2,
-      close
+      { onClose: close }
     ).mapOutput((v) => v / 2);
 
     expect(await AsyncStream.of(1, 2, 3).reduce(sumDouble)).toBe(6);
@@ -605,7 +605,7 @@ describe('AsyncReducer', () => {
       async () => 0,
       async (c, v) => c + v,
       async (s) => s * 2,
-      close
+      { onClose: close }
     ).takeOutput(2);
 
     expect(await AsyncStream.of(1, 2, 4).reduce(sumDouble)).toBe(6);
@@ -618,7 +618,7 @@ describe('AsyncReducer', () => {
       async () => 0,
       async (c, v) => c + v,
       async (s) => s,
-      close
+      { onClose: close }
     ).takeOutputUntil(async (v) => v >= 3);
 
     expect(await AsyncStream.of(1, 2, 4).reduce(sumDouble)).toBe(3);
@@ -631,7 +631,7 @@ describe('AsyncReducer', () => {
       async () => 0,
       async (c, v) => c + v,
       async (s) => s * 2,
-      close
+      { onClose: close }
     ).takeInput(2);
 
     expect(await AsyncStream.of(1, 2, 4).reduce(sumDouble)).toBe(6);
@@ -644,7 +644,7 @@ describe('AsyncReducer', () => {
       async () => 0,
       async (c, v) => c + v,
       async (s) => s * 2,
-      close
+      { onClose: close }
     ).dropInput(1);
 
     expect(await AsyncStream.of(1, 2, 3).reduce(sumDouble)).toBe(10);
@@ -659,7 +659,7 @@ describe('AsyncReducer', () => {
       async () => 0,
       async (c, v) => c + v,
       async (s) => s * 2,
-      close
+      { onClose: close }
     ).sliceInput(1, 1);
 
     expect(await AsyncStream.of(1, 2, 3).reduce(sumDouble)).toBe(4);

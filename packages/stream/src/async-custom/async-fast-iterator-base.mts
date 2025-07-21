@@ -9,7 +9,7 @@ import {
 } from '@rimbu/common';
 
 import {
-  AsyncTransformer,
+  type AsyncTransformer,
   type AsyncFastIterator,
   type AsyncReducer,
   type AsyncStream,
@@ -57,7 +57,7 @@ export abstract class AsyncFastIteratorBase<T> implements AsyncFastIterator<T> {
   }
 }
 
-export class AsyncOfIterator<T> extends AsyncFastIteratorBase<T> {
+export class AsyncOfFastIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(readonly values: ArrayNonEmpty<AsyncOptLazy<T>>) {
     super();
   }
@@ -74,7 +74,7 @@ export class AsyncOfIterator<T> extends AsyncFastIteratorBase<T> {
   }
 }
 
-export class FromResourceIterator<T, R> extends AsyncFastIteratorBase<T> {
+export class FromResourceFastIterator<T, R> extends AsyncFastIteratorBase<T> {
   constructor(
     readonly open: () => MaybePromise<R>,
     readonly createSource: (resource: R) => MaybePromise<AsyncStreamSource<T>>,
@@ -123,7 +123,7 @@ export class FromResourceIterator<T, R> extends AsyncFastIteratorBase<T> {
   }
 }
 
-export class AsyncUnfoldIterator<T> extends AsyncFastIteratorBase<T> {
+export class AsyncUnfoldFastIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(
     init: T,
     readonly getNext: (
@@ -158,7 +158,7 @@ export class AsyncUnfoldIterator<T> extends AsyncFastIteratorBase<T> {
   }
 }
 
-export class AsyncZipWithIterator<
+export class AsyncZipWithFastIterator<
   I extends readonly unknown[],
   R,
 > extends AsyncFastIteratorBase<R> {
@@ -207,7 +207,7 @@ export class AsyncZipWithIterator<
   }
 }
 
-export class AsyncZipAllWithItererator<
+export class AsyncZipAllWithFastItererator<
   I extends readonly unknown[],
   F,
   R,
@@ -355,7 +355,7 @@ export class FromPromise<T> extends AsyncFastIteratorBase<T> {
   }
 }
 
-export class AsyncPrependIterator<T> extends AsyncFastIteratorBase<T> {
+export class AsyncPrependFastIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(
     readonly source: AsyncFastIterator<T>,
     readonly item: AsyncOptLazy<T>
@@ -379,7 +379,7 @@ export class AsyncPrependIterator<T> extends AsyncFastIteratorBase<T> {
   }
 }
 
-export class AsyncAppendIterator<T> extends AsyncFastIteratorBase<T> {
+export class AsyncAppendFastIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(
     readonly source: AsyncFastIterator<T>,
     readonly item: AsyncOptLazy<T>
@@ -408,7 +408,7 @@ export class AsyncAppendIterator<T> extends AsyncFastIteratorBase<T> {
   }
 }
 
-export class AsyncIndexedIterator<T> extends AsyncFastIteratorBase<
+export class AsyncIndexedFastIterator<T> extends AsyncFastIteratorBase<
   [number, T]
 > {
   index: number;
@@ -434,7 +434,7 @@ export class AsyncIndexedIterator<T> extends AsyncFastIteratorBase<
   }
 }
 
-export class AsyncMapIterator<T, T2> extends AsyncFastIteratorBase<T2> {
+export class AsyncMapFastIterator<T, T2> extends AsyncFastIteratorBase<T2> {
   constructor(
     readonly source: AsyncFastIterator<T>,
     readonly mapFun: (value: T, index: number) => MaybePromise<T2>
@@ -459,7 +459,7 @@ export class AsyncMapIterator<T, T2> extends AsyncFastIteratorBase<T2> {
   }
 }
 
-export class AsyncMapPureIterator<
+export class AsyncMapPureFastIterator<
   T,
   A extends readonly unknown[],
   T2,
@@ -483,7 +483,7 @@ export class AsyncMapPureIterator<
   }
 }
 
-export class AsyncConcatIterator<T> extends AsyncFastIteratorBase<T> {
+export class AsyncConcatFastIterator<T> extends AsyncFastIteratorBase<T> {
   iterator: AsyncFastIterator<T>;
 
   constructor(
@@ -531,7 +531,7 @@ export class AsyncConcatIterator<T> extends AsyncFastIteratorBase<T> {
   }
 }
 
-export class AsyncFilterIterator<T> extends AsyncFastIteratorBase<T> {
+export class AsyncFilterFastIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(
     readonly source: AsyncFastIterator<T>,
     readonly pred: (
@@ -574,7 +574,7 @@ export class AsyncFilterIterator<T> extends AsyncFastIteratorBase<T> {
   }
 }
 
-export class AsyncFilterPureIterator<
+export class AsyncFilterPureFastIterator<
   T,
   A extends readonly unknown[],
 > extends AsyncFastIteratorBase<T> {
@@ -606,7 +606,7 @@ export class AsyncFilterPureIterator<
   }
 }
 
-export class AsyncCollectIterator<T, R> extends AsyncFastIteratorBase<R> {
+export class AsyncCollectFastIterator<T, R> extends AsyncFastIteratorBase<R> {
   constructor(
     readonly source: AsyncFastIterator<T>,
     readonly collectFun: AsyncCollectFun<T, R>
@@ -653,7 +653,7 @@ export class AsyncCollectIterator<T, R> extends AsyncFastIteratorBase<R> {
   }
 }
 
-export class AsyncDropWhileIterator<T> extends AsyncFastIteratorBase<T> {
+export class AsyncDropWhileFastIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(
     readonly source: AsyncFastIterator<T>,
     readonly pred: (value: T, index: number) => MaybePromise<boolean>,
@@ -683,7 +683,7 @@ export class AsyncDropWhileIterator<T> extends AsyncFastIteratorBase<T> {
   }
 }
 
-export class AsyncTakeIterator<T> extends AsyncFastIteratorBase<T> {
+export class AsyncTakeFastIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(
     readonly source: AsyncFastIterator<T>,
     readonly amount: number
@@ -707,7 +707,7 @@ export class AsyncTakeIterator<T> extends AsyncFastIteratorBase<T> {
   }
 }
 
-export class AsyncDropIterator<T> extends AsyncFastIteratorBase<T> {
+export class AsyncDropFastIterator<T> extends AsyncFastIteratorBase<T> {
   remain: number;
 
   constructor(
@@ -738,7 +738,7 @@ export class AsyncDropIterator<T> extends AsyncFastIteratorBase<T> {
   }
 }
 
-export class AsyncRepeatIterator<T> extends AsyncFastIteratorBase<T> {
+export class AsyncRepeatFastIterator<T> extends AsyncFastIteratorBase<T> {
   iterator: AsyncFastIterator<T>;
   remain: number | undefined;
 
@@ -792,36 +792,42 @@ export class AsyncRepeatIterator<T> extends AsyncFastIteratorBase<T> {
   }
 }
 
-export class AsyncReduceIterator<I, R> extends AsyncFastIteratorBase<R> {
+export class AsyncReduceFastIterator<I, R> extends AsyncFastIteratorBase<R> {
   constructor(
     readonly sourceIterator: AsyncFastIterator<I>,
     readonly reducer: AsyncReducer<I, R>
   ) {
     super();
-
-    this.return = async (): Promise<void> => {
-      if (undefined !== this.#instance && !this.#instance.halted) {
-        await Promise.all([
-          closeIters(sourceIterator),
-          this.#instance.onClose(),
-        ]);
-      } else {
-        await closeIters(sourceIterator);
-      }
-    };
   }
 
-  #instance: AsyncReducer.Instance<I, R> | undefined;
+  #reducerState: any;
+  #halted = false;
+  #index = -1;
+
+  return = async (): Promise<any> => {
+    if (this.#index >= 0 && !this.#halted) {
+      await Promise.all([
+        closeIters(this.sourceIterator),
+        this.reducer.onClose?.(this.#reducerState),
+      ]);
+    } else {
+      await closeIters(this.sourceIterator);
+    }
+  };
+
+  #halt = (): void => {
+    this.#halted = true;
+    this.#reducerState = undefined;
+  };
 
   async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<R | O> {
-    if (undefined === this.#instance) {
-      this.#instance = await this.reducer.compile();
-    }
-
-    const reducerInstance = this.#instance;
-
     try {
-      if (reducerInstance.halted) {
+      if (this.#index < 0) {
+        this.#reducerState = await this.reducer.init(this.#halt);
+        this.#index = 0;
+      }
+
+      if (this.#halted) {
         return (await AsyncOptLazy.toMaybePromise(otherwise)) as O;
       }
 
@@ -829,16 +835,27 @@ export class AsyncReduceIterator<I, R> extends AsyncFastIteratorBase<R> {
       const nextInput = await this.sourceIterator.fastNext(done);
 
       if (done === nextInput) {
-        this.#instance.halt();
+        this.#halt();
 
-        return AsyncOptLazy.toMaybePromise(otherwise!);
+        return (await AsyncOptLazy.toMaybePromise(otherwise)) as O;
       }
 
-      await reducerInstance.next(nextInput);
+      const index = this.#index++;
 
-      return reducerInstance.getOutput();
+      this.#reducerState = await this.reducer.next(
+        this.#reducerState,
+        nextInput,
+        index,
+        this.#halt
+      );
+
+      return await this.reducer.stateToResult(
+        this.#reducerState,
+        index,
+        this.#halted
+      );
     } finally {
-      if (reducerInstance.halted) {
+      if (this.#halted) {
         this.return?.();
         (this.return as any) = undefined;
       }
@@ -855,61 +872,85 @@ export class AsyncTransformerFastIterator<
     readonly transformer: AsyncTransformer.Accept<T, R>
   ) {
     super();
-
-    this.return = async (): Promise<void> => {
-      if (undefined !== this.#instance) {
-        await Promise.all([
-          closeIters(sourceIterator),
-          this.#instance.onClose(),
-        ]);
-      } else {
-        await closeIters(sourceIterator);
-      }
-    };
   }
 
-  #done = false;
-  #instance: AsyncReducer.Instance<T, AsyncStreamSource<R>> | undefined;
+  #halted = false;
+  #index = -1;
+  #transformerState: any;
   #currentValues: AsyncFastIterator<R> | undefined;
 
+  #halt = (): void => {
+    this.#halted = true;
+  };
+
+  return = async (): Promise<any> => {
+    if (this.#index >= 0 && !this.#halted) {
+      await Promise.all([
+        closeIters(this.sourceIterator),
+        'onClose' in this.transformer
+          ? this.transformer.onClose?.(this.#transformerState)
+          : undefined,
+      ]);
+    } else {
+      await closeIters(this.sourceIterator);
+    }
+  };
+
   async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<R | O> {
-    if (this.#done) {
-      return AsyncOptLazy.toPromise(otherwise) as O;
-    }
-
-    if (undefined === this.#instance) {
-      this.#instance = await AsyncTransformer.from(this.transformer).compile();
-    }
-
-    const transformerInstance = this.#instance;
-
-    const done = Symbol('done');
-
-    let nextValue: R | typeof done;
-
-    while (
-      undefined === this.#currentValues ||
-      done === (nextValue = await this.#currentValues.fastNext(done))
-    ) {
-      const nextSource = await this.sourceIterator.fastNext(done);
-
-      if (done === nextSource) {
-        if (transformerInstance.halted) {
-          return AsyncOptLazy.toMaybePromise(otherwise!);
-        }
-
-        this.#done = true;
-        transformerInstance.halt();
-        (this.return as any) = undefined;
-      } else {
-        await transformerInstance.next(nextSource);
+    try {
+      if (this.#index < 0) {
+        this.#transformerState = await this.transformer.init(this.#halt);
+        this.#index = 0;
+        this.#currentValues = undefined;
       }
 
-      const nextValuesSource = await transformerInstance.getOutput();
-      this.#currentValues =
-        fromAsyncStreamSource(nextValuesSource)[Symbol.asyncIterator]();
-    }
+      if (this.#halted) {
+        return AsyncOptLazy.toPromise(otherwise!) as O;
+      }
 
-    return nextValue;
+      const done = Symbol('done');
+      let nextValue: R | typeof done;
+
+      while (
+        undefined === this.#currentValues ||
+        done === (nextValue = await this.#currentValues.fastNext(done))
+      ) {
+        if (this.#halted) {
+          return AsyncOptLazy.toPromise(otherwise!) as O;
+        }
+
+        const nextSource = await this.sourceIterator.fastNext(done);
+
+        if (done === nextSource) {
+          if (this.#halted) {
+            return AsyncOptLazy.toPromise(otherwise!) as O;
+          }
+          this.#halt();
+          (this.return as any) = undefined;
+        } else {
+          this.#transformerState = await this.transformer.next(
+            this.#transformerState,
+            nextSource,
+            this.#index++,
+            this.#halt
+          );
+        }
+
+        const nextValuesSource = await this.transformer.stateToResult(
+          this.#transformerState,
+          this.#index,
+          this.#halted
+        );
+        this.#currentValues =
+          fromAsyncStreamSource(nextValuesSource)[Symbol.asyncIterator]();
+      }
+
+      return nextValue;
+    } finally {
+      if (this.#halted) {
+        this.return?.();
+        (this.return as any) = undefined;
+      }
+    }
   }
 }

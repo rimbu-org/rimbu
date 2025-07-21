@@ -2035,7 +2035,7 @@ describe('AsyncStream methods', () => {
       async () => 0,
       async (c, v) => c + v,
       async (v) => v * 2,
-      endReducer
+      { onClose: endReducer }
     );
 
     expect(await AsyncStream.of(1, 2, 3).reduce(asyncSum));
@@ -2051,7 +2051,7 @@ describe('AsyncStream methods', () => {
       async () => 0,
       Err,
       async (v) => v * 2,
-      endReducer
+      { onClose: endReducer }
     );
 
     endReducer.mockReset();
@@ -2162,13 +2162,13 @@ describe('AsyncStream methods', () => {
             () => 0,
             () => 0,
             () => 0,
-            exit1
+            { onClose: exit1 }
           ),
           AsyncReducer.createMono(
             () => 0,
             () => 0,
             () => 0,
-            exit2
+            { onClose: exit2 }
           ),
         ])
         .count();
@@ -2189,13 +2189,13 @@ describe('AsyncStream methods', () => {
             () => 0,
             () => 0,
             () => 0,
-            exit1
+            { onClose: exit1 }
           ),
           AsyncReducer.createMono(
             () => 0,
             Err,
             () => 0,
-            exit2
+            { onClose: exit2 }
           ),
         ])
         .count();

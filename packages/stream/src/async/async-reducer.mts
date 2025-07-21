@@ -8,6 +8,7 @@ import {
   type MaybePromise,
 } from '@rimbu/common';
 import {
+  AsyncStream,
   Reducer,
   Stream,
   type AsyncFastIterator,
@@ -16,7 +17,8 @@ import {
 import {
   AsyncStreamConstructorsImpl,
   fromAsyncStreamSource,
-} from '../async-custom/async-stream-custom.mjs';
+} from '@rimbu/stream/async-custom';
+import { createAsyncState } from '@rimbu/stream/custom';
 
 /**
  * An `AsyncReducer` is a stand-alone asynchronous calculation that takes input values of type I,
@@ -30,6 +32,8 @@ function identity<T>(value: T): T {
   return value;
 }
 
+const NONE = Symbol('none');
+
 /**
  * Combines multiple (asynchronous) reducers in an array of the same input type into a single reducer that
  * forwards each incoming value to all reducers, and when output is requested will return an array containing
@@ -41,55 +45,111 @@ function combineArr<T, R extends readonly [unknown, unknown, ...unknown[]]>(
     unknown
   >[]
 ): AsyncReducer<T, R> {
-  return AsyncReducer.create<T, any, AsyncReducer.Instance<T, unknown>[]>(
+  return AsyncReducer.create<
+    T,
+    any,
+    Array<{ state: any; index: number; halted: boolean }>
+  >(
     async (initHalt) => {
-      let allHalted = true;
+      const combinedStates = [] as Array<{
+        state: any;
+        index: number;
+        halted: boolean;
+      }>;
 
-      const result = await Promise.all(
-        reducers.map(async (reducer) => {
-          const instance = await AsyncReducer.from(reducer).compile();
+      let remainingCount = reducers.length;
 
-          allHalted = allHalted && instance.halted;
+      let reducerIndex = -1;
 
-          return instance;
-        })
-      );
+      while (++reducerIndex < reducers.length) {
+        const reducer = reducers[reducerIndex];
 
-      if (allHalted) {
+        const reducerState = await createAsyncState(
+          { halted: false, index: 0 },
+          async (baseState) => ({
+            state: await reducer.init(() => {
+              baseState.halted = true;
+              remainingCount--;
+            }),
+          })
+        );
+
+        combinedStates.push(reducerState);
+      }
+
+      if (remainingCount === 0) {
         initHalt();
       }
 
-      return result;
+      return combinedStates;
     },
-    async (state, elem, index, halt) => {
-      let allHalted = true;
+    async (combinedState, elem, _, halt) => {
+      let remainingCount = reducers.length;
+      let reducerIndex = -1;
 
-      await Promise.all(
-        Stream.from(state).mapPure(async (reducer) => {
-          if (reducer.halted) return;
+      while (++reducerIndex < reducers.length) {
+        const reducerState = combinedState[reducerIndex];
 
-          await reducer.next(elem);
+        if (reducerState.halted) {
+          remainingCount--;
+          continue;
+        }
 
-          allHalted = allHalted && reducer.halted;
-        })
-      );
+        const reducer = reducers[reducerIndex];
 
-      if (allHalted) {
+        reducerState.state = await reducer.next(
+          reducerState.state,
+          elem,
+          reducerState.index++,
+          () => {
+            reducerState.halted = true;
+            remainingCount--;
+          }
+        );
+      }
+
+      if (remainingCount === 0) {
         halt();
       }
 
-      return state;
+      return combinedState;
     },
-    (state) =>
+    (combinedState) =>
       Promise.all(
-        Stream.from(state).mapPure((reducerInstance) =>
-          reducerInstance.getOutput()
+        Stream.from(combinedState).map((reducerState, index) =>
+          reducers[index].stateToResult(
+            reducerState.state,
+            reducerState.index,
+            reducerState.halted
+          )
         )
       ),
-    async (state, err) => {
-      await Promise.all(
-        Stream.from(state).mapPure((reducer) => reducer.onClose(err))
-      );
+    {
+      cloneState: (combinedState) => {
+        const clonedState: any[] = [];
+
+        let reducerIndex = -1;
+
+        while (++reducerIndex < reducers.length) {
+          clonedState.push({
+            ...combinedState[reducerIndex],
+            state: reducers[reducerIndex].cloneState(
+              combinedState[reducerIndex].state
+            ),
+          });
+        }
+
+        return clonedState;
+      },
+      onClose: async (state, err) => {
+        await Promise.all(
+          reducers.map((reducer) => {
+            if ('onClose' in reducer) {
+              return reducer.onClose?.(state, err);
+            }
+          })
+        );
+      },
     }
   );
 }
@@ -104,65 +164,118 @@ function combineObj<T, R extends { readonly [key: string]: unknown }>(
     readonly [K in keyof R]: AsyncReducer.Accept<T, R[K]>;
   } & Record<string, AsyncReducer.Accept<T, unknown>>
 ): AsyncReducer<T, R> {
-  return AsyncReducer.create(
+  return AsyncReducer.create<
+    T,
+    R,
+    Record<string, { state: any; index: number; halted: boolean }>
+  >(
     async (initHalt) => {
-      const result: Record<string, AsyncReducer.Instance<T, any>> = {};
+      const combinedState = {} as Record<
+        string,
+        { state: any; index: number; halted: boolean }
+      >;
 
-      let allHalted = true;
+      let haltedBalance = 0;
 
       await Promise.all(
         Stream.fromObject(
           reducerObj as Record<string, AsyncReducer.Accept<T, unknown>>
         ).mapPure(async ([key, reducer]) => {
-          const instance = await AsyncReducer.from(reducer).compile();
-          result[key] = instance;
+          haltedBalance--;
 
-          allHalted = allHalted && instance.halted;
+          const reducerState = await createAsyncState(
+            { halted: false, index: 0 },
+            async (baseState) => ({
+              state: await reducer.init(() => {
+                baseState.halted = true;
+                haltedBalance++;
+              }),
+            })
+          );
+
+          combinedState[key] = reducerState;
         })
       );
 
-      if (allHalted) {
+      if (haltedBalance === 0) {
         initHalt();
       }
 
-      return result;
+      return combinedState;
     },
-    async (state, elem, index, halt) => {
-      let allHalted = true;
+    async (combinedState, elem, _, halt) => {
+      let haltedBalance = 0;
 
       await Promise.all(
-        Stream.fromObjectValues(state).mapPure(async (reducerInstance) => {
-          if (!reducerInstance.halted) {
-            await reducerInstance.next(elem);
+        Stream.fromObject(combinedState).mapPure(
+          async ([key, reducerState]) => {
+            if (reducerState.halted) {
+              return;
+            }
 
-            allHalted = allHalted && reducerInstance.halted;
+            haltedBalance--;
+
+            const reducer = reducerObj[key];
+
+            reducerState.state = await reducer.next(
+              reducerState.state,
+              elem,
+              reducerState.index++,
+              () => {
+                reducerState.halted = true;
+                haltedBalance++;
+              }
+            );
           }
-        })
+        )
       );
 
-      if (allHalted) {
+      if (haltedBalance === 0) {
         halt();
       }
 
-      return state;
+      return combinedState;
     },
-    async (state) => {
-      const result: any = {};
+    async (combinedState) => {
+      const result: R = {} as any;
 
       await Promise.all(
-        Stream.fromObject(state).mapPure(async ([key, reducerInstance]) => {
-          result[key] = await reducerInstance.getOutput();
-        })
+        Stream.fromObject(combinedState).mapPure(
+          async ([key, reducerState]) => {
+            const reducer = reducerObj[key];
+            (result as any)[key] = await reducer.stateToResult(
+              reducerState.state,
+              reducerState.index,
+              reducerState.halted
+            );
+          }
+        )
       );
 
       return result;
     },
-    async (state, err) => {
-      await Promise.all(
-        Stream.fromObjectValues(state).mapPure((reducerInstance) =>
-          reducerInstance.onClose(err)
-        )
-      );
+    {
+      cloneState: (state) => {
+        const clonedState: Record<string, any> = {};
+
+        for (const key in reducerObj) {
+          clonedState[key] = {
+            ...state[key],
+            state: reducerObj[key].cloneState(state[key].state),
+          };
+        }
+
+        return clonedState;
+      },
+      onClose: async (state, err) => {
+        await Promise.all(
+          Stream.fromObjectValues(reducerObj).mapPure((reducer) => {
+            if ('onClose' in reducer) {
+              reducer.onClose?.(state, err);
+            }
+          })
+        );
+      },
     }
   );
 }
@@ -406,22 +519,7 @@ export namespace AsyncReducer {
         AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O2]>
       >
     ): AsyncReducer<I, O2>;
-
-    /**
-     * Returns a promise that resolves to a 'runnable' instance of the current reducer specification. This instance maintains its own state
-     * and indices, so that the instance only needs to be provided the input values, and output values can be
-     * retrieved when needed. The state is kept private.
-     * @example
-     * ```ts
-     * const reducer = AsyncReducer.from(Reducer.sum.mapOutput(v => v * 2));
-     * const instance = reducer.compile();
-     * await instance.next(3);
-     * await instance.next(5);
-     * console.log(await instance.getOutput());
-     * // => 16
-     * ```
-     */
-    compile(): Promise<AsyncReducer.Instance<I, O>>;
+    cloneState: (state: S) => S;
   }
 
   /**
@@ -444,8 +542,18 @@ export namespace AsyncReducer {
         index: number,
         halted: boolean
       ) => MaybePromise<O>,
-      readonly onClose?: (state: S, error?: unknown) => MaybePromise<void>
+      readonly options?: AsyncReducer.Options<S> | undefined
     ) {}
+
+    get onClose():
+      | ((state: S, error?: unknown) => MaybePromise<void>)
+      | undefined {
+      return this.options?.onClose;
+    }
+
+    get cloneState(): (state: S) => S {
+      return this.options?.cloneState ?? identity;
+    }
 
     filterInput(
       pred: (
@@ -458,20 +566,35 @@ export namespace AsyncReducer {
       const { negate = false } = options;
 
       return create<I, any>(
-        () => this.compile(),
-        async (state, elem, index, halt) => {
+        async (initHalt) => ({ index: 0, state: await this.init(initHalt) }),
+        async (combinedState, elem, index, halt) => {
           if ((await pred(elem, index, halt)) !== negate) {
-            await state.next(elem);
-
-            if (state.halted) {
-              halt();
-            }
+            combinedState.state = await this.next(
+              combinedState.state,
+              elem,
+              combinedState.index++,
+              halt
+            );
           }
 
-          return state;
+          return combinedState;
         },
-        (state) => state.getOutput(),
-        (state, err) => state.onClose(err)
+        async (combinedState) =>
+          await this.stateToResult(
+            combinedState.state,
+            combinedState.index,
+            combinedState.halted
+          ),
+        {
+          ...this.options,
+          cloneState: (combinedState) => ({
+            ...combinedState,
+            state: this.cloneState(combinedState.state),
+          }),
+          onClose: async (combinedState, err) => {
+            await this.options?.onClose?.(combinedState.state, err);
+          },
+        }
       );
     }
 
@@ -483,7 +606,7 @@ export namespace AsyncReducer {
         async (state, elem, index, halt): Promise<S> =>
           this.next(state, await mapFun(elem, index), index, halt),
         this.stateToResult,
-        this.onClose
+        this.options
       );
     }
 
@@ -493,53 +616,78 @@ export namespace AsyncReducer {
         index: number
       ) => MaybePromise<AsyncStreamSource<I>>
     ): AsyncReducer<I2, O> {
-      return create<I2, O, AsyncReducer.Instance<I, O>>(
-        () => this.compile(),
-        async (state, elem, index, halt) => {
-          if (state.halted) {
-            halt();
-            return state;
-          }
-
+      return create<I2, O, { state: S; index: number }>(
+        async (initHalt) => ({
+          index: 0,
+          state: await this.init(initHalt),
+        }),
+        async (combinedState, elem, index, halt) => {
           const elems = await flatMapFun(elem, index);
 
-          const iter = fromAsyncStreamSource(elems)[Symbol.asyncIterator]();
+          const iter = AsyncStream.from(elems)[Symbol.asyncIterator]();
           const done = Symbol();
           let value: I | typeof done;
+          let halted = false;
 
-          while (done !== (value = await iter.fastNext(done))) {
-            await state.next(value);
-
-            if (state.halted) {
-              halt();
-              break;
-            }
+          while (!halted && done !== (value = await iter.fastNext(done))) {
+            combinedState.state = await this.next(
+              combinedState.state,
+              value,
+              combinedState.index++,
+              () => {
+                halted = true;
+                halt();
+              }
+            );
           }
 
-          return state;
+          return combinedState;
         },
-        (state) => state.getOutput(),
-        (state, err) => state.onClose(err)
+        (combinedState, _, halted) =>
+          this.stateToResult(combinedState.state, combinedState.index, halted),
+        {
+          ...this.options,
+          cloneState: (combinedState) => {
+            const state = this.cloneState(combinedState.state);
+            return { ...combinedState, state };
+          },
+          onClose: (combinedState, err) =>
+            this.options?.onClose?.(combinedState.state, err),
+        }
       );
     }
 
     collectInput<I2>(collectFun: AsyncCollectFun<I2, I>): AsyncReducer<I2, O> {
-      return create(
-        () => this.compile(),
-        async (state, elem, index, halt) => {
+      return create<I2, O, { state: S; index: number }>(
+        async (initHalt) => ({
+          index: 0,
+          state: await this.init(initHalt),
+        }),
+        async (combinedState, elem, index, halt) => {
           const nextElem = await collectFun(elem, index, CollectFun.Skip, halt);
 
           if (CollectFun.Skip !== nextElem) {
-            await state.next(nextElem);
-            if (state.halted) {
-              halt();
-            }
+            combinedState.state = await this.next(
+              combinedState.state,
+              nextElem,
+              combinedState.index++,
+              halt
+            );
           }
 
-          return state;
+          return combinedState;
         },
-        (state) => state.getOutput(),
-        (state, err) => state.onClose(err)
+        (combinedState, _, halted) =>
+          this.stateToResult(combinedState.state, combinedState.index, halted),
+        {
+          ...this.options,
+          cloneState: (combinedState) => {
+            const state = this.cloneState(combinedState.state);
+            return { ...combinedState, state };
+          },
+          onClose: (combinedState, err) =>
+            this.options?.onClose?.(combinedState.state, err),
+        }
       );
     }
 
@@ -551,7 +699,7 @@ export namespace AsyncReducer {
         this.next,
         async (state, index, halted): Promise<O2> =>
           mapFun(await this.stateToResult(state, index, halted), index, halted),
-        this.onClose
+        this.options
       );
     }
 
@@ -564,7 +712,7 @@ export namespace AsyncReducer {
           },
           this.next,
           this.stateToResult,
-          this.onClose
+          this.options
         );
       }
 
@@ -577,7 +725,7 @@ export namespace AsyncReducer {
           return this.next(state, next, index, halt);
         },
         this.stateToResult,
-        this.onClose
+        this.options
       );
     }
 
@@ -601,13 +749,13 @@ export namespace AsyncReducer {
           return nextState;
         },
         this.stateToResult,
-        this.onClose
+        this.options
       );
     }
 
     takeInput(amount: number): AsyncReducer<I, O> {
       if (amount <= 0) {
-        return create(this.init, identity, this.stateToResult, this.onClose);
+        return create(this.init, identity, this.stateToResult, this.options);
       }
 
       return this.filterInput((_, i, halt): boolean => {
@@ -644,20 +792,39 @@ export namespace AsyncReducer {
         async (
           initHalt
         ): Promise<{
-          activeInstance: AsyncReducer.Instance<I, O2>;
+          activeReducerState: {
+            index: number;
+            halted: boolean;
+            state: any;
+          };
+          activeReducer: AsyncReducer.Accept<I, O2>;
           iterator: AsyncFastIterator<
             AsyncOptLazy<AsyncReducer.Accept<I, O2>, [O2]>
           >;
         }> => {
+          let activeReducer: AsyncReducer.Accept<I, O2> = this as any;
+
+          let activeReducerState = await createAsyncState(
+            {
+              index: 0,
+              halted: false,
+            },
+            async (baseState) => ({
+              state: await activeReducer.init(() => {
+                baseState.halted = true;
+              }),
+            })
+          );
+
           const iterator =
             fromAsyncStreamSource(nextReducers)[Symbol.asyncIterator]();
-          let activeInstance = (await this.compile()) as AsyncReducer.Instance<
-            I,
-            O2
-          >;
 
-          if (undefined !== activeInstance && activeInstance.halted) {
-            let output = await activeInstance.getOutput();
+          if (activeReducerState.halted) {
+            let output = await activeReducer.stateToResult(
+              activeReducerState.state,
+              activeReducerState.index,
+              activeReducerState.halted
+            );
 
             do {
               const creator = await iterator.fastNext();
@@ -666,171 +833,114 @@ export namespace AsyncReducer {
                 initHalt();
 
                 return {
-                  activeInstance,
+                  activeReducer,
+                  activeReducerState,
                   iterator,
                 };
               }
-              const nextReducer = await AsyncOptLazy.toMaybePromise(
+              activeReducer = await AsyncOptLazy.toMaybePromise(
                 creator,
-                output
+                output as O2
               );
 
-              activeInstance = await AsyncReducer.from(nextReducer).compile();
-              output = await activeInstance.getOutput();
-            } while (activeInstance.halted);
+              activeReducerState = await createAsyncState(
+                {
+                  index: 0,
+                  halted: false,
+                },
+                async (baseState) => ({
+                  state: await activeReducer.init(() => {
+                    baseState.halted = true;
+                  }),
+                })
+              );
+              output = await activeReducer.stateToResult(
+                activeReducerState.state,
+                0,
+                false
+              );
+            } while (activeReducerState.halted);
           }
 
           return {
-            activeInstance,
+            activeReducer,
+            activeReducerState,
             iterator,
           };
         },
-        async (state, next, index, halt) => {
-          await state.activeInstance.next(next);
+        async (combinedState, input, _, halt) => {
+          const { iterator } = combinedState;
 
-          while (state.activeInstance.halted) {
-            const output = await state.activeInstance.getOutput();
-            const creator = await state.iterator.fastNext();
+          combinedState.activeReducerState.state =
+            await combinedState.activeReducer.next(
+              combinedState.activeReducerState.state,
+              input,
+              combinedState.activeReducerState.index++,
+              () => {
+                combinedState.activeReducerState.halted = true;
+              }
+            );
+
+          while (combinedState.activeReducerState.halted) {
+            const output = await combinedState.activeReducer.stateToResult(
+              combinedState.activeReducerState.state,
+              combinedState.activeReducerState.index,
+              combinedState.activeReducerState.halted
+            );
+            const creator = await iterator.fastNext();
 
             if (undefined === creator) {
               halt();
 
-              return state;
+              return combinedState;
             }
 
-            const nextReducer = await AsyncOptLazy.toMaybePromise(
+            combinedState.activeReducer = await AsyncOptLazy.toMaybePromise(
               creator,
               output
             );
-
-            state.activeInstance =
-              await AsyncReducer.from(nextReducer).compile();
+            combinedState.activeReducerState = await createAsyncState(
+              {
+                index: 0,
+                halted: false,
+              },
+              async (baseState) => ({
+                state: await combinedState.activeReducer.init(() => {
+                  baseState.halted = true;
+                }),
+              })
+            );
           }
 
-          return state;
+          return combinedState;
         },
-        (state) => state.activeInstance.getOutput()
+        async ({ activeReducer, activeReducerState }) =>
+          await activeReducer.stateToResult(
+            activeReducerState.state,
+            activeReducerState.index,
+            activeReducerState.halted
+          ),
+        {
+          ...this.options,
+          onClose: async (combinedState, err) => {
+            if ('onClose' in combinedState.activeReducer) {
+              await combinedState.activeReducer.onClose?.(
+                combinedState.activeReducerState.state,
+                err
+              );
+            }
+          },
+          cloneState: () => {
+            throw Error('cloneState for operation not yet supported');
+          },
+        }
       );
-    }
-
-    async compile(): Promise<AsyncReducer.Instance<I, O>> {
-      const instance = new AsyncReducer.InstanceImpl(this);
-      await instance.initialize();
-      return instance;
     }
   }
 
-  /**
-   * An async reducer instance that manages its own state based on the reducer definition that
-   * was used to create this instance.
-   * @typeparam I - the input element type
-   * @typeparam O - the output element type
-   */
-  export interface Instance<I, O> {
-    /**
-     * Returns true if the reducer instance does not receive any more values, false otherwise.
-     */
-    get halted(): boolean;
-    /**
-     * Returns the index of the last received value.
-     */
-    get index(): number;
-    /**
-     * Method that, when called, halts the reducer instance so that it will no longer receive values.
-     */
-    halt(): void;
-    /**
-     * Sends a new value into the reducer instance.
-     * @param value - the next input value
-     */
-    next(value: I): MaybePromise<void>;
-    /**
-     * Returns the output value based on the current given input values.
-     */
-    getOutput(): MaybePromise<O>;
-    /**
-     * Closes any resources that may have been opened.
-     * @param err - (optional) if an error occurrerd it can be supplied
-     */
-    onClose(err?: unknown): Promise<void>;
-  }
-
-  /**
-   * The default `AsyncReducer.Impl` implementation.
-   * @typeparam I - the input element type
-   * @typeparam O - the output element type
-   * @typeparam S - the reducer state type
-   */
-  export class InstanceImpl<I, O, S> implements AsyncReducer.Instance<I, O> {
-    constructor(readonly reducer: AsyncReducer.Impl<I, O, S>) {}
-
-    #state: S | undefined;
-    #index = 0;
-    #initialized = false;
-    #halted = false;
-    #closed = false;
-
-    async initialize(): Promise<void> {
-      if (this.#closed) {
-        throw new AsyncReducer.ReducerClosedError();
-      }
-
-      this.#state = await this.reducer.init(this.halt);
-      this.#initialized = true;
-    }
-
-    halt = (): void => {
-      if (this.#closed) {
-        throw new AsyncReducer.ReducerClosedError();
-      }
-
-      this.#halted = true;
-    };
-
-    get halted(): boolean {
-      return this.#halted;
-    }
-
-    get index(): number {
-      return this.#index;
-    }
-
-    next = async (value: I): Promise<void> => {
-      if (!this.#initialized) {
-        throw new AsyncReducer.ReducerNotInitializedError();
-      }
-      if (this.#closed) {
-        throw new AsyncReducer.ReducerClosedError();
-      }
-      if (this.#halted) {
-        throw new AsyncReducer.ReducerHaltedError();
-      }
-
-      this.#state = await this.reducer.next(
-        this.#state!,
-        value,
-        this.#index++,
-        this.halt
-      );
-    };
-
-    async getOutput(): Promise<O> {
-      if (!this.#initialized) {
-        throw new AsyncReducer.ReducerNotInitializedError();
-      }
-
-      return this.reducer.stateToResult(this.#state!, this.index, this.halted);
-    }
-
-    async onClose(err?: unknown): Promise<void> {
-      if (this.#closed) {
-        throw new AsyncReducer.ReducerClosedError();
-      }
-
-      this.#closed = true;
-
-      await this.reducer.onClose?.(this.#state!, err);
-    }
+  export interface Options<S> {
+    onClose?: ((state: S, error?: unknown) => MaybePromise<void>) | undefined;
+    cloneState?: ((state: S) => S) | undefined;
   }
 
   /**
@@ -860,13 +970,13 @@ export namespace AsyncReducer {
       index: number,
       halted: boolean
     ) => MaybePromise<O>,
-    onClose?: (state: S, error?: unknown) => MaybePromise<void>
+    options?: Options<S>
   ): AsyncReducer<I, O> {
     return new AsyncReducer.Base(
       init,
       next,
       stateToResult,
-      onClose
+      options
     ) as AsyncReducer<I, O>;
   }
 
@@ -895,9 +1005,9 @@ export namespace AsyncReducer {
       index: number,
       halted: boolean
     ) => MaybePromise<T>,
-    onClose?: (state: T, error?: unknown) => MaybePromise<void>
+    options?: Options<T>
   ): AsyncReducer<T> {
-    return create(init, next, stateToResult ?? identity, onClose);
+    return create(init, next, stateToResult ?? identity, options);
   }
 
   /**
@@ -926,9 +1036,9 @@ export namespace AsyncReducer {
       index: number,
       halted: boolean
     ) => MaybePromise<O>,
-    onClose?: (state: O, error?: unknown) => MaybePromise<void>
+    options?: Options<O>
   ): AsyncReducer<I, O> {
-    return create(init, next, stateToResult ?? identity, onClose);
+    return create(init, next, stateToResult ?? identity, options);
   }
 
   /**
@@ -950,11 +1060,14 @@ export namespace AsyncReducer {
       value: T,
       index: number,
       halt: () => void
-    ) => MaybePromise<R>
+    ) => MaybePromise<R>,
+    options?: Options<R>
   ): AsyncReducer<T, R> {
     return AsyncReducer.createOutput(
       () => AsyncOptLazy.toMaybePromise(init),
-      next
+      next,
+      undefined,
+      options
     );
   }
 
@@ -1117,14 +1230,14 @@ export namespace AsyncReducer {
     <T>(): AsyncReducer<T, T | undefined>;
     <T, O>(otherwise: AsyncOptLazy<O>): AsyncReducer<T, T | O>;
   } = <T, O>(otherwise?: AsyncOptLazy<O>): AsyncReducer<T, T | O> => {
-    return create<T, T | O, T | undefined>(
-      () => undefined,
-      (state, next, _, halt): T => {
+    return create<T, T | O, T | typeof NONE>(
+      () => NONE,
+      (_, next, __, halt): T => {
         halt();
         return next;
       },
-      (state, index): MaybePromise<T | O> =>
-        index <= 0 ? AsyncOptLazy.toMaybePromise(otherwise!) : state!
+      (state): MaybePromise<T | O> =>
+        NONE === state ? AsyncOptLazy.toMaybePromise(otherwise!) : state
     );
   };
 
@@ -1143,11 +1256,11 @@ export namespace AsyncReducer {
     <T>(): AsyncReducer<T, T | undefined>;
     <T, O>(otherwise: AsyncOptLazy<O>): AsyncReducer<T, T | O>;
   } = <T, O>(otherwise?: AsyncOptLazy<O>): AsyncReducer<T, T | O> => {
-    return create<T, T | O, T | undefined>(
-      () => undefined,
+    return create<T, T | O, T | typeof NONE>(
+      () => NONE,
       (_, next): T => next,
-      (state, index): MaybePromise<T | O> =>
-        index <= 0 ? AsyncOptLazy.toMaybePromise(otherwise!) : state!
+      (state): MaybePromise<T | O> =>
+        NONE === state ? AsyncOptLazy.toMaybePromise(otherwise!) : state
     );
   };
 
@@ -1255,7 +1368,12 @@ export namespace AsyncReducer {
 
         return state;
       },
-      (state, index, halted) => !halted && done === state.nextSeq
+      (state, _, halted) => !halted && done === state.nextSeq,
+      {
+        cloneState: () => {
+          throw Error('cloneState for operation not yet supported');
+        },
+      }
     );
   }
 
@@ -1354,7 +1472,12 @@ export namespace AsyncReducer {
 
         return state;
       },
-      (state) => state.remain <= 0
+      (state) => state.remain <= 0,
+      {
+        cloneState: () => {
+          throw Error('cloneState for operation not yet supported');
+        },
+      }
     );
   }
 
@@ -1373,13 +1496,9 @@ export namespace AsyncReducer {
     const sliceStream = AsyncStreamConstructorsImpl.from(slice);
     const done = Symbol();
 
-    const newReducerSpec = AsyncReducer.startsWithSlice(slice, options);
+    const startsWithSliceReducer = AsyncReducer.startsWithSlice(slice, options);
 
-    return AsyncReducer.create<
-      T,
-      boolean,
-      Set<AsyncReducer.Instance<T, boolean>>
-    >(
+    return AsyncReducer.create(
       async (initHalt) => {
         const sliceIter = sliceStream[Symbol.asyncIterator]();
         const sliceValue = await sliceIter.fastNext(done);
@@ -1388,29 +1507,82 @@ export namespace AsyncReducer {
           initHalt();
         }
 
-        return new Set([await newReducerSpec.compile()]);
-      },
-      async (state, nextValue) => {
-        for (const instance of state) {
-          if (instance.halted) {
-            state.delete(instance);
-          } else {
-            await instance.next(nextValue);
+        const startsWithSliceState = await createAsyncState(
+          {
+            index: 0,
+            halted: false,
+          },
+          async (baseState) => {
+            return {
+              state: await startsWithSliceReducer.init(() => {
+                baseState.halted = true;
+              }),
+            };
           }
-        }
+        );
 
-        const newReducerInstance = await newReducerSpec.compile();
-        await newReducerInstance.next(nextValue);
-
-        state.add(newReducerInstance);
-
-        return state;
+        return new Set([startsWithSliceState]);
       },
-      (state) =>
-        state.size === 0 ||
-        AsyncStreamConstructorsImpl.from(state).some((instance) =>
-          instance.getOutput()
-        )
+      async (combinedStateSet, nextValue) => {
+        await Promise.all(
+          Stream.from(combinedStateSet).mapPure(
+            async (startsWithSliceState) => {
+              if (startsWithSliceState.halted) {
+                combinedStateSet.delete(startsWithSliceState);
+              } else {
+                startsWithSliceState.state = await startsWithSliceReducer.next(
+                  startsWithSliceState.state,
+                  nextValue,
+                  startsWithSliceState.index++,
+                  () => {
+                    startsWithSliceState.halted = true;
+                  }
+                );
+              }
+            }
+          )
+        );
+
+        const startsWithSliceState = await createAsyncState(
+          {
+            index: 0,
+            halted: false,
+          },
+          async (baseState) => ({
+            state: await startsWithSliceReducer.init(() => {
+              baseState.halted = true;
+            }),
+          })
+        );
+
+        startsWithSliceState.state = await startsWithSliceReducer.next(
+          startsWithSliceState.state,
+          nextValue,
+          startsWithSliceState.index++,
+          () => {
+            startsWithSliceState.halted = true;
+          }
+        );
+
+        combinedStateSet.add(startsWithSliceState);
+
+        return combinedStateSet;
+      },
+      async (combinedState) =>
+        combinedState.size === 0 ||
+        (await AsyncStream.from(combinedState).some(
+          async (startsWithSliceState) =>
+            await startsWithSliceReducer.stateToResult(
+              startsWithSliceState.state,
+              startsWithSliceState.index,
+              startsWithSliceState.halted
+            )
+        )),
+      {
+        cloneState: () => {
+          throw Error('cloneState for operation not yet supported');
+        },
+      }
     );
   }
 
@@ -1489,23 +1661,96 @@ export namespace AsyncReducer {
       collectorFalse = Reducer.toArray() as AsyncReducer.Accept<T, RF>,
     } = options;
 
-    return AsyncReducer.create(
-      () =>
-        Promise.all([
-          AsyncReducer.from(collectorTrue).compile(),
-          AsyncReducer.from(collectorFalse).compile(),
-        ]),
-      async (state, value, index) => {
-        const instanceIndex = (await pred(value, index)) ? 0 : 1;
+    return AsyncReducer.create<
+      T,
+      [RT, RF],
+      [
+        { index: number; halted: boolean; state: any },
+        { index: number; halted: boolean; state: any },
+      ]
+    >(
+      async (initHalt) => {
+        const trueState = await createAsyncState(
+          {
+            index: 0,
+            halted: false,
+          },
+          async (baseState) => ({
+            state: await collectorTrue.init(() => {
+              baseState.halted = true;
+            }),
+          })
+        );
+        const falseState = await createAsyncState(
+          {
+            index: 0,
+            halted: false,
+          },
+          async (baseState) => ({
+            state: await collectorFalse.init(() => {
+              baseState.halted = true;
+            }),
+          })
+        );
 
-        await state[instanceIndex].next(value);
+        if (trueState.halted && falseState.halted) {
+          initHalt();
+        }
 
-        return state;
+        return [trueState, falseState] as const;
       },
-      (state) =>
-        Promise.all(
-          Stream.from(state).mapPure((v) => v.getOutput())
-        ) as Promise<[RT, RF]>
+      async (combinedState, value, index, halt) => {
+        const [trueState, falseState] = combinedState;
+        const [state, collector, otherState] = (await pred(value, index))
+          ? [trueState, collectorTrue, falseState]
+          : [falseState, collectorFalse, trueState];
+
+        if (!state.halted) {
+          state.state = await collector.next(
+            state.state,
+            value,
+            state.index++,
+            () => {
+              state.halted = true;
+              if (otherState.halted) {
+                halt();
+              }
+            }
+          );
+        } else if (otherState.halted) {
+          halt();
+        }
+
+        return combinedState;
+      },
+      (combinedState) => {
+        const [trueState, falseState] = combinedState;
+
+        return Promise.all([
+          collectorTrue.stateToResult(
+            trueState.state,
+            trueState.index,
+            trueState.halted
+          ),
+          collectorFalse.stateToResult(
+            falseState.state,
+            falseState.index,
+            falseState.halted
+          ),
+        ]) as Promise<[RT, RF]>;
+      },
+      {
+        cloneState: ([trueCombinedState, falseCombinedState]) => [
+          {
+            ...trueCombinedState,
+            state: collectorTrue.cloneState(trueCombinedState.state),
+          },
+          {
+            ...falseCombinedState,
+            state: collectorFalse.cloneState(falseCombinedState.state),
+          },
+        ],
+      }
     );
   };
 
@@ -1548,13 +1793,13 @@ export namespace AsyncReducer {
     } = options;
 
     return AsyncReducer.create(
-      () => AsyncReducer.from(collector).compile(),
-      async (state, value, index) => {
+      collector.init,
+      async (state, value, index, halt) => {
         const key = await valueToKey(value, index);
-        await state.next([key, value]);
-        return state;
+        return await collector.next(state, [key, value], index, halt);
       },
-      (state) => state.getOutput()
+      collector.stateToResult,
+      { cloneState: collector.cloneState }
     );
   };
 
@@ -1579,45 +1824,111 @@ export namespace AsyncReducer {
     reducers: AsyncReducer.Accept<T, R>[],
     otherwise?: AsyncOptLazy<O>
   ) => {
+    const reducersStream = AsyncStream.from(reducers);
+
     return AsyncReducer.create<
       T,
       R | O,
       {
-        instances: AsyncReducer.Instance<T, R>[];
-        doneInstance: AsyncReducer.Instance<T, R> | undefined;
+        reducerStates: Array<
+          readonly [reducer: AsyncReducer.Accept<T, R>, { state: any }]
+        >;
+        doneReducerWithState:
+          | readonly [reducer: AsyncReducer.Accept<T, R>, { state: any }]
+          | undefined;
       }
     >(
       async (initHalt) => {
-        const instances = await Promise.all(
-          Stream.from(reducers).mapPure((reducer) =>
-            AsyncReducer.from(reducer).compile()
+        let doneReducerWithState:
+          | readonly [AsyncReducer.Accept<T, R>, { state: any }]
+          | undefined = undefined;
+
+        const reducerStates = await reducersStream
+          .collect(async (reducer, _, __, halt) => {
+            let halted = false;
+
+            const state = await reducer.init(() => {
+              halted = true;
+              halt();
+              initHalt();
+            });
+
+            const result = [reducer, { state }] as const;
+
+            if (halted) {
+              doneReducerWithState = result;
+            }
+
+            return result;
+          })
+          .toArray();
+
+        return { reducerStates, doneReducerWithState };
+      },
+      async (combinedState, next, index, halt) => {
+        await Promise.any(
+          Stream.from(combinedState.reducerStates).mapPure(
+            async ([reducer, reducerState]) => {
+              reducerState.state = await reducer.next(
+                reducerState.state,
+                next,
+                index,
+                () => {
+                  if (combinedState.doneReducerWithState) {
+                    throw Error('');
+                  } else {
+                    combinedState.doneReducerWithState = [
+                      reducer,
+                      reducerState,
+                    ];
+                  }
+                  halt();
+                }
+              );
+
+              if (!combinedState.doneReducerWithState) {
+                throw Error('');
+              }
+            }
           )
-        );
-        const doneInstance = instances.find((instance) => instance.halted);
+        ).catch(() => {});
 
-        if (undefined !== doneInstance) {
-          initHalt();
+        return combinedState;
+      },
+      (combinedState, index, halted) => {
+        if (undefined === combinedState.doneReducerWithState) {
+          return AsyncOptLazy.toMaybePromise(otherwise!);
         }
 
-        return { instances, doneInstance };
-      },
-      async (state, next, _, halt) => {
-        for (const instance of state.instances) {
-          await instance.next(next);
+        const [reducer, reducerState] = combinedState.doneReducerWithState;
 
-          if (instance.halted) {
-            state.doneInstance = instance;
-            halt();
-            return state;
+        return reducer.stateToResult(reducerState.state, index, halted);
+      },
+      {
+        cloneState: (combinedState) => {
+          const { doneReducerWithState } = combinedState;
+          let clonedDoneReducerWithState: typeof doneReducerWithState =
+            undefined;
+
+          if (undefined !== doneReducerWithState) {
+            const [reducer, reducerState] = doneReducerWithState;
+
+            clonedDoneReducerWithState = [
+              reducer,
+              { state: reducer.cloneState(reducerState.state) },
+            ];
           }
-        }
-
-        return state;
-      },
-      (state) =>
-        state.doneInstance === undefined
-          ? AsyncOptLazy.toMaybePromise(otherwise!)
-          : state.doneInstance.getOutput()
+          return {
+            reducerStates: combinedState.reducerStates.map(
+              ([reducer, { state }]) => [
+                reducer,
+                { state: reducer.cloneState(state) },
+              ]
+            ),
+            doneReducerWithState: clonedDoneReducerWithState,
+          };
+        },
+      }
     );
   };
 
@@ -1777,45 +2088,92 @@ export namespace AsyncReducer {
     }
 
     return AsyncReducer.create(
-      async (inithalt) => {
-        const currentInstance = await AsyncReducer.from(current).compile();
-        const nextInstance = await AsyncReducer.from(next).compile();
+      async (initHalt) => ({
+        currentState: await createAsyncState(
+          {
+            halted: false,
+          },
+          async (baseState) => ({
+            state: await current.init(() => {
+              initHalt();
+              baseState.halted = true;
+            }),
+          })
+        ),
+        nextState: await createAsyncState(
+          {
+            index: 0,
+            halted: false,
+          },
+          async (baseState) => ({
+            state: await next.init(() => {
+              initHalt();
+              baseState.halted = true;
+            }),
+          })
+        ),
+      }),
+      async (combinedState, item, index, halt) => {
+        const { currentState, nextState } = combinedState;
 
-        if (currentInstance.halted || nextInstance.halted) {
-          inithalt();
-        }
+        currentState.state = await current.next(
+          currentState.state,
+          item,
+          index,
+          () => {
+            currentState.halted = true;
+            halt();
+          }
+        );
+        nextState.state = await next.next(
+          nextState.state,
+          await current.stateToResult(
+            currentState.state,
+            index,
+            currentState.halted
+          ),
+          nextState.index++,
+          () => {
+            nextState.halted = true;
+            halt();
+          }
+        );
 
-        return {
-          currentInstance,
-          nextInstance,
-        };
+        return combinedState;
       },
-      async (state, next, index, halt) => {
-        const { currentInstance, nextInstance } = state;
-
-        await currentInstance.next(next);
-        await nextInstance.next(await currentInstance.getOutput());
-
-        if (currentInstance.halted || nextInstance.halted) {
-          halt();
-        }
-
-        return state;
-      },
-      async (state, index, halted) => {
+      async (combinedState, index, halted) => {
         if (halted && index === 0) {
-          await state.nextInstance.next(
-            await state.currentInstance.getOutput()
+          combinedState.nextState.state = await next.next(
+            combinedState.nextState.state,
+            await current.stateToResult(
+              combinedState.currentState.state,
+              index,
+              combinedState.currentState.halted
+            ),
+            combinedState.nextState.index,
+            () => {
+              combinedState.nextState.halted = true;
+            }
           );
         }
 
-        return state.nextInstance.getOutput();
+        return await next.stateToResult(
+          combinedState.nextState.state,
+          combinedState.nextState.index,
+          combinedState.nextState.halted
+        );
       },
-      async (state, err) => {
-        await Promise.all([
-          state.currentInstance.onClose(err),
-          state.nextInstance.onClose(err),
-        ]);
+      {
+        cloneState: (combinedState) => ({
+          currentState: {
+            ...combinedState.currentState,
+            state: current.cloneState(combinedState.currentState.state),
+          },
+          nextState: {
+            ...combinedState.nextState,
+            state: next.cloneState(combinedState.nextState.state),
+          },
+        }),
       }
     );
   };

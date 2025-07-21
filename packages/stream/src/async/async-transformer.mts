@@ -1,8 +1,8 @@
 import {
+  CollectFun,
   Eq,
   type AsyncCollectFun,
   type MaybePromise,
-  CollectFun,
 } from '@rimbu/common';
 import { Reducer, Stream, type Transformer } from '@rimbu/stream';
 import {
@@ -10,6 +10,7 @@ import {
   AsyncStream,
   type AsyncStreamSource,
 } from '@rimbu/stream/async';
+import { createAsyncState } from '@rimbu/stream/custom';
 
 /**
  * An AsyncReducer that produces instances of `AsyncStreamSource`.
@@ -102,33 +103,63 @@ export namespace AsyncTransformer {
     return AsyncReducer.create<
       T,
       AsyncStreamSource<R>,
-      Set<AsyncReducer.Instance<T, R>>
+      Set<{ index: number; halted: boolean; state: any }>
     >(
       () => new Set(),
-      async (state, elem, index) => {
-        for (const instance of state) {
-          if (instance.index >= windowSize || instance.halted) {
-            state.delete(instance);
+      async (combinedStateSet, elem, index) => {
+        for (const reducerState of combinedStateSet) {
+          if (reducerState.index >= windowSize || reducerState.halted) {
+            combinedStateSet.delete(reducerState);
           } else {
-            await instance.next(elem);
+            reducerState.state = await collector.next(
+              reducerState.state,
+              elem,
+              reducerState.index++,
+              () => {
+                reducerState.halted = true;
+              }
+            );
           }
         }
 
         if (index % skipAmount === 0) {
-          const newInstance = await AsyncReducer.from(collector).compile();
-          await newInstance.next(elem);
-          state.add(newInstance);
+          const initState = await createAsyncState(
+            { index: 0, halted: false },
+            async (baseState) => ({
+              state: await collector.init(() => {
+                baseState.halted = true;
+              }),
+            })
+          );
+          combinedStateSet.add(initState);
+          if (!initState.halted) {
+            initState.state = await collector.next(
+              initState.state,
+              elem,
+              initState.index++,
+              () => {
+                initState.halted = true;
+              }
+            );
+          }
         }
 
-        return state;
+        return combinedStateSet;
       },
-      async (state, _, halted) => {
+      async (combinedStateSet, _, halted) => {
         if (halted) {
           return AsyncStream.empty<R>();
         }
 
-        return AsyncStream.from(state).collect((instance, _, skip) =>
-          instance.index === windowSize ? instance.getOutput() : skip
+        return AsyncStream.from(combinedStateSet).collect(
+          (reducerState, _, skip) =>
+            reducerState.index === windowSize
+              ? collector.stateToResult(
+                  reducerState.state,
+                  reducerState.index,
+                  reducerState.halted
+                )
+              : skip
         );
       }
     );
@@ -301,32 +332,41 @@ export namespace AsyncTransformer {
       collector = Reducer.toArray() as AsyncReducer.Accept<T, R>,
     } = options;
 
-    return AsyncReducer.create<
-      T,
-      AsyncStreamSource<R>,
-      { collection: AsyncReducer.Instance<T, R>; done: boolean }
-    >(
-      async () => ({
-        collection: await AsyncReducer.from(collector).compile(),
-        done: false,
+    return AsyncReducer.create(
+      async (initHalt) => ({
+        sliceState: await collector.init(initHalt),
+        sliceIndex: 0,
+        sliceDone: false,
       }),
-      async (state, nextValue, index) => {
-        if (state.done) {
-          state.done = false;
-          state.collection = await AsyncReducer.from(collector).compile();
+      async (combinedState, nextValue, index, halt) => {
+        if (combinedState.sliceDone) {
+          combinedState.sliceDone = false;
+          combinedState.sliceState = await collector.init(halt);
+          combinedState.sliceIndex = 0;
         }
 
         if ((await pred(nextValue, index)) === negate) {
-          await state.collection.next(nextValue);
+          combinedState.sliceState = await collector.next(
+            combinedState.sliceState,
+            nextValue,
+            combinedState.sliceIndex++,
+            halt
+          );
         } else {
-          state.done = true;
+          combinedState.sliceDone = true;
         }
 
-        return state;
+        return combinedState;
       },
-      (state, _, halted) =>
-        state.done !== halted
-          ? AsyncStream.of(state.collection.getOutput())
+      (combinedState, _, halted) =>
+        combinedState.sliceDone !== halted
+          ? AsyncStream.of(
+              collector.stateToResult(
+                combinedState.sliceState,
+                combinedState.sliceIndex,
+                combinedState.sliceDone
+              )
+            )
           : AsyncStream.empty()
     );
   }
@@ -356,32 +396,41 @@ export namespace AsyncTransformer {
       collector = Reducer.toArray() as AsyncReducer.Accept<T, R>,
     } = options;
 
-    return AsyncReducer.create<
-      T,
-      AsyncStreamSource<R>,
-      { collection: AsyncReducer.Instance<T, R>; done: boolean }
-    >(
-      async () => ({
-        collection: await AsyncReducer.from(collector).compile(),
-        done: false,
+    return AsyncReducer.create(
+      async (initHalt) => ({
+        sliceState: await collector.init(initHalt),
+        sliceIndex: 0,
+        sliceDone: false,
       }),
-      async (state, nextValue) => {
-        if (state.done) {
-          state.done = false;
-          state.collection = await AsyncReducer.from(collector).compile();
+      async (combinedState, nextValue, _, halt) => {
+        if (combinedState.sliceDone) {
+          combinedState.sliceDone = false;
+          combinedState.sliceState = await collector.init(halt);
+          combinedState.sliceIndex = 0;
         }
 
         if (eq(nextValue, sepElem) === negate) {
-          await state.collection.next(nextValue);
+          combinedState.sliceState = await collector.next(
+            combinedState.sliceState,
+            nextValue,
+            combinedState.sliceIndex++,
+            halt
+          );
         } else {
-          state.done = true;
+          combinedState.sliceDone = true;
         }
 
-        return state;
+        return combinedState;
       },
-      (state, _, halted) =>
-        state.done !== halted
-          ? AsyncStream.of(state.collection.getOutput())
+      (combinedState, _, halted) =>
+        combinedState.sliceDone !== halted
+          ? AsyncStream.of(
+              collector.stateToResult(
+                combinedState.sliceState,
+                combinedState.sliceIndex,
+                combinedState.sliceDone
+              )
+            )
           : AsyncStream.empty()
     );
   }
@@ -408,82 +457,214 @@ export namespace AsyncTransformer {
       collector = Reducer.toArray() as AsyncReducer.Accept<T, R>,
     } = options;
 
+    const nextStartsWithReducer = AsyncReducer.startsWithSlice(sepSlice, {
+      eq,
+    });
+
     return AsyncReducer.create<
       T,
       AsyncStreamSource<R>,
       {
         done: boolean;
-        instances: Map<AsyncReducer.Instance<T, boolean>, number>;
+        nextStartsWithStates: Map<
+          { index: number; halted: boolean; state: any },
+          number
+        >;
         buffer: T[];
-        result: AsyncReducer.Instance<T, R>;
+        collectorState: { index: number; halted: boolean; state: any };
       }
     >(
-      async () => ({
-        done: false,
-        instances: new Map(),
-        buffer: [],
-        result: await AsyncReducer.from(collector).compile(),
-      }),
-      async (state, nextValue) => {
-        if (state.done) {
-          state.result = await AsyncReducer.from(collector).compile();
-          state.done = false;
+      async () => {
+        const collectorState = await createAsyncState(
+          { index: 0, halted: false },
+          async (baseState) => ({
+            state: await collector.init(() => {
+              baseState.halted = true;
+            }),
+          })
+        );
+
+        return {
+          done: false,
+          nextStartsWithStates: new Map(),
+          buffer: [],
+          collectorState,
+        };
+      },
+      async (combinedState, nextValue) => {
+        if (combinedState.done) {
+          const collectorState = await createAsyncState(
+            { index: 0, halted: false },
+            async (baseState) => ({
+              state: await collector.init(() => {
+                baseState.halted = true;
+              }),
+            })
+          );
+          combinedState.collectorState = collectorState;
+          combinedState.done = false;
         }
 
-        for (const [instance, startIndex] of state.instances) {
-          await instance.next(nextValue);
+        const { nextStartsWithStates } = combinedState;
 
-          if (instance.halted) {
-            state.instances.delete(instance);
+        for (const [nextStartsWithState, startIndex] of nextStartsWithStates) {
+          nextStartsWithState.state = await nextStartsWithReducer.next(
+            nextStartsWithState.state,
+            nextValue,
+            nextStartsWithState.index++,
+            () => {
+              nextStartsWithState.halted = true;
+            }
+          );
+
+          if (nextStartsWithState.halted) {
+            nextStartsWithStates.delete(nextStartsWithState);
           }
 
-          if (await instance.getOutput()) {
-            state.done = true;
+          if (
+            await nextStartsWithReducer.stateToResult(
+              nextStartsWithState.state,
+              nextStartsWithState.index,
+              nextStartsWithState.halted
+            )
+          ) {
+            combinedState.done = true;
+            const { collectorState } = combinedState;
+
             await AsyncStream.from(
-              Stream.fromArray(state.buffer, {
+              Stream.fromArray(combinedState.buffer, {
                 range: { end: [startIndex, false] },
               })
-            ).forEachPure(state.result.next);
-            state.buffer = [];
-            state.instances.clear();
-            return state;
+            ).forEach(async (item, _, halt) => {
+              collectorState.state = await collector.next(
+                collectorState.state,
+                item,
+                collectorState.index++,
+                () => {
+                  collectorState.halted = true;
+                  halt();
+                }
+              );
+            });
+
+            combinedState.buffer = [];
+            nextStartsWithStates.clear();
+            return combinedState;
           }
         }
 
-        const nextStartsWith = await AsyncReducer.startsWithSlice(sepSlice, {
-          eq,
-        }).compile();
-        await nextStartsWith.next(nextValue);
+        const nextStartsWithReducerState = await createAsyncState(
+          {
+            index: 0,
+            halted: false,
+          },
+          async (baseState) => ({
+            state: await nextStartsWithReducer.init(() => {
+              baseState.halted = true;
+            }),
+          })
+        );
 
-        if (await nextStartsWith.getOutput()) {
-          state.done = true;
-          await AsyncStream.from(state.buffer).forEachPure(state.result.next);
-          state.buffer = [];
-          state.instances.clear();
-          return state;
-        } else if (!nextStartsWith.halted) {
-          state.instances.set(nextStartsWith, state.buffer.length);
+        if (!nextStartsWithReducerState.halted) {
+          nextStartsWithReducerState.state = await nextStartsWithReducer.next(
+            nextStartsWithReducerState.state,
+            nextValue,
+            nextStartsWithReducerState.index++,
+            () => {
+              nextStartsWithReducerState.halted = true;
+            }
+          );
         }
 
-        if (state.instances.size === 0) {
-          await state.result.next(nextValue);
+        if (
+          await nextStartsWithReducer.stateToResult(
+            nextStartsWithReducerState.state,
+            nextStartsWithReducerState.index,
+            nextStartsWithReducerState.halted
+          )
+        ) {
+          combinedState.done = true;
+          const { collectorState } = combinedState;
+
+          await AsyncStream.from(combinedState.buffer).forEach(
+            async (item, _, halt) => {
+              if (collectorState.halted) {
+                halt();
+                return;
+              }
+              collectorState.state = await nextStartsWithReducer.next(
+                collectorState.state,
+                item,
+                collectorState.index++,
+                () => {
+                  collectorState.halted = true;
+                  halt();
+                }
+              );
+            }
+          );
+
+          combinedState.buffer = [];
+          nextStartsWithStates.clear();
+          return combinedState;
+        } else if (!nextStartsWithReducerState.halted) {
+          nextStartsWithStates.set(
+            nextStartsWithReducerState,
+            combinedState.buffer.length
+          );
+        }
+
+        if (nextStartsWithStates.size === 0) {
+          const { collectorState } = combinedState;
+          collectorState.state = await collector.next(
+            collectorState.state,
+            nextValue,
+            collectorState.index++,
+            () => {
+              collectorState.halted = true;
+            }
+          );
         } else {
-          state.buffer.push(nextValue);
+          combinedState.buffer.push(nextValue);
         }
 
-        return state;
+        return combinedState;
       },
-      async (state, _, halted) => {
-        if (state.done === halted) {
+      async (combinedState, _, halted) => {
+        if (combinedState.done === halted) {
           return AsyncStream.empty();
         }
 
+        const { collectorState } = combinedState;
+
         if (halted) {
-          await AsyncStream.from(state.buffer).forEachPure(state.result.next);
-          state.buffer = [];
+          await AsyncStream.from(combinedState.buffer).forEach(
+            async (item, _, halt) => {
+              if (collectorState.halted) {
+                halt();
+                return;
+              }
+              collectorState.state = await collector.next(
+                collectorState.state,
+                item,
+                collectorState.index++,
+                () => {
+                  collectorState.halted = true;
+                  halt();
+                }
+              );
+            }
+          );
+          combinedState.buffer = [];
         }
 
-        return AsyncStream.of(state.result.getOutput());
+        return AsyncStream.of(
+          collector.stateToResult(
+            collectorState.state,
+            collectorState.index,
+            collectorState.halted
+          )
+        );
       }
     );
   }

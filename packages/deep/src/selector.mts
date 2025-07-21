@@ -58,6 +58,7 @@ export namespace Selector {
  * @typeparam SL - the selector shape type
  * @param source - the source value to select from
  * @param selector - a shape indicating the selection from the source values
+ * @param previousSelection - (optional) the previous selection result, reused to give the same reference if the selection did not change.
  * @example
  * ```ts
  * const item = { a: { b:  1, c: 'a' } };
@@ -67,7 +68,8 @@ export namespace Selector {
  */
 export function select<T, SL extends Selector<T>>(
   source: T,
-  selector: Selector.Shape<SL>
+  selector: Selector.Shape<SL>,
+  previousSelection?: any
 ): Selector.Result<T, SL> {
   if (typeof selector === 'function') {
     // selector is function, resolve selector function
@@ -77,17 +79,69 @@ export function select<T, SL extends Selector<T>>(
     return Deep.getAt(source, selector as Path.Get<T>) as any;
   } else if (Array.isArray(selector)) {
     // selector is tuple, get each tuple item value
-    return selector.map((s) => select(source, s)) as any;
+
+    let changed =
+      !Array.isArray(previousSelection) ||
+      previousSelection.length !== selector.length;
+
+    const newSelection = selector.map((selectorItem, index) => {
+      if (changed) {
+        return select(source, selectorItem);
+      }
+      const prevItem = previousSelection?.[index];
+
+      const itemResult = select(source, selectorItem, prevItem);
+
+      if (!Object.is(itemResult, prevItem)) {
+        changed = true;
+        return itemResult;
+      }
+      return prevItem;
+    });
+
+    if (
+      previousSelection &&
+      Array.isArray(previousSelection) &&
+      previousSelection.length === newSelection.length &&
+      newSelection.every((item, index) =>
+        Object.is(item, previousSelection[index])
+      )
+    ) {
+      return previousSelection as any;
+    }
+
+    return newSelection as any;
   }
 
   // selector is object
+  const newSelection: any = {};
 
-  const result: any = {};
+  let changed =
+    typeof previousSelection !== 'object' || previousSelection === null;
 
   for (const key in selector as any) {
     // set each selected object key to the selector value
-    result[key] = select(source, (selector as any)[key]);
+    if (changed) {
+      newSelection[key] = select(source, (selector as any)[key]);
+    } else {
+      const prevValue = previousSelection?.[key];
+      const newValue = select(source, (selector as any)[key], prevValue);
+      newSelection[key] = newValue;
+
+      if (!changed && previousSelection) {
+        if (
+          !(key in previousSelection) ||
+          !Object.is(newSelection[key], previousSelection[key])
+        ) {
+          changed = true;
+        }
+      }
+    }
   }
 
-  return result;
+  if (changed) {
+    return newSelection;
+  }
+
+  return previousSelection as any;
 }

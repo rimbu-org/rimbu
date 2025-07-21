@@ -13,10 +13,10 @@ export interface Action<P = unknown> extends ActionBase {
 export namespace Action {
   /**
    * Type for creating an `Action` instance.
-   * @typeparam P - the payload type
    * @typeparam A - the creation argument array
+   * @typeparam P - the payload type
    */
-  export type Creator<P = never, A extends unknown[] = []> = ActionBase.Creator<
+  export type Creator<A extends unknown[] = [], P = never> = ActionBase.Creator<
     Action<P>,
     A
   >;
@@ -26,33 +26,53 @@ export namespace Action {
    * @param config - the configuration for the action
    */
   export const create: {
-    <P = void>(config?: {
+    (config?: {
       type?: string;
       createTag?: () => string;
       createPayload?: never;
-    }): Action.Creator<P, [payload: P]>;
-    <P, A extends unknown[]>(config?: {
+      unpack?: false;
+    }): Action.Creator<[], unknown>;
+    <A extends unknown[]>(config?: {
+      type?: string;
+      createTag?: () => string;
+      createPayload?: never;
+      unpack: true;
+    }): Action.Creator<A, A>;
+    <A>(config?: {
+      type?: string;
+      createTag?: () => string;
+      createPayload?: never;
+      unpack?: false;
+    }): Action.Creator<[A], A>;
+    <A extends unknown[], P>(config?: {
       type?: string;
       createTag?: () => string;
       createPayload: (...args: A) => P;
-    }): Action.Creator<P, A>;
-  } = <P, A extends any[]>(
+      unpack?: false;
+    }): Action.Creator<A, P>;
+  } = <A extends any[], P>(
     config: {
       type?: string;
       createPayload?: (...args: A) => P;
       createTag?: () => string;
+      unpack?: boolean;
     } = {}
-  ): Action.Creator<P, A> => {
-    const { createPayload, createTag = generateUUID } = config;
+  ): Action.Creator<A, P> => {
+    const { createPayload, createTag = generateUUID, unpack = false } = config;
     const tag = createTag();
     const type = config.type ?? `ANON_${tag}`;
 
-    const result: Action.Creator<P, A> & { actionTag: string } = (
+    const result: Action.Creator<A, P> & { actionTag: string } = (
       ...args: A
     ) => ({
       tag,
       type,
-      payload: undefined === createPayload ? args[0] : createPayload(...args),
+      payload:
+        undefined === createPayload
+          ? unpack
+            ? args
+            : args[0]
+          : createPayload(...args),
     });
     result.actionTag = tag;
     result.match = (action: ActionBase): action is Action<P> => {

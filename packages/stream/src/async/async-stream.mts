@@ -1136,7 +1136,7 @@ export interface AsyncStream<T>
    * ```
    */
   reduce<R, T2 extends T = T>(
-    reducer: AsyncReducer.Accept<T | T2, R>
+    reducer: AsyncReducer.Accept<T, R> | AsyncReducer.Accept<T2, R>
   ): Promise<R>;
   /**
    * Applies the given combined `(Async)Reducer` to each element in the AsyncStream, and returns the final result.

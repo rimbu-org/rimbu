@@ -99,11 +99,6 @@ expectType<AsyncReducer<string, number>>(
   AsyncReducer.max(5).collectInput<string>((v) => v.length)
 );
 
-// .compile
-expectType<Promise<AsyncReducer.Instance<number, number | undefined>>>(
-  AsyncReducer.first<number>().compile()
-);
-
 // .dropInput
 expectType<AsyncReducer<number, number>>(AsyncReducer.min(5).dropInput(5));
 

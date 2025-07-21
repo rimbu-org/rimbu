@@ -1,8 +1,8 @@
 import { Spy } from '@rimbu/spy';
 import { Reducer } from '@rimbu/stream';
 
-import { Action, Actor, Slice, type ActionBase } from '../src/main/index.mjs';
-import { SlicePatch } from '../src/patch/index.mjs';
+import { Action, Actor, Slice, type ActionBase } from 'main/index.mjs';
+import { SlicePatch } from 'patch/index.mjs';
 
 describe('Actor', () => {
   const action = Action.create();
@@ -12,11 +12,11 @@ describe('Actor', () => {
       reducer: Reducer.combine({}),
     }).build();
 
-    expect(act.getState()).toEqual({});
+    expect(act.state).toEqual({});
 
     act.dispatch(action());
 
-    expect(act.getState()).toEqual({});
+    expect(act.state).toEqual({});
   });
 
   it('can have single slice', () => {
@@ -27,19 +27,17 @@ describe('Actor', () => {
       },
     });
 
-    const act = Actor.configure({
-      ...slice,
-    }).build();
+    const act = Actor.configure(slice).build();
 
-    expect(act.getState()).toEqual({ count: 0, total: 10 });
+    expect(act.state).toEqual({ count: 0, total: 10 });
 
     act.actions.inc();
 
-    expect(act.getState()).toEqual({ count: 1, total: 11 });
+    expect(act.state).toEqual({ count: 1, total: 11 });
 
     act.actions.inc();
 
-    expect(act.getState()).toEqual({ count: 2, total: 13 });
+    expect(act.state).toEqual({ count: 2, total: 13 });
   });
 
   it('can have multiple slices', () => {
@@ -58,28 +56,28 @@ describe('Actor', () => {
       }),
     });
 
-    const act = Actor.configure({
-      ...Slice.combine({
+    const act = Actor.configure(
+      Slice.combine({
         counter,
         toggle,
-      }),
-    }).build();
+      })
+    ).build();
 
-    expect(act.getState()).toEqual({
+    expect(act.state).toEqual({
       counter: { count: 0, total: 10 },
       toggle: false,
     });
 
     act.actions.counter.inc();
 
-    expect(act.getState()).toEqual({
+    expect(act.state).toEqual({
       counter: { count: 1, total: 11 },
       toggle: true,
     });
 
     act.actions.counter.inc();
 
-    expect(act.getState()).toEqual({
+    expect(act.state).toEqual({
       counter: { count: 2, total: 13 },
       toggle: false,
     });
@@ -93,9 +91,7 @@ describe('Actor', () => {
       },
     });
 
-    const act = Actor.configure({
-      ...slice,
-    }).build();
+    const act = Actor.configure(slice).build();
 
     const fn = Spy.fn();
 
@@ -116,9 +112,7 @@ describe('Actor', () => {
       },
     });
 
-    const act = Actor.configure({
-      ...slice,
-    }).build();
+    const act = Actor.configure(slice).build();
 
     const fn = Spy.fn();
 
@@ -143,9 +137,7 @@ describe('Actor', () => {
       },
     });
 
-    const act = Actor.configure({
-      ...slice,
-    }).build();
+    const act = Actor.configure(slice).build();
 
     const fn = Spy.fn();
 
@@ -172,20 +164,16 @@ describe('Actor', () => {
       },
     });
 
-    const act = Actor.configure({
-      ...slice,
-    })
-      .addMiddleware((actor) => {
-        const originalDispatch = actor.dispatch;
-
+    const act = Actor.configure(slice)
+      .addMiddleware((dispatch, actor) => {
         return (action: ActionBase) => {
-          const preState = actor.getState();
+          const preState = actor.state;
 
-          originalDispatch(action);
+          dispatch(action);
 
           return {
             preState,
-            postState: actor.getState(),
+            postState: actor.state,
           };
         };
       })
@@ -196,33 +184,6 @@ describe('Actor', () => {
     expect(result).toEqual({
       preState: { count: 0, total: 10 },
       postState: { count: 1, total: 11 },
-    });
-  });
-
-  it('includes enhancer', () => {
-    const slice = SlicePatch.create({
-      initState: { count: 0, total: 10 },
-      actions: {
-        inc: () => [{ count: (v) => v + 1 }, { total: (v, p) => v + p.count }],
-      },
-    });
-
-    const act = Actor.configure({
-      ...slice,
-    })
-      .addEnhancer((actor) => ({
-        dispatchTwice(action: ActionBase) {
-          actor.dispatch(action);
-          actor.dispatch(action);
-        },
-      }))
-      .build();
-
-    act.dispatchTwice(slice.actions.inc());
-
-    expect(act.getState()).toEqual({
-      count: 2,
-      total: 13,
     });
   });
 
@@ -242,9 +203,7 @@ describe('Actor', () => {
       }),
     });
 
-    const act = Actor.configure({
-      ...Slice.combine({ counter, toggle }),
-    }).build();
+    const act = Actor.configure(Slice.combine({ counter, toggle })).build();
 
     expect(act.actions.counter.inc).not.toBeUndefined();
     expect(act.actions.toggle).not.toBeUndefined();
@@ -265,7 +224,7 @@ describe('Actor', () => {
 
     act.actions.inc();
 
-    expect(act.getState()).toEqual({
+    expect(act.state).toEqual({
       count: 0,
       total: 10,
     });
@@ -275,39 +234,60 @@ describe('Actor', () => {
     const countSlice = SlicePatch.create({
       initState: { count: 0 },
       actions: {
-        inc: () => [{ count: v => v + 1 }],
+        inc: () => [{ count: (v) => v + 1 }],
       },
     });
     const toggleSlice = SlicePatch.create({
       initState: { toggle: false },
       actions: {
-        toggle: () => [{ toggle: v => !v }]
-      }
-    })
+        toggle: () => [{ toggle: (v) => !v }],
+      },
+    });
 
     const combinedSlice = Slice.combine({
       count: countSlice,
-      toggle: toggleSlice
+      toggle: toggleSlice,
     });
 
-    const act = Actor.configure({
-      ...combinedSlice,
-    }).build();
+    const act = Actor.configure(combinedSlice).build();
 
     const countAct = act.focus('count');
     const toggleAct = act.focus('toggle');
 
-    expect(countAct.getState()).toEqual({ count: 0 });
-    expect(toggleAct.getState()).toEqual({ toggle: false });
+    expect(countAct.state).toEqual({ count: 0 });
+    expect(toggleAct.state).toEqual({ toggle: false });
 
     countAct.actions.inc();
 
-    expect(countAct.getState()).toEqual({ count: 1 });
-    expect(toggleAct.getState()).toEqual({ toggle: false });
+    expect(countAct.state).toEqual({ count: 1 });
+    expect(toggleAct.state).toEqual({ toggle: false });
 
     toggleAct.actions.toggle();
 
-    expect(countAct.getState()).toEqual({ count: 1 });
-    expect(toggleAct.getState()).toEqual({ toggle: true });
-  })
+    expect(countAct.state).toEqual({ count: 1 });
+    expect(toggleAct.state).toEqual({ toggle: true });
+  });
+
+  it('supports setFullState', () => {
+    const slice = SlicePatch.create({
+      initState: { count: 0 },
+      actions: {
+        inc: () => [{ count: (v) => v + 1 }],
+      },
+    });
+
+    const act = Actor.configure(slice).build();
+
+    expect(act.state).toEqual({ count: 0 });
+    const initFullState = act.fullState;
+    act.actions.inc();
+    expect(act.state).toEqual({ count: 1 });
+    const nextFullstate = act.fullState;
+    act.setFullState(initFullState);
+    expect(act.state).toEqual({ count: 0 });
+    expect(act.fullState).toEqual(initFullState);
+    act.setFullState(nextFullstate);
+    expect(act.state).toEqual({ count: 1 });
+    expect(act.fullState).toEqual(nextFullstate);
+  });
 });

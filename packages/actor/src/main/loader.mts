@@ -1,57 +1,60 @@
-import { SlicePatch } from 'patch/slice-patch.mjs';
-import type { Slice } from './slice.mjs';
-import type { Actor } from './actor.mjs';
-import type { Action } from './action.mjs';
+import { type Action, type Actor, Slice } from '@rimbu/actor';
 
-export type LoaderState<R, E> =
+export type LoaderState<R> =
   | { type: 'idle' }
   | { type: 'loading' }
-  | { type: 'error'; error: E }
+  | { type: 'error'; error: any }
   | { type: 'loaded'; data: R };
 
-export interface LoaderActions<R, E> extends Actor.ActionsDefinition {
+export interface LoaderActions<R> extends Actor.ActionsDefinition {
   setIdle: Action.Creator<[], []>;
   setLoading: Action.Creator<[], []>;
-  setError: Action.Creator<[error: E], [error: E]>;
+  setError: Action.Creator<[error: any], [error: any]>;
   setLoaded: Action.Creator<[data: R], [data: R]>;
 }
 
-export function createLoader<R, E = unknown>(): Slice<
-  LoaderState<R, E>,
-  LoaderActions<R, E>
-> {
-  return SlicePatch.create({
+export function createLoader<R>(
+  options: {
+    name?: string;
+  } = {}
+): Slice<LoaderState<R>, LoaderActions<R>> {
+  const { name = 'ANON_LOADER' } = options;
+
+  return Slice.create({
+    name,
     initState: {
       type: 'idle',
-    } as LoaderState<R, E>,
+    } as LoaderState<R>,
     actions: {
-      setIdle: () => ({ type: 'idle' }) as const,
-      setLoading: () => ({ type: 'loading' }) as const,
-      setError: (error: E) => ({ type: 'error', error }) as const,
-      setLoaded: (data: R) => ({ type: 'loaded', data }) as const,
+      setIdle: () => ({ type: 'idle' }),
+      setLoading: () => ({ type: 'loading' }),
+      setError: (_, error) => ({ type: 'error', error }),
+      setLoaded: (_, data: R) => ({ type: 'loaded', data }),
     },
   });
 }
 
-export function withLoader<
-  R,
-  A extends Actor<{
-    _state: LoaderState<R, E>;
-    _actions: LoaderActions<R, E>;
-    _dispatch: any;
-    _enhanced: any;
-  }>,
-  E = unknown,
-  ARGS extends any[] = [],
->(
-  loaderActor: A,
-  fn: (...args: ARGS) => R | Promise<R>
+export function withLoader<R, ARGS extends any[] = []>(
+  loaderActor: Actor<
+    LoaderState<R>,
+    Actor.Types & { _actions: LoaderActions<R> }
+  >,
+  fn: (...args: ARGS) => R | Promise<R>,
+  options: {
+    mode?: 'multiple' | 'single';
+  } = {}
 ): {
   load: (...args: ARGS) => Promise<void>;
   unload: () => Promise<void>;
 } {
+  const { mode = 'multiple' } = options;
+
   return {
     async load(...args: ARGS): Promise<void> {
+      if (mode === 'single' && loaderActor.state.type === 'loading') {
+        return;
+      }
+
       loaderActor.actions.setLoading();
       try {
         const data = await fn(...args);

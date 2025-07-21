@@ -1,1 +1,1 @@
-export { Reactor, useForceRerender } from './internal.mjs';
+export { Reactor } from './internal.mjs';

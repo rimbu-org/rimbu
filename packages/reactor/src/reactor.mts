@@ -1,114 +1,77 @@
-import type { Actor } from '@rimbu/actor';
-import { Deep } from '@rimbu/deep';
-import React from 'react';
+import { type Actor } from '@rimbu/actor';
+import { type Deep } from '@rimbu/deep';
+import { useEffect, useMemo, useState } from 'react';
 
-import {
-  updateSelectorValue,
-  registerSelector,
-  useForceRerender,
-  type SelectorEntry,
-  unregisterSelector,
-} from './internal.mjs';
-
-export type Reactor<
-  A extends Actor.Base<S> & Actor.Dispatch<D>,
-  S,
-  D extends (...args: any[]) => any,
-> = A & {
-  use(): Actor.Dispatch<D> & {
-    useSelect<SL extends Deep.Selector<S>>(
-      selector: Deep.Selector.Shape<SL>,
-      deps?: React.DependencyList
-    ): Deep.Selector.Result<S, SL>;
-  };
-};
+export interface Reactor<S, Tp extends Actor.Types = Actor.Types> {
+  useSelect(): S;
+  useSelect<SL extends Deep.Selector<S>>(
+    selector: SL
+  ): Deep.Selector.Result<S, SL>;
+  useSelect<
+    P extends Deep.Path.Set<S>,
+    SL extends Deep.Selector<Deep.Path.Result<S, P>>,
+  >(
+    path: P,
+    selector: SL
+  ): Deep.Selector.Result<Deep.Path.Result<S, P>, SL>;
+  useSelectBy<SL extends Deep.Selector<S>>(
+    selector: SL,
+    byFn: (state: S) => any
+  ): Deep.Selector.Result<S, SL>;
+  useActions(): readonly [
+    Actor.ActionsToDispatch<Tp['_actions'], Tp['_dispatch']>,
+    Tp['_dispatch'],
+  ];
+}
 
 export namespace Reactor {
-  export function enhancer<
-    S,
-    A extends Actor.Base<S> & Actor.Dispatch<D>,
-    D extends (...args: any[]) => any,
-  >(actor: A & Actor.Base<S>): Reactor<A, S, D> {
-    const selectorCache = new Map<Deep.Selector.Shape<any>, SelectorEntry>();
-
-    const originalDispatch = actor.dispatch;
-
-    actor.dispatch = ((...args) => {
-      const prevState = actor.getState();
-      const result = originalDispatch(...args);
-      const state = actor.getState();
-
-      if (Object.is(prevState, state)) {
-        return result;
-      }
-
-      const updateViews = new Set<Actor.Listener>();
-
-      for (const [selector, entry] of selectorCache) {
-        const beforeValue = entry.value;
-        const newValue = updateSelectorValue(state, selector, selectorCache);
-
-        if (!Object.is(newValue, beforeValue)) {
-          for (const listener of entry.listeners.keys()) {
-            updateViews.add(listener);
+  export function toReact<S, Tp extends Actor.Types>(
+    actor: Actor<S, Tp>
+  ): Reactor<S, Tp> {
+    return {
+      useSelect(arg1: any = '', arg2?: any): any {
+        const selectedActor = useMemo(() => {
+          const result = actor.asObservable().select(arg1);
+          if (arg2 === undefined) {
+            return result;
           }
-        }
-      }
+          return result.select(arg2);
+        }, []);
 
-      for (const updateView of updateViews) {
-        updateView();
-      }
+        const [state, setState] = useState(selectedActor.value);
 
-      return result;
-    }) as D;
+        useEffect(() => {
+          return selectedActor.subscribe(() => {
+            setState(selectedActor.value);
+          });
+        }, [selectedActor]);
 
-    const result = actor as Reactor<A, S, D>;
+        return state;
+      },
+      useSelectBy(selector: any, byFn: (state: any) => any): any {
+        const selectedActor = useMemo(() => {
+          return actor.asObservable().select(selector);
+        }, []);
 
-    result.use = (): A & {
-      useSelect<SL extends Deep.Selector<S>>(
-        selector: Deep.Selector.Shape<SL>,
-        deps?: React.DependencyList
-      ): Deep.Selector.Result<S, SL>;
-    } => {
-      const forceRerender = useForceRerender();
+        const [state, setState] = useState(selectedActor.value);
 
-      function useSelect<SL extends Deep.Selector<S>>(
-        selector: Deep.Selector.Shape<SL>,
-        deps?: React.DependencyList
-      ): Deep.Selector.Result<S, SL> {
-        const entry = React.useRef<SelectorEntry>();
+        useEffect(() => {
+          let lastValue: any = Symbol('novalue');
+          return selectedActor.subscribe(() => {
+            const byValue = byFn(actor.state);
+            if (Object.is(lastValue, byValue)) {
+              return;
+            }
+            lastValue = byValue;
+            setState(selectedActor.value);
+          });
+        }, [selectedActor]);
 
-        React.useEffect(() => {
-          // register selector
-          entry.current = registerSelector(
-            actor.getState(),
-            selector,
-            forceRerender,
-            selectorCache
-          );
-
-          // return unregister function
-          return (): void => {
-            unregisterSelector(selector, forceRerender, selectorCache);
-            entry.current = undefined;
-          };
-        }, deps ?? []);
-
-        // fallback if ref has not yet been set
-        const value =
-          undefined === entry.current
-            ? Deep.select(actor.getState(), selector)
-            : (entry.current.value as Deep.Selector.Result<S, SL>);
-
-        return value;
-      }
-
-      return {
-        ...actor,
-        useSelect,
-      };
-    };
-
-    return result;
+        return state;
+      },
+      useActions(): any {
+        return useMemo(() => [actor.actions, actor.dispatch] as const, [actor]);
+      },
+    } as any;
   }
 }

@@ -19,29 +19,29 @@ import {
   type AsyncStreamSource,
 } from '@rimbu/stream/async';
 import {
-  AsyncAppendIterator,
-  AsyncCollectIterator,
-  AsyncConcatIterator,
-  AsyncDropIterator,
-  AsyncDropWhileIterator,
-  AsyncFilterIterator,
-  AsyncFilterPureIterator,
-  AsyncIndexedIterator,
-  AsyncMapIterator,
-  AsyncMapPureIterator,
-  AsyncOfIterator,
-  AsyncPrependIterator,
-  AsyncReduceIterator,
-  AsyncRepeatIterator,
-  AsyncTakeIterator,
+  AsyncAppendFastIterator,
+  AsyncCollectFastIterator,
+  AsyncConcatFastIterator,
+  AsyncDropFastIterator,
+  AsyncDropWhileFastIterator,
+  AsyncFilterFastIterator,
+  AsyncFilterPureFastIterator,
+  AsyncIndexedFastIterator,
+  AsyncMapFastIterator,
+  AsyncMapPureFastIterator,
+  AsyncOfFastIterator,
+  AsyncPrependFastIterator,
+  AsyncReduceFastIterator,
+  AsyncRepeatFastIterator,
+  AsyncTakeFastIterator,
   AsyncTransformerFastIterator,
-  AsyncUnfoldIterator,
-  AsyncZipAllWithItererator,
-  AsyncZipWithIterator,
+  AsyncUnfoldFastIterator,
+  AsyncZipAllWithFastItererator,
+  AsyncZipWithFastIterator,
   FromAsyncIterator,
   FromIterator,
   FromPromise,
-  FromResourceIterator,
+  FromResourceFastIterator,
   closeIters,
   emptyAsyncFastIterator,
   isAsyncFastIterator,
@@ -597,7 +597,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     }
 
     return new AsyncFromStream<T>(
-      () => new AsyncRepeatIterator<T>(this, amount)
+      () => new AsyncRepeatFastIterator<T>(this, amount)
     );
   }
 
@@ -813,26 +813,37 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   async reduce<const S extends AsyncReducer.CombineShape<T>>(
     shape: S & AsyncReducer.CombineShape<T>
   ): Promise<AsyncReducer.CombineResult<S>> {
-    const reducerInstance = (await AsyncReducer.combine<T, S>(
-      shape
-    ).compile()) as AsyncReducer.Instance<T, AsyncReducer.CombineResult<S>>;
-
-    const done = Symbol('Done');
-    let value: T | typeof done = done;
-    const iter = this[Symbol.asyncIterator]();
+    const reducer = AsyncReducer.combine<T, S>(shape);
+    let iter: AsyncFastIterator<T> | undefined;
+    let reducerState: unknown;
 
     try {
-      while (
-        !reducerInstance.halted &&
-        done !== (value = await iter.fastNext(done))
-      ) {
-        await reducerInstance.next(value);
+      let halted = false;
+      const halt = (): void => {
+        halted = true;
+      };
+
+      reducerState = await reducer.init(halt);
+
+      if (halted) {
+        return await reducer.stateToResult(reducerState, 0, halted);
       }
 
-      return await reducerInstance.getOutput();
+      const done = Symbol('Done');
+      iter = this[Symbol.asyncIterator]();
+      let index = 0;
+      let value: T | typeof done;
+
+      while (!halted && done !== (value = await iter.fastNext(done))) {
+        reducerState = await reducer.next(reducerState, value, index++, halt);
+      }
+
+      return await reducer.stateToResult(reducerState, index, halted);
     } finally {
       await closeIters(iter);
-      await reducerInstance.onClose();
+      if ('onClose' in reducer) {
+        await reducer.onClose?.(reducerState);
+      }
     }
   }
 
@@ -895,7 +906,7 @@ class AsyncPrependStream<T> extends AsyncStreamBase<T> {
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
-    return new AsyncPrependIterator<T>(
+    return new AsyncPrependFastIterator<T>(
       this.source[Symbol.asyncIterator](),
       this.item
     );
@@ -1006,7 +1017,7 @@ class AsyncAppendStream<T> extends AsyncStreamBase<T> {
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
-    return new AsyncAppendIterator<T>(
+    return new AsyncAppendFastIterator<T>(
       this.source[Symbol.asyncIterator](),
       this.item
     );
@@ -1093,7 +1104,7 @@ class AsyncIndexedStream<T> extends AsyncStreamBase<[number, T]> {
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<[number, T]> {
-    return new AsyncIndexedIterator<T>(
+    return new AsyncIndexedFastIterator<T>(
       this.source[Symbol.asyncIterator](),
       this.startIndex
     );
@@ -1113,7 +1124,7 @@ class AsyncMapStream<T, T2> extends AsyncStreamBase<T2> {
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T2> {
-    return new AsyncMapIterator(
+    return new AsyncMapFastIterator(
       this.source[Symbol.asyncIterator](),
       this.mapFun
     );
@@ -1186,7 +1197,7 @@ class AsyncMapPureStream<
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T2> {
-    return new AsyncMapPureIterator<T, A, T2>(
+    return new AsyncMapPureFastIterator<T, A, T2>(
       this.source[Symbol.asyncIterator](),
       this.mapFun,
       this.args
@@ -1267,7 +1278,7 @@ class AsyncConcatStream<T> extends AsyncStreamBase<T> {
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
-    return new AsyncConcatIterator(
+    return new AsyncConcatFastIterator(
       this.source,
       this.otherSources,
       asyncStreamSourceHelpers
@@ -1417,7 +1428,7 @@ class AsyncFilterStream<T> extends AsyncStreamBase<T> {
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
-    return new AsyncFilterIterator<T>(
+    return new AsyncFilterFastIterator<T>(
       this.source[Symbol.asyncIterator](),
       this.pred,
       this.negate
@@ -1472,7 +1483,7 @@ class AsyncFilterPureStream<
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
-    return new AsyncFilterPureIterator<T, A>(
+    return new AsyncFilterPureFastIterator<T, A>(
       this.source[Symbol.asyncIterator](),
       this.pred,
       this.args,
@@ -1528,7 +1539,7 @@ class AsyncCollectStream<T, R> extends AsyncStreamBase<R> {
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<R> {
-    return new AsyncCollectIterator<T, R>(
+    return new AsyncCollectFastIterator<T, R>(
       this.source[Symbol.asyncIterator](),
       this.collectFun
     );
@@ -1589,7 +1600,7 @@ class AsyncDropWhileStream<T> extends AsyncStreamBase<T> {
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
-    return new AsyncDropWhileIterator<T>(
+    return new AsyncDropWhileFastIterator<T>(
       this.source[Symbol.asyncIterator](),
       this.pred,
       this.negate
@@ -1606,7 +1617,7 @@ class AsyncTakeStream<T> extends AsyncStreamBase<T> {
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
-    return new AsyncTakeIterator<T>(
+    return new AsyncTakeFastIterator<T>(
       this.source[Symbol.asyncIterator](),
       this.amount
     );
@@ -1634,7 +1645,7 @@ class AsyncDropStream<T> extends AsyncStreamBase<T> {
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
-    return new AsyncDropIterator<T>(
+    return new AsyncDropFastIterator<T>(
       this.source[Symbol.asyncIterator](),
       this.amount
     );
@@ -1658,7 +1669,7 @@ class AsyncReduceStream<I, R = I> extends AsyncStreamBase<R> {
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<R> {
-    return new AsyncReduceIterator<I, R>(
+    return new AsyncReduceFastIterator<I, R>(
       this.source[Symbol.asyncIterator](),
       this.reducer
     );
@@ -1687,7 +1698,7 @@ export class AsyncOfStream<T> extends AsyncStreamBase<T> {
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
-    return new AsyncOfIterator<T>(this.values);
+    return new AsyncOfFastIterator<T>(this.values);
   }
 }
 
@@ -1752,9 +1763,12 @@ class AsyncEmptyStream<T = any>
   }
   transform<R>(transformer: AsyncTransformer<T, R>): AsyncStream<R> {
     return fromAsyncStreamSource<R>(async () => {
-      const instance = await transformer.compile();
+      let halted = false;
+      const state = await transformer.init(() => {
+        halted = true;
+      });
 
-      return instance.getOutput();
+      return await transformer.stateToResult(state, 0, halted);
     });
   }
   filter(): any {
@@ -1893,9 +1907,12 @@ class AsyncEmptyStream<T = any>
   }
   async reduce(shape: any): Promise<any> {
     const reducer = AsyncReducer.combine(shape);
-    const instance = await reducer.compile();
+    let halted = false;
+    const initState = await reducer.init(() => {
+      halted = true;
+    });
 
-    return instance.getOutput();
+    return await reducer.stateToResult(initState, 0, halted);
   }
   reduceStream(): any {
     return this;
@@ -1937,7 +1954,7 @@ export class FromResource<T, R> extends AsyncStreamBase<T> {
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
-    return new FromResourceIterator(
+    return new FromResourceFastIterator(
       this.open,
       this.createSource,
       this.close,
@@ -2059,7 +2076,11 @@ export const AsyncStreamConstructorsImpl: AsyncStreamConstructors =
 
         return new AsyncFromStream(
           () =>
-            new AsyncZipWithIterator(sources, zipFun, asyncStreamSourceHelpers)
+            new AsyncZipWithFastIterator(
+              sources,
+              zipFun,
+              asyncStreamSourceHelpers
+            )
         );
       };
     },
@@ -2074,7 +2095,7 @@ export const AsyncStreamConstructorsImpl: AsyncStreamConstructors =
 
         return new AsyncFromStream(
           (): AsyncFastIterator<any> =>
-            new AsyncZipAllWithItererator(
+            new AsyncZipAllWithFastItererator(
               fillValue,
               sources,
               zipFun,
@@ -2122,7 +2143,7 @@ export const AsyncStreamConstructorsImpl: AsyncStreamConstructors =
       next: (current: T, index: number, stop: Token) => MaybePromise<T | Token>
     ): AsyncStream.NonEmpty<T> {
       return new AsyncFromStream(
-        (): AsyncFastIterator<T> => new AsyncUnfoldIterator<T>(init, next)
+        (): AsyncFastIterator<T> => new AsyncUnfoldFastIterator<T>(init, next)
       ) as unknown as AsyncStream.NonEmpty<T>;
     },
   });

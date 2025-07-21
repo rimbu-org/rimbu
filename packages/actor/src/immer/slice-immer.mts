@@ -6,24 +6,24 @@ import type { Tail } from '../main/utils.mjs';
 
 export namespace SliceImmer {
   export interface Config extends SliceConfig {
-    _ACTION_HANDLER_ARGS: [
-      this['_STATE'],
-      ...this['_ACTION_HANDLER_UNKNOWN'][],
+    _action_handler_args: [
+      this['_state'],
+      ...this['_action_handler_unknown'][],
     ];
 
-    _ACTION_HANDLER: (...args: this['_ACTION_HANDLER_ARGS']) => void;
+    _action_handler: (...args: this['_action_handler_args']) => void;
 
-    _ACTION_HANDLER_RESULT: this['_STATE'];
+    _action_handler_result: this['_state'];
 
-    _INCLUDE_HANDLER_ARGS: [
-      state: this['_STATE'],
-      action: this['_INCLUDE_ACTION_TYPE'],
+    _include_handler_args: [
+      state: this['_state'],
+      action: this['_include_action_type'],
     ];
 
-    _INCLUDE_HANDLER: (...args: this['_INCLUDE_HANDLER_ARGS']) => void;
+    _include_handler: (...args: this['_include_handler_args']) => void;
 
-    _ACTION_TYPE: Action<Tail<Parameters<this['_ACTION_HANDLER']>>>;
-    _ACTION_CREATOR_PARAMS: Tail<Parameters<this['_ACTION_HANDLER']>>;
+    _action_type: Action<Tail<Parameters<this['_action_handler']>>>;
+    _action_creator_params: Tail<Parameters<this['_action_handler']>>;
   }
 
   export const { create } = SliceConfig.configure<SliceImmer.Config>({
@@ -44,7 +44,7 @@ export namespace SliceImmer {
     applyHandlerResult: (state, action, result) => result,
     createAction: (sliceName, actionName) =>
       Action.create({
-        type: `${sliceName}_${actionName}`,
+        type: `${sliceName}.${actionName}`,
         createPayload: Array.of,
       }),
   });

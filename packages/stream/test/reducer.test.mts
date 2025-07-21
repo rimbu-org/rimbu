@@ -392,9 +392,13 @@ describe('Reducer', () => {
     expect(Stream.empty<number>().reduce(Reducer.constant(1))).toBe(1);
     expect(Stream.of(1, 2, 3).reduce(Reducer.constant(1))).toBe(1);
 
-    const redInstance = Reducer.constant(1).compile();
-    expect(redInstance.halted).toBe(true);
-    expect(redInstance.getOutput()).toBe(1);
+    const reducer = Reducer.constant(1);
+    let halted = false;
+    let state = reducer.init(() => {
+      halted = true;
+    });
+    expect(halted).toBe(true);
+    expect(reducer.stateToResult(state, 0, true)).toBe(1);
   });
 
   it('race', () => {
@@ -489,12 +493,21 @@ describe('Reducer', () => {
     expect(
       Stream.of(1, 2, 3).reduce(Reducer.count.filterInput((v) => v > 2))
     ).toBe(1);
+
+    // simple case
+    expect(
+      Stream.of(1, 2, 3).reduce(Reducer.sum.filterInput((v) => v > 2))
+    ).toBe(3);
   });
 
   it('mapInput', () => {
     expect(
       Stream.of(1, 2, 3).reduce(Reducer.average.mapInput((v) => v * 2))
     ).toBe(4);
+
+    expect(
+      Stream.of(1, 2, 3).reduce(Reducer.sum.mapInput((v, i) => v * i))
+    ).toBe(8);
   });
 
   it('flatMapInput', () => {

@@ -1,4 +1,4 @@
-import { generateUUID } from '../src/main/generate-uuid.mjs';
+import { generateUUID } from 'main/generate-uuid.mjs';
 
 describe('generateUUID', () => {
   beforeEach(() => {

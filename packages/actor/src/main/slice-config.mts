@@ -9,53 +9,53 @@ export interface SliceConfig {
   /**
    * The slice state type
    */
-  _STATE: unknown;
+  _state: unknown;
 
   /**
    * The action handler function arguments.
    */
-  _ACTION_HANDLER_ARGS: this['_ACTION_HANDLER_UNKNOWN'][];
+  _action_handler_args: this['_action_handler_unknown'][];
 
   /**
    * The action handler unknown type (utility)
    */
-  _ACTION_HANDLER_UNKNOWN: unknown;
+  _action_handler_unknown: unknown;
 
   /**
    * The action handler function type.
    */
-  _ACTION_HANDLER: (...args: this['_ACTION_HANDLER_ARGS']) => unknown;
+  _action_handler: (...args: this['_action_handler_args']) => unknown;
 
-  _INCLUDE_HANDLER_ARGS: unknown[];
+  _include_handler_args: unknown[];
 
-  _INCLUDE_ACTION_TYPE: ActionBase;
+  _include_action_type: ActionBase;
 
-  _INCLUDE_HANDLER: (
-    ...args: this['_INCLUDE_HANDLER_ARGS']
-  ) => this['_ACTION_HANDLER_RESULT'];
+  _include_handler: (
+    ...args: this['_include_handler_args']
+  ) => this['_action_handler_result'];
 
   /**
    * The action type used for action handlers.
    */
-  _ACTION_TYPE: ActionBase;
+  _action_type: ActionBase;
 
   /**
    * The action creator function type.
    */
-  _ACTION_CREATOR: ActionBase.Creator<
-    this['_ACTION_TYPE'],
-    this['_ACTION_CREATOR_PARAMS']
+  _action_creator: ActionBase.Creator<
+    this['_action_type'],
+    this['_action_creator_params']
   >;
 
   /**
    * The action creator parameters.
    */
-  _ACTION_CREATOR_PARAMS: unknown[];
+  _action_creator_params: unknown[];
 
   /**
    * The action handler function result type.
    */
-  _ACTION_HANDLER_RESULT: unknown;
+  _action_handler_result: unknown;
 }
 
 export namespace SliceConfig {
@@ -65,18 +65,18 @@ export namespace SliceConfig {
    */
   export type ApplyHandler<C extends SliceConfig> = <S>(
     state: S,
-    action: (C & { _STATE: S })['_ACTION_TYPE'],
-    handler: (C & { _STATE: S })['_ACTION_HANDLER']
-  ) => (C & { _STATE: S })['_ACTION_HANDLER_RESULT'];
+    action: (C & { _state: S })['_action_type'],
+    handler: (C & { _state: S })['_action_handler']
+  ) => (C & { _state: S })['_action_handler_result'];
 
   export type ApplyIncluder<C extends SliceConfig> = <S, AC extends ActionBase>(
     state: S,
     action: AC,
     includeHandler: (C & {
-      _STATE: S;
-      _INCLUDE_ACTION_TYPE: AC;
-    })['_INCLUDE_HANDLER']
-  ) => (C & { _STATE: S })['_ACTION_HANDLER_RESULT'];
+      _state: S;
+      _include_action_type: AC;
+    })['_include_handler']
+  ) => (C & { _state: S })['_action_handler_result'];
 
   /**
    * Function type to use to apply the given action handler result.
@@ -85,7 +85,7 @@ export namespace SliceConfig {
   export type ApplyHandlerResult<C extends SliceConfig> = <S>(
     state: S,
     action: ActionBase,
-    handlerResult: (C & { _STATE: S })['_ACTION_HANDLER_RESULT']
+    handlerResult: (C & { _state: S })['_action_handler_result']
   ) => S;
 
   /**
@@ -97,7 +97,7 @@ export namespace SliceConfig {
     AC extends ActionBase,
   >(
     action: ActionBase.Creator<AC, any[]>,
-    handler: (C & { _STATE: S; _INCLUDE_ACTION_TYPE: AC })['_INCLUDE_HANDLER']
+    handler: (C & { _state: S; _include_action_type: AC })['_include_handler']
   ) => Record<string, (state: S, action: ActionBase) => S>;
 
   /**
@@ -110,7 +110,7 @@ export namespace SliceConfig {
     (
       state: S,
       action: ActionBase
-    ) => (C & { _STATE: S })['_ACTION_HANDLER_RESULT']
+    ) => (C & { _state: S })['_action_handler_result']
   >;
 
   /**
@@ -120,8 +120,8 @@ export namespace SliceConfig {
    */
   export type SliceActions<O, C extends SliceConfig> = {
     [K in keyof O]: (C & {
-      _ACTION_HANDLER: O[K];
-    })['_ACTION_CREATOR'];
+      _action_handler: O[K];
+    })['_action_creator'];
   };
 
   /**
@@ -131,38 +131,40 @@ export namespace SliceConfig {
    */
   export type ActionDefinition<S, C extends SliceConfig> = Lookup<
     (C & {
-      _STATE: S;
-      _ACTION_HANDLER_UNKNOWN: any;
-    })['_ACTION_HANDLER'],
-    (C & { _STATE: S })['_INCLUDE_HANDLER']
+      _state: S;
+      _action_handler_unknown: any;
+    })['_action_handler'],
+    (C & { _state: S })['_include_handler']
   >;
+
+  export type IncludeActions<S, C extends SliceConfig> = (
+    includer: SliceConfig.ActionIncluder<S, C>
+  ) => SliceConfig.ActionIncluderResult<S, C>;
 
   /**
    * Returns a configured object that can be used to produce slices with the
    * given configuration.
-   * @param config - the configuration for the slice creator.
+   * @param sliceConfig - the configuration for the slice creator.
    */
-  export function configure<C extends SliceConfig>(config: {
+  export function configure<C extends SliceConfig>(sliceConfig: {
     applyHandler: SliceConfig.ApplyHandler<C>;
     applyIncluder: SliceConfig.ApplyIncluder<C>;
     applyHandlerResult: SliceConfig.ApplyHandlerResult<C>;
     createAction: (
       sliceName: string,
       actionName: string
-    ) => C['_ACTION_CREATOR'];
+    ) => C['_action_creator'];
   }): {
     create<S, LU extends SliceConfig.ActionDefinition<S, C>>(
       config: LU & {
         name?: string;
         initState: OptLazy<S>;
-        includeActions?: (
-          includer: SliceConfig.ActionIncluder<S, C>
-        ) => SliceConfig.ActionIncluderResult<S, C>;
+        includeActions?: SliceConfig.IncludeActions<S, C> | undefined;
       }
     ): Slice<S, SliceConfig.SliceActions<LU['actions'], C>>;
   } {
     const { createAction, applyHandler, applyHandlerResult, applyIncluder } =
-      config;
+      sliceConfig;
 
     return {
       create<S, LU extends SliceConfig.ActionDefinition<S, C>>(
@@ -174,7 +176,13 @@ export namespace SliceConfig {
           ) => SliceConfig.ActionIncluderResult<S, C>;
         }
       ): Slice<S, SliceConfig.SliceActions<LU['actions'], C>> {
-        const { name, initState, actions, fallback, includeActions } = config;
+        const {
+          name = 'anonSlice',
+          initState,
+          actions,
+          fallback,
+          includeActions,
+        } = config;
 
         const actionCreators = {} as any;
         const actionHandlers: Record<
@@ -191,7 +199,7 @@ export namespace SliceConfig {
           })) ?? ({} as any);
 
         for (const actionName in actions) {
-          const action = createAction(name ?? 'anonSlice', actionName);
+          const action = createAction(name, actionName);
           actionCreators[actionName] = action;
           actionHandlers[action.actionTag] = (state, action): S =>
             applyHandlerResult(
@@ -226,6 +234,7 @@ export namespace SliceConfig {
         );
 
         return {
+          name,
           actions: actionCreators,
           reducer,
         };

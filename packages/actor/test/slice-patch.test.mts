@@ -1,5 +1,7 @@
-import { Action } from '../src/main/index.mjs';
-import { SlicePatch } from '../src/patch/index.mjs';
+import { Action } from 'main/index.mjs';
+import { SlicePatch } from 'patch/index.mjs';
+
+const mockHalt = vi.fn();
 
 describe('SlicePatch', () => {
   it('empty slice', () => {
@@ -10,9 +12,9 @@ describe('SlicePatch', () => {
     const action = Action.create();
 
     expect(slice.actions).toEqual({});
-    expect(slice.reducer.init()).toBe(initState);
+    expect(slice.reducer.init(mockHalt)).toBe(initState);
     expect(
-      slice.reducer.next(slice.reducer.init(), action(), 0, () => {})
+      slice.reducer.next(slice.reducer.init(mockHalt), action(), 0, () => {})
     ).toBe(initState);
   });
 
@@ -27,7 +29,12 @@ describe('SlicePatch', () => {
     });
 
     expect(
-      slice.reducer.next(slice.reducer.init(), slice.actions.inc(), 0, () => {})
+      slice.reducer.next(
+        slice.reducer.init(mockHalt),
+        slice.actions.inc(),
+        0,
+        () => {}
+      )
     ).toEqual({
       count: 1,
     });
@@ -49,7 +56,7 @@ describe('SlicePatch', () => {
 
     expect(
       slice.reducer.next(
-        slice.reducer.init(),
+        slice.reducer.init(mockHalt),
         slice.actions.inc(1, 2),
         0,
         () => {}
@@ -75,7 +82,12 @@ describe('SlicePatch', () => {
     });
 
     expect(
-      slice.reducer.next(slice.reducer.init(), slice.actions.inc(), 0, () => {})
+      slice.reducer.next(
+        slice.reducer.init(mockHalt),
+        slice.actions.inc(),
+        0,
+        () => {}
+      )
     ).toEqual({
       count: 1,
     });
@@ -83,7 +95,7 @@ describe('SlicePatch', () => {
     const action = Action.create();
 
     expect(
-      slice.reducer.next(slice.reducer.init(), action(), 0, () => {})
+      slice.reducer.next(slice.reducer.init(mockHalt), action(), 0, () => {})
     ).toEqual({ count: -3 });
   });
 
@@ -105,19 +117,24 @@ describe('SlicePatch', () => {
     });
 
     expect(
-      slice.reducer.next(slice.reducer.init(), slice.actions.inc(), 0, () => {})
+      slice.reducer.next(
+        slice.reducer.init(mockHalt),
+        slice.actions.inc(),
+        0,
+        () => {}
+      )
     ).toEqual({
       count: 1,
     });
 
     expect(
-      slice.reducer.next(slice.reducer.init(), action(), 0, () => {})
+      slice.reducer.next(slice.reducer.init(mockHalt), action(), 0, () => {})
     ).toEqual({ count: -3 });
 
     const action2 = Action.create();
 
     expect(
-      slice.reducer.next(slice.reducer.init(), action2(), 0, () => {})
+      slice.reducer.next(slice.reducer.init(mockHalt), action2(), 0, () => {})
     ).toEqual({ count: 0 });
   });
 
@@ -141,13 +158,23 @@ describe('SlicePatch', () => {
     });
 
     expect(
-      slice.reducer.next(slice.reducer.init(), slice.actions.inc(), 0, () => {})
+      slice.reducer.next(
+        slice.reducer.init(mockHalt),
+        slice.actions.inc(),
+        0,
+        () => {}
+      )
     ).toEqual({
       count: 1,
     });
 
     expect(
-      slice.reducer.next(slice.reducer.init(), increaseAction(5), 0, () => {})
+      slice.reducer.next(
+        slice.reducer.init(mockHalt),
+        increaseAction(5),
+        0,
+        () => {}
+      )
     ).toEqual({
       count: 5,
     });

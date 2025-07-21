@@ -98,9 +98,6 @@ expectType<Reducer<string, number[]>>(
   Reducer.toArray<number>().collectInput<string>((v) => v.length)
 );
 
-// .compile
-expectType<Reducer.Instance<number, string>>(Reducer.join<number>().compile());
-
 // .dropInput
 expectType<Reducer<number, number[]>>(Reducer.toArray<number>().dropInput(5));
 

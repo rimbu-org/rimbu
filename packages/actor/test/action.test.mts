@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-import { Action } from '../src/main/index.mjs';
+import { Action } from 'main/index.mjs';
 
 const mockRandomUUID = vi.fn();
 
@@ -27,7 +27,9 @@ describe('Action', () => {
     const id = 'abcdef';
     mockRandomUUID.mockReturnValue(id);
 
-    const actionCreator = Action.create<string>({ createTag: mockRandomUUID });
+    const actionCreator = Action.create<string>({
+      createTag: mockRandomUUID,
+    });
 
     const payload = 'payload';
     const action = actionCreator(payload);
@@ -81,5 +83,22 @@ describe('Action', () => {
 
     expect(action.tag).toBe(customTag);
     expect(action.type).toBe(`ANON_${customTag}`);
+  });
+
+  it('can unpack arguments', () => {
+    const id = 'abcdef';
+    mockRandomUUID.mockReturnValue(id);
+
+    const actionCreator = Action.create<[string, number]>({
+      createTag: mockRandomUUID,
+      unpack: true,
+    });
+
+    const payload = 'payload';
+    const action = actionCreator(payload, 5);
+
+    expect(action.payload).toEqual([payload, 5]);
+    expect(action.tag).toBe(id);
+    expect(action.type).toBe(`ANON_${id}`);
   });
 });

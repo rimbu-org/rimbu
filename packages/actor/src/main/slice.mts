@@ -1,7 +1,6 @@
 import { Reducer } from '@rimbu/stream';
 
-import { Action, SliceConfig, type Actor } from './internal.mjs';
-import type { Tail } from './utils.mjs';
+import { Action, SliceConfig, type Actor, type Tail } from './internal.mjs';
 
 /**
  * An actor slice containing an action reducer for state of type S, and potentially action definitions.
@@ -9,6 +8,7 @@ import type { Tail } from './utils.mjs';
  * @typeparam ACS - an object containing action definitions
  */
 export type Slice<S, ACS = Record<string, never>> = {
+  readonly name: string;
   readonly reducer: Actor.ActionReducer<S>;
   readonly actions: ACS;
 };
@@ -22,22 +22,22 @@ export namespace Slice {
     SL['reducer'] extends Actor.ActionReducer<infer S> ? S : unknown;
 
   export interface Config extends SliceConfig {
-    _ACTION_HANDLER_ARGS: [
-      this['_STATE'],
-      ...this['_ACTION_HANDLER_UNKNOWN'][],
+    _action_handler_args: [
+      this['_state'],
+      ...this['_action_handler_unknown'][],
     ];
 
-    _ACTION_HANDLER_RESULT: this['_STATE'];
+    _action_handler_result: this['_state'];
 
-    _ACTION_HANDLER: (...args: this['_ACTION_HANDLER_ARGS']) => this['_STATE'];
+    _action_handler: (...args: this['_action_handler_args']) => this['_state'];
 
-    _INCLUDE_HANDLER_ARGS: [
-      state: this['_STATE'],
-      action: this['_INCLUDE_ACTION_TYPE'],
+    _include_handler_args: [
+      state: this['_state'],
+      action: this['_include_action_type'],
     ];
 
-    _ACTION_TYPE: Action<Tail<Parameters<this['_ACTION_HANDLER']>>>;
-    _ACTION_CREATOR_PARAMS: Tail<Parameters<this['_ACTION_HANDLER']>>;
+    _action_type: Action<Tail<Parameters<this['_action_handler']>>>;
+    _action_creator_params: Tail<Parameters<this['_action_handler']>>;
   }
 
   export const { create } = SliceConfig.configure<Slice.Config>({
@@ -51,7 +51,7 @@ export namespace Slice {
     applyHandlerResult: (state, action, result) => result,
     createAction: (sliceName, actionName) =>
       Action.create({
-        type: `${sliceName}_${actionName}`,
+        type: `${sliceName}.${actionName}`,
         createPayload: Array.of,
       }),
   });

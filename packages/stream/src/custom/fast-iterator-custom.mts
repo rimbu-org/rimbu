@@ -50,13 +50,27 @@ export abstract class FastIteratorBase<T> implements FastIterator<T> {
 export class ReducerFastIterator<T, R> extends FastIteratorBase<R> {
   constructor(
     readonly sourceIterator: FastIterator<T>,
-    readonly reducerInstance: Reducer.Instance<T, R>
+    readonly reducer: Reducer<T, R>
   ) {
     super();
   }
 
+  #reducerState: any;
+  #halted = false;
+  #index = -1;
+
+  #halt = (): void => {
+    this.#halted = true;
+    this.#reducerState = undefined;
+  };
+
   fastNext<O>(otherwise?: OptLazy<O>): R | O {
-    if (this.reducerInstance.halted) {
+    if (this.#index < 0) {
+      this.#reducerState = this.reducer.init(this.#halt);
+      this.#index = 0;
+    }
+
+    if (this.#halted) {
       return OptLazy(otherwise) as O;
     }
 
@@ -64,29 +78,46 @@ export class ReducerFastIterator<T, R> extends FastIteratorBase<R> {
     const nextInput = this.sourceIterator.fastNext(done);
 
     if (done === nextInput) {
-      this.reducerInstance.halt();
+      this.#halt();
       return OptLazy(otherwise) as O;
     }
 
-    this.reducerInstance.next(nextInput);
+    const index = this.#index++;
 
-    return this.reducerInstance.getOutput();
+    this.#reducerState = this.reducer.next(
+      this.#reducerState,
+      nextInput,
+      index,
+      this.#halt
+    );
+
+    return this.reducer.stateToResult(this.#reducerState, index, this.#halted);
   }
 }
 
 export class TransformerFastIterator<T, R> extends FastIteratorBase<R> {
   constructor(
     readonly sourceIterator: FastIterator<T>,
-    readonly transformerInstance: Reducer.Instance<T, StreamSource<R>>
+    readonly transformer: Reducer<T, StreamSource<R>>
   ) {
     super();
   }
 
-  #done = false;
+  #halted = false;
+  #index = -1;
   #currentValues: FastIterator<R> | undefined;
+  #transformerState: any;
+
+  #halt = (): void => {
+    this.#halted = true;
+  };
 
   fastNext<O>(otherwise?: OptLazy<O>): R | O {
-    if (this.#done) {
+    if (this.#index < 0) {
+      this.#transformerState = this.transformer.init(this.#halt);
+      this.#index = 0;
+    }
+    if (this.#halted) {
       return OptLazy(otherwise) as O;
     }
 
@@ -97,25 +128,31 @@ export class TransformerFastIterator<T, R> extends FastIteratorBase<R> {
       undefined === this.#currentValues ||
       done === (nextValue = this.#currentValues.fastNext(done))
     ) {
-      if (this.transformerInstance.halted) {
-        this.#done = true;
+      if (this.#halted) {
         return OptLazy(otherwise) as O;
       }
 
       const nextSource = this.sourceIterator.fastNext(done);
 
       if (done === nextSource) {
-        if (this.transformerInstance.halted) {
-          this.#done = true;
+        if (this.#halted) {
           return OptLazy(otherwise) as O;
         }
-        this.#done = true;
-        this.transformerInstance.halt();
+        this.#halt();
       } else {
-        this.transformerInstance.next(nextSource);
+        this.#transformerState = this.transformer.next(
+          this.#transformerState,
+          nextSource,
+          this.#index++,
+          this.#halt
+        );
       }
 
-      const nextValuesSource = this.transformerInstance.getOutput();
+      const nextValuesSource = this.transformer.stateToResult(
+        this.#transformerState,
+        this.#index,
+        this.#halted
+      );
       this.#currentValues =
         fromStreamSource(nextValuesSource)[Symbol.iterator]();
     }
