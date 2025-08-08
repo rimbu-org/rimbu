@@ -28,6 +28,7 @@ function createDispatchActions<
 
     if (typeof item === 'function') {
       result[key] = (...args: any[]): any => dispatch(item(...args));
+      result[key].create = item;
     } else {
       result[key] = createDispatchActions(item, dispatch);
     }
@@ -59,6 +60,7 @@ function builder<S, Tp extends Actor.Types>(
       }
 
       actor.actions = createDispatchActions(config.actions, actor.dispatch);
+
       return actor;
     },
   };
@@ -151,18 +153,27 @@ class ActorImpl<S, Tp extends Actor.Types>
     this.observable.notifyChange();
   }
 
-  dispatch: Actor.BaseDispatchFunction = (action: ActionBase): void => {
-    if (this.#halted) {
-      return;
-    }
-    this.#reducerState = this.#reducer.next(
-      this.#reducerState,
-      action,
-      this.#index++,
-      this.#halt
-    );
+  dispatch: Actor.BaseDispatchFunction = (...actions: ActionBase[]): void => {
+    let index = -1;
 
-    this.observable.notifyChange();
+    while (++index < actions.length) {
+      if (this.#halted) {
+        break;
+      }
+
+      const action = actions[index];
+
+      this.#reducerState = this.#reducer.next(
+        this.#reducerState,
+        action,
+        this.#index++,
+        this.#halt
+      );
+    }
+
+    if (index > 0) {
+      this.observable.notifyChange();
+    }
   };
 }
 
@@ -214,7 +225,10 @@ export namespace Actor {
 
   export type BaseDispatchFunction = (...args: any[]) => any;
 
-  export type DefaultDispatchFunction = (action: ActionBase) => void;
+  export type DefaultDispatchFunction = (...actions: ActionBase[]) => void;
+
+  export type StateType<A extends Actor<any>> =
+    A extends Actor<infer S, any> ? S : never;
 
   export type ActionsDefinition = {
     readonly [key: string]:
@@ -223,12 +237,18 @@ export namespace Actor {
       | undefined;
   };
 
+  export type Actions<AC> = {
+    [K in keyof AC]: AC[K] extends (...args: infer A) => any
+      ? ActionBase.Creator<any, A>
+      : Actions<AC[K]>;
+  };
+
   export type ActionsToDispatch<
     AC extends Actor.ActionsDefinition,
     D extends Actor.BaseDispatchFunction,
   > = {
     readonly [K in keyof AC]: AC[K] extends (...args: infer A) => any
-      ? (...args: A) => ReturnType<D>
+      ? ((...args: A) => ReturnType<D>) & { create: AC[K] }
       : ActionsToDispatch<AC[K] & Actor.ActionsDefinition, D>;
   };
 

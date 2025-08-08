@@ -290,4 +290,28 @@ describe('Actor', () => {
     expect(act.state).toEqual({ count: 1 });
     expect(act.fullState).toEqual(nextFullstate);
   });
+
+  it('can dispatch multiple actions with single notify', () => {
+    const slice = SlicePatch.create({
+      initState: { count: 5, total: 10 },
+      actions: {
+        inc: () => [{ count: (v) => v + 1 }, { total: (v, p) => v + p.count }],
+        resetCount: () => [{ count: 0 }],
+      },
+    });
+
+    const act = Actor.configure(slice).build();
+
+    const fn = Spy.fn();
+
+    act.subscribe(fn);
+
+    expect(fn.nrCalls).toBe(0);
+
+    act.dispatch(act.actions.inc.create(), act.actions.resetCount.create());
+
+    expect(act.state).toEqual({ count: 0, total: 16 });
+
+    expect(fn.nrCalls).toBe(1);
+  });
 });

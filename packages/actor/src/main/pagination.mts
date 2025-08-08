@@ -1,6 +1,6 @@
 import type { Deep } from '@rimbu/deep';
 
-import { Slice } from './internal.mjs';
+import { type Actor, Slice } from './internal.mjs';
 
 export interface PaginationState {
   page: number;
@@ -27,14 +27,14 @@ function getLastPage(
 
 export function createPagination(initState?: InitPaginationState): Slice<
   PaginationState,
-  {
+  Actor.Actions<{
     nextPage: () => void;
     previousPage: () => void;
     setPage: (page: number) => void;
     setPageSize: (pageSize: number) => void;
     setTotalItems: (totalItems?: number | undefined) => void;
     reset: () => void;
-  }
+  }>
 > {
   return Slice.create({
     initState: () => {

@@ -1,4 +1,4 @@
-import { type Action, type Actor, Slice } from '@rimbu/actor';
+import { type Actor, Slice } from '@rimbu/actor';
 
 export type LoaderState<R> =
   | { type: 'idle' }
@@ -6,18 +6,20 @@ export type LoaderState<R> =
   | { type: 'error'; error: any }
   | { type: 'loaded'; data: R };
 
-export interface LoaderActions<R> extends Actor.ActionsDefinition {
-  setIdle: Action.Creator<[], []>;
-  setLoading: Action.Creator<[], []>;
-  setError: Action.Creator<[error: any], [error: any]>;
-  setLoaded: Action.Creator<[data: R], [data: R]>;
-}
+export type LoaderActions<R> = Actor.Actions<{
+  setIdle: () => void;
+  setLoading: () => void;
+  setError: (error: any) => void;
+  setLoaded: (data: R) => void;
+}>;
+
+export type LoaderSlice<R> = Slice<LoaderState<R>, LoaderActions<R>>;
 
 export function createLoader<R>(
   options: {
     name?: string;
   } = {}
-): Slice<LoaderState<R>, LoaderActions<R>> {
+): LoaderSlice<R> {
   const { name = 'ANON_LOADER' } = options;
 
   return Slice.create({
