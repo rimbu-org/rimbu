@@ -1,4 +1,4 @@
-import { SemaphoreError, SemaphoreImpl, type Mutex } from '../index.mjs';
+import { SemaphoreError, SemaphoreImpl } from '../index.mjs';
 
 /**
  * A Semaphore is a generalized version of a Mutex, allowing boundaries on the amount of concurrent
@@ -7,7 +7,7 @@ import { SemaphoreError, SemaphoreImpl, type Mutex } from '../index.mjs';
  * resource, a weight can be provided allowing more intensive tasks to acquire a larger share of the shared
  * resource, preventing too many other tasks from also acquiring the resource.
  */
-export interface Semaphore extends Mutex {
+export interface Semaphore {
   /**
    * The maximum simultaneous "weight" that the semaphore allows access to for the shared resource.
    */
@@ -23,7 +23,13 @@ export interface Semaphore extends Mutex {
    * until enough weight has been released. Resolves when the semaphore has enough capacity for the operation.
    * @param weight - (default: 1) the weight of the operation to be performed
    */
-  acquire(weight?: number): Promise<void>;
+  acquire(
+    weight?: number,
+    options?: {
+      signal?: AbortSignal | undefined;
+      timeoutMs?: number | undefined;
+    }
+  ): Promise<void>;
   /**
    * Release obtained capacity from the semaphore to allow potential other blocked processes to access the resource.
    * @param weight - (default: 1) the amount of weight to release

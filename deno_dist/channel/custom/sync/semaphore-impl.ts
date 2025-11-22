@@ -19,7 +19,13 @@ export class SemaphoreImpl implements Semaphore {
     return this.#currentSize + weight <= this.maxSize;
   }
 
-  async acquire(weight = 1): Promise<void> {
+  async acquire(
+    weight = 1,
+    options?: {
+      signal?: AbortSignal | undefined;
+      timeoutMs?: number | undefined;
+    }
+  ): Promise<void> {
     if (weight <= 0) {
       return;
     }
@@ -39,7 +45,7 @@ export class SemaphoreImpl implements Semaphore {
     const blockCh = Channel.create();
     blockChannels.set(blockCh, weight);
 
-    await blockCh.receive();
+    await blockCh.receive(options);
   }
 
   release(weight = 1): void {

@@ -1,0 +1,7 @@
+{
+  "name": "ops",
+  "private": true,
+  "main": "../dist/cjs/ops/index.cjs",
+  "module": "../dist/esm/ops/index.mjs",
+  "types": "../dist/cjs/ops/index.d.cts"
+}

@@ -18,7 +18,10 @@ export interface WaitGroup {
   /**
    * Blocks until all the processes in the WaitGroup have completed.
    */
-  wait(): Promise<void>;
+  wait(options?: {
+    signal?: AbortSignal | undefined;
+    timeoutMs?: number | undefined;
+  }): Promise<void>;
 }
 
 export namespace WaitGroup {

@@ -5,7 +5,7 @@ import { Semaphore } from '../index.mjs';
  * used to acquire a lock for the resource, preventing others using the Mutext from accessing the resource. When
  * finished using the resource, the lock can be released, allowing other waiting processes to acquire a lock.
  */
-export interface Mutex {
+export interface Mutex extends Semaphore {
   /**
    * Returns true if the resource can be acquired immediately, false otherwise.
    */
@@ -13,7 +13,13 @@ export interface Mutex {
   /**
    * Acquire a lock. Blocks if the resource is already locked. Resolves when the resource is available.
    */
-  acquire(): Promise<void>;
+  acquire(
+    unused?: undefined,
+    options?: {
+      signal?: AbortSignal | undefined;
+      timeoutMs?: number | undefined;
+    }
+  ): Promise<void>;
   /**
    * Release a lock after it is acquired. Allows other functions to obtain a lock.
    */
