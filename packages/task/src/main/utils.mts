@@ -17,8 +17,12 @@ const EMPTY_CALLBACK_AND_DISPOSABLE: DisposableCallback = toDisposableCallback(
 );
 
 export function disposableDelay(ms: number): DisposablePromise<void> {
-  const resolvers = Promise.withResolvers<void>();
-  const { resolve, reject, promise } = resolvers;
+  let resolve!: () => void;
+  let reject!: (reason?: any) => void;
+  const promise = new Promise<void>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
   const timeout = setTimeout(resolve, ms);
 
   return promiseToDisposable(promise, () => {
