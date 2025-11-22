@@ -9,7 +9,12 @@ export function attachAbort(
   signal: AbortSignal | undefined,
   fn: () => void
 ): undefined | (() => void) {
-  if (signal === undefined || signal.aborted) {
+  if (signal === undefined) {
+    return undefined;
+  }
+
+  if (signal.aborted) {
+    fn();
     return undefined;
   }
 

@@ -1,20 +1,25 @@
-import { Channel, type WaitGroup } from '../index.mjs';
+import { attachAbort, Channel, type WaitGroup } from '../index.mjs';
 
 export class WaitGroupImpl implements WaitGroup {
-  readonly #waitCh = Channel.create();
-
-  #_blockPromise: Promise<void> | undefined;
+  #blockPromise:
+    | {
+        promise: Promise<void>;
+        resolve: () => void;
+      }
+    | undefined;
 
   #count = 0;
 
-  get #blockPromise(): Promise<void> {
-    if (this.#_blockPromise === undefined) {
-      this.#_blockPromise = this.#waitCh.receive().then(() => {
-        this.#_blockPromise = undefined;
-      });
+  #setBlockPromiseIfUndefined(): void {
+    if (this.#blockPromise !== undefined) {
+      return;
     }
 
-    return this.#_blockPromise;
+    const { promise, resolve } = Promise.withResolvers<void>();
+    this.#blockPromise = {
+      promise,
+      resolve,
+    };
   }
 
   add(amount = 1): void {
@@ -22,6 +27,7 @@ export class WaitGroupImpl implements WaitGroup {
       return;
     }
 
+    this.#setBlockPromiseIfUndefined();
     this.#count += amount;
   }
 
@@ -33,15 +39,58 @@ export class WaitGroupImpl implements WaitGroup {
     this.#count -= Math.min(amount, this.#count);
 
     if (this.#count <= 0) {
-      this.#waitCh.send();
+      if (this.#blockPromise === undefined) {
+        return;
+      }
+
+      this.#blockPromise.resolve();
+      this.#blockPromise = undefined;
     }
   }
 
-  async wait(): Promise<void> {
-    if (this.#count <= 0) {
+  async wait(options?: {
+    signal?: AbortSignal | undefined;
+    timeoutMs?: number | undefined;
+  }): Promise<void> {
+    if (this.#count <= 0 || this.#blockPromise === undefined) {
       return;
     }
 
-    await this.#blockPromise;
+    const promises = [this.#blockPromise.promise];
+
+    const cancelController = new AbortController();
+
+    attachAbort(options?.signal, () => {
+      cancelController.abort();
+    });
+
+    if (options?.signal) {
+      promises.push(
+        new Promise<void>((_, reject) => {
+          attachAbort(cancelController.signal, () => {
+            reject(new Channel.Error.OperationAbortedError());
+          });
+        })
+      );
+    }
+    if (options?.timeoutMs) {
+      promises.push(
+        new Promise<void>((_, reject) => {
+          const timeout = setTimeout(() => {
+            reject(new Channel.Error.TimeoutError());
+          }, options.timeoutMs);
+          attachAbort(cancelController.signal, () => {
+            clearTimeout(timeout);
+            reject(new Channel.Error.OperationAbortedError());
+          });
+        })
+      );
+    }
+
+    try {
+      await Promise.race(promises);
+    } finally {
+      cancelController.abort();
+    }
   }
 }

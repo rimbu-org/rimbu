@@ -139,4 +139,28 @@ describe('Semaphore', () => {
     expect(sem.canAcquire(3)).toBe(false);
     expect(sem.canAcquire(4)).toBe(false);
   });
+
+  it('disallows acquiring too much weight synchronously', async () => {
+    const sem = Semaphore.create({ maxSize: 1 });
+
+    const a1 = sem.acquire(1, { timeoutMs: 100 });
+    const a2 = sem.acquire(1, { timeoutMs: 100 });
+
+    await expect(a1).resolves.toBeUndefined();
+    await expect(a2).rejects.toThrow();
+  });
+
+  it('can release weight without waiting', async () => {
+    const sem = Semaphore.create({ maxSize: 3 });
+
+    await sem.acquire(1);
+    await sem.acquire(1);
+    await sem.acquire(1);
+
+    sem.release();
+    sem.release();
+    sem.release();
+
+    expect(sem.canAcquire()).toBe(true);
+  });
 });

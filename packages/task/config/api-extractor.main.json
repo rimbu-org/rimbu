@@ -1,0 +1,13 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
+  "extends": "<projectFolder>/../../config/api-extractor.json",
+  "mainEntryPointFilePath": "<projectFolder>dist/esm/main/index.d.mts",
+  "bundledPackages": ["@rimbu/task"],
+  "docModel": {
+    "enabled": true,
+    "apiJsonFilePath": "<projectFolder>/../../doc-gen/input/<unscopedPackageName>.api.json"
+  },
+  "compiler": {
+    "tsconfigFilePath": "<projectFolder>/tsconfig.extractor.json"
+  }
+}

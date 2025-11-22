@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "rootDirs": [".", ".."],
+    "baseUrl": "./src",
+    "paths": {
+      "@rimbu/task/ops": ["ops/index.mts", "ops/index.cts"],
+      "@rimbu/task": ["main/index.mts", "main/index.cts"]
+    }
+  }
+}
