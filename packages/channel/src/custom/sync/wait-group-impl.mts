@@ -15,11 +15,11 @@ export class WaitGroupImpl implements WaitGroup {
       return;
     }
 
-    const { promise, resolve } = Promise.withResolvers<void>();
-    this.#blockPromise = {
-      promise,
-      resolve,
-    };
+    let resolve!: () => void;
+    const promise = new Promise<void>((res) => {
+      resolve = res;
+    });
+    this.#blockPromise = { promise, resolve };
   }
 
   add(amount = 1): void {
