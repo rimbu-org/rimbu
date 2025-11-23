@@ -76,7 +76,7 @@
   "devDependencies": {
     "@testing-library/react": "12.1.5",
     "@testing-library/react-hooks": "^8.0.0",
-    "happy-dom": "^9.20.3",
+    "happy-dom": "^20.0.2",
     "react": "<18.0.0",
     "react-dom": "<18.0.0"
   },
