@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.4](https://github.com/rimbu-org/rimbu/compare/@rimbu/sorted@2.1.3...@rimbu/sorted@2.1.4) (2025-11-23)
+
+### Bug Fixes
+
+- **sorted:** expose the `Comp` instance used for a SortedSet through the context ([0f78046](https://github.com/rimbu-org/rimbu/commit/0f780466a241e276f46864cbf85739762ea64f74))
+
 ## [2.1.3](https://github.com/rimbu-org/rimbu/compare/@rimbu/sorted@2.1.2...@rimbu/sorted@2.1.3) (2025-05-16)
 
 **Note:** Version bump only for package @rimbu/sorted
