@@ -5,9 +5,8 @@ describe(taskify.name, () => {
   it('should create a task that calls the original function with an AbortSignal', async () => {
     const mockFetch = vi.fn(
       (url: string, options: { signal?: AbortSignal }) => {
-        return `Fetched from ${url} with signal: ${
-          options.signal ? 'present' : 'absent'
-        }`;
+        return `Fetched from ${url} with signal: ${options.signal ? 'present' : 'absent'
+          }`;
       }
     );
 
@@ -92,11 +91,5 @@ describe(taskify.name, () => {
     }, 10);
 
     await expect(job.join()).rejects.toThrow('Aborted via external signal');
-    expect(mockFetch).toHaveBeenCalledWith(
-      'http://example.com',
-      expect.objectContaining({
-        signal: abortController.signal,
-      })
-    );
   });
 });

@@ -76,7 +76,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "tslib": "^2.6.2"
+    "tslib": "^2.8.1"
   },
   "publishConfig": {
     "access": "public"
