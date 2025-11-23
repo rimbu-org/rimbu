@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/channel@0.3.2...@rimbu/channel@2.0.0) (2025-11-23)
+
+### Bug Fixes
+
+- **channel:** remove Promise.withResolvers usage ([556258f](https://github.com/rimbu-org/rimbu/commit/556258fed0b48541c686c4deb3f463764cd96648))
+
+### Features
+
+- **task:** add the @rimbu/task package to support structural concurrency ([7868678](https://github.com/rimbu-org/rimbu/commit/7868678f937c6381adc01215592fa8fbc613e0c0))
+
+### BREAKING CHANGES
+
+- **task:** Mutex now extends Semaphore, and the acquire method now accepts cancellation
+  options
+
 ## [0.3.2](https://github.com/rimbu-org/rimbu/compare/@rimbu/channel@0.3.1...@rimbu/channel@0.3.2) (2025-05-16)
 
 **Note:** Version bump only for package @rimbu/channel

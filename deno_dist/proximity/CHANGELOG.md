@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.5](https://github.com/rimbu-org/rimbu/compare/@rimbu/proximity@2.0.4...@rimbu/proximity@2.0.5) (2025-11-23)
+
+**Note:** Version bump only for package @rimbu/proximity
+
 ## [2.0.4](https://github.com/rimbu-org/rimbu/compare/@rimbu/proximity@2.0.3...@rimbu/proximity@2.0.4) (2025-05-16)
 
 **Note:** Version bump only for package @rimbu/proximity

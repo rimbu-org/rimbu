@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.14.4](https://github.com/rimbu-org/rimbu/compare/@rimbu/reactor@0.14.3...@rimbu/reactor@0.14.4) (2025-11-23)
+
+**Note:** Version bump only for package @rimbu/reactor
+
 ## [0.14.3](https://github.com/rimbu-org/rimbu/compare/@rimbu/reactor@0.14.2...@rimbu/reactor@0.14.3) (2025-05-16)
 
 **Note:** Version bump only for package @rimbu/reactor

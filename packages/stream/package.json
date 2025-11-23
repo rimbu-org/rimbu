@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/stream",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Efficient structure representing a sequence of elements, with powerful operations for TypeScript",
   "keywords": [
     "stream",
@@ -121,8 +121,8 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@rimbu/base": "^2.0.2",
-    "@rimbu/common": "^2.0.2",
+    "@rimbu/base": "^2.0.3",
+    "@rimbu/common": "^2.0.3",
     "tslib": "^2.8.1"
   },
   "publishConfig": {
