@@ -18,17 +18,16 @@ jobs:
       - uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.GH_PAGES_DEPLOY }}
-      - uses: denoland/setup-deno@v1
+      - uses: denoland/setup-deno@v2
         with:
-          deno-version: v1.x
+          deno-version: v2.x
       - name: Extract API
         run: |
           yarn install --frozen-lockfile
           lerna run bundle:esm
           yarn extract-api
       - name: Generate API Docs
-        run: deno run --import-map import_map.json --allow-read --allow-write --no-check src/main.ts -i input -o ../docs/api
-        working-directory: doc-gen
+        run: yarn docs
       - name: Release to GitHub Pages
         env:
           USE_SSH: true
