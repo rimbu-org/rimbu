@@ -1,120 +1,239 @@
 <p align="center">
-    <img src="https://github.com/rimbu-org/rimbu/raw/main/assets/rimbu_logo.svg" />
+  <img src="https://github.com/rimbu-org/rimbu/raw/main/assets/rimbu_logo.svg" height="96" alt="Rimbu Logo" />
 </p>
 
-[![npm version](https://badge.fury.io/js/@rimbu%2Fbimap.svg)](https://www.npmjs.com/package/@rimbu/bimap) [![Deno](https://shield.deno.dev/x/rimbu)](http://deno.land/x/rimbu)
+<div align="center">
 
-![Licence](https://img.shields.io/github/license/rimbu-org/rimbu)
+[![npm version](https://badge.fury.io/js/@rimbu%2Fbimap.svg)](https://www.npmjs.com/package/@rimbu/bimap)
+![License](https://img.shields.io/github/license/rimbu-org/rimbu)
+![Types Included](https://img.shields.io/badge/TypeScript-ready-blue)
+![Node](https://img.shields.io/badge/Node-18+-6DA55F?logo=node.js&logoColor=white)
+![Deno](https://shield.deno.dev/x/rimbu)
+![Bun](https://img.shields.io/badge/Bun-%23000000.svg)
+![ESM + CJS](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-informational)
 
-# @rimbu/bimap
+</div>
 
-Welcome to `@rimbu/bimap`! A BiMap is a powerful bidirectional map that ensures a one-to-one mapping between keys and values. Each key is associated with exactly one value, and each value is associated with exactly one key.
+# `@rimbu/bimap`
 
-### Key Features:
+**Fast, immutable bidirectional maps for TypeScript & JavaScript.**
 
-- **Bidirectional Mapping**: Effortlessly navigate between keys and values.
-- **Unique Associations**: Guarantees unique key-value pairs, ensuring data integrity.
+`@rimbu/bimap` provides an efficient, type-safe **BiMap**: a data structure that maintains a strict one‑to‑one relationship between keys and values. Every key maps to exactly one value, and every value maps back to exactly one key – giving you O(1)-style lookup in both directions with immutable, persistent semantics.
 
-### Exported Types:
+Use it whenever you need **reverse lookups**, **unique associations** (like IDs ↔ handles, user ↔ email, code ↔ label), or want to avoid keeping two maps in sync manually.
 
-| Name                | Description                                                                             |
-| ------------------- | --------------------------------------------------------------------------------------- |
-| `BiMap<K, V>`       | A generic BiMap for keys of type `K` and values of type `V`.                            |
-| `HashBiMap<K, V>`   | A BiMap where both keys and values are hashed for efficient lookups.                    |
-| `SortedBiMap<K, V>` | A BiMap where both keys and values are sorted, providing ordered traversal and lookups. |
+---
 
-### Documentation
+## Table of Contents
 
-For complete documentation, please visit the [BiMap page](https://rimbu.org/docs/collections/bimap) in the [Rimbu Docs](https://rimbu.org), or directly explore the [Rimbu BiMap API Docs](https://rimbu.org/api/rimbu/bimap).
+1. [Why `@rimbu/bimap`?](#why-rimbu-bimap)
+2. [Feature Highlights](#feature-highlights)
+3. [Quick Start](#quick-start)
+4. [Core Concepts & Types](#core-concepts--types)
+5. [Working with Hash & Sorted BiMaps](#working-with-hash--sorted-bimaps)
+6. [Performance Notes](#performance-notes)
+7. [Installation](#installation)
+8. [FAQ](#faq)
+9. [Ecosystem & Integration](#ecosystem--integration)
+10. [Contributing](#contributing)
+11. [License](#license)
 
-### Try It Out
+---
 
-Experience `@rimbu/bimap` in action! [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) on CodeSandBox.
+## Why `@rimbu/bimap`?
+
+Plain maps give you **key → value** lookups, but often you also need **value → key**:
+
+- **Unique identifiers** – map `userId ↔ email`, `handle ↔ id`, `token ↔ session`.
+- **Code / label pairs** – `statusCode ↔ statusLabel`, `enumValue ↔ string`.
+- **Indexing external data** – keep a stable, unique mapping between two domains.
+
+`@rimbu/bimap` focuses on:
+
+- **True bijection** – the structure guarantees a one‑to‑one mapping at all times.
+- **Immutable operations** – updates return new instances, sharing structure internally.
+- **Safe reverse lookups** – `getValue` and `getKey` mirror each other.
+- **Ergonomic API** – familiar map-like operations plus BiMap‑specific helpers.
+
+If you find yourself maintaining two maps in sync, a BiMap is usually the better fit.
+
+---
+
+## Feature Highlights
+
+- **Bidirectional lookups** – efficient `key → value` and `value → key` access.
+- **Strict uniqueness** – inserting a key or value replaces any existing association.
+- **Immutable & persistent** – structural sharing for fast copies and diffs.
+- **Multiple views** – access `keyValueMap` and `valueKeyMap` as regular Rimbu maps.
+- **Configurable contexts** – backed by hash maps by default, with support for custom underlying map contexts via `BiMap.createContext`.
+- **Rich operations** – add/remove by key or value, bulk updates, streaming, traversal utilities.
+
+---
+
+## Quick Start
+
+```ts
+import { BiMap } from '@rimbu/bimap';
+
+// Create from entry tuples
+const biMap = BiMap.of(
+  [1, 'a'],
+  [2, 'b'],
+  [3, 'c']
+);
+
+// Forward lookup: key -> value
+console.log(biMap.getValue(2)); // 'b'
+
+// Reverse lookup: value -> key
+console.log(biMap.getKey('c')); // 3
+
+// Update associations immutably
+const updated = biMap.set(2, 'z'); // value 'z' can only belong to one key
+console.log(updated.getKey('z')); // 2
+```
+
+Try Rimbu (including `@rimbu/bimap`) live in the browser using the
+[Rimbu Sandbox on CodeSandbox](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts).
+
+---
+
+## Core Concepts & Types
+
+### Exported Types
+
+| Name                         | Description                                                                                                          |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `BiMap<K, V>`                | Immutable, type‑invariant bidirectional map with a strict one‑to‑one mapping between `K` and `V`.                   |
+| `BiMap.NonEmpty<K, V>`       | Non‑empty refinement of `BiMap<K, V>` with stronger type guarantees.                                                 |
+| `BiMap.Context<UK, UV>`      | Factory/context for creating BiMaps with configurable underlying map implementations for keys and values.           |
+| `BiMap.Builder<K, V>`        | Mutable builder for efficiently constructing or mutating a BiMap before freezing it into an immutable instance.     |
+
+### Key Operations
+
+```ts
+import { BiMap } from '@rimbu/bimap';
+
+// Construction
+const empty = BiMap.empty<number, string>();
+const fromEntries = BiMap.of([1, 'one'], [2, 'two']);
+
+// Size & emptiness
+empty.isEmpty; // true
+fromEntries.size; // 2
+
+// Lookups
+fromEntries.hasKey(1); // true
+fromEntries.hasValue('two'); // true
+fromEntries.getValue(2); // 'two'
+fromEntries.getKey('one'); // 1
+
+// Updating (returns new BiMap)
+const updated = fromEntries.set(3, 'three');
+
+// Removing by key or value
+const withoutKey = updated.removeKey(1);
+const withoutValue = updated.removeValue('two');
+```
+
+See the full [BiMap docs](https://rimbu.org/docs/collections/bimap) and
+[API reference](https://rimbu.org/api/rimbu/bimap) for all operations.
+
+---
+
+## Performance Notes
+
+- BiMaps in Rimbu are built on **persistent data structures** – updates are typically \\(O(\log n)\\) and share most of their structure.
+- Lookups by key or value are designed to behave similarly to their underlying map implementations (`HashMap` / sorted maps).
+- Many bulk operations accept generic `StreamSource` inputs, letting you construct and transform BiMaps efficiently from arrays, iterables, or streams.
+
+For detailed performance characteristics and benchmarks, see the main Rimbu documentation at [rimbu.org](https://rimbu.org).
+
+---
 
 ## Installation
 
-### Compabitity
-
-- [`Node` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
-- [`Deno` ![Deno JS](https://img.shields.io/badge/deno%20js-000000?logo=deno&logoColor=white)](https://deno.com/runtime)
-- [`Bun` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
-- `Web` ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
-
-### Package Managers
-
-**Yarn:**
-
-```sh
-yarn add @rimbu/bimap
-```
-
-**npm:**
+### Node / Bun / npm / Yarn
 
 ```sh
 npm install @rimbu/bimap
-```
-
-**Bun:**
-
-```sh
+# or
+yarn add @rimbu/bimap
+# or
 bun add @rimbu/bimap
 ```
 
-### Deno Setup
+### Deno (import map)
 
-Create or edit `import_map.json` in your project root:
-
-```json
+```jsonc
 {
   "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@x.y.z/"
+    "@rimbu/": "https://deno.land/x/rimbu@<version>/"
   }
 }
 ```
 
-_Replace `x.y.z` with the desired version._
-
-In this way you can use relative imports from Rimbu in your code, like so:
+Then:
 
 ```ts
-import { List } from '@rimbu/core/mod.ts';
-import { HashMap } from '@rimbu/hashed/mod.ts';
+import { BiMap } from '@rimbu/bimap/mod.ts';
 ```
 
-Note that for sub-packages, due to conversion limitations it is needed to import the `index.ts` instead of `mod.ts`, like so:
+### Browser / ESM
 
-```ts
-import { HashMap } from '@rimbu/hashed/map/index.ts';
-```
+`@rimbu/bimap` ships both **ESM** and **CJS** builds. Use it with any modern bundler
+(Vite, Webpack, esbuild, Bun, etc.) or directly in Node ESM projects.
 
-To run your script (let's assume the entry point is in `src/main.ts`):
+---
 
-`deno run --import-map import_map.json src/main.ts`
+## FAQ
 
-## Usage
+**Q: How is a BiMap different from a regular Map?**  
+A BiMap enforces a **one‑to‑one** relationship: each value can appear at most once. It also gives
+you efficient `value → key` lookups via `getKey`.
 
-```ts
-import { HashBiMap } from '@rimbu/bimap';
+**Q: What happens if I insert a key or value that already exists?**  
+The new association **replaces** the previous one, keeping the BiMap bijective. This may remove
+or re‑associate other entries to preserve uniqueness.
 
-const biMap = HashBiMap.of([1, 'a'], [2, 'b'], [3, 'b']);
-console.log(biMap.toString());
-// HashBiMap(3 -> b)
-```
+**Q: Is the structure mutable?**  
+No. All updates return new BiMap instances; existing ones remain unchanged and can be safely
+shared across your application.
 
-## Author
+**Q: Can I iterate keys or values separately?**  
+Yes. Use `keyValueMap` and `valueKeyMap` to access standard Rimbu map views with all their APIs.
 
-Created and maintained by [Arvid Nicolaas](https://github.com/vitoke).
+---
+
+## Ecosystem & Integration
+
+- Part of the broader **Rimbu** collection ecosystem – interoperates with `@rimbu/hashed`,
+  `@rimbu/ordered`, `@rimbu/collection-types`, and `@rimbu/stream`.
+- Ideal for modelling unique relationships in domain models, routing tables, protocol maps, etc.
+- Works seamlessly with other Rimbu collections and utilities for building rich, immutable data models.
+
+Explore more at the [Rimbu documentation](https://rimbu.org) and the
+[BiMap API docs](https://rimbu.org/api/rimbu/bimap).
+
+---
 
 ## Contributing
 
-We welcome contributions! Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
+We welcome contributions! See the
+[Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md) for details.
 
-## Contributors
-
-<img src = "https://contrib.rocks/image?repo=rimbu-org/rimbu"/>
+<img src="https://contrib.rocks/image?repo=rimbu-org/rimbu" alt="Contributors" />
 
 _Made with [contributors-img](https://contrib.rocks)._
 
+---
+
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) for details.
+MIT © Rimbu contributors. See [LICENSE](./LICENSE) for details.
+
+---
+
+## Attributions
+
+Created and maintained by [Arvid Nicolaas](https://github.com/vitoke). Logo © Rimbu.

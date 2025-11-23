@@ -82,7 +82,7 @@ export interface VariantMultiMapBase<
    * as a .NonEmpty type.
    * @example
    * ```ts
-   * const m: HashMultiMapHashValue<number, number> = HashMap.of([1, 1], [2, 2])
+   * const m: HashMultiMapHashValue<number, number> = HashMultiMapHashValue.of([1, 1], [2, 2])
    * m.stream().first(0)     // compiler allows fallback value since the Stream may be empty
    * if (m.nonEmpty()) {
    *   m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty
@@ -586,7 +586,7 @@ export namespace MultiMapBase {
      * const result = Stream.of([1, 'c'], [3, 'a']).reduce(SortedMultiMap.reducer(someSource))
      * result.toArray()   // => [[1, 'a'], [1, 'c'], [2, 'b'], [3, 'a']]
      * ```
-     * @note uses a builder under the hood. If the given `source` is a BiMap in the same context, it will directly call `.toBuilder()`.
+     * @note uses a builder under the hood. If the given `source` is a `MultiMap` in the same context, it will directly call `.toBuilder()`.
      */
     reducer<K extends UK, V extends UV>(
       source?: StreamSource<readonly [K, V]>
@@ -777,7 +777,7 @@ export namespace MultiMapBase {
      * - `index`: the index of the element<br/>
      * - `halt`: a function that, if called, ensures that no new elements are passed
      * @param state - (optional) the traverse state
-     * @throws RibuError.ModifiedBuilderWhileLoopingOverItError if the builder is modified while
+     * @throws RimbuError.ModifiedBuilderWhileLoopingOverItError if the builder is modified while
      * looping over it
      * @example
      * ```ts
@@ -790,7 +790,7 @@ export namespace MultiMapBase {
      * @note O(N)
      */
     forEach(
-      f: (entry: [K, V], index: number, value: () => void) => void,
+      f: (entry: [K, V], index: number, halt: () => void) => void,
       options?: { state?: TraverseState }
     ): void;
     /**

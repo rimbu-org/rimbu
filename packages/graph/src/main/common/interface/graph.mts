@@ -3,7 +3,7 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type { GraphBase, GraphElement } from '@rimbu/graph/custom';
 
 /**
- * An type-invariant immutable graph.
+ * A type-invariant immutable graph.
  * See the [Graph documentation](https://rimbu.org/docs/collections/graph) and the [Graph API documentation](https://rimbu.org/api/rimbu/graph/Graph/interface)
  * @typeparam N - the node type
  */
@@ -38,7 +38,7 @@ export namespace Graph {
   export interface Builder<N> extends GraphBase.Builder<N, Graph.Types> {}
 
   /**
-   * The EdgeValuedGraGraphphSorted's Context instance that serves as a factory for all related immutable instances and builders.
+   * The Graph's Context instance that serves as a factory for all related immutable instances and builders.
    * @typeparam UN - the upper type limit for node types for which this context can create instances
    */
   export interface Context<UN> extends GraphBase.Context<UN, Graph.Types> {}

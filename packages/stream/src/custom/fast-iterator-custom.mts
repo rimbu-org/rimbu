@@ -12,11 +12,19 @@ import {
   type StreamSourceHelpers,
 } from '@rimbu/stream/custom';
 
+/**
+ * A frozen `IteratorResult` instance representing the completed iterator state.
+ * This value is reused by several fast iterator implementations to avoid allocations.
+ */
 export const fixedDoneIteratorResult: IteratorResult<any> = Object.freeze({
   done: true,
   value: undefined,
 });
 
+/**
+ * A `FastIterator` that is already exhausted and never yields values.
+ * Its `fastNext` method always returns the provided fallback value.
+ */
 export const emptyFastIterator: FastIterator<any> = Object.freeze({
   fastNext<O>(otherwise?: OptLazy<O>): O {
     return OptLazy(otherwise) as O;
@@ -26,6 +34,10 @@ export const emptyFastIterator: FastIterator<any> = Object.freeze({
   },
 });
 
+/**
+ * Returns true if the given `iterator` implements the `FastIterator` interface.
+ * @param iterator - the iterator instance to test
+ */
 export function isFastIterator<T>(
   iterator: Iterator<T>
 ): iterator is FastIterator<T> {
@@ -33,8 +45,8 @@ export function isFastIterator<T>(
 }
 
 /**
- * A base class for `FastIterator` instances, that takes implements the default `next`
- * function based on the abstract `fastNext` function.
+ * A base class for `FastIterator` instances that implements the standard `next`
+ * method in terms of the abstract `fastNext` method.
  */
 export abstract class FastIteratorBase<T> implements FastIterator<T> {
   abstract fastNext<O>(otherwise?: OptLazy<O>): T | O;

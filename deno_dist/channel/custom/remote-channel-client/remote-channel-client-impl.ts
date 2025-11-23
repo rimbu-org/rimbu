@@ -6,6 +6,9 @@ import {
   type RemoteChannelServerImpl,
 } from '../index.ts';
 
+/**
+ * Concrete factory used by `RemoteChannelClient.create` to construct a client over a given message port.
+ */
 export async function RemoteChannelClientImpl(config: {
   port: RemoteChannel.SimpleMessagePort;
   rcsChannelId?: string;

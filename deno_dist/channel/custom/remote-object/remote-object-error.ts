@@ -6,7 +6,7 @@ import { ErrBase } from '../../../common/mod.ts';
 export abstract class RemoteObjectError extends ErrBase.CustomError {}
 
 /**
- * Error indicating that a path part is not of the expected tyoe,
+ * Error indicating that a path part is not of the expected type.
  */
 export class RemoteObjectInvalidPathPartTypeError extends RemoteObjectError {
   constructor() {
@@ -15,7 +15,7 @@ export class RemoteObjectInvalidPathPartTypeError extends RemoteObjectError {
 }
 
 /**
- * Error indicating that a remote function call was not actually a function,
+ * Error indicating that a remote function call was not actually a function.
  */
 export class RemoteObjectInvalidFunctionApplicationError extends RemoteObjectError {
   constructor() {
@@ -24,7 +24,7 @@ export class RemoteObjectInvalidFunctionApplicationError extends RemoteObjectErr
 }
 
 /**
- * Error indicating that a remote object property did not exist,
+ * Error indicating that a remote object property did not exist.
  */
 export class RemoteObjectInvalidAccessError extends RemoteObjectError {
   constructor() {

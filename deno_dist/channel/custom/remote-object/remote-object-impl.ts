@@ -1,9 +1,16 @@
 import { RemoteObject, type RpcProxy } from '../index.ts';
 
+/**
+ * Namespace containing types related to the `RemoteObjectImpl` call handler.
+ */
 export namespace RemoteObjectImpl {
   export type CallHandler = (path: RpcProxy.Path) => Promise<any>;
 }
 
+/**
+ * Creates a `RemoteObject` call handler that safely traverses and invokes members on the given source object.
+ * @param source - the object to expose remotely
+ */
 export function RemoteObjectImpl(source: any): RemoteObjectImpl.CallHandler {
   return async (path) => {
     let parent: any = undefined;

@@ -55,7 +55,7 @@ export namespace CrossChannel {
 
     /**
      * Returns a CrossChannel where the send module comprises the given `writeCh`, and the receive module
-     * conists of the given `readCh`.
+     * consists of the given `readCh`.
      * @typeparam TSend - the send message type
      * @typeparam TReceive - the receive message type
      * @param writeCh - the write channel to use for sending messages

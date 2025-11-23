@@ -134,7 +134,7 @@ interface ProximityMapCreators extends RMapBase.Factory<ProximityMap.Types> {
    * @typeparam UK - the upper key type for which the context can create instances
    * @param options - (optional) an object containing the following properties:<br/>
    * - distanceFunction: (optional) the distance function used to compare the proximity between keys<br/>
-   * - listContext: (optional) the context to use to create the internal hashmap instances
+   * - hashMapContext: (optional) the context to use to create the internal HashMap instances
    */
   createContext<UK>(options?: {
     distanceFunction?: DistanceFunction<UK>;

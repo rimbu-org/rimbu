@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/channel",
-  "version": "0.3.2",
+  "version": "1.0.0",
   "description": "Channel implementation for TypeScript akin to Go Channels",
   "keywords": [
     "channel",

@@ -5,7 +5,7 @@ import type { EdgeGraphCreators, GraphElement } from '@rimbu/graph/custom';
 import { type EdgeGraphBase, GraphContext } from '@rimbu/graph/custom';
 
 /**
- * An type-invariant immutable edge (undirected) graph.
+ * A type-invariant immutable edge (undirected) graph.
  * See the [Graph documentation](https://rimbu.org/docs/collections/graph) and the [EdgeGraph API documentation](https://rimbu.org/api/rimbu/graph/EdgeGraph/interface)
  * @typeparam N - the node type
  */

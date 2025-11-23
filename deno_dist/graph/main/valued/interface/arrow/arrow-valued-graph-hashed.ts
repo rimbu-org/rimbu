@@ -12,7 +12,7 @@ import {
 } from '../../../../../graph/custom/index.ts';
 
 /**
- * An type-invariant immutable valued arrow (directed) graph.
+ * A type-invariant immutable valued arrow (directed) graph.
  * The nodes are internally maintained using HashMaps
  * See the [Graph documentation](https://rimbu.org/docs/collections/graph) and the [ArrowValuedGraphHashed API documentation](https://rimbu.org/api/rimbu/graph/ArrowValuedGraphHashed/interface)
  * @typeparam N - the node type
@@ -42,7 +42,8 @@ export namespace ArrowValuedGraphHashed {
       >,
       Streamable.NonEmpty<ValuedGraphElement<N, V>> {
     /**
-     * Returns a non-empty Stream containing all entries of this collection as tuples of key and value.
+     * Returns a non-empty `Stream` containing all graph elements of this collection as single tuples for isolated nodes
+     * and 3-valued tuples containing the source node, target node, and connection value for connections.
      * @example
      * ```ts
      * ArrowValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'b']).stream().toArray()
@@ -54,7 +55,7 @@ export namespace ArrowValuedGraphHashed {
 
   /**
    * A mutable `ArrowValuedGraphHashed` builder used to efficiently create new immutable instances.
-   * See the [Graph documentation](https://rimbu.org/docs/collections/graph) and the [ArrowValuedGraphHashed.BuilderAPI documentation](https://rimbu.org/api/rimbu/graph/ArrowValuedGraphHashed/Builder/interface)
+   * See the [Graph documentation](https://rimbu.org/docs/collections/graph) and the [ArrowValuedGraphHashed.Builder API documentation](https://rimbu.org/api/rimbu/graph/ArrowValuedGraphHashed/Builder/interface)
    * @typeparam N - the node type
    * @typeparam V - the connection value type
    */

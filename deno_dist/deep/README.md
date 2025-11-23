@@ -1,122 +1,347 @@
 <p align="center">
-    <img src="https://github.com/rimbu-org/rimbu/raw/main/assets/rimbu_logo.svg" />
+  <img src="https://github.com/rimbu-org/rimbu/raw/main/assets/rimbu_logo.svg" height="96" alt="Rimbu Logo" />
 </p>
 
-[![npm version](https://badge.fury.io/js/@rimbu%2Fdeep.svg)](https://www.npmjs.com/package/@rimbu/deep) [![Deno](https://shield.deno.dev/x/rimbu)](http://deno.land/x/rimbu)
+<div align="center">
 
-![Licence](https://img.shields.io/github/license/rimbu-org/rimbu)
+[![npm version](https://badge.fury.io/js/@rimbu%2Fdeep.svg)](https://www.npmjs.com/package/@rimbu/deep)
+![License](https://img.shields.io/github/license/rimbu-org/rimbu)
+![Types Included](https://img.shields.io/badge/TypeScript-ready-blue)
+![Node](https://img.shields.io/badge/Node-18+-6DA55F?logo=node.js&logoColor=white)
+![Deno](https://shield.deno.dev/x/rimbu)
+![Bun](https://img.shields.io/badge/Bun-%23000000.svg)
+![ESM + CJS](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-informational)
 
-# @rimbu/deep
+</div>
 
-Welcome to `@rimbu/deep`! This package offers powerful tools to handle plain JavaScript objects as immutable objects, making your code more robust and maintainable.
+# `@rimbu/deep`
 
-### Key Features:
+**Immutable, type-safe utilities for deeply patching, matching, and selecting from plain JavaScript objects.**
 
-- **Immutable Modification**: Use the [`Patch` object](https://rimbu.org/docs/deep/patch) for convenient and immutable modifications of simple objects.
-- **Pattern Matching**: The [`Match` object](https://rimbu.org/docs/deep/match) allows easy pattern matching on plain objects.
-- **Nested Value Querying**: Easily query nested values with the [`Path` object](https://rimbu.org/docs/deep/path).
-- **Compile-Time Protection**: The [`Immutable` type](https://rimbu.org/docs/deep/immutable) helps create plain objects with compile-time protection against mutation.
-- **Flexible Tuples**: The [`Tuple` type](https://rimbu.org/docs/deep/tuple) provides similar functionality to `as const` but with more flexibility.
+`@rimbu/deep` gives you a set of composable tools – `Patch`, `Match`, `Path`, `Selector`, `Protected`, and `Tuple` –
+to treat plain objects as if they were immutable, deeply typed data structures. You can:
 
-### Documentation
+- **Apply immutable updates** to nested structures using a flexible `Patch` notation.
+- **Express rich match conditions** over objects and arrays using `Match`.
+- **Access nested properties safely** using type‑checked string `Path`s.
+- **Build typed projections** from objects using `Selector` shapes.
+- **Protect values at compile time** from accidental mutation using `Protected`.
+- **Work ergonomically with tuples** and fixed‑length arrays via `Tuple`.
 
-For complete documentation, please visit the [Immutable Objects overview](https://rimbu.org/docs/deep/overview) in the [Rimbu Docs](https://rimbu.org), or directly explore the [Rimbu Deep API Docs](https://rimbu.org/api/rimbu/deep).
+Use it whenever you want the convenience of plain objects, but with **deep type safety**, **immutable semantics**, and
+**refactor‑friendly string paths**.
 
-### Try It Out
+---
 
-Experience `@rimbu/deep` in action! [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts) on CodeSandBox.
+## Table of Contents
+
+1. [Why `@rimbu/deep`?](#why-rimbu-deep)
+2. [Feature Highlights](#feature-highlights)
+3. [Quick Start](#quick-start)
+4. [Core Concepts & Types](#core-concepts--types)
+5. [Deep API Helpers](#deep-api-helpers)
+6. [Installation](#installation)
+7. [Ecosystem & Further Reading](#ecosystem--further-reading)
+8. [Contributing](#contributing)
+9. [License](#license)
+
+---
+
+## Why `@rimbu/deep`?
+
+Plain objects are great, but they quickly become painful when:
+
+- You need to **update nested fields immutably** (e.g. in Redux‑style state).
+- You want **type‑safe string paths** like `'a.b.c[0]?.d'` instead of ad‑hoc helpers.
+- You’d like to **pattern‑match** complex structures without a forest of `if`/`switch` checks.
+- You want to **project and reshape data** (e.g. API responses) into well‑typed views.
+
+`@rimbu/deep` focuses on:
+
+- **Type‑driven paths and selectors** – `Path` and `Selector` are derived from your data types.
+- **Immutable patching** – `Patch` lets you describe updates declaratively and apply them in one go.
+- **Expressive matching** – `Match` supports nested objects, arrays, tuples, and compound predicates.
+- **Compile‑time protection** – `Protected<T>` makes entire object graphs appear readonly to TypeScript.
+
+If you find yourself writing a lot of manual cloning, deep property access, or matcher utilities, `@rimbu/deep` is a
+drop‑in improvement.
+
+---
+
+## Feature Highlights
+
+- **Deep immutable patching** with `patch` and `patchAt`:
+  describe updates using nested objects/arrays and functions instead of manual cloning.
+- **Typed string paths** with `Path.Get` and `Path.Set`:
+  only valid paths for your data type compile.
+- **Structured matching** with `match`:
+  supports nested objects, tuple/array traversal, and compound matchers (`every`, `some`, `none`, `single`).
+- **Selection & projection** with `select` and `Selector`:
+  derive new shapes from existing data using path strings, functions, or nested selector objects.
+- **Compile‑time protection** with `Protected` and `protect`:
+  make values deeply readonly at the type level while still using the underlying runtime value.
+- **Tuple helpers** with `Tuple`:
+  ergonomics around fixed‑length tuples (construction, indexing, updates, etc.).
+
+---
+
+## Quick Start
+
+```ts
+import { Deep } from '@rimbu/deep';
+
+const input = { a: 1, b: { c: true, d: 'a' } } as const;
+
+// Immutable deep patch
+const updated = Deep.patch(input, [{ b: [{ c: (v) => !v }] }]);
+// => { a: 1, b: { c: false, d: 'a' } }
+
+// Type-safe nested get
+const cValue = Deep.getAt(input, 'b.c'); // boolean
+
+// Pattern matching
+if (Deep.match(input, { b: { c: true } })) {
+  // ...
+}
+
+// Selection / projection
+const projected = Deep.select(input, { flag: 'b.c', label: 'b.d' });
+// projected: { flag: boolean; label: string }
+```
+
+Try Rimbu (including `@rimbu/deep`) live in the browser using the
+[Rimbu Sandbox on CodeSandbox](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts).
+
+---
+
+## Core Concepts & Types
+
+### Exported Types & Namespaces
+
+From `@rimbu/deep`’s main entrypoint you have access to:
+
+| Name                         | Description                                                                                              |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `Patch<T, C = T>`           | Type describing allowed patch shapes for a value of type `T`.                                           |
+| `Match<T, C = Partial<T>>`  | Type describing allowed matchers for values of type `T`.                                                |
+| `Path`                      | Namespace containing `Path.Get<T>`, `Path.Set<T>`, and `Path.Result<T, P>` utilities for string paths.  |
+| `Selector<T>`               | Type describing allowed selector shapes for values of type `T`.                                         |
+| `Protected<T>`              | Deeply readonly/“protected” view of `T` for compile‑time mutation safety.                               |
+| `Tuple<T extends Tuple.Source>` | Tuple wrapper with helper types and functions under the `Tuple` namespace.                          |
+| `Deep`                      | Convenience namespace exposing the main deep utilities (`patch`, `match`, `getAt`, `select`, etc.).    |
+
+See the [Deep overview docs](https://rimbu.org/docs/deep/overview) and
+[API reference](https://rimbu.org/api/rimbu/deep) for the full surface.
+
+### Patching with `patch` and `Patch`
+
+```ts
+import { Deep, type Patch } from '@rimbu/deep';
+
+type State = {
+  count: number;
+  user?: { name: string; active: boolean };
+};
+
+const state: State = { count: 1, user: { name: 'Ada', active: true } };
+
+const patchItem: Patch<State> = [
+  { count: (v) => v + 1 },
+  { user: [{ active: false }] },
+];
+
+const next = Deep.patch(state, patchItem);
+// => { count: 2, user: { name: 'Ada', active: false } }
+```
+
+Patches can be:
+
+- Direct replacement values (`T`).
+- Functions `(current, parent, root) => newValue`.
+- Nested objects / arrays describing which fields or tuple indices to update.
+
+### Matching with `match` and `Match`
+
+```ts
+import { Deep, type Match } from '@rimbu/deep';
+
+type Item = { id: number; tags: string[] };
+
+const items: Item[] = [
+  { id: 1, tags: ['a', 'b'] },
+  { id: 2, tags: ['b'] },
+];
+
+const matcher: Match<Item> = {
+  tags: { someItem: (tag) => tag === 'a' },
+};
+
+const result = items.filter((item) => Deep.match(item, matcher));
+// => only items containing tag 'a'
+```
+
+`Match` supports:
+
+- Plain object matchers (`{ a: 1, b: { c: true } }`).
+- Function matchers `(value, parent, root) => boolean | matcher`.
+- Array/tuple matchers and traversal helpers such as `someItem`, `everyItem`, `noneItem`, `singleItem`.
+- Compound matchers like `['every', matcher1, matcher2]`.
+
+### Paths with `Path.Get`, `Path.Set` and `getAt` / `patchAt`
+
+```ts
+import { Deep, type Path } from '@rimbu/deep';
+
+type Model = { a: { b: { c: number }[] } };
+const value: Model = { a: { b: { c: [5, 6] } } as any };
+
+// Typed paths
+const path: Path.Get<Model> = 'a.b.c[1]?.d'; // compile-time checked
+
+// Reading
+const result = Deep.getAt(value, 'a.b.c[0]'); // number | undefined
+
+// Patching at a path
+const updated = Deep.patchAt(value, 'a.b.c', (arr) => [...arr, 7]);
+```
+
+`Path.Result<T, P>` gives you the resulting type at a given path `P` in `T`.
+
+### Selection with `Selector` and `select`
+
+```ts
+import { Deep, type Selector } from '@rimbu/deep';
+
+type Source = {
+  a: { b: number; c: string };
+  meta: { createdAt: string };
+};
+
+const source: Source = {
+  a: { b: 1, c: 'x' },
+  meta: { createdAt: '2024-01-01' },
+};
+
+const selector: Selector<Source> = {
+  value: 'a.b',
+  label: 'a.c',
+  created: 'meta.createdAt',
+};
+
+const view = Deep.select(source, selector);
+// view: { value: number; label: string; created: string }
+```
+
+Selectors can be:
+
+- String paths.
+- Functions `(value: Protected<T>) => any`.
+- Arrays or objects composed of other selectors.
+
+### Protection with `Protected` and `protect`
+
+```ts
+import { Deep, type Protected } from '@rimbu/deep';
+
+type Data = { a: { b: number[] } };
+
+const data: Data = { a: { b: [1, 2] } };
+const protectedData: Protected<Data> = Deep.protect(data);
+
+// protectedData.a.b.push(3); // TypeScript error – `b` is readonly
+```
+
+`Protected<T>` is a **type‑level** construct: it does not freeze the value at runtime, but helps prevent
+accidental mutations in your code.
+
+---
+
+## Deep API Helpers
+
+All top‑level utilities are also available through the `Deep` namespace:
+
+```ts
+import { Deep } from '@rimbu/deep';
+
+// Functional helpers
+const incCount = Deep.patchWith<{ count: number }>([{ count: (v) => v + 1 }]);
+const onlyActive = Deep.matchWith({ active: true });
+const getName = Deep.getAtWith<{ user: { name: string } }>('user.name');
+
+// Typed, curried API with withType
+const s = { a: 1, b: { c: 'a', d: true } };
+const api = Deep.withType<typeof s>();
+
+const next = api.patchWith([{ b: [{ d: (v) => !v }] }])(s);
+// => { a: 1, b: { c: 'a', d: false } }
+```
+
+The `Deep` namespace mirrors the main exports:
+
+- `Deep.patch`, `Deep.patchAt`, `Deep.patchWith`, `Deep.patchAtWith`
+- `Deep.match`, `Deep.matchAt`, `Deep.matchWith`, `Deep.matchAtWith`
+- `Deep.getAt`, `Deep.getAtWith`
+- `Deep.select`, `Deep.selectAt`, `Deep.selectWith`, `Deep.selectAtWith`
+- `Deep.withType<T>()` for creating a typed, curried API.
+
+---
 
 ## Installation
 
-### Compabitity
-
-- [`Node` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
-- [`Deno` ![Deno JS](https://img.shields.io/badge/deno%20js-000000?logo=deno&logoColor=white)](https://deno.com/runtime)
-- [`Bun` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
-- `Web` ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
-
-### Package Managers
-
-**Yarn:**
-
-```sh
-yarn add @rimbu/deep
-```
-
-**npm:**
+### Node / Bun / npm / Yarn
 
 ```sh
 npm install @rimbu/deep
-```
-
-**Bun:**
-
-```sh
+# or
+yarn add @rimbu/deep
+# or
 bun add @rimbu/deep
 ```
 
-### Deno Setup
+### Deno (import map)
 
-Create or edit `import_map.json` in your project root:
-
-```json
+```jsonc
 {
   "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@x.y.z/"
+    "@rimbu/": "https://deno.land/x/rimbu@<version>/"
   }
 }
 ```
 
-_Replace `x.y.z` with the desired version._
-
-In this way you can use relative imports from Rimbu in your code, like so:
+Then:
 
 ```ts
-import { List } from '@rimbu/core/mod.ts';
-import { HashMap } from '@rimbu/hashed/mod.ts';
+import { Deep } from '@rimbu/deep/mod.ts';
 ```
 
-Note that for sub-packages, due to conversion limitations it is needed to import the `index.ts` instead of `mod.ts`, like so:
+### Browser / ESM
 
-```ts
-import { HashMap } from '@rimbu/hashed/map/index.ts';
-```
+`@rimbu/deep` ships both **ESM** and **CJS** builds. Use it with any modern bundler
+(Vite, Webpack, esbuild, Bun, etc.) or directly in Node ESM projects.
 
-To run your script (let's assume the entry point is in `src/main.ts`):
+---
 
-`deno run --import-map import_map.json src/main.ts`
+## Ecosystem & Further Reading
 
-## Usage
+- Part of the broader **Rimbu** ecosystem – interoperates with `@rimbu/core`, `@rimbu/collection-types`,
+  and other collection packages.
+- Ideal for modelling immutable application state, selectors, and matchers in complex domains.
+- Learn more in the [Deep overview docs](https://rimbu.org/docs/deep/overview) and the
+  [Deep API reference](https://rimbu.org/api/rimbu/deep).
 
-```ts
-import { patch } from '@rimbu/deep';
-
-console.log(
-  patch({
-    a: 'a',
-    b: { c: 1, d: true },
-  })({
-    a: 'q',
-    b: { c: (v) => v + 1 },
-  })
-);
-// => { a: 'q', b: { c: 2, d: true }}
-```
-
-## Author
-
-Created and maintained by [Arvid Nicolaas](https://github.com/vitoke).
+---
 
 ## Contributing
 
-We welcome contributions! Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
+We welcome contributions! See the
+[Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md) for details.
 
-## Contributors
-
-<img src = "https://contrib.rocks/image?repo=rimbu-org/rimbu"/>
+<img src="https://contrib.rocks/image?repo=rimbu-org/rimbu" alt="Contributors" />
 
 _Made with [contributors-img](https://contrib.rocks)._
 
+---
+
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) for details.
+MIT © Rimbu contributors. See [LICENSE](./LICENSE) for details.

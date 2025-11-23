@@ -5,7 +5,7 @@ import type { ArrowGraphCreators, Link } from '../../../../../graph/custom/index
 import { type ArrowGraphBase, GraphContext } from '../../../../../graph/custom/index.ts';
 
 /**
- * An type-invariant immutable arrow (directed) graph.
+ * A type-invariant immutable arrow (directed) graph.
  * See the [Graph documentation](https://rimbu.org/docs/collections/graph) and the [ArrowGraph API documentation](https://rimbu.org/api/rimbu/graph/ArrowGraph/interface)
  * @typeparam N - the node type
  */

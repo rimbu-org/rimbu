@@ -1,10 +1,10 @@
 /**
- * Throws an `Err.ForcedError` error when called.
+ * Throws an `ErrBase.ForcedError` error when called.
  * @example
  * ```ts
  * const emptyMap = HashMap.empty<number, string>()
  * emptyMap.get(5, Err);
- * // throws: Err.CustomError(message: 'Err: forced to throw error')
+ * // throws: ErrBase.ForcedError(message: 'Err: Forced to throw error')
  * ```
  */
 export function Err(): never {
@@ -23,6 +23,9 @@ export namespace ErrBase {
     }
   }
 
+  /**
+   * Error type that is thrown by `Err` and the functions returned by `ErrBase.msg`.
+   */
   export class ForcedError extends CustomError {}
 
   /**
@@ -32,7 +35,7 @@ export namespace ErrBase {
    * ```ts
    * const emptyMap = HashMap.empty<number, string>()
    * emptyMap.get(5, ErrBase.msg('not found'));
-   * // throws: Err.CustomError(message: 'not found')
+   * // throws: ErrBase.ForcedError(message: 'not found')
    * ```
    */
   export function msg(message: string): () => never {

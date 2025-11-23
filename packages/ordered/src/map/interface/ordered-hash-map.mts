@@ -36,7 +36,7 @@ export namespace OrderedHashMap {
    * duplicate keys.
    * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [OrderedHashMap API documentation](https://rimbu.org/api/rimbu/ordered/map/OrderedHashMap/interface)
    * @note
-   * - The OrderedHashMap keeps maintains the insertion order of elements, thus
+   * - The OrderedHashMap keeps the insertion order of elements, thus
    * iterators and streams will also reflect this order.
    * - The OrderedHashMap wraps around a HashMap instance, thus has mostly the same time complexity
    * as the HashMap.

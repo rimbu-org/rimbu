@@ -11,6 +11,9 @@ import {
   timeoutAction,
 } from '../index.mjs';
 
+/**
+ * Namespace containing shared protocol message types used by the remote channel implementations.
+ */
 export namespace RemoteChannelBase {
   export interface MessageBase<T extends string> {
     channelId: string;
@@ -33,6 +36,9 @@ export namespace RemoteChannelBase {
   export type MessageTypes = MessageFormat['type'];
 }
 
+/**
+ * Base class encapsulating the low-level message-port protocol used by remote read/write channel implementations.
+ */
 export abstract class RemoteChannelBase {
   readonly #port;
   readonly #channelId;
@@ -124,6 +130,10 @@ export abstract class RemoteChannelBase {
   }
 }
 
+/**
+ * Implementation of a write-only remote `Channel` using a `RemoteChannel.SimpleMessagePort`.
+ * @typeparam T - the channel message type
+ */
 export class RemoteChannelWrite<T>
   extends RemoteChannelBase
   implements Channel.Write<T>
@@ -300,6 +310,10 @@ export class RemoteChannelWrite<T>
   }
 }
 
+/**
+ * Implementation of a read-only remote `Channel` using a `RemoteChannel.SimpleMessagePort`.
+ * @typeparam T - the channel message type
+ */
 export class RemoteChannelRead<T>
   extends RemoteChannelBase
   implements Channel.Read<T>

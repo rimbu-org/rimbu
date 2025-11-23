@@ -90,9 +90,9 @@ export function patchAtWith<T, P extends Path.Set<T>, TE extends T = T, TT = T>(
 
 /**
  * Returns a function that matches a given `value` with the given `matcher`.
- * @typeparam T - the patch value type
+ * @typeparam T - the input value type
  * @param matcher - a matcher object that matches input values.
- * @param source - the value to use the given `patchItem` on at the given `path`.
+ * @param source - the value to match (parameter of the returned function).
  * @example
  * ```ts
  * const items = [{ a: 1, b: 'a' }, { a: 2, b: 'b' }];
@@ -128,7 +128,7 @@ export function matchAt<T, P extends Path.Get<T>>(
 
 /**
  * Returns a function that matches a given `value` with the given `matcher` at the given string `path`.
- * @typeparam T - the patch value type
+ * @typeparam T - the input value type
  * @typeparam P - the string literal path type in the object
  * @typeparam TE - utility type
  * @param path - the string path in the object
@@ -150,7 +150,7 @@ export function matchAtWith<T, P extends Path.Get<T>, TE extends T = T>(
 
 /**
  * Returns a function that selects a certain shape from a given `value` with the given `selector`.
- * @typeparam T - the patch value type
+ * @typeparam T - the input value type
  * @typeparam SL - the selector shape type
  * @param selector - a shape indicating the selection from the source values
  * @param source - the value to use the given `selector` on.
@@ -169,7 +169,7 @@ export function selectWith<T, SL extends Selector<T>>(
 
 /**
  * Returns the result of applying the given `selector` shape to the given `source` value.
- * @typeparam T - the patch value type
+ * @typeparam T - the input value type
  * @typeparam P - the string literal path type in the object
  * @typeparam SL - the selector shape type
  * @param source - the source value to select from
@@ -196,7 +196,7 @@ export function selectAt<
 
 /**
  * Returns a function that selects a certain shape from a given `value` with the given `selector` at the given string `path`.
- * @typeparam T - the patch value type
+ * @typeparam T - the input value type
  * @typeparam P - the string literal path type in the object
  * @typeparam SL - the selector shape type
  * @param path - the string path in the object

@@ -1,24 +1,24 @@
 import type { AsyncStream } from '@rimbu/stream/async';
 
 /**
- * Represents an object that can produce an asynchronous stream of values.
- * @typeparam T - the type of elements in the stream
+ * An object that can create an `AsyncStream` of elements of type `T`.
+ * @typeparam T - the element type
  */
 export interface AsyncStreamable<T> {
   /**
-   * Returns an asynchronous stream of values.
+   * Returns an asynchronous stream containing the elements in this collection.
    */
   asyncStream(): AsyncStream<T>;
 }
 
 export namespace AsyncStreamable {
   /**
-   * Represents a non-empty object that can produce an asynchronous stream of values.
-   * @typeparam T - the type of elements in the stream
+   * An object that can create a non-empty `AsyncStream` of elements of type `T`.
+   * @typeparam T - the element type
    */
   export interface NonEmpty<T> {
     /**
-     * Returns an asynchronous stream of values.
+     * Returns a non-empty asynchronous stream containing the elements in this collection.
      */
     asyncStream(): AsyncStream.NonEmpty<T>;
   }

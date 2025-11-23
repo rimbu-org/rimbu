@@ -32,6 +32,8 @@ export namespace BiMultiMap {
 
   /**
    * The BiMultiMap's Context instance that serves as a factory for all related immutable instances and builders.
+   * @typeparam UK - the upper key type for which the context can create instances
+   * @typeparam UV - the upper value type for which the context can create instances
    */
   export interface Context<UK, UV>
     extends BiMultiMapBase.Context<UK, UV, BiMultiMap.Types> {}

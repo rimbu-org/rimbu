@@ -107,6 +107,12 @@ function createContext<UR, UC>(options?: {
 const _defaultContext: HashTableSortedColumn.Context<any, any> =
   createContext();
 
+/**
+ * The default `HashTableSortedColumn` creators and context.
+ *
+ * Use this exported value to create and work with immutable `HashTableSortedColumn` instances.
+ * See the [HashTableSortedColumn API documentation](https://rimbu.org/api/rimbu/table/hash-row/HashTableSortedColumn/interface).
+ */
 export const HashTableSortedColumn: HashTableSortedColumnCreators =
   Object.freeze({
     ..._defaultContext,

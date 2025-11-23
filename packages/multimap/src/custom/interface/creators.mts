@@ -11,6 +11,9 @@ import type {
 } from '@rimbu/multimap';
 import type { MultiMapBase } from '@rimbu/multimap/custom';
 
+/**
+ * The creators interface for `MultiMap`, exposing the factory function used by the exported `MultiMap` constant.
+ */
 export interface MultiMapCreators {
   /**
    * Returns a new MultiMap context instance based on the given `options`.
@@ -51,8 +54,8 @@ export interface HashMultiMapSortedValueCreators
   extends MultiMapBase.Factory<HashMultiMapSortedValue.Types> {
   /**
    * Returns a new HashMultiMapSortedValue context instance based on the given `options`.
-   * @typeparam UK - the upper key type for which the context can create instances
-   * @typeparam UV - the upper value type for which the context can create instances
+   * @typeparam K - the upper key type for which the context can create instances
+   * @typeparam V - the upper value type for which the context can create instances
    * @param options - (optional) an object containing the following properties:<br/>
    * - keyMapContext: (optional) the map context to use for key to valueset mappings<br/>
    * - keyMapValuesContext: (optional) the set context to use for value sets
@@ -73,8 +76,8 @@ export interface SortedMultiMapHashValueCreators
   extends MultiMapBase.Factory<SortedMultiMapHashValue.Types> {
   /**
    * Returns a new SortedMultiMapHashValue context instance based on the given `options`.
-   * @typeparam UK - the upper key type for which the context can create instances
-   * @typeparam UV - the upper value type for which the context can create instances
+   * @typeparam K - the upper key type for which the context can create instances
+   * @typeparam V - the upper value type for which the context can create instances
    * @param options - (optional) an object containing the following properties:<br/>
    * - keyMapContext: (optional) the map context to use for key to valueset mappings<br/>
    * - keyMapValuesContext: (optional) the set context to use for value sets
@@ -85,8 +88,8 @@ export interface SortedMultiMapHashValueCreators
   }): SortedMultiMapHashValue.Context<K, V>;
   /**
    * Returns the default context for SortedMultiMapHashValue.
-   * @typeparam UK - the upper key type for which the context can create instances
-   * @typeparam UV - the upper value type for which the context can create instances
+   * @typeparam K - the upper key type for which the context can create instances
+   * @typeparam V - the upper value type for which the context can create instances
    */
   defaultContext<K, V>(): SortedMultiMapHashValue.Context<K, V>;
 }
@@ -95,8 +98,8 @@ export interface SortedMultiMapSortedValueCreators
   extends MultiMapBase.Factory<SortedMultiMapSortedValue.Types> {
   /**
    * Returns a new SortedMultiMapSortedValue context instance based on the given `options`.
-   * @typeparam UK - the upper key type for which the context can create instances
-   * @typeparam UV - the upper value type for which the context can create instances
+   * @typeparam K - the upper key type for which the context can create instances
+   * @typeparam V - the upper value type for which the context can create instances
    * @param options - (optional) an object containing the following properties:<br/>
    * - keyMapContext: (optional) the map context to use for key to valueset mappings<br/>
    * - keyMapValuesContext: (optional) the set context to use for value sets
@@ -106,7 +109,7 @@ export interface SortedMultiMapSortedValueCreators
     keyMapValuesContext?: SortedSet.Context<V>;
   }): SortedMultiMapSortedValue.Context<K, V>;
   /**
-   * Returns the default context for HashMultiMapHashValue.
+   * Returns the default context for SortedMultiMapSortedValue.
    * @typeparam UK - the upper key type for which the context can create instances
    * @typeparam UV - the upper value type for which the context can create instances
    */

@@ -11,7 +11,7 @@ import {
 } from '@rimbu/graph/custom';
 
 /**
- * An type-invariant immutable valued edge (undirected) graph.
+ * A type-invariant immutable valued edge (undirected) graph.
  * The nodes are internally maintained using SortedMaps
  * See the [Graph documentation](https://rimbu.org/docs/collections/graph) and the [EdgeValuedGraphSorted API documentation](https://rimbu.org/api/rimbu/graph/EdgeValuedGraphSorted/interface)
  * @typeparam N - the node type
@@ -41,7 +41,8 @@ export namespace EdgeValuedGraphSorted {
       >,
       Streamable.NonEmpty<ValuedGraphElement<N, V>> {
     /**
-     * Returns a non-empty Stream containing all entries of this collection as tuples of key and value.
+     * Returns a non-empty `Stream` containing all graph elements of this collection as single tuples for isolated nodes
+     * and 3-valued tuples containing the source node, target node, and connection value for connections.
      * @example
      * ```ts
      * EdgeValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'b']).stream().toArray()

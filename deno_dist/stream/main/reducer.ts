@@ -666,13 +666,13 @@ export namespace Reducer {
    * @typeparam S - the internal state type
    * @example
    * ```ts
-   * const evenNumberOfOnes = Reducer
-   *   .create(
-   *     true,
-   *     (current, value: number) => value === 1 ? !current : current,
-   *     state => state ? 'even' : 'not even')
-   * const result = Stream.of(1, 2, 3, 2, 1)).reduce(evenNumberOfOnes)
-   * console.log+(result)
+   * const evenNumberOfOnes = Reducer.create(
+   *   true,
+   *   (current, value: number) => (value === 1 ? !current : current),
+   *   (state) => (state ? 'even' : 'not even')
+   * );
+   * const result = Stream.of(1, 2, 3, 2, 1).reduce(evenNumberOfOnes);
+   * console.log(result);
    * // => 'even'
    * ```
    */
@@ -696,13 +696,12 @@ export namespace Reducer {
    * @typeparam T - the overall value type
    * @example
    * ```ts
-   * const sum = Reducer
-   *   .createMono(
-   *     0,
-   *     (current, value) => current + value
-   *   )
-   * const result = Stream.of(1, 2, 3, 2, 1)).reduce(sum)
-   * console.log+(result)
+   * const sum = Reducer.createMono(
+   *   0,
+   *   (current, value) => current + value
+   * );
+   * const result = Stream.of(1, 2, 3, 2, 1).reduce(sum);
+   * console.log(result);
    * // => 9
    * ```
    */
@@ -727,13 +726,12 @@ export namespace Reducer {
    * @typeparam O - the output value type
    * @example
    * ```ts
-   * const boolToString = Reducer
-   *   .createOutput(
-   *     '',
-   *     (current, value: boolean) => current + (value ? 'T' : 'F')
-   *   )
-   * const result = Stream.of(true, false, true)).reduce(boolToString)
-   * console.log+(result)
+   * const boolToString = Reducer.createOutput(
+   *   '',
+   *   (current, value: boolean) => current + (value ? 'T' : 'F')
+   * );
+   * const result = Stream.of(true, false, true).reduce(boolToString);
+   * console.log(result);
    * // => 'TFT'
    * ```
    */
@@ -982,7 +980,7 @@ export namespace Reducer {
    * @typeparam O - the fallback value type
    * @example
    * ```ts
-   * console.log(Stream.range{ amount: 10 }).reduce(Reducer.first())
+   * console.log(Stream.range({ amount: 10 }).reduce(Reducer.first()))
    * // => 0
    * ```
    */
@@ -1007,7 +1005,7 @@ export namespace Reducer {
    * @typeparam O - the fallback value type
    * @example
    * ```ts
-   * console.log(Stream.range{ amount: 10 }).reduce(Reducer.last())
+   * console.log(Stream.range({ amount: 10 }).reduce(Reducer.last()))
    * // => 9
    * ```
    */
@@ -1054,7 +1052,9 @@ export namespace Reducer {
    * - negate: (default: false) when true will invert the given predicate
    * @example
    * ```ts
-   * console.log(Stream.range{ amount: 10 }).reduce(Reducer.some(v => v > 5))
+   * console.log(
+   *   Stream.range({ amount: 10 }).reduce(Reducer.some((v) => v > 5))
+   * )
    * // => true
    * ```
    */
@@ -1073,7 +1073,9 @@ export namespace Reducer {
    * - negate: (default: false) when true will invert the given predicate
    * @example
    * ```ts
-   * console.log(Stream.range{ amount: 10 }).reduce(Reducer.every(v => v < 5))
+   * console.log(
+   *   Stream.range({ amount: 10 }).reduce(Reducer.every((v) => v < 5))
+   * )
    * // => false
    * ```
    */

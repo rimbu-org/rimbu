@@ -4,7 +4,7 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type { GraphElement, Link, VariantGraphBase } from '@rimbu/graph/custom';
 
 /**
- * An type-variant immutable graph.
+ * A type-variant immutable graph.
  * See the [Graph documentation](https://rimbu.org/docs/collections/graph) and the [VariantGraph API documentation](https://rimbu.org/api/rimbu/graph/VariantGraph/interface)
  * @typeparam N - the node type
  */

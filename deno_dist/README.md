@@ -1,62 +1,78 @@
 <p align="center">
-    <img src="https://github.com/rimbu-org/rimbu/raw/main/assets/rimbu_logo.svg" />
+  <img src="https://github.com/rimbu-org/rimbu/raw/main/assets/rimbu_logo.svg" alt="Rimbu logo" height="120" />
 </p>
 
-[![npm version](https://badge.fury.io/js/@rimbu%2Fcore.svg)](https://www.npmjs.com/package/@rimbu/core)
-[![Deno](https://shield.deno.dev/x/rimbu)](http://deno.land/x/rimbu)
-![Licence](https://img.shields.io/github/license/rimbu-org/rimbu)
-[![codecov](https://codecov.io/gh/rimbu-org/rimbu/branch/main/graph/badge.svg?token=RSFK5B0N0Z)](https://codecov.io/gh/rimbu-org/rimbu)
+<p align="center">
+  <a href="https://www.npmjs.com/package/@rimbu/core">
+    <img src="https://badge.fury.io/js/@rimbu%2Fcore.svg" alt="npm version" />
+  </a>
+  <a href="https://deno.land/x/rimbu">
+    <img src="https://shield.deno.dev/x/rimbu" alt="Deno" />
+  </a>
+  <a href="https://github.com/rimbu-org/rimbu/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/rimbu-org/rimbu" alt="License: MIT" />
+  </a>
+  <a href="https://codecov.io/gh/rimbu-org/rimbu">
+    <img src="https://codecov.io/gh/rimbu-org/rimbu/branch/main/graph/badge.svg?token=RSFK5B0N0Z" alt="codecov" />
+  </a>
+</p>
 
-# Rimbu: Immutable Collections and Tools for TypeScript
+## Rimbu: Immutable collections and tools for TypeScript
 
-Welcome to **Rimbu**—your go-to TypeScript library for highly performant, type-safe, and immutable collections. With Rimbu, your data manipulation tasks become more efficient and predictable, offering enhanced data integrity and type safety.
+**Rimbu** is a modern TypeScript library for **fast, immutable data structures** and **composable async utilities**. It gives you persistent lists, maps, sets, graphs, tables, streams, channels, and tasks with a strong type story and predictable performance across Node, Deno, Bun, and the browser.
 
-## Why Choose Rimbu?
+Use Rimbu when you want:
 
-- **Data Integrity**: Prevent accidental modifications and safeguard your original data.
-- **Debugging Made Easy**: Simplify reasoning about your code and catch bugs early.
-- **Type Safety**: Full compatibility with TypeScript ensures robust code.
-- **Performance Boost**: Reduce the need for deep copies.
-- **Functional Programming**: Supports immutability-based change detection, undo/redo features, and safe concurrent programming.
-- **Simplified Testing**: Eliminate side effects and simplify your tests.
-- **Versatile**: Works seamlessly across Web, Node.js, Bun, and Deno environments.
+- **Immutable by default**: structural sharing instead of manual copying, ideal for state management and undo/redo.
+- **First-class TypeScript**: rich generics, non-empty refinements, and higher-kinded collection types.
+- **Production-grade performance**: tree-based and hash-based structures tuned for real applications.
+- **Composable APIs**: collections, streams, channels, and tasks that interoperate cleanly.
 
-## Quick Links
+### Documentation & playground
 
-- 📚 [Rimbu Docs](https://rimbu.org)
-- 🗂 [Rimbu API Docs](https://rimbu.org/api)
-- 🎮 [Try Rimbu in CodeSandBox](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts)
+- **Docs**: [rimbu.org](https://rimbu.org)
+- **API reference**: [rimbu.org/api](https://rimbu.org/api)
+- **Guides & collection docs**: [rimbu.org/docs](https://rimbu.org/docs)
+- **Playground / sandbox**: [Rimbu Sandbox on CodeSandbox](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/main?previewwindow=console&view=split&editorsize=65&moduleview=1&module=/src/index.ts)
 
-## Installation
+---
 
-### Compatibility
+## Getting started
 
-- [`Node` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
-- [`Deno` ![Deno JS](https://img.shields.io/badge/deno%20js-000000?logo=deno&logoColor=white)](https://deno.com/runtime)
-- [`Bun` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
-- `Web` ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
+### Runtime compatibility
 
-### Package Managers
+- **Node** ![NodeJS](https://img.shields.io/badge/node.js-18+-6DA55F?logo=node.js&logoColor=white)
+- **Deno** ![Deno JS](https://img.shields.io/badge/deno%20js-000000?logo=deno&logoColor=white)
+- **Bun** ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)
+- **Web** ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
 
-**Yarn:**
+### Install (`@rimbu/core`)
+
+**Yarn**
 
 ```sh
 yarn add @rimbu/core
 ```
 
-**npm:**
+**npm**
 
 ```sh
 npm install @rimbu/core
 ```
 
-**Bun:**
+**pnpm**
+
+```sh
+pnpm add @rimbu/core
+```
+
+**Bun**
 
 ```sh
 bun add @rimbu/core
 ```
 
-### Deno Setup
+### Deno setup
 
 Create or edit `import_map.json` in your project root:
 
@@ -68,52 +84,118 @@ Create or edit `import_map.json` in your project root:
 }
 ```
 
-_Replace `x.y.z` with the desired version._
+_Replace `x.y.z` with the desired version._ You can then import from Rimbu just like in Node:
 
-## Main Packages
+```ts
+import { List } from '@rimbu/core/mod.ts';
+```
 
-| Package                                              | Description                                                |
-| ---------------------------------------------------- | ---------------------------------------------------------- |
-| [@rimbu/bimap](./rimbu/bimap)                       | Bidirectional map with one-to-one key-value mapping        |
-| [@rimbu/bimultimap](./rimbu/bimultimap)             | Bidirectional multimap with many-to-many key-value mapping |
-| [@rimbu/collection-types](./rimbu/collection-types) | Generic collection types definitions                       |
-| [@rimbu/common](./rimbu/common)                     | Common types and functions across the library              |
-| [@rimbu/core](./rimbu/core)                         | Exports most main types from other packages                |
-| [@rimbu/deep](./rimbu/deep)                         | Tools for treating JS objects as immutable                 |
-| [@rimbu/graph](./rimbu/graph)                       | Graph implementations with nodes and edges                 |
-| [@rimbu/hashed](./rimbu/hashed)                     | HashMap and HashSet implementations                        |
-| [@rimbu/list](./rimbu/list)                         | Efficiently ordered sequence manipulations                 |
-| [@rimbu/multimap](./rimbu/multimap)                 | Map with one-to-many key-value mapping                     |
-| [@rimbu/multiset](./rimbu/multiset)                 | Set allowing multiple occurrences of elements              |
-| [@rimbu/ordered](./rimbu/ordered)                   | OrderedSet and OrderedMap collections                      |
-| [@rimbu/sorted](./rimbu/sorted)                     | SortedMap and SortedSet with efficient sorting             |
-| [@rimbu/stream](./rimbu/stream)                     | Data sequence manipulation methods                         |
-| [@rimbu/table](./rimbu/table)                       | Table structures with row and column key mapping           |
+See the docs for more Deno and sub-package import examples.
 
-## Development Setup
+---
+
+## Quick example
+
+```ts
+import { List, HashMap, Stream } from '@rimbu/core';
+
+type User = { id: number; name: string; active: boolean };
+
+const users = List.of<User>(
+  { id: 1, name: 'Ada', active: true },
+  { id: 2, name: 'Grace', active: false },
+  { id: 3, name: 'Linus', active: true }
+);
+
+// Build an immutable index by id
+const byId = HashMap.from(
+  users.stream().map((u) => [u.id, u] as const)
+);
+
+// Stream over active user names
+const activeNames = Stream.from(users)
+  .filter((u) => u.active)
+  .map((u) => u.name)
+  .toArray();
+
+// Nothing above mutates the original data structures
+console.log(byId.get(1)?.name); // 'Ada'
+console.log(activeNames); // ['Ada', 'Linus']
+```
+
+For more examples, start from the [`@rimbu/core` README](./rimbu/core) or the online docs.
+
+---
+
+## Stable packages (v1.0.0 and higher)
+
+Rimbu is a monorepo of focused npm packages.  
+This overview only lists **packages that have reached version `1.0.0` or higher**. Each package directory contains a detailed README and API documentation links.
+
+### Core foundations
+
+| Package                                             | Description                                                                                           |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| [@rimbu/core](./rimbu/core)                        | **Single entrypoint** that re-exports the main Rimbu collections and utilities from one import.      |
+| [@rimbu/base](./rimbu/base)                        | Foundational **immutable array and utility primitives** used by all other Rimbu collections.         |
+| [@rimbu/collection-types](./rimbu/collection-types) | Shared **map/set interfaces and higher-kinded collection types** implemented by concrete packages.   |
+| [@rimbu/common](./rimbu/common)                    | Shared **equality, comparison, range, lazy, and type-level utilities** across the ecosystem.         |
+| [@rimbu/deep](./rimbu/deep)                        | **Deep patching, matching, paths, and selectors** for treating plain JS objects as immutable data.   |
+
+### Collections: maps, sets, lists, graphs, tables
+
+| Package                         | Description                                                                                                             |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| [@rimbu/list](./rimbu/list)    | **Immutable random-access lists** (vector-like) with efficient updates, slicing, and non-empty variants.              |
+| [@rimbu/hashed](./rimbu/hashed) | **HashMap** and **HashSet** implementations with configurable hashing and equality strategies.                        |
+| [@rimbu/sorted](./rimbu/sorted) | **SortedMap** and **SortedSet** with deterministic ordering, range queries, and index-based access.                   |
+| [@rimbu/ordered](./rimbu/ordered) | **OrderedMap** and **OrderedSet** that preserve insertion order on top of existing map/set implementations.          |
+| [@rimbu/bimap](./rimbu/bimap)  | **Bidirectional maps** (BiMap) that maintain a strict one-to-one mapping between keys and values.                     |
+| [@rimbu/bimultimap](./rimbu/bimultimap) | **Many-to-many bidirectional multimaps** where keys and values can both have multiple associations.           |
+| [@rimbu/multimap](./rimbu/multimap) | **One-to-many multimaps** where each key maps to a set of unique values.                                             |
+| [@rimbu/multiset](./rimbu/multiset) | **Multisets (bags)** that track how many times each element occurs.                                                 |
+| [@rimbu/table](./rimbu/table)  | **2D tables** indexed by row and column keys, with hashed and sorted row/column variants.                             |
+| [@rimbu/graph](./rimbu/graph)  | **Directed, undirected, and valued graphs** with traversal helpers and hashed/sorted variants.                        |
+| [@rimbu/proximity](./rimbu/proximity) | **Proximity-based maps** (`ProximityMap`) that resolve lookups using nearest-key distance functions.          |
+
+### Streams, channels, and tasks
+
+| Package                         | Description                                                                                                  |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| [@rimbu/stream](./rimbu/stream) | **Lazy synchronous and asynchronous streams** (`Stream` / `AsyncStream`) for composable data pipelines.    |
+| [@rimbu/channel](./rimbu/channel) | **Typed channels and concurrency primitives** (Go-style channels, remote channels, mutexes, semaphores). |
+| [@rimbu/task](./rimbu/task)    | **Composable, cancellable async tasks** with structured concurrency, retries, timeouts, and supervision.   |
+
+---
+
+## Development
+
+### Local setup
 
 1. Clone the repository.
 2. Run `yarn` to install dependencies.
-3. To build packages, use `yarn build`.
+3. Build all packages with `yarn build`.
 4. Run tests with `yarn test`.
 
-## Author
+See the individual package READMEs and the docs for package-specific commands (benchmarks, type tests, docs generation, etc.).
 
-Created and maintained by [Arvid Nicolaas](https://github.com/vitoke).
+### Contributing
 
-## Contributing
+We welcome contributions of all kinds—bug reports, docs, examples, and new features.  
+Please read the [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md) before opening an issue or pull request.
 
-We welcome contributions! Please read our [Contributing guide](https://github.com/rimbu-org/rimbu/blob/main/CONTRIBUTING.md).
+### Author & community
 
-## Contributors
+- **Author**: [Arvid Nicolaas](https://github.com/vitoke)
+- **Sponsors**: Special thanks to early sponsors like [bglgwyng](https://github.com/bglgwyng) 🙌
 
-<img src = "https://contrib.rocks/image?repo=rimbu-org/rimbu"/>
+#### Contributors
+
+<img src="https://contrib.rocks/image?repo=rimbu-org/rimbu" alt="Contributors" />
 
 _Made with [contributors-img](https://contrib.rocks)._
 
-## Acknowledgements
-
-Special thanks to [bglgwyng](https://github.com/bglgwyng) for being the first Rimbu sponsor. You're awesome!
+---
 
 ## License
 

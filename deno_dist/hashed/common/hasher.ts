@@ -53,6 +53,14 @@ export namespace Hasher {
   const _anyShallowHasher: Hasher<any> = createAnyHasher('SHALLOW');
   const _anyDeepHasher: Hasher<any> = createAnyHasher('DEEP');
 
+  /**
+   * Returns the default `Hasher` instance used by hashed collections.
+   * @example
+   * ```ts
+   * const h = Hasher.defaultHasher()
+   * h.hash({ a: 1, b: 2 })
+   * ```
+   */
   export function defaultHasher(): Hasher<any> {
     return _anyShallowHasher;
   }
@@ -83,7 +91,7 @@ export namespace Hasher {
   const _stringHasher: Hasher<string> = createStringHasher(MAX_STEP_BITS);
 
   /**
-   * Returns a Hasher instance for string values.
+   * Returns a `Hasher` instance for string values.
    * @example
    * ```ts
    * const h = Hasher.stringHasher()
@@ -104,7 +112,7 @@ export namespace Hasher {
   });
 
   /**
-   * Returns a Hasher instance that hashes the string representation of any value
+   * Returns a `Hasher` instance that hashes the string representation of any value.
    * @param maxStepBits - the maximum amount of samples to take from the string
    * @example
    * ```ts
@@ -128,7 +136,7 @@ export namespace Hasher {
   });
 
   /**
-   * Returns a Hasher instance that hashes any value by hashing the string resulting from
+   * Returns a `Hasher` instance that hashes any value by hashing the string resulting from
    * applying JSON.stringify to the value.
    * @example
    * ```ts
@@ -170,6 +178,15 @@ export namespace Hasher {
   const _stringCaseInsensitiveHasher: Hasher<string> =
     createStringCaseInsensitiveHasher(MAX_STEP_BITS);
 
+  /**
+   * Returns a `Hasher` instance for case-insensitive string values.
+   * @example
+   * ```ts
+   * const h = Hasher.stringCaseInsensitiveHasher()
+   * console.log(h.hash('Abc') === h.hash('aBC'))
+   * // => true
+   * ```
+   */
   export function stringCaseInsensitiveHasher(): Hasher<string> {
     return _stringCaseInsensitiveHasher;
   }
@@ -207,7 +224,7 @@ export namespace Hasher {
   );
 
   /**
-   * Returns a Hasher that hashes arrays of elements by sampling the array and using
+   * Returns a `Hasher` that hashes arrays of elements by sampling the array and using
    * the given `itemHasher` to hash the sampled elements.
    * @typeparam T - the array element type
    * @param options - (optional) an object containing the following items:<br/>
@@ -300,8 +317,8 @@ export namespace Hasher {
     createStreamSourceHasher(defaultHasher(), MAX_STEP_BITS);
 
   /**
-   * Returns a Hasher instance that hashes any StreamSource limited to a certain amount
-   * of elements to prevent haning on infinite streams.
+   * Returns a `Hasher` instance that hashes any `StreamSource` limited to a certain amount
+   * of elements to prevent hanging on infinite streams.
    * @typeparam T - the StreamSource element type
    * @param options - (optional) an object containing the following items:<br/>
    * - itemHasher: (optional) a Hasher instance used to hash elements in the array<br/>
@@ -351,7 +368,7 @@ export namespace Hasher {
   });
 
   /**
-   * Returns a Hasher instance that hashes numbers, including 'special' values like NaN and infinities.
+   * Returns a `Hasher` instance that hashes numbers, including 'special' values like `NaN` and infinities.
    * @example
    * ```ts
    * const h = Hasher.numberHasher()
@@ -375,7 +392,7 @@ export namespace Hasher {
   });
 
   /**
-   * Returns a Hasher instance that hashes booleans.
+   * Returns a `Hasher` instance that hashes booleans.
    * @example
    * ```ts
    * const h = Hasher.booleanHasher()
@@ -395,7 +412,7 @@ export namespace Hasher {
   });
 
   /**
-   * Returns a Hasher instance that hashes bigints.
+   * Returns a `Hasher` instance that hashes bigints.
    * @example
    * ```ts
    * const h = Hasher.bigintHasher()
@@ -408,12 +425,12 @@ export namespace Hasher {
   }
 
   /**
-   * Returns a Hasher instance that hashes the `.valueOf` value of the given
-   * object using the given `valueHasher` for instances of given `cls` class.
+   * Returns a `Hasher` instance that hashes the `.valueOf` value of the given
+   * object using the given `valueHasher` for instances of the given `cls` class.
    * @typeparam T - the input object type
    * @typeparam V - the .valueOf property type
-   * @param cls - the class containing the contructur to check for validity of a given object
-   * @param valueHasher - the Hasher instance to use for the `.valueOf` values
+   * @param cls - the class containing the constructor to check for validity of a given object
+   * @param valueHasher - the `Hasher` instance to use for the `.valueOf` values
    * @example
    * ```ts
    * const h = Hasher.createValueOfHasher(Date)
@@ -449,7 +466,7 @@ export namespace Hasher {
   const _DateHasher: Hasher<Date> = createValueOfHasher(Date, _numberHasher);
 
   /**
-   * Returns a Hasher instance that hashes Dates.
+   * Returns a `Hasher` instance that hashes `Date` values.
    * @example
    * ```ts
    * const h = Hasher.dateHasher()
@@ -534,7 +551,7 @@ export namespace Hasher {
   );
 
   /**
-   * Returns a Hasher instance that hashes objects of key type K and value type V.
+   * Returns a `Hasher` instance that hashes objects of key type K and value type V.
    * @typeparam K - the key type
    * @typeparam V - the value type
    * @param options - (optional) an object containing:<br/>
@@ -560,8 +577,8 @@ export namespace Hasher {
   }
 
   /**
-   * Returns a Hasher instance that hashes objects of key type K and value type V.
-   * If a value if an object or array, it will convert those values to a string.
+   * Returns a `Hasher` instance that hashes objects of key type K and value type V.
+   * If a value is an object or array, it will convert those values to a string.
    * @typeparam K - the key type
    * @typeparam V - the value type
    * @example
@@ -579,8 +596,8 @@ export namespace Hasher {
   }
 
   /**
-   * Returns a Hasher instance that hashes objects of key type K and value type V.
-   * If a value if an object or array, it will recursively hash its values.
+   * Returns a `Hasher` instance that hashes objects of key type K and value type V.
+   * If a value is an object or array, it will recursively hash its values.
    * @note be careful with circular structures, they can cause an infinite loop
    * @typeparam K - the key type
    * @typeparam V - the value type
@@ -667,7 +684,7 @@ export namespace Hasher {
   }
 
   /**
-   * Returns a Hasher instance that hashes any value, but never traverses into an object
+   * Returns a `Hasher` instance that hashes any value, but never traverses into an object
    * or array to hash its elements. In those cases it will use toString.
    * @example
    * ```ts
@@ -681,7 +698,7 @@ export namespace Hasher {
   }
 
   /**
-   * Returns a Hasher instance that hashes any value, but only traverses into an object
+   * Returns a `Hasher` instance that hashes any value, but only traverses into an object
    * or array to hash its elements one level deep. After one level, it will use toString.
    * @example
    * ```ts
@@ -697,7 +714,7 @@ export namespace Hasher {
   }
 
   /**
-   * Returns a Hasher instance that hashes any value, and traverses into an object
+   * Returns a `Hasher` instance that hashes any value, and traverses into an object
    * or array to hash its elements.
    * @example
    * ```ts
@@ -713,9 +730,9 @@ export namespace Hasher {
   }
 
   /**
-   * Returns a Hasher that will return equal hash values for values in a tuple regardless
+   * Returns a `Hasher` that will return equal hash values for values in a tuple regardless
    * of their order, and uses the given `hasher` function to hash the tuple elements.
-   * @param hasher - the Hasher instance to use for tuple elements
+   * @param hasher - the `Hasher` instance to use for tuple elements
    * @example
    * ```ts
    * const h = Hasher.tupleSymmetric()

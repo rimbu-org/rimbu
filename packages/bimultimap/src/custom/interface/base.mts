@@ -31,7 +31,7 @@ export interface BiMultiMapBase<
    * Returns the MultiMap representation of the key to value mapping.
    * @example
    * ```ts
-   * HashBiMultiMap.of([1, 10], [1, 20]).keyValueMap.toArray()
+   * HashBiMultiMap.of([1, 10], [1, 20]).keyValueMultiMap.toArray()
    * // => [[1, [10, 20]]
    * ```
    */
@@ -40,16 +40,17 @@ export interface BiMultiMapBase<
    * Returns the MultiMap representation of the value to key mapping.
    * @example
    * ```ts
-   * HashBiMultiMap.of([10, 1], [20, 1]).valueKeyMap.toArray()
+   * HashBiMultiMap.of([10, 1], [20, 1]).valueKeyMultiMap.toArray()
    * // => [[1, [10, 20]]
    * ```
    */
   readonly valueKeyMultiMap: WithKeyValue<Tp, K, V>['valueKeyMultiMap'];
   /**
-   * Returns false since this collection is known to be non-empty.
+   * Returns true if the collection is empty.
    * @example
    * ```ts
-   * HashBiMultiMap.of([1, 1], [2, 2]).isEmpty   // => false
+   * HashBiMultiMap.empty<number, number>().isEmpty   // => true
+   * HashBiMultiMap.of([1, 1], [2, 2]).isEmpty        // => false
    * ```
    */
   readonly isEmpty: boolean;
@@ -65,7 +66,7 @@ export interface BiMultiMapBase<
    * Returns the number of entries
    * @example
    * ```ts
-   * HashBiMultiMap.of([1, 10], [2, 10]).keySize       // => 2
+   * HashBiMultiMap.of([1, 10], [2, 10]).size       // => 2
    * ```
    */
   readonly size: number;
@@ -416,7 +417,7 @@ export namespace BiMultiMapBase {
      * Returns the non-empty MultiMap representation of the key to value mapping.
      * @example
      * ```ts
-     * HashBiMultiMap.of([1, 10], [1, 20]).keyValueMap.toArray()
+     * HashBiMultiMap.of([1, 10], [1, 20]).keyValueMultiMap.toArray()
      * // => [[1, [10, 20]]
      * ```
      */
@@ -429,7 +430,7 @@ export namespace BiMultiMapBase {
      * Returns the MultiMap representation of the value to key mapping.
      * @example
      * ```ts
-     * HashBiMultiMap.of([10, 1], [20, 1]).valueKeyMap.toArray()
+     * HashBiMultiMap.of([10, 1], [20, 1]).valueKeyMultiMap.toArray()
      * // => [[1, [10, 20]]
      * ```
      */
@@ -527,7 +528,7 @@ export namespace BiMultiMapBase {
     ): WithKeyValue<Tp, K, V>['nonEmpty'];
     /**
      * Returns an immutable BiMultiMap, containing the entries in the given `sources` `StreamSource` instances.
-     * @param sources - an array of `StreamSource` instances contaning key-value entries
+     * @param sources - an array of `StreamSource` instances containing key-value entries
      * @example
      * ```ts
      * HashBiMultiMap.from([[1, 'a'], [2, 'b']])    // => HashBiMultiMap.NonEmpty<number, string>
@@ -657,8 +658,8 @@ export namespace BiMultiMapBase {
      * Returns a collection representing the values currently associated with given `key`.
      * @param key - the key for which to find the values
      *
-     * @note since it is unsafe to return the internal builder object, the result colleciton will
-     * be build upon each call to getValues.
+     * @note since it is unsafe to return the internal builder object, the result collection will
+     * be built upon each call to `getValues`.
      * @example
      * ```ts
      * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
@@ -673,8 +674,8 @@ export namespace BiMultiMapBase {
      * Returns a collection representing the keys currently associated with given `value`.
      * @param value - the value for which to find the keys
      *
-     * @note since it is unsafe to return the internal builder object, the result colleciton will
-     * be build upon each call to getKeys.
+     * @note since it is unsafe to return the internal builder object, the result collection will
+     * be built upon each call to `getKeys`.
      * @example
      * ```ts
      * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()

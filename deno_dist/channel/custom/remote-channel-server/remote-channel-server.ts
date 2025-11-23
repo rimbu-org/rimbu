@@ -32,7 +32,7 @@ export namespace RemoteChannelServer {
    */
   export interface Constructors {
     /**
-     * Resolves, if succesful, to a new RemoteChannelServer that can listen to client requests to create new
+     * Resolves, if successful, to a new RemoteChannelServer that can listen to client requests to create new
      * channels.
      * @param config - the configuration for the RemoteChannelServer to be created:<br/>
      * - port: the message port to communicate with the client

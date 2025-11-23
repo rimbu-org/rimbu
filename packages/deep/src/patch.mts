@@ -110,7 +110,7 @@ export namespace Patch {
  * patch(input, [{ a: 2 }])  // => { a: 2, b: { c: true, d: 'a' } }
  * patch(input, [{ b: [{ c: (v) => !v }] }] )
  * // => { a: 1, b: { c: false, d: 'a' } }
- * patch(input: [{ a: (v) => v + 1, b: [{ d: 'q' }] }] )
+ * patch(input, [{ a: (v) => v + 1, b: [{ d: 'q' }] }] )
  * // => { a: 2, b: { c: true, d: 'q' } }
  * ```
  */

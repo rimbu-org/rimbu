@@ -8,6 +8,10 @@ import type {
 
 import type { Stream, StreamSource } from '@rimbu/stream';
 
+/**
+ * An interface describing all factory functions used to create `Stream` instances.
+ * Implementations of this interface are exposed via the global `Stream` value and the `@rimbu/stream/custom` sub-package.
+ */
 export interface StreamConstructors {
   /**
    * Returns an empty Stream of given type T.

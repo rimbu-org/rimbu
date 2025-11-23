@@ -8,8 +8,8 @@ import type {
 import { type EdgeGraphBase, GraphContext } from '@rimbu/graph/custom';
 
 /**
- * An type-invariant immutable valued edge (undirected) graph.
- * The connections are internally maintained using sorted collections
+ * A type-invariant immutable edge (undirected) graph.
+ * The connections are internally maintained using sorted collections.
  * See the [Graph documentation](https://rimbu.org/docs/collections/graph) and the [EdgeGraphSorted API documentation](https://rimbu.org/api/rimbu/graph/EdgeGraphSorted/interface)
  * @typeparam N - the node type
  * @example
@@ -23,8 +23,8 @@ export interface EdgeGraphSorted<N>
 
 export namespace EdgeGraphSorted {
   /**
-   * A non-empty type-invariant immutable valued edge (undirected) graph.
-   * The connections are internally maintained using sorted collections
+   * A non-empty type-invariant immutable edge (undirected) graph.
+   * The connections are internally maintained using sorted collections.
    * See the [Graph documentation](https://rimbu.org/docs/collections/graph) and the [EdgeGraphSorted API documentation](https://rimbu.org/api/rimbu/graph/EdgeGraphSorted/interface)
    * @typeparam N - the node type
    */

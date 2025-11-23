@@ -17,7 +17,7 @@ import type { Streamable } from '../../../../stream/mod.ts';
  * @example
  * ```ts
  * const h1 = HashBiMultiMap.empty<number, string>()
- * const h1 = HashBiMultiMap.of([1, 'a'], [1, 'b'])
+ * const h2 = HashBiMultiMap.of([1, 'a'], [1, 'b'])
  * ```
  */
 export interface HashBiMultiMap<K, V>

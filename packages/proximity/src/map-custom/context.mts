@@ -9,6 +9,14 @@ import {
 } from './implementation/index.mjs';
 import { ProximityMapBuilder } from './builder.mjs';
 
+/**
+ * Default concrete implementation of {@link ProximityMap.Context}.<br/>
+ * <br/>
+ * It wires the configured {@link DistanceFunction} and `HashMap` context together and
+ * is used by the `ProximityMap` factory methods to create new instances.
+ *
+ * @typeparam UK - the upper key type bound for which the context can be used
+ */
 export class ProximityMapContext<UK>
   extends RMapBase.ContextBase<UK, ProximityMap.Types>
   implements ProximityMap.Context<UK>

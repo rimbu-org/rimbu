@@ -21,6 +21,10 @@ import {
   type AsyncStreamSourceHelpers,
 } from '../../stream/async-custom/index.ts';
 
+/**
+ * A frozen `IteratorResult` that represents the completed asynchronous iterator state.
+ * This value is reused to avoid repeated allocations in async iterator implementations.
+ */
 export const fixedDoneAsyncIteratorResult = Object.freeze(
   Promise.resolve(
     Object.freeze({
@@ -30,12 +34,20 @@ export const fixedDoneAsyncIteratorResult = Object.freeze(
   )
 );
 
+/**
+ * Returns true if the given `iterator` implements the `AsyncFastIterator` interface.
+ * @param iterator - the async iterator instance to test
+ */
 export function isAsyncFastIterator<T>(
   iterator: AsyncIterator<T>
 ): iterator is AsyncFastIterator<T> {
   return `fastNext` in iterator;
 }
 
+/**
+ * An `AsyncFastIterator` that is already exhausted and never yields values.
+ * Its `fastNext` method always resolves to the provided fallback value.
+ */
 export const emptyAsyncFastIterator: AsyncFastIterator<any> = Object.freeze({
   fastNext<O>(otherwise?: AsyncOptLazy<O>): MaybePromise<O> {
     return AsyncOptLazy.toMaybePromise(otherwise!);
@@ -45,6 +57,10 @@ export const emptyAsyncFastIterator: AsyncFastIterator<any> = Object.freeze({
   },
 });
 
+/**
+ * Base class for asynchronous fast iterators that implements `next` in terms of `fastNext`.
+ * Subclasses only need to implement the `fastNext` method.
+ */
 export abstract class AsyncFastIteratorBase<T> implements AsyncFastIterator<T> {
   abstract fastNext<O>(otherwise?: AsyncOptLazy<O>): MaybePromise<T | O>;
   return?: () => Promise<any>;

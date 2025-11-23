@@ -6,8 +6,8 @@
  * See the [Rimbu docs Map page](/docs/collections/map) and [Rimbu docs Set page](/docs/collections/set) for more information.
  * <br/>
  * This is a convenience package that exports everything from the following sub-packages:<br/>
- * - [`@rimbu/hashed/map`](./hashed/map)<br/>
- * - [`@rimbu/hashed/set`](./hashed/set)<br/>
+ * - [`@rimbu/hashed/map`](/api/rimbu/hashed/map)<br/>
+ * - [`@rimbu/hashed/set`](/api/rimbu/hashed/set)<br/>
  */
 
 export * from '../common/index.mjs';

@@ -6,7 +6,7 @@ import { ErrBase } from '@rimbu/common';
 export abstract class RpcProxyError extends ErrBase.CustomError {}
 
 /**
- * Error indicating an attempt was made to access a non-string property,
+ * Error indicating an attempt was made to access a non-string property.
  */
 export class InvalidPathType extends RpcProxyError {
   constructor() {

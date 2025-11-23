@@ -11,7 +11,7 @@ import {
  */
 export interface RemoteChannelClient {
   /**
-   * Resolves, if succesful, to a new remote read channel.
+   * Resolves, if successful, to a new remote read channel.
    * @typeparam T - the channel message type
    * @param config - the remote channel configuration
    */
@@ -19,7 +19,7 @@ export interface RemoteChannelClient {
     config: RemoteChannelClient.ReadChannelConfig
   ): Promise<Channel.Read<T>>;
   /**
-   * Resolves, if succesful, to a new remote write channel.
+   * Resolves, if successful, to a new remote write channel.
    * @typeparam T - the channel message type
    * @param config - the remote channel configuration
    */
@@ -27,7 +27,7 @@ export interface RemoteChannelClient {
     config: RemoteChannelClient.WriteChannelConfig
   ): Promise<Channel.Write<T>>;
   /**
-   * Resolves, if succesful, to a new remote cross channel.
+   * Resolves, if successful, to a new remote cross channel.
    * @typeparam TSend - the send message type
    * @typeparam TReceive - the receive message type
    * @param config - the remote channel configuration
@@ -39,7 +39,7 @@ export interface RemoteChannelClient {
 
 export namespace RemoteChannelClient {
   /**
-   * Interface defining the confirgartion options for a RemoteChannelClient
+   * Interface defining the configuration options for a RemoteChannelClient
    */
   export interface Config {
     /**

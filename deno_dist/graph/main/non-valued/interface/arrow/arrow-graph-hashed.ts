@@ -8,8 +8,8 @@ import type {
 import { type ArrowGraphBase, GraphContext } from '../../../../../graph/custom/index.ts';
 
 /**
- * An type-invariant immutable valued arrow (directed) graph.
- * The connections are internally maintained using hashed collections
+ * A type-invariant immutable arrow (directed) graph.
+ * The connections are internally maintained using hashed collections.
  * See the [Graph documentation](https://rimbu.org/docs/collections/graph) and the [ArrowGraphHashed API documentation](https://rimbu.org/api/rimbu/graph/ArrowGraphHashed/interface)
  * @typeparam N - the node type
  * @example
@@ -23,8 +23,8 @@ export interface ArrowGraphHashed<N>
 
 export namespace ArrowGraphHashed {
   /**
-   * A non-empty type-invariant immutable valued arrow (directed) graph.
-   * The connections are internally maintained using hashed collections
+   * A non-empty type-invariant immutable arrow (directed) graph.
+   * The connections are internally maintained using hashed collections.
    * See the [Graph documentation](https://rimbu.org/docs/collections/graph) and the [ArrowGraphHashed API documentation](https://rimbu.org/api/rimbu/graph/ArrowGraphHashed/interface)
    * @typeparam N - the node type
    */

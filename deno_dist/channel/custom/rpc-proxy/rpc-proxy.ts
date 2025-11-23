@@ -6,7 +6,7 @@ import { RpcProxyError, RpcProxyImpl } from '../index.ts';
  */
 export interface RpcProxy<T> {
   /**
-   * Remotely executes the method/access performed on the provided proxy object, and resolves, when succesful,
+   * Remotely executes the method/access performed on the provided proxy object, and resolves, when successful,
    * the result of the operation.
    * @typeparam R - the result type of executing the function on the proxy object
    * @param remoteFn - a function that receives a proxy object, and will remotely perform the actions performed on the proxy

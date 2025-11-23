@@ -12,7 +12,7 @@ import {
  * In the Table, a combination of a row and column key has exactly one value.
  * See the [Table documentation](https://rimbu.org/docs/collections/table) and the [SortedTableSortedColumn API documentation](https://rimbu.org/api/rimbu/table/sorted-row/SortedTableSortedColumn/interface)
  * @note
- * - The SortedTableSortedColumn uses a SortedhMap to map row keys to column.
+ * - The SortedTableSortedColumn uses a SortedMap to map row keys to column.
  * - The SortedTableSortedColumn uses SortedMaps to map column keys to values.
  * @typeparam R - the row key type
  * @typeparam C - the column key type
@@ -110,6 +110,12 @@ function createContext<UR, UC>(options?: {
 const _defaultContext: SortedTableSortedColumn.Context<any, any> =
   createContext();
 
+/**
+ * The default `SortedTableSortedColumn` creators and context.
+ *
+ * Use this exported value to create and work with immutable `SortedTableSortedColumn` instances.
+ * See the [SortedTableSortedColumn API documentation](https://rimbu.org/api/rimbu/table/sorted-row/SortedTableSortedColumn/interface).
+ */
 export const SortedTableSortedColumn: SortedTableSortedColumnCreators =
   Object.freeze({
     ..._defaultContext,

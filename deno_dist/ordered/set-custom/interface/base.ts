@@ -21,7 +21,7 @@ export interface OrderedSetBase<
    * @example
    * ```ts
    * const s = OrderedHashSet.of('b', 'a', 'c')
-   * console.log(m.sourceSet.toString())
+   * console.log(s.sourceSet.toString())
    * // => HashSet('a', 'b', 'c')
    * ```
    */
@@ -49,7 +49,7 @@ export namespace OrderedSetBase {
      * @example
      * ```ts
      * const s = OrderedHashSet.of('b', 'a', 'c')
-     * console.log(m.sourceSet.toString())
+     * console.log(s.sourceSet.toString())
      * // => HashSet('a', 'b', 'c')
      * ```
      */
