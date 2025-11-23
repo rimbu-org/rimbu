@@ -70,6 +70,12 @@ export namespace Table {
   }
 }
 
+/**
+ * The default `Table` creators and context.
+ *
+ * Use this exported value to create and work with immutable `Table` instances.
+ * See the [Table documentation](https://rimbu.org/docs/collections/table) and the [Table API documentation](https://rimbu.org/api/rimbu/table/Table/interface).
+ */
 export const Table: TableCreators = Object.freeze({
   createContext<UR, UC>(options: {
     rowContext: RMap.Context<UR>;

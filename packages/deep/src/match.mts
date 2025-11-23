@@ -134,7 +134,7 @@ export namespace Match {
   export type ArrayTraversalType = `${CompoundType}Item`;
 
   /**
-   * Compount matcher for objects, can only be an array staring with a compound type keyword.
+   * Compound matcher for objects, represented as an array starting with a compound type keyword.
    * @typeparam T - the input value type
    * @typeparam C - utility type
    * @typeparam P - the parent type
@@ -194,7 +194,7 @@ export namespace Match {
  * match(input, { a: 2 }) // => false
  * match(input, { a: (v) => v > 10 }) // => false
  * match(input, { b: { c: true }}) // => true
- * match(input, (['every', { a: (v) => v > 0 }, { b: { c: true } }]) // => true
+ * match(input, ['every', { a: (v) => v > 0 }, { b: { c: true } }]) // => true
  * match(input, { b: { c: (v, parent, root) => v && parent.d.length > 0 && root.a > 0 } })
  *  // => true
  * ```

@@ -6,7 +6,7 @@ import { ErrBase } from '@rimbu/common';
 export abstract class SemaphoreError extends ErrBase.CustomError {}
 
 /**
- * Error indicating that an invalid configuration was provided,
+ * Error indicating that an invalid configuration was provided.
  */
 export class InvalidConfigError extends SemaphoreError {
   constructor(message: string) {

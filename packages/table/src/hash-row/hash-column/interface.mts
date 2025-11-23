@@ -102,6 +102,12 @@ function createContext<UR, UC>(options?: {
 
 const _defaultContext: HashTableHashColumn.Context<any, any> = createContext();
 
+/**
+ * The default `HashTableHashColumn` creators and context.
+ *
+ * Use this exported value to create and work with immutable `HashTableHashColumn` instances.
+ * See the [HashTableHashColumn API documentation](https://rimbu.org/api/rimbu/table/hash-row/HashTableHashColumn/interface).
+ */
 export const HashTableHashColumn: HashTableHashColumnCreators = Object.freeze({
   ..._defaultContext,
   createContext,

@@ -1,19 +1,48 @@
 import { TraverseState, Update, type ArrayNonEmpty } from '../common/mod.ts';
 
+/**
+ * Internal helper that appends a value using the modern immutable `toSpliced` API.
+ * @internal
+ * @typeparam T - the array element type
+ * @param array - the source array (not mutated)
+ * @param value - the value to append
+ * @returns a new non-empty array with the value at the end
+ */
 export function _appendNew<T>(array: readonly T[], value: T): ArrayNonEmpty<T> {
   return array.toSpliced(array.length, 0, value) as ArrayNonEmpty<T>;
 }
 
+/**
+ * Internal helper that appends a value by cloning and pushing (legacy fallback).
+ * @internal
+ * @typeparam T - the array element type
+ * @param array - the source array (not mutated)
+ * @param value - the value to append
+ * @returns a new non-empty array with the value at the end
+ */
 export function _appendOld<T>(array: readonly T[], value: T): ArrayNonEmpty<T> {
   const clone = array.slice();
   clone.push(value);
   return clone as ArrayNonEmpty<T>;
 }
 
-// Returns a copy of the array with the given value appended
+/**
+ * Returns a copy of the array with the given value appended.
+ * Chooses an implementation depending on environment capabilities.
+ * @typeparam T - the array element type
+ * @param array - the source array (not mutated)
+ * @param value - the value to append
+ * @returns a new array with the value at the end
+ */
 export const append = `toSpliced` in Array.prototype ? _appendNew : _appendOld;
 
-// Returns the concatenation of the two arrays, potentially reusing the input array if one of the arrays is empty
+/**
+ * Returns the concatenation of two arrays, reusing an input array when the other is empty.
+ * @typeparam T - the array element type
+ * @param first - the first array
+ * @param second - the second array
+ * @returns a new array containing all elements of both arrays (or one of the originals if the other is empty)
+ */
 export function concat<T>(
   first: readonly T[],
   second: readonly T[]
@@ -23,6 +52,10 @@ export function concat<T>(
   return first.concat(second);
 }
 
+/**
+ * Internal helper to create a reversed copy using modern `toReversed` with optional slicing.
+ * @internal
+ */
 export function _reverseNew<T>(
   array: readonly T[],
   start?: number,
@@ -36,6 +69,10 @@ export function _reverseNew<T>(
   return source.toReversed();
 }
 
+/**
+ * Internal helper to create a reversed copy using manual iteration (legacy fallback).
+ * @internal
+ */
 export function _reverseOld<T>(
   array: readonly T[],
   start?: number,
@@ -54,11 +91,25 @@ export function _reverseOld<T>(
   return res;
 }
 
-// Returns an copy of the array between the start and end indices, with the elements in reversed order.
+/**
+ * Returns a copy of the array (or a slice) with elements in reversed order.
+ * @typeparam T - array element type
+ * @param array - the source array
+ * @param start - optional start index (inclusive)
+ * @param end - optional end index (inclusive)
+ */
 export const reverse =
   'toReversed' in Array.prototype ? _reverseNew : _reverseOld;
 
-// Performs given function on each element of the array, in reverse order if 'reversed' is true.
+/**
+ * Performs the given function for each element of the array, optionally in reverse order.
+ * Halting is supported through the provided `TraverseState`.
+ * @typeparam T - element type
+ * @param array - the source array
+ * @param f - callback receiving (value, sequential index, halt)
+ * @param state - traversal state (created if omitted)
+ * @param reversed - whether to traverse in reverse order
+ */
 export function forEach<T>(
   array: readonly T[],
   f: (value: T, index: number, halt: () => void) => void,
@@ -85,7 +136,15 @@ export function forEach<T>(
   }
 }
 
-// Returns a copy of the array where given function is applied to each element
+/**
+ * Returns a copy of the array where the given function is applied to each element.
+ * Supports an index offset useful for composed traversals.
+ * @typeparam T - source element type
+ * @typeparam R - result element type
+ * @param array - the source array
+ * @param f - the mapping function
+ * @param indexOffset - optional start index value passed to `f`
+ */
 export function map<T, R>(
   array: readonly T[],
   f: (value: T, index: number) => R,
@@ -107,7 +166,14 @@ export function map<T, R>(
   return result;
 }
 
-// Returns a copy of the array where given functio is applied to each element in reverse order
+/**
+ * Returns a copy of the array where the given function is applied to each element in reverse order.
+ * @typeparam T - source element type
+ * @typeparam R - result element type
+ * @param array - the source array
+ * @param f - the mapping function
+ * @param indexOffset - optional index offset passed to `f`
+ */
 export function reverseMap<T, R>(
   array: readonly T[],
   f: (value: T, index: number) => R,
@@ -124,6 +190,10 @@ export function reverseMap<T, R>(
   return result;
 }
 
+/**
+ * Internal helper to prepend a value using `toSpliced`.
+ * @internal
+ */
 export function _prependNew<T>(
   array: readonly T[],
   value: T
@@ -131,6 +201,10 @@ export function _prependNew<T>(
   return array.toSpliced(0, 0, value) as ArrayNonEmpty<T>;
 }
 
+/**
+ * Internal helper to prepend a value using legacy cloning.
+ * @internal
+ */
 export function _prependOld<T>(
   array: readonly T[],
   value: T
@@ -140,21 +214,42 @@ export function _prependOld<T>(
   return clone as ArrayNonEmpty<T>;
 }
 
-// Returns a copy of the given array with the given value added at the start
+/**
+ * Returns a copy of the array with the given value inserted at the start.
+ * @typeparam T - element type
+ * @param array - the source array
+ * @param value - value to insert at index 0
+ */
 export const prepend =
   `toSpliced` in Array.prototype ? _prependNew : _prependOld;
 
+/**
+ * Internal helper to obtain the last element using modern `at`.
+ * @internal
+ */
 export function _lastNew<T>(arr: readonly T[]): T {
   return arr.at(-1)!;
 }
 
+/**
+ * Internal helper to obtain the last element using index arithmetic.
+ * @internal
+ */
 export function _lastOld<T>(arr: readonly T[]): T {
   return arr[arr.length - 1];
 }
 
-// Returns the last element of the array
+/**
+ * Returns the last element of the array.
+ * @typeparam T - element type
+ * @param arr - the array
+ */
 export const last = `at` in Array.prototype ? _lastNew : _lastOld;
 
+/**
+ * Internal helper implementing an immutable index update via `with`.
+ * @internal
+ */
 export function _updateNew<T>(
   arr: readonly T[],
   index: number,
@@ -173,6 +268,10 @@ export function _updateNew<T>(
   return arr.with(index, newValue);
 }
 
+/**
+ * Internal helper implementing an immutable index update via cloning.
+ * @internal
+ */
 export function _updateOld<T>(
   arr: readonly T[],
   index: number,
@@ -193,10 +292,20 @@ export function _updateOld<T>(
   return newArr;
 }
 
-// Returns a copy of the array where the element at given index is replaced by the given updater.
-// If the new element is the same as the old element, the original array is returned
+/**
+ * Returns a copy of the array where the element at the given index is replaced using the provided updater.
+ * If the result value is identical (by `Object.is`) the original array is returned.
+ * @typeparam T - element type
+ * @param arr - the source array
+ * @param index - the index to update
+ * @param updater - value or function update description
+ */
 export const update = `with` in Array.prototype ? _updateNew : _updateOld;
 
+/**
+ * Internal helper applying a modifier function via `with`.
+ * @internal
+ */
 export function _modNew<T>(
   arr: readonly T[],
   index: number,
@@ -216,6 +325,10 @@ export function _modNew<T>(
   return arr.with(index, newValue);
 }
 
+/**
+ * Internal helper applying a modifier function via cloning.
+ * @internal
+ */
 export function _modOld<T>(
   arr: readonly T[],
   index: number,
@@ -237,33 +350,65 @@ export function _modOld<T>(
   return newArr;
 }
 
-// Returns a copy of the array where the element at given index is replaced by applying given function.
-// If the new element is the same as the old element, the original array is returned
+/**
+ * Returns a copy of the array where the element at the given index is transformed by a modifier function.
+ * If the result value is identical (by `Object.is`) the original array is returned.
+ * @typeparam T - element type
+ * @param arr - the source array
+ * @param index - the index to modify
+ * @param f - modifier function receiving the current value
+ */
 export const mod = `with` in Array.prototype ? _modNew : _modOld;
 
+/**
+ * Internal helper for inserting a value using `toSpliced`.
+ * @internal
+ */
 export function _insertNew<T>(arr: readonly T[], index: number, value: T): T[] {
   return arr.toSpliced(index, 0, value);
 }
 
+/**
+ * Internal helper for inserting a value using legacy `splice` on a clone.
+ * @internal
+ */
 export function _insertOld<T>(arr: readonly T[], index: number, value: T): T[] {
   const clone = arr.slice();
   clone.splice(index, 0, value);
   return clone;
 }
 
-// Returns a copy of the array where at given index the given value is inserted
+/**
+ * Returns a copy of the array where at the given index the provided value is inserted.
+ * @typeparam T - element type
+ * @param arr - the source array
+ * @param index - insertion index
+ * @param value - value to insert
+ */
 export const insert = `toSpliced` in Array.prototype ? _insertNew : _insertOld;
 
-// Returns a copy of the array, without its first element
+/**
+ * Returns a copy of the array without its first element.
+ * @typeparam T - element type
+ * @param arr - the source array
+ */
 export function tail<T>(arr: readonly T[]): T[] {
   return arr.slice(1);
 }
 
-// Returns a copy of the array, without its last element
+/**
+ * Returns a copy of the array without its last element.
+ * @typeparam T - element type
+ * @param arr - the source array
+ */
 export function init<T>(arr: readonly T[]): T[] {
   return arr.slice(0, arr.length - 1);
 }
 
+/**
+ * Internal helper providing an immutable `splice` using `toSpliced`.
+ * @internal
+ */
 export function _spliceNew<T>(
   arr: readonly T[],
   start: number,
@@ -273,6 +418,10 @@ export function _spliceNew<T>(
   return arr.toSpliced(start, deleteCount, ...items);
 }
 
+/**
+ * Internal helper providing an immutable `splice` via cloning.
+ * @internal
+ */
 export function _spliceOld<T>(
   arr: readonly T[],
   start: number,
@@ -284,10 +433,21 @@ export function _spliceOld<T>(
   return clone;
 }
 
-// Immutable version of the array .splice command, always returns a new array
+/**
+ * Immutable version of the array `.splice` command, always returning a new array.
+ * @typeparam T - element type
+ * @param arr - the source array
+ * @param start - start index
+ * @param deleteCount - number of elements to delete
+ * @param items - optional items to insert
+ */
 export const splice = `toSpliced` in Array.prototype ? _spliceNew : _spliceOld;
 
-// Returns a copy of the array, where its 'sparse' property is kept (sparse = not all indices have a value)
+/**
+ * Returns a copy of a (potentially) sparse array preserving sparsity (skips holes).
+ * @typeparam T - element type
+ * @param arr - the source sparse array
+ */
 export function copySparse<T>(arr: readonly T[]): T[] {
   const clone: T[] = [];
   for (const key in arr) {
@@ -296,8 +456,13 @@ export function copySparse<T>(arr: readonly T[]): T[] {
   return clone;
 }
 
-// Returns a copy of the array with given function applied to each element, where its 'sparse' property is kept
-// (sparse = not all indices have a value)
+/**
+ * Returns a copy of a sparse array applying the given function to each present element, preserving holes.
+ * @typeparam T - source element type
+ * @typeparam T2 - result element type
+ * @param arr - the source sparse array
+ * @param f - mapping function
+ */
 export function mapSparse<T, T2>(
   arr: readonly T[],
   f: (value: T, index: number) => T2

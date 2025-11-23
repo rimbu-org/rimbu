@@ -2,7 +2,7 @@ import { Semaphore } from '../index.ts';
 
 /**
  * A Mutex is used to restrict access to a shared resource in a concurrent environment. The Mutex can be
- * used to acquire a lock for the resource, preventing others using the Mutext from accessing the resource. When
+ * used to acquire a lock for the resource, preventing others using the Mutex from accessing the resource. When
  * finished using the resource, the lock can be released, allowing other waiting processes to acquire a lock.
  */
 export interface Mutex extends Semaphore {

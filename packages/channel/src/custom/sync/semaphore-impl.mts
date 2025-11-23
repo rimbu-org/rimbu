@@ -1,5 +1,8 @@
 import { Channel, Semaphore } from '../index.mjs';
 
+/**
+ * Default in-memory implementation of a weighted `Semaphore`.
+ */
 export class SemaphoreImpl implements Semaphore {
   constructor(readonly maxSize: number) {
     if (maxSize < 1) {

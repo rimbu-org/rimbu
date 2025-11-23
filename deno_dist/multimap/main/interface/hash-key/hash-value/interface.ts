@@ -120,6 +120,12 @@ function createContext<UK, UV>(options?: {
 const _defaultContext: HashMultiMapHashValue.Context<any, any> =
   createContext();
 
+/**
+ * The default `HashMultiMapHashValue` creators and context.
+ *
+ * Use this exported value to create and work with immutable `HashMultiMapHashValue` instances.
+ * See the [MultiMap documentation](https://rimbu.org/docs/collections/multimap) and the [HashMultiMapHashValue API documentation](https://rimbu.org/api/rimbu/multimap/HashMultiMapHashValue/interface).
+ */
 export const HashMultiMapHashValue: HashMultiMapHashValueCreators =
   Object.freeze({
     ..._defaultContext,

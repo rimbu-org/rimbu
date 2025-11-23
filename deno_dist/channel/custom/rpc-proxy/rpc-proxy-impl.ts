@@ -1,5 +1,9 @@
 import { RpcProxy } from '../index.ts';
 
+/**
+ * Default `RpcProxy` implementation that records property access and function application into a call path.
+ * @typeparam T - the proxied remote interface type
+ */
 export class RpcProxyImpl<T> implements RpcProxy<T> {
   constructor(readonly onCall: (path: RpcProxy.Path) => Promise<any>) {}
 

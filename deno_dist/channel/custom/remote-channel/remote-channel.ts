@@ -65,7 +65,7 @@ export namespace RemoteChannel {
      */
     maxHandshakeAttempts?: number;
     /**
-     * The amount of milliseconds to wait for a reponse to each handshake.
+     * The amount of milliseconds to wait for a response to each handshake.
      */
     handshakeAttemptTimeoutMs?: number;
   }
@@ -88,7 +88,7 @@ export namespace RemoteChannel {
      */
     maxHandshakeAttempts?: number;
     /**
-     * The amount of milliseconds to wait for a reponse to each handshake.
+     * The amount of milliseconds to wait for a response to each handshake.
      */
     handshakeAttemptTimeoutMs?: number;
   }
@@ -119,7 +119,7 @@ export namespace RemoteChannel {
        */
       maxHandshakeAttempts?: number;
       /**
-       * The amount of milliseconds to wait for a reponse to each handshake.
+       * The amount of milliseconds to wait for a response to each handshake.
        */
       handshakeAttemptTimeoutMs?: number;
     };
@@ -145,7 +145,7 @@ export namespace RemoteChannel {
        */
       maxHandshakeAttempts?: number;
       /**
-       * The amount of milliseconds to wait for a reponse to each handshake.
+       * The amount of milliseconds to wait for a response to each handshake.
        */
       handshakeAttemptTimeoutMs?: number;
     };

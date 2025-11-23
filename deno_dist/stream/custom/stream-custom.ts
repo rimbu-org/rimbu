@@ -74,6 +74,13 @@ function* yieldObjEntries<K extends string | number | symbol, V>(
   }
 }
 
+/**
+ * A reusable base implementation for `Stream` that provides all high-level operations
+ * in terms of a `FastIterator` returned from `[Symbol.iterator]`.
+ *
+ * Custom stream implementations in `@rimbu/stream/custom` extend this class.
+ * @typeparam T - the element type
+ */
 export abstract class StreamBase<T> implements Stream<T> {
   abstract [Symbol.iterator](): FastIterator<T>;
 
@@ -2140,6 +2147,11 @@ function isStream(obj: any): obj is Stream<any> {
   return obj instanceof StreamBase;
 }
 
+/**
+ * Converts any `StreamSource` into a concrete `Stream` implementation.
+ * @typeparam T - the element type
+ * @param source - the source to convert
+ */
 export const fromStreamSource: {
   <T>(source: StreamSource.NonEmpty<T>): Stream.NonEmpty<T>;
   <T>(source: StreamSource<T>): Stream<T>;
@@ -2164,6 +2176,11 @@ export const fromStreamSource: {
  * If this function returns false, it does not guarantee that the Stream is not empty. It only
  * means that it is not known if it is empty.
  */
+/**
+ * Returns true if the given `source` is a `StreamSource` that is known to be empty.
+ * If this function returns `false`, the source may still be empty; it is simply not known.
+ * @param source - a potential stream source
+ */
 export function isEmptyStreamSourceInstance(
   source: StreamSource<any>
 ): boolean {
@@ -2185,6 +2202,10 @@ const streamSourceHelpers = {
 
 export type StreamSourceHelpers = typeof streamSourceHelpers;
 
+/**
+ * Default implementation of the `StreamConstructors` interface.
+ * This instance backs the exported `Stream` value.
+ */
 export const StreamConstructorsImpl: StreamConstructors =
   Object.freeze<StreamConstructors>({
     empty<T>(): Stream<T> {

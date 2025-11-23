@@ -26,7 +26,8 @@ export namespace EdgeValuedGraphBase {
       >,
       Streamable.NonEmpty<ValuedGraphElement<N, V>> {
     /**
-     * Returns a non-empty Stream containing all entries of this collection as tuples of key and value.
+     * Returns a non-empty `Stream` containing all graph elements of this collection as single tuples for isolated nodes
+     * and 3-valued tuples containing the source node, target node, and connection value for connections.
      * @example
      * ```ts
      * EdgeValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'b']).stream().toArray()

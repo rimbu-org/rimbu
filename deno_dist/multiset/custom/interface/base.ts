@@ -261,8 +261,8 @@ export namespace VariantMultiSetBase {
      * Returns the Map representation of this collection.
      * @example
      * ```ts
-     * const m = HashMultiMapHashValue.of([1, 1], [2, 2])
-     * const map: HashMap.NonEmpty<number, HashSet.NonEmpty<number>> = m.countMap
+     * const m = HashMultiSet.of(1, 2, 2)
+     * const map: HashMap.NonEmpty<number, number> = m.countMap
      * ```
      */
     readonly countMap: WithElem<Tp, T>['countMapNonEmpty'];
@@ -465,14 +465,14 @@ export namespace MultiSetBase {
      * Returns the (singleton) empty instance of this type and context with given key and value types.
      * @example
      * ```ts
-     * HashMultiSet.empty<number>()    // => HashMultiSet<number>
-     * HashMultiSet.empty<string>()    // => HashMultiSet<string>
+     * HashMultiSet.empty<number>()  // => HashMultiSet<number>
+     * HashMultiSet.empty<string>()  // => HashMultiSet<string>
      * ```
      */
     empty<T extends UT>(): WithElem<Tp, T>['normal'];
     /**
-     * Returns an immutable multimap of this collection type and context, containing the given `values`.
-     * @param values - a non-empty array of vslues
+     * Returns an immutable multiset of this collection type and context, containing the given `values`.
+     * @param values - a non-empty array of values
      * @example
      * ```ts
      * HashMultiSet.of(1, 2, 2)    // => HashMultiSet.NonEmpty<number>
@@ -480,7 +480,7 @@ export namespace MultiSetBase {
      */
     of<T extends UT>(...values: ArrayNonEmpty<T>): WithElem<Tp, T>['nonEmpty'];
     /**
-     * Returns an immutable multimap of this type and context, containing the values in the given `sources`
+     * Returns an immutable multiset of this type and context, containing the values in the given `sources`
      * `StreamSource`.
      * @param sources - a non-empty array of `StreamSource` instances containing values to add
      * @example
@@ -543,7 +543,7 @@ export namespace MultiSetBase {
      * @param obj - the object to check
      * @example
      * ```ts
-     * HashMultiSet.defaultContext().isValidKey(1)   // => true
+     * HashMultiSet.defaultContext().isValidElem(1)   // => true
      * ```
      */
     isValidElem(key: any): key is UT;

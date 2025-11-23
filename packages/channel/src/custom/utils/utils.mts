@@ -49,8 +49,7 @@ export function defer(): Promise<void> {
  * Performs the given `action` function after the given `timeoutMs` milliseconds, unless
  * the returns cancel function is called before the timer expires.
  * @param action - the action function to perform
- * @param timeoutMs - (optional) th
- * @returns
+ * @param timeoutMs - (optional) the amount of milliseconds to wait before executing the action
  */
 export function timeoutAction(
   action: () => unknown,
@@ -76,7 +75,7 @@ export function timeoutAction(
 /**
  * Returns a random integer between the given `min` and `max` (both inclusive).
  * @param min - the minimum value that can be generated
- * @param max - the maximum valule that can be generated
+ * @param max - the maximum value that can be generated
  */
 export function getRandomInt(min: number, max: number): number {
   return min + Math.round(Math.random() * (max - min));

@@ -3,6 +3,10 @@ import { List } from '@rimbu/list';
 
 type GenBlockBuilderEntry<E> = BlockBuilderBase<E> | CollisionBuilderBase<E>;
 
+/**
+ * Base class for mutable builders that construct hash blocks for hashed collections.
+ * @typeparam E - the entry type stored in the block
+ */
 export abstract class BlockBuilderBase<E> {
   abstract source?: undefined | GenSource<E>;
   abstract _entries?: undefined | E[];
@@ -39,6 +43,10 @@ export abstract class BlockBuilderBase<E> {
   }
 }
 
+/**
+ * Base class for mutable builders that handle hash collisions in hashed collections.
+ * @typeparam E - the entry type contained in the collision bucket
+ */
 export abstract class CollisionBuilderBase<E> {
   abstract source?:
     | undefined
@@ -86,6 +94,11 @@ export abstract class CollisionBuilderBase<E> {
   }
 }
 
+/**
+ * Generic source interface that represents a read-only view over block entries
+ * and collision entry sets used by block builders.
+ * @typeparam E - the entry type contained in the source
+ */
 export interface GenSource<E> {
   entries: readonly E[] | null;
   entrySets: readonly GenBlockBuilderEntry<E>[] | null;

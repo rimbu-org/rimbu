@@ -87,6 +87,13 @@ function createContext<UT>(options?: {
 
 const _defaultContext: HashMultiSet.Context<any> = createContext();
 
+/**
+ * The default `HashMultiSet` creators and context.
+ *
+ * Use this exported value to create and work with immutable `HashMultiSet` instances.
+ * See the [MultiSet documentation](https://rimbu.org/docs/collections/multiset) and the
+ * [HashMultiSet API documentation](https://rimbu.org/api/rimbu/multiset/HashMultiSet/interface).
+ */
 export const HashMultiSet: HashMultiSetCreators = Object.freeze({
   ..._defaultContext,
   createContext,

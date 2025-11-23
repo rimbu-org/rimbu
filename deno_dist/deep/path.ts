@@ -75,7 +75,6 @@ export namespace Path {
      * @typeparam T - the source type
      * @typeparam Write - if true the path should be writable (no optional chaining)
      * @typeparam Maybe - if true the value at the current path is optional
-     * @typeparam First - if true this is the root call
      */
     export type NonOptional<T, Write extends boolean, Maybe extends boolean> =
       Tuple.IsTuple<T> extends true
@@ -129,7 +128,7 @@ export namespace Path {
     }[keyof T];
 
     /**
-     * Determines the allowed path part seperator based on the input types.
+     * Determines the allowed path part separator based on the input types.
      * @typeparam First - if true, this is the first call
      * @typeparam Maybe - if true, the value is optional
      * @typeparam IsArray - if true, the value is an array
@@ -179,7 +178,7 @@ export namespace Path {
 
     /**
      * Utility type to only add non-empty string types to a string array.
-     * @typeparma A - the input string array
+     * @typeparam A - the input string array
      * @typeparam T - the string value to optionally add
      */
     export type AppendIfNotEmpty<
@@ -326,9 +325,9 @@ export namespace Path {
  * ```ts
  * const value = { a: { b: { c: [{ d: 5 }, { d: 6 }] } } }
  * Deep.getAt(value, 'a.b');
- * // => { c: 5 }
+ * // => { c: [{ d: 5 }, { d: 6 }] }
  * Deep.getAt(value, 'a.b.c');
- * // => [{ d: 5 }, { d: 5 }]
+ * // => [{ d: 5 }, { d: 6 }]
  * Deep.getAt(value, 'a.b.c[1]');
  * // => { d: 6 }
  * Deep.getAt(value, 'a.b.c[1]?.d');

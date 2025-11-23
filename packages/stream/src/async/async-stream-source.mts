@@ -3,6 +3,11 @@ import type { StreamSource } from '@rimbu/stream';
 
 import type { MaybePromise } from '@rimbu/common';
 
+/**
+ * Any source that can be converted to an `AsyncStream`.
+ * This includes async streams, sync streams, async iterables, and lazy factories.
+ * @typeparam T - the element type
+ */
 export type AsyncStreamSource<T> =
   | undefined
   | AsyncStreamSource.NonEmpty<T>
@@ -13,6 +18,10 @@ export type AsyncStreamSource<T> =
   | AsyncIterable<T>;
 
 export namespace AsyncStreamSource {
+  /**
+   * Any async stream source that is known to contain at least one element.
+   * @typeparam T - the element type
+   */
   export type NonEmpty<T> =
     | AsyncStream.NonEmpty<T>
     | AsyncStreamable.NonEmpty<T>

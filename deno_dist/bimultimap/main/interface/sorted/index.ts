@@ -11,13 +11,13 @@ import type { SortedSet } from '../../../../sorted/mod.ts';
 /**
  * A type-invariant immutable bi-directional MultiMap where keys and values have a
  * many-to-many mapping. Its keys and values are sorted.
- * See the [BiMultiMap documentation](https://rimbu.org/docs/collections/bimultimap) and the [HashBiMultiMap API documentation](https://rimbu.org/api/rimbu/bimultimap/SortedBiMultiMap/interface)
+ * See the [BiMultiMap documentation](https://rimbu.org/docs/collections/bimultimap) and the [SortedBiMultiMap API documentation](https://rimbu.org/api/rimbu/bimultimap/SortedBiMultiMap/interface)
  * @typeparam K - the key type
  * @typeparam V - the value type
  * @example
  * ```ts
  * const h1 = SortedBiMultiMap.empty<number, string>()
- * const h1 = SortedBiMultiMap.of([1, 'a'], [1, 'b'])
+ * const h2 = SortedBiMultiMap.of([1, 'a'], [1, 'b'])
  * ```
  */
 export interface SortedBiMultiMap<K, V>
@@ -27,7 +27,7 @@ export namespace SortedBiMultiMap {
   /**
    * A non-empty type-invariant immutable bi-directional MultiMap where keys and values have a
    * many-to-many mapping. Its keys and values are sorted.
-   * See the [BiMultiMap documentation](https://rimbu.org/docs/collections/bimultimap) and the [HashBiMultiMap API documentation](https://rimbu.org/api/rimbu/bimultimap/SortedBiMultiMap/interface)
+   * See the [BiMultiMap documentation](https://rimbu.org/docs/collections/bimultimap) and the [SortedBiMultiMap API documentation](https://rimbu.org/api/rimbu/bimultimap/SortedBiMultiMap/interface)
    * @typeparam K - the key type
    * @typeparam V - the value type
    */

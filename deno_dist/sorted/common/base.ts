@@ -5,6 +5,12 @@ import { Stream } from '../../stream/mod.ts';
 
 import { SortedIndex } from './index.ts';
 
+/**
+ * Base implementation used for empty sorted collections.<br/>
+ * <br/>
+ * Provides the index‑based operations used by `SortedMap` / `SortedSet`
+ * instances when they are empty and always returns the given fallback value.
+ */
 export class SortedEmpty extends EmptyBase {
   min<O>(otherwise?: OptLazy<O>): O {
     return OptLazy(otherwise) as O;
@@ -31,6 +37,14 @@ export class SortedEmpty extends EmptyBase {
   }
 }
 
+/**
+ * Abstract base class for non‑empty sorted collections.<br/>
+ * <br/>
+ * It exposes the common index‑based operations and structural mutation
+ * helpers shared by the sorted map and set node implementations.
+ * @typeparam E - the stored entry type
+ * @typeparam TS - the concrete non‑empty node type
+ */
 export abstract class SortedNonEmptyBase<
   E,
   TS extends SortedNonEmptyBase<E, TS>,
@@ -58,24 +72,48 @@ export abstract class SortedNonEmptyBase<
   }
 }
 
+/**
+ * Describes the mutable surface of a leaf node used by the helper
+ * functions that transform B‑tree leaves.
+ * @typeparam TS - the concrete leaf type
+ * @typeparam E - the stored entry type
+ */
 export interface LeafMutateSource<TS extends LeafMutateSource<TS, E>, E> {
   mutateEntries: E[];
   entries: readonly E[];
   copy(entries: readonly E[]): TS;
 }
 
+/**
+ * Removes and returns the minimum entry from the given leaf node while
+ * returning the updated leaf.
+ * @param source - the leaf node to operate on
+ */
 export function leafDeleteMin<S extends LeafMutateSource<S, E>, E>(
   source: S
 ): [E, S] {
   return [source.entries[0], source.copy(Arr.tail(source.entries))];
 }
 
+/**
+ * Removes and returns the maximum entry from the given leaf node while
+ * returning the updated leaf.
+ * @param source - the leaf node to operate on
+ */
 export function leafDeleteMax<S extends LeafMutateSource<S, E>, E>(
   source: S
 ): [E, S] {
   return [Arr.last(source.entries), source.copy(Arr.init(source.entries))];
 }
 
+/**
+ * Splits the given leaf node into two nodes and returns the promoted
+ * separator entry together with the newly created right node.<br/>
+ * <br/>
+ * The split position can be customised through the optional `index`.
+ * @param source - the leaf node to split
+ * @param index - (optional) the split index, defaults to the middle entry
+ */
 export function leafMutateSplitRight<S extends LeafMutateSource<S, E>, E>(
   source: S,
   index = source.entries.length >>> 1
@@ -86,6 +124,13 @@ export function leafMutateSplitRight<S extends LeafMutateSource<S, E>, E>(
   return [upEntry, rightNode];
 }
 
+/**
+ * Moves the given `toLeft` entry from `source` to the left sibling and
+ * returns the separator entry that should be stored in the parent node.
+ * @param source - the leaf that donates an entry to the left sibling
+ * @param left - the left sibling leaf to receive the entry
+ * @param toLeft - the entry that must end up in the left sibling
+ */
 export function leafMutateGiveToLeft<S extends LeafMutateSource<S, E>, E>(
   source: S,
   left: S,
@@ -96,6 +141,13 @@ export function leafMutateGiveToLeft<S extends LeafMutateSource<S, E>, E>(
   return [toUp, newLeft];
 }
 
+/**
+ * Moves the given `toRight` entry from `source` to the right sibling and
+ * returns the separator entry that should be stored in the parent node.
+ * @param source - the leaf that donates an entry to the right sibling
+ * @param right - the right sibling leaf to receive the entry
+ * @param toRight - the entry that must end up in the right sibling
+ */
 export function leafMutateGiveToRight<S extends LeafMutateSource<S, E>, E>(
   source: S,
   right: S,
@@ -106,6 +158,13 @@ export function leafMutateGiveToRight<S extends LeafMutateSource<S, E>, E>(
   return [toUp, newRight];
 }
 
+/**
+ * Pulls an entry from the left sibling into `source` and returns the
+ * separator entry that should be stored in the parent node.
+ * @param source - the leaf receiving an entry
+ * @param left - the left sibling leaf to donate an entry
+ * @param toMe - the entry that must end up in `source`
+ */
 export function leafMutateGetFromLeft<S extends LeafMutateSource<S, E>, E>(
   source: S,
   left: S,
@@ -117,6 +176,13 @@ export function leafMutateGetFromLeft<S extends LeafMutateSource<S, E>, E>(
   return [toUp, newLeft];
 }
 
+/**
+ * Pulls an entry from the right sibling into `source` and returns the
+ * separator entry that should be stored in the parent node.
+ * @param source - the leaf receiving an entry
+ * @param right - the right sibling leaf to donate an entry
+ * @param toMe - the entry that must end up in `source`
+ */
 export function leafMutateGetFromRight<S extends LeafMutateSource<S, E>, E>(
   source: S,
   right: S,
@@ -128,6 +194,13 @@ export function leafMutateGetFromRight<S extends LeafMutateSource<S, E>, E>(
   return [toUp, newRight];
 }
 
+/**
+ * Joins the given left sibling leaf and `source` into a single leaf by
+ * inserting the given separator `entry` between them.
+ * @param source - the right leaf that will absorb the left sibling
+ * @param left - the left sibling leaf to merge
+ * @param entry - the separator entry from the parent
+ */
 export function leafMutateJoinLeft<S extends LeafMutateSource<S, E>, E>(
   source: S,
   left: S,
@@ -137,6 +210,13 @@ export function leafMutateJoinLeft<S extends LeafMutateSource<S, E>, E>(
   source.entries = left.entries.concat(source.entries);
 }
 
+/**
+ * Joins the given right sibling leaf and `source` into a single leaf by
+ * inserting the given separator `entry` between them.
+ * @param source - the left leaf that will absorb the right sibling
+ * @param right - the right sibling leaf to merge
+ * @param entry - the separator entry from the parent
+ */
 export function leafMutateJoinRight<S extends LeafMutateSource<S, E>, E>(
   source: S,
   right: S,
@@ -146,6 +226,11 @@ export function leafMutateJoinRight<S extends LeafMutateSource<S, E>, E>(
   source.entries = source.entries.concat(right.entries);
 }
 
+/**
+ * Describes the minimal interface required from an inner B‑tree node
+ * used by the helper functions that transform inner nodes.
+ * @typeparam E - the stored entry type
+ */
 export interface InnerChild<E> {
   readonly size: number;
   getAtIndex<O>(index: number, otherwise?: OptLazy<O>): E | O;
@@ -168,6 +253,12 @@ export interface InnerChild<E> {
   mutateGetFromRight(right: InnerChild<E>, toMe: E): [E, InnerChild<E>];
 }
 
+/**
+ * Describes the mutable surface of an inner node used by the inner
+ * transformation helper functions.
+ * @typeparam TS - the concrete inner node type
+ * @typeparam E - the stored entry type
+ */
 export interface InnerMutateSource<TS extends InnerMutateSource<TS, E>, E> {
   readonly context: {
     readonly minEntries: number;
@@ -202,6 +293,11 @@ export interface InnerMutateSource<TS extends InnerMutateSource<TS, E>, E> {
   ): TS;
 }
 
+/**
+ * Removes and returns the minimum entry from the left‑most child of the
+ * given inner node and returns the updated node.
+ * @param source - the inner node to operate on
+ */
 export function innerDeleteMin<S extends InnerMutateSource<S, E>, E>(
   source: S
 ): [E, S] {
@@ -210,6 +306,11 @@ export function innerDeleteMin<S extends InnerMutateSource<S, E>, E>(
   return [min, newSelf];
 }
 
+/**
+ * Removes and returns the maximum entry from the right‑most child of the
+ * given inner node and returns the updated node.
+ * @param source - the inner node to operate on
+ */
 export function innerDeleteMax<S extends InnerMutateSource<S, E>, E>(
   source: S
 ): [E, S] {
@@ -223,6 +324,14 @@ export function innerDeleteMax<S extends InnerMutateSource<S, E>, E>(
   return [max, newSelf];
 }
 
+/**
+ * Splits the given inner node into two nodes and returns the promoted
+ * separator entry together with the new right node.<br/>
+ * <br/>
+ * The split position can be customised through the optional `index`.
+ * @param source - the inner node to split
+ * @param index - (optional) the split index, defaults to the middle entry
+ */
 export function innerMutateSplitRight<S extends InnerMutateSource<S, E>, E>(
   source: S,
   index = source.entries.length >>> 1
@@ -241,6 +350,14 @@ export function innerMutateSplitRight<S extends InnerMutateSource<S, E>, E>(
   return [upEntry, rightNode];
 }
 
+/**
+ * Moves the given `toLeft` entry and its child from `source` to the left
+ * sibling and returns the separator entry that should be stored in the
+ * parent node.
+ * @param source - the inner node donating an entry to the left sibling
+ * @param left - the left sibling node to receive the entry and child
+ * @param toLeft - the entry that must end up in the left sibling
+ */
 export function innerMutateGiveToLeft<S extends InnerMutateSource<S, E>, E>(
   source: S,
   left: S,
@@ -257,6 +374,14 @@ export function innerMutateGiveToLeft<S extends InnerMutateSource<S, E>, E>(
   return [toUp, newLeft];
 }
 
+/**
+ * Moves the given `toRight` entry and its child from `source` to the right
+ * sibling and returns the separator entry that should be stored in the
+ * parent node.
+ * @param source - the inner node donating an entry to the right sibling
+ * @param right - the right sibling node to receive the entry and child
+ * @param toRight - the entry that must end up in the right sibling
+ */
 export function innerMutateGiveToRight<S extends InnerMutateSource<S, E>, E>(
   source: S,
   right: S,
@@ -273,6 +398,13 @@ export function innerMutateGiveToRight<S extends InnerMutateSource<S, E>, E>(
   return [toUp, newRight];
 }
 
+/**
+ * Pulls an entry and child from the left sibling into `source` and returns
+ * the separator entry that should be stored in the parent node.
+ * @param source - the inner node receiving the entry and child
+ * @param left - the left sibling node to donate the entry and child
+ * @param toMe - the entry that must end up in `source`
+ */
 export function innerMutateGetFromLeft<S extends InnerMutateSource<S, E>, E>(
   source: S,
   left: S,
@@ -292,6 +424,13 @@ export function innerMutateGetFromLeft<S extends InnerMutateSource<S, E>, E>(
   return [toUp, newLeft];
 }
 
+/**
+ * Pulls an entry and child from the right sibling into `source` and returns
+ * the separator entry that should be stored in the parent node.
+ * @param source - the inner node receiving the entry and child
+ * @param right - the right sibling node to donate the entry and child
+ * @param toMe - the entry that must end up in `source`
+ */
 export function innerMutateGetFromRight<S extends InnerMutateSource<S, E>, E>(
   source: S,
   right: S,
@@ -311,6 +450,13 @@ export function innerMutateGetFromRight<S extends InnerMutateSource<S, E>, E>(
   return [toUp, newLeft];
 }
 
+/**
+ * Joins the given left sibling inner node and `source` into a single node by
+ * inserting the given separator `entry` between them.
+ * @param source - the right inner node that will absorb the left sibling
+ * @param left - the left sibling node to merge
+ * @param entry - the separator entry from the parent
+ */
 export function innerMutateJoinLeft<S extends InnerMutateSource<S, E>, E>(
   source: S,
   left: S,
@@ -322,6 +468,13 @@ export function innerMutateJoinLeft<S extends InnerMutateSource<S, E>, E>(
   source.size += left.size + 1;
 }
 
+/**
+ * Joins the given right sibling inner node and `source` into a single node by
+ * inserting the given separator `entry` between them.
+ * @param source - the left inner node that will absorb the right sibling
+ * @param right - the right sibling node to merge
+ * @param entry - the separator entry from the parent
+ */
 export function innerMutateJoinRight<S extends InnerMutateSource<S, E>, E>(
   source: S,
   right: S,
@@ -333,6 +486,17 @@ export function innerMutateJoinRight<S extends InnerMutateSource<S, E>, E>(
   source.size += right.size + 1;
 }
 
+/**
+ * Normalises the given child after it has decreased in size so that it
+ * satisfies the minimum entry constraint of the B‑tree.<br/>
+ * <br/>
+ * Depending on the neighbouring children this may rotate entries between
+ * nodes or perform a split.
+ * @param source - the inner node that contains the child
+ * @param childIndex - the index of the child within `source`
+ * @param newChild - the updated child node
+ * @param newSize - the new total size for `source`
+ */
 export function innerNormalizeDownsizeChild<
   S extends InnerMutateSource<S, E>,
   E,
@@ -397,6 +561,17 @@ export function innerNormalizeDownsizeChild<
   return source.copy(newEntries, newChildren, newSize);
 }
 
+/**
+ * Normalises the given child after it has increased in size so that it
+ * satisfies the maximum entry constraint of the B‑tree.<br/>
+ * <br/>
+ * Depending on the neighbouring children this may rotate entries between
+ * nodes or merge nodes together.
+ * @param source - the inner node that contains the child
+ * @param childIndex - the index of the child within `source`
+ * @param newChild - the updated child node
+ * @param newSize - the new total size for `source`
+ */
 export function innerNormalizeIncreaseChild<
   S extends InnerMutateSource<S, E>,
   E,
@@ -498,6 +673,16 @@ export function innerGetSubIndex(
   }
 }
 
+/**
+ * Returns the entry at the given `index` from the B‑tree represented by the
+ * given inner node, or the provided fallback value if the index is out of
+ * bounds.<br/>
+ * <br/>
+ * Negative indices are interpreted from the end of the collection.
+ * @param source - the inner node to read from
+ * @param index - the (possibly negative) index to look up
+ * @param otherwise - (default: undefined) fallback value when out of bounds
+ */
 export function innerGetAtIndex<E, O>(
   source: InnerMutateSource<any, E>,
   index: number,
@@ -514,6 +699,14 @@ export function innerGetAtIndex<E, O>(
   return source.entries[subIndex];
 }
 
+/**
+ * Returns a new inner node containing only the first `amount` of entries
+ * and children of the given `source` node.<br/>
+ * <br/>
+ * The amount must be between `1` and `source.size - 1`.
+ * @param source - the inner node to operate on
+ * @param amount - the amount of entries to keep
+ */
 export function innerTakeInternal<S extends InnerMutateSource<S, E>, E>(
   source: S,
   amount: number
@@ -555,6 +748,14 @@ export function innerTakeInternal<S extends InnerMutateSource<S, E>, E>(
     .addInternal(source.entries[elemIndex]);
 }
 
+/**
+ * Returns a new inner node containing all entries and children of the given
+ * `source` node except for the first `amount` entries.<br/>
+ * <br/>
+ * The amount must be between `1` and `source.size - 1`.
+ * @param source - the inner node to operate on
+ * @param amount - the amount of entries to drop
+ */
 export function innerDropInternal<S extends InnerMutateSource<S, E>, E>(
   source: S,
   amount: number
@@ -592,6 +793,16 @@ export function innerDropInternal<S extends InnerMutateSource<S, E>, E>(
     .addInternal(source.entries[elemIndex]);
 }
 
+/**
+ * Returns a `Stream` of entries of the given inner node limited to the
+ * provided index `range`.<br/>
+ * <br/>
+ * When `reversed` is true, the stream iterates the selected range in
+ * reverse order.
+ * @param source - the inner node to stream from
+ * @param range - the index range to include
+ * @param reversed - (default: false) when true reverses the stream order
+ */
 export function innerStreamSliceIndex<E>(
   source: InnerMutateSource<any, E>,
   range: IndexRange,
@@ -664,6 +875,15 @@ export function innerStreamSliceIndex<E>(
   });
 }
 
+/**
+ * Abstract base class for mutable sorted builders used by the sorted map
+ * and set implementations.<br/>
+ * <br/>
+ * It encapsulates the shared tree‑based logic for computing `min`, `max`,
+ * index‑based access and traversal while allowing concrete builders to plug
+ * in their own entry and child representations.
+ * @typeparam E - the entry type stored in the builder
+ */
 export abstract class SortedBuilder<E> {
   abstract get context(): { minEntries: number; maxEntries: number };
   abstract source?:
@@ -692,6 +912,10 @@ export abstract class SortedBuilder<E> {
 
   _lock = 0;
 
+  /**
+   * Throws an error when the builder is mutated while it is being iterated,
+   * for example from within {@link SortedBuilder.forEach}.
+   */
   checkLock(): void {
     if (this._lock) RimbuError.throwModifiedBuilderWhileLoopingOverItError();
   }
@@ -715,6 +939,11 @@ export abstract class SortedBuilder<E> {
     return this.size === 0;
   }
 
+  /**
+   * Returns the minimum entry of the builder, or the given fallback value
+   * if the builder is empty.
+   * @param otherwise - (default: undefined) fallback value when empty
+   */
   min<O>(otherwise?: OptLazy<O>): E | O {
     if (undefined !== this.source) return this.source.min(otherwise);
 
@@ -724,6 +953,11 @@ export abstract class SortedBuilder<E> {
     return this.entries[0];
   }
 
+  /**
+   * Returns the maximum entry of the builder, or the given fallback value
+   * if the builder is empty.
+   * @param otherwise - (default: undefined) fallback value when empty
+   */
   max<O>(otherwise?: OptLazy<O>): E | O {
     if (undefined !== this.source) return this.source.max(otherwise);
 
@@ -733,6 +967,14 @@ export abstract class SortedBuilder<E> {
     else return Arr.last(this.entries);
   }
 
+  /**
+   * Returns the entry at the given `index`, or the provided fallback value
+   * when the index is out of bounds.<br/>
+   * <br/>
+   * Negative indices are interpreted from the end of the builder.
+   * @param index - the (possibly negative) index to look up
+   * @param otherwise - (default: undefined) fallback value when out of bounds
+   */
   getAtIndex<O>(index: number, otherwise?: OptLazy<O>): E | O {
     if (undefined !== this.source) {
       return this.source.getAtIndex(index, otherwise);
@@ -766,6 +1008,13 @@ export abstract class SortedBuilder<E> {
     }
   }
 
+  /**
+   * Calls the given function `f` for every entry in the builder in key
+   * sort‑order, passing in the entry, its zero‑based index and a `halt`
+   * function that can be used to stop iteration early.
+   * @param f - the callback function to invoke for each entry
+   * @param options - (optional) traversal options including a custom state
+   */
   forEach(
     f: (entry: E, index: number, halt: () => void) => void,
     options: { state?: TraverseState } = {}
@@ -800,6 +1049,10 @@ export abstract class SortedBuilder<E> {
     this._lock--;
   }
 
+  /**
+   * Restores the builder invariants after mutations by splitting the root
+   * node when it grows beyond the configured maximum block size.
+   */
   normalize(): void {
     if (this.entries.length === 0) {
       if (!this.hasChildren) return;
@@ -1031,6 +1284,10 @@ export abstract class SortedBuilder<E> {
     }
   }
 
+  /**
+   * Removes and returns the minimum entry from the builder while keeping
+   * the internal B‑tree structure valid.
+   */
   deleteMin(): E {
     this.size--;
 
@@ -1041,6 +1298,10 @@ export abstract class SortedBuilder<E> {
     return result;
   }
 
+  /**
+   * Removes and returns the maximum entry from the builder while keeping
+   * the internal B‑tree structure valid.
+   */
   deleteMax(): E {
     this.size--;
 

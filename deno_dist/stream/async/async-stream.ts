@@ -1165,7 +1165,7 @@ export interface AsyncStream<T>
    * // => [1, 3, 7]
    * console.log(
    *   await AsyncStream.of(1, 2, 4)
-   *     .reduce(Reducer.product)
+   *     .reduceStream(Reducer.product)
    *     .toArray()
    * )
    * // => [1, 2, 8]

@@ -1,5 +1,8 @@
 import { attachAbort, Channel, type WaitGroup } from '../index.ts';
 
+/**
+ * Default implementation of the `WaitGroup` synchronization primitive.
+ */
 export class WaitGroupImpl implements WaitGroup {
   #blockPromise:
     | {

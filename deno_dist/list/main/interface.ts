@@ -81,8 +81,8 @@ export interface List<T> extends FastIterable<T> {
    * - reversed: (default: false) if true reverses the order of the elements
    * @example
    * ```ts
-   * List.of(0, 1, 2).stream().toArray()      // => [0, 1, 2]
-   * List.of(0, 1, 2).stream(true).toArray()  // => [2, 1, 0]
+   * List.of(0, 1, 2).stream().toArray()                       // => [0, 1, 2]
+   * List.of(0, 1, 2).stream({ reversed: true }).toArray()     // => [2, 1, 0]
    * ```
    */
   stream(options?: { reversed?: boolean }): Stream<T>;
@@ -90,12 +90,11 @@ export interface List<T> extends FastIterable<T> {
    * Returns a Stream containing the values contained in the given index `range`, in order of the List,
    * or in reverse order if `reversed` is true.
    * @param options - (optional) an object containing the following properties:<br/>
-   * - range: (optional) the index range to include from the list<br/>
    * - reversed: (default: false) if true reverses the order of the included elements
    * @example
    * ```ts
-   * List.of(0, 1, 2, 3, 4).streamRange({ start: 1, end: 2 }).toArray()             // => [0, 1, 2]
-   * List.of(0, 1, 2, 3, 4).streamRange({ start: 1, amount: 2 }, true).toArray()    // => [2, 1]
+   * List.of(0, 1, 2, 3, 4).streamRange({ start: 1, amount: 2 }).toArray()                      // => [1, 2]
+   * List.of(0, 1, 2, 3, 4).streamRange({ start: 1, amount: 2 }, { reversed: true }).toArray() // => [2, 1]
    * ```
    */
   streamRange(range: IndexRange, options?: { reversed?: boolean }): Stream<T>;
@@ -169,7 +168,7 @@ export interface List<T> extends FastIterable<T> {
   append(value: T): List.NonEmpty<T>;
   /**
    * Returns a List containing the first (or last) given `amount` values of this List.
-   * @param amount - the desired amount of values of to include
+   * @param amount - the desired amount of values to include
    *
    * @note a negative `index` will be treated as follows:
    * - -1: the last element in the list
@@ -186,7 +185,7 @@ export interface List<T> extends FastIterable<T> {
   take(amount: number): List<T>;
   /**
    * Returns a List skipping the first given `amount` elements of this List.
-   * @param amount - the desired amount of values of to include
+   * @param amount - the desired amount of values to include
    *
    * @note a negative `index` will be treated as follows:<br/>
    * - -1: the last element in the list<br/>
@@ -214,8 +213,8 @@ export interface List<T> extends FastIterable<T> {
    * - ...etc
    * @example
    * ```ts
-   * List.of(0, 1, 2, 3).slice({ start: 1, amount: 2 })        // -> List(1, 2)
-   * List.of(0, 1, 2, 3).slice({ start: -2, amount: 2 }, true) // -> List(3, 2)
+   * List.of(0, 1, 2, 3).slice({ start: 1, amount: 2 })                       // -> List(1, 2)
+   * List.of(0, 1, 2, 3).slice({ start: -2, amount: 2 }, { reversed: true }) // -> List(3, 2)
    * ```
    * @note O(logB(N)) for block size B
    */
@@ -489,7 +488,7 @@ export interface List<T> extends FastIterable<T> {
    * @example
    * ```ts
    * List.of(1, 2, 3).map(v => `value: ${v + 2}`).toArray()
-   * // => ['value 2', 'value 3', 'value 3']
+   * // => ['value: 3', 'value: 4', 'value: 5']
    * ```
    */
   map<T2>(
@@ -508,7 +507,7 @@ export interface List<T> extends FastIterable<T> {
    * @example
    * ```ts
    * List.of(1, 2, 3).mapPure(v => `value: ${v + 2}`).toArray()
-   * // => ['value 2', 'value 3', 'value 3']
+   * // => ['value: 3', 'value: 4', 'value: 5']
    * ```
    */
   mapPure<T2>(
@@ -554,8 +553,8 @@ export interface List<T> extends FastIterable<T> {
    * @example
    * ```ts
    * List.of(0, 1, 2, 3).toArray()                      // => [0, 1, 2, 3]
-   * List.of(0, 1, 2, 3).toArray({ amount: 2 })         // => [0, 1]
-   * List.of(0, 1, 2, 3).toArray({ amount: 2 }, true)   // => [1, 0]
+   * List.of(0, 1, 2, 3).toArray({ range: { amount: 2 } })                 // => [0, 1]
+   * List.of(0, 1, 2, 3).toArray({ range: { amount: 2 }, reversed: true }) // => [1, 0]
    * ```
    * @note O(logB(N)) for block size B
    * @note it is safe to mutate the returned array, however, the array elements are not copied, thus should be treated as read-only
@@ -637,8 +636,8 @@ export namespace List {
      * - reversed: (default: false) if true reverses the order of the elements
      * @example
      * ```ts
-     * List.of(0, 1, 2).stream().toArray()      // => [0, 1, 2]
-     * List.of(0, 1, 2).stream(true).toArray()  // => [2, 1, 0]
+     * List.of(0, 1, 2).stream().toArray()                       // => [0, 1, 2]
+     * List.of(0, 1, 2).stream({ reversed: true }).toArray()     // => [2, 1, 0]
      * ```
      */
     stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
@@ -662,7 +661,7 @@ export namespace List {
     last(): T;
     /**
      * Returns a List containing the first (or last) given `amount` values of this List.
-     * @param amount - the desired amount of values of to include
+     * @param amount - the desired amount of values to include
      * @typeparam N - the literal numeric type of amount
      * @note a negative `index` will be treated as follows:<br/>
      * - -1: the last element in the list<br/>
@@ -784,7 +783,7 @@ export namespace List {
      * @example
      * ```ts
      * List.of(1, 2, 3).map(v => `value: ${v + 2}`).toArray()
-     * // => ['value 2', 'value 3', 'value 3']
+     * // => ['value: 3', 'value: 4', 'value: 5']
      * ```
      */
     map<T2>(
@@ -803,7 +802,7 @@ export namespace List {
      * @example
      * ```ts
      * List.of(1, 2, 3).mapPure(v => `value: ${v + 2}`).toArray()
-     * // => ['value 2', 'value 3', 'value 3']
+     * // => ['value: 3', 'value: 4', 'value: 5']
      * ```
      */
     mapPure<T2>(
@@ -894,8 +893,8 @@ export namespace List {
      * @example
      * ```ts
      * List.of(0, 1, 2, 3).toArray()                      // => [0, 1, 2, 3]
-     * List.of(0, 1, 2, 3).toArray({ amount: 2 })         // => [0, 1]
-     * List.of(0, 1, 2, 3).toArray({ amount: 2 }, true)   // => [1, 0]
+     * List.of(0, 1, 2, 3).toArray({ range: { amount: 2 } })                 // => [0, 1]
+     * List.of(0, 1, 2, 3).toArray({ range: { amount: 2 }, reversed: true }) // => [1, 0]
      * ```
      * @note O(logB(N)) for block size B
      * @note it is safe to mutate the returned array, however, the array elements are not copied, thus should be treated as read-only
@@ -1017,7 +1016,7 @@ export namespace List {
      * m.build().toArray()
      * // => [10, 1, 2, 3]
      * ```
-     * @note O(logB(N)) for block size B - mosly o(1)
+     * @note O(logB(N)) for block size B - mostly o(1)
      */
     prepend(value: T): void;
     /**
@@ -1030,7 +1029,7 @@ export namespace List {
      * m.build().toArray()
      * // => [1, 2, 3, 10]
      * ```
-     * @note O(logB(N)) for block size B - mosly o(1)
+     * @note O(logB(N)) for block size B - mostly o(1)
      */
     append(value: T): void;
     /**
@@ -1092,7 +1091,7 @@ export namespace List {
      * - `halt`: a function that, if called, ensures that no new elements are passed
      * @param options - (optional) an object containing the following properties:<br/>
      * - state: (optional) the traversal state
-     * @throws RibuError.ModifiedBuilderWhileLoopingOverItError if the builder is modified while
+     * @throws RimbuError.ModifiedBuilderWhileLoopingOverItError if the builder is modified while
      * looping over it
      * @example
      * ```ts
@@ -1153,6 +1152,12 @@ export namespace List {
 
 const _defaultContext = createListContext();
 
+/**
+ * The default `List` creators and context.
+ *
+ * Use this exported value to create and work with immutable `List` instances.
+ * See the [List documentation](https://rimbu.org/docs/collections/list) and the [List API documentation](https://rimbu.org/api/rimbu/list/List/interface).
+ */
 export const List: ListCreators = Object.freeze({
   createContext: createListContext,
   defaultContext() {

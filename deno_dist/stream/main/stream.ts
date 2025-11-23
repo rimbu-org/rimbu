@@ -1113,7 +1113,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
    * // => [1, 3, 7]
    * console.log(
    *   Stream.of(1, 2, 4)
-   *     .reduce(Reducer.product)
+   *     .reduceStream(Reducer.product)
    *     .toArray()
    * )
    * // => [1, 2, 8]

@@ -1109,7 +1109,9 @@ export namespace AsyncReducer {
    * @typeparam O - the fallback value type
    * @example
    * ```ts
-   * await AsyncStream.from(Stream.range{ amount: 10 })).reduce(AsyncReducer.first())
+   * await AsyncStream.from(Stream.range({ amount: 10 })).reduce(
+   *   AsyncReducer.first()
+   * )
    * // => 0
    * ```
    */
@@ -1135,7 +1137,9 @@ export namespace AsyncReducer {
    * @typeparam O - the fallback value type
    * @example
    * ```ts
-   * await AsyncStream.from(Stream.range{ amount: 10 })).reduce(AsyncReducer.last())
+   * await AsyncStream.from(Stream.range({ amount: 10 })).reduce(
+   *   AsyncReducer.last()
+   * )
    * // => 9
    * ```
    */

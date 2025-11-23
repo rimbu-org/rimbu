@@ -46,7 +46,7 @@ export interface VariantSetBase<
    * @example
    * ```ts
    * HashSet.empty().assumeNonEmpty()          // => throws RimbuError.EmptyCollectionAssumedNonEmptyError
-   * HashSet.from([[0, 1]]).assumeNonEmpty()   // => List.NonEmpty(0, 1, 2)
+   * HashSet.of(0, 1).assumeNonEmpty()         // => HashSet.NonEmpty<number>
    * ```
    */
   assumeNonEmpty(): WithElem<Tp, T>['nonEmpty'];
@@ -155,7 +155,7 @@ export interface VariantSetBase<
    * @param other - a `StreamSource` containing values
    * @example
    * ```ts
-   * HashSet.of(1, 2, 3).interface(HashSet.of(1, 3)).toArray()   // => [1, 3]
+   * HashSet.of(1, 2, 3).intersect(HashSet.of(1, 3)).toArray()   // => [1, 3]
    * ```
    */
   intersect<U = T>(
@@ -425,7 +425,7 @@ export namespace RSetBase {
      * A string tag defining the specific collection type
      * @example
      * ```ts
-     * HahsSet.defaultContext().typeTag   // => 'HashSet'
+     * HashSet.defaultContext().typeTag   // => 'HashSet'
      * ```
      */
     readonly typeTag: string;
@@ -536,11 +536,11 @@ export namespace RSetBase {
      * - `halt`: a function that, if called, ensures that no new elements are passed
      * @param options - (optional) an object containing the following properties:<br/>
      * - state: (optional) the traversal state
-     * @throws RibuError.ModifiedBuilderWhileLoopingOverItError if the builder is modified while
+     * @throws RimbuError.ModifiedBuilderWhileLoopingOverItError if the builder is modified while
      * looping over it
      * @example
      * ```ts
-     * HashSet.of(1, 2, 3).toBuilder.forEach((value, i, halt) => {
+     * HashSet.of(1, 2, 3).toBuilder().forEach((value, i, halt) => {
      *  console.log([value, i]);
      *  if (i >= 1) halt();
      * })

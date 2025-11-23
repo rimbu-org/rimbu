@@ -4,6 +4,10 @@ import type { SortedBiMultiMap } from '../../../bimultimap/mod.ts';
 import type { SortedMultiMapSortedValue } from '../../../multimap/mod.ts';
 
 export namespace BiMultiMapSorted {
+  /**
+   * The SortedBiMultiMap creators interface that exposes factory methods and context helpers
+   * for sorted BiMultiMap instances.
+   */
   export interface Creators
     extends BiMultiMapBase.Factory<unknown, unknown, SortedBiMultiMap.Types> {
     /**
@@ -11,8 +15,8 @@ export namespace BiMultiMapSorted {
      * @typeparam UK - the upper key type for which the context can create instances
      * @typeparam UV - the upper value type for which the context can create instances
      * @param options - (optional) an object containing the following properties:<br/>
-     * - keyValueMultiMapContext: (optional) the map context to use for key value multimaps<br/>
-     * - valueKeyMultiMapContext: (optional) the set context to use for value key multimaps
+     * - keyValueMultiMapContext: (optional) the MultiMap context to use for key to value multimaps<br/>
+     * - valueKeyMultiMapContext: (optional) the MultiMap context to use for value to key multimaps
      */
     createContext<K, V>(options?: {
       keyValueMultiMapContext?: SortedMultiMapSortedValue.Context<K, V>;

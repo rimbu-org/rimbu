@@ -11,6 +11,11 @@ import type {
 } from '@rimbu/table';
 import type { TableBase } from '@rimbu/table/custom';
 
+/**
+ * A collection of helper functions used to create `Table.Context` instances.
+ *
+ * See the [Table documentation](https://rimbu.org/docs/collections/table) and the [Table API documentation](https://rimbu.org/api/rimbu/table/Table/interface).
+ */
 export interface TableCreators {
   /**
    * Returns a new Table context instance based on the given `options`.
@@ -26,6 +31,11 @@ export interface TableCreators {
   }): Table.Context<UR, UC>;
 }
 
+/**
+ * The public creators for the `HashTableHashColumn` collection type.
+ *
+ * This interface extends `TableBase.Factory` with helpers to create and access `HashTableHashColumn.Context` instances.
+ */
 export interface HashTableHashColumnCreators
   extends TableBase.Factory<HashTableHashColumn.Types> {
   /**
@@ -48,6 +58,11 @@ export interface HashTableHashColumnCreators
   defaultContext<UR, UC>(): HashTableHashColumn.Context<UR, UC>;
 }
 
+/**
+ * The public creators for the `HashTableSortedColumn` collection type.
+ *
+ * This interface extends `TableBase.Factory` with helpers to create and access `HashTableSortedColumn.Context` instances.
+ */
 export interface HashTableSortedColumnCreators
   extends TableBase.Factory<HashTableSortedColumn.Types> {
   /**
@@ -70,6 +85,11 @@ export interface HashTableSortedColumnCreators
   defaultContext<UR, UC>(): HashTableSortedColumn.Context<UR, UC>;
 }
 
+/**
+ * The public creators for the `SortedTableHashColumn` collection type.
+ *
+ * This interface extends `TableBase.Factory` with helpers to create and access `SortedTableHashColumn.Context` instances.
+ */
 export interface SortedTableHashColumnCreators
   extends TableBase.Factory<SortedTableHashColumn.Types> {
   /**
@@ -92,6 +112,11 @@ export interface SortedTableHashColumnCreators
   defaultContext<UR, UC>(): SortedTableHashColumn.Context<UR, UC>;
 }
 
+/**
+ * The public creators for the `SortedTableSortedColumn` collection type.
+ *
+ * This interface extends `TableBase.Factory` with helpers to create and access `SortedTableSortedColumn.Context` instances.
+ */
 export interface SortedTableSortedColumnCreators
   extends TableBase.Factory<SortedTableSortedColumn.Types> {
   /**

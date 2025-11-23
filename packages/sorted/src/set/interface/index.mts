@@ -10,7 +10,7 @@ import { createSortedSetContext } from '@rimbu/sorted/set-custom';
 /**
  * A type-invariant immutable Set of value type T.
  * In the Set, there are no duplicate values.
- * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [SortedSet API documentation](https://rimbu.org/api/rimbu/ordered/set/SortedSet/interface)
+ * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [SortedSet API documentation](https://rimbu.org/api/rimbu/sorted/set/SortedSet/interface)
  * @typeparam T - the value type
  * @note
  * - The `SortedSet` keeps the inserted values in sorted order according to the
@@ -79,9 +79,9 @@ export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
    * ```ts
    * const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();
    * console.log(m.max())
-   * // => 'a'
+   * // => 'd'
    * console.log(m.max('q'))
-   * // => 'a'
+   * // => 'd'
    * console.log(SortedSet.empty().max())
    * // => undefined
    * console.log(SortedSet.empty().max('q'))
@@ -126,7 +126,7 @@ export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
   getAtIndex(index: number): T | undefined;
   getAtIndex<O>(index: number, otherwise: OptLazy<O>): T | O;
   /**
-   * Returns a SortedSet containing the the first `amount` of value of this SortedSet.
+   * Returns a SortedSet containing the first `amount` of values of this SortedSet.
    * @param amount - the amount of elements to keep
    *
    * @note a negative `amount` takes the last values instead of the first, e.g. -2 is the last 2 elements
@@ -141,7 +141,7 @@ export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
    */
   take(amount: number): SortedSet<T>;
   /**
-   * Returns a SortedSet containing all but the the first `amount` of value of this SortedSet.
+   * Returns a SortedSet containing all but the first `amount` of values of this SortedSet.
    * @param amount - the amount of elements to keep
    *
    * @note a negative `amount` drops the last values instead of the first, e.g. -2 is the last 2 elements
@@ -184,7 +184,7 @@ export namespace SortedSet {
   /**
    * A non-empty type-invariant immutable Set of value type T.
    * In the Set, there are no duplicate values.
-   * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [SortedSet API documentation](https://rimbu.org/api/rimbu/ordered/set/SortedSet/interface)
+   * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [SortedSet API documentation](https://rimbu.org/api/rimbu/sorted/set/SortedSet/interface)
    * @typeparam T - the value type
    * @note
    * - The `SortedSet` keeps the inserted values in sorted order according to the
@@ -241,7 +241,7 @@ export namespace SortedSet {
 
   /**
    * A mutable `SortedSet` builder used to efficiently create new immutable instances.
-   * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [SortedSet.Builder API documentation](https://rimbu.org/api/rimbu/ordered/set/SortedSet/Builder/interface)
+   * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [SortedSet.Builder API documentation](https://rimbu.org/api/rimbu/sorted/set/SortedSet/Builder/interface)
    * @typeparam T - the value type
    */
   export interface Builder<T> extends RSetBase.Builder<T, SortedSet.Types> {

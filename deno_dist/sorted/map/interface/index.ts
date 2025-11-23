@@ -140,9 +140,9 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
    * ```ts
    * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
    * console.log(m.maxKey())
-   * // => 'a'
+   * // => 'd'
    * console.log(m.maxKey('q'))
-   * // => 'a'
+   * // => 'd'
    * console.log(SortedMap.empty().maxKey())
    * // => undefined
    * console.log(SortedMap.empty().maxKey('q'))
@@ -260,12 +260,12 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
    * console.log(m.take(2).toArray())
    * // => [['a', 1], ['b', 2]]
    * console.log(m.take(-2).toArray())
-   * // => [['c', ], ['d', 4]]
+   * // => [['c', 3], ['d', 4]]
    * ```
    */
   take(amount: number): SortedMap<K, V>;
   /**
-   * Returns a SortedMap containing all but the the first `amount` of elements of this SortedMap.
+   * Returns a SortedMap containing all but the first `amount` of elements of this SortedMap.
    * @param amount - the amount of elements to drop
    *
    * @note a negative `amount` drops the last elements instead of the first, e.g. -2 is the last 2 elements
@@ -273,7 +273,7 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
    * ```ts
    * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
    * console.log(m.drop(2).toArray())
-   * // => [['c', ], ['d', 4]]
+   * // => [['c', 3], ['d', 4]]
    * console.log(m.drop(-2).toArray())
    * // => [['a', 1], ['b', 2]]
    * ```
@@ -374,7 +374,7 @@ export namespace SortedMap {
      * ```ts
      * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
      * console.log(m.maxKey())
-     * // => 'a'
+     * // => 'd'
      * ```
      */
     maxKey(): K;

@@ -14,7 +14,7 @@ import {
  * duplicate keys.
  * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [OrderedMap API documentation](https://rimbu.org/api/rimbu/ordered/map/OrderedMap/interface)
  * @note
- * - The OrderedMap keeps maintains the insertion order of elements, thus
+ * - The OrderedMap keeps the insertion order of elements, thus
  * iterators and streams will also reflect this order.
  * - The OrderedMap wraps around a Map instance, thus has mostly the same time complexity
  * as the contained Map.
@@ -38,7 +38,7 @@ export namespace OrderedMap {
    * duplicate keys.
    * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [OrderedMap API documentation](https://rimbu.org/api/rimbu/ordered/map/OrderedMap/interface)
    * @note
-   * - The OrderedMap keeps maintains the insertion order of elements, thus
+   * - The OrderedMap keeps the insertion order of elements, thus
    * iterators and streams will also reflect this order.
    * - The OrderedMap wraps around a Map instance, thus has mostly the same time complexity
    * as the contained Map.

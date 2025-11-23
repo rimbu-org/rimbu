@@ -8,8 +8,8 @@ import type {
 import { type ArrowGraphBase, GraphContext } from '../../../../../graph/custom/index.ts';
 
 /**
- * An type-invariant immutable valued arrow (directed) graph.
- * The connections are internally maintained using sorted collections
+ * A type-invariant immutable arrow (directed) graph.
+ * The connections are internally maintained using sorted collections.
  * See the [Graph documentation](https://rimbu.org/docs/collections/graph) and the [ArrowGraphSorted API documentation](https://rimbu.org/api/rimbu/graph/ArrowGraphSorted/interface)
  * @typeparam N - the node type
  * @example
@@ -23,8 +23,8 @@ export interface ArrowGraphSorted<N>
 
 export namespace ArrowGraphSorted {
   /**
-   * A non-empty type-invariant immutable valued arrow (directed) graph.
-   * The connections are internally maintained using sorted collections
+   * A non-empty type-invariant immutable arrow (directed) graph.
+   * The connections are internally maintained using sorted collections.
    * See the [Graph documentation](https://rimbu.org/docs/collections/graph) and the [ArrowGraphSorted API documentation](https://rimbu.org/api/rimbu/graph/ArrowGraphSorted/interface)
    * @typeparam N - the node type
    */
@@ -33,11 +33,12 @@ export namespace ArrowGraphSorted {
       Omit<ArrowGraphSorted<N>, keyof ArrowGraphBase.NonEmpty<any, any>>,
       Streamable.NonEmpty<GraphElement<N>> {
     /**
-     * Returns a non-empty Stream containing all entries of this collection as tuples of key and value.
+     * Returns a non-empty `Stream` containing all graph elements of this collection as single tuples for isolated nodes
+     * and 2-valued tuples of nodes for connections.
      * @example
      * ```ts
-     * ArrowValuedGraphSorted.of([1, 2, 'a'], [2, 3, 'b']).stream().toArray()
-     * // => [[1, 2, 'a'], [2, 3, 'b']]
+     * ArrowGraphSorted.of([1], [2, 3]).stream().toArray()
+     * // => [[1], [2, 3]]
      * ```
      */
     stream(): Stream.NonEmpty<GraphElement<N>>;

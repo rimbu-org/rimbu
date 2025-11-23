@@ -3,6 +3,10 @@ import type { ArrayNonEmpty, AsyncOptLazy, MaybePromise } from '@rimbu/common';
 
 import type { AsyncStream, AsyncStreamSource } from '@rimbu/stream/async';
 
+/**
+ * An interface describing all factory functions used to create `AsyncStream` instances.
+ * Implementations of this interface are exposed via the global `AsyncStream` value and the `@rimbu/stream/async-custom` sub-package.
+ */
 export interface AsyncStreamConstructors {
   of<T>(...values: ArrayNonEmpty<AsyncOptLazy<T>>): AsyncStream.NonEmpty<T>;
   from<T>(

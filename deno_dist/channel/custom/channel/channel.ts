@@ -148,7 +148,7 @@ export namespace Channel {
    */
   export interface Config {
     /**
-     * Tha channel capacity, indicating the amount of messages a channel will buffer
+     * The channel capacity, indicating the amount of messages a channel will buffer
      * before sending to the channel will block.
      */
     capacity?: number | undefined;

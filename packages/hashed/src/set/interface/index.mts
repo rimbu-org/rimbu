@@ -13,7 +13,7 @@ import { createHashSetContext } from '@rimbu/hashed/set-custom';
  * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [HashSet API documentation](https://rimbu.org/api/rimbu/hashed/HashSet/interface)
  * @typeparam T - the value type
  * @note
- * - The `HashSet` uses the context's `hasher` instance to hash keys for performance.<b/r>
+ * - The `HashSet` uses the context's `hasher` instance to hash values for performance.<br/>
  * - The `HashSet` uses the context's `eq` function to determine equivalence between keys.
  * @example
  * ```ts

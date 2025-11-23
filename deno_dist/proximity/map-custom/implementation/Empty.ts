@@ -5,6 +5,15 @@ import { Stream, type StreamSource } from '../../../stream/mod.ts';
 
 import type { ProximityMap } from '../../../proximity/map/index.ts';
 
+/**
+ * Concrete empty implementation of {@link ProximityMap}.<br/>
+ * <br/>
+ * It represents an empty `ProximityMap` instance for a given context and efficiently
+ * creates non-empty maps when elements are added.
+ *
+ * @typeparam K - the key type
+ * @typeparam V - the value type
+ */
 export class ProximityMapEmpty<K = any, V = any>
   extends EmptyBase
   implements ProximityMap<K, V>

@@ -12,6 +12,10 @@ import {
   timeoutAction,
 } from '../index.mjs';
 
+/**
+ * Fast async iterator adapter that turns a `Channel.Read` into an `AsyncStream`.
+ * @typeparam T - the channel message type
+ */
 export class ChannelFastIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(readonly sourceCh: Channel.Read<T>) {
     super();
@@ -26,6 +30,10 @@ export class ChannelFastIterator<T> extends AsyncFastIteratorBase<T> {
   }
 }
 
+/**
+ * Default in-memory implementation of a `Channel` that backs the public channel API.
+ * @typeparam T - the channel message type
+ */
 export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
   readonly #closeController = new AbortController();
   readonly #getNextValueQueue = new Set<() => T>();

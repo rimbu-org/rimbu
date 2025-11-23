@@ -3,6 +3,11 @@ import type { Reducer, StreamSource } from '../../stream/mod.ts';
 
 import type { List } from '../../list/mod.ts';
 
+/**
+ * A collection of factory functions to create immutable `List` instances for a given context.
+ *
+ * See the [List documentation](https://rimbu.org/docs/collections/list) and the [List API documentation](https://rimbu.org/api/rimbu/list/List/interface).
+ */
 export interface ListFactory {
   /**
    * Returns the (singleton) empty List for this context with given value type.
@@ -15,7 +20,7 @@ export interface ListFactory {
    */
   empty<T>(): List<T>;
   /**
-   * Returns an immutable set of this type and context, containing the given `values`.
+   * Returns an immutable List of this type and context, containing the given `values`.
    * @param values - a non-empty array of values
    * @typeparam T - the element type
    * @example
@@ -25,7 +30,7 @@ export interface ListFactory {
    */
   of<T>(...values: ArrayNonEmpty<T>): List.NonEmpty<T>;
   /**
-   * Returns an immutable set of this collection type and context, containing the given values in `source`.
+   * Returns an immutable List of this collection type and context, containing the given values in `sources`.
    * @param sources - a non-empty array of `StreamSource` instances containing values
    * @typeparam T - the element type
    * @example
@@ -115,6 +120,11 @@ export interface ListFactory {
   reducer<T>(source?: StreamSource<T>): Reducer<T, List<T>>;
 }
 
+/**
+ * The public creators for the `List` collection type.
+ *
+ * This interface extends `ListFactory` with helpers to create and access `List.Context` instances.
+ */
 export interface ListCreators extends ListFactory {
   /**
    * Returns a new `List.Creators` instance using the provided options.

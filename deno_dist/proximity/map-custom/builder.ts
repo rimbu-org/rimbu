@@ -12,6 +12,16 @@ import type { StreamSource } from '../../stream/mod.ts';
 import type { ProximityMap } from '../../proximity/map/index.ts';
 import { wrapHashMap } from './wrapping.ts';
 
+/**
+ * Mutable builder used to efficiently construct new immutable {@link ProximityMap} instances.<br/>
+ * <br/>
+ * The builder stores entries in an internal `HashMap.Builder` and only wraps the result
+ * into a `ProximityMap` when {@link ProximityMapBuilder.build | build} (or
+ * {@link ProximityMapBuilder.buildMapValues | buildMapValues}) is called.
+ *
+ * @typeparam K - the key type
+ * @typeparam V - the value type
+ */
 export class ProximityMapBuilder<K, V> implements ProximityMap.Builder<K, V> {
   private readonly internalBuilder: HashMap.Builder<K, V>;
 

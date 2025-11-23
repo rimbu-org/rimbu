@@ -1914,6 +1914,10 @@ class AsyncEmptyStream<T = any>
   }
 }
 
+/**
+ * An `AsyncStream` implementation that wraps an arbitrary `AsyncStreamSource`.
+ * Used internally by `fromAsyncStreamSource` but also available for advanced use cases.
+ */
 export class FromSource<T> extends AsyncStreamBase<T> {
   constructor(
     readonly source: AsyncStreamSource<T>,
@@ -1927,6 +1931,10 @@ export class FromSource<T> extends AsyncStreamBase<T> {
   }
 }
 
+/**
+ * An `AsyncStream` implementation that manages an external resource while streaming values.
+ * The resource is opened on first iteration and closed when the stream completes or is disposed.
+ */
 export class FromResource<T, R> extends AsyncStreamBase<T> {
   constructor(
     readonly open: () => MaybePromise<R>,
@@ -1946,10 +1954,18 @@ export class FromResource<T, R> extends AsyncStreamBase<T> {
   }
 }
 
+/**
+ * A shared empty `AsyncStream` instance used throughout the async stream implementation.
+ */
 export const emptyAsyncStream: AsyncStream<any> = Object.freeze(
   new AsyncEmptyStream()
 );
 
+/**
+ * Returns true if the given async stream source is known to be empty.
+ * If this function returns false, the source may still be empty; it is simply not known.
+ * @param source - a potential async stream source
+ */
 export function isEmptyAsyncStreamSourceInstance(
   source: AsyncStreamSource<any>
 ): boolean {
@@ -1959,6 +1975,13 @@ export function isEmptyAsyncStreamSourceInstance(
   );
 }
 
+/**
+ * Converts any `AsyncStreamSource` into an `AsyncFastIterator`.
+ * This is the low-level entry point used by `fromAsyncStreamSource`.
+ * @typeparam T - the element type
+ * @param source - the async stream source to convert
+ * @param close - optional callback that will be invoked when the iterator is closed
+ */
 export function asyncStreamSourceToIterator<T>(
   source: AsyncStreamSource<T>,
   close?: () => MaybePromise<void>
@@ -2013,6 +2036,11 @@ export function asyncStreamSourceToIterator<T>(
 }
 
 // prettier-ignore
+/**
+ * Converts any `AsyncStreamSource` into a concrete `AsyncStream` implementation.
+ * @typeparam T - the element type
+ * @param source - the async stream source to convert
+ */
 export const fromAsyncStreamSource: {
   <T>(source: AsyncStreamSource.NonEmpty<T>): AsyncStream.NonEmpty<T>;
   <T>(source: AsyncStreamSource<T>): AsyncStream<T>;
@@ -2031,6 +2059,10 @@ const asyncStreamSourceHelpers = {
 
 export type AsyncStreamSourceHelpers = typeof asyncStreamSourceHelpers;
 
+/**
+ * Default implementation of the `AsyncStreamConstructors` interface.
+ * This instance backs the exported `AsyncStream` value.
+ */
 export const AsyncStreamConstructorsImpl: AsyncStreamConstructors =
   Object.freeze<AsyncStreamConstructors>({
     of(...values) {

@@ -426,7 +426,7 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
    * m.updateAt(2, 'c').toArray()
    * // => [[1, 'a'], [2, 'c']]
    * m.updateAt(2, v => v + 'z')
-   * // => [[1, 'a'], [2, 'cz]]
+   * // => [[1, 'a'], [2, 'bz']]
    * ```
    */
   updateAt<UK = K>(
@@ -444,6 +444,12 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 }
 
 export namespace RMapBase {
+  /**
+   * A utility type describing an update operation for a value of type `V`.
+   *
+   * It can be either a new value, or a function that receives the previous value
+   * and returns the new one.
+   */
   export type Update<V> = V | (<V2 extends V>(value: V & V2) => V);
 
   export interface NonEmpty<K, V, Tp extends RMapBase.Types = RMapBase.Types>
@@ -481,7 +487,7 @@ export namespace RMapBase {
      * m.updateAt(2, 'c').toArray()
      * // => [[1, 'a'], [2, 'c']]
      * m.updateAt(2, v => v + 'z')
-     * // => [[1, 'a'], [2, 'cz]]
+     * // => [[1, 'a'], [2, 'bz']]
      * ```
      */
     updateAt<UK = K>(
@@ -556,7 +562,7 @@ export namespace RMapBase {
      * @typeparam I - the array of input source value types
      * @typeparam K - the common key type
      * @param fillValue - the value to use for the result tuple if a source does not have a certain key
-     * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
+     * @param sources - a non-empty set of StreamSources containing tuples of keys and values
      * @example
      * ```ts
      * const m = HashMap.of([1, 'a'], [2, 'b'])
@@ -595,7 +601,7 @@ export namespace RMapBase {
      * @typeparam O - the type of the fill value
      * @typeparam R - the resulting Map value type
      * @param fillValue - the value to use for the result tuple if a source does not have a certain key
-     * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
+     * @param sources - a non-empty set of StreamSources containing tuples of keys and values
      * @param mergeFun - a function that receives each key of the given sources and, if present, the corresponding source values, or the given fill value otherwise,
      * and returns the result value to use in the resulting map.
      * @example
@@ -642,7 +648,7 @@ export namespace RMapBase {
      * the key will be skipped.
      * @typeparam I - the array of input source value types
      * @typeparam K - the common key type
-     * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
+     * @param sources - a non-empty set of StreamSources containing tuples of keys and values
      * @example
      * ```ts
      * const m = HashMap.of([1, 'a'], [2, 'b'])
@@ -669,7 +675,7 @@ export namespace RMapBase {
      * @typeparam I - the array of input source value types
      * @typeparam K - the common key type
      * @typeparam R - the resulting Map value type
-     * @param sources - a non-empty set of StreamSouces containing tuples of keys and values
+     * @param sources - a non-empty set of StreamSources containing tuples of keys and values
      * @param mergeFun - a function taking the key and values from this map and all sources corresponding to the key, and
      * returning a value for the resulting Map.
      * @example
@@ -793,7 +799,7 @@ export namespace RMapBase {
      * - `entry`: the next key-value entry<br/>
      * - `index`: the index of the element<br/>
      * - `halt`: a function that, if called, ensures that no new elements are passed
-     * @throws RibuError.ModifiedBuilderWhileLoopingOverItError if the builder is modified while
+     * @throws RimbuError.ModifiedBuilderWhileLoopingOverItError if the builder is modified while
      * looping over it
      * @example
      * ```ts

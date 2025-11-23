@@ -55,8 +55,8 @@ export interface VariantTableBase<
    * Returns the amount of rows in the collection.
    * @example
    * ```ts
-   * HashTableHashColumn.empty<number, number, number>().rowSize   // => 0
-   * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).rowSize          // => 1
+   * HashTableHashColumn.empty<number, number, number>().amountRows   // => 0
+   * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).amountRows          // => 1
    * ```
    */
   readonly amountRows: number;

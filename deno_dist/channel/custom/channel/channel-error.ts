@@ -6,7 +6,7 @@ import { ErrBase } from '../../../common/mod.ts';
 export abstract class ChannelError extends ErrBase.CustomError {}
 
 /**
- * Error indicating that a timeout has occured during a Channel operation.
+ * Error indicating that a timeout has occurred during a Channel operation.
  */
 export class TimeoutError extends ChannelError {
   constructor() {

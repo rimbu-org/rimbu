@@ -4,6 +4,15 @@
 export type Eq<T> = (v1: T, v2: T) => boolean;
 
 export namespace Eq {
+  /**
+   * Converts any given `value` to a string representation that is stable for equality
+   * and ordering comparisons.
+   *
+   * For primitive values and objects with a custom `toString` implementation, it uses
+   * `String(value)`. For plain objects with the default `Object.prototype.toString`
+   * implementation, it uses `JSON.stringify(value)` instead.
+   * @param value - the value to convert
+   */
   export function convertAnyToString(value: any): string {
     if (
       typeof value !== 'object' ||
@@ -146,7 +155,7 @@ export namespace Eq {
   /**
    * Returns an Eq instance that checks equality of objects containing property values of type V by iteratively
    * applying given `valueEq` to each of the object's property values.
-   * @typeparam - the object property value type
+   * @typeparam V - the object property value type
    * @param valueEq - (optional) the Eq instance to use to compare property values
    * @example
    * ```ts
@@ -228,7 +237,7 @@ export namespace Eq {
    * @typeparam T - the value type
    * @example
    * ```ts
-   * const eq = anyFlatEq()
+   * const eq = Eq.anyFlatEq()
    * console.log(eq(1, 'a'))
    * // => false
    * console.log(eq({ a: 1, b: 2 }, { b: 2, a: 1 }))
@@ -246,7 +255,7 @@ export namespace Eq {
    * @typeparam T - the value type
    * @example
    * ```ts
-   * const eq = anyFlatEq()
+   * const eq = Eq.anyShallowEq()
    * console.log(eq(1, 'a'))
    * // => false
    * console.log(eq({ a: 1, b: 2 }, { b: 2, a: 1 }))
@@ -267,7 +276,7 @@ export namespace Eq {
    * @typeparam T - the value type
    * @example
    * ```ts
-   * const eq = anyFlatEq()
+   * const eq = Eq.anyDeepEq()
    * console.log(eq(1, 'a'))
    * // => false
    * console.log(eq({ a: 1, b: 2 }, { b: 2, a: 1 }))
@@ -359,6 +368,18 @@ export namespace Eq {
   const _anyToStringEq: Eq<any> = (v1, v2) =>
     convertAnyToString(v1) === convertAnyToString(v2);
 
+  /**
+   * Returns an Eq instance that considers two values equal when their string
+   * representations, as returned by `Eq.convertAnyToString`, are equal.
+   * @example
+   * ```ts
+   * const eq = Eq.anyToStringEq()
+   * console.log(eq({ a: 1 }, { a: 1 }))
+   * // => true
+   * console.log(eq({ a: 1 }, { a: 2 }))
+   * // => false
+   * ```
+   */
   export function anyToStringEq(): Eq<any> {
     return _anyToStringEq;
   }

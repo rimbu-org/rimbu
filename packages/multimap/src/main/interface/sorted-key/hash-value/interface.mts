@@ -120,6 +120,12 @@ function createContext<K, V>(options?: {
 const _defaultContext: SortedMultiMapHashValue.Context<any, any> =
   createContext();
 
+/**
+ * The default `SortedMultiMapHashValue` creators and context.
+ *
+ * Use this exported value to create and work with immutable `SortedMultiMapHashValue` instances.
+ * See the [MultiMap documentation](https://rimbu.org/docs/collections/multimap) and the [SortedMultiMapHashValue API documentation](https://rimbu.org/api/rimbu/multimap/SortedMultiMapHashValue/interface).
+ */
 export const SortedMultiMapHashValue: SortedMultiMapHashValueCreators =
   Object.freeze({
     ..._defaultContext,

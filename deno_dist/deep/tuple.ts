@@ -17,6 +17,10 @@ export namespace Tuple {
    */
   export type Source = readonly unknown[];
 
+  /**
+   * Determines whether the given type `T` is a tuple type.
+   * @typeparam T - the input type
+   */
   export type IsTuple<T> = T extends { length: infer L }
     ? 0 extends L
       ? false
@@ -43,7 +47,7 @@ export namespace Tuple {
   }
 
   /**
-   * Returns the item at the given `index` in the givn `tuple`.
+   * Returns the item at the given `index` in the given `tuple`.
    * @param tuple - the tuple to get the item from
    * @param index - the index in of the tuple element
    * @example

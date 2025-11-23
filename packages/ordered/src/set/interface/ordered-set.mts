@@ -22,15 +22,15 @@ import {
  * complexity is higher than the source set.
  * @example
  * ```ts
- * const s1 = OrderedSortedSet.empty<string>()
- * const s2 = OrderedSortedSet.of('a', 'b', 'c')
+ * const s1 = OrderedSet.empty<string>()
+ * const s2 = OrderedSet.of('a', 'b', 'c')
  * ```
  */
 export interface OrderedSet<T> extends OrderedSetBase<T, OrderedSet.Types> {}
 
 export namespace OrderedSet {
   /**
-   * A non-empty type-invariant immutable Ordered SortedSet of value type T.
+   * A non-empty type-invariant immutable Ordered Set of value type T.
    * In the Set, there are no duplicate values.
    * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [OrderedSet API documentation](https://rimbu.org/api/rimbu/ordered/set/OrderedSet/interface)
    * @typeparam T - the value type
@@ -43,8 +43,8 @@ export namespace OrderedSet {
    * complexity is higher than the source set.
    * @example
    * ```ts
-   * const s1 = OrderedSortedSet.empty<string>()
-   * const s2 = OrderedSortedSet.of('a', 'b', 'c')
+   * const s1 = OrderedSet.empty<string>()
+   * const s2 = OrderedSet.of('a', 'b', 'c')
    * ```
    */
   export interface NonEmpty<T>
@@ -62,6 +62,11 @@ export namespace OrderedSet {
   export interface Builder<T>
     extends OrderedSetBase.Builder<T, OrderedSet.Types> {}
 
+  /**
+   * A context instance for an `OrderedSet` that acts as a factory for every instance of this
+   * type of collection.
+   * @typeparam UT - the upper element type bound for which the context can be used
+   */
   export interface Context<UT>
     extends OrderedSetBase.Context<UT, OrderedSet.Types> {}
 

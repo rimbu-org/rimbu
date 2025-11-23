@@ -5,6 +5,9 @@ import {
   type RemoteChannelServer,
 } from '../index.ts';
 
+/**
+ * Namespace containing the control messages understood by a `RemoteChannelServer` implementation.
+ */
 export namespace RemoteChannelServerImpl {
   export interface OpenReadMessage {
     type: 'RCS_OPEN';
@@ -32,6 +35,9 @@ export namespace RemoteChannelServerImpl {
   export type Message = OpenReadMessage | OpenWriteMessage | OpenCrossMessage;
 }
 
+/**
+ * Concrete factory used by `RemoteChannelServer.create` to construct a server over a given message port.
+ */
 export async function RemoteChannelServerImpl(config: {
   port: RemoteChannel.SimpleMessagePort;
   rcsChannelId?: string;

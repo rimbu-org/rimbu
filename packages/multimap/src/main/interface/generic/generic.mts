@@ -33,7 +33,7 @@ export namespace MultiMap {
    * A context instance for `MultiMap` implementations that acts as a factory for every instance of this
    * type of collection.
    * @typeparam UK - the upper key type bound for which the context can be used
-   * @typeparam UV - the upper value type bound for which th context can be used
+   * @typeparam UV - the upper value type bound for which the context can be used
    */
   export interface Context<UK, UV>
     extends MultiMapBase.Context<UK, UV, MultiMap.Types> {}
@@ -58,6 +58,12 @@ export namespace MultiMap {
   }
 }
 
+/**
+ * The default `MultiMap` creators and context.
+ *
+ * Use this exported value to create and work with immutable `MultiMap` instances.
+ * See the [MultiMap documentation](https://rimbu.org/docs/collections/multimap) and the [MultiMap API documentation](https://rimbu.org/api/rimbu/multimap/MultiMap/interface).
+ */
 export const MultiMap: MultiMapCreators = Object.freeze({
   createContext<UK, UV>(options: {
     keyMapContext: RMap.Context<UK>;

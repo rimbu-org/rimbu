@@ -12,7 +12,7 @@ export interface WaitGroup {
   add(amount?: number): void;
   /**
    * Informs the WaitGroup that a process has completed.
-   * @param amount - (default: 1) the amount of processes to add
+   * @param amount - (default: 1) the amount of processes to mark as done
    */
   done(amount?: number): void;
   /**
