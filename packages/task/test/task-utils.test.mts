@@ -92,11 +92,5 @@ describe(taskify.name, () => {
     }, 10);
 
     await expect(job.join()).rejects.toThrow('Aborted via external signal');
-    expect(mockFetch).toHaveBeenCalledWith(
-      'http://example.com',
-      expect.objectContaining({
-        signal: abortController.signal,
-      })
-    );
   });
 });

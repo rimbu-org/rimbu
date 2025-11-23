@@ -6,7 +6,6 @@ export default defineConfig({
     globals: true,
     include: ['test/**/*.test.mts'],
     coverage: {
-      all: true,
       include: ['src'],
       reporter: ['text', 'html', 'clover', 'json', 'lcov'],
     },

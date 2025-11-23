@@ -284,26 +284,26 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
-        "npm:@eslint/js@^9.21.0",
-        "npm:@microsoft/api-extractor@^7.50.0",
-        "npm:@vitest/coverage-v8@^3.0.6",
+        "npm:@eslint/js@^9.39.1",
+        "npm:@microsoft/api-extractor@^7.55.1",
+        "npm:@vitest/coverage-v8@^4.0.13",
         "npm:commitizen@^4.3.1",
         "npm:cz-conventional-changelog@^3.3.0",
-        "npm:denoify@^1.6.16",
-        "npm:eslint-config-prettier@^10.0.1",
-        "npm:eslint-plugin-prettier@^5.2.3",
-        "npm:eslint@^9.20.1",
+        "npm:denoify@^1.6.17",
+        "npm:eslint-config-prettier@^10.1.8",
+        "npm:eslint-plugin-prettier@^5.5.4",
+        "npm:eslint@^9.39.1",
         "npm:husky@^9.1.7",
-        "npm:lerna@^8.2.0",
-        "npm:lint-staged@^15.4.3",
-        "npm:prettier@^3.5.1",
-        "npm:rimraf@^6.0.1",
-        "npm:tsd@~0.31.2",
-        "npm:tsx@^4.19.3",
-        "npm:typescript-eslint@^8.24.1",
-        "npm:typescript@^5.7.3",
+        "npm:lerna@^9.0.1",
+        "npm:lint-staged@^16.2.7",
+        "npm:prettier@^3.6.2",
+        "npm:rimraf@^6.1.2",
+        "npm:tsd@0.33",
+        "npm:tsx@^4.20.6",
+        "npm:typescript-eslint@^8.47.0",
+        "npm:typescript@^5.9.3",
         "npm:vite-tsconfig-paths@^5.1.4",
-        "npm:vitest@^3.0.6"
+        "npm:vitest@^4.0.13"
       ]
     }
   }
