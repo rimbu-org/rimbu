@@ -5,8 +5,9 @@ describe(taskify.name, () => {
   it('should create a task that calls the original function with an AbortSignal', async () => {
     const mockFetch = vi.fn(
       (url: string, options: { signal?: AbortSignal }) => {
-        return `Fetched from ${url} with signal: ${options.signal ? 'present' : 'absent'
-          }`;
+        return `Fetched from ${url} with signal: ${
+          options.signal ? 'present' : 'absent'
+        }`;
       }
     );
 
