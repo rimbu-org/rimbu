@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/task",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "keywords": [
     "rimbu",
@@ -86,8 +86,8 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@rimbu/channel": "^1.0.0",
-    "@rimbu/common": "^1.0.0",
+    "@rimbu/channel": "^0.3.2",
+    "@rimbu/common": "^2.0.2",
     "tslib": "^2.6.2"
   },
   "publishConfig": {
