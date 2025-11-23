@@ -1,3 +1,14 @@
+/**
+ * @packageDocumentation
+ *
+ * The `@rimbu/graph/custom` entry exposes low‑level graph interfaces, contexts and
+ * implementations that underlie the main `@rimbu/graph` API, including generic,
+ * arrow and edge graph variants and their valued counterparts.<br/>
+ * It is intended for advanced use cases where you need fine‑grained control over
+ * graph internals or want to build custom graph abstractions on top of Rimbu’s
+ * core graph building blocks.
+ */
+
 // pure interfaces
 export * from './non-valued/interface/arrow-graph-base.ts';
 export * from './non-valued/interface/edge-graph-base.ts';

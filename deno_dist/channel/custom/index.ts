@@ -1,3 +1,14 @@
+/**
+ * @packageDocumentation
+ *
+ * The `@rimbu/channel/custom` entry exposes the internal channel, cross‑channel, remote
+ * channel, RPC proxy and synchronization implementations that underlie the main
+ * `@rimbu/channel` API, along with their associated error types and utilities.<br/>
+ * Use this entry only when you need low‑level building blocks to construct custom
+ * channel‑based protocols or concurrency primitives; for normal usage prefer the main
+ * `@rimbu/channel` entry.
+ */
+
 export * from './utils/utils.ts';
 
 import * as ChannelError from './channel/channel-error.ts';

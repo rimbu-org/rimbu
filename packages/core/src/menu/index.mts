@@ -1,21 +1,13 @@
 import * as Menu from './menu.mjs';
 
 /**
- * Default export for the `@rimbu/core/menu` entry point.
+ * @packageDocumentation
  *
- * @remarks
- * The default export is the Rimbu creation "menu", which groups the main
- * collections and their factory functions into a single namespace. This makes
- * it easy to create collections without importing each sub-package
- * individually.
- *
- * @example
- * ```ts
- * import Rimbu from '@rimbu/core/menu';
- *
- * const list = Rimbu.List.of(1, 3, 2, 4, 2);
- * const stream = Rimbu.Stream.from(list).map((v) => [v, String(v * 2)]);
- * const map = Rimbu.Map.Sorted.from(stream);
- * ```
+ * The `@rimbu/core/menu` entry exports the Rimbu creation “menu”: a default object that
+ * groups the main Rimbu collections and their factory functions into a single namespace
+ * (for example `Rimbu.List`, `Rimbu.Map`, `Rimbu.Stream`).<br/>
+ * Use it when you prefer a single, ergonomic namespace for experimenting, REPL work or
+ * small scripts, instead of importing individual collection types from `@rimbu/core`.<br/>
+ * See the `@rimbu/core` README for examples of the menu style.
  */
 export default Menu;

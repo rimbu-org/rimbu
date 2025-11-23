@@ -1,3 +1,13 @@
+/**
+ * @packageDocumentation
+ *
+ * The `@rimbu/list/custom` entry exposes the internal tree, block and builder implementations
+ * that power the `List` collection, together with the low‑level context used to configure
+ * block sizes and performance characteristics.<br/>
+ * It is intended for advanced scenarios where you need to build custom `List`‑like structures
+ * or tune internal behaviour; for everyday use prefer the main `@rimbu/list` API.
+ */
+
 // pure interfaces
 export * from './interface.mjs';
 export * from './implementation/tree/interface.mjs';
