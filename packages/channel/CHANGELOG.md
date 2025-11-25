@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/channel@2.0.0...@rimbu/channel@2.0.1) (2025-11-25)
+
+**Note:** Version bump only for package @rimbu/channel
+
 # [2.0.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/channel@0.3.2...@rimbu/channel@2.0.0) (2025-11-23)
 
 ### Bug Fixes
