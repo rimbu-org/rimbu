@@ -100,7 +100,7 @@
   },
   "devDependencies": {
     "@rimbu/stream": "^2.2.3",
-    "happy-dom": "^9.20.3",
+    "happy-dom": "^20.0.2",
     "immer": "^10.0.3"
   },
   "optionalDependencies": {
