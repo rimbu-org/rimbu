@@ -8,7 +8,6 @@
 ![License](https://img.shields.io/github/license/rimbu-org/rimbu)
 ![Types Included](https://img.shields.io/badge/TypeScript-ready-blue)
 ![Node](https://img.shields.io/badge/Node-18+-6DA55F?logo=node.js&logoColor=white)
-![Deno](https://shield.deno.dev/x/rimbu)
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg)
 ![ESM + CJS](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-informational)
 
@@ -47,7 +46,7 @@ Plain maps and sets do not always guarantee predictable ordering semantics acros
 
 `@rimbu/ordered` focuses on:
 
-- **Explicit insertion order** – every key or value remembers *when* it was added.
+- **Explicit insertion order** – every key or value remembers _when_ it was added.
 - **Immutable updates** – structural sharing keeps operations fast and memory‑friendly.
 - **Composable contexts** – you can wrap different underlying map/set implementations (hash or sorted) while keeping a consistent ordered API.
 - **Stream‑friendly iteration** – integrates with the broader Rimbu stream ecosystem.
@@ -124,20 +123,20 @@ Try Rimbu (including `@rimbu/ordered`) live in the browser using the
 
 From `@rimbu/ordered/map`:
 
-| Name                             | Description                                                                                                                                    |
-| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `OrderedMap<K, V>`               | Immutable, type‑invariant ordered map that preserves key insertion order while wrapping a generic `RMap`.                                     |
-| `OrderedMap.NonEmpty<K, V>`      | Non‑empty refinement of `OrderedMap<K, V>` with stronger guarantees (e.g. `size > 0`, non‑empty `keyOrder`).                                  |
-| `OrderedMap.Context<UK>`         | Factory/context for creating `OrderedMap` instances, configured with a `List.Context` and the underlying map `RMap.Context<UK>`.             |
-| `OrderedMap.Builder<K, V>`       | Mutable builder for efficiently constructing or mutating an ordered map before freezing it into an immutable instance.                        |
-| `OrderedHashMap<K, V>`           | Ordered map backed by a `HashMap`, using hash‑based key equality from `@rimbu/hashed/map`.                                                    |
-| `OrderedHashMap.NonEmpty<K, V>`  | Non‑empty refinement of `OrderedHashMap<K, V>`.                                                                                                |
-| `OrderedHashMap.Context<UK>`     | Context for `OrderedHashMap`, exposing `hasher` and `eq` from the underlying `HashMap.Context`.                                                |
-| `OrderedHashMap.Builder<K, V>`   | Mutable builder for `OrderedHashMap`.                                                                                                         |
-| `OrderedSortedMap<K, V>`         | Ordered map backed by a `SortedMap`, combining sorted semantics with insertion order tracking.                                                |
-| `OrderedSortedMap.NonEmpty<K,V>` | Non‑empty refinement of `OrderedSortedMap<K, V>`.                                                                                             |
-| `OrderedSortedMap.Context<UK>`   | Context for `OrderedSortedMap`, using a `SortedMap.Context<UK>` as backing.                                                                   |
-| `OrderedSortedMap.Builder<K, V>` | Mutable builder for `OrderedSortedMap`.                                                                                                       |
+| Name                             | Description                                                                                                                      |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `OrderedMap<K, V>`               | Immutable, type‑invariant ordered map that preserves key insertion order while wrapping a generic `RMap`.                        |
+| `OrderedMap.NonEmpty<K, V>`      | Non‑empty refinement of `OrderedMap<K, V>` with stronger guarantees (e.g. `size > 0`, non‑empty `keyOrder`).                     |
+| `OrderedMap.Context<UK>`         | Factory/context for creating `OrderedMap` instances, configured with a `List.Context` and the underlying map `RMap.Context<UK>`. |
+| `OrderedMap.Builder<K, V>`       | Mutable builder for efficiently constructing or mutating an ordered map before freezing it into an immutable instance.           |
+| `OrderedHashMap<K, V>`           | Ordered map backed by a `HashMap`, using hash‑based key equality from `@rimbu/hashed/map`.                                       |
+| `OrderedHashMap.NonEmpty<K, V>`  | Non‑empty refinement of `OrderedHashMap<K, V>`.                                                                                  |
+| `OrderedHashMap.Context<UK>`     | Context for `OrderedHashMap`, exposing `hasher` and `eq` from the underlying `HashMap.Context`.                                  |
+| `OrderedHashMap.Builder<K, V>`   | Mutable builder for `OrderedHashMap`.                                                                                            |
+| `OrderedSortedMap<K, V>`         | Ordered map backed by a `SortedMap`, combining sorted semantics with insertion order tracking.                                   |
+| `OrderedSortedMap.NonEmpty<K,V>` | Non‑empty refinement of `OrderedSortedMap<K, V>`.                                                                                |
+| `OrderedSortedMap.Context<UK>`   | Context for `OrderedSortedMap`, using a `SortedMap.Context<UK>` as backing.                                                      |
+| `OrderedSortedMap.Builder<K, V>` | Mutable builder for `OrderedSortedMap`.                                                                                          |
 
 Key additional properties:
 
@@ -148,20 +147,20 @@ Key additional properties:
 
 From `@rimbu/ordered/set`:
 
-| Name                                | Description                                                                                                                    |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `OrderedSet<T>`                     | Immutable, type‑invariant ordered set that preserves value insertion order while wrapping a generic `RSet`.                    |
-| `OrderedSet.NonEmpty<T>`           | Non‑empty refinement of `OrderedSet<T>` with a non‑empty `order` and `sourceSet`.                                              |
-| `OrderedSet.Context<UT>`           | Factory/context for `OrderedSet` instances, configured with a `List.Context` and an underlying `RSet.Context<UT>`.            |
-| `OrderedSet.Builder<T>`            | Mutable builder for efficiently constructing an ordered set.                                                                   |
-| `OrderedHashSet<T>`                | Ordered set backed by `HashSet`, using hash‑based equality for values.                                                         |
-| `OrderedHashSet.NonEmpty<T>`       | Non‑empty refinement of `OrderedHashSet<T>`.                                                                                   |
-| `OrderedHashSet.Context<UT>`       | Context for `OrderedHashSet`, using `HashSet.Context<UT>` as backing.                                                          |
-| `OrderedHashSet.Builder<T>`        | Mutable builder for `OrderedHashSet`.                                                                                          |
-| `OrderedSortedSet<T>`              | Ordered set backed by `SortedSet`, combining sorted semantics with insertion‑order tracking.                                   |
-| `OrderedSortedSet.NonEmpty<T>`     | Non‑empty refinement of `OrderedSortedSet<T>`.                                                                                 |
-| `OrderedSortedSet.Context<UT>`     | Context for `OrderedSortedSet`, using `SortedSet.Context<UT>` as backing.                                                      |
-| `OrderedSortedSet.Builder<T>`      | Mutable builder for `OrderedSortedSet`.                                                                                        |
+| Name                           | Description                                                                                                        |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `OrderedSet<T>`                | Immutable, type‑invariant ordered set that preserves value insertion order while wrapping a generic `RSet`.        |
+| `OrderedSet.NonEmpty<T>`       | Non‑empty refinement of `OrderedSet<T>` with a non‑empty `order` and `sourceSet`.                                  |
+| `OrderedSet.Context<UT>`       | Factory/context for `OrderedSet` instances, configured with a `List.Context` and an underlying `RSet.Context<UT>`. |
+| `OrderedSet.Builder<T>`        | Mutable builder for efficiently constructing an ordered set.                                                       |
+| `OrderedHashSet<T>`            | Ordered set backed by `HashSet`, using hash‑based equality for values.                                             |
+| `OrderedHashSet.NonEmpty<T>`   | Non‑empty refinement of `OrderedHashSet<T>`.                                                                       |
+| `OrderedHashSet.Context<UT>`   | Context for `OrderedHashSet`, using `HashSet.Context<UT>` as backing.                                              |
+| `OrderedHashSet.Builder<T>`    | Mutable builder for `OrderedHashSet`.                                                                              |
+| `OrderedSortedSet<T>`          | Ordered set backed by `SortedSet`, combining sorted semantics with insertion‑order tracking.                       |
+| `OrderedSortedSet.NonEmpty<T>` | Non‑empty refinement of `OrderedSortedSet<T>`.                                                                     |
+| `OrderedSortedSet.Context<UT>` | Context for `OrderedSortedSet`, using `SortedSet.Context<UT>` as backing.                                          |
+| `OrderedSortedSet.Builder<T>`  | Mutable builder for `OrderedSortedSet`.                                                                            |
 
 Key additional properties:
 
@@ -181,11 +180,7 @@ and the [Ordered API reference](https://rimbu.org/api/rimbu/ordered) for all ope
 ```ts
 import { OrderedHashMap } from '@rimbu/ordered';
 
-const map = OrderedHashMap.of(
-  [1, 'a'],
-  [2, 'b'],
-  [3, 'c']
-);
+const map = OrderedHashMap.of([1, 'a'], [2, 'b'], [3, 'c']);
 
 map.keyOrder.toArray(); // [1, 2, 3]
 map.sourceMap.toString(); // HashMap(1 -> 'a', 2 -> 'b', 3 -> 'c')
@@ -201,11 +196,7 @@ Use `OrderedHashMap` when:
 ```ts
 import { OrderedSortedMap } from '@rimbu/ordered';
 
-const sorted = OrderedSortedMap.of(
-  [2, 'b'],
-  [1, 'a'],
-  [3, 'c']
-);
+const sorted = OrderedSortedMap.of([2, 'b'], [1, 'a'], [3, 'c']);
 
 sorted.keyOrder.toArray(); // [2, 1, 3]
 sorted.sourceMap.toString(); // SortedMap(1 -> 'a', 2 -> 'b', 3 -> 'c')
@@ -250,7 +241,7 @@ For detailed performance characteristics and benchmarks, see the main Rimbu docu
 
 ## Installation
 
-### Node / Bun / npm / Yarn
+### Node / Bun / npm / Yarn / Deno
 
 ```sh
 npm install @rimbu/ordered
@@ -258,22 +249,8 @@ npm install @rimbu/ordered
 yarn add @rimbu/ordered
 # or
 bun add @rimbu/ordered
-```
-
-### Deno (import map)
-
-```jsonc
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@<version>/"
-  }
-}
-```
-
-Then:
-
-```ts
-import { OrderedHashMap } from '@rimbu/ordered/mod.ts';
+# or
+deno add npm:@rimbu/ordered
 ```
 
 ### Browser / ESM

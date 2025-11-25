@@ -33,7 +33,6 @@ export default tseslint.config(
       '*.js',
       '*.mjs',
       '**/doc-gen/',
-      '**/deno_dist/',
     ],
   }
 );

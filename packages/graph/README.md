@@ -8,7 +8,6 @@
 ![License](https://img.shields.io/github/license/rimbu-org/rimbu)
 ![Types Included](https://img.shields.io/badge/TypeScript-ready-blue)
 ![Node](https://img.shields.io/badge/Node-18+-6DA55F?logo=node.js&logoColor=white)
-![Deno](https://shield.deno.dev/x/rimbu)
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg)
 ![ESM + CJS](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-informational)
 
@@ -106,11 +105,7 @@ g.stream().toArray();
 ```ts
 import { ArrowGraphHashed } from '@rimbu/graph';
 
-const g = ArrowGraphHashed.of(
-  [1, 2],
-  [2, 3],
-  [3, 1]
-);
+const g = ArrowGraphHashed.of([1, 2], [2, 3], [3, 1]);
 
 g.hasConnection(1, 2); // true
 g.hasConnection(2, 1); // false
@@ -125,10 +120,7 @@ g.getConnectionsFrom(1).toArray();
 import { ArrowValuedGraphHashed } from '@rimbu/graph';
 
 // [from, to, weight]
-const wg = ArrowValuedGraphHashed.of(
-  [1, 2, 5],
-  [2, 3, 3]
-);
+const wg = ArrowValuedGraphHashed.of([1, 2, 5], [2, 3, 3]);
 
 wg.getValue(1, 2); // 5
 
@@ -144,24 +136,24 @@ The main public surface of `@rimbu/graph` is exported from `src/main/index.mts`.
 
 ### Common graph interfaces
 
-| Name                    | Description                                                                                   |
-| ----------------------- | --------------------------------------------------------------------------------------------- |
-| `Graph<N>`              | Type‑invariant immutable graph interface.                                                     |
-| `Graph.NonEmpty<N>`     | Non‑empty refinement of `Graph<N>` with a non‑empty `stream` of graph elements.              |
-| `Graph.Context<UN>`     | Factory/context for creating `Graph` instances and builders for an upper node type `UN`.     |
-| `VariantGraph<N>`       | Type‑variant graph interface with covariant node type.                                       |
-| `VariantGraph.NonEmpty` | Non‑empty refinement of `VariantGraph<N>` with a non‑empty stream of graph elements.         |
+| Name                    | Description                                                                              |
+| ----------------------- | ---------------------------------------------------------------------------------------- |
+| `Graph<N>`              | Type‑invariant immutable graph interface.                                                |
+| `Graph.NonEmpty<N>`     | Non‑empty refinement of `Graph<N>` with a non‑empty `stream` of graph elements.          |
+| `Graph.Context<UN>`     | Factory/context for creating `Graph` instances and builders for an upper node type `UN`. |
+| `VariantGraph<N>`       | Type‑variant graph interface with covariant node type.                                   |
+| `VariantGraph.NonEmpty` | Non‑empty refinement of `VariantGraph<N>` with a non‑empty stream of graph elements.     |
 
 ### Directed (arrow) graphs
 
-| Name                      | Description                                                                                                       |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `ArrowGraph<N>`           | Type‑invariant **directed** graph.                                                                               |
-| `ArrowGraph.NonEmpty<N>`  | Non‑empty directed graph; `stream()` yields either `[N]` (isolated node) or `[from, to]` connections.            |
-| `ArrowGraph.Context<UN>`  | Context for `ArrowGraph` instances (generic over an upper node type `UN`).                                      |
-| `ArrowGraph.Builder<N>`   | Mutable builder for efficiently constructing or mutating an `ArrowGraph<N>` before freezing it.                  |
-| `ArrowGraphHashed<N>`     | Directed graph whose connections are internally stored in hashed collections.                                    |
-| `ArrowGraphSorted<N>`     | Directed graph whose connections are internally stored in sorted collections.                                    |
+| Name                     | Description                                                                                           |
+| ------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `ArrowGraph<N>`          | Type‑invariant **directed** graph.                                                                    |
+| `ArrowGraph.NonEmpty<N>` | Non‑empty directed graph; `stream()` yields either `[N]` (isolated node) or `[from, to]` connections. |
+| `ArrowGraph.Context<UN>` | Context for `ArrowGraph` instances (generic over an upper node type `UN`).                            |
+| `ArrowGraph.Builder<N>`  | Mutable builder for efficiently constructing or mutating an `ArrowGraph<N>` before freezing it.       |
+| `ArrowGraphHashed<N>`    | Directed graph whose connections are internally stored in hashed collections.                         |
+| `ArrowGraphSorted<N>`    | Directed graph whose connections are internally stored in sorted collections.                         |
 
 Each of the hashed/sorted variants has its own `NonEmpty`, `Builder`, and `Context` types, such as:
 
@@ -172,14 +164,14 @@ Each of the hashed/sorted variants has its own `NonEmpty`, `Builder`, and `Conte
 
 ### Undirected (edge) graphs
 
-| Name                      | Description                                                                                                       |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `EdgeGraph<N>`            | Type‑invariant **undirected** graph.                                                                             |
-| `EdgeGraph.NonEmpty<N>`   | Non‑empty undirected graph; `stream()` yields `[N]` or `[N, N]` graph elements.                                  |
-| `EdgeGraph.Context<UN>`   | Context for `EdgeGraph` instances.                                                                               |
-| `EdgeGraph.Builder<N>`    | Mutable builder for `EdgeGraph<N>`.                                                                              |
-| `EdgeGraphHashed<N>`      | Undirected graph backed by hashed collections.                                                                   |
-| `EdgeGraphSorted<N>`      | Undirected graph backed by sorted collections.                                                                   |
+| Name                    | Description                                                                     |
+| ----------------------- | ------------------------------------------------------------------------------- |
+| `EdgeGraph<N>`          | Type‑invariant **undirected** graph.                                            |
+| `EdgeGraph.NonEmpty<N>` | Non‑empty undirected graph; `stream()` yields `[N]` or `[N, N]` graph elements. |
+| `EdgeGraph.Context<UN>` | Context for `EdgeGraph` instances.                                              |
+| `EdgeGraph.Builder<N>`  | Mutable builder for `EdgeGraph<N>`.                                             |
+| `EdgeGraphHashed<N>`    | Undirected graph backed by hashed collections.                                  |
+| `EdgeGraphSorted<N>`    | Undirected graph backed by sorted collections.                                  |
 
 Again, hashed/sorted variants include corresponding `NonEmpty`, `Builder`, and `Context` types.
 
@@ -211,23 +203,23 @@ Valued graphs let you store an extra value per edge (weight, label, capacity, et
 
 ### Generic valued interfaces
 
-| Name                              | Description                                                                                         |
-| --------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `ValuedGraph<N, V>`              | Type‑invariant graph where each connection has a value of type `V`.                                |
-| `ValuedGraph.NonEmpty<N, V>`     | Non‑empty valued graph; `stream()` yields `ValuedGraphElement<N, V>` elements.                     |
-| `VariantValuedGraph<N, V>`       | Type‑variant valued graph.                                                                          |
-| `VariantValuedGraph.NonEmpty`    | Non‑empty variant valued graph.                                                                     |
+| Name                          | Description                                                                    |
+| ----------------------------- | ------------------------------------------------------------------------------ |
+| `ValuedGraph<N, V>`           | Type‑invariant graph where each connection has a value of type `V`.            |
+| `ValuedGraph.NonEmpty<N, V>`  | Non‑empty valued graph; `stream()` yields `ValuedGraphElement<N, V>` elements. |
+| `VariantValuedGraph<N, V>`    | Type‑variant valued graph.                                                     |
+| `VariantValuedGraph.NonEmpty` | Non‑empty variant valued graph.                                                |
 
 ### Concrete valued graph families
 
-| Name                               | Description                                                                                                           |
-| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `ArrowValuedGraph<N, V>`           | Directed valued graph interface.                                                                                      |
-| `ArrowValuedGraphHashed<N, V>`     | Directed valued graph backed by `HashMap` structures.                                                                 |
-| `ArrowValuedGraphSorted<N, V>`     | Directed valued graph backed by `SortedMap` structures.                                                              |
-| `EdgeValuedGraph<N, V>`            | Undirected valued graph interface.                                                                                    |
-| `EdgeValuedGraphHashed<N, V>`      | Undirected valued graph backed by `HashMap` structures.                                                               |
-| `EdgeValuedGraphSorted<N, V>`      | Undirected valued graph backed by `SortedMap` structures.                                                             |
+| Name                           | Description                                               |
+| ------------------------------ | --------------------------------------------------------- |
+| `ArrowValuedGraph<N, V>`       | Directed valued graph interface.                          |
+| `ArrowValuedGraphHashed<N, V>` | Directed valued graph backed by `HashMap` structures.     |
+| `ArrowValuedGraphSorted<N, V>` | Directed valued graph backed by `SortedMap` structures.   |
+| `EdgeValuedGraph<N, V>`        | Undirected valued graph interface.                        |
+| `EdgeValuedGraphHashed<N, V>`  | Undirected valued graph backed by `HashMap` structures.   |
+| `EdgeValuedGraphSorted<N, V>`  | Undirected valued graph backed by `SortedMap` structures. |
 
 Each of these has matching `NonEmpty`, `Builder`, and `Context` types, and exposes a `stream()` that yields **graph elements**:
 
@@ -237,10 +229,7 @@ Each of these has matching `NonEmpty`, `Builder`, and `Context` types, and expos
 ```ts
 import { EdgeValuedGraphHashed } from '@rimbu/graph';
 
-const g = EdgeValuedGraphHashed.of(
-  [1, 2, 'a'],
-  [2, 3, 'b']
-);
+const g = EdgeValuedGraphHashed.of([1, 2, 'a'], [2, 3, 'b']);
 
 g.getValue(1, 2); // 'a'
 g.stream().toArray();
@@ -256,12 +245,7 @@ The main index exports a `Traverse` namespace that groups traversal utilities:
 ```ts
 import { Traverse, EdgeGraphHashed } from '@rimbu/graph';
 
-const g = EdgeGraphHashed.of(
-  [1, 2],
-  [2, 3],
-  [1, 3],
-  [3, 4]
-);
+const g = EdgeGraphHashed.of([1, 2], [2, 3], [1, 3], [3, 4]);
 
 // Breadth‑first traversal
 const bfs = Traverse.traverseBreadthFirstHashed(g, 1);
@@ -307,16 +291,8 @@ npm install @rimbu/graph
 yarn add @rimbu/graph
 # or
 bun add @rimbu/graph
-```
-
-### Deno (import map)
-
-```jsonc
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@<version>/"
-  }
-}
+# or
+deno add npm:@rimbu/graph
 ```
 
 Then:

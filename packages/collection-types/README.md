@@ -8,7 +8,6 @@
 ![License](https://img.shields.io/github/license/rimbu-org/rimbu)
 ![Types Included](https://img.shields.io/badge/TypeScript-ready-blue)
 ![Node](https://img.shields.io/badge/Node-18+-6DA55F?logo=node.js&logoColor=white)
-![Deno](https://shield.deno.dev/x/rimbu)
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg)
 ![ESM + CJS](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-informational)
 
@@ -68,14 +67,14 @@ Each of these sub‑packages is implemented by concrete data structures in packa
 
 The `@rimbu/collection-types/common` module exposes reusable higher‑kind helper types:
 
-| Name                    | Description                                                                                   |
-| ----------------------- | --------------------------------------------------------------------------------------------- |
-| `Elem<T>`               | Describes a collection that has an element type `T` (used by set‑like collections).          |
-| `WithElem<Tp, T>`       | Binds a higher‑kind `Tp` to a concrete element type `T`.                                      |
-| `KeyValue<K, V>`        | Describes a collection that has key type `K` and value type `V` (used by map‑like types).    |
-| `WithKeyValue<Tp, K, V>`| Binds a higher‑kind `Tp` to concrete key and value types.                                     |
-| `Row<R, C, V>`          | Describes row/column/value types (used by table‑like collections).                            |
-| `WithRow<Tp, R, C, V>`  | Binds a higher‑kind `Tp` to concrete row, column, and value types.                            |
+| Name                     | Description                                                                               |
+| ------------------------ | ----------------------------------------------------------------------------------------- |
+| `Elem<T>`                | Describes a collection that has an element type `T` (used by set‑like collections).       |
+| `WithElem<Tp, T>`        | Binds a higher‑kind `Tp` to a concrete element type `T`.                                  |
+| `KeyValue<K, V>`         | Describes a collection that has key type `K` and value type `V` (used by map‑like types). |
+| `WithKeyValue<Tp, K, V>` | Binds a higher‑kind `Tp` to concrete key and value types.                                 |
+| `Row<R, C, V>`           | Describes row/column/value types (used by table‑like collections).                        |
+| `WithRow<Tp, R, C, V>`   | Binds a higher‑kind `Tp` to concrete row, column, and value types.                        |
 
 These types are used to express **higher‑kinded collection families**, such as the `Types` helpers on `RMap`, `VariantMap`, `RSet`, and `VariantSet`.
 
@@ -89,10 +88,7 @@ Although `@rimbu/collection-types` itself only contains **types and interfaces**
 import { HashMap } from '@rimbu/hashed'; // implements RMap
 import type { RMap } from '@rimbu/collection-types/map';
 
-const m: RMap<number, string> = HashMap.of(
-  [1, 'one'],
-  [2, 'two']
-);
+const m: RMap<number, string> = HashMap.of([1, 'one'], [2, 'two']);
 
 console.log(m.get(2)); // 'two'
 ```
@@ -117,14 +113,14 @@ From `@rimbu/collection-types/map`:
 
 ### Exported Types
 
-| Name                              | Description                                                                                                               |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `RMap<K, V>`                      | Type‑invariant immutable map of keys `K` to values `V`. Each key has exactly one value; no duplicate keys.               |
-| `RMap.NonEmpty<K, V>`            | Non‑empty refinement of `RMap<K, V>` with stronger guarantees (e.g. `isEmpty` is always `false`).                        |
-| `RMap.Context<UK>`               | Factory/context for creating `RMap` instances with upper‑bounded key type `UK`.                                           |
-| `RMap.Builder<K, V>`             | Mutable builder used to efficiently construct or mutate an `RMap` before freezing it into an immutable instance.         |
-| `VariantMap<K, V>`               | Type‑variant immutable map of keys `K` to values `V`. Supports safe key/value widening; excludes mutating operations.    |
-| `VariantMap.NonEmpty<K, V>`      | Non‑empty refinement of `VariantMap<K, V>`.                                                                                |
+| Name                        | Description                                                                                                           |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `RMap<K, V>`                | Type‑invariant immutable map of keys `K` to values `V`. Each key has exactly one value; no duplicate keys.            |
+| `RMap.NonEmpty<K, V>`       | Non‑empty refinement of `RMap<K, V>` with stronger guarantees (e.g. `isEmpty` is always `false`).                     |
+| `RMap.Context<UK>`          | Factory/context for creating `RMap` instances with upper‑bounded key type `UK`.                                       |
+| `RMap.Builder<K, V>`        | Mutable builder used to efficiently construct or mutate an `RMap` before freezing it into an immutable instance.      |
+| `VariantMap<K, V>`          | Type‑variant immutable map of keys `K` to values `V`. Supports safe key/value widening; excludes mutating operations. |
+| `VariantMap.NonEmpty<K, V>` | Non‑empty refinement of `VariantMap<K, V>`.                                                                           |
 
 ### Key Operations (via `RMapBase` / `VariantMapBase`)
 
@@ -133,10 +129,7 @@ Concrete map implementations share a common core API:
 ```ts
 import { HashMap } from '@rimbu/hashed';
 
-const m = HashMap.of<[number, string]>(
-  [1, 'a'],
-  [2, 'b']
-);
+const m = HashMap.of<[number, string]>([1, 'a'], [2, 'b']);
 
 // Size & emptiness
 m.size; // 2
@@ -168,14 +161,14 @@ From `@rimbu/collection-types/set`:
 
 ### Exported Types
 
-| Name                         | Description                                                                                         |
-| ---------------------------- | --------------------------------------------------------------------------------------------------- |
-| `RSet<T>`                    | Type‑invariant immutable set of values `T`. No duplicate values.                                   |
-| `RSet.NonEmpty<T>`           | Non‑empty refinement of `RSet<T>`.                                                                 |
-| `RSet.Context<UT>`           | Factory/context for creating `RSet` instances with upper‑bounded element type `UT`.                |
-| `RSet.Builder<T>`            | Mutable builder for efficiently constructing or mutating an `RSet` before freezing it.             |
-| `VariantSet<T>`              | Type‑variant immutable set of values `T`. Allows safe value widening; excludes mutating methods.   |
-| `VariantSet.NonEmpty<T>`     | Non‑empty refinement of `VariantSet<T>`.                                                            |
+| Name                     | Description                                                                                      |
+| ------------------------ | ------------------------------------------------------------------------------------------------ |
+| `RSet<T>`                | Type‑invariant immutable set of values `T`. No duplicate values.                                 |
+| `RSet.NonEmpty<T>`       | Non‑empty refinement of `RSet<T>`.                                                               |
+| `RSet.Context<UT>`       | Factory/context for creating `RSet` instances with upper‑bounded element type `UT`.              |
+| `RSet.Builder<T>`        | Mutable builder for efficiently constructing or mutating an `RSet` before freezing it.           |
+| `VariantSet<T>`          | Type‑variant immutable set of values `T`. Allows safe value widening; excludes mutating methods. |
+| `VariantSet.NonEmpty<T>` | Non‑empty refinement of `VariantSet<T>`.                                                         |
 
 ### Key Operations (via `RSetBase` / `VariantSetBase`)
 
@@ -222,16 +215,8 @@ npm install @rimbu/collection-types
 yarn add @rimbu/collection-types
 # or
 bun add @rimbu/collection-types
-```
-
-### Deno (import map)
-
-```jsonc
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@<version>/"
-  }
-}
+# or
+deno add npm:@rimbu/collection-types
 ```
 
 Then you can import relative modules, for example:

@@ -8,7 +8,6 @@
 ![License](https://img.shields.io/github/license/rimbu-org/rimbu)
 ![Types Included](https://img.shields.io/badge/TypeScript-ready-blue)
 ![Node](https://img.shields.io/badge/Node-18+-6DA55F?logo=node.js&logoColor=white)
-![Deno](https://shield.deno.dev/x/rimbu)
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg)
 ![ESM + CJS](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-informational)
 
@@ -94,7 +93,7 @@ const lazyValue = OptLazy(() => 1 + 2);
 console.log(lazyValue); // 3
 
 // Updates: accept either a value or an updater function
-const next = Update(1, v => v + 1);
+const next = Update(1, (v) => v + 1);
 console.log(next); // 2
 ```
 
@@ -107,8 +106,8 @@ Try Rimbu (including `@rimbu/common`) live in the browser using the
 
 ### Exported Types & Utilities
 
-| Name               | Description                                                                                         |
-| ------------------ | --------------------------------------------------------------------------------------------------- |
+| Name               | Description                                                                                        |
+| ------------------ | -------------------------------------------------------------------------------------------------- |
 | `CollectFun`       | Types used by `collect`-style functions to map/filter in a single pass with skip & halt support.   |
 | `AsyncCollectFun`  | Asynchronous version of `CollectFun`, returning `MaybePromise` of a collected value or skip token. |
 | `Comp`             | Interface and implementations for comparing values (ordering / sorting).                           |
@@ -119,11 +118,11 @@ Try Rimbu (including `@rimbu/common`) live in the browser using the
 | `OptLazy`          | A value or a function returning a value (lazy).                                                    |
 | `OptLazyOr`        | Like `OptLazy`, but can return a provided default value instead.                                   |
 | `AsyncOptLazy`     | Potentially lazy and/or async values built on `OptLazy` + `MaybePromise`.                          |
-| `MaybePromise<T>`  | A value of type `T` or a `Promise<T>`.                                                              |
+| `MaybePromise<T>`  | A value of type `T` or a `Promise<T>`.                                                             |
 | `TraverseState`    | Object to track progress & early termination in traversals.                                        |
 | `Update`           | Value or updater function used to derive a new value from the old one.                             |
 | `SuperOf`, `SubOf` | Type utilities for expressing upper/lower bounds between types.                                    |
-| `RelatedTo`        | Type utility accepting related types where one extends the other.                                   |
+| `RelatedTo`        | Type utility accepting related types where one extends the other.                                  |
 | `ArrayNonEmpty`    | Tuple type representing non-empty arrays.                                                          |
 | `StringNonEmpty`   | Type representing non-empty string types.                                                          |
 | `ToJSON`           | Helper interface for JSON-serializable wrapper objects.                                            |
@@ -199,7 +198,7 @@ OptLazy(() => 1); // => 1
 // With a default "other" value
 OptLazyOr(1, 'a'); // => 1
 OptLazyOr(() => 1, 'a'); // => 1
-OptLazyOr(none => none, 'a'); // => 'a'
+OptLazyOr((none) => none, 'a'); // => 'a'
 ```
 
 ### `Update`
@@ -209,7 +208,7 @@ import { Update } from '@rimbu/common';
 
 Update(1, 2); // => 2
 Update(1, () => 10); // => 10
-Update(1, v => v + 1); // => 2
+Update(1, (v) => v + 1); // => 2
 ```
 
 ### `AsyncOptLazy` and `MaybePromise`
@@ -291,16 +290,8 @@ npm install @rimbu/common
 yarn add @rimbu/common
 # or
 bun add @rimbu/common
-```
-
-### Deno (import map)
-
-```jsonc
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@<version>/"
-  }
-}
+# or
+deno add npm:@rimbu/common
 ```
 
 Then:
@@ -321,7 +312,7 @@ import { Eq } from '@rimbu/common/mod.ts';
 - Part of the broader **Rimbu** collection ecosystem – interoperates with `@rimbu/collection-types`,
   `@rimbu/hashed`, `@rimbu/ordered`, `@rimbu/stream`, and more.
 - Main documentation: [rimbu.org](https://rimbu.org)
-- Package docs: [Common docs](https://rimbu.org/docs/common/overview)  
+- Package docs: [Common docs](https://rimbu.org/docs/common/overview)
 - API reference: [Common API](https://rimbu.org/api/rimbu/common)
 
 ---

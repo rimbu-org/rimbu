@@ -8,7 +8,6 @@
 ![License](https://img.shields.io/github/license/rimbu-org/rimbu)
 ![Types Included](https://img.shields.io/badge/TypeScript-ready-blue)
 ![Node](https://img.shields.io/badge/Node-18+-6DA55F?logo=node.js&logoColor=white)
-![Deno](https://shield.deno.dev/x/rimbu)
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg)
 ![ESM + CJS](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-informational)
 
@@ -76,11 +75,7 @@ If you find yourself maintaining two maps in sync, a BiMap is usually the better
 import { BiMap } from '@rimbu/bimap';
 
 // Create from entry tuples
-const biMap = BiMap.of(
-  [1, 'a'],
-  [2, 'b'],
-  [3, 'c']
-);
+const biMap = BiMap.of([1, 'a'], [2, 'b'], [3, 'c']);
 
 // Forward lookup: key -> value
 console.log(biMap.getValue(2)); // 'b'
@@ -102,12 +97,12 @@ Try Rimbu (including `@rimbu/bimap`) live in the browser using the
 
 ### Exported Types
 
-| Name                         | Description                                                                                                          |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `BiMap<K, V>`                | Immutable, type‑invariant bidirectional map with a strict one‑to‑one mapping between `K` and `V`.                   |
-| `BiMap.NonEmpty<K, V>`       | Non‑empty refinement of `BiMap<K, V>` with stronger type guarantees.                                                 |
-| `BiMap.Context<UK, UV>`      | Factory/context for creating BiMaps with configurable underlying map implementations for keys and values.           |
-| `BiMap.Builder<K, V>`        | Mutable builder for efficiently constructing or mutating a BiMap before freezing it into an immutable instance.     |
+| Name                    | Description                                                                                                     |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `BiMap<K, V>`           | Immutable, type‑invariant bidirectional map with a strict one‑to‑one mapping between `K` and `V`.               |
+| `BiMap.NonEmpty<K, V>`  | Non‑empty refinement of `BiMap<K, V>` with stronger type guarantees.                                            |
+| `BiMap.Context<UK, UV>` | Factory/context for creating BiMaps with configurable underlying map implementations for keys and values.       |
+| `BiMap.Builder<K, V>`   | Mutable builder for efficiently constructing or mutating a BiMap before freezing it into an immutable instance. |
 
 ### Key Operations
 
@@ -153,7 +148,7 @@ For detailed performance characteristics and benchmarks, see the main Rimbu docu
 
 ## Installation
 
-### Node / Bun / npm / Yarn
+### Node / Bun / npm / Yarn / Deno
 
 ```sh
 npm install @rimbu/bimap
@@ -161,22 +156,8 @@ npm install @rimbu/bimap
 yarn add @rimbu/bimap
 # or
 bun add @rimbu/bimap
-```
-
-### Deno (import map)
-
-```jsonc
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@<version>/"
-  }
-}
-```
-
-Then:
-
-```ts
-import { BiMap } from '@rimbu/bimap/mod.ts';
+# or
+deno add npm:@rimbu/bimap
 ```
 
 ### Browser / ESM

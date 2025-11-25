@@ -6,7 +6,6 @@
 ![License](https://img.shields.io/github/license/rimbu-org/rimbu)
 ![Types Included](https://img.shields.io/badge/TypeScript-ready-blue)
 ![Node](https://img.shields.io/badge/Node-18+-6DA55F?logo=node.js&logoColor=white)
-![Deno](https://shield.deno.dev/x/rimbu)
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg)
 ![ESM + CJS](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-informational)
 
@@ -77,10 +76,10 @@ import { Arr } from '@rimbu/base';
 const base = [1, 2, 3];
 
 // Pure modification: only clones when the value actually changes
-const incremented = Arr.mod(base, 1, v => v + 1); // [1, 3, 3]
+const incremented = Arr.mod(base, 1, (v) => v + 1); // [1, 3, 3]
 
 // Structural no-op returns original reference for efficiency
-const same = Arr.mod(base, 5, v => v); // index out of range → original
+const same = Arr.mod(base, 5, (v) => v); // index out of range → original
 
 // Append without mutating
 const appended = Arr.append(incremented, 4); // [1, 3, 3, 4]
@@ -97,22 +96,22 @@ console.log(base); // [1, 2, 3]
 
 All functions accept a `readonly T[]` input and return either the original array (when unchanged) or an optimized clone.
 
-| Function | Purpose |
-| -------- | ------- |
-| `append` | Add element at end (non-empty array optimization). |
-| `prepend` | Add element at start efficiently. |
-| `concat` | Smart concat – reuses original when one side empty. |
-| `reverse` | Fast reversed copy (range slice optional). |
-| `forEach` | Controlled traversal with optional reverse + halt state. |
-| `map` / `reverseMap` | Indexed transformation forward or backward. |
-| `last` | O(1) last element access (uses `.at(-1)` when available). |
-| `update` | Apply `Update<T>` logic at index (no-op preserved). |
-| `mod` | Lightweight element modification via `(value)=>value'`. |
-| `insert` | Insert at index. |
-| `tail` / `init` | Drop first / last element. |
-| `splice` | Immutable variant of native splice. |
-| `copySparse` | Preserve holes in sparse arrays. |
-| `mapSparse` | Transform only present indices, keeping sparsity. |
+| Function             | Purpose                                                   |
+| -------------------- | --------------------------------------------------------- |
+| `append`             | Add element at end (non-empty array optimization).        |
+| `prepend`            | Add element at start efficiently.                         |
+| `concat`             | Smart concat – reuses original when one side empty.       |
+| `reverse`            | Fast reversed copy (range slice optional).                |
+| `forEach`            | Controlled traversal with optional reverse + halt state.  |
+| `map` / `reverseMap` | Indexed transformation forward or backward.               |
+| `last`               | O(1) last element access (uses `.at(-1)` when available). |
+| `update`             | Apply `Update<T>` logic at index (no-op preserved).       |
+| `mod`                | Lightweight element modification via `(value)=>value'`.   |
+| `insert`             | Insert at index.                                          |
+| `tail` / `init`      | Drop first / last element.                                |
+| `splice`             | Immutable variant of native splice.                       |
+| `copySparse`         | Preserve holes in sparse arrays.                          |
+| `mapSparse`          | Transform only present indices, keeping sparsity.         |
 
 Design details:
 
@@ -132,7 +131,9 @@ Entry.first(pair); // 'age'
 Entry.second(pair); // 42
 
 // Shared sentinel for internal tagging / identity
-if (someValue === Token) { /* special branch */ }
+if (someValue === Token) {
+  /* special branch */
+}
 ```
 
 ---
@@ -141,14 +142,14 @@ if (someValue === Token) { /* special branch */ }
 
 Compile-time predicates for discriminating plain data objects from complex / functional structures:
 
-| Type | Description |
-| ---- | ----------- |
-| `IsPlainObj<T>` | True only for non-iterable, non-function object types without function properties. |
-| `PlainObj<T>` | Narrows to T if `IsPlainObj<T>`; otherwise `never`. |
-| `IsArray<T>` | Resolves to `true` if T is a (readonly) array type. |
-| `IsAny<T>` | Detects `any`. |
-| `isPlainObj(obj)` | Runtime guard for plain data objects. |
-| `isIterable(obj)` | Runtime guard for `Iterable`. |
+| Type              | Description                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------- |
+| `IsPlainObj<T>`   | True only for non-iterable, non-function object types without function properties. |
+| `PlainObj<T>`     | Narrows to T if `IsPlainObj<T>`; otherwise `never`.                                |
+| `IsArray<T>`      | Resolves to `true` if T is a (readonly) array type.                                |
+| `IsAny<T>`        | Detects `any`.                                                                     |
+| `isPlainObj(obj)` | Runtime guard for plain data objects.                                              |
+| `isIterable(obj)` | Runtime guard for `Iterable`.                                                      |
 
 Use these when building APIs that must reject iterables or functions while retaining strong type discrimination.
 
@@ -158,12 +159,12 @@ Use these when building APIs that must reject iterables or functions while retai
 
 Structured error classes provide meaningful failure contexts internally and externally:
 
-| Error Class | Trigger Scenario |
-| ----------- | ---------------- |
-| `EmptyCollectionAssumedNonEmptyError` | An operation expected a non-empty collection. |
-| `ModifiedBuilderWhileLoopingOverItError` | Mutating a builder mid-iteration. |
-| `InvalidStateError` | Internal invariant breach (should not happen). |
-| `InvalidUsageError` | Consumer used an API incorrectly. |
+| Error Class                              | Trigger Scenario                               |
+| ---------------------------------------- | ---------------------------------------------- |
+| `EmptyCollectionAssumedNonEmptyError`    | An operation expected a non-empty collection.  |
+| `ModifiedBuilderWhileLoopingOverItError` | Mutating a builder mid-iteration.              |
+| `InvalidStateError`                      | Internal invariant breach (should not happen). |
+| `InvalidUsageError`                      | Consumer used an API incorrectly.              |
 
 Helper throw functions exist for concise signaling (`throwInvalidStateError()`, etc.). Prefer them for consistency.
 
@@ -174,7 +175,6 @@ Helper throw functions exist for concise signaling (`throwInvalidStateError()`, 
 ### Compabitity
 
 - [`Node` ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
-- [`Deno` ![Deno JS](https://img.shields.io/badge/deno%20js-000000?logo=deno&logoColor=white)](https://deno.com/runtime)
 - [`Bun` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
 - `Web` ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
 
@@ -198,36 +198,11 @@ npm install @rimbu/base
 bun add @rimbu/base
 ```
 
-### Deno Setup
+**Deno:**
 
-Create or edit `import_map.json` in your project root:
-
-```json
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@x.y.z/"
-  }
-}
+```sh
+deno add npm:@rimbu/base
 ```
-
-_Replace `x.y.z` with the desired version._
-
-In this way you can use relative imports from Rimbu in your code, like so:
-
-```ts
-import { List } from '@rimbu/core/mod.ts';
-import { HashMap } from '@rimbu/hashed/mod.ts';
-```
-
-Note that for sub-packages, due to conversion limitations it is needed to import the `index.ts` instead of `mod.ts`, like so:
-
-```ts
-import { HashMap } from '@rimbu/hashed/map/index.ts';
-```
-
-To run your script (let's assume the entry point is in `src/main.ts`):
-
-`deno run --import-map import_map.json src/main.ts`
 
 ## Usage
 

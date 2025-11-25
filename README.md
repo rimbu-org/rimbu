@@ -6,9 +6,6 @@
   <a href="https://www.npmjs.com/package/@rimbu/core">
     <img src="https://badge.fury.io/js/@rimbu%2Fcore.svg" alt="npm version" />
   </a>
-  <a href="https://deno.land/x/rimbu">
-    <img src="https://shield.deno.dev/x/rimbu" alt="Deno" />
-  </a>
   <a href="https://github.com/rimbu-org/rimbu/blob/main/LICENSE">
     <img src="https://img.shields.io/github/license/rimbu-org/rimbu" alt="License: MIT" />
   </a>
@@ -72,25 +69,11 @@ pnpm add @rimbu/core
 bun add @rimbu/core
 ```
 
-### Deno setup
+**Deno**
 
-Create or edit `import_map.json` in your project root:
-
-```json
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@x.y.z/"
-  }
-}
+```sh
+deno add npm:@rimbu/core
 ```
-
-_Replace `x.y.z` with the desired version._ You can then import from Rimbu just like in Node:
-
-```ts
-import { List } from '@rimbu/core/mod.ts';
-```
-
-See the docs for more Deno and sub-package import examples.
 
 ---
 
@@ -108,9 +91,7 @@ const users = List.of<User>(
 );
 
 // Build an immutable index by id
-const byId = HashMap.from(
-  users.stream().map((u) => [u.id, u] as const)
-);
+const byId = HashMap.from(users.stream().map((u) => [u.id, u] as const));
 
 // Stream over active user names
 const activeNames = Stream.from(users)
@@ -134,37 +115,37 @@ This overview only lists **packages that have reached version `1.0.0` or higher*
 
 ### Core foundations
 
-| Package                                             | Description                                                                                           |
-| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| [@rimbu/core](packages/core)                        | **Single entrypoint** that re-exports the main Rimbu collections and utilities from one import.      |
-| [@rimbu/base](packages/base)                        | Foundational **immutable array and utility primitives** used by all other Rimbu collections.         |
-| [@rimbu/collection-types](packages/collection-types) | Shared **map/set interfaces and higher-kinded collection types** implemented by concrete packages.   |
-| [@rimbu/common](packages/common)                    | Shared **equality, comparison, range, lazy, and type-level utilities** across the ecosystem.         |
-| [@rimbu/deep](packages/deep)                        | **Deep patching, matching, paths, and selectors** for treating plain JS objects as immutable data.   |
+| Package                                              | Description                                                                                        |
+| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| [@rimbu/core](packages/core)                         | **Single entrypoint** that re-exports the main Rimbu collections and utilities from one import.    |
+| [@rimbu/base](packages/base)                         | Foundational **immutable array and utility primitives** used by all other Rimbu collections.       |
+| [@rimbu/collection-types](packages/collection-types) | Shared **map/set interfaces and higher-kinded collection types** implemented by concrete packages. |
+| [@rimbu/common](packages/common)                     | Shared **equality, comparison, range, lazy, and type-level utilities** across the ecosystem.       |
+| [@rimbu/deep](packages/deep)                         | **Deep patching, matching, paths, and selectors** for treating plain JS objects as immutable data. |
 
 ### Collections: maps, sets, lists, graphs, tables
 
-| Package                         | Description                                                                                                             |
-| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| [@rimbu/list](packages/list)    | **Immutable random-access lists** (vector-like) with efficient updates, slicing, and non-empty variants.              |
-| [@rimbu/hashed](packages/hashed) | **HashMap** and **HashSet** implementations with configurable hashing and equality strategies.                        |
-| [@rimbu/sorted](packages/sorted) | **SortedMap** and **SortedSet** with deterministic ordering, range queries, and index-based access.                   |
-| [@rimbu/ordered](packages/ordered) | **OrderedMap** and **OrderedSet** that preserve insertion order on top of existing map/set implementations.          |
-| [@rimbu/bimap](packages/bimap)  | **Bidirectional maps** (BiMap) that maintain a strict one-to-one mapping between keys and values.                     |
-| [@rimbu/bimultimap](packages/bimultimap) | **Many-to-many bidirectional multimaps** where keys and values can both have multiple associations.           |
-| [@rimbu/multimap](packages/multimap) | **One-to-many multimaps** where each key maps to a set of unique values.                                             |
-| [@rimbu/multiset](packages/multiset) | **Multisets (bags)** that track how many times each element occurs.                                                 |
-| [@rimbu/table](packages/table)  | **2D tables** indexed by row and column keys, with hashed and sorted row/column variants.                             |
-| [@rimbu/graph](packages/graph)  | **Directed, undirected, and valued graphs** with traversal helpers and hashed/sorted variants.                        |
-| [@rimbu/proximity](packages/proximity) | **Proximity-based maps** (`ProximityMap`) that resolve lookups using nearest-key distance functions.          |
+| Package                                  | Description                                                                                                 |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| [@rimbu/list](packages/list)             | **Immutable random-access lists** (vector-like) with efficient updates, slicing, and non-empty variants.    |
+| [@rimbu/hashed](packages/hashed)         | **HashMap** and **HashSet** implementations with configurable hashing and equality strategies.              |
+| [@rimbu/sorted](packages/sorted)         | **SortedMap** and **SortedSet** with deterministic ordering, range queries, and index-based access.         |
+| [@rimbu/ordered](packages/ordered)       | **OrderedMap** and **OrderedSet** that preserve insertion order on top of existing map/set implementations. |
+| [@rimbu/bimap](packages/bimap)           | **Bidirectional maps** (BiMap) that maintain a strict one-to-one mapping between keys and values.           |
+| [@rimbu/bimultimap](packages/bimultimap) | **Many-to-many bidirectional multimaps** where keys and values can both have multiple associations.         |
+| [@rimbu/multimap](packages/multimap)     | **One-to-many multimaps** where each key maps to a set of unique values.                                    |
+| [@rimbu/multiset](packages/multiset)     | **Multisets (bags)** that track how many times each element occurs.                                         |
+| [@rimbu/table](packages/table)           | **2D tables** indexed by row and column keys, with hashed and sorted row/column variants.                   |
+| [@rimbu/graph](packages/graph)           | **Directed, undirected, and valued graphs** with traversal helpers and hashed/sorted variants.              |
+| [@rimbu/proximity](packages/proximity)   | **Proximity-based maps** (`ProximityMap`) that resolve lookups using nearest-key distance functions.        |
 
 ### Streams, channels, and tasks
 
-| Package                         | Description                                                                                                  |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| [@rimbu/stream](packages/stream) | **Lazy synchronous and asynchronous streams** (`Stream` / `AsyncStream`) for composable data pipelines.    |
+| Package                            | Description                                                                                              |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| [@rimbu/stream](packages/stream)   | **Lazy synchronous and asynchronous streams** (`Stream` / `AsyncStream`) for composable data pipelines.  |
 | [@rimbu/channel](packages/channel) | **Typed channels and concurrency primitives** (Go-style channels, remote channels, mutexes, semaphores). |
-| [@rimbu/task](packages/task)    | **Composable, cancellable async tasks** with structured concurrency, retries, timeouts, and supervision.   |
+| [@rimbu/task](packages/task)       | **Composable, cancellable async tasks** with structured concurrency, retries, timeouts, and supervision. |
 
 ---
 

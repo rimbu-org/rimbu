@@ -15,7 +15,7 @@ This documentation site makes a lot of use of CodeSandbox TypeScript examples, w
 
 ## Installation
 
-### Yarn/NPM
+### Yarn/NPM/Bun/Deno
 
 To install the library in your own project:
 
@@ -25,6 +25,14 @@ or
 
 > `yarn add @rimbu/core`
 
+or
+
+> `bun add @rimbu/core`
+
+or
+
+> `deno add npm:@rimbu/core`
+
 Import into and use immutable goodness in your code:
 
 ```ts
@@ -33,36 +41,3 @@ import { List, Stream } from '@rimbu/core';
 const list = List.from(Stream.range({ start: 2, amount: 64 }));
 console.log(list.toString());
 ```
-
-### Deno
-
-For Deno, the following approach is recommended:
-
-In the root folder of your project, create or edit a file called `import_map.json` with the following contents (where you should replace `x.y.z` with the desired version of Rimbu):
-
-```json
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@x.y.z/"
-  }
-}
-```
-
-**Note: The trailing slashes are important!**
-
-In this way you can use relative imports from Rimbu in your code, like so:
-
-```ts
-import { List } from '@rimbu/core/mod.ts';
-import { HashMap } from '@rimbu/hashed/mod.ts';
-```
-
-Note that for sub-packages, due to conversion limitations it is needed to import the `index.ts` instead of `mod.ts`, like so:
-
-```ts
-import { HashMap } from '@rimbu/hashed/map/index.ts';
-```
-
-To run your script (let's assume the entry point is in `src/main.ts`):
-
-`deno run --import-map import_map.json src/main.ts`

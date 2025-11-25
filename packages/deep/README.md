@@ -8,7 +8,6 @@
 ![License](https://img.shields.io/github/license/rimbu-org/rimbu)
 ![Types Included](https://img.shields.io/badge/TypeScript-ready-blue)
 ![Node](https://img.shields.io/badge/Node-18+-6DA55F?logo=node.js&logoColor=white)
-![Deno](https://shield.deno.dev/x/rimbu)
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg)
 ![ESM + CJS](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-informational)
 
@@ -120,15 +119,15 @@ Try Rimbu (including `@rimbu/deep`) live in the browser using the
 
 From `@rimbu/deep`’s main entrypoint you have access to:
 
-| Name                         | Description                                                                                              |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `Patch<T, C = T>`           | Type describing allowed patch shapes for a value of type `T`.                                           |
-| `Match<T, C = Partial<T>>`  | Type describing allowed matchers for values of type `T`.                                                |
-| `Path`                      | Namespace containing `Path.Get<T>`, `Path.Set<T>`, and `Path.Result<T, P>` utilities for string paths.  |
-| `Selector<T>`               | Type describing allowed selector shapes for values of type `T`.                                         |
-| `Protected<T>`              | Deeply readonly/“protected” view of `T` for compile‑time mutation safety.                               |
-| `Tuple<T extends Tuple.Source>` | Tuple wrapper with helper types and functions under the `Tuple` namespace.                          |
-| `Deep`                      | Convenience namespace exposing the main deep utilities (`patch`, `match`, `getAt`, `select`, etc.).    |
+| Name                            | Description                                                                                            |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `Patch<T, C = T>`               | Type describing allowed patch shapes for a value of type `T`.                                          |
+| `Match<T, C = Partial<T>>`      | Type describing allowed matchers for values of type `T`.                                               |
+| `Path`                          | Namespace containing `Path.Get<T>`, `Path.Set<T>`, and `Path.Result<T, P>` utilities for string paths. |
+| `Selector<T>`                   | Type describing allowed selector shapes for values of type `T`.                                        |
+| `Protected<T>`                  | Deeply readonly/“protected” view of `T` for compile‑time mutation safety.                              |
+| `Tuple<T extends Tuple.Source>` | Tuple wrapper with helper types and functions under the `Tuple` namespace.                             |
+| `Deep`                          | Convenience namespace exposing the main deep utilities (`patch`, `match`, `getAt`, `select`, etc.).    |
 
 See the [Deep overview docs](https://rimbu.org/docs/deep/overview) and
 [API reference](https://rimbu.org/api/rimbu/deep) for the full surface.
@@ -296,16 +295,8 @@ npm install @rimbu/deep
 yarn add @rimbu/deep
 # or
 bun add @rimbu/deep
-```
-
-### Deno (import map)
-
-```jsonc
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@<version>/"
-  }
-}
+# or
+deno add npm:@rimbu/deep
 ```
 
 Then:

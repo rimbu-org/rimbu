@@ -8,7 +8,6 @@
 ![License](https://img.shields.io/github/license/rimbu-org/rimbu)
 ![Types Included](https://img.shields.io/badge/TypeScript-ready-blue)
 ![Node](https://img.shields.io/badge/Node-18+-6DA55F?logo=node.js&logoColor=white)
-![Deno](https://shield.deno.dev/x/rimbu)
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg)
 ![ESM + CJS](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-informational)
 
@@ -106,13 +105,10 @@ const ctx = Table.createContext<number, string>({
   columnContext: HashMap.defaultContext<string>(),
 });
 
-const t = ctx.of<[number, string, boolean]>(
-  [1, 'a', true],
-  [2, 'b', false]
-);
+const t = ctx.of<[number, string, boolean]>([1, 'a', true], [2, 'b', false]);
 
 console.log(t.get(2, 'b')); // false
-console.log(t.amountRows);  // 2
+console.log(t.amountRows); // 2
 ```
 
 Try Rimbu (including `@rimbu/table`) live in the browser using the
@@ -126,14 +122,14 @@ Try Rimbu (including `@rimbu/table`) live in the browser using the
 
 From `@rimbu/table`:
 
-| Name                                      | Description                                                                                                      |
-| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `Table<R, C, V>`                          | Type‑invariant immutable table of row key type `R`, column key type `C`, and value type `V`.                    |
-| `Table.NonEmpty<R, C, V>`                 | Non‑empty refinement of `Table<R, C, V>` with stronger guarantees.                                              |
-| `Table.Context<UR, UC>`                   | Factory/context for creating `Table` instances for upper row type `UR` and upper column type `UC`.             |
-| `Table.Builder<R, C, V>`                  | Mutable builder for efficiently constructing or mutating a `Table` before freezing it into an immutable value. |
-| `VariantTable<R, C, V>`                   | Type‑variant view over a table; allows safe type‑widening of keys/values without mutation operations.          |
-| `VariantTable.NonEmpty<R, C, V>`          | Non‑empty refinement of `VariantTable<R, C, V>`.                                                                |
+| Name                             | Description                                                                                                    |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `Table<R, C, V>`                 | Type‑invariant immutable table of row key type `R`, column key type `C`, and value type `V`.                   |
+| `Table.NonEmpty<R, C, V>`        | Non‑empty refinement of `Table<R, C, V>` with stronger guarantees.                                             |
+| `Table.Context<UR, UC>`          | Factory/context for creating `Table` instances for upper row type `UR` and upper column type `UC`.             |
+| `Table.Builder<R, C, V>`         | Mutable builder for efficiently constructing or mutating a `Table` before freezing it into an immutable value. |
+| `VariantTable<R, C, V>`          | Type‑variant view over a table; allows safe type‑widening of keys/values without mutation operations.          |
+| `VariantTable.NonEmpty<R, C, V>` | Non‑empty refinement of `VariantTable<R, C, V>`.                                                               |
 
 See the full [Table docs](https://rimbu.org/docs/collections/table) and
 [API reference](https://rimbu.org/api/rimbu/table) for all operations.
@@ -179,7 +175,10 @@ const hs = HashTableSortedColumn.of<[number, string, number]>(
 );
 
 // Sorted rows + hash columns
-const sh = SortedTableHashColumn.from([[1, 'a', true], [2, 'b', false]]);
+const sh = SortedTableHashColumn.from([
+  [1, 'a', true],
+  [2, 'b', false],
+]);
 
 // Sorted rows + sorted columns
 const ss = SortedTableSortedColumn.builder<number, string, number>();
@@ -209,23 +208,8 @@ npm install @rimbu/table
 yarn add @rimbu/table
 # or
 bun add @rimbu/table
-```
-
-### Deno (import map)
-
-```jsonc
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@<version>/"
-  }
-}
-```
-
-Then:
-
-```ts
-import { Table } from '@rimbu/table/mod.ts';
-import { HashTableHashColumn } from '@rimbu/table/hash-row/index.ts';
+# or
+deno add npm:@rimbu/table
 ```
 
 ### Browser / ESM

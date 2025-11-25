@@ -8,7 +8,6 @@
 ![License](https://img.shields.io/github/license/rimbu-org/rimbu)
 ![Types Included](https://img.shields.io/badge/TypeScript-ready-blue)
 ![Node](https://img.shields.io/badge/Node-18+-6DA55F?logo=node.js&logoColor=white)
-![Deno](https://shield.deno.dev/x/rimbu)
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg)
 ![ESM + CJS](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-informational)
 
@@ -112,20 +111,20 @@ Try Rimbu (including `@rimbu/multiset`) live in the browser using the
 
 From `@rimbu/multiset`:
 
-| Name                           | Description                                                                                   |
-| ------------------------------ | --------------------------------------------------------------------------------------------- |
-| `MultiSet<T>`                  | Generic, type‑invariant multiset where values of type `T` can occur multiple times.          |
-| `MultiSet.NonEmpty<T>`        | Non‑empty refinement of `MultiSet<T>` with stronger guarantees.                               |
-| `MultiSet.Context<UT>`        | Context/factory for creating `MultiSet` instances with configurable underlying map contexts.  |
-| `MultiSet.Builder<T>`         | Mutable builder for efficiently constructing a `MultiSet` before freezing it.                 |
-| `VariantMultiSet<T>`          | Read‑only, type‑variant multiset; supports safe type‑widening but no mutating operations.     |
-| `VariantMultiSet.NonEmpty<T>` | Non‑empty refinement of `VariantMultiSet<T>`.                                                 |
-| `HashMultiSet<T>`             | Multiset backed by a `HashMap` for counts (hashed elements, fast unordered operations).       |
-| `HashMultiSet.Context<UT>`   | Context for `HashMultiSet`, exposing configuration and factories.                             |
-| `HashMultiSet.Builder<T>`    | Builder type for `HashMultiSet`.                                                              |
-| `SortedMultiSet<T>`           | Multiset backed by a `SortedMap` for counts (sorted elements, deterministic ordering).        |
-| `SortedMultiSet.Context<UT>` | Context for `SortedMultiSet`.                                                                 |
-| `SortedMultiSet.Builder<T>`  | Builder type for `SortedMultiSet`.                                                            |
+| Name                          | Description                                                                                  |
+| ----------------------------- | -------------------------------------------------------------------------------------------- |
+| `MultiSet<T>`                 | Generic, type‑invariant multiset where values of type `T` can occur multiple times.          |
+| `MultiSet.NonEmpty<T>`        | Non‑empty refinement of `MultiSet<T>` with stronger guarantees.                              |
+| `MultiSet.Context<UT>`        | Context/factory for creating `MultiSet` instances with configurable underlying map contexts. |
+| `MultiSet.Builder<T>`         | Mutable builder for efficiently constructing a `MultiSet` before freezing it.                |
+| `VariantMultiSet<T>`          | Read‑only, type‑variant multiset; supports safe type‑widening but no mutating operations.    |
+| `VariantMultiSet.NonEmpty<T>` | Non‑empty refinement of `VariantMultiSet<T>`.                                                |
+| `HashMultiSet<T>`             | Multiset backed by a `HashMap` for counts (hashed elements, fast unordered operations).      |
+| `HashMultiSet.Context<UT>`    | Context for `HashMultiSet`, exposing configuration and factories.                            |
+| `HashMultiSet.Builder<T>`     | Builder type for `HashMultiSet`.                                                             |
+| `SortedMultiSet<T>`           | Multiset backed by a `SortedMap` for counts (sorted elements, deterministic ordering).       |
+| `SortedMultiSet.Context<UT>`  | Context for `SortedMultiSet`.                                                                |
+| `SortedMultiSet.Builder<T>`   | Builder type for `SortedMultiSet`.                                                           |
 
 #### Key Operations (`HashMultiSet`)
 
@@ -214,7 +213,7 @@ For detailed performance characteristics and benchmarks, see the main Rimbu docu
 
 ### Installation
 
-#### Node / Bun / npm / Yarn
+#### Node / Bun / npm / Yarn / Deno
 
 ```sh
 npm install @rimbu/multiset
@@ -222,22 +221,8 @@ npm install @rimbu/multiset
 yarn add @rimbu/multiset
 # or
 bun add @rimbu/multiset
-```
-
-#### Deno (import map)
-
-```jsonc
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@<version>/"
-  }
-}
-```
-
-Then:
-
-```ts
-import { HashMultiSet } from '@rimbu/multiset/mod.ts';
+# or
+deno add npm:@rimbu/multiset
 ```
 
 #### Browser / ESM

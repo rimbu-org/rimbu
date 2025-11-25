@@ -2,7 +2,7 @@
     <img src="https://github.com/rimbu-org/rimbu/raw/main/assets/rimbu_logo.svg" />
 </p>
 
-[![npm version](https://badge.fury.io/js/@rimbu%2Freactor.svg)](https://www.npmjs.com/package/@rimbu/reactor) [![Deno](https://shield.deno.dev/x/rimbu)](http://deno.land/x/rimbu)
+[![npm version](https://badge.fury.io/js/@rimbu%2Freactor.svg)](https://www.npmjs.com/package/@rimbu/reactor)
 
 ![Licence](https://img.shields.io/github/license/rimbu-org/rimbu)
 

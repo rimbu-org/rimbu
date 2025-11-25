@@ -20,9 +20,8 @@
   },
   "scripts": {
     "build": "lerna run build",
-    "deno:build": "rimraf deno_dist && mkdir deno_dist && cp config/mod_root_ts_template deno_dist/mod.ts && lerna run build:deno && cp {README.md,LICENSE} deno_dist && npx replace '\\(packages' '(./rimbu' deno_dist/README.md",
     "clean": "lerna run clean && lerna clean --yes && yarn",
-    "commit": "yarn deno:build && git add deno_dist && git-cz",
+    "commit": "git-cz",
     "docs": "deno run --import-map doc-gen/import_map.json --allow-read --allow-write --no-check doc-gen/src/main.ts -i doc-gen/input -o docs/api",
     "extract-api": "rimraf doc-gen/input && lerna run extract-api",
     "format": "yarn format:root & lerna run format",
@@ -54,7 +53,6 @@
     "@vitest/coverage-v8": "^4.0.13",
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
-    "denoify": "^1.6.17",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",

@@ -8,7 +8,6 @@
 ![License](https://img.shields.io/github/license/rimbu-org/rimbu)
 ![Types Included](https://img.shields.io/badge/TypeScript-ready-blue)
 ![Node](https://img.shields.io/badge/Node-18+-6DA55F?logo=node.js&logoColor=white)
-![Deno](https://shield.deno.dev/x/rimbu)
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg)
 ![ESM + CJS](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-informational)
 
@@ -334,20 +333,8 @@ npm install @rimbu/task
 yarn add @rimbu/task
 # or
 bun add @rimbu/task
-```
-
-### Deno (import map)
-
-```jsonc
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@<version>/",
-  },
-}
-```
-
-```ts
-import { Task } from '@rimbu/task/mod.ts';
+# or
+deno add npm:@rimbu/task
 ```
 
 ### Browser / ESM

@@ -8,7 +8,6 @@
 ![License](https://img.shields.io/github/license/rimbu-org/rimbu)
 ![Types Included](https://img.shields.io/badge/TypeScript-ready-blue)
 ![Node](https://img.shields.io/badge/Node-18+-6DA55F?logo=node.js&logoColor=white)
-![Deno](https://shield.deno.dev/x/rimbu)
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg)
 ![ESM + CJS](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-informational)
 
@@ -99,8 +98,8 @@ const s = Stream.from([1, 2, 3, 4, 5]);
 // Build a lazy pipeline
 const result = s
   .filter((v) => v % 2 === 1) // keep odd numbers
-  .map((v) => v * v)          // square them
-  .take(3);                   // at most 3 values
+  .map((v) => v * v) // square them
+  .take(3); // at most 3 values
 
 console.log(result.toArray()); // [1, 9, 25]
 ```
@@ -134,9 +133,7 @@ async function* numbers() {
 
 const s = AsyncStream.from(numbers());
 
-const doubled = s
-  .filter((v) => v % 2 === 0)
-  .map(async (v) => v * 2);
+const doubled = s.filter((v) => v % 2 === 0).map(async (v) => v * 2);
 
 console.log(await doubled.toArray()); // [0, 4, 8]
 ```
@@ -149,31 +146,31 @@ console.log(await doubled.toArray()); // [0, 4, 8]
 
 From the main entry (`@rimbu/stream`):
 
-| Name                   | Description                                                                                                         |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `FastIterator<T>`      | An iterator that extends the default `Iterator` with a `fastNext` method for more efficient iteration.             |
-| `FastIterable<T>`      | An `Iterable` that returns a `FastIterator<T>` from its `[Symbol.iterator]` method.                                |
-| `Stream<T>`            | A possibly infinite, lazy sequence of elements of type `T` with a rich set of transformation and aggregation APIs. |
-| `Stream.NonEmpty<T>`   | A non-empty refinement of `Stream<T>` with stronger type guarantees.                                               |
-| `Streamable<T>`        | An object that can create a `Stream<T>` via `.stream()`.                                                           |
-| `StreamSource<T>`      | A convenience type covering arrays, strings, iterables, streams and `Streamable` objects convertible to `Stream`.  |
-| `Reducer<I, O>`        | A stand‑alone, reusable reduction specification that turns a sequence of `I` into a single result `O`.             |
-| `Transformer<T, R>`    | A `Reducer` that produces `StreamSource<R>` values, useful for reusable streaming transforms.                      |
+| Name                 | Description                                                                                                        |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `FastIterator<T>`    | An iterator that extends the default `Iterator` with a `fastNext` method for more efficient iteration.             |
+| `FastIterable<T>`    | An `Iterable` that returns a `FastIterator<T>` from its `[Symbol.iterator]` method.                                |
+| `Stream<T>`          | A possibly infinite, lazy sequence of elements of type `T` with a rich set of transformation and aggregation APIs. |
+| `Stream.NonEmpty<T>` | A non-empty refinement of `Stream<T>` with stronger type guarantees.                                               |
+| `Streamable<T>`      | An object that can create a `Stream<T>` via `.stream()`.                                                           |
+| `StreamSource<T>`    | A convenience type covering arrays, strings, iterables, streams and `Streamable` objects convertible to `Stream`.  |
+| `Reducer<I, O>`      | A stand‑alone, reusable reduction specification that turns a sequence of `I` into a single result `O`.             |
+| `Transformer<T, R>`  | A `Reducer` that produces `StreamSource<R>` values, useful for reusable streaming transforms.                      |
 
 ### Exported Types (async)
 
 From the async entry (`@rimbu/stream/async`):
 
-| Name                          | Description                                                                                                                  |
-| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `AsyncFastIterator<T>`        | An async iterator with `fastNext` for efficient asynchronous iteration.                                                     |
-| `AsyncFastIterable<T>`        | An `AsyncIterable` that returns an `AsyncFastIterator<T>`.                                                                  |
-| `AsyncStream<T>`              | A possibly infinite asynchronous sequence of elements, mirroring the `Stream` API.                                          |
-| `AsyncStream.NonEmpty<T>`     | A non-empty refinement of `AsyncStream<T>`.                                                                                 |
-| `AsyncStreamable<T>`          | An object that can create an `AsyncStream<T>` via `.asyncStream()`.                                                         |
-| `AsyncStreamSource<T>`        | Any source convertible to an `AsyncStream<T>` (async streams, async iterables, sync streams, lazy factories, etc.).        |
-| `AsyncReducer<I, O>`          | An asynchronous reducer that can consume values of type `I` and eventually yield a result of type `O`.                      |
-| `AsyncTransformer<T, R>`      | An `AsyncReducer` that produces `AsyncStreamSource<R>` values, for reusable async streaming transformations.                |
+| Name                      | Description                                                                                                         |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `AsyncFastIterator<T>`    | An async iterator with `fastNext` for efficient asynchronous iteration.                                             |
+| `AsyncFastIterable<T>`    | An `AsyncIterable` that returns an `AsyncFastIterator<T>`.                                                          |
+| `AsyncStream<T>`          | A possibly infinite asynchronous sequence of elements, mirroring the `Stream` API.                                  |
+| `AsyncStream.NonEmpty<T>` | A non-empty refinement of `AsyncStream<T>`.                                                                         |
+| `AsyncStreamable<T>`      | An object that can create an `AsyncStream<T>` via `.asyncStream()`.                                                 |
+| `AsyncStreamSource<T>`    | Any source convertible to an `AsyncStream<T>` (async streams, async iterables, sync streams, lazy factories, etc.). |
+| `AsyncReducer<I, O>`      | An asynchronous reducer that can consume values of type `I` and eventually yield a result of type `O`.              |
+| `AsyncTransformer<T, R>`  | An `AsyncReducer` that produces `AsyncStreamSource<R>` values, for reusable async streaming transformations.        |
 
 See the full [Stream docs](https://rimbu.org/docs/collections/stream) and
 [API reference](https://rimbu.org/api/rimbu/stream) for all operations.
@@ -239,23 +236,8 @@ npm install @rimbu/stream
 yarn add @rimbu/stream
 # or
 bun add @rimbu/stream
-```
-
-### Deno (import map)
-
-```jsonc
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@<version>/"
-  }
-}
-```
-
-Then:
-
-```ts
-import { Stream } from '@rimbu/stream/mod.ts';
-import { AsyncStream } from '@rimbu/stream/async/mod.ts';
+# or
+deno add npm:@rimbu/stream
 ```
 
 ### Browser / ESM
@@ -296,7 +278,7 @@ to any stream (e.g. `Reducer.sum`, `Reducer.minBy`, `Reducer.groupBy`).
 - Many Rimbu collections accept `StreamSource` / `AsyncStreamSource`, so you can
   build data pipelines with streams and materialize them into maps, sets, lists, etc.
 - Ideal for **data processing**, **ETL-like flows**, **reactive style pipelines**,
-  or anywhere you want a clear separation between *building* and *consuming* data.
+  or anywhere you want a clear separation between _building_ and _consuming_ data.
 
 Explore more at the [Rimbu documentation](https://rimbu.org) and the
 [Stream API docs](https://rimbu.org/api/rimbu/stream).

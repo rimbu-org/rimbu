@@ -2,7 +2,7 @@
     <img src="https://github.com/rimbu-org/rimbu/raw/main/assets/rimbu_logo.svg" />
 </p>
 
-[![npm version](https://badge.fury.io/js/@rimbu%2Fspy.svg)](https://www.npmjs.com/package/@rimbu/spy) [![Deno](https://shield.deno.dev/x/rimbu)](http://deno.land/x/rimbu)
+[![npm version](https://badge.fury.io/js/@rimbu%2Fspy.svg)](https://www.npmjs.com/package/@rimbu/spy)
 
 ![Licence](https://img.shields.io/github/license/rimbu-org/rimbu)
 
@@ -47,7 +47,7 @@ Or [Try Out Rimbu](https://codesandbox.io/s/github/vitoke/rimbu-sandbox/tree/mai
 - [`Bun` ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)](https://bun.sh/)
 - `Web` ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
 
-### Yarn / NPM / Bun
+### Yarn / npm / Bun / Deno
 
 For `yarn`:
 
@@ -61,31 +61,9 @@ For `bun`:
 
 > `bun add @rimbu/spy`
 
-### Deno
+For `deno`:
 
-For Deno, the following approach is recommended:
-
-In the root folder of your project, create or edit a file called `import_map.json` with the following contents (where you should replace `x.y.z` with the desired version of Rimbu):
-
-```json
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@x.y.z/"
-  }
-}
-```
-
-**Note: The trailing slashes are important!**
-
-In this way you can use relative imports from Rimbu in your code, like so:
-
-```ts
-import { Spy } from '@rimbu/spy/mod.ts';
-```
-
-To run your script (let's assume the entry point is in `src/main.ts`):
-
-`deno run --import-map import_map.json src/main.ts`
+> `deno add npm:@rimbu/spy`
 
 ## Usage
 

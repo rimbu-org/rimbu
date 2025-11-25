@@ -8,7 +8,6 @@
 ![License](https://img.shields.io/github/license/rimbu-org/rimbu)
 ![Types Included](https://img.shields.io/badge/TypeScript-ready-blue)
 ![Node](https://img.shields.io/badge/Node-18+-6DA55F?logo=node.js&logoColor=white)
-![Deno](https://shield.deno.dev/x/rimbu)
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg)
 ![ESM + CJS](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-informational)
 
@@ -51,7 +50,7 @@ Plain `Map` / `Set` in JS don’t know about ordering beyond insertion order.
 
 - **Sorted views** – entries (for maps) and values (for sets) are always kept in sorted order.
 - **Range queries** – stream or slice by key or value ranges and by index ranges.
-- **Index-based access** – get the *n‑th* smallest key or value directly.
+- **Index-based access** – get the _n‑th_ smallest key or value directly.
 - **Immutable operations** – updates return new instances with structural sharing.
 
 If you ever needed to sort a map’s entries repeatedly, maintain parallel sorted arrays,
@@ -78,12 +77,7 @@ Try Rimbu (including `@rimbu/sorted`) live in the browser using the
 import { SortedMap, SortedSet } from '@rimbu/sorted';
 
 // SortedMap: keys are kept in sorted order
-const m = SortedMap.of(
-  ['b', 2],
-  ['d', 4],
-  ['a', 1],
-  ['c', 3]
-).asNormal(); // convert to a normal (possibly empty) view
+const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal(); // convert to a normal (possibly empty) view
 
 console.log(m.toArray());
 // => [['a', 1], ['b', 2], ['c', 3], ['d', 4]]
@@ -106,16 +100,16 @@ See the [Map docs](https://rimbu.org/docs/collections/map),
 
 From the main entry:
 
-| Name                           | Description                                                                                           |
-| ------------------------------ | ----------------------------------------------------------------------------------------------------- |
-| `SortedMap<K, V>`              | Immutable, type‑invariant map whose keys are kept in sorted order.                                   |
-| `SortedMap.NonEmpty<K, V>`     | Non‑empty refinement of `SortedMap<K, V>` with stronger guarantees.                                   |
-| `SortedMap.Context<UK>`        | Factory/context for creating `SortedMap` instances with a given key comparator and tree parameters.   |
-| `SortedMap.Builder<K, V>`      | Mutable builder for efficiently constructing or mutating a `SortedMap` before freezing it.           |
-| `SortedSet<T>`                 | Immutable, type‑invariant set of values kept in sorted order.                                        |
-| `SortedSet.NonEmpty<T>`        | Non‑empty refinement of `SortedSet<T>`.                                                              |
-| `SortedSet.Context<UT>`        | Factory/context for creating `SortedSet` instances with a given comparator and tree parameters.      |
-| `SortedSet.Builder<T>`         | Mutable builder for efficiently constructing or mutating a `SortedSet` before freezing it.           |
+| Name                       | Description                                                                                         |
+| -------------------------- | --------------------------------------------------------------------------------------------------- |
+| `SortedMap<K, V>`          | Immutable, type‑invariant map whose keys are kept in sorted order.                                  |
+| `SortedMap.NonEmpty<K, V>` | Non‑empty refinement of `SortedMap<K, V>` with stronger guarantees.                                 |
+| `SortedMap.Context<UK>`    | Factory/context for creating `SortedMap` instances with a given key comparator and tree parameters. |
+| `SortedMap.Builder<K, V>`  | Mutable builder for efficiently constructing or mutating a `SortedMap` before freezing it.          |
+| `SortedSet<T>`             | Immutable, type‑invariant set of values kept in sorted order.                                       |
+| `SortedSet.NonEmpty<T>`    | Non‑empty refinement of `SortedSet<T>`.                                                             |
+| `SortedSet.Context<UT>`    | Factory/context for creating `SortedSet` instances with a given comparator and tree parameters.     |
+| `SortedSet.Builder<T>`     | Mutable builder for efficiently constructing or mutating a `SortedSet` before freezing it.          |
 
 You can import them via:
 
@@ -157,13 +151,9 @@ fromEntries.getAtIndex(1); // ['b', 2]
 fromEntries.getValueAtIndex(-1); // 4 (last value)
 
 // Range queries (by key and by index)
-fromEntries
-  .streamRange({ start: 'b', end: 'c' })
-  .toArray(); // [['b', 2], ['c', 3]]
+fromEntries.streamRange({ start: 'b', end: 'c' }).toArray(); // [['b', 2], ['c', 3]]
 
-fromEntries
-  .sliceIndex({ start: 1, amount: 2 })
-  .toArray(); // [['b', 2], ['c', 3]]
+fromEntries.sliceIndex({ start: 1, amount: 2 }).toArray(); // [['b', 2], ['c', 3]]
 ```
 
 See the [SortedMap API docs](https://rimbu.org/api/rimbu/sorted/map/SortedMap/interface)
@@ -190,13 +180,9 @@ values.getAtIndex(1); // 'b'
 values.getAtIndex(-1); // 'd'
 
 // Range queries
-values
-  .streamRange({ start: 'b', end: 'c' })
-  .toArray(); // ['b', 'c']
+values.streamRange({ start: 'b', end: 'c' }).toArray(); // ['b', 'c']
 
-values
-  .sliceIndex({ start: 1, amount: 2 })
-  .toArray(); // ['b', 'c']
+values.sliceIndex({ start: 1, amount: 2 }).toArray(); // ['b', 'c']
 ```
 
 See the [SortedSet API docs](https://rimbu.org/api/rimbu/sorted/set/SortedSet/interface)
@@ -243,22 +229,8 @@ npm install @rimbu/sorted
 yarn add @rimbu/sorted
 # or
 bun add @rimbu/sorted
-```
-
-### Deno (import map)
-
-```jsonc
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@<version>/"
-  }
-}
-```
-
-Then:
-
-```ts
-import { SortedMap, SortedSet } from '@rimbu/sorted/mod.ts';
+# or
+deno add npm:@rimbu/sorted
 ```
 
 ### Browser / ESM

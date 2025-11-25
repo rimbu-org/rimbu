@@ -8,7 +8,6 @@
 ![License](https://img.shields.io/github/license/rimbu-org/rimbu)
 ![Types Included](https://img.shields.io/badge/TypeScript-ready-blue)
 ![Node](https://img.shields.io/badge/Node-18+-6DA55F?logo=node.js&logoColor=white)
-![Deno](https://shield.deno.dev/x/rimbu)
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg)
 ![ESM + CJS](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-informational)
 
@@ -76,11 +75,7 @@ If you find yourself maintaining **two multimaps in sync**, a BiMultiMap is usua
 import { HashBiMultiMap } from '@rimbu/bimultimap';
 
 // Create from entry tuples
-const biMultiMap = HashBiMultiMap.of(
-  [1, 'a'],
-  [1, 'b'],
-  [2, 'b']
-);
+const biMultiMap = HashBiMultiMap.of([1, 'a'], [1, 'b'], [2, 'b']);
 
 // Forward lookup: key -> values
 console.log(biMultiMap.getValues(1).toArray()); // ['a', 'b']
@@ -102,12 +97,12 @@ Try Rimbu (including `@rimbu/bimultimap`) live in the browser using the
 
 ### Exported Types
 
-| Name                          | Description                                                                                                                  |
-| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `BiMultiMap<K, V>`            | Immutable, type‑invariant bidirectional **MultiMap** with a many‑to‑many relationship between `K` and `V`.                 |
-| `BiMultiMap.NonEmpty<K, V>`   | Non‑empty refinement of `BiMultiMap<K, V>` with stronger type guarantees.                                                   |
-| `HashBiMultiMap<K, V>`        | BiMultiMap implementation backed by hashed multimaps – great default for most use cases.                                   |
-| `SortedBiMultiMap<K, V>`      | BiMultiMap implementation backed by sorted multimaps – keeps entries ordered by key / value depending on configuration.    |
+| Name                        | Description                                                                                                             |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `BiMultiMap<K, V>`          | Immutable, type‑invariant bidirectional **MultiMap** with a many‑to‑many relationship between `K` and `V`.              |
+| `BiMultiMap.NonEmpty<K, V>` | Non‑empty refinement of `BiMultiMap<K, V>` with stronger type guarantees.                                               |
+| `HashBiMultiMap<K, V>`      | BiMultiMap implementation backed by hashed multimaps – great default for most use cases.                                |
+| `SortedBiMultiMap<K, V>`    | BiMultiMap implementation backed by sorted multimaps – keeps entries ordered by key / value depending on configuration. |
 
 ### Key Operations
 
@@ -116,11 +111,7 @@ import { HashBiMultiMap } from '@rimbu/bimultimap';
 
 // Construction
 const empty = HashBiMultiMap.empty<number, string>();
-const fromEntries = HashBiMultiMap.of(
-  [1, 'one'],
-  [1, 'uno'],
-  [2, 'two']
-);
+const fromEntries = HashBiMultiMap.of([1, 'one'], [1, 'uno'], [2, 'two']);
 
 // Size & emptiness
 empty.isEmpty; // true
@@ -202,22 +193,8 @@ npm install @rimbu/bimultimap
 yarn add @rimbu/bimultimap
 # or
 bun add @rimbu/bimultimap
-```
-
-### Deno (import map)
-
-```jsonc
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@<version>/"
-  }
-}
-```
-
-Then:
-
-```ts
-import { HashBiMultiMap } from '@rimbu/bimultimap/mod.ts';
+# or
+deno add npm:@rimbu/bimultimap
 ```
 
 ### Browser / ESM
