@@ -8,7 +8,6 @@
 ![License](https://img.shields.io/github/license/rimbu-org/rimbu)
 ![Types Included](https://img.shields.io/badge/TypeScript-ready-blue)
 ![Node](https://img.shields.io/badge/Node-18+-6DA55F?logo=node.js&logoColor=white)
-![Deno](https://shield.deno.dev/x/rimbu)
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg)
 ![ESM + CJS](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-informational)
 
@@ -117,10 +116,7 @@ Recommended when you only need a few specific types:
 import { List, HashMap, Stream } from '@rimbu/core';
 
 const list = List.of(1, 2, 3);
-const map = HashMap.of(
-  ['a', 1],
-  ['b', 2]
-);
+const map = HashMap.of(['a', 1], ['b', 2]);
 
 const result = Stream.from(map.entries()).toArray();
 ```
@@ -155,23 +151,23 @@ Under the hood, this uses the same types that are exported from `@rimbu/core`, o
 `@rimbu/core` re‑exports the public APIs of the following sub‑packages. Use these packages directly when you need
 package‑specific documentation, but feel free to import their types through `@rimbu/core`:
 
-| Package                                        | Description                                                                                          |
-| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| [@rimbu/bimap](../bimap)                       | Bidirectional map where each key maps to a unique value and vice versa.                             |
-| [@rimbu/bimultimap](../bimultimap)             | Bidirectional multimap allowing many‑to‑many mappings between keys and values.                      |
-| [@rimbu/collection-types](../collection-types) | Shared collection type definitions used by all Rimbu collections.                                   |
-| [@rimbu/common](../common)                     | Public types and utility functions used throughout the library.                                     |
-| [@rimbu/deep](../deep)                         | Tools (such as `Deep` and `Tuple`) for treating plain JS objects as immutable structures.           |
-| [@rimbu/graph](../graph)                       | Graph implementations for modelling data as nodes and edges.                                        |
-| [@rimbu/hashed](../hashed)                     | `HashMap` / `HashSet` implementations using hash functions for fast key retrieval.                  |
-| [@rimbu/list](../list)                         | Immutable `List` for ordered sequences with efficient random access and updates.                    |
-| [@rimbu/multimap](../multimap)                 | Map where each key can be associated with multiple values.                                          |
-| [@rimbu/multiset](../multiset)                 | Set where elements can occur multiple times.                                                        |
-| [@rimbu/ordered](../ordered)                   | `OrderedMap` / `OrderedSet` that retain insertion order.                                            |
-| [@rimbu/proximity](../proximity)               | `ProximityMap` for retrieving values based on key proximity.                                        |
-| [@rimbu/sorted](../sorted)                     | `SortedMap` / `SortedSet` implementations that keep elements sorted via compare functions.          |
-| [@rimbu/stream](../stream)                     | Lazy, composable `Stream` / `AsyncStream` types for processing sequences of data.                   |
-| [@rimbu/table](../table)                       | Table data structures where row/column key pairs map to a single value.                             |
+| Package                                        | Description                                                                                |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| [@rimbu/bimap](../bimap)                       | Bidirectional map where each key maps to a unique value and vice versa.                    |
+| [@rimbu/bimultimap](../bimultimap)             | Bidirectional multimap allowing many‑to‑many mappings between keys and values.             |
+| [@rimbu/collection-types](../collection-types) | Shared collection type definitions used by all Rimbu collections.                          |
+| [@rimbu/common](../common)                     | Public types and utility functions used throughout the library.                            |
+| [@rimbu/deep](../deep)                         | Tools (such as `Deep` and `Tuple`) for treating plain JS objects as immutable structures.  |
+| [@rimbu/graph](../graph)                       | Graph implementations for modelling data as nodes and edges.                               |
+| [@rimbu/hashed](../hashed)                     | `HashMap` / `HashSet` implementations using hash functions for fast key retrieval.         |
+| [@rimbu/list](../list)                         | Immutable `List` for ordered sequences with efficient random access and updates.           |
+| [@rimbu/multimap](../multimap)                 | Map where each key can be associated with multiple values.                                 |
+| [@rimbu/multiset](../multiset)                 | Set where elements can occur multiple times.                                               |
+| [@rimbu/ordered](../ordered)                   | `OrderedMap` / `OrderedSet` that retain insertion order.                                   |
+| [@rimbu/proximity](../proximity)               | `ProximityMap` for retrieving values based on key proximity.                               |
+| [@rimbu/sorted](../sorted)                     | `SortedMap` / `SortedSet` implementations that keep elements sorted via compare functions. |
+| [@rimbu/stream](../stream)                     | Lazy, composable `Stream` / `AsyncStream` types for processing sequences of data.          |
+| [@rimbu/table](../table)                       | Table data structures where row/column key pairs map to a single value.                    |
 
 For a complete overview, start from the [Rimbu documentation](https://rimbu.org) or jump directly to the
 [`@rimbu/core` API docs](https://rimbu.org/api/rimbu/core).
@@ -180,7 +176,7 @@ For a complete overview, start from the [Rimbu documentation](https://rimbu.org)
 
 ## Installation
 
-### Node / Bun / npm / Yarn
+### Node / Bun / npm / Yarn / Deno
 
 ```sh
 npm install @rimbu/core
@@ -188,37 +184,8 @@ npm install @rimbu/core
 yarn add @rimbu/core
 # or
 bun add @rimbu/core
-```
-
-### Deno (import map)
-
-Create or edit `import_map.json` in your project root:
-
-```jsonc
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@<version>/"
-  }
-}
-```
-
-Then you can import from `@rimbu/core` just like in Node:
-
-```ts
-import { List } from '@rimbu/core/mod.ts';
-```
-
-For sub‑packages that expose multiple entry points under nested paths, you may sometimes need to import `index.ts`
-directly, for example:
-
-```ts
-import { HashMap } from '@rimbu/hashed/map/index.ts';
-```
-
-Finally, run your script (assuming the entry point is in `src/main.ts`):
-
-```sh
-deno run --import-map import_map.json src/main.ts
+# or
+deno add npm:@rimbu/core
 ```
 
 ### Browser / ESM

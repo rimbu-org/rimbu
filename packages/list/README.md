@@ -8,7 +8,6 @@
 ![License](https://img.shields.io/github/license/rimbu-org/rimbu)
 ![Types Included](https://img.shields.io/badge/TypeScript-ready-blue)
 ![Node](https://img.shields.io/badge/Node-18+-6DA55F?logo=node.js&logoColor=white)
-![Deno](https://shield.deno.dev/x/rimbu)
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg)
 ![ESM + CJS](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-informational)
 
@@ -111,13 +110,13 @@ Try Rimbu (including `@rimbu/list`) live in the browser using the
 
 From `@rimbu/list`:
 
-| Name                      | Description                                                                                       |
-| ------------------------- | ------------------------------------------------------------------------------------------------- |
-| `List<T>`                 | Immutable, random‑access, ordered sequence of values `T`.                                        |
-| `List.NonEmpty<T>`        | Non‑empty refinement of `List<T>` with stricter guarantees (e.g. `first()` and `last()` return). |
-| `List.Context`            | Factory/context used to create `List` instances with specific configuration.                     |
-| `List.Builder<T>`         | Mutable builder for efficiently constructing or mutating a List before freezing it.              |
-| `ListFactory` / `ListCreators` | Internal factory/creator interfaces re‑exported via the `List` constant.                    |
+| Name                           | Description                                                                                      |
+| ------------------------------ | ------------------------------------------------------------------------------------------------ |
+| `List<T>`                      | Immutable, random‑access, ordered sequence of values `T`.                                        |
+| `List.NonEmpty<T>`             | Non‑empty refinement of `List<T>` with stricter guarantees (e.g. `first()` and `last()` return). |
+| `List.Context`                 | Factory/context used to create `List` instances with specific configuration.                     |
+| `List.Builder<T>`              | Mutable builder for efficiently constructing or mutating a List before freezing it.              |
+| `ListFactory` / `ListCreators` | Internal factory/creator interfaces re‑exported via the `List` constant.                         |
 
 The main entry point exports a frozen `List` creators object:
 
@@ -176,9 +175,7 @@ list.take(-2).toArray(); // [4, 5]
 
 // Slice using IndexRange
 list.slice({ start: 1, amount: 3 }).toArray(); // [1, 2, 3]
-list
-  .slice({ start: -3, amount: 2 }, { reversed: true })
-  .toArray(); // [4, 3]
+list.slice({ start: -3, amount: 2 }, { reversed: true }).toArray(); // [4, 3]
 ```
 
 #### Streams & Iteration
@@ -209,14 +206,14 @@ const list = List.of(1, 2, 3, 4);
 list.map((v, i) => `#${i}: ${v}`).toArray();
 // ['#0: 1', '#1: 2', '#2: 3', '#3: 4']
 
-list.mapPure(v => v * 2).toArray();
+list.mapPure((v) => v * 2).toArray();
 // [2, 4, 6, 8]
 
 // filter
-list.filter(v => v % 2 === 0).toArray(); // [2, 4]
+list.filter((v) => v % 2 === 0).toArray(); // [2, 4]
 
 // flatMap
-list.flatMap(v => [v, v + 1]).toArray();
+list.flatMap((v) => [v, v + 1]).toArray();
 // [1, 2, 2, 3, 3, 4, 4, 5]
 
 // collect (map + filter with skip/halt)
@@ -324,7 +321,7 @@ For more details and benchmarks, see the main Rimbu documentation at [rimbu.org]
 
 ### Installation
 
-#### Node / Bun / npm / Yarn
+#### Node / Bun / npm / Yarn / Deno
 
 ```sh
 npm install @rimbu/list
@@ -332,22 +329,8 @@ npm install @rimbu/list
 yarn add @rimbu/list
 # or
 bun add @rimbu/list
-```
-
-#### Deno (import map)
-
-```jsonc
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@<version>/"
-  }
-}
-```
-
-Then:
-
-```ts
-import { List } from '@rimbu/list/mod.ts';
+# or
+deno add npm:@rimbu/list
 ```
 
 #### Browser / ESM

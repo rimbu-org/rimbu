@@ -8,7 +8,6 @@
 ![License](https://img.shields.io/github/license/rimbu-org/rimbu)
 ![Types Included](https://img.shields.io/badge/TypeScript-ready-blue)
 ![Node](https://img.shields.io/badge/Node-18+-6DA55F?logo=node.js&logoColor=white)
-![Deno](https://shield.deno.dev/x/rimbu)
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg)
 ![ESM + CJS](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-informational)
 
@@ -79,11 +78,7 @@ const users = HashSet.of('alice', 'bob', 'alice');
 console.log(users.toString()); // HashSet('alice', 'bob')
 
 // HashMap: key → value entries
-const scores = HashMap.of(
-  [1, 'low'],
-  [2, 'medium'],
-  [3, 'high']
-);
+const scores = HashMap.of([1, 'low'], [2, 'medium'], [3, 'high']);
 
 console.log(scores.get(2)); // 'medium'
 console.log(scores.hasKey(4)); // false
@@ -105,18 +100,18 @@ Try Rimbu (including `@rimbu/hashed`) live in the browser using the
 
 From `@rimbu/hashed`:
 
-| Name                       | Description                                                                                          |
-| -------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `HashMap<K, V>`            | Immutable, type-invariant hash map from keys `K` to values `V`.                                      |
-| `HashMap.NonEmpty<K, V>`   | Non-empty refinement of `HashMap<K, V>` with stronger type guarantees.                               |
-| `HashMap.Context<UK>`      | Factory/context for creating `HashMap` instances for keys up to type `UK`.                           |
-| `HashMap.Builder<K, V>`    | Mutable builder for efficiently constructing or mutating a `HashMap` before freezing it.            |
-| `HashSet<T>`               | Immutable, type-invariant hash set of values `T`.                                                    |
-| `HashSet.NonEmpty<T>`      | Non-empty refinement of `HashSet<T>`.                                                                |
-| `HashSet.Context<UT>`      | Factory/context for creating `HashSet` instances for values up to type `UT`.                         |
-| `HashSet.Builder<T>`       | Mutable builder for efficiently constructing or mutating a `HashSet` before freezing it.            |
-| `Hasher<UK>`               | Interface describing a hasher for values up to type `UK`.                                           |
-| `Hasher.*` helpers         | A family of hasher factories (e.g. `numberHasher`, `stringHasher`, `anyFlatHasher`, `objectHasher`). |
+| Name                     | Description                                                                                          |
+| ------------------------ | ---------------------------------------------------------------------------------------------------- |
+| `HashMap<K, V>`          | Immutable, type-invariant hash map from keys `K` to values `V`.                                      |
+| `HashMap.NonEmpty<K, V>` | Non-empty refinement of `HashMap<K, V>` with stronger type guarantees.                               |
+| `HashMap.Context<UK>`    | Factory/context for creating `HashMap` instances for keys up to type `UK`.                           |
+| `HashMap.Builder<K, V>`  | Mutable builder for efficiently constructing or mutating a `HashMap` before freezing it.             |
+| `HashSet<T>`             | Immutable, type-invariant hash set of values `T`.                                                    |
+| `HashSet.NonEmpty<T>`    | Non-empty refinement of `HashSet<T>`.                                                                |
+| `HashSet.Context<UT>`    | Factory/context for creating `HashSet` instances for values up to type `UT`.                         |
+| `HashSet.Builder<T>`     | Mutable builder for efficiently constructing or mutating a `HashSet` before freezing it.             |
+| `Hasher<UK>`             | Interface describing a hasher for values up to type `UK`.                                            |
+| `Hasher.*` helpers       | A family of hasher factories (e.g. `numberHasher`, `stringHasher`, `anyFlatHasher`, `objectHasher`). |
 
 The package also re-exports the sub-packages:
 
@@ -131,10 +126,7 @@ import { HashMap } from '@rimbu/hashed';
 
 // Construction
 const empty = HashMap.empty<number, string>();
-const fromEntries = HashMap.of(
-  [1, 'one'],
-  [2, 'two']
-);
+const fromEntries = HashMap.of([1, 'one'], [2, 'two']);
 
 // Size & emptiness
 empty.isEmpty; // true
@@ -210,10 +202,7 @@ const ctx = HashMap.createContext<string>({
   hasher: Hasher.stringCaseInsensitiveHasher(),
 });
 
-const m = ctx.of(
-  ['Key', 1],
-  ['OTHER', 2]
-);
+const m = ctx.of(['Key', 1], ['OTHER', 2]);
 
 m.hasKey('key'); // true
 m.hasKey('other'); // true
@@ -230,10 +219,7 @@ const ctx = HashSet.createContext<{ id: number; tags: string[] }>({
   hasher: Hasher.anyDeepHasher(),
 });
 
-const set = ctx.of(
-  { id: 1, tags: ['a', 'b'] },
-  { id: 2, tags: ['c'] }
-);
+const set = ctx.of({ id: 1, tags: ['a', 'b'] }, { id: 2, tags: ['c'] });
 
 set.has({ id: 1, tags: ['a', 'b'] }); // true (structurally equal)
 ```
@@ -253,16 +239,8 @@ npm install @rimbu/hashed
 yarn add @rimbu/hashed
 # or
 bun add @rimbu/hashed
-```
-
-### Deno (import map)
-
-```jsonc
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@<version>/"
-  }
-}
+# or
+deno add npm:@rimbu/hashed
 ```
 
 Then:

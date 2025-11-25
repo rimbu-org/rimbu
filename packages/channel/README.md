@@ -8,7 +8,6 @@
 ![License](https://img.shields.io/github/license/rimbu-org/rimbu)
 ![Types Included](https://img.shields.io/badge/TypeScript-ready-blue)
 ![Node](https://img.shields.io/badge/Node-18+-6DA55F?logo=node.js&logoColor=white)
-![Deno](https://shield.deno.dev/x/rimbu)
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg)
 ![ESM + CJS](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-informational)
 
@@ -149,26 +148,26 @@ console.log('selected value:', value);
 
 From the main entrypoint (`@rimbu/channel`):
 
-| Name                       | Description                                                                                     |
-| -------------------------- | ----------------------------------------------------------------------------------------------- |
-| `Channel<T>`              | Bidirectional channel composed of `Channel.Read<T>` and `Channel.Write<T>`.                    |
-| `Channel.Read<T>`         | Read‑only channel supporting blocking `receive` and async iteration over messages.             |
-| `Channel.Write<T>`        | Write‑only channel supporting blocking `send` and `sendAll`.                                   |
-| `Channel.Config`          | Configuration for `Channel.create` (buffer capacity, message validator, etc.).                 |
-| `Channel.Error` / `ChannelError` | Channel error type and associated error classes/utilities.                              |
-| `CrossChannel<TS, TR>`    | Channel where send and receive types can differ (`TS` vs `TR`).                                |
-| `CrossChannel.Pair`       | Tuple of two connected `CrossChannel`s for bidirectional communication.                        |
-| `Mutex`                   | Mutual‑exclusion primitive built on top of `Semaphore`.                                        |
-| `Semaphore`               | Weighted semaphore controlling concurrent access to a shared resource.                         |
-| `Semaphore.Error` / `SemaphoreError` | Semaphore error type and helpers.                                                   |
-| `WaitGroup`               | Fork‑join style synchronization primitive for tracking completion of multiple tasks.           |
-| `RemoteChannel`           | Factory for creating remote read, write, and cross channels over a `SimpleMessagePort`.       |
-| `RemoteChannelClient`     | Client API for requesting remote channels from a server.                                       |
-| `RemoteChannelServer`     | Server API that accepts remote channel creation requests from clients.                         |
-| `RemoteObject`            | Utility for exposing an object over a `CrossChannel` and accessing it remotely.               |
-| `RemoteObject.Error` / `RemoteObjectError` | Remote object error type and helpers.                                         |
-| `RpcProxy<T>`             | Typed proxy for building RPC calls as property access + function application paths.           |
-| `RpcProxy.Error` / `RpcProxyError` | RPC proxy error type and helpers.                                                     |
+| Name                                       | Description                                                                             |
+| ------------------------------------------ | --------------------------------------------------------------------------------------- |
+| `Channel<T>`                               | Bidirectional channel composed of `Channel.Read<T>` and `Channel.Write<T>`.             |
+| `Channel.Read<T>`                          | Read‑only channel supporting blocking `receive` and async iteration over messages.      |
+| `Channel.Write<T>`                         | Write‑only channel supporting blocking `send` and `sendAll`.                            |
+| `Channel.Config`                           | Configuration for `Channel.create` (buffer capacity, message validator, etc.).          |
+| `Channel.Error` / `ChannelError`           | Channel error type and associated error classes/utilities.                              |
+| `CrossChannel<TS, TR>`                     | Channel where send and receive types can differ (`TS` vs `TR`).                         |
+| `CrossChannel.Pair`                        | Tuple of two connected `CrossChannel`s for bidirectional communication.                 |
+| `Mutex`                                    | Mutual‑exclusion primitive built on top of `Semaphore`.                                 |
+| `Semaphore`                                | Weighted semaphore controlling concurrent access to a shared resource.                  |
+| `Semaphore.Error` / `SemaphoreError`       | Semaphore error type and helpers.                                                       |
+| `WaitGroup`                                | Fork‑join style synchronization primitive for tracking completion of multiple tasks.    |
+| `RemoteChannel`                            | Factory for creating remote read, write, and cross channels over a `SimpleMessagePort`. |
+| `RemoteChannelClient`                      | Client API for requesting remote channels from a server.                                |
+| `RemoteChannelServer`                      | Server API that accepts remote channel creation requests from clients.                  |
+| `RemoteObject`                             | Utility for exposing an object over a `CrossChannel` and accessing it remotely.         |
+| `RemoteObject.Error` / `RemoteObjectError` | Remote object error type and helpers.                                                   |
+| `RpcProxy<T>`                              | Typed proxy for building RPC calls as property access + function application paths.     |
+| `RpcProxy.Error` / `RpcProxyError`         | RPC proxy error type and helpers.                                                       |
 
 ### Working with channels
 
@@ -296,28 +295,8 @@ npm install @rimbu/channel
 yarn add @rimbu/channel
 # or
 bun add @rimbu/channel
-```
-
-### Deno (import map)
-
-```jsonc
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@<version>/"
-  }
-}
-```
-
-Then:
-
-```ts
-import { Channel } from '@rimbu/channel/mod.ts';
-```
-
-For sub‑paths, import `index.ts`:
-
-```ts
-import { Channel } from '@rimbu/channel/custom/index.ts';
+# or
+deno add npm:@rimbu/channel
 ```
 
 ### Browser / ESM

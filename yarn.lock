@@ -2862,11 +2862,6 @@ delayed-stream@~1.0.0:
   resolved "https://registry.yarnpkg.com/delayed-stream/-/delayed-stream-1.0.0.tgz#df3ae199acadfb7d440aaae0b29e2272b24ec619"
   integrity sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==
 
-denoify@^1.6.17:
-  version "1.6.17"
-  resolved "https://registry.yarnpkg.com/denoify/-/denoify-1.6.17.tgz#a804bdaa1bb68684db595fb1a51b44d9b0f8fd82"
-  integrity sha512-yABGHDyssOywtxMhXYFA/aDiUSfoa/Y/lNGkX+m9wwswolXt2A/TK6rPIF/9mwFIQoZpiUrTLKWlg5dUVucBbA==
-
 deprecation@^2.0.0:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/deprecation/-/deprecation-2.3.1.tgz#6368cbdb40abf3373b525ac87e4a260c3a700919"

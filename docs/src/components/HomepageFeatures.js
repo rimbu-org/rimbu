@@ -29,7 +29,7 @@ const FeatureList = [
     description: (
       <>
         Rimbu has no external dependencies and is natively available for Web,
-        Node.js, and Deno!
+        Node.js, Deno and Bun!
       </>
     ),
   },

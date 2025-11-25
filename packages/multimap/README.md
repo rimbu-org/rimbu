@@ -8,7 +8,6 @@
 ![License](https://img.shields.io/github/license/rimbu-org/rimbu)
 ![Types Included](https://img.shields.io/badge/TypeScript-ready-blue)
 ![Node](https://img.shields.io/badge/Node-18+-6DA55F?logo=node.js&logoColor=white)
-![Deno](https://shield.deno.dev/x/rimbu)
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg)
 ![ESM + CJS](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-informational)
 
@@ -81,11 +80,7 @@ If you ever keep a map from keys to sets of values manually, a MultiMap is usual
 import { HashMultiMapHashValue } from '@rimbu/multimap';
 
 // Create from entry tuples: key -> value
-const multi = HashMultiMapHashValue.of(
-  [1, 'a'],
-  [1, 'b'],
-  [2, 'a']
-);
+const multi = HashMultiMapHashValue.of([1, 'a'], [1, 'b'], [2, 'a']);
 
 // Each key maps to a set of unique values
 console.log(multi.getValues(1).toArray());
@@ -112,22 +107,22 @@ Try Rimbu (including `@rimbu/multimap`) live in the browser using the
 
 From `@rimbu/multimap` you get the following core types:
 
-| Name                                  | Description                                                                                                           |
-| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `MultiMap<K, V>`                      | Generic, type‑invariant multimap interface: keys of type `K` mapping to sets of values `V`.                           |
-| `MultiMap.NonEmpty<K, V>`            | Non‑empty refinement of `MultiMap<K, V>` with stronger type guarantees.                                               |
-| `MultiMap.Context<UK, UV>`           | Context/factory for creating `MultiMap` instances with configurable underlying map & set contexts.                   |
-| `MultiMap.Builder<K, V>`             | Mutable builder for efficiently constructing or mutating a `MultiMap` before freezing it.                             |
-| `VariantMultiMap<K, V>`              | Read‑only, type‑variant multimap interface; supports safe type‑widening but no mutating operations.                  |
-| `VariantMultiMap.NonEmpty<K, V>`     | Non‑empty refinement of `VariantMultiMap<K, V>`.                                                                      |
-| `HashMultiMapHashValue<K, V>`        | Multimap with **hashed keys** and **hashed value sets** (`HashMap` + `HashSet`).                                      |
-| `HashMultiMapSortedValue<K, V>`      | Multimap with **hashed keys** and **sorted value sets** (`HashMap` + `SortedSet`).                                    |
-| `SortedMultiMapHashValue<K, V>`      | Multimap with **sorted keys** and **hashed value sets** (`SortedMap` + `HashSet`).                                    |
-| `SortedMultiMapSortedValue<K, V>`    | Multimap with **sorted keys** and **sorted value sets** (`SortedMap` + `SortedSet`).                                  |
-| `HashMultiMapHashValue.Context<UK, UV>`     | Context for `HashMultiMapHashValue`, exposing configuration and factories.                                           |
-| `HashMultiMapSortedValue.Context<UK, UV>`   | Context for `HashMultiMapSortedValue`.                                                                               |
-| `SortedMultiMapHashValue.Context<UK, UV>`   | Context for `SortedMultiMapHashValue`.                                                                               |
-| `SortedMultiMapSortedValue.Context<UK, UV>` | Context for `SortedMultiMapSortedValue`.                                                                             |
+| Name                                        | Description                                                                                         |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `MultiMap<K, V>`                            | Generic, type‑invariant multimap interface: keys of type `K` mapping to sets of values `V`.         |
+| `MultiMap.NonEmpty<K, V>`                   | Non‑empty refinement of `MultiMap<K, V>` with stronger type guarantees.                             |
+| `MultiMap.Context<UK, UV>`                  | Context/factory for creating `MultiMap` instances with configurable underlying map & set contexts.  |
+| `MultiMap.Builder<K, V>`                    | Mutable builder for efficiently constructing or mutating a `MultiMap` before freezing it.           |
+| `VariantMultiMap<K, V>`                     | Read‑only, type‑variant multimap interface; supports safe type‑widening but no mutating operations. |
+| `VariantMultiMap.NonEmpty<K, V>`            | Non‑empty refinement of `VariantMultiMap<K, V>`.                                                    |
+| `HashMultiMapHashValue<K, V>`               | Multimap with **hashed keys** and **hashed value sets** (`HashMap` + `HashSet`).                    |
+| `HashMultiMapSortedValue<K, V>`             | Multimap with **hashed keys** and **sorted value sets** (`HashMap` + `SortedSet`).                  |
+| `SortedMultiMapHashValue<K, V>`             | Multimap with **sorted keys** and **hashed value sets** (`SortedMap` + `HashSet`).                  |
+| `SortedMultiMapSortedValue<K, V>`           | Multimap with **sorted keys** and **sorted value sets** (`SortedMap` + `SortedSet`).                |
+| `HashMultiMapHashValue.Context<UK, UV>`     | Context for `HashMultiMapHashValue`, exposing configuration and factories.                          |
+| `HashMultiMapSortedValue.Context<UK, UV>`   | Context for `HashMultiMapSortedValue`.                                                              |
+| `SortedMultiMapHashValue.Context<UK, UV>`   | Context for `SortedMultiMapHashValue`.                                                              |
+| `SortedMultiMapSortedValue.Context<UK, UV>` | Context for `SortedMultiMapSortedValue`.                                                            |
 
 ### Key Operations (HashMultiMapHashValue)
 
@@ -136,11 +131,7 @@ import { HashMultiMapHashValue } from '@rimbu/multimap';
 
 // Construction
 const empty = HashMultiMapHashValue.empty<number, string>();
-const fromEntries = HashMultiMapHashValue.of(
-  [1, 'a'],
-  [1, 'b'],
-  [2, 'a']
-);
+const fromEntries = HashMultiMapHashValue.of([1, 'a'], [1, 'b'], [2, 'a']);
 
 // Size & key count
 empty.isEmpty; // true
@@ -191,11 +182,7 @@ const sortedHash = SortedMultiMapHashValue.of(['b', 1], ['a', 2]);
 sortedHash.streamKeys().toArray(); // ['a', 'b']
 
 // Sorted keys, sorted value sets
-const sortedSorted = SortedMultiMapSortedValue.of(
-  ['b', 2],
-  ['b', 1],
-  ['a', 3]
-);
+const sortedSorted = SortedMultiMapSortedValue.of(['b', 2], ['b', 1], ['a', 3]);
 sortedSorted.stream().toArray();
 // [['a', 3], ['b', 1], ['b', 2]] (keys and values sorted)
 ```
@@ -234,7 +221,7 @@ For detailed performance characteristics and benchmarks, see the main Rimbu docu
 
 ## Installation
 
-### Node / Bun / npm / Yarn
+### Node / Bun / npm / Yarn / Deno
 
 ```sh
 npm install @rimbu/multimap
@@ -242,22 +229,8 @@ npm install @rimbu/multimap
 yarn add @rimbu/multimap
 # or
 bun add @rimbu/multimap
-```
-
-### Deno (import map)
-
-```jsonc
-{
-  "imports": {
-    "@rimbu/": "https://deno.land/x/rimbu@<version>/"
-  }
-}
-```
-
-Then:
-
-```ts
-import { HashMultiMapHashValue } from '@rimbu/multimap/mod.ts';
+# or
+deno add npm:@rimbu/multimap
 ```
 
 ### Browser / ESM
