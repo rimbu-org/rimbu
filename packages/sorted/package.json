@@ -38,7 +38,6 @@
   "types": "./dist/cjs/main/index.d.cts",
   "exports": {
     ".": {
-      "bun": "./dist/bun/main/index.mts",
       "import": {
         "types": "./dist/esm/main/index.d.mts",
         "default": "./dist/esm/main/index.mjs"
@@ -49,7 +48,6 @@
       }
     },
     "./common": {
-      "bun": "./dist/bun/common/index.mts",
       "import": {
         "types": "./dist/esm/common/index.d.mts",
         "default": "./dist/esm/common/index.mjs"
@@ -60,7 +58,6 @@
       }
     },
     "./map": {
-      "bun": "./dist/bun/map/index.mts",
       "import": {
         "types": "./dist/esm/map/index.d.mts",
         "default": "./dist/esm/map/index.mjs"
@@ -71,7 +68,6 @@
       }
     },
     "./map-custom": {
-      "bun": "./dist/bun/map-custom/index.mts",
       "import": {
         "types": "./dist/esm/map-custom/index.d.mts",
         "default": "./dist/esm/map-custom/index.mjs"
@@ -82,7 +78,6 @@
       }
     },
     "./set": {
-      "bun": "./dist/bun/set/index.mts",
       "import": {
         "types": "./dist/esm/set/index.d.mts",
         "default": "./dist/esm/set/index.mjs"
@@ -93,7 +88,6 @@
       }
     },
     "./set-custom": {
-      "bun": "./dist/bun/set-custom/index.mts",
       "import": {
         "types": "./dist/esm/set-custom/index.d.mts",
         "default": "./dist/esm/set-custom/index.mjs"
@@ -115,8 +109,7 @@
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
-    "bundle": "yarn bundle:cjs && yarn bundle:esm && yarn bundle:bun",
-    "bundle:bun": "node ../../config/bunnify.mjs -mode bun",
+    "bundle": "yarn bundle:cjs && yarn bundle:esm",
     "bundle:cjs": "yarn bundle:cjs-prepare && yarn bundle:cjs-build && yarn bundle:cjs-clean",
     "bundle:cjs-prepare": "node ../../config/bunnify.mjs -mode cjs",
     "bundle:cjs-build": "tsc -p tsconfig.cjs.json",

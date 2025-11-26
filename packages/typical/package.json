@@ -33,7 +33,6 @@
   "types": "./dist/cjs/index.d.cts",
   "exports": {
     ".": {
-      "bun": "./dist/bun/index.mts",
       "import": {
         "types": "./dist/esm/index.d.mts",
         "default": "./dist/esm/index.mjs"
@@ -50,8 +49,7 @@
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
-    "bundle": "yarn bundle:cjs && yarn bundle:esm && yarn bundle:bun",
-    "bundle:bun": "node ../../config/bunnify.mjs -mode bun",
+    "bundle": "yarn bundle:cjs && yarn bundle:esm",
     "bundle:cjs": "yarn bundle:cjs-prepare && yarn bundle:cjs-build && yarn bundle:cjs-clean",
     "bundle:cjs-prepare": "node ../../config/bunnify.mjs -mode cjs",
     "bundle:cjs-build": "tsc -p tsconfig.cjs.json",
