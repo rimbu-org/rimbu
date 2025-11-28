@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.5](https://github.com/rimbu-org/rimbu/compare/@rimbu/table@2.1.4...@rimbu/table@2.1.5) (2025-11-28)
+
+**Note:** Version bump only for package @rimbu/table
+
 ## [2.1.4](https://github.com/rimbu-org/rimbu/compare/@rimbu/table@2.1.3...@rimbu/table@2.1.4) (2025-11-25)
 
 **Note:** Version bump only for package @rimbu/table

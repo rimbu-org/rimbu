@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.2](https://github.com/rimbu-org/rimbu/compare/@rimbu/task@2.0.1...@rimbu/task@2.0.2) (2025-11-28)
+
+**Note:** Version bump only for package @rimbu/task
+
 ## [2.0.1](https://github.com/rimbu-org/rimbu/compare/@rimbu/task@2.0.0...@rimbu/task@2.0.1) (2025-11-25)
 
 **Note:** Version bump only for package @rimbu/task
