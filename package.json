@@ -32,7 +32,7 @@
     "lint": "lerna run lint",
     "postinstall": "husky",
     "prerelease": "yarn typecheck && yarn test:types && yarn test && yarn test:random",
-    "publish:ci": "lerna publish from-package --no-verify-access --yes",
+    "publish:ci": "lerna publish from-package --yes",
     "test": "lerna run test",
     "test:cov": "lerna run test:cov",
     "test:types": "lerna run test:types",
