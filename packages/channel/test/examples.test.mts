@@ -1,4 +1,5 @@
-import { AsyncStream, Reducer } from '@rimbu/stream';
+import { Reducer } from '@rimbu/stream';
+import { AsyncStream } from '@rimbu/stream/async';
 
 import { timeout } from '../src/custom/index.mjs';
 import { Channel, Mutex, WaitGroup } from '../src/main/index.mjs';

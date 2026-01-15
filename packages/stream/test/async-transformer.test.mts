@@ -1,10 +1,6 @@
-import {
-  AsyncReducer,
-  AsyncStream,
-  AsyncTransformer,
-  Reducer,
-  Transformer,
-} from '../src/main/index.mjs';
+import { Reducer, Transformer } from '../src/main/index.mjs';
+
+import { AsyncStream, AsyncTransformer } from '../src/async/index.mjs';
 
 describe('AsyncTransformer', () => {
   it('window', async () => {
