@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.8.6](https://github.com/rimbu-org/rimbu/compare/@rimbu/typical@0.8.5...@rimbu/typical@0.8.6) (2026-01-15)
+
+**Note:** Version bump only for package @rimbu/typical
+
 ## [0.8.5](https://github.com/rimbu-org/rimbu/compare/@rimbu/typical@0.8.4...@rimbu/typical@0.8.5) (2025-11-28)
 
 **Note:** Version bump only for package @rimbu/typical
