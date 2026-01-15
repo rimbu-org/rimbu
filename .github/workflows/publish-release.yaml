@@ -27,8 +27,6 @@ jobs:
           cache: 'yarn'
           # Defaults to the user or organization that owns the workflow file
           scope: '@rimbu'
-      - name: Check npm authentication
-        run: npm whoami
       - run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
