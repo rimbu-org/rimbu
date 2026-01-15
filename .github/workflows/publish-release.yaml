@@ -38,6 +38,33 @@ jobs:
         run: yarn version:ci
         env:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Debug npm access for failing packages
+        run: |
+          set -euo pipefail
+          echo "Registry: $(npm config get registry)"
+          echo "HOME: $HOME"
+          echo "List home files:"
+          ls -la $HOME || true
+          echo "Show ~/.npmrc (if present)"
+          cat ~/.npmrc || true
+
+          echo "Whoami (should show a username if OIDC succeeded)"
+          npm whoami || echo "npm whoami failed (not authenticated)"
+
+          echo "Testing per-package dry-run publish for debug"
+          FAILING=("typical" "spy" "common")
+          for pkg in "${FAILING[@]}"; do
+            echo "---- Debugging @rimbu/$pkg ----"
+            cd packages/$pkg
+            echo "npm config for package:"
+            npm config list || true
+            echo "Attempting npm publish --dry-run --access public"
+            npm publish --dry-run --access public || echo "publish dry-run failed for @rimbu/$pkg"
+            cd - >/dev/null
+          done
+
+          echo "Finally: run lerna publish in verbose mode (no-op here if you don't want to actually publish)"
+          npx lerna publish from-package --yes --loglevel verbose || true
       - name: Publish packages
         run: npx lerna publish from-package --yes
         env:
