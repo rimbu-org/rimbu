@@ -26,7 +26,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/rimbu-org/rimbu.git",
+    "url": "https://github.com/rimbu-org/rimbu",
     "directory": "packages/bimap"
   },
   "type": "module",

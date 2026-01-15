@@ -2,6 +2,10 @@ name: Publish release to NPM
 on:
   workflow_dispatch:
 
+permissions:
+  id-token: write  # Required for OIDC
+  contents: write
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -18,25 +22,22 @@ jobs:
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
           cache: 'yarn'
           # Defaults to the user or organization that owns the workflow file
           scope: '@rimbu'
-      - name: Check npm authentication
+      - name: Verify npm authentication
+        run: cat ~/.npmrc
         run: npm whoami
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
       - name: Bump versions and publish packages
         run: yarn version:ci
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Publish packages
-        run: yarn publish:ci
+        run: npx lerna publish from-package --yes
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
