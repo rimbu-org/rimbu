@@ -2,6 +2,10 @@ name: Publish release to NPM
 on:
   workflow_dispatch:
 
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -9,34 +13,20 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Configure git credentials
-        uses: OleksiyRudenko/gha-git-credentials@v2-latest
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Attach to main branch
         run: git checkout main && git pull
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
           cache: 'yarn'
           # Defaults to the user or organization that owns the workflow file
           scope: '@rimbu'
-      - name: Check npm authentication
-        run: npm whoami
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
       - name: Bump versions and publish packages
         run: yarn version:ci
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Publish packages
         run: yarn publish:ci
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
