@@ -9,7 +9,8 @@
  * various map, set, and table packages.
  */
 export { List } from '@rimbu/list';
-export { AsyncStream, Stream } from '@rimbu/stream';
+export { Stream } from '@rimbu/stream';
+export { AsyncStream } from '@rimbu/stream/async';
 
 export * as BiMultiMap from './bimultimap.mjs';
 export * as Graph from './graph/index.mjs';

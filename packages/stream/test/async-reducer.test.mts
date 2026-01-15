@@ -1,6 +1,7 @@
 import { Comp } from '@rimbu/common';
 
-import { AsyncReducer, AsyncStream, Reducer } from '../src/main/index.mjs';
+import { Reducer } from '../src/main/index.mjs';
+import { AsyncReducer, AsyncStream } from '../src/async/index.mjs';
 
 describe('AsyncReducer', () => {
   const FB = 'a';

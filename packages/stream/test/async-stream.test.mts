@@ -1,13 +1,13 @@
 import { Arr } from '@rimbu/base';
 import { Eq, Err } from '@rimbu/common';
 
+import { Stream, Reducer } from '../src/main/index.mjs';
+
 import {
   AsyncReducer,
   AsyncStream,
-  Stream,
   type AsyncStreamSource,
-  Reducer,
-} from '../src/main/index.mjs';
+} from '../src/async/index.mjs';
 
 const streamRange1 = AsyncStream.from(Stream.range({ amount: 100 }));
 const streamRange2 = AsyncStream.from(Stream.range({ amount: 100 }).toArray());

@@ -4,7 +4,7 @@ import type {
   AsyncStreamable,
   AsyncTransformer,
   AsyncReducer,
-} from '@rimbu/stream';
+} from '@rimbu/stream/async';
 import type { AsyncStreamConstructors } from '@rimbu/stream/async-custom';
 import { AsyncStreamConstructorsImpl } from '@rimbu/stream/async-custom';
 
