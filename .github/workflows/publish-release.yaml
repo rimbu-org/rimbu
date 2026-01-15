@@ -28,8 +28,9 @@ jobs:
           # Defaults to the user or organization that owns the workflow file
           scope: '@rimbu'
       - name: Verify npm authentication
-        run: cat ~/.npmrc
-        run: npm whoami
+        run:
+          cat ~/.npmrc
+          npm whoami
       - run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
