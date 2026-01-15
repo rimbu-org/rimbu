@@ -13,6 +13,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Configure git credentials
+        uses: OleksiyRudenko/gha-git-credentials@v2-latest
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Attach to main branch
         run: git checkout main && git pull
       # Setup .npmrc file to publish to npm
@@ -23,14 +27,16 @@ jobs:
           cache: 'yarn'
           # Defaults to the user or organization that owns the workflow file
           scope: '@rimbu'
+      - name: Check npm authentication
+        run: npm whoami
       - run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
-      - name: Set up Git user
-        run: |
-          git config --global user.name "Arvid Nicolaas"
-          git config --global user.email "arvid@rimbu.org"
       - name: Bump versions and publish packages
         run: yarn version:ci
+        env:
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Publish packages
         run: yarn publish:ci
+        env:
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
