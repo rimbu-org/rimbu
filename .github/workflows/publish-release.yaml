@@ -28,9 +28,9 @@ jobs:
           # Defaults to the user or organization that owns the workflow file
           scope: '@rimbu'
       - name: Verify npm authentication
-        run:
-          cat ~/.npmrc
-          npm whoami
+        run: npm whoami
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
@@ -38,7 +38,9 @@ jobs:
         run: yarn version:ci
         env:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish packages
         run: npx lerna publish from-package --yes
         env:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
