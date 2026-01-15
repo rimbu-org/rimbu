@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.0.0](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@2.2.4...@rimbu/stream@3.0.0) (2026-01-15)
+
+### Bug Fixes
+
+- remove circular dependency between stream and async-stream ([#275](https://github.com/rimbu-org/rimbu/issues/275)) ([77be648](https://github.com/rimbu-org/rimbu/commit/77be648eed32a320a4633e0b162a6b264fde1b87))
+
+### BREAKING CHANGES
+
+- Importing AsyncStream imports can no longer be done through @rimbu/stream, but only
+  through @rimbu/stream/async
+
+Co-authored-by: Arvid Nicolaas <arvid.nicolaas@ns.nl>
+
 ## [2.2.4](https://github.com/rimbu-org/rimbu/compare/@rimbu/stream@2.2.3...@rimbu/stream@2.2.4) (2025-11-28)
 
 **Note:** Version bump only for package @rimbu/stream

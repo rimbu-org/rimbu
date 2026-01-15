@@ -1,6 +1,6 @@
 {
   "name": "@rimbu/stream",
-  "version": "2.2.4",
+  "version": "3.0.0",
   "description": "Efficient structure representing a sequence of elements, with powerful operations for TypeScript",
   "keywords": [
     "stream",
