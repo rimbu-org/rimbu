@@ -27,6 +27,8 @@ jobs:
           cache: 'yarn'
           # Defaults to the user or organization that owns the workflow file
           scope: '@rimbu'
+      - name: Verify npm authentication
+        run: npm whoami
       - run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
@@ -35,6 +37,6 @@ jobs:
         env:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Publish packages
-        run: yarn publish:ci
+        run: npx lerna publish from-package --yes
         env:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
