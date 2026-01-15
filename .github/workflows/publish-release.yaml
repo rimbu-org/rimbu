@@ -26,6 +26,10 @@ jobs:
       - run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
+      - name: Set up Git user
+        run: |
+          git config --global user.name "Arvid Nicolaas"
+          git config --global user.email "arvid@rimbu.org"
       - name: Bump versions and publish packages
         run: yarn version:ci
       - name: Publish packages
