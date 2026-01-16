@@ -1,6 +1,7 @@
 import { RimbuError } from '@rimbu/base';
 import { CollectFun, Eq, ErrBase, OptLazy } from '@rimbu/common';
-import { Stream, type FastIterator, type StreamSource } from '@rimbu/stream';
+
+import { Stream, type FastIterator, type StreamSource } from './index.mjs';
 
 /**
  * A `Reducer` is a stand-alone calculation that takes input values of type I, and, when requested, produces an output value of type O.

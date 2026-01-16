@@ -1,6 +1,6 @@
 import { CollectFun, Eq } from '@rimbu/common';
 
-import { Reducer, Stream, type StreamSource } from '@rimbu/stream';
+import { Reducer, Stream, type StreamSource } from './index.mjs';
 
 /**
  * A Reducer that produces instances of `StreamSource`.

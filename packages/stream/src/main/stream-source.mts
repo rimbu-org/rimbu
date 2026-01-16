@@ -1,4 +1,4 @@
-import type { Stream, Streamable } from '@rimbu/stream';
+import type { Stream, Streamable } from './index.mjs';
 
 /**
  * Any object that is Iterable, a Stream, or can produce a Stream.

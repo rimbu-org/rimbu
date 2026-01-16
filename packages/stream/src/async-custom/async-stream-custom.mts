@@ -46,11 +46,11 @@ import {
   emptyAsyncFastIterator,
   isAsyncFastIterator,
   type AsyncStreamConstructors,
-} from '@rimbu/stream/async-custom';
+} from './index.mjs';
 import {
   StreamConstructorsImpl,
   isEmptyStreamSourceInstance,
-} from '@rimbu/stream/custom';
+} from '../custom/index.mjs';
 
 export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   abstract [Symbol.asyncIterator](): AsyncFastIterator<T>;

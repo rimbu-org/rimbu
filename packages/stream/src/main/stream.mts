@@ -7,8 +7,10 @@ import type {
   TraverseState,
 } from '@rimbu/common';
 
-import type { StreamConstructors } from '@rimbu/stream/custom';
-import { StreamConstructorsImpl } from '@rimbu/stream/custom';
+import {
+  type StreamConstructors,
+  StreamConstructorsImpl,
+} from '../custom/index.mjs';
 import type {
   FastIterable,
   Streamable,

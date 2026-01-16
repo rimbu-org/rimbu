@@ -7,15 +7,13 @@ import {
   type AsyncCollectFun,
   type MaybePromise,
 } from '@rimbu/common';
-import { Reducer, Stream } from '@rimbu/stream';
-import {
-  type AsyncFastIterator,
-  type AsyncStreamSource,
-} from '@rimbu/stream/async';
+
+import { Reducer, Stream } from '../main/index.mjs';
+import { type AsyncFastIterator, type AsyncStreamSource } from './index.mjs';
 import {
   AsyncStreamConstructorsImpl,
   fromAsyncStreamSource,
-} from '@rimbu/stream/async-custom';
+} from '../async-custom/index.mjs';
 
 /**
  * An `AsyncReducer` is a stand-alone asynchronous calculation that takes input values of type I,

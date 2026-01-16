@@ -14,12 +14,12 @@ import {
   type AsyncReducer,
   type AsyncStream,
   type AsyncStreamSource,
-} from '@rimbu/stream/async';
+} from '../async/index.mjs';
 import {
   closeIters,
   fromAsyncStreamSource,
   type AsyncStreamSourceHelpers,
-} from '@rimbu/stream/async-custom';
+} from './index.mjs';
 
 /**
  * A frozen `IteratorResult` that represents the completed asynchronous iterator state.

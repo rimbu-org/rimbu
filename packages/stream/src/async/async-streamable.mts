@@ -1,4 +1,4 @@
-import type { AsyncStream } from '@rimbu/stream/async';
+import type { AsyncStream } from './index.mjs';
 
 /**
  * An object that can create an `AsyncStream` of elements of type `T`.

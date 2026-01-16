@@ -1,16 +1,13 @@
 import { Token } from '@rimbu/base';
 import { CollectFun, OptLazy, TraverseState } from '@rimbu/common';
-import { type Reducer } from '@rimbu/stream';
 
 import {
+  type Reducer,
   type FastIterator,
   type Stream,
   type StreamSource,
-} from '@rimbu/stream';
-import {
-  fromStreamSource,
-  type StreamSourceHelpers,
-} from '@rimbu/stream/custom';
+} from '../main/index.mjs';
+import { fromStreamSource, type StreamSourceHelpers } from './index.mjs';
 
 /**
  * A frozen `IteratorResult` instance representing the completed iterator state.
