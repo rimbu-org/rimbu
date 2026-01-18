@@ -142,7 +142,8 @@
     "tslib": "^2.8.1"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "madge": {
     "detectiveOptions": {
