@@ -1,8 +1,8 @@
 import { Token } from '@rimbu/base';
 import { CollectFun, OptLazy, TraverseState } from '@rimbu/common';
-import { type Reducer } from '@rimbu/stream';
 
 import {
+  type Reducer,
   type FastIterator,
   type Stream,
   type StreamSource,

@@ -19,8 +19,8 @@ import {
   type Stream,
   type StreamSource,
 } from '@rimbu/stream';
-import type { StreamConstructors } from '@rimbu/stream/custom';
 import {
+  type StreamConstructors,
   AlwaysIterator,
   AppendIterator,
   ArrayIterator,

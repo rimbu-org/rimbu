@@ -4,6 +4,7 @@ import {
   type MaybePromise,
   CollectFun,
 } from '@rimbu/common';
+
 import { Reducer, Stream, type Transformer } from '@rimbu/stream';
 import {
   AsyncReducer,

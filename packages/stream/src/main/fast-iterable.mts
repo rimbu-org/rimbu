@@ -1,4 +1,4 @@
-import type { FastIterator } from './index.mjs';
+import type { FastIterator } from '@rimbu/stream';
 
 /**
  * An interface that extends the standard `Iterable` interface to return

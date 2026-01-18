@@ -7,6 +7,7 @@ import {
   type AsyncCollectFun,
   type MaybePromise,
 } from '@rimbu/common';
+
 import { Reducer, Stream } from '@rimbu/stream';
 import {
   type AsyncFastIterator,

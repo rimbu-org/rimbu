@@ -1,5 +1,6 @@
 import { RimbuError } from '@rimbu/base';
 import { CollectFun, Eq, ErrBase, OptLazy } from '@rimbu/common';
+
 import { Stream, type FastIterator, type StreamSource } from '@rimbu/stream';
 
 /**
