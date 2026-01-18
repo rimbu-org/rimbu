@@ -5,8 +5,12 @@ import {
   CollectFun,
 } from '@rimbu/common';
 
-import { Reducer, Stream, type Transformer } from '../main/index.mjs';
-import { AsyncReducer, AsyncStream, type AsyncStreamSource } from './index.mjs';
+import { Reducer, Stream, type Transformer } from '@rimbu/stream';
+import {
+  AsyncReducer,
+  AsyncStream,
+  type AsyncStreamSource,
+} from '@rimbu/stream/async';
 
 /**
  * An AsyncReducer that produces instances of `AsyncStreamSource`.

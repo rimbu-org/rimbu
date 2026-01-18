@@ -1,4 +1,4 @@
-import type { Stream } from './index.mjs';
+import type { Stream } from '@rimbu/stream';
 
 /**
  * An object that can create a Stream of elements of type `T`.

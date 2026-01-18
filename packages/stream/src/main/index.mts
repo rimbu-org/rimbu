@@ -9,10 +9,10 @@
  * - [`@rimbu/stream/async`](./stream/async)<br/>
  */
 
-export * from './fast-iterator.mjs';
-export * from './fast-iterable.mjs';
-export * from './streamable.mjs';
-export * from './stream-source.mjs';
+export type * from './fast-iterator.mjs';
+export type * from './fast-iterable.mjs';
+export type * from './streamable.mjs';
+export type * from './stream-source.mjs';
 
 export * from './stream.mjs';
 

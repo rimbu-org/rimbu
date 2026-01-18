@@ -1,4 +1,4 @@
-import type { AsyncFastIterator } from './index.mjs';
+import type { AsyncFastIterator } from '@rimbu/stream/async';
 
 /**
  * An interface that extends the standard `AsyncIterable` interface to return

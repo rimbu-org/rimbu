@@ -6,7 +6,7 @@ import type {
   StringNonEmpty,
 } from '@rimbu/common';
 
-import type { Stream, StreamSource } from '../main/index.mjs';
+import type { Stream, StreamSource } from '@rimbu/stream';
 
 /**
  * An interface describing all factory functions used to create `Stream` instances.

@@ -14,11 +14,10 @@ import type {
   AsyncStreamable,
   AsyncTransformer,
   AsyncReducer,
-} from './index.mjs';
-import {
-  type AsyncStreamConstructors,
-  AsyncStreamConstructorsImpl,
-} from '../async-custom/index.mjs';
+} from '@rimbu/stream/async';
+import { type AsyncStreamConstructors } from '@rimbu/stream/async-custom';
+
+import { AsyncStreamConstructorsImpl } from '../async-custom/async-stream-custom.mjs';
 
 /**
  * A possibly infinite asynchronous sequence of elements of type T.

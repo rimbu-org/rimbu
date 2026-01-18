@@ -6,10 +6,10 @@
  * See the [Rimbu docs Stream page](/docs/collections/stream) for more information.
  */
 
-export * from './async-stream-source.mjs';
-export * from './async-fast-iterator.mjs';
-export * from './async-fast-iterable.mjs';
-export * from './async-streamable.mjs';
+export type * from './async-stream-source.mjs';
+export type * from './async-fast-iterator.mjs';
+export type * from './async-fast-iterable.mjs';
+export type * from './async-streamable.mjs';
 
 export * from './async-stream.mjs';
 

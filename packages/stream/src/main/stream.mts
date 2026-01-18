@@ -7,17 +7,16 @@ import type {
   TraverseState,
 } from '@rimbu/common';
 
-import {
-  type StreamConstructors,
-  StreamConstructorsImpl,
-} from '../custom/index.mjs';
+import { type StreamConstructors } from '@rimbu/stream/custom';
+import { StreamConstructorsImpl } from '../custom/stream-custom.mjs';
+
 import type {
   FastIterable,
   Streamable,
   StreamSource,
   Transformer,
   Reducer,
-} from './index.mjs';
+} from '@rimbu/stream';
 
 /**
  * A possibly infinite sequence of elements of type T.

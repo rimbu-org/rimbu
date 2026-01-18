@@ -6,8 +6,11 @@ import {
   type FastIterator,
   type Stream,
   type StreamSource,
-} from '../main/index.mjs';
-import { fromStreamSource, type StreamSourceHelpers } from './index.mjs';
+} from '@rimbu/stream';
+import {
+  fromStreamSource,
+  type StreamSourceHelpers,
+} from '@rimbu/stream/custom';
 
 /**
  * A frozen `IteratorResult` instance representing the completed iterator state.

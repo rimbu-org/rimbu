@@ -18,7 +18,7 @@ import {
   type FastIterator,
   type Stream,
   type StreamSource,
-} from '../main/index.mjs';
+} from '@rimbu/stream';
 import {
   type StreamConstructors,
   AlwaysIterator,
@@ -50,7 +50,7 @@ import {
   ZipWithIterator,
   emptyFastIterator,
   isFastIterator,
-} from './index.mjs';
+} from '@rimbu/stream/custom';
 
 function* yieldObjKeys<K extends string | number | symbol>(
   obj: Record<K, any>
