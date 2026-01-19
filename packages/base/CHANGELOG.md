@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.7](https://github.com/rimbu-org/rimbu/compare/@rimbu/base@2.0.6...@rimbu/base@2.0.7) (2026-01-19)
+
+**Note:** Version bump only for package @rimbu/base
+
 ## [2.0.6](https://github.com/rimbu-org/rimbu/compare/@rimbu/base@2.0.5...@rimbu/base@2.0.6) (2026-01-15)
 
 **Note:** Version bump only for package @rimbu/base

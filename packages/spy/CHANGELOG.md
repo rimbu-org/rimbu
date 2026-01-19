@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.7.7](https://github.com/rimbu-org/rimbu/compare/@rimbu/spy@0.7.6...@rimbu/spy@0.7.7) (2026-01-19)
+
+**Note:** Version bump only for package @rimbu/spy
+
 ## [0.7.6](https://github.com/rimbu-org/rimbu/compare/@rimbu/spy@0.7.5...@rimbu/spy@0.7.6) (2026-01-15)
 
 **Note:** Version bump only for package @rimbu/spy
