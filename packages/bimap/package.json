@@ -91,7 +91,6 @@
     "tslib": "^2.8.1"
   },
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   }
 }

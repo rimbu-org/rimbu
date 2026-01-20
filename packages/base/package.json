@@ -69,7 +69,6 @@
     "@rimbu/common": "^2.0.7"
   },
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   }
 }

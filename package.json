@@ -79,9 +79,6 @@
       "path": "./node_modules/cz-conventional-changelog"
     }
   },
-  "publishConfig": {
-    "provenance": true
-  },
   "engines": {
     "node": ">= 18",
     "npm": "please-use-yarn",
