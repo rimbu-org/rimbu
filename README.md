@@ -38,7 +38,7 @@ Use Rimbu when you want:
 
 ### Runtime compatibility
 
-- **Node** ![NodeJS](https://img.shields.io/badge/node.js-18+-6DA55F?logo=node.js&logoColor=white)
+- **Node** ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?logo=node.js&logoColor=white)](https://nodejs.org)
 - **Deno** ![Deno JS](https://img.shields.io/badge/deno%20js-000000?logo=deno&logoColor=white)
 - **Bun** ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logoColor=white)
 - **Web** ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?logoColor=white)
