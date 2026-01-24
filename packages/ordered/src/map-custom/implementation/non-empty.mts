@@ -30,7 +30,7 @@ export class OrderedMapNonEmpty<
   extends NonEmptyBase<[K, V]>
   implements OrderedMapBase.NonEmpty<K, V, Tp>
 {
-  _NonEmptyType!: Tp['nonEmpty'];
+  declare _NonEmptyType: Tp['nonEmpty'];
 
   constructor(
     readonly context: TpG['context'],

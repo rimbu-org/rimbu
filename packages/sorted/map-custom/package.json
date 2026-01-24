@@ -1,7 +1,0 @@
-{
-  "name": "map-custom",
-  "private": true,
-  "main": "../dist/cjs/map-custom/index.cjs",
-  "module": "../dist/esm/map-custom/index.mjs",
-  "types": "../dist/cjs/map-custom/index.d.cts"
-}

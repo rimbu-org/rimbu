@@ -54,7 +54,7 @@ export class SortedMapEmpty<K = any, V = any>
   extends SortedEmpty
   implements SortedMap<K, V>
 {
-  _NonEmptyType!: SortedMap.NonEmpty<K, V>;
+  declare _NonEmptyType: SortedMap.NonEmpty<K, V>;
 
   constructor(readonly context: SortedMapContext<K>) {
     super();
@@ -185,7 +185,8 @@ export abstract class SortedMapNode<K, V>
   extends SortedNonEmptyBase<readonly [K, V], SortedMapNode<K, V>>
   implements SortedMap.NonEmpty<K, V>
 {
-  _NonEmptyType!: SortedMap.NonEmpty<K, V>;
+  declare _NonEmptyType: SortedMap.NonEmpty<K, V>;
+
   abstract get context(): SortedMapContext<K>;
   abstract get size(): number;
   abstract stream(options?: {

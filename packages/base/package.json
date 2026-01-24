@@ -27,19 +27,10 @@
     "directory": "packages/base"
   },
   "type": "module",
-  "main": "./dist/cjs/index.cjs",
-  "module": "./dist/esm/index.mjs",
-  "types": "./dist/cjs/index.d.cts",
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/esm/index.d.mts",
-        "default": "./dist/esm/index.mjs"
-      },
-      "require": {
-        "types": "./dist/cjs/index.d.cts",
-        "default": "./dist/cjs/index.cjs"
-      }
+      "types": "./dist/esm/index.d.mts",
+      "import": "./dist/esm/index.mjs"
     }
   },
   "files": [
@@ -48,12 +39,7 @@
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
-    "bundle": "yarn bundle:cjs && yarn bundle:esm",
-    "bundle:cjs": "yarn bundle:cjs-prepare && yarn bundle:cjs-build && yarn bundle:cjs-clean",
-    "bundle:cjs-prepare": "node ../../config/bunnify.mjs -mode cjs",
-    "bundle:cjs-build": "tsc -p tsconfig.cjs.json",
-    "bundle:cjs-clean": "rimraf _cjs_prepare",
-    "bundle:esm": "tsc --p tsconfig.esm.json",
+    "bundle": "tsc --p tsconfig.esm.json",
     "clean": "rimraf dist",
     "format": "yarn format:base --write",
     "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",

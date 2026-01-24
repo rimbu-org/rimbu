@@ -29,7 +29,7 @@ export class TableEmpty<R, C, V, Tp extends ContextImplTypes>
   extends EmptyBase
   implements TableBase<R, C, V, Tp>
 {
-  _NonEmptyType!: WithRow<Tp, R, C, V>['nonEmpty'];
+  declare _NonEmptyType: WithRow<Tp, R, C, V>['nonEmpty'];
 
   constructor(readonly context: WithRow<Tp, R, C, V>['context']) {
     super();
@@ -160,7 +160,7 @@ export class TableNonEmpty<
   extends NonEmptyBase<[R, C, V]>
   implements TableBase.NonEmpty<R, C, V, Tp>
 {
-  _NonEmptyType!: TpR['nonEmpty'];
+  declare _NonEmptyType: TpR['nonEmpty'];
 
   constructor(
     readonly context: TpR['context'],

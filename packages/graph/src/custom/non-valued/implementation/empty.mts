@@ -15,7 +15,7 @@ export class GraphEmpty<
   extends GraphEmptyBase
   implements GraphBase<N, Tp>
 {
-  _NonEmptyType!: TpG['nonEmpty'];
+  declare _NonEmptyType: TpG['nonEmpty'];
 
   constructor(
     readonly isDirected: boolean,

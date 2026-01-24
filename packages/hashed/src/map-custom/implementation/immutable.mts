@@ -20,7 +20,7 @@ export class HashMapEmpty<K = any, V = any>
   extends EmptyBase
   implements HashMap<K, V>
 {
-  _NonEmptyType!: HashMap.NonEmpty<K, V>;
+  declare _NonEmptyType: HashMap.NonEmpty<K, V>;
 
   constructor(readonly context: HashMapContext<K>) {
     super();
@@ -110,7 +110,7 @@ export abstract class HashMapNonEmptyBase<K, V>
   extends NonEmptyBase<readonly [K, V]>
   implements HashMap.NonEmpty<K, V>
 {
-  _NonEmptyType!: HashMap.NonEmpty<K, V>;
+  declare _NonEmptyType: HashMap.NonEmpty<K, V>;
 
   abstract get context(): HashMapContext<K>;
   abstract get size(): number;

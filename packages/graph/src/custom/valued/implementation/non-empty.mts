@@ -30,7 +30,7 @@ export class ValuedGraphNonEmpty<
   extends NonEmptyBase<ValuedGraphElement<N, V>>
   implements ValuedGraphBase.NonEmpty<N, V, Tp>
 {
-  _NonEmptyType!: TpG['nonEmpty'];
+  declare _NonEmptyType: TpG['nonEmpty'];
 
   constructor(
     readonly isDirected: boolean,

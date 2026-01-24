@@ -1,7 +1,0 @@
-{
-  "name": "async",
-  "private": true,
-  "main": "../dist/cjs/custom/index.cjs",
-  "module": "../dist/esm/custom/index.mjs",
-  "types": "../dist/cjs/custom/index.d.cts"
-}

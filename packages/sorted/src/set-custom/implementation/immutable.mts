@@ -48,7 +48,7 @@ export class SortedSetEmpty<T = any>
   extends SortedEmpty
   implements SortedSet<T>
 {
-  _NonEmptyType!: SortedSet.NonEmpty<T>;
+  declare _NonEmptyType: SortedSet.NonEmpty<T>;
 
   constructor(readonly context: SortedSetContext<T>) {
     super();
@@ -133,7 +133,7 @@ export abstract class SortedSetNode<T>
   extends SortedNonEmptyBase<T, SortedSetNode<T>>
   implements SortedSet.NonEmpty<T>
 {
-  _NonEmptyType!: SortedSetNode<T>;
+  declare _NonEmptyType: SortedSetNode<T>;
 
   abstract get context(): SortedSetContext<T>;
   abstract get size(): number;

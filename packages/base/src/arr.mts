@@ -9,7 +9,7 @@ import { TraverseState, Update, type ArrayNonEmpty } from '@rimbu/common';
  * @returns a new non-empty array with the value at the end
  */
 export function _appendNew<T>(array: readonly T[], value: T): ArrayNonEmpty<T> {
-  return array.toSpliced(array.length, 0, value) as ArrayNonEmpty<T>;
+  return (array as any).toSpliced(array.length, 0, value) as ArrayNonEmpty<T>;
 }
 
 /**
@@ -66,7 +66,7 @@ export function _reverseNew<T>(
       ? array.slice(start ?? 0, (end ?? array.length - 1) + 1)
       : array;
 
-  return source.toReversed();
+  return (source as any).toReversed();
 }
 
 /**
@@ -198,7 +198,7 @@ export function _prependNew<T>(
   array: readonly T[],
   value: T
 ): ArrayNonEmpty<T> {
-  return array.toSpliced(0, 0, value) as ArrayNonEmpty<T>;
+  return (array as any).toSpliced(0, 0, value) as ArrayNonEmpty<T>;
 }
 
 /**
@@ -265,7 +265,7 @@ export function _updateNew<T>(
     return arr;
   }
 
-  return arr.with(index, newValue);
+  return (arr as any).with(index, newValue);
 }
 
 /**
@@ -322,7 +322,7 @@ export function _modNew<T>(
     return arr;
   }
 
-  return arr.with(index, newValue);
+  return (arr as any).with(index, newValue);
 }
 
 /**
@@ -365,7 +365,7 @@ export const mod = `with` in Array.prototype ? _modNew : _modOld;
  * @internal
  */
 export function _insertNew<T>(arr: readonly T[], index: number, value: T): T[] {
-  return arr.toSpliced(index, 0, value);
+  return (arr as any).toSpliced(index, 0, value);
 }
 
 /**
@@ -415,7 +415,7 @@ export function _spliceNew<T>(
   deleteCount: number,
   ...items: T[]
 ): T[] {
-  return arr.toSpliced(start, deleteCount, ...items);
+  return (arr as any).toSpliced(start, deleteCount, ...items);
 }
 
 /**

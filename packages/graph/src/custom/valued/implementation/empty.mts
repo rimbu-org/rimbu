@@ -19,7 +19,7 @@ export class ValuedGraphEmpty<
   extends GraphEmptyBase
   implements ValuedGraphBase<N, V, Tp>
 {
-  _NonEmptyType!: TpG['nonEmpty'];
+  declare _NonEmptyType: TpG['nonEmpty'];
 
   constructor(
     readonly isDirected: boolean,

@@ -327,7 +327,7 @@ export class FromIterator<T> extends AsyncFastIteratorBase<T> {
     }
   }
 
-  return?: () => MaybePromise<any>;
+  declare return?: () => MaybePromise<any>;
 
   async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<T | O> {
     const result = this.iterator.next();

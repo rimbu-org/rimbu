@@ -14,7 +14,7 @@ import type { HashSet } from '@rimbu/hashed/set';
 import type { HashSetContext } from '@rimbu/hashed/set-custom';
 
 export class HashSetEmpty<T = any> extends EmptyBase implements HashSet<T> {
-  _NonEmptyType!: HashSet.NonEmpty<T>;
+  declare _NonEmptyType: HashSet.NonEmpty<T>;
 
   readonly addAll: any;
 
@@ -83,7 +83,7 @@ export abstract class HashSetNonEmptyBase<T>
   extends NonEmptyBase<T>
   implements HashSet.NonEmpty<T>
 {
-  _NonEmptyType!: HashSet.NonEmpty<T>;
+  declare _NonEmptyType: HashSet.NonEmpty<T>;
 
   abstract get context(): HashSetContext<T>;
   abstract get size(): number;

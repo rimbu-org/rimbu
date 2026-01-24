@@ -30,44 +30,23 @@
     "directory": "packages/channel"
   },
   "type": "module",
-  "main": "./dist/cjs/main/index.cjs",
-  "module": "./dist/esm/main/index.mjs",
-  "types": "./dist/cjs/main/index.d.cts",
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/esm/main/index.d.mts",
-        "default": "./dist/esm/main/index.mjs"
-      },
-      "require": {
-        "types": "./dist/cjs/main/index.d.cts",
-        "default": "./dist/cjs/main/index.cjs"
-      }
+      "types": "./dist/esm/main/index.d.mts",
+      "import": "./dist/esm/main/index.mjs"
     },
     "./custom": {
-      "import": {
-        "types": "./dist/esm/custom/index.d.mts",
-        "default": "./dist/esm/custom/index.mjs"
-      },
-      "require": {
-        "types": "./dist/cjs/custom/index.d.cts",
-        "default": "./dist/cjs/custom/index.cjs"
-      }
+      "types": "./dist/esm/custom/index.d.mts",
+      "import": "./dist/esm/custom/index.mjs"
     }
   },
   "files": [
     "dist",
-    "src",
-    "custom"
+    "src"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
-    "bundle": "yarn bundle:cjs && yarn bundle:esm",
-    "bundle:cjs": "yarn bundle:cjs-prepare && yarn bundle:cjs-build && yarn bundle:cjs-clean",
-    "bundle:cjs-prepare": "node ../../config/bunnify.mjs -mode cjs",
-    "bundle:cjs-build": "tsc -p tsconfig.cjs.json",
-    "bundle:cjs-clean": "rimraf _cjs_prepare",
-    "bundle:esm": "tsc --p tsconfig.esm.json",
+    "bundle": "tsc --p tsconfig.esm.json",
     "clean": "rimraf dist",
     "extract-api": "yarn extract-api:main",
     "extract-api:main": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",

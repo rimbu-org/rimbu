@@ -1,7 +1,0 @@
-{
-  "name": "set-custom",
-  "private": true,
-  "main": "../dist/cjs/set-custom/index.cjs",
-  "module": "../dist/esm/set-custom/index.mjs",
-  "types": "../dist/cjs/set-custom/index.d.cts"
-}

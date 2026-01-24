@@ -32,88 +32,39 @@
     "directory": "packages/hashed"
   },
   "type": "module",
-  "main": "./dist/cjs/main/index.cjs",
-  "module": "./dist/esm/main/index.mjs",
-  "types": "./dist/cjs/main/index.d.cts",
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/esm/main/index.d.mts",
-        "default": "./dist/esm/main/index.mjs"
-      },
-      "require": {
-        "types": "./dist/cjs/main/index.d.cts",
-        "default": "./dist/cjs/main/index.cjs"
-      }
+      "types": "./dist/esm/main/index.d.mts",
+      "import": "./dist/esm/main/index.mjs"
     },
     "./common": {
-      "import": {
-        "types": "./dist/esm/common/index.d.mts",
-        "default": "./dist/esm/common/index.mjs"
-      },
-      "require": {
-        "types": "./dist/cjs/common/index.d.cts",
-        "default": "./dist/cjs/common/index.cjs"
-      }
+      "types": "./dist/esm/common/index.d.mts",
+      "import": "./dist/esm/common/index.mjs"
     },
     "./map": {
-      "import": {
-        "types": "./dist/esm/map/index.d.mts",
-        "default": "./dist/esm/map/index.mjs"
-      },
-      "require": {
-        "types": "./dist/cjs/map/index.d.cts",
-        "default": "./dist/cjs/map/index.cjs"
-      }
+      "types": "./dist/esm/map/index.d.mts",
+      "import": "./dist/esm/map/index.mjs"
     },
     "./map-custom": {
-      "import": {
-        "types": "./dist/esm/map-custom/index.d.mts",
-        "default": "./dist/esm/map-custom/index.mjs"
-      },
-      "require": {
-        "types": "./dist/cjs/map-custom/index.d.cts",
-        "default": "./dist/cjs/map-custom/index.cjs"
-      }
+      "types": "./dist/esm/map-custom/index.d.mts",
+      "import": "./dist/esm/map-custom/index.mjs"
     },
     "./set": {
-      "import": {
-        "types": "./dist/esm/set/index.d.mts",
-        "default": "./dist/esm/set/index.mjs"
-      },
-      "require": {
-        "types": "./dist/cjs/set/index.d.cts",
-        "default": "./dist/cjs/set/index.cjs"
-      }
+      "types": "./dist/esm/set/index.d.mts",
+      "import": "./dist/esm/set/index.mjs"
     },
     "./set-custom": {
-      "import": {
-        "types": "./dist/esm/set-custom/index.d.mts",
-        "default": "./dist/esm/set-custom/index.mjs"
-      },
-      "require": {
-        "types": "./dist/cjs/set-custom/index.d.cts",
-        "default": "./dist/cjs/set-custom/index.cjs"
-      }
+      "types": "./dist/esm/set-custom/index.d.mts",
+      "import": "./dist/esm/set-custom/index.mjs"
     }
   },
   "files": [
     "dist",
-    "src",
-    "common",
-    "map",
-    "map-custom",
-    "set",
-    "set-custom"
+    "src"
   ],
   "scripts": {
     "build": "yarn clean && yarn bundle",
-    "bundle": "yarn bundle:cjs && yarn bundle:esm",
-    "bundle:cjs": "yarn bundle:cjs-prepare && yarn bundle:cjs-build && yarn bundle:cjs-clean",
-    "bundle:cjs-prepare": "node ../../config/bunnify.mjs -mode cjs",
-    "bundle:cjs-build": "tsc -p tsconfig.cjs.json",
-    "bundle:cjs-clean": "rimraf _cjs_prepare",
-    "bundle:esm": "tsc --p tsconfig.esm.json",
+    "bundle": "tsc --p tsconfig.esm.json",
     "clean": "rimraf dist",
     "circular": "npx -y madge --ts-config tsconfig.json --circular --extensions mts src/map-custom/index.mts",
     "extract-api": "yarn extract-api:main && yarn extract-api:map && yarn extract-api:map-custom && yarn extract-api:set && yarn extract-api:set-custom",

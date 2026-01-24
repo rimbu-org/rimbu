@@ -19,7 +19,7 @@ export class GraphNonEmpty<
   extends NonEmptyBase<GraphElement<N>>
   implements GraphBase.NonEmpty<N, Tp>
 {
-  _NonEmptyType!: TpG['nonEmpty'];
+  declare _NonEmptyType: TpG['nonEmpty'];
 
   constructor(
     readonly isDirected: boolean,

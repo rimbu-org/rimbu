@@ -1,7 +1,0 @@
-{
-  "name": "sorted-row",
-  "private": true,
-  "main": "../dist/cjs/sorted-row/index.cjs",
-  "module": "../dist/esm/sorted-row/index.mjs",
-  "types": "../dist/cjs/sorted-row/index.d.cts"
-}

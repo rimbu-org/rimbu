@@ -18,7 +18,7 @@ export class BiMapEmpty<K = any, V = any>
   extends EmptyBase
   implements BiMap<K, V>
 {
-  _NonEmptyType!: BiMap.NonEmpty<K, V>;
+  declare _NonEmptyType: BiMap.NonEmpty<K, V>;
 
   constructor(readonly context: BiMapContext<K, V>) {
     super();
@@ -128,7 +128,7 @@ export class BiMapNonEmptyImpl<K, V>
   extends NonEmptyBase<readonly [K, V]>
   implements BiMap.NonEmpty<K, V>
 {
-  _NonEmptyType!: BiMap.NonEmpty<K, V>;
+  declare _NonEmptyType: BiMap.NonEmpty<K, V>;
 
   constructor(
     readonly context: BiMapContext<K, V>,

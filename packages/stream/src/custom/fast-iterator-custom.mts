@@ -184,9 +184,10 @@ export class IndexedIterator<T> extends FastIteratorBase<[number, T]> {
     readonly startIndex: number
   ) {
     super();
+    this.index = startIndex;
   }
 
-  index = this.startIndex;
+  index: number;
 
   fastNext<O>(otherwise?: OptLazy<O> | undefined): [number, T] | O {
     const done = Symbol('Done');
