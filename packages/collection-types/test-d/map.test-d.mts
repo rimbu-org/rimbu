@@ -1,8 +1,8 @@
-import type { ArrayNonEmpty } from '@rimbu/common';
+import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
 
-import type { RMap, VariantMap } from '../src/main/index.mjs';
+import type { RMap, VariantMap } from '@rimbu/collection-types';
 
 type VE<K, V> = VariantMap<K, V>;
 type VNE<K, V> = VariantMap.NonEmpty<K, V>;

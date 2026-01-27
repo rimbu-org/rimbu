@@ -1,10 +1,12 @@
-import { timeout } from '../src/custom/index.mjs';
-import { Semaphore } from '../src/main/index.mjs';
+import { describe, expect, it, vi } from 'bun:test';
+
+import { timeout } from '#channel/utils';
+import { Semaphore, SemaphoreError } from '@rimbu/channel/semaphore';
 
 describe('Semaphore', () => {
   it('throws if maxSize < 1', () => {
     expect(() => Semaphore.create({ maxSize: 0 })).toThrow(
-      Semaphore.Error.InvalidConfigError
+      SemaphoreError.InvalidConfigError
     );
   });
 
@@ -42,14 +44,14 @@ describe('Semaphore', () => {
     const sem = Semaphore.create({ maxSize: 1 });
 
     await expect(sem.acquire(2)).rejects.toThrow(
-      Semaphore.Error.InsufficientCapacityError
+      SemaphoreError.InsufficientCapacityError
     );
   });
 
   it('throws when releasing more than current size', async () => {
     const sem = Semaphore.create({ maxSize: 1 });
 
-    expect(() => sem.release()).toThrow(Semaphore.Error.CapacityUnderflowError);
+    expect(() => sem.release()).toThrow(SemaphoreError.CapacityUnderflowError);
   });
 
   it('will provide access first to later smaller task', async () => {

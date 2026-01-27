@@ -1,10 +1,12 @@
+import { describe, expect, it, vi } from 'bun:test';
+
 import {
   attachAbort,
   createCleaner,
   defer,
   timeout,
   timeoutAction,
-} from '../src/custom/index.mjs';
+} from '#channel/utils';
 
 describe('utils', () => {
   describe('attachAbort', () => {

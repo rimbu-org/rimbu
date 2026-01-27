@@ -1,0 +1,40 @@
+import { type RpcProxy, RpcProxyError } from '@rimbu/channel/rpc-proxy';
+
+/**
+ * Default `RpcProxy` implementation that records property access and function application into a call path.
+ * @typeparam T - the proxied remote interface type
+ */
+export class RpcProxyImpl<T> implements RpcProxy<T> {
+  constructor(readonly onCall: (path: RpcProxy.Path) => Promise<any>) {}
+
+  exec<R>(remoteFn: (p: RpcProxy.Unpromise<T>) => R): Promise<R> {
+    const path = this.getExecPath(remoteFn);
+
+    return this.onCall(path);
+  }
+
+  getExecPath(execFn: (p: any) => any): RpcProxy.Path {
+    const result: RpcProxy.Path = [];
+
+    const proxy: any = new Proxy(() => null, {
+      get(_, name): any {
+        if (typeof name !== 'string') {
+          throw new RpcProxyError.InvalidPathType();
+        }
+
+        result.push(name);
+
+        return proxy;
+      },
+      apply(_, __, args): any {
+        result.push(args);
+
+        return proxy;
+      },
+    });
+
+    execFn(proxy);
+
+    return result;
+  }
+}

@@ -1,10 +1,9 @@
 {
   "compilerOptions": {
-    "rootDirs": [".", ".."],
-    "baseUrl": "./src",
     "paths": {
-      "@rimbu/list/custom": ["custom/index.mjs", "custom/index.cts"],
-      "@rimbu/list": ["main/index.mjs", "main/index.cts"]
+      "@rimbu/list": ["./entry/list.mjs"],
+      "@rimbu/list/*": ["./public/*.mjs"],
+      "#list/*": ["./public/internal/*.mjs"]
     }
   }
 }

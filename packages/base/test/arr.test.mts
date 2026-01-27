@@ -1,6 +1,7 @@
-import { TraverseState } from '@rimbu/common';
+import { describe, it, expect, afterEach } from 'bun:test';
+import { TraverseState } from '@rimbu/common/traverse-state';
 
-import { Arr } from '../src/index.mjs';
+import * as Arr from '../src/arr.mjs';
 
 const empty: number[] = [];
 
@@ -93,12 +94,12 @@ describe('Arr', () => {
   });
 
   it('last', () => {
-    expect(Arr.last(empty)).toEqual(undefined);
+    expect(Arr.last(empty)).toBeUndefined();
     expect(Arr.last(nonEmpty)).toEqual(3);
   });
 
   it('_lastOld', () => {
-    expect(Arr._lastOld(empty)).toEqual(undefined);
+    expect(Arr._lastOld(empty)).toBeUndefined();
     expect(Arr._lastOld(nonEmpty)).toEqual(3);
   });
 

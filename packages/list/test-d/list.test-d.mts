@@ -1,4 +1,4 @@
-import type { ArrayNonEmpty } from '@rimbu/common';
+import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { FastIterator, Stream } from '@rimbu/stream';
 import {
   expectAssignable,
@@ -7,7 +7,7 @@ import {
   expectType,
 } from 'tsd';
 
-import { List } from '../src/main/index.mjs';
+import { List } from '@rimbu/list';
 
 expectAssignable<List<number>>(List.of(1));
 expectNotAssignable<List.NonEmpty<number>>(List.empty<number>());

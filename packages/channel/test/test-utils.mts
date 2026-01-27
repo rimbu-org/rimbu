@@ -1,4 +1,6 @@
-import { timeout } from '../src/custom/index.mjs';
+import { expect } from 'bun:test';
+
+import { timeout } from '#channel/utils';
 
 export async function expectNotResolves(promise: Promise<any>) {
   await expect(

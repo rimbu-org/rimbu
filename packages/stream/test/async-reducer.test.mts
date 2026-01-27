@@ -1,7 +1,11 @@
-import { Comp } from '@rimbu/common';
+import { describe, expect, it, vi } from 'bun:test';
 
-import { Reducer } from '../src/main/index.mjs';
-import { AsyncReducer, AsyncStream } from '../src/async/index.mjs';
+import { Comp } from '@rimbu/common/comp';
+
+import { AsyncStream } from '@rimbu/stream/async';
+import { Reducer } from '@rimbu/stream/reducer';
+
+import { AsyncReducer } from '@rimbu/stream/async/reducer';
 
 describe('AsyncReducer', () => {
   const FB = 'a';
@@ -530,9 +534,7 @@ describe('AsyncReducer', () => {
       close
     ).filterInput((v) => v > 1);
 
-    await expect(() =>
-      AsyncStream.of(1, 2, 3).reduce(sumDouble)
-    ).rejects.toThrow();
+    await expect(AsyncStream.of(1, 2, 3).reduce(sumDouble)).rejects.toThrow();
 
     expect(close).toBeCalledTimes(1);
   });

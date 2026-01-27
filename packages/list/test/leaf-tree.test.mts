@@ -1,13 +1,13 @@
+import { describe, expect, it, vi } from 'bun:test';
+
 import { Stream } from '@rimbu/stream';
 
-import { List } from '../src/main/index.mjs';
-import {
-  LeafBlock,
-  LeafTree,
-  ListContext,
-  NonLeafBlock,
-  NonLeafTree,
-} from '../src/custom/index.mjs';
+import { ListContext } from '#list/context';
+import { LeafBlock } from '#list/immutable/leaf/block';
+import { LeafTree } from '#list/immutable/leaf/tree';
+import { NonLeafBlock } from '#list/immutable/nonleaf/block';
+import { NonLeafTree } from '#list/immutable/nonleaf/tree';
+import { List } from '@rimbu/list';
 
 function runLeafTreeTests(
   tag: string,

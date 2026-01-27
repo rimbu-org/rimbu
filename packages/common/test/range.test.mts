@@ -1,4 +1,5 @@
-import { Range } from '../src/index.mjs';
+import { describe, it, expect } from 'bun:test';
+import { Range } from '../src/range.mjs';
 
 describe('getNormalizedRange', () => {
   it('correctly returns range', () => {

@@ -1,4 +1,5 @@
-import { OptLazy, OptLazyOr } from '../src/index.mjs';
+import { describe, it, expect } from 'bun:test';
+import { OptLazy, OptLazyOr } from '../src/opt-lazy.mjs';
 
 describe('OptLazy', () => {
   it('default', () => {

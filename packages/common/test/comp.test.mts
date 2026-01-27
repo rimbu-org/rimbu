@@ -1,4 +1,5 @@
-import { Comp } from '../src/index.mjs';
+import { describe, it, expect } from 'bun:test';
+import { Comp } from '../src/comp.mjs';
 
 describe('Comp', () => {
   it('stringComp', () => {

@@ -1,4 +1,5 @@
-import { IndexRange } from '../src/index.mjs';
+import { describe, it, expect } from 'bun:test';
+import { IndexRange } from '../src/index-range.mjs';
 
 describe('IndexRange', () => {
   it('getIndexRangeIndices', () => {

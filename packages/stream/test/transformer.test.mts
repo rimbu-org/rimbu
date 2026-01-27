@@ -1,6 +1,11 @@
-import { Stream, Transformer, Reducer } from '../src/main/index.mjs';
+import { describe, expect, it } from 'bun:test';
 
-describe('Collector', () => {
+import { Stream } from '@rimbu/stream';
+import { Reducer } from '@rimbu/stream/reducer';
+
+import { Transformer } from '@rimbu/stream/transformer';
+
+describe('Transformer', () => {
   it('window', () => {
     expect(Stream.empty().transform(Transformer.window(3)).toArray()).toEqual(
       []

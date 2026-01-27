@@ -30,27 +30,16 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/esm/main/index.d.mts",
-      "import": "./dist/esm/main/index.mjs"
+      "types": "./dist/entry/main.d.mts",
+      "default": "./dist/entry/main.mjs"
     },
-    "./map": {
-      "types": "./dist/esm/map/index.d.mts",
-      "import": "./dist/esm/map/index.mjs"
+    "./common": {
+      "types": "./dist/entry/common.d.mts",
+      "default": "./dist/entry/common.mjs"
     },
-    "./map-custom": {
-      "types": "./dist/esm/map-custom/index.d.mts",
-      "import": "./dist/esm/map-custom/index.mjs"
-    },
-    "./set": {
-      "types": "./dist/esm/set/index.d.mts",
-      "import": "./dist/esm/set/index.mjs"
-    },
-    "./set-custom": {
-      "types": "./dist/esm/set-custom/index.d.mts",
-      "import": "./dist/esm/set-custom/index.mjs"
-    },
-    "./test-utils/*": {
-      "default": "./test-utils/*.ts"
+    "./*": {
+      "types": "./dist/public/*.d.mts",
+      "default": "./dist/public/*.mjs"
     }
   },
   "files": [
@@ -58,8 +47,7 @@
     "src"
   ],
   "scripts": {
-    "build": "yarn clean && yarn bundle",
-    "bundle": "tsc --p tsconfig.esm.json",
+    "build": "bun clean && bunx tsc --p tsconfig.esm.json",
     "clean": "rimraf dist",
     "extract-api": "yarn extract-api:main && yarn extract-api:map && yarn extract-api:map-custom && yarn extract-api:set && yarn extract-api:set-custom",
     "extract-api:main": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
@@ -71,13 +59,13 @@
     "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
-    "test:types": "tsd --files test-d",
+    "test:types": "bunx tsd --files ./test-d --typings ./dist/entry/main.d.mts",
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@rimbu/base": "^2.0.7",
-    "@rimbu/common": "^2.0.7",
-    "@rimbu/stream": "^3.0.3",
+    "@rimbu/base": "workspace:*",
+    "@rimbu/common": "workspace:*",
+    "@rimbu/stream": "workspace:*",
     "tslib": "^2.8.1"
   },
   "publishConfig": {

@@ -1,6 +1,8 @@
-import { Stream } from '../src/main/index.mjs';
+import { describe, expect, it } from 'bun:test';
 
-import { isEmptyStreamSourceInstance } from '../src/custom/index.mjs';
+import { isEmptyStreamSourceInstance } from '#/stream-base';
+
+import { Stream } from '@rimbu/stream';
 
 describe('isEmptyStreamSourceInstance', () => {
   it('correctly detects empty instances', () => {

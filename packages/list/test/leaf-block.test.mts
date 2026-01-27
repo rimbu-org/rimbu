@@ -1,13 +1,12 @@
+import { describe, expect, it, vi } from 'bun:test';
+
 import { Stream } from '@rimbu/stream';
 
-import { List } from '../src/main/index.mjs';
-import {
-  ListContext,
-  LeafBlock,
-  LeafTree,
-  ReversedLeafBlock,
-  LeafBlockBuilder,
-} from '../src/custom/index.mjs';
+import { LeafBlockBuilder } from '#list/builder/leaf/block';
+import { ListContext } from '#list/context';
+import { LeafBlock, ReversedLeafBlock } from '#list/immutable/leaf/block';
+import { LeafTree } from '#list/immutable/leaf/tree';
+import { List } from '@rimbu/list';
 
 describe('LeafBlock', () => {
   it('_mutateNormalize', () => {

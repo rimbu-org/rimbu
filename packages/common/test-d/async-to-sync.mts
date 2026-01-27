@@ -1,5 +1,6 @@
 import { expectAssignable } from 'tsd';
 
-import { OptLazy, AsyncOptLazy } from '../src/index.mjs';
+import { AsyncOptLazy } from '../src/async-opt-lazy.mjs';
+import { OptLazy } from '../src/opt-lazy.mjs';
 
 expectAssignable<AsyncOptLazy<number>>(OptLazy(5));

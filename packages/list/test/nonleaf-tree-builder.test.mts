@@ -1,13 +1,13 @@
+import { describe, expect, it, vi } from 'bun:test';
+
 import { Stream } from '@rimbu/stream';
 
-import {
-  LeafBlock,
-  LeafBlockBuilder,
-  ListContext,
-  NonLeafBlockBuilder,
-  NonLeafTree,
-  NonLeafTreeBuilder,
-} from '../src/custom/index.mjs';
+import type { LeafBlockBuilder } from '#list/builder/leaf/block';
+import { NonLeafBlockBuilder } from '#list/builder/nonleaf/block';
+import { NonLeafTreeBuilder } from '#list/builder/nonleaf/tree';
+import { ListContext } from '#list/context';
+import type { LeafBlock } from '#list/immutable/leaf/block';
+import { NonLeafTree } from '#list/immutable/nonleaf/tree';
 
 const context = new ListContext(2);
 

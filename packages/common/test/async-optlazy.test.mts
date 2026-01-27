@@ -1,4 +1,5 @@
-import { AsyncOptLazy } from '../src/index.mjs';
+import { describe, it, expect } from 'bun:test';
+import { AsyncOptLazy } from '../src/async-opt-lazy.mjs';
 
 describe('AsyncOptLazy', () => {
   it('toMaybePromise', async () => {

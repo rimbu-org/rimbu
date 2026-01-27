@@ -1,7 +1,8 @@
-import {
-  RemoteChannelClient,
-  RemoteChannelServer,
-} from '../src/main/index.mjs';
+import { describe, expect, it } from 'bun:test';
+
+import { RemoteChannelClient } from '@rimbu/channel/remote-channel-client';
+import { RemoteChannelServer } from '@rimbu/channel/remote-channel-server';
+
 import { expectNotResolves } from './test-utils.mjs';
 
 async function createClientServer() {

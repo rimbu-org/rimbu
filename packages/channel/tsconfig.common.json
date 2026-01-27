@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
-    "rootDirs": [".", ".."],
-    "baseUrl": "./src"
+    "paths": {
+      "@rimbu/channel": ["./entry/channel.mjs"],
+      "@rimbu/channel/*": ["./public/*.mjs"],
+      "#channel/*": ["./public/internal/*.mjs"],
+      "#private/*": ["./private/*.mjs"]
+    }
   }
 }

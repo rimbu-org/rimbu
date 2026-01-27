@@ -1,4 +1,7 @@
-import { WaitGroup } from '../src/main/index.mjs';
+import { describe, it } from 'bun:test';
+
+import { WaitGroup } from '@rimbu/channel/wait-group';
+
 import { expectNotResolves } from './test-utils.mjs';
 
 describe('WaitGroup', () => {

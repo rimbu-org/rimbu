@@ -1,4 +1,5 @@
-import { Err, ErrBase } from '../src/index.mjs';
+import { describe, it, expect } from 'bun:test';
+import { Err, ErrBase } from '../src/err.mjs';
 
 describe('Err/Base', () => {
   it('throws error', () => {

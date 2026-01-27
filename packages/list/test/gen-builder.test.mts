@@ -1,12 +1,12 @@
-import { TraverseState } from '@rimbu/common';
+import { describe, expect, it, vi } from 'bun:test';
+
+import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream } from '@rimbu/stream';
 
-import {
-  ListContext,
-  GenBuilder,
-  LeafBlockBuilder,
-  LeafTreeBuilder,
-} from '../src/custom/index.mjs';
+import { GenBuilder } from '#list/builder/generic';
+import { LeafBlockBuilder } from '#list/builder/leaf/block';
+import { LeafTreeBuilder } from '#list/builder/leaf/tree';
+import { ListContext } from '#list/context';
 
 const context = new ListContext(2);
 

@@ -1,5 +1,9 @@
-import { RemoteObjectImpl } from '../src/custom/index.mjs';
-import { CrossChannel, RemoteObject } from '../src/main/index.mjs';
+import { describe, expect, it } from 'bun:test';
+
+import { RemoteObjectImpl } from '#channel/remote-object-impl';
+import { CrossChannel } from '@rimbu/channel/cross-channel';
+
+import { RemoteObject, RemoteObjectError } from '@rimbu/channel/remote-object';
 
 function createRemoteChannels(sourceObj: any) {
   const [clientCommCh, serverCommCh] = CrossChannel.createPair<
@@ -35,19 +39,19 @@ describe('RemoteObject client', () => {
     const [client] = createRemoteChannels(obj);
 
     await expect(client.exec((c: any) => c.a)).rejects.toThrow(
-      RemoteObject.Error.RemoteObjectInvalidAccessError
+      RemoteObjectError.RemoteObjectInvalidAccessError
     );
     await expect(client.exec((c: any) => c.prop.q)).rejects.toThrow(
-      RemoteObject.Error.RemoteObjectInvalidAccessError
+      RemoteObjectError.RemoteObjectInvalidAccessError
     );
     await expect(client.exec((c: any) => c.prop())).rejects.toThrow(
-      RemoteObject.Error.RemoteObjectInvalidFunctionApplicationError
+      RemoteObjectError.RemoteObjectInvalidFunctionApplicationError
     );
     await expect(client.exec((c: any) => c.func1)).rejects.toThrow(
-      RemoteObject.Error.RemoteObjectInvalidFunctionApplicationError
+      RemoteObjectError.RemoteObjectInvalidFunctionApplicationError
     );
     await expect(client.exec((c: any) => c.func1().z)).rejects.toThrow(
-      RemoteObject.Error.RemoteObjectInvalidAccessError
+      RemoteObjectError.RemoteObjectInvalidAccessError
     );
   });
 
@@ -55,7 +59,7 @@ describe('RemoteObject client', () => {
     const [client] = createRemoteChannels(obj);
 
     await expect(client.exec((c: any) => c.__proto__)).rejects.toThrow(
-      RemoteObject.Error.RemoteObjectSecurityError
+      RemoteObjectError.RemoteObjectSecurityError
     );
   });
 });
@@ -79,38 +83,38 @@ describe('RemoteObjectImpl', () => {
   it('errors when path is invalid', async () => {
     const handler = RemoteObjectImpl(obj);
     await expect(handler(['a'])).rejects.toThrow(
-      RemoteObject.Error.RemoteObjectInvalidAccessError
+      RemoteObjectError.RemoteObjectInvalidAccessError
     );
     await expect(handler([[1, 2]])).rejects.toThrow(
-      RemoteObject.Error.RemoteObjectInvalidFunctionApplicationError
+      RemoteObjectError.RemoteObjectInvalidFunctionApplicationError
     );
     await expect(handler(['prop', [1, 2]])).rejects.toThrow(
-      RemoteObject.Error.RemoteObjectInvalidFunctionApplicationError
+      RemoteObjectError.RemoteObjectInvalidFunctionApplicationError
     );
     await expect(handler(['func1'])).rejects.toThrow(
-      RemoteObject.Error.RemoteObjectInvalidFunctionApplicationError
+      RemoteObjectError.RemoteObjectInvalidFunctionApplicationError
     );
     await expect(handler(['func1', [], 'q'])).rejects.toThrow(
-      RemoteObject.Error.RemoteObjectInvalidAccessError
+      RemoteObjectError.RemoteObjectInvalidAccessError
     );
     await expect(handler([Symbol() as any])).rejects.toThrow(
-      RemoteObject.Error.RemoteObjectInvalidPathPartTypeError
+      RemoteObjectError.RemoteObjectInvalidPathPartTypeError
     );
   });
 
   it('does not allow prototype access', async () => {
     const handler = RemoteObjectImpl(obj);
     await expect(handler(['__proto__'])).rejects.toThrow(
-      RemoteObject.Error.RemoteObjectSecurityError
+      RemoteObjectError.RemoteObjectSecurityError
     );
     await expect(handler(['prop', '__proto__'])).rejects.toThrow(
-      RemoteObject.Error.RemoteObjectSecurityError
+      RemoteObjectError.RemoteObjectSecurityError
     );
     await expect(handler(['func1', '__proto__'])).rejects.toThrow(
-      RemoteObject.Error.RemoteObjectSecurityError
+      RemoteObjectError.RemoteObjectSecurityError
     );
     await expect(handler(['func1', [], '__proto__'])).rejects.toThrow(
-      RemoteObject.Error.RemoteObjectSecurityError
+      RemoteObjectError.RemoteObjectSecurityError
     );
   });
 });

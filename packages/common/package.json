@@ -30,9 +30,9 @@
   },
   "type": "module",
   "exports": {
-    ".": {
-      "types": "./dist/esm/index.d.mts",
-      "import": "./dist/esm/index.mjs"
+    "./*": {
+      "types": "./dist/*.d.mts",
+      "default": "./dist/*.mjs"
     }
   },
   "files": [
@@ -40,18 +40,15 @@
     "src"
   ],
   "scripts": {
-    "build": "yarn clean && yarn bundle",
-    "bundle": "tsc --p tsconfig.esm.json",
+    "build": "bun clean && bunx tsc --p tsconfig.esm.json",
     "clean": "rimraf dist",
     "extract-api": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
     "format": "yarn format:base --write",
     "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
-    "test": "vitest run",
-    "test:cov": "vitest run --coverage",
-    "test:watch": "vitest",
-    "test:types": "tsd --files test-d",
+    "test": "bun test --tsconfig-override tsconfig.common.json",
+    "test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.mts",
     "typecheck": "tsc"
   },
   "publishConfig": {

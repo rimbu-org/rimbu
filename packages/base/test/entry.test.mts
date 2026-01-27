@@ -1,4 +1,5 @@
-import { Entry } from '../src/index.mjs';
+import { describe, expect, it } from 'bun:test';
+import * as Entry from '../src/entry.mjs';
 
 describe('Entry', () => {
   it('first', () => {

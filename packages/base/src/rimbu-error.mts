@@ -1,4 +1,4 @@
-import { ErrBase } from '@rimbu/common';
+import { ErrBase } from '@rimbu/common/err';
 
 /**
  * Error thrown when an operation assumes a collection is non-empty but it is empty.

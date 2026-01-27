@@ -1,5 +1,5 @@
 import { expectType } from 'tsd';
-import type { PlainObj } from '../src/index.mjs';
+import type { PlainObj } from '../src/plain-object.mjs';
 
 function f<T>(p: T): PlainObj<T> {
   return p as any;

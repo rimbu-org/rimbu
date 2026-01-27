@@ -1,13 +1,15 @@
-import { Arr } from '@rimbu/base';
-import { Eq, Err } from '@rimbu/common';
+import { beforeEach, describe, expect, it, vi } from 'bun:test';
 
-import { Stream, Reducer } from '../src/main/index.mjs';
+import * as Arr from '@rimbu/base/arr';
+import { Eq } from '@rimbu/common/eq';
+import { Err } from '@rimbu/common/err';
 
-import {
-  AsyncReducer,
-  AsyncStream,
-  type AsyncStreamSource,
-} from '../src/async/index.mjs';
+import { Stream } from '@rimbu/stream';
+import { AsyncReducer } from '@rimbu/stream/async/reducer';
+import { Reducer } from '@rimbu/stream/reducer';
+
+import type { ArrayNonEmpty } from '@rimbu/common/types';
+import { AsyncStream, type AsyncStreamSource } from '@rimbu/stream/async';
 
 const streamRange1 = AsyncStream.from(Stream.range({ amount: 100 }));
 const streamRange2 = AsyncStream.from(Stream.range({ amount: 100 }).toArray());
@@ -259,7 +261,7 @@ describe('AsyncStream methods', () => {
 
   it('asyncStream', () => {
     expect(AsyncStream.empty<number>().asyncStream()).toBe(
-      AsyncStream.empty<string>()
+      AsyncStream.empty<string>() as any
     );
     const s = AsyncStream.of(1, 2, 3);
     expect(s.asyncStream()).toBe(s);
@@ -324,7 +326,7 @@ describe('AsyncStream methods', () => {
     const s = AsyncStream.of(1, 2, 3);
     expect(s.assumeNonEmpty()).toBe(s);
     for (const source of sources) {
-      expect(source.assumeNonEmpty()).toBe(source);
+      expect(source.assumeNonEmpty().asNormal()).toBe(source);
     }
   });
   it('asNormal', () => {
@@ -338,7 +340,9 @@ describe('AsyncStream methods', () => {
     ]);
     for (const source of sources) {
       const arr = [5, ...(await source.toArray())];
-      expect(await source.prepend(5).toArray()).toEqual(arr);
+      expect(await source.prepend(5).toArray()).toEqual(
+        arr as ArrayNonEmpty<number>
+      );
     }
   });
   it('prepend close', async () => {
@@ -363,7 +367,9 @@ describe('AsyncStream methods', () => {
     ]);
     for (const source of sources) {
       const arr = [...(await source.toArray()), 5];
-      expect(await source.append(5).toArray()).toEqual(arr);
+      expect(await source.append(5).toArray()).toEqual(
+        arr as ArrayNonEmpty<number>
+      );
     }
   });
   it('append close', async () => {
@@ -616,7 +622,7 @@ describe('AsyncStream methods', () => {
 
     await AsyncStream.from(sources).forEach(async (source) => {
       expect(await source.flatZip((v) => [v]).toArray()).toEqual(
-        await source.map((v) => [v, v]).toArray()
+        await source.map((v) => [v, v] satisfies [number, number]).toArray()
       );
     });
   });
@@ -805,7 +811,7 @@ describe('AsyncStream methods', () => {
   it('withOnly', async () => {
     const s3 = AsyncStream.of(1, 2, 3);
 
-    expect(s3.withOnly([])).toBe(s3);
+    expect(await s3.withOnly([]).toArray()).toEqual([]);
     expect(await s3.withOnly([1, 2, 3]).toArray()).toEqual([1, 2, 3]);
     expect(await s3.withOnly([2]).toArray()).toEqual([2]);
     expect(await s3.withOnly([4]).toArray()).toEqual([]);

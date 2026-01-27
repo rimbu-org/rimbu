@@ -1,10 +1,10 @@
-import {
-  LeafBlockBuilder,
-  LeafTree,
-  LeafTreeBuilder,
-  ListContext,
-  NonLeafTreeBuilder,
-} from '../src/custom/index.mjs';
+import { beforeEach, describe, expect, it, vi } from 'bun:test';
+
+import { LeafBlockBuilder } from '#list/builder/leaf/block';
+import { LeafTreeBuilder } from '#list/builder/leaf/tree';
+import { NonLeafTreeBuilder } from '#list/builder/nonleaf/tree';
+import { ListContext } from '#list/context';
+import { LeafTree } from '#list/immutable/leaf/tree';
 
 const context = new ListContext(2);
 

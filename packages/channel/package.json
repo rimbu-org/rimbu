@@ -32,12 +32,22 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/esm/main/index.d.mts",
-      "import": "./dist/esm/main/index.mjs"
+      "types": "./dist/entry/channel.d.mts",
+      "import": "./dist/entry/channel.mjs"
     },
-    "./custom": {
-      "types": "./dist/esm/custom/index.d.mts",
-      "import": "./dist/esm/custom/index.mjs"
+    "./*": {
+      "types": "./dist/public/*.d.mts",
+      "default": "./dist/public/*.mjs"
+    }
+  },
+  "imports": {
+    "#channel/*": {
+      "types": "./dist/public/internal/*.d.mts",
+      "default": "./dist/public/internal/*.mjs"
+    },
+    "#private/*": {
+      "types": "./dist/private/*.d.mts",
+      "default": "./dist/private/*.mjs"
     }
   },
   "files": [
@@ -45,8 +55,7 @@
     "src"
   ],
   "scripts": {
-    "build": "yarn clean && yarn bundle",
-    "bundle": "tsc --p tsconfig.esm.json",
+    "build": "bun clean && bunx tsc --p tsconfig.esm.json && bunx tsc-alias -p tsconfig.esm.json",
     "clean": "rimraf dist",
     "extract-api": "yarn extract-api:main",
     "extract-api:main": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
@@ -54,15 +63,13 @@
     "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
-    "test": "vitest run",
-    "test:cov": "vitest run --coverage",
-    "test:watch": "vitest",
-    "test:types": "tsd --files test-d",
+    "test": "bun test --tsconfig-override tsconfig.common.json",
+    "test:types": "bunx tsd --files ./test-d --typings ./dist/arr.d.mts",
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@rimbu/common": "^2.0.7",
-    "@rimbu/stream": "^3.0.3",
+    "@rimbu/common": "workspace:*",
+    "@rimbu/stream": "workspace:*",
     "tslib": "^2.8.1"
   },
   "publishConfig": {

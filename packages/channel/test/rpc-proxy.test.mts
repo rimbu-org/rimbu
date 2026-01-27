@@ -1,4 +1,6 @@
-import { RpcProxy } from '../src/custom/index.mjs';
+import { describe, expect, it, vi } from 'bun:test';
+
+import { RpcProxy, RpcProxyError } from '@rimbu/channel/rpc-proxy';
 
 interface Obj {
   [Symbol.iterator]: () => 1;
@@ -36,7 +38,7 @@ describe('RpcProxy', () => {
     const proxy = RpcProxy.create<Obj>(onGet);
 
     expect(() => proxy.exec((c) => c[Symbol.iterator])).toThrow(
-      RpcProxy.Error.InvalidPathType
+      RpcProxyError.InvalidPathType
     );
   });
 });

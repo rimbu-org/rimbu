@@ -1,7 +1,9 @@
-import fs from 'fs';
-import { Stream } from '@rimbu/stream';
+import { describe, expect, it } from 'bun:test';
 
-import { List } from '../src/main/index.mjs';
+import { Stream } from '@rimbu/stream';
+import fs from 'fs';
+
+import { List } from '@rimbu/list';
 
 type Action = {
   name: string;

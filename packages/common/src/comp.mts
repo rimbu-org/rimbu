@@ -1,4 +1,4 @@
-import { Eq } from './internal.mjs';
+import { Eq } from '@rimbu/common/eq';
 
 /**
  * An object providing methods to compare two values of type `K`.

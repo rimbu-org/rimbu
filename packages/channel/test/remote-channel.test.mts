@@ -1,6 +1,11 @@
-import { defer } from '../src/custom/index.mjs';
-import { Channel, RemoteChannel } from '../src/main/index.mjs';
+import { describe, expect, it } from 'bun:test';
+
+import { defer } from '#channel/utils';
+import { ChannelError } from '@rimbu/channel';
+
 import { expectNotResolves } from './test-utils.mjs';
+
+import { RemoteChannel } from '@rimbu/channel/remote-channel';
 
 const MSG = 'MESSAGE!';
 
@@ -80,7 +85,7 @@ describe('RemoteChannel buffer 0', () => {
 
     chWrite.close();
     await expect(chWrite.send()).rejects.toThrow(
-      Channel.Error.ChannelClosedError
+      ChannelError.ChannelClosedError
     );
   });
 
@@ -88,7 +93,7 @@ describe('RemoteChannel buffer 0', () => {
     const [chWrite] = await createInitializedChannels();
 
     chWrite.close();
-    expect(() => chWrite.close()).toThrow(Channel.Error.ChannelClosedError);
+    expect(() => chWrite.close()).toThrow(ChannelError.ChannelClosedError);
   });
 
   it('does not send invalid messages', async () => {
@@ -100,7 +105,7 @@ describe('RemoteChannel buffer 0', () => {
     );
 
     await expect(chWrite.send('A')).rejects.toThrow(
-      Channel.Error.InvalidMessageTypeError
+      ChannelError.InvalidMessageTypeError
     );
 
     const sendPromise = chWrite.send(5);
@@ -117,7 +122,7 @@ describe('RemoteChannel buffer 0', () => {
     );
 
     await expect(chWrite.send('A')).rejects.toThrow(
-      Channel.Error.InvalidMessageTypeError
+      ChannelError.InvalidMessageTypeError
     );
 
     // const sendPromise = chWrite.send(5);
@@ -146,7 +151,7 @@ describe('RemoteChannel buffer 0', () => {
     expect(chRead.length).toBe(0);
     await expectNotResolves(sendPromise);
     chWrite.close();
-    await expect(sendPromise).rejects.toThrow(Channel.Error.ChannelClosedError);
+    await expect(sendPromise).rejects.toThrow(ChannelError.ChannelClosedError);
   });
 
   it('send returns closed error when closed while sending and catchChannelErrors', async () => {
@@ -156,7 +161,7 @@ describe('RemoteChannel buffer 0', () => {
     expect(chRead.length).toBe(0);
     chWrite.close();
     await expect(sendPromise).resolves.toBeInstanceOf(
-      Channel.Error.ChannelClosedError
+      ChannelError.ChannelClosedError
     );
   });
 
@@ -181,7 +186,7 @@ describe('RemoteChannel buffer 0', () => {
 
     try {
       await expect(chWrite.send(MSG, { timeoutMs: 10 })).rejects.toThrow(
-        Channel.Error.TimeoutError
+        ChannelError.TimeoutError
       );
     } finally {
       chWrite.close();
@@ -197,7 +202,7 @@ describe('RemoteChannel buffer 0', () => {
           timeoutMs: 100,
           catchChannelErrors: true,
         })
-      ).resolves.toBeInstanceOf(Channel.Error.TimeoutError);
+      ).resolves.toBeInstanceOf(ChannelError.TimeoutError);
     } finally {
       chWrite.close();
     }
@@ -212,7 +217,7 @@ describe('RemoteChannel buffer 0', () => {
           catchChannelErrors: true,
           timeoutMs: 100,
         })
-      ).resolves.toBeInstanceOf(Channel.Error.TimeoutError);
+      ).resolves.toBeInstanceOf(ChannelError.TimeoutError);
     } finally {
       chWrite.close();
     }
@@ -228,7 +233,7 @@ describe('RemoteChannel buffer 0', () => {
         chWrite.send(MSG, {
           signal: controller.signal,
         })
-      ).rejects.toThrow(Channel.Error.OperationAbortedError);
+      ).rejects.toThrow(ChannelError.OperationAbortedError);
     } finally {
       chWrite.close();
     }
@@ -244,7 +249,7 @@ describe('RemoteChannel buffer 0', () => {
         chWrite.send(MSG, {
           signal: controller.signal,
         })
-      ).rejects.toThrow(Channel.Error.OperationAbortedError);
+      ).rejects.toThrow(ChannelError.OperationAbortedError);
     } finally {
       chWrite.close();
     }
@@ -261,7 +266,7 @@ describe('RemoteChannel buffer 0', () => {
           signal: controller.signal,
           catchChannelErrors: true,
         })
-      ).resolves.toBeInstanceOf(Channel.Error.OperationAbortedError);
+      ).resolves.toBeInstanceOf(ChannelError.OperationAbortedError);
     } finally {
       chWrite.close();
     }
@@ -278,7 +283,7 @@ describe('RemoteChannel buffer 0', () => {
           signal: controller.signal,
           catchChannelErrors: true,
         })
-      ).resolves.toBeInstanceOf(Channel.Error.OperationAbortedError);
+      ).resolves.toBeInstanceOf(ChannelError.OperationAbortedError);
     } finally {
       chWrite.close();
     }
@@ -289,7 +294,7 @@ describe('RemoteChannel buffer 0', () => {
 
     try {
       await expect(chWrite.send(MSG, { timeoutMs: 100 })).rejects.toThrow(
-        Channel.Error.TimeoutError
+        ChannelError.TimeoutError
       );
     } finally {
       chWrite.close();
@@ -305,7 +310,7 @@ describe('RemoteChannel buffer 0', () => {
           timeoutMs: 100,
           recover: (err) => err,
         })
-      ).resolves.toBeInstanceOf(Channel.Error.TimeoutError);
+      ).resolves.toBeInstanceOf(ChannelError.TimeoutError);
       expect(chRead.length).toBe(0);
     } finally {
       chWrite.close();
@@ -321,7 +326,7 @@ describe('RemoteChannel buffer 0', () => {
           recover: (err) => err,
           timeoutMs: 100,
         })
-      ).resolves.toBeInstanceOf(Channel.Error.TimeoutError);
+      ).resolves.toBeInstanceOf(ChannelError.TimeoutError);
       expect(chRead.length).toBe(0);
     } finally {
       chWrite.close();
@@ -427,7 +432,7 @@ describe('RemoteChannel buffer 1', () => {
     const sendPromise = chWrite.send(MSG);
     expect(chRead.length).toBe(0);
     chWrite.close();
-    await expect(sendPromise).rejects.toThrow(Channel.Error.ChannelClosedError);
+    await expect(sendPromise).rejects.toThrow(ChannelError.ChannelClosedError);
   });
 
   it('send returns closed error when closed while sending and catchChannelErrors', async () => {
@@ -439,7 +444,7 @@ describe('RemoteChannel buffer 1', () => {
     expect(chRead.length).toBe(0);
     chWrite.close();
     await expect(sendPromise).resolves.toBeInstanceOf(
-      Channel.Error.ChannelClosedError
+      ChannelError.ChannelClosedError
     );
   });
 
@@ -467,7 +472,7 @@ describe('RemoteChannel buffer 1', () => {
     try {
       await chWrite.send('A');
       await expect(chWrite.send(MSG, { timeoutMs: 10 })).rejects.toThrow(
-        Channel.Error.TimeoutError
+        ChannelError.TimeoutError
       );
     } finally {
       chWrite.close();
@@ -484,7 +489,7 @@ describe('RemoteChannel buffer 1', () => {
           timeoutMs: 100,
           catchChannelErrors: true,
         })
-      ).resolves.toBeInstanceOf(Channel.Error.TimeoutError);
+      ).resolves.toBeInstanceOf(ChannelError.TimeoutError);
     } finally {
       chWrite.close();
     }
@@ -500,7 +505,7 @@ describe('RemoteChannel buffer 1', () => {
           catchChannelErrors: true,
           timeoutMs: 100,
         })
-      ).resolves.toBeInstanceOf(Channel.Error.TimeoutError);
+      ).resolves.toBeInstanceOf(ChannelError.TimeoutError);
     } finally {
       chWrite.close();
     }
@@ -516,7 +521,7 @@ describe('RemoteChannel buffer 1', () => {
         chWrite.send(MSG, {
           signal: controller.signal,
         })
-      ).rejects.toThrow(Channel.Error.OperationAbortedError);
+      ).rejects.toThrow(ChannelError.OperationAbortedError);
     } finally {
       chWrite.close();
     }
@@ -534,7 +539,7 @@ describe('RemoteChannel buffer 1', () => {
         chWrite.send(MSG, {
           signal: controller.signal,
         })
-      ).rejects.toThrow(Channel.Error.OperationAbortedError);
+      ).rejects.toThrow(ChannelError.OperationAbortedError);
     } finally {
       chWrite.close();
     }
@@ -551,7 +556,7 @@ describe('RemoteChannel buffer 1', () => {
           signal: controller.signal,
           catchChannelErrors: true,
         })
-      ).resolves.toBeInstanceOf(Channel.Error.OperationAbortedError);
+      ).resolves.toBeInstanceOf(ChannelError.OperationAbortedError);
     } finally {
       chWrite.close();
     }
@@ -564,7 +569,7 @@ describe('RemoteChannel buffer 1', () => {
       await chWrite.send('A');
 
       await expect(chWrite.send(MSG, { timeoutMs: 100 })).rejects.toThrow(
-        Channel.Error.TimeoutError
+        ChannelError.TimeoutError
       );
     } finally {
       chWrite.close();
@@ -582,7 +587,7 @@ describe('RemoteChannel buffer 1', () => {
           timeoutMs: 100,
           recover: (err) => err,
         })
-      ).resolves.toBeInstanceOf(Channel.Error.TimeoutError);
+      ).resolves.toBeInstanceOf(ChannelError.TimeoutError);
       expect(chRead.length).toBe(0);
     } finally {
       chWrite.close();
@@ -600,7 +605,7 @@ describe('RemoteChannel buffer 1', () => {
           recover: (err) => err,
           timeoutMs: 100,
         })
-      ).resolves.toBeInstanceOf(Channel.Error.TimeoutError);
+      ).resolves.toBeInstanceOf(ChannelError.TimeoutError);
       expect(chRead.length).toBe(0);
     } finally {
       chWrite.close();
@@ -691,14 +696,14 @@ describe('RemoteChannel capacity 3', () => {
       await expect(chRead.receive()).resolves.toBe('B');
       await expect(chRead.receive()).resolves.toBe('C');
       await expect(chRead.receive({ timeoutMs: 10 })).rejects.toThrow(
-        Channel.Error.TimeoutError
+        ChannelError.TimeoutError
       );
       await chWrite.send('E');
       await chWrite.send('F');
       await expect(chRead.receive()).resolves.toBe('E');
       await expect(chRead.receive()).resolves.toBe('F');
       await expect(chRead.receive({ timeoutMs: 10 })).rejects.toThrow(
-        Channel.Error.TimeoutError
+        ChannelError.TimeoutError
       );
     } finally {
       chWrite.close();

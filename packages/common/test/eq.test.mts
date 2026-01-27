@@ -1,4 +1,5 @@
-import { Eq } from '../src/index.mjs';
+import { describe, it, expect } from 'bun:test';
+import { Eq } from '../src/eq.mjs';
 
 describe('Eq', () => {
   it('objectIs', () => {

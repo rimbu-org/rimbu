@@ -1,4 +1,5 @@
-import { RimbuError } from '../src/index.mjs';
+import { describe, expect, it } from 'bun:test';
+import * as RimbuError from '../src/rimbu-error.mjs';
 
 describe('RimbuError', () => {
   it('throwEmptyCollectionAssumedNonEmptyError', () => {

@@ -1,6 +1,11 @@
-import { Comp, Eq } from '@rimbu/common';
+import { describe, expect, it } from 'bun:test';
 
-import { Reducer, Stream } from '../src/main/index.mjs';
+import { Comp } from '@rimbu/common/comp';
+import { Eq } from '@rimbu/common/eq';
+
+import { Stream } from '@rimbu/stream';
+
+import { Reducer } from '@rimbu/stream/reducer';
 
 describe('Reducer', () => {
   it('create', () => {

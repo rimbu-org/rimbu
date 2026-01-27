@@ -1,4 +1,6 @@
-import { TraverseState, Update, type ArrayNonEmpty } from '@rimbu/common';
+import { TraverseState } from '@rimbu/common/traverse-state';
+import type { ArrayNonEmpty } from '@rimbu/common/types';
+import { Update } from '@rimbu/common/update';
 
 /**
  * Internal helper that appends a value using the modern immutable `toSpliced` API.

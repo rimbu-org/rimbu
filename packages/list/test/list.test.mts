@@ -1,7 +1,10 @@
-import { Comp, type CollectFun } from '@rimbu/common';
+import { describe, expect, it } from 'bun:test';
+
+import type { CollectFun } from '@rimbu/common/collect';
+import { Comp } from '@rimbu/common/comp';
 import { Stream } from '@rimbu/stream';
 
-import { List as ListSrc } from '../src/main/index.mjs';
+import { List as ListSrc } from '@rimbu/list';
 
 const List = ListSrc.createContext({ blockSizeBits: 2 });
 

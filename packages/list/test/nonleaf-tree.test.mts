@@ -1,13 +1,13 @@
-import { Stream } from '@rimbu/stream';
-import { TraverseState } from '@rimbu/common';
+import { describe, expect, it, vi } from 'bun:test';
 
-import {
-  LeafBlock,
-  ListContext,
-  NonLeafBlock,
-  NonLeafTree,
-  NonLeafTreeBuilder,
-} from '../src/custom/index.mjs';
+import { TraverseState } from '@rimbu/common/traverse-state';
+import { Stream } from '@rimbu/stream';
+
+import { NonLeafTreeBuilder } from '#list/builder/nonleaf/tree';
+import { ListContext } from '#list/context';
+import type { LeafBlock } from '#list/immutable/leaf/block';
+import { NonLeafBlock } from '#list/immutable/nonleaf/block';
+import { NonLeafTree } from '#list/immutable/nonleaf/tree';
 
 const context = new ListContext(2);
 

@@ -1,4 +1,6 @@
-import { Mutex } from '../src/main/index.mjs';
+import { describe, expect, it } from 'bun:test';
+
+import { Mutex } from '@rimbu/channel/mutex';
 
 describe('Mutex', () => {
   it('disallows acquiring twice synchronously', async () => {

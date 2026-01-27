@@ -35,20 +35,30 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/esm/main/index.d.mts",
-      "import": "./dist/esm/main/index.mjs"
+      "types": "./dist/entry/stream.d.mts",
+      "default": "./dist/entry/stream.mjs"
     },
     "./async": {
-      "types": "./dist/esm/async/index.d.mts",
-      "import": "./dist/esm/async/index.mjs"
+      "types": "./dist/entry/async-stream.d.mts",
+      "default": "./dist/entry/async-stream.mjs"
     },
-    "./async-custom": {
-      "types": "./dist/esm/async-custom/index.d.mts",
-      "import": "./dist/esm/async-custom/index.mjs"
+    "./*": {
+      "types": "./dist/public/*.d.mts",
+      "default": "./dist/public/*.mjs"
+    }
+  },
+  "imports": {
+    "#async/*": {
+      "types": "./dist/public/async/internal/*.d.mts",
+      "default": "./dist/public/async/internal/*.mjs"
     },
-    "./custom": {
-      "types": "./dist/esm/custom/index.d.mts",
-      "import": "./dist/esm/custom/index.mjs"
+    "#stream/*": {
+      "types": "./dist/public/internal/*.d.mts",
+      "default": "./dist/public/internal/*.mjs"
+    },
+    "#private/*": {
+      "types": "./dist/private/*.d.mts",
+      "default": "./dist/private/*.mjs"
     }
   },
   "files": [
@@ -56,10 +66,8 @@
     "src"
   ],
   "scripts": {
-    "build": "yarn clean && yarn bundle",
-    "bundle": "tsc --p tsconfig.esm.json",
+    "build": "bun clean && bunx tsc --p tsconfig.esm.json && bunx tsc-alias -p tsconfig.esm.json",
     "clean": "rimraf dist",
-    "circular": "npx -y madge --ts-config tsconfig.json --circular --extensions mts src/main/index.mts",
     "extract-api": "yarn extract-api:main && yarn extract-api:custom && yarn extract-api:async && yarn extract-api:async-custom",
     "extract-api:main": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
     "extract-api:custom": "tsx ../../config/api-extractor.ts config/api-extractor.custom.json",
@@ -69,26 +77,17 @@
     "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
-    "test": "vitest run",
-    "test:cov": "vitest run --coverage",
-    "test:watch": "vitest",
-    "test:types": "tsd --files test-d",
+    "test": "bun test --tsconfig-override tsconfig.common.json",
+    "test:types": "bunx tsd --files ./test-d --typings ./dist/arr.d.mts",
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@rimbu/base": "^2.0.7",
-    "@rimbu/common": "^2.0.7",
+    "@rimbu/base": "workspace:*",
+    "@rimbu/common": "workspace:*",
     "tslib": "^2.8.1"
   },
   "publishConfig": {
     "access": "public",
     "provenance": true
-  },
-  "madge": {
-    "detectiveOptions": {
-      "ts": {
-        "skipTypeImports": true
-      }
-    }
   }
 }

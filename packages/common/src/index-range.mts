@@ -1,4 +1,4 @@
-import type { Range } from './internal.mjs';
+import type { Range } from '@rimbu/common/range';
 
 /**
  * A flexible range specification for numeric indices.

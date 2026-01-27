@@ -1,8 +1,12 @@
-import { Reducer } from '@rimbu/stream';
-import { AsyncStream } from '@rimbu/stream/async';
+import { describe, expect, it } from 'bun:test';
 
-import { timeout } from '../src/custom/index.mjs';
-import { Channel, Mutex, WaitGroup } from '../src/main/index.mjs';
+import { AsyncStream } from '@rimbu/stream/async';
+import { Reducer } from '@rimbu/stream/reducer';
+
+import { timeout } from '#channel/utils';
+import { Channel } from '@rimbu/channel';
+import { Mutex } from '@rimbu/channel/mutex';
+import { WaitGroup } from '@rimbu/channel/wait-group';
 
 describe('web examples', () => {
   it('greet', async () => {

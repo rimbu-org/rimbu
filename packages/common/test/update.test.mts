@@ -1,4 +1,5 @@
-import { Update } from '../src/index.mjs';
+import { describe, it, expect } from 'bun:test';
+import { Update } from '../src/update.mjs';
 
 describe('Update', () => {
   it('updates', () => {

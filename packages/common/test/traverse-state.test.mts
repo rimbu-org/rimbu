@@ -1,4 +1,5 @@
-import { TraverseState } from '../src/index.mjs';
+import { describe, it, expect } from 'bun:test';
+import { TraverseState } from '../src/traverse-state.mjs';
 
 describe('TraverseState', () => {
   it('default', () => {

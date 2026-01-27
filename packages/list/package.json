@@ -35,12 +35,22 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/esm/main/index.d.mts",
-      "import": "./dist/esm/main/index.mjs"
+      "types": "./dist/entry/list.d.mts",
+      "default": "./dist/entry/list.mjs"
     },
-    "./custom": {
-      "types": "./dist/esm/custom/index.d.mts",
-      "import": "./dist/esm/custom/index.mjs"
+    "./*": {
+      "types": "./dist/public/*.d.mts",
+      "default": "./dist/public/*.mjs"
+    }
+  },
+  "imports": {
+    "#list/*": {
+      "types": "./dist/public/internal/*.d.mts",
+      "default": "./dist/public/internal/*.mjs"
+    },
+    "#private/*": {
+      "types": "./dist/private/*.d.mts",
+      "default": "./dist/private/*.mjs"
     }
   },
   "files": [
@@ -48,10 +58,8 @@
     "src"
   ],
   "scripts": {
-    "build": "yarn clean && yarn bundle",
-    "bundle": "tsc --p tsconfig.esm.json",
+    "build": "bun clean && bunx tsc --p tsconfig.esm.json",
     "clean": "rimraf dist",
-    "circular": "npx -y madge --ts-config tsconfig.json --circular --extensions mts src/main/index.mts",
     "extract-api": "yarn extract-api:main && yarn extract-api:custom",
     "extract-api:custom": "tsx ../../config/api-extractor.ts config/api-extractor.custom.json",
     "extract-api:main": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
@@ -59,29 +67,20 @@
     "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
-    "test": "vitest run",
-    "test:cov": "vitest run --coverage",
-    "test:watch": "vitest",
-    "test:random": "vitest run --config vitest.random.config.ts",
-    "test:types": "tsd --files test-d",
+    "test": "bun test test/* --tsconfig-override tsconfig.common.json",
+    "test:random": "bun test test-random",
+    "test:types": "bunx tsd --files ./test-d --typings ./dist/entry/list.d.mts",
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@rimbu/base": "^2.0.7",
-    "@rimbu/collection-types": "^2.1.10",
-    "@rimbu/common": "^2.0.7",
-    "@rimbu/stream": "^3.0.3",
+    "@rimbu/base": "workspace:*",
+    "@rimbu/collection-types": "workspace:*",
+    "@rimbu/common": "workspace:*",
+    "@rimbu/stream": "workspace:*",
     "tslib": "^2.8.1"
   },
   "publishConfig": {
     "access": "public",
     "provenance": true
-  },
-  "madge": {
-    "detectiveOptions": {
-      "ts": {
-        "skipTypeImports": true
-      }
-    }
   }
 }

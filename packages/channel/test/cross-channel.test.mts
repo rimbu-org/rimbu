@@ -1,4 +1,7 @@
-import { Channel, CrossChannel } from '../src/main/index.mjs';
+import { describe, expect, it } from 'bun:test';
+
+import { ChannelError } from '@rimbu/channel';
+import { CrossChannel } from '@rimbu/channel/cross-channel';
 
 describe('CrossChannel', () => {
   it('basic API works', () => {
@@ -23,13 +26,13 @@ describe('CrossChannel', () => {
     const [sendCh, receiveCh] = CrossChannel.createPair<number, string>();
     const sendPromise = sendCh.send(4);
     await expect(sendCh.receive({ timeoutMs: 10 })).rejects.toThrow(
-      Channel.Error.TimeoutError
+      ChannelError.TimeoutError
     );
     await expect(receiveCh.receive()).resolves.toBe(4);
 
     receiveCh.send('A');
     await expect(receiveCh.receive({ timeoutMs: 10 })).rejects.toThrow(
-      Channel.Error.TimeoutError
+      ChannelError.TimeoutError
     );
     await expect(sendCh.receive()).resolves.toBe('A');
     await sendPromise;
@@ -40,7 +43,7 @@ describe('CrossChannel', () => {
     sendCh.close();
 
     await expect(sendCh.send(4)).rejects.toThrow(
-      Channel.Error.ChannelClosedError
+      ChannelError.ChannelClosedError
     );
 
     const sendPromise = receiveCh.send('A');
@@ -61,7 +64,7 @@ describe('CrossChannel', () => {
     await sendPromise;
 
     await expect(receiveCh.receive({ timeoutMs: 10 })).rejects.toThrow(
-      Channel.Error.TimeoutError
+      ChannelError.TimeoutError
     );
   });
 });

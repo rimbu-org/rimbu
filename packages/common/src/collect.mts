@@ -1,4 +1,4 @@
-import type { MaybePromise } from './internal.mjs';
+import type { MaybePromise } from '@rimbu/common/async-opt-lazy';
 
 /**
  * A function used in `collect` methods to collect values from a collection. This is basically a single-pass map and filter.

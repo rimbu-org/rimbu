@@ -1,6 +1,10 @@
-import { Reducer, Transformer } from '../src/main/index.mjs';
+import { describe, expect, it } from 'bun:test';
 
-import { AsyncStream, AsyncTransformer } from '../src/async/index.mjs';
+import { AsyncStream } from '@rimbu/stream/async';
+import { Reducer } from '@rimbu/stream/reducer';
+import { Transformer } from '@rimbu/stream/transformer';
+
+import { AsyncTransformer } from '@rimbu/stream/async/transformer';
 
 describe('AsyncTransformer', () => {
   it('window', async () => {

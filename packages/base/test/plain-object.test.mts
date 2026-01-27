@@ -1,4 +1,5 @@
-import { isPlainObj } from '../src/index.mjs';
+import { describe, expect, it } from 'bun:test';
+import { isPlainObj } from '../src/plain-object.mjs';
 
 describe('isPlainObj', () => {
   it('returns false for primitive types', () => {

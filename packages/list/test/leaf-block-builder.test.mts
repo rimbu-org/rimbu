@@ -1,4 +1,7 @@
-import { LeafTreeBuilder, ListContext } from '../src/custom/index.mjs';
+import { describe, expect, it, vi } from 'bun:test';
+
+import { LeafTreeBuilder } from '#list/builder/leaf/tree';
+import { ListContext } from '#list/context';
 
 const context = new ListContext(2);
 
