@@ -1,4 +1,6 @@
-import { Tuple } from '../src/index.mjs';
+import { describe, expect, it } from 'bun:test';
+
+import { Tuple } from '@rimbu/deep/tuple';
 
 describe('Tuple', () => {
   const tuple = Tuple.of(1, 'a', true);
@@ -30,7 +32,7 @@ describe('Tuple', () => {
   });
 
   it('concat', () => {
-    expect(Tuple.concat(tuple, tuple)).toEqual(tuple.concat(tuple));
+    expect(Tuple.concat(tuple, tuple)).toEqual(tuple.concat(tuple) as any);
   });
 
   it('init', () => {

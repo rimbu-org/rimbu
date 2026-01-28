@@ -1,4 +1,4 @@
-import type { IsAny, IsPlainObj } from '@rimbu/base';
+import type { IsAny, IsPlainObj } from '@rimbu/base/plain-object';
 
 /**
  * A deep readonly typed version of given type T. Makes all properties or elements read only.

@@ -40,15 +40,15 @@ describe('Semaphore', () => {
     expect(() => sem.release()).not.toThrow();
   });
 
-  it('throws when acquiring more than size', async () => {
+  it('throws when acquiring more than size', () => {
     const sem = Semaphore.create({ maxSize: 1 });
 
-    await expect(sem.acquire(2)).rejects.toThrow(
+    expect(sem.acquire(2)).rejects.toThrow(
       SemaphoreError.InsufficientCapacityError
     );
   });
 
-  it('throws when releasing more than current size', async () => {
+  it('throws when releasing more than current size', () => {
     const sem = Semaphore.create({ maxSize: 1 });
 
     expect(() => sem.release()).toThrow(SemaphoreError.CapacityUnderflowError);
@@ -142,14 +142,14 @@ describe('Semaphore', () => {
     expect(sem.canAcquire(4)).toBe(false);
   });
 
-  it('disallows acquiring too much weight synchronously', async () => {
+  it('disallows acquiring too much weight synchronously', () => {
     const sem = Semaphore.create({ maxSize: 1 });
 
     const a1 = sem.acquire(1, { timeoutMs: 100 });
     const a2 = sem.acquire(1, { timeoutMs: 100 });
 
-    await expect(a1).resolves.toBeUndefined();
-    await expect(a2).rejects.toThrow();
+    expect(a1).resolves.toBeUndefined();
+    expect(a2).rejects.toThrow();
   });
 
   it('can release weight without waiting', async () => {

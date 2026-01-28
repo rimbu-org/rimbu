@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'bun:test';
+import { beforeEach, describe, expect, it, vi } from 'bun:test';
 
 import {
   attachAbort,
@@ -71,14 +71,14 @@ describe('utils', () => {
       expect(spy).not.toBeCalled();
     });
 
-    it('resolves to undefined after given time', async () => {
+    it('resolves to undefined after given time', () => {
       const spy = vi.spyOn(window, 'setTimeout');
 
       let resolved = false;
       const result = timeout(100);
       result.then(() => (resolved = true));
       expect(resolved).toBe(false);
-      await expect(result).resolves.toBeUndefined();
+      expect(result).resolves.toBeUndefined();
       expect(resolved).toBe(true);
 
       expect(spy).toBeCalledTimes(1);

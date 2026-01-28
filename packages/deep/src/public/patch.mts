@@ -3,10 +3,12 @@ import {
   type IsArray,
   isPlainObj,
   type IsPlainObj,
-} from '@rimbu/base';
+} from '@rimbu/base/plain-object';
 
-import type { Protected } from './internal.mjs';
-import type { Tuple } from './tuple.mjs';
+import { stringSplit } from '#private/string-split';
+import type { Protected } from '@rimbu/deep';
+import type { Path } from '@rimbu/deep/path';
+import type { Tuple } from '@rimbu/deep/tuple';
 
 /**
  * A type to determine the allowed input type for the `patch` function.
@@ -260,4 +262,108 @@ function patchArr<T extends any[], C, R>(
 
   // nothing changed, return old value
   return value;
+}
+
+/**
+ * Returns a function that patches a given `source` with the given `patchItems`.
+ * @typeparam T - the patch value type
+ * @typeparam TE - utility type
+ * @typeparam TT - utility type
+ * @param patchItem - the `Patch` definition to update the given value of type `T` with.
+ * @param source - the value to use the given `patchItem` on.
+ * @example
+ * ```ts
+ * const items = [{ a: 1, b: 'a' }, { a: 2, b: 'b' }];
+ * items.map(patchWith([{ a: v => v + 1 }]));
+ * // => [{ a: 2, b: 'a' }, { a: 3, b: 'b' }]
+ * ```
+ */
+export function patchWith<T, TE extends T = T, TT = T>(
+  patchItem: Patch<TT, TE>
+): (source: TE) => T {
+  return (source) => patch(source, patchItem as any);
+}
+
+/**
+ * Patches the value at the given path in the source to the given value.
+ * Because the path to update must exist in the `source` object, optional
+ * chaining and array indexing is not allowed.
+ * @param source - the object to update
+ * @param path - the path in the object to update
+ * @param patchItem - the patch for the value at the given path
+ * @example
+ * ```ts
+ * const value = { a: { b: { c: 5 } } };
+ * patchAt(value, 'a.b.c', v => v + 5);
+ * // => { a: { b: { c: 6 } } }
+ * ```
+ */
+export function patchAt<T, P extends Path.Set<T>, C = Path.Result<T, P>>(
+  source: T,
+  path: P,
+  patchItem: Patch<Path.Result<T, P>, Path.Result<T, P> & C>
+): T {
+  if (path === '') {
+    return patch(source, patchItem as any);
+  }
+
+  const items = stringSplit(path);
+
+  // creates a patch object based on the current path
+  function createPatchPart(index: number, target: any): any {
+    if (index === items.length) {
+      // processed all items, return the input `patchItem`
+      return patchItem;
+    }
+
+    const item = items[index];
+
+    if (undefined === item || item === '') {
+      // empty items can be ignored
+      return createPatchPart(index + 1, target);
+    }
+
+    if (item === '[') {
+      // next item is array index, set arrayMode to true
+      return createPatchPart(index + 1, target);
+    }
+
+    // create object with subPart as property key, and the restuls of processing next parts as value
+    const result = {
+      [item]: createPatchPart(index + 1, target[item]),
+    };
+
+    if (Array.isArray(target)) {
+      // target in source object is array/tuple, so the patch should be object
+      return result;
+    }
+
+    // target in source is not an array, so it patch should be an array
+    return [result];
+  }
+
+  return patch(source, createPatchPart(0, source));
+}
+
+/**
+ * Returns a function that patches a given `value` with the given `patchItems` at the given `path`.
+ * @typeparam T - the patch value type
+ * @typeparam P - the string literal path type in the object
+ * @typeparam TE - utility type
+ * @typeparam TT - utility type
+ * @param path - the string path in the object
+ * @param patchItem - the `Patch` definition to update the value at the given `path` in `T` with.
+ * @param source - the value to use the given `patchItem` on at the given `path`.
+ * @example
+ * ```ts
+ * const items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];
+ * items.map(patchAtWith('a', [{ b: (v) => v + 1 }]));
+ * // => [{ a: { b: 2, c: 'a' } }, { a: { b: 3, c: 'b' } }]
+ * ```
+ */
+export function patchAtWith<T, P extends Path.Set<T>, TE extends T = T, TT = T>(
+  path: P,
+  patchItem: Patch<Path.Result<TE, P>, Path.Result<TT, P>>
+): (source: T) => T {
+  return (source) => patchAt(source, path, patchItem as any);
 }

@@ -1,5 +1,5 @@
-import { Arr } from '@rimbu/base';
-import type { Update } from '@rimbu/common';
+import * as Arr from '@rimbu/base/arr';
+import type { Update } from '@rimbu/common/update';
 
 /**
  * A readonly array of fixed length and types.

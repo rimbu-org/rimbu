@@ -1,6 +1,8 @@
+import { describe, expect, it } from 'bun:test';
+
 import { List } from '@rimbu/list';
 
-import { getAt, patchAt, Tuple } from '../src/index.mjs';
+import { getAt } from '@rimbu/deep';
 
 const m = {
   a: 1,
@@ -36,52 +38,5 @@ describe('getAt', () => {
   it('gets in nullable nested value', () => {
     const v = null as null | { a: number };
     expect(getAt(v, '?.a')).toBeUndefined();
-  });
-});
-
-describe('patchAt', () => {
-  it('patches simple props', () => {
-    expect(patchAt(m, '', m)).toBe(m);
-    expect(patchAt(m, 'a', 1)).toBe(m);
-    expect(patchAt(m, 'a', 2)).toMatchObject({ a: 2 });
-    expect(patchAt(m, 'a', (v) => v + 1)).toMatchObject({ a: 2 });
-    expect(patchAt(m, 'c.d', false)).toMatchObject({
-      c: { d: false },
-    });
-    expect(patchAt(m, 'c', [{ d: false }])).toMatchObject({
-      c: { d: false },
-    });
-    expect(patchAt(m, 'c.d', (v) => !v)).toMatchObject({
-      c: { d: false },
-    });
-  });
-
-  it('patches optional props', () => {
-    const q = {
-      b: null as null | { a: number },
-      c: { a: 1 } as null | { a: number },
-    };
-    expect(patchAt(q, 'b', null)).toBe(q);
-    expect(patchAt(q, 'c', null)).toEqual({ b: null, c: null });
-    expect(patchAt(q, '', [{ c: null }])).toEqual({ b: null, c: null });
-  });
-
-  it('patches array', () => {
-    const q = {
-      b: [1, 2, 3],
-      c: 'a',
-    };
-
-    expect(patchAt(q, 'b', [10, 11])).toEqual({ b: [10, 11], c: 'a' });
-  });
-
-  it('patches tuple', () => {
-    const q = {
-      b: Tuple.of(1, 'a'),
-      c: 'a',
-    };
-
-    expect(patchAt(q, 'b[0]', 2)).toEqual({ b: [2, 'a'], c: 'a' });
-    expect(patchAt(q, 'b[0]', (v) => v + 1)).toEqual({ b: [2, 'a'], c: 'a' });
   });
 });

@@ -1,6 +1,9 @@
+import { describe, expect, it } from 'bun:test';
+
 import { List } from '@rimbu/list';
 
-import { Tuple, patch } from '../src/index.mjs';
+import { patch, patchAt, patchAtWith, patchWith } from '@rimbu/deep/patch';
+import { Tuple } from '@rimbu/deep/tuple';
 
 describe('patch', () => {
   it('undefined', () => {
@@ -510,5 +513,130 @@ describe('patch', () => {
         { nest: [{ total: (v, p, r) => v + r.nest.count }] },
       ])
     ).toEqual({ nest: { count: 1, total: 11 } });
+  });
+});
+
+describe('patchAt', () => {
+  const m = {
+    a: 1,
+    b: ['abc', 'def'],
+    c: {
+      d: true,
+      e: [1, 'a'] as [number, string] | null,
+    },
+    f: List.of(1, 2, 3),
+  };
+
+  it('patches at given path', () => {
+    expect(patchAt(m, 'a', 1)).toBe(m);
+    expect(patchAt(m, 'a', 2)).toMatchObject({ a: 2 });
+    expect(patchAt(m, 'a', (v) => v + 1)).toMatchObject({ a: 2 });
+    expect(patchAt(m, 'c.d', false)).toMatchObject({
+      c: { d: false },
+    });
+    expect(patchAt(m, 'c.d', (v) => !v)).toMatchObject({
+      c: { d: false },
+    });
+
+    expect(patchAt(m, 'c', [{ d: (v) => !v }])).toEqual({
+      ...m,
+      c: { ...m.c, d: false },
+    });
+  });
+
+  it('patches simple props', () => {
+    expect(patchAt(m, '', m)).toBe(m);
+    expect(patchAt(m, 'a', 1)).toBe(m);
+    expect(patchAt(m, 'a', 2)).toMatchObject({ a: 2 });
+    expect(patchAt(m, 'a', (v) => v + 1)).toMatchObject({ a: 2 });
+    expect(patchAt(m, 'c.d', false)).toMatchObject({
+      c: { d: false },
+    });
+    expect(patchAt(m, 'c', [{ d: false }])).toMatchObject({
+      c: { d: false },
+    });
+    expect(patchAt(m, 'c.d', (v) => !v)).toMatchObject({
+      c: { d: false },
+    });
+  });
+
+  it('patches simple 2', () => {
+    expect(patchAt(m, 'a', 1)).toBe(m);
+    expect(patchAt(m, 'a', 2)).toMatchObject({ a: 2 });
+    expect(patchAt(m, 'a', (v) => v + 1)).toMatchObject({ a: 2 });
+    expect(patchAt(m, 'c.d', false)).toMatchObject({
+      c: { d: false },
+    });
+    expect(patchAt(m, 'c.d', (v) => !v)).toMatchObject({
+      c: { d: false },
+    });
+
+    expect(patchAt(m, 'c', [{ d: (v) => !v }])).toEqual({
+      ...m,
+      c: { ...m.c, d: false },
+    });
+  });
+
+  it('patches optional props', () => {
+    const q = {
+      b: null as null | { a: number },
+      c: { a: 1 } as null | { a: number },
+    };
+    expect(patchAt(q, 'b', null)).toBe(q);
+    expect(patchAt(q, 'c', null)).toEqual({ b: null, c: null });
+    expect(patchAt(q, '', [{ c: null }])).toEqual({ b: null, c: null });
+  });
+
+  it('patches array', () => {
+    const q = {
+      b: [1, 2, 3],
+      c: 'a',
+    };
+
+    expect(patchAt(q, 'b', [10, 11])).toEqual({ b: [10, 11], c: 'a' });
+  });
+
+  it('patches tuple', () => {
+    const q = {
+      b: Tuple.of(1, 'a'),
+      c: 'a',
+    };
+
+    expect(patchAt(q, 'b[0]', 2)).toEqual({ b: [2, 'a'], c: 'a' });
+    expect(patchAt(q, 'b[0]', (v) => v + 1)).toEqual({ b: [2, 'a'], c: 'a' });
+  });
+});
+
+describe('patchWith', () => {
+  it('patches input object with given patch', () => {
+    expect([{ a: 1 }, { a: 2 }].map(patchWith({ a: 5 }))).toEqual([
+      { a: 5 },
+      { a: 5 },
+    ]);
+    expect(
+      [
+        { a: 1, b: 'a' },
+        { a: 2, b: 'b' },
+      ].map(patchWith([{ a: 5 }]))
+    ).toEqual([
+      { a: 5, b: 'a' },
+      { a: 5, b: 'b' },
+    ]);
+  });
+});
+
+describe('patchAtWith', () => {
+  it('patches input object at given path', () => {
+    expect(
+      [{ a: { b: 'a', c: 1 } }, { a: { b: 'b', c: 2 } }].map(
+        patchAtWith('a', [{ c: 5 }])
+      )
+    ).toEqual([{ a: { b: 'a', c: 5 } }, { a: { b: 'b', c: 5 } }]);
+
+    expect(
+      [{ a: { b: 'a', c: 1 } }, { a: { b: 'b', c: 2 } }].map(
+        patchAtWith('a.c', (v) => v + 10)
+      )
+    ).toEqual([{ a: { b: 'a', c: 11 } }, { a: { b: 'b', c: 12 } }]);
   });
 });

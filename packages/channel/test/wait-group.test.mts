@@ -14,7 +14,7 @@ describe('WaitGroup', () => {
     const wg = WaitGroup.create();
     wg.add();
     const waitWg = wg.wait();
-    await expectNotResolves(waitWg);
+    expectNotResolves(waitWg);
     wg.done();
     await waitWg;
   });
@@ -24,8 +24,8 @@ describe('WaitGroup', () => {
     wg.add();
     const waitWg1 = wg.wait();
     const waitWg2 = wg.wait();
-    await expectNotResolves(waitWg1);
-    await expectNotResolves(waitWg2);
+    expectNotResolves(waitWg1);
+    expectNotResolves(waitWg2);
     wg.done();
     await waitWg1;
     await waitWg2;
@@ -35,11 +35,11 @@ describe('WaitGroup', () => {
     const wg = WaitGroup.create();
     wg.add(5);
     const waitWg = wg.wait();
-    await expectNotResolves(waitWg);
+    expectNotResolves(waitWg);
     wg.done(2);
-    await expectNotResolves(waitWg);
+    expectNotResolves(waitWg);
     wg.done();
-    await expectNotResolves(waitWg);
+    expectNotResolves(waitWg);
     wg.done(10);
     await waitWg;
   });
@@ -48,13 +48,13 @@ describe('WaitGroup', () => {
     const wg = WaitGroup.create();
     wg.add();
     const waitWg1 = wg.wait();
-    await expectNotResolves(waitWg1);
+    expectNotResolves(waitWg1);
     wg.done();
     await waitWg1;
 
     wg.add();
     const waitWg2 = wg.wait();
-    await expectNotResolves(waitWg2);
+    expectNotResolves(waitWg2);
     wg.done();
     await waitWg2;
   });

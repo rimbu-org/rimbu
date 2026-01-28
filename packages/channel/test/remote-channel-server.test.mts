@@ -24,8 +24,8 @@ describe('RemoteChannelServer', () => {
     const writeCh = await server.writeChannelCh.receive();
 
     const sendPromise = writeCh.send('MSG');
-    await expectNotResolves(sendPromise);
-    await expect(readCh.receive()).resolves.toBe('MSG');
+    expectNotResolves(sendPromise);
+    expect(readCh.receive()).resolves.toBe('MSG');
     await sendPromise;
   });
 
@@ -36,8 +36,8 @@ describe('RemoteChannelServer', () => {
     const readCh = await server.readChannelCh.receive();
 
     const sendPromise = writeCh.send('MSG');
-    await expectNotResolves(sendPromise);
-    await expect(readCh.receive()).resolves.toBe('MSG');
+    expectNotResolves(sendPromise);
+    expect(readCh.receive()).resolves.toBe('MSG');
     await sendPromise;
   });
 
@@ -51,13 +51,13 @@ describe('RemoteChannelServer', () => {
     const serverCh = await server.crossChannelCh.receive();
 
     const clientSendPromise = clientCh.send('MSG');
-    await expectNotResolves(clientSendPromise);
-    await expect(serverCh.receive()).resolves.toBe('MSG');
+    expectNotResolves(clientSendPromise);
+    expect(serverCh.receive()).resolves.toBe('MSG');
     await clientSendPromise;
 
     const serverSendPromise = serverCh.send(5);
-    await expectNotResolves(serverSendPromise);
-    await expect(clientCh.receive()).resolves.toBe(5);
+    expectNotResolves(serverSendPromise);
+    expect(clientCh.receive()).resolves.toBe(5);
     await serverSendPromise;
   });
 });

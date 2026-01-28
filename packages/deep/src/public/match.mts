@@ -1,184 +1,20 @@
-import {
-  type IsAnyFunc,
-  type IsArray,
-  isPlainObj,
-  type IsPlainObj,
-  type NotIterable,
-} from '@rimbu/base';
-import type { Protected } from './internal.mjs';
-import type { Tuple } from './tuple.mjs';
+import { isPlainObj } from '@rimbu/base/plain-object';
+
+import type { MatchInternal } from '#deep/match-internal';
+import { getAt } from '@rimbu/deep';
+import type { Path } from '@rimbu/deep/path';
 
 /**
  * The type to determine the allowed input values for the `match` function.
  * @typeparam T - the type of value to match
  * @typeparam C - utility type
  */
-export type Match<T, C extends Partial<T> = Partial<T>> = Match.Entry<
+export type Match<T, C extends Partial<T> = Partial<T>> = MatchInternal.Entry<
   T,
   C,
   T,
   T
 >;
-
-export namespace Match {
-  /**
-   * Determines the various allowed match types for given type `T`.
-   * @typeparam T - the input value type
-   * @typeparam C - utility type
-   * @typeparam P - the parent type
-   * @typeparam R - the root object type
-   */
-  export type Entry<T, C, P, R> =
-    IsAnyFunc<T> extends true
-      ? // function can only be directly matched
-        T
-      : IsPlainObj<T> extends true
-        ? // determine allowed match values for object
-          Match.WithResult<T, P, R, Match.Obj<T, C, P, R>>
-        : IsArray<T> extends true
-          ? // determine allowed match values for array or tuple
-            | Match.Arr<T, C, P, R>
-              | Match.Entry<T[number & keyof T], C[number & keyof C], P, R>[]
-              | Match.Func<
-                  T,
-                  P,
-                  R,
-                  | Match.Arr<T, C, P, R>
-                  | Match.Entry<
-                      T[number & keyof T],
-                      C[number & keyof C],
-                      P,
-                      R
-                    >[]
-                >
-          : // only accept values with same interface
-            Match.WithResult<T, P, R, { [K in keyof C]: C[K & keyof T] }>;
-
-  /**
-   * The type that determines allowed matchers for objects.
-   * @typeparam T - the input value type
-   * @typeparam C - utility type
-   * @typeparam P - the parent type
-   * @typeparam R - the root object type
-   */
-  export type Obj<T, C, P, R> =
-    | Match.ObjProps<T, C, R>
-    | Match.CompoundForObj<T, C, P, R>;
-
-  /**
-   * The type to determine allowed matchers for object properties.
-   * @typeparam T - the input value type
-   * @typeparam C - utility type
-   * @typeparam R - the root object type
-   */
-  export type ObjProps<T, C, R> = {
-    [K in keyof C]?: K extends keyof T ? Match.Entry<T[K], C[K], T, R> : never;
-  };
-
-  /**
-   * The type that determines allowed matchers for arrays/tuples.
-   * @typeparam T - the input value type
-   * @typeparam C - utility type
-   * @typeparam P - the parent type
-   * @typeparam R - the root object type
-   */
-  export type Arr<T, C, P, R> =
-    | C
-    | Match.CompoundForArr<T, C, P, R>
-    | Match.TraversalForArr<T, C, R>
-    | (Match.TupIndices<T, C, R> & {
-        [K in Match.CompoundType | Match.ArrayTraversalType]?: never;
-      });
-
-  /**
-   * A type that either directly results in result type `S` or is a function taking the value, parent, and root values, and
-   * returns a value of type `S`.
-   * @typeparam T - the input value type
-   * @typeparam P - the parent type
-   * @typeparam R - the root object type
-   * @typeparam S - the result type
-   */
-  export type WithResult<T, P, R, S> = S | Match.Func<T, P, R, S>;
-
-  /**
-   * Type used to determine the allowed function types. Always includes booleans.
-   * @typeparam T - the input value type
-   * @typeparam P - the parent type
-   * @typeparam R - the root object type
-   * @typeparam S - the allowed return value type
-   */
-  export type Func<T, P, R, S> = (
-    current: Protected<T>,
-    parent: Protected<P>,
-    root: Protected<R>
-  ) => boolean | S;
-
-  /**
-   * Type used to indicate an object containing matches for tuple indices.
-   * @typeparam T - the input value type
-   * @typeparam C - utility type
-   * @typeparam R - the root object type
-   */
-  export type TupIndices<T, C, R> = {
-    [K in Tuple.KeysOf<C>]?: Match.Entry<T[K & keyof T], C[K], T, R>;
-  } & NotIterable;
-
-  /**
-   * Compound keys used to indicate the type of compound.
-   */
-  export type CompoundType = 'every' | 'some' | 'none' | 'single';
-
-  /**
-   * Keys used to indicate an array match traversal.
-   */
-  export type ArrayTraversalType = `${CompoundType}Item`;
-
-  /**
-   * Compound matcher for objects, represented as an array starting with a compound type keyword.
-   * @typeparam T - the input value type
-   * @typeparam C - utility type
-   * @typeparam P - the parent type
-   * @typeparam R - the root object type
-   */
-  export type CompoundForObj<T, C, P, R> = [
-    Match.CompoundType,
-    ...Match.Entry<T, C, P, R>[],
-  ];
-
-  /**
-   * Defines an object containing exactly one `CompoundType` key, having an array of matchers.
-   * @typeparam T - the input value type
-   * @typeparam C - utility type
-   * @typeparam P - the parent type
-   * @typeparam R - the root object type
-   */
-  export type CompoundForArr<T, C, P, R> = {
-    [K in Match.CompoundType]: {
-      [K2 in Match.CompoundType]?: K2 extends K
-        ? Match.Entry<T, C, P, R>[]
-        : never;
-    };
-  }[Match.CompoundType];
-
-  /**
-   * Defines an object containing exactly one `TraversalType` key, having a matcher for the array element type.
-   * @typeparam T - the input value type
-   * @typeparam C - utility type
-   * @typeparam R - the root object type
-   */
-  export type TraversalForArr<T, C, R> = {
-    [K in Match.ArrayTraversalType]: {
-      [K2 in Match.ArrayTraversalType]?: K2 extends K
-        ? Match.Entry<T[number & keyof T], C[number & keyof C], T, R>
-        : never;
-    };
-  }[Match.ArrayTraversalType];
-
-  /**
-   * Utility type for collecting match failure reasons
-   */
-  export type FailureLog = string[];
-}
 
 /**
  * Returns true if the given `value` object matches the given `matcher`, false otherwise.
@@ -202,7 +38,7 @@ export namespace Match {
 export function match<T, C extends Partial<T> = Partial<T>>(
   source: T,
   matcher: Match<T, C>,
-  failureLog?: Match.FailureLog
+  failureLog?: string[]
 ): boolean {
   return matchEntry(source, source, source, matcher as any, failureLog);
 }
@@ -214,8 +50,8 @@ function matchEntry<T, C, P, R>(
   source: T,
   parent: P,
   root: R,
-  matcher: Match.Entry<T, C, P, R>,
-  failureLog?: Match.FailureLog
+  matcher: MatchInternal.Entry<T, C, P, R>,
+  failureLog?: string[]
 ): boolean {
   if (Object.is(source, matcher)) {
     // value and target are exactly the same, always will be true
@@ -291,8 +127,8 @@ function matchArr<T extends any[], C, P, R>(
   source: T,
   parent: P,
   root: R,
-  matcher: Match.Arr<T, C, P, R>,
-  failureLog?: Match.FailureLog
+  matcher: MatchInternal.Arr<T, C, P, R>,
+  failureLog?: string[]
 ): boolean {
   if (Array.isArray(matcher)) {
     // directly compare array contents
@@ -458,8 +294,8 @@ function matchPlainObj<T extends object, C, P, R>(
   source: T,
   parent: P,
   root: R,
-  matcher: Match.Obj<T, C, P, R>,
-  failureLog?: Match.FailureLog
+  matcher: MatchInternal.Obj<T, C, P, R>,
+  failureLog?: string[]
 ): boolean {
   if (Array.isArray(matcher)) {
     // the matcher is of compound type
@@ -510,8 +346,8 @@ function matchCompound<T, C, P, R>(
   source: T,
   parent: P,
   root: R,
-  compound: [Match.CompoundType, ...Match.Entry<T, C, P, R>[]],
-  failureLog?: Match.FailureLog
+  compound: [MatchInternal.CompoundType, ...MatchInternal.Entry<T, C, P, R>[]],
+  failureLog?: string[]
 ): boolean {
   // first item indicates compound match type
   const matchType = compound[0];
@@ -521,7 +357,7 @@ function matchCompound<T, C, P, R>(
   // start at index 1
   let index = 0;
 
-  type Entry = Match.Entry<T, C, P, R>;
+  type Entry = MatchInternal.Entry<T, C, P, R>;
 
   switch (matchType) {
     case 'every': {
@@ -626,9 +462,9 @@ function matchCompound<T, C, P, R>(
 function matchTraversal<T extends any[], C extends any[], R>(
   source: T,
   root: R,
-  matchType: Match.ArrayTraversalType,
-  matcher: Match.Entry<T[keyof T], C[keyof C], T, R>,
-  failureLog?: Match.FailureLog
+  matchType: MatchInternal.ArrayTraversalType,
+  matcher: MatchInternal.Entry<T[keyof T], C[keyof C], T, R>,
+  failureLog?: string[]
 ): boolean {
   let index = -1;
   const length = source.length;
@@ -699,4 +535,64 @@ function matchTraversal<T extends any[], C extends any[], R>(
       return true;
     }
   }
+}
+
+/**
+ * Returns true if the given `value` object matches the given `matcher` at the given `path`, false otherwise.
+ * @typeparam T - the input value type
+ * @typeparam P - the string literal path type in the object
+ * @param source - the input value
+ * @param path - the string path in the object
+ * @param matcher - a matcher object or a function taking the matcher API and returning a match object
+ * @example
+ * ```ts
+ * const input = { a: 1, b: { c: true, d: 'a' } }
+ * matchAt(input, 'b', { c: true })
+ * // => true
+ * ```
+ */
+export function matchAt<T, P extends Path.Get<T>>(
+  source: T,
+  path: P,
+  matcher: Match<Path.Result<T, P>>
+): boolean {
+  return match(getAt(source, path), matcher);
+}
+
+/**
+ * Returns a function that matches a given `value` with the given `matcher`.
+ * @typeparam T - the input value type
+ * @param matcher - a matcher object that matches input values.
+ * @param source - the value to match (parameter of the returned function).
+ * @example
+ * ```ts
+ * const items = [{ a: 1, b: 'a' }, { a: 2, b: 'b' }];
+ * items.filter(matchWith({ a: 2 }));
+ * // => [{ a: 2, b: 'b' }]
+ * ```
+ */
+export function matchWith<T>(matcher: Match<T>): (source: T) => boolean {
+  return (source) => match(source, matcher);
+}
+
+/**
+ * Returns a function that matches a given `value` with the given `matcher` at the given string `path`.
+ * @typeparam T - the input value type
+ * @typeparam P - the string literal path type in the object
+ * @typeparam TE - utility type
+ * @param path - the string path in the object
+ * @param matcher - a matcher object that matches input values.
+ * @param source - the value to use the given `matcher` on at the given `path`.
+ * @example
+ * ```ts
+ * const items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];
+ * items.filter(matchAtWith('a.b', 2));
+ * // => [{ a: 2, b: 'b' }]
+ * ```
+ */
+export function matchAtWith<T, P extends Path.Get<T>, TE extends T = T>(
+  path: P,
+  matcher: Match<Path.Result<T & TE, P>>
+): (source: T) => boolean {
+  return (source) => matchAt(source, path, matcher as any);
 }

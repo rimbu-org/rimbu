@@ -1,7 +1,10 @@
+import { describe, expect, it } from 'bun:test';
+
 import { List } from '@rimbu/list';
 import { SortedMap } from '@rimbu/sorted';
 
-import { match, Tuple } from '../src/index.mjs';
+import { match, matchAt, matchAtWith } from '@rimbu/deep/match';
+import { Tuple } from '@rimbu/deep/tuple';
 
 describe('match', () => {
   it('matches simple', () => {
@@ -344,5 +347,34 @@ describe('match', () => {
   it('always returns false when receiving match keys that are not in the source object', () => {
     expect(match({ a: 1 }, { a: 1, b: 1 } as any)).toEqual(false);
     expect(match({ a: 1 }, () => ({ a: 1, b: 1 }) as any)).toEqual(false);
+  });
+});
+
+describe('matchAt', () => {
+  const m = {
+    a: 1,
+    b: ['abc', 'def'],
+    c: {
+      d: true,
+      e: [1, 'a'] as [number, string] | null,
+    },
+    f: List.of(1, 2, 3),
+  };
+
+  it('matches at path', () => {
+    expect(matchAt(m, 'a', 1)).toBe(true);
+    expect(matchAt(m, 'a', 3)).toBe(false);
+    expect(matchAt(m, 'c', { d: true })).toBe(true);
+    expect(matchAt(m, 'c', { d: false })).toBe(false);
+  });
+});
+
+describe('matchAtWith', () => {
+  it('matches input object at path', () => {
+    expect(
+      [{ a: { b: 'a', c: 1 } }, { a: { b: 'b', c: 2 } }].filter(
+        matchAtWith('a', { c: 2 })
+      )
+    ).toEqual([{ a: { b: 'b', c: 2 } }]);
   });
 });

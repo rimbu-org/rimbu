@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
-    "rootDirs": [".", ".."],
-    "baseUrl": "./src"
+    "paths": {
+      "@rimbu/deep": ["./entry/deep.mjs"],
+      "@rimbu/deep/*": ["./public/*.mjs"],
+      "#deep/*": ["./public/internal/*.mjs"],
+      "#private/*": ["./private/*.mjs"]
+    }
   }
 }

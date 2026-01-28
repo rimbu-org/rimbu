@@ -32,7 +32,7 @@ describe('web examples', () => {
       console.log('main started');
       const ch = Channel.create<string>();
 
-      await expect(ch.send('Mia', { timeoutMs: 100 })).rejects.toThrow();
+      expect(ch.send('Mia', { timeoutMs: 100 })).rejects.toThrow();
       console.log('main stopped');
     }
 
