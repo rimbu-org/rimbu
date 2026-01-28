@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "rootDirs": [".", ".."],
-    "baseUrl": "./src",
     "paths": {
-      "@rimbu/task/ops": ["ops/index.mts", "ops/index.cts"],
-      "@rimbu/task": ["main/index.mts", "main/index.cts"]
+      "@rimbu/task": ["./entry/task.mjs"],
+      "@rimbu/task/*": ["./public/*.mjs"],
+      "#task/*": ["./public/internal/*.mjs"],
+      "#private/*": ["./private/*.mjs"]
     }
   }
 }

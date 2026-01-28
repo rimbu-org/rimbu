@@ -1,4 +1,4 @@
-import { ErrBase } from '@rimbu/common';
+import { ErrBase } from '@rimbu/common/err';
 
 /**
  * Error thrown when a Task is cancelled.

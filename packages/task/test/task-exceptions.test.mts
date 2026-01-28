@@ -1,6 +1,9 @@
-import { CancellationError, Task } from '@rimbu/task';
+import { describe, expect, it, vi } from 'bun:test';
+
+import { disposableDelay } from '#task/utils';
+import { Task } from '@rimbu/task';
+import { CancellationError } from '@rimbu/task/errors';
 import { cancelContext, delay, throwError } from '@rimbu/task/ops';
-import { disposableDelay } from 'main/utils.mjs';
 
 describe('Task exceptions', () => {
   it('run throws if context is cancelled', async () => {

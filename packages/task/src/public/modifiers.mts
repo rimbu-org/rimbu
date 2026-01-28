@@ -1,11 +1,10 @@
+import type { Task } from '@rimbu/task';
 import {
   CancellationError,
   RetryExhaustedError,
-  type Task,
   TimeoutError,
-} from '@rimbu/task';
-
-import { delay, race, throwErrorClass } from './internal.mjs';
+} from '@rimbu/task/errors';
+import { delay, race, throwErrorClass } from '@rimbu/task/ops';
 
 /**
  * Combines multiple Task modifiers into a single modifier.

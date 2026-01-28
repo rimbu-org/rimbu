@@ -1,10 +1,9 @@
+import { TaskContextImpl } from '#task/task-context-impl';
 import {
   type Cleanup,
   type DisposableCallback,
   type Prepend,
-} from './internal.mjs';
-
-import { TaskContextImpl } from './task-context-impl.mjs';
+} from '#task/utils';
 
 /**
  * A unit of work that can be executed within a Task Context.

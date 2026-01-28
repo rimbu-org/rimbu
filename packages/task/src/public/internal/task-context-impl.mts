@@ -1,13 +1,15 @@
-import { Semaphore, WaitGroup } from '@rimbu/channel';
-import type { Task } from './interface.mjs';
+import { Semaphore } from '@rimbu/channel/semaphore';
+import { WaitGroup } from '@rimbu/channel/wait-group';
+
 import {
-  CancellationError,
   cleanupOn,
   disposableDelay,
   withTimeout,
   type Cleanup,
   type DisposableCallback,
-} from './internal.mjs';
+} from '#task/utils';
+import type { Task } from '@rimbu/task';
+import { CancellationError } from '@rimbu/task/errors';
 
 type LaunchResult<R> =
   | { type: 'result'; value: R }

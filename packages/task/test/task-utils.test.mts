@@ -1,5 +1,7 @@
+import { describe, expect, it, vi } from 'bun:test';
+
 import { Task } from '@rimbu/task';
-import { taskify } from '@rimbu/task/ops';
+import { taskify } from '@rimbu/task/utils';
 
 describe(taskify.name, () => {
   it('should create a task that calls the original function with an AbortSignal', async () => {

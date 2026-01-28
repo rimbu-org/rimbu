@@ -1,6 +1,8 @@
-import { CancellationError, Task } from '@rimbu/task';
+import { afterEach, describe, expect, it } from 'bun:test';
 
-import { disposableDelay } from 'main/internal.mjs';
+import { disposableDelay } from '#task/utils';
+import { Task } from '@rimbu/task';
+import { CancellationError } from '@rimbu/task/errors';
 
 describe('Task factory methods', () => {
   afterEach(() => {

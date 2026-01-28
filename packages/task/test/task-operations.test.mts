@@ -1,5 +1,9 @@
-import { ErrBase } from '@rimbu/common';
-import { CancellationError, Task } from '@rimbu/task';
+import { afterEach, describe, expect, it, vi } from 'bun:test';
+
+import { ErrBase } from '@rimbu/common/err';
+import { Task } from '@rimbu/task';
+import { CancellationError } from '@rimbu/task/errors';
+import { disposableDelay } from '@rimbu/task/internal/utils';
 import {
   all,
   allSettled,
@@ -10,14 +14,13 @@ import {
   clogArgs,
   delay,
   effect,
-  joinAll,
   race,
   runSingleCancelNew,
   runSingleCancelPrevious,
   throwError,
   throwErrorClass,
 } from '@rimbu/task/ops';
-import { disposableDelay } from 'main/utils.mjs';
+import { joinAll } from '@rimbu/task/utils';
 
 describe(effect.name, () => {
   afterEach(() => {
@@ -26,7 +29,7 @@ describe(effect.name, () => {
   });
 
   it('forwards arguments to the effect', async () => {
-    const effectFn = vitest.fn();
+    const effectFn = vi.fn();
     const effectInstance = effect(effectFn);
 
     await Task.launch(effectInstance(1, 2, 3)).join();
@@ -35,7 +38,7 @@ describe(effect.name, () => {
   });
 
   it('returns the result of the given effect function', async () => {
-    const effectFn = vitest.fn(() => 42);
+    const effectFn = vi.fn(() => 42);
     const effectInstance = effect(effectFn);
 
     const result = await Task.launch(effectInstance()).join();
@@ -51,7 +54,7 @@ describe(clog.name, () => {
   });
 
   it('logs the provided arguments to the console', async () => {
-    const consoleSpy = vitest
+    const consoleSpy = vi
       .spyOn(console, 'log')
       .mockImplementation(() => undefined);
 
@@ -71,7 +74,7 @@ describe(clogArgs.name, () => {
   });
 
   it('logs the provided arguments to the console and returns them', async () => {
-    const consoleSpy = vitest
+    const consoleSpy = vi
       .spyOn(console, 'log')
       .mockImplementation(() => undefined);
 

@@ -1,6 +1,6 @@
-import { CancellationError, Task } from '@rimbu/task';
-
-import { type Last } from '../main/internal.mjs';
+import type { Last } from '#task/utils';
+import { Task } from '@rimbu/task';
+import { CancellationError } from '@rimbu/task/errors';
 
 /**
  * Creates a Task that applies a side-effect function when executed.

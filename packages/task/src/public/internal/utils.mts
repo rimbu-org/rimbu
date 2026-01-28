@@ -1,4 +1,4 @@
-import { CancellationError, TimeoutError } from './internal.mjs';
+import { CancellationError, TimeoutError } from '@rimbu/task/errors';
 
 export type Last<T extends any[], O = never> = T extends [...any[], infer L]
   ? L

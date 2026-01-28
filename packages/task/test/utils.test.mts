@@ -1,14 +1,16 @@
-import { CancellationError, TimeoutError } from '@rimbu/task';
+import { afterEach, describe, expect, it, vi } from 'bun:test';
+
+import { CancellationError, TimeoutError } from '@rimbu/task/errors';
 
 // Import internal utility functions directly from source
 import {
+  cleanupOn,
+  cleanupToCallback,
   disposableDelay,
   withTimeout as internalWithTimeout,
-  cleanupOn,
-  toDisposableCallback,
-  cleanupToCallback,
   promiseToDisposable,
-} from '../src/main/utils.mjs';
+  toDisposableCallback,
+} from '#task/utils';
 
 describe(disposableDelay.name, () => {
   afterEach(() => {

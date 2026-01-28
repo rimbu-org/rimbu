@@ -1,23 +1,23 @@
+import { afterEach, describe, expect, it, vi } from 'bun:test';
+
+import { Task } from '@rimbu/task';
 import {
   CancellationError,
   RetryExhaustedError,
-  Task,
   TimeoutError,
-} from '@rimbu/task';
+} from '@rimbu/task/errors';
 import {
   catchAll,
   catchError,
-  chain,
   combined,
-  delay,
   mapOutput,
   mapOutputArr,
   repeat,
-  throwError,
   withArgs,
   withRetry,
   withTimeout,
-} from '@rimbu/task/ops';
+} from '@rimbu/task/modifiers';
+import { chain, delay, throwError } from '@rimbu/task/ops';
 
 describe(withRetry.name, () => {
   afterEach(() => {
