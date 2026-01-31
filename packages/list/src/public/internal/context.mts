@@ -1,7 +1,7 @@
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 import { Stream, type StreamSource } from '@rimbu/stream';
-import { isEmptyStreamSourceInstance } from '@rimbu/stream/internal/stream-base';
+import { StreamFactory } from '@rimbu/stream/internal/factory';
 import { Reducer } from '@rimbu/stream/reducer';
 
 import type { List } from '@rimbu/list';
@@ -100,7 +100,7 @@ export class ListContext implements List.Context {
     while (++i < length) {
       const source = sources[i];
 
-      if (!isEmptyStreamSourceInstance(source)) {
+      if (!StreamFactory().isEmptyStreamSourceInstance(source)) {
         if ((source as any).context === this) {
           if (null === result) result = source as any as List<T>;
           else result = result.concat<T>(source);

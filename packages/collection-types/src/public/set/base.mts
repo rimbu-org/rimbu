@@ -6,7 +6,7 @@ import type {
   Streamable,
   StreamSource,
 } from '@rimbu/stream';
-import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom/stream-custom';
+import { StreamFactory } from '@rimbu/stream/internal/factory';
 import { Reducer } from '@rimbu/stream/reducer';
 
 import type { Elem, WithElem } from '@rimbu/collection-types/common';
@@ -604,7 +604,7 @@ export namespace RSetBase {
       while (++i < length) {
         const source = sources[i];
 
-        if (isEmptyStreamSourceInstance(source)) continue;
+        if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
 
         if (
           builder.isEmpty &&

@@ -1,5 +1,6 @@
+import { SemaphoreError } from '#private/semaphore-error';
 import { Channel } from '@rimbu/channel';
-import { type Semaphore, SemaphoreError } from '@rimbu/channel/semaphore';
+import type { Semaphore } from '@rimbu/channel/semaphore';
 
 /**
  * Default in-memory implementation of a weighted `Semaphore`.

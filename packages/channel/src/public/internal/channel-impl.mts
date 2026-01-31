@@ -3,7 +3,8 @@ import { AsyncStream, type AsyncStreamSource } from '@rimbu/stream/async';
 import { AsyncFastIteratorBase } from '@rimbu/stream/async/internal/fast-iterator-base';
 import { AsyncFromStream } from '@rimbu/stream/async/internal/stream-base';
 
-import { type Channel, ChannelError } from '@rimbu/channel';
+import { ChannelError } from '#private/channel-error';
+import type { Channel } from '@rimbu/channel';
 
 import { attachAbort, createCleaner, timeoutAction } from '#channel/utils';
 

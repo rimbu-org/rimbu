@@ -34,28 +34,38 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/esm/main/index.d.mts",
-      "import": "./dist/esm/main/index.mjs"
-    },
-    "./common": {
-      "types": "./dist/esm/common/index.d.mts",
-      "import": "./dist/esm/common/index.mjs"
+      "types": "./dist/entry/hashed.d.mts",
+      "default": "./dist/entry/hashed.mjs"
     },
     "./map": {
-      "types": "./dist/esm/map/index.d.mts",
-      "import": "./dist/esm/map/index.mjs"
-    },
-    "./map-custom": {
-      "types": "./dist/esm/map-custom/index.d.mts",
-      "import": "./dist/esm/map-custom/index.mjs"
+      "types": "./dist/entry/map.d.mts",
+      "default": "./dist/entry/map.mjs"
     },
     "./set": {
-      "types": "./dist/esm/set/index.d.mts",
-      "import": "./dist/esm/set/index.mjs"
+      "types": "./dist/entry/set.d.mts",
+      "default": "./dist/entry/set.mjs"
     },
-    "./set-custom": {
-      "types": "./dist/esm/set-custom/index.d.mts",
-      "import": "./dist/esm/set-custom/index.mjs"
+    "./*": {
+      "types": "./dist/public/*.d.mts",
+      "default": "./dist/public/*.mjs"
+    }
+  },
+  "imports": {
+    "#hashed/*": {
+      "types": "./dist/public/internal/hashed/*.d.mts",
+      "default": "./dist/public/internal/hashed/*.mjs"
+    },
+    "#map/*": {
+      "types": "./dist/public/internal/map/*.d.mts",
+      "default": "./dist/public/internal/map/*.mjs"
+    },
+    "#set/*": {
+      "types": "./dist/public/internal/set/*.d.mts",
+      "default": "./dist/public/internal/set/*.mjs"
+    },
+    "#private/*": {
+      "types": "./dist/private/*.d.mts",
+      "default": "./dist/private/*.mjs"
     }
   },
   "files": [
@@ -63,10 +73,8 @@
     "src"
   ],
   "scripts": {
-    "build": "yarn clean && yarn bundle",
-    "bundle": "tsc --p tsconfig.esm.json",
+    "build": "bun clean && bunx tsc --p tsconfig.esm.json",
     "clean": "rimraf dist",
-    "circular": "npx -y madge --ts-config tsconfig.json --circular --extensions mts src/map-custom/index.mts",
     "extract-api": "yarn extract-api:main && yarn extract-api:map && yarn extract-api:map-custom && yarn extract-api:set && yarn extract-api:set-custom",
     "extract-api:main": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
     "extract-api:map": "tsx ../../config/api-extractor.ts config/api-extractor.map.json",
@@ -77,30 +85,21 @@
     "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
-    "test": "vitest run",
-    "test:cov": "vitest run --coverage",
-    "test:watch": "vitest",
-    "test:random": "vitest run --config vitest.random.config.ts",
-    "test:types": "tsd --files test-d",
+    "test": "bun test test/* --tsconfig-override tsconfig.common.json",
+    "test:random": "bun test test-random",
+    "test:types": "bunx tsd --files ./test-d --typings ./dist/entry/hashed.d.mts",
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@rimbu/base": "^2.0.7",
-    "@rimbu/collection-types": "^2.1.10",
-    "@rimbu/common": "^2.0.7",
-    "@rimbu/list": "^2.1.10",
-    "@rimbu/stream": "^3.0.3",
+    "@rimbu/base": "workspace:*",
+    "@rimbu/collection-types": "workspace:*",
+    "@rimbu/common": "workspace:*",
+    "@rimbu/list": "workspace:*",
+    "@rimbu/stream": "workspace:*",
     "tslib": "^2.8.1"
   },
   "publishConfig": {
     "access": "public",
     "provenance": true
-  },
-  "madge": {
-    "detectiveOptions": {
-      "ts": {
-        "skipTypeImports": true
-      }
-    }
   }
 }

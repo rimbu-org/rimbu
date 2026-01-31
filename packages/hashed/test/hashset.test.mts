@@ -1,6 +1,7 @@
 import { runSetTestsWith } from '../../collection-types/test-utils/set/set-standard.mjs';
 
-import { Hasher, HashSet } from '../src/main/index.mjs';
+import { Hasher } from '@rimbu/hashed';
+import { HashSet } from '@rimbu/hashed/set';
 
 runSetTestsWith(
   'HashSet block size 2',

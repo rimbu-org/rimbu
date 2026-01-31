@@ -1,8 +1,10 @@
-import { Eq } from '@rimbu/common';
+import { describe, expect, it } from 'bun:test';
+
+import { Eq } from '@rimbu/common/eq';
 
 import { runSetRandomTestsWith } from '../../collection-types/test-utils/set/set-random.mjs';
 
-import { HashSet } from '../src/main/index.mjs';
+import { HashSet } from '@rimbu/hashed/set';
 
 runSetRandomTestsWith('HashSet default', HashSet.defaultContext());
 

@@ -1,19 +1,14 @@
 {
   "compilerOptions": {
-    "rootDirs": [".", ".."],
-    "baseUrl": "./src",
     "paths": {
-      "@rimbu/hashed/common": ["common/index.mjs", "common/index.cts"],
-      "@rimbu/hashed/map": ["map/index.mjs", "map/index.cts"],
-      "@rimbu/hashed/map-custom": [
-        "map-custom/index.mjs",
-        "map-custom/index.cts"
-      ],
-      "@rimbu/hashed/set": ["set/index.mjs", "set/index.cts"],
-      "@rimbu/hashed/set-custom": [
-        "set-custom/index.mjs",
-        "set-custom/index.cts"
-      ]
+      "@rimbu/hashed": ["./entry/hashed.mjs"],
+      "@rimbu/hashed/map": ["./entry/map.mjs"],
+      "@rimbu/hashed/set": ["./entry/set.mjs"],
+      "@rimbu/hashed/*": ["./public/*.mjs"],
+      "#hashed/*": ["./public/internal/hashed/*.mjs"],
+      "#map/*": ["./public/internal/map/*.mjs"],
+      "#set/*": ["./public/internal/set/*.mjs"],
+      "#private/*": ["./private/*.mjs"]
     }
   }
 }

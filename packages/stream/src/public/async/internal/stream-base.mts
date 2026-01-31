@@ -1,5 +1,4 @@
 import * as RimbuError from '@rimbu/base/rimbu-error';
-import type { Token } from '@rimbu/base/token';
 import { AsyncOptLazy, type MaybePromise } from '@rimbu/common/async-opt-lazy';
 import type { AsyncCollectFun } from '@rimbu/common/collect';
 import { Comp } from '@rimbu/common/comp';
@@ -7,17 +6,7 @@ import { Eq } from '@rimbu/common/eq';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, ToJSON } from '@rimbu/common/types';
 
-import { Stream, type StreamSource } from '@rimbu/stream';
-import {
-  AsyncStream,
-  type AsyncFastIterator,
-  type AsyncStreamSource,
-} from '@rimbu/stream/async';
-import { AsyncReducer } from '@rimbu/stream/async/reducer';
-import { AsyncTransformer } from '@rimbu/stream/async/transformer';
-import { Transformer } from '@rimbu/stream/transformer';
-
-import type { AsyncStreamConstructors } from '#async/constructors';
+import type { AsyncStreamFactory } from '#async/factory';
 import {
   AsyncAppendIterator,
   AsyncCollectIterator,
@@ -35,21 +24,25 @@ import {
   AsyncRepeatIterator,
   AsyncTakeIterator,
   AsyncTransformerFastIterator,
-  AsyncUnfoldIterator,
-  AsyncZipAllWithItererator,
-  AsyncZipWithIterator,
-  emptyAsyncFastIterator,
   FromAsyncIterator,
   FromIterator,
   FromPromise,
   FromResourceIterator,
-  isAsyncFastIterator,
 } from '#async/fast-iterator-base';
 import { closeIters } from '#async/utils';
-import { isEmptyStreamSourceInstance } from '#stream/stream-base';
+import {
+  type AsyncFastIterator,
+  type AsyncStream,
+  type AsyncStreamSource,
+} from '@rimbu/stream/async';
+import { AsyncReducer } from '@rimbu/stream/async/reducer';
+import { AsyncTransformer } from '@rimbu/stream/async/transformer';
+import { Transformer } from '@rimbu/stream/transformer';
 
 export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   abstract [Symbol.asyncIterator](): AsyncFastIterator<T>;
+
+  constructor(readonly deps: AsyncStreamFactory) {}
 
   asyncStream(): this {
     return this;
@@ -62,7 +55,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     const { eq = Eq.objectIs, negate = false } = options;
 
     const it1 = this[Symbol.asyncIterator]();
-    const it2 = fromAsyncStreamSource(other)[Symbol.asyncIterator]();
+    const it2 = this.deps.fromAsyncStreamSource(other)[Symbol.asyncIterator]();
 
     const done = Symbol('Done');
 
@@ -98,11 +91,11 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   }
 
   prepend(value: AsyncOptLazy<T>): AsyncStream.NonEmpty<T> {
-    return new AsyncPrependStream<T>(this, value).assumeNonEmpty();
+    return new AsyncPrependStream<T>(this.deps, this, value).assumeNonEmpty();
   }
 
   append(value: AsyncOptLazy<T>): AsyncStream.NonEmpty<T> {
-    return new AsyncAppendStream<T>(this, value).assumeNonEmpty();
+    return new AsyncAppendStream<T>(this.deps, this, value).assumeNonEmpty();
   }
 
   async forEach(
@@ -153,7 +146,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   indexed(options: { startIndex?: number } = {}): AsyncStream<[number, T]> {
     const { startIndex = 0 } = options;
 
-    return new AsyncIndexedStream<T>(this, startIndex);
+    return new AsyncIndexedStream<T>(this.deps, this, startIndex);
   }
 
   filter(
@@ -162,7 +155,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   ): any {
     const { negate = false } = options;
 
-    return new AsyncFilterStream<T>(this, pred, negate);
+    return new AsyncFilterStream<T>(this.deps, this, pred, negate);
   }
 
   filterPure<A extends readonly unknown[]>(
@@ -174,12 +167,12 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   ): any {
     const { pred, negate = false } = options;
 
-    return new AsyncFilterPureStream<T, A>(this, pred, args, negate);
+    return new AsyncFilterPureStream<T, A>(this.deps, this, pred, args, negate);
   }
 
   withOnly<F extends T>(values: F[]): AsyncStream<F> {
     if (values.length <= 0) {
-      return emptyAsyncStream;
+      return this.deps.empty();
     }
 
     const set = new Set<T>(values);
@@ -200,18 +193,18 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   map<T2>(
     mapFun: (value: T, index: number) => MaybePromise<T2>
   ): AsyncStream<T2> {
-    return new AsyncMapStream<T, T2>(this, mapFun);
+    return new AsyncMapStream<T, T2>(this.deps, this, mapFun);
   }
 
   mapPure<T2, A extends readonly unknown[]>(
     mapFun: (value: T, ...args: A) => MaybePromise<T2>,
     ...args: A
   ): AsyncStream<T2> {
-    return new AsyncMapPureStream<T, A, T2>(this, mapFun, args);
+    return new AsyncMapPureStream<T, A, T2>(this.deps, this, mapFun, args);
   }
 
   collect<R>(collectFun: AsyncCollectFun<T, R>): AsyncStream<R> {
-    return new AsyncCollectStream<T, R>(this, collectFun);
+    return new AsyncCollectStream<T, R>(this.deps, this, collectFun);
   }
 
   flatMap<T2>(
@@ -235,7 +228,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   }
 
   transform<R>(transformer: AsyncTransformer.Accept<T, R>): AsyncStream<R> {
-    return new AsyncTransformerStream(this, transformer);
+    return new AsyncTransformerStream(this.deps, this, transformer);
   }
 
   async first<O>(otherwise?: AsyncOptLazy<O>): Promise<T | O> {
@@ -568,15 +561,15 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   ): AsyncStream<T> {
     const { negate = false } = options;
 
-    return new AsyncDropWhileStream(this, pred, negate);
+    return new AsyncDropWhileStream(this.deps, this, pred, negate);
   }
 
   take(amount: number): AsyncStream<T> {
     if (amount <= 0) {
-      return emptyAsyncStream;
+      return this.deps.empty();
     }
 
-    return new AsyncTakeStream<T>(this, amount);
+    return new AsyncTakeStream<T>(this.deps, this, amount);
   }
 
   drop(amount: number): AsyncStream<T> {
@@ -584,7 +577,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
       return this;
     }
 
-    return new AsyncDropStream<T>(this, amount);
+    return new AsyncDropStream<T>(this.deps, this, amount);
   }
 
   repeat(amount?: number): AsyncStream<T> {
@@ -593,14 +586,15 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
     }
 
     return new AsyncFromStream<T>(
-      () => new AsyncRepeatIterator<T>(this, amount)
+      this.deps,
+      () => new AsyncRepeatIterator<T>(this.deps, this, amount)
     );
   }
 
   concat(...others: ArrayNonEmpty<AsyncStreamSource<T>>): any {
-    if (others.every(isEmptyAsyncStreamSourceInstance)) return this;
+    if (others.every(this.deps.isEmptyAsyncStreamSourceInstance)) return this;
 
-    return new AsyncConcatStream<T>(this, others);
+    return new AsyncConcatStream<T>(this.deps, this, others);
   }
 
   min<O>(otherwise?: AsyncOptLazy<O>): Promise<T | O> {
@@ -665,7 +659,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   }
 
   intersperse(sep: AsyncStreamSource<T>): AsyncStream<T> {
-    if (isEmptyAsyncStreamSourceInstance(sep)) {
+    if (this.deps.isEmptyAsyncStreamSourceInstance(sep)) {
       return this;
     }
 
@@ -705,11 +699,13 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
   }
 
   mkGroup({
-    sep = emptyAsyncStream as AsyncStreamSource<T>,
-    start = emptyAsyncStream as AsyncStreamSource<T>,
-    end = emptyAsyncStream as AsyncStreamSource<T>,
+    sep = this.deps.empty() as AsyncStreamSource<T>,
+    start = this.deps.empty() as AsyncStreamSource<T>,
+    end = this.deps.empty() as AsyncStreamSource<T>,
   } = {}): any {
-    return fromAsyncStreamSource(start).concat(this.intersperse(sep), end);
+    return this.deps
+      .fromAsyncStreamSource(start)
+      .concat(this.intersperse(sep), end);
   }
 
   splitWhere<R>(
@@ -840,7 +836,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
       AsyncReducer.CombineResult<S>
     >;
 
-    return new AsyncReduceStream(this, reducer);
+    return new AsyncReduceStream(this.deps, this, reducer);
   }
 
   async toArray(): Promise<T[]> {
@@ -876,22 +872,27 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 export class AsyncFromStream<T> extends AsyncStreamBase<T> {
   [Symbol.asyncIterator]: () => AsyncFastIterator<T> = undefined as any;
 
-  constructor(createIterator: () => AsyncFastIterator<T>) {
-    super();
+  constructor(
+    deps: AsyncStreamFactory,
+    createIterator: () => AsyncFastIterator<T>
+  ) {
+    super(deps);
     this[Symbol.asyncIterator] = createIterator;
   }
 }
 
 class AsyncPrependStream<T> extends AsyncStreamBase<T> {
   constructor(
+    deps: AsyncStreamFactory,
     readonly source: AsyncStream<T>,
     readonly item: AsyncOptLazy<T>
   ) {
-    super();
+    super(deps);
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
     return new AsyncPrependIterator<T>(
+      this.deps,
       this.source[Symbol.asyncIterator](),
       this.item
     );
@@ -933,6 +934,7 @@ class AsyncPrependStream<T> extends AsyncStreamBase<T> {
     ...args: A
   ): AsyncStream<T2> {
     return new AsyncPrependStream(
+      this.deps,
       this.source.mapPure(mapFun, ...args),
       async () => mapFun(await AsyncOptLazy.toMaybePromise(this.item), ...args)
     );
@@ -940,14 +942,18 @@ class AsyncPrependStream<T> extends AsyncStreamBase<T> {
 
   take(amount: number): AsyncStream<T> {
     if (amount <= 0) {
-      return emptyAsyncStream;
+      return this.deps.empty();
     }
 
     if (amount === 1) {
-      return AsyncStream.of(this.item);
+      return this.deps.of(this.item);
     }
 
-    return new AsyncPrependStream(this.source.take(amount - 1), this.item);
+    return new AsyncPrependStream(
+      this.deps,
+      this.source.take(amount - 1),
+      this.item
+    );
   }
 
   drop(amount: number): AsyncStream<T> {
@@ -995,14 +1001,16 @@ class AsyncPrependStream<T> extends AsyncStreamBase<T> {
 
 class AsyncAppendStream<T> extends AsyncStreamBase<T> {
   constructor(
+    deps: AsyncStreamFactory,
     readonly source: AsyncStream<T>,
     readonly item: AsyncOptLazy<T>
   ) {
-    super();
+    super(deps);
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
     return new AsyncAppendIterator<T>(
+      this.deps,
       this.source[Symbol.asyncIterator](),
       this.item
     );
@@ -1044,6 +1052,7 @@ class AsyncAppendStream<T> extends AsyncStreamBase<T> {
     ...args: A
   ): AsyncStream<T2> {
     return new AsyncAppendStream(
+      this.deps,
       this.source.mapPure(mapFun, ...args),
       async () => mapFun(await AsyncOptLazy.toMaybePromise(this.item), ...args)
     );
@@ -1082,14 +1091,16 @@ class AsyncAppendStream<T> extends AsyncStreamBase<T> {
 
 class AsyncIndexedStream<T> extends AsyncStreamBase<[number, T]> {
   constructor(
+    deps: AsyncStreamFactory,
     readonly source: AsyncStream<T>,
     readonly startIndex: number
   ) {
-    super();
+    super(deps);
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<[number, T]> {
     return new AsyncIndexedIterator<T>(
+      this.deps,
       this.source[Symbol.asyncIterator](),
       this.startIndex
     );
@@ -1102,14 +1113,16 @@ class AsyncIndexedStream<T> extends AsyncStreamBase<[number, T]> {
 
 class AsyncMapStream<T, T2> extends AsyncStreamBase<T2> {
   constructor(
+    deps: AsyncStreamFactory,
     readonly source: AsyncStream<T>,
     readonly mapFun: (value: T, index: number) => MaybePromise<T2>
   ) {
-    super();
+    super(deps);
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T2> {
     return new AsyncMapIterator(
+      this.deps,
       this.source[Symbol.asyncIterator](),
       this.mapFun
     );
@@ -1146,17 +1159,19 @@ class AsyncMapStream<T, T2> extends AsyncStreamBase<T2> {
   map<T3>(
     mapFun: (value: T2, index: number) => MaybePromise<T3>
   ): AsyncStream<T3> {
-    return new AsyncMapStream<T, T3>(this.source, async (value, index) =>
-      mapFun(await this.mapFun(value, index), index)
+    return new AsyncMapStream<T, T3>(
+      this.deps,
+      this.source,
+      async (value, index) => mapFun(await this.mapFun(value, index), index)
     );
   }
 
   take(amount: number): AsyncStream<T2> {
     if (amount <= 0) {
-      return emptyAsyncStream;
+      return this.deps.empty();
     }
 
-    return new AsyncMapStream(this.source.take(amount), this.mapFun);
+    return new AsyncMapStream(this.deps, this.source.take(amount), this.mapFun);
   }
 
   drop(amount: number): AsyncStream<T2> {
@@ -1164,7 +1179,7 @@ class AsyncMapStream<T, T2> extends AsyncStreamBase<T2> {
       return this;
     }
 
-    return new AsyncMapStream(this.source.drop(amount), this.mapFun);
+    return new AsyncMapStream(this.deps, this.source.drop(amount), this.mapFun);
   }
 }
 
@@ -1174,15 +1189,17 @@ class AsyncMapPureStream<
   T2,
 > extends AsyncStreamBase<T2> {
   constructor(
+    deps: AsyncStreamFactory,
     readonly source: AsyncStream<T>,
     readonly mapFun: (value: T, ...args: A) => MaybePromise<T2>,
     readonly args: A
   ) {
-    super();
+    super(deps);
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T2> {
     return new AsyncMapPureIterator<T, A, T2>(
+      this.deps,
       this.source[Symbol.asyncIterator](),
       this.mapFun,
       this.args
@@ -1222,6 +1239,7 @@ class AsyncMapPureStream<
     ...args: A2
   ): AsyncStream<T3> {
     return new AsyncMapPureStream<T, A2, T3>(
+      this.deps,
       this.source,
       async (value, ...args) =>
         mapFun(await this.mapFun(value, ...this.args), ...args),
@@ -1231,10 +1249,11 @@ class AsyncMapPureStream<
 
   take(amount: number): AsyncStream<T2> {
     if (amount <= 0) {
-      return emptyAsyncStream;
+      return this.deps.empty();
     }
 
     return new AsyncMapPureStream(
+      this.deps,
       this.source.take(amount),
       this.mapFun,
       this.args
@@ -1247,6 +1266,7 @@ class AsyncMapPureStream<
     }
 
     return new AsyncMapPureStream(
+      this.deps,
       this.source.drop(amount),
       this.mapFun,
       this.args
@@ -1256,18 +1276,15 @@ class AsyncMapPureStream<
 
 class AsyncConcatStream<T> extends AsyncStreamBase<T> {
   constructor(
+    deps: AsyncStreamFactory,
     readonly source: AsyncStream<T>,
     readonly otherSources: AsyncStreamSource<T>[]
   ) {
-    super();
+    super(deps);
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
-    return new AsyncConcatIterator(
-      this.source,
-      this.otherSources,
-      asyncStreamSourceHelpers
-    );
+    return new AsyncConcatIterator(this.deps, this.source, this.otherSources);
   }
 
   async forEach(
@@ -1287,8 +1304,8 @@ class AsyncConcatStream<T> extends AsyncStreamBase<T> {
     while (!state.halted && ++sourceIndex < length) {
       const source = sources[sourceIndex];
 
-      if (!isEmptyAsyncStreamSourceInstance(source)) {
-        await fromAsyncStreamSource(source).forEach(f, { state });
+      if (!this.deps.isEmptyAsyncStreamSourceInstance(source)) {
+        await this.deps.fromAsyncStreamSource(source).forEach(f, { state });
       }
     }
   }
@@ -1306,8 +1323,8 @@ class AsyncConcatStream<T> extends AsyncStreamBase<T> {
     while (++sourceIndex < length) {
       const source = sources[sourceIndex];
 
-      if (!isEmptyAsyncStreamSourceInstance(source)) {
-        await fromAsyncStreamSource(source).forEachPure(f, ...args);
+      if (!this.deps.isEmptyAsyncStreamSourceInstance(source)) {
+        await this.deps.fromAsyncStreamSource(source).forEachPure(f, ...args);
       }
     }
   }
@@ -1319,9 +1336,9 @@ class AsyncConcatStream<T> extends AsyncStreamBase<T> {
     while (--sourceIndex >= 0) {
       const source = sources[sourceIndex];
 
-      if (!isEmptyAsyncStreamSourceInstance(source)) {
+      if (!this.deps.isEmptyAsyncStreamSourceInstance(source)) {
         const done = Symbol('Done');
-        const value = await fromAsyncStreamSource(source).last(done);
+        const value = await this.deps.fromAsyncStreamSource(source).last(done);
         if (done !== value) return value;
       }
     }
@@ -1338,8 +1355,8 @@ class AsyncConcatStream<T> extends AsyncStreamBase<T> {
 
     while (++sourceIndex < length) {
       const source = sources[sourceIndex];
-      if (!isEmptyAsyncStreamSourceInstance(source)) {
-        result += await fromAsyncStreamSource(source).count();
+      if (!this.deps.isEmptyAsyncStreamSourceInstance(source)) {
+        result += await this.deps.fromAsyncStreamSource(source).count();
       }
     }
 
@@ -1354,9 +1371,10 @@ class AsyncConcatStream<T> extends AsyncStreamBase<T> {
     ...args: A
   ): any {
     return new AsyncConcatStream(
+      this.deps,
       this.source.filterPure(options, ...args),
       this.otherSources.map((source) =>
-        fromAsyncStreamSource(source).filterPure(options, ...args)
+        this.deps.fromAsyncStreamSource(source).filterPure(options, ...args)
       )
     );
   }
@@ -1366,15 +1384,17 @@ class AsyncConcatStream<T> extends AsyncStreamBase<T> {
     ...args: A
   ): AsyncStream<T2> {
     return new AsyncConcatStream(
+      this.deps,
       this.source.mapPure(mapFun, ...args),
       this.otherSources.map((source) =>
-        fromAsyncStreamSource(source).mapPure(mapFun, ...args)
+        this.deps.fromAsyncStreamSource(source).mapPure(mapFun, ...args)
       )
     );
   }
 
   concat<T2>(...others2: AsyncStreamSource<T2>[]): any {
     return new AsyncConcatStream<T | T2>(
+      this.deps,
       this.source,
       (this.otherSources as AsyncStreamSource<T | T2>[]).concat(others2)
     );
@@ -1390,8 +1410,10 @@ class AsyncConcatStream<T> extends AsyncStreamBase<T> {
     while (++sourceIndex < length) {
       const source = sources[sourceIndex];
 
-      if (!isEmptyAsyncStreamSourceInstance(source)) {
-        result = result.concat(await fromAsyncStreamSource(source).toArray());
+      if (!this.deps.isEmptyAsyncStreamSourceInstance(source)) {
+        result = result.concat(
+          await this.deps.fromAsyncStreamSource(source).toArray()
+        );
       }
     }
 
@@ -1401,6 +1423,7 @@ class AsyncConcatStream<T> extends AsyncStreamBase<T> {
 
 class AsyncFilterStream<T> extends AsyncStreamBase<T> {
   constructor(
+    deps: AsyncStreamFactory,
     readonly source: AsyncStream<T>,
     readonly pred: (
       value: T,
@@ -1409,11 +1432,12 @@ class AsyncFilterStream<T> extends AsyncStreamBase<T> {
     ) => MaybePromise<boolean>,
     readonly negate = false
   ) {
-    super();
+    super(deps);
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
     return new AsyncFilterIterator<T>(
+      this.deps,
       this.source[Symbol.asyncIterator](),
       this.pred,
       this.negate
@@ -1431,6 +1455,7 @@ class AsyncFilterStream<T> extends AsyncStreamBase<T> {
     const { pred: thisPred, negate: thisNegate } = this;
 
     return new AsyncFilterStream(
+      this.deps,
       this.source,
       async (value, index, halt) =>
         (await thisPred(value, index, halt)) !== thisNegate &&
@@ -1445,6 +1470,7 @@ class AsyncFilterStream<T> extends AsyncStreamBase<T> {
     const { pred, negate } = this;
 
     return new AsyncCollectStream(
+      this.deps,
       this.source,
       async (value, index, skip, halt) =>
         (await pred(value, index, halt)) !== negate
@@ -1459,16 +1485,18 @@ class AsyncFilterPureStream<
   A extends readonly unknown[],
 > extends AsyncStreamBase<T> {
   constructor(
+    deps: AsyncStreamFactory,
     readonly source: AsyncStream<T>,
     readonly pred: (value: T, ...args: A) => MaybePromise<boolean>,
     readonly args: A,
     readonly negate = false
   ) {
-    super();
+    super(deps);
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
     return new AsyncFilterPureIterator<T, A>(
+      this.deps,
       this.source[Symbol.asyncIterator](),
       this.pred,
       this.args,
@@ -1490,6 +1518,7 @@ class AsyncFilterPureStream<
     const thisNegate = this.negate;
 
     return new AsyncFilterPureStream(
+      this.deps,
       this.source,
       async (value, ...args) => {
         return (
@@ -1507,24 +1536,29 @@ class AsyncFilterPureStream<
   ): AsyncStream<T2> {
     const { pred, negate, args: thisArgs } = this;
 
-    return new AsyncCollectStream(this.source, async (value, _, skip) =>
-      (await pred(value, ...thisArgs)) !== negate
-        ? mapFun(value, ...args)
-        : skip
+    return new AsyncCollectStream(
+      this.deps,
+      this.source,
+      async (value, _, skip) =>
+        (await pred(value, ...thisArgs)) !== negate
+          ? mapFun(value, ...args)
+          : skip
     );
   }
 }
 
 class AsyncCollectStream<T, R> extends AsyncStreamBase<R> {
   constructor(
+    deps: AsyncStreamFactory,
     readonly source: AsyncStream<T>,
     readonly collectFun: AsyncCollectFun<T, R>
   ) {
-    super();
+    super(deps);
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<R> {
     return new AsyncCollectIterator<T, R>(
+      this.deps,
       this.source[Symbol.asyncIterator](),
       this.collectFun
     );
@@ -1541,6 +1575,7 @@ class AsyncCollectStream<T, R> extends AsyncStreamBase<R> {
     const { collectFun } = this;
 
     return new AsyncCollectStream(
+      this.deps,
       this.source,
       async (value, index, skip, halt) => {
         const result = await collectFun(value, index, skip, halt);
@@ -1561,6 +1596,7 @@ class AsyncCollectStream<T, R> extends AsyncStreamBase<R> {
     const { collectFun } = this;
 
     return new AsyncCollectStream(
+      this.deps,
       this.source,
       async (value, index, skip, halt) => {
         const result = await collectFun(value, index, skip, halt);
@@ -1577,15 +1613,17 @@ class AsyncCollectStream<T, R> extends AsyncStreamBase<R> {
 
 class AsyncDropWhileStream<T> extends AsyncStreamBase<T> {
   constructor(
+    deps: AsyncStreamFactory,
     readonly source: AsyncStream<T>,
     readonly pred: (value: T, index: number) => MaybePromise<boolean>,
     readonly negate: boolean
   ) {
-    super();
+    super(deps);
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
     return new AsyncDropWhileIterator<T>(
+      this.deps,
       this.source[Symbol.asyncIterator](),
       this.pred,
       this.negate
@@ -1595,14 +1633,16 @@ class AsyncDropWhileStream<T> extends AsyncStreamBase<T> {
 
 class AsyncTakeStream<T> extends AsyncStreamBase<T> {
   constructor(
+    deps: AsyncStreamFactory,
     readonly source: AsyncStream<T>,
     readonly amount: number
   ) {
-    super();
+    super(deps);
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
     return new AsyncTakeIterator<T>(
+      this.deps,
       this.source[Symbol.asyncIterator](),
       this.amount
     );
@@ -1610,7 +1650,7 @@ class AsyncTakeStream<T> extends AsyncStreamBase<T> {
 
   take(amount: number): AsyncStream<T> {
     if (amount <= 0) {
-      return emptyAsyncStream;
+      return this.deps.empty();
     }
 
     if (amount >= this.amount) {
@@ -1623,14 +1663,16 @@ class AsyncTakeStream<T> extends AsyncStreamBase<T> {
 
 class AsyncDropStream<T> extends AsyncStreamBase<T> {
   constructor(
+    deps: AsyncStreamFactory,
     readonly source: AsyncStream<T>,
     readonly amount: number
   ) {
-    super();
+    super(deps);
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
     return new AsyncDropIterator<T>(
+      this.deps,
       this.source[Symbol.asyncIterator](),
       this.amount
     );
@@ -1647,14 +1689,16 @@ class AsyncDropStream<T> extends AsyncStreamBase<T> {
 
 class AsyncReduceStream<I, R = I> extends AsyncStreamBase<R> {
   constructor(
+    deps: AsyncStreamFactory,
     readonly source: AsyncStream<I>,
     readonly reducer: AsyncReducer<I, R>
   ) {
-    super();
+    super(deps);
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<R> {
     return new AsyncReduceIterator<I, R>(
+      this.deps,
       this.source[Symbol.asyncIterator](),
       this.reducer
     );
@@ -1663,14 +1707,16 @@ class AsyncReduceStream<I, R = I> extends AsyncStreamBase<R> {
 
 export class AsyncTransformerStream<T, R = T> extends AsyncStreamBase<R> {
   constructor(
+    deps: AsyncStreamFactory,
     readonly source: AsyncStream<T>,
     readonly transformer: AsyncTransformer.Accept<T, R>
   ) {
-    super();
+    super(deps);
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<R> {
     return new AsyncTransformerFastIterator<T, R>(
+      this.deps,
       this.source[Symbol.asyncIterator](),
       this.transformer
     );
@@ -1678,12 +1724,15 @@ export class AsyncTransformerStream<T, R = T> extends AsyncStreamBase<R> {
 }
 
 export class AsyncOfStream<T> extends AsyncStreamBase<T> {
-  constructor(readonly values: ArrayNonEmpty<AsyncOptLazy<T>>) {
-    super();
+  constructor(
+    deps: AsyncStreamFactory,
+    readonly values: ArrayNonEmpty<AsyncOptLazy<T>>
+  ) {
+    super(deps);
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
-    return new AsyncOfIterator<T>(this.values);
+    return new AsyncOfIterator<T>(this.deps, this.values);
   }
 }
 
@@ -1691,12 +1740,12 @@ export function isAsyncStream(obj: any): obj is AsyncStream<any> {
   return obj instanceof AsyncStreamBase;
 }
 
-class AsyncEmptyStream<T = any>
+export class AsyncEmptyStream<T = any>
   extends AsyncStreamBase<T>
   implements AsyncStream<T>
 {
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
-    return emptyAsyncFastIterator;
+    return this.deps.asyncFastIteratorFactory._emptyAsyncFastIteratorInstance;
   }
 
   asyncStream(): this {
@@ -1710,16 +1759,19 @@ class AsyncEmptyStream<T = any>
 
     return (
       done ===
-      fromAsyncStreamSource(other)[Symbol.asyncIterator]().fastNext(done)
+      this.deps
+        .fromAsyncStreamSource(other)
+        [Symbol.asyncIterator]()
+        .fastNext(done)
     );
   }
 
   prepend(value: AsyncOptLazy<T>): AsyncStream.NonEmpty<T> {
-    return AsyncStream.of(value);
+    return this.deps.of(value);
   }
 
   append(value: AsyncOptLazy<T>): AsyncStream.NonEmpty<T> {
-    return AsyncStream.of(value);
+    return this.deps.of(value);
   }
 
   assumeNonEmpty(): never {
@@ -1747,7 +1799,7 @@ class AsyncEmptyStream<T = any>
     return this as any;
   }
   transform<R>(transformer: AsyncTransformer<T, R>): AsyncStream<R> {
-    return fromAsyncStreamSource<R>(async () => {
+    return this.deps.fromAsyncStreamSource<R>(async () => {
       const instance = await transformer.compile();
 
       return instance.getOutput();
@@ -1831,12 +1883,12 @@ class AsyncEmptyStream<T = any>
     return this;
   }
   concat(...others: ArrayNonEmpty<AsyncStreamSource<T>>): any {
-    if (others.every(isEmptyAsyncStreamSourceInstance)) return this;
+    if (others.every(this.deps.isEmptyAsyncStreamSourceInstance)) return this;
     const [source1, source2, ...sources] = others;
 
     if (undefined === source2) return source1;
 
-    return fromAsyncStreamSource(source1).concat(source2, ...sources);
+    return this.deps.fromAsyncStreamSource(source1).concat(source2, ...sources);
   }
   min<O>(otherwise?: AsyncOptLazy<O>): Promise<O> {
     return AsyncOptLazy.toPromise(otherwise!);
@@ -1861,10 +1913,10 @@ class AsyncEmptyStream<T = any>
     return undefined !== ifEmpty ? ifEmpty : start.concat(end);
   }
   mkGroup({
-    start = emptyAsyncStream as AsyncStreamSource<T>,
-    end = emptyAsyncStream as AsyncStreamSource<T>,
+    start = this.deps.empty() as AsyncStreamSource<T>,
+    end = this.deps.empty() as AsyncStreamSource<T>,
   } = {}): AsyncStream.NonEmpty<T> {
-    return fromAsyncStreamSource(start).concat(end) as any;
+    return this.deps.fromAsyncStreamSource(start).concat(end) as any;
   }
   splitOn<R>(): AsyncStream<R> {
     return this as any;
@@ -1916,14 +1968,65 @@ class AsyncEmptyStream<T = any>
  */
 export class FromSource<T> extends AsyncStreamBase<T> {
   constructor(
+    deps: AsyncStreamFactory,
     readonly source: AsyncStreamSource<T>,
     readonly close?: () => MaybePromise<void>
   ) {
-    super();
+    super(deps);
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
-    return asyncStreamSourceToIterator(this.source, this.close);
+    return this.#asyncStreamSourceToIterator(this.source);
+  }
+
+  #asyncStreamSourceToIterator(
+    source: AsyncStreamSource<T>
+  ): AsyncFastIterator<T> {
+    const { deps, close } = this;
+
+    if (source instanceof Function) {
+      return new FromPromise(deps, source as any, close);
+    }
+    if (deps.isEmptyAsyncStreamSourceInstance(source)) {
+      return this.deps.asyncFastIteratorFactory._emptyAsyncFastIteratorInstance;
+    }
+    if (typeof source === 'string') {
+      return new FromIterator(
+        this.deps,
+        (source as any)[Symbol.iterator](),
+        close
+      );
+    }
+    if (typeof source === 'object') {
+      if (Symbol.asyncIterator in source) {
+        const iterator = (source as AsyncIterable<T>)[Symbol.asyncIterator]();
+        if (this.deps.asyncFastIteratorFactory.isAsyncFastIterator(iterator)) {
+          if (undefined === close) {
+            return iterator as AsyncFastIterator<T>;
+          }
+          if (undefined === iterator.return) {
+            (iterator as any).return = close;
+            return iterator;
+          }
+          const oldReturn = iterator.return;
+          (iterator as any).return = (): Promise<any> =>
+            Promise.all([oldReturn, close]);
+          return iterator;
+        }
+        return new FromAsyncIterator(iterator, close);
+      }
+      if (`asyncStream` in source) {
+        return this.#asyncStreamSourceToIterator((source as any).asyncStream());
+      }
+      if (Symbol.iterator in source) {
+        return new FromIterator(
+          this.deps,
+          (source as any)[Symbol.iterator](),
+          close
+        );
+      }
+    }
+    throw Error('unknown async stream source');
   }
 }
 
@@ -1933,43 +2036,38 @@ export class FromSource<T> extends AsyncStreamBase<T> {
  */
 export class FromResource<T, R> extends AsyncStreamBase<T> {
   constructor(
+    deps: AsyncStreamFactory,
     readonly open: () => MaybePromise<R>,
     readonly createSource: (resource: R) => MaybePromise<AsyncStreamSource<T>>,
     readonly close?: (resource: R) => MaybePromise<void>
   ) {
-    super();
+    super(deps);
   }
 
   [Symbol.asyncIterator](): AsyncFastIterator<T> {
     return new FromResourceIterator(
+      this.deps,
       this.open,
       this.createSource,
-      this.close,
-      asyncStreamSourceHelpers
+      this.close
     );
   }
 }
 
-/**
- * A shared empty `AsyncStream` instance used throughout the async stream implementation.
- */
-export const emptyAsyncStream: AsyncStream<any> = Object.freeze(
-  new AsyncEmptyStream()
-);
-
-/**
- * Returns true if the given async stream source is known to be empty.
- * If this function returns false, the source may still be empty; it is simply not known.
- * @param source - a potential async stream source
- */
-export function isEmptyAsyncStreamSourceInstance(
-  source: AsyncStreamSource<any>
-): boolean {
-  return (
-    source === emptyAsyncStream ||
-    isEmptyStreamSourceInstance(source as StreamSource<any>)
-  );
-}
+// /**
+//  * Returns true if the given async stream source is known to be empty.
+//  * If this function returns false, the source may still be empty; it is simply not known.
+//  * @param source - a potential async stream source
+//  */
+// export function isEmptyAsyncStreamSourceInstance(
+//   source: AsyncStreamSource<any>
+// ): boolean {
+//   throw Error('todo!');
+//   // return (
+//   //   source === emptyAsyncStream ||
+//   //   isEmptyStreamSourceInstance(source as StreamSource<any>)
+//   // );
+// }
 
 /**
  * Converts any `AsyncStreamSource` into an `AsyncFastIterator`.
@@ -1978,177 +2076,55 @@ export function isEmptyAsyncStreamSourceInstance(
  * @param source - the async stream source to convert
  * @param close - optional callback that will be invoked when the iterator is closed
  */
-export function asyncStreamSourceToIterator<T>(
-  source: AsyncStreamSource<T>,
-  close?: () => MaybePromise<void>
-): AsyncFastIterator<T> {
-  if (source instanceof Function) {
-    return new FromPromise(source as any, asyncStreamSourceHelpers, close);
-  }
+// export function asyncStreamSourceToIterator<T>(
+//   source: AsyncStreamSource<T>,
+//   close?: () => MaybePromise<void>
+// ): AsyncFastIterator<T> {
+//   if (source instanceof Function) {
+//     return new FromPromise(source as any, asyncStreamSourceHelpers, close);
+//   }
 
-  if (isEmptyAsyncStreamSourceInstance(source)) {
-    return emptyAsyncFastIterator;
-  }
+//   if (isEmptyAsyncStreamSourceInstance(source)) {
+//     return emptyAsyncFastIterator;
+//   }
 
-  if (typeof source === 'string') {
-    return new FromIterator((source as any)[Symbol.iterator](), close);
-  }
+//   if (typeof source === 'string') {
+//     return new FromIterator((source as any)[Symbol.iterator](), close);
+//   }
 
-  if (typeof source === 'object') {
-    if (Symbol.asyncIterator in source) {
-      const iterator = (source as AsyncIterable<T>)[Symbol.asyncIterator]();
+//   if (typeof source === 'object') {
+//     if (Symbol.asyncIterator in source) {
+//       const iterator = (source as AsyncIterable<T>)[Symbol.asyncIterator]();
 
-      if (isAsyncFastIterator(iterator)) {
-        if (undefined === close) {
-          return iterator as AsyncFastIterator<T>;
-        }
-        if (undefined === iterator.return) {
-          (iterator as any).return = close;
+//       if (isAsyncFastIterator(iterator)) {
+//         if (undefined === close) {
+//           return iterator as AsyncFastIterator<T>;
+//         }
+//         if (undefined === iterator.return) {
+//           (iterator as any).return = close;
 
-          return iterator;
-        }
+//           return iterator;
+//         }
 
-        const oldReturn = iterator.return;
+//         const oldReturn = iterator.return;
 
-        (iterator as any).return = (): Promise<any> =>
-          Promise.all([oldReturn, close]);
+//         (iterator as any).return = (): Promise<any> =>
+//           Promise.all([oldReturn, close]);
 
-        return iterator;
-      }
+//         return iterator;
+//       }
 
-      return new FromAsyncIterator(iterator, close);
-    }
+//       return new FromAsyncIterator(iterator, close);
+//     }
 
-    if (`asyncStream` in source) {
-      return asyncStreamSourceToIterator((source as any).asyncStream(), close);
-    }
+//     if (`asyncStream` in source) {
+//       return asyncStreamSourceToIterator((source as any).asyncStream(), close);
+//     }
 
-    if (Symbol.iterator in source) {
-      return new FromIterator((source as any)[Symbol.iterator](), close);
-    }
-  }
+//     if (Symbol.iterator in source) {
+//       return new FromIterator((source as any)[Symbol.iterator](), close);
+//     }
+//   }
 
-  throw Error('unknown async stream source');
-}
-
-// prettier-ignore
-/**
- * Converts any `AsyncStreamSource` into a concrete `AsyncStream` implementation.
- * @typeparam T - the element type
- * @param source - the async stream source to convert
- */
-export const fromAsyncStreamSource: {
-  <T>(source: AsyncStreamSource.NonEmpty<T>): AsyncStream.NonEmpty<T>;
-  <T>(source: AsyncStreamSource<T>): AsyncStream<T>;
-} = <T,>(source: AsyncStreamSource<T>): any => {
-  if (undefined === source) return emptyAsyncStream;
-  if (isAsyncStream(source)) return source;
-  if (isEmptyAsyncStreamSourceInstance(source)) return emptyAsyncStream;
-
-  return new FromSource(source);
-};
-
-const asyncStreamSourceHelpers = {
-  fromAsyncStreamSource,
-  isEmptyAsyncStreamSourceInstance,
-};
-
-export type AsyncStreamSourceHelpers = typeof asyncStreamSourceHelpers;
-
-/**
- * Default implementation of the `AsyncStreamConstructors` interface.
- * This instance backs the exported `AsyncStream` value.
- */
-export const AsyncStreamConstructorsImpl: AsyncStreamConstructors =
-  Object.freeze<AsyncStreamConstructors>({
-    of(...values) {
-      return new AsyncOfStream(values) as any;
-    },
-    from(...sources): any {
-      const [first, ...rest] = sources;
-
-      if (rest.length <= 0) {
-        return fromAsyncStreamSource(first);
-      }
-
-      const [rest1, ...restOther] = rest;
-
-      return fromAsyncStreamSource(first).concat(rest1, ...restOther);
-    },
-    fromResource(options): any {
-      const { open, createSource, close } = options;
-      return new FromResource(open, createSource, close);
-    },
-    zipWith(...sources): any {
-      return (zipFun: any): any => {
-        if (sources.some(isEmptyAsyncStreamSourceInstance)) {
-          return emptyAsyncStream;
-        }
-
-        return new AsyncFromStream(
-          () =>
-            new AsyncZipWithIterator(sources, zipFun, asyncStreamSourceHelpers)
-        );
-      };
-    },
-    zip(...sources): any {
-      return AsyncStreamConstructorsImpl.zipWith(...(sources as any))(Array);
-    },
-    zipAllWith(...sources): any {
-      return (fillValue: any, zipFun: any): any => {
-        if (sources.every(isEmptyAsyncStreamSourceInstance)) {
-          return emptyAsyncStream;
-        }
-
-        return new AsyncFromStream(
-          (): AsyncFastIterator<any> =>
-            new AsyncZipAllWithItererator(
-              fillValue,
-              sources,
-              zipFun,
-              asyncStreamSourceHelpers
-            )
-        );
-      };
-    },
-    zipAll(fillValue, ...sources): any {
-      return AsyncStreamConstructorsImpl.zipAllWith(...(sources as any))(
-        fillValue,
-        Array
-      );
-    },
-    flatten(source: any) {
-      return fromAsyncStreamSource(source).flatMap((s: any) => s);
-    },
-    unzip(source, options) {
-      const { length } = options;
-
-      if (isEmptyAsyncStreamSourceInstance(source)) {
-        return Stream.of(emptyAsyncStream).repeat(length).toArray();
-      }
-
-      const result: AsyncStream<unknown>[] = [];
-      let i = -1;
-
-      while (++i < length) {
-        const index = i;
-        result[i] = source.map((t: any): unknown => t[index]);
-      }
-
-      return result as any;
-    },
-    empty<T>(): AsyncStream<T> {
-      return emptyAsyncStream;
-    },
-    always<T>(value: AsyncOptLazy<T>): AsyncStream.NonEmpty<T> {
-      return AsyncStreamConstructorsImpl.of(value).repeat();
-    },
-    unfold<T>(
-      init: T,
-      next: (current: T, index: number, stop: Token) => MaybePromise<T | Token>
-    ): AsyncStream.NonEmpty<T> {
-      return new AsyncFromStream(
-        (): AsyncFastIterator<T> => new AsyncUnfoldIterator<T>(init, next)
-      ) as unknown as AsyncStream.NonEmpty<T>;
-    },
-  });
+//   throw Error('unknown async stream source');
+// }

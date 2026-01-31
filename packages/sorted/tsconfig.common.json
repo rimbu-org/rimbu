@@ -3,17 +3,14 @@
     "rootDirs": [".", ".."],
     "baseUrl": "./src",
     "paths": {
-      "@rimbu/sorted/common": ["common/index.mjs", "common/index.cts"],
-      "@rimbu/sorted/map": ["map/index.mjs", "map/index.cts"],
-      "@rimbu/sorted/map-custom": [
-        "map-custom/index.mjs",
-        "map-custom/index.cts"
-      ],
-      "@rimbu/sorted/set": ["set/index.mjs", "set/index.cts"],
-      "@rimbu/sorted/set-custom": [
-        "set-custom/index.mjs",
-        "set-custom/index.cts"
-      ]
+      "@rimbu/sorted": ["./entry/sorted.mjs"],
+      "@rimbu/sorted/map": ["./entry/map.mjs"],
+      "@rimbu/sorted/set": ["./entry/set.mjs"],
+      "@rimbu/sorted/*": ["./public/*.mjs"],
+      "#sorted/*": ["./public/internal/sorted/*.mjs"],
+      "#map/*": ["./public/internal/map/*.mjs"],
+      "#set/*": ["./public/internal/set/*.mjs"],
+      "#private/*": ["./private/*.mjs"]
     }
   }
 }

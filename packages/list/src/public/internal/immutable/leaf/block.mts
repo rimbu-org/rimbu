@@ -3,7 +3,7 @@ import * as RimbuError from '@rimbu/base/rimbu-error';
 import { IndexRange } from '@rimbu/common/index-range';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
-import { type ArrayNonEmpty } from '@rimbu/common/types';
+import type { ArrayNonEmpty } from '@rimbu/common/types';
 import { Update } from '@rimbu/common/update';
 import { Stream, type StreamSource } from '@rimbu/stream';
 

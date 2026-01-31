@@ -1,4 +1,6 @@
-import { HashMap } from '../src/main/index.mjs';
+import { describe, expect, it } from 'bun:test';
+
+import { HashMap } from '@rimbu/hashed/map';
 
 describe('HashMap issues fixed by PRs', () => {
   it('issue #186: HashMap "forgets" about colliding keys, unlike HashSet', () => {

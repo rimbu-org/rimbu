@@ -1,9 +1,9 @@
 import type { RMap } from '@rimbu/collection-types';
-import type { ArrayNonEmpty } from '@rimbu/common';
+import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
 
-import type { HashMap } from '../src/main/index.mjs';
+import type { HashMap } from '@rimbu/hashed/map';
 
 type GE<K, V> = HashMap<K, V>;
 type GNE<K, V> = HashMap.NonEmpty<K, V>;

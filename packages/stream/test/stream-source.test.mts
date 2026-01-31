@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'bun:test';
 
-import { isEmptyStreamSourceInstance } from '#/stream-base';
-
+import { StreamFactory } from '#stream/factory';
 import { Stream } from '@rimbu/stream';
+
+const { isEmptyStreamSourceInstance } = StreamFactory();
 
 describe('isEmptyStreamSourceInstance', () => {
   it('correctly detects empty instances', () => {

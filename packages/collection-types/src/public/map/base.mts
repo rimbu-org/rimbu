@@ -8,7 +8,7 @@ import {
   type StreamSource,
   type Streamable,
 } from '@rimbu/stream';
-import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom/stream-custom';
+import { StreamFactory } from '@rimbu/stream/internal/factory';
 import { Reducer } from '@rimbu/stream/reducer';
 
 import type { KeyValue, WithKeyValue } from '@rimbu/collection-types/common';
@@ -998,7 +998,7 @@ export namespace RMapBase {
       while (++i < length) {
         const source = sources[i];
 
-        if (isEmptyStreamSourceInstance(source)) continue;
+        if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
 
         if (
           builder.isEmpty &&
@@ -1107,7 +1107,7 @@ export namespace RMapBase {
     ): any => {
       // prettier-ignore
       return <R,>(mergeFun: (key: K, ...values: I) => R): any => {
-        if (Stream.from(sources).some(isEmptyStreamSourceInstance)) {
+        if (Stream.from(sources).some(StreamFactory().isEmptyStreamSourceInstance)) {
           return this.empty();
         }
 

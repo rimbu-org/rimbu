@@ -1,4 +1,4 @@
-import { type ArrayNonEmpty } from '@rimbu/common';
+import { type ArrayNonEmpty } from '@rimbu/common/types';
 import { HashMap } from '@rimbu/hashed';
 import { HashMultiMapHashValue } from '@rimbu/multimap';
 import {
@@ -9,12 +9,9 @@ import {
   expectType,
 } from 'tsd';
 
-import {
-  Reducer,
-  Stream,
-  Transformer,
-  type FastIterator,
-} from '../src/main/index.mjs';
+import { Stream, type FastIterator } from '@rimbu/stream';
+import { Reducer } from '@rimbu/stream/reducer';
+import { Transformer } from '@rimbu/stream/transformer';
 
 // Variance
 expectAssignable<Stream<number | string>>(Stream.empty<number>());

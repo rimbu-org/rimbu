@@ -1,13 +1,15 @@
-import { Comp } from '@rimbu/common';
-import { SortedSetContext, SortedSetInner } from '@rimbu/sorted/set-custom';
+import { describe, expect, it } from 'bun:test';
 
+import { SortedSetContext } from '#set/context';
+import { SortedSetInner } from '#set/immutable';
 import {
   innerDropInternal,
   innerGetAtIndex,
   innerGetSubIndex,
   innerStreamSliceIndex,
   innerTakeInternal,
-} from '../src/common/index.mjs';
+} from '#sorted/base';
+import { Comp } from '@rimbu/common/comp';
 
 const context = new SortedSetContext<number>(2, Comp.defaultComp());
 

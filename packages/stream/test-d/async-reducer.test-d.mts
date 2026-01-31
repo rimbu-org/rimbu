@@ -1,8 +1,8 @@
-import { Reducer } from '@rimbu/stream';
 import { AsyncStream } from '@rimbu/stream/async';
+import { Reducer } from '@rimbu/stream/reducer';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
 
-import { AsyncReducer } from '../src/async/index.mjs';
+import { AsyncReducer } from '@rimbu/stream/async/reducer';
 
 // Variance
 expectAssignable<AsyncReducer<number, boolean | string>>(

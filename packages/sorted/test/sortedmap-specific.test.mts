@@ -1,6 +1,8 @@
+import { describe, expect, it } from 'bun:test';
+
 import { Stream } from '@rimbu/stream';
 
-import { SortedMap } from '../src/main/index.mjs';
+import { SortedMap } from '@rimbu/sorted/map';
 
 function entries<T>(...keys: T[]): [T, T][] {
   return keys.map((v) => [v, v]);

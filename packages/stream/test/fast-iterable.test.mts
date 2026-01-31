@@ -2,32 +2,36 @@ import { describe, expect, it } from 'bun:test';
 
 import { OptLazy } from '@rimbu/common/opt-lazy';
 
-import {
-  emptyFastIterator,
-  FastIteratorBase,
-  fixedDoneIteratorResult,
-} from '#/fast-iterator-base';
+import { FastIteratorBase } from '#stream/fast-iterator-base';
+import { StreamFactory } from '@rimbu/stream/internal/factory';
+
+const { _emptyFastIteratorInstance, _fixedDoneIteratorResult } =
+  StreamFactory().fastIteratorFactory;
 
 describe('FastIterator', () => {
   it('fixedDone', () => {
-    expect(fixedDoneIteratorResult).toEqual({ done: true, value: undefined });
+    expect(_fixedDoneIteratorResult).toEqual({ done: true, value: undefined });
   });
 
   it('emptyFastIterator', () => {
-    expect(emptyFastIterator.fastNext()).toEqual(undefined);
-    expect(emptyFastIterator.fastNext(1)).toEqual(1);
-    expect(emptyFastIterator.fastNext(() => 1)).toEqual(1);
-    expect(emptyFastIterator.next()).toBe(fixedDoneIteratorResult);
+    expect(_emptyFastIteratorInstance.fastNext()).toEqual(undefined);
+    expect(_emptyFastIteratorInstance.fastNext(1)).toEqual(1);
+    expect(_emptyFastIteratorInstance.fastNext(() => 1)).toEqual(1);
+    expect(_emptyFastIteratorInstance.next()).toBe(_fixedDoneIteratorResult);
   });
 
   it('Base', () => {
     class Test1 extends FastIteratorBase<number> {
+      readonly deps = StreamFactory();
+
       fastNext(): number {
         return 1;
       }
     }
 
     class Test2 extends FastIteratorBase<number> {
+      readonly deps = StreamFactory();
+
       fastNext<O>(otherwise?: OptLazy<O>): number | O {
         return OptLazy(otherwise)!;
       }

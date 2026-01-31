@@ -4,16 +4,15 @@ import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, ToJSON } from '@rimbu/common/types';
 
-import type { Reducer } from '@rimbu/stream/reducer';
-import type { Transformer } from '@rimbu/stream/transformer';
-
 import type {
   FastIterable,
   Streamable,
   StreamSource,
 } from '#private/stream-types';
 import type { StreamConstructors } from '#stream/constructors';
-import { StreamConstructorsImpl } from '#stream/stream-base';
+import { streamFactoryModule } from '#stream/factory-module';
+import type { Reducer } from '@rimbu/stream/reducer';
+import type { Transformer } from '@rimbu/stream/transformer';
 
 export type * from '#private/stream-types';
 
@@ -1489,4 +1488,4 @@ export namespace Stream {
   }
 }
 
-export const Stream: StreamConstructors = StreamConstructorsImpl;
+export const Stream: StreamConstructors = streamFactoryModule.build();

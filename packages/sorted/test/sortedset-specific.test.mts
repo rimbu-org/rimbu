@@ -1,6 +1,9 @@
-import { Reducer, Stream } from '@rimbu/stream';
+import { describe, expect, it } from 'bun:test';
 
-import { SortedSet } from '../src/main/index.mjs';
+import { Stream } from '@rimbu/stream';
+import { Reducer } from '@rimbu/stream/reducer';
+
+import { SortedSet } from '@rimbu/sorted/set';
 
 function runWith(name: string, context: SortedSet.Context<number>): void {
   describe(name, () => {

@@ -1,5 +1,8 @@
-import { Stream, Tuple } from '@rimbu/core';
-import { SortedMap } from '../src/main/index.mjs';
+import { describe, expect, it } from 'bun:test';
+
+import { Tuple } from '@rimbu/deep/tuple';
+import { SortedMap } from '@rimbu/sorted/map';
+import { Stream } from '@rimbu/stream';
 
 describe('SortedMap issues fixed by PRs', () => {
   it('from SortedSet issue #189: remove should not use reference equality', () => {

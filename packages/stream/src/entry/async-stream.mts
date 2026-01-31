@@ -4,20 +4,17 @@ import type { Eq } from '@rimbu/common/eq';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, ToJSON } from '@rimbu/common/types';
 
-import type { AsyncReducer } from '@rimbu/stream/async/reducer';
-import type { AsyncTransformer } from '@rimbu/stream/async/transformer';
-
 import type { AsyncStreamConstructors } from '#async/constructors';
-import { AsyncStreamConstructorsImpl } from '#async/stream-base';
+import { asyncStreamFactoryModule } from '#async/factory-module';
 import type {
   AsyncFastIterable,
   AsyncStreamable,
   AsyncStreamSource,
 } from '#private/async-stream-types';
+import type { AsyncReducer } from '@rimbu/stream/async/reducer';
+import type { AsyncTransformer } from '@rimbu/stream/async/transformer';
 
 export type * from '#private/async-stream-types';
-
-export const AsyncStream: AsyncStreamConstructors = AsyncStreamConstructorsImpl;
 
 /**
  * A possibly infinite asynchronous sequence of elements of type T.
@@ -1554,3 +1551,6 @@ export namespace AsyncStream {
     toArray(): Promise<ArrayNonEmpty<T>>;
   }
 }
+
+export const AsyncStream: AsyncStreamConstructors =
+  asyncStreamFactoryModule.build();

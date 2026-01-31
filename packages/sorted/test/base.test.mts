@@ -1,5 +1,7 @@
-import type { LeafMutateSource } from '../src/common/index.mjs';
+import { describe, expect, it } from 'bun:test';
+
 import {
+  type LeafMutateSource,
   leafDeleteMax,
   leafDeleteMin,
   leafMutateGetFromLeft,
@@ -10,7 +12,7 @@ import {
   leafMutateJoinRight,
   leafMutateSplitRight,
   SortedEmpty,
-} from '../src/common/index.mjs';
+} from '#sorted/base';
 
 function createSource<T>(values: T[]): LeafMutateSource<any, T> {
   return {

@@ -1,6 +1,8 @@
+import { describe, expect, it } from 'bun:test';
+
 import { Stream } from '@rimbu/stream';
 
-import { Hasher } from '../src/main/index.mjs';
+import { Hasher } from '@rimbu/hashed';
 
 describe('Hasher', () => {
   it('defaultHasher', () => {

@@ -1,4 +1,6 @@
-import { SortedIndex } from '../src/common/index.mjs';
+import { describe, expect, it } from 'bun:test';
+
+import { SortedIndex } from '#sorted/sorted-index';
 
 describe('SortedIndex', () => {
   it('firstChild', () => {

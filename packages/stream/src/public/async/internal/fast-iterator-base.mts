@@ -4,6 +4,8 @@ import { CollectFun, type AsyncCollectFun } from '@rimbu/common/collect';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 
+import type { AsyncStreamFactory } from '#async/factory';
+import { closeIters } from '#async/utils';
 import type {
   AsyncFastIterator,
   AsyncStream,
@@ -12,66 +14,30 @@ import type {
 import type { AsyncReducer } from '@rimbu/stream/async/reducer';
 import { AsyncTransformer } from '@rimbu/stream/async/transformer';
 
-import {
-  fromAsyncStreamSource,
-  type AsyncStreamSourceHelpers,
-} from '#async/stream-base';
-import { closeIters } from '#async/utils';
-
-/**
- * A frozen `IteratorResult` that represents the completed asynchronous iterator state.
- * This value is reused to avoid repeated allocations in async iterator implementations.
- */
-export const fixedDoneAsyncIteratorResult = Object.freeze(
-  Promise.resolve(
-    Object.freeze({
-      done: true,
-      value: undefined,
-    }) as IteratorResult<any>
-  )
-);
-
-/**
- * Returns true if the given `iterator` implements the `AsyncFastIterator` interface.
- * @param iterator - the async iterator instance to test
- */
-export function isAsyncFastIterator<T>(
-  iterator: AsyncIterator<T>
-): iterator is AsyncFastIterator<T> {
-  return `fastNext` in iterator;
-}
-
-/**
- * An `AsyncFastIterator` that is already exhausted and never yields values.
- * Its `fastNext` method always resolves to the provided fallback value.
- */
-export const emptyAsyncFastIterator: AsyncFastIterator<any> = Object.freeze({
-  fastNext<O>(otherwise?: AsyncOptLazy<O>): MaybePromise<O> {
-    return AsyncOptLazy.toMaybePromise(otherwise!);
-  },
-  next(): Promise<IteratorResult<any>> {
-    return fixedDoneAsyncIteratorResult;
-  },
-});
-
 /**
  * Base class for asynchronous fast iterators that implements `next` in terms of `fastNext`.
  * Subclasses only need to implement the `fastNext` method.
  */
 export abstract class AsyncFastIteratorBase<T> implements AsyncFastIterator<T> {
+  abstract readonly deps: AsyncStreamFactory;
   abstract fastNext<O>(otherwise?: AsyncOptLazy<O>): MaybePromise<T | O>;
   return?: () => Promise<any>;
 
   async next(): Promise<IteratorResult<T>> {
     const done = Symbol('Done');
     const value = await this.fastNext(done);
-    if (done === value) return fixedDoneAsyncIteratorResult;
+    if (done === value)
+      return this.deps.asyncFastIteratorFactory
+        ._fixedDoneAsyncIteratorResultInstance;
     return { value, done: false };
   }
 }
 
 export class AsyncOfIterator<T> extends AsyncFastIteratorBase<T> {
-  constructor(readonly values: ArrayNonEmpty<AsyncOptLazy<T>>) {
+  constructor(
+    readonly deps: AsyncStreamFactory,
+    readonly values: ArrayNonEmpty<AsyncOptLazy<T>>
+  ) {
     super();
   }
 
@@ -89,10 +55,10 @@ export class AsyncOfIterator<T> extends AsyncFastIteratorBase<T> {
 
 export class FromResourceIterator<T, R> extends AsyncFastIteratorBase<T> {
   constructor(
+    readonly deps: AsyncStreamFactory,
     readonly open: () => MaybePromise<R>,
     readonly createSource: (resource: R) => MaybePromise<AsyncStreamSource<T>>,
-    readonly close: ((resource: R) => MaybePromise<void>) | undefined,
-    readonly asyncStreamSourceHelpers: AsyncStreamSourceHelpers
+    readonly close: ((resource: R) => MaybePromise<void>) | undefined
   ) {
     super();
 
@@ -114,7 +80,7 @@ export class FromResourceIterator<T, R> extends AsyncFastIteratorBase<T> {
       const resource = await this.open();
       this.resource = resource;
       const source = await this.createSource(resource);
-      this.iterator = this.asyncStreamSourceHelpers
+      this.iterator = this.deps
         .fromAsyncStreamSource(source)
         [Symbol.asyncIterator]();
     }
@@ -138,6 +104,7 @@ export class FromResourceIterator<T, R> extends AsyncFastIteratorBase<T> {
 
 export class AsyncUnfoldIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(
+    readonly deps: AsyncStreamFactory,
     init: T,
     readonly getNext: (
       current: T,
@@ -176,17 +143,15 @@ export class AsyncZipWithIterator<
   R,
 > extends AsyncFastIteratorBase<R> {
   constructor(
+    readonly deps: AsyncStreamFactory,
     readonly iterables: { [K in keyof I]: AsyncStreamSource<I[K]> },
-    readonly zipFun: (...values: I) => MaybePromise<R>,
-    readonly asyncStreamSourceHelpers: AsyncStreamSourceHelpers
+    readonly zipFun: (...values: I) => MaybePromise<R>
   ) {
     super();
 
     this.sources = iterables.map(
       (source): AsyncFastIterator<any> =>
-        this.asyncStreamSourceHelpers
-          .fromAsyncStreamSource(source)
-          [Symbol.asyncIterator]()
+        this.deps.fromAsyncStreamSource(source)[Symbol.asyncIterator]()
     );
 
     this.sourcesToClose = new Set(this.sources);
@@ -226,20 +191,18 @@ export class AsyncZipAllWithItererator<
   R,
 > extends AsyncFastIteratorBase<R> {
   constructor(
+    readonly deps: AsyncStreamFactory,
     readonly fillValue: AsyncOptLazy<F>,
     readonly iters: { [K in keyof I]: AsyncStreamSource<I[K]> },
     readonly zipFun: (
       ...values: { [K in keyof I]: I[K] | F }
-    ) => MaybePromise<R>,
-    readonly asyncStreamSourceHelpers: AsyncStreamSourceHelpers
+    ) => MaybePromise<R>
   ) {
     super();
 
     this.sources = iters.map(
       (o): AsyncFastIterator<any> =>
-        this.asyncStreamSourceHelpers
-          .fromAsyncStreamSource(o)
-          [Symbol.asyncIterator]()
+        deps.fromAsyncStreamSource(o)[Symbol.asyncIterator]()
     );
 
     this.sourcesToClose = new Set(this.sources);
@@ -314,6 +277,7 @@ export class FromAsyncIterator<T> implements AsyncFastIterator<T> {
 
 export class FromIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(
+    readonly deps: AsyncStreamFactory,
     readonly iterator: Iterator<T>,
     close?: () => MaybePromise<void>
   ) {
@@ -339,8 +303,8 @@ export class FromIterator<T> extends AsyncFastIteratorBase<T> {
 
 export class FromPromise<T> extends AsyncFastIteratorBase<T> {
   constructor(
+    readonly deps: AsyncStreamFactory,
     readonly promise: () => Promise<AsyncStreamSource<T>>,
-    readonly asyncStreamSourceHelpers: AsyncStreamSourceHelpers,
     close?: () => MaybePromise<void>
   ) {
     super();
@@ -359,7 +323,7 @@ export class FromPromise<T> extends AsyncFastIteratorBase<T> {
   async fastNext<O>(otherwise?: AsyncOptLazy<O>): Promise<T | O> {
     if (this.iterator === undefined) {
       const source = await this.promise();
-      this.iterator = this.asyncStreamSourceHelpers
+      this.iterator = this.deps
         .fromAsyncStreamSource(source)
         [Symbol.asyncIterator]();
     }
@@ -370,6 +334,7 @@ export class FromPromise<T> extends AsyncFastIteratorBase<T> {
 
 export class AsyncPrependIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(
+    readonly deps: AsyncStreamFactory,
     readonly source: AsyncFastIterator<T>,
     readonly item: AsyncOptLazy<T>
   ) {
@@ -394,6 +359,7 @@ export class AsyncPrependIterator<T> extends AsyncFastIteratorBase<T> {
 
 export class AsyncAppendIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(
+    readonly deps: AsyncStreamFactory,
     readonly source: AsyncFastIterator<T>,
     readonly item: AsyncOptLazy<T>
   ) {
@@ -427,6 +393,7 @@ export class AsyncIndexedIterator<T> extends AsyncFastIteratorBase<
   index: number;
 
   constructor(
+    readonly deps: AsyncStreamFactory,
     readonly source: AsyncFastIterator<T>,
     readonly startIndex = 0
   ) {
@@ -449,6 +416,7 @@ export class AsyncIndexedIterator<T> extends AsyncFastIteratorBase<
 
 export class AsyncMapIterator<T, T2> extends AsyncFastIteratorBase<T2> {
   constructor(
+    readonly deps: AsyncStreamFactory,
     readonly source: AsyncFastIterator<T>,
     readonly mapFun: (value: T, index: number) => MaybePromise<T2>
   ) {
@@ -478,6 +446,7 @@ export class AsyncMapPureIterator<
   T2,
 > extends AsyncFastIteratorBase<T2> {
   constructor(
+    readonly deps: AsyncStreamFactory,
     readonly source: AsyncFastIterator<T>,
     readonly mapFun: (value: T, ...args: A) => MaybePromise<T2>,
     readonly args: A
@@ -500,9 +469,9 @@ export class AsyncConcatIterator<T> extends AsyncFastIteratorBase<T> {
   iterator: AsyncFastIterator<T>;
 
   constructor(
+    readonly deps: AsyncStreamFactory,
     readonly source: AsyncStream<T>,
-    readonly otherSources: AsyncStreamSource<T>[],
-    readonly asyncStreamSourceHelpers: AsyncStreamSourceHelpers
+    readonly otherSources: AsyncStreamSource<T>[]
   ) {
     super();
 
@@ -516,7 +485,6 @@ export class AsyncConcatIterator<T> extends AsyncFastIteratorBase<T> {
     const done = Symbol('Done');
     let value: T | typeof done;
     const length = this.otherSources.length;
-    const { asyncStreamSourceHelpers } = this;
 
     while (done === (value = await this.iterator.fastNext(done))) {
       if (this.sourceIndex >= length) {
@@ -526,16 +494,14 @@ export class AsyncConcatIterator<T> extends AsyncFastIteratorBase<T> {
       let nextSource: AsyncStreamSource<T> =
         this.otherSources[this.sourceIndex++];
 
-      while (
-        asyncStreamSourceHelpers.isEmptyAsyncStreamSourceInstance(nextSource)
-      ) {
+      while (this.deps.isEmptyAsyncStreamSourceInstance(nextSource)) {
         if (this.sourceIndex >= length) {
           return AsyncOptLazy.toMaybePromise(otherwise!);
         }
         nextSource = this.otherSources[this.sourceIndex++];
       }
 
-      this.iterator = asyncStreamSourceHelpers
+      this.iterator = this.deps
         .fromAsyncStreamSource(nextSource)
         [Symbol.asyncIterator]();
     }
@@ -546,6 +512,7 @@ export class AsyncConcatIterator<T> extends AsyncFastIteratorBase<T> {
 
 export class AsyncFilterIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(
+    readonly deps: AsyncStreamFactory,
     readonly source: AsyncFastIterator<T>,
     readonly pred: (
       value: T,
@@ -592,6 +559,7 @@ export class AsyncFilterPureIterator<
   A extends readonly unknown[],
 > extends AsyncFastIteratorBase<T> {
   constructor(
+    readonly deps: AsyncStreamFactory,
     readonly source: AsyncFastIterator<T>,
     readonly pred: (value: T, ...args: A) => MaybePromise<boolean>,
     readonly args: A,
@@ -621,6 +589,7 @@ export class AsyncFilterPureIterator<
 
 export class AsyncCollectIterator<T, R> extends AsyncFastIteratorBase<R> {
   constructor(
+    readonly deps: AsyncStreamFactory,
     readonly source: AsyncFastIterator<T>,
     readonly collectFun: AsyncCollectFun<T, R>
   ) {
@@ -668,6 +637,7 @@ export class AsyncCollectIterator<T, R> extends AsyncFastIteratorBase<R> {
 
 export class AsyncDropWhileIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(
+    readonly deps: AsyncStreamFactory,
     readonly source: AsyncFastIterator<T>,
     readonly pred: (value: T, index: number) => MaybePromise<boolean>,
     readonly negate: boolean
@@ -698,6 +668,7 @@ export class AsyncDropWhileIterator<T> extends AsyncFastIteratorBase<T> {
 
 export class AsyncTakeIterator<T> extends AsyncFastIteratorBase<T> {
   constructor(
+    readonly deps: AsyncStreamFactory,
     readonly source: AsyncFastIterator<T>,
     readonly amount: number
   ) {
@@ -724,6 +695,7 @@ export class AsyncDropIterator<T> extends AsyncFastIteratorBase<T> {
   remain: number;
 
   constructor(
+    readonly deps: AsyncStreamFactory,
     readonly source: AsyncFastIterator<T>,
     readonly amount: number
   ) {
@@ -756,6 +728,7 @@ export class AsyncRepeatIterator<T> extends AsyncFastIteratorBase<T> {
   remain: number | undefined;
 
   constructor(
+    readonly deps: AsyncStreamFactory,
     readonly source: AsyncStream<T>,
     readonly amount?: number
   ) {
@@ -807,6 +780,7 @@ export class AsyncRepeatIterator<T> extends AsyncFastIteratorBase<T> {
 
 export class AsyncReduceIterator<I, R> extends AsyncFastIteratorBase<R> {
   constructor(
+    readonly deps: AsyncStreamFactory,
     readonly sourceIterator: AsyncFastIterator<I>,
     readonly reducer: AsyncReducer<I, R>
   ) {
@@ -864,6 +838,7 @@ export class AsyncTransformerFastIterator<
   R,
 > extends AsyncFastIteratorBase<R> {
   constructor(
+    readonly deps: AsyncStreamFactory,
     readonly sourceIterator: AsyncFastIterator<T>,
     readonly transformer: AsyncTransformer.Accept<T, R>
   ) {
@@ -919,8 +894,9 @@ export class AsyncTransformerFastIterator<
       }
 
       const nextValuesSource = await transformerInstance.getOutput();
-      this.#currentValues =
-        fromAsyncStreamSource(nextValuesSource)[Symbol.asyncIterator]();
+      this.#currentValues = this.deps
+        .fromAsyncStreamSource(nextValuesSource)
+        [Symbol.asyncIterator]();
     }
 
     return nextValue;

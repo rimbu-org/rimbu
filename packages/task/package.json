@@ -59,7 +59,6 @@
   "scripts": {
     "build": "bun clean && bunx tsc --p tsconfig.esm.json && bunx tsc-alias -p tsconfig.esm.json",
     "clean": "rimraf dist",
-    "circular": "npx -y madge --ts-config tsconfig.json --circular --extensions mts src/main/index.mts",
     "extract-api": "yarn extract-api:main && yarn extract-api:ops",
     "extract-api:main": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
     "extract-api:ops": "tsx ../../config/api-extractor.ts config/api-extractor.ops.json",
@@ -79,12 +78,5 @@
   "publishConfig": {
     "access": "public",
     "provenance": true
-  },
-  "madge": {
-    "detectiveOptions": {
-      "ts": {
-        "skipTypeImports": true
-      }
-    }
   }
 }

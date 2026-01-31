@@ -1,6 +1,6 @@
 import { runMapTestsWith } from '../../collection-types/test-utils/map/map-standard.mjs';
 
-import { SortedMap } from '../src/main/index.mjs';
+import { SortedMap } from '@rimbu/sorted/map';
 
 runMapTestsWith(
   'SortedMap blockSize 2',

@@ -1,7 +1,7 @@
 import { Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
 
-import { Reducer } from '../src/main/index.mjs';
+import { Reducer } from '@rimbu/stream/reducer';
 
 //Variance
 expectAssignable<Reducer<number, number | string>>(Reducer.sum);

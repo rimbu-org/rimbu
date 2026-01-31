@@ -1,4 +1,4 @@
-import { type ArrayNonEmpty } from '@rimbu/common';
+import { type ArrayNonEmpty } from '@rimbu/common/types';
 
 import {
   expectAssignable,
@@ -8,13 +8,11 @@ import {
   expectType,
 } from 'tsd';
 
-import {
-  AsyncReducer,
-  AsyncStream,
-  AsyncTransformer,
-  type AsyncFastIterator,
-} from '../src/async/index.mjs';
-import { Reducer, type Stream } from '../src/main/index.mjs';
+import type { Stream } from '@rimbu/stream';
+import { AsyncStream, type AsyncFastIterator } from '@rimbu/stream/async';
+import { AsyncReducer } from '@rimbu/stream/async/reducer';
+import { AsyncTransformer } from '@rimbu/stream/async/transformer';
+import { Reducer } from '@rimbu/stream/reducer';
 
 // Variance
 expectAssignable<AsyncStream<number | string>>(AsyncStream.empty<number>());

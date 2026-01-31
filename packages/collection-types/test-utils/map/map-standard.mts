@@ -1,6 +1,8 @@
-import { Entry } from '@rimbu/base';
+import { describe, expect, it } from 'bun:test';
+
+import * as Entry from '@rimbu/base/entry';
 import type { RMap } from '@rimbu/collection-types';
-import type { ArrayNonEmpty } from '@rimbu/common';
+import type { ArrayNonEmpty } from '@rimbu/common/types';
 import { Stream } from '@rimbu/stream';
 
 function expectEqual<K, V>(

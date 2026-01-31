@@ -78,7 +78,7 @@
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
     "test": "bun test --tsconfig-override tsconfig.common.json",
-    "test:types": "bunx tsd --files ./test-d --typings ./dist/arr.d.mts",
+    "test:types": "bunx tsd --files ./test-d --typings ./dist/entry/stream.d.mts",
     "typecheck": "tsc"
   },
   "dependencies": {

@@ -1,11 +1,9 @@
-import { Comp } from '@rimbu/common';
+import { describe, expect, it } from 'bun:test';
 
-import {
-  SortedSetContext,
-  SortedSetEmpty,
-  SortedSetInner,
-  SortedSetLeaf,
-} from '../src/set-custom/index.mjs';
+import { Comp } from '@rimbu/common/comp';
+
+import { SortedSetContext } from '#set/context';
+import { SortedSetEmpty, SortedSetInner, SortedSetLeaf } from '#set/immutable';
 
 const context = new SortedSetContext(2, Comp.defaultComp());
 
