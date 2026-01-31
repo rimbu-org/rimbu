@@ -3,7 +3,7 @@ import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { LeafBlockBuilder } from '#list/builder/leaf/block';
 import { TreeBuilderBase } from '#list/builder/tree/base';
 import type { LeafBuilder, NonLeafBuilder } from '#list/builder/types';
-import type { ListContext } from '#list/context';
+import type { ContextFactory } from '#list/context-factory';
 import type { LeafTree } from '#list/immutable/leaf/tree';
 
 export class LeafTreeBuilder<T>
@@ -11,7 +11,7 @@ export class LeafTreeBuilder<T>
   implements LeafBuilder<T>
 {
   constructor(
-    readonly context: ListContext,
+    readonly context: ContextFactory,
     public source?: LeafTree<T>,
     public _left?: LeafBlockBuilder<T>,
     public _right?: LeafBlockBuilder<T>,

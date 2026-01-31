@@ -7,7 +7,7 @@ import type {
   BuilderBase,
   NonLeafBuilder,
 } from '#list/builder/types';
-import type { ListContext } from '#list/context';
+import type { ContextFactory } from '#list/context-factory';
 import type { NonLeafTree } from '#list/immutable/nonleaf/tree';
 
 export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>
@@ -15,7 +15,7 @@ export class NonLeafTreeBuilder<T, C extends BlockBuilder<T>>
   implements BuilderBase<T, C>
 {
   constructor(
-    readonly context: ListContext,
+    readonly context: ContextFactory,
     readonly level: number,
     public source?: NonLeafTree<T, any>,
     public _left?: NonLeafBlockBuilder<T, C>,

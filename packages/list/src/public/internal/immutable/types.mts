@@ -4,8 +4,9 @@ import type { Update } from '@rimbu/common/update';
 import type { Stream } from '@rimbu/stream';
 
 import type { BlockBuilder, NonLeafBuilder } from '#list/builder/types';
-import type { ListContext } from '#list/context';
+import type { ContextFactory } from '#list/context-factory';
 import type { CacheMap } from '#list/immutable/cache-map';
+import type { OptLazy } from '@rimbu/common/opt-lazy';
 
 export interface Tree<
   T,
@@ -13,7 +14,7 @@ export interface Tree<
   TB extends Block<T, TB, C>,
   C,
 > {
-  readonly context: ListContext;
+  readonly context: ContextFactory;
   readonly left: TB;
   readonly middle: NonLeaf<T, TB> | null;
   readonly right: TB;
@@ -27,7 +28,7 @@ export interface Tree<
 
 export interface NonLeaf<T, C extends Block<any, C> = any> {
   readonly length: number;
-  readonly context: ListContext;
+  readonly context: ContextFactory;
   readonly level: number;
   get(index: number): T;
   prepend(child: C): NonLeaf<T, C>;
@@ -66,8 +67,6 @@ export interface NonLeaf<T, C extends Block<any, C> = any> {
   structure(): string;
   createNonLeafBuilder(): NonLeafBuilder<T, BlockBuilder<T>>;
 }
-
-import type { OptLazy } from '@rimbu/common/opt-lazy';
 
 export interface Block<T, TS extends Block<T, TS, C> = any, C = any> {
   readonly length: number;

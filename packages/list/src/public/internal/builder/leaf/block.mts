@@ -4,12 +4,12 @@ import { TraverseState } from '@rimbu/common/traverse-state';
 import { Update } from '@rimbu/common/update';
 
 import type { BlockBuilder, LeafBuilder } from '#list/builder/types';
-import type { ListContext } from '#list/context';
+import type { ContextFactory } from '#list/context-factory';
 import type { LeafBlock } from '#list/immutable/leaf/block';
 
 export class LeafBlockBuilder<T> implements LeafBuilder<T>, BlockBuilder<T> {
   constructor(
-    readonly context: ListContext,
+    readonly context: ContextFactory,
     public source?: LeafBlock<T>,
     public _children?: T[]
   ) {}

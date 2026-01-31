@@ -3,10 +3,10 @@ import { beforeEach, describe, expect, it, vi } from 'bun:test';
 import { LeafBlockBuilder } from '#list/builder/leaf/block';
 import { LeafTreeBuilder } from '#list/builder/leaf/tree';
 import { NonLeafTreeBuilder } from '#list/builder/nonleaf/tree';
-import { ListContext } from '#list/context';
+import { createContextFactoryModule } from '#list/context-factory-module';
 import { LeafTree } from '#list/immutable/leaf/tree';
 
-const context = new ListContext(2);
+const context = createContextFactoryModule({ blockSizeBits: 2 }).build();
 
 describe('LeafTreeBuilder', () => {
   beforeEach(() => {

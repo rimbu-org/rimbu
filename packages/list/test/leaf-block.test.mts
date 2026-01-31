@@ -3,7 +3,8 @@ import { describe, expect, it, vi } from 'bun:test';
 import { Stream } from '@rimbu/stream';
 
 import { LeafBlockBuilder } from '#list/builder/leaf/block';
-import { ListContext } from '#list/context';
+import type { ContextFactory } from '#list/context-factory';
+import { createContextFactoryModule } from '#list/context-factory-module';
 import { LeafBlock, ReversedLeafBlock } from '#list/immutable/leaf/block';
 import { LeafTree } from '#list/immutable/leaf/tree';
 import { List } from '@rimbu/list';
@@ -127,7 +128,7 @@ describe('ReversedLeafBlock', () => {
 
 function runLeafBlockTests(
   tag: string,
-  context: ListContext,
+  context: ContextFactory,
   createBlock: <T>(...elems: T[]) => LeafBlock<T>,
   createRevBlock: <T>(...elems: T[]) => LeafBlock<T>
 ) {
@@ -609,7 +610,7 @@ function runLeafBlockTests(
   });
 }
 
-const context = new ListContext(2);
+const context = createContextFactoryModule({ blockSizeBits: 2 }).build();
 
 function createBlock<T>(...elems: T[]) {
   return context.leafBlock(elems);

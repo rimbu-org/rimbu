@@ -1,3 +1,5 @@
+import { ErrBase } from './err.mjs';
+
 /**
  * A simple, lightweight but powerful dependency injection mechanism.
  *
@@ -83,6 +85,12 @@ export namespace Module {
     [P in K]: M[P];
   };
 
+  export function createPartial<MT extends Module.Instance, MI extends MT = MT>(
+    getDefinition: (module: MI) => Module.Definition<MT>
+  ): (module: MI) => Module.Definition<MT> {
+    return getDefinition;
+  }
+
   /**
    * Creates a new Module with the given dependency definition.
    *
@@ -108,19 +116,21 @@ export namespace Module {
    * }));
    * ```
    */
-  export function create<MI extends Module.Instance>(
+  export function create<MI extends Module.Instance = never>(
     getDefinition: (module: MI) => Module.Definition<MI>
   ): Module<MI> {
     return {
       getDefinition,
-      build: (): any => {
+      build: (): MI => {
         const target = {} as MI;
+
         const definition = getDefinition(target);
 
         for (const key in definition) {
           Object.defineProperty(target, key, {
-            get: definition[key],
+            configurable: false,
             enumerable: true,
+            get: definition[key],
           });
         }
 
@@ -149,7 +159,7 @@ export namespace Module {
    */
   export function single<C extends () => any>(creator: C): C {
     const instance = creator();
-    return (() => instance) as C;
+    return constant(instance) as C;
   }
 
   /**
@@ -217,5 +227,38 @@ export namespace Module {
     creator: C
   ): () => C {
     return () => creator;
+  }
+
+  /**
+   * Creates a constant factory that always returns the same value.
+   *
+   * @typeparam T - the type of the constant value
+   * @param value - the constant value to return
+   * @returns a function that always returns the provided value
+   * @example
+   * ```ts
+   * const appModule = Module.create<{ env: string }>(() => ({
+   *  env: Module.constant('production'),
+   * }));
+   * ```
+   */
+  export function constant<T>(value: T): () => T {
+    return () => value;
+  }
+
+  export class EagerSelfDependencyError extends ErrBase.CustomError {
+    constructor(name: string) {
+      super(
+        `Eager self-dependency detected in module while accessing property ${name}.`
+      );
+    }
+  }
+
+  export class CircularDependencyError extends ErrBase.CustomError {
+    constructor(name: string) {
+      super(
+        `Circular dependency detected in module while accessing property ${name}.`
+      );
+    }
   }
 }

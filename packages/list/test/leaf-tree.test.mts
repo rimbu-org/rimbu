@@ -2,7 +2,8 @@ import { describe, expect, it, vi } from 'bun:test';
 
 import { Stream } from '@rimbu/stream';
 
-import { ListContext } from '#list/context';
+import type { ContextFactory } from '#list/context-factory';
+import { createContextFactoryModule } from '#list/context-factory-module';
 import { LeafBlock } from '#list/immutable/leaf/block';
 import { LeafTree } from '#list/immutable/leaf/tree';
 import { NonLeafBlock } from '#list/immutable/nonleaf/block';
@@ -11,7 +12,7 @@ import { List } from '@rimbu/list';
 
 function runLeafTreeTests(
   tag: string,
-  context: ListContext,
+  context: ContextFactory,
   createBlock: <T>(values: T[]) => LeafBlock<T>
 ) {
   describe(tag, () => {
@@ -702,7 +703,7 @@ function runLeafTreeTests(
   });
 }
 
-const context2 = new ListContext(2);
+const context2 = createContextFactoryModule({ blockSizeBits: 2 }).build();
 
 runLeafTreeTests('leaftree', context2, (values) => context2.leafBlock(values));
 runLeafTreeTests('leaftree with rev blocks', context2, (values) =>
@@ -711,7 +712,7 @@ runLeafTreeTests('leaftree with rev blocks', context2, (values) =>
 
 function leafTreeBlockSize3(
   tag: string,
-  context: ListContext,
+  context: ContextFactory,
   createBlock: <T>(values: T[]) => LeafBlock<T>
 ) {
   describe(tag, () => {
@@ -845,7 +846,7 @@ function leafTreeBlockSize3(
   });
 }
 
-const context3 = new ListContext(3);
+const context3 = createContextFactoryModule({ blockSizeBits: 3 }).build();
 
 leafTreeBlockSize3('leafTree blockSize 3', context3, (values) =>
   context3.leafBlock(values)

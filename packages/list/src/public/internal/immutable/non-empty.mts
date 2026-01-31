@@ -10,16 +10,15 @@ import type { Update } from '@rimbu/common/update';
 import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
 import { StreamFactory } from '@rimbu/stream/internal/factory';
 
-import type { List } from '@rimbu/list';
-
-import type { ListContext } from '#list/context';
+import type { ContextFactory } from '#list/context-factory';
 import type { CacheMap } from '#list/immutable/cache-map';
+import type { List } from '@rimbu/list';
 
 export abstract class ListNonEmptyBase<T>
   extends NonEmptyBase<T>
   implements List.NonEmpty<T>
 {
-  abstract get context(): ListContext;
+  abstract get context(): ContextFactory;
   abstract get length(): number;
   abstract stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
   abstract streamRange(

@@ -3,14 +3,13 @@ import { OptLazy } from '@rimbu/common/opt-lazy';
 import type { ArrayNonEmpty, ToJSON } from '@rimbu/common/types';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
+import type { ContextFactory } from '#list/context-factory';
 import type { List } from '@rimbu/list';
-
-import type { ListContext } from '#list/context';
 
 export class Empty<T = any> extends EmptyBase implements List<T> {
   declare _NonEmptyType: List.NonEmpty<T>;
 
-  constructor(readonly context: ListContext) {
+  constructor(readonly context: ContextFactory) {
     super();
   }
 
@@ -135,8 +134,4 @@ export class Empty<T = any> extends EmptyBase implements List<T> {
       value: [],
     };
   }
-}
-
-export function createEmptyList(context: ListContext): List<any> {
-  return Object.freeze(new Empty(context));
 }

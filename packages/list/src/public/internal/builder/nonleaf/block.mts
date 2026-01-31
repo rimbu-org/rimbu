@@ -4,18 +4,17 @@ import type { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import type { Update } from '@rimbu/common/update';
 
-import type { List } from '@rimbu/list';
-
 import type { BlockBuilder, NonLeafBuilder } from '#list/builder/types';
-import type { ListContext } from '#list/context';
+import type { ContextFactory } from '#list/context-factory';
 import type { NonLeafBlock } from '#list/immutable/nonleaf/block';
 import type { NonLeaf } from '#list/immutable/types';
+import type { List } from '@rimbu/list';
 
 export class NonLeafBlockBuilder<T, C extends BlockBuilder<T>>
   implements BlockBuilder<T, C>
 {
   constructor(
-    readonly context: ListContext,
+    readonly context: ContextFactory,
     readonly level: number,
     public source?: NonLeafBlock<T, any>,
     public _children?: C[],

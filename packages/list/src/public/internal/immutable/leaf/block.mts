@@ -7,21 +7,20 @@ import type { ArrayNonEmpty } from '@rimbu/common/types';
 import { Update } from '@rimbu/common/update';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-import type { List } from '@rimbu/list';
-
 import type { BlockBuilder } from '#list/builder/types';
-import type { ListContext } from '#list/context';
+import type { ContextFactory } from '#list/context-factory';
 import type { CacheMap } from '#list/immutable/cache-map';
 import type { LeafTree } from '#list/immutable/leaf/tree';
 import { ListNonEmptyBase } from '#list/immutable/non-empty';
 import type { Block } from '#list/immutable/types';
+import type { List } from '@rimbu/list';
 
 export class LeafBlock<T>
   extends ListNonEmptyBase<T>
   implements Block<T, LeafBlock<T>, T>
 {
   constructor(
-    readonly context: ListContext,
+    readonly context: ContextFactory,
     readonly children: readonly T[]
   ) {
     super();
@@ -161,7 +160,7 @@ export class LeafBlock<T>
   concat<T2>(
     ...sources: ArrayNonEmpty<StreamSource<T2>>
   ): List.NonEmpty<T | T2> {
-    const asList: List<T | T2> = this.context.from(...sources);
+    const asList = this.context.from(...sources) as List<T | T2>;
 
     if (asList.nonEmpty()) {
       if (this.context.isLeafBlock<T | T2>(asList)) {

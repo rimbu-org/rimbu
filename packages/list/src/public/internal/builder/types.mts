@@ -2,11 +2,10 @@ import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { Update } from '@rimbu/common/update';
 
-import type { List } from '@rimbu/list';
-
 import type { NonLeafBlockBuilder } from '#list/builder/nonleaf/block';
 import type { NonLeafTreeBuilder } from '#list/builder/nonleaf/tree';
 import type { NonLeaf } from '#list/immutable/types';
+import type { List } from '@rimbu/list';
 
 export interface BuilderBase<T, C = unknown> {
   readonly length: number;

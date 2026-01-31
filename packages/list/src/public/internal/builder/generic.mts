@@ -4,14 +4,13 @@ import { TraverseState } from '@rimbu/common/traverse-state';
 import type { Update } from '@rimbu/common/update';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-import type { List } from '@rimbu/list';
-
 import type { LeafBuilder } from '#list/builder/types';
-import type { ListContext } from '#list/context';
+import type { ContextFactory } from '#list/context-factory';
+import type { List } from '@rimbu/list';
 
 export class GenBuilder<T> implements List.Builder<T> {
   constructor(
-    readonly context: ListContext,
+    readonly context: ContextFactory,
     public builder?: LeafBuilder<T>
   ) {}
 

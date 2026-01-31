@@ -6,9 +6,9 @@ import { Stream } from '@rimbu/stream';
 import { GenBuilder } from '#list/builder/generic';
 import { LeafBlockBuilder } from '#list/builder/leaf/block';
 import { LeafTreeBuilder } from '#list/builder/leaf/tree';
-import { ListContext } from '#list/context';
+import { createContextFactoryModule } from '#list/context-factory-module';
 
-const context = new ListContext(2);
+const context = createContextFactoryModule({ blockSizeBits: 2 }).build();
 
 function builder(obj: any) {
   return new GenBuilder(context, obj);

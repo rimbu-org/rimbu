@@ -3,11 +3,11 @@ import { describe, expect, it, vi } from 'bun:test';
 import { LeafBlockBuilder } from '#list/builder/leaf/block';
 import { NonLeafBlockBuilder } from '#list/builder/nonleaf/block';
 import { NonLeafTreeBuilder } from '#list/builder/nonleaf/tree';
-import { ListContext } from '#list/context';
+import { createContextFactoryModule } from '#list/context-factory-module';
 import { LeafBlock } from '#list/immutable/leaf/block';
 import type { NonLeafBlock } from '#list/immutable/nonleaf/block';
 
-const context = new ListContext(2);
+const context = createContextFactoryModule({ blockSizeBits: 2 }).build();
 
 describe('NonLeafBlockBuilder', () => {
   it('append', () => {

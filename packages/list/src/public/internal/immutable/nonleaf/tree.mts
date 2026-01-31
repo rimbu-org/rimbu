@@ -5,7 +5,7 @@ import type { Update } from '@rimbu/common/update';
 import type { Stream } from '@rimbu/stream';
 
 import type { BlockBuilder, NonLeafBuilder } from '#list/builder/types';
-import type { ListContext } from '#list/context';
+import type { ContextFactory } from '#list/context-factory';
 import type { CacheMap } from '#list/immutable/cache-map';
 import type { NonLeafBlock } from '#list/immutable/nonleaf/block';
 import {
@@ -23,7 +23,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
   implements Tree<T, NonLeafTree<T, C>, NonLeafBlock<T, C>, C>, NonLeaf<T>
 {
   constructor(
-    readonly context: ListContext,
+    readonly context: ContextFactory,
     readonly left: NonLeafBlock<T, C>,
     readonly right: NonLeafBlock<T, C>,
     readonly middle: NonLeaf<T, NonLeafBlock<T, C>> | null,

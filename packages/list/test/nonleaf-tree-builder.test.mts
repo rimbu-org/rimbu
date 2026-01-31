@@ -5,11 +5,11 @@ import { Stream } from '@rimbu/stream';
 import type { LeafBlockBuilder } from '#list/builder/leaf/block';
 import { NonLeafBlockBuilder } from '#list/builder/nonleaf/block';
 import { NonLeafTreeBuilder } from '#list/builder/nonleaf/tree';
-import { ListContext } from '#list/context';
+import { createContextFactoryModule } from '#list/context-factory-module';
 import type { LeafBlock } from '#list/immutable/leaf/block';
 import { NonLeafTree } from '#list/immutable/nonleaf/tree';
 
-const context = new ListContext(2);
+const context = createContextFactoryModule({ blockSizeBits: 2 }).build();
 
 describe('NonLeafTreeBuilder', () => {
   it('build', () => {

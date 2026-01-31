@@ -4,10 +4,10 @@ import { TraverseState } from '@rimbu/common/traverse-state';
 import type { Update } from '@rimbu/common/update';
 
 import type { BlockBuilder, NonLeafBuilder } from '#list/builder/types';
-import type { ListContext } from '#list/context';
+import type { ContextFactory } from '#list/context-factory';
 
 export abstract class TreeBuilderBase<T, C> {
-  abstract get context(): ListContext;
+  abstract get context(): ContextFactory;
   abstract get level(): number;
   abstract get left(): BlockBuilder<T, C>;
   abstract set left(value: BlockBuilder<T, C>);

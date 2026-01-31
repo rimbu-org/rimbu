@@ -13,7 +13,7 @@ import type {
   Streamable,
 } from '@rimbu/stream';
 
-import { createListContext } from '#list/context';
+import { createContextFactoryModule } from '#list/context-factory-module';
 import type { ListCreators, ListFactory } from '#private/list-factory';
 
 /**
@@ -1147,18 +1147,12 @@ export namespace List {
   }
 }
 
-const _defaultContext = createListContext();
-
 /**
  * The default `List` creators and context.
  *
  * Use this exported value to create and work with immutable `List` instances.
  * See the [List documentation](https://rimbu.org/docs/collections/list) and the [List API documentation](https://rimbu.org/api/rimbu/list/List/interface).
  */
-export const List: ListCreators = Object.freeze({
-  createContext: createListContext,
-  defaultContext() {
-    return _defaultContext;
-  },
-  ..._defaultContext,
-});
+export const List: ListCreators = Object.freeze(
+  createContextFactoryModule().build()
+);

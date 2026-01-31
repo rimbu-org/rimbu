@@ -4,12 +4,12 @@ import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream } from '@rimbu/stream';
 
 import { NonLeafTreeBuilder } from '#list/builder/nonleaf/tree';
-import { ListContext } from '#list/context';
+import { createContextFactoryModule } from '#list/context-factory-module';
 import type { LeafBlock } from '#list/immutable/leaf/block';
 import { NonLeafBlock } from '#list/immutable/nonleaf/block';
 import { NonLeafTree } from '#list/immutable/nonleaf/tree';
 
-const context = new ListContext(2);
+const context = createContextFactoryModule({ blockSizeBits: 2 }).build();
 
 describe('NonLeafTree', () => {
   const b1 = context.leafBlock([1, 2, 3]);

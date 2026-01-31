@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'bun:test';
 
 import { LeafTreeBuilder } from '#list/builder/leaf/tree';
-import { ListContext } from '#list/context';
+import { createContextFactoryModule } from '#list/context-factory-module';
 
-const context = new ListContext(2);
+const context = createContextFactoryModule({ blockSizeBits: 2 }).build();
 
 function createBlockBuilder<T>(...elems: T[]) {
   return context.leafBlockBuilder(elems);
