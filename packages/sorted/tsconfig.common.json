@@ -1,7 +1,5 @@
 {
   "compilerOptions": {
-    "rootDirs": [".", ".."],
-    "baseUrl": "./src",
     "paths": {
       "@rimbu/sorted": ["./entry/sorted.mjs"],
       "@rimbu/sorted/map": ["./entry/map.mjs"],

@@ -32,8 +32,8 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/esm/index.d.mts",
-      "import": "./dist/esm/index.mjs"
+      "types": "./dist/entry/spy.d.mts",
+      "import": "./dist/entry/spy.mjs"
     }
   },
   "files": [
@@ -41,21 +41,17 @@
     "src"
   ],
   "scripts": {
-    "build": "yarn clean && yarn bundle",
-    "bundle": "tsc --p tsconfig.esm.json",
+    "build": "bun clean && bunx tsc --p tsconfig.esm.json && bunx tsc-alias -p tsconfig.esm.json",
     "clean": "rimraf dist",
     "extract-api": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
     "format": "yarn format:base --write",
     "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
     "format:check": "yarn format:base --check",
-    "lint": "eslint src",
-    "test": "vitest run",
-    "test:cov": "vitest run --coverage",
-    "test:watch": "vitest",
+    "test": "bun test --tsconfig-override tsconfig.common.json",
     "typecheck": "tsc"
   },
   "dependencies": {
-    "tslib": "^2.8.1"
+    "tslib": "workspace:*"
   },
   "publishConfig": {
     "access": "public",

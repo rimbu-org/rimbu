@@ -6,11 +6,11 @@ import { Hasher } from '@rimbu/hashed';
 
 describe('Hasher', () => {
   it('defaultHasher', () => {
-    expect(Hasher.defaultHasher()).toBe(Hasher.anyShallowHasher());
+    expect(Hasher.defaultHasher).toBe(Hasher.anyShallowHasher);
   });
 
   it('anyShallowHasher', () => {
-    const h = Hasher.anyShallowHasher();
+    const h = Hasher.anyShallowHasher;
 
     expect(h.hash(1)).toEqual(h.hash(1));
     expect(h.hash('abc')).toEqual(h.hash('abc'));
@@ -46,7 +46,7 @@ describe('Hasher', () => {
   });
 
   it('anyDeepHasher', () => {
-    const h = Hasher.anyDeepHasher();
+    const h = Hasher.anyDeepHasher;
 
     expect(h.hash(1)).toEqual(h.hash(1));
     expect(h.hash('abc')).toEqual(h.hash('abc'));
@@ -118,7 +118,7 @@ describe('Hasher', () => {
   });
 
   it('stringHasher', () => {
-    const h = Hasher.stringHasher();
+    const h = Hasher.stringHasher;
 
     expect(h.hash('abc')).toEqual(h.hash('abc'));
 
@@ -129,7 +129,7 @@ describe('Hasher', () => {
   });
 
   it('stringCaseInsensitiveHasher', () => {
-    const h = Hasher.stringCaseInsensitiveHasher();
+    const h = Hasher.stringCaseInsensitiveHasher;
 
     expect(h.hash('abc')).toEqual(h.hash('abc'));
     expect(h.hash('abc')).toEqual(h.hash('aBc'));

@@ -306,9 +306,9 @@ export function createContextFactoryModule(
 
     _types: Module.constant(undefined as any),
     typeTag: Module.constant('List' as const),
-    blockSizeBits: Module.single(() => blockSizeBits),
-    maxBlockSize: Module.single(() => 1 << blockSizeBits),
-    minBlockSize: Module.single(() => 1 << (blockSizeBits - 1)),
+    blockSizeBits: Module.constant(blockSizeBits),
+    maxBlockSize: Module.constant(1 << blockSizeBits),
+    minBlockSize: Module.constant(1 << (blockSizeBits - 1)),
 
     createCacheMap: Module.factory((): CacheMap => {
       return new CacheMap();

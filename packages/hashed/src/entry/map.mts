@@ -5,6 +5,7 @@ import type { Stream, Streamable } from '@rimbu/stream';
 
 import { createHashMapContext } from '#map/context';
 import type { HashMapCreators } from '#map/creators';
+import { Module } from '@rimbu/common/module';
 import type { Hasher } from '@rimbu/hashed';
 
 /**
@@ -96,3 +97,10 @@ export const HashMap: HashMapCreators = Object.freeze({
     return _defaultContext;
   },
 });
+
+export const hashMapModule = Module.create<
+  HashMapCreators & { _defaultContext: HashMap.Context<any> }
+>((mod) => ({
+  _defaultContext: Module.lazy(() => createHashMapContext<any>()),
+  defaultContext: Module.factory(() => mod._defaultContext),
+}));

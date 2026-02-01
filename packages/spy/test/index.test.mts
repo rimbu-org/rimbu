@@ -1,4 +1,6 @@
-import { Spy } from '../src/index.mjs';
+import { describe, expect, it } from 'bun:test';
+
+import { Spy } from '@rimbu/spy';
 
 describe('Spy.fn', () => {
   function add(x: number, y: number): number {

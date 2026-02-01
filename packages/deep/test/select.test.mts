@@ -2,12 +2,7 @@ import { describe, expect, it } from 'bun:test';
 
 import { List } from '@rimbu/list';
 
-import {
-  select,
-  selectAt,
-  selectAtWith,
-  selectWith,
-} from '@rimbu/deep/selector';
+import { select, selectAt, selectAtWith, selectWith } from '@rimbu/deep/select';
 
 const m = {
   a: 1,

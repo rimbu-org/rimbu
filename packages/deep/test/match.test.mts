@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 
 import { List } from '@rimbu/list';
-import { SortedMap } from '@rimbu/sorted';
+import { SortedMap } from '@rimbu/sorted/map';
 
 import { match, matchAt, matchAtWith } from '@rimbu/deep/match';
 import { Tuple } from '@rimbu/deep/tuple';

@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "rootDirs": [".", ".."],
-    "baseUrl": "./src"
+    "paths": {
+      "@rimby/spy": ["./entry/spy.mjs"]
+    }
   }
 }
