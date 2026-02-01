@@ -1,8 +1,10 @@
-import { Entry } from '@rimbu/base';
-import type { ArrayNonEmpty } from '@rimbu/common';
+import { describe, expect, it } from 'bun:test';
+
+import * as Entry from '@rimbu/base/entry';
+import type { ArrayNonEmpty } from '@rimbu/common/types';
 import { Stream } from '@rimbu/stream';
 
-import { BiMap } from '../src/main/index.mjs';
+import { BiMap } from '@rimbu/bimap';
 
 function expectEqual(map: BiMap<number, string>, arr: [number, string][]) {
   expect(new Map(map)).toEqual(new Map(arr));

@@ -44,6 +44,10 @@
     "./sorted": {
       "types": "./dist/entry/sorted.d.mts",
       "default": "./dist/entry/sorted.mjs"
+    },
+    "./*": {
+      "types": "./dist/public/*.d.mts",
+      "default": "./dist/public/*.mjs"
     }
   },
   "imports": {

@@ -1,6 +1,6 @@
-import type { BiMultiMap } from '@rimbu/bimultimap';
-
 import type { MultiMap } from '@rimbu/multimap';
+
+import type { BiMultiMap } from '@rimbu/bimultimap';
 
 export namespace BiMultiMapGeneric {
   /**

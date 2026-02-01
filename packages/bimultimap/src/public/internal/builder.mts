@@ -1,14 +1,13 @@
-import type {
-  BiMultiMapBase,
-  ContextTypesImpl,
-} from '@rimbu/bimultimap/custom';
-
-import { RimbuError } from '@rimbu/base';
+import * as RimbuError from '@rimbu/base/rimbu-error';
 import type { RSet } from '@rimbu/collection-types';
-import type { WithKeyValue } from '@rimbu/collection-types/map-custom';
-import { TraverseState, type RelatedTo } from '@rimbu/common';
+import type { WithKeyValue } from '@rimbu/collection-types/common';
+import { TraverseState } from '@rimbu/common/traverse-state';
 import type { MultiMap } from '@rimbu/multimap';
 import { Stream, type StreamSource } from '@rimbu/stream';
+
+import type { BiMultiMapBase } from '#bimultimap/base';
+import type { ContextTypesImpl } from '#bimultimap/context';
+import type { RelatedTo } from '@rimbu/common/types';
 
 export class BiMultiMapBuilder<
   K,

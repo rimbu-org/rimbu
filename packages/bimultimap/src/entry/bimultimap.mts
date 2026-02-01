@@ -1,11 +1,9 @@
-import {
-  type BiMultiMapBase,
-  BiMultiMapContext,
-  type BiMultiMapGeneric,
-} from '@rimbu/bimultimap/custom';
-
 import type { MultiMap } from '@rimbu/multimap';
 import type { Streamable } from '@rimbu/stream';
+
+import type { BiMultiMapBase } from '#bimultimap/base';
+import { BiMultiMapContext } from '#bimultimap/context';
+import type { BiMultiMapGeneric } from '#bimultimap/generic';
 
 /**
  * A type-invariant immutable bi-directional MultiMap where keys and values have a

@@ -1,22 +1,15 @@
 import type { RSet } from '@rimbu/collection-types';
-import type {
-  KeyValue,
-  WithKeyValue,
-} from '@rimbu/collection-types/map-custom';
-import type {
-  ArrayNonEmpty,
-  RelatedTo,
-  ToJSON,
-  TraverseState,
-} from '@rimbu/common';
+import type { KeyValue, WithKeyValue } from '@rimbu/collection-types/common';
+import type { TraverseState } from '@rimbu/common/traverse-state';
+import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { MultiMap } from '@rimbu/multimap';
 import type {
   FastIterable,
-  Reducer,
   Stream,
   StreamSource,
   Streamable,
 } from '@rimbu/stream';
+import type { Reducer } from '@rimbu/stream/reducer';
 
 export interface BiMultiMapBase<
   K,

@@ -1,14 +1,12 @@
-import {
-  BiMultiMapBuilder,
-  BiMultiMapEmpty,
-  BiMultiMapNonEmpty,
-  type BiMultiMapBase,
-} from '@rimbu/bimultimap/custom';
+import type { WithKeyValue } from '@rimbu/collection-types/common';
+import type { ArrayNonEmpty } from '@rimbu/common/types';
+import { type StreamSource } from '@rimbu/stream';
+import { StreamFactory } from '@rimbu/stream/internal/factory';
+import { Reducer } from '@rimbu/stream/reducer';
 
-import type { WithKeyValue } from '@rimbu/collection-types/map-custom';
-import type { ArrayNonEmpty } from '@rimbu/common';
-import { Reducer, type StreamSource } from '@rimbu/stream';
-import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
+import type { BiMultiMapBase } from '#bimultimap/base';
+import { BiMultiMapBuilder } from '#bimultimap/builder';
+import { BiMultiMapEmpty, BiMultiMapNonEmpty } from '#bimultimap/immutable';
 
 export interface ContextTypesImpl extends BiMultiMapBase.Types {
   readonly context: BiMultiMapContext<this['_K'], this['_V'], string>;
@@ -78,7 +76,7 @@ export class BiMultiMapContext<
     while (++i < length) {
       const source = sources[i];
 
-      if (isEmptyStreamSourceInstance(source)) continue;
+      if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
       if (
         builder.isEmpty &&
         source instanceof BiMultiMapNonEmpty &&

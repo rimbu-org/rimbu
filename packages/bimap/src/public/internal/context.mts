@@ -1,14 +1,12 @@
-import {
-  BiMapBuilder,
-  BiMapEmpty,
-  BiMapNonEmptyImpl,
-} from '@rimbu/bimap/custom';
-import type { BiMap } from '@rimbu/bimap';
+import type { RMap } from '@rimbu/collection-types';
+import type { ArrayNonEmpty } from '@rimbu/common/types';
+import type { StreamSource } from '@rimbu/stream';
+import { StreamFactory } from '@rimbu/stream/internal/factory';
 
-import type { RMap } from '@rimbu/collection-types/map';
-import type { ArrayNonEmpty } from '@rimbu/common';
-import { Reducer, type StreamSource } from '@rimbu/stream';
-import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
+import { BiMapBuilder } from '#bimap/builder';
+import { BiMapEmpty, BiMapNonEmptyImpl } from '#bimap/immutable';
+import type { BiMap } from '@rimbu/bimap';
+import { Reducer } from '@rimbu/stream/reducer';
 
 export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>
   implements BiMap.Context<UK, UV>
@@ -57,7 +55,7 @@ export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>
     while (++i < length) {
       const source = sources[i];
 
-      if (isEmptyStreamSourceInstance(source)) continue;
+      if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
       if (
         builder.isEmpty &&
         source instanceof BiMapNonEmptyImpl &&

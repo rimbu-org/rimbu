@@ -1,12 +1,10 @@
-import type { BiMultiMapHashed } from '@rimbu/bimultimap/custom';
-import {
-  type BiMultiMapBase,
-  BiMultiMapContext,
-} from '@rimbu/bimultimap/custom';
-
-import type { HashSet } from '@rimbu/hashed';
-import { HashMultiMapHashValue } from '@rimbu/multimap';
+import type { HashSet } from '@rimbu/hashed/set';
+import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 import type { Streamable } from '@rimbu/stream';
+
+import type { BiMultiMapBase } from '#bimultimap/base';
+import { BiMultiMapContext } from '#bimultimap/context';
+import type { BiMultiMapHashed } from '@rimbu/bimultimap/hashed/interface';
 
 /**
  * A type-invariant immutable bi-directional MultiMap where keys and values have a

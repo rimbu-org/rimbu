@@ -4,11 +4,12 @@ import type {
   VariantMap,
   VariantSet,
 } from '@rimbu/collection-types';
-import type { ArrayNonEmpty } from '@rimbu/common';
+import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
 
-import type { MultiMap, VariantMultiMap } from '../src/main/index.mjs';
+import type { MultiMap } from '@rimbu/multimap';
+import type { VariantMultiMap } from '@rimbu/multimap/variant';
 
 type VE<K, V> = VariantMultiMap<K, V>;
 type VNE<K, V> = VariantMultiMap.NonEmpty<K, V>;

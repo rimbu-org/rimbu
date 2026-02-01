@@ -37,6 +37,10 @@
     ".": {
       "types": "./dist/entry/multimap.d.mts",
       "default": "./dist/entry/multimap.mjs"
+    },
+    "./*": {
+      "types": "./dist/public/*.d.mts",
+      "default": "./dist/public/*.mjs"
     }
   },
   "imports": {
@@ -61,7 +65,7 @@
     "lint": "eslint src",
     "test": "bun test test/* --tsconfig-override tsconfig.common.json",
     "test:random": "bun test test-random",
-    "test:types": "bunx tsd --files ./test-d --typings ./dist/entry/sorted.d.mts",
+    "test:types": "bunx tsd --files ./test-d --typings ./dist/entry/multimap.d.mts",
     "typecheck": "tsc"
   },
   "dependencies": {

@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "rootDirs": [".", ".."],
-    "baseUrl": "./src",
     "paths": {
-      "@rimbu/bimap/custom": ["custom/index.mjs", "custom/index.cts"],
-      "@rimbu/bimap": ["main/index.mjs", "main/index.cts"]
+      "@rimbu/bimap": ["./entry/bimap.mjs"],
+      "@rimbu/bimap/*": ["./public/*.mjs"],
+      "#bimap/*": ["./public/internal/*.mjs"],
+      "#private/*": ["./private/*.mjs"]
     }
   }
 }

@@ -1,10 +1,10 @@
-import type { ArrayNonEmpty } from '@rimbu/common';
-import type { HashSet } from '@rimbu/hashed';
-import type { SortedMap } from '@rimbu/sorted';
+import type { ArrayNonEmpty } from '@rimbu/common/types';
+import type { HashSet } from '@rimbu/hashed/set';
+import type { SortedMap } from '@rimbu/sorted/map';
 import type { FastIterator, Stream } from '@rimbu/stream';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
 
-import type { SortedMultiMapHashValue } from '../src/main/index.mjs';
+import type { SortedMultiMapHashValue } from '@rimbu/multimap/sorted-key/hash-value';
 
 type GE<K, V> = SortedMultiMapHashValue<K, V>;
 type GNE<K, V> = SortedMultiMapHashValue.NonEmpty<K, V>;

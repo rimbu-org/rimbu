@@ -1,23 +1,19 @@
-import type { BiMapFactory } from '@rimbu/bimap/custom';
-import { BiMapContext, type BiMapCreators } from '@rimbu/bimap/custom';
-
-import type { RMap } from '@rimbu/collection-types/map';
-import type { KeyValue } from '@rimbu/collection-types/map-custom';
-import type {
-  ArrayNonEmpty,
-  OptLazy,
-  RelatedTo,
-  ToJSON,
-  TraverseState,
-  Update,
-} from '@rimbu/common';
-import { HashMap } from '@rimbu/hashed';
+import type { RMap } from '@rimbu/collection-types';
+import type { KeyValue } from '@rimbu/collection-types/common';
+import type { OptLazy } from '@rimbu/common/opt-lazy';
+import type { TraverseState } from '@rimbu/common/traverse-state';
+import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
+import type { Update } from '@rimbu/common/update';
+import { HashMap } from '@rimbu/hashed/map';
 import type {
   FastIterable,
   Stream,
   StreamSource,
   Streamable,
 } from '@rimbu/stream';
+
+import { BiMapContext } from '#bimap/context';
+import type { BiMapCreators, BiMapFactory } from '#bimap/factory';
 
 /**
  * A type-invariant immutable bi-directional Map where keys and values have a one-to-one mapping.

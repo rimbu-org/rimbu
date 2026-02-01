@@ -1,18 +1,17 @@
-import type { BiMapContext } from '@rimbu/bimap/custom';
-import type { BiMap } from '@rimbu/bimap';
-
-import type { RMap } from '@rimbu/collection-types/map';
-import { EmptyBase, NonEmptyBase } from '@rimbu/collection-types/map-custom';
+import type { RMap } from '@rimbu/collection-types';
 import {
-  type ArrayNonEmpty,
-  OptLazy,
-  type RelatedTo,
-  type ToJSON,
-  TraverseState,
-  Update,
-} from '@rimbu/common';
+  EmptyBase,
+  NonEmptyBase,
+} from '@rimbu/collection-types/common/empty-base';
+import { TraverseState } from '@rimbu/common/traverse-state';
+import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
+import { Update } from '@rimbu/common/update';
 import { Stream, type StreamSource } from '@rimbu/stream';
-import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
+import { StreamFactory } from '@rimbu/stream/internal/factory';
+
+import type { BiMapContext } from '#bimap/context';
+import type { BiMap } from '@rimbu/bimap';
+import { OptLazy } from '@rimbu/common/opt-lazy';
 
 export class BiMapEmpty<K = any, V = any>
   extends EmptyBase
@@ -247,7 +246,7 @@ export class BiMapNonEmptyImpl<K, V>
   }
 
   addEntries(entries: StreamSource<readonly [K, V]>): BiMap.NonEmpty<K, V> {
-    if (isEmptyStreamSourceInstance(entries)) return this;
+    if (StreamFactory().isEmptyStreamSourceInstance(entries)) return this;
 
     const builder = this.toBuilder();
 
@@ -294,7 +293,7 @@ export class BiMapNonEmptyImpl<K, V>
   }
 
   removeKeys<UK>(keys: Stream<RelatedTo<K, UK>>): BiMap<K, V> {
-    if (isEmptyStreamSourceInstance(keys)) return this;
+    if (StreamFactory().isEmptyStreamSourceInstance(keys)) return this;
 
     const builder = this.toBuilder();
 
@@ -341,7 +340,7 @@ export class BiMapNonEmptyImpl<K, V>
   }
 
   removeValues<UV>(values: Stream<RelatedTo<V, UV>>): BiMap<K, V> {
-    if (isEmptyStreamSourceInstance(values)) return this;
+    if (StreamFactory().isEmptyStreamSourceInstance(values)) return this;
 
     const builder = this.toBuilder();
 

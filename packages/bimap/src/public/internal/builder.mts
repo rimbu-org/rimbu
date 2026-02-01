@@ -1,11 +1,14 @@
-import type { BiMapContext, BiMapNonEmptyImpl } from '@rimbu/bimap/custom';
-import type { BiMap } from '@rimbu/bimap';
-
-import { RimbuError } from '@rimbu/base';
-import type { RMap } from '@rimbu/collection-types/map';
-import { OptLazy, type RelatedTo, TraverseState } from '@rimbu/common';
+import * as RimbuError from '@rimbu/base/rimbu-error';
+import type { RMap } from '@rimbu/collection-types';
+import { OptLazy } from '@rimbu/common/opt-lazy';
+import { TraverseState } from '@rimbu/common/traverse-state';
+import type { RelatedTo } from '@rimbu/common/types';
 import { Stream, type StreamSource } from '@rimbu/stream';
-import { isEmptyStreamSourceInstance } from '@rimbu/stream/custom';
+import { StreamFactory } from '@rimbu/stream/internal/factory';
+
+import type { BiMapContext } from '#bimap/context';
+import type { BiMapNonEmptyImpl } from '#bimap/immutable';
+import type { BiMap } from '@rimbu/bimap';
 
 export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
   constructor(
@@ -155,7 +158,7 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
   removeKeys = <UK,>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
     this.checkLock();
 
-    if (isEmptyStreamSourceInstance(keys)) return false;
+    if (StreamFactory().isEmptyStreamSourceInstance(keys)) return false;
 
     const notFound = Symbol();
 
@@ -193,7 +196,7 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
   removeValues = <UV,>(values: StreamSource<RelatedTo<V, UV>>): boolean => {
     this.checkLock();
 
-    if (isEmptyStreamSourceInstance(values)) return false;
+    if (StreamFactory().isEmptyStreamSourceInstance(values)) return false;
 
     const notFound = Symbol();
 

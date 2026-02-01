@@ -1,12 +1,10 @@
-import {
-  type BiMultiMapSorted,
-  type BiMultiMapBase,
-  BiMultiMapContext,
-} from '@rimbu/bimultimap/custom';
-
-import { SortedMultiMapSortedValue } from '@rimbu/multimap';
+import { SortedMultiMapSortedValue } from '@rimbu/multimap/sorted-key/sorted-value';
+import type { SortedSet } from '@rimbu/sorted/set';
 import type { Streamable } from '@rimbu/stream';
-import type { SortedSet } from '@rimbu/sorted';
+
+import type { BiMultiMapBase } from '#bimultimap/base';
+import { BiMultiMapContext } from '#bimultimap/context';
+import type { BiMultiMapSorted } from '@rimbu/bimultimap/sorted/interface';
 
 /**
  * A type-invariant immutable bi-directional MultiMap where keys and values have a

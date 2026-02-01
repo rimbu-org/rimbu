@@ -1,7 +1,7 @@
-import type { BiMultiMapBase } from '@rimbu/bimultimap/custom';
-import type { HashBiMultiMap } from '@rimbu/bimultimap';
+import type { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 
-import type { HashMultiMapHashValue } from '@rimbu/multimap';
+import type { BiMultiMapBase } from '#bimultimap/base';
+import type { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 
 export namespace BiMultiMapHashed {
   /**
