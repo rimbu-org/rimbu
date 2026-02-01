@@ -1,4 +1,4 @@
-import { HashMultiSet } from '../src/main/index.mjs';
+import { HashMultiSet } from '@rimbu/multiset/hashed';
 
 import { runMultiSetTestsWith } from './multiset-test-standard.mjs';
 

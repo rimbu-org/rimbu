@@ -1,6 +1,9 @@
+import { describe, expect, it } from 'bun:test';
+
 import { Stream } from '@rimbu/stream';
 
-import { HashMultiSet, MultiSet } from '../src/main/index.mjs';
+import { MultiSet } from '@rimbu/multiset';
+import { HashMultiSet } from '@rimbu/multiset/hashed';
 
 function expectEqual(source: MultiSet<string>, values: [string, number][]) {
   expect(new Set(source.countMap.toArray())).toEqual(new Set(values));

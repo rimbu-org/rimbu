@@ -35,12 +35,14 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/esm/main/index.d.mts",
-      "import": "./dist/esm/main/index.mjs"
-    },
-    "./custom": {
-      "types": "./dist/esm/custom/index.d.mts",
-      "import": "./dist/esm/custom/index.mjs"
+      "types": "./dist/entry/multimap.d.mts",
+      "default": "./dist/entry/multimap.mjs"
+    }
+  },
+  "imports": {
+    "#multimap/*": {
+      "types": "./dist/public/internal/*.d.mts",
+      "default": "./dist/public/internal/*.mjs"
     }
   },
   "files": [
@@ -48,8 +50,7 @@
     "src"
   ],
   "scripts": {
-    "build": "yarn clean && yarn bundle",
-    "bundle": "tsc --p tsconfig.esm.json",
+    "build": "bun clean && bunx tsc --p tsconfig.esm.json",
     "clean": "rimraf dist",
     "extract-api": "yarn extract-api:main && yarn extract-api:custom",
     "extract-api:custom": "tsx ../../config/api-extractor.ts config/api-extractor.custom.json",
@@ -58,11 +59,9 @@
     "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
     "format:check": "yarn format:base --check",
     "lint": "eslint src",
-    "test": "vitest run",
-    "test:cov": "vitest run --coverage",
-    "test:watch": "vitest",
-    "test:random": "vitest run --config vitest.random.config.ts",
-    "test:types": "tsd --files test-d",
+    "test": "bun test test/* --tsconfig-override tsconfig.common.json",
+    "test:random": "bun test test-random",
+    "test:types": "bunx tsd --files ./test-d --typings ./dist/entry/sorted.d.mts",
     "typecheck": "tsc"
   },
   "dependencies": {
