@@ -27,7 +27,20 @@
     "enabled": true,
     "actions": {
       "source": {
-        "organizeImports": "on"
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "groups": [
+              ":BUN:",
+              ":BLANKLINE:",
+              "!:PACKAGE:@rimbu/**",
+              "!:PATH:./src/**",
+              ":BLANKLINE:",
+              "!:ALIAS:",
+              ":ALIAS:"
+            ]
+          }
+        }
       }
     }
   }
