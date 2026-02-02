@@ -74,29 +74,24 @@
     "src"
   ],
   "scripts": {
-    "build": "bun clean && bunx tsc --p tsconfig.esm.json",
-    "clean": "rimraf dist",
-    "extract-api": "yarn extract-api:main && yarn extract-api:map && yarn extract-api:map-custom && yarn extract-api:set && yarn extract-api:set-custom",
-    "extract-api:main": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
-    "extract-api:map": "tsx ../../config/api-extractor.ts config/api-extractor.map.json",
-    "extract-api:map-custom": "tsx ../../config/api-extractor.ts config/api-extractor.map-custom.json",
-    "extract-api:set": "tsx ../../config/api-extractor.ts config/api-extractor.set.json",
-    "extract-api:set-custom": "tsx ../../config/api-extractor.ts config/api-extractor.set-custom.json",
-    "format": "yarn format:base --write",
-    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
-    "format:check": "yarn format:base --check",
-    "lint": "eslint src",
-    "test": "bun test test/* --tsconfig-override tsconfig.common.json",
+    "biome:check": "biome check --write",
+    "biome:fix": "biome check --write",
+    "build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
+    "clean": "rimraf dist node_modules",
+    "clean:build": "rimraf dist",
+    "format:check": "biome format",
+    "lint:check": "biome lint",
+    "test": "bun test --tsconfig-override tsconfig.common.json",
     "test:random": "bun test test-random",
-    "test:types": "bunx tsd --files ./test-d --typings ./dist/entry/sorted.d.mts",
-    "typecheck": "tsc"
+    "test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.mts",
+    "typecheck": "tsc -p tsconfig.esm.json --noEmit"
   },
   "dependencies": {
-    "@rimbu/base": "^2.0.7",
-    "@rimbu/collection-types": "^2.1.10",
-    "@rimbu/common": "^2.0.7",
-    "@rimbu/stream": "^3.0.3",
-    "tslib": "^2.8.1"
+    "@rimbu/base": "workspace:*",
+    "@rimbu/collection-types": "workspace:*",
+    "@rimbu/common": "workspace:*",
+    "@rimbu/stream": "workspace:*",
+    "tslib": "catalog:"
   },
   "publishConfig": {
     "access": "public",

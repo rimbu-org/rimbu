@@ -19,60 +19,47 @@
     "url": "git+https://github.com/rimbu-org/rimbu.git"
   },
   "scripts": {
-    "clean": "lerna run clean && lerna clean --yes && yarn",
+    "biome:check": "bun --workspaces --if-present run biome:check",
+    "biome:fix": "bun --workspaces --if-present run biome:fix",
+    "build": "bun --workspaces --if-present run build",
+    "clean": "bun --workspaces --if-present run clean && rimraf node_modules",
     "commit": "git-cz",
     "docs": "deno run --import-map doc-gen/import_map.json --allow-read --allow-write --no-check doc-gen/src/main.ts -i doc-gen/input -o docs/api",
-    "extract-api": "rimraf doc-gen/input && lerna run extract-api",
-    "format": "yarn format:root & lerna run format",
-    "format:check": "yarn format:root-check & lerna run format:check",
-    "format:root": "yarn format:root-base --write",
-    "format:root-base": "prettier \"*.{ts,tsx,js,mts,mjs,json,md}\" \"config/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
-    "format:root-check": "yarn format:root-base --check",
-    "lint": "lerna run lint",
+    "format:check": "bun --workspaces --if-present run format:check",
+    "lint:check": "bun --workspaces --if-present run lint:check",
     "postinstall": "husky",
     "prerelease": "yarn typecheck && yarn test:types && yarn test && yarn test:random",
     "publish:ci": "lerna publish from-package --yes",
-    "test": "lerna run test",
-    "test:cov": "lerna run test:cov",
-    "test:types": "lerna run test:types",
-    "test:random": "lerna run test:random",
-    "typecheck": "lerna run typecheck",
+    "test": "bun --workspaces --if-present run test",
+    "test:types": "bun --workspaces --if-present run test:types",
+    "test:random": "bun --workspaces --if-present run test:random",
+    "typecheck": "bun --workspaces run typecheck",
     "version:ci": "lerna version --yes --conventional-commits --message 'chore(release): publish'",
     "version:localtest": "lerna version --yes --conventional-commits --no-git-tag-version --no-push",
     "version:prerelease": "lerna version --yes --conventional-commits --conventional-prerelease --message 'chore(release): prepublish canary'",
     "version:graduate": "lerna version --yes --conventional-commits --conventional-graduate --message 'chore(release): graduate prerelease packages'"
   },
-  "lint-staged": {
-    "*.{ts,tsx,js,mts,mjs,json}": "eslint --config ./config/eslint.config.mjs --cache",
-    "*.{ts,tsx,js,mts,mjs,json,md}--parallel": "prettier --write"
-  },
   "devDependencies": {
-    "@eslint/js": "^9.39.1",
+    "@biomejs/biome": "2.3.13",
     "@happy-dom/global-registrator": "^20.4.0",
     "@microsoft/api-extractor": "^7.55.1",
-    "@types/bun": "^1.3.6",
-    "@vitest/coverage-v8": "^4.0.13",
+    "@types/bun": "^1.3.8",
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
-    "eslint": "^9.39.1",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.4",
     "husky": "^9.1.7",
     "lerna": "^9.0.3",
-    "lint-staged": "^16.2.7",
-    "prettier": "^3.6.2",
     "rimraf": "^6.1.2",
-    "tsc-alias": "^1.8.16",
     "tsd": "^0.33.0",
-    "tsx": "^4.20.6",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.47.0",
-    "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^4.0.13"
+    "typescript": "^5.9.3"
   },
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "catalog": {
+      "tslib": "^2.8.1"
+    }
+  },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"

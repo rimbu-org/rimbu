@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'bun:test';
 
 import * as Entry from '@rimbu/base/entry';
-import type { RMap } from '@rimbu/collection-types';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 import { Stream } from '@rimbu/stream';
+import type { RMap } from 'entry/collection-types.mjs';
 
 function expectEqual<K, V>(
   map: RMap<K, V> | RMap.NonEmpty<K, V>,

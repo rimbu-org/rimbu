@@ -2,7 +2,7 @@ import type { WithKeyValue } from '@rimbu/collection-types/common';
 import { RMapBase } from '@rimbu/collection-types/map/base';
 import type { List } from '@rimbu/list';
 
-import { type OrderedMapBase } from '#map/base';
+import type { OrderedMapBase } from '#map/base';
 import { OrderedMapBuilder } from '#map/builder';
 import { OrderedMapEmpty } from '#map/empty';
 import { OrderedMapNonEmpty } from '#map/non-empty';

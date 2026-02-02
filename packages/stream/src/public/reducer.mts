@@ -1,7 +1,7 @@
 import type { CollectFun } from '@rimbu/common/collect';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 
-import { type StreamSource } from '@rimbu/stream';
+import type { StreamSource } from '@rimbu/stream';
 import { reducerFactoryModule } from './internal/reducer-factory-module.mjs';
 import type { ReducerFactory } from './internal/reducer-factory.mjs';
 

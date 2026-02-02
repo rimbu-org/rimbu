@@ -12,7 +12,7 @@
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
-    "typecheck": "tsc"
+    "typecheck": "tsc -p tsconfig.esm.json --noEmit"
   },
   "dependencies": {
     "@docusaurus/core": "^2.4.1",

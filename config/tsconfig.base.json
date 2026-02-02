@@ -2,6 +2,6 @@
   "extends": "./tsconfig.common.json",
   "compilerOptions": {
     "noEmit": true,
-    "types": ["bun-types"]
+    "types": []
   }
 }

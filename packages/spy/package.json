@@ -41,17 +41,19 @@
     "src"
   ],
   "scripts": {
-    "build": "bun clean && bunx tsc --p tsconfig.esm.json && bunx tsc-alias -p tsconfig.esm.json",
-    "clean": "rimraf dist",
-    "extract-api": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
-    "format": "yarn format:base --write",
-    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
-    "format:check": "yarn format:base --check",
+    "biome:check": "biome check --write",
+    "biome:fix": "biome check --write",
+    "build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
+    "clean": "rimraf dist node_modules",
+    "clean:build": "rimraf dist",
+    "format:check": "biome format",
+    "lint:check": "biome lint",
     "test": "bun test --tsconfig-override tsconfig.common.json",
-    "typecheck": "tsc"
+    "test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.mts",
+    "typecheck": "tsc -p tsconfig.esm.json --noEmit"
   },
   "dependencies": {
-    "tslib": "workspace:*"
+    "tslib": "catalog:"
   },
   "publishConfig": {
     "access": "public",

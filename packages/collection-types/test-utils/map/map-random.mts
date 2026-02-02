@@ -1,7 +1,6 @@
-import { describe, expect, it } from 'bun:test';
-
-import type { RMap } from '@rimbu/collection-types';
 import { Stream } from '@rimbu/stream';
+import { describe, expect, it } from 'bun:test';
+import type { RMap } from 'entry/collection-types.mjs';
 
 export function runMapRandomTestsWith(
   name: string,

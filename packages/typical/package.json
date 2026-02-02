@@ -38,22 +38,12 @@
     "dist",
     "src"
   ],
-  "scripts": {
-    "build": "yarn clean && yarn bundle",
-    "bundle": "tsc --p tsconfig.esm.json",
-    "clean": "rimraf dist",
-    "format": "yarn format:base --write",
-    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
-    "format:check": "yarn format:base --check",
-    "lint": "eslint src",
-    "test:types": "tsd --files test-d",
-    "typecheck": "tsc"
-  },
+  "scripts": {},
   "publishConfig": {
     "access": "public",
     "provenance": true
   },
   "dependencies": {
-    "tslib": "^2.8.1"
+    "tslib": "catalog:"
   }
 }

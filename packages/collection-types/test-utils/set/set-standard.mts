@@ -1,8 +1,7 @@
-import { describe, expect, it } from 'bun:test';
-
-import type { RSet } from '@rimbu/collection-types';
 import { HashSet } from '@rimbu/hashed/set';
 import { Stream } from '@rimbu/stream';
+import { describe, expect, it } from 'bun:test';
+import type { RSet } from 'entry/collection-types.mjs';
 
 function expectEqual(set: RSet<number>, arr: number[]): void {
   expect(new Set(set)).toEqual(new Set(arr));

@@ -1,7 +1,6 @@
-import { describe, expect, it } from 'bun:test';
-
-import type { RSet } from '@rimbu/collection-types';
 import { Stream } from '@rimbu/stream';
+import { describe, expect, it } from 'bun:test';
+import type { RSet } from 'entry/collection-types.mjs';
 
 function expectSet(s: RSet<any>): any {
   return {

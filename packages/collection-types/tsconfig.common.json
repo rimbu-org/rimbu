@@ -3,7 +3,7 @@
     "rootDir": ".",
     "baseUrl": "./src",
     "paths": {
-      "@rimbu/collection-types": ["./entry/main.mjs"],
+      "@rimbu/collection-types": ["./entry/collection-types.mjs"],
       "@rimbu/collection-types/common": ["./entry/common.mjs"],
       "@rimbu/collection-types/*": ["./public/*.mjs"]
     }

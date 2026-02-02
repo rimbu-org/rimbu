@@ -1,6 +1,6 @@
 import type { WithKeyValue } from '@rimbu/collection-types/common';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
-import { type StreamSource } from '@rimbu/stream';
+import type { StreamSource } from '@rimbu/stream';
 import { StreamFactory } from '@rimbu/stream/internal/factory';
 import { Reducer } from '@rimbu/stream/reducer';
 

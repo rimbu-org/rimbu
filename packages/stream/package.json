@@ -66,25 +66,21 @@
     "src"
   ],
   "scripts": {
-    "build": "bun clean && bunx tsc --p tsconfig.esm.json && bunx tsc-alias -p tsconfig.esm.json",
-    "clean": "rimraf dist",
-    "extract-api": "yarn extract-api:main && yarn extract-api:custom && yarn extract-api:async && yarn extract-api:async-custom",
-    "extract-api:main": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
-    "extract-api:custom": "tsx ../../config/api-extractor.ts config/api-extractor.custom.json",
-    "extract-api:async": "tsx ../../config/api-extractor.ts config/api-extractor.async.json",
-    "extract-api:async-custom": "tsx ../../config/api-extractor.ts config/api-extractor.async-custom.json",
-    "format": "yarn format:base --write",
-    "format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
-    "format:check": "yarn format:base --check",
-    "lint": "eslint src",
+    "biome:check": "biome check --write",
+    "biome:fix": "biome check --write",
+    "build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
+    "clean": "rimraf dist node_modules",
+    "clean:build": "rimraf dist",
+    "format:check": "biome format",
+    "lint:check": "biome lint",
     "test": "bun test --tsconfig-override tsconfig.common.json",
-    "test:types": "bunx tsd --files ./test-d --typings ./dist/entry/stream.d.mts",
-    "typecheck": "tsc"
+    "test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.mts",
+    "typecheck": "tsc -p tsconfig.esm.json --noEmit"
   },
   "dependencies": {
     "@rimbu/base": "workspace:*",
     "@rimbu/common": "workspace:*",
-    "tslib": "^2.8.1"
+    "tslib": "catalog:"
   },
   "publishConfig": {
     "access": "public",
