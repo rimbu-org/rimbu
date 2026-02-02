@@ -73,7 +73,7 @@ expectType<false>(genNonEmpty.isEmpty);
 // .keyMap
 expectAssignable<HashMap<number, SortedSet.NonEmpty<string>>>(genEmpty.keyMap);
 expectAssignable<HashMap.NonEmpty<number, SortedSet.NonEmpty<string>>>(
-  genNonEmpty.keyMap
+	genNonEmpty.keyMap,
 );
 
 // .nonEmpty()
@@ -124,10 +124,10 @@ expectType<ArrayNonEmpty<[number, string]>>(genNonEmpty.toArray());
 
 // .toBuilder()
 expectType<HashMultiMapSortedValue.Builder<number, string>>(
-  genEmpty.toBuilder()
+	genEmpty.toBuilder(),
 );
 expectType<HashMultiMapSortedValue.Builder<number, string>>(
-  genNonEmpty.toBuilder()
+	genNonEmpty.toBuilder(),
 );
 
 // From Builder

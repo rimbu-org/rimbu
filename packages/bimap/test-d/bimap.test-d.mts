@@ -18,7 +18,7 @@ expectNotAssignable<B_NonEmpty>(bEmpty);
 // Iterator
 expectType<FastIterator<readonly [number, string]>>(bEmpty[Symbol.iterator]());
 expectType<FastIterator<readonly [number, string]>>(
-  bNonEmpty[Symbol.iterator]()
+	bNonEmpty[Symbol.iterator](),
 );
 
 // .addEntries(..)

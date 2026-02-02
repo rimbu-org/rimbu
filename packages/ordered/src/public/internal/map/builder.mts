@@ -12,235 +12,235 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 import type { OrderedMapTypes } from '#map/context';
 
 export class OrderedMapBuilder<
-  K,
-  V,
-  Tp extends OrderedMapTypes = OrderedMapTypes,
-  TpG extends WithKeyValue<Tp, K, V> = WithKeyValue<Tp, K, V>,
+	K,
+	V,
+	Tp extends OrderedMapTypes = OrderedMapTypes,
+	TpG extends WithKeyValue<Tp, K, V> = WithKeyValue<Tp, K, V>,
 > implements OrderedMapBase.Builder<K, V, Tp>
 {
-  constructor(
-    readonly context: WithKeyValue<Tp, K, V>['context'],
-    public source?: TpG['nonEmpty']
-  ) {}
+	constructor(
+		readonly context: WithKeyValue<Tp, K, V>['context'],
+		public source?: TpG['nonEmpty'],
+	) {}
 
-  _keyOrderBuilder?: List.Builder<K>;
-  _mapBuilder?: TpG['sourceBuilder'];
+	_keyOrderBuilder?: List.Builder<K>;
+	_mapBuilder?: TpG['sourceBuilder'];
 
-  _lock = false;
+	_lock = false;
 
-  checkLock(): void {
-    if (this._lock) RimbuError.throwModifiedBuilderWhileLoopingOverItError();
-  }
+	checkLock(): void {
+		if (this._lock) RimbuError.throwModifiedBuilderWhileLoopingOverItError();
+	}
 
-  prepareMutate(): void {
-    if (undefined === this._keyOrderBuilder || undefined === this._mapBuilder) {
-      if (undefined !== this.source) {
-        this._keyOrderBuilder = this.source.keyOrder.toBuilder();
-        this._mapBuilder = this.source.sourceMap.toBuilder();
-      } else if (undefined === this._keyOrderBuilder) {
-        this._keyOrderBuilder = this.context.listContext.builder();
-        this._mapBuilder = this.context.mapContext.builder();
-      }
-    }
-  }
+	prepareMutate(): void {
+		if (undefined === this._keyOrderBuilder || undefined === this._mapBuilder) {
+			if (undefined !== this.source) {
+				this._keyOrderBuilder = this.source.keyOrder.toBuilder();
+				this._mapBuilder = this.source.sourceMap.toBuilder();
+			} else if (undefined === this._keyOrderBuilder) {
+				this._keyOrderBuilder = this.context.listContext.builder();
+				this._mapBuilder = this.context.mapContext.builder();
+			}
+		}
+	}
 
-  get keyOrderBuilder(): List.Builder<K> {
-    this.prepareMutate();
-    return this._keyOrderBuilder!;
-  }
+	get keyOrderBuilder(): List.Builder<K> {
+		this.prepareMutate();
+		return this._keyOrderBuilder!;
+	}
 
-  get mapBuilder(): TpG['sourceBuilder'] {
-    this.prepareMutate();
-    return this._mapBuilder!;
-  }
+	get mapBuilder(): TpG['sourceBuilder'] {
+		this.prepareMutate();
+		return this._mapBuilder!;
+	}
 
-  get size(): number {
-    return this.source?.size ?? this.keyOrderBuilder.length;
-  }
+	get size(): number {
+		return this.source?.size ?? this.keyOrderBuilder.length;
+	}
 
-  get isEmpty(): boolean {
-    return this.size === 0;
-  }
+	get isEmpty(): boolean {
+		return this.size === 0;
+	}
 
-  // prettier-ignore
-  hasKey = <UK,>(key: RelatedTo<K, UK>): boolean => {
-    return this.source?.hasKey(key) ?? this.mapBuilder.hasKey(key);
-  };
+	// prettier-ignore
+	hasKey = <UK,>(key: RelatedTo<K, UK>): boolean => {
+		return this.source?.hasKey(key) ?? this.mapBuilder.hasKey(key);
+	};
 
-  get = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
-    if (undefined !== this.source) return this.source.get(key, otherwise!);
+	get = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
+		if (undefined !== this.source) return this.source.get(key, otherwise!);
 
-    return this.mapBuilder.get(key, otherwise!);
-  };
+		return this.mapBuilder.get(key, otherwise!);
+	};
 
-  set = (key: K, value: V): boolean => {
-    return this.addEntry([key, value]);
-  };
+	set = (key: K, value: V): boolean => {
+		return this.addEntry([key, value]);
+	};
 
-  addEntry = (entry: readonly [K, V]): boolean => {
-    this.checkLock();
+	addEntry = (entry: readonly [K, V]): boolean => {
+		this.checkLock();
 
-    const preSize = this.mapBuilder.size;
+		const preSize = this.mapBuilder.size;
 
-    if (!this.mapBuilder.addEntry(entry)) return false;
+		if (!this.mapBuilder.addEntry(entry)) return false;
 
-    this.source = undefined;
+		this.source = undefined;
 
-    const diff = this.mapBuilder.size - preSize;
+		const diff = this.mapBuilder.size - preSize;
 
-    if (diff > 0) this.keyOrderBuilder.append(entry[0]);
+		if (diff > 0) this.keyOrderBuilder.append(entry[0]);
 
-    return true;
-  };
+		return true;
+	};
 
-  addEntries = (entries: StreamSource<readonly [K, V]>): boolean => {
-    this.checkLock();
+	addEntries = (entries: StreamSource<readonly [K, V]>): boolean => {
+		this.checkLock();
 
-    return Stream.from(entries).filterPure({ pred: this.addEntry }).count() > 0;
-  };
+		return Stream.from(entries).filterPure({ pred: this.addEntry }).count() > 0;
+	};
 
-  removeKey = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
-    this.checkLock();
+	removeKey = <UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O => {
+		this.checkLock();
 
-    if (!this.context.mapContext.isValidKey(key)) {
-      return OptLazy(otherwise) as O;
-    }
+		if (!this.context.mapContext.isValidKey(key)) {
+			return OptLazy(otherwise) as O;
+		}
 
-    const token = Symbol();
-    const removedValue = this.mapBuilder.removeKey(key, token);
+		const token = Symbol();
+		const removedValue = this.mapBuilder.removeKey(key, token);
 
-    if (token === removedValue) {
-      return OptLazy(otherwise) as O;
-    }
+		if (token === removedValue) {
+			return OptLazy(otherwise) as O;
+		}
 
-    this.source = undefined;
+		this.source = undefined;
 
-    this.removeFromKeyOrderInternal(key as K);
+		this.removeFromKeyOrderInternal(key as K);
 
-    return removedValue;
-  };
+		return removedValue;
+	};
 
-  // prettier-ignore
-  removeKeys = <UK,>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
-    this.checkLock();
+	// prettier-ignore
+	removeKeys = <UK,>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
+		this.checkLock();
 
-    const notFound = Symbol();
+		const notFound = Symbol();
 
-    return (
-      Stream.from(keys)
-        .mapPure(this.removeKey, notFound)
-        .countElement(notFound, { negate: true }) > 0
-    );
-  };
+		return (
+			Stream.from(keys)
+				.mapPure(this.removeKey, notFound)
+				.countElement(notFound, { negate: true }) > 0
+		);
+	};
 
-  // prettier-ignore
-  updateAt = <O,>(key: K, update: Update<V>, otherwise?: OptLazy<O>): V | O => {
-    let oldValue: V;
-    let found = false;
+	// prettier-ignore
+	updateAt = <O,>(key: K, update: Update<V>, otherwise?: OptLazy<O>): V | O => {
+		let oldValue: V;
+		let found = false;
 
-    this.modifyAt(key, {
-      ifExists: (value): V => {
-        oldValue = value;
-        found = true;
-        return Update(value, update);
-      },
-    });
+		this.modifyAt(key, {
+			ifExists: (value): V => {
+				oldValue = value;
+				found = true;
+				return Update(value, update);
+			},
+		});
 
-    if (!found) return OptLazy(otherwise) as O;
+		if (!found) return OptLazy(otherwise) as O;
 
-    this.source = undefined;
+		this.source = undefined;
 
-    return oldValue!;
-  };
+		return oldValue!;
+	};
 
-  modifyAt = (
-    key: K,
-    options: {
-      ifNew?: OptLazyOr<V, Token>;
-      ifExists?: ((currentValue: V, remove: Token) => V | Token) | V;
-    }
-  ): boolean => {
-    this.checkLock();
+	modifyAt = (
+		key: K,
+		options: {
+			ifNew?: OptLazyOr<V, Token>;
+			ifExists?: ((currentValue: V, remove: Token) => V | Token) | V;
+		},
+	): boolean => {
+		this.checkLock();
 
-    const preSize = this.mapBuilder.size;
-    const changed = this.mapBuilder.modifyAt(key, options);
+		const preSize = this.mapBuilder.size;
+		const changed = this.mapBuilder.modifyAt(key, options);
 
-    if (changed) this.source = undefined;
+		if (changed) this.source = undefined;
 
-    const diff = this.mapBuilder.size - preSize;
+		const diff = this.mapBuilder.size - preSize;
 
-    if (diff === 0) return changed;
-    if (diff > 0) {
-      this.keyOrderBuilder.append(key);
-    } else {
-      this.removeFromKeyOrderInternal(key);
-    }
-    return true;
-  };
+		if (diff === 0) return changed;
+		if (diff > 0) {
+			this.keyOrderBuilder.append(key);
+		} else {
+			this.removeFromKeyOrderInternal(key);
+		}
+		return true;
+	};
 
-  forEach = (
-    f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-    options: { reversed?: boolean; state?: TraverseState } = {}
-  ): void => {
-    const { reversed = false, state = TraverseState() } = options;
+	forEach = (
+		f: (entry: readonly [K, V], index: number, halt: () => void) => void,
+		options: { reversed?: boolean; state?: TraverseState } = {},
+	): void => {
+		const { reversed = false, state = TraverseState() } = options;
 
-    if (state.halted) return;
+		if (state.halted) return;
 
-    this._lock = true;
+		this._lock = true;
 
-    if (undefined !== this.source) this.source.forEach(f, options);
-    else {
-      const { halt } = state;
-      const mapBuilder = this.mapBuilder;
+		if (undefined !== this.source) this.source.forEach(f, options);
+		else {
+			const { halt } = state;
+			const mapBuilder = this.mapBuilder;
 
-      this.keyOrderBuilder.forEach(
-        (key, _, outerHalt): void => {
-          f(
-            [key, mapBuilder.get(key, RimbuError.throwInvalidStateError)],
-            state.nextIndex(),
-            halt
-          );
-          if (state.halted) outerHalt();
-        },
-        { reversed }
-      );
-    }
+			this.keyOrderBuilder.forEach(
+				(key, _, outerHalt): void => {
+					f(
+						[key, mapBuilder.get(key, RimbuError.throwInvalidStateError)],
+						state.nextIndex(),
+						halt,
+					);
+					if (state.halted) outerHalt();
+				},
+				{ reversed },
+			);
+		}
 
-    this._lock = false;
-  };
+		this._lock = false;
+	};
 
-  // prettier-ignore
-  buildMapValues = <V2,>(
-    f: (value: V, key: K) => V2
-  ): WithKeyValue<Tp, K, V2>['normal'] => {
-    if (undefined !== this.source) return this.source.mapValues<V2>(f) as any;
+	// prettier-ignore
+	buildMapValues = <V2,>(
+		f: (value: V, key: K) => V2,
+	): WithKeyValue<Tp, K, V2>['normal'] => {
+		if (undefined !== this.source) return this.source.mapValues<V2>(f) as any;
 
-    if (this.size === 0) return this.context.empty();
+		if (this.size === 0) return this.context.empty();
 
-    const keyOrder = this.keyOrderBuilder.build().assumeNonEmpty();
-    const sourceMap = this.mapBuilder.buildMapValues(f).assumeNonEmpty();
+		const keyOrder = this.keyOrderBuilder.build().assumeNonEmpty();
+		const sourceMap = this.mapBuilder.buildMapValues(f).assumeNonEmpty();
 
-    return this.context.createNonEmpty<K, V2>(keyOrder, sourceMap) as any;
-  };
+		return this.context.createNonEmpty<K, V2>(keyOrder, sourceMap) as any;
+	};
 
-  build = (): WithKeyValue<Tp, K, V>['normal'] => {
-    if (undefined !== this.source) return this.source as any;
-    if (this.size === 0) return this.context.empty();
+	build = (): WithKeyValue<Tp, K, V>['normal'] => {
+		if (undefined !== this.source) return this.source as any;
+		if (this.size === 0) return this.context.empty();
 
-    const keyOrder = this.keyOrderBuilder.build().assumeNonEmpty();
-    const sourceMap = this.mapBuilder.build().assumeNonEmpty();
+		const keyOrder = this.keyOrderBuilder.build().assumeNonEmpty();
+		const sourceMap = this.mapBuilder.build().assumeNonEmpty();
 
-    return this.context.createNonEmpty<K, V>(keyOrder, sourceMap) as any;
-  };
+		return this.context.createNonEmpty<K, V>(keyOrder, sourceMap) as any;
+	};
 
-  removeFromKeyOrderInternal(key: K): void {
-    let index = -1;
-    this.keyOrderBuilder.forEach((k, i, halt): void => {
-      if (Object.is(k, key)) {
-        index = i;
-        halt();
-      }
-    });
-    this.keyOrderBuilder.remove(index);
-  }
+	removeFromKeyOrderInternal(key: K): void {
+		let index = -1;
+		this.keyOrderBuilder.forEach((k, i, halt): void => {
+			if (Object.is(k, key)) {
+				index = i;
+				halt();
+			}
+		});
+		this.keyOrderBuilder.remove(index);
+	}
 }

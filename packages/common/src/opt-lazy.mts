@@ -19,11 +19,11 @@ export type OptLazy<T, A extends any[] = []> = T | ((...args: A) => T);
  * ```
  */
 export function OptLazy<T, A extends any[] = []>(
-  optLazy: OptLazy<T, A>,
-  ...args: A
+	optLazy: OptLazy<T, A>,
+	...args: A
 ): T {
-  if (optLazy instanceof Function) return optLazy(...args);
-  return optLazy;
+	if (optLazy instanceof Function) return optLazy(...args);
+	return optLazy;
 }
 
 /**
@@ -49,9 +49,9 @@ export type OptLazyOr<T, O> = T | ((none: O) => T | O);
  * ```
  */
 export function OptLazyOr<T, O>(
-  optLazyOr: OptLazyOr<T, O>,
-  otherValue: O
+	optLazyOr: OptLazyOr<T, O>,
+	otherValue: O,
 ): T | O {
-  if (optLazyOr instanceof Function) return optLazyOr(otherValue);
-  return optLazyOr;
+	if (optLazyOr instanceof Function) return optLazyOr(otherValue);
+	return optLazyOr;
 }

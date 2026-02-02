@@ -13,5 +13,5 @@ export type StringSplit = (string | number | undefined)[];
  * @param path - the input string path
  */
 export function stringSplit(path: string): StringSplit {
-  return path.split(stringSplitRegex);
+	return path.split(stringSplitRegex);
 }

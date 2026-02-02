@@ -5,29 +5,29 @@ import type { AsyncFastIteratorFactory } from '#async/fast-iterator-factory';
 import type { AsyncFastIterator } from '@rimbu/stream/async';
 
 export const asyncFastIteratorFactoryModule =
-  Module.create<AsyncFastIteratorFactory>((mod) => ({
-    _fixedDoneAsyncIteratorResultInstance: Module.lazy(() => {
-      return Object.freeze(
-        Promise.resolve(
-          Object.freeze({
-            done: true,
-            value: undefined,
-          }) as IteratorResult<any>
-        )
-      );
-    }),
-    _emptyAsyncFastIteratorInstance: Module.lazy(() => {
-      return Object.freeze({
-        fastNext<O>(otherwise?: AsyncOptLazy<O>): MaybePromise<O> {
-          return AsyncOptLazy.toMaybePromise(otherwise!);
-        },
-        next(): Promise<IteratorResult<any>> {
-          return mod._fixedDoneAsyncIteratorResultInstance;
-        },
-      });
-    }),
-    isAsyncFastIterator: Module.factory(
-      <T,>(iterator: AsyncIterator<T>): iterator is AsyncFastIterator<T> =>
-        `fastNext` in iterator
-    ),
-  }));
+	Module.create<AsyncFastIteratorFactory>((mod) => ({
+		_fixedDoneAsyncIteratorResultInstance: Module.lazy(() => {
+			return Object.freeze(
+				Promise.resolve(
+					Object.freeze({
+						done: true,
+						value: undefined,
+					}) as IteratorResult<any>,
+				),
+			);
+		}),
+		_emptyAsyncFastIteratorInstance: Module.lazy(() => {
+			return Object.freeze({
+				fastNext<O>(otherwise?: AsyncOptLazy<O>): MaybePromise<O> {
+					return AsyncOptLazy.toMaybePromise(otherwise!);
+				},
+				next(): Promise<IteratorResult<any>> {
+					return mod._fixedDoneAsyncIteratorResultInstance;
+				},
+			});
+		}),
+		isAsyncFastIterator: Module.factory(
+			<T,>(iterator: AsyncIterator<T>): iterator is AsyncFastIterator<T> =>
+				`fastNext` in iterator,
+		),
+	}));

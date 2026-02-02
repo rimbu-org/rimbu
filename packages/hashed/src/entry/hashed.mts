@@ -1,6 +1,6 @@
 import {
-  hasherModule,
-  type HasherModule,
+	hasherModule,
+	type HasherModule,
 } from '@rimbu/hashed/internal/hashed/hasher-module';
 
 /**
@@ -11,31 +11,31 @@ import {
  * bitwise operator to it, e.g. if x is a number, use x | 0.
  */
 export interface Hasher<UK> {
-  /**
-   * Returns true if this hasher can be applied to the given `obj` object.
-   * @param obj - the object to check
-   * @example
-   * ```ts
-   * const h = Hasher.numberHasher()
-   * console.log(h.isValid(5))
-   * // => true
-   * console.log(h.isValid('a'))
-   * // => false
-   * ```
-   */
-  isValid(obj: unknown): obj is UK;
-  /**
-   * Returns the 32-bit hash code for the given `value`.
-   * @param value - the value to hash
-   * @note it is assumed that the caller has verified that the given object
-   * is valid, either by knowing the types up front, or by using the `isValid` function.
-   * @example
-   * ```ts
-   * const h = Hasher.anyHasher()
-   * h.hash([1, 3, 2])
-   * ```
-   */
-  hash(value: UK): number;
+	/**
+	 * Returns true if this hasher can be applied to the given `obj` object.
+	 * @param obj - the object to check
+	 * @example
+	 * ```ts
+	 * const h = Hasher.numberHasher()
+	 * console.log(h.isValid(5))
+	 * // => true
+	 * console.log(h.isValid('a'))
+	 * // => false
+	 * ```
+	 */
+	isValid(obj: unknown): obj is UK;
+	/**
+	 * Returns the 32-bit hash code for the given `value`.
+	 * @param value - the value to hash
+	 * @note it is assumed that the caller has verified that the given object
+	 * is valid, either by knowing the types up front, or by using the `isValid` function.
+	 * @example
+	 * ```ts
+	 * const h = Hasher.anyHasher()
+	 * h.hash([1, 3, 2])
+	 * ```
+	 */
+	hash(value: UK): number;
 }
 
 export const Hasher: HasherModule = hasherModule.build();

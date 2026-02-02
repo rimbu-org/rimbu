@@ -24,10 +24,10 @@ export type ArrayNonEmpty<T> = [T, ...T[]];
  * Accepts all strings with at least one character.
  */
 export type StringNonEmpty<T> = T extends string
-  ? '' extends T
-    ? never
-    : T
-  : never;
+	? '' extends T
+		? never
+		: T
+	: never;
 
 /**
  * Utility type to convert some object to a JSON serializable format.
@@ -35,6 +35,6 @@ export type StringNonEmpty<T> = T extends string
  * @typeparam D - the `dataType` tag string type
  */
 export interface ToJSON<V, D extends string = string> {
-  readonly dataType: D;
-  readonly value: V;
+	readonly dataType: D;
+	readonly value: V;
 }

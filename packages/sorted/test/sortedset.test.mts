@@ -3,11 +3,11 @@ import { runSetTestsWith } from '../../collection-types/test-utils/set/set-stand
 import { SortedSet } from '@rimbu/sorted/set';
 
 runSetTestsWith(
-  'SortedSet blockSize 2',
-  SortedSet.createContext({ blockSizeBits: 2 })
+	'SortedSet blockSize 2',
+	SortedSet.createContext({ blockSizeBits: 2 }),
 );
 
 runSetTestsWith(
-  'SortedSet blockSize 3',
-  SortedSet.createContext({ blockSizeBits: 3 })
+	'SortedSet blockSize 3',
+	SortedSet.createContext({ blockSizeBits: 3 }),
 );

@@ -2,7 +2,7 @@ import { expectType } from 'tsd';
 import type { PlainObj } from '../src/plain-object.mjs';
 
 function f<T>(p: T): PlainObj<T> {
-  return p as any;
+	return p as any;
 }
 
 expectType<never>(f(1));
@@ -13,12 +13,12 @@ expectType<never>(f(Promise.resolve(1)));
 expectType<never>(f([1, 2]));
 expectType<never>(f({ q: () => {}, b: 5 }));
 const obj = {
-  a() {},
-  b: 5,
+	a() {},
+	b: 5,
 };
 expectType<never>(f(obj));
 const iter = {
-  [Symbol.iterator]() {},
+	[Symbol.iterator]() {},
 };
 expectType<never>(f(iter));
 

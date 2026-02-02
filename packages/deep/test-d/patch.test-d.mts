@@ -192,23 +192,23 @@ expectType<N>(patch(n, [{ a: [{ b: (v, p, r) => p.b }] }]));
 expectType<N>(patch(n, [{ a: [{ b: (v, p, r) => r.a.b }] }]));
 
 expectType<() => 5>(
-  patch(
-    () => 5,
-    () => 5
-  )
+	patch(
+		() => 5,
+		() => 5,
+	),
 );
 expectError(
-  patch(
-    () => 5,
-    () => () => 5
-  )
+	patch(
+		() => 5,
+		() => () => 5,
+	),
 );
 
 expectType<{ a: () => number }>(
-  patch({ a: () => 5 as number }, { a: () => 6 })
+	patch({ a: () => 5 as number }, { a: () => 6 }),
 );
 expectError<{ readonly a: () => number }>(
-  patch({ a: () => 5 as number }, { a: () => () => 6 })
+	patch({ a: () => 5 as number }, { a: () => () => 6 }),
 );
 
 expectType<readonly [number, string]>(patch(Tuple.of(1, 'a'), [2, 'b']));
@@ -217,14 +217,14 @@ expectError(patch(Tuple.of(1, 'a'), [2, 'b', true]));
 expectError(patch(Tuple.of(1, 2), [1, 2, 3]));
 
 expectType<{ a: number | undefined; b: number }>(
-  patch({ a: 1, b: 1 } as { a: number | undefined; b: number }, [
-    { a: undefined },
-  ])
+	patch({ a: 1, b: 1 } as { a: number | undefined; b: number }, [
+		{ a: undefined },
+	]),
 );
 expectType<{ a?: number | undefined; b: number }>(
-  patch({ a: 1, b: 1 } as { a?: number | undefined; b: number }, [
-    { a: undefined },
-  ])
+	patch({ a: 1, b: 1 } as { a?: number | undefined; b: number }, [
+		{ a: undefined },
+	]),
 );
 
 // tsd does not yet catch "exactOptionalPropertyTypes" errors

@@ -19,41 +19,43 @@ import type { Task } from '@rimbu/task';
  * ```
  */
 export function taskify<
-  R,
-  A extends readonly any[],
-  N extends number,
-  S extends string = 'signal',
+	R,
+	A extends readonly any[],
+	N extends number,
+	S extends string = 'signal',
 >(
-  fn: (...args: A) => R,
-  signalArgIndex: N,
-  signalPropName: S = 'signal' as S
+	fn: (...args: A) => R,
+	signalArgIndex: N,
+	signalPropName: S = 'signal' as S,
 ): A[N] extends { [N in S]?: AbortSignal | undefined } | null | undefined
-  ? Task<R, A>
-  : never {
-  return (async (context: Task.Context, ...args: A): Promise<R> => {
-    if (args.length < signalArgIndex) {
-      const finalArgs = [...args] as unknown as A;
-      finalArgs[signalArgIndex] = { [signalPropName]: context.cancelledSignal };
+	? Task<R, A>
+	: never {
+	return (async (context: Task.Context, ...args: A): Promise<R> => {
+		if (args.length < signalArgIndex) {
+			const finalArgs = [...args] as unknown as A;
+			finalArgs[signalArgIndex] = { [signalPropName]: context.cancelledSignal };
 
-      return await fn(...finalArgs);
-    }
+			return await fn(...finalArgs);
+		}
 
-    const targetArg = args[signalArgIndex];
+		const targetArg = args[signalArgIndex];
 
-    using _ = cleanupOn(targetArg?.[signalPropName], context);
+		using _ = cleanupOn(targetArg?.[signalPropName], context);
 
-    const finalArgs = [...args] as unknown as A;
-    finalArgs[signalArgIndex] = {
-      ...targetArg,
-      [signalPropName]: context.cancelledSignal,
-    };
+		const finalArgs = [...args] as unknown as A;
+		finalArgs[signalArgIndex] = {
+			...targetArg,
+			[signalPropName]: context.cancelledSignal,
+		};
 
-    return await fn(...finalArgs);
-  }) as any;
+		return await fn(...finalArgs);
+	}) as any;
 }
 
-export function joinAll<R extends readonly any[]>(jobs: {
-  [K in keyof R]: Task.Job<R[K]>;
-}): Promise<R> {
-  return Promise.all(jobs.map((d) => d.join())) as Promise<any> as Promise<R>;
+export function joinAll<R extends readonly any[]>(
+	jobs: {
+		[K in keyof R]: Task.Job<R[K]>;
+	},
+): Promise<R> {
+	return Promise.all(jobs.map((d) => d.join())) as Promise<any> as Promise<R>;
 }

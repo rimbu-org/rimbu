@@ -1,12 +1,12 @@
 {
-  "compilerOptions": {
-    "paths": {
-      "@rimbu/stream": ["./entry/stream.mjs"],
-      "@rimbu/stream/async": ["./entry/async-stream.mjs"],
-      "@rimbu/stream/*": ["./public/*.mjs"],
-      "#async/*": ["./public/async/internal/*.mjs"],
-      "#stream/*": ["./public/internal/*.mjs"],
-      "#private/*": ["./private/*.mjs"]
-    }
-  }
+	"compilerOptions": {
+		"paths": {
+			"@rimbu/stream": ["./entry/stream.mjs"],
+			"@rimbu/stream/async": ["./entry/async-stream.mjs"],
+			"@rimbu/stream/*": ["./public/*.mjs"],
+			"#async/*": ["./public/async/internal/*.mjs"],
+			"#stream/*": ["./public/internal/*.mjs"],
+			"#private/*": ["./private/*.mjs"]
+		}
+	}
 }

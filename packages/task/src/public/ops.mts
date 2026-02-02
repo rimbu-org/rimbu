@@ -9,29 +9,29 @@ import { CancellationError } from '@rimbu/task/errors';
  * @returns A function that takes arguments and returns a Task executing the side-effect.
  */
 export function effect<R, A extends readonly any[] = []>(
-  fn: (...args: A) => R
+	fn: (...args: A) => R,
 ): (...args: A) => Task<R> {
-  return (...args) =>
-    () =>
-      fn(...args);
+	return (...args) =>
+		() =>
+			fn(...args);
 }
 
 /**
  * A Task that logs its direct arguments to the console.
  */
 export const clog: (
-  ...args: Parameters<(typeof console)['log']>
+	...args: Parameters<(typeof console)['log']>
 ) => Task<void> = effect((...args) => console.log(...args));
 
 /**
  * A Task that logs its Task arguments to the console.
  */
 export const clogArgs = <A extends readonly any[] = []>(
-  _context: Task.Context,
-  ...args: A
+	_context: Task.Context,
+	...args: A
 ): Task.Result<A> => {
-  console.log(...args);
-  return args;
+	console.log(...args);
+	return args;
 };
 
 /**
@@ -40,7 +40,7 @@ export const clogArgs = <A extends readonly any[] = []>(
  * @returns A Task that throws the specified error when executed.
  */
 export const throwErrorClass = effect((ErrorClass: { new (): any }) => {
-  throw new ErrorClass();
+	throw new ErrorClass();
 });
 
 /**
@@ -49,7 +49,7 @@ export const throwErrorClass = effect((ErrorClass: { new (): any }) => {
  * @returns A Task that throws the created error when executed.
  */
 export const throwError = effect((createError: () => any) => {
-  throw createError();
+	throw createError();
 });
 
 /**
@@ -58,7 +58,7 @@ export const throwError = effect((createError: () => any) => {
  * @returns A Task that delays execution for the specified time when executed.
  */
 export function delay(ms: number): Task<void, any[]> {
-  return (context) => context.delay(ms);
+	return (context) => context.delay(ms);
 }
 
 /**
@@ -68,17 +68,17 @@ export function delay(ms: number): Task<void, any[]> {
  * @returns A Task that represents the chained execution of the provided Tasks.
  */
 export function chain<RS extends any[], A extends any[]>(
-  tasks: Task.Chain<RS, A>
+	tasks: Task.Chain<RS, A>,
 ): Task<Last<RS>, A> {
-  return async (context, ...args) => {
-    let lastResult: any = args;
+	return async (context, ...args) => {
+		let lastResult: any = args;
 
-    for (const task of tasks) {
-      lastResult = await context.run(task, [lastResult] as any);
-    }
+		for (const task of tasks) {
+			lastResult = await context.run(task, [lastResult] as any);
+		}
 
-    return lastResult;
-  };
+		return lastResult;
+	};
 }
 
 /**
@@ -88,25 +88,25 @@ export function chain<RS extends any[], A extends any[]>(
  * @returns A Task that resolves with the result of the first completed Task.
  */
 export function race<R, A extends readonly any[] = []>(
-  tasks: Task<R, { [AK in keyof A]?: A[AK] }>[],
-  options: { maxBranch?: number | undefined } = {}
+	tasks: Task<R, { [AK in keyof A]?: A[AK] }>[],
+	options: { maxBranch?: number | undefined } = {},
 ): Task<R, A> {
-  return async (context, ...args) => {
-    return await context
-      .launch(
-        async (context) => {
-          const jobs = mapTasksToJobs(tasks, args, context);
+	return async (context, ...args) => {
+		return await context
+			.launch(
+				async (context) => {
+					const jobs = mapTasksToJobs(tasks, args, context);
 
-          try {
-            return (await Promise.race(jobs.map((p) => p.join()))) as R;
-          } finally {
-            context.cancelAllChildren();
-          }
-        },
-        { ...options, isSupervisor: true }
-      )
-      .join();
-  };
+					try {
+						return (await Promise.race(jobs.map((p) => p.join()))) as R;
+					} finally {
+						context.cancelAllChildren();
+					}
+				},
+				{ ...options, isSupervisor: true },
+			)
+			.join();
+	};
 }
 
 /**
@@ -117,23 +117,23 @@ export function race<R, A extends readonly any[] = []>(
  * @returns A Task that resolves with the result of the first successfully completed Task.
  */
 export function any<R, A extends readonly any[] = []>(
-  tasks: Task<R, { [AK in keyof A]?: A[AK] }>[],
-  options: { maxBranch?: number | undefined } = {}
+	tasks: Task<R, { [AK in keyof A]?: A[AK] }>[],
+	options: { maxBranch?: number | undefined } = {},
 ): Task<R, A> {
-  return async (context, ...args) => {
-    return await context
-      .launch(
-        async (context) => {
-          const jobs = mapTasksToJobs(tasks, args, context);
-          return await Promise.any(jobs.map((d) => d.join()));
-        },
-        {
-          ...options,
-          isSupervisor: true,
-        }
-      )
-      .join();
-  };
+	return async (context, ...args) => {
+		return await context
+			.launch(
+				async (context) => {
+					const jobs = mapTasksToJobs(tasks, args, context);
+					return await Promise.any(jobs.map((d) => d.join()));
+				},
+				{
+					...options,
+					isSupervisor: true,
+				},
+			)
+			.join();
+	};
 }
 
 /**
@@ -143,19 +143,19 @@ export function any<R, A extends readonly any[] = []>(
  * @returns A Task that resolves with an array of results from all completed Tasks.
  */
 export function all<RS extends any[], A extends readonly any[] = []>(
-  tasks: {
-    [K in keyof RS]: Task<RS[K], { [AK in keyof A]?: A[AK] }>;
-  },
-  options: { maxBranch?: number | undefined } = {}
+	tasks: {
+		[K in keyof RS]: Task<RS[K], { [AK in keyof A]?: A[AK] }>;
+	},
+	options: { maxBranch?: number | undefined } = {},
 ): Task<RS, A> {
-  return async (context, ...args) => {
-    return await context
-      .launch(async (context) => {
-        const jobs = mapTasksToJobs(tasks, args, context);
-        return (await Promise.all(jobs.map((d) => d.join()))) as RS;
-      }, options)
-      .join();
-  };
+	return async (context, ...args) => {
+		return await context
+			.launch(async (context) => {
+				const jobs = mapTasksToJobs(tasks, args, context);
+				return (await Promise.all(jobs.map((d) => d.join()))) as RS;
+			}, options)
+			.join();
+	};
 }
 
 /**
@@ -165,30 +165,30 @@ export function all<RS extends any[], A extends readonly any[] = []>(
  * @returns A Task that resolves with an array of PromiseSettledResult objects from all settled Tasks.
  */
 export function allSettled<RS extends any[], A extends readonly any[] = []>(
-  tasks: {
-    [K in keyof RS]: Task<RS[K], { [AK in keyof A]?: A[AK] }>;
-  },
-  options: { maxBranch?: number | undefined } = {}
+	tasks: {
+		[K in keyof RS]: Task<RS[K], { [AK in keyof A]?: A[AK] }>;
+	},
+	options: { maxBranch?: number | undefined } = {},
 ): Task<{ [K in keyof RS]: PromiseSettledResult<RS[K]> }, A> {
-  return async (context, ...args) => {
-    return await context
-      .launch(
-        async (context) => {
-          const jobs = mapTasksToJobs(tasks, args, context);
-          return (await Promise.allSettled(jobs.map((d) => d.join()))) as any;
-        },
-        { ...options, isSupervisor: true }
-      )
-      .join();
-  };
+	return async (context, ...args) => {
+		return await context
+			.launch(
+				async (context) => {
+					const jobs = mapTasksToJobs(tasks, args, context);
+					return (await Promise.allSettled(jobs.map((d) => d.join()))) as any;
+				},
+				{ ...options, isSupervisor: true },
+			)
+			.join();
+	};
 }
 
 function mapTasksToJobs<A extends readonly any[]>(
-  tasks: Task<unknown, A>[],
-  args: A,
-  context: Task.Context
+	tasks: Task<unknown, A>[],
+	args: A,
+	context: Task.Context,
 ): Task.Job<any>[] {
-  return tasks.map((task) => context.launch(task, { args }));
+	return tasks.map((task) => context.launch(task, { args }));
 }
 
 /**
@@ -196,14 +196,14 @@ function mapTasksToJobs<A extends readonly any[]>(
  * This is useful for stopping all ongoing child tasks.
  */
 export const cancelAllChildren: Task = (context) => {
-  context.cancelAllChildren();
+	context.cancelAllChildren();
 };
 
 /**
  * A Task that cancels the current context when executed.
  */
 export const cancelContext: Task = (context) => {
-  context.cancel();
+	context.cancel();
 };
 
 /**
@@ -211,61 +211,61 @@ export const cancelContext: Task = (context) => {
  * If there is no parent context, it throws a CancellationError.
  */
 export const cancelParent: Task = (context) => {
-  const parent = context.parent;
-  if (parent) {
-    parent.cancel();
-  } else {
-    throw new CancellationError();
-  }
+	const parent = context.parent;
+	if (parent) {
+		parent.cancel();
+	} else {
+		throw new CancellationError();
+	}
 };
 
 export const runSingleCancelPrevious: {
-  (
-    context?: Task.Context | undefined
-  ): <R, A extends readonly any[]>(task: Task<R, A>, ...args: A) => Task.Job<R>;
-  (context?: Task.Context | undefined): <R>(task: Task<R>) => Task.Job<R>;
+	(
+		context?: Task.Context | undefined,
+	): <R, A extends readonly any[]>(task: Task<R, A>, ...args: A) => Task.Job<R>;
+	(context?: Task.Context | undefined): <R>(task: Task<R>) => Task.Job<R>;
 } = (context = Task.rootContext) => {
-  let current: Task.Job | undefined;
+	let current: Task.Job | undefined;
 
-  return (task: Task<any, any[]>, ...args: any[]) => {
-    current?.cancel();
-    current = context.launch(
-      [
-        task,
-        (): void => {
-          current = undefined;
-        },
-      ],
-      { args, maxBranch: 1 }
-    );
+	return (task: Task<any, any[]>, ...args: any[]) => {
+		current?.cancel();
+		current = context.launch(
+			[
+				task,
+				(): void => {
+					current = undefined;
+				},
+			],
+			{ args, maxBranch: 1 },
+		);
 
-    return current;
-  };
+		return current;
+	};
 };
 
 export const runSingleCancelNew: {
-  (
-    context?: Task.Context | undefined
-  ): <R, A extends readonly any[]>(task: Task<R, A>, ...args: A) => Task.Job<R>;
-  (context?: Task.Context | undefined): <R>(task: Task<R>) => Task.Job<R>;
+	(
+		context?: Task.Context | undefined,
+	): <R, A extends readonly any[]>(task: Task<R, A>, ...args: A) => Task.Job<R>;
+	(context?: Task.Context | undefined): <R>(task: Task<R>) => Task.Job<R>;
 } = (context = Task.rootContext) => {
-  let current: Task.Job | undefined;
+	let current: Task.Job | undefined;
 
-  return (task: Task<any, any[]>, ...args: any[]) => {
-    if (current) {
-      return context.launch(cancelContext);
-    }
+	return (task: Task<any, any[]>, ...args: any[]) => {
+		if (current) {
+			return context.launch(cancelContext);
+		}
 
-    current = context.launch(
-      [
-        task,
-        (): void => {
-          current = undefined;
-        },
-      ],
-      { args }
-    );
+		current = context.launch(
+			[
+				task,
+				(): void => {
+					current = undefined;
+				},
+			],
+			{ args },
+		);
 
-    return current;
-  };
+		return current;
+	};
 };

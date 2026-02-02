@@ -1,14 +1,14 @@
 {
-  "compilerOptions": {
-    "paths": {
-      "@rimbu/ordered": ["./entry/ordered.mjs"],
-      "@rimbu/ordered/map": ["./entry/map.mjs"],
-      "@rimbu/ordered/set": ["./entry/set.mjs"],
-      "@rimbu/ordered/*": ["./public/*.mjs"],
-      "#ordered/*": ["./public/internal/ordered/*.mjs"],
-      "#map/*": ["./public/internal/map/*.mjs"],
-      "#set/*": ["./public/internal/set/*.mjs"],
-      "#private/*": ["./private/*.mjs"]
-    }
-  }
+	"compilerOptions": {
+		"paths": {
+			"@rimbu/ordered": ["./entry/ordered.mjs"],
+			"@rimbu/ordered/map": ["./entry/map.mjs"],
+			"@rimbu/ordered/set": ["./entry/set.mjs"],
+			"@rimbu/ordered/*": ["./public/*.mjs"],
+			"#ordered/*": ["./public/internal/ordered/*.mjs"],
+			"#map/*": ["./public/internal/map/*.mjs"],
+			"#set/*": ["./public/internal/set/*.mjs"],
+			"#private/*": ["./private/*.mjs"]
+		}
+	}
 }

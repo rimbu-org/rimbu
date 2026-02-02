@@ -7,131 +7,131 @@ import type { ContextFactory } from '#list/context-factory';
 import type { List } from '@rimbu/list';
 
 export class Empty<T = any> extends EmptyBase implements List<T> {
-  declare _NonEmptyType: List.NonEmpty<T>;
+	declare _NonEmptyType: List.NonEmpty<T>;
 
-  constructor(readonly context: ContextFactory) {
-    super();
-  }
+	constructor(readonly context: ContextFactory) {
+		super();
+	}
 
-  streamRange(): Stream<T> {
-    return Stream.empty();
-  }
+	streamRange(): Stream<T> {
+		return Stream.empty();
+	}
 
-  first<O>(otherwise?: OptLazy<O>): O {
-    return OptLazy(otherwise) as O;
-  }
+	first<O>(otherwise?: OptLazy<O>): O {
+		return OptLazy(otherwise) as O;
+	}
 
-  last<O>(otherwise?: OptLazy<O>): O {
-    return OptLazy(otherwise) as O;
-  }
+	last<O>(otherwise?: OptLazy<O>): O {
+		return OptLazy(otherwise) as O;
+	}
 
-  get<O>(index: number, otherwise?: OptLazy<O>): O {
-    return OptLazy(otherwise) as O;
-  }
+	get<O>(index: number, otherwise?: OptLazy<O>): O {
+		return OptLazy(otherwise) as O;
+	}
 
-  prepend(value: T): List.NonEmpty<T> {
-    return this.context.leafBlock([value]);
-  }
+	prepend(value: T): List.NonEmpty<T> {
+		return this.context.leafBlock([value]);
+	}
 
-  append(value: T): List.NonEmpty<T> {
-    return this.context.leafBlock([value]);
-  }
+	append(value: T): List.NonEmpty<T> {
+		return this.context.leafBlock([value]);
+	}
 
-  take(): this {
-    return this;
-  }
+	take(): this {
+		return this;
+	}
 
-  drop(): this {
-    return this;
-  }
+	drop(): this {
+		return this;
+	}
 
-  slice(): this {
-    return this;
-  }
+	slice(): this {
+		return this;
+	}
 
-  sort(): this {
-    return this;
-  }
+	sort(): this {
+		return this;
+	}
 
-  splice(options: { insert?: StreamSource<T> }): any {
-    if (undefined === options.insert) return this;
+	splice(options: { insert?: StreamSource<T> }): any {
+		if (undefined === options.insert) return this;
 
-    return this.context.from(options.insert);
-  }
+		return this.context.from(options.insert);
+	}
 
-  insert(index: number, values: StreamSource<T>): any {
-    return this.splice({ insert: values });
-  }
+	insert(index: number, values: StreamSource<T>): any {
+		return this.splice({ insert: values });
+	}
 
-  remove(): this {
-    return this;
-  }
+	remove(): this {
+		return this;
+	}
 
-  concat<T2>(...sources: ArrayNonEmpty<StreamSource<T2>>): any {
-    return this.context.from(...sources);
-  }
+	concat<T2>(...sources: ArrayNonEmpty<StreamSource<T2>>): any {
+		return this.context.from(...sources);
+	}
 
-  repeat(): this {
-    return this;
-  }
+	repeat(): this {
+		return this;
+	}
 
-  rotate(): this {
-    return this;
-  }
+	rotate(): this {
+		return this;
+	}
 
-  padTo(length: number, fill: any): List<any> {
-    if (length <= 0) return this;
-    return this.append(fill).repeat(length);
-  }
+	padTo(length: number, fill: any): List<any> {
+		if (length <= 0) return this;
+		return this.append(fill).repeat(length);
+	}
 
-  updateAt(): this {
-    return this;
-  }
+	updateAt(): this {
+		return this;
+	}
 
-  filter(): any {
-    return this;
-  }
+	filter(): any {
+		return this;
+	}
 
-  collect(): any {
-    return this;
-  }
+	collect(): any {
+		return this;
+	}
 
-  map(): any {
-    return this;
-  }
+	map(): any {
+		return this;
+	}
 
-  mapPure(): any {
-    return this;
-  }
+	mapPure(): any {
+		return this;
+	}
 
-  flatMap(): any {
-    return this;
-  }
+	flatMap(): any {
+		return this;
+	}
 
-  reversed(): this {
-    return this;
-  }
+	reversed(): this {
+		return this;
+	}
 
-  toArray(): [] {
-    return [];
-  }
+	toArray(): [] {
+		return [];
+	}
 
-  toBuilder(): List.Builder<T> {
-    return this.context.builder();
-  }
+	toBuilder(): List.Builder<T> {
+		return this.context.builder();
+	}
 
-  structure(): string {
-    return '<empty>';
-  }
+	structure(): string {
+		return '<empty>';
+	}
 
-  toString(): string {
-    return `List()`;
-  }
+	toString(): string {
+		return `List()`;
+	}
 
-  toJSON(): ToJSON<any[], this['context']['typeTag']> {
-    return {
-      dataType: this.context.typeTag,
-      value: [],
-    };
-  }
+	toJSON(): ToJSON<any[], this['context']['typeTag']> {
+		return {
+			dataType: this.context.typeTag,
+			value: [],
+		};
+	}
 }

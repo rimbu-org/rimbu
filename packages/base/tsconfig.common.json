@@ -1,9 +1,9 @@
 {
-  "compilerOptions": {
-    "rootDir": ".",
-    "baseUrl": "./src",
-    "paths": {
-      "@rimbu/base/*": ["./*.mjs"]
-    }
-  }
+	"compilerOptions": {
+		"rootDir": ".",
+		"baseUrl": "./src",
+		"paths": {
+			"@rimbu/base/*": ["./*.mjs"]
+		}
+	}
 }

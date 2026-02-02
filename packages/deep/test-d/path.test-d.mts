@@ -4,15 +4,15 @@ import { expectError, expectType } from 'tsd';
 import { getAt } from '../src/index.mjs';
 
 let m!: {
-  a: number;
-  b: string[];
-  c: {
-    d: boolean;
-    e: [number, string] | null;
-    f: string | null;
-  };
-  g: List.NonEmpty<number>;
-  h: { i: number } | null;
+	a: number;
+	b: string[];
+	c: {
+		d: boolean;
+		e: [number, string] | null;
+		f: string | null;
+	};
+	g: List.NonEmpty<number>;
+	h: { i: number } | null;
 };
 
 type M = typeof m;

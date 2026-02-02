@@ -10,10 +10,10 @@ import type { Path } from '@rimbu/deep/path';
  * @typeparam C - utility type
  */
 export type Match<T, C extends Partial<T> = Partial<T>> = MatchInternal.Entry<
-  T,
-  C,
-  T,
-  T
+	T,
+	C,
+	T,
+	T
 >;
 
 /**
@@ -36,505 +36,505 @@ export type Match<T, C extends Partial<T> = Partial<T>> = MatchInternal.Entry<
  * ```
  */
 export function match<T, C extends Partial<T> = Partial<T>>(
-  source: T,
-  matcher: Match<T, C>,
-  failureLog?: string[]
+	source: T,
+	matcher: Match<T, C>,
+	failureLog?: string[],
 ): boolean {
-  return matchEntry(source, source, source, matcher as any, failureLog);
+	return matchEntry(source, source, source, matcher as any, failureLog);
 }
 
 /**
  * Match a generic match entry against the given source.
  */
 function matchEntry<T, C, P, R>(
-  source: T,
-  parent: P,
-  root: R,
-  matcher: MatchInternal.Entry<T, C, P, R>,
-  failureLog?: string[]
+	source: T,
+	parent: P,
+	root: R,
+	matcher: MatchInternal.Entry<T, C, P, R>,
+	failureLog?: string[],
 ): boolean {
-  if (Object.is(source, matcher)) {
-    // value and target are exactly the same, always will be true
-    return true;
-  }
+	if (Object.is(source, matcher)) {
+		// value and target are exactly the same, always will be true
+		return true;
+	}
 
-  if (matcher === null || matcher === undefined) {
-    // these matchers can only be direct matches, and previously it was determined that
-    // they are not equal
-    failureLog?.push(
-      `value ${JSON.stringify(source)} did not match matcher ${matcher}`
-    );
+	if (matcher === null || matcher === undefined) {
+		// these matchers can only be direct matches, and previously it was determined that
+		// they are not equal
+		failureLog?.push(
+			`value ${JSON.stringify(source)} did not match matcher ${matcher}`,
+		);
 
-    return false;
-  }
+		return false;
+	}
 
-  if (typeof source === 'function') {
-    // function source values can only be directly matched
-    const result = Object.is(source, matcher);
+	if (typeof source === 'function') {
+		// function source values can only be directly matched
+		const result = Object.is(source, matcher);
 
-    if (!result) {
-      failureLog?.push(
-        `both value and matcher are functions, but they do not have the same reference`
-      );
-    }
+		if (!result) {
+			failureLog?.push(
+				`both value and matcher are functions, but they do not have the same reference`,
+			);
+		}
 
-    return result;
-  }
+		return result;
+	}
 
-  if (typeof matcher === 'function') {
-    // resolve match function first
-    const matcherResult = matcher(source, parent, root);
+	if (typeof matcher === 'function') {
+		// resolve match function first
+		const matcherResult = matcher(source, parent, root);
 
-    if (typeof matcherResult === 'boolean') {
-      // function resulted in a direct match result
+		if (typeof matcherResult === 'boolean') {
+			// function resulted in a direct match result
 
-      if (!matcherResult) {
-        failureLog?.push(
-          `function matcher returned false for value ${JSON.stringify(source)}`
-        );
-      }
+			if (!matcherResult) {
+				failureLog?.push(
+					`function matcher returned false for value ${JSON.stringify(source)}`,
+				);
+			}
 
-      return matcherResult;
-    }
+			return matcherResult;
+		}
 
-    // function resulted in a value that needs to be further matched
-    return matchEntry(source, parent, root, matcherResult, failureLog);
-  }
+		// function resulted in a value that needs to be further matched
+		return matchEntry(source, parent, root, matcherResult, failureLog);
+	}
 
-  if (isPlainObj(source)) {
-    // source ia a plain object, can be partially matched
-    return matchPlainObj(source, parent, root, matcher as any, failureLog);
-  }
+	if (isPlainObj(source)) {
+		// source ia a plain object, can be partially matched
+		return matchPlainObj(source, parent, root, matcher as any, failureLog);
+	}
 
-  if (Array.isArray(source)) {
-    // source is an array
-    return matchArr(source, parent, root, matcher as any, failureLog);
-  }
+	if (Array.isArray(source)) {
+		// source is an array
+		return matchArr(source, parent, root, matcher as any, failureLog);
+	}
 
-  // already determined above that the source and matcher are not equal
+	// already determined above that the source and matcher are not equal
 
-  failureLog?.push(
-    `value ${JSON.stringify(source)} does not match given matcher ${JSON.stringify(matcher)}`
-  );
+	failureLog?.push(
+		`value ${JSON.stringify(source)} does not match given matcher ${JSON.stringify(matcher)}`,
+	);
 
-  return false;
+	return false;
 }
 
 /**
  * Match an array matcher against the given source.
  */
 function matchArr<T extends any[], C, P, R>(
-  source: T,
-  parent: P,
-  root: R,
-  matcher: MatchInternal.Arr<T, C, P, R>,
-  failureLog?: string[]
+	source: T,
+	parent: P,
+	root: R,
+	matcher: MatchInternal.Arr<T, C, P, R>,
+	failureLog?: string[],
 ): boolean {
-  if (Array.isArray(matcher)) {
-    // directly compare array contents
-    const length = source.length;
+	if (Array.isArray(matcher)) {
+		// directly compare array contents
+		const length = source.length;
 
-    if (length !== matcher.length) {
-      // if lengths not equal, arrays are not equal
+		if (length !== matcher.length) {
+			// if lengths not equal, arrays are not equal
 
-      failureLog?.push(
-        `array lengths are not equal: value length ${source.length} !== matcher length ${matcher.length}`
-      );
+			failureLog?.push(
+				`array lengths are not equal: value length ${source.length} !== matcher length ${matcher.length}`,
+			);
 
-      return false;
-    }
+			return false;
+		}
 
-    // loop over arrays, matching every value
-    let index = -1;
-    while (++index < length) {
-      if (
-        !matchEntry(source[index], source, root, matcher[index], failureLog)
-      ) {
-        // item did not match, return false
+		// loop over arrays, matching every value
+		let index = -1;
+		while (++index < length) {
+			if (
+				!matchEntry(source[index], source, root, matcher[index], failureLog)
+			) {
+				// item did not match, return false
 
-        failureLog?.push(
-          `index ${index} does not match with value ${JSON.stringify(
-            source[index]
-          )} and matcher ${matcher[index]}`
-        );
+				failureLog?.push(
+					`index ${index} does not match with value ${JSON.stringify(
+						source[index],
+					)} and matcher ${matcher[index]}`,
+				);
 
-        return false;
-      }
-    }
+				return false;
+			}
+		}
 
-    // all items are equal
-    return true;
-  }
+		// all items are equal
+		return true;
+	}
 
-  // matcher is plain object
+	// matcher is plain object
 
-  if (typeof matcher === 'object' && null !== matcher) {
-    if (`every` in matcher) {
-      return matchCompound(
-        source,
-        parent,
-        root,
-        ['every', ...(matcher.every as any)],
-        failureLog
-      );
-    }
-    if (`some` in matcher) {
-      return matchCompound(
-        source,
-        parent,
-        root,
-        ['some', ...(matcher.some as any)],
-        failureLog
-      );
-    }
-    if (`none` in matcher) {
-      return matchCompound(
-        source,
-        parent,
-        root,
-        ['none', ...(matcher.none as any)],
-        failureLog
-      );
-    }
-    if (`single` in matcher) {
-      return matchCompound(
-        source,
-        parent,
-        root,
-        ['single', ...(matcher.single as any)],
-        failureLog
-      );
-    }
-    if (`someItem` in matcher) {
-      return matchTraversal(
-        source,
-        root,
-        'someItem',
-        matcher.someItem as any,
-        failureLog
-      );
-    }
-    if (`everyItem` in matcher) {
-      return matchTraversal(
-        source,
-        root,
-        'everyItem',
-        matcher.everyItem as any,
-        failureLog
-      );
-    }
-    if (`noneItem` in matcher) {
-      return matchTraversal(
-        source,
-        root,
-        'noneItem',
-        matcher.noneItem as any,
-        failureLog
-      );
-    }
-    if (`singleItem` in matcher) {
-      return matchTraversal(
-        source,
-        root,
-        'singleItem',
-        matcher.singleItem as any,
-        failureLog
-      );
-    }
-  }
+	if (typeof matcher === 'object' && null !== matcher) {
+		if (`every` in matcher) {
+			return matchCompound(
+				source,
+				parent,
+				root,
+				['every', ...(matcher.every as any)],
+				failureLog,
+			);
+		}
+		if (`some` in matcher) {
+			return matchCompound(
+				source,
+				parent,
+				root,
+				['some', ...(matcher.some as any)],
+				failureLog,
+			);
+		}
+		if (`none` in matcher) {
+			return matchCompound(
+				source,
+				parent,
+				root,
+				['none', ...(matcher.none as any)],
+				failureLog,
+			);
+		}
+		if (`single` in matcher) {
+			return matchCompound(
+				source,
+				parent,
+				root,
+				['single', ...(matcher.single as any)],
+				failureLog,
+			);
+		}
+		if (`someItem` in matcher) {
+			return matchTraversal(
+				source,
+				root,
+				'someItem',
+				matcher.someItem as any,
+				failureLog,
+			);
+		}
+		if (`everyItem` in matcher) {
+			return matchTraversal(
+				source,
+				root,
+				'everyItem',
+				matcher.everyItem as any,
+				failureLog,
+			);
+		}
+		if (`noneItem` in matcher) {
+			return matchTraversal(
+				source,
+				root,
+				'noneItem',
+				matcher.noneItem as any,
+				failureLog,
+			);
+		}
+		if (`singleItem` in matcher) {
+			return matchTraversal(
+				source,
+				root,
+				'singleItem',
+				matcher.singleItem as any,
+				failureLog,
+			);
+		}
+	}
 
-  // matcher is plain object with index keys
+	// matcher is plain object with index keys
 
-  for (const index in matcher as any) {
-    const matcherAtIndex = (matcher as any)[index];
+	for (const index in matcher as any) {
+		const matcherAtIndex = (matcher as any)[index];
 
-    if (!(index in source)) {
-      // source does not have item at given index
+		if (!(index in source)) {
+			// source does not have item at given index
 
-      failureLog?.push(
-        `index ${index} does not exist in source ${JSON.stringify(
-          source
-        )} but should match matcher ${JSON.stringify(matcherAtIndex)}`
-      );
+			failureLog?.push(
+				`index ${index} does not exist in source ${JSON.stringify(
+					source,
+				)} but should match matcher ${JSON.stringify(matcherAtIndex)}`,
+			);
 
-      return false;
-    }
+			return false;
+		}
 
-    // match the source item at the given index
-    const result = matchEntry(
-      (source as any)[index],
-      source,
-      root,
-      matcherAtIndex,
-      failureLog
-    );
+		// match the source item at the given index
+		const result = matchEntry(
+			(source as any)[index],
+			source,
+			root,
+			matcherAtIndex,
+			failureLog,
+		);
 
-    if (!result) {
-      // item did not match
+		if (!result) {
+			// item did not match
 
-      failureLog?.push(
-        `index ${index} does not match with value ${JSON.stringify(
-          (source as any)[index]
-        )} and matcher ${JSON.stringify(matcherAtIndex)}`
-      );
+			failureLog?.push(
+				`index ${index} does not match with value ${JSON.stringify(
+					(source as any)[index],
+				)} and matcher ${JSON.stringify(matcherAtIndex)}`,
+			);
 
-      return false;
-    }
-  }
+			return false;
+		}
+	}
 
-  // all items match
+	// all items match
 
-  return true;
+	return true;
 }
 
 /**
  * Match an object matcher against the given source.
  */
 function matchPlainObj<T extends object, C, P, R>(
-  source: T,
-  parent: P,
-  root: R,
-  matcher: MatchInternal.Obj<T, C, P, R>,
-  failureLog?: string[]
+	source: T,
+	parent: P,
+	root: R,
+	matcher: MatchInternal.Obj<T, C, P, R>,
+	failureLog?: string[],
 ): boolean {
-  if (Array.isArray(matcher)) {
-    // the matcher is of compound type
-    return matchCompound(source, parent, root, matcher as any, failureLog);
-  }
+	if (Array.isArray(matcher)) {
+		// the matcher is of compound type
+		return matchCompound(source, parent, root, matcher as any, failureLog);
+	}
 
-  // partial object props matcher
+	// partial object props matcher
 
-  for (const key in matcher) {
-    if (!(key in source)) {
-      // the source does not have the given key
+	for (const key in matcher) {
+		if (!(key in source)) {
+			// the source does not have the given key
 
-      failureLog?.push(
-        `key ${key} is specified in matcher but not present in value ${JSON.stringify(source)}`
-      );
+			failureLog?.push(
+				`key ${key} is specified in matcher but not present in value ${JSON.stringify(source)}`,
+			);
 
-      return false;
-    }
+			return false;
+		}
 
-    // match the source value at the given key with the matcher at given key
-    const result = matchEntry(
-      (source as any)[key],
-      source,
-      root,
-      matcher[key],
-      failureLog
-    );
+		// match the source value at the given key with the matcher at given key
+		const result = matchEntry(
+			(source as any)[key],
+			source,
+			root,
+			matcher[key],
+			failureLog,
+		);
 
-    if (!result) {
-      failureLog?.push(
-        `key ${key} does not match in value ${JSON.stringify(
-          (source as any)[key]
-        )} with matcher ${JSON.stringify(matcher[key])}`
-      );
-      return false;
-    }
-  }
+		if (!result) {
+			failureLog?.push(
+				`key ${key} does not match in value ${JSON.stringify(
+					(source as any)[key],
+				)} with matcher ${JSON.stringify(matcher[key])}`,
+			);
+			return false;
+		}
+	}
 
-  // all properties match
+	// all properties match
 
-  return true;
+	return true;
 }
 
 /**
  * Match a compound matcher against the given source.
  */
 function matchCompound<T, C, P, R>(
-  source: T,
-  parent: P,
-  root: R,
-  compound: [MatchInternal.CompoundType, ...MatchInternal.Entry<T, C, P, R>[]],
-  failureLog?: string[]
+	source: T,
+	parent: P,
+	root: R,
+	compound: [MatchInternal.CompoundType, ...MatchInternal.Entry<T, C, P, R>[]],
+	failureLog?: string[],
 ): boolean {
-  // first item indicates compound match type
-  const matchType = compound[0];
+	// first item indicates compound match type
+	const matchType = compound[0];
 
-  const length = compound.length;
+	const length = compound.length;
 
-  // start at index 1
-  let index = 0;
+	// start at index 1
+	let index = 0;
 
-  type Entry = MatchInternal.Entry<T, C, P, R>;
+	type Entry = MatchInternal.Entry<T, C, P, R>;
 
-  switch (matchType) {
-    case 'every': {
-      while (++index < length) {
-        // if any item does not match, return false
-        const result = matchEntry(
-          source,
-          parent,
-          root,
-          compound[index] as Entry,
-          failureLog
-        );
+	switch (matchType) {
+		case 'every': {
+			while (++index < length) {
+				// if any item does not match, return false
+				const result = matchEntry(
+					source,
+					parent,
+					root,
+					compound[index] as Entry,
+					failureLog,
+				);
 
-        if (!result) {
-          failureLog?.push(
-            `in compound "every": match at index ${index} failed`
-          );
+				if (!result) {
+					failureLog?.push(
+						`in compound "every": match at index ${index} failed`,
+					);
 
-          return false;
-        }
-      }
+					return false;
+				}
+			}
 
-      return true;
-    }
-    case 'none': {
-      // if any item matches, return false
-      while (++index < length) {
-        const result = matchEntry(
-          source,
-          parent,
-          root,
-          compound[index] as Entry,
-          failureLog
-        );
+			return true;
+		}
+		case 'none': {
+			// if any item matches, return false
+			while (++index < length) {
+				const result = matchEntry(
+					source,
+					parent,
+					root,
+					compound[index] as Entry,
+					failureLog,
+				);
 
-        if (result) {
-          failureLog?.push(
-            `in compound "none": match at index ${index} succeeded`
-          );
+				if (result) {
+					failureLog?.push(
+						`in compound "none": match at index ${index} succeeded`,
+					);
 
-          return false;
-        }
-      }
+					return false;
+				}
+			}
 
-      return true;
-    }
-    case 'single': {
-      // if not exactly one item matches, return false
-      let onePassed = false;
+			return true;
+		}
+		case 'single': {
+			// if not exactly one item matches, return false
+			let onePassed = false;
 
-      while (++index < length) {
-        const result = matchEntry(
-          source,
-          parent,
-          root,
-          compound[index] as Entry,
-          failureLog
-        );
+			while (++index < length) {
+				const result = matchEntry(
+					source,
+					parent,
+					root,
+					compound[index] as Entry,
+					failureLog,
+				);
 
-        if (result) {
-          if (onePassed) {
-            failureLog?.push(
-              `in compound "single": multiple matches succeeded`
-            );
+				if (result) {
+					if (onePassed) {
+						failureLog?.push(
+							`in compound "single": multiple matches succeeded`,
+						);
 
-            return false;
-          }
+						return false;
+					}
 
-          onePassed = true;
-        }
-      }
+					onePassed = true;
+				}
+			}
 
-      if (!onePassed) {
-        failureLog?.push(`in compound "single": no matches succeeded`);
-      }
+			if (!onePassed) {
+				failureLog?.push(`in compound "single": no matches succeeded`);
+			}
 
-      return onePassed;
-    }
-    case 'some': {
-      // if any item matches, return true
-      while (++index < length) {
-        const result = matchEntry(
-          source,
-          parent,
-          root,
-          compound[index] as Entry,
-          failureLog
-        );
+			return onePassed;
+		}
+		case 'some': {
+			// if any item matches, return true
+			while (++index < length) {
+				const result = matchEntry(
+					source,
+					parent,
+					root,
+					compound[index] as Entry,
+					failureLog,
+				);
 
-        if (result) {
-          return true;
-        }
-      }
+				if (result) {
+					return true;
+				}
+			}
 
-      failureLog?.push(`in compound "some": no matches succeeded`);
+			failureLog?.push(`in compound "some": no matches succeeded`);
 
-      return false;
-    }
-  }
+			return false;
+		}
+	}
 }
 
 function matchTraversal<T extends any[], C extends any[], R>(
-  source: T,
-  root: R,
-  matchType: MatchInternal.ArrayTraversalType,
-  matcher: MatchInternal.Entry<T[keyof T], C[keyof C], T, R>,
-  failureLog?: string[]
+	source: T,
+	root: R,
+	matchType: MatchInternal.ArrayTraversalType,
+	matcher: MatchInternal.Entry<T[keyof T], C[keyof C], T, R>,
+	failureLog?: string[],
 ): boolean {
-  let index = -1;
-  const length = source.length;
+	let index = -1;
+	const length = source.length;
 
-  switch (matchType) {
-    case 'someItem': {
-      while (++index < length) {
-        if (matchEntry(source[index], source, root, matcher, failureLog)) {
-          return true;
-        }
-      }
+	switch (matchType) {
+		case 'someItem': {
+			while (++index < length) {
+				if (matchEntry(source[index], source, root, matcher, failureLog)) {
+					return true;
+				}
+			}
 
-      failureLog?.push(
-        `in array traversal "someItem": no items matched given matcher`
-      );
+			failureLog?.push(
+				`in array traversal "someItem": no items matched given matcher`,
+			);
 
-      return false;
-    }
-    case 'everyItem': {
-      while (++index < length) {
-        if (!matchEntry(source[index], source, root, matcher, failureLog)) {
-          failureLog?.push(
-            `in array traversal "everyItem": at least one item did not match given matcher`
-          );
-          return false;
-        }
-      }
+			return false;
+		}
+		case 'everyItem': {
+			while (++index < length) {
+				if (!matchEntry(source[index], source, root, matcher, failureLog)) {
+					failureLog?.push(
+						`in array traversal "everyItem": at least one item did not match given matcher`,
+					);
+					return false;
+				}
+			}
 
-      return true;
-    }
-    case 'noneItem': {
-      while (++index < length) {
-        if (matchEntry(source[index], source, root, matcher, failureLog)) {
-          failureLog?.push(
-            `in array traversal "noneItem": at least one item matched given matcher`
-          );
-          return false;
-        }
-      }
+			return true;
+		}
+		case 'noneItem': {
+			while (++index < length) {
+				if (matchEntry(source[index], source, root, matcher, failureLog)) {
+					failureLog?.push(
+						`in array traversal "noneItem": at least one item matched given matcher`,
+					);
+					return false;
+				}
+			}
 
-      return true;
-    }
-    case 'singleItem': {
-      let singleMatched = false;
+			return true;
+		}
+		case 'singleItem': {
+			let singleMatched = false;
 
-      while (++index < length) {
-        if (matchEntry(source[index], source, root, matcher, failureLog)) {
-          if (singleMatched) {
-            failureLog?.push(
-              `in array traversal "singleItem": more than one item matched given matcher`
-            );
+			while (++index < length) {
+				if (matchEntry(source[index], source, root, matcher, failureLog)) {
+					if (singleMatched) {
+						failureLog?.push(
+							`in array traversal "singleItem": more than one item matched given matcher`,
+						);
 
-            return false;
-          }
+						return false;
+					}
 
-          singleMatched = true;
-        }
-      }
+					singleMatched = true;
+				}
+			}
 
-      if (!singleMatched) {
-        failureLog?.push(
-          `in array traversal "singleItem": no item matched given matcher`
-        );
+			if (!singleMatched) {
+				failureLog?.push(
+					`in array traversal "singleItem": no item matched given matcher`,
+				);
 
-        return false;
-      }
+				return false;
+			}
 
-      return true;
-    }
-  }
+			return true;
+		}
+	}
 }
 
 /**
@@ -552,11 +552,11 @@ function matchTraversal<T extends any[], C extends any[], R>(
  * ```
  */
 export function matchAt<T, P extends Path.Get<T>>(
-  source: T,
-  path: P,
-  matcher: Match<Path.Result<T, P>>
+	source: T,
+	path: P,
+	matcher: Match<Path.Result<T, P>>,
 ): boolean {
-  return match(getAt(source, path), matcher);
+	return match(getAt(source, path), matcher);
 }
 
 /**
@@ -572,7 +572,7 @@ export function matchAt<T, P extends Path.Get<T>>(
  * ```
  */
 export function matchWith<T>(matcher: Match<T>): (source: T) => boolean {
-  return (source) => match(source, matcher);
+	return (source) => match(source, matcher);
 }
 
 /**
@@ -591,8 +591,8 @@ export function matchWith<T>(matcher: Match<T>): (source: T) => boolean {
  * ```
  */
 export function matchAtWith<T, P extends Path.Get<T>, TE extends T = T>(
-  path: P,
-  matcher: Match<Path.Result<T & TE, P>>
+	path: P,
+	matcher: Match<Path.Result<T & TE, P>>,
 ): (source: T) => boolean {
-  return (source) => matchAt(source, path, matcher as any);
+	return (source) => matchAt(source, path, matcher as any);
 }

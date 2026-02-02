@@ -8,85 +8,85 @@ import type { OrderedSetBase } from '#set/base';
 import type { OrderedSetTypes } from '#set/context';
 
 export class OrderedSetEmpty<
-    T,
-    Tp extends OrderedSetTypes,
-    TpG extends WithElem<Tp, T> = WithElem<Tp, T>,
-  >
-  extends EmptyBase
-  implements OrderedSetBase<T, Tp>
+		T,
+		Tp extends OrderedSetTypes,
+		TpG extends WithElem<Tp, T> = WithElem<Tp, T>,
+	>
+	extends EmptyBase
+	implements OrderedSetBase<T, Tp>
 {
-  declare _NonEmptyType: Tp['nonEmpty'];
+	declare _NonEmptyType: Tp['nonEmpty'];
 
-  constructor(readonly context: WithElem<Tp, T>['context']) {
-    super();
-  }
+	constructor(readonly context: WithElem<Tp, T>['context']) {
+		super();
+	}
 
-  get order(): List<T> {
-    return this.context.listContext.empty();
-  }
+	get order(): List<T> {
+		return this.context.listContext.empty();
+	}
 
-  get sourceSet(): TpG['sourceSet'] {
-    return this.context.setContext.empty();
-  }
+	get sourceSet(): TpG['sourceSet'] {
+		return this.context.setContext.empty();
+	}
 
-  has(): false {
-    return false;
-  }
+	has(): false {
+		return false;
+	}
 
-  add(value: T): TpG['nonEmpty'] {
-    return this.context.createNonEmpty(
-      this.context.listContext.of(value),
-      this.context.setContext.of(value)
-    );
-  }
+	add(value: T): TpG['nonEmpty'] {
+		return this.context.createNonEmpty(
+			this.context.listContext.of(value),
+			this.context.setContext.of(value),
+		);
+	}
 
-  addAll(values: StreamSource<T>): any {
-    return this.context.from(values);
-  }
+	addAll(values: StreamSource<T>): any {
+		return this.context.from(values);
+	}
 
-  remove(): TpG['normal'] {
-    return this as any;
-  }
+	remove(): TpG['normal'] {
+		return this as any;
+	}
 
-  removeAll(): TpG['normal'] {
-    return this as any;
-  }
+	removeAll(): TpG['normal'] {
+		return this as any;
+	}
 
-  union(other: StreamSource<T>): TpG['normal'] | any {
-    if (
-      this.context.isNonEmptyInstance(other) &&
-      (other as any).context === this.context
-    ) {
-      return other;
-    }
+	union(other: StreamSource<T>): TpG['normal'] | any {
+		if (
+			this.context.isNonEmptyInstance(other) &&
+			(other as any).context === this.context
+		) {
+			return other;
+		}
 
-    return this.context.from(other);
-  }
+		return this.context.from(other);
+	}
 
-  difference(): TpG['normal'] {
-    return this.context.empty();
-  }
+	difference(): TpG['normal'] {
+		return this.context.empty();
+	}
 
-  intersect(): TpG['normal'] {
-    return this.context.empty();
-  }
+	intersect(): TpG['normal'] {
+		return this.context.empty();
+	}
 
-  symDifference(other: StreamSource<T>): TpG['normal'] {
-    return this.union(other);
-  }
+	symDifference(other: StreamSource<T>): TpG['normal'] {
+		return this.union(other);
+	}
 
-  toBuilder(): TpG['builder'] {
-    return this.context.builder();
-  }
+	toBuilder(): TpG['builder'] {
+		return this.context.builder();
+	}
 
-  toString(): string {
-    return 'OrderedSet()';
-  }
+	toString(): string {
+		return 'OrderedSet()';
+	}
 
-  toJSON(): ToJSON<any[]> {
-    return {
-      dataType: this.context.typeTag,
-      value: [],
-    };
-  }
+	toJSON(): ToJSON<any[]> {
+		return {
+			dataType: this.context.typeTag,
+			value: [],
+		};
+	}
 }

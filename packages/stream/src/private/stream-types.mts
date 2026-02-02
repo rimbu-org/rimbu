@@ -8,10 +8,10 @@ import type { Stream } from '@rimbu/stream';
  * @typeparam T - the element type
  */
 export interface FastIterable<T> extends Iterable<T> {
-  /**
-   * Returns a `FastIterator` instance used to iterate over the values of this `Iterable`.
-   */
-  [Symbol.iterator](): FastIterator<T>;
+	/**
+	 * Returns a `FastIterator` instance used to iterate over the values of this `Iterable`.
+	 */
+	[Symbol.iterator](): FastIterator<T>;
 }
 
 /**
@@ -19,16 +19,16 @@ export interface FastIterable<T> extends Iterable<T> {
  * @typeparam T - the element type
  */
 export interface FastIterator<T> extends Iterator<T> {
-  /**
-   * Returns the next iterator value, or the given `otherwise` `OptLazy` value instead.
-   * @param otherwise - (default: undefined) the value to return if the iterator has no more values
-   */
-  fastNext(): T | undefined;
-  fastNext<O>(otherwise: OptLazy<O>): T | O;
-  /**
-   * Returns the next `IteratorResult`.
-   */
-  next(): IteratorResult<T>;
+	/**
+	 * Returns the next iterator value, or the given `otherwise` `OptLazy` value instead.
+	 * @param otherwise - (default: undefined) the value to return if the iterator has no more values
+	 */
+	fastNext(): T | undefined;
+	fastNext<O>(otherwise: OptLazy<O>): T | O;
+	/**
+	 * Returns the next `IteratorResult`.
+	 */
+	next(): IteratorResult<T>;
 }
 
 /**
@@ -36,20 +36,20 @@ export interface FastIterator<T> extends Iterator<T> {
  * @typeparam T - the element type
  */
 export type StreamSource<T> =
-  | undefined
-  | Iterable<T>
-  | Stream<T>
-  | Streamable<T>;
+	| undefined
+	| Iterable<T>
+	| Stream<T>
+	| Streamable<T>;
 
 export namespace StreamSource {
-  /**
-   * Any object that is a non-empty Stream, can produce a non-empty Stream, or is a non-empty array.
-   * @typeparam T - the element type
-   */
-  export type NonEmpty<T> =
-    | Stream.NonEmpty<T>
-    | Streamable.NonEmpty<T>
-    | readonly [T, ...T[]];
+	/**
+	 * Any object that is a non-empty Stream, can produce a non-empty Stream, or is a non-empty array.
+	 * @typeparam T - the element type
+	 */
+	export type NonEmpty<T> =
+		| Stream.NonEmpty<T>
+		| Streamable.NonEmpty<T>
+		| readonly [T, ...T[]];
 }
 
 /**
@@ -57,21 +57,21 @@ export namespace StreamSource {
  * @typeparam T - the element type
  */
 export interface Streamable<T> {
-  /**
-   * Returns a `Stream` containing the elements in this collection.
-   */
-  stream(): Stream<T>;
+	/**
+	 * Returns a `Stream` containing the elements in this collection.
+	 */
+	stream(): Stream<T>;
 }
 
 export namespace Streamable {
-  /**
-   * An object that can create a non-empty Stream of elements of type `T`.
-   * @typeparam T - the element type
-   */
-  export interface NonEmpty<T> {
-    /**
-     * Returns a non-empty `Stream` of the elements in this collection.
-     */
-    stream(): Stream.NonEmpty<T>;
-  }
+	/**
+	 * An object that can create a non-empty Stream of elements of type `T`.
+	 * @typeparam T - the element type
+	 */
+	export interface NonEmpty<T> {
+		/**
+		 * Returns a non-empty `Stream` of the elements in this collection.
+		 */
+		stream(): Stream.NonEmpty<T>;
+	}
 }

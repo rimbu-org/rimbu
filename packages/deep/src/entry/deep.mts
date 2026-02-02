@@ -20,7 +20,7 @@ export type * from '@rimbu/deep/protected';
  * ```
  */
 export function protect<T>(source: T): Protected<T> {
-  return source as Protected<T>;
+	return source as Protected<T>;
 }
 
 /**
@@ -46,35 +46,35 @@ export function protect<T>(source: T): Protected<T> {
  * ```
  */
 export function getAt<T, P extends Path.Get<T>>(
-  source: T,
-  path: P
+	source: T,
+	path: P,
 ): Path.Result<T, P> {
-  if (path === '') {
-    // empty path always directly returns source value
-    return source as any;
-  }
+	if (path === '') {
+		// empty path always directly returns source value
+		return source as any;
+	}
 
-  const items = stringSplit(path);
+	const items = stringSplit(path);
 
-  // start with `source` as result value
-  let result = source as any;
+	// start with `source` as result value
+	let result = source as any;
 
-  for (const item of items) {
-    if (undefined === item || item === '' || item === '[') {
-      // ignore irrelevant items
-      continue;
-    }
+	for (const item of items) {
+		if (undefined === item || item === '' || item === '[') {
+			// ignore irrelevant items
+			continue;
+		}
 
-    if (undefined === result || null === result) {
-      // optional chaining assumed and no value available, skip rest of path and return undefined
-      return undefined as any;
-    }
+		if (undefined === result || null === result) {
+			// optional chaining assumed and no value available, skip rest of path and return undefined
+			return undefined as any;
+		}
 
-    // set current result to subpath value
-    result = result[item];
-  }
+		// set current result to subpath value
+		result = result[item];
+	}
 
-  return result;
+	return result;
 }
 
 /**
@@ -91,7 +91,7 @@ export function getAt<T, P extends Path.Get<T>>(
  * ```
  */
 export function getAtWith<T, P extends Path.Get<T>>(
-  path: P
+	path: P,
 ): (source: T) => Path.Result<T, P> {
-  return (source) => getAt(source, path);
+	return (source) => getAt(source, path);
 }

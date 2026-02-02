@@ -1,8 +1,8 @@
 import type {
-  RMap,
-  RSet,
-  VariantMap,
-  VariantSet,
+	RMap,
+	RSet,
+	VariantMap,
+	VariantSet,
 } from '@rimbu/collection-types';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { FastIterator, Stream } from '@rimbu/stream';
@@ -113,11 +113,11 @@ expectType<false>(genNonEmpty.isEmpty);
 // .keyMap
 expectType<VariantMap<number, VariantSet.NonEmpty<string>>>(varEmpty.keyMap);
 expectType<VariantMap.NonEmpty<number, VariantSet.NonEmpty<string>>>(
-  varNonEmpty.keyMap
+	varNonEmpty.keyMap,
 );
 expectType<RMap<number, RSet.NonEmpty<string>>>(genEmpty.keyMap);
 expectAssignable<RMap.NonEmpty<number, RSet.NonEmpty<string>>>(
-  genNonEmpty.keyMap
+	genNonEmpty.keyMap,
 );
 
 // .nonEmpty()
@@ -146,16 +146,16 @@ expectType<G_Empty>(genNonEmpty.removeKey(3));
 
 // .removeKeyAndGet(..)
 expectType<[V_Empty, VariantSet.NonEmpty<string>] | undefined>(
-  varEmpty.removeKeyAndGet(3)
+	varEmpty.removeKeyAndGet(3),
 );
 expectType<[V_Empty, VariantSet.NonEmpty<string>] | undefined>(
-  varNonEmpty.removeKeyAndGet(3)
+	varNonEmpty.removeKeyAndGet(3),
 );
 expectType<[G_Empty, RSet.NonEmpty<string>] | undefined>(
-  genEmpty.removeKeyAndGet(3)
+	genEmpty.removeKeyAndGet(3),
 );
 expectType<[G_Empty, RSet.NonEmpty<string>] | undefined>(
-  genNonEmpty.removeKeyAndGet(3)
+	genNonEmpty.removeKeyAndGet(3),
 );
 
 // .removeKeys(..)

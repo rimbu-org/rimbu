@@ -9,22 +9,22 @@ import type { MaybePromise } from '@rimbu/common/async-opt-lazy';
  * @returns either a new value to collect, or the `skip` token indicating to skip the value
  */
 export type CollectFun<T, R> = (
-  value: T,
-  index: number,
-  skip: CollectFun.Skip,
-  halt: () => void
+	value: T,
+	index: number,
+	skip: CollectFun.Skip,
+	halt: () => void,
 ) => R | CollectFun.Skip;
 
 export namespace CollectFun {
-  /**
-   * Indicates, when returned from a collect function, to skip the value.
-   */
-  export const Skip = Symbol('Skip');
+	/**
+	 * Indicates, when returned from a collect function, to skip the value.
+	 */
+	export const Skip = Symbol('Skip');
 
-  /**
-   * Indicates, when returned from a collect function, to skip the value.
-   */
-  export type Skip = typeof Skip;
+	/**
+	 * Indicates, when returned from a collect function, to skip the value.
+	 */
+	export type Skip = typeof Skip;
 }
 
 /**
@@ -36,8 +36,8 @@ export namespace CollectFun {
  * @returns either a new value to collect, or the `skip` token indicating to skip the value
  */
 export type AsyncCollectFun<T, R> = (
-  value: T,
-  index: number,
-  skip: CollectFun.Skip,
-  halt: () => void
+	value: T,
+	index: number,
+	skip: CollectFun.Skip,
+	halt: () => void,
 ) => MaybePromise<R | CollectFun.Skip>;

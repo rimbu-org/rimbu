@@ -14,45 +14,45 @@
  * - { start: [T, boolean], end: [T, boolean] }<br/>
  */
 export type Range<T> =
-  | { start: T | [T, boolean]; end?: T | [T, boolean]; amount?: undefined }
-  | { start?: T | [T, boolean]; end: T | [T, boolean]; amount?: undefined };
+	| { start: T | [T, boolean]; end?: T | [T, boolean]; amount?: undefined }
+	| { start?: T | [T, boolean]; end: T | [T, boolean]; amount?: undefined };
 
 export namespace Range {
-  /**
-   * Simplifies a given `range` `Range` input for easier processing, by returning optional
-   * start and end ranges including whether they are inclusive or exclusive
-   * @param range - the `Range` to use
-   */
-  export function getNormalizedRange<T>(range: Range<T>): {
-    start?: [T, boolean] | undefined;
-    end?: [T, boolean] | undefined;
-  } {
-    let start: [T, boolean] | undefined = undefined;
-    let end: [T, boolean] | undefined = undefined;
+	/**
+	 * Simplifies a given `range` `Range` input for easier processing, by returning optional
+	 * start and end ranges including whether they are inclusive or exclusive
+	 * @param range - the `Range` to use
+	 */
+	export function getNormalizedRange<T>(range: Range<T>): {
+		start?: [T, boolean] | undefined;
+		end?: [T, boolean] | undefined;
+	} {
+		let start: [T, boolean] | undefined = undefined;
+		let end: [T, boolean] | undefined = undefined;
 
-    if (`start` in range && undefined !== range.start) {
-      if (
-        Array.isArray(range.start) &&
-        range.start.length === 2 &&
-        typeof range.start[1] === 'boolean'
-      ) {
-        start = range.start;
-      } else {
-        start = [range.start as T, true];
-      }
-    }
-    if (`end` in range && undefined !== range.end) {
-      if (
-        Array.isArray(range.end) &&
-        range.end.length === 2 &&
-        typeof range.end[1] === 'boolean'
-      ) {
-        end = range.end;
-      } else {
-        end = [range.end as T, true];
-      }
-    }
+		if (`start` in range && undefined !== range.start) {
+			if (
+				Array.isArray(range.start) &&
+				range.start.length === 2 &&
+				typeof range.start[1] === 'boolean'
+			) {
+				start = range.start;
+			} else {
+				start = [range.start as T, true];
+			}
+		}
+		if (`end` in range && undefined !== range.end) {
+			if (
+				Array.isArray(range.end) &&
+				range.end.length === 2 &&
+				typeof range.end[1] === 'boolean'
+			) {
+				end = range.end;
+			} else {
+				end = [range.end as T, true];
+			}
+		}
 
-    return { start, end };
-  }
+		return { start, end };
+	}
 }

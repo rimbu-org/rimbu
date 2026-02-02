@@ -1,70 +1,70 @@
 {
-  "name": "@rimbu/collection-types",
-  "version": "2.1.10",
-  "description": "Type definitions for the basic generic Rimbu collections",
-  "keywords": [
-    "definitions",
-    "immutable",
-    "collection",
-    "rimbu",
-    "typescript"
-  ],
-  "homepage": "https://rimbu.org",
-  "author": {
-    "name": "Arvid Nicolaas",
-    "email": "arvid@rimbu.org",
-    "url": "https://github.com/vitoke"
-  },
-  "license": "MIT",
-  "funding": [
-    {
-      "type": "individual",
-      "url": "https://github.com/sponsors/vitoke"
-    }
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rimbu-org/rimbu.git",
-    "directory": "packages/collection-types"
-  },
-  "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/entry/collection-types.d.mts",
-      "default": "./dist/entry/collection-types.mjs"
-    },
-    "./common": {
-      "types": "./dist/entry/common.d.mts",
-      "default": "./dist/entry/common.mjs"
-    },
-    "./*": {
-      "types": "./dist/public/*.d.mts",
-      "default": "./dist/public/*.mjs"
-    }
-  },
-  "files": [
-    "dist",
-    "src"
-  ],
-  "scripts": {
-    "biome:check": "biome check --write",
-    "biome:fix": "biome check --write",
-    "build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
-    "clean": "rimraf dist node_modules",
-    "clean:build": "rimraf dist",
-    "format:check": "biome format",
-    "lint:check": "biome lint",
-    "test:types": "bunx tsd --files ./test-d --typings ./dist/entry/main.d.mts",
-    "typecheck": "tsc -p tsconfig.esm.json --noEmit"
-  },
-  "dependencies": {
-    "@rimbu/base": "workspace:*",
-    "@rimbu/common": "workspace:*",
-    "@rimbu/stream": "workspace:*",
-    "tslib": "catalog:"
-  },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  }
+	"name": "@rimbu/collection-types",
+	"version": "2.1.10",
+	"description": "Type definitions for the basic generic Rimbu collections",
+	"keywords": [
+		"definitions",
+		"immutable",
+		"collection",
+		"rimbu",
+		"typescript"
+	],
+	"homepage": "https://rimbu.org",
+	"author": {
+		"name": "Arvid Nicolaas",
+		"email": "arvid@rimbu.org",
+		"url": "https://github.com/vitoke"
+	},
+	"license": "MIT",
+	"funding": [
+		{
+			"type": "individual",
+			"url": "https://github.com/sponsors/vitoke"
+		}
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rimbu-org/rimbu.git",
+		"directory": "packages/collection-types"
+	},
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/entry/collection-types.d.mts",
+			"default": "./dist/entry/collection-types.mjs"
+		},
+		"./common": {
+			"types": "./dist/entry/common.d.mts",
+			"default": "./dist/entry/common.mjs"
+		},
+		"./*": {
+			"types": "./dist/public/*.d.mts",
+			"default": "./dist/public/*.mjs"
+		}
+	},
+	"files": [
+		"dist",
+		"src"
+	],
+	"scripts": {
+		"biome:check": "biome check --write",
+		"biome:fix": "biome check --write",
+		"build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
+		"clean": "rimraf dist node_modules",
+		"clean:build": "rimraf dist",
+		"format:check": "biome format",
+		"lint:check": "biome lint",
+		"test:types": "bunx tsd --files ./test-d --typings ./dist/entry/main.d.mts",
+		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
+	},
+	"dependencies": {
+		"@rimbu/base": "workspace:*",
+		"@rimbu/common": "workspace:*",
+		"@rimbu/stream": "workspace:*",
+		"tslib": "catalog:"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	}
 }

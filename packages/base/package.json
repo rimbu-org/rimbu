@@ -1,59 +1,59 @@
 {
-  "name": "@rimbu/base",
-  "version": "2.0.7",
-  "description": "Utilities to implement Rimbu collections",
-  "keywords": [
-    "array",
-    "rimbu",
-    "internal",
-    "typescript"
-  ],
-  "homepage": "https://rimbu.org",
-  "author": {
-    "name": "Arvid Nicolaas",
-    "email": "arvid@rimbu.org",
-    "url": "https://github.com/vitoke"
-  },
-  "license": "MIT",
-  "funding": [
-    {
-      "type": "individual",
-      "url": "https://github.com/sponsors/vitoke"
-    }
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rimbu-org/rimbu.git",
-    "directory": "packages/base"
-  },
-  "type": "module",
-  "exports": {
-    "./*": {
-      "types": "./dist/*.d.mts",
-      "import": "./dist/*.mjs"
-    }
-  },
-  "files": [
-    "dist",
-    "src"
-  ],
-  "scripts": {
-    "biome:check": "biome check --write",
-    "biome:fix": "biome check --write",
-    "build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
-    "clean": "rimraf dist node_modules",
-    "clean:build": "rimraf dist",
-    "format:check": "biome format",
-    "lint:check": "biome lint",
-    "test": "bun test --tsconfig-override tsconfig.common.json",
-    "test:types": "bunx tsd --files ./test-d --typings ./dist/arr.d.mts",
-    "typecheck": "tsc -p tsconfig.esm.json --noEmit"
-  },
-  "dependencies": {
-    "@rimbu/common": "workspace:*"
-  },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  }
+	"name": "@rimbu/base",
+	"version": "2.0.7",
+	"description": "Utilities to implement Rimbu collections",
+	"keywords": [
+		"array",
+		"rimbu",
+		"internal",
+		"typescript"
+	],
+	"homepage": "https://rimbu.org",
+	"author": {
+		"name": "Arvid Nicolaas",
+		"email": "arvid@rimbu.org",
+		"url": "https://github.com/vitoke"
+	},
+	"license": "MIT",
+	"funding": [
+		{
+			"type": "individual",
+			"url": "https://github.com/sponsors/vitoke"
+		}
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rimbu-org/rimbu.git",
+		"directory": "packages/base"
+	},
+	"type": "module",
+	"exports": {
+		"./*": {
+			"types": "./dist/*.d.mts",
+			"import": "./dist/*.mjs"
+		}
+	},
+	"files": [
+		"dist",
+		"src"
+	],
+	"scripts": {
+		"biome:check": "biome check --write",
+		"biome:fix": "biome check --write",
+		"build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
+		"clean": "rimraf dist node_modules",
+		"clean:build": "rimraf dist",
+		"format:check": "biome format",
+		"lint:check": "biome lint",
+		"test": "bun test --tsconfig-override tsconfig.common.json",
+		"test:types": "bunx tsd --files ./test-d --typings ./dist/arr.d.mts",
+		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
+	},
+	"dependencies": {
+		"@rimbu/common": "workspace:*"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	}
 }

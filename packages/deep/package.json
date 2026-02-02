@@ -1,83 +1,83 @@
 {
-  "name": "@rimbu/deep",
-  "version": "2.0.7",
-  "description": "Tools to use handle plain JS objects as immutable objects",
-  "keywords": [
-    "immutable",
-    "patch",
-    "match",
-    "plain object",
-    "freeze",
-    "frozen",
-    "rimbu",
-    "typescript"
-  ],
-  "homepage": "https://rimbu.org",
-  "author": {
-    "name": "Arvid Nicolaas",
-    "email": "arvid@rimbu.org",
-    "url": "https://github.com/vitoke"
-  },
-  "license": "MIT",
-  "funding": [
-    {
-      "type": "individual",
-      "url": "https://github.com/sponsors/vitoke"
-    }
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rimbu-org/rimbu.git",
-    "directory": "packages/deep"
-  },
-  "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/entry/deep.d.mts",
-      "import": "./dist/entry/deep.mjs"
-    },
-    "./*": {
-      "types": "./dist/public/*.d.mts",
-      "default": "./dist/public/*.mjs"
-    }
-  },
-  "imports": {
-    "#async/*": {
-      "types": "./dist/public/async/internal/*.d.mts",
-      "default": "./dist/public/async/internal/*.mjs"
-    },
-    "#deep/*": {
-      "types": "./dist/public/internal/*.d.mts",
-      "default": "./dist/public/internal/*.mjs"
-    },
-    "#private/*": {
-      "types": "./dist/private/*.d.mts",
-      "default": "./dist/private/*.mjs"
-    }
-  },
-  "files": [
-    "dist",
-    "src"
-  ],
-  "scripts": {
-    "biome:check": "biome check --write",
-    "biome:fix": "biome check --write",
-    "build": "bun clean && bunx tsc --p tsconfig.esm.json && bunx tsc-alias -p tsconfig.esm.json",
-    "clean": "rimraf dist node_modules",
-    "extract-api": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
-    "format:check": "biome format",
-    "lint:check": "biome lint",
-    "test": "bun test --tsconfig-override tsconfig.common.json",
-    "test:types": "bunx tsd --files ./test-d --typings ./dist/arr.d.mts",
-    "typecheck": "tsc -p tsconfig.esm.json --noEmit"
-  },
-  "dependencies": {
-    "@rimbu/base": "workspace:*",
-    "@rimbu/common": "workspace:*",
-    "tslib": "catalog:"
-  },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  }
+	"name": "@rimbu/deep",
+	"version": "2.0.7",
+	"description": "Tools to use handle plain JS objects as immutable objects",
+	"keywords": [
+		"immutable",
+		"patch",
+		"match",
+		"plain object",
+		"freeze",
+		"frozen",
+		"rimbu",
+		"typescript"
+	],
+	"homepage": "https://rimbu.org",
+	"author": {
+		"name": "Arvid Nicolaas",
+		"email": "arvid@rimbu.org",
+		"url": "https://github.com/vitoke"
+	},
+	"license": "MIT",
+	"funding": [
+		{
+			"type": "individual",
+			"url": "https://github.com/sponsors/vitoke"
+		}
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rimbu-org/rimbu.git",
+		"directory": "packages/deep"
+	},
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/entry/deep.d.mts",
+			"import": "./dist/entry/deep.mjs"
+		},
+		"./*": {
+			"types": "./dist/public/*.d.mts",
+			"default": "./dist/public/*.mjs"
+		}
+	},
+	"imports": {
+		"#async/*": {
+			"types": "./dist/public/async/internal/*.d.mts",
+			"default": "./dist/public/async/internal/*.mjs"
+		},
+		"#deep/*": {
+			"types": "./dist/public/internal/*.d.mts",
+			"default": "./dist/public/internal/*.mjs"
+		},
+		"#private/*": {
+			"types": "./dist/private/*.d.mts",
+			"default": "./dist/private/*.mjs"
+		}
+	},
+	"files": [
+		"dist",
+		"src"
+	],
+	"scripts": {
+		"biome:check": "biome check --write",
+		"biome:fix": "biome check --write",
+		"build": "bun clean && bunx tsc --p tsconfig.esm.json && bunx tsc-alias -p tsconfig.esm.json",
+		"clean": "rimraf dist node_modules",
+		"extract-api": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
+		"format:check": "biome format",
+		"lint:check": "biome lint",
+		"test": "bun test --tsconfig-override tsconfig.common.json",
+		"test:types": "bunx tsd --files ./test-d --typings ./dist/arr.d.mts",
+		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
+	},
+	"dependencies": {
+		"@rimbu/base": "workspace:*",
+		"@rimbu/common": "workspace:*",
+		"tslib": "catalog:"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	}
 }

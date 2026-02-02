@@ -4,14 +4,14 @@ import { expectError, expectType } from 'tsd';
 import { Deep } from '../src/index.mjs';
 
 let m!: {
-  a: number;
-  b: string[];
-  c: {
-    d: boolean;
-    e: [number, string] | null;
-  };
-  f: List.NonEmpty<number>;
-  g: Record<string, string>;
+	a: number;
+	b: string[];
+	c: {
+		d: boolean;
+		e: [number, string] | null;
+	};
+	f: List.NonEmpty<number>;
+	g: Record<string, string>;
 };
 type M = typeof m;
 
@@ -43,7 +43,7 @@ expectType<boolean[]>([m].map(Deep.matchAtWith('a', 2)));
 
 expectType<{ readonly q: boolean }[]>([m].map(Deep.selectWith({ q: 'c.d' })));
 expectType<{ readonly q: boolean }[]>(
-  [m].map(Deep.selectAtWith('c', { q: 'd' }))
+	[m].map(Deep.selectAtWith('c', { q: 'd' })),
 );
 
 expectError([m].map(Deep.patchWith(() => [{ a: 2, z: 1 }])));
@@ -64,54 +64,56 @@ expectType<boolean>(wt.matchAtWith('c', { d: true })(m));
 expectType<{ readonly q: boolean }[]>([m].map(wt.selectWith({ q: 'c.d' })));
 
 expectType<{ readonly q: boolean }[]>(
-  [m].map(wt.selectAtWith('c', { q: 'd' }))
+	[m].map(wt.selectAtWith('c', { q: 'd' })),
 );
 
 const person = {
-  name: 'Alice',
-  age: 34,
-  address: {
-    street: 'Random street',
-    number: 45,
-  },
-  friends: ['Bob', 'Carol'],
+	name: 'Alice',
+	age: 34,
+	address: {
+		street: 'Random street',
+		number: 45,
+	},
+	friends: ['Bob', 'Carol'],
 };
 
 type Person = typeof person;
 
 expectType<Person>(
-  Deep.patch(person, [
-    {
-      address: [{ street: 'ABC' }],
-    },
-    {
-      name: 'James',
-    },
-  ])
+	Deep.patch(person, [
+		{
+			address: [{ street: 'ABC' }],
+		},
+		{
+			name: 'James',
+		},
+	]),
 );
 
 expectType<Person>(
-  Deep.patchAt(person, 'address', [{ street: 'ABC' }, { number: 34 }])
+	Deep.patchAt(person, 'address', [{ street: 'ABC' }, { number: 34 }]),
 );
 
 expectType<Person[]>(
-  [person].map(Deep.patchAtWith('address', [{ street: 'ABC' }, { number: 34 }]))
+	[person].map(
+		Deep.patchAtWith('address', [{ street: 'ABC' }, { number: 34 }]),
+	),
 );
 
 expectType<Person[]>(
-  [person].map(
-    Deep.patchWith([{ name: 'James' }, { address: [{ street: 'ABC' }] }])
-  )
+	[person].map(
+		Deep.patchWith([{ name: 'James' }, { address: [{ street: 'ABC' }] }]),
+	),
 );
 
 const personUpdate1 = Deep.withType<Person>().patchWith([
-  { name: 'James' },
-  { address: [{ street: 'ABC' }] },
+	{ name: 'James' },
+	{ address: [{ street: 'ABC' }] },
 ]);
 expectType<Person>(personUpdate1(person));
 
 const personUpdate2 = Deep.withType<Person>().patchAtWith('address', [
-  { street: 'ABC' },
-  { number: 34 },
+	{ street: 'ABC' },
+	{ number: 34 },
 ]);
 expectType<Person>(personUpdate2(person));

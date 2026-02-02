@@ -16,8 +16,8 @@ export type IsAnyFunc<T> = AnyFunc extends T ? true : false;
  * @typeparam T - the input type
  */
 export type IsObjWithoutFunctions<T> = AnyFunc extends T[keyof T]
-  ? false
-  : true;
+	? false
+	: true;
 
 /**
  * A predicate type that resolves to true if the given type satisfies:
@@ -29,18 +29,18 @@ export type IsObjWithoutFunctions<T> = AnyFunc extends T[keyof T]
  * @typeparam T - the input type
  */
 export type IsPlainObj<T> = T extends
-  | null
-  | undefined
-  | number
-  | string
-  | boolean
-  | bigint
-  | symbol
-  | AnyFunc
-  | Iterable<any>
-  | AsyncIterable<any>
-  ? false
-  : IsObjWithoutFunctions<T>;
+	| null
+	| undefined
+	| number
+	| string
+	| boolean
+	| bigint
+	| symbol
+	| AnyFunc
+	| Iterable<any>
+	| AsyncIterable<any>
+	? false
+	: IsObjWithoutFunctions<T>;
 
 /**
  * Utility type that will only accept objects that are considered 'plain objects' according
@@ -66,7 +66,7 @@ export type IsArray<T> = T extends readonly any[] ? true : false;
  * plain objects are required as inputs but not arrays.
  */
 export type NotIterable = {
-  [Symbol.iterator]?: never;
+	[Symbol.iterator]?: never;
 };
 
 /**
@@ -77,13 +77,13 @@ export type NotIterable = {
  * @note does not check whether a record's properties are not functions
  */
 export function isPlainObj(obj: any): obj is object {
-  return (
-    typeof obj === 'object' &&
-    null !== obj &&
-    (obj.constructor === Object || !(obj.constructor instanceof Function)) &&
-    !(Symbol.iterator in obj) &&
-    !(Symbol.asyncIterator in obj)
-  );
+	return (
+		typeof obj === 'object' &&
+		null !== obj &&
+		(obj.constructor === Object || !(obj.constructor instanceof Function)) &&
+		!(Symbol.iterator in obj) &&
+		!(Symbol.asyncIterator in obj)
+	);
 }
 
 /**
@@ -91,5 +91,5 @@ export function isPlainObj(obj: any): obj is object {
  * @param obj - the object to check
  */
 export function isIterable(obj: any): obj is Iterable<unknown> {
-  return obj !== null && typeof obj === 'object' && Symbol.iterator in obj;
+	return obj !== null && typeof obj === 'object' && Symbol.iterator in obj;
 }

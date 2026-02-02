@@ -1,9 +1,9 @@
 {
-  "compilerOptions": {
-    "paths": {
-      "@rimbu/list": ["./entry/list.mjs"],
-      "@rimbu/list/*": ["./public/*.mjs"],
-      "#list/*": ["./public/internal/*.mjs"]
-    }
-  }
+	"compilerOptions": {
+		"paths": {
+			"@rimbu/list": ["./entry/list.mjs"],
+			"@rimbu/list/*": ["./public/*.mjs"],
+			"#list/*": ["./public/internal/*.mjs"]
+		}
+	}
 }

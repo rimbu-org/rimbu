@@ -17,8 +17,8 @@ export type Update<T> = T | ((value: T) => T);
  * ```
  */
 export function Update<T>(value: T, update: Update<T>): T {
-  if (typeof update === 'function') {
-    return (update as (value: T) => T)(value);
-  }
-  return update;
+	if (typeof update === 'function') {
+		return (update as (value: T) => T)(value);
+	}
+	return update;
 }

@@ -1,12 +1,12 @@
 {
-  "compilerOptions": {
-    "rootDirs": [".", ".."],
-    "baseUrl": "./src",
-    "paths": {
-      "@rimbu/multimap": ["./entry/multimap.mjs"],
-      "@rimbu/multimap/*": ["./public/*.mjs"],
-      "#multimap/*": ["./public/internal/*.mjs"],
-      "#private/*": ["./private/*.mjs"]
-    }
-  }
+	"compilerOptions": {
+		"rootDirs": [".", ".."],
+		"baseUrl": "./src",
+		"paths": {
+			"@rimbu/multimap": ["./entry/multimap.mjs"],
+			"@rimbu/multimap/*": ["./public/*.mjs"],
+			"#multimap/*": ["./public/internal/*.mjs"],
+			"#private/*": ["./private/*.mjs"]
+		}
+	}
 }

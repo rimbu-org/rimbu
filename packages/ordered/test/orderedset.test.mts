@@ -4,10 +4,10 @@ import { OrderedHashSet } from '@rimbu/ordered/set/hashed';
 import { OrderedSortedSet } from '@rimbu/ordered/set/sorted';
 
 runSetTestsWith(
-  'OrderedHashSet default',
-  OrderedHashSet.defaultContext<number>()
+	'OrderedHashSet default',
+	OrderedHashSet.defaultContext<number>(),
 );
 runSetTestsWith(
-  'OrderedSortedSet default',
-  OrderedSortedSet.defaultContext<number>()
+	'OrderedSortedSet default',
+	OrderedSortedSet.defaultContext<number>(),
 );

@@ -1,10 +1,10 @@
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { FastIterator, Stream } from '@rimbu/stream';
 import {
-  expectAssignable,
-  expectError,
-  expectNotAssignable,
-  expectType,
+	expectAssignable,
+	expectError,
+	expectNotAssignable,
+	expectType,
 } from 'tsd';
 
 import { List } from '@rimbu/list';
@@ -78,13 +78,13 @@ expectType<number | string>(List.empty<number>().first(() => 'a'));
 
 // .flatMap(..)
 expectType<List<string>>(
-  List.empty<number>().flatMap(() => List.empty<string>())
+	List.empty<number>().flatMap(() => List.empty<string>()),
 );
 expectType<List<string>>(List.empty<number>().flatMap(() => List.of('a')));
 expectType<List<string>>(List.of(1).flatMap(() => List.empty<string>()));
 expectType<List.NonEmpty<string>>(List.of(1).flatMap(() => List.of('a')));
 expectType<List<string>>(
-  List.of(1).flatMap(() => List.of('a'), { range: { amount: 10 } })
+	List.of(1).flatMap(() => List.of('a'), { range: { amount: 10 } }),
 );
 
 // .flatten()
@@ -163,21 +163,21 @@ expectType<List<number>>(List.of(1).slice({ amount: 2 }));
 
 // .splice(..)
 expectType<List<number>>(
-  List.empty<number>().splice({
-    index: 1,
-    remove: 2,
-    insert: List.empty<number>(),
-  })
+	List.empty<number>().splice({
+		index: 1,
+		remove: 2,
+		insert: List.empty<number>(),
+	}),
 );
 expectType<List<number>>(
-  List.of(1).splice({ index: 1, remove: 2, insert: List.empty<number>() })
+	List.of(1).splice({ index: 1, remove: 2, insert: List.empty<number>() }),
 );
 
 expectType<List.NonEmpty<number>>(
-  List.empty<number>().splice({ index: 1, remove: 2, insert: List.of(1) })
+	List.empty<number>().splice({ index: 1, remove: 2, insert: List.of(1) }),
 );
 expectType<List.NonEmpty<number>>(
-  List.of(1).splice({ index: 1, remove: 2, insert: List.of(1) })
+	List.of(1).splice({ index: 1, remove: 2, insert: List.of(1) }),
 );
 
 // .stream()
@@ -205,17 +205,17 @@ expectType<List.Builder<number>>(List.of(1).toBuilder());
 // .unzip(..)
 expectError(List.unzip(List.of(1)));
 expectType<[List<number>, List<string>]>(
-  List.unzip(List.empty<[number, string]>(), { length: 2 })
+	List.unzip(List.empty<[number, string]>(), { length: 2 }),
 );
 expectType<[List.NonEmpty<number>, List.NonEmpty<string>]>(
-  List.unzip(List.of([1, 'a'] as [number, string]), { length: 2 })
+	List.unzip(List.of([1, 'a'] as [number, string]), { length: 2 }),
 );
 expectType<
-  [List.NonEmpty<number>, List.NonEmpty<string>, List.NonEmpty<boolean>]
+	[List.NonEmpty<number>, List.NonEmpty<string>, List.NonEmpty<boolean>]
 >(
-  List.unzip(List.of([1, 'a', true] as [number, string, boolean]), {
-    length: 3,
-  })
+	List.unzip(List.of([1, 'a', true] as [number, string, boolean]), {
+		length: 3,
+	}),
 );
 
 // .updateAt(..)

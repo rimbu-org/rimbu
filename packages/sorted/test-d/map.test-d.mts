@@ -40,10 +40,10 @@ expectNotAssignable<G_NonEmpty>(m as GNE<number, string | number>);
 
 // Iterator
 expectType<FastIterator<readonly [number, string]>>(
-  genEmpty[Symbol.iterator]()
+	genEmpty[Symbol.iterator](),
 );
 expectType<FastIterator<readonly [number, string]>>(
-  genNonEmpty[Symbol.iterator]()
+	genNonEmpty[Symbol.iterator](),
 );
 
 // .addEntries(..)

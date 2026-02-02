@@ -4,11 +4,11 @@ import { OrderedHashMap } from '@rimbu/ordered/map/hashed';
 import { OrderedSortedMap } from '@rimbu/ordered/map/sorted';
 
 runMapTestsWith(
-  'OrderedHashMap default',
-  OrderedHashMap.defaultContext<number>()
+	'OrderedHashMap default',
+	OrderedHashMap.defaultContext<number>(),
 );
 
 runMapTestsWith(
-  'OrderedSortedMap default',
-  OrderedSortedMap.defaultContext<number>()
+	'OrderedSortedMap default',
+	OrderedSortedMap.defaultContext<number>(),
 );

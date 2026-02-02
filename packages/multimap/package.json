@@ -1,82 +1,82 @@
 {
-  "name": "@rimbu/multimap",
-  "version": "2.1.9",
-  "description": "An immutable Map where each key can have multiple values",
-  "keywords": [
-    "multimap",
-    "mmap",
-    "dictionary",
-    "map",
-    "hashed",
-    "sorted",
-    "immutable",
-    "collection",
-    "rimbu",
-    "typescript"
-  ],
-  "homepage": "https://rimbu.org",
-  "author": {
-    "name": "Arvid Nicolaas",
-    "email": "arvid@rimbu.org",
-    "url": "https://github.com/vitoke"
-  },
-  "license": "MIT",
-  "funding": [
-    {
-      "type": "individual",
-      "url": "https://github.com/sponsors/vitoke"
-    }
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rimbu-org/rimbu.git",
-    "directory": "packages/multimap"
-  },
-  "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/entry/multimap.d.mts",
-      "default": "./dist/entry/multimap.mjs"
-    },
-    "./*": {
-      "types": "./dist/public/*.d.mts",
-      "default": "./dist/public/*.mjs"
-    }
-  },
-  "imports": {
-    "#multimap/*": {
-      "types": "./dist/public/internal/*.d.mts",
-      "default": "./dist/public/internal/*.mjs"
-    }
-  },
-  "files": [
-    "dist",
-    "src"
-  ],
-  "scripts": {
-    "biome:check": "biome check --write",
-    "biome:fix": "biome check --write",
-    "build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
-    "clean": "rimraf dist node_modules",
-    "clean:build": "rimraf dist",
-    "format:check": "biome format",
-    "lint:check": "biome lint",
-    "test": "bun test --tsconfig-override tsconfig.common.json",
-    "test:random": "bun test test-random",
-    "test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.mts",
-    "typecheck": "tsc -p tsconfig.esm.json --noEmit"
-  },
-  "dependencies": {
-    "@rimbu/base": "workspace:*",
-    "@rimbu/collection-types": "workspace:*",
-    "@rimbu/common": "workspace:*",
-    "@rimbu/hashed": "workspace:*",
-    "@rimbu/sorted": "workspace:*",
-    "@rimbu/stream": "workspace:*",
-    "tslib": "catalog:"
-  },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  }
+	"name": "@rimbu/multimap",
+	"version": "2.1.9",
+	"description": "An immutable Map where each key can have multiple values",
+	"keywords": [
+		"multimap",
+		"mmap",
+		"dictionary",
+		"map",
+		"hashed",
+		"sorted",
+		"immutable",
+		"collection",
+		"rimbu",
+		"typescript"
+	],
+	"homepage": "https://rimbu.org",
+	"author": {
+		"name": "Arvid Nicolaas",
+		"email": "arvid@rimbu.org",
+		"url": "https://github.com/vitoke"
+	},
+	"license": "MIT",
+	"funding": [
+		{
+			"type": "individual",
+			"url": "https://github.com/sponsors/vitoke"
+		}
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rimbu-org/rimbu.git",
+		"directory": "packages/multimap"
+	},
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/entry/multimap.d.mts",
+			"default": "./dist/entry/multimap.mjs"
+		},
+		"./*": {
+			"types": "./dist/public/*.d.mts",
+			"default": "./dist/public/*.mjs"
+		}
+	},
+	"imports": {
+		"#multimap/*": {
+			"types": "./dist/public/internal/*.d.mts",
+			"default": "./dist/public/internal/*.mjs"
+		}
+	},
+	"files": [
+		"dist",
+		"src"
+	],
+	"scripts": {
+		"biome:check": "biome check --write",
+		"biome:fix": "biome check --write",
+		"build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
+		"clean": "rimraf dist node_modules",
+		"clean:build": "rimraf dist",
+		"format:check": "biome format",
+		"lint:check": "biome lint",
+		"test": "bun test --tsconfig-override tsconfig.common.json",
+		"test:random": "bun test test-random",
+		"test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.mts",
+		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
+	},
+	"dependencies": {
+		"@rimbu/base": "workspace:*",
+		"@rimbu/collection-types": "workspace:*",
+		"@rimbu/common": "workspace:*",
+		"@rimbu/hashed": "workspace:*",
+		"@rimbu/sorted": "workspace:*",
+		"@rimbu/stream": "workspace:*",
+		"tslib": "catalog:"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	}
 }

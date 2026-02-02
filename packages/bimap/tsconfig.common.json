@@ -1,10 +1,10 @@
 {
-  "compilerOptions": {
-    "paths": {
-      "@rimbu/bimap": ["./entry/bimap.mjs"],
-      "@rimbu/bimap/*": ["./public/*.mjs"],
-      "#bimap/*": ["./public/internal/*.mjs"],
-      "#private/*": ["./private/*.mjs"]
-    }
-  }
+	"compilerOptions": {
+		"paths": {
+			"@rimbu/bimap": ["./entry/bimap.mjs"],
+			"@rimbu/bimap/*": ["./public/*.mjs"],
+			"#bimap/*": ["./public/internal/*.mjs"],
+			"#private/*": ["./private/*.mjs"]
+		}
+	}
 }

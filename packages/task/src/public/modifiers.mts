@@ -1,8 +1,8 @@
 import type { Task } from '@rimbu/task';
 import {
-  CancellationError,
-  RetryExhaustedError,
-  TimeoutError,
+	CancellationError,
+	RetryExhaustedError,
+	TimeoutError,
 } from '@rimbu/task/errors';
 import { delay, race, throwErrorClass } from '@rimbu/task/ops';
 
@@ -14,13 +14,13 @@ import { delay, race, throwErrorClass } from '@rimbu/task/ops';
  * @returns A single Task modifier that applies all provided modifiers in sequence.
  */
 export function combined(...modifiers: Task.Modifier[]): Task.Modifier {
-  if (modifiers.length === 0) {
-    return (task) => task;
-  }
+	if (modifiers.length === 0) {
+		return (task) => task;
+	}
 
-  return modifiers.reduce(
-    (combinedModifier, modifier) => (task) => combinedModifier(modifier(task))
-  );
+	return modifiers.reduce(
+		(combinedModifier, modifier) => (task) => combinedModifier(modifier(task)),
+	);
 }
 
 /**
@@ -30,7 +30,7 @@ export function combined(...modifiers: Task.Modifier[]): Task.Modifier {
  * @returns A Task modifier that applies the timeout.
  */
 export function withTimeout(ms: number): Task.Modifier {
-  return (task) => race([task, [delay(ms), throwErrorClass(TimeoutError)]]);
+	return (task) => race([task, [delay(ms), throwErrorClass(TimeoutError)]]);
 }
 
 /**
@@ -43,39 +43,39 @@ export function withTimeout(ms: number): Task.Modifier {
  * @returns A Task modifier that applies the retry logic.
  */
 export function withRetry(
-  times?: number | undefined,
-  delayMsArray: number[] = []
+	times?: number | undefined,
+	delayMsArray: number[] = [],
 ): Task.Modifier {
-  return (task) =>
-    async (context, ...args) => {
-      if (undefined !== times && times <= 0) {
-        throw new RetryExhaustedError();
-      }
+	return (task) =>
+		async (context, ...args) => {
+			if (undefined !== times && times <= 0) {
+				throw new RetryExhaustedError();
+			}
 
-      let currentTry = 0;
+			let currentTry = 0;
 
-      while (undefined === times || currentTry < times) {
-        try {
-          return await context.run(task, args);
-        } catch (error) {
-          if (error instanceof CancellationError) {
-            // do not retry on cancellation
-            throw error;
-          }
+			while (undefined === times || currentTry < times) {
+				try {
+					return await context.run(task, args);
+				} catch (error) {
+					if (error instanceof CancellationError) {
+						// do not retry on cancellation
+						throw error;
+					}
 
-          const delayMs =
-            delayMsArray[Math.min(currentTry, delayMsArray.length - 1)] ?? 0;
+					const delayMs =
+						delayMsArray[Math.min(currentTry, delayMsArray.length - 1)] ?? 0;
 
-          if (delayMs > 0) {
-            await context.delay(delayMs);
-          }
-        }
+					if (delayMs > 0) {
+						await context.delay(delayMs);
+					}
+				}
 
-        currentTry++;
-      }
+				currentTry++;
+			}
 
-      throw new RetryExhaustedError();
-    };
+			throw new RetryExhaustedError();
+		};
 }
 
 /**
@@ -85,10 +85,10 @@ export function withRetry(
  * @returns A new Task that, when executed, will run the original Task with the bound arguments.
  */
 export function withArgs<R, A extends readonly any[]>(
-  task: Task<R, A>,
-  ...args: A
+	task: Task<R, A>,
+	...args: A
 ): Task<R> {
-  return (context) => context.run(task, args);
+	return (context) => context.run(task, args);
 }
 
 /**
@@ -98,9 +98,9 @@ export function withArgs<R, A extends readonly any[]>(
  * @returns A Task that applies the mapping function to the output of the original Task.
  */
 export function mapOutput<RO, RI extends [any]>(
-  fn: (...input: RI) => RO
+	fn: (...input: RI) => RO,
 ): Task<RO, RI> {
-  return (_, ...input) => fn(...input);
+	return (_, ...input) => fn(...input);
 }
 
 /**
@@ -110,9 +110,9 @@ export function mapOutput<RO, RI extends [any]>(
  * @returns A Task that applies the mapping function to the elements of the output array of the original Task.
  */
 export function mapOutputArr<RO, RI extends readonly any[]>(
-  fn: (...input: RI) => RO
+	fn: (...input: RI) => RO,
 ): Task<RO, [RI]> {
-  return (_, [input]) => fn(...input);
+	return (_, [input]) => fn(...input);
 }
 
 /**
@@ -123,31 +123,31 @@ export function mapOutputArr<RO, RI extends readonly any[]>(
  * @returns A Task modifier that applies the error handling logic.
  */
 export function catchError<R = never>(
-  onError?: ((error: any) => Task<R> | undefined) | undefined
+	onError?: ((error: any) => Task<R> | undefined) | undefined,
 ): Task.Modifier<R> {
-  if (undefined === onError) {
-    return (task) => task;
-  }
+	if (undefined === onError) {
+		return (task) => task;
+	}
 
-  return (task) =>
-    async (context, ...args) => {
-      try {
-        return await context.run(task, args);
-      } catch (error) {
-        if (error instanceof CancellationError) {
-          // do not catch cancellation errors
-          throw error;
-        }
+	return (task) =>
+		async (context, ...args) => {
+			try {
+				return await context.run(task, args);
+			} catch (error) {
+				if (error instanceof CancellationError) {
+					// do not catch cancellation errors
+					throw error;
+				}
 
-        const errorTask = onError(error);
+				const errorTask = onError(error);
 
-        if (undefined === errorTask) {
-          throw error;
-        }
+				if (undefined === errorTask) {
+					throw error;
+				}
 
-        return await context.run(errorTask);
-      }
-    };
+				return await context.run(errorTask);
+			}
+		};
 }
 
 /**
@@ -158,13 +158,13 @@ export function catchError<R = never>(
  * @returns A Task modifier that applies the error handling logic.
  */
 export function catchAll<R = undefined>(
-  onError?: Task<R> | undefined
+	onError?: Task<R> | undefined,
 ): Task.Modifier<R> {
-  if (undefined === onError) {
-    return catchError<undefined>(() => () => undefined);
-  }
+	if (undefined === onError) {
+		return catchError<undefined>(() => () => undefined);
+	}
 
-  return catchError(() => onError);
+	return catchError(() => onError);
 }
 
 /**
@@ -173,16 +173,16 @@ export function catchAll<R = undefined>(
  * @returns A Task modifier that repeats the original Task the specified number of times.
  */
 export function repeat(
-  times: number
+	times: number,
 ): <A extends readonly any[] = []>(
-  task: Task<unknown, [...A, number]>
+	task: Task<unknown, [...A, number]>,
 ) => Task<void, A> {
-  return (task) =>
-    async (context, ...args) => {
-      let index = -1;
+	return (task) =>
+		async (context, ...args) => {
+			let index = -1;
 
-      while (++index < times) {
-        await context.run(task, [...args, index]);
-      }
-    };
+			while (++index < times) {
+				await context.run(task, [...args, index]);
+			}
+		};
 }

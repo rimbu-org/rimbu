@@ -13,44 +13,44 @@ import type { Path } from '@rimbu/deep/path';
  * @typeparam T - the source value type.
  */
 export type Select<T> =
-  | Path.Get<T>
-  | ((value: Protected<T>) => any)
-  | readonly Select<T>[]
-  | { readonly [key: string | symbol]: Select<T> };
+	| Path.Get<T>
+	| ((value: Protected<T>) => any)
+	| readonly Select<T>[]
+	| { readonly [key: string | symbol]: Select<T> };
 
 export namespace Select {
-  /**
-   * Type defining the shape of allowed selectors, used to improve compiler checking.
-   * @typeparam SL - the selector type
-   */
-  export type Shape<SL> =
-    IsAnyFunc<SL> extends true
-      ? // functions are allowed, type provided by `Selector`
-        SL
-      : IsArray<SL> extends true
-        ? // ensure tuple type is preserved
-          readonly [...(SL extends readonly unknown[] ? SL : never)]
-        : SL extends { readonly [key: string | number | symbol]: unknown }
-          ? // ensure all object properties satisfy `Shape`
-            { readonly [K in keyof SL]: Select.Shape<SL[K]> }
-          : // nothing to check
-            SL;
+	/**
+	 * Type defining the shape of allowed selectors, used to improve compiler checking.
+	 * @typeparam SL - the selector type
+	 */
+	export type Shape<SL> =
+		IsAnyFunc<SL> extends true
+			? // functions are allowed, type provided by `Selector`
+				SL
+			: IsArray<SL> extends true
+				? // ensure tuple type is preserved
+					readonly [...(SL extends readonly unknown[] ? SL : never)]
+				: SL extends { readonly [key: string | number | symbol]: unknown }
+					? // ensure all object properties satisfy `Shape`
+						{ readonly [K in keyof SL]: Select.Shape<SL[K]> }
+					: // nothing to check
+						SL;
 
-  /**
-   * Type defining the result type of applying the SL selector type to the T value type.
-   * @typeparam T - the source value type
-   * @typeparam SL - the selector type
-   */
-  export type Result<T, SL> =
-    Select<T> extends SL
-      ? never
-      : SL extends (...args: any[]) => infer R
-        ? R
-        : SL extends string
-          ? Path.Result<T, SL>
-          : {
-              readonly [K in keyof SL]: Select.Result<T, SL[K]>;
-            };
+	/**
+	 * Type defining the result type of applying the SL selector type to the T value type.
+	 * @typeparam T - the source value type
+	 * @typeparam SL - the selector type
+	 */
+	export type Result<T, SL> =
+		Select<T> extends SL
+			? never
+			: SL extends (...args: any[]) => infer R
+				? R
+				: SL extends string
+					? Path.Result<T, SL>
+					: {
+							readonly [K in keyof SL]: Select.Result<T, SL[K]>;
+						};
 }
 /**
  * Returns the result of applying the given `selector` shape to the given `source` value.
@@ -66,30 +66,30 @@ export namespace Select {
  * ```
  */
 export function select<T, SL extends Select<T>>(
-  source: T,
-  selector: Select.Shape<SL>
+	source: T,
+	selector: Select.Shape<SL>,
 ): Select.Result<T, SL> {
-  if (typeof selector === 'function') {
-    // selector is function, resolve selector function
-    return (selector as any)(source as Protected<T>);
-  } else if (typeof selector === 'string') {
-    // selector is string path, get the value at the given path
-    return getAt(source, selector as Path.Get<T>) as any;
-  } else if (Array.isArray(selector)) {
-    // selector is tuple, get each tuple item value
-    return selector.map((s) => select(source, s)) as any;
-  }
+	if (typeof selector === 'function') {
+		// selector is function, resolve selector function
+		return (selector as any)(source as Protected<T>);
+	} else if (typeof selector === 'string') {
+		// selector is string path, get the value at the given path
+		return getAt(source, selector as Path.Get<T>) as any;
+	} else if (Array.isArray(selector)) {
+		// selector is tuple, get each tuple item value
+		return selector.map((s) => select(source, s)) as any;
+	}
 
-  // selector is object
+	// selector is object
 
-  const result: any = {};
+	const result: any = {};
 
-  for (const key in selector as any) {
-    // set each selected object key to the selector value
-    result[key] = select(source, (selector as any)[key]);
-  }
+	for (const key in selector as any) {
+		// set each selected object key to the selector value
+		result[key] = select(source, (selector as any)[key]);
+	}
 
-  return result;
+	return result;
 }
 
 /**
@@ -106,9 +106,9 @@ export function select<T, SL extends Select<T>>(
  * ```
  */
 export function selectWith<T, SL extends Select<T>>(
-  selector: Select.Shape<SL>
+	selector: Select.Shape<SL>,
 ): (source: T) => Select.Result<T, SL> {
-  return (source) => select(source, selector);
+	return (source) => select(source, selector);
 }
 
 /**
@@ -127,15 +127,15 @@ export function selectWith<T, SL extends Select<T>>(
  * ```
  */
 export function selectAt<
-  T,
-  P extends Path.Get<T>,
-  SL extends Select<Path.Result<T, P>>,
+	T,
+	P extends Path.Get<T>,
+	SL extends Select<Path.Result<T, P>>,
 >(
-  source: T,
-  path: P,
-  selector: Select.Shape<SL>
+	source: T,
+	path: P,
+	selector: Select.Shape<SL>,
 ): Select.Result<Path.Result<T, P>, SL> {
-  return select(getAt(source, path), selector);
+	return select(getAt(source, path), selector);
 }
 
 /**
@@ -153,12 +153,12 @@ export function selectAt<
  * ```
  */
 export function selectAtWith<
-  T,
-  P extends Path.Get<T>,
-  SL extends Select<Path.Result<T, P>>,
+	T,
+	P extends Path.Get<T>,
+	SL extends Select<Path.Result<T, P>>,
 >(
-  path: P,
-  selector: Select.Shape<SL>
+	path: P,
+	selector: Select.Shape<SL>,
 ): (source: T) => Select.Result<Path.Result<T, P>, SL> {
-  return (source) => selectAt(source, path, selector);
+	return (source) => selectAt(source, path, selector);
 }

@@ -6,7 +6,7 @@
  * @returns the first element
  */
 export function first<K, V>(entry: readonly [K, V]): K {
-  return entry[0];
+	return entry[0];
 }
 
 /**
@@ -17,5 +17,5 @@ export function first<K, V>(entry: readonly [K, V]): K {
  * @returns the second element
  */
 export function second<K, V>(entry: readonly [K, V]): V {
-  return entry[1];
+	return entry[1];
 }

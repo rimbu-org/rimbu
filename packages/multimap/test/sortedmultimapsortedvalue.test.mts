@@ -3,6 +3,6 @@ import { SortedMultiMapSortedValue } from '@rimbu/multimap/sorted-key/sorted-val
 import { runMultiMapTestsWith } from './multimap-test-standard.mjs';
 
 runMultiMapTestsWith(
-  'SortedMultiMapSortedValue',
-  SortedMultiMapSortedValue.defaultContext()
+	'SortedMultiMapSortedValue',
+	SortedMultiMapSortedValue.defaultContext(),
 );

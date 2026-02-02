@@ -3,9 +3,9 @@ import { expectError, expectType } from 'tsd';
 import { select, Tuple } from '../src/index.mjs';
 
 const m = {
-  a: 1,
-  b: { c: true },
-  d: Tuple.of(1, true),
+	a: 1,
+	b: { c: true },
+	d: Tuple.of(1, true),
 };
 
 expectType<number>(select(m, 'a'));
@@ -34,7 +34,7 @@ expectType<readonly [number, { c: boolean }]>(select(m, ['a', 'b'] as const));
 //   select(m, [{ q: 'a' }, 'b'])
 // );
 expectType<readonly [{ readonly q: number }, { c: boolean }]>(
-  select(m, [{ q: 'a' }, 'b'] as const)
+	select(m, [{ q: 'a' }, 'b'] as const),
 );
 
 expectType<{ readonly q: { c: boolean } }>(select(m, { q: 'b' }));

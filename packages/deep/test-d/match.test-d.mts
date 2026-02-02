@@ -44,11 +44,11 @@ expectType<boolean>(match(v1, ['some', { a: 1 }, { a: 2 }]));
 expectType<boolean>(match(v1, ['none', { a: 1 }, { a: 2 }]));
 expectType<boolean>(match(v1, ['single', { a: 1 }, { a: 2 }]));
 expectType<boolean>(
-  match(v1, [
-    'some',
-    ['every', { a: 1 }, { b: 'a' }],
-    ['every', { a: 3 }, { b: 'b' }],
-  ])
+	match(v1, [
+		'some',
+		['every', { a: 1 }, { b: 'a' }],
+		['every', { a: 3 }, { b: 'b' }],
+	]),
 );
 
 expectType<boolean>(match(v1, () => ({})));
@@ -58,11 +58,11 @@ expectType<boolean>(match(v1, () => ['some', { a: 1 }, { a: 2 }]));
 expectType<boolean>(match(v1, () => ['none', { a: 1 }, { a: 2 }]));
 expectType<boolean>(match(v1, () => ['single', { a: 1 }, { a: 2 }]));
 expectType<boolean>(
-  match(v1, [
-    'some',
-    ['every', () => ({ a: 1 }), { b: 'a' }],
-    ['every', () => ({ a: 3 }), { b: 'b' }],
-  ])
+	match(v1, [
+		'some',
+		['every', () => ({ a: 1 }), { b: 'a' }],
+		['every', () => ({ a: 3 }), { b: 'b' }],
+	]),
 );
 
 expectError(match(v1, []));
@@ -130,7 +130,7 @@ expectType<boolean>(match(v3, () => ({ 0: 1 })));
 expectType<boolean>(match(v3, () => ({ 1024: 1, 1025: undefined })));
 expectType<boolean>(match(v3, () => ({ some: [{ 1: 1 }] })));
 expectType<boolean>(
-  match(v3, () => ({ some: [{ 1: 1 }, (v) => v.length > 3] }))
+	match(v3, () => ({ some: [{ 1: 1 }, (v) => v.length > 3] })),
 );
 expectType<boolean>(match(v3, { someItem: () => 2 }));
 expectType<boolean>(match(v3, { everyItem: () => 2 }));

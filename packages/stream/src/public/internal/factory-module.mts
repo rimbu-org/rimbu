@@ -6,299 +6,299 @@ import { Range } from '@rimbu/common/range';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 
 import {
-  AlwaysStream,
-  ArrayStream,
-  EmptyStream,
-  FilterApplyStream,
-  FromIterable,
-  FromStream,
-  MapApplyStream,
-  RangeStream,
-  StreamBase,
+	AlwaysStream,
+	ArrayStream,
+	EmptyStream,
+	FilterApplyStream,
+	FromIterable,
+	FromStream,
+	MapApplyStream,
+	RangeStream,
+	StreamBase,
 } from '#stream/base';
 import type { StreamFactory } from '#stream/factory';
 import {
-  RandomIntIterator,
-  RandomIterator,
-  UnfoldIterator,
-  ZipAllWithItererator,
-  ZipWithIterator,
+	RandomIntIterator,
+	RandomIterator,
+	UnfoldIterator,
+	ZipAllWithItererator,
+	ZipWithIterator,
 } from '#stream/fast-iterator-base';
 import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
 import { fastIteratorFactoryModule } from './fast-iterator-factory-module.mjs';
 
 function isStream(obj: any): obj is Stream<any> {
-  return obj instanceof StreamBase;
+	return obj instanceof StreamBase;
 }
 
 function* yieldObjKeys<K extends string | number | symbol>(
-  obj: Record<K, any>
+	obj: Record<K, any>,
 ): Generator<K> {
-  for (const key in obj) {
-    yield key;
-  }
+	for (const key in obj) {
+		yield key;
+	}
 }
 
 function* yieldObjValues<V>(obj: Record<any, V>): Generator<V> {
-  for (const key in obj) {
-    yield (obj as any)[key];
-  }
+	for (const key in obj) {
+		yield (obj as any)[key];
+	}
 }
 
 function* yieldObjEntries<K extends string | number | symbol, V>(
-  obj: Record<K, V>
+	obj: Record<K, V>,
 ): Generator<[K, V]> {
-  for (const key in obj) {
-    yield [key, obj[key]];
-  }
+	for (const key in obj) {
+		yield [key, obj[key]];
+	}
 }
 
 export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
-  _emptyInstance: Module.lazy(() => new EmptyStream<any>(mod)),
-  isEmptyStreamSourceInstance: Module.factory((source: StreamSource<any>) => {
-    if (source === '') return true;
-    if (typeof source === 'object') {
-      if (source === mod._emptyInstance || source === null) return true;
-      if (`length` in source && (source as any).length === 0) return true;
-      if (`size` in source && (source as any).size === 0) return true;
-      if (`isEmpty` in source && (source as any).isEmpty === true) return true;
-    }
+	_emptyInstance: Module.lazy(() => new EmptyStream<any>(mod)),
+	isEmptyStreamSourceInstance: Module.factory((source: StreamSource<any>) => {
+		if (source === '') return true;
+		if (typeof source === 'object') {
+			if (source === mod._emptyInstance || source === null) return true;
+			if (`length` in source && (source as any).length === 0) return true;
+			if (`size` in source && (source as any).size === 0) return true;
+			if (`isEmpty` in source && (source as any).isEmpty === true) return true;
+		}
 
-    return false;
-  }),
-  fromStreamSource: Module.factory((source: StreamSource<any>): any => {
-    if (undefined === source || mod.isEmptyStreamSourceInstance(source))
-      return mod._emptyInstance;
-    if (isStream(source)) return source;
-    if (typeof source === 'object' && `stream` in source)
-      return source.stream();
+		return false;
+	}),
+	fromStreamSource: Module.factory((source: StreamSource<any>): any => {
+		if (undefined === source || mod.isEmptyStreamSourceInstance(source))
+			return mod._emptyInstance;
+		if (isStream(source)) return source;
+		if (typeof source === 'object' && `stream` in source)
+			return source.stream();
 
-    if (Array.isArray(source)) {
-      if (source.length <= 0) return mod._emptyInstance;
-      return new ArrayStream(mod, source);
-    }
+		if (Array.isArray(source)) {
+			if (source.length <= 0) return mod._emptyInstance;
+			return new ArrayStream(mod, source);
+		}
 
-    return new FromIterable(mod, source);
-  }),
-  fastIteratorFactory: Module.lazy(() => fastIteratorFactoryModule.build()),
-  empty: Module.factory(() => mod._emptyInstance),
-  of: Module.factory(
-    <T,>(...values: ArrayNonEmpty<T>): Stream.NonEmpty<T> =>
-      mod.fromStreamSource(values)
-  ),
-  from: Module.factory(
-    <T,>(...sources: ArrayNonEmpty<StreamSource<T>>): any => {
-      const [first, ...rest] = sources;
-      if (rest.length <= 0) {
-        return mod.fromStreamSource(first);
-      }
+		return new FromIterable(mod, source);
+	}),
+	fastIteratorFactory: Module.lazy(() => fastIteratorFactoryModule.build()),
+	empty: Module.factory(() => mod._emptyInstance),
+	of: Module.factory(
+		<T,>(...values: ArrayNonEmpty<T>): Stream.NonEmpty<T> =>
+			mod.fromStreamSource(values),
+	),
+	from: Module.factory(
+		<T,>(...sources: ArrayNonEmpty<StreamSource<T>>): any => {
+			const [first, ...rest] = sources;
+			if (rest.length <= 0) {
+				return mod.fromStreamSource(first);
+			}
 
-      const [rest1, ...restOther] = rest;
-      return mod.fromStreamSource(first).concat(rest1, ...restOther);
-    }
-  ),
-  fromArray: Module.factory(
-    <T,>(
-      array: readonly T[],
-      options: {
-        range?: IndexRange | undefined;
-        reversed?: boolean;
-      } = {}
-    ): any => {
-      if (array.length === 0) return mod._emptyInstance;
+			const [rest1, ...restOther] = rest;
+			return mod.fromStreamSource(first).concat(rest1, ...restOther);
+		},
+	),
+	fromArray: Module.factory(
+		<T,>(
+			array: readonly T[],
+			options: {
+				range?: IndexRange | undefined;
+				reversed?: boolean;
+			} = {},
+		): any => {
+			if (array.length === 0) return mod._emptyInstance;
 
-      const { range, reversed = false } = options;
+			const { range, reversed = false } = options;
 
-      if (undefined === range) {
-        return new ArrayStream(mod, array, undefined, undefined, reversed);
-      }
+			if (undefined === range) {
+				return new ArrayStream(mod, array, undefined, undefined, reversed);
+			}
 
-      const result = IndexRange.getIndicesFor(range, array.length);
+			const result = IndexRange.getIndicesFor(range, array.length);
 
-      if (result === 'empty') {
-        return mod._emptyInstance;
-      }
-      if (result === 'all') {
-        return new ArrayStream(mod, array, undefined, undefined, reversed);
-      }
-      return new ArrayStream(mod, array, result[0], result[1], reversed);
-    }
-  ),
-  fromObjectKeys: Module.factory(
-    <K extends string | number | symbol>(obj: Record<K, any>): Stream<K> => {
-      return mod.fromStreamSource(yieldObjKeys(obj));
-    }
-  ),
-  fromObjectValues: Module.factory(<V,>(obj: Record<any, V>): Stream<V> => {
-    return mod.fromStreamSource(yieldObjValues(obj));
-  }),
-  fromObject: Module.factory(
-    <K extends string | number | symbol, V>(
-      obj: Record<K, V>
-    ): Stream<[K, V]> => {
-      return mod.fromStreamSource(yieldObjEntries(obj));
-    }
-  ),
-  fromString: Module.factory(
-    (
-      source: string,
-      options: { range?: IndexRange | undefined; reversed?: boolean } = {}
-    ) => {
-      return mod.fromArray(source as any, options) as any;
-    }
-  ),
-  always: Module.factory(<T,>(value: T): Stream.NonEmpty<T> => {
-    return new AlwaysStream(mod, value) as any;
-  }),
-  applyForEach: Module.factory(
-    <T extends readonly unknown[], A extends readonly unknown[]>(
-      source: StreamSource<Readonly<T>>,
-      f: (...args: [...T, ...A]) => void,
-      ...args: A
-    ): void => {
-      const iter = mod.fromStreamSource(source)[Symbol.iterator]();
+			if (result === 'empty') {
+				return mod._emptyInstance;
+			}
+			if (result === 'all') {
+				return new ArrayStream(mod, array, undefined, undefined, reversed);
+			}
+			return new ArrayStream(mod, array, result[0], result[1], reversed);
+		},
+	),
+	fromObjectKeys: Module.factory(
+		<K extends string | number | symbol>(obj: Record<K, any>): Stream<K> => {
+			return mod.fromStreamSource(yieldObjKeys(obj));
+		},
+	),
+	fromObjectValues: Module.factory(<V,>(obj: Record<any, V>): Stream<V> => {
+		return mod.fromStreamSource(yieldObjValues(obj));
+	}),
+	fromObject: Module.factory(
+		<K extends string | number | symbol, V>(
+			obj: Record<K, V>,
+		): Stream<[K, V]> => {
+			return mod.fromStreamSource(yieldObjEntries(obj));
+		},
+	),
+	fromString: Module.factory(
+		(
+			source: string,
+			options: { range?: IndexRange | undefined; reversed?: boolean } = {},
+		) => {
+			return mod.fromArray(source as any, options) as any;
+		},
+	),
+	always: Module.factory(<T,>(value: T): Stream.NonEmpty<T> => {
+		return new AlwaysStream(mod, value) as any;
+	}),
+	applyForEach: Module.factory(
+		<T extends readonly unknown[], A extends readonly unknown[]>(
+			source: StreamSource<Readonly<T>>,
+			f: (...args: [...T, ...A]) => void,
+			...args: A
+		): void => {
+			const iter = mod.fromStreamSource(source)[Symbol.iterator]();
 
-      const done = Symbol();
-      let values: T | typeof done;
-      while (done !== (values = iter.fastNext(done))) {
-        f(...values, ...args);
-      }
-    }
-  ),
-  applyMap: Module.factory(
-    <T extends readonly unknown[], A extends readonly unknown[], R>(
-      source: StreamSource<Readonly<T>>,
-      mapFun: (...args: [...T, ...A]) => R,
-      ...args: A
-    ) => {
-      return new MapApplyStream(mod, source, mapFun, args) as any;
-    }
-  ),
-  applyFilter: Module.factory(
-    <T extends readonly unknown[], A extends readonly unknown[]>(
-      source: StreamSource<Readonly<T>>,
-      options: { pred: (...args: [...T, ...A]) => boolean; negate?: boolean },
-      ...args: A
-    ): Stream<T> => {
-      const { pred, negate = false } = options;
+			const done = Symbol();
+			let values: T | typeof done;
+			while (done !== (values = iter.fastNext(done))) {
+				f(...values, ...args);
+			}
+		},
+	),
+	applyMap: Module.factory(
+		<T extends readonly unknown[], A extends readonly unknown[], R>(
+			source: StreamSource<Readonly<T>>,
+			mapFun: (...args: [...T, ...A]) => R,
+			...args: A
+		) => {
+			return new MapApplyStream(mod, source, mapFun, args) as any;
+		},
+	),
+	applyFilter: Module.factory(
+		<T extends readonly unknown[], A extends readonly unknown[]>(
+			source: StreamSource<Readonly<T>>,
+			options: { pred: (...args: [...T, ...A]) => boolean; negate?: boolean },
+			...args: A
+		): Stream<T> => {
+			const { pred, negate = false } = options;
 
-      return new FilterApplyStream(mod, source, pred, args, negate) as any;
-    }
-  ),
-  range: Module.factory(
-    (range: IndexRange, options: { delta?: number } = {}): Stream<number> => {
-      const { delta = 1 } = options;
+			return new FilterApplyStream(mod, source, pred, args, negate) as any;
+		},
+	),
+	range: Module.factory(
+		(range: IndexRange, options: { delta?: number } = {}): Stream<number> => {
+			const { delta = 1 } = options;
 
-      if (undefined !== range.amount) {
-        if (range.amount <= 0) return mod._emptyInstance;
+			if (undefined !== range.amount) {
+				if (range.amount <= 0) return mod._emptyInstance;
 
-        let startIndex = 0;
-        if (undefined !== range.start) {
-          if (Array.isArray(range.start)) {
-            startIndex = range.start[0];
-            if (!range.start[1]) startIndex++;
-          } else startIndex = range.start;
-        }
-        const endIndex = startIndex + range.amount - 1;
+				let startIndex = 0;
+				if (undefined !== range.start) {
+					if (Array.isArray(range.start)) {
+						startIndex = range.start[0];
+						if (!range.start[1]) startIndex++;
+					} else startIndex = range.start;
+				}
+				const endIndex = startIndex + range.amount - 1;
 
-        return new RangeStream(mod, startIndex, endIndex, delta);
-      }
+				return new RangeStream(mod, startIndex, endIndex, delta);
+			}
 
-      const { start, end } = Range.getNormalizedRange(range);
-      let startIndex = 0;
-      let endIndex: number | undefined = undefined;
-      if (undefined !== start) {
-        startIndex = start[0];
-        if (!start[1]) startIndex++;
-      }
-      if (undefined !== end) {
-        endIndex = end[0];
-        if (!end[1]) endIndex--;
-      }
+			const { start, end } = Range.getNormalizedRange(range);
+			let startIndex = 0;
+			let endIndex: number | undefined = undefined;
+			if (undefined !== start) {
+				startIndex = start[0];
+				if (!start[1]) startIndex++;
+			}
+			if (undefined !== end) {
+				endIndex = end[0];
+				if (!end[1]) endIndex--;
+			}
 
-      if (undefined !== endIndex) {
-        if (delta > 0 && endIndex < startIndex) return mod._emptyInstance;
-        else if (delta < 0 && startIndex <= endIndex) return mod._emptyInstance;
-      }
+			if (undefined !== endIndex) {
+				if (delta > 0 && endIndex < startIndex) return mod._emptyInstance;
+				else if (delta < 0 && startIndex <= endIndex) return mod._emptyInstance;
+			}
 
-      return new RangeStream(mod, startIndex, endIndex, delta);
-    }
-  ),
-  random: Module.factory((): Stream.NonEmpty<number> => {
-    return new FromStream(
-      mod,
-      (): FastIterator<number> => new RandomIterator(mod)
-    ) as unknown as Stream.NonEmpty<number>;
-  }),
-  randomInt: Module.factory(
-    (min: number, max: number): Stream.NonEmpty<number> => {
-      if (min >= max) ErrBase.msg('min should be smaller than max');
+			return new RangeStream(mod, startIndex, endIndex, delta);
+		},
+	),
+	random: Module.factory((): Stream.NonEmpty<number> => {
+		return new FromStream(
+			mod,
+			(): FastIterator<number> => new RandomIterator(mod),
+		) as unknown as Stream.NonEmpty<number>;
+	}),
+	randomInt: Module.factory(
+		(min: number, max: number): Stream.NonEmpty<number> => {
+			if (min >= max) ErrBase.msg('min should be smaller than max');
 
-      return new FromStream(
-        mod,
-        (): FastIterator<number> => new RandomIntIterator(mod, min, max)
-      ) as unknown as Stream.NonEmpty<number>;
-    }
-  ),
-  unfold: Module.factory(
-    <T,>(
-      init: T,
-      next: (current: T, index: number, stop: Token) => T | Token
-    ): Stream.NonEmpty<T> => {
-      return new FromStream(
-        mod,
-        (): FastIterator<T> => new UnfoldIterator<T>(mod, init, next)
-      ) as unknown as Stream.NonEmpty<T>;
-    }
-  ),
-  zipWith: Module.factory((...sources) => {
-    return (zipFun): any => {
-      if (sources.some(mod.isEmptyStreamSourceInstance)) {
-        return mod._emptyInstance;
-      }
+			return new FromStream(
+				mod,
+				(): FastIterator<number> => new RandomIntIterator(mod, min, max),
+			) as unknown as Stream.NonEmpty<number>;
+		},
+	),
+	unfold: Module.factory(
+		<T,>(
+			init: T,
+			next: (current: T, index: number, stop: Token) => T | Token,
+		): Stream.NonEmpty<T> => {
+			return new FromStream(
+				mod,
+				(): FastIterator<T> => new UnfoldIterator<T>(mod, init, next),
+			) as unknown as Stream.NonEmpty<T>;
+		},
+	),
+	zipWith: Module.factory((...sources) => {
+		return (zipFun): any => {
+			if (sources.some(mod.isEmptyStreamSourceInstance)) {
+				return mod._emptyInstance;
+			}
 
-      return new FromStream(
-        mod,
-        () => new ZipWithIterator(mod, sources as any, zipFun)
-      );
-    };
-  }),
-  zip: Module.factory((...sources) => {
-    return mod.zipWith(...(sources as any))(Array);
-  }),
-  zipAllWith: Module.factory((...sources) => {
-    return (fillValue, zipFun: any): any => {
-      if (sources.every(mod.isEmptyStreamSourceInstance)) {
-        return mod._emptyInstance;
-      }
+			return new FromStream(
+				mod,
+				() => new ZipWithIterator(mod, sources as any, zipFun),
+			);
+		};
+	}),
+	zip: Module.factory((...sources) => {
+		return mod.zipWith(...(sources as any))(Array);
+	}),
+	zipAllWith: Module.factory((...sources) => {
+		return (fillValue, zipFun: any): any => {
+			if (sources.every(mod.isEmptyStreamSourceInstance)) {
+				return mod._emptyInstance;
+			}
 
-      return new FromStream(
-        mod,
-        (): FastIterator<any> =>
-          new ZipAllWithItererator(mod, fillValue, sources as any, zipFun)
-      );
-    };
-  }),
-  zipAll: Module.factory((fillValue, ...sources) => {
-    return mod.zipAllWith(...(sources as any))(fillValue, Array);
-  }),
-  flatten: Module.factory((source: any) => {
-    return mod.fromStreamSource(source).flatMap((s: any) => s);
-  }),
-  unzip: Module.factory((source, options): any => {
-    const { length } = options;
-    if (mod.isEmptyStreamSourceInstance(source)) {
-      return mod.of(mod._emptyInstance).repeat(length).toArray();
-    }
+			return new FromStream(
+				mod,
+				(): FastIterator<any> =>
+					new ZipAllWithItererator(mod, fillValue, sources as any, zipFun),
+			);
+		};
+	}),
+	zipAll: Module.factory((fillValue, ...sources) => {
+		return mod.zipAllWith(...(sources as any))(fillValue, Array);
+	}),
+	flatten: Module.factory((source: any) => {
+		return mod.fromStreamSource(source).flatMap((s: any) => s);
+	}),
+	unzip: Module.factory((source, options): any => {
+		const { length } = options;
+		if (mod.isEmptyStreamSourceInstance(source)) {
+			return mod.of(mod._emptyInstance).repeat(length).toArray();
+		}
 
-    const result: Stream<unknown>[] = [];
-    let i = -1;
+		const result: Stream<unknown>[] = [];
+		let i = -1;
 
-    while (++i < length) {
-      const index = i;
-      result[i] = source.map((t: any): unknown => t[index]);
-    }
+		while (++i < length) {
+			const index = i;
+			result[i] = source.map((t: any): unknown => t[index]);
+		}
 
-    return result;
-  }),
+		return result;
+	}),
 }));

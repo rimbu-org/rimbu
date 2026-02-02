@@ -2,10 +2,10 @@
  * A higher-kind utility type providing access to the element type T.
  */
 export interface Elem<T = unknown> {
-  /**
-   * The element type.
-   */
-  readonly _T: T;
+	/**
+	 * The element type.
+	 */
+	readonly _T: T;
 }
 
 /**
@@ -17,14 +17,14 @@ export type WithElem<Tp, T> = Elem<T> & Tp;
  * A higher-kind utility type providing access to a key type K and value type V.
  */
 export interface KeyValue<K = unknown, V = unknown> {
-  /**
-   * The key type.
-   */
-  readonly _K: K;
-  /**
-   * The value type.
-   */
-  readonly _V: V;
+	/**
+	 * The key type.
+	 */
+	readonly _K: K;
+	/**
+	 * The value type.
+	 */
+	readonly _V: V;
 }
 
 /**
@@ -36,18 +36,18 @@ export type WithKeyValue<Tp, K, V> = Tp & KeyValue<K, V>;
  * A higher-kind utility type providing access to a row type R, a column type C, and a value type V.
  */
 export interface Row<R = unknown, C = unknown, V = unknown> {
-  /**
-   * The row key type.
-   */
-  readonly _R: R;
-  /**
-   * The column key type.
-   */
-  readonly _C: C;
-  /**
-   * The value type.
-   */
-  readonly _V: V;
+	/**
+	 * The row key type.
+	 */
+	readonly _R: R;
+	/**
+	 * The column key type.
+	 */
+	readonly _C: C;
+	/**
+	 * The value type.
+	 */
+	readonly _V: V;
 }
 
 /**
