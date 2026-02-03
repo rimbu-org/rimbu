@@ -1,82 +1,82 @@
 {
-  "name": "@rimbu/proximity",
-  "version": "2.0.11",
-  "description": "Immutable ProximityMap implementation for TypeScript",
-  "keywords": [
-    "proximitymap",
-    "proximity",
-    "map",
-    "immutable",
-    "collection",
-    "rimbu",
-    "typescript"
-  ],
-  "homepage": "https://rimbu.org",
-  "author": {
-    "name": "Arvid Nicolaas",
-    "email": "arvid@rimbu.org",
-    "url": "https://github.com/vitoke"
-  },
-  "contributors": [
-    {
-      "name": "Gianluca Costa",
-      "email": "gianluca@gianlucacosta.info",
-      "url": "https://gianlucacosta.info/"
-    }
-  ],
-  "license": "MIT",
-  "funding": [
-    {
-      "type": "individual",
-      "url": "https://github.com/sponsors/vitoke"
-    }
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rimbu-org/rimbu.git",
-    "directory": "packages/proximity"
-  },
-  "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/esm/main/index.d.mts",
-      "import": "./dist/esm/main/index.mjs"
-    },
-    "./common": {
-      "types": "./dist/esm/common/index.d.mts",
-      "import": "./dist/esm/common/index.mjs"
-    },
-    "./map": {
-      "types": "./dist/esm/map/index.d.mts",
-      "import": "./dist/esm/map/index.mjs"
-    },
-    "./map-custom": {
-      "types": "./dist/esm/map-custom/index.d.mts",
-      "import": "./dist/esm/map-custom/index.mjs"
-    }
-  },
-  "files": [
-    "dist",
-    "src"
-  ],
-  "scripts": {},
-  "dependencies": {
-    "@rimbu/base": "workspace:*",
-    "@rimbu/collection-types": "workspace*",
-    "@rimbu/common": "workspace:*",
-    "@rimbu/hashed": "workspace:*",
-    "@rimbu/stream": "workspace:*",
-    "tslib": "catalog:"
-  },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  },
-  "madge": {
-    "detectiveOptions": {
-      "ts": {
-        "skipTypeImports": true
-      }
-    }
-  }
+	"name": "@rimbu/proximity",
+	"version": "2.0.11",
+	"description": "Immutable ProximityMap implementation for TypeScript",
+	"keywords": [
+		"proximitymap",
+		"proximity",
+		"map",
+		"immutable",
+		"collection",
+		"rimbu",
+		"typescript"
+	],
+	"homepage": "https://rimbu.org",
+	"author": {
+		"name": "Arvid Nicolaas",
+		"email": "arvid@rimbu.org",
+		"url": "https://github.com/vitoke"
+	},
+	"contributors": [
+		{
+			"name": "Gianluca Costa",
+			"email": "gianluca@gianlucacosta.info",
+			"url": "https://gianlucacosta.info/"
+		}
+	],
+	"license": "MIT",
+	"funding": [
+		{
+			"type": "individual",
+			"url": "https://github.com/sponsors/vitoke"
+		}
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rimbu-org/rimbu.git",
+		"directory": "packages/proximity"
+	},
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/esm/main/index.d.ts",
+			"import": "./dist/esm/main/index.js"
+		},
+		"./common": {
+			"types": "./dist/esm/common/index.d.ts",
+			"import": "./dist/esm/common/index.js"
+		},
+		"./map": {
+			"types": "./dist/esm/map/index.d.ts",
+			"import": "./dist/esm/map/index.js"
+		},
+		"./map-custom": {
+			"types": "./dist/esm/map-custom/index.d.ts",
+			"import": "./dist/esm/map-custom/index.js"
+		}
+	},
+	"files": [
+		"dist",
+		"src"
+	],
+	"scripts": {},
+	"dependencies": {
+		"@rimbu/base": "workspace:*",
+		"@rimbu/collection-types": "workspace*",
+		"@rimbu/common": "workspace:*",
+		"@rimbu/hashed": "workspace:*",
+		"@rimbu/stream": "workspace:*",
+		"tslib": "catalog:"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	},
+	"madge": {
+		"detectiveOptions": {
+			"ts": {
+				"skipTypeImports": true
+			}
+		}
+	}
 }

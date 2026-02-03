@@ -1,66 +1,68 @@
 {
-  "name": "@rimbu/actor",
-  "version": "0.15.9",
-  "description": "State management tools to create stateful logic that can be easily integrated in any framework",
-  "keywords": [
-    "redux",
-    "state management",
-    "immutable",
-    "rimbu",
-    "typescript"
-  ],
-  "homepage": "https://rimbu.org",
-  "author": {
-    "name": "Arvid Nicolaas",
-    "email": "arvid@rimbu.org",
-    "url": "https://github.com/vitoke"
-  },
-  "license": "MIT",
-  "funding": [
-    {
-      "type": "individual",
-      "url": "https://github.com/sponsors/vitoke"
-    }
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rimbu-org/rimbu.git",
-    "directory": "packages/actor"
-  },
-  "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/esm/main/index.d.mts",
-      "import": "./dist/esm/main/index.mjs"
-    },
-    "./immer": {
-      "types": "./dist/esm/immer/index.d.mts",
-      "import": "./dist/esm/immer/index.mjs"
-    },
-    "./patch": {
-      "types": "./dist/esm/patch/index.d.mts",
-      "import": "./dist/esm/patch/index.mjs"
-    }
-  },
-  "files": [
-    "dist",
-    "src"
-  ],
-  "scripts": {},
-  "dependencies": {
-    "@rimbu/common": "workspace:*",
-    "tslib": "catalog:"
-  },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  },
-  "devDependencies": {
-    "@rimbu/stream": "workspace:*",
-    "happy-dom": "^9.20.3",
-    "immer": "^10.0.3"
-  },
-  "optionalDependencies": {
-    "immer": "^10.0.3"
-  }
+	"name": "@rimbu/actor",
+	"version": "0.15.9",
+	"description": "State management tools to create stateful logic that can be easily integrated in any framework",
+	"keywords": [
+		"redux",
+		"state management",
+		"immutable",
+		"rimbu",
+		"typescript"
+	],
+	"homepage": "https://rimbu.org",
+	"author": {
+		"name": "Arvid Nicolaas",
+		"email": "arvid@rimbu.org",
+		"url": "https://github.com/vitoke"
+	},
+	"license": "MIT",
+	"funding": [
+		{
+			"type": "individual",
+			"url": "https://github.com/sponsors/vitoke"
+		}
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rimbu-org/rimbu.git",
+		"directory": "packages/actor"
+	},
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/esm/main/index.d.ts",
+			"import": "./dist/esm/main/index.js"
+		},
+		"./immer": {
+			"types": "./dist/esm/immer/index.d.ts",
+			"import": "./dist/esm/immer/index.js"
+		},
+		"./patch": {
+			"types": "./dist/esm/patch/index.d.ts",
+			"import": "./dist/esm/patch/index.js"
+		}
+	},
+	"files": [
+		"dist",
+		"src"
+	],
+	"scripts": {
+		"clean:build": "rimraf dist"
+	},
+	"dependencies": {
+		"@rimbu/common": "workspace:*",
+		"tslib": "catalog:"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	},
+	"devDependencies": {
+		"@rimbu/stream": "workspace:*",
+		"happy-dom": "^9.20.3",
+		"immer": "^10.0.3"
+	},
+	"optionalDependencies": {
+		"immer": "^10.0.3"
+	}
 }

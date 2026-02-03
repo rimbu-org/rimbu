@@ -34,34 +34,34 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"types": "./dist/entry/multiset.d.mts",
-			"default": "./dist/entry/multiset.mjs"
+			"types": "./dist/entry/multiset.d.ts",
+			"default": "./dist/entry/multiset.js"
 		},
 		"./hashed": {
-			"types": "./dist/entry/hashed.d.mts",
-			"default": "./dist/entry/hashed.mjs"
+			"types": "./dist/entry/hashed.d.ts",
+			"default": "./dist/entry/hashed.js"
 		},
 		"./sorted": {
-			"types": "./dist/entry/sorted.d.mts",
-			"default": "./dist/entry/sorted.mjs"
+			"types": "./dist/entry/sorted.d.ts",
+			"default": "./dist/entry/sorted.js"
 		},
 		"./*": {
-			"types": "./dist/public/*.d.mts",
-			"default": "./dist/public/*.mjs"
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"imports": {
 		"#multiset/*": {
-			"types": "./dist/public/internal/*.d.mts",
-			"default": "./dist/public/internal/*.mjs"
+			"types": "./dist/public/internal/*.d.ts",
+			"default": "./dist/public/internal/*.js"
 		},
 		"#hashed/*": {
-			"types": "./dist/public/internal/hashed/*.d.mts",
-			"default": "./dist/public/internal/hashed/*.mjs"
+			"types": "./dist/public/internal/hashed/*.d.ts",
+			"default": "./dist/public/internal/hashed/*.js"
 		},
 		"#sorted/*": {
-			"types": "./dist/public/internal/sorted/*.d.mts",
-			"default": "./dist/public/internal/sorted/*.mjs"
+			"types": "./dist/public/internal/sorted/*.d.ts",
+			"default": "./dist/public/internal/sorted/*.js"
 		}
 	},
 	"files": [
@@ -78,7 +78,7 @@
 		"lint:check": "biome lint",
 		"test": "bun test --tsconfig-override tsconfig.common.json",
 		"test:random": "bun test test-random",
-		"test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.mts",
+		"test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.ts",
 		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
 	},
 	"dependencies": {

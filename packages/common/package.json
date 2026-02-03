@@ -31,8 +31,8 @@
 	"type": "module",
 	"exports": {
 		"./*": {
-			"types": "./dist/*.d.mts",
-			"default": "./dist/*.mjs"
+			"types": "./dist/*.d.ts",
+			"default": "./dist/*.js"
 		}
 	},
 	"files": [
@@ -48,7 +48,7 @@
 		"format:check": "biome format",
 		"lint:check": "biome lint",
 		"test": "bun test --tsconfig-override tsconfig.common.json",
-		"test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.mts",
+		"test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.ts",
 		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
 	},
 	"publishConfig": {

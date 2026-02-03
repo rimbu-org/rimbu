@@ -3,7 +3,7 @@
 		"rootDir": ".",
 		"baseUrl": "./src",
 		"paths": {
-			"@rimbu/common/*": ["./*.mjs"]
+			"@rimbu/common/*": ["./*.ts"]
 		}
 	}
 }

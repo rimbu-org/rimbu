@@ -1,47 +1,48 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.13/schema.json",
-  "vcs": {
-    "enabled": true,
-    "clientKind": "git",
-    "useIgnoreFile": true
-  },
-  "files": {
-    "ignoreUnknown": false
-  },
-  "formatter": {
-    "enabled": true,
-    "indentStyle": "tab"
-  },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "recommended": true
-    }
-  },
-  "javascript": {
-    "formatter": {
-      "quoteStyle": "single"
-    }
-  },
-  "assist": {
-    "enabled": true,
-    "actions": {
-      "source": {
-        "organizeImports": {
-          "level": "on",
-          "options": {
-            "groups": [
-              ":BUN:",
-              ":BLANKLINE:",
-              "!:PACKAGE:@rimbu/**",
-              "!:PATH:./src/**",
-              ":BLANKLINE:",
-              "!:ALIAS:",
-              ":ALIAS:"
-            ]
-          }
-        }
-      }
-    }
-  }
+	"$schema": "https://biomejs.dev/schemas/2.3.13/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+	"files": {
+		"ignoreUnknown": false
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab"
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "single"
+		}
+	},
+	"assist": {
+		"enabled": true,
+		"actions": {
+			"source": {
+				"organizeImports": {
+					"level": "on",
+					"options": {
+						"groups": [
+							":BUN:",
+							":BLANK_LINE:",
+							{ "type": true, "source": "!:ALIAS:" },
+							":BLANK_LINE:",
+							{ "type": true },
+							":BLANK_LINE:",
+							"!:ALIAS:",
+							":BLANK_LINE:"
+						]
+					}
+				}
+			}
+		}
+	}
 }

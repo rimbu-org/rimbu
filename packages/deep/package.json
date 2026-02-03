@@ -33,26 +33,26 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"types": "./dist/entry/deep.d.mts",
-			"import": "./dist/entry/deep.mjs"
+			"types": "./dist/entry/deep.d.ts",
+			"import": "./dist/entry/deep.js"
 		},
 		"./*": {
-			"types": "./dist/public/*.d.mts",
-			"default": "./dist/public/*.mjs"
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"imports": {
 		"#async/*": {
-			"types": "./dist/public/async/internal/*.d.mts",
-			"default": "./dist/public/async/internal/*.mjs"
+			"types": "./dist/public/async/internal/*.d.ts",
+			"default": "./dist/public/async/internal/*.js"
 		},
 		"#deep/*": {
-			"types": "./dist/public/internal/*.d.mts",
-			"default": "./dist/public/internal/*.mjs"
+			"types": "./dist/public/internal/*.d.ts",
+			"default": "./dist/public/internal/*.js"
 		},
 		"#private/*": {
-			"types": "./dist/private/*.d.mts",
-			"default": "./dist/private/*.mjs"
+			"types": "./dist/private/*.d.ts",
+			"default": "./dist/private/*.js"
 		}
 	},
 	"files": [
@@ -68,7 +68,7 @@
 		"format:check": "biome format",
 		"lint:check": "biome lint",
 		"test": "bun test --tsconfig-override tsconfig.common.json",
-		"test:types": "bunx tsd --files ./test-d --typings ./dist/arr.d.mts",
+		"test:types": "bunx tsd --files ./test-d --typings ./dist/arr.d.ts",
 		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
 	},
 	"dependencies": {

@@ -30,16 +30,16 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"types": "./dist/entry/collection-types.d.mts",
-			"default": "./dist/entry/collection-types.mjs"
+			"types": "./dist/entry/collection-types.d.ts",
+			"default": "./dist/entry/collection-types.js"
 		},
 		"./common": {
-			"types": "./dist/entry/common.d.mts",
-			"default": "./dist/entry/common.mjs"
+			"types": "./dist/entry/common.d.ts",
+			"default": "./dist/entry/common.js"
 		},
 		"./*": {
-			"types": "./dist/public/*.d.mts",
-			"default": "./dist/public/*.mjs"
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"files": [
@@ -54,7 +54,7 @@
 		"clean:build": "rimraf dist",
 		"format:check": "biome format",
 		"lint:check": "biome lint",
-		"test:types": "bunx tsd --files ./test-d --typings ./dist/entry/main.d.mts",
+		"test:types": "bunx tsd --files ./test-d --typings ./dist/entry/main.d.ts",
 		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
 	},
 	"dependencies": {

@@ -34,38 +34,38 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"types": "./dist/entry/hashed.d.mts",
-			"default": "./dist/entry/hashed.mjs"
+			"types": "./dist/entry/hashed.d.ts",
+			"default": "./dist/entry/hashed.js"
 		},
 		"./map": {
-			"types": "./dist/entry/map.d.mts",
-			"default": "./dist/entry/map.mjs"
+			"types": "./dist/entry/map.d.ts",
+			"default": "./dist/entry/map.js"
 		},
 		"./set": {
-			"types": "./dist/entry/set.d.mts",
-			"default": "./dist/entry/set.mjs"
+			"types": "./dist/entry/set.d.ts",
+			"default": "./dist/entry/set.js"
 		},
 		"./*": {
-			"types": "./dist/public/*.d.mts",
-			"default": "./dist/public/*.mjs"
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"imports": {
 		"#hashed/*": {
-			"types": "./dist/public/internal/hashed/*.d.mts",
-			"default": "./dist/public/internal/hashed/*.mjs"
+			"types": "./dist/public/internal/hashed/*.d.ts",
+			"default": "./dist/public/internal/hashed/*.js"
 		},
 		"#map/*": {
-			"types": "./dist/public/internal/map/*.d.mts",
-			"default": "./dist/public/internal/map/*.mjs"
+			"types": "./dist/public/internal/map/*.d.ts",
+			"default": "./dist/public/internal/map/*.js"
 		},
 		"#set/*": {
-			"types": "./dist/public/internal/set/*.d.mts",
-			"default": "./dist/public/internal/set/*.mjs"
+			"types": "./dist/public/internal/set/*.d.ts",
+			"default": "./dist/public/internal/set/*.js"
 		},
 		"#private/*": {
-			"types": "./dist/private/*.d.mts",
-			"default": "./dist/private/*.mjs"
+			"types": "./dist/private/*.d.ts",
+			"default": "./dist/private/*.js"
 		}
 	},
 	"files": [
@@ -81,7 +81,7 @@
 		"format:check": "biome format",
 		"lint:check": "biome lint",
 		"test": "bun test --tsconfig-override tsconfig.common.json",
-		"test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.mts",
+		"test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.ts",
 		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
 	},
 	"dependencies": {

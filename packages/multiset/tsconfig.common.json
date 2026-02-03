@@ -1,14 +1,14 @@
 {
 	"compilerOptions": {
 		"paths": {
-			"@rimbu/multiset": ["./entry/multiset.mjs"],
-			"@rimbu/multiset/hashed": ["./entry/hashed.mjs"],
-			"@rimbu/multiset/sorted": ["./entry/sorted.mjs"],
-			"@rimbu/multiset/*": ["./public/*.mjs"],
-			"#multiset/*": ["./public/internal/*.mjs"],
-			"#hashed/*": ["./public/internal/hashed/*.mjs"],
-			"#sorted/*": ["./public/internal/sorted/*.mjs"],
-			"#private/*": ["./private/*.mjs"]
+			"@rimbu/multiset": ["./entry/multiset.ts"],
+			"@rimbu/multiset/hashed": ["./entry/hashed.ts"],
+			"@rimbu/multiset/sorted": ["./entry/sorted.ts"],
+			"@rimbu/multiset/*": ["./public/*.ts"],
+			"#multiset/*": ["./public/internal/*.ts"],
+			"#hashed/*": ["./public/internal/hashed/*.ts"],
+			"#sorted/*": ["./public/internal/sorted/*.ts"],
+			"#private/*": ["./private/*.ts"]
 		}
 	}
 }

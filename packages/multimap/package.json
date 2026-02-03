@@ -35,18 +35,18 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"types": "./dist/entry/multimap.d.mts",
-			"default": "./dist/entry/multimap.mjs"
+			"types": "./dist/entry/multimap.d.ts",
+			"default": "./dist/entry/multimap.js"
 		},
 		"./*": {
-			"types": "./dist/public/*.d.mts",
-			"default": "./dist/public/*.mjs"
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"imports": {
 		"#multimap/*": {
-			"types": "./dist/public/internal/*.d.mts",
-			"default": "./dist/public/internal/*.mjs"
+			"types": "./dist/public/internal/*.d.ts",
+			"default": "./dist/public/internal/*.js"
 		}
 	},
 	"files": [
@@ -63,7 +63,7 @@
 		"lint:check": "biome lint",
 		"test": "bun test --tsconfig-override tsconfig.common.json",
 		"test:random": "bun test test-random",
-		"test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.mts",
+		"test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.ts",
 		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
 	},
 	"dependencies": {

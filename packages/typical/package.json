@@ -1,49 +1,49 @@
 {
-  "name": "@rimbu/typical",
-  "version": "0.8.7",
-  "description": "Type-level numeric and string operations",
-  "keywords": [
-    "typelevel",
-    "template literal",
-    "literal types",
-    "rimbu",
-    "typescript"
-  ],
-  "homepage": "https://rimbu.org",
-  "author": {
-    "name": "Arvid Nicolaas",
-    "email": "arvid@rimbu.org",
-    "url": "https://github.com/vitoke"
-  },
-  "license": "MIT",
-  "funding": [
-    {
-      "type": "individual",
-      "url": "https://github.com/sponsors/vitoke"
-    }
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rimbu-org/rimbu.git",
-    "directory": "packages/typical"
-  },
-  "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/esm/index.d.mts",
-      "import": "./dist/esm/index.mjs"
-    }
-  },
-  "files": [
-    "dist",
-    "src"
-  ],
-  "scripts": {},
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  },
-  "dependencies": {
-    "tslib": "catalog:"
-  }
+	"name": "@rimbu/typical",
+	"version": "0.8.7",
+	"description": "Type-level numeric and string operations",
+	"keywords": [
+		"typelevel",
+		"template literal",
+		"literal types",
+		"rimbu",
+		"typescript"
+	],
+	"homepage": "https://rimbu.org",
+	"author": {
+		"name": "Arvid Nicolaas",
+		"email": "arvid@rimbu.org",
+		"url": "https://github.com/vitoke"
+	},
+	"license": "MIT",
+	"funding": [
+		{
+			"type": "individual",
+			"url": "https://github.com/sponsors/vitoke"
+		}
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rimbu-org/rimbu.git",
+		"directory": "packages/typical"
+	},
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/esm/index.d.ts",
+			"import": "./dist/esm/index.js"
+		}
+	},
+	"files": [
+		"dist",
+		"src"
+	],
+	"scripts": {},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	},
+	"dependencies": {
+		"tslib": "catalog:"
+	}
 }

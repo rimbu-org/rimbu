@@ -1,63 +1,63 @@
 {
-  "name": "@rimbu/reactor",
-  "version": "0.14.10",
-  "description": "React state management based on Rimbu Actors",
-  "keywords": [
-    "state management",
-    "observable",
-    "actor",
-    "react",
-    "rimbu",
-    "typescript"
-  ],
-  "homepage": "https://rimbu.org",
-  "author": {
-    "name": "Arvid Nicolaas",
-    "email": "arvid@rimbu.org",
-    "url": "https://github.com/vitoke"
-  },
-  "license": "MIT",
-  "funding": [
-    {
-      "type": "individual",
-      "url": "https://github.com/sponsors/vitoke"
-    }
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rimbu-org/rimbu.git",
-    "directory": "packages/reactor"
-  },
-  "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/esm/index.d.mts",
-      "import": "./dist/esm/index.mjs"
-    }
-  },
-  "files": [
-    "dist",
-    "src"
-  ],
-  "scripts": {},
-  "devDependencies": {
-    "@testing-library/react": "12.1.5",
-    "@testing-library/react-hooks": "^8.0.0",
-    "happy-dom": "^9.20.3",
-    "react": "<18.0.0",
-    "react-dom": "<18.0.0"
-  },
-  "dependencies": {
-    "@rimbu/actor": "workspace:*",
-    "@rimbu/deep": "workspace:*",
-    "@rimbu/stream": "workspace:*",
-    "tslib": "catalog:"
-  },
-  "peerDependencies": {
-    "react": ">=16"
-  },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  }
+	"name": "@rimbu/reactor",
+	"version": "0.14.10",
+	"description": "React state management based on Rimbu Actors",
+	"keywords": [
+		"state management",
+		"observable",
+		"actor",
+		"react",
+		"rimbu",
+		"typescript"
+	],
+	"homepage": "https://rimbu.org",
+	"author": {
+		"name": "Arvid Nicolaas",
+		"email": "arvid@rimbu.org",
+		"url": "https://github.com/vitoke"
+	},
+	"license": "MIT",
+	"funding": [
+		{
+			"type": "individual",
+			"url": "https://github.com/sponsors/vitoke"
+		}
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rimbu-org/rimbu.git",
+		"directory": "packages/reactor"
+	},
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/esm/index.d.ts",
+			"import": "./dist/esm/index.js"
+		}
+	},
+	"files": [
+		"dist",
+		"src"
+	],
+	"scripts": {},
+	"devDependencies": {
+		"@testing-library/react": "12.1.5",
+		"@testing-library/react-hooks": "^8.0.0",
+		"happy-dom": "^9.20.3",
+		"react": "<18.0.0",
+		"react-dom": "<18.0.0"
+	},
+	"dependencies": {
+		"@rimbu/actor": "workspace:*",
+		"@rimbu/deep": "workspace:*",
+		"@rimbu/stream": "workspace:*",
+		"tslib": "catalog:"
+	},
+	"peerDependencies": {
+		"react": ">=16"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	}
 }

@@ -3,10 +3,10 @@
 		"rootDirs": [".", ".."],
 		"baseUrl": "./src",
 		"paths": {
-			"@rimbu/multimap": ["./entry/multimap.mjs"],
-			"@rimbu/multimap/*": ["./public/*.mjs"],
-			"#multimap/*": ["./public/internal/*.mjs"],
-			"#private/*": ["./private/*.mjs"]
+			"@rimbu/multimap": ["./entry/multimap.ts"],
+			"@rimbu/multimap/*": ["./public/*.ts"],
+			"#multimap/*": ["./public/internal/*.ts"],
+			"#private/*": ["./private/*.ts"]
 		}
 	}
 }

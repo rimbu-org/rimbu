@@ -1,89 +1,89 @@
 {
-  "name": "@rimbu/core",
-  "version": "3.0.3",
-  "description": "Immutable collections and tools for TypeScript",
-  "keywords": [
-    "collection",
-    "immutable",
-    "list",
-    "map",
-    "set",
-    "multiset",
-    "bimap",
-    "multimap",
-    "bimultimap",
-    "graph",
-    "stream",
-    "table",
-    "ordered",
-    "sorted",
-    "hashed",
-    "proximity",
-    "library",
-    "rimbu",
-    "typescript"
-  ],
-  "homepage": "https://rimbu.org",
-  "author": {
-    "name": "Arvid Nicolaas",
-    "email": "arvid@rimbu.org",
-    "url": "https://github.com/vitoke"
-  },
-  "contributors": [
-    {
-      "name": "Gianluca Costa",
-      "email": "gianluca@gianlucacosta.info",
-      "url": "https://gianlucacosta.info/"
-    }
-  ],
-  "license": "MIT",
-  "funding": [
-    {
-      "type": "individual",
-      "url": "https://github.com/sponsors/vitoke"
-    }
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rimbu-org/rimbu.git",
-    "directory": "packages/core"
-  },
-  "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/esm/main/index.d.mts",
-      "import": "./dist/esm/main/index.mjs"
-    },
-    "./menu": {
-      "types": "./dist/esm/menu/index.d.mts",
-      "import": "./dist/esm/menu/index.mjs"
-    }
-  },
-  "files": [
-    "dist",
-    "src"
-  ],
-  "scripts": {},
-  "dependencies": {
-    "@rimbu/bimap": "workspace:*",
-    "@rimbu/bimultimap": "workspace:*",
-    "@rimbu/collection-types": "workspace:*",
-    "@rimbu/common": "workspace:*",
-    "@rimbu/deep": "workspace:*",
-    "@rimbu/graph": "workspace:*",
-    "@rimbu/hashed": "workspace:*",
-    "@rimbu/list": "workspace:*",
-    "@rimbu/multimap": "workspace:*",
-    "@rimbu/multiset": "workspace:*",
-    "@rimbu/ordered": "workspace:*",
-    "@rimbu/proximity": "workspace:*",
-    "@rimbu/sorted": "workspace:*",
-    "@rimbu/stream": "workspace:*",
-    "@rimbu/table": "workspace:*",
-    "tslib": "catalog:"
-  },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  }
+	"name": "@rimbu/core",
+	"version": "3.0.3",
+	"description": "Immutable collections and tools for TypeScript",
+	"keywords": [
+		"collection",
+		"immutable",
+		"list",
+		"map",
+		"set",
+		"multiset",
+		"bimap",
+		"multimap",
+		"bimultimap",
+		"graph",
+		"stream",
+		"table",
+		"ordered",
+		"sorted",
+		"hashed",
+		"proximity",
+		"library",
+		"rimbu",
+		"typescript"
+	],
+	"homepage": "https://rimbu.org",
+	"author": {
+		"name": "Arvid Nicolaas",
+		"email": "arvid@rimbu.org",
+		"url": "https://github.com/vitoke"
+	},
+	"contributors": [
+		{
+			"name": "Gianluca Costa",
+			"email": "gianluca@gianlucacosta.info",
+			"url": "https://gianlucacosta.info/"
+		}
+	],
+	"license": "MIT",
+	"funding": [
+		{
+			"type": "individual",
+			"url": "https://github.com/sponsors/vitoke"
+		}
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rimbu-org/rimbu.git",
+		"directory": "packages/core"
+	},
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/esm/main/index.d.ts",
+			"import": "./dist/esm/main/index.js"
+		},
+		"./menu": {
+			"types": "./dist/esm/menu/index.d.ts",
+			"import": "./dist/esm/menu/index.js"
+		}
+	},
+	"files": [
+		"dist",
+		"src"
+	],
+	"scripts": {},
+	"dependencies": {
+		"@rimbu/bimap": "workspace:*",
+		"@rimbu/bimultimap": "workspace:*",
+		"@rimbu/collection-types": "workspace:*",
+		"@rimbu/common": "workspace:*",
+		"@rimbu/deep": "workspace:*",
+		"@rimbu/graph": "workspace:*",
+		"@rimbu/hashed": "workspace:*",
+		"@rimbu/list": "workspace:*",
+		"@rimbu/multimap": "workspace:*",
+		"@rimbu/multiset": "workspace:*",
+		"@rimbu/ordered": "workspace:*",
+		"@rimbu/proximity": "workspace:*",
+		"@rimbu/sorted": "workspace:*",
+		"@rimbu/stream": "workspace:*",
+		"@rimbu/table": "workspace:*",
+		"tslib": "catalog:"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	}
 }

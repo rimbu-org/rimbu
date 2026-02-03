@@ -3,8 +3,8 @@
     "rootDirs": [".", ".."],
     "baseUrl": "./src",
     "paths": {
-      "@rimbu/graph/custom": ["custom/index.mjs", "custom/index.cts"],
-      "@rimbu/graph": ["main/index.mjs", "main/index.cts"]
+      "@rimbu/graph/custom": ["custom/index.ts", "custom/index.cts"],
+      "@rimbu/graph": ["main/index.ts", "main/index.cts"]
     }
   }
 }

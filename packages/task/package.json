@@ -34,22 +34,22 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"types": "./dist/entry/task.d.mts",
-			"default": "./dist/entry/task.mjs"
+			"types": "./dist/entry/task.d.ts",
+			"default": "./dist/entry/task.js"
 		},
 		"./*": {
-			"types": "./dist/public/*.d.mts",
-			"default": "./dist/public/*.mjs"
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"imports": {
 		"#task/*": {
-			"types": "./dist/public/internal/*.d.mts",
-			"default": "./dist/public/internal/*.mjs"
+			"types": "./dist/public/internal/*.d.ts",
+			"default": "./dist/public/internal/*.js"
 		},
 		"#private/*": {
-			"types": "./dist/private/*.d.mts",
-			"default": "./dist/private/*.mjs"
+			"types": "./dist/private/*.d.ts",
+			"default": "./dist/private/*.js"
 		}
 	},
 	"files": [
@@ -65,7 +65,7 @@
 		"format:check": "biome format",
 		"lint:check": "biome lint",
 		"test": "bun test --tsconfig-override tsconfig.common.json",
-		"test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.mts",
+		"test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.ts",
 		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
 	},
 	"dependencies": {

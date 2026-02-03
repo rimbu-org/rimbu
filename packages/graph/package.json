@@ -1,67 +1,67 @@
 {
-  "name": "@rimbu/graph",
-  "version": "2.0.11",
-  "description": "Immutable Graph data structures for TypeScript",
-  "keywords": [
-    "graph",
-    "edge",
-    "directed",
-    "undirected",
-    "vertex",
-    "vertices",
-    "weighted",
-    "nodes",
-    "traverse",
-    "immutable",
-    "collection",
-    "rimbu",
-    "typescript"
-  ],
-  "homepage": "https://rimbu.org",
-  "author": {
-    "name": "Arvid Nicolaas",
-    "email": "arvid@rimbu.org",
-    "url": "https://github.com/vitoke"
-  },
-  "license": "MIT",
-  "funding": [
-    {
-      "type": "individual",
-      "url": "https://github.com/sponsors/vitoke"
-    }
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rimbu-org/rimbu.git",
-    "directory": "packages/graph"
-  },
-  "type": "module",
-  "exports": {
-    ".": {
-      "types": "./dist/esm/main/index.d.mts",
-      "import": "./dist/esm/main/index.mjs"
-    },
-    "./custom": {
-      "types": "./dist/esm/custom/index.d.mts",
-      "import": "./dist/esm/custom/index.mjs"
-    }
-  },
-  "files": [
-    "dist",
-    "src"
-  ],
-  "scripts": {},
-  "dependencies": {
-    "@rimbu/base": "workspace:*",
-    "@rimbu/collection-types": "workspace:*",
-    "@rimbu/common": "workspace:*",
-    "@rimbu/hashed": "workspace:*",
-    "@rimbu/sorted": "workspace:*",
-    "@rimbu/stream": "workspace:*",
-    "tslib": "catalog:"
-  },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
-  }
+	"name": "@rimbu/graph",
+	"version": "2.0.11",
+	"description": "Immutable Graph data structures for TypeScript",
+	"keywords": [
+		"graph",
+		"edge",
+		"directed",
+		"undirected",
+		"vertex",
+		"vertices",
+		"weighted",
+		"nodes",
+		"traverse",
+		"immutable",
+		"collection",
+		"rimbu",
+		"typescript"
+	],
+	"homepage": "https://rimbu.org",
+	"author": {
+		"name": "Arvid Nicolaas",
+		"email": "arvid@rimbu.org",
+		"url": "https://github.com/vitoke"
+	},
+	"license": "MIT",
+	"funding": [
+		{
+			"type": "individual",
+			"url": "https://github.com/sponsors/vitoke"
+		}
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rimbu-org/rimbu.git",
+		"directory": "packages/graph"
+	},
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/esm/main/index.d.ts",
+			"import": "./dist/esm/main/index.js"
+		},
+		"./custom": {
+			"types": "./dist/esm/custom/index.d.ts",
+			"import": "./dist/esm/custom/index.js"
+		}
+	},
+	"files": [
+		"dist",
+		"src"
+	],
+	"scripts": {},
+	"dependencies": {
+		"@rimbu/base": "workspace:*",
+		"@rimbu/collection-types": "workspace:*",
+		"@rimbu/common": "workspace:*",
+		"@rimbu/hashed": "workspace:*",
+		"@rimbu/sorted": "workspace:*",
+		"@rimbu/stream": "workspace:*",
+		"tslib": "catalog:"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	}
 }

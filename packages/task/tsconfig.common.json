@@ -1,10 +1,10 @@
 {
 	"compilerOptions": {
 		"paths": {
-			"@rimbu/task": ["./entry/task.mjs"],
-			"@rimbu/task/*": ["./public/*.mjs"],
-			"#task/*": ["./public/internal/*.mjs"],
-			"#private/*": ["./private/*.mjs"]
+			"@rimbu/task": ["./entry/task.ts"],
+			"@rimbu/task/*": ["./public/*.ts"],
+			"#task/*": ["./public/internal/*.ts"],
+			"#private/*": ["./private/*.ts"]
 		}
 	}
 }

@@ -3,10 +3,10 @@
     "rootDirs": [".", ".."],
     "baseUrl": "./src",
     "paths": {
-      "@rimbu/proximity/common": ["common/index.mjs", "common/index.cts"],
-      "@rimbu/proximity/map": ["map/index.mjs", "map/index.cts"],
+      "@rimbu/proximity/common": ["common/index.ts", "common/index.cts"],
+      "@rimbu/proximity/map": ["map/index.ts", "map/index.cts"],
       "@rimbu/proximity/map-custom": [
-        "map-custom/index.mjs",
+        "map-custom/index.ts",
         "map-custom/index.cts"
       ]
     }

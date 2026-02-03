@@ -1,13 +1,13 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
-  "extends": "<projectFolder>/../../config/api-extractor.json",
-  "mainEntryPointFilePath": "<projectFolder>dist/esm/map/index.d.mts",
-  "bundledPackages": ["@rimbu/proximity"],
-  "docModel": {
-    "enabled": true,
-    "apiJsonFilePath": "<projectFolder>/../../doc-gen/input/<unscopedPackageName>!map.api.json"
-  },
-  "compiler": {
-    "tsconfigFilePath": "<projectFolder>/tsconfig.extractor.json"
-  }
+	"$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
+	"extends": "<projectFolder>/../../config/api-extractor.json",
+	"mainEntryPointFilePath": "<projectFolder>dist/esm/map/index.d.ts",
+	"bundledPackages": ["@rimbu/proximity"],
+	"docModel": {
+		"enabled": true,
+		"apiJsonFilePath": "<projectFolder>/../../doc-gen/input/<unscopedPackageName>!map.api.json"
+	},
+	"compiler": {
+		"tsconfigFilePath": "<projectFolder>/tsconfig.extractor.json"
+	}
 }

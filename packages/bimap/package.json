@@ -32,18 +32,18 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"types": "./dist/entry/bimap.d.mts",
-			"default": "./dist/entry/bimap.mjs"
+			"types": "./dist/entry/bimap.d.ts",
+			"default": "./dist/entry/bimap.js"
 		},
 		"./*": {
-			"types": "./dist/public/*.d.mts",
-			"default": "./dist/public/*.mjs"
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"imports": {
 		"#bimap/*": {
-			"types": "./dist/public/internal/*.d.mts",
-			"default": "./dist/public/internal/*.mjs"
+			"types": "./dist/public/internal/*.d.ts",
+			"default": "./dist/public/internal/*.js"
 		}
 	},
 	"files": [
@@ -59,7 +59,7 @@
 		"format:check": "biome format",
 		"lint:check": "biome lint",
 		"test": "bun test test/* --tsconfig-override tsconfig.common.json",
-		"test:types": "bunx tsd --files ./test-d --typings ./dist/entry/bimap.d.mts",
+		"test:types": "bunx tsd --files ./test-d --typings ./dist/entry/bimap.d.ts",
 		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
 	},
 	"dependencies": {

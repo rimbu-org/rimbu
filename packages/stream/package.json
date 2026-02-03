@@ -35,30 +35,30 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"types": "./dist/entry/stream.d.mts",
-			"default": "./dist/entry/stream.mjs"
+			"types": "./dist/entry/stream.d.ts",
+			"default": "./dist/entry/stream.js"
 		},
 		"./async": {
-			"types": "./dist/entry/async-stream.d.mts",
-			"default": "./dist/entry/async-stream.mjs"
+			"types": "./dist/entry/async-stream.d.ts",
+			"default": "./dist/entry/async-stream.js"
 		},
 		"./*": {
-			"types": "./dist/public/*.d.mts",
-			"default": "./dist/public/*.mjs"
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"imports": {
 		"#async/*": {
-			"types": "./dist/public/async/internal/*.d.mts",
-			"default": "./dist/public/async/internal/*.mjs"
+			"types": "./dist/public/async/internal/*.d.ts",
+			"default": "./dist/public/async/internal/*.js"
 		},
 		"#stream/*": {
-			"types": "./dist/public/internal/*.d.mts",
-			"default": "./dist/public/internal/*.mjs"
+			"types": "./dist/public/internal/*.d.ts",
+			"default": "./dist/public/internal/*.js"
 		},
 		"#private/*": {
-			"types": "./dist/private/*.d.mts",
-			"default": "./dist/private/*.mjs"
+			"types": "./dist/private/*.d.ts",
+			"default": "./dist/private/*.js"
 		}
 	},
 	"files": [
@@ -74,7 +74,7 @@
 		"format:check": "biome format",
 		"lint:check": "biome lint",
 		"test": "bun test --tsconfig-override tsconfig.common.json",
-		"test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.mts",
+		"test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.ts",
 		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
 	},
 	"dependencies": {

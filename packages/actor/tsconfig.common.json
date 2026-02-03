@@ -3,7 +3,7 @@
     "rootDirs": [".", ".."],
     "baseUrl": "./src",
     "paths": {
-      "@rimbu/actor": ["main/index.mjs", "main/index.cts"]
+      "@rimbu/actor": ["main/index.ts", "main/index.cts"]
     }
   }
 }

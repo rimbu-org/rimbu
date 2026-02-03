@@ -3,9 +3,9 @@
 		"rootDir": ".",
 		"baseUrl": "./src",
 		"paths": {
-			"@rimbu/collection-types": ["./entry/collection-types.mjs"],
-			"@rimbu/collection-types/common": ["./entry/common.mjs"],
-			"@rimbu/collection-types/*": ["./public/*.mjs"]
+			"@rimbu/collection-types": ["./entry/collection-types.ts"],
+			"@rimbu/collection-types/common": ["./entry/common.ts"],
+			"@rimbu/collection-types/*": ["./public/*.ts"]
 		}
 	}
 }

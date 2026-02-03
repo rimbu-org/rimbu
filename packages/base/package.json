@@ -29,8 +29,8 @@
 	"type": "module",
 	"exports": {
 		"./*": {
-			"types": "./dist/*.d.mts",
-			"import": "./dist/*.mjs"
+			"types": "./dist/*.d.ts",
+			"import": "./dist/*.js"
 		}
 	},
 	"files": [
@@ -46,7 +46,7 @@
 		"format:check": "biome format",
 		"lint:check": "biome lint",
 		"test": "bun test --tsconfig-override tsconfig.common.json",
-		"test:types": "bunx tsd --files ./test-d --typings ./dist/arr.d.mts",
+		"test:types": "bunx tsd --files ./test-d --typings ./dist/arr.d.ts",
 		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
 	},
 	"dependencies": {

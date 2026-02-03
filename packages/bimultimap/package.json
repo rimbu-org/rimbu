@@ -32,30 +32,30 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"types": "./dist/entry/bimultimap.d.mts",
-			"default": "./dist/entry/bimultimap.mjs"
+			"types": "./dist/entry/bimultimap.d.ts",
+			"default": "./dist/entry/bimultimap.js"
 		},
 		"./hashed": {
-			"types": "./dist/entry/hashed.d.mts",
-			"default": "./dist/entry/hashed.mjs"
+			"types": "./dist/entry/hashed.d.ts",
+			"default": "./dist/entry/hashed.js"
 		},
 		"./sorted": {
-			"types": "./dist/entry/sorted.d.mts",
-			"default": "./dist/entry/sorted.mjs"
+			"types": "./dist/entry/sorted.d.ts",
+			"default": "./dist/entry/sorted.js"
 		},
 		"./*": {
-			"types": "./dist/public/*.d.mts",
-			"default": "./dist/public/*.mjs"
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"imports": {
 		"#bimultimap/*": {
-			"types": "./dist/public/internal/*.d.mts",
-			"default": "./dist/public/internal/*.mjs"
+			"types": "./dist/public/internal/*.d.ts",
+			"default": "./dist/public/internal/*.js"
 		},
 		"#private/*": {
-			"types": "./dist/private/*.d.mts",
-			"default": "./dist/private/*.mjs"
+			"types": "./dist/private/*.d.ts",
+			"default": "./dist/private/*.js"
 		}
 	},
 	"files": [

@@ -3,13 +3,13 @@
     "rootDirs": [".", ".."],
     "baseUrl": "./src",
     "paths": {
-      "@rimbu/table/custom": ["custom/index.mjs", "custom/index.cts"],
-      "@rimbu/table/hash-row": ["hash-row/index.mjs", "hash-row/index.cts"],
+      "@rimbu/table/custom": ["custom/index.ts", "custom/index.cts"],
+      "@rimbu/table/hash-row": ["hash-row/index.ts", "hash-row/index.cts"],
       "@rimbu/table/sorted-row": [
-        "sorted-row/index.mjs",
+        "sorted-row/index.ts",
         "sorted-row/index.cts"
       ],
-      "@rimbu/table": ["main/index.mjs", "main/index.cts"]
+      "@rimbu/table": ["main/index.ts", "main/index.cts"]
     }
   }
 }
