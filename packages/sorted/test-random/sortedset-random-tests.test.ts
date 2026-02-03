@@ -1,4 +1,4 @@
-import { runSetRandomTestsWith } from '../../collection-types/test-utils/set/set-random.mjs';
-import { SortedSet } from '../src/main/index.mjs';
+import { SortedSet } from '@rimbu/sorted/set';
+import { runSetRandomTestsWith } from '../../collection-types/test-utils/set/set-random';
 
 runSetRandomTestsWith('SortedSet default', SortedSet.defaultContext<number>());

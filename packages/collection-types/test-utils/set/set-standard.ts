@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import type { RSet } from 'entry/collection-types.mjs';
+import type { RSet } from '@rimbu/collection-types';
 
 import { HashSet } from '@rimbu/hashed/set';
 import { Stream } from '@rimbu/stream';

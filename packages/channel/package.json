@@ -55,8 +55,9 @@
 		"src"
 	],
 	"scripts": {
-		"build": "bun clean && bunx tsc --p tsconfig.esm.json && bunx tsc-alias -p tsconfig.esm.json",
+		"build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
 		"clean": "rimraf dist node_modules",
+		"clean:build": "rimraf dist",
 		"extract-api": "yarn extract-api:main",
 		"extract-api:main": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
 		"format": "yarn format:base --write",
@@ -75,8 +76,5 @@
 	"publishConfig": {
 		"access": "public",
 		"provenance": true
-	},
-	"devDependencies": {
-		"@types/node": "^20.11.6"
 	}
 }

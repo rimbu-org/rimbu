@@ -1,29 +1,32 @@
+import type { Channel } from '@rimbu/channel';
+
 import { AsyncOptLazy } from '@rimbu/common/async-opt-lazy';
 import { AsyncStream, type AsyncStreamSource } from '@rimbu/stream/async';
+import { AsyncStreamFactory } from '@rimbu/stream/async/internal/factory';
 import { AsyncFastIteratorBase } from '@rimbu/stream/async/internal/fast-iterator-base';
 import { AsyncFromStream } from '@rimbu/stream/async/internal/stream-base';
 
-import { ChannelError } from '#private/channel-error';
-import type { Channel } from '@rimbu/channel';
-
 import { attachAbort, createCleaner, timeoutAction } from '#channel/utils';
+import { ChannelError } from '#private/channel-error';
 
 /**
  * Fast async iterator adapter that turns a `Channel.Read` into an `AsyncStream`.
  * @typeparam T - the channel message type
  */
 export class ChannelFastIterator<T> extends AsyncFastIteratorBase<T> {
-  constructor(readonly sourceCh: Channel.Read<T>) {
-    super();
-  }
+	constructor(readonly sourceCh: Channel.Read<T>) {
+		super();
+	}
 
-  async fastNext<O>(otherwise?: AsyncOptLazy<O> | undefined): Promise<T | O> {
-    try {
-      return await this.sourceCh.receive();
-    } catch {
-      return AsyncOptLazy.toPromise(otherwise!);
-    }
-  }
+	readonly deps = AsyncStreamFactory();
+
+	async fastNext<O>(otherwise?: AsyncOptLazy<O> | undefined): Promise<T | O> {
+		try {
+			return await this.sourceCh.receive();
+		} catch {
+			return AsyncOptLazy.toPromise(otherwise!);
+		}
+	}
 }
 
 /**
@@ -31,245 +34,249 @@ export class ChannelFastIterator<T> extends AsyncFastIteratorBase<T> {
  * @typeparam T - the channel message type
  */
 export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
-  readonly #closeController = new AbortController();
-  readonly #getNextValueQueue = new Set<() => T>();
+	readonly #closeController = new AbortController();
+	readonly #getNextValueQueue = new Set<() => T>();
 
-  readonly #capacity;
-  readonly #validator;
+	readonly #capacity;
+	readonly #validator;
 
-  constructor(
-    options: {
-      capacity?: number | undefined;
-      validator?: ((value: any) => boolean) | undefined;
-    } = {}
-  ) {
-    this.#capacity = options.capacity ?? 0;
-    this.#validator = options.validator;
-  }
+	constructor(
+		readonly deps: AsyncStreamFactory,
+		options: {
+			capacity?: number | undefined;
+			validator?: ((value: any) => boolean) | undefined;
+		} = {},
+	) {
+		this.#capacity = options.capacity ?? 0;
+		this.#validator = options.validator;
+	}
 
-  #blockedReceiver: ((value: T) => void) | undefined;
-  #isSending = false;
+	#blockedReceiver: ((value: T) => void) | undefined;
+	#isSending = false;
 
-  [Symbol.asyncIterator](): AsyncIterator<T> {
-    return this.asyncStream()[Symbol.asyncIterator]();
-  }
+	[Symbol.asyncIterator](): AsyncIterator<T> {
+		return this.asyncStream()[Symbol.asyncIterator]();
+	}
 
-  asyncStream(): AsyncStream<T> {
-    return new AsyncFromStream<T>(() => new ChannelFastIterator<T>(this));
-  }
+	asyncStream(): AsyncStream<T> {
+		return new AsyncFromStream<T>(
+			this.deps,
+			() => new ChannelFastIterator<T>(this),
+		);
+	}
 
-  get capacity(): number {
-    return this.#capacity;
-  }
+	get capacity(): number {
+		return this.#capacity;
+	}
 
-  get length(): number {
-    return Math.min(this.#bufferSize, this.capacity);
-  }
+	get length(): number {
+		return Math.min(this.#bufferSize, this.capacity);
+	}
 
-  get isClosed(): boolean {
-    return this.#closeController.signal.aborted;
-  }
+	get isClosed(): boolean {
+		return this.#closeController.signal.aborted;
+	}
 
-  get isExhausted(): boolean {
-    return this.isClosed && this.#bufferSize <= 0;
-  }
+	get isExhausted(): boolean {
+		return this.isClosed && this.#bufferSize <= 0;
+	}
 
-  get #bufferSize(): number {
-    return this.#getNextValueQueue.size;
-  }
+	get #bufferSize(): number {
+		return this.#getNextValueQueue.size;
+	}
 
-  get #bufferEmpty(): boolean {
-    return this.#bufferSize <= 0;
-  }
+	get #bufferEmpty(): boolean {
+		return this.#bufferSize <= 0;
+	}
 
-  get #bufferFull(): boolean {
-    return this.#bufferSize >= this.capacity;
-  }
+	get #bufferFull(): boolean {
+		return this.#bufferSize >= this.capacity;
+	}
 
-  readable(): Channel.Read<T> {
-    return this;
-  }
+	readable(): Channel.Read<T> {
+		return this;
+	}
 
-  writable(): Channel.Write<T> {
-    return this;
-  }
+	writable(): Channel.Write<T> {
+		return this;
+	}
 
-  async send(
-    value: T,
-    options: {
-      signal?: AbortSignal | undefined;
-      timeoutMs?: number | undefined;
-      catchChannelErrors?: boolean | undefined;
-    } = {}
-  ): Promise<any> {
-    const { signal, timeoutMs, catchChannelErrors = false } = options;
+	async send(
+		value: T,
+		options: {
+			signal?: AbortSignal | undefined;
+			timeoutMs?: number | undefined;
+			catchChannelErrors?: boolean | undefined;
+		} = {},
+	): Promise<any> {
+		const { signal, timeoutMs, catchChannelErrors = false } = options;
 
-    try {
-      if (this.isClosed) {
-        throw new ChannelError.ChannelClosedError();
-      }
+		try {
+			if (this.isClosed) {
+				throw new ChannelError.ChannelClosedError();
+			}
 
-      if (signal?.aborted) {
-        throw new ChannelError.OperationAbortedError();
-      }
+			if (signal?.aborted) {
+				throw new ChannelError.OperationAbortedError();
+			}
 
-      if (this.#isSending) {
-        throw new ChannelError.AlreadyBusySendingError();
-      }
+			if (this.#isSending) {
+				throw new ChannelError.AlreadyBusySendingError();
+			}
 
-      if (this.#validator?.(value) === false) {
-        throw new ChannelError.InvalidMessageTypeError(value);
-      }
+			if (this.#validator?.(value) === false) {
+				throw new ChannelError.InvalidMessageTypeError(value);
+			}
 
-      if (this.#bufferFull && timeoutMs !== undefined && timeoutMs <= 0) {
-        throw new ChannelError.TimeoutError();
-      }
+			if (this.#bufferFull && timeoutMs !== undefined && timeoutMs <= 0) {
+				throw new ChannelError.TimeoutError();
+			}
 
-      {
-        const receiver = this.#blockedReceiver;
+			{
+				const receiver = this.#blockedReceiver;
 
-        if (this.#bufferEmpty && receiver !== undefined) {
-          receiver(value);
-          return;
-        }
-      }
+				if (this.#bufferEmpty && receiver !== undefined) {
+					receiver(value);
+					return;
+				}
+			}
 
-      if (!this.#bufferFull) {
-        // store in buffer, no way to cancel send
-        this.#getNextValueQueue.add(() => value);
-        return;
-      }
+			if (!this.#bufferFull) {
+				// store in buffer, no way to cancel send
+				this.#getNextValueQueue.add(() => value);
+				return;
+			}
 
-      const cleaner = createCleaner();
+			const cleaner = createCleaner();
 
-      return await new Promise<void>((resolve, reject) => {
-        this.#isSending = true;
+			return await new Promise<void>((resolve, reject) => {
+				this.#isSending = true;
 
-        const getNextValue = (): T => {
-          resolve();
-          return value;
-        };
+				const getNextValue = (): T => {
+					resolve();
+					return value;
+				};
 
-        // store in buffer and wait for consumption or cancellation
-        this.#getNextValueQueue.add(getNextValue);
+				// store in buffer and wait for consumption or cancellation
+				this.#getNextValueQueue.add(getNextValue);
 
-        const cancel = (reason?: ChannelError): void => {
-          this.#getNextValueQueue.delete(getNextValue);
-          reject(reason);
-        };
+				const cancel = (reason?: ChannelError): void => {
+					this.#getNextValueQueue.delete(getNextValue);
+					reject(reason);
+				};
 
-        cleaner.add(
-          attachAbort(signal, () => {
-            cancel(new ChannelError.OperationAbortedError());
-          }),
-          timeoutAction(() => {
-            cancel(new ChannelError.TimeoutError());
-          }, timeoutMs)
-        );
-      }).finally(() => {
-        cleaner.cleanup();
-        this.#isSending = false;
-      });
-    } catch (err) {
-      if (catchChannelErrors && ChannelError.isChannelError(err)) {
-        return err;
-      }
+				cleaner.add(
+					attachAbort(signal, () => {
+						cancel(new ChannelError.OperationAbortedError());
+					}),
+					timeoutAction(() => {
+						cancel(new ChannelError.TimeoutError());
+					}, timeoutMs),
+				);
+			}).finally(() => {
+				cleaner.cleanup();
+				this.#isSending = false;
+			});
+		} catch (err) {
+			if (catchChannelErrors && ChannelError.isChannelError(err)) {
+				return err;
+			}
 
-      throw err;
-    }
-  }
+			throw err;
+		}
+	}
 
-  async sendAll(
-    source: AsyncStreamSource<T>,
-    options: {
-      signal?: AbortSignal | undefined;
-      timeoutMs?: number | undefined;
-      catchChannelErrors?: boolean | undefined;
-    } = {}
-  ): Promise<any> {
-    const iterator = AsyncStream.from(source)[Symbol.asyncIterator]();
-    const done = Symbol('done');
-    let value: T | typeof done;
+	async sendAll(
+		source: AsyncStreamSource<T>,
+		options: {
+			signal?: AbortSignal | undefined;
+			timeoutMs?: number | undefined;
+			catchChannelErrors?: boolean | undefined;
+		} = {},
+	): Promise<any> {
+		const iterator = AsyncStream.from(source)[Symbol.asyncIterator]();
+		const done = Symbol('done');
+		let value: T | typeof done;
 
-    while (done !== (value = await iterator.fastNext(done))) {
-      await this.send(value, options);
-    }
-  }
+		while (done !== (value = await iterator.fastNext(done))) {
+			await this.send(value, options);
+		}
+	}
 
-  async receive<RT>(
-    options: {
-      signal?: AbortSignal | undefined;
-      timeoutMs?: number | undefined;
-      recover?: ((channelError: ChannelError) => RT) | undefined;
-    } = {}
-  ): Promise<T | RT> {
-    const { signal, timeoutMs, recover } = options;
+	async receive<RT>(
+		options: {
+			signal?: AbortSignal | undefined;
+			timeoutMs?: number | undefined;
+			recover?: ((channelError: ChannelError) => RT) | undefined;
+		} = {},
+	): Promise<T | RT> {
+		const { signal, timeoutMs, recover } = options;
 
-    try {
-      if (this.isExhausted) {
-        throw new ChannelError.ChannelExhaustedError();
-      }
+		try {
+			if (this.isExhausted) {
+				throw new ChannelError.ChannelExhaustedError();
+			}
 
-      if (signal?.aborted) {
-        throw new ChannelError.OperationAbortedError();
-      }
+			if (signal?.aborted) {
+				throw new ChannelError.OperationAbortedError();
+			}
 
-      if (this.#blockedReceiver !== undefined) {
-        throw new ChannelError.AlreadyBusyReceivingError();
-      }
+			if (this.#blockedReceiver !== undefined) {
+				throw new ChannelError.AlreadyBusyReceivingError();
+			}
 
-      if (!this.#bufferEmpty) {
-        const [getNextValue] = this.#getNextValueQueue;
-        this.#getNextValueQueue.delete(getNextValue);
-        const value = getNextValue();
+			if (!this.#bufferEmpty) {
+				const [getNextValue] = this.#getNextValueQueue;
+				this.#getNextValueQueue.delete(getNextValue);
+				const value = getNextValue();
 
-        return value;
-      }
+				return value;
+			}
 
-      const cleaner = createCleaner();
+			const cleaner = createCleaner();
 
-      return await new Promise<T>((resolve, reject) => {
-        const receiveValue = (value: T): void => {
-          if (this.#validator?.(value) === false) {
-            reject(new ChannelError.InvalidMessageTypeError(value));
-          } else {
-            resolve(value);
-          }
-        };
+			return await new Promise<T>((resolve, reject) => {
+				const receiveValue = (value: T): void => {
+					if (this.#validator?.(value) === false) {
+						reject(new ChannelError.InvalidMessageTypeError(value));
+					} else {
+						resolve(value);
+					}
+				};
 
-        this.#blockedReceiver = receiveValue;
+				this.#blockedReceiver = receiveValue;
 
-        cleaner.add(
-          attachAbort(signal, () => {
-            reject(new ChannelError.OperationAbortedError());
-          }),
-          attachAbort(this.#closeController.signal, () => {
-            if (this.#bufferEmpty) {
-              reject(new ChannelError.ChannelExhaustedError());
-            }
-          }),
-          timeoutAction(() => {
-            reject(new ChannelError.TimeoutError());
-          }, timeoutMs)
-        );
-      }).finally(() => {
-        cleaner.cleanup();
-        this.#blockedReceiver = undefined;
-      });
-    } catch (err) {
-      if (recover !== undefined && ChannelError.isChannelError(err)) {
-        return recover(err);
-      }
+				cleaner.add(
+					attachAbort(signal, () => {
+						reject(new ChannelError.OperationAbortedError());
+					}),
+					attachAbort(this.#closeController.signal, () => {
+						if (this.#bufferEmpty) {
+							reject(new ChannelError.ChannelExhaustedError());
+						}
+					}),
+					timeoutAction(() => {
+						reject(new ChannelError.TimeoutError());
+					}, timeoutMs),
+				);
+			}).finally(() => {
+				cleaner.cleanup();
+				this.#blockedReceiver = undefined;
+			});
+		} catch (err) {
+			if (recover !== undefined && ChannelError.isChannelError(err)) {
+				return recover(err);
+			}
 
-      throw err;
-    }
-  }
+			throw err;
+		}
+	}
 
-  close(): void {
-    if (this.isClosed) {
-      throw new ChannelError.ChannelClosedError();
-    }
+	close(): void {
+		if (this.isClosed) {
+			throw new ChannelError.ChannelClosedError();
+		}
 
-    this.#closeController.abort();
-  }
+		this.#closeController.abort();
+	}
 }

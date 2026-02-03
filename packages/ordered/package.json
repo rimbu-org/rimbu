@@ -92,7 +92,7 @@
 		"@rimbu/common": "workspace:*",
 		"@rimbu/hashed": "workspace:*",
 		"@rimbu/list": "workspace:*",
-		"@rimbu/ordered": "workspace:*",
+		"@rimbu/sorted": "workspace:*",
 		"@rimbu/stream": "workspace:*",
 		"tslib": "catalog:"
 	},

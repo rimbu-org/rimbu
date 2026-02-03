@@ -3,7 +3,6 @@
   "include": ["src", "test", "test-d"],
   "compilerOptions": {
     "rootDir": ".",
-    "baseUrl": "./src",
-    "lib": ["ESNext", "DOM"]
+    "baseUrl": "./src"
   }
 }

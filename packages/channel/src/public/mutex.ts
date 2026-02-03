@@ -6,42 +6,42 @@ import { Semaphore } from '@rimbu/channel/semaphore';
  * finished using the resource, the lock can be released, allowing other waiting processes to acquire a lock.
  */
 export interface Mutex extends Semaphore {
-  /**
-   * Returns true if the resource can be acquired immediately, false otherwise.
-   */
-  canAcquire(): boolean;
-  /**
-   * Acquire a lock. Blocks if the resource is already locked. Resolves when the resource is available.
-   */
-  acquire(
-    unused?: undefined,
-    options?: {
-      signal?: AbortSignal | undefined;
-      timeoutMs?: number | undefined;
-    }
-  ): Promise<void>;
-  /**
-   * Release a lock after it is acquired. Allows other functions to obtain a lock.
-   */
-  release(): void;
+	/**
+	 * Returns true if the resource can be acquired immediately, false otherwise.
+	 */
+	canAcquire(): boolean;
+	/**
+	 * Acquire a lock. Blocks if the resource is already locked. Resolves when the resource is available.
+	 */
+	acquire(
+		unused?: undefined,
+		options?: {
+			signal?: AbortSignal | undefined;
+			timeoutMs?: number | undefined;
+		},
+	): Promise<void>;
+	/**
+	 * Release a lock after it is acquired. Allows other functions to obtain a lock.
+	 */
+	release(): void;
 }
 
 export namespace Mutex {
-  /**
-   * Defines the static `Mutex` API.
-   */
-  export interface Constructors {
-    /**
-     * Returns a new `Mutex` instance that can be used to enforce single access to a shared resource.
-     */
-    create(): Mutex;
-  }
+	/**
+	 * Defines the static `Mutex` API.
+	 */
+	export interface Constructors {
+		/**
+		 * Returns a new `Mutex` instance that can be used to enforce single access to a shared resource.
+		 */
+		create(): Mutex;
+	}
 }
 
 export const Mutex: Mutex.Constructors = Object.freeze(
-  class {
-    static create(): Mutex {
-      return Semaphore.create({ maxSize: 1 });
-    }
-  }
+	class {
+		static create(): Mutex {
+			return Semaphore.create({ maxSize: 1 });
+		}
+	},
 );

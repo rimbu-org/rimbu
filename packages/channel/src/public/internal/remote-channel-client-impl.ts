@@ -1,73 +1,74 @@
 import type { Channel } from '@rimbu/channel';
 import type { CrossChannel } from '@rimbu/channel/cross-channel';
-import { RemoteChannel } from '@rimbu/channel/remote-channel';
 import type { RemoteChannelClient } from '@rimbu/channel/remote-channel-client';
 
 import type { RemoteChannelServerImpl } from '#channel/remote-channel-server-impl';
+
+import { RemoteChannel } from '@rimbu/channel/remote-channel';
 
 /**
  * Concrete factory used by `RemoteChannelClient.create` to construct a client over a given message port.
  */
 export async function RemoteChannelClientImpl(config: {
-  port: RemoteChannel.SimpleMessagePort;
-  rcsChannelId?: string;
+	port: RemoteChannel.SimpleMessagePort;
+	rcsChannelId?: string;
 }): Promise<RemoteChannelClient> {
-  const { port, rcsChannelId = 'RCS_CHANNEL' } = config;
+	const { port, rcsChannelId = 'RCS_CHANNEL' } = config;
 
-  const rcsChannel =
-    await RemoteChannel.createWrite<RemoteChannelServerImpl.Message>(port, {
-      channelId: rcsChannelId,
-    });
+	const rcsChannel =
+		await RemoteChannel.createWrite<RemoteChannelServerImpl.Message>(port, {
+			channelId: rcsChannelId,
+		});
 
-  return {
-    async createRead<T>(
-      config: RemoteChannelClient.ReadChannelConfig
-    ): Promise<Channel.Read<T>> {
-      const { channelId, rcsChannelTimeoutMs } = config;
+	return {
+		async createRead<T>(
+			config: RemoteChannelClient.ReadChannelConfig,
+		): Promise<Channel.Read<T>> {
+			const { channelId, rcsChannelTimeoutMs } = config;
 
-      await rcsChannel.send(
-        {
-          type: 'RCS_OPEN',
-          channelType: 'write',
-          channelId,
-        },
-        { timeoutMs: rcsChannelTimeoutMs }
-      );
+			await rcsChannel.send(
+				{
+					type: 'RCS_OPEN',
+					channelType: 'write',
+					channelId,
+				},
+				{ timeoutMs: rcsChannelTimeoutMs },
+			);
 
-      return RemoteChannel.createRead(port, config);
-    },
-    async createWrite<T>(
-      config: RemoteChannelClient.WriteChannelConfig
-    ): Promise<Channel.Write<T>> {
-      const { channelId, rcsChannelTimeoutMs } = config;
+			return RemoteChannel.createRead(port, config);
+		},
+		async createWrite<T>(
+			config: RemoteChannelClient.WriteChannelConfig,
+		): Promise<Channel.Write<T>> {
+			const { channelId, rcsChannelTimeoutMs } = config;
 
-      await rcsChannel.send(
-        {
-          type: 'RCS_OPEN',
-          channelType: 'read',
-          channelId,
-        },
-        { timeoutMs: rcsChannelTimeoutMs }
-      );
+			await rcsChannel.send(
+				{
+					type: 'RCS_OPEN',
+					channelType: 'read',
+					channelId,
+				},
+				{ timeoutMs: rcsChannelTimeoutMs },
+			);
 
-      return RemoteChannel.createWrite(port, config);
-    },
-    async createCross<TSend = void, TReceive = TSend>(
-      config: RemoteChannelClient.CrossChannelConfig
-    ): Promise<CrossChannel<TSend, TReceive>> {
-      const { read, write, rcsChannelTimeoutMs } = config;
+			return RemoteChannel.createWrite(port, config);
+		},
+		async createCross<TSend = void, TReceive = TSend>(
+			config: RemoteChannelClient.CrossChannelConfig,
+		): Promise<CrossChannel<TSend, TReceive>> {
+			const { read, write, rcsChannelTimeoutMs } = config;
 
-      await rcsChannel.send(
-        {
-          type: 'RCS_OPEN',
-          channelType: 'cross',
-          read: { channelId: write.channelId },
-          write: { channelId: read.channelId },
-        },
-        { timeoutMs: rcsChannelTimeoutMs }
-      );
+			await rcsChannel.send(
+				{
+					type: 'RCS_OPEN',
+					channelType: 'cross',
+					read: { channelId: write.channelId },
+					write: { channelId: read.channelId },
+				},
+				{ timeoutMs: rcsChannelTimeoutMs },
+			);
 
-      return RemoteChannel.createCross(port, config);
-    },
-  };
+			return RemoteChannel.createCross(port, config);
+		},
+	};
 }

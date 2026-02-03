@@ -1,11 +1,12 @@
-import { RemoteObjectError } from '@rimbu/channel/remote-object';
 import type { RpcProxy } from '@rimbu/channel/rpc-proxy';
+
+import { RemoteObjectError } from '@rimbu/channel/remote-object';
 
 /**
  * Namespace containing types related to the `RemoteObjectImpl` call handler.
  */
 export namespace RemoteObjectImpl {
-  export type CallHandler = (path: RpcProxy.Path) => Promise<any>;
+	export type CallHandler = (path: RpcProxy.Path) => Promise<any>;
 }
 
 /**
@@ -13,48 +14,48 @@ export namespace RemoteObjectImpl {
  * @param source - the object to expose remotely
  */
 export function RemoteObjectImpl(source: any): RemoteObjectImpl.CallHandler {
-  return async (path) => {
-    let parent: any = undefined;
-    let current: unknown = source;
+	return async (path) => {
+		let parent: any;
+		let current: unknown = source;
 
-    for (const part of path) {
-      if (Array.isArray(part)) {
-        // part is function application
+		for (const part of path) {
+			if (Array.isArray(part)) {
+				// part is function application
 
-        if (typeof current !== 'function') {
-          throw new RemoteObjectError.RemoteObjectInvalidFunctionApplicationError();
-        }
+				if (typeof current !== 'function') {
+					throw new RemoteObjectError.RemoteObjectInvalidFunctionApplicationError();
+				}
 
-        current = await current.apply(parent, part);
-      } else if (typeof part !== 'string') {
-        throw new RemoteObjectError.RemoteObjectInvalidPathPartTypeError();
-      } else if (part === '__proto__') {
-        throw new RemoteObjectError.RemoteObjectSecurityError();
-      } else if (
-        typeof current === 'object' &&
-        current !== null &&
-        part in current
-      ) {
-        parent = current;
-        current = (current as any)[part];
+				current = await current.apply(parent, part);
+			} else if (typeof part !== 'string') {
+				throw new RemoteObjectError.RemoteObjectInvalidPathPartTypeError();
+			} else if (part === '__proto__') {
+				throw new RemoteObjectError.RemoteObjectSecurityError();
+			} else if (
+				typeof current === 'object' &&
+				current !== null &&
+				part in current
+			) {
+				parent = current;
+				current = (current as any)[part];
 
-        // await if promise
-        if (
-          typeof current === 'object' &&
-          current !== null &&
-          'then' in current
-        ) {
-          current = await (current as PromiseLike<any>);
-        }
-      } else {
-        throw new RemoteObjectError.RemoteObjectInvalidAccessError();
-      }
-    }
+				// await if promise
+				if (
+					typeof current === 'object' &&
+					current !== null &&
+					'then' in current
+				) {
+					current = await (current as PromiseLike<any>);
+				}
+			} else {
+				throw new RemoteObjectError.RemoteObjectInvalidAccessError();
+			}
+		}
 
-    if (typeof current === 'function') {
-      throw new RemoteObjectError.RemoteObjectInvalidFunctionApplicationError();
-    }
+		if (typeof current === 'function') {
+			throw new RemoteObjectError.RemoteObjectInvalidFunctionApplicationError();
+		}
 
-    return current;
-  };
+		return current;
+	};
 }
