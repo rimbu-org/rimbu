@@ -33,6 +33,7 @@
 		"directory": "packages/stream"
 	},
 	"type": "module",
+	"sideEffects": false,
 	"exports": {
 		".": {
 			"types": "./dist/entry/stream.d.ts",

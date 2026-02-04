@@ -31,6 +31,7 @@
 		"directory": "packages/deep"
 	},
 	"type": "module",
+	"sideEffects": false,
 	"exports": {
 		".": {
 			"types": "./dist/entry/deep.d.ts",
@@ -65,7 +66,6 @@
 		"build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
 		"clean": "rimraf dist node_modules",
 		"clean:build": "rimraf dist",
-		"extract-api": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
 		"format:check": "biome format",
 		"lint:check": "biome lint",
 		"test": "bun test --tsconfig-override tsconfig.common.json",

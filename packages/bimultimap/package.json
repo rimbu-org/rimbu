@@ -30,6 +30,7 @@
 		"directory": "packages/bimultimap"
 	},
 	"type": "module",
+	"sideEffects": false,
 	"exports": {
 		".": {
 			"types": "./dist/entry/bimultimap.d.ts",

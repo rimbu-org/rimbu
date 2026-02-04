@@ -49,21 +49,33 @@
 		"directory": "packages/core"
 	},
 	"type": "module",
+	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/esm/main/index.d.ts",
-			"import": "./dist/esm/main/index.js"
+			"types": "./dist/entry/core.d.ts",
+			"default": "./dist/entry/core.js"
 		},
-		"./menu": {
-			"types": "./dist/esm/menu/index.d.ts",
-			"import": "./dist/esm/menu/index.js"
+		"./*": {
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"files": [
 		"dist",
 		"src"
 	],
-	"scripts": {},
+	"scripts": {
+		"biome:check": "biome check",
+		"biome:fix": "biome check --write",
+		"build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
+		"clean": "rimraf dist node_modules",
+		"clean:build": "rimraf dist",
+		"format:check": "biome format",
+		"lint:check": "biome lint",
+		"test": "bun test --tsconfig-override tsconfig.common.json",
+		"test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.ts",
+		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
+	},
 	"dependencies": {
 		"@rimbu/bimap": "workspace:*",
 		"@rimbu/bimultimap": "workspace:*",

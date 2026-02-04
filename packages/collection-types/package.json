@@ -28,6 +28,7 @@
 		"directory": "packages/collection-types"
 	},
 	"type": "module",
+	"sideEffects": false,
 	"exports": {
 		".": {
 			"types": "./dist/entry/collection-types.d.ts",

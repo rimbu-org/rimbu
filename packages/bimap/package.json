@@ -30,6 +30,7 @@
 		"directory": "packages/bimap"
 	},
 	"type": "module",
+	"sideEffects": false,
 	"exports": {
 		".": {
 			"types": "./dist/entry/bimap.d.ts",

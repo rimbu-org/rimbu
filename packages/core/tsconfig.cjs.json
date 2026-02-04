@@ -1,8 +1,0 @@
-{
-  "extends": ["../../config/tsconfig.cjs.base.json", "./tsconfig.common.json"],
-  "include": ["_cjs_prepare"],
-  "compilerOptions": {
-    "outDir": "./dist/cjs",
-    "baseUrl": "./_cjs_prepare"
-  }
-}

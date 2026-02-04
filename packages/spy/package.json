@@ -30,6 +30,7 @@
 		"directory": "packages/spy"
 	},
 	"type": "module",
+	"sideEffects": false,
 	"exports": {
 		".": {
 			"types": "./dist/entry/spy.d.ts",

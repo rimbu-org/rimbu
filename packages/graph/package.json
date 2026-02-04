@@ -36,6 +36,7 @@
 		"directory": "packages/graph"
 	},
 	"type": "module",
+	"sideEffects": false,
 	"exports": {
 		".": {
 			"types": "./dist/esm/main/index.d.ts",

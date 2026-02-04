@@ -33,6 +33,7 @@
 		"directory": "packages/ordered"
 	},
 	"type": "module",
+	"sideEffects": false,
 	"exports": {
 		".": {
 			"types": "./dist/entry/ordered.d.ts",

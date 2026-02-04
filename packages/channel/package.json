@@ -30,6 +30,7 @@
 		"directory": "packages/channel"
 	},
 	"type": "module",
+	"sideEffects": false,
 	"exports": {
 		".": {
 			"types": "./dist/entry/channel.d.ts",
@@ -58,8 +59,6 @@
 		"build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
 		"clean": "rimraf dist node_modules",
 		"clean:build": "rimraf dist",
-		"extract-api": "yarn extract-api:main",
-		"extract-api:main": "tsx ../../config/api-extractor.ts config/api-extractor.main.json",
 		"format": "yarn format:base --write",
 		"format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
 		"format:check": "yarn format:base --check",

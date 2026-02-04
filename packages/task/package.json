@@ -32,6 +32,7 @@
 		"directory": "packages/task"
 	},
 	"type": "module",
+	"sideEffects": false,
 	"exports": {
 		".": {
 			"types": "./dist/entry/task.d.ts",

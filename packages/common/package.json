@@ -29,6 +29,7 @@
 		"directory": "packages/common"
 	},
 	"type": "module",
+	"sideEffects": false,
 	"exports": {
 		"./*": {
 			"types": "./dist/*.d.ts",

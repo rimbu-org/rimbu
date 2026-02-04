@@ -32,6 +32,7 @@
 		"directory": "packages/hashed"
 	},
 	"type": "module",
+	"sideEffects": false,
 	"exports": {
 		".": {
 			"types": "./dist/entry/hashed.d.ts",

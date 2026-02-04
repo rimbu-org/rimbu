@@ -33,6 +33,7 @@
 		"directory": "packages/list"
 	},
 	"type": "module",
+	"sideEffects": false,
 	"exports": {
 		".": {
 			"types": "./dist/entry/list.d.ts",

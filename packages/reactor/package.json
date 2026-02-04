@@ -29,6 +29,7 @@
 		"directory": "packages/reactor"
 	},
 	"type": "module",
+	"sideEffects": false,
 	"exports": {
 		".": {
 			"types": "./dist/esm/index.d.ts",

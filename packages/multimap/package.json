@@ -33,6 +33,7 @@
 		"directory": "packages/multimap"
 	},
 	"type": "module",
+	"sideEffects": false,
 	"exports": {
 		".": {
 			"types": "./dist/entry/multimap.d.ts",

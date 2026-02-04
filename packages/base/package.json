@@ -27,6 +27,7 @@
 		"directory": "packages/base"
 	},
 	"type": "module",
+	"sideEffects": false,
 	"exports": {
 		"./*": {
 			"types": "./dist/*.d.ts",
