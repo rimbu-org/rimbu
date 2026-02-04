@@ -1,9 +1,9 @@
 import type { RMap, VariantMap } from '@rimbu/collection-types';
 import type { ArrayNonEmpty } from '@rimbu/common';
 import type { FastIterator, Stream } from '@rimbu/stream';
-import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-
 import type { Table, VariantTable } from '../src/main/index.mjs';
+
+import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
 
 type VE<R, C, V> = VariantTable<R, C, V>;
 type VNE<R, C, V> = VariantTable.NonEmpty<R, C, V>;
@@ -40,7 +40,7 @@ expectAssignable<VE<number | string, string, boolean>>(varEmpty);
 expectAssignable<VE<number, string | boolean, boolean>>(varEmpty);
 expectAssignable<VE<number | string, string, boolean | number>>(varEmpty);
 expectAssignable<VE<number | string, string | boolean, boolean | number>>(
-  varEmpty
+	varEmpty,
 );
 expectAssignable<VNE<number | string, string, boolean>>(varNonEmpty);
 expectAssignable<VNE<number, string | boolean, boolean>>(varNonEmpty);
@@ -74,16 +74,16 @@ expectNotAssignable<G_NonEmpty>(m as GNE<number, string, boolean | number>);
 
 // Iterator
 expectType<FastIterator<[number, string, boolean]>>(
-  varEmpty[Symbol.iterator]()
+	varEmpty[Symbol.iterator](),
 );
 expectType<FastIterator<[number, string, boolean]>>(
-  varNonEmpty[Symbol.iterator]()
+	varNonEmpty[Symbol.iterator](),
 );
 expectType<FastIterator<[number, string, boolean]>>(
-  genEmpty[Symbol.iterator]()
+	genEmpty[Symbol.iterator](),
 );
 expectType<FastIterator<[number, string, boolean]>>(
-  genNonEmpty[Symbol.iterator]()
+	genNonEmpty[Symbol.iterator](),
 );
 
 // .addEntries(..)
@@ -142,11 +142,11 @@ expectType<false>(genNonEmpty.isEmpty);
 // .mapValues(..)
 expectType<VariantTable<number, string, number>>(varEmpty.mapValues(() => 10));
 expectType<VariantTable.NonEmpty<number, string, number>>(
-  varNonEmpty.mapValues(() => 10)
+	varNonEmpty.mapValues(() => 10),
 );
 expectType<Table<number, string, number>>(genEmpty.mapValues(() => 10));
 expectType<Table.NonEmpty<number, string, number>>(
-  genNonEmpty.mapValues(() => 10)
+	genNonEmpty.mapValues(() => 10),
 );
 
 // .modifyAt(..)
@@ -185,16 +185,16 @@ expectType<G_Empty>(genNonEmpty.removeRow(3));
 
 // .removeRowAndGet(..)
 expectType<[V_Empty, VariantMap.NonEmpty<string, boolean>] | undefined>(
-  varEmpty.removeRowAndGet(3)
+	varEmpty.removeRowAndGet(3),
 );
 expectType<[V_Empty, VariantMap.NonEmpty<string, boolean>] | undefined>(
-  varNonEmpty.removeRowAndGet(3)
+	varNonEmpty.removeRowAndGet(3),
 );
 expectType<[G_Empty, RMap.NonEmpty<string, boolean>] | undefined>(
-  genEmpty.removeRowAndGet(3)
+	genEmpty.removeRowAndGet(3),
 );
 expectType<[G_Empty, RMap.NonEmpty<string, boolean>] | undefined>(
-  genNonEmpty.removeRowAndGet(3)
+	genNonEmpty.removeRowAndGet(3),
 );
 
 // .removeRows(..)
@@ -206,7 +206,7 @@ expectType<G_Empty>(genNonEmpty.removeRows([3]));
 // .rowMap
 expectType<RMap<number, RMap.NonEmpty<string, boolean>>>(genEmpty.rowMap);
 expectAssignable<RMap.NonEmpty<number, RMap.NonEmpty<string, boolean>>>(
-  genNonEmpty.rowMap
+	genNonEmpty.rowMap,
 );
 
 // .set(..)

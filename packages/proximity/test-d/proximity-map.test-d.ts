@@ -1,9 +1,9 @@
 import type { RMap } from '@rimbu/collection-types';
-import type { ArrayNonEmpty } from '@rimbu/common';
+import type { ArrayNonEmpty } from '@rimbu/common/types';
+import type { ProximityMap } from '@rimbu/proximity';
 import type { FastIterator, Stream } from '@rimbu/stream';
-import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
 
-import type { ProximityMap } from '../src/map/index.mjs';
+import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
 
 type GE<K, V> = ProximityMap<K, V>;
 type GNE<K, V> = ProximityMap.NonEmpty<K, V>;
@@ -40,10 +40,10 @@ expectNotAssignable<G_NonEmpty>(m as GNE<number, string | number>);
 
 // Iterator
 expectType<FastIterator<readonly [number, string]>>(
-  genEmpty[Symbol.iterator]()
+	genEmpty[Symbol.iterator](),
 );
 expectType<FastIterator<readonly [number, string]>>(
-  genNonEmpty[Symbol.iterator]()
+	genNonEmpty[Symbol.iterator](),
 );
 
 // .addEntries(..)

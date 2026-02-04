@@ -1,9 +1,9 @@
 import type { ArrayNonEmpty } from '@rimbu/common';
 import type { SortedMap } from '@rimbu/sorted';
 import type { FastIterator, Stream } from '@rimbu/stream';
-import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-
 import type { SortedTableSortedColumn } from '../src/main/index.mjs';
+
+import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
 
 type GE<R, C, V> = SortedTableSortedColumn<R, C, V>;
 type GNE<R, C, V> = SortedTableSortedColumn.NonEmpty<R, C, V>;
@@ -39,10 +39,10 @@ expectNotAssignable<G_NonEmpty>(m as GNE<number, string, boolean | number>);
 
 // Iterator
 expectType<FastIterator<[number, string, boolean]>>(
-  genEmpty[Symbol.iterator]()
+	genEmpty[Symbol.iterator](),
 );
 expectType<FastIterator<[number, string, boolean]>>(
-  genNonEmpty[Symbol.iterator]()
+	genNonEmpty[Symbol.iterator](),
 );
 
 // .addEntries(..)

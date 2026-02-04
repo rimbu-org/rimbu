@@ -1,9 +1,9 @@
 import type { ArrayNonEmpty } from '@rimbu/common';
 import type { HashMap } from '@rimbu/hashed';
 import type { FastIterator, Stream } from '@rimbu/stream';
-import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
-
 import type { HashTableHashColumn } from '../src/main/index.mjs';
+
+import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
 
 type GE<R, C, V> = HashTableHashColumn<R, C, V>;
 type GNE<R, C, V> = HashTableHashColumn.NonEmpty<R, C, V>;
@@ -39,10 +39,10 @@ expectNotAssignable<G_NonEmpty>(m as GNE<number, string, boolean | number>);
 
 // Iterator
 expectType<FastIterator<[number, string, boolean]>>(
-  genEmpty[Symbol.iterator]()
+	genEmpty[Symbol.iterator](),
 );
 expectType<FastIterator<[number, string, boolean]>>(
-  genNonEmpty[Symbol.iterator]()
+	genNonEmpty[Symbol.iterator](),
 );
 
 // .addEntries(..)
