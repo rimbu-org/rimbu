@@ -1,15 +1,9 @@
 {
-  "compilerOptions": {
-    "rootDirs": [".", ".."],
-    "baseUrl": "./src",
-    "paths": {
-      "@rimbu/table/custom": ["custom/index.ts", "custom/index.cts"],
-      "@rimbu/table/hash-row": ["hash-row/index.ts", "hash-row/index.cts"],
-      "@rimbu/table/sorted-row": [
-        "sorted-row/index.ts",
-        "sorted-row/index.cts"
-      ],
-      "@rimbu/table": ["main/index.ts", "main/index.cts"]
-    }
-  }
+	"compilerOptions": {
+		"paths": {
+			"@rimbu/table": ["./entry/table.ts"],
+			"@rimbu/table/*": ["./public/*.ts"],
+			"#table/*": ["./public/internal/*.ts"]
+		}
+	}
 }

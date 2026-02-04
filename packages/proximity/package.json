@@ -40,27 +40,37 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/esm/main/index.d.ts",
-			"import": "./dist/esm/main/index.js"
+			"types": "./dist/entry/proximity.d.ts",
+			"default": "./dist/entry/proximity.js"
 		},
-		"./common": {
-			"types": "./dist/esm/common/index.d.ts",
-			"import": "./dist/esm/common/index.js"
-		},
-		"./map": {
-			"types": "./dist/esm/map/index.d.ts",
-			"import": "./dist/esm/map/index.js"
-		},
-		"./map-custom": {
-			"types": "./dist/esm/map-custom/index.d.ts",
-			"import": "./dist/esm/map-custom/index.js"
+		"./*": {
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
+		}
+	},
+	"imports": {
+		"#proximity/*": {
+			"types": "./dist/public/internal/*.d.ts",
+			"default": "./dist/public/internal/*.js"
 		}
 	},
 	"files": [
 		"dist",
 		"src"
 	],
-	"scripts": {},
+	"scripts": {
+		"biome:check": "biome check",
+		"biome:fix": "biome check --write",
+		"build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
+		"clean": "rimraf dist node_modules",
+		"clean:build": "rimraf dist",
+		"format:check": "biome format",
+		"lint:check": "biome lint",
+		"test": "bun test test/* --tsconfig-override tsconfig.common.json",
+		"test:random": "bun test test-random",
+		"test:types": "bunx tsd --files ./test-d --typings ./dist/entry/bimap.d.ts",
+		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
+	},
 	"dependencies": {
 		"@rimbu/base": "workspace:*",
 		"@rimbu/collection-types": "workspace*",

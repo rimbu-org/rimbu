@@ -1,8 +1,7 @@
-import { runTableRandomTestsWith } from './table-test-random.mjs';
-
-import { SortedTableHashColumn } from '../src/main/index.mjs';
+import { SortedTableHashColumn } from '@rimbu/table/sorted-row/hash-column';
+import { runTableRandomTestsWith } from './table-test-random';
 
 runTableRandomTestsWith(
-  'SortedTableHashColumn default',
-  SortedTableHashColumn.defaultContext<number, number>()
+	'SortedTableHashColumn default',
+	SortedTableHashColumn.defaultContext<number, number>(),
 );

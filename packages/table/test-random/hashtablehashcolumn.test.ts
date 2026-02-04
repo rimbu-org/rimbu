@@ -1,8 +1,7 @@
-import { runTableRandomTestsWith } from './table-test-random.mjs';
-
-import { HashTableHashColumn } from '../src/main/index.mjs';
+import { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column';
+import { runTableRandomTestsWith } from './table-test-random';
 
 runTableRandomTestsWith(
-  'HashTableHashColumn default',
-  HashTableHashColumn.defaultContext()
+	'HashTableHashColumn default',
+	HashTableHashColumn.defaultContext(),
 );

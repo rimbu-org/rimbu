@@ -1,14 +1,9 @@
 {
-  "compilerOptions": {
-    "rootDirs": [".", ".."],
-    "baseUrl": "./src",
-    "paths": {
-      "@rimbu/proximity/common": ["common/index.ts", "common/index.cts"],
-      "@rimbu/proximity/map": ["map/index.ts", "map/index.cts"],
-      "@rimbu/proximity/map-custom": [
-        "map-custom/index.ts",
-        "map-custom/index.cts"
-      ]
-    }
-  }
+	"compilerOptions": {
+		"paths": {
+			"@rimbu/proximity": ["./entry/proximity.ts"],
+			"@rimbu/proximity/*": ["./public/*.ts"],
+			"#proximity/*": ["./public/internal/*.ts"]
+		}
+	}
 }
