@@ -1,47 +1,46 @@
-import type { ArrayNonEmpty } from '@rimbu/common';
+import { describe, expect, it } from 'bun:test';
+
+import type { ArrayNonEmpty } from '@rimbu/common/types';
+import type { Link } from '@rimbu/graph/link';
+import type { ValuedLink } from '@rimbu/graph/valued-link';
+
+import { ArrowGraphSorted } from '@rimbu/graph/non-valued/arrow/sorted';
+import { EdgeGraphSorted } from '@rimbu/graph/non-valued/edge/sorted';
+import { traverseDepthFirstSorted } from '@rimbu/graph/traverse-depth-first';
+import { ArrowValuedGraphSorted } from '@rimbu/graph/valued/arrow/sorted';
+import { EdgeValuedGraphSorted } from '@rimbu/graph/valued/edge/sorted';
 import { Stream } from '@rimbu/stream';
 
-import type { Link, ValuedLink } from '../src/custom/index.mjs';
-import {
-  ArrowGraphSorted,
-  ArrowValuedGraphSorted,
-  EdgeGraphSorted,
-  EdgeValuedGraphSorted,
-  Traverse,
-} from '../src/main/index.mjs';
-
-const { traverseDepthFirstSorted } = Traverse;
-
 const arr6: ArrayNonEmpty<Link<string>> = [
-  ['a', 'b'],
-  ['b', 'c'],
-  ['c', 'a'],
-  ['b', 'd'],
-  ['d', 'e'],
-  ['f', 'g'],
+	['a', 'b'],
+	['b', 'c'],
+	['c', 'a'],
+	['b', 'd'],
+	['d', 'e'],
+	['f', 'g'],
 ];
 
 const arrMulti: ArrayNonEmpty<Link<string>> = [
-  ['a', 'a'],
-  ['a', 'b'],
-  ['c', 'b'],
-  ['b', 'a'],
+	['a', 'a'],
+	['a', 'b'],
+	['c', 'b'],
+	['b', 'a'],
 ];
 
 const valuedArr6: ArrayNonEmpty<ValuedLink<string, number>> = [
-  ['a', 'b', 1],
-  ['b', 'c', 2],
-  ['c', 'a', 3],
-  ['b', 'd', 4],
-  ['d', 'e', 5],
-  ['f', 'g', 6],
+	['a', 'b', 1],
+	['b', 'c', 2],
+	['c', 'a', 3],
+	['b', 'd', 4],
+	['d', 'e', 5],
+	['f', 'g', 6],
 ];
 
 const valuedArrMulti: ArrayNonEmpty<ValuedLink<string, number>> = [
-  ['a', 'a', 1],
-  ['a', 'b', 2],
-  ['c', 'b', 3],
-  ['b', 'a', 4],
+	['a', 'a', 1],
+	['a', 'b', 2],
+	['c', 'b', 3],
+	['b', 'a', 4],
 ];
 
 const arrowGraphEmpty = ArrowGraphSorted.empty<string>();
@@ -61,165 +60,165 @@ const edgeValuedGraph6 = EdgeValuedGraphSorted.from(valuedArr6);
 const edgeValuedGraphMulti = EdgeValuedGraphSorted.from(valuedArrMulti);
 
 describe('traverseBreadthFirst ArrowGraphs', () => {
-  it('empty', () => {
-    expect(traverseDepthFirstSorted(arrowGraphEmpty, 'a')).toBe(Stream.empty());
-    expect(traverseDepthFirstSorted(arrowValuedGraphEmpty, 'a')).toBe(
-      Stream.empty()
-    );
-  });
+	it('empty', () => {
+		expect(traverseDepthFirstSorted(arrowGraphEmpty, 'a')).toBe(Stream.empty());
+		expect(traverseDepthFirstSorted(arrowValuedGraphEmpty, 'a')).toBe(
+			Stream.empty(),
+		);
+	});
 
-  it('returns empty for non existing node', () => {
-    expect(traverseDepthFirstSorted(arrowGraph6, 'z')).toBe(Stream.empty());
-    expect(traverseDepthFirstSorted(arrowValuedGraph6, 'z')).toBe(
-      Stream.empty()
-    );
-    expect(traverseDepthFirstSorted(arrowGraphMulti, 'z')).toBe(Stream.empty());
-    expect(traverseDepthFirstSorted(arrowValuedGraphMulti, 'z')).toBe(
-      Stream.empty()
-    );
-  });
+	it('returns empty for non existing node', () => {
+		expect(traverseDepthFirstSorted(arrowGraph6, 'z')).toBe(Stream.empty());
+		expect(traverseDepthFirstSorted(arrowValuedGraph6, 'z')).toBe(
+			Stream.empty(),
+		);
+		expect(traverseDepthFirstSorted(arrowGraphMulti, 'z')).toBe(Stream.empty());
+		expect(traverseDepthFirstSorted(arrowValuedGraphMulti, 'z')).toBe(
+			Stream.empty(),
+		);
+	});
 
-  it('works for simple graphs', () => {
-    expect(traverseDepthFirstSorted(arrowGraph6, 'a').toArray()).toEqual([
-      ['a', 'b'],
-      ['b', 'c'],
-      ['b', 'd'],
-      ['d', 'e'],
-    ]);
+	it('works for simple graphs', () => {
+		expect(traverseDepthFirstSorted(arrowGraph6, 'a').toArray()).toEqual([
+			['a', 'b'],
+			['b', 'c'],
+			['b', 'd'],
+			['d', 'e'],
+		]);
 
-    expect(traverseDepthFirstSorted(arrowGraph6, 'c').toArray()).toEqual([
-      ['c', 'a'],
-      ['a', 'b'],
-      ['b', 'd'],
-      ['d', 'e'],
-    ]);
+		expect(traverseDepthFirstSorted(arrowGraph6, 'c').toArray()).toEqual([
+			['c', 'a'],
+			['a', 'b'],
+			['b', 'd'],
+			['d', 'e'],
+		]);
 
-    expect(traverseDepthFirstSorted(arrowValuedGraph6, 'a').toArray()).toEqual([
-      ['a', 'b', 1],
-      ['b', 'c', 2],
-      ['b', 'd', 4],
-      ['d', 'e', 5],
-    ]);
+		expect(traverseDepthFirstSorted(arrowValuedGraph6, 'a').toArray()).toEqual([
+			['a', 'b', 1],
+			['b', 'c', 2],
+			['b', 'd', 4],
+			['d', 'e', 5],
+		]);
 
-    expect(traverseDepthFirstSorted(arrowValuedGraph6, 'c').toArray()).toEqual([
-      ['c', 'a', 3],
-      ['a', 'b', 1],
-      ['b', 'd', 4],
-      ['d', 'e', 5],
-    ]);
-  });
+		expect(traverseDepthFirstSorted(arrowValuedGraph6, 'c').toArray()).toEqual([
+			['c', 'a', 3],
+			['a', 'b', 1],
+			['b', 'd', 4],
+			['d', 'e', 5],
+		]);
+	});
 
-  it('works for complex graphs', () => {
-    expect(traverseDepthFirstSorted(arrowGraphMulti, 'a').toArray()).toEqual([
-      ['a', 'b'],
-    ]);
-    expect(traverseDepthFirstSorted(arrowGraphMulti, 'b').toArray()).toEqual([
-      ['b', 'a'],
-    ]);
-    expect(traverseDepthFirstSorted(arrowGraphMulti, 'c').toArray()).toEqual([
-      ['c', 'b'],
-      ['b', 'a'],
-    ]);
+	it('works for complex graphs', () => {
+		expect(traverseDepthFirstSorted(arrowGraphMulti, 'a').toArray()).toEqual([
+			['a', 'b'],
+		]);
+		expect(traverseDepthFirstSorted(arrowGraphMulti, 'b').toArray()).toEqual([
+			['b', 'a'],
+		]);
+		expect(traverseDepthFirstSorted(arrowGraphMulti, 'c').toArray()).toEqual([
+			['c', 'b'],
+			['b', 'a'],
+		]);
 
-    expect(
-      traverseDepthFirstSorted(arrowValuedGraphMulti, 'a').toArray()
-    ).toEqual([['a', 'b', 2]]);
-    expect(
-      traverseDepthFirstSorted(arrowValuedGraphMulti, 'b').toArray()
-    ).toEqual([['b', 'a', 4]]);
-    expect(
-      traverseDepthFirstSorted(arrowValuedGraphMulti, 'c').toArray()
-    ).toEqual([
-      ['c', 'b', 3],
-      ['b', 'a', 4],
-    ]);
-  });
+		expect(
+			traverseDepthFirstSorted(arrowValuedGraphMulti, 'a').toArray(),
+		).toEqual([['a', 'b', 2]]);
+		expect(
+			traverseDepthFirstSorted(arrowValuedGraphMulti, 'b').toArray(),
+		).toEqual([['b', 'a', 4]]);
+		expect(
+			traverseDepthFirstSorted(arrowValuedGraphMulti, 'c').toArray(),
+		).toEqual([
+			['c', 'b', 3],
+			['b', 'a', 4],
+		]);
+	});
 });
 
 describe('traverseBreadthFirst EdgeGraphs', () => {
-  it('empty', () => {
-    expect(traverseDepthFirstSorted(edgeGraphEmpty, 'a')).toBe(Stream.empty());
-    expect(traverseDepthFirstSorted(edgeValuedGraphEmpty, 'a')).toBe(
-      Stream.empty()
-    );
-  });
+	it('empty', () => {
+		expect(traverseDepthFirstSorted(edgeGraphEmpty, 'a')).toBe(Stream.empty());
+		expect(traverseDepthFirstSorted(edgeValuedGraphEmpty, 'a')).toBe(
+			Stream.empty(),
+		);
+	});
 
-  it('returns empty for non existing node', () => {
-    expect(traverseDepthFirstSorted(edgeGraph6, 'z')).toBe(Stream.empty());
-    expect(traverseDepthFirstSorted(edgeValuedGraph6, 'z')).toBe(
-      Stream.empty()
-    );
-    expect(traverseDepthFirstSorted(edgeGraphMulti, 'z')).toBe(Stream.empty());
-    expect(traverseDepthFirstSorted(edgeValuedGraphMulti, 'z')).toBe(
-      Stream.empty()
-    );
-  });
+	it('returns empty for non existing node', () => {
+		expect(traverseDepthFirstSorted(edgeGraph6, 'z')).toBe(Stream.empty());
+		expect(traverseDepthFirstSorted(edgeValuedGraph6, 'z')).toBe(
+			Stream.empty(),
+		);
+		expect(traverseDepthFirstSorted(edgeGraphMulti, 'z')).toBe(Stream.empty());
+		expect(traverseDepthFirstSorted(edgeValuedGraphMulti, 'z')).toBe(
+			Stream.empty(),
+		);
+	});
 
-  it('works for simple graphs', () => {
-    expect(traverseDepthFirstSorted(edgeGraph6, 'a').toArray()).toEqual([
-      ['a', 'b'],
-      ['b', 'c'],
-      ['b', 'd'],
-      ['d', 'e'],
-    ]);
+	it('works for simple graphs', () => {
+		expect(traverseDepthFirstSorted(edgeGraph6, 'a').toArray()).toEqual([
+			['a', 'b'],
+			['b', 'c'],
+			['b', 'd'],
+			['d', 'e'],
+		]);
 
-    expect(traverseDepthFirstSorted(edgeGraph6, 'c').toArray()).toEqual([
-      ['c', 'a'],
-      ['a', 'b'],
-      ['b', 'd'],
-      ['d', 'e'],
-    ]);
+		expect(traverseDepthFirstSorted(edgeGraph6, 'c').toArray()).toEqual([
+			['c', 'a'],
+			['a', 'b'],
+			['b', 'd'],
+			['d', 'e'],
+		]);
 
-    expect(traverseDepthFirstSorted(edgeValuedGraph6, 'a').toArray()).toEqual([
-      ['a', 'b', 1],
-      ['b', 'c', 2],
-      ['b', 'd', 4],
-      ['d', 'e', 5],
-    ]);
+		expect(traverseDepthFirstSorted(edgeValuedGraph6, 'a').toArray()).toEqual([
+			['a', 'b', 1],
+			['b', 'c', 2],
+			['b', 'd', 4],
+			['d', 'e', 5],
+		]);
 
-    expect(traverseDepthFirstSorted(edgeValuedGraph6, 'c').toArray()).toEqual([
-      ['c', 'a', 3],
-      ['a', 'b', 1],
-      ['b', 'd', 4],
-      ['d', 'e', 5],
-    ]);
-  });
+		expect(traverseDepthFirstSorted(edgeValuedGraph6, 'c').toArray()).toEqual([
+			['c', 'a', 3],
+			['a', 'b', 1],
+			['b', 'd', 4],
+			['d', 'e', 5],
+		]);
+	});
 
-  it('works for complex graphs', () => {
-    expect(traverseDepthFirstSorted(edgeGraphMulti, 'a').toArray()).toEqual([
-      ['a', 'b'],
-      ['b', 'c'],
-    ]);
+	it('works for complex graphs', () => {
+		expect(traverseDepthFirstSorted(edgeGraphMulti, 'a').toArray()).toEqual([
+			['a', 'b'],
+			['b', 'c'],
+		]);
 
-    expect(traverseDepthFirstSorted(edgeGraphMulti, 'b').toArray()).toEqual([
-      ['b', 'a'],
-      ['b', 'c'],
-    ]);
+		expect(traverseDepthFirstSorted(edgeGraphMulti, 'b').toArray()).toEqual([
+			['b', 'a'],
+			['b', 'c'],
+		]);
 
-    expect(traverseDepthFirstSorted(edgeGraphMulti, 'c').toArray()).toEqual([
-      ['c', 'b'],
-      ['b', 'a'],
-    ]);
+		expect(traverseDepthFirstSorted(edgeGraphMulti, 'c').toArray()).toEqual([
+			['c', 'b'],
+			['b', 'a'],
+		]);
 
-    expect(
-      traverseDepthFirstSorted(edgeValuedGraphMulti, 'a').toArray()
-    ).toEqual([
-      ['a', 'b', 4],
-      ['b', 'c', 3],
-    ]);
+		expect(
+			traverseDepthFirstSorted(edgeValuedGraphMulti, 'a').toArray(),
+		).toEqual([
+			['a', 'b', 4],
+			['b', 'c', 3],
+		]);
 
-    expect(
-      traverseDepthFirstSorted(edgeValuedGraphMulti, 'b').toArray()
-    ).toEqual([
-      ['b', 'a', 4],
-      ['b', 'c', 3],
-    ]);
+		expect(
+			traverseDepthFirstSorted(edgeValuedGraphMulti, 'b').toArray(),
+		).toEqual([
+			['b', 'a', 4],
+			['b', 'c', 3],
+		]);
 
-    expect(
-      traverseDepthFirstSorted(edgeValuedGraphMulti, 'c').toArray()
-    ).toEqual([
-      ['c', 'b', 3],
-      ['b', 'a', 4],
-    ]);
-  });
+		expect(
+			traverseDepthFirstSorted(edgeValuedGraphMulti, 'c').toArray(),
+		).toEqual([
+			['c', 'b', 3],
+			['b', 'a', 4],
+		]);
+	});
 });

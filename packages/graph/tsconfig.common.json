@@ -1,10 +1,10 @@
 {
-  "compilerOptions": {
-    "rootDirs": [".", ".."],
-    "baseUrl": "./src",
-    "paths": {
-      "@rimbu/graph/custom": ["custom/index.ts", "custom/index.cts"],
-      "@rimbu/graph": ["main/index.ts", "main/index.cts"]
-    }
-  }
+	"compilerOptions": {
+		"paths": {
+			"@rimbu/graph": ["./entry/graph.ts"],
+			"@rimbu/graph/*": ["./public/*.ts"],
+			"#graph/*": ["./public/internal/*.ts"],
+			"#private/*": ["./private/*.ts"]
+		}
+	}
 }

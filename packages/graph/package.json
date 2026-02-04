@@ -39,19 +39,40 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/esm/main/index.d.ts",
-			"import": "./dist/esm/main/index.js"
+			"types": "./dist/entry/hashed.d.ts",
+			"default": "./dist/entry/hashed.js"
 		},
-		"./custom": {
-			"types": "./dist/esm/custom/index.d.ts",
-			"import": "./dist/esm/custom/index.js"
+		"./*": {
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
+		}
+	},
+	"imports": {
+		"#graph/*": {
+			"types": "./dist/public/internal/*.d.ts",
+			"default": "./dist/public/internal/*.js"
+		},
+		"#private/*": {
+			"types": "./dist/private/*.d.ts",
+			"default": "./dist/private/*.js"
 		}
 	},
 	"files": [
 		"dist",
 		"src"
 	],
-	"scripts": {},
+	"scripts": {
+		"biome:check": "biome check",
+		"biome:fix": "biome check --write",
+		"build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
+		"clean": "rimraf dist node_modules",
+		"clean:build": "rimraf dist",
+		"format:check": "biome format",
+		"lint:check": "biome lint",
+		"test": "bun test --tsconfig-override tsconfig.common.json",
+		"test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.ts",
+		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
+	},
 	"dependencies": {
 		"@rimbu/base": "workspace:*",
 		"@rimbu/collection-types": "workspace:*",
