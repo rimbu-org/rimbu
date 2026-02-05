@@ -200,7 +200,7 @@ export abstract class SortedSetNode<T>
 	}
 
 	addAll(values: StreamSource<T>): SortedSet.NonEmpty<T> {
-		if (StreamFactory().isEmptyStreamSourceInstance(values)) return this;
+		if (StreamFactory.isEmptyStreamSourceInstance(values)) return this;
 
 		const builder = this.toBuilder();
 		builder.addAll(values);
@@ -213,7 +213,7 @@ export abstract class SortedSetNode<T>
 	}
 
 	removeAll<U>(values: StreamSource<RelatedTo<T, U>>): SortedSet<T> {
-		if (StreamFactory().isEmptyStreamSourceInstance(values)) return this;
+		if (StreamFactory.isEmptyStreamSourceInstance(values)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeAll(values);
@@ -270,7 +270,7 @@ export abstract class SortedSetNode<T>
 
 	union(other: StreamSource<T>): SortedSet<T> | any {
 		if (other === this) return this;
-		if (StreamFactory().isEmptyStreamSourceInstance(other)) return this;
+		if (StreamFactory.isEmptyStreamSourceInstance(other)) return this;
 
 		const builder = this.toBuilder();
 		builder.addAll(other);
@@ -279,7 +279,7 @@ export abstract class SortedSetNode<T>
 
 	difference(other: StreamSource<T>): SortedSet<T> {
 		if (other === this) return this.context.empty();
-		if (StreamFactory().isEmptyStreamSourceInstance(other)) return this;
+		if (StreamFactory.isEmptyStreamSourceInstance(other)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeAll(other);
@@ -288,7 +288,7 @@ export abstract class SortedSetNode<T>
 
 	intersect(other: StreamSource<T>): SortedSet<T> {
 		if (other === this) return this;
-		if (StreamFactory().isEmptyStreamSourceInstance(other))
+		if (StreamFactory.isEmptyStreamSourceInstance(other))
 			return this.context.empty();
 
 		const builder = this.context.builder();
@@ -327,7 +327,7 @@ export abstract class SortedSetNode<T>
 	symDifference(other: StreamSource<T>): SortedSet<T> {
 		if (other === this) return this.context.empty();
 
-		if (StreamFactory().isEmptyStreamSourceInstance(other)) return this;
+		if (StreamFactory.isEmptyStreamSourceInstance(other)) return this;
 
 		const builder = this.toBuilder();
 

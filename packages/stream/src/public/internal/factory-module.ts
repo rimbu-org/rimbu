@@ -27,7 +27,6 @@ import {
 	ZipAllWithItererator,
 	ZipWithIterator,
 } from '#stream/fast-iterator-base';
-import { fastIteratorFactoryModule } from '#stream/fast-iterator-factory-module';
 
 function isStream(obj: any): obj is Stream<any> {
 	return obj instanceof StreamBase;
@@ -56,7 +55,7 @@ function* yieldObjEntries<K extends string | number | symbol, V>(
 }
 
 export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
-	_emptyInstance: Module.lazy(() => new EmptyStream<any>(mod)),
+	_emptyInstance: Module.lazy(() => new EmptyStream<any>()),
 	isEmptyStreamSourceInstance: Module.factory((source: StreamSource<any>) => {
 		if (source === '') return true;
 		if (typeof source === 'object') {
@@ -77,12 +76,11 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 
 		if (Array.isArray(source)) {
 			if (source.length <= 0) return mod._emptyInstance;
-			return new ArrayStream(mod, source);
+			return new ArrayStream(source);
 		}
 
-		return new FromIterable(mod, source);
+		return new FromIterable(source);
 	}),
-	fastIteratorFactory: Module.lazy(() => fastIteratorFactoryModule.build()),
 	empty: Module.factory(() => mod._emptyInstance),
 	of: Module.factory(
 		<T>(...values: ArrayNonEmpty<T>): Stream.NonEmpty<T> =>
@@ -110,7 +108,7 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 			const { range, reversed = false } = options;
 
 			if (undefined === range) {
-				return new ArrayStream(mod, array, undefined, undefined, reversed);
+				return new ArrayStream(array, undefined, undefined, reversed);
 			}
 
 			const result = IndexRange.getIndicesFor(range, array.length);
@@ -119,9 +117,9 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 				return mod._emptyInstance;
 			}
 			if (result === 'all') {
-				return new ArrayStream(mod, array, undefined, undefined, reversed);
+				return new ArrayStream(array, undefined, undefined, reversed);
 			}
-			return new ArrayStream(mod, array, result[0], result[1], reversed);
+			return new ArrayStream(array, result[0], result[1], reversed);
 		},
 	),
 	fromObjectKeys: Module.factory(
@@ -148,7 +146,7 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 		},
 	),
 	always: Module.factory(<T>(value: T): Stream.NonEmpty<T> => {
-		return new AlwaysStream(mod, value) as any;
+		return new AlwaysStream(value) as any;
 	}),
 	applyForEach: Module.factory(
 		<T extends readonly unknown[], A extends readonly unknown[]>(
@@ -171,7 +169,7 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 			mapFun: (...args: [...T, ...A]) => R,
 			...args: A
 		) => {
-			return new MapApplyStream(mod, source, mapFun, args) as any;
+			return new MapApplyStream(source, mapFun, args) as any;
 		},
 	),
 	applyFilter: Module.factory(
@@ -182,7 +180,7 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 		): Stream<T> => {
 			const { pred, negate = false } = options;
 
-			return new FilterApplyStream(mod, source, pred, args, negate) as any;
+			return new FilterApplyStream(source, pred, args, negate) as any;
 		},
 	),
 	range: Module.factory(
@@ -201,7 +199,7 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 				}
 				const endIndex = startIndex + range.amount - 1;
 
-				return new RangeStream(mod, startIndex, endIndex, delta);
+				return new RangeStream(startIndex, endIndex, delta);
 			}
 
 			const { start, end } = Range.getNormalizedRange(range);
@@ -221,13 +219,12 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 				else if (delta < 0 && startIndex <= endIndex) return mod._emptyInstance;
 			}
 
-			return new RangeStream(mod, startIndex, endIndex, delta);
+			return new RangeStream(startIndex, endIndex, delta);
 		},
 	),
 	random: Module.factory((): Stream.NonEmpty<number> => {
 		return new FromStream(
-			mod,
-			(): FastIterator<number> => new RandomIterator(mod),
+			(): FastIterator<number> => new RandomIterator(),
 		) as unknown as Stream.NonEmpty<number>;
 	}),
 	randomInt: Module.factory(
@@ -235,8 +232,7 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 			if (min >= max) ErrBase.msg('min should be smaller than max');
 
 			return new FromStream(
-				mod,
-				(): FastIterator<number> => new RandomIntIterator(mod, min, max),
+				(): FastIterator<number> => new RandomIntIterator(min, max),
 			) as unknown as Stream.NonEmpty<number>;
 		},
 	),
@@ -246,8 +242,7 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 			next: (current: T, index: number, stop: Token) => T | Token,
 		): Stream.NonEmpty<T> => {
 			return new FromStream(
-				mod,
-				(): FastIterator<T> => new UnfoldIterator<T>(mod, init, next),
+				(): FastIterator<T> => new UnfoldIterator<T>(init, next),
 			) as unknown as Stream.NonEmpty<T>;
 		},
 	),
@@ -257,10 +252,7 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 				return mod._emptyInstance;
 			}
 
-			return new FromStream(
-				mod,
-				() => new ZipWithIterator(mod, sources as any, zipFun),
-			);
+			return new FromStream(() => new ZipWithIterator(sources as any, zipFun));
 		};
 	}),
 	zip: Module.factory((...sources) => {
@@ -273,9 +265,8 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 			}
 
 			return new FromStream(
-				mod,
 				(): FastIterator<any> =>
-					new ZipAllWithItererator(mod, fillValue, sources as any, zipFun),
+					new ZipAllWithItererator(fillValue, sources as any, zipFun),
 			);
 		};
 	}),

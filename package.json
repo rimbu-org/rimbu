@@ -51,6 +51,7 @@
 		"lerna": "^9.0.3",
 		"rimraf": "^6.1.2",
 		"tsd": "^0.33.0",
+		"typedoc": "^0.28.16",
 		"typescript": "^5.9.3"
 	},
 	"workspaces": {

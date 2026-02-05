@@ -159,7 +159,7 @@ export abstract class HashMapNonEmptyBase<K, V>
 	}
 
 	addEntries(entries: StreamSource<readonly [K, V]>): HashMap.NonEmpty<K, V> {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries)) return this;
+		if (StreamFactory.isEmptyStreamSourceInstance(entries)) return this;
 
 		const builder = this.toBuilder();
 		builder.addEntries(entries);
@@ -167,7 +167,7 @@ export abstract class HashMapNonEmptyBase<K, V>
 	}
 
 	removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): HashMap<K, V> {
-		if (StreamFactory().isEmptyStreamSourceInstance(keys)) return this;
+		if (StreamFactory.isEmptyStreamSourceInstance(keys)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeKeys(keys);

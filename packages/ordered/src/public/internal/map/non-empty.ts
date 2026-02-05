@@ -90,8 +90,7 @@ export class OrderedMapNonEmpty<
 	addEntries(
 		entries: StreamSource<readonly [K, V]>,
 	): OrderedMapBase<K, V, Tp> | any {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries))
-			return this as any;
+		if (StreamFactory.isEmptyStreamSourceInstance(entries)) return this as any;
 
 		const builder = this.toBuilder();
 		builder.addEntries(entries);
@@ -118,7 +117,7 @@ export class OrderedMapNonEmpty<
 	}
 
 	removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): TpG['normal'] {
-		if (StreamFactory().isEmptyStreamSourceInstance(keys)) return this as any;
+		if (StreamFactory.isEmptyStreamSourceInstance(keys)) return this as any;
 
 		const builder = this.toBuilder();
 		builder.removeKeys(keys);

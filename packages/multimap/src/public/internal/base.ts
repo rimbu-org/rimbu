@@ -236,8 +236,7 @@ export class MultiMapNonEmpty<
 	}
 
 	addEntries(entries: StreamSource<readonly [K, V]>): TpG['nonEmpty'] {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries))
-			return this as any;
+		if (StreamFactory.isEmptyStreamSourceInstance(entries)) return this as any;
 
 		const builder = this.toBuilder();
 		builder.addEntries(entries);
@@ -254,7 +253,7 @@ export class MultiMapNonEmpty<
 	}
 
 	removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): TpG['normal'] {
-		if (StreamFactory().isEmptyStreamSourceInstance(keys)) return this as any;
+		if (StreamFactory.isEmptyStreamSourceInstance(keys)) return this as any;
 
 		const builder = this.toBuilder();
 		builder.removeKeys(keys);
@@ -294,8 +293,7 @@ export class MultiMapNonEmpty<
 	removeEntries<UK, UV>(
 		entries: StreamSource<[RelatedTo<K, UK>, RelatedTo<V, UV>]>,
 	): TpG['normal'] {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries))
-			return this as any;
+		if (StreamFactory.isEmptyStreamSourceInstance(entries)) return this as any;
 
 		const builder = this.toBuilder();
 		builder.removeEntries(entries);
@@ -689,7 +687,7 @@ export class MultiMapContext<
 		while (++i < length) {
 			const source = sources[i];
 
-			if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
+			if (StreamFactory.isEmptyStreamSourceInstance(source)) continue;
 			if (
 				builder.isEmpty &&
 				this.isNonEmptyInstance<K, V>(source) &&

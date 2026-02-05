@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'bun:test';
 
 import { OptLazy } from '@rimbu/common/opt-lazy';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
+import { FastIteratorFactory } from '@rimbu/stream/internal/fast-iterator-factory';
 
 import { FastIteratorBase } from '#stream/fast-iterator-base';
 
 const { _emptyFastIteratorInstance, _fixedDoneIteratorResult } =
-	StreamFactory().fastIteratorFactory;
+	FastIteratorFactory;
 
 describe('FastIterator', () => {
 	it('fixedDone', () => {
@@ -22,16 +22,12 @@ describe('FastIterator', () => {
 
 	it('Base', () => {
 		class Test1 extends FastIteratorBase<number> {
-			readonly deps = StreamFactory();
-
 			fastNext(): number {
 				return 1;
 			}
 		}
 
 		class Test2 extends FastIteratorBase<number> {
-			readonly deps = StreamFactory();
-
 			fastNext<O>(otherwise?: OptLazy<O>): number | O {
 				return OptLazy(otherwise)!;
 			}

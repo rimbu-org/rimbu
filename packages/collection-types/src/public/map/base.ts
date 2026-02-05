@@ -998,7 +998,7 @@ export namespace RMapBase {
 			while (++i < length) {
 				const source = sources[i];
 
-				if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
+				if (StreamFactory.isEmptyStreamSourceInstance(source)) continue;
 
 				if (
 					builder.isEmpty &&
@@ -1108,7 +1108,7 @@ export namespace RMapBase {
 			// prettier-ignore
 			return <R>(mergeFun: (key: K, ...values: I) => R): any => {
 				if (
-					Stream.from(sources).some(StreamFactory().isEmptyStreamSourceInstance)
+					Stream.from(sources).some(StreamFactory.isEmptyStreamSourceInstance)
 				) {
 					return this.empty();
 				}

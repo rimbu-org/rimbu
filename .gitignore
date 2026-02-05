@@ -7,13 +7,4 @@ coverage
 
 benchmark
 
-yarn-error.log
-
-.eslintcache
-lerna-debug.log
-
 **/.DS_Store
-
-.nx
-
-**/_cjs_prepare/*

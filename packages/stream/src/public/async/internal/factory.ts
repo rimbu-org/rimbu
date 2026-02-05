@@ -1,7 +1,9 @@
+import type { AsyncStream, AsyncStreamSource } from '@rimbu/stream/async';
+
 import type { AsyncStreamConstructors } from '#async/constructors';
 import type { AsyncFastIteratorFactory } from '#async/fast-iterator-factory';
 
-import { AsyncStream, type AsyncStreamSource } from '@rimbu/stream/async';
+import { asyncStreamFactoryModule } from '#async/factory-module';
 
 export interface AsyncStreamFactory extends AsyncStreamConstructors {
 	_emptyInstance: AsyncStream<any>;
@@ -24,6 +26,4 @@ export interface AsyncStreamFactory extends AsyncStreamConstructors {
 	asyncFastIteratorFactory: AsyncFastIteratorFactory;
 }
 
-export function AsyncStreamFactory(): AsyncStreamFactory {
-	return AsyncStream as AsyncStreamFactory;
-}
+export const AsyncStreamFactory = asyncStreamFactoryModule.build();

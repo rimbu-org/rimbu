@@ -72,6 +72,7 @@
 		"build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
 		"clean": "rimraf dist node_modules",
 		"clean:build": "rimraf dist",
+		"docs": "rimraf docs && bunx typedoc --options typedoc.json",
 		"format:check": "biome format",
 		"lint:check": "biome lint",
 		"test": "bun test --tsconfig-override tsconfig.common.json",

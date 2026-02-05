@@ -6,7 +6,6 @@ import { HashSet } from '@rimbu/hashed/set';
 import { SortedSet } from '@rimbu/sorted/set';
 import { type FastIterator, Stream } from '@rimbu/stream';
 import { StreamBase } from '@rimbu/stream/internal/base';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
 import { FastIteratorBase } from '@rimbu/stream/internal/fast-iterator-base';
 
 class GraphBreadthFirstStream<
@@ -20,8 +19,6 @@ class GraphBreadthFirstStream<
 	) {
 		super();
 	}
-
-	readonly deps = StreamFactory();
 
 	[Symbol.iterator](): FastIterator<LinkType<G, N>> {
 		return new DirectedGraphBreadthFirstIterable<G, N>(
@@ -50,8 +47,6 @@ class DirectedGraphBreadthFirstIterable<
 			Symbol.iterator
 		]() as FastIterator<LinkType<G, N>>;
 	}
-
-	readonly deps = StreamFactory();
 
 	readonly nextIterators: FastIterator<LinkType<G, N>>[] = [];
 	currentIterator: FastIterator<LinkType<G, N>>;

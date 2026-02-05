@@ -60,7 +60,7 @@ export class ValuedGraphContext<
 		while (++i < length) {
 			const source = sources[i];
 
-			if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
+			if (StreamFactory.isEmptyStreamSourceInstance(source)) continue;
 			if (
 				builder.isEmpty &&
 				this.isNonEmptyInstance(source) &&

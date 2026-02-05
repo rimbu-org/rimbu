@@ -2,7 +2,6 @@ import type { RemoteChannel } from '@rimbu/channel/remote-channel';
 
 import { Channel, ChannelError } from '@rimbu/channel';
 import { AsyncStream, type AsyncStreamSource } from '@rimbu/stream/async';
-import { AsyncStreamFactory } from '@rimbu/stream/async/internal/factory';
 import { AsyncFromStream } from '@rimbu/stream/async/internal/stream-base';
 
 import { ChannelFastIterator } from '#channel/channel-impl';
@@ -364,10 +363,7 @@ export class RemoteChannelRead<T>
 	}
 
 	asyncStream(): AsyncStream<T> {
-		return new AsyncFromStream<T>(
-			AsyncStreamFactory(),
-			() => new ChannelFastIterator<T>(this),
-		);
+		return new AsyncFromStream<T>(() => new ChannelFastIterator<T>(this));
 	}
 
 	readable(): Channel.Read<T> {

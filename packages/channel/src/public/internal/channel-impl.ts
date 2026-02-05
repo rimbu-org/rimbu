@@ -2,7 +2,6 @@ import type { Channel } from '@rimbu/channel';
 
 import { AsyncOptLazy } from '@rimbu/common/async-opt-lazy';
 import { AsyncStream, type AsyncStreamSource } from '@rimbu/stream/async';
-import { AsyncStreamFactory } from '@rimbu/stream/async/internal/factory';
 import { AsyncFastIteratorBase } from '@rimbu/stream/async/internal/fast-iterator-base';
 import { AsyncFromStream } from '@rimbu/stream/async/internal/stream-base';
 
@@ -17,8 +16,6 @@ export class ChannelFastIterator<T> extends AsyncFastIteratorBase<T> {
 	constructor(readonly sourceCh: Channel.Read<T>) {
 		super();
 	}
-
-	readonly deps = AsyncStreamFactory();
 
 	async fastNext<O>(otherwise?: AsyncOptLazy<O> | undefined): Promise<T | O> {
 		try {
@@ -41,7 +38,6 @@ export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
 	readonly #validator;
 
 	constructor(
-		readonly deps: AsyncStreamFactory,
 		options: {
 			capacity?: number | undefined;
 			validator?: ((value: any) => boolean) | undefined;
@@ -59,10 +55,7 @@ export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
 	}
 
 	asyncStream(): AsyncStream<T> {
-		return new AsyncFromStream<T>(
-			this.deps,
-			() => new ChannelFastIterator<T>(this),
-		);
+		return new AsyncFromStream<T>(() => new ChannelFastIterator<T>(this));
 	}
 
 	get capacity(): number {

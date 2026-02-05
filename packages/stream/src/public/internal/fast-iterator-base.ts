@@ -1,33 +1,31 @@
 import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
 import type { Reducer } from '@rimbu/stream/reducer';
 
-import type { StreamFactory } from '#stream/factory';
-
 import { Token } from '@rimbu/base/token';
 import { CollectFun } from '@rimbu/common/collect';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
+
+import { StreamFactory } from '#stream/factory';
+import { FastIteratorFactory } from '#stream/fast-iterator-factory';
 
 /**
  * A base class for `FastIterator` instances that implements the standard `next`
  * method in terms of the abstract `fastNext` method.
  */
 export abstract class FastIteratorBase<T> implements FastIterator<T> {
-	abstract readonly deps: StreamFactory;
 	abstract fastNext<O>(otherwise?: OptLazy<O>): T | O;
 
 	next(): IteratorResult<T> {
 		const done = Symbol('Done');
 		const value = this.fastNext(done);
-		if (done === value)
-			return this.deps.fastIteratorFactory._fixedDoneIteratorResult;
+		if (done === value) return FastIteratorFactory._fixedDoneIteratorResult;
 		return { value, done: false };
 	}
 }
 
 export class ReducerFastIterator<T, R> extends FastIteratorBase<R> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly sourceIterator: FastIterator<T>,
 		readonly reducerInstance: Reducer.Instance<T, R>,
 	) {
@@ -55,7 +53,6 @@ export class ReducerFastIterator<T, R> extends FastIteratorBase<R> {
 
 export class TransformerFastIterator<T, R> extends FastIteratorBase<R> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly sourceIterator: FastIterator<T>,
 		readonly transformerInstance: Reducer.Instance<T, StreamSource<R>>,
 	) {
@@ -96,9 +93,8 @@ export class TransformerFastIterator<T, R> extends FastIteratorBase<R> {
 			}
 
 			const nextValuesSource = this.transformerInstance.getOutput();
-			this.#currentValues = this.deps
-				.fromStreamSource(nextValuesSource)
-				[Symbol.iterator]();
+			this.#currentValues =
+				StreamFactory.fromStreamSource(nextValuesSource)[Symbol.iterator]();
 		}
 
 		return nextValue;
@@ -109,7 +105,6 @@ export class ConcatIterator<T> extends FastIteratorBase<T> {
 	iterator: FastIterator<T>;
 
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: Stream<T>,
 		readonly otherSources: StreamSource<T>[],
 	) {
@@ -130,14 +125,15 @@ export class ConcatIterator<T> extends FastIteratorBase<T> {
 
 			let nextSource: StreamSource<T> = this.otherSources[this.sourceIndex++];
 
-			while (this.deps.isEmptyStreamSourceInstance(nextSource)) {
+			while (StreamFactory.isEmptyStreamSourceInstance(nextSource)) {
 				if (this.sourceIndex >= length) {
 					return OptLazy(otherwise) as O;
 				}
 				nextSource = this.otherSources[this.sourceIndex++];
 			}
 
-			this.iterator = this.deps.fromStreamSource(nextSource)[Symbol.iterator]();
+			this.iterator =
+				StreamFactory.fromStreamSource(nextSource)[Symbol.iterator]();
 		}
 
 		return value;
@@ -146,7 +142,6 @@ export class ConcatIterator<T> extends FastIteratorBase<T> {
 
 export class IndexedIterator<T> extends FastIteratorBase<[number, T]> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: FastIterator<T>,
 		readonly startIndex: number,
 	) {
@@ -170,7 +165,6 @@ export class IndexedIterator<T> extends FastIteratorBase<[number, T]> {
 
 export class FilterIterator<T> extends FastIteratorBase<T> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: FastIterator<T>,
 		readonly pred: (value: T, index: number, halt: () => void) => boolean,
 		readonly negate: boolean,
@@ -204,7 +198,6 @@ export class FilterPureIterator<
 	A extends readonly unknown[],
 > extends FastIteratorBase<T> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: FastIterator<T>,
 		readonly pred: (value: T, ...args: A) => boolean,
 		readonly args: A,
@@ -231,7 +224,6 @@ export class FilterPureIterator<
 
 export class CollectIterator<T, R> extends FastIteratorBase<R> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: FastIterator<T>,
 		readonly collectFun: CollectFun<T, R>,
 	) {
@@ -269,7 +261,6 @@ export class CollectIterator<T, R> extends FastIteratorBase<R> {
 
 export class DropWhileIterator<T> extends FastIteratorBase<T> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: FastIterator<T>,
 		readonly pred: (value: T, index: number) => boolean,
 		readonly negate: boolean,
@@ -300,7 +291,6 @@ export class DropWhileIterator<T> extends FastIteratorBase<T> {
 
 export class TakeIterator<T> extends FastIteratorBase<T> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: FastIterator<T>,
 		readonly amount: number,
 	) {
@@ -320,7 +310,6 @@ export class DropIterator<T> extends FastIteratorBase<T> {
 	remain: number;
 
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: FastIterator<T>,
 		readonly amount: number,
 	) {
@@ -349,7 +338,6 @@ export class RepeatIterator<T> extends FastIteratorBase<T> {
 	remain: number | undefined;
 
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: Stream<T>,
 		readonly amount?: number,
 	) {
@@ -390,7 +378,6 @@ export class ArrayIterator<T> extends FastIteratorBase<T> {
 	i: number;
 
 	constructor(
-		readonly deps: StreamFactory,
 		readonly array: readonly T[],
 		readonly startIndex: number,
 		readonly endIndex: number,
@@ -409,7 +396,6 @@ export class ArrayReverseIterator<T> extends FastIteratorBase<T> {
 	i: number;
 
 	constructor(
-		readonly deps: StreamFactory,
 		readonly array: readonly T[],
 		readonly startIndex: number,
 		endIndex: number,
@@ -425,10 +411,7 @@ export class ArrayReverseIterator<T> extends FastIteratorBase<T> {
 }
 
 export class AlwaysIterator<T> extends FastIteratorBase<T> {
-	constructor(
-		readonly deps: StreamFactory,
-		readonly value: T,
-	) {
+	constructor(readonly value: T) {
 		super();
 	}
 
@@ -443,13 +426,12 @@ export class MapApplyIterator<
 	R,
 > extends FastIteratorBase<R> {
 	constructor(
-		readonly deps: StreamFactory,
 		source: StreamSource<T>,
 		readonly f: (...args: [...T, ...A]) => R,
 		readonly args: A,
 	) {
 		super();
-		this.iter = deps.fromStreamSource(source)[Symbol.iterator]();
+		this.iter = StreamFactory.fromStreamSource(source)[Symbol.iterator]();
 	}
 
 	iter: FastIterator<T>;
@@ -469,14 +451,13 @@ export class FilterApplyIterator<
 	A extends readonly unknown[],
 > extends FastIteratorBase<T> {
 	constructor(
-		readonly deps: StreamFactory,
 		source: StreamSource<T>,
 		readonly pred: (...args: [...T, ...A]) => boolean,
 		readonly args: A,
 		readonly negate: boolean,
 	) {
 		super();
-		this.iter = deps.fromStreamSource(source)[Symbol.iterator]();
+		this.iter = StreamFactory.fromStreamSource(source)[Symbol.iterator]();
 	}
 
 	iter: FastIterator<T>;
@@ -502,7 +483,6 @@ export class RangeUpIterator extends FastIteratorBase<number> {
 	state: number;
 
 	constructor(
-		readonly deps: StreamFactory,
 		readonly start = 0,
 		readonly end: number | undefined,
 		readonly delta: number,
@@ -528,7 +508,6 @@ export class RangeDownIterator extends FastIteratorBase<number> {
 	state: number;
 
 	constructor(
-		readonly deps: StreamFactory,
 		readonly start = 0,
 		readonly end: number | undefined,
 		readonly delta: number,
@@ -551,9 +530,6 @@ export class RangeDownIterator extends FastIteratorBase<number> {
 }
 
 export class RandomIterator extends FastIteratorBase<number> {
-	constructor(readonly deps: StreamFactory) {
-		super();
-	}
 	fastNext(): number {
 		return Math.random();
 	}
@@ -563,7 +539,6 @@ export class RandomIntIterator extends FastIteratorBase<number> {
 	readonly width: number;
 
 	constructor(
-		readonly deps: StreamFactory,
 		readonly min: number,
 		readonly max: number,
 	) {
@@ -579,7 +554,6 @@ export class RandomIntIterator extends FastIteratorBase<number> {
 
 export class UnfoldIterator<T> extends FastIteratorBase<T> {
 	constructor(
-		readonly deps: StreamFactory,
 		init: T,
 		readonly getNext: (current: T, index: number, stop: Token) => T | Token,
 	) {
@@ -614,7 +588,6 @@ export class ZipWithIterator<
 	R,
 > extends FastIteratorBase<R> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly iterables: { [K in keyof I]: StreamSource<I[K]> },
 		readonly zipFun: (...values: I) => R,
 	) {
@@ -622,7 +595,7 @@ export class ZipWithIterator<
 
 		this.sources = iterables.map(
 			(source): FastIterator<any> =>
-				deps.fromStreamSource(source)[Symbol.iterator](),
+				StreamFactory.fromStreamSource(source)[Symbol.iterator](),
 		);
 	}
 
@@ -654,7 +627,6 @@ export class ZipAllWithItererator<
 	R,
 > extends FastIteratorBase<R> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly fillValue: OptLazy<F>,
 		readonly iters: { [K in keyof I]: StreamSource<I[K]> },
 		readonly zipFun: (...values: { [K in keyof I]: I[K] | F }) => R,
@@ -662,7 +634,8 @@ export class ZipAllWithItererator<
 		super();
 
 		this.sources = iters.map(
-			(o): FastIterator<any> => deps.fromStreamSource(o)[Symbol.iterator](),
+			(o): FastIterator<any> =>
+				StreamFactory.fromStreamSource(o)[Symbol.iterator](),
 		);
 	}
 
@@ -703,7 +676,6 @@ export class ZipAllWithItererator<
 
 export class PrependIterator<T> extends FastIteratorBase<T> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: FastIterator<T>,
 		readonly item: OptLazy<T>,
 	) {
@@ -723,7 +695,6 @@ export class PrependIterator<T> extends FastIteratorBase<T> {
 
 export class AppendIterator<T> extends FastIteratorBase<T> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: FastIterator<T>,
 		readonly item: OptLazy<T>,
 	) {
@@ -748,7 +719,6 @@ export class AppendIterator<T> extends FastIteratorBase<T> {
 
 export class MapIterator<T, T2> extends FastIteratorBase<T2> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: FastIterator<T>,
 		readonly mapFun: (value: T, index: number) => T2,
 	) {
@@ -777,7 +747,6 @@ export class MapPureIterator<
 	T2,
 > extends FastIteratorBase<T2> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: FastIterator<T>,
 		readonly mapFun: (value: T, ...args: A) => T2,
 		readonly args: A,

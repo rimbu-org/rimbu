@@ -2,8 +2,6 @@ import type { CollectFun } from '@rimbu/common/collect';
 import type { ArrayNonEmpty, ToJSON } from '@rimbu/common/types';
 import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
 
-import type { StreamFactory } from '#stream/factory';
-
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import { Comp } from '@rimbu/common/comp';
 import { Eq } from '@rimbu/common/eq';
@@ -11,7 +9,9 @@ import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Reducer } from '@rimbu/stream/reducer';
 import { Transformer } from '@rimbu/stream/transformer';
+import { FastIteratorFactory } from './fast-iterator-factory';
 
+import { StreamFactory } from '#stream/factory';
 import {
 	AlwaysIterator,
 	AppendIterator,
@@ -45,7 +45,6 @@ import {
  * @typeparam T - the element type
  */
 export abstract class StreamBase<T> implements Stream<T> {
-	abstract readonly deps: StreamFactory;
 	abstract [Symbol.iterator](): FastIterator<T>;
 
 	stream(): this {
@@ -57,7 +56,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 		{ eq = Eq.objectIs, negate = false }: { eq?: Eq<T>; negate?: boolean } = {},
 	): boolean {
 		const it1 = this[Symbol.iterator]();
-		const it2 = this.deps.fromStreamSource(other)[Symbol.iterator]();
+		const it2 = StreamFactory.fromStreamSource(other)[Symbol.iterator]();
 		const done = Symbol('Done');
 
 		while (true) {
@@ -83,11 +82,11 @@ export abstract class StreamBase<T> implements Stream<T> {
 	}
 
 	prepend(value: OptLazy<T>): Stream.NonEmpty<T> {
-		return new PrependStream<T>(this.deps, this, value).assumeNonEmpty();
+		return new PrependStream<T>(this, value).assumeNonEmpty();
 	}
 
 	append(value: OptLazy<T>): Stream.NonEmpty<T> {
-		return new AppendStream<T>(this.deps, this, value).assumeNonEmpty();
+		return new AppendStream<T>(this, value).assumeNonEmpty();
 	}
 
 	forEach(
@@ -125,7 +124,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 	indexed(options: { startIndex?: number } = {}): Stream<[number, T]> {
 		const { startIndex = 0 } = options;
 
-		return new IndexedStream(this.deps, this, startIndex);
+		return new IndexedStream(this, startIndex);
 	}
 
 	filter(
@@ -134,7 +133,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 	): any {
 		const { negate = false } = options;
 
-		return new FilterStream(this.deps, this, pred, negate) as any;
+		return new FilterStream(this, pred, negate) as any;
 	}
 
 	filterPure<A extends readonly unknown[]>(
@@ -146,12 +145,12 @@ export abstract class StreamBase<T> implements Stream<T> {
 	): any {
 		const { pred, negate = false } = options;
 
-		return new FilterPureStream(this.deps, this, pred, args, negate) as any;
+		return new FilterPureStream(this, pred, args, negate) as any;
 	}
 
 	withOnly<F extends T>(values: F[]): Stream<F> {
 		if (values.length <= 0) {
-			return this.deps.empty();
+			return StreamFactory.empty();
 		}
 
 		const set = new Set<T>(values);
@@ -170,18 +169,18 @@ export abstract class StreamBase<T> implements Stream<T> {
 	}
 
 	map<T2>(mapFun: (value: T, index: number) => T2): Stream<T2> {
-		return new MapStream<T, T2>(this.deps, this, mapFun);
+		return new MapStream<T, T2>(this, mapFun);
 	}
 
 	mapPure<T2, A extends readonly unknown[]>(
 		mapFun: (value: T, ...args: A) => T2,
 		...args: A
 	): Stream<T2> {
-		return new MapPureStream<T, A, T2>(this.deps, this, mapFun, args);
+		return new MapPureStream<T, A, T2>(this, mapFun, args);
 	}
 
 	collect<R>(collectFun: CollectFun<T, R>): Stream<R> {
-		return new CollectStream<T, R>(this.deps, this, collectFun);
+		return new CollectStream<T, R>(this, collectFun);
 	}
 
 	flatMap<T2>(
@@ -197,7 +196,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 	}
 
 	transform<R>(transformer: Transformer<T, R>): Stream<R> {
-		return new TransformerStream(this.deps, this, transformer);
+		return new TransformerStream(this, transformer);
 	}
 
 	first<O>(otherwise?: OptLazy<O>): T | O {
@@ -467,15 +466,15 @@ export abstract class StreamBase<T> implements Stream<T> {
 	): Stream<T> {
 		const { negate = false } = options;
 
-		return new DropWhileStream<T>(this.deps, this, pred, negate);
+		return new DropWhileStream<T>(this, pred, negate);
 	}
 
 	take(amount: number): Stream<T> {
 		if (amount <= 0) {
-			return this.deps.empty();
+			return StreamFactory.empty();
 		}
 
-		return new TakeStream<T>(this.deps, this, amount);
+		return new TakeStream<T>(this, amount);
 	}
 
 	drop(amount: number): Stream<T> {
@@ -483,7 +482,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 			return this;
 		}
 
-		return new DropStream<T>(this.deps, this, amount);
+		return new DropStream<T>(this, amount);
 	}
 
 	repeat(amount?: number): Stream<T> {
@@ -491,18 +490,15 @@ export abstract class StreamBase<T> implements Stream<T> {
 			return this;
 		}
 
-		return new FromStream<T>(
-			this.deps,
-			() => new RepeatIterator<T>(this.deps, this, amount),
-		);
+		return new FromStream<T>(() => new RepeatIterator<T>(this, amount));
 	}
 
 	concat(...others: ArrayNonEmpty<StreamSource<T>>): Stream.NonEmpty<T> {
-		if (others.every(this.deps.isEmptyStreamSourceInstance)) {
+		if (others.every(StreamFactory.isEmptyStreamSourceInstance)) {
 			return this.assumeNonEmpty();
 		}
 
-		return new ConcatStream<T>(this.deps, this, others).assumeNonEmpty();
+		return new ConcatStream<T>(this, others).assumeNonEmpty();
 	}
 
 	min<O>(otherwise?: OptLazy<O>): T | O {
@@ -544,7 +540,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 	}
 
 	intersperse(sep: StreamSource<T>): Stream<T> {
-		if (this.deps.isEmptyStreamSourceInstance(sep)) {
+		if (StreamFactory.isEmptyStreamSourceInstance(sep)) {
 			return this;
 		}
 
@@ -580,11 +576,14 @@ export abstract class StreamBase<T> implements Stream<T> {
 	}
 
 	mkGroup({
-		sep = this.deps._emptyInstance as StreamSource<T>,
-		start = this.deps._emptyInstance as StreamSource<T>,
-		end = this.deps._emptyInstance as StreamSource<T>,
+		sep = StreamFactory._emptyInstance as StreamSource<T>,
+		start = StreamFactory._emptyInstance as StreamSource<T>,
+		end = StreamFactory._emptyInstance as StreamSource<T>,
 	} = {}): any {
-		return this.deps.fromStreamSource(start).concat(this.intersperse(sep), end);
+		return StreamFactory.fromStreamSource(start).concat(
+			this.intersperse(sep),
+			end,
+		);
 	}
 
 	splitWhere<R>(
@@ -686,7 +685,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 			Reducer.CombineResult<S>
 		>;
 
-		return new ReducerStream(this.deps, this, reducer);
+		return new ReducerStream(this, reducer);
 	}
 
 	toArray(): T[] {
@@ -717,10 +716,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 export class FromStream<T> extends StreamBase<T> {
 	[Symbol.iterator]: () => FastIterator<T> = undefined as any;
 
-	constructor(
-		readonly deps: StreamFactory,
-		createIterator: () => FastIterator<T>,
-	) {
+	constructor(createIterator: () => FastIterator<T>) {
 		super();
 		this[Symbol.iterator] = createIterator;
 	}
@@ -728,7 +724,6 @@ export class FromStream<T> extends StreamBase<T> {
 
 class PrependStream<T> extends StreamBase<T> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: Stream<T>,
 		readonly item: OptLazy<T>,
 	) {
@@ -736,15 +731,11 @@ class PrependStream<T> extends StreamBase<T> {
 	}
 
 	#copy<T2>(source: Stream<T2>, item: OptLazy<T2>): PrependStream<T2> {
-		return new PrependStream<T2>(this.deps, source, item);
+		return new PrependStream<T2>(source, item);
 	}
 
 	[Symbol.iterator](): FastIterator<T> {
-		return new PrependIterator<T>(
-			this.deps,
-			this.source[Symbol.iterator](),
-			this.item,
-		);
+		return new PrependIterator<T>(this.source[Symbol.iterator](), this.item);
 	}
 
 	first(): T {
@@ -785,11 +776,11 @@ class PrependStream<T> extends StreamBase<T> {
 
 	take(amount: number): Stream<T> {
 		if (amount <= 0) {
-			return this.deps.empty();
+			return StreamFactory.empty();
 		}
 
 		if (amount === 1) {
-			return this.deps.of(OptLazy(this.item));
+			return StreamFactory.of(OptLazy(this.item));
 		}
 
 		return this.#copy(this.source.take(amount - 1), this.item);
@@ -840,7 +831,6 @@ class PrependStream<T> extends StreamBase<T> {
 
 class AppendStream<T> extends StreamBase<T> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: Stream<T>,
 		readonly item: OptLazy<T>,
 	) {
@@ -848,11 +838,7 @@ class AppendStream<T> extends StreamBase<T> {
 	}
 
 	[Symbol.iterator](): FastIterator<T> {
-		return new AppendIterator<T>(
-			this.deps,
-			this.source[Symbol.iterator](),
-			this.item,
-		);
+		return new AppendIterator<T>(this.source[Symbol.iterator](), this.item);
 	}
 
 	first(): T {
@@ -886,10 +872,8 @@ class AppendStream<T> extends StreamBase<T> {
 		mapFun: (value: T, ...args: A) => T2,
 		...args: A
 	): Stream<T2> {
-		return new AppendStream(
-			this.deps,
-			this.source.mapPure(mapFun, ...args),
-			() => mapFun(OptLazy(this.item), ...args),
+		return new AppendStream(this.source.mapPure(mapFun, ...args), () =>
+			mapFun(OptLazy(this.item), ...args),
 		);
 	}
 
@@ -926,7 +910,6 @@ class AppendStream<T> extends StreamBase<T> {
 
 class MapStream<T, T2> extends StreamBase<T2> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: Stream<T>,
 		readonly mapFun: (value: T, index: number) => T2,
 	) {
@@ -934,11 +917,7 @@ class MapStream<T, T2> extends StreamBase<T2> {
 	}
 
 	[Symbol.iterator](): FastIterator<T2> {
-		return new MapIterator<T, T2>(
-			this.deps,
-			this.source[Symbol.iterator](),
-			this.mapFun,
-		);
+		return new MapIterator<T, T2>(this.source[Symbol.iterator](), this.mapFun);
 	}
 
 	first<O>(otherwise?: OptLazy<O>): T2 | O {
@@ -967,17 +946,17 @@ class MapStream<T, T2> extends StreamBase<T2> {
 	}
 
 	map<T3>(mapFun: (value: T2, index: number) => T3): Stream<T3> {
-		return new MapStream<T, T3>(this.deps, this.source, (value, index) =>
+		return new MapStream<T, T3>(this.source, (value, index) =>
 			mapFun(this.mapFun(value, index), index),
 		);
 	}
 
 	take(amount: number): Stream<T2> {
 		if (amount <= 0) {
-			return this.deps.empty();
+			return StreamFactory.empty();
 		}
 
-		return new MapStream(this.deps, this.source.take(amount), this.mapFun);
+		return new MapStream(this.source.take(amount), this.mapFun);
 	}
 
 	drop(amount: number): Stream<T2> {
@@ -985,7 +964,7 @@ class MapStream<T, T2> extends StreamBase<T2> {
 			return this;
 		}
 
-		return new MapStream(this.deps, this.source.drop(amount), this.mapFun);
+		return new MapStream(this.source.drop(amount), this.mapFun);
 	}
 }
 
@@ -995,7 +974,6 @@ class MapPureStream<
 	T2,
 > extends StreamBase<T2> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: Stream<T>,
 		readonly mapFun: (value: T, ...args: A) => T2,
 		readonly args: A,
@@ -1005,7 +983,6 @@ class MapPureStream<
 
 	[Symbol.iterator](): FastIterator<T2> {
 		return new MapPureIterator<T, A, T2>(
-			this.deps,
 			this.source[Symbol.iterator](),
 			this.mapFun,
 			this.args,
@@ -1042,7 +1019,6 @@ class MapPureStream<
 		...args: A2
 	): Stream<T3> {
 		return new MapPureStream<T, A2, T3>(
-			this.deps,
 			this.source,
 			(value, ...args) => mapFun(this.mapFun(value, ...this.args), ...args),
 			args,
@@ -1051,15 +1027,10 @@ class MapPureStream<
 
 	take(amount: number): Stream<T2> {
 		if (amount <= 0) {
-			return this.deps.empty();
+			return StreamFactory.empty();
 		}
 
-		return new MapPureStream(
-			this.deps,
-			this.source.take(amount),
-			this.mapFun,
-			this.args,
-		);
+		return new MapPureStream(this.source.take(amount), this.mapFun, this.args);
 	}
 
 	drop(amount: number): Stream<T2> {
@@ -1067,18 +1038,12 @@ class MapPureStream<
 			return this;
 		}
 
-		return new MapPureStream(
-			this.deps,
-			this.source.drop(amount),
-			this.mapFun,
-			this.args,
-		);
+		return new MapPureStream(this.source.drop(amount), this.mapFun, this.args);
 	}
 }
 
 class ConcatStream<T> extends StreamBase<T> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: Stream<T>,
 		readonly otherSources: StreamSource<T>[],
 	) {
@@ -1086,7 +1051,7 @@ class ConcatStream<T> extends StreamBase<T> {
 	}
 
 	[Symbol.iterator](): FastIterator<T> {
-		return new ConcatIterator<T>(this.deps, this.source, this.otherSources);
+		return new ConcatIterator<T>(this.source, this.otherSources);
 	}
 
 	forEach(
@@ -1106,8 +1071,8 @@ class ConcatStream<T> extends StreamBase<T> {
 		while (!state.halted && ++sourceIndex < length) {
 			const source = sources[sourceIndex];
 
-			if (!this.deps.isEmptyStreamSourceInstance(source)) {
-				this.deps.fromStreamSource(source).forEach(f, { state });
+			if (!StreamFactory.isEmptyStreamSourceInstance(source)) {
+				StreamFactory.fromStreamSource(source).forEach(f, { state });
 			}
 		}
 	}
@@ -1125,8 +1090,8 @@ class ConcatStream<T> extends StreamBase<T> {
 		while (++sourceIndex < length) {
 			const source = sources[sourceIndex];
 
-			if (!this.deps.isEmptyStreamSourceInstance(source)) {
-				this.deps.fromStreamSource(source).forEachPure(f, ...args);
+			if (!StreamFactory.isEmptyStreamSourceInstance(source)) {
+				StreamFactory.fromStreamSource(source).forEachPure(f, ...args);
 			}
 		}
 	}
@@ -1138,9 +1103,9 @@ class ConcatStream<T> extends StreamBase<T> {
 		while (--sourceIndex >= 0) {
 			const source = sources[sourceIndex];
 
-			if (!this.deps.isEmptyStreamSourceInstance(source)) {
+			if (!StreamFactory.isEmptyStreamSourceInstance(source)) {
 				const done = Symbol('Done');
-				const value = this.deps.fromStreamSource(source).last(done);
+				const value = StreamFactory.fromStreamSource(source).last(done);
 				if (done !== value) return value;
 			}
 		}
@@ -1157,8 +1122,8 @@ class ConcatStream<T> extends StreamBase<T> {
 
 		while (++sourceIndex < length) {
 			const source = sources[sourceIndex];
-			if (!this.deps.isEmptyStreamSourceInstance(source)) {
-				result += this.deps.fromStreamSource(source).count();
+			if (!StreamFactory.isEmptyStreamSourceInstance(source)) {
+				result += StreamFactory.fromStreamSource(source).count();
 			}
 		}
 
@@ -1173,10 +1138,9 @@ class ConcatStream<T> extends StreamBase<T> {
 		...args: A
 	): any {
 		return new ConcatStream(
-			this.deps,
 			this.source.filterPure(options, ...args),
 			this.otherSources.map((source) =>
-				this.deps.fromStreamSource(source).filterPure(options, ...args),
+				StreamFactory.fromStreamSource(source).filterPure(options, ...args),
 			),
 		) as any;
 	}
@@ -1186,17 +1150,15 @@ class ConcatStream<T> extends StreamBase<T> {
 		...args: A
 	): Stream<T2> {
 		return new ConcatStream(
-			this.deps,
 			this.source.mapPure(mapFun, ...args),
 			this.otherSources.map((source) =>
-				this.deps.fromStreamSource(source).mapPure(mapFun, ...args),
+				StreamFactory.fromStreamSource(source).mapPure(mapFun, ...args),
 			),
 		);
 	}
 
 	concat<T2>(...others2: StreamSource<T2>[]): any {
 		return new ConcatStream<T | T2>(
-			this.deps,
 			this.source,
 			(this.otherSources as StreamSource<T | T2>[]).concat(others2),
 		);
@@ -1212,8 +1174,10 @@ class ConcatStream<T> extends StreamBase<T> {
 		while (++sourceIndex < length) {
 			const source = sources[sourceIndex];
 
-			if (!this.deps.isEmptyStreamSourceInstance(source)) {
-				result = result.concat(this.deps.fromStreamSource(source).toArray());
+			if (!StreamFactory.isEmptyStreamSourceInstance(source)) {
+				result = result.concat(
+					StreamFactory.fromStreamSource(source).toArray(),
+				);
 			}
 		}
 
@@ -1223,7 +1187,6 @@ class ConcatStream<T> extends StreamBase<T> {
 
 class IndexedStream<T> extends StreamBase<[number, T]> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: Stream<T>,
 		readonly startIndex: number,
 	) {
@@ -1232,7 +1195,6 @@ class IndexedStream<T> extends StreamBase<[number, T]> {
 
 	[Symbol.iterator](): FastIterator<[number, T]> {
 		return new IndexedIterator<T>(
-			this.deps,
 			this.source[Symbol.iterator](),
 			this.startIndex,
 		);
@@ -1269,14 +1231,10 @@ class IndexedStream<T> extends StreamBase<[number, T]> {
 
 	take(amount: number): Stream<[number, T]> {
 		if (amount <= 0) {
-			return this.deps.empty();
+			return StreamFactory.empty();
 		}
 
-		return new IndexedStream(
-			this.deps,
-			this.source.take(amount),
-			this.startIndex,
-		);
+		return new IndexedStream(this.source.take(amount), this.startIndex);
 	}
 
 	toArray(): Array<[number, T]> {
@@ -1296,7 +1254,6 @@ class IndexedStream<T> extends StreamBase<[number, T]> {
 
 class FilterStream<T> extends StreamBase<T> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: Stream<T>,
 		readonly pred: (value: T, index: number, halt: () => void) => boolean,
 		readonly negate = false,
@@ -1306,7 +1263,6 @@ class FilterStream<T> extends StreamBase<T> {
 
 	[Symbol.iterator](): FastIterator<T> {
 		return new FilterIterator<T>(
-			this.deps,
 			this.source[Symbol.iterator](),
 			this.pred,
 			this.negate,
@@ -1324,7 +1280,6 @@ class FilterStream<T> extends StreamBase<T> {
 		const { pred: thisPred, negate: thisNegate } = this;
 
 		return new FilterStream(
-			this.deps,
 			this.source,
 			(value, index, halt) =>
 				thisPred(value, index, halt) !== thisNegate &&
@@ -1339,18 +1294,14 @@ class FilterStream<T> extends StreamBase<T> {
 	): Stream<T2> {
 		const { pred, negate } = this;
 
-		return new CollectStream(
-			this.deps,
-			this.source,
-			(value, index, skip, halt) =>
-				pred(value, index, halt) !== negate ? mapFun(value, ...args) : skip,
+		return new CollectStream(this.source, (value, index, skip, halt) =>
+			pred(value, index, halt) !== negate ? mapFun(value, ...args) : skip,
 		);
 	}
 }
 
 class FilterPureStream<T, A extends readonly unknown[]> extends StreamBase<T> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: Stream<T>,
 		readonly pred: (value: T, ...args: A) => boolean,
 		readonly args: A,
@@ -1361,7 +1312,6 @@ class FilterPureStream<T, A extends readonly unknown[]> extends StreamBase<T> {
 
 	[Symbol.iterator](): FastIterator<T> {
 		return new FilterPureIterator<T, A>(
-			this.deps,
 			this.source[Symbol.iterator](),
 			this.pred,
 			this.args,
@@ -1383,7 +1333,6 @@ class FilterPureStream<T, A extends readonly unknown[]> extends StreamBase<T> {
 		const thisNegate = this.negate;
 
 		return new FilterPureStream(
-			this.deps,
 			this.source,
 			(value, ...args) => {
 				return (
@@ -1402,7 +1351,7 @@ class FilterPureStream<T, A extends readonly unknown[]> extends StreamBase<T> {
 	): Stream<T2> {
 		const { pred, negate, args: thisArgs } = this;
 
-		return new CollectStream(this.deps, this.source, (value, _, skip) =>
+		return new CollectStream(this.source, (value, _, skip) =>
 			pred(value, ...thisArgs) !== negate ? mapFun(value, ...args) : skip,
 		);
 	}
@@ -1410,7 +1359,6 @@ class FilterPureStream<T, A extends readonly unknown[]> extends StreamBase<T> {
 
 class CollectStream<T, R> extends StreamBase<R> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: Stream<T>,
 		readonly collectFun: CollectFun<T, R>,
 	) {
@@ -1419,7 +1367,6 @@ class CollectStream<T, R> extends StreamBase<R> {
 
 	[Symbol.iterator](): FastIterator<R> {
 		return new CollectIterator<T, R>(
-			this.deps,
 			this.source[Symbol.iterator](),
 			this.collectFun,
 		);
@@ -1435,19 +1382,15 @@ class CollectStream<T, R> extends StreamBase<R> {
 		const { pred, negate = false } = options;
 		const { collectFun } = this;
 
-		return new CollectStream(
-			this.deps,
-			this.source,
-			(value, index, skip, halt) => {
-				const result = collectFun(value, index, skip, halt);
+		return new CollectStream(this.source, (value, index, skip, halt) => {
+			const result = collectFun(value, index, skip, halt);
 
-				if (skip === result || pred(result, ...args) === negate) {
-					return skip;
-				}
+			if (skip === result || pred(result, ...args) === negate) {
+				return skip;
+			}
 
-				return result;
-			},
-		) as any;
+			return result;
+		}) as any;
 	}
 
 	mapPure<T2, A extends readonly unknown[]>(
@@ -1456,25 +1399,20 @@ class CollectStream<T, R> extends StreamBase<R> {
 	): Stream<T2> {
 		const { collectFun } = this;
 
-		return new CollectStream(
-			this.deps,
-			this.source,
-			(value, index, skip, halt) => {
-				const result = collectFun(value, index, skip, halt);
+		return new CollectStream(this.source, (value, index, skip, halt) => {
+			const result = collectFun(value, index, skip, halt);
 
-				if (skip === result) {
-					return skip;
-				}
+			if (skip === result) {
+				return skip;
+			}
 
-				return mapFun(result, ...args);
-			},
-		);
+			return mapFun(result, ...args);
+		});
 	}
 }
 
 class DropWhileStream<T> extends StreamBase<T> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: Stream<T>,
 		readonly pred: (value: T, index: number) => boolean,
 		readonly negate: boolean,
@@ -1484,7 +1422,6 @@ class DropWhileStream<T> extends StreamBase<T> {
 
 	[Symbol.iterator](): FastIterator<T> {
 		return new DropWhileIterator<T>(
-			this.deps,
 			this.source[Symbol.iterator](),
 			this.pred,
 			this.negate,
@@ -1494,7 +1431,6 @@ class DropWhileStream<T> extends StreamBase<T> {
 
 class TakeStream<T> extends StreamBase<T> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: Stream<T>,
 		readonly amount: number,
 	) {
@@ -1502,16 +1438,12 @@ class TakeStream<T> extends StreamBase<T> {
 	}
 
 	[Symbol.iterator](): FastIterator<T> {
-		return new TakeIterator<T>(
-			this.deps,
-			this.source[Symbol.iterator](),
-			this.amount,
-		);
+		return new TakeIterator<T>(this.source[Symbol.iterator](), this.amount);
 	}
 
 	take(amount: number): Stream<T> {
 		if (amount <= 0) {
-			return this.deps.empty();
+			return StreamFactory.empty();
 		}
 
 		if (amount >= this.amount) {
@@ -1524,7 +1456,6 @@ class TakeStream<T> extends StreamBase<T> {
 
 class DropStream<T> extends StreamBase<T> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: Stream<T>,
 		readonly amount: number,
 	) {
@@ -1532,11 +1463,7 @@ class DropStream<T> extends StreamBase<T> {
 	}
 
 	[Symbol.iterator](): FastIterator<T> {
-		return new DropIterator<T>(
-			this.deps,
-			this.source[Symbol.iterator](),
-			this.amount,
-		);
+		return new DropIterator<T>(this.source[Symbol.iterator](), this.amount);
 	}
 
 	drop(amount: number): Stream<T> {
@@ -1567,29 +1494,22 @@ class SlowIteratorAdapter<T> implements FastIterator<T> {
 }
 
 export class FromIterable<T> extends StreamBase<T> {
-	constructor(
-		readonly deps: StreamFactory,
-		readonly iterable: Iterable<T>,
-	) {
+	constructor(readonly iterable: Iterable<T>) {
 		super();
 	}
 
 	[Symbol.iterator](): FastIterator<T> {
 		const iterator = this.iterable[Symbol.iterator]();
 
-		if (this.deps.fastIteratorFactory.isFastIterator(iterator)) return iterator;
+		if (FastIteratorFactory.isFastIterator(iterator)) return iterator;
 
 		return new SlowIteratorAdapter<T>(iterator);
 	}
 }
 
 export class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
-	constructor(readonly deps: StreamFactory) {
-		super();
-	}
-
 	[Symbol.iterator](): FastIterator<T> {
-		return this.deps.fastIteratorFactory._emptyFastIteratorInstance;
+		return FastIteratorFactory._emptyFastIteratorInstance;
 	}
 
 	stream(): this {
@@ -1603,14 +1523,14 @@ export class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
 
 		return (
 			done ===
-			this.deps.fromStreamSource(other)[Symbol.iterator]().fastNext(done)
+			StreamFactory.fromStreamSource(other)[Symbol.iterator]().fastNext(done)
 		);
 	}
 	prepend(value: OptLazy<T>): Stream.NonEmpty<T> {
-		return this.deps.of(OptLazy(value));
+		return StreamFactory.of(OptLazy(value));
 	}
 	append(value: OptLazy<T>): Stream.NonEmpty<T> {
-		return this.deps.of(OptLazy(value));
+		return StreamFactory.of(OptLazy(value));
 	}
 	forEach(): void {
 		//
@@ -1634,7 +1554,7 @@ export class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
 		return this as any;
 	}
 	transform<R>(transformer: Transformer<T, R>): Stream<R> {
-		return this.deps.fromStreamSource(transformer.compile().getOutput());
+		return StreamFactory.fromStreamSource(transformer.compile().getOutput());
 	}
 	filter(): any {
 		return this;
@@ -1717,12 +1637,12 @@ export class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
 		return this;
 	}
 	concat<T2>(...others: ArrayNonEmpty<StreamSource<T2>>): any {
-		if (others.every(this.deps.isEmptyStreamSourceInstance)) return this;
+		if (others.every(StreamFactory.isEmptyStreamSourceInstance)) return this;
 		const [source1, source2, ...sources] = others;
 
 		if (undefined === source2) return source1;
 
-		return this.deps.fromStreamSource(source1).concat(source2, ...sources);
+		return StreamFactory.fromStreamSource(source1).concat(source2, ...sources);
 	}
 	min<O>(otherwise?: OptLazy<O>): O {
 		return OptLazy(otherwise) as O;
@@ -1744,10 +1664,10 @@ export class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
 		return start.concat(end);
 	}
 	mkGroup({
-		start = this.deps._emptyInstance as StreamSource<T>,
-		end = this.deps._emptyInstance as StreamSource<T>,
+		start = StreamFactory._emptyInstance as StreamSource<T>,
+		end = StreamFactory._emptyInstance as StreamSource<T>,
 	} = {}): Stream.NonEmpty<T> {
-		return this.deps.fromStreamSource(start).concat(end) as any;
+		return StreamFactory.fromStreamSource(start).concat(end) as any;
 	}
 	splitOn<R>(): Stream<R> {
 		return this as any;
@@ -1814,7 +1734,6 @@ export class ArrayStream<T> extends StreamBase<T> {
 	readonly length: number;
 
 	constructor(
-		readonly deps: StreamFactory,
 		readonly array: readonly T[],
 		readonly startIndex = 0,
 		readonly endIndex = array.length - 1,
@@ -1826,19 +1745,9 @@ export class ArrayStream<T> extends StreamBase<T> {
 
 	[Symbol.iterator](): FastIterator<T> {
 		if (!this.reversed) {
-			return new ArrayIterator(
-				this.deps,
-				this.array,
-				this.startIndex,
-				this.endIndex,
-			);
+			return new ArrayIterator(this.array, this.startIndex, this.endIndex);
 		}
-		return new ArrayReverseIterator(
-			this.deps,
-			this.array,
-			this.startIndex,
-			this.endIndex,
-		);
+		return new ArrayReverseIterator(this.array, this.startIndex, this.endIndex);
 	}
 
 	forEach(
@@ -1978,13 +1887,12 @@ export class ArrayStream<T> extends StreamBase<T> {
 	}
 
 	take(amount: number): Stream<T> {
-		if (amount <= 0) return this.deps.empty();
+		if (amount <= 0) return StreamFactory.empty();
 
 		if (amount >= this.length) return this;
 
 		if (!this.reversed) {
 			return new ArrayStream(
-				this.deps,
 				this.array,
 				this.startIndex,
 				this.startIndex + amount - 1,
@@ -1993,7 +1901,6 @@ export class ArrayStream<T> extends StreamBase<T> {
 		}
 
 		return new ArrayStream(
-			this.deps,
 			this.array,
 			this.endIndex - (amount - 1),
 			this.endIndex,
@@ -2004,11 +1911,10 @@ export class ArrayStream<T> extends StreamBase<T> {
 	drop(amount: number): Stream<T> {
 		if (amount <= 0) return this;
 
-		if (amount >= this.length) return this.deps.empty();
+		if (amount >= this.length) return StreamFactory.empty();
 
 		if (!this.reversed) {
 			return new ArrayStream(
-				this.deps,
 				this.array,
 				this.startIndex + amount,
 				this.endIndex,
@@ -2017,7 +1923,6 @@ export class ArrayStream<T> extends StreamBase<T> {
 		}
 
 		return new ArrayStream(
-			this.deps,
 			this.array,
 			this.startIndex,
 			this.endIndex - amount,
@@ -2042,15 +1947,12 @@ export class ArrayStream<T> extends StreamBase<T> {
 }
 
 export class AlwaysStream<T> extends StreamBase<T> {
-	constructor(
-		readonly deps: StreamFactory,
-		readonly value: T,
-	) {
+	constructor(readonly value: T) {
 		super();
 	}
 
 	[Symbol.iterator](): FastIterator<T> {
-		return new AlwaysIterator(this.deps, this.value);
+		return new AlwaysIterator(this.value);
 	}
 
 	first(): T {
@@ -2109,7 +2011,6 @@ export class MapApplyStream<
 	R,
 > extends StreamBase<R> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: StreamSource<T>,
 		readonly f: (...args: [...T, ...A]) => R,
 		readonly args: A,
@@ -2118,7 +2019,7 @@ export class MapApplyStream<
 	}
 
 	[Symbol.iterator](): FastIterator<R> {
-		return new MapApplyIterator(this.deps, this.source, this.f, this.args);
+		return new MapApplyIterator(this.source, this.f, this.args);
 	}
 
 	mapPure<T2, A extends readonly unknown[]>(
@@ -2128,7 +2029,6 @@ export class MapApplyStream<
 		const { f, args: thisArgs } = this;
 
 		return new MapApplyStream(
-			this.deps,
 			this.source,
 			(...args2) => mapFun(f(...args2), ...args),
 			thisArgs,
@@ -2141,7 +2041,6 @@ export class FilterApplyStream<
 	A extends readonly unknown[],
 > extends StreamBase<T> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: StreamSource<T>,
 		readonly pred: (...args: [...T, ...A]) => boolean,
 		readonly args: A,
@@ -2152,7 +2051,6 @@ export class FilterApplyStream<
 
 	[Symbol.iterator](): FastIterator<T> {
 		return new FilterApplyIterator(
-			this.deps,
 			this.source,
 			this.pred,
 			this.args,
@@ -2163,7 +2061,6 @@ export class FilterApplyStream<
 
 export class RangeStream extends StreamBase<number> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly start: number,
 		readonly end?: number,
 		readonly delta: number = 1,
@@ -2173,15 +2070,14 @@ export class RangeStream extends StreamBase<number> {
 
 	[Symbol.iterator](): FastIterator<number> {
 		if (this.delta >= 0) {
-			return new RangeUpIterator(this.deps, this.start, this.end, this.delta);
+			return new RangeUpIterator(this.start, this.end, this.delta);
 		}
-		return new RangeDownIterator(this.deps, this.start, this.end, this.delta);
+		return new RangeDownIterator(this.start, this.end, this.delta);
 	}
 }
 
 class ReducerStream<T, R = T> extends StreamBase<R> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: Stream<T>,
 		readonly reducer: Reducer<T, R>,
 	) {
@@ -2190,7 +2086,6 @@ class ReducerStream<T, R = T> extends StreamBase<R> {
 
 	[Symbol.iterator](): FastIterator<R> {
 		return new ReducerFastIterator<T, R>(
-			this.deps,
 			this.source[Symbol.iterator](),
 			this.reducer.compile(),
 		);
@@ -2199,7 +2094,6 @@ class ReducerStream<T, R = T> extends StreamBase<R> {
 
 class TransformerStream<T, R = T> extends StreamBase<R> {
 	constructor(
-		readonly deps: StreamFactory,
 		readonly source: Stream<T>,
 		readonly transformer: Transformer<T, R>,
 	) {
@@ -2208,7 +2102,6 @@ class TransformerStream<T, R = T> extends StreamBase<R> {
 
 	[Symbol.iterator](): FastIterator<R> {
 		return new TransformerFastIterator<T, R>(
-			this.deps,
 			this.source[Symbol.iterator](),
 			this.transformer.compile(),
 		);

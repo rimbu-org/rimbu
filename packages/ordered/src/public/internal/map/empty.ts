@@ -63,7 +63,7 @@ export class OrderedMapEmpty<
 	addEntries(
 		entries: StreamSource<readonly [K, V]>,
 	): WithKeyValue<Tp, K, V>['normal'] | any {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries)) return this;
+		if (StreamFactory.isEmptyStreamSourceInstance(entries)) return this;
 
 		return this.context.from(entries);
 	}

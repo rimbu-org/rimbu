@@ -133,7 +133,7 @@ export class SortedMapBuilder<K, V>
 	removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
 		this.checkLock();
 
-		if (StreamFactory().isEmptyStreamSourceInstance(keys)) return false;
+		if (StreamFactory.isEmptyStreamSourceInstance(keys)) return false;
 
 		const notFound = Symbol();
 

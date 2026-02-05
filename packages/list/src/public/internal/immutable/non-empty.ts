@@ -137,7 +137,7 @@ export abstract class ListNonEmptyBase<T>
 			return this.take(index).concat(this.drop(index + remove));
 		}
 
-		if (remove <= 0 && StreamFactory().isEmptyStreamSourceInstance(insert))
+		if (remove <= 0 && StreamFactory.isEmptyStreamSourceInstance(insert))
 			return this;
 
 		return this.take(index).concat(insert, this.drop(index + remove));

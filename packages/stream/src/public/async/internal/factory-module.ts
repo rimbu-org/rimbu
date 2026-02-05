@@ -29,7 +29,7 @@ import { StreamFactory } from '#stream/factory';
 
 export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 	(mod) => ({
-		_emptyInstance: Module.lazy(() => new AsyncEmptyStream(mod)),
+		_emptyInstance: Module.lazy(() => new AsyncEmptyStream()),
 		isAsyncStream: Module.factory((obj: any) => {
 			return obj instanceof AsyncStreamBase;
 		}),
@@ -37,9 +37,7 @@ export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 			(source: AsyncStreamSource<any>): boolean => {
 				return (
 					source === mod._emptyInstance ||
-					StreamFactory().isEmptyStreamSourceInstance(
-						source as StreamSource<any>,
-					)
+					StreamFactory.isEmptyStreamSourceInstance(source as StreamSource<any>)
 				);
 			},
 		),
@@ -50,14 +48,14 @@ export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 				if (mod.isEmptyAsyncStreamSourceInstance(source))
 					return mod._emptyInstance;
 
-				return new FromSource(mod, source);
+				return new FromSource(source);
 			},
 		),
 		empty: Module.factory(<T>(): AsyncStream<T> => {
 			return mod._emptyInstance;
 		}),
 		of: Module.factory((...values) => {
-			return new AsyncOfStream(mod, values) as any;
+			return new AsyncOfStream(values) as any;
 		}),
 		from: Module.factory((...sources): any => {
 			const [first, ...rest] = sources;
@@ -72,7 +70,7 @@ export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 		}),
 		fromResource: Module.factory((options): any => {
 			const { open, createSource, close } = options;
-			return new FromResource(mod, open, createSource, close);
+			return new FromResource(open, createSource, close);
 		}),
 		zipWith: Module.factory((...sources): any => {
 			return (zipFun: any): any => {
@@ -81,8 +79,7 @@ export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 				}
 
 				return new AsyncFromStream(
-					mod,
-					() => new AsyncZipWithIterator(mod, sources, zipFun),
+					() => new AsyncZipWithIterator(sources, zipFun),
 				);
 			};
 		}),
@@ -96,9 +93,8 @@ export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 				}
 
 				return new AsyncFromStream(
-					mod,
 					(): AsyncFastIterator<any> =>
-						new AsyncZipAllWithItererator(mod, fillValue, sources, zipFun),
+						new AsyncZipAllWithItererator(fillValue, sources, zipFun),
 				);
 			};
 		}),
@@ -112,7 +108,7 @@ export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 			const { length } = options;
 
 			if (mod.isEmptyAsyncStreamSourceInstance(source)) {
-				return StreamFactory().of(mod._emptyInstance).repeat(length).toArray();
+				return StreamFactory.of(mod._emptyInstance).repeat(length).toArray();
 			}
 
 			const result: AsyncStream<unknown>[] = [];
@@ -140,9 +136,7 @@ export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 				) => MaybePromise<T | Token>,
 			): AsyncStream.NonEmpty<T> => {
 				return new AsyncFromStream(
-					mod,
-					(): AsyncFastIterator<T> =>
-						new AsyncUnfoldIterator<T>(mod, init, next),
+					(): AsyncFastIterator<T> => new AsyncUnfoldIterator<T>(init, next),
 				) as unknown as AsyncStream.NonEmpty<T>;
 			},
 		),

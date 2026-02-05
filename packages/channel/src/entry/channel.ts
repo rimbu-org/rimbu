@@ -1,7 +1,5 @@
 import type { AsyncStreamable, AsyncStreamSource } from '@rimbu/stream/async';
 
-import { AsyncStreamFactory } from '@rimbu/stream/async/internal/factory';
-
 import { ChannelImpl } from '#channel/channel-impl';
 import { attachAbort, createCleaner } from '#channel/utils';
 import { ChannelError } from '#private/channel-error';
@@ -262,7 +260,7 @@ export namespace Channel {
 export const Channel: Channel.Constructors = Object.freeze(
 	class {
 		static create<T = void>(options: Channel.Config = {}): Channel<T> {
-			return new ChannelImpl(AsyncStreamFactory(), options);
+			return new ChannelImpl(options);
 		}
 
 		static async select<CS extends Channel.Read<any>[], RT>(

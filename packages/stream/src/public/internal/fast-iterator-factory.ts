@@ -1,5 +1,7 @@
 import type { FastIterator } from '@rimbu/stream';
 
+import { fastIteratorFactoryModule } from './fast-iterator-factory-module';
+
 export interface FastIteratorFactory {
 	/**
 	 * A frozen `IteratorResult` instance representing the completed iterator state.
@@ -17,3 +19,5 @@ export interface FastIteratorFactory {
 	 */
 	isFastIterator<T>(iterator: Iterator<T>): iterator is FastIterator<T>;
 }
+
+export const FastIteratorFactory = fastIteratorFactoryModule.build();

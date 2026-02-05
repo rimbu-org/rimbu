@@ -1,7 +1,8 @@
-import type { StreamConstructors } from '#stream/constructors';
-import type { FastIteratorFactory } from '#stream/fast-iterator-factory';
+import type { Stream, StreamSource } from '@rimbu/stream';
 
-import { Stream, type StreamSource } from '@rimbu/stream';
+import type { StreamConstructors } from '#stream/constructors';
+
+import { streamFactoryModule } from '#stream/factory-module';
 
 export interface StreamFactory extends StreamConstructors {
 	/**
@@ -26,9 +27,6 @@ export interface StreamFactory extends StreamConstructors {
 		<T>(source: StreamSource.NonEmpty<T>): Stream.NonEmpty<T>;
 		<T>(source: StreamSource<T>): Stream<T>;
 	};
-	fastIteratorFactory: FastIteratorFactory;
 }
 
-export function StreamFactory(): StreamFactory {
-	return Stream as StreamFactory;
-}
+export const StreamFactory = streamFactoryModule.build();

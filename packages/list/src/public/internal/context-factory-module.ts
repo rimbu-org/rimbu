@@ -226,7 +226,7 @@ const createListCreators = Module.createPartial<
 		while (++i < length) {
 			const source = sources[i];
 
-			if (!StreamFactory().isEmptyStreamSourceInstance(source)) {
+			if (!StreamFactory.isEmptyStreamSourceInstance(source)) {
 				if ((source as any).context === mod) {
 					if (null === result) result = source as any as List<T>;
 					else result = result.concat<T>(source);
