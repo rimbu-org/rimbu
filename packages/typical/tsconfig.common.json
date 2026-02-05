@@ -1,6 +1,8 @@
 {
-  "compilerOptions": {
-    "rootDirs": [".", ".."],
-    "baseUrl": "./src"
-  }
+	"compilerOptions": {
+		"paths": {
+			"@rimbu/typical": ["./entry/typical.ts"],
+			"#typical/*": ["./public/internal/*.ts"]
+		}
+	}
 }

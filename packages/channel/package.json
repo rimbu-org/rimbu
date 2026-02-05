@@ -56,6 +56,8 @@
 		"src"
 	],
 	"scripts": {
+		"biome:check": "biome check",
+		"biome:fix": "biome check --write",
 		"build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
 		"clean": "rimraf dist node_modules",
 		"clean:build": "rimraf dist",

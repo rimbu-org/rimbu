@@ -1,6 +1,6 @@
-import { expectType } from 'tsd';
+import type { Num } from '@rimbu/typical';
 
-import type { Num } from '../src/index.mjs';
+import { expectType } from 'tsd';
 
 declare function g<T>(): T;
 

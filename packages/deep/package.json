@@ -43,10 +43,6 @@
 		}
 	},
 	"imports": {
-		"#async/*": {
-			"types": "./dist/public/async/internal/*.d.ts",
-			"default": "./dist/public/async/internal/*.js"
-		},
 		"#deep/*": {
 			"types": "./dist/public/internal/*.d.ts",
 			"default": "./dist/public/internal/*.js"

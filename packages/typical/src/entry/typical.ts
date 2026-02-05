@@ -10,9 +10,9 @@
  * See the package README for motivation, examples, and guidance on production use.
  */
 
-import type * as U from './utils.mjs';
-import type * as Str from './str.mjs';
-import type * as StrNum from './strnum.mjs';
-import type * as Num from './num.mjs';
+import type * as Num from '#typical/num';
+import type * as Str from '#typical/str';
+import type * as StrNum from '#typical/strnum';
+import type * as U from '#typical/utils';
 
 export type { U, Str, StrNum, Num };

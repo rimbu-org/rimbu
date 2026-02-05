@@ -1,6 +1,5 @@
-import { expectNever, expectNotAssignable, expectType } from 'tsd';
-
 import { Channel, CrossChannel } from '@rimbu/channel';
+import { expectNever, expectNotAssignable, expectType } from 'tsd';
 
 expectType<Channel>(Channel.create());
 expectType<CrossChannel>(Channel.create());
@@ -22,7 +21,7 @@ expectType<Channel<string>>(CrossChannel.createPair<string>()[0]);
 expectType<CrossChannel<string>>(CrossChannel.createPair<string>()[0]);
 expectType<CrossChannel<string, string>>(CrossChannel.createPair<string>()[0]);
 expectType<CrossChannel<string, number>>(
-  CrossChannel.createPair<string, number>()[0]
+	CrossChannel.createPair<string, number>()[0],
 );
 
 const ch = CrossChannel.createPair<number, string>()[0];
@@ -31,10 +30,10 @@ expectType<undefined | Channel.Error>(await ch.send(1));
 expectType<void>(await ch.send(1, { catchChannelErrors: undefined }));
 expectType<void>(await ch.send(1, { catchChannelErrors: false }));
 expectType<undefined | Channel.Error>(
-  await ch.send(1, { catchChannelErrors: true })
+	await ch.send(1, { catchChannelErrors: true }),
 );
 expectType<undefined | Channel.Error>(
-  await ch.send(1, { catchChannelErrors: 1 as any as boolean })
+	await ch.send(1, { catchChannelErrors: 1 as any as boolean }),
 );
 
 expectType<string>(await ch.receive());
@@ -45,7 +44,7 @@ expectType<Channel.Read<string>>(ch.readable());
 expectType<Channel.Write<number>>(ch.writable());
 
 expectType<CrossChannel<string, number>>(
-  CrossChannel.combine(Channel.create<string>(), Channel.create<number>())
+	CrossChannel.combine(Channel.create<string>(), Channel.create<number>()),
 );
 
 const ch2 = CrossChannel.createPair<boolean, symbol>()[0];
@@ -55,15 +54,15 @@ expectNever(await Channel.select([]));
 expectType<string>(await Channel.select([ch]));
 expectType<string>(await Channel.select([ch], { recover: undefined }));
 expectType<string | boolean>(
-  await Channel.select([ch], { recover: () => true })
+	await Channel.select([ch], { recover: () => true }),
 );
 
 expectType<string | symbol>(await Channel.select([ch, ch2]));
 expectType<string | symbol>(
-  await Channel.select([ch, ch2], { recover: undefined })
+	await Channel.select([ch, ch2], { recover: undefined }),
 );
 expectType<string | symbol | boolean>(
-  await Channel.select([ch, ch2], { recover: () => true })
+	await Channel.select([ch, ch2], { recover: () => true }),
 );
 
 expectNever(await Channel.selectMap({}));
@@ -73,22 +72,22 @@ expectType<boolean>(await Channel.selectMap({ recover: () => true }));
 expectType<string>(await Channel.selectMap({}, [ch, (v) => v]));
 expectType<boolean>(await Channel.selectMap({}, [ch, () => true]));
 expectType<string | symbol>(
-  await Channel.selectMap({}, [ch, (v) => v], [ch2, (v) => v])
+	await Channel.selectMap({}, [ch, (v) => v], [ch2, (v) => v]),
 );
 expectType<boolean | number>(
-  await Channel.selectMap({}, [ch, (v) => true], [ch2, (v) => 5])
+	await Channel.selectMap({}, [ch, (v) => true], [ch2, (v) => 5]),
 );
 expectType<boolean | number>(
-  await Channel.selectMap(
-    { recover: undefined },
-    [ch, (v) => true],
-    [ch2, (v) => 5]
-  )
+	await Channel.selectMap(
+		{ recover: undefined },
+		[ch, (v) => true],
+		[ch2, (v) => 5],
+	),
 );
 expectType<boolean | number | string>(
-  await Channel.selectMap(
-    { recover: () => 'a' },
-    [ch, (v) => true],
-    [ch2, (v) => 5]
-  )
+	await Channel.selectMap(
+		{ recover: () => 'a' },
+		[ch, (v) => true],
+		[ch2, (v) => 5],
+	),
 );

@@ -1,10 +1,10 @@
 {
-  "compilerOptions": {
-    "paths": {
-      "@rimbu/channel": ["./entry/channel.ts"],
-      "@rimbu/channel/*": ["./public/*.ts"],
-      "#channel/*": ["./public/internal/*.ts"],
-      "#private/*": ["./private/*.ts"]
-    }
-  }
+	"compilerOptions": {
+		"paths": {
+			"@rimbu/channel": ["./entry/channel.ts"],
+			"@rimbu/channel/*": ["./public/*.ts"],
+			"#channel/*": ["./public/internal/*.ts"],
+			"#private/*": ["./private/*.ts"]
+		}
+	}
 }

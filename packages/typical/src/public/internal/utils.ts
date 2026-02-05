@@ -9,8 +9,8 @@
  * ```
  */
 export type Extends<A, B, Then = true, Else = false> = A extends B
-  ? Then
-  : Else;
+	? Then
+	: Else;
 
 /**
  * If A does not extend B, returns Then (default true) or else Else (default false)
@@ -23,8 +23,8 @@ export type Extends<A, B, Then = true, Else = false> = A extends B
  * ```
  */
 export type NotExtends<A, B, Then = true, Else = false> = A extends B
-  ? Else
-  : Then;
+	? Else
+	: Then;
 
 /**
  * Returns never if the given type is false, otherwise unknown.
@@ -67,7 +67,7 @@ export type Pred<V> = V extends false ? false : true;
  * ```
  */
 export type Not<V extends boolean> = boolean extends V
-  ? never
-  : V extends true
-    ? false
-    : true;
+	? never
+	: V extends true
+		? false
+		: true;

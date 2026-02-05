@@ -22,8 +22,12 @@
 					"level": "error"
 				}
 			},
+			"style": {
+				"noNonNullAssertion": "warn"
+			},
 			"suspicious": {
-				"noAssignInExpressions": "warn"
+				"noAssignInExpressions": "warn",
+				"noExplicitAny": "warn"
 			}
 		}
 	},

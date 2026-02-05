@@ -31,16 +31,26 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/esm/main/index.d.ts",
-			"import": "./dist/esm/main/index.js"
+			"types": "./dist/entry/actor.d.ts",
+			"default": "./dist/entry/actor.js"
 		},
 		"./immer": {
-			"types": "./dist/esm/immer/index.d.ts",
-			"import": "./dist/esm/immer/index.js"
+			"types": "./dist/entry/immer.d.ts",
+			"default": "./dist/entry/immer.js"
 		},
 		"./patch": {
-			"types": "./dist/esm/patch/index.d.ts",
-			"import": "./dist/esm/patch/index.js"
+			"types": "./dist/entry/patch.d.ts",
+			"default": "./dist/entry/patch.js"
+		},
+		"./*": {
+			"types": "./dist/public/actor/*.d.ts",
+			"default": "./dist/public/actor/*.js"
+		}
+	},
+	"imports": {
+		"#actor/*": {
+			"types": "./dist/public/actor/internal/*.d.ts",
+			"default": "./dist/public/actor/internal/*.js"
 		}
 	},
 	"files": [
@@ -48,7 +58,16 @@
 		"src"
 	],
 	"scripts": {
-		"clean:build": "rimraf dist"
+		"biome:check": "biome check",
+		"biome:fix": "biome check --write",
+		"build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
+		"clean": "rimraf dist node_modules",
+		"clean:build": "rimraf dist",
+		"format:check": "biome format",
+		"lint:check": "biome lint",
+		"test": "bun test --tsconfig-override tsconfig.common.json",
+		"test:random": "bun test test-random",
+		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
 	},
 	"dependencies": {
 		"@rimbu/common": "workspace:*",
@@ -59,11 +78,14 @@
 		"provenance": true
 	},
 	"devDependencies": {
+		"@rimbu/deep": "workspace:*",
+		"@rimbu/spy": "^0.7.7",
 		"@rimbu/stream": "workspace:*",
-		"happy-dom": "^9.20.3",
-		"immer": "^10.0.3"
+		"happy-dom": "catalog:",
+		"immer": "catalog:"
 	},
 	"optionalDependencies": {
-		"immer": "^10.0.3"
+		"@rimbu/deep": "workspace:*",
+		"immer": "catalog:"
 	}
 }

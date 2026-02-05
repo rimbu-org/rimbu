@@ -1,272 +1,277 @@
-import { Spy } from '@rimbu/spy';
-import { Reducer } from '@rimbu/stream';
+import { describe, expect, it } from 'bun:test';
 
-import { Action, Actor, Slice, type ActionBase } from '../src/main/index.mjs';
-import { SlicePatch } from '../src/patch/index.mjs';
+import type { ActionBase } from '#actor/action-base';
+
+import { Actor } from '@rimbu/actor';
+import { Action } from '@rimbu/actor/action';
+import { SlicePatch } from '@rimbu/actor/patch';
+import { Slice } from '@rimbu/actor/slice';
+import { Spy } from '@rimbu/spy';
+import { Reducer } from '@rimbu/stream/reducer';
 
 describe('Actor', () => {
-  const action = Action.create();
+	const action = Action.create();
 
-  it('can be empty', () => {
-    const act = Actor.configure({
-      reducer: Reducer.combine({}),
-    });
+	it('can be empty', () => {
+		const act = Actor.configure({
+			reducer: Reducer.combine({}),
+		});
 
-    expect(act.getState()).toEqual({});
+		expect(act.getState()).toEqual({});
 
-    act.dispatch(action());
+		act.dispatch(action());
 
-    expect(act.getState()).toEqual({});
-  });
+		expect(act.getState()).toEqual({});
+	});
 
-  it('can have single slice', () => {
-    const slice = SlicePatch.create({
-      initState: { count: 0, total: 10 },
-      actions: {
-        inc: () => [{ count: (v) => v + 1 }, { total: (v, p) => v + p.count }],
-      },
-    });
+	it('can have single slice', () => {
+		const slice = SlicePatch.create({
+			initState: { count: 0, total: 10 },
+			actions: {
+				inc: () => [{ count: (v) => v + 1 }, { total: (v, p) => v + p.count }],
+			},
+		});
 
-    const act = Actor.configure({
-      ...slice,
-    });
+		const act = Actor.configure({
+			...slice,
+		});
 
-    expect(act.getState()).toEqual({ count: 0, total: 10 });
+		expect(act.getState()).toEqual({ count: 0, total: 10 });
 
-    act.actions.inc();
+		act.actions.inc();
 
-    expect(act.getState()).toEqual({ count: 1, total: 11 });
+		expect(act.getState()).toEqual({ count: 1, total: 11 });
 
-    act.actions.inc();
+		act.actions.inc();
 
-    expect(act.getState()).toEqual({ count: 2, total: 13 });
-  });
+		expect(act.getState()).toEqual({ count: 2, total: 13 });
+	});
 
-  it('can have multiple slices', () => {
-    const counter = SlicePatch.create({
-      initState: { count: 0, total: 10 },
-      actions: {
-        inc: () => [{ count: (v) => v + 1 }, { total: (v, p) => v + p.count }],
-      },
-    });
+	it('can have multiple slices', () => {
+		const counter = SlicePatch.create({
+			initState: { count: 0, total: 10 },
+			actions: {
+				inc: () => [{ count: (v) => v + 1 }, { total: (v, p) => v + p.count }],
+			},
+		});
 
-    const toggle = SlicePatch.create({
-      initState: false,
-      actions: {},
-      includeActions: (include) => ({
-        ...include(counter.actions.inc, () => (v) => !v),
-      }),
-    });
+		const toggle = SlicePatch.create({
+			initState: false,
+			actions: {},
+			includeActions: (include) => ({
+				...include(counter.actions.inc, () => (v) => !v),
+			}),
+		});
 
-    const act = Actor.configure({
-      ...Slice.combine({
-        counter,
-        toggle,
-      }),
-    });
+		const act = Actor.configure({
+			...Slice.combine({
+				counter,
+				toggle,
+			}),
+		});
 
-    expect(act.getState()).toEqual({
-      counter: { count: 0, total: 10 },
-      toggle: false,
-    });
+		expect(act.getState()).toEqual({
+			counter: { count: 0, total: 10 },
+			toggle: false,
+		});
 
-    act.actions.counter.inc();
+		act.actions.counter.inc();
 
-    expect(act.getState()).toEqual({
-      counter: { count: 1, total: 11 },
-      toggle: true,
-    });
+		expect(act.getState()).toEqual({
+			counter: { count: 1, total: 11 },
+			toggle: true,
+		});
 
-    act.actions.counter.inc();
+		act.actions.counter.inc();
 
-    expect(act.getState()).toEqual({
-      counter: { count: 2, total: 13 },
-      toggle: false,
-    });
-  });
+		expect(act.getState()).toEqual({
+			counter: { count: 2, total: 13 },
+			toggle: false,
+		});
+	});
 
-  it('subscribe', () => {
-    const slice = SlicePatch.create({
-      initState: { count: 0, total: 10 },
-      actions: {
-        inc: () => [{ count: (v) => v + 1 }, { total: (v, p) => v + p.count }],
-      },
-    });
+	it('subscribe', () => {
+		const slice = SlicePatch.create({
+			initState: { count: 0, total: 10 },
+			actions: {
+				inc: () => [{ count: (v) => v + 1 }, { total: (v, p) => v + p.count }],
+			},
+		});
 
-    const act = Actor.configure({
-      ...slice,
-    });
+		const act = Actor.configure({
+			...slice,
+		});
 
-    const fn = Spy.fn();
+		const fn = Spy.fn();
 
-    act.subscribe(fn);
+		act.subscribe(fn);
 
-    expect(fn.nrCalls).toBe(0);
+		expect(fn.nrCalls).toBe(0);
 
-    act.actions.inc();
+		act.actions.inc();
 
-    expect(fn.nrCalls).toBe(1);
-  });
+		expect(fn.nrCalls).toBe(1);
+	});
 
-  it('unsubscribes', () => {
-    const slice = SlicePatch.create({
-      initState: { count: 0, total: 10 },
-      actions: {
-        inc: () => [{ count: (v) => v + 1 }, { total: (v, p) => v + p.count }],
-      },
-    });
+	it('unsubscribes', () => {
+		const slice = SlicePatch.create({
+			initState: { count: 0, total: 10 },
+			actions: {
+				inc: () => [{ count: (v) => v + 1 }, { total: (v, p) => v + p.count }],
+			},
+		});
 
-    const act = Actor.configure({
-      ...slice,
-    });
+		const act = Actor.configure({
+			...slice,
+		});
 
-    const fn = Spy.fn();
+		const fn = Spy.fn();
 
-    const unsubscribe = act.subscribe(fn);
+		const unsubscribe = act.subscribe(fn);
 
-    act.actions.inc();
+		act.actions.inc();
 
-    unsubscribe();
+		unsubscribe();
 
-    fn.clearCalls();
+		fn.clearCalls();
 
-    act.dispatch(slice.actions.inc());
+		act.dispatch(slice.actions.inc());
 
-    expect(fn.nrCalls).toBe(0);
-  });
+		expect(fn.nrCalls).toBe(0);
+	});
 
-  it('subscribes only once', () => {
-    const slice = SlicePatch.create({
-      initState: { count: 0, total: 10 },
-      actions: {
-        inc: () => [{ count: (v) => v + 1 }, { total: (v, p) => v + p.count }],
-      },
-    });
+	it('subscribes only once', () => {
+		const slice = SlicePatch.create({
+			initState: { count: 0, total: 10 },
+			actions: {
+				inc: () => [{ count: (v) => v + 1 }, { total: (v, p) => v + p.count }],
+			},
+		});
 
-    const act = Actor.configure({
-      ...slice,
-    });
+		const act = Actor.configure({
+			...slice,
+		});
 
-    const fn = Spy.fn();
+		const fn = Spy.fn();
 
-    const unsubscribe = act.subscribe(fn);
-    act.subscribe(fn);
+		const unsubscribe = act.subscribe(fn);
+		act.subscribe(fn);
 
-    act.actions.inc();
+		act.actions.inc();
 
-    expect(fn.nrCalls).toBe(1);
+		expect(fn.nrCalls).toBe(1);
 
-    unsubscribe();
-    fn.clearCalls();
+		unsubscribe();
+		fn.clearCalls();
 
-    act.actions.inc();
+		act.actions.inc();
 
-    expect(fn.nrCalls).toBe(0);
-  });
+		expect(fn.nrCalls).toBe(0);
+	});
 
-  it('includes middleware', () => {
-    const slice = SlicePatch.create({
-      initState: { count: 0, total: 10 },
-      actions: {
-        inc: () => [{ count: (v) => v + 1 }, { total: (v, p) => v + p.count }],
-      },
-    });
+	it('includes middleware', () => {
+		const slice = SlicePatch.create({
+			initState: { count: 0, total: 10 },
+			actions: {
+				inc: () => [{ count: (v) => v + 1 }, { total: (v, p) => v + p.count }],
+			},
+		});
 
-    const act = Actor.configure({
-      ...slice,
-      middleware: (actor) => {
-        const originalDispatch = actor.dispatch;
+		const act = Actor.configure({
+			...slice,
+			middleware: (actor) => {
+				const originalDispatch = actor.dispatch;
 
-        return (action: ActionBase) => {
-          const preState = actor.getState();
+				return (action: ActionBase) => {
+					const preState = actor.getState();
 
-          originalDispatch(action);
+					originalDispatch(action);
 
-          return {
-            preState,
-            postState: actor.getState(),
-          };
-        };
-      },
-    });
+					return {
+						preState,
+						postState: actor.getState(),
+					};
+				};
+			},
+		});
 
-    const result = act.actions.inc();
+		const result = act.actions.inc();
 
-    expect(result).toEqual({
-      preState: { count: 0, total: 10 },
-      postState: { count: 1, total: 11 },
-    });
-  });
+		expect(result).toEqual({
+			preState: { count: 0, total: 10 },
+			postState: { count: 1, total: 11 },
+		});
+	});
 
-  it('includes enhancer', () => {
-    const slice = SlicePatch.create({
-      initState: { count: 0, total: 10 },
-      actions: {
-        inc: () => [{ count: (v) => v + 1 }, { total: (v, p) => v + p.count }],
-      },
-    });
+	it('includes enhancer', () => {
+		const slice = SlicePatch.create({
+			initState: { count: 0, total: 10 },
+			actions: {
+				inc: () => [{ count: (v) => v + 1 }, { total: (v, p) => v + p.count }],
+			},
+		});
 
-    const act = Actor.configure({
-      ...slice,
-      enhancer: (actor) => ({
-        ...actor,
-        dispatchTwice(action: ActionBase) {
-          actor.dispatch(action);
-          actor.dispatch(action);
-        },
-      }),
-    });
+		const act = Actor.configure({
+			...slice,
+			enhancer: (actor) => ({
+				...actor,
+				dispatchTwice(action: ActionBase) {
+					actor.dispatch(action);
+					actor.dispatch(action);
+				},
+			}),
+		});
 
-    act.dispatchTwice(slice.actions.inc());
+		act.dispatchTwice(slice.actions.inc());
 
-    expect(act.getState()).toEqual({
-      count: 2,
-      total: 13,
-    });
-  });
+		expect(act.getState()).toEqual({
+			count: 2,
+			total: 13,
+		});
+	});
 
-  it('creates actions to dispatch', () => {
-    const counter = SlicePatch.create({
-      initState: { count: 0, total: 10 },
-      actions: {
-        inc: () => [{ count: (v) => v + 1 }, { total: (v, p) => v + p.count }],
-      },
-    });
+	it('creates actions to dispatch', () => {
+		const counter = SlicePatch.create({
+			initState: { count: 0, total: 10 },
+			actions: {
+				inc: () => [{ count: (v) => v + 1 }, { total: (v, p) => v + p.count }],
+			},
+		});
 
-    const toggle = SlicePatch.create({
-      initState: false,
-      actions: {},
-      includeActions: (include) => ({
-        ...include(counter.actions.inc, () => (v) => !v),
-      }),
-    });
+		const toggle = SlicePatch.create({
+			initState: false,
+			actions: {},
+			includeActions: (include) => ({
+				...include(counter.actions.inc, () => (v) => !v),
+			}),
+		});
 
-    const act = Actor.configure({
-      ...Slice.combine({ counter, toggle }),
-    });
+		const act = Actor.configure({
+			...Slice.combine({ counter, toggle }),
+		});
 
-    expect(act.actions.counter.inc).not.toBeUndefined();
-    expect(act.actions.toggle).not.toBeUndefined();
-  });
+		expect(act.actions.counter.inc).not.toBeUndefined();
+		expect(act.actions.toggle).not.toBeUndefined();
+	});
 
-  it('does not dispatch when halted', () => {
-    const slice = SlicePatch.create({
-      initState: { count: 0, total: 10 },
-      actions: {
-        inc: () => [{ count: (v) => v + 1 }, { total: (v, p) => v + p.count }],
-      },
-    });
+	it('does not dispatch when halted', () => {
+		const slice = SlicePatch.create({
+			initState: { count: 0, total: 10 },
+			actions: {
+				inc: () => [{ count: (v) => v + 1 }, { total: (v, p) => v + p.count }],
+			},
+		});
 
-    const act = Actor.configure({
-      reducer: slice.reducer.takeInput(0),
-      actions: slice.actions,
-    });
+		const act = Actor.configure({
+			reducer: slice.reducer.takeInput(0),
+			actions: slice.actions,
+		});
 
-    act.actions.inc();
+		act.actions.inc();
 
-    expect(act.getState()).toEqual({
-      count: 0,
-      total: 10,
-    });
-  });
+		expect(act.getState()).toEqual({
+			count: 0,
+			total: 10,
+		});
+	});
 });

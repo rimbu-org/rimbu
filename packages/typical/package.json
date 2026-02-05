@@ -31,20 +31,34 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/esm/index.d.ts",
-			"import": "./dist/esm/index.js"
+			"types": "./dist/entry/typical.d.ts",
+			"import": "./dist/entry/typical.js"
+		}
+	},
+	"imports": {
+		"#typical/*": {
+			"types": "./dist/public/internal/*.d.ts",
+			"default": "./dist/public/internal/*.js"
 		}
 	},
 	"files": [
 		"dist",
 		"src"
 	],
-	"scripts": {},
+	"scripts": {
+		"biome:check": "biome check",
+		"biome:fix": "biome check --write",
+		"build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
+		"clean": "rimraf dist node_modules",
+		"clean:build": "rimraf dist",
+		"format:check": "biome format",
+		"lint:check": "biome lint",
+		"test": "bun test --tsconfig-override tsconfig.common.json",
+		"test:types": "bunx tsd --files ./test-d --typings ./dist/entry/typical.d.ts",
+		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
+	},
 	"publishConfig": {
 		"access": "public",
 		"provenance": true
-	},
-	"dependencies": {
-		"tslib": "catalog:"
 	}
 }

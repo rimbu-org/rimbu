@@ -1,168 +1,169 @@
 import { describe, expect, it, vi } from 'bun:test';
 
-import { timeout } from '#channel/utils';
 import { Semaphore, SemaphoreError } from '@rimbu/channel/semaphore';
 
+import { timeout } from '#channel/utils';
+
 describe('Semaphore', () => {
-  it('throws if maxSize < 1', () => {
-    expect(() => Semaphore.create({ maxSize: 0 })).toThrow(
-      SemaphoreError.InvalidConfigError
-    );
-  });
+	it('throws if maxSize < 1', () => {
+		expect(() => Semaphore.create({ maxSize: 0 })).toThrow(
+			SemaphoreError.InvalidConfigError,
+		);
+	});
 
-  it('does not block acquiring when capacity available', async () => {
-    const sem = Semaphore.create({ maxSize: 1 });
+	it('does not block acquiring when capacity available', async () => {
+		const sem = Semaphore.create({ maxSize: 1 });
 
-    await sem.acquire();
-    await timeout(100);
+		await sem.acquire();
+		await timeout(100);
 
-    expect(() => sem.release()).not.toThrow();
-  });
+		expect(() => sem.release()).not.toThrow();
+	});
 
-  it('does not block when acquiring 0 or negative capacity', async () => {
-    const sem = Semaphore.create({ maxSize: 1 });
+	it('does not block when acquiring 0 or negative capacity', async () => {
+		const sem = Semaphore.create({ maxSize: 1 });
 
-    await sem.acquire();
-    await sem.acquire(0);
-  });
+		await sem.acquire();
+		await sem.acquire(0);
+	});
 
-  it('blocks acquiring when at full capacity', async () => {
-    const sem = Semaphore.create({ maxSize: 1 });
+	it('blocks acquiring when at full capacity', async () => {
+		const sem = Semaphore.create({ maxSize: 1 });
 
-    (async () => {
-      await sem.acquire();
-      await timeout(100);
-      sem.release();
-    })();
+		(async () => {
+			await sem.acquire();
+			await timeout(100);
+			sem.release();
+		})();
 
-    await sem.acquire();
+		await sem.acquire();
 
-    expect(() => sem.release()).not.toThrow();
-  });
+		expect(() => sem.release()).not.toThrow();
+	});
 
-  it('throws when acquiring more than size', () => {
-    const sem = Semaphore.create({ maxSize: 1 });
+	it('throws when acquiring more than size', () => {
+		const sem = Semaphore.create({ maxSize: 1 });
 
-    expect(sem.acquire(2)).rejects.toThrow(
-      SemaphoreError.InsufficientCapacityError
-    );
-  });
+		expect(sem.acquire(2)).rejects.toThrow(
+			SemaphoreError.InsufficientCapacityError,
+		);
+	});
 
-  it('throws when releasing more than current size', () => {
-    const sem = Semaphore.create({ maxSize: 1 });
+	it('throws when releasing more than current size', () => {
+		const sem = Semaphore.create({ maxSize: 1 });
 
-    expect(() => sem.release()).toThrow(SemaphoreError.CapacityUnderflowError);
-  });
+		expect(() => sem.release()).toThrow(SemaphoreError.CapacityUnderflowError);
+	});
 
-  it('will provide access first to later smaller task', async () => {
-    const sem = Semaphore.create({ maxSize: 2 });
+	it('will provide access first to later smaller task', async () => {
+		const sem = Semaphore.create({ maxSize: 2 });
 
-    await sem.acquire();
+		await sem.acquire();
 
-    await sem.acquire();
+		await sem.acquire();
 
-    const fn = vi.fn();
+		const fn = vi.fn();
 
-    const promise = (async () => {
-      await sem.acquire(2);
-      fn();
-    })();
+		const promise = (async () => {
+			await sem.acquire(2);
+			fn();
+		})();
 
-    expect(fn).not.toBeCalled();
+		expect(fn).not.toBeCalled();
 
-    sem.release();
+		sem.release();
 
-    await timeout(10);
+		await timeout(10);
 
-    expect(fn).not.toBeCalled();
+		expect(fn).not.toBeCalled();
 
-    await timeout(10);
+		await timeout(10);
 
-    expect(fn).not.toBeCalled();
+		expect(fn).not.toBeCalled();
 
-    sem.release();
+		sem.release();
 
-    await promise;
+		await promise;
 
-    expect(fn).toBeCalledTimes(1);
-  });
+		expect(fn).toBeCalledTimes(1);
+	});
 
-  it('will provide access to bigger task once capacity is available', async () => {
-    const sem = Semaphore.create({ maxSize: 2 });
+	it('will provide access to bigger task once capacity is available', async () => {
+		const sem = Semaphore.create({ maxSize: 2 });
 
-    await sem.acquire();
+		await sem.acquire();
 
-    const fn = vi.fn();
+		const fn = vi.fn();
 
-    const promise = (async () => {
-      await sem.acquire(2);
-      fn();
-    })();
+		const promise = (async () => {
+			await sem.acquire(2);
+			fn();
+		})();
 
-    expect(fn).not.toBeCalled();
+		expect(fn).not.toBeCalled();
 
-    await sem.acquire();
+		await sem.acquire();
 
-    await timeout(10);
+		await timeout(10);
 
-    sem.release();
+		sem.release();
 
-    await timeout(10);
+		await timeout(10);
 
-    sem.release();
+		sem.release();
 
-    expect(fn).not.toBeCalled();
+		expect(fn).not.toBeCalled();
 
-    await timeout(10);
+		await timeout(10);
 
-    sem.release();
+		sem.release();
 
-    await promise;
+		await promise;
 
-    expect(fn).toBeCalledTimes(1);
-  });
+		expect(fn).toBeCalledTimes(1);
+	});
 
-  it('canAcquire returns correct values', async () => {
-    const sem = Semaphore.create({ maxSize: 2 });
+	it('canAcquire returns correct values', async () => {
+		const sem = Semaphore.create({ maxSize: 2 });
 
-    expect(sem.canAcquire()).toBe(true);
-    expect(sem.canAcquire(0)).toBe(true);
-    expect(sem.canAcquire(-3)).toBe(true);
-    expect(sem.canAcquire(2)).toBe(true);
-    expect(sem.canAcquire(3)).toBe(false);
-    expect(sem.canAcquire(4)).toBe(false);
+		expect(sem.canAcquire()).toBe(true);
+		expect(sem.canAcquire(0)).toBe(true);
+		expect(sem.canAcquire(-3)).toBe(true);
+		expect(sem.canAcquire(2)).toBe(true);
+		expect(sem.canAcquire(3)).toBe(false);
+		expect(sem.canAcquire(4)).toBe(false);
 
-    await sem.acquire();
+		await sem.acquire();
 
-    expect(sem.canAcquire()).toBe(true);
-    expect(sem.canAcquire(0)).toBe(true);
-    expect(sem.canAcquire(-3)).toBe(true);
-    expect(sem.canAcquire(2)).toBe(false);
-    expect(sem.canAcquire(3)).toBe(false);
-    expect(sem.canAcquire(4)).toBe(false);
-  });
+		expect(sem.canAcquire()).toBe(true);
+		expect(sem.canAcquire(0)).toBe(true);
+		expect(sem.canAcquire(-3)).toBe(true);
+		expect(sem.canAcquire(2)).toBe(false);
+		expect(sem.canAcquire(3)).toBe(false);
+		expect(sem.canAcquire(4)).toBe(false);
+	});
 
-  it('disallows acquiring too much weight synchronously', () => {
-    const sem = Semaphore.create({ maxSize: 1 });
+	it('disallows acquiring too much weight synchronously', () => {
+		const sem = Semaphore.create({ maxSize: 1 });
 
-    const a1 = sem.acquire(1, { timeoutMs: 100 });
-    const a2 = sem.acquire(1, { timeoutMs: 100 });
+		const a1 = sem.acquire(1, { timeoutMs: 100 });
+		const a2 = sem.acquire(1, { timeoutMs: 100 });
 
-    expect(a1).resolves.toBeUndefined();
-    expect(a2).rejects.toThrow();
-  });
+		expect(a1).resolves.toBeUndefined();
+		expect(a2).rejects.toThrow();
+	});
 
-  it('can release weight without waiting', async () => {
-    const sem = Semaphore.create({ maxSize: 3 });
+	it('can release weight without waiting', async () => {
+		const sem = Semaphore.create({ maxSize: 3 });
 
-    await sem.acquire(1);
-    await sem.acquire(1);
-    await sem.acquire(1);
+		await sem.acquire(1);
+		await sem.acquire(1);
+		await sem.acquire(1);
 
-    sem.release();
-    sem.release();
-    sem.release();
+		sem.release();
+		sem.release();
+		sem.release();
 
-    expect(sem.canAcquire()).toBe(true);
-  });
+		expect(sem.canAcquire()).toBe(true);
+	});
 });

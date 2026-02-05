@@ -1,9 +1,9 @@
 {
 	"compilerOptions": {
-		"rootDirs": [".", ".."],
-		"baseUrl": "./src",
 		"paths": {
-			"@rimbu/actor": ["main/index.ts", "main/index.cts"]
+			"@rimbu/actor": ["./entry/actor.ts"],
+			"@rimbu/actor/*": ["./public/actor/*.ts"],
+			"#actor/*": ["./public/actor/internal/*.ts"]
 		}
 	}
 }
