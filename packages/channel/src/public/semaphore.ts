@@ -1,3 +1,5 @@
+import { Module } from '@rimbu/common/module';
+
 import { SemaphoreImpl } from '#channel/semaphore-impl';
 import { SemaphoreError } from '#private/semaphore-error';
 
@@ -59,10 +61,10 @@ export namespace Semaphore {
 	}
 }
 
-export const Semaphore: Semaphore.Constructors = Object.freeze(
-	class {
-		static create(options: { maxSize: number }): Semaphore {
-			return new SemaphoreImpl(options.maxSize);
-		}
-	},
-);
+const semaphoreModule = Module.create<Semaphore.Constructors>(() => ({
+	create: Module.factory((options: { maxSize: number }) => {
+		return new SemaphoreImpl(options.maxSize);
+	}),
+}));
+
+export const Semaphore: Semaphore.Constructors = semaphoreModule.build();

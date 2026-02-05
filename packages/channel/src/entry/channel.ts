@@ -1,5 +1,7 @@
 import type { AsyncStreamable, AsyncStreamSource } from '@rimbu/stream/async';
 
+import { Module } from '@rimbu/common/module';
+
 import { ChannelImpl } from '#channel/channel-impl';
 import { attachAbort, createCleaner } from '#channel/utils';
 import { ChannelError } from '#private/channel-error';
@@ -257,13 +259,12 @@ export namespace Channel {
 	}
 }
 
-export const Channel: Channel.Constructors = Object.freeze(
-	class {
-		static create<T = void>(options: Channel.Config = {}): Channel<T> {
-			return new ChannelImpl(options);
-		}
-
-		static async select<CS extends Channel.Read<any>[], RT>(
+const channelModule = Module.create<Channel.Constructors>(() => ({
+	create: Module.factory((options) => {
+		return new ChannelImpl(options);
+	}),
+	select: Module.factory(
+		async <CS extends Channel.Read<any>[], RT>(
 			channels: CS,
 			options: {
 				signal?: AbortSignal | undefined;
@@ -275,7 +276,7 @@ export const Channel: Channel.Constructors = Object.freeze(
 			| {
 					[K in keyof CS]: Channel.MessageType<CS[K]>;
 			  }[number]
-		> {
+		> => {
 			const { signal, timeoutMs, recover } = options;
 
 			if (signal?.aborted) {
@@ -319,9 +320,10 @@ export const Channel: Channel.Constructors = Object.freeze(
 
 				throw err;
 			}
-		}
-
-		static async selectMap<
+		},
+	),
+	selectMap: Module.factory(
+		async <
 			TS extends any[],
 			HS extends {
 				[K in keyof TS]: [Channel.Read<TS[K]>, (value: TS[K]) => any];
@@ -338,7 +340,7 @@ export const Channel: Channel.Constructors = Object.freeze(
 			}
 		): Promise<
 			{ [K in keyof HS]: Promise<ReturnType<HS[K][1]>> }[number] | RT
-		> {
+		> => {
 			const { signal, timeoutMs, recover } = options;
 
 			if (signal?.aborted) {
@@ -384,6 +386,8 @@ export const Channel: Channel.Constructors = Object.freeze(
 
 				throw err;
 			}
-		}
-	},
-);
+		},
+	),
+}));
+
+export const Channel: Channel.Constructors = channelModule.build();

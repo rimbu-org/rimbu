@@ -1,4 +1,5 @@
 import { Channel } from '@rimbu/channel';
+import { Module } from '@rimbu/common/module';
 
 /**
  * A CrossChannel is a channel of which the send and receive modules are not internally connected. This means
@@ -68,24 +69,25 @@ export namespace CrossChannel {
 	}
 }
 
-export const CrossChannel: CrossChannel.Constructors = Object.freeze(
-	class {
-		static createPair<TSend = void, TReceive = TSend>(
+const crossChannelModule = Module.create<CrossChannel.Constructors>((mod) => ({
+	createPair: Module.factory(
+		<TSend = void, TReceive = TSend>(
 			config: CrossChannel.Config = {},
-		): CrossChannel.Pair<TSend, TReceive> {
+		): CrossChannel.Pair<TSend, TReceive> => {
 			const sendCh = Channel.create<TSend>(config.write);
 			const receiveCh = Channel.create<TReceive>(config.read);
 
-			const crossReceiveCh = CrossChannel.combine(receiveCh, sendCh);
-			const crossSendCh = CrossChannel.combine(sendCh, receiveCh);
+			const crossReceiveCh = mod.combine(receiveCh, sendCh);
+			const crossSendCh = mod.combine(sendCh, receiveCh);
 
 			return [crossSendCh, crossReceiveCh];
-		}
-
-		static combine<TSend = void, TReceive = TSend>(
+		},
+	),
+	combine: Module.factory(
+		<TSend = void, TReceive = TSend>(
 			writeCh: Channel.Write<TSend>,
 			readCh: Channel.Read<TReceive>,
-		): CrossChannel<TSend, TReceive> {
+		): CrossChannel<TSend, TReceive> => {
 			const result: CrossChannel<TSend, TReceive> = {
 				get capacity() {
 					return readCh.capacity;
@@ -130,6 +132,9 @@ export const CrossChannel: CrossChannel.Constructors = Object.freeze(
 			};
 
 			return result;
-		}
-	},
-);
+		},
+	),
+}));
+
+export const CrossChannel: CrossChannel.Constructors =
+	crossChannelModule.build();

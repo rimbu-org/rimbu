@@ -1,3 +1,5 @@
+import { Module } from '@rimbu/common/module';
+
 import { RpcProxyImpl } from '#channel/rpc-proxy-impl';
 import { RpcProxyError } from '#private/rpc-proxy-error';
 
@@ -67,12 +69,10 @@ export namespace RpcProxy {
 	}
 }
 
-export const RpcProxy: RpcProxy.Constructors = Object.freeze(
-	class {
-		static create<T>(
-			onCall: (path: RpcProxy.Path) => Promise<any>,
-		): RpcProxy<T> {
-			return new RpcProxyImpl(onCall);
-		}
-	},
-);
+const rpxProxyModule = Module.create<RpcProxy.Constructors>(() => ({
+	create: Module.factory(<T>(onCall: (path: RpcProxy.Path) => Promise<any>) => {
+		return new RpcProxyImpl<T>(onCall);
+	}),
+}));
+
+export const RpcProxy: RpcProxy.Constructors = rpxProxyModule.build();

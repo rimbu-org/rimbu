@@ -2,6 +2,8 @@ import type { Channel } from '@rimbu/channel';
 import type { CrossChannel } from '@rimbu/channel/cross-channel';
 import type { RemoteChannel } from '@rimbu/channel/remote-channel';
 
+import { Module } from '@rimbu/common/module';
+
 import { RemoteChannelClientImpl } from '#channel/remote-channel-client-impl';
 
 /**
@@ -93,13 +95,12 @@ export namespace RemoteChannelClient {
 	}
 }
 
+const removeChannelClientModule =
+	Module.create<RemoteChannelClient.Constructors>(() => ({
+		create: Module.factory(async (config: RemoteChannelClient.Config) => {
+			return RemoteChannelClientImpl(config);
+		}),
+	}));
+
 export const RemoteChannelClient: RemoteChannelClient.Constructors =
-	Object.freeze(
-		class {
-			static async create(
-				config: RemoteChannelClient.Config,
-			): Promise<RemoteChannelClient> {
-				return RemoteChannelClientImpl(config);
-			}
-		},
-	);
+	removeChannelClientModule.build();

@@ -1,4 +1,5 @@
 import { Semaphore } from '@rimbu/channel/semaphore';
+import { Module } from '@rimbu/common/module';
 
 /**
  * A Mutex is used to restrict access to a shared resource in a concurrent environment. The Mutex can be
@@ -38,10 +39,10 @@ export namespace Mutex {
 	}
 }
 
-export const Mutex: Mutex.Constructors = Object.freeze(
-	class {
-		static create(): Mutex {
-			return Semaphore.create({ maxSize: 1 });
-		}
-	},
-);
+const mutexModule = Module.create<Mutex.Constructors>(() => ({
+	create: Module.factory(() => {
+		return Semaphore.create({ maxSize: 1 });
+	}),
+}));
+
+export const Mutex: Mutex.Constructors = mutexModule.build();

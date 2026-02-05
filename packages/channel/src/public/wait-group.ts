@@ -1,3 +1,5 @@
+import { Module } from '@rimbu/common/module';
+
 import { WaitGroupImpl } from '#channel/wait-group-impl';
 
 /**
@@ -36,10 +38,10 @@ export namespace WaitGroup {
 	}
 }
 
-export const WaitGroup: WaitGroup.Constructors = Object.freeze(
-	class {
-		static create(): WaitGroup {
-			return new WaitGroupImpl();
-		}
-	},
-);
+const waitGroupModule = Module.create<WaitGroup.Constructors>(() => ({
+	create: Module.factory(() => {
+		return new WaitGroupImpl();
+	}),
+}));
+
+export const WaitGroup: WaitGroup.Constructors = waitGroupModule.build();

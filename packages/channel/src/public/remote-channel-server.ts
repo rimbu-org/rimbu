@@ -2,6 +2,8 @@ import type { Channel } from '@rimbu/channel';
 import type { CrossChannel } from '@rimbu/channel/cross-channel';
 import type { RemoteChannel } from '@rimbu/channel/remote-channel';
 
+import { Module } from '@rimbu/common/module';
+
 import { RemoteChannelServerImpl } from '#channel/remote-channel-server-impl';
 
 /**
@@ -44,14 +46,17 @@ export namespace RemoteChannelServer {
 	}
 }
 
-export const RemoteChannelServer: RemoteChannelServer.Constructors =
-	Object.freeze(
-		class {
-			static async create(config: {
+const removeChannelServerModule =
+	Module.create<RemoteChannelServer.Constructors>(() => ({
+		create: Module.factory(
+			async (config: {
 				port: RemoteChannel.SimpleMessagePort;
 				rcsChannelId?: string;
-			}): Promise<RemoteChannelServer> {
+			}) => {
 				return RemoteChannelServerImpl(config);
-			}
-		},
-	);
+			},
+		),
+	}));
+
+export const RemoteChannelServer: RemoteChannelServer.Constructors =
+	removeChannelServerModule.build();

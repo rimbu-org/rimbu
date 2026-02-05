@@ -1,6 +1,7 @@
 import type { CrossChannel } from '@rimbu/channel/cross-channel';
 
 import { RpcProxy } from '@rimbu/channel/rpc-proxy';
+import { Module } from '@rimbu/common/module';
 
 import { RemoteObjectImpl } from '#channel/remote-object-impl';
 import { RemoteObjectError } from '#private/remote-object-error';
@@ -68,11 +69,9 @@ export namespace RemoteObject {
 	}
 }
 
-export const RemoteObject: RemoteObject.Constructors = Object.freeze(
-	class {
-		static createClient<T>(
-			commCh: CrossChannel<RemoteObject.Call, RemoteObject.Response>,
-		): RpcProxy<T> {
+const removeObjectModule = Module.create<RemoteObject.Constructors>(() => ({
+	createClient: Module.factory(
+		<T>(commCh: RemoteObject.ClientCrossChannel): RpcProxy<T> => {
 			async function execCall(path: RpcProxy.Path): Promise<any> {
 				await commCh.send({ path });
 				const response = await commCh.receive();
@@ -81,6 +80,7 @@ export const RemoteObject: RemoteObject.Constructors = Object.freeze(
 					case 'success': {
 						return response.value;
 					}
+
 					case 'fail': {
 						throw response.error;
 					}
@@ -90,12 +90,14 @@ export const RemoteObject: RemoteObject.Constructors = Object.freeze(
 			const proxy = RpcProxy.create<T>(execCall);
 
 			return proxy;
-		}
+		},
+	),
 
-		static async createServer<T>(
+	createServer: Module.factory(
+		async <T>(
 			source: T,
 			commCh: CrossChannel<RemoteObject.Response, RemoteObject.Call>,
-		): Promise<void> {
+		): Promise<void> => {
 			const handler = RemoteObjectImpl(source);
 
 			while (!commCh.isExhausted) {
@@ -111,6 +113,9 @@ export const RemoteObject: RemoteObject.Constructors = Object.freeze(
 			}
 
 			commCh.close();
-		}
-	},
-);
+		},
+	),
+}));
+
+export const RemoteObject: RemoteObject.Constructors =
+	removeObjectModule.build();

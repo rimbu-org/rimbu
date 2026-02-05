@@ -1,6 +1,7 @@
 import type { Channel } from '@rimbu/channel';
 
 import { CrossChannel } from '@rimbu/channel/cross-channel';
+import { Module } from '@rimbu/common/module';
 
 import {
 	RemoteChannelRead,
@@ -190,37 +191,44 @@ export namespace RemoteChannel {
 	}
 }
 
-export const RemoteChannel: RemoteChannel.Constructors = Object.freeze(
-	class {
-		static async createRead<T = void>(
-			port: RemoteChannel.SimpleMessagePort,
-			config: RemoteChannel.ReadConfig,
-		): Promise<Channel.Read<T>> {
-			const ch = new RemoteChannelRead<T>(port, config);
-			await ch.initialized;
-			return ch;
-		}
+const remoteChannelModule = Module.create<RemoteChannel.Constructors>(
+	(mod) => ({
+		createRead: Module.factory(
+			async (
+				port: RemoteChannel.SimpleMessagePort,
+				config: RemoteChannel.ReadConfig,
+			) => {
+				const ch = new RemoteChannelRead<any>(port, config);
+				await ch.initialized;
+				return ch;
+			},
+		),
+		createWrite: Module.factory(
+			async (
+				port: RemoteChannel.SimpleMessagePort,
+				config: RemoteChannel.WriteConfig,
+			) => {
+				const ch = new RemoteChannelWrite<any>(port, config);
+				await ch.initialized;
+				return ch;
+			},
+		),
+		createCross: Module.factory(
+			async <TSend = void, TReceive = TSend>(
+				port: RemoteChannel.SimpleMessagePort,
+				config: RemoteChannel.CrossConfig,
+			) => {
+				const { write, read } = config;
+				const [writeCh, readCh] = await Promise.all([
+					mod.createWrite<TSend>(port, write),
+					mod.createRead<TReceive>(port, read),
+				]);
 
-		static async createWrite<T = void>(
-			port: RemoteChannel.SimpleMessagePort,
-			config: RemoteChannel.WriteConfig,
-		): Promise<Channel.Write<T>> {
-			const ch = new RemoteChannelWrite<T>(port, config);
-			await ch.initialized;
-			return ch;
-		}
-
-		static async createCross<TSend = void, TReceive = TSend>(
-			port: RemoteChannel.SimpleMessagePort,
-			config: RemoteChannel.CrossConfig,
-		): Promise<CrossChannel<TSend, TReceive>> {
-			const { write, read } = config;
-			const [writeCh, readCh] = await Promise.all([
-				RemoteChannel.createWrite<TSend>(port, write),
-				RemoteChannel.createRead<TReceive>(port, read),
-			]);
-
-			return CrossChannel.combine(writeCh, readCh);
-		}
-	},
+				return CrossChannel.combine(writeCh, readCh);
+			},
+		),
+	}),
 );
+
+export const RemoteChannel: RemoteChannel.Constructors =
+	remoteChannelModule.build();
