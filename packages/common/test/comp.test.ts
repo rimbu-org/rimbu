@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'bun:test';
 
-import { Comp } from '../src/comp.mjs';
+import { Comp } from '@rimbu/common/comp';
 
 describe('Comp', () => {
-	it('stringComp', () => {
-		const c = Comp.stringComp();
+	it('string', () => {
+		const c = Comp.string();
 
 		expect(c.compare('b', 'b')).toBe(0);
 		expect(c.compare('b', 'c')).toBeLessThan(0);
@@ -18,8 +18,8 @@ describe('Comp', () => {
 		expect(c.isComparable(5)).toBe(false);
 	});
 
-	it('stringCaseInsensitiveComp', () => {
-		const c = Comp.stringCaseInsensitiveComp();
+	it('stringCaseInsensitive', () => {
+		const c = Comp.stringCaseInsensitive;
 
 		expect(c.compare('b', 'b')).toBe(0);
 		expect(c.compare('b', 'c')).toBeLessThan(0);
@@ -34,8 +34,8 @@ describe('Comp', () => {
 		expect(c.isComparable(5)).toBe(false);
 	});
 
-	it('anyStringJSONComp', () => {
-		const c = Comp.anyStringJSONComp();
+	it('anyStringJson', () => {
+		const c = Comp.anyStringJson();
 		expect(c.compare({}, {})).toBe(0);
 		expect(c.compare({ a: 1 }, { a: 1 })).toBe(0);
 		expect(c.compare({ a: 1 }, { a: 2 })).toBeLessThan(0);
@@ -44,8 +44,8 @@ describe('Comp', () => {
 		expect(c.isComparable({})).toBe(true);
 	});
 
-	it('stringCharCodeComp', () => {
-		const c = Comp.stringCharCodeComp();
+	it('stringCharCode', () => {
+		const c = Comp.stringCharCode;
 
 		expect(c.compare('', '')).toBe(0);
 		expect(c.compare('a', '')).toBeGreaterThan(0);
@@ -61,8 +61,8 @@ describe('Comp', () => {
 		expect(c.isComparable(5)).toBe(false);
 	});
 
-	it('dateComp', () => {
-		const c = Comp.dateComp();
+	it('date', () => {
+		const c = Comp.date;
 
 		expect(c.compare(new Date(2020, 1, 1), new Date(2020, 1, 1))).toBe(0);
 		expect(c.compare(new Date(2020, 1, 1), new Date(2020, 2, 1))).toBeLessThan(
@@ -76,8 +76,8 @@ describe('Comp', () => {
 		expect(c.isComparable(new Date().toString())).toBe(false);
 	});
 
-	it('numberComp', () => {
-		const c = Comp.numberComp();
+	it('number', () => {
+		const c = Comp.number;
 
 		expect(c.compare(5, 5)).toBe(0);
 		expect(c.compare(5, 7)).toBeLessThan(0);
@@ -109,8 +109,8 @@ describe('Comp', () => {
 		expect(c.isComparable('')).toBe(false);
 	});
 
-	it('bigintComp', () => {
-		const c = Comp.bigIntComp();
+	it('bigint', () => {
+		const c = Comp.bigInt;
 
 		expect(c.isComparable(BigInt(5))).toBe(true);
 		expect(c.isComparable(5)).toBe(false);
@@ -120,8 +120,8 @@ describe('Comp', () => {
 		expect(c.compare(BigInt(5), BigInt(3))).toBeGreaterThan(0);
 	});
 
-	it('booleanComp', () => {
-		const c = Comp.booleanComp();
+	it('boolean', () => {
+		const c = Comp.boolean;
 
 		expect(c.compare(true, true)).toBe(0);
 		expect(c.compare(true, true)).toBe(0);
@@ -133,8 +133,8 @@ describe('Comp', () => {
 		expect(c.isComparable(0)).toBe(false);
 	});
 
-	it('iterableComp', () => {
-		const c = Comp.iterableComp();
+	it('iterable', () => {
+		const c = Comp.string().forIterable();
 
 		expect(c.compare('', '')).toBe(0);
 		expect(c.compare('', 'a')).toBeLessThan(0);
@@ -144,7 +144,7 @@ describe('Comp', () => {
 	});
 
 	it('iterableComp custom', () => {
-		const c = Comp.iterableComp(Comp.numberComp());
+		const c = Comp.number.forIterable();
 
 		expect(c.compare([], [])).toBe(0);
 		expect(c.compare([1, 2], [1, 2])).toBe(0);
@@ -154,7 +154,7 @@ describe('Comp', () => {
 	});
 
 	it('anyFlatComp', () => {
-		const c = Comp.anyFlatComp();
+		const c = Comp.anyFlat();
 
 		expect(c.compare(1, 1)).toBe(0);
 		expect(c.compare(1, 2)).toBeLessThan(0);
@@ -192,7 +192,7 @@ describe('Comp', () => {
 	});
 
 	it('anyShallowComp', () => {
-		const c = Comp.anyShallowComp();
+		const c = Comp.anyShallow();
 		expect(c.compare([], [])).toBe(0);
 		expect(c.compare([1, 2], [1, 2])).toBe(0);
 		expect(c.compare([1], [1, 2])).toBeLessThan(0);
@@ -226,7 +226,7 @@ describe('Comp', () => {
 	});
 
 	it('anyDeepComp', () => {
-		const c = Comp.anyDeepComp();
+		const c = Comp.anyDeep();
 
 		expect(c.compare([10], [2])).toBeGreaterThan(0);
 
@@ -234,7 +234,7 @@ describe('Comp', () => {
 	});
 
 	it('withUndefined', () => {
-		const c = Comp.withUndefined(Comp.numberComp());
+		const c = Comp.number.withUndefined();
 
 		expect(c.compare(undefined, undefined)).toBe(0);
 		expect(c.compare(undefined, 5)).toBeLessThan(0);
@@ -247,7 +247,7 @@ describe('Comp', () => {
 	});
 
 	it('withNull', () => {
-		const c = Comp.withNull(Comp.numberComp());
+		const c = Comp.number.withNull();
 
 		expect(c.compare(null, null)).toBe(0);
 		expect(c.compare(null, 5)).toBeLessThan(0);
@@ -259,16 +259,16 @@ describe('Comp', () => {
 		expect(c.isComparable('a')).toBe(false);
 	});
 
-	it('invert', () => {
-		const c = Comp.invert(Comp.numberComp());
+	it('inverted', () => {
+		const c = Comp.number.inverted();
 
 		expect(c.compare(5, 5)).toBe(0);
 		expect(c.compare(3, 5)).toBeGreaterThan(0);
 		expect(c.compare(5, 3)).toBeLessThan(0);
 	});
 
-	it('objectComp', () => {
-		const c = Comp.objectComp();
+	it('object', () => {
+		const c = Comp.object();
 
 		expect(c.compare({}, {})).toBe(0);
 		expect(c.compare({}, { a: 1 })).toBeLessThan(0);
@@ -286,7 +286,7 @@ describe('Comp', () => {
 	});
 
 	it('toEq', () => {
-		const e = Comp.toEq(Comp.stringCaseInsensitiveComp());
+		const e = Comp.stringCaseInsensitive.toEq();
 
 		expect(e('b', 'b')).toBe(true);
 		expect(e('b', 'a')).toBe(false);

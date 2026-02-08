@@ -502,7 +502,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 	}
 
 	min<O>(otherwise?: OptLazy<O>): T | O {
-		return this.minBy(Comp.defaultComp().compare, otherwise);
+		return this.minBy(Comp.defaultInstance.compare, otherwise);
 	}
 
 	minBy<O>(compare: (v1: T, v2: T) => number, otherwise?: OptLazy<O>): T | O {
@@ -521,7 +521,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 	}
 
 	max<O>(otherwise?: OptLazy<O>): T | O {
-		return this.maxBy(Comp.defaultComp().compare, otherwise);
+		return this.maxBy(Comp.defaultInstance.compare, otherwise);
 	}
 
 	maxBy<O>(compare: (v1: T, v2: T) => number, otherwise?: OptLazy<O>): T | O {

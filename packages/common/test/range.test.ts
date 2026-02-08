@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { Range } from '../src/range.mjs';
+import { Range } from '@rimbu/common/range';
 
 describe('getNormalizedRange', () => {
 	it('correctly returns range', () => {

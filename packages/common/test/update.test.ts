@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { Update } from '../src/update.mjs';
+import { Update } from '@rimbu/common/update';
 
 describe('Update', () => {
 	it('updates', () => {

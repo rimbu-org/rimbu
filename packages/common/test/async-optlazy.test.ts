@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { AsyncOptLazy } from '../src/async-opt-lazy.mjs';
+import { AsyncOptLazy } from '@rimbu/common/async-opt-lazy';
 
 describe('AsyncOptLazy', () => {
 	it('toMaybePromise', async () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { Eq } from '../src/eq.mjs';
+import { Eq } from '@rimbu/common/eq';
 
 describe('Eq', () => {
 	it('objectIs', () => {

@@ -202,7 +202,7 @@ const createBuilderFactory = Module.createPartial<
 }));
 
 const createListCreators = Module.createPartial<
-	Omit<ListCreators, 'builder'>,
+	Omit<ListCreators, 'builder' | 'defaultContext'>,
 	ContextFactory
 >((mod) => ({
 	empty: Module.factory(<T>() => mod._emptyInstance as List<T>),
@@ -278,9 +278,8 @@ const createListCreators = Module.createPartial<
 		},
 	),
 	createContext: Module.factory((options) =>
-		createContextFactoryModule(options).build(),
+		createContextFactoryModule(options, mod).build(),
 	),
-	defaultContext: Module.factory(() => mod),
 }));
 
 const DEFAULT_BLOCK_SIZE_BITS = 5;
@@ -288,6 +287,7 @@ const MIN_BLOCK_SIZE_BITS = 2;
 
 export function createContextFactoryModule(
 	options: { blockSizeBits?: number | undefined } = {},
+	_defaultContextInstance: ContextFactory | undefined = undefined,
 ): Module<ContextFactory> {
 	const { blockSizeBits = DEFAULT_BLOCK_SIZE_BITS } = options;
 
@@ -302,6 +302,7 @@ export function createContextFactoryModule(
 		...createBuilderFactory(mod),
 		...createListCreators(mod),
 
+		defaultContext: Module.factory(() => _defaultContextInstance ?? mod),
 		_types: Module.constant(undefined as any),
 		typeTag: Module.constant('List' as const),
 		blockSizeBits: Module.constant(blockSizeBits),

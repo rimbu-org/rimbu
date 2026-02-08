@@ -598,7 +598,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 	}
 
 	min<O>(otherwise?: AsyncOptLazy<O>): Promise<T | O> {
-		return this.minBy(Comp.defaultComp().compare, otherwise);
+		return this.minBy(Comp.defaultInstance.compare, otherwise);
 	}
 
 	async minBy<O>(
@@ -628,7 +628,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 	}
 
 	max<O>(otherwise?: AsyncOptLazy<O>): Promise<T | O> {
-		return this.maxBy(Comp.defaultComp().compare, otherwise);
+		return this.maxBy(Comp.defaultInstance.compare, otherwise);
 	}
 
 	async maxBy<O>(

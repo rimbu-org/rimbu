@@ -1,6 +1,6 @@
 import type { Cleanup, DisposableCallback, Prepend } from '#task/utils';
 
-import { TaskContextImpl } from '#task/task-context-impl';
+import { taskModule } from '@rimbu/task/internal/task-module';
 
 /**
  * A unit of work that can be executed within a Task Context.
@@ -199,13 +199,6 @@ export namespace Task {
 }
 
 /**
- * The singleton root context used by the main Task API.
- */
-const ROOT_CONTEXT: Task.Context = Object.freeze(
-	new TaskContextImpl('root', true, undefined),
-);
-
-/**
  * Main Task API entry point, providing static methods and the root context.
  *
  * Example:
@@ -214,10 +207,4 @@ const ROOT_CONTEXT: Task.Context = Object.freeze(
  * Task.launch(t, ['World']);
  * ```
  */
-export const Task: Task.Constructors = Object.freeze({
-	get rootContext(): Task.Context {
-		return ROOT_CONTEXT;
-	},
-	create: (task) => task,
-	launch: ROOT_CONTEXT.launch,
-} as Task.Constructors);
+export const Task: Task.Constructors = taskModule.build();

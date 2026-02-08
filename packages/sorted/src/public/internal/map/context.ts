@@ -101,7 +101,7 @@ export function createSortedMapContext<UK>(options?: {
 	return Object.freeze(
 		new SortedMapContext<UK>(
 			options?.blockSizeBits ?? 5,
-			options?.comp ?? Comp.defaultComp(),
+			options?.comp ?? Comp.defaultInstance,
 		),
 	);
 }

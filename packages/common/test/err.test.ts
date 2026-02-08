@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { Err, ErrBase } from '../src/err.mjs';
+import { Err, ErrBase } from '@rimbu/common/err';
 
 describe('Err/Base', () => {
 	it('throws error', () => {

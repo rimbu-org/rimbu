@@ -66,9 +66,9 @@
 		"clean:build": "rimraf dist",
 		"format:check": "biome format",
 		"lint:check": "biome lint",
-		"test": "bun test --tsconfig-override tsconfig.common.json",
+		"test": "bun test test/* --tsconfig-override tsconfig.common.json",
 		"test:random": "bun test test-random",
-		"test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.ts",
+		"test:types": "bunx tsd --files ./test-d --typings ./dist/entry/list.d.ts",
 		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
 	},
 	"dependencies": {

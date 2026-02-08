@@ -38,7 +38,7 @@ export interface Module<MI extends Module.Instance> {
 	 * Each dependency is created as a lazy property using Object.defineProperty.
 	 * @returns the built Module instance with all dependencies available as properties
 	 */
-	build(): MI;
+	build<TI = MI>(): MI extends TI ? TI : never;
 }
 
 export namespace Module {
@@ -119,7 +119,7 @@ export namespace Module {
 	): Module<MI> {
 		return {
 			getDefinition,
-			build: (): MI => {
+			build: (): any => {
 				const target = {} as MI;
 
 				const definition = getDefinition(target);
@@ -225,6 +225,19 @@ export namespace Module {
 		creator: C,
 	): () => C {
 		return () => creator;
+	}
+
+	export function lazyFactory<C extends () => any>(creator: C): () => C {
+		const uninitialized = Symbol();
+		let instance: ReturnType<C> | typeof uninitialized = uninitialized;
+
+		return () =>
+			(() => {
+				if (instance === uninitialized) {
+					instance = creator();
+				}
+				return instance;
+			}) as C;
 	}
 
 	/**

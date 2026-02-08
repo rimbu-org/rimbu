@@ -4,8 +4,8 @@ import { Module } from '@rimbu/common/module';
 
 describe('Module', () => {
 	it('creates empty module', () => {
-		const module = Module.create<{}>(() => ({}));
-		expect(module.build()).toEqual({});
+		const module = Module.create<object>(() => ({}));
+		expect(module.build<object>()).toEqual({});
 	});
 
 	it('creates module with lazy value', () => {

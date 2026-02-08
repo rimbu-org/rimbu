@@ -107,7 +107,7 @@ export function createSortedSetContext<UT>(options?: {
 	return Object.freeze(
 		new SortedSetContext<UT>(
 			options?.blockSizeBits ?? 5,
-			options?.comp ?? Comp.defaultComp(),
+			options?.comp ?? Comp.defaultInstance,
 		),
 	);
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { IndexRange } from '../src/index-range.mjs';
+import { IndexRange } from '@rimbu/common/index-range';
 
 describe('IndexRange', () => {
 	it('getIndexRangeIndices', () => {

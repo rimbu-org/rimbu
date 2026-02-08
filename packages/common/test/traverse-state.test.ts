@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { TraverseState } from '../src/traverse-state.mjs';
+import { TraverseState } from '@rimbu/common/traverse-state';
 
 describe('TraverseState', () => {
 	it('default', () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { OptLazy, OptLazyOr } from '../src/opt-lazy.mjs';
+import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
 
 describe('OptLazy', () => {
 	it('default', () => {
