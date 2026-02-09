@@ -592,9 +592,9 @@ const compModule = Module.create<CompModule>((mod) => ({
 
 		return mod._createObjectComp(options.keyComp, options.valueComp);
 	}),
-	anyFlat: Module.lazyFactory(() => mod._createAnyComp('FLAT')),
-	anyShallow: Module.lazyFactory(() => mod._createAnyComp('SHALLOW')),
-	anyDeep: Module.lazyFactory(() => mod._createAnyComp('DEEP')),
+	anyFlat: Module.lazyGet(() => mod._createAnyComp('FLAT')),
+	anyShallow: Module.lazyGet(() => mod._createAnyComp('SHALLOW')),
+	anyDeep: Module.lazyGet(() => mod._createAnyComp('DEEP')),
 }));
 
 export const Comp = compModule.build<Comp.Factory>();

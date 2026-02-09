@@ -10,8 +10,8 @@ describe('Eq', () => {
 		expect(e(-0, 0)).toBe(false);
 	});
 
-	it('iterableEq', () => {
-		const e = Eq.iterableEq();
+	it('forIterable', () => {
+		const e = Eq.forIterable();
 		expect(e('', '')).toBe(true);
 		expect(e('', 'a')).toBe(false);
 		expect(e('a', '')).toBe(false);
@@ -19,8 +19,8 @@ describe('Eq', () => {
 		expect(e('ab', 'a')).toBe(false);
 	});
 
-	it('objectEq', () => {
-		const e = Eq.objectEq();
+	it('object', () => {
+		const e = Eq.object();
 
 		expect(e({}, {})).toBe(true);
 		expect(e({ a: 1 }, {})).toBe(false);
@@ -39,8 +39,8 @@ describe('Eq', () => {
 		expect(e(new O(5), new O(6))).toBe(false);
 	});
 
-	it('anyFlatEq', () => {
-		const e = Eq.anyFlatEq();
+	it('anyFlat', () => {
+		const e = Eq.anyFlat();
 
 		expect(e(undefined, undefined)).toBe(true);
 		expect(e(null, null)).toBe(true);
@@ -76,8 +76,8 @@ describe('Eq', () => {
 		// expect(e(new O(1), new O(2))).toBe(false);
 	});
 
-	it('anyShallowEq', () => {
-		const e = Eq.anyShallowEq();
+	it('anyShallow', () => {
+		const e = Eq.anyShallow();
 
 		expect(e([], [])).toBe(true);
 		expect(e([1, 2], [1, 2])).toBe(true);
@@ -103,8 +103,8 @@ describe('Eq', () => {
 		expect(e(new O(1), new O(1))).toBe(true);
 	});
 
-	it('anyDeepEq', () => {
-		const e = Eq.anyDeepEq();
+	it('anyDeep', () => {
+		const e = Eq.anyDeep();
 
 		expect(e([[[]]], [[]])).toBe(false);
 		expect(e([[[1, 2]]], [[[[1, 3]]]])).toBe(false);
@@ -112,16 +112,16 @@ describe('Eq', () => {
 		expect(e([[[1, 2], [3]], [4]], [[[1, 2], [3]], [4]])).toBe(true);
 	});
 
-	it('dateEq', () => {
-		const e = Eq.dateEq();
+	it('date', () => {
+		const e = Eq.date;
 		expect(e(new Date(2020, 1, 1), new Date(2020, 1, 1))).toBe(true);
 		expect(e(new Date(2020, 1, 1), new Date(2020, 2, 1))).toBe(false);
 		const d = new Date(2020, 1, 1);
 		expect(e(d, d)).toBe(true);
 	});
 
-	it('valueOfEq', () => {
-		const e = Eq.valueOfEq();
+	it('byValueOf', () => {
+		const e = Eq.byValueOf();
 		expect(e(new Date(2020, 1, 1), new Date(2020, 1, 1))).toBe(true);
 		expect(e(new Date(2020, 1, 1), new Date(2020, 2, 1))).toBe(false);
 		expect(e(new Boolean(true), new Boolean(false))).toBe(false);
@@ -129,8 +129,8 @@ describe('Eq', () => {
 		expect(e(new Boolean(true), new String(true))).toBe(false);
 	});
 
-	it('iterableEq', () => {
-		const e = Eq.iterableEq();
+	it('forIterable', () => {
+		const e = Eq.forIterable();
 		expect(e('', '')).toBe(true);
 		expect(e('', 'a')).toBe(false);
 		expect(e('a', '')).toBe(false);
@@ -138,8 +138,8 @@ describe('Eq', () => {
 		expect(e('ab', 'a')).toBe(false);
 	});
 
-	it('iterableEq with item', () => {
-		const e = Eq.iterableEq(Eq.dateEq());
+	it('forIterable with item', () => {
+		const e = Eq.forIterable(Eq.date);
 		expect(e([], [])).toBe(true);
 		expect(e([new Date(2020, 1, 1)], [])).toBe(false);
 		expect(e([], [new Date(2020, 1, 1)])).toBe(false);

@@ -138,6 +138,27 @@ export namespace Module {
 	}
 
 	/**
+	 * Creates a constant factory that always returns the same value.
+	 *
+	 * @typeparam T - the type of the constant value
+	 * @param value - the constant value to return
+	 * @returns a function that always returns the provided value
+	 * @example
+	 * ```ts
+	 * const appModule = Module.create<{ env: string }>(() => ({
+	 *  env: Module.constant('production'),
+	 * }));
+	 * ```
+	 */
+	export function constant<T>(value: T): () => T {
+		return () => value;
+	}
+
+	export function constantGet<T>(value: T): () => () => T {
+		return () => () => value;
+	}
+
+	/**
 	 * Converts a creator function into a singleton factory.
 	 *
 	 * The creator function is invoked immediately, and the resulting instance is cached.
@@ -158,6 +179,11 @@ export namespace Module {
 	export function single<C extends () => any>(creator: C): C {
 		const instance = creator();
 		return constant(instance) as C;
+	}
+
+	export function singleGet<C extends () => any>(creator: C): () => C {
+		const instance = creator();
+		return constantGet(instance) as () => C;
 	}
 
 	/**
@@ -195,6 +221,10 @@ export namespace Module {
 		}) as C;
 	}
 
+	export function lazyGet<C extends () => any>(creator: C): () => C {
+		return constant(lazy(creator));
+	}
+
 	/**
 	 * Wraps a creator function (typically a constructor) to return itself.
 	 *
@@ -224,37 +254,13 @@ export namespace Module {
 	export function factory<C extends (...args: any[]) => any>(
 		creator: C,
 	): () => C {
-		return () => creator;
+		return constant(creator);
 	}
 
-	export function lazyFactory<C extends () => any>(creator: C): () => C {
-		const uninitialized = Symbol();
-		let instance: ReturnType<C> | typeof uninitialized = uninitialized;
-
-		return () =>
-			(() => {
-				if (instance === uninitialized) {
-					instance = creator();
-				}
-				return instance;
-			}) as C;
-	}
-
-	/**
-	 * Creates a constant factory that always returns the same value.
-	 *
-	 * @typeparam T - the type of the constant value
-	 * @param value - the constant value to return
-	 * @returns a function that always returns the provided value
-	 * @example
-	 * ```ts
-	 * const appModule = Module.create<{ env: string }>(() => ({
-	 *  env: Module.constant('production'),
-	 * }));
-	 * ```
-	 */
-	export function constant<T>(value: T): () => T {
-		return () => value;
+	export function factoryGet<C extends (...args: any[]) => any>(
+		creator: C,
+	): () => () => C {
+		return constantGet(creator);
 	}
 
 	export class EagerSelfDependencyError extends Error {

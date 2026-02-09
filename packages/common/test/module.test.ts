@@ -23,16 +23,17 @@ describe('Module', () => {
 	});
 
 	it('creates module with singleton factory value', () => {
-		const fn = vi.fn(() => 42);
+		const obj = {};
+		const fn = vi.fn(() => obj);
 
-		const module = Module.create(() => ({
+		const module = Module.create<{ singleValue: {} }>(() => ({
 			singleValue: Module.single(fn),
 		}));
 		const built = module.build();
 		expect(fn).toHaveBeenCalledTimes(1);
 
-		expect(built.singleValue).toBe(42);
-		expect(built.singleValue).toBe(42);
+		expect(built.singleValue).toBe(obj);
+		expect(built.singleValue).toBe(obj);
 		expect(fn).toHaveBeenCalledTimes(1);
 	});
 
@@ -57,45 +58,6 @@ describe('Module', () => {
 		const built = module.build();
 
 		expect(built.constValue).toBe(42);
-	});
-
-	it.skip('throws on eager self dependency', () => {
-		const module = Module.create<{
-			value1: number;
-			value2: number;
-		}>((mod) => ({
-			value1: Module.single(() => 10),
-			value2: Module.single(() => mod.value1 + 1),
-		}));
-
-		expect(() => module.build()).toThrow(Module.EagerSelfDependencyError);
-	});
-
-	it.skip('throws on eager self dependency with constant', () => {
-		const module = Module.create<{
-			value1: number;
-			value2: number;
-		}>((mod) => ({
-			value1: Module.single(() => 10),
-			value2: Module.constant(mod.value1 + 1),
-		}));
-
-		expect(() => module.build()).toThrow(Module.EagerSelfDependencyError);
-	});
-
-	it.skip('throws on lazy circular dependency', () => {
-		const module = Module.create<{
-			value1: number;
-			value2: number;
-		}>((mod) => ({
-			value1: Module.lazy(() => mod.value2 + 1),
-			value2: Module.lazy(() => mod.value1 + 1),
-		}));
-
-		const built = module.build();
-
-		expect(() => built.value1).toThrow(Module.CircularDependencyError);
-		expect(() => built.value2).toThrow(Module.CircularDependencyError);
 	});
 
 	it('creates module with dependencies', () => {
