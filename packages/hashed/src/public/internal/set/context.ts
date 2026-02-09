@@ -124,7 +124,7 @@ export function createHashSetContext<UT>(options?: {
 	return Object.freeze(
 		new HashSetContext(
 			options?.hasher ?? Hasher.defaultHasher,
-			options?.eq ?? Eq.defaultEq(),
+			options?.eq ?? Eq.defaultInstance,
 			options?.blockSizeBits ?? 5,
 			options?.listContext ?? List.defaultContext(),
 		),
