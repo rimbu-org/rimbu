@@ -19,7 +19,6 @@ import type { Block, NonLeaf } from '#list/immutable/types';
 import type { ListCreators } from '#private/list-factory';
 
 export interface ImmutableFactory {
-	_emptyInstance: List<any>;
 	leafBlock<T>(children: readonly T[]): LeafBlock<T>;
 	reversedLeaf<T>(children: readonly T[]): ReversedLeafBlock<T>;
 	leafTree<T>(

@@ -305,7 +305,7 @@ describe('List methods', () => {
 		expect(List.empty().sort()).toBe(List.empty());
 
 		//Empty list, using arbitrary Comp
-		expect(List.empty().sort(Comp.numberComp())).toBe(List.empty());
+		expect(List.empty<number>().sort(Comp.number)).toBe(List.empty());
 
 		//Strings
 		expect(List.from(['C', 'E', 'B', 'A', 'D']).sort().toArray()).toEqual([
@@ -328,13 +328,13 @@ describe('List methods', () => {
 
 		//Comp-based number sorting
 		expect(
-			List.from([90, 4, 8, 100, 7, 1, 9]).sort(Comp.numberComp()).toArray(),
+			List.from([90, 4, 8, 100, 7, 1, 9]).sort(Comp.number).toArray(),
 		).toEqual([1, 4, 7, 8, 9, 90, 100]);
 
 		//Comp-based number sorting inverse
 		expect(
 			List.from([90, 4, 8, 100, 7, 1, 9])
-				.sort(Comp.numberComp(), {
+				.sort(Comp.number, {
 					inverse: true,
 				})
 				.toArray(),
@@ -342,9 +342,7 @@ describe('List methods', () => {
 
 		//Duplicate numbers
 		expect(
-			List.from([90, 4, 7, 90, 8, 100, 7, 1, 9, 7])
-				.sort(Comp.numberComp())
-				.toArray(),
+			List.from([90, 4, 7, 90, 8, 100, 7, 1, 9, 7]).sort(Comp.number).toArray(),
 		).toEqual([1, 4, 7, 7, 7, 8, 9, 90, 90, 100]);
 
 		//Dates, with duplicates
@@ -356,7 +354,7 @@ describe('List methods', () => {
 				new Date(2000, 3, 3),
 				new Date(1998, 5, 13),
 			])
-				.sort(Comp.dateComp())
+				.sort(Comp.date)
 				.toArray(),
 		).toEqual([
 			new Date(1986, 3, 29),

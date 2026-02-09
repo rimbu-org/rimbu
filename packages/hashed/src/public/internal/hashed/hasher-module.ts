@@ -569,7 +569,7 @@ export const hasherModule = Module.create<HasherModuleInternal>((mod) => ({
 		createStreamSourceHasher(mod, mod.defaultHasher, MAX_STEP_BITS),
 	),
 	streamSourceHasher: Module.factory(
-		<T = any>(
+		<T>(
 			options?:
 				| {
 						itemHasher?: Hasher<T>;

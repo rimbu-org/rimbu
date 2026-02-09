@@ -36,7 +36,6 @@ const createImmutableFactory = Module.createPartial<
 	ImmutableFactory,
 	ContextFactory
 >((mod) => ({
-	_emptyInstance: Module.lazy(() => Object.freeze(new Empty(mod) as List<any>)),
 	leafBlock: Module.factory(
 		<T>(children: readonly T[]): LeafBlock<T> => new LeafBlock(mod, children),
 	),
@@ -205,7 +204,7 @@ const createListCreators = Module.createPartial<
 	Omit<ListCreators, 'builder' | 'defaultContext'>,
 	ContextFactory
 >((mod) => ({
-	empty: Module.factory(<T>() => mod._emptyInstance as List<T>),
+	empty: Module.lazyGet(() => Object.freeze(new Empty(mod))),
 	of: Module.factory(<T>(...values: ArrayNonEmpty<T>): List.NonEmpty<T> => {
 		if (values.length <= mod.maxBlockSize) {
 			return mod.leafBlock<T>(values);
@@ -302,7 +301,7 @@ export function createContextFactoryModule(
 		...createBuilderFactory(mod),
 		...createListCreators(mod),
 
-		defaultContext: Module.factory(() => _defaultContextInstance ?? mod),
+		defaultContext: Module.lazyGet(() => _defaultContextInstance ?? mod),
 		_types: Module.constant(undefined as any),
 		typeTag: Module.constant('List' as const),
 		blockSizeBits: Module.constant(blockSizeBits),
