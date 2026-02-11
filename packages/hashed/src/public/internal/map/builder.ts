@@ -132,7 +132,7 @@ export class HashMapBlockBuilder<K, V>
 	addEntries = (source: StreamSource<readonly [K, V]>): boolean => {
 		this.checkLock();
 
-		if (StreamFactory.isEmptyStreamSourceInstance(source)) return false;
+		if (StreamFactory().isEmptyStreamSourceInstance(source)) return false;
 
 		return Stream.from(source).filterPure({ pred: this.addEntry }).count() > 0;
 	};
@@ -378,7 +378,7 @@ export class HashMapBlockBuilder<K, V>
 	removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
 		this.checkLock();
 
-		if (StreamFactory.isEmptyStreamSourceInstance(keys)) return false;
+		if (StreamFactory().isEmptyStreamSourceInstance(keys)) return false;
 
 		const notFound = Symbol();
 

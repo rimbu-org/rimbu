@@ -65,8 +65,6 @@
 		"clean:build": "rimraf dist",
 		"format:check": "biome format",
 		"lint:check": "biome lint",
-		"test": "bun test --tsconfig-override tsconfig.common.json",
-		"test:random": "bun test test-random",
 		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
 	},
 	"dependencies": {

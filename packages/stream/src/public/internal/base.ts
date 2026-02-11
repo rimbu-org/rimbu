@@ -56,7 +56,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 		{ eq = Eq.objectIs, negate = false }: { eq?: Eq<T>; negate?: boolean } = {},
 	): boolean {
 		const it1 = this[Symbol.iterator]();
-		const it2 = StreamFactory.fromStreamSource(other)[Symbol.iterator]();
+		const it2 = StreamFactory().fromStreamSource(other)[Symbol.iterator]();
 		const done = Symbol('Done');
 
 		while (true) {
@@ -150,7 +150,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 
 	withOnly<F extends T>(values: F[]): Stream<F> {
 		if (values.length <= 0) {
-			return StreamFactory.empty();
+			return StreamFactory().empty();
 		}
 
 		const set = new Set<T>(values);
@@ -471,7 +471,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 
 	take(amount: number): Stream<T> {
 		if (amount <= 0) {
-			return StreamFactory.empty();
+			return StreamFactory().empty();
 		}
 
 		return new TakeStream<T>(this, amount);
@@ -494,7 +494,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 	}
 
 	concat(...others: ArrayNonEmpty<StreamSource<T>>): Stream.NonEmpty<T> {
-		if (others.every(StreamFactory.isEmptyStreamSourceInstance)) {
+		if (others.every(StreamFactory().isEmptyStreamSourceInstance)) {
 			return this.assumeNonEmpty();
 		}
 
@@ -540,7 +540,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 	}
 
 	intersperse(sep: StreamSource<T>): Stream<T> {
-		if (StreamFactory.isEmptyStreamSourceInstance(sep)) {
+		if (StreamFactory().isEmptyStreamSourceInstance(sep)) {
 			return this;
 		}
 
@@ -576,14 +576,13 @@ export abstract class StreamBase<T> implements Stream<T> {
 	}
 
 	mkGroup({
-		sep = StreamFactory.empty() as StreamSource<T>,
-		start = StreamFactory.empty() as StreamSource<T>,
-		end = StreamFactory.empty() as StreamSource<T>,
+		sep = StreamFactory().empty() as StreamSource<T>,
+		start = StreamFactory().empty() as StreamSource<T>,
+		end = StreamFactory().empty() as StreamSource<T>,
 	} = {}): any {
-		return StreamFactory.fromStreamSource(start).concat(
-			this.intersperse(sep),
-			end,
-		);
+		return StreamFactory()
+			.fromStreamSource(start)
+			.concat(this.intersperse(sep), end);
 	}
 
 	splitWhere<R>(
@@ -776,11 +775,11 @@ class PrependStream<T> extends StreamBase<T> {
 
 	take(amount: number): Stream<T> {
 		if (amount <= 0) {
-			return StreamFactory.empty();
+			return StreamFactory().empty();
 		}
 
 		if (amount === 1) {
-			return StreamFactory.of(OptLazy(this.item));
+			return StreamFactory().of(OptLazy(this.item));
 		}
 
 		return this.#copy(this.source.take(amount - 1), this.item);
@@ -953,7 +952,7 @@ class MapStream<T, T2> extends StreamBase<T2> {
 
 	take(amount: number): Stream<T2> {
 		if (amount <= 0) {
-			return StreamFactory.empty();
+			return StreamFactory().empty();
 		}
 
 		return new MapStream(this.source.take(amount), this.mapFun);
@@ -1027,7 +1026,7 @@ class MapPureStream<
 
 	take(amount: number): Stream<T2> {
 		if (amount <= 0) {
-			return StreamFactory.empty();
+			return StreamFactory().empty();
 		}
 
 		return new MapPureStream(this.source.take(amount), this.mapFun, this.args);
@@ -1071,8 +1070,8 @@ class ConcatStream<T> extends StreamBase<T> {
 		while (!state.halted && ++sourceIndex < length) {
 			const source = sources[sourceIndex];
 
-			if (!StreamFactory.isEmptyStreamSourceInstance(source)) {
-				StreamFactory.fromStreamSource(source).forEach(f, { state });
+			if (!StreamFactory().isEmptyStreamSourceInstance(source)) {
+				StreamFactory().fromStreamSource(source).forEach(f, { state });
 			}
 		}
 	}
@@ -1090,8 +1089,10 @@ class ConcatStream<T> extends StreamBase<T> {
 		while (++sourceIndex < length) {
 			const source = sources[sourceIndex];
 
-			if (!StreamFactory.isEmptyStreamSourceInstance(source)) {
-				StreamFactory.fromStreamSource(source).forEachPure(f, ...args);
+			if (!StreamFactory().isEmptyStreamSourceInstance(source)) {
+				StreamFactory()
+					.fromStreamSource(source)
+					.forEachPure(f, ...args);
 			}
 		}
 	}
@@ -1103,9 +1104,9 @@ class ConcatStream<T> extends StreamBase<T> {
 		while (--sourceIndex >= 0) {
 			const source = sources[sourceIndex];
 
-			if (!StreamFactory.isEmptyStreamSourceInstance(source)) {
+			if (!StreamFactory().isEmptyStreamSourceInstance(source)) {
 				const done = Symbol('Done');
-				const value = StreamFactory.fromStreamSource(source).last(done);
+				const value = StreamFactory().fromStreamSource(source).last(done);
 				if (done !== value) return value;
 			}
 		}
@@ -1122,8 +1123,8 @@ class ConcatStream<T> extends StreamBase<T> {
 
 		while (++sourceIndex < length) {
 			const source = sources[sourceIndex];
-			if (!StreamFactory.isEmptyStreamSourceInstance(source)) {
-				result += StreamFactory.fromStreamSource(source).count();
+			if (!StreamFactory().isEmptyStreamSourceInstance(source)) {
+				result += StreamFactory().fromStreamSource(source).count();
 			}
 		}
 
@@ -1140,7 +1141,9 @@ class ConcatStream<T> extends StreamBase<T> {
 		return new ConcatStream(
 			this.source.filterPure(options, ...args),
 			this.otherSources.map((source) =>
-				StreamFactory.fromStreamSource(source).filterPure(options, ...args),
+				StreamFactory()
+					.fromStreamSource(source)
+					.filterPure(options, ...args),
 			),
 		) as any;
 	}
@@ -1152,7 +1155,9 @@ class ConcatStream<T> extends StreamBase<T> {
 		return new ConcatStream(
 			this.source.mapPure(mapFun, ...args),
 			this.otherSources.map((source) =>
-				StreamFactory.fromStreamSource(source).mapPure(mapFun, ...args),
+				StreamFactory()
+					.fromStreamSource(source)
+					.mapPure(mapFun, ...args),
 			),
 		);
 	}
@@ -1174,9 +1179,9 @@ class ConcatStream<T> extends StreamBase<T> {
 		while (++sourceIndex < length) {
 			const source = sources[sourceIndex];
 
-			if (!StreamFactory.isEmptyStreamSourceInstance(source)) {
+			if (!StreamFactory().isEmptyStreamSourceInstance(source)) {
 				result = result.concat(
-					StreamFactory.fromStreamSource(source).toArray(),
+					StreamFactory().fromStreamSource(source).toArray(),
 				);
 			}
 		}
@@ -1231,7 +1236,7 @@ class IndexedStream<T> extends StreamBase<[number, T]> {
 
 	take(amount: number): Stream<[number, T]> {
 		if (amount <= 0) {
-			return StreamFactory.empty();
+			return StreamFactory().empty();
 		}
 
 		return new IndexedStream(this.source.take(amount), this.startIndex);
@@ -1443,7 +1448,7 @@ class TakeStream<T> extends StreamBase<T> {
 
 	take(amount: number): Stream<T> {
 		if (amount <= 0) {
-			return StreamFactory.empty();
+			return StreamFactory().empty();
 		}
 
 		if (amount >= this.amount) {
@@ -1523,14 +1528,14 @@ export class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
 
 		return (
 			done ===
-			StreamFactory.fromStreamSource(other)[Symbol.iterator]().fastNext(done)
+			StreamFactory().fromStreamSource(other)[Symbol.iterator]().fastNext(done)
 		);
 	}
 	prepend(value: OptLazy<T>): Stream.NonEmpty<T> {
-		return StreamFactory.of(OptLazy(value));
+		return StreamFactory().of(OptLazy(value));
 	}
 	append(value: OptLazy<T>): Stream.NonEmpty<T> {
-		return StreamFactory.of(OptLazy(value));
+		return StreamFactory().of(OptLazy(value));
 	}
 	forEach(): void {
 		//
@@ -1554,7 +1559,7 @@ export class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
 		return this as any;
 	}
 	transform<R>(transformer: Transformer<T, R>): Stream<R> {
-		return StreamFactory.fromStreamSource(transformer.compile().getOutput());
+		return StreamFactory().fromStreamSource(transformer.compile().getOutput());
 	}
 	filter(): any {
 		return this;
@@ -1637,12 +1642,14 @@ export class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
 		return this;
 	}
 	concat<T2>(...others: ArrayNonEmpty<StreamSource<T2>>): any {
-		if (others.every(StreamFactory.isEmptyStreamSourceInstance)) return this;
+		if (others.every(StreamFactory().isEmptyStreamSourceInstance)) return this;
 		const [source1, source2, ...sources] = others;
 
 		if (undefined === source2) return source1;
 
-		return StreamFactory.fromStreamSource(source1).concat(source2, ...sources);
+		return StreamFactory()
+			.fromStreamSource(source1)
+			.concat(source2, ...sources);
 	}
 	min<O>(otherwise?: OptLazy<O>): O {
 		return OptLazy(otherwise) as O;
@@ -1664,10 +1671,10 @@ export class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
 		return start.concat(end);
 	}
 	mkGroup({
-		start = StreamFactory.empty() as StreamSource<T>,
-		end = StreamFactory.empty() as StreamSource<T>,
+		start = StreamFactory().empty() as StreamSource<T>,
+		end = StreamFactory().empty() as StreamSource<T>,
 	} = {}): Stream.NonEmpty<T> {
-		return StreamFactory.fromStreamSource(start).concat(end) as any;
+		return StreamFactory().fromStreamSource(start).concat(end) as any;
 	}
 	splitOn<R>(): Stream<R> {
 		return this as any;
@@ -1887,7 +1894,7 @@ export class ArrayStream<T> extends StreamBase<T> {
 	}
 
 	take(amount: number): Stream<T> {
-		if (amount <= 0) return StreamFactory.empty();
+		if (amount <= 0) return StreamFactory().empty();
 
 		if (amount >= this.length) return this;
 
@@ -1911,7 +1918,7 @@ export class ArrayStream<T> extends StreamBase<T> {
 	drop(amount: number): Stream<T> {
 		if (amount <= 0) return this;
 
-		if (amount >= this.length) return StreamFactory.empty();
+		if (amount >= this.length) return StreamFactory().empty();
 
 		if (!this.reversed) {
 			return new ArrayStream(

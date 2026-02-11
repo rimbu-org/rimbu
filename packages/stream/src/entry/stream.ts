@@ -13,7 +13,7 @@ import type {
 } from '#private/stream-types';
 import type { StreamConstructors } from '#stream/constructors';
 
-import { StreamFactory } from '#stream/factory';
+import { streamFactoryModule } from '@rimbu/stream/internal/factory-module';
 
 export type * from '#private/stream-types';
 
@@ -1489,4 +1489,4 @@ export namespace Stream {
 	}
 }
 
-export const Stream: StreamConstructors = StreamFactory;
+export const Stream: StreamConstructors = streamFactoryModule.build();

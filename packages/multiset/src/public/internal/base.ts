@@ -61,7 +61,8 @@ export class MultiSetEmpty<T, Tp extends ContextImplTypes>
 	addEntries(
 		entries: StreamSource<readonly [T, number]>,
 	): WithElem<Tp, T>['normal'] {
-		if (StreamFactory.isEmptyStreamSourceInstance(entries)) return this as any;
+		if (StreamFactory().isEmptyStreamSourceInstance(entries))
+			return this as any;
 
 		const builder = this.toBuilder();
 		builder.addEntries(entries);
@@ -199,7 +200,7 @@ export class MultiSetNonEmpty<
 	}
 
 	addAll(values: StreamSource<T>): TpG['nonEmpty'] {
-		if (StreamFactory.isEmptyStreamSourceInstance(values)) return this as any;
+		if (StreamFactory().isEmptyStreamSourceInstance(values)) return this as any;
 
 		const builder = this.toBuilder();
 		builder.addAll(values);
@@ -207,7 +208,8 @@ export class MultiSetNonEmpty<
 	}
 
 	addEntries(entries: StreamSource<readonly [T, number]>): TpG['nonEmpty'] {
-		if (StreamFactory.isEmptyStreamSourceInstance(entries)) return this as any;
+		if (StreamFactory().isEmptyStreamSourceInstance(entries))
+			return this as any;
 
 		const builder = this.toBuilder();
 		builder.addEntries(entries);
@@ -293,7 +295,7 @@ export class MultiSetNonEmpty<
 	}
 
 	removeAllSingle<U>(elems: StreamSource<RelatedTo<T, U>>): TpG['normal'] {
-		if (StreamFactory.isEmptyStreamSourceInstance(elems)) return this as any;
+		if (StreamFactory().isEmptyStreamSourceInstance(elems)) return this as any;
 
 		const builder = this.toBuilder();
 		builder.removeAllSingle(elems);
@@ -301,7 +303,7 @@ export class MultiSetNonEmpty<
 	}
 
 	removeAllEvery<U>(elems: StreamSource<RelatedTo<T, U>>): TpG['normal'] {
-		if (StreamFactory.isEmptyStreamSourceInstance(elems)) return this as any;
+		if (StreamFactory().isEmptyStreamSourceInstance(elems)) return this as any;
 
 		const builder = this.toBuilder();
 		builder.removeAllEvery(elems);
@@ -566,7 +568,7 @@ export class MultiSetBuilder<
 	): boolean => {
 		this.checkLock();
 
-		if (StreamFactory.isEmptyStreamSourceInstance(values)) return false;
+		if (StreamFactory().isEmptyStreamSourceInstance(values)) return false;
 
 		return (
 			Stream.from(values)
@@ -676,7 +678,7 @@ export class MultiSetContext<
 		while (++i < length) {
 			const source = sources[i];
 
-			if (StreamFactory.isEmptyStreamSourceInstance(source)) continue;
+			if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
 			if (
 				builder.isEmpty &&
 				this.isNonEmptyInstance<T>(source) &&

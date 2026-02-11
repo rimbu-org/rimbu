@@ -9,5 +9,5 @@ console.log(
 		(a, v: number) => v,
 	),
 );
-console.log(StreamFactory.isEmptyStreamSourceInstance(1 as any));
+console.log(StreamFactory().isEmptyStreamSourceInstance(1 as any));
 console.log(Stream.empty());

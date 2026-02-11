@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import * as Entry from '../src/entry.mjs';
+import * as Entry from '@rimbu/base/entry';
 
 describe('Entry', () => {
 	it('first', () => {

@@ -251,7 +251,8 @@ export class TableNonEmpty<
 	}
 
 	addEntries(entries: StreamSource<readonly [R, C, V]>): TpR['nonEmpty'] {
-		if (StreamFactory.isEmptyStreamSourceInstance(entries)) return this as any;
+		if (StreamFactory().isEmptyStreamSourceInstance(entries))
+			return this as any;
 
 		const builder: TpR['builder'] = this.toBuilder() as any;
 
@@ -335,7 +336,7 @@ export class TableNonEmpty<
 	}
 
 	removeRows<UR>(rows: StreamSource<RelatedTo<R, UR>>): TpR['normal'] {
-		if (StreamFactory.isEmptyStreamSourceInstance(rows)) return this as any;
+		if (StreamFactory().isEmptyStreamSourceInstance(rows)) return this as any;
 
 		const builder = this.toBuilder();
 
@@ -400,7 +401,8 @@ export class TableNonEmpty<
 	removeEntries<UR, UC>(
 		entries: StreamSource<[RelatedTo<R, UR>, RelatedTo<C, UC>]>,
 	): TpR['normal'] {
-		if (StreamFactory.isEmptyStreamSourceInstance(entries)) return this as any;
+		if (StreamFactory().isEmptyStreamSourceInstance(entries))
+			return this as any;
 
 		const builder = this.toBuilder();
 
@@ -940,7 +942,7 @@ export class TableContext<
 		while (++i < length) {
 			const source = sources[i];
 
-			if (StreamFactory.isEmptyStreamSourceInstance(source)) continue;
+			if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
 			if (
 				builder.isEmpty &&
 				this.isNonEmptyInstance<R, C, V>(source) &&

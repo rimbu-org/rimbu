@@ -1,5 +1,5 @@
-import { SortedMultiSet } from '../src/main/index.mjs';
-import { runMultiSetRandomTestsWith } from './multiset-test-random.mjs';
+import { SortedMultiSet } from '@rimbu/multiset/sorted';
+import { runMultiSetRandomTestsWith } from './multiset-test-random';
 
 runMultiSetRandomTestsWith(
 	'SortedMultiSet default',

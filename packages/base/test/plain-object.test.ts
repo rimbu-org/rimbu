@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { isPlainObj } from '../src/plain-object.mjs';
+import { isPlainObj } from '@rimbu/base/plain-object';
 
 describe('isPlainObj', () => {
 	it('returns false for primitive types', () => {

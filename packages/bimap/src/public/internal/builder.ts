@@ -159,7 +159,7 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
 	removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
 		this.checkLock();
 
-		if (StreamFactory.isEmptyStreamSourceInstance(keys)) return false;
+		if (StreamFactory().isEmptyStreamSourceInstance(keys)) return false;
 
 		const notFound = Symbol();
 
@@ -197,7 +197,7 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
 	removeValues = <UV>(values: StreamSource<RelatedTo<V, UV>>): boolean => {
 		this.checkLock();
 
-		if (StreamFactory.isEmptyStreamSourceInstance(values)) return false;
+		if (StreamFactory().isEmptyStreamSourceInstance(values)) return false;
 
 		const notFound = Symbol();
 

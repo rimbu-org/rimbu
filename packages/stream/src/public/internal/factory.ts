@@ -1,8 +1,6 @@
-import type { Stream, StreamSource } from '@rimbu/stream';
-
 import type { StreamConstructors } from '#stream/constructors';
 
-import { streamFactoryModule } from '#stream/factory-module';
+import { Stream, type StreamSource } from '@rimbu/stream';
 
 export interface StreamFactory extends StreamConstructors {
 	/**
@@ -25,4 +23,6 @@ export interface StreamFactory extends StreamConstructors {
 	};
 }
 
-export const StreamFactory = streamFactoryModule.build();
+export function StreamFactory(): StreamFactory {
+	return Stream as StreamFactory;
+}

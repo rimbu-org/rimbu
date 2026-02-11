@@ -1,5 +1,5 @@
-import { HashMultiSet } from '../src/main/index.mjs';
-import { runMultiSetRandomTestsWith } from './multiset-test-random.mjs';
+import { HashMultiSet } from '@rimbu/multiset/hashed';
+import { runMultiSetRandomTestsWith } from './multiset-test-random';
 
 runMultiSetRandomTestsWith(
 	'HashMultiSet default',

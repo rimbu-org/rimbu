@@ -37,7 +37,7 @@ export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 		): boolean => {
 			return (
 				source === mod.empty() ||
-				StreamFactory.isEmptyStreamSourceInstance(source as StreamSource<any>)
+				StreamFactory().isEmptyStreamSourceInstance(source as StreamSource<any>)
 			);
 		},
 		fromAsyncStreamSource: <T>(source: AsyncStreamSource<T>): any => {
@@ -104,7 +104,7 @@ export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 			const { length } = options;
 
 			if (mod.isEmptyAsyncStreamSourceInstance(source)) {
-				return StreamFactory.of(mod.empty()).repeat(length).toArray();
+				return StreamFactory().of(mod.empty()).repeat(length).toArray();
 			}
 
 			const result: AsyncStream<unknown>[] = [];

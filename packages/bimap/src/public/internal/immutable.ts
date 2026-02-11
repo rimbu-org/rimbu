@@ -247,7 +247,7 @@ export class BiMapNonEmptyImpl<K, V>
 	}
 
 	addEntries(entries: StreamSource<readonly [K, V]>): BiMap.NonEmpty<K, V> {
-		if (StreamFactory.isEmptyStreamSourceInstance(entries)) return this;
+		if (StreamFactory().isEmptyStreamSourceInstance(entries)) return this;
 
 		const builder = this.toBuilder();
 
@@ -294,7 +294,7 @@ export class BiMapNonEmptyImpl<K, V>
 	}
 
 	removeKeys<UK>(keys: Stream<RelatedTo<K, UK>>): BiMap<K, V> {
-		if (StreamFactory.isEmptyStreamSourceInstance(keys)) return this;
+		if (StreamFactory().isEmptyStreamSourceInstance(keys)) return this;
 
 		const builder = this.toBuilder();
 
@@ -341,7 +341,7 @@ export class BiMapNonEmptyImpl<K, V>
 	}
 
 	removeValues<UV>(values: Stream<RelatedTo<V, UV>>): BiMap<K, V> {
-		if (StreamFactory.isEmptyStreamSourceInstance(values)) return this;
+		if (StreamFactory().isEmptyStreamSourceInstance(values)) return this;
 
 		const builder = this.toBuilder();
 

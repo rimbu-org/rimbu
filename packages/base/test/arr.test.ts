@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'bun:test';
 
+import * as Arr from '@rimbu/base/arr';
 import { TraverseState } from '@rimbu/common/traverse-state';
-import * as Arr from '../src/arr.mjs';
 
 const empty: number[] = [];
 

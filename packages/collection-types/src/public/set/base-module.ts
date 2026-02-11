@@ -38,7 +38,7 @@ export namespace RSetContextBase {
 				const length = sources.length;
 				while (++i < length) {
 					const source = sources[i];
-					if (StreamFactory.isEmptyStreamSourceInstance(source)) continue;
+					if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
 					if (
 						builder.isEmpty &&
 						mod.isNonEmptyInstance<T>(source) &&

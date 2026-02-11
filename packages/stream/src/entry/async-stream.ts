@@ -13,7 +13,7 @@ import type {
 	AsyncStreamSource,
 } from '#private/async-stream-types';
 
-import { AsyncStreamFactory } from '@rimbu/stream/async/internal/factory';
+import { asyncStreamFactoryModule } from '@rimbu/stream/async/internal/factory-module';
 
 export type * from '#private/async-stream-types';
 
@@ -1553,4 +1553,5 @@ export namespace AsyncStream {
 	}
 }
 
-export const AsyncStream: AsyncStreamConstructors = AsyncStreamFactory;
+export const AsyncStream: AsyncStreamConstructors =
+	asyncStreamFactoryModule.build();

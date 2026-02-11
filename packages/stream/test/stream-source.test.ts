@@ -4,7 +4,7 @@ import { Stream } from '@rimbu/stream';
 
 import { StreamFactory } from '#stream/factory';
 
-const { isEmptyStreamSourceInstance } = StreamFactory;
+const { isEmptyStreamSourceInstance } = StreamFactory();
 
 describe('isEmptyStreamSourceInstance', () => {
 	it('correctly detects empty instances', () => {

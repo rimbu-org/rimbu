@@ -93,8 +93,9 @@ export class TransformerFastIterator<T, R> extends FastIteratorBase<R> {
 			}
 
 			const nextValuesSource = this.transformerInstance.getOutput();
-			this.#currentValues =
-				StreamFactory.fromStreamSource(nextValuesSource)[Symbol.iterator]();
+			this.#currentValues = StreamFactory()
+				.fromStreamSource(nextValuesSource)
+				[Symbol.iterator]();
 		}
 
 		return nextValue;
@@ -125,15 +126,16 @@ export class ConcatIterator<T> extends FastIteratorBase<T> {
 
 			let nextSource: StreamSource<T> = this.otherSources[this.sourceIndex++];
 
-			while (StreamFactory.isEmptyStreamSourceInstance(nextSource)) {
+			while (StreamFactory().isEmptyStreamSourceInstance(nextSource)) {
 				if (this.sourceIndex >= length) {
 					return OptLazy(otherwise) as O;
 				}
 				nextSource = this.otherSources[this.sourceIndex++];
 			}
 
-			this.iterator =
-				StreamFactory.fromStreamSource(nextSource)[Symbol.iterator]();
+			this.iterator = StreamFactory()
+				.fromStreamSource(nextSource)
+				[Symbol.iterator]();
 		}
 
 		return value;
@@ -431,7 +433,7 @@ export class MapApplyIterator<
 		readonly args: A,
 	) {
 		super();
-		this.iter = StreamFactory.fromStreamSource(source)[Symbol.iterator]();
+		this.iter = StreamFactory().fromStreamSource(source)[Symbol.iterator]();
 	}
 
 	iter: FastIterator<T>;
@@ -457,7 +459,7 @@ export class FilterApplyIterator<
 		readonly negate: boolean,
 	) {
 		super();
-		this.iter = StreamFactory.fromStreamSource(source)[Symbol.iterator]();
+		this.iter = StreamFactory().fromStreamSource(source)[Symbol.iterator]();
 	}
 
 	iter: FastIterator<T>;
@@ -595,7 +597,7 @@ export class ZipWithIterator<
 
 		this.sources = iterables.map(
 			(source): FastIterator<any> =>
-				StreamFactory.fromStreamSource(source)[Symbol.iterator](),
+				StreamFactory().fromStreamSource(source)[Symbol.iterator](),
 		);
 	}
 
@@ -635,7 +637,7 @@ export class ZipAllWithItererator<
 
 		this.sources = iters.map(
 			(o): FastIterator<any> =>
-				StreamFactory.fromStreamSource(o)[Symbol.iterator](),
+				StreamFactory().fromStreamSource(o)[Symbol.iterator](),
 		);
 	}
 

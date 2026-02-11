@@ -56,7 +56,7 @@ export class BiMapContext<UK, UV, Tp extends BiMap.Types = BiMap.Types>
 		while (++i < length) {
 			const source = sources[i];
 
-			if (StreamFactory.isEmptyStreamSourceInstance(source)) continue;
+			if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
 			if (
 				builder.isEmpty &&
 				source instanceof BiMapNonEmptyImpl &&
