@@ -5,11 +5,11 @@ import { Stream } from '@rimbu/stream';
 
 describe('Hasher', () => {
 	it('defaultHasher', () => {
-		expect(Hasher.defaultHasher).toBe(Hasher.anyShallowHasher);
+		expect(Hasher.defaultInstance).toBe(Hasher.anyShallow);
 	});
 
 	it('anyShallowHasher', () => {
-		const h = Hasher.anyShallowHasher;
+		const h = Hasher.anyShallow;
 
 		expect(h.hash(1)).toEqual(h.hash(1));
 		expect(h.hash('abc')).toEqual(h.hash('abc'));
@@ -45,7 +45,7 @@ describe('Hasher', () => {
 	});
 
 	it('anyDeepHasher', () => {
-		const h = Hasher.anyDeepHasher;
+		const h = Hasher.anyDeep;
 
 		expect(h.hash(1)).toEqual(h.hash(1));
 		expect(h.hash('abc')).toEqual(h.hash('abc'));
@@ -83,7 +83,7 @@ describe('Hasher', () => {
 	});
 
 	it('objectHasher', () => {
-		const h = Hasher.objectHasher();
+		const h = Hasher.object();
 
 		expect(h.hash({})).toEqual(h.hash({}));
 		expect(h.hash({ a: 1, b: 2 })).toEqual(h.hash({ b: 2, a: 1 }));
@@ -98,7 +98,7 @@ describe('Hasher', () => {
 	});
 
 	it('streamSourceHasher', () => {
-		const h = Hasher.streamSourceHasher();
+		const h = Hasher.streamSource();
 
 		expect(h.hash(Stream.range({ amount: 1 }))).not.toEqual(
 			h.hash(Stream.range({ amount: 4 })),
@@ -117,7 +117,7 @@ describe('Hasher', () => {
 	});
 
 	it('stringHasher', () => {
-		const h = Hasher.stringHasher;
+		const h = Hasher.string;
 
 		expect(h.hash('abc')).toEqual(h.hash('abc'));
 
@@ -128,7 +128,7 @@ describe('Hasher', () => {
 	});
 
 	it('stringCaseInsensitiveHasher', () => {
-		const h = Hasher.stringCaseInsensitiveHasher;
+		const h = Hasher.stringCaseInsensitive;
 
 		expect(h.hash('abc')).toEqual(h.hash('abc'));
 		expect(h.hash('abc')).toEqual(h.hash('aBc'));

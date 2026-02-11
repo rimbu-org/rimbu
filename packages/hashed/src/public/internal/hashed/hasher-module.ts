@@ -9,51 +9,51 @@ export interface HasherModule {
 	 * Returns the default `Hasher` instance used by hashed collections.
 	 * @example
 	 * ```ts
-	 * const h = Hasher.defaultHasher
+	 * const h = Hasher.defaultInstance
 	 * h.hash({ a: 1, b: 2 })
 	 * ```
 	 */
-	readonly defaultHasher: Hasher<any>;
+	readonly defaultInstance: Hasher<any>;
 	/**
 	 * Returns a `Hasher` instance for string values.
 	 * @example
 	 * ```ts
-	 * const h = Hasher.stringHasher
+	 * const h = Hasher.string
 	 * h.hash('abc')
 	 * ```
 	 */
-	readonly stringHasher: Hasher<string>;
+	readonly string: Hasher<string>;
 	/**
 	 * Returns a `Hasher` instance that hashes the string representation of any value.
 	 * @param maxStepBits - the maximum amount of samples to take from the string
 	 * @example
 	 * ```ts
-	 * const h = Hasher.anyToStringHasher()
+	 * const h = Hasher.anyToString()
 	 * h.hash([1, 3, 'a'])
 	 * ```
 	 */
-	anyToStringHasher(maxStepBits?: number): Hasher<any>;
+	anyToString(maxStepBits?: number): Hasher<any>;
 	/**
 	 * Returns a `Hasher` instance that hashes any value by hashing the string resulting from
 	 * applying JSON.stringify to the value.
 	 * @example
 	 * ```ts
-	 * const h = Hasher.anyJsonStringHasher
+	 * const h = Hasher.anyJsonString
 	 * console.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))
 	 * // => false
 	 * ```
 	 */
-	readonly anyJsonStringHasher: Hasher<any>;
+	readonly anyJsonString: Hasher<any>;
 	/**
 	 * Returns a `Hasher` instance for case-insensitive string values.
 	 * @example
 	 * ```ts
-	 * const h = Hasher.stringCaseInsensitiveHasher
+	 * const h = Hasher.stringCaseInsensitive
 	 * console.log(h.hash('Abc') === h.hash('aBC'))
 	 * // => true
 	 * ```
 	 */
-	readonly stringCaseInsensitiveHasher: Hasher<string>;
+	readonly stringCaseInsensitive: Hasher<string>;
 	/**
 	 * Returns a `Hasher` that hashes arrays of elements by sampling the array and using
 	 * the given `itemHasher` to hash the sampled elements.
@@ -64,12 +64,12 @@ export interface HasherModule {
 	 * elements to process
 	 * @example
 	 * ```ts
-	 * const h = Hasher.arrayHasher()
+	 * const h = Hasher.array()
 	 * console.log(h.hash([1, 2, 3] === h.hash([1, 3, 2])))
 	 * // => false
 	 * ```
 	 */
-	arrayHasher<T = any>(options?: {
+	array<T = any>(options?: {
 		itemHasher?: Hasher<T>;
 		maxStepBits?: number;
 	}): Hasher<readonly T[]>;
@@ -83,12 +83,12 @@ export interface HasherModule {
 	 * elements to process
 	 * @example
 	 * ```ts
-	 * const h = Hasher.streamSourceHasher()
+	 * const h = Hasher.streamSource()
 	 * h.hash(Stream.random())
 	 * // infinite stream but will not hang due to the max step limit
 	 * ```
 	 */
-	streamSourceHasher<T = any>(options?: {
+	streamSource<T = any>(options?: {
 		itemHasher?: Hasher<T>;
 		maxStepBits?: number;
 	}): Hasher<StreamSource<T>>;
@@ -96,34 +96,34 @@ export interface HasherModule {
 	 * Returns a `Hasher` instance that hashes numbers, including 'special' values like `NaN` and infinities.
 	 * @example
 	 * ```ts
-	 * const h = Hasher.numberHasher
+	 * const h = Hasher.number
 	 * console.log(h.hash(Number.POSITIVE_INFINITY) === h.hash(Number.NEGATIVE_INFINITY))
 	 * // => false
 	 * console.log(h.hash(Number.NaN) === h.hash(Number.NaN))
 	 * // => true
 	 * ```
 	 */
-	readonly numberHasher: Hasher<number>;
+	readonly number: Hasher<number>;
 	/**
 	 * Returns a `Hasher` instance that hashes booleans.
 	 * @example
 	 * ```ts
-	 * const h = Hasher.booleanHasher
+	 * const h = Hasher.boolean
 	 * console.log(h.hash(true) === h.hash(false))
 	 * // => false
 	 * ```
 	 */
-	readonly booleanHasher: Hasher<boolean>;
+	readonly boolean: Hasher<boolean>;
 	/**
 	 * Returns a `Hasher` instance that hashes bigints.
 	 * @example
 	 * ```ts
-	 * const h = Hasher.bigintHasher()
+	 * const h = Hasher.bigint()
 	 * console.log(h.hash(BigInt(5)) === h.hash(BigInt(10)))
 	 * // => false
 	 * ```
 	 */
-	readonly bigintHasher: Hasher<bigint>;
+	readonly bigint: Hasher<bigint>;
 	/**
 	 * Returns a `Hasher` instance that hashes the `.valueOf` value of the given
 	 * object using the given `valueHasher` for instances of the given `cls` class.
@@ -133,7 +133,7 @@ export interface HasherModule {
 	 * @param valueHasher - the `Hasher` instance to use for the `.valueOf` values
 	 * @example
 	 * ```ts
-	 * const h = Hasher.createValueOfHasher(Date)
+	 * const h = Hasher.byValueOf(Date)
 	 * console.log(h.isValid(new Boolean(true)))
 	 * // => false
 	 * const d1 = new Date()
@@ -142,7 +142,7 @@ export interface HasherModule {
 	 * // => true
 	 * ```
 	 */
-	createValueOfHasher<T extends { valueOf(): V }, V>(
+	byValueOf<T extends { valueOf(): V }, V>(
 		cls: {
 			new (): T;
 		},
@@ -152,14 +152,14 @@ export interface HasherModule {
 	 * Returns a `Hasher` instance that hashes `Date` values.
 	 * @example
 	 * ```ts
-	 * const h = Hasher.dateHasher()
+	 * const h = Hasher.date()
 	 * const d1 = new Date()
 	 * const d2 = new Date(d1)
 	 * console.log(h.hash(d1) === h.hash(d2))
 	 * // => true
 	 * ```
 	 */
-	readonly dateHasher: Hasher<Date>;
+	readonly date: Hasher<Date>;
 	/**
 	 * Returns a `Hasher` instance that hashes objects of key type K and value type V.
 	 * @typeparam K - the key type
@@ -169,12 +169,12 @@ export interface HasherModule {
 	 * - valueHasher: (optional) a Hasher instance that is used to hash object values
 	 * @example
 	 * ```ts
-	 * const h = Hasher.objectHasher()
+	 * const h = Hasher.object()
 	 * console.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))
 	 * // => true
 	 * ```
 	 */
-	objectHasher<K extends string | number | symbol, V = any>(options?: {
+	object<K extends string | number | symbol, V = any>(options?: {
 		keyHasher: Hasher<K>;
 		valueHasher: Hasher<V>;
 	}): Hasher<Record<K, V>>;
@@ -183,61 +183,61 @@ export interface HasherModule {
 	 * If a value is an object or array, it will convert those values to a string.
 	 * @example
 	 * ```ts
-	 * const h = Hasher.objectShallowHasher
+	 * const h = Hasher.objectShallow
 	 * console.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))
 	 * // => true
 	 * ```
 	 */
-	readonly objectShallowHasher: Hasher<Record<any, any>>;
+	readonly objectShallow: Hasher<Record<any, any>>;
 	/**
 	 * Returns a `Hasher` instance that hashes objects of key type K and value type V.
 	 * If a value is an object or array, it will recursively hash its values.
 	 * @note be careful with circular structures, they can cause an infinite loop
 	 * @example
 	 * ```ts
-	 * const h = Hasher.objectDeepHasher
+	 * const h = Hasher.objectDeep
 	 * console.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))
 	 * // => true
 	 * ```
 	 */
-	readonly objectDeepHasher: Hasher<Record<any, any>>;
+	readonly objectDeep: Hasher<Record<any, any>>;
 	/**
 	 * Returns a `Hasher` instance that hashes any value, but never traverses into an object
 	 * or array to hash its elements. In those cases it will use toString.
 	 * @example
 	 * ```ts
-	 * const h = Hasher.anyFlatHasher()
+	 * const h = Hasher.anyFlat()
 	 * console.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))
 	 * // => false
 	 * ```
 	 */
-	readonly anyFlatHasher: Hasher<any>;
+	readonly anyFlat: Hasher<any>;
 	/**
 	 * Returns a `Hasher` instance that hashes any value, but only traverses into an object
 	 * or array to hash its elements one level deep. After one level, it will use toString.
 	 * @example
 	 * ```ts
-	 * const h = Hasher.anyShallowHasher()
+	 * const h = Hasher.anyShallow()
 	 * console.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))
 	 * // => true
 	 * console.log(h.hash([{ a: 1, b: 2 }]) === h.hash([{ b: 2, a: 1 }]))
 	 * // => false
 	 * ```
 	 */
-	readonly anyShallowHasher: Hasher<any>;
+	readonly anyShallow: Hasher<any>;
 	/**
 	 * Returns a `Hasher` instance that hashes any value, and traverses into an object
 	 * or array to hash its elements.
 	 * @example
 	 * ```ts
-	 * const h = Hasher.anyDeepHasher()
+	 * const h = Hasher.anyDeep()
 	 * console.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))
 	 * // => true
 	 * console.log(h.hash([{ a: 1, b: 2 }]) === h.hash([{ b: 2, a: 1 }]))
 	 * // => true
 	 * ```
 	 */
-	readonly anyDeepHasher: Hasher<any>;
+	readonly anyDeep: Hasher<any>;
 	/**
 	 * Returns a `Hasher` that will return equal hash values for values in a tuple regardless
 	 * of their order, and uses the given `hasher` function to hash the tuple elements.
@@ -344,7 +344,7 @@ function createArrayHasher<T>(
 
 function createStreamSourceHasher<T>(
 	mod: HasherModule,
-	itemHasher: Hasher<T> = mod.defaultHasher,
+	itemHasher: Hasher<T> = mod.defaultInstance,
 	maxStepBits = MAX_STEP_BITS,
 ): Hasher<StreamSource<T>> {
 	const maxSteps = 1 << maxStepBits;
@@ -448,13 +448,13 @@ function createAnyHasher(
 				case 'undefined':
 					return UNDEF_VALUE;
 				case 'bigint':
-					return mod.bigintHasher.hash(value);
+					return mod.bigint.hash(value);
 				case 'boolean':
-					return mod.booleanHasher.hash(value);
+					return mod.boolean.hash(value);
 				case 'number':
-					return mod.numberHasher.hash(value);
+					return mod.number.hash(value);
 				case 'string':
-					return mod.stringHasher.hash(value);
+					return mod.string.hash(value);
 				case 'function':
 				case 'symbol':
 					return mod._anyToStringHasher.hash(value);
@@ -470,7 +470,7 @@ function createAnyHasher(
 					if (mode !== 'FLAT') {
 						if (Array.isArray(value)) {
 							if (mode === 'SHALLOW') {
-								return createArrayHasher(mod.anyFlatHasher, MAX_STEP_BITS).hash(
+								return createArrayHasher(mod.anyFlat, MAX_STEP_BITS).hash(
 									value,
 								);
 							}
@@ -482,7 +482,7 @@ function createAnyHasher(
 							if (mode === 'SHALLOW') {
 								return createStreamSourceHasher(
 									mod,
-									mod.anyFlatHasher,
+									mod.anyFlat,
 									maxStepBits,
 								).hash(value);
 							}
@@ -492,11 +492,10 @@ function createAnyHasher(
 							);
 						}
 
-						if (mod.objectShallowHasher.isValid(value)) {
-							if (mode === 'SHALLOW')
-								return mod.objectShallowHasher.hash(value);
+						if (mod.objectShallow.isValid(value)) {
+							if (mode === 'SHALLOW') return mod.objectShallow.hash(value);
 
-							return createObjectHasher(mod.anyFlatHasher, this).hash(value);
+							return createObjectHasher(mod.anyFlat, this).hash(value);
 						}
 					}
 
@@ -515,40 +514,40 @@ interface HasherModuleInternal extends HasherModule {
 }
 
 export const hasherModule = Module.create<HasherModuleInternal>((mod) => ({
-	defaultHasher: Module.lazy(() => mod.anyShallowHasher),
-	stringHasher: Module.lazy(() => createStringHasher(MAX_STEP_BITS)),
+	defaultInstance: Module.lazy(() => mod.anyShallow),
+	string: Module.lazy(() => createStringHasher(MAX_STEP_BITS)),
 	_anyToStringHasher: Module.lazy(() =>
 		Object.freeze({
 			isValid(obj: unknown): obj is any {
 				return true;
 			},
 			hash(value: any) {
-				return mod.stringHasher.hash(Eq.convertAnyToString(value));
+				return mod.string.hash(Eq.convertAnyToString(value));
 			},
 		}),
 	),
-	anyToStringHasher: Module.factory((maxStepBits?: number): Hasher<any> => {
+	anyToString: Module.factory((maxStepBits?: number): Hasher<any> => {
 		if (undefined === maxStepBits) return mod._anyToStringHasher;
 
 		return createStringHasher(maxStepBits);
 	}),
-	anyJsonStringHasher: Module.lazy(() =>
+	anyJsonString: Module.lazy(() =>
 		Object.freeze({
 			isValid(obj: unknown): obj is any {
 				return true;
 			},
 			hash(value: any) {
-				return mod.stringHasher.hash(JSON.stringify(value));
+				return mod.string.hash(JSON.stringify(value));
 			},
 		}),
 	),
-	stringCaseInsensitiveHasher: Module.lazy(() =>
+	stringCaseInsensitive: Module.lazy(() =>
 		createStringCaseInsensitiveHasher(MAX_STEP_BITS),
 	),
 	_arrayAnyHasher: Module.lazy(() => {
-		return createArrayHasher(mod.defaultHasher, MAX_STEP_BITS);
+		return createArrayHasher(mod.defaultInstance, MAX_STEP_BITS);
 	}),
-	arrayHasher: Module.factory(
+	array: Module.factory(
 		<T = any>(
 			options?:
 				| {
@@ -560,15 +559,15 @@ export const hasherModule = Module.create<HasherModuleInternal>((mod) => ({
 			if (undefined === options) return mod._arrayAnyHasher;
 
 			return createArrayHasher(
-				options.itemHasher ?? mod.anyFlatHasher,
+				options.itemHasher ?? mod.anyFlat,
 				options.maxStepBits ?? MAX_STEP_BITS,
 			);
 		},
 	),
 	_streamSourceAnyHasher: Module.lazy(() =>
-		createStreamSourceHasher(mod, mod.defaultHasher, MAX_STEP_BITS),
+		createStreamSourceHasher(mod, mod.defaultInstance, MAX_STEP_BITS),
 	),
-	streamSourceHasher: Module.factory(
+	streamSource: Module.factory(
 		<T>(
 			options?:
 				| {
@@ -586,7 +585,7 @@ export const hasherModule = Module.create<HasherModuleInternal>((mod) => ({
 			);
 		},
 	),
-	numberHasher: Module.lazy(() =>
+	number: Module.lazy(() =>
 		Object.freeze({
 			isValid(obj: unknown): obj is number {
 				return typeof obj === 'number';
@@ -610,7 +609,7 @@ export const hasherModule = Module.create<HasherModuleInternal>((mod) => ({
 			},
 		}),
 	),
-	booleanHasher: Module.lazy(() =>
+	boolean: Module.lazy(() =>
 		Object.freeze({
 			isValid(obj: unknown): obj is boolean {
 				return typeof obj === 'boolean';
@@ -620,7 +619,7 @@ export const hasherModule = Module.create<HasherModuleInternal>((mod) => ({
 			},
 		}),
 	),
-	bigintHasher: Module.lazy(() =>
+	bigint: Module.lazy(() =>
 		Object.freeze({
 			isValid(obj: unknown): obj is bigint {
 				return typeof obj === 'bigint';
@@ -628,12 +627,12 @@ export const hasherModule = Module.create<HasherModuleInternal>((mod) => ({
 			hash: mod._anyToStringHasher.hash,
 		}),
 	),
-	createValueOfHasher: Module.factory(
+	byValueOf: Module.factory(
 		<T extends { valueOf(): V }, V>(
 			cls: {
 				new (): T;
 			},
-			valueHasher: Hasher<V> = mod.anyFlatHasher,
+			valueHasher: Hasher<V> = mod.anyFlat,
 		): Hasher<T> => {
 			return Object.freeze({
 				isValid(obj: any): obj is T {
@@ -645,15 +644,13 @@ export const hasherModule = Module.create<HasherModuleInternal>((mod) => ({
 			});
 		},
 	),
-	dateHasher: Module.lazy(() =>
-		mod.createValueOfHasher(Date, mod.numberHasher),
-	),
+	date: Module.lazy(() => mod.byValueOf(Date, mod.number)),
 	_tryWrappedHasher: Module.lazy(() => {
 		const _wrappedHashers: Hasher<unknown>[] = [
-			mod.createValueOfHasher(Boolean, mod.booleanHasher),
-			mod.dateHasher,
-			mod.createValueOfHasher(Number, mod.numberHasher),
-			mod.createValueOfHasher(String, mod.stringHasher),
+			mod.byValueOf(Boolean, mod.boolean),
+			mod.date,
+			mod.byValueOf(Number, mod.number),
+			mod.byValueOf(String, mod.string),
 		];
 
 		return Object.freeze({
@@ -684,27 +681,25 @@ export const hasherModule = Module.create<HasherModuleInternal>((mod) => ({
 			},
 		});
 	}),
-	objectHasher: Module.factory(
+	object: Module.factory(
 		<K extends string | number | symbol, V = any>(options?: {
 			keyHasher: Hasher<K>;
 			valueHasher: Hasher<V>;
 		}): Hasher<Record<K, V>> => {
-			if (undefined === options) return mod.objectShallowHasher;
+			if (undefined === options) return mod.objectShallow;
 
 			return createObjectHasher(options.keyHasher, options.valueHasher);
 		},
 	),
-	objectShallowHasher: Module.lazy(() =>
-		createObjectHasher(mod.anyFlatHasher, mod.anyFlatHasher),
+	objectShallow: Module.lazy(() =>
+		createObjectHasher(mod.anyFlat, mod.anyFlat),
 	),
-	objectDeepHasher: Module.lazy(() =>
-		createObjectHasher(mod.anyFlatHasher, mod.anyDeepHasher),
-	),
-	anyFlatHasher: Module.lazy(() => createAnyHasher(mod, 'FLAT')),
-	anyShallowHasher: Module.lazy(() => createAnyHasher(mod, 'SHALLOW')),
-	anyDeepHasher: Module.lazy(() => createAnyHasher(mod, 'DEEP')),
+	objectDeep: Module.lazy(() => createObjectHasher(mod.anyFlat, mod.anyDeep)),
+	anyFlat: Module.lazy(() => createAnyHasher(mod, 'FLAT')),
+	anyShallow: Module.lazy(() => createAnyHasher(mod, 'SHALLOW')),
+	anyDeep: Module.lazy(() => createAnyHasher(mod, 'DEEP')),
 	tupleSymmetric: Module.factory(
-		<T>(hasher: Hasher<T> = mod.anyShallowHasher): Hasher<readonly [T, T]> => {
+		<T>(hasher: Hasher<T> = mod.anyShallow): Hasher<readonly [T, T]> => {
 			return Object.freeze({
 				isValid(obj: unknown): obj is readonly [T, T] {
 					return (

@@ -576,9 +576,9 @@ export abstract class StreamBase<T> implements Stream<T> {
 	}
 
 	mkGroup({
-		sep = StreamFactory._emptyInstance as StreamSource<T>,
-		start = StreamFactory._emptyInstance as StreamSource<T>,
-		end = StreamFactory._emptyInstance as StreamSource<T>,
+		sep = StreamFactory.empty() as StreamSource<T>,
+		start = StreamFactory.empty() as StreamSource<T>,
+		end = StreamFactory.empty() as StreamSource<T>,
 	} = {}): any {
 		return StreamFactory.fromStreamSource(start).concat(
 			this.intersperse(sep),
@@ -1664,8 +1664,8 @@ export class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
 		return start.concat(end);
 	}
 	mkGroup({
-		start = StreamFactory._emptyInstance as StreamSource<T>,
-		end = StreamFactory._emptyInstance as StreamSource<T>,
+		start = StreamFactory.empty() as StreamSource<T>,
+		end = StreamFactory.empty() as StreamSource<T>,
 	} = {}): Stream.NonEmpty<T> {
 		return StreamFactory.fromStreamSource(start).concat(end) as any;
 	}

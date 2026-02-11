@@ -55,8 +55,12 @@ export namespace Module {
 	 * @typeparam MD - the module instance type, defining available dependencies
 	 */
 	export type Definition<MD extends Instance> = {
-		[K in keyof MD]: () => MD[K];
+		[K in keyof MD]: Module.DefinitionEntry<MD[K]>;
 	};
+
+	export type DefinitionEntry<T> =
+		| { type: 'property'; value: T }
+		| { type: 'getter'; value: () => T };
 
 	/**
 	 * Extracts the Instance type from a Module type.
@@ -125,14 +129,24 @@ export namespace Module {
 				const definition = getDefinition(target);
 
 				for (const key in definition) {
-					Object.defineProperty(target, key, {
-						configurable: false,
-						enumerable: true,
-						get: definition[key],
-					});
+					const entry = definition[key];
+
+					if (entry.type === 'property') {
+						Object.defineProperty(target, key, {
+							configurable: false,
+							enumerable: true,
+							value: entry.value,
+						});
+					} else {
+						Object.defineProperty(target, key, {
+							configurable: false,
+							enumerable: true,
+							get: entry.value,
+						});
+					}
 				}
 
-				return target;
+				return Object.freeze(target);
 			},
 		};
 	}
@@ -150,12 +164,12 @@ export namespace Module {
 	 * }));
 	 * ```
 	 */
-	export function constant<T>(value: T): () => T {
-		return () => value;
+	export function constant<T>(value: T): Module.DefinitionEntry<T> {
+		return { type: 'property', value };
 	}
 
-	export function constantGet<T>(value: T): () => () => T {
-		return () => () => value;
+	export function constantGet<T>(value: T): Module.DefinitionEntry<() => T> {
+		return { type: 'property', value: () => value };
 	}
 
 	/**
@@ -176,14 +190,16 @@ export namespace Module {
 	 * console.log(db1 === db2); // => true
 	 * ```
 	 */
-	export function single<C extends () => any>(creator: C): C {
+	export function single<T>(creator: () => T): Module.DefinitionEntry<T> {
 		const instance = creator();
-		return constant(instance) as C;
+		return { type: 'property', value: instance };
 	}
 
-	export function singleGet<C extends () => any>(creator: C): () => C {
+	export function singleGet<T>(
+		creator: () => T,
+	): Module.DefinitionEntry<() => T> {
 		const instance = creator();
-		return constantGet(instance) as () => C;
+		return { type: 'property', value: () => instance };
 	}
 
 	/**
@@ -209,20 +225,38 @@ export namespace Module {
 	 * console.log(db1 === db2); // => true
 	 * ```
 	 */
-	export function lazy<C extends () => any>(creator: C): C {
+	export function lazy<C extends () => any>(
+		creator: C,
+	): Module.DefinitionEntry<ReturnType<C>> {
 		const uninitialized = Symbol();
-		let instance: ReturnType<C> | typeof uninitialized = uninitialized;
+		let instance: typeof uninitialized | ReturnType<C> = uninitialized;
 
-		return (() => {
-			if (instance === uninitialized) {
-				instance = creator();
-			}
-			return instance;
-		}) as C;
+		return {
+			type: 'getter',
+			value: () => {
+				if (uninitialized === instance) {
+					instance = creator();
+				}
+				return instance as ReturnType<C>;
+			},
+		};
 	}
 
-	export function lazyGet<C extends () => any>(creator: C): () => C {
-		return constant(lazy(creator));
+	export function lazyGet<C extends () => any>(
+		creator: C,
+	): Module.DefinitionEntry<C> {
+		const uninitialized = Symbol();
+		let instance: typeof uninitialized | ReturnType<C> = uninitialized;
+
+		return {
+			type: 'property',
+			value: (() => {
+				if (uninitialized === instance) {
+					instance = creator();
+				}
+				return instance;
+			}) as C,
+		};
 	}
 
 	/**
@@ -253,14 +287,20 @@ export namespace Module {
 	 */
 	export function factory<C extends (...args: any[]) => any>(
 		creator: C,
-	): () => C {
-		return constant(creator);
+	): Module.DefinitionEntry<C> {
+		return {
+			type: 'property',
+			value: creator,
+		};
 	}
 
 	export function factoryGet<C extends (...args: any[]) => any>(
 		creator: C,
-	): () => () => C {
-		return constantGet(creator);
+	): Module.DefinitionEntry<() => C> {
+		return {
+			type: 'property',
+			value: () => creator,
+		};
 	}
 
 	export class EagerSelfDependencyError extends Error {

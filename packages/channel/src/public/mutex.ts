@@ -40,9 +40,7 @@ export namespace Mutex {
 }
 
 const mutexModule = Module.create<Mutex.Constructors>(() => ({
-	create: Module.factory(() => {
-		return Semaphore.create({ maxSize: 1 });
-	}),
+	create: Module.factory(() => Semaphore.create({ maxSize: 1 })),
 }));
 
 export const Mutex: Mutex.Constructors = mutexModule.build();

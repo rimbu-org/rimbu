@@ -126,18 +126,18 @@ function combineArr<T, R extends readonly [unknown, unknown, ...unknown[]]>(
 }
 
 export const reducerFactoryModule = Module.create<ReducerFactory>((mod) => ({
-	create: Module.factory((init, next, stateToResult) => {
-		return new ReducerBase(init, next, stateToResult);
-	}),
-	createMono: Module.factory((init, next, stateToResult) => {
-		return mod.create(init, next, stateToResult ?? identity);
-	}),
+	create: Module.factory(
+		(init, next, stateToResult) => new ReducerBase(init, next, stateToResult),
+	),
+	createMono: Module.factory((init, next, stateToResult) =>
+		mod.create(init, next, stateToResult ?? identity),
+	),
 	createOutput: Module.factory((init, next, stateToResult) => {
 		return mod.create(init, next, stateToResult ?? identity);
 	}),
-	fold: Module.factory((init, next) => {
-		return Reducer.createOutput(() => OptLazy(init), next);
-	}),
+	fold: Module.factory((init, next) =>
+		Reducer.createOutput(() => OptLazy(init), next),
+	),
 	sum: Module.lazy(() =>
 		mod.createMono(
 			() => 0,
@@ -238,13 +238,13 @@ export const reducerFactoryModule = Module.create<ReducerFactory>((mod) => ({
 			);
 		},
 	),
-	count: Module.lazy(() => {
-		return mod.create(
+	count: Module.lazy(() =>
+		mod.create(
 			() => {},
 			identity,
 			(_, index) => index,
-		);
-	}),
+		),
+	),
 	first: Module.factory(<T, O>(otherwise?: OptLazy<O>): Reducer<T, T | O> => {
 		return mod.create<T, T | O, T | undefined>(
 			() => undefined,
@@ -636,7 +636,7 @@ export const reducerFactoryModule = Module.create<ReducerFactory>((mod) => ({
 			);
 		},
 	),
-	toJSMap: Module.factory(<K, V>(): Reducer<readonly [K, V], Map<K, V>> => {
+	toJSMap: Module.lazyGet(<K, V>(): Reducer<readonly [K, V], Map<K, V>> => {
 		return mod.create(
 			(): Map<K, V> => new Map(),
 			(state, next): Map<K, V> => {
@@ -646,7 +646,7 @@ export const reducerFactoryModule = Module.create<ReducerFactory>((mod) => ({
 			(state): Map<K, V> => new Map(state),
 		);
 	}),
-	toJSMultiMap: Module.factory(
+	toJSMultiMap: Module.lazyGet(
 		<K, V>(): Reducer<readonly [K, V], Map<K, V[]>> => {
 			return mod.create(
 				(): Map<K, V[]> => new Map(),
@@ -663,7 +663,7 @@ export const reducerFactoryModule = Module.create<ReducerFactory>((mod) => ({
 			);
 		},
 	),
-	toJSSet: Module.factory(<T>(): Reducer<T, Set<T>> => {
+	toJSSet: Module.lazyGet(<T>(): Reducer<T, Set<T>> => {
 		return mod.create(
 			(): Set<T> => new Set<T>(),
 			(state, next): Set<T> => {
@@ -673,7 +673,7 @@ export const reducerFactoryModule = Module.create<ReducerFactory>((mod) => ({
 			(s): Set<T> => new Set(s),
 		);
 	}),
-	toJSObject: Module.factory(
+	toJSObject: Module.lazyGet(
 		<K extends string | number | symbol, V>(): Reducer<
 			readonly [K, V],
 			Record<K, V>

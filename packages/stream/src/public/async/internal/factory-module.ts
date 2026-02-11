@@ -29,31 +29,29 @@ import { StreamFactory } from '#stream/factory';
 
 export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 	(mod) => ({
-		_emptyInstance: Module.lazy(() => new AsyncEmptyStream()),
 		isAsyncStream: Module.factory((obj: any) => {
 			return obj instanceof AsyncStreamBase;
 		}),
 		isEmptyAsyncStreamSourceInstance: Module.factory(
 			(source: AsyncStreamSource<any>): boolean => {
 				return (
-					source === mod._emptyInstance ||
+					source === mod.empty() ||
 					StreamFactory.isEmptyStreamSourceInstance(source as StreamSource<any>)
 				);
 			},
 		),
 		fromAsyncStreamSource: Module.factory(
 			<T>(source: AsyncStreamSource<T>): any => {
-				if (undefined === source) return mod._emptyInstance;
+				if (undefined === source) return mod.empty();
 				if (mod.isAsyncStream(source)) return source;
-				if (mod.isEmptyAsyncStreamSourceInstance(source))
-					return mod._emptyInstance;
+				if (mod.isEmptyAsyncStreamSourceInstance(source)) return mod.empty();
 
 				return new FromSource(source);
 			},
 		),
-		empty: Module.factory(<T>(): AsyncStream<T> => {
-			return mod._emptyInstance;
-		}),
+		empty: Module.lazyGet(
+			<T>(): AsyncStream<T> => new AsyncEmptyStream() as AsyncStream<T>,
+		),
 		of: Module.factory((...values) => {
 			return new AsyncOfStream(values) as any;
 		}),
@@ -75,7 +73,7 @@ export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 		zipWith: Module.factory((...sources): any => {
 			return (zipFun: any): any => {
 				if (sources.some(mod.isEmptyAsyncStreamSourceInstance)) {
-					return mod._emptyInstance;
+					return mod.empty();
 				}
 
 				return new AsyncFromStream(
@@ -89,7 +87,7 @@ export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 		zipAllWith: Module.factory((...sources): any => {
 			return (fillValue: any, zipFun: any): any => {
 				if (sources.every(mod.isEmptyAsyncStreamSourceInstance)) {
-					return mod._emptyInstance;
+					return mod.empty();
 				}
 
 				return new AsyncFromStream(
@@ -108,7 +106,7 @@ export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 			const { length } = options;
 
 			if (mod.isEmptyAsyncStreamSourceInstance(source)) {
-				return StreamFactory.of(mod._emptyInstance).repeat(length).toArray();
+				return StreamFactory.of(mod.empty()).repeat(length).toArray();
 			}
 
 			const result: AsyncStream<unknown>[] = [];

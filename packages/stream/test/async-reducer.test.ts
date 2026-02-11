@@ -61,7 +61,7 @@ describe('AsyncReducer', () => {
 		expect(
 			await s.reduce(
 				AsyncReducer.minBy(async (v1, v2) =>
-					Comp.stringCaseInsensitiveComp().compare(v1, v2),
+					Comp.stringCaseInsensitive.compare(v1, v2),
 				),
 			),
 		).toBe('Ad');
@@ -69,7 +69,7 @@ describe('AsyncReducer', () => {
 		expect(
 			await AsyncStream.empty<string>().reduce(
 				AsyncReducer.minBy(
-					async (v1, v2) => Comp.stringCaseInsensitiveComp().compare(v1, v2),
+					async (v1, v2) => Comp.stringCaseInsensitive.compare(v1, v2),
 					fallback,
 				),
 			),
@@ -90,7 +90,7 @@ describe('AsyncReducer', () => {
 		expect(
 			await s.reduce(
 				AsyncReducer.maxBy(async (v1, v2) =>
-					Comp.stringCaseInsensitiveComp().compare(v1, v2),
+					Comp.stringCaseInsensitive.compare(v1, v2),
 				),
 			),
 		).toBe('T');
@@ -98,7 +98,7 @@ describe('AsyncReducer', () => {
 		expect(
 			await AsyncStream.empty<string>().reduce(
 				AsyncReducer.maxBy(
-					async (v1, v2) => Comp.stringCaseInsensitiveComp().compare(v1, v2),
+					async (v1, v2) => Comp.stringCaseInsensitive.compare(v1, v2),
 					fallback,
 				),
 			),

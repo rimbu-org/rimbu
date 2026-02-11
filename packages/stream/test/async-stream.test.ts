@@ -280,7 +280,7 @@ describe('AsyncStream methods', () => {
 		expect(await AsyncStream.of('a', 'b').equals(['A', 'B'])).toBe(false);
 		expect(
 			await AsyncStream.of('a', 'b').equals(['A', 'B'], {
-				eq: Eq.stringCaseInsentitiveEq(),
+				eq: Eq.stringCaseInsentitive,
 			}),
 		).toBe(true);
 

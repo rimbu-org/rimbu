@@ -39,9 +39,7 @@ export namespace WaitGroup {
 }
 
 const waitGroupModule = Module.create<WaitGroup.Constructors>(() => ({
-	create: Module.factory(() => {
-		return new WaitGroupImpl();
-	}),
+	create: Module.factory(() => new WaitGroupImpl()),
 }));
 
 export const WaitGroup: WaitGroup.Constructors = waitGroupModule.build();

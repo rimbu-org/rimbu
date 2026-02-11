@@ -112,7 +112,7 @@ export function createHashMapContext<UK>(options?: {
 }): HashMap.Context<UK> {
 	return Object.freeze(
 		new HashMapContext(
-			options?.hasher ?? Hasher.defaultHasher,
+			options?.hasher ?? Hasher.defaultInstance,
 			options?.eq ?? Eq.defaultInstance,
 			options?.blockSizeBits ?? 5,
 			options?.listContext ?? List.defaultContext(),

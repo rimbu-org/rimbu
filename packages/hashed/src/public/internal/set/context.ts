@@ -123,7 +123,7 @@ export function createHashSetContext<UT>(options?: {
 }): HashSet.Context<UT> {
 	return Object.freeze(
 		new HashSetContext(
-			options?.hasher ?? Hasher.defaultHasher,
+			options?.hasher ?? Hasher.defaultInstance,
 			options?.eq ?? Eq.defaultInstance,
 			options?.blockSizeBits ?? 5,
 			options?.listContext ?? List.defaultContext(),

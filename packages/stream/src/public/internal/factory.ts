@@ -6,10 +6,6 @@ import { streamFactoryModule } from '#stream/factory-module';
 
 export interface StreamFactory extends StreamConstructors {
 	/**
-	 * The singleton empty Stream instance.
-	 */
-	_emptyInstance: Stream<any>;
-	/**
 	 * Returns true if the given `source` is a `StreamSource` that is known to be empty.
 	 * If this function returns `false`, the source may still be empty; it is simply not known.
 	 * @param source - a potential stream source

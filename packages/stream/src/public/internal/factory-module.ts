@@ -55,11 +55,10 @@ function* yieldObjEntries<K extends string | number | symbol, V>(
 }
 
 export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
-	_emptyInstance: Module.lazy(() => new EmptyStream<any>()),
 	isEmptyStreamSourceInstance: Module.factory((source: StreamSource<any>) => {
 		if (source === '') return true;
 		if (typeof source === 'object') {
-			if (source === mod._emptyInstance || source === null) return true;
+			if (source === mod.empty() || source === null) return true;
 			if (`length` in source && (source as any).length === 0) return true;
 			if (`size` in source && (source as any).size === 0) return true;
 			if (`isEmpty` in source && (source as any).isEmpty === true) return true;
@@ -69,19 +68,19 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 	}),
 	fromStreamSource: Module.factory((source: StreamSource<any>): any => {
 		if (undefined === source || mod.isEmptyStreamSourceInstance(source))
-			return mod._emptyInstance;
+			return mod.empty();
 		if (isStream(source)) return source;
 		if (typeof source === 'object' && `stream` in source)
 			return source.stream();
 
 		if (Array.isArray(source)) {
-			if (source.length <= 0) return mod._emptyInstance;
+			if (source.length <= 0) return mod.empty();
 			return new ArrayStream(source);
 		}
 
 		return new FromIterable(source);
 	}),
-	empty: Module.factory(() => mod._emptyInstance),
+	empty: Module.lazyGet(<T>() => new EmptyStream<T>() as Stream<T>),
 	of: Module.factory(
 		<T>(...values: ArrayNonEmpty<T>): Stream.NonEmpty<T> =>
 			mod.fromStreamSource(values),
@@ -103,7 +102,7 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 				reversed?: boolean;
 			} = {},
 		): any => {
-			if (array.length === 0) return mod._emptyInstance;
+			if (array.length === 0) return mod.empty();
 
 			const { range, reversed = false } = options;
 
@@ -114,7 +113,7 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 			const result = IndexRange.getIndicesFor(range, array.length);
 
 			if (result === 'empty') {
-				return mod._emptyInstance;
+				return mod.empty();
 			}
 			if (result === 'all') {
 				return new ArrayStream(array, undefined, undefined, reversed);
@@ -188,7 +187,7 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 			const { delta = 1 } = options;
 
 			if (undefined !== range.amount) {
-				if (range.amount <= 0) return mod._emptyInstance;
+				if (range.amount <= 0) return mod.empty();
 
 				let startIndex = 0;
 				if (undefined !== range.start) {
@@ -215,8 +214,8 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 			}
 
 			if (undefined !== endIndex) {
-				if (delta > 0 && endIndex < startIndex) return mod._emptyInstance;
-				else if (delta < 0 && startIndex <= endIndex) return mod._emptyInstance;
+				if (delta > 0 && endIndex < startIndex) return mod.empty();
+				else if (delta < 0 && startIndex <= endIndex) return mod.empty();
 			}
 
 			return new RangeStream(startIndex, endIndex, delta);
@@ -249,7 +248,7 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 	zipWith: Module.factory((...sources) => {
 		return (zipFun): any => {
 			if (sources.some(mod.isEmptyStreamSourceInstance)) {
-				return mod._emptyInstance;
+				return mod.empty();
 			}
 
 			return new FromStream(() => new ZipWithIterator(sources as any, zipFun));
@@ -261,7 +260,7 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 	zipAllWith: Module.factory((...sources) => {
 		return (fillValue, zipFun: any): any => {
 			if (sources.every(mod.isEmptyStreamSourceInstance)) {
-				return mod._emptyInstance;
+				return mod.empty();
 			}
 
 			return new FromStream(
@@ -279,7 +278,7 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 	unzip: Module.factory((source, options): any => {
 		const { length } = options;
 		if (mod.isEmptyStreamSourceInstance(source)) {
-			return mod.of(mod._emptyInstance).repeat(length).toArray();
+			return mod.of(mod.empty()).repeat(length).toArray();
 		}
 
 		const result: Stream<unknown>[] = [];

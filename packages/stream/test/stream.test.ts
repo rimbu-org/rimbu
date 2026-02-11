@@ -256,7 +256,7 @@ describe('Stream methods', () => {
 		expect(Stream.of('a', 'b').equals(['A', 'B'])).toBe(false);
 		expect(
 			Stream.of('a', 'b').equals(['A', 'B'], {
-				eq: Eq.stringCaseInsentitiveEq(),
+				eq: Eq.stringCaseInsentitive,
 			}),
 		).toBe(true);
 

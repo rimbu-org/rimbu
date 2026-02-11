@@ -447,9 +447,10 @@ const compModule = Module.create<CompModule>((mod) => ({
 	),
 	_defaultCollator: Module.lazy(() => Intl.Collator('und')),
 	_stringInstance: Module.lazy(() =>
-		mod.create((obj): obj is string => {
-			return typeof obj === 'string';
-		}, mod._defaultCollator.compare),
+		mod.create(
+			(obj): obj is string => typeof obj === 'string',
+			mod._defaultCollator.compare,
+		),
 	),
 	_tryWrappedCompare: Module.lazy(() => {
 		const wrappedComps = [
@@ -526,7 +527,7 @@ const compModule = Module.create<CompModule>((mod) => ({
 			},
 		),
 	),
-	anyStringJson: Module.factory(() =>
+	anyStringJson: Module.lazyGet(() =>
 		mod.create(
 			(obj): obj is any => true,
 			(v1, v2): number => {

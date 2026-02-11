@@ -53,13 +53,13 @@ describe('Reducer', () => {
 
 	it('minBy', () => {
 		const s = Stream.of('be', 'T', 'Ad', 'Eha');
-		expect(
-			s.reduce(Reducer.minBy(Comp.stringCaseInsensitiveComp().compare)),
-		).toBe('Ad');
+		expect(s.reduce(Reducer.minBy(Comp.stringCaseInsensitive.compare))).toBe(
+			'Ad',
+		);
 
 		expect(
 			Stream.empty<string>().reduce(
-				Reducer.minBy(Comp.stringCaseInsensitiveComp().compare, 5),
+				Reducer.minBy(Comp.stringCaseInsensitive.compare, 5),
 			),
 		).toBe(5);
 	});
@@ -73,13 +73,13 @@ describe('Reducer', () => {
 
 	it('maxBy', () => {
 		const s = Stream.of('be', 'T', 'Ad', 'Eha');
-		expect(
-			s.reduce(Reducer.maxBy(Comp.stringCaseInsensitiveComp().compare)),
-		).toBe('T');
+		expect(s.reduce(Reducer.maxBy(Comp.stringCaseInsensitive.compare))).toBe(
+			'T',
+		);
 
 		expect(
 			Stream.empty<string>().reduce(
-				Reducer.maxBy(Comp.stringCaseInsensitiveComp().compare, 5),
+				Reducer.maxBy(Comp.stringCaseInsensitive.compare, 5),
 			),
 		).toBe(5);
 	});

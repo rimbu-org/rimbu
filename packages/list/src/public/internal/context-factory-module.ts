@@ -258,9 +258,7 @@ const createListCreators = Module.createPartial<
 
 		return Stream.from(streams).mapPure(mod.from) as any;
 	}),
-	builder: Module.factory(<T>(): GenBuilder<T> => {
-		return new GenBuilder<T>(mod);
-	}),
+	builder: Module.factory(<T>(): GenBuilder<T> => new GenBuilder<T>(mod)),
 	reducer: Module.factory(
 		<T>(source?: StreamSource<T>): Reducer<T, List<T>> => {
 			return Reducer.create(
@@ -301,15 +299,12 @@ export function createContextFactoryModule(
 		...createBuilderFactory(mod),
 		...createListCreators(mod),
 
-		defaultContext: Module.lazyGet(() => _defaultContextInstance ?? mod),
+		defaultContext: Module.constantGet(_defaultContextInstance ?? mod),
 		_types: Module.constant(undefined as any),
 		typeTag: Module.constant('List' as const),
 		blockSizeBits: Module.constant(blockSizeBits),
 		maxBlockSize: Module.constant(1 << blockSizeBits),
 		minBlockSize: Module.constant(1 << (blockSizeBits - 1)),
-
-		createCacheMap: Module.factory((): CacheMap => {
-			return new CacheMap();
-		}),
+		createCacheMap: Module.factory((): CacheMap => new CacheMap()),
 	}));
 }

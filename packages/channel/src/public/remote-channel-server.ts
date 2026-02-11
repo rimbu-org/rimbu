@@ -48,14 +48,7 @@ export namespace RemoteChannelServer {
 
 const removeChannelServerModule =
 	Module.create<RemoteChannelServer.Constructors>(() => ({
-		create: Module.factory(
-			async (config: {
-				port: RemoteChannel.SimpleMessagePort;
-				rcsChannelId?: string;
-			}) => {
-				return RemoteChannelServerImpl(config);
-			},
-		),
+		create: Module.factory(RemoteChannelServerImpl),
 	}));
 
 export const RemoteChannelServer: RemoteChannelServer.Constructors =

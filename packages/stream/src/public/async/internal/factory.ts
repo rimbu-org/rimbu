@@ -6,7 +6,6 @@ import type { AsyncFastIteratorFactory } from '#async/fast-iterator-factory';
 import { asyncStreamFactoryModule } from '#async/factory-module';
 
 export interface AsyncStreamFactory extends AsyncStreamConstructors {
-	_emptyInstance: AsyncStream<any>;
 	isAsyncStream(obj: any): obj is AsyncStream<any>;
 	/**
 	 * Returns true if the given async stream source is known to be empty.
