@@ -70,51 +70,47 @@ export namespace RemoteObject {
 }
 
 const removeObjectModule = Module.create<RemoteObject.Constructors>(() => ({
-	createClient: Module.factory(
-		<T>(commCh: RemoteObject.ClientCrossChannel): RpcProxy<T> => {
-			async function execCall(path: RpcProxy.Path): Promise<any> {
-				await commCh.send({ path });
-				const response = await commCh.receive();
+	createClient: <T>(commCh: RemoteObject.ClientCrossChannel): RpcProxy<T> => {
+		async function execCall(path: RpcProxy.Path): Promise<any> {
+			await commCh.send({ path });
+			const response = await commCh.receive();
 
-				switch (response.type) {
-					case 'success': {
-						return response.value;
-					}
+			switch (response.type) {
+				case 'success': {
+					return response.value;
+				}
 
-					case 'fail': {
-						throw response.error;
-					}
+				case 'fail': {
+					throw response.error;
 				}
 			}
+		}
 
-			const proxy = RpcProxy.create<T>(execCall);
+		const proxy = RpcProxy.create<T>(execCall);
 
-			return proxy;
-		},
-	),
+		return proxy;
+	},
 
-	createServer: Module.factory(
-		async <T>(
-			source: T,
-			commCh: CrossChannel<RemoteObject.Response, RemoteObject.Call>,
-		): Promise<void> => {
-			const handler = RemoteObjectImpl(source);
+	createServer: async <T>(
+		source: T,
+		commCh: CrossChannel<RemoteObject.Response, RemoteObject.Call>,
+	): Promise<void> => {
+		const handler = RemoteObjectImpl(source);
 
-			while (!commCh.isExhausted) {
-				const { path } = await commCh.receive();
+		while (!commCh.isExhausted) {
+			const { path } = await commCh.receive();
 
-				try {
-					const value = await handler(path);
+			try {
+				const value = await handler(path);
 
-					await commCh.send({ type: 'success', value });
-				} catch (error) {
-					await commCh.send({ type: 'fail', error });
-				}
+				await commCh.send({ type: 'success', value });
+			} catch (error) {
+				await commCh.send({ type: 'fail', error });
 			}
+		}
 
-			commCh.close();
-		},
-	),
+		commCh.close();
+	},
 }));
 
 export const RemoteObject: RemoteObject.Constructors =

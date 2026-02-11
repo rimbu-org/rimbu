@@ -4,7 +4,9 @@ import { Module } from '@rimbu/common/module';
 import { TaskContextImpl } from './task-context-impl';
 
 export const taskModule = Module.create<Task.Constructors>((mod) => ({
-	rootContext: Module.lazy(() => new TaskContextImpl('root', true, undefined)),
-	create: Module.factory((task) => task),
-	launch: Module.lazy(() => mod.rootContext.launch),
+	rootContext: Module.lazyGetter(
+		() => new TaskContextImpl('root', true, undefined),
+	),
+	create: (task) => task,
+	launch: Module.lazyGetter(() => mod.rootContext.launch),
 }));

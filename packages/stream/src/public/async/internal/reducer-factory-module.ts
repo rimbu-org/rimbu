@@ -157,22 +157,22 @@ function combineObj<T, R extends { readonly [key: string]: unknown }>(
 
 export const asyncReducerFactoryModule = Module.create<AsyncReducerFactory>(
 	(mod) => ({
-		create: Module.factory((init, next, stateToResult, onClose): any => {
+		create: (init, next, stateToResult, onClose): any => {
 			return new AsyncReducerBase(init, next, stateToResult, onClose);
-		}),
-		createMono: Module.factory((init, next, stateToResult, onClose) => {
+		},
+		createMono: (init, next, stateToResult, onClose) => {
 			return mod.create(init, next, stateToResult ?? identity, onClose);
-		}),
-		createOutput: Module.factory((init, next, stateToResult, onClose) => {
+		},
+		createOutput: (init, next, stateToResult, onClose) => {
 			return mod.create(init, next, stateToResult ?? identity, onClose);
-		}),
-		fold: Module.factory((init, next) => {
+		},
+		fold: (init, next) => {
 			return AsyncReducer.createOutput(
 				() => AsyncOptLazy.toMaybePromise(init),
 				next,
 			);
-		}),
-		from: Module.factory((reducer) => {
+		},
+		from: (reducer) => {
 			if (reducer instanceof AsyncReducerBase) {
 				return reducer;
 			}
@@ -182,26 +182,24 @@ export const asyncReducerFactoryModule = Module.create<AsyncReducerFactory>(
 				reducer.next,
 				reducer.stateToResult as any,
 			);
-		}),
-		minBy: Module.factory(
-			<T, O>(
-				compFun: (v1: T, v2: T) => MaybePromise<number>,
-				otherwise?: AsyncOptLazy<O>,
-			) => {
-				const token = Symbol();
+		},
+		minBy: <T, O>(
+			compFun: (v1: T, v2: T) => MaybePromise<number>,
+			otherwise?: AsyncOptLazy<O>,
+		) => {
+			const token = Symbol();
 
-				return mod.create<T, T | O, T | typeof token>(
-					() => token,
-					async (state, next): Promise<T> => {
-						if (token === state) return next;
-						return (await compFun(state, next)) < 0 ? state : next;
-					},
-					(state): MaybePromise<T | O> =>
-						token === state ? AsyncOptLazy.toMaybePromise(otherwise!) : state,
-				);
-			},
-		),
-		min: Module.factory(<O>(otherwise?: AsyncOptLazy<O>) => {
+			return mod.create<T, T | O, T | typeof token>(
+				() => token,
+				async (state, next): Promise<T> => {
+					if (token === state) return next;
+					return (await compFun(state, next)) < 0 ? state : next;
+				},
+				(state): MaybePromise<T | O> =>
+					token === state ? AsyncOptLazy.toMaybePromise(otherwise!) : state,
+			);
+		},
+		min: <O>(otherwise?: AsyncOptLazy<O>) => {
 			return mod.create<number, number | O, number | undefined>(
 				() => undefined,
 				(state, next): number =>
@@ -209,144 +207,128 @@ export const asyncReducerFactoryModule = Module.create<AsyncReducerFactory>(
 				(state): MaybePromise<number | O> =>
 					state ?? AsyncOptLazy.toMaybePromise(otherwise!),
 			);
-		}),
-		maxBy: Module.factory(
-			<T, O>(
-				compFun: (v1: T, v2: T) => MaybePromise<number>,
-				otherwise?: AsyncOptLazy<O>,
-			): AsyncReducer<T, T | O> => {
-				const token = Symbol();
+		},
+		maxBy: <T, O>(
+			compFun: (v1: T, v2: T) => MaybePromise<number>,
+			otherwise?: AsyncOptLazy<O>,
+		): AsyncReducer<T, T | O> => {
+			const token = Symbol();
 
-				return mod.create<T, T | O, T | typeof token>(
-					() => token,
-					async (state, next): Promise<T> => {
-						if (token === state) return next;
-						return (await compFun(state, next)) > 0 ? state : next;
-					},
-					(state): MaybePromise<T | O> =>
-						token === state ? AsyncOptLazy.toMaybePromise(otherwise!) : state,
-				);
-			},
-		),
-		max: Module.factory(
-			<O>(otherwise?: AsyncOptLazy<O>): AsyncReducer<number, number | O> => {
-				return mod.create<number, number | O, number | undefined>(
-					() => undefined,
-					(state, next): number =>
-						undefined !== state && state > next ? state : next,
-					(state): MaybePromise<number | O> =>
-						state ?? AsyncOptLazy.toMaybePromise(otherwise!),
-				);
-			},
-		),
-		first: Module.factory(
-			<T, O>(otherwise?: AsyncOptLazy<O>): AsyncReducer<T, T | O> => {
-				return mod.create<T, T | O, T | undefined>(
-					() => undefined,
-					(_, next, __, halt): T => {
+			return mod.create<T, T | O, T | typeof token>(
+				() => token,
+				async (state, next): Promise<T> => {
+					if (token === state) return next;
+					return (await compFun(state, next)) > 0 ? state : next;
+				},
+				(state): MaybePromise<T | O> =>
+					token === state ? AsyncOptLazy.toMaybePromise(otherwise!) : state,
+			);
+		},
+		max: <O>(otherwise?: AsyncOptLazy<O>): AsyncReducer<number, number | O> => {
+			return mod.create<number, number | O, number | undefined>(
+				() => undefined,
+				(state, next): number =>
+					undefined !== state && state > next ? state : next,
+				(state): MaybePromise<number | O> =>
+					state ?? AsyncOptLazy.toMaybePromise(otherwise!),
+			);
+		},
+		first: <T, O>(otherwise?: AsyncOptLazy<O>): AsyncReducer<T, T | O> => {
+			return mod.create<T, T | O, T | undefined>(
+				() => undefined,
+				(_, next, __, halt): T => {
+					halt();
+					return next;
+				},
+				(state, index): MaybePromise<T | O> =>
+					index <= 0 ? AsyncOptLazy.toMaybePromise(otherwise!) : state!,
+			);
+		},
+		last: <T, O>(otherwise?: AsyncOptLazy<O>): AsyncReducer<T, T | O> => {
+			return mod.create<T, T | O, T | undefined>(
+				() => undefined,
+				(_, next): T => next,
+				(state, index): MaybePromise<T | O> =>
+					index <= 0 ? AsyncOptLazy.toMaybePromise(otherwise!) : state!,
+			);
+		},
+		single: <T, O>(otherwise?: AsyncOptLazy<O>): AsyncReducer<T, T | O> => {
+			return mod.create<T, T | O, T | undefined>(
+				() => undefined,
+				(state, next, index, halt): T => {
+					if (index > 1) {
 						halt();
-						return next;
-					},
-					(state, index): MaybePromise<T | O> =>
-						index <= 0 ? AsyncOptLazy.toMaybePromise(otherwise!) : state!,
-				);
-			},
-		),
-		last: Module.factory(
-			<T, O>(otherwise?: AsyncOptLazy<O>): AsyncReducer<T, T | O> => {
-				return mod.create<T, T | O, T | undefined>(
-					() => undefined,
-					(_, next): T => next,
-					(state, index): MaybePromise<T | O> =>
-						index <= 0 ? AsyncOptLazy.toMaybePromise(otherwise!) : state!,
-				);
-			},
-		),
-		single: Module.factory(
-			<T, O>(otherwise?: AsyncOptLazy<O>): AsyncReducer<T, T | O> => {
-				return mod.create<T, T | O, T | undefined>(
-					() => undefined,
-					(state, next, index, halt): T => {
-						if (index > 1) {
-							halt();
-						}
-						return next;
-					},
-					(state, index): MaybePromise<T | O> =>
-						index !== 1 ? AsyncOptLazy.toMaybePromise(otherwise!) : state!,
-				);
-			},
-		),
-		some: Module.factory(
-			<T>(
-				pred: (value: T, index: number) => MaybePromise<boolean>,
-				options: { negate?: boolean | undefined } = {},
-			): AsyncReducer<T, boolean> => {
-				return mod.nonEmpty.filterInput(pred, options);
-			},
-		),
-		every: Module.factory(
-			<T>(
-				pred: (value: T, index: number) => MaybePromise<boolean>,
-				options: { negate?: boolean | undefined } = {},
-			): AsyncReducer<T, boolean> => {
-				const { negate = false } = options;
-
-				return mod.isEmpty.filterInput(pred, { negate: !negate });
-			},
-		),
-		equals: Module.factory(
-			<T>(
-				other: AsyncStreamSource<T>,
-				options: { eq?: Eq<T> | undefined; negate?: boolean | undefined } = {},
-			): AsyncReducer<T, boolean> => {
-				const { eq = Eq.objectIs, negate = false } = options;
-
-				const sliceStream = AsyncStream.from(other);
-				const done = Symbol();
-
-				return AsyncReducer.create<
-					T,
-					boolean,
-					{
-						iter: AsyncFastIterator<T>;
-						nextSeq: T | typeof done;
-						result: boolean;
 					}
-				>(
-					async () => {
-						const iter = sliceStream[Symbol.asyncIterator]();
+					return next;
+				},
+				(state, index): MaybePromise<T | O> =>
+					index !== 1 ? AsyncOptLazy.toMaybePromise(otherwise!) : state!,
+			);
+		},
+		some: <T>(
+			pred: (value: T, index: number) => MaybePromise<boolean>,
+			options: { negate?: boolean | undefined } = {},
+		): AsyncReducer<T, boolean> => {
+			return mod.nonEmpty.filterInput(pred, options);
+		},
+		every: <T>(
+			pred: (value: T, index: number) => MaybePromise<boolean>,
+			options: { negate?: boolean | undefined } = {},
+		): AsyncReducer<T, boolean> => {
+			const { negate = false } = options;
 
-						const nextSeq = await iter.fastNext(done);
+			return mod.isEmpty.filterInput(pred, { negate: !negate });
+		},
+		equals: <T>(
+			other: AsyncStreamSource<T>,
+			options: { eq?: Eq<T> | undefined; negate?: boolean | undefined } = {},
+		): AsyncReducer<T, boolean> => {
+			const { eq = Eq.objectIs, negate = false } = options;
 
-						return { iter, nextSeq, result: false };
-					},
-					async (state, next, _, halt) => {
-						if (done === state.nextSeq) {
-							halt();
-							state.result = false;
-							return state;
-						}
+			const sliceStream = AsyncStream.from(other);
+			const done = Symbol();
 
-						if (eq(next, state.nextSeq) === negate) {
-							halt();
-							state.result = false;
-							return state;
-						}
+			return AsyncReducer.create<
+				T,
+				boolean,
+				{
+					iter: AsyncFastIterator<T>;
+					nextSeq: T | typeof done;
+					result: boolean;
+				}
+			>(
+				async () => {
+					const iter = sliceStream[Symbol.asyncIterator]();
 
-						state.nextSeq = await state.iter.fastNext(done);
+					const nextSeq = await iter.fastNext(done);
 
-						if (done === state.nextSeq) {
-							state.result = true;
-						}
-
+					return { iter, nextSeq, result: false };
+				},
+				async (state, next, _, halt) => {
+					if (done === state.nextSeq) {
+						halt();
+						state.result = false;
 						return state;
-					},
-					(state, index, halted) => !halted && done === state.nextSeq,
-				);
-			},
-		),
-		isEmpty: Module.lazy(() =>
+					}
+
+					if (eq(next, state.nextSeq) === negate) {
+						halt();
+						state.result = false;
+						return state;
+					}
+
+					state.nextSeq = await state.iter.fastNext(done);
+
+					if (done === state.nextSeq) {
+						state.result = true;
+					}
+
+					return state;
+				},
+				(state, index, halted) => !halted && done === state.nextSeq,
+			);
+		},
+		isEmpty: Module.lazyGetter(() =>
 			mod.createOutput<any, boolean>(
 				() => true,
 				(_, __, ___, halt): false => {
@@ -355,7 +337,7 @@ export const asyncReducerFactoryModule = Module.create<AsyncReducerFactory>(
 				},
 			),
 		),
-		nonEmpty: Module.lazy(() =>
+		nonEmpty: Module.lazyGetter(() =>
 			mod.createOutput<any, boolean>(
 				() => false,
 				(_, __, ___, halt): true => {
@@ -364,324 +346,308 @@ export const asyncReducerFactoryModule = Module.create<AsyncReducerFactory>(
 				},
 			),
 		),
-		startsWithSlice: Module.factory(
-			<T>(
-				slice: AsyncStreamSource<T>,
-				options: { eq?: Eq<T> | undefined; amount?: number } = {},
-			): AsyncReducer<T, boolean> => {
-				const sliceStream = AsyncStream.from(slice);
-				const done = Symbol();
-				const { eq = Eq.objectIs, amount = 1 } = options;
+		startsWithSlice: <T>(
+			slice: AsyncStreamSource<T>,
+			options: { eq?: Eq<T> | undefined; amount?: number } = {},
+		): AsyncReducer<T, boolean> => {
+			const sliceStream = AsyncStream.from(slice);
+			const done = Symbol();
+			const { eq = Eq.objectIs, amount = 1 } = options;
 
-				return AsyncReducer.create<
-					T,
-					boolean,
-					{
-						sliceIter: AsyncFastIterator<T>;
-						sliceValue: T | typeof done;
-						remain: number;
+			return AsyncReducer.create<
+				T,
+				boolean,
+				{
+					sliceIter: AsyncFastIterator<T>;
+					sliceValue: T | typeof done;
+					remain: number;
+				}
+			>(
+				async (initHalt) => {
+					const sliceIter = sliceStream[Symbol.asyncIterator]();
+					const sliceValue = await sliceIter.fastNext(done);
+
+					if (done === sliceValue || amount <= 0) {
+						initHalt();
+						return { sliceIter, sliceValue, remain: 0 };
 					}
-				>(
-					async (initHalt) => {
-						const sliceIter = sliceStream[Symbol.asyncIterator]();
-						const sliceValue = await sliceIter.fastNext(done);
 
-						if (done === sliceValue || amount <= 0) {
-							initHalt();
-							return { sliceIter, sliceValue, remain: 0 };
-						}
+					return {
+						sliceIter,
+						sliceValue,
+						remain: amount,
+					};
+				},
+				async (state, next, _, halt) => {
+					if (done === state.sliceValue) {
+						RimbuError.throwInvalidStateError();
+					}
 
-						return {
-							sliceIter,
-							sliceValue,
-							remain: amount,
-						};
-					},
-					async (state, next, _, halt) => {
+					if (eq(next, state.sliceValue)) {
+						state.sliceValue = await state.sliceIter.fastNext(done);
+
 						if (done === state.sliceValue) {
-							RimbuError.throwInvalidStateError();
-						}
-
-						if (eq(next, state.sliceValue)) {
-							state.sliceValue = await state.sliceIter.fastNext(done);
-
-							if (done === state.sliceValue) {
-								state.remain--;
-								if (state.remain <= 0) {
-									halt();
-								} else {
-									state.sliceIter = sliceStream[Symbol.asyncIterator]();
-									state.sliceValue = await state.sliceIter.fastNext(done);
-								}
-							}
-						} else {
-							halt();
-						}
-
-						return state;
-					},
-					(state) => state.remain <= 0,
-				);
-			},
-		),
-		endsWithSlice: Module.factory(
-			<T>(
-				slice: AsyncStreamSource<T>,
-				options: { eq?: Eq<T> | undefined; amount?: number } = {},
-			): AsyncReducer<T, boolean> => {
-				const sliceStream = AsyncStream.from(slice);
-				const done = Symbol();
-
-				const newReducerSpec = AsyncReducer.startsWithSlice(slice, options);
-
-				return AsyncReducer.create<
-					T,
-					boolean,
-					Set<AsyncReducer.Instance<T, boolean>>
-				>(
-					async (initHalt) => {
-						const sliceIter = sliceStream[Symbol.asyncIterator]();
-						const sliceValue = await sliceIter.fastNext(done);
-
-						if (done === sliceValue) {
-							initHalt();
-						}
-
-						return new Set([await newReducerSpec.compile()]);
-					},
-					async (state, nextValue) => {
-						for (const instance of state) {
-							if (instance.halted) {
-								state.delete(instance);
-							} else {
-								await instance.next(nextValue);
-							}
-						}
-
-						const newReducerInstance = await newReducerSpec.compile();
-						await newReducerInstance.next(nextValue);
-
-						state.add(newReducerInstance);
-
-						return state;
-					},
-					(state) =>
-						state.size === 0 ||
-						AsyncStream.from(state).some((instance) => instance.getOutput()),
-				);
-			},
-		),
-		containsSlice: Module.factory(
-			<T>(
-				slice: AsyncStreamSource<T>,
-				options: { eq?: Eq<T> | undefined; amount?: number | undefined } = {},
-			): AsyncReducer<T, boolean> => {
-				const { eq, amount = 1 } = options;
-
-				return AsyncReducer.pipe(
-					mod.endsWithSlice(slice, { eq }),
-					Reducer.contains(true, { amount }),
-				);
-			},
-		),
-		partition: Module.factory(
-			<T, RT, RF = RT>(
-				pred: (value: T, index: number) => MaybePromise<boolean>,
-				options: {
-					collectorTrue?: any;
-					collectorFalse?: any;
-				} = {},
-			): AsyncReducer<T, [true: RT, false: RF]> => {
-				const {
-					collectorTrue = Reducer.toArray() as AsyncReducer.Accept<T, RT>,
-					collectorFalse = Reducer.toArray() as AsyncReducer.Accept<T, RF>,
-				} = options;
-
-				return AsyncReducer.create(
-					() =>
-						Promise.all([
-							AsyncReducer.from(collectorTrue).compile(),
-							AsyncReducer.from(collectorFalse).compile(),
-						]),
-					async (state, value, index) => {
-						const instanceIndex = (await pred(value, index)) ? 0 : 1;
-
-						await state[instanceIndex].next(value);
-
-						return state;
-					},
-					(state) =>
-						Promise.all(
-							Stream.from(state).mapPure((v) => v.getOutput()),
-						) as Promise<[RT, RF]>,
-				);
-			},
-		),
-		groupBy: Module.factory(
-			<T, K, R>(
-				valueToKey: (value: T, index: number) => MaybePromise<K>,
-				options: {
-					collector?: AsyncReducer.Accept<readonly [K, T], R> | undefined;
-				} = {},
-			): AsyncReducer<T, R> => {
-				const {
-					collector = Reducer.toJSMultiMap() as AsyncReducer.Accept<
-						readonly [K, T],
-						R
-					>,
-				} = options;
-
-				return AsyncReducer.create(
-					() => AsyncReducer.from(collector).compile(),
-					async (state, value, index) => {
-						const key = await valueToKey(value, index);
-						await state.next([key, value]);
-						return state;
-					},
-					(state) => state.getOutput(),
-				);
-			},
-		),
-		race: Module.factory(
-			<T, R, O>(
-				reducers: AsyncReducer.Accept<T, R>[],
-				otherwise?: AsyncOptLazy<O>,
-			) => {
-				return AsyncReducer.create<
-					T,
-					R | O,
-					{
-						instances: AsyncReducer.Instance<T, R>[];
-						doneInstance: AsyncReducer.Instance<T, R> | undefined;
-					}
-				>(
-					async (initHalt) => {
-						const instances = await Promise.all(
-							Stream.from(reducers).mapPure((reducer) =>
-								AsyncReducer.from(reducer).compile(),
-							),
-						);
-						const doneInstance = instances.find((instance) => instance.halted);
-
-						if (undefined !== doneInstance) {
-							initHalt();
-						}
-
-						return { instances, doneInstance };
-					},
-					async (state, next, _, halt) => {
-						for (const instance of state.instances) {
-							await instance.next(next);
-
-							if (instance.halted) {
-								state.doneInstance = instance;
+							state.remain--;
+							if (state.remain <= 0) {
 								halt();
-								return state;
+							} else {
+								state.sliceIter = sliceStream[Symbol.asyncIterator]();
+								state.sliceValue = await state.sliceIter.fastNext(done);
 							}
 						}
-
-						return state;
-					},
-					(state) =>
-						state.doneInstance === undefined
-							? AsyncOptLazy.toMaybePromise(otherwise!)
-							: state.doneInstance.getOutput(),
-				);
-			},
-		),
-		combine: Module.factory(
-			<T, const S extends AsyncReducer.CombineShape<T>>(
-				shape: S & AsyncReducer.CombineShape<T>,
-			): any => {
-				if (shape instanceof AsyncReducerBase) {
-					return shape as any;
-				}
-				if (shape instanceof ReducerBase) {
-					return AsyncReducer.from(shape) as any;
-				}
-
-				if (Array.isArray(shape)) {
-					return combineArr(
-						...(shape.map((item) => AsyncReducer.combine(item as any)) as any),
-					) as any;
-				}
-
-				if (typeof shape === 'object' && shape !== null) {
-					const result: any = {};
-
-					for (const key in shape) {
-						result[key] = AsyncReducer.combine((shape as any)[key]);
+					} else {
+						halt();
 					}
 
-					return combineObj(result) as any;
-				}
+					return state;
+				},
+				(state) => state.remain <= 0,
+			);
+		},
+		endsWithSlice: <T>(
+			slice: AsyncStreamSource<T>,
+			options: { eq?: Eq<T> | undefined; amount?: number } = {},
+		): AsyncReducer<T, boolean> => {
+			const sliceStream = AsyncStream.from(slice);
+			const done = Symbol();
 
-				throw new InvalidCombineShapeError();
-			},
-		),
-		pipe: Module.factory(
-			(...nextReducers: AsyncReducer.Accept<any, any>[]): any => {
-				if (nextReducers.length < 2) {
-					RimbuError.throwInvalidUsageError(
-						'Reducer.pipe should have at least two arguments',
-					);
-				}
+			const newReducerSpec = AsyncReducer.startsWithSlice(slice, options);
 
-				const [current, next, ...others] = nextReducers as AsyncReducer.Accept<
-					any,
-					any
-				>[];
+			return AsyncReducer.create<
+				T,
+				boolean,
+				Set<AsyncReducer.Instance<T, boolean>>
+			>(
+				async (initHalt) => {
+					const sliceIter = sliceStream[Symbol.asyncIterator]();
+					const sliceValue = await sliceIter.fastNext(done);
 
-				if (others.length > 0) {
-					return AsyncReducer.pipe(
-						current,
-						(AsyncReducer.pipe as any)(next, ...others),
-					);
-				}
+					if (done === sliceValue) {
+						initHalt();
+					}
 
-				return AsyncReducer.create(
-					async (inithalt) => {
-						const currentInstance = await AsyncReducer.from(current).compile();
-						const nextInstance = await AsyncReducer.from(next).compile();
-
-						if (currentInstance.halted || nextInstance.halted) {
-							inithalt();
+					return new Set([await newReducerSpec.compile()]);
+				},
+				async (state, nextValue) => {
+					for (const instance of state) {
+						if (instance.halted) {
+							state.delete(instance);
+						} else {
+							await instance.next(nextValue);
 						}
+					}
 
-						return {
-							currentInstance,
-							nextInstance,
-						};
-					},
-					async (state, next, index, halt) => {
-						const { currentInstance, nextInstance } = state;
+					const newReducerInstance = await newReducerSpec.compile();
+					await newReducerInstance.next(nextValue);
 
-						await currentInstance.next(next);
-						await nextInstance.next(await currentInstance.getOutput());
+					state.add(newReducerInstance);
 
-						if (currentInstance.halted || nextInstance.halted) {
+					return state;
+				},
+				(state) =>
+					state.size === 0 ||
+					AsyncStream.from(state).some((instance) => instance.getOutput()),
+			);
+		},
+		containsSlice: <T>(
+			slice: AsyncStreamSource<T>,
+			options: { eq?: Eq<T> | undefined; amount?: number | undefined } = {},
+		): AsyncReducer<T, boolean> => {
+			const { eq, amount = 1 } = options;
+
+			return AsyncReducer.pipe(
+				mod.endsWithSlice(slice, { eq }),
+				Reducer.contains(true, { amount }),
+			);
+		},
+		partition: <T, RT, RF = RT>(
+			pred: (value: T, index: number) => MaybePromise<boolean>,
+			options: {
+				collectorTrue?: any;
+				collectorFalse?: any;
+			} = {},
+		): AsyncReducer<T, [true: RT, false: RF]> => {
+			const {
+				collectorTrue = Reducer.toArray() as AsyncReducer.Accept<T, RT>,
+				collectorFalse = Reducer.toArray() as AsyncReducer.Accept<T, RF>,
+			} = options;
+
+			return AsyncReducer.create(
+				() =>
+					Promise.all([
+						AsyncReducer.from(collectorTrue).compile(),
+						AsyncReducer.from(collectorFalse).compile(),
+					]),
+				async (state, value, index) => {
+					const instanceIndex = (await pred(value, index)) ? 0 : 1;
+
+					await state[instanceIndex].next(value);
+
+					return state;
+				},
+				(state) =>
+					Promise.all(
+						Stream.from(state).mapPure((v) => v.getOutput()),
+					) as Promise<[RT, RF]>,
+			);
+		},
+		groupBy: <T, K, R>(
+			valueToKey: (value: T, index: number) => MaybePromise<K>,
+			options: {
+				collector?: AsyncReducer.Accept<readonly [K, T], R> | undefined;
+			} = {},
+		): AsyncReducer<T, R> => {
+			const {
+				collector = Reducer.toJSMultiMap() as AsyncReducer.Accept<
+					readonly [K, T],
+					R
+				>,
+			} = options;
+
+			return AsyncReducer.create(
+				() => AsyncReducer.from(collector).compile(),
+				async (state, value, index) => {
+					const key = await valueToKey(value, index);
+					await state.next([key, value]);
+					return state;
+				},
+				(state) => state.getOutput(),
+			);
+		},
+		race: <T, R, O>(
+			reducers: AsyncReducer.Accept<T, R>[],
+			otherwise?: AsyncOptLazy<O>,
+		) => {
+			return AsyncReducer.create<
+				T,
+				R | O,
+				{
+					instances: AsyncReducer.Instance<T, R>[];
+					doneInstance: AsyncReducer.Instance<T, R> | undefined;
+				}
+			>(
+				async (initHalt) => {
+					const instances = await Promise.all(
+						Stream.from(reducers).mapPure((reducer) =>
+							AsyncReducer.from(reducer).compile(),
+						),
+					);
+					const doneInstance = instances.find((instance) => instance.halted);
+
+					if (undefined !== doneInstance) {
+						initHalt();
+					}
+
+					return { instances, doneInstance };
+				},
+				async (state, next, _, halt) => {
+					for (const instance of state.instances) {
+						await instance.next(next);
+
+						if (instance.halted) {
+							state.doneInstance = instance;
 							halt();
+							return state;
 						}
+					}
 
-						return state;
-					},
-					async (state, index, halted) => {
-						if (halted && index === 0) {
-							await state.nextInstance.next(
-								await state.currentInstance.getOutput(),
-							);
-						}
+					return state;
+				},
+				(state) =>
+					state.doneInstance === undefined
+						? AsyncOptLazy.toMaybePromise(otherwise!)
+						: state.doneInstance.getOutput(),
+			);
+		},
+		combine: <T, const S extends AsyncReducer.CombineShape<T>>(
+			shape: S & AsyncReducer.CombineShape<T>,
+		): any => {
+			if (shape instanceof AsyncReducerBase) {
+				return shape as any;
+			}
+			if (shape instanceof ReducerBase) {
+				return AsyncReducer.from(shape) as any;
+			}
 
-						return state.nextInstance.getOutput();
-					},
-					async (state, err) => {
-						await Promise.all([
-							state.currentInstance.onClose(err),
-							state.nextInstance.onClose(err),
-						]);
-					},
+			if (Array.isArray(shape)) {
+				return combineArr(
+					...(shape.map((item) => AsyncReducer.combine(item as any)) as any),
+				) as any;
+			}
+
+			if (typeof shape === 'object' && shape !== null) {
+				const result: any = {};
+
+				for (const key in shape) {
+					result[key] = AsyncReducer.combine((shape as any)[key]);
+				}
+
+				return combineObj(result) as any;
+			}
+
+			throw new InvalidCombineShapeError();
+		},
+		pipe: (...nextReducers: AsyncReducer.Accept<any, any>[]): any => {
+			if (nextReducers.length < 2) {
+				RimbuError.throwInvalidUsageError(
+					'Reducer.pipe should have at least two arguments',
 				);
-			},
-		),
+			}
+
+			const [current, next, ...others] = nextReducers as AsyncReducer.Accept<
+				any,
+				any
+			>[];
+
+			if (others.length > 0) {
+				return AsyncReducer.pipe(
+					current,
+					(AsyncReducer.pipe as any)(next, ...others),
+				);
+			}
+
+			return AsyncReducer.create(
+				async (inithalt) => {
+					const currentInstance = await AsyncReducer.from(current).compile();
+					const nextInstance = await AsyncReducer.from(next).compile();
+
+					if (currentInstance.halted || nextInstance.halted) {
+						inithalt();
+					}
+
+					return {
+						currentInstance,
+						nextInstance,
+					};
+				},
+				async (state, next, index, halt) => {
+					const { currentInstance, nextInstance } = state;
+
+					await currentInstance.next(next);
+					await nextInstance.next(await currentInstance.getOutput());
+
+					if (currentInstance.halted || nextInstance.halted) {
+						halt();
+					}
+
+					return state;
+				},
+				async (state, index, halted) => {
+					if (halted && index === 0) {
+						await state.nextInstance.next(
+							await state.currentInstance.getOutput(),
+						);
+					}
+
+					return state.nextInstance.getOutput();
+				},
+				async (state, err) => {
+					await Promise.all([
+						state.currentInstance.onClose(err),
+						state.nextInstance.onClose(err),
+					]);
+				},
+			);
+		},
 	}),
 );

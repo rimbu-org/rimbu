@@ -5,7 +5,7 @@ import { Comp } from '@rimbu/common/comp';
 import { SortedSetContext } from '#set/context';
 import { SortedSetEmpty, SortedSetInner, SortedSetLeaf } from '#set/immutable';
 
-const context = new SortedSetContext(2, Comp.defaultComp());
+const context = new SortedSetContext(2, Comp.defaultInstance);
 
 describe('SortedSetLeaf', () => {
 	it('addInternal', () => {

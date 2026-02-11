@@ -1,5 +1,7 @@
+import { describe, expect, it } from 'bun:test';
+
 import type { RSet } from '@rimbu/collection-types';
-import type { MultiMap } from '../src/main/index.mjs';
+import type { MultiMap } from '@rimbu/multimap';
 
 import { Stream } from '@rimbu/stream';
 

@@ -62,9 +62,7 @@ export namespace Semaphore {
 }
 
 const semaphoreModule = Module.create<Semaphore.Constructors>(() => ({
-	create: Module.factory(
-		(options: { maxSize: number }) => new SemaphoreImpl(options.maxSize),
-	),
+	create: (options: { maxSize: number }) => new SemaphoreImpl(options.maxSize),
 }));
 
 export const Semaphore: Semaphore.Constructors = semaphoreModule.build();

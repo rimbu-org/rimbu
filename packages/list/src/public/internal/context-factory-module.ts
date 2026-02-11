@@ -36,72 +36,59 @@ const createImmutableFactory = Module.createPartial<
 	ImmutableFactory,
 	ContextFactory
 >((mod) => ({
-	leafBlock: Module.factory(
-		<T>(children: readonly T[]): LeafBlock<T> => new LeafBlock(mod, children),
-	),
-	reversedLeaf: Module.factory(
-		<T>(children: readonly T[]): ReversedLeafBlock<T> =>
-			new ReversedLeafBlock(mod, children),
-	),
-	leafTree: Module.factory(
-		<T>(
-			left: LeafBlock<T>,
-			right: LeafBlock<T>,
-			middle: NonLeaf<T, LeafBlock<T>> | null,
-		): LeafTree<T> => new LeafTree(mod, left, right, middle),
-	),
-	nonLeafBlock: Module.factory(
-		<T, C extends Block<T, C>>(
-			length: number,
-			children: readonly C[],
-			level: number,
-		): NonLeafBlock<T, C> => {
-			return new NonLeafBlock(mod, length, children, level);
-		},
-	),
-	nonLeafTree: Module.factory(
-		<T, C extends Block<T, C>>(
-			left: NonLeafBlock<T, C>,
-			right: NonLeafBlock<T, C>,
-			middle: NonLeaf<T, NonLeafBlock<T, C>> | null,
-			level: number,
-		): NonLeafTree<T, C> => {
-			return new NonLeafTree(mod, left, right, middle, level);
-		},
-	),
-	isLeafBlock: Module.factory(
-		<T>(obj: List<T> | Block<T>): obj is LeafBlock<T> => {
-			return obj instanceof LeafBlock;
-		},
-	),
-	isReversedLeafBlock: Module.factory(
-		<T>(obj: List<T> | Block<T>): obj is ReversedLeafBlock<T> => {
-			return obj instanceof ReversedLeafBlock;
-		},
-	),
-	isNonLeafBlock: Module.factory(
-		<T>(obj: List<T> | Block<T> | NonLeaf<T>): obj is NonLeafBlock<T, any> => {
-			return obj instanceof NonLeafBlock;
-		},
-	),
-	isLeafTree: Module.factory(<T>(obj: List<T>): obj is LeafTree<T> => {
+	leafBlock: <T>(children: readonly T[]): LeafBlock<T> =>
+		new LeafBlock(mod, children),
+	reversedLeaf: <T>(children: readonly T[]): ReversedLeafBlock<T> =>
+		new ReversedLeafBlock(mod, children),
+	leafTree: <T>(
+		left: LeafBlock<T>,
+		right: LeafBlock<T>,
+		middle: NonLeaf<T, LeafBlock<T>> | null,
+	): LeafTree<T> => new LeafTree(mod, left, right, middle),
+	nonLeafBlock: <T, C extends Block<T, C>>(
+		length: number,
+		children: readonly C[],
+		level: number,
+	): NonLeafBlock<T, C> => {
+		return new NonLeafBlock(mod, length, children, level);
+	},
+	nonLeafTree: <T, C extends Block<T, C>>(
+		left: NonLeafBlock<T, C>,
+		right: NonLeafBlock<T, C>,
+		middle: NonLeaf<T, NonLeafBlock<T, C>> | null,
+		level: number,
+	): NonLeafTree<T, C> => {
+		return new NonLeafTree(mod, left, right, middle, level);
+	},
+	isLeafBlock: <T>(obj: List<T> | Block<T>): obj is LeafBlock<T> => {
+		return obj instanceof LeafBlock;
+	},
+	isReversedLeafBlock: <T>(
+		obj: List<T> | Block<T>,
+	): obj is ReversedLeafBlock<T> => {
+		return obj instanceof ReversedLeafBlock;
+	},
+	isNonLeafBlock: <T>(
+		obj: List<T> | Block<T> | NonLeaf<T>,
+	): obj is NonLeafBlock<T, any> => {
+		return obj instanceof NonLeafBlock;
+	},
+	isLeafTree: <T>(obj: List<T>): obj is LeafTree<T> => {
 		return obj instanceof LeafTree;
-	}),
-	isNonLeafTree: Module.factory(
-		<T>(obj: NonLeaf<T>): obj is NonLeafTree<T, any> => {
-			return obj instanceof NonLeafTree;
-		},
-	),
+	},
+	isNonLeafTree: <T>(obj: NonLeaf<T>): obj is NonLeafTree<T, any> => {
+		return obj instanceof NonLeafTree;
+	},
 }));
 
 const createBuilderFactory = Module.createPartial<
 	BuilderFactory,
 	ContextFactory
 >((mod) => ({
-	builder: Module.factory(<T>(): GenBuilder<T> => {
+	builder: <T>(): GenBuilder<T> => {
 		return new GenBuilder<T>(mod);
-	}),
-	createBuilder: Module.factory(<T>(source?: List<T>): GenBuilder<T> => {
+	},
+	createBuilder: <T>(source?: List<T>): GenBuilder<T> => {
 		if (undefined === source || source.isEmpty) return new GenBuilder<T>(mod);
 
 		const context = source.context as ContextFactory;
@@ -117,101 +104,83 @@ const createBuilderFactory = Module.createPartial<
 		}
 
 		RimbuError.throwInvalidStateError();
-	}),
-	leafBlockBuilderSource: Module.factory(
-		<T>(source: LeafBlock<T>): LeafBlockBuilder<T> => {
-			return new LeafBlockBuilder(mod, source);
-		},
-	),
-	leafBlockBuilder: Module.factory(<T>(children: T[]): LeafBlockBuilder<T> => {
+	},
+	leafBlockBuilderSource: <T>(source: LeafBlock<T>): LeafBlockBuilder<T> => {
+		return new LeafBlockBuilder(mod, source);
+	},
+	leafBlockBuilder: <T>(children: T[]): LeafBlockBuilder<T> => {
 		return new LeafBlockBuilder(mod, undefined, children);
-	}),
-	leafTreeBuilderSource: Module.factory(
-		<T>(source: LeafTree<T>): LeafTreeBuilder<T> => {
-			return new LeafTreeBuilder(mod, source);
-		},
-	),
-	leafTreeBuilder: Module.factory(
-		<T>(
-			left: LeafBlockBuilder<T>,
-			right: LeafBlockBuilder<T>,
-			middle?: NonLeafBuilder<T, LeafBlockBuilder<T>>,
-			length?: number,
-		): LeafTreeBuilder<T> => {
-			return new LeafTreeBuilder(mod, undefined, left, right, middle, length);
-		},
-	),
-	nonLeafBlockBuilderSource: Module.factory(
-		<T, C extends BlockBuilder<T>>(
-			source: NonLeafBlock<T, any>,
-		): NonLeafBlockBuilder<T, C> => {
-			return new NonLeafBlockBuilder(mod, source.level, source);
-		},
-	),
-	nonLeafBlockBuilder: Module.factory(
-		<T, C extends BlockBuilder<T>>(
-			level: number,
-			children: C[],
-			length: number,
-		): NonLeafBlockBuilder<T, C> => {
-			return new NonLeafBlockBuilder(mod, level, undefined, children, length);
-		},
-	),
-	nonLeafTreeBuilderSource: Module.factory(
-		<T, C extends BlockBuilder<T>>(
-			source: NonLeafTree<T, any>,
-		): NonLeafTreeBuilder<T, C> => {
-			return new NonLeafTreeBuilder(mod, source.level, source);
-		},
-	),
-	nonLeafTreeBuilder: Module.factory(
-		<T, C extends BlockBuilder<T>>(
-			level: number,
-			left: NonLeafBlockBuilder<T, C>,
-			right: NonLeafBlockBuilder<T, C>,
-			middle?: NonLeafBuilder<T, NonLeafBlockBuilder<T, C>>,
-			length?: number,
-		): NonLeafTreeBuilder<T, C> => {
-			return new NonLeafTreeBuilder(
-				mod,
-				level,
-				undefined,
-				left,
-				right,
-				middle,
-				length,
-			);
-		},
-	),
-	isLeafBlockBuilder: Module.factory(
-		<T>(obj: LeafBuilder<T>): obj is LeafBlockBuilder<T> => {
-			return obj instanceof LeafBlockBuilder;
-		},
-	),
-	isLeafTreeBuilder: Module.factory(
-		<T>(obj: LeafBuilder<T>): obj is LeafTreeBuilder<T> => {
-			return obj instanceof LeafTreeBuilder;
-		},
-	),
-	isNonLeafBlockBuilder: Module.factory(
-		<T>(obj: NonLeafBuilder<T, any>): obj is NonLeafBlockBuilder<T, any> => {
-			return obj instanceof NonLeafBlockBuilder;
-		},
-	),
+	},
+	leafTreeBuilderSource: <T>(source: LeafTree<T>): LeafTreeBuilder<T> => {
+		return new LeafTreeBuilder(mod, source);
+	},
+	leafTreeBuilder: <T>(
+		left: LeafBlockBuilder<T>,
+		right: LeafBlockBuilder<T>,
+		middle?: NonLeafBuilder<T, LeafBlockBuilder<T>>,
+		length?: number,
+	): LeafTreeBuilder<T> => {
+		return new LeafTreeBuilder(mod, undefined, left, right, middle, length);
+	},
+	nonLeafBlockBuilderSource: <T, C extends BlockBuilder<T>>(
+		source: NonLeafBlock<T, any>,
+	): NonLeafBlockBuilder<T, C> => {
+		return new NonLeafBlockBuilder(mod, source.level, source);
+	},
+	nonLeafBlockBuilder: <T, C extends BlockBuilder<T>>(
+		level: number,
+		children: C[],
+		length: number,
+	): NonLeafBlockBuilder<T, C> => {
+		return new NonLeafBlockBuilder(mod, level, undefined, children, length);
+	},
+	nonLeafTreeBuilderSource: <T, C extends BlockBuilder<T>>(
+		source: NonLeafTree<T, any>,
+	): NonLeafTreeBuilder<T, C> => {
+		return new NonLeafTreeBuilder(mod, source.level, source);
+	},
+	nonLeafTreeBuilder: <T, C extends BlockBuilder<T>>(
+		level: number,
+		left: NonLeafBlockBuilder<T, C>,
+		right: NonLeafBlockBuilder<T, C>,
+		middle?: NonLeafBuilder<T, NonLeafBlockBuilder<T, C>>,
+		length?: number,
+	): NonLeafTreeBuilder<T, C> => {
+		return new NonLeafTreeBuilder(
+			mod,
+			level,
+			undefined,
+			left,
+			right,
+			middle,
+			length,
+		);
+	},
+	isLeafBlockBuilder: <T>(obj: LeafBuilder<T>): obj is LeafBlockBuilder<T> => {
+		return obj instanceof LeafBlockBuilder;
+	},
+	isLeafTreeBuilder: <T>(obj: LeafBuilder<T>): obj is LeafTreeBuilder<T> => {
+		return obj instanceof LeafTreeBuilder;
+	},
+	isNonLeafBlockBuilder: <T>(
+		obj: NonLeafBuilder<T, any>,
+	): obj is NonLeafBlockBuilder<T, any> => {
+		return obj instanceof NonLeafBlockBuilder;
+	},
 }));
 
 const createListCreators = Module.createPartial<
 	Omit<ListCreators, 'builder' | 'defaultContext'>,
 	ContextFactory
 >((mod) => ({
-	empty: Module.lazyGet(() => Object.freeze(new Empty(mod))),
-	of: Module.factory(<T>(...values: ArrayNonEmpty<T>): List.NonEmpty<T> => {
+	empty: Module.lazy(() => Object.freeze(new Empty(mod))),
+	of: <T>(...values: ArrayNonEmpty<T>): List.NonEmpty<T> => {
 		if (values.length <= mod.maxBlockSize) {
 			return mod.leafBlock<T>(values);
 		}
 		return mod.from(values);
-	}),
-	from: Module.factory(<T>(...sources: ArrayNonEmpty<StreamSource<T>>): any => {
+	},
+	from: <T>(...sources: ArrayNonEmpty<StreamSource<T>>): any => {
 		if (sources.length === 1) {
 			const source = sources[0];
 			if ((source as any).context === mod) return source;
@@ -246,37 +215,29 @@ const createListCreators = Module.createPartial<
 
 		if (null === result) return mod.empty();
 		return result;
-	}),
-	fromString: Module.factory((...sources: ArrayNonEmpty<string>): any => {
+	},
+	fromString: (...sources: ArrayNonEmpty<string>): any => {
 		return mod.from(...sources);
-	}),
-	flatten: Module.factory((source: any): any =>
-		mod.from(source).flatMap((s: any) => s),
-	),
-	unzip: Module.factory((source: any, options: { length: number }): any => {
+	},
+	flatten: (source: any): any => mod.from(source).flatMap((s: any) => s),
+	unzip: (source: any, options: { length: number }): any => {
 		const streams = Stream.unzip(source, options) as any as Stream<any>[];
 
 		return Stream.from(streams).mapPure(mod.from) as any;
-	}),
-	builder: Module.factory(<T>(): GenBuilder<T> => new GenBuilder<T>(mod)),
-	reducer: Module.factory(
-		<T>(source?: StreamSource<T>): Reducer<T, List<T>> => {
-			return Reducer.create(
-				() =>
-					undefined === source
-						? mod.builder<T>()
-						: mod.from(source).toBuilder(),
-				(builder, value) => {
-					builder.append(value);
-					return builder;
-				},
-				(builder) => builder.build(),
-			);
-		},
-	),
-	createContext: Module.factory((options) =>
-		createContextFactoryModule(options, mod).build(),
-	),
+	},
+	builder: <T>(): GenBuilder<T> => new GenBuilder<T>(mod),
+	reducer: <T>(source?: StreamSource<T>): Reducer<T, List<T>> => {
+		return Reducer.create(
+			() =>
+				undefined === source ? mod.builder<T>() : mod.from(source).toBuilder(),
+			(builder, value) => {
+				builder.append(value);
+				return builder;
+			},
+			(builder) => builder.build(),
+		);
+	},
+	createContext: (options) => createContextFactoryModule(options, mod).build(),
 }));
 
 const DEFAULT_BLOCK_SIZE_BITS = 5;
@@ -299,12 +260,12 @@ export function createContextFactoryModule(
 		...createBuilderFactory(mod),
 		...createListCreators(mod),
 
-		defaultContext: Module.constantGet(_defaultContextInstance ?? mod),
-		_types: Module.constant(undefined as any),
-		typeTag: Module.constant('List' as const),
-		blockSizeBits: Module.constant(blockSizeBits),
-		maxBlockSize: Module.constant(1 << blockSizeBits),
-		minBlockSize: Module.constant(1 << (blockSizeBits - 1)),
-		createCacheMap: Module.factory((): CacheMap => new CacheMap()),
+		defaultContext: Module.lazy(() => _defaultContextInstance ?? mod),
+		_types: undefined as any,
+		typeTag: 'List' as const,
+		blockSizeBits: blockSizeBits,
+		maxBlockSize: 1 << blockSizeBits,
+		minBlockSize: 1 << (blockSizeBits - 1),
+		createCacheMap: (): CacheMap => new CacheMap(),
 	}));
 }

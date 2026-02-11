@@ -48,7 +48,7 @@ export namespace RemoteChannelServer {
 
 const removeChannelServerModule =
 	Module.create<RemoteChannelServer.Constructors>(() => ({
-		create: Module.factory(RemoteChannelServerImpl),
+		create: RemoteChannelServerImpl,
 	}));
 
 export const RemoteChannelServer: RemoteChannelServer.Constructors =

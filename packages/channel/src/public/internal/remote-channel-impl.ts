@@ -103,10 +103,10 @@ export abstract class RemoteChannelBase {
 						data.sourceInstanceId === this.otherInstanceId) &&
 					filter?.(data) !== false
 				) {
-					//   console.log("receive", data, {
-					//     self: this.instanceId,
-					//     other: this.otherInstanceId,
-					//   });
+					// console.log('receive', data, {
+					// 	self: this.instanceId,
+					// 	other: this.otherInstanceId,
+					// });
 					resolve(data);
 				}
 			};
@@ -449,15 +449,18 @@ export class RemoteChannelRead<T>
 					signal: cancelController.signal,
 				});
 
-				const receiveCancelFn = async (): Promise<void> => {
-					await this.receiveMessage('SEND_VALUE_REQUEST_CANCEL', {
+				const receiveCancelPromise = this.receiveMessage(
+					'SEND_VALUE_REQUEST_CANCEL',
+					{
 						signal: cancelController.signal,
-					});
-				};
+					},
+				);
 
-				await Promise.race([receivePromise, receiveCancelFn()]).finally(() => {
-					cancelController.abort();
-				});
+				await Promise.race([receivePromise, receiveCancelPromise]).finally(
+					() => {
+						cancelController.abort();
+					},
+				);
 
 				this.postMessage('SEND_VALUE_RESPONSE', { accepted: true });
 			} catch {

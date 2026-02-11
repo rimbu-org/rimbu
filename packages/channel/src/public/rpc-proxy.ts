@@ -70,10 +70,8 @@ export namespace RpcProxy {
 }
 
 const rpxProxyModule = Module.create<RpcProxy.Constructors>(() => ({
-	create: Module.factory(
-		<T>(onCall: (path: RpcProxy.Path) => Promise<any>) =>
-			new RpcProxyImpl<T>(onCall),
-	),
+	create: <T>(onCall: (path: RpcProxy.Path) => Promise<any>) =>
+		new RpcProxyImpl<T>(onCall),
 }));
 
 export const RpcProxy: RpcProxy.Constructors = rpxProxyModule.build();

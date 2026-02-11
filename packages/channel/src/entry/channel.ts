@@ -260,134 +260,130 @@ export namespace Channel {
 }
 
 const channelModule = Module.create<Channel.Constructors>(() => ({
-	create: Module.factory((options) => {
+	create: (options) => {
 		return new ChannelImpl(options);
-	}),
-	select: Module.factory(
-		async <CS extends Channel.Read<any>[], RT>(
-			channels: CS,
-			options: {
-				signal?: AbortSignal | undefined;
-				timeoutMs?: number | undefined;
-				recover?: ((channelError: Channel.Error) => RT) | undefined;
-			} = {},
-		): Promise<
-			| RT
-			| {
-					[K in keyof CS]: Channel.MessageType<CS[K]>;
-			  }[number]
-		> => {
-			const { signal, timeoutMs, recover } = options;
+	},
+	select: async <CS extends Channel.Read<any>[], RT>(
+		channels: CS,
+		options: {
+			signal?: AbortSignal | undefined;
+			timeoutMs?: number | undefined;
+			recover?: ((channelError: Channel.Error) => RT) | undefined;
+		} = {},
+	): Promise<
+		| RT
+		| {
+				[K in keyof CS]: Channel.MessageType<CS[K]>;
+		  }[number]
+	> => {
+		const { signal, timeoutMs, recover } = options;
 
-			if (signal?.aborted) {
-				throw new ChannelError.OperationAbortedError();
-			}
+		if (signal?.aborted) {
+			throw new ChannelError.OperationAbortedError();
+		}
 
-			const localController = new AbortController();
-			const abortLocalController = (): void => localController.abort();
+		const localController = new AbortController();
+		const abortLocalController = (): void => localController.abort();
 
-			const cleaner = createCleaner();
+		const cleaner = createCleaner();
 
-			cleaner.add(
-				abortLocalController,
-				attachAbort(signal, abortLocalController),
-			);
+		cleaner.add(
+			abortLocalController,
+			attachAbort(signal, abortLocalController),
+		);
 
-			const mappedChannels = channels.map(async (channel) => {
-				try {
-					const value = await channel.receive({
-						signal: localController.signal,
-						timeoutMs,
-					});
-
-					return value;
-				} finally {
-					// abort other channel receivers
-					cleaner.cleanup();
-				}
-			});
-
+		const mappedChannels = channels.map(async (channel) => {
 			try {
-				return await Promise.any(mappedChannels);
-			} catch (err) {
-				if (recover !== undefined) {
-					if (ChannelError.isChannelError(err)) {
-						return recover(err);
-					} else if (err instanceof AggregateError) {
-						return recover(new ChannelError.TimeoutError());
-					}
-				}
+				const value = await channel.receive({
+					signal: localController.signal,
+					timeoutMs,
+				});
 
-				throw err;
+				return value;
+			} finally {
+				// abort other channel receivers
+				cleaner.cleanup();
 			}
+		});
+
+		try {
+			return await Promise.any(mappedChannels);
+		} catch (err) {
+			if (recover !== undefined) {
+				if (ChannelError.isChannelError(err)) {
+					return recover(err);
+				} else if (err instanceof AggregateError) {
+					return recover(new ChannelError.TimeoutError());
+				}
+			}
+
+			throw err;
+		}
+	},
+	selectMap: async <
+		TS extends any[],
+		HS extends {
+			[K in keyof TS]: [Channel.Read<TS[K]>, (value: TS[K]) => any];
 		},
-	),
-	selectMap: Module.factory(
-		async <
-			TS extends any[],
-			HS extends {
-				[K in keyof TS]: [Channel.Read<TS[K]>, (value: TS[K]) => any];
-			},
-			RT,
-		>(
-			options: {
-				signal?: AbortSignal | undefined;
-				timeoutMs?: number | undefined;
-				recover?: ((channelError: Channel.Error) => RT) | undefined;
-			} = {},
-			...cases: HS & {
-				[K in keyof TS]: [Channel.Read<TS[K]>, (value: TS[K]) => any];
-			}
-		): Promise<
-			{ [K in keyof HS]: Promise<ReturnType<HS[K][1]>> }[number] | RT
-		> => {
-			const { signal, timeoutMs, recover } = options;
+		RT,
+	>(
+		options: {
+			signal?: AbortSignal | undefined;
+			timeoutMs?: number | undefined;
+			recover?: ((channelError: Channel.Error) => RT) | undefined;
+		} = {},
+		...cases: HS & {
+			[K in keyof TS]: [Channel.Read<TS[K]>, (value: TS[K]) => any];
+		}
+	): Promise<
+		{ [K in keyof HS]: Promise<ReturnType<HS[K][1]>> }[number] | RT
+	> => {
+		const { signal, timeoutMs, recover } = options;
 
-			if (signal?.aborted) {
-				throw new ChannelError.OperationAbortedError();
-			}
+		if (signal?.aborted) {
+			throw new ChannelError.OperationAbortedError();
+		}
 
-			const localController = new AbortController();
-			const abortLocalController = (): void => localController.abort();
+		const localController = new AbortController();
+		const abortLocalController = (): void => localController.abort();
 
-			const cleaner = createCleaner();
+		const cleaner = createCleaner();
 
-			cleaner.add(
-				abortLocalController,
-				attachAbort(signal, abortLocalController),
-			);
+		cleaner.add(
+			abortLocalController,
+			attachAbort(signal, abortLocalController),
+		);
 
-			const mappedCases = cases.map(async ([chan, handler]) => {
-				try {
-					const value = await chan.receive({
-						signal: localController.signal,
-						timeoutMs,
-					});
-
-					return [handler, value] as const;
-				} finally {
-					// abort other channel receivers
-					cleaner.cleanup();
-				}
-			});
-
+		const mappedCases = cases.map(async ([chan, handler]) => {
 			try {
-				const [handler, value] = await Promise.any(mappedCases);
+				const value = await chan.receive({
+					signal: localController.signal,
+					timeoutMs,
+				});
 
-				return handler(value);
-			} catch (err) {
-				if (recover !== undefined) {
-					if (ChannelError.isChannelError(err)) {
-						return recover(err);
-					} else if (err instanceof AggregateError) {
-						return recover(new ChannelError.TimeoutError());
-					}
-				}
-
-				throw err;
+				return [handler, value] as const;
+			} finally {
+				// abort other channel receivers
+				cleaner.cleanup();
 			}
-		},
-	),
+		});
+
+		try {
+			const [handler, value] = await Promise.any(mappedCases);
+
+			return handler(value);
+		} catch (err) {
+			if (recover !== undefined) {
+				if (ChannelError.isChannelError(err)) {
+					return recover(err);
+				} else if (err instanceof AggregateError) {
+					return recover(new ChannelError.TimeoutError());
+				}
+			}
+
+			throw err;
+		}
+	},
 }));
 
 export const Channel: Channel.Constructors = channelModule.build();

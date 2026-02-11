@@ -2,7 +2,6 @@ import { afterEach, describe, expect, it, vi } from 'bun:test';
 
 import { CancellationError, TimeoutError } from '@rimbu/task/errors';
 
-// Import internal utility functions directly from source
 import {
 	cleanupOn,
 	cleanupToCallback,
@@ -17,20 +16,20 @@ describe(disposableDelay.name, () => {
 		vi.useRealTimers();
 	});
 
-	it('resolves after the given delay', async () => {
+	it('resolves after the given delay', () => {
 		vi.useFakeTimers();
 		const p = disposableDelay(100);
 		vi.advanceTimersByTime(100);
-		await expect(p).resolves.toBeUndefined();
+		expect(p).resolves.toBeUndefined();
 		// disposing after resolution should be harmless
 		p[Symbol.dispose]();
 	});
 
-	it('rejects with CancellationError when disposed before resolving', async () => {
+	it('rejects with CancellationError when disposed before resolving', () => {
 		vi.useFakeTimers();
 		const p = disposableDelay(1000);
 		p[Symbol.dispose]();
-		await expect(p).rejects.toThrow(CancellationError);
+		expect(p).rejects.toThrow(CancellationError);
 	});
 });
 
@@ -39,22 +38,22 @@ describe('internal withTimeout', () => {
 		vi.useRealTimers();
 	});
 
-	it('returns original promise when timeoutMs is undefined', async () => {
-		const result = await internalWithTimeout(Promise.resolve('ok'));
-		expect(result).toBe('ok');
+	it('returns original promise when timeoutMs is undefined', () => {
+		const promise = internalWithTimeout(Promise.resolve('ok'));
+		expect(promise).resolves.toBe('ok');
 	});
 
-	it('resolves if inner promise settles before timeout', async () => {
-		const result = await internalWithTimeout(Promise.resolve('fast'), 50);
-		expect(result).toBe('fast');
+	it('resolves if inner promise settles before timeout', () => {
+		const promise = internalWithTimeout(Promise.resolve('fast'), 50);
+		expect(promise).resolves.toBe('fast');
 	});
 
-	it('throws TimeoutError if promise does not settle before timeout', async () => {
+	it('throws TimeoutError if promise does not settle before timeout', () => {
 		vi.useFakeTimers();
 		const never = new Promise<void>(() => {});
 		const timed = internalWithTimeout(never, 100);
 		vi.advanceTimersByTime(100);
-		await expect(timed).rejects.toThrow(TimeoutError);
+		expect(timed).rejects.toThrow(TimeoutError);
 	});
 });
 
@@ -142,7 +141,7 @@ describe(cleanupToCallback.name, () => {
 });
 
 describe(promiseToDisposable.name, () => {
-	it('attaches cleanup that can be invoked via Symbol.dispose', async () => {
+	it('attaches cleanup that can be invoked via Symbol.dispose', () => {
 		let cleaned = 0;
 		const p = Promise.resolve('value');
 		const disposable = promiseToDisposable(p, () => {
@@ -150,11 +149,12 @@ describe(promiseToDisposable.name, () => {
 		});
 		disposable[Symbol.dispose]();
 		expect(cleaned).toBe(1);
-		await expect(disposable).resolves.toBe('value');
+		expect(disposable).resolves.toBe('value');
 	});
 
-	it('invokes provided cleanup before unresolved promise settles', async () => {
+	it('invokes provided cleanup before unresolved promise settles', () => {
 		vi.useFakeTimers();
+
 		let cleaned = 0;
 		let resolved = false;
 		const p = new Promise<string>((resolve) => {
@@ -169,8 +169,10 @@ describe(promiseToDisposable.name, () => {
 		disposable[Symbol.dispose]();
 		expect(cleaned).toBe(1);
 		vi.advanceTimersByTime(1000);
-		// Still resolves (cleanup does not cancel promise implementation here)
-		await expect(disposable).resolves.toBe('late');
+
+		expect(disposable).resolves.toBe('late');
 		expect(resolved).toBe(true);
+
+		vi.useRealTimers();
 	});
 });

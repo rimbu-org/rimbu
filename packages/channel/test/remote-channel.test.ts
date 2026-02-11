@@ -4,7 +4,7 @@ import { ChannelError } from '@rimbu/channel';
 import { RemoteChannel } from '@rimbu/channel/remote-channel';
 import { expectNotResolves } from './test-utils';
 
-import { defer } from '#channel/utils';
+import { timeout } from '#channel/utils';
 
 const MSG = 'MESSAGE!';
 
@@ -73,7 +73,7 @@ describe('RemoteChannel buffer 0', () => {
 		chWrite.close();
 		expect(chRead.capacity).toBe(0);
 		expect(chRead.length).toBe(0);
-		await defer();
+		await timeout(1);
 		expect(chRead.isExhausted).toBe(true);
 
 		expect(chWrite.isClosed).toBe(true);
@@ -351,8 +351,9 @@ describe('RemoteChannel buffer 0', () => {
 		try {
 			const receivePromise = chRead.receive();
 			expect(chRead.receive()).rejects.toThrow();
-			chWrite.send(MSG);
+			const writePromise = chWrite.send(MSG);
 			expect(receivePromise).resolves.toBe(MSG);
+			await writePromise;
 		} finally {
 			chWrite.close();
 		}
@@ -632,8 +633,9 @@ describe('RemoteChannel buffer 1', () => {
 		try {
 			const receivePromise = chRead.receive();
 			expect(chRead.receive()).rejects.toThrow();
-			chWrite.send(MSG);
+			const writePromise = chWrite.send(MSG);
 			expect(receivePromise).resolves.toBe(MSG);
+			await writePromise;
 		} finally {
 			chWrite.close();
 		}
@@ -668,12 +670,12 @@ describe('RemoteChannel buffer 1', () => {
 		expect(chRead2.receive()).resolves.toBe('B');
 		expect(chRead1.receive()).resolves.toBe('A');
 		chWrite1.close();
-		await defer();
+		await timeout(1);
 		expect(chRead1.isExhausted).toBe(true);
 		expect(chWrite2.isClosed).toBe(false);
 		expect(chRead2.isExhausted).toBe(false);
 		chWrite2.close();
-		await defer();
+		await timeout(1);
 		expect(chWrite2.isClosed).toBe(true);
 	});
 });
@@ -689,6 +691,7 @@ describe('RemoteChannel capacity 3', () => {
 			await chWrite.send('B');
 			await chWrite.send('C');
 			expect(chWrite.send('Q', { timeoutMs: 10 })).rejects.toThrow();
+			await timeout(20);
 			expect(chRead.receive()).resolves.toBe('A');
 			expect(chRead.receive()).resolves.toBe('B');
 			expect(chRead.receive()).resolves.toBe('C');

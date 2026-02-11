@@ -4,7 +4,7 @@ import { Task } from '@rimbu/task';
 import { taskify } from '@rimbu/task/utils';
 
 describe(taskify.name, () => {
-	it('should create a task that calls the original function with an AbortSignal', async () => {
+	it('should create a task that calls the original function with an AbortSignal', () => {
 		const mockFetch = vi.fn(
 			(url: string, options: { signal?: AbortSignal }) => {
 				return `Fetched from ${url} with signal: ${
@@ -15,11 +15,13 @@ describe(taskify.name, () => {
 
 		const fetchTask = taskify(mockFetch, 1);
 
-		const result = await Task.launch(fetchTask, {
+		const result = Task.launch(fetchTask, {
 			args: ['http://example.com', {}],
 		}).join();
 
-		expect(result).toBe('Fetched from http://example.com with signal: present');
+		expect(result).resolves.toBe(
+			'Fetched from http://example.com with signal: present',
+		);
 		expect(mockFetch).toHaveBeenCalledWith(
 			'http://example.com',
 			expect.objectContaining({
@@ -28,7 +30,7 @@ describe(taskify.name, () => {
 		);
 	});
 
-	it('should cancel the operation when the task context is cancelled', async () => {
+	it('should cancel the operation when the task context is cancelled', () => {
 		const mockFetch = vi.fn(
 			(url: string, options: { signal?: AbortSignal }) => {
 				return new Promise<string>((resolve, reject) => {
@@ -54,7 +56,7 @@ describe(taskify.name, () => {
 			job.cancel();
 		}, 10);
 
-		await expect(job.join()).rejects.toThrow('Aborted');
+		expect(job.join()).rejects.toThrow('Aborted');
 		expect(mockFetch).toHaveBeenCalledWith(
 			'http://example.com',
 			expect.objectContaining({
@@ -63,7 +65,7 @@ describe(taskify.name, () => {
 		);
 	});
 
-	it('cancels the task when an abort signal is passed and triggered', async () => {
+	it('cancels the task when an abort signal is passed and triggered', () => {
 		const mockFetch = vi.fn(
 			(url: string, options: { signal?: AbortSignal }) => {
 				return new Promise<string>((resolve, reject) => {
@@ -93,6 +95,6 @@ describe(taskify.name, () => {
 			abortController.abort();
 		}, 10);
 
-		await expect(job.join()).rejects.toThrow('Aborted via external signal');
+		expect(job.join()).rejects.toThrow('Aborted via external signal');
 	});
 });

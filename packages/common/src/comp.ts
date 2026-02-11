@@ -334,7 +334,7 @@ interface CompModule extends Comp.Factory {
 }
 
 const compModule = Module.create<CompModule>((mod) => ({
-	_createAnyComp: Module.factory((mode) => {
+	_createAnyComp: (mode) => {
 		const result = mod.create(
 			(obj): obj is any => {
 				return true;
@@ -401,58 +401,59 @@ const compModule = Module.create<CompModule>((mod) => ({
 		);
 
 		return result;
-	}),
-	_createObjectComp: Module.factory(
-		(keyComp = mod.anyFlat(), valueComp = mod.defaultInstance) =>
-			mod.create(
-				(obj): obj is Record<any, any> => {
-					return true;
-				},
-				(v1, v2): number => {
-					const keys1 = Object.keys(v1);
-					const keys2 = Object.keys(v2);
+	},
+	_createObjectComp: (
+		keyComp = mod.anyFlat(),
+		valueComp = mod.defaultInstance,
+	) =>
+		mod.create(
+			(obj): obj is Record<any, any> => {
+				return true;
+			},
+			(v1, v2): number => {
+				const keys1 = Object.keys(v1);
+				const keys2 = Object.keys(v2);
 
-					if (keys1.length === 0) {
-						return keys2.length === 0 ? 0 : -1;
-					}
-					if (keys2.length === 0) {
-						return keys1.length === 0 ? 0 : 1;
-					}
+				if (keys1.length === 0) {
+					return keys2.length === 0 ? 0 : -1;
+				}
+				if (keys2.length === 0) {
+					return keys1.length === 0 ? 0 : 1;
+				}
 
-					keys1.sort(keyComp.compare);
-					keys2.sort(keyComp.compare);
+				keys1.sort(keyComp.compare);
+				keys2.sort(keyComp.compare);
 
-					const length = Math.min(keys1.length, keys2.length);
+				const length = Math.min(keys1.length, keys2.length);
 
-					for (let index = 0; index < length; index++) {
-						const key1 = keys1[index];
-						const key2 = keys2[index];
-						const keyResult = keyComp.compare(key1, key2);
+				for (let index = 0; index < length; index++) {
+					const key1 = keys1[index];
+					const key2 = keys2[index];
+					const keyResult = keyComp.compare(key1, key2);
 
-						if (keyResult !== 0) return keyResult;
+					if (keyResult !== 0) return keyResult;
 
-						const value1 = v1[key1];
-						const value2 = v2[key2];
+					const value1 = v1[key1];
+					const value2 = v2[key2];
 
-						const valueResult = valueComp.compare(value1, value2);
+					const valueResult = valueComp.compare(value1, value2);
 
-						if (valueResult !== 0) return valueResult;
-					}
+					if (valueResult !== 0) return valueResult;
+				}
 
-					const keyDiff = keys1.length - keys2.length;
+				const keyDiff = keys1.length - keys2.length;
 
-					return keyDiff;
-				},
-			),
-	),
-	_defaultCollator: Module.lazy(() => Intl.Collator('und')),
-	_stringInstance: Module.lazy(() =>
+				return keyDiff;
+			},
+		),
+	_defaultCollator: Module.lazyGetter(() => Intl.Collator('und')),
+	_stringInstance: Module.lazyGetter(() =>
 		mod.create(
 			(obj): obj is string => typeof obj === 'string',
 			mod._defaultCollator.compare,
 		),
 	),
-	_tryWrappedCompare: Module.lazy(() => {
+	_tryWrappedCompare: Module.lazyGetter(() => {
 		const wrappedComps = [
 			mod.byValueOf(Boolean, mod.boolean),
 			mod.date,
@@ -476,15 +477,14 @@ const compModule = Module.create<CompModule>((mod) => ({
 			return undefined;
 		};
 	}),
-	_objectAnyComp: Module.lazy(() =>
+	_objectAnyComp: Module.lazyGetter(() =>
 		mod._createObjectComp(mod.anyFlat(), mod.defaultInstance),
 	),
-	_iterableAnyComp: Module.lazy(() => mod.defaultInstance.forIterable()),
-	create: Module.factory(
-		(isComparable, compare) => new CompImpl(compare, isComparable),
-	),
-	defaultInstance: Module.lazy(() => mod._createAnyComp('DEEP')),
-	number: Module.lazy(() =>
+	_iterableAnyComp: Module.lazyGetter(() => mod.defaultInstance.forIterable()),
+	create: (isComparable, compare) => new CompImpl(compare, isComparable),
+
+	defaultInstance: Module.lazyGetter(() => mod._createAnyComp('DEEP')),
+	number: Module.lazyGetter(() =>
 		mod.create(
 			(obj): obj is number => typeof obj === 'number',
 			(v1, v2): number => {
@@ -508,7 +508,7 @@ const compModule = Module.create<CompModule>((mod) => ({
 			},
 		),
 	),
-	boolean: Module.lazy(() =>
+	boolean: Module.lazyGetter(() =>
 		mod.create(
 			(obj): obj is boolean => typeof obj === 'boolean',
 			(v1, v2): number => {
@@ -516,7 +516,7 @@ const compModule = Module.create<CompModule>((mod) => ({
 			},
 		),
 	),
-	bigInt: Module.lazy(() =>
+	bigInt: Module.lazyGetter(() =>
 		mod.create(
 			(obj): obj is bigint => typeof obj === 'bigint',
 			(v1, v2): number => {
@@ -527,7 +527,7 @@ const compModule = Module.create<CompModule>((mod) => ({
 			},
 		),
 	),
-	anyStringJson: Module.lazyGet(() =>
+	anyStringJson: Module.lazy(() =>
 		mod.create(
 			(obj): obj is any => true,
 			(v1, v2): number => {
@@ -538,7 +538,7 @@ const compModule = Module.create<CompModule>((mod) => ({
 			},
 		),
 	),
-	string: Module.factory((...args) => {
+	string: (...args) => {
 		if (args.length === 0) return mod._stringInstance;
 
 		const collator = Intl.Collator(...args);
@@ -547,11 +547,11 @@ const compModule = Module.create<CompModule>((mod) => ({
 			(obj): obj is string => typeof obj === 'string',
 			collator.compare,
 		);
-	}),
-	stringCaseInsensitive: Module.lazy(() =>
+	},
+	stringCaseInsensitive: Module.lazyGetter(() =>
 		mod.string('und', { sensitivity: 'accent' }),
 	),
-	stringCharCode: Module.lazy(() =>
+	stringCharCode: Module.lazyGetter(() =>
 		mod.create(
 			(obj: any): obj is any => typeof obj === 'string',
 			(v1: any, v2: any): number => {
@@ -568,7 +568,7 @@ const compModule = Module.create<CompModule>((mod) => ({
 			},
 		),
 	),
-	anyToString: Module.lazy(() =>
+	anyToString: Module.lazyGetter(() =>
 		mod.create(
 			(obj: any): obj is any => true,
 			(v1: any, v2: any): number => {
@@ -579,23 +579,22 @@ const compModule = Module.create<CompModule>((mod) => ({
 			},
 		),
 	),
-	byValueOf: Module.factory((cls, valueComp = mod.anyShallow<any>()) =>
+	byValueOf: (cls, valueComp = mod.anyShallow<any>()) =>
 		mod.create(
 			(obj): obj is any => obj instanceof cls,
 			(v1, v2): number => {
 				return valueComp.compare(v1.valueOf(), v2.valueOf());
 			},
 		),
-	),
-	date: Module.lazy(() => mod.byValueOf(Date, mod.number)),
-	object: Module.factory((options) => {
+	date: Module.lazyGetter(() => mod.byValueOf(Date, mod.number)),
+	object: (options) => {
 		if (undefined === options) return mod._objectAnyComp;
 
 		return mod._createObjectComp(options.keyComp, options.valueComp);
-	}),
-	anyFlat: Module.lazyGet(() => mod._createAnyComp('FLAT')),
-	anyShallow: Module.lazyGet(() => mod._createAnyComp('SHALLOW')),
-	anyDeep: Module.lazyGet(() => mod._createAnyComp('DEEP')),
+	},
+	anyFlat: Module.lazy(() => mod._createAnyComp('FLAT')),
+	anyShallow: Module.lazy(() => mod._createAnyComp('SHALLOW')),
+	anyDeep: Module.lazy(() => mod._createAnyComp('DEEP')),
 }));
 
 export const Comp = compModule.build<Comp.Factory>();

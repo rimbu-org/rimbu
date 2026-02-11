@@ -70,70 +70,66 @@ export namespace CrossChannel {
 }
 
 const crossChannelModule = Module.create<CrossChannel.Constructors>((mod) => ({
-	createPair: Module.factory(
-		<TSend = void, TReceive = TSend>(
-			config: CrossChannel.Config = {},
-		): CrossChannel.Pair<TSend, TReceive> => {
-			const sendCh = Channel.create<TSend>(config.write);
-			const receiveCh = Channel.create<TReceive>(config.read);
+	createPair: <TSend = void, TReceive = TSend>(
+		config: CrossChannel.Config = {},
+	): CrossChannel.Pair<TSend, TReceive> => {
+		const sendCh = Channel.create<TSend>(config.write);
+		const receiveCh = Channel.create<TReceive>(config.read);
 
-			const crossReceiveCh = mod.combine(receiveCh, sendCh);
-			const crossSendCh = mod.combine(sendCh, receiveCh);
+		const crossReceiveCh = mod.combine(receiveCh, sendCh);
+		const crossSendCh = mod.combine(sendCh, receiveCh);
 
-			return [crossSendCh, crossReceiveCh];
-		},
-	),
-	combine: Module.factory(
-		<TSend = void, TReceive = TSend>(
-			writeCh: Channel.Write<TSend>,
-			readCh: Channel.Read<TReceive>,
-		): CrossChannel<TSend, TReceive> => {
-			const result: CrossChannel<TSend, TReceive> = {
-				get capacity() {
-					return readCh.capacity;
-				},
-				get length() {
-					return readCh.length;
-				},
-				get isClosed() {
-					return writeCh.isClosed;
-				},
-				get isExhausted() {
-					return readCh.isExhausted;
-				},
-				[Symbol.asyncIterator]() {
-					return readCh[Symbol.asyncIterator]();
-				},
-				asyncStream() {
-					return readCh.asyncStream();
-				},
-				readable() {
-					return result;
-				},
-				writable() {
-					return result;
-				},
-				receive<RT>(options?: {
-					signal?: AbortSignal | undefined;
-					timeoutMs?: number | undefined;
-					recover?: ((channelError: Channel.Error) => RT) | undefined;
-				}): Promise<any> {
-					return readCh.receive(options as any);
-				},
-				send(value, options): Promise<any> {
-					return writeCh.send(value, options as any);
-				},
-				sendAll(source, options): Promise<any> {
-					return writeCh.sendAll(source, options as any);
-				},
-				close() {
-					return writeCh.close();
-				},
-			};
+		return [crossSendCh, crossReceiveCh];
+	},
+	combine: <TSend = void, TReceive = TSend>(
+		writeCh: Channel.Write<TSend>,
+		readCh: Channel.Read<TReceive>,
+	): CrossChannel<TSend, TReceive> => {
+		const result: CrossChannel<TSend, TReceive> = {
+			get capacity() {
+				return readCh.capacity;
+			},
+			get length() {
+				return readCh.length;
+			},
+			get isClosed() {
+				return writeCh.isClosed;
+			},
+			get isExhausted() {
+				return readCh.isExhausted;
+			},
+			[Symbol.asyncIterator]() {
+				return readCh[Symbol.asyncIterator]();
+			},
+			asyncStream() {
+				return readCh.asyncStream();
+			},
+			readable() {
+				return result;
+			},
+			writable() {
+				return result;
+			},
+			receive<RT>(options?: {
+				signal?: AbortSignal | undefined;
+				timeoutMs?: number | undefined;
+				recover?: ((channelError: Channel.Error) => RT) | undefined;
+			}): Promise<any> {
+				return readCh.receive(options as any);
+			},
+			send(value, options): Promise<any> {
+				return writeCh.send(value, options as any);
+			},
+			sendAll(source, options): Promise<any> {
+				return writeCh.sendAll(source, options as any);
+			},
+			close() {
+				return writeCh.close();
+			},
+		};
 
-			return result;
-		},
-	),
+		return result;
+	},
 }));
 
 export const CrossChannel: CrossChannel.Constructors =

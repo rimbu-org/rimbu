@@ -126,25 +126,21 @@ function combineArr<T, R extends readonly [unknown, unknown, ...unknown[]]>(
 }
 
 export const reducerFactoryModule = Module.create<ReducerFactory>((mod) => ({
-	create: Module.factory(
-		(init, next, stateToResult) => new ReducerBase(init, next, stateToResult),
-	),
-	createMono: Module.factory((init, next, stateToResult) =>
+	create: (init, next, stateToResult) =>
+		new ReducerBase(init, next, stateToResult),
+	createMono: (init, next, stateToResult) =>
 		mod.create(init, next, stateToResult ?? identity),
-	),
-	createOutput: Module.factory((init, next, stateToResult) => {
+	createOutput: (init, next, stateToResult) => {
 		return mod.create(init, next, stateToResult ?? identity);
-	}),
-	fold: Module.factory((init, next) =>
-		Reducer.createOutput(() => OptLazy(init), next),
-	),
-	sum: Module.lazy(() =>
+	},
+	fold: (init, next) => Reducer.createOutput(() => OptLazy(init), next),
+	sum: Module.lazyGetter(() =>
 		mod.createMono(
 			() => 0,
 			(state, next) => state + next,
 		),
 	),
-	product: Module.lazy(() =>
+	product: Module.lazyGetter(() =>
 		mod.createMono(
 			() => 1,
 			(state, next, _, halt) => {
@@ -153,99 +149,91 @@ export const reducerFactoryModule = Module.create<ReducerFactory>((mod) => ({
 			},
 		),
 	),
-	average: Module.lazy(() =>
+	average: Module.lazyGetter(() =>
 		mod.createMono(
 			() => 0,
 			(avg, value, index) => avg + (value - avg) / (index + 1),
 		),
 	),
-	minBy: Module.factory(
-		<T, O>(
-			compFun: (v1: T, v2: T) => number,
-			otherwise?: OptLazy<O>,
-		): Reducer<T, T | O> => {
-			const token = Symbol();
+	minBy: <T, O>(
+		compFun: (v1: T, v2: T) => number,
+		otherwise?: OptLazy<O>,
+	): Reducer<T, T | O> => {
+		const token = Symbol();
 
-			return mod.create(
-				() => token as T | typeof token,
-				(state, next) => {
-					if (token === state) {
-						return next;
-					}
+		return mod.create(
+			() => token as T | typeof token,
+			(state, next) => {
+				if (token === state) {
+					return next;
+				}
 
-					return compFun(state, next) < 0 ? state : next;
-				},
-				(state) => (token === state ? OptLazy(otherwise!) : state),
-			);
-		},
-	),
-	min: Module.factory(<O>(otherwise?: OptLazy<O>) => {
+				return compFun(state, next) < 0 ? state : next;
+			},
+			(state) => (token === state ? OptLazy(otherwise!) : state),
+		);
+	},
+	min: <O>(otherwise?: OptLazy<O>) => {
 		return mod.create<number, number | O, number | undefined>(
 			() => undefined,
 			(state, next): number =>
 				undefined !== state && state < next ? state : next,
 			(state): number | O => state ?? OptLazy(otherwise!),
 		);
-	}),
-	maxBy: Module.factory(
-		<T, O>(
-			compFun: (v1: T, v2: T) => number,
-			otherwise?: OptLazy<O>,
-		): Reducer<T, T | O> => {
-			const token = Symbol();
+	},
+	maxBy: <T, O>(
+		compFun: (v1: T, v2: T) => number,
+		otherwise?: OptLazy<O>,
+	): Reducer<T, T | O> => {
+		const token = Symbol();
 
-			return mod.create<T, T | O, T | typeof token>(
-				() => token,
-				(state, next): T => {
-					if (token === state) {
-						return next;
-					}
-					return compFun(state, next) > 0 ? state : next;
-				},
-				(state): T | O => (token === state ? OptLazy(otherwise!) : state),
-			);
-		},
-	),
-	max: Module.factory(
-		<O>(otherwise?: OptLazy<O>): Reducer<number, number | O> => {
-			return mod.create<number, number | O, number | undefined>(
-				() => undefined,
-				(state, next): number =>
-					undefined !== state && state > next ? state : next,
-				(state): number | O => state ?? OptLazy(otherwise!),
-			);
-		},
-	),
-	join: Module.factory(
-		<T>({
-			sep = '',
-			start = '',
-			end = '',
-			valueToString = String as (value: T) => string,
-		} = {}): Reducer<T, string> => {
-			return mod.create(
-				() => '',
-				(state, next, index) => {
-					const valueString = valueToString(next);
+		return mod.create<T, T | O, T | typeof token>(
+			() => token,
+			(state, next): T => {
+				if (token === state) {
+					return next;
+				}
+				return compFun(state, next) > 0 ? state : next;
+			},
+			(state): T | O => (token === state ? OptLazy(otherwise!) : state),
+		);
+	},
+	max: <O>(otherwise?: OptLazy<O>): Reducer<number, number | O> => {
+		return mod.create<number, number | O, number | undefined>(
+			() => undefined,
+			(state, next): number =>
+				undefined !== state && state > next ? state : next,
+			(state): number | O => state ?? OptLazy(otherwise!),
+		);
+	},
+	join: <T>({
+		sep = '',
+		start = '',
+		end = '',
+		valueToString = String as (value: T) => string,
+	} = {}): Reducer<T, string> => {
+		return mod.create(
+			() => '',
+			(state, next, index) => {
+				const valueString = valueToString(next);
 
-					if (index <= 0) {
-						return start.concat(valueString);
-					}
+				if (index <= 0) {
+					return start.concat(valueString);
+				}
 
-					return state.concat(sep, valueToString(next));
-				},
-				(state): string => state.concat(end),
-			);
-		},
-	),
-	count: Module.lazy(() =>
+				return state.concat(sep, valueToString(next));
+			},
+			(state): string => state.concat(end),
+		);
+	},
+	count: Module.lazyGetter(() =>
 		mod.create(
 			() => {},
 			identity,
 			(_, index) => index,
 		),
 	),
-	first: Module.factory(<T, O>(otherwise?: OptLazy<O>): Reducer<T, T | O> => {
+	first: <T, O>(otherwise?: OptLazy<O>): Reducer<T, T | O> => {
 		return mod.create<T, T | O, T | undefined>(
 			() => undefined,
 			(_, next, __, halt): T => {
@@ -254,15 +242,15 @@ export const reducerFactoryModule = Module.create<ReducerFactory>((mod) => ({
 			},
 			(state, index): T | O => (index <= 0 ? OptLazy(otherwise!) : state!),
 		);
-	}),
-	last: Module.factory(<T, O>(otherwise?: OptLazy<O>): Reducer<T, T | O> => {
+	},
+	last: <T, O>(otherwise?: OptLazy<O>): Reducer<T, T | O> => {
 		return mod.create<T, T | O, T | undefined>(
 			() => undefined,
 			(_, next): T => next,
 			(state, index): T | O => (index <= 0 ? OptLazy(otherwise!) : state!),
 		);
-	}),
-	single: Module.factory(<T, O>(otherwise?: OptLazy<O>): Reducer<T, T | O> => {
+	},
+	single: <T, O>(otherwise?: OptLazy<O>): Reducer<T, T | O> => {
 		return mod.create<T, T | O, T | undefined>(
 			() => undefined,
 			(state, next, index, halt): T => {
@@ -274,63 +262,61 @@ export const reducerFactoryModule = Module.create<ReducerFactory>((mod) => ({
 			},
 			(state, index): T | O => (index !== 1 ? OptLazy(otherwise!) : state!),
 		);
-	}),
-	some: Module.factory((pred, options = {}) => {
+	},
+	some: (pred, options = {}) => {
 		return mod.nonEmpty.filterInput(pred, options);
-	}),
-	every: Module.factory((pred, options = {}) => {
+	},
+	every: (pred, options = {}) => {
 		const { negate = false } = options;
 
 		return mod.isEmpty.filterInput(pred, { negate: !negate });
-	}),
-	equals: Module.factory(
-		<T>(
-			other: StreamSource<T>,
-			options: { eq?: Eq<T>; negate?: boolean } = {},
-		): Reducer<T, boolean> => {
-			const { eq = Eq.objectIs, negate = false } = options;
+	},
+	equals: <T>(
+		other: StreamSource<T>,
+		options: { eq?: Eq<T>; negate?: boolean } = {},
+	): Reducer<T, boolean> => {
+		const { eq = Eq.objectIs, negate = false } = options;
 
-			const sliceStream = Stream.from(other);
-			const done = Symbol();
+		const sliceStream = Stream.from(other);
+		const done = Symbol();
 
-			return Reducer.create<
-				T,
-				boolean,
-				{ iter: FastIterator<T>; nextSeq: T | typeof done; result: boolean }
-			>(
-				() => {
-					const iter = sliceStream[Symbol.iterator]();
+		return Reducer.create<
+			T,
+			boolean,
+			{ iter: FastIterator<T>; nextSeq: T | typeof done; result: boolean }
+		>(
+			() => {
+				const iter = sliceStream[Symbol.iterator]();
 
-					const nextSeq = iter.fastNext(done);
+				const nextSeq = iter.fastNext(done);
 
-					return { iter, nextSeq, result: false };
-				},
-				(state, next, _, halt) => {
-					if (done === state.nextSeq) {
-						halt();
-						state.result = false;
-						return state;
-					}
-
-					if (eq(next, state.nextSeq) === negate) {
-						halt();
-						state.result = false;
-						return state;
-					}
-
-					state.nextSeq = state.iter.fastNext(done);
-
-					if (done === state.nextSeq) {
-						state.result = true;
-					}
-
+				return { iter, nextSeq, result: false };
+			},
+			(state, next, _, halt) => {
+				if (done === state.nextSeq) {
+					halt();
+					state.result = false;
 					return state;
-				},
-				(state, index, halted) => !halted && done === state.nextSeq,
-			);
-		},
-	),
-	contains: Module.factory((elem, options = {}) => {
+				}
+
+				if (eq(next, state.nextSeq) === negate) {
+					halt();
+					state.result = false;
+					return state;
+				}
+
+				state.nextSeq = state.iter.fastNext(done);
+
+				if (done === state.nextSeq) {
+					state.result = true;
+				}
+
+				return state;
+			},
+			(state, index, halted) => !halted && done === state.nextSeq,
+		);
+	},
+	contains: (elem, options = {}) => {
 		const { amount = 1, eq = Object.is, negate = false } = options;
 
 		return Reducer.create(
@@ -358,124 +344,118 @@ export const reducerFactoryModule = Module.create<ReducerFactory>((mod) => ({
 			},
 			(state) => state <= 0,
 		);
-	}),
-	startsWithSlice: Module.factory(
-		<T>(
-			slice: StreamSource<T>,
-			options: { eq?: Eq<T> | undefined; amount?: number } = {},
-		): Reducer<T, boolean> => {
-			const sliceStream = Stream.from(slice);
-			const done = Symbol();
-			const { eq = Eq.objectIs, amount = 1 } = options;
+	},
+	startsWithSlice: <T>(
+		slice: StreamSource<T>,
+		options: { eq?: Eq<T> | undefined; amount?: number } = {},
+	): Reducer<T, boolean> => {
+		const sliceStream = Stream.from(slice);
+		const done = Symbol();
+		const { eq = Eq.objectIs, amount = 1 } = options;
 
-			return Reducer.create<
-				T,
-				boolean,
-				{
-					sliceIter: FastIterator<T>;
-					sliceValue: T | typeof done;
-					remain: number;
+		return Reducer.create<
+			T,
+			boolean,
+			{
+				sliceIter: FastIterator<T>;
+				sliceValue: T | typeof done;
+				remain: number;
+			}
+		>(
+			(initHalt) => {
+				const sliceIter = sliceStream[Symbol.iterator]();
+				const sliceValue = sliceIter.fastNext(done);
+
+				if (done === sliceValue || amount <= 0) {
+					initHalt();
+					return { sliceIter, sliceValue, remain: 0 };
 				}
-			>(
-				(initHalt) => {
-					const sliceIter = sliceStream[Symbol.iterator]();
-					const sliceValue = sliceIter.fastNext(done);
 
-					if (done === sliceValue || amount <= 0) {
-						initHalt();
-						return { sliceIter, sliceValue, remain: 0 };
-					}
+				return {
+					sliceIter,
+					sliceValue: sliceValue,
+					remain: amount,
+				};
+			},
+			(state, next, _, halt) => {
+				if (done === state.sliceValue) {
+					RimbuError.throwInvalidStateError();
+				}
 
-					return {
-						sliceIter,
-						sliceValue: sliceValue,
-						remain: amount,
-					};
-				},
-				(state, next, _, halt) => {
+				if (eq(next, state.sliceValue)) {
+					state.sliceValue = state.sliceIter.fastNext(done);
+
 					if (done === state.sliceValue) {
-						RimbuError.throwInvalidStateError();
-					}
-
-					if (eq(next, state.sliceValue)) {
-						state.sliceValue = state.sliceIter.fastNext(done);
-
-						if (done === state.sliceValue) {
-							state.remain--;
-							if (state.remain <= 0) {
-								halt();
-							} else {
-								state.sliceIter = sliceStream[Symbol.iterator]();
-								state.sliceValue = state.sliceIter.fastNext(done);
-							}
-						}
-					} else {
-						halt();
-					}
-
-					return state;
-				},
-				(state) => state.remain <= 0,
-			);
-		},
-	),
-	endsWithSlice: Module.factory(
-		<T>(
-			slice: StreamSource<T>,
-			options: { eq?: Eq<T> | undefined; amount?: number } = {},
-		): Reducer<T, boolean> => {
-			const sliceStream = Stream.from(slice);
-			const done = Symbol();
-
-			const newReducerSpec = Reducer.startsWithSlice(slice, options);
-
-			return Reducer.create<T, boolean, Set<Reducer.Instance<T, boolean>>>(
-				(initHalt) => {
-					const sliceIter = sliceStream[Symbol.iterator]();
-					const sliceValue = sliceIter.fastNext(done);
-
-					if (done === sliceValue) {
-						initHalt();
-					}
-
-					return new Set([newReducerSpec.compile()]);
-				},
-				(state, nextValue) => {
-					for (const instance of state) {
-						if (instance.halted) {
-							state.delete(instance);
+						state.remain--;
+						if (state.remain <= 0) {
+							halt();
 						} else {
-							instance.next(nextValue);
+							state.sliceIter = sliceStream[Symbol.iterator]();
+							state.sliceValue = state.sliceIter.fastNext(done);
 						}
 					}
+				} else {
+					halt();
+				}
 
-					const newReducerInstance = newReducerSpec.compile();
-					newReducerInstance.next(nextValue);
+				return state;
+			},
+			(state) => state.remain <= 0,
+		);
+	},
+	endsWithSlice: <T>(
+		slice: StreamSource<T>,
+		options: { eq?: Eq<T> | undefined; amount?: number } = {},
+	): Reducer<T, boolean> => {
+		const sliceStream = Stream.from(slice);
+		const done = Symbol();
 
-					state.add(newReducerInstance);
+		const newReducerSpec = Reducer.startsWithSlice(slice, options);
 
-					return state;
-				},
-				(state) =>
-					state.size === 0 ||
-					Stream.from(state).some((instance) => instance.getOutput()),
-			);
-		},
-	),
-	containsSlice: Module.factory(
-		<T>(
-			slice: StreamSource<T>,
-			options: { eq?: Eq<T> | undefined; amount?: number } = {},
-		): Reducer<T, boolean> => {
-			const { eq, amount = 1 } = options;
+		return Reducer.create<T, boolean, Set<Reducer.Instance<T, boolean>>>(
+			(initHalt) => {
+				const sliceIter = sliceStream[Symbol.iterator]();
+				const sliceValue = sliceIter.fastNext(done);
 
-			return Reducer.pipe(
-				mod.endsWithSlice(slice, { eq }),
-				Reducer.contains(true, { amount }),
-			);
-		},
-	),
-	and: Module.lazy(() =>
+				if (done === sliceValue) {
+					initHalt();
+				}
+
+				return new Set([newReducerSpec.compile()]);
+			},
+			(state, nextValue) => {
+				for (const instance of state) {
+					if (instance.halted) {
+						state.delete(instance);
+					} else {
+						instance.next(nextValue);
+					}
+				}
+
+				const newReducerInstance = newReducerSpec.compile();
+				newReducerInstance.next(nextValue);
+
+				state.add(newReducerInstance);
+
+				return state;
+			},
+			(state) =>
+				state.size === 0 ||
+				Stream.from(state).some((instance) => instance.getOutput()),
+		);
+	},
+	containsSlice: <T>(
+		slice: StreamSource<T>,
+		options: { eq?: Eq<T> | undefined; amount?: number } = {},
+	): Reducer<T, boolean> => {
+		const { eq, amount = 1 } = options;
+
+		return Reducer.pipe(
+			mod.endsWithSlice(slice, { eq }),
+			Reducer.contains(true, { amount }),
+		);
+	},
+	and: Module.lazyGetter(() =>
 		mod.createMono(
 			() => true,
 			(state, next, _, halt): boolean => {
@@ -487,7 +467,7 @@ export const reducerFactoryModule = Module.create<ReducerFactory>((mod) => ({
 			},
 		),
 	),
-	or: Module.lazy(() =>
+	or: Module.lazyGetter(() =>
 		mod.createMono(
 			() => false,
 			(state, next, _, halt): boolean => {
@@ -499,7 +479,7 @@ export const reducerFactoryModule = Module.create<ReducerFactory>((mod) => ({
 			},
 		),
 	),
-	isEmpty: Module.lazy(() => {
+	isEmpty: Module.lazyGetter(() => {
 		return mod.createOutput(
 			() => true,
 			(_, __, ___, halt) => {
@@ -508,7 +488,7 @@ export const reducerFactoryModule = Module.create<ReducerFactory>((mod) => ({
 			},
 		);
 	}),
-	nonEmpty: Module.lazy(() =>
+	nonEmpty: Module.lazyGetter(() =>
 		mod.createOutput(
 			() => false,
 			(_, __, ___, halt) => {
@@ -517,7 +497,7 @@ export const reducerFactoryModule = Module.create<ReducerFactory>((mod) => ({
 			},
 		),
 	),
-	constant: Module.factory(<T>(value: OptLazy<T>): Reducer<any, T> => {
+	constant: <T>(value: OptLazy<T>): Reducer<any, T> => {
 		return Reducer.create<any, T, void>(
 			(initHalt) => {
 				initHalt();
@@ -525,118 +505,110 @@ export const reducerFactoryModule = Module.create<ReducerFactory>((mod) => ({
 			identity,
 			() => OptLazy(value),
 		);
-	}),
-	partition: Module.factory(
-		<T, RT, RF = RT>(
-			pred: (value: T, index: number) => boolean,
-			options: any = {},
-		): any => {
-			const collectorTrue: Reducer<T, RT> =
-				options.collectorTrue ?? Reducer.toArray();
-			const collectorFalse: Reducer<T, RF> =
-				options.collectorFalse ?? Reducer.toArray();
+	},
+	partition: <T, RT, RF = RT>(
+		pred: (value: T, index: number) => boolean,
+		options: any = {},
+	): any => {
+		const collectorTrue: Reducer<T, RT> =
+			options.collectorTrue ?? Reducer.toArray();
+		const collectorFalse: Reducer<T, RF> =
+			options.collectorFalse ?? Reducer.toArray();
 
-			return Reducer.create<
-				T,
-				[RT, RF],
-				[Reducer.Instance<T, RT>, Reducer.Instance<T, RF>]
-			>(
-				() => [collectorTrue.compile(), collectorFalse.compile()],
-				(state, value, index) => {
-					const instanceIndex = pred(value, index) ? 0 : 1;
+		return Reducer.create<
+			T,
+			[RT, RF],
+			[Reducer.Instance<T, RT>, Reducer.Instance<T, RF>]
+		>(
+			() => [collectorTrue.compile(), collectorFalse.compile()],
+			(state, value, index) => {
+				const instanceIndex = pred(value, index) ? 0 : 1;
 
-					state[instanceIndex].next(value);
+				state[instanceIndex].next(value);
 
-					return state;
-				},
-				(state) => state.map((v) => v.getOutput()) as [RT, RF],
-			);
-		},
-	),
-	groupBy: Module.factory(
-		<T, K, R>(
-			valueToKey: (value: T, index: number) => K,
-			options: {
-				collector?: Reducer<readonly [K, T], R> | undefined;
-			} = {},
-		): Reducer<T, R> => {
-			const {
-				collector = Reducer.toJSMultiMap() as Reducer<readonly [K, T], R>,
-			} = options;
+				return state;
+			},
+			(state) => state.map((v) => v.getOutput()) as [RT, RF],
+		);
+	},
+	groupBy: <T, K, R>(
+		valueToKey: (value: T, index: number) => K,
+		options: {
+			collector?: Reducer<readonly [K, T], R> | undefined;
+		} = {},
+	): Reducer<T, R> => {
+		const {
+			collector = Reducer.toJSMultiMap() as Reducer<readonly [K, T], R>,
+		} = options;
 
-			return Reducer.create(
-				() => collector.compile(),
-				(state, value, index) => {
-					const key = valueToKey(value, index);
-					state.next([key, value]);
-					return state;
-				},
-				(state) => state.getOutput(),
-			);
-		},
-	),
-	race: Module.factory(
-		<T, R, O>(
-			reducers: StreamSource<Reducer<T, R>>,
-			otherwise?: OptLazy<O>,
-		) => {
-			return Reducer.create<
-				T,
-				R | O,
-				{
-					instances: Reducer.Instance<T, R>[];
-					doneInstance: Reducer.Instance<T, R> | undefined;
+		return Reducer.create(
+			() => collector.compile(),
+			(state, value, index) => {
+				const key = valueToKey(value, index);
+				state.next([key, value]);
+				return state;
+			},
+			(state) => state.getOutput(),
+		);
+	},
+	race: <T, R, O>(
+		reducers: StreamSource<Reducer<T, R>>,
+		otherwise?: OptLazy<O>,
+	) => {
+		return Reducer.create<
+			T,
+			R | O,
+			{
+				instances: Reducer.Instance<T, R>[];
+				doneInstance: Reducer.Instance<T, R> | undefined;
+			}
+		>(
+			(initHalt) => {
+				const instances = Stream.from(reducers)
+					.map((reducer) => reducer.compile())
+					.toArray();
+				const doneInstance = instances.find((instance) => instance.halted);
+
+				if (undefined !== doneInstance) {
+					initHalt();
 				}
-			>(
-				(initHalt) => {
-					const instances = Stream.from(reducers)
-						.map((reducer) => reducer.compile())
-						.toArray();
-					const doneInstance = instances.find((instance) => instance.halted);
 
-					if (undefined !== doneInstance) {
-						initHalt();
+				return { instances, doneInstance };
+			},
+			(state, next, _, halt) => {
+				for (const instance of state.instances) {
+					instance.next(next);
+
+					if (instance.halted) {
+						state.doneInstance = instance;
+						halt();
+						return state;
 					}
+				}
 
-					return { instances, doneInstance };
-				},
-				(state, next, _, halt) => {
-					for (const instance of state.instances) {
-						instance.next(next);
+				return state;
+			},
+			(state) =>
+				state.doneInstance === undefined
+					? OptLazy(otherwise)!
+					: state.doneInstance.getOutput(),
+		);
+	},
+	toArray: <T>(options: { reversed?: boolean } = {}): Reducer<T, T[]> => {
+		const { reversed = false } = options;
 
-						if (instance.halted) {
-							state.doneInstance = instance;
-							halt();
-							return state;
-						}
-					}
+		return mod.create(
+			(): T[] => [],
+			(state, next): T[] => {
+				if (reversed) state.unshift(next);
+				else state.push(next);
 
-					return state;
-				},
-				(state) =>
-					state.doneInstance === undefined
-						? OptLazy(otherwise)!
-						: state.doneInstance.getOutput(),
-			);
-		},
-	),
-	toArray: Module.factory(
-		<T>(options: { reversed?: boolean } = {}): Reducer<T, T[]> => {
-			const { reversed = false } = options;
-
-			return mod.create(
-				(): T[] => [],
-				(state, next): T[] => {
-					if (reversed) state.unshift(next);
-					else state.push(next);
-
-					return state;
-				},
-				(state): T[] => state.slice(),
-			);
-		},
-	),
-	toJSMap: Module.lazyGet(<K, V>(): Reducer<readonly [K, V], Map<K, V>> => {
+				return state;
+			},
+			(state): T[] => state.slice(),
+		);
+	},
+	toJSMap: Module.lazy(<K, V>(): Reducer<readonly [K, V], Map<K, V>> => {
 		return mod.create(
 			(): Map<K, V> => new Map(),
 			(state, next): Map<K, V> => {
@@ -646,24 +618,22 @@ export const reducerFactoryModule = Module.create<ReducerFactory>((mod) => ({
 			(state): Map<K, V> => new Map(state),
 		);
 	}),
-	toJSMultiMap: Module.lazyGet(
-		<K, V>(): Reducer<readonly [K, V], Map<K, V[]>> => {
-			return mod.create(
-				(): Map<K, V[]> => new Map(),
-				(state, [key, value]) => {
-					const entry = state.get(key);
-					if (undefined === entry) {
-						state.set(key, [value]);
-					} else {
-						entry.push(value);
-					}
-					return state;
-				},
-				(state) => new Map(state),
-			);
-		},
-	),
-	toJSSet: Module.lazyGet(<T>(): Reducer<T, Set<T>> => {
+	toJSMultiMap: Module.lazy(<K, V>(): Reducer<readonly [K, V], Map<K, V[]>> => {
+		return mod.create(
+			(): Map<K, V[]> => new Map(),
+			(state, [key, value]) => {
+				const entry = state.get(key);
+				if (undefined === entry) {
+					state.set(key, [value]);
+				} else {
+					entry.push(value);
+				}
+				return state;
+			},
+			(state) => new Map(state),
+		);
+	}),
+	toJSSet: Module.lazy(<T>(): Reducer<T, Set<T>> => {
 		return mod.create(
 			(): Set<T> => new Set<T>(),
 			(state, next): Set<T> => {
@@ -673,7 +643,7 @@ export const reducerFactoryModule = Module.create<ReducerFactory>((mod) => ({
 			(s): Set<T> => new Set(s),
 		);
 	}),
-	toJSObject: Module.lazyGet(
+	toJSObject: Module.lazy(
 		<K extends string | number | symbol, V>(): Reducer<
 			readonly [K, V],
 			Record<K, V>
@@ -688,34 +658,32 @@ export const reducerFactoryModule = Module.create<ReducerFactory>((mod) => ({
 			);
 		},
 	),
-	combine: Module.factory(
-		<T, const S extends Reducer.CombineShape<T>>(
-			shape: S & Reducer.CombineShape<T>,
-		): any => {
-			if (shape instanceof ReducerBase) {
-				return shape as any;
+	combine: <T, const S extends Reducer.CombineShape<T>>(
+		shape: S & Reducer.CombineShape<T>,
+	): any => {
+		if (shape instanceof ReducerBase) {
+			return shape as any;
+		}
+
+		if (Array.isArray(shape)) {
+			return combineArr(
+				...(shape.map((item) => Reducer.combine(item)) as any),
+			) as any;
+		}
+
+		if (typeof shape === 'object' && shape !== null) {
+			const result: any = {};
+
+			for (const key in shape) {
+				result[key] = Reducer.combine((shape as any)[key]);
 			}
 
-			if (Array.isArray(shape)) {
-				return combineArr(
-					...(shape.map((item) => Reducer.combine(item)) as any),
-				) as any;
-			}
+			return combineObj(result) as any;
+		}
 
-			if (typeof shape === 'object' && shape !== null) {
-				const result: any = {};
-
-				for (const key in shape) {
-					result[key] = Reducer.combine((shape as any)[key]);
-				}
-
-				return combineObj(result) as any;
-			}
-
-			throw new InvalidCombineShapeError();
-		},
-	),
-	pipe: Module.factory((...nextReducers: Reducer<any, any>[]): any => {
+		throw new InvalidCombineShapeError();
+	},
+	pipe: (...nextReducers: Reducer<any, any>[]): any => {
 		if (nextReducers.length < 2) {
 			RimbuError.throwInvalidUsageError(
 				'Reducer.pipe should have at least two arguments',
@@ -762,5 +730,5 @@ export const reducerFactoryModule = Module.create<ReducerFactory>((mod) => ({
 				return state.nextInstance.getOutput();
 			},
 		);
-	}),
+	},
 }));

@@ -11,7 +11,7 @@ describe('Task factory methods', () => {
 		expect(Task.rootContext.isCancelled).toBe(false);
 	});
 
-	it('create should return the given Task instance', async () => {
+	it('create should return the given Task instance', () => {
 		const task: Task<number> = (taskContext) => {
 			expect([...Task.rootContext.children]).toContain(taskContext);
 			return 1;
@@ -20,7 +20,7 @@ describe('Task factory methods', () => {
 		const createdTask = Task.create(task);
 		expect(createdTask).toBe(task);
 
-		await expect(Task.launch(createdTask).join()).resolves.toBe(1);
+		expect(Task.launch(createdTask).join()).resolves.toBe(1);
 	});
 });
 
@@ -30,17 +30,17 @@ describe('Task.launch', () => {
 		expect(Task.rootContext.isCancelled).toBe(false);
 	});
 
-	it('should execute the task and return its result', async () => {
+	it('should execute the task and return its result', () => {
 		const message = 'Hello, World!';
 		const task: Task<string> = () => message;
-		await expect(Task.launch(task).join()).resolves.toBe(message);
+		expect(Task.launch(task).join()).resolves.toBe(message);
 	});
 
-	it('should throw if the given task cancels the context', async () => {
+	it('should throw if the given task cancels the context', () => {
 		const task: Task<void> = (context) => {
 			context.cancel();
 		};
-		await expect(Task.launch(task).join()).rejects.toThrow(CancellationError);
+		expect(Task.launch(task).join()).rejects.toThrow(CancellationError);
 	});
 
 	it('cancelAndJoin should cancel the task and wait for its completion', async () => {
@@ -80,8 +80,8 @@ describe('Task.launch', () => {
 
 				await disposableDelay(10);
 				expect(started).toBe(false);
-				await expect(job1.join()).resolves.toBe(1);
-				await expect(job2.join()).rejects.toThrow();
+				expect(job1.join()).resolves.toBe(1);
+				expect(job2.join()).rejects.toThrow();
 				expect(started).toBe(true);
 			},
 			{ isSupervisor: true, maxBranch: 1 },
@@ -105,8 +105,8 @@ describe('Task.launch', () => {
 
 				await disposableDelay(10);
 				expect(started).toBe(false);
-				await expect(job1.join()).rejects.toThrow();
-				await expect(job2.join()).resolves.toBe(1);
+				expect(job1.join()).rejects.toThrow();
+				expect(job2.join()).resolves.toBe(1);
 				expect(started).toBe(true);
 			},
 			{ isSupervisor: true, maxBranch: 1 },
@@ -157,8 +157,8 @@ describe('Task.launch', () => {
 				context.cancelAllChildren();
 				const defer2 = context.launch(task, { args: [2] });
 
-				await expect(defer1.join()).rejects.toThrow();
-				await expect(defer2.join()).resolves.toBe(2);
+				expect(defer1.join()).rejects.toThrow();
+				expect(defer2.join()).resolves.toBe(2);
 			},
 			{ isSupervisor: true },
 		).join();

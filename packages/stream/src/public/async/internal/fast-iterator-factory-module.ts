@@ -7,7 +7,7 @@ import { Module } from '@rimbu/common/module';
 
 export const asyncFastIteratorFactoryModule =
 	Module.create<AsyncFastIteratorFactory>((mod) => ({
-		_fixedDoneAsyncIteratorResultInstance: Module.lazy(() => {
+		_fixedDoneAsyncIteratorResultInstance: Module.lazyGetter(() => {
 			return Object.freeze(
 				Promise.resolve(
 					Object.freeze({
@@ -17,7 +17,7 @@ export const asyncFastIteratorFactoryModule =
 				),
 			);
 		}),
-		_emptyAsyncFastIteratorInstance: Module.lazy(() => {
+		_emptyAsyncFastIteratorInstance: Module.lazyGetter(() => {
 			return Object.freeze({
 				fastNext<O>(otherwise?: AsyncOptLazy<O>): MaybePromise<O> {
 					return AsyncOptLazy.toMaybePromise(otherwise!);
@@ -27,8 +27,7 @@ export const asyncFastIteratorFactoryModule =
 				},
 			});
 		}),
-		isAsyncFastIterator: Module.factory(
-			<T>(iterator: AsyncIterator<T>): iterator is AsyncFastIterator<T> =>
-				`fastNext` in iterator,
-		),
+		isAsyncFastIterator: <T>(
+			iterator: AsyncIterator<T>,
+		): iterator is AsyncFastIterator<T> => `fastNext` in iterator,
 	}));

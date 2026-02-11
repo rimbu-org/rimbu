@@ -1,15 +1,14 @@
 import { describe, expect, it } from 'bun:test';
 
-import type { Comp } from '@rimbu/common/comp';
-
 import type { SortedSetBuilder } from '#set/builder';
 
+import { Comp } from '@rimbu/common/comp';
 import { SortedSet } from '@rimbu/sorted/set';
 import { Stream } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 
 function runWith(name: string, context: SortedSet.Context<number>) {
-	describe('builder specific', () => {
+	describe(`${name} builder specific`, () => {
 		it('min', () => {
 			const builder = context.builder();
 			expect(builder.min()).toBe(undefined);
@@ -235,15 +234,14 @@ class Letter {
 }
 
 function createLetterComp(): Comp<Letter> {
-	return {
-		compare(value1: Letter, value2: Letter): number {
-			return value1.name.localeCompare(value2.name, ['es']);
-		},
-
-		isComparable(obj): obj is Letter {
+	return Comp.create(
+		(obj): obj is Letter => {
 			return obj instanceof Letter;
 		},
-	};
+		(value1: Letter, value2: Letter): number => {
+			return value1.name.localeCompare(value2.name, ['es']);
+		},
+	);
 }
 
 describe('builder with classes', () => {

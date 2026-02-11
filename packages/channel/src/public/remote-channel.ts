@@ -193,40 +193,34 @@ export namespace RemoteChannel {
 
 const remoteChannelModule = Module.create<RemoteChannel.Constructors>(
 	(mod) => ({
-		createRead: Module.factory(
-			async (
-				port: RemoteChannel.SimpleMessagePort,
-				config: RemoteChannel.ReadConfig,
-			) => {
-				const ch = new RemoteChannelRead<any>(port, config);
-				await ch.initialized;
-				return ch;
-			},
-		),
-		createWrite: Module.factory(
-			async (
-				port: RemoteChannel.SimpleMessagePort,
-				config: RemoteChannel.WriteConfig,
-			) => {
-				const ch = new RemoteChannelWrite<any>(port, config);
-				await ch.initialized;
-				return ch;
-			},
-		),
-		createCross: Module.factory(
-			async <TSend = void, TReceive = TSend>(
-				port: RemoteChannel.SimpleMessagePort,
-				config: RemoteChannel.CrossConfig,
-			) => {
-				const { write, read } = config;
-				const [writeCh, readCh] = await Promise.all([
-					mod.createWrite<TSend>(port, write),
-					mod.createRead<TReceive>(port, read),
-				]);
+		createRead: async (
+			port: RemoteChannel.SimpleMessagePort,
+			config: RemoteChannel.ReadConfig,
+		) => {
+			const ch = new RemoteChannelRead<any>(port, config);
+			await ch.initialized;
+			return ch;
+		},
+		createWrite: async (
+			port: RemoteChannel.SimpleMessagePort,
+			config: RemoteChannel.WriteConfig,
+		) => {
+			const ch = new RemoteChannelWrite<any>(port, config);
+			await ch.initialized;
+			return ch;
+		},
+		createCross: async <TSend = void, TReceive = TSend>(
+			port: RemoteChannel.SimpleMessagePort,
+			config: RemoteChannel.CrossConfig,
+		) => {
+			const { write, read } = config;
+			const [writeCh, readCh] = await Promise.all([
+				mod.createWrite<TSend>(port, write),
+				mod.createRead<TReceive>(port, read),
+			]);
 
-				return CrossChannel.combine(writeCh, readCh);
-			},
-		),
+			return CrossChannel.combine(writeCh, readCh);
+		},
 	}),
 );
 

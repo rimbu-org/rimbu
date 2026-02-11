@@ -12,7 +12,7 @@ import {
 	innerTakeInternal,
 } from '#sorted/base';
 
-const context = new SortedSetContext<number>(2, Comp.defaultComp());
+const context = new SortedSetContext<number>(2, Comp.defaultInstance);
 
 function createInner(base = 0) {
 	return context.inner(

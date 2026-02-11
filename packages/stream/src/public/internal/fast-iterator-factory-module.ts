@@ -7,13 +7,13 @@ import { OptLazy } from '@rimbu/common/opt-lazy';
 
 export const fastIteratorFactoryModule = Module.create<FastIteratorFactory>(
 	(mod) => ({
-		_fixedDoneIteratorResult: Module.lazy(() =>
+		_fixedDoneIteratorResult: Module.lazyGetter(() =>
 			Object.freeze({
 				done: true,
 				value: undefined,
 			}),
 		),
-		_emptyFastIteratorInstance: Module.lazy(() =>
+		_emptyFastIteratorInstance: Module.lazyGetter(() =>
 			Object.freeze({
 				fastNext<O>(otherwise?: OptLazy<O>): O {
 					return OptLazy(otherwise) as O;
@@ -23,9 +23,7 @@ export const fastIteratorFactoryModule = Module.create<FastIteratorFactory>(
 				},
 			}),
 		),
-		isFastIterator: Module.factory(
-			<T>(iterator: Iterator<T>): iterator is FastIterator<T> =>
-				`fastNext` in iterator,
-		),
+		isFastIterator: <T>(iterator: Iterator<T>): iterator is FastIterator<T> =>
+			`fastNext` in iterator,
 	}),
 );

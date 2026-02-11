@@ -514,9 +514,9 @@ interface HasherModuleInternal extends HasherModule {
 }
 
 export const hasherModule = Module.create<HasherModuleInternal>((mod) => ({
-	defaultInstance: Module.lazy(() => mod.anyShallow),
-	string: Module.lazy(() => createStringHasher(MAX_STEP_BITS)),
-	_anyToStringHasher: Module.lazy(() =>
+	defaultInstance: Module.lazyGetter(() => mod.anyShallow),
+	string: Module.lazyGetter(() => createStringHasher(MAX_STEP_BITS)),
+	_anyToStringHasher: Module.lazyGetter(() =>
 		Object.freeze({
 			isValid(obj: unknown): obj is any {
 				return true;
@@ -526,12 +526,12 @@ export const hasherModule = Module.create<HasherModuleInternal>((mod) => ({
 			},
 		}),
 	),
-	anyToString: Module.factory((maxStepBits?: number): Hasher<any> => {
+	anyToString: (maxStepBits?: number): Hasher<any> => {
 		if (undefined === maxStepBits) return mod._anyToStringHasher;
 
 		return createStringHasher(maxStepBits);
-	}),
-	anyJsonString: Module.lazy(() =>
+	},
+	anyJsonString: Module.lazyGetter(() =>
 		Object.freeze({
 			isValid(obj: unknown): obj is any {
 				return true;
@@ -541,51 +541,47 @@ export const hasherModule = Module.create<HasherModuleInternal>((mod) => ({
 			},
 		}),
 	),
-	stringCaseInsensitive: Module.lazy(() =>
+	stringCaseInsensitive: Module.lazyGetter(() =>
 		createStringCaseInsensitiveHasher(MAX_STEP_BITS),
 	),
-	_arrayAnyHasher: Module.lazy(() => {
+	_arrayAnyHasher: Module.lazyGetter(() => {
 		return createArrayHasher(mod.defaultInstance, MAX_STEP_BITS);
 	}),
-	array: Module.factory(
-		<T = any>(
-			options?:
-				| {
-						itemHasher?: Hasher<T>;
-						maxStepBits?: number;
-				  }
-				| undefined,
-		): Hasher<readonly T[]> => {
-			if (undefined === options) return mod._arrayAnyHasher;
+	array: <T = any>(
+		options?:
+			| {
+					itemHasher?: Hasher<T>;
+					maxStepBits?: number;
+			  }
+			| undefined,
+	): Hasher<readonly T[]> => {
+		if (undefined === options) return mod._arrayAnyHasher;
 
-			return createArrayHasher(
-				options.itemHasher ?? mod.anyFlat,
-				options.maxStepBits ?? MAX_STEP_BITS,
-			);
-		},
-	),
-	_streamSourceAnyHasher: Module.lazy(() =>
+		return createArrayHasher(
+			options.itemHasher ?? mod.anyFlat,
+			options.maxStepBits ?? MAX_STEP_BITS,
+		);
+	},
+	_streamSourceAnyHasher: Module.lazyGetter(() =>
 		createStreamSourceHasher(mod, mod.defaultInstance, MAX_STEP_BITS),
 	),
-	streamSource: Module.factory(
-		<T>(
-			options?:
-				| {
-						itemHasher?: Hasher<T>;
-						maxStepBits?: number;
-				  }
-				| undefined,
-		): Hasher<StreamSource<T>> => {
-			if (undefined === options) return mod._streamSourceAnyHasher;
+	streamSource: <T>(
+		options?:
+			| {
+					itemHasher?: Hasher<T>;
+					maxStepBits?: number;
+			  }
+			| undefined,
+	): Hasher<StreamSource<T>> => {
+		if (undefined === options) return mod._streamSourceAnyHasher;
 
-			return createStreamSourceHasher(
-				mod,
-				options.itemHasher,
-				options.maxStepBits,
-			);
-		},
-	),
-	number: Module.lazy(() =>
+		return createStreamSourceHasher(
+			mod,
+			options.itemHasher,
+			options.maxStepBits,
+		);
+	},
+	number: Module.lazyGetter(() =>
 		Object.freeze({
 			isValid(obj: unknown): obj is number {
 				return typeof obj === 'number';
@@ -609,7 +605,7 @@ export const hasherModule = Module.create<HasherModuleInternal>((mod) => ({
 			},
 		}),
 	),
-	boolean: Module.lazy(() =>
+	boolean: Module.lazyGetter(() =>
 		Object.freeze({
 			isValid(obj: unknown): obj is boolean {
 				return typeof obj === 'boolean';
@@ -619,7 +615,7 @@ export const hasherModule = Module.create<HasherModuleInternal>((mod) => ({
 			},
 		}),
 	),
-	bigint: Module.lazy(() =>
+	bigint: Module.lazyGetter(() =>
 		Object.freeze({
 			isValid(obj: unknown): obj is bigint {
 				return typeof obj === 'bigint';
@@ -627,25 +623,23 @@ export const hasherModule = Module.create<HasherModuleInternal>((mod) => ({
 			hash: mod._anyToStringHasher.hash,
 		}),
 	),
-	byValueOf: Module.factory(
-		<T extends { valueOf(): V }, V>(
-			cls: {
-				new (): T;
-			},
-			valueHasher: Hasher<V> = mod.anyFlat,
-		): Hasher<T> => {
-			return Object.freeze({
-				isValid(obj: any): obj is T {
-					return obj instanceof cls;
-				},
-				hash(value: T): number {
-					return valueHasher.hash(value.valueOf());
-				},
-			});
+	byValueOf: <T extends { valueOf(): V }, V>(
+		cls: {
+			new (): T;
 		},
-	),
-	date: Module.lazy(() => mod.byValueOf(Date, mod.number)),
-	_tryWrappedHasher: Module.lazy(() => {
+		valueHasher: Hasher<V> = mod.anyFlat,
+	): Hasher<T> => {
+		return Object.freeze({
+			isValid(obj: any): obj is T {
+				return obj instanceof cls;
+			},
+			hash(value: T): number {
+				return valueHasher.hash(value.valueOf());
+			},
+		});
+	},
+	date: Module.lazyGetter(() => mod.byValueOf(Date, mod.number)),
+	_tryWrappedHasher: Module.lazyGetter(() => {
 		const _wrappedHashers: Hasher<unknown>[] = [
 			mod.byValueOf(Boolean, mod.boolean),
 			mod.date,
@@ -681,38 +675,38 @@ export const hasherModule = Module.create<HasherModuleInternal>((mod) => ({
 			},
 		});
 	}),
-	object: Module.factory(
-		<K extends string | number | symbol, V = any>(options?: {
-			keyHasher: Hasher<K>;
-			valueHasher: Hasher<V>;
-		}): Hasher<Record<K, V>> => {
-			if (undefined === options) return mod.objectShallow;
+	object: <K extends string | number | symbol, V = any>(options?: {
+		keyHasher: Hasher<K>;
+		valueHasher: Hasher<V>;
+	}): Hasher<Record<K, V>> => {
+		if (undefined === options) return mod.objectShallow;
 
-			return createObjectHasher(options.keyHasher, options.valueHasher);
-		},
-	),
-	objectShallow: Module.lazy(() =>
+		return createObjectHasher(options.keyHasher, options.valueHasher);
+	},
+	objectShallow: Module.lazyGetter(() =>
 		createObjectHasher(mod.anyFlat, mod.anyFlat),
 	),
-	objectDeep: Module.lazy(() => createObjectHasher(mod.anyFlat, mod.anyDeep)),
-	anyFlat: Module.lazy(() => createAnyHasher(mod, 'FLAT')),
-	anyShallow: Module.lazy(() => createAnyHasher(mod, 'SHALLOW')),
-	anyDeep: Module.lazy(() => createAnyHasher(mod, 'DEEP')),
-	tupleSymmetric: Module.factory(
-		<T>(hasher: Hasher<T> = mod.anyShallow): Hasher<readonly [T, T]> => {
-			return Object.freeze({
-				isValid(obj: unknown): obj is readonly [T, T] {
-					return (
-						Array.isArray(obj) &&
-						obj.length === 2 &&
-						hasher.isValid(obj[0]) &&
-						hasher.isValid(obj[1])
-					);
-				},
-				hash(value: readonly [T, T]): number {
-					return (hasher.hash(value[0]) + hasher.hash(value[1])) | 0;
-				},
-			});
-		},
+	objectDeep: Module.lazyGetter(() =>
+		createObjectHasher(mod.anyFlat, mod.anyDeep),
 	),
+	anyFlat: Module.lazyGetter(() => createAnyHasher(mod, 'FLAT')),
+	anyShallow: Module.lazyGetter(() => createAnyHasher(mod, 'SHALLOW')),
+	anyDeep: Module.lazyGetter(() => createAnyHasher(mod, 'DEEP')),
+	tupleSymmetric: <T>(
+		hasher: Hasher<T> = mod.anyShallow,
+	): Hasher<readonly [T, T]> => {
+		return Object.freeze({
+			isValid(obj: unknown): obj is readonly [T, T] {
+				return (
+					Array.isArray(obj) &&
+					obj.length === 2 &&
+					hasher.isValid(obj[0]) &&
+					hasher.isValid(obj[1])
+				);
+			},
+			hash(value: readonly [T, T]): number {
+				return (hasher.hash(value[0]) + hasher.hash(value[1])) | 0;
+			},
+		});
+	},
 }));

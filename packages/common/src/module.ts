@@ -41,6 +41,8 @@ export interface Module<MI extends Module.Instance> {
 	build<TI = MI>(): MI extends TI ? TI : never;
 }
 
+const ModuleSymbol = Symbol('Module');
+
 export namespace Module {
 	/**
 	 * A module instance is a record of available dependencies.
@@ -59,8 +61,8 @@ export namespace Module {
 	};
 
 	export type DefinitionEntry<T> =
-		| { type: 'property'; value: T }
-		| { type: 'getter'; value: () => T };
+		| T
+		| { [ModuleSymbol]: true; type: 'getter'; value: () => T };
 
 	/**
 	 * Extracts the Instance type from a Module type.
@@ -131,19 +133,26 @@ export namespace Module {
 				for (const key in definition) {
 					const entry = definition[key];
 
-					if (entry.type === 'property') {
-						Object.defineProperty(target, key, {
-							configurable: false,
-							enumerable: true,
-							value: entry.value,
-						});
-					} else {
-						Object.defineProperty(target, key, {
-							configurable: false,
-							enumerable: true,
-							get: entry.value,
-						});
+					if (
+						typeof entry === 'object' &&
+						entry !== null &&
+						ModuleSymbol in entry
+					) {
+						if (entry.type === 'getter') {
+							Object.defineProperty(target, key, {
+								configurable: false,
+								enumerable: true,
+								get: entry.value,
+							});
+							continue;
+						}
 					}
+
+					Object.defineProperty(target, key, {
+						configurable: false,
+						enumerable: true,
+						value: entry,
+					});
 				}
 
 				return Object.freeze(target);
@@ -151,55 +160,9 @@ export namespace Module {
 		};
 	}
 
-	/**
-	 * Creates a constant factory that always returns the same value.
-	 *
-	 * @typeparam T - the type of the constant value
-	 * @param value - the constant value to return
-	 * @returns a function that always returns the provided value
-	 * @example
-	 * ```ts
-	 * const appModule = Module.create<{ env: string }>(() => ({
-	 *  env: Module.constant('production'),
-	 * }));
-	 * ```
-	 */
-	export function constant<T>(value: T): Module.DefinitionEntry<T> {
-		return { type: 'property', value };
-	}
-
-	export function constantGet<T>(value: T): Module.DefinitionEntry<() => T> {
-		return { type: 'property', value: () => value };
-	}
-
-	/**
-	 * Converts a creator function into a singleton factory.
-	 *
-	 * The creator function is invoked immediately, and the resulting instance is cached.
-	 * All subsequent calls to the returned function return the same cached instance.
-	 *
-	 * @typeparam C - the creator function type
-	 * @param creator - a function that creates the instance
-	 * @returns a function with the same signature as creator that always returns the same instance
-	 * @example
-	 * ```ts
-	 * const createDB = () => new Database();
-	 * const dbFactory = Module.single(createDB);
-	 * const db1 = dbFactory();
-	 * const db2 = dbFactory();
-	 * console.log(db1 === db2); // => true
-	 * ```
-	 */
-	export function single<T>(creator: () => T): Module.DefinitionEntry<T> {
+	export function single<T>(creator: () => T): Module.DefinitionEntry<() => T> {
 		const instance = creator();
-		return { type: 'property', value: instance };
-	}
-
-	export function singleGet<T>(
-		creator: () => T,
-	): Module.DefinitionEntry<() => T> {
-		const instance = creator();
-		return { type: 'property', value: () => instance };
+		return () => instance;
 	}
 
 	/**
@@ -225,13 +188,14 @@ export namespace Module {
 	 * console.log(db1 === db2); // => true
 	 * ```
 	 */
-	export function lazy<C extends () => any>(
+	export function lazyGetter<C extends () => any>(
 		creator: C,
 	): Module.DefinitionEntry<ReturnType<C>> {
 		const uninitialized = Symbol();
 		let instance: typeof uninitialized | ReturnType<C> = uninitialized;
 
 		return {
+			[ModuleSymbol]: true,
 			type: 'getter',
 			value: () => {
 				if (uninitialized === instance) {
@@ -242,65 +206,18 @@ export namespace Module {
 		};
 	}
 
-	export function lazyGet<C extends () => any>(
+	export function lazy<C extends () => any>(
 		creator: C,
 	): Module.DefinitionEntry<C> {
 		const uninitialized = Symbol();
 		let instance: typeof uninitialized | ReturnType<C> = uninitialized;
 
-		return {
-			type: 'property',
-			value: (() => {
-				if (uninitialized === instance) {
-					instance = creator();
-				}
-				return instance;
-			}) as C,
-		};
-	}
-
-	/**
-	 * Wraps a creator function (typically a constructor) to return itself.
-	 *
-	 * This utility is useful for dependency definitions where you want to inject
-	 * a creator function itself (rather than calling it to get an instance).
-	 *
-	 * @typeparam C - the creator function type
-	 * @param creator - the creator function or constructor
-	 * @returns a function that when called returns the original creator function
-	 * @example
-	 * ```ts
-	 * interface AppServices {
-	 *   database: Database;
-	 *   logger: Logger;
-	 *   api: API;
-	 * }
-	 *
-	 * const appModule = Module.create<AppServices>((m) => ({
-	 *   database: Module.lazy(() => new Database()),
-	 *   logger: Module.single(() => new Logger()),
-	 *   createaApi: Module.factory((env: string) => new API(env, m.database, m.logger)),
-	 * }));
-	 *
-	 * appModule.createApi("PROD"); // => API instance with injected dependencies
-	 * ```
-	 */
-	export function factory<C extends (...args: any[]) => any>(
-		creator: C,
-	): Module.DefinitionEntry<C> {
-		return {
-			type: 'property',
-			value: creator,
-		};
-	}
-
-	export function factoryGet<C extends (...args: any[]) => any>(
-		creator: C,
-	): Module.DefinitionEntry<() => C> {
-		return {
-			type: 'property',
-			value: () => creator,
-		};
+		return (() => {
+			if (uninitialized === instance) {
+				instance = creator();
+			}
+			return instance as ReturnType<C>;
+		}) as C;
 	}
 
 	export class EagerSelfDependencyError extends Error {

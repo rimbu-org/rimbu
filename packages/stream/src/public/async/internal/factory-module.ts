@@ -29,33 +29,31 @@ import { StreamFactory } from '#stream/factory';
 
 export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 	(mod) => ({
-		isAsyncStream: Module.factory((obj: any) => {
+		isAsyncStream: (obj: any) => {
 			return obj instanceof AsyncStreamBase;
-		}),
-		isEmptyAsyncStreamSourceInstance: Module.factory(
-			(source: AsyncStreamSource<any>): boolean => {
-				return (
-					source === mod.empty() ||
-					StreamFactory.isEmptyStreamSourceInstance(source as StreamSource<any>)
-				);
-			},
-		),
-		fromAsyncStreamSource: Module.factory(
-			<T>(source: AsyncStreamSource<T>): any => {
-				if (undefined === source) return mod.empty();
-				if (mod.isAsyncStream(source)) return source;
-				if (mod.isEmptyAsyncStreamSourceInstance(source)) return mod.empty();
+		},
+		isEmptyAsyncStreamSourceInstance: (
+			source: AsyncStreamSource<any>,
+		): boolean => {
+			return (
+				source === mod.empty() ||
+				StreamFactory.isEmptyStreamSourceInstance(source as StreamSource<any>)
+			);
+		},
+		fromAsyncStreamSource: <T>(source: AsyncStreamSource<T>): any => {
+			if (undefined === source) return mod.empty();
+			if (mod.isAsyncStream(source)) return source;
+			if (mod.isEmptyAsyncStreamSourceInstance(source)) return mod.empty();
 
-				return new FromSource(source);
-			},
-		),
-		empty: Module.lazyGet(
+			return new FromSource(source);
+		},
+		empty: Module.lazy(
 			<T>(): AsyncStream<T> => new AsyncEmptyStream() as AsyncStream<T>,
 		),
-		of: Module.factory((...values) => {
+		of: (...values) => {
 			return new AsyncOfStream(values) as any;
-		}),
-		from: Module.factory((...sources): any => {
+		},
+		from: (...sources): any => {
 			const [first, ...rest] = sources;
 
 			if (rest.length <= 0) {
@@ -65,12 +63,12 @@ export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 			const [rest1, ...restOther] = rest;
 
 			return mod.fromAsyncStreamSource(first).concat(rest1, ...restOther);
-		}),
-		fromResource: Module.factory((options): any => {
+		},
+		fromResource: (options): any => {
 			const { open, createSource, close } = options;
 			return new FromResource(open, createSource, close);
-		}),
-		zipWith: Module.factory((...sources): any => {
+		},
+		zipWith: (...sources): any => {
 			return (zipFun: any): any => {
 				if (sources.some(mod.isEmptyAsyncStreamSourceInstance)) {
 					return mod.empty();
@@ -80,11 +78,11 @@ export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 					() => new AsyncZipWithIterator(sources, zipFun),
 				);
 			};
-		}),
-		zip: Module.factory((...sources): any => {
+		},
+		zip: (...sources): any => {
 			return mod.zipWith(...(sources as any))(Array);
-		}),
-		zipAllWith: Module.factory((...sources): any => {
+		},
+		zipAllWith: (...sources): any => {
 			return (fillValue: any, zipFun: any): any => {
 				if (sources.every(mod.isEmptyAsyncStreamSourceInstance)) {
 					return mod.empty();
@@ -95,14 +93,14 @@ export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 						new AsyncZipAllWithItererator(fillValue, sources, zipFun),
 				);
 			};
-		}),
-		zipAll: Module.factory((fillValue, ...sources): any => {
+		},
+		zipAll: (fillValue, ...sources): any => {
 			return mod.zipAllWith(...(sources as any))(fillValue, Array);
-		}),
-		flatten: Module.factory((source: any) => {
+		},
+		flatten: (source: any) => {
 			return mod.fromAsyncStreamSource(source).flatMap((s: any) => s);
-		}),
-		unzip: Module.factory((source, options) => {
+		},
+		unzip: (source, options) => {
 			const { length } = options;
 
 			if (mod.isEmptyAsyncStreamSourceInstance(source)) {
@@ -118,27 +116,19 @@ export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 			}
 
 			return result as any;
-		}),
-		always: Module.factory(
-			<T>(value: AsyncOptLazy<T>): AsyncStream.NonEmpty<T> => {
-				return mod.of(value).repeat();
-			},
-		),
-		unfold: Module.factory(
-			<T>(
-				init: T,
-				next: (
-					current: T,
-					index: number,
-					stop: Token,
-				) => MaybePromise<T | Token>,
-			): AsyncStream.NonEmpty<T> => {
-				return new AsyncFromStream(
-					(): AsyncFastIterator<T> => new AsyncUnfoldIterator<T>(init, next),
-				) as unknown as AsyncStream.NonEmpty<T>;
-			},
-		),
-		asyncFastIteratorFactory: Module.lazy(() =>
+		},
+		always: <T>(value: AsyncOptLazy<T>): AsyncStream.NonEmpty<T> => {
+			return mod.of(value).repeat();
+		},
+		unfold: <T>(
+			init: T,
+			next: (current: T, index: number, stop: Token) => MaybePromise<T | Token>,
+		): AsyncStream.NonEmpty<T> => {
+			return new AsyncFromStream(
+				(): AsyncFastIterator<T> => new AsyncUnfoldIterator<T>(init, next),
+			) as unknown as AsyncStream.NonEmpty<T>;
+		},
+		asyncFastIteratorFactory: Module.lazyGetter(() =>
 			asyncFastIteratorFactoryModule.build(),
 		),
 	}),

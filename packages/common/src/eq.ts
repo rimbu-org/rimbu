@@ -273,7 +273,7 @@ interface EqModule extends Eq.Factory {
 }
 
 const eqModule = Module.create<EqModule>((mod) => ({
-	_createAnyEq: Module.factory((mode) => {
+	_createAnyEq: (mode) => {
 		const result: Eq<any> = (v1, v2): boolean => {
 			if (Object.is(v1, v2)) return true;
 
@@ -330,16 +330,17 @@ const eqModule = Module.create<EqModule>((mod) => ({
 		};
 
 		return result;
-	}),
-	_iterableAnyInstance: Module.lazy(() =>
+	},
+	_iterableAnyInstance: Module.lazyGetter(() =>
 		createIterableEq(mod.defaultInstance),
 	),
-	_objectAnyInstance: Module.lazy(() => createObjectEq(mod.defaultInstance)),
-	_defaultCollator: Module.lazy(() => new Intl.Collator('und')),
-	_defaultWithStringCollatorInstance: Module.factory(
-		(v1, v2) => mod._defaultCollator.compare(v1, v2) === 0,
+	_objectAnyInstance: Module.lazyGetter(() =>
+		createObjectEq(mod.defaultInstance),
 	),
-	convertAnyToString: Module.factory((value: any): string => {
+	_defaultCollator: Module.lazyGetter(() => new Intl.Collator('und')),
+	_defaultWithStringCollatorInstance: (v1, v2) =>
+		mod._defaultCollator.compare(v1, v2) === 0,
+	convertAnyToString: (value: any): string => {
 		if (
 			typeof value !== 'object' ||
 			null === value ||
@@ -351,35 +352,33 @@ const eqModule = Module.create<EqModule>((mod) => ({
 		}
 
 		return JSON.stringify(value);
-	}),
-	defaultInstance: Module.lazy(() => mod.anyDeep()),
-	objectIs: Module.constant(Object.is),
-	byValueOf: Module.factoryGet((v1, v2) =>
-		Object.is(v1.valueOf(), v2.valueOf()),
-	),
-	date: Module.lazy(() => mod.byValueOf()),
-	forIterable: Module.factory((itemEq) => {
+	},
+	defaultInstance: Module.lazyGetter(() => mod.anyDeep()),
+	objectIs: Object.is,
+	byValueOf: () => (v1, v2) => Object.is(v1.valueOf(), v2.valueOf()),
+	date: Module.lazyGetter(() => mod.byValueOf()),
+	forIterable: (itemEq) => {
 		if (undefined === itemEq) return mod._iterableAnyInstance;
 		return createIterableEq(itemEq);
-	}),
-	object: Module.factory((valueEq) => {
+	},
+	object: (valueEq) => {
 		if (undefined === valueEq) return mod._objectAnyInstance;
 		return createObjectEq(valueEq);
-	}),
-	anyFlat: Module.lazyGet(() => mod._createAnyEq('FLAT')),
-	anyShallow: Module.lazyGet(() => mod._createAnyEq('SHALLOW')),
-	anyDeep: Module.lazyGet(() => mod._createAnyEq('DEEP')),
-	stringWithStringCollator: Module.factory((...args) => {
+	},
+	anyFlat: Module.lazy(() => mod._createAnyEq('FLAT')),
+	anyShallow: Module.lazy(() => mod._createAnyEq('SHALLOW')),
+	anyDeep: Module.lazy(() => mod._createAnyEq('DEEP')),
+	stringWithStringCollator: (...args) => {
 		if (args.length === 0) return mod._defaultWithStringCollatorInstance;
 
 		const collator = Intl.Collator(...args);
 
 		return (v1, v2) => collator.compare(v1, v2) === 0;
-	}),
-	stringCaseInsentitive: Module.lazy(() =>
+	},
+	stringCaseInsentitive: Module.lazyGetter(() =>
 		mod.stringWithStringCollator('und', { sensitivity: 'accent' }),
 	),
-	stringCharCode: Module.factory((v1, v2) => {
+	stringCharCode: (v1, v2) => {
 		const len = v1.length;
 
 		if (len !== v2.length) return false;
@@ -391,18 +390,16 @@ const eqModule = Module.create<EqModule>((mod) => ({
 		}
 
 		return true;
-	}),
-	anyByToString: Module.factory(
-		(v1, v2) => mod.convertAnyToString(v1) === mod.convertAnyToString(v2),
-	),
-	anyByJsonStringify: Module.factoryGet(
-		(v1, v2) => JSON.stringify(v1) === JSON.stringify(v2),
-	),
-	tupleSymmetric: Module.factory(<T>(eq: Eq<T> = mod.defaultInstance) => {
+	},
+	anyByToString: (v1, v2) =>
+		mod.convertAnyToString(v1) === mod.convertAnyToString(v2),
+	anyByJsonStringify: () => (v1, v2) =>
+		JSON.stringify(v1) === JSON.stringify(v2),
+	tupleSymmetric: <T>(eq: Eq<T> = mod.defaultInstance) => {
 		return (tup1: readonly [T, T], tup2: readonly [T, T]): boolean =>
 			(eq(tup1[0], tup2[0]) && eq(tup1[1], tup2[1])) ||
 			(eq(tup1[0], tup2[1]) && eq(tup1[1], tup2[0]));
-	}),
+	},
 }));
 
 export const Eq = eqModule.build<Eq.Factory>();

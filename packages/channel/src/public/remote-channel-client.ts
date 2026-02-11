@@ -97,7 +97,7 @@ export namespace RemoteChannelClient {
 
 const removeChannelClientModule =
 	Module.create<RemoteChannelClient.Constructors>(() => ({
-		create: Module.factory(RemoteChannelClientImpl),
+		create: RemoteChannelClientImpl,
 	}));
 
 export const RemoteChannelClient: RemoteChannelClient.Constructors =

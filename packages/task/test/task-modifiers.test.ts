@@ -40,7 +40,7 @@ describe(withRetry.name, () => {
 		expect(attempts).toBe(1);
 	});
 
-	it('should retry the task the specified number of times', async () => {
+	it('should retry the task the specified number of times', () => {
 		let attempts = 0;
 		const task = withRetry(
 			3,
@@ -50,11 +50,11 @@ describe(withRetry.name, () => {
 			throw new Error('Test error');
 		});
 
-		await expect(Task.launch(task).join()).rejects.toThrow(RetryExhaustedError);
+		expect(Task.launch(task).join()).rejects.toThrow(RetryExhaustedError);
 		expect(attempts).toBe(3);
 	});
 
-	it('should return the result of the last attempt if it succeeds', async () => {
+	it('should return the result of the last attempt if it succeeds', () => {
 		let attempts = 0;
 		const task = withRetry(
 			3,
@@ -67,12 +67,11 @@ describe(withRetry.name, () => {
 			return 'Final success';
 		});
 
-		const result = await Task.launch(task).join();
-		expect(result).toBe('Final success');
+		expect(Task.launch(task).join()).resolves.toBe('Final success');
 		expect(attempts).toBe(3);
 	});
 
-	it('should throw immediately on CancellationError', async () => {
+	it('should throw immediately on CancellationError', () => {
 		let attempts = 0;
 		const task = withRetry(
 			3,
@@ -85,16 +84,16 @@ describe(withRetry.name, () => {
 			throw Error('failed');
 		});
 
-		await expect(Task.launch(task).join()).rejects.toThrow(CancellationError);
+		expect(Task.launch(task).join()).rejects.toThrow(CancellationError);
 		expect(attempts).toBe(1);
 	});
 
-	it('should throw RetryExhaustedError if times is set to 0', async () => {
+	it('should throw RetryExhaustedError if times is set to 0', () => {
 		const task = withRetry(0)(() => {
 			throw new Error('Test error');
 		});
 
-		await expect(Task.launch(task).join()).rejects.toThrow(RetryExhaustedError);
+		expect(Task.launch(task).join()).rejects.toThrow(RetryExhaustedError);
 	});
 });
 
@@ -104,19 +103,19 @@ describe(withTimeout.name, () => {
 		expect(Task.rootContext.isCancelled).toBe(false);
 	});
 
-	it('should complete before timeout', async () => {
+	it('should complete before timeout', () => {
 		const task = withTimeout(100)(() => 'Completed');
 
-		await expect(Task.launch(task).join()).resolves.toBe('Completed');
+		expect(Task.launch(task).join()).resolves.toBe('Completed');
 	});
 
-	it('should throw TimeoutError if task does not complete in time', async () => {
+	it('should throw TimeoutError if task does not complete in time', () => {
 		const task = withTimeout(50)(delay(100));
 
-		await expect(Task.launch(task).join()).rejects.toThrow(TimeoutError);
+		expect(Task.launch(task).join()).rejects.toThrow(TimeoutError);
 	});
 
-	it('should cancel the task if timeout occurs', async () => {
+	it('should cancel the task if timeout occurs', () => {
 		const task = withTimeout(50)(
 			() => new Promise((resolve) => setTimeout(resolve, 100)),
 		);
@@ -124,7 +123,7 @@ describe(withTimeout.name, () => {
 		const job = Task.launch(task);
 		job.cancel();
 
-		await expect(job.join()).rejects.toThrow(CancellationError);
+		expect(job.join()).rejects.toThrow(CancellationError);
 	});
 });
 
@@ -134,13 +133,13 @@ describe(withArgs.name, () => {
 		expect(Task.rootContext.isCancelled).toBe(false);
 	});
 
-	it('should run task with provided arguments', async () => {
+	it('should run task with provided arguments', () => {
 		const task = Task.create((_, x: number, y: number) => x + y);
 
 		const taskWithArgs = withArgs(task, 2, 3);
 
 		const defer = Task.launch(taskWithArgs);
-		await expect(defer.join()).resolves.toBe(5);
+		expect(defer.join()).resolves.toBe(5);
 	});
 });
 
@@ -150,13 +149,13 @@ describe(mapOutput.name, () => {
 		expect(Task.rootContext.isCancelled).toBe(false);
 	});
 
-	it('should map output of task', async () => {
+	it('should map output of task', () => {
 		const task = Task.create((_, x: number) => x * 2);
 
 		const job = Task.launch(chain([task, mapOutput((x: number) => x + 1)]), {
 			args: [3],
 		});
-		await expect(job.join()).resolves.toBe(7);
+		expect(job.join()).resolves.toBe(7);
 	});
 });
 
@@ -166,7 +165,7 @@ describe(mapOutputArr.name, () => {
 		expect(Task.rootContext.isCancelled).toBe(false);
 	});
 
-	it('should map output of task with array input', async () => {
+	it('should map output of task with array input', () => {
 		const task = Task.create(
 			(_, x: number, y: number) => [x, y] as [number, number],
 		);
@@ -175,7 +174,7 @@ describe(mapOutputArr.name, () => {
 			chain([task, mapOutputArr((x: number, y: number) => x + y)]),
 			{ args: [3, 4] },
 		);
-		await expect(job.join()).resolves.toBe(7);
+		expect(job.join()).resolves.toBe(7);
 	});
 });
 
@@ -219,21 +218,21 @@ describe(combined.name, () => {
 		expect(Task.rootContext.isCancelled).toBe(false);
 	});
 
-	it('returns the given task when no modifiers are applied', async () => {
+	it('returns the given task when no modifiers are applied', () => {
 		const task = Task.create((_, x: number) => x * 2);
-		const result = await Task.launch(combined()(task), { args: [3] }).join();
-		expect(result).toBe(6);
+		const promise = Task.launch(combined()(task), { args: [3] }).join();
+		expect(promise).resolves.toBe(6);
 	});
 
-	it('applies a single modifier correctly', async () => {
+	it('applies a single modifier correctly', () => {
 		const task = Task.create((_, x: number) => x * 2);
-		const result = await Task.launch(combined(withTimeout(10))(task), {
+		const promise = Task.launch(combined(withTimeout(10))(task), {
 			args: [3],
 		}).join();
-		expect(result).toBe(6);
+		expect(promise).resolves.toBe(6);
 	});
 
-	it('applies multiple modifiers in sequence', async () => {
+	it('applies multiple modifiers in sequence', () => {
 		let attempts = 0;
 		const task = Task.create((_, x: number) => {
 			attempts++;
@@ -244,8 +243,8 @@ describe(combined.name, () => {
 		});
 
 		const modifiedTask = combined(withTimeout(100), withRetry(3, [10]))(task);
-		const result = await Task.launch(modifiedTask, { args: [3] }).join();
-		expect(result).toBe(6);
+		const promise = Task.launch(modifiedTask, { args: [3] }).join();
+		expect(promise).resolves.toBe(6);
 		expect(attempts).toBe(2);
 	});
 });
@@ -256,7 +255,7 @@ describe(catchError.name, () => {
 		expect(Task.rootContext.isCancelled).toBe(false);
 	});
 
-	it('should catch and handle errors thrown by the task', async () => {
+	it('should catch and handle errors thrown by the task', () => {
 		const task = Task.create(() => {
 			throw new Error('Test error');
 		});
@@ -269,11 +268,11 @@ describe(catchError.name, () => {
 
 		const modifiedTask = catchError(errorHandler)(task);
 
-		const result = await Task.launch(modifiedTask).join();
-		expect(result).toBe('Recovered from error');
+		const promise = Task.launch(modifiedTask).join();
+		expect(promise).resolves.toBe('Recovered from error');
 	});
 
-	it('should re-throw the error if the handler returns undefined', async () => {
+	it('should re-throw the error if the handler returns undefined', () => {
 		const task = Task.create(() => {
 			throw new Error('Test error');
 		});
@@ -286,12 +285,10 @@ describe(catchError.name, () => {
 
 		const modifiedTask = catchError(errorHandler)(task);
 
-		await expect(Task.launch(modifiedTask).join()).rejects.toThrow(
-			'Test error',
-		);
+		expect(Task.launch(modifiedTask).join()).rejects.toThrow('Test error');
 	});
 
-	it('should not catch CancellationError', async () => {
+	it('should not catch CancellationError', () => {
 		const task = Task.create(() => {
 			throw new CancellationError();
 		});
@@ -300,20 +297,18 @@ describe(catchError.name, () => {
 
 		const modifiedTask = catchError(errorHandler)(task);
 
-		await expect(Task.launch(modifiedTask).join()).rejects.toThrow(
-			CancellationError,
-		);
+		expect(Task.launch(modifiedTask).join()).rejects.toThrow(CancellationError);
 		expect(errorHandler).not.toHaveBeenCalled();
 	});
 
-	it('passes the task result through if no error occurs', async () => {
-		await expect(
+	it('passes the task result through if no error occurs', () => {
+		expect(
 			Task.launch(catchError(() => () => 1)(() => 'Success')).join(),
 		).resolves.toBe('Success');
 	});
 
-	it('catches errors from the task and returns a default task', async () => {
-		await expect(
+	it('catches errors from the task and returns a default task', () => {
+		expect(
 			Task.launch(
 				catchError((err) => {
 					expect(err.message).toBe('Test error');
@@ -323,8 +318,8 @@ describe(catchError.name, () => {
 		).resolves.toBe('Default value');
 	});
 
-	it('returns the original error if no default task is provided', async () => {
-		await expect(
+	it('returns the original error if no default task is provided', () => {
+		expect(
 			Task.launch(
 				catchError((err) => {
 					expect(err.message).toBe('Test error');
@@ -334,8 +329,8 @@ describe(catchError.name, () => {
 		).rejects.toThrow('Test error');
 	});
 
-	it('does not catch if the context is cancelled', async () => {
-		await expect(
+	it('does not catch if the context is cancelled', () => {
+		expect(
 			Task.launch([
 				(context) => {
 					context.cancel();
@@ -352,7 +347,7 @@ describe(catchAll.name, () => {
 		expect(Task.rootContext.isCancelled).toBe(false);
 	});
 
-	it('should catch and handle errors thrown by the task with a provided task', async () => {
+	it('should catch and handle errors thrown by the task with a provided task', () => {
 		const task = Task.create(() => {
 			throw new Error('Test error');
 		});
@@ -361,22 +356,22 @@ describe(catchAll.name, () => {
 
 		const modifiedTask = catchAll(recoveryTask)(task);
 
-		const result = await Task.launch(modifiedTask).join();
-		expect(result).toBe('Recovered from error');
+		const promise = Task.launch(modifiedTask).join();
+		expect(promise).resolves.toBe('Recovered from error');
 	});
 
-	it('should return undefined if no recovery task is provided', async () => {
+	it('should return undefined if no recovery task is provided', () => {
 		const task = Task.create(() => {
 			throw new Error('Test error');
 		});
 
 		const modifiedTask = catchAll()(task);
 
-		const result = await Task.launch(modifiedTask).join();
-		expect(result).toBeUndefined();
+		const promise = Task.launch(modifiedTask).join();
+		expect(promise).resolves.toBeUndefined();
 	});
 
-	it('should not catch CancellationError', async () => {
+	it('should not catch CancellationError', () => {
 		const task = Task.create(() => {
 			throw new CancellationError();
 		});
@@ -385,9 +380,7 @@ describe(catchAll.name, () => {
 
 		const modifiedTask = catchAll(recoveryTask)(task);
 
-		await expect(Task.launch(modifiedTask).join()).rejects.toThrow(
-			CancellationError,
-		);
+		expect(Task.launch(modifiedTask).join()).rejects.toThrow(CancellationError);
 		expect(recoveryTask).not.toHaveBeenCalled();
 	});
 });
