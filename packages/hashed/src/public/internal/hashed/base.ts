@@ -24,7 +24,10 @@ export abstract class BlockBuilderBase<E> {
 		const { state = TraverseState() } = options;
 
 		if (this.isEmpty || state.halted) return;
-		if (undefined !== this.source) return this.source.forEach(f, { state });
+		if (undefined !== this.source) {
+			this.source.forEach(f, { state });
+			return;
+		}
 
 		const { halt } = state;
 
@@ -87,7 +90,8 @@ export abstract class CollisionBuilderBase<E> {
 		if (state.halted) return;
 
 		if (undefined !== this.source) {
-			return this.source.forEach(f, { state });
+			this.source.forEach(f, { state });
+			return;
 		}
 
 		this.entries.forEach(f, { state });

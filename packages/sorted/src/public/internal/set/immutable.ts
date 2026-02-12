@@ -501,11 +501,11 @@ export class SortedSetLeaf<T> extends SortedSetNode<T> {
 	}
 
 	mutateJoinLeft(left: SortedSetLeaf<T>, entry: T): void {
-		return leafMutateJoinLeft(this, left, entry);
+		leafMutateJoinLeft(this, left, entry);
 	}
 
 	mutateJoinRight(right: SortedSetLeaf<T>, entry: T): void {
-		return leafMutateJoinRight(this, right, entry);
+		leafMutateJoinRight(this, right, entry);
 	}
 
 	normalize(): SortedSet<T> {
@@ -715,11 +715,11 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
 	}
 
 	mutateJoinLeft(left: SortedSetInner<T>, entry: T): void {
-		return innerMutateJoinLeft(this, left, entry);
+		innerMutateJoinLeft(this, left, entry);
 	}
 
 	mutateJoinRight(right: SortedSetInner<T>, entry: T): void {
-		return innerMutateJoinRight(this, right, entry);
+		innerMutateJoinRight(this, right, entry);
 	}
 
 	normalizeDownsizeChild(

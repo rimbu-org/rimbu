@@ -603,7 +603,9 @@ export class MultiMapBuilder<
 		this.keyMap.forEach(
 			([key, values], _, outerHalt): void => {
 				values.forEach(
-					(value, index, halt): void => f([key, value], index, halt),
+					(value, index, halt): void => {
+						f([key, value], index, halt);
+					},
 					{
 						reversed,
 						state,

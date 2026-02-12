@@ -1226,7 +1226,7 @@ export abstract class SortedBuilder<E> {
 			const preSize = child.size;
 			const rightEntries = child.entries.splice(index);
 			const upEntry = child.entries.pop()!;
-			let rightChildren;
+			let rightChildren: SortedBuilder<E>[] | undefined;
 
 			if (child.hasChildren) {
 				rightChildren = child.children.splice(index);

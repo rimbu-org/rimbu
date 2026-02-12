@@ -437,9 +437,9 @@ export namespace Spy {
 		resetInstanceStubs(): void;
 		/**
 		 * Sets the used constructor stub function for new instances of the spy class.
-		 * @param constructor - the function to use as constructor of the class
+		 * @param construct - the function to use as constructor of the class
 		 */
-		setConstructorStub(constructor: Func<A, C> | undefined): void;
+		setConstructorStub(construct: Func<A, C> | undefined): void;
 		/**
 		 * Resets the used constructor to the originally given constructor.
 		 */

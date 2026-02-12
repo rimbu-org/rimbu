@@ -658,11 +658,11 @@ export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
 	}
 
 	mutateJoinLeft(left: SortedMapLeaf<K, V>, entry: readonly [K, V]): void {
-		return leafMutateJoinLeft(this, left, entry);
+		leafMutateJoinLeft(this, left, entry);
 	}
 
 	mutateJoinRight(right: SortedMapLeaf<K, V>, entry: readonly [K, V]): void {
-		return leafMutateJoinRight(this, right, entry);
+		leafMutateJoinRight(this, right, entry);
 	}
 
 	normalize(): SortedMap<K, V> {
@@ -1013,11 +1013,11 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 	}
 
 	mutateJoinLeft(left: SortedMapInner<K, V>, entry: readonly [K, V]): void {
-		return innerMutateJoinLeft(this, left, entry);
+		innerMutateJoinLeft(this, left, entry);
 	}
 
 	mutateJoinRight(right: SortedMapInner<K, V>, entry: readonly [K, V]): void {
-		return innerMutateJoinRight(this, right, entry);
+		innerMutateJoinRight(this, right, entry);
 	}
 
 	normalizeDownsizeChild(

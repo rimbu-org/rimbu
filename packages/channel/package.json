@@ -56,15 +56,13 @@
 		"src"
 	],
 	"scripts": {
-		"biome:check": "biome check",
-		"biome:fix": "biome check --write",
+		"biome:check": "biome check src",
+		"biome:fix": "biome check src --write",
 		"build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
 		"clean": "rimraf dist node_modules",
 		"clean:build": "rimraf dist",
-		"format": "yarn format:base --write",
-		"format:base": "prettier \"{!CHANGELOG.md}|**/**/*.{ts,tsx,js,mts,mjs,json,md}\"",
-		"format:check": "yarn format:base --check",
-		"lint": "eslint src",
+		"format:check": "biome format src",
+		"lint:check": "biome lint src",
 		"test": "bun test test/* --tsconfig-override tsconfig.common.json",
 		"test:types": "bunx tsd --files ./test-d --typings ./dist/arr.d.ts",
 		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
