@@ -16,7 +16,7 @@ import { createHashMapContext } from '#map/context';
  * @typeparam K - the key type
  * @typeparam V - the value type
  * @note
- * - The `HashMap` uses the context's `hasher` instance to hash keys for performance.<br/>
+ * - The `HashMap` uses the context's `hasher` instance to hash keys for performance.
  * - The `HashMap` uses the context's `eq` function to determine equivalence between keys.
  * @example
  * ```ts
@@ -33,7 +33,7 @@ export namespace HashMap {
 	 * duplicate keys.
 	 * See the [Map documentation](https://rimbu.org/docs/collections/map) and the [HashMap API documentation](https://rimbu.org/api/rimbu/hashed/map/HashMap/interface)
 	 * @note
-	 * - The `HashMap` uses the context's `hasher` instance to hash keys for performance.<br/>
+	 * - The `HashMap` uses the context's `hasher` instance to hash keys for performance.
 	 * - The `HashMap` uses the context's `eq` function to determine equivalence between keys.
 	 * @typeparam K - the key type
 	 * @typeparam V - the value type
@@ -47,6 +47,10 @@ export namespace HashMap {
 		extends RMapBase.NonEmpty<K, V, HashMap.Types>,
 			Omit<HashMap<K, V>, keyof RMapBase.NonEmpty<any, any, any>>,
 			Streamable.NonEmpty<readonly [K, V]> {
+		/**
+		 * Returns a non-empty `Stream` of entries in this `HashMap` as readonly `[K, V]` tuples.
+		 * @returns a non-empty `Stream` of readonly `[K, V]` tuples for each map entry
+		 */
 		stream(): Stream.NonEmpty<readonly [K, V]>;
 	}
 

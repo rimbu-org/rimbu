@@ -49,6 +49,7 @@ export namespace CrossChannel {
 		 * of the first.
 		 * @typeparam TSend - the send message type
 		 * @typeparam TReceive - the receive message type
+		 * @returns a pair of connected CrossChannels `[sendChannel, receiveChannel]`
 		 */
 		createPair<TSend = void, TReceive = TSend>(
 			config?: CrossChannel.Config,
@@ -61,6 +62,7 @@ export namespace CrossChannel {
 		 * @typeparam TReceive - the receive message type
 		 * @param writeCh - the write channel to use for sending messages
 		 * @param readCh - the read channel to use for receiving messages
+		 * @returns a `CrossChannel` whose send module uses `writeCh` and receive module uses `readCh`
 		 */
 		combine<TSend = void, TReceive = TSend>(
 			writeCh: Channel.Write<TSend>,

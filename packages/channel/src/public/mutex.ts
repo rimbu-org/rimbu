@@ -9,10 +9,16 @@ import { Module } from '@rimbu/common/module';
 export interface Mutex extends Semaphore {
 	/**
 	 * Returns true if the resource can be acquired immediately, false otherwise.
+	 * @returns true when the resource can be acquired immediately, false otherwise
 	 */
 	canAcquire(): boolean;
 	/**
 	 * Acquire a lock. Blocks if the resource is already locked. Resolves when the resource is available.
+	 * @param unused - reserved for future API compatibility (do not pass)
+	 * @param options - (optional) acquisition options<br/>
+	 * - signal: (optional) an abort signal to cancel waiting for the lock<br/>
+	 * - timeoutMs: (optional) amount of milliseconds to wait for acquiring the lock before throwing
+	 * @returns a `Promise` that resolves when the lock is acquired
 	 */
 	acquire(
 		unused?: undefined,
@@ -23,6 +29,7 @@ export interface Mutex extends Semaphore {
 	): Promise<void>;
 	/**
 	 * Release a lock after it is acquired. Allows other functions to obtain a lock.
+	 * @returns void
 	 */
 	release(): void;
 }
@@ -34,6 +41,7 @@ export namespace Mutex {
 	export interface Constructors {
 		/**
 		 * Returns a new `Mutex` instance that can be used to enforce single access to a shared resource.
+		 * @returns a new `Mutex` instance
 		 */
 		create(): Mutex;
 	}

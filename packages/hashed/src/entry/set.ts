@@ -12,8 +12,8 @@ import { createHashSetContextModule } from '#set/context-factory';
  * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [HashSet API documentation](https://rimbu.org/api/rimbu/hashed/HashSet/interface)
  * @typeparam T - the value type
  * @note
- * - The `HashSet` uses the context's `hasher` instance to hash values for performance.<br/>
- * - The `HashSet` uses the context's `eq` function to determine equivalence between keys.
+ * - The `HashSet` uses the context's `hasher` instance to hash values for performance.
+ * - The `HashSet` uses the context's `eq` function to determine equivalence between values.
  * @example
  * ```ts
  * const s1 = HashSet.empty<string>()
@@ -29,8 +29,8 @@ export namespace HashSet {
 	 * See the [Set documentation](https://rimbu.org/docs/collections/set) and the [HashSet API documentation](https://rimbu.org/api/rimbu/hashed/HashSet/interface)
 	 * @typeparam T - the value type
 	 * @note
-	 * - The `HashSet` uses the context's `hasher` instance to hash keys for performance.
-	 * - The `HashSet` uses the context's `eq` function to determine equivalence between keys.
+	 * - The `HashSet` uses the context's `hasher` instance to hash values for performance.
+	 * - The `HashSet` uses the context's `eq` function to determine equivalence between values.
 	 * @example
 	 * ```ts
 	 * const s1 = HashSet.empty<string>()
@@ -80,13 +80,3 @@ export namespace HashSet {
 
 export const HashSet: HashSetCreators =
 	createHashSetContextModule().build<HashSetCreators>();
-
-// const _defaultContext: HashSet.Context<any> = createHashSetContext();
-
-// export const HashSet: HashSetCreators = Object.freeze({
-// 	..._defaultContext,
-// 	createContext: createHashSetContext,
-// 	defaultContext<UT>(): HashSet.Context<UT> {
-// 		return _defaultContext;
-// 	},
-// });

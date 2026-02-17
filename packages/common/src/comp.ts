@@ -10,7 +10,7 @@ export interface Comp<K> {
 	 * Returns 0 if given `value1` and `value2` are equal, a positive value is `value1` is greater than
 	 * `value2`, and a negative value otherwise.
 	 * @param value1 - the first value to compare
-	 * @param value2 - the seconds value to compare
+	 * @param value2 - the second value to compare
 	 * @example
 	 * ```ts
 	 * const c = Comp.number
@@ -21,6 +21,7 @@ export interface Comp<K> {
 	 * console.log(c.compare(5, 3))
 	 * // => 2
 	 * ```
+	 * @returns a number: 0 if equal, >0 if `value1` > `value2`, <0 otherwise
 	 */
 	compare(value1: K, value2: K): number;
 	/**
@@ -34,10 +35,11 @@ export interface Comp<K> {
 	 * console.log(c.isComparable('a'))
 	 * // => false
 	 * ```
+	 * @returns `true` if `obj` can be compared by this instance
 	 */
 	isComparable(obj: unknown): obj is K;
 	/**
-	 * Returns an `Eq` equality instance thet will return true when the given `comp` comparable instance returns 0.
+	 * Returns an `Eq` equality instance that will return true when the given `comp` comparable instance returns 0.
 	 * @param comp - the `Comp` comparable instance to convert
 	 * @example
 	 * ```ts
@@ -45,6 +47,7 @@ export interface Comp<K> {
 	 * console.log(eq({ a: 1, b: 2 }, { b: 2, a: 1 }))
 	 * // => true
 	 * ```
+	 * @returns an `Eq<K>` equivalent to this `Comp`
 	 */
 	toEq(): Eq<K>;
 	/**
@@ -58,6 +61,7 @@ export interface Comp<K> {
 	 * console.log(c.compare(5, 5))
 	 * // => 0
 	 * ```
+	 * @returns a `Comp<K>` with inverted ordering
 	 */
 	inverted(): Comp<K>;
 	/**
@@ -71,6 +75,7 @@ export interface Comp<K> {
 	 * console.log(c.compare(undefined, undefined))
 	 * // => 0
 	 * ```
+	 * @returns a `Comp<K | undefined>` that handles `undefined` values
 	 */
 	withUndefined(): Comp<K | undefined>;
 	/**
@@ -85,6 +90,7 @@ export interface Comp<K> {
 	 * console.log(c.compare(null, null))
 	 * // => 0
 	 * ```
+	 * @returns a `Comp<K | null>` that handles `null` values
 	 */
 	withNull(): Comp<K | null>;
 	/**
@@ -98,6 +104,7 @@ export interface Comp<K> {
 	 * console.log(c.compare([1, 2, 3, 4], [1, 3, 2]) < 0)
 	 * // => true
 	 * ```
+	 * @returns a `Comp<Iterable<K>>` that compares iterables element-wise
 	 */
 	forIterable(): Comp<Iterable<K>>;
 }
@@ -166,7 +173,7 @@ class CompImpl<K> implements Comp<K> {
 				}
 			},
 			(obj): obj is Iterable<K> => {
-				// unfortunately we cannot check element compatability
+				// unfortunately we cannot check element compatibility
 				return (
 					typeof obj === 'object' && obj !== null && Symbol.iterator in obj
 				);
@@ -177,144 +184,115 @@ class CompImpl<K> implements Comp<K> {
 
 export namespace Comp {
 	export interface Factory {
+		/**
+		 * Creates a new `Comp<K>` from the provided predicates.
+		 * @typeparam K - the value type
+		 * @param isComparable - function that determines if an object is of type `K`
+		 * @param compare - function that compares two `K` values and returns a number
+		 * @returns a `Comp<K>` that uses the provided comparison functions
+		 */
 		create<K>(
 			isComparable: (obj: unknown) => obj is K,
 			compare: (value1: K, value2: K) => number,
 		): Comp<K>;
+
 		/**
-		 * Returns the default Comp instance, which is the Comp.anyDeepComp() instance.
+		 * The default `Comp<any>` instance (deep compare).
+		 * @returns the default `Comp<any>` instance (deep compare)
 		 */
 		defaultInstance: Comp<any>;
+
 		/**
-		 * Returns a default number Comp instance that orders numbers naturally.
-		 * @example
-		 * ```ts
-		 * const c = Comp.numberComp();
-		 * console.log(c.compare(3, 5))
-		 * // => -2
-		 * ```
+		 * A `Comp<number>` ordering numbers naturally.
+		 * @returns a `Comp<number>`
 		 */
 		number: Comp<number>;
+
 		/**
-		 * Returns a default boolean Comp instance that orders booleans according to false < true.
-		 * @example
-		 * ```ts
-		 * const c = Comp.booleanComp();
-		 * console.log(c.compare(false, true) < 0)
-		 * // => true
-		 * console.log(c.compare(true, true))
-		 * // => 0
-		 * ```
+		 * A `Comp<boolean>` ordering booleans (false < true).
+		 * @returns a `Comp<boolean>`
 		 */
 		boolean: Comp<boolean>;
+
 		/**
-		 * Returns a default bigint Comp instance that orders bigint numbers naturally.
+		 * A `Comp<bigint>` ordering bigint values.
+		 * @returns a `Comp<bigint>`
 		 */
 		bigInt: Comp<bigint>;
+
 		/**
-		 * Returns a Comp instance converts values to string with JSON.stringify, and orders the resulting string naturally.
+		 * Returns a `Comp<T>` that orders by `JSON.stringify`.
+		 * @returns a `Comp<T>`
 		 */
 		anyStringJson<T>(): Comp<T>;
+
 		/**
-		 * Returns a `Comp` instance that compares strings based on the string's `localeCompare` method.
-		 * @param locales - (optional) a locale or list of locales
-		 * @param options - (optional) see String.localeCompare for details
+		 * Returns a `Comp<string>` using `Intl.Collator`.
+		 * @param ...args - forwarded to `Intl.Collator`
+		 * @returns a `Comp<string>`
 		 */
 		string(...args: ConstructorParameters<typeof Intl.Collator>): Comp<string>;
+
 		/**
-		 * Returns a `Comp` instance that compares strings in a case-insensitive way.
+		 * A `Comp<string>` that compares strings case-insensitively.
+		 * @returns a `Comp<string>`
 		 */
 		stringCaseInsensitive: Comp<string>;
+
 		/**
-		 * Returns a string Comp instance that orders strings according to their indexed char codes.
+		 * A `Comp<string>` that compares strings by char codes.
+		 * @returns a `Comp<string>`
 		 */
 		stringCharCode: Comp<string>;
+
 		/**
-		 * Returns a any Comp instance that orders any according to their toString values.
+		 * A `Comp<any>` that compares by stable string representation.
+		 * @returns a `Comp<any>`
 		 */
 		anyToString: Comp<any>;
+
 		/**
-		 * Returns a Comp instance that orders objects with a `valueOf` method according to the given `valueComp` instance for the valueOf values.
-		 * @param cls - the constructor of the values the Comp instance can compare
-		 * @param valueComp - (optional) the Comp instance to use on the .valueOf values
+		 * Returns a `Comp<T>` comparing instances by their `valueOf()`.
+		 * @param cls - constructor for the class to compare
+		 * @param valueComp - optional `Comp` for comparing `.valueOf()` results
+		 * @returns a `Comp<T>` comparing instances by their `valueOf()`
 		 */
 		byValueOf<T extends { valueOf(): V }, V>(
-			cls: {
-				new (): T;
-			},
+			cls: { new (): T },
 			valueComp?: Comp<V> | undefined,
 		): Comp<T>;
+
 		/**
-		 * Returns a Date Comp instance that orders Dates according to their `.valueOf` value.
+		 * A `Comp<Date>` comparing dates by numeric value.
+		 * @returns a `Comp<Date>`
 		 */
 		date: Comp<Date>;
+
 		/**
-		 * Returns a Comp instance for objects that orders the object keys according to the given `keyComp`, and then compares the corresponding
-		 * values using the given `valueComp`. Objects are then compared as follows:<br/>
-		 * starting with the smallest key of either object:<br/>
-		 * - if only one of the objects has the key, the object with the key is considered to be larger than the other<br/>
-		 * - if both objects have the key, the values are compared with `valueComp`. If the values are not equal, this result is returned.<br/>
-		 *
-		 * if the objects have the same keys with the same values, they are considered equal<br/>
-		 * @param keyComp - (optional) the Comp instance used to order the object keys
-		 * @param valueComp - (optional) the Comp instance used to order the object values
-		 * @example
-		 * ```ts
-		 * const c = Comp.objectComp();
-		 * console.log(c.compare({ a: 1 }, { a: 1 }))
-		 * // => 0
-		 * console.log(c.compare({ a: 1 }, { a: 2 }) < 0)
-		 * // => true
-		 * console.log(c.compare({ b: 5 }, { a: 2 }) < 0)
-		 * // => true
-		 * console.log(c.compare({ a: 1, b: 2 }, { b: 5 }) < 0)
-		 * // => true
-		 * console.log(c.compare({ a: 1, b: 2 }, { b: 2, a: 1 }))
-		 * // => 0
-		 * ```
+		 * Returns a `Comp<Record<any, any>>` for comparing objects by keys and values.
+		 * @param options - optional `keyComp` and `valueComp` to customize ordering
+		 * @returns a `Comp<Record<any, any>>`
 		 */
 		object(options?: {
 			keyComp?: Comp<any>;
 			valueComp?: Comp<any>;
 		}): Comp<Record<any, any>>;
+
 		/**
-		 * Returns a Comp instance that compares any value using default comparison functions, but never recursively compares
-		 * Iterables or objects. In those cases, it will use the stringComp instance.
-		 * @example
-		 * ```ts
-		 * const c = Comp.anyFlatComp();
-		 * console.log(c.compare({ a: 1, b: 1 }, { b: 1, a: 1 }) < 0)
-		 * // => true
-		 * // First object is smaller because the objects are converted to a string with and then compares the resulting string.
-		 * ```
+		 * A `Comp<T>` performing a flat comparison (no recursive comparison of Iterables or objects).
+		 * @returns a `Comp<T>`
 		 */
 		anyFlat<T>(): Comp<T>;
+
 		/**
-		 * Returns a Comp instance that compares any value using default comparison functions. For Iterables and objects, their elements are compared
-		 * only one level deep for performance and to avoid infinite recursion.
-		 * @example
-		 * ```ts
-		 * const c = Comp.anyShallow();
-		 * console.log(c.compare({ a: 1, b: 1 }, { b: 1, a: 1 }))
-		 * // => 0
-		 * console.log(c.compare([{ a: 1, b: 1 }], [{ b: 1, a: 1 }]) < 0)
-		 * // => true
-		 * // First object is smaller because the objects are converted to a string and then compares the resulting string.
-		 * ```
+		 * A `Comp<T>` performing a shallow comparison (one-level deep).
+		 * @returns a `Comp<T>`
 		 */
 		anyShallow<T>(): Comp<T>;
+
 		/**
-		 * Returns a Comp instance that compares any value using default comparison functions. For Iterables and objects, their elements are compared
-		 * recursively.
-		 * @note can become slow with large nested arrays and objects, and circular structures can cause infinite loops
-		 * @example
-		 * ```ts
-		 * const c = Comp.anyDeep();
-		 * console.log(c.compare({ a: 1, b: 1 }, { b: 1, a: 1 }))
-		 * // => 0
-		 * console.log(c.compare([{ a: 1, b: 1 }], [{ b: 1, a: 1 }]))
-		 * // => 0
-		 * ```
+		 * A `Comp<T>` performing a deep comparison (recursive).
+		 * @returns a `Comp<T>`
 		 */
 		anyDeep<T>(): Comp<T>;
 	}

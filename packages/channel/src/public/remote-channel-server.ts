@@ -7,7 +7,7 @@ import { Module } from '@rimbu/common/module';
 import { RemoteChannelServerImpl } from '#channel/remote-channel-server-impl';
 
 /**
- * A RemoteChannel server communicates with a RemoteChannel client through the given message port, and allows clients to easily
+ * A RemoteChannelServer communicates with a RemoteChannel client through the given message port, and allows clients to easily
  * create new channels to communicate with processes in the server context. The server needs to set up handlers to deal with
  * the created channels.
  */
@@ -38,6 +38,7 @@ export namespace RemoteChannelServer {
 		 * @param config - the configuration for the RemoteChannelServer to be created:<br/>
 		 * - port: the message port to communicate with the client
 		 * - rcsChannelId: (optional) an alternative channel id to use for communication with the client
+		 * @returns a `Promise` resolving to a `RemoteChannelServer`
 		 */
 		create(config: {
 			port: RemoteChannel.SimpleMessagePort;

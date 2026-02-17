@@ -54,13 +54,16 @@ export namespace RemoteObject {
 		 * Returns a new `RpcProxy` that can be used to perform remote operations on a RemoteObject server.
 		 * @typeparam T - the remote object interface type
 		 * @param commCh - the cross-channel to use for communication
+		 * @returns a `RpcProxy<T>` that forwards calls to the remote object
 		 */
 		createClient<T>(commCh: RemoteObject.ClientCrossChannel): RpcProxy<T>;
 
 		/**
 		 * Creates a remote object server that allows clients to perform remote operations on the given `source` object.
 		 * @typeparam T - the type of the object to serve remotely
+		 * @param source - the object whose properties and methods will be exposed remotely
 		 * @param commCh - the cross-channel to use for communication
+		 * @returns a `Promise` that resolves when the server has finished handling requests
 		 */
 		createServer<T>(
 			source: T,

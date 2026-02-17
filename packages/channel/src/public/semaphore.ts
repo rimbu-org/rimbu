@@ -21,12 +21,17 @@ export interface Semaphore {
 	 * Returns true if the semaphore will directly give access to the shared resource for the given `weight` when
 	 * requested.
 	 * @param weight - (default: 1) the desired weight for access request
+	 * @returns `true` if the semaphore has capacity for the requested weight, otherwise `false`
 	 */
 	canAcquire(weight?: number): boolean;
 	/**
 	 * Request access to a shared resource with the given `weight`. Blocks if the semaphore has insufficient capacity
 	 * until enough weight has been released. Resolves when the semaphore has enough capacity for the operation.
 	 * @param weight - (default: 1) the weight of the operation to be performed
+	 * @param options - optional acquire options
+	 * @param options.signal - an `AbortSignal` that can be used to abort the acquire
+	 * @param options.timeoutMs - an optional timeout (ms) after which the acquire will reject
+	 * @returns a `Promise` that resolves when the requested weight has been acquired
 	 */
 	acquire(
 		weight?: number,
@@ -38,6 +43,7 @@ export interface Semaphore {
 	/**
 	 * Release obtained capacity from the semaphore to allow potential other blocked processes to access the resource.
 	 * @param weight - (default: 1) the amount of weight to release
+	 * @returns `void`
 	 */
 	release(weight?: number): void;
 }
@@ -56,6 +62,7 @@ export namespace Semaphore {
 		 * Returns a new Semaphore instance with the given configuration.
 		 * @param options - the options for the Semaphore, including:<br/>
 		 * - maxSize: the maximum size/capacity for the semaphore
+		 * @returns a new `Semaphore` instance
 		 */
 		create(options: { maxSize: number }): Semaphore;
 	}

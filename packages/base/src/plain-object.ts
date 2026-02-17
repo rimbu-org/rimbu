@@ -10,8 +10,8 @@ export type AnyFunc = (...args: any[]) => any;
 export type IsAnyFunc<T> = AnyFunc extends T ? true : false;
 
 /**
- * A predicate type for any record that resolves to true if any of the record
- * properties is a function, false otherwise.
+ * A predicate type for any record that resolves to true if none of the record
+ * properties are functions, false otherwise.
  * This is useful to have a coarse discrimination between pure data objects and class instances.
  * @typeparam T - the input type
  */
@@ -57,7 +57,7 @@ export type IsAny<T> = 0 extends 1 & T ? true : false;
 
 /**
  * Utility type that will only return true if the input type T is a (readonly) array.
- * @typeparm T - the value type to test
+ * @typeparam T - the value type to test
  */
 export type IsArray<T> = T extends readonly any[] ? true : false;
 
@@ -70,11 +70,13 @@ export type NotIterable = {
 };
 
 /**
- * Companion function to the `IsRecord<T>` type that checks whether the given object is a pure
- * data object.
- * @param obj - the object to check
- * @returns true if the given object is a pure data object
- * @note does not check whether a record's properties are not functions
+ * Companion function to the `IsPlainObj<T>` type that performs a shallow runtime check
+ * to determine whether the given value is a plain data object (not an instance of a class,
+ * not iterable, and not null).
+ * @param obj - the value to check
+ * @returns true if the given value appears to be a plain data object
+ * @note This runtime check is shallow and does not verify whether object properties are functions;
+ * use the type-level helpers (e.g. `IsObjWithoutFunctions`) for compile-time checks.
  */
 export function isPlainObj(obj: any): obj is object {
 	return (
@@ -87,8 +89,9 @@ export function isPlainObj(obj: any): obj is object {
 }
 
 /**
- * Returns true if the given object is Iterable
+ * Returns true if the given object is Iterable.
  * @param obj - the object to check
+ * @returns true when `obj` implements the synchronous iterable protocol
  */
 export function isIterable(obj: any): obj is Iterable<unknown> {
 	return obj !== null && typeof obj === 'object' && Symbol.iterator in obj;

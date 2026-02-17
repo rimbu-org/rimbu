@@ -15,6 +15,7 @@ export interface RemoteChannelClient {
 	 * Resolves, if successful, to a new remote read channel.
 	 * @typeparam T - the channel message type
 	 * @param config - the remote channel configuration
+	 * @returns a `Promise` resolving to a remote `Channel.Read<T>`
 	 */
 	createRead<T>(
 		config: RemoteChannelClient.ReadChannelConfig,
@@ -23,6 +24,7 @@ export interface RemoteChannelClient {
 	 * Resolves, if successful, to a new remote write channel.
 	 * @typeparam T - the channel message type
 	 * @param config - the remote channel configuration
+	 * @returns a `Promise` resolving to a remote `Channel.Write<T>`
 	 */
 	createWrite<T>(
 		config: RemoteChannelClient.WriteChannelConfig,
@@ -32,6 +34,7 @@ export interface RemoteChannelClient {
 	 * @typeparam TSend - the send message type
 	 * @typeparam TReceive - the receive message type
 	 * @param config - the remote channel configuration
+	 * @returns a `Promise` resolving to a remote `CrossChannel<TSend, TReceive>`
 	 */
 	createCross<TSend = void, TReceive = TSend>(
 		config: RemoteChannelClient.CrossChannelConfig,
@@ -90,6 +93,7 @@ export namespace RemoteChannelClient {
 		/**
 		 * Creates a new RemoteChannelClient instance with the given configuration.
 		 * @param config - the configuration for the client:<br/>
+		 * @returns a `Promise` resolving to a `RemoteChannelClient` configured for the provided `config`
 		 */
 		create(config: RemoteChannelClient.Config): Promise<RemoteChannelClient>;
 	}

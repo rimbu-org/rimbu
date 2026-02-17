@@ -5,7 +5,7 @@ import { ErrBase } from '@rimbu/common/err';
  */
 export class EmptyCollectionAssumedNonEmptyError extends ErrBase.CustomError {
 	constructor() {
-		super('empty collection was assumbed to be non-empty');
+		super('empty collection was assumed to be non-empty');
 	}
 }
 
@@ -24,7 +24,7 @@ export class ModifiedBuilderWhileLoopingOverItError extends ErrBase.CustomError 
 export class InvalidStateError extends ErrBase.CustomError {
 	constructor() {
 		super(
-			"something happend that shouldn't happen, please consider creating an issue",
+			"something happened that shouldn't happen; please consider creating an issue",
 		);
 	}
 }
@@ -36,6 +36,7 @@ export class InvalidUsageError extends ErrBase.CustomError {}
 
 /**
  * Throws an `EmptyCollectionAssumedNonEmptyError`.
+ * @throws EmptyCollectionAssumedNonEmptyError
  */
 export function throwEmptyCollectionAssumedNonEmptyError(): never {
 	throw new EmptyCollectionAssumedNonEmptyError();
@@ -43,6 +44,7 @@ export function throwEmptyCollectionAssumedNonEmptyError(): never {
 
 /**
  * Throws a `ModifiedBuilderWhileLoopingOverItError`.
+ * @throws ModifiedBuilderWhileLoopingOverItError
  */
 export function throwModifiedBuilderWhileLoopingOverItError(): never {
 	throw new ModifiedBuilderWhileLoopingOverItError();
@@ -50,6 +52,7 @@ export function throwModifiedBuilderWhileLoopingOverItError(): never {
 
 /**
  * Throws an `InvalidStateError`.
+ * @throws InvalidStateError
  */
 export function throwInvalidStateError(): never {
 	throw new InvalidStateError();
@@ -58,6 +61,7 @@ export function throwInvalidStateError(): never {
 /**
  * Throws an `InvalidUsageError` with the provided message.
  * @param msg - context message describing the invalid usage
+ * @throws InvalidUsageError
  */
 export function throwInvalidUsageError(msg: string): never {
 	throw new InvalidUsageError(msg);

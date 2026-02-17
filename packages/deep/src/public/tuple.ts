@@ -36,7 +36,9 @@ export namespace Tuple {
 
 	/**
 	 * Convenience method to type Tuple types
+	 * @typeparam T - the tuple source type
 	 * @param values - the values of the tuple
+	 * @returns a `Tuple<T>` containing the provided values
 	 * @example
 	 * ```ts
 	 * const t = Tuple.of(1, 'a', true)
@@ -49,8 +51,11 @@ export namespace Tuple {
 
 	/**
 	 * Returns the item at the given `index` in the given `tuple`.
+	 * @typeparam T - the tuple source type
+	 * @typeparam K - the index/key type
 	 * @param tuple - the tuple to get the item from
-	 * @param index - the index in of the tuple element
+	 * @param index - the index of the tuple element
+	 * @returns the tuple element at `index`
 	 * @example
 	 * ```ts
 	 * const t = Tuple.of(1, 'a', true)
@@ -67,7 +72,9 @@ export namespace Tuple {
 
 	/**
 	 * Returns the first element of a Tuple.
+	 * @typeparam T - the tuple source type
 	 * @param tuple - the source tuple
+	 * @returns the first element of `tuple`
 	 * @example
 	 * ```ts
 	 * const t = Tuple.of(1, 'a', true)
@@ -81,7 +88,9 @@ export namespace Tuple {
 
 	/**
 	 * Returns the second element of a Tuple.
+	 * @typeparam T - the tuple source type
 	 * @param tuple - the source tuple
+	 * @returns the second element of `tuple`
 	 * @example
 	 * ```ts
 	 * const t = Tuple.of(1, 'a', true)
@@ -95,7 +104,10 @@ export namespace Tuple {
 
 	/**
 	 * Returns the last element of a Tuple.
+	 * @typeparam T - tail tuple element types
+	 * @typeparam R - the last element type
 	 * @param tuple - the source tuple
+	 * @returns the last element of `tuple`
 	 * @example
 	 * ```ts
 	 * const t = Tuple.of(1, 'a', true)
@@ -112,9 +124,12 @@ export namespace Tuple {
 	/**
 	 * Returns a copy of the given `tuple` where the element at given `index` is updated with the
 	 * given `updater`.
+	 * @typeparam T - the tuple source type
+	 * @typeparam K - the index/key type
 	 * @param tuple - the source tuple
 	 * @param index - the index in the tuple
 	 * @param updater - the updater for the value
+	 * @returns a new tuple with the value at `index` updated
 	 * @example
 	 * ```ts
 	 * const t = Tuple.of(1, 'a', true)
@@ -132,8 +147,11 @@ export namespace Tuple {
 
 	/**
 	 * Returns the given `tuple` with the given `values` appended.
+	 * @typeparam T - the tuple source type
+	 * @typeparam V - the values to append tuple type
 	 * @param tuple - the source tuple
 	 * @param values - the values to append
+	 * @returns a new tuple with `values` appended to `tuple`
 	 * @example
 	 * ```ts
 	 * const t = Tuple.of(1, 'a')
@@ -151,8 +169,11 @@ export namespace Tuple {
 	/**
 	 * Returns a Tuple containing the elements of given `tuple1` followed by the elements
 	 * of given `tuple2`.
+	 * @typeparam T1 - the first tuple source type
+	 * @typeparam T2 - the second tuple source type
 	 * @param tuple1 - the first Tuple
 	 * @param tuple2 - the second Tuple
+	 * @returns a new tuple containing elements of `tuple1` followed by `tuple2`
 	 * @example
 	 * ```ts
 	 * const t1 = Tuple.of(1, 'a')
@@ -170,7 +191,9 @@ export namespace Tuple {
 
 	/**
 	 * Returns a Tuple containing all but the last element of the given `tuple`.
+	 * @typeparam T - the tuple element types
 	 * @param tuple - the source tuple
+	 * @returns a tuple with the last element removed
 	 * @example
 	 * ```ts
 	 * const t = Tuple.of(1, 'a', true)
@@ -186,7 +209,9 @@ export namespace Tuple {
 
 	/**
 	 * Returns a Tuple containing all but the first element of the given `tuple`.
+	 * @typeparam T - the tail tuple element types
 	 * @param tuple - the source tuple
+	 * @returns a tuple containing all but the first element
 	 * @example
 	 * ```ts
 	 * const t = Tuple.of(1, 'a', true)

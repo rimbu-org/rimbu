@@ -2,6 +2,8 @@ import type { MaybePromise } from '@rimbu/common/async-opt-lazy';
 
 /**
  * A function used in `collect` methods to collect values from a collection. This is basically a single-pass map and filter.
+ * @typeparam T - the input value type
+ * @typeparam R - the returned value type
  * @param value - the input value
  * @param index - the index of the input value
  * @param skip - a token that can be returned to skip the value
@@ -29,6 +31,8 @@ export namespace CollectFun {
 
 /**
  * A potentially asynchronous function used in `collect` methods to collect values from a collection. This is basically a single-pass map and filter.
+ * @typeparam T - the input value type
+ * @typeparam R - the returned value type
  * @param value - the input value
  * @param index - the index of the input value
  * @param skip - a token that can be returned to skip the value

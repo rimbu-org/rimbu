@@ -17,6 +17,7 @@ export type OptLazy<T, A extends any[] = []> = T | ((...args: A) => T);
  * OptLazy(() => 1)        // => 1
  * OptLazy(() => () => 1)  // => () => 1
  * ```
+ * @returns the contained value of type `T`
  */
 export function OptLazy<T, A extends any[] = []>(
 	optLazy: OptLazy<T, A>,
@@ -47,6 +48,7 @@ export type OptLazyOr<T, O> = T | ((none: O) => T | O);
  * OptLazyOr(() => 1, 'a')         // => 1
  * OptLazyOr((none) => none, 'a')  // => 'a'
  * ```
+ * @returns the resulting value of type `T` or the provided `otherValue` of type `O`
  */
 export function OptLazyOr<T, O>(
 	optLazyOr: OptLazyOr<T, O>,

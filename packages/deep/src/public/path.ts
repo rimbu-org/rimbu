@@ -1,5 +1,8 @@
 import type { PathInternal, PathResultInternal } from '#deep/path-internal';
 
+/**
+ * Utilities and types for typed object path strings.
+ */
 export namespace Path {
 	/**
 	 * A string representing a path into an (nested) object of type T.
@@ -24,7 +27,7 @@ export namespace Path {
 	/**
 	 * The result type when selecting from object type T a path with type P.
 	 * @typeparam T - the object type to select in
-	 * @typeparam P - a Path in object type T
+	 * @typeparam P - a path in object type T
 	 * @example
 	 * ```ts
 	 * let r!: Path.Result<{ a: { b: { c: number } } }, 'a.b'>;

@@ -82,6 +82,7 @@ export interface List<T> extends FastIterable<T> {
 	 * List.of(0, 1, 2).stream().toArray()                       // => [0, 1, 2]
 	 * List.of(0, 1, 2).stream({ reversed: true }).toArray()     // => [2, 1, 0]
 	 * ```
+	 * @returns A `Stream` containing the values in order (or reversed when `options.reversed` is true).
 	 */
 	stream(options?: { reversed?: boolean }): Stream<T>;
 	/**
@@ -94,6 +95,7 @@ export interface List<T> extends FastIterable<T> {
 	 * List.of(0, 1, 2, 3, 4).streamRange({ start: 1, amount: 2 }).toArray()                      // => [1, 2]
 	 * List.of(0, 1, 2, 3, 4).streamRange({ start: 1, amount: 2 }, { reversed: true }).toArray() // => [2, 1]
 	 * ```
+	 * @returns A `Stream` containing the values in the given `range` in order (or reversed when `options.reversed` is true).
 	 */
 	streamRange(range: IndexRange, options?: { reversed?: boolean }): Stream<T>;
 	/**
@@ -637,6 +639,7 @@ export namespace List {
 		 * List.of(0, 1, 2).stream().toArray()                       // => [0, 1, 2]
 		 * List.of(0, 1, 2).stream({ reversed: true }).toArray()     // => [2, 1, 0]
 		 * ```
+		 * @returns A non-empty `Stream` containing the values in order (or reversed when `options.reversed` is true).
 		 */
 		stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
 		/**
@@ -778,6 +781,7 @@ export namespace List {
 		 * @param mapFun - a function receiving a value and its index, and returning a new value
 		 * @param options - (optional) an object containing the following properties:<br/>
 		 * - reversed: (default: false) if true, reverses the order of the values
+		 * @typeparam T2 - the result element type
 		 * @example
 		 * ```ts
 		 * List.of(1, 2, 3).map(v => `value: ${v + 2}`).toArray()
@@ -1118,6 +1122,7 @@ export namespace List {
 		build(): List<T>;
 		/**
 		 * Returns an immutable instance containing the result of applying given `mapFun` to each value in the builder.
+		 * @typeparam T2 - the result element type
 		 * @example
 		 * ```ts
 		 * const m = List.of(1, 2, 3).toBuilder()

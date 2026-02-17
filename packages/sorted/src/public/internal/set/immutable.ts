@@ -1,7 +1,6 @@
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { SortedSet } from '@rimbu/sorted/set';
-
-import type { SortedSetContext } from '#set/context';
+import type { ContextImpl } from './context-factory';
 
 import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';
@@ -48,7 +47,7 @@ export class SortedSetEmpty<T = any>
 {
 	declare _NonEmptyType: SortedSet.NonEmpty<T>;
 
-	constructor(readonly context: SortedSetContext<T>) {
+	constructor(readonly context: ContextImpl<T>) {
 		super();
 	}
 
@@ -73,7 +72,7 @@ export class SortedSetEmpty<T = any>
 	}
 
 	addAll(values: StreamSource<T>): SortedSet.NonEmpty<T> {
-		return this.context.from(values);
+		return this.context.from(values) as SortedSet.NonEmpty<T>;
 	}
 
 	remove(): this {
@@ -133,7 +132,7 @@ export abstract class SortedSetNode<T>
 {
 	declare _NonEmptyType: SortedSetNode<T>;
 
-	abstract get context(): SortedSetContext<T>;
+	abstract get context(): ContextImpl<T>;
 	abstract get size(): number;
 	abstract stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
 	abstract streamSliceIndex(
@@ -356,7 +355,7 @@ export abstract class SortedSetNode<T>
 
 export class SortedSetLeaf<T> extends SortedSetNode<T> {
 	constructor(
-		readonly context: SortedSetContext<T>,
+		readonly context: ContextImpl<T>,
 		public entries: readonly T[],
 	) {
 		super();
@@ -519,7 +518,7 @@ export class SortedSetLeaf<T> extends SortedSetNode<T> {
 
 export class SortedSetInner<T> extends SortedSetNode<T> {
 	constructor(
-		readonly context: SortedSetContext<T>,
+		readonly context: ContextImpl<T>,
 		public entries: readonly T[],
 		public children: readonly SortedSetNode<T>[],
 		public size: number,

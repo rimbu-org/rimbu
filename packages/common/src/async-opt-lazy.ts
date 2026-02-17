@@ -28,6 +28,7 @@ export namespace AsyncOptLazy {
 	 * AsyncOptLazy.toMaybePromise(async () => 1)  // => Promise(1)
 	 * AsyncOptLazy.toMaybePromise(Promise.resolve(1))  // => Promise(1)
 	 * ```
+	 * @returns the contained value or a promise yielding the value
 	 */
 	export function toMaybePromise<T, A extends any[] = []>(
 		optLazy: AsyncOptLazy<T, A>,
@@ -51,6 +52,7 @@ export namespace AsyncOptLazy {
 	 * AsyncOptLazy.toPromise(async () => 1)  // => Promise(1)
 	 * AsyncOptLazy.toPromise(Promise.resolve(1))  // => Promise(1)
 	 * ```
+	 * @returns a `Promise<T>` resolving to the contained value
 	 */
 	export async function toPromise<T, A extends any[] = []>(
 		optLazy: AsyncOptLazy<T, A>,

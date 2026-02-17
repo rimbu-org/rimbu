@@ -14,8 +14,9 @@ export interface RpcProxy<T> {
 	 * Remotely executes the method/access performed on the provided proxy object, and resolves, when successful,
 	 * the result of the operation.
 	 * @typeparam R - the result type of executing the function on the proxy object
-	 * @param remoteFn - a function that receives a proxy object, and will remotely perform the actions performed on the proxy
-	 * on the actual object.
+	 * @param remoteFn - a function that receives a proxy object and performs operations on it; those operations will be
+	 * forwarded to the remote object and executed there.
+	 * @returns a `Promise<R>` resolving to the result of the remote operation
 	 */
 	exec<R>(remoteFn: (proxy: RpcProxy.Unpromise<T>) => R): Promise<R>;
 }
@@ -64,6 +65,7 @@ export namespace RpcProxy {
 		 * and forward the path to the given `onCall` function.
 		 * @typeparam T - the interface to proxy
 		 * @param onCall - function that will be called with the execution path each time an operation is performed on the proxy object
+		 * @returns a new `RpcProxy<T>` instance
 		 */
 		create<T>(onCall: (path: RpcProxy.Path) => Promise<any>): RpcProxy<T>;
 	}

@@ -128,10 +128,7 @@ export function createHashSetContextModule<UT>(
 		...builderModule(mod),
 
 		createContext: (options) =>
-			createHashSetContextModule(
-				options,
-				mod.defaultContext() as any,
-			).build() as any,
+			createHashSetContextModule(options, mod.defaultContext() as any).build(),
 		defaultContext: Module.lazy<any>(() => _defaultContext ?? mod),
 
 		typeTag: 'HashSet',

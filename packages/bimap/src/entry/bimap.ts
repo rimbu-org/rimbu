@@ -111,11 +111,11 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @example
 	 * ```ts
 	 * const m = BiMap.of([1, 'a'], [2, 'b'])
-	 * m.hasKey('a')    // => true
-	 * m.hasKey('z')    // => false
+	 * m.hasValue('a')    // => true
+	 * m.hasValue('z')    // => false
 	 * ```
 	 */
-	hasValue<UV = V>(key: RelatedTo<V, UV>): boolean;
+	hasValue<UV = V>(value: RelatedTo<V, UV>): boolean;
 	/**
 	 * Returns the value associated with the given `key`, or given `otherwise` value if the key is not in the collection.
 	 * @param key - the key to look for
@@ -133,7 +133,7 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	getValue<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
 	/**
 	 * Returns the key associated with the given `value`, or given `otherwise` value if the key is not in the collection.
-	 * @param value - thevalue to look for
+	 * @param value - the value to look for
 	 * @param otherwise - (default: undefined) an `OptLazy` fallback value if the value is not in the collection
 	 * @example
 	 * ```ts
@@ -191,7 +191,7 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * m.removeKey(2).toArray()   // => [[1, 1]]
 	 * m.removeKey(3) === m       // true
 	 * ```
-	 * @note guarantees same object reference if the key is not present
+	 * @note guarantees same object reference if the value is not present
 	 */
 	removeKey<UK = K>(key: RelatedTo<K, UK>): BiMap<K, V>;
 	/**
@@ -229,9 +229,10 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * m.removeValue(2).toArray()   // => [[1, 1]]
 	 * m.removeValue(3) === m       // true
 	 * ```
-	 * @note guarantees same object reference if the key is not present
+	 * @note guarantees same object reference if the value is not present
 	 */
 	removeValue<UV = V>(value: RelatedTo<V, UV>): BiMap<K, V>;
+
 	/**
 	 * Returns a tuple containing the collection of which the entry associated with given `value` is removed, and the key that
 	 * is associated with that value. If the value is not present, it will return undefined instead.
@@ -257,9 +258,9 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * m.removeValues([1, 3, 2]).toArray()  // => []
 	 * m.removeValues([3, 4, 5]) === m      // => true
 	 * ```
-	 * @note guarantees same object reference if none of the keys are present
+	 * @note guarantees same object reference if none of the values are present
 	 */
-	removeValues<UV = V>(value: StreamSource<RelatedTo<V, UV>>): BiMap<K, V>;
+	removeValues<UV = V>(values: StreamSource<RelatedTo<V, UV>>): BiMap<K, V>;
 	/**
 	 * Returns the collection where the value associated with given `key` is updated with the given `valueUpdate` value or update function.
 	 * @param key - the key of the entry to update
@@ -401,7 +402,8 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 export namespace BiMap {
 	/**
 	 * A non-empty type-invariant immutable bi-directional Map where keys and values have a one-to-one mapping.
-	 * See the [BiMap documentation](https://rimbu.org/docs/collections/bimap) and the [BiMap API documentation](https://rimbu.org/api/rimbu/bimap/BiMap/interface)   * @typeparam K - the key type
+	 * See the [BiMap documentation](https://rimbu.org/docs/collections/bimap) and the [BiMap API documentation](https://rimbu.org/api/rimbu/bimap/BiMap/interface)
+	 * @typeparam K - the key type
 	 * @typeparam V - the value type
 	 */
 	export interface NonEmpty<K, V>
@@ -475,11 +477,11 @@ export namespace BiMap {
 		 * @example
 		 * ```ts
 		 * const m = BiMap.of([1, 1], [2, 2])
-		 * m.updateValueAt(3, 3).toArray()
+		 * m.updateValueAtKey(3, 3).toArray()
 		 * // => [[1, 1], [2, 2]]
-		 * m.updateValueAt(2, 10).toArray()
+		 * m.updateValueAtKey(2, 10).toArray()
 		 * // => [[1, 1], [2, 10]]
-		 * m.updateValueAt(1, v => v + 1)
+		 * m.updateValueAtKey(1, v => v + 1)
 		 * // => [[1, 2]]
 		 * ```
 		 */
@@ -671,7 +673,7 @@ export namespace BiMap {
 		 * @example
 		 * ```ts
 		 * const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.addEntries([1, 'a'], [3, 'c']])   // => true
+		 * m.addEntries([[1, 'a'], [3, 'c']])   // => true
 		 * m.addEntries([])                    // => false
 		 * ```
 		 */
@@ -738,7 +740,7 @@ export namespace BiMap {
 		 * - `halt`: a function that, if called, ensures that no new elements are passed
 		 * @param options - (optional) an object containing the following properties:<br/>
 		 * - state: (optional) the traverse state
-		 * @throws RibuError.ModifiedBuilderWhileLoopingOverItError if the builder is modified while
+		 * @throws RimbuError.ModifiedBuilderWhileLoopingOverItError if the builder is modified while
 		 * looping over it
 		 * @example
 		 * ```ts

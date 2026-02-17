@@ -54,10 +54,11 @@ export namespace Select {
 }
 /**
  * Returns the result of applying the given `selector` shape to the given `source` value.
- * @typeparam T - the patch value type
+ * @typeparam T - the source value type
  * @typeparam SL - the selector shape type
  * @param source - the source value to select from
  * @param selector - a shape indicating the selection from the source values
+ * @returns the selected value of type `Select.Result<T, SL>`
  * @example
  * ```ts
  * const item = { a: { b:  1, c: 'a' } };
@@ -98,6 +99,7 @@ export function select<T, SL extends Select<T>>(
  * @typeparam SL - the selector shape type
  * @param selector - a shape indicating the selection from the source values
  * @param source - the value to use the given `selector` on.
+ * @returns a function that accepts a `source` value and returns `Select.Result<T, SL>`
  * @example
  * ```ts
  * const items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];
@@ -119,6 +121,7 @@ export function selectWith<T, SL extends Select<T>>(
  * @param source - the source value to select from
  * @param path - the string path in the object
  * @param selector - a shape indicating the selection from the source value at the given path
+ * @returns the selected value at `path` of type `Select.Result<Path.Result<T, P>, SL>`
  * @example
  * ```ts
  * const item = { a: { b:  1, c: 'a' } };
@@ -145,6 +148,7 @@ export function selectAt<
  * @typeparam SL - the selector shape type
  * @param path - the string path in the object
  * @param selector - a shape indicating the selection from the source values
+ * @returns a function that accepts a `source` value and returns `Select.Result<Path.Result<T, P>, SL>`
  * @example
  * ```ts
  * const items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];

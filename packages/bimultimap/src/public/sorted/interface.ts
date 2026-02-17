@@ -17,15 +17,17 @@ export namespace BiMultiMapSorted {
 		 * @param options - (optional) an object containing the following properties:<br/>
 		 * - keyValueMultiMapContext: (optional) the MultiMap context to use for key to value multimaps<br/>
 		 * - valueKeyMultiMapContext: (optional) the MultiMap context to use for value to key multimaps
+		 * @returns a new `SortedBiMultiMap.Context` configured with the provided options
 		 */
-		createContext<K, V>(options?: {
-			keyValueMultiMapContext?: SortedMultiMapSortedValue.Context<K, V>;
-			valueKeyMultiMapContext?: SortedMultiMapSortedValue.Context<V, K>;
-		}): SortedBiMultiMap.Context<K, V>;
+		createContext<UK, UV>(options?: {
+			keyValueMultiMapContext?: SortedMultiMapSortedValue.Context<UK, UV>;
+			valueKeyMultiMapContext?: SortedMultiMapSortedValue.Context<UV, UK>;
+		}): SortedBiMultiMap.Context<UK, UV>;
 		/**
 		 * Returns the default context for SortedBiMultiMap.
 		 * @typeparam UK - the upper key type for which the context can create instances
 		 * @typeparam UV - the upper value type for which the context can create instances
+		 * @returns the default `SortedBiMultiMap.Context` for this environment
 		 */
 		defaultContext<UK, UV>(): SortedBiMultiMap.Context<UK, UV>;
 	}

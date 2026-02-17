@@ -1,7 +1,7 @@
 import type { RelatedTo } from '@rimbu/common/types';
 import type { SortedSet } from '@rimbu/sorted/set';
+import type { ContextImpl } from './context-factory';
 
-import type { SortedSetContext } from '#set/context';
 import type { SortedSetNode } from '#set/immutable';
 
 import { Stream, type StreamSource } from '@rimbu/stream';
@@ -11,7 +11,7 @@ import { SortedIndex } from '#sorted/sorted-index';
 
 export class SortedSetBuilder<T> extends SortedBuilder<T> {
 	constructor(
-		readonly context: SortedSetContext<T>,
+		readonly context: ContextImpl<T>,
 		public source?: undefined | SortedSet<T>,
 		public _entries?: undefined | T[],
 		public _children?: undefined | SortedSetBuilder<T>[],

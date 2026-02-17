@@ -18,11 +18,13 @@ export interface TraverseState {
 	nextIndex(): number;
 	/**
 	 * Sets the `halted` value to true.
+	 * @returns void
 	 */
 	halt(): void;
 	/**
 	 * Sets the `halted` value to false, and resets the `currentIndex`
 	 * value to its start value.
+	 * @returns void
 	 */
 	reset(): void;
 }

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'bun:test';
 
 import { Comp } from '@rimbu/common/comp';
+import { createSortedSetContextModule } from '@rimbu/sorted/internal/set/context-factory';
 
-import { SortedSetContext } from '#set/context';
 import { SortedSetInner } from '#set/immutable';
 import {
 	innerDropInternal,
@@ -12,7 +12,10 @@ import {
 	innerTakeInternal,
 } from '#sorted/base';
 
-const context = new SortedSetContext<number>(2, Comp.defaultInstance);
+const context = createSortedSetContextModule({
+	blockSizeBits: 2,
+	comp: Comp.defaultInstance,
+}).build();
 
 function createInner(base = 0) {
 	return context.inner(

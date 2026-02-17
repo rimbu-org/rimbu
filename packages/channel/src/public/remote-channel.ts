@@ -161,7 +161,9 @@ export namespace RemoteChannel {
 		/**
 		 * Resolves to a new read-only RemoteChannel using the given configuration.
 		 * @typeparam T - the message type
+		 * @param port - the message port to use for communication
 		 * @param config - the channel configuration
+		 * @returns a `Promise` resolving to a `Channel.Read<T>`
 		 */
 		createRead<T = void>(
 			port: RemoteChannel.SimpleMessagePort,
@@ -171,7 +173,9 @@ export namespace RemoteChannel {
 		/**
 		 * Resolves to a new write-only RemoteChannel using the given configuration.
 		 * @typeparam T - the message type
+		 * @param port - the message port to use for communication
 		 * @param config - the channel configuration
+		 * @returns a `Promise` resolving to a `Channel.Write<T>`
 		 */
 		createWrite<T = void>(
 			port: RemoteChannel.SimpleMessagePort,
@@ -182,7 +186,9 @@ export namespace RemoteChannel {
 		 * Resolves to a new cross-channel RemoteChannel using the given configuration.
 		 * @typeparam TSend - the send message type
 		 * @typeparam TReceive - the receive message type
+		 * @param port - the message port to use for communication
 		 * @param config - the channel configuration
+		 * @returns a `Promise` resolving to a `CrossChannel<TSend, TReceive>`
 		 */
 		createCross<TSend = void, TReceive = TSend>(
 			port: RemoteChannel.SimpleMessagePort,

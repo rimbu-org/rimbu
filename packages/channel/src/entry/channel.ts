@@ -31,7 +31,7 @@ export namespace Channel {
 		 */
 		get length(): number;
 		/**
-		 * Returns true if the channel is closed and there are no message in the buffer (length = 0), false otherwise.
+		 * Returns true if the channel is closed and there are no messages in the buffer (length = 0), false otherwise.
 		 */
 		get isExhausted(): boolean;
 		/**
@@ -77,7 +77,8 @@ export namespace Channel {
 		 * @param options - (optional) the message send options<br/>
 		 * - signal: (optional) an abort signal to cancel sending<br/>
 		 * - timeoutMs: (optional) amount of milliseconds to wait for being able to send message<br/>
-		 * - recover: (optional) a function that can be supplied to recover from a channel error
+		 * - catchChannelErrors: (optional) when true the call returns a `Channel.Error` instead of throwing; when false (default) errors are thrown
+		 * @returns a `Promise` that resolves to `void`, or to `Channel.Error | undefined` when `catchChannelErrors` is true
 		 */
 		send(
 			value: T,
@@ -101,7 +102,8 @@ export namespace Channel {
 		 * @param options - the message send options<br/>
 		 * - signal: (optional) an abort signal to cancel sending<br/>
 		 * - timeoutMs: (optional) amount of milliseconds to wait for being able to send message, for each separate message in the source<br/>
-		 * - recover: (optional) a function that can be supplied to recover from a channel error
+		 * - catchChannelErrors: (optional) when true the call returns a `Channel.Error` instead of throwing; when false (default) errors are thrown
+		 * @returns a `Promise` that resolves to `void`, or to `Channel.Error | undefined` when `catchChannelErrors` is true
 		 */
 		sendAll(
 			source: AsyncStreamSource<T>,
@@ -177,7 +179,7 @@ export namespace Channel {
 		 * @typeparam RT - when recover is provided, the recover type
 		 * @param channels - an array of (read) channels to receive a value from
 		 * @param options - (optional) additional options:<br/>
-		 * - signal: an abortsignal that can be provided to abort waiting for a value<br/>
+		 * - signal: an abort signal that can be provided to abort waiting for a value<br/>
 		 * - timeoutMs: if none of the channels receives a value within the given amount of milliseconds, will throw<br/>
 		 * - recover: when given, catches any `Channel.Error` instance and allows returning a backup value
 		 */
@@ -212,7 +214,6 @@ export namespace Channel {
 		/**
 		 * Resolves, from the given tuples of channels and channel value handlers, the result of applying the corresponding channel handler to the
 		 * first channel value that is received.
-		 * options.
 		 * @typeparam TS - an array of channel message types
 		 * @typeparam HS - an array of tuple containing a read channel for the message type, and a handler for the message
 		 * @param options - options to take into account:<br/>

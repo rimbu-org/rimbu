@@ -10,15 +10,21 @@ export interface WaitGroup {
 	/**
 	 * Adds the given amount of processes to the WaitGroup.
 	 * @param amount - (default: 1) the amount of processes to add
+	 * @returns `void`
 	 */
 	add(amount?: number): void;
 	/**
 	 * Informs the WaitGroup that a process has completed.
 	 * @param amount - (default: 1) the amount of processes to mark as done
+	 * @returns `void`
 	 */
 	done(amount?: number): void;
 	/**
 	 * Blocks until all the processes in the WaitGroup have completed.
+	 * @param options - optional wait options
+	 * @param options.signal - an `AbortSignal` that can be used to abort the wait
+	 * @param options.timeoutMs - optional timeout in milliseconds after which the wait will reject
+	 * @returns a `Promise` that resolves when all processes have completed
 	 */
 	wait(options?: {
 		signal?: AbortSignal | undefined;
@@ -33,6 +39,7 @@ export namespace WaitGroup {
 	export interface Constructors {
 		/**
 		 * Returns a new `WaitGroup` that can be used to wait for fan-out processes to complete.
+		 * @returns a new `WaitGroup` instance
 		 */
 		create(): WaitGroup;
 	}

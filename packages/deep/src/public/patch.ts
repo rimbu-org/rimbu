@@ -124,6 +124,18 @@ export function patch<T, TE extends T = T, TT = T>(
 	return patchEntry(value, value, value, patchItem as Patch<T>);
 }
 
+/**
+ * Match a patch entry against the given value and apply updates immutably.
+ * @typeparam T - the value type
+ * @typeparam C - the patch/child utility type
+ * @typeparam P - the parent value type
+ * @typeparam R - the root value type
+ * @param value - the current value to apply the patch to
+ * @param parent - the parent value of `value`
+ * @param root - the root value in which the patch started
+ * @param patchItem - the patch entry to evaluate
+ * @returns the patched value (or original value when no changes)
+ */
 function patchEntry<T, C, P, R>(
 	value: T,
 	parent: P,
@@ -216,6 +228,16 @@ function patchPlainObj<T, C, R>(
 	return value;
 }
 
+/**
+ * Patch an array or tuple value with the given patch item.
+ * @typeparam T - the array/tuple value type
+ * @typeparam C - the patch/child utility type
+ * @typeparam R - the root value type
+ * @param value - the array or tuple to patch
+ * @param root - the root value in which the patch started
+ * @param patchItem - the patch to apply (array replacement or tuple index patches)
+ * @returns the patched array/tuple or the original when unchanged
+ */
 function patchArr<T extends any[], C, R>(
 	value: T,
 	root: R,
@@ -272,6 +294,7 @@ function patchArr<T extends any[], C, R>(
  * @typeparam TT - utility type
  * @param patchItem - the `Patch` definition to update the given value of type `T` with.
  * @param source - the value to use the given `patchItem` on.
+ * @returns a function that accepts a `source` value and returns the patched result
  * @example
  * ```ts
  * const items = [{ a: 1, b: 'a' }, { a: 2, b: 'b' }];
@@ -284,14 +307,17 @@ export function patchWith<T, TE extends T = T, TT = T>(
 ): (source: TE) => T {
 	return (source) => patch(source, patchItem as any);
 }
-
 /**
  * Patches the value at the given path in the source to the given value.
  * Because the path to update must exist in the `source` object, optional
  * chaining and array indexing is not allowed.
+ * @typeparam T - the root object type
+ * @typeparam P - the string literal path type in the object
+ * @typeparam C - the result type at the given path
  * @param source - the object to update
  * @param path - the path in the object to update
  * @param patchItem - the patch for the value at the given path
+ * @returns the updated value with the patch applied
  * @example
  * ```ts
  * const value = { a: { b: { c: 5 } } };
@@ -354,13 +380,7 @@ export function patchAt<T, P extends Path.Set<T>, C = Path.Result<T, P>>(
  * @typeparam TT - utility type
  * @param path - the string path in the object
  * @param patchItem - the `Patch` definition to update the value at the given `path` in `T` with.
- * @param source - the value to use the given `patchItem` on at the given `path`.
- * @example
- * ```ts
- * const items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];
- * items.map(patchAtWith('a', [{ b: (v) => v + 1 }]));
- * // => [{ a: { b: 2, c: 'a' } }, { a: { b: 3, c: 'b' } }]
- * ```
+ * @returns a function that accepts a `source` value and returns the patched result
  */
 export function patchAtWith<T, P extends Path.Set<T>, TE extends T = T, TT = T>(
 	path: P,

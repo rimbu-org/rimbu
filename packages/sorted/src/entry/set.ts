@@ -8,7 +8,7 @@ import type { Stream, Streamable } from '@rimbu/stream';
 
 import type { SortedSetCreators } from '#set/creators';
 
-import { createSortedSetContext } from '#set/context';
+import { createSortedSetContextModule } from '#set/context-factory';
 
 /**
  * A type-invariant immutable Set of value type T.
@@ -321,12 +321,5 @@ export namespace SortedSet {
 	}
 }
 
-const _defaultContext: SortedSet.Context<any> = createSortedSetContext();
-
-export const SortedSet: SortedSetCreators = Object.freeze({
-	..._defaultContext,
-	createContext: createSortedSetContext,
-	defaultContext<UT>(): SortedSet.Context<UT> {
-		return _defaultContext;
-	},
-});
+export const SortedSet: SortedSetCreators =
+	createSortedSetContextModule().build();

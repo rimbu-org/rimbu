@@ -19,6 +19,7 @@ export type * from '@rimbu/deep/protected';
  * obj.b.d.push(2)  // compiler error: d is a readonly array
  * (obj as any).b.d.push(2)  // will actually mutate the object
  * ```
+ * @returns the same value with the `Protected<T>` type applied (compile-time only)
  */
 export function protect<T>(source: T): Protected<T> {
 	return source as Protected<T>;
@@ -33,18 +34,7 @@ export function protect<T>(source: T): Protected<T> {
  * @typeparam P - a Path in object type T
  * @param source - the object to select in
  * @param path - the path into the object
- * @example
- * ```ts
- * const value = { a: { b: { c: [{ d: 5 }, { d: 6 }] } } }
- * getAt(value, 'a.b');
- * // => { c: [{ d: 5 }, { d: 6 }] }
- * getAt(value, 'a.b.c');
- * // => [{ d: 5 }, { d: 6 }]
- * getAt(value, 'a.b.c[1]');
- * // => { d: 6 }
- * getAt(value, 'a.b.c[1]?.d');
- * // => 6
- * ```
+ * @returns the selected value (type `Path.Result<T, P>`) or `undefined` if the path does not exist
  */
 export function getAt<T, P extends Path.Get<T>>(
 	source: T,
@@ -83,7 +73,7 @@ export function getAt<T, P extends Path.Get<T>>(
  * @typeparam T - the input value type
  * @typeparam P - the string literal path type in the object
  * @param path - the string path in the object
- * @param source - the value from which to extract the path value
+ * @returns a function that receives `source: T` and returns `Path.Result<T, P>` for that `path`
  * @example
  * ```ts
  * const items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];

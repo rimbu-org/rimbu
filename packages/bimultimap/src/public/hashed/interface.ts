@@ -17,6 +17,7 @@ export namespace BiMultiMapHashed {
 		 * @param options - (optional) an object containing the following properties:<br/>
 		 * - keyValueMultiMapContext: (optional) the MultiMap context to use for key to value multimaps<br/>
 		 * - valueKeyMultiMapContext: (optional) the MultiMap context to use for value to key multimaps
+		 * @returns a new `HashBiMultiMap.Context` configured with the provided options
 		 */
 		createContext<UK, UV>(options?: {
 			keyValueMultiMapContext?: HashMultiMapHashValue.Context<UK, UV>;
@@ -26,6 +27,7 @@ export namespace BiMultiMapHashed {
 		 * Returns the default context for HashBiMultiMaps.
 		 * @typeparam UK - the upper key type for which the context can create instances
 		 * @typeparam UV - the upper value type for which the context can create instances
+		 * @returns the default `HashBiMultiMap.Context` for this environment
 		 */
 		defaultContext<UK, UV>(): HashBiMultiMap.Context<UK, UV>;
 	}

@@ -27,6 +27,7 @@ export namespace IndexRange {
 	 * Returns, given the `range` `IndexRange`, a normalized tuple containing the
 	 * start index, and optionally an end index.
 	 * @param range - the `IndexRange` to use
+	 * @returns a tuple with the start index and optional end index
 	 */
 	export function getIndexRangeIndices(
 		range: IndexRange,
@@ -70,6 +71,7 @@ export namespace IndexRange {
 	 * - [start: number, end: number]: an inclusive range of element indices within the given range
 	 * @param range - the `IndexRange` to use
 	 * @param length - the target maximum length
+	 * @returns either 'empty', 'all', or a tuple `[start, end]` describing the inclusive index range
 	 */
 	export function getIndicesFor(
 		range: IndexRange,

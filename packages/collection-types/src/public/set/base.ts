@@ -7,9 +7,7 @@ import type {
 	Streamable,
 	StreamSource,
 } from '@rimbu/stream';
-
-import { StreamFactory } from '@rimbu/stream/internal/factory';
-import { Reducer } from '@rimbu/stream/reducer';
+import type { Reducer } from '@rimbu/stream/reducer';
 
 export interface VariantSetBase<
 	T,
@@ -569,79 +567,79 @@ export namespace RSetBase {
 		readonly builder: RSetBase.Builder<this['_T']>;
 	}
 
-	export abstract class ContextBase<
-		UT,
-		Tp extends RSetBase.Types = RSetBase.Types,
-	> implements RSetBase.Context<UT, Tp>
-	{
-		abstract get typeTag(): string;
-		abstract get _empty(): (Tp & Elem<any>)['normal'];
+	// export abstract class ContextBase<
+	// 	UT,
+	// 	Tp extends RSetBase.Types = RSetBase.Types,
+	// > implements RSetBase.Context<UT, Tp>
+	// {
+	// 	abstract get typeTag(): string;
+	// 	abstract get _empty(): (Tp & Elem<any>)['normal'];
 
-		abstract isValidValue(value: any): value is UT;
-		abstract isNonEmptyInstance<T>(
-			source: any,
-		): source is WithElem<Tp, T>['nonEmpty'];
-		abstract builder<T extends UT>(): WithElem<Tp, T>['builder'];
+	// 	abstract isValidValue(value: any): value is UT;
+	// 	abstract isNonEmptyInstance<T>(
+	// 		source: any,
+	// 	): source is WithElem<Tp, T>['nonEmpty'];
+	// 	abstract builder<T extends UT>(): WithElem<Tp, T>['builder'];
 
-		readonly _fixedElementType!: any;
+	// 	readonly _fixedElementType!: any;
 
-		get _types(): Tp {
-			return undefined as any;
-		}
+	// 	get _types(): Tp {
+	// 		return undefined as any;
+	// 	}
 
-		readonly empty = <T extends UT>(): WithElem<Tp, T>['normal'] => {
-			return this._empty;
-		};
+	// 	readonly empty = <T extends UT>(): WithElem<Tp, T>['normal'] => {
+	// 		return this._empty;
+	// 	};
 
-		readonly from: any = <T extends UT>(
-			...sources: ArrayNonEmpty<StreamSource<T>>
-		): WithElem<Tp, T>['normal'] => {
-			let builder = this.builder<T>();
+	// 	readonly from: any = <T extends UT>(
+	// 		...sources: ArrayNonEmpty<StreamSource<T>>
+	// 	): WithElem<Tp, T>['normal'] => {
+	// 		let builder = this.builder<T>();
 
-			let i = -1;
-			const length = sources.length;
+	// 		let i = -1;
+	// 		const length = sources.length;
 
-			while (++i < length) {
-				const source = sources[i];
+	// 		while (++i < length) {
+	// 			const source = sources[i];
 
-				if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
+	// 			if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
 
-				if (
-					builder.isEmpty &&
-					this.isNonEmptyInstance<T>(source) &&
-					source.context === this
-				) {
-					if (i === length - 1) return source;
-					builder = source.toBuilder();
-					continue;
-				}
+	// 			if (
+	// 				builder.isEmpty &&
+	// 				this.isNonEmptyInstance<T>(source) &&
+	// 				source.context === this
+	// 			) {
+	// 				if (i === length - 1) return source;
+	// 				builder = source.toBuilder();
+	// 				continue;
+	// 			}
 
-				builder.addAll(source);
-			}
+	// 			builder.addAll(source);
+	// 		}
 
-			return builder.build();
-		};
+	// 		return builder.build();
+	// 	};
 
-		readonly of = <T extends UT>(
-			...values: ArrayNonEmpty<T>
-		): T extends UT ? WithElem<Tp, T>['nonEmpty'] : never => {
-			return this.from(values);
-		};
+	// 	readonly of = <T extends UT>(
+	// 		...values: ArrayNonEmpty<T>
+	// 	): T extends UT ? WithElem<Tp, T>['nonEmpty'] : never => {
+	// 		return this.from(values);
+	// 	};
 
-		readonly reducer = <T extends UT>(
-			source?: StreamSource<T>,
-		): Reducer<T, WithElem<Tp, T>['normal']> => {
-			return Reducer.create(
-				() =>
-					undefined === source
-						? this.builder<T>()
-						: (this.from(source) as WithElem<Tp, T>['normal']).toBuilder(),
-				(builder, value) => {
-					builder.add(value);
-					return builder;
-				},
-				(builder) => builder.build(),
-			);
-		};
-	}
+	// 	readonly reducer = <T extends UT>(
+	// 		source?: StreamSource<T>,
+	// 	): Reducer<T, WithElem<Tp, T>['normal']> => {
+	// 		return Reducer.create(
+	// 			() =>
+	// 				undefined === source
+	// 					? this.builder<T>()
+	// 					: (this.from(source) as WithElem<Tp, T>['normal']).toBuilder(),
+	// 			(builder, value) => {
+	// 				builder.add(value);
+	// 				return builder;
+	// 			},
+	// 			(builder) => builder.build(),
+	// 		);
+	// 	};
+	// }
 }

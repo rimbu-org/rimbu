@@ -15,12 +15,16 @@ export namespace Eq {
 		 * `String(value)`. For plain objects with the default `Object.prototype.toString`
 		 * implementation, it uses `JSON.stringify(value)` instead.
 		 * @param value - the value to convert
+		 * @returns a stable string representation for `value`
 		 */
 		convertAnyToString(value: any): string;
+
 		/**
 		 * Returns the default Eq instance, which is the Eq.anyDeepEq() instance.
+		 * @returns the default deep equality `Eq` instance
 		 */
 		defaultInstance: Eq<any>;
+
 		/**
 		 * An Eq instance that uses `Object.is` to determine if two objects are equal.
 		 * @example
@@ -33,20 +37,15 @@ export namespace Eq {
 		 * ```
 		 */
 		objectIs: Eq<any>;
+
 		/**
 		 * Returns an Eq instance for objects that have a `valueOf` method. It returns true if the `.valueOf` values of both given objects are equal.
 		 * @typeparam T - the object type containing a valueOf function of type V
 		 * @typeparam V - the valueOf result type
-		 * @example
-		 * ```ts
-		 * const eq = Eq.valueOfEq()
-		 * console.log(eq(new Number(5), new Number(5)))
-		 * // => true
-		 * console.log(eq(new Number(5), new Number(3)))
-		 * // => false
-		 * ```
+		 * @returns an `Eq<T>` that compares objects by their `valueOf()` result
 		 */
 		byValueOf<T extends { valueOf(): V }, V>(): Eq<T>;
+
 		/**
 		 * Returns an Eq instance that compares Date objects according to their `valueOf` value.
 		 * @example
@@ -57,165 +56,94 @@ export namespace Eq {
 		 * console.log(eq(new Date(2020, 1, 1), new Date(2020, 2, 1))
 		 * // => false
 		 * ```
+		 * @returns an `Eq<Date>` comparing dates by value
 		 */
 		date: Eq<Date>;
+
 		/**
 		 * Returns an Eq instance that compares Iterables by comparing their elements with the given `itemEq` Eq instance.
 		 * @typeparam T - the Iterable element type
 		 * @param itemEq - (optional) the Eq instance to use to compare the Iterable's elements
-		 * @example
-		 * ```ts
-		 * const eq = Eq.iterableEq();
-		 * console.log(eq([1, 2, 3], [1, 2, 3])
-		 * // => true
-		 * console.log(eq([1, 2, 3], [1, 3, 2])
-		 * // => false
-		 * ```
+		 * @returns an `Eq<Iterable<T>>` that compares iterables element-wise
 		 */
 		forIterable<T>(itemEq?: Eq<T>): Eq<Iterable<T>>;
+
 		/**
 		 * Returns an Eq instance that checks equality of objects containing property values of type V by iteratively
 		 * applying given `valueEq` to each of the object's property values.
 		 * @typeparam V - the object property value type
 		 * @param valueEq - (optional) the Eq instance to use to compare property values
-		 * @example
-		 * ```ts
-		 * const eq = Eq.objectEq()
-		 * console.log(eq({ a: 1, b: { c: 2 }}, { b: { c: 2 }, a: 1 }))
-		 * // => true
-		 * console.log(eq({ a: 1, b: { c: 2 }}, { a: 1, b: { c: 3 }}))
-		 * // => false
-		 * ```
+		 * @returns an `Eq<Record<any, V>>` that compares objects by property values
 		 */
 		object<V = any>(valueEq?: Eq<V>): Eq<Record<any, V>>;
+
 		/**
 		 * Returns an Eq instance that checks equality of any values. For composed values (objects and iterables)
 		 * it will compare with Object.is.
 		 * @typeparam T - the value type
-		 * @example
-		 * ```ts
-		 * const eq = Eq.anyFlatEq()
-		 * console.log(eq(1, 'a'))
-		 * // => false
-		 * console.log(eq({ a: 1, b: 2 }, { b: 2, a: 1 }))
-		 * // => false
-		 * ```
+		 * @returns an `Eq<T>` performing a flat equality comparison
 		 */
 		anyFlat<T = any>(): Eq<T>;
+
 		/**
 		 * Returns an Eq instance that checks equality of any values. For composed values (objects and iterables)
 		 * it will enter 1 level, and if again compound values are found, they are compared
 		 * with Object.is.
 		 * @typeparam T - the value type
-		 * @example
-		 * ```ts
-		 * const eq = Eq.anyShallowEq()
-		 * console.log(eq(1, 'a'))
-		 * // => false
-		 * console.log(eq({ a: 1, b: 2 }, { b: 2, a: 1 }))
-		 * // => true
-		 * console.log(eq([{ a: 1, b: 2 }], [{ b: 2, a: 1 }]))
-		 * // => false
-		 * ```
+		 * @returns an `Eq<T>` performing a shallow equality comparison
 		 */
 		anyShallow<T = any>(): Eq<T>;
+
 		/**
 		 * Returns an Eq instance that checks equality of any values. For composed values (objects and iterables)
 		 * it will recursively compare the contained values.
 		 * @note may have poor performance for deeply nested types and large arrays, and objects with circular structures
 		 * may cause infinite loops
 		 * @typeparam T - the value type
-		 * @example
-		 * ```ts
-		 * const eq = Eq.anyDeepEq()
-		 * console.log(eq(1, 'a'))
-		 * // => false
-		 * console.log(eq({ a: 1, b: 2 }, { b: 2, a: 1 }))
-		 * // => true
-		 * console.log(eq([{ a: 1, b: 2 }], [{ b: 2, a: 1 }]))
-		 * // => false
-		 * ```
+		 * @returns an `Eq<T>` performing a deep equality comparison
 		 */
 		anyDeep<T = any>(): Eq<T>;
+
 		/**
 		 * Returns an Eq instance that considers strings equal taking the given or default locale into account.
 		 * @param locales - (optional) a locale or list of locales
 		 * @param options - (optional) see String.localeCompare for details
-		 * @example
-		 * ```ts
-		 * const eq = Eq.createStringCollatorEq()
-		 * console.log(eq('a', 'a'))
-		 * // => true
-		 * console.log(eq('abc', 'aBc'))
-		 * // => false
-		 * ```
+		 * @returns an `Eq<string>` that compares strings using the provided collator
 		 */
 		stringWithStringCollator(
 			...args: ConstructorParameters<typeof Intl.Collator>
 		): Eq<string>;
+
 		/**
 		 * Returns an Eq instance that considers strings equal regardless of their case.
-		 * @example
-		 * ```ts
-		 * const eq = Eq.stringCaseInsentitiveEq()
-		 * console.log(eq('aB', 'Ab'))
-		 * // => true
-		 * console.log(eq('aBc', 'abB'))
-		 * // => false
-		 * ```
+		 * @returns an `Eq<string>` that compares strings case-insensitively
 		 */
 		stringCaseInsentitive: Eq<string>;
+
 		/**
 		 * Returns an Eq instance that considers strings equal when all their charcodes are equal.
-		 * @example
-		 * ```ts
-		 * const eq = Eq.stringCharCodeEq()
-		 * console.log(eq('a', 'a'))
-		 * // => true
-		 * console.log(eq('abc', 'aBc'))
-		 * // => false
-		 * ```
+		 * @returns an `Eq<string>` that compares strings by char codes
 		 */
 		stringCharCode: Eq<string>;
+
 		/**
 		 * Returns an Eq instance that considers two values equal when their string
 		 * representations, as returned by `Eq.convertAnyToString`, are equal.
-		 * @example
-		 * ```ts
-		 * const eq = Eq.anyToStringEq()
-		 * console.log(eq({ a: 1 }, { a: 1 }))
-		 * // => true
-		 * console.log(eq({ a: 1 }, { a: 2 }))
-		 * // => false
-		 * ```
+		 * @returns an `Eq<any>` that compares values by their stable string form
 		 */
 		anyByToString: Eq<any>;
+
 		/**
 		 * Returns an Eq instance that considers values equal their JSON.stringify values are equal.
-		 * @example
-		 * ```ts
-		 * const eq = Eq.anyJsonEq()
-		 * console.log(eq({ a: 1, b: 2 }, { a: 1, b: 2 }))
-		 * // => true
-		 * console.log(eq({ a: 1, b: 2 }, { b: 2, a: 1 }))
-		 * // => false
-		 * ```
+		 * @returns an `Eq<any>` that compares values via `JSON.stringify`
 		 */
 		anyByJsonStringify(): Eq<any>;
+
 		/**
 		 * Returns an `Eq` instance for tuples that considers two tuples [A, B] and [C, D] equal if [A, B] equals [C, D],
 		 * or if [A, B] equals [D, C]
 		 * @param eq - (optional) an alternative `Eq` instance to use for the values in the tuple
-		 * @example
-		 * ```ts
-		 * const eq = Eq.tupleSymmetric()
-		 * console.log(eq([1, 2], [1, 2]))
-		 * // => true
-		 * console.log(eq([1, 2], [2, 1]))
-		 * // => true
-		 * console.log(eq([1, 3], [2, 1]))
-		 * // => false
-		 * ```
+		 * @returns an `Eq` for symmetric tuples
 		 */
 		tupleSymmetric<T>(eq?: Eq<T> | undefined): Eq<readonly [T, T]>;
 	}

@@ -2,6 +2,7 @@
  * A range definition for any type of (orderable) value.
  * If a start or end is defined, a tuple can be used where the second item is a boolean
  * indicating whether that end is inclusive (true) or exclusive (false).<br/>
+ * @typeparam T - the value type
  * A Range of type T can have one of the following forms:<br/>
  * <br/>
  * - { end: T }<br/>
@@ -21,7 +22,9 @@ export namespace Range {
 	/**
 	 * Simplifies a given `range` `Range` input for easier processing, by returning optional
 	 * start and end ranges including whether they are inclusive or exclusive
+	 * @typeparam T - the value type
 	 * @param range - the `Range` to use
+	 * @returns an object with optional `start` and `end` tuples indicating value and inclusivity
 	 */
 	export function getNormalizedRange<T>(range: Range<T>): {
 		start?: [T, boolean] | undefined;

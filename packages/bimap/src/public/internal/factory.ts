@@ -27,17 +27,17 @@ export interface BiMapFactory<UK = unknown, UV = unknown> {
 	): BiMap.NonEmpty<K, V>;
 	/**
 	 * Returns an immutable BiMap, containing the entries in the given `sources` `StreamSource` instances.
-	 * @param sources - an array of `StreamSource` instances contaning key-value entries
+	 * @param sources - an array of `StreamSource` instances containing key-value entries
 	 * @example
 	 * ```ts
 	 * BiMap.from([[1, 'a'], [2, 'b']])    // => BiMap.NonEmpty<number, string>
 	 * ```
 	 */
 	from<K extends UK, V extends UV>(
-		...sources: ArrayNonEmpty<StreamSource<readonly [K, V]>>
+		...sources: ArrayNonEmpty<StreamSource.NonEmpty<readonly [K, V]>>
 	): BiMap.NonEmpty<K, V>;
 	from<K extends UK, V extends UV>(
-		...sources: ArrayNonEmpty<StreamSource.NonEmpty<readonly [K, V]>>
+		...sources: ArrayNonEmpty<StreamSource<readonly [K, V]>>
 	): BiMap<K, V>;
 	/**
 	 * Returns an empty `BiMap` builder instance.
@@ -45,6 +45,7 @@ export interface BiMapFactory<UK = unknown, UV = unknown> {
 	 * ```ts
 	 * BiMap.builder<number, string>()    // => BiMap.Builder<number, string>
 	 * ```
+	 * @returns a new `BiMap.Builder` instance
 	 */
 	builder<K extends UK, V extends UV>(): BiMap.Builder<K, V>;
 	/**
@@ -58,6 +59,7 @@ export interface BiMapFactory<UK = unknown, UV = unknown> {
 	 * result.toArray()   // => [[1, 'c'], [2, 'b'], [3, 'a']]
 	 * ```
 	 * @note uses a builder under the hood. If the given `source` is a BiMap in the same context, it will directly call `.toBuilder()`.
+	 * @returns a `Reducer` that accumulates tuples into a `BiMap`
 	 */
 	reducer<K extends UK, V extends UV>(
 		source?: StreamSource<readonly [K, V]>,

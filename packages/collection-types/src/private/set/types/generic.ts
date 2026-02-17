@@ -20,7 +20,7 @@ export namespace RSet {
 			Omit<RSet<T>, keyof RSetBase<any, any>> {}
 
 	/**
-	 * A context instance for Map implementations that acts as a factory for every instance of this
+	 * A context instance for Set implementations that acts as a factory for every instance of this
 	 * type of collection.
 	 * @typeparam UT - the upper value type bound for which the context can be used
 	 */

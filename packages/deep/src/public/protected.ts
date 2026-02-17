@@ -1,15 +1,23 @@
 import type { IsAny, IsPlainObj } from '@rimbu/base/plain-object';
 
 /**
- * A deep readonly typed version of given type T. Makes all properties or elements read only.
- * It maps types using the following rules:
- * - arrays and tuples become readonly counterparts, and all element types are wrapped in `Protected` if applicable
- * - Maps of key type K and value type V become Maps of key type `Protected<K>` and value type `Protected<V>`
- * - Sets of element type E become Sets of element type `Protected<E>`
- * - Promises of value type E become Promises of value type `Protected<E>`
- * - Objects that have only simple properties (no functions or iterators) will have all the properties as Protected if applicable
- * - Any other type will not be mapped
+ * A deep readonly typed version of the given type `T`.
+ * Makes all applicable properties and elements `readonly` and recursively wraps nested values in `Protected`.
+ *
+ * Mapping rules:
+ * - arrays and tuples become `readonly` counterparts and all element types are wrapped in `Protected` when applicable
+ * - `Map<K, V>` becomes `ReadonlyMap<Protected<K>, Protected<V>>`
+ * - `Set<E>` becomes `ReadonlySet<Protected<E>>`
+ * - `Promise<E>` becomes `Promise<Protected<E>>`
+ * - Plain objects with only simple properties (no functions or iterators) will have all properties made `readonly` and their values wrapped in `Protected`
+ * - Any other type is left unchanged
  * @typeparam T - the input type
+ * @example
+ * ```ts
+ * type Input = { a: number; b: { c: string } };
+ * type P = Protected<Input>;
+ * // P is { readonly a: number; readonly b: { readonly c: string } }
+ * ```
  */
 export type Protected<T> =
 	IsAny<T> extends true

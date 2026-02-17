@@ -6,6 +6,7 @@
  * emptyMap.get(5, Err);
  * // throws: ErrBase.ForcedError(message: 'Err: Forced to throw error')
  * ```
+ * @returns never — always throws an `ErrBase.ForcedError`
  */
 export function Err(): never {
 	return ErrBase.msg('Err: Forced to throw error')();
@@ -37,6 +38,7 @@ export namespace ErrBase {
 	 * emptyMap.get(5, ErrBase.msg('not found'));
 	 * // throws: ErrBase.ForcedError(message: 'not found')
 	 * ```
+	 * @returns a function that always throws a `ErrBase.ForcedError` when invoked
 	 */
 	export function msg(message: string): () => never {
 		return (): never => {

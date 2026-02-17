@@ -100,6 +100,7 @@ export function _reverseOld<T>(
  * @param array - the source array
  * @param start - optional start index (inclusive)
  * @param end - optional end index (inclusive)
+ * @returns a new array containing the selected range with elements in reversed order
  */
 export const reverse =
 	'toReversed' in Array.prototype ? _reverseNew : _reverseOld;
@@ -109,9 +110,11 @@ export const reverse =
  * Halting is supported through the provided `TraverseState`.
  * @typeparam T - element type
  * @param array - the source array
- * @param f - callback receiving (value, sequential index, halt)
+ * @param f - callback receiving `(value, sequentialIndex, halt)` where `sequentialIndex` is
+ * the traversal index produced by the supplied `TraverseState` (not the raw array index)
  * @param state - traversal state (created if omitted)
  * @param reversed - whether to traverse in reverse order
+ * @returns void
  */
 export function forEach<T>(
 	array: readonly T[],
@@ -450,6 +453,7 @@ export const splice = `toSpliced` in Array.prototype ? _spliceNew : _spliceOld;
  * Returns a copy of a (potentially) sparse array preserving sparsity (skips holes).
  * @typeparam T - element type
  * @param arr - the source sparse array
+ * @returns a new array with the same length where present elements are copied and holes are preserved
  */
 export function copySparse<T>(arr: readonly T[]): T[] {
 	const clone: T[] = [];
@@ -464,7 +468,9 @@ export function copySparse<T>(arr: readonly T[]): T[] {
  * @typeparam T - source element type
  * @typeparam T2 - result element type
  * @param arr - the source sparse array
- * @param f - mapping function
+ * @param f - mapping function receiving `(value, index)` where `index` is the element key
+ * (the numeric index in string form) for present elements; holes are preserved
+ * @returns a new sparse array with mapped values for present indices
  */
 export function mapSparse<T, T2>(
 	arr: readonly T[],

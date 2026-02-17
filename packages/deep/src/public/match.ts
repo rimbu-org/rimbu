@@ -24,6 +24,7 @@ export type Match<T, C extends Partial<T> = Partial<T>> = MatchInternal.Entry<
  * @param source - the value to match (should be a plain object)
  * @param matcher - a matcher object or a function taking the matcher API and returning a match object
  * @param failureLog - (optional) a string array that can be passed to collect reasons why the match failed
+ * @returns true if the value matches the matcher, false otherwise
  * @example
  * ```ts
  * const input = { a: 1, b: { c: true, d: 'a' } }
@@ -46,6 +47,16 @@ export function match<T, C extends Partial<T> = Partial<T>>(
 
 /**
  * Match a generic match entry against the given source.
+ * @typeparam T - the entry value type
+ * @typeparam C - utility matcher type
+ * @typeparam P - the parent value type
+ * @typeparam R - the root value type
+ * @param source - the value to match
+ * @param parent - the parent value of `source`
+ * @param root - the root value in which the match started
+ * @param matcher - the matcher entry to evaluate
+ * @param failureLog - optional array to collect failure reasons
+ * @returns true when the entry matches, false otherwise
  */
 function matchEntry<T, C, P, R>(
 	source: T,
@@ -123,6 +134,16 @@ function matchEntry<T, C, P, R>(
 
 /**
  * Match an array matcher against the given source.
+ * @typeparam T - the array value type
+ * @typeparam C - utility matcher type
+ * @typeparam P - the parent value type
+ * @typeparam R - the root value type
+ * @param source - the array value to match
+ * @param parent - the parent value of `source`
+ * @param root - the root value in which the match started
+ * @param matcher - the array matcher to evaluate
+ * @param failureLog - optional array to collect failure reasons
+ * @returns true when the array matches the matcher, false otherwise
  */
 function matchArr<T extends any[], C, P, R>(
 	source: T,
@@ -342,6 +363,16 @@ function matchPlainObj<T extends object, C, P, R>(
 
 /**
  * Match a compound matcher against the given source.
+ * @typeparam T - the input value type for the compound match
+ * @typeparam C - utility matcher type
+ * @typeparam P - the parent value type
+ * @typeparam R - the root value type
+ * @param source - the value to match
+ * @param parent - the parent value of `source`
+ * @param root - the root value in which the match started
+ * @param compound - the compound matcher tuple
+ * @param failureLog - optional array to collect failure reasons
+ * @returns true when the compound matcher succeeds, false otherwise
  */
 function matchCompound<T, C, P, R>(
 	source: T,
@@ -460,6 +491,18 @@ function matchCompound<T, C, P, R>(
 	}
 }
 
+/**
+ * Traverse an array for item-level match checks.
+ * @typeparam T - the array value type
+ * @typeparam C - utility matcher type for array items
+ * @typeparam R - the root value type
+ * @param source - the array to traverse
+ * @param root - the root value in which the match started
+ * @param matchType - the traversal match type (someItem/everyItem/noneItem/singleItem)
+ * @param matcher - the entry matcher to apply to items
+ * @param failureLog - optional array to collect failure reasons
+ * @returns true when the traversal condition is satisfied, false otherwise
+ */
 function matchTraversal<T extends any[], C extends any[], R>(
 	source: T,
 	root: R,

@@ -14,6 +14,7 @@ export interface ArrowValuedGraphCreators {
 	 * @param options - an object containing the following properties:<br/>
 	 * - linkMapContext: the map context to use to maintain link maps<br/>
 	 * - linkConnectionsContext: the map context to use to maintain link connection maps
+	 * @returns a new `ArrowValuedGraph.Context<UN>` instance
 	 */
 	createContext<UN>(options: {
 		linkMapContext: RMap.Context<UN>;
@@ -29,6 +30,7 @@ export interface ArrowValuedGraphHashedCreators
 	 * @param options - (optional) an object containing the following properties:<br/>
 	 * - linkMapContext: (optional) the map context to use to maintain link maps<br/>
 	 * - linkConnectionsContext: (optional) the map context to use to maintain link connection maps
+	 * @returns a new `ArrowValuedGraphHashed.Context<UN>` instance
 	 */
 	createContext<UN>(options?: {
 		linkMapContext?: HashMap.Context<UN>;
@@ -37,6 +39,7 @@ export interface ArrowValuedGraphHashedCreators
 	/**
 	 * Returns the default context for this type of graph.
 	 * @typeparam UN - the upper node type that the context should accept
+	 * @returns the default `ArrowValuedGraphHashed.Context<UN>` instance
 	 */
 	defaultContext<UN>(): ArrowValuedGraphHashed.Context<UN>;
 }
@@ -49,6 +52,7 @@ export interface ArrowValuedGraphSortedCreators
 	 * @param options - (optional) an object containing the following properties:<br/>
 	 * - linkMapContext: (optional) the map context to use to maintain link maps<br/>
 	 * - linkConnectionsContext: (optional) the map context to use to maintain link connection maps
+	 * @returns a new `ArrowValuedGraphSorted.Context<UN>` instance
 	 */
 	createContext<UN>(options?: {
 		linkMapContext?: SortedMap.Context<UN>;
@@ -57,6 +61,7 @@ export interface ArrowValuedGraphSortedCreators
 	/**
 	 * Returns the default context for this type of graph.
 	 * @typeparam UN - the upper node type that the context should accept
+	 * @returns the default `ArrowValuedGraphSorted.Context<UN>` instance
 	 */
 	defaultContext<UN>(): ArrowValuedGraphSorted.Context<UN>;
 }

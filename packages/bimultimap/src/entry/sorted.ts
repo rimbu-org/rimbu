@@ -51,7 +51,7 @@ export namespace SortedBiMultiMap {
 
 	/**
 	 * A mutable `SortedBiMultiMap` builder used to efficiently create new immutable instances.
-	 * See the [BiMultiMap documentation](https://rimbu.org/docs/collections/bimultimap) and the [HashBiMultiMap.Builder API documentation](https://rimbu.org/api/rimbu/bimultimap/SortedBiMultiMap/Builder/interface)
+	 * See the [BiMultiMap documentation](https://rimbu.org/docs/collections/bimultimap) and the [SortedBiMultiMap.Builder API documentation](https://rimbu.org/api/rimbu/bimultimap/SortedBiMultiMap/Builder/interface)
 	 * @typeparam K - the key type
 	 * @typeparam V - the value type
 	 */

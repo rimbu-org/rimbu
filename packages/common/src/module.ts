@@ -18,7 +18,7 @@
  * const appModule = Module.create<AppServices>((m) => ({
  *   database: Module.lazy(() => new Database()),
  *   logger: Module.single(() => new Logger()),
- *   createaApi: Module.factory((env: string) => new API(env, m.database, m.logger)),
+ *   createApi: Module.factory((env: string) => new API(env, m.database, m.logger)),
  * }));
  *
  * const services = appModule.build();
@@ -89,6 +89,12 @@ export namespace Module {
 		[P in K]: M[P];
 	};
 
+	/**
+	 * Helper to create a partial module definition function.
+	 * @typeparam MP - the partial module type with `defines` and optional `requires` fields
+	 * @param getDefinition - a function that receives the module instance and returns the definition for `defines`
+	 * @returns the same `getDefinition` function (useful for typing helpers)
+	 */
 	export function createPartial<
 		MP extends { defines: Module.Instance; requires?: Module.Instance },
 	>(
@@ -122,7 +128,7 @@ export namespace Module {
 	 * const appModule = Module.create<AppServices>((m) => ({
 	 *   database: Module.lazy(() => new Database()),
 	 *   logger: Module.single(() => new Logger()),
-	 *   createaApi: Module.factory((env: string) => new API(env, m.database, m.logger)),
+	 *   createApi: Module.factory((env: string) => new API(env, m.database, m.logger)),
 	 * }));
 	 * ```
 	 */
@@ -166,6 +172,12 @@ export namespace Module {
 		};
 	}
 
+	/**
+	 * Creates a singleton instance immediately and returns a factory that always returns it.
+	 * @typeparam T - the created instance type
+	 * @param creator - a function that creates the instance
+	 * @returns a `Module.DefinitionEntry` factory that always returns the same instance
+	 */
 	export function single<T>(creator: () => T): Module.DefinitionEntry<() => T> {
 		const instance = creator();
 		return () => instance;
@@ -212,6 +224,12 @@ export namespace Module {
 		};
 	}
 
+	/**
+	 * Converts a creator into a lazy function returning a cached instance (invoked on first call).
+	 * @typeparam C - the creator function type
+	 * @param creator - a function that creates the instance
+	 * @returns a function with the same signature as `creator` that returns a cached instance
+	 */
 	export function lazy<C extends () => any>(
 		creator: C,
 	): Module.DefinitionEntry<C> {

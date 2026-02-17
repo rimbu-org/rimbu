@@ -14,6 +14,7 @@ export interface Hasher<UK> {
 	/**
 	 * Returns true if this hasher can be applied to the given `obj` object.
 	 * @param obj - the object to check
+	 * @returns `true` when `obj` is a valid value for this hasher (of type `UK`), otherwise `false`
 	 * @example
 	 * ```ts
 	 * const h = Hasher.numberHasher()
@@ -27,6 +28,7 @@ export interface Hasher<UK> {
 	/**
 	 * Returns the 32-bit hash code for the given `value`.
 	 * @param value - the value to hash
+	 * @returns a 32-bit signed integer hash code
 	 * @note it is assumed that the caller has verified that the given object
 	 * is valid, either by knowing the types up front, or by using the `isValid` function.
 	 * @example

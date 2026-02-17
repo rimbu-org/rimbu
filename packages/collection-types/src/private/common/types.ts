@@ -1,5 +1,6 @@
 /**
  * A higher-kind utility type providing access to the element type T.
+ * @typeparam T - the element type
  */
 export interface Elem<T = unknown> {
 	/**
@@ -9,12 +10,16 @@ export interface Elem<T = unknown> {
 }
 
 /**
- * A utility type to set the element type to given type T.
+ * A utility type to set the element type on a target type.
+ * @typeparam Tp - the target type to augment with an element type
+ * @typeparam T - the element type to set on `Tp`
  */
 export type WithElem<Tp, T> = Elem<T> & Tp;
 
 /**
  * A higher-kind utility type providing access to a key type K and value type V.
+ * @typeparam K - the key type
+ * @typeparam V - the value type
  */
 export interface KeyValue<K = unknown, V = unknown> {
 	/**
@@ -28,12 +33,18 @@ export interface KeyValue<K = unknown, V = unknown> {
 }
 
 /**
- * A utility type to set the key type to given type K, and the value type to given type V.
+ * A utility type to set the key and value types on a target type.
+ * @typeparam Tp - the target type to augment with key/value types
+ * @typeparam K - the key type to set on `Tp`
+ * @typeparam V - the value type to set on `Tp`
  */
 export type WithKeyValue<Tp, K, V> = Tp & KeyValue<K, V>;
 
 /**
  * A higher-kind utility type providing access to a row type R, a column type C, and a value type V.
+ * @typeparam R - the row key type
+ * @typeparam C - the column key type
+ * @typeparam V - the value type
  */
 export interface Row<R = unknown, C = unknown, V = unknown> {
 	/**
@@ -51,7 +62,10 @@ export interface Row<R = unknown, C = unknown, V = unknown> {
 }
 
 /**
- * A utility type to set the row type to given type R, the column type to given type C,
- * and the value type to given type V.
+ * A utility type to set row/column/value types on a target type.
+ * @typeparam Tp - the target type to augment with row/column/value types
+ * @typeparam R - the row key type to set on `Tp`
+ * @typeparam C - the column key type to set on `Tp`
+ * @typeparam V - the value type to set on `Tp`
  */
 export type WithRow<Tp, R, C, V> = Tp & Row<R, C, V>;
