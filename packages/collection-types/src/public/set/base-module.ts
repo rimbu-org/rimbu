@@ -7,10 +7,7 @@ import { Module } from '@rimbu/common/module';
 import { StreamFactory } from '@rimbu/stream/internal/factory';
 import { Reducer } from '@rimbu/stream/reducer';
 
-export namespace RSetContextBase {
-	export interface ModuleBase<UT, Tp extends RSetBase.Types = RSetBase.Types>
-		extends Pick<RSetBase.Context<UT, Tp>, 'from' | 'of' | 'reducer'> {}
-
+export namespace RSetContextBaseModule {
 	export interface ModuleAbstract<
 		UT,
 		Tp extends RSetBase.Types = RSetBase.Types,
@@ -20,18 +17,14 @@ export namespace RSetContextBase {
 		): source is WithElem<Tp, T>['nonEmpty'];
 	}
 
-	export interface TotalModule<UT, Tp extends RSetBase.Types = RSetBase.Types>
-		extends RSetBase.Context<UT, Tp>,
-			ModuleAbstract<UT, Tp> {}
-
 	export function createContextModuleBase<
 		UT,
 		Tp extends RSetBase.Types = RSetBase.Types,
 	>() {
-		return Module.createPartial<
-			RSetContextBase.ModuleBase<UT, Tp>,
-			TotalModule<UT, Tp>
-		>((mod) => ({
+		return Module.createPartial<{
+			defines: Pick<RSetBase.Context<UT, Tp>, 'from' | 'of' | 'reducer'>;
+			requires: RSetBase.Context<UT, Tp> & ModuleAbstract<UT, Tp>;
+		}>((mod) => ({
 			from: <T extends UT>(...sources: ArrayNonEmpty<StreamSource<T>>): any => {
 				let builder = mod.builder();
 				let i = -1;

@@ -235,7 +235,7 @@ describe('Stream constructors', () => {
 
 describe('Stream methods', () => {
 	it('stream', () => {
-		expect(Stream.empty<number>().stream()).toBe(Stream.empty<string>());
+		expect(Stream.empty<number>().stream()).toBe(Stream.empty<string>() as any);
 		const s = Stream.of(1, 2, 3);
 		expect(s.stream()).toBe(s);
 
@@ -271,10 +271,10 @@ describe('Stream methods', () => {
 		const s = Stream.of(1, 2, 3);
 		expect(s.assumeNonEmpty()).toBe(s);
 
-		expect(artificialEmpty.assumeNonEmpty()).toBe(artificialEmpty);
+		expect(artificialEmpty.assumeNonEmpty()).toBe(artificialEmpty as any);
 
 		sources.forEach((source) => {
-			expect(source.assumeNonEmpty()).toBe(source);
+			expect(source.assumeNonEmpty()).toBe(source as any);
 		});
 	});
 
@@ -282,9 +282,9 @@ describe('Stream methods', () => {
 		const s = Stream.of(1, 2, 3);
 		expect(s.asNormal()).toBe(s);
 
-		sources.forEach((source) =>
-			expect(source.assumeNonEmpty().asNormal()).toBe(source),
-		);
+		sources.forEach((source) => {
+			expect(source.assumeNonEmpty().asNormal()).toBe(source);
+		});
 	});
 
 	it('prepend', () => {
@@ -296,7 +296,7 @@ describe('Stream methods', () => {
 
 		sources.forEach((source) => {
 			const arr = [5, ...source.toArray()];
-			expect(source.prepend(5).toArray()).toEqual(arr);
+			expect(source.prepend(5).toArray()).toEqual(arr as any);
 		});
 	});
 
@@ -309,7 +309,7 @@ describe('Stream methods', () => {
 
 		sources.forEach((source) => {
 			const arr = [...source.toArray(), 5];
-			expect(source.append(5).toArray()).toEqual(arr);
+			expect(source.append(5).toArray()).toEqual(arr as any);
 		});
 	});
 
@@ -340,7 +340,10 @@ describe('Stream methods', () => {
 			expect(result).toBe(4950);
 			result = 0;
 			source.forEach((v, _, halt): void => {
-				if (v > 70) return halt();
+				if (v > 70) {
+					halt();
+					return;
+				}
 				result += v;
 			});
 			expect(result).toBe(2485);
@@ -505,7 +508,7 @@ describe('Stream methods', () => {
 
 		sources.forEach((source) => {
 			expect(source.flatZip((v) => [v]).toArray()).toEqual(
-				source.map((v) => [v, v]).toArray(),
+				source.map((v) => [v, v] as [number, number]).toArray(),
 			);
 		});
 	});
@@ -1760,7 +1763,7 @@ describe('Stream methods', () => {
 		]);
 		sources.forEach((source) => {
 			expect(Stream.zip(source, source).toArray()).toEqual(
-				source.map((v) => [v, v]).toArray(),
+				source.map((v) => [v, v] as [number, number]).toArray(),
 			);
 		});
 		const ne = Stream.of(1);
@@ -1908,54 +1911,77 @@ describe('Stream methods', () => {
 	it('partition', () => {
 		const isEven = (v: number) => v % 2 === 0;
 
-		expect(Stream.empty<number>().partition(isEven)).toEqual([[], []]);
-		expect(Stream.of(1).partition(isEven)).toEqual([[], [1]]);
-		expect(Stream.of(0).partition(isEven)).toEqual([[0], []]);
-		expect(Stream.of(1, 2, 3).partition(isEven)).toEqual([[2], [1, 3]]);
+		expect(Stream.partition(Stream.empty<number>(), isEven)()).toEqual([
+			[],
+			[],
+		]);
+		expect(Stream.partition(Stream.of(1), isEven)()).toEqual([[], [1]]);
+		expect(Stream.partition(Stream.of(0), isEven)()).toEqual([[0], []]);
+		expect(Stream.partition(Stream.of(1, 2, 3), isEven)()).toEqual([
+			[2],
+			[1, 3],
+		]);
 	});
 
 	it('partition collector', () => {
 		const isEven = (v: number) => v % 2 === 0;
 
 		expect(
-			Stream.empty<number>().partition(isEven, {
+			Stream.partition(
+				Stream.empty<number>(),
+				isEven,
+			)({
 				collectorTrue: Reducer.join<number>({ sep: ',' }),
 				collectorFalse: Reducer.join<number>({ sep: ',' }),
 			}),
 		).toEqual(['', '']);
 		expect(
-			Stream.of(1).partition(isEven, {
+			Stream.partition(
+				Stream.of(1),
+				isEven,
+			)({
 				collectorTrue: Reducer.join<number>({ sep: ',' }),
 				collectorFalse: Reducer.join<number>({ sep: ',' }),
 			}),
 		).toEqual(['', '1']);
 		expect(
-			Stream.of(0).partition(isEven, {
+			Stream.partition(
+				Stream.of(0),
+				isEven,
+			)({
 				collectorTrue: Reducer.join<number>({ sep: ',' }),
 				collectorFalse: Reducer.join<number>({ sep: ',' }),
 			}),
 		).toEqual(['0', '']);
 		expect(
-			Stream.of(1, 2, 3).partition(isEven, {
+			Stream.partition(
+				Stream.of(1, 2, 3),
+				isEven,
+			)({
 				collectorTrue: Reducer.join<number>({ sep: ',' }),
 				collectorFalse: Reducer.join<number>({ sep: ',' }),
 			}),
 		).toEqual(['2', '1,3']);
 
 		sources.forEach((source) => {
-			const [left, right] = source.partition((v) => v % 2 === 0);
+			const [left, right] = Stream.partition(source, (v) => v % 2 === 0)();
 			expect(left.length).toBe(50);
 			expect(right.length).toBe(50);
 		});
 	});
 
 	it('groupBy', () => {
-		expect(Stream.empty<string>().groupBy((v) => v.length)).toEqual(new Map());
-		expect(Stream.of('a').groupBy((v) => v.length)).toEqual(
+		expect(Stream.groupBy(Stream.empty<string>(), (v) => v.length)()).toEqual(
+			new Map(),
+		);
+		expect(Stream.groupBy(Stream.of('a'), (v) => v.length)()).toEqual(
 			new Map([[1, ['a']]]),
 		);
 		expect(
-			Stream.of('abc', 'a', 'def', 'b', 'qq').groupBy((v) => v.length),
+			Stream.groupBy(
+				Stream.of('abc', 'a', 'def', 'b', 'qq'),
+				(v) => v.length,
+			)(),
 		).toEqual(
 			new Map([
 				[1, ['a', 'b']],
@@ -1965,7 +1991,7 @@ describe('Stream methods', () => {
 		);
 
 		sources.forEach((source) => {
-			const result = source.groupBy((v) => v % 4);
+			const result = Stream.groupBy(source, (v) => v % 4)();
 			for (let i = 0; i < 4; i++) {
 				expect(result.get(i)?.length).toBe(25);
 			}
@@ -1978,15 +2004,21 @@ describe('Stream methods', () => {
 		>(([key, value]) => [key * 2, value]);
 
 		expect(
-			Stream.empty<string>().groupBy((v) => v.length, {
+			Stream.groupBy(
+				Stream.empty<string>(),
+				(v) => v.length,
+			)({
 				collector,
 			}),
 		).toEqual(new Map());
-		expect(Stream.of('a').groupBy((v) => v.length, { collector })).toEqual(
-			new Map([[2, ['a']]]),
-		);
 		expect(
-			Stream.of('abc', 'a', 'def', 'b', 'qq').groupBy((v) => v.length, {
+			Stream.groupBy(Stream.of('a'), (v) => v.length)({ collector }),
+		).toEqual(new Map([[2, ['a']]]));
+		expect(
+			Stream.groupBy(
+				Stream.of('abc', 'a', 'def', 'b', 'qq'),
+				(v) => v.length,
+			)({
 				collector,
 			}),
 		).toEqual(

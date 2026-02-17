@@ -13,7 +13,7 @@ import type {
 	AsyncStreamSource,
 } from '#private/async-stream-types';
 
-import { asyncStreamFactoryModule } from '@rimbu/stream/async/internal/factory-module';
+import { asyncStreamFactoryModule } from '#async/factory-module';
 
 export type * from '#private/async-stream-types';
 
@@ -464,7 +464,7 @@ export interface AsyncStream<T>
 	): Promise<T | undefined>;
 	find<TF extends T>(
 		pred: (value: T, index: number) => value is TF,
-		options: {
+		options?: {
 			occurrance?: number | undefined;
 			negate: true;
 			otherwise?: undefined;
@@ -472,7 +472,7 @@ export interface AsyncStream<T>
 	): Promise<Exclude<T, TF> | undefined>;
 	find<O>(
 		pred: (value: T, index: number) => MaybePromise<boolean>,
-		options?: {
+		options: {
 			occurrance?: number | undefined;
 			negate?: boolean | undefined;
 			otherwise: AsyncOptLazy<O>;
@@ -906,7 +906,7 @@ export interface AsyncStream<T>
 	 */
 	splitOn<R, T2 extends T = T>(
 		sepElem: T,
-		options?: {
+		options: {
 			eq?: Eq<T> | undefined;
 			negate?: boolean | undefined;
 			collector: AsyncReducer.Accept<T | T2, R>;
@@ -990,75 +990,6 @@ export interface AsyncStream<T>
 		windowSize: number,
 		options?: { skipAmount?: number | undefined; collector?: undefined },
 	): AsyncStream<T[]>;
-	/**
-	 * Returns a promise resolving to a tuple of which the first element is the result of collecting the elements for which the given `predicate` is true, and
-	 * the second one the result of collecting the other elements. Own reducers can be provided as collectors, by default the values are
-	 * collected into an array.
-	 * @param pred - a potentially async predicate receiving the value and its index
-	 * @param options - (optional) an object containing the following properties:<br/>
-	 * - collectorTrue: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is true<br/>
-	 * - collectorFalse: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is false
-	 * @typeparam T - the input element type
-	 * @typeparam RT - the reducer result type for the `collectorTrue` value
-	 * @typeparam RF - the reducer result type for the `collectorFalse` value
-	 * @note if the predicate is a type guard, the return type is automatically inferred
-	 */
-	partition<T2 extends T, RT, RF = RT>(
-		pred: (value: T, index: number) => value is T2,
-		options: {
-			collectorTrue: AsyncReducer.Accept<T2, RT>;
-			collectorFalse: AsyncReducer.Accept<Exclude<T, T2>, RF>;
-		},
-	): Promise<[true: RT, false: RF]>;
-	partition<T2 extends T>(
-		pred: (value: T, index: number) => value is T2,
-		options?: {
-			collectorTrue?: undefined;
-			collectorFalse?: undefined;
-		},
-	): Promise<[true: T2[], false: Exclude<T, T2>[]]>;
-	partition<RT, RF = RT, T2 extends T = T>(
-		pred: (value: T, index: number) => MaybePromise<boolean>,
-		options: {
-			collectorTrue: AsyncReducer.Accept<T | T2, RT>;
-			collectorFalse: AsyncReducer.Accept<T | T2, RF>;
-		},
-	): Promise<[true: RT, false: RF]>;
-	partition(
-		pred: (value: T, index: number) => MaybePromise<boolean>,
-		options?: {
-			collectorTrue?: undefined;
-			collectorFalse?: undefined;
-		},
-	): Promise<[true: T[], false: T[]]>;
-	/**
-	 * Returns a promise resolving to the result of applying the `valueToKey` function to calculate a key for each value, and feeding the tuple of the key and the value to the
-	 * `collector` reducer, and finally returning its result. If no collector is given, the default collector will return a JS multimap
-	 * of the type `Map<K, V[]>`.
-	 * @param valueToKey - potentially async function taking a value and its index, and returning the corresponding key
-	 * @param options - (optional) an object containing the following properties:<br/>
-	 * - collector: (default: Reducer.toArray()) a reducer that collects the incoming tuple of key and value, and provides the output
-	 * @typeparam T - the input value type
-	 * @typeparam K - the key type
-	 * @typeparam R - the collector output type
-	 * @example
-	 * ```ts
-	 * await AsyncStream.of(1, 2, 3).groupBy((v) => v % 2)
-	 * // => Map {0 => [2], 1 => [1, 3]}
-	 * ```
-	 */
-	groupBy<K, R, T2 extends readonly [K, T] = [K, T]>(
-		valueToKey: (value: T, index: number) => MaybePromise<K>,
-		options: {
-			collector: AsyncReducer.Accept<[K, T] | T2, R>;
-		},
-	): Promise<R>;
-	groupBy<K>(
-		valueToKey: (value: T, index: number) => MaybePromise<K>,
-		options?: {
-			collector?: undefined;
-		},
-	): Promise<Map<K, T[]>>;
 	/**
 	 * Returns the value resulting from applying the given the given `next` function to a current state (initially the given `init` value),
 	 * and the next stream value, and returning the new state. When all elements are processed, the resulting state is returned.

@@ -4,6 +4,8 @@ import type { AsyncFastIteratorFactory } from '#async/fast-iterator-factory';
 import { AsyncStream, type AsyncStreamSource } from '@rimbu/stream/async';
 
 export interface AsyncStreamFactory extends AsyncStreamConstructors {
+	Constructors(): AsyncStreamConstructors;
+
 	isAsyncStream(obj: any): obj is AsyncStream<any>;
 	/**
 	 * Returns true if the given async stream source is known to be empty.

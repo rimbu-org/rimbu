@@ -1,8 +1,8 @@
+import { expectTypeOf } from 'bun:test';
+
+import type { RSet, VariantSet } from '@rimbu/collection-types';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { FastIterator, Stream } from '@rimbu/stream';
-import type { RSet, VariantSet } from 'entry/collection-types.mjs';
-
-import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
 
 type VE<T> = VariantSet<T>;
 type VNE<T> = VariantSet.NonEmpty<T>;
@@ -20,139 +20,143 @@ const varNonEmpty: V_NonEmpty = undefined as any;
 const genEmpty: G_Empty = undefined as any;
 const genNonEmpty: G_NonEmpty = undefined as any;
 
-expectAssignable<V_Empty>(varNonEmpty);
-expectAssignable<V_Empty>(genEmpty);
-expectAssignable<V_Empty>(genNonEmpty);
+expectTypeOf(varNonEmpty).toExtend<V_Empty>();
+expectTypeOf(genEmpty).toExtend<V_Empty>();
+expectTypeOf(genNonEmpty).toExtend<V_Empty>();
 
-expectAssignable<V_NonEmpty>(genNonEmpty);
-expectNotAssignable<V_NonEmpty>(varEmpty);
-expectNotAssignable<V_NonEmpty>(genEmpty);
+expectTypeOf(genNonEmpty).toExtend<V_NonEmpty>();
+expectTypeOf(varEmpty).not.toExtend<V_NonEmpty>();
+expectTypeOf(genEmpty).not.toExtend<V_NonEmpty>();
 
-expectAssignable<G_Empty>(genNonEmpty);
-expectNotAssignable<G_Empty>(varEmpty);
-expectAssignable<G_NonEmpty>(genNonEmpty);
-expectNotAssignable<G_NonEmpty>(varEmpty);
+expectTypeOf(genNonEmpty).toExtend<G_Empty>();
+expectTypeOf(varEmpty).not.toExtend<G_Empty>();
+expectTypeOf(genNonEmpty).toExtend<G_NonEmpty>();
+expectTypeOf(varEmpty).not.toExtend<G_NonEmpty>();
 
 // Test variance
-expectAssignable<VE<number | string>>(varEmpty);
-expectAssignable<VNE<number | string>>(varNonEmpty);
+expectTypeOf(varEmpty).toExtend<VE<number | string>>();
+expectTypeOf(varNonEmpty).toExtend<VNE<number | string>>();
 
-expectAssignable<VE<number | string>>(genEmpty);
-expectAssignable<VE<number | string>>(genNonEmpty);
+expectTypeOf(genEmpty).toExtend<VE<number | string>>();
+expectTypeOf(genNonEmpty).toExtend<VE<number | string>>();
 
-expectNotAssignable<GE<number | string>>(genEmpty);
-expectNotAssignable<GNE<number | string>>(genNonEmpty);
+expectTypeOf(genEmpty).not.toExtend<GE<number | string>>();
+expectTypeOf(genNonEmpty).not.toExtend<GNE<number | string>>();
 
 let m!: any;
-expectNotAssignable<V_Empty>(m as VE<number | string>);
-expectNotAssignable<V_NonEmpty>(m as VNE<number | string>);
+expectTypeOf(m as VE<number | string>).not.toExtend<V_Empty>();
+expectTypeOf(m as VNE<number | string>).not.toExtend<V_NonEmpty>();
 
-expectNotAssignable<G_Empty>(m as GE<number | string>);
-expectNotAssignable<G_NonEmpty>(m as GNE<number | string>);
+expectTypeOf(m as GE<number | string>).not.toExtend<G_Empty>();
+expectTypeOf(m as GNE<number | string>).not.toExtend<G_NonEmpty>();
 
 // Iterator
-expectType<FastIterator<number>>(varEmpty[Symbol.iterator]());
-expectType<FastIterator<number>>(varNonEmpty[Symbol.iterator]());
-expectType<FastIterator<number>>(genEmpty[Symbol.iterator]());
-expectType<FastIterator<number>>(genNonEmpty[Symbol.iterator]());
+expectTypeOf(varEmpty[Symbol.iterator]()).toEqualTypeOf<FastIterator<number>>();
+expectTypeOf(varNonEmpty[Symbol.iterator]()).toEqualTypeOf<
+	FastIterator<number>
+>();
+expectTypeOf(genEmpty[Symbol.iterator]()).toEqualTypeOf<FastIterator<number>>();
+expectTypeOf(genNonEmpty[Symbol.iterator]()).toEqualTypeOf<
+	FastIterator<number>
+>();
 
 // .add(..)
-expectType<G_NonEmpty>(genEmpty.add(1));
-expectType<G_NonEmpty>(genNonEmpty.add(1));
+expectTypeOf(genEmpty.add(1)).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.add(1)).toEqualTypeOf<G_NonEmpty>();
 
 // .addAll(..)
-expectType<G_NonEmpty>(genEmpty.addAll([1, 2, 3]));
-expectType<G_NonEmpty>(genNonEmpty.addAll([1, 2, 3]));
+expectTypeOf(genEmpty.addAll([1, 2, 3])).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.addAll([1, 2, 3])).toEqualTypeOf<G_NonEmpty>();
 
 // .assumeNonEmpty()
-expectType<V_NonEmpty>(varEmpty.assumeNonEmpty());
-expectType<V_NonEmpty>(varNonEmpty.assumeNonEmpty());
-expectType<G_NonEmpty>(genEmpty.assumeNonEmpty());
-expectType<G_NonEmpty>(genNonEmpty.assumeNonEmpty());
+expectTypeOf(varEmpty.assumeNonEmpty()).toEqualTypeOf<V_NonEmpty>();
+expectTypeOf(varNonEmpty.assumeNonEmpty()).toEqualTypeOf<V_NonEmpty>();
+expectTypeOf(genEmpty.assumeNonEmpty()).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.assumeNonEmpty()).toEqualTypeOf<G_NonEmpty>();
 
 // .context
-expectType<RSet.Context<number>>(genEmpty.context);
-expectType<RSet.Context<number>>(genNonEmpty.context);
+expectTypeOf(genEmpty.context).toEqualTypeOf<RSet.Context<number>>();
+expectTypeOf(genNonEmpty.context).toEqualTypeOf<RSet.Context<number>>();
 
 // .difference(..)
-expectType<V_Empty>(varEmpty.difference(varEmpty));
-expectType<V_Empty>(varNonEmpty.difference(varEmpty));
-expectType<V_Empty>(varEmpty.difference(varNonEmpty));
-expectType<V_Empty>(varNonEmpty.difference(genNonEmpty));
+expectTypeOf(varEmpty.difference(varEmpty)).toEqualTypeOf<V_Empty>();
+expectTypeOf(varNonEmpty.difference(varEmpty)).toEqualTypeOf<V_Empty>();
+expectTypeOf(varEmpty.difference(varNonEmpty)).toEqualTypeOf<V_Empty>();
+expectTypeOf(varNonEmpty.difference(genNonEmpty)).toEqualTypeOf<V_Empty>();
 
-expectType<G_Empty>(genEmpty.difference(genEmpty));
-expectType<G_Empty>(genNonEmpty.difference(genEmpty));
-expectType<G_Empty>(genEmpty.difference(genNonEmpty));
-expectType<G_Empty>(genNonEmpty.difference(genNonEmpty));
+expectTypeOf(genEmpty.difference(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.difference(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.difference(genNonEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.difference(genNonEmpty)).toEqualTypeOf<G_Empty>();
 
 // .filter(..)
-expectType<V_Empty>(varEmpty.filter(() => true));
-expectType<V_Empty>(varNonEmpty.filter(() => true));
-expectType<G_Empty>(genEmpty.filter(() => true));
-expectType<G_Empty>(genNonEmpty.filter(() => true));
+expectTypeOf(varEmpty.filter(() => true)).toEqualTypeOf<V_Empty>();
+expectTypeOf(varNonEmpty.filter(() => true)).toEqualTypeOf<V_Empty>();
+expectTypeOf(genEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
 
 // .intersect(..)
-expectType<V_Empty>(varEmpty.intersect(varEmpty));
-expectType<V_Empty>(varNonEmpty.intersect(varEmpty));
-expectType<V_Empty>(varEmpty.intersect(varNonEmpty));
-expectType<V_Empty>(varNonEmpty.intersect(varNonEmpty));
+expectTypeOf(varEmpty.intersect(varEmpty)).toEqualTypeOf<V_Empty>();
+expectTypeOf(varNonEmpty.intersect(varEmpty)).toEqualTypeOf<V_Empty>();
+expectTypeOf(varEmpty.intersect(varNonEmpty)).toEqualTypeOf<V_Empty>();
+expectTypeOf(varNonEmpty.intersect(varNonEmpty)).toEqualTypeOf<V_Empty>();
 
-expectType<G_Empty>(genEmpty.intersect(genEmpty));
-expectType<G_Empty>(genNonEmpty.intersect(genEmpty));
-expectType<G_Empty>(genEmpty.intersect(genNonEmpty));
-expectType<G_Empty>(genNonEmpty.intersect(genNonEmpty));
+expectTypeOf(genEmpty.intersect(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.intersect(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.intersect(genNonEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.intersect(genNonEmpty)).toEqualTypeOf<G_Empty>();
 
 // .isEmpty
-expectType<boolean>(varEmpty.isEmpty);
-expectType<false>(varNonEmpty.isEmpty);
-expectType<boolean>(genEmpty.isEmpty);
-expectType<false>(genNonEmpty.isEmpty);
+expectTypeOf(varEmpty.isEmpty).toEqualTypeOf<boolean>();
+expectTypeOf(varNonEmpty.isEmpty).toEqualTypeOf<false>();
+expectTypeOf(genEmpty.isEmpty).toEqualTypeOf<boolean>();
+expectTypeOf(genNonEmpty.isEmpty).toEqualTypeOf<false>();
 
 // .nonEmpty()
-expectType<boolean>(varEmpty.nonEmpty());
-expectType<boolean>(varNonEmpty.nonEmpty());
-expectType<boolean>(genEmpty.nonEmpty());
-expectType<boolean>(genNonEmpty.nonEmpty());
+expectTypeOf(varEmpty.nonEmpty()).toEqualTypeOf<boolean>();
+expectTypeOf(varNonEmpty.nonEmpty()).toEqualTypeOf<boolean>();
+expectTypeOf(genEmpty.nonEmpty()).toEqualTypeOf<boolean>();
+expectTypeOf(genNonEmpty.nonEmpty()).toEqualTypeOf<boolean>();
 
 // .remove(..)
-expectType<V_Empty>(varEmpty.remove(3));
-expectType<V_Empty>(varNonEmpty.remove(3));
-expectType<G_Empty>(genEmpty.remove(3));
-expectType<G_Empty>(genNonEmpty.remove(3));
+expectTypeOf(varEmpty.remove(3)).toEqualTypeOf<V_Empty>();
+expectTypeOf(varNonEmpty.remove(3)).toEqualTypeOf<V_Empty>();
+expectTypeOf(genEmpty.remove(3)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.remove(3)).toEqualTypeOf<G_Empty>();
 
 // .removeAll(..)
-expectType<V_Empty>(varEmpty.removeAll([3, 4]));
-expectType<V_Empty>(varNonEmpty.removeAll([3, 4]));
-expectType<G_Empty>(genEmpty.removeAll([3, 4]));
-expectType<G_Empty>(genNonEmpty.removeAll([3, 4]));
+expectTypeOf(varEmpty.removeAll([3, 4])).toEqualTypeOf<V_Empty>();
+expectTypeOf(varNonEmpty.removeAll([3, 4])).toEqualTypeOf<V_Empty>();
+expectTypeOf(genEmpty.removeAll([3, 4])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.removeAll([3, 4])).toEqualTypeOf<G_Empty>();
 
 // .stream()
-expectType<Stream<number>>(varEmpty.stream());
-expectType<Stream.NonEmpty<number>>(varNonEmpty.stream());
-expectType<Stream<number>>(genEmpty.stream());
-expectType<Stream.NonEmpty<number>>(genNonEmpty.stream());
+expectTypeOf(varEmpty.stream()).toEqualTypeOf<Stream<number>>();
+expectTypeOf(varNonEmpty.stream()).toEqualTypeOf<Stream.NonEmpty<number>>();
+expectTypeOf(genEmpty.stream()).toEqualTypeOf<Stream<number>>();
+expectTypeOf(genNonEmpty.stream()).toEqualTypeOf<Stream.NonEmpty<number>>();
 
 // .symDifference(..)
-expectType<G_Empty>(genEmpty.symDifference(genEmpty));
-expectType<G_Empty>(genNonEmpty.symDifference(genEmpty));
-expectType<G_Empty>(genEmpty.symDifference(genNonEmpty));
-expectType<G_Empty>(genNonEmpty.symDifference(genNonEmpty));
+expectTypeOf(genEmpty.symDifference(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.symDifference(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.symDifference(genNonEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.symDifference(genNonEmpty)).toEqualTypeOf<G_Empty>();
 
 // .toArray()
-expectType<number[]>(varEmpty.toArray());
-expectType<ArrayNonEmpty<number>>(varNonEmpty.toArray());
-expectType<number[]>(genEmpty.toArray());
-expectType<ArrayNonEmpty<number>>(genNonEmpty.toArray());
+expectTypeOf(varEmpty.toArray()).toEqualTypeOf<number[]>();
+expectTypeOf(varNonEmpty.toArray()).toEqualTypeOf<ArrayNonEmpty<number>>();
+expectTypeOf(genEmpty.toArray()).toEqualTypeOf<number[]>();
+expectTypeOf(genNonEmpty.toArray()).toEqualTypeOf<ArrayNonEmpty<number>>();
 
 // .toBuilder()
-expectType<RSet.Builder<number>>(genEmpty.toBuilder());
-expectType<RSet.Builder<number>>(genNonEmpty.toBuilder());
+expectTypeOf(genEmpty.toBuilder()).toEqualTypeOf<RSet.Builder<number>>();
+expectTypeOf(genNonEmpty.toBuilder()).toEqualTypeOf<RSet.Builder<number>>();
 
 // .union(..)
-expectType<G_Empty>(genEmpty.union(genEmpty));
-expectType<G_NonEmpty>(genEmpty.union(genNonEmpty));
-expectType<G_NonEmpty>(genNonEmpty.union(genEmpty));
-expectType<G_NonEmpty>(genNonEmpty.union(genNonEmpty));
+expectTypeOf(genEmpty.union(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.union(genNonEmpty)).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.union(genEmpty)).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.union(genNonEmpty)).toEqualTypeOf<G_NonEmpty>();
 
 // From Builder
-expectType<G_Empty>(genEmpty.toBuilder().build());
+expectTypeOf(genEmpty.toBuilder().build()).toEqualTypeOf<G_Empty>();

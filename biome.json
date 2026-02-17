@@ -27,7 +27,8 @@
 			},
 			"suspicious": {
 				"noAssignInExpressions": "warn",
-				"noExplicitAny": "warn"
+				"noExplicitAny": "warn",
+				"useIterableCallbackReturn": "warn"
 			}
 		}
 	},

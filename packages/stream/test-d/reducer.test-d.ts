@@ -1,164 +1,177 @@
+import { expectTypeOf } from 'bun:test';
+
 import { Stream } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
-import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
+
+// Replaced tsd assertions with `expectTypeOf` from `bun:test`
 
 //Variance
-expectAssignable<Reducer<number, number | string>>(Reducer.sum);
-expectNotAssignable<Reducer<number | string, number>>(Reducer.sum);
+expectTypeOf(Reducer.sum).toExtend<Reducer<number, number | string>>();
+expectTypeOf(Reducer.sum).not.toExtend<Reducer<number | string, number>>();
 
 // Reducer.combine shapes
-expectType<Reducer<number, [number[], number]>>(
-	Reducer.combine([Reducer.toArray(), Reducer.sum]),
-);
+expectTypeOf(
+	Reducer.combine([Reducer.toArray<number>(), Reducer.sum]),
+).toEqualTypeOf<Reducer<number, [number[], number]>>();
 
-expectType<[number[], number]>(
-	Stream.of(1, 2).reduce(Reducer.combine([Reducer.toArray(), Reducer.sum])),
-);
+expectTypeOf(
+	Stream.of(1, 2).reduce([Reducer.toArray<number>(), Reducer.sum]),
+).toEqualTypeOf<[number[], number]>();
 
-expectAssignable<Reducer<number, { a: number[]; s: number }>>(
+expectTypeOf(
 	Reducer.combine({
 		a: Reducer.toArray(),
 		s: Reducer.sum,
 	}),
-);
+).toExtend<Reducer<number, { a: number[]; s: number }>>();
 
-expectAssignable<{ a: number[]; s: number }>(
+expectTypeOf(
 	Stream.of(1, 2).reduce(
 		Reducer.combine({
 			a: Reducer.toArray<number>(),
 			s: Reducer.sum,
 		}),
 	),
-);
+).toExtend<{ a: number[]; s: number }>();
 
 // Reducer.race
-expectType<Reducer<number, number | undefined>>(
-	Reducer.race([Reducer.sum, Reducer.product]),
-);
+expectTypeOf(Reducer.race([Reducer.sum, Reducer.product])).toEqualTypeOf<
+	Reducer<number, number | undefined>
+>();
 
-expectType<Reducer<number, number>>(
-	Reducer.race([Reducer.sum, Reducer.product], 5),
-);
+expectTypeOf(Reducer.race([Reducer.sum, Reducer.product], 5)).toEqualTypeOf<
+	Reducer<number, number>
+>();
 
 // Reducer.groupBy
-expectType<Reducer<string, Map<number, string[]>>>(
-	Reducer.groupBy((value: string) => value.length),
-);
+expectTypeOf(Reducer.groupBy((value: string) => value.length)).toEqualTypeOf<
+	Reducer<string, Map<number, string[]>>
+>();
 
-expectType<Reducer<string, string>>(
+expectTypeOf(
 	Reducer.groupBy((value: string) => value.length, {
 		collector: Reducer.join(),
 	}),
-);
+).toEqualTypeOf<Reducer<string, string>>();
 
-expectType<Reducer<string, string>>(
+expectTypeOf(
 	Reducer.groupBy((value: string) => value.length, {
 		collector: Reducer.join<[number, string]>(),
 	}),
-);
+).toEqualTypeOf<Reducer<string, string>>();
 
 // Reducer.toArray
-expectType<Reducer<number, number[]>>(Reducer.toArray<number>());
+expectTypeOf(Reducer.toArray<number>()).toEqualTypeOf<
+	Reducer<number, number[]>
+>();
 
 // Reducer.partition
-expectType<Reducer<number, [number[], number[]]>>(
-	Reducer.partition<number>(() => true),
-);
+expectTypeOf(Reducer.partition<number>(() => true)).toEqualTypeOf<
+	Reducer<number, [number[], number[]]>
+>();
 
-expectType<Reducer<number, [Set<number>, string]>>(
+expectTypeOf(
 	Reducer.partition(() => true, {
 		collectorTrue: Reducer.toJSSet<number>(),
 		collectorFalse: Reducer.join<number>(),
 	}),
-);
+).toEqualTypeOf<Reducer<number, [Set<number>, string]>>();
 
-expectType<Reducer<number | string, [number[], string[]]>>(
+expectTypeOf(
 	Reducer.partition((v: number | string): v is number => true),
-);
-expectType<Reducer<number | string, [Set<number>, string]>>(
+).toEqualTypeOf<Reducer<number | string, [number[], string[]]>>();
+expectTypeOf(
 	Reducer.partition((v: number | string): v is number => true, {
 		collectorTrue: Reducer.toJSSet<number>(),
 		collectorFalse: Reducer.join(),
 	}),
-);
+).toEqualTypeOf<Reducer<number | string, [Set<number>, string]>>();
 
 // Reducer methods
 
 // .chain()
-expectType<number>(
+expectTypeOf(
 	Stream.of(1, 2, 3).reduce(Reducer.sum.chain([Reducer.product])),
-);
-expectType<number>(
+).toEqualTypeOf<number>();
+expectTypeOf(
 	Stream.of(1, 2, 3).reduce(
 		Reducer.sum.chain([Reducer.product, Reducer.count]),
 	),
-);
+).toEqualTypeOf<number>();
 
 // .collectInput
-expectType<Reducer<string, number[]>>(
+expectTypeOf(
 	Reducer.toArray<number>().collectInput<string>((v) => v.length),
-);
+).toEqualTypeOf<Reducer<string, number[]>>();
 
 // .compile
-expectType<Reducer.Instance<number, string>>(Reducer.join<number>().compile());
+expectTypeOf(Reducer.join<number>().compile()).toEqualTypeOf<
+	Reducer.Instance<number, string>
+>();
 
 // .dropInput
-expectType<Reducer<number, number[]>>(Reducer.toArray<number>().dropInput(5));
+expectTypeOf(Reducer.toArray<number>().dropInput(5)).toEqualTypeOf<
+	Reducer<number, number[]>
+>();
 
 // .flatMapInput
-expectType<Reducer<string, number[]>>(
+expectTypeOf(
 	Reducer.toArray<number>().flatMapInput<string>(() => [1, 2]),
-);
+).toEqualTypeOf<Reducer<string, number[]>>();
 
 // .filterInput
-expectType<Reducer<number | string, Array<number | string>>>(
+expectTypeOf(
 	Reducer.toArray<number | string>().filterInput(() => true),
-);
-expectType<Reducer<number | string, Array<number | string>>>(
+).toEqualTypeOf<Reducer<number | string, Array<number | string>>>();
+expectTypeOf(
 	Reducer.toArray<number | string>().filterInput(() => true, { negate: true }),
-);
+).toEqualTypeOf<Reducer<number | string, Array<number | string>>>();
 
-expectType<Reducer<string, Array<number | string>>>(
+expectTypeOf(
 	Reducer.toArray<number | string>().filterInput((v): v is string => true),
-);
-expectType<Reducer<number, Array<number | string>>>(
+).toEqualTypeOf<Reducer<string, Array<number | string>>>();
+expectTypeOf(
 	Reducer.toArray<number | string>().filterInput((v): v is string => true, {
 		negate: true,
 	}),
-);
+).toEqualTypeOf<Reducer<number, Array<number | string>>>();
 
 // .takeInput
-expectType<Reducer<number, number[]>>(Reducer.toArray<number>().takeInput(5));
+expectTypeOf(Reducer.toArray<number>().takeInput(5)).toEqualTypeOf<
+	Reducer<number, number[]>
+>();
 
 // .takeOutput
-expectType<Reducer<number, number[]>>(Reducer.toArray<number>().takeOutput(5));
+expectTypeOf(Reducer.toArray<number>().takeOutput(5)).toEqualTypeOf<
+	Reducer<number, number[]>
+>();
 
 // .takeOutputWhile
-expectType<Reducer<number, number[]>>(
+expectTypeOf(
 	Reducer.toArray<number>().takeOutputUntil(() => true),
-);
+).toEqualTypeOf<Reducer<number, number[]>>();
 
 // .mapInput
-expectType<Reducer<string, number[]>>(
+expectTypeOf(
 	Reducer.toArray<number>().mapInput<string>((v) => v.length),
-);
+).toEqualTypeOf<Reducer<string, number[]>>();
 
 // .mapOutput
-expectType<Reducer<string, number>>(
+expectTypeOf(
 	Reducer.toArray<string>().mapOutput((v) => v.length),
-);
+).toEqualTypeOf<Reducer<string, number>>();
 
 // .pipe()
-expectType<string>(
+expectTypeOf(
 	Stream.of(1, 2, 3).reduce(Reducer.pipe(Reducer.sum, Reducer.join())),
-);
-expectType<boolean>(
+).toEqualTypeOf<string>();
+expectTypeOf(
 	Stream.of(1, 2, 3).reduce(
 		Reducer.pipe(Reducer.sum, Reducer.toArray(), Reducer.nonEmpty),
 	),
-);
+).toEqualTypeOf<boolean>();
 
 // .sliceInput
-expectType<Reducer<number, number[]>>(
-	Reducer.toArray<number>().sliceInput(5, 3),
-);
+expectTypeOf(Reducer.toArray<number>().sliceInput(5, 3)).toEqualTypeOf<
+	Reducer<number, number[]>
+>();

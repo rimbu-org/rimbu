@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import type { RMap } from 'entry/collection-types.mjs';
+import type { RMap } from '@rimbu/collection-types';
 
 import { Stream } from '@rimbu/stream';
 

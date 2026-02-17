@@ -20,7 +20,7 @@ export function runSetTestsWith(
 
 	describe(`${name} creators`, () => {
 		it('empty', () => {
-			expect(S.empty<number>()).toBe(S.empty<string>());
+			expect(S.empty<number>()).toBe(S.empty());
 		});
 
 		it('of', () => {

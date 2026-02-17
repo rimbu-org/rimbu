@@ -1,7 +1,7 @@
 import type { RelatedTo } from '@rimbu/common/types';
 import type { HashSet } from '@rimbu/hashed/set';
+import type { ContextImpl } from './context-factory';
 
-import type { HashSetContext } from '#set/context';
 import type { HashSetBlock, HashSetCollision } from '#set/immutable';
 
 import * as Arr from '@rimbu/base/arr';
@@ -21,7 +21,7 @@ export class HashSetBlockBuilder<T>
 	implements HashSet.Builder<T>
 {
 	constructor(
-		readonly context: HashSetContext<T>,
+		readonly context: ContextImpl<T>,
 		public source?: undefined | HashSetBlock<T>,
 		public _entries?: undefined | T[],
 		public _entrySets?: undefined | SetBlockBuilderEntry<T>[],
@@ -292,7 +292,7 @@ export class HashSetBlockBuilder<T>
 
 export class HashSetCollisionBuilder<T> extends CollisionBuilderBase<T> {
 	constructor(
-		readonly context: HashSetContext<T>,
+		readonly context: ContextImpl<T>,
 		public source?: undefined | HashSetCollision<T>,
 		public _entries?: undefined | List.Builder<T>,
 	) {

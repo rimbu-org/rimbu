@@ -89,9 +89,15 @@ export namespace Module {
 		[P in K]: M[P];
 	};
 
-	export function createPartial<MT extends Module.Instance, MI extends MT = MT>(
-		getDefinition: (module: MI) => Module.Definition<MT>,
-	): (module: MI) => Module.Definition<MT> {
+	export function createPartial<
+		MP extends { defines: Module.Instance; requires?: Module.Instance },
+	>(
+		getDefinition: (
+			module: MP['defines'] & MP['requires'],
+		) => Module.Definition<MP['defines']>,
+	): (
+		module: MP['defines'] & MP['requires'],
+	) => Module.Definition<MP['defines']> {
 		return getDefinition;
 	}
 
@@ -218,21 +224,5 @@ export namespace Module {
 			}
 			return instance as ReturnType<C>;
 		}) as C;
-	}
-
-	export class EagerSelfDependencyError extends Error {
-		constructor(name: string) {
-			super(
-				`Eager self-dependency detected in module while accessing property ${name}.`,
-			);
-		}
-	}
-
-	export class CircularDependencyError extends Error {
-		constructor(name: string) {
-			super(
-				`Circular dependency detected in module while accessing property ${name}.`,
-			);
-		}
 	}
 }

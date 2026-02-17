@@ -8,6 +8,7 @@ import { ErrBase } from '@rimbu/common/err';
 import { IndexRange } from '@rimbu/common/index-range';
 import { Module } from '@rimbu/common/module';
 import { Range } from '@rimbu/common/range';
+import { Reducer } from '../reducer';
 
 import {
 	AlwaysStream,
@@ -55,6 +56,7 @@ function* yieldObjEntries<K extends string | number | symbol, V>(
 }
 
 export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
+	Constructors: () => mod,
 	isEmptyStreamSourceInstance: (source: StreamSource<any>) => {
 		if (source === '') return true;
 		if (typeof source === 'object') {
@@ -273,5 +275,37 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 		}
 
 		return result;
+	},
+	groupBy: <T, K>(
+		source: StreamSource<T>,
+		valueToKey: (value: T, index: number) => K,
+	): (<R>(options?: { collector?: any | undefined } | undefined) => R) => {
+		return <R>(options = {}) => {
+			return mod
+				.fromStreamSource(source)
+				.reduce(Reducer.groupBy(valueToKey, options as any)) as R;
+		};
+	},
+	partition: <T>(
+		source: StreamSource<T>,
+		pred: (value: T, index: number) => boolean,
+	): ((options?: { collectorTrue?: any; collectorFalse?: any }) => any) => {
+		return (options = {}) => {
+			if (mod.isEmptyStreamSourceInstance(source)) {
+				const {
+					collectorTrue = Reducer.toArray(),
+					collectorFalse = Reducer.toArray(),
+				} = options;
+
+				return [
+					collectorTrue.compile().getOutput(),
+					collectorFalse.compile().getOutput(),
+				];
+			}
+
+			return mod
+				.fromStreamSource(source)
+				.reduce(Reducer.partition(pred, options));
+		};
 	},
 }));

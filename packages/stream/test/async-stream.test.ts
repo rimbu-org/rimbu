@@ -131,45 +131,42 @@ describe('AsyncStream constructors', () => {
 		close.mockReset();
 	});
 
-	it('empty', async () => {
+	it('empty', () => {
 		const e = AsyncStream.empty();
 		expect(e).toBe(AsyncStream.empty());
-		expect(await e.toArray()).toEqual([]);
+		expect(e.toArray()).resolves.toEqual([]);
 		expect(e.concat(e)).toBe(e);
 	});
 
-	it('of', async () => {
-		expect(await AsyncStream.of(1).toArray()).toEqual([1]);
-		expect(await AsyncStream.of(Promise.resolve(1)).toArray()).toEqual([1]);
-		expect(await AsyncStream.of(() => 1).toArray()).toEqual([1]);
-		expect(await AsyncStream.of(async () => 1).toArray()).toEqual([1]);
-		expect(await AsyncStream.of(1, 2, 3).toArray()).toEqual([1, 2, 3]);
+	it('of', () => {
+		expect(AsyncStream.of(1).toArray()).resolves.toEqual([1]);
+		expect(AsyncStream.of(Promise.resolve(1)).toArray()).resolves.toEqual([1]);
+		expect(AsyncStream.of(() => 1).toArray()).resolves.toEqual([1]);
+		expect(AsyncStream.of(async () => 1).toArray()).resolves.toEqual([1]);
+		expect(AsyncStream.of(1, 2, 3).toArray()).resolves.toEqual([1, 2, 3]);
 	});
 
-	it('from', async () => {
+	it('from', () => {
 		expect(AsyncStream.from([])).toBe(AsyncStream.empty());
-		expect(await AsyncStream.from([1]).toArray()).toEqual([1]);
-		expect(await AsyncStream.from([1, 2, 3]).toArray()).toEqual([1, 2, 3]);
-		expect(await AsyncStream.from(new Set()).toArray()).toEqual([]);
-		expect(await AsyncStream.from(new Set([1, 2, 3])).toArray()).toEqual([
+		expect(AsyncStream.from([1]).toArray()).resolves.toEqual([1]);
+		expect(AsyncStream.from([1, 2, 3]).toArray()).resolves.toEqual([1, 2, 3]);
+		expect(AsyncStream.from(new Set()).toArray()).resolves.toEqual([]);
+		expect(AsyncStream.from(new Set([1, 2, 3])).toArray()).resolves.toEqual([
 			1, 2, 3,
 		]);
-		expect(await AsyncStream.from(() => [1]).toArray()).toEqual([1]);
+		expect(AsyncStream.from(() => [1]).toArray()).resolves.toEqual([1]);
 		expect(
-			await AsyncStream.from(() => Promise.resolve([1])).toArray(),
-		).toEqual([1]);
-		expect(await AsyncStream.from(async () => [1]).toArray()).toEqual([1]);
+			AsyncStream.from(() => Promise.resolve([1])).toArray(),
+		).resolves.toEqual([1]);
+		expect(AsyncStream.from(async () => [1]).toArray()).resolves.toEqual([1]);
 		expect(
-			await AsyncStream.from(async function* (): AsyncGenerator<
-				number,
-				number
-			> {
+			AsyncStream.from(async function* (): AsyncGenerator<number, number> {
 				await Promise.resolve();
 				yield 1;
 				yield 2;
 				return 3;
 			}).toArray(),
-		);
+		).resolves.toBeDefined();
 	});
 
 	it('fromResource', async () => {
@@ -188,16 +185,16 @@ describe('AsyncStream constructors', () => {
 		expect(close).toBeCalledTimes(1);
 	});
 
-	it('from multi', async () => {
+	it('from multi', () => {
 		expect(AsyncStream.from([], [])).toBe(AsyncStream.empty());
 		expect(
-			await AsyncStream.from(
+			AsyncStream.from(
 				() => [],
 				() => [],
 			).toArray(),
-		).toEqual([]);
+		).resolves.toEqual([]);
 		expect(
-			await AsyncStream.from(
+			AsyncStream.from(
 				[1, 2],
 				() => [3, 4],
 				() => Promise.resolve([5, 6]),
@@ -208,27 +205,29 @@ describe('AsyncStream constructors', () => {
 					return 'a';
 				},
 			).toArray(),
-		).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+		).resolves.toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 	});
 
-	it('always', async () => {
-		expect(await AsyncStream.always(5).take(5).toArray()).toEqual([
+	it('always', () => {
+		expect(AsyncStream.always(5).take(5).toArray()).resolves.toEqual([
 			5, 5, 5, 5, 5,
 		]);
-		expect(await AsyncStream.always(5).first()).toBe(5);
-		// expect(await AsyncStream.always(5).last()).toBe(5);
-		expect(await AsyncStream.always(5).elementAt(10000)).toBe(5);
+		expect(AsyncStream.always(5).first()).resolves.toBe(5);
+		// expect(AsyncStream.always(5).last()).resolves.toBe(5);
+		expect(AsyncStream.always(5).elementAt(10000)).resolves.toBe(5);
 	});
 
-	it('flatten', async () => {
+	it('flatten', () => {
 		expect(AsyncStream.flatten(AsyncStream.empty())).toBe(AsyncStream.empty());
-		expect(await AsyncStream.flatten(AsyncStream.of([])).toArray()).toEqual([]);
-		expect(await AsyncStream.flatten(AsyncStream.of([1, 2])).toArray()).toEqual(
-			[1, 2],
+		expect(AsyncStream.flatten(AsyncStream.of([])).toArray()).resolves.toEqual(
+			[],
 		);
 		expect(
-			await AsyncStream.flatten(AsyncStream.of([1, 2], [3], [4])).toArray(),
-		).toEqual([1, 2, 3, 4]);
+			AsyncStream.flatten(AsyncStream.of([1, 2])).toArray(),
+		).resolves.toEqual([1, 2]);
+		expect(
+			AsyncStream.flatten(AsyncStream.of([1, 2], [3], [4])).toArray(),
+		).resolves.toEqual([1, 2, 3, 4]);
 
 		// const closeInner = vi.fn();
 		// const s = createResourceStream(
@@ -241,15 +240,15 @@ describe('AsyncStream constructors', () => {
 		// expect(closeInner).toBeCalledTimes(1);
 	});
 
-	it('unfold', async () => {
-		expect(await AsyncStream.unfold(0, (c, n, stop) => stop).toArray()).toEqual(
-			[0],
-		);
+	it('unfold', () => {
 		expect(
-			await AsyncStream.unfold(0, async (c, i, stop) =>
+			AsyncStream.unfold(0, (c, n, stop) => stop).toArray(),
+		).resolves.toEqual([0]);
+		expect(
+			AsyncStream.unfold(0, async (c, i, stop) =>
 				c > 2 ? stop : c + i,
 			).toArray(),
-		).toEqual([0, 1, 3]);
+		).resolves.toEqual([0, 1, 3]);
 	});
 });
 
@@ -268,25 +267,25 @@ describe('AsyncStream methods', () => {
 			expect(source.asyncStream()).toBe(source);
 		}
 	});
-	it('equals', async () => {
+	it('equals', () => {
 		const s1 = AsyncStream.empty<number>();
 		const s2 = AsyncStream.of(1, 2, 3);
-		expect(await s1.equals(s1)).toBe(true);
-		expect(await s1.equals([])).toBe(true);
-		expect(await s1.equals(s2)).toBe(false);
-		expect(await s2.equals(s1)).toBe(false);
-		expect(await s2.equals([])).toBe(false);
-		expect(await s2.equals(s2)).toBe(true);
-		expect(await AsyncStream.of('a', 'b').equals(['A', 'B'])).toBe(false);
+		expect(s1.equals(s1)).resolves.toBe(true);
+		expect(s1.equals([])).resolves.toBe(true);
+		expect(s1.equals(s2)).resolves.toBe(false);
+		expect(s2.equals(s1)).resolves.toBe(false);
+		expect(s2.equals([])).resolves.toBe(false);
+		expect(s2.equals(s2)).resolves.toBe(true);
+		expect(AsyncStream.of('a', 'b').equals(['A', 'B'])).resolves.toBe(false);
 		expect(
-			await AsyncStream.of('a', 'b').equals(['A', 'B'], {
+			AsyncStream.of('a', 'b').equals(['A', 'B'], {
 				eq: Eq.stringCaseInsentitive,
 			}),
-		).toBe(true);
+		).resolves.toBe(true);
 
 		for (const source of sources) {
-			expect(await source.equals([])).toBe(false);
-			expect(await source.equals(source)).toBe(true);
+			expect(source.equals([])).resolves.toBe(false);
+			expect(source.equals(source)).resolves.toBe(true);
 		}
 	});
 	it('equals close', async () => {
@@ -333,13 +332,15 @@ describe('AsyncStream methods', () => {
 		expect(s.asNormal()).toBe(s);
 	});
 	it('prepend', async () => {
-		expect(await AsyncStream.empty<number>().prepend(5).toArray()).toEqual([5]);
-		expect(await AsyncStream.of(1, 2, 3).prepend(5).toArray()).toEqual([
+		expect(AsyncStream.empty<number>().prepend(5).toArray()).resolves.toEqual([
+			5,
+		]);
+		expect(AsyncStream.of(1, 2, 3).prepend(5).toArray()).resolves.toEqual([
 			5, 1, 2, 3,
 		]);
 		for (const source of sources) {
 			const arr = [5, ...(await source.toArray())];
-			expect(await source.prepend(5).toArray()).toEqual(
+			expect(source.prepend(5).toArray()).resolves.toEqual(
 				arr as ArrayNonEmpty<number>,
 			);
 		}
@@ -360,13 +361,15 @@ describe('AsyncStream methods', () => {
 		expect(close).toBeCalledTimes(1);
 	});
 	it('append', async () => {
-		expect(await AsyncStream.empty<number>().append(5).toArray()).toEqual([5]);
-		expect(await AsyncStream.of(1, 2, 3).append(5).toArray()).toEqual([
+		expect(AsyncStream.empty<number>().append(5).toArray()).resolves.toEqual([
+			5,
+		]);
+		expect(AsyncStream.of(1, 2, 3).append(5).toArray()).resolves.toEqual([
 			1, 2, 3, 5,
 		]);
 		for (const source of sources) {
 			const arr = [...(await source.toArray()), 5];
-			expect(await source.append(5).toArray()).toEqual(
+			expect(source.append(5).toArray()).resolves.toEqual(
 				arr as ArrayNonEmpty<number>,
 			);
 		}
@@ -400,7 +403,10 @@ describe('AsyncStream methods', () => {
 			expect(result).toBe(4950);
 			result = 0;
 			await source.forEach((v, _, halt): void => {
-				if (v > 70) return halt();
+				if (v > 70) {
+					halt();
+					return;
+				}
 				result += v;
 			});
 			expect(result).toBe(2485);
@@ -449,17 +455,17 @@ describe('AsyncStream methods', () => {
 		} catch {}
 		expect(close).toBeCalledTimes(1);
 	});
-	it('indexed', async () => {
+	it('indexed', () => {
 		expect(AsyncStream.empty().indexed()).toBe(AsyncStream.empty());
-		expect(await AsyncStream.of(1).indexed().toArray()).toEqual([[0, 1]]);
-		expect(await AsyncStream.of(1, 2, 3).indexed().toArray()).toEqual([
+		expect(AsyncStream.of(1).indexed().toArray()).resolves.toEqual([[0, 1]]);
+		expect(AsyncStream.of(1, 2, 3).indexed().toArray()).resolves.toEqual([
 			[0, 1],
 			[1, 2],
 			[2, 3],
 		]);
 		expect(
-			await AsyncStream.of(1, 2, 3).indexed({ startIndex: 5 }).toArray(),
-		).toEqual([
+			AsyncStream.of(1, 2, 3).indexed({ startIndex: 5 }).toArray(),
+		).resolves.toEqual([
 			[5, 1],
 			[6, 2],
 			[7, 3],
@@ -471,17 +477,17 @@ describe('AsyncStream methods', () => {
 	it('map', async () => {
 		expect(AsyncStream.empty().map((v) => v)).toBe(AsyncStream.empty());
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.map((v) => v + 1)
 				.toArray(),
-		).toEqual([2, 3, 4]);
+		).resolves.toEqual([2, 3, 4]);
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.map(async (v) => v + 1)
 				.toArray(),
-		).toEqual([2, 3, 4]);
+		).resolves.toEqual([2, 3, 4]);
 		for (const source of sources) {
-			expect(await source.map((v) => v).toArray()).toEqual(
+			expect(source.map((v) => v).toArray()).resolves.toEqual(
 				await source.toArray(),
 			);
 		}
@@ -492,17 +498,17 @@ describe('AsyncStream methods', () => {
 	it('mapPure', async () => {
 		expect(AsyncStream.empty().mapPure((v) => v)).toBe(AsyncStream.empty());
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.mapPure((v) => v + 1)
 				.toArray(),
-		).toEqual([2, 3, 4]);
+		).resolves.toEqual([2, 3, 4]);
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.mapPure(async (v) => v + 1)
 				.toArray(),
-		).toEqual([2, 3, 4]);
+		).resolves.toEqual([2, 3, 4]);
 		for (const source of sources) {
-			expect(await source.mapPure((v) => v).toArray()).toEqual(
+			expect(source.mapPure((v) => v).toArray()).resolves.toEqual(
 				await source.toArray(),
 			);
 		}
@@ -516,32 +522,32 @@ describe('AsyncStream methods', () => {
 			AsyncStream.empty(),
 		);
 		expect(
-			await AsyncStream.of(1)
+			AsyncStream.of(1)
 				.flatMap((v) => AsyncStream.empty())
 				.toArray(),
-		).toEqual([]);
+		).resolves.toEqual([]);
 		expect(
-			await AsyncStream.of(1)
+			AsyncStream.of(1)
 				.flatMap((v) => AsyncStream.of(2, 3))
 				.toArray(),
-		).toEqual([2, 3]);
+		).resolves.toEqual([2, 3]);
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.flatMap((v) => AsyncStream.of(v + 1))
 				.toArray(),
-		).toEqual([2, 3, 4]);
+		).resolves.toEqual([2, 3, 4]);
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.flatMap((v, i) => [i + 1])
 				.toArray(),
-		).toEqual([1, 2, 3]);
+		).resolves.toEqual([1, 2, 3]);
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.flatMap((v, i) => [v, v])
 				.toArray(),
-		).toEqual([1, 1, 2, 2, 3, 3]);
+		).resolves.toEqual([1, 1, 2, 2, 3, 3]);
 		for (const source of sources) {
-			expect(await source.flatMap((v) => [v]).toArray()).toEqual(
+			expect(source.flatMap((v) => [v]).toArray()).resolves.toEqual(
 				await source.toArray(),
 			);
 		}
@@ -569,46 +575,46 @@ describe('AsyncStream methods', () => {
 	});
 
 	it('flatZip', async () => {
-		expect(await AsyncStream.empty().flatZip((v) => Stream.of(1))).toBe(
+		expect(AsyncStream.empty().flatZip((v) => Stream.of(1))).toBe(
 			AsyncStream.empty(),
 		);
 		expect(
-			await AsyncStream.of(1)
+			AsyncStream.of(1)
 				.flatZip((v) => Stream.empty())
 				.toArray(),
-		).toEqual([]);
+		).resolves.toEqual([]);
 		expect(
-			await AsyncStream.of(1)
+			AsyncStream.of(1)
 				.flatZip((v) => Stream.of(2, 3))
 				.toArray(),
-		).toEqual([
+		).resolves.toEqual([
 			[1, 2],
 			[1, 3],
 		]);
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.flatZip((v) => AsyncStream.of(v + 1))
 				.toArray(),
-		).toEqual([
+		).resolves.toEqual([
 			[1, 2],
 			[2, 3],
 			[3, 4],
 		]);
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.flatZip((v, i) => [i + 1])
 				.toArray(),
-		).toEqual([
+		).resolves.toEqual([
 			[1, 1],
 			[2, 2],
 			[3, 3],
 		]);
 
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.flatZip((v, i) => [v, v])
 				.toArray(),
-		).toEqual([
+		).resolves.toEqual([
 			[1, 1],
 			[1, 1],
 			[2, 2],
@@ -618,7 +624,7 @@ describe('AsyncStream methods', () => {
 		]);
 
 		await AsyncStream.from(sources).forEach(async (source) => {
-			expect(await source.flatZip((v) => [v]).toArray()).toEqual(
+			expect(source.flatZip((v) => [v]).toArray()).resolves.toEqual(
 				await source.map((v) => [v, v] satisfies [number, number]).toArray(),
 			);
 		});
@@ -645,37 +651,37 @@ describe('AsyncStream methods', () => {
 		expect(closeE).toBeCalledTimes(1);
 	});
 
-	it('filter', async () => {
+	it('filter', () => {
 		expect(AsyncStream.empty().filter((v) => true)).toBe(AsyncStream.empty());
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.filter(async (v) => true)
 				.toArray(),
-		).toEqual([1, 2, 3]);
+		).resolves.toEqual([1, 2, 3]);
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.filter((v) => false)
 				.toArray(),
-		).toEqual([]);
+		).resolves.toEqual([]);
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.filter(async (v) => v % 2 === 1)
 				.toArray(),
-		).toEqual([1, 3]);
+		).resolves.toEqual([1, 3]);
 		for (const source of sources) {
-			expect(await source.filter((v) => false).toArray()).toEqual([]);
-			expect(await source.filter((v) => v % 30 === 0).toArray()).toEqual([
+			expect(source.filter((v) => false).toArray()).resolves.toEqual([]);
+			expect(source.filter((v) => v % 30 === 0).toArray()).resolves.toEqual([
 				0, 30, 60, 90,
 			]);
-			expect(await source.filter((v, i) => i % 30 === 0).toArray()).toEqual([
+			expect(source.filter((v, i) => i % 30 === 0).toArray()).resolves.toEqual([
 				0, 30, 60, 90,
 			]);
 			expect(
-				await source
+				source
 					.filter((v) => v % 15 === 0)
 					.filter(async (v) => v % 20 === 0)
 					.toArray(),
-			).toEqual([0, 60]);
+			).resolves.toEqual([0, 60]);
 		}
 	});
 
@@ -696,38 +702,38 @@ describe('AsyncStream methods', () => {
 		expect(close).toBeCalledTimes(1);
 	});
 
-	it('filterPure', async () => {
+	it('filterPure', () => {
 		expect(AsyncStream.empty().filterPure({ pred: (v) => true })).toBe(
 			AsyncStream.empty(),
 		);
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.filterPure({ pred: async (v) => true })
 				.toArray(),
-		).toEqual([1, 2, 3]);
+		).resolves.toEqual([1, 2, 3]);
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.filterPure({ pred: (v) => false })
 				.toArray(),
-		).toEqual([]);
+		).resolves.toEqual([]);
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.filterPure({ pred: async (v) => v % 2 === 1 })
 				.toArray(),
-		).toEqual([1, 3]);
+		).resolves.toEqual([1, 3]);
 		for (const source of sources) {
-			expect(await source.filterPure({ pred: (v) => false }).toArray()).toEqual(
-				[],
-			);
 			expect(
-				await source.filterPure({ pred: (v) => v % 30 === 0 }).toArray(),
-			).toEqual([0, 30, 60, 90]);
+				source.filterPure({ pred: (v) => false }).toArray(),
+			).resolves.toEqual([]);
 			expect(
-				await source
+				source.filterPure({ pred: (v) => v % 30 === 0 }).toArray(),
+			).resolves.toEqual([0, 30, 60, 90]);
+			expect(
+				source
 					.filterPure({ pred: (v) => v % 15 === 0 })
 					.filterPure({ pred: async (v) => v % 20 === 0 })
 					.toArray(),
-			).toEqual([0, 60]);
+			).resolves.toEqual([0, 60]);
 		}
 	});
 
@@ -750,37 +756,37 @@ describe('AsyncStream methods', () => {
 		expect(close).toBeCalledTimes(1);
 	});
 
-	it('collect', async () => {
+	it('collect', () => {
 		expect(AsyncStream.empty<number>().collect((v) => v + 1)).toBe(
 			AsyncStream.empty(),
 		);
 		expect(
-			await AsyncStream.of(1)
+			AsyncStream.of(1)
 				.collect((v) => v + 1)
 				.toArray(),
-		).toEqual([2]);
+		).resolves.toEqual([2]);
 		expect(
-			await AsyncStream.of(1)
+			AsyncStream.of(1)
 				.collect((v, i, skip) => skip)
 				.toArray(),
-		).toEqual([]);
+		).resolves.toEqual([]);
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.collect(async (v) => v + 1)
 				.toArray(),
-		).toEqual([2, 3, 4]);
+		).resolves.toEqual([2, 3, 4]);
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.collect((v, i, skip) => (v === 2 ? skip : v))
 				.toArray(),
-		).toEqual([1, 3]);
+		).resolves.toEqual([1, 3]);
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.collect((v, i, skip) => (i === 1 ? skip : v))
 				.toArray(),
-		).toEqual([1, 3]);
+		).resolves.toEqual([1, 3]);
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.collect(async (v, i, skip, halt) => {
 					if (v === 1) {
 						halt();
@@ -789,10 +795,10 @@ describe('AsyncStream methods', () => {
 					return v;
 				})
 				.toArray(),
-		).toEqual([1]);
+		).resolves.toEqual([1]);
 		for (const source of sources) {
 			expect(
-				await source
+				source
 					.collect((v, i, skip, halt) => {
 						if (v < 50) return skip;
 						if (v > 55) {
@@ -802,24 +808,24 @@ describe('AsyncStream methods', () => {
 						return v - 50;
 					})
 					.toArray(),
-			).toEqual([0, 1, 2, 3, 4, 5]);
+			).resolves.toEqual([0, 1, 2, 3, 4, 5]);
 		}
 	});
-	it('withOnly', async () => {
+	it('withOnly', () => {
 		const s3 = AsyncStream.of(1, 2, 3);
 
-		expect(await s3.withOnly([]).toArray()).toEqual([]);
-		expect(await s3.withOnly([1, 2, 3]).toArray()).toEqual([1, 2, 3]);
-		expect(await s3.withOnly([2]).toArray()).toEqual([2]);
-		expect(await s3.withOnly([4]).toArray()).toEqual([]);
+		expect(s3.withOnly([]).toArray()).resolves.toEqual([]);
+		expect(s3.withOnly([1, 2, 3]).toArray()).resolves.toEqual([1, 2, 3]);
+		expect(s3.withOnly([2]).toArray()).resolves.toEqual([2]);
+		expect(s3.withOnly([4]).toArray()).resolves.toEqual([]);
 	});
-	it('without', async () => {
+	it('without', () => {
 		const s3 = AsyncStream.of(1, 2, 3);
 
 		expect(s3.without([])).toBe(s3);
-		expect(await s3.without([1, 2, 3]).toArray()).toEqual([]);
-		expect(await s3.without([2]).toArray()).toEqual([1, 3]);
-		expect(await s3.without([4]).toArray()).toEqual([1, 2, 3]);
+		expect(s3.without([1, 2, 3]).toArray()).resolves.toEqual([]);
+		expect(s3.without([2]).toArray()).resolves.toEqual([1, 3]);
+		expect(s3.without([4]).toArray()).resolves.toEqual([1, 2, 3]);
 	});
 	it('collect close', async () => {
 		await testResForEach(createResourceStream([1, 2, 3]).collect((v) => true));
@@ -848,14 +854,16 @@ describe('AsyncStream methods', () => {
 		expect(close).toBeCalledTimes(1);
 	});
 	it('first', async () => {
-		expect(await AsyncStream.empty<number>().first()).toBeUndefined();
-		expect(await AsyncStream.empty<number>().first(1)).toBe(1);
-		expect(await AsyncStream.of(1, 2, 3).first()).toBe(1);
-		expect(await AsyncStream.from(Stream.range({ start: 0 })).first()).toBe(0);
+		expect(AsyncStream.empty<number>().first()).resolves.toBeUndefined();
+		expect(AsyncStream.empty<number>().first(1)).resolves.toBe(1);
+		expect(AsyncStream.of(1, 2, 3).first()).resolves.toBe(1);
+		expect(AsyncStream.from(Stream.range({ start: 0 })).first()).resolves.toBe(
+			0,
+		);
 		for (const source of sources) {
 			const first = (await source.toArray())[0];
-			expect(await source.first()).toBe(first);
-			expect(await source.first('a')).toBe(first);
+			expect(source.first()).resolves.toBe(first);
+			expect(source.first('a')).resolves.toBe(first);
 		}
 	});
 	it('first close', async () => {
@@ -869,13 +877,13 @@ describe('AsyncStream methods', () => {
 		expect(close).toBeCalledTimes(1);
 	});
 	it('last', async () => {
-		expect(await AsyncStream.empty<number>().last()).toBeUndefined();
-		expect(await AsyncStream.empty<number>().last(1)).toBe(1);
-		expect(await AsyncStream.of(1, 2, 3).last()).toBe(3);
+		expect(AsyncStream.empty<number>().last()).resolves.toBeUndefined();
+		expect(AsyncStream.empty<number>().last(1)).resolves.toBe(1);
+		expect(AsyncStream.of(1, 2, 3).last()).resolves.toBe(3);
 		for (const source of sources) {
 			const last = Arr.last(await source.toArray());
-			expect(await source.last()).toBe(last);
-			expect(await source.last('a')).toBe(last);
+			expect(source.last()).resolves.toBe(last);
+			expect(source.last('a')).resolves.toBe(last);
 		}
 	});
 	it('last close', async () => {
@@ -886,18 +894,18 @@ describe('AsyncStream methods', () => {
 		expect(close).toBeCalledTimes(1);
 	});
 	it('single', async () => {
-		expect(await AsyncStream.empty<number>().single()).toBeUndefined();
-		expect(await AsyncStream.empty<number>().single(1)).toBe(1);
-		expect(await AsyncStream.of(1).single()).toBe(1);
-		expect(await AsyncStream.of(1).single('a')).toBe(1);
-		expect(await AsyncStream.of(1, 2, 3).single()).toBeUndefined();
-		expect(await AsyncStream.of(1, 2, 3).single('a')).toBe('a');
+		expect(AsyncStream.empty<number>().single()).resolves.toBeUndefined();
+		expect(AsyncStream.empty<number>().single(1)).resolves.toBe(1);
+		expect(AsyncStream.of(1).single()).resolves.toBe(1);
+		expect(AsyncStream.of(1).single('a')).resolves.toBe(1);
+		expect(AsyncStream.of(1, 2, 3).single()).resolves.toBeUndefined();
+		expect(AsyncStream.of(1, 2, 3).single('a')).resolves.toBe('a');
 
 		for (const source of sources) {
 			const value =
 				(await source.count()) === 1 ? await source.first() : undefined;
-			expect(await source.single()).toBe(value);
-			expect(await source.single('a')).toBe(value ?? 'a');
+			expect(source.single()).resolves.toBe(value);
+			expect(source.single('a')).resolves.toBe(value ?? 'a');
 		}
 	});
 	it('single close', async () => {
@@ -911,11 +919,11 @@ describe('AsyncStream methods', () => {
 		expect(close).toBeCalledTimes(1);
 	});
 	it('count', async () => {
-		expect(await AsyncStream.empty<number>().count()).toBe(0);
-		expect(await AsyncStream.of(1, 2, 3).count()).toBe(3);
+		expect(AsyncStream.empty<number>().count()).resolves.toBe(0);
+		expect(AsyncStream.of(1, 2, 3).count()).resolves.toBe(3);
 		for (const source of sources) {
-			expect(await source.count()).toEqual((await source.toArray()).length);
-			expect(await source.filter((v) => v % 2 === 0).count()).toEqual(
+			expect(source.count()).resolves.toEqual((await source.toArray()).length);
+			expect(source.filter((v) => v % 2 === 0).count()).resolves.toEqual(
 				(await source.toArray()).length / 2,
 			);
 		}
@@ -932,13 +940,13 @@ describe('AsyncStream methods', () => {
 	});
 
 	it('countElement', async () => {
-		expect(await AsyncStream.empty<number>().countElement(1)).toBe(0);
-		expect(await AsyncStream.of(1, 2, 3, 2).countElement(2)).toBe(2);
+		expect(AsyncStream.empty<number>().countElement(1)).resolves.toBe(0);
+		expect(AsyncStream.of(1, 2, 3, 2).countElement(2)).resolves.toBe(2);
 		for (const source of sources) {
-			expect(await source.countElement(2)).toEqual(1);
-			expect(await source.filter((v) => v % 2 === 0).countElement(2)).toEqual(
-				1,
-			);
+			expect(source.countElement(2)).resolves.toEqual(1);
+			expect(
+				source.filter((v) => v % 2 === 0).countElement(2),
+			).resolves.toEqual(1);
 		}
 	});
 	it('countElement inverse close', async () => {
@@ -952,18 +960,16 @@ describe('AsyncStream methods', () => {
 	});
 	it('countElement negate', async () => {
 		expect(
-			await AsyncStream.empty<number>().countElement(1, { negate: true }),
-		).toBe(0);
+			AsyncStream.empty<number>().countElement(1, { negate: true }),
+		).resolves.toBe(0);
 		expect(
-			await AsyncStream.of(1, 2, 3, 2).countElement(2, { negate: true }),
-		).toBe(2);
+			AsyncStream.of(1, 2, 3, 2).countElement(2, { negate: true }),
+		).resolves.toBe(2);
 		for (const source of sources) {
-			expect(await source.countElement(2, { negate: true })).toEqual(99);
+			expect(source.countElement(2, { negate: true })).resolves.toEqual(99);
 			expect(
-				await source
-					.filter((v) => v % 2 === 0)
-					.countElement(2, { negate: true }),
-			).toEqual(49);
+				source.filter((v) => v % 2 === 0).countElement(2, { negate: true }),
+			).resolves.toEqual(49);
 		}
 	});
 	it('countlement negate close', async () => {
@@ -976,31 +982,35 @@ describe('AsyncStream methods', () => {
 		expect(close).toBeCalledTimes(1);
 	});
 	it('find', async () => {
-		expect(await AsyncStream.empty().find((v) => false)).toBe(undefined);
+		expect(AsyncStream.empty().find((v) => false)).resolves.toBe(undefined);
 		expect(
-			await AsyncStream.empty().find((v) => false, {
+			AsyncStream.empty().find((v) => false, {
 				otherwise: 'a',
 			}),
-		).toBe('a');
-		expect(await AsyncStream.empty().find((v) => true)).toBe(undefined);
+		).resolves.toBe('a');
+		expect(AsyncStream.empty().find((v) => true)).resolves.toBe(undefined);
 		expect(
-			await AsyncStream.empty().find((v) => true, { otherwise: 'a' }),
-		).toBe('a');
+			AsyncStream.empty().find((v) => true, { otherwise: 'a' }),
+		).resolves.toBe('a');
 		expect(
-			await AsyncStream.of(1, 2, 3).find((v) => v === 2, { otherwise: 'a' }),
-		).toBe(2);
+			AsyncStream.of(1, 2, 3).find((v) => v === 2, { otherwise: 'a' }),
+		).resolves.toBe(2);
 		expect(
-			await AsyncStream.of(1, 2, 3).find((v) => v === 10, { otherwise: 'a' }),
-		).toBe('a');
+			AsyncStream.of(1, 2, 3).find((v) => v === 10, { otherwise: 'a' }),
+		).resolves.toBe('a');
 		expect(
-			await AsyncStream.of(1, 2, 1, 4).find((v) => v > 1, {
+			AsyncStream.of(1, 2, 1, 4).find((v) => v > 1, {
 				occurrance: 2,
 				otherwise: 'a',
 			}),
-		).toBe(4);
+		).resolves.toBe(4);
 		for (const source of sources) {
-			expect(await source.find((v) => v === 70, { otherwise: 'a' })).toBe(70);
-			expect(await source.find((v) => v === -10, { otherwise: 'a' })).toBe('a');
+			expect(source.find((v) => v === 70, { otherwise: 'a' })).resolves.toBe(
+				70,
+			);
+			expect(source.find((v) => v === -10, { otherwise: 'a' })).resolves.toBe(
+				'a',
+			);
 		}
 	});
 	it('find close', async () => {
@@ -1019,14 +1029,14 @@ describe('AsyncStream methods', () => {
 		expect(close).toBeCalledTimes(1);
 	});
 	it('elementAt', async () => {
-		expect(await AsyncStream.empty().elementAt(0, 'a')).toBe('a');
-		expect(await AsyncStream.of(1).elementAt(0, 'a')).toBe(1);
-		expect(await AsyncStream.of(1).elementAt(1, 'a')).toBe('a');
+		expect(AsyncStream.empty().elementAt(0, 'a')).resolves.toBe('a');
+		expect(AsyncStream.of(1).elementAt(0, 'a')).resolves.toBe(1);
+		expect(AsyncStream.of(1).elementAt(1, 'a')).resolves.toBe('a');
 		for (const source of sources) {
-			expect(await source.elementAt(0, 'a')).toBe(0);
-			expect(await source.elementAt(50, 'a')).toBe(50);
-			expect(await source.elementAt(99, 'a')).toBe(99);
-			expect(await source.elementAt(100, 'a')).toBe('a');
+			expect(source.elementAt(0, 'a')).resolves.toBe(0);
+			expect(source.elementAt(50, 'a')).resolves.toBe(50);
+			expect(source.elementAt(99, 'a')).resolves.toBe(99);
+			expect(source.elementAt(100, 'a')).resolves.toBe('a');
 		}
 	});
 	it('elementAt close', async () => {
@@ -1041,25 +1051,25 @@ describe('AsyncStream methods', () => {
 			AsyncStream.empty(),
 		);
 		expect(
-			await AsyncStream.of(1)
+			AsyncStream.of(1)
 				.indicesWhere((v) => v > 0)
 				.toArray(),
-		).toEqual([0]);
+		).resolves.toEqual([0]);
 		expect(
-			await AsyncStream.of(1)
+			AsyncStream.of(1)
 				.indicesWhere((v) => v < 0)
 				.toArray(),
-		).toEqual([]);
+		).resolves.toEqual([]);
 		expect(
-			await AsyncStream.of(1, 2, 1)
+			AsyncStream.of(1, 2, 1)
 				.indicesWhere((v) => v < 2)
 				.toArray(),
-		).toEqual([0, 2]);
+		).resolves.toEqual([0, 2]);
 		for (const source of sources) {
-			expect(await source.indicesWhere((v) => v >= 97).toArray()).toEqual([
+			expect(source.indicesWhere((v) => v >= 97).toArray()).resolves.toEqual([
 				97, 98, 99,
 			]);
-			expect(await source.indicesWhere((v) => v < 0).toArray()).toEqual([]);
+			expect(source.indicesWhere((v) => v < 0).toArray()).resolves.toEqual([]);
 		}
 	});
 	it('indicesWhere close', async () => {
@@ -1069,44 +1079,44 @@ describe('AsyncStream methods', () => {
 	});
 	it('indicesOf', async () => {
 		expect(AsyncStream.empty<number>().indicesOf(1)).toBe(AsyncStream.empty());
-		expect(await AsyncStream.of(1).indicesOf(1).toArray()).toEqual([0]);
-		expect(await AsyncStream.of(1).indicesOf(2).toArray()).toEqual([]);
-		expect(await AsyncStream.of(1, 2, 1).indicesOf(1).toArray()).toEqual([
+		expect(AsyncStream.of(1).indicesOf(1).toArray()).resolves.toEqual([0]);
+		expect(AsyncStream.of(1).indicesOf(2).toArray()).resolves.toEqual([]);
+		expect(AsyncStream.of(1, 2, 1).indicesOf(1).toArray()).resolves.toEqual([
 			0, 2,
 		]);
 		for (const source of sources) {
-			expect(await source.indicesOf(50).toArray()).toEqual([50]);
-			expect(await source.indicesOf(-1).toArray()).toEqual([]);
+			expect(source.indicesOf(50).toArray()).resolves.toEqual([50]);
+			expect(source.indicesOf(-1).toArray()).resolves.toEqual([]);
 		}
 	});
 	it('indicesOf close', async () => {
 		await testResForEach(createResourceStream([1, 2, 3]).indicesOf(2));
 	});
 	it('indexWhere', async () => {
-		expect(await AsyncStream.empty<number>().indexWhere((v) => v >= 0)).toBe(
+		expect(AsyncStream.empty<number>().indexWhere((v) => v >= 0)).resolves.toBe(
 			undefined,
 		);
-		expect(await AsyncStream.of(1).indexWhere((v) => v >= 0)).toBe(0);
-		expect(await AsyncStream.of(1).indexWhere((v) => v < 0)).toBe(undefined);
+		expect(AsyncStream.of(1).indexWhere((v) => v >= 0)).resolves.toBe(0);
+		expect(AsyncStream.of(1).indexWhere((v) => v < 0)).resolves.toBe(undefined);
 		expect(
-			await AsyncStream.of(1).indexWhere((v) => v >= 0, { occurrance: 2 }),
-		).toBe(undefined);
-		expect(await AsyncStream.of(1, 2, 1).indexWhere((v) => v >= 2)).toBe(1);
-		expect(await AsyncStream.of(1, 2, 1).indexWhere((v) => v < 0)).toBe(
+			AsyncStream.of(1).indexWhere((v) => v >= 0, { occurrance: 2 }),
+		).resolves.toBe(undefined);
+		expect(AsyncStream.of(1, 2, 1).indexWhere((v) => v >= 2)).resolves.toBe(1);
+		expect(AsyncStream.of(1, 2, 1).indexWhere((v) => v < 0)).resolves.toBe(
 			undefined,
 		);
 		expect(
-			await AsyncStream.of(1, 2, 1).indexWhere((v) => v < 2, { occurrance: 2 }),
-		).toBe(2);
+			AsyncStream.of(1, 2, 1).indexWhere((v) => v < 2, { occurrance: 2 }),
+		).resolves.toBe(2);
 		expect(
-			await AsyncStream.of(1, 2, 1).indexWhere((v) => v < 2, { occurrance: 3 }),
-		).toBe(undefined);
+			AsyncStream.of(1, 2, 1).indexWhere((v) => v < 2, { occurrance: 3 }),
+		).resolves.toBe(undefined);
 		for (const source of sources) {
-			expect(await source.indexWhere((v) => v >= 50)).toEqual(50);
+			expect(source.indexWhere((v) => v >= 50)).resolves.toEqual(50);
 			expect(
-				await source.indexWhere((v) => v >= 50, { occurrance: 10 }),
-			).toEqual(59);
-			expect(await source.indexWhere((v) => v < 0)).toEqual(undefined);
+				source.indexWhere((v) => v >= 50, { occurrance: 10 }),
+			).resolves.toEqual(59);
+			expect(source.indexWhere((v) => v < 0)).resolves.toEqual(undefined);
 		}
 	});
 	it('indexWhere close', async () => {
@@ -1117,22 +1127,24 @@ describe('AsyncStream methods', () => {
 		expect(close).toBeCalledTimes(1);
 	});
 	it('indexOf', async () => {
-		expect(await AsyncStream.empty<number>().indexOf(1)).toBe(undefined);
-		expect(await AsyncStream.of(1).indexOf(1)).toBe(0);
-		expect(await AsyncStream.of(1).indexOf(2)).toBe(undefined);
-		expect(await AsyncStream.of(1).indexOf(1, { occurrance: 2 })).toBe(
+		expect(AsyncStream.empty<number>().indexOf(1)).resolves.toBe(undefined);
+		expect(AsyncStream.of(1).indexOf(1)).resolves.toBe(0);
+		expect(AsyncStream.of(1).indexOf(2)).resolves.toBe(undefined);
+		expect(AsyncStream.of(1).indexOf(1, { occurrance: 2 })).resolves.toBe(
 			undefined,
 		);
-		expect(await AsyncStream.of(1, 2, 1).indexOf(2)).toBe(1);
-		expect(await AsyncStream.of(1, 2, 1).indexOf(3)).toBe(undefined);
-		expect(await AsyncStream.of(1, 2, 1).indexOf(1, { occurrance: 2 })).toBe(2);
-		expect(await AsyncStream.of(1, 2, 1).indexOf(1, { occurrance: 3 })).toBe(
+		expect(AsyncStream.of(1, 2, 1).indexOf(2)).resolves.toBe(1);
+		expect(AsyncStream.of(1, 2, 1).indexOf(3)).resolves.toBe(undefined);
+		expect(AsyncStream.of(1, 2, 1).indexOf(1, { occurrance: 2 })).resolves.toBe(
+			2,
+		);
+		expect(AsyncStream.of(1, 2, 1).indexOf(1, { occurrance: 3 })).resolves.toBe(
 			undefined,
 		);
 		for (const source of sources) {
-			expect(await source.indexOf(50)).toEqual(50);
-			expect(await source.indexOf(50, { occurrance: 2 })).toEqual(undefined);
-			expect(await source.indexOf(-1)).toEqual(undefined);
+			expect(source.indexOf(50)).resolves.toEqual(50);
+			expect(source.indexOf(50, { occurrance: 2 })).resolves.toEqual(undefined);
+			expect(source.indexOf(-1)).resolves.toEqual(undefined);
 		}
 	});
 	it('indexOf close', async () => {
@@ -1142,16 +1154,16 @@ describe('AsyncStream methods', () => {
 		await createResourceStream([1, 2, 3]).indexOf(10);
 		expect(close).toBeCalledTimes(1);
 	});
-	it('some', async () => {
-		expect(await AsyncStream.empty().some((v) => true)).toBe(false);
-		expect(await AsyncStream.empty().some((v) => false)).toBe(false);
-		expect(await AsyncStream.of(1, 2, 3).some((v) => v === 2)).toBe(true);
-		expect(await AsyncStream.of(1, 2, 3).some((v) => v === 10)).toBe(false);
+	it('some', () => {
+		expect(AsyncStream.empty().some((v) => true)).resolves.toBe(false);
+		expect(AsyncStream.empty().some((v) => false)).resolves.toBe(false);
+		expect(AsyncStream.of(1, 2, 3).some((v) => v === 2)).resolves.toBe(true);
+		expect(AsyncStream.of(1, 2, 3).some((v) => v === 10)).resolves.toBe(false);
 		for (const source of sources) {
-			expect(await source.some((v) => v === 50)).toBe(true);
-			expect(await source.some((v) => v === -50)).toBe(false);
-			expect(await source.some((v, i) => i === 50)).toBe(true);
-			expect(await source.some((v, i) => i === -50)).toBe(false);
+			expect(source.some((v) => v === 50)).resolves.toBe(true);
+			expect(source.some((v) => v === -50)).resolves.toBe(false);
+			expect(source.some((v, i) => i === 50)).resolves.toBe(true);
+			expect(source.some((v, i) => i === -50)).resolves.toBe(false);
 		}
 	});
 	it('some close', async () => {
@@ -1161,18 +1173,18 @@ describe('AsyncStream methods', () => {
 		await createResourceStream([1, 2, 3]).some((v) => v > 100);
 		expect(close).toBeCalledTimes(1);
 	});
-	it('every', async () => {
-		expect(await AsyncStream.empty().every(() => true)).toBe(true);
-		expect(await AsyncStream.empty().every(() => false)).toBe(true);
-		expect(await AsyncStream.of(1, 2, 3).every((v) => v > 0)).toBe(true);
-		expect(await AsyncStream.of(1, 2, 3).every((v) => v < 3)).toBe(false);
-		expect(await AsyncStream.of(1, 2, 3).every((v, i) => i >= 0)).toBe(true);
-		expect(await AsyncStream.of(1, 2, 3).every((v, i) => i < 2)).toBe(false);
+	it('every', () => {
+		expect(AsyncStream.empty().every(() => true)).resolves.toBe(true);
+		expect(AsyncStream.empty().every(() => false)).resolves.toBe(true);
+		expect(AsyncStream.of(1, 2, 3).every((v) => v > 0)).resolves.toBe(true);
+		expect(AsyncStream.of(1, 2, 3).every((v) => v < 3)).resolves.toBe(false);
+		expect(AsyncStream.of(1, 2, 3).every((v, i) => i >= 0)).resolves.toBe(true);
+		expect(AsyncStream.of(1, 2, 3).every((v, i) => i < 2)).resolves.toBe(false);
 		for (const source of sources) {
-			expect(await source.every((v) => v < 50)).toBe(false);
-			expect(await source.every((v) => v >= 0)).toBe(true);
-			expect(await source.every((v, i) => i < 50)).toBe(false);
-			expect(await source.every((v, i) => i >= 0)).toBe(true);
+			expect(source.every((v) => v < 50)).resolves.toBe(false);
+			expect(source.every((v) => v >= 0)).resolves.toBe(true);
+			expect(source.every((v, i) => i < 50)).resolves.toBe(false);
+			expect(source.every((v, i) => i >= 0)).resolves.toBe(true);
 		}
 	});
 	it('every close', async () => {
@@ -1182,26 +1194,26 @@ describe('AsyncStream methods', () => {
 		await createResourceStream([1, 2, 3]).every((v) => v > 100);
 		expect(close).toBeCalledTimes(1);
 	});
-	it('contains', async () => {
-		expect(await AsyncStream.empty().contains(1)).toBe(false);
-		expect(await AsyncStream.of(1).contains(1)).toBe(true);
-		expect(await AsyncStream.of(1).contains(1, { amount: 2 })).toBe(false);
-		expect(await AsyncStream.of(1).contains(1, { amount: 0 })).toBe(true);
-		expect(await AsyncStream.of(1).contains(2)).toBe(false);
+	it('contains', () => {
+		expect(AsyncStream.empty().contains(1)).resolves.toBe(false);
+		expect(AsyncStream.of(1).contains(1)).resolves.toBe(true);
+		expect(AsyncStream.of(1).contains(1, { amount: 2 })).resolves.toBe(false);
+		expect(AsyncStream.of(1).contains(1, { amount: 0 })).resolves.toBe(true);
+		expect(AsyncStream.of(1).contains(2)).resolves.toBe(false);
 		expect(
-			await AsyncStream.of(1, 2, 1, 2, 1, 2).contains(2, { amount: 2 }),
-		).toBe(true);
+			AsyncStream.of(1, 2, 1, 2, 1, 2).contains(2, { amount: 2 }),
+		).resolves.toBe(true);
 		expect(
-			await AsyncStream.of(1, 2, 1, 2, 1, 2).contains(2, { amount: 3 }),
-		).toBe(true);
+			AsyncStream.of(1, 2, 1, 2, 1, 2).contains(2, { amount: 3 }),
+		).resolves.toBe(true);
 		expect(
-			await AsyncStream.of(1, 2, 1, 2, 1, 2).contains(2, { amount: 4 }),
-		).toBe(false);
+			AsyncStream.of(1, 2, 1, 2, 1, 2).contains(2, { amount: 4 }),
+		).resolves.toBe(false);
 		for (const source of sources) {
-			expect(await source.contains(50)).toBe(true);
-			expect(await source.contains(50, { amount: 2 })).toBe(false);
-			expect(await source.contains(-50)).toBe(false);
-			expect(await source.contains(-50, { amount: 2 })).toBe(false);
+			expect(source.contains(50)).resolves.toBe(true);
+			expect(source.contains(50, { amount: 2 })).resolves.toBe(false);
+			expect(source.contains(-50)).resolves.toBe(false);
+			expect(source.contains(-50, { amount: 2 })).resolves.toBe(false);
 		}
 	});
 	it('contains close', async () => {
@@ -1212,18 +1224,20 @@ describe('AsyncStream methods', () => {
 		expect(close).toBeCalledTimes(1);
 	});
 	it('containsSlice', async () => {
-		expect(await AsyncStream.empty().containsSlice([1, 2, 3])).toBe(false);
-		expect(await AsyncStream.of(1, 2).containsSlice([1, 2, 3])).toBe(false);
-		expect(await AsyncStream.of(1, 2, 3).containsSlice([1, 2, 3])).toBe(true);
-		expect(await AsyncStream.of(9, 8, 1, 2, 3).containsSlice([1, 2, 3])).toBe(
-			true,
-		);
-		expect(await AsyncStream.of(1, 2, 3, 9, 8).containsSlice([1, 2, 3])).toBe(
+		expect(AsyncStream.empty().containsSlice([1, 2, 3])).resolves.toBe(false);
+		expect(AsyncStream.of(1, 2).containsSlice([1, 2, 3])).resolves.toBe(false);
+		expect(AsyncStream.of(1, 2, 3).containsSlice([1, 2, 3])).resolves.toBe(
 			true,
 		);
 		expect(
-			await AsyncStream.of(9, 8, 1, 2, 3, 9, 8).containsSlice([1, 2, 3]),
-		).toBe(true);
+			AsyncStream.of(9, 8, 1, 2, 3).containsSlice([1, 2, 3]),
+		).resolves.toBe(true);
+		expect(
+			AsyncStream.of(1, 2, 3, 9, 8).containsSlice([1, 2, 3]),
+		).resolves.toBe(true);
+		expect(
+			AsyncStream.of(9, 8, 1, 2, 3, 9, 8).containsSlice([1, 2, 3]),
+		).resolves.toBe(true);
 	});
 	it('containsSlice close', async () => {
 		await createResourceStream([1, 2, 3]).containsSlice([2]);
@@ -1240,18 +1254,18 @@ describe('AsyncStream methods', () => {
 			AsyncStream.empty(),
 		);
 		expect(
-			await AsyncStream.of(1)
+			AsyncStream.of(1)
 				.takeWhile(async (v) => true)
 				.toArray(),
-		).toEqual([1]);
+		).resolves.toEqual([1]);
 		expect(
-			await AsyncStream.of(1)
+			AsyncStream.of(1)
 				.takeWhile((v) => false)
 				.toArray(),
-		).toEqual([]);
+		).resolves.toEqual([]);
 		for (const source of sources) {
-			expect(await source.takeWhile((v) => false).toArray()).toEqual([]);
-			expect(await source.takeWhile(async (v) => v < 3).toArray()).toEqual([
+			expect(source.takeWhile((v) => false).toArray()).resolves.toEqual([]);
+			expect(source.takeWhile(async (v) => v < 3).toArray()).resolves.toEqual([
 				0, 1, 2,
 			]);
 		}
@@ -1285,21 +1299,21 @@ describe('AsyncStream methods', () => {
 			AsyncStream.empty(),
 		);
 		expect(
-			await AsyncStream.of(1)
+			AsyncStream.of(1)
 				.dropWhile(async (v) => true)
 				.toArray(),
-		).toEqual([]);
+		).resolves.toEqual([]);
 		expect(
-			await AsyncStream.of(1)
+			AsyncStream.of(1)
 				.dropWhile(async (v) => false)
 				.toArray(),
-		).toEqual([1]);
+		).resolves.toEqual([1]);
 		for (const source of sources) {
-			expect(await source.dropWhile((v) => true).toArray()).toEqual([]);
-			expect(await source.dropWhile(async (v) => v < 97).toArray()).toEqual([
+			expect(source.dropWhile((v) => true).toArray()).resolves.toEqual([]);
+			expect(source.dropWhile(async (v) => v < 97).toArray()).resolves.toEqual([
 				97, 98, 99,
 			]);
-			expect(await source.dropWhile((v, i) => i < 97).toArray()).toEqual([
+			expect(source.dropWhile((v, i) => i < 97).toArray()).resolves.toEqual([
 				97, 98, 99,
 			]);
 		}
@@ -1328,12 +1342,12 @@ describe('AsyncStream methods', () => {
 	it('take', async () => {
 		expect(AsyncStream.empty().take(1)).toBe(AsyncStream.empty());
 		expect(AsyncStream.of(1).take(0)).toBe(AsyncStream.empty());
-		expect(await AsyncStream.of(1).take(10).toArray()).toEqual([1]);
+		expect(AsyncStream.of(1).take(10).toArray()).resolves.toEqual([1]);
 		const e = AsyncStream.of(1, 2, 3);
-		expect(await e.take(10).toArray()).toEqual([1, 2, 3]);
-		expect(await AsyncStream.of(1, 2, 3).take(2).toArray()).toEqual([1, 2]);
+		expect(e.take(10).toArray()).resolves.toEqual([1, 2, 3]);
+		expect(AsyncStream.of(1, 2, 3).take(2).toArray()).resolves.toEqual([1, 2]);
 		for (const source of sources) {
-			expect(await source.take(3).toArray()).toEqual([0, 1, 2]);
+			expect(source.take(3).toArray()).resolves.toEqual([0, 1, 2]);
 		}
 	});
 	it('take close', async () => {
@@ -1347,12 +1361,12 @@ describe('AsyncStream methods', () => {
 	});
 	it('drop', async () => {
 		expect(AsyncStream.empty().drop(1)).toBe(AsyncStream.empty());
-		expect(await AsyncStream.of(1).drop(1).toArray()).toEqual([]);
-		expect(await AsyncStream.of(1).drop(10).toArray()).toEqual([]);
-		expect(await AsyncStream.of(1, 2, 3).drop(10).toArray()).toEqual([]);
-		expect(await AsyncStream.of(1, 2, 3).drop(1).toArray()).toEqual([2, 3]);
+		expect(AsyncStream.of(1).drop(1).toArray()).resolves.toEqual([]);
+		expect(AsyncStream.of(1).drop(10).toArray()).resolves.toEqual([]);
+		expect(AsyncStream.of(1, 2, 3).drop(10).toArray()).resolves.toEqual([]);
+		expect(AsyncStream.of(1, 2, 3).drop(1).toArray()).resolves.toEqual([2, 3]);
 		for (const source of sources) {
-			expect(await source.drop(97).toArray()).toEqual([97, 98, 99]);
+			expect(source.drop(97).toArray()).resolves.toEqual([97, 98, 99]);
 		}
 	});
 	it('drop close', async () => {
@@ -1367,17 +1381,17 @@ describe('AsyncStream methods', () => {
 	it('repeat', async () => {
 		const nonStandardEmpty = AsyncStream.of(1).drop(1);
 		expect(AsyncStream.empty().repeat(10)).toBe(AsyncStream.empty());
-		expect(await nonStandardEmpty.repeat(10).first('a')).toBe('a');
+		expect(nonStandardEmpty.repeat(10).first('a')).resolves.toBe('a');
 		const one = AsyncStream.of(1);
 		expect(one.repeat(1)).toBe(one);
 		expect(one.repeat(0)).toBe(one);
-		expect(await one.repeat(3).toArray()).toEqual([1, 1, 1]);
-		expect(await AsyncStream.of(1, 2, 3).repeat(2).toArray()).toEqual([
+		expect(one.repeat(3).toArray()).resolves.toEqual([1, 1, 1]);
+		expect(AsyncStream.of(1, 2, 3).repeat(2).toArray()).resolves.toEqual([
 			1, 2, 3, 1, 2, 3,
 		]);
 		for (const source of sources) {
 			expect(source.repeat(0)).toBe(source);
-			expect(await source.repeat(2).toArray()).toEqual(
+			expect(source.repeat(2).toArray()).resolves.toEqual(
 				(await source.toArray()).concat(await source.toArray()),
 			);
 		}
@@ -1401,16 +1415,16 @@ describe('AsyncStream methods', () => {
 		expect(e.concat(e)).toBe(e);
 		expect(e.concat(ne)).toBe(ne);
 		expect(ne.concat(e)).toBe(ne);
-		expect(await e.concat(e).toArray()).toEqual([]);
-		expect(await e.concat(ne).toArray()).toEqual([1, 2, 3]);
-		expect(await ne.concat(e).toArray()).toEqual([1, 2, 3]);
-		expect(await ne.concat(ne).toArray()).toEqual([1, 2, 3, 1, 2, 3]);
-		expect(await ne.concat(ne).concat(ne).toArray()).toEqual([
+		expect(e.concat(e).toArray()).resolves.toEqual([]);
+		expect(e.concat(ne).toArray()).resolves.toEqual([1, 2, 3]);
+		expect(ne.concat(e).toArray()).resolves.toEqual([1, 2, 3]);
+		expect(ne.concat(ne).toArray()).resolves.toEqual([1, 2, 3, 1, 2, 3]);
+		expect(ne.concat(ne).concat(ne).toArray()).resolves.toEqual([
 			1, 2, 3, 1, 2, 3, 1, 2, 3,
 		]);
 		for (const source of sources) {
 			const arr = await source.toArray();
-			expect(await source.concat(source).toArray()).toEqual(arr.concat(arr));
+			expect(source.concat(source).toArray()).resolves.toEqual(arr.concat(arr));
 		}
 	});
 	it('concat close', async () => {
@@ -1429,12 +1443,12 @@ describe('AsyncStream methods', () => {
 		expect(close).toBeCalledTimes(1);
 		expect(close2).toBeCalledTimes(1);
 	});
-	it('min', async () => {
-		expect(await AsyncStream.empty().min(undefined)).toBe(undefined);
-		expect(await AsyncStream.of(1).min()).toBe(1);
-		expect(await AsyncStream.of(1, -10, 5).min()).toBe(-10);
+	it('min', () => {
+		expect(AsyncStream.empty().min(undefined)).resolves.toBe(undefined);
+		expect(AsyncStream.of(1).min()).resolves.toBe(1);
+		expect(AsyncStream.of(1, -10, 5).min()).resolves.toBe(-10);
 		for (const source of sources) {
-			expect(await source.min(undefined)).toBe(0);
+			expect(source.min(undefined)).resolves.toBe(0);
 		}
 	});
 	it('min close', async () => {
@@ -1447,14 +1461,14 @@ describe('AsyncStream methods', () => {
 		} catch {}
 		expect(close).toBeCalledTimes(1);
 	});
-	it('minBy', async () => {
+	it('minBy', () => {
 		function comp(s1: string, s2: string) {
 			return s1.length - s2.length;
 		}
-		expect(await AsyncStream.empty<string>().minBy(comp)).toBe(undefined);
-		expect(await AsyncStream.empty<string>().minBy(comp, 1)).toBe(1);
-		expect(await AsyncStream.of('a').minBy(comp)).toBe('a');
-		expect(await AsyncStream.of('ab', 'c', 'def').minBy(comp)).toBe('c');
+		expect(AsyncStream.empty<string>().minBy(comp)).resolves.toBe(undefined);
+		expect(AsyncStream.empty<string>().minBy(comp, 1)).resolves.toBe(1);
+		expect(AsyncStream.of('a').minBy(comp)).resolves.toBe('a');
+		expect(AsyncStream.of('ab', 'c', 'def').minBy(comp)).resolves.toBe('c');
 	});
 	it('minBy close', async () => {
 		await createResourceStream([1, 2, 3]).minBy((a, b) => a - 1);
@@ -1465,12 +1479,12 @@ describe('AsyncStream methods', () => {
 		} catch {}
 		expect(close).toBeCalledTimes(1);
 	});
-	it('max', async () => {
-		expect(await AsyncStream.empty().max(undefined)).toBe(undefined);
-		expect(await AsyncStream.of(1).max()).toBe(1);
-		expect(await AsyncStream.of(1, 10, 5).max()).toBe(10);
+	it('max', () => {
+		expect(AsyncStream.empty().max(undefined)).resolves.toBe(undefined);
+		expect(AsyncStream.of(1).max()).resolves.toBe(1);
+		expect(AsyncStream.of(1, 10, 5).max()).resolves.toBe(10);
 		for (const source of sources) {
-			expect(await source.max(undefined)).toBe(99);
+			expect(source.max(undefined)).resolves.toBe(99);
 		}
 	});
 	it('max close', async () => {
@@ -1484,14 +1498,14 @@ describe('AsyncStream methods', () => {
 		expect(close).toBeCalledTimes(1);
 	});
 
-	it('maxBy', async () => {
+	it('maxBy', () => {
 		function comp(s1: string, s2: string) {
 			return s1.length - s2.length;
 		}
-		expect(await AsyncStream.empty<string>().maxBy(comp)).toBe(undefined);
-		expect(await AsyncStream.empty<string>().maxBy(comp, 1)).toBe(1);
-		expect(await AsyncStream.of('a').maxBy(comp)).toBe('a');
-		expect(await AsyncStream.of('ab', 'c', 'def').maxBy(comp)).toBe('def');
+		expect(AsyncStream.empty<string>().maxBy(comp)).resolves.toBe(undefined);
+		expect(AsyncStream.empty<string>().maxBy(comp, 1)).resolves.toBe(1);
+		expect(AsyncStream.of('a').maxBy(comp)).resolves.toBe('a');
+		expect(AsyncStream.of('ab', 'c', 'def').maxBy(comp)).resolves.toBe('def');
 	});
 	it('maxBy close', async () => {
 		await createResourceStream([1, 2, 3]).maxBy((a, b) => a - 1);
@@ -1503,16 +1517,16 @@ describe('AsyncStream methods', () => {
 		} catch {}
 		expect(close).toBeCalledTimes(1);
 	});
-	it('intersperse', async () => {
+	it('intersperse', () => {
 		expect(AsyncStream.empty().intersperse([1])).toBe(AsyncStream.empty());
-		expect(await AsyncStream.of(1).intersperse([0]).toArray()).toEqual([1]);
-		expect(await AsyncStream.of(1, 2, 3).intersperse([0]).toArray()).toEqual([
-			1, 0, 2, 0, 3,
-		]);
+		expect(AsyncStream.of(1).intersperse([0]).toArray()).resolves.toEqual([1]);
+		expect(AsyncStream.of(1, 2, 3).intersperse([0]).toArray()).resolves.toEqual(
+			[1, 0, 2, 0, 3],
+		);
 		expect(
-			await AsyncStream.of(1, 2, 3).intersperse([0, 10]).toArray(),
-		).toEqual([1, 0, 10, 2, 0, 10, 3]);
-		expect(await AsyncStream.of(1, 2, 3).intersperse([]).toArray()).toEqual([
+			AsyncStream.of(1, 2, 3).intersperse([0, 10]).toArray(),
+		).resolves.toEqual([1, 0, 10, 2, 0, 10, 3]);
+		expect(AsyncStream.of(1, 2, 3).intersperse([]).toArray()).resolves.toEqual([
 			1, 2, 3,
 		]);
 	});
@@ -1547,27 +1561,29 @@ describe('AsyncStream methods', () => {
 		expect(close2).toBeCalledTimes(1);
 	});
 
-	it('join', async () => {
-		expect(await AsyncStream.empty().join()).toBe('');
+	it('join', () => {
+		expect(AsyncStream.empty().join()).resolves.toBe('');
 		expect(
-			await AsyncStream.empty().join({ start: '<', end: '>', sep: '-' }),
-		).toBe('<>');
+			AsyncStream.empty().join({ start: '<', end: '>', sep: '-' }),
+		).resolves.toBe('<>');
 		expect(
-			await AsyncStream.empty().join({
+			AsyncStream.empty().join({
 				start: '<',
 				end: '>',
 				sep: '-',
 				ifEmpty: 'abc',
 			}),
-		).toBe('abc');
+		).resolves.toBe('abc');
 		expect(
-			await AsyncStream.of(1).join({ start: '<', end: '>', sep: '-' }),
-		).toBe('<1>');
+			AsyncStream.of(1).join({ start: '<', end: '>', sep: '-' }),
+		).resolves.toBe('<1>');
 		expect(
-			await AsyncStream.of(1, 2, 3).join({ start: '<', end: '>', sep: '-' }),
-		).toBe('<1-2-3>');
-		expect(await AsyncStream.of(1, 2, 3).join()).toBe('123');
-		expect(await AsyncStream.of(1, 2, 3).join({ ifEmpty: 'abc' })).toBe('123');
+			AsyncStream.of(1, 2, 3).join({ start: '<', end: '>', sep: '-' }),
+		).resolves.toBe('<1-2-3>');
+		expect(AsyncStream.of(1, 2, 3).join()).resolves.toBe('123');
+		expect(AsyncStream.of(1, 2, 3).join({ ifEmpty: 'abc' })).resolves.toBe(
+			'123',
+		);
 	});
 	it('join close', async () => {
 		const s = createResourceStream([1, 2, 3]);
@@ -1580,23 +1596,23 @@ describe('AsyncStream methods', () => {
 		} catch {}
 		expect(close).toBeCalledTimes(1);
 	});
-	it('mkGroup', async () => {
+	it('mkGroup', () => {
 		expect(
-			await AsyncStream.empty()
+			AsyncStream.empty()
 				.mkGroup({ start: [-1], end: [-2], sep: [-3] })
 				.toArray(),
-		).toEqual([-1, -2]);
-		expect(await AsyncStream.of(1).mkGroup({}).toArray()).toEqual([1]);
+		).resolves.toEqual([-1, -2]);
+		expect(AsyncStream.of(1).mkGroup({}).toArray()).resolves.toEqual([1]);
 		expect(
-			await AsyncStream.of(1)
+			AsyncStream.of(1)
 				.mkGroup({ start: [-1], end: [-2], sep: [-3] })
 				.toArray(),
-		).toEqual([-1, 1, -2]);
+		).resolves.toEqual([-1, 1, -2]);
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.mkGroup({ start: [-1], end: [-2], sep: [-3] })
 				.toArray(),
-		).toEqual([-1, 1, -3, 2, -3, 3, -2]);
+		).resolves.toEqual([-1, 1, -3, 2, -3, 3, -2]);
 	});
 	it('mkGroup close', async () => {
 		const s = createResourceStream([1, 2, 3]);
@@ -1626,34 +1642,28 @@ describe('AsyncStream methods', () => {
 		expect(closeEnd).toBeCalledTimes(0);
 		expect(closeSep).toBeCalledTimes(1);
 	});
-	it('splitWhere', async () => {
+	it('splitWhere', () => {
 		function isEven(v: number) {
 			return v % 2 === 0;
 		}
 		expect(
-			await AsyncStream.empty<number>().splitWhere(isEven).toArray(),
-		).toEqual([]);
-		expect(await AsyncStream.of(1, 3, 5).splitWhere(isEven).toArray()).toEqual([
-			[1, 3, 5],
-		]);
-		expect(await AsyncStream.of(1, 2, 5).splitWhere(isEven).toArray()).toEqual([
-			[1],
-			[5],
-		]);
-		expect(await AsyncStream.of(2, 2, 5).splitWhere(isEven).toArray()).toEqual([
-			[],
-			[],
-			[5],
-		]);
-		expect(await AsyncStream.of(2, 5, 2).splitWhere(isEven).toArray()).toEqual([
-			[],
-			[5],
-		]);
-		expect(await AsyncStream.of(2, 2, 2).splitWhere(isEven).toArray()).toEqual([
-			[],
-			[],
-			[],
-		]);
+			AsyncStream.empty<number>().splitWhere(isEven).toArray(),
+		).resolves.toEqual([]);
+		expect(
+			AsyncStream.of(1, 3, 5).splitWhere(isEven).toArray(),
+		).resolves.toEqual([[1, 3, 5]]);
+		expect(
+			AsyncStream.of(1, 2, 5).splitWhere(isEven).toArray(),
+		).resolves.toEqual([[1], [5]]);
+		expect(
+			AsyncStream.of(2, 2, 5).splitWhere(isEven).toArray(),
+		).resolves.toEqual([[], [], [5]]);
+		expect(
+			AsyncStream.of(2, 5, 2).splitWhere(isEven).toArray(),
+		).resolves.toEqual([[], [5]]);
+		expect(
+			AsyncStream.of(2, 2, 2).splitWhere(isEven).toArray(),
+		).resolves.toEqual([[], [], []]);
 	});
 	it('splitWhere close', async () => {
 		await testResForEach(
@@ -1680,25 +1690,27 @@ describe('AsyncStream methods', () => {
 		} catch {}
 		expect(close).toBeCalledTimes(1);
 	});
-	it('splitOn', async () => {
-		expect(await AsyncStream.empty<number>().splitOn(2).toArray()).toEqual([]);
-		expect(await AsyncStream.of(1, 3, 5).splitOn(2).toArray()).toEqual([
+	it('splitOn', () => {
+		expect(AsyncStream.empty<number>().splitOn(2).toArray()).resolves.toEqual(
+			[],
+		);
+		expect(AsyncStream.of(1, 3, 5).splitOn(2).toArray()).resolves.toEqual([
 			[1, 3, 5],
 		]);
-		expect(await AsyncStream.of(1, 2, 5).splitOn(2).toArray()).toEqual([
+		expect(AsyncStream.of(1, 2, 5).splitOn(2).toArray()).resolves.toEqual([
 			[1],
 			[5],
 		]);
-		expect(await AsyncStream.of(2, 2, 5).splitOn(2).toArray()).toEqual([
+		expect(AsyncStream.of(2, 2, 5).splitOn(2).toArray()).resolves.toEqual([
 			[],
 			[],
 			[5],
 		]);
-		expect(await AsyncStream.of(2, 5, 2).splitOn(2).toArray()).toEqual([
+		expect(AsyncStream.of(2, 5, 2).splitOn(2).toArray()).resolves.toEqual([
 			[],
 			[5],
 		]);
-		expect(await AsyncStream.of(2, 2, 2).splitOn(2).toArray()).toEqual([
+		expect(AsyncStream.of(2, 2, 2).splitOn(2).toArray()).resolves.toEqual([
 			[],
 			[],
 			[],
@@ -1708,41 +1720,41 @@ describe('AsyncStream methods', () => {
 		await testResForEach(createResourceStream([1, 2, 3]).splitOn(2));
 		await testResForEach(createResourceStream([1, 2, 3]).splitOn(10));
 	});
-	it('distinctPrevious', async () => {
+	it('distinctPrevious', () => {
 		expect(
-			await AsyncStream.empty<number>().distinctPrevious().toArray(),
-		).toEqual([]);
-		expect(await AsyncStream.of(1, 2, 3).distinctPrevious().toArray()).toEqual([
-			1, 2, 3,
-		]);
+			AsyncStream.empty<number>().distinctPrevious().toArray(),
+		).resolves.toEqual([]);
 		expect(
-			await AsyncStream.of(1, 2, 2, 3).distinctPrevious().toArray(),
-		).toEqual([1, 2, 3]);
+			AsyncStream.of(1, 2, 3).distinctPrevious().toArray(),
+		).resolves.toEqual([1, 2, 3]);
 		expect(
-			await AsyncStream.of(1, 2, 2, 3, 1, 1, 3).distinctPrevious().toArray(),
-		).toEqual([1, 2, 3, 1, 3]);
+			AsyncStream.of(1, 2, 2, 3).distinctPrevious().toArray(),
+		).resolves.toEqual([1, 2, 3]);
+		expect(
+			AsyncStream.of(1, 2, 2, 3, 1, 1, 3).distinctPrevious().toArray(),
+		).resolves.toEqual([1, 2, 3, 1, 3]);
 	});
-	it('splitOnSlice', async () => {
+	it('splitOnSlice', () => {
 		expect(
-			await AsyncStream.empty<number>().splitOnSlice([1, 2, 3]).toArray(),
-		).toEqual([]);
+			AsyncStream.empty<number>().splitOnSlice([1, 2, 3]).toArray(),
+		).resolves.toEqual([]);
 		expect(
-			await AsyncStream.of(1, 2).splitOnSlice([1, 2, 3]).toArray(),
-		).toEqual([[1, 2]]);
+			AsyncStream.of(1, 2).splitOnSlice([1, 2, 3]).toArray(),
+		).resolves.toEqual([[1, 2]]);
 		expect(
-			await AsyncStream.of(1, 2, 3).splitOnSlice([1, 2, 3]).toArray(),
-		).toEqual([[]]);
+			AsyncStream.of(1, 2, 3).splitOnSlice([1, 2, 3]).toArray(),
+		).resolves.toEqual([[]]);
 		expect(
-			await AsyncStream.of(1, 1, 2, 3).splitOnSlice([1, 2, 3]).toArray(),
-		).toEqual([[1]]);
+			AsyncStream.of(1, 1, 2, 3).splitOnSlice([1, 2, 3]).toArray(),
+		).resolves.toEqual([[1]]);
 		expect(
-			await AsyncStream.of(1, 1, 2, 3, 3).splitOnSlice([1, 2, 3]).toArray(),
-		).toEqual([[1], [3]]);
+			AsyncStream.of(1, 1, 2, 3, 3).splitOnSlice([1, 2, 3]).toArray(),
+		).resolves.toEqual([[1], [3]]);
 		expect(
-			await AsyncStream.of(1, 1, 2, 3, 1, 2, 1, 2, 3, 1)
+			AsyncStream.of(1, 1, 2, 3, 1, 2, 1, 2, 3, 1)
 				.splitOnSlice([1, 2, 3])
 				.toArray(),
-		).toEqual([[1], [1, 2], [1]]);
+		).resolves.toEqual([[1], [1, 2], [1]]);
 	});
 	it('distinctPrevious close', async () => {
 		await testResForEach(createResourceStream([1, 2, 3]).distinctPrevious());
@@ -1751,72 +1763,68 @@ describe('AsyncStream methods', () => {
 		);
 	});
 
-	it('window', async () => {
-		expect(await AsyncStream.empty<number>().window(3).toArray()).toEqual([]);
-		expect(await AsyncStream.of(1, 2).window(3).toArray()).toEqual([]);
-		expect(await AsyncStream.of(1, 2, 3).window(3).toArray()).toEqual([
+	it('window', () => {
+		expect(AsyncStream.empty<number>().window(3).toArray()).resolves.toEqual(
+			[],
+		);
+		expect(AsyncStream.of(1, 2).window(3).toArray()).resolves.toEqual([]);
+		expect(AsyncStream.of(1, 2, 3).window(3).toArray()).resolves.toEqual([
 			[1, 2, 3],
 		]);
-		expect(await AsyncStream.of(1, 2, 3, 4, 5).window(3).toArray()).toEqual([
+		expect(AsyncStream.of(1, 2, 3, 4, 5).window(3).toArray()).resolves.toEqual([
 			[1, 2, 3],
 		]);
-		expect(await AsyncStream.of(1, 2, 3, 4, 5, 6).window(3).toArray()).toEqual([
+		expect(
+			AsyncStream.of(1, 2, 3, 4, 5, 6).window(3).toArray(),
+		).resolves.toEqual([
 			[1, 2, 3],
 			[4, 5, 6],
 		]);
 		expect(
-			await AsyncStream.of(1, 2, 3, 4, 5, 6)
-				.window(3, { skipAmount: 1 })
-				.toArray(),
-		).toEqual([
+			AsyncStream.of(1, 2, 3, 4, 5, 6).window(3, { skipAmount: 1 }).toArray(),
+		).resolves.toEqual([
 			[1, 2, 3],
 			[2, 3, 4],
 			[3, 4, 5],
 			[4, 5, 6],
 		]);
 		expect(
-			await AsyncStream.of(1, 2, 3, 4, 5, 6)
-				.window(2, { skipAmount: 3 })
-				.toArray(),
-		).toEqual([
+			AsyncStream.of(1, 2, 3, 4, 5, 6).window(2, { skipAmount: 3 }).toArray(),
+		).resolves.toEqual([
 			[1, 2],
 			[4, 5],
 		]);
 	});
 
-	it('window collector', async () => {
+	it('window collector', () => {
 		const setCollector = AsyncReducer.from(Reducer.toJSSet<number>());
 
 		expect(
-			await AsyncStream.empty<number>()
+			AsyncStream.empty<number>()
 				.window(3, { collector: setCollector })
 				.toArray(),
-		).toEqual([]);
+		).resolves.toEqual([]);
 		expect(
-			await AsyncStream.of(1, 2)
+			AsyncStream.of(1, 2).window(3, { collector: setCollector }).toArray(),
+		).resolves.toEqual([]);
+		expect(
+			AsyncStream.of(1, 2, 3).window(3, { collector: setCollector }).toArray(),
+		).resolves.toEqual([new Set([1, 2, 3])]);
+		expect(
+			AsyncStream.of(1, 2, 3, 4, 5)
 				.window(3, { collector: setCollector })
 				.toArray(),
-		).toEqual([]);
+		).resolves.toEqual([new Set([1, 2, 3])]);
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3, 4, 5, 6)
 				.window(3, { collector: setCollector })
 				.toArray(),
-		).toEqual([new Set([1, 2, 3])]);
+		).resolves.toEqual([new Set([1, 2, 3]), new Set([4, 5, 6])]);
 		expect(
-			await AsyncStream.of(1, 2, 3, 4, 5)
-				.window(3, { collector: setCollector })
-				.toArray(),
-		).toEqual([new Set([1, 2, 3])]);
-		expect(
-			await AsyncStream.of(1, 2, 3, 4, 5, 6)
-				.window(3, { collector: setCollector })
-				.toArray(),
-		).toEqual([new Set([1, 2, 3]), new Set([4, 5, 6])]);
-		expect(
-			await AsyncStream.of(1, 2, 3, 4, 5, 6)
+			AsyncStream.of(1, 2, 3, 4, 5, 6)
 				.window(3, { skipAmount: 1, collector: setCollector })
 				.toArray(),
-		).toEqual([
+		).resolves.toEqual([
 			new Set([1, 2, 3]),
 			new Set([2, 3, 4]),
 			new Set([3, 4, 5]),
@@ -1836,42 +1844,65 @@ describe('AsyncStream methods', () => {
 	it('partition', () => {
 		const isEven = (v: number) => v % 2 === 0;
 
-		expect(Stream.empty<number>().partition(isEven)).toEqual([[], []]);
-		expect(Stream.of(1).partition(isEven)).toEqual([[], [1]]);
-		expect(Stream.of(0).partition(isEven)).toEqual([[0], []]);
-		expect(Stream.of(1, 2, 3).partition(isEven)).toEqual([[2], [1, 3]]);
+		expect(
+			AsyncStream.partition(AsyncStream.empty<number>(), isEven)(),
+		).resolves.toEqual([[], []]);
+		expect(AsyncStream.partition(AsyncStream.of(1), isEven)()).resolves.toEqual(
+			[[], [1]],
+		);
+		expect(AsyncStream.partition(AsyncStream.of(0), isEven)()).resolves.toEqual(
+			[[0], []],
+		);
+		expect(
+			AsyncStream.partition(AsyncStream.of(1, 2, 3), isEven)(),
+		).resolves.toEqual([[2], [1, 3]]);
 	});
 
 	it('partition collector', async () => {
 		const isEven = async (v: number) => v % 2 === 0;
 
 		expect(
-			await AsyncStream.empty<number>().partition(isEven, {
+			AsyncStream.partition(
+				AsyncStream.empty<number>(),
+				isEven,
+			)({
 				collectorTrue: Reducer.join<number>({ sep: ',' }),
 				collectorFalse: Reducer.join<number>({ sep: ',' }),
 			}),
-		).toEqual(['', '']);
+		).resolves.toEqual(['', '']);
 		expect(
-			await AsyncStream.of(1).partition(isEven, {
+			AsyncStream.partition(
+				AsyncStream.of(1),
+				isEven,
+			)({
 				collectorTrue: Reducer.join<number>({ sep: ',' }),
 				collectorFalse: Reducer.join<number>({ sep: ',' }),
 			}),
-		).toEqual(['', '1']);
+		).resolves.toEqual(['', '1']);
 		expect(
-			await AsyncStream.of(0).partition(isEven, {
+			AsyncStream.partition(
+				AsyncStream.of(0),
+				isEven,
+			)({
 				collectorTrue: Reducer.join<number>({ sep: ',' }),
 				collectorFalse: Reducer.join<number>({ sep: ',' }),
 			}),
-		).toEqual(['0', '']);
+		).resolves.toEqual(['0', '']);
 		expect(
-			await AsyncStream.of(1, 2, 3).partition(isEven, {
+			AsyncStream.partition(
+				AsyncStream.of(1, 2, 3),
+				isEven,
+			)({
 				collectorTrue: Reducer.join<number>({ sep: ',' }),
 				collectorFalse: Reducer.join<number>({ sep: ',' }),
 			}),
-		).toEqual(['2', '1,3']);
+		).resolves.toEqual(['2', '1,3']);
 
 		await AsyncStream.from(sources).forEach(async (source) => {
-			const [left, right] = await source.partition((v) => v % 2 === 0);
+			const [left, right] = await AsyncStream.partition(
+				source,
+				(v) => v % 2 === 0,
+			)();
 			expect(left.length).toBe(50);
 			expect(right.length).toBe(50);
 		});
@@ -1879,16 +1910,17 @@ describe('AsyncStream methods', () => {
 
 	it('groupBy', async () => {
 		expect(
-			await AsyncStream.empty<string>().groupBy(async (v) => v.length),
-		).toEqual(new Map());
-		expect(await AsyncStream.of('a').groupBy(async (v) => v.length)).toEqual(
-			new Map([[1, ['a']]]),
-		);
+			AsyncStream.groupBy(AsyncStream.empty<string>(), async (v) => v.length)(),
+		).resolves.toEqual(new Map());
 		expect(
-			await AsyncStream.of('abc', 'a', 'def', 'b', 'qq').groupBy(
+			AsyncStream.groupBy(AsyncStream.of('a'), async (v) => v.length)(),
+		).resolves.toEqual(new Map([[1, ['a']]]));
+		expect(
+			AsyncStream.groupBy(
+				AsyncStream.of('abc', 'a', 'def', 'b', 'qq'),
 				async (v) => v.length,
-			),
-		).toEqual(
+			)(),
+		).resolves.toEqual(
 			new Map([
 				[1, ['a', 'b']],
 				[2, ['qq']],
@@ -1897,7 +1929,7 @@ describe('AsyncStream methods', () => {
 		);
 
 		AsyncStream.from(sources).forEach(async (source) => {
-			const result = await source.groupBy(async (v) => v % 4);
+			const result = await AsyncStream.groupBy(source, async (v) => v % 4)();
 			for (let i = 0; i < 4; i++) {
 				expect(result.get(i)?.length).toBe(25);
 			}
@@ -1912,21 +1944,24 @@ describe('AsyncStream methods', () => {
 		);
 
 		expect(
-			await AsyncStream.empty<string>().groupBy((v) => v.length, {
+			AsyncStream.groupBy(
+				AsyncStream.empty<string>(),
+				(v) => v.length,
+			)({
 				collector,
 			}),
-		).toEqual(new Map());
+		).resolves.toEqual(new Map());
 		expect(
-			await AsyncStream.of('a').groupBy((v) => v.length, { collector }),
-		).toEqual(new Map([[2, ['a']]]));
+			AsyncStream.groupBy(AsyncStream.of('a'), (v) => v.length)({ collector }),
+		).resolves.toEqual(new Map([[2, ['a']]]));
 		expect(
-			await AsyncStream.of('abc', 'a', 'def', 'b', 'qq').groupBy(
+			AsyncStream.groupBy(
+				AsyncStream.of('abc', 'a', 'def', 'b', 'qq'),
 				(v) => v.length,
-				{
-					collector,
-				},
-			),
-		).toEqual(
+			)({
+				collector,
+			}),
+		).resolves.toEqual(
 			new Map([
 				[2, ['a', 'b']],
 				[4, ['qq']],
@@ -1948,9 +1983,9 @@ describe('AsyncStream methods', () => {
 			}
 			return current + value;
 		}
-		expect(await AsyncStream.empty<number>().fold(0, sum)).toBe(0);
-		expect(await AsyncStream.of(1, 2, 3).fold(0, sum)).toBe(6);
-		expect(await AsyncStream.of(1, 20, 3).fold(0, sum)).toBe(1);
+		expect(AsyncStream.empty<number>().fold(0, sum)).resolves.toBe(0);
+		expect(AsyncStream.of(1, 2, 3).fold(0, sum)).resolves.toBe(6);
+		expect(AsyncStream.of(1, 20, 3).fold(0, sum)).resolves.toBe(1);
 	});
 	it('fold close', async () => {
 		await createResourceStream([1, 2, 3]).fold(1, (c) => c);
@@ -1976,14 +2011,14 @@ describe('AsyncStream methods', () => {
 			return current + value;
 		}
 		expect(
-			await AsyncStream.empty<number>().foldStream(0, sum).toArray(),
-		).toEqual([]);
-		expect(await AsyncStream.of(1, 2, 3).foldStream(0, sum).toArray()).toEqual([
-			1, 3, 6,
-		]);
-		expect(await AsyncStream.of(1, 20, 3).foldStream(0, sum).toArray()).toEqual(
-			[1, 1],
-		);
+			AsyncStream.empty<number>().foldStream(0, sum).toArray(),
+		).resolves.toEqual([]);
+		expect(
+			AsyncStream.of(1, 2, 3).foldStream(0, sum).toArray(),
+		).resolves.toEqual([1, 3, 6]);
+		expect(
+			AsyncStream.of(1, 20, 3).foldStream(0, sum).toArray(),
+		).resolves.toEqual([1, 1]);
 	});
 	it('foldStream close', async () => {
 		await testResForEach(
@@ -2001,11 +2036,11 @@ describe('AsyncStream methods', () => {
 	});
 	it('reduce', async () => {
 		expect(
-			await AsyncStream.empty<number>().reduce(AsyncReducer.from(Reducer.sum)),
-		).toBe(0);
+			AsyncStream.empty<number>().reduce(AsyncReducer.from(Reducer.sum)),
+		).resolves.toBe(0);
 		expect(
-			await AsyncStream.of(1, 2, 3).reduce(AsyncReducer.from(Reducer.sum)),
-		).toBe(6);
+			AsyncStream.of(1, 2, 3).reduce(AsyncReducer.from(Reducer.sum)),
+		).resolves.toBe(6);
 	});
 	it('reduce close', async () => {
 		await createResourceStream([1, 2, 3]).reduce(
@@ -2041,7 +2076,7 @@ describe('AsyncStream methods', () => {
 			endReducer,
 		);
 
-		expect(await AsyncStream.of(1, 2, 3).reduce(asyncSum));
+		expect(AsyncStream.of(1, 2, 3).reduce(asyncSum)).resolves.toBe(12);
 		expect(endReducer).toBeCalledTimes(1);
 
 		endReducer.mockReset();
@@ -2065,15 +2100,15 @@ describe('AsyncStream methods', () => {
 	});
 	it('reduceStream', async () => {
 		expect(
-			await AsyncStream.empty<number>()
+			AsyncStream.empty<number>()
 				.reduceStream(AsyncReducer.from(Reducer.sum))
 				.toArray(),
-		).toEqual([]);
+		).resolves.toEqual([]);
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.reduceStream(AsyncReducer.from(Reducer.sum))
 				.toArray(),
-		).toEqual([1, 3, 6]);
+		).resolves.toEqual([1, 3, 6]);
 	});
 	it('reduceStream close', async () => {
 		await testResForEach(
@@ -2087,23 +2122,17 @@ describe('AsyncStream methods', () => {
 	});
 	it('reduceAll', async () => {
 		expect(
-			await AsyncStream.empty<number>().reduce([
-				AsyncReducer.from(Reducer.sum),
-				AsyncReducer.from(Reducer.count),
-			]),
-		).toEqual([0, 0]);
+			AsyncStream.empty<number>().reduce([Reducer.sum, Reducer.count]),
+		).resolves.toEqual([0, 0]);
 		expect(
-			await AsyncStream.of(1, 2, 3).reduce([
-				AsyncReducer.from(Reducer.sum),
-				AsyncReducer.from(Reducer.count),
-			]),
-		).toEqual([6, 3]);
+			AsyncStream.of(1, 2, 3).reduce([Reducer.sum, Reducer.count]),
+		).resolves.toEqual([6, 3]);
 		expect(
-			await AsyncStream.from(Stream.range({ start: 0 })).reduce([
+			AsyncStream.from(Stream.range({ start: 0 })).reduce([
 				AsyncReducer.first<number>(),
 				AsyncReducer.first<number>(),
 			]),
-		).toEqual([0, 0]);
+		).resolves.toEqual([0, 0]);
 	});
 	it('reduceAll close', async () => {
 		await createResourceStream([1, 2, 3]).reduce([
@@ -2121,21 +2150,21 @@ describe('AsyncStream methods', () => {
 
 	it('reduceStream array shape', async () => {
 		expect(
-			await AsyncStream.empty<number>()
+			AsyncStream.empty<number>()
 				.reduceStream([
 					AsyncReducer.from(Reducer.sum),
 					AsyncReducer.from(Reducer.count),
 				])
 				.toArray(),
-		).toEqual([]);
+		).resolves.toEqual([]);
 		expect(
-			await AsyncStream.of(1, 2, 3)
+			AsyncStream.of(1, 2, 3)
 				.reduceStream([
 					AsyncReducer.from(Reducer.sum),
 					AsyncReducer.from(Reducer.count),
 				])
 				.toArray(),
-		).toEqual([
+		).resolves.toEqual([
 			[1, 1],
 			[3, 2],
 			[6, 3],
@@ -2210,12 +2239,12 @@ describe('AsyncStream methods', () => {
 	});
 
 	it('toArray', async () => {
-		expect(await AsyncStream.empty().toArray()).toEqual([]);
-		expect(await AsyncStream.of(1).toArray()).toEqual([1]);
-		expect(await AsyncStream.from([1, 2, 3]).toArray()).toEqual([1, 2, 3]);
+		expect(AsyncStream.empty().toArray()).resolves.toEqual([]);
+		expect(AsyncStream.of(1).toArray()).resolves.toEqual([1]);
+		expect(AsyncStream.from([1, 2, 3]).toArray()).resolves.toEqual([1, 2, 3]);
 		const a1 = await streamRange1.toArray();
 		for (const source of sources) {
-			expect(await source.toArray()).toEqual(a1);
+			expect(source.toArray()).resolves.toEqual(a1);
 		}
 	});
 	it('toArray close', async () => {
@@ -2229,7 +2258,7 @@ describe('AsyncStream methods', () => {
 		expect(close).toBeCalledTimes(1);
 	});
 
-	it('toString', async () => {
+	it('toString', () => {
 		expect(AsyncStream.empty<string>().toString()).toBe('AsyncStream(<empty>)');
 		expect(AsyncStream.of(1).toString()).toBe(
 			'AsyncStream(...<potentially empty>)',
@@ -2238,41 +2267,41 @@ describe('AsyncStream methods', () => {
 
 	it('zipWith', async () => {
 		expect(
-			await AsyncStream.zipWith(
+			AsyncStream.zipWith(
 				AsyncStream.empty<number>(),
 				[],
 			)((a, b) => a + b).toArray(),
-		).toEqual([]);
+		).resolves.toEqual([]);
 		expect(
-			await AsyncStream.zipWith(
+			AsyncStream.zipWith(
 				AsyncStream.of(1, 2, 3),
 				[],
 			)((a, b) => a + b).toArray(),
-		).toEqual([]);
+		).resolves.toEqual([]);
 		expect(
-			await AsyncStream.zipWith(
+			AsyncStream.zipWith(
 				AsyncStream.empty<number>(),
 				[1, 2, 3],
 			)((a, b) => a + b).toArray(),
-		).toEqual([]);
+		).resolves.toEqual([]);
 		expect(
-			await AsyncStream.zipWith(
+			AsyncStream.zipWith(
 				AsyncStream.of(1, 2, 3),
 				[1, 2, 3],
 			)(async (a, b) => a + b).toArray(),
-		).toEqual([2, 4, 6]);
+		).resolves.toEqual([2, 4, 6]);
 		expect(
-			await AsyncStream.zipWith(
+			AsyncStream.zipWith(
 				AsyncStream.of(1),
 				[1, 2, 3],
 			)((a, b) => a + b).toArray(),
-		).toEqual([2]);
+		).resolves.toEqual([2]);
 		expect(
-			await AsyncStream.zipWith(
+			AsyncStream.zipWith(
 				AsyncStream.of(1, 2, 3),
 				[1],
 			)((a, b) => a + b).toArray(),
-		).toEqual([2]);
+		).resolves.toEqual([2]);
 	});
 	it('zipWith close', async () => {
 		const s1 = createResourceStream([1, 2, 3]);
@@ -2317,34 +2346,28 @@ describe('AsyncStream methods', () => {
 			AsyncStream.empty(),
 		);
 		expect(
-			await AsyncStream.zip(AsyncStream.of(1), AsyncStream.of(2)).toArray(),
-		).toEqual([[1, 2]]);
+			AsyncStream.zip(AsyncStream.of(1), AsyncStream.of(2)).toArray(),
+		).resolves.toEqual([[1, 2]]);
 		expect(
-			await AsyncStream.zip(
-				AsyncStream.of(1, 2, 3),
-				AsyncStream.of(2),
-			).toArray(),
-		).toEqual([[1, 2]]);
+			AsyncStream.zip(AsyncStream.of(1, 2, 3), AsyncStream.of(2)).toArray(),
+		).resolves.toEqual([[1, 2]]);
 		expect(
-			await AsyncStream.zip(
-				AsyncStream.of(1),
-				AsyncStream.of(2, 3, 4),
-			).toArray(),
-		).toEqual([[1, 2]]);
+			AsyncStream.zip(AsyncStream.of(1), AsyncStream.of(2, 3, 4)).toArray(),
+		).resolves.toEqual([[1, 2]]);
 		expect(
-			await AsyncStream.zip(
+			AsyncStream.zip(
 				AsyncStream.of(1, 2, 3, 4, 5),
 				AsyncStream.of(2, 3, 4),
 				AsyncStream.of(3, 4, 5, 6),
 			).toArray(),
-		).toEqual([
+		).resolves.toEqual([
 			[1, 2, 3],
 			[2, 3, 4],
 			[3, 4, 5],
 		]);
 		for (const source of sources) {
-			expect(await AsyncStream.zip(source, source).toArray()).toEqual(
-				await source.map((v) => [v, v]).toArray(),
+			expect(AsyncStream.zip(source, source).toArray()).resolves.toEqual(
+				await source.map((v) => [v, v] as [number, number]).toArray(),
 			);
 		}
 	});
@@ -2382,41 +2405,41 @@ describe('AsyncStream methods', () => {
 	});
 	it('zipAllWith', async () => {
 		expect(
-			await AsyncStream.zipAllWith(AsyncStream.empty<number>(), [])(
+			AsyncStream.zipAllWith(AsyncStream.empty<number>(), [])(
 				10,
 				(a, b) => a + b,
 			).toArray(),
-		).toEqual([]);
+		).resolves.toEqual([]);
 		expect(
-			await AsyncStream.zipAllWith(AsyncStream.of(1, 2, 3), [])(
+			AsyncStream.zipAllWith(AsyncStream.of(1, 2, 3), [])(
 				10,
 				(a, b) => a + b,
 			).toArray(),
-		).toEqual([11, 12, 13]);
+		).resolves.toEqual([11, 12, 13]);
 		expect(
-			await AsyncStream.zipAllWith(AsyncStream.empty<number>(), [1, 2, 3])(
+			AsyncStream.zipAllWith(AsyncStream.empty<number>(), [1, 2, 3])(
 				10,
 				(a, b) => a + b,
 			).toArray(),
-		).toEqual([11, 12, 13]);
+		).resolves.toEqual([11, 12, 13]);
 		expect(
-			await AsyncStream.zipAllWith(AsyncStream.of(1, 2, 3), [1, 2, 3])(
+			AsyncStream.zipAllWith(AsyncStream.of(1, 2, 3), [1, 2, 3])(
 				10,
 				(a, b) => a + b,
 			).toArray(),
-		).toEqual([2, 4, 6]);
+		).resolves.toEqual([2, 4, 6]);
 		expect(
-			await AsyncStream.zipAllWith(AsyncStream.of(1), [1, 2, 3])(
+			AsyncStream.zipAllWith(AsyncStream.of(1), [1, 2, 3])(
 				10,
 				(a, b) => a + b,
 			).toArray(),
-		).toEqual([2, 12, 13]);
+		).resolves.toEqual([2, 12, 13]);
 		expect(
-			await AsyncStream.zipAllWith(AsyncStream.of(1, 2, 3), [1])(
+			AsyncStream.zipAllWith(AsyncStream.of(1, 2, 3), [1])(
 				10,
 				(a, b) => a + b,
 			).toArray(),
-		).toEqual([2, 12, 13]);
+		).resolves.toEqual([2, 12, 13]);
 	});
 	it('zipAllWith close', async () => {
 		const s1 = createResourceStream([1, 2, 3]);
@@ -2459,40 +2482,40 @@ describe('AsyncStream methods', () => {
 
 	it('zipAll', async () => {
 		expect(
-			await AsyncStream.zipAll(
+			AsyncStream.zipAll(
 				undefined,
 				AsyncStream.empty(),
 				AsyncStream.empty(),
 			).toArray(),
-		).toEqual([]);
+		).resolves.toEqual([]);
 		expect(
-			await AsyncStream.zipAll(
+			AsyncStream.zipAll(
 				undefined,
 				AsyncStream.of(1),
 				AsyncStream.empty(),
 			).toArray(),
-		).toEqual([[1, undefined]]);
+		).resolves.toEqual([[1, undefined]]);
 		expect(
-			await AsyncStream.zipAll(
+			AsyncStream.zipAll(
 				undefined,
 				AsyncStream.empty(),
 				AsyncStream.of(1),
 			).toArray(),
-		).toEqual([[undefined, 1]]);
+		).resolves.toEqual([[undefined, 1]]);
 		expect(
-			await AsyncStream.zipAll(
+			AsyncStream.zipAll(
 				undefined,
 				AsyncStream.of(1),
 				AsyncStream.of(2),
 			).toArray(),
-		).toEqual([[1, 2]]);
+		).resolves.toEqual([[1, 2]]);
 		expect(
-			await AsyncStream.zipAll(
+			AsyncStream.zipAll(
 				undefined,
 				AsyncStream.of(1, 2, 3),
 				AsyncStream.of(10, 11),
 			).toArray(),
-		).toEqual([
+		).resolves.toEqual([
 			[1, 10],
 			[2, 11],
 			[3, undefined],
@@ -2536,16 +2559,16 @@ describe('AsyncStream methods', () => {
 			AsyncStream.empty<[number, string]>(),
 			{ length: 2 },
 		);
-		expect(await u1l.toArray()).toEqual([]);
-		expect(await u1r.toArray()).toEqual([]);
+		expect(u1l.toArray()).resolves.toEqual([]);
+		expect(u1r.toArray()).resolves.toEqual([]);
 		const [u2l, u2r] = AsyncStream.unzip(
 			AsyncStream.of<[number, string]>([1, 'a'], [2, 'b']),
 			{
 				length: 2,
 			},
 		);
-		expect(await u2l.toArray()).toEqual([1, 2]);
-		expect(await u2r.toArray()).toEqual(['a', 'b']);
+		expect(u2l.toArray()).resolves.toEqual([1, 2]);
+		expect(u2r.toArray()).resolves.toEqual(['a', 'b']);
 	});
 
 	it('unzip close', async () => {

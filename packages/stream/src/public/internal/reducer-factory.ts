@@ -646,9 +646,13 @@ export interface ReducerFactory {
 	 * // => [36, { av: [4] }]
 	 * ```
 	 */
-	combine<T, const S extends Reducer.CombineShape<T>>(
-		shape: S & Reducer.CombineShape<T>,
-	): Reducer<T, Reducer.CombineResult<S>>;
+	combine<const S extends Reducer.CombineShape<any>>(
+		shape: S &
+			Reducer.CombineShape<S extends Reducer.CombineShape<infer T> ? T : never>,
+	): Reducer<
+		S extends Reducer.CombineShape<infer T> ? T : never,
+		Reducer.CombineResult<S>
+	>;
 
 	/**
 	 * Returns a `Reducer` instance that first applies this reducer, and then applies the given `next` reducer to each output produced

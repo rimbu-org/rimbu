@@ -1,177 +1,217 @@
+import { expectTypeOf } from 'bun:test';
+
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { Transformer } from '@rimbu/stream/transformer';
 
-import { HashMap } from '@rimbu/hashed';
-import { HashMultiMapHashValue } from '@rimbu/multimap';
+import { HashMap } from '@rimbu/hashed/map';
+import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 import { type FastIterator, Stream } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
-import {
-	expectAssignable,
-	expectError,
-	expectNotAssignable,
-	expectNotType,
-	expectType,
-} from 'tsd';
+
+// Replaced tsd assertions with `expectTypeOf` from `bun:test`
 
 // Variance
-expectAssignable<Stream<number | string>>(Stream.empty<number>());
-expectNotAssignable<Stream<number>>(Stream.empty<number | string>());
-expectAssignable<Stream<number | string>>(Stream.of(1));
-expectNotAssignable<Stream<number>>(Stream.of<number | string>(1));
+expectTypeOf(Stream.empty<number>()).toExtend<Stream<number | string>>();
+expectTypeOf(Stream.empty<number | string>()).not.toExtend<Stream<number>>();
+expectTypeOf(Stream.of(1)).toExtend<Stream<number | string>>();
+expectTypeOf(Stream.of<number | string>(1)).not.toExtend<Stream<number>>();
 
-expectAssignable<Stream.NonEmpty<number | string>>(Stream.of(1));
+expectTypeOf(Stream.of(1)).toExtend<Stream.NonEmpty<number | string>>();
 
 // Iterable
-expectType<FastIterator<number>>(Stream.empty<number>()[Symbol.iterator]());
-expectType<FastIterator<number>>(Stream.of(1)[Symbol.iterator]());
+expectTypeOf(Stream.empty<number>()[Symbol.iterator]()).toEqualTypeOf<
+	FastIterator<number>
+>();
+expectTypeOf(Stream.of(1)[Symbol.iterator]()).toEqualTypeOf<
+	FastIterator<number>
+>();
 
 // Stream.empty<T>()
-expectType<Stream<number>>(Stream.empty<number>());
-expectType<Stream<string>>(Stream.empty<string>());
-expectNotType<Stream.NonEmpty<number>>(Stream.empty<number>());
-expectNotAssignable<Stream.NonEmpty<number>>(Stream.empty<number>());
+expectTypeOf(Stream.empty<number>()).toEqualTypeOf<Stream<number>>();
+expectTypeOf(Stream.empty<string>()).toEqualTypeOf<Stream<string>>();
+expectTypeOf(Stream.empty<number>()).not.toEqualTypeOf<
+	Stream.NonEmpty<number>
+>();
+expectTypeOf(Stream.empty<number>()).not.toExtend<Stream.NonEmpty<number>>();
 
 // Stream.of<T>(..)
-expectType<Stream.NonEmpty<number>>(Stream.of(1));
-expectAssignable<Stream<number>>(Stream.of(1));
-// expectError(Stream.of());
+expectTypeOf(Stream.of(1)).toEqualTypeOf<Stream.NonEmpty<number>>();
+expectTypeOf(Stream.of(1)).toExtend<Stream<number>>();
+// @ts-expect-error
+Stream.of();
 
 // Stream.from<T>(..)
-expectType<Stream<number>>(Stream.from([] as number[]));
-expectType<Stream.NonEmpty<number>>(Stream.from([1]));
-expectType<Stream.NonEmpty<number>>(Stream.from([1, 2, 3]));
-expectType<Stream.NonEmpty<number>>(Stream.from(Stream.of(1)));
-expectType<Stream<number>>(Stream.from(new Set([1])));
-// expectError(Stream.from());
+expectTypeOf(Stream.from([] as number[])).toEqualTypeOf<Stream<number>>();
+expectTypeOf(Stream.from([1])).toEqualTypeOf<Stream.NonEmpty<number>>();
+expectTypeOf(Stream.from([1, 2, 3])).toEqualTypeOf<Stream.NonEmpty<number>>();
+expectTypeOf(Stream.from(Stream.of(1))).toEqualTypeOf<
+	Stream.NonEmpty<number>
+>();
+expectTypeOf(Stream.from(new Set([1]))).toEqualTypeOf<Stream<number>>();
+// @ts-expect-error
+Stream.from();
 
 // Stream.fromArray<T>(..)
-expectType<Stream<number>>(Stream.fromArray([] as number[]));
-expectType<Stream.NonEmpty<number>>(Stream.fromArray([1, 2, 3]));
-expectType<Stream<number>>(Stream.fromArray([1, 2, 3] as number[]));
-expectType<Stream<number>>(
+expectTypeOf(Stream.fromArray([] as number[])).toEqualTypeOf<Stream<number>>();
+expectTypeOf(Stream.fromArray([1, 2, 3])).toEqualTypeOf<
+	Stream.NonEmpty<number>
+>();
+expectTypeOf(Stream.fromArray([1, 2, 3] as number[])).toEqualTypeOf<
+	Stream<number>
+>();
+expectTypeOf(
 	Stream.fromArray([1, 2, 3], { range: { amount: 2 }, reversed: true }),
-);
+).toEqualTypeOf<Stream<number>>();
 
 // Stream.fromObject(..)
-expectAssignable<Stream<[string, number]>>(Stream.fromObject({ a: 1 }));
-expectAssignable<Stream<string>>(Stream.fromObjectKeys({ a: 1 }));
-expectType<Stream<number>>(Stream.fromObjectValues({ a: 1 }));
+expectTypeOf(Stream.fromObject({ a: 1 })).toExtend<Stream<[string, number]>>();
+expectTypeOf(Stream.fromObjectKeys({ a: 1 })).toExtend<Stream<string>>();
+expectTypeOf(Stream.fromObjectValues({ a: 1 })).toEqualTypeOf<Stream<number>>();
 
 // Stream.fromString(..)
-expectType<Stream<string>>(Stream.fromString(''));
-expectType<Stream.NonEmpty<string>>(Stream.fromString('abc'));
-expectType<Stream<string>>(Stream.fromString('abc' as string));
+expectTypeOf(Stream.fromString('')).toEqualTypeOf<Stream<string>>();
+expectTypeOf(Stream.fromString('abc')).toEqualTypeOf<Stream.NonEmpty<string>>();
+expectTypeOf(Stream.fromString('abc' as string)).toEqualTypeOf<
+	Stream<string>
+>();
 
 // Stream.flatten<T>(..)
-expectError(Stream.flatten(Stream.empty<number>()));
-expectType<Stream<number>>(Stream.flatten(Stream.empty<Stream<number>>()));
-expectType<Stream<number>>(
+// @ts-expect-error
+Stream.flatten(Stream.empty<number>());
+
+expectTypeOf(Stream.flatten(Stream.empty<Stream<number>>())).toEqualTypeOf<
+	Stream<number>
+>();
+expectTypeOf(
 	Stream.flatten(Stream.empty<Stream.NonEmpty<number>>()),
-);
-expectType<Stream.NonEmpty<number>>(Stream.flatten(Stream.of(Stream.of(1))));
+).toEqualTypeOf<Stream<number>>();
+expectTypeOf(Stream.flatten(Stream.of(Stream.of(1)))).toEqualTypeOf<
+	Stream.NonEmpty<number>
+>();
 
 // Stream.random(X)(..)
-expectType<Stream.NonEmpty<number>>(Stream.random());
-expectType<Stream.NonEmpty<number>>(Stream.randomInt(0, 10));
+expectTypeOf(Stream.random()).toEqualTypeOf<Stream.NonEmpty<number>>();
+expectTypeOf(Stream.randomInt(0, 10)).toEqualTypeOf<Stream.NonEmpty<number>>();
 
 // Stream.range(..)
-expectType<Stream<number>>(Stream.range({ amount: 10 }));
+expectTypeOf(Stream.range({ amount: 10 })).toEqualTypeOf<Stream<number>>();
 
 // Stream.unfold(..)
-expectType<Stream.NonEmpty<number>>(Stream.unfold(0, (v) => v + 1));
+expectTypeOf(Stream.unfold(0, (v) => v + 1)).toEqualTypeOf<
+	Stream.NonEmpty<number>
+>();
 
 // Stream.unzip(..)
-expectType<[Stream.NonEmpty<number>, Stream.NonEmpty<string>]>(
+expectTypeOf(
 	Stream.unzip(Stream.of<[number, string]>([0, 'a'], [1, 'b']), { length: 2 }),
-);
-expectType<[Stream<number>, Stream<string>]>(
+).toEqualTypeOf<[Stream.NonEmpty<number>, Stream.NonEmpty<string>]>();
+expectTypeOf(
 	Stream.unzip(Stream.from(new Map<number, string>()), { length: 2 }),
-);
-expectError(Stream.unzip(Stream.of(1), { length: 2 }));
-expectError(Stream.unzip(Stream.of([1, 2] as const), { length: 3 }));
+).toEqualTypeOf<[Stream<number>, Stream<string>]>();
+
+// @ts-expect-error
+Stream.unzip(Stream.of(1), { length: 2 });
+// @ts-expect-error
+Stream.unzip(Stream.of([1, 2] as const), { length: 3 });
 
 // Stream.zip
-expectType<Stream<[number, string]>>(
+expectTypeOf(
 	Stream.zip(Stream.empty<number>(), Stream.empty<string>()),
-);
-expectType<Stream<[number, string]>>(
-	Stream.zip(Stream.of(1), Stream.empty<string>()),
-);
-expectType<Stream<[number, string]>>(
-	Stream.zip(Stream.empty<number>(), Stream.of('a')),
-);
-expectType<Stream.NonEmpty<[number, string]>>(
-	Stream.zip(Stream.of(1), Stream.of('a')),
-);
-expectType<Stream<[number, string, boolean]>>(
+).toEqualTypeOf<Stream<[number, string]>>();
+expectTypeOf(Stream.zip(Stream.of(1), Stream.empty<string>())).toEqualTypeOf<
+	Stream<[number, string]>
+>();
+expectTypeOf(Stream.zip(Stream.empty<number>(), Stream.of('a'))).toEqualTypeOf<
+	Stream<[number, string]>
+>();
+expectTypeOf(Stream.zip(Stream.of(1), Stream.of('a'))).toEqualTypeOf<
+	Stream.NonEmpty<[number, string]>
+>();
+expectTypeOf(
 	Stream.zip(Stream.empty<number>(), Stream.of('a'), Stream.of(true, false)),
-);
-expectType<Stream.NonEmpty<[number, string, boolean]>>(
+).toEqualTypeOf<Stream<[number, string, boolean]>>();
+expectTypeOf(
 	Stream.zip(Stream.of(1), Stream.of('a'), Stream.of(true, false)),
-);
+).toEqualTypeOf<Stream.NonEmpty<[number, string, boolean]>>();
 
-expectType<Stream.NonEmpty<[number]>>(Stream.zip(Stream.of(1)));
+expectTypeOf(Stream.zip(Stream.of(1))).toEqualTypeOf<
+	Stream.NonEmpty<[number]>
+>();
 
-expectError(Stream.zip());
+// @ts-expect-error
+Stream.zip();
 
 // Stream.zipAll(..)
-expectType<Stream<[number | boolean, string | boolean]>>(
+expectTypeOf(
 	Stream.zipAll(true, Stream.empty<number>(), Stream.empty<string>()),
-);
-expectType<Stream.NonEmpty<[number | boolean, string | boolean]>>(
-	Stream.zipAll(true, Stream.of(1), Stream.of('a')),
-);
+).toEqualTypeOf<Stream<[number | boolean, string | boolean]>>();
+expectTypeOf(Stream.zipAll(true, Stream.of(1), Stream.of('a'))).toEqualTypeOf<
+	Stream.NonEmpty<[number | boolean, string | boolean]>
+>();
 
-expectType<Stream.NonEmpty<[number | boolean]>>(
-	Stream.zipAll(true, Stream.of(1)),
-);
+expectTypeOf(Stream.zipAll(true, Stream.of(1))).toEqualTypeOf<
+	Stream.NonEmpty<[number | boolean]>
+>();
 
 // TODO
 // expectType<Stream.NonEmpty<[number | boolean, string | boolean]>>(
 //   Stream.zipAll(true, Stream.empty<number>(), Stream.of('a'))
 // );
 
-expectError(Stream.zipAll(true));
+// @ts-expect-error
+Stream.zipAll(true);
 
 // Stream.zipWith(..)
-expectType<Stream<[number, true, string]>>(
+expectTypeOf(
 	Stream.zipWith(
 		Stream.empty<number>(),
 		Stream.empty<string>(),
-	)((a, b) => [a, true, b]),
-);
-expectType<Stream<[number, true, string]>>(
-	Stream.zipWith(Stream.of(1), Stream.empty<string>())((a, b) => [a, true, b]),
-);
-expectType<Stream<[number, true, string]>>(
+	)((a, b) => [a, true, b] as const),
+).toEqualTypeOf<Stream<readonly [number, true, string]>>();
+expectTypeOf(
+	Stream.zipWith(
+		Stream.of(1),
+		Stream.empty<string>(),
+	)((a, b) => [a, true, b] as const),
+).toEqualTypeOf<Stream<readonly [number, true, string]>>();
+expectTypeOf(
 	Stream.zipWith(
 		Stream.empty<number>(),
 		Stream.of('a'),
-	)((a, b) => [a, true, b]),
-);
-expectType<Stream.NonEmpty<[number, true, string]>>(
-	Stream.zipWith(Stream.of(1), Stream.of('a'))((a, b) => [a, true, b]),
-);
+	)((a, b) => [a, true, b] as const),
+).toEqualTypeOf<Stream<readonly [number, true, string]>>();
+expectTypeOf(
+	Stream.zipWith(Stream.of(1), Stream.of('a'))((a, b) => [a, true, b] as const),
+).toEqualTypeOf<Stream.NonEmpty<readonly [number, true, string]>>();
 
-expectType<Stream.NonEmpty<[number]>>(Stream.zipWith(Stream.of(1))((a) => [a]));
+expectTypeOf(Stream.zipWith(Stream.of(1))((a) => [a] as const)).toEqualTypeOf<
+	Stream.NonEmpty<readonly [number]>
+>();
 
-expectError(Stream.zipWith());
+// @ts-expect-error
+Stream.zipWith();
 
 // Stream.zipAllWith()
-expectType<Stream<[number | boolean, true, string | boolean]>>(
+expectTypeOf(
 	Stream.zipAllWith(Stream.empty<number>(), Stream.empty<string>())(
 		true,
-		(a, b) => [a, true, b],
+		(a, b) => [a, true, b] as const,
 	),
-);
-expectType<Stream.NonEmpty<[number | boolean, true, string | boolean]>>(
-	Stream.zipAllWith(Stream.of(1), Stream.of('a'))(true, (a, b) => [a, true, b]),
-);
-expectType<Stream.NonEmpty<[number | boolean]>>(
-	Stream.zipAllWith(Stream.of(1))(true, (a) => [a]),
-);
+).toEqualTypeOf<Stream<readonly [number | boolean, true, string | boolean]>>();
+expectTypeOf(
+	Stream.zipAllWith(Stream.of(1), Stream.of('a'))(
+		true,
+		(a, b) => [a, true, b] as const,
+	),
+).toEqualTypeOf<
+	Stream.NonEmpty<readonly [number | boolean, true, string | boolean]>
+>();
+expectTypeOf(
+	Stream.zipAllWith(Stream.of(1))(true, (a) => [a] as const),
+).toEqualTypeOf<Stream.NonEmpty<readonly [number | boolean]>>();
 
-expectError(Stream.zipAllWith());
+// @ts-expect-error
+Stream.zipAllWith();
 
 // TODO
 // expectType<Stream.NonEmpty<[number | boolean, string | boolean]>>(
@@ -179,404 +219,510 @@ expectError(Stream.zipAllWith());
 // );
 
 // .assumeNonEmpty()
-expectType<Stream.NonEmpty<number>>(Stream.empty<number>().assumeNonEmpty());
-expectType<Stream.NonEmpty<number>>(Stream.of(1).assumeNonEmpty());
+expectTypeOf(Stream.empty<number>().assumeNonEmpty()).toEqualTypeOf<
+	Stream.NonEmpty<number>
+>();
+expectTypeOf(Stream.of(1).assumeNonEmpty()).toEqualTypeOf<
+	Stream.NonEmpty<number>
+>();
 
 // .append()
-expectType<Stream.NonEmpty<number>>(Stream.empty<number>().append(1));
-expectType<Stream.NonEmpty<number>>(Stream.of(1).append(1));
-expectType<Stream.NonEmpty<number | string>>(
-	Stream.empty<number | string>().append('a'),
-);
-expectType<Stream.NonEmpty<number | string>>(
-	Stream.of(1 as number | string).append('a'),
-);
+expectTypeOf(Stream.empty<number>().append(1)).toEqualTypeOf<
+	Stream.NonEmpty<number>
+>();
+expectTypeOf(Stream.of(1).append(1)).toEqualTypeOf<Stream.NonEmpty<number>>();
+expectTypeOf(Stream.empty<number | string>().append('a')).toEqualTypeOf<
+	Stream.NonEmpty<number | string>
+>();
+expectTypeOf(Stream.of(1 as number | string).append('a')).toEqualTypeOf<
+	Stream.NonEmpty<number | string>
+>();
 
 // .chain(...)
-expectType<number>(
+expectTypeOf(
 	Stream.empty<number>().reduce(Reducer.sum.chain([Reducer.product])),
-);
-expectType<boolean>(
+).toEqualTypeOf<number>();
+expectTypeOf(
 	Stream.empty<number>().reduce(Reducer.contains(1).chain([Reducer.isEmpty])),
-);
+).toEqualTypeOf<boolean>();
 
 // .collect(..)
-expectType<Stream<string>>(Stream.empty<number>().collect(() => ''));
-expectType<Stream<string>>(Stream.of(1).collect(() => ''));
+expectTypeOf(Stream.empty<number>().collect(() => '')).toEqualTypeOf<
+	Stream<string>
+>();
+expectTypeOf(Stream.of(1).collect(() => '')).toEqualTypeOf<Stream<string>>();
 
 // .concat(..)
-expectType<Stream<number>>(
+expectTypeOf(
 	Stream.empty<number>().concat(Stream.empty<number>()),
-);
-expectType<Stream<number>>(
+).toEqualTypeOf<Stream<number>>();
+expectTypeOf(
 	Stream.empty<number>().concat(Stream.empty<number>(), Stream.empty<number>()),
-);
+).toEqualTypeOf<Stream<number>>();
 
-expectType<Stream.NonEmpty<number>>(
-	Stream.empty<number>().concat(Stream.of(1)),
-);
-expectType<Stream.NonEmpty<number>>(
-	Stream.of(1).concat(Stream.empty<number>()),
-);
-expectType<Stream.NonEmpty<number>>(Stream.of(1).concat(Stream.of(1)));
-expectType<Stream.NonEmpty<number>>(
-	Stream.of(1).concat(Stream.of(1), Stream.of(1)),
-);
+expectTypeOf(Stream.empty<number>().concat(Stream.of(1))).toEqualTypeOf<
+	Stream.NonEmpty<number>
+>();
+expectTypeOf(Stream.of(1).concat(Stream.empty<number>())).toEqualTypeOf<
+	Stream.NonEmpty<number>
+>();
+expectTypeOf(Stream.of(1).concat(Stream.of(1))).toEqualTypeOf<
+	Stream.NonEmpty<number>
+>();
+expectTypeOf(Stream.of(1).concat(Stream.of(1), Stream.of(1))).toEqualTypeOf<
+	Stream.NonEmpty<number>
+>();
 
-expectType<Stream.NonEmpty<number>>(
-	Stream.of(1).concat(Stream.of(1), Stream.of(1)),
-);
+expectTypeOf(Stream.of(1).concat(Stream.of(1), Stream.of(1))).toEqualTypeOf<
+	Stream.NonEmpty<number>
+>();
 
 // .drop(..)
-expectType<Stream<number>>(Stream.empty<number>().drop(4));
-expectType<Stream<number>>(Stream.of(1).drop(4));
+expectTypeOf(Stream.empty<number>().drop(4)).toEqualTypeOf<Stream<number>>();
+expectTypeOf(Stream.of(1).drop(4)).toEqualTypeOf<Stream<number>>();
 
 // .dropWhile(..)
-expectType<Stream<number>>(Stream.empty<number>().dropWhile(() => true));
-expectType<Stream<number>>(Stream.of(1).dropWhile(() => true));
+expectTypeOf(Stream.empty<number>().dropWhile(() => true)).toEqualTypeOf<
+	Stream<number>
+>();
+expectTypeOf(Stream.of(1).dropWhile(() => true)).toEqualTypeOf<
+	Stream<number>
+>();
 
 // .elementtAt(..)
-expectType<number>(Stream.empty<number>().elementAt(1, 3));
-expectType<number | string>(Stream.empty<number>().elementAt(1, '' as string));
+expectTypeOf(Stream.empty<number>().elementAt(1, 3)).toEqualTypeOf<number>();
+expectTypeOf(Stream.empty<number>().elementAt(1, '' as string)).toEqualTypeOf<
+	number | string
+>();
 
-expectType<number>(Stream.empty<number>().elementAt(1, () => 3));
-expectType<number | string>(
+expectTypeOf(
+	Stream.empty<number>().elementAt(1, () => 3),
+).toEqualTypeOf<number>();
+expectTypeOf(
 	Stream.empty<number>().elementAt(1, () => '' as string),
-);
+).toEqualTypeOf<number | string>();
 
 // .forEach(..)
-expectType<void>(Stream.empty<number>().forEach(() => {}));
-expectType<void>(Stream.of(1).forEach(() => {}));
+expectTypeOf(Stream.empty<number>().forEach(() => {})).toEqualTypeOf<void>();
+expectTypeOf(Stream.of(1).forEach(() => {})).toEqualTypeOf<void>();
 
 // .forEachPure(..)
-expectType<void>(Stream.empty<number>().forEachPure(() => {}));
-expectType<void>(Stream.of(1).forEachPure(() => {}));
+expectTypeOf(
+	Stream.empty<number>().forEachPure(() => {}),
+).toEqualTypeOf<void>();
+expectTypeOf(Stream.of(1).forEachPure(() => {})).toEqualTypeOf<void>();
 
 // .filter(..)
-expectType<Stream<number>>(Stream.empty<number>().filter((v) => true));
-expectType<Stream<number>>(Stream.of(1).filter(() => true));
+expectTypeOf(Stream.empty<number>().filter((v) => true)).toEqualTypeOf<
+	Stream<number>
+>();
+expectTypeOf(Stream.of(1).filter(() => true)).toEqualTypeOf<Stream<number>>();
 
-expectType<Stream<number>>(
+expectTypeOf(
 	Stream.empty<number | string>().filter((v): v is number => true),
-);
-expectType<Stream<number>>(
+).toEqualTypeOf<Stream<number>>();
+expectTypeOf(
 	Stream.empty<number | string>().filter((v): v is number => true, {
 		negate: false,
 	}),
-);
+).toEqualTypeOf<Stream<number>>();
 
 // .filter(..) negate
-expectType<Stream<number>>(
+expectTypeOf(
 	Stream.empty<number>().filter((v) => true, { negate: true }),
-);
-expectType<Stream<number>>(Stream.of(1).filter(() => true, { negate: true }));
-expectType<Stream<string>>(
+).toEqualTypeOf<Stream<number>>();
+expectTypeOf(Stream.of(1).filter(() => true, { negate: true })).toEqualTypeOf<
+	Stream<number>
+>();
+expectTypeOf(
 	Stream.empty<number | string>().filter((v): v is number => true, {
 		negate: true,
 	}),
-);
+).toEqualTypeOf<Stream<string>>();
 
 // .filterPure(..)
-expectType<Stream<number>>(
+expectTypeOf(
 	Stream.empty<number>().filterPure({ pred: (v) => true }),
-);
-expectType<Stream<number>>(Stream.of(1).filterPure({ pred: () => true }));
-expectType<Stream<number>>(
+).toEqualTypeOf<Stream<number>>();
+expectTypeOf(Stream.of(1).filterPure({ pred: () => true })).toEqualTypeOf<
+	Stream<number>
+>();
+expectTypeOf(
 	Stream.empty<number | string>().filterPure({
 		pred: (v): v is number => true,
 	}),
-);
-expectType<Stream<number>>(
+).toEqualTypeOf<Stream<number>>();
+expectTypeOf(
 	Stream.empty<number | string>().filterPure({
 		pred: (v): v is number => true,
 		negate: false,
 	}),
-);
+).toEqualTypeOf<Stream<number>>();
 
 // .filterPure(..) negate
-expectType<Stream<number>>(
+expectTypeOf(
 	Stream.empty<number>().filterPure({ pred: (v) => true, negate: true }),
-);
-expectType<Stream<number>>(
+).toEqualTypeOf<Stream<number>>();
+expectTypeOf(
 	Stream.of(1).filterPure({ pred: () => true, negate: true }),
-);
-expectType<Stream<string>>(
+).toEqualTypeOf<Stream<number>>();
+expectTypeOf(
 	Stream.empty<number | string>().filterPure({
 		pred: (v): v is number => true,
 		negate: true,
 	}),
-);
+).toEqualTypeOf<Stream<string>>();
 
 // .find(..)
-expectType<number | undefined>(Stream.empty<number>().find(() => true));
-expectType<number | undefined>(
-	Stream.empty<number>().find(() => true, { occurrance: 1 }),
-);
-expectType<number | undefined>(Stream.of(1).find(() => true));
-expectType<number | undefined>(
-	Stream.of(1).find(() => true, { occurrance: 1 }),
-);
-expectType<number>(
-	Stream.empty<number>().find(() => true, { otherwise: () => 1 }),
-);
-expectType<number>(Stream.of(1).find(() => true, { otherwise: () => 1 }));
-expectType<number | string>(
-	Stream.empty<number>().find(() => true, { otherwise: 'a' as string }),
-);
-expectType<number | string>(
-	Stream.of(1).find(() => true, { otherwise: 'a' as string }),
-);
 
-expectType<number | undefined>(
+expectTypeOf(Stream.empty<number>().find(() => true)).toEqualTypeOf<
+	number | undefined
+>();
+expectTypeOf(
+	Stream.empty<number>().find(() => true, { occurrance: 1 }),
+).toEqualTypeOf<number | undefined>();
+expectTypeOf(Stream.of(1).find(() => true)).toEqualTypeOf<number | undefined>();
+expectTypeOf(Stream.of(1).find(() => true, { occurrance: 1 })).toEqualTypeOf<
+	number | undefined
+>();
+expectTypeOf(
+	Stream.empty<number>().find(() => true, { otherwise: () => 1 }),
+).toEqualTypeOf<number>();
+expectTypeOf(
+	Stream.of(1).find(() => true, { otherwise: () => 1 }),
+).toEqualTypeOf<number>();
+expectTypeOf(
+	Stream.empty<number>().find(() => true, { otherwise: 'a' as string }),
+).toEqualTypeOf<number | string>();
+expectTypeOf(
+	Stream.of(1).find(() => true, { otherwise: 'a' as string }),
+).toEqualTypeOf<number | string>();
+
+expectTypeOf(
 	Stream.empty<number | string>().find((value): value is number => true),
-);
-expectType<number | undefined>(
+).toEqualTypeOf<number | undefined>();
+expectTypeOf(
 	Stream.empty<number | string>().find((value): value is number => true, {
 		negate: false,
 	}),
-);
-expectType<number | boolean>(
+).toEqualTypeOf<number | undefined>();
+expectTypeOf(
 	Stream.empty<number | string>().find((value): value is number => true, {
 		negate: false,
 		otherwise: true,
 	}),
-);
-expectType<string | boolean>(
+).toEqualTypeOf<number | boolean>();
+expectTypeOf(
 	Stream.empty<number | string>().find((value): value is number => true, {
 		negate: true,
 		otherwise: true,
 	}),
-);
-expectType<string>(
+).toEqualTypeOf<string | boolean>();
+expectTypeOf(
 	Stream.empty<number | string>().find((value): value is number => true, {
 		negate: true,
 		otherwise: 'a',
 	}),
-);
+).toEqualTypeOf<string>();
 
 // .first(..)
-expectType<number | undefined>(Stream.empty<number>().first());
-expectError(Stream.of(1).first(3));
+expectTypeOf(Stream.empty<number>().first()).toEqualTypeOf<
+	number | undefined
+>();
+// @ts-expect-error
+Stream.of(1).first(3);
 
-expectType<number>(Stream.empty<number>().first(1));
-expectType<number>(Stream.of(1).first());
-expectType<number | string>(Stream.empty<number>().first('a' as string));
+expectTypeOf(Stream.empty<number>().first(1)).toEqualTypeOf<number>();
+expectTypeOf(Stream.of(1).first()).toEqualTypeOf<number>();
+expectTypeOf(Stream.empty<number>().first('a' as string)).toEqualTypeOf<
+	number | string
+>();
 
 // .single(..)
-expectType<number | undefined>(Stream.empty<number>().single());
-expectType<number>(Stream.empty<number>().single(1));
-expectType<number | string>(Stream.empty<number>().single('a' as string));
-expectType<number | undefined>(Stream.of(1).single());
-expectType<number>(Stream.of(1).single(1));
-expectType<number | string>(Stream.of(1).single('a' as string));
+expectTypeOf(Stream.empty<number>().single()).toEqualTypeOf<
+	number | undefined
+>();
+expectTypeOf(Stream.empty<number>().single(1)).toEqualTypeOf<number>();
+expectTypeOf(Stream.empty<number>().single('a' as string)).toEqualTypeOf<
+	number | string
+>();
+expectTypeOf(Stream.of(1).single()).toEqualTypeOf<number | undefined>();
+expectTypeOf(Stream.of(1).single(1)).toEqualTypeOf<number>();
+expectTypeOf(Stream.of(1).single('a' as string)).toEqualTypeOf<
+	number | string
+>();
 
 // .flatMap(..)
-expectType<Stream<string>>(
+expectTypeOf(
 	Stream.empty<number>().flatMap(() => Stream.empty<string>()),
-);
-expectType<Stream<string>>(Stream.of(1).flatMap(() => Stream.empty<string>()));
-expectType<Stream<string>>(Stream.of(1).flatMap(() => Stream.empty<string>()));
-expectType<Stream.NonEmpty<string>>(Stream.of(1).flatMap(() => Stream.of('a')));
+).toEqualTypeOf<Stream<string>>();
+expectTypeOf(Stream.of(1).flatMap(() => Stream.empty<string>())).toEqualTypeOf<
+	Stream<string>
+>();
+expectTypeOf(Stream.of(1).flatMap(() => Stream.empty<string>())).toEqualTypeOf<
+	Stream<string>
+>();
+expectTypeOf(Stream.of(1).flatMap(() => Stream.of('a'))).toEqualTypeOf<
+	Stream.NonEmpty<string>
+>();
 
 // .flatZip(..)
-expectType<Stream<[number, string]>>(
-	Stream.empty<number>().flatZip((v) => [String(v)]),
-);
-expectType<Stream<[number, string]>>(
-	Stream.of(1).flatZip(() => Stream.empty<string>()),
-);
-expectType<Stream.NonEmpty<[number, string]>>(
-	Stream.of(1).flatZip((v) => [String(v)]),
-);
+expectTypeOf(Stream.empty<number>().flatZip((v) => [String(v)])).toEqualTypeOf<
+	Stream<[number, string]>
+>();
+expectTypeOf(Stream.of(1).flatZip(() => Stream.empty<string>())).toEqualTypeOf<
+	Stream<[number, string]>
+>();
+expectTypeOf(Stream.of(1).flatZip((v) => [String(v)])).toEqualTypeOf<
+	Stream.NonEmpty<[number, string]>
+>();
 
 // .transform(..)
-expectType<Stream<string>>(
+expectTypeOf(
 	Stream.empty<number>().transform(
 		null as unknown as Transformer<number, string>,
 	),
-);
-expectType<Stream<string>>(
+).toEqualTypeOf<Stream<string>>();
+expectTypeOf(
 	Stream.empty<number>().transform(
 		null as unknown as Transformer.NonEmpty<number, string>,
 	),
-);
-expectType<Stream<string>>(
+).toEqualTypeOf<Stream<string>>();
+expectTypeOf(
 	Stream.of(1).transform(null as unknown as Transformer<number, string>),
-);
-expectType<Stream.NonEmpty<string>>(
+).toEqualTypeOf<Stream<string>>();
+expectTypeOf(
 	Stream.of(1).transform(
 		null as unknown as Transformer.NonEmpty<number, string>,
 	),
-);
+).toEqualTypeOf<Stream.NonEmpty<string>>();
 
 // .fold(..)
-expectType<string>(Stream.empty<number>().fold('a', () => 'b'));
-expectType<string>(Stream.of(1).fold('a', () => 'b'));
-expectType<string>(
+expectTypeOf(
+	Stream.empty<number>().fold('a', () => 'b'),
+).toEqualTypeOf<string>();
+expectTypeOf(Stream.of(1).fold('a', () => 'b')).toEqualTypeOf<string>();
+expectTypeOf(
 	Stream.empty<number>().fold(
 		() => 'a',
 		() => 'b',
 	),
-);
-expectType<string>(
+).toEqualTypeOf<string>();
+expectTypeOf(
 	Stream.of(1).fold(
 		() => 'a',
 		() => 'b',
 	),
-);
+).toEqualTypeOf<string>();
 
 // .foldStream(..)
-expectType<Stream<string>>(Stream.empty<number>().foldStream('a', () => 'b'));
-expectType<Stream.NonEmpty<string>>(Stream.of(1).foldStream('a', () => 'b'));
+expectTypeOf(Stream.empty<number>().foldStream('a', () => 'b')).toEqualTypeOf<
+	Stream<string>
+>();
+expectTypeOf(Stream.of(1).foldStream('a', () => 'b')).toEqualTypeOf<
+	Stream.NonEmpty<string>
+>();
 
 // .groupBy(...)
-expectType<Map<number, string[]>>(
-	Stream.empty<string>().groupBy((v) => v.length),
-);
-expectType<string>(
-	Stream.empty<string>().groupBy((v) => v.length, {
-		collector: Reducer.join<[number, string]>(),
+expectTypeOf(
+	Stream.groupBy(Stream.empty<string>(), (v) => v.length)(),
+).toEqualTypeOf<Map<number, string[]>>();
+expectTypeOf(
+	Stream.groupBy(
+		Stream.empty<string>(),
+		(v) => v.length,
+	)({
+		collector: Reducer.join(),
 	}),
-);
-expectType<HashMap<number, string>>(
-	Stream.empty<string>().groupBy((v) => v.length, {
+).toEqualTypeOf<string>();
+expectTypeOf(
+	Stream.groupBy(
+		Stream.empty<string>(),
+		(v) => v.length,
+	)({
 		// accepts readonly tuples
 		collector: HashMap.reducer(),
 	}),
-);
-expectType<HashMultiMapHashValue<number, string>>(
-	Stream.empty<string>().groupBy((v) => v.length, {
+).toEqualTypeOf<HashMap<number, string>>();
+expectTypeOf(
+	Stream.groupBy(
+		Stream.empty<string>(),
+		(v) => v.length,
+	)({
 		// accepts normal tuples
 		collector: HashMultiMapHashValue.reducer(),
 	}),
-);
+).toEqualTypeOf<HashMultiMapHashValue<number, string>>();
 
 // .indexed()
-expectType<Stream<[number, string]>>(Stream.empty<string>().indexed());
-expectType<Stream.NonEmpty<[number, string]>>(Stream.of('a').indexed());
+expectTypeOf(Stream.empty<string>().indexed()).toEqualTypeOf<
+	Stream<[number, string]>
+>();
+expectTypeOf(Stream.of('a').indexed()).toEqualTypeOf<
+	Stream.NonEmpty<[number, string]>
+>();
 
 // .indexWhere(..)
-expectType<number | undefined>(Stream.empty<number>().indexWhere(() => true));
-expectType<number | undefined>(Stream.of(1).indexWhere(() => true));
+expectTypeOf(Stream.empty<number>().indexWhere(() => true)).toEqualTypeOf<
+	number | undefined
+>();
+expectTypeOf(Stream.of(1).indexWhere(() => true)).toEqualTypeOf<
+	number | undefined
+>();
 
 // .indexOf(..)
-expectType<number | undefined>(Stream.empty<number>().indexOf(2));
-expectType<number | undefined>(Stream.of(1).indexOf(2));
+expectTypeOf(Stream.empty<number>().indexOf(2)).toEqualTypeOf<
+	number | undefined
+>();
+expectTypeOf(Stream.of(1).indexOf(2)).toEqualTypeOf<number | undefined>();
 
 // .indicesOf(..)
-expectType<Stream<number>>(Stream.empty<string>().indicesOf('b'));
-expectType<Stream<number>>(Stream.of('a').indicesOf('b'));
+expectTypeOf(Stream.empty<string>().indicesOf('b')).toEqualTypeOf<
+	Stream<number>
+>();
+expectTypeOf(Stream.of('a').indicesOf('b')).toEqualTypeOf<Stream<number>>();
 
 // .indicesWhere(..)
-expectType<Stream<number>>(Stream.empty<string>().indicesWhere(() => true));
-expectType<Stream<number>>(Stream.of('a').indicesWhere(() => true));
+expectTypeOf(Stream.empty<string>().indicesWhere(() => true)).toEqualTypeOf<
+	Stream<number>
+>();
+expectTypeOf(Stream.of('a').indicesWhere(() => true)).toEqualTypeOf<
+	Stream<number>
+>();
 
 // .some(..)
-expectType<boolean>(Stream.empty<string>().some(() => true));
-expectType<boolean>(Stream.of('a').some(() => true));
+expectTypeOf(Stream.empty<string>().some(() => true)).toEqualTypeOf<boolean>();
+expectTypeOf(Stream.of('a').some(() => true)).toEqualTypeOf<boolean>();
 
 // .every(..)
-expectType<boolean>(Stream.empty<string>().every(() => true));
-expectType<boolean>(Stream.of('a').every(() => true));
+expectTypeOf(Stream.empty<string>().every(() => true)).toEqualTypeOf<boolean>();
+expectTypeOf(Stream.of('a').every(() => true)).toEqualTypeOf<boolean>();
 
 // .contains(..)
-expectType<boolean>(Stream.empty<number>().contains(2));
-expectType<boolean>(Stream.of(1).contains(2));
-expectError(Stream.of(1).contains('a'));
+expectTypeOf(Stream.empty<number>().contains(2)).toEqualTypeOf<boolean>();
+expectTypeOf(Stream.of(1).contains(2)).toEqualTypeOf<boolean>();
+// @ts-expect-error
+Stream.of(1).contains('a');
 
 // .containsSlice(..)
-expectType<boolean>(Stream.empty<number>().containsSlice([2]));
-expectType<boolean>(Stream.of(1).containsSlice([2]));
-expectError(Stream.of(1).containsSlice(['a']));
+expectTypeOf(
+	Stream.empty<number>().containsSlice([2]),
+).toEqualTypeOf<boolean>();
+expectTypeOf(Stream.of(1).containsSlice([2])).toEqualTypeOf<boolean>();
+// @ts-expect-error
+Stream.of(1).containsSlice(['a']);
 
 // .intersperse(..)
-expectType<Stream<number>>(
+expectTypeOf(
 	Stream.empty<number>().intersperse(Stream.empty<number>()),
-);
-expectType<Stream.NonEmpty<number>>(
-	Stream.of(1).intersperse(Stream.empty<number>()),
-);
-expectType<Stream<number>>(Stream.empty<number>().intersperse(Stream.of(1)));
-expectType<Stream.NonEmpty<number>>(Stream.of(1).intersperse(Stream.of(1)));
+).toEqualTypeOf<Stream<number>>();
+expectTypeOf(Stream.of(1).intersperse(Stream.empty<number>())).toEqualTypeOf<
+	Stream.NonEmpty<number>
+>();
+expectTypeOf(Stream.empty<number>().intersperse(Stream.of(1))).toEqualTypeOf<
+	Stream<number>
+>();
+expectTypeOf(Stream.of(1).intersperse(Stream.of(1))).toEqualTypeOf<
+	Stream.NonEmpty<number>
+>();
 
 // .last(..)
-expectType<number | undefined>(Stream.empty<number>().last());
-expectError(Stream.of(1).last(3));
+expectTypeOf(Stream.empty<number>().last()).toEqualTypeOf<number | undefined>();
+// @ts-expect-error
+Stream.of(1).last(3);
 
-expectType<number>(Stream.empty<number>().last(3));
-expectType<number>(Stream.empty<number>().last(() => 3));
-expectType<number>(Stream.of(1).last());
-expectType<number | string>(Stream.empty<number>().last('a' as string));
+expectTypeOf(Stream.empty<number>().last(3)).toEqualTypeOf<number>();
+expectTypeOf(Stream.empty<number>().last(() => 3)).toEqualTypeOf<number>();
+expectTypeOf(Stream.of(1).last()).toEqualTypeOf<number>();
+expectTypeOf(Stream.empty<number>().last('a' as string)).toEqualTypeOf<
+	number | string
+>();
 
 // .map(..)
-expectType<Stream<string>>(Stream.empty<number>().map(() => 'a'));
-expectType<Stream.NonEmpty<string>>(Stream.of(1).map(() => 'a'));
+expectTypeOf(Stream.empty<number>().map(() => 'a')).toEqualTypeOf<
+	Stream<string>
+>();
+expectTypeOf(Stream.of(1).map(() => 'a')).toEqualTypeOf<
+	Stream.NonEmpty<string>
+>();
 
 // .mapPure(..)
-expectType<Stream<string>>(Stream.empty<number>().mapPure(() => 'a'));
-expectType<Stream.NonEmpty<string>>(Stream.of(1).mapPure(() => 'a'));
+expectTypeOf(Stream.empty<number>().mapPure(() => 'a')).toEqualTypeOf<
+	Stream<string>
+>();
+expectTypeOf(Stream.of(1).mapPure(() => 'a')).toEqualTypeOf<
+	Stream.NonEmpty<string>
+>();
 
 // .max(..)
-expectType<number | undefined>(Stream.empty<number>().max());
-expectError(Stream.of(1).max(3));
+expectTypeOf(Stream.empty<number>().max()).toEqualTypeOf<number | undefined>();
+// @ts-expect-error
+Stream.of(1).max(3);
 
-expectType<number>(Stream.empty<number>().max(3));
-expectType<number>(Stream.empty<number>().max(() => 3));
-expectType<number>(Stream.of(1).max());
-expectType<number | string>(Stream.empty<number>().max('a' as string));
+expectTypeOf(Stream.empty<number>().max(3)).toEqualTypeOf<number>();
+expectTypeOf(Stream.empty<number>().max(() => 3)).toEqualTypeOf<number>();
+expectTypeOf(Stream.of(1).max()).toEqualTypeOf<number>();
+expectTypeOf(Stream.empty<number>().max('a' as string)).toEqualTypeOf<
+	number | string
+>();
 
 // .min(..)
-expectType<number | undefined>(Stream.empty<number>().min());
-expectError(Stream.of(1).min(3));
+expectTypeOf(Stream.empty<number>().min()).toEqualTypeOf<number | undefined>();
+// @ts-expect-error
+Stream.of(1).min(3);
 
-expectType<number>(Stream.empty<number>().min(3));
-expectType<number>(Stream.empty<number>().min(() => 3));
-expectType<number>(Stream.of(1).min());
-expectType<number | string>(Stream.empty<number>().min('a' as string));
+expectTypeOf(Stream.empty<number>().min(3)).toEqualTypeOf<number>();
+expectTypeOf(Stream.empty<number>().min(() => 3)).toEqualTypeOf<number>();
+expectTypeOf(Stream.of(1).min()).toEqualTypeOf<number>();
+expectTypeOf(Stream.empty<number>().min('a' as string)).toEqualTypeOf<
+	number | string
+>();
 
 // .maxBy(..)
-expectType<number>(Stream.empty<number>().maxBy(() => 0, 3));
-expectType<number>(
+expectTypeOf(Stream.empty<number>().maxBy(() => 0, 3)).toEqualTypeOf<number>();
+expectTypeOf(
 	Stream.empty<number>().maxBy(
 		() => 0,
 		() => 3,
 	),
-);
-expectType<number>(Stream.of(1).maxBy(() => 0));
-expectType<number | string>(
+).toEqualTypeOf<number>();
+expectTypeOf(Stream.of(1).maxBy(() => 0)).toEqualTypeOf<number>();
+expectTypeOf(
 	Stream.empty<number>().maxBy(() => 0, 'a' as string),
-);
+).toEqualTypeOf<number | string>();
 
 // .minBy(..)
-expectType<number>(Stream.empty<number>().minBy(() => 0, 3));
-expectType<number>(
+expectTypeOf(Stream.empty<number>().minBy(() => 0, 3)).toEqualTypeOf<number>();
+expectTypeOf(
 	Stream.empty<number>().minBy(
 		() => 0,
 		() => 3,
 	),
-);
-expectType<number>(Stream.of(1).minBy(() => 0));
-expectType<number | string>(
+).toEqualTypeOf<number>();
+expectTypeOf(Stream.of(1).minBy(() => 0)).toEqualTypeOf<number>();
+expectTypeOf(
 	Stream.empty<number>().minBy(() => 0, 'a' as string),
-);
+).toEqualTypeOf<number | string>();
 
 // .mkGroup(..)
-expectType<Stream<number>>(Stream.empty<number>().mkGroup({}));
-expectType<Stream.NonEmpty<number>>(Stream.of(1).mkGroup({}));
+expectTypeOf(Stream.empty<number>().mkGroup({})).toEqualTypeOf<
+	Stream<number>
+>();
+expectTypeOf(Stream.of(1).mkGroup({})).toEqualTypeOf<Stream.NonEmpty<number>>();
 
-expectType<Stream<number>>(
+expectTypeOf(
 	Stream.empty<number>().mkGroup({ start: Stream.empty<number>() }),
-);
-expectType<Stream<number>>(
+).toEqualTypeOf<Stream<number>>();
+expectTypeOf(
 	Stream.empty<number>().mkGroup({ sep: Stream.empty<number>() }),
-);
-expectType<Stream<number>>(
+).toEqualTypeOf<Stream<number>>();
+expectTypeOf(
 	Stream.empty<number>().mkGroup({ end: Stream.empty<number>() }),
-);
+).toEqualTypeOf<Stream<number>>();
 
-expectType<Stream<number>>(
+expectTypeOf(
 	Stream.empty<number>().mkGroup({ sep: Stream.of(1) }),
-);
+).toEqualTypeOf<Stream<number>>();
 
 // TODO
 // expectType<Stream.NonEmpty<number>>(
@@ -586,179 +732,219 @@ expectType<Stream<number>>(
 //   Stream.empty<number>().mkGroup({ end: Stream.of(1) })
 // );
 
-expectType<Stream.NonEmpty<number>>(
+expectTypeOf(
 	Stream.of(1).mkGroup({ start: Stream.empty<number>() }),
-);
-expectType<Stream.NonEmpty<number>>(
+).toEqualTypeOf<Stream.NonEmpty<number>>();
+expectTypeOf(
 	Stream.of(1).mkGroup({ sep: Stream.empty<number>() }),
-);
-expectType<Stream.NonEmpty<number>>(
+).toEqualTypeOf<Stream.NonEmpty<number>>();
+expectTypeOf(
 	Stream.of(1).mkGroup({ end: Stream.empty<number>() }),
-);
+).toEqualTypeOf<Stream.NonEmpty<number>>();
 
-expectType<Stream.NonEmpty<number>>(
-	Stream.of(1).mkGroup({ start: Stream.of(1) }),
-);
-expectType<Stream.NonEmpty<number>>(
-	Stream.of(1).mkGroup({ sep: Stream.of(1) }),
-);
-expectType<Stream.NonEmpty<number>>(
-	Stream.of(1).mkGroup({ end: Stream.of(1) }),
-);
+expectTypeOf(Stream.of(1).mkGroup({ start: Stream.of(1) })).toEqualTypeOf<
+	Stream.NonEmpty<number>
+>();
+expectTypeOf(Stream.of(1).mkGroup({ sep: Stream.of(1) })).toEqualTypeOf<
+	Stream.NonEmpty<number>
+>();
+expectTypeOf(Stream.of(1).mkGroup({ end: Stream.of(1) })).toEqualTypeOf<
+	Stream.NonEmpty<number>
+>();
 
 // .partition(...)
-expectType<[number[], number[]]>(Stream.of(1).partition(() => false));
-expectType<[Set<number>, number]>(
-	Stream.of(1).partition(() => false, {
+expectTypeOf(Stream.partition(Stream.of(1), () => false)()).toEqualTypeOf<
+	[number[], number[]]
+>();
+expectTypeOf(
+	Stream.partition(
+		Stream.of(1),
+		() => false,
+	)({
 		collectorTrue: Reducer.toJSSet(),
 		collectorFalse: Reducer.sum,
 	}),
-);
+).toEqualTypeOf<[Set<number>, number]>();
 
-expectType<[string[], number[]]>(
-	Stream.empty<number | string>().partition((v): v is string => false),
-);
-expectType<[Set<string>, number]>(
-	Stream.empty<number | string>().partition((v): v is string => false, {
+expectTypeOf(
+	Stream.partition(
+		Stream.empty<number | string>(),
+		(v): v is string => false,
+	)(),
+).toEqualTypeOf<[string[], number[]]>();
+expectTypeOf(
+	Stream.partition(
+		Stream.empty<number | string>(),
+		(v): v is string => false,
+	)({
 		collectorTrue: Reducer.toJSSet(),
 		collectorFalse: Reducer.sum,
 	}),
-);
+).toEqualTypeOf<[Set<string>, number]>();
 
 // .prepend(..)
-expectType<Stream.NonEmpty<number>>(Stream.empty<number>().prepend(3));
-expectType<Stream.NonEmpty<number>>(Stream.of(1).prepend(3));
+expectTypeOf(Stream.empty<number>().prepend(3)).toEqualTypeOf<
+	Stream.NonEmpty<number>
+>();
+expectTypeOf(Stream.of(1).prepend(3)).toEqualTypeOf<Stream.NonEmpty<number>>();
 
 // .reduce(..)
-expectType<boolean>(Stream.empty<number>().reduce(Reducer.isEmpty));
-expectType<boolean>(Stream.of(1).reduce(Reducer.isEmpty));
-expectError<number | boolean>(
-	Stream.empty<number | boolean>().reduce(Reducer.sum),
-);
+expectTypeOf(
+	Stream.empty<number>().reduce(Reducer.isEmpty),
+).toEqualTypeOf<boolean>();
+expectTypeOf(Stream.of(1).reduce(Reducer.isEmpty)).toEqualTypeOf<boolean>();
+// @ts-expect-error
+Stream.empty<number | boolean>().reduce(Reducer.sum);
 
 // .reduce(..) shape
-expectType<[boolean, number, string]>(
+expectTypeOf(
 	Stream.empty<number>().reduce([
 		Reducer.isEmpty,
 		Reducer.sum,
 		Reducer.join<number>(),
 	]),
-);
-expectType<[boolean, number, string]>(
+).toEqualTypeOf<[boolean, number, string]>();
+expectTypeOf(
 	Stream.of(1).reduce([Reducer.isEmpty, Reducer.sum, Reducer.join<number>()]),
-);
+).toEqualTypeOf<[boolean, number, string]>();
 
 // .reduceStream(..) shapes
-expectType<Stream<[boolean, number, string]>>(
+expectTypeOf(
 	Stream.empty<number>().reduceStream([
 		Reducer.isEmpty,
 		Reducer.sum,
 		Reducer.join<number>(),
 	]),
-);
-expectType<Stream<[boolean, number, string]>>(
+).toEqualTypeOf<Stream<[boolean, number, string]>>();
+expectTypeOf(
 	Stream.of(1).reduceStream([
 		Reducer.isEmpty,
 		Reducer.sum,
 		Reducer.join<number>(),
 	]),
-);
-expectType<
-	Stream<{ readonly a: [boolean, number]; readonly b: { readonly c: string } }>
->(
+).toEqualTypeOf<Stream<[boolean, number, string]>>();
+expectTypeOf(
 	Stream.of(1).reduceStream({
 		a: [Reducer.isEmpty, Reducer.sum],
 		b: { c: Reducer.join<number>() },
 	}),
-);
+).toEqualTypeOf<
+	Stream<{ readonly a: [boolean, number]; readonly b: { readonly c: string } }>
+>();
 
 // .reduceStream(..)
-expectType<Stream<boolean>>(
+expectTypeOf(
 	Stream.empty<number>().reduceStream(Reducer.isEmpty),
-);
-expectType<Stream<boolean>>(Stream.of(1).reduceStream(Reducer.isEmpty));
+).toEqualTypeOf<Stream<boolean>>();
+expectTypeOf(Stream.of(1).reduceStream(Reducer.isEmpty)).toEqualTypeOf<
+	Stream<boolean>
+>();
 
 // .repeat(..)
-expectType<Stream<number>>(Stream.empty<number>().repeat());
-expectType<Stream.NonEmpty<number>>(Stream.of(1).repeat());
-expectType<Stream<number>>(Stream.empty<number>().repeat(3));
-expectType<Stream.NonEmpty<number>>(Stream.of(1).repeat(3));
+expectTypeOf(Stream.empty<number>().repeat()).toEqualTypeOf<Stream<number>>();
+expectTypeOf(Stream.of(1).repeat()).toEqualTypeOf<Stream.NonEmpty<number>>();
+expectTypeOf(Stream.empty<number>().repeat(3)).toEqualTypeOf<Stream<number>>();
+expectTypeOf(Stream.of(1).repeat(3)).toEqualTypeOf<Stream.NonEmpty<number>>();
 
 // .splitOn(..)
-expectType<Stream<number[]>>(Stream.empty<number>().splitOn(3));
-expectType<Stream<number[]>>(Stream.of(1).splitOn(3));
+expectTypeOf(Stream.empty<number>().splitOn(3)).toEqualTypeOf<
+	Stream<number[]>
+>();
+expectTypeOf(Stream.of(1).splitOn(3)).toEqualTypeOf<Stream<number[]>>();
 
 // .splitOnSlice(...)
-expectType<Stream<number[]>>(Stream.of(1).splitOnSlice(Stream.of(1)));
-expectType<Stream<Set<number>>>(
+expectTypeOf(Stream.of(1).splitOnSlice(Stream.of(1))).toEqualTypeOf<
+	Stream<number[]>
+>();
+expectTypeOf(
 	Stream.of(1).splitOnSlice(Stream.of(1), { collector: Reducer.toJSSet() }),
-);
+).toEqualTypeOf<Stream<Set<number>>>();
 
 // .splitWhere(..)
-expectType<Stream<number[]>>(Stream.empty<number>().splitWhere(() => true));
-expectType<Stream<number[]>>(Stream.of(1).splitWhere(() => true));
+expectTypeOf(Stream.empty<number>().splitWhere(() => true)).toEqualTypeOf<
+	Stream<number[]>
+>();
+expectTypeOf(Stream.of(1).splitWhere(() => true)).toEqualTypeOf<
+	Stream<number[]>
+>();
 
 // .stream()
-expectType<Stream<number>>(Stream.empty<number>().stream());
-expectType<Stream.NonEmpty<number>>(Stream.of(1).stream());
+expectTypeOf(Stream.empty<number>().stream()).toEqualTypeOf<Stream<number>>();
+expectTypeOf(Stream.of(1).stream()).toEqualTypeOf<Stream.NonEmpty<number>>();
 
 // .take(..)
-expectType<Stream<number>>(Stream.empty<number>().take(2));
-expectType<Stream<number>>(Stream.of(1).take(0));
-expectType<Stream<number>>(Stream.of(1).take(2));
+expectTypeOf(Stream.empty<number>().take(2)).toEqualTypeOf<Stream<number>>();
+expectTypeOf(Stream.of(1).take(0)).toEqualTypeOf<Stream<number>>();
+expectTypeOf(Stream.of(1).take(2)).toEqualTypeOf<Stream<number>>();
 
 // .takeWhile(..)
-expectType<Stream<number>>(Stream.empty<number>().takeWhile(() => true));
-expectType<Stream<number>>(Stream.of(1).takeWhile(() => true));
+expectTypeOf(Stream.empty<number>().takeWhile(() => true)).toEqualTypeOf<
+	Stream<number>
+>();
+expectTypeOf(Stream.of(1).takeWhile(() => true)).toEqualTypeOf<
+	Stream<number>
+>();
 
 // .toArray()
-expectType<number[]>(Stream.empty<number>().toArray());
-expectType<ArrayNonEmpty<number>>(Stream.of(1).toArray());
+expectTypeOf(Stream.empty<number>().toArray()).toEqualTypeOf<number[]>();
+expectTypeOf(Stream.of(1).toArray()).toEqualTypeOf<ArrayNonEmpty<number>>();
 
 // .equals(..)
-expectType<boolean>(Stream.empty<number>().equals([1]));
-expectType<boolean>(Stream.of(1).equals([1]));
+expectTypeOf(Stream.empty<number>().equals([1])).toEqualTypeOf<boolean>();
+expectTypeOf(Stream.of(1).equals([1])).toEqualTypeOf<boolean>();
 
 // .count()
-expectType<number>(Stream.empty<number>().count());
-expectType<number>(Stream.of(1).count());
+expectTypeOf(Stream.empty<number>().count()).toEqualTypeOf<number>();
+expectTypeOf(Stream.of(1).count()).toEqualTypeOf<number>();
 
 // .countElement(..)
-expectType<number>(Stream.empty<number>().countElement(1));
-expectType<number>(Stream.of(1).countElement(1));
+expectTypeOf(Stream.empty<number>().countElement(1)).toEqualTypeOf<number>();
+expectTypeOf(Stream.of(1).countElement(1)).toEqualTypeOf<number>();
 
 // .countElement(..) negate
-expectType<number>(Stream.empty<number>().countElement(1, { negate: true }));
-expectType<number>(Stream.of(1).countElement(1, { negate: true }));
+expectTypeOf(
+	Stream.empty<number>().countElement(1, { negate: true }),
+).toEqualTypeOf<number>();
+expectTypeOf(
+	Stream.of(1).countElement(1, { negate: true }),
+).toEqualTypeOf<number>();
 
 // .join(..)
-expectType<string>(Stream.empty<number>().join());
-expectType<string>(Stream.of(1).join());
+expectTypeOf(Stream.empty<number>().join()).toEqualTypeOf<string>();
+expectTypeOf(Stream.of(1).join()).toEqualTypeOf<string>();
 
 // .distinctPrevious(..)
-expectType<Stream<number>>(Stream.empty<number>().distinctPrevious());
-expectType<Stream.NonEmpty<number>>(Stream.of(1).distinctPrevious());
+expectTypeOf(Stream.empty<number>().distinctPrevious()).toEqualTypeOf<
+	Stream<number>
+>();
+expectTypeOf(Stream.of(1).distinctPrevious()).toEqualTypeOf<
+	Stream.NonEmpty<number>
+>();
 
 // .window(...)
-expectType<Stream<number[]>>(Stream.of(1).window(2));
-expectType<Stream<Set<number>>>(
+expectTypeOf(Stream.of(1).window(2)).toEqualTypeOf<Stream<number[]>>();
+expectTypeOf(
 	Stream.of(1).window(2, { collector: Reducer.toJSSet() }),
-);
+).toEqualTypeOf<Stream<Set<number>>>();
 
 // .withOnly(...)
-expectType<Stream<undefined>>(
+expectTypeOf(
 	Stream.empty<number | undefined>().withOnly([undefined]),
-);
-expectType<Stream<1>>(Stream.empty<number | undefined>().withOnly([1]));
-expectType<Stream<1 | 2>>(Stream.empty<number | undefined>().withOnly([1, 2]));
+).toEqualTypeOf<Stream<undefined>>();
+expectTypeOf(Stream.empty<number | undefined>().withOnly([1])).toEqualTypeOf<
+	Stream<1>
+>();
+expectTypeOf(Stream.empty<number | undefined>().withOnly([1, 2])).toEqualTypeOf<
+	Stream<1 | 2>
+>();
 
 // .without(...)
-expectType<Stream<number>>(
+expectTypeOf(
 	Stream.empty<number | undefined>().without([undefined]),
-);
-expectType<Stream<number | undefined>>(
-	Stream.empty<number | undefined>().without([1]),
-);
-expectType<Stream<1 | 3>>(
+).toEqualTypeOf<Stream<number>>();
+expectTypeOf(Stream.empty<number | undefined>().without([1])).toEqualTypeOf<
+	Stream<number | undefined>
+>();
+expectTypeOf(
 	Stream.empty<1 | 2 | 3 | undefined>().without([undefined, 2]),
-);
+).toEqualTypeOf<Stream<1 | 3>>();

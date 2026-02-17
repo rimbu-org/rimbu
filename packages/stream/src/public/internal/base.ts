@@ -630,20 +630,6 @@ export abstract class StreamBase<T> implements Stream<T> {
 		return this.transform(Transformer.window(windowSize, options as any));
 	}
 
-	partition(
-		pred: (value: T, index: number) => any,
-		options: { collectorTrue?: any; collectorFalse?: any } = {},
-	): [any, any] {
-		return this.reduce(Reducer.partition(pred, options));
-	}
-
-	groupBy<K, R>(
-		valueToKey: (value: T, index: number) => K,
-		options: { collector?: Reducer<readonly [K, T], R> | undefined } = {},
-	): R {
-		return this.reduce(Reducer.groupBy<T, K, R>(valueToKey, options as any));
-	}
-
 	fold<R>(
 		init: OptLazy<R>,
 		next: (current: R, value: T, index: number, halt: () => void) => R,
@@ -658,11 +644,11 @@ export abstract class StreamBase<T> implements Stream<T> {
 		return this.reduceStream(Reducer.fold(init, next));
 	}
 
-	reduce<const S extends Reducer.CombineShape<T2>, T2 extends T = T>(
-		shape: S & Reducer.CombineShape<T2>,
-	): Reducer.CombineResult<S> {
+	reduce<const S extends Reducer.CombineShape<T>>(
+		shape: S & Reducer.CombineShape<T>,
+	): any {
 		const reducerInstance = Reducer.combine(
-			shape,
+			shape as any,
 		).compile() as Reducer.Instance<T, Reducer.CombineResult<S>>;
 
 		const done = Symbol('Done');
@@ -676,11 +662,11 @@ export abstract class StreamBase<T> implements Stream<T> {
 		return reducerInstance.getOutput();
 	}
 
-	reduceStream<const S extends Reducer.CombineShape<T2>, T2 extends T = T>(
-		shape: S & Reducer.CombineShape<T2>,
+	reduceStream<const S extends Reducer.CombineShape<T>>(
+		shape: S & Reducer.CombineShape<T>,
 	): Stream<Reducer.CombineResult<S>> {
-		const reducer = Reducer.combine(shape) as Reducer<
-			T2,
+		const reducer = Reducer.combine(shape as any) as Reducer<
+			T,
 			Reducer.CombineResult<S>
 		>;
 
@@ -1690,23 +1676,6 @@ export class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
 	}
 	window<R>(): Stream<R> {
 		return this as any;
-	}
-	partition(
-		pred: any,
-		options: {
-			collectorTrue?: any;
-			collectorFalse?: any;
-		} = {},
-	): [any, any] {
-		const {
-			collectorTrue = Reducer.toArray(),
-			collectorFalse = Reducer.toArray(),
-		} = options;
-
-		return [
-			collectorTrue.compile().getOutput(),
-			collectorFalse.compile().getOutput(),
-		];
 	}
 	fold<R>(init: OptLazy<R>): R {
 		return OptLazy(init);

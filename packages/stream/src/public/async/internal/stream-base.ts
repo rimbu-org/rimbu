@@ -756,29 +756,6 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 		return this.transform(AsyncTransformer.window(windowSize, options as any));
 	}
 
-	partition(
-		pred: (value: T, index: number) => MaybePromise<boolean>,
-		options: {
-			collectorTrue?: any;
-			collectorFalse?: any;
-		} = {},
-	): Promise<[any, any]> {
-		return (this as AsyncStream<T>).reduce<[any, any]>(
-			AsyncReducer.partition(pred, options),
-		);
-	}
-
-	groupBy<K, R>(
-		valueToKey: (value: T, index: number) => MaybePromise<K>,
-		options: {
-			collector?: AsyncReducer.Accept<readonly [K, T], R> | undefined;
-		} = {},
-	): Promise<R> {
-		return (this as AsyncStream<T>).reduce(
-			AsyncReducer.groupBy<T, K, R>(valueToKey, options as any),
-		);
-	}
-
 	async fold<R>(
 		init: AsyncOptLazy<R>,
 		next: (

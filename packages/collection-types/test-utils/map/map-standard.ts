@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 
+import type { RMap } from '@rimbu/collection-types';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
-import type { RMap } from 'entry/collection-types.mjs';
 
 import * as Entry from '@rimbu/base/entry';
 import { Stream } from '@rimbu/stream';

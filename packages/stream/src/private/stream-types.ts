@@ -49,6 +49,9 @@ export namespace StreamSource {
 		| Stream.NonEmpty<T>
 		| Streamable.NonEmpty<T>
 		| readonly [T, ...T[]];
+
+	export type ElementType<S extends StreamSource<unknown>> =
+		S extends StreamSource<infer T> ? T : never;
 }
 
 /**

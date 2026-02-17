@@ -10,6 +10,7 @@ import type { AsyncStreamFactory } from '#async/factory';
 import type { StreamSource } from '#private/stream-types';
 
 import { Module } from '@rimbu/common/module';
+import { AsyncReducer } from '../reducer';
 
 import {
 	AsyncUnfoldIterator,
@@ -29,6 +30,7 @@ import { StreamFactory } from '#stream/factory';
 
 export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 	(mod) => ({
+		Constructors: () => mod,
 		isAsyncStream: (obj: any) => {
 			return obj instanceof AsyncStreamBase;
 		},
@@ -131,5 +133,29 @@ export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 		asyncFastIteratorFactory: Module.lazyGetter(() =>
 			asyncFastIteratorFactoryModule.build(),
 		),
+		groupBy: <T, K>(
+			source: AsyncStreamSource<T>,
+			valueToKey: (value: T, index: number) => MaybePromise<K>,
+		): (<R>(
+			options?: { collector?: any | undefined } | undefined,
+		) => Promise<R>) => {
+			return <R>(options = {}) => {
+				return mod
+					.fromAsyncStreamSource(source)
+					.reduce(
+						AsyncReducer.groupBy(valueToKey, options as any),
+					) as Promise<R>;
+			};
+		},
+		partition: <T>(
+			source: AsyncStreamSource<T>,
+			pred: (value: T, index: number) => MaybePromise<boolean>,
+		): ((options?: { collectorTrue?: any; collectorFalse?: any }) => any) => {
+			return (options = {}) => {
+				return mod
+					.fromAsyncStreamSource(source)
+					.reduce(AsyncReducer.partition(pred, options));
+			};
+		},
 	}),
 );

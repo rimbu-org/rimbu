@@ -1,8 +1,7 @@
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { HashSet } from '@rimbu/hashed/set';
 import type { List } from '@rimbu/list';
-
-import type { HashSetContext } from '#set/context';
+import type { ContextImpl } from './context-factory';
 
 import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';
@@ -19,7 +18,7 @@ export class HashSetEmpty<T = any> extends EmptyBase implements HashSet<T> {
 
 	readonly addAll: any;
 
-	constructor(readonly context: HashSetContext<T>) {
+	constructor(readonly context: ContextImpl<T>) {
 		super();
 
 		this.addAll = context.from;
@@ -30,7 +29,7 @@ export class HashSetEmpty<T = any> extends EmptyBase implements HashSet<T> {
 	}
 
 	add(value: T): HashSet.NonEmpty<T> {
-		return this.context.emptyBlock().add(value);
+		return this.context.emptyBlock.add(value);
 	}
 
 	remove(): this {
@@ -86,7 +85,7 @@ export abstract class HashSetNonEmptyBase<T>
 {
 	declare _NonEmptyType: HashSet.NonEmpty<T>;
 
-	abstract get context(): HashSetContext<T>;
+	abstract get context(): ContextImpl<T>;
 	abstract get size(): number;
 	abstract stream(): Stream.NonEmpty<T>;
 	abstract forEach(
@@ -202,7 +201,7 @@ export type SetEntrySet<T> = HashSetBlock<T> | HashSetCollision<T>;
 
 export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 	constructor(
-		readonly context: HashSetContext<T>,
+		readonly context: ContextImpl<T>,
 		readonly entries: readonly T[] | null,
 		readonly entrySets: readonly SetEntrySet<T>[] | null,
 		readonly size: number,
@@ -444,7 +443,7 @@ export class HashSetBlock<T> extends HashSetNonEmptyBase<T> {
 
 export class HashSetCollision<T> extends HashSetNonEmptyBase<T> {
 	constructor(
-		readonly context: HashSetContext<T>,
+		readonly context: ContextImpl<T>,
 		readonly entries: List.NonEmpty<T>,
 	) {
 		super();

@@ -32,10 +32,10 @@ import { LeafTree } from '#list/immutable/leaf/tree';
 import { NonLeafBlock } from '#list/immutable/nonleaf/block';
 import { NonLeafTree } from '#list/immutable/nonleaf/tree';
 
-const createImmutableFactory = Module.createPartial<
-	ImmutableFactory,
-	ContextFactory
->((mod) => ({
+const createImmutableFactory = Module.createPartial<{
+	defines: ImmutableFactory;
+	requires: ContextFactory;
+}>((mod) => ({
 	leafBlock: <T>(children: readonly T[]): LeafBlock<T> =>
 		new LeafBlock(mod, children),
 	reversedLeaf: <T>(children: readonly T[]): ReversedLeafBlock<T> =>
@@ -81,10 +81,10 @@ const createImmutableFactory = Module.createPartial<
 	},
 }));
 
-const createBuilderFactory = Module.createPartial<
-	BuilderFactory,
-	ContextFactory
->((mod) => ({
+const createBuilderFactory = Module.createPartial<{
+	defines: BuilderFactory;
+	requires: ContextFactory;
+}>((mod) => ({
 	builder: <T>(): GenBuilder<T> => {
 		return new GenBuilder<T>(mod);
 	},
@@ -169,10 +169,10 @@ const createBuilderFactory = Module.createPartial<
 	},
 }));
 
-const createListCreators = Module.createPartial<
-	Omit<ListCreators, 'builder' | 'defaultContext'>,
-	ContextFactory
->((mod) => ({
+const createListCreators = Module.createPartial<{
+	defines: Omit<ListCreators, 'builder' | 'defaultContext'>;
+	requires: ContextFactory;
+}>((mod) => ({
 	empty: Module.lazy(() => Object.freeze(new Empty(mod))),
 	of: <T>(...values: ArrayNonEmpty<T>): List.NonEmpty<T> => {
 		if (values.length <= mod.maxBlockSize) {

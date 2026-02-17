@@ -58,6 +58,9 @@ export namespace AsyncStreamSource {
 		| AsyncStreamable.NonEmpty<T>
 		| StreamSource.NonEmpty<T>
 		| (() => MaybePromise<AsyncStreamSource.NonEmpty<T>>);
+
+	export type ElementType<S extends AsyncStreamSource<any>> =
+		S extends AsyncStreamSource<infer T> ? T : never;
 }
 
 /**

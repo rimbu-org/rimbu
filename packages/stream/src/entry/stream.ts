@@ -13,7 +13,7 @@ import type {
 } from '#private/stream-types';
 import type { StreamConstructors } from '#stream/constructors';
 
-import { streamFactoryModule } from '@rimbu/stream/internal/factory-module';
+import { streamFactoryModule } from '#stream/factory-module';
 
 export type * from '#private/stream-types';
 
@@ -953,75 +953,6 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 		options?: { skipAmount?: number | undefined; collector?: undefined },
 	): Stream<T[]>;
 	/**
-	 * Returns a tuple of which the first element is the result of collecting the elements for which the given `predicate` is true, and
-	 * the second one the result of collecting the other elements. Own reducers can be provided as collectors, by default the values are
-	 * collected into an array.
-	 * @param pred - a predicate receiving the value and its index
-	 * @param options - (optional) an object containing the following properties:<br/>
-	 * - collectorTrue: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is true<br/>
-	 * - collectorFalse: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is false
-	 * @typeparam T - the input element type
-	 * @typeparam RT - the reducer result type for the `collectorTrue` value
-	 * @typeparam RF - the reducer result type for the `collectorFalse` value
-	 * @note if the predicate is a type guard, the return type is automatically inferred
-	 */
-	partition<T2 extends T, RT, RF>(
-		pred: (value: T, index: number) => value is T2,
-		options: {
-			collectorTrue: Reducer<T2, RT>;
-			collectorFalse: Reducer<Exclude<T, T2>, RF>;
-		},
-	): [true: RT, false: RF];
-	partition<T2 extends T>(
-		pred: (value: T, index: number) => value is T2,
-		options?: {
-			collectorTrue?: undefined;
-			collectorFalse?: undefined;
-		},
-	): [true: T2[], false: Exclude<T, T2>[]];
-	partition<RT, RF, T2 extends T = T>(
-		pred: (value: T, index: number) => boolean,
-		options: {
-			collectorTrue: Reducer<T | T2, RT>;
-			collectorFalse: Reducer<T | T2, RF>;
-		},
-	): [true: RT, false: RF];
-	partition(
-		pred: (value: T, index: number) => boolean,
-		options?: {
-			collectorTrue?: undefined;
-			collectorFalse?: undefined;
-		},
-	): [true: T[], false: T[]];
-	/**
-	 * Returns the result of applying the `valueToKey` function to calculate a key for each value, and feeding the tuple of the key and the value to the
-	 * `collector` reducer, and finally returning its result. If no collector is given, the default collector will return a JS multimap
-	 * of the type `Map<K, V[]>`.
-	 * @param valueToKey - function taking a value and its index, and returning the corresponding key
-	 * @param options - (optional) an object containing the following properties:<br/>
-	 * - collector: (default: Reducer.toArray()) a reducer that collects the incoming tuple of key and value, and provides the output
-	 * @typeparam T - the input value type
-	 * @typeparam K - the key type
-	 * @typeparam R - the collector output type
-	 * @example
-	 * ```ts
-	 * Stream.of(1, 2, 3).groupBy((v) => v % 2)
-	 * // => Map {0 => [2], 1 => [1, 3]}
-	 * ```
-	 */
-	groupBy<K, R, T2 extends readonly [K, T] = [K, T]>(
-		valueToKey: (value: T, index: number) => K,
-		options: {
-			collector: Reducer<[K, T] | T2, R>;
-		},
-	): R;
-	groupBy<K>(
-		valueToKey: (value: T, index: number) => K,
-		options?: {
-			collector?: undefined;
-		},
-	): Map<K, T[]>;
-	/**
 	 * Returns the value resulting from applying the given the given `next` function to a current state (initially the given `init` value),
 	 * and the next Stream value, and returning the new state. When all elements are processed, the resulting state is returned.
 	 * @typeparam R - the resulting element type
@@ -1074,6 +1005,17 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 		next: (current: R, value: T, index: number, halt: () => void) => R,
 	): Stream<R>;
 	/**
+	 * Applies the given combined `Reducer` to each element in the Stream, and returns the final result.
+	 * @typeparam S - a shape defining a combined reducer definition
+	 * @param shape - the `Reducer` combined instance to use to apply to all stream elements.
+	 * @example
+	 * ```ts
+	 * console.log(Stream.of(1, 2, 4).reduce([Reducer.sum, { prod: Reducer.product }]))
+	 * // => [7, { prod: 8 }]
+	 * ```
+	 */
+	reduce<R, T2 = T>(reducer: Reducer<T | T2, R>): R;
+	/**
 	 * Applies the given `reducer` to each element in the Stream, and returns the final result.
 	 * @typeparam R - the result type
 	 * @param reducer - the `Reducer` instance to use to apply to all Stream elements.
@@ -1083,17 +1025,6 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * // => 7
 	 * console.log(Stream.of(1, 2, 4).reduce(Reducer.product))
 	 * // => 8
-	 * ```
-	 */
-	reduce<R, T2 = T>(reducer: Reducer<T | T2, R>): R;
-	/**
-	 * Applies the given combined `Reducer` to each element in the Stream, and returns the final result.
-	 * @typeparam S - a shape defining a combined reducer definition
-	 * @param shape - the `Reducer` combined instance to use to apply to all stream elements.
-	 * @example
-	 * ```ts
-	 * console.log(Stream.of(1, 2, 4).reduce([Reducer.sum, { prod: Reducer.product }]))
-	 * // => [7, { prod: 8 }]
 	 * ```
 	 */
 	reduce<const S extends Reducer.CombineShape<T>>(

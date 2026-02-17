@@ -1,184 +1,182 @@
+import { expectTypeOf } from 'bun:test';
+
 import { AsyncStream } from '@rimbu/stream/async';
 import { AsyncReducer } from '@rimbu/stream/async/reducer';
 import { Reducer } from '@rimbu/stream/reducer';
-import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
 
 // Variance
-expectAssignable<AsyncReducer<number, boolean | string>>(
-	null as any as AsyncReducer<number, boolean>,
-);
-expectNotAssignable<AsyncReducer<number | string, boolean>>(
-	null as any as AsyncReducer<number, boolean>,
-);
+expectTypeOf(null as any as AsyncReducer<number, boolean>).toExtend<
+	AsyncReducer<number, boolean | string>
+>();
+expectTypeOf(null as any as AsyncReducer<number, boolean>).not.toExtend<
+	AsyncReducer<number | string, boolean>
+>();
 
 // AsyncReducer.combine shapes
-expectType<AsyncReducer<number, [number[], number]>>(
+expectTypeOf(
 	AsyncReducer.combine([Reducer.toArray<number>(), Reducer.sum]),
-);
+).toEqualTypeOf<AsyncReducer<number, [number[], number]>>();
 
-expectType<Promise<[number[], number]>>(
+expectTypeOf(
 	AsyncStream.of(1, 2).reduce(
 		AsyncReducer.combine([Reducer.toArray<number>(), Reducer.sum]),
 	),
-);
+).toEqualTypeOf<Promise<[number[], number]>>();
 
-expectAssignable<AsyncReducer<number, { a: number[]; s: number }>>(
+expectTypeOf(
 	AsyncReducer.combine({
 		a: Reducer.toArray<number>(),
 		s: Reducer.sum,
 	}),
-);
+).toExtend<AsyncReducer<number, { a: number[]; s: number }>>();
 
-expectAssignable<Promise<{ a: number[]; s: number }>>(
+expectTypeOf(
 	AsyncStream.of(1, 2).reduce(
-		AsyncReducer.combine({
-			a: Reducer.toArray<number>(),
-			s: Reducer.sum,
-		}),
+		AsyncReducer.combine({ a: Reducer.toArray<number>(), s: Reducer.sum }),
 	),
-);
+).toExtend<Promise<{ a: number[]; s: number }>>();
 
 // AsyncReducer.race
-expectType<AsyncReducer<number, number | undefined>>(
-	AsyncReducer.race([Reducer.sum, Reducer.product]),
-);
+expectTypeOf(AsyncReducer.race([Reducer.sum, Reducer.product])).toEqualTypeOf<
+	AsyncReducer<number, number | undefined>
+>();
 
-expectType<AsyncReducer<number, number>>(
+expectTypeOf(
 	AsyncReducer.race([Reducer.sum, Reducer.product], 5),
-);
+).toEqualTypeOf<AsyncReducer<number, number>>();
 
 // AsyncReducer.groupBy
-expectType<AsyncReducer<string, Map<number, string[]>>>(
+expectTypeOf(
 	AsyncReducer.groupBy((value: string) => value.length),
-);
+).toEqualTypeOf<AsyncReducer<string, Map<number, string[]>>>();
 
-expectType<AsyncReducer<string, string>>(
+expectTypeOf(
 	AsyncReducer.groupBy((value: string) => value.length, {
 		collector: Reducer.join<[number, string]>(),
 	}),
-);
+).toEqualTypeOf<AsyncReducer<string, string>>();
 
 // AsyncReducer.partition
-expectType<AsyncReducer<number, [number[], number[]]>>(
-	AsyncReducer.partition<number>(() => true),
-);
+expectTypeOf(AsyncReducer.partition<number>(() => true)).toEqualTypeOf<
+	AsyncReducer<number, [number[], number[]]>
+>();
 
-expectType<AsyncReducer<number, [Set<number>, string]>>(
+expectTypeOf(
 	AsyncReducer.partition(() => true, {
 		collectorTrue: Reducer.toJSSet<number>(),
 		collectorFalse: Reducer.join<number>(),
 	}),
-);
+).toEqualTypeOf<AsyncReducer<number, [Set<number>, string]>>();
 
-expectType<AsyncReducer<number | string, [number[], string[]]>>(
-	AsyncReducer.partition((v): v is number => true),
-);
-expectType<AsyncReducer<number | string, [Set<number>, string]>>(
+expectTypeOf(
+	AsyncReducer.partition((v: number | string): v is number => true),
+).toEqualTypeOf<AsyncReducer<number | string, [number[], string[]]>>();
+expectTypeOf(
 	AsyncReducer.partition((v: number | string): v is number => true, {
 		collectorTrue: Reducer.toJSSet<number>(),
 		collectorFalse: Reducer.join<string>(),
 	}),
-);
+).toEqualTypeOf<AsyncReducer<number | string, [Set<number>, string]>>();
 
 // AsyncReducer methods
 
 // .chain()
-expectType<Promise<number>>(
+expectTypeOf(
 	AsyncStream.of(1, 2, 3).reduce(
 		AsyncReducer.first<number>().chain([AsyncReducer.min(5)]),
 	),
-);
-expectType<Promise<number>>(
+).toEqualTypeOf<Promise<number>>();
+expectTypeOf(
 	AsyncStream.of(1, 2, 3).reduce(
 		AsyncReducer.first<number>().chain([Reducer.sum, Reducer.count]),
 	),
-);
+).toEqualTypeOf<Promise<number>>();
 
 // .collectInput
-expectType<AsyncReducer<string, number>>(
+expectTypeOf(
 	AsyncReducer.max(5).collectInput<string>((v) => v.length),
-);
+).toEqualTypeOf<AsyncReducer<string, number>>();
 
 // .compile
-expectType<Promise<AsyncReducer.Instance<number, number | undefined>>>(
-	AsyncReducer.first<number>().compile(),
-);
+expectTypeOf(AsyncReducer.first<number>().compile()).toEqualTypeOf<
+	Promise<AsyncReducer.Instance<number, number | undefined>>
+>();
 
 // .dropInput
-expectType<AsyncReducer<number, number>>(AsyncReducer.min(5).dropInput(5));
+expectTypeOf(AsyncReducer.min(5).dropInput(5)).toEqualTypeOf<
+	AsyncReducer<number, number>
+>();
 
 // .flatMapInput
-expectType<AsyncReducer<string, number[]>>(
+expectTypeOf(
 	AsyncReducer.from(Reducer.toArray<number>()).flatMapInput<string>(() => [
 		1, 2,
 	]),
-);
+).toEqualTypeOf<AsyncReducer<string, number[]>>();
 
 // .filterInput
-expectType<AsyncReducer<number | string, Array<number | string>>>(
+expectTypeOf(
 	AsyncReducer.from(Reducer.toArray<number | string>()).filterInput(() => true),
-);
-expectType<AsyncReducer<number | string, Array<number | string>>>(
+).toEqualTypeOf<AsyncReducer<number | string, Array<number | string>>>();
+expectTypeOf(
 	AsyncReducer.from(Reducer.toArray<number | string>()).filterInput(
 		() => true,
 		{ negate: true },
 	),
-);
+).toEqualTypeOf<AsyncReducer<number | string, Array<number | string>>>();
 
-expectType<AsyncReducer<string, Array<number | string>>>(
+expectTypeOf(
 	AsyncReducer.from(Reducer.toArray<number | string>()).filterInput(
 		(v): v is string => true,
 	),
-);
-expectType<AsyncReducer<number, Array<number | string>>>(
+).toEqualTypeOf<AsyncReducer<string, Array<number | string>>>();
+expectTypeOf(
 	AsyncReducer.from(Reducer.toArray<number | string>()).filterInput(
 		(v): v is string => true,
-		{
-			negate: true,
-		},
+		{ negate: true },
 	),
-);
+).toEqualTypeOf<AsyncReducer<number, Array<number | string>>>();
 
 // .takeInput
-expectType<AsyncReducer<number, number[]>>(
+expectTypeOf(
 	AsyncReducer.from(Reducer.toArray<number>()).takeInput(5),
-);
+).toEqualTypeOf<AsyncReducer<number, number[]>>();
 
 // .takeOutput
-expectType<AsyncReducer<number, number[]>>(
+expectTypeOf(
 	AsyncReducer.from(Reducer.toArray<number>()).takeOutput(5),
-);
+).toEqualTypeOf<AsyncReducer<number, number[]>>();
 
 // .takeOutputWhile
-expectType<AsyncReducer<number, number[]>>(
+expectTypeOf(
 	AsyncReducer.from(Reducer.toArray<number>()).takeOutputUntil(() => true),
-);
+).toEqualTypeOf<AsyncReducer<number, number[]>>();
 
 // .mapInput
-expectType<AsyncReducer<string, number[]>>(
+expectTypeOf(
 	AsyncReducer.from(Reducer.toArray<number>()).mapInput<string>(
 		(v) => v.length,
 	),
-);
+).toEqualTypeOf<AsyncReducer<string, number[]>>();
 
 // .mapOutput
-expectType<AsyncReducer<string, number>>(
+expectTypeOf(
 	AsyncReducer.from(Reducer.toArray<string>()).mapOutput((v) => v.length),
-);
+).toEqualTypeOf<AsyncReducer<string, number>>();
 
 // .pipe()
-expectType<Promise<string>>(
+expectTypeOf(
 	AsyncStream.of(1, 2, 3).reduce(
 		AsyncReducer.pipe(Reducer.sum, Reducer.join<number>()),
 	),
-);
-expectType<Promise<boolean>>(
+).toEqualTypeOf<Promise<string>>();
+expectTypeOf(
 	AsyncStream.of(1, 2, 3).reduce(
 		AsyncReducer.pipe(Reducer.sum, Reducer.toArray<number>(), Reducer.nonEmpty),
 	),
-);
+).toEqualTypeOf<Promise<boolean>>();
 
 // .sliceInput
-expectType<AsyncReducer<number, number[]>>(
+expectTypeOf(
 	AsyncReducer.from(Reducer.toArray<number>()).sliceInput(5, 3),
-);
+).toEqualTypeOf<AsyncReducer<number, number[]>>();

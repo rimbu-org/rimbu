@@ -3,6 +3,7 @@ import type { IndexRange } from '@rimbu/common/index-range';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { ArrayNonEmpty, StringNonEmpty } from '@rimbu/common/types';
 import type { Stream, StreamSource } from '@rimbu/stream';
+import type { Reducer } from '../reducer';
 
 /**
  * An interface describing all factory functions used to create `Stream` instances.
@@ -373,10 +374,12 @@ export interface StreamConstructors {
 	 * Stream.flatten(Stream.of(['ma', 'r', '', 'mot')).toArray()   // => ['m', 'a', 'r', 'm', 'o', 't']
 	 * ```
 	 */
-	flatten<T extends StreamSource.NonEmpty<S>, S>(
+	flatten<T extends StreamSource.NonEmpty<unknown>>(
 		source: StreamSource.NonEmpty<T>,
-	): Stream.NonEmpty<S>;
-	flatten<T extends StreamSource<S>, S>(source: StreamSource<T>): Stream<S>;
+	): Stream.NonEmpty<StreamSource.ElementType<T>>;
+	flatten<T extends StreamSource<unknown>>(
+		source: StreamSource<T>,
+	): Stream<StreamSource.ElementType<T>>;
 	/**
 	 * Returns an array containing a Stream for each tuple element in this stream.
 	 * @param options - the options used to create the result, containing:<br/>
@@ -398,4 +401,78 @@ export interface StreamConstructors {
 		source: Stream<T>,
 		options: { length: L },
 	): { [K in keyof T]: Stream<T[K]> };
+	/**
+	 * Returns the result of applying the `valueToKey` function to calculate a key for each value, and feeding the tuple of the key and the value to the
+	 * `collector` reducer, and finally returning its result. If no collector is given, the default collector will return a JS multimap
+	 * of the type `Map<K, V[]>`.
+	 * @param source - the source of values to group
+	 * @param valueToKey - function taking a value and its index, and returning the corresponding key
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - collector: (default: Reducer.toArray()) a reducer that collects the incoming tuple of key and value, and provides the output
+	 * @typeparam T - the input value type
+	 * @typeparam K - the key type
+	 * @typeparam R - the collector output type
+	 * @example
+	 * ```ts
+	 * Stream.groupBy(Stream.of(1, 2, 3), (v) => v % 2))
+	 * // => Map {0 => [2], 1 => [1, 3]}
+	 * ```
+	 */
+	groupBy<T, K>(
+		source: StreamSource<T>,
+		valueToKey: (value: T, index: number) => K,
+	): {
+		<R>(options: {
+			collector: Reducer<[K, T], R> | Reducer<readonly [K, T], R>;
+		}): R;
+		(options?: { collector?: undefined } | undefined): Map<K, T[]>;
+	};
+	/**
+	 * Returns a tuple of which the first element is the result of collecting the elements for which the given `predicate` is true, and
+	 * the second one the result of collecting the other elements. Own reducers can be provided as collectors, by default the values are
+	 * collected into an array.
+	 * @param source - the source of values to partition
+	 * @param pred - a predicate receiving the value and its index
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - collectorTrue: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is true<br/>
+	 * - collectorFalse: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is false
+	 * @typeparam T - the input element type
+	 * @typeparam RT - the reducer result type for the `collectorTrue` value
+	 * @typeparam RF - the reducer result type for the `collectorFalse` value
+	 * @note if the predicate is a type guard, the return type is automatically inferred
+	 */
+	partition<T, TT extends T = T>(
+		source: StreamSource<T>,
+		pred: (value: T, index: number) => value is TT,
+	): {
+		<RT, RF>(options: {
+			collectorTrue: Reducer<TT, RT>;
+			collectorFalse: Reducer<Exclude<T, TT>, RF>;
+		}): [true: RT, false: RF];
+		(
+			options?:
+				| {
+						collectorTrue?: undefined;
+						collectorFalse?: undefined;
+				  }
+				| undefined,
+		): [true: TT[], false: Exclude<T, TT>[]];
+	};
+	partition<T>(
+		source: StreamSource<T>,
+		pred: (value: T, index: number) => boolean,
+	): {
+		<RT, RF>(options: {
+			collectorTrue: Reducer<T, RT>;
+			collectorFalse: Reducer<T, RF>;
+		}): [true: RT, false: RF];
+		(
+			options?:
+				| {
+						collectorTrue?: undefined;
+						collectorFalse?: undefined;
+				  }
+				| undefined,
+		): [true: T[], false: T[]];
+	};
 }

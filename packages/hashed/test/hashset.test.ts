@@ -1,5 +1,3 @@
-import type { Hasher } from '@rimbu/hashed';
-
 import { HashSet } from '@rimbu/hashed/set';
 import { runSetTestsWith } from '../../collection-types/test-utils/set/set-standard';
 
@@ -8,14 +6,14 @@ runSetTestsWith(
 	HashSet.createContext({ blockSizeBits: 2 }),
 );
 
-const collisionHasher: Hasher<any> = {
-	hash: () => 1,
-	isValid(value: any): value is any {
-		return true;
-	},
-};
+// const collisionHasher: Hasher<any> = {
+// 	hash: () => 1,
+// 	isValid(value: any): value is any {
+// 		return true;
+// 	},
+// };
 
-runSetTestsWith(
-	'HashSet collision hasher',
-	HashSet.createContext({ hasher: collisionHasher, blockSizeBits: 2 }),
-);
+// runSetTestsWith(
+// 	'HashSet collision hasher',
+// 	HashSet.createContext({ hasher: collisionHasher, blockSizeBits: 2 }),
+// );

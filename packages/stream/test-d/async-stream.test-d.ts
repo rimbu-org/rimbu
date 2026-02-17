@@ -1,3 +1,5 @@
+import { expectTypeOf } from 'bun:test';
+
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { Stream } from '@rimbu/stream';
 import type { AsyncTransformer } from '@rimbu/stream/async/transformer';
@@ -5,183 +7,222 @@ import type { AsyncTransformer } from '@rimbu/stream/async/transformer';
 import { type AsyncFastIterator, AsyncStream } from '@rimbu/stream/async';
 import { AsyncReducer } from '@rimbu/stream/async/reducer';
 import { Reducer } from '@rimbu/stream/reducer';
-import {
-	expectAssignable,
-	expectError,
-	expectNotAssignable,
-	expectNotType,
-	expectType,
-} from 'tsd';
 
 // Variance
-expectAssignable<AsyncStream<number | string>>(AsyncStream.empty<number>());
-expectNotAssignable<AsyncStream<number>>(AsyncStream.empty<number | string>());
+expectTypeOf(AsyncStream.empty<number>()).toExtend<
+	AsyncStream<number | string>
+>();
+expectTypeOf(AsyncStream.empty<number | string>()).not.toExtend<
+	AsyncStream<number>
+>();
 
-expectAssignable<AsyncStream<number | string>>(AsyncStream.of(1));
-expectNotAssignable<AsyncStream<number>>(AsyncStream.of<number | string>(1));
+expectTypeOf(AsyncStream.of(1)).toExtend<AsyncStream<number | string>>();
+expectTypeOf(AsyncStream.of<number | string>(1)).not.toExtend<
+	AsyncStream<number>
+>();
 
-expectAssignable<AsyncStream.NonEmpty<number | string>>(AsyncStream.of(1));
+expectTypeOf(AsyncStream.of(1)).toExtend<
+	AsyncStream.NonEmpty<number | string>
+>();
 
 // Iterable
-expectType<AsyncFastIterator<number>>(
-	AsyncStream.empty<number>()[Symbol.asyncIterator](),
-);
-expectType<AsyncFastIterator<number>>(
-	AsyncStream.of(1)[Symbol.asyncIterator](),
-);
+expectTypeOf(AsyncStream.empty<number>()[Symbol.asyncIterator]()).toEqualTypeOf<
+	AsyncFastIterator<number>
+>();
+expectTypeOf(AsyncStream.of(1)[Symbol.asyncIterator]()).toEqualTypeOf<
+	AsyncFastIterator<number>
+>();
 
 // AsyncStream.empty<T>()
-expectType<AsyncStream<number>>(AsyncStream.empty<number>());
-expectType<AsyncStream<string>>(AsyncStream.empty<string>());
-expectNotType<AsyncStream.NonEmpty<number>>(AsyncStream.empty<number>());
-expectNotAssignable<AsyncStream.NonEmpty<number>>(AsyncStream.empty<number>());
+expectTypeOf(AsyncStream.empty<number>()).toEqualTypeOf<AsyncStream<number>>();
+expectTypeOf(AsyncStream.empty<string>()).toEqualTypeOf<AsyncStream<string>>();
+expectTypeOf(AsyncStream.empty<number>()).not.toEqualTypeOf<
+	AsyncStream.NonEmpty<number>
+>();
+expectTypeOf(AsyncStream.empty<number>()).not.toExtend<
+	AsyncStream.NonEmpty<number>
+>();
 
 // AsyncStream.of<T>(..)
-expectType<AsyncStream.NonEmpty<number>>(AsyncStream.of(1));
-expectAssignable<AsyncStream<number>>(AsyncStream.of(1));
-// expectError(AsyncStream.of());
+expectTypeOf(AsyncStream.of(1)).toEqualTypeOf<AsyncStream.NonEmpty<number>>();
+expectTypeOf(AsyncStream.of(1)).toExtend<AsyncStream<number>>();
+// @ts-expect-error
+AsyncStream.of();
 
 // AsyncStream.from<T>(..)
-expectType<AsyncStream<number>>(AsyncStream.from([] as number[]));
-expectType<AsyncStream.NonEmpty<number>>(AsyncStream.from([1]));
-expectType<AsyncStream.NonEmpty<number>>(AsyncStream.from([1, 2, 3]));
-expectType<AsyncStream.NonEmpty<number>>(AsyncStream.from(AsyncStream.of(1)));
-expectType<AsyncStream<number>>(AsyncStream.from(new Set([1])));
-// expectError(AsyncStream.from());
+expectTypeOf(AsyncStream.from([] as number[])).toEqualTypeOf<
+	AsyncStream<number>
+>();
+expectTypeOf(AsyncStream.from([1])).toEqualTypeOf<
+	AsyncStream.NonEmpty<number>
+>();
+expectTypeOf(AsyncStream.from([1, 2, 3])).toEqualTypeOf<
+	AsyncStream.NonEmpty<number>
+>();
+expectTypeOf(AsyncStream.from(AsyncStream.of(1))).toEqualTypeOf<
+	AsyncStream.NonEmpty<number>
+>();
+expectTypeOf(AsyncStream.from(new Set([1]))).toEqualTypeOf<
+	AsyncStream<number>
+>();
+// @ts-expect-error
+AsyncStream.from();
 
 // AsyncStream.flatten<T>(..)
-expectError(AsyncStream.flatten(AsyncStream.empty<number>()));
-expectType<AsyncStream<number>>(
+// @ts-expect-error
+AsyncStream.flatten(AsyncStream.empty<number>());
+
+expectTypeOf(
 	AsyncStream.flatten(AsyncStream.empty<AsyncStream<number>>()),
-);
-expectType<AsyncStream<number>>(
+).toEqualTypeOf<AsyncStream<number>>();
+expectTypeOf(
 	AsyncStream.flatten(AsyncStream.empty<AsyncStream.NonEmpty<number>>()),
-);
-expectType<AsyncStream.NonEmpty<number>>(
+).toEqualTypeOf<AsyncStream<number>>();
+expectTypeOf(
 	AsyncStream.flatten(AsyncStream.of(AsyncStream.of(1))),
-);
+).toEqualTypeOf<AsyncStream.NonEmpty<number>>();
 
 // AsyncStream.unfold(..)
-expectType<AsyncStream.NonEmpty<number>>(AsyncStream.unfold(0, (v) => v + 1));
+expectTypeOf(AsyncStream.unfold(0, (v) => v + 1)).toEqualTypeOf<
+	AsyncStream.NonEmpty<number>
+>();
 
 // AsyncStream.unzip(..)
-expectType<[AsyncStream.NonEmpty<number>, AsyncStream.NonEmpty<string>]>(
+const g = AsyncStream.unzip(
+	AsyncStream.of<[number, string]>([0, 'a'], [1, 'b']),
+	{ length: 2 },
+);
+
+expectTypeOf(
 	AsyncStream.unzip(AsyncStream.of<[number, string]>([0, 'a'], [1, 'b']), {
 		length: 2,
 	}),
-);
-expectType<[AsyncStream<number>, AsyncStream<string>]>(
+).toEqualTypeOf<[AsyncStream.NonEmpty<number>, AsyncStream.NonEmpty<string>]>();
+expectTypeOf(
 	AsyncStream.unzip(AsyncStream.from(new Map<number, string>()), { length: 2 }),
-);
-expectError(AsyncStream.unzip(AsyncStream.of(1), { length: 2 }));
-expectError(AsyncStream.unzip(AsyncStream.of([1, 2] as const), { length: 3 }));
+).toEqualTypeOf<[AsyncStream<number>, AsyncStream<string>]>();
+// @ts-expect-error
+AsyncStream.unzip(AsyncStream.of(1), { length: 2 });
+// @ts-expect-error
+AsyncStream.unzip(AsyncStream.of([1, 2] as const), { length: 3 });
 
 // AsyncStream.zip
-expectType<AsyncStream<[number, string]>>(
+expectTypeOf(
 	AsyncStream.zip(AsyncStream.empty<number>(), AsyncStream.empty<string>()),
-);
-expectType<AsyncStream<[number, string]>>(
+).toEqualTypeOf<AsyncStream<[number, string]>>();
+expectTypeOf(
 	AsyncStream.zip(AsyncStream.of(1), AsyncStream.empty<string>()),
-);
-expectType<AsyncStream<[number, string]>>(
+).toEqualTypeOf<AsyncStream<[number, string]>>();
+expectTypeOf(
 	AsyncStream.zip(AsyncStream.empty<number>(), AsyncStream.of('a')),
-);
-expectType<AsyncStream.NonEmpty<[number, string]>>(
+).toEqualTypeOf<AsyncStream<[number, string]>>();
+expectTypeOf(
 	AsyncStream.zip(AsyncStream.of(1), AsyncStream.of('a')),
-);
-expectType<AsyncStream<[number, string, boolean]>>(
+).toEqualTypeOf<AsyncStream.NonEmpty<[number, string]>>();
+expectTypeOf(
 	AsyncStream.zip(
 		AsyncStream.empty<number>(),
 		AsyncStream.of('a'),
 		AsyncStream.of(true, false),
 	),
-);
-expectType<AsyncStream.NonEmpty<[number, string, boolean]>>(
+).toEqualTypeOf<AsyncStream<[number, string, boolean]>>();
+expectTypeOf(
 	AsyncStream.zip(
 		AsyncStream.of(1),
 		AsyncStream.of('a'),
 		AsyncStream.of(true, false),
 	),
-);
+).toEqualTypeOf<AsyncStream.NonEmpty<[number, string, boolean]>>();
 
-expectType<AsyncStream.NonEmpty<[number]>>(AsyncStream.zip(AsyncStream.of(1)));
+expectTypeOf(AsyncStream.zip(AsyncStream.of(1))).toEqualTypeOf<
+	AsyncStream.NonEmpty<[number]>
+>();
 
-expectError(AsyncStream.zip());
+// @ts-expect-error
+AsyncStream.zip();
 
 // AsyncStream.zipAll(..)
-expectType<AsyncStream<[number | boolean, string | boolean]>>(
+expectTypeOf(
 	AsyncStream.zipAll(
 		true,
 		AsyncStream.empty<number>(),
 		AsyncStream.empty<string>(),
 	),
-);
-expectType<AsyncStream.NonEmpty<[number | boolean, string | boolean]>>(
+).toEqualTypeOf<AsyncStream<[number | boolean, string | boolean]>>();
+expectTypeOf(
 	AsyncStream.zipAll(true, AsyncStream.of(1), AsyncStream.of('a')),
-);
+).toEqualTypeOf<AsyncStream.NonEmpty<[number | boolean, string | boolean]>>();
 
-expectType<AsyncStream.NonEmpty<[number | boolean]>>(
-	AsyncStream.zipAll(true, AsyncStream.of(1)),
-);
-expectError(AsyncStream.zipAll(true));
+expectTypeOf(AsyncStream.zipAll(true, AsyncStream.of(1))).toEqualTypeOf<
+	AsyncStream.NonEmpty<[number | boolean]>
+>();
+// @ts-expect-error
+AsyncStream.zipAll(true);
 
 // TODO
 // expectType<AsyncStream.NonEmpty<[number | boolean, string | boolean]>>(
 //   AsyncStream.zipAll(true, AsyncStream.empty<number>(), AsyncStream.of('a'))
 // );
 
-expectError(AsyncStream.zipAll(true));
+// @ts-expect-error
+AsyncStream.zipAll(true);
 
-// // AsyncStream.zipWith(..)
-expectType<AsyncStream<[number, true, string]>>(
+// AsyncStream.zipWith(..)
+expectTypeOf(
 	AsyncStream.zipWith(
 		AsyncStream.empty<number>(),
 		AsyncStream.empty<string>(),
-	)((a, b) => [a, true, b]),
-);
-expectType<AsyncStream<[number, true, string]>>(
+	)((a, b) => [a, true, b] as const),
+).toEqualTypeOf<AsyncStream<readonly [number, true, string]>>();
+expectTypeOf(
 	AsyncStream.zipWith(
 		AsyncStream.of(1),
 		AsyncStream.empty<string>(),
-	)((a, b) => [a, true, b]),
-);
-expectType<AsyncStream<[number, true, string]>>(
+	)((a, b) => [a, true, b] as const),
+).toEqualTypeOf<AsyncStream<readonly [number, true, string]>>();
+expectTypeOf(
 	AsyncStream.zipWith(
 		AsyncStream.empty<number>(),
 		AsyncStream.of('a'),
-	)((a, b) => [a, true, b]),
-);
-expectType<AsyncStream.NonEmpty<[number, true, string]>>(
+	)((a, b) => [a, true, b] as const),
+).toEqualTypeOf<AsyncStream<readonly [number, true, string]>>();
+expectTypeOf(
 	AsyncStream.zipWith(
 		AsyncStream.of(1),
 		AsyncStream.of('a'),
-	)((a, b) => [a, true, b]),
-);
+	)((a, b) => [a, true, b] as const),
+).toEqualTypeOf<AsyncStream.NonEmpty<readonly [number, true, string]>>();
 
-expectType<AsyncStream.NonEmpty<[number]>>(
-	AsyncStream.zipWith(AsyncStream.of(1))((a) => [a]),
-);
+expectTypeOf(
+	AsyncStream.zipWith(AsyncStream.of(1))((a) => [a] as const),
+).toEqualTypeOf<AsyncStream.NonEmpty<readonly [number]>>();
 
-expectError(AsyncStream.zipWith());
+// @ts-expect-error
+AsyncStream.zipWith();
 
 // AsyncStream.zipAllWith()
-expectType<AsyncStream<[number | boolean, true, string | boolean]>>(
+expectTypeOf(
 	AsyncStream.zipAllWith(
 		AsyncStream.empty<number>(),
 		AsyncStream.empty<string>(),
-	)(true, (a, b) => [a, true, b]),
-);
-expectType<AsyncStream.NonEmpty<[number | boolean, true, string | boolean]>>(
+	)(true, (a, b) => [a, true, b] as const),
+).toEqualTypeOf<
+	AsyncStream<readonly [number | boolean, true, string | boolean]>
+>();
+expectTypeOf(
 	AsyncStream.zipAllWith(AsyncStream.of(1), AsyncStream.of('a'))(
 		true,
-		(a, b) => [a, true, b],
+		(a, b) => [a, true, b] as const,
 	),
-);
-expectType<AsyncStream.NonEmpty<[number | boolean]>>(
-	AsyncStream.zipAllWith(AsyncStream.of(1))(true, (a) => [a]),
-);
+).toEqualTypeOf<
+	AsyncStream.NonEmpty<readonly [number | boolean, true, string | boolean]>
+>();
+expectTypeOf(
+	AsyncStream.zipAllWith(AsyncStream.of(1))(true, (a) => [a] as const),
+).toEqualTypeOf<AsyncStream.NonEmpty<readonly [number | boolean]>>();
 
-expectError(AsyncStream.zipAllWith());
+// @ts-expect-error
+AsyncStream.zipAllWith();
 
 // TODO
 // expectType<AsyncStream.NonEmpty<[number | boolean, string | boolean]>>(
@@ -191,397 +232,507 @@ expectError(AsyncStream.zipAllWith());
 // AsyncStream methods
 
 // .assumeNonEmpty()
-expectType<AsyncStream.NonEmpty<number>>(
-	AsyncStream.empty<number>().assumeNonEmpty(),
-);
-expectType<AsyncStream.NonEmpty<number>>(AsyncStream.of(1).assumeNonEmpty());
+expectTypeOf(AsyncStream.empty<number>().assumeNonEmpty()).toEqualTypeOf<
+	AsyncStream.NonEmpty<number>
+>();
+expectTypeOf(AsyncStream.of(1).assumeNonEmpty()).toEqualTypeOf<
+	AsyncStream.NonEmpty<number>
+>();
 
 // .append()
-expectType<AsyncStream.NonEmpty<number>>(AsyncStream.empty<number>().append(1));
-expectType<AsyncStream.NonEmpty<number>>(AsyncStream.of(1).append(1));
-expectType<AsyncStream.NonEmpty<number | string>>(
-	AsyncStream.empty<number | string>().append('a'),
-);
-expectType<AsyncStream.NonEmpty<number | string>>(
-	AsyncStream.of(1 as number | string).append('a'),
-);
+expectTypeOf(AsyncStream.empty<number>().append(1)).toEqualTypeOf<
+	AsyncStream.NonEmpty<number>
+>();
+expectTypeOf(AsyncStream.of(1).append(1)).toEqualTypeOf<
+	AsyncStream.NonEmpty<number>
+>();
+expectTypeOf(AsyncStream.empty<number | string>().append('a')).toEqualTypeOf<
+	AsyncStream.NonEmpty<number | string>
+>();
+expectTypeOf(AsyncStream.of(1 as number | string).append('a')).toEqualTypeOf<
+	AsyncStream.NonEmpty<number | string>
+>();
 
 // .count()
-expectType<number>(await AsyncStream.empty<number>().count());
-expectType<number>(await AsyncStream.of(1).count());
+expectTypeOf(await AsyncStream.empty<number>().count()).toEqualTypeOf<number>();
+expectTypeOf(await AsyncStream.of(1).count()).toEqualTypeOf<number>();
 
 // .countElement(..)
-expectType<number>(await AsyncStream.empty<number>().countElement(1));
-expectType<number>(await AsyncStream.of(1).countElement(1));
+expectTypeOf(
+	await AsyncStream.empty<number>().countElement(1),
+).toEqualTypeOf<number>();
+expectTypeOf(await AsyncStream.of(1).countElement(1)).toEqualTypeOf<number>();
 
 // .countElement(..) negate
-expectType<number>(
+expectTypeOf(
 	await AsyncStream.empty<number>().countElement(1, { negate: true }),
-);
-expectType<number>(await AsyncStream.of(1).countElement(1, { negate: true }));
+).toEqualTypeOf<number>();
+expectTypeOf(
+	await AsyncStream.of(1).countElement(1, { negate: true }),
+).toEqualTypeOf<number>();
 
 // .contains(..)
-expectType<boolean>(await AsyncStream.empty<number>().contains(1));
-expectType<boolean>(await AsyncStream.of(1).contains(1));
+expectTypeOf(
+	await AsyncStream.empty<number>().contains(1),
+).toEqualTypeOf<boolean>();
+expectTypeOf(await AsyncStream.of(1).contains(1)).toEqualTypeOf<boolean>();
 
 // .containsSlice(..)
-expectType<boolean>(await AsyncStream.empty<number>().containsSlice([1]));
-expectType<boolean>(await AsyncStream.of(1).containsSlice([1]));
+expectTypeOf(
+	await AsyncStream.empty<number>().containsSlice([1]),
+).toEqualTypeOf<boolean>();
+expectTypeOf(
+	await AsyncStream.of(1).containsSlice([1]),
+).toEqualTypeOf<boolean>();
 
 // .collect(..)
-expectType<AsyncStream<string>>(AsyncStream.empty<number>().collect(() => ''));
-expectType<AsyncStream<string>>(AsyncStream.of(1).collect(() => ''));
+expectTypeOf(AsyncStream.empty<number>().collect(() => '')).toEqualTypeOf<
+	AsyncStream<string>
+>();
+expectTypeOf(AsyncStream.of(1).collect(() => '')).toEqualTypeOf<
+	AsyncStream<string>
+>();
 
 // .concat(..)
-expectType<AsyncStream<number>>(
+expectTypeOf(
 	AsyncStream.empty<number>().concat(AsyncStream.empty<number>()),
-);
-expectType<AsyncStream<number>>(
+).toEqualTypeOf<AsyncStream<number>>();
+expectTypeOf(
 	AsyncStream.empty<number>().concat(
 		AsyncStream.empty<number>(),
 		AsyncStream.empty<number>(),
 	),
-);
+).toEqualTypeOf<AsyncStream<number>>();
 
-expectType<AsyncStream.NonEmpty<number>>(
+expectTypeOf(
 	AsyncStream.empty<number>().concat(AsyncStream.of(1)),
-);
-expectType<AsyncStream.NonEmpty<number>>(
+).toEqualTypeOf<AsyncStream.NonEmpty<number>>();
+expectTypeOf(
 	AsyncStream.of(1).concat(AsyncStream.empty<number>()),
-);
-expectType<AsyncStream.NonEmpty<number>>(
-	AsyncStream.of(1).concat(AsyncStream.of(1)),
-);
-expectType<AsyncStream.NonEmpty<number>>(
+).toEqualTypeOf<AsyncStream.NonEmpty<number>>();
+expectTypeOf(AsyncStream.of(1).concat(AsyncStream.of(1))).toEqualTypeOf<
+	AsyncStream.NonEmpty<number>
+>();
+expectTypeOf(
 	AsyncStream.of(1).concat(AsyncStream.of(1), AsyncStream.of(1)),
-);
+).toEqualTypeOf<AsyncStream.NonEmpty<number>>();
 
-expectType<AsyncStream.NonEmpty<number>>(
+expectTypeOf(
 	AsyncStream.of(1).concat(AsyncStream.of(1), AsyncStream.of(1)),
-);
+).toEqualTypeOf<AsyncStream.NonEmpty<number>>();
 
 // .drop(..)
-expectType<AsyncStream<number>>(AsyncStream.empty<number>().drop(4));
-expectType<AsyncStream<number>>(AsyncStream.of(1).drop(4));
+expectTypeOf(AsyncStream.empty<number>().drop(4)).toEqualTypeOf<
+	AsyncStream<number>
+>();
+expectTypeOf(AsyncStream.of(1).drop(4)).toEqualTypeOf<AsyncStream<number>>();
 
 // .dropWhile(..)
-expectType<AsyncStream<number>>(
-	AsyncStream.empty<number>().dropWhile(() => true),
-);
-expectType<AsyncStream<number>>(AsyncStream.of(1).dropWhile(() => true));
+expectTypeOf(AsyncStream.empty<number>().dropWhile(() => true)).toEqualTypeOf<
+	AsyncStream<number>
+>();
+expectTypeOf(AsyncStream.of(1).dropWhile(() => true)).toEqualTypeOf<
+	AsyncStream<number>
+>();
 
 // .elementtAt(..)
-expectType<number>(await AsyncStream.empty<number>().elementAt(1, 3));
-expectType<number | string>(
+expectTypeOf(
+	await AsyncStream.empty<number>().elementAt(1, 3),
+).toEqualTypeOf<number>();
+expectTypeOf(
 	await AsyncStream.empty<number>().elementAt(1, '' as string),
-);
+).toEqualTypeOf<number | string>();
 
-expectType<number>(await AsyncStream.empty<number>().elementAt(1, () => 3));
-expectType<number | string>(
+expectTypeOf(
+	await AsyncStream.empty<number>().elementAt(1, () => 3),
+).toEqualTypeOf<number>();
+expectTypeOf(
 	await AsyncStream.empty<number>().elementAt(1, () => '' as string),
-);
+).toEqualTypeOf<number | string>();
 
 // .filter(..)
-expectType<AsyncStream<number>>(AsyncStream.empty<number>().filter(() => true));
-expectType<AsyncStream<number>>(AsyncStream.of(1).filter(() => true));
+expectTypeOf(AsyncStream.empty<number>().filter(() => true)).toEqualTypeOf<
+	AsyncStream<number>
+>();
+expectTypeOf(AsyncStream.of(1).filter(() => true)).toEqualTypeOf<
+	AsyncStream<number>
+>();
 
 // .filter(..) negate
-expectType<AsyncStream<number>>(
+expectTypeOf(
 	AsyncStream.empty<number>().filter(() => true, { negate: true }),
-);
-expectType<AsyncStream<number>>(
+).toEqualTypeOf<AsyncStream<number>>();
+expectTypeOf(
 	AsyncStream.of(1).filter(() => true, { negate: true }),
-);
+).toEqualTypeOf<AsyncStream<number>>();
 
 // .filterPure(..)
-expectType<AsyncStream<number>>(
+expectTypeOf(
 	AsyncStream.empty<number>().filterPure({ pred: () => true }),
-);
-expectType<AsyncStream<number>>(
-	AsyncStream.of(1).filterPure({ pred: () => true }),
-);
+).toEqualTypeOf<AsyncStream<number>>();
+expectTypeOf(AsyncStream.of(1).filterPure({ pred: () => true })).toEqualTypeOf<
+	AsyncStream<number>
+>();
 
 // .filterPure(..) negate
-expectType<AsyncStream<number>>(
+expectTypeOf(
 	AsyncStream.empty<number>().filterPure({ pred: () => true, negate: true }),
-);
-expectType<AsyncStream<number>>(
+).toEqualTypeOf<AsyncStream<number>>();
+expectTypeOf(
 	AsyncStream.of(1).filterPure({ pred: () => true, negate: true }),
-);
+).toEqualTypeOf<AsyncStream<number>>();
 
 // .find(..)
-expectType<number | undefined>(
-	await AsyncStream.empty<number>().find(() => true),
-);
-expectType<number | undefined>(
+expectTypeOf(await AsyncStream.empty<number>().find(() => true)).toEqualTypeOf<
+	number | undefined
+>();
+expectTypeOf(
 	await AsyncStream.empty<number>().find(() => true, { occurrance: 1 }),
-);
-expectType<number | undefined>(await AsyncStream.of(1).find(() => true));
-expectType<number | undefined>(
+).toEqualTypeOf<number | undefined>();
+expectTypeOf(await AsyncStream.of(1).find(() => true)).toEqualTypeOf<
+	number | undefined
+>();
+expectTypeOf(
 	await AsyncStream.of(1).find(() => true, { occurrance: 1 }),
-);
-expectType<number>(
+).toEqualTypeOf<number | undefined>();
+expectTypeOf(
 	await AsyncStream.empty<number>().find(() => true, { otherwise: () => 1 }),
-);
-expectType<number>(
+).toEqualTypeOf<number>();
+expectTypeOf(
 	await AsyncStream.of(1).find(() => true, { otherwise: () => 1 }),
-);
-expectType<number | string>(
+).toEqualTypeOf<number>();
+expectTypeOf(
 	await AsyncStream.empty<number>().find(() => true, {
 		otherwise: 'a' as string,
 	}),
-);
-expectType<number | string>(
+).toEqualTypeOf<number | string>();
+expectTypeOf(
 	await AsyncStream.of(1).find(() => true, { otherwise: 'a' as string }),
-);
+).toEqualTypeOf<number | string>();
 
 // .first(..)
-expectType<number | undefined>(await AsyncStream.empty<number>().first());
-expectError(AsyncStream.of(1).first(3));
+expectTypeOf(await AsyncStream.empty<number>().first()).toEqualTypeOf<
+	number | undefined
+>();
+// @ts-expect-error
+AsyncStream.of(1).first(3);
 
-expectType<number>(await AsyncStream.empty<number>().first(1));
-expectType<number>(await AsyncStream.of(1).first());
-expectType<number | string>(
+expectTypeOf(
+	await AsyncStream.empty<number>().first(1),
+).toEqualTypeOf<number>();
+expectTypeOf(await AsyncStream.of(1).first()).toEqualTypeOf<number>();
+expectTypeOf(
 	await AsyncStream.empty<number>().first('a' as string),
-);
+).toEqualTypeOf<number | string>();
 
 // .forEach(..)
-expectType<void>(await AsyncStream.empty<number>().forEach(() => {}));
-expectType<void>(await AsyncStream.of(1).forEach(() => {}));
+expectTypeOf(
+	await AsyncStream.empty<number>().forEach(() => {}),
+).toEqualTypeOf<void>();
+expectTypeOf(await AsyncStream.of(1).forEach(() => {})).toEqualTypeOf<void>();
 
 // .forEachPure(..)
-expectType<void>(await AsyncStream.empty<number>().forEachPure(() => {}));
-expectType<void>(await AsyncStream.of(1).forEachPure(() => {}));
+expectTypeOf(
+	await AsyncStream.empty<number>().forEachPure(() => {}),
+).toEqualTypeOf<void>();
+expectTypeOf(
+	await AsyncStream.of(1).forEachPure(() => {}),
+).toEqualTypeOf<void>();
 
 // .flatMap(..)
-expectType<AsyncStream<string>>(
+expectTypeOf(
 	AsyncStream.empty<number>().flatMap(() => AsyncStream.empty<string>()),
-);
-expectType<AsyncStream<string>>(
+).toEqualTypeOf<AsyncStream<string>>();
+expectTypeOf(
 	AsyncStream.of(1).flatMap(() => AsyncStream.empty<string>()),
-);
-expectType<AsyncStream<string>>(
+).toEqualTypeOf<AsyncStream<string>>();
+expectTypeOf(
 	AsyncStream.of(1).flatMap(() => AsyncStream.empty<string>()),
-);
-expectType<AsyncStream.NonEmpty<string>>(
+).toEqualTypeOf<AsyncStream<string>>();
+expectTypeOf(
 	AsyncStream.of(1).flatMap(() => AsyncStream.of('a')),
-);
+).toEqualTypeOf<AsyncStream.NonEmpty<string>>();
 
 // .flatZip(..)
-expectType<AsyncStream<[number, string]>>(
+expectTypeOf(
 	AsyncStream.empty<number>().flatZip((v) => [String(v)]),
-);
-expectType<AsyncStream<[number, string]>>(
+).toEqualTypeOf<AsyncStream<[number, string]>>();
+expectTypeOf(
 	AsyncStream.of(1).flatZip(() => AsyncStream.empty<string>()),
-);
-expectType<AsyncStream.NonEmpty<[number, string]>>(
-	AsyncStream.of(1).flatZip((v) => [String(v)]),
-);
+).toEqualTypeOf<AsyncStream<[number, string]>>();
+expectTypeOf(AsyncStream.of(1).flatZip((v) => [String(v)])).toEqualTypeOf<
+	AsyncStream.NonEmpty<[number, string]>
+>();
 
 // .transform(..)
-expectType<AsyncStream<string>>(
+expectTypeOf(
 	AsyncStream.empty<number>().transform(
 		null as unknown as AsyncTransformer<number, string>,
 	),
-);
-expectType<AsyncStream<string>>(
+).toEqualTypeOf<AsyncStream<string>>();
+expectTypeOf(
 	AsyncStream.empty<number>().transform(
 		null as unknown as AsyncTransformer.NonEmpty<number, string>,
 	),
-);
-expectType<AsyncStream<string>>(
+).toEqualTypeOf<AsyncStream<string>>();
+expectTypeOf(
 	AsyncStream.of(1).transform(
 		null as unknown as AsyncTransformer<number, string>,
 	),
-);
-expectType<AsyncStream.NonEmpty<string>>(
+).toEqualTypeOf<AsyncStream<string>>();
+expectTypeOf(
 	AsyncStream.of(1).transform(
 		null as unknown as AsyncTransformer.NonEmpty<number, string>,
 	),
-);
-expectType<AsyncStream<string>>(
+).toEqualTypeOf<AsyncStream.NonEmpty<string>>();
+expectTypeOf(
 	AsyncStream.of(1).transform(
 		null as unknown as AsyncReducer<number, Stream<string>>,
 	),
-);
-expectType<AsyncStream.NonEmpty<string>>(
+).toEqualTypeOf<AsyncStream<string>>();
+expectTypeOf(
 	AsyncStream.of(1).transform(
 		null as unknown as AsyncReducer<number, Stream.NonEmpty<string>>,
 	),
-);
+).toEqualTypeOf<AsyncStream.NonEmpty<string>>();
 
 // .fold(..)
-expectType<string>(
+expectTypeOf(
 	await AsyncStream.empty<number>().fold('a', async () => 'b'),
-);
-expectType<string>(await AsyncStream.of(1).fold('a', async () => 'b'));
-expectType<string>(
+).toEqualTypeOf<string>();
+expectTypeOf(
+	await AsyncStream.of(1).fold('a', async () => 'b'),
+).toEqualTypeOf<string>();
+expectTypeOf(
 	await AsyncStream.empty<number>().fold(
 		async () => 'a',
 		() => 'b',
 	),
-);
-expectType<string>(
+).toEqualTypeOf<string>();
+expectTypeOf(
 	await AsyncStream.of(1).fold(
 		async () => 'a',
 		() => 'b',
 	),
-);
+).toEqualTypeOf<string>();
 
 // .foldStream(..)
-expectType<AsyncStream<string>>(
+expectTypeOf(
 	AsyncStream.empty<number>().foldStream('a', () => 'b'),
-);
-expectType<AsyncStream.NonEmpty<string>>(
-	AsyncStream.of(1).foldStream('a', () => 'b'),
-);
+).toEqualTypeOf<AsyncStream<string>>();
+expectTypeOf(AsyncStream.of(1).foldStream('a', () => 'b')).toEqualTypeOf<
+	AsyncStream.NonEmpty<string>
+>();
 
 // .distinctPrevious(..)
-expectType<AsyncStream<number>>(AsyncStream.empty<number>().distinctPrevious());
-expectType<AsyncStream.NonEmpty<number>>(AsyncStream.of(1).distinctPrevious());
+expectTypeOf(AsyncStream.empty<number>().distinctPrevious()).toEqualTypeOf<
+	AsyncStream<number>
+>();
+expectTypeOf(AsyncStream.of(1).distinctPrevious()).toEqualTypeOf<
+	AsyncStream.NonEmpty<number>
+>();
 
 // .indexed()
-expectType<AsyncStream<[number, string]>>(
-	AsyncStream.empty<string>().indexed(),
-);
-expectType<AsyncStream.NonEmpty<[number, string]>>(
-	AsyncStream.of('a').indexed(),
-);
+expectTypeOf(AsyncStream.empty<string>().indexed()).toEqualTypeOf<
+	AsyncStream<[number, string]>
+>();
+expectTypeOf(AsyncStream.of('a').indexed()).toEqualTypeOf<
+	AsyncStream.NonEmpty<[number, string]>
+>();
 
 // .indexOf(..)
-expectType<number | undefined>(await AsyncStream.empty<string>().indexOf('b'));
-expectType<number | undefined>(await AsyncStream.of('a').indexOf('b'));
+expectTypeOf(await AsyncStream.empty<string>().indexOf('b')).toEqualTypeOf<
+	number | undefined
+>();
+expectTypeOf(await AsyncStream.of('a').indexOf('b')).toEqualTypeOf<
+	number | undefined
+>();
 
 // .indexOf(..)
-expectType<number | undefined>(await AsyncStream.empty<string>().indexOf('b'));
-expectType<number | undefined>(await AsyncStream.of('a').indexOf('b'));
+expectTypeOf(await AsyncStream.empty<string>().indexOf('b')).toEqualTypeOf<
+	number | undefined
+>();
+expectTypeOf(await AsyncStream.of('a').indexOf('b')).toEqualTypeOf<
+	number | undefined
+>();
 
 // .indicesWhere(..)
-expectType<AsyncStream<number>>(
+expectTypeOf(
 	AsyncStream.empty<string>().indicesWhere(() => true),
-);
-expectType<AsyncStream<number>>(AsyncStream.of('a').indicesWhere(() => true));
+).toEqualTypeOf<AsyncStream<number>>();
+expectTypeOf(AsyncStream.of('a').indicesWhere(() => true)).toEqualTypeOf<
+	AsyncStream<number>
+>();
 
 // .indicesWhere(..)
-expectType<AsyncStream<number>>(
+expectTypeOf(
 	AsyncStream.empty<string>().indicesWhere(() => true),
-);
-expectType<AsyncStream<number>>(AsyncStream.of('a').indicesWhere(() => true));
+).toEqualTypeOf<AsyncStream<number>>();
+expectTypeOf(AsyncStream.of('a').indicesWhere(() => true)).toEqualTypeOf<
+	AsyncStream<number>
+>();
 
 // .intersperse(..)
-expectType<AsyncStream<number>>(
+expectTypeOf(
 	AsyncStream.empty<number>().intersperse(AsyncStream.empty<number>()),
-);
-expectType<AsyncStream.NonEmpty<number>>(
+).toEqualTypeOf<AsyncStream<number>>();
+expectTypeOf(
 	AsyncStream.of(1).intersperse(AsyncStream.empty<number>()),
-);
-expectType<AsyncStream<number>>(
+).toEqualTypeOf<AsyncStream.NonEmpty<number>>();
+expectTypeOf(
 	AsyncStream.empty<number>().intersperse(AsyncStream.of(1)),
-);
-expectType<AsyncStream.NonEmpty<number>>(
-	AsyncStream.of(1).intersperse(AsyncStream.of(1)),
-);
+).toEqualTypeOf<AsyncStream<number>>();
+expectTypeOf(AsyncStream.of(1).intersperse(AsyncStream.of(1))).toEqualTypeOf<
+	AsyncStream.NonEmpty<number>
+>();
 
 // .last(..)
-expectType<number | undefined>(await AsyncStream.empty<number>().last());
-expectError(AsyncStream.of(1).last(3));
+expectTypeOf(await AsyncStream.empty<number>().last()).toEqualTypeOf<
+	number | undefined
+>();
+// @ts-expect-error
+AsyncStream.of(1).last(3);
 
-expectType<number>(await AsyncStream.empty<number>().last(3));
-expectType<number>(await AsyncStream.empty<number>().last(() => 3));
-expectType<number>(await AsyncStream.of(1).last());
-expectType<number | string>(
+expectTypeOf(await AsyncStream.empty<number>().last(3)).toEqualTypeOf<number>();
+expectTypeOf(
+	await AsyncStream.empty<number>().last(() => 3),
+).toEqualTypeOf<number>();
+expectTypeOf(await AsyncStream.of(1).last()).toEqualTypeOf<number>();
+expectTypeOf(
 	await AsyncStream.empty<number>().last('a' as string),
-);
+).toEqualTypeOf<number | string>();
 
 // .single(...)
-expectType<number | undefined>(await AsyncStream.empty<number>().single());
-expectType<number>(await AsyncStream.empty<number>().single(1));
-expectType<number | string>(await AsyncStream.empty<number>().single('a'));
-expectType<number | undefined>(await AsyncStream.of(1, 2, 3).single());
-expectType<number>(await AsyncStream.of(1, 2, 3).single(1));
-expectType<number | string>(await AsyncStream.of(1, 2, 3).single('a'));
+expectTypeOf(await AsyncStream.empty<number>().single()).toEqualTypeOf<
+	number | undefined
+>();
+expectTypeOf(
+	await AsyncStream.empty<number>().single(1),
+).toEqualTypeOf<number>();
+expectTypeOf(await AsyncStream.empty<number>().single('a')).toEqualTypeOf<
+	number | string
+>();
+expectTypeOf(await AsyncStream.of(1, 2, 3).single()).toEqualTypeOf<
+	number | undefined
+>();
+expectTypeOf(await AsyncStream.of(1, 2, 3).single(1)).toEqualTypeOf<number>();
+expectTypeOf(await AsyncStream.of(1, 2, 3).single('a')).toEqualTypeOf<
+	number | string
+>();
 
 // .map(..)
-expectType<AsyncStream<string>>(AsyncStream.empty<number>().map(() => 'a'));
-expectType<AsyncStream.NonEmpty<string>>(AsyncStream.of(1).map(() => 'a'));
+expectTypeOf(AsyncStream.empty<number>().map(() => 'a')).toEqualTypeOf<
+	AsyncStream<string>
+>();
+expectTypeOf(AsyncStream.of(1).map(() => 'a')).toEqualTypeOf<
+	AsyncStream.NonEmpty<string>
+>();
 
 // .mapPure(..)
-expectType<AsyncStream<string>>(AsyncStream.empty<number>().mapPure(() => 'a'));
-expectType<AsyncStream.NonEmpty<string>>(AsyncStream.of(1).mapPure(() => 'a'));
+expectTypeOf(AsyncStream.empty<number>().mapPure(() => 'a')).toEqualTypeOf<
+	AsyncStream<string>
+>();
+expectTypeOf(AsyncStream.of(1).mapPure(() => 'a')).toEqualTypeOf<
+	AsyncStream.NonEmpty<string>
+>();
 
 // .some(..)
-expectType<boolean>(await AsyncStream.empty<number>().some(() => true));
-expectType<boolean>(await AsyncStream.of(1).some(() => true));
+expectTypeOf(
+	await AsyncStream.empty<number>().some(() => true),
+).toEqualTypeOf<boolean>();
+expectTypeOf(await AsyncStream.of(1).some(() => true)).toEqualTypeOf<boolean>();
 
 // .every(..)
-expectType<boolean>(await AsyncStream.empty<number>().every(() => true));
-expectType<boolean>(await AsyncStream.of(1).every(() => true));
+expectTypeOf(
+	await AsyncStream.empty<number>().every(() => true),
+).toEqualTypeOf<boolean>();
+expectTypeOf(
+	await AsyncStream.of(1).every(() => true),
+).toEqualTypeOf<boolean>();
 
 // .max(..)
-expectType<number | undefined>(await AsyncStream.empty<number>().max());
-expectError(AsyncStream.of(1).max(3));
+expectTypeOf(await AsyncStream.empty<number>().max()).toEqualTypeOf<
+	number | undefined
+>();
+// @ts-expect-error
+AsyncStream.of(1).max(3);
 
-expectType<number>(await AsyncStream.empty<number>().max(3));
-expectType<number>(await AsyncStream.empty<number>().max(() => 3));
-expectType<number>(await AsyncStream.of(1).max());
-expectType<number | string>(
+expectTypeOf(await AsyncStream.empty<number>().max(3)).toEqualTypeOf<number>();
+expectTypeOf(
+	await AsyncStream.empty<number>().max(() => 3),
+).toEqualTypeOf<number>();
+expectTypeOf(await AsyncStream.of(1).max()).toEqualTypeOf<number>();
+expectTypeOf(
 	await AsyncStream.empty<number>().max('a' as string),
-);
+).toEqualTypeOf<number | string>();
 
 // .min(..)
-expectType<number | undefined>(await AsyncStream.empty<number>().min());
-expectError(AsyncStream.of(1).min(3));
+expectTypeOf(await AsyncStream.empty<number>().min()).toEqualTypeOf<
+	number | undefined
+>();
+// @ts-expect-error
+AsyncStream.of(1).min(3);
 
-expectType<number>(await AsyncStream.empty<number>().min(3));
-expectType<number>(await AsyncStream.empty<number>().min(() => 3));
-expectType<number>(await AsyncStream.of(1).min());
-expectType<number | string>(
+expectTypeOf(await AsyncStream.empty<number>().min(3)).toEqualTypeOf<number>();
+expectTypeOf(
+	await AsyncStream.empty<number>().min(() => 3),
+).toEqualTypeOf<number>();
+expectTypeOf(await AsyncStream.of(1).min()).toEqualTypeOf<number>();
+expectTypeOf(
 	await AsyncStream.empty<number>().min('a' as string),
-);
+).toEqualTypeOf<number | string>();
 
 // .maxBy(..)
-expectType<number>(await AsyncStream.empty<number>().maxBy(() => 0, 3));
-expectType<number>(
+expectTypeOf(
+	await AsyncStream.empty<number>().maxBy(() => 0, 3),
+).toEqualTypeOf<number>();
+expectTypeOf(
 	await AsyncStream.empty<number>().maxBy(
 		() => 0,
 		() => 3,
 	),
-);
-expectType<number>(await AsyncStream.of(1).maxBy(() => 0));
-expectType<number | string>(
+).toEqualTypeOf<number>();
+expectTypeOf(await AsyncStream.of(1).maxBy(() => 0)).toEqualTypeOf<number>();
+expectTypeOf(
 	await AsyncStream.empty<number>().maxBy(() => 0, 'a' as string),
-);
+).toEqualTypeOf<number | string>();
 
 // .minBy(..)
-expectType<number>(await AsyncStream.empty<number>().minBy(() => 0, 3));
-expectType<number>(
+expectTypeOf(
+	await AsyncStream.empty<number>().minBy(() => 0, 3),
+).toEqualTypeOf<number>();
+expectTypeOf(
 	await AsyncStream.empty<number>().minBy(
 		() => 0,
 		() => 3,
 	),
-);
-expectType<number>(await AsyncStream.of(1).minBy(() => 0));
-expectType<number | string>(
+).toEqualTypeOf<number>();
+expectTypeOf(await AsyncStream.of(1).minBy(() => 0)).toEqualTypeOf<number>();
+expectTypeOf(
 	await AsyncStream.empty<number>().minBy(() => 0, 'a' as string),
-);
+).toEqualTypeOf<number | string>();
 
 // .mkGroup(..)
-expectType<AsyncStream<number>>(AsyncStream.empty<number>().mkGroup({}));
-expectType<AsyncStream.NonEmpty<number>>(AsyncStream.of(1).mkGroup({}));
+expectTypeOf(AsyncStream.empty<number>().mkGroup({})).toEqualTypeOf<
+	AsyncStream<number>
+>();
+expectTypeOf(AsyncStream.of(1).mkGroup({})).toEqualTypeOf<
+	AsyncStream.NonEmpty<number>
+>();
 
-expectType<AsyncStream<number>>(
+expectTypeOf(
 	AsyncStream.empty<number>().mkGroup({ start: AsyncStream.empty<number>() }),
-);
-expectType<AsyncStream<number>>(
+).toEqualTypeOf<AsyncStream<number>>();
+expectTypeOf(
 	AsyncStream.empty<number>().mkGroup({ sep: AsyncStream.empty<number>() }),
-);
-expectType<AsyncStream<number>>(
+).toEqualTypeOf<AsyncStream<number>>();
+expectTypeOf(
 	AsyncStream.empty<number>().mkGroup({ end: AsyncStream.empty<number>() }),
-);
+).toEqualTypeOf<AsyncStream<number>>();
 
-expectType<AsyncStream<number>>(
+expectTypeOf(
 	AsyncStream.empty<number>().mkGroup({ sep: AsyncStream.of(1) }),
-);
+).toEqualTypeOf<AsyncStream<number>>();
 
 // TODO
 // expectType<AsyncStream.NonEmpty<number>>(
@@ -591,140 +742,175 @@ expectType<AsyncStream<number>>(
 //   AsyncStream.empty<number>().mkGroup({ end: AsyncStream.of(1) })
 // );
 
-expectType<AsyncStream.NonEmpty<number>>(
+expectTypeOf(
 	AsyncStream.of(1).mkGroup({ start: AsyncStream.empty<number>() }),
-);
-expectType<AsyncStream.NonEmpty<number>>(
+).toEqualTypeOf<AsyncStream.NonEmpty<number>>();
+expectTypeOf(
 	AsyncStream.of(1).mkGroup({ sep: AsyncStream.empty<number>() }),
-);
-expectType<AsyncStream.NonEmpty<number>>(
+).toEqualTypeOf<AsyncStream.NonEmpty<number>>();
+expectTypeOf(
 	AsyncStream.of(1).mkGroup({ end: AsyncStream.empty<number>() }),
-);
+).toEqualTypeOf<AsyncStream.NonEmpty<number>>();
 
-expectType<AsyncStream.NonEmpty<number>>(
+expectTypeOf(
 	AsyncStream.of(1).mkGroup({ start: AsyncStream.of(1) }),
-);
-expectType<AsyncStream.NonEmpty<number>>(
+).toEqualTypeOf<AsyncStream.NonEmpty<number>>();
+expectTypeOf(
 	AsyncStream.of(1).mkGroup({ sep: AsyncStream.of(1) }),
-);
-expectType<AsyncStream.NonEmpty<number>>(
+).toEqualTypeOf<AsyncStream.NonEmpty<number>>();
+expectTypeOf(
 	AsyncStream.of(1).mkGroup({ end: AsyncStream.of(1) }),
-);
+).toEqualTypeOf<AsyncStream.NonEmpty<number>>();
 
 // .prepend(..)
-expectType<AsyncStream.NonEmpty<number>>(
-	AsyncStream.empty<number>().prepend(3),
-);
-expectType<AsyncStream.NonEmpty<number>>(AsyncStream.of(1).prepend(3));
+expectTypeOf(AsyncStream.empty<number>().prepend(3)).toEqualTypeOf<
+	AsyncStream.NonEmpty<number>
+>();
+expectTypeOf(AsyncStream.of(1).prepend(3)).toEqualTypeOf<
+	AsyncStream.NonEmpty<number>
+>();
 
 // .join(..)
-expectType<string>(await AsyncStream.empty<number>().join());
-expectType<string>(await AsyncStream.of(1, 2, 3).join());
+expectTypeOf(await AsyncStream.empty<number>().join()).toEqualTypeOf<string>();
+expectTypeOf(await AsyncStream.of(1, 2, 3).join()).toEqualTypeOf<string>();
 
 // .reduce(..)
-expectType<boolean>(
+expectTypeOf(
 	await AsyncStream.empty<number>().reduce(AsyncReducer.isEmpty),
-);
-expectType<boolean>(await AsyncStream.of(1).reduce(AsyncReducer.isEmpty));
-expectError(AsyncStream.empty<number | boolean>().reduce([Reducer.sum]));
+).toEqualTypeOf<boolean>();
+expectTypeOf(
+	await AsyncStream.of(1).reduce(AsyncReducer.isEmpty),
+).toEqualTypeOf<boolean>();
+// @ts-expect-error
+AsyncStream.empty<number | boolean>().reduce([Reducer.sum]);
 
 // .reduce(..) shape
-expectType<[boolean, number, string]>(
+expectTypeOf(
 	await AsyncStream.empty<number>().reduce([
 		AsyncReducer.isEmpty,
 		Reducer.sum,
 		Reducer.join<number>(),
 	]),
-);
-expectType<[boolean, number, string]>(
+).toEqualTypeOf<[boolean, number, string]>();
+expectTypeOf(
 	await AsyncStream.of(1).reduce([
 		AsyncReducer.isEmpty,
 		Reducer.sum,
 		Reducer.join<number>(),
 	]),
-);
+).toEqualTypeOf<[boolean, number, string]>();
 
 // .reduceStream(..) shape
-expectType<AsyncStream<[boolean, number, string]>>(
+expectTypeOf(
 	AsyncStream.empty<number>().reduceStream([
 		AsyncReducer.isEmpty,
 		Reducer.sum,
 		Reducer.join<number>(),
 	]),
-);
-expectType<AsyncStream<[boolean, number, string]>>(
+).toEqualTypeOf<AsyncStream<[boolean, number, string]>>();
+expectTypeOf(
 	AsyncStream.of(1).reduceStream([
 		AsyncReducer.isEmpty,
 		Reducer.sum,
 		Reducer.join<number>(),
 	]),
-);
+).toEqualTypeOf<AsyncStream<[boolean, number, string]>>();
 
 // .reduceStream(..)
-expectType<AsyncStream<boolean>>(
+expectTypeOf(
 	AsyncStream.empty<number>().reduceStream(AsyncReducer.isEmpty),
-);
-expectType<AsyncStream<boolean>>(
+).toEqualTypeOf<AsyncStream<boolean>>();
+expectTypeOf(
 	AsyncStream.of(1).reduceStream(AsyncReducer.isEmpty),
-);
+).toEqualTypeOf<AsyncStream<boolean>>();
 
 // .repeat(..)
-expectType<AsyncStream<number>>(AsyncStream.empty<number>().repeat());
-expectType<AsyncStream.NonEmpty<number>>(AsyncStream.of(1).repeat());
-expectType<AsyncStream<number>>(AsyncStream.empty<number>().repeat(3));
-expectType<AsyncStream.NonEmpty<number>>(AsyncStream.of(1).repeat(3));
+expectTypeOf(AsyncStream.empty<number>().repeat()).toEqualTypeOf<
+	AsyncStream<number>
+>();
+expectTypeOf(AsyncStream.of(1).repeat()).toEqualTypeOf<
+	AsyncStream.NonEmpty<number>
+>();
+expectTypeOf(AsyncStream.empty<number>().repeat(3)).toEqualTypeOf<
+	AsyncStream<number>
+>();
+expectTypeOf(AsyncStream.of(1).repeat(3)).toEqualTypeOf<
+	AsyncStream.NonEmpty<number>
+>();
 
 // .splitOn(..)
-expectType<AsyncStream<number[]>>(AsyncStream.empty<number>().splitOn(3));
-expectType<AsyncStream<number[]>>(AsyncStream.of(1).splitOn(3));
+expectTypeOf(AsyncStream.empty<number>().splitOn(3)).toEqualTypeOf<
+	AsyncStream<number[]>
+>();
+expectTypeOf(AsyncStream.of(1).splitOn(3)).toEqualTypeOf<
+	AsyncStream<number[]>
+>();
 
 // .splitWhere(..)
-expectType<AsyncStream<number[]>>(
-	AsyncStream.empty<number>().splitWhere(() => true),
-);
-expectType<AsyncStream<number[]>>(AsyncStream.of(1).splitWhere(() => true));
+expectTypeOf(AsyncStream.empty<number>().splitWhere(() => true)).toEqualTypeOf<
+	AsyncStream<number[]>
+>();
+expectTypeOf(AsyncStream.of(1).splitWhere(() => true)).toEqualTypeOf<
+	AsyncStream<number[]>
+>();
 
 // .asyncStream()
-expectType<AsyncStream<number>>(AsyncStream.empty<number>().asyncStream());
-expectType<AsyncStream.NonEmpty<number>>(AsyncStream.of(1).asyncStream());
+expectTypeOf(AsyncStream.empty<number>().asyncStream()).toEqualTypeOf<
+	AsyncStream<number>
+>();
+expectTypeOf(AsyncStream.of(1).asyncStream()).toEqualTypeOf<
+	AsyncStream.NonEmpty<number>
+>();
 
 // .take(..)
-expectType<AsyncStream<number>>(AsyncStream.empty<number>().take(2));
-expectType<AsyncStream<number>>(AsyncStream.of(1).take(0));
-expectType<AsyncStream<number>>(AsyncStream.of(1).take(2));
+expectTypeOf(AsyncStream.empty<number>().take(2)).toEqualTypeOf<
+	AsyncStream<number>
+>();
+expectTypeOf(AsyncStream.of(1).take(0)).toEqualTypeOf<AsyncStream<number>>();
+expectTypeOf(AsyncStream.of(1).take(2)).toEqualTypeOf<AsyncStream<number>>();
 
 // .takeWhile(..)
-expectType<AsyncStream<number>>(
-	AsyncStream.empty<number>().takeWhile(() => true),
-);
-expectType<AsyncStream<number>>(AsyncStream.of(1).takeWhile(() => true));
+expectTypeOf(AsyncStream.empty<number>().takeWhile(() => true)).toEqualTypeOf<
+	AsyncStream<number>
+>();
+expectTypeOf(AsyncStream.of(1).takeWhile(() => true)).toEqualTypeOf<
+	AsyncStream<number>
+>();
 
 // .toArray()
-expectType<number[]>(await AsyncStream.empty<number>().toArray());
-expectType<ArrayNonEmpty<number>>(await AsyncStream.of(1).toArray());
+expectTypeOf(await AsyncStream.empty<number>().toArray()).toEqualTypeOf<
+	number[]
+>();
+expectTypeOf(await AsyncStream.of(1).toArray()).toEqualTypeOf<
+	ArrayNonEmpty<number>
+>();
 
 // .equals()
-expectType<boolean>(await AsyncStream.empty<number>().equals([1, 2]));
-expectType<boolean>(await AsyncStream.of(1, 2).equals([1, 2]));
+expectTypeOf(
+	await AsyncStream.empty<number>().equals([1, 2]),
+).toEqualTypeOf<boolean>();
+expectTypeOf(
+	await AsyncStream.of(1, 2).equals([1, 2]),
+).toEqualTypeOf<boolean>();
 
 // .withOnly(...)
-expectType<AsyncStream<undefined>>(
+expectTypeOf(
 	AsyncStream.empty<number | undefined>().withOnly([undefined]),
-);
-expectType<AsyncStream<1>>(
+).toEqualTypeOf<AsyncStream<undefined>>();
+expectTypeOf(
 	AsyncStream.empty<number | undefined>().withOnly([1]),
-);
-expectType<AsyncStream<1 | 2>>(
+).toEqualTypeOf<AsyncStream<1>>();
+expectTypeOf(
 	AsyncStream.empty<number | undefined>().withOnly([1, 2]),
-);
+).toEqualTypeOf<AsyncStream<1 | 2>>();
 
 // .without(...)
-expectType<AsyncStream<number>>(
+expectTypeOf(
 	AsyncStream.empty<number | undefined>().without([undefined]),
-);
-expectType<AsyncStream<number | undefined>>(
+).toEqualTypeOf<AsyncStream<number>>();
+expectTypeOf(
 	AsyncStream.empty<number | undefined>().without([1]),
-);
-expectType<AsyncStream<1 | 3>>(
+).toEqualTypeOf<AsyncStream<number | undefined>>();
+expectTypeOf(
 	AsyncStream.empty<1 | 2 | 3 | undefined>().without([undefined, 2]),
-);
+).toEqualTypeOf<AsyncStream<1 | 3>>();

@@ -1,11 +1,10 @@
 import type { RSetBase } from '@rimbu/collection-types/set/base';
 import type { Eq } from '@rimbu/common/eq';
 import type { Hasher } from '@rimbu/hashed';
+import type { HashSetCreators } from '@rimbu/hashed/internal/set/creators';
 import type { Streamable } from '@rimbu/stream';
 
-import type { HashSetCreators } from '#set/creators';
-
-import { createHashSetContext } from '#set/context';
+import { createHashSetContextModule } from '#set/context-factory';
 
 /**
  * A type-invariant immutable Set of value type T.
@@ -79,12 +78,15 @@ export namespace HashSet {
 	}
 }
 
-const _defaultContext: HashSet.Context<any> = createHashSetContext();
+export const HashSet: HashSetCreators =
+	createHashSetContextModule().build<HashSetCreators>();
 
-export const HashSet: HashSetCreators = Object.freeze({
-	..._defaultContext,
-	createContext: createHashSetContext,
-	defaultContext<UT>(): HashSet.Context<UT> {
-		return _defaultContext;
-	},
-});
+// const _defaultContext: HashSet.Context<any> = createHashSetContext();
+
+// export const HashSet: HashSetCreators = Object.freeze({
+// 	..._defaultContext,
+// 	createContext: createHashSetContext,
+// 	defaultContext<UT>(): HashSet.Context<UT> {
+// 		return _defaultContext;
+// 	},
+// });

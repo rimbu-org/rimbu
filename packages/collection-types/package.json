@@ -55,7 +55,7 @@
 		"clean:build": "rimraf dist",
 		"format:check": "biome format src",
 		"lint:check": "biome lint src",
-		"test:types": "bunx tsd --files ./test-d --typings ./dist/entry/main.d.ts",
+		"test:types": "bunx tsd --files ./test-d --typings ./dist/entry/collection-types.d.ts",
 		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
 	},
 	"dependencies": {
@@ -70,5 +70,11 @@
 	},
 	"devDependencies": {
 		"@rimbu/hashed": "workspace:*"
+	},
+	"tsd": {
+		"compilerOptions": {
+			"module": "esnext",
+			"moduleResolution": "bundler"
+		}
 	}
 }
