@@ -39,8 +39,24 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/entry/hashed.d.ts",
-			"default": "./dist/entry/hashed.js"
+			"types": "./dist/entry/graph.d.ts",
+			"default": "./dist/entry/graph.js"
+		},
+		"./arrow-graph": {
+			"types": "./dist/entry/arrow-graph.d.ts",
+			"default": "./dist/entry/arrow-graph.js"
+		},
+		"./arrow-valued-graph": {
+			"types": "./dist/entry/arrow-valued-graph.d.ts",
+			"default": "./dist/entry/arrow-valued-graph.js"
+		},
+		"./edge-graph": {
+			"types": "./dist/entry/edge-graph.d.ts",
+			"default": "./dist/entry/edge-graph.js"
+		},
+		"./edge-valued-graph": {
+			"types": "./dist/entry/edge-valued-graph.d.ts",
+			"default": "./dist/entry/edge-valued-graph.js"
 		},
 		"./*": {
 			"types": "./dist/public/*.d.ts",
@@ -70,7 +86,6 @@
 		"format:check": "biome format src",
 		"lint:check": "biome lint src",
 		"test": "bun test test/* --tsconfig-override tsconfig.common.json",
-		"test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.ts",
 		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
 	},
 	"dependencies": {

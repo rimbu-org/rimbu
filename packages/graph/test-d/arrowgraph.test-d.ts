@@ -1,9 +1,9 @@
-import type { RSet } from '@rimbu/collection-types';
-import type { FastIterator } from '@rimbu/stream';
-import type { GraphElement } from '../src/custom/index.mjs';
-import type { ArrowGraph } from '../src/main/index.mjs';
+import { expectTypeOf } from 'bun:test';
 
-import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
+import type { RSet } from '@rimbu/collection-types';
+import type { ArrowGraph } from '@rimbu/graph/arrow-graph';
+import type { GraphElement, Link } from '@rimbu/graph/link';
+import type { FastIterator, Stream } from '@rimbu/stream';
 
 type GE<N> = ArrowGraph<N>;
 type GNE<N> = ArrowGraph.NonEmpty<N>;
@@ -15,43 +15,47 @@ let genEmpty!: G_Empty;
 let genNonEmpty!: G_NonEmpty;
 
 // Test variance
-expectAssignable<G_Empty>(genNonEmpty);
-expectAssignable<G_NonEmpty>(genNonEmpty);
+expectTypeOf(genNonEmpty).toExtend<G_Empty>();
+expectTypeOf(genNonEmpty).toExtend<G_NonEmpty>();
 
 let m!: any;
-expectNotAssignable<GE<number | string>>(genEmpty);
-expectNotAssignable<GE<number>>(m as GE<number | string>);
-expectNotAssignable<GNE<number | string>>(genNonEmpty);
-expectNotAssignable<GNE<number>>(m as GNE<number | string>);
+expectTypeOf(genEmpty).not.toExtend<GE<number | string>>();
+expectTypeOf(m as GE<number | string>).not.toExtend<GE<number>>();
+expectTypeOf(genNonEmpty).not.toExtend<GNE<number | string>>();
+expectTypeOf(m as GNE<number | string>).not.toExtend<GNE<number>>();
 
 // Iterator
-expectType<FastIterator<GraphElement<number>>>(genEmpty[Symbol.iterator]());
-expectType<FastIterator<GraphElement<number>>>(genNonEmpty[Symbol.iterator]());
+expectTypeOf(genEmpty[Symbol.iterator]()).toEqualTypeOf<
+	FastIterator<GraphElement<number>>
+>();
+expectTypeOf(genNonEmpty[Symbol.iterator]()).toEqualTypeOf<
+	FastIterator<GraphElement<number>>
+>();
 
 // .addNode(..)
-expectType<G_NonEmpty>(genEmpty.addNode(1));
-expectType<G_NonEmpty>(genNonEmpty.addNode(1));
+expectTypeOf(genEmpty.addNode(1)).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.addNode(1)).toEqualTypeOf<G_NonEmpty>();
 
 // .addNodes(..)
-expectType<G_Empty>(genEmpty.addNodes([]));
-expectType<G_NonEmpty>(genEmpty.addNodes([1]));
+expectTypeOf(genEmpty.addNodes([])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.addNodes([1])).toEqualTypeOf<G_NonEmpty>();
 
-expectType<G_NonEmpty>(genNonEmpty.addNodes([]));
-expectType<G_NonEmpty>(genNonEmpty.addNodes([1]));
+expectTypeOf(genNonEmpty.addNodes([])).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.addNodes([1])).toEqualTypeOf<G_NonEmpty>();
 
 // .assumeNonEmpty()
-expectType<G_NonEmpty>(genEmpty.assumeNonEmpty());
-expectType<G_NonEmpty>(genNonEmpty.assumeNonEmpty());
+expectTypeOf(genEmpty.assumeNonEmpty()).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.assumeNonEmpty()).toEqualTypeOf<G_NonEmpty>();
 
 // .connect(..)
-expectType<G_NonEmpty>(genEmpty.connect(1, 2));
-expectType<G_NonEmpty>(genNonEmpty.connect(1, 2));
+expectTypeOf(genEmpty.connect(1, 2)).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.connect(1, 2)).toEqualTypeOf<G_NonEmpty>();
 
 // .connectAll(..)
-expectType<G_Empty>(genEmpty.connectAll([]));
-expectType<G_NonEmpty>(genEmpty.connectAll([[1, 2]]));
-expectType<G_NonEmpty>(genNonEmpty.connectAll([]));
-expectType<G_NonEmpty>(genNonEmpty.connectAll([[1, 2]]));
+expectTypeOf(genEmpty.connectAll([])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.connectAll([[1, 2]])).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.connectAll([])).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.connectAll([[1, 2]])).toEqualTypeOf<G_NonEmpty>();
 
 // .connectIfNodesExist(..)
 // expectType<G_Empty>(genEmpty.connectIfNodesExist(1, 2));
@@ -64,25 +68,25 @@ expectType<G_NonEmpty>(genNonEmpty.connectAll([[1, 2]]));
 // );
 
 // .disconnect
-expectType<G_Empty>(genEmpty.disconnect(1, 2));
-expectType<G_Empty>(genNonEmpty.disconnect(1, 2));
+expectTypeOf(genEmpty.disconnect(1, 2)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.disconnect(1, 2)).toEqualTypeOf<G_Empty>();
 
 // .disconnectAll
-expectType<G_Empty>(genEmpty.disconnectAll([]));
-expectType<G_Empty>(genNonEmpty.disconnectAll([[1, 2]]));
+expectTypeOf(genEmpty.disconnectAll([])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.disconnectAll([[1, 2]])).toEqualTypeOf<G_Empty>();
 
 // .getConnectionSetFrom(..)
-expectType<RSet<number>>(genEmpty.getConnectionsFrom(1));
-expectType<RSet<number>>(genNonEmpty.getConnectionsFrom(1));
+expectTypeOf(genEmpty.getConnectionsFrom(1)).toEqualTypeOf<RSet<number>>();
+expectTypeOf(genNonEmpty.getConnectionsFrom(1)).toEqualTypeOf<RSet<number>>();
 
 // .getConnectionStreamFrom(..)
-// expectType<Stream<number>>(genEmpty.getConnectionStreamFrom(1));
-// expectType<Stream<number>>(genNonEmpty.getConnectionStreamFrom(1));
+expectTypeOf<Stream<Link<number>>>(genEmpty.getConnectionStreamFrom(1));
+expectTypeOf<Stream<Link<number>>>(genNonEmpty.getConnectionStreamFrom(1));
 
 // .getConnectionStreamTo(..)
-// expectType<Stream<number>>(genEmpty.getConnectionStreamTo(1));
-// expectType<Stream<number>>(genNonEmpty.getConnectionStreamTo(1));
+expectTypeOf<Stream<Link<number>>>(genEmpty.getConnectionStreamTo(1));
+expectTypeOf<Stream<Link<number>>>(genNonEmpty.getConnectionStreamTo(1));
 
 // genNonEmpty.
-// expectType<ArrowGraph<number>>(ArrowGraph.empty<number>());
+// expectTypeOf<ArrowGraph<number>>(ArrowGraph.empty<number>());
 // expectType<ArrowGraph.NonEmpty<number>>(ArrowGraph.of([1, 2]));

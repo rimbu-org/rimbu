@@ -1,29 +1,29 @@
-import type { U } from '@rimbu/typical';
+import { expectTypeOf } from 'bun:test';
 
-import { expectType } from 'tsd';
+import type { U } from '@rimbu/typical';
 
 declare function g<T>(): T;
 
-expectType<unknown>(g<U.Check<5>>());
-expectType<unknown>(g<U.Check<true>>());
-expectType<never>(g<U.Check<never>>());
-expectType<never>(g<U.Check<false>>());
+expectTypeOf(g<U.Check<5>>()).toEqualTypeOf<unknown>();
+expectTypeOf(g<U.Check<true>>()).toEqualTypeOf<unknown>();
+expectTypeOf(g<U.Check<never>>()).toEqualTypeOf<never>();
+expectTypeOf(g<U.Check<false>>()).toEqualTypeOf<never>();
 
-expectType<true>(g<U.Validate<5>>());
-expectType<true>(g<U.Validate<true>>());
-expectType<never>(g<U.Validate<never>>());
-expectType<never>(g<U.Validate<false>>());
+expectTypeOf(g<U.Validate<5>>()).toEqualTypeOf<true>();
+expectTypeOf(g<U.Validate<true>>()).toEqualTypeOf<true>();
+expectTypeOf(g<U.Validate<never>>()).toEqualTypeOf<never>();
+expectTypeOf(g<U.Validate<false>>()).toEqualTypeOf<never>();
 
-expectType<true>(g<U.Extends<1, number>>());
-expectType<false>(g<U.Extends<1, string>>());
-expectType<'a'>(g<U.Extends<1, number, 'a'>>());
-expectType<false>(g<U.Extends<1, string, 'a'>>());
-expectType<'a'>(g<U.Extends<1, number, 'a', 'q'>>());
-expectType<'q'>(g<U.Extends<1, string, 'a', 'q'>>());
+expectTypeOf(g<U.Extends<1, number>>()).toEqualTypeOf<true>();
+expectTypeOf(g<U.Extends<1, string>>()).toEqualTypeOf<false>();
+expectTypeOf(g<U.Extends<1, number, 'a'>>()).toEqualTypeOf<'a'>();
+expectTypeOf(g<U.Extends<1, string, 'a'>>()).toEqualTypeOf<false>();
+expectTypeOf(g<U.Extends<1, number, 'a', 'q'>>()).toEqualTypeOf<'a'>();
+expectTypeOf(g<U.Extends<1, string, 'a', 'q'>>()).toEqualTypeOf<'q'>();
 
-expectType<false>(g<U.NotExtends<1, number>>());
-expectType<true>(g<U.NotExtends<1, string>>());
-expectType<false>(g<U.NotExtends<1, number, 'a'>>());
-expectType<'a'>(g<U.NotExtends<1, string, 'a'>>());
-expectType<'q'>(g<U.NotExtends<1, number, 'a', 'q'>>());
-expectType<'a'>(g<U.NotExtends<1, string, 'a', 'q'>>());
+expectTypeOf(g<U.NotExtends<1, number>>()).toEqualTypeOf<false>();
+expectTypeOf(g<U.NotExtends<1, string>>()).toEqualTypeOf<true>();
+expectTypeOf(g<U.NotExtends<1, number, 'a'>>()).toEqualTypeOf<false>();
+expectTypeOf(g<U.NotExtends<1, string, 'a'>>()).toEqualTypeOf<'a'>();
+expectTypeOf(g<U.NotExtends<1, number, 'a', 'q'>>()).toEqualTypeOf<'q'>();
+expectTypeOf(g<U.NotExtends<1, string, 'a', 'q'>>()).toEqualTypeOf<'a'>();

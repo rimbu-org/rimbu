@@ -1,195 +1,225 @@
-import type { Str } from '@rimbu/typical';
+import { expectTypeOf } from 'bun:test';
 
-import { expectType } from 'tsd';
+import type { Str } from '@rimbu/typical';
 
 declare function g<T>(): T;
 
-expectType<'a'>(g<Str.Append<'', 'a'>>());
-expectType<'ab'>(g<Str.Append<'a', 'b'>>());
-expectType<'abc'>(g<Str.Append<'ab', 'c'>>());
-expectType<'abc'>(g<Str.Append<'a', 'bc'>>());
-expectType<'abc'>(g<Str.Append<'', 'abc'>>());
-expectType<'abc'>(g<Str.Append<'abc', ''>>());
+expectTypeOf(g<Str.Append<'', 'a'>>()).toEqualTypeOf<'a'>();
+expectTypeOf(g<Str.Append<'a', 'b'>>()).toEqualTypeOf<'ab'>();
+expectTypeOf(g<Str.Append<'ab', 'c'>>()).toEqualTypeOf<'abc'>();
+expectTypeOf(g<Str.Append<'a', 'bc'>>()).toEqualTypeOf<'abc'>();
+expectTypeOf(g<Str.Append<'', 'abc'>>()).toEqualTypeOf<'abc'>();
+expectTypeOf(g<Str.Append<'abc', ''>>()).toEqualTypeOf<'abc'>();
 
-expectType<'a'>(g<Str.AppendTwo<'a', '', ''>>());
-expectType<'a'>(g<Str.AppendTwo<'', 'a', ''>>());
-expectType<'a'>(g<Str.AppendTwo<'', '', 'a'>>());
-expectType<'abc'>(g<Str.AppendTwo<'a', 'b', 'c'>>());
-expectType<'abc'>(g<Str.AppendTwo<'ab', '', 'c'>>());
-expectType<'abc'>(g<Str.AppendTwo<'ab', 'c', ''>>());
-expectType<'abc'>(g<Str.AppendTwo<'', 'ab', 'c'>>());
-expectType<'abc'>(g<Str.AppendTwo<'', 'a', 'bc'>>());
+expectTypeOf(g<Str.AppendTwo<'a', '', ''>>()).toEqualTypeOf<'a'>();
+expectTypeOf(g<Str.AppendTwo<'', 'a', ''>>()).toEqualTypeOf<'a'>();
+expectTypeOf(g<Str.AppendTwo<'', '', 'a'>>()).toEqualTypeOf<'a'>();
+expectTypeOf(g<Str.AppendTwo<'a', 'b', 'c'>>()).toEqualTypeOf<'abc'>();
+expectTypeOf(g<Str.AppendTwo<'ab', '', 'c'>>()).toEqualTypeOf<'abc'>();
+expectTypeOf(g<Str.AppendTwo<'ab', 'c', ''>>()).toEqualTypeOf<'abc'>();
+expectTypeOf(g<Str.AppendTwo<'', 'ab', 'c'>>()).toEqualTypeOf<'abc'>();
+expectTypeOf(g<Str.AppendTwo<'', 'a', 'bc'>>()).toEqualTypeOf<'abc'>();
 
-expectType<'a'>(g<Str.CharAt<'abc', 0>>());
-expectType<'b'>(g<Str.CharAt<'abc', 1>>());
-expectType<'c'>(g<Str.CharAt<'abc', 2>>());
-expectType<false>(g<Str.CharAt<'abc', 3>>());
-expectType<false>(g<Str.CharAt<'', 0>>());
-expectType<false>(g<Str.CharAt<'', -1>>());
+expectTypeOf(g<Str.CharAt<'abc', 0>>()).toEqualTypeOf<'a'>();
+expectTypeOf(g<Str.CharAt<'abc', 1>>()).toEqualTypeOf<'b'>();
+expectTypeOf(g<Str.CharAt<'abc', 2>>()).toEqualTypeOf<'c'>();
+expectTypeOf(g<Str.CharAt<'abc', 3>>()).toEqualTypeOf<false>();
+expectTypeOf(g<Str.CharAt<'', 0>>()).toEqualTypeOf<false>();
+expectTypeOf(g<Str.CharAt<'', -1>>()).toEqualTypeOf<false>();
 
-expectType<false>(g<Str.Contains<'', 'a'>>());
-expectType<true>(g<Str.Contains<'a', 'a'>>());
-expectType<false>(g<Str.Contains<'a', 'b'>>());
-expectType<true>(g<Str.Contains<'bbbbccccaccccdddd', 'a'>>());
-expectType<false>(g<Str.Contains<'bbbbccccaccccdddd', 'q'>>());
-expectType<true>(g<Str.Contains<'caccaaddda', 'a', 2>>());
-expectType<true>(g<Str.Contains<'caccaaddda', 'a', 4>>());
-expectType<false>(g<Str.Contains<'caccaaddda', 'a', 5>>());
+expectTypeOf(g<Str.Contains<'', 'a'>>()).toEqualTypeOf<false>();
+expectTypeOf(g<Str.Contains<'a', 'a'>>()).toEqualTypeOf<true>();
+expectTypeOf(g<Str.Contains<'a', 'b'>>()).toEqualTypeOf<false>();
+expectTypeOf(g<Str.Contains<'bbbbccccaccccdddd', 'a'>>()).toEqualTypeOf<true>();
+expectTypeOf(
+	g<Str.Contains<'bbbbccccaccccdddd', 'q'>>(),
+).toEqualTypeOf<false>();
+expectTypeOf(g<Str.Contains<'caccaaddda', 'a', 2>>()).toEqualTypeOf<true>();
+expectTypeOf(g<Str.Contains<'caccaaddda', 'a', 4>>()).toEqualTypeOf<true>();
+expectTypeOf(g<Str.Contains<'caccaaddda', 'a', 5>>()).toEqualTypeOf<false>();
 
-expectType<0>(g<Str.Count<'', 'a'>>());
-expectType<1>(g<Str.Count<'a', 'a'>>());
-expectType<1>(g<Str.Count<'ab', 'a'>>());
-expectType<1>(g<Str.Count<'ba', 'a'>>());
-expectType<1>(g<Str.Count<'bac', 'a'>>());
-expectType<2>(g<Str.Count<'baca', 'a'>>());
-expectType<2>(g<Str.Count<'bacad', 'a'>>());
-expectType<3>(g<Str.Count<'bacad', 'a' | 'b'>>());
-expectType<0>(g<Str.Count<'bacad', 'q'>>());
+expectTypeOf(g<Str.Count<'', 'a'>>()).toEqualTypeOf<0>();
+expectTypeOf(g<Str.Count<'a', 'a'>>()).toEqualTypeOf<1>();
+expectTypeOf(g<Str.Count<'ab', 'a'>>()).toEqualTypeOf<1>();
+expectTypeOf(g<Str.Count<'ba', 'a'>>()).toEqualTypeOf<1>();
+expectTypeOf(g<Str.Count<'bac', 'a'>>()).toEqualTypeOf<1>();
+expectTypeOf(g<Str.Count<'baca', 'a'>>()).toEqualTypeOf<2>();
+expectTypeOf(g<Str.Count<'bacad', 'a'>>()).toEqualTypeOf<2>();
+expectTypeOf(g<Str.Count<'bacad', 'a' | 'b'>>()).toEqualTypeOf<3>();
+expectTypeOf(g<Str.Count<'bacad', 'q'>>()).toEqualTypeOf<0>();
 
-expectType<''>(g<Str.Drop<'', 0>>());
-expectType<''>(g<Str.Drop<'', 1>>());
-expectType<'a'>(g<Str.Drop<'a', 0>>());
-expectType<''>(g<Str.Drop<'a', 1>>());
-expectType<''>(g<Str.Drop<'a', 2>>());
-expectType<'abc'>(g<Str.Drop<'abc', 0>>());
-expectType<'bc'>(g<Str.Drop<'abc', 1>>());
-expectType<'c'>(g<Str.Drop<'abc', 2>>());
-expectType<''>(g<Str.Drop<'abc', 3>>());
-expectType<''>(g<Str.Drop<'abc', 4>>());
+expectTypeOf(g<Str.Drop<'', 0>>()).toEqualTypeOf<''>();
+expectTypeOf(g<Str.Drop<'', 1>>()).toEqualTypeOf<''>();
+expectTypeOf(g<Str.Drop<'a', 0>>()).toEqualTypeOf<'a'>();
+expectTypeOf(g<Str.Drop<'a', 1>>()).toEqualTypeOf<''>();
+expectTypeOf(g<Str.Drop<'a', 2>>()).toEqualTypeOf<''>();
+expectTypeOf(g<Str.Drop<'abc', 0>>()).toEqualTypeOf<'abc'>();
+expectTypeOf(g<Str.Drop<'abc', 1>>()).toEqualTypeOf<'bc'>();
+expectTypeOf(g<Str.Drop<'abc', 2>>()).toEqualTypeOf<'c'>();
+expectTypeOf(g<Str.Drop<'abc', 3>>()).toEqualTypeOf<''>();
+expectTypeOf(g<Str.Drop<'abc', 4>>()).toEqualTypeOf<''>();
 
-expectType<''>(g<Str.DropStrict<'', 0>>());
-expectType<false>(g<Str.DropStrict<'', 1>>());
-expectType<'a'>(g<Str.DropStrict<'a', 0>>());
-expectType<''>(g<Str.DropStrict<'a', 1>>());
-expectType<false>(g<Str.DropStrict<'a', 2>>());
-expectType<'abc'>(g<Str.DropStrict<'abc', 0>>());
-expectType<'bc'>(g<Str.DropStrict<'abc', 1>>());
-expectType<'c'>(g<Str.DropStrict<'abc', 2>>());
-expectType<''>(g<Str.DropStrict<'abc', 3>>());
-expectType<false>(g<Str.DropStrict<'abc', 4>>());
+expectTypeOf(g<Str.DropStrict<'', 0>>()).toEqualTypeOf<''>();
+expectTypeOf(g<Str.DropStrict<'', 1>>()).toEqualTypeOf<false>();
+expectTypeOf(g<Str.DropStrict<'a', 0>>()).toEqualTypeOf<'a'>();
+expectTypeOf(g<Str.DropStrict<'a', 1>>()).toEqualTypeOf<''>();
+expectTypeOf(g<Str.DropStrict<'a', 2>>()).toEqualTypeOf<false>();
+expectTypeOf(g<Str.DropStrict<'abc', 0>>()).toEqualTypeOf<'abc'>();
+expectTypeOf(g<Str.DropStrict<'abc', 1>>()).toEqualTypeOf<'bc'>();
+expectTypeOf(g<Str.DropStrict<'abc', 2>>()).toEqualTypeOf<'c'>();
+expectTypeOf(g<Str.DropStrict<'abc', 3>>()).toEqualTypeOf<''>();
+expectTypeOf(g<Str.DropStrict<'abc', 4>>()).toEqualTypeOf<false>();
 
-expectType<'bc'>(g<Str.DropWhile<'aabc', 'a'>>());
-expectType<'c'>(g<Str.DropWhile<'aabc', 'a' | 'b'>>());
-expectType<'aabc'>(g<Str.DropWhile<'aabc', 'q'>>());
+expectTypeOf(g<Str.DropWhile<'aabc', 'a'>>()).toEqualTypeOf<'bc'>();
+expectTypeOf(g<Str.DropWhile<'aabc', 'a' | 'b'>>()).toEqualTypeOf<'c'>();
+expectTypeOf(g<Str.DropWhile<'aabc', 'q'>>()).toEqualTypeOf<'aabc'>();
 
-expectType<false>(g<Str.EndsWith<'', 'a'>>());
-expectType<['ab', 'c']>(g<Str.EndsWith<'abc', 'c'>>());
-expectType<['ab', 'c']>(g<Str.EndsWith<'abc', 'b' | 'c'>>());
-expectType<false>(g<Str.EndsWith<'abc', 'd' | 'e'>>());
+expectTypeOf(g<Str.EndsWith<'', 'a'>>()).toEqualTypeOf<false>();
+expectTypeOf(g<Str.EndsWith<'abc', 'c'>>()).toEqualTypeOf<['ab', 'c']>();
+expectTypeOf(g<Str.EndsWith<'abc', 'b' | 'c'>>()).toEqualTypeOf<['ab', 'c']>();
+expectTypeOf(g<Str.EndsWith<'abc', 'd' | 'e'>>()).toEqualTypeOf<false>();
 
-expectType<'b'>(g<Str.Filter<'abc', 'b'>>());
-expectType<'bc'>(g<Str.Filter<'abdc', 'b' | 'c'>>());
-expectType<''>(g<Str.Filter<'abc', 'q'>>());
+expectTypeOf(g<Str.Filter<'abc', 'b'>>()).toEqualTypeOf<'b'>();
+expectTypeOf(g<Str.Filter<'abdc', 'b' | 'c'>>()).toEqualTypeOf<'bc'>();
+expectTypeOf(g<Str.Filter<'abc', 'q'>>()).toEqualTypeOf<''>();
 
-expectType<'ac'>(g<Str.FilterNot<'abc', 'b'>>());
-expectType<'a'>(g<Str.FilterNot<'abc', 'b' | 'c'>>());
-expectType<'abc'>(g<Str.FilterNot<'abc', 'q'>>());
+expectTypeOf(g<Str.FilterNot<'abc', 'b'>>()).toEqualTypeOf<'ac'>();
+expectTypeOf(g<Str.FilterNot<'abc', 'b' | 'c'>>()).toEqualTypeOf<'a'>();
+expectTypeOf(g<Str.FilterNot<'abc', 'q'>>()).toEqualTypeOf<'abc'>();
 
-expectType<false>(g<Str.First<''>>());
-expectType<'a'>(g<Str.First<'a'>>());
-expectType<'a'>(g<Str.First<'abc'>>());
-expectType<'a' | 'b'>(g<Str.First<'abc' | 'bcd'>>());
+expectTypeOf(g<Str.First<''>>()).toEqualTypeOf<false>();
+expectTypeOf(g<Str.First<'a'>>()).toEqualTypeOf<'a'>();
+expectTypeOf(g<Str.First<'abc'>>()).toEqualTypeOf<'a'>();
+expectTypeOf(g<Str.First<'abc' | 'bcd'>>()).toEqualTypeOf<'a' | 'b'>();
 
-expectType<false>(g<Str.Init<''>>());
-expectType<''>(g<Str.Init<'a'>>());
-expectType<'ab'>(g<Str.Init<'abc'>>());
+expectTypeOf(g<Str.Init<''>>()).toEqualTypeOf<false>();
+expectTypeOf(g<Str.Init<'a'>>()).toEqualTypeOf<''>();
+expectTypeOf(g<Str.Init<'abc'>>()).toEqualTypeOf<'ab'>();
 
-expectType<false>(g<Str.IsNonEmptyString<''>>());
-expectType<true>(g<Str.IsNonEmptyString<'a'>>());
-expectType<true>(g<Str.IsNonEmptyString<'abc'>>());
+expectTypeOf(g<Str.IsNonEmptyString<''>>()).toEqualTypeOf<false>();
+expectTypeOf(g<Str.IsNonEmptyString<'a'>>()).toEqualTypeOf<true>();
+expectTypeOf(g<Str.IsNonEmptyString<'abc'>>()).toEqualTypeOf<true>();
 
-expectType<false>(g<Str.Last<''>>());
-expectType<'a'>(g<Str.Last<'a'>>());
-expectType<'c'>(g<Str.Last<'abc'>>());
+expectTypeOf(g<Str.Last<''>>()).toEqualTypeOf<false>();
+expectTypeOf(g<Str.Last<'a'>>()).toEqualTypeOf<'a'>();
+expectTypeOf(g<Str.Last<'abc'>>()).toEqualTypeOf<'c'>();
 
-expectType<0>(g<Str.Length<''>>());
-expectType<1>(g<Str.Length<'a'>>());
-expectType<3>(g<Str.Length<'abc'>>());
-expectType<1 | 3>(g<Str.Length<'abc' | 'd'>>());
+expectTypeOf(g<Str.Length<''>>()).toEqualTypeOf<0>();
+expectTypeOf(g<Str.Length<'a'>>()).toEqualTypeOf<1>();
+expectTypeOf(g<Str.Length<'abc'>>()).toEqualTypeOf<3>();
+expectTypeOf(g<Str.Length<'abc' | 'd'>>()).toEqualTypeOf<1 | 3>();
 
-expectType<true>(g<Str.NotContains<'', 'a'>>());
-expectType<false>(g<Str.NotContains<'a', 'a'>>());
-expectType<true>(g<Str.NotContains<'a', 'b'>>());
-expectType<false>(g<Str.NotContains<'bbbbccccaccccdddd', 'a'>>());
-expectType<true>(g<Str.NotContains<'bbbbccccaccccdddd', 'q'>>());
-expectType<false>(g<Str.NotContains<'caccaaddda', 'a', 2>>());
-expectType<false>(g<Str.NotContains<'caccaaddda', 'a', 4>>());
-expectType<true>(g<Str.NotContains<'caccaaddda', 'a', 5>>());
+expectTypeOf(g<Str.NotContains<'', 'a'>>()).toEqualTypeOf<true>();
+expectTypeOf(g<Str.NotContains<'a', 'a'>>()).toEqualTypeOf<false>();
+expectTypeOf(g<Str.NotContains<'a', 'b'>>()).toEqualTypeOf<true>();
+expectTypeOf(
+	g<Str.NotContains<'bbbbccccaccccdddd', 'a'>>(),
+).toEqualTypeOf<false>();
+expectTypeOf(
+	g<Str.NotContains<'bbbbccccaccccdddd', 'q'>>(),
+).toEqualTypeOf<true>();
+expectTypeOf(g<Str.NotContains<'caccaaddda', 'a', 2>>()).toEqualTypeOf<false>();
+expectTypeOf(g<Str.NotContains<'caccaaddda', 'a', 4>>()).toEqualTypeOf<false>();
+expectTypeOf(g<Str.NotContains<'caccaaddda', 'a', 5>>()).toEqualTypeOf<true>();
 
-expectType<['', 'ababcd']>(g<Str.RepeatAtLeastTimes<'ababcd', 'ab', 0>>());
-expectType<['ab', 'abcd']>(g<Str.RepeatAtLeastTimes<'ababcd', 'ab', 1>>());
-expectType<['abab', 'cd']>(g<Str.RepeatAtLeastTimes<'ababcd', 'ab', 2>>());
-expectType<false>(g<Str.RepeatAtLeastTimes<'ababcd', 'ab', 3>>());
+expectTypeOf(g<Str.RepeatAtLeastTimes<'ababcd', 'ab', 0>>()).toEqualTypeOf<
+	['', 'ababcd']
+>();
+expectTypeOf(g<Str.RepeatAtLeastTimes<'ababcd', 'ab', 1>>()).toEqualTypeOf<
+	['ab', 'abcd']
+>();
+expectTypeOf(g<Str.RepeatAtLeastTimes<'ababcd', 'ab', 2>>()).toEqualTypeOf<
+	['abab', 'cd']
+>();
+expectTypeOf(
+	g<Str.RepeatAtLeastTimes<'ababcd', 'ab', 3>>(),
+).toEqualTypeOf<false>();
 
-expectType<false>(g<Str.RepeatAtMostTimes<'ababcd', 'ab', 0>>());
-expectType<false>(g<Str.RepeatAtMostTimes<'ababcd', 'ab', 1>>());
-expectType<['abab', 'cd']>(g<Str.RepeatAtMostTimes<'ababcd', 'ab', 2>>());
-expectType<['abab', 'cd']>(g<Str.RepeatAtMostTimes<'ababcd', 'ab', 3>>());
+expectTypeOf(
+	g<Str.RepeatAtMostTimes<'ababcd', 'ab', 0>>(),
+).toEqualTypeOf<false>();
+expectTypeOf(
+	g<Str.RepeatAtMostTimes<'ababcd', 'ab', 1>>(),
+).toEqualTypeOf<false>();
+expectTypeOf(g<Str.RepeatAtMostTimes<'ababcd', 'ab', 2>>()).toEqualTypeOf<
+	['abab', 'cd']
+>();
+expectTypeOf(g<Str.RepeatAtMostTimes<'ababcd', 'ab', 3>>()).toEqualTypeOf<
+	['abab', 'cd']
+>();
 
-expectType<false>(g<Str.RepeatExactTimes<'ababcd', 'ab', 0>>());
-expectType<false>(g<Str.RepeatExactTimes<'ababcd', 'ab', 1>>());
-expectType<['abab', 'cd']>(g<Str.RepeatExactTimes<'ababcd', 'ab', 2>>());
-expectType<false>(g<Str.RepeatExactTimes<'ababcd', 'ab', 3>>());
+expectTypeOf(
+	g<Str.RepeatExactTimes<'ababcd', 'ab', 0>>(),
+).toEqualTypeOf<false>();
+expectTypeOf(
+	g<Str.RepeatExactTimes<'ababcd', 'ab', 1>>(),
+).toEqualTypeOf<false>();
+expectTypeOf(g<Str.RepeatExactTimes<'ababcd', 'ab', 2>>()).toEqualTypeOf<
+	['abab', 'cd']
+>();
+expectTypeOf(
+	g<Str.RepeatExactTimes<'ababcd', 'ab', 3>>(),
+).toEqualTypeOf<false>();
 
-expectType<''>(g<Str.ReplaceAll<'', 'a', '-'>>());
-expectType<'-'>(g<Str.ReplaceAll<'a', 'a', '-'>>());
-expectType<'--'>(g<Str.ReplaceAll<'aa', 'a', '-'>>());
-expectType<'-b-'>(g<Str.ReplaceAll<'aba', 'a', '-'>>());
-expectType<'b-b'>(g<Str.ReplaceAll<'bab', 'a', '-'>>());
-expectType<'aba'>(g<Str.ReplaceAll<'aba', 'q', '-'>>());
+expectTypeOf(g<Str.ReplaceAll<'', 'a', '-'>>()).toEqualTypeOf<''>();
+expectTypeOf(g<Str.ReplaceAll<'a', 'a', '-'>>()).toEqualTypeOf<'-'>();
+expectTypeOf(g<Str.ReplaceAll<'aa', 'a', '-'>>()).toEqualTypeOf<'--'>();
+expectTypeOf(g<Str.ReplaceAll<'aba', 'a', '-'>>()).toEqualTypeOf<'-b-'>();
+expectTypeOf(g<Str.ReplaceAll<'bab', 'a', '-'>>()).toEqualTypeOf<'b-b'>();
+expectTypeOf(g<Str.ReplaceAll<'aba', 'q', '-'>>()).toEqualTypeOf<'aba'>();
 
-expectType<never>(g<Str.ReplaceFirst<'', 'a', '-'>>());
-expectType<'-'>(g<Str.ReplaceFirst<'a', 'a', '-'>>());
-expectType<'-a'>(g<Str.ReplaceFirst<'aa', 'a', '-'>>());
-expectType<'-ba'>(g<Str.ReplaceFirst<'aba', 'a', '-'>>());
-expectType<'b-ba'>(g<Str.ReplaceFirst<'baba', 'a', '-'>>());
-expectType<never>(g<Str.ReplaceFirst<'baba', 'q', '-'>>());
+expectTypeOf(g<Str.ReplaceFirst<'', 'a', '-'>>()).toEqualTypeOf<never>();
+expectTypeOf(g<Str.ReplaceFirst<'a', 'a', '-'>>()).toEqualTypeOf<'-'>();
+expectTypeOf(g<Str.ReplaceFirst<'aa', 'a', '-'>>()).toEqualTypeOf<'-a'>();
+expectTypeOf(g<Str.ReplaceFirst<'aba', 'a', '-'>>()).toEqualTypeOf<'-ba'>();
+expectTypeOf(g<Str.ReplaceFirst<'baba', 'a', '-'>>()).toEqualTypeOf<'b-ba'>();
+expectTypeOf(g<Str.ReplaceFirst<'baba', 'q', '-'>>()).toEqualTypeOf<never>();
 
-expectType<never>(g<Str.ReplaceLast<'', 'a', '-'>>());
-expectType<'-'>(g<Str.ReplaceLast<'a', 'a', '-'>>());
-expectType<'a-'>(g<Str.ReplaceLast<'aa', 'a', '-'>>());
-expectType<'ab-'>(g<Str.ReplaceLast<'aba', 'a', '-'>>());
-expectType<'bab-'>(g<Str.ReplaceLast<'baba', 'a', '-'>>());
-expectType<never>(g<Str.ReplaceLast<'baba', 'q', '-'>>());
+expectTypeOf(g<Str.ReplaceLast<'', 'a', '-'>>()).toEqualTypeOf<never>();
+expectTypeOf(g<Str.ReplaceLast<'a', 'a', '-'>>()).toEqualTypeOf<'-'>();
+expectTypeOf(g<Str.ReplaceLast<'aa', 'a', '-'>>()).toEqualTypeOf<'a-'>();
+expectTypeOf(g<Str.ReplaceLast<'aba', 'a', '-'>>()).toEqualTypeOf<'ab-'>();
+expectTypeOf(g<Str.ReplaceLast<'baba', 'a', '-'>>()).toEqualTypeOf<'bab-'>();
+expectTypeOf(g<Str.ReplaceLast<'baba', 'q', '-'>>()).toEqualTypeOf<never>();
 
-expectType<''>(g<Str.Reverse<''>>());
-expectType<'a'>(g<Str.Reverse<'a'>>());
-expectType<'ba'>(g<Str.Reverse<'ab'>>());
-expectType<'cba'>(g<Str.Reverse<'abc'>>());
-expectType<'cba' | 'fed'>(g<Str.Reverse<'abc' | 'def'>>());
+expectTypeOf(g<Str.Reverse<''>>()).toEqualTypeOf<''>();
+expectTypeOf(g<Str.Reverse<'a'>>()).toEqualTypeOf<'a'>();
+expectTypeOf(g<Str.Reverse<'ab'>>()).toEqualTypeOf<'ba'>();
+expectTypeOf(g<Str.Reverse<'abc'>>()).toEqualTypeOf<'cba'>();
+expectTypeOf(g<Str.Reverse<'abc' | 'def'>>()).toEqualTypeOf<'cba' | 'fed'>();
 
-expectType<['', '', '']>(g<Str.SplitAt<'', 'b'>>());
-expectType<['', '', 'a']>(g<Str.SplitAt<'a', 'b'>>());
-expectType<['a', 'b', '']>(g<Str.SplitAt<'ab', 'b'>>());
-expectType<['a', 'b', 'c']>(g<Str.SplitAt<'abc', 'b'>>());
-expectType<['', 'a', 'bc']>(g<Str.SplitAt<'abc', 'a'>>());
-expectType<['ab', 'c', '']>(g<Str.SplitAt<'abc', 'c'>>());
-expectType<['ab', 'c', 'd']>(g<Str.SplitAt<'abcd', 'c'>>());
+expectTypeOf(g<Str.SplitAt<'', 'b'>>()).toEqualTypeOf<['', '', '']>();
+expectTypeOf(g<Str.SplitAt<'a', 'b'>>()).toEqualTypeOf<['', '', 'a']>();
+expectTypeOf(g<Str.SplitAt<'ab', 'b'>>()).toEqualTypeOf<['a', 'b', '']>();
+expectTypeOf(g<Str.SplitAt<'abc', 'b'>>()).toEqualTypeOf<['a', 'b', 'c']>();
+expectTypeOf(g<Str.SplitAt<'abc', 'a'>>()).toEqualTypeOf<['', 'a', 'bc']>();
+expectTypeOf(g<Str.SplitAt<'abc', 'c'>>()).toEqualTypeOf<['ab', 'c', '']>();
+expectTypeOf(g<Str.SplitAt<'abcd', 'c'>>()).toEqualTypeOf<['ab', 'c', 'd']>();
 
-expectType<false>(g<Str.StartsWith<'', 'a'>>());
-expectType<['a', '']>(g<Str.StartsWith<'a', 'a'>>());
-expectType<['a', 'bc']>(g<Str.StartsWith<'abc', 'a'>>());
-expectType<false>(g<Str.StartsWith<'bac', 'a'>>());
+expectTypeOf(g<Str.StartsWith<'', 'a'>>()).toEqualTypeOf<false>();
+expectTypeOf(g<Str.StartsWith<'a', 'a'>>()).toEqualTypeOf<['a', '']>();
+expectTypeOf(g<Str.StartsWith<'abc', 'a'>>()).toEqualTypeOf<['a', 'bc']>();
+expectTypeOf(g<Str.StartsWith<'bac', 'a'>>()).toEqualTypeOf<false>();
 
-expectType<false>(g<Str.Tail<''>>());
-expectType<''>(g<Str.Tail<'a'>>());
-expectType<'b'>(g<Str.Tail<'ab'>>());
-expectType<'bc'>(g<Str.Tail<'abc'>>());
+expectTypeOf(g<Str.Tail<''>>()).toEqualTypeOf<false>();
+expectTypeOf(g<Str.Tail<'a'>>()).toEqualTypeOf<''>();
+expectTypeOf(g<Str.Tail<'ab'>>()).toEqualTypeOf<'b'>();
+expectTypeOf(g<Str.Tail<'abc'>>()).toEqualTypeOf<'bc'>();
 
-expectType<''>(g<Str.Take<'', 0>>());
-expectType<''>(g<Str.Take<'abc', 0>>());
-expectType<'a'>(g<Str.Take<'abc', 1>>());
-expectType<'ab'>(g<Str.Take<'abc', 2>>());
-expectType<'abc'>(g<Str.Take<'abc', 3>>());
-expectType<'abc'>(g<Str.Take<'abc', 4>>());
+expectTypeOf(g<Str.Take<'', 0>>()).toEqualTypeOf<''>();
+expectTypeOf(g<Str.Take<'abc', 0>>()).toEqualTypeOf<''>();
+expectTypeOf(g<Str.Take<'abc', 1>>()).toEqualTypeOf<'a'>();
+expectTypeOf(g<Str.Take<'abc', 2>>()).toEqualTypeOf<'ab'>();
+expectTypeOf(g<Str.Take<'abc', 3>>()).toEqualTypeOf<'abc'>();
+expectTypeOf(g<Str.Take<'abc', 4>>()).toEqualTypeOf<'abc'>();
 
-expectType<''>(g<Str.TakeStrict<'', 0>>());
-expectType<''>(g<Str.TakeStrict<'abc', 0>>());
-expectType<'a'>(g<Str.TakeStrict<'abc', 1>>());
-expectType<'ab'>(g<Str.TakeStrict<'abc', 2>>());
-expectType<'abc'>(g<Str.TakeStrict<'abc', 3>>());
-expectType<false>(g<Str.TakeStrict<'abc', 4>>());
+expectTypeOf(g<Str.TakeStrict<'', 0>>()).toEqualTypeOf<''>();
+expectTypeOf(g<Str.TakeStrict<'abc', 0>>()).toEqualTypeOf<''>();
+expectTypeOf(g<Str.TakeStrict<'abc', 1>>()).toEqualTypeOf<'a'>();
+expectTypeOf(g<Str.TakeStrict<'abc', 2>>()).toEqualTypeOf<'ab'>();
+expectTypeOf(g<Str.TakeStrict<'abc', 3>>()).toEqualTypeOf<'abc'>();
+expectTypeOf(g<Str.TakeStrict<'abc', 4>>()).toEqualTypeOf<false>();
 
-expectType<'aa'>(g<Str.TakeWhile<'aabc', 'a'>>());
-expectType<'aab'>(g<Str.TakeWhile<'aabc', 'a' | 'b'>>());
-expectType<''>(g<Str.TakeWhile<'aabc', 'q'>>());
+expectTypeOf(g<Str.TakeWhile<'aabc', 'a'>>()).toEqualTypeOf<'aa'>();
+expectTypeOf(g<Str.TakeWhile<'aabc', 'a' | 'b'>>()).toEqualTypeOf<'aab'>();
+expectTypeOf(g<Str.TakeWhile<'aabc', 'q'>>()).toEqualTypeOf<''>();

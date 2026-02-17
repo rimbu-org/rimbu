@@ -53,7 +53,6 @@
 		"clean:build": "rimraf dist",
 		"format:check": "biome format src",
 		"lint:check": "biome lint src",
-		"test:types": "bunx tsd --files ./test-d --typings ./dist/entry/typical.d.ts",
 		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
 	},
 	"publishConfig": {

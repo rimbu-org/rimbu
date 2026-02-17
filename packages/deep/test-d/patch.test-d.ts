@@ -1,162 +1,205 @@
-import { expectError, expectType } from 'tsd';
-import { patch, Tuple } from '../src/index.mjs';
+import { expectTypeOf } from 'bun:test';
+
+import { patch } from '@rimbu/deep/patch';
+import { Tuple } from '@rimbu/deep/tuple';
 
 const num = 1 as number;
 const str = 'b' as string;
 const bool = false as boolean;
 
-expectType<undefined>(patch(undefined, undefined));
-expectType<null>(patch(null, null));
-expectType<number>(patch(num, 2));
-expectType<boolean>(patch(bool, false));
-expectType<string>(patch(str, 'b'));
-expectType<symbol>(patch(Symbol(), Symbol()));
+expectTypeOf(patch(undefined, undefined)).toEqualTypeOf<undefined>();
+expectTypeOf(patch(null, null)).toEqualTypeOf<null>();
+expectTypeOf(patch(num, 2)).toEqualTypeOf<number>();
+expectTypeOf(patch(bool, false)).toEqualTypeOf<boolean>();
+expectTypeOf(patch(str, 'b')).toEqualTypeOf<string>();
+expectTypeOf(patch(Symbol(), Symbol())).toEqualTypeOf<symbol>();
 
-expectType<undefined>(patch(undefined, () => undefined));
-expectType<null>(patch(null, () => null));
-expectType<number>(patch(num, () => 2));
-expectType<boolean>(patch(bool, () => false));
-expectType<string>(patch(str, () => 'b'));
-expectType<symbol>(patch(Symbol(), () => Symbol()));
+expectTypeOf(patch(undefined, () => undefined)).toEqualTypeOf<undefined>();
+expectTypeOf(patch(null, () => null)).toEqualTypeOf<null>();
+expectTypeOf(patch(num, () => 2)).toEqualTypeOf<number>();
+expectTypeOf(patch(bool, () => false)).toEqualTypeOf<boolean>();
+expectTypeOf(patch(str, () => 'b')).toEqualTypeOf<string>();
+expectTypeOf(patch(Symbol(), () => Symbol())).toEqualTypeOf<symbol>();
 
-expectType<undefined>(patch(undefined, (v) => v));
-expectType<null>(patch(null, (v) => v));
-expectType<number>(patch(num, (v) => v));
-expectType<boolean>(patch(bool, (v) => v));
-expectType<boolean>(patch(bool, (v) => !v));
-expectType<string>(patch(str, (v) => v));
-expectType<symbol>(patch(Symbol(), (v) => v));
+expectTypeOf(patch(undefined, (v) => v)).toEqualTypeOf<undefined>();
+expectTypeOf(patch(null, (v) => v)).toEqualTypeOf<null>();
+expectTypeOf(patch(num, (v) => v)).toEqualTypeOf<number>();
+expectTypeOf(patch(bool, (v) => v)).toEqualTypeOf<boolean>();
+expectTypeOf(patch(bool, (v) => !v)).toEqualTypeOf<boolean>();
+expectTypeOf(patch(str, (v) => v)).toEqualTypeOf<string>();
+expectTypeOf(patch(Symbol(), (v) => v)).toEqualTypeOf<symbol>();
 
-expectError(patch(undefined, null));
-expectError(patch(null, undefined));
-expectError(patch(1, true));
-expectError(patch(true, 1));
-expectError(patch('a', true));
-expectError(patch(Symbol(), 'a'));
+// @ts-expect-error
+patch(undefined, null);
+// @ts-expect-error
+patch(null, undefined);
+// @ts-expect-error
+patch(1, true);
+// @ts-expect-error
+patch(true, 1);
+// @ts-expect-error
+patch('a', true);
+// @ts-expect-error
+patch(Symbol(), 'a');
 
-expectError(patch(1, [2]));
-expectError(patch(true, [false]));
-expectError(patch('a', ['b']));
-expectError(patch(Symbol(), [Symbol()]));
+// @ts-expect-error
+patch(1, [2]);
+// @ts-expect-error
+patch(true, [false]);
+// @ts-expect-error
+patch('a', ['b']);
+// @ts-expect-error
+patch(Symbol(), [Symbol()]);
 
-expectError(patch(1, () => true));
-expectError(patch(true, () => 1));
-expectError(patch('a', () => true));
-expectError(patch(Symbol(), () => 'a'));
+// @ts-expect-error
+patch(1, () => true);
+// @ts-expect-error
+patch(true, () => 1);
+// @ts-expect-error
+patch('a', () => true);
+// @ts-expect-error
+patch(Symbol(), () => 'a');
 
 type NU = number | undefined;
 
-expectType<NU>(patch(1 as NU, 2));
-expectType<NU>(patch(1 as NU, undefined));
+expectTypeOf(patch(1 as NU, 2)).toEqualTypeOf<NU>();
+expectTypeOf(patch(1 as NU, undefined)).toEqualTypeOf<NU>();
 
-expectType<NU>(patch(1 as NU, () => 2));
-expectType<NU>(patch(1 as NU, () => undefined));
-expectType<NU>(patch(1 as NU, (v) => (v ?? 1) + 1));
+expectTypeOf(patch(1 as NU, () => 2)).toEqualTypeOf<NU>();
+expectTypeOf(patch(1 as NU, () => undefined)).toEqualTypeOf<NU>();
+expectTypeOf(patch(1 as NU, (v) => (v ?? 1) + 1)).toEqualTypeOf<NU>();
 
 type NN = number | null;
 
-expectType<NN>(patch(1 as NN, 2));
-expectType<NN>(patch(1 as NN, null));
+expectTypeOf(patch(1 as NN, 2)).toEqualTypeOf<NN>();
+expectTypeOf(patch(1 as NN, null)).toEqualTypeOf<NN>();
 
-expectType<NN>(patch(1 as NN, () => 2));
-expectType<NN>(patch(1 as NN, () => null));
-expectType<NN>(patch(1 as NN, (v) => (v ?? 1) + 1));
+expectTypeOf(patch(1 as NN, () => 2)).toEqualTypeOf<NN>();
+expectTypeOf(patch(1 as NN, () => null)).toEqualTypeOf<NN>();
+expectTypeOf(patch(1 as NN, (v) => (v ?? 1) + 1)).toEqualTypeOf<NN>();
 
 type AN = { a: number } | null;
 
-expectType<AN>(patch(null as AN, null));
-expectType<AN>(patch(null as AN, { a: 3 }));
-expectType<AN>(patch({ a: 3 } as AN, null));
+expectTypeOf(patch(null as AN, null)).toEqualTypeOf<AN>();
+expectTypeOf(patch(null as AN, { a: 3 })).toEqualTypeOf<AN>();
+expectTypeOf(patch({ a: 3 } as AN, null)).toEqualTypeOf<AN>();
 
-expectType<AN>(patch(null as AN, () => null));
-expectType<AN>(patch(null as AN, () => ({ a: 3 })));
-expectType<AN>(patch({ a: 3 } as AN, () => null));
+expectTypeOf(patch(null as AN, () => null)).toEqualTypeOf<AN>();
+expectTypeOf(patch(null as AN, () => ({ a: 3 }))).toEqualTypeOf<AN>();
+expectTypeOf(patch({ a: 3 } as AN, () => null)).toEqualTypeOf<AN>();
 
-expectError(patch(null as AN, [{ a: 1 }]));
-expectError(patch(null as AN, [{}]));
+// @ts-expect-error
+patch(null as AN, [{ a: 1 }]);
+// @ts-expect-error
+patch(null as AN, [{}]);
 
-expectError(patch(null as AN, () => [{ a: 1 }]));
-expectError(patch(null as AN, () => [{}]));
+// @ts-expect-error
+patch(null as AN, () => [{ a: 1 }]);
+// @ts-expect-error
+patch(null as AN, () => [{}]);
 
 type AU = { a: number } | undefined;
 
-expectType<AU>(patch(undefined as AU, undefined));
-expectType<AU>(patch(undefined as AU, { a: 3 }));
-expectType<AU>(patch({ a: 3 } as AU, undefined));
+expectTypeOf(patch(undefined as AU, undefined)).toEqualTypeOf<AU>();
+expectTypeOf(patch(undefined as AU, { a: 3 })).toEqualTypeOf<AU>();
+expectTypeOf(patch({ a: 3 } as AU, undefined)).toEqualTypeOf<AU>();
 
-expectType<AU>(patch(undefined as AU, () => undefined));
-expectType<AU>(patch(undefined as AU, () => ({ a: 3 })));
-expectType<AU>(patch({ a: 3 } as AU, () => undefined));
+expectTypeOf(patch(undefined as AU, () => undefined)).toEqualTypeOf<AU>();
+expectTypeOf(patch(undefined as AU, () => ({ a: 3 }))).toEqualTypeOf<AU>();
+expectTypeOf(patch({ a: 3 } as AU, () => undefined)).toEqualTypeOf<AU>();
 
-expectError(patch(undefined as AU, [{ a: 1 }]));
-expectError(patch(undefined as AU, [{}]));
+// @ts-expect-error
+patch(undefined as AU, [{ a: 1 }]);
+// @ts-expect-error
+patch(undefined as AU, [{}]);
 
-expectError(patch(undefined as AU, () => [{ a: 1 }]));
-expectError(patch(undefined as AU, () => [{}]));
+// @ts-expect-error
+patch(undefined as AU, () => [{ a: 1 }]);
+// @ts-expect-error
+patch(undefined as AU, () => [{}]);
 
 const v = { a: 1, b: { c: 'a', d: true } };
 type V = typeof v;
 
-expectType<V>(patch(v, v));
-expectType<V>(patch(v, [v]));
-expectType<V>(patch(v, [{}]));
-expectType<V>(patch(v, [{ a: 2 }]));
-expectType<V>(patch(v, [{ a: 2 }, { a: (v) => v + 1 }]));
-expectType<V>(patch(v, [{ a: () => 2 }]));
-expectType<V>(patch(v, [{ a: (v) => v }]));
-expectType<V>(patch(v, [{ a: (v) => v, b: [{ c: 'b' }] }]));
+expectTypeOf(patch(v, v)).toEqualTypeOf<V>();
+expectTypeOf(patch(v, [v])).toEqualTypeOf<V>();
+expectTypeOf(patch(v, [{}])).toEqualTypeOf<V>();
+expectTypeOf(patch(v, [{ a: 2 }])).toEqualTypeOf<V>();
+expectTypeOf(patch(v, [{ a: 2 }, { a: (v) => v + 1 }])).toEqualTypeOf<V>();
+expectTypeOf(patch(v, [{ a: () => 2 }])).toEqualTypeOf<V>();
+expectTypeOf(patch(v, [{ a: (v) => v }])).toEqualTypeOf<V>();
+expectTypeOf(patch(v, [{ a: (v) => v, b: [{ c: 'b' }] }])).toEqualTypeOf<V>();
 
-expectType<V>(patch(v, () => v));
-expectType<V>(patch(v, () => [v]));
-expectType<V>(patch(v, () => [{}]));
-expectType<V>(patch(v, () => [{ a: 2 }]));
-expectType<V>(patch(v, () => [{ a: 2 }, { a: (v) => v + 1 }]));
-expectType<V>(patch(v, () => [{ a: () => 2 }]));
-expectType<V>(patch(v, () => [{ a: (v) => v }]));
-expectType<V>(patch(v, () => [{ a: (v) => v, b: [{ c: 'b' }] }]));
+expectTypeOf(patch(v, () => v)).toEqualTypeOf<V>();
+expectTypeOf(patch(v, () => [v])).toEqualTypeOf<V>();
+expectTypeOf(patch(v, () => [{}])).toEqualTypeOf<V>();
+expectTypeOf(patch(v, () => [{ a: 2 }])).toEqualTypeOf<V>();
+expectTypeOf(
+	patch(v, () => [{ a: 2 }, { a: (v) => v + 1 }]),
+).toEqualTypeOf<V>();
+expectTypeOf(patch(v, () => [{ a: () => 2 }])).toEqualTypeOf<V>();
+expectTypeOf(patch(v, () => [{ a: (v) => v }])).toEqualTypeOf<V>();
+expectTypeOf(
+	patch(v, () => [{ a: (v) => v, b: [{ c: 'b' }] }]),
+).toEqualTypeOf<V>();
 
-expectType<V>(patch(v, [{ b: { c: 'b', d: false } }]));
-expectType<V>(patch(v, [{ b: [{ c: 'b', d: false }] }]));
-expectType<V>(patch(v, [{ b: [{ c: 'b' }] }]));
-expectType<V>(patch(v, [{ b: [{ d: (v) => !v }] }]));
+expectTypeOf(patch(v, [{ b: { c: 'b', d: false } }])).toEqualTypeOf<V>();
+expectTypeOf(patch(v, [{ b: [{ c: 'b', d: false }] }])).toEqualTypeOf<V>();
+expectTypeOf(patch(v, [{ b: [{ c: 'b' }] }])).toEqualTypeOf<V>();
+expectTypeOf(patch(v, [{ b: [{ d: (v) => !v }] }])).toEqualTypeOf<V>();
 
-expectError(patch(v, [{ a: 2, q: 1 }]));
-expectError(patch(v, () => [{ a: 2, q: 1 }]));
+// @ts-expect-error
+patch(v, [{ a: 2, q: 1 }]);
+// @ts-expect-error
+patch(v, () => [{ a: 2, q: 1 }]);
 
 const t = { a: 1, b: Tuple.of(true, 'a', { x: 1, y: 2 }) };
 type T = typeof t;
 
-expectType<T>(patch(t, t));
-expectType<T>(patch(t, t));
-expectType<T>(patch(t, [{ b: Tuple.of(false, 'b', { x: 0, y: 0 }) }]));
-expectType<T>(patch(t, [{ b: {} }]));
-expectType<T>(patch(t, [{ b: { 0: true } }]));
-expectType<T>(patch(t, [{ b: { 1: 'c' } }]));
-expectType<T>(patch(t, [{ b: { 0: true, 1: 'c' } }]));
-expectType<T>(patch(t, [{ b: { 0: (v) => !v } }]));
-expectType<T>(patch(t, [{ b: { 2: { x: 2, y: 2 } } }]));
+expectTypeOf(patch(t, t)).toEqualTypeOf<T>();
+expectTypeOf(patch(t, t)).toEqualTypeOf<T>();
+expectTypeOf(
+	patch(t, [{ b: Tuple.of(false, 'b', { x: 0, y: 0 }) }]),
+).toEqualTypeOf<T>();
+expectTypeOf(patch(t, [{ b: {} }])).toEqualTypeOf<T>();
+expectTypeOf(patch(t, [{ b: { 0: true } }])).toEqualTypeOf<T>();
+expectTypeOf(patch(t, [{ b: { 1: 'c' } }])).toEqualTypeOf<T>();
+expectTypeOf(patch(t, [{ b: { 0: true, 1: 'c' } }])).toEqualTypeOf<T>();
+expectTypeOf(patch(t, [{ b: { 0: (v) => !v } }])).toEqualTypeOf<T>();
+expectTypeOf(patch(t, [{ b: { 2: { x: 2, y: 2 } } }])).toEqualTypeOf<T>();
 // expectType<T>(patch(t, [{ b: { 2: [{ y: 2 }] } }]));
 // expectType<T>(patch(t, [{ b: { 2: [{ y: (v, p) => v + p.x }] } }]));
 
-expectError(patch(t, [{ b: [] }]));
-expectError(patch(t, [{ b: Tuple.of(1, 'b') }]));
-expectError(patch(t, [{ b: { 3: 1 } }]));
-expectError(patch(t, [{ b: { 0: 1 } }]));
-expectError(patch(t, [{ b: { 0: () => 1 } }]));
-expectError(patch(t, [{ b: { 2: { x: 1 } } }]));
-expectError(patch(t, [{ b: { 2: [{ z: 1 }] } }]));
+// @ts-expect-error
+patch(t, [{ b: [] }]);
+// @ts-expect-error
+patch(t, [{ b: Tuple.of(1, 'b') }]);
+// @ts-expect-error
+patch(t, [{ b: { 3: 1 } }]);
+// @ts-expect-error
+patch(t, [{ b: { 0: 1 } }]);
+// @ts-expect-error
+patch(t, [{ b: { 0: () => 1 } }]);
+// @ts-expect-error
+patch(t, [{ b: { 2: { x: 1 } } }]);
+// @ts-expect-error
+patch(t, [{ b: { 2: [{ z: 1 }] } }]);
 
 const arr = [1, 2, 3];
-expectType<number[]>(patch(arr, arr));
-expectType<number[]>(patch(arr, []));
-expectType<number[]>(patch(arr, [1, 2]));
-expectType<number[]>(patch(arr, () => [1, 2, 3]));
-expectType<number[]>(patch(arr, (v) => v));
+expectTypeOf(patch(arr, arr)).toEqualTypeOf<number[]>();
+expectTypeOf(patch(arr, [])).toEqualTypeOf<number[]>();
+expectTypeOf(patch(arr, [1, 2])).toEqualTypeOf<number[]>();
+expectTypeOf(patch(arr, () => [1, 2, 3])).toEqualTypeOf<number[]>();
+expectTypeOf(patch(arr, (v) => v)).toEqualTypeOf<number[]>();
 
-expectError(patch(arr, [[]]));
-expectError(patch(arr, ['a']));
-expectError(patch(arr, { 0: 2 }));
-expectError(patch(arr, [{ 0: 2 }]));
+// @ts-expect-error
+patch(arr, [[]]);
+// @ts-expect-error
+patch(arr, ['a']);
+// @ts-expect-error
+patch(arr, { 0: 2 });
+// @ts-expect-error
+patch(arr, [{ 0: 2 }]);
 // expectError(
 //   patch(arr, (v) => {
 //     v[0] = 3;
@@ -167,68 +210,74 @@ expectError(patch(arr, [{ 0: 2 }]));
 const s = new Set([1, 2]);
 type S = typeof s;
 
-expectType<S>(patch(s, s));
-expectType<S>(patch(s, (s) => s));
+expectTypeOf(patch(s, s)).toEqualTypeOf<S>();
+expectTypeOf(patch(s, (s) => s)).toEqualTypeOf<S>();
 
-expectError(patch(s, { size: 3 }));
-expectError(patch(s, [{ size: 3 }]));
-expectError(patch(s, () => ({ size: 3 })));
-expectError(patch(s, () => [{ size: 3 }]));
+// @ts-expect-error
+patch(s, { size: 3 });
+// @ts-expect-error
+patch(s, [{ size: 3 }]);
+// @ts-expect-error
+patch(s, () => ({ size: 3 }));
+// @ts-expect-error
+patch(s, () => [{ size: 3 }]);
 
 const n = { a: { b: { c: 5 } } };
 type N = typeof n;
 
-expectType<N>(patch(n, (v, p, r) => v));
-expectType<N>(patch(n, (v, p, r) => p));
-expectType<N>(patch(n, (v, p, r) => r));
+expectTypeOf(patch(n, (v, p, r) => v)).toEqualTypeOf<N>();
+expectTypeOf(patch(n, (v, p, r) => p)).toEqualTypeOf<N>();
+expectTypeOf(patch(n, (v, p, r) => r)).toEqualTypeOf<N>();
 
-expectType<N>(patch(n, [{ a: (v, p, r) => v }]));
-expectType<N>(patch(n, [{ a: (v, p, r) => p.a }]));
-expectType<N>(patch(n, [{ a: (v, p, r) => r.a }]));
+expectTypeOf(patch(n, [{ a: (v, p, r) => v }])).toEqualTypeOf<N>();
+expectTypeOf(patch(n, [{ a: (v, p, r) => p.a }])).toEqualTypeOf<N>();
+expectTypeOf(patch(n, [{ a: (v, p, r) => r.a }])).toEqualTypeOf<N>();
 
-expectType<N>(patch(n, [{ a: [{ b: (v, p, r) => v }] }]));
-expectType<N>(patch(n, [{ a: [{ b: (v, p, r) => p.b }] }]));
-expectType<N>(patch(n, [{ a: [{ b: (v, p, r) => r.a.b }] }]));
+expectTypeOf(patch(n, [{ a: [{ b: (v, p, r) => v }] }])).toEqualTypeOf<N>();
+expectTypeOf(patch(n, [{ a: [{ b: (v, p, r) => p.b }] }])).toEqualTypeOf<N>();
+expectTypeOf(patch(n, [{ a: [{ b: (v, p, r) => r.a.b }] }])).toEqualTypeOf<N>();
 
-expectType<() => 5>(
+expectTypeOf(
 	patch(
 		() => 5,
 		() => 5,
 	),
-);
-expectError(
-	patch(
-		() => 5,
-		() => () => 5,
-	),
+).toEqualTypeOf<() => number>();
+
+patch(
+	() => 5,
+	// @ts-expect-error
+	() => () => 5,
 );
 
-expectType<{ a: () => number }>(
-	patch({ a: () => 5 as number }, { a: () => 6 }),
-);
-expectError<{ readonly a: () => number }>(
-	patch({ a: () => 5 as number }, { a: () => () => 6 }),
-);
+expectTypeOf(patch({ a: () => 5 as number }, { a: () => 6 })).toEqualTypeOf<{
+	a: () => number;
+}>();
+// @ts-expect-error
+patch({ a: () => 5 as number }, { a: () => () => 6 });
 
-expectType<readonly [number, string]>(patch(Tuple.of(1, 'a'), [2, 'b']));
-expectError(patch(Tuple.of(1, 'a'), [1]));
-expectError(patch(Tuple.of(1, 'a'), [2, 'b', true]));
-expectError(patch(Tuple.of(1, 2), [1, 2, 3]));
+expectTypeOf(patch(Tuple.of(1, 'a'), [2, 'b'])).toEqualTypeOf<
+	readonly [number, string]
+>();
+// @ts-expect-error
+patch(Tuple.of(1, 'a'), [1]);
+// @ts-expect-error
+patch(Tuple.of(1, 'a'), [2, 'b', true]);
+// @ts-expect-error
+patch(Tuple.of(1, 2), [1, 2, 3]);
 
-expectType<{ a: number | undefined; b: number }>(
+expectTypeOf(
 	patch({ a: 1, b: 1 } as { a: number | undefined; b: number }, [
 		{ a: undefined },
 	]),
-);
-expectType<{ a?: number | undefined; b: number }>(
+).toEqualTypeOf<{ a: number | undefined; b: number }>();
+expectTypeOf(
 	patch({ a: 1, b: 1 } as { a?: number | undefined; b: number }, [
 		{ a: undefined },
 	]),
-);
+).toEqualTypeOf<{ a?: number | undefined; b: number }>();
 
-// tsd does not yet catch "exactOptionalPropertyTypes" errors
-
-// expectError(
-//   patch({ a: 1, b: 1 } as { a?: number; b: number }, [{ a: undefined }])
-// );
-// expectError(patch({ a: 1 }, [{ a: undefined }]));
+// @ts-expect-error
+patch({ a: 1, b: 1 } as { a?: number; b: number }, [{ a: undefined }]);
+// @ts-expect-error
+patch({ a: 1 }, [{ a: undefined }]);

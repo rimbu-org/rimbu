@@ -1,7 +1,8 @@
+import { expectTypeOf } from 'bun:test';
+
 import type { List } from '@rimbu/list';
 
-import { expectError, expectType } from 'tsd';
-import { getAt } from '../src/index.mjs';
+import { getAt } from '@rimbu/deep';
 
 let m!: {
 	a: number;
@@ -17,22 +18,29 @@ let m!: {
 
 type M = typeof m;
 
-expectError(getAt(m, 'a.'));
-expectError(getAt(m, '.a'));
-expectError(getAt(m, 'a.a'));
-expectError(getAt(m, 'a.b'));
-expectError(getAt(m, 'z'));
-expectError(getAt(m, 'cc'));
-expectError(getAt(m, 'cd'));
+// @ts-expect-error
+getAt(m, 'a.');
+// @ts-expect-error
+getAt(m, '.a');
+// @ts-expect-error
+getAt(m, 'a.a');
+// @ts-expect-error
+getAt(m, 'a.b');
+// @ts-expect-error
+getAt(m, 'z');
+// @ts-expect-error
+getAt(m, 'cc');
+// @ts-expect-error
+getAt(m, 'cd');
 
-expectType<M>(getAt(m, ''));
-expectType<number>(getAt(m, 'a'));
-expectType<string[]>(getAt(m, 'b'));
-expectType<M['c']>(getAt(m, 'c'));
-expectType<M['g']>(getAt(m, 'g'));
-expectType<M['c']['e']>(getAt(m, 'c.e'));
-expectType<M['c']['f']>(getAt(m, 'c.f'));
-expectType<number | undefined>(getAt(m, 'c.e?.[0]'));
-expectType<string | undefined>(getAt(m, 'c.e?.[1]'));
-expectType<M['h']>(getAt(m, 'h'));
-expectType<number | undefined>(getAt(m, 'h?.i'));
+expectTypeOf(getAt(m, '')).toEqualTypeOf<M>();
+expectTypeOf(getAt(m, 'a')).toEqualTypeOf<number>();
+expectTypeOf(getAt(m, 'b')).toEqualTypeOf<string[]>();
+expectTypeOf(getAt(m, 'c')).toEqualTypeOf<M['c']>();
+expectTypeOf(getAt(m, 'g')).toEqualTypeOf<M['g']>();
+expectTypeOf(getAt(m, 'c.e')).toEqualTypeOf<M['c']['e']>();
+expectTypeOf(getAt(m, 'c.f')).toEqualTypeOf<M['c']['f']>();
+expectTypeOf(getAt(m, 'c.e?.[0]')).toEqualTypeOf<number | undefined>();
+expectTypeOf(getAt(m, 'c.e?.[1]')).toEqualTypeOf<string | undefined>();
+expectTypeOf(getAt(m, 'h')).toEqualTypeOf<M['h']>();
+expectTypeOf(getAt(m, 'h?.i')).toEqualTypeOf<number | undefined>();

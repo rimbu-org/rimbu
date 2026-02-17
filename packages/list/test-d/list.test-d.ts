@@ -1,226 +1,296 @@
+import { expectTypeOf } from 'bun:test';
+
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { FastIterator, Stream } from '@rimbu/stream';
 
 import { List } from '@rimbu/list';
-import {
-	expectAssignable,
-	expectError,
-	expectNotAssignable,
-	expectType,
-} from 'tsd';
 
-expectAssignable<List<number>>(List.of(1));
-expectNotAssignable<List.NonEmpty<number>>(List.empty<number>());
+expectTypeOf(List.of(1)).toExtend<List<number>>();
+expectTypeOf(List.empty<number>()).not.toExtend<List.NonEmpty<number>>();
 
 // Fast Iterator
-expectType<FastIterator<number>>(List.empty<number>()[Symbol.iterator]());
-expectType<FastIterator<number>>(List.of(1)[Symbol.iterator]());
+expectTypeOf(List.empty<number>()[Symbol.iterator]()).toEqualTypeOf<
+	FastIterator<number>
+>();
+expectTypeOf(List.of(1)[Symbol.iterator]()).toEqualTypeOf<
+	FastIterator<number>
+>();
 
 // List.builder()
-expectType<List.Builder<number>>(List.builder<number>());
+expectTypeOf(List.builder<number>()).toEqualTypeOf<List.Builder<number>>();
 
 // List.createContext()
-expectType<List.Context>(List.createContext());
+expectTypeOf(List.createContext()).toEqualTypeOf<List.Context>();
 
 // List.defaultContext()
-expectType<List.Context>(List.defaultContext());
+expectTypeOf(List.defaultContext()).toEqualTypeOf<List.Context>();
 
 // List.empty()
-expectType<List<number>>(List.empty<number>());
+expectTypeOf(List.empty<number>()).toEqualTypeOf<List<number>>();
 
 // List.from(..)
-expectType<List<number>>(List.from([] as number[]));
-expectType<List.NonEmpty<number>>(List.from([1]));
-expectType<List.NonEmpty<number>>(List.from([1], [2]));
-expectType<List<number>>(List.from(new Set([1])));
+expectTypeOf(List.from([] as number[])).toEqualTypeOf<List<number>>();
+expectTypeOf(List.from([1])).toEqualTypeOf<List.NonEmpty<number>>();
+expectTypeOf(List.from([1], [2])).toEqualTypeOf<List.NonEmpty<number>>();
+expectTypeOf(List.from(new Set([1]))).toEqualTypeOf<List<number>>();
 // TODO
 // expectType<List.NonEmpty<number>>(List.from([] as number[], [1]));
 
 // List.of(..)
-expectType<List.NonEmpty<number>>(List.of(1));
-expectType<List.NonEmpty<number>>(List.of(1, 2, 3));
+expectTypeOf(List.of(1)).toEqualTypeOf<List.NonEmpty<number>>();
+expectTypeOf(List.of(1, 2, 3)).toEqualTypeOf<List.NonEmpty<number>>();
 
 // .append(..)
-expectType<List.NonEmpty<number>>(List.empty<number>().append(2));
-expectType<List.NonEmpty<number>>(List.of(1).append(2));
+expectTypeOf(List.empty<number>().append(2)).toEqualTypeOf<
+	List.NonEmpty<number>
+>();
+expectTypeOf(List.of(1).append(2)).toEqualTypeOf<List.NonEmpty<number>>();
 
 // .assumeNonEmpty()
-expectType<List.NonEmpty<number>>(List.empty<number>().assumeNonEmpty());
-expectType<List.NonEmpty<number>>(List.of(1).assumeNonEmpty());
+expectTypeOf(List.empty<number>().assumeNonEmpty()).toEqualTypeOf<
+	List.NonEmpty<number>
+>();
+expectTypeOf(List.of(1).assumeNonEmpty()).toEqualTypeOf<
+	List.NonEmpty<number>
+>();
 
 // .collect(..)
-expectType<List<string>>(List.empty<number>().collect(() => 'a'));
-expectType<List<string>>(List.of(1).collect(() => 'a'));
+expectTypeOf(List.empty<number>().collect(() => 'a')).toEqualTypeOf<
+	List<string>
+>();
+expectTypeOf(List.of(1).collect(() => 'a')).toEqualTypeOf<List<string>>();
 
 // .concat(..)
-expectType<List<number>>(List.empty<number>().concat(List.empty<number>()));
-expectType<List.NonEmpty<number>>(List.empty<number>().concat(List.of(1)));
-expectType<List.NonEmpty<number>>(List.of(1).concat(List.empty<number>()));
-expectType<List.NonEmpty<number>>(List.of(1).concat(List.of(1)));
+expectTypeOf(List.empty<number>().concat(List.empty<number>())).toEqualTypeOf<
+	List<number>
+>();
+expectTypeOf(List.empty<number>().concat(List.of(1))).toEqualTypeOf<
+	List.NonEmpty<number>
+>();
+expectTypeOf(List.of(1).concat(List.empty<number>())).toEqualTypeOf<
+	List.NonEmpty<number>
+>();
+expectTypeOf(List.of(1).concat(List.of(1))).toEqualTypeOf<
+	List.NonEmpty<number>
+>();
 // TODO
 // expectType<List.NonEmpty<number>>(List.empty<number>().concat(List.empty<number>(), List.of(1)));
 
 // .drop(..)
-expectType<List<number>>(List.empty<number>().drop(3));
-expectType<List<number>>(List.of(1).drop(3));
+expectTypeOf(List.empty<number>().drop(3)).toEqualTypeOf<List<number>>();
+expectTypeOf(List.of(1).drop(3)).toEqualTypeOf<List<number>>();
 
 // .filter(..)
-expectType<List<number>>(List.empty<number>().filter(() => true));
-expectType<List<number>>(List.of(1).filter(() => true));
+expectTypeOf(List.empty<number>().filter(() => true)).toEqualTypeOf<
+	List<number>
+>();
+expectTypeOf(List.of(1).filter(() => true)).toEqualTypeOf<List<number>>();
 
 // .first(..)
-expectType<number | undefined>(List.empty<number>().first());
-expectError(List.of(1).first(3));
-expectType<number>(List.empty<number>().first(3));
-expectType<number>(List.of(1).first());
-expectType<number | string>(List.empty<number>().first('a' as string));
-expectType<number | string>(List.empty<number>().first(() => 'a'));
+expectTypeOf(List.empty<number>().first()).toEqualTypeOf<number | undefined>();
+// @ts-expect-error
+List.of(1).first(3);
+expectTypeOf(List.empty<number>().first(3)).toEqualTypeOf<number>();
+expectTypeOf(List.of(1).first()).toEqualTypeOf<number>();
+expectTypeOf(List.empty<number>().first('a' as string)).toEqualTypeOf<
+	number | string
+>();
+expectTypeOf(List.empty<number>().first(() => 'a')).toEqualTypeOf<
+	number | string
+>();
 
 // .flatMap(..)
-expectType<List<string>>(
+expectTypeOf(
 	List.empty<number>().flatMap(() => List.empty<string>()),
-);
-expectType<List<string>>(List.empty<number>().flatMap(() => List.of('a')));
-expectType<List<string>>(List.of(1).flatMap(() => List.empty<string>()));
-expectType<List.NonEmpty<string>>(List.of(1).flatMap(() => List.of('a')));
-expectType<List<string>>(
+).toEqualTypeOf<List<string>>();
+expectTypeOf(List.empty<number>().flatMap(() => List.of('a'))).toEqualTypeOf<
+	List<string>
+>();
+expectTypeOf(List.of(1).flatMap(() => List.empty<string>())).toEqualTypeOf<
+	List<string>
+>();
+expectTypeOf(List.of(1).flatMap(() => List.of('a'))).toEqualTypeOf<
+	List.NonEmpty<string>
+>();
+expectTypeOf(
 	List.of(1).flatMap(() => List.of('a'), { range: { amount: 10 } }),
-);
+).toEqualTypeOf<List<string>>();
 
 // .flatten()
-expectError(List.flatten(List.empty<number>()));
-expectType<List.NonEmpty<number>>(List.flatten(List.of(List.of(1))));
-expectType<List<number>>(List.flatten(List.of(List.empty<number>())));
-expectType<List<number>>(List.flatten(List.of(List.of(1)).asNormal()));
-expectType<List.NonEmpty<number>>(List.flatten(List.of(List.from([1, 2]))));
-expectType<List<string>>(List.flatten(List.of('abc')));
+// @ts-expect-error
+List.flatten(List.empty<number>());
+expectTypeOf(List.flatten(List.of(List.of(1)))).toEqualTypeOf<
+	List.NonEmpty<number>
+>();
+expectTypeOf(List.flatten(List.of(List.empty<number>()))).toEqualTypeOf<
+	List<number>
+>();
+expectTypeOf(List.flatten(List.of(List.of(1)).asNormal())).toEqualTypeOf<
+	List<number>
+>();
+expectTypeOf(List.flatten(List.of(List.from([1, 2])))).toEqualTypeOf<
+	List.NonEmpty<number>
+>();
+expectTypeOf(List.flatten(List.of('abc'))).toEqualTypeOf<List<string>>();
 
 // .get(..)
-expectType<number | undefined>(List.of(1).get(3));
-expectType<number | undefined>(List.empty<number>().get(3));
-expectType<number>(List.empty<number>().get(2, 3));
-expectType<number>(List.of(1).get(2, 3));
-expectType<number>(List.empty<number>().get(2, () => 3));
-expectType<number>(List.of(1).get(2, () => 3));
-expectType<number | string>(List.empty<number>().get(2, 'a' as string));
-expectType<number | string>(List.of(1).get(2, 'a' as string));
+expectTypeOf(List.of(1).get(3)).toEqualTypeOf<number | undefined>();
+expectTypeOf(List.empty<number>().get(3)).toEqualTypeOf<number | undefined>();
+expectTypeOf(List.empty<number>().get(2, 3)).toEqualTypeOf<number>();
+expectTypeOf(List.of(1).get(2, 3)).toEqualTypeOf<number>();
+expectTypeOf(List.empty<number>().get(2, () => 3)).toEqualTypeOf<number>();
+expectTypeOf(List.of(1).get(2, () => 3)).toEqualTypeOf<number>();
+expectTypeOf(List.empty<number>().get(2, 'a' as string)).toEqualTypeOf<
+	number | string
+>();
+expectTypeOf(List.of(1).get(2, 'a' as string)).toEqualTypeOf<number | string>();
 
 // .insert(..)
-expectType<List<number>>(List.empty<number>().insert(1, List.empty<number>()));
-expectType<List.NonEmpty<number>>(List.empty<number>().insert(1, List.of(1)));
-expectType<List.NonEmpty<number>>(List.of(1).insert(1, List.empty<number>()));
-expectType<List.NonEmpty<number>>(List.of(1).insert(1, List.of(2)));
+expectTypeOf(
+	List.empty<number>().insert(1, List.empty<number>()),
+).toEqualTypeOf<List<number>>();
+expectTypeOf(List.empty<number>().insert(1, List.of(1))).toEqualTypeOf<
+	List.NonEmpty<number>
+>();
+expectTypeOf(List.of(1).insert(1, List.empty<number>())).toEqualTypeOf<
+	List.NonEmpty<number>
+>();
+expectTypeOf(List.of(1).insert(1, List.of(2))).toEqualTypeOf<
+	List.NonEmpty<number>
+>();
 
 // .isEmpty
-expectType<boolean>(List.empty<number>().isEmpty);
-expectType<false>(List.of(1).isEmpty);
+expectTypeOf(List.empty<number>().isEmpty).toEqualTypeOf<boolean>();
+expectTypeOf(List.of(1).isEmpty).toEqualTypeOf<false>();
 
 // .last(..)
-expectType<number | undefined>(List.empty<number>().last());
-expectError(List.of(1).last(3));
-expectType<number>(List.empty<number>().last(3));
-expectType<number>(List.of(1).last());
-expectType<number | string>(List.empty<number>().last('a' as string));
-expectType<number | string>(List.empty<number>().last(() => 'a'));
+expectTypeOf(List.empty<number>().last()).toEqualTypeOf<number | undefined>();
+// @ts-expect-error
+List.of(1).last(3);
+expectTypeOf(List.empty<number>().last(3)).toEqualTypeOf<number>();
+expectTypeOf(List.of(1).last()).toEqualTypeOf<number>();
+expectTypeOf(List.empty<number>().last('a' as string)).toEqualTypeOf<
+	number | string
+>();
+expectTypeOf(List.empty<number>().last(() => 'a')).toEqualTypeOf<
+	number | string
+>();
 
 // .map(..)
-expectType<List<string>>(List.empty<number>().map(() => 'a'));
-expectType<List.NonEmpty<string>>(List.of(1).map(() => 'a'));
+expectTypeOf(List.empty<number>().map(() => 'a')).toEqualTypeOf<List<string>>();
+expectTypeOf(List.of(1).map(() => 'a')).toEqualTypeOf<List.NonEmpty<string>>();
 
 // .nonEmpty()
-expectType<boolean>(List.empty<number>().nonEmpty());
-expectType<boolean>(List.of(1).nonEmpty());
+expectTypeOf(List.empty<number>().nonEmpty()).toEqualTypeOf<boolean>();
+expectTypeOf(List.of(1).nonEmpty()).toEqualTypeOf<boolean>();
 
 // .padTo(..)
-expectType<List<number>>(List.empty<number>().padTo(1, 3));
-expectType<List.NonEmpty<number>>(List.of(1).padTo(1, 3));
+expectTypeOf(List.empty<number>().padTo(1, 3)).toEqualTypeOf<List<number>>();
+expectTypeOf(List.of(1).padTo(1, 3)).toEqualTypeOf<List.NonEmpty<number>>();
 
 // .prepend(..)
-expectType<List.NonEmpty<number>>(List.empty<number>().prepend(2));
-expectType<List.NonEmpty<number>>(List.of(1).prepend(2));
+expectTypeOf(List.empty<number>().prepend(2)).toEqualTypeOf<
+	List.NonEmpty<number>
+>();
+expectTypeOf(List.of(1).prepend(2)).toEqualTypeOf<List.NonEmpty<number>>();
 
 // .remove(..)
-expectType<List<number>>(List.empty<number>().remove(3));
-expectType<List<number>>(List.of(1).remove(3));
-expectType<List<number>>(List.empty<number>().remove(3, { amount: 3 }));
-expectType<List<number>>(List.of(1).remove(3, { amount: 3 }));
+expectTypeOf(List.empty<number>().remove(3)).toEqualTypeOf<List<number>>();
+expectTypeOf(List.of(1).remove(3)).toEqualTypeOf<List<number>>();
+expectTypeOf(List.empty<number>().remove(3, { amount: 3 })).toEqualTypeOf<
+	List<number>
+>();
+expectTypeOf(List.of(1).remove(3, { amount: 3 })).toEqualTypeOf<List<number>>();
 
 // .repeat(..)
-expectType<List<number>>(List.empty<number>().repeat(3));
-expectType<List.NonEmpty<number>>(List.of(1).repeat(3));
+expectTypeOf(List.empty<number>().repeat(3)).toEqualTypeOf<List<number>>();
+expectTypeOf(List.of(1).repeat(3)).toEqualTypeOf<List.NonEmpty<number>>();
 
 // .reversed()
-expectType<List<number>>(List.empty<number>().reversed());
-expectType<List.NonEmpty<number>>(List.of(1).reversed());
+expectTypeOf(List.empty<number>().reversed()).toEqualTypeOf<List<number>>();
+expectTypeOf(List.of(1).reversed()).toEqualTypeOf<List.NonEmpty<number>>();
 
 // .rotate(..)
-expectType<List<number>>(List.empty<number>().rotate(2));
-expectType<List.NonEmpty<number>>(List.of(1).rotate(2));
+expectTypeOf(List.empty<number>().rotate(2)).toEqualTypeOf<List<number>>();
+expectTypeOf(List.of(1).rotate(2)).toEqualTypeOf<List.NonEmpty<number>>();
 
 // .slice(..)
-expectType<List<number>>(List.empty<number>().slice({ amount: 2 }));
-expectType<List<number>>(List.of(1).slice({ amount: 2 }));
+expectTypeOf(List.empty<number>().slice({ amount: 2 })).toEqualTypeOf<
+	List<number>
+>();
+expectTypeOf(List.of(1).slice({ amount: 2 })).toEqualTypeOf<List<number>>();
 
 // .splice(..)
-expectType<List<number>>(
+expectTypeOf(
 	List.empty<number>().splice({
 		index: 1,
 		remove: 2,
 		insert: List.empty<number>(),
 	}),
-);
-expectType<List<number>>(
+).toEqualTypeOf<List<number>>();
+expectTypeOf(
 	List.of(1).splice({ index: 1, remove: 2, insert: List.empty<number>() }),
-);
+).toEqualTypeOf<List<number>>();
 
-expectType<List.NonEmpty<number>>(
+expectTypeOf(
 	List.empty<number>().splice({ index: 1, remove: 2, insert: List.of(1) }),
-);
-expectType<List.NonEmpty<number>>(
+).toEqualTypeOf<List.NonEmpty<number>>();
+expectTypeOf(
 	List.of(1).splice({ index: 1, remove: 2, insert: List.of(1) }),
-);
+).toEqualTypeOf<List.NonEmpty<number>>();
 
 // .stream()
-expectType<Stream<number>>(List.empty<number>().stream());
-expectType<Stream.NonEmpty<number>>(List.of(1).stream());
+expectTypeOf(List.empty<number>().stream()).toEqualTypeOf<Stream<number>>();
+expectTypeOf(List.of(1).stream()).toEqualTypeOf<Stream.NonEmpty<number>>();
 
 // .streamRange(..)
-expectType<Stream<number>>(List.empty<number>().streamRange({ amount: 10 }));
-expectType<Stream<number>>(List.of(1).streamRange({ amount: 10 }));
+expectTypeOf(List.empty<number>().streamRange({ amount: 10 })).toEqualTypeOf<
+	Stream<number>
+>();
+expectTypeOf(List.of(1).streamRange({ amount: 10 })).toEqualTypeOf<
+	Stream<number>
+>();
 
 // .take(..)
-expectType<List<number>>(List.empty<number>().take(2));
-expectType<List<number>>(List.of(1).take(0));
-expectType<List<number>>(List.of(1).take(2 as number));
-expectType<List.NonEmpty<number>>(List.of(1).take(2));
+expectTypeOf(List.empty<number>().take(2)).toEqualTypeOf<List<number>>();
+expectTypeOf(List.of(1).take(0)).toEqualTypeOf<List<number>>();
+expectTypeOf(List.of(1).take(2 as number)).toEqualTypeOf<List<number>>();
+expectTypeOf(List.of(1).take(2)).toEqualTypeOf<List.NonEmpty<number>>();
 
 // .toArray()
-expectType<number[]>(List.empty<number>().toArray());
-expectType<ArrayNonEmpty<number>>(List.of(1).toArray());
+expectTypeOf(List.empty<number>().toArray()).toEqualTypeOf<number[]>();
+expectTypeOf(List.of(1).toArray()).toEqualTypeOf<ArrayNonEmpty<number>>();
 
 // .toBuilder()
-expectType<List.Builder<number>>(List.empty<number>().toBuilder());
-expectType<List.Builder<number>>(List.of(1).toBuilder());
+expectTypeOf(List.empty<number>().toBuilder()).toEqualTypeOf<
+	List.Builder<number>
+>();
+expectTypeOf(List.of(1).toBuilder()).toEqualTypeOf<List.Builder<number>>();
 
 // .unzip(..)
-expectError(List.unzip(List.of(1)));
-expectType<[List<number>, List<string>]>(
+// @ts-expect-error
+List.unzip(List.of(1));
+expectTypeOf(
 	List.unzip(List.empty<[number, string]>(), { length: 2 }),
-);
-expectType<[List.NonEmpty<number>, List.NonEmpty<string>]>(
+).toEqualTypeOf<[List<number>, List<string>]>();
+expectTypeOf(
 	List.unzip(List.of([1, 'a'] as [number, string]), { length: 2 }),
-);
-expectType<
-	[List.NonEmpty<number>, List.NonEmpty<string>, List.NonEmpty<boolean>]
->(
+).toEqualTypeOf<[List.NonEmpty<number>, List.NonEmpty<string>]>();
+expectTypeOf(
 	List.unzip(List.of([1, 'a', true] as [number, string, boolean]), {
 		length: 3,
 	}),
-);
+).toEqualTypeOf<
+	[List.NonEmpty<number>, List.NonEmpty<string>, List.NonEmpty<boolean>]
+>();
 
 // .updateAt(..)
-expectType<List<number>>(List.empty<number>().updateAt(1, (v) => v + 1));
-expectType<List.NonEmpty<number>>(List.of(1).updateAt(1, (v) => v + 1));
+expectTypeOf(List.empty<number>().updateAt(1, (v) => v + 1)).toEqualTypeOf<
+	List<number>
+>();
+expectTypeOf(List.of(1).updateAt(1, (v) => v + 1)).toEqualTypeOf<
+	List.NonEmpty<number>
+>();
 
 // From Builder
-expectType<List<number>>(List.of(1).toBuilder().build());
+expectTypeOf(List.of(1).toBuilder().build()).toEqualTypeOf<List<number>>();

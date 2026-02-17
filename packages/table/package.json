@@ -63,7 +63,6 @@
 		"format:check": "biome format src",
 		"lint:check": "biome lint src",
 		"test": "bun test test/* --tsconfig-override tsconfig.common.json",
-		"test:types": "bunx tsd --files ./test-d --typings ./dist/async-opt-lazy.d.ts",
 		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
 	},
 	"dependencies": {

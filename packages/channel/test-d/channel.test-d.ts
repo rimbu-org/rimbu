@@ -1,93 +1,119 @@
-import { Channel, CrossChannel } from '@rimbu/channel';
-import { expectNever, expectNotAssignable, expectType } from 'tsd';
+import { expectTypeOf } from 'bun:test';
 
-expectType<Channel>(Channel.create());
-expectType<CrossChannel>(Channel.create());
-expectType<Channel<void>>(Channel.create());
-expectType<CrossChannel<void>>(Channel.create());
-expectNotAssignable<Channel>(Channel.create<string>());
-expectNotAssignable<CrossChannel>(Channel.create<string>());
-expectType<Channel<string>>(Channel.create<string>());
-expectType<CrossChannel<string>>(Channel.create<string>());
-expectType<CrossChannel<string, string>>(Channel.create<string>());
+import { Channel } from '@rimbu/channel';
+import { CrossChannel } from '@rimbu/channel/cross-channel';
 
-expectType<Channel>(CrossChannel.createPair()[0]);
-expectType<CrossChannel>(CrossChannel.createPair()[0]);
-expectType<Channel<void>>(CrossChannel.createPair()[0]);
-expectType<CrossChannel<void>>(CrossChannel.createPair()[0]);
-expectNotAssignable<Channel>(CrossChannel.createPair<string>()[0]);
-expectNotAssignable<CrossChannel>(CrossChannel.createPair<string>()[0]);
-expectType<Channel<string>>(CrossChannel.createPair<string>()[0]);
-expectType<CrossChannel<string>>(CrossChannel.createPair<string>()[0]);
-expectType<CrossChannel<string, string>>(CrossChannel.createPair<string>()[0]);
-expectType<CrossChannel<string, number>>(
-	CrossChannel.createPair<string, number>()[0],
-);
+expectTypeOf(Channel.create()).toEqualTypeOf<Channel>();
+expectTypeOf(Channel.create()).toEqualTypeOf<CrossChannel>();
+expectTypeOf(Channel.create()).toEqualTypeOf<Channel<void>>();
+expectTypeOf(Channel.create()).toEqualTypeOf<CrossChannel<void>>();
+expectTypeOf(Channel.create<string>()).not.toExtend<Channel>();
+expectTypeOf(Channel.create<string>()).not.toExtend<CrossChannel>();
+expectTypeOf(Channel.create<string>()).toEqualTypeOf<Channel<string>>();
+expectTypeOf(Channel.create<string>()).toEqualTypeOf<CrossChannel<string>>();
+expectTypeOf(Channel.create<string>()).toEqualTypeOf<
+	CrossChannel<string, string>
+>();
+
+expectTypeOf(CrossChannel.createPair()[0]).toEqualTypeOf<Channel>();
+expectTypeOf(CrossChannel.createPair()[0]).toEqualTypeOf<CrossChannel>();
+expectTypeOf(CrossChannel.createPair()[0]).toEqualTypeOf<Channel<void>>();
+expectTypeOf(CrossChannel.createPair()[0]).toEqualTypeOf<CrossChannel<void>>();
+expectTypeOf(CrossChannel.createPair<string>()[0]).not.toExtend<Channel>();
+expectTypeOf(CrossChannel.createPair<string>()[0]).not.toExtend<CrossChannel>();
+expectTypeOf(CrossChannel.createPair<string>()[0]).toEqualTypeOf<
+	Channel<string>
+>();
+expectTypeOf(CrossChannel.createPair<string>()[0]).toEqualTypeOf<
+	CrossChannel<string>
+>();
+expectTypeOf(CrossChannel.createPair<string>()[0]).toEqualTypeOf<
+	CrossChannel<string, string>
+>();
+expectTypeOf(CrossChannel.createPair<string, number>()[0]).toEqualTypeOf<
+	CrossChannel<string, number>
+>();
 
 const ch = CrossChannel.createPair<number, string>()[0];
 
-expectType<undefined | Channel.Error>(await ch.send(1));
-expectType<void>(await ch.send(1, { catchChannelErrors: undefined }));
-expectType<void>(await ch.send(1, { catchChannelErrors: false }));
-expectType<undefined | Channel.Error>(
-	await ch.send(1, { catchChannelErrors: true }),
-);
-expectType<undefined | Channel.Error>(
+expectTypeOf(await ch.send(1)).toEqualTypeOf<undefined | Channel.Error>();
+expectTypeOf(
+	await ch.send(1, { catchChannelErrors: undefined }),
+).toEqualTypeOf<void>();
+expectTypeOf(
+	await ch.send(1, { catchChannelErrors: false }),
+).toEqualTypeOf<void>();
+expectTypeOf(await ch.send(1, { catchChannelErrors: true })).toEqualTypeOf<
+	undefined | Channel.Error
+>();
+expectTypeOf(
 	await ch.send(1, { catchChannelErrors: 1 as any as boolean }),
-);
+).toEqualTypeOf<undefined | Channel.Error>();
 
-expectType<string>(await ch.receive());
-expectType<string>(await ch.receive({ recover: undefined }));
-expectType<string | boolean>(await ch.receive({ recover: () => true }));
+expectTypeOf(await ch.receive()).toEqualTypeOf<string>();
+expectTypeOf(await ch.receive({ recover: undefined })).toEqualTypeOf<string>();
+expectTypeOf(await ch.receive({ recover: () => true })).toEqualTypeOf<
+	string | boolean
+>();
 
-expectType<Channel.Read<string>>(ch.readable());
-expectType<Channel.Write<number>>(ch.writable());
+expectTypeOf(ch.readable()).toEqualTypeOf<Channel.Read<string>>();
+expectTypeOf(ch.writable()).toEqualTypeOf<Channel.Write<number>>();
 
-expectType<CrossChannel<string, number>>(
+expectTypeOf(
 	CrossChannel.combine(Channel.create<string>(), Channel.create<number>()),
-);
+).toEqualTypeOf<CrossChannel<string, number>>();
 
 const ch2 = CrossChannel.createPair<boolean, symbol>()[0];
 
-expectNever(await Channel.select([]));
+expectTypeOf(await Channel.select([])).toEqualTypeOf<never>();
 
-expectType<string>(await Channel.select([ch]));
-expectType<string>(await Channel.select([ch], { recover: undefined }));
-expectType<string | boolean>(
-	await Channel.select([ch], { recover: () => true }),
-);
+expectTypeOf(await Channel.select([ch])).toEqualTypeOf<string>();
+expectTypeOf(
+	await Channel.select([ch], { recover: undefined }),
+).toEqualTypeOf<string>();
+expectTypeOf(await Channel.select([ch], { recover: () => true })).toEqualTypeOf<
+	string | boolean
+>();
 
-expectType<string | symbol>(await Channel.select([ch, ch2]));
-expectType<string | symbol>(
+expectTypeOf(await Channel.select([ch, ch2])).toEqualTypeOf<string | symbol>();
+expectTypeOf(
 	await Channel.select([ch, ch2], { recover: undefined }),
-);
-expectType<string | symbol | boolean>(
+).toEqualTypeOf<string | symbol>();
+expectTypeOf(
 	await Channel.select([ch, ch2], { recover: () => true }),
-);
+).toEqualTypeOf<string | symbol | boolean>();
 
-expectNever(await Channel.selectMap({}));
-expectNever(await Channel.selectMap({ recover: undefined }));
-expectType<boolean>(await Channel.selectMap({ recover: () => true }));
+expectTypeOf(await Channel.selectMap({})).toEqualTypeOf<never>();
+expectTypeOf(
+	await Channel.selectMap({ recover: undefined }),
+).toEqualTypeOf<never>();
+expectTypeOf(
+	await Channel.selectMap({ recover: () => true }),
+).toEqualTypeOf<boolean>();
 
-expectType<string>(await Channel.selectMap({}, [ch, (v) => v]));
-expectType<boolean>(await Channel.selectMap({}, [ch, () => true]));
-expectType<string | symbol>(
+expectTypeOf(
+	await Channel.selectMap({}, [ch, (v) => v]),
+).toEqualTypeOf<string>();
+expectTypeOf(
+	await Channel.selectMap({}, [ch, () => true]),
+).toEqualTypeOf<boolean>();
+expectTypeOf(
 	await Channel.selectMap({}, [ch, (v) => v], [ch2, (v) => v]),
-);
-expectType<boolean | number>(
+).toEqualTypeOf<string | symbol>();
+expectTypeOf(
 	await Channel.selectMap({}, [ch, (v) => true], [ch2, (v) => 5]),
-);
-expectType<boolean | number>(
+).toEqualTypeOf<boolean | number>();
+expectTypeOf(
 	await Channel.selectMap(
 		{ recover: undefined },
 		[ch, (v) => true],
 		[ch2, (v) => 5],
 	),
-);
-expectType<boolean | number | string>(
+).toEqualTypeOf<boolean | number>();
+expectTypeOf(
 	await Channel.selectMap(
 		{ recover: () => 'a' },
 		[ch, (v) => true],
 		[ch2, (v) => 5],
 	),
-);
+).toEqualTypeOf<boolean | number | string>();

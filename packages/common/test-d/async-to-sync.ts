@@ -1,6 +1,7 @@
-import type { AsyncOptLazy } from '../src/async-opt-lazy.mjs';
+import { expectTypeOf } from 'bun:test';
 
-import { expectAssignable } from 'tsd';
-import { OptLazy } from '../src/opt-lazy.mjs';
+import type { AsyncOptLazy } from '@rimbu/common/async-opt-lazy';
 
-expectAssignable<AsyncOptLazy<number>>(OptLazy(5));
+import { OptLazy } from '@rimbu/common/opt-lazy';
+
+expectTypeOf<AsyncOptLazy<number>>(OptLazy(5));

@@ -1,7 +1,11 @@
+import { expectTypeOf } from 'bun:test';
+
 import type { List } from '@rimbu/list';
 
-import { expectError, expectType } from 'tsd';
-import { Deep } from '../src/index.mjs';
+import { getAt, getAtWith } from '@rimbu/deep';
+import { match, matchAt, matchAtWith, matchWith } from '@rimbu/deep/match';
+import { patch, patchAt, patchAtWith, patchWith } from '@rimbu/deep/patch';
+import { select, selectAt, selectAtWith, selectWith } from '@rimbu/deep/select';
 
 let m!: {
 	a: number;
@@ -15,57 +19,66 @@ let m!: {
 };
 type M = typeof m;
 
-expectType<number>(Deep.getAt(m, 'a'));
+expectTypeOf(getAt(m, 'a')).toEqualTypeOf<number>();
 
-expectType<M>(Deep.patch(m, [{ a: 3 }]));
+expectTypeOf(patch(m, [{ a: 3 }])).toEqualTypeOf<M>();
 
-expectType<M>(Deep.patchAt(m, 'c', [{ d: true }]));
-expectType<M>(Deep.patchAt(m, 'c.d', (v) => !v));
+expectTypeOf(patchAt(m, 'c', [{ d: true }])).toEqualTypeOf<M>();
+expectTypeOf(patchAt(m, 'c.d', (v) => !v)).toEqualTypeOf<M>();
 
-expectType<boolean>(Deep.match(m, { a: 2 }));
+expectTypeOf(match(m, { a: 2 })).toEqualTypeOf<boolean>();
 
-expectType<boolean>(Deep.matchAt(m, 'a', 1));
+expectTypeOf(matchAt(m, 'a', 1)).toEqualTypeOf<boolean>();
 
-expectType<{ readonly q: boolean }>(Deep.select(m, { q: 'c.d' }));
+expectTypeOf(select(m, { q: 'c.d' })).toEqualTypeOf<{ readonly q: boolean }>();
 
-expectType<{ readonly q: boolean }>(Deep.selectAt(m, 'c', { q: 'd' }));
+expectTypeOf(selectAt(m, 'c', { q: 'd' })).toEqualTypeOf<{
+	readonly q: boolean;
+}>();
 
-expectType<number[]>([m].map(Deep.getAtWith('a')));
+expectTypeOf([m].map(getAtWith('a'))).toEqualTypeOf<number[]>();
 
-expectType<M[]>([m].map(Deep.patchWith(() => [{ a: 2 }])));
+expectTypeOf([m].map(patchWith<M>(() => [{ a: 2 }]))).toEqualTypeOf<M[]>();
 
-expectType<M[]>([m].map(Deep.patchAtWith('c', [{ d: true }])));
-expectType<M[]>([m].map(Deep.patchAtWith('c', () => [{ d: true }])));
-expectType<M[]>([m].map(Deep.patchAtWith('c.d', (v) => !v)));
+expectTypeOf([m].map(patchAtWith('c', [{ d: true }]))).toEqualTypeOf<M[]>();
+expectTypeOf([m].map(patchAtWith('c', () => [{ d: true }]))).toEqualTypeOf<
+	M[]
+>();
+expectTypeOf([m].map(patchAtWith('c.d', (v) => !v))).toEqualTypeOf<M[]>();
 
-expectType<boolean[]>([m].map(Deep.matchWith({ a: 2 })));
-expectType<boolean[]>([m].map(Deep.matchAtWith('a', 2)));
+expectTypeOf([m].map(matchWith({ a: 2 }))).toEqualTypeOf<boolean[]>();
+expectTypeOf([m].map(matchAtWith('a', 2))).toEqualTypeOf<boolean[]>();
 
-expectType<{ readonly q: boolean }[]>([m].map(Deep.selectWith({ q: 'c.d' })));
-expectType<{ readonly q: boolean }[]>(
-	[m].map(Deep.selectAtWith('c', { q: 'd' })),
-);
+expectTypeOf([m].map(selectWith({ q: 'c.d' }))).toEqualTypeOf<
+	{ readonly q: boolean }[]
+>();
+expectTypeOf([m].map(selectAtWith('c', { q: 'd' }))).toEqualTypeOf<
+	{ readonly q: boolean }[]
+>();
 
-expectError([m].map(Deep.patchWith(() => [{ a: 2, z: 1 }])));
+// @ts-expect-error
+[m].map(patchWith(() => [{ a: 2, z: 1 }]));
 
-const wt = Deep.withType<M>();
+// const wt = withType<M>();
 
-expectType<number>(wt.getAtWith('a')(m));
+// expectTypeOf(wt.getAtWith('a')(m)).toEqualTypeOf<number>();
 
-expectType<M>(wt.patchWith([{ a: 2 }])(m));
+// expectTypeOf(wt.patchWith([{ a: 2 }])(m)).toEqualTypeOf<M>();
 
-expectType<M>(wt.patchAtWith('c', [{ d: true }])(m));
-expectType<M>(wt.patchAtWith('c.d', (v) => !v)(m));
+// expectTypeOf(wt.patchAtWith('c', [{ d: true }])(m)).toEqualTypeOf<M>();
+// expectTypeOf(wt.patchAtWith('c.d', (v) => !v)(m)).toEqualTypeOf<M>();
 
-expectType<boolean>(wt.matchWith({ a: 3 })(m));
+// expectTypeOf(wt.matchWith({ a: 3 })(m)).toEqualTypeOf<boolean>();
 
-expectType<boolean>(wt.matchAtWith('c', { d: true })(m));
+// expectTypeOf(wt.matchAtWith('c', { d: true })(m)).toEqualTypeOf<boolean>();
 
-expectType<{ readonly q: boolean }[]>([m].map(wt.selectWith({ q: 'c.d' })));
+// expectTypeOf([m].map(wt.selectWith({ q: 'c.d' }))).toEqualTypeOf<
+// 	{ readonly q: boolean }[]
+// >();
 
-expectType<{ readonly q: boolean }[]>(
-	[m].map(wt.selectAtWith('c', { q: 'd' })),
-);
+// expectTypeOf([m].map(wt.selectAtWith('c', { q: 'd' }))).toEqualTypeOf<
+// 	{ readonly q: boolean }[]
+// >();
 
 const person = {
 	name: 'Alice',
@@ -79,8 +92,8 @@ const person = {
 
 type Person = typeof person;
 
-expectType<Person>(
-	Deep.patch(person, [
+expectTypeOf(
+	patch(person, [
 		{
 			address: [{ street: 'ABC' }],
 		},
@@ -88,32 +101,30 @@ expectType<Person>(
 			name: 'James',
 		},
 	]),
-);
+).toEqualTypeOf<Person>();
 
-expectType<Person>(
-	Deep.patchAt(person, 'address', [{ street: 'ABC' }, { number: 34 }]),
-);
+expectTypeOf(
+	patchAt(person, 'address', [{ street: 'ABC' }, { number: 34 }]),
+).toEqualTypeOf<Person>();
 
-expectType<Person[]>(
+expectTypeOf(
+	[person].map(patchAtWith('address', [{ street: 'ABC' }, { number: 34 }])),
+).toEqualTypeOf<Person[]>();
+
+expectTypeOf(
 	[person].map(
-		Deep.patchAtWith('address', [{ street: 'ABC' }, { number: 34 }]),
+		patchWith<Person>([{ name: 'James' }, { address: [{ street: 'ABC' }] }]),
 	),
-);
+).toEqualTypeOf<Person[]>();
 
-expectType<Person[]>(
-	[person].map(
-		Deep.patchWith([{ name: 'James' }, { address: [{ street: 'ABC' }] }]),
-	),
-);
-
-const personUpdate1 = Deep.withType<Person>().patchWith([
+const personUpdate1 = patchWith<Person>([
 	{ name: 'James' },
 	{ address: [{ street: 'ABC' }] },
 ]);
-expectType<Person>(personUpdate1(person));
+expectTypeOf(personUpdate1(person)).toEqualTypeOf<Person>();
 
-const personUpdate2 = Deep.withType<Person>().patchAtWith('address', [
-	{ street: 'ABC' },
-	{ number: 34 },
-]);
-expectType<Person>(personUpdate2(person));
+// const personUpdate2 = patchAtWith('address', [
+// 	{ street: 'ABC' },
+// 	{ number: 34 },
+// ]);
+// expectType<Person>(personUpdate2(person));

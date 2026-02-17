@@ -3,8 +3,6 @@ import { expectTypeOf } from 'bun:test';
 import { Stream } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 
-// Replaced tsd assertions with `expectTypeOf` from `bun:test`
-
 //Variance
 expectTypeOf(Reducer.sum).toExtend<Reducer<number, number | string>>();
 expectTypeOf(Reducer.sum).not.toExtend<Reducer<number | string, number>>();

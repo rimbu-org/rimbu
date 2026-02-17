@@ -6,6 +6,8 @@ import type { TableBase } from '#table/types';
 
 import { TableContext } from '#table/base';
 
+export * from '#table/variant';
+
 /**
  * A type-invariant immutable Table of row key type R, column key type C, and value type V.
  * In the Table, a combination of a row and column key has exactly one value.

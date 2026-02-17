@@ -8,8 +8,6 @@ import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 import { type FastIterator, Stream } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 
-// Replaced tsd assertions with `expectTypeOf` from `bun:test`
-
 // Variance
 expectTypeOf(Stream.empty<number>()).toExtend<Stream<number | string>>();
 expectTypeOf(Stream.empty<number | string>()).not.toExtend<Stream<number>>();

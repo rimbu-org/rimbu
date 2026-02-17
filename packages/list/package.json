@@ -68,7 +68,6 @@
 		"lint:check": "biome lint src",
 		"test": "bun test test/* --tsconfig-override tsconfig.common.json",
 		"test:random": "bun test test-random",
-		"test:types": "bunx tsd --files ./test-d --typings ./dist/entry/list.d.ts",
 		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
 	},
 	"dependencies": {

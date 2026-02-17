@@ -1,66 +1,76 @@
-import type { Protected } from '../src/index.mjs';
+import { expectTypeOf } from 'bun:test';
 
-import { expectType } from 'tsd';
+import type { Protected } from '@rimbu/deep';
 
 declare function p<T>(): Protected<T>;
 
-expectType<any>(p<any>());
-expectType<never>(p<never>());
+expectTypeOf(p<any>()).toEqualTypeOf<any>();
+expectTypeOf(p<never>()).toEqualTypeOf<never>();
 
-expectType<number>(p<number>());
-expectType<2>(p<2>());
+expectTypeOf(p<number>()).toEqualTypeOf<number>();
+expectTypeOf(p<2>()).toEqualTypeOf<2>();
 
-expectType<string>(p<string>());
-expectType<'abc'>(p<'abc'>());
+expectTypeOf(p<string>()).toEqualTypeOf<string>();
+expectTypeOf(p<'abc'>()).toEqualTypeOf<'abc'>();
 
-expectType<boolean>(p<boolean>());
-expectType<true>(p<true>());
-expectType<false>(p<false>());
+expectTypeOf(p<boolean>()).toEqualTypeOf<boolean>();
+expectTypeOf(p<true>()).toEqualTypeOf<true>();
+expectTypeOf(p<false>()).toEqualTypeOf<false>();
 
 const sym = Symbol();
-expectType<symbol>(p<symbol>());
-expectType<typeof sym>(p<typeof sym>());
+expectTypeOf(p<symbol>()).toEqualTypeOf<symbol>();
+expectTypeOf(p<typeof sym>()).toEqualTypeOf<typeof sym>();
 
-expectType<(v: number) => string>(p<(v: number) => string>());
+expectTypeOf(p<(v: number) => string>()).toEqualTypeOf<(v: number) => string>();
 
-expectType<{ readonly a: number }>(p<{ readonly a: number }>());
-expectType<{ readonly a: number }>(p<{ a: number }>());
+expectTypeOf(p<{ readonly a: number }>()).toEqualTypeOf<{
+	readonly a: number;
+}>();
+expectTypeOf(p<{ a: number }>()).toEqualTypeOf<{ readonly a: number }>();
 
-expectType<{ readonly a: { readonly b: number; readonly c: string } }>(
-	p<{ a: { b: number; c: string } }>(),
-);
+expectTypeOf(p<{ a: { b: number; c: string } }>()).toEqualTypeOf<{
+	readonly a: { readonly b: number; readonly c: string };
+}>();
 
-expectType<readonly []>(p<[]>());
-expectType<readonly []>(p<readonly []>());
-expectType<readonly number[]>(p<number[]>());
-expectType<readonly [number, string]>(p<[number, string]>());
-expectType<readonly [number, string]>(p<readonly [number, string]>());
+expectTypeOf(p<[]>()).toEqualTypeOf<readonly []>();
+expectTypeOf(p<readonly []>()).toEqualTypeOf<readonly []>();
+expectTypeOf(p<number[]>()).toEqualTypeOf<readonly number[]>();
+expectTypeOf(p<[number, string]>()).toEqualTypeOf<readonly [number, string]>();
+expectTypeOf(p<readonly [number, string]>()).toEqualTypeOf<
+	readonly [number, string]
+>();
 
-expectType<readonly { readonly a: number }[]>(p<{ a: number }[]>());
-expectType<readonly [{ readonly a: number }, { readonly b: string }]>(
-	p<[{ a: number }, { b: string }]>(),
-);
+expectTypeOf(p<{ a: number }[]>()).toEqualTypeOf<
+	readonly { readonly a: number }[]
+>();
+expectTypeOf(p<[{ a: number }, { b: string }]>()).toEqualTypeOf<
+	readonly [{ readonly a: number }, { readonly b: string }]
+>();
 
-expectType<{ readonly a: readonly { readonly b: number }[] }>(
-	p<{ a: { b: number }[] }>(),
-);
+expectTypeOf(p<{ a: { b: number }[] }>()).toEqualTypeOf<{
+	readonly a: readonly { readonly b: number }[];
+}>();
 
 // expectAssignable<Set<string>>(p<Set<string>>());
 // expectAssignable<Set<{ readonly a: number }>>(p<Set<{ a: number }>>());
-expectType<{ readonly a: number }>([...p<Set<{ a: number }>>()][0]);
+expectTypeOf([...p<Set<{ a: number }>>()][0]).toEqualTypeOf<{
+	readonly a: number;
+}>();
 
 // expectAssignable<Map<string, number>>(p<Map<string, number>>());
 // expectAssignable<Map<{ readonly a: number }, { readonly b: number }>>(
 //   p<Map<{ a: number }, { b: number }>>()
 // );
-expectType<{ readonly a: number }>(
-	[...p<Map<{ a: number }, { b: number }>>()][0][0],
-);
-expectType<{ readonly b: number }>(
-	[...p<Map<{ a: number }, { b: number }>>()][0][1],
-);
+expectTypeOf([...p<Map<{ a: number }, { b: number }>>()][0][0]).toEqualTypeOf<{
+	readonly a: number;
+}>();
+expectTypeOf([...p<Map<{ a: number }, { b: number }>>()][0][1]).toEqualTypeOf<{
+	readonly b: number;
+}>();
 
-expectType<Promise<number>>(p<Promise<number>>());
-expectType<Promise<{ readonly a: number }>>(p<Promise<{ a: number }>>());
+expectTypeOf(p<Promise<number>>()).toEqualTypeOf<Promise<number>>();
+expectTypeOf(p<Promise<{ a: number }>>()).toEqualTypeOf<
+	Promise<{ readonly a: number }>
+>();
 
-expectType<boolean>(p<boolean>());
+expectTypeOf(p<boolean>()).toEqualTypeOf<boolean>();

@@ -1,38 +1,44 @@
-import { expectError, expectType } from 'tsd';
-import { Tuple } from '../src/index.mjs';
+import { expectTypeOf } from 'bun:test';
 
-expectType<readonly [number, string]>(Tuple.of(1, 'a'));
-expectType<readonly [number, string, boolean]>(Tuple.of(1, 'a', true));
-expectError(Tuple.of());
+import { Tuple } from '@rimbu/deep/tuple';
+
+expectTypeOf(Tuple.of(1, 'a')).toEqualTypeOf<readonly [number, string]>();
+expectTypeOf(Tuple.of(1, 'a', true)).toEqualTypeOf<
+	readonly [number, string, boolean]
+>();
+// @ts-expect-error
+Tuple.of();
 
 const tuple = Tuple.of(1, 'a', true);
 
-expectType<number>(Tuple.getIndex(tuple, 0));
-expectType<boolean>(Tuple.getIndex(tuple, 2));
-expectType<undefined>(Tuple.getIndex(tuple, 3));
+expectTypeOf(Tuple.getIndex(tuple, 0)).toEqualTypeOf<number>();
+expectTypeOf(Tuple.getIndex(tuple, 2)).toEqualTypeOf<boolean>();
+expectTypeOf(Tuple.getIndex(tuple, 3)).toEqualTypeOf<undefined>();
 
-expectType<number>(Tuple.first(tuple));
+expectTypeOf(Tuple.first(tuple)).toEqualTypeOf<number>();
 
-expectType<string>(Tuple.second(tuple));
+expectTypeOf(Tuple.second(tuple)).toEqualTypeOf<string>();
 
-expectType<boolean>(Tuple.last(tuple));
+expectTypeOf(Tuple.last(tuple)).toEqualTypeOf<boolean>();
 
-expectType<typeof tuple>(Tuple.updateAt(tuple, 1, 'b'));
+expectTypeOf(Tuple.updateAt(tuple, 1, 'b')).toEqualTypeOf<typeof tuple>();
 
-expectType<readonly [...typeof tuple, number, boolean]>(
-	Tuple.append(tuple, 1, true),
-);
+expectTypeOf(Tuple.append(tuple, 1, true)).toEqualTypeOf<
+	readonly [...typeof tuple, number, boolean]
+>();
 
-expectType<readonly [...typeof tuple, ...typeof tuple]>(
-	Tuple.concat(tuple, tuple),
-);
+expectTypeOf(Tuple.concat(tuple, tuple)).toEqualTypeOf<
+	readonly [...typeof tuple, ...typeof tuple]
+>();
 
-expectType<readonly [number, string]>(Tuple.init(tuple));
+expectTypeOf(Tuple.init(tuple)).toEqualTypeOf<readonly [number, string]>();
 
-expectType<readonly [string, boolean]>(Tuple.tail(tuple));
+expectTypeOf(Tuple.tail(tuple)).toEqualTypeOf<readonly [string, boolean]>();
 
-expectType<readonly [string, boolean, number]>(
-	Tuple.append(Tuple.of('a', true), 5),
-);
+expectTypeOf(Tuple.append(Tuple.of('a', true), 5)).toEqualTypeOf<
+	readonly [string, boolean, number]
+>();
 
-expectType<readonly [number, string]>(Tuple.updateAt(Tuple.of(1, 'a'), 1, 'b'));
+expectTypeOf(Tuple.updateAt(Tuple.of(1, 'a'), 1, 'b')).toEqualTypeOf<
+	readonly [number, string]
+>();
