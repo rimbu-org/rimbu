@@ -8,7 +8,7 @@ import { ErrBase } from '@rimbu/common/err';
 import { IndexRange } from '@rimbu/common/index-range';
 import { Module } from '@rimbu/common/module';
 import { Range } from '@rimbu/common/range';
-import { Reducer } from '../reducer';
+import { Reducer } from '@rimbu/stream/reducer';
 
 import {
 	AlwaysStream,

@@ -3,7 +3,7 @@ import type { IndexRange } from '@rimbu/common/index-range';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { ArrayNonEmpty, StringNonEmpty } from '@rimbu/common/types';
 import type { Stream, StreamSource } from '@rimbu/stream';
-import type { Reducer } from '../reducer';
+import type { Reducer } from '@rimbu/stream/reducer';
 
 /**
  * An interface describing all factory functions used to create `Stream` instances.

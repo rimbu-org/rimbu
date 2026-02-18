@@ -1,16 +1,18 @@
 import type { SortedSet } from '@rimbu/sorted/set';
-import type { SortedSetCreators } from './creators';
+
+import type { SortedSetCreators } from '#set/creators';
 
 import { RSetContextBaseModule } from '@rimbu/collection-types/set/base-module';
 import { Comp } from '@rimbu/common/comp';
 import { Module } from '@rimbu/common/module';
-import { SortedSetBuilder } from './builder';
+
+import { SortedSetBuilder } from '#set/builder';
 import {
 	SortedSetEmpty,
 	SortedSetInner,
 	SortedSetLeaf,
 	SortedSetNode,
-} from './immutable';
+} from '#set/immutable';
 
 interface ImmutableFactory<UT> {
 	isSortedSetEmpty(obj: any): obj is SortedSetEmpty<UT>;

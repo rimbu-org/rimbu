@@ -9,7 +9,6 @@ import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Reducer } from '@rimbu/stream/reducer';
 import { Transformer } from '@rimbu/stream/transformer';
-import { FastIteratorFactory } from './fast-iterator-factory';
 
 import { StreamFactory } from '#stream/factory';
 import {
@@ -36,6 +35,7 @@ import {
 	TakeIterator,
 	TransformerFastIterator,
 } from '#stream/fast-iterator-base';
+import { FastIteratorFactory } from '#stream/fast-iterator-factory';
 
 /**
  * A reusable base implementation for `Stream` that provides all high-level operations

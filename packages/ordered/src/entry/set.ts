@@ -4,9 +4,7 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type { OrderedSetBase } from '#set/base';
 import type { OrderedSetCreators } from '#set/creators';
 
-import { List } from '@rimbu/list';
-
-import { OrderedSetContextImpl } from '#set/context';
+import { createOrderedSetContextModule } from '@rimbu/ordered/internal/set/context-factory';
 
 /**
  * A type-invariant immutable Ordered Set of value type T.
@@ -84,16 +82,6 @@ export namespace OrderedSet {
 	}
 }
 
-export const OrderedSet: OrderedSetCreators = Object.freeze({
-	createContext<UT>(options: {
-		listContext?: List.Context;
-		setContext: RSet.Context<UT>;
-	}): OrderedSet.Context<UT> {
-		return Object.freeze(
-			new OrderedSetContextImpl<UT>(
-				options.listContext ?? List.defaultContext(),
-				options.setContext,
-			) as any,
-		);
-	},
-});
+export const OrderedSet: OrderedSetCreators = createOrderedSetContextModule({
+	setContext: undefined as any,
+}).build();

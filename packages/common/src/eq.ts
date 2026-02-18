@@ -1,4 +1,4 @@
-import { Module } from './module';
+import { Module } from '@rimbu/common/module';
 
 /**
  * A function returning true if given `v1` and `v2` should be considered equal.

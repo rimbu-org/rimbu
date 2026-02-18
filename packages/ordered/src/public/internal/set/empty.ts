@@ -1,24 +1,21 @@
-import type { WithElem } from '@rimbu/collection-types/common';
+import type { RSet } from '@rimbu/collection-types';
 import type { ToJSON } from '@rimbu/common/types';
 import type { List } from '@rimbu/list';
+import type { OrderedSet } from '@rimbu/ordered/set';
 import type { StreamSource } from '@rimbu/stream';
 
 import type { OrderedSetBase } from '#set/base';
-import type { OrderedSetTypes } from '#set/context';
+import type { ContextImpl } from '#set/context-factory';
 
 import { EmptyBase } from '@rimbu/collection-types/common/empty-base';
 
-export class OrderedSetEmpty<
-		T,
-		Tp extends OrderedSetTypes,
-		TpG extends WithElem<Tp, T> = WithElem<Tp, T>,
-	>
+export class OrderedSetEmpty<T>
 	extends EmptyBase
-	implements OrderedSetBase<T, Tp>
+	implements OrderedSetBase<T, OrderedSetBase.Types>
 {
-	declare _NonEmptyType: Tp['nonEmpty'];
+	declare _NonEmptyType: OrderedSet.NonEmpty<T>;
 
-	constructor(readonly context: WithElem<Tp, T>['context']) {
+	constructor(readonly context: ContextImpl<T>) {
 		super();
 	}
 
@@ -26,7 +23,7 @@ export class OrderedSetEmpty<
 		return this.context.listContext.empty();
 	}
 
-	get sourceSet(): TpG['sourceSet'] {
+	get sourceSet(): RSet<T> {
 		return this.context.setContext.empty();
 	}
 
@@ -34,8 +31,8 @@ export class OrderedSetEmpty<
 		return false;
 	}
 
-	add(value: T): TpG['nonEmpty'] {
-		return this.context.createNonEmpty(
+	add(value: T): OrderedSet.NonEmpty<T> {
+		return this.context.createNonEmpty<T>(
 			this.context.listContext.of(value),
 			this.context.setContext.of(value),
 		);
@@ -45,15 +42,15 @@ export class OrderedSetEmpty<
 		return this.context.from(values);
 	}
 
-	remove(): TpG['normal'] {
-		return this as any;
+	remove(): OrderedSet<T> {
+		return this;
 	}
 
-	removeAll(): TpG['normal'] {
-		return this as any;
+	removeAll(): OrderedSet<T> {
+		return this;
 	}
 
-	union(other: StreamSource<T>): TpG['normal'] | any {
+	union(other: StreamSource<T>): any {
 		if (
 			this.context.isNonEmptyInstance(other) &&
 			(other as any).context === this.context
@@ -64,19 +61,19 @@ export class OrderedSetEmpty<
 		return this.context.from(other);
 	}
 
-	difference(): TpG['normal'] {
+	difference(): OrderedSet<T> {
 		return this.context.empty();
 	}
 
-	intersect(): TpG['normal'] {
+	intersect(): OrderedSet<T> {
 		return this.context.empty();
 	}
 
-	symDifference(other: StreamSource<T>): TpG['normal'] {
+	symDifference(other: StreamSource<T>): OrderedSet<T> {
 		return this.union(other);
 	}
 
-	toBuilder(): TpG['builder'] {
+	toBuilder(): OrderedSet.Builder<T> {
 		return this.context.builder();
 	}
 

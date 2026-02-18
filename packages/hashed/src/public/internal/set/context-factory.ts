@@ -1,20 +1,22 @@
 import type { HashSet } from '@rimbu/hashed/set';
 import type { StreamSource } from '@rimbu/stream';
-import type { HashSetCreators } from './creators';
+
+import type { HashSetCreators } from '#set/creators';
 
 import { RSetContextBaseModule } from '@rimbu/collection-types/set/base-module';
 import { Eq } from '@rimbu/common/eq';
 import { Module } from '@rimbu/common/module';
 import { Hasher } from '@rimbu/hashed';
 import { List } from '@rimbu/list';
-import { HashSetBlockBuilder, type SetBlockBuilderEntry } from './builder';
+
+import { HashSetBlockBuilder, type SetBlockBuilderEntry } from '#set/builder';
 import {
 	HashSetBlock,
 	HashSetCollision,
 	HashSetEmpty,
 	HashSetNonEmptyBase,
 	type SetEntrySet,
-} from './immutable';
+} from '#set/immutable';
 
 interface ImmutableFactory<UT> {
 	emptyBlock: HashSetBlock<UT>;
@@ -60,7 +62,7 @@ export function createHashSetContextModule<UT>(
 		blockSizeBits?: number;
 		listContext?: List.Context;
 	} = {},
-	_defaultContext?: ContextImpl<any> | undefined,
+	_defaultContext?: HashSet.Context<UT> | undefined,
 ): Module<ContextImpl<UT>> {
 	const baseModule = RSetContextBaseModule.createContextModuleBase<
 		UT,
@@ -128,7 +130,7 @@ export function createHashSetContextModule<UT>(
 		...builderModule(mod),
 
 		createContext: (options) =>
-			createHashSetContextModule(options, mod.defaultContext() as any).build(),
+			createHashSetContextModule(options, mod.defaultContext()).build(),
 		defaultContext: Module.lazy<any>(() => _defaultContext ?? mod),
 
 		typeTag: 'HashSet',

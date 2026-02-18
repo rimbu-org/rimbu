@@ -4,9 +4,7 @@ import type { OrderedSetBase } from '#set/base';
 import type { OrderedHashSetCreators } from '#set/creators';
 
 import { HashSet } from '@rimbu/hashed/set';
-import { List } from '@rimbu/list';
-
-import { OrderedSetContextImpl } from '#set/context';
+import { createOrderedSetContextModule } from '../internal/set/context-factory';
 
 /**
  * A type-invariant immutable Ordered HashSet of value type T.
@@ -85,24 +83,7 @@ export namespace OrderedHashSet {
 	}
 }
 
-function createContext<UT>(options?: {
-	listContext?: List.Context;
-	setContext?: HashSet.Context<UT>;
-}): OrderedHashSet.Context<UT> {
-	return Object.freeze(
-		new OrderedSetContextImpl<UT>(
-			options?.listContext ?? List.defaultContext(),
-			options?.setContext ?? HashSet.defaultContext(),
-		),
-	) as any;
-}
-
-const _defaultContext: OrderedHashSet.Context<any> = createContext();
-
-export const OrderedHashSet: OrderedHashSetCreators = Object.freeze({
-	..._defaultContext,
-	createContext,
-	defaultContext<UT>(): OrderedHashSet.Context<UT> {
-		return _defaultContext;
-	},
-});
+export const OrderedHashSet: OrderedHashSetCreators =
+	createOrderedSetContextModule({
+		setContext: HashSet.defaultContext(),
+	}).build();

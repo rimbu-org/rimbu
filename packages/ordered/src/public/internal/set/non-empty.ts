@@ -1,29 +1,26 @@
-import type { WithElem } from '@rimbu/collection-types/common';
+import type { RSet } from '@rimbu/collection-types';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { List } from '@rimbu/list';
+import type { OrderedSet } from '@rimbu/ordered/set';
 
 import type { OrderedSetBase } from '#set/base';
-import type { OrderedSetTypes } from '#set/context';
+import type { ContextImpl } from '#set/context-factory';
 
 import { NonEmptyBase } from '@rimbu/collection-types/common/empty-base';
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { StreamFactory } from '@rimbu/stream/internal/factory';
 
-export class OrderedSetNonEmpty<
-		T,
-		Tp extends OrderedSetTypes,
-		TpG extends WithElem<Tp, T> = WithElem<Tp, T>,
-	>
+export class OrderedSetNonEmpty<T>
 	extends NonEmptyBase<T>
-	implements OrderedSetBase.NonEmpty<T, Tp>
+	implements OrderedSetBase.NonEmpty<T>
 {
-	declare _NonEmptyType: Tp['nonEmpty'];
+	declare _NonEmptyType: OrderedSet.NonEmpty<T>;
 
 	constructor(
-		readonly context: WithElem<Tp, T>['context'],
+		readonly context: ContextImpl<T>,
 		readonly order: List.NonEmpty<T>,
-		readonly sourceSet: TpG['sourceSetNonEmpty'],
+		readonly sourceSet: RSet.NonEmpty<T>,
 	) {
 		super();
 	}
@@ -36,11 +33,11 @@ export class OrderedSetNonEmpty<
 		return this;
 	}
 
-	assumeNonEmpty(): any {
+	assumeNonEmpty(): this {
 		return this;
 	}
 
-	copy(order = this.order, sourceSet = this.sourceSet): TpG['nonEmpty'] {
+	copy(order = this.order, sourceSet = this.sourceSet): OrderedSet.NonEmpty<T> {
 		return this.context.createNonEmpty<T>(order, sourceSet as any);
 	}
 
@@ -52,12 +49,12 @@ export class OrderedSetNonEmpty<
 		return this.sourceSet.has(value);
 	}
 
-	add(value: T): TpG['nonEmpty'] {
+	add(value: T): OrderedSet.NonEmpty<T> {
 		if (this.sourceSet.has(value)) return this as any;
 		return this.copy(this.order.append(value), this.sourceSet.add(value));
 	}
 
-	addAll(values: StreamSource<T>): TpG['nonEmpty'] {
+	addAll(values: StreamSource<T>): OrderedSet.NonEmpty<T> {
 		if (StreamFactory().isEmptyStreamSourceInstance(values)) return this as any;
 
 		const builder = this.toBuilder();
@@ -65,7 +62,7 @@ export class OrderedSetNonEmpty<
 		return builder.build().assumeNonEmpty();
 	}
 
-	remove<U>(value: RelatedTo<T, U>): TpG['normal'] {
+	remove<U>(value: RelatedTo<T, U>): OrderedSet<T> {
 		if (!this.context.setContext.isValidValue(value)) return this as any;
 
 		const newSet = this.sourceSet.remove(value);
@@ -83,7 +80,7 @@ export class OrderedSetNonEmpty<
 		return this.context.empty();
 	}
 
-	removeAll<U>(values: StreamSource<RelatedTo<T, U>>): TpG['normal'] {
+	removeAll<U>(values: StreamSource<RelatedTo<T, U>>): OrderedSet<T> {
 		if (StreamFactory().isEmptyStreamSourceInstance(values)) return this as any;
 
 		const builder = this.toBuilder();
@@ -111,7 +108,7 @@ export class OrderedSetNonEmpty<
 		return builder.build();
 	}
 
-	union(other: StreamSource<T>): TpG['nonEmpty'] {
+	union(other: StreamSource<T>): OrderedSet.NonEmpty<T> {
 		if (other === this) return this as any;
 		if (StreamFactory().isEmptyStreamSourceInstance(other)) return this as any;
 
@@ -120,7 +117,7 @@ export class OrderedSetNonEmpty<
 		return builder.build().assumeNonEmpty();
 	}
 
-	difference(other: StreamSource<T>): TpG['normal'] {
+	difference(other: StreamSource<T>): OrderedSet<T> {
 		if (other === this) return this.context.empty();
 		if (StreamFactory().isEmptyStreamSourceInstance(other)) return this as any;
 
@@ -129,7 +126,7 @@ export class OrderedSetNonEmpty<
 		return builder.build();
 	}
 
-	intersect(other: StreamSource<T>): TpG['normal'] {
+	intersect(other: StreamSource<T>): OrderedSet<T> {
 		if (other === this) return this as any;
 		if (StreamFactory().isEmptyStreamSourceInstance(other))
 			return this.context.empty();
@@ -149,7 +146,7 @@ export class OrderedSetNonEmpty<
 		return builder.build();
 	}
 
-	symDifference(other: StreamSource<T>): TpG['normal'] {
+	symDifference(other: StreamSource<T>): OrderedSet<T> {
 		if (other === this) return this.context.empty();
 
 		if (StreamFactory().isEmptyStreamSourceInstance(other)) return this as any;
@@ -167,7 +164,7 @@ export class OrderedSetNonEmpty<
 		return this.order.toArray();
 	}
 
-	toBuilder(): TpG['builder'] {
+	toBuilder(): OrderedSet.Builder<T> {
 		return this.context.createBuilder(this);
 	}
 

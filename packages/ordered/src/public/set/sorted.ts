@@ -1,12 +1,10 @@
 import type { Stream, Streamable } from '@rimbu/stream';
+import type { OrderedSortedSetCreators } from '../internal/set/creators';
 
 import type { OrderedSetBase } from '#set/base';
-import type { OrderedSortedSetCreators } from '#set/creators';
 
-import { List } from '@rimbu/list';
 import { SortedSet } from '@rimbu/sorted/set';
-
-import { OrderedSetContextImpl } from '#set/context';
+import { createOrderedSetContextModule } from '../internal/set/context-factory';
 
 /**
  * A type-invariant immutable Ordered SortedSet of value type T.
@@ -85,24 +83,7 @@ export namespace OrderedSortedSet {
 	}
 }
 
-function createContext<UT>(options?: {
-	listContext?: List.Context;
-	setContext?: SortedSet.Context<UT>;
-}): OrderedSortedSet.Context<UT> {
-	return Object.freeze(
-		new OrderedSetContextImpl<UT>(
-			options?.listContext ?? List.defaultContext(),
-			options?.setContext ?? SortedSet.defaultContext<UT>(),
-		) as any,
-	);
-}
-
-const _defaultContext: OrderedSortedSet.Context<any> = createContext();
-
-export const OrderedSortedSet: OrderedSortedSetCreators = Object.freeze({
-	..._defaultContext,
-	createContext,
-	defaultContext<UT>(): OrderedSortedSet.Context<UT> {
-		return _defaultContext;
-	},
-});
+export const OrderedSortedSet: OrderedSortedSetCreators =
+	createOrderedSetContextModule({
+		setContext: SortedSet.defaultContext(),
+	}).build();

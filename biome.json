@@ -23,7 +23,17 @@
 				}
 			},
 			"style": {
-				"noNonNullAssertion": "warn"
+				"noNonNullAssertion": "warn",
+				"noRestrictedImports": {
+					"level": "error",
+					"options": {
+						"patterns": [
+							{
+								"group": ["./*", "../*"]
+							}
+						]
+					}
+				}
 			},
 			"suspicious": {
 				"noAssignInExpressions": "warn",

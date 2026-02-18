@@ -10,7 +10,7 @@ import type { AsyncStreamFactory } from '#async/factory';
 import type { StreamSource } from '#private/stream-types';
 
 import { Module } from '@rimbu/common/module';
-import { AsyncReducer } from '../reducer';
+import { AsyncReducer } from '@rimbu/stream/async/reducer';
 
 import {
 	AsyncUnfoldIterator,

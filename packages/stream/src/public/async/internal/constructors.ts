@@ -2,7 +2,7 @@ import type { Token } from '@rimbu/base/token';
 import type { AsyncOptLazy, MaybePromise } from '@rimbu/common/async-opt-lazy';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { AsyncStream, AsyncStreamSource } from '@rimbu/stream/async';
-import type { AsyncReducer } from '../reducer';
+import type { AsyncReducer } from '@rimbu/stream/async/reducer';
 
 /**
  * An interface describing all factory functions used to create `AsyncStream` instances.

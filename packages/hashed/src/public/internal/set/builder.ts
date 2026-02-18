@@ -1,7 +1,7 @@
 import type { RelatedTo } from '@rimbu/common/types';
 import type { HashSet } from '@rimbu/hashed/set';
-import type { ContextImpl } from './context-factory';
 
+import type { ContextImpl } from '#set/context-factory';
 import type { HashSetBlock, HashSetCollision } from '#set/immutable';
 
 import * as Arr from '@rimbu/base/arr';

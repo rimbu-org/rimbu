@@ -1,6 +1,6 @@
 import type { FastIterator } from '@rimbu/stream';
 
-import { fastIteratorFactoryModule } from './fast-iterator-factory-module';
+import { fastIteratorFactoryModule } from '#stream/fast-iterator-factory-module';
 
 export interface FastIteratorFactory {
 	/**

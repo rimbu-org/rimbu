@@ -1,7 +1,8 @@
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { HashSet } from '@rimbu/hashed/set';
 import type { List } from '@rimbu/list';
-import type { ContextImpl } from './context-factory';
+
+import type { ContextImpl } from '#set/context-factory';
 
 import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';
