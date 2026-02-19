@@ -48,7 +48,7 @@ export interface ContextImpl<UT>
 		RSetContextBaseModule.ModuleAbstract<UT, HashSet.Types>,
 		ImmutableFactory<UT>,
 		BuilderFactory<UT>,
-		Omit<HashSetCreators, 'builder' | 'empty' | 'of' | 'from' | 'reducer'> {
+		Omit<HashSetCreators, keyof HashSet.Context<any>> {
 	readonly maxDepth: number;
 	readonly listContext: List.Context;
 	hash(value: UT): number;
@@ -134,8 +134,6 @@ export function createHashSetContextModule<UT>(
 		defaultContext: Module.lazy<any>(() => _defaultContext ?? mod),
 
 		typeTag: 'HashSet',
-		_fixedElementType: undefined as any,
-		_types: undefined as any,
 
 		hasher: Module.lazyGetter(() => hasher ?? Hasher.defaultInstance),
 		eq: Module.lazyGetter(() => eq ?? Eq.defaultInstance),

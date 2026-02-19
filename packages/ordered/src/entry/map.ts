@@ -4,9 +4,7 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type { OrderedMapBase } from '#map/base';
 import type { OrderedMapCreators } from '#map/creators';
 
-import { List } from '@rimbu/list';
-
-import { OrderedMapContextImpl } from '#map/context';
+import { createOrderedMapContextModule } from '@rimbu/ordered/internal/map/context-factory';
 
 /**
  * A type-invariant immutable Ordered Map of key type K, and value type V.
@@ -89,16 +87,8 @@ export namespace OrderedMap {
 	}
 }
 
-export const OrderedMap: OrderedMapCreators = {
-	createContext<UK>(options: {
-		listContext?: List.Context;
-		mapContext: RMap.Context<UK>;
-	}): OrderedMap.Context<UK> {
-		return Object.freeze(
-			new OrderedMapContextImpl<UK>(
-				options.listContext ?? List.defaultContext(),
-				options.mapContext,
-			),
-		) as any;
+export const OrderedMap: OrderedMapCreators = Object.freeze<OrderedMapCreators>(
+	{
+		createContext: (options) => createOrderedMapContextModule(options).build(),
 	},
-};
+);

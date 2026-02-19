@@ -1,8 +1,8 @@
 import type { RMap } from '@rimbu/collection-types';
-import type { WithElem, WithKeyValue } from '@rimbu/collection-types/common';
+import type { WithKeyValue } from '@rimbu/collection-types/common';
 import type { RMapBase } from '@rimbu/collection-types/map/base';
 import type { List } from '@rimbu/list';
-import type { Stream, Streamable } from '@rimbu/stream';
+import type { Streamable } from '@rimbu/stream';
 
 export interface OrderedMapBase<
 	K,
@@ -37,7 +37,6 @@ export namespace OrderedMapBase {
 		V,
 		Tp extends OrderedMapBase.Types = OrderedMapBase.Types,
 	> extends RMapBase.NonEmpty<K, V, Tp>,
-			Omit<OrderedMapBase<K, V, Tp>, keyof RMapBase.NonEmpty<any, any, any>>,
 			Streamable.NonEmpty<readonly [K, V]> {
 		/**
 		 * Returns a non-empty `List` instance containing the key order of the Map.
@@ -59,7 +58,6 @@ export namespace OrderedMapBase {
 		 * ```
 		 */
 		readonly sourceMap: WithKeyValue<Tp, K, V>['sourceMapNonEmpty'];
-		stream(): Stream.NonEmpty<readonly [K, V]>;
 	}
 
 	export interface Builder<
@@ -81,7 +79,7 @@ export namespace OrderedMapBase {
 		/**
 		 * The Map context used to create the wrapped Map instances.
 		 */
-		readonly mapContext: WithElem<Tp, UK>['sourceContext'];
+		readonly mapContext: WithKeyValue<Tp, UK, unknown>['sourceContext'];
 	}
 
 	/**

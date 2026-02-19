@@ -1,44 +1,43 @@
 import type { Token } from '@rimbu/base/token';
-import type { WithKeyValue } from '@rimbu/collection-types/common';
+import type { RMap } from '@rimbu/collection-types';
 import type { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { Update } from '@rimbu/common/update';
 import type { List } from '@rimbu/list';
+import type { OrderedMap } from '@rimbu/ordered/map';
 import type { Stream, StreamSource } from '@rimbu/stream';
 
 import type { OrderedMapBase } from '#map/base';
-import type { OrderedMapTypes } from '#map/context';
+import type { ContextImpl } from '#map/context-factory';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import { NonEmptyBase } from '@rimbu/collection-types/common/empty-base';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { StreamFactory } from '@rimbu/stream/internal/factory';
 
-export class OrderedMapNonEmpty<
-		K,
-		V,
-		Tp extends OrderedMapTypes = OrderedMapTypes,
-		TpG extends WithKeyValue<Tp, K, V> = WithKeyValue<Tp, K, V>,
-	>
+export class OrderedMapNonEmpty<K, V>
 	extends NonEmptyBase<[K, V]>
-	implements OrderedMapBase.NonEmpty<K, V, Tp>
+	implements OrderedMapBase.NonEmpty<K, V>
 {
-	declare _NonEmptyType: Tp['nonEmpty'];
+	declare _NonEmptyType: OrderedMap.NonEmpty<K, V>;
 
 	constructor(
-		readonly context: TpG['context'],
+		readonly context: ContextImpl<K>,
 		readonly keyOrder: List.NonEmpty<K>,
-		readonly sourceMap: TpG['sourceMapNonEmpty'],
+		readonly sourceMap: RMap.NonEmpty<K, V>,
 	) {
 		super();
 	}
 
-	copy(keyOrder = this.keyOrder, sourceMap = this.sourceMap): TpG['nonEmpty'] {
+	copy(
+		keyOrder = this.keyOrder,
+		sourceMap = this.sourceMap,
+	): OrderedMapNonEmpty<K, V> {
 		if (keyOrder === this.keyOrder && sourceMap === this.sourceMap) {
-			return this as any;
+			return this;
 		}
 
-		return this.context.createNonEmpty<K, V>(keyOrder, sourceMap as any) as any;
+		return this.context.createNonEmpty<K, V>(keyOrder, sourceMap);
 	}
 
 	get size(): number {
@@ -70,7 +69,7 @@ export class OrderedMapNonEmpty<
 		return this.sourceMap.get(key, otherwise!);
 	}
 
-	set(key: K, value: V): WithKeyValue<Tp, K, V>['nonEmpty'] {
+	set(key: K, value: V): OrderedMap.NonEmpty<K, V> {
 		let newKeyOrder = this.keyOrder;
 		const newSourceMap = this.sourceMap.modifyAt(key, {
 			ifNew: (): V => {
@@ -80,52 +79,55 @@ export class OrderedMapNonEmpty<
 			ifExists: () => value,
 		});
 
-		return this.copy(newKeyOrder, newSourceMap as any);
+		return this.copy(newKeyOrder, newSourceMap.assumeNonEmpty());
 	}
 
-	addEntry(entry: readonly [K, V]): WithKeyValue<Tp, K, V>['nonEmpty'] {
+	addEntry(entry: readonly [K, V]): OrderedMap.NonEmpty<K, V> {
 		return this.set(entry[0], entry[1]);
 	}
 
 	addEntries(
 		entries: StreamSource<readonly [K, V]>,
-	): OrderedMapBase<K, V, Tp> | any {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries))
-			return this as any;
+	): OrderedMap.NonEmpty<K, V> {
+		if (StreamFactory().isEmptyStreamSourceInstance(entries)) {
+			return this;
+		}
 
 		const builder = this.toBuilder();
 		builder.addEntries(entries);
 		return builder.build().assumeNonEmpty();
 	}
 
-	removeKey<UK>(key: RelatedTo<K, UK>): TpG['normal'] {
-		if (!this.context.mapContext.isValidKey(key)) return this as any;
+	removeKey<UK>(key: RelatedTo<K, UK>): OrderedMap<K, V> {
+		if (!this.context.mapContext.isValidKey(key)) return this;
 
 		const newSourceMap = this.sourceMap.removeKey(key);
 
-		if (newSourceMap === this.sourceMap) return this as any;
+		if (newSourceMap === this.sourceMap) return this;
 
 		if (newSourceMap.nonEmpty()) {
 			const index = this.keyOrder.stream().indexOf(key as K)!;
 			const newKeyOrder = this.keyOrder.remove(index);
 
 			if (newKeyOrder.nonEmpty()) {
-				return this.copy(newKeyOrder, newSourceMap) as any;
+				return this.copy(newKeyOrder, newSourceMap);
 			}
 		}
 
-		return this.context.empty<K, V>();
+		return this.context.empty();
 	}
 
-	removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): TpG['normal'] {
-		if (StreamFactory().isEmptyStreamSourceInstance(keys)) return this as any;
+	removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): OrderedMap<K, V> {
+		if (StreamFactory().isEmptyStreamSourceInstance(keys)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeKeys(keys);
 		return builder.build();
 	}
 
-	removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [TpG['normal'], V] | undefined {
+	removeKeyAndGet<UK>(
+		key: RelatedTo<K, UK>,
+	): [OrderedMap<K, V>, V] | undefined {
 		if (!this.context.mapContext.isValidKey(key)) {
 			return undefined;
 		}
@@ -143,11 +145,11 @@ export class OrderedMapNonEmpty<
 			const newKeyOrder = this.keyOrder.remove(index);
 
 			if (newKeyOrder.nonEmpty()) {
-				return [this.copy(newKeyOrder, newSourceMap) as any, removedValue!];
+				return [this.copy(newKeyOrder, newSourceMap), removedValue!];
 			}
 		}
 
-		return [this.context.empty<K, V>(), removedValue!];
+		return [this.context.empty(), removedValue!];
 	}
 
 	modifyAt(
@@ -156,11 +158,11 @@ export class OrderedMapNonEmpty<
 			ifNew?: OptLazyOr<V, Token>;
 			ifExists?: (currentValue: V, remove: Token) => V | Token;
 		},
-	): TpG['normal'] {
+	): OrderedMap<K, V> {
 		let newKeyOrder: List<K> = this.keyOrder;
 
 		const result = this.sourceMap.modifyAt(key, options);
-		if (result === this.sourceMap) return this as any;
+		if (result === this.sourceMap) return this;
 		if (result.isEmpty) return this.context.empty<K, V>();
 
 		if (result.size < this.sourceMap.size) {
@@ -171,7 +173,7 @@ export class OrderedMapNonEmpty<
 		}
 
 		if (result.nonEmpty() && newKeyOrder.nonEmpty()) {
-			return this.copy(newKeyOrder, result) as any;
+			return this.copy(newKeyOrder, result);
 		}
 
 		return this.context.empty();
@@ -204,16 +206,16 @@ export class OrderedMapNonEmpty<
 	filter(
 		pred: (entry: [K, V], index: number, halt: () => void) => boolean,
 		options: { negate?: boolean } = {},
-	): TpG['normal'] {
+	): OrderedMap<K, V> {
 		const { negate = false } = options;
 
 		const builder = this.context.builder<K, V>();
 
 		builder.addEntries(this.stream().filter(pred, { negate }));
 
-		if (builder.size === this.size) return this as any;
+		if (builder.size === this.size) return this;
 
-		return builder.build() as any;
+		return builder.build();
 	}
 
 	mapValues<V2>(mapFun: (value: V, key: K) => V2): any {
@@ -231,8 +233,8 @@ export class OrderedMapNonEmpty<
 		return this.stream().toArray();
 	}
 
-	toBuilder(): TpG['builder'] {
-		return this.context.createBuilder(this as any) as any;
+	toBuilder(): OrderedMap.Builder<K, V> {
+		return this.context.createBuilder(this);
 	}
 
 	toString(): string {

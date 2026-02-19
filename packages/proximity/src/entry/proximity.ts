@@ -8,12 +8,12 @@
 
 import type { RMap } from '@rimbu/collection-types';
 import type { RMapBase } from '@rimbu/collection-types/map/base';
+import type { HashMap } from '@rimbu/hashed/map';
+import type { DistanceFunction } from '@rimbu/proximity/distance-function';
+import type { ProximityMapCreators } from '@rimbu/proximity/internal/creators';
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import { HashMap } from '@rimbu/hashed/map';
-import { DistanceFunction } from '@rimbu/proximity/distance-function';
-
-import { ProximityMapContext } from '#proximity/context';
+import { createProximityMapContextModule } from '@rimbu/proximity/internal/context-factory';
 
 /**
  * A type-invariant immutable Map of key type K, and value type V.
@@ -83,15 +83,6 @@ export namespace ProximityMap {
 		 * The context used by the internal HashMap
 		 */
 		readonly hashMapContext: HashMap.Context<UK>;
-
-		/**
-		 * Creates a builder given the optional non-empty source map
-		 *
-		 * @param source Optional non-empty map used to fill the builder
-		 */
-		createBuilder<K extends UK, V>(
-			source?: ProximityMap.NonEmpty<K, V>,
-		): ProximityMap.Builder<K, V>;
 	}
 
 	/**
@@ -115,43 +106,5 @@ export namespace ProximityMap {
 	}
 }
 
-function createProximityMapContext<UK>(options?: {
-	distanceFunction?: DistanceFunction<UK>;
-	hashMapContext?: HashMap.Context<UK>;
-}): ProximityMap.Context<UK> {
-	return Object.freeze(
-		new ProximityMapContext(
-			options?.distanceFunction ?? DistanceFunction.defaultFunction,
-			options?.hashMapContext ?? HashMap.defaultContext(),
-		),
-	);
-}
-
-const _defaultContext: ProximityMap.Context<any> = createProximityMapContext();
-
-interface ProximityMapCreators extends RMapBase.Factory<ProximityMap.Types> {
-	/**
-	 * Returns a new ProximityMap context instance based on the given `options`.
-	 * @typeparam UK - the upper key type for which the context can create instances
-	 * @param options - (optional) an object containing the following properties:<br/>
-	 * - distanceFunction: (optional) the distance function used to compare the proximity between keys<br/>
-	 * - hashMapContext: (optional) the context to use to create the internal HashMap instances
-	 */
-	createContext<UK>(options?: {
-		distanceFunction?: DistanceFunction<UK>;
-		hashMapContext?: HashMap.Context<UK>;
-	}): ProximityMap.Context<UK>;
-	/**
-	 * Returns the default context for ProximityMaps.
-	 * @typeparam UK - the upper key type for which the context can create instances
-	 */
-	defaultContext<UK>(): ProximityMap.Context<UK>;
-}
-
-export const ProximityMap: ProximityMapCreators = Object.freeze({
-	..._defaultContext,
-	createContext: createProximityMapContext,
-	defaultContext<UK>(): ProximityMap.Context<UK> {
-		return _defaultContext;
-	},
-});
+export const ProximityMap: ProximityMapCreators =
+	createProximityMapContextModule().build();

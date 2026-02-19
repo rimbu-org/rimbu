@@ -1,9 +1,9 @@
 import type { WithKeyValue } from '@rimbu/collection-types/common';
 import type { RMapBase } from '@rimbu/collection-types/map/base';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
-import type { StreamSource } from '@rimbu/stream';
 
 import { Module } from '@rimbu/common/module';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { StreamFactory } from '@rimbu/stream/internal/factory';
 import { Reducer } from '@rimbu/stream/reducer';
 
@@ -23,9 +23,17 @@ export namespace RMapContextBaseModule {
 		Tp extends RMapBase.Types = RMapBase.Types,
 	>() {
 		return Module.createPartial<{
-			defines: Pick<RMapBase.Context<UK, Tp>, 'of' | 'from' | 'reducer'>;
+			defines: Omit<
+				RMapBase.Context<UK, Tp>,
+				| keyof RMapContextBaseModule.ModuleAbstract<any>
+				| 'typeTag'
+				| 'empty'
+				| 'builder'
+			>;
 			requires: RMapBase.Context<UK, Tp> & ModuleAbstract<UK, Tp>;
 		}>((mod) => ({
+			_fixedKeyType: undefined as any,
+			_types: undefined as any,
 			from: (...sources: any[]): any => {
 				let builder = mod.builder();
 
@@ -70,6 +78,129 @@ export namespace RMapContextBaseModule {
 						return builder;
 					},
 					(builder) => builder.build(),
+				);
+			},
+			mergeAllWith: <K, I extends readonly [unknown, unknown, ...unknown[]]>(
+				...sources: { [KT in keyof I]: StreamSource<readonly [K, I[KT]]> }
+			): any => {
+				return <O, R>(
+					fillValue: O,
+					mergeFun: (key: K, ...values: { [KT in keyof I]: I[KT] | O }) => R,
+				): any => {
+					const builder = mod.builder() as unknown as RMapBase.Builder<
+						K,
+						unknown[]
+					>;
+
+					let i = -1;
+					const length = sources.length;
+
+					while (++i < sources.length) {
+						let entry: readonly [K, unknown] | undefined;
+						const iter = Stream.from(sources[i])[Symbol.iterator]();
+
+						while (undefined !== (entry = iter.fastNext())) {
+							const key = entry[0];
+							const value = entry[1];
+
+							const index = i;
+
+							builder.modifyAt(key, {
+								ifNew(): unknown[] {
+									const row = Array(length).fill(fillValue);
+									row[index] = value;
+									return row;
+								},
+								ifExists(row): unknown[] {
+									row[index] = value;
+									return row;
+								},
+							});
+						}
+					}
+
+					return builder.buildMapValues((row, key) =>
+						mergeFun(key, ...(row as any)),
+					);
+				};
+			},
+			mergeAll: (fillValue, ...sources: any): any => {
+				return mod.mergeAllWith(...sources)(
+					fillValue,
+					(_, ...values: unknown[]): any => values,
+				);
+			},
+			mergeWith: <K extends UK, I extends readonly unknown[]>(
+				...sources: StreamSource<readonly [K, unknown]>[]
+			): any => {
+				return (mergeFun: (key: K, ...values: I) => any): any => {
+					if (
+						Stream.from(sources).some(
+							StreamFactory().isEmptyStreamSourceInstance,
+						)
+					) {
+						return mod.empty();
+					}
+
+					const builder = mod.builder() as unknown as RMapBase.Builder<
+						K,
+						unknown[]
+					>;
+
+					let i = -1;
+					const length = sources.length;
+
+					while (++i < sources.length) {
+						let entry: readonly [K, unknown] | undefined;
+						const iter = Stream.from(sources[i])[Symbol.iterator]();
+
+						while (undefined !== (entry = iter.fastNext())) {
+							const key = entry[0];
+							const value = entry[1];
+
+							const index = i;
+
+							builder.modifyAt(key, {
+								ifNew(nothing): unknown[] | typeof nothing {
+									if (index > 0) return nothing;
+
+									const row = [value];
+									return row;
+								},
+								ifExists(row, remove): unknown[] | typeof remove {
+									if (row.length !== index) return remove;
+									row.push(value);
+									return row;
+								},
+							});
+						}
+					}
+
+					// remove all rows that are not full
+					const firstSource = sources[0];
+
+					let entry: readonly [K, unknown] | undefined;
+					const iter = Stream.from(firstSource)[Symbol.iterator]();
+
+					while (undefined !== (entry = iter.fastNext())) {
+						const key = entry[0];
+
+						builder.modifyAt(key, {
+							ifExists(row, remove): unknown[] | typeof remove {
+								if (row.length !== length) return remove;
+								return row;
+							},
+						});
+					}
+
+					return builder.buildMapValues((row, key) =>
+						mergeFun(key, ...(row as any)),
+					);
+				};
+			},
+			merge: (...sources: any): any => {
+				return mod.mergeWith(...sources)(
+					(_, ...values: unknown[]): any => values,
 				);
 			},
 		}));

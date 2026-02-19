@@ -37,7 +37,7 @@ export interface ContextImpl<UT>
 		RSetContextBaseModule.ModuleAbstract<UT, SortedSet.Types>,
 		ImmutableFactory<UT>,
 		BuilderFactory<UT>,
-		Omit<SortedSetCreators, 'builder' | 'empty' | 'of' | 'from' | 'reducer'> {
+		Omit<SortedSetCreators, keyof SortedSet.Context<any>> {
 	minEntries: number;
 	maxEntries: number;
 	findIndex(value: UT, entries: readonly UT[]): number;
@@ -107,8 +107,6 @@ export function createSortedSetContextModule<UT>(
 		defaultContext: Module.lazy<any>(() => _defaultContext ?? mod),
 
 		typeTag: 'SortedSet',
-		_fixedElementType: undefined as any,
-		_types: undefined as any,
 
 		blockSizeBits,
 		minEntries: 1 << (blockSizeBits - 1),

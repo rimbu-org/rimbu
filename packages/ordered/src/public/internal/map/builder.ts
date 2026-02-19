@@ -1,10 +1,11 @@
 import type { Token } from '@rimbu/base/token';
-import type { WithKeyValue } from '@rimbu/collection-types/common';
+import type { RMap } from '@rimbu/collection-types';
 import type { RelatedTo } from '@rimbu/common/types';
 import type { List } from '@rimbu/list';
+import type { OrderedMap } from '@rimbu/ordered/map';
 
 import type { OrderedMapBase } from '#map/base';
-import type { OrderedMapTypes } from '#map/context';
+import type { ContextImpl } from '#map/context-factory';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import { OptLazy, type OptLazyOr } from '@rimbu/common/opt-lazy';
@@ -12,20 +13,14 @@ import { TraverseState } from '@rimbu/common/traverse-state';
 import { Update } from '@rimbu/common/update';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export class OrderedMapBuilder<
-	K,
-	V,
-	Tp extends OrderedMapTypes = OrderedMapTypes,
-	TpG extends WithKeyValue<Tp, K, V> = WithKeyValue<Tp, K, V>,
-> implements OrderedMapBase.Builder<K, V, Tp>
-{
+export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 	constructor(
-		readonly context: WithKeyValue<Tp, K, V>['context'],
-		public source?: TpG['nonEmpty'],
+		readonly context: ContextImpl<K>,
+		public source?: OrderedMap.NonEmpty<K, V>,
 	) {}
 
 	_keyOrderBuilder?: List.Builder<K>;
-	_mapBuilder?: TpG['sourceBuilder'];
+	_mapBuilder?: RMap.Builder<K, V>;
 
 	_lock = false;
 
@@ -50,7 +45,7 @@ export class OrderedMapBuilder<
 		return this._keyOrderBuilder!;
 	}
 
-	get mapBuilder(): TpG['sourceBuilder'] {
+	get mapBuilder(): RMap.Builder<K, V> {
 		this.prepareMutate();
 		return this._mapBuilder!;
 	}
@@ -211,9 +206,7 @@ export class OrderedMapBuilder<
 	};
 
 	// prettier-ignore
-	buildMapValues = <V2>(
-		f: (value: V, key: K) => V2,
-	): WithKeyValue<Tp, K, V2>['normal'] => {
+	buildMapValues = <V2>(f: (value: V, key: K) => V2): OrderedMap<K, V2> => {
 		if (undefined !== this.source) return this.source.mapValues<V2>(f) as any;
 
 		if (this.size === 0) return this.context.empty();
@@ -224,7 +217,7 @@ export class OrderedMapBuilder<
 		return this.context.createNonEmpty<K, V2>(keyOrder, sourceMap) as any;
 	};
 
-	build = (): WithKeyValue<Tp, K, V>['normal'] => {
+	build = (): OrderedMap<K, V> => {
 		if (undefined !== this.source) return this.source as any;
 		if (this.size === 0) return this.context.empty();
 

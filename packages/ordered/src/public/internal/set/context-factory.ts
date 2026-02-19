@@ -33,7 +33,7 @@ export interface ContextImpl<UT>
 		ImmutableFactory<UT>,
 		BuilderFactory<UT>,
 		OrderedSetCreators {
-	defaultContext(): OrderedSet.Context<UT>;
+	defaultContext<T extends UT>(): OrderedSet.Context<T>;
 }
 
 export function createOrderedSetContextModule<UT>(
@@ -83,12 +83,13 @@ export function createOrderedSetContextModule<UT>(
 		...immutableModule(mod),
 		...builderModule(mod),
 
-		createContext: (options) => createOrderedSetContextModule(options).build(),
-		defaultContext: Module.lazy(() => _defaultContext ?? mod),
+		createContext: (options) =>
+			createOrderedSetContextModule(options, mod as ContextImpl<any>).build(),
+		defaultContext: Module.lazy(
+			() => (_defaultContext ?? mod) as OrderedSet.Context<any>,
+		),
 
 		typeTag: 'OrderedSet',
-		_fixedElementType: undefined as any,
-		_types: undefined as any,
 
 		listContext: Module.lazyGetter(() => listContext ?? List.defaultContext()),
 		setContext,

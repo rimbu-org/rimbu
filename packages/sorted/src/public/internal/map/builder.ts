@@ -1,7 +1,7 @@
 import type { RelatedTo } from '@rimbu/common/types';
 import type { SortedMap } from '@rimbu/sorted/map';
 
-import type { SortedMapContext } from '#map/context';
+import type { ContextImpl } from '#map/context-factory';
 import type { SortedMapNode } from '#map/immutable';
 
 import { Token } from '@rimbu/base/token';
@@ -18,7 +18,7 @@ export class SortedMapBuilder<K, V>
 	implements SortedMap.Builder<K, V>
 {
 	constructor(
-		readonly context: SortedMapContext<K>,
+		readonly context: ContextImpl<K>,
 		public source?: undefined | SortedMap<K, V>,
 		public _entries?: undefined | (readonly [K, V])[],
 		public _children?: undefined | SortedMapBuilder<K, V>[],

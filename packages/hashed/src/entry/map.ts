@@ -6,7 +6,7 @@ import type { Stream, Streamable } from '@rimbu/stream';
 
 import type { HashMapCreators } from '#map/creators';
 
-import { createHashMapContext } from '#map/context';
+import { createHashMapContextModule } from '@rimbu/hashed/internal/map/context-factory';
 
 /**
  * A type-invariant immutable Map of key type K, and value type V.
@@ -92,12 +92,4 @@ export namespace HashMap {
 	}
 }
 
-const _defaultContext: HashMap.Context<any> = createHashMapContext();
-
-export const HashMap: HashMapCreators = Object.freeze({
-	..._defaultContext,
-	createContext: createHashMapContext,
-	defaultContext<UK>(): HashMap.Context<UK> {
-		return _defaultContext;
-	},
-});
+export const HashMap: HashMapCreators = createHashMapContextModule().build();

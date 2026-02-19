@@ -2,7 +2,7 @@ import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { HashMap } from '@rimbu/hashed/map';
 import type { List } from '@rimbu/list';
 
-import type { HashMapContext } from '#map/context';
+import type { ContextImpl } from '#map/context-factory';
 
 import * as Arr from '@rimbu/base/arr';
 import * as Entry from '@rimbu/base/entry';
@@ -24,7 +24,7 @@ export class HashMapEmpty<K = any, V = any>
 {
 	declare _NonEmptyType: HashMap.NonEmpty<K, V>;
 
-	constructor(readonly context: HashMapContext<K>) {
+	constructor(readonly context: ContextImpl<K>) {
 		super();
 	}
 
@@ -114,7 +114,7 @@ export abstract class HashMapNonEmptyBase<K, V>
 {
 	declare _NonEmptyType: HashMap.NonEmpty<K, V>;
 
-	abstract get context(): HashMapContext<K>;
+	abstract get context(): ContextImpl<K>;
 	abstract get size(): number;
 	abstract get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O;
 	abstract addEntry(
@@ -247,7 +247,7 @@ export type MapEntrySet<K, V> = HashMapBlock<K, V> | HashMapCollision<K, V>;
 
 export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 	constructor(
-		readonly context: HashMapContext<K>,
+		readonly context: ContextImpl<K>,
 		readonly entries: readonly (readonly [K, V])[] | null,
 		readonly entrySets: readonly MapEntrySet<K, V>[] | null,
 		readonly size: number,
@@ -601,7 +601,7 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 
 export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
 	constructor(
-		readonly context: HashMapContext<K>,
+		readonly context: ContextImpl<K>,
 		readonly entries: List.NonEmpty<readonly [K, V]>,
 	) {
 		super();

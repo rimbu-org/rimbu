@@ -22,9 +22,19 @@ export namespace RSetContextBaseModule {
 		Tp extends RSetBase.Types = RSetBase.Types,
 	>() {
 		return Module.createPartial<{
-			defines: Pick<RSetBase.Context<UT, Tp>, 'from' | 'of' | 'reducer'>;
+			defines: Omit<
+				RSetBase.Context<UT, Tp>,
+				| keyof RSetContextBaseModule.ModuleAbstract<any>
+				| 'typeTag'
+				| 'empty'
+				| 'builder'
+				| 'isValidValue'
+			>;
 			requires: RSetBase.Context<UT, Tp> & ModuleAbstract<UT, Tp>;
 		}>((mod) => ({
+			_fixedElementType: undefined as any,
+			_types: undefined as any,
+
 			from: <T extends UT>(...sources: ArrayNonEmpty<StreamSource<T>>): any => {
 				let builder = mod.builder();
 				let i = -1;

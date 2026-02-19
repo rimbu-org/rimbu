@@ -4,9 +4,7 @@ import type { OrderedMapBase } from '#map/base';
 import type { OrderedHashMapCreators } from '#map/creators';
 
 import { HashMap } from '@rimbu/hashed/map';
-import { List } from '@rimbu/list';
-
-import { OrderedMapContextImpl } from '#map/context';
+import { createOrderedMapContextModule } from '../internal/map/context-factory';
 
 /**
  * A type-invariant immutable Ordered HashMap of key type K, and value type V.
@@ -90,24 +88,7 @@ export namespace OrderedHashMap {
 	}
 }
 
-function createContext<UK>(options?: {
-	listContext?: List.Context;
-	mapContext?: HashMap.Context<UK>;
-}): OrderedHashMap.Context<UK> {
-	return Object.freeze(
-		new OrderedMapContextImpl<UK>(
-			options?.listContext ?? List.defaultContext(),
-			options?.mapContext ?? HashMap.defaultContext(),
-		),
-	) as any;
-}
-
-const _defaultContext: OrderedHashMap.Context<any> = createContext();
-
-export const OrderedHashMap: OrderedHashMapCreators = Object.freeze({
-	..._defaultContext,
-	createContext,
-	defaultContext<UK>(): OrderedHashMap.Context<UK> {
-		return _defaultContext;
-	},
-});
+export const OrderedHashMap: OrderedHashMapCreators =
+	createOrderedMapContextModule({
+		mapContext: HashMap.defaultContext(),
+	}).build();

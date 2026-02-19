@@ -1,9 +1,10 @@
-import type { WithKeyValue } from '@rimbu/collection-types/common';
+import type { RMap } from '@rimbu/collection-types';
 import type { ToJSON } from '@rimbu/common/types';
 import type { List } from '@rimbu/list';
+import type { OrderedMap } from '@rimbu/ordered/map';
 
 import type { OrderedMapBase } from '#map/base';
-import type { OrderedMapTypes } from '#map/context';
+import type { ContextImpl } from '#map/context-factory';
 
 import { Token } from '@rimbu/base/token';
 import { EmptyBase } from '@rimbu/collection-types/common/empty-base';
@@ -11,17 +12,13 @@ import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { StreamFactory } from '@rimbu/stream/internal/factory';
 
-export class OrderedMapEmpty<
-		K = any,
-		V = any,
-		Tp extends OrderedMapTypes = OrderedMapTypes,
-	>
+export class OrderedMapEmpty<K = any, V = any>
 	extends EmptyBase
-	implements OrderedMapBase<K, V, Tp>
+	implements OrderedMapBase<K, V, OrderedMapBase.Types>
 {
-	declare _NonEmptyType: Tp['nonEmpty'];
+	declare _NonEmptyType: OrderedMap.NonEmpty<K, V>;
 
-	constructor(readonly context: WithKeyValue<Tp, K, V>['context']) {
+	constructor(readonly context: ContextImpl<K>) {
 		super();
 	}
 
@@ -29,7 +26,7 @@ export class OrderedMapEmpty<
 		return this.context.listContext.empty();
 	}
 
-	get sourceMap(): WithKeyValue<Tp, K, V>['sourceMap'] {
+	get sourceMap(): RMap<K, V> {
 		return this.context.mapContext.empty();
 	}
 
@@ -49,43 +46,42 @@ export class OrderedMapEmpty<
 		return OptLazy(otherwise) as O;
 	}
 
-	set(key: K, value: V): WithKeyValue<Tp, K, V>['nonEmpty'] {
+	set(key: K, value: V): OrderedMap.NonEmpty<K, V> {
 		return this.addEntry([key, value]);
 	}
 
-	addEntry(entry: readonly [K, V]): WithKeyValue<Tp, K, V>['nonEmpty'] {
+	addEntry(entry: readonly [K, V]): OrderedMap.NonEmpty<K, V> {
 		return this.context.createNonEmpty<K, V>(
 			this.context.listContext.of(entry[0]),
 			this.context.mapContext.of(entry),
-		) as any;
+		);
 	}
 
 	addEntries(
 		entries: StreamSource<readonly [K, V]>,
-	): WithKeyValue<Tp, K, V>['normal'] | any {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries)) return this;
+	): OrderedMap.NonEmpty<K, V> {
+		if (StreamFactory().isEmptyStreamSourceInstance(entries)) {
+			return this as any;
+		}
 
-		return this.context.from(entries);
+		return this.context.from(entries) as any;
 	}
 
-	modifyAt(
-		key: K,
-		options: { ifNew?: OptLazyOr<V, Token> },
-	): WithKeyValue<Tp, K, V>['normal'] {
-		if (undefined === options.ifNew) return this as any;
+	modifyAt(key: K, options: { ifNew?: OptLazyOr<V, Token> }): OrderedMap<K, V> {
+		if (undefined === options.ifNew) return this;
 
 		const value = OptLazyOr<V, Token>(options.ifNew, Token);
 
-		if (Token === value) return this as any;
+		if (Token === value) return this;
 
-		return this.addEntry([key, value]) as any;
+		return this.addEntry([key, value]);
 	}
 
-	removeKey(): WithKeyValue<Tp, K, V>['normal'] {
+	removeKey(): OrderedMap<K, V> {
 		return this as any;
 	}
 
-	removeKeys(): WithKeyValue<Tp, K, V>['normal'] {
+	removeKeys(): OrderedMap<K, V> {
 		return this as any;
 	}
 
@@ -93,16 +89,16 @@ export class OrderedMapEmpty<
 		return undefined;
 	}
 
-	mapValues(): any {
+	mapValues<V2>(): OrderedMap<K, V2> {
+		return this as any;
+	}
+
+	updateAt(): OrderedMap<K, V> {
 		return this;
 	}
 
-	updateAt(): any {
-		return this;
-	}
-
-	toBuilder(): WithKeyValue<Tp, K, V>['builder'] {
-		return this.context.builder() as any;
+	toBuilder(): OrderedMap.Builder<K, V> {
+		return this.context.builder();
 	}
 
 	toString(): string {

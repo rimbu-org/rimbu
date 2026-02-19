@@ -3,10 +3,9 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type { OrderedMapBase } from '#map/base';
 import type { OrderedSortedMapCreators } from '#map/creators';
 
-import { List } from '@rimbu/list';
 import { SortedMap } from '@rimbu/sorted/map';
 
-import { OrderedMapContextImpl } from '#map/context';
+import { createOrderedMapContextModule } from '#map/context-factory';
 
 /**
  * A type-invariant immutable Ordered SortedMap of key type K, and value type V.
@@ -93,24 +92,7 @@ export namespace OrderedSortedMap {
 	}
 }
 
-function createContext<UK>(options?: {
-	listContext?: List.Context;
-	mapContext?: SortedMap.Context<UK>;
-}): OrderedSortedMap.Context<UK> {
-	return Object.freeze(
-		new OrderedMapContextImpl<UK>(
-			options?.listContext ?? List.defaultContext(),
-			options?.mapContext ?? SortedMap.defaultContext(),
-		),
-	) as any;
-}
-
-const _defaultContext: OrderedSortedMap.Context<any> = createContext();
-
-export const OrderedSortedMap: OrderedSortedMapCreators = Object.freeze({
-	..._defaultContext,
-	createContext,
-	defaultContext<UK>(): OrderedSortedMap.Context<UK> {
-		return _defaultContext;
-	},
-});
+export const OrderedSortedMap: OrderedSortedMapCreators =
+	createOrderedMapContextModule({
+		mapContext: SortedMap.defaultContext(),
+	}).build();

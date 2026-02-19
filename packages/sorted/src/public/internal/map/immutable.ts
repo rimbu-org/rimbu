@@ -2,7 +2,7 @@ import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { SortedMap } from '@rimbu/sorted/map';
 
 import type { SortedMapBuilder } from '#map/builder';
-import type { SortedMapContext } from '#map/context';
+import type { ContextImpl } from '#map/context-factory';
 
 import * as Arr from '@rimbu/base/arr';
 import * as Entry from '@rimbu/base/entry';
@@ -52,7 +52,7 @@ export class SortedMapEmpty<K = any, V = any>
 {
 	declare _NonEmptyType: SortedMap.NonEmpty<K, V>;
 
-	constructor(readonly context: SortedMapContext<K>) {
+	constructor(readonly context: ContextImpl<K>) {
 		super();
 	}
 
@@ -117,7 +117,7 @@ export class SortedMapEmpty<K = any, V = any>
 	}
 
 	addEntries(entries: StreamSource<readonly [K, V]>): SortedMap.NonEmpty<K, V> {
-		return this.context.from(entries);
+		return this.context.from(entries) as SortedMap.NonEmpty<K, V>;
 	}
 
 	removeKey(): SortedMap<K, V> {
@@ -161,7 +161,7 @@ export class SortedMapEmpty<K = any, V = any>
 		return this;
 	}
 
-	toBuilder(): SortedMapBuilder<K, V> {
+	toBuilder(): SortedMap.Builder<K, V> {
 		return this.context.builder();
 	}
 
@@ -183,7 +183,7 @@ export abstract class SortedMapNode<K, V>
 {
 	declare _NonEmptyType: SortedMap.NonEmpty<K, V>;
 
-	abstract get context(): SortedMapContext<K>;
+	abstract get context(): ContextImpl<K>;
 	abstract get size(): number;
 	abstract stream(options?: {
 		reversed?: boolean;
@@ -450,7 +450,7 @@ export abstract class SortedMapNode<K, V>
 
 export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
 	constructor(
-		readonly context: SortedMapContext<K>,
+		readonly context: ContextImpl<K>,
 		public entries: readonly (readonly [K, V])[],
 	) {
 		super();
@@ -676,7 +676,7 @@ export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
 
 export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 	constructor(
-		readonly context: SortedMapContext<K>,
+		readonly context: ContextImpl<K>,
 		public entries: readonly (readonly [K, V])[],
 		public children: readonly SortedMapNode<K, V>[],
 		readonly size: number,

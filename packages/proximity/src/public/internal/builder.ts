@@ -7,6 +7,8 @@ import type { HashMap } from '@rimbu/hashed/map';
 import type { ProximityMap } from '@rimbu/proximity';
 import type { StreamSource } from '@rimbu/stream';
 
+import type { ContextImpl } from '#proximity/context-factory';
+
 import { wrapHashMap } from '#proximity/wrapping';
 
 /**
@@ -23,7 +25,7 @@ export class ProximityMapBuilder<K, V> implements ProximityMap.Builder<K, V> {
 	private readonly internalBuilder: HashMap.Builder<K, V>;
 
 	constructor(
-		readonly context: ProximityMap.Context<K>,
+		readonly context: ContextImpl<K>,
 		private source?: ProximityMap.NonEmpty<K, V>,
 	) {
 		this.internalBuilder = context.hashMapContext.builder();

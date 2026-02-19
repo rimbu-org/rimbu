@@ -1,7 +1,7 @@
 import type { RelatedTo } from '@rimbu/common/types';
 import type { HashMap } from '@rimbu/hashed/map';
 
-import type { HashMapContext } from '#map/context';
+import type { ContextImpl } from '#map/context-factory';
 import type {
 	HashMapBlock,
 	HashMapCollision,
@@ -29,7 +29,7 @@ export class HashMapBlockBuilder<K, V>
 	implements HashMap.Builder<K, V>
 {
 	constructor(
-		readonly context: HashMapContext<K>,
+		readonly context: ContextImpl<K>,
 		public source?: undefined | HashMapBlock<K, V>,
 		public _entries?: undefined | (readonly [K, V])[],
 		public _entrySets?: undefined | MapBlockBuilderEntry<K, V>[],
@@ -452,7 +452,7 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
 	readonly [K, V]
 > {
 	constructor(
-		readonly context: HashMapContext<K>,
+		readonly context: ContextImpl<K>,
 		public source?: undefined | HashMapCollision<K, V>,
 		public _entries?: undefined | List.Builder<readonly [K, V]>,
 	) {

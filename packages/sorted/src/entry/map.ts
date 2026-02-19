@@ -7,7 +7,7 @@ import type { Stream, Streamable } from '@rimbu/stream';
 
 import type { SortedMapCreators } from '#map/creators';
 
-import { createSortedMapContext } from '#map/context';
+import { createSortedMapContextModule } from '@rimbu/sorted/internal/map/context-factory';
 
 /**
  * A type-invariant immutable Map of key type K, and value type V.
@@ -491,12 +491,5 @@ export namespace SortedMap {
 	}
 }
 
-const _defaultContext: SortedMap.Context<any> = createSortedMapContext();
-
-export const SortedMap: SortedMapCreators = Object.freeze({
-	..._defaultContext,
-	createContext: createSortedMapContext,
-	defaultContext<UK>(): SortedMap.Context<UK> {
-		return _defaultContext;
-	},
-});
+export const SortedMap: SortedMapCreators =
+	createSortedMapContextModule().build();

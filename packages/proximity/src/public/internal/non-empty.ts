@@ -6,6 +6,8 @@ import type { HashMap } from '@rimbu/hashed/map';
 import type { ProximityMap } from '@rimbu/proximity';
 import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
 
+import type { ContextImpl } from '#proximity/context-factory';
+
 import { OptLazy, type OptLazyOr } from '@rimbu/common/opt-lazy';
 import { findNearestKeyMatch } from '@rimbu/proximity/key-matching';
 
@@ -28,7 +30,7 @@ export class ProximityMapNonEmpty<K, V> implements ProximityMap.NonEmpty<K, V> {
 	readonly isEmpty = false;
 
 	constructor(
-		readonly context: ProximityMap.Context<K>,
+		readonly context: ContextImpl<K>,
 		private readonly internalMap: HashMap.NonEmpty<K, V>,
 	) {}
 

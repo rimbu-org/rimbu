@@ -1,6 +1,8 @@
 import type { ToJSON } from '@rimbu/common/types';
 import type { ProximityMap } from '@rimbu/proximity';
 
+import type { ContextImpl } from '#proximity/context-factory';
+
 import { Token } from '@rimbu/base/token';
 import { EmptyBase } from '@rimbu/collection-types/common/empty-base';
 import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
@@ -21,7 +23,7 @@ export class ProximityMapEmpty<K = any, V = any>
 {
 	declare _NonEmptyType: ProximityMap.NonEmpty<K, V>;
 
-	constructor(readonly context: ProximityMap.Context<K>) {
+	constructor(readonly context: ContextImpl<K>) {
 		super();
 	}
 
