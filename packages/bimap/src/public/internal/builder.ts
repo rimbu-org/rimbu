@@ -2,7 +2,7 @@ import type { BiMap } from '@rimbu/bimap';
 import type { RMap } from '@rimbu/collection-types';
 import type { RelatedTo } from '@rimbu/common/types';
 
-import type { BiMapContext } from '#bimap/context';
+import type { ContextImpl } from '#bimap/context-factory';
 import type { BiMapNonEmptyImpl } from '#bimap/immutable';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
@@ -13,7 +13,7 @@ import { StreamFactory } from '@rimbu/stream/internal/factory';
 
 export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
 	constructor(
-		readonly context: BiMapContext<K, V>,
+		readonly context: ContextImpl<K, V>,
 		public source?: BiMapNonEmptyImpl<K, V>,
 	) {}
 

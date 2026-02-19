@@ -2,7 +2,7 @@ import type { BiMap } from '@rimbu/bimap';
 import type { RMap } from '@rimbu/collection-types';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 
-import type { BiMapContext } from '#bimap/context';
+import type { ContextImpl } from '#bimap/context-factory';
 
 import {
 	EmptyBase,
@@ -20,7 +20,7 @@ export class BiMapEmpty<K = any, V = any>
 {
 	declare _NonEmptyType: BiMap.NonEmpty<K, V>;
 
-	constructor(readonly context: BiMapContext<K, V>) {
+	constructor(readonly context: ContextImpl<K, V>) {
 		super();
 	}
 
@@ -65,7 +65,7 @@ export class BiMapEmpty<K = any, V = any>
 	}
 
 	addEntries(entries: StreamSource<readonly [K, V]>): BiMap.NonEmpty<K, V> {
-		return this.context.from(entries);
+		return this.context.from(entries) as BiMap.NonEmpty<K, V>;
 	}
 
 	removeKey(): this {
@@ -131,7 +131,7 @@ export class BiMapNonEmptyImpl<K, V>
 	declare _NonEmptyType: BiMap.NonEmpty<K, V>;
 
 	constructor(
-		readonly context: BiMapContext<K, V>,
+		readonly context: ContextImpl<K, V>,
 		readonly keyValueMap: RMap.NonEmpty<K, V>,
 		readonly valueKeyMap: RMap.NonEmpty<V, K>,
 	) {

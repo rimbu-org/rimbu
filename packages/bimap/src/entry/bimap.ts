@@ -13,9 +13,7 @@ import type {
 
 import type { BiMapCreators, BiMapFactory } from '#bimap/factory';
 
-import { HashMap } from '@rimbu/hashed/map';
-
-import { BiMapContext } from '#bimap/context';
+import { createBiMapContextModule } from '@rimbu/bimap/internal/context-factory';
 
 /**
  * A type-invariant immutable bi-directional Map where keys and values have a one-to-one mapping.
@@ -782,24 +780,26 @@ export namespace BiMap {
 	}
 }
 
-function createContext<UK, UV>(options?: {
-	keyValueContext?: RMap.Context<UK>;
-	valueKeyContext?: RMap.Context<UV>;
-}): BiMap.Context<UK, UV> {
-	return Object.freeze(
-		new BiMapContext<UK, UV>(
-			options?.keyValueContext ?? HashMap.defaultContext(),
-			options?.valueKeyContext ?? HashMap.defaultContext(),
-		),
-	);
-}
+// function createContext<UK, UV>(options?: {
+// 	keyValueContext?: RMap.Context<UK>;
+// 	valueKeyContext?: RMap.Context<UV>;
+// }): BiMap.Context<UK, UV> {
+// 	return Object.freeze(
+// 		new BiMapContext<UK, UV>(
+// 			options?.keyValueContext ?? HashMap.defaultContext(),
+// 			options?.valueKeyContext ?? HashMap.defaultContext(),
+// 		),
+// 	);
+// }
 
-const _defaultContext: BiMap.Context<any, any> = createContext();
+// const _defaultContext: BiMap.Context<any, any> = createContext();
 
-export const BiMap: BiMapCreators = Object.freeze({
-	..._defaultContext,
-	createContext,
-	defaultContext<UK, UV>(): BiMap.Context<UK, UV> {
-		return _defaultContext;
-	},
-});
+// export const BiMap: BiMapCreators = Object.freeze({
+// 	..._defaultContext,
+// 	createContext,
+// 	defaultContext<UK, UV>(): BiMap.Context<UK, UV> {
+// 		return _defaultContext;
+// 	},
+// });
+
+export const BiMap: BiMapCreators = createBiMapContextModule().build();
