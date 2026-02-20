@@ -93,6 +93,5 @@ export namespace OrderedMapBase {
 		readonly sourceContext: RMap.Context<this['_K']>;
 		readonly sourceMap: RMap<this['_K'], this['_V']>;
 		readonly sourceMapNonEmpty: RMap.NonEmpty<this['_K'], this['_V']>;
-		readonly sourceBuilder: RMap.Builder<this['_K'], this['_V']>;
 	}
 }

@@ -1,27 +1,21 @@
+import type { BiMultiMap } from '@rimbu/bimultimap';
 import type { RSet } from '@rimbu/collection-types';
-import type { WithKeyValue } from '@rimbu/collection-types/common';
 import type { RelatedTo } from '@rimbu/common/types';
 import type { MultiMap } from '@rimbu/multimap';
 
 import type { BiMultiMapBase } from '#bimultimap/base';
-import type { ContextTypesImpl } from '#bimultimap/context';
+import type { ContextImpl } from '#bimultimap/context-factory';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export class BiMultiMapBuilder<
-	K,
-	V,
-	Tp extends ContextTypesImpl,
-	TpG extends WithKeyValue<Tp, K, V> = WithKeyValue<Tp, K, V>,
-> implements BiMultiMapBase.Builder<K, V, Tp>
-{
+export class BiMultiMapBuilder<K, V> implements BiMultiMapBase.Builder<K, V> {
 	_lock = 0;
 
 	constructor(
-		readonly context: TpG['context'],
-		public source?: TpG['nonEmpty'],
+		readonly context: ContextImpl<K, V>,
+		public source?: BiMultiMap.NonEmpty<K, V>,
 	) {}
 
 	_keyValueMultiMap?: MultiMap.Builder<K, V>;
@@ -68,12 +62,10 @@ export class BiMultiMapBuilder<
 		return this.size === 0;
 	}
 
-	// prettier-ignore
 	hasKey = <UK = K>(key: RelatedTo<K, UK>): boolean => {
 		return this.source?.hasKey(key) ?? this.keyValueMultiMap.hasKey(key);
 	};
 
-	// prettier-ignore
 	hasValue = <UV = V>(value: RelatedTo<V, UV>): boolean => {
 		return this.source?.hasValue(value) ?? this.valueKeyMultiMap.hasKey(value);
 	};
@@ -84,46 +76,24 @@ export class BiMultiMapBuilder<
 	): boolean => {
 		return (
 			this.source?.hasEntry(key, value) ??
-			this.keyValueMultiMap.hasEntry(key, value as any)
+			this.keyValueMultiMap.hasEntry(key, value as V)
 		);
 	};
 
-	// prettier-ignore
-	getValues = <UK = K>(
-		key: RelatedTo<K, UK>,
-	): WithKeyValue<Tp, K, V>['keyMultiMapValues'] => {
+	getValues = <UK = K>(key: RelatedTo<K, UK>): RSet<V> => {
 		if (undefined !== this.source) {
-			return this.source.getValues(key) as WithKeyValue<
-				Tp,
-				K,
-				V
-			>['keyMultiMapValues'];
+			return this.source.getValues(key);
 		}
 
-		return this.keyValueMultiMap.getValues(key) as WithKeyValue<
-			Tp,
-			K,
-			V
-		>['keyMultiMapValues'];
+		return this.keyValueMultiMap.getValues(key);
 	};
 
-	// prettier-ignore
-	getKeys = <UV = V>(
-		value: RelatedTo<V, UV>,
-	): WithKeyValue<Tp, K, V>['valueMultiMapValues'] => {
+	getKeys = <UV = V>(value: RelatedTo<V, UV>): RSet<K> => {
 		if (undefined !== this.source) {
-			return this.source.getKeys(value) as WithKeyValue<
-				Tp,
-				K,
-				V
-			>['valueMultiMapValues'];
+			return this.source.getKeys(value);
 		}
 
-		return this.valueKeyMultiMap.getValues(value) as WithKeyValue<
-			Tp,
-			K,
-			V
-		>['valueMultiMapValues'];
+		return this.valueKeyMultiMap.getValues(value);
 	};
 
 	setValues = (key: K, values: StreamSource<V>): boolean => {
@@ -160,11 +130,10 @@ export class BiMultiMapBuilder<
 		return Stream.applyFilter(entries, { pred: this.add }).count() > 0;
 	};
 
-	// prettier-ignore
 	removeKey = <UK = K>(key: RelatedTo<K, UK>): boolean => {
 		this.checkLock();
 
-		const values = this.getValues(key) as RSet<V>;
+		const values = this.getValues(key);
 
 		if (values.isEmpty) return false;
 
@@ -177,18 +146,16 @@ export class BiMultiMapBuilder<
 		);
 	};
 
-	// prettier-ignore
 	removeKeys = <UK = K>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
 		this.checkLock();
 
 		return Stream.from(keys).filterPure({ pred: this.removeKey }).count() > 0;
 	};
 
-	// prettier-ignore
 	removeValue = <UV = V>(value: RelatedTo<V, UV>): boolean => {
 		this.checkLock();
 
-		const keys = this.getKeys(value) as RSet<K>;
+		const keys = this.getKeys(value);
 
 		if (keys.isEmpty) return false;
 
@@ -201,7 +168,6 @@ export class BiMultiMapBuilder<
 		);
 	};
 
-	// prettier-ignore
 	removeValues = <UV = V>(values: StreamSource<RelatedTo<V, UV>>): boolean => {
 		this.checkLock();
 
@@ -244,19 +210,16 @@ export class BiMultiMapBuilder<
 		this._lock--;
 	};
 
-	build = (): WithKeyValue<Tp, K, V>['normal'] => {
+	build = (): BiMultiMap<K, V> => {
 		if (undefined !== this.source) return this.source;
 
 		if (this.isEmpty) {
-			return this.context.empty() as WithKeyValue<Tp, K, V>['normal'];
+			return this.context.empty();
 		}
 
 		const keyValueMultiMap = this.keyValueMultiMap.build().assumeNonEmpty();
 		const valueKeyMultiMap = this.valueKeyMultiMap.build().assumeNonEmpty();
 
-		return this.context.createNonEmpty(
-			keyValueMultiMap,
-			valueKeyMultiMap,
-		) as WithKeyValue<Tp, K, V>['normal'];
+		return this.context.createNonEmpty(keyValueMultiMap, valueKeyMultiMap);
 	};
 }

@@ -1,4 +1,3 @@
-import type { RMap } from '@rimbu/collection-types';
 import type { Stream, Streamable } from '@rimbu/stream';
 
 import type { OrderedMapBase } from '#map/base';
@@ -81,9 +80,6 @@ export namespace OrderedMap {
 		readonly nonEmpty: OrderedMap.NonEmpty<this['_K'], this['_V']>;
 		readonly context: OrderedMap.Context<this['_K']>;
 		readonly builder: OrderedMap.Builder<this['_K'], this['_V']>;
-		readonly sourceContext: RMap.Context<this['_K']>;
-		readonly sourceMap: RMap<this['_K'], this['_V']>;
-		readonly sourceMapNonEmpty: RMap.NonEmpty<this['_K'], this['_V']>;
 	}
 }
 

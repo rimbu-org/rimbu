@@ -110,7 +110,7 @@ export function createSortedMapContextModule<UK>(
 		...builderModule(mod),
 
 		createContext: (options) =>
-			createSortedMapContextModule(options, mod.defaultContext()).build(),
+			createSortedMapContextModule(options, mod as ContextImpl<any>).build(),
 		defaultContext: Module.lazy<any>(() => _defaultContext ?? mod),
 
 		typeTag: 'SortedMap',

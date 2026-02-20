@@ -14,7 +14,7 @@ import { StreamFactory } from '@rimbu/stream/internal/factory';
 
 export class OrderedMapEmpty<K = any, V = any>
 	extends EmptyBase
-	implements OrderedMapBase<K, V, OrderedMapBase.Types>
+	implements OrderedMapBase<K, V>
 {
 	declare _NonEmptyType: OrderedMap.NonEmpty<K, V>;
 

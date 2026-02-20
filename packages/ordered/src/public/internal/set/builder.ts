@@ -56,7 +56,6 @@ export class OrderedSetBuilder<T> implements OrderedSetBase.Builder<T> {
 		return this.size === 0;
 	}
 
-	// prettier-ignore
 	has = <U>(value: RelatedTo<T, U>): boolean => {
 		return this.source?.has(value) ?? this.setBuilder.has(value);
 	};
@@ -80,7 +79,6 @@ export class OrderedSetBuilder<T> implements OrderedSetBase.Builder<T> {
 		return Stream.from(source).filterPure({ pred: this.add }).count() > 0;
 	};
 
-	// prettier-ignore
 	remove = <U>(value: RelatedTo<T, U>): boolean => {
 		this.checkLock();
 
@@ -104,7 +102,6 @@ export class OrderedSetBuilder<T> implements OrderedSetBase.Builder<T> {
 		return changed;
 	};
 
-	// prettier-ignore
 	removeAll = <U>(values: StreamSource<RelatedTo<T, U>>): boolean => {
 		this.checkLock();
 
@@ -131,7 +128,7 @@ export class OrderedSetBuilder<T> implements OrderedSetBase.Builder<T> {
 	};
 
 	build = (): OrderedSet<T> => {
-		if (undefined !== this.source) return this.source as any;
+		if (undefined !== this.source) return this.source;
 		if (this.size === 0) return this.context.empty();
 
 		const order = this.orderBuilder.build().assumeNonEmpty();

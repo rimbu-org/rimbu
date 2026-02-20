@@ -103,7 +103,7 @@ export function createSortedSetContextModule<UT>(
 		...builderModule(mod),
 
 		createContext: (options) =>
-			createSortedSetContextModule(options, mod.defaultContext()).build(),
+			createSortedSetContextModule(options, mod).build(),
 		defaultContext: Module.lazy<any>(() => _defaultContext ?? mod),
 
 		typeTag: 'SortedSet',

@@ -30,10 +30,14 @@ export interface OrderedHashSetCreators
 	 * - listContext: (optional) the list context to use for element ordering<br/>
 	 * - setContext: (optional) the set context to use for element sets
 	 */
-	createContext<UT>(options?: {
-		listContext?: List.Context;
-		setContext?: HashSet.Context<UT>;
-	}): OrderedHashSet.Context<UT>;
+	createContext<UT>(
+		options?:
+			| {
+					listContext?: List.Context;
+					setContext?: HashSet.Context<UT>;
+			  }
+			| undefined,
+	): OrderedHashSet.Context<UT>;
 	/**
 	 * Returns the default context for OrderedHashSets.
 	 * @typeparam UT - the upper element type for which the context can create instances
@@ -50,10 +54,14 @@ export interface OrderedSortedSetCreators
 	 * - listContext: (optional) the list context to use for element ordering<br/>
 	 * - setContext: (optional) the set context to use for element sets
 	 */
-	createContext<UT>(options?: {
-		listContext?: List.Context;
-		setContext?: SortedSet.Context<UT>;
-	}): OrderedSortedSet.Context<UT>;
+	createContext<UT>(
+		options?:
+			| {
+					listContext?: List.Context;
+					setContext?: SortedSet.Context<UT>;
+			  }
+			| undefined,
+	): OrderedSortedSet.Context<UT>;
 	/**
 	 * Returns the default context for OrderedSortedSet.
 	 * @typeparam UT - the upper element type for which the context can create instances

@@ -29,7 +29,7 @@ export class OrderedSetNonEmpty<T>
 		return this.order.length;
 	}
 
-	asNormal(): any {
+	asNormal(): this {
 		return this;
 	}
 
@@ -38,7 +38,7 @@ export class OrderedSetNonEmpty<T>
 	}
 
 	copy(order = this.order, sourceSet = this.sourceSet): OrderedSet.NonEmpty<T> {
-		return this.context.createNonEmpty<T>(order, sourceSet as any);
+		return this.context.createNonEmpty<T>(order, sourceSet);
 	}
 
 	stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
@@ -50,12 +50,12 @@ export class OrderedSetNonEmpty<T>
 	}
 
 	add(value: T): OrderedSet.NonEmpty<T> {
-		if (this.sourceSet.has(value)) return this as any;
+		if (this.sourceSet.has(value)) return this;
 		return this.copy(this.order.append(value), this.sourceSet.add(value));
 	}
 
 	addAll(values: StreamSource<T>): OrderedSet.NonEmpty<T> {
-		if (StreamFactory().isEmptyStreamSourceInstance(values)) return this as any;
+		if (StreamFactory().isEmptyStreamSourceInstance(values)) return this;
 
 		const builder = this.toBuilder();
 		builder.addAll(values);
@@ -63,25 +63,22 @@ export class OrderedSetNonEmpty<T>
 	}
 
 	remove<U>(value: RelatedTo<T, U>): OrderedSet<T> {
-		if (!this.context.setContext.isValidValue(value)) return this as any;
+		if (!this.context.setContext.isValidValue(value)) return this;
 
 		const newSet = this.sourceSet.remove(value);
 
-		if (newSet === this.sourceSet) return this as any;
+		if (newSet === this.sourceSet) return this;
 
 		if (newSet.nonEmpty()) {
-			const index = this.order.stream().indexOf(value as T)!;
-			return this.copy(
-				this.order.remove(index).assumeNonEmpty(),
-				newSet,
-			) as any;
+			const index = this.order.stream().indexOf(value)!;
+			return this.copy(this.order.remove(index).assumeNonEmpty(), newSet);
 		}
 
 		return this.context.empty();
 	}
 
 	removeAll<U>(values: StreamSource<RelatedTo<T, U>>): OrderedSet<T> {
-		if (StreamFactory().isEmptyStreamSourceInstance(values)) return this as any;
+		if (StreamFactory().isEmptyStreamSourceInstance(values)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeAll(values);
@@ -109,8 +106,8 @@ export class OrderedSetNonEmpty<T>
 	}
 
 	union(other: StreamSource<T>): OrderedSet.NonEmpty<T> {
-		if (other === this) return this as any;
-		if (StreamFactory().isEmptyStreamSourceInstance(other)) return this as any;
+		if (other === this) return this;
+		if (StreamFactory().isEmptyStreamSourceInstance(other)) return this;
 
 		const builder = this.toBuilder();
 		builder.addAll(other);
@@ -119,7 +116,7 @@ export class OrderedSetNonEmpty<T>
 
 	difference(other: StreamSource<T>): OrderedSet<T> {
 		if (other === this) return this.context.empty();
-		if (StreamFactory().isEmptyStreamSourceInstance(other)) return this as any;
+		if (StreamFactory().isEmptyStreamSourceInstance(other)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeAll(other);
@@ -127,7 +124,7 @@ export class OrderedSetNonEmpty<T>
 	}
 
 	intersect(other: StreamSource<T>): OrderedSet<T> {
-		if (other === this) return this as any;
+		if (other === this) return this;
 		if (StreamFactory().isEmptyStreamSourceInstance(other))
 			return this.context.empty();
 
@@ -141,7 +138,7 @@ export class OrderedSetNonEmpty<T>
 			if (this.has(value)) builder.add(value);
 		}
 
-		if (builder.size === this.size) return this as any;
+		if (builder.size === this.size) return this;
 
 		return builder.build();
 	}
@@ -149,7 +146,7 @@ export class OrderedSetNonEmpty<T>
 	symDifference(other: StreamSource<T>): OrderedSet<T> {
 		if (other === this) return this.context.empty();
 
-		if (StreamFactory().isEmptyStreamSourceInstance(other)) return this as any;
+		if (StreamFactory().isEmptyStreamSourceInstance(other)) return this;
 
 		const builder = this.toBuilder();
 

@@ -4,9 +4,8 @@ import type { Streamable } from '@rimbu/stream';
 
 import type { BiMultiMapBase } from '#bimultimap/base';
 
+import { createBiMultiMapContextModule } from '@rimbu/bimultimap/internal/context-factory';
 import { SortedMultiMapSortedValue } from '@rimbu/multimap/sorted-key/sorted-value';
-
-import { BiMultiMapContext } from '#bimultimap/context';
 
 /**
  * A type-invariant immutable bi-directional MultiMap where keys and values have a
@@ -95,27 +94,9 @@ export namespace SortedBiMultiMap {
 	}
 }
 
-function createContext<K, V>(options?: {
-	keyValueMultiMapContext?: SortedMultiMapSortedValue.Context<K, V>;
-	valueKeyMultiMapContext?: SortedMultiMapSortedValue.Context<V, K>;
-}): SortedBiMultiMap.Context<K, V> {
-	return Object.freeze(
-		new BiMultiMapContext<K, V, 'SortedBiMultiMap', any>(
-			'SortedBiMultiMap',
-			options?.keyValueMultiMapContext ??
-				SortedMultiMapSortedValue.defaultContext(),
-			options?.valueKeyMultiMapContext ??
-				SortedMultiMapSortedValue.defaultContext(),
-		),
-	);
-}
-
-const _defaultContext: SortedBiMultiMap.Context<any, any> = createContext();
-
-export const SortedBiMultiMap: BiMultiMapSorted.Creators = Object.freeze({
-	..._defaultContext,
-	createContext,
-	defaultContext<UK, UV>(): SortedBiMultiMap.Context<UK, UV> {
-		return _defaultContext;
-	},
-});
+export const SortedBiMultiMap: BiMultiMapSorted.Creators =
+	createBiMultiMapContextModule({
+		keyValueMultiMapContext: SortedMultiMapSortedValue.defaultContext(),
+		valueKeyMultiMapContext: SortedMultiMapSortedValue.defaultContext(),
+		typeTag: 'SortedBiMultiMap',
+	}).build();

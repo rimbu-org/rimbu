@@ -1,9 +1,11 @@
-import type { WithKeyValue } from '@rimbu/collection-types/common';
+import type { BiMultiMap } from '@rimbu/bimultimap';
+import type { RSet } from '@rimbu/collection-types';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { RelatedTo, ToJSON } from '@rimbu/common/types';
+import type { MultiMap } from '@rimbu/multimap';
 
 import type { BiMultiMapBase } from '#bimultimap/base';
-import type { ContextTypesImpl } from '#bimultimap/context';
+import type { ContextImpl } from '#bimultimap/context-factory';
 
 import {
 	EmptyBase,
@@ -11,21 +13,21 @@ import {
 } from '@rimbu/collection-types/common/empty-base';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export class BiMultiMapEmpty<K, V, Tp extends ContextTypesImpl>
+export class BiMultiMapEmpty<K, V>
 	extends EmptyBase
-	implements BiMultiMapBase<K, V, Tp>
+	implements BiMultiMapBase<K, V>
 {
-	declare _NonEmptyType: WithKeyValue<Tp, K, V>['nonEmpty'];
+	declare _NonEmptyType: BiMultiMap.NonEmpty<K, V>;
 
-	constructor(readonly context: WithKeyValue<Tp, K, V>['context']) {
+	constructor(readonly context: ContextImpl<K, V>) {
 		super();
 	}
 
-	get keyValueMultiMap(): WithKeyValue<Tp, K, V>['keyValueMultiMap'] {
+	get keyValueMultiMap(): MultiMap<K, V> {
 		return this.context.keyValueMultiMapContext.empty();
 	}
 
-	get valueKeyMultiMap(): WithKeyValue<Tp, K, V>['valueKeyMultiMap'] {
+	get valueKeyMultiMap(): MultiMap<V, K> {
 		return this.context.valueKeyMultiMapContext.empty();
 	}
 
@@ -53,64 +55,61 @@ export class BiMultiMapEmpty<K, V, Tp extends ContextTypesImpl>
 		return false;
 	}
 
-	add(key: K, value: V): WithKeyValue<Tp, K, V>['nonEmpty'] {
-		return this.context.createNonEmpty<K, V>(
+	add(key: K, value: V): BiMultiMap.NonEmpty<K, V> {
+		return this.context.createNonEmpty(
 			this.context.keyValueMultiMapContext.of([key, value]),
 			this.context.valueKeyMultiMapContext.of([value, key]),
-		) as WithKeyValue<Tp, K, V>['nonEmpty'];
+		);
 	}
 
 	addEntries(
 		entries: StreamSource<readonly [K, V]>,
-	): WithKeyValue<Tp, K, V>['nonEmpty'] {
-		return this.context.from(entries) as WithKeyValue<Tp, K, V>['nonEmpty'];
+	): BiMultiMap.NonEmpty<K, V> {
+		return this.context.from(entries) as BiMultiMap.NonEmpty<K, V>;
 	}
 
-	setValues(
-		key: K,
-		values: StreamSource<V>,
-	): WithKeyValue<Tp, K, V>['nonEmpty'] {
+	setValues(key: K, values: StreamSource<V>): BiMultiMap.NonEmpty<K, V> {
 		return this.context.from<K, V>(
 			Stream.from(values).map((value) => [key, value]),
-		) as WithKeyValue<Tp, K, V>['nonEmpty'];
+		) as BiMultiMap.NonEmpty<K, V>;
 	}
 
-	setKeys(value: V, keys: StreamSource<K>): WithKeyValue<Tp, K, V>['nonEmpty'] {
+	setKeys(value: V, keys: StreamSource<K>): BiMultiMap.NonEmpty<K, V> {
 		return this.context.from<K, V>(
 			Stream.from(keys).map((key) => [key, value]),
-		) as WithKeyValue<Tp, K, V>['nonEmpty'];
+		) as BiMultiMap.NonEmpty<K, V>;
 	}
 
-	getValues(): WithKeyValue<Tp, K, V>['keyMultiMapValues'] {
+	getValues(): RSet<V> {
 		return this.context.keyValueMultiMapContext.keyMapValuesContext.empty();
 	}
 
-	getKeys(): WithKeyValue<Tp, K, V>['valueMultiMapValues'] {
+	getKeys(): RSet<K> {
 		return this.context.valueKeyMultiMapContext.keyMapValuesContext.empty();
 	}
 
-	removeKey(): WithKeyValue<Tp, K, V>['normal'] {
-		return this as WithKeyValue<Tp, K, V>['normal'];
+	removeKey(): BiMultiMap<K, V> {
+		return this;
 	}
 
-	removeKeys(): WithKeyValue<Tp, K, V>['normal'] {
-		return this as WithKeyValue<Tp, K, V>['normal'];
+	removeKeys(): BiMultiMap<K, V> {
+		return this;
 	}
 
-	removeEntry(): WithKeyValue<Tp, K, V>['normal'] {
-		return this as WithKeyValue<Tp, K, V>['normal'];
+	removeEntry(): BiMultiMap<K, V> {
+		return this;
 	}
 
-	removeEntries(): WithKeyValue<Tp, K, V>['normal'] {
-		return this as WithKeyValue<Tp, K, V>['normal'];
+	removeEntries(): BiMultiMap<K, V> {
+		return this;
 	}
 
-	removeValue(): WithKeyValue<Tp, K, V>['normal'] {
-		return this as WithKeyValue<Tp, K, V>['normal'];
+	removeValue(): BiMultiMap<K, V> {
+		return this;
 	}
 
-	removeValues(): WithKeyValue<Tp, K, V>['normal'] {
-		return this as WithKeyValue<Tp, K, V>['normal'];
+	removeValues(): BiMultiMap<K, V> {
+		return this;
 	}
 
 	toString(): string {
@@ -124,26 +123,21 @@ export class BiMultiMapEmpty<K, V, Tp extends ContextTypesImpl>
 		};
 	}
 
-	toBuilder(): WithKeyValue<Tp, K, V>['builder'] {
+	toBuilder(): BiMultiMap.Builder<K, V> {
 		return this.context.builder();
 	}
 }
 
-export class BiMultiMapNonEmpty<
-		K,
-		V,
-		Tp extends ContextTypesImpl,
-		TpG extends WithKeyValue<Tp, K, V> = WithKeyValue<Tp, K, V>,
-	>
+export class BiMultiMapNonEmpty<K, V>
 	extends NonEmptyBase<[K, V]>
-	implements BiMultiMapBase.NonEmpty<K, V, Tp>
+	implements BiMultiMapBase.NonEmpty<K, V>
 {
-	declare _NonEmptyType: TpG['nonEmpty'];
+	declare _NonEmptyType: BiMultiMap.NonEmpty<K, V>;
 
 	constructor(
-		readonly context: WithKeyValue<Tp, K, V>['context'],
-		readonly keyValueMultiMap: TpG['keyValueMultiMapNonEmpty'],
-		readonly valueKeyMultiMap: TpG['valueKeyMultiMapNonEmpty'],
+		readonly context: ContextImpl<K, V>,
+		readonly keyValueMultiMap: MultiMap.NonEmpty<K, V>,
+		readonly valueKeyMultiMap: MultiMap.NonEmpty<V, K>,
 	) {
 		super();
 	}
@@ -191,59 +185,52 @@ export class BiMultiMapNonEmpty<
 		return this.hasKey(key) && this.hasValue(value);
 	}
 
-	add(key: K, value: V): WithKeyValue<Tp, K, V>['nonEmpty'] {
+	add(key: K, value: V): BiMultiMap.NonEmpty<K, V> {
 		const newKeyValueMultiMap = this.keyValueMultiMap.add(key, value);
 
-		if (newKeyValueMultiMap === this.keyValueMultiMap) return this as any;
+		if (newKeyValueMultiMap === this.keyValueMultiMap) return this;
 
 		const newValueKeyMultiMap = this.valueKeyMultiMap.add(value, key);
 
 		return this.context.createNonEmpty<K, V>(
 			newKeyValueMultiMap,
 			newValueKeyMultiMap,
-		) as WithKeyValue<Tp, K, V>['nonEmpty'];
+		);
 	}
 
 	addEntries(
 		entries: StreamSource<readonly [K, V]>,
-	): WithKeyValue<Tp, K, V>['nonEmpty'] {
+	): BiMultiMap.NonEmpty<K, V> {
 		const builder = this.toBuilder();
 		builder.addEntries(entries);
-		return builder.build() as WithKeyValue<Tp, K, V>['nonEmpty'];
+		return builder.build().assumeNonEmpty();
 	}
 
-	setValues(
-		key: K,
-		values: StreamSource<V>,
-	): WithKeyValue<Tp, K, V>['nonEmpty'] {
+	setValues(key: K, values: StreamSource<V>): BiMultiMap.NonEmpty<K, V> {
 		const builder = this.toBuilder();
 		builder.setValues(key, values);
-		return builder.build() as WithKeyValue<Tp, K, V>['nonEmpty'];
+		return builder.build().assumeNonEmpty();
 	}
 
-	setKeys(value: V, keys: StreamSource<K>): WithKeyValue<Tp, K, V>['nonEmpty'] {
+	setKeys(value: V, keys: StreamSource<K>): BiMultiMap.NonEmpty<K, V> {
 		const builder = this.toBuilder();
 		builder.setKeys(value, keys);
-		return builder.build() as WithKeyValue<Tp, K, V>['nonEmpty'];
+		return builder.build().assumeNonEmpty();
 	}
 
-	getValues<UK = K>(
-		key: RelatedTo<K, UK>,
-	): WithKeyValue<Tp, K, V>['keyMultiMapValues'] {
-		return this.keyValueMultiMap.getValues(key) as any;
+	getValues<UK = K>(key: RelatedTo<K, UK>): RSet<V> {
+		return this.keyValueMultiMap.getValues(key);
 	}
 
-	getKeys<UV = V>(
-		value: RelatedTo<V, UV>,
-	): WithKeyValue<Tp, K, V>['valueMultiMapValues'] {
-		return this.valueKeyMultiMap.getValues(value) as any;
+	getKeys<UV = V>(value: RelatedTo<V, UV>): RSet<K> {
+		return this.valueKeyMultiMap.getValues(value);
 	}
 
-	removeKey<UK = K>(key: RelatedTo<K, UK>): WithKeyValue<Tp, K, V>['normal'] {
+	removeKey<UK = K>(key: RelatedTo<K, UK>): BiMultiMap<K, V> {
 		const result = this.keyValueMultiMap.removeKeyAndGet(key);
 
 		if (undefined === result) {
-			return this as WithKeyValue<Tp, K, V>['normal'];
+			return this;
 		}
 
 		const [newKeyValueMultiMap, oldValues] = result;
@@ -257,25 +244,21 @@ export class BiMultiMapNonEmpty<
 		return this.context.createNonEmpty<K, V>(
 			newKeyValueMultiMap,
 			newValueKeyMultiMap,
-		) as WithKeyValue<Tp, K, V>['normal'];
+		);
 	}
 
-	removeKeys<UK = K>(
-		keys: StreamSource<RelatedTo<K, UK>>,
-	): WithKeyValue<Tp, K, V>['normal'] {
+	removeKeys<UK = K>(keys: StreamSource<RelatedTo<K, UK>>): BiMultiMap<K, V> {
 		const builder = this.toBuilder();
 
 		builder.removeKeys(keys);
 		return builder.build();
 	}
 
-	removeValue<UV = V>(
-		value: RelatedTo<V, UV>,
-	): WithKeyValue<Tp, K, V>['normal'] {
+	removeValue<UV = V>(value: RelatedTo<V, UV>): BiMultiMap<K, V> {
 		const result = this.valueKeyMultiMap.removeKeyAndGet(value);
 
 		if (undefined === result) {
-			return this as WithKeyValue<Tp, K, V>['normal'];
+			return this;
 		}
 
 		const [newValueKeyMultiMap, oldKeys] = result;
@@ -289,41 +272,37 @@ export class BiMultiMapNonEmpty<
 		return this.context.createNonEmpty<K, V>(
 			newKeyValueMultiMap,
 			newValueKeyMultiMap,
-		) as WithKeyValue<Tp, K, V>['normal'];
+		);
 	}
 
 	removeValues<UV = V>(
 		values: StreamSource<RelatedTo<V, UV>>,
-	): WithKeyValue<Tp, K, V>['normal'] {
+	): BiMultiMap<K, V> {
 		const builder = this.toBuilder();
 
 		builder.removeValues(values);
 		return builder.build();
 	}
 
-	removeEntry<UK = K>(
-		key: RelatedTo<K, UK>,
-		value: V,
-	): WithKeyValue<Tp, K, V>['normal'] {
+	removeEntry<UK = K>(key: RelatedTo<K, UK>, value: V): BiMultiMap<K, V> {
 		const newKeyValueMultiMap = this.keyValueMultiMap.removeEntry(key, value);
 
-		if (newKeyValueMultiMap === this.keyValueMultiMap)
-			return this as WithKeyValue<Tp, K, V>['normal'];
+		if (newKeyValueMultiMap === this.keyValueMultiMap) return this;
 		if (!newKeyValueMultiMap.nonEmpty()) return this.context.empty();
 
 		const newValueKeyMultiMap = this.valueKeyMultiMap
-			.removeEntry(value, key as any)
+			.removeEntry(value, key as K)
 			.assumeNonEmpty();
 
 		return this.context.createNonEmpty<K, V>(
 			newKeyValueMultiMap,
 			newValueKeyMultiMap,
-		) as WithKeyValue<Tp, K, V>['normal'];
+		);
 	}
 
 	removeEntries<UK = K>(
 		entries: StreamSource<[RelatedTo<K, UK>, V]>,
-	): WithKeyValue<Tp, K, V>['normal'] {
+	): BiMultiMap<K, V> {
 		const builder = this.toBuilder();
 		builder.removeEntries(entries);
 		return builder.build();
@@ -339,14 +318,14 @@ export class BiMultiMapNonEmpty<
 	filter(
 		pred: (entry: [K, V], index: number, halt: () => void) => boolean,
 		options: { negate?: boolean } = {},
-	): WithKeyValue<Tp, K, V>['normal'] {
+	): BiMultiMap<K, V> {
 		const builder = this.context.builder<K, V>();
 
 		builder.addEntries(this.stream().filter(pred, options));
 
-		if (builder.size === this.size) return this as any;
+		if (builder.size === this.size) return this;
 
-		return builder.build() as WithKeyValue<Tp, K, V>['normal'];
+		return builder.build();
 	}
 
 	toArray(): [K, V][] {
@@ -374,11 +353,7 @@ export class BiMultiMapNonEmpty<
 		};
 	}
 
-	toBuilder(): WithKeyValue<Tp, K, V>['builder'] {
-		return this.context.createBuilder<K, V>(this as any) as WithKeyValue<
-			Tp,
-			K,
-			V
-		>['builder'];
+	toBuilder(): BiMultiMap.Builder<K, V> {
+		return this.context.createBuilder<K, V>(this);
 	}
 }

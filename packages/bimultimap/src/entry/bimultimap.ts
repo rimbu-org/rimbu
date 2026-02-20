@@ -1,10 +1,9 @@
-import type { MultiMap } from '@rimbu/multimap';
 import type { Streamable } from '@rimbu/stream';
 
 import type { BiMultiMapBase } from '#bimultimap/base';
 import type { BiMultiMapGeneric } from '#bimultimap/generic';
 
-import { BiMultiMapContext } from '#bimultimap/context';
+import { createBiMultiMapContextModule } from '@rimbu/bimultimap/internal/context-factory';
 
 /**
  * A type-invariant immutable bi-directional MultiMap where keys and values have a
@@ -57,17 +56,11 @@ export namespace BiMultiMap {
 	}
 }
 
-export const BiMultiMap: BiMultiMapGeneric.Creators = Object.freeze({
-	createContext<UK, UV>(options: {
-		keyValueMultiMapContext: MultiMap.Context<UK, UV>;
-		valueKeyMultiMapContext: MultiMap.Context<UV, UK>;
-	}): BiMultiMap.Context<UK, UV> {
-		return Object.freeze(
-			new BiMultiMapContext<UK, UV, 'BiMultiMap', any>(
-				'BiMultiMap',
-				options.keyValueMultiMapContext,
-				options.valueKeyMultiMapContext,
-			),
-		);
-	},
-});
+export const BiMultiMap: BiMultiMapGeneric.Creators =
+	Object.freeze<BiMultiMapGeneric.Creators>({
+		createContext: (options) =>
+			createBiMultiMapContextModule({
+				...options,
+				typeTag: 'BiMultiMap',
+			}).build(),
+	});

@@ -58,7 +58,6 @@ export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 		return this.size === 0;
 	}
 
-	// prettier-ignore
 	hasKey = <UK>(key: RelatedTo<K, UK>): boolean => {
 		return this.source?.hasKey(key) ?? this.mapBuilder.hasKey(key);
 	};
@@ -116,7 +115,6 @@ export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 		return removedValue;
 	};
 
-	// prettier-ignore
 	removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
 		this.checkLock();
 
@@ -129,7 +127,6 @@ export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 		);
 	};
 
-	// prettier-ignore
 	updateAt = <O>(key: K, update: Update<V>, otherwise?: OptLazy<O>): V | O => {
 		let oldValue: V;
 		let found = false;
@@ -205,7 +202,6 @@ export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 		this._lock = false;
 	};
 
-	// prettier-ignore
 	buildMapValues = <V2>(f: (value: V, key: K) => V2): OrderedMap<K, V2> => {
 		if (undefined !== this.source) return this.source.mapValues<V2>(f) as any;
 

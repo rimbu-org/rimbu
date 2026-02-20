@@ -89,6 +89,5 @@ export namespace OrderedSetBase {
 		readonly sourceContext: RSetBase.Context<this['_T']>;
 		readonly sourceSet: RSetBase<this['_T']>;
 		readonly sourceSetNonEmpty: RSetBase.NonEmpty<this['_T']>;
-		readonly sourceBuilder: RSetBase.Builder<this['_T']>;
 	}
 }

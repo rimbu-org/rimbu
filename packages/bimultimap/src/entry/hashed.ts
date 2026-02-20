@@ -4,9 +4,8 @@ import type { Streamable } from '@rimbu/stream';
 
 import type { BiMultiMapBase } from '#bimultimap/base';
 
+import { createBiMultiMapContextModule } from '@rimbu/bimultimap/internal/context-factory';
 import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
-
-import { BiMultiMapContext } from '#bimultimap/context';
 
 /**
  * A type-invariant immutable bi-directional MultiMap where keys and values have a
@@ -70,27 +69,9 @@ export namespace HashBiMultiMap {
 	}
 }
 
-function createContext<UK, UV>(options?: {
-	keyValueMultiMapContext?: HashMultiMapHashValue.Context<UK, UV>;
-	valueKeyMultiMapContext?: HashMultiMapHashValue.Context<UV, UK>;
-}): HashBiMultiMap.Context<UK, UV> {
-	return Object.freeze(
-		new BiMultiMapContext<UK, UV, 'HashBiMultiMap', any>(
-			'HashBiMultiMap',
-			options?.keyValueMultiMapContext ??
-				HashMultiMapHashValue.defaultContext(),
-			options?.valueKeyMultiMapContext ??
-				HashMultiMapHashValue.defaultContext(),
-		),
-	);
-}
-
-const _defaultContext: HashBiMultiMap.Context<any, any> = createContext();
-
-export const HashBiMultiMap: BiMultiMapHashed.Creators = Object.freeze({
-	..._defaultContext,
-	createContext,
-	defaultContext<UK, UV>(): HashBiMultiMap.Context<UK, UV> {
-		return _defaultContext;
-	},
-});
+export const HashBiMultiMap: BiMultiMapHashed.Creators =
+	createBiMultiMapContextModule({
+		keyValueMultiMapContext: HashMultiMapHashValue.defaultContext(),
+		valueKeyMultiMapContext: HashMultiMapHashValue.defaultContext(),
+		typeTag: 'HashBiMultiMap',
+	}).build();
