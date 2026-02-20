@@ -780,26 +780,4 @@ export namespace BiMap {
 	}
 }
 
-// function createContext<UK, UV>(options?: {
-// 	keyValueContext?: RMap.Context<UK>;
-// 	valueKeyContext?: RMap.Context<UV>;
-// }): BiMap.Context<UK, UV> {
-// 	return Object.freeze(
-// 		new BiMapContext<UK, UV>(
-// 			options?.keyValueContext ?? HashMap.defaultContext(),
-// 			options?.valueKeyContext ?? HashMap.defaultContext(),
-// 		),
-// 	);
-// }
-
-// const _defaultContext: BiMap.Context<any, any> = createContext();
-
-// export const BiMap: BiMapCreators = Object.freeze({
-// 	..._defaultContext,
-// 	createContext,
-// 	defaultContext<UK, UV>(): BiMap.Context<UK, UV> {
-// 		return _defaultContext;
-// 	},
-// });
-
 export const BiMap: BiMapCreators = createBiMapContextModule().build();

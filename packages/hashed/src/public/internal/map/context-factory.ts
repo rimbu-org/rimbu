@@ -123,7 +123,10 @@ export function createHashMapContextModule<UK>(
 		...builderModule(mod),
 
 		createContext: (options) =>
-			createHashMapContextModule(options, mod.defaultContext()).build(),
+			createHashMapContextModule(
+				options,
+				mod as unknown as ContextImpl<any>,
+			).build(),
 		defaultContext: Module.lazy<any>(() => _defaultContext ?? mod),
 
 		hasher: Module.lazyGetter(() => hasher ?? Hasher.defaultInstance),
