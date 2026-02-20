@@ -1,11 +1,10 @@
+import type { SortedMultiSetCreators } from '@rimbu/multiset/internal/creators';
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type { SortedMultiSetCreators } from '#multiset/creators';
 import type { MultiSetBase } from '#multiset/types';
 
+import { createMultiSetContextModule } from '@rimbu/multiset/internal/context-factory';
 import { SortedMap } from '@rimbu/sorted/map';
-
-import { MultiSetContext } from '#multiset/base';
 
 /**
  * A type-invariant immutable MultiSet of value type T.
@@ -80,19 +79,6 @@ export namespace SortedMultiSet {
 	}
 }
 
-function createContext<UT>(options?: {
-	countMapContext?: SortedMap.Context<UT>;
-}): SortedMultiSet.Context<UT> {
-	return Object.freeze(
-		new MultiSetContext<UT, 'SortedMultiSet', any>(
-			'SortedMultiSet',
-			options?.countMapContext ?? SortedMap.defaultContext(),
-		),
-	);
-}
-
-const _defaultContext: SortedMultiSet.Context<any> = createContext();
-
 /**
  * The default `SortedMultiSet` creators and context.
  *
@@ -100,10 +86,8 @@ const _defaultContext: SortedMultiSet.Context<any> = createContext();
  * See the [MultiSet documentation](https://rimbu.org/docs/collections/multiset) and the
  * [SortedMultiSet API documentation](https://rimbu.org/api/rimbu/multiset/SortedMultiSet/interface).
  */
-export const SortedMultiSet: SortedMultiSetCreators = Object.freeze({
-	..._defaultContext,
-	createContext,
-	defaultContext<UT>(): SortedMultiSet.Context<UT> {
-		return _defaultContext;
-	},
-});
+export const SortedMultiSet: SortedMultiSetCreators =
+	createMultiSetContextModule({
+		typeTag: 'SortedMultiSet',
+		countMapContext: SortedMap.defaultContext(),
+	}).build();

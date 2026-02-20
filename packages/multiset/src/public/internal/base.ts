@@ -1,7 +1,8 @@
 import type { RMap } from '@rimbu/collection-types';
-import type { Elem, WithElem } from '@rimbu/collection-types/common';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
+import type { MultiSet } from '@rimbu/multiset';
 
+import type { ContextImpl } from '#multiset/context-factory';
 import type { MultiSetBase } from '#multiset/types';
 
 import * as Arr from '@rimbu/base/arr';
@@ -13,36 +14,25 @@ import {
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { type FastIterator, Stream, type StreamSource } from '@rimbu/stream';
 import { StreamFactory } from '@rimbu/stream/internal/factory';
-import { Reducer } from '@rimbu/stream/reducer';
 
-export interface ContextImplTypes extends MultiSetBase.Types {
-	readonly context: MultiSetContext<this['_T'], string>;
-}
+export class MultiSetEmpty<T> extends EmptyBase implements MultiSetBase<T> {
+	declare _NonEmptyType: MultiSet.NonEmpty<T>;
 
-export class MultiSetEmpty<T, Tp extends ContextImplTypes>
-	extends EmptyBase
-	implements MultiSetBase<T, Tp>
-{
-	declare _NonEmptyType: WithElem<Tp, T>['nonEmpty'];
-
-	constructor(readonly context: WithElem<Tp, T>['context']) {
+	constructor(readonly context: ContextImpl<T>) {
 		super();
 	}
 
-	add(elem: T, amount?: number): WithElem<Tp, T>['nonEmpty'] {
-		if (undefined !== amount && amount <= 0) return this as any;
+	add(elem: T, amount?: number): any {
+		if (undefined !== amount && amount <= 0) return this;
 
 		const addAmount = amount ?? 1;
 
-		const countMap = this.context.countMapContext.of([
-			elem,
-			addAmount,
-		]) as WithElem<Tp, T>['countMapNonEmpty'];
+		const countMap = this.context.countMapContext.of([elem, addAmount]);
 
 		return this.context.createNonEmpty(countMap, addAmount);
 	}
 
-	get countMap(): WithElem<Tp, T>['countMap'] {
+	get countMap(): RMap<T, number> {
 		return this.context.countMapContext.empty();
 	}
 
@@ -54,41 +44,35 @@ export class MultiSetEmpty<T, Tp extends ContextImplTypes>
 		return Stream.empty();
 	}
 
-	addAll(values: StreamSource<T>): WithElem<Tp, T>['nonEmpty'] {
-		return this.context.from(values) as any;
+	addAll(values: StreamSource<T>): any {
+		return this.context.from(values);
 	}
 
-	addEntries(
-		entries: StreamSource<readonly [T, number]>,
-	): WithElem<Tp, T>['normal'] {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries))
-			return this as any;
+	addEntries(entries: StreamSource<readonly [T, number]>): MultiSet<T> {
+		if (StreamFactory().isEmptyStreamSourceInstance(entries)) return this;
 
 		const builder = this.toBuilder();
 		builder.addEntries(entries);
 		return builder.build();
 	}
 
-	remove(): WithElem<Tp, T>['normal'] {
-		return this as any;
+	remove(): this {
+		return this;
 	}
 
-	removeAllSingle(): WithElem<Tp, T>['normal'] {
-		return this as any;
+	removeAllSingle(): this {
+		return this;
 	}
 
-	removeAllEvery(): WithElem<Tp, T>['normal'] {
-		return this as any;
+	removeAllEvery(): this {
+		return this;
 	}
 
-	setCount(elem: T, amount: number): WithElem<Tp, T>['normal'] {
+	setCount(elem: T, amount: number): MultiSet<T> {
 		return this.add(elem, amount);
 	}
 
-	modifyCount(
-		value: T,
-		update: (currentCount: number) => number,
-	): WithElem<Tp, T>['normal'] {
+	modifyCount(value: T, update: (currentCount: number) => number): MultiSet<T> {
 		return this.add(value, update(0));
 	}
 
@@ -104,11 +88,11 @@ export class MultiSetEmpty<T, Tp extends ContextImplTypes>
 		//
 	}
 
-	filterEntries(): WithElem<Tp, T>['normal'] {
-		return this as any;
+	filterEntries(): any {
+		return this;
 	}
 
-	toBuilder(): WithElem<Tp, T>['builder'] {
+	toBuilder(): MultiSet.Builder<T> {
 		return this.context.builder();
 	}
 
@@ -128,19 +112,15 @@ export class MultiSetEmpty<T, Tp extends ContextImplTypes>
 	}
 }
 
-export class MultiSetNonEmpty<
-		T,
-		Tp extends ContextImplTypes,
-		TpG extends WithElem<Tp, T> = WithElem<Tp, T>,
-	>
+export class MultiSetNonEmpty<T>
 	extends NonEmptyBase<T>
-	implements MultiSetBase.NonEmpty<T, Tp>
+	implements MultiSetBase.NonEmpty<T>
 {
-	declare _NonEmptyType: TpG['nonEmpty'];
+	declare _NonEmptyType: MultiSet.NonEmpty<T>;
 
 	constructor(
-		readonly context: TpG['context'],
-		readonly countMap: TpG['countMapNonEmpty'],
+		readonly context: ContextImpl<T>,
+		readonly countMap: RMap.NonEmpty<T, number>,
 		readonly size: number,
 	) {
 		super();
@@ -150,14 +130,14 @@ export class MultiSetNonEmpty<
 		return this;
 	}
 
-	copy(countMap: TpG['countMapNonEmpty'], size: number): TpG['nonEmpty'] {
-		if (countMap === this.countMap) return this as any;
+	copy(countMap: RMap.NonEmpty<T, number>, size: number): MultiSet.NonEmpty<T> {
+		if (countMap === this.countMap) return this;
 
-		return this.context.createNonEmpty<T>(countMap as any, size);
+		return this.context.createNonEmpty<T>(countMap, size);
 	}
 
-	copyE(countMap: TpG['countMap'], size: number): TpG['normal'] {
-		if (countMap.nonEmpty()) return this.copy(countMap, size) as TpG['normal'];
+	copyE(countMap: RMap<T, number>, size: number): MultiSet<T> {
+		if (countMap.nonEmpty()) return this.copy(countMap, size);
 		return this.context.empty();
 	}
 
@@ -185,8 +165,8 @@ export class MultiSetNonEmpty<
 		return this.countMap.get(elem, 0);
 	}
 
-	add(elem: T, amount = 1): WithElem<Tp, T>['nonEmpty'] {
-		if (amount <= 0) return this as any;
+	add(elem: T, amount = 1): MultiSet.NonEmpty<T> {
+		if (amount <= 0) return this;
 
 		return this.copy(
 			this.countMap
@@ -199,24 +179,25 @@ export class MultiSetNonEmpty<
 		);
 	}
 
-	addAll(values: StreamSource<T>): TpG['nonEmpty'] {
-		if (StreamFactory().isEmptyStreamSourceInstance(values)) return this as any;
+	addAll(values: StreamSource<T>): MultiSet.NonEmpty<T> {
+		if (StreamFactory().isEmptyStreamSourceInstance(values)) return this;
 
 		const builder = this.toBuilder();
 		builder.addAll(values);
 		return builder.build().assumeNonEmpty();
 	}
 
-	addEntries(entries: StreamSource<readonly [T, number]>): TpG['nonEmpty'] {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries))
-			return this as any;
+	addEntries(
+		entries: StreamSource<readonly [T, number]>,
+	): MultiSet.NonEmpty<T> {
+		if (StreamFactory().isEmptyStreamSourceInstance(entries)) return this;
 
 		const builder = this.toBuilder();
 		builder.addEntries(entries);
 		return builder.build().assumeNonEmpty();
 	}
 
-	setCount(elem: T, amount: number): TpG['normal'] {
+	setCount(elem: T, amount: number): MultiSet<T> {
 		if (amount <= 0) return this.remove(elem);
 
 		let sizeDelta = amount;
@@ -234,10 +215,7 @@ export class MultiSetNonEmpty<
 		return this.copyE(newCountMap, this.size + sizeDelta);
 	}
 
-	modifyCount(
-		value: T,
-		update: (currentCount: number) => number,
-	): TpG['normal'] {
+	modifyCount(value: T, update: (currentCount: number) => number): MultiSet<T> {
 		let sizeDelta = 0;
 
 		const newCountMap = this.countMap
@@ -266,7 +244,7 @@ export class MultiSetNonEmpty<
 	remove<U>(
 		elem: RelatedTo<T, U>,
 		options: { amount?: number | 'ALL' } = {},
-	): TpG['normal'] {
+	): MultiSet<T> {
 		const { amount = 1 } = options;
 
 		if (!this.context.isValidElem(elem)) return this as any;
@@ -294,16 +272,16 @@ export class MultiSetNonEmpty<
 		return this.copyE(newCountMap, newSize);
 	}
 
-	removeAllSingle<U>(elems: StreamSource<RelatedTo<T, U>>): TpG['normal'] {
-		if (StreamFactory().isEmptyStreamSourceInstance(elems)) return this as any;
+	removeAllSingle<U>(elems: StreamSource<RelatedTo<T, U>>): MultiSet<T> {
+		if (StreamFactory().isEmptyStreamSourceInstance(elems)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeAllSingle(elems);
 		return builder.build();
 	}
 
-	removeAllEvery<U>(elems: StreamSource<RelatedTo<T, U>>): TpG['normal'] {
-		if (StreamFactory().isEmptyStreamSourceInstance(elems)) return this as any;
+	removeAllEvery<U>(elems: StreamSource<RelatedTo<T, U>>): MultiSet<T> {
+		if (StreamFactory().isEmptyStreamSourceInstance(elems)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeAllEvery(elems);
@@ -338,7 +316,7 @@ export class MultiSetNonEmpty<
 	filterEntries(
 		pred: (entry: readonly [T, number], index: number) => boolean,
 		options: { negate?: boolean | undefined } = {},
-	): TpG['normal'] {
+	): any {
 		const builder = this.context.builder();
 
 		Stream.applyForEach(
@@ -346,7 +324,7 @@ export class MultiSetNonEmpty<
 			builder.setCount,
 		);
 
-		if (builder.size === this.size) return this as any;
+		if (builder.size === this.size) return this;
 
 		return builder.build();
 	}
@@ -385,26 +363,18 @@ export class MultiSetNonEmpty<
 		};
 	}
 
-	toBuilder(): TpG['builder'] {
-		return new MultiSetBuilder<T, Tp>(
-			this.context,
-			this as any,
-		) as TpG['builder'];
+	toBuilder(): MultiSet.Builder<T> {
+		return new MultiSetBuilder(this.context, this);
 	}
 }
 
-export class MultiSetBuilder<
-	T,
-	Tp extends ContextImplTypes,
-	TpG extends WithElem<Tp, T> = WithElem<Tp, T>,
-> implements MultiSetBase.Builder<T, Tp>
-{
+export class MultiSetBuilder<T> implements MultiSetBase.Builder<T> {
 	_lock = 0;
 	_size = 0;
 
 	constructor(
-		readonly context: TpG['context'],
-		public source?: TpG['nonEmpty'],
+		readonly context: ContextImpl<T>,
+		public source?: MultiSet.NonEmpty<T>,
 	) {
 		if (undefined !== source) this._size = source.size;
 	}
@@ -606,124 +576,13 @@ export class MultiSetBuilder<
 		this._lock--;
 	};
 
-	build = (): TpG['normal'] => {
-		if (undefined !== this.source) return this.source as TpG['normal'];
+	build = (): MultiSet<T> => {
+		if (undefined !== this.source) return this.source;
 
 		if (this.isEmpty) return this.context.empty();
 
-		const newCountMap = this.countMap
-			.build()
-			.assumeNonEmpty() as TpG['countMapNonEmpty'];
+		const newCountMap = this.countMap.build().assumeNonEmpty();
 
-		return new MultiSetNonEmpty<T, Tp>(
-			this.context,
-			newCountMap,
-			this.size,
-		) as any;
+		return new MultiSetNonEmpty<T>(this.context, newCountMap, this.size);
 	};
-}
-
-export class MultiSetContext<
-	UT,
-	N extends string,
-	Tp extends ContextImplTypes = ContextImplTypes,
-> implements MultiSetBase.Context<UT, Tp>
-{
-	constructor(
-		readonly typeTag: N,
-		readonly countMapContext: (Tp & Elem<UT>)['countMapContext'],
-	) {}
-
-	get _types(): Tp {
-		return undefined as any;
-	}
-
-	isValidElem(elem: any): elem is UT {
-		return this.countMapContext.isValidKey(elem);
-	}
-
-	readonly _empty: WithElem<Tp, UT>['normal'] = Object.freeze(
-		new MultiSetEmpty<UT, Tp>(this as any),
-	) as any;
-
-	isNonEmptyInstance<T>(source: any): source is WithElem<Tp, T>['nonEmpty'] {
-		return source instanceof MultiSetNonEmpty;
-	}
-
-	createNonEmpty<T extends UT>(
-		countMap: WithElem<Tp, T>['countMapNonEmpty'],
-		size: number,
-	): WithElem<Tp, T>['nonEmpty'] {
-		return new MultiSetNonEmpty<T, Tp>(this as any, countMap, size) as any;
-	}
-
-	readonly empty = <T extends UT>(): WithElem<Tp, T>['normal'] => {
-		return this._empty;
-	};
-
-	readonly from: any = <T extends UT>(
-		...sources: ArrayNonEmpty<StreamSource<T>>
-	): WithElem<Tp, T>['normal'] => {
-		let builder = this.builder<T>();
-
-		let i = -1;
-		const length = sources.length;
-
-		while (++i < length) {
-			const source = sources[i];
-
-			if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
-			if (
-				builder.isEmpty &&
-				this.isNonEmptyInstance<T>(source) &&
-				source.context === (this as any)
-			) {
-				if (i === length - 1) return source;
-				builder = source.toBuilder();
-				continue;
-			}
-
-			builder.addAll(source);
-		}
-
-		return builder.build();
-	};
-
-	readonly of = <T>(
-		...values: ArrayNonEmpty<T>
-	): T extends UT ? WithElem<Tp, T>['nonEmpty'] : never => {
-		return this.from(values);
-	};
-
-	readonly builder = <T extends UT>(): WithElem<Tp, T>['builder'] => {
-		return new MultiSetBuilder<T, Tp>(this as any) as WithElem<
-			Tp,
-			T
-		>['builder'];
-	};
-
-	readonly reducer = <T extends UT>(
-		source?: StreamSource<T>,
-	): Reducer<T, WithElem<Tp, T>['normal']> => {
-		return Reducer.create(
-			() =>
-				undefined === source
-					? this.builder<T>()
-					: (this.from(source) as WithElem<Tp, T>['normal']).toBuilder(),
-			(builder, value) => {
-				builder.add(value);
-				return builder;
-			},
-			(builder) => builder.build(),
-		);
-	};
-
-	createBuilder<T extends UT>(
-		source?: WithElem<Tp, T>['nonEmpty'],
-	): WithElem<Tp, T>['builder'] {
-		return new MultiSetBuilder<T, Tp>(this as any, source) as WithElem<
-			Tp,
-			T
-		>['builder'];
-	}
 }

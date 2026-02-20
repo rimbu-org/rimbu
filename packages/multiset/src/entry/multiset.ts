@@ -4,7 +4,7 @@ import type { Streamable } from '@rimbu/stream';
 import type { MultiSetCreators } from '#multiset/creators';
 import type { MultiSetBase } from '#multiset/types';
 
-import { MultiSetContext } from '#multiset/base';
+import { createMultiSetContextModule } from '@rimbu/multiset/internal/context-factory';
 
 /**
  * A type-invariant immutable MultiSet of value type T.
@@ -61,12 +61,13 @@ export namespace MultiSet {
  * See the [MultiSet documentation](https://rimbu.org/docs/collections/multiset) and the
  * [MultiSet API documentation](https://rimbu.org/api/rimbu/multiset/MultiSet/interface).
  */
-export const MultiSet: MultiSetCreators = Object.freeze({
+export const MultiSet: MultiSetCreators = Object.freeze<MultiSetCreators>({
 	createContext<UT>(options: {
 		countMapContext: RMap.Context<UT>;
 	}): MultiSet.Context<UT> {
-		return Object.freeze(
-			new MultiSetContext<UT, 'MultiSet'>('MultiSet', options.countMapContext),
-		);
+		return createMultiSetContextModule({
+			...options,
+			typeTag: 'MultiSet',
+		}).build();
 	},
 });

@@ -4,8 +4,7 @@ import type { HashMultiSetCreators } from '#multiset/creators';
 import type { MultiSetBase } from '#multiset/types';
 
 import { HashMap } from '@rimbu/hashed/map';
-
-import { MultiSetContext } from '#multiset/base';
+import { createMultiSetContextModule } from '@rimbu/multiset/internal/context-factory';
 
 /**
  * A type-invariant immutable MultiSet of value type T.
@@ -77,19 +76,6 @@ export namespace HashMultiSet {
 	}
 }
 
-function createContext<UT>(options?: {
-	countMapContext?: HashMap.Context<UT>;
-}): HashMultiSet.Context<UT> {
-	return Object.freeze(
-		new MultiSetContext<UT, 'HashMultiSet', any>(
-			'HashMultiSet',
-			options?.countMapContext ?? HashMap.defaultContext(),
-		),
-	);
-}
-
-const _defaultContext: HashMultiSet.Context<any> = createContext();
-
 /**
  * The default `HashMultiSet` creators and context.
  *
@@ -97,10 +83,7 @@ const _defaultContext: HashMultiSet.Context<any> = createContext();
  * See the [MultiSet documentation](https://rimbu.org/docs/collections/multiset) and the
  * [HashMultiSet API documentation](https://rimbu.org/api/rimbu/multiset/HashMultiSet/interface).
  */
-export const HashMultiSet: HashMultiSetCreators = Object.freeze({
-	..._defaultContext,
-	createContext,
-	defaultContext<UT>(): HashMultiSet.Context<UT> {
-		return _defaultContext;
-	},
-});
+export const HashMultiSet: HashMultiSetCreators = createMultiSetContextModule({
+	typeTag: 'HashMultiSet',
+	countMapContext: HashMap.defaultContext(),
+}).build();
