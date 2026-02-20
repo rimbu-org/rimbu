@@ -5,8 +5,7 @@ import type { TableBase } from '#table/types';
 
 import { HashMap } from '@rimbu/hashed/map';
 import { SortedMap } from '@rimbu/sorted/map';
-
-import { TableContext } from '#table/base';
+import { createTableContextModule } from '../internal/context-factory';
 
 /**
  * A type-invariant immutable Table of row key type R, column key type C, and value type V.
@@ -91,22 +90,6 @@ export namespace SortedTableHashColumn {
 	}
 }
 
-function createContext<UR, UC>(options?: {
-	rowContext?: SortedMap.Context<UR>;
-	columnContext?: HashMap.Context<UC>;
-}): SortedTableHashColumn.Context<UR, UC> {
-	return Object.freeze(
-		new TableContext<UR, UC, 'SortedTableHashColumn', any>(
-			'SortedTableHashColumn',
-			options?.rowContext ?? SortedMap.defaultContext(),
-			options?.columnContext ?? HashMap.defaultContext(),
-		),
-	);
-}
-
-const _defaultContext: SortedTableHashColumn.Context<any, any> =
-	createContext();
-
 /**
  * The default `SortedTableHashColumn` creators and context.
  *
@@ -114,10 +97,8 @@ const _defaultContext: SortedTableHashColumn.Context<any, any> =
  * See the [SortedTableHashColumn API documentation](https://rimbu.org/api/rimbu/table/sorted-row/SortedTableHashColumn/interface).
  */
 export const SortedTableHashColumn: SortedTableHashColumnCreators =
-	Object.freeze({
-		..._defaultContext,
-		createContext,
-		defaultContext<UR, UC>(): SortedTableHashColumn.Context<UR, UC> {
-			return _defaultContext;
-		},
-	});
+	createTableContextModule({
+		typeTag: 'SortedTableHashColumn',
+		rowContext: SortedMap.defaultContext(),
+		columnContext: HashMap.defaultContext(),
+	}).build();

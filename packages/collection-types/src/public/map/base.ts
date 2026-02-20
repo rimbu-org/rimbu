@@ -400,7 +400,7 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 		options: {
 			ifNew?: OptLazyOr<V, Token>;
 			ifExists?:
-				| (<V2 extends V = V>(currentEntry: V & V2, remove: Token) => V | Token)
+				| (<V2 extends V = V>(currentEntry: V | V2, remove: Token) => V | Token)
 				| V;
 		},
 	): WithKeyValue<Tp, K, V>['normal'];

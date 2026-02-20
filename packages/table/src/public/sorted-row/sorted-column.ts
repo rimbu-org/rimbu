@@ -4,8 +4,7 @@ import type { SortedTableSortedColumnCreators } from '#table/creators';
 import type { TableBase } from '#table/types';
 
 import { SortedMap } from '@rimbu/sorted/map';
-
-import { TableContext } from '#table/base';
+import { createTableContextModule } from '../internal/context-factory';
 
 /**
  * A type-invariant immutable Table of row key type R, column key type C, and value type V.
@@ -94,22 +93,6 @@ export namespace SortedTableSortedColumn {
 	}
 }
 
-function createContext<UR, UC>(options?: {
-	rowContext?: SortedMap.Context<UR>;
-	columnContext?: SortedMap.Context<UC>;
-}): SortedTableSortedColumn.Context<UR, UC> {
-	return Object.freeze(
-		new TableContext<UR, UC, 'SortedTableSortedColumn', any>(
-			'SortedTableSortedColumn',
-			options?.rowContext ?? SortedMap.defaultContext(),
-			options?.columnContext ?? SortedMap.defaultContext(),
-		),
-	);
-}
-
-const _defaultContext: SortedTableSortedColumn.Context<any, any> =
-	createContext();
-
 /**
  * The default `SortedTableSortedColumn` creators and context.
  *
@@ -117,10 +100,8 @@ const _defaultContext: SortedTableSortedColumn.Context<any, any> =
  * See the [SortedTableSortedColumn API documentation](https://rimbu.org/api/rimbu/table/sorted-row/SortedTableSortedColumn/interface).
  */
 export const SortedTableSortedColumn: SortedTableSortedColumnCreators =
-	Object.freeze({
-		..._defaultContext,
-		createContext,
-		defaultContext<UR, UC>(): SortedTableSortedColumn.Context<UR, UC> {
-			return _defaultContext;
-		},
-	});
+	createTableContextModule({
+		typeTag: 'SortedTableSortedColumn',
+		rowContext: SortedMap.defaultContext(),
+		columnContext: SortedMap.defaultContext(),
+	}).build();

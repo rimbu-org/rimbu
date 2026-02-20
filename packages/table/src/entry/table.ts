@@ -4,7 +4,7 @@ import type { Streamable } from '@rimbu/stream';
 import type { TableCreators } from '#table/creators';
 import type { TableBase } from '#table/types';
 
-import { TableContext } from '#table/base';
+import { createTableContextModule } from '@rimbu/table/internal/context-factory';
 
 export * from '#table/variant';
 
@@ -82,12 +82,6 @@ export const Table: TableCreators = Object.freeze({
 		rowContext: RMap.Context<UR>;
 		columnContext: RMap.Context<UC>;
 	}): Table.Context<UR, UC> {
-		return Object.freeze(
-			new TableContext<UR, UC, 'Table'>(
-				'Table',
-				options.rowContext,
-				options.columnContext,
-			),
-		);
+		return createTableContextModule({ ...options, typeTag: 'Table' }).build();
 	},
 });

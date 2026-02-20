@@ -4,8 +4,7 @@ import type { HashTableHashColumnCreators } from '#table/creators';
 import type { TableBase } from '#table/types';
 
 import { HashMap } from '@rimbu/hashed/map';
-
-import { TableContext } from '#table/base';
+import { createTableContextModule } from '../internal/context-factory';
 
 /**
  * A type-invariant immutable Table of row key type R, column key type C, and value type V.
@@ -88,31 +87,15 @@ export namespace HashTableHashColumn {
 	}
 }
 
-function createContext<UR, UC>(options?: {
-	rowContext?: HashMap.Context<UR>;
-	columnContext?: HashMap.Context<UC>;
-}): HashTableHashColumn.Context<UR, UC> {
-	return Object.freeze(
-		new TableContext<UR, UC, 'HashTableHashColumn', any>(
-			'HashTableHashColumn',
-			options?.rowContext ?? HashMap.defaultContext(),
-			options?.columnContext ?? HashMap.defaultContext(),
-		),
-	);
-}
-
-const _defaultContext: HashTableHashColumn.Context<any, any> = createContext();
-
 /**
  * The default `HashTableHashColumn` creators and context.
  *
  * Use this exported value to create and work with immutable `HashTableHashColumn` instances.
  * See the [HashTableHashColumn API documentation](https://rimbu.org/api/rimbu/table/hash-row/HashTableHashColumn/interface).
  */
-export const HashTableHashColumn: HashTableHashColumnCreators = Object.freeze({
-	..._defaultContext,
-	createContext,
-	defaultContext<UR, UC>(): HashTableHashColumn.Context<UR, UC> {
-		return _defaultContext;
-	},
-});
+export const HashTableHashColumn: HashTableHashColumnCreators =
+	createTableContextModule({
+		typeTag: 'HashTableHashColumn',
+		rowContext: HashMap.defaultContext(),
+		columnContext: HashMap.defaultContext(),
+	}).build();

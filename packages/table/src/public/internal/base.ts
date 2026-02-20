@@ -1,8 +1,8 @@
 import type { RMap } from '@rimbu/collection-types';
-import type { Row, WithRow } from '@rimbu/collection-types/common';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { Table } from '@rimbu/table';
 
+import type { ContextImpl } from '#table/context-factory';
 import type { TableBase } from '#table/types';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
@@ -16,30 +16,25 @@ import { TraverseState } from '@rimbu/common/traverse-state';
 import { Update } from '@rimbu/common/update';
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { StreamFactory } from '@rimbu/stream/internal/factory';
-import { Reducer } from '@rimbu/stream/reducer';
 
-export interface ContextImplTypes extends TableBase.Types {
-	readonly context: TableContext<this['_R'], this['_C'], string>;
-}
-
-export class TableEmpty<R, C, V, Tp extends ContextImplTypes>
+export class TableEmpty<R, C, V>
 	extends EmptyBase
-	implements TableBase<R, C, V, Tp>
+	implements TableBase<R, C, V>
 {
-	declare _NonEmptyType: WithRow<Tp, R, C, V>['nonEmpty'];
+	declare _NonEmptyType: Table.NonEmpty<R, C, V>;
 
-	constructor(readonly context: WithRow<Tp, R, C, V>['context']) {
+	constructor(readonly context: ContextImpl<R, C>) {
 		super();
 	}
 
-	set(row: R, column: C, value: V): WithRow<Tp, R, C, V>['nonEmpty'] {
+	set(row: R, column: C, value: V): Table.NonEmpty<R, C, V> {
 		const columnMap = this.context.columnContext.of([column, value]);
 		const rowMap = this.context.rowContext.of([row, columnMap]);
 
 		return this.context.createNonEmpty(rowMap, 1) as any;
 	}
 
-	get rowMap(): WithRow<Tp, R, C, V>['rowMap'] {
+	get rowMap(): RMap<R, RMap.NonEmpty<C, V>> {
 		return this.context.rowContext.empty();
 	}
 
@@ -55,26 +50,24 @@ export class TableEmpty<R, C, V, Tp extends ContextImplTypes>
 		return Stream.empty();
 	}
 
-	addEntry(entry: readonly [R, C, V]): WithRow<Tp, R, C, V>['nonEmpty'] {
+	addEntry(entry: readonly [R, C, V]): Table.NonEmpty<R, C, V> {
 		return this.set(entry[0], entry[1], entry[2]);
 	}
 
-	addEntries(
-		entries: StreamSource<readonly [R, C, V]>,
-	): WithRow<Tp, R, C, V>['normal'] | any {
+	addEntries(entries: StreamSource<readonly [R, C, V]>): any {
 		return this.context.from(entries);
 	}
 
-	remove(): WithRow<Tp, R, C, V>['normal'] {
-		return this as any;
+	remove(): this {
+		return this;
 	}
 
-	removeRow(): WithRow<Tp, R, C, V>['normal'] {
-		return this as any;
+	removeRow(): this {
+		return this;
 	}
 
-	removeRows(): WithRow<Tp, R, C, V>['normal'] {
-		return this as any;
+	removeRows(): this {
+		return this;
 	}
 
 	removeAndGet(): undefined {
@@ -85,8 +78,8 @@ export class TableEmpty<R, C, V, Tp extends ContextImplTypes>
 		return undefined;
 	}
 
-	removeEntries(): WithRow<Tp, R, C, V>['normal'] {
-		return this as any;
+	removeEntries(): this {
+		return this;
 	}
 
 	hasRowKey(): false {
@@ -97,11 +90,11 @@ export class TableEmpty<R, C, V, Tp extends ContextImplTypes>
 		return false;
 	}
 
-	get<_, __, O>(row: R, column: C, otherwise?: OptLazy<O>): O {
+	get<_, __, O>(_: R, __: C, otherwise?: OptLazy<O>): O {
 		return OptLazy(otherwise) as O;
 	}
 
-	getRow(): WithRow<Tp, R, C, V>['row'] {
+	getRow(): RMap<C, V> {
 		return this.context.columnContext.empty();
 	}
 
@@ -109,30 +102,30 @@ export class TableEmpty<R, C, V, Tp extends ContextImplTypes>
 		row: R,
 		column: C,
 		options: { ifNew?: OptLazyOr<V, Token> },
-	): WithRow<Tp, R, C, V>['normal'] {
+	): Table<R, C, V> {
 		if (undefined !== options.ifNew) {
 			const value = OptLazyOr<V, Token>(options.ifNew, Token);
-			if (Token === value) return this as any;
+			if (Token === value) return this;
 
-			return this.set(row, column, value) as any;
+			return this.set(row, column, value);
 		}
-		return this as any;
+		return this;
 	}
 
-	updateAt(): WithRow<Tp, R, C, V>['normal'] {
-		return this as any;
+	updateAt(): this {
+		return this;
 	}
 
-	filterRows(): WithRow<Tp, R, C, V>['normal'] {
-		return this as any;
+	filterRows(): this {
+		return this;
 	}
 
-	mapValues(): WithRow<Tp, R, C, V>['normal'] {
-		return this as any;
+	mapValues<V2>(): Table<R, C, V2> {
+		return this as unknown as Table<R, C, V2>;
 	}
 
-	toBuilder(): WithRow<Tp, R, C, V>['builder'] {
-		return this.context.builder() as any;
+	toBuilder(): Table.Builder<R, C, V> {
+		return this.context.builder();
 	}
 
 	toString(): string {
@@ -147,44 +140,41 @@ export class TableEmpty<R, C, V, Tp extends ContextImplTypes>
 	}
 }
 
-export class TableNonEmpty<
-		R,
-		C,
-		V,
-		Tp extends ContextImplTypes,
-		TpR extends WithRow<Tp, R, C, V> = WithRow<Tp, R, C, V>,
-	>
+export class TableNonEmpty<R, C, V>
 	extends NonEmptyBase<[R, C, V]>
-	implements TableBase.NonEmpty<R, C, V, Tp>
+	implements TableBase.NonEmpty<R, C, V>
 {
-	declare _NonEmptyType: TpR['nonEmpty'];
+	declare _NonEmptyType: Table.NonEmpty<R, C, V>;
 
 	constructor(
-		readonly context: TpR['context'],
-		readonly rowMap: TpR['rowMapNonEmpty'],
+		readonly context: ContextImpl<R, C>,
+		readonly rowMap: RMap.NonEmpty<R, RMap.NonEmpty<C, V>>,
 		readonly size: number,
 	) {
 		super();
 	}
 
-	assumeNonEmpty(): any {
+	assumeNonEmpty(): this {
 		return this;
 	}
 
-	asNormal(): any {
+	asNormal(): this {
 		return this;
 	}
 
-	copy(rowMap: TpR['rowMapNonEmpty'], size: number): TpR['nonEmpty'] {
-		if (rowMap === this.rowMap) return this as any;
-		return this.context.createNonEmpty<R, C, V>(rowMap as any, size);
+	copy(
+		rowMap: RMap.NonEmpty<R, RMap.NonEmpty<C, V>>,
+		size: number,
+	): Table.NonEmpty<R, C, V> {
+		if (rowMap === this.rowMap) return this;
+		return this.context.createNonEmpty(rowMap, size);
 	}
 
-	copyE(rowMap: TpR['rowMap'], size: number): TpR['normal'] {
+	copyE(rowMap: RMap<R, RMap.NonEmpty<C, V>>, size: number): Table<R, C, V> {
 		if (rowMap.nonEmpty()) {
-			return this.copy(rowMap.assumeNonEmpty(), size) as any;
+			return this.copy(rowMap.assumeNonEmpty(), size);
 		}
-		return this.context.empty<R, C, V>() as any;
+		return this.context.empty();
 	}
 
 	stream(): Stream.NonEmpty<[R, C, V]> {
@@ -232,29 +222,27 @@ export class TableNonEmpty<
 		return result.get(column, otherwise!);
 	}
 
-	getRow<UR>(row: RelatedTo<R, UR>): TpR['row'] {
-		return this.rowMap.get(
-			row,
-			this.context.columnContext.empty<C, V>(),
-		) as any;
+	getRow<UR>(row: RelatedTo<R, UR>): RMap<C, V> {
+		return this.rowMap.get(row, this.context.columnContext.empty());
 	}
 
-	set(row: R, column: C, value: V): TpR['nonEmpty'] {
+	set(row: R, column: C, value: V): Table.NonEmpty<R, C, V> {
 		return this.modifyAt(row, column, {
 			ifNew: value,
 			ifExists: (): V => value,
 		}).assumeNonEmpty();
 	}
 
-	addEntry(entry: readonly [R, C, V]): TpR['nonEmpty'] {
+	addEntry(entry: readonly [R, C, V]): Table.NonEmpty<R, C, V> {
 		return this.set(entry[0], entry[1], entry[2]);
 	}
 
-	addEntries(entries: StreamSource<readonly [R, C, V]>): TpR['nonEmpty'] {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries))
-			return this as any;
+	addEntries(
+		entries: StreamSource<readonly [R, C, V]>,
+	): Table.NonEmpty<R, C, V> {
+		if (StreamFactory().isEmptyStreamSourceInstance(entries)) return this;
 
-		const builder: TpR['builder'] = this.toBuilder() as any;
+		const builder = this.toBuilder();
 
 		builder.addEntries(entries);
 		return builder.build().assumeNonEmpty();
@@ -267,7 +255,7 @@ export class TableNonEmpty<
 			ifNew?: OptLazyOr<V, Token>;
 			ifExists?: ((value: V, remove: Token) => V | Token) | V;
 		},
-	): TpR['normal'] {
+	): Table<R, C, V> {
 		let newSize = this.size;
 
 		const newRowMap = this.rowMap.modifyAt(row, {
@@ -311,9 +299,9 @@ export class TableNonEmpty<
 		row: RelatedTo<R, UR>,
 		column: RelatedTo<C, UC>,
 		update: Update<V>,
-	): TpR['nonEmpty'] {
-		if (!this.context.rowContext.isValidKey(row)) return this as any;
-		if (!this.context.columnContext.isValidKey(column)) return this as any;
+	): Table.NonEmpty<R, C, V> {
+		if (!this.context.rowContext.isValidKey(row)) return this;
+		if (!this.context.columnContext.isValidKey(column)) return this;
 
 		return this.modifyAt(row, column, {
 			ifExists: (value): V => Update(value, update),
@@ -323,31 +311,31 @@ export class TableNonEmpty<
 	remove<UR, UC>(
 		row: RelatedTo<R, UR>,
 		column: RelatedTo<C, UC>,
-	): TpR['normal'] {
+	): Table<R, C, V> {
 		const resultOpt = this.removeAndGet(row, column);
 
-		return resultOpt?.[0] ?? (this as any);
+		return resultOpt?.[0] ?? this;
 	}
 
-	removeRow<UR>(row: RelatedTo<R, UR>): TpR['normal'] {
+	removeRow<UR>(row: RelatedTo<R, UR>): Table<R, C, V> {
 		const resultOpt = this.removeRowAndGet(row);
 
-		return resultOpt?.[0] ?? (this as any);
+		return resultOpt?.[0] ?? this;
 	}
 
-	removeRows<UR>(rows: StreamSource<RelatedTo<R, UR>>): TpR['normal'] {
-		if (StreamFactory().isEmptyStreamSourceInstance(rows)) return this as any;
+	removeRows<UR>(rows: StreamSource<RelatedTo<R, UR>>): Table<R, C, V> {
+		if (StreamFactory().isEmptyStreamSourceInstance(rows)) return this;
 
 		const builder = this.toBuilder();
 
 		builder.removeRows(rows);
-		return builder.build() as TpR['normal'];
+		return builder.build();
 	}
 
 	removeAndGet<UR, UC>(
 		row: RelatedTo<R, UR>,
 		column: RelatedTo<C, UC>,
-	): [TpR['normal'], V] | undefined {
+	): [Table<R, C, V>, V] | undefined {
 		if (!this.context.rowContext.isValidKey(row)) return undefined;
 		if (!this.context.columnContext.isValidKey(column)) return undefined;
 
@@ -365,7 +353,7 @@ export class TableNonEmpty<
 					},
 				});
 
-				if (newColumns.nonEmpty()) return newColumns as any;
+				if (newColumns.nonEmpty()) return newColumns;
 				return remove;
 			},
 		});
@@ -378,11 +366,11 @@ export class TableNonEmpty<
 
 	removeRowAndGet<UR>(
 		row: RelatedTo<R, UR>,
-	): [TpR['normal'], TpR['rowNonEmpty']] | undefined {
+	): [Table<R, C, V>, RMap.NonEmpty<C, V>] | undefined {
 		if (!this.context.rowContext.isValidKey(row)) return undefined;
 
 		let newSize = this.size;
-		let removedRow: TpR['rowNonEmpty'] | undefined;
+		let removedRow: RMap.NonEmpty<C, V> | undefined;
 
 		const newRows = this.rowMap.modifyAt(row, {
 			ifExists: (columns, remove): typeof remove => {
@@ -400,14 +388,13 @@ export class TableNonEmpty<
 
 	removeEntries<UR, UC>(
 		entries: StreamSource<[RelatedTo<R, UR>, RelatedTo<C, UC>]>,
-	): TpR['normal'] {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries))
-			return this as any;
+	): Table<R, C, V> {
+		if (StreamFactory().isEmptyStreamSourceInstance(entries)) return this;
 
 		const builder = this.toBuilder();
 
 		builder.removeEntries(entries);
-		return builder.build() as any;
+		return builder.build();
 	}
 
 	forEach(
@@ -419,7 +406,7 @@ export class TableNonEmpty<
 		if (state.halted) return;
 
 		const rowIt = this.rowMap[Symbol.iterator]();
-		let rowEntry: readonly [R, TpR['rowNonEmpty']] | undefined;
+		let rowEntry: readonly [R, RMap.NonEmpty<C, V>] | undefined;
 
 		const { halt } = state;
 
@@ -443,24 +430,24 @@ export class TableNonEmpty<
 	filter(
 		pred: (entry: [R, C, V], index: number, halt: () => void) => boolean,
 		options: { negate?: boolean } = {},
-	): TpR['normal'] {
+	): Table<R, C, V> {
 		const builder = this.context.builder<R, C, V>();
 
 		builder.addEntries(this.stream().filter(pred, options));
 
-		if (builder.size === this.size) return this as any;
+		if (builder.size === this.size) return this;
 
-		return builder.build() as any;
+		return builder.build();
 	}
 
 	filterRows(
 		pred: (
-			entry: readonly [R, TpR['rowNonEmpty']],
+			entry: readonly [R, RMap.NonEmpty<C, V>],
 			index: number,
 			halt: () => void,
 		) => boolean,
 		options: { negate?: boolean } = {},
-	): TpR['normal'] {
+	): Table<R, C, V> {
 		const { negate = false } = options;
 
 		let newSize = 0;
@@ -475,21 +462,21 @@ export class TableNonEmpty<
 
 	mapValues<V2>(
 		mapFun: (value: V, row: R, column: C) => V2,
-	): (Tp & Row<R, C, V2>)['nonEmpty'] {
+	): Table.NonEmpty<R, C, V2> {
 		return this.copy(
 			this.rowMap.mapValues(
 				(row, r): RMap.NonEmpty<C, V2> =>
 					row.mapValues((v, c): V2 => mapFun(v, r, c)),
 			) as any,
 			this.size,
-		);
+		) as any;
 	}
 
 	toArray(): ArrayNonEmpty<[R, C, V]> {
-		const result: [R, C, V][] = [];
+		const result: ArrayNonEmpty<[R, C, V]> = [] as any;
 
 		const rowIt = this.rowMap.stream()[Symbol.iterator]();
-		let rowEntry: readonly [R, TpR['rowNonEmpty']] | undefined;
+		let rowEntry: readonly [R, RMap.NonEmpty<C, V>] | undefined;
 
 		while (undefined !== (rowEntry = rowIt.fastNext())) {
 			const columnIt = rowEntry[1].stream()[Symbol.iterator]();
@@ -500,7 +487,7 @@ export class TableNonEmpty<
 			}
 		}
 
-		return result as any;
+		return result;
 	}
 
 	toString(): string {
@@ -522,24 +509,17 @@ export class TableNonEmpty<
 		};
 	}
 
-	toBuilder(): TpR['builder'] {
+	toBuilder(): Table.Builder<R, C, V> {
 		return this.context.createBuilder(this as any);
 	}
 }
 
-export class TableBuilder<
-	R,
-	C,
-	V,
-	Tp extends ContextImplTypes,
-	TpR extends Tp & Row<R, C, V> = Tp & Row<R, C, V>,
-> {
-	//implements TableBase.Builder<R, C, V>
+export class TableBuilder<R, C, V> implements TableBase.Builder<R, C, V> {
 	_lock = 0;
 	_size = 0;
 
 	constructor(
-		readonly context: TpR['context'],
+		readonly context: ContextImpl<R, C>,
 		public source?: Table.NonEmpty<R, C, V>,
 	) {
 		if (undefined !== source) this._size = source.size;
@@ -592,7 +572,7 @@ export class TableBuilder<
 		return result.get<UC, O>(column, otherwise!);
 	};
 
-	getRow = <UR>(row: RelatedTo<R, UR>): any => {
+	getRow = <UR>(row: RelatedTo<R, UR>): RMap<C, V> => {
 		if (undefined !== this.source) return this.source.getRow(row);
 
 		const token = Symbol();
@@ -841,10 +821,10 @@ export class TableBuilder<
 		this._lock--;
 	};
 
-	build = (): TpR['normal'] => {
+	build = (): Table<R, C, V> => {
 		if (undefined !== this.source) return this.source;
 
-		if (this.isEmpty) return this.context.empty() as any;
+		if (this.isEmpty) return this.context.empty();
 
 		return this.context.createNonEmpty<R, C, V>(
 			this.rowMap
@@ -854,10 +834,12 @@ export class TableBuilder<
 		) as any;
 	};
 
-	buildMapValues = <V2>(mapFun: (value: V, row: R, column: C) => V2): any => {
+	buildMapValues = <V2>(
+		mapFun: (value: V, row: R, column: C) => V2,
+	): Table<R, C, V2> => {
 		if (undefined !== this.source) return this.source.mapValues<V2>(mapFun);
 
-		if (this.isEmpty) return this.context.empty() as any;
+		if (this.isEmpty) return this.context.empty();
 
 		const newRowMap = this.rowMap
 			.buildMapValues((row, rowKey) =>
@@ -869,124 +851,6 @@ export class TableBuilder<
 			)
 			.assumeNonEmpty();
 
-		return this.context.createNonEmpty<R, C, V2>(
-			newRowMap as any,
-			this.size,
-		) as any;
+		return this.context.createNonEmpty<R, C, V2>(newRowMap, this.size);
 	};
-}
-
-export class TableContext<
-	UR,
-	UC,
-	N extends string,
-	Tp extends ContextImplTypes = ContextImplTypes,
-> implements TableBase.Context<UR, UC, Tp>
-{
-	constructor(
-		readonly typeTag: N,
-		readonly rowContext: WithRow<Tp, UR, UC, any>['rowContext'],
-		readonly columnContext: WithRow<Tp, UR, UC, any>['columnContext'],
-	) {}
-	readonly _fixedKeys!: readonly [UR, UC];
-
-	get _types(): Tp {
-		return undefined as any;
-	}
-
-	readonly _empty = Object.freeze(
-		new TableEmpty<UR, UC, any, any>(this) as WithRow<
-			Tp,
-			UR,
-			UC,
-			any
-		>['normal'],
-	);
-
-	isNonEmptyInstance<R, C, V>(
-		source: any,
-	): source is WithRow<Tp, R, C, V>['nonEmpty'] {
-		return source instanceof TableNonEmpty;
-	}
-
-	createNonEmpty<R extends UR, C extends UC, V>(
-		rowMap: WithRow<Tp, R, C, V>['rowMapNonEmpty'],
-		size: number,
-	): WithRow<Tp, R, C, V>['nonEmpty'] {
-		return new TableNonEmpty<R, C, V, Tp>(this, rowMap, size) as any;
-	}
-
-	readonly empty = <R extends UR, C extends UC, V>(): WithRow<
-		Tp,
-		R,
-		C,
-		V
-	>['normal'] => {
-		return this._empty;
-	};
-
-	readonly from: any = <R extends UR, C extends UC, V>(
-		...sources: ArrayNonEmpty<StreamSource<readonly [R, C, V]>>
-	): WithRow<Tp, R, C, V>['normal'] => {
-		let builder = this.builder<R, C, V>();
-
-		let i = -1;
-		const length = sources.length;
-
-		while (++i < length) {
-			const source = sources[i];
-
-			if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
-			if (
-				builder.isEmpty &&
-				this.isNonEmptyInstance<R, C, V>(source) &&
-				source.context === (this as any)
-			) {
-				if (i === length - 1) return source;
-				builder = source.toBuilder();
-				continue;
-			}
-
-			builder.addEntries(source);
-		}
-
-		return builder.build();
-	};
-
-	readonly of: any = <R extends UR, C extends UC, V>(
-		...entries: ArrayNonEmpty<readonly [R, C, V]>
-	): any => {
-		return this.from(entries);
-	};
-
-	readonly builder = <R extends UR, C extends UC, V>(): WithRow<
-		Tp,
-		R,
-		C,
-		V
-	>['builder'] => {
-		return new TableBuilder(this);
-	};
-
-	readonly reducer = <R extends UR, C extends UC, V>(
-		source?: StreamSource<readonly [R, C, V]>,
-	): Reducer<readonly [R, C, V], WithRow<Tp, R, C, V>['normal']> => {
-		return Reducer.create(
-			() =>
-				undefined === source
-					? this.builder<R, C, V>()
-					: (this.from(source) as any).toBuilder(),
-			(builder, entry) => {
-				builder.addEntry(entry);
-				return builder;
-			},
-			(builder) => builder.build(),
-		);
-	};
-
-	createBuilder<R extends UR, C extends UC, V>(
-		source?: Table.NonEmpty<R, C, V>,
-	): WithRow<Tp, R, C, V>['builder'] {
-		return new TableBuilder<R, C, V, Tp>(this, source) as any;
-	}
 }
