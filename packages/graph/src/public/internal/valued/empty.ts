@@ -1,50 +1,47 @@
 import type { RMap } from '@rimbu/collection-types';
 import type { RelatedTo, ToJSON } from '@rimbu/common/types';
+import type { ValuedLink } from '@rimbu/graph/valued-link';
 
-import type { ValuedGraphTypesContextImpl } from '#graph/valued/context';
+import type { ValuedGraphContextImpl } from '#graph/valued/context-factory';
 import type { ValuedGraphBase } from '#private/valued/base';
+import type { ValuedGraph } from '#private/valued/valued-graph';
 
 import { Token } from '@rimbu/base/token';
 import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-import { GraphEmptyBase, type WithGraphValues } from '#graph/common/base';
+import { GraphEmptyBase } from '#graph/common/base';
 
-export class ValuedGraphEmpty<
-		N,
-		V,
-		Tp extends ValuedGraphTypesContextImpl,
-		TpG extends WithGraphValues<Tp, N, V> = WithGraphValues<Tp, N, V>,
-	>
+export class ValuedGraphEmpty<N, V>
 	extends GraphEmptyBase
-	implements ValuedGraphBase<N, V, Tp>
+	implements ValuedGraphBase<N, V>
 {
-	declare _NonEmptyType: TpG['nonEmpty'];
+	declare _NonEmptyType: ValuedGraph.NonEmpty<N, V>;
 
 	constructor(
 		readonly isDirected: boolean,
-		readonly context: TpG['context'],
+		readonly context: ValuedGraphContextImpl<N>,
 	) {
 		super();
 	}
 
-	get linkMap(): TpG['linkMap'] {
+	get linkMap(): RMap<N, RMap<N, V>> {
 		return this.context.linkMapContext.empty();
 	}
 
 	getValue<UN, O>(
-		node1: RelatedTo<N, UN>,
-		node2: RelatedTo<N, UN>,
+		_: RelatedTo<N, UN>,
+		__: RelatedTo<N, UN>,
 		otherwise?: OptLazy<O>,
 	): O {
 		return OptLazy(otherwise!);
 	}
 
-	getConnectionsFrom(): TpG['linkConnections'] {
-		return this.context.linkConnectionsContext.empty<N, V>();
+	getConnectionsFrom(): RMap<N, V> {
+		return this.context.linkConnectionsContext.empty();
 	}
 
-	addNode(node: N): TpG['nonEmpty'] {
+	addNode(node: N): ValuedGraph.NonEmpty<N, V> {
 		return this.context.createNonEmpty(
 			this.linkMap.context.of([
 				node,
@@ -54,18 +51,21 @@ export class ValuedGraphEmpty<
 		);
 	}
 
-	addNodes(nodes: StreamSource<N>): WithGraphValues<Tp, N, V>['nonEmpty'] {
+	addNodes(nodes: StreamSource<N>): any {
 		const emptyConnections = this.context.linkConnectionsContext.empty<N, V>();
 
 		const linkMap = this.context.linkMapContext.from(
 			Stream.from(nodes).map((node) => [node, emptyConnections]),
 		);
 
-		if (!linkMap.nonEmpty()) return this as any;
-		return this.context.createNonEmpty(linkMap, 0) as TpG['nonEmpty'];
+		if (linkMap.nonEmpty()) {
+			return this.context.createNonEmpty(linkMap, 0);
+		}
+
+		return this;
 	}
 
-	connect(node1: N, node2: N, value: V): TpG['nonEmpty'] {
+	connect(node1: N, node2: N, value: V): ValuedGraph.NonEmpty<N, V> {
 		const linkMap = this.context.linkMapContext.of([
 			node1,
 			this.context.linkConnectionsContext.of([node2, value]) as RMap<N, V>,
@@ -80,9 +80,7 @@ export class ValuedGraphEmpty<
 		return this.context.createNonEmpty(linkMap.set(node2, linkConnections), 1);
 	}
 
-	connectAll(
-		links: StreamSource<WithGraphValues<Tp, N, V>['link']>,
-	): WithGraphValues<Tp, N, V>['nonEmpty'] {
+	connectAll(links: StreamSource<ValuedLink<N, V>>): any {
 		return this.context.from(links);
 	}
 
@@ -93,18 +91,18 @@ export class ValuedGraphEmpty<
 			ifNew?: OptLazyOr<V, Token>;
 			ifExists?: (value: V, remove: Token) => V | Token;
 		},
-	): WithGraphValues<Tp, N, V>['normal'] {
-		if (undefined === options.ifNew) return this as any;
+	): ValuedGraph<N, V> {
+		if (undefined === options.ifNew) return this;
 
 		const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
 
-		if (Token === newValue) return this as any;
+		if (Token === newValue) return this;
 
 		return this.connect(node1, node2, newValue);
 	}
 
-	mapValues<V2>(): WithGraphValues<Tp, N, V2>['normal'] {
-		return this as any;
+	mapValues(): any {
+		return this;
 	}
 
 	toString(): string {
@@ -118,7 +116,7 @@ export class ValuedGraphEmpty<
 		};
 	}
 
-	toBuilder(): TpG['builder'] {
+	toBuilder(): ValuedGraph.Builder<N, V> {
 		return this.context.builder();
 	}
 }

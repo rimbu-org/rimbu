@@ -4,57 +4,56 @@ import type { RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { Link } from '@rimbu/graph/link';
 import type { ValuedGraphElement, ValuedLink } from '@rimbu/graph/valued-link';
 
-import type { WithGraphValues } from '#graph/common/base';
-import type { ValuedGraphTypesContextImpl } from '#graph/valued/context';
+import type { ValuedGraphContextImpl } from '#graph/valued/context-factory';
 import type { ValuedGraphBase } from '#private/valued/base';
+import type { ValuedGraph } from '#private/valued/valued-graph';
 
 import { NonEmptyBase } from '@rimbu/collection-types/common/empty-base';
 import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export class ValuedGraphNonEmpty<
-		N,
-		V,
-		Tp extends ValuedGraphTypesContextImpl,
-		TpG extends WithGraphValues<Tp, N, V> = WithGraphValues<Tp, N, V>,
-	>
+export class ValuedGraphNonEmpty<N, V>
 	extends NonEmptyBase<ValuedGraphElement<N, V>>
-	implements ValuedGraphBase.NonEmpty<N, V, Tp>
+	implements ValuedGraphBase.NonEmpty<N, V>
 {
-	declare _NonEmptyType: TpG['nonEmpty'];
+	declare _NonEmptyType: ValuedGraph.NonEmpty<N, V>;
 
 	constructor(
 		readonly isDirected: boolean,
-		readonly context: TpG['context'],
-		readonly linkMap: TpG['linkMapNonEmpty'],
+		readonly context: ValuedGraphContextImpl<N>,
+		readonly linkMap: RMap.NonEmpty<N, RMap<N, V>>,
 		readonly connectionSize: number,
 	) {
 		super();
 	}
 
 	copy(
-		linkMap: TpG['linkMapNonEmpty'],
+		linkMap: RMap.NonEmpty<N, RMap<N, V>>,
 		connectionSize: number,
-	): TpG['nonEmpty'] {
+	): ValuedGraph.NonEmpty<N, V> {
 		if (linkMap === this.linkMap && connectionSize === this.connectionSize) {
-			return this as any;
+			return this;
 		}
-		return this.context.createNonEmpty<N, V>(linkMap as any, connectionSize);
+		return this.context.createNonEmpty(linkMap, connectionSize);
 	}
 
-	copyE(linkMap: TpG['linkMap'], connectionSize: number): TpG['normal'] {
+	copyE(
+		linkMap: RMap<N, RMap<N, V>>,
+		connectionSize: number,
+	): ValuedGraph<N, V> {
 		if (linkMap.nonEmpty()) {
-			return this.copy(linkMap, connectionSize) as TpG['normal'];
+			return this.copy(linkMap, connectionSize);
 		}
+
 		return this.context.empty();
 	}
 
-	assumeNonEmpty(): any {
+	assumeNonEmpty(): this {
 		return this;
 	}
 
-	asNormal(): any {
+	asNormal(): this {
 		return this;
 	}
 
@@ -175,11 +174,8 @@ export class ValuedGraphNonEmpty<
 			.map(([node1, value]) => [node1, node, value] as [N, N, V]);
 	}
 
-	getConnectionsFrom<UN = N>(node1: RelatedTo<N, UN>): TpG['linkConnections'] {
-		return this.linkMap.get(
-			node1,
-			this.context.linkConnectionsContext.empty<N, V>(),
-		);
+	getConnectionsFrom<UN = N>(node1: RelatedTo<N, UN>): RMap<N, V> {
+		return this.linkMap.get(node1, this.context.linkConnectionsContext.empty());
 	}
 
 	isSink<UN = N>(node: RelatedTo<N, UN>): boolean {
@@ -195,7 +191,7 @@ export class ValuedGraphNonEmpty<
 		);
 	}
 
-	addNode(node: N): TpG['nonEmpty'] {
+	addNode(node: N): ValuedGraph.NonEmpty<N, V> {
 		return this.copy(
 			this.linkMap
 				.modifyAt(node, { ifNew: this.context.linkConnectionsContext.empty })
@@ -204,31 +200,31 @@ export class ValuedGraphNonEmpty<
 		);
 	}
 
-	addNodes(nodes: StreamSource<N>): TpG['nonEmpty'] {
+	addNodes(nodes: StreamSource<N>): ValuedGraph.NonEmpty<N, V> {
 		const builder = this.toBuilder();
 		builder.addNodes(nodes);
 		return builder.build().assumeNonEmpty();
 	}
 
-	removeNode<UN = N>(node: RelatedTo<N, UN>): TpG['normal'] {
+	removeNode<UN = N>(node: RelatedTo<N, UN>): ValuedGraph<N, V> {
 		const builder = this.toBuilder();
 		builder.removeNode(node);
 		return builder.build();
 	}
 
-	removeNodes<UN>(nodes: StreamSource<RelatedTo<N, UN>>): TpG['normal'] {
+	removeNodes<UN>(nodes: StreamSource<RelatedTo<N, UN>>): ValuedGraph<N, V> {
 		const builder = this.toBuilder();
 		builder.removeNodes(nodes);
 		return builder.build();
 	}
 
-	connect(node1: N, node2: N, value: V): TpG['nonEmpty'] {
+	connect(node1: N, node2: N, value: V): ValuedGraph.NonEmpty<N, V> {
 		const newLinkMap = this.linkMap.modifyAt(node1, {
 			ifNew: this.context.linkConnectionsContext.of([node2, value]),
 			ifExists: (targets) => targets.set(node2, value),
 		});
 
-		if (newLinkMap === this.linkMap) return this as any;
+		if (newLinkMap === this.linkMap) return this;
 
 		const newConnectionSize = this.connectionSize + 1;
 
@@ -255,10 +251,10 @@ export class ValuedGraphNonEmpty<
 	}
 
 	connectAll(
-		links: StreamSource<WithGraphValues<Tp, N, V>['link']>,
-	): TpG['nonEmpty'] {
+		links: StreamSource<ValuedLink<N, V>>,
+	): ValuedGraph.NonEmpty<N, V> {
 		const builder = this.toBuilder();
-		builder.connectAll(links as any);
+		builder.connectAll(links);
 		return builder.build().assumeNonEmpty();
 	}
 
@@ -269,7 +265,7 @@ export class ValuedGraphNonEmpty<
 			ifNew?: OptLazyOr<V, Token>;
 			ifExists?: ((value: V, remove: Token) => V | Token) | V;
 		},
-	): TpG['nonEmpty'] {
+	): ValuedGraph.NonEmpty<N, V> {
 		let newConnectionSize = this.connectionSize;
 		let addedOrUpdatedValue: V;
 
@@ -326,7 +322,7 @@ export class ValuedGraphNonEmpty<
 			},
 		});
 
-		if (newLinkMap === this.linkMap) return this as any;
+		if (newLinkMap === this.linkMap) return this;
 
 		if (this.isDirected) {
 			return this.copy(newLinkMap.assumeNonEmpty(), newConnectionSize);
@@ -366,18 +362,18 @@ export class ValuedGraphNonEmpty<
 	disconnect<UN = N>(
 		node1: RelatedTo<N, UN>,
 		node2: RelatedTo<N, UN>,
-	): TpG['nonEmpty'] {
+	): ValuedGraph.NonEmpty<N, V> {
 		if (
 			!this.linkMap.context.isValidKey(node1) ||
 			!this.linkMap.context.isValidKey(node2)
 		)
-			return this as any;
+			return this;
 
 		const newLinkMap = this.linkMap.updateAt(node1, (targets) =>
 			targets.removeKey(node2),
 		);
 
-		if (newLinkMap === this.linkMap) return this as any;
+		if (newLinkMap === this.linkMap) return this;
 
 		const newConnectionSize = this.connectionSize - 1;
 
@@ -391,13 +387,13 @@ export class ValuedGraphNonEmpty<
 
 	disconnectAll<UN = N>(
 		links: StreamSource<Link<RelatedTo<N, UN>>>,
-	): TpG['nonEmpty'] {
+	): ValuedGraph.NonEmpty<N, V> {
 		const builder = this.toBuilder();
 		builder.disconnectAll(links);
 		return builder.build().assumeNonEmpty();
 	}
 
-	removeUnconnectedNodes(): TpG['normal'] {
+	removeUnconnectedNodes(): ValuedGraph<N, V> {
 		if (!this.isDirected) {
 			const newLinkMap = this.linkMap.filter(([_, targets]) =>
 				targets.nonEmpty(),
@@ -422,15 +418,12 @@ export class ValuedGraphNonEmpty<
 
 	mapValues<V2>(
 		mapFun: (value: V, node1: N, node2: N) => V2,
-	): WithGraphValues<Tp, N, V2>['nonEmpty'] {
+	): ValuedGraph.NonEmpty<N, V2> {
 		const newLinkMap = this.linkMap.mapValues((targets, node1) =>
 			targets.mapValues((value, node2) => mapFun(value, node1, node2)),
 		);
 
-		return this.context.createNonEmpty<N, V2>(
-			newLinkMap,
-			this.connectionSize,
-		) as any;
+		return this.context.createNonEmpty<N, V2>(newLinkMap, this.connectionSize);
 	}
 
 	toString(): string {
@@ -462,7 +455,7 @@ export class ValuedGraphNonEmpty<
 		};
 	}
 
-	toBuilder(): TpG['builder'] {
+	toBuilder(): ValuedGraph.Builder<N, V> {
 		return this.context.createBuilder<N, V>(this as any);
 	}
 }

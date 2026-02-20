@@ -5,7 +5,7 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type { EdgeValuedGraphBase } from '#private/edge/valued/base';
 import type { EdgeValuedGraphCreators } from '#private/edge/valued/creators';
 
-import { ValuedGraphContext } from '#graph/valued/context';
+import { createValuedGraphContextModule } from '@rimbu/graph/internal/valued/context-factory';
 
 /**
  * A type-invariant immutable valued edge (undirected) graph.
@@ -74,13 +74,10 @@ export const EdgeValuedGraph: EdgeValuedGraphCreators = Object.freeze({
 		linkMapContext: RMap.Context<UN>;
 		linkConnectionsContext: RMap.Context<UN>;
 	}): EdgeValuedGraph.Context<UN> {
-		return Object.freeze(
-			new ValuedGraphContext<UN, 'ArrowValuedGraph', any>(
-				true,
-				'ArrowValuedGraph',
-				options.linkMapContext,
-				options.linkConnectionsContext,
-			),
-		);
+		return createValuedGraphContextModule({
+			typeTag: 'EdgeValuedGraph',
+			isDirected: false,
+			...options,
+		}).build();
 	},
 });

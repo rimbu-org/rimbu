@@ -4,7 +4,7 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type { ArrowValuedGraphBase } from '#private/arrow/valued/base';
 import type { ArrowValuedGraphSortedCreators } from '#private/arrow/valued/creators';
 
-import { ValuedGraphContext } from '@rimbu/graph/internal/valued/context';
+import { createValuedGraphContextModule } from '@rimbu/graph/internal/valued/context-factory';
 import { SortedMap } from '@rimbu/sorted/map';
 
 /**
@@ -91,27 +91,10 @@ export namespace ArrowValuedGraphSorted {
 	}
 }
 
-function createContext<UN>(options?: {
-	linkMapContext?: SortedMap.Context<UN>;
-	linkConnectionsContext?: SortedMap.Context<UN>;
-}): ArrowValuedGraphSorted.Context<UN> {
-	return Object.freeze(
-		new ValuedGraphContext<UN, 'ArrowValuedGraphSorted', any>(
-			true,
-			'ArrowValuedGraphSorted',
-			options?.linkMapContext ?? SortedMap.defaultContext(),
-			options?.linkConnectionsContext ?? SortedMap.defaultContext(),
-		),
-	);
-}
-
-const _defaultContext: ArrowValuedGraphSorted.Context<any> = createContext();
-
 export const ArrowValuedGraphSorted: ArrowValuedGraphSortedCreators =
-	Object.freeze({
-		..._defaultContext,
-		createContext,
-		defaultContext<UN>(): ArrowValuedGraphSorted.Context<UN> {
-			return _defaultContext;
-		},
-	});
+	createValuedGraphContextModule({
+		typeTag: 'ArrowValuedGraphSorted',
+		isDirected: true,
+		linkMapContext: SortedMap.defaultContext(),
+		linkConnectionsContext: SortedMap.defaultContext(),
+	}).build();

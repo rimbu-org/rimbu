@@ -1,125 +1,125 @@
-import type { ArrayNonEmpty } from '@rimbu/common/types';
-import type { ValuedGraphElement } from '@rimbu/graph/valued-link';
-import type { StreamSource } from '@rimbu/stream';
+// import type { ArrayNonEmpty } from '@rimbu/common/types';
+// import type { ValuedGraphElement } from '@rimbu/graph/valued-link';
+// import type { StreamSource } from '@rimbu/stream';
 
-import type { WithGraphValues } from '#graph/common/base';
-import type { ValuedGraphBase } from '#private/valued/base';
+// import type { WithGraphValues } from '#graph/common/base';
+// import type { ValuedGraphBase } from '#private/valued/base';
 
-import { StreamFactory } from '@rimbu/stream/internal/factory';
-import { Reducer } from '@rimbu/stream/reducer';
+// import { StreamFactory } from '@rimbu/stream/internal/factory';
+// import { Reducer } from '@rimbu/stream/reducer';
 
-import { ValuedGraphBuilder } from '#graph/valued/builder';
-import { ValuedGraphEmpty } from '#graph/valued/empty';
-import { ValuedGraphNonEmpty } from '#graph/valued/non-empty';
+// import { ValuedGraphBuilder } from '#graph/valued/builder';
+// import { ValuedGraphEmpty } from '#graph/valued/empty';
+// import { ValuedGraphNonEmpty } from '#graph/valued/non-empty';
 
-export interface ValuedGraphTypesContextImpl extends ValuedGraphBase.Types {
-	readonly context: ValuedGraphContext<this['_N'], string>;
-}
+// export interface ValuedGraphTypesContextImpl extends ValuedGraphBase.Types {
+// 	readonly context: ValuedGraphContext<this['_N'], string>;
+// }
 
-export class ValuedGraphContext<
-	UN,
-	TT extends string,
-	Tp extends ValuedGraphTypesContextImpl = ValuedGraphTypesContextImpl,
-> implements ValuedGraphBase.Context<UN, Tp>
-{
-	readonly _fixedType!: UN;
+// export class ValuedGraphContext<
+// 	UN,
+// 	TT extends string,
+// 	Tp extends ValuedGraphTypesContextImpl = ValuedGraphTypesContextImpl,
+// > implements ValuedGraphBase.Context<UN, Tp>
+// {
+// 	readonly _fixedType!: UN;
 
-	readonly _empty: any;
+// 	readonly _empty: any;
 
-	constructor(
-		readonly isDirected: boolean,
-		readonly typeTag: TT,
-		readonly linkMapContext: WithGraphValues<Tp, UN, any>['linkMapContext'],
-		readonly linkConnectionsContext: WithGraphValues<
-			Tp,
-			UN,
-			any
-		>['linkConnectionsContext'],
-	) {
-		this._empty = Object.freeze(new ValuedGraphEmpty(isDirected, this));
-	}
+// 	constructor(
+// 		readonly isDirected: boolean,
+// 		readonly typeTag: TT,
+// 		readonly linkMapContext: WithGraphValues<Tp, UN, any>['linkMapContext'],
+// 		readonly linkConnectionsContext: WithGraphValues<
+// 			Tp,
+// 			UN,
+// 			any
+// 		>['linkConnectionsContext'],
+// 	) {
+// 		this._empty = Object.freeze(new ValuedGraphEmpty(isDirected, this));
+// 	}
 
-	isNonEmptyInstance(
-		source: any,
-	): source is WithGraphValues<Tp, UN, any>['nonEmpty'] {
-		return source instanceof ValuedGraphNonEmpty;
-	}
+// 	isNonEmptyInstance(
+// 		source: any,
+// 	): source is WithGraphValues<Tp, UN, any>['nonEmpty'] {
+// 		return source instanceof ValuedGraphNonEmpty;
+// 	}
 
-	readonly empty = <N extends UN, V>(): any => {
-		return this._empty;
-	};
+// 	readonly empty = <N extends UN, V>(): any => {
+// 		return this._empty;
+// 	};
 
-	readonly from: any = <N extends UN, V>(
-		...sources: ArrayNonEmpty<StreamSource<ValuedGraphElement<N, V>>>
-	): any => {
-		let builder = this.builder();
+// 	readonly from: any = <N extends UN, V>(
+// 		...sources: ArrayNonEmpty<StreamSource<ValuedGraphElement<N, V>>>
+// 	): any => {
+// 		let builder = this.builder();
 
-		let i = -1;
-		const length = sources.length;
+// 		let i = -1;
+// 		const length = sources.length;
 
-		while (++i < length) {
-			const source = sources[i];
+// 		while (++i < length) {
+// 			const source = sources[i];
 
-			if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
-			if (
-				builder.isEmpty &&
-				this.isNonEmptyInstance(source) &&
-				source.context === this
-			) {
-				if (i === length - 1) return source;
-				builder = source.toBuilder();
-				continue;
-			}
+// 			if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
+// 			if (
+// 				builder.isEmpty &&
+// 				this.isNonEmptyInstance(source) &&
+// 				source.context === this
+// 			) {
+// 				if (i === length - 1) return source;
+// 				builder = source.toBuilder();
+// 				continue;
+// 			}
 
-			builder.addGraphElements(source);
-		}
+// 			builder.addGraphElements(source);
+// 		}
 
-		return builder.build();
-	};
+// 		return builder.build();
+// 	};
 
-	readonly of: any = <N, V>(
-		...values: ArrayNonEmpty<ValuedGraphElement<N, V>>
-	): any => {
-		return this.from(values).assumeNonEmpty();
-	};
+// 	readonly of: any = <N, V>(
+// 		...values: ArrayNonEmpty<ValuedGraphElement<N, V>>
+// 	): any => {
+// 		return this.from(values).assumeNonEmpty();
+// 	};
 
-	readonly builder = (): any => {
-		return new ValuedGraphBuilder(this.isDirected, this);
-	};
+// 	readonly builder = (): any => {
+// 		return new ValuedGraphBuilder(this.isDirected, this);
+// 	};
 
-	readonly reducer = <N extends UN, V>(
-		source?: StreamSource<ValuedGraphElement<N, V>>,
-	): any => {
-		return Reducer.create(
-			() =>
-				undefined === source ? this.builder() : this.from(source).toBuilder(),
-			(builder, entry) => {
-				builder.addGraphElement(entry);
-				return builder;
-			},
-			(builder) => builder.build(),
-		);
-	};
+// 	readonly reducer = <N extends UN, V>(
+// 		source?: StreamSource<ValuedGraphElement<N, V>>,
+// 	): any => {
+// 		return Reducer.create(
+// 			() =>
+// 				undefined === source ? this.builder() : this.from(source).toBuilder(),
+// 			(builder, entry) => {
+// 				builder.addGraphElement(entry);
+// 				return builder;
+// 			},
+// 			(builder) => builder.build(),
+// 		);
+// 	};
 
-	createBuilder<N extends UN, V>(
-		source?: WithGraphValues<Tp, N, V>['nonEmpty'],
-	): WithGraphValues<Tp, N, V>['builder'] {
-		return new ValuedGraphBuilder<N, V, Tp>(
-			this.isDirected,
-			this,
-			source,
-		) as any;
-	}
+// 	createBuilder<N extends UN, V>(
+// 		source?: WithGraphValues<Tp, N, V>['nonEmpty'],
+// 	): WithGraphValues<Tp, N, V>['builder'] {
+// 		return new ValuedGraphBuilder<N, V, Tp>(
+// 			this.isDirected,
+// 			this,
+// 			source,
+// 		) as any;
+// 	}
 
-	createNonEmpty<N extends UN, V>(
-		linkMap: WithGraphValues<Tp, N, V>['linkMapNonEmpty'],
-		connectionSize: number,
-	): WithGraphValues<Tp, N, V>['nonEmpty'] {
-		return new ValuedGraphNonEmpty<N, V, Tp>(
-			this.isDirected,
-			this,
-			linkMap,
-			connectionSize,
-		) as any;
-	}
-}
+// 	createNonEmpty<N extends UN, V>(
+// 		linkMap: WithGraphValues<Tp, N, V>['linkMapNonEmpty'],
+// 		connectionSize: number,
+// 	): WithGraphValues<Tp, N, V>['nonEmpty'] {
+// 		return new ValuedGraphNonEmpty<N, V, Tp>(
+// 			this.isDirected,
+// 			this,
+// 			linkMap,
+// 			connectionSize,
+// 		) as any;
+// 	}
+// }

@@ -2,9 +2,9 @@ import type { ValuedGraphElement } from '@rimbu/graph/valued-link';
 import type { Stream, Streamable } from '@rimbu/stream';
 
 import type { EdgeValuedGraphBase } from '#private/edge/valued/base';
-import type { EdgeValuedGrapSortedCreators } from '#private/edge/valued/creators';
+import type { EdgeValuedGraphSortedCreators } from '#private/edge/valued/creators';
 
-import { ValuedGraphContext } from '@rimbu/graph/internal/valued/context';
+import { createValuedGraphContextModule } from '@rimbu/graph/internal/valued/context-factory';
 import { SortedMap } from '@rimbu/sorted/map';
 
 /**
@@ -91,27 +91,10 @@ export namespace EdgeValuedGraphSorted {
 	}
 }
 
-function createContext<UN>(options?: {
-	linkMapContext?: SortedMap.Context<UN>;
-	linkConnectionsContext?: SortedMap.Context<UN>;
-}): EdgeValuedGraphSorted.Context<UN> {
-	return Object.freeze(
-		new ValuedGraphContext<UN, 'EdgeValuedGraphSorted', any>(
-			false,
-			'EdgeValuedGraphSorted',
-			options?.linkMapContext ?? SortedMap.defaultContext(),
-			options?.linkConnectionsContext ?? SortedMap.defaultContext(),
-		),
-	);
-}
-
-const _defaultContext: EdgeValuedGraphSorted.Context<any> = createContext();
-
-export const EdgeValuedGraphSorted: EdgeValuedGrapSortedCreators =
-	Object.freeze({
-		..._defaultContext,
-		createContext,
-		defaultContext<UN>(): EdgeValuedGraphSorted.Context<UN> {
-			return _defaultContext;
-		},
-	});
+export const EdgeValuedGraphSorted: EdgeValuedGraphSortedCreators =
+	createValuedGraphContextModule({
+		typeTag: 'EdgeValuedGraphSorted',
+		isDirected: false,
+		linkMapContext: SortedMap.defaultContext(),
+		linkConnectionsContext: SortedMap.defaultContext(),
+	}).build();

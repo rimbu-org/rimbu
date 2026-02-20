@@ -41,7 +41,7 @@ export interface EdgeValuedGraphHashedCreators
 	defaultContext<UN>(): EdgeValuedGraphHashed.Context<UN>;
 }
 
-export interface EdgeValuedGrapSortedCreators
+export interface EdgeValuedGraphSortedCreators
 	extends ValuedGraphBase.Factory<EdgeValuedGraphSorted.Types> {
 	/**
 	 * Returns a new EdgeValuedGraph context instance based on the given `options`.

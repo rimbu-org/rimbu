@@ -5,7 +5,7 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type { ArrowValuedGraphBase } from '#private/arrow/valued/base';
 import type { ArrowValuedGraphCreators } from '#private/arrow/valued/creators';
 
-import { ValuedGraphContext } from '#graph/valued/context';
+import { createValuedGraphContextModule } from '@rimbu/graph/internal/valued/context-factory';
 
 /**
  * A type-invariant immutable valued arrow (directed) graph.
@@ -74,13 +74,10 @@ export const ArrowValuedGraph: ArrowValuedGraphCreators = Object.freeze({
 		linkMapContext: RMap.Context<UN>;
 		linkConnectionsContext: RMap.Context<UN>;
 	}): ArrowValuedGraph.Context<UN> {
-		return Object.freeze(
-			new ValuedGraphContext<UN, 'ArrowValuedGraph', any>(
-				true,
-				'ArrowValuedGraph',
-				options.linkMapContext,
-				options.linkConnectionsContext,
-			),
-		);
+		return createValuedGraphContextModule({
+			typeTag: 'ArrowValuedGraph',
+			isDirected: true,
+			...options,
+		}).build();
 	},
 });

@@ -1,39 +1,35 @@
 import type { Token } from '@rimbu/base/token';
+import type { RMap } from '@rimbu/collection-types';
 import type { RelatedTo } from '@rimbu/common/types';
 import type { Link } from '@rimbu/graph/link';
 
-import type { WithGraphValues } from '#graph/common/base';
-import type { ValuedGraphTypesContextImpl } from '#graph/valued/context';
+import type { ValuedGraphContextImpl } from '#graph/valued/context-factory';
+import type { ValuedGraph } from '#private/valued/valued-graph';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
 import { ValuedGraphElement } from '@rimbu/graph/valued-link';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export class ValuedGraphBuilder<
-	N,
-	V,
-	Tp extends ValuedGraphTypesContextImpl,
-	TpG extends WithGraphValues<Tp, N, V> = WithGraphValues<Tp, N, V>,
-> {
+export class ValuedGraphBuilder<N, V> {
 	connectionSize = 0;
 
 	constructor(
 		readonly isDirected: boolean,
-		readonly context: TpG['context'],
-		public source?: TpG['nonEmpty'],
+		readonly context: ValuedGraphContextImpl<N>,
+		public source?: ValuedGraph.NonEmpty<N, V>,
 	) {
 		if (undefined !== source) this.connectionSize = source.connectionSize;
 	}
 
-	_linkMap?: TpG['linkMapBuilder'];
+	_linkMap?: RMap.Builder<N, RMap.Builder<N, V>>;
 	_lock = 0;
 
 	checkLock(): void {
 		if (this._lock) RimbuError.throwModifiedBuilderWhileLoopingOverItError();
 	}
 
-	get linkMap(): TpG['linkMapBuilder'] {
+	get linkMap(): RMap.Builder<N, RMap.Builder<N, V>> {
 		if (undefined === this._linkMap) {
 			if (undefined === this.source) {
 				this._linkMap = this.context.linkMapContext.builder();
@@ -44,7 +40,7 @@ export class ValuedGraphBuilder<
 			}
 		}
 
-		return this._linkMap!;
+		return this._linkMap;
 	}
 
 	get isEmpty(): boolean {
@@ -207,7 +203,9 @@ export class ValuedGraphBuilder<
 		return this.connectInternal(node1, node2, value);
 	};
 
-	connectAll = (connections: StreamSource<TpG['link']>): boolean => {
+	connectAll = (
+		connections: StreamSource<ValuedGraphElement<N, V>>,
+	): boolean => {
 		this.checkLock();
 
 		return (
@@ -417,10 +415,10 @@ export class ValuedGraphBuilder<
 		);
 	};
 
-	build = (): TpG['normal'] => {
-		if (undefined !== this.source) return this.source as any;
+	build = (): ValuedGraph<N, V> => {
+		if (undefined !== this.source) return this.source;
 
-		if (this.isEmpty) return this.context.empty<N, V>();
+		if (this.isEmpty) return this.context.empty();
 
 		const linkMap = this.linkMap
 			.buildMapValues((targets) => targets.build())
@@ -431,10 +429,10 @@ export class ValuedGraphBuilder<
 
 	buildMapValues = <V2>(
 		mapFun: (value: V, node1: N, node2: N) => V2,
-	): WithGraphValues<Tp, N, V2>['normal'] => {
-		if (undefined !== this.source) return this.source.mapValues(mapFun) as any;
+	): ValuedGraph<N, V2> => {
+		if (undefined !== this.source) return this.source.mapValues(mapFun);
 
-		if (this.isEmpty) return this.context.empty<N, V2>();
+		if (this.isEmpty) return this.context.empty();
 
 		const linkMap = this.linkMap
 			.buildMapValues((targets, source) =>

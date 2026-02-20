@@ -4,7 +4,7 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type { ArrowValuedGraphBase } from '#private/arrow/valued/base';
 import type { ArrowValuedGraphHashedCreators } from '#private/arrow/valued/creators';
 
-import { ValuedGraphContext } from '@rimbu/graph/internal/valued/context';
+import { createValuedGraphContextModule } from '@rimbu/graph/internal/valued/context-factory';
 import { HashMap } from '@rimbu/hashed/map';
 
 /**
@@ -91,27 +91,10 @@ export namespace ArrowValuedGraphHashed {
 	}
 }
 
-function createContext<UN>(options?: {
-	linkMapContext?: HashMap.Context<UN>;
-	linkConnectionsContext?: HashMap.Context<UN>;
-}): ArrowValuedGraphHashed.Context<UN> {
-	return Object.freeze(
-		new ValuedGraphContext<UN, 'ArrowValuedGraphHashed', any>(
-			true,
-			'ArrowValuedGraphHashed',
-			options?.linkMapContext ?? HashMap.defaultContext(),
-			options?.linkConnectionsContext ?? HashMap.defaultContext(),
-		),
-	);
-}
-
-const _defaultContext: ArrowValuedGraphHashed.Context<any> = createContext();
-
 export const ArrowValuedGraphHashed: ArrowValuedGraphHashedCreators =
-	Object.freeze({
-		..._defaultContext,
-		createContext,
-		defaultContext<UN>(): ArrowValuedGraphHashed.Context<UN> {
-			return _defaultContext;
-		},
-	});
+	createValuedGraphContextModule({
+		typeTag: 'ArrowValuedGraphHashed',
+		isDirected: true,
+		linkMapContext: HashMap.defaultContext(),
+		linkConnectionsContext: HashMap.defaultContext(),
+	}).build();
