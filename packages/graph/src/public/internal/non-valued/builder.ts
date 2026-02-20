@@ -51,12 +51,10 @@ export class GraphBuilder<
 		return this.source?.nodeSize ?? this.linkMap.size;
 	}
 
-	// prettier-ignore
 	hasNode = <UN>(node: RelatedTo<N, UN>): boolean => {
 		return this.source?.hasNode(node) ?? this.linkMap.hasKey(node);
 	};
 
-	// prettier-ignore
 	hasConnection = <UN>(
 		node1: RelatedTo<N, UN>,
 		node2: RelatedTo<N, UN>,
@@ -93,7 +91,6 @@ export class GraphBuilder<
 		);
 	};
 
-	// prettier-ignore
 	removeNodeInternal = <UN>(node: RelatedTo<N, UN>): boolean => {
 		const targets = this.linkMap.removeKey(node);
 
@@ -120,14 +117,12 @@ export class GraphBuilder<
 		return true;
 	};
 
-	// prettier-ignore
 	removeNode = <UN>(node: RelatedTo<N, UN>): boolean => {
 		this.checkLock();
 
 		return this.removeNodeInternal(node);
 	};
 
-	// prettier-ignore
 	removeNodes = <UN>(nodes: StreamSource<RelatedTo<N, UN>>): boolean => {
 		this.checkLock();
 
@@ -232,7 +227,6 @@ export class GraphBuilder<
 		);
 	};
 
-	// prettier-ignore
 	disconnectInternal = <UN>(
 		node1: RelatedTo<N, UN>,
 		node2: RelatedTo<N, UN>,
@@ -266,7 +260,6 @@ export class GraphBuilder<
 		return changed;
 	};
 
-	// prettier-ignore
 	disconnect = <UN>(
 		node1: RelatedTo<N, UN>,
 		node2: RelatedTo<N, UN>,
@@ -276,7 +269,6 @@ export class GraphBuilder<
 		return this.disconnectInternal(node1, node2);
 	};
 
-	// prettier-ignore
 	disconnectAll = <UN>(
 		connections: StreamSource<Link<RelatedTo<N, UN>>>,
 	): boolean => {

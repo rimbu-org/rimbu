@@ -1,8 +1,8 @@
 import type { RMap, RSet } from '@rimbu/collection-types';
-import type { KeyValue, WithKeyValue } from '@rimbu/collection-types/common';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { MultiMap } from '@rimbu/multimap';
 
+import type { ContextImpl } from '#multimap/context-factory';
 import type { MultiMapBase } from '#multimap/types';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
@@ -14,23 +14,18 @@ import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
 import { StreamFactory } from '@rimbu/stream/internal/factory';
-import { Reducer } from '@rimbu/stream/reducer';
 
-export interface ContextImplTypes extends MultiMapBase.Types {
-	readonly context: MultiMapContext<this['_K'], this['_V'], string>;
-}
-
-export class MultiMapEmpty<K, V, Tp extends ContextImplTypes>
+export class MultiMapEmpty<K, V>
 	extends EmptyBase
-	implements MultiMapBase<K, V, Tp>
+	implements MultiMapBase<K, V>
 {
-	declare _NonEmptyType: WithKeyValue<Tp, K, V>['nonEmpty'];
+	declare _NonEmptyType: MultiMap.NonEmpty<K, V>;
 
-	constructor(readonly context: WithKeyValue<Tp, K, V>['context']) {
+	constructor(readonly context: ContextImpl<K, V>) {
 		super();
 	}
 
-	get keyMap(): WithKeyValue<Tp, K, V>['keyMap'] {
+	get keyMap(): RMap<K, RSet.NonEmpty<V>> {
 		return this.context.keyMapContext.empty();
 	}
 
@@ -54,12 +49,12 @@ export class MultiMapEmpty<K, V, Tp extends ContextImplTypes>
 		return false;
 	}
 
-	add(key: K, value: V): WithKeyValue<Tp, K, V>['nonEmpty'] {
+	add(key: K, value: V): MultiMap.NonEmpty<K, V> {
 		const values = this.context.keyMapValuesContext.of(value);
 		const keyMap = this.context.keyMapContext.of<K, RSet.NonEmpty<V>>([
 			key,
 			values,
-		]) as WithKeyValue<Tp, K, V>['keyMapNonEmpty'];
+		]) as RMap.NonEmpty<K, RSet.NonEmpty<V>>;
 
 		return this.context.createNonEmpty(keyMap, 1);
 	}
@@ -68,22 +63,19 @@ export class MultiMapEmpty<K, V, Tp extends ContextImplTypes>
 		return this.context.from(entries);
 	}
 
-	getValues(): WithKeyValue<Tp, K, V>['keyMapValues'] {
+	getValues(): RSet<V> {
 		return this.context.keyMapValuesContext.empty();
 	}
 
-	setValues(
-		key: K,
-		values: StreamSource<V>,
-	): WithKeyValue<Tp, K, V>['nonEmpty'] {
+	setValues(key: K, values: StreamSource<V>): any {
 		const valueSet: RSet<V> = this.context.keyMapValuesContext.from(values);
 
-		if (!valueSet.nonEmpty()) return this as any;
+		if (!valueSet.nonEmpty()) return this;
 
 		const keyMap = this.context.keyMapContext.of<K, RSet.NonEmpty<V>>([
 			key,
 			valueSet,
-		]) as WithKeyValue<Tp, K, V>['keyMapNonEmpty'];
+		]);
 
 		return this.context.createNonEmpty(keyMap, valueSet.size);
 	}
@@ -91,33 +83,33 @@ export class MultiMapEmpty<K, V, Tp extends ContextImplTypes>
 	modifyAt(
 		atKey: K,
 		options: { ifNew?: OptLazy<StreamSource<V>> },
-	): WithKeyValue<Tp, K, V>['normal'] {
-		if (undefined === options.ifNew) return this as any;
+	): MultiMap<K, V> {
+		if (undefined === options.ifNew) return this;
 
 		return this.setValues(atKey, OptLazy(options.ifNew));
 	}
 
-	removeKey(): WithKeyValue<Tp, K, V>['normal'] {
-		return this as any;
+	removeKey(): MultiMap<K, V> {
+		return this;
 	}
 
-	removeKeys(): WithKeyValue<Tp, K, V>['normal'] {
-		return this as any;
+	removeKeys(): MultiMap<K, V> {
+		return this;
 	}
 
 	removeKeyAndGet(): undefined {
 		return undefined;
 	}
 
-	removeEntry(): WithKeyValue<Tp, K, V>['normal'] {
-		return this as any;
+	removeEntry(): this {
+		return this;
 	}
 
-	removeEntries(): WithKeyValue<Tp, K, V>['normal'] {
-		return this as any;
+	removeEntries(): this {
+		return this;
 	}
 
-	toBuilder(): WithKeyValue<Tp, K, V>['builder'] {
+	toBuilder(): MultiMap.Builder<K, V> {
 		return this.context.builder();
 	}
 
@@ -133,41 +125,39 @@ export class MultiMapEmpty<K, V, Tp extends ContextImplTypes>
 	}
 }
 
-export class MultiMapNonEmpty<
-		K,
-		V,
-		Tp extends ContextImplTypes,
-		TpG extends WithKeyValue<Tp, K, V> = WithKeyValue<Tp, K, V>,
-	>
+export class MultiMapNonEmpty<K, V>
 	extends NonEmptyBase<[K, V]>
-	implements MultiMapBase.NonEmpty<K, V, Tp>
+	implements MultiMapBase.NonEmpty<K, V>
 {
-	declare _NonEmptyType: TpG['nonEmpty'];
+	declare _NonEmptyType: MultiMap.NonEmpty<K, V>;
 
 	constructor(
-		readonly context: TpG['context'],
-		readonly keyMap: TpG['keyMapNonEmpty'],
+		readonly context: ContextImpl<K, V>,
+		readonly keyMap: RMap.NonEmpty<K, RSet.NonEmpty<V>>,
 		readonly size: number,
 	) {
 		super();
 	}
 
-	assumeNonEmpty(): any {
+	assumeNonEmpty(): this {
 		return this;
 	}
 
-	asNormal(): any {
+	asNormal(): this {
 		return this;
 	}
 
-	copy(keyMap: TpG['keyMapNonEmpty'], size: number): TpG['nonEmpty'] {
-		if (keyMap === this.keyMap) return this as any;
-		return this.context.createNonEmpty<K, V>(keyMap as any, size);
+	copy(
+		keyMap: RMap.NonEmpty<K, RSet.NonEmpty<V>>,
+		size: number,
+	): MultiMap.NonEmpty<K, V> {
+		if (keyMap === this.keyMap) return this;
+		return this.context.createNonEmpty<K, V>(keyMap, size);
 	}
 
-	copyE(keyMap: TpG['keyMap'], size: number): TpG['normal'] {
+	copyE(keyMap: RMap<K, RSet.NonEmpty<V>>, size: number): MultiMap<K, V> {
 		if (keyMap.nonEmpty()) {
-			return this.copy(keyMap.assumeNonEmpty(), size) as TpG['normal'];
+			return this.copy(keyMap.assumeNonEmpty(), size);
 		}
 
 		return this.context.empty();
@@ -206,11 +196,11 @@ export class MultiMapNonEmpty<
 		return values?.has(value) ?? false;
 	}
 
-	getValues<U>(key: RelatedTo<K, U>): TpG['keyMapValues'] {
+	getValues<U>(key: RelatedTo<K, U>): RSet<V> {
 		return this.keyMap.get(key, this.context.keyMapValuesContext.empty());
 	}
 
-	add(key: K, value: V): TpG['nonEmpty'] {
+	add(key: K, value: V): MultiMap.NonEmpty<K, V> {
 		let newSize = this.size;
 
 		const newKeyMap = this.keyMap
@@ -235,26 +225,28 @@ export class MultiMapNonEmpty<
 		return this.copy(newKeyMap, newSize);
 	}
 
-	addEntries(entries: StreamSource<readonly [K, V]>): TpG['nonEmpty'] {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries))
-			return this as any;
+	addEntries(entries: StreamSource<readonly [K, V]>): MultiMap.NonEmpty<K, V> {
+		if (StreamFactory().isEmptyStreamSourceInstance(entries)) return this;
 
 		const builder = this.toBuilder();
 		builder.addEntries(entries);
 		return builder.build().assumeNonEmpty();
 	}
 
-	setValues(key: K, values: any): any {
-		return this.modifyAt(key, { ifNew: values, ifExists: () => values });
+	setValues(key: K, values: StreamSource<V>): MultiMap.NonEmpty<K, V> {
+		return this.modifyAt(key, {
+			ifNew: values,
+			ifExists: () => values,
+		}).assumeNonEmpty();
 	}
 
-	removeKey<UK>(key: RelatedTo<K, UK>): TpG['normal'] {
-		if (!this.context.keyMapContext.isValidKey(key)) return this as any;
+	removeKey<UK>(key: RelatedTo<K, UK>): MultiMap<K, V> {
+		if (!this.context.keyMapContext.isValidKey(key)) return this;
 		return this.modifyAt(key, { ifExists: () => [] });
 	}
 
-	removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): TpG['normal'] {
-		if (StreamFactory().isEmptyStreamSourceInstance(keys)) return this as any;
+	removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): MultiMap<K, V> {
+		if (StreamFactory().isEmptyStreamSourceInstance(keys)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeKeys(keys);
@@ -263,10 +255,10 @@ export class MultiMapNonEmpty<
 
 	removeKeyAndGet<UK>(
 		key: RelatedTo<K, UK>,
-	): [TpG['normal'], TpG['keyMapValuesNonEmpty']] | undefined {
+	): [MultiMap<K, V>, RSet.NonEmpty<V>] | undefined {
 		if (!this.context.keyMapContext.isValidKey(key)) return undefined;
 
-		let removed: TpG['keyMapValuesNonEmpty'] | undefined;
+		let removed: RSet.NonEmpty<V> | undefined;
 
 		const result = this.modifyAt(key, {
 			ifExists: (values) => {
@@ -283,19 +275,18 @@ export class MultiMapNonEmpty<
 	removeEntry<UK, UV>(
 		key: RelatedTo<K, UK>,
 		value: RelatedTo<V, UV>,
-	): TpG['normal'] {
-		if (!this.context.keyMapContext.isValidKey(key)) return this as any;
+	): MultiMap<K, V> {
+		if (!this.context.keyMapContext.isValidKey(key)) return this;
 
 		return this.modifyAt(key, {
-			ifExists: (values: TpG['keyMapValuesNonEmpty']) => values.remove(value),
+			ifExists: (values) => values.remove(value),
 		});
 	}
 
 	removeEntries<UK, UV>(
 		entries: StreamSource<[RelatedTo<K, UK>, RelatedTo<V, UV>]>,
-	): TpG['normal'] {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries))
-			return this as any;
+	): MultiMap<K, V> {
+		if (StreamFactory().isEmptyStreamSourceInstance(entries)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeEntries(entries);
@@ -305,12 +296,12 @@ export class MultiMapNonEmpty<
 	filter(
 		pred: (entry: [K, V], index: number, halt: () => void) => boolean,
 		options: { negate?: boolean } = {},
-	): TpG['normal'] {
+	): MultiMap<K, V> {
 		const builder = this.context.builder();
 
 		builder.addEntries(this.stream().filter(pred, options));
 
-		if (builder.size === this.size) return this as any;
+		if (builder.size === this.size) return this;
 		return builder.build();
 	}
 
@@ -330,10 +321,10 @@ export class MultiMapNonEmpty<
 		options: {
 			ifNew?: OptLazy<StreamSource<V>>;
 			ifExists?:
-				| ((currentValues: TpG['keyMapValuesNonEmpty']) => StreamSource<V>)
+				| ((currentValues: RSet.NonEmpty<V>) => StreamSource<V>)
 				| StreamSource<V>;
 		},
-	): TpG['normal'] {
+	): MultiMap<K, V> {
 		let newSize = this.size;
 
 		const { ifNew, ifExists } = options;
@@ -397,23 +388,17 @@ export class MultiMapNonEmpty<
 		};
 	}
 
-	toBuilder(): TpG['builder'] {
-		return this.context.createBuilder(this as any);
+	toBuilder(): MultiMap.Builder<K, V> {
+		return this.context.createBuilder(this);
 	}
 }
 
-export class MultiMapBuilder<
-	K,
-	V,
-	Tp extends ContextImplTypes,
-	TpG extends WithKeyValue<Tp, K, V> = WithKeyValue<Tp, K, V>,
-> implements MultiMapBase.Builder<K, V, Tp>
-{
+export class MultiMapBuilder<K, V> implements MultiMapBase.Builder<K, V> {
 	_lock = 0;
 	_size = 0;
 
 	constructor(
-		readonly context: TpG['context'],
+		readonly context: ContextImpl<K, V>,
 		public source?: MultiMap.NonEmpty<K, V>,
 	) {
 		if (undefined !== source) this._size = source.size;
@@ -447,7 +432,6 @@ export class MultiMapBuilder<
 		return this.size === 0;
 	}
 
-	// prettier-ignore
 	getValues = <UK>(key: RelatedTo<K, UK>): any => {
 		return (
 			this.source?.getValues(key) ??
@@ -456,12 +440,10 @@ export class MultiMapBuilder<
 		);
 	};
 
-	// prettier-ignore
 	hasKey = <UK>(key: RelatedTo<K, UK>): boolean => {
 		return this.source?.hasKey(key) ?? this.keyMap.hasKey(key);
 	};
 
-	// prettier-ignore
 	hasEntry = <UK>(key: RelatedTo<K, UK>, value: V): boolean => {
 		return (
 			this.source?.hasEntry(key, value) ??
@@ -565,7 +547,6 @@ export class MultiMapBuilder<
 		return Stream.applyFilter(entries, { pred: this.removeEntry }).count() > 0;
 	};
 
-	// prettier-ignore
 	removeKey = <UK>(key: RelatedTo<K, UK>): boolean => {
 		this.checkLock();
 
@@ -583,7 +564,6 @@ export class MultiMapBuilder<
 		return changed;
 	};
 
-	// prettier-ignore
 	removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
 		this.checkLock();
 
@@ -619,7 +599,7 @@ export class MultiMapBuilder<
 		this._lock--;
 	};
 
-	build = (): TpG['normal'] => {
+	build = (): MultiMap<K, V> => {
 		if (undefined !== this.source) return this.source;
 
 		if (this.isEmpty) return this.context.empty();
@@ -629,126 +609,6 @@ export class MultiMapBuilder<
 				.buildMapValues((values) => values.build().assumeNonEmpty())
 				.assumeNonEmpty(),
 			this.size,
-		) as TpG['normal'];
-	};
-}
-
-export class MultiMapContext<
-	UK,
-	UV,
-	N extends string,
-	Tp extends ContextImplTypes = ContextImplTypes,
-> implements MultiMapBase.Context<UK, UV, Tp>
-{
-	constructor(
-		readonly typeTag: N,
-		readonly keyMapContext: (Tp & KeyValue<UK, UV>)['keyMapContext'],
-		readonly keyMapValuesContext: (Tp &
-			KeyValue<UK, UV>)['keyMapValuesContext'],
-	) {}
-
-	readonly _empty = Object.freeze(
-		new MultiMapEmpty<UK, UV, Tp>(this as any) as WithKeyValue<
-			Tp,
-			UK,
-			UV
-		>['normal'],
-	);
-
-	isNonEmptyInstance<K, V>(
-		source: any,
-	): source is WithKeyValue<Tp, K, V>['nonEmpty'] {
-		return source instanceof MultiMapNonEmpty;
-	}
-
-	createNonEmpty<K extends UK, V extends UV>(
-		keyMap: WithKeyValue<Tp, K, V>['keyMapNonEmpty'],
-		size: number,
-	): WithKeyValue<Tp, K, V>['nonEmpty'] {
-		return new MultiMapNonEmpty<K, V, Tp>(
-			this as any,
-			keyMap,
-			size,
-		) as WithKeyValue<Tp, K, V>['nonEmpty'];
-	}
-
-	readonly empty = <K extends UK, V extends UV>(): WithKeyValue<
-		Tp,
-		K,
-		V
-	>['normal'] => {
-		return this._empty;
-	};
-
-	readonly from: any = <K extends UK, V extends UV>(
-		...sources: ArrayNonEmpty<StreamSource<readonly [K, V]>>
-	): WithKeyValue<Tp, K, V>['normal'] => {
-		let builder = this.builder<K, V>();
-
-		let i = -1;
-		const length = sources.length;
-
-		while (++i < length) {
-			const source = sources[i];
-
-			if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
-			if (
-				builder.isEmpty &&
-				this.isNonEmptyInstance<K, V>(source) &&
-				source.context === this
-			) {
-				if (i === length - 1) return source;
-				builder = source.toBuilder();
-				continue;
-			}
-
-			builder.addEntries(source);
-		}
-
-		return builder.build();
-	};
-
-	readonly of = <K extends UK, V extends UV>(
-		...entries: ArrayNonEmpty<readonly [K, V]>
-	): [K, V] extends [UK, UV] ? WithKeyValue<Tp, K, V>['nonEmpty'] : never => {
-		return this.from(entries);
-	};
-
-	readonly builder = <K extends UK, V extends UV>(): WithKeyValue<
-		Tp,
-		K,
-		V
-	>['builder'] => {
-		return new MultiMapBuilder<K, V, Tp>(this as any) as WithKeyValue<
-			Tp,
-			K,
-			V
-		>['builder'];
-	};
-
-	readonly reducer = <K extends UK, V extends UV>(
-		source?: StreamSource<readonly [K, V]>,
-	): Reducer<readonly [K, V], WithKeyValue<Tp, K, V>['normal']> => {
-		return Reducer.create(
-			() =>
-				undefined === source
-					? this.builder<K, V>()
-					: (this.from(source) as WithKeyValue<Tp, K, V>['normal']).toBuilder(),
-			(builder, entry) => {
-				builder.add(entry[0], entry[1]);
-				return builder;
-			},
-			(builder) => builder.build(),
 		);
 	};
-
-	createBuilder<K, V>(
-		source?: MultiMap.NonEmpty<K, V>,
-	): WithKeyValue<Tp, K, V>['builder'] {
-		return new MultiMapBuilder<K, V, Tp>(this as any, source) as WithKeyValue<
-			Tp,
-			K,
-			V
-		>['builder'];
-	}
 }

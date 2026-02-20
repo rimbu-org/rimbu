@@ -78,7 +78,6 @@ export class HashSetBlockBuilder<T>
 		return this._entrySets!;
 	}
 
-	// prettier-ignore
 	has = <U>(value: RelatedTo<T, U>): boolean => {
 		if (undefined !== this.source) return this.source.has(value);
 
@@ -177,7 +176,6 @@ export class HashSetBlockBuilder<T>
 		return true;
 	}
 
-	// prettier-ignore
 	remove = <ST>(value: ST): boolean => {
 		this.checkLock();
 
@@ -186,7 +184,6 @@ export class HashSetBlockBuilder<T>
 		return this.removeInternal(value);
 	};
 
-	// prettier-ignore
 	removeAll = <ST>(values: StreamSource<ST>): boolean => {
 		this.checkLock();
 

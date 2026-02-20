@@ -204,7 +204,6 @@ export interface ReducerFactory {
 	 * // => 7
 	 * ```
 	 */
-	// prettier-ignore
 	max: {
 		(): Reducer<number, number | undefined>;
 		<O>(otherwise: OptLazy<O>): Reducer<number, number | O>;

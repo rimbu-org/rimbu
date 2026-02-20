@@ -68,7 +68,6 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
 		return this.keyValueMap.get(key, otherwise!);
 	};
 
-	// prettier-ignore
 	hasKey = <UK>(key: RelatedTo<K, UK>): boolean => {
 		const token = Symbol();
 		return token !== this.getValue(key, token);
@@ -79,7 +78,6 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
 		return this.valueKeyMap.get(value, otherwise!);
 	};
 
-	// prettier-ignore
 	hasValue = <UV>(value: RelatedTo<V, UV>): boolean => {
 		const token = Symbol();
 		return token !== this.getKey(value, token);
@@ -155,7 +153,6 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
 		return value;
 	};
 
-	// prettier-ignore
 	removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
 		this.checkLock();
 
@@ -193,7 +190,6 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
 		return key;
 	};
 
-	// prettier-ignore
 	removeValues = <UV>(values: StreamSource<RelatedTo<V, UV>>): boolean => {
 		this.checkLock();
 

@@ -1,12 +1,12 @@
 import type { Stream, Streamable } from '@rimbu/stream';
+import type { HashMultiMapSortedValueCreators } from '../internal/creators';
 
-import type { HashMultiMapSortedValueCreators } from '#multimap/creators';
 import type { MultiMapBase } from '#multimap/types';
 
 import { HashMap } from '@rimbu/hashed/map';
 import { SortedSet } from '@rimbu/sorted/set';
 
-import { MultiMapContext } from '#multimap/base';
+import { createMultiMapContextModule } from '#multimap/context-factory';
 
 /**
  * A type-invariant immutable MultiMap of key type K, and value type V.
@@ -105,33 +105,9 @@ export namespace HashMultiMapSortedValue {
 	}
 }
 
-function createContext<K, V>(options?: {
-	keyMapContext?: HashMap.Context<K>;
-	keyMapValuesContext?: SortedSet.Context<V>;
-}): HashMultiMapSortedValue.Context<K, V> {
-	return Object.freeze(
-		new MultiMapContext<K, V, 'HashMultiMapSortedValue', any>(
-			'HashMultiMapSortedValue',
-			options?.keyMapContext ?? HashMap.defaultContext(),
-			options?.keyMapValuesContext ?? SortedSet.defaultContext(),
-		),
-	);
-}
-
-const _defaultContext: HashMultiMapSortedValue.Context<any, any> =
-	createContext();
-
-/**
- * The default `HashMultiMapSortedValue` creators and context.
- *
- * Use this exported value to create and work with immutable `HashMultiMapSortedValue` instances.
- * See the [MultiMap documentation](https://rimbu.org/docs/collections/multimap) and the [HashMultiMapSortedValue API documentation](https://rimbu.org/api/rimbu/multimap/HashMultiMapSortedValue/interface).
- */
 export const HashMultiMapSortedValue: HashMultiMapSortedValueCreators =
-	Object.freeze({
-		..._defaultContext,
-		createContext,
-		defaultContext<UK, UV>(): HashMultiMapSortedValue.Context<UK, UV> {
-			return _defaultContext;
-		},
-	});
+	createMultiMapContextModule({
+		typeTag: 'HashMultiMapSortedValue',
+		keyMapContext: HashMap.defaultContext(),
+		keyMapValuesContext: SortedSet.defaultContext(),
+	}).build();

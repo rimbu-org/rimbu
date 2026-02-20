@@ -4,7 +4,7 @@ import type { Streamable } from '@rimbu/stream';
 import type { MultiMapCreators } from '#multimap/creators';
 import type { MultiMapBase } from '#multimap/types';
 
-import { MultiMapContext } from '#multimap/base';
+import { createMultiMapContextModule } from '@rimbu/multimap/internal/context-factory';
 
 /**
  * A type-invariant immutable MultiMap of key type K, and value type V.
@@ -68,12 +68,9 @@ export const MultiMap: MultiMapCreators = Object.freeze({
 		keyMapContext: RMap.Context<UK>;
 		keyMapValuesContext: RSet.Context<UV>;
 	}): MultiMap.Context<UK, UV> {
-		return Object.freeze(
-			new MultiMapContext<UK, UV, 'MultiMap', any>(
-				'MultiMap',
-				options.keyMapContext,
-				options.keyMapValuesContext,
-			),
-		);
+		return createMultiMapContextModule({
+			...options,
+			typeTag: 'MultiMap',
+		}).build();
 	},
 });

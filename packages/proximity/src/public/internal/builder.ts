@@ -52,7 +52,6 @@ export class ProximityMapBuilder<K, V> implements ProximityMap.Builder<K, V> {
 		return this.internalBuilder.get(key, otherwise!);
 	};
 
-	// prettier-ignore
 	hasKey = <UK = K>(key: RelatedTo<K, UK>): boolean => {
 		return this.internalBuilder.hasKey(key);
 	};
@@ -102,7 +101,6 @@ export class ProximityMapBuilder<K, V> implements ProximityMap.Builder<K, V> {
 		return this.internalBuilder.removeKey(key, otherwise!);
 	};
 
-	// prettier-ignore
 	removeKeys = <UK = K>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
 		const hasChanged = this.internalBuilder.removeKeys(keys);
 
@@ -134,7 +132,6 @@ export class ProximityMapBuilder<K, V> implements ProximityMap.Builder<K, V> {
 		return hasChanged;
 	};
 
-	// prettier-ignore
 	updateAt = <O>(
 		key: K,
 		update: RMapBase.Update<V>,
@@ -161,7 +158,6 @@ export class ProximityMapBuilder<K, V> implements ProximityMap.Builder<K, V> {
 			: wrapHashMap(this.context, this.internalBuilder.build());
 	};
 
-	// prettier-ignore
 	buildMapValues = <V2>(
 		mapFun: (value: V, key: K) => V2,
 	): ProximityMap<K, V2> => {

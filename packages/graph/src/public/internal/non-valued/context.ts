@@ -78,7 +78,6 @@ export class GraphContext<
 		return builder.build();
 	};
 
-	// prettier-ignore
 	readonly of = <N>(...values: ArrayNonEmpty<GraphElement<N>>): any => {
 		return this.from(values).assumeNonEmpty();
 	};

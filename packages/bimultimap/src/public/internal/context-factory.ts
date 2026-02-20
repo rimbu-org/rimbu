@@ -14,7 +14,6 @@ import { BiMultiMapEmpty, BiMultiMapNonEmpty } from '#bimultimap/immutable';
 export interface ContextImpl<UK, UV>
 	extends BiMultiMap.Context<UK, UV>,
 		BiMultiMapGeneric.Creators {
-	typeTag: string;
 	createNonEmpty<K, V>(
 		keyValueMultiMap: MultiMap.NonEmpty<K, V>,
 		valueKeyMultiMap: MultiMap.NonEmpty<V, K>,

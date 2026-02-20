@@ -117,7 +117,6 @@ export class HashMapBlockBuilder<K, V>
 		return OptLazy(otherwise) as O;
 	};
 
-	// prettier-ignore
 	hasKey = <UK>(key: RelatedTo<K, UK>): boolean => {
 		const token = Symbol();
 		return token !== this.get(key, token);
@@ -335,7 +334,6 @@ export class HashMapBlockBuilder<K, V>
 		return true;
 	};
 
-	// prettier-ignore
 	updateAt = <O>(key: K, update: Update<V>, otherwise?: OptLazy<O>): V | O => {
 		let result: V;
 		let found = false;
@@ -374,7 +372,6 @@ export class HashMapBlockBuilder<K, V>
 		return removedValue!;
 	};
 
-	// prettier-ignore
 	removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
 		this.checkLock();
 
@@ -420,7 +417,6 @@ export class HashMapBlockBuilder<K, V>
 		return this.context.block(entries, entrySets, this.size, this.level);
 	}
 
-	// prettier-ignore
 	buildMapValues = <V2>(f: (value: V, key: K) => V2): HashMap<K, V2> => {
 		if (this.size === 0) {
 			return this.context.empty() as unknown as HashMap<K, V2>;

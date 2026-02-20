@@ -6,7 +6,7 @@ import type { MultiMapBase } from '#multimap/types';
 import { SortedMap } from '@rimbu/sorted/map';
 import { SortedSet } from '@rimbu/sorted/set';
 
-import { MultiMapContext } from '#multimap/base';
+import { createMultiMapContextModule } from '#multimap/context-factory';
 
 /**
  * A type-invariant immutable MultiMap of key type K, and value type V.
@@ -108,33 +108,9 @@ export namespace SortedMultiMapSortedValue {
 	}
 }
 
-function createContext<K, V>(options?: {
-	keyMapContext?: SortedMap.Context<K>;
-	keyMapValuesContext?: SortedSet.Context<V>;
-}): SortedMultiMapSortedValue.Context<K, V> {
-	return Object.freeze(
-		new MultiMapContext<K, V, 'SortedMultiMapSortedValue', any>(
-			'SortedMultiMapSortedValue',
-			options?.keyMapContext ?? SortedMap.defaultContext(),
-			options?.keyMapValuesContext ?? SortedSet.defaultContext(),
-		),
-	);
-}
-
-const _defaultContext: SortedMultiMapSortedValue.Context<any, any> =
-	createContext();
-
-/**
- * The default `SortedMultiMapSortedValue` creators and context.
- *
- * Use this exported value to create and work with immutable `SortedMultiMapSortedValue` instances.
- * See the [MultiMap documentation](https://rimbu.org/docs/collections/multimap) and the [SortedMultiMapSortedValue API documentation](https://rimbu.org/api/rimbu/multimap/SortedMultiMapSortedValue/interface).
- */
 export const SortedMultiMapSortedValue: SortedMultiMapSortedValueCreators =
-	Object.freeze({
-		..._defaultContext,
-		createContext,
-		defaultContext<UK, UV>(): SortedMultiMapSortedValue.Context<UK, UV> {
-			return _defaultContext;
-		},
-	});
+	createMultiMapContextModule({
+		typeTag: 'SortedMultiMapSortedValue',
+		keyMapContext: SortedMap.defaultContext(),
+		keyMapValuesContext: SortedSet.defaultContext(),
+	}).build();

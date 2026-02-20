@@ -5,8 +5,7 @@ import type { MultiMapBase } from '#multimap/types';
 
 import { HashMap } from '@rimbu/hashed/map';
 import { HashSet } from '@rimbu/hashed/set';
-
-import { MultiMapContext } from '#multimap/base';
+import { createMultiMapContextModule } from '../internal/context-factory';
 
 /**
  * A type-invariant immutable MultiMap of key type K, and value type V.
@@ -105,33 +104,9 @@ export namespace HashMultiMapHashValue {
 	}
 }
 
-function createContext<UK, UV>(options?: {
-	keyMapContext?: HashMap.Context<UK>;
-	keyMapValuesContext?: HashSet.Context<UV>;
-}): HashMultiMapHashValue.Context<UK, UV> {
-	return Object.freeze(
-		new MultiMapContext<UK, UV, 'HashMultiMapHashValue', any>(
-			'HashMultiMapHashValue',
-			options?.keyMapContext ?? HashMap.defaultContext(),
-			options?.keyMapValuesContext ?? HashSet.defaultContext(),
-		),
-	);
-}
-
-const _defaultContext: HashMultiMapHashValue.Context<any, any> =
-	createContext();
-
-/**
- * The default `HashMultiMapHashValue` creators and context.
- *
- * Use this exported value to create and work with immutable `HashMultiMapHashValue` instances.
- * See the [MultiMap documentation](https://rimbu.org/docs/collections/multimap) and the [HashMultiMapHashValue API documentation](https://rimbu.org/api/rimbu/multimap/HashMultiMapHashValue/interface).
- */
 export const HashMultiMapHashValue: HashMultiMapHashValueCreators =
-	Object.freeze({
-		..._defaultContext,
-		createContext,
-		defaultContext<UK, UV>(): HashMultiMapHashValue.Context<UK, UV> {
-			return _defaultContext;
-		},
-	});
+	createMultiMapContextModule({
+		typeTag: 'HashMultiMapHashValue',
+		keyMapContext: HashMap.defaultContext(),
+		keyMapValuesContext: HashSet.defaultContext(),
+	}).build();

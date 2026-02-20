@@ -31,7 +31,6 @@ export class GenBuilder<T> implements List.Builder<T> {
 		return this.length === 0;
 	}
 
-	// prettier-ignore
 	get = <O>(index: number, otherwise?: OptLazy<O>): T | O => {
 		if (
 			undefined === this.builder ||
@@ -47,7 +46,6 @@ export class GenBuilder<T> implements List.Builder<T> {
 		return this.builder.get(index, otherwise);
 	};
 
-	// prettier-ignore
 	updateAt = <O>(
 		index: number,
 		update: Update<T>,
@@ -69,7 +67,6 @@ export class GenBuilder<T> implements List.Builder<T> {
 		return this.builder.updateAt(index, update);
 	};
 
-	// prettier-ignore
 	set = <O>(index: number, value: T, otherwise?: OptLazy<O>): T | O => {
 		return this.updateAt(index, value, otherwise);
 	};
@@ -194,7 +191,6 @@ export class GenBuilder<T> implements List.Builder<T> {
 		}
 	};
 
-	// prettier-ignore
 	remove = <O>(index: number, otherwise?: OptLazy<O>): T | O => {
 		this.checkLock();
 
@@ -243,7 +239,6 @@ export class GenBuilder<T> implements List.Builder<T> {
 		return result;
 	};
 
-	// prettier-ignore
 	buildMap = <T2>(f: (value: T) => T2): List<T2> => {
 		if (undefined === this.builder) {
 			return this.context.empty();

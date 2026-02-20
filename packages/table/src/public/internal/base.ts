@@ -592,7 +592,6 @@ export class TableBuilder<
 		return result.get<UC, O>(column, otherwise!);
 	};
 
-	// prettier-ignore
 	getRow = <UR>(row: RelatedTo<R, UR>): any => {
 		if (undefined !== this.source) return this.source.getRow(row);
 
@@ -612,7 +611,6 @@ export class TableBuilder<
 		return token !== this.get(row, column, token);
 	};
 
-	// prettier-ignore
 	hasRowKey = <UR>(row: RelatedTo<R, UR>): boolean => {
 		return this.source?.hasRowKey(row) ?? this.rowMap.hasKey(row);
 	};
@@ -694,7 +692,6 @@ export class TableBuilder<
 		return removedValue;
 	};
 
-	// prettier-ignore
 	removeRow = <UR>(row: RelatedTo<R, UR>): boolean => {
 		this.checkLock();
 
@@ -709,7 +706,6 @@ export class TableBuilder<
 		});
 	};
 
-	// prettier-ignore
 	removeRows = <UR>(rows: StreamSource<RelatedTo<R, UR>>): boolean => {
 		this.checkLock();
 
@@ -790,7 +786,6 @@ export class TableBuilder<
 		return changed;
 	};
 
-	// prettier-ignore
 	updateAt = <O>(
 		row: R,
 		column: C,
@@ -859,7 +854,6 @@ export class TableBuilder<
 		) as any;
 	};
 
-	// prettier-ignore
 	buildMapValues = <V2>(mapFun: (value: V, row: R, column: C) => V2): any => {
 		if (undefined !== this.source) return this.source.mapValues<V2>(mapFun);
 

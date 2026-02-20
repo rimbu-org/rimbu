@@ -60,7 +60,6 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
 		this._children = value;
 	}
 
-	// prettier-ignore
 	has = <U>(value: RelatedTo<T, U>): boolean => {
 		if (!this.context.comp.isComparable(value)) return false;
 
@@ -92,7 +91,6 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
 		return Stream.from(source).filterPure({ pred: this.add }).count() > 0;
 	};
 
-	// prettier-ignore
 	remove = <U>(value: RelatedTo<T, U>): boolean => {
 		this.checkLock();
 
@@ -103,7 +101,6 @@ export class SortedSetBuilder<T> extends SortedBuilder<T> {
 		return result;
 	};
 
-	// prettier-ignore
 	removeAll = <U>(values: StreamSource<RelatedTo<T, U>>): boolean => {
 		this.checkLock();
 

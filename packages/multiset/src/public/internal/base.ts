@@ -439,7 +439,6 @@ export class MultiSetBuilder<
 		return 0 === this.size;
 	}
 
-	// prettier-ignore
 	has = <U>(value: RelatedTo<T, U>): boolean => {
 		return this.source?.has(value) ?? this.countMap.hasKey(value);
 	};
@@ -469,7 +468,6 @@ export class MultiSetBuilder<
 		return Stream.applyFilter(entries, { pred: this.add }).count() > 0;
 	};
 
-	// prettier-ignore
 	remove = <U>(value: RelatedTo<T, U>, amount: number | 'ALL' = 1): number => {
 		this.checkLock();
 
@@ -556,12 +554,10 @@ export class MultiSetBuilder<
 		return changed;
 	};
 
-	// prettier-ignore
 	count = <U>(value: RelatedTo<T, U>): number => {
 		return this.source?.count(value) ?? this.countMap.get(value, 0);
 	};
 
-	// prettier-ignore
 	removeAll = <U>(
 		values: StreamSource<RelatedTo<T, U>>,
 		mode: 'SINGLE' | 'ALL',
@@ -577,12 +573,10 @@ export class MultiSetBuilder<
 		);
 	};
 
-	// prettier-ignore
 	removeAllSingle = <U>(values: StreamSource<RelatedTo<T, U>>): boolean => {
 		return this.removeAll(values, 'SINGLE');
 	};
 
-	// prettier-ignore
 	removeAllEvery = <U>(values: StreamSource<RelatedTo<T, U>>): boolean => {
 		return this.removeAll(values, 'ALL');
 	};
@@ -695,7 +689,6 @@ export class MultiSetContext<
 		return builder.build();
 	};
 
-	// prettier-ignore
 	readonly of = <T>(
 		...values: ArrayNonEmpty<T>
 	): T extends UT ? WithElem<Tp, T>['nonEmpty'] : never => {
