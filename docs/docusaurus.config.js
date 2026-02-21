@@ -7,7 +7,7 @@ module.exports = {
   tagline: 'Immutable collections and tools for TypeScript',
   url: 'https://rimbu.org',
   baseUrl: '/',
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
   organizationName: 'rimbu-org',
@@ -28,11 +28,7 @@ module.exports = {
           position: 'left',
           label: 'Docs',
         },
-        {
-          to: '/api',
-          label: 'API Docs',
-          position: 'left',
-        },
+
         { to: '/blog', label: 'Blog', position: 'left' },
         {
           href: 'https://github.com/rimbu-org/rimbu',
@@ -126,24 +122,6 @@ module.exports = {
       },
     ],
   ],
-  plugins: [
-    [
-      '@docusaurus/plugin-content-docs',
-      {
-        id: 'api',
-        path: 'api',
-        routeBasePath: 'api',
-      },
-    ],
-  ],
-  webpack: {
-    jsLoader: (isServer) => ({
-      loader: require.resolve('esbuild-loader'),
-      options: {
-        loader: 'tsx',
-        format: isServer ? 'cjs' : undefined,
-        target: isServer ? 'node12' : 'es2017',
-      },
-    }),
-  },
+  plugins: [],
+
 };
