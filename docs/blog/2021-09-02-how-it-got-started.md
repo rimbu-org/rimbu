@@ -13,6 +13,8 @@ that discussed how it works, and why it offers reasonably fast random access (de
 method, and I wondered why. I started investigating how the data structure works, and read papers with proposals on how to improve the structure to allow random
 insertion. I also started getting ideas on how it could be done differently and started implementing my own structure.
 
+<!-- truncate -->
+
 This was going slowly but I was progressing. And while I was doing that, I also found ways to have better typed methods for collections in Scala. I thought I might
 as well create a whole collection library instead of just one collection implementation. I learned a lot from this effort about immutable data structures and
 creating strict but useful types. However, after some time, I realized that Scala, while having a great compiler, was holding me back in writing the code I wanted

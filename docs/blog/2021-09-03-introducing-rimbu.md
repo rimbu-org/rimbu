@@ -13,6 +13,8 @@ tags: [rimbu, immmutable, collections, typescript]
 A new collection library for TypeScript? Aren't `Array`, `Set`, and `Map` good enough? What about `immutable.js`? Well, I understand you have a lot of questions
 my friend. Let me start by describing what Rimbu is all about.
 
+<!-- truncate -->
+
 ### Immutability: Create safer code
 
 When you start using TypeScript, you are taught it is better to use `const` where possible instead of `let` or `var`. Why is that? Well, mainly because, once you

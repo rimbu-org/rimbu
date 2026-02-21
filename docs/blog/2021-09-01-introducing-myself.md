@@ -17,6 +17,8 @@ scale my programs up without everything becoming one big mess, but it still had 
 the importance of structured programming to keep complexity at bay. I became really interested (as many I guess) in pure functional programming, and actually
 did my Master's Degree in this topic. Composing functions and having no mutability were things that really struck me as being game changers for scaling programs.
 
+<!-- truncate -->
+
 Then, after university, reality kicked in: almost no company was (is?) using pure functional programming. So I went back to Java, C#, etc. I did spend a lot of my
 free time using Scala, which I still think has a great mixture of different paradigms, including immutable collections. But Scala, unfortunately, was
 also not really used inside the company.

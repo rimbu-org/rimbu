@@ -78,7 +78,7 @@ Types and their factory/namespace are exported from the same name using TypeScri
 ### No Relative Imports
 Biome enforces no relative imports inside `src/`. Always use the package alias (`@rimbu/common/eq`) even within the same package. Cross-package imports must use the published package name.
 
-### JSDoc on Everything Public
+### TSDoc on Everything Public
 All exported types, functions, and namespace members must have TSDoc. Include `@typeparam`, `@returns`, and at least one `@example` block with a ` ```ts ` code fence.
 
 ### Test Style
@@ -91,4 +91,4 @@ Tests use `bun:test` (`describe`/`it`/`expect`). Type-level tests live in `test-
 - Run `bun run biome:fix` to auto-fix before committing
 
 ### Commits
-Conventional Commits format. Use `bun run commit` to get the interactive commitizen prompt.
+Conventional Commits format. **Do not** use `git commit -m` directly or amend commits after pushing. Always create new commits for fixes.
