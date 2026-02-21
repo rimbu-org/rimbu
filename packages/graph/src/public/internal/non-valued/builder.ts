@@ -1,35 +1,33 @@
+import type { RMap, RSet } from '@rimbu/collection-types';
 import type { RelatedTo } from '@rimbu/common/types';
 
-import type { WithGraphValues } from '#graph/common/base';
-import type { GraphTypesContextImpl } from '#graph/non-valued/context';
+import type { GraphContextImpl } from '#graph/non-valued/context-factory';
+import type { Graph } from '#private/graph';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
+import { TraverseState } from '@rimbu/common/traverse-state';
 import { GraphElement, type Link } from '@rimbu/graph/link';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export class GraphBuilder<
-	N,
-	Tp extends GraphTypesContextImpl,
-	TpG extends WithGraphValues<Tp, N, any> = WithGraphValues<Tp, N, any>,
-> {
+export class GraphBuilder<N> implements Graph.Builder<N> {
 	connectionSize = 0;
 
 	constructor(
 		readonly isDirected: boolean,
-		readonly context: TpG['context'],
-		public source?: TpG['nonEmpty'],
+		readonly context: GraphContextImpl<N>,
+		public source?: Graph.NonEmpty<N>,
 	) {
 		if (undefined !== source) this.connectionSize = source.connectionSize;
 	}
 
-	_linkMap?: TpG['linkMapBuilder'];
+	_linkMap?: RMap.Builder<N, RSet.Builder<N>>;
 	_lock = 0;
 
 	checkLock(): void {
 		if (this._lock) RimbuError.throwModifiedBuilderWhileLoopingOverItError();
 	}
 
-	get linkMap(): TpG['linkMapBuilder'] {
+	get linkMap(): RMap.Builder<N, RSet.Builder<N>> {
 		if (undefined === this._linkMap) {
 			if (undefined === this.source) {
 				this._linkMap = this.context.linkMapContext.builder();
@@ -40,7 +38,7 @@ export class GraphBuilder<
 			}
 		}
 
-		return this._linkMap!;
+		return this._linkMap;
 	}
 
 	get isEmpty(): boolean {
@@ -177,11 +175,11 @@ export class GraphBuilder<
 		return this.connectInternal(node1, node2);
 	};
 
-	connectAll = (connections: StreamSource<TpG['link']>): boolean => {
+	connectAll = (connections: StreamSource<[N, N]>): boolean => {
 		this.checkLock();
 
 		return (
-			Stream.applyFilter(connections as StreamSource<[N, N]>, {
+			Stream.applyFilter(connections, {
 				pred: this.connectInternal,
 			}).count() > 0
 		);
@@ -282,8 +280,34 @@ export class GraphBuilder<
 		);
 	};
 
-	build = (): TpG['normal'] => {
-		if (undefined !== this.source) return this.source as any;
+	forEach(
+		f: (entry: GraphElement<N>, index: number, halt: () => void) => void,
+		options: { state?: TraverseState } = {},
+	): void {
+		if (undefined !== this.source) {
+			this.source.forEach(f, options);
+			return;
+		}
+
+		const { state = TraverseState() } = options;
+
+		this.linkMap.forEach(
+			([source, targets]) => {
+				f([source], state.nextIndex(), state.halt);
+
+				targets.forEach(
+					(target) => {
+						f([source, target], state.nextIndex(), state.halt);
+					},
+					{ state },
+				);
+			},
+			{ state },
+		);
+	}
+
+	build = (): Graph<N> => {
+		if (undefined !== this.source) return this.source;
 
 		if (this.isEmpty) return this.context.empty();
 

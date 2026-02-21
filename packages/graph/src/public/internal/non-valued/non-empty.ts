@@ -1,53 +1,49 @@
-import type { RSet } from '@rimbu/collection-types';
+import type { RMap, RSet } from '@rimbu/collection-types';
 import type { RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { GraphElement, Link } from '@rimbu/graph/link';
 
-import type { WithGraphValues } from '#graph/common/base';
-import type { GraphTypesContextImpl } from '#graph/non-valued/context';
+import type { GraphContextImpl } from '#graph/non-valued/context-factory';
 import type { GraphBase } from '#private/base';
+import type { Graph } from '#private/graph';
 
 import { NonEmptyBase } from '@rimbu/collection-types/common/empty-base';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export class GraphNonEmpty<
-		N,
-		Tp extends GraphTypesContextImpl,
-		TpG extends WithGraphValues<Tp, N, any> = WithGraphValues<Tp, N, any>,
-	>
+export class GraphNonEmpty<N>
 	extends NonEmptyBase<GraphElement<N>>
-	implements GraphBase.NonEmpty<N, Tp>
+	implements GraphBase.NonEmpty<N>
 {
-	declare _NonEmptyType: TpG['nonEmpty'];
+	declare _NonEmptyType: Graph.NonEmpty<N>;
 
 	constructor(
 		readonly isDirected: boolean,
-		readonly context: TpG['context'],
-		readonly linkMap: TpG['linkMapNonEmpty'],
+		readonly context: GraphContextImpl<N>,
+		readonly linkMap: RMap.NonEmpty<N, RSet<N>>,
 		readonly connectionSize: number,
 	) {
 		super();
 	}
 
 	copy(
-		linkMap: TpG['linkMapNonEmpty'],
+		linkMap: RMap.NonEmpty<N, RSet<N>>,
 		connectionSize: number,
-	): TpG['nonEmpty'] {
+	): Graph.NonEmpty<N> {
 		if (linkMap === this.linkMap && connectionSize === this.connectionSize)
-			return this as any;
-		return this.context.createNonEmpty<N>(linkMap as any, connectionSize);
+			return this;
+		return this.context.createNonEmpty(linkMap, connectionSize);
 	}
 
-	copyE(linkMap: TpG['linkMap'], connectionSize: number): TpG['normal'] {
-		if (linkMap.nonEmpty()) return this.copy(linkMap, connectionSize) as any;
+	copyE(linkMap: RMap<N, RSet<N>>, connectionSize: number): Graph<N> {
+		if (linkMap.nonEmpty()) return this.copy(linkMap, connectionSize);
 		return this.context.empty();
 	}
 
-	assumeNonEmpty(): any {
+	assumeNonEmpty(): this {
 		return this;
 	}
 
-	asNormal(): any {
+	asNormal(): this {
 		return this;
 	}
 
@@ -97,7 +93,7 @@ export class GraphNonEmpty<
 		return this.linkMap.streamKeys();
 	}
 
-	streamConnections(): Stream<WithGraphValues<Tp, N, any>['link']> {
+	streamConnections(): Stream<Link<N>> {
 		return this.linkMap
 			.stream()
 			.flatMap(([node1, targets]) =>
@@ -141,7 +137,7 @@ export class GraphNonEmpty<
 		return targets.stream().map((node1) => [node1, node]);
 	}
 
-	getConnectionsFrom<UN = N>(node1: RelatedTo<N, UN>): TpG['linkConnections'] {
+	getConnectionsFrom<UN = N>(node1: RelatedTo<N, UN>): RSet<N> {
 		return this.linkMap.get(
 			node1,
 			this.context.linkConnectionsContext.empty<N>(),
@@ -161,7 +157,7 @@ export class GraphNonEmpty<
 		);
 	}
 
-	addNode(node: N): TpG['nonEmpty'] {
+	addNode(node: N): Graph.NonEmpty<N> {
 		return this.copy(
 			this.linkMap
 				.modifyAt(node, { ifNew: this.context.linkConnectionsContext.empty })
@@ -170,36 +166,39 @@ export class GraphNonEmpty<
 		);
 	}
 
-	addNodes(nodes: StreamSource<N>): TpG['nonEmpty'] {
+	addNodes(nodes: StreamSource<N>): Graph.NonEmpty<N> {
 		const builder = this.toBuilder();
 		builder.addNodes(nodes);
 		return builder.build().assumeNonEmpty();
 	}
 
-	removeNode<UN = N>(node: RelatedTo<N, UN>): TpG['normal'] {
+	removeNode<UN = N>(node: RelatedTo<N, UN>): Graph<N> {
 		const builder = this.toBuilder();
 		builder.removeNode(node);
 		return builder.build();
 	}
 
-	removeNodes<UN>(nodes: StreamSource<RelatedTo<N, UN>>): TpG['normal'] {
+	removeNodes<UN>(nodes: StreamSource<RelatedTo<N, UN>>): Graph<N> {
 		const builder = this.toBuilder();
 		builder.removeNodes(nodes);
 		return builder.build();
 	}
 
-	connect(node1: N, node2: N): TpG['nonEmpty'] {
+	connect(node1: N, node2: N): Graph.NonEmpty<N> {
 		const newLinkMap = this.linkMap.modifyAt(node1, {
 			ifNew: this.context.linkConnectionsContext.of(node2),
 			ifExists: (targets) => targets.add(node2),
 		});
 
-		if (newLinkMap === this.linkMap) return this as any;
+		if (newLinkMap === this.linkMap) return this;
 
 		const newConnectionSize = this.connectionSize + 1;
 
 		if (node1 === node2) {
-			return this.context.createNonEmpty(newLinkMap as any, newConnectionSize);
+			return this.context.createNonEmpty(
+				newLinkMap.assumeNonEmpty(),
+				newConnectionSize,
+			);
 		}
 
 		if (this.isDirected) {
@@ -224,29 +223,27 @@ export class GraphNonEmpty<
 		);
 	}
 
-	connectAll(
-		links: StreamSource<WithGraphValues<Tp, N, any>['link']>,
-	): TpG['nonEmpty'] {
+	connectAll(links: StreamSource<Link<N>>): Graph.NonEmpty<N> {
 		const builder = this.toBuilder();
-		builder.connectAll(links as any);
+		builder.connectAll(links);
 		return builder.build().assumeNonEmpty();
 	}
 
 	disconnect<UN>(
 		node1: RelatedTo<N, UN>,
 		node2: RelatedTo<N, UN>,
-	): TpG['nonEmpty'] {
+	): Graph.NonEmpty<N> {
 		if (
 			!this.linkMap.context.isValidKey(node1) ||
 			!this.linkMap.context.isValidKey(node2)
 		)
-			return this as any;
+			return this;
 
 		const newLinkMap = this.linkMap.updateAt(node1, (targets) =>
 			targets.remove(node2),
 		);
 
-		if (newLinkMap === this.linkMap) return this as any;
+		if (newLinkMap === this.linkMap) return this;
 
 		const newConnectionSize = this.connectionSize - 1;
 
@@ -262,13 +259,13 @@ export class GraphNonEmpty<
 
 	disconnectAll<UN>(
 		links: StreamSource<Link<RelatedTo<N, UN>>>,
-	): TpG['nonEmpty'] {
+	): Graph.NonEmpty<N> {
 		const builder = this.toBuilder();
 		builder.disconnectAll(links);
 		return builder.build().assumeNonEmpty();
 	}
 
-	removeUnconnectedNodes(): TpG['normal'] {
+	removeUnconnectedNodes(): Graph<N> {
 		if (!this.isDirected) {
 			const newLinkMap = this.linkMap.filter(([_, targets]) =>
 				targets.nonEmpty(),
@@ -321,7 +318,7 @@ export class GraphNonEmpty<
 		};
 	}
 
-	toBuilder(): TpG['builder'] {
-		return this.context.createBuilder(this as any);
+	toBuilder(): Graph.Builder<N> {
+		return this.context.createBuilder(this);
 	}
 }

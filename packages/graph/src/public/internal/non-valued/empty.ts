@@ -1,40 +1,34 @@
-import type { RSet } from '@rimbu/collection-types';
+import type { RMap, RSet } from '@rimbu/collection-types';
 import type { ToJSON } from '@rimbu/common/types';
+import type { Link } from '@rimbu/graph/link';
 
-import type { GraphTypesContextImpl } from '#graph/non-valued/context';
+import type { GraphContextImpl } from '#graph/non-valued/context-factory';
 import type { GraphBase } from '#private/base';
+import type { Graph } from '#private/graph';
 
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-import { GraphEmptyBase, type WithGraphValues } from '#graph/common/base';
+import { GraphEmptyBase } from '#graph/common/base';
 
-export class GraphEmpty<
-		N,
-		V,
-		Tp extends GraphTypesContextImpl,
-		TpG extends WithGraphValues<Tp, N, V> = WithGraphValues<Tp, N, V>,
-	>
-	extends GraphEmptyBase
-	implements GraphBase<N, Tp>
-{
-	declare _NonEmptyType: TpG['nonEmpty'];
+export class GraphEmpty<N> extends GraphEmptyBase implements GraphBase<N> {
+	declare _NonEmptyType: Graph.NonEmpty<N>;
 
 	constructor(
 		readonly isDirected: boolean,
-		readonly context: TpG['context'],
+		readonly context: GraphContextImpl<N>,
 	) {
 		super();
 	}
 
-	get linkMap(): TpG['linkMap'] {
+	get linkMap(): RMap<N, RSet<N>> {
 		return this.context.linkMapContext.empty();
 	}
 
-	getConnectionsFrom(): TpG['linkConnections'] {
+	getConnectionsFrom(): RSet<N> {
 		return this.context.linkConnectionsContext.empty<N>();
 	}
 
-	addNode(node: N): TpG['nonEmpty'] {
+	addNode(node: N): Graph.NonEmpty<N> {
 		return this.context.createNonEmpty(
 			this.linkMap.context.of([
 				node,
@@ -44,7 +38,7 @@ export class GraphEmpty<
 		);
 	}
 
-	addNodes(nodes: StreamSource<N>): WithGraphValues<Tp, N, V>['nonEmpty'] {
+	addNodes(nodes: StreamSource<N>): any {
 		const emptyConnections = this.context.linkConnectionsContext.empty();
 
 		const linkMap = this.context.linkMapContext.from<N, RSet<N>>(
@@ -53,11 +47,11 @@ export class GraphEmpty<
 			),
 		);
 
-		if (!linkMap.nonEmpty()) return this as any;
-		return this.context.createNonEmpty(linkMap, 0) as TpG['nonEmpty'];
+		if (!linkMap.nonEmpty()) return this;
+		return this.context.createNonEmpty(linkMap, 0);
 	}
 
-	connect(node1: N, node2: N): TpG['nonEmpty'] {
+	connect(node1: N, node2: N): Graph.NonEmpty<N> {
 		const linkMap = this.context.linkMapContext.of([
 			node1,
 			this.context.linkConnectionsContext.of(node2) as RSet<N>,
@@ -72,9 +66,7 @@ export class GraphEmpty<
 		return this.context.createNonEmpty(linkMap.set(node2, linkConnections), 1);
 	}
 
-	connectAll(
-		links: StreamSource<WithGraphValues<Tp, N, V>['link']>,
-	): WithGraphValues<Tp, N, V>['nonEmpty'] {
+	connectAll(links: StreamSource<Link<N>>): any {
 		return this.context.from(links);
 	}
 
@@ -89,7 +81,7 @@ export class GraphEmpty<
 		};
 	}
 
-	toBuilder(): TpG['builder'] {
+	toBuilder(): Graph.Builder<N> {
 		return this.context.builder();
 	}
 }

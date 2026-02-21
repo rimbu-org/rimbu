@@ -4,10 +4,9 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type { EdgeGraphBase } from '#private/edge/base';
 import type { EdgeGraphHashedCreators } from '#private/edge/creators';
 
+import { createGraphContextModule } from '@rimbu/graph/internal/non-valued/context-factory';
 import { HashMap } from '@rimbu/hashed/map';
 import { HashSet } from '@rimbu/hashed/set';
-
-import { GraphContext } from '#graph/non-valued/context';
 
 /**
  * A type-invariant immutable edge (undirected) graph.
@@ -83,26 +82,10 @@ export namespace EdgeGraphHashed {
 	}
 }
 
-function createContext<UN>(options?: {
-	linkMapContext?: HashMap.Context<UN>;
-	linkConnectionsContext?: HashSet.Context<UN>;
-}): EdgeGraphHashed.Context<UN> {
-	return Object.freeze(
-		new GraphContext<UN, 'EdgeGraphHashed', false, any>(
-			false,
-			'EdgeGraphHashed',
-			options?.linkMapContext ?? HashMap.defaultContext(),
-			options?.linkConnectionsContext ?? HashSet.defaultContext(),
-		),
-	);
-}
-
-const _defaultContext: EdgeGraphHashed.Context<any> = createContext();
-
-export const EdgeGraphHashed: EdgeGraphHashedCreators = Object.freeze({
-	..._defaultContext,
-	createContext,
-	defaultContext<UN>(): EdgeGraphHashed.Context<UN> {
-		return _defaultContext;
-	},
-});
+export const EdgeGraphHashed: EdgeGraphHashedCreators =
+	createGraphContextModule({
+		typeTag: 'EdgeGraphHashed',
+		isDirected: false,
+		linkMapContext: HashMap.defaultContext(),
+		linkConnectionsContext: HashSet.defaultContext(),
+	}).build();

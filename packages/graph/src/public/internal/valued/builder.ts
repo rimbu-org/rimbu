@@ -8,10 +8,11 @@ import type { ValuedGraph } from '#private/valued/valued-graph';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
+import { TraverseState } from '@rimbu/common/traverse-state';
 import { ValuedGraphElement } from '@rimbu/graph/valued-link';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export class ValuedGraphBuilder<N, V> {
+export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 	connectionSize = 0;
 
 	constructor(
@@ -414,6 +415,36 @@ export class ValuedGraphBuilder<N, V> {
 			}).count() > 0
 		);
 	};
+
+	forEach(
+		f: (
+			entry: ValuedGraphElement<N, V>,
+			index: number,
+			halt: () => void,
+		) => void,
+		options: { state?: TraverseState } = {},
+	): void {
+		if (undefined !== this.source) {
+			this.source.forEach(f, options);
+			return;
+		}
+
+		const { state = TraverseState() } = options;
+
+		this.linkMap.forEach(
+			([source, targets]) => {
+				f([source], state.nextIndex(), state.halt);
+
+				targets.forEach(
+					([target, value]) => {
+						f([source, target, value], state.nextIndex(), state.halt);
+					},
+					{ state },
+				);
+			},
+			{ state },
+		);
+	}
 
 	build = (): ValuedGraph<N, V> => {
 		if (undefined !== this.source) return this.source;

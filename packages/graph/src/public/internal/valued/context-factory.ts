@@ -24,8 +24,8 @@ export interface ValuedGraphContextImpl<UN> extends ValuedGraph.Context<UN> {
 		connectionSize: number,
 	): ValuedGraph.NonEmpty<N, V>;
 	createContext<N extends UN>(options: {
-		linkMapContext?: RMap.Context<UN>;
-		linkConnectionsContext?: RMap.Context<UN>;
+		linkMapContext?: RMap.Context<N>;
+		linkConnectionsContext?: RMap.Context<N>;
 	}): ValuedGraph.Context<N>;
 	defaultContext<N extends UN>(): ValuedGraph.Context<N>;
 }

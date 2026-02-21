@@ -4,10 +4,9 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type { ArrowGraphBase } from '#graph/arrow/base';
 import type { ArrowGraphSortedCreators } from '#private/arrow/creators';
 
+import { createGraphContextModule } from '@rimbu/graph/internal/non-valued/context-factory';
 import { SortedMap } from '@rimbu/sorted/map';
 import { SortedSet } from '@rimbu/sorted/set';
-
-import { GraphContext } from '#graph/non-valued/context';
 
 /**
  * A type-invariant immutable arrow (directed) graph.
@@ -87,26 +86,10 @@ export namespace ArrowGraphSorted {
 	}
 }
 
-function createContext<UN>(options?: {
-	linkMapContext?: SortedMap.Context<UN>;
-	linkConnectionsContext?: SortedSet.Context<UN>;
-}): ArrowGraphSorted.Context<UN> {
-	return Object.freeze(
-		new GraphContext<UN, 'ArrowGraphSorted', true, any>(
-			true,
-			'ArrowGraphSorted',
-			options?.linkMapContext ?? SortedMap.defaultContext(),
-			options?.linkConnectionsContext ?? SortedSet.defaultContext(),
-		),
-	);
-}
-
-const _defaultContext: ArrowGraphSorted.Context<any> = createContext();
-
-export const ArrowGraphSorted: ArrowGraphSortedCreators = Object.freeze({
-	..._defaultContext,
-	createContext,
-	defaultContext<UN>(): ArrowGraphSorted.Context<UN> {
-		return _defaultContext;
-	},
-});
+export const ArrowGraphSorted: ArrowGraphSortedCreators =
+	createGraphContextModule({
+		typeTag: 'ArrowGraphSorted',
+		isDirected: true,
+		linkMapContext: SortedMap.defaultContext(),
+		linkConnectionsContext: SortedSet.defaultContext(),
+	}).build();

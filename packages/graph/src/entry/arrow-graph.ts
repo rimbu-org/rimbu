@@ -5,7 +5,7 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type { ArrowGraphBase } from '#graph/arrow/base';
 import type { ArrowGraphCreators } from '#private/arrow/creators';
 
-import { GraphContext } from '#graph/non-valued/context';
+import { createGraphContextModule } from '@rimbu/graph/internal/non-valued/context-factory';
 
 /**
  * A type-invariant immutable arrow (directed) graph.
@@ -66,13 +66,10 @@ export const ArrowGraph: ArrowGraphCreators = Object.freeze({
 		linkMapContext: RMap.Context<UN>;
 		linkConnectionsContext: RSet.Context<UN>;
 	}): ArrowGraph.Context<UN> {
-		return Object.freeze(
-			new GraphContext<UN, 'ArrowGraph', true, any>(
-				true,
-				'ArrowGraph',
-				options.linkMapContext,
-				options.linkConnectionsContext,
-			),
-		);
+		return createGraphContextModule({
+			typeTag: 'ArrowGraph',
+			isDirected: true,
+			...options,
+		}).build();
 	},
 });

@@ -1,6 +1,7 @@
 import type { Token } from '@rimbu/base/token';
 import type { RMap } from '@rimbu/collection-types';
 import type { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
+import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common/types';
 import type { Link } from '@rimbu/graph/link';
 import type { ValuedGraphElement } from '@rimbu/graph/valued-link';
@@ -410,6 +411,33 @@ export namespace ValuedGraphBase {
 		disconnectAll<UN = N>(
 			connections: StreamSource<Link<RelatedTo<N, UN>>>,
 		): boolean;
+		/**
+		 * Performs given function `f` for each entry of the collection, using given `state` as initial traversal state.
+		 * @param f - the function to perform for each entry, receiving:<br/>
+		 * - `entry`: the next graph element<br/>
+		 * - `index`: the index of the element<br/>
+		 * - `halt`: a function that, if called, ensures that no new elements are passed
+		 * @param options - object containing the following<br/>
+		 * - state: (optional) the traverse state
+		 * @example
+		 * ```ts
+		 * const b = ArrowGraphHashed.of([1], [2, 3], [4]).toBuilder();
+		 * b.forEach((entry, i, halt) => {
+		 *   console.log([entry]);
+		 *   if (i >= 1) halt();
+		 * })
+		 * // => logs [1]  [2, 3]
+		 * ```
+		 * @note O(N)
+		 */
+		forEach(
+			f: (
+				entry: [N] | WithGraphValues<Tp, N, V>['link'],
+				index: number,
+				halt: () => void,
+			) => void,
+			options?: { state?: TraverseState },
+		): void;
 		/**
 		 * Returns an immutable graph containing the nodes and connections of this builder.
 		 * @example

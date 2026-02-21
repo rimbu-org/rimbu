@@ -4,10 +4,9 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type { ArrowGraphBase } from '#graph/arrow/base';
 import type { ArrowGraphHashedCreators } from '#private/arrow/creators';
 
+import { createGraphContextModule } from '@rimbu/graph/internal/non-valued/context-factory';
 import { HashMap } from '@rimbu/hashed/map';
 import { HashSet } from '@rimbu/hashed/set';
-
-import { GraphContext } from '#graph/non-valued/context';
 
 /**
  * A type-invariant immutable arrow (directed) graph.
@@ -83,26 +82,10 @@ export namespace ArrowGraphHashed {
 	}
 }
 
-function createContext<UN>(options?: {
-	linkMapContext?: HashMap.Context<UN>;
-	linkConnectionsContext?: HashSet.Context<UN>;
-}): ArrowGraphHashed.Context<UN> {
-	return Object.freeze(
-		new GraphContext<UN, 'ArrowGraphHashed', true, any>(
-			true,
-			'ArrowGraphHashed',
-			options?.linkMapContext ?? HashMap.defaultContext(),
-			options?.linkConnectionsContext ?? HashSet.defaultContext(),
-		),
-	);
-}
-
-const _defaultContext: ArrowGraphHashed.Context<any> = createContext();
-
-export const ArrowGraphHashed: ArrowGraphHashedCreators = Object.freeze({
-	..._defaultContext,
-	createContext,
-	defaultContext<UN>(): ArrowGraphHashed.Context<UN> {
-		return _defaultContext;
-	},
-});
+export const ArrowGraphHashed: ArrowGraphHashedCreators =
+	createGraphContextModule({
+		typeTag: 'ArrowGraphHashed',
+		isDirected: true,
+		linkMapContext: HashMap.defaultContext(),
+		linkConnectionsContext: HashSet.defaultContext(),
+	}).build();

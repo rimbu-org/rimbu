@@ -4,10 +4,9 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type { EdgeGraphBase } from '#private/edge/base';
 import type { EdgeGraphSortedCreators } from '#private/edge/creators';
 
+import { createGraphContextModule } from '@rimbu/graph/internal/non-valued/context-factory';
 import { SortedMap } from '@rimbu/sorted/map';
 import { SortedSet } from '@rimbu/sorted/set';
-
-import { GraphContext } from '#graph/non-valued/context';
 
 /**
  * A type-invariant immutable edge (undirected) graph.
@@ -86,26 +85,10 @@ export namespace EdgeGraphSorted {
 	}
 }
 
-function createContext<UN>(options?: {
-	linkMapContext?: SortedMap.Context<UN>;
-	linkConnectionsContext?: SortedSet.Context<UN>;
-}): EdgeGraphSorted.Context<UN> {
-	return Object.freeze(
-		new GraphContext<UN, 'EdgeGraphSorted', false, any>(
-			false,
-			'EdgeGraphSorted',
-			options?.linkMapContext ?? SortedMap.defaultContext(),
-			options?.linkConnectionsContext ?? SortedSet.defaultContext(),
-		),
-	);
-}
-
-const _defaultContext: EdgeGraphSorted.Context<any> = createContext();
-
-export const EdgeGraphSorted: EdgeGraphSortedCreators = Object.freeze({
-	..._defaultContext,
-	createContext,
-	defaultContext<UN>(): EdgeGraphSorted.Context<UN> {
-		return _defaultContext;
-	},
-});
+export const EdgeGraphSorted: EdgeGraphSortedCreators =
+	createGraphContextModule({
+		typeTag: 'EdgeGraphSorted',
+		isDirected: false,
+		linkMapContext: SortedMap.defaultContext(),
+		linkConnectionsContext: SortedSet.defaultContext(),
+	}).build();

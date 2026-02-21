@@ -5,7 +5,7 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type { EdgeGraphBase } from '#private/edge/base';
 import type { EdgeGraphCreators } from '#private/edge/creators';
 
-import { GraphContext } from '#graph/non-valued/context';
+import { createGraphContextModule } from '@rimbu/graph/internal/non-valued/context-factory';
 
 /**
  * A type-invariant immutable edge (undirected) graph.
@@ -66,13 +66,10 @@ export const EdgeGraph: EdgeGraphCreators = Object.freeze({
 		linkMapContext: RMap.Context<UN>;
 		linkConnectionsContext: RSet.Context<UN>;
 	}): EdgeGraph.Context<UN> {
-		return Object.freeze(
-			new GraphContext<UN, 'EdgeGraph', false, any>(
-				false,
-				'EdgeGraph',
-				options.linkMapContext,
-				options.linkConnectionsContext,
-			),
-		);
+		return createGraphContextModule({
+			typeTag: 'EdgeGraph',
+			isDirected: false,
+			...options,
+		}).build();
 	},
 });
