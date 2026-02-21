@@ -83,7 +83,7 @@
 		"lint:check": "biome lint src",
 		"test": "bun test test/* --tsconfig-override tsconfig.common.json",
 		"test:random": "bun test test-random",
-		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
+		"typecheck": "tsc -p tsconfig.json --noEmit"
 	},
 	"dependencies": {
 		"@rimbu/base": "workspace:*",

@@ -157,7 +157,7 @@ function runLeafTreeTests(
 			const b3 = createBlock([1, 2, 3]);
 			const t6 = context.leafTree(b3, b3, null);
 
-			expect(t6.concat(context.empty())).toBe(t6);
+			expect(t6.concat(context.empty())).toBe<any>(t6);
 
 			const t7 = t6.concat(createBlock([10])) as LeafTree<number>;
 			expect(t7.left).toBe(b3);

@@ -1,4 +1,6 @@
-import type { MultiSet } from '../src/main/index.mjs';
+import { describe, expect, it } from 'bun:test';
+
+import type { MultiSet } from '@rimbu/multiset';
 
 import { Stream } from '@rimbu/stream';
 

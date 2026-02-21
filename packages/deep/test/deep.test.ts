@@ -13,8 +13,6 @@ const m = {
 	f: List.of(1, 2, 3),
 };
 
-type M = typeof m;
-
 describe('protect', () => {
 	it('returns same object', () => {
 		expect(protect(m)).toBe(m);

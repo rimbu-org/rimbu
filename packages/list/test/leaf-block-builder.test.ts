@@ -98,7 +98,7 @@ describe('LeafBlockBuilder', () => {
 			const source = context.leafBlock([1, 2]);
 			const b = context.leafBlockBuilderSource(source);
 			expect(b.source).toBe(source);
-			expect(b.children).toEqual(source.children);
+			expect(b.children).toEqual<any>(source.children);
 			expect(b.children).not.toBe(source.children);
 			const children = [3, 4];
 			b.children = children;

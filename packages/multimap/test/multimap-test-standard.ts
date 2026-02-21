@@ -39,7 +39,7 @@ export function runMultiMapTestsWith(
 ) {
 	describe(`${name} creators`, () => {
 		it('empty', () => {
-			expect(MM.empty<number, string>()).toBe(MM.empty<boolean, symbol>());
+			expect(MM.empty<number, string>()).toBe<any>(MM.empty<boolean, symbol>());
 		});
 
 		it('of', () => {

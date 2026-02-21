@@ -37,7 +37,9 @@ const arrDouble = [
 function runWith(name: string, BMM: BiMultiMap.Context<any, any>) {
 	describe(`${name} creators`, () => {
 		it('empty', () => {
-			expect(BMM.empty<number, string>()).toBe(BMM.empty<boolean, symbol>());
+			expect(BMM.empty<number, string>()).toBe<any>(
+				BMM.empty<boolean, symbol>(),
+			);
 		});
 
 		it('of', () => {

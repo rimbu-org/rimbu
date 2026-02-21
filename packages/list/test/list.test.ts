@@ -10,7 +10,7 @@ const List = ListSrc.createContext({ blockSizeBits: 2 });
 
 describe('List creators', () => {
 	it('empty', () => {
-		expect(List.empty<number>()).toBe(List.empty<string>());
+		expect(List.empty<number>()).toBe<any>(List.empty<string>());
 	});
 
 	it('of', () => {
@@ -19,7 +19,7 @@ describe('List creators', () => {
 
 	it('from', () => {
 		const le = List.empty<any>();
-		expect(List.from([])).toBe(le);
+		expect(List.from<any>([])).toBe(le);
 		expect(List.from('')).toBe(le);
 		expect(List.from([1, 2, 3]).toArray()).toEqual([1, 2, 3]);
 		expect(List.from('abc').toArray()).toEqual(['a', 'b', 'c']);
@@ -338,7 +338,7 @@ describe('List methods', () => {
 					inverse: true,
 				})
 				.toArray(),
-		).toEqual([1, 4, 7, 8, 9, 90, 100].toReversed());
+		).toEqual<any>([1, 4, 7, 8, 9, 90, 100].toReversed());
 
 		//Duplicate numbers
 		expect(

@@ -115,7 +115,7 @@ export function runTableRandomTestsWith(
 			expect(m.filter((v): boolean => false)).toBe(empty);
 			expect(m.get(0, 0, 'a')).toBe('a');
 			expect(m.rowMap.isEmpty).toBe(true);
-			expect(m.mapValues((v): number => 1)).toBe(empty);
+			expect(m.mapValues((v): number => 1)).toBe<any>(empty);
 			// expect(m.modifyAt(0, { ifExists: (): number => 5 })).toBe(empty);
 			expect(m.remove(0, 0)).toBe(empty);
 			expect(m.set(1, 2, 3).isEmpty).toBe(false);
@@ -275,17 +275,19 @@ export function runTableRandomTestsWith(
 
 		it('modifyAt', (): void => {
 			expect(context.empty().modifyAt(1, 1, {})).toBe(context.empty());
-			expect(context.empty().modifyAt(1, 1, { ifNew: 1 })).toEqual(
+			expect(context.empty().modifyAt(1, 1, { ifNew: 1 })).toEqual<any>(
 				context.of([1, 1, 1]),
 			);
-			expect(context.empty().modifyAt(1, 1, { ifNew: () => 1 })).toEqual(
+			expect(context.empty().modifyAt(1, 1, { ifNew: () => 1 })).toEqual<any>(
 				context.of([1, 1, 1]),
 			);
 			expect(context.empty().modifyAt(1, 1, { ifExists: () => 1 })).toEqual(
 				context.empty(),
 			);
 			expect(
-				context.empty().modifyAt(1, 1, { ifExists: (_, remove) => remove }),
+				context
+					.empty()
+					.modifyAt(1, 1, { ifExists: (_: any, remove: any) => remove }),
 			).toEqual(context.empty());
 			const m = context.of([1, 1, 1], [2, 2, 2], [2, 0, 0], [3, 3, 3]);
 			expect(m.modifyAt(2, 2, { ifNew: 2 })).toBe(m);

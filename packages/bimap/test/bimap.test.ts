@@ -27,7 +27,9 @@ describe('BiMap creators', () => {
 	] as ArrayNonEmpty<[number, string]>;
 
 	it('empty', () => {
-		expect(BiMap.empty<number, string>()).toBe(BiMap.empty<boolean, symbol>());
+		expect(BiMap.empty<number, string>()).toBe<any>(
+			BiMap.empty<boolean, symbol>(),
+		);
 	});
 
 	it('of', () => {

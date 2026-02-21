@@ -49,7 +49,7 @@
 		"format:check": "biome format src",
 		"lint:check": "biome lint src",
 		"test": "bun test test/* --tsconfig-override tsconfig.common.json",
-		"typecheck": "tsc -p tsconfig.esm.json --noEmit"
+		"typecheck": "tsc -p tsconfig.json --noEmit"
 	},
 	"publishConfig": {
 		"access": "public",

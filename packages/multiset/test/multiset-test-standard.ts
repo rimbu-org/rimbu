@@ -12,7 +12,7 @@ function expectEqual(source: MultiSet<string>, values: [string, number][]) {
 export function runMultiSetTestsWith(name: string, MS: MultiSet.Context<any>) {
 	describe(`${name} creators`, () => {
 		it('empty', () => {
-			expect(MS.empty<number>()).toBe(MS.empty<string>());
+			expect(MS.empty<number>()).toBe<any>(MS.empty<string>());
 		});
 
 		it('of', () => {

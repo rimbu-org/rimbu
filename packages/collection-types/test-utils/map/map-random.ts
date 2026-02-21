@@ -93,7 +93,7 @@ export function runMapRandomTestsWith(
 			expect(m.filter((): boolean => false)).toBe(empty);
 			expect(m.get(0, 'a')).toBe('a');
 			// expect(m.keySet().isEmpty).toBe(true);
-			expect(m.mapValues((): number => 1)).toBe(empty);
+			expect(m.mapValues((): number => 1)).toBe<any>(empty);
 			expect(m.modifyAt(0, { ifExists: (): number => 5 })).toBe(empty);
 			expect(m.removeKey(0)).toBe(empty);
 			expect(m.set(1, 2).isEmpty).toBe(false);
@@ -241,7 +241,9 @@ export function runMapRandomTestsWith(
 				context.empty(),
 			);
 			expect(
-				context.empty().modifyAt(1, { ifExists: (_, remove) => remove }),
+				context
+					.empty()
+					.modifyAt(1, { ifExists: (_: any, remove: any) => remove }),
 			).toEqual(context.empty());
 			const m = context.of([1, 1], [2, 2], [3, 3]);
 			expect(m.modifyAt(1, { ifNew: 2 })).toBe(m);
@@ -376,7 +378,7 @@ export function runMapRandomTestsWith(
 
 			expect((): void => {
 				b.forEach((): void => {
-					b.modifyAt(1, { ifNew: 2, ifExists: (v) => v });
+					b.modifyAt(1, { ifNew: 2, ifExists: (v: any) => v });
 				});
 			}).toThrow();
 

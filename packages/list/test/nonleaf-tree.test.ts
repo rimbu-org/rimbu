@@ -245,7 +245,7 @@ describe('NonLeafTree', () => {
 			const m = r.middle as any as NonLeafBlock<number, LeafBlock<number>>;
 			expect(m.length).toBe(12);
 			expect(m).toBeInstanceOf(NonLeafBlock);
-			expect(m.children).toEqual([
+			expect(m.children).toEqual<any>([
 				context.nonLeafBlock<number, LeafBlock<number>>(
 					12,
 					[b1, b2, b1, b2],
@@ -641,7 +641,7 @@ describe('NonLeafTree', () => {
 		expect(t.stream().toArray()).toEqual(
 			nlb1.stream().concat(nlb2, nlb3).toArray(),
 		);
-		expect(t.stream({ reversed: true }).toArray()).toEqual(
+		expect(t.stream({ reversed: true }).toArray()).toEqual<any>(
 			nlb1.stream().concat(nlb2, nlb3).toArray().reverse(),
 		);
 	});
@@ -652,7 +652,7 @@ describe('NonLeafTree', () => {
 		expect(t.stream().toArray()).toEqual(
 			nlb1.stream().concat(nlb2, nlb3).toArray(),
 		);
-		expect(t.stream({ reversed: true }).toArray()).toEqual(
+		expect(t.stream({ reversed: true }).toArray()).toEqual<any>(
 			nlb1.stream().concat(nlb2, nlb3).toArray().reverse(),
 		);
 

@@ -33,7 +33,7 @@ export function runTableTestsWith(
 ): void {
 	describe(`${name} creators`, () => {
 		it('empty', () => {
-			expect(T.empty<number, number, number>()).toBe(
+			expect(T.empty<number, number, number>()).toBe<any>(
 				T.empty<string, string, string>(),
 			);
 		});
@@ -269,7 +269,9 @@ export function runTableTestsWith(
 		});
 
 		it('mapValues', () => {
-			expect(tableEmpty.mapValues((v) => (v ? 'a' : 'b'))).toBe(tableEmpty);
+			expect(tableEmpty.mapValues((v) => (v ? 'a' : 'b'))).toBe<any>(
+				tableEmpty,
+			);
 			expectEqual(
 				table3.mapValues((v): string => (v ? 'a' : 'b')),
 				[

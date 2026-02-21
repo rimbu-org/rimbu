@@ -88,11 +88,6 @@ expectTypeOf(AsyncStream.unfold(0, (v) => v + 1)).toEqualTypeOf<
 >();
 
 // AsyncStream.unzip(..)
-const g = AsyncStream.unzip(
-	AsyncStream.of<[number, string]>([0, 'a'], [1, 'b']),
-	{ length: 2 },
-);
-
 expectTypeOf(
 	AsyncStream.unzip(AsyncStream.of<[number, string]>([0, 'a'], [1, 'b']), {
 		length: 2,

@@ -136,7 +136,7 @@ function runWith(nrOfBits: number): void {
 			let i = undefined === options ? 0 : options.start;
 			try {
 				this.list.streamRange(options || { start: 0 }).forEach((v) => {
-					expect(v).toBe(this.listBuilder.get(i, 'a'));
+					expect(v).toBe<any>(this.listBuilder.get(i, 'a'));
 					expect(v).toBe(this.arr[i]);
 					i++;
 				});

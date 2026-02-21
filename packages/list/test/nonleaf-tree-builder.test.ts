@@ -321,10 +321,10 @@ describe('NonLeafTreeBuilder', () => {
 		const b = context.nonLeafTreeBuilderSource(source);
 		b.prepareMutate();
 		expect(b.source).toBeUndefined();
-		expect(b.left.children[0].children).toEqual(
+		expect(b.left.children[0].children).toEqual<any>(
 			source.left.children[0].children,
 		);
-		expect(b.right.children[0].children).toEqual(
+		expect(b.right.children[0].children).toEqual<any>(
 			source.right.children[0].children,
 		);
 		expect(b.middle).toBeUndefined();

@@ -35,7 +35,9 @@ export function runMapTestsWith(name: string, GMap: RMap.Context<any>): void {
 		const map6 = GMap.from(arr6);
 
 		it('empty', () => {
-			expect(GMap.empty<number, number>()).toBe(GMap.empty<string, string>());
+			expect(GMap.empty<number, number>()).toBe<any>(
+				GMap.empty<string, string>(),
+			);
 		});
 
 		it('of', () => {
@@ -101,9 +103,9 @@ export function runMapTestsWith(name: string, GMap: RMap.Context<any>): void {
 		});
 
 		it('merge', () => {
-			expect(GMap.merge(mapEmpty, mapEmpty)).toBe(mapEmpty);
-			expect(GMap.merge(mapEmpty, map3)).toBe(mapEmpty);
-			expect(GMap.merge(map3, mapEmpty)).toBe(mapEmpty);
+			expect(GMap.merge(mapEmpty, mapEmpty)).toBe<any>(mapEmpty);
+			expect(GMap.merge(mapEmpty, map3)).toBe<any>(mapEmpty);
+			expect(GMap.merge(map3, mapEmpty)).toBe<any>(mapEmpty);
 			expectEqual(
 				GMap.merge(map3, map3),
 				arr3.map(([k, v]) => [k, [v, v] as [string, string]]),
@@ -125,8 +127,8 @@ export function runMapTestsWith(name: string, GMap: RMap.Context<any>): void {
 		});
 
 		it('mergeAll', () => {
-			expect(GMap.mergeAll(undefined, mapEmpty, mapEmpty)).toBe(mapEmpty);
-			expect(GMap.mergeAll(undefined, map3, map3).toArray()).toEqual(
+			expect(GMap.mergeAll(undefined, mapEmpty, mapEmpty)).toBe<any>(mapEmpty);
+			expect(GMap.mergeAll(undefined, map3, map3).toArray()).toEqual<any>(
 				arr3.map(([k, v]) => [k, [v, v]]),
 			);
 			expectEqual(
@@ -154,9 +156,9 @@ export function runMapTestsWith(name: string, GMap: RMap.Context<any>): void {
 		it('mergeAllWith', () => {
 			const toTuple = <A, B>(_: any, a: A, b: B): [A, B] => [a, b];
 
-			expect(GMap.mergeAllWith(mapEmpty, mapEmpty)(undefined, toTuple)).toBe(
-				mapEmpty,
-			);
+			expect(
+				GMap.mergeAllWith(mapEmpty, mapEmpty)(undefined, toTuple),
+			).toBe<any>(mapEmpty);
 			expectEqual(
 				GMap.mergeAllWith(mapEmpty, map3)(undefined, toTuple),
 				arr3.map(([k, v]) => [
@@ -205,9 +207,9 @@ export function runMapTestsWith(name: string, GMap: RMap.Context<any>): void {
 		it('mergeWith', () => {
 			const toTuple = <A, B>(_: any, a: A, b: B): [A, B] => [a, b];
 
-			expect(GMap.mergeWith(mapEmpty, mapEmpty)(toTuple)).toBe(mapEmpty);
-			expect(GMap.mergeWith(mapEmpty, map3)(toTuple)).toBe(mapEmpty);
-			expect(GMap.mergeWith(map3, mapEmpty)(toTuple)).toBe(mapEmpty);
+			expect(GMap.mergeWith(mapEmpty, mapEmpty)(toTuple)).toBe<any>(mapEmpty);
+			expect(GMap.mergeWith(mapEmpty, map3)(toTuple)).toBe<any>(mapEmpty);
+			expect(GMap.mergeWith(map3, mapEmpty)(toTuple)).toBe<any>(mapEmpty);
 			expectEqual(
 				GMap.mergeWith(map3, map3)(toTuple),
 				arr3.map(([k, v]) => [k, [v, v] as [string, string]]),

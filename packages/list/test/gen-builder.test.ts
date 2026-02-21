@@ -166,7 +166,7 @@ describe('GenBuilder', () => {
 			// non-empty
 			const g = context.createBuilder();
 			g.appendAll([1, 2, 3, 4]);
-			expect(g.build()).toEqual(g.builder?.build());
+			expect(g.build()).toEqual<any>(g.builder?.build());
 		}
 	});
 
@@ -177,7 +177,7 @@ describe('GenBuilder', () => {
 			// non-empty
 			const g = context.createBuilder<number>();
 			g.appendAll([1, 2, 3, 4]);
-			expect(g.buildMap((v) => v + 1)).toEqual(
+			expect(g.buildMap((v) => v + 1)).toEqual<any>(
 				g.builder?.buildMap((v) => v + 1),
 			);
 		}
