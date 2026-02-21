@@ -1,7 +1,7 @@
 const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
-/** @type {import('@docusaurus/types').DocusaurusConfig} */
+/** @type {import('@docusaurus/types').DocusaurusConfig} */ // TODO: update types to Docusaurus v3 when upgrading
 module.exports = {
   title: 'Rimbu',
   tagline: 'Immutable collections and tools for TypeScript',
