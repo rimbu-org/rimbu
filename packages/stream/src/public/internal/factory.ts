@@ -1,8 +1,6 @@
-import type { StreamConstructors } from '#stream/constructors';
-
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export interface StreamFactory extends StreamConstructors {
+export interface StreamFactory extends Stream.Constructors {
 	/**
 	 * Converts any `StreamSource` into a concrete `Stream` implementation.
 	 * @typeparam T - the element type
