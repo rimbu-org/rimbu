@@ -9,6 +9,12 @@ import type { AsyncReducer } from '@rimbu/stream/async/reducer';
  * Implementations of this interface are exposed via the global `AsyncStream` value and the `@rimbu/stream/async-custom` sub-package.
  */
 export interface AsyncStreamConstructors {
+	/**
+	 * Returns true if the given async stream source is known to be empty.
+	 * If this function returns false, the source may still be empty; it is simply not known.
+	 * @param source - a potential async stream source
+	 */
+	isEmptyAsyncStreamSourceInstance(source: AsyncStreamSource<any>): boolean;
 	of<T>(...values: ArrayNonEmpty<AsyncOptLazy<T>>): AsyncStream.NonEmpty<T>;
 	from<T>(
 		...sources: ArrayNonEmpty<AsyncStreamSource.NonEmpty<T>>

@@ -12,7 +12,6 @@ import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Update } from '@rimbu/common/update';
 import { Stream, type StreamSource } from '@rimbu/stream';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
 
 export class BiMapEmpty<K = any, V = any>
 	extends EmptyBase
@@ -247,7 +246,7 @@ export class BiMapNonEmptyImpl<K, V>
 	}
 
 	addEntries(entries: StreamSource<readonly [K, V]>): BiMap.NonEmpty<K, V> {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries)) return this;
+		if (Stream.isEmptyStreamSourceInstance(entries)) return this;
 
 		const builder = this.toBuilder();
 
@@ -294,7 +293,7 @@ export class BiMapNonEmptyImpl<K, V>
 	}
 
 	removeKeys<UK>(keys: Stream<RelatedTo<K, UK>>): BiMap<K, V> {
-		if (StreamFactory().isEmptyStreamSourceInstance(keys)) return this;
+		if (Stream.isEmptyStreamSourceInstance(keys)) return this;
 
 		const builder = this.toBuilder();
 
@@ -341,7 +340,7 @@ export class BiMapNonEmptyImpl<K, V>
 	}
 
 	removeValues<UV>(values: Stream<RelatedTo<V, UV>>): BiMap<K, V> {
-		if (StreamFactory().isEmptyStreamSourceInstance(values)) return this;
+		if (Stream.isEmptyStreamSourceInstance(values)) return this;
 
 		const builder = this.toBuilder();
 

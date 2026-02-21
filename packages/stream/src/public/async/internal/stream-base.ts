@@ -1675,6 +1675,8 @@ export function isAsyncStream(obj: any): obj is AsyncStream<any> {
 	return obj instanceof AsyncStreamBase;
 }
 
+export const AsyncEmptyStreamToken = Symbol('AsyncEmptyStreamToken');
+
 export class AsyncEmptyStream<T = any>
 	extends AsyncStreamBase<T>
 	implements AsyncStream<T>
@@ -1683,6 +1685,8 @@ export class AsyncEmptyStream<T = any>
 		return AsyncStreamFactory().asyncFastIteratorFactory
 			._emptyAsyncFastIteratorInstance;
 	}
+
+	[AsyncEmptyStreamToken] = true;
 
 	asyncStream(): this {
 		return this;

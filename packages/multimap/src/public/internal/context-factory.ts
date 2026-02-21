@@ -1,11 +1,10 @@
 import type { RMap, RSet } from '@rimbu/collection-types';
 import type { MultiMap } from '@rimbu/multimap';
-import type { StreamSource } from '@rimbu/stream';
 
 import type { MultiMapCreators } from '#multimap/creators';
 
 import { Module } from '@rimbu/common/module';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 
 import {
@@ -80,7 +79,7 @@ export function createMultiMapContextModule<UK, UV>(
 			while (++i < length) {
 				const source = sources[i];
 
-				if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
+				if (Stream.isEmptyStreamSourceInstance(source)) continue;
 				if (
 					builder.isEmpty &&
 					mod.isNonEmptyInstance<K, V>(source) &&

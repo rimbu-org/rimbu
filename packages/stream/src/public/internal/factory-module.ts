@@ -14,6 +14,7 @@ import {
 	AlwaysStream,
 	ArrayStream,
 	EmptyStream,
+	EmptyStreamToken,
 	FilterApplyStream,
 	FromIterable,
 	FromStream,
@@ -60,7 +61,7 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 	isEmptyStreamSourceInstance: (source: StreamSource<any>) => {
 		if (source === '') return true;
 		if (typeof source === 'object') {
-			if (source === mod.empty() || source === null) return true;
+			if (null === source || EmptyStreamToken in source) return true;
 			if (`length` in source && (source as any).length === 0) return true;
 			if (`size` in source && (source as any).size === 0) return true;
 			if (`isEmpty` in source && (source as any).isEmpty === true) return true;

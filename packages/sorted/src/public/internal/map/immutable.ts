@@ -14,7 +14,6 @@ import { Range } from '@rimbu/common/range';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Update } from '@rimbu/common/update';
 import { Stream, type StreamSource } from '@rimbu/stream';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
 
 import {
 	innerDeleteMax,
@@ -311,7 +310,7 @@ export abstract class SortedMapNode<K, V>
 	}
 
 	addEntries(entries: StreamSource<readonly [K, V]>): SortedMap.NonEmpty<K, V> {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries)) return this;
+		if (Stream.isEmptyStreamSourceInstance(entries)) return this;
 
 		const builder = this.toBuilder();
 		builder.addEntries(entries);
@@ -352,7 +351,7 @@ export abstract class SortedMapNode<K, V>
 	}
 
 	removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): SortedMap<K, V> {
-		if (StreamFactory().isEmptyStreamSourceInstance(keys)) return this;
+		if (Stream.isEmptyStreamSourceInstance(keys)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeKeys(keys);

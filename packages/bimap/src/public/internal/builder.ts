@@ -9,7 +9,6 @@ import * as RimbuError from '@rimbu/base/rimbu-error';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
 
 export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
 	constructor(
@@ -156,7 +155,7 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
 	removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
 		this.checkLock();
 
-		if (StreamFactory().isEmptyStreamSourceInstance(keys)) return false;
+		if (Stream.isEmptyStreamSourceInstance(keys)) return false;
 
 		const notFound = Symbol();
 
@@ -193,7 +192,7 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
 	removeValues = <UV>(values: StreamSource<RelatedTo<V, UV>>): boolean => {
 		this.checkLock();
 
-		if (StreamFactory().isEmptyStreamSourceInstance(values)) return false;
+		if (Stream.isEmptyStreamSourceInstance(values)) return false;
 
 		const notFound = Symbol();
 

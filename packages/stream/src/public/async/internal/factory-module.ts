@@ -20,6 +20,7 @@ import {
 import { asyncFastIteratorFactoryModule } from '#async/fast-iterator-factory-module';
 import {
 	AsyncEmptyStream,
+	AsyncEmptyStreamToken,
 	AsyncFromStream,
 	AsyncOfStream,
 	AsyncStreamBase,
@@ -38,7 +39,9 @@ export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 			source: AsyncStreamSource<any>,
 		): boolean => {
 			return (
-				source === mod.empty() ||
+				(typeof source === 'object' &&
+					null !== source &&
+					AsyncEmptyStreamToken in source) ||
 				StreamFactory().isEmptyStreamSourceInstance(source as StreamSource<any>)
 			);
 		},

@@ -13,7 +13,6 @@ import {
 } from '@rimbu/collection-types/common/empty-base';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { type FastIterator, Stream, type StreamSource } from '@rimbu/stream';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
 
 export class MultiSetEmpty<T> extends EmptyBase implements MultiSetBase<T> {
 	declare _NonEmptyType: MultiSet.NonEmpty<T>;
@@ -49,7 +48,7 @@ export class MultiSetEmpty<T> extends EmptyBase implements MultiSetBase<T> {
 	}
 
 	addEntries(entries: StreamSource<readonly [T, number]>): MultiSet<T> {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries)) return this;
+		if (Stream.isEmptyStreamSourceInstance(entries)) return this;
 
 		const builder = this.toBuilder();
 		builder.addEntries(entries);
@@ -180,7 +179,7 @@ export class MultiSetNonEmpty<T>
 	}
 
 	addAll(values: StreamSource<T>): MultiSet.NonEmpty<T> {
-		if (StreamFactory().isEmptyStreamSourceInstance(values)) return this;
+		if (Stream.isEmptyStreamSourceInstance(values)) return this;
 
 		const builder = this.toBuilder();
 		builder.addAll(values);
@@ -190,7 +189,7 @@ export class MultiSetNonEmpty<T>
 	addEntries(
 		entries: StreamSource<readonly [T, number]>,
 	): MultiSet.NonEmpty<T> {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries)) return this;
+		if (Stream.isEmptyStreamSourceInstance(entries)) return this;
 
 		const builder = this.toBuilder();
 		builder.addEntries(entries);
@@ -273,7 +272,7 @@ export class MultiSetNonEmpty<T>
 	}
 
 	removeAllSingle<U>(elems: StreamSource<RelatedTo<T, U>>): MultiSet<T> {
-		if (StreamFactory().isEmptyStreamSourceInstance(elems)) return this;
+		if (Stream.isEmptyStreamSourceInstance(elems)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeAllSingle(elems);
@@ -281,7 +280,7 @@ export class MultiSetNonEmpty<T>
 	}
 
 	removeAllEvery<U>(elems: StreamSource<RelatedTo<T, U>>): MultiSet<T> {
-		if (StreamFactory().isEmptyStreamSourceInstance(elems)) return this;
+		if (Stream.isEmptyStreamSourceInstance(elems)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeAllEvery(elems);
@@ -534,7 +533,7 @@ export class MultiSetBuilder<T> implements MultiSetBase.Builder<T> {
 	): boolean => {
 		this.checkLock();
 
-		if (StreamFactory().isEmptyStreamSourceInstance(values)) return false;
+		if (Stream.isEmptyStreamSourceInstance(values)) return false;
 
 		return (
 			Stream.from(values)

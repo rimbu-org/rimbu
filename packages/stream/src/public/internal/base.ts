@@ -1498,10 +1498,14 @@ export class FromIterable<T> extends StreamBase<T> {
 	}
 }
 
+export const EmptyStreamToken = Symbol('EmptyStreamToken');
+
 export class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
 	[Symbol.iterator](): FastIterator<T> {
 		return FastIteratorFactory._emptyFastIteratorInstance;
 	}
+
+	[EmptyStreamToken] = true;
 
 	stream(): this {
 		return this;

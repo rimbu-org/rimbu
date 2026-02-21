@@ -15,7 +15,6 @@ import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Update } from '@rimbu/common/update';
 import { Stream, type StreamSource } from '@rimbu/stream';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
 
 export class TableEmpty<R, C, V>
 	extends EmptyBase
@@ -240,7 +239,7 @@ export class TableNonEmpty<R, C, V>
 	addEntries(
 		entries: StreamSource<readonly [R, C, V]>,
 	): Table.NonEmpty<R, C, V> {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries)) return this;
+		if (Stream.isEmptyStreamSourceInstance(entries)) return this;
 
 		const builder = this.toBuilder();
 
@@ -324,7 +323,7 @@ export class TableNonEmpty<R, C, V>
 	}
 
 	removeRows<UR>(rows: StreamSource<RelatedTo<R, UR>>): Table<R, C, V> {
-		if (StreamFactory().isEmptyStreamSourceInstance(rows)) return this;
+		if (Stream.isEmptyStreamSourceInstance(rows)) return this;
 
 		const builder = this.toBuilder();
 
@@ -389,7 +388,7 @@ export class TableNonEmpty<R, C, V>
 	removeEntries<UR, UC>(
 		entries: StreamSource<[RelatedTo<R, UR>, RelatedTo<C, UC>]>,
 	): Table<R, C, V> {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries)) return this;
+		if (Stream.isEmptyStreamSourceInstance(entries)) return this;
 
 		const builder = this.toBuilder();
 

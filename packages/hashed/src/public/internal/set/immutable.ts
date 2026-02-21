@@ -12,7 +12,6 @@ import {
 } from '@rimbu/collection-types/common/empty-base';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
 
 export class HashSetEmpty<T = any> extends EmptyBase implements HashSet<T> {
 	declare _NonEmptyType: HashSet.NonEmpty<T>;
@@ -103,7 +102,7 @@ export abstract class HashSetNonEmptyBase<T>
 	}
 
 	addAll(values: StreamSource<T>): HashSet.NonEmpty<T> {
-		if (StreamFactory().isEmptyStreamSourceInstance(values)) return this;
+		if (Stream.isEmptyStreamSourceInstance(values)) return this;
 
 		const builder = this.toBuilder();
 		builder.addAll(values);
@@ -111,7 +110,7 @@ export abstract class HashSetNonEmptyBase<T>
 	}
 
 	removeAll(values: StreamSource<T>): HashSet<T> {
-		if (StreamFactory().isEmptyStreamSourceInstance(values)) return this;
+		if (Stream.isEmptyStreamSourceInstance(values)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeAll(values);
@@ -133,7 +132,7 @@ export abstract class HashSetNonEmptyBase<T>
 
 	union(other: StreamSource<T>): HashSet.NonEmpty<T> {
 		if (other === this) return this;
-		if (StreamFactory().isEmptyStreamSourceInstance(other)) return this;
+		if (Stream.isEmptyStreamSourceInstance(other)) return this;
 
 		const builder = this.toBuilder();
 		builder.addAll(other);
@@ -142,7 +141,7 @@ export abstract class HashSetNonEmptyBase<T>
 
 	difference(other: StreamSource<T>): HashSet<T> {
 		if (other === this) return this.context.empty();
-		if (StreamFactory().isEmptyStreamSourceInstance(other)) return this;
+		if (Stream.isEmptyStreamSourceInstance(other)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeAll(other);
@@ -151,8 +150,7 @@ export abstract class HashSetNonEmptyBase<T>
 
 	intersect(other: StreamSource<T>): HashSet<T> {
 		if (other === this) return this;
-		if (StreamFactory().isEmptyStreamSourceInstance(other))
-			return this.context.empty();
+		if (Stream.isEmptyStreamSourceInstance(other)) return this.context.empty();
 
 		const builder = this.context.builder();
 
@@ -171,7 +169,7 @@ export abstract class HashSetNonEmptyBase<T>
 
 	symDifference(other: StreamSource<T>): HashSet<T> {
 		if (other === this) return this.context.empty();
-		if (StreamFactory().isEmptyStreamSourceInstance(other)) return this;
+		if (Stream.isEmptyStreamSourceInstance(other)) return this;
 
 		const builder = this.toBuilder();
 

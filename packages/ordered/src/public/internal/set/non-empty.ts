@@ -9,7 +9,6 @@ import type { ContextImpl } from '#set/context-factory';
 
 import { NonEmptyBase } from '@rimbu/collection-types/common/empty-base';
 import { Stream, type StreamSource } from '@rimbu/stream';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
 
 export class OrderedSetNonEmpty<T>
 	extends NonEmptyBase<T>
@@ -55,7 +54,7 @@ export class OrderedSetNonEmpty<T>
 	}
 
 	addAll(values: StreamSource<T>): OrderedSet.NonEmpty<T> {
-		if (StreamFactory().isEmptyStreamSourceInstance(values)) return this;
+		if (Stream.isEmptyStreamSourceInstance(values)) return this;
 
 		const builder = this.toBuilder();
 		builder.addAll(values);
@@ -78,7 +77,7 @@ export class OrderedSetNonEmpty<T>
 	}
 
 	removeAll<U>(values: StreamSource<RelatedTo<T, U>>): OrderedSet<T> {
-		if (StreamFactory().isEmptyStreamSourceInstance(values)) return this;
+		if (Stream.isEmptyStreamSourceInstance(values)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeAll(values);
@@ -107,7 +106,7 @@ export class OrderedSetNonEmpty<T>
 
 	union(other: StreamSource<T>): OrderedSet.NonEmpty<T> {
 		if (other === this) return this;
-		if (StreamFactory().isEmptyStreamSourceInstance(other)) return this;
+		if (Stream.isEmptyStreamSourceInstance(other)) return this;
 
 		const builder = this.toBuilder();
 		builder.addAll(other);
@@ -116,7 +115,7 @@ export class OrderedSetNonEmpty<T>
 
 	difference(other: StreamSource<T>): OrderedSet<T> {
 		if (other === this) return this.context.empty();
-		if (StreamFactory().isEmptyStreamSourceInstance(other)) return this;
+		if (Stream.isEmptyStreamSourceInstance(other)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeAll(other);
@@ -125,8 +124,7 @@ export class OrderedSetNonEmpty<T>
 
 	intersect(other: StreamSource<T>): OrderedSet<T> {
 		if (other === this) return this;
-		if (StreamFactory().isEmptyStreamSourceInstance(other))
-			return this.context.empty();
+		if (Stream.isEmptyStreamSourceInstance(other)) return this.context.empty();
 
 		const builder = this.context.builder<T>();
 		const otherIter = Stream.from(other)[Symbol.iterator]();
@@ -146,7 +144,7 @@ export class OrderedSetNonEmpty<T>
 	symDifference(other: StreamSource<T>): OrderedSet<T> {
 		if (other === this) return this.context.empty();
 
-		if (StreamFactory().isEmptyStreamSourceInstance(other)) return this;
+		if (Stream.isEmptyStreamSourceInstance(other)) return this;
 
 		const builder = this.toBuilder();
 

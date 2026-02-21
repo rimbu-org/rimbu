@@ -1,12 +1,11 @@
 import type { RMap } from '@rimbu/collection-types';
-import type { StreamSource } from '@rimbu/stream';
 import type { Table } from '@rimbu/table';
 
 import type { TableCreators } from '#table/creators';
 import type { TableBase } from '#table/types';
 
 import { Module } from '@rimbu/common/module';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 
 import { TableBuilder, TableEmpty, TableNonEmpty } from '#table/base';
@@ -83,7 +82,7 @@ export function createTableContextModule<UR, UC>(
 			const length = sources.length;
 			while (++i < length) {
 				const source = sources[i];
-				if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
+				if (Stream.isEmptyStreamSourceInstance(source)) continue;
 				if (
 					builder.isEmpty &&
 					mod.isNonEmptyInstance<R, C, V>(source) &&

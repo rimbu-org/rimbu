@@ -1,10 +1,9 @@
 import type { BiMap } from '@rimbu/bimap';
 import type { RMap } from '@rimbu/collection-types';
-import type { StreamSource } from '@rimbu/stream';
 
 import { Module } from '@rimbu/common/module';
 import { HashMap } from '@rimbu/hashed/map';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 
 import { BiMapBuilder } from '#bimap/builder';
@@ -79,7 +78,7 @@ export function createBiMapContextModule<UK, UV>(
 			while (++i < length) {
 				const source = sources[i];
 
-				if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
+				if (Stream.isEmptyStreamSourceInstance(source)) continue;
 				if (
 					builder.isEmpty &&
 					source instanceof BiMapNonEmptyImpl &&

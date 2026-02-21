@@ -1,10 +1,9 @@
 import type { RSetBase } from '@rimbu/collection-types/set/base';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
-import type { StreamSource } from '@rimbu/stream';
 import type { WithElem } from 'private/common/types';
 
 import { Module } from '@rimbu/common/module';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 
 export namespace RSetContextBaseModule {
@@ -41,7 +40,7 @@ export namespace RSetContextBaseModule {
 				const length = sources.length;
 				while (++i < length) {
 					const source = sources[i];
-					if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
+					if (Stream.isEmptyStreamSourceInstance(source)) continue;
 					if (
 						builder.isEmpty &&
 						mod.isNonEmptyInstance<T>(source) &&

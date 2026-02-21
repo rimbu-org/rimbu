@@ -11,6 +11,15 @@ import type { Reducer } from '@rimbu/stream/reducer';
  */
 export interface StreamConstructors {
 	/**
+	 * Returns true if the given `source` is a `StreamSource` that is known to be empty.
+	 * If this function returns `false`, the source may still be empty; it is simply not known.
+	 * @param source - a potential stream source
+	 * @note
+	 * If this function returns false, it does not guarantee that the Stream is not empty. It only
+	 * means that it is not known if it is empty.
+	 */
+	isEmptyStreamSourceInstance: (source: StreamSource<any>) => boolean;
+	/**
 	 * Returns an empty Stream of given type T.
 	 * @typeparam T - the Stream element type
 	 * @example

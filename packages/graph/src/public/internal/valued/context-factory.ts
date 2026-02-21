@@ -1,11 +1,10 @@
 import type { RMap } from '@rimbu/collection-types';
 import type { ValuedGraphElement } from '@rimbu/graph/valued-link';
-import type { StreamSource } from '@rimbu/stream';
 
 import type { ValuedGraph } from '#private/valued/valued-graph';
 
 import { Module } from '@rimbu/common/module';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 
 import { ValuedGraphBuilder } from '#graph/valued/builder';
@@ -83,7 +82,7 @@ export function createValuedGraphContextModule<UN>(
 			while (++i < length) {
 				const source = sources[i];
 
-				if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
+				if (Stream.isEmptyStreamSourceInstance(source)) continue;
 				if (
 					builder.isEmpty &&
 					mod.isNonEmptyInstance(source) &&

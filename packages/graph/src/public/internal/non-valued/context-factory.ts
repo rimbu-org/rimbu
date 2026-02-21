@@ -1,12 +1,11 @@
 import type { RMap, RSet } from '@rimbu/collection-types';
 import type { GraphElement } from '@rimbu/graph/link';
-import type { StreamSource } from '@rimbu/stream';
 
 import type { GraphBase } from '#private/base';
 import type { Graph } from '#private/graph';
 
 import { Module } from '@rimbu/common/module';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 
 import { GraphBuilder } from '#graph/non-valued/builder';
@@ -73,7 +72,7 @@ export function createGraphContextModule<UN>(
 			while (++i < length) {
 				const source = sources[i];
 
-				if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
+				if (Stream.isEmptyStreamSourceInstance(source)) continue;
 				if (
 					builder.isEmpty &&
 					mod.isNonEmptyInstance<N>(source) &&

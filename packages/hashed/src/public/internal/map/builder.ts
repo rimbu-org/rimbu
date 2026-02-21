@@ -16,7 +16,6 @@ import { TraverseState } from '@rimbu/common/traverse-state';
 import { Update } from '@rimbu/common/update';
 import { List } from '@rimbu/list';
 import { Stream, type StreamSource } from '@rimbu/stream';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
 
 import { BlockBuilderBase, CollisionBuilderBase } from '#hashed/base';
 
@@ -131,7 +130,7 @@ export class HashMapBlockBuilder<K, V>
 	addEntries = (source: StreamSource<readonly [K, V]>): boolean => {
 		this.checkLock();
 
-		if (StreamFactory().isEmptyStreamSourceInstance(source)) return false;
+		if (Stream.isEmptyStreamSourceInstance(source)) return false;
 
 		return Stream.from(source).filterPure({ pred: this.addEntry }).count() > 0;
 	};
@@ -375,7 +374,7 @@ export class HashMapBlockBuilder<K, V>
 	removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
 		this.checkLock();
 
-		if (StreamFactory().isEmptyStreamSourceInstance(keys)) return false;
+		if (Stream.isEmptyStreamSourceInstance(keys)) return false;
 
 		const notFound = Symbol();
 

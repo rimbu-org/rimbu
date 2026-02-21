@@ -5,7 +5,6 @@ import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, ToJSON } from '@rimbu/common/types';
 import type { Update } from '@rimbu/common/update';
 import type { List } from '@rimbu/list';
-import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
 
 import type { ContextFactory } from '#list/context-factory';
 import type { CacheMap } from '#list/immutable/cache-map';
@@ -13,7 +12,7 @@ import type { CacheMap } from '#list/immutable/cache-map';
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import { NonEmptyBase } from '@rimbu/collection-types/common/empty-base';
 import { IndexRange } from '@rimbu/common/index-range';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
+import { type FastIterator, Stream, type StreamSource } from '@rimbu/stream';
 
 export abstract class ListNonEmptyBase<T>
 	extends NonEmptyBase<T>
@@ -137,8 +136,7 @@ export abstract class ListNonEmptyBase<T>
 			return this.take(index).concat(this.drop(index + remove));
 		}
 
-		if (remove <= 0 && StreamFactory().isEmptyStreamSourceInstance(insert))
-			return this;
+		if (remove <= 0 && Stream.isEmptyStreamSourceInstance(insert)) return this;
 
 		return this.take(index).concat(insert, this.drop(index + remove));
 	}

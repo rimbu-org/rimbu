@@ -13,7 +13,6 @@ import {
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
 
 export class MultiMapEmpty<K, V>
 	extends EmptyBase
@@ -226,7 +225,7 @@ export class MultiMapNonEmpty<K, V>
 	}
 
 	addEntries(entries: StreamSource<readonly [K, V]>): MultiMap.NonEmpty<K, V> {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries)) return this;
+		if (Stream.isEmptyStreamSourceInstance(entries)) return this;
 
 		const builder = this.toBuilder();
 		builder.addEntries(entries);
@@ -246,7 +245,7 @@ export class MultiMapNonEmpty<K, V>
 	}
 
 	removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): MultiMap<K, V> {
-		if (StreamFactory().isEmptyStreamSourceInstance(keys)) return this;
+		if (Stream.isEmptyStreamSourceInstance(keys)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeKeys(keys);
@@ -286,7 +285,7 @@ export class MultiMapNonEmpty<K, V>
 	removeEntries<UK, UV>(
 		entries: StreamSource<[RelatedTo<K, UK>, RelatedTo<V, UV>]>,
 	): MultiMap<K, V> {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries)) return this;
+		if (Stream.isEmptyStreamSourceInstance(entries)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeEntries(entries);

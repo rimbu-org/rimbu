@@ -17,7 +17,6 @@ import type { ListCreators } from '#private/list-factory';
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import { Module } from '@rimbu/common/module';
 import { Stream, type StreamSource } from '@rimbu/stream';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
 import { Reducer } from '@rimbu/stream/reducer';
 
 import { GenBuilder } from '#list/builder/generic';
@@ -203,7 +202,7 @@ export function createContextFactoryModule(
 			while (++i < length) {
 				const source = sources[i];
 
-				if (!StreamFactory().isEmptyStreamSourceInstance(source)) {
+				if (!Stream.isEmptyStreamSourceInstance(source)) {
 					if ((source as any).context === mod) {
 						if (null === result) result = source as any as List<T>;
 						else result = result.concat<T>(source);

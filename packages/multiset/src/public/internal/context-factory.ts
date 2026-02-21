@@ -1,12 +1,11 @@
 import type { RMap } from '@rimbu/collection-types';
 import type { MultiSet } from '@rimbu/multiset';
-import type { StreamSource } from '@rimbu/stream';
 
 import type { MultiSetCreators } from '#multiset/creators';
 import type { MultiSetBase } from '#multiset/types';
 
 import { Module } from '@rimbu/common/module';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
+import { Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
 
 import {
@@ -74,7 +73,7 @@ export function createMultiSetContextModule<UT>(
 			const length = sources.length;
 			while (++i < length) {
 				const source = sources[i];
-				if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
+				if (Stream.isEmptyStreamSourceInstance(source)) continue;
 				if (
 					builder.isEmpty &&
 					mod.isNonEmptyInstance<T>(source) &&

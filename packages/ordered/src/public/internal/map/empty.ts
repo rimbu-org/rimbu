@@ -10,7 +10,6 @@ import { Token } from '@rimbu/base/token';
 import { EmptyBase } from '@rimbu/collection-types/common/empty-base';
 import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
 import { Stream, type StreamSource } from '@rimbu/stream';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
 
 export class OrderedMapEmpty<K = any, V = any>
 	extends EmptyBase
@@ -60,7 +59,7 @@ export class OrderedMapEmpty<K = any, V = any>
 	addEntries(
 		entries: StreamSource<readonly [K, V]>,
 	): OrderedMap.NonEmpty<K, V> {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries)) {
+		if (Stream.isEmptyStreamSourceInstance(entries)) {
 			return this as any;
 		}
 

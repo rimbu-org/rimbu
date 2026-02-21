@@ -8,7 +8,6 @@ import { Token } from '@rimbu/base/token';
 import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
 import { Update } from '@rimbu/common/update';
 import { Stream, type StreamSource } from '@rimbu/stream';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
 
 import { SortedBuilder } from '#sorted/base';
 import { SortedIndex } from '#sorted/sorted-index';
@@ -131,7 +130,7 @@ export class SortedMapBuilder<K, V>
 	removeKeys = <UK>(keys: StreamSource<RelatedTo<K, UK>>): boolean => {
 		this.checkLock();
 
-		if (StreamFactory().isEmptyStreamSourceInstance(keys)) return false;
+		if (Stream.isEmptyStreamSourceInstance(keys)) return false;
 
 		const notFound = Symbol();
 

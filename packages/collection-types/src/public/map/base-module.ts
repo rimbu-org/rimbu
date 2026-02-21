@@ -4,7 +4,6 @@ import type { ArrayNonEmpty } from '@rimbu/common/types';
 
 import { Module } from '@rimbu/common/module';
 import { Stream, type StreamSource } from '@rimbu/stream';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
 import { Reducer } from '@rimbu/stream/reducer';
 
 export namespace RMapContextBaseModule {
@@ -43,7 +42,7 @@ export namespace RMapContextBaseModule {
 				while (++i < length) {
 					const source = sources[i];
 
-					if (StreamFactory().isEmptyStreamSourceInstance(source)) continue;
+					if (Stream.isEmptyStreamSourceInstance(source)) continue;
 
 					if (
 						builder.isEmpty &&
@@ -134,11 +133,7 @@ export namespace RMapContextBaseModule {
 				...sources: StreamSource<readonly [K, unknown]>[]
 			): any => {
 				return (mergeFun: (key: K, ...values: I) => any): any => {
-					if (
-						Stream.from(sources).some(
-							StreamFactory().isEmptyStreamSourceInstance,
-						)
-					) {
+					if (Stream.from(sources).some(Stream.isEmptyStreamSourceInstance)) {
 						return mod.empty();
 					}
 

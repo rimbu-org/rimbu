@@ -8,12 +8,6 @@ export interface AsyncStreamFactory extends AsyncStreamConstructors {
 
 	isAsyncStream(obj: any): obj is AsyncStream<any>;
 	/**
-	 * Returns true if the given async stream source is known to be empty.
-	 * If this function returns false, the source may still be empty; it is simply not known.
-	 * @param source - a potential async stream source
-	 */
-	isEmptyAsyncStreamSourceInstance(source: AsyncStreamSource<any>): boolean;
-	/**
 	 * Converts any `AsyncStreamSource` into a concrete `AsyncStream` implementation.
 	 * @typeparam T - the element type
 	 * @param source - the async stream source to convert

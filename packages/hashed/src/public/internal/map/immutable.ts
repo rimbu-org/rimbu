@@ -16,7 +16,6 @@ import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Update } from '@rimbu/common/update';
 import { Stream, type StreamSource } from '@rimbu/stream';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
 
 export class HashMapEmpty<K = any, V = any>
 	extends EmptyBase
@@ -159,7 +158,7 @@ export abstract class HashMapNonEmptyBase<K, V>
 	}
 
 	addEntries(entries: StreamSource<readonly [K, V]>): HashMap.NonEmpty<K, V> {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries)) return this;
+		if (Stream.isEmptyStreamSourceInstance(entries)) return this;
 
 		const builder = this.toBuilder();
 		builder.addEntries(entries);
@@ -167,7 +166,7 @@ export abstract class HashMapNonEmptyBase<K, V>
 	}
 
 	removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): HashMap<K, V> {
-		if (StreamFactory().isEmptyStreamSourceInstance(keys)) return this;
+		if (Stream.isEmptyStreamSourceInstance(keys)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeKeys(keys);

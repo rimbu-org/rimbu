@@ -5,7 +5,6 @@ import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { Update } from '@rimbu/common/update';
 import type { List } from '@rimbu/list';
 import type { OrderedMap } from '@rimbu/ordered/map';
-import type { Stream, StreamSource } from '@rimbu/stream';
 
 import type { OrderedMapBase } from '#map/base';
 import type { ContextImpl } from '#map/context-factory';
@@ -13,7 +12,7 @@ import type { ContextImpl } from '#map/context-factory';
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import { NonEmptyBase } from '@rimbu/collection-types/common/empty-base';
 import { TraverseState } from '@rimbu/common/traverse-state';
-import { StreamFactory } from '@rimbu/stream/internal/factory';
+import { Stream, type StreamSource } from '@rimbu/stream';
 
 export class OrderedMapNonEmpty<K, V>
 	extends NonEmptyBase<[K, V]>
@@ -89,7 +88,7 @@ export class OrderedMapNonEmpty<K, V>
 	addEntries(
 		entries: StreamSource<readonly [K, V]>,
 	): OrderedMap.NonEmpty<K, V> {
-		if (StreamFactory().isEmptyStreamSourceInstance(entries)) {
+		if (Stream.isEmptyStreamSourceInstance(entries)) {
 			return this;
 		}
 
@@ -118,7 +117,7 @@ export class OrderedMapNonEmpty<K, V>
 	}
 
 	removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): OrderedMap<K, V> {
-		if (StreamFactory().isEmptyStreamSourceInstance(keys)) return this;
+		if (Stream.isEmptyStreamSourceInstance(keys)) return this;
 
 		const builder = this.toBuilder();
 		builder.removeKeys(keys);
