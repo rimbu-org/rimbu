@@ -82,6 +82,8 @@ export namespace OrderedSet {
 	}
 }
 
-export const OrderedSet: OrderedSetCreators = createOrderedSetContextModule({
-	setContext: undefined as any,
-}).build();
+export const OrderedSet: OrderedSetCreators = Object.freeze<OrderedSetCreators>(
+	{
+		createContext: (options) => createOrderedSetContextModule(options).build(),
+	},
+);

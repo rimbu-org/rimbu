@@ -90,5 +90,7 @@ export namespace OrderedHashMap {
 
 export const OrderedHashMap: OrderedHashMapCreators =
 	createOrderedMapContextModule({
-		mapContext: HashMap.defaultContext(),
+		get mapContext() {
+			return HashMap.defaultContext();
+		},
 	}).build();

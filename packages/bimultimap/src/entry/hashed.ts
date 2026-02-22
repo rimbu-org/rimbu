@@ -70,8 +70,11 @@ export namespace HashBiMultiMap {
 }
 
 export const HashBiMultiMap: BiMultiMapHashed.Creators =
-	createBiMultiMapContextModule({
-		keyValueMultiMapContext: HashMultiMapHashValue.defaultContext(),
-		valueKeyMultiMapContext: HashMultiMapHashValue.defaultContext(),
-		typeTag: 'HashBiMultiMap',
+	createBiMultiMapContextModule('HashBiMultiMap', {
+		get keyValueMultiMapContext() {
+			return HashMultiMapHashValue.defaultContext();
+		},
+		get valueKeyMultiMapContext() {
+			return HashMultiMapHashValue.defaultContext();
+		},
 	}).build();

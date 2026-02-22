@@ -80,8 +80,6 @@ export function createOrderedMapContextModule<UK>(
 		},
 	}));
 
-	const { listContext, mapContext } = options;
-
 	return Module.create<ContextImpl<UK>>((mod) => ({
 		...baseModule(mod),
 		...immutableModule(mod),
@@ -94,8 +92,10 @@ export function createOrderedMapContextModule<UK>(
 		),
 
 		typeTag: 'OrderedMap',
-		listContext: Module.lazyGetter(() => listContext ?? List.defaultContext()),
-		mapContext,
+		listContext: Module.lazyGetter(
+			() => options.listContext ?? List.defaultContext(),
+		),
+		mapContext: Module.lazyGetter(() => options.mapContext),
 
 		isNonEmptyInstance(source: any): source is any {
 			return source instanceof OrderedMapNonEmpty;

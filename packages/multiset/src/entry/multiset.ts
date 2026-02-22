@@ -65,9 +65,6 @@ export const MultiSet: MultiSetCreators = Object.freeze<MultiSetCreators>({
 	createContext<UT>(options: {
 		countMapContext: RMap.Context<UT>;
 	}): MultiSet.Context<UT> {
-		return createMultiSetContextModule({
-			...options,
-			typeTag: 'MultiSet',
-		}).build();
+		return createMultiSetContextModule('MultiSet', options).build();
 	},
 });

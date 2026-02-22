@@ -94,5 +94,7 @@ export namespace OrderedSortedMap {
 
 export const OrderedSortedMap: OrderedSortedMapCreators =
 	createOrderedMapContextModule({
-		mapContext: SortedMap.defaultContext(),
+		get mapContext() {
+			return SortedMap.defaultContext();
+		},
 	}).build();

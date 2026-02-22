@@ -1,7 +1,0 @@
-{
-	"$schema": "https://typedoc.org/schema.json",
-	"entryPoints": ["src/entry/stream.ts"],
-	"tsconfig": "tsconfig.esm.json",
-	"sort": ["alphabetical-ignoring-documents", "kind", "instance-first"],
-	"out": "./docs/stream"
-}

@@ -27,29 +27,33 @@ export interface ContextImpl<UK, UV>
 }
 
 export function createMultiMapContextModule<UK, UV>(
+	typeTag: string,
 	options: {
-		typeTag: string;
 		keyMapContext: RMap.Context<UK>;
 		keyMapValuesContext: RSet.Context<UV>;
 	},
 	_defaultContext?: ContextImpl<UK, UV> | undefined,
 ): Module<ContextImpl<UK, UV>> {
-	const { typeTag, keyMapContext, keyMapValuesContext } = options;
-
 	return Module.create<ContextImpl<UK, UV>>((mod) => ({
 		createContext: (_options) => {
-			const finalOptions = { ...options, ..._options };
-
 			return createMultiMapContextModule(
-				finalOptions,
+				typeTag,
+				{
+					get keyMapContext() {
+						return _options?.keyMapContext ?? options.keyMapContext;
+					},
+					get keyMapValuesContext() {
+						return _options?.keyMapValuesContext ?? options.keyMapValuesContext;
+					},
+				},
 				mod as ContextImpl<any, any>,
 			).build();
 		},
 		defaultContext: Module.lazy(() => _defaultContext ?? mod),
 
 		typeTag,
-		keyMapContext,
-		keyMapValuesContext,
+		keyMapContext: Module.lazyGetter(() => options.keyMapContext),
+		keyMapValuesContext: Module.lazyGetter(() => options.keyMapValuesContext),
 
 		createBuilder: <K, V>(source?: MultiMap.NonEmpty<K, V>) =>
 			new MultiMapBuilder(mod as unknown as ContextImpl<K, V>, source),

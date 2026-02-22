@@ -92,9 +92,11 @@ export namespace ArrowValuedGraphSorted {
 }
 
 export const ArrowValuedGraphSorted: ArrowValuedGraphSortedCreators =
-	createValuedGraphContextModule({
-		typeTag: 'ArrowValuedGraphSorted',
-		isDirected: true,
-		linkMapContext: SortedMap.defaultContext(),
-		linkConnectionsContext: SortedMap.defaultContext(),
+	createValuedGraphContextModule('ArrowValuedGraphSorted', true, {
+		get linkMapContext() {
+			return SortedMap.defaultContext();
+		},
+		get linkConnectionsContext() {
+			return SortedMap.defaultContext();
+		},
 	}).build();

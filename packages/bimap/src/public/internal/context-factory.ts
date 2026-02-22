@@ -35,8 +35,6 @@ export function createBiMapContextModule<UK, UV>(
 	} = {},
 	_defaultContext?: BiMap.Context<UK, UV>,
 ): Module<ContextImpl<UK, UV>> {
-	const { keyValueContext, valueKeyContext } = options;
-
 	return Module.create<ContextImpl<UK, UV>>((mod) => ({
 		createContext: (options) =>
 			createBiMapContextModule(options, mod as ContextImpl<any, any>).build(),
@@ -45,10 +43,10 @@ export function createBiMapContextModule<UK, UV>(
 		),
 
 		keyValueContext: Module.lazyGetter(
-			() => keyValueContext ?? HashMap.defaultContext<UK>(),
+			() => options.keyValueContext ?? HashMap.defaultContext<UK>(),
 		),
 		valueKeyContext: Module.lazyGetter(
-			() => valueKeyContext ?? HashMap.defaultContext<UV>(),
+			() => options.valueKeyContext ?? HashMap.defaultContext<UV>(),
 		),
 
 		typeTag: 'BiMap',

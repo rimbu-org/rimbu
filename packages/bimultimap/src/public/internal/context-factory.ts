@@ -23,28 +23,45 @@ export interface ContextImpl<UK, UV>
 }
 
 export function createBiMultiMapContextModule<UK, UV>(
+	typeTag: string,
 	options: {
-		typeTag: string;
 		keyValueMultiMapContext: MultiMap.Context<UK, UV>;
 		valueKeyMultiMapContext: MultiMap.Context<UV, UK>;
 	},
 	_defaultContext?: ContextImpl<any, any> | undefined,
 ): Module<ContextImpl<UK, UV>> {
-	const { typeTag, keyValueMultiMapContext, valueKeyMultiMapContext } = options;
-
 	return Module.create<ContextImpl<UK, UV>>((mod) => ({
-		createContext: (_options) => {
-			const finalOptions = { ...options, ..._options };
-			return createBiMultiMapContextModule(finalOptions, mod).build();
-		},
+		createContext: (_options) =>
+			createBiMultiMapContextModule(
+				typeTag,
+				{
+					get keyValueMultiMapContext() {
+						return (
+							_options?.keyValueMultiMapContext ??
+							options.keyValueMultiMapContext
+						);
+					},
+					get valueKeyMultiMapContext() {
+						return (
+							_options?.valueKeyMultiMapContext ??
+							options.valueKeyMultiMapContext
+						);
+					},
+				},
+				mod,
+			).build(),
 		defaultContext: Module.lazy<any>(() => _defaultContext ?? mod),
 
 		typeTag,
 		_fixTypes: undefined as any,
 		_types: undefined as any,
 
-		keyValueMultiMapContext,
-		valueKeyMultiMapContext,
+		keyValueMultiMapContext: Module.lazyGetter(
+			() => options.keyValueMultiMapContext,
+		),
+		valueKeyMultiMapContext: Module.lazyGetter(
+			() => options.valueKeyMultiMapContext,
+		),
 
 		empty: Module.lazy(
 			<K, V>(): BiMultiMap<K, V> =>

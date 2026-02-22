@@ -85,5 +85,7 @@ export namespace OrderedSortedSet {
 
 export const OrderedSortedSet: OrderedSortedSetCreators =
 	createOrderedSetContextModule({
-		setContext: SortedSet.defaultContext(),
+		get setContext() {
+			return SortedSet.defaultContext();
+		},
 	}).build();

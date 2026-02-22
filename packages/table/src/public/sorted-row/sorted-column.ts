@@ -100,8 +100,11 @@ export namespace SortedTableSortedColumn {
  * See the [SortedTableSortedColumn API documentation](https://rimbu.org/api/rimbu/table/sorted-row/SortedTableSortedColumn/interface).
  */
 export const SortedTableSortedColumn: SortedTableSortedColumnCreators =
-	createTableContextModule({
-		typeTag: 'SortedTableSortedColumn',
-		rowContext: SortedMap.defaultContext(),
-		columnContext: SortedMap.defaultContext(),
+	createTableContextModule('SortedTableSortedColumn', {
+		get rowContext() {
+			return SortedMap.defaultContext();
+		},
+		get columnContext() {
+			return SortedMap.defaultContext();
+		},
 	}).build();

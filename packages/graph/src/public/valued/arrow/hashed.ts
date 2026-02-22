@@ -92,9 +92,11 @@ export namespace ArrowValuedGraphHashed {
 }
 
 export const ArrowValuedGraphHashed: ArrowValuedGraphHashedCreators =
-	createValuedGraphContextModule({
-		typeTag: 'ArrowValuedGraphHashed',
-		isDirected: true,
-		linkMapContext: HashMap.defaultContext(),
-		linkConnectionsContext: HashMap.defaultContext(),
+	createValuedGraphContextModule('ArrowValuedGraphHashed', true, {
+		get linkMapContext() {
+			return HashMap.defaultContext();
+		},
+		get linkConnectionsContext() {
+			return HashMap.defaultContext();
+		},
 	}).build();

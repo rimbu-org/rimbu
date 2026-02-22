@@ -83,9 +83,11 @@ export namespace EdgeGraphHashed {
 }
 
 export const EdgeGraphHashed: EdgeGraphHashedCreators =
-	createGraphContextModule({
-		typeTag: 'EdgeGraphHashed',
-		isDirected: false,
-		linkMapContext: HashMap.defaultContext(),
-		linkConnectionsContext: HashSet.defaultContext(),
+	createGraphContextModule('EdgeGraphHashed', false, {
+		get linkMapContext() {
+			return HashMap.defaultContext();
+		},
+		get linkConnectionsContext() {
+			return HashSet.defaultContext();
+		},
 	}).build();

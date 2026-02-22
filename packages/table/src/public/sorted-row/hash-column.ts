@@ -97,8 +97,11 @@ export namespace SortedTableHashColumn {
  * See the [SortedTableHashColumn API documentation](https://rimbu.org/api/rimbu/table/sorted-row/SortedTableHashColumn/interface).
  */
 export const SortedTableHashColumn: SortedTableHashColumnCreators =
-	createTableContextModule({
-		typeTag: 'SortedTableHashColumn',
-		rowContext: SortedMap.defaultContext(),
-		columnContext: HashMap.defaultContext(),
+	createTableContextModule('SortedTableHashColumn', {
+		get rowContext() {
+			return SortedMap.defaultContext();
+		},
+		get columnContext() {
+			return HashMap.defaultContext();
+		},
 	}).build();

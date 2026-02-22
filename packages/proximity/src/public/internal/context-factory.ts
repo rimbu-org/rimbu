@@ -31,8 +31,6 @@ export function createProximityMapContextModule<UK>(
 	} = {},
 	_defaultContext?: ProximityMap.Context<UK> | undefined,
 ): Module<ContextImpl<UK>> {
-	const { distanceFunction, hashMapContext } = options;
-
 	const baseModule = RMapContextBaseModule.createContextModuleBase<
 		UK,
 		ProximityMap.Types
@@ -68,10 +66,10 @@ export function createProximityMapContextModule<UK>(
 		typeTag: 'ProximityMap',
 
 		distanceFunction: Module.lazyGetter(
-			() => distanceFunction ?? DistanceFunction.defaultFunction,
+			() => options.distanceFunction ?? DistanceFunction.defaultFunction,
 		),
 		hashMapContext: Module.lazyGetter(
-			() => hashMapContext ?? HashMap.defaultContext<UK>(),
+			() => options.hashMapContext ?? HashMap.defaultContext<UK>(),
 		),
 		isValidKey(key: any): key is UK {
 			return mod.hashMapContext.isValidKey(key);

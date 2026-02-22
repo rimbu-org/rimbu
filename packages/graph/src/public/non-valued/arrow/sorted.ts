@@ -87,9 +87,11 @@ export namespace ArrowGraphSorted {
 }
 
 export const ArrowGraphSorted: ArrowGraphSortedCreators =
-	createGraphContextModule({
-		typeTag: 'ArrowGraphSorted',
-		isDirected: true,
-		linkMapContext: SortedMap.defaultContext(),
-		linkConnectionsContext: SortedSet.defaultContext(),
+	createGraphContextModule('ArrowGraphSorted', true, {
+		get linkMapContext() {
+			return SortedMap.defaultContext();
+		},
+		get linkConnectionsContext() {
+			return SortedSet.defaultContext();
+		},
 	}).build();

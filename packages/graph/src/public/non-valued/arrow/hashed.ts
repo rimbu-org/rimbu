@@ -83,9 +83,11 @@ export namespace ArrowGraphHashed {
 }
 
 export const ArrowGraphHashed: ArrowGraphHashedCreators =
-	createGraphContextModule({
-		typeTag: 'ArrowGraphHashed',
-		isDirected: true,
-		linkMapContext: HashMap.defaultContext(),
-		linkConnectionsContext: HashSet.defaultContext(),
+	createGraphContextModule('ArrowGraphHashed', true, {
+		get linkMapContext() {
+			return HashMap.defaultContext();
+		},
+		get linkConnectionsContext() {
+			return HashSet.defaultContext();
+		},
 	}).build();

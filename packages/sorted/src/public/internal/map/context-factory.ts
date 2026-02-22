@@ -102,7 +102,7 @@ export function createSortedMapContextModule<UK>(
 		},
 	}));
 
-	const { blockSizeBits = 5, comp } = options;
+	const { blockSizeBits = 5 } = options;
 
 	return Module.create<ContextImpl<UK>>((mod) => ({
 		...baseModule(mod),
@@ -117,7 +117,7 @@ export function createSortedMapContextModule<UK>(
 		blockSizeBits,
 		maxEntries: 1 << blockSizeBits,
 		minEntries: 1 << (blockSizeBits - 1),
-		comp: Module.lazyGetter(() => comp ?? Comp.defaultInstance),
+		comp: Module.lazyGetter(() => options.comp ?? Comp.defaultInstance),
 
 		isValidKey(key: any): key is UK {
 			return mod.comp.isComparable(key);

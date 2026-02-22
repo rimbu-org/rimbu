@@ -33,6 +33,7 @@ export namespace RMapContextBaseModule {
 		}>((mod) => ({
 			_fixedKeyType: undefined as any,
 			_types: undefined as any,
+
 			from: (...sources: any[]): any => {
 				let builder = mod.builder();
 

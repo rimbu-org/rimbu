@@ -74,10 +74,10 @@ export const ArrowValuedGraph: ArrowValuedGraphCreators = Object.freeze({
 		linkMapContext: RMap.Context<UN>;
 		linkConnectionsContext: RMap.Context<UN>;
 	}): ArrowValuedGraph.Context<UN> {
-		return createValuedGraphContextModule({
-			typeTag: 'ArrowValuedGraph',
-			isDirected: true,
-			...options,
-		}).build();
+		return createValuedGraphContextModule(
+			'ArrowValuedGraph',
+			true,
+			options,
+		).build();
 	},
 });

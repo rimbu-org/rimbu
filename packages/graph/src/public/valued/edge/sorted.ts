@@ -92,9 +92,11 @@ export namespace EdgeValuedGraphSorted {
 }
 
 export const EdgeValuedGraphSorted: EdgeValuedGraphSortedCreators =
-	createValuedGraphContextModule({
-		typeTag: 'EdgeValuedGraphSorted',
-		isDirected: false,
-		linkMapContext: SortedMap.defaultContext(),
-		linkConnectionsContext: SortedMap.defaultContext(),
+	createValuedGraphContextModule('EdgeValuedGraphSorted', false, {
+		get linkMapContext() {
+			return SortedMap.defaultContext();
+		},
+		get linkConnectionsContext() {
+			return SortedMap.defaultContext();
+		},
 	}).build();

@@ -30,23 +30,29 @@ export interface ValuedGraphContextImpl<UN> extends ValuedGraph.Context<UN> {
 }
 
 export function createValuedGraphContextModule<UN>(
+	typeTag: string,
+	isDirected: boolean,
 	options: {
-		typeTag: string;
-		isDirected: boolean;
 		linkMapContext: RMap.Context<UN>;
 		linkConnectionsContext: RMap.Context<UN>;
 	},
 	_defaultContext?: ValuedGraphContextImpl<UN> | undefined,
 ): Module<ValuedGraphContextImpl<UN>> {
-	const { typeTag, isDirected, linkMapContext, linkConnectionsContext } =
-		options;
-
 	return Module.create<ValuedGraphContextImpl<UN>>((mod) => ({
 		createContext: (_options) => {
-			const finalOptions = { ...options, ..._options };
-
 			return createValuedGraphContextModule(
-				finalOptions,
+				typeTag,
+				isDirected,
+				{
+					get linkMapContext() {
+						return _options?.linkMapContext ?? options.linkMapContext;
+					},
+					get linkConnectionsContext() {
+						return (
+							_options?.linkConnectionsContext ?? options.linkConnectionsContext
+						);
+					},
+				},
 				mod as ValuedGraphContextImpl<any>,
 			).build();
 		},
@@ -56,8 +62,10 @@ export function createValuedGraphContextModule<UN>(
 
 		typeTag,
 		isDirected,
-		linkMapContext,
-		linkConnectionsContext,
+		linkMapContext: Module.lazyGetter(() => options.linkMapContext),
+		linkConnectionsContext: Module.lazyGetter(
+			() => options.linkConnectionsContext,
+		),
 
 		_fixedType: undefined as any,
 
@@ -100,21 +108,21 @@ export function createValuedGraphContextModule<UN>(
 		},
 		reducer: <N extends UN, V>(
 			source?: StreamSource<ValuedGraphElement<N, V>>,
-		): any => {
+		): Reducer<ValuedGraphElement<N, V>, ValuedGraph<N, V>> => {
 			return Reducer.create(
 				(): ValuedGraph.Builder<N, V> =>
 					undefined === source ? mod.builder() : mod.from(source).toBuilder(),
-				(builder, entry: ValuedGraphElement<N, V>) => {
+				(builder, entry) => {
 					builder.addGraphElement(entry);
 					return builder;
 				},
 				(builder) => builder.build(),
 			);
 		},
-		builder: () =>
+		builder: <N extends UN, V>(): ValuedGraph.Builder<N, V> =>
 			new ValuedGraphBuilder(
 				mod.isDirected,
-				mod as unknown as ValuedGraphContextImpl<any>,
+				mod as unknown as ValuedGraphContextImpl<N>,
 			),
 
 		isNonEmptyInstance: (source) => source instanceof ValuedGraphNonEmpty,

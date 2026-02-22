@@ -73,7 +73,9 @@ export function createHashSetContextModule<UT>(
 		defines: ImmutableFactory<UT>;
 		requires: ContextImpl<UT>;
 	}>((mod) => ({
-		listContext: Module.lazyGetter(() => listContext ?? List.defaultContext()),
+		listContext: Module.lazyGetter(
+			() => options.listContext ?? List.defaultContext(),
+		),
 		emptyBlock: Module.lazyGetter(() =>
 			Object.freeze(new HashSetBlock<UT>(mod, null, null, 0, 0)),
 		),
@@ -119,7 +121,7 @@ export function createHashSetContextModule<UT>(
 		},
 	}));
 
-	const { hasher, eq, listContext, blockSizeBits = 5 } = options;
+	const { blockSizeBits = 5 } = options;
 
 	const blockCapacity = 1 << blockSizeBits;
 	const blockMask = blockCapacity - 1;
@@ -135,9 +137,11 @@ export function createHashSetContextModule<UT>(
 
 		typeTag: 'HashSet',
 
-		hasher: Module.lazyGetter(() => hasher ?? Hasher.defaultInstance),
-		eq: Module.lazyGetter(() => eq ?? Eq.defaultInstance),
-		listContext: Module.lazyGetter(() => listContext ?? List.defaultContext()),
+		hasher: Module.lazyGetter(() => options.hasher ?? Hasher.defaultInstance),
+		eq: Module.lazyGetter(() => options.eq ?? Eq.defaultInstance),
+		listContext: Module.lazyGetter(
+			() => options.listContext ?? List.defaultContext(),
+		),
 
 		maxDepth: Math.ceil(32 / blockSizeBits),
 

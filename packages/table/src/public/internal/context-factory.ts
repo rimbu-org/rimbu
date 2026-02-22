@@ -24,20 +24,25 @@ export interface ContextImpl<UR, UC>
 }
 
 export function createTableContextModule<UR, UC>(
+	typeTag: string,
 	options: {
-		typeTag: string;
 		rowContext: RMap.Context<UR>;
 		columnContext: RMap.Context<UC>;
 	},
 	_defaultContext?: ContextImpl<UR, UC> | undefined,
 ): Module<ContextImpl<UR, UC>> {
-	const { typeTag, rowContext, columnContext } = options;
-
 	return Module.create<ContextImpl<UR, UC>>((mod) => ({
 		createContext: (_options) => {
-			const finalOptions = { ...options, ..._options };
 			return createTableContextModule(
-				finalOptions,
+				typeTag,
+				{
+					get rowContext() {
+						return _options?.rowContext ?? options.rowContext;
+					},
+					get columnContext() {
+						return _options?.columnContext ?? options.columnContext;
+					},
+				},
 				mod as ContextImpl<any, any>,
 			).build();
 		},
@@ -64,8 +69,8 @@ export function createTableContextModule<UR, UC>(
 		_fixedKeys: undefined as any,
 		_types: undefined as any,
 
-		rowContext,
-		columnContext,
+		rowContext: Module.lazyGetter(() => options.rowContext),
+		columnContext: Module.lazyGetter(() => options.columnContext),
 
 		empty: Module.lazy(
 			<R, C, V>(): Table<R, C, V> =>

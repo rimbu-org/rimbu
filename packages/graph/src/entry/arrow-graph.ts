@@ -66,10 +66,6 @@ export const ArrowGraph: ArrowGraphCreators = Object.freeze({
 		linkMapContext: RMap.Context<UN>;
 		linkConnectionsContext: RSet.Context<UN>;
 	}): ArrowGraph.Context<UN> {
-		return createGraphContextModule({
-			typeTag: 'ArrowGraph',
-			isDirected: true,
-			...options,
-		}).build();
+		return createGraphContextModule('ArrowGraph', true, options).build();
 	},
 });

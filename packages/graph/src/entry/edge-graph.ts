@@ -66,10 +66,6 @@ export const EdgeGraph: EdgeGraphCreators = Object.freeze({
 		linkMapContext: RMap.Context<UN>;
 		linkConnectionsContext: RSet.Context<UN>;
 	}): EdgeGraph.Context<UN> {
-		return createGraphContextModule({
-			typeTag: 'EdgeGraph',
-			isDirected: false,
-			...options,
-		}).build();
+		return createGraphContextModule('EdgeGraph', false, options).build();
 	},
 });

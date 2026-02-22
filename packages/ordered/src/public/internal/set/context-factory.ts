@@ -76,8 +76,6 @@ export function createOrderedSetContextModule<UT>(
 		},
 	}));
 
-	const { listContext, setContext } = options;
-
 	return Module.create<ContextImpl<UT>>((mod) => ({
 		...baseModule(mod),
 		...immutableModule(mod),
@@ -91,8 +89,10 @@ export function createOrderedSetContextModule<UT>(
 
 		typeTag: 'OrderedSet',
 
-		listContext: Module.lazyGetter(() => listContext ?? List.defaultContext()),
-		setContext,
+		listContext: Module.lazyGetter(
+			() => options.listContext ?? List.defaultContext(),
+		),
+		setContext: Module.lazyGetter(() => options.setContext),
 
 		isValidValue(value: any): value is UT {
 			return mod.setContext.isValidValue(value);

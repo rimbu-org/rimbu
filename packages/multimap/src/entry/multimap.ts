@@ -68,9 +68,6 @@ export const MultiMap: MultiMapCreators = Object.freeze({
 		keyMapContext: RMap.Context<UK>;
 		keyMapValuesContext: RSet.Context<UV>;
 	}): MultiMap.Context<UK, UV> {
-		return createMultiMapContextModule({
-			...options,
-			typeTag: 'MultiMap',
-		}).build();
+		return createMultiMapContextModule('MultiMap', options).build();
 	},
 });

@@ -82,6 +82,6 @@ export const Table: TableCreators = Object.freeze({
 		rowContext: RMap.Context<UR>;
 		columnContext: RMap.Context<UC>;
 	}): Table.Context<UR, UC> {
-		return createTableContextModule({ ...options, typeTag: 'Table' }).build();
+		return createTableContextModule('Table', options).build();
 	},
 });

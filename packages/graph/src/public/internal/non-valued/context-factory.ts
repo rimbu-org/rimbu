@@ -27,23 +27,29 @@ export interface GraphContextImpl<UN> extends GraphBase.Context<UN> {
 }
 
 export function createGraphContextModule<UN>(
+	typeTag: string,
+	isDirected: boolean,
 	options: {
-		typeTag: string;
-		isDirected: boolean;
 		linkMapContext: RMap.Context<UN>;
 		linkConnectionsContext: RSet.Context<UN>;
 	},
 	_defaultContext?: GraphContextImpl<UN> | undefined,
 ): Module<GraphContextImpl<UN>> {
-	const { typeTag, isDirected, linkMapContext, linkConnectionsContext } =
-		options;
-
 	return Module.create<GraphContextImpl<UN>>((mod) => ({
 		createContext: (_options) => {
-			const finalOptions = { ...options, ..._options };
-
 			return createGraphContextModule(
-				finalOptions,
+				typeTag,
+				isDirected,
+				{
+					get linkMapContext() {
+						return _options?.linkMapContext ?? options.linkMapContext;
+					},
+					get linkConnectionsContext() {
+						return (
+							_options?.linkConnectionsContext ?? options.linkConnectionsContext
+						);
+					},
+				},
 				mod as GraphContextImpl<any>,
 			).build();
 		},
@@ -53,8 +59,10 @@ export function createGraphContextModule<UN>(
 
 		typeTag,
 		isDirected,
-		linkMapContext,
-		linkConnectionsContext,
+		linkMapContext: Module.lazyGetter(() => options.linkMapContext),
+		linkConnectionsContext: Module.lazyGetter(
+			() => options.linkConnectionsContext,
+		),
 		_fixedType: undefined as any,
 
 		empty: Module.lazy(<N>() =>

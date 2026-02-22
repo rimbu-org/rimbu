@@ -74,10 +74,10 @@ export const EdgeValuedGraph: EdgeValuedGraphCreators = Object.freeze({
 		linkMapContext: RMap.Context<UN>;
 		linkConnectionsContext: RMap.Context<UN>;
 	}): EdgeValuedGraph.Context<UN> {
-		return createValuedGraphContextModule({
-			typeTag: 'EdgeValuedGraph',
-			isDirected: false,
-			...options,
-		}).build();
+		return createValuedGraphContextModule(
+			'EdgeValuedGraph',
+			false,
+			options,
+		).build();
 	},
 });

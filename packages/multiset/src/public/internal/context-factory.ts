@@ -25,19 +25,17 @@ export interface ContextImpl<UT>
 }
 
 export function createMultiSetContextModule<UT>(
+	typeTag: string,
 	options: {
-		typeTag: string;
 		countMapContext: RMap.Context<UT>;
 	},
 	_defaultContext?: ContextImpl<UT> | undefined,
 ): Module<ContextImpl<UT>> {
-	const { typeTag, countMapContext } = options;
-
 	return Module.create<ContextImpl<UT>>((mod) => ({
 		createContext: (_options) => {
-			const finalOptions = { ...options, ..._options };
 			return createMultiSetContextModule(
-				finalOptions,
+				typeTag,
+				options,
 				mod as ContextImpl<any>,
 			).build();
 		},
@@ -46,7 +44,7 @@ export function createMultiSetContextModule<UT>(
 		typeTag,
 		_types: undefined as any,
 
-		countMapContext,
+		countMapContext: Module.lazyGetter(() => options.countMapContext),
 
 		isNonEmptyInstance<T>(source: any): source is MultiSet.NonEmpty<T> {
 			return source instanceof MultiSetNonEmpty;

@@ -15,6 +15,8 @@
         "lerna": "^9.0.3",
         "rimraf": "^6.1.2",
         "typedoc": "^0.28.16",
+        "typedoc-docusaurus-theme": "^1.4.2",
+        "typedoc-plugin-markdown": "^4.10.0",
         "typescript": "^5.9.3",
       },
     },
@@ -298,6 +300,17 @@
         "tslib": "catalog:",
       },
     },
+    "packages/typedoc-plugin-merge-decls": {
+      "name": "@rimbu/typedoc-plugin-merge-decls",
+      "version": "0.1.0",
+      "devDependencies": {
+        "typedoc": "*",
+        "typedoc-plugin-markdown": "*",
+      },
+      "peerDependencies": {
+        "typedoc": ">=0.27.0",
+      },
+    },
     "packages/typical": {
       "name": "@rimbu/typical",
       "version": "0.8.7",
@@ -528,6 +541,8 @@
     "@rimbu/table": ["@rimbu/table@workspace:packages/table"],
 
     "@rimbu/task": ["@rimbu/task@workspace:packages/task"],
+
+    "@rimbu/typedoc-plugin-merge-decls": ["@rimbu/typedoc-plugin-merge-decls@workspace:packages/typedoc-plugin-merge-decls"],
 
     "@rimbu/typical": ["@rimbu/typical@workspace:packages/typical"],
 
@@ -1498,6 +1513,10 @@
     "typedarray": ["typedarray@0.0.6", "", {}, "sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA=="],
 
     "typedoc": ["typedoc@0.28.16", "", { "dependencies": { "@gerrit0/mini-shiki": "^3.17.0", "lunr": "^2.3.9", "markdown-it": "^14.1.0", "minimatch": "^9.0.5", "yaml": "^2.8.1" }, "peerDependencies": { "typescript": "5.0.x || 5.1.x || 5.2.x || 5.3.x || 5.4.x || 5.5.x || 5.6.x || 5.7.x || 5.8.x || 5.9.x" }, "bin": { "typedoc": "bin/typedoc" } }, "sha512-x4xW77QC3i5DUFMBp0qjukOTnr/sSg+oEs86nB3LjDslvAmwe/PUGDWbe3GrIqt59oTqoXK5GRK9tAa0sYMiog=="],
+
+    "typedoc-docusaurus-theme": ["typedoc-docusaurus-theme@1.4.2", "", { "peerDependencies": { "typedoc-plugin-markdown": ">=4.8.0" } }, "sha512-i9YYDcScLD0WUiX8I+LXHX3ZVvRDlJsmRo9l/uWrFT37cHlMz4Ay0GOnWzHUBnnwAo1uzYOw9RjUXznbWozBEA=="],
+
+    "typedoc-plugin-markdown": ["typedoc-plugin-markdown@4.10.0", "", { "peerDependencies": { "typedoc": "0.28.x" } }, "sha512-psrg8Rtnv4HPWCsoxId+MzEN8TVK5jeKCnTbnGAbTBqcDapR9hM41bJT/9eAyKn9C2MDG9Qjh3MkltAYuLDoXg=="],
 
     "typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 

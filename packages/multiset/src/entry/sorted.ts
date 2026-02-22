@@ -87,7 +87,8 @@ export namespace SortedMultiSet {
  * [SortedMultiSet API documentation](https://rimbu.org/api/rimbu/multiset/SortedMultiSet/interface).
  */
 export const SortedMultiSet: SortedMultiSetCreators =
-	createMultiSetContextModule({
-		typeTag: 'SortedMultiSet',
-		countMapContext: SortedMap.defaultContext(),
+	createMultiSetContextModule('SortedMultiSet', {
+		get countMapContext() {
+			return SortedMap.defaultContext();
+		},
 	}).build();

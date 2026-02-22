@@ -95,8 +95,11 @@ export namespace SortedBiMultiMap {
 }
 
 export const SortedBiMultiMap: BiMultiMapSorted.Creators =
-	createBiMultiMapContextModule({
-		keyValueMultiMapContext: SortedMultiMapSortedValue.defaultContext(),
-		valueKeyMultiMapContext: SortedMultiMapSortedValue.defaultContext(),
-		typeTag: 'SortedBiMultiMap',
+	createBiMultiMapContextModule('SortedBiMultiMap', {
+		get keyValueMultiMapContext() {
+			return SortedMultiMapSortedValue.defaultContext();
+		},
+		get valueKeyMultiMapContext() {
+			return SortedMultiMapSortedValue.defaultContext();
+		},
 	}).build();

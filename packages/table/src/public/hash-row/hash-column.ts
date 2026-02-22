@@ -94,8 +94,11 @@ export namespace HashTableHashColumn {
  * See the [HashTableHashColumn API documentation](https://rimbu.org/api/rimbu/table/hash-row/HashTableHashColumn/interface).
  */
 export const HashTableHashColumn: HashTableHashColumnCreators =
-	createTableContextModule({
-		typeTag: 'HashTableHashColumn',
-		rowContext: HashMap.defaultContext(),
-		columnContext: HashMap.defaultContext(),
+	createTableContextModule('HashTableHashColumn', {
+		get rowContext() {
+			return HashMap.defaultContext();
+		},
+		get columnContext() {
+			return HashMap.defaultContext();
+		},
 	}).build();

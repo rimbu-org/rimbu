@@ -97,8 +97,11 @@ export namespace HashTableSortedColumn {
  * See the [HashTableSortedColumn API documentation](https://rimbu.org/api/rimbu/table/hash-row/HashTableSortedColumn/interface).
  */
 export const HashTableSortedColumn: HashTableSortedColumnCreators =
-	createTableContextModule({
-		typeTag: 'HashTableSortedColumn',
-		rowContext: HashMap.defaultContext(),
-		columnContext: SortedMap.defaultContext(),
+	createTableContextModule('HashTableSortedColumn', {
+		get rowContext() {
+			return HashMap.defaultContext();
+		},
+		get columnContext() {
+			return SortedMap.defaultContext();
+		},
 	}).build();

@@ -27,7 +27,11 @@ export default {
 					position: 'left',
 					label: 'Docs',
 				},
-
+				{
+					to: '/api',
+					label: 'API Docs',
+					position: 'left',
+				},
 				{ to: '/blog', label: 'Blog', position: 'left' },
 				{
 					href: 'https://github.com/rimbu-org/rimbu',
@@ -100,7 +104,6 @@ export default {
 			{
 				docs: {
 					sidebarPath: require.resolve('./sidebars.js'),
-					editUrl: 'https://github.com/rimbu-org/rimbu/edit/master/website/',
 				},
 				blog: {
 					showReadingTime: true,
@@ -120,5 +123,14 @@ export default {
 			},
 		],
 	],
-	plugins: [],
+	plugins: [
+		[
+			'@docusaurus/plugin-content-docs',
+			{
+				id: 'api',
+				path: 'api',
+				routeBasePath: 'api',
+			},
+		],
+	],
 } satisfies Config;

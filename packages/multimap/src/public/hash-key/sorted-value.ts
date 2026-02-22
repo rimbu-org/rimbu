@@ -106,8 +106,11 @@ export namespace HashMultiMapSortedValue {
 }
 
 export const HashMultiMapSortedValue: HashMultiMapSortedValueCreators =
-	createMultiMapContextModule({
-		typeTag: 'HashMultiMapSortedValue',
-		keyMapContext: HashMap.defaultContext(),
-		keyMapValuesContext: SortedSet.defaultContext(),
+	createMultiMapContextModule('HashMultiMapSortedValue', {
+		get keyMapContext() {
+			return HashMap.defaultContext();
+		},
+		get keyMapValuesContext() {
+			return SortedSet.defaultContext();
+		},
 	}).build();

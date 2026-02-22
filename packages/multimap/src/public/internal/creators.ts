@@ -38,10 +38,14 @@ export interface HashMultiMapHashValueCreators
 	 * - keyMapContext: (optional) the map context to use for key to valueset mappings<br/>
 	 * - keyMapValuesContext: (optional) the set context to use for value sets
 	 */
-	createContext<UK, UV>(options?: {
-		keyMapContext?: HashMap.Context<UK>;
-		keyMapValuesContext?: HashSet.Context<UV>;
-	}): HashMultiMapHashValue.Context<UK, UV>;
+	createContext<UK, UV>(
+		options?:
+			| {
+					keyMapContext?: HashMap.Context<UK>;
+					keyMapValuesContext?: HashSet.Context<UV>;
+			  }
+			| undefined,
+	): HashMultiMapHashValue.Context<UK, UV>;
 	/**
 	 * Returns the default context for HashMultiMapHashValue.
 	 * @typeparam UK - the upper key type for which the context can create instances

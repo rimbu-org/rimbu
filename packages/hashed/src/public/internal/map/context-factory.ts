@@ -115,7 +115,7 @@ export function createHashMapContextModule<UK>(
 		},
 	}));
 
-	const { blockSizeBits = 5, hasher, eq } = options;
+	const { blockSizeBits = 5 } = options;
 
 	return Module.create<ContextImpl<UK>>((mod) => ({
 		...baseModule(mod),
@@ -129,8 +129,8 @@ export function createHashMapContextModule<UK>(
 			).build(),
 		defaultContext: Module.lazy<any>(() => _defaultContext ?? mod),
 
-		hasher: Module.lazyGetter(() => hasher ?? Hasher.defaultInstance),
-		eq: Module.lazyGetter(() => eq ?? Eq.defaultInstance),
+		hasher: Module.lazyGetter(() => options.hasher ?? Hasher.defaultInstance),
+		eq: Module.lazyGetter(() => options.eq ?? Eq.defaultInstance),
 		listContext: Module.lazyGetter(
 			() => options.listContext ?? List.defaultContext(),
 		),

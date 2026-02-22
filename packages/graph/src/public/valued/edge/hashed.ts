@@ -92,9 +92,11 @@ export namespace EdgeValuedGraphHashed {
 }
 
 export const EdgeValuedGraphHashed: EdgeValuedGraphHashedCreators =
-	createValuedGraphContextModule({
-		typeTag: 'EdgeValuedGraphHashed',
-		isDirected: false,
-		linkMapContext: HashMap.defaultContext(),
-		linkConnectionsContext: HashMap.defaultContext(),
+	createValuedGraphContextModule('EdgeValuedGraphHashed', false, {
+		get linkMapContext() {
+			return HashMap.defaultContext();
+		},
+		get linkConnectionsContext() {
+			return HashMap.defaultContext();
+		},
 	}).build();

@@ -1,5 +1,7 @@
 {
 	"$schema": "https://typedoc.org/schema.json",
-	"entryPoints": ["./dist/entry/stream.d.ts", "./dist/entry/async-stream.d.ts"],
-	"out": "docs"
+	"entryPointStrategy": "packages",
+	"entryPoints": ["../packages/*"],
+	"out": "../docs/api/rimbu",
+	"exclude": ["../packages/actor"]
 }

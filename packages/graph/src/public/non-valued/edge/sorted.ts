@@ -86,9 +86,11 @@ export namespace EdgeGraphSorted {
 }
 
 export const EdgeGraphSorted: EdgeGraphSortedCreators =
-	createGraphContextModule({
-		typeTag: 'EdgeGraphSorted',
-		isDirected: false,
-		linkMapContext: SortedMap.defaultContext(),
-		linkConnectionsContext: SortedSet.defaultContext(),
+	createGraphContextModule('EdgeGraphSorted', false, {
+		get linkMapContext() {
+			return SortedMap.defaultContext();
+		},
+		get linkConnectionsContext() {
+			return SortedSet.defaultContext();
+		},
 	}).build();
