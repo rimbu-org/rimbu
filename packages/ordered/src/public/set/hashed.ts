@@ -83,6 +83,9 @@ export namespace OrderedHashSet {
 	}
 }
 
+/**
+ * @expandType OrderedHashSetCreators
+ */
 export const OrderedHashSet: OrderedHashSetCreators =
 	createOrderedSetContextModule({
 		get setContext() {

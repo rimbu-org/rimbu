@@ -88,6 +88,9 @@ export namespace OrderedHashMap {
 	}
 }
 
+/**
+ * @expandType OrderedHashMapCreators
+ */
 export const OrderedHashMap: OrderedHashMapCreators =
 	createOrderedMapContextModule({
 		get mapContext() {

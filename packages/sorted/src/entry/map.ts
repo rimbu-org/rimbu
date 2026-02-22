@@ -491,5 +491,8 @@ export namespace SortedMap {
 	}
 }
 
+/**
+ * @expandType SortedMapCreators
+ */
 export const SortedMap: SortedMapCreators =
 	createSortedMapContextModule().build();

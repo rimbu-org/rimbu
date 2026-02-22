@@ -82,6 +82,9 @@ export namespace ArrowGraphHashed {
 	}
 }
 
+/**
+ * @expandType ArrowGraphHashedCreators
+ */
 export const ArrowGraphHashed: ArrowGraphHashedCreators =
 	createGraphContextModule('ArrowGraphHashed', true, {
 		get linkMapContext() {

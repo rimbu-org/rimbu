@@ -106,5 +106,8 @@ export namespace ProximityMap {
 	}
 }
 
+/**
+ * @expandType ProximityMapCreators
+ */
 export const ProximityMap: ProximityMapCreators =
 	createProximityMapContextModule().build();

@@ -53,23 +53,18 @@ export namespace Semaphore {
 	 * The semaphore error type.
 	 */
 	export type Error = SemaphoreError;
-
-	/**
-	 * Defines the static `Semaphore` API.
-	 */
-	export interface Constructors {
-		/**
-		 * Returns a new Semaphore instance with the given configuration.
-		 * @param options - the options for the Semaphore, including:<br/>
-		 * - maxSize: the maximum size/capacity for the semaphore
-		 * @returns a new `Semaphore` instance
-		 */
-		create(options: { maxSize: number }): Semaphore;
-	}
 }
 
-const semaphoreModule = Module.create<Semaphore.Constructors>(() => ({
+const semaphoreModule = Module.create<typeof Semaphore>(() => ({
 	create: (options: { maxSize: number }) => new SemaphoreImpl(options.maxSize),
 }));
 
-export const Semaphore: Semaphore.Constructors = semaphoreModule.build();
+export const Semaphore: {
+	/**
+	 * Returns a new Semaphore instance with the given configuration.
+	 * @param options - the options for the Semaphore, including:<br/>
+	 * - maxSize: the maximum size/capacity for the semaphore
+	 * @returns a new `Semaphore` instance
+	 */
+	create(options: { maxSize: number }): Semaphore;
+} = semaphoreModule.build();

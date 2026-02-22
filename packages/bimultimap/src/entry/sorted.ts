@@ -94,6 +94,9 @@ export namespace SortedBiMultiMap {
 	}
 }
 
+/**
+ * @expandType Creators
+ */
 export const SortedBiMultiMap: BiMultiMapSorted.Creators =
 	createBiMultiMapContextModule('SortedBiMultiMap', {
 		get keyValueMultiMapContext() {

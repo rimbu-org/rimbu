@@ -60,6 +60,7 @@ export namespace MultiSet {
  * Use this exported value to create and work with immutable `MultiSet` instances.
  * See the [MultiSet documentation](https://rimbu.org/docs/collections/multiset) and the
  * [MultiSet API documentation](https://rimbu.org/api/rimbu/multiset/MultiSet/interface).
+ * @expandType MultiSetCreators
  */
 export const MultiSet: MultiSetCreators = Object.freeze<MultiSetCreators>({
 	createContext<UT>(options: {

@@ -38,40 +38,9 @@ export namespace CrossChannel {
 		 */
 		read?: Channel.Config;
 	}
-
-	/**
-	 * Defines the static `CrossChannel` API.
-	 */
-	export interface Constructors {
-		/**
-		 * Returns a pair of connected CrossChannels of which the send module of the first is connected to the
-		 * receive module of the second, and the send module of the second is connected to the receive module
-		 * of the first.
-		 * @typeparam TSend - the send message type
-		 * @typeparam TReceive - the receive message type
-		 * @returns a pair of connected CrossChannels `[sendChannel, receiveChannel]`
-		 */
-		createPair<TSend = void, TReceive = TSend>(
-			config?: CrossChannel.Config,
-		): CrossChannel.Pair<TSend, TReceive>;
-
-		/**
-		 * Returns a CrossChannel where the send module comprises the given `writeCh`, and the receive module
-		 * consists of the given `readCh`.
-		 * @typeparam TSend - the send message type
-		 * @typeparam TReceive - the receive message type
-		 * @param writeCh - the write channel to use for sending messages
-		 * @param readCh - the read channel to use for receiving messages
-		 * @returns a `CrossChannel` whose send module uses `writeCh` and receive module uses `readCh`
-		 */
-		combine<TSend = void, TReceive = TSend>(
-			writeCh: Channel.Write<TSend>,
-			readCh: Channel.Read<TReceive>,
-		): CrossChannel<TSend, TReceive>;
-	}
 }
 
-const crossChannelModule = Module.create<CrossChannel.Constructors>((mod) => ({
+const crossChannelModule = Module.create<typeof CrossChannel>((mod) => ({
 	createPair: <TSend = void, TReceive = TSend>(
 		config: CrossChannel.Config = {},
 	): CrossChannel.Pair<TSend, TReceive> => {
@@ -134,5 +103,30 @@ const crossChannelModule = Module.create<CrossChannel.Constructors>((mod) => ({
 	},
 }));
 
-export const CrossChannel: CrossChannel.Constructors =
-	crossChannelModule.build();
+export const CrossChannel: {
+	/**
+	 * Returns a pair of connected CrossChannels of which the send module of the first is connected to the
+	 * receive module of the second, and the send module of the second is connected to the receive module
+	 * of the first.
+	 * @typeparam TSend - the send message type
+	 * @typeparam TReceive - the receive message type
+	 * @returns a pair of connected CrossChannels `[sendChannel, receiveChannel]`
+	 */
+	createPair<TSend = void, TReceive = TSend>(
+		config?: CrossChannel.Config,
+	): CrossChannel.Pair<TSend, TReceive>;
+
+	/**
+	 * Returns a CrossChannel where the send module comprises the given `writeCh`, and the receive module
+	 * consists of the given `readCh`.
+	 * @typeparam TSend - the send message type
+	 * @typeparam TReceive - the receive message type
+	 * @param writeCh - the write channel to use for sending messages
+	 * @param readCh - the read channel to use for receiving messages
+	 * @returns a `CrossChannel` whose send module uses `writeCh` and receive module uses `readCh`
+	 */
+	combine<TSend = void, TReceive = TSend>(
+		writeCh: Channel.Write<TSend>,
+		readCh: Channel.Read<TReceive>,
+	): CrossChannel<TSend, TReceive>;
+} = crossChannelModule.build();

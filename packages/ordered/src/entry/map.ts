@@ -83,6 +83,9 @@ export namespace OrderedMap {
 	}
 }
 
+/**
+ * @expandType OrderedMapCreators
+ */
 export const OrderedMap: OrderedMapCreators = Object.freeze<OrderedMapCreators>(
 	{
 		createContext: (options) => createOrderedMapContextModule(options).build(),

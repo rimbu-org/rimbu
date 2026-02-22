@@ -82,6 +82,9 @@ export namespace OrderedSet {
 	}
 }
 
+/**
+ * @expandType OrderedSetCreators
+ */
 export const OrderedSet: OrderedSetCreators = Object.freeze<OrderedSetCreators>(
 	{
 		createContext: (options) => createOrderedSetContextModule(options).build(),

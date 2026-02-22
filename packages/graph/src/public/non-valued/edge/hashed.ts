@@ -82,6 +82,9 @@ export namespace EdgeGraphHashed {
 	}
 }
 
+/**
+ * @expandType EdgeGraphHashedCreators
+ */
 export const EdgeGraphHashed: EdgeGraphHashedCreators =
 	createGraphContextModule('EdgeGraphHashed', false, {
 		get linkMapContext() {

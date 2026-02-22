@@ -103,6 +103,9 @@ export namespace SortedMultiMapHashValue {
 	}
 }
 
+/**
+ * @expandType SortedMultiMapHashValueCreators
+ */
 export const SortedMultiMapHashValue: SortedMultiMapHashValueCreators =
 	createMultiMapContextModule('SortedMultiMapHashValue', {
 		get keyMapContext() {

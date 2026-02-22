@@ -85,24 +85,19 @@ export namespace RemoteChannelClient {
 		 */
 		rcsChannelTimeoutMs?: number;
 	}
-
-	/**
-	 * Defines the static `RemoteChannelClient` API.
-	 */
-	export interface Constructors {
-		/**
-		 * Creates a new RemoteChannelClient instance with the given configuration.
-		 * @param config - the configuration for the client:<br/>
-		 * @returns a `Promise` resolving to a `RemoteChannelClient` configured for the provided `config`
-		 */
-		create(config: RemoteChannelClient.Config): Promise<RemoteChannelClient>;
-	}
 }
 
-const removeChannelClientModule =
-	Module.create<RemoteChannelClient.Constructors>(() => ({
+const removeChannelClientModule = Module.create<typeof RemoteChannelClient>(
+	() => ({
 		create: RemoteChannelClientImpl,
-	}));
+	}),
+);
 
-export const RemoteChannelClient: RemoteChannelClient.Constructors =
-	removeChannelClientModule.build();
+export const RemoteChannelClient: {
+	/**
+	 * Creates a new RemoteChannelClient instance with the given configuration.
+	 * @param config - the configuration for the client:<br/>
+	 * @returns a `Promise` resolving to a `RemoteChannelClient` configured for the provided `config`
+	 */
+	create(config: RemoteChannelClient.Config): Promise<RemoteChannelClient>;
+} = removeChannelClientModule.build();

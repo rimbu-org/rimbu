@@ -85,6 +85,9 @@ export namespace EdgeGraphSorted {
 	}
 }
 
+/**
+ * @expandType EdgeGraphSortedCreators
+ */
 export const EdgeGraphSorted: EdgeGraphSortedCreators =
 	createGraphContextModule('EdgeGraphSorted', false, {
 		get linkMapContext() {

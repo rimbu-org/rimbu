@@ -69,6 +69,9 @@ export namespace EdgeValuedGraph {
 	}
 }
 
+/**
+ * @expandType EdgeValuedGraph
+ */
 export const EdgeValuedGraph: EdgeValuedGraphCreators = Object.freeze({
 	createContext<UN>(options: {
 		linkMapContext: RMap.Context<UN>;

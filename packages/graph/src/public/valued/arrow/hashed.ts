@@ -91,6 +91,9 @@ export namespace ArrowValuedGraphHashed {
 	}
 }
 
+/**
+ * @expandType ArrowValuedGraphHashedCreators
+ */
 export const ArrowValuedGraphHashed: ArrowValuedGraphHashedCreators =
 	createValuedGraphContextModule('ArrowValuedGraphHashed', true, {
 		get linkMapContext() {

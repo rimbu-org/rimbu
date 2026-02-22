@@ -56,6 +56,9 @@ export namespace BiMultiMap {
 	}
 }
 
+/**
+ * @expandType Creators
+ */
 export const BiMultiMap: BiMultiMapGeneric.Creators =
 	Object.freeze<BiMultiMapGeneric.Creators>({
 		createContext: (options) =>

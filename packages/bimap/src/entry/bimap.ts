@@ -780,4 +780,7 @@ export namespace BiMap {
 	}
 }
 
+/**
+ * @expandType BiMapCreators
+ */
 export const BiMap: BiMapCreators = createBiMapContextModule().build();

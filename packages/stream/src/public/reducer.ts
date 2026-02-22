@@ -276,4 +276,7 @@ export namespace Reducer {
 					: never;
 }
 
+/**
+ * @expandType ReducerFactory
+ */
 export const Reducer: ReducerFactory = reducerFactoryModule.build();

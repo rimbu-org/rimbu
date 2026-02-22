@@ -32,21 +32,14 @@ export interface WaitGroup {
 	}): Promise<void>;
 }
 
-export namespace WaitGroup {
-	/**
-	 * Defines the static `WaitGroup` API.
-	 */
-	export interface Constructors {
-		/**
-		 * Returns a new `WaitGroup` that can be used to wait for fan-out processes to complete.
-		 * @returns a new `WaitGroup` instance
-		 */
-		create(): WaitGroup;
-	}
-}
-
-const waitGroupModule = Module.create<WaitGroup.Constructors>(() => ({
+const waitGroupModule = Module.create<typeof WaitGroup>(() => ({
 	create: () => new WaitGroupImpl(),
 }));
 
-export const WaitGroup: WaitGroup.Constructors = waitGroupModule.build();
+export const WaitGroup: {
+	/**
+	 * Returns a new `WaitGroup` that can be used to wait for fan-out processes to complete.
+	 * @returns a new `WaitGroup` instance
+	 */
+	create(): WaitGroup;
+} = waitGroupModule.build();

@@ -321,5 +321,8 @@ export namespace SortedSet {
 	}
 }
 
+/**
+ * @expandType SortedSetCreators
+ */
 export const SortedSet: SortedSetCreators =
 	createSortedSetContextModule().build();

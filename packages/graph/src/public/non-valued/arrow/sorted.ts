@@ -86,6 +86,9 @@ export namespace ArrowGraphSorted {
 	}
 }
 
+/**
+ * @expandType ArrowGraphSortedCreators
+ */
 export const ArrowGraphSorted: ArrowGraphSortedCreators =
 	createGraphContextModule('ArrowGraphSorted', true, {
 		get linkMapContext() {

@@ -27,30 +27,23 @@ export interface RemoteChannelServer {
 	readonly crossChannelCh: Channel.Read<CrossChannel<unknown, unknown>>;
 }
 
-export namespace RemoteChannelServer {
-	/**
-	 * Defines the static `RemoteChannelServer` API.
-	 */
-	export interface Constructors {
-		/**
-		 * Resolves, if successful, to a new RemoteChannelServer that can listen to client requests to create new
-		 * channels.
-		 * @param config - the configuration for the RemoteChannelServer to be created:<br/>
-		 * - port: the message port to communicate with the client
-		 * - rcsChannelId: (optional) an alternative channel id to use for communication with the client
-		 * @returns a `Promise` resolving to a `RemoteChannelServer`
-		 */
-		create(config: {
-			port: RemoteChannel.SimpleMessagePort;
-			rcsChannelId?: string;
-		}): Promise<RemoteChannelServer>;
-	}
-}
-
-const removeChannelServerModule =
-	Module.create<RemoteChannelServer.Constructors>(() => ({
+const removeChannelServerModule = Module.create<typeof RemoteChannelServer>(
+	() => ({
 		create: RemoteChannelServerImpl,
-	}));
+	}),
+);
 
-export const RemoteChannelServer: RemoteChannelServer.Constructors =
-	removeChannelServerModule.build();
+export const RemoteChannelServer: {
+	/**
+	 * Resolves, if successful, to a new RemoteChannelServer that can listen to client requests to create new
+	 * channels.
+	 * @param config - the configuration for the RemoteChannelServer to be created:<br/>
+	 * - port: the message port to communicate with the client
+	 * - rcsChannelId: (optional) an alternative channel id to use for communication with the client
+	 * @returns a `Promise` resolving to a `RemoteChannelServer`
+	 */
+	create(config: {
+		port: RemoteChannel.SimpleMessagePort;
+		rcsChannelId?: string;
+	}): Promise<RemoteChannelServer>;
+} = removeChannelServerModule.build();

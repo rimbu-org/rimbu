@@ -55,25 +55,20 @@ export namespace RpcProxy {
 	 * The RpcProxy error type
 	 */
 	export type Error = RpcProxyError;
-
-	/**
-	 * Defines the static `RpcProxy` API.
-	 */
-	export interface Constructors {
-		/**
-		 * Returns a new RpcProxy instance, where each `exec` call will retrieve the proxy execution path
-		 * and forward the path to the given `onCall` function.
-		 * @typeparam T - the interface to proxy
-		 * @param onCall - function that will be called with the execution path each time an operation is performed on the proxy object
-		 * @returns a new `RpcProxy<T>` instance
-		 */
-		create<T>(onCall: (path: RpcProxy.Path) => Promise<any>): RpcProxy<T>;
-	}
 }
 
-const rpxProxyModule = Module.create<RpcProxy.Constructors>(() => ({
+const rpxProxyModule = Module.create<typeof RpcProxy>(() => ({
 	create: <T>(onCall: (path: RpcProxy.Path) => Promise<any>) =>
 		new RpcProxyImpl<T>(onCall),
 }));
 
-export const RpcProxy: RpcProxy.Constructors = rpxProxyModule.build();
+export const RpcProxy: {
+	/**
+	 * Returns a new RpcProxy instance, where each `exec` call will retrieve the proxy execution path
+	 * and forward the path to the given `onCall` function.
+	 * @typeparam T - the interface to proxy
+	 * @param onCall - function that will be called with the execution path each time an operation is performed on the proxy object
+	 * @returns a new `RpcProxy<T>` instance
+	 */
+	create<T>(onCall: (path: RpcProxy.Path) => Promise<any>): RpcProxy<T>;
+} = rpxProxyModule.build();

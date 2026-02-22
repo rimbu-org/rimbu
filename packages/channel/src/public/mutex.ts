@@ -34,21 +34,14 @@ export interface Mutex extends Semaphore {
 	release(): void;
 }
 
-export namespace Mutex {
-	/**
-	 * Defines the static `Mutex` API.
-	 */
-	export interface Constructors {
-		/**
-		 * Returns a new `Mutex` instance that can be used to enforce single access to a shared resource.
-		 * @returns a new `Mutex` instance
-		 */
-		create(): Mutex;
-	}
-}
-
-const mutexModule = Module.create<Mutex.Constructors>(() => ({
+const mutexModule = Module.create<typeof Mutex>(() => ({
 	create: () => Semaphore.create({ maxSize: 1 }),
 }));
 
-export const Mutex: Mutex.Constructors = mutexModule.build();
+export const Mutex: {
+	/**
+	 * Returns a new `Mutex` instance that can be used to enforce single access to a shared resource.
+	 * @returns a new `Mutex` instance
+	 */
+	create(): Mutex;
+} = mutexModule.build();

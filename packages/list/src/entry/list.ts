@@ -1158,6 +1158,7 @@ export namespace List {
  *
  * Use this exported value to create and work with immutable `List` instances.
  * See the [List documentation](https://rimbu.org/docs/collections/list) and the [List API documentation](https://rimbu.org/api/rimbu/list/List/interface).
+ * @expandType ListCreators
  */
 export const List: ListCreators =
 	createContextFactoryModule().build<ListCreators>();

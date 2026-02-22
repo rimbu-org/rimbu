@@ -104,6 +104,9 @@ export namespace HashMultiMapHashValue {
 	}
 }
 
+/**
+ * @expandType HashMultiMapHashValueCreators
+ */
 export const HashMultiMapHashValue: HashMultiMapHashValueCreators =
 	createMultiMapContextModule('HashMultiMapHashValue', {
 		get keyMapContext() {

@@ -92,6 +92,7 @@ export namespace HashTableHashColumn {
  *
  * Use this exported value to create and work with immutable `HashTableHashColumn` instances.
  * See the [HashTableHashColumn API documentation](https://rimbu.org/api/rimbu/table/hash-row/HashTableHashColumn/interface).
+ * @expandType HashTableHashColumnCreators
  */
 export const HashTableHashColumn: HashTableHashColumnCreators =
 	createTableContextModule('HashTableHashColumn', {

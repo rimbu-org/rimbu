@@ -98,6 +98,7 @@ export namespace SortedTableSortedColumn {
  *
  * Use this exported value to create and work with immutable `SortedTableSortedColumn` instances.
  * See the [SortedTableSortedColumn API documentation](https://rimbu.org/api/rimbu/table/sorted-row/SortedTableSortedColumn/interface).
+ * @expandType SortedTableSortedColumnCreators
  */
 export const SortedTableSortedColumn: SortedTableSortedColumnCreators =
 	createTableContextModule('SortedTableSortedColumn', {

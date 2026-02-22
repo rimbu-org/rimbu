@@ -69,6 +69,9 @@ export namespace ArrowValuedGraph {
 	}
 }
 
+/**
+ * @expandType ArrowValuedGraphCreators
+ */
 export const ArrowValuedGraph: ArrowValuedGraphCreators = Object.freeze({
 	createContext<UN>(options: {
 		linkMapContext: RMap.Context<UN>;

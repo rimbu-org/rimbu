@@ -105,6 +105,9 @@ export namespace HashMultiMapSortedValue {
 	}
 }
 
+/**
+ * @expandType HashMultiMapSortedValueCreators
+ */
 export const HashMultiMapSortedValue: HashMultiMapSortedValueCreators =
 	createMultiMapContextModule('HashMultiMapSortedValue', {
 		get keyMapContext() {

@@ -78,4 +78,7 @@ export namespace HashSet {
 	}
 }
 
+/**
+ * @expandType HashSetCreators
+ */
 export const HashSet: HashSetCreators = createHashSetContextModule().build();

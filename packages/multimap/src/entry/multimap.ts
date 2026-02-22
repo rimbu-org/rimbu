@@ -62,6 +62,7 @@ export namespace MultiMap {
  *
  * Use this exported value to create and work with immutable `MultiMap` instances.
  * See the [MultiMap documentation](https://rimbu.org/docs/collections/multimap) and the [MultiMap API documentation](https://rimbu.org/api/rimbu/multimap/MultiMap/interface).
+ * @expandtype MultiMapCreators
  */
 export const MultiMap: MultiMapCreators = Object.freeze({
 	createContext<UK, UV>(options: {

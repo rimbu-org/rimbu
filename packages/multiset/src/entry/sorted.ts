@@ -85,6 +85,7 @@ export namespace SortedMultiSet {
  * Use this exported value to create and work with immutable `SortedMultiSet` instances.
  * See the [MultiSet documentation](https://rimbu.org/docs/collections/multiset) and the
  * [SortedMultiSet API documentation](https://rimbu.org/api/rimbu/multiset/SortedMultiSet/interface).
+ * @expandType SortedMultiSetCreators
  */
 export const SortedMultiSet: SortedMultiSetCreators =
 	createMultiSetContextModule('SortedMultiSet', {

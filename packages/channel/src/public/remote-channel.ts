@@ -153,82 +153,74 @@ export namespace RemoteChannel {
 			handshakeAttemptTimeoutMs?: number;
 		};
 	}
-
-	/**
-	 * Defines the static `RemoteChannel` API.
-	 */
-	export interface Constructors {
-		/**
-		 * Resolves to a new read-only RemoteChannel using the given configuration.
-		 * @typeparam T - the message type
-		 * @param port - the message port to use for communication
-		 * @param config - the channel configuration
-		 * @returns a `Promise` resolving to a `Channel.Read<T>`
-		 */
-		createRead<T = void>(
-			port: RemoteChannel.SimpleMessagePort,
-			config: RemoteChannel.ReadConfig,
-		): Promise<Channel.Read<T>>;
-
-		/**
-		 * Resolves to a new write-only RemoteChannel using the given configuration.
-		 * @typeparam T - the message type
-		 * @param port - the message port to use for communication
-		 * @param config - the channel configuration
-		 * @returns a `Promise` resolving to a `Channel.Write<T>`
-		 */
-		createWrite<T = void>(
-			port: RemoteChannel.SimpleMessagePort,
-			config: RemoteChannel.WriteConfig,
-		): Promise<Channel.Write<T>>;
-
-		/**
-		 * Resolves to a new cross-channel RemoteChannel using the given configuration.
-		 * @typeparam TSend - the send message type
-		 * @typeparam TReceive - the receive message type
-		 * @param port - the message port to use for communication
-		 * @param config - the channel configuration
-		 * @returns a `Promise` resolving to a `CrossChannel<TSend, TReceive>`
-		 */
-		createCross<TSend = void, TReceive = TSend>(
-			port: RemoteChannel.SimpleMessagePort,
-			config: RemoteChannel.CrossConfig,
-		): Promise<CrossChannel<TSend, TReceive>>;
-	}
 }
 
-const remoteChannelModule = Module.create<RemoteChannel.Constructors>(
-	(mod) => ({
-		createRead: async (
-			port: RemoteChannel.SimpleMessagePort,
-			config: RemoteChannel.ReadConfig,
-		) => {
-			const ch = new RemoteChannelRead<any>(port, config);
-			await ch.initialized;
-			return ch;
-		},
-		createWrite: async (
-			port: RemoteChannel.SimpleMessagePort,
-			config: RemoteChannel.WriteConfig,
-		) => {
-			const ch = new RemoteChannelWrite<any>(port, config);
-			await ch.initialized;
-			return ch;
-		},
-		createCross: async <TSend = void, TReceive = TSend>(
-			port: RemoteChannel.SimpleMessagePort,
-			config: RemoteChannel.CrossConfig,
-		) => {
-			const { write, read } = config;
-			const [writeCh, readCh] = await Promise.all([
-				mod.createWrite<TSend>(port, write),
-				mod.createRead<TReceive>(port, read),
-			]);
+const remoteChannelModule = Module.create<typeof RemoteChannel>((mod) => ({
+	createRead: async (
+		port: RemoteChannel.SimpleMessagePort,
+		config: RemoteChannel.ReadConfig,
+	) => {
+		const ch = new RemoteChannelRead<any>(port, config);
+		await ch.initialized;
+		return ch;
+	},
+	createWrite: async (
+		port: RemoteChannel.SimpleMessagePort,
+		config: RemoteChannel.WriteConfig,
+	) => {
+		const ch = new RemoteChannelWrite<any>(port, config);
+		await ch.initialized;
+		return ch;
+	},
+	createCross: async <TSend = void, TReceive = TSend>(
+		port: RemoteChannel.SimpleMessagePort,
+		config: RemoteChannel.CrossConfig,
+	) => {
+		const { write, read } = config;
+		const [writeCh, readCh] = await Promise.all([
+			mod.createWrite<TSend>(port, write),
+			mod.createRead<TReceive>(port, read),
+		]);
 
-			return CrossChannel.combine(writeCh, readCh);
-		},
-	}),
-);
+		return CrossChannel.combine(writeCh, readCh);
+	},
+}));
 
-export const RemoteChannel: RemoteChannel.Constructors =
-	remoteChannelModule.build();
+export const RemoteChannel: {
+	/**
+	 * Resolves to a new read-only RemoteChannel using the given configuration.
+	 * @typeparam T - the message type
+	 * @param port - the message port to use for communication
+	 * @param config - the channel configuration
+	 * @returns a `Promise` resolving to a `Channel.Read<T>`
+	 */
+	createRead<T = void>(
+		port: RemoteChannel.SimpleMessagePort,
+		config: RemoteChannel.ReadConfig,
+	): Promise<Channel.Read<T>>;
+
+	/**
+	 * Resolves to a new write-only RemoteChannel using the given configuration.
+	 * @typeparam T - the message type
+	 * @param port - the message port to use for communication
+	 * @param config - the channel configuration
+	 * @returns a `Promise` resolving to a `Channel.Write<T>`
+	 */
+	createWrite<T = void>(
+		port: RemoteChannel.SimpleMessagePort,
+		config: RemoteChannel.WriteConfig,
+	): Promise<Channel.Write<T>>;
+
+	/**
+	 * Resolves to a new cross-channel RemoteChannel using the given configuration.
+	 * @typeparam TSend - the send message type
+	 * @typeparam TReceive - the receive message type
+	 * @param port - the message port to use for communication
+	 * @param config - the channel configuration
+	 * @returns a `Promise` resolving to a `CrossChannel<TSend, TReceive>`
+	 */
+	createCross<TSend = void, TReceive = TSend>(
+		port: RemoteChannel.SimpleMessagePort,
+		config: RemoteChannel.CrossConfig,
+	): Promise<CrossChannel<TSend, TReceive>>;
+} = remoteChannelModule.build();

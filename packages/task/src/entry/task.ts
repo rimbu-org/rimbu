@@ -206,5 +206,6 @@ export namespace Task {
  * const t = Task.create((ctx, name: string) => `Hello, ${name}!`);
  * Task.launch(t, ['World']);
  * ```
+ * @expandType Constructors
  */
 export const Task: Task.Constructors = taskModule.build();

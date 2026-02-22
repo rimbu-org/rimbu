@@ -40,4 +40,7 @@ export interface Hasher<UK> {
 	hash(value: UK): number;
 }
 
+/**
+ * @expandType HasherModule
+ */
 export const Hasher: HasherModule = hasherModule.build();

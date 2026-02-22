@@ -92,4 +92,7 @@ export namespace HashMap {
 	}
 }
 
+/**
+ * @expandType HashMapCreators
+ */
 export const HashMap: HashMapCreators = createHashMapContextModule().build();

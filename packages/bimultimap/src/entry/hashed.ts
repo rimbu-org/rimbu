@@ -69,6 +69,9 @@ export namespace HashBiMultiMap {
 	}
 }
 
+/**
+ * @expandType Creators
+ */
 export const HashBiMultiMap: BiMultiMapHashed.Creators =
 	createBiMultiMapContextModule('HashBiMultiMap', {
 		get keyValueMultiMapContext() {

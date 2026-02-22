@@ -338,5 +338,8 @@ export namespace AsyncReducer {
 					: never;
 }
 
+/**
+ * @expandType AsyncReducerFactory
+ */
 export const AsyncReducer: AsyncReducerFactory =
 	asyncReducerFactoryModule.build();

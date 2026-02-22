@@ -1906,4 +1906,7 @@ export namespace Stream {
 	}
 }
 
+/**
+ * @expandType Constructors
+ */
 export const Stream: Stream.Constructors = streamFactoryModule.build();

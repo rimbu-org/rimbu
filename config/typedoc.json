@@ -3,5 +3,5 @@
 	"entryPointStrategy": "packages",
 	"entryPoints": ["../packages/*"],
 	"out": "../docs/api/rimbu",
-	"exclude": ["../packages/actor"]
+	"exclude": ["../packages/actor", "../packages/core"]
 }

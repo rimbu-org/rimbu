@@ -95,6 +95,7 @@ export namespace SortedTableHashColumn {
  *
  * Use this exported value to create and work with immutable `SortedTableHashColumn` instances.
  * See the [SortedTableHashColumn API documentation](https://rimbu.org/api/rimbu/table/sorted-row/SortedTableHashColumn/interface).
+ * @expandType SortedTableHashColumnCreators
  */
 export const SortedTableHashColumn: SortedTableHashColumnCreators =
 	createTableContextModule('SortedTableHashColumn', {

@@ -52,7 +52,6 @@
 		"rimraf": "^6.1.2",
 		"typedoc": "^0.28.16",
 		"typedoc-docusaurus-theme": "^1.4.2",
-		"typedoc-plugin-markdown": "^4.10.0",
 		"typescript": "^5.9.3"
 	},
 	"workspaces": {

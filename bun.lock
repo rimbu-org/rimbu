@@ -16,7 +16,6 @@
         "rimraf": "^6.1.2",
         "typedoc": "^0.28.16",
         "typedoc-docusaurus-theme": "^1.4.2",
-        "typedoc-plugin-markdown": "^4.10.0",
         "typescript": "^5.9.3",
       },
     },
@@ -300,17 +299,6 @@
         "tslib": "catalog:",
       },
     },
-    "packages/typedoc-plugin-merge-decls": {
-      "name": "@rimbu/typedoc-plugin-merge-decls",
-      "version": "0.1.0",
-      "devDependencies": {
-        "typedoc": "*",
-        "typedoc-plugin-markdown": "*",
-      },
-      "peerDependencies": {
-        "typedoc": ">=0.27.0",
-      },
-    },
     "packages/typical": {
       "name": "@rimbu/typical",
       "version": "0.8.7",
@@ -541,8 +529,6 @@
     "@rimbu/table": ["@rimbu/table@workspace:packages/table"],
 
     "@rimbu/task": ["@rimbu/task@workspace:packages/task"],
-
-    "@rimbu/typedoc-plugin-merge-decls": ["@rimbu/typedoc-plugin-merge-decls@workspace:packages/typedoc-plugin-merge-decls"],
 
     "@rimbu/typical": ["@rimbu/typical@workspace:packages/typical"],
 

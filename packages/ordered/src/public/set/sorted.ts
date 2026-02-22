@@ -83,6 +83,9 @@ export namespace OrderedSortedSet {
 	}
 }
 
+/**
+ * @expandType OrderedSortedSetCreators
+ */
 export const OrderedSortedSet: OrderedSortedSetCreators =
 	createOrderedSetContextModule({
 		get setContext() {

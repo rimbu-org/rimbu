@@ -91,6 +91,9 @@ export namespace EdgeValuedGraphSorted {
 	}
 }
 
+/**
+ * @expandType EdgeValuedGraphSortedCreators
+ */
 export const EdgeValuedGraphSorted: EdgeValuedGraphSortedCreators =
 	createValuedGraphContextModule('EdgeValuedGraphSorted', false, {
 		get linkMapContext() {

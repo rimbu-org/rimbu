@@ -92,6 +92,9 @@ export namespace OrderedSortedMap {
 	}
 }
 
+/**
+ * @expandType OrderedSortedMapCreators
+ */
 export const OrderedSortedMap: OrderedSortedMapCreators =
 	createOrderedMapContextModule({
 		get mapContext() {

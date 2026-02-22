@@ -91,6 +91,9 @@ export namespace EdgeValuedGraphHashed {
 	}
 }
 
+/**
+ * @expandType EdgeValuedGraphHashedCreators
+ */
 export const EdgeValuedGraphHashed: EdgeValuedGraphHashedCreators =
 	createValuedGraphContextModule('EdgeValuedGraphHashed', false, {
 		get linkMapContext() {

@@ -1484,5 +1484,8 @@ export namespace AsyncStream {
 	}
 }
 
+/**
+ * @expandType AsyncStreamConstructors
+ */
 export const AsyncStream: AsyncStreamConstructors =
 	asyncStreamFactoryModule.build();
