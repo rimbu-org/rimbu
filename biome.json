@@ -37,6 +37,7 @@
 			},
 			"suspicious": {
 				"noAssignInExpressions": "warn",
+				"noConsole": "error",
 				"noExplicitAny": "warn",
 				"useIterableCallbackReturn": "warn"
 			}

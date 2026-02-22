@@ -22,7 +22,10 @@ export function effect<R, A extends readonly any[] = []>(
  */
 export const clog: (
 	...args: Parameters<(typeof console)['log']>
-) => Task<void> = effect((...args) => console.log(...args));
+) => Task<void> = effect((...args) => {
+	// biome-ignore lint/suspicious/noConsole: Intentional
+	console.log(...args);
+});
 
 /**
  * A Task that logs its Task arguments to the console.
@@ -31,6 +34,7 @@ export const clogArgs = <A extends readonly any[] = []>(
 	_context: Task.Context,
 	...args: A
 ): Task.Result<A> => {
+	// biome-ignore lint/suspicious/noConsole: Intentional
 	console.log(...args);
 	return args;
 };
