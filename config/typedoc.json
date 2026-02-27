@@ -1,7 +1,14 @@
 {
 	"$schema": "https://typedoc.org/schema.json",
 	"entryPointStrategy": "packages",
-	"entryPoints": ["../packages/*"],
+	"entryPoints": ["../packages/stream"],
 	"out": "../docs/api/rimbu",
-	"exclude": ["../packages/actor", "../packages/core"]
+	"exclude": [
+		"../packages/actor",
+		"../packages/core",
+		"../packages/reactor",
+		"../packages/typical"
+	],
+	"plugin": ["../support/typedoc-rimbu-plugin/dist/index.js"],
+	"theme": "merged-landing"
 }

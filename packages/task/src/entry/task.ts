@@ -1,6 +1,6 @@
 import type { Cleanup, DisposableCallback, Prepend } from '#task/utils';
 
-import { taskModule } from '@rimbu/task/internal/task-module';
+import { taskModule } from '#task/task-module';
 
 /**
  * A unit of work that can be executed within a Task Context.

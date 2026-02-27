@@ -61,6 +61,9 @@ export namespace EdgeGraph {
 	}
 }
 
+/**
+ * @expandType EdgeGraphCreators
+ */
 export const EdgeGraph: EdgeGraphCreators = Object.freeze({
 	createContext<UN>(options: {
 		linkMapContext: RMap.Context<UN>;

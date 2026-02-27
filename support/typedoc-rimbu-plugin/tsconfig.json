@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"noEmit": true,
+		"moduleResolution": "nodenext",
+		"module": "nodenext",
+		"jsx": "react",
+		"jsxFactory": "JSX.createElement",
+		"jsxFragmentFactory": "JSX.Fragment",
+		"paths": {
+			"#plugin/*": ["./src/*.ts"]
+		}
+	},
+	"include": ["src"]
+}

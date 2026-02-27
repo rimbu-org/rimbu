@@ -1,0 +1,36 @@
+{
+	"name": "typedoc-rimbu-plugin",
+	"version": "0.1.0",
+	"description": "A TypeDoc plugin for Rimbu projects.",
+	"private": true,
+	"files": [
+		"dist"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"imports": {
+		"#plugin/*": "./dist/*.js"
+	},
+	"scripts": {
+		"build": "tsc -p tsconfig.build.json",
+		"clean": "rimraf dist"
+	},
+	"dependencies": {
+		"@rimbu/common": "workspace:*",
+		"@rimbu/sorted": "workspace:*",
+		"@rimbu/stream": "workspace:*"
+	},
+	"peerDependencies": {
+		"typedoc": "^0.28.0"
+	},
+	"devDependencies": {
+		"typedoc": "^0.28.0",
+		"typescript": "^5.5.0",
+		"rimraf": "^6.0.0"
+	}
+}
