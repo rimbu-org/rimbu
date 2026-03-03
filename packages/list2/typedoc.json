@@ -1,0 +1,6 @@
+{
+	"$schema": "https://typedoc.org/schema.json",
+	"tsconfig": "tsconfig.esm.json",
+	"entryPointStrategy": "resolve",
+	"exclude": ["**/node_modules/**", "**/dist/**"]
+}

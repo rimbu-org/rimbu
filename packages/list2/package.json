@@ -1,0 +1,84 @@
+{
+	"name": "@rimbu/list",
+	"version": "2.1.10",
+	"description": "An efficient immutable ordered sequence of elements akin to a Vector",
+	"keywords": [
+		"list",
+		"vector",
+		"random access",
+		"sequence",
+		"elements",
+		"trie",
+		"immutable",
+		"collection",
+		"rimbu",
+		"typescript"
+	],
+	"homepage": "https://rimbu.org",
+	"author": {
+		"name": "Arvid Nicolaas",
+		"email": "arvid@rimbu.org",
+		"url": "https://github.com/vitoke"
+	},
+	"license": "MIT",
+	"funding": [
+		{
+			"type": "individual",
+			"url": "https://github.com/sponsors/vitoke"
+		}
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rimbu-org/rimbu.git",
+		"directory": "packages/list"
+	},
+	"type": "module",
+	"sideEffects": false,
+	"exports": {
+		".": {
+			"types": "./dist/entry/list.d.ts",
+			"default": "./dist/entry/list.js"
+		},
+		"./*": {
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
+		}
+	},
+	"imports": {
+		"#list/*": {
+			"types": "./dist/public/internal/*.d.ts",
+			"default": "./dist/public/internal/*.js"
+		},
+		"#private/*": {
+			"types": "./dist/private/*.d.ts",
+			"default": "./dist/private/*.js"
+		}
+	},
+	"files": [
+		"dist",
+		"src"
+	],
+	"scripts": {
+		"biome:check": "biome check src",
+		"biome:fix": "biome check src --write",
+		"build": "bun clean:build && bunx tsc --p tsconfig.esm.json",
+		"clean": "rimraf dist node_modules",
+		"clean:build": "rimraf dist",
+		"format:check": "biome format src",
+		"lint:check": "biome lint src",
+		"test": "bun test test/* --tsconfig-override tsconfig.common.json",
+		"test:random": "bun test test-random",
+		"typecheck": "tsc -p tsconfig.json --noEmit"
+	},
+	"dependencies": {
+		"@rimbu/base": "workspace:*",
+		"@rimbu/collection-types": "workspace:*",
+		"@rimbu/common": "workspace:*",
+		"@rimbu/stream": "workspace:*",
+		"tslib": "catalog:"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	}
+}
