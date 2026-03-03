@@ -1,4 +1,6 @@
 import type { List } from '@rimbu/list';
+import type { LeafChildrenOps } from './leaf-child-ops';
+import type { ListBase } from './list-base';
 
 import type { GenBuilder } from '#list/builder/generic';
 import type { LeafBlockBuilder } from '#list/builder/leaf/block';
@@ -18,9 +20,9 @@ import type { NonLeafTree } from '#list/immutable/nonleaf/tree';
 import type { Block, NonLeaf } from '#list/immutable/types';
 import type { ListCreators } from '#private/list-factory';
 
-export interface ImmutableFactory {
-	leafBlock<T>(children: readonly T[]): LeafBlock<T>;
-	reversedLeaf<T>(children: readonly T[]): ReversedLeafBlock<T>;
+export interface ImmutableFactory<LC extends LeafChildrenOps> {
+	leafBlock<T>(children: LC['_types']['leafChildren']): LeafBlock<T>;
+	reversedLeaf<T>(children: LC['_types']['leafChildren']): ReversedLeafBlock<T>;
 	leafTree<T>(
 		left: LeafBlock<T>,
 		right: LeafBlock<T>,
@@ -86,7 +88,8 @@ export interface BuilderFactory {
 export interface ContextFactory
 	extends ImmutableFactory,
 		BuilderFactory,
-		Omit<ListCreators, 'builder'> {
+		Omit<ListCreators, 'builder'>,
+		ListBase.Context {
 	_types: List.Types;
 	typeTag: 'List';
 	maxBlockSize: number;

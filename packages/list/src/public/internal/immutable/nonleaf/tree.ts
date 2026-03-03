@@ -2,12 +2,12 @@ import type { IndexRange } from '@rimbu/common/index-range';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { Update } from '@rimbu/common/update';
 import type { Stream } from '@rimbu/stream';
+import type { ListImpl } from '../../impl';
 
 import type { BlockBuilder, NonLeafBuilder } from '#list/builder/types';
-import type { ContextFactory } from '#list/context-factory';
 import type { CacheMap } from '#list/immutable/cache-map';
 import type { NonLeafBlock } from '#list/immutable/nonleaf/block';
-import type { Block, NonLeaf, Tree } from '#list/immutable/types';
+import type { Block, NonLeaf } from '#list/immutable/types';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
 
@@ -21,21 +21,19 @@ import {
 	treeUpdate,
 } from '#list/immutable/tree/operations';
 
-export class NonLeafTree<T, C extends Block<T, C>>
-	implements Tree<T, NonLeafTree<T, C>, NonLeafBlock<T, C>, C>, NonLeaf<T>
-{
+export class NonLeafTree<T> {
 	constructor(
-		readonly context: ContextFactory,
-		readonly left: NonLeafBlock<T, C>,
-		readonly right: NonLeafBlock<T, C>,
-		readonly middle: NonLeaf<T, NonLeafBlock<T, C>> | null,
+		readonly context: ListImpl.Context,
+		readonly left: NonLeafBlock<T>,
+		readonly right: NonLeafBlock<T>,
+		readonly middle: NonLeaf<T, NonLeafBlock<T>> | null,
 		readonly level: number,
 		readonly length: number = left.length +
 			right.length +
 			(middle?.length ?? 0),
 	) {}
 
-	getChildLength(child: C): number {
+	getChildLength(child: Block<T>): number {
 		return child.length;
 	}
 
@@ -43,7 +41,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
 		left = this.left,
 		right = this.right,
 		middle = this.middle,
-	): NonLeafTree<T, C> {
+	): NonLeafTree<T> {
 		if (left === this.left && right === this.right && middle === this.middle) {
 			return this;
 		}
@@ -51,11 +49,11 @@ export class NonLeafTree<T, C extends Block<T, C>>
 		return this.context.nonLeafTree(left, right, middle, this.level);
 	}
 
-	copy2<T2, C2 extends Block<T2, C2>>(
-		left: NonLeafBlock<T2, C2>,
-		right: NonLeafBlock<T2, C2>,
-		middle: NonLeaf<T2, NonLeafBlock<T2, C2>> | null,
-	): NonLeafTree<T2, C2> {
+	copy2<T2>(
+		left: NonLeafBlock<T2>,
+		right: NonLeafBlock<T2>,
+		middle: NonLeaf<T2, NonLeafBlock<T2>> | null,
+	): NonLeafTree<T2> {
 		return this.context.nonLeafTree(left, right, middle, this.level);
 	}
 
@@ -78,45 +76,37 @@ export class NonLeafTree<T, C extends Block<T, C>>
 		return treeGet(this, index);
 	}
 
-	prepend(child: C): NonLeafTree<T, C> {
+	prepend(child: Block<T>): NonLeafTree<T> {
 		return treePrepend(this, child);
 	}
 
-	append(child: C): NonLeafTree<T, C> {
+	append(child: Block<T>): NonLeafTree<T> {
 		return treeAppend(this, child);
 	}
 
-	prependMiddle(child: NonLeafBlock<T, C>): NonLeaf<T, NonLeafBlock<T, C>> {
+	prependMiddle(child: NonLeafBlock<T>): NonLeaf<T, NonLeafBlock<T>> {
 		if (child.level !== this.level) {
 			RimbuError.throwInvalidStateError();
 		}
 
 		return (
 			this.middle?.prepend(child) ??
-			this.context.nonLeafBlock<T, NonLeafBlock<T, C>>(
-				child.length,
-				[child],
-				this.level + 1,
-			)
+			this.context.nonLeafBlock<T>(child.length, [child], this.level + 1)
 		);
 	}
 
-	appendMiddle(child: NonLeafBlock<T, C>): NonLeaf<T, NonLeafBlock<T, C>> {
+	appendMiddle(child: NonLeafBlock<T>): NonLeaf<T, NonLeafBlock<T>> {
 		if (child.level !== this.level) {
 			RimbuError.throwInvalidStateError();
 		}
 
 		return (
 			this.middle?.append(child) ??
-			this.context.nonLeafBlock<T, NonLeafBlock<T, C>>(
-				child.length,
-				[child],
-				this.level + 1,
-			)
+			this.context.nonLeafBlock<T>(child.length, [child], this.level + 1)
 		);
 	}
 
-	dropFirst(): [NonLeaf<T, C> | null, C] {
+	dropFirst(): [NonLeaf<T, Block<T>> | null, Block<T>] {
 		const [newLeft, firstChild] = this.left.dropFirst();
 
 		if (null === newLeft) {
@@ -135,7 +125,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
 		return [newSelf, firstChild];
 	}
 
-	dropLast(): [NonLeaf<T, C> | null, C] {
+	dropLast(): [NonLeaf<T> | null, Block<T>] {
 		// drop last from the right block
 		const [newRight, lastChild] = this.right.dropLast();
 
@@ -158,7 +148,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
 		return [newSelf, lastChild];
 	}
 
-	takeInternal(amount: number): [NonLeaf<T, C> | null, C, number] {
+	takeInternal(amount: number): [NonLeaf<T> | null, Block<T>, number] {
 		const middleAmount = amount - this.left.length;
 
 		if (middleAmount <= 0) {
@@ -205,7 +195,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
 		return newSelf.takeInternal(amount);
 	}
 
-	dropInternal(amount: number): [NonLeaf<T, C> | null, C, number] {
+	dropInternal(amount: number): [NonLeaf<T> | null, Block<T>, number] {
 		const middleAmount = amount - this.left.length;
 
 		if (null === this.middle) {
@@ -256,7 +246,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
 		return newSelf.dropInternal(inUpLeft);
 	}
 
-	concat<T2>(other: NonLeaf<T2, C>): NonLeaf<T | T2, C> {
+	concat<T2>(other: NonLeaf<T2>): NonLeaf<T | T2> {
 		if (this.context.isNonLeafBlock(other)) {
 			return (this as any).concatBlock(other);
 		}
@@ -267,7 +257,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
 		RimbuError.throwInvalidStateError();
 	}
 
-	concatBlock(other: NonLeafBlock<T, C>): NonLeaf<T, C> {
+	concatBlock(other: NonLeafBlock<T>): NonLeaf<T> {
 		if (other.level !== this.level) {
 			RimbuError.throwInvalidStateError();
 		}
@@ -294,7 +284,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
 		return this.copy(undefined, newLast, newMiddle)._normalize();
 	}
 
-	concatTree(other: NonLeafTree<T, C>): NonLeaf<T, C> {
+	concatTree(other: NonLeafTree<T>): NonLeaf<T> {
 		if (
 			this.right.nrChildren + other.left.nrChildren <=
 			this.context.maxBlockSize
@@ -335,12 +325,8 @@ export class NonLeafTree<T, C extends Block<T, C>>
 		return this.copy(undefined, other.right, newMiddle)._normalize();
 	}
 
-	updateAt(index: number, update: Update<T>): NonLeafTree<T, C> {
-		return treeUpdate<T, NonLeafTree<T, C>, NonLeafBlock<T, C>, C>(
-			this,
-			index,
-			update,
-		);
+	updateAt(index: number, update: Update<T>): NonLeafTree<T> {
+		return treeUpdate<T, NonLeafTree<T>, NonLeafBlock<T>>(this, index, update);
 	}
 
 	forEach(
@@ -357,7 +343,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
 	mapPure<T2>(
 		mapFun: (value: T) => T2,
 		options: { reversed?: boolean; cacheMap?: CacheMap } = {},
-	): NonLeafTree<T2, any> {
+	): NonLeafTree<T2> {
 		const { reversed = false, cacheMap = this.context.createCacheMap() } =
 			options;
 
@@ -381,7 +367,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
 	map<T2>(
 		mapFun: (value: T, index: number) => T2,
 		options: { reversed?: boolean; indexOffset?: number } = {},
-	): NonLeafTree<T2, any> {
+	): NonLeafTree<T2> {
 		const { reversed = false, indexOffset = 0 } = options;
 
 		let offset = indexOffset;
@@ -423,9 +409,7 @@ export class NonLeafTree<T, C extends Block<T, C>>
 		return this.copy2(newLeft, newRight, newMiddle);
 	}
 
-	reversed(
-		cacheMap: CacheMap = this.context.createCacheMap(),
-	): NonLeafTree<T, C> {
+	reversed(cacheMap: CacheMap = this.context.createCacheMap()): NonLeafTree<T> {
 		const cachedThis = cacheMap.get(this);
 		if (cachedThis !== undefined) return cachedThis;
 

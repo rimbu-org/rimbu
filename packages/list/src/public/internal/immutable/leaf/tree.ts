@@ -3,11 +3,11 @@ import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { Update } from '@rimbu/common/update';
 import type { List } from '@rimbu/list';
 import type { Stream, StreamSource } from '@rimbu/stream';
+import type { ListImpl } from '../../impl';
 
-import type { ContextFactory } from '#list/context-factory';
 import type { CacheMap } from '#list/immutable/cache-map';
 import type { LeafBlock } from '#list/immutable/leaf/block';
-import type { NonLeaf, Tree } from '#list/immutable/types';
+import type { NonLeaf } from '#list/immutable/types';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import { OptLazy } from '@rimbu/common/opt-lazy';
@@ -24,12 +24,9 @@ import {
 	treeUpdate,
 } from '#list/immutable/tree/operations';
 
-export class LeafTree<T>
-	extends ListNonEmptyBase<T>
-	implements Tree<T, LeafTree<T>, LeafBlock<T>, T>
-{
+export class LeafTree<T> extends ListNonEmptyBase<T> {
 	constructor(
-		readonly context: ContextFactory,
+		readonly context: ListImpl.Context,
 		readonly left: LeafBlock<T>,
 		readonly right: LeafBlock<T>,
 		readonly middle: NonLeaf<T, LeafBlock<T>> | null,
@@ -67,11 +64,7 @@ export class LeafTree<T>
 	stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
 		const { reversed = false } = options;
 
-		return treeStream<T, LeafTree<T>, LeafBlock<T>, T>(
-			this,
-			undefined,
-			reversed,
-		) as Stream.NonEmpty<T>;
+		return treeStream(this, undefined, reversed) as Stream.NonEmpty<T>;
 	}
 
 	streamRange(
@@ -80,7 +73,7 @@ export class LeafTree<T>
 	): Stream<T> {
 		const { reversed = false } = options;
 
-		return treeStream<T, LeafTree<T>, LeafBlock<T>, T>(this, range, reversed);
+		return treeStream(this, range, reversed);
 	}
 
 	get<O>(index: number, otherwise?: OptLazy<O>): T | O {
@@ -105,7 +98,7 @@ export class LeafTree<T>
 	prependMiddle(child: LeafBlock<T>): NonLeaf<T, LeafBlock<T>> {
 		return (
 			this.middle?.prepend(child) ??
-			this.context.nonLeafBlock<T, LeafBlock<T>>(child.length, [child], 1)
+			this.context.nonLeafBlock<T>(child.length, [child], 1)
 		);
 	}
 

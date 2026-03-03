@@ -5,8 +5,8 @@ import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, ToJSON } from '@rimbu/common/types';
 import type { Update } from '@rimbu/common/update';
 import type { List } from '@rimbu/list';
+import type { ListImpl } from '../impl';
 
-import type { ContextFactory } from '#list/context-factory';
 import type { CacheMap } from '#list/immutable/cache-map';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
@@ -16,10 +16,10 @@ import { type FastIterator, Stream, type StreamSource } from '@rimbu/stream';
 
 export abstract class ListNonEmptyBase<T>
 	extends NonEmptyBase<T>
-	implements List.NonEmpty<T>
+	implements ListImpl.NonEmpty<T>
 {
-	abstract get context(): ContextFactory;
-	abstract get length(): number;
+	abstract readonly context: ListImpl.Context;
+	abstract readonly length: number;
 	abstract stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
 	abstract streamRange(
 		range: IndexRange,
@@ -32,26 +32,26 @@ export abstract class ListNonEmptyBase<T>
 		options?: { reversed?: boolean; state?: TraverseState },
 	): void;
 	abstract get<O>(index: number, otherwise?: OptLazy<O>): T | O;
-	abstract prepend(value: T): List.NonEmpty<T>;
-	abstract append(value: T): List.NonEmpty<T>;
+	abstract prepend(value: T): ListImpl.NonEmpty<T>;
+	abstract append(value: T): ListImpl.NonEmpty<T>;
 	abstract take(amount: number): List<T> | any;
-	abstract drop(amount: number): List<T>;
+	abstract drop(amount: number): ListImpl<T>;
 	abstract concat<T2 = T>(
 		...sources: ArrayNonEmpty<StreamSource<T2>>
-	): List.NonEmpty<T | T2>;
-	abstract updateAt(index: number, update: Update<T>): List.NonEmpty<T>;
+	): ListImpl.NonEmpty<T | T2>;
+	abstract updateAt(index: number, update: Update<T>): ListImpl.NonEmpty<T>;
 	abstract mapPure<T2>(
 		mapFun: (value: T) => T2,
 		options?: {
 			reversed?: boolean;
 			cacheMap?: CacheMap;
 		},
-	): List.NonEmpty<T2>;
+	): ListImpl.NonEmpty<T2>;
 	abstract map<T2>(
 		mapFun: (value: T, index: number) => T2,
 		options?: { reversed?: boolean },
-	): List.NonEmpty<T2>;
-	abstract reversed(cache?: CacheMap): List.NonEmpty<T>;
+	): ListImpl.NonEmpty<T2>;
+	abstract reversed(cache?: CacheMap): ListImpl.NonEmpty<T>;
 	abstract toArray(options?: {
 		range?: IndexRange | undefined;
 		reversed?: boolean;
@@ -66,7 +66,7 @@ export abstract class ListNonEmptyBase<T>
 		return false;
 	}
 
-	nonEmpty(): this is List.NonEmpty<T> {
+	nonEmpty(): this is ListImpl.NonEmpty<T> {
 		return true;
 	}
 
@@ -74,7 +74,7 @@ export abstract class ListNonEmptyBase<T>
 		return this;
 	}
 
-	asNormal(): this {
+	asNormal(): ListImpl<T> {
 		return this;
 	}
 
@@ -86,7 +86,7 @@ export abstract class ListNonEmptyBase<T>
 		return this.get(this.length - 1, RimbuError.throwInvalidStateError);
 	}
 
-	slice(range: IndexRange, options: { reversed?: boolean } = {}): List<T> {
+	slice(range: IndexRange, options: { reversed?: boolean } = {}): ListImpl<T> {
 		const { reversed = false } = options;
 
 		const result = IndexRange.getIndicesFor(range, this.length);
@@ -104,7 +104,10 @@ export abstract class ListNonEmptyBase<T>
 		return values.reversed();
 	}
 
-	sort(comp?: Comp<T>, options: { inverse?: boolean } = {}): List.NonEmpty<T> {
+	sort(
+		comp?: Comp<T>,
+		options: { inverse?: boolean } = {},
+	): ListImpl.NonEmpty<T> {
 		const { inverse = false } = options;
 
 		const compareFn =
@@ -126,7 +129,7 @@ export abstract class ListNonEmptyBase<T>
 		index?: number;
 		remove?: number;
 		insert?: StreamSource<T>;
-	} = {}): List<T> | any {
+	} = {}): ListImpl<T> | any {
 		if (index < 0) {
 			return this.splice({ index: this.length + index, remove, insert });
 		}
@@ -141,17 +144,17 @@ export abstract class ListNonEmptyBase<T>
 		return this.take(index).concat(insert, this.drop(index + remove));
 	}
 
-	insert(index: number, values: StreamSource<T>): List<T> | any {
+	insert(index: number, values: StreamSource<T>): ListImpl<T> | any {
 		return this.splice({ index, insert: values });
 	}
 
-	remove(index: number, options: { amount?: number } = {}): List<T> {
+	remove(index: number, options: { amount?: number } = {}): ListImpl<T> {
 		const { amount = 1 } = options;
 
 		return this.splice({ index, remove: amount });
 	}
 
-	repeat(amount: number): List.NonEmpty<T> {
+	repeat(amount: number): ListImpl.NonEmpty<T> {
 		if (amount <= -1) return this.reversed().repeat(-amount);
 		if (amount <= 1) return this;
 
@@ -163,7 +166,7 @@ export abstract class ListNonEmptyBase<T>
 		return doubleResult.concat(this);
 	}
 
-	rotate(shiftRightAmount: number): List.NonEmpty<T> {
+	rotate(shiftRightAmount: number): ListImpl.NonEmpty<T> {
 		let normalizedAmount = shiftRightAmount % this.length;
 
 		if (normalizedAmount === 0) return this;
@@ -179,7 +182,7 @@ export abstract class ListNonEmptyBase<T>
 		length: number,
 		fill: T,
 		options: { positionPercentage?: number } = {},
-	): List.NonEmpty<T> {
+	): ListImpl.NonEmpty<T> {
 		const { positionPercentage = 0 } = options;
 
 		if (this.length >= length) return this;
@@ -206,7 +209,9 @@ export abstract class ListNonEmptyBase<T>
 				? this.stream({ reversed })
 				: this.streamRange(range, { reversed });
 
-		const result: List<T> = this.context.from(stream.filter(pred, { negate }));
+		const result: ListImpl<T> = this.context.from(
+			stream.filter(pred, { negate }),
+		);
 
 		if (result.length !== this.length) {
 			return result;
@@ -221,7 +226,7 @@ export abstract class ListNonEmptyBase<T>
 			range?: IndexRange;
 			reversed?: boolean;
 		} = {},
-	): List<T2> {
+	): ListImpl<T2> {
 		const { range, reversed = false } = options;
 
 		const stream =
@@ -238,7 +243,7 @@ export abstract class ListNonEmptyBase<T>
 			range?: IndexRange | undefined;
 			reversed?: boolean;
 		} = {},
-	): List<T2> | any {
+	): ListImpl<T2> | any {
 		const { range, reversed = false } = options;
 
 		let result = this.context.empty<T2>();

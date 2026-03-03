@@ -1,11 +1,11 @@
+import type { WithElem } from '@rimbu/collection-types/common';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { List } from '@rimbu/list';
+import type { ListImpl } from '../../impl';
 
 import type { BlockBuilder } from '#list/builder/types';
-import type { ContextFactory } from '#list/context-factory';
 import type { CacheMap } from '#list/immutable/cache-map';
 import type { LeafTree } from '#list/immutable/leaf/tree';
-import type { Block } from '#list/immutable/types';
 
 import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';
@@ -17,52 +17,50 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 
 import { ListNonEmptyBase } from '#list/immutable/non-empty';
 
-export class LeafBlock<T>
-	extends ListNonEmptyBase<T>
-	implements Block<T, LeafBlock<T>, T>
-{
+export class LeafBlock<
+	T,
+	Tp extends ListImpl.Types = ListImpl.Types,
+> extends ListNonEmptyBase<T> {
 	constructor(
-		readonly context: ContextFactory,
-		readonly children: readonly T[],
+		readonly context: Tp['context'],
+		readonly children: WithElem<Tp, T>['children'],
+		readonly leafOps = context.leafOps,
+		readonly length = leafOps.length(children),
 	) {
 		super();
-	}
-
-	get length(): number {
-		return this.children.length;
 	}
 
 	get level(): 0 {
 		return 0;
 	}
 
-	copy(children: readonly T[]): LeafBlock<T> {
+	copy(children: WithElem<Tp, T>['children']): LeafBlock<T> {
 		if (children === this.children) return this;
 		return this.context.leafBlock(children);
 	}
 
-	copy2<T2>(children: readonly T2[]): LeafBlock<T2> {
+	copy2<T2>(children: WithElem<Tp, T2>['children']): LeafBlock<T2> {
 		return this.context.leafBlock(children);
 	}
 
-	get mutateChildren(): T[] {
-		return this.children as T[];
-	}
+	// get mutateChildren(): T[] {
+	// 	return this.children as T[];
+	// }
 
 	get childrenInMax(): boolean {
-		return this.children.length <= this.context.maxBlockSize;
+		return this.length <= this.context.maxBlockSize;
 	}
 
 	get childrenInMin(): boolean {
-		return this.children.length >= this.context.minBlockSize;
+		return this.length >= this.context.minBlockSize;
 	}
 
 	get canAddChild(): boolean {
-		return this.children.length < this.context.maxBlockSize;
+		return this.length < this.context.maxBlockSize;
 	}
 
 	stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
-		return Stream.fromArray(this.children, options) as Stream.NonEmpty<T>;
+		return this.leafOps.stream(this.children, options);
 	}
 
 	streamRange(
@@ -70,10 +68,10 @@ export class LeafBlock<T>
 		options: { reversed?: boolean } = {},
 	): Stream<T> {
 		const { reversed = false } = options;
-		return Stream.fromArray(this.children, {
-			range,
+		return this.leafOps.streamRange(this.children, {
+			indexRange: range,
 			reversed,
-		}) as Stream.NonEmpty<T>;
+		});
 	}
 
 	get<O>(index: number, otherwise?: OptLazy<O>): T | O {
@@ -84,37 +82,47 @@ export class LeafBlock<T>
 			return this.get(this.length + index, otherwise);
 		}
 
-		return this.children[index];
+		return this.leafOps.get(this.children, index);
 	}
 
-	prepend(value: T): List.NonEmpty<T> {
+	prepend(value: T): ListImpl.NonEmpty<T> {
 		if (this.length === 1 && !this.context.isReversedLeafBlock(this as any)) {
-			return this.context.reversedLeaf([this.children[0], value]);
+			return this.context.reversedLeaf(
+				this.leafOps.of(this.leafOps.get(this.children, 0), value),
+			);
 		}
 		if (this.canAddChild) {
 			return this.prependInternal(value);
 		}
 
-		return this.context.leafTree(this.copy([value]), this, null);
+		return this.context.leafTree<T>(
+			this.copy(this.leafOps.of(value)),
+			this,
+			null,
+		);
 	}
 
-	append(value: T): List.NonEmpty<T> {
+	append(value: T): ListImpl.NonEmpty<T> {
 		if (this.canAddChild) return this.appendInternal(value);
 
-		return this.context.leafTree(this, this.copy([value]), null);
+		return this.context.leafTree<T>(
+			this,
+			this.copy(this.leafOps.of(value)),
+			null,
+		);
 	}
 
-	prependInternal(value: T): LeafBlock<T> {
-		const newChildren = Arr.prepend(this.children, value);
+	prependInternal(value: T): LeafBlock<T, Tp> {
+		const newChildren = this.leafOps.prepend(this.children, value);
 		return this.copy(newChildren);
 	}
 
-	appendInternal(value: T): LeafBlock<T> {
-		const newChildren = Arr.append(this.children, value);
+	appendInternal(value: T): LeafBlock<T, Tp> {
+		const newChildren = this.leafOps.append(this.children, value);
 		return this.copy(newChildren);
 	}
 
-	take(amount: number): List<T> | any {
+	take(amount: number): ListImpl<T> | any {
 		if (amount === 0) return this.context.empty();
 		if (amount >= this.length || -amount > this.length) return this;
 		if (amount < 0) return this.drop(this.length + amount);
@@ -122,7 +130,7 @@ export class LeafBlock<T>
 		return this.takeChildren(amount);
 	}
 
-	drop(amount: number): List<T> {
+	drop(amount: number): ListImpl<T> {
 		if (amount === 0) return this;
 		if (amount >= this.length || -amount > this.length)
 			return this.context.empty();
@@ -134,7 +142,7 @@ export class LeafBlock<T>
 	takeChildren(childAmount: number): LeafBlock<T> {
 		if (childAmount >= this.length) return this;
 
-		const newChildren = Arr.splice(
+		const newChildren = this.leafOps.toSpliced(
 			this.children,
 			childAmount,
 			this.context.maxBlockSize,
@@ -145,23 +153,23 @@ export class LeafBlock<T>
 	dropChildren(childAmount: number): LeafBlock<T> {
 		if (childAmount <= 0) return this;
 
-		const newChildren = Arr.splice(this.children, 0, childAmount);
+		const newChildren = this.leafOps.toSpliced(this.children, 0, childAmount);
 		return this.copy(newChildren);
 	}
 
 	concatChildren(other: LeafBlock<T>): LeafBlock<T> {
 		const addChildren = this.context.isReversedLeafBlock(other as any)
-			? Arr.reverse(other.children)
+			? this.leafOps.toReversed(other.children)
 			: other.children;
 
-		const newChildren = this.children.concat(addChildren);
+		const newChildren = this.leafOps.concat(this.children, addChildren);
 
 		return this.copy(newChildren);
 	}
 
 	concat<T2>(
 		...sources: ArrayNonEmpty<StreamSource<T2>>
-	): List.NonEmpty<T | T2> {
+	): ListImpl.NonEmpty<T | T2> {
 		const asList = this.context.from(...sources) as List<T | T2>;
 
 		if (asList.nonEmpty()) {
@@ -276,7 +284,7 @@ export class LeafBlock<T>
 		return cacheMap.setAndReturn(this, reversedThis);
 	}
 
-	_mutateNormalize(): List.NonEmpty<T> {
+	_mutateNormalize(): ListImpl.NonEmpty<T> {
 		if (this.childrenInMax) return this;
 
 		const newRight = this._mutateSplitRight();
@@ -285,7 +293,7 @@ export class LeafBlock<T>
 	}
 
 	_mutateSplitRight(childIndex = this.children.length >>> 1): LeafBlock<T> {
-		const rightChildren = this.mutateChildren.splice(childIndex);
+		const rightChildren = this.leafOps.mutateSplice(this.children, childIndex);
 
 		return this.copy(rightChildren);
 	}
@@ -296,20 +304,20 @@ export class LeafBlock<T>
 		const { range, reversed = false } = options;
 
 		let result: readonly T[];
-		if (undefined === range) result = this.children;
+		if (undefined === range) result = this.leafOps.toArray(this.children);
 		else {
 			const indexRange = IndexRange.getIndicesFor(range, this.length);
 
-			if (indexRange === 'all') result = this.children;
+			if (indexRange === 'all') result = this.leafOps.toArray(this.children);
 			else if (indexRange === 'empty') result = [];
 			else {
 				const [start, end] = indexRange;
 				if (!reversed) return this.children.slice(start, end + 1);
-				return Arr.reverse(this.children, start, end);
+				return this.leafOps.toReversed(this.children, start, end);
 			}
 		}
 
-		if (reversed) return Arr.reverse(result);
+		if (reversed) return this.leafOps.toReversed(result);
 		return result.slice();
 	}
 
@@ -322,22 +330,23 @@ export class LeafBlock<T>
 	}
 }
 
-export class ReversedLeafBlock<T> extends LeafBlock<T> {
-	copy(children: readonly T[]): LeafBlock<T> {
+export class ReversedLeafBlock<
+	T,
+	Tp extends ListImpl.Types = ListImpl.Types,
+> extends LeafBlock<T> {
+	copy(children: WithElem<Tp, T>['children']): LeafBlock<T> {
 		if (children === this.children) return this;
 		return this.context.reversedLeaf(children);
 	}
 
-	copy2<T2>(children: readonly T2[]): LeafBlock<T2> {
+	copy2<T2>(children: WithElem<Tp, T2>['children']): LeafBlock<T2> {
 		return this.context.reversedLeaf(children);
 	}
 
 	stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
 		const { reversed = false } = options;
 
-		return Stream.fromArray(this.children, {
-			reversed: !reversed,
-		}) as Stream.NonEmpty<T>;
+		return this.leafOps.stream(this.children, { reversed: !reversed });
 	}
 
 	streamRange(
@@ -352,8 +361,9 @@ export class ReversedLeafBlock<T> extends LeafBlock<T> {
 
 		const start = this.length - 1 - indices[1];
 		const end = this.length - 1 - indices[0];
-		return Stream.fromArray(this.children, {
-			range: { start, end },
+
+		return this.leafOps.streamRange(this.children, {
+			indexRange: { start, end },
 			reversed: !reversed,
 		});
 	}
@@ -366,7 +376,7 @@ export class ReversedLeafBlock<T> extends LeafBlock<T> {
 			return this.get(this.length + index, otherwise);
 		}
 
-		return this.children[this.length - 1 - index];
+		return this.leafOps.get(this.children, this.length - 1 - index);
 	}
 
 	prependInternal(value: T): LeafBlock<T> {
@@ -387,10 +397,15 @@ export class ReversedLeafBlock<T> extends LeafBlock<T> {
 
 	concatChildren(other: LeafBlock<T>): LeafBlock<T> {
 		if (other.context.isReversedLeafBlock(other as any)) {
-			return this.copy(other.children.concat(this.children));
+			return this.copy(this.leafOps.concat(other.children, this.children));
 		}
 
-		return other.copy(Arr.reverse(this.children).concat(other.children));
+		return other.copy(
+			this.leafOps.concat(
+				this.leafOps.toReversed(this.children),
+				other.children,
+			),
+		);
 	}
 
 	updateAt(index: number, update: Update<T>): LeafBlock<T> {
@@ -432,12 +447,13 @@ export class ReversedLeafBlock<T> extends LeafBlock<T> {
 
 		let result: readonly T[];
 
-		if (undefined === range) result = this.children;
+		if (undefined === range) result = this.leafOps.toArray(this.children);
 		else {
 			const indexRange = IndexRange.getIndicesFor(range, this.length);
 
 			if (indexRange === 'empty') return [];
-			else if (indexRange === 'all') result = this.children;
+			else if (indexRange === 'all')
+				result = this.leafOps.toArray(this.children);
 			else {
 				const [indexStart, indexEnd] = indexRange;
 				const start = this.length - 1 - indexEnd;
@@ -451,7 +467,9 @@ export class ReversedLeafBlock<T> extends LeafBlock<T> {
 		return result.slice();
 	}
 
-	_mutateSplitRight(childIndex = this.children.length >>> 1): LeafBlock<T> {
+	_mutateSplitRight(
+		childIndex = this.leafOps.length(this.children) >>> 1,
+	): LeafBlock<T> {
 		const rightChildren = this.mutateChildren.splice(
 			0,
 			this.children.length - childIndex,

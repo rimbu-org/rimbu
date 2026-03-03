@@ -1,8 +1,8 @@
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { Update } from '@rimbu/common/update';
+import type { ListImpl } from '../../impl';
 
 import type { BlockBuilder, NonLeafBuilder } from '#list/builder/types';
-import type { ContextFactory } from '#list/context-factory';
 import type { CacheMap } from '#list/immutable/cache-map';
 import type { NonLeafTree } from '#list/immutable/nonleaf/tree';
 import type { Block, NonLeaf } from '#list/immutable/types';
@@ -12,13 +12,11 @@ import * as RimbuError from '@rimbu/base/rimbu-error';
 import { IndexRange } from '@rimbu/common/index-range';
 import { Stream } from '@rimbu/stream';
 
-export class NonLeafBlock<T, C extends Block<T, C>>
-	implements Block<T, NonLeafBlock<T, C>, C>, NonLeaf<T, Block<T>>
-{
+export class NonLeafBlock<T> {
 	constructor(
-		readonly context: ContextFactory,
+		readonly context: ListImpl.Context,
 		public _length: number,
-		readonly children: readonly C[],
+		readonly children: readonly Block<T>[],
 		readonly level: number,
 	) {}
 
@@ -34,8 +32,8 @@ export class NonLeafBlock<T, C extends Block<T, C>>
 		return this.children.length;
 	}
 
-	get mutateChildren(): C[] {
-		return this.children as C[];
+	get mutateChildren(): Block<T>[] {
+		return this.children as Block<T>[];
 	}
 
 	get childrenInMax(): boolean {
@@ -50,21 +48,21 @@ export class NonLeafBlock<T, C extends Block<T, C>>
 		return this.children.length < this.context.maxBlockSize;
 	}
 
-	copy(children: readonly C[], length = this.length): NonLeafBlock<T, C> {
+	copy(children: readonly Block<T>[], length = this.length): NonLeafBlock<T> {
 		if (children === this.children && length === this.length) return this;
 		return this.context.nonLeafBlock(length, children, this.level);
 	}
 
-	copy2<T2, C2 extends Block<T2, C2>>(
-		children: readonly C2[],
+	copy2<T2>(
+		children: readonly Block<T2>[],
 		length = this.length,
-	): NonLeafBlock<T2, C2> {
+	): NonLeafBlock<T2> {
 		return this.context.nonLeafBlock(length, children, this.level);
 	}
 
 	stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
 		return Stream.fromArray(this.children, options).flatMap(
-			(child: C): Stream.NonEmpty<T> => child.stream(options),
+			(child: Block<T>): Stream.NonEmpty<T> => child.stream(options),
 		) as Stream.NonEmpty<T>;
 	}
 
@@ -76,7 +74,7 @@ export class NonLeafBlock<T, C extends Block<T, C>>
 
 		if (indexRange === 'all') {
 			return Stream.fromArray(this.children, options).flatMap(
-				(child: C): Stream.NonEmpty<T> => child.stream(options),
+				(child: Block<T>): Stream.NonEmpty<T> => child.stream(options),
 			) as Stream.NonEmpty<T>;
 		}
 
@@ -116,7 +114,7 @@ export class NonLeafBlock<T, C extends Block<T, C>>
 			reversed,
 		});
 
-		return childStream.flatMap((child: C): Stream<T> => {
+		return childStream.flatMap((child: Block<T>): Stream<T> => {
 			if (child === startChild)
 				return child.streamRange({ start: inStartChildIndex }, options);
 			if (child === endChild)
@@ -134,7 +132,7 @@ export class NonLeafBlock<T, C extends Block<T, C>>
 		);
 	}
 
-	prepend(child: C): NonLeaf<T, C> {
+	prepend(child: Block<T>): ListImpl.NonEmpty<T> {
 		if (this.canAddChild) return this.prependInternal(child);
 
 		return this.context.nonLeafTree(
@@ -145,7 +143,7 @@ export class NonLeafBlock<T, C extends Block<T, C>>
 		);
 	}
 
-	append(child: C): NonLeaf<T, C> {
+	append(child: Block<T>): ListImpl.NonEmpty<T> {
 		if (this.canAddChild) return this.appendInternal(child);
 
 		return this.context.nonLeafTree(
@@ -156,7 +154,7 @@ export class NonLeafBlock<T, C extends Block<T, C>>
 		);
 	}
 
-	dropFirst(): [NonLeafBlock<T, C> | null, C] {
+	dropFirst(): [NonLeafBlock<T> | null, Block<T>] {
 		const firstChild = this.children[0];
 
 		if (this.nrChildren === 1) return [null, firstChild];
@@ -168,7 +166,7 @@ export class NonLeafBlock<T, C extends Block<T, C>>
 		return [newSelf, firstChild];
 	}
 
-	dropLast(): [NonLeafBlock<T, C> | null, C] {
+	dropLast(): [NonLeafBlock<T> | null, Block<T>] {
 		const lastChild = Arr.last(this.children);
 
 		if (this.nrChildren === 1) return [null, lastChild];
@@ -180,7 +178,7 @@ export class NonLeafBlock<T, C extends Block<T, C>>
 		return [newSelf, lastChild];
 	}
 
-	concat<T2>(other: NonLeaf<T2, C>): NonLeaf<T | T2, C> {
+	concat<T2>(other: NonLeaf<T2>): NonLeaf<T | T2> {
 		if (other.context.isNonLeafBlock<any>(other)) {
 			if (other === this && this.children.length > this.context.minBlockSize) {
 				return this.context.nonLeafTree<T | T2, any>(
