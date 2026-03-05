@@ -1,0 +1,77 @@
+import type { WithElem } from '@rimbu/collection-types/common';
+
+import type { ListContext } from '#list/context';
+import type { LeafBlock } from '#list/immutable/leaf-block';
+import type { ListImpl } from '#list/list-impl';
+
+import { BuilderBase, type LeafBuilder } from '#list/mutable/builder-base';
+
+export class LeafBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
+	extends BuilderBase<T>
+	implements LeafBuilder<T>
+{
+	constructor(
+		context: ListContext,
+		public source?: LeafBlock<T>,
+		public children?: WithElem<Tp, T>['leafChildren'],
+	) {
+		super(context);
+	}
+
+	get length(): number {
+		return this.source?.length ?? this.ops.length(this.children!);
+	}
+
+	copy(children: WithElem<Tp, T>['leafChildren']): LeafBlockBuilder<T> {
+		return this.context.leafBlockBuilder(children);
+	}
+
+	get(index: number): T {
+		if (undefined !== this.source) {
+			return this.source.get(index);
+		}
+		return this.ops.get(this.children!, index);
+	}
+
+	prepend(value: T): void {
+		this.children = this.ops.mutatePrepend(this.children!, value);
+		this.source = undefined;
+	}
+
+	append(value: T): void {
+		this.children = this.ops.mutateAppend(this.children!, value);
+		this.source = undefined;
+	}
+
+	build(): LeafBlock<T> {
+		return (
+			this.source ?? this.context.leafBlock(this.ops.safeCopy(this.children!))
+		);
+	}
+
+	normalized(): LeafBuilder<T> | undefined {
+		if (this.length <= 0) {
+			// block is empty
+			return undefined;
+		}
+
+		if (this.length <= this.context.maxBlockSize) {
+			// block is normal
+			return this;
+		}
+
+		// need to split block and create tree
+		const newLength = this.length;
+		const newRight = this.splitRight();
+
+		return this.context.leafTreeBuilder(this, newRight, undefined, newLength);
+	}
+
+	splitRight(index = this.length >>> 1): LeafBlockBuilder<T> {
+		const rightChildren = this.ops.mutateSplice(this.children, index);
+
+		this.source = undefined;
+
+		return this.copy(rightChildren);
+	}
+}

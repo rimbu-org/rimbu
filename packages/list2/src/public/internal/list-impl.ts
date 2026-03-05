@@ -1,13 +1,59 @@
-import type { ListBase } from './list-base';
+import type { WithElem } from '@rimbu/collection-types/common';
 
-export interface ListImpl<T> extends ListBase<T, ListImpl.Types> {
-	a: 1;
-}
+import type { ListBase } from '#list/list-base';
+
+export interface ListImpl<T> extends ListBase<T, ListImpl.Types> {}
 
 export namespace ListImpl {
-	export interface NonEmpty<T> extends ListBase.NonEmpty<T, ListImpl.Types> {}
-  
+	export interface NonEmpty<T>
+		extends ListBase.NonEmpty<T, ListImpl.Types>,
+			Omit<ListImpl<T>, keyof ListBase.NonEmpty<any>> {
+		_structure(): string;
+	}
+
+	export interface LeafChildrenOps<Tp extends ListImpl.Types = ListImpl.Types> {
+		of<T extends Tp['_UT']>(...values: T[]): WithElem<Tp, T>['leafChildren'];
+		length(children: Tp['leafChildren']): number;
+		get<T extends Tp['_UT']>(
+			children: WithElem<Tp, T>['leafChildren'],
+			index: number,
+		): T;
+		prepend<T extends Tp['_UT']>(
+			children: WithElem<Tp, T>['leafChildren'],
+			value: T,
+		): WithElem<Tp, T>['leafChildren'];
+		append<T extends Tp['_UT']>(
+			children: WithElem<Tp, T>['leafChildren'],
+			value: T,
+		): WithElem<Tp, T>['leafChildren'];
+		toSpliced<T extends Tp['_UT']>(
+			children: WithElem<Tp, T>['leafChildren'],
+			start: number,
+			deleteCount: number,
+			items?: T[],
+		): WithElem<Tp, T>['leafChildren'];
+		join(
+			children: Tp['leafChildren'],
+			separator: string,
+			reversed?: boolean,
+		): string;
+		mutatePrepend<T extends Tp['_UT']>(
+			children: WithElem<Tp, T>['leafChildren'],
+			value: T,
+		): WithElem<Tp, T>['leafChildren'];
+		mutateAppend<T extends Tp['_UT']>(
+			children: WithElem<Tp, T>['leafChildren'],
+			value: T,
+		): WithElem<Tp, T>['leafChildren'];
+		safeCopy<T extends Tp['_UT']>(
+			children: WithElem<Tp, T>['leafChildren'],
+		): WithElem<Tp, T>['leafChildren'];
+	}
+
 	export interface Types extends ListBase.Types {
-		a: 1;
+		readonly normal: ListImpl<this['_T']>;
+		readonly nonEmpty: ListImpl.NonEmpty<this['_T']>;
+		readonly builder: ListBuilder<this['_T']>;
+		// readonly context: ListContext;
 	}
 }

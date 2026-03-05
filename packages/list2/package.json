@@ -1,5 +1,5 @@
 {
-	"name": "@rimbu/list",
+	"name": "@rimbu/list2",
 	"version": "2.1.10",
 	"description": "An efficient immutable ordered sequence of elements akin to a Vector",
 	"keywords": [
@@ -38,6 +38,14 @@
 		".": {
 			"types": "./dist/entry/list.d.ts",
 			"default": "./dist/entry/list.js"
+		},
+		"./char": {
+			"types": "./dist/entry/char.d.ts",
+			"default": "./dist/entry/char.js"
+		},
+		"./bit": {
+			"types": "./dist/entry/bit.d.ts",
+			"default": "./dist/entry/bit.js"
 		},
 		"./*": {
 			"types": "./dist/public/*.d.ts",
