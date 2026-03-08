@@ -13,6 +13,9 @@ import { NonLeafTree } from './immutable/non-leaf-tree';
 import { ReversedLeafBlock } from './immutable/reversed-leaf-block';
 import { ListBuilder } from './mutable/builder';
 import { LeafBlockBuilder } from './mutable/leaf-block-builder';
+import { LeafTreeBuilder } from './mutable/leaf-tree-builder';
+import { NonLeafBlockBuilder } from './mutable/non-leaf-block';
+import { NonLeafTreeBuilder } from './mutable/non-leaf-tree';
 
 export class ListContext<Tp extends ListImpl.Types = ListImpl.Types>
 	implements ListBase.Context<Tp>
@@ -83,6 +86,18 @@ export class ListContext<Tp extends ListImpl.Types = ListImpl.Types>
 		children: WithElem<Tp, T>['leafChildren'],
 	): LeafBlockBuilder<T> {
 		return new LeafBlockBuilder(this, undefined, children);
+	}
+
+	leafTreeBuilder<T>(source?: LeafTree<T>): LeafTreeBuilder<T> {
+		return new LeafTreeBuilder(this, source);
+	}
+
+	nonLeafBlockBuilder<T>(): NonLeafBlockBuilder<T> {
+		return new NonLeafBlockBuilder(this);
+	}
+
+	nonLeafTreeBuilder<T>(): NonLeafTreeBuilder<T> {
+		return new NonLeafTreeBuilder(this);
 	}
 
 	isReversedLeafBlock<T>(block: LeafBlock<T>): block is ReversedLeafBlock<T> {

@@ -26,42 +26,43 @@ export class LeafTreeBuilder<T>
 	}
 
 	prepareMutate(): void {
-		if (undefined !== this.source) {
-			this._left = this.context.leafBlockBuilderSource(this.source.left);
-			this._right = this.context.leafBlockBuilderSource(this.source.right);
-			this._middle =
-				(this.source.middle?.createNonLeafBuilder?.() as any) ?? undefined;
-			this.source = undefined;
-		}
+		if (undefined === this.source) return;
+
+		this._left = this.source.left.toBuilder();
+		this._right = this.source.right.toBuilder();
+		this._middle = this.source.middle?.toBuilder();
+		this.length = this.source.length;
+		this.source = undefined;
 	}
 
 	get left(): LeafBlockBuilder<T> {
-		this.prepareMutate();
+		if (undefined !== this.source) throwInvalidStateError();
+
 		return this._left!;
 	}
 
 	set left(value: LeafBlockBuilder<T>) {
-		this.prepareMutate();
+		if (undefined !== this.source) throwInvalidStateError();
 		this._left = value;
 	}
 
 	get right(): LeafBlockBuilder<T> {
-		this.prepareMutate();
+		if (undefined !== this.source) throwInvalidStateError();
 		return this._right!;
 	}
 
 	set right(value: LeafBlockBuilder<T>) {
-		this.prepareMutate();
+		if (undefined !== this.source) throwInvalidStateError();
 		this._right = value;
 	}
 
 	get middle(): NonLeafBuilder<T> | undefined {
-		this.prepareMutate();
+		if (undefined !== this.source) throwInvalidStateError();
 		return this._middle;
 	}
 
 	set middle(value: NonLeafBuilder<T> | undefined) {
-		this.prepareMutate();
+		if (undefined !== this.source) throwInvalidStateError();
 		this._middle = value;
 	}
 

@@ -1,4 +1,6 @@
 import type { WithElem } from '@rimbu/collection-types/common';
+import type { ListContext } from './context';
+import type { ListBuilder } from './mutable/builder';
 
 import type { ListBase } from '#list/list-base';
 
@@ -54,6 +56,6 @@ export namespace ListImpl {
 		readonly normal: ListImpl<this['_T']>;
 		readonly nonEmpty: ListImpl.NonEmpty<this['_T']>;
 		readonly builder: ListBuilder<this['_T']>;
-		// readonly context: ListContext;
+		readonly context: ListContext;
 	}
 }
