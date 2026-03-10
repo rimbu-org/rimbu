@@ -1,11 +1,16 @@
+import type { ArrayNonEmpty } from '@rimbu/common/types';
+import type { ListBuilder } from '../mutable/builder';
+
 import type { ListContext } from '#list/context';
 import type { ListImpl } from '#list/list-impl';
 
 import { EmptyBase } from '@rimbu/collection-types/common/empty-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
-import { Stream } from '@rimbu/stream';
+import { Stream, type StreamSource } from '@rimbu/stream';
 
 export class ListEmpty<T> extends EmptyBase implements ListImpl<T> {
+	declare _NonEmptyType: ListImpl.NonEmpty<T>;
+
 	constructor(
 		readonly context: ListContext,
 		readonly ops = context.leafChildrenOps,
@@ -30,11 +35,11 @@ export class ListEmpty<T> extends EmptyBase implements ListImpl<T> {
 	}
 
 	prepend(value: T): ListImpl.NonEmpty<T> {
-		return this.context.leafBlock(this.ops.of(value));
+		return this.context.leafBlock<T>(this.ops.of([value]));
 	}
 
 	append(value: T): ListImpl.NonEmpty<T> {
-		return this.context.leafBlock(this.ops.of(value));
+		return this.context.leafBlock<T>(this.ops.of([value]));
 	}
 
 	take(): this {
@@ -67,9 +72,12 @@ export class ListEmpty<T> extends EmptyBase implements ListImpl<T> {
 		return this;
 	}
 
-	// concat<T2>(...sources: ArrayNonEmpty<StreamSource<T2>>): any {
-	// 	return this.context.from(...sources);
-	// }
+	concat(
+		...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>
+	): ListImpl.NonEmpty<T>;
+	concat(...sources: ArrayNonEmpty<StreamSource<T>>): ListImpl<T> {
+		return this.context.from(...sources);
+	}
 
 	repeat(): this {
 		return this;
@@ -116,9 +124,9 @@ export class ListEmpty<T> extends EmptyBase implements ListImpl<T> {
 		return [];
 	}
 
-	// toBuilder(): List.Builder<T> {
-	// 	return this.context.builder();
-	// }
+	toBuilder(): ListBuilder<T> {
+		return this.context.builder();
+	}
 
 	_structure(): string {
 		return 'Empty';

@@ -11,7 +11,7 @@ export interface CharList extends ListBase<string, CharListHelpers.Types> {}
 export namespace CharList {
 	export interface NonEmpty
 		extends ListBase.NonEmpty<string, CharListHelpers.Types>,
-			CharList {}
+			Omit<CharList, keyof ListBase.NonEmpty<any>> {}
 
 	export interface Builder extends ListBase.Builder<CharListHelpers.Types> {}
 
@@ -45,7 +45,7 @@ export const CharList: CharListHelpers.Factory =
 		get<T extends string>(children: string, index: number): T {
 			return children[index]! as T;
 		},
-		of(...values: string[]): string {
+		of(values: string[]): string {
 			return Stream.from(values)
 				.map((value) => value[0])
 				.join();
@@ -55,6 +55,12 @@ export const CharList: CharListHelpers.Factory =
 		},
 		append(children: string, value: string): string {
 			return `${children}${value[0]}`;
+		},
+		concat(children1: string, children2: string): string {
+			return `${children1}${children2}`;
+		},
+		toReversed(children: string): string {
+			return Stream.fromString(children, { reversed: true }).join();
 		},
 		toSpliced(
 			children: string,
@@ -71,5 +77,22 @@ export const CharList: CharListHelpers.Factory =
 		},
 		join(children: string, separator: string, reversed = false): string {
 			return Stream.fromString(children, { reversed }).join({ sep: separator });
+		},
+		mutateAppend(children: string, value: string): string {
+			return this.append(children, value);
+		},
+		mutatePrepend(children: string, value: string): string {
+			return this.prepend(children, value);
+		},
+		mutateSplice(
+			children: string,
+			start: number,
+			deleteCount?: number | undefined,
+			items: string[] = [],
+		): [result: string, deleted: string] {
+			throw new Error('Not implemented');
+		},
+		safeCopy(children: string): string {
+			return children;
 		},
 	})) as CharListHelpers.Factory;

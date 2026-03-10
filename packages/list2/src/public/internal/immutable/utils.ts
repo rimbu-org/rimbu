@@ -1,17 +1,23 @@
+import type { ListContext } from '#list/context';
 import type { CacheMap } from '#list/immutable/cache-map';
 
 export interface Block<T> {
 	readonly itemsLength: number;
+	get childrenInMin(): boolean;
+	get childrenInMax(): boolean;
 	get(index: number): T;
 	reversed(cacheMap?: CacheMap | undefined): Block<T>;
 	_structure(): string;
 }
 
 export interface NonLeaf<T> {
+	readonly context: ListContext;
 	readonly itemsLength: number;
 	get(index: number): T;
 	prependChild(child: Block<T>): NonLeaf<T>;
 	appendChild(child: Block<T>): NonLeaf<T>;
+	dropLastChild(): [NonLeaf<T> | null, Block<T>];
+	concatNonLeaf(nonLeaf: NonLeaf<T>): NonLeaf<T>;
 	reversed(cacheMap?: CacheMap | undefined): NonLeaf<T>;
 	_structure(): string;
 }

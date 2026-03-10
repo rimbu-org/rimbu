@@ -1,5 +1,6 @@
 import type { ListContext } from '#list/context';
 import type { CacheMap } from '#list/immutable/cache-map';
+import type { NonLeafTree } from '#list/immutable/non-leaf-tree';
 import type { Block, NonLeaf } from '#list/immutable/utils';
 
 import { append, last, prepend, reverseMap } from '@rimbu/base/arr';
@@ -7,7 +8,7 @@ import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 
 import { NonLeafBase } from '#list/immutable/non-leaf-base';
 
-export class NonLeafBlock<T> extends NonLeafBase<T> implements NonLeaf<T> {
+export class NonLeafBlock<T> extends NonLeafBase<T> {
 	constructor(
 		context: ListContext,
 		readonly children: readonly Block<T>[],
@@ -19,6 +20,18 @@ export class NonLeafBlock<T> extends NonLeafBase<T> implements NonLeaf<T> {
 
 	get nrChildren(): number {
 		return this.children.length;
+	}
+
+	get childrenInMax(): boolean {
+		return this.children.length <= this.context.maxBlockSize;
+	}
+
+	get childrenInMin(): boolean {
+		return this.children.length >= this.context.minBlockSize;
+	}
+
+	get canAddChild(): boolean {
+		return this.children.length < this.context.maxBlockSize;
 	}
 
 	copy(
@@ -43,10 +56,10 @@ export class NonLeafBlock<T> extends NonLeafBase<T> implements NonLeaf<T> {
 		return this.children[childIndex].get(inChildIndex);
 	}
 
-	prependChild(child: NonLeaf<T>): NonLeaf<T> {
+	prependChild(child: Block<T>): NonLeaf<T> {
 		const newLength = this.itemsLength + child.itemsLength;
 
-		if (this.nrChildren < this.context.maxBlockSize) {
+		if (this.canAddChild) {
 			return this.copy(prepend(this.children, child), newLength);
 		}
 
@@ -59,7 +72,7 @@ export class NonLeafBlock<T> extends NonLeafBase<T> implements NonLeaf<T> {
 		);
 	}
 
-	appendChild(child: NonLeaf<T>): NonLeaf<T> {
+	appendChild(child: Block<T>): NonLeaf<T> {
 		const newLength = this.itemsLength + child.itemsLength;
 
 		if (this.nrChildren < this.context.maxBlockSize) {
@@ -75,6 +88,67 @@ export class NonLeafBlock<T> extends NonLeafBase<T> implements NonLeaf<T> {
 		);
 	}
 
+	concatNonLeaf(nonLeaf: NonLeaf<T>): NonLeaf<T> {
+		if (nonLeaf.context.isNonLeafBlock<T>(nonLeaf)) {
+			if (
+				nonLeaf === this &&
+				this.children.length > this.context.minBlockSize
+			) {
+				return this.context.nonLeafTree(
+					this,
+					this,
+					null,
+					this.itemsLength + nonLeaf.itemsLength,
+					this.level,
+				);
+			}
+
+			return this.concatBlock(nonLeaf);
+		}
+		if (this.context.isNonLeafTree<T>(nonLeaf)) {
+			return this.concatTree(nonLeaf);
+		}
+
+		throwInvalidStateError();
+	}
+
+	concatBlock(nonLeafBlock: NonLeafBlock<T>): NonLeaf<T> {
+		return this.concatChildren(nonLeafBlock)._mutateNormalize();
+	}
+
+	concatTree(nonLeafTree: NonLeafTree<T>): NonLeaf<T> {
+		if (
+			this.nrChildren + nonLeafTree.left.nrChildren <=
+			this.context.maxBlockSize
+		) {
+			const newLeft = this.concatChildren(nonLeafTree.left)._mutateRebalance();
+
+			return nonLeafTree.copy(newLeft);
+		}
+
+		if (nonLeafTree.left.childrenInMin) {
+			const newMiddle = nonLeafTree.prependMiddleChild(nonLeafTree.left);
+
+			return nonLeafTree.copy(this, undefined, newMiddle);
+		}
+
+		const newLeft = this.concatChildren(nonLeafTree.left)._mutateRebalance();
+		if (newLeft.childrenInMax) return nonLeafTree.copy(newLeft);
+
+		const newSecond = newLeft._mutateSplitRight(
+			newLeft.nrChildren - this.context.maxBlockSize,
+		);
+		const newMiddle = nonLeafTree.prependMiddleChild(newSecond);
+
+		return nonLeafTree.copy(newLeft, undefined, newMiddle);
+	}
+
+	concatChildren(other: NonLeafBlock<T>): NonLeafBlock<T> {
+		const newChildren = this.children.concat(other.children);
+
+		return this.copy(newChildren, this.itemsLength + other.itemsLength);
+	}
+
 	reversed(cacheMap: CacheMap = this.context.cacheMap()): NonLeafBlock<T> {
 		const cachedThis = cacheMap.get<NonLeafBlock<T>>(this);
 		if (cachedThis !== undefined) return cachedThis;
@@ -85,6 +159,18 @@ export class NonLeafBlock<T> extends NonLeafBase<T> implements NonLeaf<T> {
 
 		const reversedThis = this.copy(newChildren, this.itemsLength);
 		return cacheMap.setAndReturn(this, reversedThis);
+	}
+
+	dropLastChild(): [NonLeafBlock<T> | null, Block<T>] {
+		const lastChild = this.children.at(-1)!;
+
+		if (this.nrChildren === 1) return [null, lastChild];
+
+		const newChildren = this.children.slice(0, -1);
+		const newLength = this.itemsLength - lastChild.itemsLength;
+		const newSelf = this.copy(newChildren, newLength);
+
+		return [newSelf, lastChild];
 	}
 
 	getCoordinates(

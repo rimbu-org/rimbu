@@ -13,13 +13,28 @@ export class LeafBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 	constructor(
 		context: ListContext,
 		public source?: LeafBlock<T>,
-		public children?: WithElem<Tp, T>['leafChildren'],
+		public _children?: WithElem<Tp, T>['leafChildren'],
 	) {
 		super(context);
 	}
 
 	get length(): number {
-		return this.source?.length ?? this.ops.length(this.children!);
+		return this.source?.length ?? this.ops.length(this.children);
+	}
+
+	get children(): WithElem<Tp, T>['leafChildren'] {
+		return this._children!;
+	}
+
+	set children(value: WithElem<Tp, T>['leafChildren']) {
+		this._children = value;
+	}
+
+	prepareMutate(): void {
+		if (undefined === this.source) return;
+
+		this._children = this.source.children;
+		this.source = undefined;
 	}
 
 	copy(children: WithElem<Tp, T>['leafChildren']): LeafBlockBuilder<T> {
@@ -68,10 +83,12 @@ export class LeafBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 	}
 
 	splitRight(index = this.length >>> 1): LeafBlockBuilder<T> {
-		const rightChildren = this.ops.mutateSplice(this.children, index);
-
+		const [newChildren, rightChildren] = this.ops.mutateSplice(
+			this.children,
+			index,
+		);
+		this.children = newChildren;
 		this.source = undefined;
-
 		return this.copy(rightChildren);
 	}
 }

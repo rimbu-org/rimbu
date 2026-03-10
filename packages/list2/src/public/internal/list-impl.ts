@@ -1,5 +1,4 @@
 import type { WithElem } from '@rimbu/collection-types/common';
-import type { ListContext } from './context';
 import type { ListBuilder } from './mutable/builder';
 
 import type { ListBase } from '#list/list-base';
@@ -14,7 +13,7 @@ export namespace ListImpl {
 	}
 
 	export interface LeafChildrenOps<Tp extends ListImpl.Types = ListImpl.Types> {
-		of<T extends Tp['_UT']>(...values: T[]): WithElem<Tp, T>['leafChildren'];
+		of<T extends Tp['_UT']>(values: T[]): WithElem<Tp, T>['leafChildren'];
 		length(children: Tp['leafChildren']): number;
 		get<T extends Tp['_UT']>(
 			children: WithElem<Tp, T>['leafChildren'],
@@ -28,11 +27,18 @@ export namespace ListImpl {
 			children: WithElem<Tp, T>['leafChildren'],
 			value: T,
 		): WithElem<Tp, T>['leafChildren'];
+		concat<T extends Tp['_UT']>(
+			children1: WithElem<Tp, T>['leafChildren'],
+			children2: WithElem<Tp, T>['leafChildren'],
+		): WithElem<Tp, T>['leafChildren'];
 		toSpliced<T extends Tp['_UT']>(
 			children: WithElem<Tp, T>['leafChildren'],
 			start: number,
 			deleteCount: number,
 			items?: T[],
+		): WithElem<Tp, T>['leafChildren'];
+		toReversed<T extends Tp['_UT']>(
+			children: WithElem<Tp, T>['leafChildren'],
 		): WithElem<Tp, T>['leafChildren'];
 		join(
 			children: Tp['leafChildren'],
@@ -47,6 +53,15 @@ export namespace ListImpl {
 			children: WithElem<Tp, T>['leafChildren'],
 			value: T,
 		): WithElem<Tp, T>['leafChildren'];
+		mutateSplice<T extends Tp['_UT']>(
+			children: WithElem<Tp, T>['leafChildren'],
+			start: number,
+			deleteCount?: number | undefined,
+			items?: T[],
+		): [
+			result: WithElem<Tp, T>['leafChildren'],
+			deleted: WithElem<Tp, T>['leafChildren'],
+		];
 		safeCopy<T extends Tp['_UT']>(
 			children: WithElem<Tp, T>['leafChildren'],
 		): WithElem<Tp, T>['leafChildren'];
@@ -56,6 +71,6 @@ export namespace ListImpl {
 		readonly normal: ListImpl<this['_T']>;
 		readonly nonEmpty: ListImpl.NonEmpty<this['_T']>;
 		readonly builder: ListBuilder<this['_T']>;
-		readonly context: ListContext;
+		// readonly context: ListContext;
 	}
 }

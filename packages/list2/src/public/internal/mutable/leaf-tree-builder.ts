@@ -28,9 +28,12 @@ export class LeafTreeBuilder<T>
 	prepareMutate(): void {
 		if (undefined === this.source) return;
 
-		this._left = this.source.left.toBuilder();
-		this._right = this.source.right.toBuilder();
-		this._middle = this.source.middle?.toBuilder();
+		this._left = this.context.leafBlockBuilderSource(this.source.left);
+		this._right = this.context.leafBlockBuilderSource(this.source.right);
+		this._middle =
+			null === this.source.middle
+				? undefined
+				: this.context.createNonLeafBuilder(this.source.middle);
 		this.length = this.source.length;
 		this.source = undefined;
 	}
@@ -111,31 +114,31 @@ export class LeafTreeBuilder<T>
 	}
 
 	normalized(): LeafBuilder<T> {
-		if (this.length <= this.context.maxBlockSize) {
-			// can collapse into block
-			this.left.concat(this.right);
-			return this.left;
-		}
+		// if (this.length <= this.context.maxBlockSize) {
+		// 	// can collapse into block
+		// 	this.left.concat(this.right);
+		// 	return this.left;
+		// }
 
-		if (undefined !== this.middle) {
-			if (
-				this.middle.itemsLength + this.left.length <=
-				this.context.maxBlockSize
-			) {
-				// can merge middle with left
-				this.left.concat(this.middle.firstLeafBlockBuilder());
-				this.middle = undefined;
-			} else if (
-				this.middle.itemsLength + this.right.length <=
-				this.context.maxBlockSize
-			) {
-				// can merge middle with right
-				const newRight = this.middle.lastLeafBlockBuilder();
-				newRight.concat(this.right);
-				this.right = newRight;
-				this.middle = undefined;
-			}
-		}
+		// if (undefined !== this.middle) {
+		// 	if (
+		// 		this.middle.itemsLength + this.left.length <=
+		// 		this.context.maxBlockSize
+		// 	) {
+		// 		// can merge middle with left
+		// 		this.left.concat(this.middle.firstLeafBlockBuilder());
+		// 		this.middle = undefined;
+		// 	} else if (
+		// 		this.middle.itemsLength + this.right.length <=
+		// 		this.context.maxBlockSize
+		// 	) {
+		// 		// can merge middle with right
+		// 		const newRight = this.middle.lastLeafBlockBuilder();
+		// 		newRight.concat(this.right);
+		// 		this.right = newRight;
+		// 		this.middle = undefined;
+		// 	}
+		// }
 
 		return this;
 	}

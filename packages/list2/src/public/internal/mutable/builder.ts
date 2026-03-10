@@ -1,3 +1,6 @@
+import type { TraverseState } from '@rimbu/common/traverse-state';
+import type { Update } from '@rimbu/common/update';
+
 import type { ListContext } from '#list/context';
 import type { ListImpl } from '#list/list-impl';
 
@@ -30,7 +33,7 @@ export class ListBuilder<T> extends BuilderBase<T> {
 		return this.length === 0;
 	}
 
-	get = <O>(index: number, otherwise?: OptLazy<O>): T | O => {
+	get = <O = undefined>(index: number, otherwise?: OptLazy<O>): T | O => {
 		if (
 			undefined === this.leafBuilder ||
 			index >= this.length ||
@@ -49,7 +52,7 @@ export class ListBuilder<T> extends BuilderBase<T> {
 		this.checkLock();
 
 		if (undefined === this.leafBuilder) {
-			this.leafBuilder = this.context.leafBlockBuilder(this.ops.of(value));
+			this.leafBuilder = this.context.leafBlockBuilder<T>(this.ops.of([value]));
 			return;
 		}
 
@@ -61,12 +64,27 @@ export class ListBuilder<T> extends BuilderBase<T> {
 		this.checkLock();
 
 		if (undefined === this.leafBuilder) {
-			this.leafBuilder = this.context.leafBlockBuilder(this.ops.of(value));
+			this.leafBuilder = this.context.leafBlockBuilder<T>(this.ops.of([value]));
 			return;
 		}
 
 		this.leafBuilder.append(value);
 		this.leafBuilder = this.leafBuilder.normalized();
+	};
+
+	updateAt = <O>(
+		index: number,
+		update: Update<T>,
+		otherwise?: OptLazy<O>,
+	): T | O => {
+		throw new Error('Method not implemented.');
+	};
+
+	forEach = (
+		f: (value: T, index: number, halt: () => void) => void,
+		options: { reversed?: boolean; state?: TraverseState } = {},
+	): void => {
+		throw new Error('Method not implemented.');
 	};
 
 	build = (): ListImpl<T> => {

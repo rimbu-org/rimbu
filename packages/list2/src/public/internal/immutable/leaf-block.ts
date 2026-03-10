@@ -1,9 +1,13 @@
 import type { WithElem } from '@rimbu/collection-types/common';
+import type { ArrayNonEmpty } from '@rimbu/common/types';
+import type { StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context';
+import type { LeafTree } from '#list/immutable/leaf-tree';
 import type { Block } from '#list/immutable/utils';
 import type { ListImpl } from '#list/list-impl';
 
+import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 
 import { LeafBase } from '#list/immutable/leaf-base';
@@ -14,10 +18,14 @@ export class LeafBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 {
 	constructor(
 		context: ListContext,
-		readonly children: WithElem<Tp, T>['leafChildren'],
-		readonly length = context.leafChildrenOps.length(children),
+		private _children: WithElem<Tp, T>['leafChildren'],
+		readonly length = context.leafChildrenOps.length(_children),
 	) {
 		super(context);
+	}
+
+	get children(): WithElem<Tp, T>['leafChildren'] {
+		return this._children;
 	}
 
 	get itemsLength() {
@@ -78,7 +86,7 @@ export class LeafBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		}
 
 		return this.context.leafTree<T>(
-			this.context.leafBlock(this.ops.of(value)),
+			this.context.leafBlock(this.ops.of([value])),
 			this,
 			null,
 			this.length + 1,
@@ -92,7 +100,7 @@ export class LeafBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 
 		return this.context.leafTree(
 			this,
-			this.context.leafBlock(this.ops.of(value)),
+			this.context.leafBlock(this.ops.of([value])),
 			null,
 			this.length + 1,
 		);
@@ -147,6 +155,87 @@ export class LeafBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 
 	dropChildren(amount: number): LeafBlock<T> {
 		return this.copy(this.ops.toSpliced(this.children, 0, amount));
+	}
+
+	concat(...sources: ArrayNonEmpty<StreamSource<T>>): ListImpl.NonEmpty<T> {
+		const asList = this.context.from(...sources);
+
+		if (asList.nonEmpty()) {
+			if (this.context.isLeafBlock<T>(asList)) {
+				if (
+					asList === this &&
+					this.ops.length(this.children) > this.context.minBlockSize
+				) {
+					return this.context.leafTree<T>(this, this, null, this.length);
+				}
+
+				return this.concatBlock(asList);
+			}
+
+			if (this.context.isLeafTree<T>(asList)) {
+				return this.concatTree(asList);
+			}
+
+			throwInvalidStateError();
+		}
+
+		return this;
+	}
+
+	concatBlock(other: LeafBlock<T>): ListImpl.NonEmpty<T> {
+		return this.concatChildren(other)._mutateNormalize();
+	}
+
+	concatChildren(other: LeafBlock<T>): LeafBlock<T> {
+		const addChildren = this.context.isReversedLeafBlock(other as any)
+			? this.ops.toReversed(other.children)
+			: other.children;
+
+		const newChildren = this.ops.concat(this.children, addChildren);
+
+		return this.copy(newChildren);
+	}
+
+	concatTree(other: LeafTree<T>): LeafTree<T> {
+		if (this.length + other.left.length <= this.context.maxBlockSize) {
+			const newLeft = this.concatChildren(other.left);
+
+			return other.copy(newLeft);
+		}
+
+		if (other.left.childrenInMin) {
+			const newMiddle = other.prependMiddle(other.left);
+
+			return other.copy(this, undefined, newMiddle);
+		}
+
+		const newLeft = this.concatChildren(other.left);
+		const newSecond = newLeft._mutateSplitRight(
+			newLeft.length - this.context.maxBlockSize,
+		);
+		const newMiddle = other.prependMiddle(newSecond);
+
+		return other.copy(newLeft, undefined, newMiddle);
+	}
+
+	_mutateNormalize(): ListImpl.NonEmpty<T> {
+		if (this.childrenInMax) return this;
+
+		const newRight = this._mutateSplitRight();
+
+		return this.context.leafTree(this, newRight, null, this.length);
+	}
+
+	_mutateSplitRight(
+		childIndex = this.ops.length(this.children) >>> 1,
+	): LeafBlock<T> {
+		const [newChildren, rightChildren] = this.ops.mutateSplice(
+			this.children,
+			childIndex,
+		);
+		this._children = newChildren;
+
+		return this.copy(rightChildren);
 	}
 
 	_structure(): string {

@@ -1,7 +1,9 @@
 import type { ListContext } from '#list/context';
 import type { CacheMap } from '#list/immutable/cache-map';
 import type { NonLeafBlock } from '#list/immutable/non-leaf-block';
-import type { NonLeaf } from '#list/immutable/utils';
+import type { Block, NonLeaf } from '#list/immutable/utils';
+
+import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 
 import { NonLeafBase } from '#list/immutable/non-leaf-base';
 
@@ -41,7 +43,15 @@ export class NonLeafTree<T> extends NonLeafBase<T> implements NonLeaf<T> {
 		return 0 as any;
 	}
 
-	prependChild(child: NonLeaf<T>): NonLeafTree<T> {
+	prependChild(child: Block<T>): NonLeafTree<T> {
+		throw new Error('Method not implemented.');
+	}
+
+	appendChild(child: Block<T>): NonLeafTree<T> {
+		throw new Error('Method not implemented.');
+	}
+
+	prependMiddleChild(child: Block<T>): NonLeafTree<T> {
 		const newLength = this.itemsLength + child.itemsLength;
 
 		if (this.left.children.length < this.context.maxBlockSize) {
@@ -67,7 +77,7 @@ export class NonLeafTree<T> extends NonLeafBase<T> implements NonLeaf<T> {
 		);
 	}
 
-	appendChild(child: NonLeaf<T>): NonLeafTree<T> {
+	appendMiddleChild(child: Block<T>): NonLeafTree<T> {
 		const newLength = this.itemsLength + child.itemsLength;
 
 		if (this.right.children.length < this.context.maxBlockSize) {
@@ -91,6 +101,127 @@ export class NonLeafTree<T> extends NonLeafBase<T> implements NonLeaf<T> {
 					),
 			newLength,
 		);
+	}
+
+	dropLastChild(): [NonLeaf<T> | null, Block<T>] {
+		// drop last from the right block
+		const [newRight, lastChild] = this.right.dropLastChild();
+
+		if (null === newRight) {
+			if (null === this.middle) {
+				// drop right
+				return [this.left, lastChild];
+			}
+
+			// move last middle to right
+			const [newMiddle, toRight] = this.middle.dropLastChild();
+			if (!this.context.isNonLeafBlock<T>(toRight)) {
+				throwInvalidStateError();
+			}
+			const newSelf = this.copy(undefined, toRight, newMiddle)._normalize();
+
+			return [newSelf, lastChild];
+		}
+
+		// set the new right to right
+		const newSelf = this.copy(undefined, newRight)._normalize();
+
+		return [newSelf, lastChild];
+	}
+
+	concat<T2>(nonLeaf: NonLeaf<T2>): NonLeaf<T | T2> {
+		if (this.context.isNonLeafBlock<T>(nonLeaf)) {
+			return this.concatBlock(nonLeaf);
+		}
+		if (this.context.isNonLeafTree<T>(nonLeaf)) {
+			return this.concatTree(nonLeaf);
+		}
+
+		throwInvalidStateError();
+	}
+
+	concatNonLeaf(nonLeaf: NonLeaf<T>): NonLeaf<T> {
+		if (this.context.isNonLeafBlock<T>(nonLeaf)) {
+			return this.concatBlock(nonLeaf);
+		}
+		if (this.context.isNonLeafTree<T>(nonLeaf)) {
+			return this.concatTree(nonLeaf);
+		}
+
+		throwInvalidStateError();
+	}
+
+	concatBlock(nonLeafBlock: NonLeafBlock<T>): NonLeaf<T> {
+		if (nonLeafBlock.level !== this.level) {
+			throwInvalidStateError();
+		}
+
+		if (
+			this.right.nrChildren + nonLeafBlock.nrChildren <=
+			this.context.maxBlockSize
+		) {
+			// append to right
+			const newRight = this.right.concatChildren(nonLeafBlock);
+
+			return this.copy(undefined, newRight);
+		}
+
+		if (this.right.childrenInMin) {
+			// move current right to middle
+			const newMiddle = this.appendMiddleChild(this.right);
+
+			return this.copy(undefined, nonLeafBlock, newMiddle)._normalize();
+		}
+
+		// split new right
+		const newRight = this.right.concatChildren(nonLeafBlock);
+		const newLast = newRight._mutateSplitRight(this.context.maxBlockSize);
+		const newMiddle = this.appendMiddleChild(newRight);
+
+		return this.copy(undefined, newLast, newMiddle)._normalize();
+	}
+
+	concatTree(nonLeafTree: NonLeafTree<T>): NonLeaf<T> {
+		if (
+			this.right.nrChildren + nonLeafTree.left.nrChildren <=
+			this.context.maxBlockSize
+		) {
+			// merge right and left
+			const joint = this.right.concatChildren(nonLeafTree.left);
+
+			const newThisMiddle = this.appendMiddleChild(joint);
+			const newMiddle =
+				null === nonLeafTree.middle
+					? newThisMiddle
+					: newThisMiddle.concat(nonLeafTree.middle);
+
+			return this.copy(undefined, nonLeafTree.right, newMiddle)._normalize();
+		}
+
+		if (this.right.childrenInMin && nonLeafTree.left.childrenInMin) {
+			// append both
+			const newThisMiddle = this.appendMiddleChild(this.right).appendChild(
+				nonLeafTree.left,
+			);
+			const newMiddle =
+				null === nonLeafTree.middle
+					? newThisMiddle
+					: newThisMiddle.concat(nonLeafTree.middle);
+
+			return this.copy(undefined, nonLeafTree.right, newMiddle)._normalize();
+		}
+
+		// merge and split
+		const joint = this.right.concatChildren(nonLeafTree.left);
+		const jointRight = joint._mutateSplitRight();
+
+		const newThisMiddle = this.appendMiddleChild(joint).appendChild(jointRight);
+		const newMiddle =
+			null === nonLeafTree.middle
+				? newThisMiddle
+				: newThisMiddle.concat(nonLeafTree.middle);
+
+		return this.copy(undefined, nonLeafTree.right, newMiddle)._normalize();
 	}
 
 	reversed(cacheMap: CacheMap = this.context.cacheMap()): NonLeafTree<T> {

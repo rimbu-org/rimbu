@@ -11,7 +11,7 @@ export interface BitList extends ListBase<boolean, BitListHelpers.Types> {}
 export namespace BitList {
 	export interface NonEmpty
 		extends ListBase.NonEmpty<boolean, BitListHelpers.Types>,
-			BitList {}
+			Omit<BitList, keyof ListBase.NonEmpty<any>> {}
 
 	export interface Builder extends ListBase.Builder<BitListHelpers.Types> {}
 
@@ -51,7 +51,7 @@ export const BitList: BitListHelpers.Factory =
 					(children & (1n << BigInt(blockSizeBits + index))) !== 0n;
 				return result as T;
 			},
-			of(...values: boolean[]): bigint {
+			of(values: boolean[]): bigint {
 				let result = 0n;
 				for (const value of values) {
 					result = (result << 1n) | (value ? 1n : 0n);
@@ -71,6 +71,25 @@ export const BitList: BitListHelpers.Factory =
 				result = (result << 1n) | (value ? 1n : 0n);
 				const newChildrenLengthBits = (children & lengthMask) + 1n;
 				result = (result << lengthBits) | newChildrenLengthBits;
+				return result;
+			},
+			concat(children1: bigint, children2: bigint): bigint {
+				const length1 = children1 & lengthMask;
+				const length2 = children2 & lengthMask;
+				let result = (children1 >> lengthBits) << length2;
+				result = result | (children2 >> lengthBits);
+				const newChildrenLengthBits = length1 + length2;
+				result = (result << lengthBits) | newChildrenLengthBits;
+				return result;
+			},
+			toReversed(children: bigint): bigint {
+				const length = children & lengthMask;
+				let result = 0n;
+				for (let i = 0n; i <= length; i++) {
+					const bit = (children >> (lengthBits + i)) & 1n;
+					result = (result << 1n) | bit;
+				}
+				result = (result << lengthBits) | length;
 				return result;
 			},
 			toSpliced(
@@ -97,6 +116,23 @@ export const BitList: BitListHelpers.Factory =
 						children & (1n << BigInt(startBit - index)) ? '1' : '0',
 					)
 					.join({ sep: separator });
+			},
+			mutateAppend(children: bigint, value: boolean): bigint {
+				return this.append(children, value);
+			},
+			mutatePrepend(children: bigint, value: boolean): bigint {
+				return this.prepend(children, value);
+			},
+			mutateSplice(
+				children: bigint,
+				start: number,
+				deleteCount?: number | undefined,
+				items: boolean[] = [],
+			): [result: bigint, deleted: bigint] {
+				throw new Error('Not implemented');
+			},
+			safeCopy(children: bigint): bigint {
+				return children;
 			},
 		};
 	}) as BitListHelpers.Factory;
