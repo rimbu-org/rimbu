@@ -13,7 +13,8 @@ export namespace CharList {
 		extends ListBase.NonEmpty<string, CharListHelpers.Types>,
 			Omit<CharList, keyof ListBase.NonEmpty<any>> {}
 
-	export interface Builder extends ListBase.Builder<CharListHelpers.Types> {}
+	export interface Builder
+		extends ListBase.Builder<string, CharListHelpers.Types> {}
 
 	export interface Context
 		extends CharListHelpers.Factory,
@@ -42,7 +43,7 @@ export const CharList: CharListHelpers.Factory =
 		length(children: string) {
 			return children.length;
 		},
-		get<T extends string>(children: string, index: number): T {
+		get<T extends string = string>(children: string, index: number): T {
 			return children[index]! as T;
 		},
 		of(values: string[]): string {
@@ -74,6 +75,13 @@ export const CharList: CharListHelpers.Factory =
 				.map((value) => value[0])
 				.join();
 			return `${before}${middle}${after}`;
+		},
+		toArray<T extends string = string>(
+			children: string,
+			startIndex = 0,
+			endIndex = children.length,
+		): T[] {
+			throw new Error('Not implemented');
 		},
 		join(children: string, separator: string, reversed = false): string {
 			return Stream.fromString(children, { reversed }).join({ sep: separator });

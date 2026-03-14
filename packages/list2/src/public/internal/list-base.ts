@@ -1,4 +1,5 @@
 import type { Elem, WithElem } from '@rimbu/collection-types/common';
+import type { IndexRange } from '@rimbu/common/index-range';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
@@ -48,6 +49,16 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * ```
 	 */
 	nonEmpty(): this is WithElem<Tp, T>['nonEmpty'];
+	/**
+	 * Returns the same collection typed as non-empty.
+	 * @throws `RimbuError.EmptyCollectionAssumedNonEmptyError` if the collection is empty
+	 * @example
+	 * ```ts
+	 * List.empty().assumeNonEmpty()           // => throws RimbuError.EmptyCollectionAssumedNonEmptyError
+	 * List.from([0, 1, 2]).assumeNonEmpty()   // => List.NonEmpty(0, 1, 2)
+	 * ```
+	 */
+	assumeNonEmpty(): WithElem<Tp, T>['nonEmpty'];
 	/**
 	 * Returns the value in the List at the given `index`.
 	 * @param index - the element index
@@ -148,6 +159,22 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	): WithElem<Tp, T>['nonEmpty'];
 	concat(...sources: ArrayNonEmpty<StreamSource<T>>): WithElem<Tp, T>['normal'];
 	/**
+	 * Returns an array containing the values within given `range` (default: all) in this collection.
+	 * If `reversed` is true, reverses the order of the values.
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - range: (optional) the range of the list to include in the filtering process<br/>
+	 * - reversed: (default: false) if true reverses the elements within the given range
+	 * @example
+	 * ```ts
+	 * List.of(0, 1, 2, 3).toArray()                      // => [0, 1, 2, 3]
+	 * List.of(0, 1, 2, 3).toArray({ range: { amount: 2 } })                 // => [0, 1]
+	 * List.of(0, 1, 2, 3).toArray({ range: { amount: 2 }, reversed: true }) // => [1, 0]
+	 * ```
+	 * @note O(logB(N)) for block size B
+	 * @note it is safe to mutate the returned array, however, the array elements are not copied, thus should be treated as read-only
+	 */
+	toArray(options?: { range?: IndexRange; reversed?: boolean }): T[];
+	/**
 	 * Returns a builder object containing the values of this collection.
 	 * @example
 	 * ```ts
@@ -198,6 +225,26 @@ export namespace ListBase {
 		 * @note O(logB(n)) for block size B
 		 */
 		reversed(): WithElem<Tp, T>['nonEmpty'];
+		/**
+		 * Returns an array containing the values within given `range` (default: all) in this collection.
+		 * If `reversed` is true, reverses the order of the values.
+		 * @param options - (optional) an object containing the following properties:<br/>
+		 * - range: (optional) the range of the list to include in the filtering process<br/>
+		 * - reversed: (default: false) if true reverses the elements within the given range
+		 * @example
+		 * ```ts
+		 * List.of(0, 1, 2, 3).toArray()                      // => [0, 1, 2, 3]
+		 * List.of(0, 1, 2, 3).toArray({ range: { amount: 2 } })                 // => [0, 1]
+		 * List.of(0, 1, 2, 3).toArray({ range: { amount: 2 }, reversed: true }) // => [1, 0]
+		 * ```
+		 * @note O(logB(N)) for block size B
+		 * @note it is safe to mutate the returned array, however, the array elements are not copied, thus should be treated as read-only
+		 */
+		toArray(options?: {
+			range?: undefined;
+			reversed?: boolean;
+		}): ArrayNonEmpty<T>;
+		toArray(options?: { range?: IndexRange; reversed?: boolean }): T[];
 	}
 
 	export interface Builder<T, Tp extends ListBase.Types = ListBase.Types> {
@@ -316,8 +363,20 @@ export namespace ListBase {
 	}
 
 	export interface Factory<Tp extends ListBase.Types = ListBase.Types> {
-		createContext(): Tp['context'];
+		createContext(
+			options?:
+				| {
+						blockSizeBits?: number | undefined;
+				  }
+				| undefined,
+		): Tp['context'];
 		empty<T extends Tp['_UT']>(): WithElem<Tp, T>['normal'];
+		of<T extends Tp['_UT']>(
+			...values: ArrayNonEmpty<T>
+		): WithElem<Tp, T>['nonEmpty'];
+		from<T extends Tp['_UT']>(
+			...sources: ArrayNonEmpty<StreamSource<T>>
+		): WithElem<Tp, T>['normal'];
 		builder<T extends Tp['_UT']>(): WithElem<Tp, T>['builder'];
 	}
 
@@ -329,7 +388,9 @@ export namespace ListBase {
 		readonly _UT: unknown;
 		readonly normal: ListBase<this['_T']>;
 		readonly nonEmpty: ListBase.NonEmpty<this['_T']>;
-		readonly builder: ListBase.Builder<this['_T']>;
+		readonly builder: this['_UT'] extends unknown
+			? unknown
+			: ListBase.Builder<this['_T']>;
 		readonly context: ListBase.Context;
 		readonly leafChildren: LeafChildrenTag;
 	}

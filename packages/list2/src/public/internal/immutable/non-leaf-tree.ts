@@ -1,3 +1,5 @@
+import type { IndexRange } from '@rimbu/common/index-range';
+
 import type { ListContext } from '#list/context';
 import type { CacheMap } from '#list/immutable/cache-map';
 import type { NonLeafBlock } from '#list/immutable/non-leaf-block';
@@ -6,6 +8,7 @@ import type { Block, NonLeaf } from '#list/immutable/utils';
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 
 import { NonLeafBase } from '#list/immutable/non-leaf-base';
+import { treeToArray } from '#list/immutable/tree-base';
 
 export class NonLeafTree<T> extends NonLeafBase<T> implements NonLeaf<T> {
 	constructor(
@@ -235,6 +238,72 @@ export class NonLeafTree<T> extends NonLeafBase<T> implements NonLeaf<T> {
 
 		const reversedThis = this.copy(newLeft, newRight, newMid);
 		return cacheMap.setAndReturn(this, reversedThis);
+	}
+
+	toArray(
+		options?:
+			| { range?: IndexRange | undefined; reversed?: boolean }
+			| undefined,
+	): T[] {
+		return treeToArray(this, options);
+	}
+
+	_normalize(): NonLeaf<T> {
+		if (null === this.middle) {
+			if (
+				this.left.nrChildren + this.right.nrChildren <=
+				this.context.maxBlockSize
+			) {
+				// can merge left and right
+				return this.left.concatChildren(this.right);
+			}
+		} else if (this.context.isNonLeafBlock<T>(this.middle)) {
+			const firstChild = this.middle.children[0];
+
+			if (
+				this.left.nrChildren + firstChild.nrChildren <=
+				this.context.maxBlockSize
+			) {
+				// first middle child can be merged with left
+				const result = this.middle.dropFirstChild();
+				const newMiddle = result[0];
+				const block = result[1];
+
+				if (this.context.isNonLeafBlock<T>(block)) {
+					return this.copy(
+						this.left.concatChildren(block),
+						undefined,
+						newMiddle,
+					);
+				}
+
+				throwInvalidStateError();
+			}
+
+			const lastChild = this.middle.children[this.middle.nrChildren - 1];
+
+			if (
+				this.right.nrChildren + lastChild.nrChildren <=
+				this.context.maxBlockSize
+			) {
+				// last middle child can be merged with right
+				const result = this.middle.dropLastChild();
+				const newMiddle = result[0];
+				const block = result[1];
+
+				if (this.context.isNonLeafBlock<T>(block)) {
+					return this.copy(
+						undefined,
+						block.concatChildren(this.right),
+						newMiddle,
+					);
+				}
+
+				throwInvalidStateError();
+			}
+		}
+
+		return this;
 	}
 
 	_structure(): string {

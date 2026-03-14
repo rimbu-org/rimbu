@@ -96,9 +96,53 @@ export class LeafTreeBuilder<T>
 		return this.middle.get(middleIndex);
 	}
 
-	prepend(value: T): void {}
+	prepend(value: T): void {
+		throw new Error('Not implemented yet');
+	}
 
-	append(value: T): void {}
+	append(value: T): void {
+		throw new Error('Not implemented yet');
+	}
+
+	appendMiddle(child: LeafBlockBuilder<T>): void {
+		throw new Error('Not implemented yet');
+		// if (undefined === this.middle) {
+		// 	// no middle, create it with child
+		// 	this.middle = this.context.nonLeafBlockBuilder(
+		// 		this.level + 1,
+		// 		[child],
+		// 		child.length,
+		// 	);
+		// 	return;
+		// }
+		// if (child.nrChildren >= this.context.minBlockSize) {
+		// 	// child size enough for its own middle block
+		// 	this.middle.append(child);
+		// 	this.middle = this.middle.normalized();
+		// 	return;
+		// }
+		// // child size too small for own block, need to combine with last middle block
+		// const delta = this.middle.modifyLastChild((lastMiddleChild) => {
+		// 	if (
+		// 		child.nrChildren + lastMiddleChild.nrChildren <=
+		// 		this.context.maxBlockSize
+		// 	) {
+		// 		// can merge child into lastMiddleChild
+		// 		lastMiddleChild.concat(child);
+		// 		return child.length;
+		// 	}
+		// 	return;
+		// });
+		// if (undefined !== delta) {
+		// 	return;
+		// }
+		// // need to split lastMiddleChild and append new right
+		// const lastMiddleChild = this.middle.last();
+		// lastMiddleChild.concat(child);
+		// const newLast = lastMiddleChild.splitRight();
+		// this.middle.append(newLast);
+		// this.middle = this.middle.normalized();
+	}
 
 	build(): LeafTree<T> {
 		if (undefined !== this.source) {
@@ -114,6 +158,7 @@ export class LeafTreeBuilder<T>
 	}
 
 	normalized(): LeafBuilder<T> {
+		throw new Error('Not implemented yet');
 		// if (this.length <= this.context.maxBlockSize) {
 		// 	// can collapse into block
 		// 	this.left.concat(this.right);
@@ -139,7 +184,7 @@ export class LeafTreeBuilder<T>
 		// 		this.middle = undefined;
 		// 	}
 		// }
-
-		return this;
+		//
+		// return this;
 	}
 }

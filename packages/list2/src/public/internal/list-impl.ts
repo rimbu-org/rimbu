@@ -1,9 +1,12 @@
 import type { WithElem } from '@rimbu/collection-types/common';
-import type { ListBuilder } from './mutable/builder';
 
+import type { ListContext } from '#list/context';
 import type { ListBase } from '#list/list-base';
+import type { ListBuilder } from '#list/mutable/builder';
 
-export interface ListImpl<T> extends ListBase<T, ListImpl.Types> {}
+export interface ListImpl<T> extends ListBase<T, ListImpl.Types> {
+	_structure(): string;
+}
 
 export namespace ListImpl {
 	export interface NonEmpty<T>
@@ -45,6 +48,12 @@ export namespace ListImpl {
 			separator: string,
 			reversed?: boolean,
 		): string;
+		toArray<T extends Tp['_UT']>(
+			children: WithElem<Tp, T>['leafChildren'],
+			startIndex?: number | undefined,
+			endIndex?: number | undefined,
+			reversed?: boolean | undefined,
+		): T[];
 		mutatePrepend<T extends Tp['_UT']>(
 			children: WithElem<Tp, T>['leafChildren'],
 			value: T,
@@ -71,6 +80,6 @@ export namespace ListImpl {
 		readonly normal: ListImpl<this['_T']>;
 		readonly nonEmpty: ListImpl.NonEmpty<this['_T']>;
 		readonly builder: ListBuilder<this['_T']>;
-		// readonly context: ListContext;
+		readonly context: ListContext;
 	}
 }

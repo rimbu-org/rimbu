@@ -3,16 +3,17 @@ import type { CacheMap } from '#list/immutable/cache-map';
 import type { NonLeafTree } from '#list/immutable/non-leaf-tree';
 import type { Block, NonLeaf } from '#list/immutable/utils';
 
-import { append, last, prepend, reverseMap } from '@rimbu/base/arr';
+import { append, concat, last, prepend, reverseMap } from '@rimbu/base/arr';
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
+import { IndexRange } from '@rimbu/common/index-range';
 
 import { NonLeafBase } from '#list/immutable/non-leaf-base';
 
 export class NonLeafBlock<T> extends NonLeafBase<T> {
 	constructor(
 		context: ListContext,
-		readonly children: readonly Block<T>[],
-		readonly itemsLength: number,
+		readonly children: Block<T>[],
+		public itemsLength: number,
 		readonly level: number,
 	) {
 		super(context);
@@ -90,10 +91,7 @@ export class NonLeafBlock<T> extends NonLeafBase<T> {
 
 	concatNonLeaf(nonLeaf: NonLeaf<T>): NonLeaf<T> {
 		if (nonLeaf.context.isNonLeafBlock<T>(nonLeaf)) {
-			if (
-				nonLeaf === this &&
-				this.children.length > this.context.minBlockSize
-			) {
+			if (nonLeaf === this && this.childrenInMin) {
 				return this.context.nonLeafTree(
 					this,
 					this,
@@ -161,6 +159,18 @@ export class NonLeafBlock<T> extends NonLeafBase<T> {
 		return cacheMap.setAndReturn(this, reversedThis);
 	}
 
+	dropFirstChild(): [NonLeafBlock<T> | null, Block<T>] {
+		const firstChild = this.children[0];
+
+		if (this.nrChildren === 1) return [null, firstChild];
+
+		const newChildren = this.children.slice(1);
+		const newLength = this.itemsLength - firstChild.itemsLength;
+		const newSelf = this.copy(newChildren, newLength);
+
+		return [newSelf, firstChild];
+	}
+
 	dropLastChild(): [NonLeafBlock<T> | null, Block<T>] {
 		const lastChild = this.children.at(-1)!;
 
@@ -171,6 +181,90 @@ export class NonLeafBlock<T> extends NonLeafBase<T> {
 		const newSelf = this.copy(newChildren, newLength);
 
 		return [newSelf, lastChild];
+	}
+
+	toArray(
+		options: { range?: IndexRange | undefined; reversed?: boolean } = {},
+	): T[] {
+		const { range, reversed = false } = options;
+
+		let start = 0;
+		let end = this.itemsLength - 1;
+
+		if (undefined !== range) {
+			const indexRange = IndexRange.getIndicesFor(range, this.itemsLength);
+			if (indexRange === 'empty') return [];
+			if (indexRange !== 'all') {
+				start = indexRange[0];
+				end = indexRange[1];
+			}
+		}
+
+		const [startChildIndex, inStartChildIndex] = this.getCoordinates(
+			start,
+			false,
+			true,
+		);
+		const [endChildIndex, inEndChildIndex] = this.getCoordinates(
+			end,
+			false,
+			true,
+		);
+
+		const children = this.children;
+
+		if (startChildIndex === endChildIndex) {
+			const child = children[startChildIndex];
+
+			return child.toArray({
+				range: {
+					start: inStartChildIndex,
+					end: inEndChildIndex,
+				},
+				reversed,
+			});
+		}
+
+		const firstArray = children[startChildIndex].toArray({
+			range: {
+				start: inStartChildIndex,
+			},
+			reversed,
+		});
+
+		const lastArray = children[endChildIndex].toArray({
+			range: { end: inEndChildIndex },
+			reversed,
+		});
+
+		if (reversed) {
+			let result: readonly T[] = lastArray;
+
+			for (
+				let childIndex = endChildIndex - 1;
+				childIndex > startChildIndex;
+				childIndex--
+			) {
+				result = concat(
+					result,
+					children[childIndex].toArray({ reversed: true }),
+				);
+			}
+
+			return concat(result, firstArray) as T[];
+		}
+
+		let result: readonly T[] = firstArray;
+
+		for (
+			let childIndex = startChildIndex + 1;
+			childIndex < endChildIndex;
+			childIndex++
+		) {
+			result = concat(result, children[childIndex].toArray());
+		}
+
+		return concat(result, lastArray) as T[];
 	}
 
 	getCoordinates(
@@ -235,6 +329,56 @@ export class NonLeafBlock<T> extends NonLeafBase<T> {
 		}
 
 		throwInvalidStateError();
+	}
+
+	_mutateRebalance(): NonLeafBlock<T> {
+		let i = 0;
+
+		const children = this.children;
+
+		while (i < children.length - 1) {
+			const child = children[i];
+			const rightChild = children[i + 1];
+
+			if (
+				child.nrChildren + rightChild.nrChildren <=
+				this.context.maxBlockSize
+			) {
+				const newChild = child.concatChildren(rightChild);
+				this.children.splice(i, 2, newChild);
+			} else i++;
+		}
+
+		return this;
+	}
+
+	_mutateNormalize(): NonLeaf<T> {
+		if (this.childrenInMax) {
+			return this;
+		}
+
+		const newRight = this._mutateSplitRight();
+
+		return this.context.nonLeafTree(
+			this,
+			newRight,
+			null,
+			this.itemsLength,
+			this.level,
+		);
+	}
+
+	_mutateSplitRight(childIndex = this.nrChildren >>> 1): NonLeafBlock<T> {
+		const rightChildren = this.children.splice(childIndex);
+		let rightLength = 0;
+
+		for (let i = 0; i < rightChildren.length; i++) {
+			rightLength += rightChildren[i].itemsLength;
+		}
+
+		this.itemsLength -= rightLength;
+
+		return this.copy(rightChildren, rightLength);
 	}
 
 	_structure(): string {

@@ -1,66 +1,75 @@
 import type { WithElem } from '@rimbu/collection-types/common';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { List } from '@rimbu/list';
-import type { Block, NonLeaf } from './immutable/utils';
-import type { NonLeafBuilder } from './mutable/builder-base';
 
+import type { Block, NonLeaf } from '#list/immutable/utils';
 import type { ListBase } from '#list/list-base';
 import type { ListImpl } from '#list/list-impl';
+import type { NonLeafBuilder } from '#list/mutable/builder-base';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { Stream, type StreamSource } from '@rimbu/stream';
-import { CacheMap } from './immutable/cache-map';
-import { ListEmpty } from './immutable/empty';
-import { LeafBlock } from './immutable/leaf-block';
-import { LeafTree } from './immutable/leaf-tree';
-import { NonLeafBlock } from './immutable/non-leaf-block';
-import { NonLeafTree } from './immutable/non-leaf-tree';
-import { ReversedLeafBlock } from './immutable/reversed-leaf-block';
-import { ListBuilder } from './mutable/builder';
-import { LeafBlockBuilder } from './mutable/leaf-block-builder';
-import { LeafTreeBuilder } from './mutable/leaf-tree-builder';
-import { NonLeafBlockBuilder } from './mutable/non-leaf-block';
-import { NonLeafTreeBuilder } from './mutable/non-leaf-tree';
+
+import { CacheMap } from '#list/immutable/cache-map';
+import { ListEmpty } from '#list/immutable/empty';
+import { LeafBlock } from '#list/immutable/leaf-block';
+import { LeafTree } from '#list/immutable/leaf-tree';
+import { NonLeafBlock } from '#list/immutable/non-leaf-block';
+import { NonLeafTree } from '#list/immutable/non-leaf-tree';
+import { ReversedLeafBlock } from '#list/immutable/reversed-leaf-block';
+import { ListBuilder } from '#list/mutable/builder';
+import { LeafBlockBuilder } from '#list/mutable/leaf-block-builder';
+import { LeafTreeBuilder } from '#list/mutable/leaf-tree-builder';
+import { NonLeafBlockBuilder } from '#list/mutable/non-leaf-block';
+import { NonLeafTreeBuilder } from '#list/mutable/non-leaf-tree';
 
 export class ListContext<Tp extends ListImpl.Types = ListImpl.Types>
-	implements ListBase.Context<Tp>
+	implements ListBase.Context
 {
 	constructor(
 		readonly blockSizeBits: number,
-		readonly createLLeafChildrenOps: (options: {
+		readonly createLeafChildrenOps: (options: {
 			blockSizeBits: number;
 		}) => ListImpl.LeafChildrenOps<Tp>,
 		readonly maxBlockSize = 1 << blockSizeBits,
 		readonly minBlockSize = this.maxBlockSize >>> 1,
 	) {
-		this.leafChildrenOps = createLLeafChildrenOps({ blockSizeBits });
+		this.leafChildrenOps = createLeafChildrenOps({ blockSizeBits });
 	}
 
 	readonly leafChildrenOps: ListImpl.LeafChildrenOps<Tp>;
 
-	createContext(): ListContext {
-		return this;
+	createContext(
+		options: { blockSizeBits?: number | undefined } = {},
+	): Tp['context'] {
+		const { blockSizeBits = 2 } = options;
+		return new ListContext<Tp>(blockSizeBits, this.createLeafChildrenOps);
 	}
 
+	_empty: ListImpl<any> | undefined;
+
 	empty<T>(): ListImpl<T> {
-		return new ListEmpty<T>(this);
+		if (undefined === this._empty) {
+			this._empty = new ListEmpty(this);
+		}
+		return this._empty;
 	}
 
 	of<T>(...values: ArrayNonEmpty<T>): ListImpl.NonEmpty<T> {
 		if (values.length <= this.maxBlockSize) {
-			return this.leafBlock(this.leafChildrenOps.of(values));
+			return this.leafBlock<T>(this.leafChildrenOps.of(values));
 		}
 
-		return this.from(values);
+		return this.from(values).assumeNonEmpty();
 	}
 
-	from<T>(...sources: ArrayNonEmpty<StreamSource<T>>): any {
+	from<T>(...sources: ArrayNonEmpty<StreamSource<T>>): ListImpl<T> {
 		if (sources.length === 1) {
 			const source = sources[0];
-			if (this.isContextList(source)) return source;
+			if (this.isContextList<T>(source)) return source;
 		}
 
-		let result: List<T> | null = null;
+		let result: ListImpl<T> | null = null;
 
 		let i = -1;
 		const length = sources.length;
@@ -99,7 +108,7 @@ export class ListContext<Tp extends ListImpl.Types = ListImpl.Types>
 		return source instanceof ListEmpty || source instanceof LeafBlock;
 	}
 
-	isContextList<T>(source: unknown): source is List<T> {
+	isContextList<T>(source: unknown): source is ListImpl<T> {
 		if (this.isList(source)) {
 			return source.context === this;
 		}
@@ -139,7 +148,7 @@ export class ListContext<Tp extends ListImpl.Types = ListImpl.Types>
 	}
 
 	nonLeafBlock<T>(
-		children: readonly Block<T>[],
+		children: Block<T>[],
 		itemsLength: number,
 		level: number,
 	): NonLeafBlock<T> {
@@ -194,6 +203,10 @@ export class ListContext<Tp extends ListImpl.Types = ListImpl.Types>
 		return new LeafBlockBuilder(this, undefined, children);
 	}
 
+	isLeafBlockBuilder<T>(source: unknown): source is LeafBlockBuilder<T> {
+		return source instanceof LeafBlockBuilder;
+	}
+
 	leafTreeBuilderSource<T>(source: LeafTree<T>): LeafTreeBuilder<T> {
 		return new LeafTreeBuilder(this, source);
 	}
@@ -205,6 +218,10 @@ export class ListContext<Tp extends ListImpl.Types = ListImpl.Types>
 		length?: number,
 	): LeafTreeBuilder<T> {
 		return new LeafTreeBuilder(this, undefined, left, right, middle, length);
+	}
+
+	isLeafTreeBuilder<T>(source: unknown): source is LeafTreeBuilder<T> {
+		return source instanceof LeafTreeBuilder;
 	}
 
 	createNonLeafBuilder<T>(source: NonLeaf<T>): NonLeafBuilder<T> {

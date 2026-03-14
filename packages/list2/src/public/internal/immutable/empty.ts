@@ -1,8 +1,8 @@
 import type { ArrayNonEmpty } from '@rimbu/common/types';
-import type { ListBuilder } from '../mutable/builder';
 
 import type { ListContext } from '#list/context';
 import type { ListImpl } from '#list/list-impl';
+import type { ListBuilder } from '#list/mutable/builder';
 
 import { EmptyBase } from '@rimbu/collection-types/common/empty-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';

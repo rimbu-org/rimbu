@@ -1,12 +1,21 @@
+import type { IndexRange } from '@rimbu/common/index-range';
+
 import type { ListContext } from '#list/context';
 import type { CacheMap } from '#list/immutable/cache-map';
 
 export interface Block<T> {
 	readonly itemsLength: number;
+	get nrChildren(): number;
 	get childrenInMin(): boolean;
 	get childrenInMax(): boolean;
 	get(index: number): T;
+	concatChildren(other: Block<T>): Block<T>;
 	reversed(cacheMap?: CacheMap | undefined): Block<T>;
+	toArray(
+		options?:
+			| { range?: IndexRange | undefined; reversed?: boolean }
+			| undefined,
+	): T[];
 	_structure(): string;
 }
 
@@ -19,10 +28,15 @@ export interface NonLeaf<T> {
 	dropLastChild(): [NonLeaf<T> | null, Block<T>];
 	concatNonLeaf(nonLeaf: NonLeaf<T>): NonLeaf<T>;
 	reversed(cacheMap?: CacheMap | undefined): NonLeaf<T>;
+	toArray(
+		options?:
+			| { range?: IndexRange | undefined; reversed?: boolean }
+			| undefined,
+	): T[];
 	_structure(): string;
 }
 
-export type Tree<N, TM> = {
+export type Tree<N, TM> = TM & {
 	readonly left: N;
 	readonly right: N;
 	readonly middle: TM | null;

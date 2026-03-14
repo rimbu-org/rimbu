@@ -13,7 +13,8 @@ export namespace BitList {
 		extends ListBase.NonEmpty<boolean, BitListHelpers.Types>,
 			Omit<BitList, keyof ListBase.NonEmpty<any>> {}
 
-	export interface Builder extends ListBase.Builder<BitListHelpers.Types> {}
+	export interface Builder
+		extends ListBase.Builder<boolean, BitListHelpers.Types> {}
 
 	export interface Context
 		extends BitListHelpers.Factory,
@@ -46,7 +47,7 @@ export const BitList: BitListHelpers.Factory =
 			length(children: bigint) {
 				return Number(children & lengthMask) + 1;
 			},
-			get<T extends boolean>(children: bigint, index: number): T {
+			get<T extends boolean = boolean>(children: bigint, index: number): T {
 				const result =
 					(children & (1n << BigInt(blockSizeBits + index))) !== 0n;
 				return result as T;
@@ -98,6 +99,14 @@ export const BitList: BitListHelpers.Factory =
 				deleteCount: number,
 				items: boolean[] = [],
 			): bigint {
+				throw new Error('Not implemented');
+			},
+			toArray<T extends boolean = boolean>(
+				children: bigint,
+				startIndex?: number,
+				endIndex?: number,
+				reversed = false,
+			): T[] {
 				throw new Error('Not implemented');
 			},
 			join(children: bigint, separator: string, reversed = false): string {

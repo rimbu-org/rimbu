@@ -1,8 +1,8 @@
 import type { WithElem } from '@rimbu/collection-types/common';
-import type { NonLeaf } from '../immutable/utils';
 
 import type { ListContext } from '#list/context';
 import type { NonLeafBlock } from '#list/immutable/non-leaf-block';
+import type { NonLeaf } from '#list/immutable/utils';
 import type { ListImpl } from '#list/list-impl';
 import type { LeafBlockBuilder } from '#list/mutable/leaf-block-builder';
 

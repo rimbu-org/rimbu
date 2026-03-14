@@ -1,15 +1,17 @@
-import type { NonLeaf, Tree } from '#list/immutable/utils';
+import type { Tree } from '#list/immutable/utils';
+
+import { IndexRange } from '@rimbu/common/index-range';
 
 interface TreeGetNode<T> {
-	length: number;
+	readonly itemsLength: number;
 	get(index: number): T;
 }
 
 export function treeGet<T>(
-	tree: Tree<TreeGetNode<T>, NonLeaf<T>>,
+	tree: Tree<TreeGetNode<T>, TreeGetNode<T>>,
 	index: number,
 ): T {
-	const middleIndex = index - tree.left.length;
+	const middleIndex = index - tree.left.itemsLength;
 
 	if (middleIndex < 0) {
 		return tree.left.get(index);
@@ -24,4 +26,85 @@ export function treeGet<T>(
 	if (rightIndex < 0) return tree.middle.get(middleIndex);
 
 	return tree.right.get(rightIndex);
+}
+
+interface TreeToArrayNode<T> {
+	readonly itemsLength: number;
+	toArray(options: { range?: IndexRange | undefined; reversed?: boolean }): T[];
+}
+
+export function treeToArray<T>(
+	tree: Tree<TreeToArrayNode<T>, TreeToArrayNode<T>>,
+	options: {
+		range?: IndexRange | undefined;
+		reversed?: boolean | undefined;
+	} = {},
+): T[] {
+	const { range, reversed = false } = options;
+
+	const indexRange = IndexRange.getIndicesFor(
+		range ?? { start: 0 },
+		tree.itemsLength,
+	);
+
+	if (indexRange === 'empty') return [];
+	if (indexRange === 'all') {
+		const leftArray = tree.left.toArray({ reversed });
+		const rightArray = tree.right.toArray({ reversed });
+
+		if (null === tree.middle) {
+			if (reversed) return rightArray.concat(leftArray);
+			return leftArray.concat(rightArray);
+		}
+
+		const middleArray = tree.middle.toArray({ reversed });
+
+		if (reversed) return rightArray.concat(middleArray, leftArray);
+		return leftArray.concat(middleArray, rightArray);
+	}
+
+	const [start, end] = indexRange;
+
+	const leftArray = tree.left.toArray({ range: { start, end }, reversed });
+
+	if (null === tree.middle) {
+		const rightStart = Math.max(0, start - tree.left.itemsLength);
+		const rightEnd = end - tree.left.itemsLength;
+
+		if (rightEnd < 0) return leftArray;
+
+		const rightArray = tree.right.toArray({
+			range: { start: rightStart, end: rightEnd },
+			reversed,
+		});
+
+		if (reversed) return rightArray.concat(leftArray);
+		return leftArray.concat(rightArray);
+	}
+
+	const middleStart = Math.max(0, start - tree.left.itemsLength);
+	const middleEnd = end - tree.left.itemsLength;
+
+	if (middleEnd < 0) return leftArray;
+
+	const middleArray = tree.middle.toArray({
+		range: { start: middleStart, end: middleEnd },
+		reversed,
+	});
+
+	const rightStart = Math.max(0, middleStart - tree.middle.itemsLength);
+	const rightEnd = middleEnd - tree.middle.itemsLength;
+
+	if (rightEnd < 0) {
+		if (reversed) return middleArray.concat(leftArray);
+		return leftArray.concat(middleArray);
+	}
+
+	const rightArray = tree.right.toArray({
+		range: { start: rightStart, end: rightEnd },
+		reversed,
+	});
+
+	if (reversed) return rightArray.concat(middleArray, leftArray);
+	return leftArray.concat(middleArray, rightArray);
 }

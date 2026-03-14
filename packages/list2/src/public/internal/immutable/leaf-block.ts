@@ -8,6 +8,7 @@ import type { Block } from '#list/immutable/utils';
 import type { ListImpl } from '#list/list-impl';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
+import { IndexRange } from '@rimbu/common/index-range';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 
 import { LeafBase } from '#list/immutable/leaf-base';
@@ -18,18 +19,18 @@ export class LeafBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 {
 	constructor(
 		context: ListContext,
-		private _children: WithElem<Tp, T>['leafChildren'],
-		readonly length = context.leafChildrenOps.length(_children),
+		public children: WithElem<Tp, T>['leafChildren'],
+		readonly length = context.leafChildrenOps.length(children),
 	) {
 		super(context);
 	}
 
-	get children(): WithElem<Tp, T>['leafChildren'] {
-		return this._children;
-	}
-
 	get itemsLength() {
 		return this.length;
+	}
+
+	get nrChildren() {
+		return this.ops.length(this.children);
 	}
 
 	get childrenInMax(): boolean {
@@ -218,6 +219,32 @@ export class LeafBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return other.copy(newLeft, undefined, newMiddle);
 	}
 
+	toArray(
+		options: { range?: IndexRange | undefined; reversed?: boolean } = {},
+	): any {
+		const { range, reversed = false } = options;
+
+		if (undefined === range) {
+			return this.ops.toArray(this.children, undefined, undefined, reversed);
+		}
+
+		const indexRange = IndexRange.getIndicesFor(range, this.length);
+
+		if (indexRange === 'empty') {
+			return [];
+		}
+
+		if (indexRange === 'all') {
+			return this.ops.toArray(this.children, undefined, undefined, reversed);
+		}
+
+		const [indexStart, indexEnd] = indexRange;
+		const start = this.length - 1 - indexEnd;
+		const end = this.length - 1 - indexStart;
+
+		return this.ops.toArray(this.children, start, end + 1, reversed);
+	}
+
 	_mutateNormalize(): ListImpl.NonEmpty<T> {
 		if (this.childrenInMax) return this;
 
@@ -233,7 +260,7 @@ export class LeafBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 			this.children,
 			childIndex,
 		);
-		this._children = newChildren;
+		this.children = newChildren;
 
 		return this.copy(rightChildren);
 	}

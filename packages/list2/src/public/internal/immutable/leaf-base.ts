@@ -1,9 +1,11 @@
+import type { IndexRange } from '@rimbu/common/index-range';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
+import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { Stream, StreamSource } from '@rimbu/stream';
-import type { ListBuilder } from '../mutable/builder';
 
 import type { ListContext } from '#list/context';
 import type { ListImpl } from '#list/list-impl';
+import type { ListBuilder } from '#list/mutable/builder';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { NonEmptyBase } from '@rimbu/collection-types/common/empty-base';
@@ -37,6 +39,11 @@ export abstract class LeafBase<T>
 		sources_0: StreamSource<T>,
 		...sources: StreamSource<T>[]
 	): ListImpl<T>;
+	abstract toArray(
+		options?:
+			| { range?: IndexRange | undefined; reversed?: boolean | undefined }
+			| undefined,
+	): ArrayNonEmpty<T>;
 	abstract _structure(): string;
 
 	stream(): Stream.NonEmpty<T> {
@@ -59,26 +66,32 @@ export abstract class LeafBase<T>
 
 		const builder = this.toBuilder();
 
-		function partition(_left: number, _right: number): number {
-			const pivot = builder.get(_left, throwInvalidStateError);
+		function partition(left: number, right: number): number {
+			if (left >= right) {
+				return left + 1;
+			}
 
-			let left = _left - 1;
-			let right = _right + 1;
+			const pivot = builder.get(left, throwInvalidStateError);
 
 			while (true) {
-				left++;
-				right--;
-
 				if (inverse) {
-					while (comp.compare(builder.get(left), pivot) > 0) {}
-					while (comp.compare(builder.get(right), pivot) < 0) {}
+					while (comp.compare(builder.get(left), pivot) > 0) {
+						left++;
+					}
+					while (comp.compare(builder.get(right), pivot) < 0) {
+						right--;
+					}
 				} else {
-					while (comp.compare(builder.get(left), pivot) < 0) {}
-					while (comp.compare(builder.get(right), pivot) > 0) {}
+					while (comp.compare(builder.get(left), pivot) < 0) {
+						left++;
+					}
+					while (comp.compare(builder.get(right), pivot) > 0) {
+						right--;
+					}
 				}
 
 				if (left >= right) {
-					break;
+					return left + 1;
 				}
 
 				builder.updateAt(left, (oldI) => {
@@ -92,8 +105,6 @@ export abstract class LeafBase<T>
 					return storeJ!;
 				});
 			}
-
-			return left + 1;
 		}
 
 		function quickSort(left: number, right: number): void {
@@ -107,7 +118,7 @@ export abstract class LeafBase<T>
 
 		quickSort(0, this.length - 1);
 
-		return builder.build();
+		return builder.build().assumeNonEmpty();
 	}
 
 	toBuilder(): ListBuilder<T> {

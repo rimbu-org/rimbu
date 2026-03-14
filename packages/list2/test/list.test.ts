@@ -3,12 +3,12 @@ import { describe, expect, it } from 'bun:test';
 import type { CollectFun } from '@rimbu/common/collect';
 
 import { Comp } from '@rimbu/common/comp';
-import { List as ListSrc } from '@rimbu/list';
+import { List as ListSrc } from '@rimbu/list2';
 import { Stream } from '@rimbu/stream';
 
 const List = ListSrc.createContext({ blockSizeBits: 2 });
 
-describe('List creators', () => {
+describe.only('List creators', () => {
 	it('empty', () => {
 		expect(List.empty<number>()).toBe<any>(List.empty<string>());
 	});
@@ -17,7 +17,7 @@ describe('List creators', () => {
 		expect(List.of(1, 2, 3).toArray()).toEqual([1, 2, 3]);
 	});
 
-	it('from', () => {
+	it.only('from', () => {
 		const le = List.empty<any>();
 		expect(List.from<any>([])).toBe(le);
 		expect(List.from('')).toBe(le);

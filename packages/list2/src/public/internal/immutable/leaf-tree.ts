@@ -1,3 +1,4 @@
+import type { IndexRange } from '@rimbu/common/index-range';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { StreamSource } from '@rimbu/stream';
 
@@ -11,7 +12,7 @@ import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 
 import { LeafBase } from '#list/immutable/leaf-base';
-import { treeGet } from '#list/immutable/tree-base';
+import { treeGet, treeToArray } from '#list/immutable/tree-base';
 
 export class LeafTree<T> extends LeafBase<T> implements ListImpl.NonEmpty<T> {
 	constructor(
@@ -247,6 +248,13 @@ export class LeafTree<T> extends LeafBase<T> implements ListImpl.NonEmpty<T> {
 			this.middle?.appendChild(leafBlock) ??
 			this.context.nonLeafBlock<T>([leafBlock], leafBlock.length, 1)
 		);
+	}
+
+	toArray(options?: {
+		range?: IndexRange | undefined;
+		reversed?: boolean | undefined;
+	}): ArrayNonEmpty<T> {
+		return treeToArray(this, options) as ArrayNonEmpty<T>;
 	}
 
 	_structure(): string {
