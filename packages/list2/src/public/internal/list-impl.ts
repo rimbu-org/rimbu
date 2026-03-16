@@ -4,7 +4,8 @@ import type { ListContext } from '#list/context';
 import type { ListBase } from '#list/list-base';
 import type { ListBuilder } from '#list/mutable/builder';
 
-export interface ListImpl<T> extends ListBase<T, ListImpl.Types> {
+export interface ListImpl<T, Tp extends ListImpl.Types = ListImpl.Types>
+	extends ListBase<T, Tp> {
 	_structure(): string;
 }
 

@@ -1,6 +1,5 @@
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 
-import type { ListContext } from '#list/context';
 import type { ListImpl } from '#list/list-impl';
 import type { ListBuilder } from '#list/mutable/builder';
 
@@ -8,11 +7,14 @@ import { EmptyBase } from '@rimbu/collection-types/common/empty-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export class ListEmpty<T> extends EmptyBase implements ListImpl<T> {
+export class ListEmpty<T, Tp extends ListImpl.Types = ListImpl.Types>
+	extends EmptyBase
+	implements ListImpl<T>
+{
 	declare _NonEmptyType: ListImpl.NonEmpty<T>;
 
 	constructor(
-		readonly context: ListContext,
+		readonly context: Tp['context'],
 		readonly ops = context.leafChildrenOps,
 	) {
 		super();

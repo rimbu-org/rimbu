@@ -36,7 +36,7 @@ export namespace ListHelpers {
 		extends ListContext<ListHelpers.TypesImpl>
 		implements ListHelpers.Context
 	{
-		fromString = (...sources: ArrayNonEmpty<string>) => {
+		fromString = (...sources: ArrayNonEmpty<string>): any => {
 			return this.from(...sources);
 		};
 	}
