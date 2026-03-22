@@ -1,8 +1,9 @@
 import type { WithElem } from '@rimbu/collection-types/common';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
-import type { StreamSource } from '@rimbu/stream';
+import type { Stream, StreamSource } from '@rimbu/stream';
+import type { LeafBlockBuilder } from '../mutable/leaf-block-builder';
 
-import type { ListContext } from '#list/context';
+import type { ListContext } from '#list/context-module';
 import type { LeafTree } from '#list/immutable/leaf-tree';
 import type { Block } from '#list/immutable/utils';
 import type { ListImpl } from '#list/list-impl';
@@ -55,9 +56,9 @@ export class LeafBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return this.context.leafBlock(children);
 	}
 
-	// stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
-	// 	return this.ops.stream(this.children, options);
-	// }
+	stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
+		return this.ops.stream(this.children, options);
+	}
 
 	// 	streamRange(
 	// 	range: IndexRange,
@@ -79,6 +80,14 @@ export class LeafBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		}
 
 		return this.ops.get(this.children, index);
+	}
+
+	first(): T {
+		return this.ops.get(this.children, 0);
+	}
+
+	last(): T {
+		return this.ops.get(this.children, -1);
 	}
 
 	prepend(value: T): ListImpl.NonEmpty<T> {
@@ -131,7 +140,7 @@ export class LeafBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return cacheMap.setAndReturn(this, reversedThis);
 	}
 
-	take(amount: number): ListImpl<T> {
+	take(amount: number): any {
 		if (amount === 0) return this.context.empty();
 		if (amount >= this.length || -amount > this.length) return this;
 		if (amount < 0) return this.drop(this.length + amount);
@@ -243,6 +252,10 @@ export class LeafBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		const end = this.length - 1 - indexStart;
 
 		return this.ops.toArray(this.children, start, end + 1, reversed);
+	}
+
+	createBlockBuilder(): LeafBlockBuilder<T> {
+		return this.context.leafBlockBuilderSource(this);
 	}
 
 	_mutateNormalize(): ListImpl.NonEmpty<T> {

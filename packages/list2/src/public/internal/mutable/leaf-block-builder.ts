@@ -1,6 +1,6 @@
 import type { WithElem } from '@rimbu/collection-types/common';
 
-import type { ListContext } from '#list/context';
+import type { ListContext } from '#list/context-module';
 import type { LeafBlock } from '#list/immutable/leaf-block';
 import type { ListImpl } from '#list/list-impl';
 
@@ -28,6 +28,10 @@ export class LeafBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 
 	set children(value: WithElem<Tp, T>['leafChildren']) {
 		this._children = value;
+	}
+
+	get nrChildren(): number {
+		return this.ops.length(this.children);
 	}
 
 	prepareMutate(): void {

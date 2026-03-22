@@ -8,7 +8,7 @@ import { Stream } from '@rimbu/stream';
 
 const List = ListSrc.createContext({ blockSizeBits: 2 });
 
-describe.only('List creators', () => {
+describe('List creators', () => {
 	it('empty', () => {
 		expect(List.empty<number>()).toBe<any>(List.empty<string>());
 	});
@@ -17,7 +17,7 @@ describe.only('List creators', () => {
 		expect(List.of(1, 2, 3).toArray()).toEqual([1, 2, 3]);
 	});
 
-	it.only('from', () => {
+	it('from', () => {
 		const le = List.empty<any>();
 		expect(List.from<any>([])).toBe(le);
 		expect(List.from('')).toBe(le);
@@ -94,7 +94,7 @@ describe('List methods', () => {
 		expect(list6_2.context).toBe(List);
 	});
 
-	it('length', () => {
+	it.only('length', () => {
 		expect(listEmpty.length).toBe(0);
 		expect(list3_1.length).toBe(3);
 		expect(list3_2.length).toBe(3);

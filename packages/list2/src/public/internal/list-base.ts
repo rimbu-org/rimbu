@@ -1,8 +1,9 @@
 import type { Elem, WithElem } from '@rimbu/collection-types/common';
+import type { Comp } from '@rimbu/common/comp';
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
-import type { ArrayNonEmpty } from '@rimbu/common/types';
+import type { ArrayNonEmpty, SuperOf } from '@rimbu/common/types';
 import type { Update } from '@rimbu/common/update';
 import type {
 	FastIterable,
@@ -80,6 +81,34 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	get(index: number): T | undefined;
 	get<O>(index: number, otherwise: OptLazy<O>): T | O;
 	/**
+	 * Returns the first value of the List, or the `otherwise` value if the list is empty.
+	 * @param otherwise - (default: undefined) an `OptLazy` value to return if the List is empty
+	 * @typeparam O - the type of the `otherwise` value
+	 * @example
+	 * ```ts
+	 * List.empty().first()                  // => undefined
+	 * List.empty().first('other')           // => 'other'
+	 * List.from([0, 1, 2]).first('other')   // => 0
+	 * ```
+	 * @note O(1)
+	 */
+	first(): T | undefined;
+	first<O>(otherwise: OptLazy<O>): T | O;
+	/**
+	 * Returns the last value of the List, or the `otherwise` value if the list is empty.
+	 * @param otherwise - (default: undefined) an `OptLazy` value to return if the List is empty
+	 * @typeparam O - the type of the `otherwise` value
+	 * @example
+	 * ```ts
+	 * List.empty().last()                  // => undefined
+	 * List.empty().last('other')           // => 'other'
+	 * List.from([0, 1, 2]).last('other')   // => 2
+	 * ```
+	 * @note O(1)
+	 */
+	last(): T | undefined;
+	last<O>(otherwise: OptLazy<O>): T | O;
+	/**
 	 * Returns the List with the given `value` added to the start.
 	 * @param value - the value to prepend
 	 * @example
@@ -133,6 +162,44 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @note O(logB(N)) for block size B
 	 */
 	drop(amount: number): WithElem<Tp, T>['normal'];
+	/**
+	 * Returns the List containing the values within the given index `range`, potentially
+	 * reversed in order if `reversed` is true.
+	 * @param range - the index range to include
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - reversed: (default: false) if true reverses the order of the elements
+	 *
+	 * @note a negative `index` will be treated as follows:<br/>
+	 * - -1: the last element in the list<br/>
+	 * - -2: the second-last element in the list<br/>
+	 * - ...etc
+	 * @example
+	 * ```ts
+	 * List.of(0, 1, 2, 3).slice({ start: 1, amount: 2 })                       // -> List(1, 2)
+	 * List.of(0, 1, 2, 3).slice({ start: -2, amount: 2 }, { reversed: true }) // -> List(3, 2)
+	 * ```
+	 * @note O(logB(N)) for block size B
+	 */
+	slice(
+		range: IndexRange,
+		options?: { reversed?: boolean },
+	): WithElem<Tp, T>['normal'];
+	/**
+	 * Returns the values sorted according to the given, optional Comp.
+	 *
+	 * **Performance warning**: this method is not designed for frequent calls;
+	 * should you need to keep in order a collection with potentially duplicate values,
+	 * please consider `SortedMultiSet` instead.
+	 *
+	 * @param comp The comparison logic to use; if missing, the default JavaScript sorting algorithm is applied
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - inverse: (default: false) when true will invert the sorting order
+	 * @returns A sorted copy of the list
+	 */
+	sort<TC = T>(
+		comp?: Comp<SuperOf<TC, T>> | undefined,
+		options?: { inverse?: boolean } | undefined,
+	): WithElem<Tp, T>['normal'];
 	/**
 	 * Returns the List in reversed order.
 	 * @example
@@ -216,6 +283,73 @@ export namespace ListBase {
 		 * @returns A non-empty `Stream` containing the values in order (or reversed when `options.reversed` is true).
 		 */
 		stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
+		/**
+		 * Returns the first value of the List.
+		 * @example
+		 * ```ts
+		 * List.of(0, 1, 2).first()   // => 0
+		 * ```
+		 * @note O(1)
+		 */
+		first(): T;
+		/**
+		 * Returns the last value of the List.
+		 * @example
+		 * ```ts
+		 * List.of(0, 1, 2).last()   // => 2
+		 * ```
+		 * @note O(1)
+		 */
+		last(): T;
+		/**
+		 * Returns a List containing the first (or last) given `amount` values of this List.
+		 * @param amount - the desired amount of values to include
+		 * @typeparam N - the literal numeric type of amount
+		 * @note a negative `index` will be treated as follows:<br/>
+		 * - -1: the last element in the list<br/>
+		 * - -2: the second-last element in the list<br/>
+		 * - ...etc
+		 * @example
+		 * ```ts
+		 * List.of(0, 1, 2, 3).take(2)    // => List(0, 1)
+		 * List.of(0, 1, 2, 3).take(10)   // => List(0, 1, 2, 3)
+		 * List.of(0, 1, 2, 3).take(-2)   // => List(2, 3)
+		 * ```
+		 * @note O(logB(N)) for block size B
+		 */
+		take<N extends number>(
+			amount: N,
+		): 0 extends N ? WithElem<Tp, T>['normal'] : WithElem<Tp, T>['nonEmpty'];
+		/**
+		 * Returns the non-empty List succeeded by the values from all given `StreamSource` instances given in `sources`.
+		 * @param sources - an array of `StreamSource` instances containing values to be added to the list
+		 * @note this operation is most efficient when the given sources are instances of List from the same context.
+		 * @example
+		 * ```ts
+		 * List.of(0, 1, 2).concat([10, 11])                      // -> List(0, 1, 2, 10, 11)
+		 * List.of(0, 1, 2).concat([10, 11], new Set([12, 13]))   // -> List(0, 1, 2, 10, 11, 12, 13)
+		 * ```
+		 * @note O(logB(N)) for block size B
+		 */
+		concat(
+			...sources: ArrayNonEmpty<StreamSource<T>>
+		): WithElem<Tp, T>['nonEmpty'];
+		/**
+		 * Returns the values sorted according to the given, optional Comp.
+		 *
+		 * **Performance warning**: this method is not designed for frequent calls;
+		 * should you need to keep in order a collection with potentially duplicate values,
+		 * please consider `SortedMultiSet` instead.
+		 *
+		 * @param comp The comparison logic to use; if missing, the default JavaScript sorting algorithm is applied
+		 * @param options - (optional) an object containing the following properties:<br/>
+		 * - inverse: (default: false) when true will reverse the sorting order
+		 * @returns A sorted copy of the list
+		 */
+		sort<TC = T>(
+			comp?: Comp<SuperOf<TC, T>> | undefined,
+			options?: { inverse?: boolean } | undefined,
+		): WithElem<Tp, T>['nonEmpty'];
 		/**
 		 * Returns the non-empty List in reversed order.
 		 * @example
@@ -358,18 +492,12 @@ export namespace ListBase {
 
 	export interface Context<Tp extends ListBase.Types = ListBase.Types>
 		extends ListBase.Factory<Tp> {
+		readonly blockSizeBits: number;
 		readonly minBlockSize: number;
 		readonly maxBlockSize: number;
 	}
 
 	export interface Factory<Tp extends ListBase.Types = ListBase.Types> {
-		createContext(
-			options?:
-				| {
-						blockSizeBits?: number | undefined;
-				  }
-				| undefined,
-		): Tp['context'];
 		empty<T extends Tp['_UT']>(): WithElem<Tp, T>['normal'];
 		of<T extends Tp['_UT']>(
 			...values: ArrayNonEmpty<T>

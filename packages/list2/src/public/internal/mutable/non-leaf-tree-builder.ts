@@ -1,27 +1,33 @@
-import type { WithElem } from '@rimbu/collection-types/common';
-
-import type { ListContext } from '#list/context';
-import type { NonLeafBlock } from '#list/immutable/non-leaf-block';
+import type { ListContext } from '#list/context-module';
+import type { NonLeafTree } from '#list/immutable/non-leaf-tree';
 import type { NonLeaf } from '#list/immutable/utils';
 import type { ListImpl } from '#list/list-impl';
 import type { LeafBlockBuilder } from '#list/mutable/leaf-block-builder';
+import type { NonLeafBlockBuilder } from '#list/mutable/non-leaf-block-builder';
 
 import { BuilderBase, type NonLeafBuilder } from '#list/mutable/builder-base';
 
-export class NonLeafBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
+export class NonLeafTreeBuilder<T>
 	extends BuilderBase<T>
 	implements NonLeafBuilder<T>
 {
 	constructor(
 		context: ListContext,
 		readonly level: number,
-		public source?: NonLeafBlock<T>,
-		public _children?: Array<WithElem<Tp, Tp>['leafChildren']>,
+		public source?: NonLeafTree<T>,
+		public _left?: NonLeafBlockBuilder<T>,
+		public _right?: NonLeafBlockBuilder<T>,
+		public _middle?: NonLeafBuilder<T>,
 		public itemsLength: number = source?.itemsLength ?? 0,
 	) {
 		super(context);
 	}
+
 	get(index: number): T {
+		throw new Error('Method not implemented.');
+	}
+
+	appendChild(child: LeafBlockBuilder<T, ListImpl.Types>): void {
 		throw new Error('Method not implemented.');
 	}
 

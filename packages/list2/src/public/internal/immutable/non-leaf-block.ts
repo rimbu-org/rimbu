@@ -1,4 +1,4 @@
-import type { ListContext } from '#list/context';
+import type { ListContext } from '#list/context-module';
 import type { CacheMap } from '#list/immutable/cache-map';
 import type { NonLeafTree } from '#list/immutable/non-leaf-tree';
 import type { Block, NonLeaf } from '#list/immutable/utils';
@@ -6,6 +6,7 @@ import type { Block, NonLeaf } from '#list/immutable/utils';
 import { append, concat, last, prepend, reverseMap } from '@rimbu/base/arr';
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { IndexRange } from '@rimbu/common/index-range';
+import { Stream } from '@rimbu/stream';
 
 import { NonLeafBase } from '#list/immutable/non-leaf-base';
 
@@ -49,6 +50,12 @@ export class NonLeafBlock<T> extends NonLeafBase<T> {
 		}
 
 		return this.context.nonLeafBlock(children, itemsLength, level);
+	}
+
+	stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
+		return Stream.fromArray(this.children, options)
+			.assumeNonEmpty()
+			.flatMap((child) => child.stream(options));
 	}
 
 	get(index: number): T {

@@ -1,3 +1,5 @@
+import type { Stream } from '@rimbu/stream';
+
 import type { Tree } from '#list/immutable/utils';
 
 import { IndexRange } from '@rimbu/common/index-range';
@@ -107,4 +109,21 @@ export function treeToArray<T>(
 
 	if (reversed) return rightArray.concat(middleArray, leftArray);
 	return leftArray.concat(middleArray, rightArray);
+}
+
+interface TreeToStreamNode<T> {
+	stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
+}
+
+export function treeToStream<T>(
+	tree: Tree<TreeToStreamNode<T>, TreeToStreamNode<T>>,
+	options: { reversed?: boolean } = {},
+): Stream.NonEmpty<T> {
+	const { reversed = false } = options;
+
+	const [first, second] = reversed
+		? [tree.right, tree.left]
+		: [tree.left, tree.right];
+
+	return first.stream().concat(tree.middle?.stream(), second.stream());
 }

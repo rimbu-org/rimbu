@@ -1,4 +1,6 @@
-import type { ListContext } from '#list/context';
+import type { Stream } from '@rimbu/stream';
+
+import type { ListContext } from '#list/context-module';
 
 export abstract class NonLeafBase<T> {
 	constructor(
@@ -8,4 +10,5 @@ export abstract class NonLeafBase<T> {
 
 	abstract get itemsLength(): number;
 	abstract get(index: number): T;
+	abstract stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
 }

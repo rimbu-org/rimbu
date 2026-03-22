@@ -1,8 +1,8 @@
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
-import type { StreamSource } from '@rimbu/stream';
+import type { Stream, StreamSource } from '@rimbu/stream';
 
-import type { ListContext } from '#list/context';
+import type { ListContext } from '#list/context-module';
 import type { CacheMap } from '#list/immutable/cache-map';
 import type { LeafBlock } from '#list/immutable/leaf-block';
 import type { NonLeaf } from '#list/immutable/utils';
@@ -12,7 +12,7 @@ import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 
 import { LeafBase } from '#list/immutable/leaf-base';
-import { treeGet, treeToArray } from '#list/immutable/tree-base';
+import { treeGet, treeToArray, treeToStream } from '#list/immutable/tree-base';
 
 export class LeafTree<T> extends LeafBase<T> implements ListImpl.NonEmpty<T> {
 	constructor(
@@ -47,6 +47,10 @@ export class LeafTree<T> extends LeafBase<T> implements ListImpl.NonEmpty<T> {
 		return this.context.leafTree(left, right, middle, length);
 	}
 
+	stream(options?: { reversed?: boolean }): Stream.NonEmpty<T> {
+		return treeToStream(this, options);
+	}
+
 	get<O>(index: number, otherwise?: OptLazy<O>): T | O {
 		if (index >= this.length || -index > this.length) {
 			return OptLazy(otherwise) as O;
@@ -56,6 +60,14 @@ export class LeafTree<T> extends LeafBase<T> implements ListImpl.NonEmpty<T> {
 		}
 
 		return treeGet<T>(this, index);
+	}
+
+	first(): T {
+		return this.left.first();
+	}
+
+	last(): T {
+		return this.right.last();
 	}
 
 	prepend(value: T): LeafTree<T> {

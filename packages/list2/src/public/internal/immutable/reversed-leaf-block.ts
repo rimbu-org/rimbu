@@ -1,4 +1,5 @@
 import type { WithElem } from '@rimbu/collection-types/common';
+import type { Stream } from '@rimbu/stream';
 
 import type { ListImpl } from '#list/list-impl';
 
@@ -22,6 +23,12 @@ export class ReversedLeafBlock<
 			return this.context.leafBlock(children);
 		}
 		return this.context.reversedLeafBlock(children);
+	}
+
+	stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
+		const { reversed = false } = options;
+
+		return this.ops.stream(this.children, { reversed: !reversed });
 	}
 
 	prependChild(value: T): LeafBlock<T> {

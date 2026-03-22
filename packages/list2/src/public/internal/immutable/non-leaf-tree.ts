@@ -1,6 +1,7 @@
 import type { IndexRange } from '@rimbu/common/index-range';
+import type { Stream } from '@rimbu/stream';
 
-import type { ListContext } from '#list/context';
+import type { ListContext } from '#list/context-module';
 import type { CacheMap } from '#list/immutable/cache-map';
 import type { NonLeafBlock } from '#list/immutable/non-leaf-block';
 import type { Block, NonLeaf } from '#list/immutable/utils';
@@ -8,7 +9,7 @@ import type { Block, NonLeaf } from '#list/immutable/utils';
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 
 import { NonLeafBase } from '#list/immutable/non-leaf-base';
-import { treeToArray } from '#list/immutable/tree-base';
+import { treeToArray, treeToStream } from '#list/immutable/tree-base';
 
 export class NonLeafTree<T> extends NonLeafBase<T> implements NonLeaf<T> {
 	constructor(
@@ -40,6 +41,10 @@ export class NonLeafTree<T> extends NonLeafBase<T> implements NonLeaf<T> {
 		}
 
 		return this.context.nonLeafTree(left, right, middle, itemsLength, level);
+	}
+
+	stream(options?: { reversed?: boolean }): Stream.NonEmpty<T> {
+		return treeToStream(this, options);
 	}
 
 	get(index: number): T {

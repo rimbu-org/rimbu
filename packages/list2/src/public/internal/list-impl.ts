@@ -1,6 +1,7 @@
 import type { WithElem } from '@rimbu/collection-types/common';
+import type { Stream } from '@rimbu/stream';
 
-import type { ListContext } from '#list/context';
+import type { ListContext } from '#list/context-module';
 import type { ListBase } from '#list/list-base';
 import type { ListBuilder } from '#list/mutable/builder';
 
@@ -10,8 +11,8 @@ export interface ListImpl<T, Tp extends ListImpl.Types = ListImpl.Types>
 }
 
 export namespace ListImpl {
-	export interface NonEmpty<T>
-		extends ListBase.NonEmpty<T, ListImpl.Types>,
+	export interface NonEmpty<T, Tp extends ListImpl.Types = ListImpl.Types>
+		extends ListBase.NonEmpty<T, Tp>,
 			Omit<ListImpl<T>, keyof ListBase.NonEmpty<any>> {
 		_structure(): string;
 	}
@@ -23,6 +24,10 @@ export namespace ListImpl {
 			children: WithElem<Tp, T>['leafChildren'],
 			index: number,
 		): T;
+		stream<T extends Tp['_UT']>(
+			children: WithElem<Tp, T>['leafChildren'],
+			options?: { reversed?: boolean } | undefined,
+		): Stream.NonEmpty<T>;
 		prepend<T extends Tp['_UT']>(
 			children: WithElem<Tp, T>['leafChildren'],
 			value: T,

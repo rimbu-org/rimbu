@@ -1,15 +1,15 @@
-import type { IndexRange } from '@rimbu/common/index-range';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
-import type { ArrayNonEmpty } from '@rimbu/common/types';
+import type { ArrayNonEmpty, SuperOf } from '@rimbu/common/types';
 import type { Stream, StreamSource } from '@rimbu/stream';
 
-import type { ListContext } from '#list/context';
+import type { ListContext } from '#list/context-module';
 import type { ListImpl } from '#list/list-impl';
 import type { ListBuilder } from '#list/mutable/builder';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { NonEmptyBase } from '@rimbu/collection-types/common/empty-base';
 import { Comp } from '@rimbu/common/comp';
+import { IndexRange } from '@rimbu/common/index-range';
 
 export abstract class LeafBase<T>
 	extends NonEmptyBase<T>
@@ -25,10 +25,13 @@ export abstract class LeafBase<T>
 	}
 
 	abstract readonly length: number;
+	abstract stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
 	abstract get<O>(index: number, otherwise?: OptLazy<O>): T | O;
+	abstract first(): T;
+	abstract last(): T;
 	abstract prepend(value: T): ListImpl.NonEmpty<T>;
 	abstract append(value: T): ListImpl.NonEmpty<T>;
-	abstract take(count: number): ListImpl<T>;
+	abstract take(count: number): ListImpl.NonEmpty<T>;
 	abstract drop(count: number): ListImpl<T>;
 	abstract reversed(): ListImpl.NonEmpty<T>;
 	abstract concat(
@@ -46,23 +49,30 @@ export abstract class LeafBase<T>
 	): ArrayNonEmpty<T>;
 	abstract _structure(): string;
 
-	stream(): Stream.NonEmpty<T> {
-		throw new Error('Method not implemented.');
+	slice(range: IndexRange, options: { reversed?: boolean } = {}): ListImpl<T> {
+		const { reversed = false } = options;
+
+		const result = IndexRange.getIndicesFor(range, this.length);
+
+		if (result === 'all') {
+			if (reversed) return this.reversed();
+			return this;
+		}
+		if (result === 'empty') return this.context.empty();
+
+		const [start, end] = result;
+		const values = this.drop(start).take(end - start + 1);
+
+		if (!reversed) return values;
+		return values.reversed();
 	}
 
-	first(): T {
-		return this.get(0, throwInvalidStateError);
-	}
-
-	last(): T {
-		return this.get(-1, throwInvalidStateError);
-	}
-
-	sort(
-		comp: Comp<T> = Comp.defaultInstance,
+	sort<TC = T>(
+		comp: Comp<SuperOf<TC, T>> = Comp.defaultInstance,
 		options: { inverse?: boolean } = {},
 	): ListImpl.NonEmpty<T> {
 		const { inverse = false } = options;
+		const { compare }: Comp<T> = comp as unknown as Comp<T>;
 
 		const builder = this.toBuilder();
 
@@ -75,17 +85,17 @@ export abstract class LeafBase<T>
 
 			while (true) {
 				if (inverse) {
-					while (comp.compare(builder.get(left), pivot) > 0) {
+					while (compare(builder.get(left), pivot) > 0) {
 						left++;
 					}
-					while (comp.compare(builder.get(right), pivot) < 0) {
+					while (compare(builder.get(right), pivot) < 0) {
 						right--;
 					}
 				} else {
-					while (comp.compare(builder.get(left), pivot) < 0) {
+					while (compare(builder.get(left), pivot) < 0) {
 						left++;
 					}
-					while (comp.compare(builder.get(right), pivot) > 0) {
+					while (compare(builder.get(right), pivot) > 0) {
 						right--;
 					}
 				}

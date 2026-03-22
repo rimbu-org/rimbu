@@ -1,7 +1,8 @@
+import type { WithElem } from '@rimbu/collection-types/common';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { Update } from '@rimbu/common/update';
 
-import type { ListContext } from '#list/context';
+import type { ListContext } from '#list/context-module';
 import type { ListImpl } from '#list/list-impl';
 
 import {
@@ -13,7 +14,10 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 
 import { BuilderBase, type LeafBuilder } from '#list/mutable/builder-base';
 
-export class ListBuilder<T> extends BuilderBase<T> {
+export class ListBuilder<
+	T,
+	Tp extends ListImpl.Types = ListImpl.Types,
+> extends BuilderBase<T> {
 	constructor(
 		context: ListContext,
 		public leafBuilder?: LeafBuilder<T>,
@@ -168,7 +172,7 @@ export class ListBuilder<T> extends BuilderBase<T> {
 		throw new Error('Method not implemented.');
 	};
 
-	build = (): ListImpl<T> => {
+	build = (): WithElem<Tp, T>['normal'] => {
 		if (undefined === this.leafBuilder) {
 			return this.context.empty();
 		}

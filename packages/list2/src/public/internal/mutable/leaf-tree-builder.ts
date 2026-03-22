@@ -1,4 +1,4 @@
-import type { ListContext } from '#list/context';
+import type { ListContext } from '#list/context-module';
 import type { LeafTree } from '#list/immutable/leaf-tree';
 import type { LeafBlockBuilder } from '#list/mutable/leaf-block-builder';
 
@@ -108,16 +108,12 @@ export class LeafTreeBuilder<T>
 		throw new Error('Not implemented yet');
 		// if (undefined === this.middle) {
 		// 	// no middle, create it with child
-		// 	this.middle = this.context.nonLeafBlockBuilder(
-		// 		this.level + 1,
-		// 		[child],
-		// 		child.length,
-		// 	);
+		// 	this.middle = this.context.nonLeafBlockBuilder(1, [child], child.length);
 		// 	return;
 		// }
 		// if (child.nrChildren >= this.context.minBlockSize) {
 		// 	// child size enough for its own middle block
-		// 	this.middle.append(child);
+		// 	this.middle.appendChild(child);
 		// 	this.middle = this.middle.normalized();
 		// 	return;
 		// }

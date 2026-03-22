@@ -1,16 +1,12 @@
 import type { IndexRange } from '@rimbu/common/index-range';
+import type { Stream } from '@rimbu/stream';
 
-import type { ListContext } from '#list/context';
+import type { ListContext } from '#list/context-module';
 import type { CacheMap } from '#list/immutable/cache-map';
 
-export interface Block<T> {
-	readonly itemsLength: number;
-	get nrChildren(): number;
-	get childrenInMin(): boolean;
-	get childrenInMax(): boolean;
+export interface ListCommon<T> {
 	get(index: number): T;
-	concatChildren(other: Block<T>): Block<T>;
-	reversed(cacheMap?: CacheMap | undefined): Block<T>;
+	stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
 	toArray(
 		options?:
 			| { range?: IndexRange | undefined; reversed?: boolean }
@@ -19,21 +15,23 @@ export interface Block<T> {
 	_structure(): string;
 }
 
-export interface NonLeaf<T> {
+export interface Block<T> extends ListCommon<T> {
+	readonly itemsLength: number;
+	get nrChildren(): number;
+	get childrenInMin(): boolean;
+	get childrenInMax(): boolean;
+	concatChildren(other: Block<T>): Block<T>;
+	reversed(cacheMap?: CacheMap | undefined): Block<T>;
+}
+
+export interface NonLeaf<T> extends ListCommon<T> {
 	readonly context: ListContext;
 	readonly itemsLength: number;
-	get(index: number): T;
 	prependChild(child: Block<T>): NonLeaf<T>;
 	appendChild(child: Block<T>): NonLeaf<T>;
 	dropLastChild(): [NonLeaf<T> | null, Block<T>];
 	concatNonLeaf(nonLeaf: NonLeaf<T>): NonLeaf<T>;
 	reversed(cacheMap?: CacheMap | undefined): NonLeaf<T>;
-	toArray(
-		options?:
-			| { range?: IndexRange | undefined; reversed?: boolean }
-			| undefined,
-	): T[];
-	_structure(): string;
 }
 
 export type Tree<N, TM> = TM & {
