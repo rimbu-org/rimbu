@@ -4,11 +4,15 @@ import type { ListContext } from '#list/context-module';
 import type { LeafBlock } from '#list/immutable/leaf-block';
 import type { ListImpl } from '#list/list-impl';
 
-import { BuilderBase, type LeafBuilder } from '#list/mutable/builder-base';
+import {
+	type BlockBuilder,
+	BuilderBase,
+	type LeafBuilder,
+} from '#list/mutable/builder-base';
 
 export class LeafBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
-	extends BuilderBase<T>
-	implements LeafBuilder<T>
+	extends BuilderBase
+	implements LeafBuilder<T>, BlockBuilder<T>
 {
 	constructor(
 		context: ListContext,
@@ -22,6 +26,10 @@ export class LeafBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return this.source?.length ?? this.ops.length(this.children);
 	}
 
+	get itemsLength(): number {
+		return this.length;
+	}
+
 	get children(): WithElem<Tp, T>['leafChildren'] {
 		return this._children!;
 	}
@@ -32,6 +40,10 @@ export class LeafBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 
 	get nrChildren(): number {
 		return this.ops.length(this.children);
+	}
+
+	get canAddChild(): boolean {
+		return this.nrChildren < this.context.maxBlockSize;
 	}
 
 	prepareMutate(): void {
@@ -49,22 +61,45 @@ export class LeafBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		if (undefined !== this.source) {
 			return this.source.get(index);
 		}
-		return this.ops.get(this.children!, index);
+
+		return this.ops.get(this.children, index);
 	}
 
 	prepend(value: T): void {
-		this.children = this.ops.mutatePrepend(this.children!, value);
-		this.source = undefined;
+		this.prepareMutate();
+		this.children = this.ops.mutatePrepend(this.children, value);
 	}
 
 	append(value: T): void {
-		this.children = this.ops.mutateAppend(this.children!, value);
-		this.source = undefined;
+		this.prepareMutate();
+		this.children = this.ops.mutateAppend(this.children, value);
+	}
+
+	prependItems(other: LeafBlockBuilder<T>): void {
+		this.prepareMutate();
+		this.children = this.ops.concat(other.children, this.children);
+	}
+
+	appendItems(other: LeafBlockBuilder<T, Tp>): void {
+		this.prepareMutate();
+		this.children = this.ops.concat(this.children, other.children);
+	}
+
+	dropFirst(): T {
+		this.prepareMutate();
+		const value = this.ops.mutateDropFirst<T>(this.children);
+		return value;
+	}
+
+	dropLast(): T {
+		this.prepareMutate();
+		const value = this.ops.mutateDropLast<T>(this.children);
+		return value;
 	}
 
 	build(): LeafBlock<T> {
 		return (
-			this.source ?? this.context.leafBlock(this.ops.safeCopy(this.children!))
+			this.source ?? this.context.leafBlock(this.ops.safeCopy(this.children))
 		);
 	}
 
@@ -80,6 +115,7 @@ export class LeafBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		}
 
 		// need to split block and create tree
+		this.prepareMutate();
 		const newLength = this.length;
 		const newRight = this.splitRight();
 
@@ -87,6 +123,7 @@ export class LeafBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 	}
 
 	splitRight(index = this.length >>> 1): LeafBlockBuilder<T> {
+		this.prepareMutate();
 		const [newChildren, rightChildren] = this.ops.mutateSplice(
 			this.children,
 			index,

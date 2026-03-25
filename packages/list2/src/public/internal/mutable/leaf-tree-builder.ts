@@ -1,17 +1,16 @@
 import type { ListContext } from '#list/context-module';
 import type { LeafTree } from '#list/immutable/leaf-tree';
+import type { ListImpl } from '#list/list-impl';
 import type { LeafBlockBuilder } from '#list/mutable/leaf-block-builder';
 
-import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
-
 import {
-	BuilderBase,
 	type LeafBuilder,
 	type NonLeafBuilder,
+	TreeBuilderBase,
 } from '#list/mutable/builder-base';
 
 export class LeafTreeBuilder<T>
-	extends BuilderBase<T>
+	extends TreeBuilderBase<T, T>
 	implements LeafBuilder<T>
 {
 	constructor(
@@ -19,10 +18,18 @@ export class LeafTreeBuilder<T>
 		public source?: LeafTree<T>,
 		public _left?: LeafBlockBuilder<T>,
 		public _right?: LeafBlockBuilder<T>,
-		public _middle?: NonLeafBuilder<T>,
+		public _middle?: NonLeafBuilder<T, LeafBlockBuilder<T>>,
 		public length: number = source?.length ?? 0,
 	) {
 		super(context);
+	}
+
+	get itemsLength(): number {
+		return this.length;
+	}
+
+	get level(): number {
+		return 0;
 	}
 
 	prepareMutate(): void {
@@ -39,33 +46,26 @@ export class LeafTreeBuilder<T>
 	}
 
 	get left(): LeafBlockBuilder<T> {
-		if (undefined !== this.source) throwInvalidStateError();
-
 		return this._left!;
 	}
 
 	set left(value: LeafBlockBuilder<T>) {
-		if (undefined !== this.source) throwInvalidStateError();
 		this._left = value;
 	}
 
 	get right(): LeafBlockBuilder<T> {
-		if (undefined !== this.source) throwInvalidStateError();
 		return this._right!;
 	}
 
 	set right(value: LeafBlockBuilder<T>) {
-		if (undefined !== this.source) throwInvalidStateError();
 		this._right = value;
 	}
 
-	get middle(): NonLeafBuilder<T> | undefined {
-		if (undefined !== this.source) throwInvalidStateError();
+	get middle(): NonLeafBuilder<T, LeafBlockBuilder<T>> | undefined {
 		return this._middle;
 	}
 
-	set middle(value: NonLeafBuilder<T> | undefined) {
-		if (undefined !== this.source) throwInvalidStateError();
+	set middle(value: NonLeafBuilder<T, LeafBlockBuilder<T>> | undefined) {
 		this._middle = value;
 	}
 
@@ -74,92 +74,15 @@ export class LeafTreeBuilder<T>
 			return this.source.get(index);
 		}
 
-		const middleIndex = index - this.left.length;
-
-		if (middleIndex < 0) {
-			// index is in left part
-			return this.left.get(index);
-		}
-
-		const rightIndex = middleIndex - (this.middle?.itemsLength ?? 0);
-
-		if (rightIndex >= 0) {
-			// index is in right part
-			return this.right.get(rightIndex);
-		}
-
-		if (undefined === this.middle) {
-			throwInvalidStateError();
-		}
-
-		// index is in middle part
-		return this.middle.get(middleIndex);
-	}
-
-	prepend(value: T): void {
-		throw new Error('Not implemented yet');
-	}
-
-	append(value: T): void {
-		throw new Error('Not implemented yet');
-	}
-
-	appendMiddle(child: LeafBlockBuilder<T>): void {
-		throw new Error('Not implemented yet');
-		// if (undefined === this.middle) {
-		// 	// no middle, create it with child
-		// 	this.middle = this.context.nonLeafBlockBuilder(1, [child], child.length);
-		// 	return;
-		// }
-		// if (child.nrChildren >= this.context.minBlockSize) {
-		// 	// child size enough for its own middle block
-		// 	this.middle.appendChild(child);
-		// 	this.middle = this.middle.normalized();
-		// 	return;
-		// }
-		// // child size too small for own block, need to combine with last middle block
-		// const delta = this.middle.modifyLastChild((lastMiddleChild) => {
-		// 	if (
-		// 		child.nrChildren + lastMiddleChild.nrChildren <=
-		// 		this.context.maxBlockSize
-		// 	) {
-		// 		// can merge child into lastMiddleChild
-		// 		lastMiddleChild.concat(child);
-		// 		return child.length;
-		// 	}
-		// 	return;
-		// });
-		// if (undefined !== delta) {
-		// 	return;
-		// }
-		// // need to split lastMiddleChild and append new right
-		// const lastMiddleChild = this.middle.last();
-		// lastMiddleChild.concat(child);
-		// const newLast = lastMiddleChild.splitRight();
-		// this.middle.append(newLast);
-		// this.middle = this.middle.normalized();
-	}
-
-	build(): LeafTree<T> {
-		if (undefined !== this.source) {
-			return this.source;
-		}
-
-		return this.context.leafTree(
-			this.left.build(),
-			this.right.build(),
-			this.middle?.build() ?? null,
-			this.length,
-		);
+		return super.get(index);
 	}
 
 	normalized(): LeafBuilder<T> {
-		throw new Error('Not implemented yet');
-		// if (this.length <= this.context.maxBlockSize) {
-		// 	// can collapse into block
-		// 	this.left.concat(this.right);
-		// 	return this.left;
-		// }
+		if (this.length <= this.context.maxBlockSize) {
+			// can collapse into block
+			this.left.appendItems(this.right);
+			return this.left;
+		}
 
 		// if (undefined !== this.middle) {
 		// 	if (
@@ -181,6 +104,30 @@ export class LeafTreeBuilder<T>
 		// 	}
 		// }
 		//
-		// return this;
+		return this;
+	}
+
+	build(): ListImpl<T, ListImpl.Types> {
+		throw new Error('Not implemented yet');
+	}
+
+	getChildLength(): number {
+		return 1;
+	}
+
+	prependBlockChild(block: LeafBlockBuilder<T>, child: T): void {
+		block.prepend(child);
+	}
+
+	appendBlockChild(block: LeafBlockBuilder<T>, child: T): void {
+		block.append(child);
+	}
+
+	dropBlockFirstChild(block: LeafBlockBuilder<T>): T {
+		return block.dropFirst();
+	}
+
+	dropBlockLastChild(block: LeafBlockBuilder<T>): T {
+		return block.dropLast();
 	}
 }

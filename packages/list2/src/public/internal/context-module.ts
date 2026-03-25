@@ -1,7 +1,7 @@
 import type { WithElem } from '@rimbu/collection-types/common';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { Block, NonLeaf } from './immutable/utils';
-import type { NonLeafBuilder } from './mutable/builder-base';
+import type { BlockBuilder, NonLeafBuilder } from './mutable/builder-base';
 
 import type { ListBase } from '#list/list-base';
 import type { ListImpl } from '#list/list-impl';
@@ -68,11 +68,13 @@ interface BuilderFactory<Tp extends ListImpl.Types = ListImpl.Types> {
 		length?: number,
 	): LeafTreeBuilder<T>;
 	isLeafTreeBuilder<T>(source: unknown): source is LeafTreeBuilder<T>;
-	createNonLeafBuilder<T>(source: NonLeaf<T>): NonLeafBuilder<T>;
+	createNonLeafBuilder<T, C extends BlockBuilder<T>>(
+		source: NonLeaf<T>,
+	): NonLeafBuilder<T, C>;
 	nonLeafBlockBuilderSource<T>(source: NonLeafBlock<T>): NonLeafBlockBuilder<T>;
 	nonLeafBlockBuilder<T>(
 		level: number,
-		children: Array<LeafBlockBuilder<T>>,
+		children: Array<BlockBuilder<T>>,
 		itemsLength: number,
 	): NonLeafBlockBuilder<T>;
 	nonLeafTreeBuilderSource<T>(source: NonLeafTree<T>): NonLeafTreeBuilder<T>;
@@ -80,7 +82,7 @@ interface BuilderFactory<Tp extends ListImpl.Types = ListImpl.Types> {
 		level: number,
 		left: NonLeafBlockBuilder<T>,
 		right: NonLeafBlockBuilder<T>,
-		middle: NonLeafBuilder<T>,
+		middle: NonLeafBuilder<T> | undefined,
 		itemsLength: number,
 	): NonLeafTreeBuilder<T>;
 }
@@ -445,7 +447,7 @@ export function createContextModule<
 		leafTreeBuilder<T>(
 			left: LeafBlockBuilder<T>,
 			right: LeafBlockBuilder<T>,
-			middle?: NonLeafBuilder<T>,
+			middle?: NonLeafBuilder<T, LeafBlockBuilder<T>>,
 			length?: number,
 		): LeafTreeBuilder<T> {
 			return new LeafTreeBuilder(mod, undefined, left, right, middle, length);
@@ -453,12 +455,14 @@ export function createContextModule<
 		isLeafTreeBuilder<T>(source: unknown): source is LeafTreeBuilder<T> {
 			return source instanceof LeafTreeBuilder;
 		},
-		createNonLeafBuilder<T>(source: NonLeaf<T>): NonLeafBuilder<T> {
+		createNonLeafBuilder<T, C extends BlockBuilder<T>>(
+			source: NonLeaf<T>,
+		): NonLeafBuilder<T, C> {
 			if (mod.isNonLeafBlock<T>(source)) {
-				return new NonLeafBlockBuilder(mod, source.level, source);
+				return new NonLeafBlockBuilder(mod, source.level, source) as any;
 			}
 			if (mod.isNonLeafTree<T>(source)) {
-				return new NonLeafTreeBuilder(mod, source.level, source);
+				return new NonLeafTreeBuilder(mod, source.level, source) as any;
 			}
 
 			throwInvalidStateError();
@@ -488,7 +492,7 @@ export function createContextModule<
 			level: number,
 			left: NonLeafBlockBuilder<T>,
 			right: NonLeafBlockBuilder<T>,
-			middle: NonLeafBuilder<T>,
+			middle: NonLeafBuilder<T, NonLeafBlockBuilder<T>> | undefined,
 			itemsLength: number,
 		): NonLeafTreeBuilder<T> {
 			return new NonLeafTreeBuilder(

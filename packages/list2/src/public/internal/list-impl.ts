@@ -77,6 +77,12 @@ export namespace ListImpl {
 			result: WithElem<Tp, T>['leafChildren'],
 			deleted: WithElem<Tp, T>['leafChildren'],
 		];
+		mutateDropFirst<T extends Tp['_UT']>(
+			children: WithElem<Tp, T>['leafChildren'],
+		): T;
+		mutateDropLast<T extends Tp['_UT']>(
+			children: WithElem<Tp, T>['leafChildren'],
+		): T;
 		safeCopy<T extends Tp['_UT']>(
 			children: WithElem<Tp, T>['leafChildren'],
 		): WithElem<Tp, T>['leafChildren'];

@@ -1,3 +1,5 @@
+import type { NonLeafBlockBuilder } from '../mutable/non-leaf-block-builder';
+
 import type { ListContext } from '#list/context-module';
 import type { CacheMap } from '#list/immutable/cache-map';
 import type { NonLeafTree } from '#list/immutable/non-leaf-tree';
@@ -10,7 +12,7 @@ import { Stream } from '@rimbu/stream';
 
 import { NonLeafBase } from '#list/immutable/non-leaf-base';
 
-export class NonLeafBlock<T> extends NonLeafBase<T> {
+export class NonLeafBlock<T> extends NonLeafBase<T> implements Block<T> {
 	constructor(
 		context: ListContext,
 		readonly children: Block<T>[],
@@ -336,6 +338,10 @@ export class NonLeafBlock<T> extends NonLeafBase<T> {
 		}
 
 		throwInvalidStateError();
+	}
+
+	createBlockBuilder(): NonLeafBlockBuilder<T> {
+		return this.context.nonLeafBlockBuilderSource(this);
 	}
 
 	_mutateRebalance(): NonLeafBlock<T> {

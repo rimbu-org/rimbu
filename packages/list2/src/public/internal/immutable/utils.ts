@@ -1,5 +1,6 @@
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { Stream } from '@rimbu/stream';
+import type { BlockBuilder } from '../mutable/builder-base';
 
 import type { ListContext } from '#list/context-module';
 import type { CacheMap } from '#list/immutable/cache-map';
@@ -22,6 +23,7 @@ export interface Block<T> extends ListCommon<T> {
 	get childrenInMax(): boolean;
 	concatChildren(other: Block<T>): Block<T>;
 	reversed(cacheMap?: CacheMap | undefined): Block<T>;
+	createBlockBuilder(): BlockBuilder<T>;
 }
 
 export interface NonLeaf<T> extends ListCommon<T> {

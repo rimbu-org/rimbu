@@ -17,7 +17,7 @@ import { BuilderBase, type LeafBuilder } from '#list/mutable/builder-base';
 export class ListBuilder<
 	T,
 	Tp extends ListImpl.Types = ListImpl.Types,
-> extends BuilderBase<T> {
+> extends BuilderBase {
 	constructor(
 		context: ListContext,
 		public leafBuilder?: LeafBuilder<T>,

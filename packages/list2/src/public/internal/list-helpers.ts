@@ -133,6 +133,12 @@ export namespace ListHelpers {
 				children.unshift(value);
 				return children;
 			},
+			mutateDropFirst<T>(children: T[]): T {
+				return children.shift()!;
+			},
+			mutateDropLast<T>(children: T[]): T {
+				return children.pop()!;
+			},
 			mutateSplice<T>(
 				children: T[],
 				start: number,
