@@ -63,7 +63,9 @@ export class ReversedOuterBlock<
 	}
 
 	dropChildren(amount: number): OuterBlock<T> {
-		return this.copy(this.ops.toSpliced(this.children, 0, amount));
+		return this.copy(
+			this.ops.toSpliced(this.children, this.length - amount, amount),
+		);
 	}
 
 	_structure(): string {

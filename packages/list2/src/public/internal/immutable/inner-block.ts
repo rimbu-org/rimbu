@@ -1,10 +1,10 @@
 import type { TraverseState } from '@rimbu/common/traverse-state';
-import type { InnerBlockBuilder } from '../mutable/inner-block-builder';
 
 import type { ListContext } from '#list/context-module';
 import type { CacheMap } from '#list/immutable/cache-map';
 import type { InnerTree } from '#list/immutable/inner-tree';
 import type { Block, Inner } from '#list/immutable/utils';
+import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
 
 import {
 	append,
@@ -263,7 +263,22 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T>, Inner<T> {
 		return this.copy(newChildren, length);
 	}
 
-	takeInternal(amount: number): [Inner<T> | null, Block<T>, number] {
+	dropChildren(childAmount: number): InnerBlock<T> | null {
+		if (childAmount <= 0) {
+			return this;
+		}
+		if (childAmount >= this.nrChildren) {
+			return null;
+		}
+
+		const newChildren = splice(this.children, 0, childAmount);
+
+		const length = newChildren.reduce((l, c): number => l + c.itemsLength, 0);
+
+		return this.copy(newChildren, length);
+	}
+
+	takeInternal(amount: number): [InnerBlock<T> | null, Block<T>, number] {
 		const [childIndex, inChildIndex] = this.getCoordinates(amount, true, false);
 
 		if (childIndex >= this.nrChildren) {
@@ -274,6 +289,23 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T>, Inner<T> {
 		const newSelf = this.takeChildren(childIndex);
 
 		return [newSelf, lastChild, inChildIndex];
+	}
+
+	dropInternal(amount: number): [InnerBlock<T> | null, Block<T>, number] {
+		const [childIndex, inChildIndex] = this.getCoordinates(
+			amount,
+			false,
+			false,
+		);
+
+		if (childIndex >= this.nrChildren) {
+			throwInvalidStateError();
+		}
+
+		const firstChild = this.children[childIndex];
+		const newSelf = this.dropChildren(childIndex + 1);
+
+		return [newSelf, firstChild, inChildIndex];
 	}
 
 	toArray(

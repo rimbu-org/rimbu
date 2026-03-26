@@ -27,6 +27,7 @@ export interface Block<T> extends ListCommon<T> {
 	get childrenInMin(): boolean;
 	get childrenInMax(): boolean;
 	concatChildren(other: Block<T>): Block<T>;
+	takeChildren(amount: number): Block<T> | null;
 	reversed(cacheMap?: CacheMap | undefined): Block<T>;
 	createBlockBuilder(): BlockBuilder<T>;
 }
@@ -36,10 +37,12 @@ export interface Inner<T> extends ListCommon<T> {
 	readonly itemsLength: number;
 	prependChild(child: Block<T>): Inner<T>;
 	appendChild(child: Block<T>): Inner<T>;
+	dropFirstChild(): [Inner<T> | null, Block<T>];
 	dropLastChild(): [Inner<T> | null, Block<T>];
 	concatInner(inner: Inner<T>): Inner<T>;
 	reversed(cacheMap?: CacheMap | undefined): Inner<T>;
 	takeInternal(amount: number): [Inner<T> | null, Block<T>, number];
+	dropInternal(amount: number): [Inner<T> | null, Block<T>, number];
 }
 
 export type Tree<N, TM> = TM & {

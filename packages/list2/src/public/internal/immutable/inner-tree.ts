@@ -120,6 +120,28 @@ export class InnerTree<T> extends InnerBase<T> implements Inner<T> {
 		);
 	}
 
+	dropFirstChild(): [Inner<T> | null, Block<T>] {
+		const [newLeft, firstChild] = this.left.dropFirstChild();
+
+		if (null === newLeft) {
+			if (null === this.middle) {
+				return [this.right, firstChild];
+			}
+
+			const [newMiddle, toLeft] = this.middle.dropFirstChild();
+			if (!this.context.isInnerBlock<T>(toLeft)) {
+				throwInvalidStateError();
+			}
+			const newSelf = this.copy(toLeft, undefined, newMiddle)._normalize();
+
+			return [newSelf, firstChild];
+		}
+
+		const newSelf = this.copy(newLeft)._normalize();
+
+		return [newSelf, firstChild];
+	}
+
 	dropLastChild(): [Inner<T> | null, Block<T>] {
 		// drop last from the right block
 		const [newRight, lastChild] = this.right.dropLastChild();
@@ -309,6 +331,64 @@ export class InnerTree<T> extends InnerBase<T> implements Inner<T> {
 
 		const newSelf = this.copy(undefined, upRight, newMiddle)._normalize();
 		return newSelf.takeInternal(amount);
+	}
+
+	dropInternal(amount: number): [Inner<T> | null, Block<T>, number] {
+		const middleAmount = amount - this.left.itemsLength;
+
+		if (null === this.middle) {
+			if (middleAmount < 0) {
+				// drop only from left no middle
+				const [newLeft, upLeft, upLeftAmount] = this.left.dropInternal(amount);
+
+				const newSelf =
+					null === newLeft ? this.right : newLeft.concat(this.right);
+
+				return [newSelf, upLeft, upLeftAmount];
+			} else {
+				// drop only from right
+				return this.right.dropInternal(middleAmount);
+			}
+		}
+
+		if (middleAmount < 0) {
+			// drop only from left with middle
+			const [newLeft, upLeft, upLeftAmount] = this.left.dropInternal(amount);
+
+			if (null === newLeft) {
+				// all of left gone
+				const [newMiddle, toLeft] = this.middle.dropFirstChild();
+				if (!this.context.isInnerBlock<T>(toLeft)) {
+					throwInvalidStateError();
+				}
+				const newSelf = this.copy(toLeft, undefined, newMiddle)._normalize();
+
+				return [newSelf, upLeft, upLeftAmount];
+			}
+
+			// left remaining
+			const newSelf = this.copy(newLeft);
+
+			return [newSelf, upLeft, upLeftAmount];
+		}
+
+		const rightAmount = middleAmount - this.middle.itemsLength;
+
+		if (rightAmount >= 0) {
+			// drop only from right
+			return this.right.dropInternal(rightAmount);
+		}
+
+		// drop from middle
+		const [newMiddle, upLeft, inUpLeft] =
+			this.middle.dropInternal(middleAmount);
+
+		if (!this.context.isInnerBlock<T>(upLeft)) {
+			throwInvalidStateError();
+		}
+		const newSelf = this.copy(upLeft, undefined, newMiddle)._normalize();
+
+		return newSelf.dropInternal(inUpLeft);
 	}
 
 	toArray(

@@ -145,7 +145,8 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return cacheMap.setAndReturn(this, reversedThis);
 	}
 
-	take(amount: number): any {
+	take(amountInput: number): any {
+		const amount = Math.floor(amountInput);
 		if (amount === 0) return this.context.empty();
 		if (amount >= this.length || -amount > this.length) return this;
 		if (amount < 0) return this.drop(this.length + amount);
@@ -153,7 +154,8 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return this.takeChildren(amount);
 	}
 
-	drop(amount: number): ListImpl<T> {
+	drop(amountInput: number): ListImpl<T> {
+		const amount = Math.floor(amountInput);
 		if (amount === 0) return this;
 		if (amount >= this.length || -amount > this.length)
 			return this.context.empty();

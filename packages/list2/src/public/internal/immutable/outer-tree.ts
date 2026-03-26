@@ -124,12 +124,73 @@ export class OuterTree<T> extends OuterBase<T> implements ListImpl.NonEmpty<T> {
 		);
 	}
 
-	take(amount: number): ListImpl.NonEmpty<T> {
-		return 0 as any;
+	take(amountInput: number): any {
+		const amount = Math.floor(amountInput);
+		if (amount === 0) return this.context.empty();
+		if (amount >= this.length || -amount > this.length) return this;
+		if (amount < 0) return this.drop(this.length + amount);
+
+		const middleAmount = amount - this.left.length;
+
+		if (middleAmount <= 0) return this.left.take(amount);
+
+		if (null === this.middle) {
+			return this.copy(
+				undefined,
+				this.right.takeChildren(middleAmount),
+			)._normalize();
+		}
+
+		const rightAmount = middleAmount - this.middle.itemsLength;
+
+		if (rightAmount > 0) {
+			const newRight = this.right.takeChildren(rightAmount);
+			return this.copy(undefined, newRight)._normalize();
+		}
+
+		const [newMiddle, upRight, inUpRight] =
+			this.middle.takeInternal(middleAmount);
+
+		if (!this.context.isOuterBlock<T>(upRight)) {
+			throwInvalidStateError();
+		}
+		const newRight = upRight.takeChildren(inUpRight);
+
+		return this.copy(undefined, newRight, newMiddle)._normalize();
 	}
 
 	drop(amount: number): ListImpl<T> {
-		return 0 as any;
+		if (amount === 0) return this;
+		if (amount >= this.length || -amount > this.length)
+			return this.context.empty();
+		if (amount < 0) return this.take(this.length + amount);
+
+		const middleAmount = amount - this.left.length;
+
+		if (middleAmount < 0) {
+			const newLeft = this.left.dropChildren(amount);
+			return this.copy(newLeft)._normalize();
+		}
+
+		if (null === this.middle) {
+			return this.right.drop(middleAmount);
+		}
+
+		const rightAmount = middleAmount - this.middle.itemsLength;
+
+		if (rightAmount >= 0) {
+			return this.right.drop(rightAmount);
+		}
+
+		const [newMiddle, upLeft, inUpLeft] =
+			this.middle.dropInternal(middleAmount);
+		if (!this.context.isOuterBlock<T>(upLeft)) {
+			throwInvalidStateError();
+		}
+
+		const newLeft = upLeft.dropChildren(inUpLeft);
+
+		return this.copy(newLeft, undefined, newMiddle)._normalize();
 	}
 
 	reversed(cacheMap: CacheMap = this.context.cacheMap()): OuterTree<T> {
@@ -287,6 +348,68 @@ export class OuterTree<T> extends OuterBase<T> implements ListImpl.NonEmpty<T> {
 		reversed?: boolean | undefined;
 	}): ArrayNonEmpty<T> {
 		return treeToArray(this, options) as ArrayNonEmpty<T>;
+	}
+
+	_normalize(): ListImpl.NonEmpty<T> {
+		if (null === this.middle) {
+			if (this.length <= this.context.maxBlockSize) {
+				// can merge left and right
+				return this.left.concatChildren(this.right);
+			}
+		} else if (this.context.isInnerBlock<T>(this.middle)) {
+			if (this.length <= this.context.maxBlockSize) {
+				// left, middle, and right can be merged into one block
+				const firstMiddleChild = this.middle.children[0]!;
+
+				if (!this.context.isOuterBlock<T>(firstMiddleChild)) {
+					throwInvalidStateError();
+				}
+
+				return this.left
+					.concatChildren(firstMiddleChild)
+					.concatChildren(this.right);
+			}
+
+			const firstChild = this.middle.children[0]!;
+
+			if (
+				this.left.length + firstChild.itemsLength <=
+				this.context.maxBlockSize
+			) {
+				// first middle child can be merged with left
+				const result = this.middle.dropFirstChild();
+				const newMiddle = result[0];
+				const block = result[1];
+				if (!this.context.isOuterBlock<T>(block)) {
+					throwInvalidStateError();
+				}
+				return this.copy(this.left.concatChildren(block), undefined, newMiddle);
+			}
+
+			const lastChild = this.middle.children.at(-1)!;
+
+			if (
+				this.right.length + lastChild.itemsLength <=
+				this.context.maxBlockSize
+			) {
+				// last middle child can be merged with right
+				const result = this.middle.dropLastChild();
+				const newMiddle = result[0];
+				const block = result[1];
+
+				if (!this.context.isOuterBlock<T>(block)) {
+					throwInvalidStateError();
+				}
+
+				return this.copy(
+					undefined,
+					block.concatChildren(this.right),
+					newMiddle,
+				);
+			}
+		}
+
+		return this;
 	}
 
 	_structure(): string {
