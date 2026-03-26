@@ -18,85 +18,87 @@ export namespace ListImpl {
 		_structure(): string;
 	}
 
-	export interface LeafChildrenOps<Tp extends ListImpl.Types = ListImpl.Types> {
-		of<T extends Tp['_UT']>(values: T[]): WithElem<Tp, T>['leafChildren'];
-		length(children: Tp['leafChildren']): number;
+	export interface OuterChildrenOps<
+		Tp extends ListImpl.Types = ListImpl.Types,
+	> {
+		of<T extends Tp['_UT']>(values: T[]): WithElem<Tp, T>['outerChildren'];
+		length(children: Tp['outerChildren']): number;
 		get<T extends Tp['_UT']>(
-			children: WithElem<Tp, T>['leafChildren'],
+			children: WithElem<Tp, T>['outerChildren'],
 			index: number,
 		): T;
 		stream<T extends Tp['_UT']>(
-			children: WithElem<Tp, T>['leafChildren'],
+			children: WithElem<Tp, T>['outerChildren'],
 			options?: { reversed?: boolean } | undefined,
 		): Stream.NonEmpty<T>;
 		prepend<T extends Tp['_UT']>(
-			children: WithElem<Tp, T>['leafChildren'],
+			children: WithElem<Tp, T>['outerChildren'],
 			value: T,
-		): WithElem<Tp, T>['leafChildren'];
+		): WithElem<Tp, T>['outerChildren'];
 		append<T extends Tp['_UT']>(
-			children: WithElem<Tp, T>['leafChildren'],
+			children: WithElem<Tp, T>['outerChildren'],
 			value: T,
-		): WithElem<Tp, T>['leafChildren'];
+		): WithElem<Tp, T>['outerChildren'];
 		concat<T extends Tp['_UT']>(
-			children1: WithElem<Tp, T>['leafChildren'],
-			children2: WithElem<Tp, T>['leafChildren'],
-		): WithElem<Tp, T>['leafChildren'];
+			children1: WithElem<Tp, T>['outerChildren'],
+			children2: WithElem<Tp, T>['outerChildren'],
+		): WithElem<Tp, T>['outerChildren'];
 		toSpliced<T extends Tp['_UT']>(
-			children: WithElem<Tp, T>['leafChildren'],
+			children: WithElem<Tp, T>['outerChildren'],
 			start: number,
 			deleteCount: number,
 			items?: T[],
-		): WithElem<Tp, T>['leafChildren'];
+		): WithElem<Tp, T>['outerChildren'];
 		toReversed<T extends Tp['_UT']>(
-			children: WithElem<Tp, T>['leafChildren'],
-		): WithElem<Tp, T>['leafChildren'];
+			children: WithElem<Tp, T>['outerChildren'],
+		): WithElem<Tp, T>['outerChildren'];
 		join(
-			children: Tp['leafChildren'],
+			children: Tp['outerChildren'],
 			separator: string,
 			reversed?: boolean,
 		): string;
 		forEach<T extends Tp['_UT']>(
-			children: WithElem<Tp, T>['leafChildren'],
+			children: WithElem<Tp, T>['outerChildren'],
 			f: (value: T, index: number, halt: () => void) => void,
 			options: { reversed: boolean; state: TraverseState },
 		): void;
 		toArray<T extends Tp['_UT']>(
-			children: WithElem<Tp, T>['leafChildren'],
+			children: WithElem<Tp, T>['outerChildren'],
 			startIndex?: number | undefined,
 			endIndex?: number | undefined,
 			reversed?: boolean | undefined,
 		): T[];
 		mutateSet<T extends Tp['_UT']>(
-			children: WithElem<Tp, T>['leafChildren'],
+			children: WithElem<Tp, T>['outerChildren'],
 			index: number,
 			value: T,
-		): WithElem<Tp, T>['leafChildren'];
+		): WithElem<Tp, T>['outerChildren'];
 		mutatePrepend<T extends Tp['_UT']>(
-			children: WithElem<Tp, T>['leafChildren'],
+			children: WithElem<Tp, T>['outerChildren'],
 			value: T,
-		): WithElem<Tp, T>['leafChildren'];
+		): WithElem<Tp, T>['outerChildren'];
 		mutateAppend<T extends Tp['_UT']>(
-			children: WithElem<Tp, T>['leafChildren'],
+			children: WithElem<Tp, T>['outerChildren'],
 			value: T,
-		): WithElem<Tp, T>['leafChildren'];
+		): WithElem<Tp, T>['outerChildren'];
 		mutateSplice<T extends Tp['_UT']>(
-			children: WithElem<Tp, T>['leafChildren'],
+			children: WithElem<Tp, T>['outerChildren'],
 			start: number,
 			deleteCount?: number | undefined,
 			items?: T[],
 		): [
-			result: WithElem<Tp, T>['leafChildren'],
-			deleted: WithElem<Tp, T>['leafChildren'],
+			result: WithElem<Tp, T>['outerChildren'],
+			deleted: WithElem<Tp, T>['outerChildren'],
 		];
 		mutateDropFirst<T extends Tp['_UT']>(
-			children: WithElem<Tp, T>['leafChildren'],
+			children: WithElem<Tp, T>['outerChildren'],
 		): T;
 		mutateDropLast<T extends Tp['_UT']>(
-			children: WithElem<Tp, T>['leafChildren'],
+			children: WithElem<Tp, T>['outerChildren'],
 		): T;
 		safeCopy<T extends Tp['_UT']>(
-			children: WithElem<Tp, T>['leafChildren'],
-		): WithElem<Tp, T>['leafChildren'];
+			children: WithElem<Tp, T>['outerChildren'],
+		): WithElem<Tp, T>['outerChildren'];
 	}
 
 	export interface Types extends ListBase.Types {

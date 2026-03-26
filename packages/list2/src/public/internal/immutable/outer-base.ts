@@ -12,7 +12,7 @@ import { NonEmptyBase } from '@rimbu/collection-types/common/empty-base';
 import { Comp } from '@rimbu/common/comp';
 import { IndexRange } from '@rimbu/common/index-range';
 
-export abstract class LeafBase<T>
+export abstract class OuterBase<T>
 	extends NonEmptyBase<T>
 	implements ListImpl.NonEmpty<T>
 {
@@ -20,7 +20,7 @@ export abstract class LeafBase<T>
 
 	constructor(
 		readonly context: ListContext,
-		readonly ops = context.leafChildrenOps,
+		readonly ops = context.outerChildrenOps,
 	) {
 		super();
 	}

@@ -1,51 +1,50 @@
 import type { ListContext } from '#list/context-module';
-import type { NonLeafTree } from '#list/immutable/non-leaf-tree';
-import type { NonLeaf } from '#list/immutable/utils';
-import type { NonLeafBlockBuilder } from '#list/mutable/non-leaf-block-builder';
+import type { InnerTree } from '#list/immutable/inner-tree';
+import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
 
 import {
 	type BlockBuilder,
-	type NonLeafBuilder,
+	type InnerBuilder,
 	TreeBuilderBase,
 } from '#list/mutable/builder-base';
 
-export class NonLeafTreeBuilder<T>
+export class InnerTreeBuilder<T>
 	extends TreeBuilderBase<T, BlockBuilder<T>>
-	implements NonLeafBuilder<T>
+	implements InnerBuilder<T>
 {
 	constructor(
 		context: ListContext,
 		readonly level: number,
-		public source?: NonLeafTree<T>,
-		public _left?: NonLeafBlockBuilder<T>,
-		public _right?: NonLeafBlockBuilder<T>,
-		public _middle?: NonLeafBuilder<T, NonLeafBlockBuilder<T>>,
+		public source?: InnerTree<T>,
+		public _left?: InnerBlockBuilder<T>,
+		public _right?: InnerBlockBuilder<T>,
+		public _middle?: InnerBuilder<T, InnerBlockBuilder<T>>,
 		public itemsLength: number = source?.itemsLength ?? 0,
 	) {
 		super(context);
 	}
 
-	get left(): NonLeafBlockBuilder<T> {
+	get left(): InnerBlockBuilder<T> {
 		return this._left!;
 	}
 
-	get right(): NonLeafBlockBuilder<T> {
+	get right(): InnerBlockBuilder<T> {
 		return this._right!;
 	}
 
-	get middle(): NonLeafBuilder<T> | undefined {
+	get middle(): InnerBuilder<T> | undefined {
 		return this._middle;
 	}
 
 	prepareMutate(): void {
 		if (undefined === this.source) return;
 
-		this._left = this.context.nonLeafBlockBuilderSource(this.source.left);
-		this._right = this.context.nonLeafBlockBuilderSource(this.source.right);
+		this._left = this.context.innerBlockBuilderSource(this.source.left);
+		this._right = this.context.innerBlockBuilderSource(this.source.right);
 		this._middle =
 			null === this.source.middle
 				? undefined
-				: this.context.createNonLeafBuilder(this.source.middle);
+				: this.context.createInnerBuilder(this.source.middle);
 		this.itemsLength = this.source.itemsLength;
 		this.source = undefined;
 	}
@@ -100,37 +99,57 @@ export class NonLeafTreeBuilder<T>
 		return this.right.modifyLastChild(f);
 	}
 
-	build(): NonLeaf<T> {
-		throw new Error('Method not implemented.');
+	build(): InnerTree<T> {
+		return (
+			this.source ??
+			this.context.innerTree(
+				this.left.build(),
+				this.right.build(),
+				this.middle?.build() ?? null,
+				this.itemsLength,
+				this.level,
+			)
+		);
 	}
 
-	normalized(): NonLeafBuilder<T> | undefined {
-		throw new Error('Method not implemented.');
+	normalized(): InnerBuilder<T> | undefined {
+		if (undefined !== this.middle) {
+			// middle, nothing to normalize
+			return this;
+		}
+
+		// no middle
+
+		if (
+			this.left.nrChildren + this.right.nrChildren <=
+			this.context.maxBlockSize
+		) {
+			// combine left and right
+			this.left.appendItems(this.right);
+
+			return this.left;
+		}
+
+		return this;
 	}
 
 	getChildLength(child: BlockBuilder<T>): number {
 		return child.itemsLength;
 	}
 
-	prependBlockChild(
-		block: NonLeafBlockBuilder<T>,
-		child: BlockBuilder<T>,
-	): void {
+	prependBlockChild(block: InnerBlockBuilder<T>, child: BlockBuilder<T>): void {
 		block.prependChild(child);
 	}
 
-	appendBlockChild(
-		block: NonLeafBlockBuilder<T>,
-		child: BlockBuilder<T>,
-	): void {
+	appendBlockChild(block: InnerBlockBuilder<T>, child: BlockBuilder<T>): void {
 		block.appendChild(child);
 	}
 
-	dropBlockFirstChild(block: NonLeafBlockBuilder<T>): BlockBuilder<T> {
+	dropBlockFirstChild(block: InnerBlockBuilder<T>): BlockBuilder<T> {
 		return block.dropFirstChild();
 	}
 
-	dropBlockLastChild(block: NonLeafBlockBuilder<T>): BlockBuilder<T> {
+	dropBlockLastChild(block: InnerBlockBuilder<T>): BlockBuilder<T> {
 		return block.dropLastChild();
 	}
 }

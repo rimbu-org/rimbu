@@ -4,15 +4,15 @@ import type { Stream, StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context-module';
 import type { CacheMap } from '#list/immutable/cache-map';
-import type { LeafBlock } from '#list/immutable/leaf-block';
-import type { NonLeaf } from '#list/immutable/utils';
+import type { OuterBlock } from '#list/immutable/outer-block';
+import type { Inner } from '#list/immutable/utils';
 import type { ListImpl } from '#list/list-impl';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 
-import { LeafBase } from '#list/immutable/leaf-base';
+import { OuterBase } from '#list/immutable/outer-base';
 import {
 	treeForEach,
 	treeGet,
@@ -20,12 +20,12 @@ import {
 	treeToStream,
 } from '#list/immutable/tree-base';
 
-export class LeafTree<T> extends LeafBase<T> implements ListImpl.NonEmpty<T> {
+export class OuterTree<T> extends OuterBase<T> implements ListImpl.NonEmpty<T> {
 	constructor(
 		context: ListContext,
-		readonly left: LeafBlock<T>,
-		readonly right: LeafBlock<T>,
-		readonly middle: NonLeaf<T> | null,
+		readonly left: OuterBlock<T>,
+		readonly right: OuterBlock<T>,
+		readonly middle: Inner<T> | null,
 		readonly length: number,
 	) {
 		super(context);
@@ -40,7 +40,7 @@ export class LeafTree<T> extends LeafBase<T> implements ListImpl.NonEmpty<T> {
 		right = this.right,
 		middle = this.middle,
 		length = this.length,
-	): LeafTree<T> {
+	): OuterTree<T> {
 		if (
 			left === this.left &&
 			right === this.right &&
@@ -50,7 +50,7 @@ export class LeafTree<T> extends LeafBase<T> implements ListImpl.NonEmpty<T> {
 			return this;
 		}
 
-		return this.context.leafTree(left, right, middle, length);
+		return this.context.outerTree<T>(left, right, middle, length);
 	}
 
 	stream(options?: { reversed?: boolean }): Stream.NonEmpty<T> {
@@ -76,7 +76,7 @@ export class LeafTree<T> extends LeafBase<T> implements ListImpl.NonEmpty<T> {
 		return this.right.last();
 	}
 
-	prepend(value: T): LeafTree<T> {
+	prepend(value: T): OuterTree<T> {
 		const newLength = this.length + 1;
 
 		if (this.left.canAddChild) {
@@ -88,32 +88,38 @@ export class LeafTree<T> extends LeafBase<T> implements ListImpl.NonEmpty<T> {
 			);
 		}
 
+		const newMiddle =
+			this.middle?.prependChild(this.left) ??
+			this.context.innerBlock<T>([this.left], this.left.length, 1);
+
 		return this.copy(
 			this.left.copy(this.ops.of([value])),
 			this.right,
-			this.middle?.prependChild(this.left) ??
-				this.context.nonLeafBlock<T>([this.left], this.left.length, 1),
+			newMiddle,
 			newLength,
 		);
 	}
 
-	append(value: T): LeafTree<T> {
+	append(value: T): OuterTree<T> {
 		const newLength = this.length + 1;
 
 		if (this.right.canAddChild) {
 			return this.copy(
 				this.left,
-				this.right.append(value) as LeafBlock<T>,
+				this.right.append(value) as OuterBlock<T>,
 				this.middle,
 				newLength,
 			);
 		}
 
+		const newMiddle =
+			this.middle?.appendChild(this.right) ??
+			this.context.innerBlock<T>([this.right], this.right.length, 1);
+
 		return this.copy(
 			this.left,
 			this.right.copy(this.ops.of([value])),
-			this.middle?.appendChild(this.right) ??
-				this.context.nonLeafBlock<T>([this.right], this.right.length, 1),
+			newMiddle,
 			newLength,
 		);
 	}
@@ -126,8 +132,8 @@ export class LeafTree<T> extends LeafBase<T> implements ListImpl.NonEmpty<T> {
 		return 0 as any;
 	}
 
-	reversed(cacheMap: CacheMap = this.context.cacheMap()): LeafTree<T> {
-		const cachedThis = cacheMap.get<LeafTree<T>>(this);
+	reversed(cacheMap: CacheMap = this.context.cacheMap()): OuterTree<T> {
+		const cachedThis = cacheMap.get<OuterTree<T>>(this);
 		if (cachedThis !== undefined) return cachedThis;
 
 		const newMid = this.middle?.reversed(cacheMap) ?? null;
@@ -143,9 +149,9 @@ export class LeafTree<T> extends LeafBase<T> implements ListImpl.NonEmpty<T> {
 		const asList = this.context.from(...sources) as ListImpl<T>;
 
 		if (asList.nonEmpty()) {
-			if (this.context.isLeafBlock<T>(asList)) {
+			if (this.context.isOuterBlock<T>(asList)) {
 				return this.concatBlock(asList);
-			} else if (this.context.isLeafTree<T>(asList)) {
+			} else if (this.context.isOuterTree<T>(asList)) {
 				return this.concatTree(asList);
 			} else {
 				throwInvalidStateError();
@@ -155,116 +161,116 @@ export class LeafTree<T> extends LeafBase<T> implements ListImpl.NonEmpty<T> {
 		return this;
 	}
 
-	concatBlock(leafBlock: LeafBlock<T>): ListImpl.NonEmpty<T> {
-		if (this.right.length + leafBlock.length <= this.context.maxBlockSize) {
-			const newRight = this.right.concatChildren(leafBlock);
+	concatBlock(outerBlock: OuterBlock<T>): ListImpl.NonEmpty<T> {
+		if (this.right.length + outerBlock.length <= this.context.maxBlockSize) {
+			const newRight = this.right.concatChildren(outerBlock);
 			return this.copy(undefined, newRight);
 		}
 
 		if (this.right.childrenInMin) {
 			const newMiddle = this.appendMiddle(this.right);
 
-			return this.copy(undefined, leafBlock, newMiddle);
+			return this.copy(undefined, outerBlock, newMiddle);
 		}
 
-		const newRight = this.right.concatChildren(leafBlock);
+		const newRight = this.right.concatChildren(outerBlock);
 		const newLast = newRight._mutateSplitRight(this.context.maxBlockSize);
 		const newMiddle = this.appendMiddle(newRight);
 
 		return this.copy(undefined, newLast, newMiddle);
 	}
 
-	concatTree(leafTree: LeafTree<T>): LeafTree<T> {
-		const jointLength = this.right.length + leafTree.left.length;
+	concatTree(outerTree: OuterTree<T>): OuterTree<T> {
+		const jointLength = this.right.length + outerTree.left.length;
 
 		if (jointLength < this.context.minBlockSize) {
 			if (null === this.middle) {
 				// left + right > maxBlockSize
 				const joint = this.left
 					.concatChildren(this.right)
-					.concatChildren(leafTree.left);
+					.concatChildren(outerTree.left);
 				const toMiddle = joint._mutateSplitRight(
 					this.ops.length(joint.children) - this.context.maxBlockSize,
 				);
-				const newMiddle = leafTree.prependMiddle(toMiddle);
+				const newMiddle = outerTree.prependMiddle(toMiddle);
 
-				return leafTree.copy(joint, undefined, newMiddle);
+				return outerTree.copy(joint, undefined, newMiddle);
 			}
 
 			const [newMiddle, toJoint] = this.middle.dropLastChild();
-			if (!this.context.isLeafBlock<T>(toJoint)) {
+			if (!this.context.isOuterBlock<T>(toJoint)) {
 				throwInvalidStateError();
 			}
 			const joint = toJoint
 				.concatChildren(this.right)
-				.concatChildren(leafTree.left);
+				.concatChildren(outerTree.left);
 
 			if (joint.childrenInMax) {
 				const m =
 					null === newMiddle
-						? leafTree.prependMiddle(joint)
-						: newMiddle.concatNonLeaf(leafTree.prependMiddle(joint));
-				return this.copy(undefined, leafTree.right, m);
+						? outerTree.prependMiddle(joint)
+						: newMiddle.concatInner(outerTree.prependMiddle(joint));
+				return this.copy(undefined, outerTree.right, m);
 			}
 
 			const newOtherLeft = joint._mutateSplitRight();
 			const newMiddle2 =
 				null === newMiddle
-					? leafTree.prependMiddle(newOtherLeft).prependChild(joint)
-					: null === leafTree.middle
+					? outerTree.prependMiddle(newOtherLeft).prependChild(joint)
+					: null === outerTree.middle
 						? newMiddle.appendChild(joint).appendChild(newOtherLeft)
 						: newMiddle
 								.appendChild(joint)
 								.appendChild(newOtherLeft)
-								.concatNonLeaf(leafTree.middle);
-			return this.copy(undefined, leafTree.right, newMiddle2);
+								.concatInner(outerTree.middle);
+			return this.copy(undefined, outerTree.right, newMiddle2);
 		}
 
 		if (jointLength <= this.context.maxBlockSize) {
-			const joint = this.right.concatChildren(leafTree.left);
+			const joint = this.right.concatChildren(outerTree.left);
 			const newThisMiddle = this.appendMiddle(joint);
 			const newMiddle =
-				null === leafTree.middle
+				null === outerTree.middle
 					? newThisMiddle
-					: newThisMiddle.concatNonLeaf(leafTree.middle);
-			return this.copy(undefined, leafTree.right, newMiddle);
+					: newThisMiddle.concatInner(outerTree.middle);
+			return this.copy(undefined, outerTree.right, newMiddle);
 		}
 
-		if (this.right.childrenInMin && leafTree.left.childrenInMin) {
+		if (this.right.childrenInMin && outerTree.left.childrenInMin) {
 			const newThisMiddle = this.appendMiddle(this.right).appendChild(
-				leafTree.left,
+				outerTree.left,
 			);
 			const newMiddle =
-				null === leafTree.middle
+				null === outerTree.middle
 					? newThisMiddle
-					: newThisMiddle.concatNonLeaf(leafTree.middle);
+					: newThisMiddle.concatInner(outerTree.middle);
 
-			return this.copy(undefined, leafTree.right, newMiddle);
+			return this.copy(undefined, outerTree.right, newMiddle);
 		}
 
-		const joint = this.right.concatChildren(leafTree.left);
+		const joint = this.right.concatChildren(outerTree.left);
 		const jointRight = joint._mutateSplitRight();
 
 		const newThisMiddle = this.appendMiddle(joint).appendChild(jointRight);
 		const newMiddle =
-			null === leafTree.middle
+			null === outerTree.middle
 				? newThisMiddle
-				: newThisMiddle.concatNonLeaf(leafTree.middle);
+				: newThisMiddle.concatInner(outerTree.middle);
 
-		return this.copy(undefined, leafTree.right, newMiddle);
+		return this.copy(undefined, outerTree.right, newMiddle);
 	}
 
-	prependMiddle(leafBlock: LeafBlock<T>): NonLeaf<T> {
+	prependMiddle(outerBlock: OuterBlock<T>): Inner<T> {
 		return (
-			this.middle?.prependChild(leafBlock) ??
-			this.context.nonLeafBlock<T>([leafBlock], leafBlock.length, 1)
+			this.middle?.prependChild(outerBlock) ??
+			this.context.innerBlock<T>([outerBlock], outerBlock.length, 1)
 		);
 	}
 
-	appendMiddle(leafBlock: LeafBlock<T>): NonLeaf<T> {
+	appendMiddle(outerBlock: OuterBlock<T>): Inner<T> {
 		return (
-			this.middle?.appendChild(leafBlock) ??
-			this.context.nonLeafBlock<T>([leafBlock], leafBlock.length, 1)
+			this.middle?.appendChild(outerBlock) ??
+			this.context.innerBlock<T>([outerBlock], outerBlock.length, 1)
 		);
 	}
 
@@ -284,6 +290,6 @@ export class LeafTree<T> extends LeafBase<T> implements ListImpl.NonEmpty<T> {
 	}
 
 	_structure(): string {
-		return `LeafTree<${this.length}>(${this.left._structure()}, ${this.middle?._structure() ?? '<notree>'}, ${this.right._structure()})`;
+		return `OuterTree<${this.length}>(${this.left._structure()}, ${this.middle?._structure() ?? '<notree>'}, ${this.right._structure()})`;
 	}
 }

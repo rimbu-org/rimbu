@@ -71,7 +71,7 @@ describe('List creators', () => {
 	});
 });
 
-describe('List methods', () => {
+describe.only('List methods', () => {
 	const listEmpty = List.empty<number>();
 	const list3_1 = List.of(1, 2, 3);
 	const list3_2 = List.of(3, 2, 1).reversed();
@@ -94,7 +94,7 @@ describe('List methods', () => {
 		expect(list6_2.context).toBe(List);
 	});
 
-	it.only('length', () => {
+	it('length', () => {
 		expect(listEmpty.length).toBe(0);
 		expect(list3_1.length).toBe(3);
 		expect(list3_2.length).toBe(3);
@@ -235,7 +235,7 @@ describe('List methods', () => {
 		expect(list6_2.append(0).toArray()).toEqual([1, 2, 3, 4, 5, 6, 0]);
 	});
 
-	it('take', () => {
+	it.only('take', () => {
 		expect(listEmpty.take(10)).toBe(listEmpty);
 		expect(list3_1.take(10)).toBe(list3_1);
 		expect(list3_2.take(10)).toBe(list3_2);

@@ -43,20 +43,20 @@ export namespace ListHelpers {
 	}
 
 	export interface TypesImpl extends ListImpl.Types {
-		readonly leafChildren: readonly this['_T'][] & ListBase.LeafChildrenTag;
+		readonly outerChildren: readonly this['_T'][] & ListBase.OuterChildrenTag;
 	}
 
 	export function createListContext(
 		options?: { blockSizeBits?: number | undefined } | undefined,
 	): List.Context {
-		const leafChildrenOpsModule = Module.createPartial<{
-			defines: ListImpl.LeafChildrenOps<ListHelpers.TypesImpl>;
+		const outerChildrenOpsModule = Module.createPartial<{
+			defines: ListImpl.OuterChildrenOps<ListHelpers.TypesImpl>;
 		}>(() => ({
 			length(children: readonly unknown[]) {
 				return children.length;
 			},
 			get<T>(children: readonly T[], index: number): T {
-				return children[index]!;
+				return children.at(index)!;
 			},
 			stream<T>(
 				children: readonly T[],
@@ -192,8 +192,8 @@ export namespace ListHelpers {
 			fromString: (...sources: ArrayNonEmpty<string>): ListImpl<string> => {
 				return mod.from(...sources);
 			},
-			leafChildrenOps: Module.lazyGetter(() =>
-				Module.create(leafChildrenOpsModule).build(),
+			outerChildrenOps: Module.lazyGetter(() =>
+				Module.create(outerChildrenOpsModule).build(),
 			),
 		})).build();
 	}

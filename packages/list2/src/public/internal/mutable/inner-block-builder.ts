@@ -2,25 +2,24 @@ import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { Update } from '@rimbu/common/update';
 
 import type { ListContext } from '#list/context-module';
-import type { NonLeafBlock } from '#list/immutable/non-leaf-block';
-import type { NonLeaf } from '#list/immutable/utils';
+import type { InnerBlock } from '#list/immutable/inner-block';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 
 import {
 	type BlockBuilder,
 	BuilderBase,
-	type NonLeafBuilder,
+	type InnerBuilder,
 } from '#list/mutable/builder-base';
 
-export class NonLeafBlockBuilder<T>
+export class InnerBlockBuilder<T>
 	extends BuilderBase
-	implements NonLeafBuilder<T>, BlockBuilder<T>
+	implements InnerBuilder<T>, BlockBuilder<T>
 {
 	constructor(
 		context: ListContext,
 		readonly level: number,
-		public source?: NonLeafBlock<T>,
+		public source?: InnerBlock<T>,
 		public _children?: Array<BlockBuilder<T>>,
 		public itemsLength: number = source?.itemsLength ?? 0,
 	) {
@@ -145,11 +144,18 @@ export class NonLeafBlockBuilder<T>
 		return delta;
 	}
 
-	build(): NonLeaf<T> {
-		throw new Error('Method not implemented.');
+	build(): InnerBlock<T> {
+		return (
+			this.source ??
+			this.context.innerBlock(
+				this.children.map((c) => c.build()),
+				this.itemsLength,
+				this.level,
+			)
+		);
 	}
 
-	splitRight(index = this.nrChildren >>> 1): NonLeafBlockBuilder<T> {
+	splitRight(index = this.nrChildren >>> 1): InnerBlockBuilder<T> {
 		const rightChildren = this.children.splice(index);
 		const oldLength = this.itemsLength;
 		this.itemsLength = 0;
@@ -158,14 +164,14 @@ export class NonLeafBlockBuilder<T>
 		}
 		const rightLength = oldLength - this.itemsLength;
 
-		return this.context.nonLeafBlockBuilder(
+		return this.context.innerBlockBuilder(
 			this.level,
 			rightChildren,
 			rightLength,
 		);
 	}
 
-	normalized(): NonLeafBuilder<T> | undefined {
+	normalized(): InnerBuilder<T> | undefined {
 		if (this.nrChildren === 0) {
 			// empty
 			return undefined;
@@ -179,7 +185,7 @@ export class NonLeafBlockBuilder<T>
 			// too many children, needs to split
 			const middleLength = this.itemsLength;
 
-			const result = context.nonLeafTreeBuilder(
+			const result = context.innerTreeBuilder(
 				this.level,
 				this,
 				this.splitRight(),

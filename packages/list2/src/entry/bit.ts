@@ -30,7 +30,7 @@ export namespace BitListHelpers {
 
 	export interface TypesImpl extends ListImpl.Types {
 		readonly _UT: boolean;
-		readonly leafChildren: bigint & ListBase.LeafChildrenTag;
+		readonly outerChildren: bigint & ListBase.OuterChildrenTag;
 	}
 }
 

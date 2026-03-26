@@ -31,14 +31,15 @@ export interface Block<T> extends ListCommon<T> {
 	createBlockBuilder(): BlockBuilder<T>;
 }
 
-export interface NonLeaf<T> extends ListCommon<T> {
+export interface Inner<T> extends ListCommon<T> {
 	readonly context: ListContext;
 	readonly itemsLength: number;
-	prependChild(child: Block<T>): NonLeaf<T>;
-	appendChild(child: Block<T>): NonLeaf<T>;
-	dropLastChild(): [NonLeaf<T> | null, Block<T>];
-	concatNonLeaf(nonLeaf: NonLeaf<T>): NonLeaf<T>;
-	reversed(cacheMap?: CacheMap | undefined): NonLeaf<T>;
+	prependChild(child: Block<T>): Inner<T>;
+	appendChild(child: Block<T>): Inner<T>;
+	dropLastChild(): [Inner<T> | null, Block<T>];
+	concatInner(inner: Inner<T>): Inner<T>;
+	reversed(cacheMap?: CacheMap | undefined): Inner<T>;
+	takeInternal(amount: number): [Inner<T> | null, Block<T>, number];
 }
 
 export type Tree<N, TM> = TM & {

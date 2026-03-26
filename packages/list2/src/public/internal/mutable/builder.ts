@@ -12,7 +12,7 @@ import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-import { BuilderBase, type LeafBuilder } from '#list/mutable/builder-base';
+import { BuilderBase, type OuterBuilder } from '#list/mutable/builder-base';
 
 export class ListBuilder<
 	T,
@@ -20,7 +20,7 @@ export class ListBuilder<
 > extends BuilderBase {
 	constructor(
 		context: ListContext,
-		public leafBuilder?: LeafBuilder<T>,
+		public outerBuilder?: OuterBuilder<T>,
 	) {
 		super(context);
 	}
@@ -34,7 +34,7 @@ export class ListBuilder<
 	}
 
 	get length(): number {
-		return this.leafBuilder?.length ?? 0;
+		return this.outerBuilder?.length ?? 0;
 	}
 
 	get isEmpty(): boolean {
@@ -43,7 +43,7 @@ export class ListBuilder<
 
 	get = <O = undefined>(index: number, otherwise?: OptLazy<O>): T | O => {
 		if (
-			undefined === this.leafBuilder ||
+			undefined === this.outerBuilder ||
 			index >= this.length ||
 			-index > this.length
 		) {
@@ -53,31 +53,35 @@ export class ListBuilder<
 			return this.get(this.length + index, otherwise);
 		}
 
-		return this.leafBuilder.get(index);
+		return this.outerBuilder.get(index);
 	};
 
 	prepend = (value: T): void => {
 		this.checkLock();
 
-		if (undefined === this.leafBuilder) {
-			this.leafBuilder = this.context.leafBlockBuilder<T>(this.ops.of([value]));
+		if (undefined === this.outerBuilder) {
+			this.outerBuilder = this.context.outerBlockBuilder<T>(
+				this.ops.of([value]),
+			);
 			return;
 		}
 
-		this.leafBuilder.prepend(value);
-		this.leafBuilder = this.leafBuilder.normalized();
+		this.outerBuilder.prepend(value);
+		this.outerBuilder = this.outerBuilder.normalized();
 	};
 
 	append = (value: T): void => {
 		this.checkLock();
 
-		if (undefined === this.leafBuilder) {
-			this.leafBuilder = this.context.leafBlockBuilder<T>(this.ops.of([value]));
+		if (undefined === this.outerBuilder) {
+			this.outerBuilder = this.context.outerBlockBuilder<T>(
+				this.ops.of([value]),
+			);
 			return;
 		}
 
-		this.leafBuilder.append(value);
-		this.leafBuilder = this.leafBuilder.normalized();
+		this.outerBuilder.append(value);
+		this.outerBuilder = this.outerBuilder.normalized();
 	};
 
 	appendAll = (values: StreamSource<T>): void => {
@@ -101,19 +105,19 @@ export class ListBuilder<
 		const blockSize = this.context.maxBlockSize;
 
 		// fill last child
-		if (undefined !== this.leafBuilder) {
-			if (this.context.isLeafBlockBuilder(this.leafBuilder)) {
-				index = blockSize - this.leafBuilder.length;
+		if (undefined !== this.outerBuilder) {
+			if (this.context.isOuterBlockBuilder(this.outerBuilder)) {
+				index = blockSize - this.outerBuilder.length;
 
 				if (index > 0) {
 					const slice = array.slice(0, index);
-					this.leafBuilder.children = this.ops.concat(
-						this.leafBuilder.children,
+					this.outerBuilder.children = this.ops.concat(
+						this.outerBuilder.children,
 						this.ops.of(slice),
 					);
 				}
-			} else if (this.context.isLeafTreeBuilder(this.leafBuilder)) {
-				const left = this.leafBuilder.left;
+			} else if (this.context.isOuterTreeBuilder(this.outerBuilder)) {
+				const left = this.outerBuilder.left;
 				index = blockSize - left.length;
 
 				if (index > 0) {
@@ -133,29 +137,29 @@ export class ListBuilder<
 	}
 
 	appendFullOrLastWindow(window: T[]): void {
-		const leafBlockBuilder = this.context.leafBlockBuilder<T>(
+		const outerBlockBuilder = this.context.outerBlockBuilder<T>(
 			this.ops.of(window),
 		);
 
-		if (undefined === this.leafBuilder) {
-			this.leafBuilder = leafBlockBuilder;
+		if (undefined === this.outerBuilder) {
+			this.outerBuilder = outerBlockBuilder;
 			return;
 		}
 
-		if (this.context.isLeafBlockBuilder<T>(this.leafBuilder)) {
-			this.leafBuilder = this.context.leafTreeBuilder(
-				this.leafBuilder,
-				leafBlockBuilder,
+		if (this.context.isOuterBlockBuilder<T>(this.outerBuilder)) {
+			this.outerBuilder = this.context.outerTreeBuilder(
+				this.outerBuilder,
+				outerBlockBuilder,
 				undefined,
-				this.leafBuilder.length + leafBlockBuilder.length,
+				this.outerBuilder.length + outerBlockBuilder.length,
 			);
 			return;
 		}
 
-		if (this.context.isLeafTreeBuilder<T>(this.leafBuilder)) {
-			this.leafBuilder.appendMiddle(this.leafBuilder.right);
-			this.leafBuilder.right = leafBlockBuilder;
-			this.leafBuilder.length += leafBlockBuilder.length;
+		if (this.context.isOuterTreeBuilder<T>(this.outerBuilder)) {
+			this.outerBuilder.appendMiddle(this.outerBuilder.right);
+			this.outerBuilder.right = outerBlockBuilder;
+			this.outerBuilder.itemsLength += outerBlockBuilder.length;
 			return;
 		}
 
@@ -170,7 +174,7 @@ export class ListBuilder<
 		this.checkLock();
 
 		if (
-			undefined === this.leafBuilder ||
+			undefined === this.outerBuilder ||
 			index >= this.length ||
 			-index > this.length
 		) {
@@ -180,7 +184,7 @@ export class ListBuilder<
 			return this.updateAt(this.length + index, update);
 		}
 
-		return this.leafBuilder.updateAt(index, update);
+		return this.outerBuilder.updateAt(index, update);
 	};
 
 	set = <O>(index: number, value: T, otherwise?: OptLazy<O>): T | O => {
@@ -191,7 +195,7 @@ export class ListBuilder<
 		f: (value: T, index: number, halt: () => void) => void,
 		options: { reversed?: boolean; state?: TraverseState } = {},
 	): void => {
-		if (undefined === this.leafBuilder) return;
+		if (undefined === this.outerBuilder) return;
 
 		const { reversed = false, state = TraverseState() } = options;
 
@@ -200,17 +204,17 @@ export class ListBuilder<
 		this._lock++;
 
 		try {
-			this.leafBuilder.forEach(f, { reversed, state });
+			this.outerBuilder.forEach(f, { reversed, state });
 		} finally {
 			this._lock--;
 		}
 	};
 
 	build = (): WithElem<Tp, T>['normal'] => {
-		if (undefined === this.leafBuilder) {
+		if (undefined === this.outerBuilder) {
 			return this.context.empty();
 		}
-		const result = this.leafBuilder.build();
+		const result = this.outerBuilder.build();
 		return result;
 	};
 }

@@ -2,10 +2,10 @@ import type { Stream } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context-module';
 
-export abstract class NonLeafBase<T> {
+export abstract class InnerBase<T> {
 	constructor(
 		readonly context: ListContext,
-		readonly ops = context.leafChildrenOps,
+		readonly ops = context.outerChildrenOps,
 	) {}
 
 	abstract get itemsLength(): number;

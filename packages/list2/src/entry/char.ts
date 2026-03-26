@@ -30,7 +30,7 @@ export namespace CharListHelpers {
 
 	export interface TypesImpl extends ListImpl.Types {
 		readonly _UT: string;
-		readonly leafChildren: string & ListBase.LeafChildrenTag;
+		readonly outerChildren: string & ListBase.OuterChildrenTag;
 	}
 }
 

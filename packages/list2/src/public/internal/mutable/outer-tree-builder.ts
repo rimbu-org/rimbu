@@ -1,31 +1,31 @@
 import type { ListContext } from '#list/context-module';
-import type { LeafTree } from '#list/immutable/leaf-tree';
+import type { OuterTree } from '#list/immutable/outer-tree';
 import type { ListImpl } from '#list/list-impl';
-import type { LeafBlockBuilder } from '#list/mutable/leaf-block-builder';
+import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
 import {
-	type LeafBuilder,
-	type NonLeafBuilder,
+	type InnerBuilder,
+	type OuterBuilder,
 	TreeBuilderBase,
 } from '#list/mutable/builder-base';
 
-export class LeafTreeBuilder<T>
+export class OuterTreeBuilder<T>
 	extends TreeBuilderBase<T, T>
-	implements LeafBuilder<T>
+	implements OuterBuilder<T>
 {
 	constructor(
 		context: ListContext,
-		public source?: LeafTree<T>,
-		public _left?: LeafBlockBuilder<T>,
-		public _right?: LeafBlockBuilder<T>,
-		public _middle?: NonLeafBuilder<T, LeafBlockBuilder<T>>,
-		public length: number = source?.length ?? 0,
+		public source?: OuterTree<T>,
+		public _left?: OuterBlockBuilder<T>,
+		public _right?: OuterBlockBuilder<T>,
+		public _middle?: InnerBuilder<T, OuterBlockBuilder<T>>,
+		public itemsLength: number = source?.length ?? 0,
 	) {
 		super(context);
 	}
 
-	get itemsLength(): number {
-		return this.length;
+	get length(): number {
+		return this.itemsLength;
 	}
 
 	get level(): number {
@@ -35,37 +35,39 @@ export class LeafTreeBuilder<T>
 	prepareMutate(): void {
 		if (undefined === this.source) return;
 
-		this._left = this.context.leafBlockBuilderSource(this.source.left);
-		this._right = this.context.leafBlockBuilderSource(this.source.right);
+		this._left = this.context.outerBlockBuilderSource(this.source.left);
+		this._right = this.context.outerBlockBuilderSource(this.source.right);
 		this._middle =
 			null === this.source.middle
 				? undefined
-				: this.context.createNonLeafBuilder(this.source.middle);
-		this.length = this.source.length;
+				: this.context.createInnerBuilder<T, OuterBlockBuilder<T>>(
+						this.source.middle,
+					);
+		this.itemsLength = this.source.length;
 		this.source = undefined;
 	}
 
-	get left(): LeafBlockBuilder<T> {
+	get left(): OuterBlockBuilder<T> {
 		return this._left!;
 	}
 
-	set left(value: LeafBlockBuilder<T>) {
+	set left(value: OuterBlockBuilder<T>) {
 		this._left = value;
 	}
 
-	get right(): LeafBlockBuilder<T> {
+	get right(): OuterBlockBuilder<T> {
 		return this._right!;
 	}
 
-	set right(value: LeafBlockBuilder<T>) {
+	set right(value: OuterBlockBuilder<T>) {
 		this._right = value;
 	}
 
-	get middle(): NonLeafBuilder<T, LeafBlockBuilder<T>> | undefined {
+	get middle(): InnerBuilder<T, OuterBlockBuilder<T>> | undefined {
 		return this._middle;
 	}
 
-	set middle(value: NonLeafBuilder<T, LeafBlockBuilder<T>> | undefined) {
+	set middle(value: InnerBuilder<T, OuterBlockBuilder<T>> | undefined) {
 		this._middle = value;
 	}
 
@@ -77,7 +79,7 @@ export class LeafTreeBuilder<T>
 		return super.get(index);
 	}
 
-	normalized(): LeafBuilder<T> {
+	normalized(): OuterBuilder<T> {
 		if (this.length <= this.context.maxBlockSize) {
 			// can collapse into block
 			this.left.appendItems(this.right);
@@ -108,26 +110,34 @@ export class LeafTreeBuilder<T>
 	}
 
 	build(): ListImpl<T, ListImpl.Types> {
-		throw new Error('Not implemented yet');
+		return (
+			this.source ??
+			this.context.outerTree(
+				this.left.build(),
+				this.right.build(),
+				this.middle?.build() ?? null,
+				this.length,
+			)
+		);
 	}
 
 	getChildLength(): number {
 		return 1;
 	}
 
-	prependBlockChild(block: LeafBlockBuilder<T>, child: T): void {
+	prependBlockChild(block: OuterBlockBuilder<T>, child: T): void {
 		block.prepend(child);
 	}
 
-	appendBlockChild(block: LeafBlockBuilder<T>, child: T): void {
+	appendBlockChild(block: OuterBlockBuilder<T>, child: T): void {
 		block.append(child);
 	}
 
-	dropBlockFirstChild(block: LeafBlockBuilder<T>): T {
+	dropBlockFirstChild(block: OuterBlockBuilder<T>): T {
 		return block.dropFirst();
 	}
 
-	dropBlockLastChild(block: LeafBlockBuilder<T>): T {
+	dropBlockLastChild(block: OuterBlockBuilder<T>): T {
 		return block.dropLast();
 	}
 }

@@ -2,7 +2,7 @@ import type { WithElem } from '@rimbu/collection-types/common';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 
 import type { ListContext } from '#list/context-module';
-import type { LeafBlock } from '#list/immutable/leaf-block';
+import type { OuterBlock } from '#list/immutable/outer-block';
 import type { ListImpl } from '#list/list-impl';
 
 import { Update } from '@rimbu/common/update';
@@ -10,17 +10,17 @@ import { Update } from '@rimbu/common/update';
 import {
 	type BlockBuilder,
 	BuilderBase,
-	type LeafBuilder,
+	type OuterBuilder,
 } from '#list/mutable/builder-base';
 
-export class LeafBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
+export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 	extends BuilderBase
-	implements LeafBuilder<T>, BlockBuilder<T>
+	implements OuterBuilder<T>, BlockBuilder<T>
 {
 	constructor(
 		context: ListContext,
-		public source?: LeafBlock<T>,
-		public _children?: WithElem<Tp, T>['leafChildren'],
+		public source?: OuterBlock<T>,
+		public _children?: WithElem<Tp, T>['outerChildren'],
 	) {
 		super(context);
 	}
@@ -33,11 +33,11 @@ export class LeafBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return this.length;
 	}
 
-	get children(): WithElem<Tp, T>['leafChildren'] {
+	get children(): WithElem<Tp, T>['outerChildren'] {
 		return this._children!;
 	}
 
-	set children(value: WithElem<Tp, T>['leafChildren']) {
+	set children(value: WithElem<Tp, T>['outerChildren']) {
 		this._children = value;
 	}
 
@@ -56,8 +56,8 @@ export class LeafBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		this.source = undefined;
 	}
 
-	copy(children: WithElem<Tp, T>['leafChildren']): LeafBlockBuilder<T> {
-		return this.context.leafBlockBuilder(children);
+	copy(children: WithElem<Tp, T>['outerChildren']): OuterBlockBuilder<T> {
+		return this.context.outerBlockBuilder(children);
 	}
 
 	get(index: number): T {
@@ -78,12 +78,12 @@ export class LeafBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		this.children = this.ops.mutateAppend(this.children, value);
 	}
 
-	prependItems(other: LeafBlockBuilder<T>): void {
+	prependItems(other: OuterBlockBuilder<T>): void {
 		this.prepareMutate();
 		this.children = this.ops.concat(other.children, this.children);
 	}
 
-	appendItems(other: LeafBlockBuilder<T, Tp>): void {
+	appendItems(other: OuterBlockBuilder<T, Tp>): void {
 		this.prepareMutate();
 		this.children = this.ops.concat(this.children, other.children);
 	}
@@ -100,13 +100,13 @@ export class LeafBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return value;
 	}
 
-	build(): LeafBlock<T> {
+	build(): OuterBlock<T> {
 		return (
-			this.source ?? this.context.leafBlock(this.ops.safeCopy(this.children))
+			this.source ?? this.context.outerBlock(this.ops.safeCopy(this.children))
 		);
 	}
 
-	normalized(): LeafBuilder<T> | undefined {
+	normalized(): OuterBuilder<T> | undefined {
 		if (this.length <= 0) {
 			// block is empty
 			return undefined;
@@ -122,10 +122,10 @@ export class LeafBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		const newLength = this.length;
 		const newRight = this.splitRight();
 
-		return this.context.leafTreeBuilder(this, newRight, undefined, newLength);
+		return this.context.outerTreeBuilder(this, newRight, undefined, newLength);
 	}
 
-	splitRight(index = this.length >>> 1): LeafBlockBuilder<T> {
+	splitRight(index = this.length >>> 1): OuterBlockBuilder<T> {
 		this.prepareMutate();
 		const [newChildren, rightChildren] = this.ops.mutateSplice(
 			this.children,

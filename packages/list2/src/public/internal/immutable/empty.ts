@@ -13,7 +13,7 @@ export class ListEmpty<T> extends EmptyBase implements ListImpl<T> {
 
 	constructor(
 		readonly context: ListContext,
-		readonly ops = context.leafChildrenOps,
+		readonly ops = context.outerChildrenOps,
 	) {
 		super();
 	}
@@ -35,11 +35,11 @@ export class ListEmpty<T> extends EmptyBase implements ListImpl<T> {
 	}
 
 	prepend(value: T): ListImpl.NonEmpty<T> {
-		return this.context.leafBlock<T>(this.ops.of([value]));
+		return this.context.outerBlock<T>(this.ops.of([value]));
 	}
 
 	append(value: T): ListImpl.NonEmpty<T> {
-		return this.context.leafBlock<T>(this.ops.of([value]));
+		return this.context.outerBlock<T>(this.ops.of([value]));
 	}
 
 	take(): this {

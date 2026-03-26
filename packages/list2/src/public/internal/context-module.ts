@@ -1,10 +1,10 @@
 import type { WithElem } from '@rimbu/collection-types/common';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
-import type { Block, NonLeaf } from './immutable/utils';
-import type { BlockBuilder, NonLeafBuilder } from './mutable/builder-base';
 
+import type { Block, Inner } from '#list/immutable/utils';
 import type { ListBase } from '#list/list-base';
 import type { ListImpl } from '#list/list-impl';
+import type { BlockBuilder, InnerBuilder } from '#list/mutable/builder-base';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { Module } from '@rimbu/common/module';
@@ -12,79 +12,81 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 
 import { CacheMap } from '#list/immutable/cache-map';
 import { ListEmpty } from '#list/immutable/empty';
-import { LeafBlock } from '#list/immutable/leaf-block';
-import { LeafTree } from '#list/immutable/leaf-tree';
-import { NonLeafBlock } from '#list/immutable/non-leaf-block';
-import { NonLeafTree } from '#list/immutable/non-leaf-tree';
-import { ReversedLeafBlock } from '#list/immutable/reversed-leaf-block';
+import { InnerBlock } from '#list/immutable/inner-block';
+import { InnerTree } from '#list/immutable/inner-tree';
+import { OuterBlock } from '#list/immutable/outer-block';
+import { OuterTree } from '#list/immutable/outer-tree';
+import { ReversedOuterBlock } from '#list/immutable/reversed-outer-block';
 import { ListBuilder } from '#list/mutable/builder';
-import { LeafBlockBuilder } from '#list/mutable/leaf-block-builder';
-import { LeafTreeBuilder } from '#list/mutable/leaf-tree-builder';
-import { NonLeafBlockBuilder } from '#list/mutable/non-leaf-block-builder';
-import { NonLeafTreeBuilder } from '#list/mutable/non-leaf-tree-builder';
+import { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
+import { InnerTreeBuilder } from '#list/mutable/inner-tree-builder';
+import { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
+import { OuterTreeBuilder } from '#list/mutable/outer-tree-builder';
 
 interface ImmutableFactory<Tp extends ListImpl.Types = ListImpl.Types> {
-	leafBlock<T>(children: WithElem<Tp, T>['leafChildren']): LeafBlock<T>;
-	isLeafBlock<T>(block: ListBase<T> | Block<T>): block is LeafBlock<T>;
-	reversedLeafBlock<T>(children: WithElem<Tp, T>['leafChildren']): LeafBlock<T>;
-	isReversedLeafBlock<T>(block: LeafBlock<T>): block is ReversedLeafBlock<T>;
-	leafTree<T>(
-		left: LeafBlock<T>,
-		right: LeafBlock<T>,
-		middle: NonLeaf<T> | null,
+	outerBlock<T>(children: WithElem<Tp, T>['outerChildren']): OuterBlock<T>;
+	isOuterBlock<T>(block: ListBase<T> | Block<T>): block is OuterBlock<T>;
+	reversedOuterBlock<T>(
+		children: WithElem<Tp, T>['outerChildren'],
+	): OuterBlock<T>;
+	isReversedOuterBlock<T>(block: OuterBlock<T>): block is ReversedOuterBlock<T>;
+	outerTree<T>(
+		left: OuterBlock<T>,
+		right: OuterBlock<T>,
+		middle: Inner<T> | null,
 		length: number,
-	): LeafTree<T>;
-	nonLeafBlock<T>(
+	): OuterTree<T>;
+	innerBlock<T>(
 		children: Block<T>[],
 		itemsLength: number,
 		level: number,
-	): NonLeafBlock<T>;
-	isNonLeafBlock<T>(source: unknown): source is NonLeafBlock<T>;
-	nonLeafTree<T>(
-		left: NonLeafBlock<T>,
-		right: NonLeafBlock<T>,
-		middle: NonLeaf<T> | null,
+	): InnerBlock<T>;
+	isInnerBlock<T>(source: unknown): source is InnerBlock<T>;
+	innerTree<T>(
+		left: InnerBlock<T>,
+		right: InnerBlock<T>,
+		middle: Inner<T> | null,
 		itemsLength: number,
 		level: number,
-	): NonLeafTree<T>;
-	isNonLeafTree<T>(source: unknown): source is NonLeafTree<T>;
-	isLeafTree<T>(list: ListBase<T>): list is LeafTree<T>;
+	): InnerTree<T>;
+	isInnerTree<T>(source: unknown): source is InnerTree<T>;
+	isOuterTree<T>(list: ListBase<T>): list is OuterTree<T>;
 	isList<T>(source: unknown): source is ListBase<T, Tp>;
 	isContextList<T>(source: unknown): source is ListImpl<T, Tp>;
 }
 
 interface BuilderFactory<Tp extends ListImpl.Types = ListImpl.Types> {
 	createBuilder<T>(source?: ListBase<T>): ListBuilder<T>;
-	leafBlockBuilderSource<T>(source: LeafBlock<T>): LeafBlockBuilder<T>;
-	leafBlockBuilder<T>(
-		children: WithElem<Tp, T>['leafChildren'],
-	): LeafBlockBuilder<T>;
-	isLeafBlockBuilder<T>(source: unknown): source is LeafBlockBuilder<T>;
-	leafTreeBuilderSource<T>(source: LeafTree<T>): LeafTreeBuilder<T>;
-	leafTreeBuilder<T>(
-		left: LeafBlockBuilder<T>,
-		right: LeafBlockBuilder<T>,
-		middle?: NonLeafBuilder<T>,
+	outerBlockBuilderSource<T>(source: OuterBlock<T>): OuterBlockBuilder<T>;
+	outerBlockBuilder<T>(
+		children: WithElem<Tp, T>['outerChildren'],
+	): OuterBlockBuilder<T>;
+	isOuterBlockBuilder<T>(source: unknown): source is OuterBlockBuilder<T>;
+	outerTreeBuilderSource<T>(source: OuterTree<T>): OuterTreeBuilder<T>;
+	outerTreeBuilder<T>(
+		left: OuterBlockBuilder<T>,
+		right: OuterBlockBuilder<T>,
+		middle?: InnerBuilder<T>,
 		length?: number,
-	): LeafTreeBuilder<T>;
-	isLeafTreeBuilder<T>(source: unknown): source is LeafTreeBuilder<T>;
-	createNonLeafBuilder<T, C extends BlockBuilder<T>>(
-		source: NonLeaf<T>,
-	): NonLeafBuilder<T, C>;
-	nonLeafBlockBuilderSource<T>(source: NonLeafBlock<T>): NonLeafBlockBuilder<T>;
-	nonLeafBlockBuilder<T>(
+	): OuterTreeBuilder<T>;
+	isOuterTreeBuilder<T>(source: unknown): source is OuterTreeBuilder<T>;
+	createInnerBuilder<T, C extends BlockBuilder<T>>(
+		source: Inner<T>,
+	): InnerBuilder<T, C>;
+	innerBlockBuilderSource<T>(source: InnerBlock<T>): InnerBlockBuilder<T>;
+	innerBlockBuilder<T>(
 		level: number,
 		children: Array<BlockBuilder<T>>,
 		itemsLength: number,
-	): NonLeafBlockBuilder<T>;
-	nonLeafTreeBuilderSource<T>(source: NonLeafTree<T>): NonLeafTreeBuilder<T>;
-	nonLeafTreeBuilder<T>(
+	): InnerBlockBuilder<T>;
+	innerTreeBuilderSource<T>(source: InnerTree<T>): InnerTreeBuilder<T>;
+	innerTreeBuilder<T>(
 		level: number,
-		left: NonLeafBlockBuilder<T>,
-		right: NonLeafBlockBuilder<T>,
-		middle: NonLeafBuilder<T> | undefined,
+		left: InnerBlockBuilder<T>,
+		right: InnerBlockBuilder<T>,
+		middle: InnerBuilder<T> | undefined,
 		itemsLength: number,
-	): NonLeafTreeBuilder<T>;
+	): InnerTreeBuilder<T>;
 }
 
 export interface ListContextBase<Tp extends ListImpl.Types = ListImpl.Types>
@@ -96,244 +98,8 @@ export interface ListContextBase<Tp extends ListImpl.Types = ListImpl.Types>
 
 export interface ListContext<Tp extends ListImpl.Types = ListImpl.Types>
 	extends ListContextBase<Tp> {
-	readonly leafChildrenOps: ListImpl.LeafChildrenOps<Tp>;
+	readonly outerChildrenOps: ListImpl.OuterChildrenOps<Tp>;
 }
-
-// function createListContextModule<
-// 	Tp extends ListImpl.Types = ListImpl.Types,
-// 	C extends ListContext<Tp> = ListContext<Tp>,
-// >(
-// 	options: { blockSizeBits?: number | undefined } | undefined = {},
-// 	createLeafChildrenOps: (options: {
-// 		blockSizeBits: number;
-// 	}) => ListImpl.LeafChildrenOps<Tp>,
-// ): (mod: C) => Module.Definition<ListContext<Tp>> {
-// 	const { blockSizeBits = 2 } = options;
-
-// 	const immutableModule = Module.createPartial<{
-// 		defines: ImmutableFactory;
-// 		requires: ListContext<Tp>;
-// 	}>((mod) => ({
-// 		leafBlock<T>(children: WithElem<Tp, T>['leafChildren']): LeafBlock<T> {
-// 			return new LeafBlock(mod, children);
-// 		},
-// 		isLeafBlock<T>(block: ListBase<T> | Block<T>): block is LeafBlock<T> {
-// 			return block instanceof LeafBlock;
-// 		},
-// 		reversedLeafBlock<T>(
-// 			children: WithElem<Tp, T>['leafChildren'],
-// 		): LeafBlock<T> {
-// 			return new ReversedLeafBlock(mod, children);
-// 		},
-// 		isReversedLeafBlock<T>(block: LeafBlock<T>): block is ReversedLeafBlock<T> {
-// 			return block instanceof ReversedLeafBlock;
-// 		},
-// 		leafTree<T>(
-// 			left: LeafBlock<T>,
-// 			right: LeafBlock<T>,
-// 			middle: NonLeaf<T> | null,
-// 			length: number,
-// 		): LeafTree<T> {
-// 			return new LeafTree(mod, left, right, middle, length);
-// 		},
-// 		isLeafTree<T>(list: ListBase<T>): list is LeafTree<T> {
-// 			return list instanceof LeafTree;
-// 		},
-// 		nonLeafBlock<T>(
-// 			children: Block<T>[],
-// 			itemsLength: number,
-// 			level: number,
-// 		): NonLeafBlock<T> {
-// 			return new NonLeafBlock(mod, children, itemsLength, level);
-// 		},
-// 		isNonLeafBlock<T>(source: unknown): source is NonLeafBlock<T> {
-// 			return source instanceof NonLeafBlock;
-// 		},
-// 		nonLeafTree<T>(
-// 			left: NonLeafBlock<T>,
-// 			right: NonLeafBlock<T>,
-// 			middle: NonLeaf<T> | null,
-// 			itemsLength: number,
-// 			level: number,
-// 		): NonLeafTree<T> {
-// 			return new NonLeafTree(mod, left, right, middle, itemsLength, level);
-// 		},
-// 		isNonLeafTree<T>(source: unknown): source is NonLeafTree<T> {
-// 			return source instanceof NonLeafTree;
-// 		},
-// 		isList<T>(source: unknown): source is ListBase<T> {
-// 			return source instanceof ListEmpty || source instanceof LeafBlock;
-// 		},
-// 		isContextList<T>(source: unknown): source is ListImpl<T> {
-// 			if (mod.isList(source)) {
-// 				return source.context === mod;
-// 			}
-
-// 			return false;
-// 		},
-// 	}));
-
-// 	const builderModule = Module.createPartial<{
-// 		defines: BuilderFactory<Tp>;
-// 		requires: ListContext<Tp>;
-// 	}>((mod) => ({
-// 		createBuilder<T>(source?: ListBase<T>): ListBuilder<T> {
-// 			if (undefined === source || source.isEmpty)
-// 				return new ListBuilder<T>(mod);
-
-// 			if (source.context !== mod) {
-// 				throw new Error('Source list was created with a different context');
-// 			}
-
-// 			if (mod.isLeafBlock<T>(source)) {
-// 				const builder = mod.leafBlockBuilderSource(source);
-// 				return new ListBuilder<T>(mod, builder);
-// 			}
-
-// 			if (mod.isLeafTree<T>(source)) {
-// 				const builder = mod.leafTreeBuilderSource<T>(source);
-// 				return new ListBuilder<T>(mod, builder);
-// 			}
-
-// 			throwInvalidStateError();
-// 		},
-// 		leafBlockBuilderSource<T>(source: LeafBlock<T>): LeafBlockBuilder<T> {
-// 			return new LeafBlockBuilder(mod, source);
-// 		},
-// 		leafBlockBuilder<T>(
-// 			children: WithElem<Tp, T>['leafChildren'],
-// 		): LeafBlockBuilder<T> {
-// 			return new LeafBlockBuilder(mod, undefined, children);
-// 		},
-// 		isLeafBlockBuilder<T>(source: unknown): source is LeafBlockBuilder<T> {
-// 			return source instanceof LeafBlockBuilder;
-// 		},
-// 		leafTreeBuilderSource<T>(source: LeafTree<T>): LeafTreeBuilder<T> {
-// 			return new LeafTreeBuilder(mod, source);
-// 		},
-// 		leafTreeBuilder<T>(
-// 			left: LeafBlockBuilder<T>,
-// 			right: LeafBlockBuilder<T>,
-// 			middle?: NonLeafBuilder<T>,
-// 			length?: number,
-// 		): LeafTreeBuilder<T> {
-// 			return new LeafTreeBuilder(mod, undefined, left, right, middle, length);
-// 		},
-// 		isLeafTreeBuilder<T>(source: unknown): source is LeafTreeBuilder<T> {
-// 			return source instanceof LeafTreeBuilder;
-// 		},
-// 		createNonLeafBuilder<T>(source: NonLeaf<T>): NonLeafBuilder<T> {
-// 			if (mod.isNonLeafBlock<T>(source)) {
-// 				return new NonLeafBlockBuilder(mod, source.level, source);
-// 			}
-// 			if (mod.isNonLeafTree<T>(source)) {
-// 				return new NonLeafTreeBuilder(mod, source.level, source);
-// 			}
-
-// 			throwInvalidStateError();
-// 		},
-// 		nonLeafBlockBuilderSource<T>(
-// 			source: NonLeafBlock<T>,
-// 		): NonLeafBlockBuilder<T> {
-// 			return new NonLeafBlockBuilder(mod, source.level, source);
-// 		},
-// 		nonLeafBlockBuilder<T>(
-// 			level: number,
-// 			children: Array<WithElem<Tp, T>['leafChildren']>,
-// 			itemsLength: number,
-// 		): NonLeafBlockBuilder<T> {
-// 			return new NonLeafBlockBuilder(
-// 				mod,
-// 				level,
-// 				undefined,
-// 				children,
-// 				itemsLength,
-// 			);
-// 		},
-// 		nonLeafTreeBuilderSource<T>(source: NonLeafTree<T>): NonLeafTreeBuilder<T> {
-// 			return new NonLeafTreeBuilder(mod, source.level, source);
-// 		},
-// 		nonLeafTreeBuilder<T>(
-// 			level: number,
-// 			left: NonLeafBlockBuilder<T>,
-// 			right: NonLeafBlockBuilder<T>,
-// 			middle: NonLeafBuilder<T>,
-// 			itemsLength: number,
-// 		): NonLeafTreeBuilder<T> {
-// 			return new NonLeafTreeBuilder(
-// 				mod,
-// 				level,
-// 				undefined,
-// 				left,
-// 				right,
-// 				middle,
-// 				itemsLength,
-// 			);
-// 		},
-// 	}));
-
-// 	return Module.createPartial<{ defines: ListContext<Tp>; requires: C }>(
-// 		(mod) => ({
-// 			...immutableModule(mod),
-// 			...builderModule(mod),
-// 			minBlockSize: 1 << (blockSizeBits - 1),
-// 			maxBlockSize: 1 << blockSizeBits,
-// 			createContext: (options) =>
-// 				createListContextModule(options, createLeafChildrenOps).build(),
-// 			empty: Module.lazy(() => Object.freeze(new ListEmpty<any>(mod))),
-// 			of: <T>(...values: ArrayNonEmpty<T>): ListImpl.NonEmpty<T> => {
-// 				if (values.length <= mod.maxBlockSize) {
-// 					return mod.leafBlock<T>(mod.leafChildrenOps.of(values));
-// 				}
-
-// 				return mod.from(values).assumeNonEmpty();
-// 			},
-// 			from: <T>(...sources: ArrayNonEmpty<StreamSource<T>>): ListImpl<T> => {
-// 				if (sources.length === 1) {
-// 					const source = sources[0];
-// 					if (mod.isContextList<T>(source)) return source;
-// 				}
-
-// 				let result: ListImpl<T> | null = null;
-
-// 				let i = -1;
-// 				const length = sources.length;
-
-// 				while (++i < length) {
-// 					const source = sources[i];
-
-// 					if (!Stream.isEmptyStreamSourceInstance(source)) {
-// 						if (mod.isContextList<T>(source)) {
-// 							if (null === result) result = source;
-// 							else result = result.concat(source);
-// 						} else {
-// 							const builder = mod.builder<T>();
-
-// 							if (Array.isArray(source)) builder.appendArray(source);
-// 							else builder.appendAll(source);
-
-// 							if (!builder.isEmpty) {
-// 								const build = builder.build();
-// 								if (null === result) result = build;
-// 								else result = result.concat(build);
-// 							}
-// 						}
-// 					}
-// 				}
-
-// 				if (null === result) return mod.empty();
-// 				return result;
-// 			},
-// 			builder: 0 as any,
-// 			leafChildrenOps: Module.lazyGetter(() =>
-// 				createLeafChildrenOps({ blockSizeBits }),
-// 			),
-// 			cacheMap() {
-// 				return new CacheMap();
-// 			},
-// 		}),
-// 	);
-// }
 
 export function createContextModule<
 	C extends ListContext<Tp>,
@@ -347,55 +113,57 @@ export function createContextModule<
 		defines: ImmutableFactory<Tp>;
 		requires: ListContext<Tp>;
 	}>((mod) => ({
-		leafBlock<T>(children: WithElem<Tp, T>['leafChildren']): LeafBlock<T> {
-			return new LeafBlock(mod, children);
+		outerBlock<T>(children: WithElem<Tp, T>['outerChildren']): OuterBlock<T> {
+			return new OuterBlock(mod, children);
 		},
-		isLeafBlock<T>(block: ListBase<T> | Block<T>): block is LeafBlock<T> {
-			return block instanceof LeafBlock;
+		isOuterBlock<T>(block: ListBase<T> | Block<T>): block is OuterBlock<T> {
+			return block instanceof OuterBlock;
 		},
-		reversedLeafBlock<T>(
-			children: WithElem<Tp, T>['leafChildren'],
-		): LeafBlock<T> {
-			return new ReversedLeafBlock(mod, children);
+		reversedOuterBlock<T>(
+			children: WithElem<Tp, T>['outerChildren'],
+		): OuterBlock<T> {
+			return new ReversedOuterBlock(mod, children);
 		},
-		isReversedLeafBlock<T>(block: LeafBlock<T>): block is ReversedLeafBlock<T> {
-			return block instanceof ReversedLeafBlock;
+		isReversedOuterBlock<T>(
+			block: OuterBlock<T>,
+		): block is ReversedOuterBlock<T> {
+			return block instanceof ReversedOuterBlock;
 		},
-		leafTree<T>(
-			left: LeafBlock<T>,
-			right: LeafBlock<T>,
-			middle: NonLeaf<T> | null,
+		outerTree<T>(
+			left: OuterBlock<T>,
+			right: OuterBlock<T>,
+			middle: Inner<T> | null,
 			length: number,
-		): LeafTree<T> {
-			return new LeafTree(mod, left, right, middle, length);
+		): OuterTree<T> {
+			return new OuterTree(mod, left, right, middle, length);
 		},
-		isLeafTree<T>(list: ListBase<T>): list is LeafTree<T> {
-			return list instanceof LeafTree;
+		isOuterTree<T>(list: ListBase<T>): list is OuterTree<T> {
+			return list instanceof OuterTree;
 		},
-		nonLeafBlock<T>(
+		innerBlock<T>(
 			children: Block<T>[],
 			itemsLength: number,
 			level: number,
-		): NonLeafBlock<T> {
-			return new NonLeafBlock(mod, children, itemsLength, level);
+		): InnerBlock<T> {
+			return new InnerBlock(mod, children, itemsLength, level);
 		},
-		isNonLeafBlock<T>(source: unknown): source is NonLeafBlock<T> {
-			return source instanceof NonLeafBlock;
+		isInnerBlock<T>(source: unknown): source is InnerBlock<T> {
+			return source instanceof InnerBlock;
 		},
-		nonLeafTree<T>(
-			left: NonLeafBlock<T>,
-			right: NonLeafBlock<T>,
-			middle: NonLeaf<T> | null,
+		innerTree<T>(
+			left: InnerBlock<T>,
+			right: InnerBlock<T>,
+			middle: Inner<T> | null,
 			itemsLength: number,
 			level: number,
-		): NonLeafTree<T> {
-			return new NonLeafTree(mod, left, right, middle, itemsLength, level);
+		): InnerTree<T> {
+			return new InnerTree(mod, left, right, middle, itemsLength, level);
 		},
-		isNonLeafTree<T>(source: unknown): source is NonLeafTree<T> {
-			return source instanceof NonLeafTree;
+		isInnerTree<T>(source: unknown): source is InnerTree<T> {
+			return source instanceof InnerTree;
 		},
 		isList<T>(source: unknown): source is ListBase<T, Tp> {
-			return source instanceof ListEmpty || source instanceof LeafBlock;
+			return source instanceof ListEmpty || source instanceof OuterBlock;
 		},
 		isContextList<T>(source: unknown): source is ListImpl<T, Tp> {
 			if (mod.isList(source)) {
@@ -418,66 +186,64 @@ export function createContextModule<
 				throw new Error('Source list was created with a different context');
 			}
 
-			if (mod.isLeafBlock<T>(source)) {
-				const builder = mod.leafBlockBuilderSource(source);
+			if (mod.isOuterBlock<T>(source)) {
+				const builder = mod.outerBlockBuilderSource(source);
 				return new ListBuilder<T>(mod, builder);
 			}
 
-			if (mod.isLeafTree<T>(source)) {
-				const builder = mod.leafTreeBuilderSource<T>(source);
+			if (mod.isOuterTree<T>(source)) {
+				const builder = mod.outerTreeBuilderSource<T>(source);
 				return new ListBuilder<T>(mod, builder);
 			}
 
 			throwInvalidStateError();
 		},
-		leafBlockBuilderSource<T>(source: LeafBlock<T>): LeafBlockBuilder<T> {
-			return new LeafBlockBuilder(mod, source);
+		outerBlockBuilderSource<T>(source: OuterBlock<T>): OuterBlockBuilder<T> {
+			return new OuterBlockBuilder(mod, source);
 		},
-		leafBlockBuilder<T>(
-			children: WithElem<Tp, T>['leafChildren'],
-		): LeafBlockBuilder<T> {
-			return new LeafBlockBuilder(mod, undefined, children);
+		outerBlockBuilder<T>(
+			children: WithElem<Tp, T>['outerChildren'],
+		): OuterBlockBuilder<T> {
+			return new OuterBlockBuilder(mod, undefined, children);
 		},
-		isLeafBlockBuilder<T>(source: unknown): source is LeafBlockBuilder<T> {
-			return source instanceof LeafBlockBuilder;
+		isOuterBlockBuilder<T>(source: unknown): source is OuterBlockBuilder<T> {
+			return source instanceof OuterBlockBuilder;
 		},
-		leafTreeBuilderSource<T>(source: LeafTree<T>): LeafTreeBuilder<T> {
-			return new LeafTreeBuilder(mod, source);
+		outerTreeBuilderSource<T>(source: OuterTree<T>): OuterTreeBuilder<T> {
+			return new OuterTreeBuilder(mod, source);
 		},
-		leafTreeBuilder<T>(
-			left: LeafBlockBuilder<T>,
-			right: LeafBlockBuilder<T>,
-			middle?: NonLeafBuilder<T, LeafBlockBuilder<T>>,
+		outerTreeBuilder<T>(
+			left: OuterBlockBuilder<T>,
+			right: OuterBlockBuilder<T>,
+			middle?: InnerBuilder<T, OuterBlockBuilder<T>>,
 			length?: number,
-		): LeafTreeBuilder<T> {
-			return new LeafTreeBuilder(mod, undefined, left, right, middle, length);
+		): OuterTreeBuilder<T> {
+			return new OuterTreeBuilder(mod, undefined, left, right, middle, length);
 		},
-		isLeafTreeBuilder<T>(source: unknown): source is LeafTreeBuilder<T> {
-			return source instanceof LeafTreeBuilder;
+		isOuterTreeBuilder<T>(source: unknown): source is OuterTreeBuilder<T> {
+			return source instanceof OuterTreeBuilder;
 		},
-		createNonLeafBuilder<T, C extends BlockBuilder<T>>(
-			source: NonLeaf<T>,
-		): NonLeafBuilder<T, C> {
-			if (mod.isNonLeafBlock<T>(source)) {
-				return new NonLeafBlockBuilder(mod, source.level, source) as any;
+		createInnerBuilder<T, C extends BlockBuilder<T>>(
+			source: Inner<T>,
+		): InnerBuilder<T, C> {
+			if (mod.isInnerBlock<T>(source)) {
+				return new InnerBlockBuilder(mod, source.level, source) as any;
 			}
-			if (mod.isNonLeafTree<T>(source)) {
-				return new NonLeafTreeBuilder(mod, source.level, source) as any;
+			if (mod.isInnerTree<T>(source)) {
+				return new InnerTreeBuilder(mod, source.level, source) as any;
 			}
 
 			throwInvalidStateError();
 		},
-		nonLeafBlockBuilderSource<T>(
-			source: NonLeafBlock<T>,
-		): NonLeafBlockBuilder<T> {
-			return new NonLeafBlockBuilder(mod, source.level, source);
+		innerBlockBuilderSource<T>(source: InnerBlock<T>): InnerBlockBuilder<T> {
+			return new InnerBlockBuilder(mod, source.level, source);
 		},
-		nonLeafBlockBuilder<T>(
+		innerBlockBuilder<T>(
 			level: number,
-			children: Array<LeafBlockBuilder<T>>,
+			children: Array<OuterBlockBuilder<T>>,
 			itemsLength: number,
-		): NonLeafBlockBuilder<T> {
-			return new NonLeafBlockBuilder(
+		): InnerBlockBuilder<T> {
+			return new InnerBlockBuilder<T>(
 				mod,
 				level,
 				undefined,
@@ -485,17 +251,17 @@ export function createContextModule<
 				itemsLength,
 			);
 		},
-		nonLeafTreeBuilderSource<T>(source: NonLeafTree<T>): NonLeafTreeBuilder<T> {
-			return new NonLeafTreeBuilder(mod, source.level, source);
+		innerTreeBuilderSource<T>(source: InnerTree<T>): InnerTreeBuilder<T> {
+			return new InnerTreeBuilder(mod, source.level, source);
 		},
-		nonLeafTreeBuilder<T>(
+		innerTreeBuilder<T>(
 			level: number,
-			left: NonLeafBlockBuilder<T>,
-			right: NonLeafBlockBuilder<T>,
-			middle: NonLeafBuilder<T, NonLeafBlockBuilder<T>> | undefined,
+			left: InnerBlockBuilder<T>,
+			right: InnerBlockBuilder<T>,
+			middle: InnerBuilder<T, InnerBlockBuilder<T>> | undefined,
 			itemsLength: number,
-		): NonLeafTreeBuilder<T> {
-			return new NonLeafTreeBuilder(
+		): InnerTreeBuilder<T> {
+			return new InnerTreeBuilder(
 				mod,
 				level,
 				undefined,
@@ -517,7 +283,7 @@ export function createContextModule<
 			empty: Module.lazy(() => Object.freeze(new ListEmpty<any>(mod))),
 			of: <T>(...values: ArrayNonEmpty<T>): any => {
 				if (values.length <= mod.maxBlockSize) {
-					return mod.leafBlock<T>(mod.leafChildrenOps.of(values));
+					return mod.outerBlock<T>(mod.outerChildrenOps.of(values));
 				}
 
 				return mod.from<T>(values);

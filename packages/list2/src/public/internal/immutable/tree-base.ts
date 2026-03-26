@@ -126,7 +126,9 @@ export function treeToStream<T>(
 		? [tree.right, tree.left]
 		: [tree.left, tree.right];
 
-	return first.stream().concat(tree.middle?.stream(), second.stream());
+	return first
+		.stream(options)
+		.concat(tree.middle?.stream(options), second.stream(options));
 }
 
 interface TreeForEachNode<T> {

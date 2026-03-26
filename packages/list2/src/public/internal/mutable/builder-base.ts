@@ -2,7 +2,7 @@ import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { Update } from '@rimbu/common/update';
 
 import type { ListContext } from '#list/context-module';
-import type { NonLeaf } from '#list/immutable/utils';
+import type { Block, Inner } from '#list/immutable/utils';
 import type { ListImpl } from '#list/list-impl';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
@@ -16,16 +16,16 @@ export interface BuilderCommon<T> {
 	): void;
 }
 
-export interface LeafBuilder<T> extends BuilderCommon<T> {
+export interface OuterBuilder<T> extends BuilderCommon<T> {
 	get length(): number;
 	get(index: number): T;
 	prepend(value: T): void;
 	append(value: T): void;
 	build(): ListImpl<T>;
-	normalized(): LeafBuilder<T> | undefined;
+	normalized(): OuterBuilder<T> | undefined;
 }
 
-export interface NonLeafBuilder<T, C extends BlockBuilder<T> = BlockBuilder<T>>
+export interface InnerBuilder<T, C extends BlockBuilder<T> = BlockBuilder<T>>
 	extends BuilderCommon<T> {
 	get itemsLength(): number;
 	prependChild(child: C): void;
@@ -35,8 +35,8 @@ export interface NonLeafBuilder<T, C extends BlockBuilder<T> = BlockBuilder<T>>
 	dropFirstChild(): C;
 	modifyFirstChild(f: (child: C) => number | undefined): void;
 	modifyLastChild(f: (child: C) => number | undefined): void;
-	build(): NonLeaf<T>;
-	normalized(): NonLeafBuilder<T> | undefined;
+	build(): Inner<T>;
+	normalized(): InnerBuilder<T> | undefined;
 }
 
 export interface BlockBuilder<T> extends BuilderCommon<T> {
@@ -46,12 +46,13 @@ export interface BlockBuilder<T> extends BuilderCommon<T> {
 	prependItems(other: BlockBuilder<T>): void;
 	appendItems(other: BlockBuilder<T>): void;
 	splitRight(index?: number): BlockBuilder<T>;
+	build(): Block<T>;
 }
 
 export abstract class BuilderBase {
 	constructor(
 		readonly context: ListContext,
-		readonly ops = context.leafChildrenOps,
+		readonly ops = context.outerChildrenOps,
 	) {}
 }
 
@@ -59,7 +60,7 @@ export abstract class TreeBuilderBase<T, C> extends BuilderBase {
 	abstract itemsLength: number;
 	abstract left: BlockBuilder<T>;
 	abstract right: BlockBuilder<T>;
-	abstract middle: NonLeafBuilder<T> | undefined;
+	abstract middle: InnerBuilder<T> | undefined;
 	abstract getChildLength(child: C): number;
 	abstract prependBlockChild(block: BlockBuilder<T>, child: C): void;
 	abstract appendBlockChild(block: BlockBuilder<T>, child: C): void;
@@ -253,7 +254,7 @@ export abstract class TreeBuilderBase<T, C> extends BuilderBase {
 
 		if (undefined === this.middle) {
 			// no middle, create it with child
-			this.middle = this.context.nonLeafBlockBuilder(
+			this.middle = this.context.innerBlockBuilder(
 				this.level + 1,
 				[child],
 				child.itemsLength,
@@ -303,7 +304,7 @@ export abstract class TreeBuilderBase<T, C> extends BuilderBase {
 
 		if (undefined === this.middle) {
 			// no middle, create it with child
-			this.middle = this.context.nonLeafBlockBuilder(
+			this.middle = this.context.innerBlockBuilder(
 				this.level + 1,
 				[child],
 				child.itemsLength,

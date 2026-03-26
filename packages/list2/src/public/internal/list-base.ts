@@ -531,8 +531,8 @@ export namespace ListBase {
 		builder<T extends Tp['_UT']>(): WithElem<Tp, T>['builder'];
 	}
 
-	export interface LeafChildrenTag {
-		__leafChildrenTag?: true;
+	export interface OuterChildrenTag {
+		__outerChildrenTag?: true;
 	}
 
 	export interface Types extends Elem {
@@ -543,6 +543,6 @@ export namespace ListBase {
 			? unknown
 			: ListBase.Builder<this['_T']>;
 		readonly context: ListBase.Context;
-		readonly leafChildren: LeafChildrenTag;
+		readonly outerChildren: OuterChildrenTag;
 	}
 }
