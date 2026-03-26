@@ -1,3 +1,4 @@
+import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, StringNonEmpty } from '@rimbu/common/types';
 import type { List } from '@rimbu/list';
 
@@ -98,6 +99,29 @@ export namespace ListHelpers {
 					.join({ sep: separator })
 					.toString();
 			},
+			forEach<T>(
+				children: readonly T[],
+				f: (value: T, index: number, halt: () => void) => void,
+				options: { reversed: boolean; state: TraverseState },
+			): void {
+				const { reversed, state } = options;
+
+				if (state.halted) return;
+
+				const length = children.length;
+
+				if (!reversed) {
+					let i = -1;
+					while (!state.halted && ++i < length) {
+						f(children[i], state.nextIndex(), state.halt);
+					}
+				} else {
+					let i = length;
+					while (!state.halted && --i >= 0) {
+						f(children[i], state.nextIndex(), state.halt);
+					}
+				}
+			},
 			toArray<T>(
 				children: readonly T[],
 				startIndex?: number,
@@ -124,6 +148,10 @@ export namespace ListHelpers {
 				}
 
 				return result;
+			},
+			mutateSet<T>(children: T[], index: number, value: T): T[] {
+				children[index] = value;
+				return children;
 			},
 			mutateAppend<T>(children: T[], value: T): T[] {
 				children.push(value);

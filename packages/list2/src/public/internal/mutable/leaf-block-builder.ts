@@ -1,8 +1,11 @@
 import type { WithElem } from '@rimbu/collection-types/common';
+import type { TraverseState } from '@rimbu/common/traverse-state';
 
 import type { ListContext } from '#list/context-module';
 import type { LeafBlock } from '#list/immutable/leaf-block';
 import type { ListImpl } from '#list/list-impl';
+
+import { Update } from '@rimbu/common/update';
 
 import {
 	type BlockBuilder,
@@ -131,5 +134,30 @@ export class LeafBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		this.children = newChildren;
 		this.source = undefined;
 		return this.copy(rightChildren);
+	}
+
+	updateAt(index: number, update: Update<T>): T {
+		const oldValue = this.ops.get<T>(this.children, index);
+		const newValue = Update(oldValue, update);
+
+		if (!Object.is(oldValue, newValue)) {
+			this.prepareMutate();
+			// value changed
+			this.ops.mutateSet(this.children, index, newValue);
+		}
+
+		return oldValue;
+	}
+
+	forEach(
+		f: (value: T, index: number, halt: () => void) => void,
+		options: { reversed: boolean; state: TraverseState },
+	): void {
+		if (undefined !== this.source) {
+			this.source.forEach(f, options);
+			return;
+		}
+
+		this.ops.forEach(this.children, f, options);
 	}
 }

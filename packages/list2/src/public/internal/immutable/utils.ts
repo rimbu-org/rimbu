@@ -1,4 +1,5 @@
 import type { IndexRange } from '@rimbu/common/index-range';
+import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { Stream } from '@rimbu/stream';
 import type { BlockBuilder } from '../mutable/builder-base';
 
@@ -13,6 +14,10 @@ export interface ListCommon<T> {
 			| { range?: IndexRange | undefined; reversed?: boolean }
 			| undefined,
 	): T[];
+	forEach(
+		f: (value: T, index: number, halt: () => void) => void,
+		options?: { reversed?: boolean; state?: TraverseState } | undefined,
+	): void;
 	_structure(): string;
 }
 

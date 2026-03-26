@@ -1,3 +1,4 @@
+import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { NonLeafBlockBuilder } from '../mutable/non-leaf-block-builder';
 
 import type { ListContext } from '#list/context-module';
@@ -190,6 +191,33 @@ export class NonLeafBlock<T> extends NonLeafBase<T> implements Block<T> {
 		const newSelf = this.copy(newChildren, newLength);
 
 		return [newSelf, lastChild];
+	}
+
+	forEach(
+		f: (value: T, index: number, halt: () => void) => void,
+		options: { reversed: boolean; state: TraverseState },
+	): void {
+		const { reversed, state } = options;
+
+		if (state.halted) return;
+
+		const length = this.children.length;
+
+		if (!reversed) {
+			let i = -1;
+			const children = this.children;
+
+			while (!state.halted && ++i < length) {
+				children[i].forEach(f, options);
+			}
+		} else {
+			let i = length;
+			const children = this.children;
+
+			while (!state.halted && --i >= 0) {
+				children[i].forEach(f, options);
+			}
+		}
 	}
 
 	toArray(

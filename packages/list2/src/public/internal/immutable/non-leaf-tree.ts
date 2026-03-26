@@ -1,4 +1,5 @@
 import type { IndexRange } from '@rimbu/common/index-range';
+import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { Stream } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context-module';
@@ -9,7 +10,11 @@ import type { Block, NonLeaf } from '#list/immutable/utils';
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 
 import { NonLeafBase } from '#list/immutable/non-leaf-base';
-import { treeToArray, treeToStream } from '#list/immutable/tree-base';
+import {
+	treeForEach,
+	treeToArray,
+	treeToStream,
+} from '#list/immutable/tree-base';
 
 export class NonLeafTree<T> extends NonLeafBase<T> implements NonLeaf<T> {
 	constructor(
@@ -137,7 +142,7 @@ export class NonLeafTree<T> extends NonLeafBase<T> implements NonLeaf<T> {
 		return [newSelf, lastChild];
 	}
 
-	concat<T2>(nonLeaf: NonLeaf<T2>): NonLeaf<T | T2> {
+	concat(nonLeaf: NonLeaf<T>): NonLeaf<T> {
 		if (this.context.isNonLeafBlock<T>(nonLeaf)) {
 			return this.concatBlock(nonLeaf);
 		}
@@ -309,6 +314,13 @@ export class NonLeafTree<T> extends NonLeafBase<T> implements NonLeaf<T> {
 		}
 
 		return this;
+	}
+
+	forEach(
+		f: (value: T, index: number, halt: () => void) => void,
+		options: { reversed: boolean; state: TraverseState },
+	): void {
+		treeForEach(this, f, options);
 	}
 
 	_structure(): string {

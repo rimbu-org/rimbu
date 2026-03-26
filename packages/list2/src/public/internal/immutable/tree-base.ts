@@ -1,3 +1,4 @@
+import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { Stream } from '@rimbu/stream';
 
 import type { Tree } from '#list/immutable/utils';
@@ -126,4 +127,31 @@ export function treeToStream<T>(
 		: [tree.left, tree.right];
 
 	return first.stream().concat(tree.middle?.stream(), second.stream());
+}
+
+interface TreeForEachNode<T> {
+	forEach(
+		f: (value: T, index: number, halt: () => void) => void,
+		options?: { reversed?: boolean; state?: TraverseState } | undefined,
+	): void;
+}
+
+export function treeForEach<T>(
+	tree: Tree<TreeForEachNode<T>, TreeForEachNode<T>>,
+	f: (value: T, index: number, halt: () => void) => void,
+	options: { reversed: boolean; state: TraverseState },
+) {
+	const { reversed, state } = options;
+
+	if (state.halted) return;
+
+	(reversed ? tree.right : tree.left).forEach(f, options);
+
+	if (state.halted) return;
+
+	tree.middle?.forEach(f, options);
+
+	if (state.halted) return;
+
+	(reversed ? tree.left : tree.right).forEach(f, options);
 }

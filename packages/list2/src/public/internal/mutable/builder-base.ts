@@ -1,10 +1,22 @@
+import type { TraverseState } from '@rimbu/common/traverse-state';
+import type { Update } from '@rimbu/common/update';
+
 import type { ListContext } from '#list/context-module';
 import type { NonLeaf } from '#list/immutable/utils';
 import type { ListImpl } from '#list/list-impl';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 
-export interface LeafBuilder<T> {
+export interface BuilderCommon<T> {
+	get(index: number): T;
+	updateAt(index: number, update: Update<T>): T;
+	forEach(
+		f: (value: T, index: number, halt: () => void) => void,
+		options: { reversed: boolean; state: TraverseState },
+	): void;
+}
+
+export interface LeafBuilder<T> extends BuilderCommon<T> {
 	get length(): number;
 	get(index: number): T;
 	prepend(value: T): void;
@@ -13,12 +25,9 @@ export interface LeafBuilder<T> {
 	normalized(): LeafBuilder<T> | undefined;
 }
 
-export interface NonLeafBuilder<
-	T,
-	C extends BlockBuilder<T> = BlockBuilder<T>,
-> {
+export interface NonLeafBuilder<T, C extends BlockBuilder<T> = BlockBuilder<T>>
+	extends BuilderCommon<T> {
 	get itemsLength(): number;
-	get(index: number): T;
 	prependChild(child: C): void;
 	appendChild(child: C): void;
 	firstChild(): C;
@@ -30,11 +39,10 @@ export interface NonLeafBuilder<
 	normalized(): NonLeafBuilder<T> | undefined;
 }
 
-export interface BlockBuilder<T> {
+export interface BlockBuilder<T> extends BuilderCommon<T> {
 	get nrChildren(): number;
 	get canAddChild(): boolean;
 	get itemsLength(): number;
-	get(index: number): T;
 	prependItems(other: BlockBuilder<T>): void;
 	appendItems(other: BlockBuilder<T>): void;
 	splitRight(index?: number): BlockBuilder<T>;
@@ -81,6 +89,62 @@ export abstract class TreeBuilderBase<T, C> extends BuilderBase {
 
 		// index is in middle part
 		return this.middle.get(middleIndex);
+	}
+
+	updateAt(index: number, update: Update<T>): T {
+		const middleIndex = index - this.left.itemsLength;
+
+		if (middleIndex < 0) {
+			// index is in left part
+			return this.left.updateAt(index, update);
+		}
+
+		const rightIndex = middleIndex - (this.middle?.itemsLength ?? 0);
+
+		if (rightIndex >= 0) {
+			// index is in right part
+			return this.right.updateAt(rightIndex, update);
+		}
+
+		if (undefined === this.middle) {
+			throwInvalidStateError();
+		}
+
+		// index is in middle part
+		return this.middle.updateAt(middleIndex, update);
+	}
+
+	forEach(
+		f: (value: T, index: number, halt: () => void) => void,
+		options: { reversed: boolean; state: TraverseState },
+	): void {
+		const { reversed, state } = options;
+
+		if (state.halted) return;
+
+		if (!reversed) {
+			this.left.forEach(f, options);
+
+			if (state.halted) return;
+
+			if (undefined !== this.middle) {
+				this.middle.forEach(f, options);
+				if (state.halted) return;
+			}
+
+			this.right.forEach(f, options);
+		} else {
+			this.right.forEach(f, options);
+
+			if (state.halted) return;
+
+			if (undefined !== this.middle) {
+				this.middle.forEach(f, options);
+				if (state.halted) return;
+			}
+
+			this.left.forEach(f, options);
+		}
 	}
 
 	prepend(child: C): void {
@@ -134,6 +198,7 @@ export abstract class TreeBuilderBase<T, C> extends BuilderBase {
 
 	append(child: C): void {
 		this.prepareMutate();
+
 		// add child length to this length
 		this.itemsLength += this.getChildLength(child);
 
@@ -154,8 +219,10 @@ export abstract class TreeBuilderBase<T, C> extends BuilderBase {
 						const shiftChild = this.dropBlockFirstChild(this.right);
 						this.appendBlockChild(this.right, child);
 						this.appendBlockChild(lastChild, shiftChild);
+
 						return this.getChildLength(shiftChild);
 					}
+
 					return;
 				},
 			);
@@ -183,6 +250,7 @@ export abstract class TreeBuilderBase<T, C> extends BuilderBase {
 
 	prependMiddle(child: BlockBuilder<T>): void {
 		this.prepareMutate();
+
 		if (undefined === this.middle) {
 			// no middle, create it with child
 			this.middle = this.context.nonLeafBlockBuilder(
@@ -232,6 +300,7 @@ export abstract class TreeBuilderBase<T, C> extends BuilderBase {
 
 	appendMiddle(child: BlockBuilder<T>): void {
 		this.prepareMutate();
+
 		if (undefined === this.middle) {
 			// no middle, create it with child
 			this.middle = this.context.nonLeafBlockBuilder(

@@ -84,26 +84,26 @@ export class LeafTreeBuilder<T>
 			return this.left;
 		}
 
-		// if (undefined !== this.middle) {
-		// 	if (
-		// 		this.middle.itemsLength + this.left.length <=
-		// 		this.context.maxBlockSize
-		// 	) {
-		// 		// can merge middle with left
-		// 		this.left.concat(this.middle.firstLeafBlockBuilder());
-		// 		this.middle = undefined;
-		// 	} else if (
-		// 		this.middle.itemsLength + this.right.length <=
-		// 		this.context.maxBlockSize
-		// 	) {
-		// 		// can merge middle with right
-		// 		const newRight = this.middle.lastLeafBlockBuilder();
-		// 		newRight.concat(this.right);
-		// 		this.right = newRight;
-		// 		this.middle = undefined;
-		// 	}
-		// }
-		//
+		if (undefined !== this.middle) {
+			if (
+				this.middle.itemsLength + this.left.length <=
+				this.context.maxBlockSize
+			) {
+				// can merge middle with left
+				this.left.appendItems(this.middle.firstChild());
+				this.middle = undefined;
+			} else if (
+				this.middle.itemsLength + this.right.length <=
+				this.context.maxBlockSize
+			) {
+				// can merge middle with right
+				const newRight = this.middle.lastChild();
+				newRight.appendItems(this.right);
+				this.right = newRight;
+				this.middle = undefined;
+			}
+		}
+
 		return this;
 	}
 

@@ -226,6 +226,29 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	): WithElem<Tp, T>['nonEmpty'];
 	concat(...sources: ArrayNonEmpty<StreamSource<T>>): WithElem<Tp, T>['normal'];
 	/**
+	 * Performs given function `f` for each value of the List.
+	 * @param f - the function to perform for each element, receiving<br/>
+	 * - `value`: the next value<br/>
+	 * - `index`: the index of the value<br/>
+	 * - `halt`: a function that, if called, ensures that no new elements are passed
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - reversed: (default: false) when true will reverse the element order
+	 * - state: (optional) the traversal state
+	 * @example
+	 * ```ts
+	 * List.of(0, 1, 2, 3).forEach((value, i, halt) => {
+	 *  console.log(value * 2);
+	 *  if (i >= 1) halt();
+	 * })
+	 * // => logs 0  2
+	 * ```
+	 * @note O(N)
+	 */
+	forEach(
+		f: (value: T, index: number, halt: () => void) => void,
+		options?: { reversed?: boolean; state?: TraverseState } | undefined,
+	): void;
+	/**
 	 * Returns an array containing the values within given `range` (default: all) in this collection.
 	 * If `reversed` is true, reverses the order of the values.
 	 * @param options - (optional) an object containing the following properties:<br/>

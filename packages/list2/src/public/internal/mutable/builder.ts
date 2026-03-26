@@ -1,5 +1,4 @@
 import type { WithElem } from '@rimbu/collection-types/common';
-import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { Update } from '@rimbu/common/update';
 
 import type { ListContext } from '#list/context-module';
@@ -10,6 +9,7 @@ import {
 	throwModifiedBuilderWhileLoopingOverItError,
 } from '@rimbu/base/rimbu-error';
 import { OptLazy } from '@rimbu/common/opt-lazy';
+import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
 import { BuilderBase, type LeafBuilder } from '#list/mutable/builder-base';
@@ -88,7 +88,12 @@ export class ListBuilder<
 			return;
 		}
 
-		Stream.from(values).forEachPure(this.append);
+		const token = Symbol();
+		const iterator = Stream.from(values)[Symbol.iterator]();
+		let next: T | typeof token;
+		while ((next = iterator.fastNext(token)) !== token) {
+			this.append(next);
+		}
 	};
 
 	appendArray(array: T[]): void {
@@ -162,14 +167,43 @@ export class ListBuilder<
 		update: Update<T>,
 		otherwise?: OptLazy<O>,
 	): T | O => {
-		throw new Error('Method not implemented.');
+		this.checkLock();
+
+		if (
+			undefined === this.leafBuilder ||
+			index >= this.length ||
+			-index > this.length
+		) {
+			return OptLazy(otherwise) as O;
+		}
+		if (index < 0) {
+			return this.updateAt(this.length + index, update);
+		}
+
+		return this.leafBuilder.updateAt(index, update);
+	};
+
+	set = <O>(index: number, value: T, otherwise?: OptLazy<O>): T | O => {
+		return this.updateAt(index, value, otherwise);
 	};
 
 	forEach = (
 		f: (value: T, index: number, halt: () => void) => void,
 		options: { reversed?: boolean; state?: TraverseState } = {},
 	): void => {
-		throw new Error('Method not implemented.');
+		if (undefined === this.leafBuilder) return;
+
+		const { reversed = false, state = TraverseState() } = options;
+
+		if (state.halted) return;
+
+		this._lock++;
+
+		try {
+			this.leafBuilder.forEach(f, { reversed, state });
+		} finally {
+			this._lock--;
+		}
 	};
 
 	build = (): WithElem<Tp, T>['normal'] => {

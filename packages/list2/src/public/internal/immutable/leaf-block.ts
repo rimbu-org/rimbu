@@ -11,6 +11,7 @@ import type { ListImpl } from '#list/list-impl';
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { IndexRange } from '@rimbu/common/index-range';
 import { OptLazy } from '@rimbu/common/opt-lazy';
+import { TraverseState } from '@rimbu/common/traverse-state';
 
 import { LeafBase } from '#list/immutable/leaf-base';
 
@@ -226,6 +227,17 @@ export class LeafBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		const newMiddle = other.prependMiddle(newSecond);
 
 		return other.copy(newLeft, undefined, newMiddle);
+	}
+
+	forEach(
+		f: (value: T, index: number, halt: () => void) => void,
+		options: { reversed?: boolean; state?: TraverseState } | undefined = {},
+	): void {
+		const { reversed = false, state = TraverseState() } = options;
+
+		if (state.halted) return;
+
+		this.ops.forEach(this.children, f, { reversed, state });
 	}
 
 	toArray(

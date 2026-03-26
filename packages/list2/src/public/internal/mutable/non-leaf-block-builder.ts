@@ -1,6 +1,11 @@
+import type { TraverseState } from '@rimbu/common/traverse-state';
+import type { Update } from '@rimbu/common/update';
+
 import type { ListContext } from '#list/context-module';
 import type { NonLeafBlock } from '#list/immutable/non-leaf-block';
 import type { NonLeaf } from '#list/immutable/utils';
+
+import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 
 import {
 	type BlockBuilder,
@@ -42,7 +47,46 @@ export class NonLeafBlockBuilder<T>
 	}
 
 	get(index: number): T {
-		throw new Error('Method not implemented.');
+		if (undefined !== this.source) {
+			return this.source.get(index);
+		}
+
+		const [childIndex, inChildIndex] = this.getCoordinates(index);
+
+		return this.children[childIndex].get(inChildIndex);
+	}
+
+	updateAt(index: number, update: Update<T>): T {
+		const [childIndex, inChildIndex] = this.getCoordinates(index);
+		return this.children[childIndex].updateAt(inChildIndex, update);
+	}
+
+	forEach(
+		f: (value: T, index: number, halt: () => void) => void,
+		options: { reversed: boolean; state: TraverseState },
+	): void {
+		if (undefined !== this.source) {
+			this.source.forEach(f, options);
+			return;
+		}
+
+		const { reversed, state } = options;
+
+		if (state.halted) return;
+
+		const length = this.children.length;
+
+		if (!reversed) {
+			let i = -1;
+			while (!state.halted && ++i < length) {
+				this.children[i].forEach(f, options);
+			}
+		} else {
+			let i = length;
+			while (!state.halted && --i >= 0) {
+				this.children[i].forEach(f, options);
+			}
+		}
 	}
 
 	prependChild(child: BlockBuilder<T>): void {
@@ -160,5 +204,61 @@ export class NonLeafBlockBuilder<T>
 		this.prepareMutate();
 		this.itemsLength += other.itemsLength;
 		this.children.push(other);
+	}
+
+	getCoordinates(index: number): [number, number] {
+		const nrChildren = this.nrChildren;
+		const length = this.itemsLength;
+
+		if (index >= length) {
+			// always return end of last child
+			const lastChild = this.children.at(-1)!;
+			return [nrChildren - 1, lastChild.itemsLength];
+		}
+
+		const levelBits = this.context.blockSizeBits << (this.level - 1);
+		const blockSize = 1 << levelBits;
+
+		const regularSize = nrChildren * blockSize;
+
+		if (length === regularSize) {
+			// regular blocks, calculate coordinates
+			const childIndex = index >>> levelBits;
+
+			const mask = blockSize - 1;
+			const inChildIndex = index & mask;
+			return [childIndex, inChildIndex];
+		}
+
+		// not regular, need to search per child
+		const children = this.children;
+
+		if (index <= length >>> 1) {
+			// search left to right
+			let i = index;
+			for (let childIndex = 0; childIndex < nrChildren; childIndex++) {
+				const childLength = children[childIndex].itemsLength;
+
+				if (i < childLength) {
+					return [childIndex, i];
+				}
+
+				i -= childLength;
+			}
+		} else {
+			// search right to left
+			let i = length - index;
+			for (let childIndex = nrChildren - 1; childIndex >= 0; childIndex--) {
+				const childLength = children[childIndex].itemsLength;
+
+				if (i <= childLength) {
+					return [childIndex, childLength - i];
+				}
+
+				i -= childLength;
+			}
+		}
+
+		throwInvalidStateError();
 	}
 }

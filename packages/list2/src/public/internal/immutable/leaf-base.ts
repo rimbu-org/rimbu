@@ -1,4 +1,5 @@
 import type { OptLazy } from '@rimbu/common/opt-lazy';
+import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, SuperOf } from '@rimbu/common/types';
 import type { Stream, StreamSource } from '@rimbu/stream';
 
@@ -42,6 +43,10 @@ export abstract class LeafBase<T>
 		sources_0: StreamSource<T>,
 		...sources: StreamSource<T>[]
 	): ListImpl<T>;
+	abstract forEach(
+		f: (value: T, index: number, halt: () => void) => void,
+		options?: { reversed?: boolean; state?: TraverseState } | undefined,
+	): void;
 	abstract toArray(
 		options?:
 			| { range?: IndexRange | undefined; reversed?: boolean | undefined }

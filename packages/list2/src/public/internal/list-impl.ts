@@ -1,4 +1,5 @@
 import type { WithElem } from '@rimbu/collection-types/common';
+import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { Stream } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context-module';
@@ -54,12 +55,22 @@ export namespace ListImpl {
 			separator: string,
 			reversed?: boolean,
 		): string;
+		forEach<T extends Tp['_UT']>(
+			children: WithElem<Tp, T>['leafChildren'],
+			f: (value: T, index: number, halt: () => void) => void,
+			options: { reversed: boolean; state: TraverseState },
+		): void;
 		toArray<T extends Tp['_UT']>(
 			children: WithElem<Tp, T>['leafChildren'],
 			startIndex?: number | undefined,
 			endIndex?: number | undefined,
 			reversed?: boolean | undefined,
 		): T[];
+		mutateSet<T extends Tp['_UT']>(
+			children: WithElem<Tp, T>['leafChildren'],
+			index: number,
+			value: T,
+		): WithElem<Tp, T>['leafChildren'];
 		mutatePrepend<T extends Tp['_UT']>(
 			children: WithElem<Tp, T>['leafChildren'],
 			value: T,

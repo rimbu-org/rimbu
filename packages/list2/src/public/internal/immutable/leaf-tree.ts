@@ -10,9 +10,15 @@ import type { ListImpl } from '#list/list-impl';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { OptLazy } from '@rimbu/common/opt-lazy';
+import { TraverseState } from '@rimbu/common/traverse-state';
 
 import { LeafBase } from '#list/immutable/leaf-base';
-import { treeGet, treeToArray, treeToStream } from '#list/immutable/tree-base';
+import {
+	treeForEach,
+	treeGet,
+	treeToArray,
+	treeToStream,
+} from '#list/immutable/tree-base';
 
 export class LeafTree<T> extends LeafBase<T> implements ListImpl.NonEmpty<T> {
 	constructor(
@@ -260,6 +266,14 @@ export class LeafTree<T> extends LeafBase<T> implements ListImpl.NonEmpty<T> {
 			this.middle?.appendChild(leafBlock) ??
 			this.context.nonLeafBlock<T>([leafBlock], leafBlock.length, 1)
 		);
+	}
+
+	forEach(
+		f: (value: T, index: number, halt: () => void) => void,
+		options: { reversed?: boolean; state?: TraverseState } | undefined = {},
+	): void {
+		const { reversed = false, state = TraverseState() } = options;
+		treeForEach(this, f, { reversed, state });
 	}
 
 	toArray(options?: {
