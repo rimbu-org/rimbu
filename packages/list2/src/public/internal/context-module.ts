@@ -29,11 +29,10 @@ interface ImmutableFactory<Tp extends ListImpl.Types = ListImpl.Types> {
 	reversedOuterBlock<T>(
 		children: WithElem<Tp, T>['outerChildren'],
 	): OuterBlock<T>;
-	isReversedOuterBlock<T>(block: OuterBlock<T>): block is ReversedOuterBlock<T>;
 	outerTree<T>(
 		left: OuterBlock<T>,
 		right: OuterBlock<T>,
-		middle: Inner<T> | null,
+		middle: Inner<T, OuterBlock<T>> | null,
 		length: number,
 	): OuterTree<T>;
 	innerBlock<T>(
@@ -70,9 +69,7 @@ interface BuilderFactory<Tp extends ListImpl.Types = ListImpl.Types> {
 		length?: number,
 	): OuterTreeBuilder<T>;
 	isOuterTreeBuilder<T>(source: unknown): source is OuterTreeBuilder<T>;
-	createInnerBuilder<T, C extends BlockBuilder<T>>(
-		source: Inner<T>,
-	): InnerBuilder<T, C>;
+	createInnerBuilder<T>(source: Inner<T>): InnerBuilder<T>;
 	innerBlockBuilderSource<T>(source: InnerBlock<T>): InnerBlockBuilder<T>;
 	innerBlockBuilder<T>(
 		level: number,
@@ -124,15 +121,10 @@ export function createContextModule<
 		): OuterBlock<T> {
 			return new ReversedOuterBlock(mod, children);
 		},
-		isReversedOuterBlock<T>(
-			block: OuterBlock<T>,
-		): block is ReversedOuterBlock<T> {
-			return block instanceof ReversedOuterBlock;
-		},
 		outerTree<T>(
 			left: OuterBlock<T>,
 			right: OuterBlock<T>,
-			middle: Inner<T> | null,
+			middle: Inner<T, OuterBlock<T>> | null,
 			length: number,
 		): OuterTree<T> {
 			return new OuterTree(mod, left, right, middle, length);
@@ -224,7 +216,7 @@ export function createContextModule<
 			return source instanceof OuterTreeBuilder;
 		},
 		createInnerBuilder<T, C extends BlockBuilder<T>>(
-			source: Inner<T>,
+			source: Inner<T, any>,
 		): InnerBuilder<T, C> {
 			if (mod.isInnerBlock<T>(source)) {
 				return new InnerBlockBuilder(mod, source.level, source) as any;

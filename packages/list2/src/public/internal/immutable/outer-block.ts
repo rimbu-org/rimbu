@@ -204,7 +204,7 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 	}
 
 	concatChildren(other: OuterBlock<T>): OuterBlock<T> {
-		const addChildren = this.context.isReversedOuterBlock(other as any)
+		const addChildren = other.isReversedBlock
 			? this.ops.toReversed(other.children)
 			: other.children;
 

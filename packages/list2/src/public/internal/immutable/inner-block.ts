@@ -20,7 +20,7 @@ import { Stream } from '@rimbu/stream';
 
 import { InnerBase } from '#list/immutable/inner-base';
 
-export class InnerBlock<T> extends InnerBase<T> implements Block<T>, Inner<T> {
+export class InnerBlock<T> extends InnerBase<T> implements Block<T> {
 	constructor(
 		context: ListContext,
 		readonly children: Block<T>[],
@@ -59,7 +59,7 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T>, Inner<T> {
 			return this;
 		}
 
-		return this.context.innerBlock<T>(children, itemsLength, level);
+		return this.context.innerBlock(children, itemsLength, level);
 	}
 
 	stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
@@ -74,12 +74,18 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T>, Inner<T> {
 		return this.children[childIndex].get(inChildIndex);
 	}
 
-	prependChild(child: Block<T>): Inner<T> {
+	prependChildDirect(child: Block<T>): InnerBlock<T> {
 		const newLength = this.itemsLength + child.itemsLength;
 
+		return this.copy(prepend(this.children, child), newLength);
+	}
+
+	prependChild(child: Block<T>): Inner<T, Block<T>> {
 		if (this.canAddChild) {
-			return this.copy(prepend(this.children, child), newLength);
+			return this.prependChildDirect(child);
 		}
+
+		const newLength = this.itemsLength + child.itemsLength;
 
 		return this.context.innerTree(
 			this.copy([child], child.itemsLength),
@@ -90,7 +96,7 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T>, Inner<T> {
 		);
 	}
 
-	appendChild(child: Block<T>): Inner<T> {
+	appendChild(child: Block<T>): Inner<T, Block<T>> {
 		const newLength = this.itemsLength + child.itemsLength;
 
 		if (this.nrChildren < this.context.maxBlockSize) {
@@ -106,10 +112,10 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T>, Inner<T> {
 		);
 	}
 
-	concat(other: Inner<T>): Inner<T> {
+	concat(other: Inner<T, Block<T>>): Inner<T, Block<T>> {
 		if (other.context.isInnerBlock<T>(other)) {
 			if (other === this && this.children.length > this.context.minBlockSize) {
-				return this.context.innerTree<T>(
+				return this.context.innerTree(
 					this,
 					this,
 					null,
@@ -127,7 +133,7 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T>, Inner<T> {
 		throwInvalidStateError();
 	}
 
-	concatInner(inner: Inner<T>): Inner<T> {
+	concatInner(inner: Inner<T, Block<T>>): Inner<T, Block<T>> {
 		if (inner.context.isInnerBlock<T>(inner)) {
 			if (inner === this && this.childrenInMin) {
 				return this.context.innerTree(
@@ -148,11 +154,11 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T>, Inner<T> {
 		throwInvalidStateError();
 	}
 
-	concatBlock(innerBlock: InnerBlock<T>): Inner<T> {
+	concatBlock(innerBlock: InnerBlock<T>): Inner<T, Block<T>> {
 		return this.concatChildren(innerBlock)._mutateNormalize();
 	}
 
-	concatTree(innerTree: InnerTree<T>): Inner<T> {
+	concatTree(innerTree: InnerTree<T>): Inner<T, Block<T>> {
 		if (
 			this.nrChildren + innerTree.left.nrChildren <=
 			this.context.maxBlockSize
@@ -481,7 +487,7 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T>, Inner<T> {
 		return this;
 	}
 
-	_mutateNormalize(): Inner<T> {
+	_mutateNormalize(): Inner<T, Block<T>> {
 		if (this.childrenInMax) {
 			return this;
 		}

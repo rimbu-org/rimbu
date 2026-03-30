@@ -1,10 +1,10 @@
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { Stream } from '@rimbu/stream';
-import type { BlockBuilder } from '../mutable/builder-base';
 
 import type { ListContext } from '#list/context-module';
 import type { CacheMap } from '#list/immutable/cache-map';
+import type { BlockBuilder } from '#list/mutable/builder-base';
 
 export interface ListCommon<T> {
 	get(index: number): T;
@@ -26,23 +26,24 @@ export interface Block<T> extends ListCommon<T> {
 	get nrChildren(): number;
 	get childrenInMin(): boolean;
 	get childrenInMax(): boolean;
+	get canAddChild(): boolean;
 	concatChildren(other: Block<T>): Block<T>;
 	takeChildren(amount: number): Block<T> | null;
 	reversed(cacheMap?: CacheMap | undefined): Block<T>;
 	createBlockBuilder(): BlockBuilder<T>;
 }
 
-export interface Inner<T> extends ListCommon<T> {
+export interface Inner<T, C> extends ListCommon<T> {
 	readonly context: ListContext;
 	readonly itemsLength: number;
-	prependChild(child: Block<T>): Inner<T>;
-	appendChild(child: Block<T>): Inner<T>;
-	dropFirstChild(): [Inner<T> | null, Block<T>];
-	dropLastChild(): [Inner<T> | null, Block<T>];
-	concatInner(inner: Inner<T>): Inner<T>;
-	reversed(cacheMap?: CacheMap | undefined): Inner<T>;
-	takeInternal(amount: number): [Inner<T> | null, Block<T>, number];
-	dropInternal(amount: number): [Inner<T> | null, Block<T>, number];
+	prependChild(child: C): Inner<T, C>;
+	appendChild(child: C): Inner<T, C>;
+	dropFirstChild(): [Inner<T, C> | null, C];
+	dropLastChild(): [Inner<T, C> | null, C];
+	concatInner(inner: Inner<T, C>): Inner<T, C>;
+	reversed(cacheMap?: CacheMap | undefined): Inner<T, C>;
+	takeInternal(amount: number): [Inner<T, C> | null, C, number];
+	dropInternal(amount: number): [Inner<T, C> | null, C, number];
 }
 
 export type Tree<N, TM> = TM & {
