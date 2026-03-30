@@ -23,14 +23,14 @@ abstract class Block<T, C = unknown> {
 		return this.children.length;
 	}
 
+	abstract createBlock(children: C[], length: number): this['_self'];
+
 	abstract createTree(
 		left: this['_self'],
 		right: this['_self'],
 		middle: Inner<T, this['_self']> | null,
 		length: number,
 	): TreeBase<T, C>;
-
-	abstract createBlock(children: C[], length: number): this['_self'];
 
 	prependBlockChild(child: C, childLength: number): this['_self'] {
 		return this.copy([child, ...this.children], this.length + childLength);
@@ -72,19 +72,22 @@ abstract class TreeBase<T, C> {
 
 	abstract readonly left: Block<T, C>;
 	abstract readonly right: Block<T, C>;
-	abstract readonly middle: Inner<T> | null;
+	abstract readonly middle: Inner<T, Block<T, C>> | null;
 	abstract readonly length: number;
 
 	abstract copy(
 		left?: Block<T, C>,
 		right?: Block<T, C>,
-		middle?: Inner<T> | null,
+		middle?: Inner<T, Block<T, C>> | null,
 		length?: number,
 	): this['_self'];
 
 	abstract createBlock(children: C[], length: number): Block<T, C>;
 
-	createMiddleBlock(children: Block<T, C>[], length: number): InnerBlock<T> {
+	createMiddleBlock(
+		children: Block<T, C>[],
+		length: number,
+	): InnerBlock<T, Block<T, C>> {
 		return new InnerBlock(children, length);
 	}
 
@@ -130,14 +133,14 @@ abstract class TreeBase<T, C> {
 		);
 	}
 
-	prependMiddleBlock(block: Block<T, C>): Inner<T> {
+	prependMiddleBlock(block: Block<T, C>): Inner<T, Block<T, C>> {
 		return (
 			this.middle?.prependChild(block, block.length) ??
 			this.createMiddleBlock([block], block.length)
 		);
 	}
 
-	appendMiddleBlock(block: Block<T, C>): Inner<T> {
+	appendMiddleBlock(block: Block<T, C>): Inner<T, Block<T, C>> {
 		return (
 			this.middle?.appendChild(block, block.length) ??
 			this.createMiddleBlock([block], block.length)
@@ -208,28 +211,6 @@ class OuterBlock<T> extends Block<T, T> implements List<T> {
 	concatChildren(other: OuterBlock<T>): OuterBlock<T> {
 		return this.copy(this.children.concat(other.children));
 	}
-
-	// concatTree(other: OuterTree<T>): OuterTree<T> {
-	// 	if (this.length + other.left.length <= 4) {
-	// 		const newLeft = this.concatChildren(other.left);
-
-	// 		return other.copy(newLeft);
-	// 	}
-
-	// 	if (other.left.nrChildren >= 2) {
-	// 		const newMiddle = other.prependMiddleBlock(other.left);
-
-	// 		return other.copy(this, undefined, newMiddle);
-	// 	}
-
-	// 	const newLeft = this.concatChildren(other.left);
-	// 	const newSecond = newLeft._mutateSplitRight(
-	// 		newLeft.length - this.context.maxBlockSize,
-	// 	);
-	// 	const newMiddle = other.prependMiddleBlock(newSecond);
-
-	// 	return other.copy(newLeft, undefined, newMiddle);
-	// }
 
 	take(amount: number): List<T> {
 		if (amount >= this.length) return this;
@@ -377,10 +358,10 @@ class InnerBlock<T, C extends Block<T> = Block<T>> extends Block<T, C> {
 	createTree(
 		left: InnerBlock<T, C>,
 		right: InnerBlock<T, C>,
-		middle: any,
+		middle: Inner<T, InnerBlock<T, C>> | null,
 		length: number,
 	): InnerTree<T, C> {
-		return new InnerTree<T, C>(left, right, middle, length);
+		return new InnerTree(left, right, middle, length);
 	}
 
 	takeAndGetLastChild(
@@ -400,7 +381,7 @@ class InnerTree<T, C extends Block<T> = Block<T>> extends TreeBase<T, C> {
 	constructor(
 		readonly left: InnerBlock<T, C>,
 		readonly right: InnerBlock<T, C>,
-		readonly middle: Inner<T, C> | null,
+		readonly middle: Inner<T, InnerBlock<T, C>> | null,
 		readonly length: number,
 	) {
 		super();
@@ -439,9 +420,7 @@ class InnerTree<T, C extends Block<T> = Block<T>> extends TreeBase<T, C> {
 	}
 }
 
-type Inner<T, C extends Block<T> = Block<T>> =
-	| InnerBlock<T, C>
-	| InnerTree<T, C>;
+type Inner<T, C extends Block<T>> = InnerBlock<T, C> | InnerTree<T, C>;
 
 let list: List<number> = new Emoty();
 
