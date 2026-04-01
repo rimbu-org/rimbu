@@ -141,6 +141,8 @@ export abstract class OuterBase<T>
 	}
 
 	toString(): string {
-		return this._structure();
+		return this.stream()
+			.join({ sep: ', ', start: 'List(', end: ')' })
+			.toString();
 	}
 }

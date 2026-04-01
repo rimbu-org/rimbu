@@ -5,7 +5,7 @@ import type { Stream, StreamSource } from '@rimbu/stream';
 import type { ListContext } from '#list/context-module';
 import type { CacheMap } from '#list/immutable/cache-map';
 import type { OuterBlock } from '#list/immutable/outer-block';
-import type { Inner } from '#list/immutable/utils';
+import type { Inner, ListCommon } from '#list/immutable/utils';
 import type { ListImpl } from '#list/list-impl';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
@@ -20,7 +20,10 @@ import {
 	treeToStream,
 } from '#list/immutable/tree-base';
 
-export class OuterTree<T> extends OuterBase<T> implements ListImpl.NonEmpty<T> {
+export class OuterTree<T>
+	extends OuterBase<T>
+	implements ListImpl.NonEmpty<T>, ListCommon<T>
+{
 	constructor(
 		context: ListContext,
 		readonly left: OuterBlock<T>,

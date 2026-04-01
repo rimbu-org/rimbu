@@ -2,7 +2,7 @@ import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { Update } from '@rimbu/common/update';
 
 import type { ListContext } from '#list/context-module';
-import type { Block, Inner } from '#list/immutable/utils';
+import type { Block, Inner, ListCommon } from '#list/immutable/utils';
 import type { ListImpl } from '#list/list-impl';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
@@ -58,6 +58,7 @@ export abstract class BuilderBase {
 
 export abstract class TreeBuilderBase<T, C> extends BuilderBase {
 	abstract length: number;
+	abstract source?: ListCommon<T> | undefined;
 	abstract left: BlockBuilder<T>;
 	abstract right: BlockBuilder<T>;
 	abstract middle: InnerBuilder<T> | undefined;
@@ -119,6 +120,11 @@ export abstract class TreeBuilderBase<T, C> extends BuilderBase {
 		f: (value: T, index: number, halt: () => void) => void,
 		options: { reversed: boolean; state: TraverseState },
 	): void {
+		if (undefined !== this.source) {
+			this.source.forEach(f, options);
+			return;
+		}
+
 		const { reversed, state } = options;
 
 		if (state.halted) return;
@@ -205,7 +211,7 @@ export abstract class TreeBuilderBase<T, C> extends BuilderBase {
 
 		if (this.right.nrChildren < this.context.maxBlockSize) {
 			// caon append to right
-			this.prependBlockChild(this.right, child);
+			this.appendBlockChild(this.right, child);
 			return;
 		}
 

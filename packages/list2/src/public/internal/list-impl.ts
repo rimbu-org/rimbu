@@ -23,7 +23,7 @@ export namespace ListImpl {
 	> {
 		of<T extends Tp['_UT']>(values: T[]): WithElem<Tp, T>['outerChildren'];
 		length(children: Tp['outerChildren']): number;
-		get<T extends Tp['_UT']>(
+		at<T extends Tp['_UT']>(
 			children: WithElem<Tp, T>['outerChildren'],
 			index: number,
 		): T;
@@ -64,8 +64,8 @@ export namespace ListImpl {
 		): void;
 		toArray<T extends Tp['_UT']>(
 			children: WithElem<Tp, T>['outerChildren'],
-			startIndex?: number | undefined,
-			endIndex?: number | undefined,
+			start?: number | undefined,
+			end?: number | undefined,
 			reversed?: boolean | undefined,
 		): T[];
 		mutateSet<T extends Tp['_UT']>(

@@ -5,7 +5,7 @@ import type { Stream } from '@rimbu/stream';
 import type { ListContext } from '#list/context-module';
 import type { CacheMap } from '#list/immutable/cache-map';
 import type { InnerBlock } from '#list/immutable/inner-block';
-import type { Block, Inner } from '#list/immutable/utils';
+import type { Block, Inner, ListCommon } from '#list/immutable/utils';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 
@@ -16,7 +16,7 @@ import {
 	treeToStream,
 } from '#list/immutable/tree-base';
 
-export class InnerTree<T, C extends Block<T>> {
+export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 	constructor(
 		readonly context: ListContext,
 		readonly left: InnerBlock<T, C>,

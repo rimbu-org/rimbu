@@ -75,14 +75,12 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 	// }
 
 	get<O>(index: number, otherwise?: OptLazy<O>): T | O {
-		if (index >= this.length || -index > this.length) {
+		const { length } = this;
+		if (index >= length || -index > length) {
 			return OptLazy(otherwise!);
 		}
-		if (index < 0) {
-			return this.get(this.length + index, otherwise);
-		}
 
-		return this.ops.get(this.children, index);
+		return this.ops.at(this.children, index);
 	}
 
 	first(): T {
@@ -241,7 +239,10 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 
 		if (state.halted) return;
 
-		this.ops.forEach(this.children, f, { reversed, state });
+		this.ops.forEach(this.children, f, {
+			reversed: this.isReversedBlock ? !reversed : reversed,
+			state,
+		});
 	}
 
 	toArray(
@@ -277,10 +278,13 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		}
 
 		const [indexStart, indexEnd] = indexRange;
-		const start = this.length - 1 - indexEnd;
-		const end = this.length - 1 - indexStart;
 
-		return this.ops.toArray(this.children, start, end + 1, reverseOrder);
+		const start = this.isReversedBlock
+			? this.length - 1 - indexEnd
+			: indexStart;
+		const end = this.isReversedBlock ? this.length - indexStart : indexEnd + 1;
+
+		return this.ops.toArray(this.children, start, end, reverseOrder);
 	}
 
 	createBlockBuilder(): OuterBlockBuilder<T> {

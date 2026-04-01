@@ -38,7 +38,7 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 	}
 
 	get nrChildren(): number {
-		return this.ops.length(this.children);
+		return this.source?.nrChildren ?? this.ops.length(this.children);
 	}
 
 	get canAddChild(): boolean {
@@ -61,7 +61,7 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 			return this.source.get(index);
 		}
 
-		return this.ops.get(this.children, index);
+		return this.ops.at(this.children, index);
 	}
 
 	prepend(value: T): void {
@@ -133,7 +133,7 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 	}
 
 	updateAt(index: number, update: Update<T>): T {
-		const oldValue = this.ops.get<T>(this.children, index);
+		const oldValue = this.ops.at<T>(this.children, index);
 		const newValue = Update(oldValue, update);
 
 		if (!Object.is(oldValue, newValue)) {

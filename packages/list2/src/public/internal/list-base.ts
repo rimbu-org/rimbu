@@ -405,6 +405,23 @@ export namespace ListBase {
 	}
 
 	export interface Builder<T, Tp extends ListBase.Types = ListBase.Types> {
+		/**
+		 * Returns true if there are no values in the builder.
+		 * @example
+		 * ```ts
+		 * List.of(1, 2, 3).toBuilder().isEmpty
+		 * // => false
+		 * ```
+		 */
+		get isEmpty(): boolean;
+		/**
+		 * Returns the amount of values in the builder.
+		 * @example
+		 * ```ts
+		 * List.of(1, 2, 3).toBuilder().size
+		 * // => 3
+		 * ```
+		 */
 		get length(): number;
 		/**
 		 * Returns the value in the List builder at the given `index`.
@@ -453,6 +470,18 @@ export namespace ListBase {
 		 * @note O(logB(N)) for block size B - mostly o(1)
 		 */
 		append(value: T): void;
+		/**
+		 * Adds all given `values` at the end of the builder values
+		 * @param values - a `StreamSource` containing values to add
+		 * @example
+		 * ```ts
+		 * const m = List.of(1, 2, 3).toBuilder()
+		 * m.appendAll([10, 11])
+		 * m.build().toArray()
+		 * // => [1, 2, 3, 10, 11]
+		 * ```
+		 */
+		appendAll(values: StreamSource<T>): void;
 		/**
 		 * Updates the element at the given `index` with the given `update` value or function.
 		 * @param index - the index of the element to update

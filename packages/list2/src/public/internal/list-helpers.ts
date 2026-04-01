@@ -5,7 +5,6 @@ import type { List } from '@rimbu/list';
 import type { ListBase } from '#list/list-base';
 import type { ListImpl } from '#list/list-impl';
 
-import { IndexRange } from '@rimbu/common/index-range';
 import { Module } from '@rimbu/common/module';
 import { Stream } from '@rimbu/stream';
 
@@ -53,11 +52,11 @@ export namespace ListHelpers {
 	): List.Context {
 		const outerChildrenOpsModule = Module.createPartial<{
 			defines: ListImpl.OuterChildrenOps<ListHelpers.TypesImpl>;
-		}>(() => ({
+		}>((mod) => ({
 			length(children: readonly unknown[]) {
 				return children.length;
 			},
-			get<T>(children: readonly T[], index: number): T {
+			at<T>(children: readonly T[], index: number): T {
 				return children.at(index)!;
 			},
 			stream<T>(
@@ -125,30 +124,15 @@ export namespace ListHelpers {
 				}
 			},
 			toArray<T>(
-				children: readonly T[],
-				startIndex?: number,
-				endIndex?: number,
+				children: T[],
+				start = 0,
+				end = children.length,
 				reversed = false,
 			): T[] {
-				const range = IndexRange.getIndicesFor(
-					{ start: startIndex ?? 0, end: endIndex ?? children.length },
-					children.length,
-				);
-
-				if (range === 'empty') return [];
-				if (range === 'all') {
-					if (reversed) {
-						return children.toReversed();
-					}
-					return children.slice();
-				}
-
-				const result = children.slice(range[0], range[1]);
-
+				const result = children.slice(start, end);
 				if (reversed) {
-					return result.reverse();
+					result.reverse();
 				}
-
 				return result;
 			},
 			mutateSet<T>(children: T[], index: number, value: T): T[] {

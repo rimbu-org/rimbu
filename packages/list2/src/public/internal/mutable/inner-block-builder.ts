@@ -31,7 +31,7 @@ export class InnerBlockBuilder<T>
 	}
 
 	get nrChildren(): number {
-		return this.children.length;
+		return this.source?.nrChildren ?? this.children.length;
 	}
 
 	get canAddChild(): boolean {

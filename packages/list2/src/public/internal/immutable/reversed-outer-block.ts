@@ -32,14 +32,12 @@ export class ReversedOuterBlock<
 	}
 
 	get<O>(index: number, otherwise?: OptLazy<O>): T | O {
-		if (index >= this.length || -index > this.length) {
+		const { length } = this;
+		if (index >= length || -index > length) {
 			return OptLazy(otherwise!);
 		}
-		if (index < 0) {
-			return this.get(this.length + index, otherwise);
-		}
 
-		return this.ops.get(this.children, this.length - 1 - index);
+		return this.ops.at(this.children, -index - 1);
 	}
 
 	stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
@@ -48,12 +46,12 @@ export class ReversedOuterBlock<
 		return this.ops.stream(this.children, { reversed: !reversed });
 	}
 
-	prepend(value: T): ListImpl.NonEmpty<T> {
-		return super.append(value);
+	prependBlockChild(value: T): OuterBlock<T, ListImpl.Types> {
+		return super.appendBlockChild(value);
 	}
 
-	append(value: T): ListImpl.NonEmpty<T> {
-		return super.prepend(value);
+	appendBlockChild(value: T): OuterBlock<T, ListImpl.Types> {
+		return super.prependBlockChild(value);
 	}
 
 	takeChildren(amount: number): OuterBlock<T> {
