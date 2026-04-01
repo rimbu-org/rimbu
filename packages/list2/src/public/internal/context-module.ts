@@ -9,6 +9,7 @@ import type { BlockBuilder, InnerBuilder } from '#list/mutable/builder-base';
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { Module } from '@rimbu/common/module';
 import { Stream, type StreamSource } from '@rimbu/stream';
+import { OuterBase } from './immutable/outer-base';
 
 import { CacheMap } from '#list/immutable/cache-map';
 import { ListEmpty } from '#list/immutable/empty';
@@ -35,20 +36,24 @@ interface ImmutableFactory<Tp extends ListImpl.Types = ListImpl.Types> {
 		middle: Inner<T, OuterBlock<T>> | null,
 		length: number,
 	): OuterTree<T>;
-	innerBlock<T>(
-		children: Block<T>[],
-		itemsLength: number,
+	innerBlock<T, C extends Block<T>>(
+		children: C[],
+		length: number,
 		level: number,
-	): InnerBlock<T>;
-	isInnerBlock<T>(source: unknown): source is InnerBlock<T>;
-	innerTree<T>(
-		left: InnerBlock<T>,
-		right: InnerBlock<T>,
-		middle: Inner<T> | null,
-		itemsLength: number,
+	): InnerBlock<T, C>;
+	isInnerBlock<T, C extends Block<T>>(
+		source: unknown,
+	): source is InnerBlock<T, C>;
+	innerTree<T, C extends Block<T>>(
+		left: InnerBlock<T, C>,
+		right: InnerBlock<T, C>,
+		middle: Inner<T, InnerBlock<T, C>> | null,
+		length: number,
 		level: number,
-	): InnerTree<T>;
-	isInnerTree<T>(source: unknown): source is InnerTree<T>;
+	): InnerTree<T, C>;
+	isInnerTree<T, C extends Block<T>>(
+		source: unknown,
+	): source is InnerTree<T, C>;
 	isOuterTree<T>(list: ListBase<T>): list is OuterTree<T>;
 	isList<T>(source: unknown): source is ListBase<T, Tp>;
 	isContextList<T>(source: unknown): source is ListImpl<T, Tp>;
@@ -65,24 +70,30 @@ interface BuilderFactory<Tp extends ListImpl.Types = ListImpl.Types> {
 	outerTreeBuilder<T>(
 		left: OuterBlockBuilder<T>,
 		right: OuterBlockBuilder<T>,
-		middle?: InnerBuilder<T>,
+		middle?: InnerBuilder<T, OuterBlockBuilder<T>>,
 		length?: number,
 	): OuterTreeBuilder<T>;
 	isOuterTreeBuilder<T>(source: unknown): source is OuterTreeBuilder<T>;
-	createInnerBuilder<T>(source: Inner<T>): InnerBuilder<T>;
-	innerBlockBuilderSource<T>(source: InnerBlock<T>): InnerBlockBuilder<T>;
+	createInnerBuilder<T, C extends BlockBuilder<T>>(
+		source: Inner<T, Block<T>>,
+	): InnerBuilder<T, C>;
+	innerBlockBuilderSource<T>(
+		source: InnerBlock<T, Block<T>>,
+	): InnerBlockBuilder<T>;
 	innerBlockBuilder<T>(
 		level: number,
 		children: Array<BlockBuilder<T>>,
-		itemsLength: number,
+		length: number,
 	): InnerBlockBuilder<T>;
-	innerTreeBuilderSource<T>(source: InnerTree<T>): InnerTreeBuilder<T>;
+	innerTreeBuilderSource<T>(
+		source: InnerTree<T, Block<T>>,
+	): InnerTreeBuilder<T>;
 	innerTreeBuilder<T>(
 		level: number,
 		left: InnerBlockBuilder<T>,
 		right: InnerBlockBuilder<T>,
 		middle: InnerBuilder<T> | undefined,
-		itemsLength: number,
+		length: number,
 	): InnerTreeBuilder<T>;
 }
 
@@ -132,30 +143,34 @@ export function createContextModule<
 		isOuterTree<T>(list: ListBase<T>): list is OuterTree<T> {
 			return list instanceof OuterTree;
 		},
-		innerBlock<T>(
-			children: Block<T>[],
-			itemsLength: number,
+		innerBlock<T, C extends Block<T>>(
+			children: C[],
+			length: number,
 			level: number,
-		): InnerBlock<T> {
-			return new InnerBlock(mod, children, itemsLength, level);
+		): InnerBlock<T, C> {
+			return new InnerBlock(mod, children, length, level);
 		},
-		isInnerBlock<T>(source: unknown): source is InnerBlock<T> {
+		isInnerBlock<T, C extends Block<T>>(
+			source: unknown,
+		): source is InnerBlock<T, C> {
 			return source instanceof InnerBlock;
 		},
-		innerTree<T>(
-			left: InnerBlock<T>,
-			right: InnerBlock<T>,
-			middle: Inner<T> | null,
-			itemsLength: number,
+		innerTree<T, C extends Block<T>>(
+			left: InnerBlock<T, C>,
+			right: InnerBlock<T, C>,
+			middle: Inner<T, InnerBlock<T, C>> | null,
+			length: number,
 			level: number,
-		): InnerTree<T> {
-			return new InnerTree(mod, left, right, middle, itemsLength, level);
+		): InnerTree<T, C> {
+			return new InnerTree(mod, left, right, middle, length, level);
 		},
-		isInnerTree<T>(source: unknown): source is InnerTree<T> {
+		isInnerTree<T, C extends Block<T>>(
+			source: unknown,
+		): source is InnerTree<T, C> {
 			return source instanceof InnerTree;
 		},
 		isList<T>(source: unknown): source is ListBase<T, Tp> {
-			return source instanceof ListEmpty || source instanceof OuterBlock;
+			return source instanceof ListEmpty || source instanceof OuterBase;
 		},
 		isContextList<T>(source: unknown): source is ListImpl<T, Tp> {
 			if (mod.isList(source)) {
@@ -218,32 +233,30 @@ export function createContextModule<
 		createInnerBuilder<T, C extends BlockBuilder<T>>(
 			source: Inner<T, any>,
 		): InnerBuilder<T, C> {
-			if (mod.isInnerBlock<T>(source)) {
+			if (mod.isInnerBlock<T, any>(source)) {
 				return new InnerBlockBuilder(mod, source.level, source) as any;
 			}
-			if (mod.isInnerTree<T>(source)) {
+			if (mod.isInnerTree<T, any>(source)) {
 				return new InnerTreeBuilder(mod, source.level, source) as any;
 			}
 
 			throwInvalidStateError();
 		},
-		innerBlockBuilderSource<T>(source: InnerBlock<T>): InnerBlockBuilder<T> {
+		innerBlockBuilderSource<T>(
+			source: InnerBlock<T, Block<T>>,
+		): InnerBlockBuilder<T> {
 			return new InnerBlockBuilder(mod, source.level, source);
 		},
 		innerBlockBuilder<T>(
 			level: number,
-			children: Array<OuterBlockBuilder<T>>,
-			itemsLength: number,
+			children: Array<BlockBuilder<T>>,
+			length: number,
 		): InnerBlockBuilder<T> {
-			return new InnerBlockBuilder<T>(
-				mod,
-				level,
-				undefined,
-				children,
-				itemsLength,
-			);
+			return new InnerBlockBuilder<T>(mod, level, undefined, children, length);
 		},
-		innerTreeBuilderSource<T>(source: InnerTree<T>): InnerTreeBuilder<T> {
+		innerTreeBuilderSource<T>(
+			source: InnerTree<T, Block<T>>,
+		): InnerTreeBuilder<T> {
 			return new InnerTreeBuilder(mod, source.level, source);
 		},
 		innerTreeBuilder<T>(
@@ -251,7 +264,7 @@ export function createContextModule<
 			left: InnerBlockBuilder<T>,
 			right: InnerBlockBuilder<T>,
 			middle: InnerBuilder<T, InnerBlockBuilder<T>> | undefined,
-			itemsLength: number,
+			length: number,
 		): InnerTreeBuilder<T> {
 			return new InnerTreeBuilder(
 				mod,
@@ -260,7 +273,7 @@ export function createContextModule<
 				left,
 				right,
 				middle,
-				itemsLength,
+				length,
 			);
 		},
 	}));
@@ -272,7 +285,7 @@ export function createContextModule<
 			blockSizeBits,
 			minBlockSize: 1 << (blockSizeBits - 1),
 			maxBlockSize: 1 << blockSizeBits,
-			empty: Module.lazy(() => Object.freeze(new ListEmpty<any>(mod))),
+			empty: Module.lazy(() => Object.freeze(new ListEmpty(mod))),
 			of: <T>(...values: ArrayNonEmpty<T>): any => {
 				if (values.length <= mod.maxBlockSize) {
 					return mod.outerBlock<T>(mod.outerChildrenOps.of(values));
@@ -283,7 +296,9 @@ export function createContextModule<
 			from: <T>(...sources: ArrayNonEmpty<StreamSource<T>>): any => {
 				if (sources.length === 1) {
 					const source = sources[0];
-					if (mod.isContextList<T>(source)) return source;
+					if (mod.isContextList<T>(source)) {
+						return source;
+					}
 				}
 
 				let result: ListImpl<T, Tp> | null = null;

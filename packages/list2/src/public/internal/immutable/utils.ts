@@ -2,8 +2,9 @@ import type { IndexRange } from '@rimbu/common/index-range';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { Stream } from '@rimbu/stream';
 
-import type { ListContext } from '#list/context-module';
 import type { CacheMap } from '#list/immutable/cache-map';
+import type { InnerBlock } from '#list/immutable/inner-block';
+import type { InnerTree } from '#list/immutable/inner-tree';
 import type { BlockBuilder } from '#list/mutable/builder-base';
 
 export interface ListCommon<T> {
@@ -21,33 +22,20 @@ export interface ListCommon<T> {
 	_structure(): string;
 }
 
-export interface Block<T> extends ListCommon<T> {
-	readonly itemsLength: number;
-	get nrChildren(): number;
-	get childrenInMin(): boolean;
-	get childrenInMax(): boolean;
-	get canAddChild(): boolean;
-	concatChildren(other: Block<T>): Block<T>;
-	takeChildren(amount: number): Block<T> | null;
-	reversed(cacheMap?: CacheMap | undefined): Block<T>;
+export interface Block<T, C = unknown> extends ListCommon<T> {
+	readonly _self: Block<T, C>;
+
+	readonly length: number;
+	readonly nrChildren: number;
+	readonly childrenInMin: boolean;
+	readonly childrenInMax: boolean;
+	readonly canAddChild: boolean;
+	concatChildren(other: Block<T, C>): this['_self'];
+	takeChildren(amount: number): Block<T, C> | null;
+	reversed(cacheMap?: CacheMap | undefined): this['_self'];
 	createBlockBuilder(): BlockBuilder<T>;
+	prependBlockChild(child: C, childLength: number): this['_self'];
+	appendBlockChild(child: C, childLength: number): this['_self'];
 }
 
-export interface Inner<T, C> extends ListCommon<T> {
-	readonly context: ListContext;
-	readonly itemsLength: number;
-	prependChild(child: C): Inner<T, C>;
-	appendChild(child: C): Inner<T, C>;
-	dropFirstChild(): [Inner<T, C> | null, C];
-	dropLastChild(): [Inner<T, C> | null, C];
-	concatInner(inner: Inner<T, C>): Inner<T, C>;
-	reversed(cacheMap?: CacheMap | undefined): Inner<T, C>;
-	takeInternal(amount: number): [Inner<T, C> | null, C, number];
-	dropInternal(amount: number): [Inner<T, C> | null, C, number];
-}
-
-export type Tree<N, TM> = TM & {
-	readonly left: N;
-	readonly right: N;
-	readonly middle: TM | null;
-};
+export type Inner<T, C extends Block<T>> = InnerBlock<T, C> | InnerTree<T, C>;

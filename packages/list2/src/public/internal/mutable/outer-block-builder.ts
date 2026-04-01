@@ -29,10 +29,6 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return this.source?.length ?? this.ops.length(this.children);
 	}
 
-	get itemsLength(): number {
-		return this.length;
-	}
-
 	get children(): WithElem<Tp, T>['outerChildren'] {
 		return this._children!;
 	}

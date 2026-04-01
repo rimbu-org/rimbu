@@ -9,7 +9,6 @@ import type { Block, Inner } from '#list/immutable/utils';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 
-import { InnerBase } from '#list/immutable/inner-base';
 import {
 	treeForEach,
 	treeGet,
@@ -17,36 +16,35 @@ import {
 	treeToStream,
 } from '#list/immutable/tree-base';
 
-export class InnerTree<T> extends InnerBase<T> {
+export class InnerTree<T, C extends Block<T>> {
 	constructor(
-		context: ListContext,
-		readonly left: InnerBlock<T>,
-		readonly right: InnerBlock<T>,
-		readonly middle: Inner<T, InnerBlock<T>> | null,
-		readonly itemsLength: number,
+		readonly context: ListContext,
+		readonly left: InnerBlock<T, C>,
+		readonly right: InnerBlock<T, C>,
+		readonly middle: Inner<T, InnerBlock<T, C>> | null,
+		readonly length: number,
 		readonly level: number,
-	) {
-		super(context);
-	}
+		readonly ops = context.outerChildrenOps,
+	) {}
 
 	copy(
 		left = this.left,
 		right = this.right,
 		middle = this.middle,
-		itemsLength = this.itemsLength,
+		length = this.length,
 		level = this.level,
-	): InnerTree<T> {
+	): InnerTree<T, C> {
 		if (
 			left === this.left &&
 			right === this.right &&
 			middle === this.middle &&
-			itemsLength === this.itemsLength &&
+			length === this.length &&
 			level === this.level
 		) {
 			return this;
 		}
 
-		return this.context.innerTree(left, right, middle, itemsLength, level);
+		return this.context.innerTree(left, right, middle, length, level);
 	}
 
 	stream(options?: { reversed?: boolean }): Stream.NonEmpty<T> {
@@ -57,49 +55,41 @@ export class InnerTree<T> extends InnerBase<T> {
 		return treeGet(this, index);
 	}
 
-	prependChild(child: Block<T>): InnerTree<T> {
-		throw new Error('Method not implemented.');
-	}
+	prependChild(child: C): InnerTree<T, C> {
+		const newLength = this.length + child.length;
 
-	appendChild(child: Block<T>): InnerTree<T> {
-		throw new Error('Method not implemented.');
-	}
-
-	prependMiddleChild(child: InnerBlock<T>): Inner<T, InnerBlock<T>> {
-		const newLength = this.itemsLength + child.itemsLength;
-
-		if (this.left.children.length < this.context.maxBlockSize) {
+		if (this.left.canAddChild) {
 			return this.copy(
-				this.left.prependChildDirect(child),
+				this.left.prependBlockChild(child),
 				undefined,
 				undefined,
 				newLength,
 			);
 		}
 
-		const newMiddle = this.middle
-			? this.middle.prependChild(this.left)
-			: this.context.innerBlock<T>(
-					[this.left],
-					this.left.itemsLength,
-					this.level + 1,
-				);
+		const newMiddle =
+			this.middle?.prependChild(this.left) ??
+			this.context.innerBlock<T, InnerBlock<T, C>>(
+				[this.left],
+				this.left.length,
+				this.level + 1,
+			);
 
 		return this.copy(
-			this.left.copy([child], child.itemsLength),
+			this.left.copy([child], child.length),
 			undefined,
 			newMiddle,
 			newLength,
 		);
 	}
 
-	appendMiddleChild(child: InnerBlock<T>): Inner<T, InnerBlock<T>> {
-		const newLength = this.itemsLength + child.itemsLength;
+	appendChild(child: C): InnerTree<T, C> {
+		const newLength = this.length + child.length;
 
-		if (this.right.children.length < this.context.maxBlockSize) {
+		if (this.right.canAddChild) {
 			return this.copy(
 				undefined,
-				this.right.appendChild(child),
+				this.right.appendBlockChild(child),
 				undefined,
 				newLength,
 			);
@@ -107,21 +97,35 @@ export class InnerTree<T> extends InnerBase<T> {
 
 		const newMiddle = this.middle
 			? this.middle.appendChild(this.right)
-			: this.context.innerBlock<T>(
+			: this.context.innerBlock<T, InnerBlock<T, C>>(
 					[this.right],
-					this.right.itemsLength,
+					this.right.length,
 					this.level + 1,
 				);
 
 		return this.copy(
 			undefined,
-			this.right.copy([child], child.itemsLength),
+			this.right.copy([child], child.length),
 			newMiddle,
 			newLength,
 		);
 	}
 
-	dropFirstChild(): [Inner<T, Block<T>> | null, Block<T>] {
+	prependMiddleBlock(block: InnerBlock<T, C>): Inner<T, InnerBlock<T, C>> {
+		return (
+			this.middle?.prependChild(block) ??
+			this.context.innerBlock([block], block.length, this.level + 1)
+		);
+	}
+
+	appendMiddleBlock(block: InnerBlock<T, C>): Inner<T, InnerBlock<T, C>> {
+		return (
+			this.middle?.appendChild(block) ??
+			this.context.innerBlock([block], block.length, this.level + 1)
+		);
+	}
+
+	dropFirstChild(): [Inner<T, C> | null, C] {
 		const [newLeft, firstChild] = this.left.dropFirstChild();
 
 		if (null === newLeft) {
@@ -140,7 +144,7 @@ export class InnerTree<T> extends InnerBase<T> {
 		return [newSelf, firstChild];
 	}
 
-	dropLastChild(): [Inner<T, Block<T>> | null, Block<T>] {
+	dropLastChild(): [Inner<T, C> | null, C] {
 		// drop last from the right block
 		const [newRight, lastChild] = this.right.dropLastChild();
 
@@ -163,29 +167,29 @@ export class InnerTree<T> extends InnerBase<T> {
 		return [newSelf, lastChild];
 	}
 
-	concat(inner: Inner<T, InnerBlock<T>>): Inner<T, Block<T>> {
-		if (this.context.isInnerBlock<T>(inner)) {
+	concat(inner: Inner<T, C>): Inner<T, C> {
+		if (this.context.isInnerBlock<T, C>(inner)) {
 			return this.concatBlock(inner);
 		}
-		if (this.context.isInnerTree<T>(inner)) {
+		if (this.context.isInnerTree<T, C>(inner)) {
 			return this.concatTree(inner);
 		}
 
 		throwInvalidStateError();
 	}
 
-	concatInner(inner: Inner<T, InnerBlock<T>>): Inner<T, Block<T>> {
-		if (this.context.isInnerBlock<T>(inner)) {
+	concatInner(inner: Inner<T, C>): Inner<T, C> {
+		if (this.context.isInnerBlock<T, C>(inner)) {
 			return this.concatBlock(inner);
 		}
-		if (this.context.isInnerTree<T>(inner)) {
+		if (this.context.isInnerTree<T, C>(inner)) {
 			return this.concatTree(inner);
 		}
 
 		throwInvalidStateError();
 	}
 
-	concatBlock(innerBlock: InnerBlock<T>): Inner<T, Block<T>> {
+	concatBlock(innerBlock: InnerBlock<T, C>): Inner<T, C> {
 		if (innerBlock.level !== this.level) {
 			throwInvalidStateError();
 		}
@@ -202,7 +206,7 @@ export class InnerTree<T> extends InnerBase<T> {
 
 		if (this.right.childrenInMin) {
 			// move current right to middle
-			const newMiddle = this.appendMiddleChild(this.right);
+			const newMiddle = this.appendMiddleBlock(this.right);
 
 			return this.copy(undefined, innerBlock, newMiddle)._normalize();
 		}
@@ -210,12 +214,12 @@ export class InnerTree<T> extends InnerBase<T> {
 		// split new right
 		const newRight = this.right.concatChildren(innerBlock);
 		const newLast = newRight._mutateSplitRight(this.context.maxBlockSize);
-		const newMiddle = this.appendMiddleChild(newRight);
+		const newMiddle = this.appendMiddleBlock(newRight);
 
 		return this.copy(undefined, newLast, newMiddle)._normalize();
 	}
 
-	concatTree(innerTree: InnerTree<T>): Inner<T, InnerBlock<T>> {
+	concatTree(innerTree: InnerTree<T, C>): Inner<T, C> {
 		if (
 			this.right.nrChildren + innerTree.left.nrChildren <=
 			this.context.maxBlockSize
@@ -223,7 +227,7 @@ export class InnerTree<T> extends InnerBase<T> {
 			// merge right and left
 			const joint = this.right.concatChildren(innerTree.left);
 
-			const newThisMiddle = this.appendMiddleChild(joint);
+			const newThisMiddle = this.appendMiddleBlock(joint);
 			const newMiddle =
 				null === innerTree.middle
 					? newThisMiddle
@@ -234,7 +238,7 @@ export class InnerTree<T> extends InnerBase<T> {
 
 		if (this.right.childrenInMin && innerTree.left.childrenInMin) {
 			// append both
-			const newThisMiddle = this.appendMiddleChild(this.right).appendChild(
+			const newThisMiddle = this.appendMiddleBlock(this.right).appendChild(
 				innerTree.left,
 			);
 			const newMiddle =
@@ -249,7 +253,7 @@ export class InnerTree<T> extends InnerBase<T> {
 		const joint = this.right.concatChildren(innerTree.left);
 		const jointRight = joint._mutateSplitRight();
 
-		const newThisMiddle = this.appendMiddleChild(joint).appendChild(jointRight);
+		const newThisMiddle = this.appendMiddleBlock(joint).appendChild(jointRight);
 		const newMiddle =
 			null === innerTree.middle
 				? newThisMiddle
@@ -258,8 +262,8 @@ export class InnerTree<T> extends InnerBase<T> {
 		return this.copy(undefined, innerTree.right, newMiddle)._normalize();
 	}
 
-	reversed(cacheMap: CacheMap = this.context.cacheMap()): InnerTree<T> {
-		const cachedThis = cacheMap.get<InnerTree<T>>(this);
+	reversed(cacheMap: CacheMap = this.context.cacheMap()): InnerTree<T, C> {
+		const cachedThis = cacheMap.get<InnerTree<T, C>>(this);
 		if (cachedThis !== undefined) return cachedThis;
 
 		const newMid = this.middle?.reversed(cacheMap) ?? null;
@@ -271,8 +275,8 @@ export class InnerTree<T> extends InnerBase<T> {
 		return cacheMap.setAndReturn(this, reversedThis);
 	}
 
-	takeInternal(amount: number): [Inner<T, Block<T>> | null, Block<T>, number] {
-		const middleAmount = amount - this.left.itemsLength;
+	takeInternal(amount: number): [Inner<T, C> | null, C, number] {
+		const middleAmount = amount - this.left.length;
 
 		if (middleAmount <= 0) {
 			// only left remains
@@ -292,7 +296,7 @@ export class InnerTree<T> extends InnerBase<T> {
 			return [this.left.concat(newRight), up, upAmount];
 		}
 
-		const rightAmount = middleAmount - this.middle.itemsLength;
+		const rightAmount = middleAmount - this.middle.length;
 
 		if (rightAmount > 0) {
 			const [newRight, up, upAmount] = this.right.takeInternal(rightAmount);
@@ -319,8 +323,8 @@ export class InnerTree<T> extends InnerBase<T> {
 		return newSelf.takeInternal(amount);
 	}
 
-	dropInternal(amount: number): [Inner<T, Block<T>> | null, Block<T>, number] {
-		const middleAmount = amount - this.left.itemsLength;
+	dropInternal(amount: number): [Inner<T, C> | null, C, number] {
+		const middleAmount = amount - this.left.length;
 
 		if (null === this.middle) {
 			if (middleAmount < 0) {
@@ -355,7 +359,7 @@ export class InnerTree<T> extends InnerBase<T> {
 			return [newSelf, upLeft, upLeftAmount];
 		}
 
-		const rightAmount = middleAmount - this.middle.itemsLength;
+		const rightAmount = middleAmount - this.middle.length;
 
 		if (rightAmount >= 0) {
 			// drop only from right
@@ -379,7 +383,7 @@ export class InnerTree<T> extends InnerBase<T> {
 		return treeToArray(this, options);
 	}
 
-	_normalize(): Inner<T, Block<T>> {
+	_normalize(): Inner<T, C> {
 		if (null === this.middle) {
 			if (
 				this.left.nrChildren + this.right.nrChildren <=
@@ -388,7 +392,7 @@ export class InnerTree<T> extends InnerBase<T> {
 				// can merge left and right
 				return this.left.concatChildren(this.right);
 			}
-		} else if (this.context.isInnerBlock<T>(this.middle)) {
+		} else if (this.context.isInnerBlock<T, C>(this.middle)) {
 			const firstChild = this.middle.children[0];
 
 			if (
@@ -400,7 +404,7 @@ export class InnerTree<T> extends InnerBase<T> {
 				const newMiddle = result[0];
 				const block = result[1];
 
-				if (this.context.isInnerBlock<T>(block)) {
+				if (this.context.isInnerBlock<T, C>(block)) {
 					return this.copy(
 						this.left.concatChildren(block),
 						undefined,
@@ -422,7 +426,7 @@ export class InnerTree<T> extends InnerBase<T> {
 				const newMiddle = result[0];
 				const block = result[1];
 
-				if (this.context.isInnerBlock<T>(block)) {
+				if (this.context.isInnerBlock<T, C>(block)) {
 					return this.copy(
 						undefined,
 						block.concatChildren(this.right),
@@ -445,6 +449,6 @@ export class InnerTree<T> extends InnerBase<T> {
 	}
 
 	_structure(): string {
-		return `InnerTree<${this.itemsLength}>(${this.left._structure()}, ${this.middle?._structure() ?? '<notree>'}, ${this.right._structure()})`;
+		return `InnerTree<${this.length}>(${this.left._structure()}, ${this.middle?._structure() ?? '<notree>'}, ${this.right._structure()})`;
 	}
 }

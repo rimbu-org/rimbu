@@ -19,9 +19,9 @@ export class InnerBlockBuilder<T>
 	constructor(
 		context: ListContext,
 		readonly level: number,
-		public source?: InnerBlock<T>,
+		public source?: InnerBlock<T, any>,
 		public _children?: Array<BlockBuilder<T>>,
-		public itemsLength: number = source?.itemsLength ?? 0,
+		public length: number = source?.length ?? 0,
 	) {
 		super(context);
 	}
@@ -89,13 +89,13 @@ export class InnerBlockBuilder<T>
 	}
 
 	prependChild(child: BlockBuilder<T>): void {
-		this.itemsLength += child.itemsLength;
+		this.length += child.length;
 
 		this.children.unshift(child);
 	}
 
 	appendChild(child: BlockBuilder<T>): void {
-		this.itemsLength += child.itemsLength;
+		this.length += child.length;
 
 		this.children.push(child);
 	}
@@ -110,14 +110,14 @@ export class InnerBlockBuilder<T>
 
 	dropFirstChild(): BlockBuilder<T> {
 		const child = this.children.shift()!;
-		this.itemsLength -= child.itemsLength;
+		this.length -= child.length;
 
 		return child;
 	}
 
 	dropLastChild(): BlockBuilder<T> {
 		const child = this.children.pop()!;
-		this.itemsLength -= child.itemsLength;
+		this.length -= child.length;
 
 		return child;
 	}
@@ -127,7 +127,7 @@ export class InnerBlockBuilder<T>
 	): number | undefined {
 		const delta = f(this.firstChild());
 		if (undefined !== delta) {
-			this.itemsLength += delta;
+			this.length += delta;
 		}
 
 		return delta;
@@ -138,18 +138,18 @@ export class InnerBlockBuilder<T>
 	): number | undefined {
 		const delta = f(this.lastChild());
 		if (undefined !== delta) {
-			this.itemsLength += delta;
+			this.length += delta;
 		}
 
 		return delta;
 	}
 
-	build(): InnerBlock<T> {
+	build(): InnerBlock<T, any> {
 		return (
 			this.source ??
 			this.context.innerBlock(
 				this.children.map((c) => c.build()),
-				this.itemsLength,
+				this.length,
 				this.level,
 			)
 		);
@@ -157,12 +157,12 @@ export class InnerBlockBuilder<T>
 
 	splitRight(index = this.nrChildren >>> 1): InnerBlockBuilder<T> {
 		const rightChildren = this.children.splice(index);
-		const oldLength = this.itemsLength;
-		this.itemsLength = 0;
+		const oldLength = this.length;
+		this.length = 0;
 		for (let i = 0; i < this.nrChildren; i++) {
-			this.itemsLength += this.children[i].itemsLength;
+			this.length += this.children[i].length;
 		}
-		const rightLength = oldLength - this.itemsLength;
+		const rightLength = oldLength - this.length;
 
 		return this.context.innerBlockBuilder(
 			this.level,
@@ -183,7 +183,7 @@ export class InnerBlockBuilder<T>
 
 		if (this.nrChildren > maxBlockSize) {
 			// too many children, needs to split
-			const middleLength = this.itemsLength;
+			const middleLength = this.length;
 
 			const result = context.innerTreeBuilder(
 				this.level,
@@ -202,24 +202,24 @@ export class InnerBlockBuilder<T>
 
 	prependItems(other: BlockBuilder<T>): void {
 		this.prepareMutate();
-		this.itemsLength += other.itemsLength;
+		this.length += other.length;
 		this.children.unshift(other);
 	}
 
 	appendItems(other: BlockBuilder<T>): void {
 		this.prepareMutate();
-		this.itemsLength += other.itemsLength;
+		this.length += other.length;
 		this.children.push(other);
 	}
 
 	getCoordinates(index: number): [number, number] {
 		const nrChildren = this.nrChildren;
-		const length = this.itemsLength;
+		const length = this.length;
 
 		if (index >= length) {
 			// always return end of last child
 			const lastChild = this.children.at(-1)!;
-			return [nrChildren - 1, lastChild.itemsLength];
+			return [nrChildren - 1, lastChild.length];
 		}
 
 		const levelBits = this.context.blockSizeBits << (this.level - 1);
@@ -243,7 +243,7 @@ export class InnerBlockBuilder<T>
 			// search left to right
 			let i = index;
 			for (let childIndex = 0; childIndex < nrChildren; childIndex++) {
-				const childLength = children[childIndex].itemsLength;
+				const childLength = children[childIndex].length;
 
 				if (i < childLength) {
 					return [childIndex, i];
@@ -255,7 +255,7 @@ export class InnerBlockBuilder<T>
 			// search right to left
 			let i = length - index;
 			for (let childIndex = nrChildren - 1; childIndex >= 0; childIndex--) {
-				const childLength = children[childIndex].itemsLength;
+				const childLength = children[childIndex].length;
 
 				if (i <= childLength) {
 					return [childIndex, childLength - i];

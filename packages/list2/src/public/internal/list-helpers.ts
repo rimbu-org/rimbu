@@ -13,6 +13,7 @@ import { createContextModule, type ListContext } from '#list/context-module';
 
 export namespace ListHelpers {
 	export interface Factory extends ListBase.Factory<ListHelpers.Types> {
+		readonly defaultContext: List.Context;
 		createContext(
 			options?: { blockSizeBits?: number | undefined } | undefined,
 		): List.Context;
@@ -48,6 +49,7 @@ export namespace ListHelpers {
 
 	export function createListContext(
 		options?: { blockSizeBits?: number | undefined } | undefined,
+		_defaultContext?: ListContext<TypesImpl> | undefined,
 	): List.Context {
 		const outerChildrenOpsModule = Module.createPartial<{
 			defines: ListImpl.OuterChildrenOps<ListHelpers.TypesImpl>;
@@ -188,7 +190,9 @@ export namespace ListHelpers {
 			>(options)(mod),
 			createContext: (
 				options: { blockSizeBits?: number | undefined } | undefined,
-			) => createListContext(options),
+			) => createListContext(options, mod),
+			defaultContext: Module.lazy(() => _defaultContext ?? mod),
+
 			fromString: (...sources: ArrayNonEmpty<string>): ListImpl<string> => {
 				return mod.from(...sources);
 			},

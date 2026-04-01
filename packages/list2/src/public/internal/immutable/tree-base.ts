@@ -1,20 +1,24 @@
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { Stream } from '@rimbu/stream';
 
-import type { Tree } from '#list/immutable/utils';
-
 import { IndexRange } from '@rimbu/common/index-range';
 
+type TreeOperation<TS, TL = TS> = TS & {
+	left: TL;
+	middle: TS | null;
+	right: TL;
+};
+
 interface TreeGetNode<T> {
-	readonly itemsLength: number;
+	readonly length: number;
 	get(index: number): T;
 }
 
 export function treeGet<T>(
-	tree: Tree<TreeGetNode<T>, TreeGetNode<T>>,
+	tree: TreeOperation<TreeGetNode<T>>,
 	index: number,
 ): T {
-	const middleIndex = index - tree.left.itemsLength;
+	const middleIndex = index - tree.left.length;
 
 	if (middleIndex < 0) {
 		return tree.left.get(index);
@@ -24,7 +28,7 @@ export function treeGet<T>(
 		return tree.right.get(middleIndex);
 	}
 
-	const rightIndex = middleIndex - tree.middle.itemsLength;
+	const rightIndex = middleIndex - tree.middle.length;
 
 	if (rightIndex < 0) return tree.middle.get(middleIndex);
 
@@ -32,12 +36,12 @@ export function treeGet<T>(
 }
 
 interface TreeToArrayNode<T> {
-	readonly itemsLength: number;
+	readonly length: number;
 	toArray(options: { range?: IndexRange | undefined; reversed?: boolean }): T[];
 }
 
 export function treeToArray<T>(
-	tree: Tree<TreeToArrayNode<T>, TreeToArrayNode<T>>,
+	tree: TreeOperation<TreeToArrayNode<T>>,
 	options: {
 		range?: IndexRange | undefined;
 		reversed?: boolean | undefined;
@@ -47,7 +51,7 @@ export function treeToArray<T>(
 
 	const indexRange = IndexRange.getIndicesFor(
 		range ?? { start: 0 },
-		tree.itemsLength,
+		tree.length,
 	);
 
 	if (indexRange === 'empty') return [];
@@ -71,8 +75,8 @@ export function treeToArray<T>(
 	const leftArray = tree.left.toArray({ range: { start, end }, reversed });
 
 	if (null === tree.middle) {
-		const rightStart = Math.max(0, start - tree.left.itemsLength);
-		const rightEnd = end - tree.left.itemsLength;
+		const rightStart = Math.max(0, start - tree.left.length);
+		const rightEnd = end - tree.left.length;
 
 		if (rightEnd < 0) return leftArray;
 
@@ -85,8 +89,8 @@ export function treeToArray<T>(
 		return leftArray.concat(rightArray);
 	}
 
-	const middleStart = Math.max(0, start - tree.left.itemsLength);
-	const middleEnd = end - tree.left.itemsLength;
+	const middleStart = Math.max(0, start - tree.left.length);
+	const middleEnd = end - tree.left.length;
 
 	if (middleEnd < 0) return leftArray;
 
@@ -95,8 +99,8 @@ export function treeToArray<T>(
 		reversed,
 	});
 
-	const rightStart = Math.max(0, middleStart - tree.middle.itemsLength);
-	const rightEnd = middleEnd - tree.middle.itemsLength;
+	const rightStart = Math.max(0, middleStart - tree.middle.length);
+	const rightEnd = middleEnd - tree.middle.length;
 
 	if (rightEnd < 0) {
 		if (reversed) return middleArray.concat(leftArray);
@@ -117,7 +121,7 @@ interface TreeToStreamNode<T> {
 }
 
 export function treeToStream<T>(
-	tree: Tree<TreeToStreamNode<T>, TreeToStreamNode<T>>,
+	tree: TreeOperation<TreeToStreamNode<T>>,
 	options: { reversed?: boolean } = {},
 ): Stream.NonEmpty<T> {
 	const { reversed = false } = options;
@@ -139,7 +143,7 @@ interface TreeForEachNode<T> {
 }
 
 export function treeForEach<T>(
-	tree: Tree<TreeForEachNode<T>, TreeForEachNode<T>>,
+	tree: TreeOperation<TreeForEachNode<T>>,
 	f: (value: T, index: number, halt: () => void) => void,
 	options: { reversed: boolean; state: TraverseState },
 ) {

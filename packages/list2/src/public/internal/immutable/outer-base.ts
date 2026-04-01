@@ -139,4 +139,8 @@ export abstract class OuterBase<T>
 	toBuilder(): ListBuilder<T> {
 		return this.context.createBuilder<T>(this);
 	}
+
+	toString(): string {
+		return this._structure();
+	}
 }

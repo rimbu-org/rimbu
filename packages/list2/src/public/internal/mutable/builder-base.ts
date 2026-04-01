@@ -27,7 +27,7 @@ export interface OuterBuilder<T> extends BuilderCommon<T> {
 
 export interface InnerBuilder<T, C extends BlockBuilder<T> = BlockBuilder<T>>
 	extends BuilderCommon<T> {
-	get itemsLength(): number;
+	get length(): number;
 	prependChild(child: C): void;
 	appendChild(child: C): void;
 	firstChild(): C;
@@ -35,14 +35,14 @@ export interface InnerBuilder<T, C extends BlockBuilder<T> = BlockBuilder<T>>
 	dropFirstChild(): C;
 	modifyFirstChild(f: (child: C) => number | undefined): void;
 	modifyLastChild(f: (child: C) => number | undefined): void;
-	build(): Inner<T>;
+	build(): Inner<T, any>;
 	normalized(): InnerBuilder<T> | undefined;
 }
 
 export interface BlockBuilder<T> extends BuilderCommon<T> {
 	get nrChildren(): number;
 	get canAddChild(): boolean;
-	get itemsLength(): number;
+	get length(): number;
 	prependItems(other: BlockBuilder<T>): void;
 	appendItems(other: BlockBuilder<T>): void;
 	splitRight(index?: number): BlockBuilder<T>;
@@ -57,7 +57,7 @@ export abstract class BuilderBase {
 }
 
 export abstract class TreeBuilderBase<T, C> extends BuilderBase {
-	abstract itemsLength: number;
+	abstract length: number;
 	abstract left: BlockBuilder<T>;
 	abstract right: BlockBuilder<T>;
 	abstract middle: InnerBuilder<T> | undefined;
@@ -70,14 +70,14 @@ export abstract class TreeBuilderBase<T, C> extends BuilderBase {
 	abstract prepareMutate(): void;
 
 	get(index: number): T {
-		const middleIndex = index - this.left.itemsLength;
+		const middleIndex = index - this.left.length;
 
 		if (middleIndex < 0) {
 			// index is in left part
 			return this.left.get(index);
 		}
 
-		const rightIndex = middleIndex - (this.middle?.itemsLength ?? 0);
+		const rightIndex = middleIndex - (this.middle?.length ?? 0);
 
 		if (rightIndex >= 0) {
 			// index is in right part
@@ -93,14 +93,14 @@ export abstract class TreeBuilderBase<T, C> extends BuilderBase {
 	}
 
 	updateAt(index: number, update: Update<T>): T {
-		const middleIndex = index - this.left.itemsLength;
+		const middleIndex = index - this.left.length;
 
 		if (middleIndex < 0) {
 			// index is in left part
 			return this.left.updateAt(index, update);
 		}
 
-		const rightIndex = middleIndex - (this.middle?.itemsLength ?? 0);
+		const rightIndex = middleIndex - (this.middle?.length ?? 0);
 
 		if (rightIndex >= 0) {
 			// index is in right part
@@ -152,7 +152,7 @@ export abstract class TreeBuilderBase<T, C> extends BuilderBase {
 		this.prepareMutate();
 
 		// add child length to this length
-		this.itemsLength += this.getChildLength(child);
+		this.length += this.getChildLength(child);
 
 		if (this.left.nrChildren < this.context.maxBlockSize) {
 			// can prepend to left
@@ -201,7 +201,7 @@ export abstract class TreeBuilderBase<T, C> extends BuilderBase {
 		this.prepareMutate();
 
 		// add child length to this length
-		this.itemsLength += this.getChildLength(child);
+		this.length += this.getChildLength(child);
 
 		if (this.right.nrChildren < this.context.maxBlockSize) {
 			// caon append to right
@@ -257,7 +257,7 @@ export abstract class TreeBuilderBase<T, C> extends BuilderBase {
 			this.middle = this.context.innerBlockBuilder(
 				this.level + 1,
 				[child],
-				child.itemsLength,
+				child.length,
 			);
 
 			return;
@@ -280,7 +280,7 @@ export abstract class TreeBuilderBase<T, C> extends BuilderBase {
 			) {
 				// can merge child into firstMiddleChild
 				firstMiddleChild.prependItems(child);
-				return child.itemsLength;
+				return child.length;
 			}
 
 			return;
@@ -307,7 +307,7 @@ export abstract class TreeBuilderBase<T, C> extends BuilderBase {
 			this.middle = this.context.innerBlockBuilder(
 				this.level + 1,
 				[child],
-				child.itemsLength,
+				child.length,
 			);
 
 			return;
@@ -330,7 +330,7 @@ export abstract class TreeBuilderBase<T, C> extends BuilderBase {
 			) {
 				// can merge child into lastMiddleChild
 				lastMiddleChild.appendItems(child);
-				return child.itemsLength;
+				return child.length;
 			}
 
 			return;

@@ -159,7 +159,7 @@ export class ListBuilder<
 		if (this.context.isOuterTreeBuilder<T>(this.outerBuilder)) {
 			this.outerBuilder.appendMiddle(this.outerBuilder.right);
 			this.outerBuilder.right = outerBlockBuilder;
-			this.outerBuilder.itemsLength += outerBlockBuilder.length;
+			this.outerBuilder.length += outerBlockBuilder.length;
 			return;
 		}
 

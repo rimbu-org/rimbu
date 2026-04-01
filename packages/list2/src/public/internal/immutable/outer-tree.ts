@@ -81,7 +81,7 @@ export class OuterTree<T> extends OuterBase<T> implements ListImpl.NonEmpty<T> {
 
 		if (this.left.canAddChild) {
 			return this.copy(
-				this.left.prependChild(value),
+				this.left.prependBlockChild(value),
 				this.right,
 				this.middle,
 				newLength,
@@ -90,7 +90,7 @@ export class OuterTree<T> extends OuterBase<T> implements ListImpl.NonEmpty<T> {
 
 		const newMiddle =
 			this.middle?.prependChild(this.left) ??
-			this.context.innerBlock<T>([this.left], this.left.length, 1);
+			this.context.innerBlock([this.left], this.left.length, 1);
 
 		return this.copy(
 			this.left.copy(this.ops.of([value])),
@@ -114,7 +114,11 @@ export class OuterTree<T> extends OuterBase<T> implements ListImpl.NonEmpty<T> {
 
 		const newMiddle =
 			this.middle?.appendChild(this.right) ??
-			this.context.innerBlock<T>([this.right], this.right.length, 1);
+			this.context.innerBlock<T, OuterBlock<T>>(
+				[this.right],
+				this.right.length,
+				1,
+			);
 
 		return this.copy(
 			this.left,
@@ -141,7 +145,7 @@ export class OuterTree<T> extends OuterBase<T> implements ListImpl.NonEmpty<T> {
 			)._normalize();
 		}
 
-		const rightAmount = middleAmount - this.middle.itemsLength;
+		const rightAmount = middleAmount - this.middle.length;
 
 		if (rightAmount > 0) {
 			const newRight = this.right.takeChildren(rightAmount);
@@ -156,7 +160,8 @@ export class OuterTree<T> extends OuterBase<T> implements ListImpl.NonEmpty<T> {
 		return this.copy(undefined, newRight, newMiddle)._normalize();
 	}
 
-	drop(amount: number): ListImpl<T> {
+	drop(amountInput: number): ListImpl<T> {
+		const amount = Math.floor(amountInput);
 		if (amount === 0) return this;
 		if (amount >= this.length || -amount > this.length)
 			return this.context.empty();
@@ -173,7 +178,7 @@ export class OuterTree<T> extends OuterBase<T> implements ListImpl.NonEmpty<T> {
 			return this.right.drop(middleAmount);
 		}
 
-		const rightAmount = middleAmount - this.middle.itemsLength;
+		const rightAmount = middleAmount - this.middle.length;
 
 		if (rightAmount >= 0) {
 			return this.right.drop(rightAmount);
@@ -260,7 +265,7 @@ export class OuterTree<T> extends OuterBase<T> implements ListImpl.NonEmpty<T> {
 				const m =
 					null === newMiddle
 						? outerTree.prependMiddle(joint)
-						: newMiddle.concatInner(outerTree.prependMiddle(joint));
+						: newMiddle.concat(outerTree.prependMiddle(joint));
 				return this.copy(undefined, outerTree.right, m);
 			}
 
@@ -273,7 +278,7 @@ export class OuterTree<T> extends OuterBase<T> implements ListImpl.NonEmpty<T> {
 						: newMiddle
 								.appendChild(joint)
 								.appendChild(newOtherLeft)
-								.concatInner(outerTree.middle);
+								.concat(outerTree.middle);
 			return this.copy(undefined, outerTree.right, newMiddle2);
 		}
 
@@ -283,7 +288,7 @@ export class OuterTree<T> extends OuterBase<T> implements ListImpl.NonEmpty<T> {
 			const newMiddle =
 				null === outerTree.middle
 					? newThisMiddle
-					: newThisMiddle.concatInner(outerTree.middle);
+					: newThisMiddle.concat(outerTree.middle);
 			return this.copy(undefined, outerTree.right, newMiddle);
 		}
 
@@ -294,7 +299,7 @@ export class OuterTree<T> extends OuterBase<T> implements ListImpl.NonEmpty<T> {
 			const newMiddle =
 				null === outerTree.middle
 					? newThisMiddle
-					: newThisMiddle.concatInner(outerTree.middle);
+					: newThisMiddle.concat(outerTree.middle);
 
 			return this.copy(undefined, outerTree.right, newMiddle);
 		}
@@ -306,7 +311,7 @@ export class OuterTree<T> extends OuterBase<T> implements ListImpl.NonEmpty<T> {
 		const newMiddle =
 			null === outerTree.middle
 				? newThisMiddle
-				: newThisMiddle.concatInner(outerTree.middle);
+				: newThisMiddle.concat(outerTree.middle);
 
 		return this.copy(undefined, outerTree.right, newMiddle);
 	}
@@ -314,14 +319,22 @@ export class OuterTree<T> extends OuterBase<T> implements ListImpl.NonEmpty<T> {
 	prependMiddle(outerBlock: OuterBlock<T>): Inner<T, OuterBlock<T>> {
 		return (
 			this.middle?.prependChild(outerBlock) ??
-			this.context.innerBlock<T>([outerBlock], outerBlock.length, 1)
+			this.context.innerBlock<T, OuterBlock<T>>(
+				[outerBlock],
+				outerBlock.length,
+				1,
+			)
 		);
 	}
 
 	appendMiddle(outerBlock: OuterBlock<T>): Inner<T, OuterBlock<T>> {
 		return (
 			this.middle?.appendChild(outerBlock) ??
-			this.context.innerBlock<T>([outerBlock], outerBlock.length, 1)
+			this.context.innerBlock<T, OuterBlock<T>>(
+				[outerBlock],
+				outerBlock.length,
+				1,
+			)
 		);
 	}
 
@@ -346,7 +359,7 @@ export class OuterTree<T> extends OuterBase<T> implements ListImpl.NonEmpty<T> {
 				// can merge left and right
 				return this.left.concatChildren(this.right);
 			}
-		} else if (this.context.isInnerBlock<T>(this.middle)) {
+		} else if (this.context.isInnerBlock<T, OuterBlock<T>>(this.middle)) {
 			if (this.length <= this.context.maxBlockSize) {
 				// left, middle, and right can be merged into one block
 				const firstMiddleChild = this.middle.children[0]!;
@@ -358,10 +371,7 @@ export class OuterTree<T> extends OuterBase<T> implements ListImpl.NonEmpty<T> {
 
 			const firstChild = this.middle.children[0]!;
 
-			if (
-				this.left.length + firstChild.itemsLength <=
-				this.context.maxBlockSize
-			) {
+			if (this.left.length + firstChild.length <= this.context.maxBlockSize) {
 				// first middle child can be merged with left
 				const result = this.middle.dropFirstChild();
 				const newMiddle = result[0];
@@ -371,10 +381,7 @@ export class OuterTree<T> extends OuterBase<T> implements ListImpl.NonEmpty<T> {
 
 			const lastChild = this.middle.children.at(-1)!;
 
-			if (
-				this.right.length + lastChild.itemsLength <=
-				this.context.maxBlockSize
-			) {
+			if (this.right.length + lastChild.length <= this.context.maxBlockSize) {
 				// last middle child can be merged with right
 				const result = this.middle.dropLastChild();
 				const newMiddle = result[0];

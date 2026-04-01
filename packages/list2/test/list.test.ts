@@ -235,7 +235,7 @@ describe.only('List methods', () => {
 		expect(list6_2.append(0).toArray()).toEqual([1, 2, 3, 4, 5, 6, 0]);
 	});
 
-	it.only('take', () => {
+	it('take', () => {
 		expect(listEmpty.take(10)).toBe(listEmpty);
 		expect(list3_1.take(10)).toBe(list3_1);
 		expect(list3_2.take(10)).toBe(list3_2);

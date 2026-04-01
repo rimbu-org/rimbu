@@ -48,12 +48,12 @@ export class ReversedOuterBlock<
 		return this.ops.stream(this.children, { reversed: !reversed });
 	}
 
-	prependChild(value: T): OuterBlock<T> {
-		return super.appendChild(value);
+	prepend(value: T): ListImpl.NonEmpty<T> {
+		return super.append(value);
 	}
 
-	appendChild(value: T): OuterBlock<T> {
-		return super.prependChild(value);
+	append(value: T): ListImpl.NonEmpty<T> {
+		return super.prepend(value);
 	}
 
 	takeChildren(amount: number): OuterBlock<T> {

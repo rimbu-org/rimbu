@@ -18,17 +18,16 @@ import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { IndexRange } from '@rimbu/common/index-range';
 import { Stream } from '@rimbu/stream';
 
-import { InnerBase } from '#list/immutable/inner-base';
+export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
+	declare _self: InnerBlock<T, C>;
 
-export class InnerBlock<T> extends InnerBase<T> implements Block<T> {
 	constructor(
-		context: ListContext,
-		readonly children: Block<T>[],
-		public itemsLength: number,
+		readonly context: ListContext,
+		readonly children: C[],
+		public length: number,
 		readonly level: number,
-	) {
-		super(context);
-	}
+		readonly ops = context.outerChildrenOps,
+	) {}
 
 	get nrChildren(): number {
 		return this.children.length;
@@ -48,18 +47,18 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T> {
 
 	copy(
 		children = this.children,
-		itemsLength = this.itemsLength,
+		length = this.length,
 		level = this.level,
-	): InnerBlock<T> {
+	): InnerBlock<T, C> {
 		if (
 			children === this.children &&
-			itemsLength === this.itemsLength &&
+			length === this.length &&
 			level === this.level
 		) {
 			return this;
 		}
 
-		return this.context.innerBlock(children, itemsLength, level);
+		return this.context.innerBlock(children, length, level);
 	}
 
 	stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
@@ -74,21 +73,21 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T> {
 		return this.children[childIndex].get(inChildIndex);
 	}
 
-	prependChildDirect(child: Block<T>): InnerBlock<T> {
-		const newLength = this.itemsLength + child.itemsLength;
+	prependBlockChild(child: C): InnerBlock<T, C> {
+		const newLength = this.length + child.length;
 
 		return this.copy(prepend(this.children, child), newLength);
 	}
 
-	prependChild(child: Block<T>): Inner<T, Block<T>> {
+	prependChild(block: C): Inner<T, C> {
 		if (this.canAddChild) {
-			return this.prependChildDirect(child);
+			return this.prependBlockChild(block);
 		}
 
-		const newLength = this.itemsLength + child.itemsLength;
+		const newLength = this.length + block.length;
 
 		return this.context.innerTree(
-			this.copy([child], child.itemsLength),
+			this.copy([block], block.length),
 			this,
 			null,
 			newLength,
@@ -96,69 +95,75 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T> {
 		);
 	}
 
-	appendChild(child: Block<T>): Inner<T, Block<T>> {
-		const newLength = this.itemsLength + child.itemsLength;
+	appendBlockChild(child: C): InnerBlock<T, C> {
+		const newLength = this.length + child.length;
 
-		if (this.nrChildren < this.context.maxBlockSize) {
+		return this.copy(prepend(this.children, child), newLength);
+	}
+
+	appendChild(child: C): Inner<T, C> {
+		const newLength = this.length + child.length;
+
+		if (this.canAddChild) {
 			return this.copy(append(this.children, child), newLength);
 		}
 
 		return this.context.innerTree(
 			this,
-			this.copy([child], child.itemsLength),
+			this.copy([child], child.length),
 			null,
 			newLength,
 			this.level,
 		);
 	}
 
-	concat(other: Inner<T, Block<T>>): Inner<T, Block<T>> {
-		if (other.context.isInnerBlock<T>(other)) {
+	concat(other: Inner<T, C>): Inner<T, C> {
+		if (other.context.isInnerBlock<T, C>(other)) {
 			if (other === this && this.children.length > this.context.minBlockSize) {
 				return this.context.innerTree(
 					this,
 					this,
 					null,
-					this.itemsLength,
+					this.length,
 					this.level,
 				);
 			}
 
 			return this.concatBlock(other);
 		}
-		if (this.context.isInnerTree<T>(other)) {
+		if (this.context.isInnerTree<T, C>(other)) {
 			return this.concatTree(other);
 		}
 
 		throwInvalidStateError();
 	}
 
-	concatInner(inner: Inner<T, Block<T>>): Inner<T, Block<T>> {
-		if (inner.context.isInnerBlock<T>(inner)) {
-			if (inner === this && this.childrenInMin) {
-				return this.context.innerTree(
-					this,
-					this,
-					null,
-					this.itemsLength + inner.itemsLength,
-					this.level,
-				);
-			}
+	// concatInner(inner: Inner<T, C>): Inner<T, C> {
+	// 	if (inner.context.isInnerBlock<T>(inner)) {
+	// 		if (inner === this && this.childrenInMin) {
+	// 			return this.context.innerTree(
+	// 				this,
+	// 				this,
+	// 				null,
+	// 				this.length + inner.length,
+	// 				this.level,
+	// 			);
+	// 		}
 
-			return this.concatBlock(inner);
-		}
-		if (this.context.isInnerTree<T>(inner)) {
-			return this.concatTree(inner);
-		}
+	// 		return this.concatBlock(inner);
+	// 	}
+	// 	if (this.context.isInnerTree<T>(inner)) {
+	// 		return this.concatTree(inner);
+	// 	}
 
-		throwInvalidStateError();
-	}
+	// 	throwInvalidStateError();
+	// }
 
-	concatBlock(innerBlock: InnerBlock<T>): Inner<T, Block<T>> {
+	concatBlock(innerBlock: InnerBlock<T, C>): Inner<T, C> {
 		return this.concatChildren(innerBlock)._mutateNormalize();
 	}
 
-	concatTree(innerTree: InnerTree<T>): Inner<T, Block<T>> {
+	concatTree(innerTree: InnerTree<T, C>): Inner<T, C> {
 		if (
 			this.nrChildren + innerTree.left.nrChildren <=
 			this.context.maxBlockSize
@@ -169,7 +174,7 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T> {
 		}
 
 		if (innerTree.left.childrenInMin) {
-			const newMiddle = innerTree.prependMiddleChild(innerTree.left);
+			const newMiddle = innerTree.prependMiddleBlock(innerTree.left);
 
 			return innerTree.copy(this, undefined, newMiddle);
 		}
@@ -180,48 +185,49 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T> {
 		const newSecond = newLeft._mutateSplitRight(
 			newLeft.nrChildren - this.context.maxBlockSize,
 		);
-		const newMiddle = innerTree.prependMiddleChild(newSecond);
+		const newMiddle = innerTree.prependMiddleBlock(newSecond);
 
 		return innerTree.copy(newLeft, undefined, newMiddle);
 	}
 
-	concatChildren(other: InnerBlock<T>): InnerBlock<T> {
+	concatChildren(other: InnerBlock<T, C>): InnerBlock<T, C> {
 		const newChildren = this.children.concat(other.children);
 
-		return this.copy(newChildren, this.itemsLength + other.itemsLength);
+		return this.copy(newChildren, this.length + other.length);
 	}
 
-	reversed(cacheMap: CacheMap = this.context.cacheMap()): InnerBlock<T> {
-		const cachedThis = cacheMap.get<InnerBlock<T>>(this);
+	reversed(cacheMap: CacheMap = this.context.cacheMap()): InnerBlock<T, C> {
+		const cachedThis = cacheMap.get<InnerBlock<T, C>>(this);
 		if (cachedThis !== undefined) return cachedThis;
 
-		const newChildren = reverseMap(this.children, (child) =>
-			child.reversed(cacheMap),
+		const newChildren = reverseMap(
+			this.children,
+			(child) => child.reversed(cacheMap) as C,
 		);
 
-		const reversedThis = this.copy(newChildren, this.itemsLength);
+		const reversedThis = this.copy(newChildren, this.length);
 		return cacheMap.setAndReturn(this, reversedThis);
 	}
 
-	dropFirstChild(): [InnerBlock<T> | null, Block<T>] {
+	dropFirstChild(): [InnerBlock<T, C> | null, C] {
 		const firstChild = this.children[0];
 
 		if (this.nrChildren === 1) return [null, firstChild];
 
 		const newChildren = this.children.slice(1);
-		const newLength = this.itemsLength - firstChild.itemsLength;
+		const newLength = this.length - firstChild.length;
 		const newSelf = this.copy(newChildren, newLength);
 
 		return [newSelf, firstChild];
 	}
 
-	dropLastChild(): [InnerBlock<T> | null, Block<T>] {
+	dropLastChild(): [InnerBlock<T, C> | null, C] {
 		const lastChild = this.children.at(-1)!;
 
 		if (this.nrChildren === 1) return [null, lastChild];
 
 		const newChildren = this.children.slice(0, -1);
-		const newLength = this.itemsLength - lastChild.itemsLength;
+		const newLength = this.length - lastChild.length;
 		const newSelf = this.copy(newChildren, newLength);
 
 		return [newSelf, lastChild];
@@ -254,7 +260,7 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T> {
 		}
 	}
 
-	takeChildren(childAmount: number): InnerBlock<T> | null {
+	takeChildren(childAmount: number): InnerBlock<T, C> | null {
 		if (childAmount <= 0) return null;
 		if (childAmount >= this.nrChildren) return this;
 
@@ -264,12 +270,12 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T> {
 			this.context.maxBlockSize,
 		);
 
-		const length = newChildren.reduce((l, c): number => l + c.itemsLength, 0);
+		const length = newChildren.reduce((l, c): number => l + c.length, 0);
 
 		return this.copy(newChildren, length);
 	}
 
-	dropChildren(childAmount: number): InnerBlock<T> | null {
+	dropChildren(childAmount: number): InnerBlock<T, C> | null {
 		if (childAmount <= 0) {
 			return this;
 		}
@@ -279,12 +285,12 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T> {
 
 		const newChildren = splice(this.children, 0, childAmount);
 
-		const length = newChildren.reduce((l, c): number => l + c.itemsLength, 0);
+		const length = newChildren.reduce((l, c): number => l + c.length, 0);
 
 		return this.copy(newChildren, length);
 	}
 
-	takeInternal(amount: number): [InnerBlock<T> | null, Block<T>, number] {
+	takeInternal(amount: number): [InnerBlock<T, C> | null, C, number] {
 		const [childIndex, inChildIndex] = this.getCoordinates(amount, true, false);
 
 		if (childIndex >= this.nrChildren) {
@@ -297,7 +303,7 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T> {
 		return [newSelf, lastChild, inChildIndex];
 	}
 
-	dropInternal(amount: number): [InnerBlock<T> | null, Block<T>, number] {
+	dropInternal(amount: number): [InnerBlock<T, C> | null, C, number] {
 		const [childIndex, inChildIndex] = this.getCoordinates(
 			amount,
 			false,
@@ -320,10 +326,10 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T> {
 		const { range, reversed = false } = options;
 
 		let start = 0;
-		let end = this.itemsLength - 1;
+		let end = this.length - 1;
 
 		if (undefined !== range) {
-			const indexRange = IndexRange.getIndicesFor(range, this.itemsLength);
+			const indexRange = IndexRange.getIndicesFor(range, this.length);
 			if (indexRange === 'empty') return [];
 			if (indexRange !== 'all') {
 				start = indexRange[0];
@@ -407,13 +413,13 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T> {
 		let indexWithOffset = index - offSet;
 
 		const nrChildren = this.nrChildren;
-		const length = this.itemsLength;
+		const length = this.length;
 		const children = this.children;
 
 		if (indexWithOffset >= length) {
 			// return the end
 			if (noEmptyLast) {
-				return [nrChildren - 1, last(children).itemsLength - 1];
+				return [nrChildren - 1, last(children).length - 1];
 			}
 
 			return [nrChildren, 0];
@@ -437,7 +443,7 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T> {
 		if (indexWithOffset <= length >>> 1) {
 			// search from left to right
 			for (let childIndex = 0; childIndex < nrChildren; childIndex++) {
-				const childLength = children[childIndex].itemsLength;
+				const childLength = children[childIndex].length;
 
 				if (indexWithOffset < childLength) {
 					return [childIndex, indexWithOffset + offSet];
@@ -449,7 +455,7 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T> {
 			// search right to left
 			let i = length - indexWithOffset;
 			for (let childIndex = nrChildren - 1; childIndex >= 0; childIndex--) {
-				const childLength = children[childIndex].itemsLength;
+				const childLength = children[childIndex].length;
 
 				if (i <= childLength) {
 					return [childIndex, childLength - i + offSet];
@@ -466,7 +472,7 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T> {
 		return this.context.innerBlockBuilderSource(this);
 	}
 
-	_mutateRebalance(): InnerBlock<T> {
+	_mutateRebalance(): InnerBlock<T, C> {
 		let i = 0;
 
 		const children = this.children;
@@ -479,7 +485,7 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T> {
 				child.nrChildren + rightChild.nrChildren <=
 				this.context.maxBlockSize
 			) {
-				const newChild = child.concatChildren(rightChild);
+				const newChild = child.concatChildren(rightChild) as C;
 				this.children.splice(i, 2, newChild);
 			} else i++;
 		}
@@ -487,7 +493,7 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T> {
 		return this;
 	}
 
-	_mutateNormalize(): Inner<T, Block<T>> {
+	_mutateNormalize(): Inner<T, C> {
 		if (this.childrenInMax) {
 			return this;
 		}
@@ -498,25 +504,25 @@ export class InnerBlock<T> extends InnerBase<T> implements Block<T> {
 			this,
 			newRight,
 			null,
-			this.itemsLength,
+			this.length,
 			this.level,
 		);
 	}
 
-	_mutateSplitRight(childIndex = this.nrChildren >>> 1): InnerBlock<T> {
+	_mutateSplitRight(childIndex = this.nrChildren >>> 1): InnerBlock<T, C> {
 		const rightChildren = this.children.splice(childIndex);
 		let rightLength = 0;
 
 		for (let i = 0; i < rightChildren.length; i++) {
-			rightLength += rightChildren[i].itemsLength;
+			rightLength += rightChildren[i].length;
 		}
 
-		this.itemsLength -= rightLength;
+		this.length -= rightLength;
 
 		return this.copy(rightChildren, rightLength);
 	}
 
 	_structure(): string {
-		return `InnerBlock<${this.itemsLength}>(${this.children.map((c) => c._structure()).join(',')})`;
+		return `InnerBlock<${this.length}>(${this.children.map((c) => c._structure()).join(',')})`;
 	}
 }

@@ -19,13 +19,9 @@ export class OuterTreeBuilder<T>
 		public _left?: OuterBlockBuilder<T>,
 		public _right?: OuterBlockBuilder<T>,
 		public _middle?: InnerBuilder<T, OuterBlockBuilder<T>>,
-		public itemsLength: number = source?.length ?? 0,
+		public length: number = source?.length ?? 0,
 	) {
 		super(context);
-	}
-
-	get length(): number {
-		return this.itemsLength;
 	}
 
 	get level(): number {
@@ -43,7 +39,7 @@ export class OuterTreeBuilder<T>
 				: this.context.createInnerBuilder<T, OuterBlockBuilder<T>>(
 						this.source.middle,
 					);
-		this.itemsLength = this.source.length;
+		this.length = this.source.length;
 		this.source = undefined;
 	}
 
@@ -87,15 +83,12 @@ export class OuterTreeBuilder<T>
 		}
 
 		if (undefined !== this.middle) {
-			if (
-				this.middle.itemsLength + this.left.length <=
-				this.context.maxBlockSize
-			) {
+			if (this.middle.length + this.left.length <= this.context.maxBlockSize) {
 				// can merge middle with left
 				this.left.appendItems(this.middle.firstChild());
 				this.middle = undefined;
 			} else if (
-				this.middle.itemsLength + this.right.length <=
+				this.middle.length + this.right.length <=
 				this.context.maxBlockSize
 			) {
 				// can merge middle with right
@@ -112,7 +105,7 @@ export class OuterTreeBuilder<T>
 	build(): ListImpl<T, ListImpl.Types> {
 		return (
 			this.source ??
-			this.context.outerTree(
+			this.context.outerTree<T>(
 				this.left.build(),
 				this.right.build(),
 				this.middle?.build() ?? null,

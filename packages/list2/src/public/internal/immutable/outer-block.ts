@@ -17,8 +17,10 @@ import { OuterBase } from '#list/immutable/outer-base';
 
 export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 	extends OuterBase<T>
-	implements ListImpl.NonEmpty<T>, Block<T>
+	implements ListImpl.NonEmpty<T>, Block<T, T>
 {
+	declare _self: OuterBlock<T>;
+
 	constructor(
 		context: ListContext,
 		public children: WithElem<Tp, T>['outerChildren'],
@@ -29,10 +31,6 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 
 	get isReversedBlock() {
 		return false;
-	}
-
-	get itemsLength() {
-		return this.length;
 	}
 
 	get nrChildren() {
@@ -97,7 +95,7 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 
 	prepend(value: T): ListImpl.NonEmpty<T> {
 		if (this.canAddChild) {
-			return this.prependChild(value);
+			return this.prependBlockChild(value);
 		}
 
 		return this.context.outerTree<T>(
@@ -110,7 +108,7 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 
 	append(value: T): ListImpl.NonEmpty<T> {
 		if (this.canAddChild) {
-			return this.appendChild(value);
+			return this.appendBlockChild(value);
 		}
 
 		return this.context.outerTree(
@@ -121,11 +119,11 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		);
 	}
 
-	prependChild(value: T): OuterBlock<T> {
+	prependBlockChild(value: T): OuterBlock<T> {
 		return this.copy(this.ops.prepend(this.children, value));
 	}
 
-	appendChild(value: T): OuterBlock<T> {
+	appendBlockChild(value: T): OuterBlock<T> {
 		return this.copy(this.ops.append(this.children, value));
 	}
 

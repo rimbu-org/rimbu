@@ -15,11 +15,11 @@ export class InnerTreeBuilder<T>
 	constructor(
 		context: ListContext,
 		readonly level: number,
-		public source?: InnerTree<T>,
+		public source?: InnerTree<T, any>,
 		public _left?: InnerBlockBuilder<T>,
 		public _right?: InnerBlockBuilder<T>,
 		public _middle?: InnerBuilder<T, InnerBlockBuilder<T>>,
-		public itemsLength: number = source?.itemsLength ?? 0,
+		public length: number = source?.length ?? 0,
 	) {
 		super(context);
 	}
@@ -45,7 +45,7 @@ export class InnerTreeBuilder<T>
 			null === this.source.middle
 				? undefined
 				: this.context.createInnerBuilder(this.source.middle);
-		this.itemsLength = this.source.itemsLength;
+		this.length = this.source.length;
 		this.source = undefined;
 	}
 
@@ -59,14 +59,14 @@ export class InnerTreeBuilder<T>
 
 	prependChild(child: BlockBuilder<T>): void {
 		this.prepareMutate();
-		this.itemsLength += child.itemsLength;
+		this.length += child.length;
 
 		this.left.prependChild(child);
 	}
 
 	appendChild(child: BlockBuilder<T>): void {
 		this.prepareMutate();
-		this.itemsLength += child.itemsLength;
+		this.length += child.length;
 
 		this.right.appendChild(child);
 	}
@@ -82,7 +82,7 @@ export class InnerTreeBuilder<T>
 	dropFirstChild(): BlockBuilder<T> {
 		this.prepareMutate();
 		const firstChild = this.left.dropFirstChild();
-		this.itemsLength -= firstChild.itemsLength;
+		this.length -= firstChild.length;
 
 		return firstChild;
 	}
@@ -99,14 +99,14 @@ export class InnerTreeBuilder<T>
 		return this.right.modifyLastChild(f);
 	}
 
-	build(): InnerTree<T> {
+	build(): InnerTree<T, any> {
 		return (
 			this.source ??
 			this.context.innerTree(
 				this.left.build(),
 				this.right.build(),
 				this.middle?.build() ?? null,
-				this.itemsLength,
+				this.length,
 				this.level,
 			)
 		);
@@ -134,7 +134,7 @@ export class InnerTreeBuilder<T>
 	}
 
 	getChildLength(child: BlockBuilder<T>): number {
-		return child.itemsLength;
+		return child.length;
 	}
 
 	prependBlockChild(block: InnerBlockBuilder<T>, child: BlockBuilder<T>): void {
