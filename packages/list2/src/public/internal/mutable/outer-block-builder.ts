@@ -15,7 +15,7 @@ import {
 
 export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 	extends BuilderBase
-	implements OuterBuilder<T>, BlockBuilder<T>
+	implements OuterBuilder<T>, BlockBuilder<T, T>
 {
 	constructor(
 		context: ListContext,
@@ -74,23 +74,28 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		this.children = this.ops.mutateAppend(this.children, value);
 	}
 
+	insert(index: number, value: T): void {
+		this.prepareMutate();
+		this.ops.mutateSplice(this.children, index, 0, [value]);
+	}
+
 	prependItems(other: OuterBlockBuilder<T>): void {
 		this.prepareMutate();
 		this.children = this.ops.concat(other.children, this.children);
 	}
 
-	appendItems(other: OuterBlockBuilder<T, Tp>): void {
+	appendItems(other: OuterBlockBuilder<T>): void {
 		this.prepareMutate();
 		this.children = this.ops.concat(this.children, other.children);
 	}
 
-	dropFirst(): T {
+	dropFirstChild(): T {
 		this.prepareMutate();
 		const value = this.ops.mutateDropFirst<T>(this.children);
 		return value;
 	}
 
-	dropLast(): T {
+	dropLastChild(): T {
 		this.prepareMutate();
 		const value = this.ops.mutateDropLast<T>(this.children);
 		return value;
@@ -155,5 +160,15 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		}
 
 		this.ops.forEach(this.children, f, options);
+	}
+
+	prependChild(child: T): void {
+		this.prepareMutate();
+		this.children = this.ops.mutatePrepend(this.children, child);
+	}
+
+	appendChild(child: T): void {
+		this.prepareMutate();
+		this.children = this.ops.mutateAppend(this.children, child);
 	}
 }

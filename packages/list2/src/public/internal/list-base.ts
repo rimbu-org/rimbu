@@ -506,6 +506,29 @@ export namespace ListBase {
 		updateAt(index: number, update: Update<T>): T | undefined;
 		updateAt<O>(index: number, update: Update<T>, otherwise: OptLazy<O>): T | O;
 		/**
+		 * Sets the element at the given `index` to the given `value`.
+		 * @param index - the index of the element to set.
+		 * @param value - the new value to set.
+		 * @param otherwise - (default: undefined) the `OptLazy` value to return if there is no element at given index
+		 * @typeparam O - the type of the `otherwise` value
+		 * @returns the old value at the given index, or the `otherwise` value if the index is out of bounds
+		 * @note a negative `index` will be treated as follows:<br/>
+		 * - -1: the last element in the list<br/>
+		 * - -2: the second-last element in the list<br/>
+		 * - ...etc
+		 * @example
+		 * ```ts
+		 * const m = List.of(1, 2, 3).toBuilder()
+		 * m.set(0, 10)       // => 1
+		 * m.set(1, 10, 'a')  // => 2
+		 * m.set(10, 0)       // => undefined
+		 * m.set(10, 0, 'a')  // => 'a'
+		 * ```
+		 * @note O(logB(N)) for block size B
+		 */
+		set(index: number, value: T): T | undefined;
+		set<O>(index: number, value: T, otherwise: OptLazy<O>): T | O;
+		/**
 		 * Performs given function `f` for each value of the List builder.
 		 * @param f - the function to perform for each element, receiving<br/>
 		 * - `value`: the next value<br/>

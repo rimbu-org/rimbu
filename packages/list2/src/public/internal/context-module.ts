@@ -4,7 +4,11 @@ import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { Block, Inner } from '#list/immutable/utils';
 import type { ListBase } from '#list/list-base';
 import type { ListImpl } from '#list/list-impl';
-import type { BlockBuilder, InnerBuilder } from '#list/mutable/builder-base';
+import type {
+	BlockBuilder,
+	InnerBuilder,
+	ToImmutable,
+} from '#list/mutable/builder-base';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { Module } from '@rimbu/common/module';
@@ -77,24 +81,24 @@ interface BuilderFactory<Tp extends ListImpl.Types = ListImpl.Types> {
 	createInnerBuilder<T, C extends BlockBuilder<T>>(
 		source: Inner<T, Block<T>>,
 	): InnerBuilder<T, C>;
-	innerBlockBuilderSource<T>(
-		source: InnerBlock<T, Block<T>>,
-	): InnerBlockBuilder<T>;
-	innerBlockBuilder<T>(
+	innerBlockBuilderSource<T, C extends BlockBuilder<T>>(
+		source: InnerBlock<T, ToImmutable<C>>,
+	): InnerBlockBuilder<T, C>;
+	innerBlockBuilder<T, C extends BlockBuilder<T>>(
 		level: number,
-		children: Array<BlockBuilder<T>>,
+		children: Array<C>,
 		length: number,
-	): InnerBlockBuilder<T>;
-	innerTreeBuilderSource<T>(
-		source: InnerTree<T, Block<T>>,
-	): InnerTreeBuilder<T>;
-	innerTreeBuilder<T>(
+	): InnerBlockBuilder<T, C>;
+	innerTreeBuilderSource<T, C extends BlockBuilder<T>>(
+		source: InnerTree<T, ToImmutable<C>>,
+	): InnerTreeBuilder<T, C>;
+	innerTreeBuilder<T, C extends BlockBuilder<T>>(
 		level: number,
-		left: InnerBlockBuilder<T>,
-		right: InnerBlockBuilder<T>,
-		middle: InnerBuilder<T> | undefined,
+		left: InnerBlockBuilder<T, C>,
+		right: InnerBlockBuilder<T, C>,
+		middle: InnerBuilder<T, InnerBlockBuilder<T, C>> | undefined,
 		length: number,
-	): InnerTreeBuilder<T>;
+	): InnerTreeBuilder<T, C>;
 }
 
 export interface ListContextBase<Tp extends ListImpl.Types = ListImpl.Types>
@@ -242,30 +246,30 @@ export function createContextModule<
 
 			throwInvalidStateError();
 		},
-		innerBlockBuilderSource<T>(
-			source: InnerBlock<T, Block<T>>,
-		): InnerBlockBuilder<T> {
+		innerBlockBuilderSource<T, C extends BlockBuilder<T>>(
+			source: InnerBlock<T, ToImmutable<C>>,
+		): InnerBlockBuilder<T, C> {
 			return new InnerBlockBuilder(mod, source.level, source);
 		},
-		innerBlockBuilder<T>(
+		innerBlockBuilder<T, C extends BlockBuilder<T>>(
 			level: number,
-			children: Array<BlockBuilder<T>>,
+			children: Array<C>,
 			length: number,
-		): InnerBlockBuilder<T> {
-			return new InnerBlockBuilder<T>(mod, level, undefined, children, length);
+		): InnerBlockBuilder<T, C> {
+			return new InnerBlockBuilder(mod, level, undefined, children, length);
 		},
-		innerTreeBuilderSource<T>(
-			source: InnerTree<T, Block<T>>,
-		): InnerTreeBuilder<T> {
+		innerTreeBuilderSource<T, C extends BlockBuilder<T>>(
+			source: InnerTree<T, ToImmutable<C>>,
+		): InnerTreeBuilder<T, C> {
 			return new InnerTreeBuilder(mod, source.level, source);
 		},
-		innerTreeBuilder<T>(
+		innerTreeBuilder<T, C extends BlockBuilder<T>>(
 			level: number,
-			left: InnerBlockBuilder<T>,
-			right: InnerBlockBuilder<T>,
-			middle: InnerBuilder<T, InnerBlockBuilder<T>> | undefined,
+			left: InnerBlockBuilder<T, C>,
+			right: InnerBlockBuilder<T, C>,
+			middle: InnerBuilder<T, InnerBlockBuilder<T, C>> | undefined,
 			length: number,
-		): InnerTreeBuilder<T> {
+		): InnerTreeBuilder<T, C> {
 			return new InnerTreeBuilder(
 				mod,
 				level,

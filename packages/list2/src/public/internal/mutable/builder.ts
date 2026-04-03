@@ -100,6 +100,32 @@ export class ListBuilder<
 		}
 	};
 
+	insert = (index: number, value: T): void => {
+		this.checkLock();
+
+		if (undefined === this.outerBuilder) {
+			this.outerBuilder = this.context.outerBlockBuilder<T>(
+				this.ops.of([value]),
+			);
+		} else {
+			if (index === 0) {
+				this.prepend(value);
+				return;
+			}
+			if (index > this.length || -index > this.length + 1) {
+				this.append(value);
+				return;
+			}
+			if (index < 0) {
+				this.insert(this.length + index, value);
+				return;
+			}
+
+			this.outerBuilder.insert(index, value);
+			this.outerBuilder = this.outerBuilder.normalized();
+		}
+	};
+
 	appendArray(array: T[]): void {
 		let index = 0;
 		const blockSize = this.context.maxBlockSize;

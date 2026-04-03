@@ -1,16 +1,12 @@
 import type { ListContext } from '#list/context-module';
 import type { OuterTree } from '#list/immutable/outer-tree';
-import type { ListImpl } from '#list/list-impl';
+import type { InnerBuilder, OuterBuilder } from '#list/mutable/builder-base';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
-import {
-	type InnerBuilder,
-	type OuterBuilder,
-	TreeBuilderBase,
-} from '#list/mutable/builder-base';
+import { TreeBuilder } from '#list/mutable/tree-builder';
 
 export class OuterTreeBuilder<T>
-	extends TreeBuilderBase<T, T>
+	extends TreeBuilder<T, T>
 	implements OuterBuilder<T>
 {
 	constructor(
@@ -102,7 +98,7 @@ export class OuterTreeBuilder<T>
 		return this;
 	}
 
-	build(): ListImpl<T, ListImpl.Types> {
+	build(): OuterTree<T> {
 		return (
 			this.source ??
 			this.context.outerTree<T>(
@@ -127,10 +123,10 @@ export class OuterTreeBuilder<T>
 	}
 
 	dropBlockFirstChild(block: OuterBlockBuilder<T>): T {
-		return block.dropFirst();
+		return block.dropFirstChild();
 	}
 
 	dropBlockLastChild(block: OuterBlockBuilder<T>): T {
-		return block.dropLast();
+		return block.dropLastChild();
 	}
 }

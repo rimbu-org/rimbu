@@ -6,7 +6,6 @@ import type { ListContext } from '#list/context-module';
 import type { OuterTree } from '#list/immutable/outer-tree';
 import type { Block } from '#list/immutable/utils';
 import type { ListImpl } from '#list/list-impl';
-import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { IndexRange } from '@rimbu/common/index-range';
@@ -287,7 +286,7 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return this.ops.toArray(this.children, start, end, reverseOrder);
 	}
 
-	createBlockBuilder(): OuterBlockBuilder<T> {
+	createBlockBuilder(): any {
 		return this.context.outerBlockBuilderSource(this);
 	}
 

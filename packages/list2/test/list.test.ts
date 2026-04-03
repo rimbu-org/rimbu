@@ -1236,7 +1236,7 @@ describe('List.Builder', () => {
 		expect(b.get(10, 'a')).toBe('a');
 	});
 
-	it.skip('set', () => {
+	it('set', () => {
 		const b = List.builder<number>();
 		expect(b.set(1, 9)).toBe(undefined);
 		expect(b.isEmpty).toBe(true);

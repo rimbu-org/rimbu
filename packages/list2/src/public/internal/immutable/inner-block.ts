@@ -1,4 +1,5 @@
 import type { TraverseState } from '@rimbu/common/traverse-state';
+import type { ToMutable } from '../mutable/builder-base';
 
 import type { ListContext } from '#list/context-module';
 import type { CacheMap } from '#list/immutable/cache-map';
@@ -468,8 +469,8 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		throwInvalidStateError();
 	}
 
-	createBlockBuilder(): InnerBlockBuilder<T> {
-		return this.context.innerBlockBuilderSource(this);
+	createBlockBuilder(): InnerBlockBuilder<T, ToMutable<C>> {
+		return this.context.innerBlockBuilderSource(this as any);
 	}
 
 	_mutateRebalance(): InnerBlock<T, C> {

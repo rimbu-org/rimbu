@@ -10,23 +10,24 @@ import {
 	type BlockBuilder,
 	BuilderBase,
 	type InnerBuilder,
+	type ToImmutable,
 } from '#list/mutable/builder-base';
 
-export class InnerBlockBuilder<T>
+export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	extends BuilderBase
-	implements InnerBuilder<T>, BlockBuilder<T>
+	implements InnerBuilder<T, C>, BlockBuilder<T, C>
 {
 	constructor(
 		context: ListContext,
 		readonly level: number,
 		public source?: InnerBlock<T, any>,
-		public _children?: Array<BlockBuilder<T>>,
+		public _children?: C[],
 		public length: number = source?.length ?? 0,
 	) {
 		super(context);
 	}
 
-	get children(): Array<BlockBuilder<T>> {
+	get children(): C[] {
 		return this._children!;
 	}
 
@@ -60,6 +61,51 @@ export class InnerBlockBuilder<T>
 		return this.children[childIndex].updateAt(inChildIndex, update);
 	}
 
+	insert(index: number, value: T): void {
+		const [childIndex, inChildIndex] = this.getCoordinates(index);
+
+		this.length++;
+
+		// insert into child
+		const child = this.children[childIndex];
+
+		child.insert(inChildIndex, value);
+
+		if (child.nrChildren <= this.context.maxBlockSize) {
+			// no need to normalize
+			return;
+		}
+
+		// child is too large
+		const leftChild = this.children[childIndex - 1];
+		if (
+			undefined !== leftChild &&
+			leftChild.nrChildren < this.context.maxBlockSize
+		) {
+			// shift to leftChild
+			const shiftChild = child.dropFirstChild();
+			leftChild.appendChild(shiftChild);
+
+			return;
+		}
+
+		const rightChild = this.children[childIndex + 1];
+		if (
+			undefined !== rightChild &&
+			rightChild.nrChildren < this.context.maxBlockSize
+		) {
+			// shift to rightChild
+			const shiftChild = child.dropLastChild();
+			rightChild.prependChild(shiftChild);
+
+			return;
+		}
+
+		// cannot shift, split child
+		const newRightChild = child.splitRight();
+		this.children.splice(childIndex + 1, 0, newRightChild as C);
+	}
+
 	forEach(
 		f: (value: T, index: number, halt: () => void) => void,
 		options: { reversed: boolean; state: TraverseState },
@@ -88,43 +134,41 @@ export class InnerBlockBuilder<T>
 		}
 	}
 
-	prependChild(child: BlockBuilder<T>): void {
+	prependChild(child: C): void {
 		this.length += child.length;
 
 		this.children.unshift(child);
 	}
 
-	appendChild(child: BlockBuilder<T>): void {
+	appendChild(child: C): void {
 		this.length += child.length;
 
 		this.children.push(child);
 	}
 
-	firstChild(): BlockBuilder<T> {
+	firstChild(): C {
 		return this.children[0];
 	}
 
-	lastChild(): BlockBuilder<T> {
+	lastChild(): C {
 		return this.children.at(-1)!;
 	}
 
-	dropFirstChild(): BlockBuilder<T> {
+	dropFirstChild(): C {
 		const child = this.children.shift()!;
 		this.length -= child.length;
 
 		return child;
 	}
 
-	dropLastChild(): BlockBuilder<T> {
+	dropLastChild(): C {
 		const child = this.children.pop()!;
 		this.length -= child.length;
 
 		return child;
 	}
 
-	modifyFirstChild(
-		f: (child: BlockBuilder<T>) => number | undefined,
-	): number | undefined {
+	modifyFirstChild(f: (child: C) => number | undefined): number | undefined {
 		const delta = f(this.firstChild());
 		if (undefined !== delta) {
 			this.length += delta;
@@ -133,9 +177,7 @@ export class InnerBlockBuilder<T>
 		return delta;
 	}
 
-	modifyLastChild(
-		f: (child: BlockBuilder<T>) => number | undefined,
-	): number | undefined {
+	modifyLastChild(f: (child: C) => number | undefined): number | undefined {
 		const delta = f(this.lastChild());
 		if (undefined !== delta) {
 			this.length += delta;
@@ -144,7 +186,7 @@ export class InnerBlockBuilder<T>
 		return delta;
 	}
 
-	build(): InnerBlock<T, any> {
+	build(): InnerBlock<T, ToImmutable<C>> {
 		return (
 			this.source ??
 			this.context.innerBlock(
@@ -155,7 +197,7 @@ export class InnerBlockBuilder<T>
 		);
 	}
 
-	splitRight(index = this.nrChildren >>> 1): InnerBlockBuilder<T> {
+	splitRight(index = this.nrChildren >>> 1): InnerBlockBuilder<T, C> {
 		const rightChildren = this.children.splice(index);
 		const oldLength = this.length;
 		this.length = 0;
@@ -171,7 +213,7 @@ export class InnerBlockBuilder<T>
 		);
 	}
 
-	normalized(): InnerBuilder<T> | undefined {
+	normalized(): InnerBuilder<T, C> | undefined {
 		if (this.nrChildren === 0) {
 			// empty
 			return undefined;
@@ -200,16 +242,16 @@ export class InnerBlockBuilder<T>
 		return this;
 	}
 
-	prependItems(other: BlockBuilder<T>): void {
+	prependItems(other: InnerBlockBuilder<T, C>): void {
 		this.prepareMutate();
 		this.length += other.length;
-		this.children.unshift(other);
+		this._children = other.children.concat(this.children);
 	}
 
-	appendItems(other: BlockBuilder<T>): void {
+	appendItems(other: InnerBlockBuilder<T, C>): void {
 		this.prepareMutate();
 		this.length += other.length;
-		this.children.push(other);
+		this._children = this.children.concat(other.children);
 	}
 
 	getCoordinates(index: number): [number, number] {
