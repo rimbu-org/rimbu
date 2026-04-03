@@ -117,6 +117,19 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		);
 	}
 
+	buildMap<T2>(f: (value: T) => T2): InnerTree<T2, any> {
+		return (
+			this.source?.map?.(f) ??
+			this.context.innerTree(
+				this.left.buildMap(f),
+				this.right.buildMap(f),
+				this.middle?.buildMap?.(f) ?? null,
+				this.length,
+				this.level,
+			)
+		);
+	}
+
 	normalized(): InnerBuilder<T, C> | undefined {
 		if (undefined !== this.middle) {
 			// middle, nothing to normalize

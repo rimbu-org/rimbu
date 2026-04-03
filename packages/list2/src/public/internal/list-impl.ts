@@ -57,6 +57,16 @@ export namespace ListImpl {
 			separator: string,
 			reversed?: boolean,
 		): string;
+		map<T extends Tp['_UT'], T2 extends Tp['_UT']>(
+			children: WithElem<Tp, T>['outerChildren'],
+			f: (value: T, index: number) => T2,
+			indexOffset?: number | undefined,
+		): WithElem<Tp, T2>['outerChildren'];
+		reverseMap<T extends Tp['_UT'], T2 extends Tp['_UT']>(
+			children: WithElem<Tp, T>['outerChildren'],
+			f: (value: T, index: number) => T2,
+			indexOffset?: number | undefined,
+		): WithElem<Tp, T2>['outerChildren'];
 		forEach<T extends Tp['_UT']>(
 			children: WithElem<Tp, T>['outerChildren'],
 			f: (value: T, index: number, halt: () => void) => void,

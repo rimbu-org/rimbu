@@ -10,7 +10,6 @@ import {
 	type BlockBuilder,
 	BuilderBase,
 	type InnerBuilder,
-	type ToImmutable,
 } from '#list/mutable/builder-base';
 
 export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
@@ -57,11 +56,13 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	}
 
 	updateAt(index: number, update: Update<T>): T {
+		this.prepareMutate();
 		const [childIndex, inChildIndex] = this.getCoordinates(index);
 		return this.children[childIndex].updateAt(inChildIndex, update);
 	}
 
 	insert(index: number, value: T): void {
+		this.prepareMutate();
 		const [childIndex, inChildIndex] = this.getCoordinates(index);
 
 		this.length++;
@@ -104,6 +105,61 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		// cannot shift, split child
 		const newRightChild = child.splitRight();
 		this.children.splice(childIndex + 1, 0, newRightChild as C);
+	}
+
+	remove(index: number): T {
+		this.prepareMutate();
+		const [childIndex, inChildIndex] = this.getCoordinates(index);
+
+		this.length--;
+
+		// remove from child
+		const child = this.children[childIndex];
+
+		const oldValue = child.remove(inChildIndex);
+
+		if (child.nrChildren >= this.context.minBlockSize || this.nrChildren <= 1) {
+			// no need to normalize
+			return oldValue;
+		}
+
+		const leftChild = this.children[childIndex - 1];
+		if (
+			undefined !== leftChild &&
+			leftChild.nrChildren > this.context.minBlockSize
+		) {
+			// can shift from left
+			const shiftChild = leftChild.dropLastChild();
+			child.prependChild(shiftChild);
+
+			return oldValue;
+		}
+
+		const rightChild = this.children[childIndex + 1];
+		if (
+			undefined !== rightChild &&
+			rightChild.nrChildren > this.context.minBlockSize
+		) {
+			// can shift from right
+			const shiftChild = rightChild.dropFirstChild();
+			child.appendChild(shiftChild);
+
+			return oldValue;
+		}
+
+		if (undefined !== leftChild) {
+			// merge with left
+			leftChild.appendItems(child);
+			this.children.splice(childIndex, 1);
+
+			return oldValue;
+		}
+
+		// merge with right
+		child.appendItems(rightChild);
+		this.children.splice(childIndex + 1, 1);
+
+		return oldValue;
 	}
 
 	forEach(
@@ -186,11 +242,22 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		return delta;
 	}
 
-	build(): InnerBlock<T, ToImmutable<C>> {
+	build(): InnerBlock<T, any> {
 		return (
 			this.source ??
 			this.context.innerBlock(
 				this.children.map((c) => c.build()),
+				this.length,
+				this.level,
+			)
+		);
+	}
+
+	buildMap<T2>(f: (value: T) => T2): InnerBlock<T2, any> {
+		return (
+			this.source?.map?.(f) ??
+			this.context.innerBlock<T2, any>(
+				this.children.map((c) => c.buildMap(f)),
 				this.length,
 				this.level,
 			)

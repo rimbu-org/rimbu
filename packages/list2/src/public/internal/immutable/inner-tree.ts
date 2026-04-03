@@ -47,6 +47,16 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 		return this.context.innerTree(left, right, middle, length, level);
 	}
 
+	copy2<T2, C2 extends Block<T2>>(
+		left: InnerBlock<T2, C2>,
+		right: InnerBlock<T2, C2>,
+		middle: Inner<T2, InnerBlock<T2, C2>> | null,
+		length = this.length,
+		level = this.level,
+	): InnerTree<T2, C2> {
+		return this.context.innerTree(left, right, middle, length, level);
+	}
+
 	stream(options?: { reversed?: boolean }): Stream.NonEmpty<T> {
 		return treeToStream(this, options);
 	}
@@ -446,6 +456,56 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 		options: { reversed: boolean; state: TraverseState },
 	): void {
 		treeForEach(this, f, options);
+	}
+
+	map<T2, C2 extends Block<T2>>(
+		mapFun: (value: T, index: number) => T2,
+		options: { reversed?: boolean; indexOffset?: number } = {},
+	): InnerTree<T2, C2> {
+		const { reversed = false, indexOffset = 0 } = options;
+
+		let offset = indexOffset;
+
+		const left = this.left;
+		const middle = this.middle;
+		const right = this.right;
+
+		if (reversed) {
+			const newLeft = right.map<T2, C2>(mapFun, {
+				reversed: true,
+				indexOffset: offset,
+			});
+			offset += right.length;
+
+			const newMiddle =
+				null === middle
+					? null
+					: middle.map<T2, InnerBlock<T2, C2>>(mapFun, {
+							reversed: true,
+							indexOffset: offset,
+						});
+			if (null !== middle) offset += middle.length;
+
+			const newRight = left.map<T2, C2>(mapFun, {
+				reversed: true,
+				indexOffset: offset,
+			});
+
+			return this.copy2<T2, C2>(newLeft, newRight, newMiddle);
+		}
+
+		const newLeft = left.map<T2, C2>(mapFun, { indexOffset: offset });
+		offset += left.length;
+
+		const newMiddle =
+			null === middle
+				? null
+				: middle.map<T2, InnerBlock<T2, C2>>(mapFun, { indexOffset: offset });
+		if (null !== middle) offset += middle.length;
+
+		const newRight = right.map<T2, C2>(mapFun, { indexOffset: offset });
+
+		return this.copy2(newLeft, newRight, newMiddle);
 	}
 
 	_structure(): string {

@@ -79,6 +79,13 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		this.ops.mutateSplice(this.children, index, 0, [value]);
 	}
 
+	remove(index: number): T {
+		this.prepareMutate();
+		const removed = this.ops.at<T>(this.children, index);
+		this.ops.mutateSplice(this.children, index, 1);
+		return removed;
+	}
+
 	prependItems(other: OuterBlockBuilder<T>): void {
 		this.prepareMutate();
 		this.children = this.ops.concat(other.children, this.children);
@@ -104,6 +111,13 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 	build(): OuterBlock<T> {
 		return (
 			this.source ?? this.context.outerBlock(this.ops.safeCopy(this.children))
+		);
+	}
+
+	buildMap<T2>(f: (value: T) => T2): OuterBlock<T2> {
+		return (
+			this.source?.map(f) ??
+			this.context.outerBlock(this.ops.map(this.children, f))
 		);
 	}
 
@@ -138,7 +152,8 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 	}
 
 	updateAt(index: number, update: Update<T>): T {
-		const oldValue = this.ops.at<T>(this.children, index);
+		const oldValue =
+			(this.source?.get(index) as T) ?? this.ops.at<T>(this.children, index);
 		const newValue = Update(oldValue, update);
 
 		if (!Object.is(oldValue, newValue)) {

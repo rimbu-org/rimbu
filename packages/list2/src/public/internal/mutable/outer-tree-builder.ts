@@ -110,6 +110,18 @@ export class OuterTreeBuilder<T>
 		);
 	}
 
+	buildMap<T2>(f: (value: T) => T2): OuterTree<T2> {
+		return (
+			this.source?.map(f) ??
+			this.context.outerTree(
+				this.left.buildMap(f),
+				this.right.buildMap(f),
+				this.middle?.buildMap?.(f) ?? null,
+				this.length,
+			)
+		);
+	}
+
 	getChildLength(): number {
 		return 1;
 	}

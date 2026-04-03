@@ -249,6 +249,23 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 		options?: { reversed?: boolean; state?: TraverseState } | undefined,
 	): void;
 	/**
+	 * Returns a List containing the result of applying given `mapFun` to each value in this List.
+	 * If `reversed` is true, the order of the values is reversed.
+	 * @param mapFun - a function receiving a value and its index, and returning a new value
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - reversed: (default: false) if true, reverses the order of the values
+	 * @typeparam T2 - the result element type
+	 * @example
+	 * ```ts
+	 * List.of(1, 2, 3).map(v => `value: ${v + 2}`).toArray()
+	 * // => ['value: 3', 'value: 4', 'value: 5']
+	 * ```
+	 */
+	map<T2>(
+		mapFun: (value: T, index: number) => T2,
+		options?: { reversed?: boolean },
+	): WithElem<Tp, T2>['normal'];
+	/**
 	 * Returns an array containing the values within given `range` (default: all) in this collection.
 	 * If `reversed` is true, reverses the order of the values.
 	 * @param options - (optional) an object containing the following properties:<br/>
@@ -483,6 +500,45 @@ export namespace ListBase {
 		 */
 		appendAll(values: StreamSource<T>): void;
 		/**
+		 * Inserts the given `value` at the given `index` in the builder.
+		 * @param index - the index at which to insert the value
+		 * @param value - the value to insert
+		 *
+		 * @note a negative `index` will be treated as follows:<br/>
+		 * - -1: the last value in the list<br/>
+		 * - -2: the second-last value in the list<br/>
+		 * - ...etc
+		 * @example
+		 * ```ts
+		 * const m = List.of(1, 2, 3).toBuilder()
+		 * m.insert(1, 10)
+		 * m.build().toArray()
+		 * // => [1, 10, 2, 3]
+		 * ```
+		 */
+		insert(index: number, value: T): void;
+		/**
+		 * Removes the value at the given `index` in the builder.
+		 * @param index - the index at which to remove a value
+		 * @param otherwise - (default: undefined) the value to return if the index is out of bounds
+		 * @typeparam O - the type of the `otherwise` value
+		 * @note a negative `index` will be treated as follows:<br/>
+		 * - -1: the last value in the list<br/>
+		 * - -2: the second-last value in the list<br/>
+		 * - ...etc
+		 * @returns the removed value, or the `otherwise` value if the index is out of bounds
+		 * @example
+		 * ```ts
+		 * const m = List.of(1, 2, 3).toBuilder()
+		 * m.remove(10)       // => undefined
+		 * m.remove(10, 'a')  // => 'a'
+		 * m.remove(1)        // => 2
+		 * m.remove(0, 'a')   // => 1
+		 * ```
+		 */
+		remove(index: number): T | undefined;
+		remove<O>(index: number, otherwise: OptLazy<O>): T | O;
+		/**
 		 * Updates the element at the given `index` with the given `update` value or function.
 		 * @param index - the index of the element to update
 		 * @param update - the new value or function taking the current value and returning a new value
@@ -563,6 +619,18 @@ export namespace ListBase {
 		 * ```
 		 */
 		build(): WithElem<Tp, T>['normal'];
+		/**
+		 * Returns an immutable instance containing the result of applying given `mapFun` to each value in the builder.
+		 * @typeparam T2 - the result element type
+		 * @example
+		 * ```ts
+		 * const m = List.of(1, 2, 3).toBuilder()
+		 * const m2: List<number> = m.buildMap(v => String(v))
+		 * m.toArray()
+		 * // => ['1', '2', '3']
+		 * ```
+		 */
+		buildMap<T2 = T>(mapFun: (value: T) => T2): WithElem<Tp, T2>['normal'];
 	}
 
 	export interface Context<Tp extends ListBase.Types = ListBase.Types>

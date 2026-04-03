@@ -244,13 +244,27 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		});
 	}
 
+	map<T2>(
+		mapFun: (value: T, index: number) => T2,
+		options: { reversed?: boolean; indexOffset?: number } = {},
+	): OuterBlock<T2> {
+		const { reversed = false, indexOffset = 0 } = options;
+
+		const newChildren =
+			reversed === this.isReversedBlock
+				? this.ops.map(this.children, mapFun, indexOffset)
+				: this.ops.reverseMap(this.children, mapFun, indexOffset);
+
+		return reversed
+			? this.context.reversedOuterBlock(newChildren)
+			: this.context.outerBlock(newChildren);
+	}
+
 	toArray(
 		options: { range?: IndexRange | undefined; reversed?: boolean } = {},
 	): any {
 		const { range, reversed = false } = options;
-		const reverseOrder = reversed
-			? !this.isReversedBlock
-			: this.isReversedBlock;
+		const reverseOrder = reversed !== this.isReversedBlock;
 
 		if (undefined === range) {
 			return this.ops.toArray(

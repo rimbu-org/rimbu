@@ -19,6 +19,10 @@ export interface ListCommon<T> {
 		f: (value: T, index: number, halt: () => void) => void,
 		options?: { reversed?: boolean; state?: TraverseState } | undefined,
 	): void;
+	map<T2>(
+		mapFun: (value: T, index: number) => T2,
+		options?: { reversed?: boolean; indexOffset?: number },
+	): ListCommon<T2>;
 	_structure(): string;
 }
 

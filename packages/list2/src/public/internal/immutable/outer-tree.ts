@@ -53,7 +53,16 @@ export class OuterTree<T>
 			return this;
 		}
 
-		return this.context.outerTree<T>(left, right, middle, length);
+		return this.context.outerTree(left, right, middle, length);
+	}
+
+	copy2<T2>(
+		left: OuterBlock<T2>,
+		right: OuterBlock<T2>,
+		middle: Inner<T2, OuterBlock<T2>> | null,
+		length = this.length,
+	): OuterTree<T2> {
+		return this.context.outerTree(left, right, middle, length);
 	}
 
 	stream(options?: { reversed?: boolean }): Stream.NonEmpty<T> {
@@ -347,6 +356,53 @@ export class OuterTree<T>
 	): void {
 		const { reversed = false, state = TraverseState() } = options;
 		treeForEach(this, f, { reversed, state });
+	}
+
+	map<T2>(
+		mapFun: (value: T, index: number) => T2,
+		options: { reversed?: boolean; indexOffset?: number } = {},
+	): OuterTree<T2> {
+		const { reversed = false, indexOffset = 0 } = options;
+
+		let offset = indexOffset;
+
+		if (reversed) {
+			const newLeft = this.right.map(mapFun, {
+				reversed: true,
+				indexOffset: offset,
+			});
+			offset += this.right.length;
+
+			const newMiddle =
+				null === this.middle
+					? null
+					: this.middle.map<T2, OuterBlock<T2>>(mapFun, {
+							reversed: true,
+							indexOffset: offset,
+						});
+			if (null !== this.middle) offset += this.middle.length;
+
+			const newRight = this.left.map(mapFun, {
+				reversed: true,
+				indexOffset: offset,
+			});
+
+			return this.copy2(newLeft, newRight, newMiddle);
+		}
+
+		const newLeft = this.left.map(mapFun, { indexOffset: offset });
+		offset += this.left.length;
+
+		const newMiddle =
+			null === this.middle
+				? null
+				: this.middle.map<T2, OuterBlock<T2>>(mapFun, { indexOffset: offset });
+
+		if (null !== this.middle) offset += this.middle.length;
+
+		const newRight = this.right.map(mapFun, { indexOffset: offset });
+
+		return this.copy2(newLeft, newRight, newMiddle);
 	}
 
 	toArray(options?: {

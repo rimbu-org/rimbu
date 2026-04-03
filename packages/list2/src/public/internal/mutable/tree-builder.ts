@@ -46,6 +46,7 @@ export abstract class TreeBuilder<T, C> extends BuilderBase {
 	}
 
 	updateAt(index: number, update: Update<T>): T {
+		this.prepareMutate();
 		const middleIndex = index - this.left.length;
 
 		if (middleIndex < 0) {
@@ -296,6 +297,119 @@ export abstract class TreeBuilder<T, C> extends BuilderBase {
 		// insert into middle
 		this.middle.insert(middleIndex, value);
 		this.middle = this.middle.normalized();
+	}
+
+	remove(index: number): T {
+		// update length
+		this.length--;
+
+		const middleIndex = index - this.left.length;
+
+		if (middleIndex < 0) {
+			// index is in left
+			const oldValue = this.left.remove(index);
+
+			if (this.left.nrChildren >= this.context.minBlockSize) {
+				// no rebalancing needed
+				return oldValue;
+			}
+
+			// rebalancing is needed
+
+			if (undefined !== this.middle) {
+				// left borrows from middle
+				const delta = this.middle.modifyFirstChild(
+					(firstChild): number | undefined => {
+						if (firstChild.nrChildren > this.context.minBlockSize) {
+							// left borrows from middle's first grandChild
+							const shiftChild = firstChild.dropFirstChild();
+							this.left.appendChild(shiftChild);
+							return -this.getChildLength(shiftChild);
+						}
+						return;
+					},
+				);
+
+				if (undefined !== delta) {
+					// borrow was succesful
+					return oldValue;
+				}
+
+				// need to merge middle's first child with left
+				const middleFirst = this.middle.dropFirstChild();
+				this.middle = this.middle.normalized();
+				this.left.appendItems(middleFirst);
+
+				return oldValue;
+			} else if (this.right.nrChildren > this.context.minBlockSize) {
+				// left merges with right's first child
+				const shiftChild = this.right.dropFirstChild();
+				this.left.appendChild(shiftChild);
+
+				return oldValue;
+			}
+
+			throwInvalidStateError();
+		}
+
+		const rightIndex = middleIndex - (this.middle?.length ?? 0);
+
+		if (rightIndex >= 0) {
+			// index is in right
+			const oldValue = this.right.remove(rightIndex);
+
+			if (this.right.nrChildren >= this.context.minBlockSize) {
+				// no rebalancing needed
+				return oldValue;
+			}
+
+			// rebalancing is needed
+
+			if (undefined !== this.middle) {
+				// right borrows from middle
+				const delta = this.middle.modifyLastChild(
+					(lastChild): number | undefined => {
+						if (lastChild.nrChildren > this.context.minBlockSize) {
+							const shiftChild = lastChild.dropLastChild();
+							this.right.prependChild(shiftChild);
+							return -this.getChildLength(shiftChild);
+						}
+						return;
+					},
+				);
+
+				if (undefined !== delta) {
+					//  borrow was succesful
+					return oldValue;
+				}
+
+				// need to merge middle's last child with right
+				const middleLast = this.middle.dropLastChild();
+				this.middle = this.middle.normalized();
+				middleLast.appendItems(this.right);
+				this.right = middleLast;
+
+				return oldValue;
+			} else if (this.left.nrChildren > this.context.minBlockSize) {
+				// right borrows from left
+				const shiftChild = this.left.dropLastChild();
+				this.right.prependChild(shiftChild);
+
+				return oldValue;
+			}
+
+			throwInvalidStateError();
+		}
+
+		if (undefined === this.middle) {
+			throwInvalidStateError();
+		}
+
+		// index is in middle
+		const oldValue = this.middle.remove(middleIndex);
+		this.middle = this.middle.normalized();
+
+		return oldValue;
 	}
 
 	prependMiddle(child: BlockBuilder<T, C>): void {

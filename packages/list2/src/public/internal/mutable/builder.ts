@@ -2,6 +2,7 @@ import type { WithElem } from '@rimbu/collection-types/common';
 import type { Update } from '@rimbu/common/update';
 
 import type { ListContext } from '#list/context-module';
+import type { ListBase } from '#list/list-base';
 import type { ListImpl } from '#list/list-impl';
 
 import {
@@ -14,10 +15,10 @@ import { Stream, type StreamSource } from '@rimbu/stream';
 
 import { BuilderBase, type OuterBuilder } from '#list/mutable/builder-base';
 
-export class ListBuilder<
-	T,
-	Tp extends ListImpl.Types = ListImpl.Types,
-> extends BuilderBase {
+export class ListBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
+	extends BuilderBase
+	implements ListBase.Builder<T, Tp>
+{
 	constructor(
 		context: ListContext,
 		public outerBuilder?: OuterBuilder<T>,
@@ -124,6 +125,27 @@ export class ListBuilder<
 			this.outerBuilder.insert(index, value);
 			this.outerBuilder = this.outerBuilder.normalized();
 		}
+	};
+
+	remove = <O>(index: number, otherwise?: OptLazy<O>): T | O => {
+		this.checkLock();
+
+		if (
+			undefined === this.outerBuilder ||
+			index >= this.length ||
+			-index > this.length
+		) {
+			return OptLazy(otherwise) as O;
+		}
+
+		if (index < 0) {
+			return this.remove(this.length + index);
+		}
+
+		const result = this.outerBuilder.remove(index);
+		this.outerBuilder = this.outerBuilder.normalized();
+
+		return result;
 	};
 
 	appendArray(array: T[]): void {
@@ -242,5 +264,12 @@ export class ListBuilder<
 		}
 		const result = this.outerBuilder.build();
 		return result;
+	};
+
+	buildMap = <T2>(f: (value: T) => T2): ListImpl<T2> => {
+		if (undefined === this.outerBuilder) {
+			return this.context.empty();
+		}
+		return this.outerBuilder.buildMap(f);
 	};
 }

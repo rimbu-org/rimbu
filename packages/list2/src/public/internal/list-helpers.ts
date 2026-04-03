@@ -52,7 +52,7 @@ export namespace ListHelpers {
 	): List.Context {
 		const outerChildrenOpsModule = Module.createPartial<{
 			defines: ListImpl.OuterChildrenOps<ListHelpers.TypesImpl>;
-		}>((mod) => ({
+		}>(() => ({
 			length(children: readonly unknown[]) {
 				return children.length;
 			},
@@ -99,6 +99,40 @@ export namespace ListHelpers {
 				return Stream.fromArray(children, { reversed })
 					.join({ sep: separator })
 					.toString();
+			},
+			map<T, T2>(
+				children: readonly T[],
+				f: (value: T, index: number) => T2,
+				indexOffset = 0,
+			): readonly T2[] {
+				if (indexOffset === 0) {
+					return children.map(f);
+				}
+
+				const length = children.length;
+				const result: T2[] = Array(length);
+				let i = -1;
+
+				while (++i < length) {
+					result[i] = f(children[i], i + indexOffset);
+				}
+
+				return result;
+			},
+			reverseMap<T, T2>(
+				children: readonly T[],
+				f: (value: T, index: number) => T2,
+				indexOffset = 0,
+			): readonly T2[] {
+				const length = children.length;
+				const result: T2[] = Array(length);
+				let i = -1;
+
+				while (++i < length) {
+					result[i] = f(children.at(-1 - i)!, i + indexOffset);
+				}
+
+				return result;
 			},
 			forEach<T>(
 				children: readonly T[],

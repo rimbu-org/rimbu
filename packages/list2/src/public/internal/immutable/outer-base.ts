@@ -47,6 +47,10 @@ export abstract class OuterBase<T>
 		f: (value: T, index: number, halt: () => void) => void,
 		options?: { reversed?: boolean; state?: TraverseState } | undefined,
 	): void;
+	abstract map<T2>(
+		mapFun: (value: T, index: number) => T2,
+		options?: { reversed?: boolean },
+	): OuterBase<T2>;
 	abstract toArray(
 		options?:
 			| { range?: IndexRange | undefined; reversed?: boolean | undefined }
@@ -82,42 +86,42 @@ export abstract class OuterBase<T>
 		const builder = this.toBuilder();
 
 		function partition(left: number, right: number): number {
-			if (left >= right) {
-				return left + 1;
-			}
-
-			const pivot = builder.get(left, throwInvalidStateError);
+			const pivot = builder.get(Math.floor((left + right) / 2), throwInvalidStateError);
+			let leftIndex = left - 1;
+			let rightIndex = right + 1;
 
 			while (true) {
 				if (inverse) {
-					while (compare(builder.get(left), pivot) > 0) {
-						left++;
-					}
-					while (compare(builder.get(right), pivot) < 0) {
-						right--;
-					}
+					do {
+						leftIndex++;
+					} while (compare(builder.get(leftIndex), pivot) > 0);
+
+					do {
+						rightIndex--;
+					} while (compare(builder.get(rightIndex), pivot) < 0);
 				} else {
-					while (compare(builder.get(left), pivot) < 0) {
-						left++;
-					}
-					while (compare(builder.get(right), pivot) > 0) {
-						right--;
-					}
+					do {
+						leftIndex++;
+					} while (compare(builder.get(leftIndex), pivot) < 0);
+
+					do {
+						rightIndex--;
+					} while (compare(builder.get(rightIndex), pivot) > 0);
 				}
 
-				if (left >= right) {
-					return left + 1;
+				if (leftIndex >= rightIndex) {
+					return rightIndex;
 				}
 
-				builder.updateAt(left, (oldI) => {
-					let storeJ: T;
+				builder.updateAt(leftIndex, (oldLeftValue) => {
+					let newLeftValue: T;
 
-					builder.updateAt(right, (oldJ) => {
-						storeJ = oldJ;
-						return oldI;
+					builder.updateAt(rightIndex, (oldRightValue) => {
+						newLeftValue = oldRightValue;
+						return oldLeftValue;
 					});
 
-					return storeJ!;
+					return newLeftValue!;
 				});
 			}
 		}
@@ -126,8 +130,8 @@ export abstract class OuterBase<T>
 			if (left < right) {
 				const pivotIndex = partition(left, right);
 
-				quickSort(left, pivotIndex - 1);
-				quickSort(pivotIndex, right);
+				quickSort(left, pivotIndex);
+				quickSort(pivotIndex + 1, right);
 			}
 		}
 

@@ -7,14 +7,7 @@ import type { InnerTree } from '#list/immutable/inner-tree';
 import type { Block, Inner } from '#list/immutable/utils';
 import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
 
-import {
-	append,
-	concat,
-	last,
-	prepend,
-	reverseMap,
-	splice,
-} from '@rimbu/base/arr';
+import { append, concat, last, prepend, splice } from '@rimbu/base/arr';
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { IndexRange } from '@rimbu/common/index-range';
 import { Stream } from '@rimbu/stream';
@@ -60,6 +53,14 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		}
 
 		return this.context.innerBlock(children, length, level);
+	}
+
+	copy2<T2, C2 extends Block<T2>>(
+		children: C2[],
+		length = this.length,
+		level = this.level,
+	) {
+		return this.context.innerBlock<T2, C2>(children, length, level);
 	}
 
 	stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {
@@ -201,13 +202,17 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		const cachedThis = cacheMap.get<InnerBlock<T, C>>(this);
 		if (cachedThis !== undefined) return cachedThis;
 
-		const newChildren = reverseMap(
-			this.children,
-			(child) => child.reversed(cacheMap) as C,
-		);
+		const children = this.children;
+		const length = children.length;
+		const result: C[] = Array(length);
+		let i = 0;
+		let reverseIndex = length;
 
-		const reversedThis = this.copy(newChildren, this.length);
-		return cacheMap.setAndReturn(this, reversedThis);
+		while (++i <= length) {
+			result[i] = children[--reverseIndex].reversed(cacheMap) as C;
+		}
+
+		return this.copy(result);
 	}
 
 	dropFirstChild(): [InnerBlock<T, C> | null, C] {
@@ -259,6 +264,42 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 				children[i].forEach(f, options);
 			}
 		}
+	}
+
+	map<T2, C2 extends Block<T2>>(
+		mapFun: (value: T, index: number) => T2,
+		options: { reversed?: boolean; indexOffset?: number } = {},
+	): InnerBlock<T2, C2> {
+		const { reversed = false, indexOffset = 0 } = options;
+
+		let offset = indexOffset;
+		const children = this.children;
+		const length = children.length;
+		const newChildren: C2[] = Array(length);
+
+		if (reversed) {
+			let i = -1;
+			let reverseIndex = length;
+
+			while (++i < length) {
+				const child = children[--reverseIndex];
+				newChildren[i] = child.map(mapFun, {
+					reversed: true,
+					indexOffset: offset,
+				}) as C2;
+				offset += child.length;
+			}
+		} else {
+			let i = -1;
+
+			while (++i < length) {
+				const child = children[i];
+				newChildren[i] = child.map(mapFun, { indexOffset: offset }) as C2;
+				offset += child.length;
+			}
+		}
+
+		return this.copy2(newChildren);
 	}
 
 	takeChildren(childAmount: number): InnerBlock<T, C> | null {

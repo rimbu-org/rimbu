@@ -14,6 +14,7 @@ export interface BuilderCommon<T> {
 	get(index: number): T;
 	updateAt(index: number, update: Update<T>): T;
 	insert(index: number, value: T): void;
+	remove(index: number): T;
 	forEach(
 		f: (value: T, index: number, halt: () => void) => void,
 		options: { reversed: boolean; state: TraverseState },
@@ -24,6 +25,7 @@ export interface OuterBuilder<T> extends BuilderCommon<T> {
 	prepend(value: T): void;
 	append(value: T): void;
 	build(): ListImpl<T>;
+	buildMap<T2>(f: (value: T) => T2): ListImpl<T2>;
 	normalized(): OuterBuilder<T> | undefined;
 }
 
@@ -38,6 +40,7 @@ export interface InnerBuilder<T, C extends BlockBuilder<T> = BlockBuilder<T>>
 	modifyFirstChild(f: (child: C) => number | undefined): void;
 	modifyLastChild(f: (child: C) => number | undefined): void;
 	build(): Inner<T, any>;
+	buildMap<T2>(f: (value: T) => T2): Inner<T2, any>;
 	normalized(): InnerBuilder<T, C> | undefined;
 }
 
@@ -53,6 +56,7 @@ export interface BlockBuilder<T, C = unknown> extends BuilderCommon<T> {
 	prependChild(child: C): void;
 	appendChild(child: C): void;
 	build(): Block<T, any>;
+	buildMap<T2>(f: (value: T) => T2): Block<T2, any>;
 }
 
 export abstract class BuilderBase {
