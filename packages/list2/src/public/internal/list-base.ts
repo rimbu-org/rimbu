@@ -274,6 +274,20 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 		options?: { amount?: number },
 	): WithElem<Tp, T>['normal'];
 	/**
+	 * Returns a List that contains this List the given `amount` of times.
+	 * @param amount - the amount of times to repeat the values in this List
+	 *
+	 * @note if the given amount <= -1, the reverse List is repeated
+	 * @note if the given amount is 0 or 1, the List itself is returned
+	 * @example
+	 * ```ts
+	 * List.of(0, 1, 2).repeat(2)   // -> List(0, 1, 2, 0, 1, 2)
+	 * List.of(0, 1, 2).repeat(0)   // -> List(0, 1, 2)
+	 * ```
+	 * @note O(logB(N)) for block size B
+	 */
+	repeat(amount: number): WithElem<Tp, T>['normal'];
+	/**
 	 * Returns the values sorted according to the given, optional Comp.
 	 *
 	 * **Performance warning**: this method is not designed for frequent calls;
@@ -513,6 +527,19 @@ export namespace ListBase {
 		concat(
 			...sources: ArrayNonEmpty<StreamSource<T>>
 		): WithElem<Tp, T>['nonEmpty'];
+		/**
+		 * Returns a non-empty List that contains this List the given `amount` of times.
+		 * @param amount - the amount of times to repeat the values in this List
+		 *
+		 * @note if the given amount <= 1, the List itself is returned
+		 * @example
+		 * ```ts
+		 * List.of(0, 1, 2).repeat(2)   // -> List(0, 1, 2, 0, 1, 2)
+		 * List.of(0, 1, 2).repeat(0)   // -> List(0, 1, 2)
+		 * ```
+		 * @note O(logB(N)) for block size B
+		 */
+		repeat(amount: number): WithElem<Tp, T>['nonEmpty'];
 		/**
 		 * Returns the values sorted according to the given, optional Comp.
 		 *

@@ -484,7 +484,7 @@ describe('List methods', () => {
 		]);
 	});
 
-	it.skip('repeat', () => {
+	it('repeat', () => {
 		expect(listEmpty.repeat(0)).toBe(listEmpty);
 		expect(list3_1.repeat(0)).toBe(list3_1);
 		expect(list3_2.repeat(0)).toBe(list3_2);

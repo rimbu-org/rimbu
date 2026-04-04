@@ -101,11 +101,6 @@ export abstract class OuterBase<T>
 
 		if (remove <= 0 && Stream.isEmptyStreamSourceInstance(insert)) return this;
 
-		console.log({ index, remove, insert });
-		console.log(this.take(index).toArray());
-		console.log(this.drop(index + remove).toArray());
-		console.log(this.take(index).concat(insert).toArray());
-
 		return this.take(index).concat(insert, this.drop(index + remove));
 	}
 
@@ -117,6 +112,18 @@ export abstract class OuterBase<T>
 		const { amount = 1 } = options;
 
 		return this.splice({ index, remove: amount });
+	}
+
+	repeat(amount: number): ListImpl.NonEmpty<T> {
+		if (amount <= -1) return this.reversed().repeat(-amount);
+		if (amount <= 1) return this;
+
+		const doubleTimes = amount >>> 1;
+		const doubleResult = this.concat(this).repeat(doubleTimes);
+
+		const remainTimes = amount % 2;
+		if (remainTimes === 0) return doubleResult;
+		return doubleResult.concat(this);
 	}
 
 	sort<TC = T>(
