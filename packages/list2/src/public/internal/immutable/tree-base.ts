@@ -1,5 +1,8 @@
 import type { TraverseState } from '@rimbu/common/traverse-state';
+import type { Update } from '@rimbu/common/update';
 import type { Stream } from '@rimbu/stream';
+
+import type { Block, Inner } from '#list/immutable/utils';
 
 import { IndexRange } from '@rimbu/common/index-range';
 
@@ -33,6 +36,39 @@ export function treeGet<T>(
 	if (rightIndex < 0) return tree.middle.get(middleIndex);
 
 	return tree.right.get(rightIndex);
+}
+
+export function treeUpdate<
+	T,
+	TR extends {
+		readonly length: number;
+		left: Block<T>;
+		right: Block<T>;
+		middle: Inner<T, any> | null;
+		copy(left?: Block<T>, right?: Block<T>, middle?: Inner<T, any> | null): TR;
+		updateAt(index: number, update: Update<T>): TR;
+	},
+>(tree: TR, index: number, update: Update<T>): TR {
+	const middleIndex = index - tree.left.length;
+
+	if (middleIndex < 0) {
+		return tree.copy(tree.left.updateAt(index, update));
+	}
+
+	if (null === tree.middle) {
+		return tree.copy(undefined, tree.right.updateAt(middleIndex, update));
+	}
+
+	const rightIndex = middleIndex - tree.middle.length;
+
+	if (rightIndex < 0)
+		return tree.copy(
+			undefined,
+			undefined,
+			tree.middle.updateAt(middleIndex, update),
+		);
+
+	return tree.copy(undefined, tree.right.updateAt(rightIndex, update));
 }
 
 interface TreeToArrayNode<T> {

@@ -3,8 +3,6 @@ import type { Stream } from '@rimbu/stream';
 
 import type { ListImpl } from '#list/list-impl';
 
-import { OptLazy } from '@rimbu/common/opt-lazy';
-
 import { OuterBlock } from '#list/immutable/outer-block';
 
 export class ReversedOuterBlock<
@@ -31,13 +29,8 @@ export class ReversedOuterBlock<
 		return this.context.reversedOuterBlock(children);
 	}
 
-	get<O>(index: number, otherwise?: OptLazy<O>): T | O {
-		const { length } = this;
-		if (index >= length || -index > length) {
-			return OptLazy(otherwise!);
-		}
-
-		return this.ops.at(this.children, -index - 1);
+	getIndex(index: number): number {
+		return -index - 1;
 	}
 
 	stream(options: { reversed?: boolean } = {}): Stream.NonEmpty<T> {

@@ -1,4 +1,5 @@
 import type { TraverseState } from '@rimbu/common/traverse-state';
+import type { Update } from '@rimbu/common/update';
 import type { ToMutable } from '../mutable/builder-base';
 
 import type { ListContext } from '#list/context-module';
@@ -73,6 +74,17 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		const [childIndex, inChildIndex] = this.getCoordinates(index, false, false);
 
 		return this.children[childIndex].get(inChildIndex);
+	}
+
+	updateAt(index: number, update: Update<T>): InnerBlock<T, C> {
+		const [childIndex, inChildIndex] = this.getCoordinates(index, false, false);
+
+		const newChild = this.children[childIndex].updateAt(
+			inChildIndex,
+			update,
+		) as C;
+
+		return this.copy(this.children.with(childIndex, newChild));
 	}
 
 	prependBlockChild(child: C): InnerBlock<T, C> {

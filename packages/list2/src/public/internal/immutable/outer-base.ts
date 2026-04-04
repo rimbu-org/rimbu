@@ -1,7 +1,7 @@
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, SuperOf } from '@rimbu/common/types';
-import type { Stream, StreamSource } from '@rimbu/stream';
+import type { Update } from '@rimbu/common/update';
 
 import type { ListContext } from '#list/context-module';
 import type { ListImpl } from '#list/list-impl';
@@ -11,6 +11,7 @@ import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { NonEmptyBase } from '@rimbu/collection-types/common/empty-base';
 import { Comp } from '@rimbu/common/comp';
 import { IndexRange } from '@rimbu/common/index-range';
+import { Stream, type StreamSource } from '@rimbu/stream';
 
 export abstract class OuterBase<T>
 	extends NonEmptyBase<T>
@@ -28,6 +29,10 @@ export abstract class OuterBase<T>
 	abstract readonly length: number;
 	abstract stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
 	abstract get<O>(index: number, otherwise?: OptLazy<O>): T | O;
+	abstract updateAt(
+		index: number,
+		update: Update<T>,
+	): ListImpl.NonEmpty<T, ListImpl.Types>;
 	abstract first(): T;
 	abstract last(): T;
 	abstract prepend(value: T): ListImpl.NonEmpty<T>;
@@ -76,6 +81,44 @@ export abstract class OuterBase<T>
 		return values.reversed();
 	}
 
+	splice({
+		index = 0,
+		remove = 0,
+		insert,
+	}: {
+		index?: number;
+		remove?: number;
+		insert?: StreamSource<T>;
+	} = {}): ListImpl<T> | any {
+		if (index < 0) {
+			return this.splice({ index: this.length + index, remove, insert });
+		}
+
+		if (undefined === insert) {
+			if (remove <= 0) return this;
+			return this.take(index).concat(this.drop(index + remove));
+		}
+
+		if (remove <= 0 && Stream.isEmptyStreamSourceInstance(insert)) return this;
+
+		console.log({ index, remove, insert });
+		console.log(this.take(index).toArray());
+		console.log(this.drop(index + remove).toArray());
+		console.log(this.take(index).concat(insert).toArray());
+
+		return this.take(index).concat(insert, this.drop(index + remove));
+	}
+
+	insert(index: number, values: StreamSource<T>): ListImpl<T> | any {
+		return this.splice({ index, insert: values });
+	}
+
+	remove(index: number, options: { amount?: number } = {}): ListImpl<T> {
+		const { amount = 1 } = options;
+
+		return this.splice({ index, remove: amount });
+	}
+
 	sort<TC = T>(
 		comp: Comp<SuperOf<TC, T>> = Comp.defaultInstance,
 		options: { inverse?: boolean } = {},
@@ -86,7 +129,10 @@ export abstract class OuterBase<T>
 		const builder = this.toBuilder();
 
 		function partition(left: number, right: number): number {
-			const pivot = builder.get(Math.floor((left + right) / 2), throwInvalidStateError);
+			const pivot = builder.get(
+				Math.floor((left + right) / 2),
+				throwInvalidStateError,
+			);
 			let leftIndex = left - 1;
 			let rightIndex = right + 1;
 

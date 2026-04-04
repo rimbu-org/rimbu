@@ -1,5 +1,6 @@
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { TraverseState } from '@rimbu/common/traverse-state';
+import type { Update } from '@rimbu/common/update';
 import type { Stream } from '@rimbu/stream';
 
 import type { CacheMap } from '#list/immutable/cache-map';
@@ -34,6 +35,7 @@ export interface Block<T, C = unknown> extends ListCommon<T> {
 	readonly childrenInMin: boolean;
 	readonly childrenInMax: boolean;
 	readonly canAddChild: boolean;
+	updateAt(index: number, update: Update<T>): Block<T, C>;
 	concatChildren(other: Block<T, C>): this['_self'];
 	takeChildren(amount: number): Block<T, C> | null;
 	reversed(cacheMap?: CacheMap | undefined): this['_self'];

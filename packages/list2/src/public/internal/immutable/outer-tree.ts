@@ -1,5 +1,6 @@
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
+import type { Update } from '@rimbu/common/update';
 import type { Stream, StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context-module';
@@ -18,6 +19,7 @@ import {
 	treeGet,
 	treeToArray,
 	treeToStream,
+	treeUpdate,
 } from '#list/immutable/tree-base';
 
 export class OuterTree<T>
@@ -70,14 +72,25 @@ export class OuterTree<T>
 	}
 
 	get<O>(index: number, otherwise?: OptLazy<O>): T | O {
-		if (index >= this.length || -index > this.length) {
+		const { length } = this;
+
+		if (index >= length || -index > length) {
 			return OptLazy(otherwise) as O;
 		}
 		if (index < 0) {
-			return this.get(this.length + index, otherwise);
+			return this.get(length + index, otherwise);
 		}
 
 		return treeGet<T>(this, index);
+	}
+
+	updateAt(index: number, update: Update<T>): OuterTree<T> {
+		const { length } = this;
+
+		if (index >= length || -index > length) return this;
+		if (index < 0) return this.updateAt(length + index, update);
+
+		return treeUpdate<T, OuterTree<T>>(this, index, update);
 	}
 
 	first(): T {

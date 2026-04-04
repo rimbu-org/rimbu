@@ -6,6 +6,7 @@ import type { ListBase } from '#list/list-base';
 import type { ListImpl } from '#list/list-impl';
 
 import { Module } from '@rimbu/common/module';
+import { Update } from '@rimbu/common/update';
 import { Stream } from '@rimbu/stream';
 
 import { createContextModule, type ListContext } from '#list/context-module';
@@ -58,6 +59,14 @@ export namespace ListHelpers {
 			},
 			at<T>(children: readonly T[], index: number): T {
 				return children.at(index)!;
+			},
+			updateAt<T>(
+				children: readonly T[],
+				index: number,
+				update: Update<T>,
+			): readonly T[] {
+				const newValue = Update(children.at(index)!, update);
+				return children.with(index, newValue);
 			},
 			stream<T>(
 				children: readonly T[],

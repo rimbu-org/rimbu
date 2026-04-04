@@ -81,6 +81,24 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	get(index: number): T | undefined;
 	get<O>(index: number, otherwise: OptLazy<O>): T | O;
 	/**
+	 * Returns the List where at the given `index` the value is replaced or updated by the given `update`.
+	 * @param index - the index at which to update the value
+	 * @param update - a new value or function taking the current value and returning a new value
+	 *
+	 * @note a negative `index` will be treated as follows:<br/>
+	 * - -1: the last element in the list<br/>
+	 * - -2: the second-last element in the list<br/>
+	 * - ...etc
+	 * @example
+	 * ```ts
+	 * List.of(0, 1, 2).updateAt(1, 10)            // -> List(0, 10, 2)
+	 * List.of(0, 1, 2).updateAt(1, v => v + 1)    // -> List(0, 2, 2)
+	 * List.of(0, 1, 2).updateAt(-1, 10)           // -> List(0, 1, 10)
+	 * ```
+	 * @note O(logB(N)) for block size B
+	 */
+	updateAt(index: number, update: (current: T) => T): WithElem<Tp, T>['normal'];
+	/**
 	 * Returns the first value of the List, or the `otherwise` value if the list is empty.
 	 * @param otherwise - (default: undefined) an `OptLazy` value to return if the List is empty
 	 * @typeparam O - the type of the `otherwise` value
@@ -185,6 +203,77 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 		options?: { reversed?: boolean },
 	): WithElem<Tp, T>['normal'];
 	/**
+	 * Returns the List, where at the given `index` the `remove` amount of values are replaced by the values
+	 * from the optionally given `insert` `StreamSource`.
+	 * @param options - object containing the following<br/>
+	 * - index: the index at which to replace values<br/>
+	 * - remove: (default: 0) the amount of values to remove<br/>
+	 * - insert: (default: []) a `StreamSource` of values to insert
+	 *
+	 * @note a negative `index` will be treated as follows:<br/>
+	 * - -1: the last element in the list<br/>
+	 * - -2: the second-last element in the list<br/>
+	 * - ...etc
+	 * @example
+	 * ```ts
+	 * List.of(0, 1, 2, 3).splice({ index: 2, remove: 1 })                    // -> List(0, 1, 3)
+	 * List.of(0, 1, 2, 3).splice({ index: 1, remove: 2, insert: [10, 11] })  // -> List(0, 10, 11, 3)
+	 * ```
+	 * @note O(logB(N)) for block size B
+	 */
+	splice(options: {
+		index: number;
+		remove?: number;
+		insert: StreamSource.NonEmpty<T>;
+	}): WithElem<Tp, T>['nonEmpty'];
+	splice(options: {
+		index: number;
+		remove?: number;
+		insert?: StreamSource<T>;
+	}): WithElem<Tp, T>['normal'];
+	/**
+	 * Returns the List with the given `values` inserted at the given `index`.
+	 * @param index - the index at which to insert the values
+	 * @param values - a `StreamSource` of values to insert
+	 *
+	 * @note a negative `index` will be treated as follows:<br/>
+	 * - -1: the last element in the list<br/>
+	 * - -2: the second-last element in the list<br/>
+	 * - ...etc
+	 * @example
+	 * ```ts
+	 * List.of(0, 1, 2, 3).insert(2, [10, 11])   // -> List(0, 1, 10, 11, 2, 3)
+	 * List.of(0, 1, 2, 3).insert(-1, [10, 11])  // -> List(0, 1, 2, 1, 11, 3)
+	 * ```
+	 * @note O(logB(N)) for block size B
+	 */
+	insert(
+		index: number,
+		values: StreamSource.NonEmpty<T>,
+	): WithElem<Tp, T>['nonEmpty'];
+	insert(index: number, values: StreamSource<T>): WithElem<Tp, T>['normal'];
+	/**
+	 * Returns the List with the given `amount` of values removed at the given `index`.
+	 * @param index - the index at which to remove values
+	 * @param options - object containing the following<br/>
+	 * - amount: (default: 1) the amount of elements to remove
+	 *
+	 * @note  a negative `index` will be treated as follows:<br/>
+	 * - -1: the last element in the list<br/>
+	 * - -2: the second-last element in the list<br/>
+	 * - ...etc
+	 * @example
+	 * ```ts
+	 * List.of(0, 1, 2, 3).remove(1, 2)  // -> List(0, 3)
+	 * List.of(0, 1, 2, 3).remove(-2, 1) // -> List(0, 1, 3)
+	 * ```
+	 * @note O(logB(N)) for block size B
+	 */
+	remove(
+		index: number,
+		options?: { amount?: number },
+	): WithElem<Tp, T>['normal'];
+	/**
 	 * Returns the values sorted according to the given, optional Comp.
 	 *
 	 * **Performance warning**: this method is not designed for frequent calls;
@@ -261,7 +350,7 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * // => ['value: 3', 'value: 4', 'value: 5']
 	 * ```
 	 */
-	map<T2>(
+	map<T2 extends Tp['_UT']>(
 		mapFun: (value: T, index: number) => T2,
 		options?: { reversed?: boolean },
 	): WithElem<Tp, T2>['normal'];
@@ -324,6 +413,27 @@ export namespace ListBase {
 		 */
 		stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
 		/**
+		 * Returns the non-empty List where at the given `index` the value is replaced or updated by the given `update`.
+		 * @param index - the index at which to update the value
+		 * @param update - a new value or function taking the current value and returning a new value
+		 *
+		 * @note a negative `index` will be treated as follows:<br/>
+		 * - -1: the last element in the list<br/>
+		 * - -2: the second-last element in the list<br/>
+		 * - ...etc
+		 * @example
+		 * ```ts
+		 * List.of(0, 1, 2).updateAt(1, 10)            // -> List(0, 10, 2)
+		 * List.of(0, 1, 2).updateAt(1, v => v + 1)    // -> List(0, 2, 2)
+		 * List.of(0, 1, 2).updateAt(-1, 10)           // -> List(0, 1, 10)
+		 * ```
+		 * @note O(logB(N)) for block size B
+		 */
+		updateAt(
+			index: number,
+			update: (current: T) => T,
+		): WithElem<Tp, T>['nonEmpty'];
+		/**
 		 * Returns the first value of the List.
 		 * @example
 		 * ```ts
@@ -360,6 +470,35 @@ export namespace ListBase {
 		take<N extends number>(
 			amount: N,
 		): 0 extends N ? WithElem<Tp, T>['normal'] : WithElem<Tp, T>['nonEmpty'];
+		/**
+		 * Returns the List, where at the given `index` the `remove` amount of values are replaced by the values
+		 * from the optionally given `insert` `StreamSource`.
+		 * @param options - object containing the following<br/>
+		 * - index: the index at which to replace values<br/>
+		 * - remove: (default: 0) the amount of values to remove<br/>
+		 * - insert: (default: []) a `StreamSource` of values to insert
+		 *
+		 * @note a negative `index` will be treated as follows:
+		 * - -1: the last element in the list
+		 * - -2: the second-last element in the list
+		 * - ...etc
+		 * @example
+		 * ```ts
+		 * List.of(0, 1, 2, 3).splice({ index: 2, remove: 1 })                    // -> List(0, 1, 3)
+		 * List.of(0, 1, 2, 3).splice({ index: 1, remove: 2, insert: [10, 11] })  // -> List(0, 10, 11, 3)
+		 * ```
+		 * @note O(logB(N)) for block size B
+		 */
+		splice(options: {
+			index: number;
+			remove?: number;
+			insert: StreamSource.NonEmpty<T>;
+		}): WithElem<Tp, T>['nonEmpty'];
+		splice(options: {
+			index: number;
+			remove?: number;
+			insert?: StreamSource<T>;
+		}): WithElem<Tp, T>['normal'];
 		/**
 		 * Returns the non-empty List succeeded by the values from all given `StreamSource` instances given in `sources`.
 		 * @param sources - an array of `StreamSource` instances containing values to be added to the list
@@ -630,7 +769,9 @@ export namespace ListBase {
 		 * // => ['1', '2', '3']
 		 * ```
 		 */
-		buildMap<T2 = T>(mapFun: (value: T) => T2): WithElem<Tp, T2>['normal'];
+		buildMap<T2 extends Tp['_UT'] = T>(
+			mapFun: (value: T) => T2,
+		): WithElem<Tp, T2>['normal'];
 	}
 
 	export interface Context<Tp extends ListBase.Types = ListBase.Types>

@@ -58,15 +58,15 @@ export class ListEmpty<T> extends EmptyBase implements ListImpl<T> {
 		return this;
 	}
 
-	// splice(options: { insert?: StreamSource<T> }): any {
-	// 	if (undefined === options.insert) return this;
+	splice(options: { insert?: StreamSource<T> }): any {
+		if (undefined === options.insert) return this;
 
-	// 	return this.context.from(options.insert);
-	// }
+		return this.context.from(options.insert);
+	}
 
-	// insert(index: number, values: StreamSource<T>): any {
-	// 	return this.splice({ insert: values });
-	// }
+	insert(index: number, values: StreamSource<T>): any {
+		return this.splice({ insert: values });
+	}
 
 	remove(): this {
 		return this;

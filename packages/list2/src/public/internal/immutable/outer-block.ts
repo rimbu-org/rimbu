@@ -1,5 +1,6 @@
 import type { WithElem } from '@rimbu/collection-types/common';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
+import type { Update } from '@rimbu/common/update';
 import type { Stream, StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context-module';
@@ -62,6 +63,10 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return this.ops.stream(this.children, options);
 	}
 
+	getIndex(index: number): number {
+		return index;
+	}
+
 	// 	streamRange(
 	// 	range: IndexRange,
 	// 	options: { reversed?: boolean } = {},
@@ -79,7 +84,18 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 			return OptLazy(otherwise!);
 		}
 
-		return this.ops.at(this.children, index);
+		return this.ops.at(this.children, this.getIndex(index));
+	}
+
+	updateAt(index: number, update: Update<T>): OuterBlock<T> {
+		const { length } = this;
+		if (index >= length || -index > length) {
+			return this;
+		}
+
+		return this.copy(
+			this.ops.updateAt(this.children, this.getIndex(index), update),
+		);
 	}
 
 	first(): T {
@@ -199,13 +215,26 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 	}
 
 	concatChildren(other: OuterBlock<T>): OuterBlock<T> {
-		const addChildren = other.isReversedBlock
-			? this.ops.toReversed(other.children)
-			: other.children;
+		if (this.isReversedBlock === other.isReversedBlock) {
+			if (this.isReversedBlock) {
+				return this.context.reversedOuterBlock(
+					this.ops.concat(other.children, this.children),
+				);
+			}
+			return this.context.outerBlock(
+				this.ops.concat(this.children, other.children),
+			);
+		}
 
-		const newChildren = this.ops.concat(this.children, addChildren);
+		if (this.isReversedBlock) {
+			return this.context.outerBlock(
+				this.ops.concat(this.ops.toReversed(this.children), other.children),
+			);
+		}
 
-		return this.copy(newChildren);
+		return this.context.outerBlock(
+			this.ops.concat(this.children, this.ops.toReversed(other.children)),
+		);
 	}
 
 	concatTree(other: OuterTree<T>): OuterTree<T> {

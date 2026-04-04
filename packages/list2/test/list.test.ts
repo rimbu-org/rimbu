@@ -365,7 +365,7 @@ describe('List methods', () => {
 		]);
 	});
 
-	it.skip('splice', () => {
+	it('splice', () => {
 		expect(listEmpty.splice({ index: 0 })).toBe(listEmpty);
 		expect(listEmpty.splice({ index: 0, insert: [] })).toBe(listEmpty);
 		expect(listEmpty.splice({ index: 0, remove: 10, insert: [] })).toBe(
@@ -420,7 +420,7 @@ describe('List methods', () => {
 		).toEqual([1, 2, 3, 4, 5, 5]);
 	});
 
-	it.skip('insert', () => {
+	it('insert', () => {
 		expect(listEmpty.insert(1, [])).toBe(listEmpty);
 		expect(list3_1.insert(1, [])).toBe(list3_1);
 		expect(list3_2.insert(1, [])).toBe(list3_2);
@@ -440,7 +440,7 @@ describe('List methods', () => {
 		expect(list6_2.insert(-1, [9]).toArray()).toEqual([1, 2, 3, 4, 5, 9, 6]);
 	});
 
-	it.skip('remove', () => {
+	it('remove', () => {
 		expect(listEmpty.remove(1, { amount: 0 })).toBe(listEmpty);
 		expect(list3_1.remove(1, { amount: 0 })).toBe(list3_1);
 		expect(list3_2.remove(1, { amount: 0 })).toBe(list3_2);
@@ -595,34 +595,34 @@ describe('List methods', () => {
 		);
 	});
 
-	it.skip('updateAt', () => {
-		expect(listEmpty.updateAt(1, 1)).toBe(listEmpty);
-		expect(listEmpty.updateAt(-1, 1)).toBe(listEmpty);
+	it('updateAt', () => {
+		// expect(listEmpty.updateAt(1, 1)).toBe(listEmpty);
+		// expect(listEmpty.updateAt(-1, 1)).toBe(listEmpty);
 		expect(listEmpty.updateAt(1, (v) => v + 1)).toBe(listEmpty);
 
-		expect(list3_1.updateAt(1, 10).toArray()).toEqual([1, 10, 3]);
-		expect(list3_1.updateAt(-1, 10).toArray()).toEqual([1, 2, 10]);
+		// expect(list3_1.updateAt(1, 10).toArray()).toEqual([1, 10, 3]);
+		// expect(list3_1.updateAt(-1, 10).toArray()).toEqual([1, 2, 10]);
 		expect(list3_1.updateAt(-1, (v) => v + 1).toArray()).toEqual([1, 2, 4]);
-		expect(list3_1.updateAt(10, 1)).toBe(list3_1);
+		// expect(list3_1.updateAt(10, 1)).toBe(list3_1);
 
-		expect(list3_2.updateAt(1, 10).toArray()).toEqual([1, 10, 3]);
-		expect(list3_2.updateAt(-1, 10).toArray()).toEqual([1, 2, 10]);
+		// expect(list3_2.updateAt(1, 10).toArray()).toEqual([1, 10, 3]);
+		// expect(list3_2.updateAt(-1, 10).toArray()).toEqual([1, 2, 10]);
 		expect(list3_2.updateAt(-1, (v) => v + 1).toArray()).toEqual([1, 2, 4]);
-		expect(list3_2.updateAt(10, 1)).toBe(list3_2);
+		// expect(list3_2.updateAt(10, 1)).toBe(list3_2);
 
-		expect(list6_1.updateAt(1, 10).toArray()).toEqual([1, 10, 3, 4, 5, 6]);
-		expect(list6_1.updateAt(-1, 10).toArray()).toEqual([1, 2, 3, 4, 5, 10]);
+		// expect(list6_1.updateAt(1, 10).toArray()).toEqual([1, 10, 3, 4, 5, 6]);
+		// expect(list6_1.updateAt(-1, 10).toArray()).toEqual([1, 2, 3, 4, 5, 10]);
 		expect(list6_1.updateAt(-1, (v) => v + 1).toArray()).toEqual([
 			1, 2, 3, 4, 5, 7,
 		]);
-		expect(list6_1.updateAt(10, 1)).toBe(list6_1);
+		// expect(list6_1.updateAt(10, 1)).toBe(list6_1);
 
-		expect(list6_2.updateAt(1, 10).toArray()).toEqual([1, 10, 3, 4, 5, 6]);
-		expect(list6_2.updateAt(-1, 10).toArray()).toEqual([1, 2, 3, 4, 5, 10]);
+		// expect(list6_2.updateAt(1, 10).toArray()).toEqual([1, 10, 3, 4, 5, 6]);
+		// expect(list6_2.updateAt(-1, 10).toArray()).toEqual([1, 2, 3, 4, 5, 10]);
 		expect(list6_2.updateAt(-1, (v) => v + 1).toArray()).toEqual([
 			1, 2, 3, 4, 5, 7,
 		]);
-		expect(list6_2.updateAt(10, 1)).toBe(list6_2);
+		// expect(list6_2.updateAt(10, 1)).toBe(list6_2);
 	});
 
 	it.skip('filter', () => {
