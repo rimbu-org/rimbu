@@ -61,6 +61,19 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 */
 	assumeNonEmpty(): WithElem<Tp, T>['nonEmpty'];
 	/**
+	 * Returns a Stream containing the values contained in the given index `range`, in order of the List,
+	 * or in reverse order if `reversed` is true.
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - reversed: (default: false) if true reverses the order of the included elements
+	 * @example
+	 * ```ts
+	 * List.of(0, 1, 2, 3, 4).streamRange({ start: 1, amount: 2 }).toArray()                      // => [1, 2]
+	 * List.of(0, 1, 2, 3, 4).streamRange({ start: 1, amount: 2 }, { reversed: true }).toArray() // => [2, 1]
+	 * ```
+	 * @returns A `Stream` containing the values in the given `range` in order (or reversed when `options.reversed` is true).
+	 */
+	streamRange(range: IndexRange, options?: { reversed?: boolean }): Stream<T>;
+	/**
 	 * Returns the value in the List at the given `index`.
 	 * @param index - the element index
 	 * @param otherwise - (default: undefined) an `OptLazy` value to return if the index is out of bounds
@@ -287,6 +300,19 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @note O(logB(N)) for block size B
 	 */
 	repeat(amount: number): WithElem<Tp, T>['normal'];
+	/**
+	 * Returns the List where the elements are shifted to right by `shiftRoundAmount` position, and the elements at the end are placed at the beginning.
+	 * @param shiftRightAmount - the amount of values to shift the elements to the right
+	 *
+	 * @note if the `shiftRightAmount` is negative, the elements will be shifted to the left.
+	 * @example
+	 * ```ts
+	 * List.of(0, 1, 2, 3).rotate(2)   // -> List(2, 3, 0, 1)
+	 * List.of(0, 1, 2, 3).rotate(-1)  // -> List(1, 2, 3, 0)
+	 * ```
+	 * @note O(logB(N)) for block size B
+	 */
+	rotate(shiftRightAmount: number): WithElem<Tp, T>['normal'];
 	/**
 	 * Returns the values sorted according to the given, optional Comp.
 	 *
@@ -540,6 +566,19 @@ export namespace ListBase {
 		 * @note O(logB(N)) for block size B
 		 */
 		repeat(amount: number): WithElem<Tp, T>['nonEmpty'];
+		/**
+		 * Returns the non-empty List where the first given `shiftAmount` of values are removed from this List, and are appended at the end.
+		 * @param shiftAmount - the amount of values to rotate
+		 *
+		 * @note if the `shiftAmount` is negative, the last `shiftAmount` values will be removed from the List and will be prepended.
+		 * @example
+		 * ```ts
+		 * List.of(0, 1, 2, 3).rotate(2)   // -> List(2, 3, 0, 1)
+		 * List.of(0, 1, 2, 3).rotate(-1)  // -> List(1, 2, 3, 0)
+		 * ```
+		 * @note O(logB(N)) for block size B
+		 */
+		rotate(shiftAmount: number): WithElem<Tp, T>['nonEmpty'];
 		/**
 		 * Returns the values sorted according to the given, optional Comp.
 		 *

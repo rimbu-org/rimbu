@@ -11,6 +11,7 @@ import type { BlockBuilder } from '#list/mutable/builder-base';
 export interface ListCommon<T> {
 	get(index: number): T;
 	stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
+	streamRange(range: IndexRange, options?: { reversed?: boolean }): Stream<T>;
 	toArray(
 		options?:
 			| { range?: IndexRange | undefined; reversed?: boolean }

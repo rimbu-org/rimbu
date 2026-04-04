@@ -1,10 +1,10 @@
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { Update } from '@rimbu/common/update';
-import type { Stream } from '@rimbu/stream';
 
 import type { Block, Inner } from '#list/immutable/utils';
 
 import { IndexRange } from '@rimbu/common/index-range';
+import { Stream } from '@rimbu/stream';
 
 type TreeOperation<TS, TL = TS> = TS & {
 	left: TL;
@@ -169,6 +169,71 @@ export function treeToStream<T>(
 	return first
 		.stream(options)
 		.concat(tree.middle?.stream(options), second.stream(options));
+}
+
+interface TreeToStreamRangeNode<T> extends TreeToStreamNode<T> {
+	readonly length: number;
+	streamRange(range: IndexRange, options?: { reversed?: boolean }): Stream<T>;
+}
+
+export function treeToStreamRange<T>(
+	tree: TreeOperation<TreeToStreamRangeNode<T>>,
+	range: IndexRange,
+	options: { reversed?: boolean } = {},
+): Stream<T> {
+	const indexRange = IndexRange.getIndicesFor(
+		range ?? { start: 0 },
+		tree.length,
+	);
+
+	if (indexRange === 'empty') return Stream.empty();
+	if (indexRange === 'all') return treeToStream(tree, options);
+
+	const { reversed = false } = options;
+
+	const [start, end] = indexRange;
+
+	const leftStream = tree.left.streamRange({ start, end }, { reversed });
+
+	if (null === tree.middle) {
+		const rightStart = Math.max(0, start - tree.left.length);
+		const rightEnd = end - tree.left.length;
+
+		if (rightEnd < 0) return leftStream;
+
+		const rightStream = tree.right.streamRange(
+			{ start: rightStart, end: rightEnd },
+			{ reversed },
+		);
+
+		if (reversed) return rightStream.concat<T>(leftStream);
+		return leftStream.concat<T>(rightStream);
+	}
+
+	const middleStart = Math.max(0, start - tree.left.length);
+	const middleEnd = end - tree.left.length;
+
+	if (middleEnd < 0) return leftStream;
+
+	const middleStream = tree.middle.streamRange(
+		{ start: middleStart, end: middleEnd },
+		{ reversed },
+	);
+
+	const rightStart = Math.max(0, middleStart - tree.middle.length);
+	const rightEnd = middleEnd - tree.middle.length;
+
+	if (rightEnd < 0) {
+		if (reversed) return middleStream.concat<T>(leftStream);
+		return leftStream.concat<T>(middleStream);
+	}
+	const rightStream = tree.right.streamRange(
+		{ start: rightStart, end: rightEnd },
+		{ reversed },
+	);
+
+	if (reversed) return rightStream.concat<T>(middleStream, leftStream);
+	return leftStream.concat<T>(middleStream, rightStream);
 }
 
 interface TreeForEachNode<T> {

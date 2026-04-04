@@ -19,6 +19,7 @@ import {
 	treeGet,
 	treeToArray,
 	treeToStream,
+	treeToStreamRange,
 	treeUpdate,
 } from '#list/immutable/tree-base';
 
@@ -69,6 +70,13 @@ export class OuterTree<T>
 
 	stream(options?: { reversed?: boolean }): Stream.NonEmpty<T> {
 		return treeToStream(this, options);
+	}
+
+	streamRange(
+		range: IndexRange,
+		options: { reversed?: boolean } = {},
+	): Stream<T> {
+		return treeToStreamRange(this, range, options);
 	}
 
 	get<O>(index: number, otherwise?: OptLazy<O>): T | O {

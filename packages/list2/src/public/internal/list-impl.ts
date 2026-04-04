@@ -1,4 +1,5 @@
 import type { WithElem } from '@rimbu/collection-types/common';
+import type { IndexRange } from '@rimbu/common/index-range';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { Update } from '@rimbu/common/update';
 import type { Stream } from '@rimbu/stream';
@@ -37,6 +38,10 @@ export namespace ListImpl {
 			children: WithElem<Tp, T>['outerChildren'],
 			options?: { reversed?: boolean } | undefined,
 		): Stream.NonEmpty<T>;
+		streamRange<T extends Tp['_UT']>(
+			children: WithElem<Tp, T>['outerChildren'],
+			options: { range?: IndexRange; reversed?: boolean },
+		): Stream<T>;
 		prepend<T extends Tp['_UT']>(
 			children: WithElem<Tp, T>['outerChildren'],
 			value: T,

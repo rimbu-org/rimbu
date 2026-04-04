@@ -28,6 +28,10 @@ export abstract class OuterBase<T>
 
 	abstract readonly length: number;
 	abstract stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
+	abstract streamRange(
+		range: IndexRange,
+		options?: { reversed?: boolean },
+	): Stream<T>;
 	abstract get<O>(index: number, otherwise?: OptLazy<O>): T | O;
 	abstract updateAt(
 		index: number,
@@ -124,6 +128,18 @@ export abstract class OuterBase<T>
 		const remainTimes = amount % 2;
 		if (remainTimes === 0) return doubleResult;
 		return doubleResult.concat(this);
+	}
+
+	rotate(shiftRightAmount: number): ListImpl.NonEmpty<T> {
+		let normalizedAmount = shiftRightAmount % this.length;
+
+		if (normalizedAmount === 0) return this;
+
+		if (normalizedAmount < 0) normalizedAmount += this.length;
+
+		return this.take(-normalizedAmount)
+			.concat(this.drop(-normalizedAmount))
+			.assumeNonEmpty();
 	}
 
 	sort<TC = T>(

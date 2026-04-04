@@ -15,6 +15,7 @@ import {
 	treeGet,
 	treeToArray,
 	treeToStream,
+	treeToStreamRange,
 	treeUpdate,
 } from '#list/immutable/tree-base';
 
@@ -61,6 +62,13 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 
 	stream(options?: { reversed?: boolean }): Stream.NonEmpty<T> {
 		return treeToStream(this, options);
+	}
+
+	streamRange(
+		range: IndexRange,
+		options: { reversed?: boolean } = {},
+	): Stream<T> {
+		return treeToStreamRange<T>(this, range, options);
 	}
 
 	get(index: number): T {

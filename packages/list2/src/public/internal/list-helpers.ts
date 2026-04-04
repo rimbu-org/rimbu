@@ -1,3 +1,4 @@
+import type { IndexRange } from '@rimbu/common/index-range';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, StringNonEmpty } from '@rimbu/common/types';
 import type { List } from '@rimbu/list';
@@ -73,6 +74,12 @@ export namespace ListHelpers {
 				options: { reversed?: boolean } = {},
 			): Stream.NonEmpty<T> {
 				return Stream.fromArray(children, options).assumeNonEmpty();
+			},
+			streamRange<T>(
+				children: readonly T[],
+				options?: { range?: IndexRange; reversed?: boolean },
+			): Stream<T> {
+				return Stream.fromArray(children, options);
 			},
 			of<T>(values: T[]): readonly T[] {
 				return values;

@@ -7,6 +7,7 @@ import type { ListContext } from '#list/context-module';
 import type { OuterTree } from '#list/immutable/outer-tree';
 import type { Block } from '#list/immutable/utils';
 import type { ListImpl } from '#list/list-impl';
+import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { IndexRange } from '@rimbu/common/index-range';
@@ -67,16 +68,17 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return index;
 	}
 
-	// 	streamRange(
-	// 	range: IndexRange,
-	// 	options: { reversed?: boolean } = {},
-	// ): Stream<T> {
-	// 	const { reversed = false } = options;
-	// 	return this.leafOps.streamRange(this.children, {
-	// 		indexRange: range,
-	// 		reversed,
-	// 	});
-	// }
+	streamRange(
+		range: IndexRange,
+		options: { reversed?: boolean } = {},
+	): Stream<T> {
+		const { reversed = false } = options;
+
+		return this.ops.streamRange(this.children, {
+			range,
+			reversed,
+		});
+	}
 
 	get<O>(index: number, otherwise?: OptLazy<O>): T | O {
 		const { length } = this;
@@ -146,12 +148,9 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		const cachedThis = cacheMap.get<OuterBlock<T>>(this);
 		if (cachedThis !== undefined) return cachedThis;
 
-		// biome-ignore lint/complexity/noUselessThisAlias: Needed
-		const thisCopy = this;
-
 		const reversedThis = this.isReversedBlock
 			? this.context.outerBlock<T>(this.children)
-			: thisCopy.context.reversedOuterBlock<T>(thisCopy.children);
+			: this.context.reversedOuterBlock<T>(this.children);
 
 		return cacheMap.setAndReturn(this, reversedThis);
 	}
@@ -215,25 +214,13 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 	}
 
 	concatChildren(other: OuterBlock<T>): OuterBlock<T> {
-		if (this.isReversedBlock === other.isReversedBlock) {
-			if (this.isReversedBlock) {
-				return this.context.reversedOuterBlock(
-					this.ops.concat(other.children, this.children),
-				);
-			}
-			return this.context.outerBlock(
-				this.ops.concat(this.children, other.children),
-			);
-		}
-
-		if (this.isReversedBlock) {
-			return this.context.outerBlock(
-				this.ops.concat(this.ops.toReversed(this.children), other.children),
-			);
-		}
-
 		return this.context.outerBlock(
-			this.ops.concat(this.children, this.ops.toReversed(other.children)),
+			this.ops.concat(
+				this.children,
+				other.isReversedBlock
+					? this.ops.toReversed(other.children)
+					: other.children,
+			),
 		);
 	}
 
@@ -268,7 +255,7 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		if (state.halted) return;
 
 		this.ops.forEach(this.children, f, {
-			reversed: this.isReversedBlock ? !reversed : reversed,
+			reversed: this.isReversedBlock !== reversed,
 			state,
 		});
 	}
@@ -329,7 +316,7 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return this.ops.toArray(this.children, start, end, reverseOrder);
 	}
 
-	createBlockBuilder(): any {
+	createBlockBuilder(): OuterBlockBuilder<T> {
 		return this.context.outerBlockBuilderSource(this);
 	}
 

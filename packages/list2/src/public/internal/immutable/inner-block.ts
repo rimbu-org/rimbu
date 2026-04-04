@@ -70,6 +70,63 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 			.flatMap((child) => child.stream(options));
 	}
 
+	streamRange(
+		range: IndexRange,
+		options: { reversed?: boolean } = {},
+	): Stream<T> {
+		const indexRange = IndexRange.getIndicesFor(range, this.length);
+
+		if (indexRange === 'all') {
+			return Stream.fromArray(this.children, options).flatMap(
+				(child: Block<T>): Stream.NonEmpty<T> => child.stream(options),
+			) as Stream.NonEmpty<T>;
+		}
+
+		if (indexRange === 'empty') return Stream.empty();
+
+		const [start, end] = indexRange;
+
+		const [startChildIndex, inStartChildIndex] = this.getCoordinates(
+			start,
+			false,
+			true,
+		);
+		const [endChildIndex, inEndChildIndex] = this.getCoordinates(
+			end,
+			false,
+			true,
+		);
+
+		if (startChildIndex === endChildIndex) {
+			const child = this.children[startChildIndex];
+
+			return child.streamRange(
+				{
+					start: inStartChildIndex,
+					end: inEndChildIndex,
+				},
+				options,
+			);
+		}
+
+		const { reversed = false } = options;
+
+		const startChild = this.children[startChildIndex];
+		const endChild = this.children[endChildIndex];
+		const childStream = Stream.fromArray(this.children, {
+			range: { start: startChildIndex, end: endChildIndex },
+			reversed,
+		});
+
+		return childStream.flatMap((child: Block<T>): Stream<T> => {
+			if (child === startChild)
+				return child.streamRange({ start: inStartChildIndex }, options);
+			if (child === endChild)
+				return child.streamRange({ end: inEndChildIndex }, options);
+			return child.stream(options);
+		});
+	}
+
 	get(index: number): T {
 		const [childIndex, inChildIndex] = this.getCoordinates(index, false, false);
 

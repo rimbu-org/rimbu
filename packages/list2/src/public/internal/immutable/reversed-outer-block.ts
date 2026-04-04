@@ -3,6 +3,8 @@ import type { Stream } from '@rimbu/stream';
 
 import type { ListImpl } from '#list/list-impl';
 
+import { IndexRange } from '@rimbu/common/index-range';
+
 import { OuterBlock } from '#list/immutable/outer-block';
 
 export class ReversedOuterBlock<
@@ -39,6 +41,26 @@ export class ReversedOuterBlock<
 		return this.ops.stream(this.children, { reversed: !reversed });
 	}
 
+	streamRange(
+		range: IndexRange,
+		options: { reversed?: boolean } = {},
+	): Stream<T> {
+		const { reversed = false } = options;
+
+		const [start, end = this.length - 1] =
+			IndexRange.getIndexRangeIndices(range);
+		const lastIndex = this.length - 1;
+		const reverseRange = {
+			start: lastIndex - Math.min(end, lastIndex),
+			end: lastIndex - start,
+		};
+
+		return this.ops.streamRange(this.children, {
+			range: reverseRange,
+			reversed: !reversed,
+		});
+	}
+
 	prependBlockChild(value: T): OuterBlock<T, ListImpl.Types> {
 		return super.appendBlockChild(value);
 	}
@@ -56,6 +78,18 @@ export class ReversedOuterBlock<
 	dropChildren(amount: number): OuterBlock<T> {
 		return this.copy(
 			this.ops.toSpliced(this.children, this.length - amount, amount),
+		);
+	}
+
+	concatChildren(other: OuterBlock<T>): OuterBlock<T> {
+		if (other.isReversedBlock) {
+			return this.context.reversedOuterBlock(
+				this.ops.concat(other.children, this.children),
+			);
+		}
+
+		return this.context.outerBlock(
+			this.ops.concat(this.ops.toReversed(this.children), other.children),
 		);
 	}
 

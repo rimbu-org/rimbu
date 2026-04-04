@@ -141,7 +141,7 @@ describe('List methods', () => {
 		]);
 	});
 
-	it.skip('streamRange', () => {
+	it('streamRange', () => {
 		expect(listEmpty.streamRange({ amount: 100 })).toBe(Stream.empty());
 		expect(list3_1.streamRange({ amount: 100 }).toArray()).toEqual([1, 2, 3]);
 		expect(list3_1.streamRange({ start: 1, amount: 2 }).toArray()).toEqual([
@@ -524,7 +524,7 @@ describe('List methods', () => {
 		]);
 	});
 
-	it.skip('rotate', () => {
+	it('rotate', () => {
 		expect(listEmpty.rotate(0)).toBe(listEmpty);
 		expect(listEmpty.rotate(2)).toBe(listEmpty);
 		expect(listEmpty.rotate(-2)).toBe(listEmpty);
