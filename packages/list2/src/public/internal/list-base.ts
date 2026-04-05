@@ -1,4 +1,5 @@
 import type { Elem, WithElem } from '@rimbu/collection-types/common';
+import type { CollectFun } from '@rimbu/common/collect';
 import type { Comp } from '@rimbu/common/comp';
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
@@ -11,6 +12,7 @@ import type {
 	Streamable,
 	StreamSource,
 } from '@rimbu/stream';
+import type { Reducer } from '@rimbu/stream/reducer';
 
 export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	extends FastIterable<T>,
@@ -314,6 +316,28 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 */
 	rotate(shiftRightAmount: number): WithElem<Tp, T>['normal'];
 	/**
+	 * Returns the List where, if given `length` is larger than the List length, the given `fill` value is added to the start and/or end
+	 * of the List according to the `positionPercentage` such that the result length is equal to `length`.
+	 * @param length - the target length of the resulting list
+	 * @param fill - the element used to fill up empty space in the resulting List
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - positionPercentage: (default: 0) a percentage indicating how much of the filling elements should be to the right
+	 * side of the current List
+	 * @example
+	 * ```ts
+	 * List.of(0, 1).padTo(4, 10)       // -> List(0, 1, 10, 10)
+	 * List.of(0, 1).padTo(4, 10, 50)   // -> List(10, 0, 1, 10)
+	 * List.of(0, 1).padTo(4, 10, 100)  // -> List(0, 1, 10, 10)
+	 * List.of(0, 1, 2).padTo(2, 10)    // -> List(0, 1, 2)
+	 * ```
+	 * @note O(logB(N)) for block size B
+	 */
+	padTo(
+		length: number,
+		fill: T,
+		options?: { positionPercentage?: number },
+	): WithElem<Tp, T>['normal'];
+	/**
 	 * Returns the values sorted according to the given, optional Comp.
 	 *
 	 * **Performance warning**: this method is not designed for frequent calls;
@@ -395,6 +419,100 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 		options?: { reversed?: boolean },
 	): WithElem<Tp, T2>['normal'];
 	/**
+	 * Returns a List containing the joined results of applying given `flatMapFun` to each value in this List.
+	 * @param flatMapFun - a function taking the next value and its index, and returning a `StreamSource`
+	 * of value to include in the resulting collection
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - range: (optional) the range of the list to include in the filtering process<br/>
+	 * - reversed: (default: false) if true reverses the elements within the given range
+	 * @typeparam T2 - the result element type
+	 * @example
+	 * ```ts
+	 * List.of(1, 2, 3).flatMap(v => [v, v + 1]).toArray()
+	 * // => [1, 2, 2, 3, 3, 4]
+	 * ```
+	 */
+	flatMap<T2 extends Tp['_UT']>(
+		flatMapFun: (value: T, index: number) => StreamSource<T2>,
+		options?: {
+			range?: IndexRange;
+			reversed?: boolean;
+		},
+	): WithElem<Tp, T2>['normal'];
+	/**
+	 * Returns a List containing only those values within optionally given `range` that satisfy given `pred` predicate.
+	 * If `reversed` is true, the order of the values is reversed.
+	 * @param pred - a predicate function receiving<br/>
+	 * - `value`: the next value<br/>
+	 * - `index`: the value index<br/>
+	 * - `halt`: a function that, when called, ensures no next elements are passed
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - range: (optional) the range of the list to include in the filtering process<br/>
+	 * - reversed: (default: false) if true reverses the elements within the given range
+	 * @note if the predicate is a type guard, the return type is automatically inferred
+	 * @example
+	 * ```ts
+	 * List.of(0, 1, 2, 3).filter(v => v < 2)           // -> List(0, 1)
+	 * List.of(0, 1, 2, 3).filter((v, _, halt) => {
+	 *   if (v > 1) halt();
+	 *   return v;
+	 * })                                               // -> List(0, 1, 2)
+	 * List.of(0, 1, 2, 3)
+	 *   .filter((_, i) => i > 1, undefined, true)      // -> List(1, 0)
+	 * ```
+	 */
+	// filter<TF extends T>(
+	// 	pred: (value: T, index: number, halt: () => void) => value is TF,
+	// 	options?: {
+	// 		range?: IndexRange;
+	// 		reversed?: boolean;
+	// 		negate?: false | undefined;
+	// 	},
+	// ): WithElem<Tp, TF>['normal'];
+	// filter<TF extends T>(
+	// 	pred: (value: T, index: number, halt: () => void) => value is TF,
+	// 	options: {
+	// 		range?: IndexRange;
+	// 		reversed?: boolean;
+	// 		negate: true;
+	// 	},
+	// ): WithElem<Tp, Exclude<T, TF>>['normal'];
+	filter(
+		pred: (value: T, index: number, halt: () => void) => boolean,
+		options?: { range?: IndexRange; reversed?: boolean; negate?: boolean },
+	): WithElem<Tp, T>['normal'];
+	/**
+	 * Returns a List containing the values resulting from applying given `collectFun` to each value in this List.
+	 * @param collectFun - a function receiving<br/>
+	 * - `value`: the next value<br/>
+	 * - `index`: the value index<br/>
+	 * - `skip`: a token that, when returned, will not add a value to the resulting collection<br/>
+	 * - `halt`: a function that, when called, ensures no next elements are passed
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - range: (optional) the range of the list to include in the filtering process<br/>
+	 * - reversed: (default: false) if true reverses the elements within the given range
+	 * @typeparam T2 - the result element type
+	 * @example
+	 * ```ts
+	 * List.of(0, 1, 2, 3).collect(v => v > 1)
+	 * // => List(false, false, true, true)
+	 * List.of(0, 1, 2, 3).collect((v, i, skip) => v === 1 ? skip : v * 2)
+	 * // => List(0, 4, 6)
+	 * List.of(0, 1, 2, 3).collect((v, i, skip, halt) => {
+	 *   if (v > 1) halt()
+	 *   return v * 2
+	 * })
+	 * // => List(0, 2)
+	 * ```
+	 */
+	collect<T2 extends Tp['_UT']>(
+		collectFun: CollectFun<T, T2>,
+		options?: {
+			range?: IndexRange;
+			reversed?: boolean;
+		},
+	): WithElem<Tp, T2>['normal'];
+	/**
 	 * Returns an array containing the values within given `range` (default: all) in this collection.
 	 * If `reversed` is true, reverses the order of the values.
 	 * @param options - (optional) an object containing the following properties:<br/>
@@ -440,6 +558,23 @@ export namespace ListBase {
 		 * ```
 		 */
 		nonEmpty(): this is WithElem<Tp, T>['nonEmpty'];
+		/**
+		 * Returns a self reference since this collection is known to be non-empty.
+		 * @example
+		 * ```ts
+		 * const m = List.of(0, 1, 2);
+		 * m === m.assumeNonEmpty()  // => true
+		 * ```
+		 */
+		assumeNonEmpty(): WithElem<Tp, T>['nonEmpty'];
+		/**
+		 * Returns this collection typed as a 'possibly empty' collection.
+		 * @example
+		 * ```ts
+		 * List.of(0, 1, 2).asNormal();  // type: List<number>
+		 * ```
+		 */
+		asNormal(): WithElem<Tp, T>['normal'];
 		/**
 		 * Returns a non-empty Stream containing the values in order of the List, or in reverse order if `reversed` is true.
 		 * @param options - (optional) an object containing the following properties:<br/>
@@ -554,6 +689,45 @@ export namespace ListBase {
 			...sources: ArrayNonEmpty<StreamSource<T>>
 		): WithElem<Tp, T>['nonEmpty'];
 		/**
+		 * Returns a non-empty List containing the result of applying given `mapFun` to each value in this List.
+		 * If `reversed` is true, the order of the values is reversed.
+		 * @param mapFun - a function receiving a value and its index, and returning a new value
+		 * @param options - (optional) an object containing the following properties:<br/>
+		 * - reversed: (default: false) if true, reverses the order of the values
+		 * @typeparam T2 - the result element type
+		 * @example
+		 * ```ts
+		 * List.of(1, 2, 3).map(v => `value: ${v + 2}`).toArray()
+		 * // => ['value: 3', 'value: 4', 'value: 5']
+		 * ```
+		 */
+		map<T2 extends Tp['_UT']>(
+			mapFun: (value: T, index: number) => T2,
+			options?: { reversed?: boolean },
+		): WithElem<Tp, T2>['nonEmpty'];
+		/**
+		 * Returns a List containing the joined results of applying given `flatMapFun` to each value in this List.
+		 * @param flatMapFun - a function taking the next value and its index, and returning a `StreamSource`
+		 * of value to include in the resulting collection
+		 * @param options - (optional) an object containing the following properties:<br/>
+		 * - range: (optional) the range of the list to include in the filtering process<br/>
+		 * - reversed: (default: false) if true reverses the elements within the given range
+		 * @typeparam T2 - the result element type
+		 * @example
+		 * ```ts
+		 * List.of(1, 2, 3).flatMap(v => [v, v + 1]).toArray()
+		 * // => [1, 2, 2, 3, 3, 4]
+		 * ```
+		 */
+		flatMap<T2 extends Tp['_UT']>(
+			flatMapFun: (value: T, index: number) => StreamSource.NonEmpty<T2>,
+			options?: { range?: undefined; reversed?: boolean },
+		): WithElem<Tp, T2>['nonEmpty'];
+		flatMap<T2>(
+			flatMapFun: (value: T, index: number) => StreamSource<T2>,
+			options?: { range?: IndexRange; reversed?: boolean },
+		): WithElem<Tp, T2>['normal'];
+		/**
 		 * Returns a non-empty List that contains this List the given `amount` of times.
 		 * @param amount - the amount of times to repeat the values in this List
 		 *
@@ -579,6 +753,28 @@ export namespace ListBase {
 		 * @note O(logB(N)) for block size B
 		 */
 		rotate(shiftAmount: number): WithElem<Tp, T>['nonEmpty'];
+		/**
+		 * Returns the non-empty List where, if given `length` is larger than the List length, the given `fill` value is added to the start and/or end
+		 * of the List according to the `positionPercentage` such that the result length is equal to `length`.
+		 * @param length - the target length of the resulting list
+		 * @param fill - the element used to fill up empty space in the resulting List
+		 * @param options - (optional) an object containing the following properties:<br/>
+		 * - positionPercentage: (default: 0) a percentage indicating how much of the filling elements should be to the right
+		 * side of the current List
+		 * @example
+		 * ```ts
+		 * List.of(0, 1).padTo(4, 10)       // -> List(0, 1, 10, 10)
+		 * List.of(0, 1).padTo(4, 10, 50)   // -> List(10, 0, 1, 10)
+		 * List.of(0, 1).padTo(4, 10, 100)  // -> List(0, 1, 10, 10)
+		 * List.of(0, 1, 2).padTo(2, 10)    // -> List(0, 1, 2)
+		 * ```
+		 * @note O(logB(N)) for block size B
+		 */
+		padTo(
+			length: number,
+			fill: T,
+			options?: { positionPercentage?: number },
+		): WithElem<Tp, T>['nonEmpty'];
 		/**
 		 * Returns the values sorted according to the given, optional Comp.
 		 *
@@ -856,6 +1052,62 @@ export namespace ListBase {
 			...sources: ArrayNonEmpty<StreamSource<T>>
 		): WithElem<Tp, T>['normal'];
 		builder<T extends Tp['_UT']>(): WithElem<Tp, T>['builder'];
+		/**
+		 * Returns a `Reducer` that appends received items to a List and returns the List as a result. When a `source` is given,
+		 * the reducer will first create a List from the source, and then append elements to it.
+		 * @param source - (optional) an initial source of elements to append to
+		 * @typeparam T - the element type
+		 * @example
+		 * ```ts
+		 * const someList = List.of(1, 2, 3);
+		 * const result = Stream.range({ start: 20, amount: 5 }).reduce(List.reducer(someList))
+		 * result.toArray()   // => [1, 2, 3, 20, 21, 22, 23, 24]
+		 * ```
+		 * @note uses a List builder under the hood. If the given `source` is a List in the same context, it will directly call `.toBuilder()`.
+		 */
+		reducer<T extends Tp['_UT']>(
+			source?: StreamSource<T>,
+		): Reducer<T, WithElem<Tp, T>['normal']>;
+		/**
+		 * Returns, if T is a valid `StreamSource`, the result of concatenating all
+		 * streamable elements of the given sources.
+		 * @param source - a `StreamSource` containing `StreamSource` instances of values to concatenate
+		 * @typeparam T - the element type
+		 * @example
+		 * ```ts
+		 * const m = List.of([1, 2], [3, 4, 5])
+		 * List.flatten(m).toArray() // => [1, 2, 3, 4, 5]
+		 * ```
+		 */
+		flatten<T extends StreamSource.NonEmpty<unknown>>(
+			source: StreamSource.NonEmpty<T>,
+		): T extends StreamSource.NonEmpty<infer S>
+			? WithElem<Tp, S>['nonEmpty']
+			: never;
+		flatten<T extends StreamSource<unknown>>(
+			source: StreamSource<T>,
+		): T extends StreamSource<infer S> ? WithElem<Tp, S>['normal'] : never;
+		/**
+		 * Returns an array of Lists, where each list contains the values of the corresponding index of tuple T.
+		 * @param source - a `StreamSource` containing tuples of type T to unzip
+		 * @param options - an object containing the following properties:<br/>
+		 * - length: the length of the tuples in type T
+		 * @typeparam T - the StreamSource tuple element type
+		 * @typeparam L - the tuple element length
+		 * @example
+		 * ```ts
+		 * const m = List.of([1, 'a'], [2, 'b'])
+		 * List.unzip(m)  // => [List.NonEmpty<number>, List.NonEmpty<string>]
+		 * ```
+		 */
+		unzip<T extends readonly unknown[] & { length: L }, L extends number>(
+			source: StreamSource.NonEmpty<T>,
+			options: { length: L },
+		): { [K in keyof T]: WithElem<Tp, T[K]>['nonEmpty'] };
+		unzip<T extends readonly unknown[] & { length: L }, L extends number>(
+			source: StreamSource<T>,
+			options: { length: L },
+		): { [K in keyof T]: WithElem<Tp, T[K]>['normal'] };
 	}
 
 	export interface OuterChildrenTag {

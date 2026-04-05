@@ -57,7 +57,7 @@ describe('List creators', () => {
 		expect(b.length).toBe(2);
 	});
 
-	it.skip('reducer', () => {
+	it('reducer', () => {
 		const source = Stream.range({ start: 5, amount: 15 });
 		{
 			const result = source.reduce(List.reducer());
@@ -545,7 +545,7 @@ describe('List methods', () => {
 		expect(list6_2.rotate(-2).toArray()).toEqual([3, 4, 5, 6, 1, 2]);
 	});
 
-	it.skip('padTo', () => {
+	it('padTo', () => {
 		expect(listEmpty.padTo(0, -1)).toBe(listEmpty);
 		expect(list3_1.padTo(0, -1)).toBe(list3_1);
 		expect(list3_2.padTo(0, -1)).toBe(list3_2);
@@ -625,7 +625,7 @@ describe('List methods', () => {
 		// expect(list6_2.updateAt(10, 1)).toBe(list6_2);
 	});
 
-	it.skip('filter', () => {
+	it('filter', () => {
 		expect(listEmpty.filter(() => true)).toBe(listEmpty);
 		expect(list3_1.filter(() => true)).toBe(list3_1);
 		expect(list3_2.filter(() => true)).toBe(list3_2);
@@ -686,7 +686,7 @@ describe('List methods', () => {
 		expect(list6_2.filter(passOnlyFirst).toArray()).toEqual([1]);
 	});
 
-	it.skip('filter negate', () => {
+	it('filter negate', () => {
 		expect(listEmpty.filter(() => false, { negate: true })).toBe(listEmpty);
 		expect(list3_1.filter(() => false, { negate: true })).toBe(list3_1);
 		expect(list3_2.filter(() => false, { negate: true })).toBe(list3_2);
@@ -783,7 +783,7 @@ describe('List methods', () => {
 		]);
 	});
 
-	it.skip('collect', () => {
+	it('collect', () => {
 		const isEven = (value: number, _: any, skip: CollectFun.Skip) =>
 			value % 2 === 0 ? value : skip;
 
@@ -991,7 +991,7 @@ describe('List methods', () => {
 		]);
 	});
 
-	it.skip('flatMap', () => {
+	it('flatMap', () => {
 		expect(listEmpty.flatMap((v, i) => [0, v + i])).toBe(listEmpty);
 		expect(list3_1.flatMap((v, i) => [0, v + i]).toArray()).toEqual([
 			0, 1, 0, 3, 0, 5,
@@ -1158,14 +1158,14 @@ describe('List methods', () => {
 		expect(list6_2.toString()).toBe('List(1, 2, 3, 4, 5, 6)');
 	});
 
-	it.skip('asNormal', () => {
+	it('asNormal', () => {
 		expect(list3_1.asNormal()).toBe(list3_1);
 		expect(list3_2.asNormal()).toBe(list3_2);
 		expect(list6_1.asNormal()).toBe(list6_1);
 		expect(list6_2.asNormal()).toBe(list6_2);
 	});
 
-	it.skip('unzip', () => {
+	it('unzip', () => {
 		{
 			const [l1, l2] = List.unzip(List.empty<[number, string]>(), {
 				length: 2,
@@ -1185,7 +1185,7 @@ describe('List methods', () => {
 		}
 	});
 
-	it.skip('flatten', () => {
+	it('flatten', () => {
 		expect(List.flatten(List.of([]))).toBe(List.empty());
 		expect(List.flatten(List.of([1, 2], [3, 4, 5])).toArray()).toEqual([
 			1, 2, 3, 4, 5,
@@ -1349,7 +1349,7 @@ describe('List.Builder', () => {
 		}
 	});
 
-	it.skip('operations throw in forEach when modifying collection', () => {
+	it('operations throw in forEach when modifying collection', () => {
 		const b = List.of(1, 2, 3, 4, 5).toBuilder();
 
 		expect(() => b.forEach(() => b.updateAt(1, 2))).toThrow();
@@ -1386,7 +1386,7 @@ describe('List.Builder', () => {
 	});
 });
 
-describe.skip('List inserts', () => {
+describe('List inserts', () => {
 	/* produced array after 28 iterations is correct:
   [
     1,  3,  5,  7,  9, 11, 13, 15, 17,

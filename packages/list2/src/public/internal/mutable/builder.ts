@@ -155,6 +155,7 @@ export class ListBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		// fill last child
 		if (undefined !== this.outerBuilder) {
 			if (this.context.isOuterBlockBuilder(this.outerBuilder)) {
+				this.outerBuilder.prepareMutate();
 				index = blockSize - this.outerBuilder.length;
 
 				if (index > 0) {
@@ -165,6 +166,7 @@ export class ListBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 					);
 				}
 			} else if (this.context.isOuterTreeBuilder(this.outerBuilder)) {
+				this.outerBuilder.prepareMutate();
 				const left = this.outerBuilder.left;
 				index = blockSize - left.length;
 

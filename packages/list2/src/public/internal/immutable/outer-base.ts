@@ -1,3 +1,4 @@
+import type { CollectFun } from '@rimbu/common/collect';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, SuperOf } from '@rimbu/common/types';
@@ -66,6 +67,77 @@ export abstract class OuterBase<T>
 			| undefined,
 	): ArrayNonEmpty<T>;
 	abstract _structure(): string;
+
+	filter(
+		pred: (value: T, index: number, halt: () => void) => boolean,
+		options: {
+			range?: IndexRange | undefined;
+			reversed?: boolean | undefined;
+			negate?: boolean | undefined;
+		} = {},
+	): any {
+		const { range, reversed = false, negate = false } = options;
+
+		const stream =
+			undefined === range
+				? this.stream({ reversed })
+				: this.streamRange(range, { reversed });
+
+		const result: ListImpl<T> = this.context.from(
+			stream.filter(pred, { negate }),
+		);
+
+		if (result.length !== this.length) {
+			return result;
+		}
+
+		return this;
+	}
+
+	collect<T2>(
+		collectFun: CollectFun<T, T2>,
+		options: {
+			range?: IndexRange;
+			reversed?: boolean;
+		} = {},
+	): ListImpl<T2> {
+		const { range, reversed = false } = options;
+
+		const stream =
+			undefined === range
+				? this.stream({ reversed })
+				: this.streamRange(range, { reversed });
+
+		return this.context.from(stream.collect(collectFun));
+	}
+
+	flatMap<T2>(
+		flatMapFun: (value: T, index: number) => StreamSource<T2>,
+		options: {
+			range?: IndexRange | undefined;
+			reversed?: boolean;
+		} = {},
+	): ListImpl<T2> | any {
+		const { range, reversed = false } = options;
+
+		let result = this.context.empty<T2>();
+
+		const stream =
+			undefined === range
+				? this.stream({ reversed })
+				: this.streamRange(range, { reversed });
+		const iterator = stream[Symbol.iterator]();
+
+		let index = 0;
+		const done = Symbol('Done');
+		let value: T | typeof done;
+
+		while (done !== (value = iterator.fastNext(done))) {
+			result = result.concat(flatMapFun(value, index++));
+		}
+
+		return result;
+	}
 
 	slice(range: IndexRange, options: { reversed?: boolean } = {}): ListImpl<T> {
 		const { reversed = false } = options;
@@ -140,6 +212,22 @@ export abstract class OuterBase<T>
 		return this.take(-normalizedAmount)
 			.concat(this.drop(-normalizedAmount))
 			.assumeNonEmpty();
+	}
+
+	padTo(
+		length: number,
+		fill: T,
+		options: { positionPercentage?: number } = {},
+	): ListImpl.NonEmpty<T> {
+		const { positionPercentage = 0 } = options;
+
+		if (this.length >= length) return this;
+
+		const diff = length - this.length;
+		const frac = Math.max(0, Math.min(100, positionPercentage)) / 100;
+		const frontSize = Math.round(diff * frac);
+		const pad = this.context.outerBlock<T>(this.ops.of([fill])).repeat(diff);
+		return pad.splice({ index: frontSize, insert: this }).assumeNonEmpty();
 	}
 
 	sort<TC = T>(

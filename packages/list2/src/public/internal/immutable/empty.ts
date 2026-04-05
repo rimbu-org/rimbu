@@ -87,10 +87,10 @@ export class ListEmpty<T> extends EmptyBase implements ListImpl<T> {
 		return this;
 	}
 
-	// padTo(length: number, fill: any): List<any> {
-	// 	if (length <= 0) return this;
-	// 	return this.append(fill).repeat(length);
-	// }
+	padTo(length: number, fill: any): ListImpl<any> {
+		if (length <= 0) return this;
+		return this.append(fill).repeat(length);
+	}
 
 	updateAt(): this {
 		return this;

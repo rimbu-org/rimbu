@@ -206,10 +206,10 @@ export namespace ListHelpers {
 			mutateSplice<T>(
 				children: T[],
 				start: number,
-				deleteCount?: number | undefined,
+				deleteCount = children.length,
 				items: T[] = [],
 			): [result: T[], deleted: T[]] {
-				const deleted = children.splice(start, deleteCount ?? 0, ...items);
+				const deleted = children.splice(start, deleteCount, ...items);
 				return [children, deleted];
 			},
 			safeCopy<T>(children: readonly T[]): T[] {

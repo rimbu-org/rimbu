@@ -122,22 +122,21 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 	}
 
 	normalized(): OuterBuilder<T> | undefined {
-		if (this.length <= 0) {
+		const length = this.length;
+		if (length <= 0) {
 			// block is empty
 			return undefined;
 		}
 
-		if (this.length <= this.context.maxBlockSize) {
+		if (length <= this.context.maxBlockSize) {
 			// block is normal
 			return this;
 		}
 
 		// need to split block and create tree
-		this.prepareMutate();
-		const newLength = this.length;
 		const newRight = this.splitRight();
 
-		return this.context.outerTreeBuilder(this, newRight, undefined, newLength);
+		return this.context.outerTreeBuilder(this, newRight, undefined, length);
 	}
 
 	splitRight(index = this.length >>> 1): OuterBlockBuilder<T> {
@@ -147,7 +146,6 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 			index,
 		);
 		this.children = newChildren;
-		this.source = undefined;
 		return this.copy(rightChildren);
 	}
 

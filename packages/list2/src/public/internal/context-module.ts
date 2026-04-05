@@ -13,6 +13,7 @@ import type {
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { Module } from '@rimbu/common/module';
 import { Stream, type StreamSource } from '@rimbu/stream';
+import { Reducer } from '@rimbu/stream/reducer';
 import { OuterBase } from './immutable/outer-base';
 
 import { CacheMap } from '#list/immutable/cache-map';
@@ -336,6 +337,25 @@ export function createContextModule<
 				return result;
 			},
 			builder: () => mod.createBuilder(),
+			reducer: <T>(source?: StreamSource<T>): Reducer<T, ListImpl<T, Tp>> => {
+				return Reducer.create(
+					() =>
+						undefined === source
+							? mod.builder<T>()
+							: mod.from(source).toBuilder(),
+					(builder, value) => {
+						builder.append(value);
+						return builder;
+					},
+					(builder) => builder.build() as ListImpl<T, Tp>,
+				);
+			},
+			unzip: (source: any, options: { length: number }): any => {
+				const streams = Stream.unzip(source, options) as any as Stream<any>[];
+
+				return Stream.from(streams).mapPure(mod.from) as any;
+			},
+			flatten: (source: any): any => mod.from(source).flatMap((s: any) => s),
 			cacheMap() {
 				return new CacheMap();
 			},
