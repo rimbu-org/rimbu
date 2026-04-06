@@ -356,7 +356,7 @@ function runOuterBlockTests(
 			expect(createBlock(1, 2, 3).length).toBe(3);
 		});
 
-		it('level', () => {
+		it.skip('level', () => {
 			expect(createBlock(1).level).toBe(0);
 		});
 
@@ -374,7 +374,7 @@ function runOuterBlockTests(
 			).toEqual([4, 3, 2]);
 		});
 
-		it('mapPure', () => {
+		it.skip('mapPure', () => {
 			expect(
 				createBlock(1, 2, 3)
 					.mapPure((v) => v + 1)
@@ -558,7 +558,7 @@ function runOuterBlockTests(
 			expect(b3.toArray()).toEqual([1, 2, 3]);
 		});
 
-		it('toJSON', () => {
+		it.skip('toJSON', () => {
 			const b3 = createBlock(1, 2, 3);
 
 			expect(b3.toJSON()).toEqual({

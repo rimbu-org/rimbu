@@ -191,26 +191,31 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	}
 
 	prependChild(child: C): void {
+		this.prepareMutate();
 		this.length += child.length;
 
 		this.children.unshift(child);
 	}
 
 	appendChild(child: C): void {
+		this.prepareMutate();
 		this.length += child.length;
 
 		this.children.push(child);
 	}
 
 	firstChild(): C {
+		this.prepareMutate();
 		return this.children[0];
 	}
 
 	lastChild(): C {
+		this.prepareMutate();
 		return this.children.at(-1)!;
 	}
 
 	dropFirstChild(): C {
+		this.prepareMutate();
 		const child = this.children.shift()!;
 		this.length -= child.length;
 
@@ -218,6 +223,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	}
 
 	dropLastChild(): C {
+		this.prepareMutate();
 		const child = this.children.pop()!;
 		this.length -= child.length;
 
@@ -225,6 +231,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	}
 
 	modifyFirstChild(f: (child: C) => number | undefined): number | undefined {
+		this.prepareMutate();
 		const delta = f(this.firstChild());
 		if (undefined !== delta) {
 			this.length += delta;
@@ -234,6 +241,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	}
 
 	modifyLastChild(f: (child: C) => number | undefined): number | undefined {
+		this.prepareMutate();
 		const delta = f(this.lastChild());
 		if (undefined !== delta) {
 			this.length += delta;
@@ -265,6 +273,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	}
 
 	splitRight(index = this.nrChildren >>> 1): InnerBlockBuilder<T, C> {
+		this.prepareMutate();
 		const rightChildren = this.children.splice(index);
 		const oldLength = this.length;
 		this.length = 0;

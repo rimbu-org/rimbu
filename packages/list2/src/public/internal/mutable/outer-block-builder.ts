@@ -48,7 +48,9 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 	prepareMutate(): void {
 		if (undefined === this.source) return;
 
-		this._children = this.source.children;
+		this._children = this.source.isReversedBlock
+			? this.ops.toReversed(this.source.children)
+			: this.ops.safeCopy(this.source.children);
 		this.source = undefined;
 	}
 

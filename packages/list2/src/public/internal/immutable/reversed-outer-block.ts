@@ -83,6 +83,8 @@ export class ReversedOuterBlock<
 	}
 
 	takeChildren(amount: number): OuterBlock<T> {
+		if (amount >= this.length) return this;
+
 		return this.copy(
 			this.ops.toSpliced(this.children, 0, this.length - amount),
 		);

@@ -73,6 +73,7 @@ export class OuterTreeBuilder<T>
 
 	normalized(): OuterBuilder<T> {
 		if (this.length <= this.context.maxBlockSize) {
+			this.prepareMutate();
 			// can collapse into block
 			this.left.appendItems(this.right);
 			return this.left;
@@ -80,6 +81,7 @@ export class OuterTreeBuilder<T>
 
 		if (undefined !== this.middle) {
 			if (this.middle.length + this.left.length <= this.context.maxBlockSize) {
+				this.prepareMutate();
 				// can merge middle with left
 				this.left.appendItems(this.middle.firstChild());
 				this.middle = undefined;
@@ -87,6 +89,7 @@ export class OuterTreeBuilder<T>
 				this.middle.length + this.right.length <=
 				this.context.maxBlockSize
 			) {
+				this.prepareMutate();
 				// can merge middle with right
 				const newRight = this.middle.lastChild();
 				newRight.appendItems(this.right);

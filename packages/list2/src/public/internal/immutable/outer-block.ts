@@ -175,6 +175,8 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 	}
 
 	takeChildren(amount: number): OuterBlock<T> {
+		if (amount >= this.length) return this;
+
 		return this.copy(
 			this.ops.toSpliced(this.children, amount, this.context.maxBlockSize),
 		);
