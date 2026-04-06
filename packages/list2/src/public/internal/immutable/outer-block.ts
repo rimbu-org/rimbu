@@ -181,6 +181,8 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 	}
 
 	dropChildren(amount: number): OuterBlock<T> {
+		if (amount <= 0) return this;
+
 		return this.copy(this.ops.toSpliced(this.children, 0, amount));
 	}
 
@@ -189,11 +191,13 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 
 		if (asList.nonEmpty()) {
 			if (this.context.isOuterBlock<T>(asList)) {
-				if (
-					asList === this &&
-					this.ops.length(this.children) > this.context.minBlockSize
-				) {
-					return this.context.outerTree<T>(this, this, null, this.length);
+				if (asList === this && this.length > this.context.minBlockSize) {
+					return this.context.outerTree<T>(
+						this,
+						this,
+						null,
+						this.length + asList.length,
+					);
 				}
 
 				return this.concatBlock(asList);
@@ -225,16 +229,18 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 	}
 
 	concatTree(other: OuterTree<T>): OuterTree<T> {
+		const newLength = this.length + other.length;
+
 		if (this.length + other.left.length <= this.context.maxBlockSize) {
 			const newLeft = this.concatChildren(other.left);
 
-			return other.copy(newLeft);
+			return other.copy(newLeft, undefined, undefined, newLength);
 		}
 
 		if (other.left.childrenInMin) {
 			const newMiddle = other.prependMiddle(other.left);
 
-			return other.copy(this, undefined, newMiddle);
+			return other.copy(this, undefined, newMiddle, newLength);
 		}
 
 		const newLeft = this.concatChildren(other.left);
@@ -243,7 +249,7 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		);
 		const newMiddle = other.prependMiddle(newSecond);
 
-		return other.copy(newLeft, undefined, newMiddle);
+		return other.copy(newLeft, undefined, newMiddle, newLength);
 	}
 
 	forEach(
@@ -266,10 +272,7 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 	): OuterBlock<T2> {
 		const { reversed = false, indexOffset = 0 } = options;
 
-		const newChildren =
-			reversed === this.isReversedBlock
-				? this.ops.map(this.children, mapFun, indexOffset)
-				: this.ops.reverseMap(this.children, mapFun, indexOffset);
+		const newChildren = this.ops.map(this.children, mapFun, indexOffset);
 
 		return reversed
 			? this.context.reversedOuterBlock(newChildren)
@@ -323,14 +326,14 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 	_mutateNormalize(): ListImpl.NonEmpty<T> {
 		if (this.childrenInMax) return this;
 
+		const length = this.length;
+
 		const newRight = this._mutateSplitRight();
 
-		return this.context.outerTree(this, newRight, null, this.length);
+		return this.context.outerTree(this, newRight, null, length);
 	}
 
-	_mutateSplitRight(
-		childIndex = this.ops.length(this.children) >>> 1,
-	): OuterBlock<T> {
+	_mutateSplitRight(childIndex = this.length >>> 1): OuterBlock<T> {
 		const [newChildren, rightChildren] = this.ops.mutateSplice(
 			this.children,
 			childIndex,

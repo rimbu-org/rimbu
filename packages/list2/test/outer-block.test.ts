@@ -1,16 +1,16 @@
 import { describe, expect, it, vi } from 'bun:test';
 
-import type { ContextFactory } from '#list/context-factory';
+import type { ListContext } from '#list/context-module';
 
-import { List } from '@rimbu/list';
+import { List } from '@rimbu/list2';
 import { Stream } from '@rimbu/stream';
 
-import { LeafBlockBuilder } from '#list/builder/leaf/block';
-import { createContextFactoryModule } from '#list/context-factory-module';
-import { LeafBlock, ReversedLeafBlock } from '#list/immutable/leaf/block';
-import { LeafTree } from '#list/immutable/leaf/tree';
+import { OuterBlock } from '#list/immutable/outer-block';
+import { OuterTree } from '#list/immutable/outer-tree';
+import { ListHelpers } from '#list/list-helpers';
+import { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
-describe('LeafBlock', () => {
+describe('OuterBlock', () => {
 	it('_mutateNormalize', () => {
 		const b3 = createBlock(1, 2, 3);
 		const b6 = createBlock(1, 2, 3, 4, 5, 6);
@@ -20,7 +20,7 @@ describe('LeafBlock', () => {
 		expect(b3.children).toEqual([1, 2, 3]);
 
 		expect(b6.children).toEqual([1, 2, 3, 4, 5, 6]);
-		const bn = b6._mutateNormalize() as LeafTree<number>;
+		const bn = b6._mutateNormalize() as OuterTree<number>;
 		expect(bn).not.toBe(b6);
 		expect(b6.children).toEqual([1, 2, 3]);
 		expect(bn.left).toBe(b6);
@@ -54,9 +54,9 @@ describe('LeafBlock', () => {
 		const b3 = createBlock(1, 2, 3);
 
 		expect(b2.concat(b0)).toBe(b2);
-		expect(b2.concat(b2)).toBeInstanceOf(LeafBlock);
+		expect(b2.concat(b2)).toBeInstanceOf(OuterBlock);
 		expect(b2.concat(b2).toArray()).toEqual([1, 2, 1, 2]);
-		expect(b2.concat(b3)).toBeInstanceOf(LeafTree);
+		expect(b2.concat(b3)).toBeInstanceOf(OuterTree);
 
 		// no mutations for original collections
 		expect(b2.children).toEqual([1, 2]);
@@ -65,7 +65,7 @@ describe('LeafBlock', () => {
 
 	it('concatTree', () => {
 		const tr3 = createBlock(1, 2, 3, 4).concatTree(
-			context.leafTree(createBlock(5), createBlock(6, 7, 8, 9), null),
+			context.outerTree(createBlock(5), createBlock(6, 7, 8, 9), null, 5),
 		);
 
 		expect(tr3.left.toArray()).toEqual([1]);
@@ -74,7 +74,7 @@ describe('LeafBlock', () => {
 	});
 });
 
-describe('ReversedLeafBlock', () => {
+describe('ReversedOuterBlock', () => {
 	it('_mutateNormalize', () => {
 		const b3 = createRevBlock(1, 2, 3);
 		const b6 = createRevBlock(1, 2, 3, 4, 5, 6);
@@ -84,7 +84,7 @@ describe('ReversedLeafBlock', () => {
 		expect(b3.children).toEqual([3, 2, 1]);
 
 		expect(b6.children).toEqual([6, 5, 4, 3, 2, 1]);
-		const bn = b6._mutateNormalize() as LeafTree<number>;
+		const bn = b6._mutateNormalize() as OuterTree<number>;
 		expect(bn).not.toBe(b6);
 		expect(b6.children).toEqual([3, 2, 1]);
 		expect(bn.left).toBe(b6);
@@ -116,9 +116,9 @@ describe('ReversedLeafBlock', () => {
 		const b3 = createRevBlock(1, 2, 3);
 
 		expect(b2.concat(b0)).toBe(b2);
-		expect(b2.concat(b2)).toBeInstanceOf(LeafBlock);
+		expect(b2.concat(b2)).toBeInstanceOf(OuterBlock);
 		expect(b2.concat(b2).toArray()).toEqual([1, 2, 1, 2]);
-		expect(b2.concat(b3)).toBeInstanceOf(LeafTree);
+		expect(b2.concat(b3)).toBeInstanceOf(OuterTree);
 		expect(b2.concat(b3).toArray()).toEqual([1, 2, 1, 2, 3]);
 
 		// no mutations for original collections
@@ -127,23 +127,23 @@ describe('ReversedLeafBlock', () => {
 	});
 });
 
-function runLeafBlockTests(
+function runOuterBlockTests(
 	tag: string,
-	context: ContextFactory,
-	createBlock: <T>(...elems: T[]) => LeafBlock<T>,
-	createRevBlock: <T>(...elems: T[]) => LeafBlock<T>,
+	context: ListContext,
+	createBlock: <T>(...elems: T[]) => OuterBlock<T>,
+	createRevBlock: <T>(...elems: T[]) => OuterBlock<T>,
 ) {
-	describe(`${tag} common LeafBlock`, () => {
+	describe(`${tag} common OuterBlock`, () => {
 		it('append', () => {
-			expect(createBlock(1, 2, 3).append(4)).toBeInstanceOf(LeafBlock);
-			expect(createBlock(1, 2, 3, 4).append(5)).toBeInstanceOf(LeafTree);
+			expect(createBlock(1, 2, 3).append(4)).toBeInstanceOf(OuterBlock);
+			expect(createBlock(1, 2, 3, 4).append(5)).toBeInstanceOf(OuterTree);
 		});
 
-		it('appendInternal', () => {
-			expect(createBlock(1, 2, 3).appendInternal(4).toArray()).toEqual([
+		it('appendBlockChild', () => {
+			expect(createBlock(1, 2, 3).appendBlockChild(4).toArray()).toEqual([
 				1, 2, 3, 4,
 			]);
-			expect(createBlock(1, 2, 3, 4).appendInternal(5).toArray()).toEqual([
+			expect(createBlock(1, 2, 3, 4).appendBlockChild(5).toArray()).toEqual([
 				1, 2, 3, 4, 5,
 			]);
 		});
@@ -198,8 +198,8 @@ function runLeafBlockTests(
 			const b2 = createBlock(1, 2);
 			const b3 = createBlock(1, 2, 3);
 
-			expect(b2.concatBlock(b2)).toBeInstanceOf(LeafBlock);
-			expect(b2.concatBlock(b3)).toBeInstanceOf(LeafTree);
+			expect(b2.concatBlock(b2)).toBeInstanceOf(OuterBlock);
+			expect(b2.concatBlock(b3)).toBeInstanceOf(OuterTree);
 		});
 
 		it('concatChildren', () => {
@@ -214,10 +214,11 @@ function runLeafBlockTests(
 			const b1 = createBlock(10);
 			const b3 = createBlock(10, 11, 12);
 
-			const t6 = context.leafTree(
+			const t6 = context.outerTree(
 				createBlock(1, 2, 3),
 				createBlock(4, 5, 6),
 				null,
+				6,
 			);
 
 			const tr1 = b1.concatTree(t6);
@@ -248,7 +249,7 @@ function runLeafBlockTests(
 
 		it('createBlockBuilder', () => {
 			const b1 = createBlock(1);
-			expect(b1.createBlockBuilder()).toBeInstanceOf(LeafBlockBuilder);
+			expect(b1.createBlockBuilder()).toBeInstanceOf(OuterBlockBuilder);
 			expect(b1.createBlockBuilder().build()).toBe(b1);
 		});
 
@@ -333,11 +334,11 @@ function runLeafBlockTests(
 			const b3 = createBlock(1, 2, 3);
 
 			const r1 = b3.insert(1, [10]);
-			expect(r1).toBeInstanceOf(LeafBlock);
+			expect(r1).toBeInstanceOf(OuterBlock);
 			expect(r1.toArray()).toEqual([1, 10, 2, 3]);
 
 			const r2 = b3.insert(1, [10, 11, 12]);
-			expect(r2).toBeInstanceOf(LeafTree);
+			expect(r2).toBeInstanceOf(OuterTree);
 			expect(r2.toArray()).toEqual([1, 10, 11, 12, 2, 3]);
 		});
 
@@ -402,20 +403,19 @@ function runLeafBlockTests(
 				3, 1, 3,
 			]);
 
-			expect(b1.padTo(10, 3)).not.toBeInstanceOf(LeafBlock);
+			expect(b1.padTo(10, 3)).not.toBeInstanceOf(OuterBlock);
 		});
 
 		it('prepend', () => {
-			expect(createBlock(1, 2, 3).prepend(4)).toBeInstanceOf(LeafBlock);
-			expect(createBlock(1, 2, 3, 4).prepend(5)).toBeInstanceOf(LeafTree);
-			expect(createBlock(1).prepend(4)).toBeInstanceOf(ReversedLeafBlock);
+			expect(createBlock(1, 2, 3).prepend(4)).toBeInstanceOf(OuterBlock);
+			expect(createBlock(1, 2, 3, 4).prepend(5)).toBeInstanceOf(OuterTree);
 		});
 
-		it('prependInternal', () => {
-			expect(createBlock(1, 2, 3).prependInternal(4).toArray()).toEqual([
+		it('prependBlockChild', () => {
+			expect(createBlock(1, 2, 3).prependBlockChild(4).toArray()).toEqual([
 				4, 1, 2, 3,
 			]);
-			expect(createBlock(1, 2, 3, 4).prependInternal(5).toArray()).toEqual([
+			expect(createBlock(1, 2, 3, 4).prependBlockChild(5).toArray()).toEqual([
 				5, 1, 2, 3, 4,
 			]);
 		});
@@ -434,7 +434,7 @@ function runLeafBlockTests(
 			expect(b3.repeat(1)).toBe(b3);
 			expect(b3.repeat(0)).toBe(b3);
 			expect(b3.repeat(2).toArray()).toEqual([1, 2, 3, 1, 2, 3]);
-			expect(b3.repeat(2)).toBeInstanceOf(LeafTree);
+			expect(b3.repeat(2)).toBeInstanceOf(OuterTree);
 			expect(b3.repeat(10).length).toBe(30);
 		});
 
@@ -512,12 +512,12 @@ function runLeafBlockTests(
 		it('structure', () => {
 			const b3 = createBlock(1, 2, 3);
 
-			const s = b3.structure();
+			const s = b3._structure();
 
-			if (context.isReversedLeafBlock<number>(b3)) {
-				expect(s).toEqual('<RLeaf 3>');
+			if (b3.isReversedBlock) {
+				expect(s).toEqual('ReversedOuterBlock<3>(1,2,3)');
 			} else {
-				expect(s).toEqual('<Leaf 3>');
+				expect(s).toEqual('OuterBlock<3>(1,2,3)');
 			}
 		});
 
@@ -611,23 +611,25 @@ function runLeafBlockTests(
 	});
 }
 
-const context = createContextFactoryModule({ blockSizeBits: 2 }).build();
+const context = ListHelpers.createListContext({
+	blockSizeBits: 2,
+}) as any as ListContext;
 
 function createBlock<T>(...elems: T[]) {
-	return context.leafBlock(elems);
+	return context.outerBlock(elems);
 }
 
 function createRevBlock<T>(...elems: T[]) {
-	return context.reversedLeaf(elems.reverse());
+	return context.reversedOuterBlock(elems.reverse());
 }
 
-runLeafBlockTests('leaf', context, createBlock, createRevBlock);
-runLeafBlockTests('reversed leaf', context, createRevBlock, createBlock);
+runOuterBlockTests('leaf', context, createBlock, createRevBlock);
+runOuterBlockTests('reversed leaf', context, createRevBlock, createBlock);
 
-describe('LeafBlock special cases', () => {
+describe('OuterBlock special cases', () => {
 	it('concatChildren', () => {
-		const b = context.leafBlock([1, 2, 3]);
-		const rb = context.reversedLeaf([6, 5, 4]);
+		const b = context.outerBlock([1, 2, 3]);
+		const rb = context.reversedOuterBlock([6, 5, 4]);
 
 		const r1 = b.concatChildren(b);
 		expect(r1.toArray()).toEqual([1, 2, 3, 1, 2, 3]);

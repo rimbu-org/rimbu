@@ -61,6 +61,19 @@ export class ReversedOuterBlock<
 		});
 	}
 
+	map<T2>(
+		mapFun: (value: T, index: number) => T2,
+		options: { reversed?: boolean; indexOffset?: number } = {},
+	): OuterBlock<T2> {
+		const { reversed = false, indexOffset = 0 } = options;
+
+		const newChildren = this.ops.reverseMap(this.children, mapFun, indexOffset);
+
+		return reversed
+			? this.context.reversedOuterBlock(newChildren)
+			: this.context.outerBlock(newChildren);
+	}
+
 	prependBlockChild(value: T): OuterBlock<T, ListImpl.Types> {
 		return super.appendBlockChild(value);
 	}
@@ -76,6 +89,8 @@ export class ReversedOuterBlock<
 	}
 
 	dropChildren(amount: number): OuterBlock<T> {
+		if (amount <= 0) return this;
+
 		return this.copy(
 			this.ops.toSpliced(this.children, this.length - amount, amount),
 		);
@@ -91,6 +106,16 @@ export class ReversedOuterBlock<
 		return this.context.outerBlock(
 			this.ops.concat(this.ops.toReversed(this.children), other.children),
 		);
+	}
+
+	_mutateSplitRight(childIndex = this.length >>> 1): OuterBlock<T> {
+		const [rightChildren, newChildren] = this.ops.mutateSplice(
+			this.children,
+			this.length - childIndex,
+		);
+		this.children = newChildren;
+
+		return this.copy(rightChildren);
 	}
 
 	_structure(): string {

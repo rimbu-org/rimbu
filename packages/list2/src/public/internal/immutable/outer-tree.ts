@@ -254,25 +254,28 @@ export class OuterTree<T>
 	}
 
 	concatBlock(outerBlock: OuterBlock<T>): ListImpl.NonEmpty<T> {
+		const newLength = this.length + outerBlock.length;
+
 		if (this.right.length + outerBlock.length <= this.context.maxBlockSize) {
 			const newRight = this.right.concatChildren(outerBlock);
-			return this.copy(undefined, newRight);
+			return this.copy(undefined, newRight, undefined, newLength);
 		}
 
 		if (this.right.childrenInMin) {
 			const newMiddle = this.appendMiddle(this.right);
 
-			return this.copy(undefined, outerBlock, newMiddle);
+			return this.copy(undefined, outerBlock, newMiddle, newLength);
 		}
 
 		const newRight = this.right.concatChildren(outerBlock);
 		const newLast = newRight._mutateSplitRight(this.context.maxBlockSize);
 		const newMiddle = this.appendMiddle(newRight);
 
-		return this.copy(undefined, newLast, newMiddle);
+		return this.copy(undefined, newLast, newMiddle, newLength);
 	}
 
 	concatTree(outerTree: OuterTree<T>): OuterTree<T> {
+		const newLength = this.length + outerTree.length;
 		const jointLength = this.right.length + outerTree.left.length;
 
 		if (jointLength < this.context.minBlockSize) {
@@ -286,7 +289,7 @@ export class OuterTree<T>
 				);
 				const newMiddle = outerTree.prependMiddle(toMiddle);
 
-				return outerTree.copy(joint, undefined, newMiddle);
+				return outerTree.copy(joint, undefined, newMiddle, newLength);
 			}
 
 			const [newMiddle, toJoint] = this.middle.dropLastChild();
@@ -299,7 +302,7 @@ export class OuterTree<T>
 					null === newMiddle
 						? outerTree.prependMiddle(joint)
 						: newMiddle.concat(outerTree.prependMiddle(joint));
-				return this.copy(undefined, outerTree.right, m);
+				return this.copy(undefined, outerTree.right, m, newLength);
 			}
 
 			const newOtherLeft = joint._mutateSplitRight();
@@ -312,7 +315,7 @@ export class OuterTree<T>
 								.appendChild(joint)
 								.appendChild(newOtherLeft)
 								.concat(outerTree.middle);
-			return this.copy(undefined, outerTree.right, newMiddle2);
+			return this.copy(undefined, outerTree.right, newMiddle2, newLength);
 		}
 
 		if (jointLength <= this.context.maxBlockSize) {
@@ -322,7 +325,7 @@ export class OuterTree<T>
 				null === outerTree.middle
 					? newThisMiddle
 					: newThisMiddle.concat(outerTree.middle);
-			return this.copy(undefined, outerTree.right, newMiddle);
+			return this.copy(undefined, outerTree.right, newMiddle, newLength);
 		}
 
 		if (this.right.childrenInMin && outerTree.left.childrenInMin) {
@@ -334,7 +337,7 @@ export class OuterTree<T>
 					? newThisMiddle
 					: newThisMiddle.concat(outerTree.middle);
 
-			return this.copy(undefined, outerTree.right, newMiddle);
+			return this.copy(undefined, outerTree.right, newMiddle, newLength);
 		}
 
 		const joint = this.right.concatChildren(outerTree.left);
@@ -346,7 +349,7 @@ export class OuterTree<T>
 				? newThisMiddle
 				: newThisMiddle.concat(outerTree.middle);
 
-		return this.copy(undefined, outerTree.right, newMiddle);
+		return this.copy(undefined, outerTree.right, newMiddle, newLength);
 	}
 
 	prependMiddle(outerBlock: OuterBlock<T>): Inner<T, OuterBlock<T>> {

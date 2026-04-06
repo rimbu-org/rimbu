@@ -218,6 +218,8 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 			throwInvalidStateError();
 		}
 
+		const newLength = this.length + innerBlock.length;
+
 		if (
 			this.right.nrChildren + innerBlock.nrChildren <=
 			this.context.maxBlockSize
@@ -225,14 +227,19 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 			// append to right
 			const newRight = this.right.concatChildren(innerBlock);
 
-			return this.copy(undefined, newRight);
+			return this.copy(undefined, newRight, undefined, newLength);
 		}
 
 		if (this.right.childrenInMin) {
 			// move current right to middle
 			const newMiddle = this.appendMiddleBlock(this.right);
 
-			return this.copy(undefined, innerBlock, newMiddle)._normalize();
+			return this.copy(
+				undefined,
+				innerBlock,
+				newMiddle,
+				newLength,
+			)._normalize();
 		}
 
 		// split new right
@@ -240,10 +247,12 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 		const newLast = newRight._mutateSplitRight(this.context.maxBlockSize);
 		const newMiddle = this.appendMiddleBlock(newRight);
 
-		return this.copy(undefined, newLast, newMiddle)._normalize();
+		return this.copy(undefined, newLast, newMiddle, newLength)._normalize();
 	}
 
 	concatTree(innerTree: InnerTree<T, C>): Inner<T, C> {
+		const newLength = this.length + innerTree.length;
+
 		if (
 			this.right.nrChildren + innerTree.left.nrChildren <=
 			this.context.maxBlockSize
@@ -257,7 +266,12 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 					? newThisMiddle
 					: newThisMiddle.concat(innerTree.middle);
 
-			return this.copy(undefined, innerTree.right, newMiddle)._normalize();
+			return this.copy(
+				undefined,
+				innerTree.right,
+				newMiddle,
+				newLength,
+			)._normalize();
 		}
 
 		if (this.right.childrenInMin && innerTree.left.childrenInMin) {
@@ -270,7 +284,12 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 					? newThisMiddle
 					: newThisMiddle.concat(innerTree.middle);
 
-			return this.copy(undefined, innerTree.right, newMiddle)._normalize();
+			return this.copy(
+				undefined,
+				innerTree.right,
+				newMiddle,
+				newLength,
+			)._normalize();
 		}
 
 		// merge and split
@@ -283,7 +302,12 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 				? newThisMiddle
 				: newThisMiddle.concat(innerTree.middle);
 
-		return this.copy(undefined, innerTree.right, newMiddle)._normalize();
+		return this.copy(
+			undefined,
+			innerTree.right,
+			newMiddle,
+			newLength,
+		)._normalize();
 	}
 
 	reversed(cacheMap: CacheMap = this.context.cacheMap()): InnerTree<T, C> {

@@ -189,15 +189,11 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 	}
 
 	concat(other: Inner<T, C>): Inner<T, C> {
+		const newLength = this.length + other.length;
+
 		if (other.context.isInnerBlock<T, C>(other)) {
 			if (other === this && this.children.length > this.context.minBlockSize) {
-				return this.context.innerTree(
-					this,
-					this,
-					null,
-					this.length,
-					this.level,
-				);
+				return this.context.innerTree(this, this, null, newLength, this.level);
 			}
 
 			return this.concatBlock(other);
@@ -209,56 +205,38 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		throwInvalidStateError();
 	}
 
-	// concatInner(inner: Inner<T, C>): Inner<T, C> {
-	// 	if (inner.context.isInnerBlock<T>(inner)) {
-	// 		if (inner === this && this.childrenInMin) {
-	// 			return this.context.innerTree(
-	// 				this,
-	// 				this,
-	// 				null,
-	// 				this.length + inner.length,
-	// 				this.level,
-	// 			);
-	// 		}
-
-	// 		return this.concatBlock(inner);
-	// 	}
-	// 	if (this.context.isInnerTree<T>(inner)) {
-	// 		return this.concatTree(inner);
-	// 	}
-
-	// 	throwInvalidStateError();
-	// }
-
 	concatBlock(innerBlock: InnerBlock<T, C>): Inner<T, C> {
 		return this.concatChildren(innerBlock)._mutateNormalize();
 	}
 
 	concatTree(innerTree: InnerTree<T, C>): Inner<T, C> {
+		const newLength = this.length + innerTree.length;
+
 		if (
 			this.nrChildren + innerTree.left.nrChildren <=
 			this.context.maxBlockSize
 		) {
 			const newLeft = this.concatChildren(innerTree.left)._mutateRebalance();
 
-			return innerTree.copy(newLeft);
+			return innerTree.copy(newLeft, undefined, undefined, newLength);
 		}
 
 		if (innerTree.left.childrenInMin) {
 			const newMiddle = innerTree.prependMiddleBlock(innerTree.left);
 
-			return innerTree.copy(this, undefined, newMiddle);
+			return innerTree.copy(this, undefined, newMiddle, newLength);
 		}
 
 		const newLeft = this.concatChildren(innerTree.left)._mutateRebalance();
-		if (newLeft.childrenInMax) return innerTree.copy(newLeft);
+		if (newLeft.childrenInMax)
+			return innerTree.copy(newLeft, undefined, undefined, newLength);
 
 		const newSecond = newLeft._mutateSplitRight(
 			newLeft.nrChildren - this.context.maxBlockSize,
 		);
 		const newMiddle = innerTree.prependMiddleBlock(newSecond);
 
-		return innerTree.copy(newLeft, undefined, newMiddle);
+		return innerTree.copy(newLeft, undefined, newMiddle, newLength);
 	}
 
 	concatChildren(other: InnerBlock<T, C>): InnerBlock<T, C> {
