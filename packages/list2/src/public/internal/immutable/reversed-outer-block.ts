@@ -1,9 +1,9 @@
 import type { WithElem } from '@rimbu/collection-types/common';
-import type { Stream } from '@rimbu/stream';
 
 import type { ListImpl } from '#list/list-impl';
 
 import { IndexRange } from '@rimbu/common/index-range';
+import { Stream } from '@rimbu/stream';
 
 import { OuterBlock } from '#list/immutable/outer-block';
 
@@ -49,7 +49,11 @@ export class ReversedOuterBlock<
 
 		const [start, end = this.length - 1] =
 			IndexRange.getIndexRangeIndices(range);
+
 		const lastIndex = this.length - 1;
+
+		if (start > lastIndex || end < start) return Stream.empty();
+
 		const reverseRange = {
 			start: lastIndex - Math.min(end, lastIndex),
 			end: lastIndex - start,
@@ -84,6 +88,7 @@ export class ReversedOuterBlock<
 
 	takeChildren(amount: number): OuterBlock<T> {
 		if (amount >= this.length) return this;
+		if (amount < 0) return this.takeChildren(this.length + amount);
 
 		return this.copy(
 			this.ops.toSpliced(this.children, 0, this.length - amount),
@@ -91,7 +96,8 @@ export class ReversedOuterBlock<
 	}
 
 	dropChildren(amount: number): OuterBlock<T> {
-		if (amount <= 0) return this;
+		if (amount === 0) return this;
+		if (amount < 0) return this.dropChildren(this.length + amount);
 
 		return this.copy(
 			this.ops.toSpliced(this.children, this.length - amount, amount),

@@ -176,6 +176,7 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 
 	takeChildren(amount: number): OuterBlock<T> {
 		if (amount >= this.length) return this;
+		if (amount < 0) return this.takeChildren(this.length + amount);
 
 		return this.copy(
 			this.ops.toSpliced(this.children, amount, this.context.maxBlockSize),
@@ -183,9 +184,18 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 	}
 
 	dropChildren(amount: number): OuterBlock<T> {
-		if (amount <= 0) return this;
+		if (amount === 0) return this;
+		if (amount < 0) return this.dropChildren(this.length + amount);
 
 		return this.copy(this.ops.toSpliced(this.children, 0, amount));
+	}
+
+	dropFirstChild(): [OuterBlock<T>, T] {
+		return [this.dropChildren(1), this.first()];
+	}
+
+	dropLastChild(): [OuterBlock<T>, T] {
+		return [this.takeChildren(-1), this.last()];
 	}
 
 	concat(...sources: ArrayNonEmpty<StreamSource<T>>): ListImpl.NonEmpty<T> {

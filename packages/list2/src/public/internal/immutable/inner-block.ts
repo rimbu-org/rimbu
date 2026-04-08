@@ -169,7 +169,7 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 	appendBlockChild(child: C): InnerBlock<T, C> {
 		const newLength = this.length + child.length;
 
-		return this.copy(prepend(this.children, child), newLength);
+		return this.copy(append(this.children, child), newLength);
 	}
 
 	appendChild(child: C): Inner<T, C> {
@@ -250,12 +250,12 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		if (cachedThis !== undefined) return cachedThis;
 
 		const children = this.children;
-		const length = children.length;
-		const result: C[] = Array(length);
-		let i = 0;
-		let reverseIndex = length;
+		const nrChildren = this.nrChildren;
+		const result: C[] = Array(nrChildren);
+		let i = -1;
+		let reverseIndex = nrChildren;
 
-		while (++i <= length) {
+		while (++i < nrChildren) {
 			result[i] = children[--reverseIndex].reversed(cacheMap) as C;
 		}
 
@@ -286,6 +286,30 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		return [newSelf, lastChild];
 	}
 
+	modifyFirstChild(f: (child: C) => C): InnerBlock<T, C> {
+		const firstChild = this.children[0];
+		const newFirstChild = f(firstChild);
+		if (newFirstChild === firstChild) {
+			return this;
+		}
+		const newChildren = [newFirstChild].concat(this.children.slice(1));
+		const newLength = this.length - firstChild.length + newFirstChild.length;
+
+		return this.copy(newChildren, newLength);
+	}
+
+	modifyLastChild(f: (child: C) => C): InnerBlock<T, C> {
+		const lastChild = this.children.at(-1)!;
+		const newLastChild = f(lastChild);
+		if (newLastChild === lastChild) {
+			return this;
+		}
+		const newChildren = this.children.slice(0, -1).concat(newLastChild);
+		const newLength = this.length - lastChild.length + newLastChild.length;
+
+		return this.copy(newChildren, newLength);
+	}
+
 	forEach(
 		f: (value: T, index: number, halt: () => void) => void,
 		options: { reversed: boolean; state: TraverseState },
@@ -294,17 +318,17 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 
 		if (state.halted) return;
 
-		const length = this.children.length;
+		const nrChildren = this.nrChildren;
 
 		if (!reversed) {
 			let i = -1;
 			const children = this.children;
 
-			while (!state.halted && ++i < length) {
+			while (!state.halted && ++i < nrChildren) {
 				children[i].forEach(f, options);
 			}
 		} else {
-			let i = length;
+			let i = nrChildren;
 			const children = this.children;
 
 			while (!state.halted && --i >= 0) {
@@ -321,14 +345,14 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 
 		let offset = indexOffset;
 		const children = this.children;
-		const length = children.length;
-		const newChildren: C2[] = Array(length);
+		const nrChildren = this.nrChildren;
+		const newChildren: C2[] = Array(nrChildren);
 
 		if (reversed) {
 			let i = -1;
-			let reverseIndex = length;
+			let reverseIndex = nrChildren;
 
-			while (++i < length) {
+			while (++i < nrChildren) {
 				const child = children[--reverseIndex];
 				newChildren[i] = child.map(mapFun, {
 					reversed: true,
@@ -339,7 +363,7 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		} else {
 			let i = -1;
 
-			while (++i < length) {
+			while (++i < nrChildren) {
 				const child = children[i];
 				newChildren[i] = child.map(mapFun, { indexOffset: offset }) as C2;
 				offset += child.length;
@@ -587,15 +611,10 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 			return this;
 		}
 
+		const length = this.length;
 		const newRight = this._mutateSplitRight();
 
-		return this.context.innerTree(
-			this,
-			newRight,
-			null,
-			this.length,
-			this.level,
-		);
+		return this.context.innerTree(this, newRight, null, length, this.level);
 	}
 
 	_mutateSplitRight(childIndex = this.nrChildren >>> 1): InnerBlock<T, C> {

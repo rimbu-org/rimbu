@@ -121,6 +121,33 @@ export class OuterTree<T>
 			);
 		}
 
+		// left block full, see if right block can take one from left and add the new value to left
+		if (null === this.middle && this.right.canAddChild) {
+			const [newLeft, shiftToRightChild] = this.left.dropLastChild();
+			const newRight = this.right.prependBlockChild(shiftToRightChild);
+			return this.copy(
+				newLeft.prependBlockChild(value),
+				newRight,
+				undefined,
+				newLength,
+			);
+		}
+
+		// left block full, see if first middle block can take one from left and add the new value to left
+		if (this.middle) {
+			const newMiddle = this.middle.modifyFirstChild((block) => {
+				if (!block.canAddChild) return block;
+
+				return block.prependBlockChild(this.left.last());
+			});
+
+			if (newMiddle !== this.middle) {
+				const newLeft = this.left.takeChildren(-1).prependBlockChild(value);
+				return this.copy(newLeft, undefined, newMiddle, newLength);
+			}
+		}
+
+		// no middle or first middle block full, shift whole left to middle and add new value to left
 		const newMiddle =
 			this.middle?.prependChild(this.left) ??
 			this.context.innerBlock([this.left], this.left.length, 1);
@@ -139,12 +166,39 @@ export class OuterTree<T>
 		if (this.right.canAddChild) {
 			return this.copy(
 				this.left,
-				this.right.append(value) as OuterBlock<T>,
+				this.right.appendBlockChild(value),
 				this.middle,
 				newLength,
 			);
 		}
 
+		// right block full, see if left block can take one from right and add the new value to right
+		if (null === this.middle && this.left.canAddChild) {
+			const [newRight, shiftToLeftChild] = this.right.dropFirstChild();
+			const newLeft = this.left.appendBlockChild(shiftToLeftChild);
+			return this.copy(
+				newLeft,
+				newRight.appendBlockChild(value),
+				undefined,
+				newLength,
+			);
+		}
+
+		// right block full, see if first middle block can take one from right and add the new value to right
+		if (this.middle) {
+			const newMiddle = this.middle.modifyLastChild((lastMiddleBlock) => {
+				if (!lastMiddleBlock.canAddChild) return lastMiddleBlock;
+
+				return lastMiddleBlock.appendBlockChild(this.right.first());
+			});
+
+			if (newMiddle !== this.middle) {
+				const newRight = this.right.dropChildren(1).appendBlockChild(value);
+				return this.copy(undefined, newRight, newMiddle, newLength);
+			}
+		}
+
+		// no middle or first middle block full, shift whole right to middle and add new value to right
 		const newMiddle =
 			this.middle?.appendChild(this.right) ??
 			this.context.innerBlock<T, OuterBlock<T>>(
@@ -154,7 +208,7 @@ export class OuterTree<T>
 			);
 
 		return this.copy(
-			this.left,
+			undefined,
 			this.right.copy(this.ops.of([value])),
 			newMiddle,
 			newLength,
@@ -175,6 +229,8 @@ export class OuterTree<T>
 			return this.copy(
 				undefined,
 				this.right.takeChildren(middleAmount),
+				undefined,
+				amount,
 			)._normalize();
 		}
 
@@ -182,7 +238,7 @@ export class OuterTree<T>
 
 		if (rightAmount > 0) {
 			const newRight = this.right.takeChildren(rightAmount);
-			return this.copy(undefined, newRight)._normalize();
+			return this.copy(undefined, newRight, undefined, amount)._normalize();
 		}
 
 		const [newMiddle, upRight, inUpRight] =
@@ -190,7 +246,7 @@ export class OuterTree<T>
 
 		const newRight = upRight.takeChildren(inUpRight);
 
-		return this.copy(undefined, newRight, newMiddle)._normalize();
+		return this.copy(undefined, newRight, newMiddle, amount)._normalize();
 	}
 
 	drop(amountInput: number): ListImpl<T> {
@@ -200,11 +256,13 @@ export class OuterTree<T>
 			return this.context.empty();
 		if (amount < 0) return this.take(this.length + amount);
 
+		const newLength = this.length - amount;
+
 		const middleAmount = amount - this.left.length;
 
 		if (middleAmount < 0) {
 			const newLeft = this.left.dropChildren(amount);
-			return this.copy(newLeft)._normalize();
+			return this.copy(newLeft, undefined, undefined, newLength)._normalize();
 		}
 
 		if (null === this.middle) {
@@ -221,7 +279,7 @@ export class OuterTree<T>
 			this.middle.dropInternal(middleAmount);
 		const newLeft = upLeft.dropChildren(inUpLeft);
 
-		return this.copy(newLeft, undefined, newMiddle)._normalize();
+		return this.copy(newLeft, undefined, newMiddle, newLength)._normalize();
 	}
 
 	reversed(cacheMap: CacheMap = this.context.cacheMap()): OuterTree<T> {

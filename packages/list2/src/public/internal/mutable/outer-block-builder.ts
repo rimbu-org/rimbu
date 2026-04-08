@@ -78,7 +78,7 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 
 	insert(index: number, value: T): void {
 		this.prepareMutate();
-		this.ops.mutateSplice(this.children, index, 0, [value]);
+		this.ops.mutateSplice(this.children, index, 0, this.ops.of([value]));
 	}
 
 	remove(index: number): T {

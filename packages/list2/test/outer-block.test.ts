@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'bun:test';
 
+import type { ReversedOuterBlock } from '@rimbu/list/internal/immutable/reversed-outer-block';
+
 import type { ListContext } from '#list/context-module';
 
 import { List } from '@rimbu/list2';
@@ -613,14 +615,16 @@ function runOuterBlockTests(
 
 const context = ListHelpers.createListContext({
 	blockSizeBits: 2,
-}) as any as ListContext;
+}) as unknown as ListContext<ListHelpers.TypesImpl>;
 
-function createBlock<T>(...elems: T[]) {
-	return context.outerBlock(elems);
+function createBlock<T>(...elems: T[]): OuterBlock<T, ListHelpers.TypesImpl> {
+	return context.outerBlock(elems) as any;
 }
 
-function createRevBlock<T>(...elems: T[]) {
-	return context.reversedOuterBlock(elems.reverse());
+function createRevBlock<T>(
+	...elems: T[]
+): ReversedOuterBlock<T, ListHelpers.TypesImpl> {
+	return context.reversedOuterBlock(elems.reverse()) as any;
 }
 
 runOuterBlockTests('leaf', context, createBlock, createRevBlock);

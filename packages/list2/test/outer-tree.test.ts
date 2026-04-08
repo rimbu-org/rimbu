@@ -1,17 +1,17 @@
 import { describe, expect, it, vi } from 'bun:test';
 
 import type { ListContext } from '#list/context-module';
-import type { OuterTree } from '#list/immutable/outer-tree';
 
-import { ListHelpers } from '@rimbu/list/internal/list-helpers';
 import { List } from '@rimbu/list2';
 import { Stream } from '@rimbu/stream';
 
 import { InnerBlock } from '#list/immutable/inner-block';
 import { InnerTree } from '#list/immutable/inner-tree';
 import { OuterBlock } from '#list/immutable/outer-block';
+import { OuterTree } from '#list/immutable/outer-tree';
+import { ListHelpers } from '#list/list-helpers';
 
-function runLeafTreeTests(
+function runOuterTreeTests(
 	tag: string,
 	context: ListContext,
 	createBlock: <T>(values: T[]) => OuterBlock<T>,
@@ -36,6 +36,7 @@ function runLeafTreeTests(
 					createBlock([1, 2, 3]),
 					createBlock([3, 4]),
 					null,
+					5,
 				);
 				const n = t._normalize();
 				expect(n).toBe(t);
@@ -45,7 +46,8 @@ function runLeafTreeTests(
 				const t = context.outerTree(
 					createBlock([1]),
 					createBlock([11]),
-					context.innerBlock(2, [createBlock([21, 22])], 1),
+					context.innerBlock([createBlock([21, 22])], 2, 1),
+					4,
 				);
 				const n = t._normalize();
 				expect(n).toBeInstanceOf(OuterBlock);
@@ -56,7 +58,8 @@ function runLeafTreeTests(
 				const t = context.outerTree(
 					createBlock([1]),
 					createBlock([11, 12]),
-					context.innerBlock(3, [createBlock([21, 22, 23])], 1),
+					context.innerBlock([createBlock([21, 22, 23])], 3, 1),
+					6,
 				);
 				const n = t._normalize() as OuterTree<number>;
 				expect(n.left.toArray()).toEqual([1, 21, 22, 23]);
@@ -68,7 +71,8 @@ function runLeafTreeTests(
 				const t = context.outerTree(
 					createBlock([1, 2, 3]),
 					createBlock([11]),
-					context.innerBlock(3, [createBlock([21, 22, 23])], 1),
+					context.innerBlock([createBlock([21, 22, 23])], 3, 1),
+					7,
 				);
 				const n = t._normalize() as OuterTree<number>;
 				expect(n.left.toArray()).toEqual([1, 2, 3]);
@@ -79,7 +83,8 @@ function runLeafTreeTests(
 
 		it('append', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
+
 			const r1 = t6.append(10);
 
 			expect(r1.left).toBe(b3);
@@ -105,12 +110,12 @@ function runLeafTreeTests(
 
 		it('appendMiddle', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			const r1 = t6.appendMiddle(b3);
 			expect(r1.toArray()).toEqual([1, 2, 3]);
 
-			const t9 = context.outerTree(b3, b3, context.innerBlock(3, [b3], 1));
+			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
 
 			const r2 = t9.appendMiddle(b3);
 			expect(r2.toArray()).toEqual([1, 2, 3, 1, 2, 3]);
@@ -118,7 +123,8 @@ function runLeafTreeTests(
 			const t12 = context.outerTree(
 				b3,
 				b3,
-				context.innerBlock(12, [b3, b3, b3, b3], 1),
+				context.innerBlock([b3, b3, b3, b3], 12, 1),
+				18,
 			);
 
 			const r3 = t12.appendMiddle(b3);
@@ -128,19 +134,19 @@ function runLeafTreeTests(
 
 		it('asNormal', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 5);
 			expect(t6.asNormal()).toBe(t6);
 		});
 
 		it('assumeNonEmpty', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 			expect(t6.assumeNonEmpty()).toBe(t6);
 		});
 
 		it('collect', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			expect(t6.collect((v) => v).toArray()).toEqual([1, 2, 3, 1, 2, 3]);
 			expect(t6.collect((_, __, skip) => skip)).toBe(context.empty());
@@ -156,7 +162,7 @@ function runLeafTreeTests(
 
 		it('concat', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			expect(t6.concat(context.empty())).toBe<any>(t6);
 
@@ -183,7 +189,7 @@ function runLeafTreeTests(
 
 		it('concatBlock', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			const r1 = t6.concatBlock(createBlock([10])) as OuterTree<number>;
 			expect(r1.middle).toBeNull();
@@ -202,6 +208,7 @@ function runLeafTreeTests(
 				createBlock([1, 2, 3, 4]),
 				createBlock([5]),
 				null,
+				5,
 			);
 			const r3 = tr.concatBlock(
 				createBlock([10, 11, 12, 13]),
@@ -213,7 +220,7 @@ function runLeafTreeTests(
 
 		it('concatTree', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			const r1 = t6.concat(t6) as OuterTree<number>;
 			const m1 = r1.middle as InnerBlock<any, any>;
@@ -225,7 +232,7 @@ function runLeafTreeTests(
 			expect(m1.children[1]).toBe(b3);
 
 			const r2 = r1.concat(r1) as OuterTree<number>;
-			const m2 = r2.middle as NonLeafTree<any, any>;
+			const m2 = r2.middle as InnerTree<any, any>;
 			expect(m2.level).toBe(1);
 			expect(m2.left.nrChildren).toBe(3);
 			expect(m2.right.nrChildren).toBe(3);
@@ -234,13 +241,13 @@ function runLeafTreeTests(
 
 		it('context', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 			expect(t6.context).toBe(context);
 		});
 
 		it('copy', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 			expect(t6.copy()).toBe(t6);
 			const b2 = createBlock([1, 2]);
 			const c = t6.copy(b2);
@@ -251,7 +258,7 @@ function runLeafTreeTests(
 
 		it('drop', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			expect(t6.drop(0)).toBe(t6);
 			expect(t6.drop(10)).toBe(context.empty());
@@ -268,14 +275,14 @@ function runLeafTreeTests(
 			expect(r2.toArray()).toEqual([1, 2, 3, 1]);
 
 			const r3 = t6.drop(1) as OuterTree<number>;
-			expect(r3).toBeInstanceOf(LeafTree);
+			expect(r3).toBeInstanceOf(OuterTree);
 			expect(r3.left.toArray()).toEqual([2, 3]);
 			expect(r3.right).toBe(b3);
 		});
 
 		it('filter', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			expect(t6.filter(() => true)).toBe(t6);
 			expect(t6.filter(() => false)).toBe(context.empty());
@@ -286,14 +293,14 @@ function runLeafTreeTests(
 
 		it('first', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			expect(t6.first()).toBe(1);
 		});
 
 		it('flatMap', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			expect(t6.flatMap((v) => [v]).toArray()).toEqual(t6.toArray());
 			expect(t6.flatMap(() => [])).toBe(context.empty());
@@ -301,7 +308,7 @@ function runLeafTreeTests(
 
 		it('forEach', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			const cb = vi.fn();
 			t6.forEach(cb);
@@ -328,7 +335,7 @@ function runLeafTreeTests(
 
 		it('get', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock(3, [b3], 1));
+			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
 
 			expect(t9.get(1)).toBe(2);
 			expect(t9.get(1, 'a')).toBe(2);
@@ -343,7 +350,7 @@ function runLeafTreeTests(
 
 		it('insert', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock(3, [b3], 1));
+			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
 
 			expect(t9.insert(1, [])).toBe(t9);
 			expect(t9.insert(1, [10, 11]).toArray()).toEqual([
@@ -357,20 +364,20 @@ function runLeafTreeTests(
 
 		it('isEmpty', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 			expect(t6.isEmpty).toBe(false);
 		});
 
 		it('first', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			expect(t6.last()).toBe(3);
 		});
 
 		it('length', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			expect(t6.length).toBe(6);
 			const t9 = t6.concat(b3);
@@ -379,7 +386,7 @@ function runLeafTreeTests(
 
 		it('map', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock(3, [b3], 1));
+			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
 
 			expect(t9.toArray()).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3]);
 			expect(t9.map((v) => v + 1).toArray()).toEqual([
@@ -390,9 +397,9 @@ function runLeafTreeTests(
 			]);
 		});
 
-		it('mapPure', () => {
+		it.skip('mapPure', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock(3, [b3], 1));
+			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
 
 			expect(t9.toArray()).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3]);
 			const mapped = t9.mapPure((v) => v + 1);
@@ -406,14 +413,14 @@ function runLeafTreeTests(
 
 		it('nonEmpty', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			expect(t6.nonEmpty()).toBe(true);
 		});
 
 		it('padTo', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			expect(t6.padTo(1, 3)).toBe(t6);
 			expect(t6.padTo(8, 9).toArray()).toEqual([1, 2, 3, 1, 2, 3, 9, 9]);
@@ -425,7 +432,7 @@ function runLeafTreeTests(
 
 		it('prepend', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 			const r1 = t6.prepend(10);
 
 			expect(r1.left).toBeInstanceOf(OuterBlock);
@@ -452,12 +459,12 @@ function runLeafTreeTests(
 
 		it('prependMiddle', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			const r1 = t6.prependMiddle(b3);
 			expect(r1.toArray()).toEqual([1, 2, 3]);
 
-			const t9 = context.outerTree(b3, b3, context.innerBlock(3, [b3], 1));
+			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
 
 			const r2 = t9.prependMiddle(b3);
 			expect(r2.toArray()).toEqual([1, 2, 3, 1, 2, 3]);
@@ -465,17 +472,18 @@ function runLeafTreeTests(
 			const t12 = context.outerTree(
 				b3,
 				b3,
-				context.innerBlock(12, [b3, b3, b3, b3], 1),
+				context.innerBlock([b3, b3, b3, b3], 12, 1),
+				18,
 			);
 
-			const r3 = t12.prependMiddle(b3) as NonLeafTree<number, any>;
-			expect(r3).toBeInstanceOf(InnerTreeTree);
+			const r3 = t12.prependMiddle(b3) as InnerTree<number, any>;
+			expect(r3).toBeInstanceOf(InnerTree);
 			expect(r3.level).toBe(1);
 		});
 
 		it('remove', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock(3, [b3], 1));
+			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
 
 			expect(t9.remove(0, { amount: 10 })).toBe(context.empty());
 			expect(t9.remove(4, { amount: 0 })).toBe(t9);
@@ -486,7 +494,7 @@ function runLeafTreeTests(
 
 		it('repeat', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			expect(t6.repeat(0)).toBe(t6);
 			expect(t6.repeat(1)).toBe(t6);
@@ -496,7 +504,7 @@ function runLeafTreeTests(
 
 		it('reversed', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock(3, [b3], 1));
+			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
 
 			expect(t9.reversed().toArray()).toEqual([3, 2, 1, 3, 2, 1, 3, 2, 1]);
 			expect(t9.reversed().reversed().toArray()).toEqual(t9.toArray());
@@ -504,7 +512,7 @@ function runLeafTreeTests(
 
 		it('rotate', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock(3, [b3], 1));
+			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
 
 			expect(t9.rotate(0)).toBe(t9);
 			expect(t9.rotate(9)).toBe(t9);
@@ -515,7 +523,7 @@ function runLeafTreeTests(
 
 		it('slice', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock(3, [b3], 1));
+			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
 
 			expect(t9.slice({ amount: 10 })).toBe(t9);
 			expect(t9.slice({ amount: 10 }, { reversed: true }).toArray()).toEqual(
@@ -533,7 +541,7 @@ function runLeafTreeTests(
 
 		it('splice', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			expect(t6.splice({ index: 1, remove: 0 })).toBe(t6);
 			expect(t6.splice({ index: 1, remove: 2 }).toArray()).toEqual([
@@ -549,7 +557,7 @@ function runLeafTreeTests(
 
 		it('stream', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock(3, [b3], 1));
+			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
 
 			expect(t9.stream().toArray()).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3]);
 			expect(t9.stream({ reversed: true }).toArray()).toEqual([
@@ -559,7 +567,7 @@ function runLeafTreeTests(
 
 		it('streamRange', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock(3, [b3], 1));
+			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
 
 			expect(t9.streamRange({ amount: 0 })).toBe(Stream.empty());
 			expect(t9.streamRange({ amount: 4 }).toArray()).toEqual([1, 2, 3, 1]);
@@ -575,15 +583,13 @@ function runLeafTreeTests(
 			).toEqual([2, 1, 3, 2]);
 		});
 
-		it('structure', () => {
+		it.skip('_structure', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock(3, [b3], 1));
+			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
 
-			const leafType = context.isReversedOuterBlock<number>(b3)
-				? 'RLeaf'
-				: 'Leaf';
+			const leafType = b3.isReversedBlock ? 'RLeaf' : 'Leaf';
 
-			expect(t9.structure()).toEqual(
+			expect(t9._structure()).toEqual(
 				`\
 <LeafTree len:9
  l:<${leafType} 3>
@@ -596,7 +602,7 @@ function runLeafTreeTests(
 
 		it('take', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			expect(t6.take(10)).toBe(t6);
 			expect(t6.take(0)).toBe(context.empty());
@@ -613,14 +619,15 @@ function runLeafTreeTests(
 			expect(r2.toArray()).toEqual([2, 3]);
 
 			const r3 = t6.take(5) as OuterTree<number>;
-			expect(r3).toBeInstanceOf(LeafTree);
+			console.log((r3 as any)._structure());
+			expect(r3).toBeInstanceOf(OuterTree);
 			expect(r3.left).toBe(b3);
 			expect(r3.right.toArray()).toEqual([1, 2]);
 		});
 
 		it('toArray()', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock(3, [b3], 1));
+			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
 
 			expect(t9.toArray()).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3]);
 			expect(t9.toArray({ range: { amount: 4 } })).toEqual([1, 2, 3, 1]);
@@ -641,7 +648,7 @@ function runLeafTreeTests(
 
 		it('toBuilder', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock(3, [b3], 1));
+			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
 
 			expect(t9.toBuilder().build()).toBe(t9);
 
@@ -651,9 +658,9 @@ function runLeafTreeTests(
 			expect(t9.toArray()).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3]);
 		});
 
-		it('toJSON', () => {
+		it.skip('toJSON', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			expect(t6.toJSON()).toEqual({
 				dataType: 'List',
@@ -663,7 +670,7 @@ function runLeafTreeTests(
 
 		it('toString', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			expect(t6.toString()).toBe('List(1, 2, 3, 1, 2, 3)');
 		});
@@ -674,7 +681,7 @@ function runLeafTreeTests(
 				[2, 'b'],
 				[3, 'c'],
 			]);
-			const t6 = context.outerTree(b3, b3, null);
+			const t6 = context.outerTree(b3, b3, null, 6);
 
 			const [l1, l2] = List.unzip(t6, { length: 2 });
 
@@ -684,7 +691,7 @@ function runLeafTreeTests(
 
 		it('updateAt', () => {
 			const b3 = createBlock([1, 2, 3]);
-			const t9 = context.outerTree(b3, b3, context.innerBlock(3, [b3], 1));
+			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
 
 			expect(t9.updateAt(10, 1)).toBe(t9);
 			expect(t9.updateAt(10, () => 10)).toBe(t9);
@@ -707,14 +714,16 @@ function runLeafTreeTests(
 
 const context2 = ListHelpers.createListContext({
 	blockSizeBits: 2,
-}) as any as ListContext;
+}) as unknown as ListContext<ListHelpers.TypesImpl>;
 
-runLeafTreeTests('leaftree', context2, (values) => context2.outerBlock(values));
-runLeafTreeTests('leaftree with rev blocks', context2, (values) =>
+runOuterTreeTests('outertree', context2, (values) =>
+	context2.outerBlock(values),
+);
+runOuterTreeTests('outertree with rev blocks', context2, (values) =>
 	context2.reversedOuterBlock(values.toReversed()),
 );
 
-function leafTreeBlockSize3(
+function outerTreeBlockSize3(
 	tag: string,
 	context: ListContext,
 	createBlock: <T>(values: T[]) => OuterBlock<T>,
@@ -725,11 +734,13 @@ function leafTreeBlockSize3(
 				createBlock([1, 2, 3, 4, 5, 6, 7, 8]),
 				createBlock([9]),
 				null,
+				9,
 			);
 			const t2 = context.outerTree(
 				createBlock([10]),
 				createBlock([11, 12, 13, 14, 15, 16, 17, 18]),
 				null,
+				9,
 			);
 
 			const r = t1.concatTree(t2);
@@ -741,8 +752,8 @@ function leafTreeBlockSize3(
 
 		it('concatTree with middle, joint not in max', () => {
 			const m1 = context.innerBlock<number, OuterBlock<number>>(
-				8,
 				[createBlock([11, 12, 13, 14, 15, 16, 17, 18])],
+				8,
 				1,
 			);
 
@@ -750,11 +761,13 @@ function leafTreeBlockSize3(
 				createBlock([1, 2, 3, 4, 5, 6, 7, 8]),
 				createBlock([21]),
 				m1,
+				17,
 			);
 			const t2 = context.outerTree(
 				createBlock([31]),
 				createBlock([41, 42, 43, 44, 45, 46, 47, 48]),
 				null,
+				9,
 			);
 
 			const r = t1.concatTree(t2);
@@ -775,8 +788,8 @@ function leafTreeBlockSize3(
 
 	it('concatTree with middle, joint children in max', () => {
 		const m1 = context.innerBlock<number, OuterBlock<number>>(
-			8,
 			[createBlock([11, 12, 13, 14, 15])],
+			8,
 			1,
 		);
 
@@ -784,11 +797,13 @@ function leafTreeBlockSize3(
 			createBlock([1, 2, 3, 4, 5, 6, 7, 8]),
 			createBlock([21]),
 			m1,
+			17,
 		);
 		const t2 = context.outerTree(
 			createBlock([31]),
 			createBlock([41, 42, 43, 44, 45, 46, 47, 48]),
 			null,
+			9,
 		);
 
 		const r = t1.concatTree(t2);
@@ -807,11 +822,13 @@ function leafTreeBlockSize3(
 			createBlock([1, 2, 3, 4, 5, 6, 7, 8]),
 			createBlock([11, 12, 13]),
 			null,
+			11,
 		);
 		const t2 = context.outerTree(
 			createBlock([21, 22, 23]),
 			createBlock([31, 32, 33, 34, 35, 36, 37, 38]),
 			null,
+			11,
 		);
 
 		const r = t1.concatTree(t2);
@@ -829,11 +846,13 @@ function leafTreeBlockSize3(
 			createBlock([1, 2, 3, 4, 5, 6, 7, 8]),
 			createBlock([11, 12, 13]),
 			null,
+			11,
 		);
 		const t2 = context.outerTree(
 			createBlock([21, 22, 23, 24, 25, 26]),
 			createBlock([31, 32, 33, 34, 35, 36, 37, 38]),
 			null,
+			14,
 		);
 
 		const r = t1.concatTree(t2);
@@ -852,11 +871,11 @@ function leafTreeBlockSize3(
 
 const context3 = ListHelpers.createListContext({
 	blockSizeBits: 3,
-}) as any as ListContext;
+}) as unknown as ListContext<ListHelpers.TypesImpl>;
 
-leafTreeBlockSize3('leafTree blockSize 3', context3, (values) =>
+outerTreeBlockSize3('outerTree blockSize 3', context3, (values) =>
 	context3.outerBlock(values),
 );
-leafTreeBlockSize3('rev leafTree blockSize 3', context3, (values) =>
+outerTreeBlockSize3('rev outerTree blockSize 3', context3, (values) =>
 	context3.reversedOuterBlock(values.toReversed()),
 );

@@ -91,6 +91,43 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 			);
 		}
 
+		// left block full, see if right block can take one from left and add the new value to left
+		if (null === this.middle && this.right.canAddChild) {
+			const [newLeft, shiftToRightChild] = this.left.dropLastChild();
+			const newRight = this.right.prependBlockChild(shiftToRightChild);
+			return this.copy(
+				newLeft!.prependBlockChild(child),
+				newRight,
+				undefined,
+				newLength,
+			);
+		}
+
+		// left block full, see if first middle block can take one from left and add the new child to left
+		if (this.middle) {
+			let newLeft: InnerBlock<T, C> | null = this.left;
+
+			const newMiddle = this.middle.modifyFirstChild((firstMiddleBlock) => {
+				if (!firstMiddleBlock.canAddChild) return firstMiddleBlock;
+
+				const [droppedLeft, shiftToMiddleChild] = this.left.dropLastChild();
+
+				newLeft = droppedLeft;
+				return firstMiddleBlock.prependBlockChild(shiftToMiddleChild);
+			});
+
+			if (newMiddle !== this.middle) {
+				return this.copy(
+					newLeft?.prependBlockChild(child) ??
+						this.context.innerBlock([child], child.length, this.level),
+					undefined,
+					newMiddle,
+					newLength,
+				);
+			}
+		}
+
+		// no middle of first middle block full, shift whole left to middle and add new child to left
 		const newMiddle =
 			this.middle?.prependChild(this.left) ??
 			this.context.innerBlock<T, InnerBlock<T, C>>(
@@ -119,13 +156,50 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 			);
 		}
 
-		const newMiddle = this.middle
-			? this.middle.appendChild(this.right)
-			: this.context.innerBlock<T, InnerBlock<T, C>>(
-					[this.right],
-					this.right.length,
-					this.level + 1,
+		// right block full, see if left block can take one from right and add the new value to right
+		if (null === this.middle && this.left.canAddChild) {
+			const [newRight, shiftToLeftChild] = this.right.dropFirstChild();
+			const newLeft = this.left.appendBlockChild(shiftToLeftChild);
+			return this.copy(
+				newLeft,
+				newRight!.appendBlockChild(child),
+				undefined,
+				newLength,
+			);
+		}
+
+		// right block full, see if first middle block can take one from right and add the new child to right
+		if (this.middle) {
+			let newRight: InnerBlock<T, C> | null = this.right;
+
+			const newMiddle = this.middle.modifyLastChild((lastMiddleBlock) => {
+				if (!lastMiddleBlock.canAddChild) return lastMiddleBlock;
+
+				const [droppedRight, shiftToMiddleChild] = this.right.dropFirstChild();
+
+				newRight = droppedRight;
+				return lastMiddleBlock.appendBlockChild(shiftToMiddleChild);
+			});
+
+			if (newMiddle !== this.middle) {
+				return this.copy(
+					undefined,
+					newRight?.appendBlockChild(child) ??
+						this.context.innerBlock([child], child.length, this.level),
+					newMiddle,
+					newLength,
 				);
+			}
+		}
+
+		// no middle or last middle block full, shift whole right to middle and add new child to right
+		const newMiddle =
+			this.middle?.appendChild(this.right) ??
+			this.context.innerBlock<T, InnerBlock<T, C>>(
+				[this.right],
+				this.right.length,
+				this.level + 1,
+			);
 
 		return this.copy(
 			undefined,
@@ -189,6 +263,34 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 		const newSelf = this.copy(undefined, newRight)._normalize();
 
 		return [newSelf, lastChild];
+	}
+
+	modifyFirstChild(f: (child: C) => C): Inner<T, C> {
+		const firstChild = this.left.children[0];
+		const newFirstChild = f(firstChild);
+		if (newFirstChild === firstChild) {
+			return this;
+		}
+		const newLeft = this.left.copy(
+			[newFirstChild, ...this.left.children.slice(1)],
+			this.left.length - firstChild.length + newFirstChild.length,
+		);
+
+		return this.copy(newLeft);
+	}
+
+	modifyLastChild(f: (child: C) => C): Inner<T, C> {
+		const lastChild = this.right.children.at(-1)!;
+		const newLastChild = f(lastChild);
+		if (newLastChild === lastChild) {
+			return this;
+		}
+		const newRight = this.right.copy(
+			[...this.right.children.slice(0, -1), newLastChild],
+			this.right.length - lastChild.length + newLastChild.length,
+		);
+
+		return this.copy(undefined, newRight);
 	}
 
 	concat(inner: Inner<T, C>): Inner<T, C> {

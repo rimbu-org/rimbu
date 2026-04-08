@@ -58,7 +58,7 @@ export namespace ListImpl {
 			children: WithElem<Tp, T>['outerChildren'],
 			start: number,
 			deleteCount: number,
-			items?: T[],
+			items?: WithElem<Tp, T>['outerChildren'] | undefined,
 		): WithElem<Tp, T>['outerChildren'];
 		toReversed<T extends Tp['_UT']>(
 			children: WithElem<Tp, T>['outerChildren'],
@@ -106,7 +106,7 @@ export namespace ListImpl {
 			children: WithElem<Tp, T>['outerChildren'],
 			start: number,
 			deleteCount?: number | undefined,
-			items?: T[],
+			items?: WithElem<Tp, T>['outerChildren'] | undefined,
 		): [
 			result: WithElem<Tp, T>['outerChildren'],
 			deleted: WithElem<Tp, T>['outerChildren'],

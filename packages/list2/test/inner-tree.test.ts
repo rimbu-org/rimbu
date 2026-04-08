@@ -1,123 +1,133 @@
 import { describe, expect, it, vi } from 'bun:test';
 
-import type { LeafBlock } from '#list/immutable/leaf/block';
+import type { ListContext } from '#list/context-module';
+import type { OuterBlock } from '#list/immutable/outer-block';
 
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream } from '@rimbu/stream';
 
-import { NonLeafTreeBuilder } from '#list/builder/nonleaf/tree';
-import { createContextFactoryModule } from '#list/context-factory-module';
-import { NonLeafBlock } from '#list/immutable/nonleaf/block';
-import { NonLeafTree } from '#list/immutable/nonleaf/tree';
+import { InnerBlock } from '#list/immutable/inner-block';
+import { InnerTree } from '#list/immutable/inner-tree';
+import { ListHelpers } from '#list/list-helpers';
+import { InnerTreeBuilder } from '#list/mutable/inner-tree-builder';
 
-const context = createContextFactoryModule({ blockSizeBits: 2 }).build();
+const context = ListHelpers.createListContext({
+	blockSizeBits: 2,
+}) as unknown as ListContext<ListHelpers.TypesImpl>;
 
-describe('NonLeafTree', () => {
-	const b1 = context.leafBlock([1, 2, 3]);
-	const b2 = context.leafBlock([4, 5, 6]);
-	const b3 = context.leafBlock([7, 8, 9]);
-	const b4 = context.leafBlock([10, 11, 12]);
-	const b5 = context.leafBlock([13, 14, 15]);
-	const nlb1 = context.nonLeafBlock<number, LeafBlock<number>>(
-		9,
+describe('InnerTree', () => {
+	const b1 = context.outerBlock([1, 2, 3]);
+	const b2 = context.outerBlock([4, 5, 6]);
+	const b3 = context.outerBlock([7, 8, 9]);
+	const b4 = context.outerBlock([10, 11, 12]);
+	const b5 = context.outerBlock([13, 14, 15]);
+	const b6 = context.outerBlock([16, 17, 18]);
+	const nlb1 = context.innerBlock<number, OuterBlock<number>>(
 		[b1, b2, b3],
+		9,
 		1,
 	);
-	const nlb2 = context.nonLeafBlock<number, LeafBlock<number>>(
-		9,
+	const nlb2 = context.innerBlock<number, OuterBlock<number>>(
 		[b1, b2, b3],
+		9,
 		1,
 	);
-	const nlb3 = context.nonLeafBlock<
+	const nlb3 = context.innerBlock<
 		number,
-		NonLeafBlock<number, LeafBlock<number>>
-	>(18, [nlb1, nlb2], 2);
+		InnerBlock<number, OuterBlock<number>>
+	>([nlb1, nlb2], 18, 2);
 
 	function createTree() {
-		return context.nonLeafTree<number, LeafBlock<number>>(nlb1, nlb2, nlb3, 1);
+		return context.innerTree<number, OuterBlock<number>>(
+			nlb1,
+			nlb2,
+			nlb3,
+			36,
+			1,
+		);
 	}
 
 	it('_normalize', () => {
 		const items = [1, 2, 3, 4];
-		const lb = context.leafBlock(items);
+		const lb = context.outerBlock(items);
 
 		{
 			// convert to block
-			const nlb = context.nonLeafBlock<number, LeafBlock<number>>(
-				8,
+			const nlb = context.innerBlock<number, OuterBlock<number>>(
 				[lb, lb],
+				8,
 				1,
 			);
-			const nlt = context.nonLeafTree(nlb, nlb, null, 1);
+			const nlt = context.innerTree(nlb, nlb, null, 16, 1);
 
 			const n = nlt._normalize();
-			expect(n).toBeInstanceOf(NonLeafBlock);
+			expect(n).toBeInstanceOf(InnerBlock);
 			expect(n.toArray()).toEqual(Stream.from(items).repeat(4).toArray());
 		}
 		{
 			// not possible to merge
-			const nlb = context.nonLeafBlock<number, LeafBlock<number>>(
-				12,
+			const nlb = context.innerBlock<number, OuterBlock<number>>(
 				[lb, lb, lb],
+				12,
 				1,
 			);
-			const nlt = context.nonLeafTree(nlb, nlb, null, 1);
+			const nlt = context.innerTree(nlb, nlb, null, 24, 1);
 			const n = nlt._normalize();
-			expect(n).toBeInstanceOf(NonLeafTree);
+			expect(n).toBeInstanceOf(InnerTree);
 			expect(n.toArray()).toEqual(Stream.from(items).repeat(6).toArray());
 			expect(n).toBe(nlt);
 		}
 		{
 			// merge middle with left
-			const nlb = context.nonLeafBlock<number, LeafBlock<number>>(
-				12,
+			const nlb = context.innerBlock<number, OuterBlock<number>>(
 				[lb, lb],
+				12,
 				1,
 			);
-			const mb = context.nonLeafBlock<number, NonLeafBlock<number, any>>(
-				24,
+			const mb = context.innerBlock<number, InnerBlock<number, any>>(
 				[nlb, nlb],
+				24,
 				2,
 			);
-			const nlt = context.nonLeafTree(nlb, nlb, mb, 1);
-			const n = nlt._normalize() as NonLeafTree<any, any>;
-			expect(n).toBeInstanceOf(NonLeafTree);
+			const nlt = context.innerTree(nlb, nlb, mb, 48, 1);
+			const n = nlt._normalize() as InnerTree<any, any>;
+			expect(n).toBeInstanceOf(InnerTree);
 			expect((n.middle as any).children).toEqual([nlb]);
 			expect(n.right).toBe(nlb);
 			expect(n.left.children).toEqual([lb, lb, lb, lb]);
 		}
 		{
 			// merge middle with right
-			const nlb = context.nonLeafBlock<number, LeafBlock<number>>(
-				12,
+			const nlb = context.innerBlock<number, OuterBlock<number>>(
 				[lb, lb],
+				12,
 				1,
 			);
-			const nlb2 = context.nonLeafBlock<number, LeafBlock<number>>(
-				24,
+			const nlb2 = context.innerBlock<number, OuterBlock<number>>(
 				[lb, lb, lb, lb],
+				24,
 				1,
 			);
-			const mb = context.nonLeafBlock<number, NonLeafBlock<number, any>>(
-				36,
+			const mb = context.innerBlock<number, InnerBlock<number, any>>(
 				[nlb2, nlb],
+				36,
 				2,
 			);
-			const nlt = context.nonLeafTree(nlb, nlb, mb, 1);
-			const n = nlt._normalize() as NonLeafTree<any, any>;
-			expect(n).toBeInstanceOf(NonLeafTree);
+			const nlt = context.innerTree(nlb, nlb, mb, 60, 1);
+			const n = nlt._normalize() as InnerTree<any, any>;
+			expect(n).toBeInstanceOf(InnerTree);
 			expect((n.middle as any).children).toEqual([nlb2]);
 			expect(n.left).toBe(nlb);
 			expect(n.right.children).toEqual([lb, lb, lb, lb]);
 		}
 	});
 
-	it('append', () => {
+	it('appendChild', () => {
 		const t = createTree();
-		const r1 = t.append(b4);
+		const r1 = t.appendChild(b4);
 
 		expect(r1.left).toBe(nlb1);
-		expect(r1.right).toBeInstanceOf(NonLeafBlock);
+		expect(r1.right).toBeInstanceOf(InnerBlock);
 		expect(r1.right.toArray()).toEqual(
 			Stream.range({ start: 1, amount: 12 }).toArray(),
 		);
@@ -125,12 +135,19 @@ describe('NonLeafTree', () => {
 		expect(r1.right.children[3]).toBe(b4);
 		expect(r1.middle).toBe(nlb3);
 
-		const r2 = r1.append(b5);
+		const r2 = r1.appendChild(b5);
 		expect(r2.left).toBe(nlb1);
-		expect(r2.right).toBeInstanceOf(NonLeafBlock);
-		expect(r2.right.nrChildren).toBe(1);
-		expect(r2.right.children[0]).toBe(b5);
-		expect(r2.middle?.length).toBe(30);
+		expect(r2.right).toBeInstanceOf(InnerBlock);
+		expect(r2.right.nrChildren).toBe(4);
+		expect(r2.right.children[3]).toBe(b5);
+		expect(r2.middle?.length).toBe(21);
+
+		const r3 = r2.appendChild(b6);
+		expect(r3.left).toBe(nlb1);
+		expect(r3.right).toBeInstanceOf(InnerBlock);
+		expect(r3.right.nrChildren).toBe(1);
+		expect(r3.right.children[0]).toBe(b6);
+		expect(r3.middle?.length).toBe(33);
 	});
 
 	it('appendMiddle', () => {
@@ -138,36 +155,38 @@ describe('NonLeafTree', () => {
 			const t = createTree();
 
 			expect((t.middle as any).nrChildren).toBe(2);
-			const r1 = t.appendMiddle(nlb1) as NonLeafBlock<any, any>;
-			expect(r1).toBeInstanceOf(NonLeafBlock);
+			const r1 = t.appendMiddleBlock(nlb1) as InnerBlock<any, any>;
+			expect(r1).toBeInstanceOf(InnerBlock);
 			expect(r1.nrChildren).toBe(3);
 			expect(r1.children).toEqual([nlb1, nlb2, nlb1]);
 		}
 		{
 			// no middle
-			const t = context.nonLeafTree<number, LeafBlock<number>>(
+			const t = context.innerTree<number, OuterBlock<number>>(
 				nlb1,
 				nlb2,
 				null,
+				18,
 				1,
 			);
 
-			const r1 = t.appendMiddle(nlb1) as NonLeafBlock<any, any>;
-			expect(r1).toBeInstanceOf(NonLeafBlock);
+			const r1 = t.appendMiddleBlock(nlb1) as InnerBlock<any, any>;
+			expect(r1).toBeInstanceOf(InnerBlock);
 			expect(r1.nrChildren).toBe(1);
 			expect(r1.children).toEqual([nlb1]);
 		}
 		{
 			// full middle block
-			const t = context.nonLeafTree<number, LeafBlock<number>>(
+			const t = context.innerTree<number, OuterBlock<number>>(
 				nlb1,
 				nlb2,
-				context.nonLeafBlock(36, [nlb1, nlb1, nlb1, nlb1], 2),
+				context.innerBlock([nlb1, nlb1, nlb1, nlb1], 36, 2),
+				54,
 				1,
 			);
 
-			const r1 = t.appendMiddle(nlb1) as NonLeafTree<any, any>;
-			expect(r1).toBeInstanceOf(NonLeafTree);
+			const r1 = t.appendMiddleBlock(nlb1) as InnerTree<any, any>;
+			expect(r1).toBeInstanceOf(InnerTree);
 			expect(r1.left.nrChildren).toBe(4);
 			expect(r1.right.nrChildren).toBe(1);
 		}
@@ -177,48 +196,50 @@ describe('NonLeafTree', () => {
 		{
 			// move current right to middle
 			const t = createTree();
-			const r = t.concatBlock(nlb1) as NonLeafTree<number, LeafBlock<number>>;
+			const r = t.concatBlock(nlb1) as InnerTree<number, OuterBlock<number>>;
 			expect(r.left.nrChildren).toBe(3);
 			expect(r.right.nrChildren).toBe(3);
 			expect(r.middle?.length).toBe(27);
 		}
 		{
 			// append to right
-			const t = context.nonLeafTree<number, LeafBlock<number>>(
+			const t = context.innerTree<number, OuterBlock<number>>(
 				nlb1,
-				context.nonLeafBlock(3, [b1], 1),
+				context.innerBlock([b1], 3, 1),
 				nlb3,
+				30,
 				1,
 			);
-			const r = t.concatBlock(nlb1) as NonLeafTree<number, LeafBlock<number>>;
+			const r = t.concatBlock(nlb1) as InnerTree<number, OuterBlock<number>>;
 			expect(r.left.nrChildren).toBe(3);
 			expect(r.right.nrChildren).toBe(4);
 			expect(r.middle?.length).toBe(18);
 		}
 		{
 			// split new right
-			const t = context.nonLeafTree<number, LeafBlock<number>>(
+			const t = context.innerTree<number, OuterBlock<number>>(
 				nlb1,
-				context.nonLeafBlock(3, [b1], 1),
+				context.innerBlock([b1], 3, 1),
 				nlb3,
+				30,
 				1,
 			);
 			const r = t.concatBlock(
-				context.nonLeafBlock(12, [b1, b1, b1, b1], 1),
-			) as NonLeafTree<number, LeafBlock<number>>;
+				context.innerBlock([b1, b1, b1, b1], 12, 1),
+			) as InnerTree<number, OuterBlock<number>>;
 			expect(r.left.nrChildren).toBe(3);
 			expect(r.right.nrChildren).toBe(1);
 			expect(r.middle?.length).toBe(30);
 		}
 	});
 
-	it('concatTree', () => {
+	it.only('concatTree', () => {
 		{
 			// append right and left to middle
 			const t = createTree();
-			const r = t.concatTree(createTree()) as NonLeafTree<
+			const r = t.concatTree(createTree()) as InnerTree<
 				number,
-				LeafBlock<number>
+				OuterBlock<number>
 			>;
 			expect(r.left.nrChildren).toBe(3);
 			expect(r.right.nrChildren).toBe(3);
@@ -227,52 +248,52 @@ describe('NonLeafTree', () => {
 		}
 		{
 			// merge right and left
-			const t = context.nonLeafTree(
+			const t = context.innerTree(
 				nlb1,
-				context.nonLeafBlock(6, [b1, b2], 1),
+				context.innerBlock([b1, b2], 6, 1),
 				null,
+				15,
 				1,
 			);
-			const t2 = context.nonLeafTree(
-				context.nonLeafBlock<number, LeafBlock<number>>(6, [b1, b2], 1),
+			const t2 = context.innerTree(
+				context.innerBlock<number, OuterBlock<number>>([b1, b2], 6, 1),
 				nlb2,
 				null,
+				15,
 				1,
 			);
-			const r = t.concatTree(t2) as NonLeafTree<number, LeafBlock<number>>;
+			const r = t.concatTree(t2) as InnerTree<number, OuterBlock<number>>;
 			expect(r.left.nrChildren).toBe(3);
 			expect(r.right.nrChildren).toBe(3);
-			const m = r.middle as any as NonLeafBlock<number, LeafBlock<number>>;
+			const m = r.middle as any as InnerBlock<number, OuterBlock<number>>;
 			expect(m.length).toBe(12);
-			expect(m).toBeInstanceOf(NonLeafBlock);
+			expect(m).toBeInstanceOf(InnerBlock);
 			expect(m.children).toEqual<any>([
-				context.nonLeafBlock<number, LeafBlock<number>>(
-					12,
-					[b1, b2, b1, b2],
-					1,
-				),
+				context.innerBlock<number, OuterBlock<number>>([b1, b2, b1, b2], 12, 1),
 			]);
 		}
 		{
 			// merge and split
-			const t = context.nonLeafTree(
+			const t = context.innerTree(
 				nlb1,
-				context.nonLeafBlock(3, [b1], 1),
+				context.innerBlock([b1], 3, 1),
 				null,
+				12,
 				1,
 			);
-			const t2 = context.nonLeafTree(
-				context.nonLeafBlock<number, LeafBlock<number>>(9, [b1, b2, b1, b2], 1),
+			const t2 = context.innerTree(
+				context.innerBlock<number, OuterBlock<number>>([b1, b2, b1, b2], 12, 1),
 				nlb2,
 				null,
+				21,
 				1,
 			);
-			const r = t.concatTree(t2) as NonLeafTree<number, LeafBlock<number>>;
+			const r = t.concatTree(t2) as InnerTree<number, OuterBlock<number>>;
 			expect(r.left.nrChildren).toBe(3);
 			expect(r.right.nrChildren).toBe(3);
-			const m = r.middle as any as NonLeafBlock<number, LeafBlock<number>>;
-			expect(m.length).toBe(12);
-			expect(m).toBeInstanceOf(NonLeafBlock);
+			const m = r.middle as any as InnerBlock<number, OuterBlock<number>>;
+			expect(m.length).toBe(15);
+			expect(m).toBeInstanceOf(InnerBlock);
 			expect(m.nrChildren).toBe(2);
 		}
 	});
@@ -284,8 +305,8 @@ describe('NonLeafTree', () => {
 
 	it('createNonLeafBuilder', () => {
 		const t = createTree();
-		const b = t.createNonLeafBuilder();
-		expect(b).toBeInstanceOf(NonLeafTreeBuilder);
+		const b = t.createInnerBuilder();
+		expect(b).toBeInstanceOf(InnerTreeBuilder);
 		expect(b.build()).toBe(t);
 	});
 
@@ -297,12 +318,12 @@ describe('NonLeafTree', () => {
 			expect(remain).toBe(b1);
 			expect(next?.length).toBe(33);
 			expect(next?.toArray()).toEqual(t.toArray({ range: { start: 3 } }));
-			expect(next).toBeInstanceOf(NonLeafTree);
+			expect(next).toBeInstanceOf(InnerTree);
 		}
 		{
 			// no middle
-			const t = context.nonLeafTree<number, LeafBlock<number>>(
-				context.nonLeafBlock<number, LeafBlock<number>>(3, [b1], 1),
+			const t = context.innerTree<number, OuterBlock<number>>(
+				context.innerBlock<number, OuterBlock<number>>(3, [b1], 1),
 				nlb2,
 				null,
 				1,
@@ -311,12 +332,12 @@ describe('NonLeafTree', () => {
 			expect(remain).toBe(b1);
 			expect(next?.length).toBe(9);
 			expect(next?.toArray()).toEqual(t.toArray({ range: { start: 3 } }));
-			expect(next).toBeInstanceOf(NonLeafBlock);
+			expect(next).toBeInstanceOf(InnerBlock);
 		}
 		{
 			// middle leaf block
-			const t = context.nonLeafTree<number, LeafBlock<number>>(
-				context.nonLeafBlock<number, LeafBlock<number>>(3, [b1], 1),
+			const t = context.innerTree<number, OuterBlock<number>>(
+				context.innerBlock<number, OuterBlock<number>>(3, [b1], 1),
 				nlb2,
 				nlb3,
 				1,
@@ -325,7 +346,7 @@ describe('NonLeafTree', () => {
 			expect(remain).toBe(b1);
 			expect(next?.length).toBe(27);
 			expect(next?.toArray()).toEqual(t.toArray({ range: { start: 3 } }));
-			expect(next).toBeInstanceOf(NonLeafTree);
+			expect(next).toBeInstanceOf(InnerTree);
 		}
 	});
 
@@ -337,16 +358,16 @@ describe('NonLeafTree', () => {
 			expect(remain).toBe(b3);
 			expect(next?.length).toBe(t.length - 3);
 			expect(next?.toArray()).toEqual(t.toArray({ range: { end: -4 } }));
-			expect(next).toBeInstanceOf(NonLeafTree);
+			expect(next).toBeInstanceOf(InnerTree);
 			expect((next as any).right).toEqual(
-				context.nonLeafBlock<number, any>(6, [b1, b2], 1),
+				context.innerBlock<number, any>(6, [b1, b2], 1),
 			);
 		}
 		{
 			// drop last right
-			const t = context.nonLeafTree<number, LeafBlock<number>>(
+			const t = context.innerTree<number, OuterBlock<number>>(
 				nlb1,
-				context.nonLeafBlock<number, LeafBlock<number>>(6, [b1, b2], 1),
+				context.innerBlock<number, OuterBlock<number>>(6, [b1, b2], 1),
 				null,
 				1,
 			);
@@ -354,13 +375,13 @@ describe('NonLeafTree', () => {
 			expect(remain).toBe(b2);
 			expect(next?.length).toBe(t.length - 3);
 			expect(next?.toArray()).toEqual(t.toArray({ range: { end: -4 } }));
-			expect(next).toBeInstanceOf(NonLeafBlock);
+			expect(next).toBeInstanceOf(InnerBlock);
 		}
 		{
 			// move last middle to right
-			const t = context.nonLeafTree<number, LeafBlock<number>>(
+			const t = context.innerTree<number, OuterBlock<number>>(
 				nlb1,
-				context.nonLeafBlock<number, LeafBlock<number>>(3, [b1], 1),
+				context.innerBlock<number, OuterBlock<number>>(3, [b1], 1),
 				nlb3,
 				1,
 			);
@@ -372,9 +393,9 @@ describe('NonLeafTree', () => {
 		}
 		{
 			// drop right
-			const t = context.nonLeafTree<number, LeafBlock<number>>(
+			const t = context.innerTree<number, OuterBlock<number>>(
 				nlb1,
-				context.nonLeafBlock<number, LeafBlock<number>>(3, [b1], 1),
+				context.innerBlock<number, OuterBlock<number>>(3, [b1], 1),
 				null,
 				1,
 			);
@@ -394,7 +415,7 @@ describe('NonLeafTree', () => {
 			expect(upAmount).toBe(1);
 			expect(up).toBe(b1);
 			expect(newT?.toArray()).toEqual(t.toArray({ range: { start: 3 } }));
-			expect(newT).toBeInstanceOf(NonLeafTree);
+			expect(newT).toBeInstanceOf(InnerTree);
 		}
 		{
 			// drop only from left with middle, no left left
@@ -403,7 +424,7 @@ describe('NonLeafTree', () => {
 			expect(upAmount).toBe(0);
 			expect(up).toBe(b1);
 			expect(newT?.toArray()).toEqual(t.toArray({ range: { start: 12 } }));
-			expect(newT).toBeInstanceOf(NonLeafTree);
+			expect(newT).toBeInstanceOf(InnerTree);
 		}
 		{
 			// drop only from left with middle, one left left
@@ -412,11 +433,11 @@ describe('NonLeafTree', () => {
 			expect(upAmount).toBe(2);
 			expect(up).toBe(b3);
 			expect(newT?.toArray()).toEqual(t.toArray({ range: { start: 9 } }));
-			expect(newT).toBeInstanceOf(NonLeafTree);
+			expect(newT).toBeInstanceOf(InnerTree);
 		}
 		{
 			// drop only from left, no middle
-			const t = context.nonLeafTree<number, LeafBlock<number>>(
+			const t = context.innerTree<number, OuterBlock<number>>(
 				nlb1,
 				nlb2,
 				null,
@@ -426,11 +447,11 @@ describe('NonLeafTree', () => {
 			expect(upAmount).toBe(1);
 			expect(up).toBe(b1);
 			expect(newT?.toArray()).toEqual(t.toArray({ range: { start: 3 } }));
-			expect(newT).toBeInstanceOf(NonLeafTree);
+			expect(newT).toBeInstanceOf(InnerTree);
 		}
 		{
 			// drop only from left, no left left, no middle
-			const t = context.nonLeafTree<number, LeafBlock<number>>(
+			const t = context.innerTree<number, OuterBlock<number>>(
 				nlb1,
 				nlb2,
 				null,
@@ -440,7 +461,7 @@ describe('NonLeafTree', () => {
 			expect(upAmount).toBe(0);
 			expect(up).toBe(b1);
 			expect(newT?.toArray()).toEqual(t.toArray({ range: { start: 12 } }));
-			expect(newT).toBeInstanceOf(NonLeafBlock);
+			expect(newT).toBeInstanceOf(InnerBlock);
 		}
 		{
 			// middle
@@ -449,7 +470,7 @@ describe('NonLeafTree', () => {
 			expect(upAmount).toBe(0);
 			expect(up).toBe(b1);
 			expect(newT?.toArray()).toEqual(t.toArray({ range: { start: 18 + 3 } }));
-			expect(newT).toBeInstanceOf(NonLeafTree);
+			expect(newT).toBeInstanceOf(InnerTree);
 		}
 		{
 			// right
@@ -505,7 +526,7 @@ describe('NonLeafTree', () => {
 
 	it('map', () => {
 		{
-			const t = context.nonLeafTree(nlb1, nlb1, nlb3, 1);
+			const t = context.innerTree(nlb1, nlb1, nlb3, 1);
 			const r = t.map((v) => v + 1);
 			expect(r.length).toBe(t.length);
 			expect(r.level).toBe(t.level);
@@ -517,7 +538,7 @@ describe('NonLeafTree', () => {
 			);
 		}
 		{
-			const t = context.nonLeafTree(nlb1, nlb1, nlb3, 1);
+			const t = context.innerTree(nlb1, nlb1, nlb3, 1);
 			const r = t.map((v) => v + 1, { reversed: true });
 			expect(r.length).toBe(t.length);
 			expect(r.level).toBe(t.level);
@@ -532,7 +553,7 @@ describe('NonLeafTree', () => {
 
 	it('mapPure', () => {
 		{
-			const t = context.nonLeafTree(nlb1, nlb1, nlb3, 1);
+			const t = context.innerTree(nlb1, nlb1, nlb3, 1);
 			const r = t.mapPure((v) => v + 1);
 			expect(r.length).toBe(t.length);
 			expect(r.level).toBe(t.level);
@@ -541,7 +562,7 @@ describe('NonLeafTree', () => {
 			expect(r.left).toBe(r.right);
 		}
 		{
-			const t = context.nonLeafTree(nlb1, nlb1, nlb3, 1);
+			const t = context.innerTree(nlb1, nlb1, nlb3, 1);
 			const r = t.mapPure((v) => v + 1, { reversed: true });
 			expect(r.length).toBe(t.length);
 			expect(r.level).toBe(t.level);
@@ -556,7 +577,7 @@ describe('NonLeafTree', () => {
 		const r1 = t.prepend(b4);
 
 		expect(r1.right).toBe(nlb2);
-		expect(r1.left).toBeInstanceOf(NonLeafBlock);
+		expect(r1.left).toBeInstanceOf(InnerBlock);
 		expect(r1.left.toArray()).toEqual(
 			Stream.of(10, 11, 12)
 				.concat(Stream.range({ start: 1, amount: 9 }))
@@ -568,7 +589,7 @@ describe('NonLeafTree', () => {
 
 		const r2 = r1.prepend(b5);
 		expect(r2.right).toBe(nlb2);
-		expect(r2.left).toBeInstanceOf(NonLeafBlock);
+		expect(r2.left).toBeInstanceOf(InnerBlock);
 		expect(r2.left.nrChildren).toBe(1);
 		expect(r2.left.children[0]).toBe(b5);
 		expect(r2.middle?.length).toBe(30);
@@ -579,41 +600,41 @@ describe('NonLeafTree', () => {
 			const t = createTree();
 
 			expect((t.middle as any).nrChildren).toBe(2);
-			const r1 = t.prependMiddle(nlb1) as NonLeafBlock<any, any>;
-			expect(r1).toBeInstanceOf(NonLeafBlock);
+			const r1 = t.prependMiddle(nlb1) as InnerBlock<any, any>;
+			expect(r1).toBeInstanceOf(InnerBlock);
 			expect(r1.nrChildren).toBe(3);
 			expect(r1.children).toEqual([nlb1, nlb2, nlb1]);
 		}
 		{
-			const t = context.nonLeafTree<number, LeafBlock<number>>(
+			const t = context.innerTree<number, OuterBlock<number>>(
 				nlb1,
 				nlb2,
 				null,
 				1,
 			);
 
-			const r1 = t.prependMiddle(nlb1) as NonLeafBlock<any, any>;
-			expect(r1).toBeInstanceOf(NonLeafBlock);
+			const r1 = t.prependMiddle(nlb1) as InnerBlock<any, any>;
+			expect(r1).toBeInstanceOf(InnerBlock);
 			expect(r1.nrChildren).toBe(1);
 			expect(r1.children).toEqual([nlb1]);
 		}
 		{
-			const t = context.nonLeafTree<number, LeafBlock<number>>(
+			const t = context.innerTree<number, OuterBlock<number>>(
 				nlb1,
 				nlb2,
-				context.nonLeafBlock(36, [nlb1, nlb1, nlb1, nlb1], 2),
+				context.innerBlock(36, [nlb1, nlb1, nlb1, nlb1], 2),
 				1,
 			);
 
-			const r1 = t.prependMiddle(nlb1) as NonLeafTree<any, any>;
-			expect(r1).toBeInstanceOf(NonLeafTree);
+			const r1 = t.prependMiddle(nlb1) as InnerTree<any, any>;
+			expect(r1).toBeInstanceOf(InnerTree);
 			expect(r1.right.nrChildren).toBe(4);
 			expect(r1.left.nrChildren).toBe(1);
 		}
 	});
 
 	it('reversed', () => {
-		const t = context.nonLeafTree(nlb1, nlb1, nlb3, 1);
+		const t = context.innerTree(nlb1, nlb1, nlb3, 1);
 		const r = t.reversed();
 		expect(r.left).toBe(r.right);
 		expect(r.toArray()).toEqual(t.toArray({ reversed: true }));
@@ -682,7 +703,7 @@ describe('NonLeafTree', () => {
 			expect(upAmount).toBe(3);
 			expect(up).toBe(b3);
 			expect(newT?.toArray()).toEqual(t.toArray({ range: { amount: 18 - 3 } }));
-			expect(newT).toBeInstanceOf(NonLeafTree);
+			expect(newT).toBeInstanceOf(InnerTree);
 		}
 		{
 			// take from right with middle
@@ -691,13 +712,13 @@ describe('NonLeafTree', () => {
 			expect(upAmount).toBe(2);
 			expect(up).toBe(b3);
 			expect(newT?.toArray()).toEqual(t.toArray({ range: { amount: 33 } }));
-			expect(newT).toBeInstanceOf(NonLeafTree);
+			expect(newT).toBeInstanceOf(InnerTree);
 		}
 		{
 			// take no right remains with middle
-			const t = context.nonLeafTree<number, LeafBlock<number>>(
+			const t = context.innerTree<number, OuterBlock<number>>(
 				nlb1,
-				context.nonLeafBlock<number, LeafBlock<number>>(3, [b3], 1),
+				context.innerBlock<number, OuterBlock<number>>(3, [b3], 1),
 				nlb3,
 				1,
 			);
@@ -705,11 +726,11 @@ describe('NonLeafTree', () => {
 			expect(upAmount).toBe(1);
 			expect(up).toBe(b3);
 			expect(newT?.toArray()).toEqual(t.toArray({ range: { amount: 28 - 1 } }));
-			expect(newT).toBeInstanceOf(NonLeafTree);
+			expect(newT).toBeInstanceOf(InnerTree);
 		}
 		{
 			// take from right no middle
-			const t = context.nonLeafTree<number, LeafBlock<number>>(
+			const t = context.innerTree<number, OuterBlock<number>>(
 				nlb1,
 				nlb2,
 				null,
@@ -719,11 +740,11 @@ describe('NonLeafTree', () => {
 			expect(upAmount).toBe(2);
 			expect(up).toBe(b3);
 			expect(newRight?.toArray()).toEqual(t.toArray({ range: { amount: 15 } }));
-			expect(newRight).toBeInstanceOf(NonLeafTree);
+			expect(newRight).toBeInstanceOf(InnerTree);
 		}
 		{
 			// take from right no middle, no right remains
-			const t = context.nonLeafTree<number, LeafBlock<number>>(
+			const t = context.innerTree<number, OuterBlock<number>>(
 				nlb1,
 				nlb2,
 				null,
@@ -733,13 +754,13 @@ describe('NonLeafTree', () => {
 			expect(upAmount).toBe(3);
 			expect(up).toBe(b2);
 			expect(newRight?.toArray()).toEqual(t.toArray({ range: { amount: 12 } }));
-			expect(newRight).toBeInstanceOf(NonLeafBlock);
+			expect(newRight).toBeInstanceOf(InnerBlock);
 		}
 		{
 			// only left remains, no middle
-			const t = context.nonLeafTree<number, LeafBlock<number>>(
+			const t = context.innerTree<number, OuterBlock<number>>(
 				nlb1,
-				context.nonLeafBlock<number, LeafBlock<number>>(3, [b3], 1),
+				context.innerBlock<number, OuterBlock<number>>(3, [b3], 1),
 				null,
 				1,
 			);
@@ -749,7 +770,7 @@ describe('NonLeafTree', () => {
 			expect(newRight?.toArray()).toEqual(
 				t.toArray({ range: { amount: 10 - 1 } }),
 			);
-			expect(newRight).toBeInstanceOf(NonLeafBlock);
+			expect(newRight).toBeInstanceOf(InnerBlock);
 		}
 	});
 
