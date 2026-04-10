@@ -1,8 +1,7 @@
 import { describe, expect, it, vi } from 'bun:test';
 
-import type { InnerBlock } from '@rimbu/list/internal/immutable/inner-block';
-
 import type { ListContext } from '#list/context-module';
+import type { InnerBlock } from '#list/immutable/inner-block';
 import type { OuterBlock } from '#list/immutable/outer-block';
 
 import { TraverseState } from '@rimbu/common/traverse-state';

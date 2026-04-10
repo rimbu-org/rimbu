@@ -97,11 +97,23 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 	}
 
 	modifyFirstChild(f: (child: C) => number | undefined): number | undefined {
-		return this.left.modifyFirstChild(f);
+		const delta = this.left.modifyFirstChild(f);
+		if (undefined !== delta) {
+			this.prepareMutate();
+			this.length += delta;
+		}
+
+		return delta;
 	}
 
 	modifyLastChild(f: (child: C) => number | undefined): number | undefined {
-		return this.right.modifyLastChild(f);
+		const delta = this.right.modifyLastChild(f);
+		if (undefined !== delta) {
+			this.prepareMutate();
+			this.length += delta;
+		}
+
+		return delta;
 	}
 
 	build(): InnerTree<T, ToImmutable<C>> {
