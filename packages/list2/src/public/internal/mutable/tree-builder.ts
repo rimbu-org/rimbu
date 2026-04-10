@@ -120,7 +120,6 @@ export abstract class TreeBuilder<T, C> extends BuilderBase {
 		}
 
 		// left is already at maximum amount children
-
 		if (undefined !== this.middle) {
 			// try to shift child to first middle
 			const delta = this.middle.modifyFirstChild(
@@ -169,7 +168,6 @@ export abstract class TreeBuilder<T, C> extends BuilderBase {
 		}
 
 		// right is already at maimum amount children
-
 		if (undefined !== this.middle) {
 			// try to shift child to last middle
 			const delta = this.middle.modifyLastChild(
@@ -209,6 +207,7 @@ export abstract class TreeBuilder<T, C> extends BuilderBase {
 	}
 
 	insert(index: number, value: T): void {
+		this.prepareMutate();
 		this.length++;
 
 		const middleIndex = index - this.left.length;
@@ -267,12 +266,11 @@ export abstract class TreeBuilder<T, C> extends BuilderBase {
 				// try to shift child from right to middle last
 				const delta = this.middle.modifyLastChild(
 					(lastChild): number | undefined => {
-						if (lastChild.nrChildren < this.context.maxBlockSize) {
-							const shiftChild = this.right.dropLastChild();
-							lastChild.appendChild(shiftChild);
-							return this.getChildLength(shiftChild);
-						}
-						return;
+						if (!lastChild.canAddChild) return;
+
+						const shiftChild = this.right.dropFirstChild();
+						lastChild.appendChild(shiftChild);
+						return this.getChildLength(shiftChild);
 					},
 				);
 
@@ -300,6 +298,7 @@ export abstract class TreeBuilder<T, C> extends BuilderBase {
 	}
 
 	remove(index: number): T {
+		this.prepareMutate();
 		// update length
 		this.length--;
 

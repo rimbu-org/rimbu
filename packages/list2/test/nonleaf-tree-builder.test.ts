@@ -1,23 +1,21 @@
 import { describe, expect, it, vi } from 'bun:test';
 
-import type { LeafBlockBuilder } from '#list/builder/leaf/block';
-import type { LeafBlock } from '#list/immutable/leaf/block';
+import type { ListContext } from '@rimbu/list/internal/context-module';
+import type { OuterBlock } from '@rimbu/list/internal/immutable/outer-block';
 
+import { ListHelpers } from '@rimbu/list/internal/list-helpers';
 import { Stream } from '@rimbu/stream';
 
-import { NonLeafBlockBuilder } from '#list/builder/nonleaf/block';
-import { NonLeafTreeBuilder } from '#list/builder/nonleaf/tree';
-import { createContextFactoryModule } from '#list/context-factory-module';
-import { NonLeafTree } from '#list/immutable/nonleaf/tree';
-
-const context = createContextFactoryModule({ blockSizeBits: 2 }).build();
+const context = ListHelpers.createListContext({
+	blockSizeBits: 2,
+}) as unknown as ListContext<ListHelpers.TypesImpl>;
 
 describe('NonLeafTreeBuilder', () => {
 	it('build', () => {
 		{
 			// source
-			const lb = context.leafBlock([1, 2, 3, 4]);
-			const nlb = context.nonLeafBlock<number, LeafBlock<number>>(
+			const lb = context.outerBlock([1, 2, 3, 4]);
+			const nlb = context.innerBlock<number, OuterBlock<number>>(
 				12,
 				[lb, lb, lb],
 				1,
@@ -50,8 +48,8 @@ describe('NonLeafTreeBuilder', () => {
 	it('buildMap', () => {
 		{
 			// source
-			const lb = context.leafBlock([1, 2, 3, 4]);
-			const nlb = context.nonLeafBlock<number, LeafBlock<number>>(
+			const lb = context.outerBlock([1, 2, 3, 4]);
+			const nlb = context.innerBlock<number, OuterBlock<number>>(
 				12,
 				[lb, lb, lb],
 				1,
@@ -134,8 +132,8 @@ describe('NonLeafTreeBuilder', () => {
 		}
 		{
 			// source
-			const lb = context.leafBlock([1, 2, 3, 4]);
-			const nlb = context.nonLeafBlock<number, LeafBlock<number>>(
+			const lb = context.outerBlock([1, 2, 3, 4]);
+			const nlb = context.innerBlock<number, OuterBlock<number>>(
 				12,
 				[lb, lb, lb],
 				1,
@@ -176,8 +174,8 @@ describe('NonLeafTreeBuilder', () => {
 		}
 		{
 			// source
-			const lb = context.leafBlock([1, 2, 3, 4]);
-			const nlb = context.nonLeafBlock<number, LeafBlock<number>>(
+			const lb = context.outerBlock([1, 2, 3, 4]);
+			const nlb = context.innerBlock<number, OuterBlock<number>>(
 				12,
 				[lb, lb, lb],
 				1,
@@ -306,8 +304,8 @@ describe('NonLeafTreeBuilder', () => {
 	});
 
 	it('prepareMutate', () => {
-		const lb = context.leafBlock([1, 2, 3, 4]);
-		const nlb = context.nonLeafBlock<number, LeafBlock<number>>(
+		const lb = context.outerBlock([1, 2, 3, 4]);
+		const nlb = context.innerBlock<number, OuterBlock<number>>(
 			12,
 			[lb, lb, lb],
 			1,
@@ -373,13 +371,13 @@ describe('NonLeafTreeBuilder', () => {
 		}
 		{
 			// source
-			const lb = context.leafBlock([1, 2, 3, 4]);
-			const nlb = context.nonLeafBlock<number, LeafBlock<number>>(
+			const lb = context.outerBlock([1, 2, 3, 4]);
+			const nlb = context.innerBlock<number, OuterBlock<number>>(
 				12,
 				[lb, lb, lb],
 				1,
 			);
-			const source = context.nonLeafTree<number, LeafBlock<number>>(
+			const source = context.nonLeafTree<number, OuterBlock<number>>(
 				nlb,
 				nlb,
 				null,

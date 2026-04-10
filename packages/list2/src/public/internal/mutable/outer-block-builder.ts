@@ -90,12 +90,18 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 
 	prependItems(other: OuterBlockBuilder<T>): void {
 		this.prepareMutate();
-		this.children = this.ops.concat(other.children, this.children);
+		this.children = this.ops.concat(
+			other.source?.children ?? other.children,
+			this.children,
+		);
 	}
 
 	appendItems(other: OuterBlockBuilder<T>): void {
 		this.prepareMutate();
-		this.children = this.ops.concat(this.children, other.children);
+		this.children = this.ops.concat(
+			this.children,
+			other.source?.children ?? other.children,
+		);
 	}
 
 	dropFirstChild(): T {

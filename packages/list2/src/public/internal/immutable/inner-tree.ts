@@ -232,12 +232,22 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 			}
 
 			const [newMiddle, toLeft] = this.middle.dropFirstChild();
-			const newSelf = this.copy(toLeft, undefined, newMiddle)._normalize();
+			const newSelf = this.copy(
+				toLeft,
+				undefined,
+				newMiddle,
+				this.length - firstChild.length,
+			)._normalize();
 
 			return [newSelf, firstChild];
 		}
 
-		const newSelf = this.copy(newLeft)._normalize();
+		const newSelf = this.copy(
+			newLeft,
+			undefined,
+			undefined,
+			this.length - firstChild.length,
+		)._normalize();
 
 		return [newSelf, firstChild];
 	}
@@ -254,13 +264,23 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 
 			// move last middle to right
 			const [newMiddle, toRight] = this.middle.dropLastChild();
-			const newSelf = this.copy(undefined, toRight, newMiddle)._normalize();
+			const newSelf = this.copy(
+				undefined,
+				toRight,
+				newMiddle,
+				this.length - lastChild.length,
+			)._normalize();
 
 			return [newSelf, lastChild];
 		}
 
 		// set the new right to right
-		const newSelf = this.copy(undefined, newRight)._normalize();
+		const newSelf = this.copy(
+			undefined,
+			newRight,
+			undefined,
+			this.length - lastChild.length,
+		)._normalize();
 
 		return [newSelf, lastChild];
 	}

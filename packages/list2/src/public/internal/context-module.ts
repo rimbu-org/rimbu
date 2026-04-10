@@ -75,8 +75,8 @@ interface BuilderFactory<Tp extends ListImpl.Types = ListImpl.Types> {
 	outerTreeBuilder<T>(
 		left: OuterBlockBuilder<T>,
 		right: OuterBlockBuilder<T>,
-		middle?: InnerBuilder<T, OuterBlockBuilder<T>>,
-		length?: number,
+		middle: InnerBuilder<T, OuterBlockBuilder<T>> | undefined,
+		length: number,
 	): OuterTreeBuilder<T>;
 	isOuterTreeBuilder<T>(source: unknown): source is OuterTreeBuilder<T>;
 	createInnerBuilder<T, C extends BlockBuilder<T>>(
