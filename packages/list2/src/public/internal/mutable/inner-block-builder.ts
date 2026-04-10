@@ -30,6 +30,10 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		return this._children!;
 	}
 
+	get readChildren(): readonly C[] {
+		return this.source?.children ?? this.children;
+	}
+
 	get nrChildren(): number {
 		return this.source?.nrChildren ?? this.children.length;
 	}
@@ -52,7 +56,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 		const [childIndex, inChildIndex] = this.getCoordinates(index);
 
-		return this.children[childIndex].get(inChildIndex);
+		return this.readChildren[childIndex].get(inChildIndex);
 	}
 
 	updateAt(index: number, update: Update<T>): T {
@@ -231,9 +235,9 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	}
 
 	modifyFirstChild(f: (child: C) => number | undefined): number | undefined {
-		this.prepareMutate();
 		const delta = f(this.firstChild());
 		if (undefined !== delta) {
+			this.prepareMutate();
 			this.length += delta;
 		}
 
@@ -241,9 +245,9 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	}
 
 	modifyLastChild(f: (child: C) => number | undefined): number | undefined {
-		this.prepareMutate();
 		const delta = f(this.lastChild());
 		if (undefined !== delta) {
+			this.prepareMutate();
 			this.length += delta;
 		}
 
@@ -331,12 +335,13 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	}
 
 	getCoordinates(index: number): [number, number] {
-		const nrChildren = this.nrChildren;
+		const readChildren = this.readChildren;
+		const nrChildren = readChildren.length;
 		const length = this.length;
 
 		if (index >= length) {
 			// always return end of last child
-			const lastChild = this.children.at(-1)!;
+			const lastChild = readChildren.at(-1)!;
 			return [nrChildren - 1, lastChild.length];
 		}
 
@@ -355,13 +360,12 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		}
 
 		// not regular, need to search per child
-		const children = this.children;
 
 		if (index <= length >>> 1) {
 			// search left to right
 			let i = index;
 			for (let childIndex = 0; childIndex < nrChildren; childIndex++) {
-				const childLength = children[childIndex].length;
+				const childLength = readChildren[childIndex].length;
 
 				if (i < childLength) {
 					return [childIndex, i];
@@ -373,7 +377,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			// search right to left
 			let i = length - index;
 			for (let childIndex = nrChildren - 1; childIndex >= 0; childIndex--) {
-				const childLength = children[childIndex].length;
+				const childLength = readChildren[childIndex].length;
 
 				if (i <= childLength) {
 					return [childIndex, childLength - i];
