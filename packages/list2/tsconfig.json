@@ -3,6 +3,6 @@
 	"include": ["src", "test", "test-d", "test-random"],
 	"compilerOptions": {
 		"rootDir": ".",
-		"baseUrl": "./src"
+		"baseUrl": "."
 	}
 }

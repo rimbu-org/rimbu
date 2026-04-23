@@ -60,6 +60,9 @@
 		"#private/*": {
 			"types": "./dist/private/*.d.ts",
 			"default": "./dist/private/*.js"
+		},
+		"#test/*": {
+			"default": "./test/*.ts"
 		}
 	},
 	"files": [

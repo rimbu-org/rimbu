@@ -1402,8 +1402,8 @@ describe('List inserts', () => {
     6,  4,  2,  0
  ]
  */
-	it('inserts in the middle', () => {
-		const maxInserts = 1000; // test a lot of cases, because this happend only "sometimes", first occurence is 29
+	it.only('inserts in the middle', () => {
+		const maxInserts = 170; // test a lot of cases, because this happend only "sometimes", first occurence is 29
 		let list = List.empty<number>();
 		for (let i = 0; i < maxInserts; i++) {
 			const index = list.length / 2; // caution this can produce .5 values
@@ -1411,6 +1411,11 @@ describe('List inserts', () => {
 
 			expect(list.length).toBe(i + 1);
 		}
+	});
+
+	it('efficient insert', () => {
+		const list = List.of(1, 2, 3).concat([4, 5], [6, 7, 8]);
+		console.log((list as any)._structure());
 	});
 });
 

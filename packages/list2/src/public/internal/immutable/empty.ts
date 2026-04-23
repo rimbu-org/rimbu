@@ -132,6 +132,10 @@ export class ListEmpty<T> extends EmptyBase implements ListImpl<T> {
 		return 'Empty';
 	}
 
+	_verifyStructure(messages: string[] = []): string[] {
+		return messages;
+	}
+
 	toString(): string {
 		return `List()`;
 	}

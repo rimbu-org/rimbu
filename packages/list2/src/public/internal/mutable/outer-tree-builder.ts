@@ -3,6 +3,8 @@ import type { OuterTree } from '#list/immutable/outer-tree';
 import type { InnerBuilder, OuterBuilder } from '#list/mutable/builder-base';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
+import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
+
 import { TreeBuilder } from '#list/mutable/tree-builder';
 
 export class OuterTreeBuilder<T>
@@ -72,28 +74,30 @@ export class OuterTreeBuilder<T>
 	}
 
 	normalized(): OuterBuilder<T> {
-		if (this.length <= this.context.maxBlockSize) {
-			this.prepareMutate();
-			// can collapse into block
-			this.left.appendItems(this.right);
-			return this.left;
-		}
+		if (undefined === this.middle) {
+			if (this.length <= this.context.maxBlockSize) {
+				this.prepareMutate();
+				// can collapse into block
+				this.left.appendItems(this.right);
+				return this.left;
+			}
+		} else {
+			if (this.length <= this.context.maxBlockSize * 2) {
+				this.prepareMutate();
 
-		if (undefined !== this.middle) {
-			if (this.middle.length + this.left.length <= this.context.maxBlockSize) {
-				this.prepareMutate();
-				// can merge middle with left
-				this.left.appendItems(this.middle.firstChild());
-				this.middle = undefined;
-			} else if (
-				this.middle.length + this.right.length <=
-				this.context.maxBlockSize
-			) {
-				this.prepareMutate();
-				// can merge middle with right
-				const newRight = this.middle.lastChild();
-				newRight.appendItems(this.right);
-				this.right = newRight;
+				if (
+					this.context.isInnerBlockBuilder<T, OuterBlockBuilder<T>>(this.middle)
+				) {
+					this.middle.prepareMutate();
+					for (const child of this.middle.children) {
+						this.left.appendItems(child);
+					}
+				} else {
+					throwInvalidStateError();
+				}
+
+				this.left.appendItems(this.right);
+				this.right = this.left.splitRight();
 				this.middle = undefined;
 			}
 		}
@@ -143,5 +147,28 @@ export class OuterTreeBuilder<T>
 
 	dropBlockLastChild(block: OuterBlockBuilder<T>): T {
 		return block.dropLastChild();
+	}
+
+	_verifyStructure(messages: string[] = []): string[] {
+		if (undefined !== this.source) {
+			return this.source._verifyStructure(messages);
+		}
+
+		if (this.length <= this.context.maxBlockSize) {
+			messages.push(
+				`TreeBuilder length ${this.length} is less than or equal to maxBlockSize ${this.context.maxBlockSize}, should be an OuterBlock`,
+			);
+		}
+
+		if (
+			this.length <= this.context.maxBlockSize * 2 &&
+			undefined !== this.middle
+		) {
+			messages.push(
+				`TreeBuilder length ${this.length} is less than or equal to 2 * maxBlockSize ${this.context.maxBlockSize * 2} but has a middle.`,
+			);
+		}
+
+		return super._verifyStructure(messages);
 	}
 }

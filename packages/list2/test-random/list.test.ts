@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { List } from '@rimbu/list';
+import { List } from '@rimbu/list2';
 import { Stream } from '@rimbu/stream';
 import fs from 'fs';
 

@@ -42,6 +42,18 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		return this.nrChildren < this.context.maxBlockSize;
 	}
 
+	get canRemoveChild(): boolean {
+		return this.nrChildren > this.context.minBlockSize;
+	}
+
+	get childrenInMax(): boolean {
+		return this.nrChildren <= this.context.maxBlockSize;
+	}
+
+	get childrenInMin(): boolean {
+		return this.nrChildren >= this.context.minBlockSize;
+	}
+
 	prepareMutate(): void {
 		if (undefined === this.source) return;
 
@@ -76,17 +88,14 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 		child.insert(inChildIndex, value);
 
-		if (child.nrChildren <= this.context.maxBlockSize) {
+		if (child.childrenInMax) {
 			// no need to normalize
 			return;
 		}
 
 		// child is too large
 		const leftChild = this.children[childIndex - 1];
-		if (
-			undefined !== leftChild &&
-			leftChild.nrChildren < this.context.maxBlockSize
-		) {
+		if (leftChild?.canAddChild) {
 			// shift to leftChild
 			const shiftChild = child.dropFirstChild();
 			leftChild.appendChild(shiftChild);
@@ -95,10 +104,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		}
 
 		const rightChild = this.children[childIndex + 1];
-		if (
-			undefined !== rightChild &&
-			rightChild.nrChildren < this.context.maxBlockSize
-		) {
+		if (rightChild?.canAddChild) {
 			// shift to rightChild
 			const shiftChild = child.dropLastChild();
 			rightChild.prependChild(shiftChild);
@@ -122,16 +128,22 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 		const oldValue = child.remove(inChildIndex);
 
-		if (child.nrChildren >= this.context.minBlockSize || this.nrChildren <= 1) {
+		if (child.canRemoveChild || this.nrChildren <= 1) {
 			// no need to normalize
+
 			return oldValue;
 		}
 
 		const leftChild = this.children[childIndex - 1];
 		if (
 			undefined !== leftChild &&
-			leftChild.nrChildren > this.context.minBlockSize
+			child.nrChildren + leftChild.nrChildren <= this.context.maxBlockSize
 		) {
+			leftChild.appendItems(child);
+			this.children.splice(childIndex, 1);
+
+			return oldValue;
+		} else if (leftChild?.canRemoveChild) {
 			// can shift from left
 			const shiftChild = leftChild.dropLastChild();
 			child.prependChild(shiftChild);
@@ -142,8 +154,13 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		const rightChild = this.children[childIndex + 1];
 		if (
 			undefined !== rightChild &&
-			rightChild.nrChildren > this.context.minBlockSize
+			child.nrChildren + rightChild.nrChildren <= this.context.maxBlockSize
 		) {
+			rightChild.prependItems(child);
+			this.children.splice(childIndex, 1);
+
+			return oldValue;
+		} else if (rightChild?.canRemoveChild) {
 			// can shift from right
 			const shiftChild = rightChild.dropFirstChild();
 			child.appendChild(shiftChild);
@@ -237,7 +254,6 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	modifyFirstChild(f: (child: C) => number | undefined): number | undefined {
 		const delta = f(this.firstChild());
 		if (undefined !== delta) {
-			this.prepareMutate();
 			this.length += delta;
 		}
 
@@ -247,7 +263,6 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	modifyLastChild(f: (child: C) => number | undefined): number | undefined {
 		const delta = f(this.lastChild());
 		if (undefined !== delta) {
-			this.prepareMutate();
 			this.length += delta;
 		}
 
@@ -304,15 +319,15 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		const maxBlockSize = context.maxBlockSize;
 
 		if (this.nrChildren > maxBlockSize) {
-			// too many children, needs to split
-			const middleLength = this.length;
+			const currentLength = this.length;
 
+			// too many children, needs to split
 			const result = context.innerTreeBuilder(
 				this.level,
 				this,
 				this.splitRight(),
 				undefined,
-				middleLength,
+				currentLength,
 			);
 
 			return result;
@@ -324,12 +339,14 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 	prependItems(other: InnerBlockBuilder<T, C>): void {
 		this.prepareMutate();
+		other.prepareMutate();
 		this.length += other.length;
 		this._children = other.children.concat(this.children);
 	}
 
 	appendItems(other: InnerBlockBuilder<T, C>): void {
 		this.prepareMutate();
+		other.prepareMutate();
 		this.length += other.length;
 		this._children = this.children.concat(other.children);
 	}
@@ -388,5 +405,44 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		}
 
 		throwInvalidStateError();
+	}
+
+	_verifyStructure(
+		messages: string[] = [],
+		enforceMinChildren = false,
+	): string[] {
+		if (undefined !== this.source) {
+			return this.source._verifyStructure(messages, enforceMinChildren);
+		}
+
+		if (enforceMinChildren && this.nrChildren < this.context.minBlockSize) {
+			messages.push(
+				`InnerBlockBuilder has too few children: ${this.nrChildren} < ${this.context.minBlockSize}`,
+			);
+		}
+		if (this.nrChildren === 0) {
+			messages.push(`InnerBlockBuilder has no children.`);
+		}
+
+		if (this.nrChildren > this.context.maxBlockSize) {
+			messages.push(
+				`InnerBlockBuilder has too many children: ${this.nrChildren} > ${this.context.maxBlockSize}`,
+			);
+		}
+
+		let length = 0;
+
+		for (const child of this.readChildren) {
+			length += child.length;
+			child._verifyStructure(messages, this.level === 2);
+		}
+
+		if (this.length !== length) {
+			messages.push(
+				`InnerBlockBuilder length ${this.length} does not match sum of children lengths ${length}.`,
+			);
+		}
+
+		return messages;
 	}
 }

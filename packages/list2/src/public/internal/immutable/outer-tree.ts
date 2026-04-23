@@ -539,7 +539,37 @@ export class OuterTree<T>
 		return this;
 	}
 
-	_structure(): string {
-		return `OuterTree<${this.length}>(${this.left._structure()}, ${this.middle?._structure() ?? '<notree>'}, ${this.right._structure()})`;
+	_structure(depth = 0): string {
+		const space = '  '.repeat(depth);
+		const nextDepth = depth + 2;
+		return `\
+${space}OuterTree(len: ${this.length})
+${space}  left: (len: ${this.left.length}, ch: ${this.left.nrChildren})
+${this.left._structure(nextDepth)}
+${space}  middle: (len ${this.middle?.length ?? '-'})
+${this.middle?._structure(nextDepth) ?? `${space}    <notree>`}
+${space}  right: (len: ${this.right.length}, ch: ${this.right.nrChildren})
+${this.right._structure(nextDepth)})\
+`;
+	}
+
+	_verifyStructure(messages: string[] = []): string[] {
+		if (this.length <= this.context.maxBlockSize) {
+			messages.push(
+				`OuterTree length ${this.length} is less than or equal to maxBlockSize ${this.context.maxBlockSize}, should be an OuterBlock`,
+			);
+		}
+
+		if (this.length <= this.context.maxBlockSize * 2 && null !== this.middle) {
+			messages.push(
+				`OuterTree length ${this.length} is less than or equal to 2 * maxBlockSize ${this.context.maxBlockSize * 2} but has a middle.`,
+			);
+		}
+
+		this.left._verifyStructure(messages);
+		this.middle?._verifyStructure(messages);
+		this.right._verifyStructure(messages);
+
+		return messages;
 	}
 }

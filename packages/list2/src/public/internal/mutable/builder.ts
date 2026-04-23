@@ -274,4 +274,12 @@ export class ListBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		}
 		return this.outerBuilder.buildMap(f);
 	};
+
+	_verifyStructure(messages: string[] = []): string[] {
+		if (undefined === this.outerBuilder) {
+			return [];
+		}
+		
+		return this.outerBuilder._verifyStructure(messages);
+	}
 }

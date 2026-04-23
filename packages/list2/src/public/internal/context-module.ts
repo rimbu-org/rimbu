@@ -90,6 +90,9 @@ interface BuilderFactory<Tp extends ListImpl.Types = ListImpl.Types> {
 		children: Array<C>,
 		length: number,
 	): InnerBlockBuilder<T, C>;
+	isInnerBlockBuilder<T, C extends BlockBuilder<T>>(
+		source: unknown,
+	): source is InnerBlockBuilder<T, C>;
 	innerTreeBuilderSource<T, C extends BlockBuilder<T>>(
 		source: InnerTree<T, ToImmutable<C>>,
 	): InnerTreeBuilder<T, C>;
@@ -100,6 +103,9 @@ interface BuilderFactory<Tp extends ListImpl.Types = ListImpl.Types> {
 		middle: InnerBuilder<T, InnerBlockBuilder<T, C>> | undefined,
 		length: number,
 	): InnerTreeBuilder<T, C>;
+	isInnerTreeBuilder<T, C extends BlockBuilder<T>>(
+		source: unknown,
+	): source is InnerTreeBuilder<T, C>;
 }
 
 export interface ListContextBase<Tp extends ListImpl.Types = ListImpl.Types>
@@ -259,6 +265,11 @@ export function createContextModule<
 		): InnerBlockBuilder<T, C> {
 			return new InnerBlockBuilder(mod, level, undefined, children, length);
 		},
+		isInnerBlockBuilder<T, C extends BlockBuilder<T>>(
+			source: unknown,
+		): source is InnerBlockBuilder<T, C> {
+			return source instanceof InnerBlockBuilder;
+		},
 		innerTreeBuilderSource<T, C extends BlockBuilder<T>>(
 			source: InnerTree<T, ToImmutable<C>>,
 		): InnerTreeBuilder<T, C> {
@@ -280,6 +291,11 @@ export function createContextModule<
 				middle,
 				length,
 			);
+		},
+		isInnerTreeBuilder<T, C extends BlockBuilder<T>>(
+			source: unknown,
+		): source is InnerTreeBuilder<T, C> {
+			return source instanceof InnerTreeBuilder;
 		},
 	}));
 

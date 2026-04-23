@@ -1,7 +1,7 @@
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, StringNonEmpty } from '@rimbu/common/types';
-import type { List } from '@rimbu/list';
+import type { List } from '@rimbu/list2';
 
 import type { ListBase } from '#list/list-base';
 import type { ListImpl } from '#list/list-impl';

@@ -129,4 +129,14 @@ export class ReversedOuterBlock<
 	_structure(): string {
 		return `ReversedOuterBlock<${this.length}>(${this.ops.join(this.children, ',', true)})`;
 	}
+
+	_verifyStructure(messages: string[] = []): string[] {
+		if (!this.childrenInMax) {
+			messages.push(
+				`ReversedOuterBlock has more children than allowed: ${this.nrChildren} > ${this.context.maxBlockSize}`,
+			);
+		}
+
+		return messages;
+	}
 }

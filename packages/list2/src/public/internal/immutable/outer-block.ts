@@ -50,6 +50,10 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return this.length < this.context.maxBlockSize;
 	}
 
+	get canRemoveChild(): boolean {
+		return this.length > this.context.minBlockSize;
+	}
+
 	copy(children: WithElem<Tp, T>['outerChildren']): OuterBlock<T> {
 		if (children === this.children) return this;
 		return this.context.outerBlock(children);
@@ -249,6 +253,17 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 			return other.copy(newLeft, undefined, undefined, newLength);
 		}
 
+		if (this.length + other.right.length <= 2 * this.context.maxBlockSize) {
+			const leftRemainChildren = this.context.maxBlockSize - this.length;
+			const newLeft = this.concatChildren(
+				other.left.takeChildren(leftRemainChildren),
+			);
+			const newRight = other.left
+				.dropChildren(leftRemainChildren)
+				.concatChildren(other.right);
+			return other.copy(newLeft, newRight, null, newLength);
+		}
+
 		if (other.left.childrenInMin) {
 			const newMiddle = other.prependMiddle(other.left);
 
@@ -355,7 +370,26 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return this.copy(rightChildren);
 	}
 
-	_structure(): string {
-		return `OuterBlock<${this.length}>(${this.ops.join(this.children, ',')})`;
+	_structure(depth = 0): string {
+		const space = '  '.repeat(depth);
+		return `${space}OuterBlock<${this.length}>(${this.ops.join(this.children, ',')})`;
+	}
+
+	_verifyStructure(
+		messages: string[] = [],
+		enforceMinChildren = false,
+	): string[] {
+		if (enforceMinChildren && !this.childrenInMin) {
+			messages.push(
+				`OuterBlock has fewer children than allowed: ${this.nrChildren} < ${this.context.minBlockSize}`,
+			);
+		}
+		if (!this.childrenInMax) {
+			messages.push(
+				`OuterBlock has more children than allowed: ${this.nrChildren} > ${this.context.maxBlockSize}`,
+			);
+		}
+
+		return messages;
 	}
 }

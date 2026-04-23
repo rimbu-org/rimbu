@@ -19,6 +19,10 @@ export interface BuilderCommon<T> {
 		f: (value: T, index: number, halt: () => void) => void,
 		options: { reversed: boolean; state: TraverseState },
 	): void;
+	_verifyStructure(
+		messages?: string[] | undefined,
+		enforceMinChildren?: boolean | undefined,
+	): string[];
 }
 
 export interface OuterBuilder<T> extends BuilderCommon<T> {
@@ -48,6 +52,9 @@ export interface BlockBuilder<T, C = unknown> extends BuilderCommon<T> {
 	get length(): number;
 	get nrChildren(): number;
 	get canAddChild(): boolean;
+	get canRemoveChild(): boolean;
+	get childrenInMax(): boolean;
+	get childrenInMin(): boolean;
 	prependItems(other: BlockBuilder<T, C>): void;
 	appendItems(other: BlockBuilder<T, C>): void;
 	splitRight(index?: number): BlockBuilder<T, C>;

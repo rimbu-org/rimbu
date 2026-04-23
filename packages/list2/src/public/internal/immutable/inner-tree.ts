@@ -291,12 +291,13 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 		if (newFirstChild === firstChild) {
 			return this;
 		}
+		const delta = newFirstChild.length - firstChild.length;
 		const newLeft = this.left.copy(
-			[newFirstChild, ...this.left.children.slice(1)],
-			this.left.length - firstChild.length + newFirstChild.length,
+			this.left.children.toSpliced(0, 1, newFirstChild),
+			this.left.length + delta,
 		);
 
-		return this.copy(newLeft);
+		return this.copy(newLeft, undefined, undefined, this.length + delta);
 	}
 
 	modifyLastChild(f: (child: C) => C): Inner<T, C> {
@@ -305,12 +306,13 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 		if (newLastChild === lastChild) {
 			return this;
 		}
+		const delta = newLastChild.length - lastChild.length;
 		const newRight = this.right.copy(
-			[...this.right.children.slice(0, -1), newLastChild],
-			this.right.length - lastChild.length + newLastChild.length,
+			this.right.children.toSpliced(-1, 1, newLastChild),
+			this.right.length + delta,
 		);
 
-		return this.copy(undefined, newRight);
+		return this.copy(undefined, newRight, undefined, this.length + delta);
 	}
 
 	concat(inner: Inner<T, C>): Inner<T, C> {
@@ -474,22 +476,40 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 			if (null === newRight) {
 				// no right remains, move last middle up
 				const [newMiddle, toRight] = this.middle.dropLastChild();
-
-				const newSelf = this.copy(undefined, toRight, newMiddle)._normalize();
+				const newLength =
+					this.left.length + toRight.length + (newMiddle?.length ?? 0);
+				const newSelf = this.copy(
+					undefined,
+					toRight,
+					newMiddle,
+					newLength,
+				)._normalize();
 
 				return [newSelf, up, upAmount];
 			}
 
 			// some right remains, update and normalize
-			const newSelf = this.copy(undefined, newRight)._normalize();
+			const newLength = this.length - this.right.length + newRight.length;
+			const newSelf = this.copy(
+				undefined,
+				newRight,
+				undefined,
+				newLength,
+			)._normalize();
 
 			return [newSelf, up, upAmount];
 		}
 
 		// take from middle
 		const [newMiddle, upRight] = this.middle.takeInternal(middleAmount);
-
-		const newSelf = this.copy(undefined, upRight, newMiddle)._normalize();
+		const newLength =
+			this.left.length + upRight.length + (newMiddle?.length ?? 0);
+		const newSelf = this.copy(
+			undefined,
+			upRight,
+			newMiddle,
+			newLength,
+		)._normalize();
 		return newSelf.takeInternal(amount);
 	}
 
@@ -518,13 +538,20 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 			if (null === newLeft) {
 				// all of left gone
 				const [newMiddle, toLeft] = this.middle.dropFirstChild();
-				const newSelf = this.copy(toLeft, undefined, newMiddle)._normalize();
+				const newLength = this.length - this.left.length + toLeft.length;
+				const newSelf = this.copy(
+					toLeft,
+					undefined,
+					newMiddle,
+					newLength,
+				)._normalize();
 
 				return [newSelf, upLeft, upLeftAmount];
 			}
 
 			// left remaining
-			const newSelf = this.copy(newLeft);
+			const newLength = this.length - this.left.length + newLeft.length;
+			const newSelf = this.copy(newLeft, undefined, undefined, newLength);
 
 			return [newSelf, upLeft, upLeftAmount];
 		}
@@ -540,7 +567,14 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 		const [newMiddle, upLeft, inUpLeft] =
 			this.middle.dropInternal(middleAmount);
 
-		const newSelf = this.copy(upLeft, undefined, newMiddle)._normalize();
+		const newLength =
+			upLeft.length + this.right.length + (newMiddle?.length ?? 0);
+		const newSelf = this.copy(
+			upLeft,
+			undefined,
+			newMiddle,
+			newLength,
+		)._normalize();
 
 		return newSelf.dropInternal(inUpLeft);
 	}
@@ -668,7 +702,25 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 		return this.copy2(newLeft, newRight, newMiddle);
 	}
 
-	_structure(): string {
-		return `InnerTree<${this.length}>(${this.left._structure()}, ${this.middle?._structure() ?? '<notree>'}, ${this.right._structure()})`;
+	_structure(depth: number): string {
+		const space = '  '.repeat(depth);
+		const nextDepth = depth + 2;
+		return `\
+${space}InnerTree(lev:${this.level}, len${this.length})
+${space}  left: (len:${this.left.length}, children:${this.left.nrChildren})
+${this.left._structure(nextDepth)}
+${space}  middle: (len:${this.middle?.length ?? '-'})
+${this.middle?._structure(nextDepth) ?? `${space}    <notree>`}
+${space}  right: (len:${this.right.length}, children:${this.right.nrChildren})
+${this.right._structure(nextDepth)}\
+`;
+	}
+
+	_verifyStructure(messages: string[] = []): string[] {
+		this.left._verifyStructure(messages, false);
+		this.middle?._verifyStructure(messages, false);
+		this.right._verifyStructure(messages, false);
+
+		return messages;
 	}
 }

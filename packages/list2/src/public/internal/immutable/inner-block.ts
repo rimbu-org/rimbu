@@ -8,7 +8,7 @@ import type { InnerTree } from '#list/immutable/inner-tree';
 import type { Block, Inner } from '#list/immutable/utils';
 import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
 
-import { append, concat, last, prepend, splice } from '@rimbu/base/arr';
+import { append, concat, prepend, splice } from '@rimbu/base/arr';
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { IndexRange } from '@rimbu/common/index-range';
 import { Stream } from '@rimbu/stream';
@@ -38,6 +38,10 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 
 	get canAddChild(): boolean {
 		return this.children.length < this.context.maxBlockSize;
+	}
+
+	get canRemoveChild(): boolean {
+		return this.children.length > this.context.minBlockSize;
 	}
 
 	copy(
@@ -383,9 +387,8 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 			this.context.maxBlockSize,
 		);
 
-		const length = newChildren.reduce((l, c): number => l + c.length, 0);
-
-		return this.copy(newChildren, length);
+		const newLength = newChildren.reduce((l, c): number => l + c.length, 0);
+		return this.copy(newChildren, newLength);
 	}
 
 	dropChildren(childAmount: number): InnerBlock<T, C> | null {
@@ -398,9 +401,8 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 
 		const newChildren = splice(this.children, 0, childAmount);
 
-		const length = newChildren.reduce((l, c): number => l + c.length, 0);
-
-		return this.copy(newChildren, length);
+		const newLength = newChildren.reduce((l, c): number => l + c.length, 0);
+		return this.copy(newChildren, newLength);
 	}
 
 	takeInternal(amount: number): [InnerBlock<T, C> | null, C, number] {
@@ -532,7 +534,7 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		if (indexWithOffset >= length) {
 			// return the end
 			if (noEmptyLast) {
-				return [nrChildren - 1, last(children).length - 1];
+				return [nrChildren - 1, children.at(-1)!.length - 1];
 			}
 
 			return [nrChildren, 0];
@@ -630,7 +632,34 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		return this.copy(rightChildren, rightLength);
 	}
 
-	_structure(): string {
-		return `InnerBlock<${this.length}>(${this.children.map((c) => c._structure()).join(',')})`;
+	_structure(depth: number): string {
+		const space = '  '.repeat(depth);
+		const nextDepth = depth + 2;
+		return `\
+${space}InnerBlock(lev:${this.level}, len:${this.length}, ch: ${this.nrChildren})
+${this.children.map((c) => c._structure(nextDepth)).join('\n')}\
+`;
+	}
+
+	_verifyStructure(
+		messages: string[] = [],
+		enforceMinChildren = false,
+	): string[] {
+		if (enforceMinChildren && !this.childrenInMin) {
+			messages.push(
+				`InnerBlock of level ${this.level} has fewer children than allowed: ${this.nrChildren} < ${this.context.minBlockSize}`,
+			);
+		}
+		if (!this.childrenInMax) {
+			messages.push(
+				`InnerBlock of level ${this.level} has more children than allowed: ${this.nrChildren} > ${this.context.maxBlockSize}`,
+			);
+		}
+
+		for (const child of this.children) {
+			child._verifyStructure(messages, true);
+		}
+
+		return messages;
 	}
 }

@@ -45,6 +45,18 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return this.nrChildren < this.context.maxBlockSize;
 	}
 
+	get canRemoveChild(): boolean {
+		return this.nrChildren > this.context.minBlockSize;
+	}
+
+	get childrenInMax(): boolean {
+		return this.nrChildren <= this.context.maxBlockSize;
+	}
+
+	get childrenInMin(): boolean {
+		return this.nrChildren >= this.context.minBlockSize;
+	}
+
 	prepareMutate(): void {
 		if (undefined === this.source) return;
 
@@ -191,5 +203,30 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 	appendChild(child: T): void {
 		this.prepareMutate();
 		this.children = this.ops.mutateAppend(this.children, child);
+	}
+
+	_verifyStructure(
+		messages: string[] = [],
+		enforceMinChildren = false,
+	): string[] {
+		if (undefined !== this.source) {
+			return this.source._verifyStructure(messages);
+		}
+
+		if (enforceMinChildren && this.nrChildren < this.context.minBlockSize) {
+			messages.push(
+				`OuterBlockBuilder has too few children: ${this.nrChildren} < ${this.context.minBlockSize}`,
+			);
+		}
+		if (this.nrChildren === 0) {
+			messages.push(`OuterBlockBuilder has no children.`);
+		}
+		if (this.nrChildren > this.context.maxBlockSize) {
+			messages.push(
+				`OuterBlockBuilder has too many children: ${this.nrChildren} > ${this.context.maxBlockSize}`,
+			);
+		}
+
+		return messages;
 	}
 }

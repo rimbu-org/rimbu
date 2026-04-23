@@ -1,4 +1,4 @@
-import type { ListImpl } from '@rimbu/list/internal/list-impl';
+import type { ListImpl } from '@rimbu/list2/internal/list-impl';
 
 import type { ListBase } from '#list/list-base';
 

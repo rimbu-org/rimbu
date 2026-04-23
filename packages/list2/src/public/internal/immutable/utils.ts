@@ -25,7 +25,11 @@ export interface ListCommon<T> {
 		mapFun: (value: T, index: number) => T2,
 		options?: { reversed?: boolean; indexOffset?: number },
 	): ListCommon<T2>;
-	_structure(): string;
+	_structure(depth?: number): string;
+	_verifyStructure(
+		messages?: string[] | undefined,
+		enforceMinChildren?: boolean | undefined,
+	): string[];
 }
 
 export interface Block<T, C = unknown> extends ListCommon<T> {
@@ -36,6 +40,7 @@ export interface Block<T, C = unknown> extends ListCommon<T> {
 	readonly childrenInMin: boolean;
 	readonly childrenInMax: boolean;
 	readonly canAddChild: boolean;
+	readonly canRemoveChild: boolean;
 	updateAt(index: number, update: Update<T>): Block<T, C>;
 	concatChildren(other: Block<T, C>): this['_self'];
 	takeChildren(amount: number): Block<T, C> | null;
