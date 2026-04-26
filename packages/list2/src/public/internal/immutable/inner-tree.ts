@@ -489,7 +489,7 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 			}
 
 			// some right remains, update and normalize
-			const newLength = this.length - this.right.length + newRight.length;
+			const newLength = this.left.length + newRight.length + this.middle.length;
 			const newSelf = this.copy(
 				undefined,
 				newRight,
@@ -538,7 +538,8 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 			if (null === newLeft) {
 				// all of left gone
 				const [newMiddle, toLeft] = this.middle.dropFirstChild();
-				const newLength = this.length - this.left.length + toLeft.length;
+				const newLength =
+					toLeft.length + this.right.length + (newMiddle?.length ?? 0);
 				const newSelf = this.copy(
 					toLeft,
 					undefined,
@@ -550,7 +551,7 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 			}
 
 			// left remaining
-			const newLength = this.length - this.left.length + newLeft.length;
+			const newLength = newLeft.length + this.right.length + this.middle.length;
 			const newSelf = this.copy(newLeft, undefined, undefined, newLength);
 
 			return [newSelf, upLeft, upLeftAmount];
@@ -717,6 +718,55 @@ ${this.right._structure(nextDepth)}\
 	}
 
 	_verifyStructure(messages: string[] = []): string[] {
+		if (this.left.level !== this.level) {
+			messages.push(
+				`InnerTree has left block with wrong level: ${this.left.level} != ${this.level}`,
+			);
+		}
+		if (this.right.level !== this.level) {
+			messages.push(
+				`InnerTree has right block with wrong level: ${this.right.level} != ${this.level}`,
+			);
+		}
+		if (this.middle && this.middle.level !== this.level + 1) {
+			messages.push(
+				`InnerTree has middle with wrong level: ${this.middle.level} != ${this.level + 1}`,
+			);
+		}
+		if (null === this.middle) {
+			if (
+				this.left.nrChildren + this.right.nrChildren <=
+				this.context.maxBlockSize
+			) {
+				messages.push(
+					`InnerTree can merge left and right, they have too few children: ${this.left.nrChildren} + ${this.right.nrChildren} <= ${this.context.maxBlockSize}`,
+				);
+			}
+		} else {
+			this.middle.modifyFirstChild((firstMiddle) => {
+				if (
+					this.left.nrChildren + firstMiddle.nrChildren <=
+					this.context.maxBlockSize
+				) {
+					messages.push(
+						`InnerTree can merge left and first middle, they have too few children: ${this.left.nrChildren} + ${firstMiddle.nrChildren} <= ${this.context.maxBlockSize}`,
+					);
+				}
+				return firstMiddle;
+			});
+			this.middle.modifyLastChild((lastMiddle) => {
+				if (
+					this.right.nrChildren + lastMiddle.nrChildren <=
+					this.context.maxBlockSize
+				) {
+					messages.push(
+						`InnerTree can merge right and last middle, they have too few children: ${this.right.nrChildren} + ${lastMiddle.nrChildren} <= ${this.context.maxBlockSize}`,
+					);
+				}
+				return lastMiddle;
+			});
+		}
+
 		this.left._verifyStructure(messages, false);
 		this.middle?._verifyStructure(messages, false);
 		this.right._verifyStructure(messages, false);

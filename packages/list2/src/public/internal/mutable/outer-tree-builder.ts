@@ -156,7 +156,7 @@ export class OuterTreeBuilder<T>
 
 		if (this.length <= this.context.maxBlockSize) {
 			messages.push(
-				`TreeBuilder length ${this.length} is less than or equal to maxBlockSize ${this.context.maxBlockSize}, should be an OuterBlock`,
+				`OuterTreeBuilder length ${this.length} is less than or equal to maxBlockSize ${this.context.maxBlockSize}, should be an OuterBlock`,
 			);
 		}
 
@@ -165,7 +165,7 @@ export class OuterTreeBuilder<T>
 			undefined !== this.middle
 		) {
 			messages.push(
-				`TreeBuilder length ${this.length} is less than or equal to 2 * maxBlockSize ${this.context.maxBlockSize * 2} but has a middle.`,
+				`OuterTreeBuilder length ${this.length} is less than or equal to 2 * maxBlockSize ${this.context.maxBlockSize * 2} but has a middle.`,
 			);
 		}
 

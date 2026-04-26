@@ -66,13 +66,30 @@ describe('OuterBlock', () => {
 	});
 
 	it('concatTree', () => {
-		const tr3 = createBlock(1, 2, 3, 4).concatTree(
-			context.outerTree(createBlock(5), createBlock(6, 7, 8, 9), null, 5),
-		);
+		{
+			const tr = createBlock(1, 2, 3, 4).concatTree(
+				context.outerTree(createBlock(5), createBlock(6, 7, 8, 9), null, 5),
+			);
 
-		expect(tr3.left.toArray()).toEqual([1]);
-		expect(tr3.middle?.toArray()).toEqual([2, 3, 4, 5]);
-		expect(tr3.right.toArray()).toEqual([6, 7, 8, 9]);
+			expect(tr.left.toArray()).toEqual([1]);
+			expect(tr.middle?.toArray()).toEqual([2, 3, 4, 5]);
+			expect(tr.right.toArray()).toEqual([6, 7, 8, 9]);
+		}
+		{
+			const tr = createBlock(1).concatTree(
+				context.outerTree(createBlock(5), createBlock(6, 7, 8, 9), null, 5),
+			);
+			expect(tr.left.toArray()).toEqual([1, 5]);
+			expect(tr.middle).toBeNull();
+		}
+		{
+			const tr = createBlock(1).concatTree(
+				context.outerTree(createBlock(5, 6, 7, 8), createBlock(9), null, 5),
+			);
+			expect(tr.left.toArray()).toEqual([1, 5, 6]);
+			expect(tr.middle).toBeNull();
+			expect(tr.right.toArray()).toEqual([7, 8, 9]);
+		}
 	});
 });
 

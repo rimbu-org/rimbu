@@ -560,7 +560,7 @@ ${this.right._structure(nextDepth)})\
 			);
 		}
 
-		if (this.length <= this.context.maxBlockSize * 2 && null !== this.middle) {
+		if (null !== this.middle && this.length <= this.context.maxBlockSize * 2) {
 			messages.push(
 				`OuterTree length ${this.length} is less than or equal to 2 * maxBlockSize ${this.context.maxBlockSize * 2} but has a middle.`,
 			);

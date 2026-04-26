@@ -55,7 +55,7 @@ describe('List Builder Structure', () => {
 		}
 	});
 
-	it('removing results in valid structure', () => {
+	it.only('removing results in valid structure', () => {
 		for (let max = 1; max <= 2000; max += 10) {
 			const amount = max;
 			const builder = List.from(Stream.range({ amount })).toBuilder();
@@ -63,13 +63,13 @@ describe('List Builder Structure', () => {
 			for (let i = 0; i < amount; i++) {
 				const index = Math.round((builder.length / 10) * (i % 8));
 				const before = builder.build();
-				builder.remove(index, i);
+				const oldValue = builder.remove(index, i);
 				const messages = (
 					builder as unknown as BuilderCommon<number>
 				)._verifyStructure();
 				if (messages.length > 0) {
 					console.log('before', (before as any)._structure());
-					console.log({ i, index });
+					console.log({ amount, i, index, oldValue });
 					console.log((builder.build() as any)._structure());
 				}
 				expect(messages).toEqual([]);

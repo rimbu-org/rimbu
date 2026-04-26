@@ -1,9 +1,0 @@
-{
-	"compilerOptions": {
-		"paths": {
-			"@rimbu/list": ["./src/entry/list.ts"],
-			"@rimbu/list/*": ["./src/public/*.ts"],
-			"#list/*": ["./src/public/internal/*.ts"]
-		}
-	}
-}

@@ -248,19 +248,19 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		const newLength = this.length + other.length;
 
 		if (this.length + other.left.length <= this.context.maxBlockSize) {
+			// this block children fit in tree left, just merge
 			const newLeft = this.concatChildren(other.left);
 
 			return other.copy(newLeft, undefined, undefined, newLength);
 		}
 
-		if (this.length + other.right.length <= 2 * this.context.maxBlockSize) {
-			const leftRemainChildren = this.context.maxBlockSize - this.length;
-			const newLeft = this.concatChildren(
-				other.left.takeChildren(leftRemainChildren),
+		if (this.length + other.length <= 2 * this.context.maxBlockSize) {
+			// can fit in other left and right without middle, rebalance
+			const newLeft = this.concatChildren(other.left).concatChildren(
+				other.right,
 			);
-			const newRight = other.left
-				.dropChildren(leftRemainChildren)
-				.concatChildren(other.right);
+			const newRight = newLeft._mutateSplitRight();
+
 			return other.copy(newLeft, newRight, null, newLength);
 		}
 

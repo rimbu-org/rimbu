@@ -138,35 +138,11 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		const firstChild = this.left.dropFirstChild();
 		this.length -= firstChild.length;
 
-		if (!this.left.childrenInMin) {
-			// need to rebalance left
-
-			if (undefined === this.middle) {
-				if (this.right.canRemoveChild) {
-					// shift one child from right to left
-					const shiftToLeft = this.right.dropFirstChild();
-					this.left.appendChild(shiftToLeft);
-				}
-			} else {
-				const firstMiddleBlock = this.middle.firstChild();
-
-				if (
-					this.left.nrChildren + firstMiddleBlock.nrChildren <=
-					this.context.maxBlockSize
-				) {
-					// combine left and first middle block into one block
-					this.left.appendItems(firstMiddleBlock);
-					this.middle.dropFirstChild();
-					this.middle = this.middle.normalized();
-				} else {
-					// shift one child from middle to left
-					this.middle.modifyFirstChild((firstMiddleChild) => {
-						const shiftLeft = firstMiddleChild.dropFirstChild();
-						this.left.appendChild(shiftLeft);
-						return -shiftLeft.length;
-					});
-				}
-			}
+		if (this.left.nrChildren === 0 && undefined !== this.middle) {
+			// left is empty, need to shift from middle to left
+			const firstMiddleBlock = this.middle.dropFirstChild();
+			this.middle = this.middle.normalized();
+			this.left = firstMiddleBlock;
 		}
 
 		return firstChild;
@@ -177,34 +153,11 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		const lastChild = this.right.dropLastChild();
 		this.length -= lastChild.length;
 
-		if (!this.right.childrenInMin) {
-			// need to rebalance right
-			if (undefined === this.middle) {
-				if (this.left.canRemoveChild) {
-					// shift one child from left to right
-					const shiftToRight = this.left.dropLastChild();
-					this.right.prependChild(shiftToRight);
-				}
-			} else {
-				const lastMiddleBlock = this.middle.lastChild();
-
-				if (
-					this.right.nrChildren + lastMiddleBlock.nrChildren <=
-					this.context.maxBlockSize
-				) {
-					// combine right and last middle block into one block
-					this.right.prependItems(lastMiddleBlock);
-					this.middle.dropLastChild();
-					this.middle = this.middle.normalized();
-				} else {
-					// shift one child from middle to right
-					this.middle.modifyLastChild((lastMiddleChild) => {
-						const shiftRight = lastMiddleChild.dropLastChild();
-						this.right.prependChild(shiftRight);
-						return -shiftRight.length;
-					});
-				}
-			}
+		if (this.right.nrChildren === 0 && undefined !== this.middle) {
+			// right is empty, need to shift from middle to right
+			const lastMiddleBlock = this.middle.dropLastChild();
+			this.middle = this.middle.normalized();
+			this.right = lastMiddleBlock;
 		}
 
 		return lastChild;
@@ -267,39 +220,39 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 
 				return this.left;
 			}
-		} else {
-			if (
-				this.context.isInnerBlockBuilder<T, InnerBlockBuilder<T, C>>(
-					this.middle,
-				) &&
-				this.middle.nrChildren <= 2
-			) {
-				const firstMiddleBlock = this.middle.firstChild();
-				const secondMiddleBlock =
-					this.middle.nrChildren === 2 ? this.middle.lastChild() : null;
-				const totalNrChildren =
-					this.left.nrChildren +
-					firstMiddleBlock.nrChildren +
-					(secondMiddleBlock?.nrChildren ?? 0) +
-					this.right.nrChildren;
+		} else if (
+			this.context.isInnerBlockBuilder<T, InnerBlockBuilder<T, C>>(
+				this.middle,
+			) &&
+			this.middle.nrChildren <= 2
+		) {
+			this.middle.prepareMutate();
+			const [firstMiddleBlock, secondMiddleBlock] = this.middle.children;
+			const totalNrChildren =
+				this.left.nrChildren +
+				firstMiddleBlock.nrChildren +
+				(secondMiddleBlock?.nrChildren ?? 0) +
+				this.right.nrChildren;
 
-				if (totalNrChildren <= this.context.maxBlockSize * 2) {
-					this.left.appendItems(firstMiddleBlock);
-					if (null !== secondMiddleBlock) {
-						this.left.appendItems(secondMiddleBlock);
-					}
-					this.left.appendItems(this.right);
-					this.middle = undefined;
-
-					if (totalNrChildren <= this.context.maxBlockSize) {
-						// combine into one block
-						return this.left;
-					}
-
-					this.right = this.left.splitRight();
-
-					return this;
+			if (totalNrChildren <= this.context.maxBlockSize * 2) {
+				this.left.appendItems(firstMiddleBlock);
+				if (undefined !== secondMiddleBlock) {
+					this.left.appendItems(secondMiddleBlock);
 				}
+				this.left.appendItems(this.right);
+				this.middle = undefined;
+				if (this.left.nrChildren <= this.context.maxBlockSize) {
+					// combine into one block
+					return this.left;
+				}
+				this.right = this.left.splitRight();
+				return this;
+			} else if (!this.left.childrenInMin) {
+				this.middle.modifyFirstChild((child) => {
+					const middleFirstChild = child.dropFirstChild();
+					this.left.appendChild(middleFirstChild);
+					return -this.getChildLength(middleFirstChild);
+				});
 			}
 		}
 
@@ -340,30 +293,28 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 					`InnerTreeBuilder has no middle but left and right children count ${this.left.nrChildren} + ${this.right.nrChildren} is less than or equal to maxBlockSize ${this.context.maxBlockSize}, should be an InnerBlock`,
 				);
 			}
-		} else {
-			// if (
-			// 	this.context.isInnerBlockBuilder(this.middle) &&
-			// 	this.middle.nrChildren <= 2
-			// ) {
-			// 	let nrChildren = this.middle.firstChild().nrChildren;
-			// 	if (this.middle.nrChildren === 2) {
-			// 		nrChildren += this.middle.lastChild().nrChildren;
-			// 	}
-			// 	if (nrChildren <= this.context.maxBlockSize) {
-			// 		messages.push(
-			// 			`InnerTreeBuilder has a middle with ${this.middle.nrChildren} children but total middle children count ${nrChildren} is less than or equal to maxBlockSize ${this.context.maxBlockSize}, should be an InnerBlock`,
-			// 		);
-			// 	}
-			// }
-		}
-
-		if (
-			this.length <= this.context.maxBlockSize * 2 &&
-			undefined !== this.middle
+		} else if (
+			this.context.isInnerBlockBuilder<T, InnerBlockBuilder<T, C>>(
+				this.middle,
+			) &&
+			this.middle.nrChildren <= 2
 		) {
-			messages.push(
-				`TreeBuilder length ${this.length} is less than or equal to 2 * maxBlockSize ${this.context.maxBlockSize * 2} but has a middle.`,
-			);
+			const [firstMiddleBlock, secondMiddleBlock] = this.middle.readChildren;
+			const totalNrChildren =
+				this.left.nrChildren +
+				firstMiddleBlock.nrChildren +
+				(secondMiddleBlock?.nrChildren ?? 0) +
+				this.right.nrChildren;
+
+			if (totalNrChildren <= this.context.maxBlockSize) {
+				messages.push(
+					`InnerTreeBuilder has middle but total children count ${totalNrChildren} is less than or equal to maxBlockSize ${this.context.maxBlockSize}, should be an InnerBlock`,
+				);
+			} else if (totalNrChildren <= this.context.maxBlockSize * 2) {
+				messages.push(
+					`InnerTreeBuilder has middle but total children count ${totalNrChildren} is less than or equal to 2 * maxBlockSize ${this.context.maxBlockSize * 2}, should be combined into one block`,
+				);
+			}
 		}
 
 		return super._verifyStructure(messages);

@@ -309,68 +309,44 @@ export abstract class TreeBuilder<T, C> extends BuilderBase {
 		this.length--;
 
 		const middleIndex = index - this.left.length;
+		const minLeftRightChildren =
+			this.level <= 0 ? 1 : this.context.minBlockSize;
 
 		if (middleIndex < 0) {
 			// index is in left
 			const oldValue = this.left.remove(index);
 
-			if (
-				undefined !== this.middle &&
-				this.left.nrChildren === this.context.minBlockSize
-			) {
-				// try to merge with middle's first child
-				const firstMiddleChild = this.middle.firstChild();
-
-				if (firstMiddleChild.nrChildren === this.context.minBlockSize) {
-					this.middle.dropFirstChild();
-					this.middle = this.middle.normalized();
-					this.left.appendItems(firstMiddleChild);
-
-					return oldValue;
-				}
-			}
-
-			if (this.left.childrenInMin) {
-				// no rebalancing needed
+			if (this.left.nrChildren >= minLeftRightChildren) {
+				// no need to rebalance
 				return oldValue;
 			}
-
-			// rebalancing is needed
 
 			if (undefined !== this.middle) {
-				// left borrows from middle
-				const delta = this.middle.modifyFirstChild(
-					(firstChild): number | undefined => {
-						if (firstChild.canRemoveChild) {
-							// left borrows from middle's first grandChild
-							const shiftChild = firstChild.dropFirstChild();
-							this.left.appendChild(shiftChild);
-							return -this.getChildLength(shiftChild);
+				if (this.left.nrChildren === 0) {
+					const firstMiddleBlock = this.middle.dropFirstChild();
+					this.middle = this.middle.normalized();
+					this.left = firstMiddleBlock;
+				} else {
+					const firstMiddleBlock = this.middle.dropFirstChild();
+					this.middle = this.middle.normalized();
+					this.left.appendItems(firstMiddleBlock);
+
+					if (!this.left.childrenInMax) {
+						const newFirstMiddleBlock = this.left.splitRight();
+						if (this.middle === undefined) {
+							this.middle = this.context.innerBlockBuilder(
+								this.level + 1,
+								[newFirstMiddleBlock],
+								newFirstMiddleBlock.length,
+							);
+						} else {
+							this.middle.prependChild(newFirstMiddleBlock);
 						}
-						return;
-					},
-				);
-
-				if (undefined !== delta) {
-					// borrow was succesful
-					return oldValue;
+					}
 				}
-
-				// need to merge middle's first child with left
-				const middleFirst = this.middle.dropFirstChild();
-				this.middle = this.middle.normalized();
-				this.left.appendItems(middleFirst);
-
-				return oldValue;
-			} else if (this.right.canRemoveChild) {
-				// left merges with right's first child
-				const shiftChild = this.right.dropFirstChild();
-				this.left.appendChild(shiftChild);
-
-				return oldValue;
 			}
 
-			throwInvalidStateError();
+			return oldValue;
 		}
 
 		const rightIndex = middleIndex - (this.middle?.length ?? 0);
@@ -379,62 +355,36 @@ export abstract class TreeBuilder<T, C> extends BuilderBase {
 			// index is in right
 			const oldValue = this.right.remove(rightIndex);
 
-			if (
-				undefined !== this.middle &&
-				this.right.nrChildren === this.context.minBlockSize
-			) {
-				const lastMiddleChild = this.middle.lastChild();
-
-				if (lastMiddleChild.nrChildren === this.context.minBlockSize) {
-					this.middle.dropLastChild();
-					this.middle = this.middle.normalized();
-					this.right.prependItems(lastMiddleChild);
-
-					return oldValue;
-				}
-			}
-
-			if (this.right.childrenInMin) {
-				// no rebalancing needed
+			if (this.right.nrChildren >= minLeftRightChildren) {
+				// no need to rebalance
 				return oldValue;
 			}
-
-			// rebalancing is needed
 
 			if (undefined !== this.middle) {
-				// right borrows from middle
-				const delta = this.middle.modifyLastChild(
-					(lastChild): number | undefined => {
-						if (lastChild.canRemoveChild) {
-							const shiftChild = lastChild.dropLastChild();
-							this.right.prependChild(shiftChild);
-							return -this.getChildLength(shiftChild);
+				if (this.right.nrChildren === 0) {
+					const lastMiddleBlock = this.middle.dropLastChild();
+					this.middle = this.middle.normalized();
+					this.right = lastMiddleBlock;
+				} else {
+					const lastMiddleBlock = this.middle.dropLastChild();
+					this.right.prependItems(lastMiddleBlock);
+
+					if (!this.right.childrenInMax) {
+						const newLastMiddleBlock = this.right.splitRight();
+						if (this.middle === undefined) {
+							this.middle = this.context.innerBlockBuilder(
+								this.level + 1,
+								[newLastMiddleBlock],
+								newLastMiddleBlock.length,
+							);
+						} else {
+							this.middle.appendChild(newLastMiddleBlock);
 						}
-						return;
-					},
-				);
-
-				if (undefined !== delta) {
-					//  borrow was succesful
-					return oldValue;
+					}
 				}
-
-				// need to merge middle's last child with right
-				const middleLast = this.middle.dropLastChild();
-				this.middle = this.middle.normalized();
-				middleLast.appendItems(this.right);
-				this.right = middleLast;
-
-				return oldValue;
-			} else if (this.left.canRemoveChild) {
-				// right borrows from left
-				const shiftChild = this.left.dropLastChild();
-				this.right.prependChild(shiftChild);
-
-				return oldValue;
 			}
 
-			throwInvalidStateError();
+			return oldValue;
 		}
 
 		if (undefined === this.middle) {
@@ -457,18 +407,12 @@ export abstract class TreeBuilder<T, C> extends BuilderBase {
 			) {
 				this.left.appendItems(firstMiddleChild);
 				this.middle = undefined;
-
-				return oldValue;
-			}
-
-			if (
+			} else if (
 				this.right.nrChildren + firstMiddleChild.nrChildren <=
 				this.context.maxBlockSize
 			) {
 				this.right.prependItems(firstMiddleChild);
 				this.middle = undefined;
-
-				return oldValue;
 			}
 		}
 
@@ -519,9 +463,20 @@ export abstract class TreeBuilder<T, C> extends BuilderBase {
 			);
 		}
 
+		if (undefined === this.middle) {
+			if (
+				this.left.nrChildren + this.right.nrChildren <=
+				this.context.maxBlockSize
+			) {
+				messages.push(
+					`TreeBuilder has no middle but left and right children count ${this.left.nrChildren} + ${this.right.nrChildren} is less than or equal to maxBlockSize ${this.context.maxBlockSize}, should be an InnerBlock`,
+				);
+			}
+		}
+
 		this.left._verifyStructure(messages);
 
-		this.middle?._verifyStructure(messages);
+		this.middle?._verifyStructure(messages, false);
 
 		this.right._verifyStructure(messages);
 

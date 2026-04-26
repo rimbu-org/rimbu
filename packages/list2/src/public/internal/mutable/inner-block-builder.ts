@@ -135,52 +135,84 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		}
 
 		const leftChild = this.children[childIndex - 1];
-		if (
-			undefined !== leftChild &&
-			child.nrChildren + leftChild.nrChildren <= this.context.maxBlockSize
-		) {
-			leftChild.appendItems(child);
-			this.children.splice(childIndex, 1);
+		if (undefined !== leftChild) {
+			if (
+				child.nrChildren + leftChild.nrChildren <=
+				this.context.maxBlockSize
+			) {
+				// merge with left
+				leftChild.appendItems(child);
+				this.children.splice(childIndex, 1);
 
-			return oldValue;
-		} else if (leftChild?.canRemoveChild) {
-			// can shift from left
-			const shiftChild = leftChild.dropLastChild();
-			child.prependChild(shiftChild);
-
-			return oldValue;
+				return oldValue;
+			}
 		}
 
 		const rightChild = this.children[childIndex + 1];
-		if (
-			undefined !== rightChild &&
-			child.nrChildren + rightChild.nrChildren <= this.context.maxBlockSize
-		) {
-			rightChild.prependItems(child);
-			this.children.splice(childIndex, 1);
+		if (undefined !== rightChild) {
+			if (
+				child.nrChildren + rightChild.nrChildren <=
+				this.context.maxBlockSize
+			) {
+				// merge with right
+				rightChild.prependItems(child);
+				this.children.splice(childIndex, 1);
 
-			return oldValue;
-		} else if (rightChild?.canRemoveChild) {
-			// can shift from right
-			const shiftChild = rightChild.dropFirstChild();
-			child.appendChild(shiftChild);
+				return oldValue;
+			}
+		}
 
+		if (child.childrenInMin) {
 			return oldValue;
 		}
 
-		if (undefined !== leftChild) {
-			// merge with left
+		const minChildren =
+			undefined === leftChild
+				? rightChild
+				: undefined === rightChild
+					? leftChild
+					: leftChild.nrChildren <= rightChild.nrChildren
+						? leftChild
+						: rightChild;
+
+		if (minChildren === leftChild) {
+			// rebalance with left
 			leftChild.appendItems(child);
-			this.children.splice(childIndex, 1);
+			this.children[childIndex] = leftChild.splitRight(
+				Math.ceil(leftChild.nrChildren / 2),
+			) as C;
+
+			// // can shift from left
+			// const shiftChild = leftChild.dropLastChild();
+			// child.prependChild(shiftChild);
+
+			return oldValue;
+		} else {
+			// rebalance with right
+			child.appendItems(rightChild);
+			this.children[childIndex + 1] = child.splitRight(
+				Math.floor(child.nrChildren / 2),
+			) as C;
+
+			// const shiftChild = rightChild.dropFirstChild();
+			// child.appendChild(shiftChild);
 
 			return oldValue;
 		}
 
-		// merge with right
-		child.appendItems(rightChild);
-		this.children.splice(childIndex + 1, 1);
+		// if (!child.childrenInMin) {
+		// 	if (undefined !== leftChild) {
+		// 		// merge with left
+		// 		leftChild.appendItems(child);
+		// 		this.children.splice(childIndex, 1);
+		// 	} else {
+		// 		// merge with right
+		// 		child.appendItems(rightChild);
+		// 		this.children.splice(childIndex + 1, 1);
+		// 	}
+		// }
 
-		return oldValue;
+		// return oldValue;
 	}
 
 	forEach(
@@ -252,18 +284,55 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	}
 
 	modifyFirstChild(f: (child: C) => number | undefined): number | undefined {
-		const delta = f(this.firstChild());
+		const firstChild = this.firstChild();
+		const delta = f(firstChild);
 		if (undefined !== delta) {
 			this.length += delta;
+		}
+
+		if (!firstChild.childrenInMin && this.nrChildren > 1) {
+			const secondChild = this.children[1];
+
+			if (
+				firstChild.nrChildren + secondChild.nrChildren <=
+				this.context.maxBlockSize
+			) {
+				// merge with second child
+				firstChild.appendItems(secondChild);
+				this.children.splice(1, 1);
+			} else {
+				// rebalance with second child
+				firstChild.appendItems(secondChild);
+				this.children[1] = firstChild.splitRight() as C;
+			}
 		}
 
 		return delta;
 	}
 
 	modifyLastChild(f: (child: C) => number | undefined): number | undefined {
-		const delta = f(this.lastChild());
+		const lastChild = this.lastChild();
+		const delta = f(lastChild);
 		if (undefined !== delta) {
 			this.length += delta;
+		}
+
+		if (!lastChild.childrenInMin && this.nrChildren > 1) {
+			const lastIndex = this.nrChildren - 1;
+			const secondLastChild = this.children[lastIndex - 1];
+
+			if (
+				lastChild.nrChildren + secondLastChild.nrChildren <=
+				this.context.maxBlockSize
+			) {
+				// merge with second last child
+				secondLastChild.appendItems(this.lastChild());
+				this.children.pop();
+			} else {
+				// rebalance with second last child
+				secondLastChild.appendItems(this.lastChild());
+				this.children[lastIndex - 1] = secondLastChild.splitRight() as C;
+			}
 		}
 
 		return delta;
@@ -320,12 +389,13 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 		if (this.nrChildren > maxBlockSize) {
 			const currentLength = this.length;
+			const newRight = this.splitRight();
 
 			// too many children, needs to split
 			const result = context.innerTreeBuilder(
 				this.level,
 				this,
-				this.splitRight(),
+				newRight,
 				undefined,
 				currentLength,
 			);
@@ -341,14 +411,41 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		this.prepareMutate();
 		other.prepareMutate();
 		this.length += other.length;
-		this._children = other.children.concat(this.children);
+
+		const firstChild = this.children[0];
+		const lastIndex = other.nrChildren - 1;
+		for (let i = 0; i < other.nrChildren; i++) {
+			const child = other.children[i];
+			if (
+				i === lastIndex &&
+				firstChild.nrChildren + child.nrChildren <= this.context.maxBlockSize
+			) {
+				// can merge with first child
+				firstChild.prependItems(child);
+			} else {
+				this.children.unshift(child);
+			}
+		}
 	}
 
 	appendItems(other: InnerBlockBuilder<T, C>): void {
 		this.prepareMutate();
 		other.prepareMutate();
 		this.length += other.length;
-		this._children = this.children.concat(other.children);
+
+		const lastChild = this.children.at(-1)!;
+		for (let i = 0; i < other.nrChildren; i++) {
+			const child = other.children[i];
+			if (
+				i === 0 &&
+				lastChild.nrChildren + child.nrChildren <= this.context.maxBlockSize
+			) {
+				// can merge with last child
+				lastChild.appendItems(child);
+			} else {
+				this.children.push(child);
+			}
+		}
 	}
 
 	getCoordinates(index: number): [number, number] {
@@ -415,7 +512,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			return this.source._verifyStructure(messages, enforceMinChildren);
 		}
 
-		if (enforceMinChildren && this.nrChildren < this.context.minBlockSize) {
+		if (enforceMinChildren && !this.childrenInMin) {
 			messages.push(
 				`InnerBlockBuilder has too few children: ${this.nrChildren} < ${this.context.minBlockSize}`,
 			);
@@ -424,17 +521,24 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			messages.push(`InnerBlockBuilder has no children.`);
 		}
 
-		if (this.nrChildren > this.context.maxBlockSize) {
+		if (!this.childrenInMax) {
 			messages.push(
 				`InnerBlockBuilder has too many children: ${this.nrChildren} > ${this.context.maxBlockSize}`,
 			);
 		}
 
 		let length = 0;
+		let lastChildWasMinSize = false;
 
 		for (const child of this.readChildren) {
+			if (!child.canRemoveChild && lastChildWasMinSize) {
+				messages.push(
+					`InnerBlockBuilder of level ${this.level} has two adjacent children with minimum number of children, which is not allowed.`,
+				);
+			}
+			lastChildWasMinSize = !child.canRemoveChild;
 			length += child.length;
-			child._verifyStructure(messages, this.level === 2);
+			child._verifyStructure(messages, true);
 		}
 
 		if (this.length !== length) {
