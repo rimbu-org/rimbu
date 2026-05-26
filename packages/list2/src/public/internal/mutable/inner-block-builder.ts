@@ -428,6 +428,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 				this.children.map((c) => c.buildMap(f)),
 				this.length,
 				this.level,
+				this.sizes,
 			)
 		);
 	}
@@ -492,17 +493,27 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 		const firstChild = this.children[0];
 		const lastIndex = other.nrChildren - 1;
+
+		// Collect children from `other` that will be prepended as-is (all except
+		// possibly the last one which may merge into this.children[0]).
+		const toPrepend: C[] = [];
 		for (let i = 0; i < other.nrChildren; i++) {
 			const child = other.children[i];
 			if (
 				i === lastIndex &&
 				firstChild.nrChildren + child.nrChildren <= this.context.maxBlockSize
 			) {
-				// can merge with first child
+				// merge boundary children instead of prepending
 				firstChild.prependItems(child);
 			} else {
-				this.children.unshift(child);
+				toPrepend.push(child);
 			}
+		}
+
+		// Single splice to prepend all collected children in O(n) instead of
+		// repeated unshift calls which would be O(n²).
+		if (toPrepend.length > 0) {
+			this.children.splice(0, 0, ...toPrepend);
 		}
 
 		this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
