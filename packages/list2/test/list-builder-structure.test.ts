@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import type { BuilderCommon } from '@rimbu/list/internal/mutable/builder-base';
+import type { BuilderCommon } from '@rimbu/list2/internal/mutable/builder-base';
 
 import { List } from '@rimbu/list2';
 import { Stream } from '@rimbu/stream';
@@ -55,7 +55,7 @@ describe('List Builder Structure', () => {
 		}
 	});
 
-	it.only('removing results in valid structure', () => {
+	it('removing results in valid structure', () => {
 		for (let max = 1; max <= 2000; max += 10) {
 			const amount = max;
 			const builder = List.from(Stream.range({ amount })).toBuilder();

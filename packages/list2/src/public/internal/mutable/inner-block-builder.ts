@@ -14,7 +14,7 @@ import {
  * Recompute a full cumulative size table from the current mutable children.
  * Returns null if the block is regular (all children fill exactly blockSize elements).
  */
-function recomputeSizes(
+export function recomputeSizes(
 	children: readonly { length: number }[],
 	level: number,
 	blockSizeBits: number,
