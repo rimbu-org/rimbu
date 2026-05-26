@@ -767,9 +767,9 @@ ${this.right._structure(nextDepth)}\
 			// });
 		}
 
-		this.left._verifyStructure(messages, false);
+		this.left._verifyStructure(messages, true);
 		this.middle?._verifyStructure(messages, false);
-		this.right._verifyStructure(messages, false);
+		this.right._verifyStructure(messages, true);
 
 		return messages;
 	}

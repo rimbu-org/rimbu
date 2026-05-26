@@ -680,15 +680,8 @@ ${this.children.map((c) => c._structure(nextDepth)).join('\n')}\
 			);
 		}
 
-		let lastChildWasMinSize = false;
 		let length = 0;
 		for (const child of this.children) {
-			if (!child.canRemoveChild && lastChildWasMinSize) {
-				messages.push(
-					`InnerBlock of level ${this.level} has two adjacent children with minimum number of children, which is not allowed.`,
-				);
-			}
-			lastChildWasMinSize = !child.canRemoveChild;
 			length += child.length;
 			child._verifyStructure(messages, true);
 		}
