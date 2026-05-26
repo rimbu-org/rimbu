@@ -360,17 +360,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		this.length -= child.length;
 
 		if (this.sizes !== null) {
-			const removed = this.sizes.shift()!;
-			// Subtract removed size from all remaining entries.
-			for (let i = 0; i < this.sizes.length; i++) {
-				this.sizes[i] -= removed;
-			}
-			// Check if now regular.
-			if (this.children.length > 0) {
-				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
-			} else {
-				this.sizes = null;
-			}
+			this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
 		}
 
 		return child;
@@ -382,13 +372,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		this.length -= child.length;
 
 		if (this.sizes !== null) {
-			this.sizes.pop();
-			// Check if now regular.
-			if (this.children.length > 0) {
-				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
-			} else {
-				this.sizes = null;
-			}
+			this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
 		}
 
 		return child;
