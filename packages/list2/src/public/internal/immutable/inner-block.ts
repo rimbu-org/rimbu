@@ -23,7 +23,7 @@ function computeSizeTable<T>(
 	level: number,
 	blockSizeBits: number,
 ): number[] | null {
-	const levelBits = blockSizeBits << (level - 1);
+	const levelBits = blockSizeBits * level;
 	const blockSize = 1 << levelBits;
 	const nrChildren = children.length;
 	let total = 0;
@@ -580,8 +580,8 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 
 		// Fast path: regular block — all children have the same full subtree size.
 		if (this.sizes === null) {
-			const levelBits = this.context.blockSizeBits << (this.level - 1);
-			const blockSize = 1 << levelBits;
+		const levelBits = this.context.blockSizeBits * this.level;
+		const blockSize = 1 << levelBits;
 			const childIndex = indexWithOffset >>> levelBits;
 			const inChildIndex = (indexWithOffset & (blockSize - 1)) + offSet;
 			return [childIndex, inChildIndex];

@@ -19,7 +19,7 @@ export function recomputeSizes(
 	level: number,
 	blockSizeBits: number,
 ): number[] | null {
-	const levelBits = blockSizeBits << (level - 1);
+	const levelBits = blockSizeBits * level;
 	const blockSize = 1 << levelBits;
 	const n = children.length;
 	let total = 0;
@@ -574,7 +574,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 		// Fast path: regular block.
 		if (this.sizes === null) {
-			const levelBits = this.context.blockSizeBits << (this.level - 1);
+			const levelBits = this.context.blockSizeBits * this.level;
 			const blockSize = 1 << levelBits;
 			const childIndex = index >>> levelBits;
 			const inChildIndex = index & (blockSize - 1);
