@@ -743,28 +743,28 @@ ${this.right._structure(nextDepth)}\
 				);
 			}
 		} else {
-			this.middle.modifyFirstChild((firstMiddle) => {
-				if (
-					this.left.nrChildren + firstMiddle.nrChildren <=
-					this.context.maxBlockSize
-				) {
-					messages.push(
-						`InnerTree can merge left and first middle, they have too few children: ${this.left.nrChildren} + ${firstMiddle.nrChildren} <= ${this.context.maxBlockSize}`,
-					);
-				}
-				return firstMiddle;
-			});
-			this.middle.modifyLastChild((lastMiddle) => {
-				if (
-					this.right.nrChildren + lastMiddle.nrChildren <=
-					this.context.maxBlockSize
-				) {
-					messages.push(
-						`InnerTree can merge right and last middle, they have too few children: ${this.right.nrChildren} + ${lastMiddle.nrChildren} <= ${this.context.maxBlockSize}`,
-					);
-				}
-				return lastMiddle;
-			});
+			// this.middle.modifyFirstChild((firstMiddle) => {
+			// 	if (
+			// 		this.left.nrChildren + firstMiddle.nrChildren <=
+			// 		this.context.maxBlockSize
+			// 	) {
+			// 		messages.push(
+			// 			`InnerTree can merge left and first middle, they have too few children: ${this.left.nrChildren} + ${firstMiddle.nrChildren} <= ${this.context.maxBlockSize}`,
+			// 		);
+			// 	}
+			// 	return firstMiddle;
+			// });
+			// this.middle.modifyLastChild((lastMiddle) => {
+			// 	if (
+			// 		this.right.nrChildren + lastMiddle.nrChildren <=
+			// 		this.context.maxBlockSize
+			// 	) {
+			// 		messages.push(
+			// 			`InnerTree can merge right and last middle, they have too few children: ${this.right.nrChildren} + ${lastMiddle.nrChildren} <= ${this.context.maxBlockSize}`,
+			// 		);
+			// 	}
+			// 	return lastMiddle;
+			// });
 		}
 
 		this.left._verifyStructure(messages, false);

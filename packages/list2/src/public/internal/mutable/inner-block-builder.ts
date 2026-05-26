@@ -125,7 +125,6 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 		// remove from child
 		const child = this.children[childIndex];
-
 		const oldValue = child.remove(inChildIndex);
 
 		if (child.canRemoveChild || this.nrChildren <= 1) {
@@ -163,9 +162,11 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		}
 
 		if (child.childrenInMin) {
+			// child has enough children, and left and right more than min, so all good
 			return oldValue;
 		}
 
+		// find sibling with least children
 		const minChildren =
 			undefined === leftChild
 				? rightChild
@@ -182,37 +183,16 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 				Math.ceil(leftChild.nrChildren / 2),
 			) as C;
 
-			// // can shift from left
-			// const shiftChild = leftChild.dropLastChild();
-			// child.prependChild(shiftChild);
-
-			return oldValue;
-		} else {
-			// rebalance with right
-			child.appendItems(rightChild);
-			this.children[childIndex + 1] = child.splitRight(
-				Math.floor(child.nrChildren / 2),
-			) as C;
-
-			// const shiftChild = rightChild.dropFirstChild();
-			// child.appendChild(shiftChild);
-
 			return oldValue;
 		}
 
-		// if (!child.childrenInMin) {
-		// 	if (undefined !== leftChild) {
-		// 		// merge with left
-		// 		leftChild.appendItems(child);
-		// 		this.children.splice(childIndex, 1);
-		// 	} else {
-		// 		// merge with right
-		// 		child.appendItems(rightChild);
-		// 		this.children.splice(childIndex + 1, 1);
-		// 	}
-		// }
+		// rebalance with right
+		child.appendItems(rightChild);
+		this.children[childIndex + 1] = child.splitRight(
+			Math.floor(child.nrChildren / 2),
+		) as C;
 
-		// return oldValue;
+		return oldValue;
 	}
 
 	forEach(
@@ -247,14 +227,35 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		this.prepareMutate();
 		this.length += child.length;
 
-		this.children.unshift(child);
+		const firstChild = this.children[0]!;
+
+		if (firstChild.nrChildren + child.nrChildren <= this.context.maxBlockSize) {
+			// can merge with first child
+			firstChild.prependItems(child);
+		} else if (!firstChild.childrenInMin) {
+			firstChild.prependItems(child);
+			const newSecondChild = firstChild.splitRight() as C;
+			this.children.splice(1, 0, newSecondChild);
+		} else {
+			this.children.unshift(child);
+		}
 	}
 
 	appendChild(child: C): void {
 		this.prepareMutate();
 		this.length += child.length;
 
-		this.children.push(child);
+		const lastChild = this.children.at(-1)!;
+
+		if (lastChild.nrChildren + child.nrChildren <= this.context.maxBlockSize) {
+			// can merge with last child
+			lastChild.appendItems(child);
+		} else if (!lastChild.childrenInMin) {
+			lastChild.appendItems(child);
+			this.children.push(lastChild.splitRight() as C);
+		} else {
+			this.children.push(child);
+		}
 	}
 
 	firstChild(): C {
@@ -290,20 +291,16 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			this.length += delta;
 		}
 
-		if (!firstChild.childrenInMin && this.nrChildren > 1) {
+		if (
+			firstChild.nrChildren === this.context.minBlockSize &&
+			this.nrChildren > 1
+		) {
 			const secondChild = this.children[1];
 
-			if (
-				firstChild.nrChildren + secondChild.nrChildren <=
-				this.context.maxBlockSize
-			) {
+			if (secondChild.nrChildren === this.context.minBlockSize) {
 				// merge with second child
 				firstChild.appendItems(secondChild);
 				this.children.splice(1, 1);
-			} else {
-				// rebalance with second child
-				firstChild.appendItems(secondChild);
-				this.children[1] = firstChild.splitRight() as C;
 			}
 		}
 
@@ -317,23 +314,36 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			this.length += delta;
 		}
 
-		if (!lastChild.childrenInMin && this.nrChildren > 1) {
-			const lastIndex = this.nrChildren - 1;
-			const secondLastChild = this.children[lastIndex - 1];
+		if (
+			lastChild.nrChildren === this.context.minBlockSize &&
+			this.nrChildren > 1
+		) {
+			const secondLastChild = this.children.at(-2)!;
 
-			if (
-				lastChild.nrChildren + secondLastChild.nrChildren <=
-				this.context.maxBlockSize
-			) {
+			if (secondLastChild.nrChildren === this.context.minBlockSize) {
 				// merge with second last child
-				secondLastChild.appendItems(this.lastChild());
+				secondLastChild.appendItems(lastChild);
 				this.children.pop();
-			} else {
-				// rebalance with second last child
-				secondLastChild.appendItems(this.lastChild());
-				this.children[lastIndex - 1] = secondLastChild.splitRight() as C;
 			}
 		}
+
+		// if (!lastChild.childrenInMin && this.nrChildren > 1) {
+		// 	const lastIndex = this.nrChildren - 1;
+		// 	const secondLastChild = this.children[lastIndex - 1];
+
+		// 	if (
+		// 		lastChild.nrChildren + secondLastChild.nrChildren <=
+		// 		this.context.maxBlockSize
+		// 	) {
+		// 		// merge with second last child
+		// 		secondLastChild.appendItems(this.lastChild());
+		// 		this.children.pop();
+		// 	} else {
+		// 		// rebalance with second last child
+		// 		secondLastChild.appendItems(this.lastChild());
+		// 		this.children[lastIndex - 1] = secondLastChild.splitRight() as C;
+		// 	}
+		// }
 
 		return delta;
 	}

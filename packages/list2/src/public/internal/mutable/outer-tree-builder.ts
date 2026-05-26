@@ -73,33 +73,84 @@ export class OuterTreeBuilder<T>
 		return super.get(index);
 	}
 
+	remove(index: number): T {
+		this.prepareMutate();
+
+		this.length--;
+
+		const middleIndex = index - this.left.length;
+
+		if (middleIndex < 0) {
+			// index is in left
+			const oldValue = this.left.remove(index);
+
+			if (this.left.length === 0) {
+				if (undefined !== this.middle) {
+					this.left = this.middle.dropFirstChild();
+					this.middle = this.middle.normalized();
+				}
+			}
+
+			return oldValue;
+		}
+
+		const rightIndex = middleIndex - (this.middle?.length ?? 0);
+
+		if (rightIndex >= 0) {
+			// index is in right
+			const oldValue = this.right.remove(rightIndex);
+
+			if (this.right.length === 0) {
+				if (undefined !== this.middle) {
+					this.right = this.middle.dropLastChild();
+					this.middle = this.middle.normalized();
+				}
+			}
+
+			return oldValue;
+		}
+
+		if (undefined === this.middle) {
+			throwInvalidStateError();
+		}
+
+		// index is in middle
+		const oldValue = this.middle.remove(middleIndex);
+		this.middle = this.middle.normalized();
+
+		return oldValue;
+	}
+
 	normalized(): OuterBuilder<T> {
 		if (undefined === this.middle) {
 			if (this.length <= this.context.maxBlockSize) {
-				this.prepareMutate();
 				// can collapse into block
+				this.prepareMutate();
 				this.left.appendItems(this.right);
 				return this.left;
 			}
-		} else {
-			if (this.length <= this.context.maxBlockSize * 2) {
-				this.prepareMutate();
 
-				if (
-					this.context.isInnerBlockBuilder<T, OuterBlockBuilder<T>>(this.middle)
-				) {
-					this.middle.prepareMutate();
-					for (const child of this.middle.children) {
-						this.left.appendItems(child);
-					}
-				} else {
-					throwInvalidStateError();
+			return this;
+		}
+
+		if (this.length <= this.context.maxBlockSize * 2) {
+			// no middle needed
+			this.prepareMutate();
+
+			if (
+				this.context.isInnerBlockBuilder<T, OuterBlockBuilder<T>>(this.middle)
+			) {
+				this.middle.prepareMutate();
+				for (const child of this.middle.children) {
+					this.left.appendItems(child);
 				}
-
-				this.left.appendItems(this.right);
-				this.right = this.left.splitRight();
-				this.middle = undefined;
+			} else {
+				throwInvalidStateError();
 			}
+
+			this.left.appendItems(this.right);
+			this.right = this.left.splitRight();
+			this.middle = undefined;
 		}
 
 		return this;

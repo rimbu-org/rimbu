@@ -303,121 +303,214 @@ export abstract class TreeBuilder<T, C> extends BuilderBase {
 		this.middle = this.middle.normalized();
 	}
 
-	remove(index: number): T {
-		this.prepareMutate();
-		// update length
-		this.length--;
+	// remove(index: number): T {
+	// 	this.prepareMutate();
+	// 	// update length
+	// 	this.length--;
 
-		const middleIndex = index - this.left.length;
-		const minLeftRightChildren =
-			this.level <= 0 ? 1 : this.context.minBlockSize;
+	// 	const middleIndex = index - this.left.length;
 
-		if (middleIndex < 0) {
-			// index is in left
-			const oldValue = this.left.remove(index);
+	// 	if (middleIndex < 0) {
+	// 		// index is in left
+	// 		const oldValue = this.left.remove(index);
 
-			if (this.left.nrChildren >= minLeftRightChildren) {
-				// no need to rebalance
-				return oldValue;
-			}
+	// 		if (this.left.nrChildren === 0) {
+	// 			if (undefined === this.middle) {
+	// 				if (this.right.canRemoveChild) {
+	// 					this.left.appendChild(this.right.dropFirstChild());
+	// 				}
+	// 			} else {
+	// 				const firstMiddleBlock = this.middle.dropFirstChild();
+	// 				this.middle = this.middle.normalized();
+	// 				this.left = firstMiddleBlock;
+	// 			}
 
-			if (undefined !== this.middle) {
-				if (this.left.nrChildren === 0) {
-					const firstMiddleBlock = this.middle.dropFirstChild();
-					this.middle = this.middle.normalized();
-					this.left = firstMiddleBlock;
-				} else {
-					const firstMiddleBlock = this.middle.dropFirstChild();
-					this.middle = this.middle.normalized();
-					this.left.appendItems(firstMiddleBlock);
+	// 			return oldValue;
+	// 		}
+	// 		// if (undefined !== this.middle) {
+	// 		// 	const firstMiddleChild = this.middle.firstChild();
+	// 		// 	if (
+	// 		// 		this.left.nrChildren + firstMiddleChild.nrChildren <=
+	// 		// 		this.context.maxBlockSize
+	// 		// 	) {
+	// 		// 		this.middle.dropFirstChild();
+	// 		// 		this.middle = this.middle.normalized();
 
-					if (!this.left.childrenInMax) {
-						const newFirstMiddleBlock = this.left.splitRight();
-						if (this.middle === undefined) {
-							this.middle = this.context.innerBlockBuilder(
-								this.level + 1,
-								[newFirstMiddleBlock],
-								newFirstMiddleBlock.length,
-							);
-						} else {
-							this.middle.prependChild(newFirstMiddleBlock);
-						}
-					}
-				}
-			}
+	// 		// 		this.left.appendItems(firstMiddleChild);
 
-			return oldValue;
-		}
+	// 		// 		return oldValue;
+	// 		// 	}
+	// 		// }
 
-		const rightIndex = middleIndex - (this.middle?.length ?? 0);
+	// 		// if (this.context.isInnerBlockBuilder(this.left)) {
+	// 		// 	if (
+	// 		// 		this.left.nrChildren === 1 &&
+	// 		// 		!this.left.firstChild().childrenInMin
+	// 		// 	) {
+	// 		// 		if (undefined === this.middle) {
+	// 		// 			if (this.right.canRemoveChild) {
+	// 		// 				this.left.appendChild(this.right.dropFirstChild());
+	// 		// 			}
+	// 		// 			// else leave it to normalize
+	// 		// 		} else {
+	// 		// 			const delta = this.middle.modifyFirstChild((firstChild) => {
+	// 		// 				// see if first middle child can shift to left
+	// 		// 				if (!firstChild.canRemoveChild) return undefined;
 
-		if (rightIndex >= 0) {
-			// index is in right
-			const oldValue = this.right.remove(rightIndex);
+	// 		// 				const shiftChild = firstChild.dropFirstChild();
+	// 		// 				this.left.appendChild(shiftChild);
+	// 		// 				return -this.getChildLength(shiftChild);
+	// 		// 			});
 
-			if (this.right.nrChildren >= minLeftRightChildren) {
-				// no need to rebalance
-				return oldValue;
-			}
+	// 		// 			if (undefined === delta) {
+	// 		// 				// could not shift, need to merge first middle child to left
+	// 		// 				const firstMiddleBlock = this.middle.dropFirstChild();
+	// 		// 				this.left.appendItems(firstMiddleBlock);
+	// 		// 			}
 
-			if (undefined !== this.middle) {
-				if (this.right.nrChildren === 0) {
-					const lastMiddleBlock = this.middle.dropLastChild();
-					this.middle = this.middle.normalized();
-					this.right = lastMiddleBlock;
-				} else {
-					const lastMiddleBlock = this.middle.dropLastChild();
-					this.right.prependItems(lastMiddleBlock);
+	// 		// 			this.middle = this.middle.normalized();
 
-					if (!this.right.childrenInMax) {
-						const newLastMiddleBlock = this.right.splitRight();
-						if (this.middle === undefined) {
-							this.middle = this.context.innerBlockBuilder(
-								this.level + 1,
-								[newLastMiddleBlock],
-								newLastMiddleBlock.length,
-							);
-						} else {
-							this.middle.appendChild(newLastMiddleBlock);
-						}
-					}
-				}
-			}
+	// 		// 			// if (
+	// 		// 			// 	this.context.isInnerBlockBuilder<T, BlockBuilder<T, C>>(
+	// 		// 			// 		this.middle,
+	// 		// 			// 	) &&
+	// 		// 			// 	this.middle.nrChildren === 1 &&
+	// 		// 			// 	// this.middle.firstChild().nrChildren <= this.context.minBlockSize &&
+	// 		// 			// 	this.right.nrChildren > 1
+	// 		// 			// ) {
+	// 		// 			// 	console.log('middle first', this.middle.children[0].nrChildren);
+	// 		// 			// 	// throw Error('a');
+	// 		// 			// 	// this.middle.firstChild().appendChild(this.right.dropFirstChild());
+	// 		// 			// }
+	// 		// 		}
+	// 		// 	}
+	// 		// }
 
-			return oldValue;
-		}
+	// 		return oldValue;
+	// 	}
 
-		if (undefined === this.middle) {
-			throwInvalidStateError();
-		}
+	// 	const rightIndex = middleIndex - (this.middle?.length ?? 0);
 
-		// index is in middle
-		const oldValue = this.middle.remove(middleIndex);
-		this.middle = this.middle.normalized();
+	// 	if (rightIndex >= 0) {
+	// 		// index is in right
+	// 		const oldValue = this.right.remove(rightIndex);
 
-		if (
-			this.context.isInnerBlockBuilder<T, BlockBuilder<T, C>>(this.middle) &&
-			this.middle.nrChildren === 1
-		) {
-			const firstMiddleChild = this.middle.firstChild();
+	// 		if (this.right.nrChildren === 0) {
+	// 			if (undefined === this.middle) {
+	// 				if (this.left.canRemoveChild) {
+	// 					this.right.prependChild(this.left.dropLastChild());
+	// 				}
+	// 			} else {
+	// 				const lastMiddleBlock = this.middle.dropLastChild();
+	// 				this.middle = this.middle.normalized();
+	// 				this.right = lastMiddleBlock;
+	// 			}
 
-			if (
-				this.left.nrChildren + firstMiddleChild.nrChildren <=
-				this.context.maxBlockSize
-			) {
-				this.left.appendItems(firstMiddleChild);
-				this.middle = undefined;
-			} else if (
-				this.right.nrChildren + firstMiddleChild.nrChildren <=
-				this.context.maxBlockSize
-			) {
-				this.right.prependItems(firstMiddleChild);
-				this.middle = undefined;
-			}
-		}
+	// 			return oldValue;
+	// 		}
 
-		return oldValue;
-	}
+	// 		if (
+	// 			this.context.isInnerBlockBuilder(this.right) &&
+	// 			this.right.nrChildren === 1 &&
+	// 			!this.right.firstChild().childrenInMin
+	// 		) {
+	// 			if (undefined === this.middle) {
+	// 				if (this.left.canRemoveChild) {
+	// 					this.right.prependChild(this.left.dropLastChild());
+	// 				}
+	// 				// else leave it to normalize
+	// 			} else {
+	// 				const delta = this.middle.modifyLastChild((lastChild) => {
+	// 					// see if last middle child can shift to right
+	// 					if (!lastChild.canRemoveChild) return undefined;
+
+	// 					const shiftChild = lastChild.dropLastChild();
+	// 					this.right.prependChild(shiftChild);
+	// 					return -this.getChildLength(shiftChild);
+	// 				});
+
+	// 				if (undefined === delta) {
+	// 					// could not shift, need to merge last middle child to right
+	// 					const lastMiddleChild = this.middle.dropLastChild();
+	// 					this.right.prependItems(lastMiddleChild);
+	// 				}
+
+	// 				this.middle = this.middle.normalized();
+
+	// 				// if (
+	// 				// 	this.context.isInnerBlockBuilder<T, BlockBuilder<T, C>>(
+	// 				// 		this.middle,
+	// 				// 	) &&
+	// 				// 	this.middle.nrChildren === 1
+	// 				// 	// &&
+	// 				// 	// !this.middle.lastChild().childrenInMin
+	// 				// 	// &&
+	// 				// 	// this.left.nrChildren > 1
+	// 				// ) {
+	// 				// 	throw Error('b');
+	// 				// 	// this.middle.firstChild().appendChild(this.right.dropFirstChild());
+	// 				// }
+	// 			}
+	// 		}
+
+	// 		// if (undefined !== this.middle) {
+	// 		// 	if (this.right.nrChildren === 0) {
+	// 		// 		const lastMiddleBlock = this.middle.dropLastChild();
+	// 		// 		this.middle = this.middle.normalized();
+	// 		// 		this.right = lastMiddleBlock;
+	// 		// 	} else {
+	// 		// 		const lastMiddleBlock = this.middle.dropLastChild();
+	// 		// 		this.right.prependItems(lastMiddleBlock);
+
+	// 		// 		if (!this.right.childrenInMax) {
+	// 		// 			const newLastMiddleBlock = this.right.splitRight();
+	// 		// 			if (this.middle === undefined) {
+	// 		// 				this.middle = this.context.innerBlockBuilder(
+	// 		// 					this.level + 1,
+	// 		// 					[newLastMiddleBlock],
+	// 		// 					newLastMiddleBlock.length,
+	// 		// 				);
+	// 		// 			} else {
+	// 		// 				this.middle.appendChild(newLastMiddleBlock);
+	// 		// 			}
+	// 		// 		}
+	// 		// 	}
+	// 		// }
+
+	// 		return oldValue;
+	// 	}
+
+	// 	if (undefined === this.middle) {
+	// 		throwInvalidStateError();
+	// 	}
+
+	// 	// index is in middle
+	// 	const oldValue = this.middle.remove(middleIndex);
+	// 	this.middle = this.middle.normalized();
+
+	// 	if (
+	// 		this.context.isInnerBlockBuilder<T, BlockBuilder<T, C>>(this.middle) &&
+	// 		this.middle.nrChildren === 1
+	// 	) {
+	// 		const firstMiddleChild = this.middle.firstChild();
+
+	// 		if (
+	// 			this.left.nrChildren + firstMiddleChild.nrChildren <=
+	// 			this.context.maxBlockSize
+	// 		) {
+	// 			this.left.appendItems(firstMiddleChild);
+	// 			this.middle = undefined;
+	// 		} else if (
+	// 			this.right.nrChildren + firstMiddleChild.nrChildren <=
+	// 			this.context.maxBlockSize
+	// 		) {
+	// 			this.right.prependItems(firstMiddleChild);
+	// 			this.middle = undefined;
+	// 		}
+	// 	}
+
+	// 	return oldValue;
+	// }
 
 	prependMiddle(child: BlockBuilder<T, C>): void {
 		this.prepareMutate();

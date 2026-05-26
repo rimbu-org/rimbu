@@ -7,6 +7,8 @@ import type {
 } from '#list/mutable/builder-base';
 import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
 
+import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
+
 import { TreeBuilder } from '#list/mutable/tree-builder';
 
 export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
@@ -138,11 +140,16 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		const firstChild = this.left.dropFirstChild();
 		this.length -= firstChild.length;
 
-		if (this.left.nrChildren === 0 && undefined !== this.middle) {
-			// left is empty, need to shift from middle to left
-			const firstMiddleBlock = this.middle.dropFirstChild();
-			this.middle = this.middle.normalized();
-			this.left = firstMiddleBlock;
+		if (this.left.nrChildren === 0) {
+			if (undefined === this.middle) {
+				if (this.right.canRemoveChild) {
+					this.left.appendChild(this.right.dropFirstChild());
+				}
+			} else {
+				const firstMiddleBlock = this.middle.dropFirstChild();
+				this.middle = this.middle.normalized();
+				this.left = firstMiddleBlock;
+			}
 		}
 
 		return firstChild;
@@ -153,14 +160,79 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		const lastChild = this.right.dropLastChild();
 		this.length -= lastChild.length;
 
-		if (this.right.nrChildren === 0 && undefined !== this.middle) {
-			// right is empty, need to shift from middle to right
-			const lastMiddleBlock = this.middle.dropLastChild();
-			this.middle = this.middle.normalized();
-			this.right = lastMiddleBlock;
+		if (this.right.nrChildren === 0) {
+			if (undefined === this.middle) {
+				if (this.left.canRemoveChild) {
+					this.right.prependChild(this.left.dropLastChild());
+				}
+			} else {
+				// right is empty, need to shift from middle to right
+				const lastMiddleBlock = this.middle.dropLastChild();
+				this.middle = this.middle.normalized();
+				this.right = lastMiddleBlock;
+			}
 		}
 
 		return lastChild;
+	}
+
+	remove(index: number): T {
+		this.prepareMutate();
+
+		this.length--;
+
+		const middleIndex = index - this.left.length;
+
+		if (middleIndex < 0) {
+			// index is in left
+			const oldValue = this.left.remove(index);
+
+			if (this.left.nrChildren === 0) {
+				if (undefined !== this.middle) {
+					this.left = this.middle.dropFirstChild();
+					this.middle = this.middle.normalized();
+				}
+			} else if (this.left.nrChildren === 1) {
+				const leftChild = this.left.firstChild();
+				if (!leftChild.childrenInMin) {
+					if (undefined !== this.middle) {
+						this.middle.modifyFirstChild((firstMiddleChild) => {
+							const firstMiddleGrandChild = firstMiddleChild.dropFirstChild();
+							leftChild.appendItems(firstMiddleGrandChild);
+							return -firstMiddleGrandChild.length;
+						});
+					}
+				}
+			}
+
+			return oldValue;
+		}
+
+		const rightIndex = middleIndex - (this.middle?.length ?? 0);
+
+		if (rightIndex >= 0) {
+			// index is in right
+			const oldValue = this.right.remove(rightIndex);
+
+			if (this.right.length === 0) {
+				if (undefined !== this.middle) {
+					this.right = this.middle.dropLastChild();
+					this.middle = this.middle.normalized();
+				}
+			}
+
+			return oldValue;
+		}
+
+		if (undefined === this.middle) {
+			throwInvalidStateError();
+		}
+
+		// index is in middle
+		const oldValue = this.middle.remove(middleIndex);
+		this.middle = this.middle.normalized();
+
+		return oldValue;
 	}
 
 	modifyFirstChild(f: (child: C) => number | undefined): number | undefined {
@@ -215,46 +287,154 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 				this.left.nrChildren + this.right.nrChildren <=
 				this.context.maxBlockSize
 			) {
-				// combine left and right
+				// fits in single block
 				this.left.appendItems(this.right);
 
 				return this.left;
 			}
-		} else if (
+
+			return this;
+		}
+
+		if (
 			this.context.isInnerBlockBuilder<T, InnerBlockBuilder<T, C>>(
 				this.middle,
 			) &&
 			this.middle.nrChildren <= 2
 		) {
-			this.middle.prepareMutate();
-			const [firstMiddleBlock, secondMiddleBlock] = this.middle.children;
+			const firstMiddleChild = this.middle.firstChild();
+			const lastMiddleChild = this.middle.lastChild();
+
 			const totalNrChildren =
 				this.left.nrChildren +
-				firstMiddleBlock.nrChildren +
-				(secondMiddleBlock?.nrChildren ?? 0) +
+				firstMiddleChild.nrChildren +
+				(this.middle.nrChildren === 2 ? lastMiddleChild.nrChildren : 0) +
 				this.right.nrChildren;
 
 			if (totalNrChildren <= this.context.maxBlockSize * 2) {
-				this.left.appendItems(firstMiddleBlock);
-				if (undefined !== secondMiddleBlock) {
-					this.left.appendItems(secondMiddleBlock);
+				this.left.appendItems(firstMiddleChild);
+				if (this.middle.nrChildren === 2) {
+					this.left.appendItems(lastMiddleChild);
 				}
 				this.left.appendItems(this.right);
 				this.middle = undefined;
-				if (this.left.nrChildren <= this.context.maxBlockSize) {
-					// combine into one block
-					return this.left;
-				}
 				this.right = this.left.splitRight();
-				return this;
-			} else if (!this.left.childrenInMin) {
-				this.middle.modifyFirstChild((child) => {
-					const middleFirstChild = child.dropFirstChild();
-					this.left.appendChild(middleFirstChild);
-					return -this.getChildLength(middleFirstChild);
-				});
 			}
+
+			// if (this.middle.nrChildren === 1) {
+			// 	if (
+			// 		this.left.nrChildren +
+			// 			firstMiddleChild.nrChildren +
+			// 			this.right.nrChildren <=
+			// 		this.context.maxBlockSize * 2
+			// 	) {
+			// 		this.left.appendItems(firstMiddleChild);
+			// 		this.left.appendItems(this.right);
+			// 		this.middle = undefined;
+			// 		this.right = this.left.splitRight();
+			// 		return this;
+			// 	}
+			// }
+			// const lastMiddleChild = this.middle.lastChild();
+			// // if (
+			// // 	this.left.nrChildren + firstMiddleChild.nrChildren <=
+			// // 	this.context.maxBlockSize
+			// // ) {
+			// // 	this.middle.dropFirstChild();
+			// // 	this.middle = this.middle.normalized();
+			// // 	this.left.appendItems(firstMiddleChild);
+			// // 	return this.normalized();
+			// // }
+			// // if (
+			// // 	lastMiddleChild.nrChildren + this.right.nrChildren <=
+			// // 	this.context.maxBlockSize
+			// // ) {
+			// // 	this.middle.dropLastChild();
+			// // 	this.middle = this.middle.normalized();
+			// // 	this.right.prependItems(lastMiddleChild);
+			// // 	return this.normalized();
+			// // }
+			// if (this.middle.nrChildren <= 2) {
+			// 	this.middle.prepareMutate();
+			// 	const secondChild =
+			// 		this.middle.nrChildren === 2 ? lastMiddleChild : undefined;
+			// 	const totalNrChildren =
+			// 		this.left.nrChildren +
+			// 		firstMiddleChild.nrChildren +
+			// 		(secondChild?.nrChildren ?? 0) +
+			// 		this.right.nrChildren;
+			// 	if (totalNrChildren <= this.context.maxBlockSize * 2) {
+			// 		this.left.appendItems(firstMiddleChild);
+			// 		if (undefined !== secondChild) {
+			// 			this.left.appendItems(secondChild);
+			// 		}
+			// 		this.left.appendItems(this.right);
+			// 		this.middle = undefined;
+			// 		this.right = this.left.splitRight();
+			// 	} else if (!this.middle.childrenInMin) {
+			// 		// while (!this.middle.childrenInMin) {
+			// 		// 	if (this.left.nrChildren > 1) {
+			// 		// 		const toMiddle = this.left.splitRight(1);
+			// 		// 		this.middle.prependChild(toMiddle);
+			// 		// 	} else if (this.right.nrChildren > 1) {
+			// 		// 		const newRight = this.right.splitRight(this.right.nrChildren - 1);
+			// 		// 		this.middle.appendChild(this.right);
+			// 		// 		this.right = newRight;
+			// 		// 	}
+			// 		// }
+			// 	}
+			// }
 		}
+
+		// else if (
+		// 	this.context.isInnerBlockBuilder<T, C>(this.middle) &&
+		// 	!this.middle.childrenInMin
+		// ) {
+		// 	this.middle.prepareMutate();
+
+		// 	while (
+		// 		this.left.nrChildren < this.context.maxBlockSize &&
+		// 		(this.left.nrChildren > 1 || this.right.nrChildren > 1)
+		// 	) {
+		// 		this.middle.modifyFirstChild((child) => {
+		// 			child.prepareMutate();
+		// 			child.
+		// 		});
+		// 	}
+		// }
+		// } else if (
+		// 	this.context.isInnerBlockBuilder<T, InnerBlockBuilder<T, C>>(
+		// 		this.middle,
+		// 	) &&
+		// 	this.middle.nrChildren <= 2
+		// ) {
+		// 	this.middle.prepareMutate();
+		// 	const [firstMiddleBlock, secondMiddleBlock] = this.middle.children;
+		// 	const totalNrChildren =
+		// 		this.left.nrChildren +
+		// 		firstMiddleBlock.nrChildren +
+		// 		(secondMiddleBlock?.nrChildren ?? 0) +
+		// 		this.right.nrChildren;
+
+		// 	if (totalNrChildren <= this.context.maxBlockSize) {
+		// 		throw Error('Should have been normalized to InnerBlock');
+		// 	}
+
+		// 	if (totalNrChildren <= this.context.maxBlockSize * 2) {
+		// 		this.left.appendItems(firstMiddleBlock);
+		// 		if (undefined !== secondMiddleBlock) {
+		// 			this.left.appendItems(secondMiddleBlock);
+		// 		}
+		// 		this.left.appendItems(this.right);
+		// 		this.middle = undefined;
+		// 		if (this.left.nrChildren <= this.context.maxBlockSize) {
+		// 			// combine into one block
+		// 			return this.left;
+		// 		}
+		// 		this.right = this.left.splitRight();
+		// 		return this;
+		// 	}
+		// }
 
 		return this;
 	}
@@ -312,7 +492,7 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 				);
 			} else if (totalNrChildren <= this.context.maxBlockSize * 2) {
 				messages.push(
-					`InnerTreeBuilder has middle but total children count ${totalNrChildren} is less than or equal to 2 * maxBlockSize ${this.context.maxBlockSize * 2}, should be combined into one block`,
+					`InnerTreeBuilder has middle but total children count ${totalNrChildren} is less than or equal to 2 * maxBlockSize ${this.context.maxBlockSize * 2}, should not have middle`,
 				);
 			}
 		}

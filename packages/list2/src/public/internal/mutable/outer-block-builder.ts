@@ -96,9 +96,8 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 	remove(index: number): T {
 		this.prepareMutate();
 
-		const removed = this.ops.at<T>(this.children, index);
-		this.ops.mutateSplice(this.children, index, 1);
-		return removed;
+		const [, removedChildren] = this.ops.mutateSplice(this.children, index, 1);
+		return this.ops.at(removedChildren, 0);
 	}
 
 	prependItems(other: OuterBlockBuilder<T>): void {
