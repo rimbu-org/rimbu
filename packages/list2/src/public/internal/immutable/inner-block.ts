@@ -13,8 +13,37 @@ import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { IndexRange } from '@rimbu/common/index-range';
 import { Stream } from '@rimbu/stream';
 
+/**
+ * Compute a cumulative size table for an array of child blocks.
+ * sizes[k] = sum of children[0..k].length (inclusive).
+ * Returns null if the block is regular (all children have the same full subtree size).
+ */
+function computeSizeTable<T>(
+	children: Block<T>[],
+	level: number,
+	blockSizeBits: number,
+): number[] | null {
+	const levelBits = blockSizeBits << (level - 1);
+	const blockSize = 1 << levelBits;
+	const nrChildren = children.length;
+	let total = 0;
+	let irregular = false;
+
+	const sizes = new Array<number>(nrChildren);
+	for (let i = 0; i < nrChildren; i++) {
+		total += children[i].length;
+		sizes[i] = total;
+		if (children[i].length !== blockSize) irregular = true;
+	}
+
+	return irregular ? sizes : null;
+}
+
 export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 	declare _self: InnerBlock<T, C>;
+
+	/** Cumulative size table for irregular blocks. null means regular. */
+	readonly sizes: number[] | null;
 
 	constructor(
 		readonly context: ListContext,
@@ -22,7 +51,15 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		public length: number,
 		readonly level: number,
 		readonly ops = context.outerChildrenOps,
-	) {}
+		sizes?: number[] | null,
+	) {
+		// If sizes is explicitly provided, use it; otherwise compute lazily.
+		if (sizes !== undefined) {
+			this.sizes = sizes;
+		} else {
+			this.sizes = computeSizeTable(children, level, context.blockSizeBits);
+		}
+	}
 
 	get nrChildren(): number {
 		return this.children.length;
@@ -57,6 +94,7 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 			return this;
 		}
 
+		// Pass undefined for sizes so the constructor recomputes it.
 		return this.context.innerBlock(children, length, level);
 	}
 
@@ -540,47 +578,33 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 			return [nrChildren, 0];
 		}
 
-		const levelBits = this.context.blockSizeBits << (this.level - 1);
-		const blockSize = 1 << levelBits;
-
-		const regularSize = nrChildren * blockSize;
-
-		if (length === regularSize) {
-			// regular blocks, calculate coordinates
+		// Fast path: regular block — all children have the same full subtree size.
+		if (this.sizes === null) {
+			const levelBits = this.context.blockSizeBits << (this.level - 1);
+			const blockSize = 1 << levelBits;
 			const childIndex = indexWithOffset >>> levelBits;
-
-			const mask = blockSize - 1;
-			const inChildIndex = indexWithOffset & mask;
-			return [childIndex, inChildIndex + offSet];
+			const inChildIndex = (indexWithOffset & (blockSize - 1)) + offSet;
+			return [childIndex, inChildIndex];
 		}
 
-		// not regular, need to search per child
-		if (indexWithOffset <= length >>> 1) {
-			// search from left to right
-			for (let childIndex = 0; childIndex < nrChildren; childIndex++) {
-				const childLength = children[childIndex].length;
+		// Irregular block — binary search on cumulative size table.
+		const sizes = this.sizes;
+		let lo = 0;
+		let hi = nrChildren - 1;
 
-				if (indexWithOffset < childLength) {
-					return [childIndex, indexWithOffset + offSet];
-				}
-
-				indexWithOffset -= childLength;
-			}
-		} else {
-			// search right to left
-			let i = length - indexWithOffset;
-			for (let childIndex = nrChildren - 1; childIndex >= 0; childIndex--) {
-				const childLength = children[childIndex].length;
-
-				if (i <= childLength) {
-					return [childIndex, childLength - i + offSet];
-				}
-
-				i -= childLength;
+		while (lo < hi) {
+			const mid = (lo + hi) >>> 1;
+			if (sizes[mid] <= indexWithOffset) {
+				lo = mid + 1;
+			} else {
+				hi = mid;
 			}
 		}
 
-		throwInvalidStateError();
+		const childIndex = lo;
+		const prevSize = childIndex > 0 ? sizes[childIndex - 1] : 0;
+		const inChildIndex = indexWithOffset - prevSize + offSet;
+		return [childIndex, inChildIndex];
 	}
 
 	createBlockBuilder(): InnerBlockBuilder<T, ToMutable<C>> {
@@ -672,6 +696,31 @@ ${this.children.map((c) => c._structure(nextDepth)).join('\n')}\
 			messages.push(
 				`InnerBlock of level ${this.level} has length ${this.length} but sum of child lengths is ${length}.`,
 			);
+		}
+
+		// Verify size table consistency.
+		const expectedSizes = computeSizeTable(
+			this.children,
+			this.level,
+			this.context.blockSizeBits,
+		);
+		if (expectedSizes === null && this.sizes !== null) {
+			messages.push(
+				`InnerBlock of level ${this.level} is regular but has a non-null size table.`,
+			);
+		} else if (expectedSizes !== null && this.sizes === null) {
+			messages.push(
+				`InnerBlock of level ${this.level} is irregular but has a null size table.`,
+			);
+		} else if (expectedSizes !== null && this.sizes !== null) {
+			for (let i = 0; i < expectedSizes.length; i++) {
+				if (expectedSizes[i] !== this.sizes[i]) {
+					messages.push(
+						`InnerBlock of level ${this.level} size table entry ${i} is ${this.sizes[i]} but expected ${expectedSizes[i]}.`,
+					);
+					break;
+				}
+			}
 		}
 
 		return messages;

@@ -181,11 +181,20 @@ The following operations from the immutable list are intentionally absent from t
 
 ---
 
-## Complexity Summary
+### Size Table Maintenance
+
+Each inner block builder mirrors the size table of its corresponding immutable inner block. When a builder is created from a source node, it inherits the source's size table. When a builder is created from scratch (with an explicit children array), the size table is computed immediately from those children.
+
+After any mutation that changes the number of children or the size of a child, the size table is updated:
+
+- For operations that change only a suffix of the children (e.g. a single child growing or shrinking), only that suffix of the table is recomputed — O(maxBlockSize) entries in the worst case.
+- For operations that restructure the children array (split, merge, splice), the full table is recomputed from scratch — also O(maxBlockSize).
+
+When `build()` materialises the builder into an immutable inner block, the already-maintained size table is passed directly to the new node. No recomputation occurs at build time.
 
 | Operation | Time Complexity | Notes |
 |---|---|---|
-| get | O(log n) | Reads from immutable source if unmodified |
+| get | O(log n) | O(1) per level for regular blocks; O(log maxBlockSize) per level for irregular |
 | updateAt | O(log n) | No copy if value unchanged |
 | prepend | O(log n) worst, O(1) amortized | Boundary block usually non-full |
 | append | O(log n) worst, O(1) amortized | Boundary block usually non-full |

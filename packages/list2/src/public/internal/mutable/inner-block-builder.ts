@@ -4,18 +4,61 @@ import type { Update } from '@rimbu/common/update';
 import type { ListContext } from '#list/context-module';
 import type { InnerBlock } from '#list/immutable/inner-block';
 
-import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
-
 import {
 	type BlockBuilder,
 	BuilderBase,
 	type InnerBuilder,
 } from '#list/mutable/builder-base';
 
+/**
+ * Recompute a full cumulative size table from the current mutable children.
+ * Returns null if the block is regular (all children fill exactly blockSize elements).
+ */
+function recomputeSizes(
+	children: readonly { length: number }[],
+	level: number,
+	blockSizeBits: number,
+): number[] | null {
+	const levelBits = blockSizeBits << (level - 1);
+	const blockSize = 1 << levelBits;
+	const n = children.length;
+	let total = 0;
+	let irregular = false;
+	const sizes = new Array<number>(n);
+
+	for (let i = 0; i < n; i++) {
+		total += children[i].length;
+		sizes[i] = total;
+		if (children[i].length !== blockSize) irregular = true;
+	}
+
+	return irregular ? sizes : null;
+}
+
+/**
+ * Update the cumulative size table in-place starting from index `from`.
+ * Pass the existing sizes array (which must already be non-null).
+ */
+function updateSizesFrom(
+	sizes: number[],
+	children: readonly { length: number }[],
+	from: number,
+): void {
+	const prev = from > 0 ? sizes[from - 1] : 0;
+	let total = prev;
+	for (let i = from; i < children.length; i++) {
+		total += children[i].length;
+		sizes[i] = total;
+	}
+}
+
 export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 	extends BuilderBase
 	implements InnerBuilder<T, C>, BlockBuilder<T, C>
 {
+	/** Cumulative size table; null means regular (all children full). */
+	sizes: number[] | null = null;
+
 	constructor(
 		context: ListContext,
 		readonly level: number,
@@ -24,6 +67,13 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		public length: number = source?.length ?? 0,
 	) {
 		super(context);
+		if (source !== undefined) {
+			// Inherit size table from source.
+			this.sizes = source.sizes;
+		} else if (_children !== undefined && _children.length > 0) {
+			// Compute size table from provided children.
+			this.sizes = recomputeSizes(_children, level, context.blockSizeBits);
+		}
 	}
 
 	get children(): C[] {
@@ -58,6 +108,10 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		if (undefined === this.source) return;
 
 		this._children = this.source.children.map((c) => c.createBlockBuilder());
+		// Copy size table from source (already computed at construction time).
+		this.sizes = this.source.sizes
+			? this.source.sizes.slice()
+			: null;
 		this.source = undefined;
 	}
 
@@ -89,7 +143,13 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		child.insert(inChildIndex, value);
 
 		if (child.childrenInMax) {
-			// no need to normalize
+			// child is still valid — update size table from childIndex onward
+			if (this.sizes !== null) {
+				updateSizesFrom(this.sizes, this.children, childIndex);
+			} else {
+				// Was regular; one child grew — now irregular
+				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+			}
 			return;
 		}
 
@@ -100,6 +160,12 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			const shiftChild = child.dropFirstChild();
 			leftChild.appendChild(shiftChild);
 
+			// Two children changed: childIndex-1 and childIndex
+			if (this.sizes !== null) {
+				updateSizesFrom(this.sizes, this.children, childIndex - 1);
+			} else {
+				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+			}
 			return;
 		}
 
@@ -109,12 +175,20 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			const shiftChild = child.dropLastChild();
 			rightChild.prependChild(shiftChild);
 
+			if (this.sizes !== null) {
+				updateSizesFrom(this.sizes, this.children, childIndex);
+			} else {
+				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+			}
 			return;
 		}
 
 		// cannot shift, split child
 		const newRightChild = child.splitRight();
 		this.children.splice(childIndex + 1, 0, newRightChild as C);
+
+		// Sizes array needs a new entry; full recompute is simplest here.
+		this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
 	}
 
 	remove(index: number): T {
@@ -129,7 +203,11 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 		if (child.canRemoveChild || this.nrChildren <= 1) {
 			// no need to normalize
-
+			if (this.sizes !== null) {
+				updateSizesFrom(this.sizes, this.children, childIndex);
+			} else {
+				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+			}
 			return oldValue;
 		}
 
@@ -142,7 +220,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 				// merge with left
 				leftChild.appendItems(child);
 				this.children.splice(childIndex, 1);
-
+				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
 				return oldValue;
 			}
 		}
@@ -156,13 +234,18 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 				// merge with right
 				rightChild.prependItems(child);
 				this.children.splice(childIndex, 1);
-
+				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
 				return oldValue;
 			}
 		}
 
 		if (child.childrenInMin) {
 			// child has enough children, and left and right more than min, so all good
+			if (this.sizes !== null) {
+				updateSizesFrom(this.sizes, this.children, childIndex);
+			} else {
+				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+			}
 			return oldValue;
 		}
 
@@ -182,16 +265,15 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			this.children[childIndex] = leftChild.splitRight(
 				Math.ceil(leftChild.nrChildren / 2),
 			) as C;
-
-			return oldValue;
+		} else {
+			// rebalance with right
+			child.appendItems(rightChild);
+			this.children[childIndex + 1] = child.splitRight(
+				Math.floor(child.nrChildren / 2),
+			) as C;
 		}
 
-		// rebalance with right
-		child.appendItems(rightChild);
-		this.children[childIndex + 1] = child.splitRight(
-			Math.floor(child.nrChildren / 2),
-		) as C;
-
+		this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
 		return oldValue;
 	}
 
@@ -239,6 +321,8 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		} else {
 			this.children.unshift(child);
 		}
+
+		this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
 	}
 
 	appendChild(child: C): void {
@@ -256,6 +340,8 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		} else {
 			this.children.push(child);
 		}
+
+		this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
 	}
 
 	firstChild(): C {
@@ -273,6 +359,20 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		const child = this.children.shift()!;
 		this.length -= child.length;
 
+		if (this.sizes !== null) {
+			const removed = this.sizes.shift()!;
+			// Subtract removed size from all remaining entries.
+			for (let i = 0; i < this.sizes.length; i++) {
+				this.sizes[i] -= removed;
+			}
+			// Check if now regular.
+			if (this.children.length > 0) {
+				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+			} else {
+				this.sizes = null;
+			}
+		}
+
 		return child;
 	}
 
@@ -280,6 +380,16 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		this.prepareMutate();
 		const child = this.children.pop()!;
 		this.length -= child.length;
+
+		if (this.sizes !== null) {
+			this.sizes.pop();
+			// Check if now regular.
+			if (this.children.length > 0) {
+				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+			} else {
+				this.sizes = null;
+			}
+		}
 
 		return child;
 	}
@@ -289,18 +399,11 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		const delta = f(firstChild);
 		if (undefined !== delta) {
 			this.length += delta;
-		}
-
-		if (
-			firstChild.nrChildren === this.context.minBlockSize &&
-			this.nrChildren > 1
-		) {
-			const secondChild = this.children[1];
-
-			if (secondChild.nrChildren === this.context.minBlockSize) {
-				// merge with second child
-				firstChild.appendItems(secondChild);
-				this.children.splice(1, 1);
+			// Update size table from index 0.
+			if (this.sizes !== null) {
+				updateSizesFrom(this.sizes, this.children, 0);
+			} else {
+				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
 			}
 		}
 
@@ -312,50 +415,25 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		const delta = f(lastChild);
 		if (undefined !== delta) {
 			this.length += delta;
-		}
-
-		if (
-			lastChild.nrChildren === this.context.minBlockSize &&
-			this.nrChildren > 1
-		) {
-			const secondLastChild = this.children.at(-2)!;
-
-			if (secondLastChild.nrChildren === this.context.minBlockSize) {
-				// merge with second last child
-				secondLastChild.appendItems(lastChild);
-				this.children.pop();
+			const lastIndex = this.nrChildren - 1;
+			if (this.sizes !== null) {
+				updateSizesFrom(this.sizes, this.children, lastIndex);
+			} else {
+				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
 			}
 		}
-
-		// if (!lastChild.childrenInMin && this.nrChildren > 1) {
-		// 	const lastIndex = this.nrChildren - 1;
-		// 	const secondLastChild = this.children[lastIndex - 1];
-
-		// 	if (
-		// 		lastChild.nrChildren + secondLastChild.nrChildren <=
-		// 		this.context.maxBlockSize
-		// 	) {
-		// 		// merge with second last child
-		// 		secondLastChild.appendItems(this.lastChild());
-		// 		this.children.pop();
-		// 	} else {
-		// 		// rebalance with second last child
-		// 		secondLastChild.appendItems(this.lastChild());
-		// 		this.children[lastIndex - 1] = secondLastChild.splitRight() as C;
-		// 	}
-		// }
 
 		return delta;
 	}
 
 	build(): InnerBlock<T, any> {
-		return (
-			this.source ??
-			this.context.innerBlock(
-				this.children.map((c) => c.build()),
-				this.length,
-				this.level,
-			)
+		if (this.source) return this.source;
+
+		return this.context.innerBlock(
+			this.children.map((c) => c.build()),
+			this.length,
+			this.level,
+			this.sizes,
 		);
 	}
 
@@ -380,11 +458,17 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		}
 		const rightLength = oldLength - this.length;
 
-		return this.context.innerBlockBuilder(
+		// Recompute size tables for both halves.
+		this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+
+		const right = this.context.innerBlockBuilder(
 			this.level,
-			rightChildren,
+			rightChildren as C[],
 			rightLength,
-		);
+		) as InnerBlockBuilder<T, C>;
+		right.sizes = recomputeSizes(rightChildren, this.level, this.context.blockSizeBits);
+
+		return right;
 	}
 
 	normalized(): InnerBuilder<T, C> | undefined {
@@ -436,6 +520,8 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 				this.children.unshift(child);
 			}
 		}
+
+		this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
 	}
 
 	appendItems(other: InnerBlockBuilder<T, C>): void {
@@ -456,6 +542,8 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 				this.children.push(child);
 			}
 		}
+
+		this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
 	}
 
 	getCoordinates(index: number): [number, number] {
@@ -469,49 +557,32 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			return [nrChildren - 1, lastChild.length];
 		}
 
-		const levelBits = this.context.blockSizeBits << (this.level - 1);
-		const blockSize = 1 << levelBits;
-
-		const regularSize = nrChildren * blockSize;
-
-		if (length === regularSize) {
-			// regular blocks, calculate coordinates
+		// Fast path: regular block.
+		if (this.sizes === null) {
+			const levelBits = this.context.blockSizeBits << (this.level - 1);
+			const blockSize = 1 << levelBits;
 			const childIndex = index >>> levelBits;
-
-			const mask = blockSize - 1;
-			const inChildIndex = index & mask;
+			const inChildIndex = index & (blockSize - 1);
 			return [childIndex, inChildIndex];
 		}
 
-		// not regular, need to search per child
+		// Irregular block — binary search on cumulative size table.
+		const sizes = this.sizes;
+		let lo = 0;
+		let hi = nrChildren - 1;
 
-		if (index <= length >>> 1) {
-			// search left to right
-			let i = index;
-			for (let childIndex = 0; childIndex < nrChildren; childIndex++) {
-				const childLength = readChildren[childIndex].length;
-
-				if (i < childLength) {
-					return [childIndex, i];
-				}
-
-				i -= childLength;
-			}
-		} else {
-			// search right to left
-			let i = length - index;
-			for (let childIndex = nrChildren - 1; childIndex >= 0; childIndex--) {
-				const childLength = readChildren[childIndex].length;
-
-				if (i <= childLength) {
-					return [childIndex, childLength - i];
-				}
-
-				i -= childLength;
+		while (lo < hi) {
+			const mid = (lo + hi) >>> 1;
+			if (sizes[mid] <= index) {
+				lo = mid + 1;
+			} else {
+				hi = mid;
 			}
 		}
 
-		throwInvalidStateError();
+		const childIndex = lo;
+		const prevSize = childIndex > 0 ? sizes[childIndex - 1] : 0;
+		return [childIndex, index - prevSize];
 	}
 
 	_verifyStructure(
@@ -538,15 +609,8 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		}
 
 		let length = 0;
-		let lastChildWasMinSize = false;
 
 		for (const child of this.readChildren) {
-			if (!child.canRemoveChild && lastChildWasMinSize) {
-				messages.push(
-					`InnerBlockBuilder of level ${this.level} has two adjacent children with minimum number of children, which is not allowed.`,
-				);
-			}
-			lastChildWasMinSize = !child.canRemoveChild;
 			length += child.length;
 			child._verifyStructure(messages, true);
 		}

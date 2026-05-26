@@ -47,7 +47,8 @@ For deeper structures, reversal recursively swaps the left and right boundary bl
 | **Spine** | A node with a left block, an optional middle, and a right block. |
 | **Level** | A property of inner nodes only. Level 1 inner nodes hold outer blocks as children. Level $\ell$ inner nodes hold level $(\ell - 1)$ inner nodes as children. |
 | **Regular block** | An inner block in which every child subtree contains exactly $2^{\text{blockSizeBits} \cdot \ell}$ elements, where $\ell$ is the block's level. Enables O(1) index navigation via bit arithmetic. |
-| **Irregular block** | An inner block that is not regular. Requires linear scan for index navigation. |
+| **Irregular block** | An inner block that is not regular. Carries a **size table** to enable O(log maxBlockSize) index navigation via binary search. |
+| **Size table** | A cumulative array stored on an irregular inner block where $\text{sizes}[k] = \sum_{i=0}^{k} |\text{children}[i]|$. Used to locate the correct child for a given index in O(log maxBlockSize) time. |
 
 ---
 
@@ -149,9 +150,16 @@ $$\text{inChildIndex} = i \mathbin{\&} (\text{subtreeSize} - 1)$$
 
 This is O(1) using integer bit operations.
 
-**Irregular case** (children have varying sizes):
+**Irregular case** (block carries a size table):
 
-Scan children from the nearest end (front if $i < |B|/2$, back otherwise), subtracting each child's element count until the target child is found. This is O(maxBlockSize) per level, O(maxBlockSize · depth) overall — acceptable since `maxBlockSize` is typically small (e.g. 32).
+Given the size table $\text{sizes}[0..n-1]$, find the smallest $k$ such that $\text{sizes}[k] > i$ using binary search:
+
+$$\text{childIndex} = \min \{ k \mid \text{sizes}[k] > i \}$$
+$$\text{inChildIndex} = i - (childIndex > 0 \; ? \; \text{sizes}[\text{childIndex} - 1] : 0)$$
+
+This is O(log maxBlockSize) — effectively O(1) since maxBlockSize is fixed (e.g. 32 → at most 5 comparisons).
+
+The size table is computed when a block first becomes irregular (after take, drop, concat, or split) and stored on the block. Regular blocks carry no size table.
 
 ### Inner Spine
 
@@ -291,7 +299,7 @@ The reversed list contains the same elements in the opposite order. A leaf block
 
 | Operation | Time Complexity | Notes |
 |---|---|---|
-| get | O(log n) | One tree traversal; O(1) per level for regular blocks |
+| get | O(log n) | O(1) per level for regular blocks; O(log maxBlockSize) per level for irregular |
 | update | O(log n) | Path copying; shares all off-path nodes |
 | prepend | O(log n) worst, O(1) amortized | Boundary block usually non-full |
 | append | O(log n) worst, O(1) amortized | Boundary block usually non-full |
@@ -315,9 +323,9 @@ An efficient implementation can represent a reversed outer block as a thin wrapp
 
 When reversing a deep structure with structural sharing, the same inner node may be logically reachable via multiple paths. A reversal cache (a map from original node identity to its reversed counterpart) prevents the same node from being reversed more than once, bounding total reversal work by the number of unique nodes rather than the number of logical references.
 
-### Regular vs. Irregular Blocks
+### Regular vs. Irregular Blocks and Size Tables
 
-Most inner blocks in a list that has only been built via prepend/append are regular: all children hold exactly $2^{\text{blockSizeBits} \cdot \ell}$ elements. Index navigation in regular blocks is O(1) via bit shifts. Irregular blocks arise after take, drop, split, or concat. Implementations may choose to track regularity per-block to avoid unnecessary linear scans.
+Most inner blocks in a list built purely via prepend/append are regular: all children hold exactly $2^{\text{blockSizeBits} \cdot \ell}$ elements. Index navigation in regular blocks is O(1) via bit shifts. Irregular blocks arise after take, drop, split, or concat. Each irregular block carries a **size table** — a cumulative array of child sizes — so that index navigation remains O(log maxBlockSize) via binary search rather than falling back to a linear scan. Regular blocks carry no size table, so there is no memory overhead for the common case.
 
 ### Choosing `blockSizeBits` and `minBlockSize`
 

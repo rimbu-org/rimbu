@@ -45,6 +45,7 @@ interface ImmutableFactory<Tp extends ListImpl.Types = ListImpl.Types> {
 		children: C[],
 		length: number,
 		level: number,
+		sizes?: number[] | null,
 	): InnerBlock<T, C>;
 	isInnerBlock<T, C extends Block<T>>(
 		source: unknown,
@@ -158,8 +159,9 @@ export function createContextModule<
 			children: C[],
 			length: number,
 			level: number,
+			sizes?: number[] | null,
 		): InnerBlock<T, C> {
-			return new InnerBlock(mod, children, length, level);
+			return new InnerBlock(mod, children, length, level, undefined, sizes);
 		},
 		isInnerBlock<T, C extends Block<T>>(
 			source: unknown,
