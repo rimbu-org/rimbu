@@ -88,6 +88,9 @@ export class OuterTreeBuilder<T>
 				if (undefined !== this.middle) {
 					this.left = this.middle.dropFirstChild();
 					this.middle = this.middle.normalized();
+				} else if (this.right.canRemoveChild) {
+					// no middle — steal one element from right
+					this.left.append(this.right.dropFirstChild());
 				}
 			}
 
@@ -104,6 +107,9 @@ export class OuterTreeBuilder<T>
 				if (undefined !== this.middle) {
 					this.right = this.middle.dropLastChild();
 					this.middle = this.middle.normalized();
+				} else if (this.left.canRemoveChild) {
+					// no middle — steal one element from left
+					this.right.prepend(this.left.dropLastChild());
 				}
 			}
 

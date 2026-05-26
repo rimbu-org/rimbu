@@ -191,6 +191,9 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 				if (undefined !== this.middle) {
 					this.left = this.middle.dropFirstChild();
 					this.middle = this.middle.normalized();
+				} else if (this.right.canRemoveChild) {
+					// no middle — steal one child from right
+					this.left.appendChild(this.right.dropFirstChild());
 				}
 			} else if (this.left.nrChildren === 1) {
 				const leftChild = this.left.firstChild();
@@ -201,6 +204,12 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 							leftChild.appendItems(firstMiddleGrandChild);
 							return -firstMiddleGrandChild.length;
 						});
+					} else if (this.right.canRemoveChild) {
+						// no middle — steal a grandchild from right's first child
+						const rightFirstChild = this.right.firstChild() as BlockBuilder<T>;
+						const grandChild = rightFirstChild.dropFirstChild() as BlockBuilder<T>;
+						leftChild.appendItems(grandChild as BlockBuilder<T, unknown>);
+						this.right.length -= grandChild.length;
 					}
 				}
 			}
@@ -214,10 +223,13 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 			// index is in right
 			const oldValue = this.right.remove(rightIndex);
 
-			if (this.right.length === 0) {
+			if (this.right.nrChildren === 0) {
 				if (undefined !== this.middle) {
 					this.right = this.middle.dropLastChild();
 					this.middle = this.middle.normalized();
+				} else if (this.left.canRemoveChild) {
+					// no middle — steal one child from left
+					this.right.prependChild(this.left.dropLastChild());
 				}
 			}
 
