@@ -187,8 +187,14 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		const newRightChild = child.splitRight();
 		this.children.splice(childIndex + 1, 0, newRightChild as C);
 
-		// Sizes array needs a new entry; full recompute is simplest here.
-		this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+		if (this.sizes !== null) {
+			// Insert a placeholder entry at childIndex + 1, then update from childIndex.
+			this.sizes.splice(childIndex + 1, 0, 0);
+			updateSizesFrom(this.sizes, this.children, childIndex);
+		} else {
+			// Was regular; splitting always makes it irregular.
+			this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+		}
 	}
 
 	remove(index: number): T {
@@ -217,10 +223,13 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 				child.nrChildren + leftChild.nrChildren <=
 				this.context.maxBlockSize
 			) {
-				// merge with left
+				// merge with left: remove child at childIndex, leftChild grows
 				leftChild.appendItems(child);
 				this.children.splice(childIndex, 1);
-				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+				if (this.sizes !== null) {
+					this.sizes.splice(childIndex, 1);
+					updateSizesFrom(this.sizes, this.children, childIndex - 1);
+				}
 				return oldValue;
 			}
 		}
@@ -231,10 +240,13 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 				child.nrChildren + rightChild.nrChildren <=
 				this.context.maxBlockSize
 			) {
-				// merge with right
+				// merge with right: remove child at childIndex, rightChild grows
 				rightChild.prependItems(child);
 				this.children.splice(childIndex, 1);
-				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+				if (this.sizes !== null) {
+					this.sizes.splice(childIndex, 1);
+					updateSizesFrom(this.sizes, this.children, childIndex);
+				}
 				return oldValue;
 			}
 		}
@@ -260,20 +272,28 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 						: rightChild;
 
 		if (maxChildren === leftChild) {
-			// rebalance with left
+			// rebalance with left: childIndex-1 and childIndex both change
 			leftChild.appendItems(child);
 			this.children[childIndex] = leftChild.splitRight(
 				Math.ceil(leftChild.nrChildren / 2),
 			) as C;
 		} else {
-			// rebalance with right
+			// rebalance with right: childIndex and childIndex+1 both change
 			child.appendItems(rightChild);
 			this.children[childIndex + 1] = child.splitRight(
 				Math.floor(child.nrChildren / 2),
 			) as C;
 		}
 
-		this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+		if (this.sizes !== null) {
+			updateSizesFrom(
+				this.sizes,
+				this.children,
+				maxChildren === leftChild ? childIndex - 1 : childIndex,
+			);
+		} else {
+			this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+		}
 		return oldValue;
 	}
 
