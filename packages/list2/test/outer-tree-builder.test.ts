@@ -4,6 +4,7 @@ import type { ListContext } from '#list/context-module';
 
 import { TraverseState } from '@rimbu/common/traverse-state';
 
+import { OuterBlock } from '#list/immutable/outer-block';
 import { OuterTree } from '#list/immutable/outer-tree';
 import { ListHelpers } from '#list/list-helpers';
 import { InnerTreeBuilder } from '#list/mutable/inner-tree-builder';
@@ -250,7 +251,7 @@ describe('OuterTreeBuilder', () => {
 			);
 			const r = t.build();
 			expect(r.toArray()).toEqual([1, 2, 11, 12]);
-			expect(r).toBeInstanceOf(OuterTree);
+			expect(r).toBeInstanceOf(OuterBlock);
 		}
 		{
 			const source = context.outerTree(
@@ -277,7 +278,7 @@ describe('OuterTreeBuilder', () => {
 			);
 			const r = t.buildMap((v) => v + 1);
 			expect(r.toArray()).toEqual([2, 3, 12, 13]);
-			expect(r).toBeInstanceOf(OuterTree);
+			expect(r).toBeInstanceOf(OuterBlock);
 		}
 		{
 			const source = context.outerTree(

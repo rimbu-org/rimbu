@@ -1,5 +1,6 @@
 import type { ListContext } from '#list/context-module';
 import type { InnerTree } from '#list/immutable/inner-tree';
+import type { Inner } from '#list/immutable/utils';
 import type {
 	BlockBuilder,
 	InnerBuilder,
@@ -375,30 +376,52 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		return delta;
 	}
 
-	build(): InnerTree<T, ToImmutable<C>> {
-		return (
-			this.source ??
-			this.context.innerTree(
-				this.left.build(),
-				this.right.build(),
-				this.middle?.build() ?? null,
-				this.length,
-				this.level,
-			)
+	build(): Inner<T, ToImmutable<C>> {
+		if (this.source) {
+			return this.source;
+		}
+
+		// Ensure the mutable structure is normalized before building immutable.
+		const normalized = this.normalized();
+		if (normalized !== this) {
+			return normalized.build();
+		}
+
+		const result = this.context.innerTree(
+			this.left.build(),
+			this.right.build(),
+			this.middle?.build() ?? null,
+			this.length,
+			this.level,
 		);
+
+		return result._normalize();
 	}
 
-	buildMap<T2>(f: (value: T) => T2): InnerTree<T2, any> {
-		return (
-			this.source?.map?.(f) ??
-			this.context.innerTree(
-				this.left.buildMap(f),
-				this.right.buildMap(f),
-				this.middle?.buildMap?.(f) ?? null,
-				this.length,
-				this.level,
-			)
+	buildMap<T2>(f: (value: T) => T2): Inner<T2, any> {
+		if (this.source?.map) {
+			return this.source.map(f);
+		}
+
+		// Ensure the mutable structure is normalized before building immutable.
+		const normalized = this.normalized();
+		if (normalized !== this) {
+			return normalized.buildMap(f);
+		}
+
+		const left = this.left.buildMap(f);
+		const right = this.right.buildMap(f);
+		const middle = this.middle?.buildMap?.(f) ?? null;
+
+		const result = this.context.innerTree(
+			left,
+			right,
+			middle,
+			this.length,
+			this.level,
 		);
+
+		return result._normalize();
 	}
 
 	normalized(): InnerBuilder<T, C> {

@@ -2,6 +2,7 @@ import type { ListContext } from '#list/context-module';
 import type { OuterTree } from '#list/immutable/outer-tree';
 import type { InnerBuilder, OuterBuilder } from '#list/mutable/builder-base';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
+import type { ListImpl } from '#list/list-impl';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 
@@ -162,27 +163,31 @@ export class OuterTreeBuilder<T>
 		return this;
 	}
 
-	build(): OuterTree<T> {
+	build(): ListImpl.NonEmpty<T> {
 		return (
 			this.source ??
-			this.context.outerTree<T>(
-				this.left.build(),
-				this.right.build(),
-				this.middle?.build() ?? null,
-				this.length,
-			)
+			this.context
+				.outerTree<T>(
+					this.left.build(),
+					this.right.build(),
+					this.middle?.build() ?? null,
+					this.length,
+				)
+				._normalize()
 		);
 	}
 
-	buildMap<T2>(f: (value: T) => T2): OuterTree<T2> {
+	buildMap<T2>(f: (value: T) => T2): ListImpl.NonEmpty<T2> {
 		return (
 			this.source?.map(f) ??
-			this.context.outerTree(
-				this.left.buildMap(f),
-				this.right.buildMap(f),
-				this.middle?.buildMap?.(f) ?? null,
-				this.length,
-			)
+			this.context
+				.outerTree(
+					this.left.buildMap(f),
+					this.right.buildMap(f),
+					this.middle?.buildMap?.(f) ?? null,
+					this.length,
+				)
+				._normalize()
 		);
 	}
 

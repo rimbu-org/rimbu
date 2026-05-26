@@ -597,7 +597,11 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 				// can merge left and right
 				return this.left.concatChildren(this.right);
 			}
-		} else if (this.context.isInnerBlock<T, C>(this.middle)) {
+
+			return this;
+		}
+
+		if (this.context.isInnerBlock<T, C>(this.middle)) {
 			const firstChild = this.middle.children[0];
 
 			if (
@@ -605,16 +609,14 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 				this.context.maxBlockSize
 			) {
 				// first middle child can be merged with left
-				const result = this.middle.dropFirstChild();
-				const newMiddle = result[0];
-				const block = result[1];
+				const [newMiddle, block] = this.middle.dropFirstChild();
 
 				if (this.context.isInnerBlock<T, C>(block)) {
 					return this.copy(
 						this.left.concatChildren(block),
 						undefined,
 						newMiddle,
-					);
+					)._normalize();
 				}
 
 				throwInvalidStateError();
@@ -627,16 +629,14 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 				this.context.maxBlockSize
 			) {
 				// last middle child can be merged with right
-				const result = this.middle.dropLastChild();
-				const newMiddle = result[0];
-				const block = result[1];
+				const [newMiddle, block] = this.middle.dropLastChild();
 
 				if (this.context.isInnerBlock<T, C>(block)) {
 					return this.copy(
 						undefined,
 						block.concatChildren(this.right),
 						newMiddle,
-					);
+					)._normalize();
 				}
 
 				throwInvalidStateError();
@@ -767,9 +767,9 @@ ${this.right._structure(nextDepth)}\
 			// });
 		}
 
-		this.left._verifyStructure(messages, true);
+		this.left._verifyStructure(messages, false);
 		this.middle?._verifyStructure(messages, false);
-		this.right._verifyStructure(messages, true);
+		this.right._verifyStructure(messages, false);
 
 		return messages;
 	}
