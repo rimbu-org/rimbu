@@ -249,17 +249,17 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			return oldValue;
 		}
 
-		// find sibling with least children
-		const minChildren =
+		// find sibling with most children (most surplus to redistribute)
+		const maxChildren =
 			undefined === leftChild
 				? rightChild
 				: undefined === rightChild
 					? leftChild
-					: leftChild.nrChildren <= rightChild.nrChildren
+					: leftChild.nrChildren >= rightChild.nrChildren
 						? leftChild
 						: rightChild;
 
-		if (minChildren === leftChild) {
+		if (maxChildren === leftChild) {
 			// rebalance with left
 			leftChild.appendItems(child);
 			this.children[childIndex] = leftChild.splitRight(
