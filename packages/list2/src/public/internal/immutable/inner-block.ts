@@ -12,7 +12,7 @@ import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { IndexRange } from '@rimbu/common/index-range';
 import { Stream } from '@rimbu/stream';
 
-import { type Block, type Inner, mutateField } from '#list/immutable/utils';
+import type { Block, Inner } from '#list/immutable/utils';
 
 /**
  * Compute a cumulative size table for an array of child blocks.
@@ -44,7 +44,7 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 	declare _self: InnerBlock<T, C>;
 
 	/** Cumulative size table for irregular blocks. null means regular. */
-	readonly sizes: number[] | null;
+	sizes: number[] | null;
 
 	constructor(
 		readonly context: ListContext,
@@ -630,11 +630,7 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 			} else i++;
 		}
 
-		mutateField(
-			this,
-			'sizes',
-			computeSizeTable(this.children, this.level, this.context.blockSizeBits),
-		);
+		this.sizes = computeSizeTable(this.children, this.level, this.context.blockSizeBits);
 
 		return this;
 	}
@@ -659,11 +655,7 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		}
 
 		this.length -= rightLength;
-		mutateField(
-			this,
-			'sizes',
-			computeSizeTable(this.children, this.level, this.context.blockSizeBits),
-		);
+		this.sizes = computeSizeTable(this.children, this.level, this.context.blockSizeBits);
 
 		return this.copy(rightChildren, rightLength);
 	}

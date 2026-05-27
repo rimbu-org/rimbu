@@ -5,7 +5,7 @@ import type { Stream, StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context-module';
 import type { OuterTree } from '#list/immutable/outer-tree';
-import { type Block, mutateField } from '#list/immutable/utils';
+import type { Block } from '#list/immutable/utils';
 import type { ListImpl } from '#list/list-impl';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 
@@ -25,13 +25,16 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 	constructor(
 		context: ListContext,
 		public children: WithElem<Tp, T>['outerChildren'],
-		readonly length = context.outerChildrenOps.length(children),
 	) {
 		super(context);
 	}
 
 	get isReversedBlock() {
 		return false;
+	}
+
+	get length() {
+		return this.ops.length(this.children);
 	}
 
 	get nrChildren() {
@@ -366,7 +369,6 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 			childIndex,
 		);
 		this.children = newChildren;
-		mutateField(this, 'length', this.ops.length(newChildren));
 
 		return this.copy(rightChildren);
 	}
