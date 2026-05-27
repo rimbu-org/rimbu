@@ -366,6 +366,7 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 			childIndex,
 		);
 		this.children = newChildren;
+		(this as any).length = this.ops.length(newChildren);
 
 		return this.copy(rightChildren);
 	}

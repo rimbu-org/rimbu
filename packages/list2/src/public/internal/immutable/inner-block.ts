@@ -629,6 +629,12 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 			} else i++;
 		}
 
+		(this as any).sizes = computeSizeTable(
+			this.children,
+			this.level,
+			this.context.blockSizeBits,
+		);
+
 		return this;
 	}
 
@@ -652,6 +658,11 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		}
 
 		this.length -= rightLength;
+		(this as any).sizes = computeSizeTable(
+			this.children,
+			this.level,
+			this.context.blockSizeBits,
+		);
 
 		return this.copy(rightChildren, rightLength);
 	}
