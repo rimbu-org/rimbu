@@ -240,7 +240,7 @@ describe('ListBuilder', () => {
 		const g = context.builder<number>();
 		g.appendArray([1, 2, 3, 4]);
 		expect(() => g.checkLock()).not.toThrow();
-		g._lock = 1;
+		g._iterationDepth = 1;
 		expect(() => g.checkLock()).toThrow();
 
 		expect(() => g.append(1)).toThrow();

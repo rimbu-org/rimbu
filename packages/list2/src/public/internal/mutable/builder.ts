@@ -26,10 +26,11 @@ export class ListBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		super(context);
 	}
 
-	_lock = 0;
+	/** Tracks active iteration depth; non-zero means mutation is forbidden. */
+	_iterationDepth = 0;
 
 	checkLock(): void {
-		if (this._lock) {
+		if (this._iterationDepth) {
 			throwModifiedBuilderWhileLoopingOverItError();
 		}
 	}
@@ -249,12 +250,12 @@ export class ListBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 
 		if (state.halted) return;
 
-		this._lock++;
+		this._iterationDepth++;
 
 		try {
 			this.outerBuilder.forEach(f, { reversed, state });
 		} finally {
-			this._lock--;
+			this._iterationDepth--;
 		}
 	};
 
