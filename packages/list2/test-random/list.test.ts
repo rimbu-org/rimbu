@@ -45,7 +45,7 @@ function runWith(nrOfBits: number): void {
 				}
 				console.log('log:', this.log);
 				console.log('expected:', this.arr);
-				console.log((this.listBuilder.build() as any).structure());
+				console.log((this.listBuilder.build() as any)._structure());
 				console.log('length', this.listBuilder.length);
 				// console.log('str', (this.wv as any).structure());
 				// console.log('actual wv: ', this.wv.toArray());
