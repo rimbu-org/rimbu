@@ -260,7 +260,7 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 			} else {
 				leftOuterBlock.appendItems(firstMiddleOuterBlock);
 				const newFirst = leftOuterBlock.splitRight(
-					Math.ceil(leftOuterBlock.nrChildren / 2),
+					(leftOuterBlock.nrChildren + 1) >>> 1,
 				) as C;
 				const sizeDelta = newFirst.length - firstMiddleOuterBlock.length;
 				firstMiddleBlock.children[0] = newFirst;
@@ -306,7 +306,7 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 			} else {
 				leftOuterBlock.appendItems(rightFirstOuter);
 				const newFirst = leftOuterBlock.splitRight(
-					Math.ceil(leftOuterBlock.nrChildren / 2),
+					(leftOuterBlock.nrChildren + 1) >>> 1,
 				) as C;
 				const delta = newFirst.length - rightFirstOuter.length;
 				(rightFirstBlock as any).children[0] = newFirst;
@@ -361,7 +361,7 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 				// redistribute: merge then split
 				first.appendItems(second);
 				this.left.children[1] = first.splitRight(
-					Math.ceil(first.nrChildren / 2),
+					(first.nrChildren + 1) >>> 1,
 				) as C;
 			}
 			this.left.sizes = recomputeSizes(this.left.children, this.left.level, this.context.blockSizeBits);

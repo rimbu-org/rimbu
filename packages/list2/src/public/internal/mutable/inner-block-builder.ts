@@ -264,13 +264,13 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			// rebalance with left: childIndex-1 and childIndex both change
 			leftChild.appendItems(child);
 			this.children[childIndex] = leftChild.splitRight(
-				Math.ceil(leftChild.nrChildren / 2),
+				(leftChild.nrChildren + 1) >>> 1,
 			) as C;
 		} else {
 			// rebalance with right: childIndex and childIndex+1 both change
 			child.appendItems(rightChild);
 			this.children[childIndex + 1] = child.splitRight(
-				Math.floor(child.nrChildren / 2),
+				child.nrChildren >>> 1,
 			) as C;
 		}
 
