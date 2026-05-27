@@ -188,143 +188,7 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		if (middleIndex < 0) {
 			// index is in left
 			const oldValue = this.left.remove(index);
-
-			if (this.left.nrChildren === 0) {
-				if (undefined !== this.middle) {
-					this.left = this.middle.dropFirstChild();
-					this.middle = this.middle.normalized();
-				} else if (this.right.canRemoveChild) {
-					// no middle — steal one child from right
-					this.left.appendChild(this.right.dropFirstChild());
-				}
-			} else if (this.left.nrChildren === 1) {
-				const leftFirstChild = this.left.firstChild();
-				if (this.level === 1 && !leftFirstChild.childrenInMin) {
-					// Level 1: The boundary outer block is underfull.
-					// Fix by merging/redistributing with adjacent outer block from middle.
-					if (undefined !== this.middle) {
-						const firstMiddleBlock = this.middle.dropFirstChild();
-						this.middle = this.middle.normalized();
-						const leftOuterBlock = leftFirstChild;
-						const firstMiddleOuterBlock = firstMiddleBlock.firstChild();
-						const combined =
-							leftOuterBlock.nrChildren + firstMiddleOuterBlock.nrChildren;
-						if (combined <= this.context.maxBlockSize) {
-							leftOuterBlock.appendItems(firstMiddleOuterBlock);
-							firstMiddleBlock.dropFirstChild();
-						} else {
-							leftOuterBlock.appendItems(firstMiddleOuterBlock);
-							const newFirst = leftOuterBlock.splitRight(
-								Math.ceil(leftOuterBlock.nrChildren / 2),
-							) as C;
-							const sizeDelta = newFirst.length - firstMiddleOuterBlock.length;
-							firstMiddleBlock.children[0] = newFirst;
-							firstMiddleBlock.length += sizeDelta;
-						}
-						// Redistribute inner block children
-						const totalInner = this.left.nrChildren + firstMiddleBlock.nrChildren;
-						if (totalInner <= this.context.maxBlockSize) {
-							this.left.appendItems(firstMiddleBlock);
-						} else {
-							while (
-								this.left.nrChildren < this.context.minBlockSize &&
-								firstMiddleBlock.canRemoveChild
-							) {
-								this.left.appendChild(firstMiddleBlock.dropFirstChild());
-							}
-							if (this.middle === undefined) {
-								this.middle = this.context.innerBlockBuilder(
-									this.level,
-									[firstMiddleBlock],
-									firstMiddleBlock.length,
-								);
-							} else {
-								this.middle.prependChild(firstMiddleBlock);
-							}
-						}
-						this.left.length = this.left.children.reduce(
-							(sum, c) => sum + c.length,
-							0,
-						);
-					} else if (this.right.canRemoveChild) {
-						// At level 1, right's children (C) are InnerBlockBuilders containing outer blocks.
-						// TypeScript can't narrow C based on runtime level, so cast is needed.
-						const rightFirstBlock = this.right.firstChild() as unknown as InnerBlockBuilder<T, any>;
-						const leftOuterBlock = leftFirstChild;
-						const rightFirstOuter = rightFirstBlock.firstChild() as C;
-						const combined =
-							leftOuterBlock.nrChildren + rightFirstOuter.nrChildren;
-						if (combined <= this.context.maxBlockSize) {
-							leftOuterBlock.appendItems(rightFirstOuter);
-							this.left.length += rightFirstOuter.length;
-							rightFirstBlock.dropFirstChild();
-							this.right.length -= rightFirstOuter.length;
-						} else {
-							leftOuterBlock.appendItems(rightFirstOuter);
-							const newFirst = leftOuterBlock.splitRight(
-								Math.ceil(leftOuterBlock.nrChildren / 2),
-							) as C;
-							const delta = newFirst.length - rightFirstOuter.length;
-							(rightFirstBlock as any).children[0] = newFirst;
-							rightFirstBlock.length += delta;
-							this.left.length -= delta;
-							this.right.length += delta;
-						}
-					}
-				} else if (!leftFirstChild.childrenInMin) {
-					// Level > 1: The single child of this.left is underfull (has < minBlockSize children).
-					// Steal children from the first middle block to bring this.left up.
-					if (undefined !== this.middle) {
-						const firstMiddleBlock = this.middle.dropFirstChild();
-						this.middle = this.middle.normalized();
-						const totalInner = this.left.nrChildren + firstMiddleBlock.nrChildren;
-						if (totalInner <= this.context.maxBlockSize) {
-							this.left.appendItems(firstMiddleBlock);
-						} else {
-							while (
-								this.left.nrChildren < this.context.minBlockSize &&
-								firstMiddleBlock.canRemoveChild
-							) {
-								this.left.appendChild(firstMiddleBlock.dropFirstChild());
-							}
-							if (this.middle === undefined) {
-								this.middle = this.context.innerBlockBuilder(
-									this.level,
-									[firstMiddleBlock],
-									firstMiddleBlock.length,
-								);
-							} else {
-								this.middle.prependChild(firstMiddleBlock);
-							}
-						}
-						// Fix the underfull first child by merging/redistributing with its right sibling
-						const first = this.left.firstChild();
-						if (!first.childrenInMin && this.left.nrChildren > 1) {
-							const second = this.left.children[1] as C;
-							if (
-								first.nrChildren + second.nrChildren <=
-								this.context.maxBlockSize
-							) {
-							// merge first into second, remove first
-							second.prependItems(first);
-							this.left.children.splice(0, 1);
-						} else {
-							// redistribute: merge then split
-							first.appendItems(second);
-								this.left.children[1] = first.splitRight(
-									Math.ceil(first.nrChildren / 2),
-								) as C;
-							}
-							this.left.sizes = recomputeSizes(this.left.children, this.left.level, this.context.blockSizeBits);
-						}
-						this.left.length = this.left.children.reduce(
-							(sum, c) => sum + c.length,
-							0,
-						);
-					}
-				}
-			}
-
+			this.repairLeftAfterRemove();
 			return oldValue;
 		}
 
@@ -333,17 +197,7 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		if (rightIndex >= 0) {
 			// index is in right
 			const oldValue = this.right.remove(rightIndex);
-
-			if (this.right.nrChildren === 0) {
-				if (undefined !== this.middle) {
-					this.right = this.middle.dropLastChild();
-					this.middle = this.middle.normalized();
-				} else if (this.left.canRemoveChild) {
-					// no middle — steal one child from left
-					this.right.prependChild(this.left.dropLastChild());
-				}
-			}
-
+			this.repairRightAfterRemove();
 			return oldValue;
 		}
 
@@ -356,6 +210,166 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		this.middle = this.middle.normalized();
 
 		return oldValue;
+	}
+
+	private repairRightAfterRemove(): void {
+		if (this.right.nrChildren === 0) {
+			if (undefined !== this.middle) {
+				this.right = this.middle.dropLastChild();
+				this.middle = this.middle.normalized();
+			} else if (this.left.canRemoveChild) {
+				// no middle — steal one child from left
+				this.right.prependChild(this.left.dropLastChild());
+			}
+		}
+	}
+
+	private repairLeftAfterRemove(): void {
+		if (this.left.nrChildren === 0) {
+			if (undefined !== this.middle) {
+				this.left = this.middle.dropFirstChild();
+				this.middle = this.middle.normalized();
+			} else if (this.right.canRemoveChild) {
+				// no middle — steal one child from right
+				this.left.appendChild(this.right.dropFirstChild());
+			}
+		} else if (this.left.nrChildren === 1) {
+			const leftFirstChild = this.left.firstChild();
+			if (this.level === 1 && !leftFirstChild.childrenInMin) {
+				this.repairLeftLevel1(leftFirstChild);
+			} else if (!leftFirstChild.childrenInMin) {
+				this.repairLeftHigherLevel();
+			}
+		}
+	}
+
+	/**
+	 * Level 1: The boundary outer block is underfull.
+	 * Fix by merging/redistributing with adjacent outer block from middle or right.
+	 */
+	private repairLeftLevel1(leftOuterBlock: C): void {
+		if (undefined !== this.middle) {
+			const firstMiddleBlock = this.middle.dropFirstChild();
+			this.middle = this.middle.normalized();
+			const firstMiddleOuterBlock = firstMiddleBlock.firstChild();
+			const combined =
+				leftOuterBlock.nrChildren + firstMiddleOuterBlock.nrChildren;
+			if (combined <= this.context.maxBlockSize) {
+				leftOuterBlock.appendItems(firstMiddleOuterBlock);
+				firstMiddleBlock.dropFirstChild();
+			} else {
+				leftOuterBlock.appendItems(firstMiddleOuterBlock);
+				const newFirst = leftOuterBlock.splitRight(
+					Math.ceil(leftOuterBlock.nrChildren / 2),
+				) as C;
+				const sizeDelta = newFirst.length - firstMiddleOuterBlock.length;
+				firstMiddleBlock.children[0] = newFirst;
+				firstMiddleBlock.length += sizeDelta;
+			}
+			// Redistribute inner block children
+			const totalInner = this.left.nrChildren + firstMiddleBlock.nrChildren;
+			if (totalInner <= this.context.maxBlockSize) {
+				this.left.appendItems(firstMiddleBlock);
+			} else {
+				while (
+					this.left.nrChildren < this.context.minBlockSize &&
+					firstMiddleBlock.canRemoveChild
+				) {
+					this.left.appendChild(firstMiddleBlock.dropFirstChild());
+				}
+				if (this.middle === undefined) {
+					this.middle = this.context.innerBlockBuilder(
+						this.level,
+						[firstMiddleBlock],
+						firstMiddleBlock.length,
+					);
+				} else {
+					this.middle.prependChild(firstMiddleBlock);
+				}
+			}
+			this.left.length = this.left.children.reduce(
+				(sum, c) => sum + c.length,
+				0,
+			);
+		} else if (this.right.canRemoveChild) {
+			// At level 1, right's children (C) are InnerBlockBuilders containing outer blocks.
+			// TypeScript can't narrow C based on runtime level, so cast is needed.
+			const rightFirstBlock = this.right.firstChild() as unknown as InnerBlockBuilder<T, any>;
+			const rightFirstOuter = rightFirstBlock.firstChild() as C;
+			const combined =
+				leftOuterBlock.nrChildren + rightFirstOuter.nrChildren;
+			if (combined <= this.context.maxBlockSize) {
+				leftOuterBlock.appendItems(rightFirstOuter);
+				this.left.length += rightFirstOuter.length;
+				rightFirstBlock.dropFirstChild();
+				this.right.length -= rightFirstOuter.length;
+			} else {
+				leftOuterBlock.appendItems(rightFirstOuter);
+				const newFirst = leftOuterBlock.splitRight(
+					Math.ceil(leftOuterBlock.nrChildren / 2),
+				) as C;
+				const delta = newFirst.length - rightFirstOuter.length;
+				(rightFirstBlock as any).children[0] = newFirst;
+				rightFirstBlock.length += delta;
+				this.left.length -= delta;
+				this.right.length += delta;
+			}
+		}
+	}
+
+	/**
+	 * Level > 1: The single child of this.left is underfull (has < minBlockSize children).
+	 * Steal children from the first middle block to bring this.left up.
+	 */
+	private repairLeftHigherLevel(): void {
+		if (undefined === this.middle) return;
+
+		const firstMiddleBlock = this.middle.dropFirstChild();
+		this.middle = this.middle.normalized();
+		const totalInner = this.left.nrChildren + firstMiddleBlock.nrChildren;
+		if (totalInner <= this.context.maxBlockSize) {
+			this.left.appendItems(firstMiddleBlock);
+		} else {
+			while (
+				this.left.nrChildren < this.context.minBlockSize &&
+				firstMiddleBlock.canRemoveChild
+			) {
+				this.left.appendChild(firstMiddleBlock.dropFirstChild());
+			}
+			if (this.middle === undefined) {
+				this.middle = this.context.innerBlockBuilder(
+					this.level,
+					[firstMiddleBlock],
+					firstMiddleBlock.length,
+				);
+			} else {
+				this.middle.prependChild(firstMiddleBlock);
+			}
+		}
+		// Fix the underfull first child by merging/redistributing with its right sibling
+		const first = this.left.firstChild();
+		if (!first.childrenInMin && this.left.nrChildren > 1) {
+			const second = this.left.children[1] as C;
+			if (
+				first.nrChildren + second.nrChildren <=
+				this.context.maxBlockSize
+			) {
+				// merge first into second, remove first
+				second.prependItems(first);
+				this.left.children.splice(0, 1);
+			} else {
+				// redistribute: merge then split
+				first.appendItems(second);
+				this.left.children[1] = first.splitRight(
+					Math.ceil(first.nrChildren / 2),
+				) as C;
+			}
+			this.left.sizes = recomputeSizes(this.left.children, this.left.level, this.context.blockSizeBits);
+		}
+		this.left.length = this.left.children.reduce(
+			(sum, c) => sum + c.length,
+			0,
+		);
 	}
 
 	modifyFirstChild(f: (child: C) => number | undefined): number | undefined {
