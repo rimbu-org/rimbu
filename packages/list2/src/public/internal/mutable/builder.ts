@@ -155,24 +155,22 @@ export class ListBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		// fill last child
 		if (undefined !== this.outerBuilder) {
 			if (this.context.isOuterBlockBuilder(this.outerBuilder)) {
-				this.outerBuilder.prepareMutate();
-				index = blockSize - this.outerBuilder.length;
+				const remaining = blockSize - this.outerBuilder.length;
 
-				if (index > 0) {
-					const slice = array.slice(0, index);
-					this.outerBuilder.children = this.ops.concat(
-						this.outerBuilder.children,
-						this.ops.of(slice),
-					);
+				if (remaining > 0) {
+					const slice = array.slice(0, remaining);
+					this.outerBuilder.appendValues(slice);
+					index = remaining;
 				}
 			} else if (this.context.isOuterTreeBuilder(this.outerBuilder)) {
 				this.outerBuilder.prepareMutate();
 				const left = this.outerBuilder.left;
-				index = blockSize - left.length;
+				const remaining = blockSize - left.length;
 
-				if (index > 0) {
-					const slice = array.slice(0, index);
-					left.children = this.ops.concat(left.children, this.ops.of(slice));
+				if (remaining > 0) {
+					const slice = array.slice(0, remaining);
+					left.appendValues(slice);
+					index = remaining;
 				}
 			}
 		}

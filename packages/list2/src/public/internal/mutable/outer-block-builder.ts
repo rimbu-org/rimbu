@@ -88,6 +88,15 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		this.children = this.ops.mutateAppend(this.children, value);
 	}
 
+	/**
+	 * Appends multiple raw values to this block's children.
+	 * Used for bulk-filling during array append operations.
+	 */
+	appendValues(values: T[]): void {
+		this.prepareMutate();
+		this.children = this.ops.concat(this.children, this.ops.of(values));
+	}
+
 	insert(index: number, value: T): void {
 		this.prepareMutate();
 		this.ops.mutateSplice(this.children, index, 0, this.ops.of([value]));
