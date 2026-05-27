@@ -1,8 +1,8 @@
 import type { ListContext } from '#list/context-module';
 import type { OuterTree } from '#list/immutable/outer-tree';
+import type { ListImpl } from '#list/list-impl';
 import type { InnerBuilder, OuterBuilder } from '#list/mutable/builder-base';
 import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
-import type { ListImpl } from '#list/list-impl';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 
@@ -85,9 +85,22 @@ export class OuterTreeBuilder<T>
 			// index is in left
 			const oldValue = this.left.remove(index);
 
-			if (this.left.length === 0) {
+			if (!this.left.childrenInMin) {
 				if (undefined !== this.middle) {
-					this.left = this.middle.dropFirstChild();
+					const firstBlock = (
+						this.middle as any
+					).firstChild() as OuterBlockBuilder<T>;
+					if (firstBlock.canRemoveChild) {
+						// steal one element from middle's first block
+						this.middle.modifyFirstChild((fb: OuterBlockBuilder<T>) => {
+							this.left.append(fb.dropFirstChild());
+							return -1;
+						});
+					} else {
+						// merge entire first block into left
+						const dropped = this.middle.dropFirstChild();
+						this.left.appendItems(dropped);
+					}
 					this.middle = this.middle.normalized();
 				} else if (this.right.canRemoveChild) {
 					// no middle — steal one element from right
@@ -95,6 +108,7 @@ export class OuterTreeBuilder<T>
 				}
 			}
 
+			this._normalizeMiddle();
 			return oldValue;
 		}
 
@@ -104,9 +118,22 @@ export class OuterTreeBuilder<T>
 			// index is in right
 			const oldValue = this.right.remove(rightIndex);
 
-			if (this.right.length === 0) {
+			if (!this.right.childrenInMin) {
 				if (undefined !== this.middle) {
-					this.right = this.middle.dropLastChild();
+					const lastBlock = (
+						this.middle as any
+					).lastChild() as OuterBlockBuilder<T>;
+					if (lastBlock.canRemoveChild) {
+						// steal one element from middle's last block
+						this.middle.modifyLastChild((lb: OuterBlockBuilder<T>) => {
+							this.right.prepend(lb.dropLastChild());
+							return -1;
+						});
+					} else {
+						// merge entire last block into right
+						const dropped = this.middle.dropLastChild();
+						this.right.prependItems(dropped);
+					}
 					this.middle = this.middle.normalized();
 				} else if (this.left.canRemoveChild) {
 					// no middle — steal one element from left
@@ -114,6 +141,7 @@ export class OuterTreeBuilder<T>
 				}
 			}
 
+			this._normalizeMiddle();
 			return oldValue;
 		}
 
@@ -125,7 +153,17 @@ export class OuterTreeBuilder<T>
 		const oldValue = this.middle.remove(middleIndex);
 		this.middle = this.middle.normalized();
 
+		this._normalizeMiddle();
 		return oldValue;
+	}
+
+	private _normalizeMiddle(): void {
+		if (
+			undefined !== this.middle &&
+			this.length <= this.context.maxBlockSize * 2
+		) {
+			this.normalized();
+		}
 	}
 
 	normalized(): OuterBuilder<T> {
@@ -140,24 +178,41 @@ export class OuterTreeBuilder<T>
 			return this;
 		}
 
-		if (this.length <= this.context.maxBlockSize * 2) {
-			// no middle needed
-			this.prepareMutate();
-
-			if (
-				this.context.isInnerBlockBuilder<T, OuterBlockBuilder<T>>(this.middle)
-			) {
+		if (
+			this.context.isInnerBlockBuilder<T, OuterBlockBuilder<T>>(this.middle)
+		) {
+			const middleLength = this.middle.length;
+			if (this.length <= this.context.maxBlockSize * 2) {
+				// no middle needed — redistribute into left and right
+				this.prepareMutate();
 				this.middle.prepareMutate();
 				for (const child of this.middle.children) {
 					this.left.appendItems(child);
 				}
-			} else {
-				throwInvalidStateError();
+				this.left.appendItems(this.right);
+				this.right = this.left.splitRight();
+				this.middle = undefined;
+			} else if (this.left.length + middleLength <= this.context.maxBlockSize) {
+				// merge middle into left
+				this.prepareMutate();
+				this.middle.prepareMutate();
+				for (const child of this.middle.children) {
+					this.left.appendItems(child);
+				}
+				this.middle = undefined;
+			} else if (
+				middleLength + this.right.length <=
+				this.context.maxBlockSize
+			) {
+				// merge middle into right (prepend)
+				this.prepareMutate();
+				this.middle.prepareMutate();
+				const middleChildren = this.middle.children.slice().reverse();
+				for (const child of middleChildren) {
+					this.right.prependItems(child);
+				}
+				this.middle = undefined;
 			}
-
-			this.left.appendItems(this.right);
-			this.right = this.left.splitRight();
-			this.middle = undefined;
 		}
 
 		return this;
