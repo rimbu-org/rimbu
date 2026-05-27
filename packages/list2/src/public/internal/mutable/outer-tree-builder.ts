@@ -153,6 +153,11 @@ export class OuterTreeBuilder<T>
 		return oldValue;
 	}
 
+	/**
+	 * After removal, if total length fits in 2 blocks, absorb middle into left+right.
+	 * This always mutates in-place (normalized() only returns a different object
+	 * when middle is already undefined, which can't happen here).
+	 */
 	private _normalizeMiddle(): void {
 		if (
 			undefined !== this.middle &&
