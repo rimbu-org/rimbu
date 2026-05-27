@@ -78,42 +78,42 @@ describe('InnerTree', () => {
 			expect(n).toBe(nlt);
 		}
 		{
-			// merge middle with left
+			// merge middle with left and right (middle fully absorbed)
 			const nlb = context.innerBlock<number, OuterBlock<number>>(
 				[lb, lb],
-				12,
+				8,
 				1,
 			);
 			const mb = context.innerBlock<number, InnerBlock<number, any>>(
 				[nlb, nlb],
-				24,
+				16,
 				2,
 			);
-			const nlt = context.innerTree(nlb, nlb, mb, 48, 1);
+			const nlt = context.innerTree(nlb, nlb, mb, 32, 1);
 			const n = nlt._normalize() as InnerTree<any, any>;
 			expect(n).toBeInstanceOf(InnerTree);
-			expect((n.middle as any).children).toEqual([nlb]);
-			expect(n.right).toBe(nlb);
+			expect(n.middle).toBeNull();
 			expect(n.left.children).toEqual([lb, lb, lb, lb]);
+			expect(n.right.children).toEqual([lb, lb, lb, lb]);
 		}
 		{
 			// merge middle with right
 			const nlb = context.innerBlock<number, OuterBlock<number>>(
 				[lb, lb],
-				12,
+				8,
 				1,
 			);
 			const nlb2 = context.innerBlock<number, OuterBlock<number>>(
 				[lb, lb, lb, lb],
-				24,
+				16,
 				1,
 			);
 			const mb = context.innerBlock<number, InnerBlock<number, any>>(
 				[nlb2, nlb],
-				36,
+				24,
 				2,
 			);
-			const nlt = context.innerTree(nlb, nlb, mb, 60, 1);
+			const nlt = context.innerTree(nlb, nlb, mb, 40, 1);
 			const n = nlt._normalize() as InnerTree<any, any>;
 			expect(n).toBeInstanceOf(InnerTree);
 			expect((n.middle as any).children).toEqual([nlb2]);
