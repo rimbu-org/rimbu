@@ -115,6 +115,19 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		this.source = undefined;
 	}
 
+	/**
+	 * Updates the size table after children have changed starting at `fromIndex`.
+	 * If already irregular (sizes !== null), updates in-place from `fromIndex`.
+	 * If regular (sizes === null), recomputes to detect if it became irregular.
+	 */
+	private refreshSizes(fromIndex: number): void {
+		if (this.sizes !== null) {
+			updateSizesFrom(this.sizes, this.children, fromIndex);
+		} else {
+			this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+		}
+	}
+
 	get(index: number): T {
 		if (undefined !== this.source) {
 			return this.source.get(index);
@@ -144,12 +157,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 		if (child.childrenInMax) {
 			// child is still valid — update size table from childIndex onward
-			if (this.sizes !== null) {
-				updateSizesFrom(this.sizes, this.children, childIndex);
-			} else {
-				// Was regular; one child grew — now irregular
-				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
-			}
+			this.refreshSizes(childIndex);
 			return;
 		}
 
@@ -161,11 +169,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			leftChild.appendChild(shiftChild);
 
 			// Two children changed: childIndex-1 and childIndex
-			if (this.sizes !== null) {
-				updateSizesFrom(this.sizes, this.children, childIndex - 1);
-			} else {
-				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
-			}
+			this.refreshSizes(childIndex - 1);
 			return;
 		}
 
@@ -175,11 +179,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			const shiftChild = child.dropLastChild();
 			rightChild.prependChild(shiftChild);
 
-			if (this.sizes !== null) {
-				updateSizesFrom(this.sizes, this.children, childIndex);
-			} else {
-				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
-			}
+			this.refreshSizes(childIndex);
 			return;
 		}
 
@@ -190,11 +190,8 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		if (this.sizes !== null) {
 			// Insert a placeholder entry at childIndex + 1, then update from childIndex.
 			this.sizes.splice(childIndex + 1, 0, 0);
-			updateSizesFrom(this.sizes, this.children, childIndex);
-		} else {
-			// Was regular; splitting always makes it irregular.
-			this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
 		}
+		this.refreshSizes(childIndex);
 	}
 
 	remove(index: number): T {
@@ -209,11 +206,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 		if (child.canRemoveChild || this.nrChildren <= 1) {
 			// no need to normalize
-			if (this.sizes !== null) {
-				updateSizesFrom(this.sizes, this.children, childIndex);
-			} else {
-				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
-			}
+			this.refreshSizes(childIndex);
 			return oldValue;
 		}
 
@@ -228,8 +221,8 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 				this.children.splice(childIndex, 1);
 				if (this.sizes !== null) {
 					this.sizes.splice(childIndex, 1);
-					updateSizesFrom(this.sizes, this.children, childIndex - 1);
 				}
+				this.refreshSizes(childIndex - 1);
 				return oldValue;
 			}
 		}
@@ -245,19 +238,15 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 				this.children.splice(childIndex, 1);
 				if (this.sizes !== null) {
 					this.sizes.splice(childIndex, 1);
-					updateSizesFrom(this.sizes, this.children, childIndex);
 				}
+				this.refreshSizes(childIndex);
 				return oldValue;
 			}
 		}
 
 		if (child.childrenInMin) {
 			// child has enough children, and left and right more than min, so all good
-			if (this.sizes !== null) {
-				updateSizesFrom(this.sizes, this.children, childIndex);
-			} else {
-				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
-			}
+			this.refreshSizes(childIndex);
 			return oldValue;
 		}
 
@@ -285,15 +274,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			) as C;
 		}
 
-		if (this.sizes !== null) {
-			updateSizesFrom(
-				this.sizes,
-				this.children,
-				maxChildren === leftChild ? childIndex - 1 : childIndex,
-			);
-		} else {
-			this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
-		}
+		this.refreshSizes(maxChildren === leftChild ? childIndex - 1 : childIndex);
 		return oldValue;
 	}
 
@@ -378,11 +359,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		this.prepareMutate();
 		const child = this.children.shift()!;
 		this.length -= child.length;
-
-		if (this.sizes !== null) {
-			this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
-		}
-
+		this.refreshSizes(0);
 		return child;
 	}
 
@@ -390,11 +367,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		this.prepareMutate();
 		const child = this.children.pop()!;
 		this.length -= child.length;
-
-		if (this.sizes !== null) {
-			this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
-		}
-
+		this.refreshSizes(0);
 		return child;
 	}
 
@@ -403,12 +376,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		const delta = f(firstChild);
 		if (undefined !== delta) {
 			this.length += delta;
-			// Update size table from index 0.
-			if (this.sizes !== null) {
-				updateSizesFrom(this.sizes, this.children, 0);
-			} else {
-				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
-			}
+			this.refreshSizes(0);
 		}
 
 		return delta;
@@ -419,12 +387,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		const delta = f(lastChild);
 		if (undefined !== delta) {
 			this.length += delta;
-			const lastIndex = this.nrChildren - 1;
-			if (this.sizes !== null) {
-				updateSizesFrom(this.sizes, this.children, lastIndex);
-			} else {
-				this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
-			}
+			this.refreshSizes(this.nrChildren - 1);
 		}
 
 		return delta;
