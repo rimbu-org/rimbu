@@ -544,9 +544,14 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		other.prepareMutate();
 		this.length += other.length;
 
+		// Snapshot other's children before iterating in case other === this.
+		const otherChildren =
+			other === this ? this.children.slice() : other.children;
+		const nrOtherChildren = otherChildren.length;
+
 		const lastChild = this.children.at(-1)!;
-		for (let i = 0; i < other.nrChildren; i++) {
-			const child = other.children[i];
+		for (let i = 0; i < nrOtherChildren; i++) {
+			const child = otherChildren[i];
 			if (
 				i === 0 &&
 				lastChild.nrChildren + child.nrChildren <= this.context.maxBlockSize
