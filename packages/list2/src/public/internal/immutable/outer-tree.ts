@@ -37,10 +37,6 @@ export class OuterTree<T>
 		super(context);
 	}
 
-	get itemsLength() {
-		return this.length;
-	}
-
 	copy(
 		left = this.left,
 		right = this.right,
@@ -336,6 +332,7 @@ export class OuterTree<T>
 		const newLength = this.length + outerTree.length;
 		const jointLength = this.right.length + outerTree.left.length;
 
+		// Case 1: Joint is too small (underflow) — must merge with neighbors
 		if (jointLength < this.context.minBlockSize) {
 			if (null === this.middle) {
 				// left + right > maxBlockSize
@@ -376,6 +373,7 @@ export class OuterTree<T>
 			return this.copy(undefined, outerTree.right, newMiddle2, newLength);
 		}
 
+		// Case 2: Joint fits in a single block — merge and push to middle
 		if (jointLength <= this.context.maxBlockSize) {
 			const joint = this.right.concatChildren(outerTree.left);
 			const newThisMiddle = this.appendMiddle(joint);
@@ -386,6 +384,7 @@ export class OuterTree<T>
 			return this.copy(undefined, outerTree.right, newMiddle, newLength);
 		}
 
+		// Case 3: Both sides already satisfy minBlockSize — push both to middle
 		if (this.right.childrenInMin && outerTree.left.childrenInMin) {
 			const newThisMiddle = this.appendMiddle(this.right).appendChild(
 				outerTree.left,
@@ -398,6 +397,7 @@ export class OuterTree<T>
 			return this.copy(undefined, outerTree.right, newMiddle, newLength);
 		}
 
+		// Case 4: Joint overflows — merge and split into two blocks for middle
 		const joint = this.right.concatChildren(outerTree.left);
 		const jointRight = joint._mutateSplitRight();
 

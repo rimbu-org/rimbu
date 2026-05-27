@@ -46,8 +46,20 @@ export interface Block<T, C = unknown> extends ListCommon<T> {
 	takeChildren(amount: number): Block<T, C> | null;
 	reversed(cacheMap?: CacheMap | undefined): this['_self'];
 	createBlockBuilder(): BlockBuilder<T>;
-	prependBlockChild(child: C, childLength: number): this['_self'];
-	appendBlockChild(child: C, childLength: number): this['_self'];
+	prependBlockChild(child: C): this['_self'];
+	appendBlockChild(child: C): this['_self'];
 }
 
 export type Inner<T, C extends Block<T>> = InnerBlock<T, C> | InnerTree<T, C>;
+
+/**
+ * Allows mutating a readonly field during construction/rebalancing.
+ * Use only in `_mutate*` methods where immutable nodes are temporarily mutated.
+ */
+export function mutateField<T, K extends keyof T>(
+	obj: T,
+	key: K,
+	value: T[K],
+): void {
+	(obj as Record<K, T[K]>)[key] = value;
+}

@@ -6,10 +6,10 @@ import type { Block, Inner } from '#list/immutable/utils';
 import { IndexRange } from '@rimbu/common/index-range';
 import { Stream } from '@rimbu/stream';
 
-type TreeOperation<TS, TL = TS> = TS & {
-	left: TL;
-	middle: TS | null;
-	right: TL;
+type TreeOperation<TTree, TChild = TTree> = TTree & {
+	left: TChild;
+	middle: TTree | null;
+	right: TChild;
 };
 
 interface TreeGetNode<T> {

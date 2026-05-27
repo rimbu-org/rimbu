@@ -14,6 +14,8 @@ import { Comp } from '@rimbu/common/comp';
 import { IndexRange } from '@rimbu/common/index-range';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
+const DONE = Symbol('Done');
+
 export abstract class OuterBase<T>
 	extends NonEmptyBase<T>
 	implements ListImpl.NonEmpty<T>
@@ -129,10 +131,9 @@ export abstract class OuterBase<T>
 		const iterator = stream[Symbol.iterator]();
 
 		let index = 0;
-		const done = Symbol('Done');
-		let value: T | typeof done;
+		let value: T | typeof DONE;
 
-		while (done !== (value = iterator.fastNext(done))) {
+		while (DONE !== (value = iterator.fastNext(DONE))) {
 			result = result.concat(flatMapFun(value, index++));
 		}
 

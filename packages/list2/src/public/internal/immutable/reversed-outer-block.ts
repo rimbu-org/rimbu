@@ -126,8 +126,9 @@ export class ReversedOuterBlock<
 		return this.copy(rightChildren);
 	}
 
-	_structure(): string {
-		return `ReversedOuterBlock<${this.length}>(${this.ops.join(this.children, ',', true)})`;
+	_structure(depth = 0): string {
+		const space = '  '.repeat(depth);
+		return `${space}ReversedOuterBlock<${this.length}>(${this.ops.join(this.children, ',', true)})`;
 	}
 
 	_verifyStructure(messages: string[] = []): string[] {

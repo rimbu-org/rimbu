@@ -326,17 +326,6 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 		throwInvalidStateError();
 	}
 
-	concatInner(inner: Inner<T, C>): Inner<T, C> {
-		if (this.context.isInnerBlock<T, C>(inner)) {
-			return this.concatBlock(inner);
-		}
-		if (this.context.isInnerTree<T, C>(inner)) {
-			return this.concatTree(inner);
-		}
-
-		throwInvalidStateError();
-	}
-
 	concatBlock(innerBlock: InnerBlock<T, C>): Inner<T, C> {
 		if (innerBlock.level !== this.level) {
 			throwInvalidStateError();
@@ -707,7 +696,7 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 		const space = '  '.repeat(depth);
 		const nextDepth = depth + 2;
 		return `\
-${space}InnerTree(lev:${this.level}, len${this.length})
+${space}InnerTree(lev:${this.level}, len:${this.length})
 ${space}  left: (len:${this.left.length}, children:${this.left.nrChildren})
 ${this.left._structure(nextDepth)}
 ${space}  middle: (len:${this.middle?.length ?? '-'})
@@ -743,28 +732,6 @@ ${this.right._structure(nextDepth)}\
 				);
 			}
 		} else {
-			// this.middle.modifyFirstChild((firstMiddle) => {
-			// 	if (
-			// 		this.left.nrChildren + firstMiddle.nrChildren <=
-			// 		this.context.maxBlockSize
-			// 	) {
-			// 		messages.push(
-			// 			`InnerTree can merge left and first middle, they have too few children: ${this.left.nrChildren} + ${firstMiddle.nrChildren} <= ${this.context.maxBlockSize}`,
-			// 		);
-			// 	}
-			// 	return firstMiddle;
-			// });
-			// this.middle.modifyLastChild((lastMiddle) => {
-			// 	if (
-			// 		this.right.nrChildren + lastMiddle.nrChildren <=
-			// 		this.context.maxBlockSize
-			// 	) {
-			// 		messages.push(
-			// 			`InnerTree can merge right and last middle, they have too few children: ${this.right.nrChildren} + ${lastMiddle.nrChildren} <= ${this.context.maxBlockSize}`,
-			// 		);
-			// 	}
-			// 	return lastMiddle;
-			// });
 		}
 
 		this.left._verifyStructure(messages, false);

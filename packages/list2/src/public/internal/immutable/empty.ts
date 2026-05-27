@@ -140,10 +140,4 @@ export class ListEmpty<T> extends EmptyBase implements ListImpl<T> {
 		return `List()`;
 	}
 
-	// toJSON(): ToJSON<any[], this['context']['typeTag']> {
-	// 	return {
-	// 		dataType: this.context.typeTag,
-	// 		value: [],
-	// 	};
-	// }
 }

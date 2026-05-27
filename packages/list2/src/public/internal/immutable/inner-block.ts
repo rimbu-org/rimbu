@@ -5,13 +5,14 @@ import type { ToMutable } from '../mutable/builder-base';
 import type { ListContext } from '#list/context-module';
 import type { CacheMap } from '#list/immutable/cache-map';
 import type { InnerTree } from '#list/immutable/inner-tree';
-import type { Block, Inner } from '#list/immutable/utils';
 import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
 
 import { append, concat, prepend, splice } from '@rimbu/base/arr';
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { IndexRange } from '@rimbu/common/index-range';
 import { Stream } from '@rimbu/stream';
+
+import { type Block, type Inner, mutateField } from '#list/immutable/utils';
 
 /**
  * Compute a cumulative size table for an array of child blocks.
@@ -562,8 +563,8 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		forTake: boolean,
 		noEmptyLast: boolean,
 	): [number, number] {
-		const offSet = forTake ? 1 : 0;
-		let indexWithOffset = index - offSet;
+		const offset = forTake ? 1 : 0;
+		const indexWithOffset = index - offset;
 
 		const nrChildren = this.nrChildren;
 		const length = this.length;
@@ -580,10 +581,10 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 
 		// Fast path: regular block — all children have the same full subtree size.
 		if (this.sizes === null) {
-		const levelBits = this.context.blockSizeBits * this.level;
-		const blockSize = 1 << levelBits;
+			const levelBits = this.context.blockSizeBits * this.level;
+			const blockSize = 1 << levelBits;
 			const childIndex = indexWithOffset >>> levelBits;
-			const inChildIndex = (indexWithOffset & (blockSize - 1)) + offSet;
+			const inChildIndex = (indexWithOffset & (blockSize - 1)) + offset;
 			return [childIndex, inChildIndex];
 		}
 
@@ -603,7 +604,7 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 
 		const childIndex = lo;
 		const prevSize = childIndex > 0 ? sizes[childIndex - 1] : 0;
-		const inChildIndex = indexWithOffset - prevSize + offSet;
+		const inChildIndex = indexWithOffset - prevSize + offset;
 		return [childIndex, inChildIndex];
 	}
 
@@ -629,10 +630,10 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 			} else i++;
 		}
 
-		(this as any).sizes = computeSizeTable(
-			this.children,
-			this.level,
-			this.context.blockSizeBits,
+		mutateField(
+			this,
+			'sizes',
+			computeSizeTable(this.children, this.level, this.context.blockSizeBits),
 		);
 
 		return this;
@@ -658,10 +659,10 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		}
 
 		this.length -= rightLength;
-		(this as any).sizes = computeSizeTable(
-			this.children,
-			this.level,
-			this.context.blockSizeBits,
+		mutateField(
+			this,
+			'sizes',
+			computeSizeTable(this.children, this.level, this.context.blockSizeBits),
 		);
 
 		return this.copy(rightChildren, rightLength);
