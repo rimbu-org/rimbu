@@ -87,9 +87,7 @@ export class OuterTreeBuilder<T>
 
 			if (!this.left.childrenInMin) {
 				if (undefined !== this.middle) {
-					const firstBlock = (
-						this.middle as any
-					).firstChild() as OuterBlockBuilder<T>;
+					const firstBlock = this.middle.firstChild();
 					if (firstBlock.canRemoveChild) {
 						// steal one element from middle's first block
 						this.middle.modifyFirstChild((fb: OuterBlockBuilder<T>) => {
@@ -120,9 +118,7 @@ export class OuterTreeBuilder<T>
 
 			if (!this.right.childrenInMin) {
 				if (undefined !== this.middle) {
-					const lastBlock = (
-						this.middle as any
-					).lastChild() as OuterBlockBuilder<T>;
+					const lastBlock = this.middle.lastChild();
 					if (lastBlock.canRemoveChild) {
 						// steal one element from middle's last block
 						this.middle.modifyLastChild((lb: OuterBlockBuilder<T>) => {

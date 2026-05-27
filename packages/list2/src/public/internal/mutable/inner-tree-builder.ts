@@ -218,7 +218,7 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 								Math.ceil(leftOuterBlock.nrChildren / 2),
 							) as C;
 							const sizeDelta = newFirst.length - firstMiddleOuterBlock.length;
-							firstMiddleBlock.children[0] = newFirst as never;
+							firstMiddleBlock.children[0] = newFirst;
 							firstMiddleBlock.length += sizeDelta;
 						}
 						// Redistribute inner block children
@@ -235,11 +235,11 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 							if (this.middle === undefined) {
 								this.middle = this.context.innerBlockBuilder(
 									this.level,
-									[firstMiddleBlock as never],
+									[firstMiddleBlock],
 									firstMiddleBlock.length,
 								);
 							} else {
-								this.middle.prependChild(firstMiddleBlock as never);
+								this.middle.prependChild(firstMiddleBlock);
 							}
 						}
 						this.left.length = this.left.children.reduce(
@@ -247,6 +247,8 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 							0,
 						);
 					} else if (this.right.canRemoveChild) {
+						// At level 1, right's children (C) are InnerBlockBuilders containing outer blocks.
+						// TypeScript can't narrow C based on runtime level, so cast is needed.
 						const rightFirstBlock = this.right.firstChild() as unknown as InnerBlockBuilder<T, any>;
 						const leftOuterBlock = leftFirstChild;
 						const rightFirstOuter = rightFirstBlock.firstChild() as C;
@@ -288,11 +290,11 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 							if (this.middle === undefined) {
 								this.middle = this.context.innerBlockBuilder(
 									this.level,
-									[firstMiddleBlock as never],
+									[firstMiddleBlock],
 									firstMiddleBlock.length,
 								);
 							} else {
-								this.middle.prependChild(firstMiddleBlock as never);
+								this.middle.prependChild(firstMiddleBlock);
 							}
 						}
 						// Fix the underfull first child by merging/redistributing with its right sibling
@@ -303,12 +305,12 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 								first.nrChildren + second.nrChildren <=
 								this.context.maxBlockSize
 							) {
-								// merge first into second, remove first
-								second.prependItems(first as any);
-								this.left.children.splice(0, 1);
-							} else {
-								// redistribute: merge then split
-								first.appendItems(second as any);
+							// merge first into second, remove first
+							second.prependItems(first);
+							this.left.children.splice(0, 1);
+						} else {
+							// redistribute: merge then split
+							first.appendItems(second);
 								this.left.children[1] = first.splitRight(
 									Math.ceil(first.nrChildren / 2),
 								) as C;
