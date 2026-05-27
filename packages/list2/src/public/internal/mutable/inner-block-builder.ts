@@ -76,6 +76,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		}
 	}
 
+	/** Returns the mutable children array. Only valid after `prepareMutate()` or when constructed with `_children`. */
 	get children(): C[] {
 		return this._children!;
 	}
@@ -109,9 +110,7 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 
 		this._children = this.source.children.map((c) => c.createBlockBuilder());
 		// Copy size table from source (already computed at construction time).
-		this.sizes = this.source.sizes
-			? this.source.sizes.slice()
-			: null;
+		this.sizes = this.source.sizes ? this.source.sizes.slice() : null;
 		this.source = undefined;
 	}
 
@@ -124,7 +123,11 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		if (this.sizes !== null) {
 			updateSizesFrom(this.sizes, this.children, fromIndex);
 		} else {
-			this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+			this.sizes = recomputeSizes(
+				this.children,
+				this.level,
+				this.context.blockSizeBits,
+			);
 		}
 	}
 
@@ -323,7 +326,11 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			this.children.unshift(child);
 		}
 
-		this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+		this.sizes = recomputeSizes(
+			this.children,
+			this.level,
+			this.context.blockSizeBits,
+		);
 	}
 
 	appendChild(child: C): void {
@@ -342,7 +349,11 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			this.children.push(child);
 		}
 
-		this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+		this.sizes = recomputeSizes(
+			this.children,
+			this.level,
+			this.context.blockSizeBits,
+		);
 	}
 
 	firstChild(): C {
@@ -427,14 +438,22 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 		const rightLength = oldLength - this.length;
 
 		// Recompute size tables for both halves.
-		this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+		this.sizes = recomputeSizes(
+			this.children,
+			this.level,
+			this.context.blockSizeBits,
+		);
 
 		const right = this.context.innerBlockBuilder(
 			this.level,
 			rightChildren as C[],
 			rightLength,
 		) as InnerBlockBuilder<T, C>;
-		right.sizes = recomputeSizes(rightChildren, this.level, this.context.blockSizeBits);
+		right.sizes = recomputeSizes(
+			rightChildren,
+			this.level,
+			this.context.blockSizeBits,
+		);
 
 		return right;
 	}
@@ -499,7 +518,11 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			this.children.splice(0, 0, ...toPrepend);
 		}
 
-		this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+		this.sizes = recomputeSizes(
+			this.children,
+			this.level,
+			this.context.blockSizeBits,
+		);
 	}
 
 	appendItems(other: InnerBlockBuilder<T, C>): void {
@@ -526,7 +549,11 @@ export class InnerBlockBuilder<T, C extends BlockBuilder<T>>
 			}
 		}
 
-		this.sizes = recomputeSizes(this.children, this.level, this.context.blockSizeBits);
+		this.sizes = recomputeSizes(
+			this.children,
+			this.level,
+			this.context.blockSizeBits,
+		);
 	}
 
 	getCoordinates(index: number): [number, number] {

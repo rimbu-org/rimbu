@@ -59,20 +59,14 @@ export class ListBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 	};
 
 	prepend = (value: T): void => {
-		this.checkLock();
-
-		if (undefined === this.outerBuilder) {
-			this.outerBuilder = this.context.outerBlockBuilder<T>(
-				this.ops.of([value]),
-			);
-			return;
-		}
-
-		this.outerBuilder.prepend(value);
-		this.outerBuilder = this.outerBuilder.normalized();
+		this.addValue(value, 'prepend');
 	};
 
 	append = (value: T): void => {
+		this.addValue(value, 'append');
+	};
+
+	private addValue(value: T, mode: 'prepend' | 'append'): void {
 		this.checkLock();
 
 		if (undefined === this.outerBuilder) {
@@ -82,9 +76,9 @@ export class ListBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 			return;
 		}
 
-		this.outerBuilder.append(value);
+		this.outerBuilder[mode](value);
 		this.outerBuilder = this.outerBuilder.normalized();
-	};
+	}
 
 	appendAll = (values: StreamSource<T>): void => {
 		this.checkLock();

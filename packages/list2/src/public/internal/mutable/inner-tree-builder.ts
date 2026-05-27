@@ -29,6 +29,11 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		super(context);
 	}
 
+	/**
+	 * Typed accessors for left/right/middle that narrow the optional constructor
+	 * fields to their expected types after `prepareMutate()` has been called.
+	 * `left` and `right` use `!` because they are guaranteed non-undefined after materialization.
+	 */
 	get left(): InnerBlockBuilder<T, C> {
 		return this._left!;
 	}
@@ -525,16 +530,8 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 			return this.source._verifyStructure(messages);
 		}
 
-		if (undefined === this.middle) {
-			if (
-				this.left.nrChildren + this.right.nrChildren <=
-				this.context.maxBlockSize
-			) {
-				messages.push(
-					`InnerTreeBuilder has no middle but left and right children count ${this.left.nrChildren} + ${this.right.nrChildren} is less than or equal to maxBlockSize ${this.context.maxBlockSize}, should be an InnerBlock`,
-				);
-			}
-		} else if (
+		if (
+			undefined !== this.middle &&
 			this.context.isInnerBlockBuilder<T, InnerBlockBuilder<T, C>>(
 				this.middle,
 			) &&

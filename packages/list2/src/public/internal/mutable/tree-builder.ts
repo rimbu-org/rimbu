@@ -172,7 +172,7 @@ export abstract class TreeBuilder<T, C> extends BuilderBase {
 			return;
 		}
 
-		// right is already at maimum amount children
+		// right is already at maximum amount children
 		if (undefined === this.middle) {
 			if (this.left.canAddChild) {
 				const shiftChild = this.dropBlockFirstChild(this.right);
