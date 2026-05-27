@@ -131,10 +131,34 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return value;
 	}
 
+	/** Removes and returns the first `n` children as a new block builder. */
+	dropFirstChildren(n: number): OuterBlockBuilder<T> {
+		this.prepareMutate();
+		const [newChildren, droppedChildren] = this.ops.mutateSplice(
+			this.children,
+			0,
+			n,
+		);
+		this.children = newChildren;
+		return this.copy(droppedChildren);
+	}
+
 	dropLastChild(): T {
 		this.prepareMutate();
 		const value = this.ops.mutateDropLast<T>(this.children);
 		return value;
+	}
+
+	/** Removes and returns the last `n` children as a new block builder. */
+	dropLastChildren(n: number): OuterBlockBuilder<T> {
+		this.prepareMutate();
+		const [newChildren, droppedChildren] = this.ops.mutateSplice(
+			this.children,
+			this.nrChildren - n,
+			n,
+		);
+		this.children = newChildren;
+		return this.copy(droppedChildren);
 	}
 
 	build(): OuterBlock<T> {
