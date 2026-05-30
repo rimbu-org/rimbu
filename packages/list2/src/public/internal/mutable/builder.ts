@@ -1,5 +1,4 @@
 import type { WithElem } from '@rimbu/collection-types/common';
-import type { Update } from '@rimbu/common/update';
 
 import type { ListContext } from '#list/context-module';
 import type { ListBase } from '#list/list-base';
@@ -211,7 +210,7 @@ export class ListBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 
 	updateAt = <O>(
 		index: number,
-		update: Update<T>,
+		update: (current: T) => T,
 		otherwise?: OptLazy<O>,
 	): T | O => {
 		this.checkLock();
@@ -231,7 +230,7 @@ export class ListBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 	};
 
 	set = <O>(index: number, value: T, otherwise?: OptLazy<O>): T | O => {
-		return this.updateAt(index, value, otherwise);
+		return this.updateAt(index, () => value, otherwise);
 	};
 
 	forEach = (

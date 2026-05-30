@@ -1,5 +1,4 @@
 import type { TraverseState } from '@rimbu/common/traverse-state';
-import type { Update } from '@rimbu/common/update';
 
 import type { ListCommon } from '#list/immutable/utils';
 import type { BlockBuilder, InnerBuilder } from '#list/mutable/builder-base';
@@ -45,7 +44,7 @@ export abstract class TreeBuilder<T, C> extends BuilderBase {
 		return this.middle.get(middleIndex);
 	}
 
-	updateAt(index: number, update: Update<T>): T {
+	updateAt(index: number, update: (current: T) => T): T {
 		this.prepareMutate();
 		const middleIndex = index - this.left.length;
 

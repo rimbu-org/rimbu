@@ -96,6 +96,10 @@ export class ListEmpty<T> extends EmptyBase implements ListImpl<T> {
 		return this;
 	}
 
+	with(): this {
+		return this;
+	}
+
 	filter(): any {
 		return this;
 	}

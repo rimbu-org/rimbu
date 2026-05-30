@@ -1,5 +1,4 @@
 import type { TraverseState } from '@rimbu/common/traverse-state';
-import type { Update } from '@rimbu/common/update';
 
 import type { ListContext } from '#list/context-module';
 import type { InnerBlock } from '#list/immutable/inner-block';
@@ -12,7 +11,7 @@ import type { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
 export interface BuilderCommon<T> {
 	get length(): number;
 	get(index: number): T;
-	updateAt(index: number, update: Update<T>): T;
+	updateAt(index: number, update: (current: T) => T): T;
 	insert(index: number, value: T): void;
 	remove(index: number): T;
 	forEach(

@@ -1,5 +1,4 @@
 import type { TraverseState } from '@rimbu/common/traverse-state';
-import type { Update } from '@rimbu/common/update';
 
 import type { Block, Inner } from '#list/immutable/utils';
 
@@ -46,9 +45,9 @@ export function treeUpdate<
 		right: Block<T>;
 		middle: Inner<T, any> | null;
 		copy(left?: Block<T>, right?: Block<T>, middle?: Inner<T, any> | null): TR;
-		updateAt(index: number, update: Update<T>): TR;
+		updateAt(index: number, update: (current: T) => T): TR;
 	},
->(tree: TR, index: number, update: Update<T>): TR {
+>(tree: TR, index: number, update: (current: T) => T): TR {
 	const middleIndex = index - tree.left.length;
 
 	if (middleIndex < 0) {

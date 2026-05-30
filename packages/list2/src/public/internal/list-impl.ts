@@ -1,7 +1,6 @@
 import type { WithElem } from '@rimbu/collection-types/common';
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { TraverseState } from '@rimbu/common/traverse-state';
-import type { Update } from '@rimbu/common/update';
 import type { Stream } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context-module';
@@ -32,7 +31,7 @@ export namespace ListImpl {
 		updateAt<T extends Tp['_UT']>(
 			children: WithElem<Tp, T>['outerChildren'],
 			index: number,
-			update: Update<T>,
+			update: (current: T) => T,
 		): WithElem<Tp, T>['outerChildren'];
 		stream<T extends Tp['_UT']>(
 			children: WithElem<Tp, T>['outerChildren'],

@@ -2,7 +2,6 @@ import type { CollectFun } from '@rimbu/common/collect';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, SuperOf } from '@rimbu/common/types';
-import type { Update } from '@rimbu/common/update';
 
 import type { ListContext } from '#list/context-module';
 import type { ListImpl } from '#list/list-impl';
@@ -38,8 +37,11 @@ export abstract class OuterBase<T>
 	abstract get<O>(index: number, otherwise?: OptLazy<O>): T | O;
 	abstract updateAt(
 		index: number,
-		update: Update<T>,
+		update: (current: T) => T,
 	): ListImpl.NonEmpty<T, ListImpl.Types>;
+	with(index: number, value: T): ListImpl.NonEmpty<T, ListImpl.Types> {
+		return this.updateAt(index, () => value);
+	}
 	abstract first(): T;
 	abstract last(): T;
 	abstract prepend(value: T): ListImpl.NonEmpty<T>;

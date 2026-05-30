@@ -5,8 +5,6 @@ import type { ListContext } from '#list/context-module';
 import type { OuterBlock } from '#list/immutable/outer-block';
 import type { ListImpl } from '#list/list-impl';
 
-import { Update } from '@rimbu/common/update';
-
 import {
 	type BlockBuilder,
 	BuilderBase,
@@ -202,10 +200,10 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return this.copy(rightChildren);
 	}
 
-	updateAt(index: number, update: Update<T>): T {
+	updateAt(index: number, update: (current: T) => T): T {
 		const oldValue =
 			(this.source?.get(index) as T) ?? this.ops.at<T>(this.children, index);
-		const newValue = Update(oldValue, update);
+		const newValue = update(oldValue);
 
 		if (!Object.is(oldValue, newValue)) {
 			this.prepareMutate();

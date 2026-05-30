@@ -5,7 +5,6 @@ import type { IndexRange } from '@rimbu/common/index-range';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, SuperOf } from '@rimbu/common/types';
-import type { Update } from '@rimbu/common/update';
 import type {
 	FastIterable,
 	Stream,
@@ -113,6 +112,23 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @note O(logB(N)) for block size B
 	 */
 	updateAt(index: number, update: (current: T) => T): WithElem<Tp, T>['normal'];
+	/**
+	 * Returns the List with the value at the given `index` replaced by the given `value`.
+	 * @param index - the index at which to replace the value
+	 * @param value - the new value to set at the given index
+	 *
+	 * @note a negative `index` will be treated as follows:<br/>
+	 * - -1: the last element in the list<br/>
+	 * - -2: the second-last element in the list<br/>
+	 * - ...etc
+	 * @example
+	 * ```ts
+	 * List.of(0, 1, 2).with(1, 10)    // -> List(0, 10, 2)
+	 * List.of(0, 1, 2).with(-1, 10)   // -> List(0, 1, 10)
+	 * ```
+	 * @note O(logB(N)) for block size B
+	 */
+	with(index: number, value: T): WithElem<Tp, T>['normal'];
 	/**
 	 * Returns the first value of the List, or the `otherwise` value if the list is empty.
 	 * @param otherwise - (default: undefined) an `OptLazy` value to return if the List is empty
@@ -609,6 +625,23 @@ export namespace ListBase {
 			update: (current: T) => T,
 		): WithElem<Tp, T>['nonEmpty'];
 		/**
+		 * Returns the non-empty List with the value at the given `index` replaced by the given `value`.
+		 * @param index - the index at which to replace the value
+		 * @param value - the new value to set at the given index
+		 *
+		 * @note a negative `index` will be treated as follows:<br/>
+		 * - -1: the last element in the list<br/>
+		 * - -2: the second-last element in the list<br/>
+		 * - ...etc
+		 * @example
+		 * ```ts
+		 * List.of(0, 1, 2).with(1, 10)    // -> List(0, 10, 2)
+		 * List.of(0, 1, 2).with(-1, 10)   // -> List(0, 1, 10)
+		 * ```
+		 * @note O(logB(N)) for block size B
+		 */
+		with(index: number, value: T): WithElem<Tp, T>['nonEmpty'];
+		/**
 		 * Returns the first value of the List.
 		 * @example
 		 * ```ts
@@ -940,9 +973,9 @@ export namespace ListBase {
 		remove(index: number): T | undefined;
 		remove<O>(index: number, otherwise: OptLazy<O>): T | O;
 		/**
-		 * Updates the element at the given `index` with the given `update` value or function.
+		 * Updates the element at the given `index` with the given `update` function.
 		 * @param index - the index of the element to update
-		 * @param update - the new value or function taking the current value and returning a new value
+		 * @param update - a function taking the current value and returning a new value
 		 * @param otherwise - (default: undefined) the `OptLazy` value to return if there is no element at given index
 		 * @typeparam O - the type of the `otherwise` value
 		 * @returns the old value at the given index, or the `otherwise` value if the index is out of bounds
@@ -960,8 +993,8 @@ export namespace ListBase {
 		 * ```
 		 * @note O(logB(N)) for block size B
 		 */
-		updateAt(index: number, update: Update<T>): T | undefined;
-		updateAt<O>(index: number, update: Update<T>, otherwise: OptLazy<O>): T | O;
+		updateAt(index: number, update: (current: T) => T): T | undefined;
+		updateAt<O>(index: number, update: (current: T) => T, otherwise: OptLazy<O>): T | O;
 		/**
 		 * Sets the element at the given `index` to the given `value`.
 		 * @param index - the index of the element to set.

@@ -1,6 +1,5 @@
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
-import type { Update } from '@rimbu/common/update';
 import type { Stream, StreamSource } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context-module';
@@ -88,7 +87,7 @@ export class OuterTree<T>
 		return treeGet<T>(this, index);
 	}
 
-	updateAt(index: number, update: Update<T>): OuterTree<T> {
+	updateAt(index: number, update: (current: T) => T): OuterTree<T> {
 		const { length } = this;
 
 		if (index >= length || -index > length) return this;

@@ -1,6 +1,5 @@
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { TraverseState } from '@rimbu/common/traverse-state';
-import type { Update } from '@rimbu/common/update';
 import type { Stream } from '@rimbu/stream';
 
 import type { ListContext } from '#list/context-module';
@@ -75,7 +74,7 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 		return treeGet(this, index);
 	}
 
-	updateAt(index: number, update: Update<T>): InnerTree<T, C> {
+	updateAt(index: number, update: (current: T) => T): InnerTree<T, C> {
 		return treeUpdate<T, InnerTree<T, C>>(this, index, update);
 	}
 
