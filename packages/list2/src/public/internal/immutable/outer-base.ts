@@ -231,7 +231,7 @@ export abstract class OuterBase<T>
 		return pad.splice({ index: frontSize, insert: this }).assumeNonEmpty();
 	}
 
-	sort<TC = T>(
+	sorted<TC = T>(
 		comp: Comp<SuperOf<TC, T>> = Comp.defaultInstance,
 		options: { inverse?: boolean } = {},
 	): ListImpl.NonEmpty<T> {

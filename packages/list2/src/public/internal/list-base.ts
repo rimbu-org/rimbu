@@ -349,7 +349,7 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * - inverse: (default: false) when true will invert the sorting order
 	 * @returns A sorted copy of the list
 	 */
-	sort<TC = T>(
+	sorted<TC = T>(
 		comp?: Comp<SuperOf<TC, T>> | undefined,
 		options?: { inverse?: boolean } | undefined,
 	): WithElem<Tp, T>['normal'];
@@ -787,7 +787,7 @@ export namespace ListBase {
 		 * - inverse: (default: false) when true will reverse the sorting order
 		 * @returns A sorted copy of the list
 		 */
-		sort<TC = T>(
+		sorted<TC = T>(
 			comp?: Comp<SuperOf<TC, T>> | undefined,
 			options?: { inverse?: boolean } | undefined,
 		): WithElem<Tp, T>['nonEmpty'];

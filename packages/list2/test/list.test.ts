@@ -302,13 +302,13 @@ describe('List methods', () => {
 
 	it('sort', () => {
 		//Empty list
-		expect(List.empty().sort()).toBe(List.empty());
+		expect(List.empty().sorted()).toBe(List.empty());
 
 		//Empty list, using arbitrary Comp
-		expect(List.empty<number>().sort(Comp.number)).toBe(List.empty());
+		expect(List.empty<number>().sorted(Comp.number)).toBe(List.empty());
 
 		//Strings
-		expect(List.from(['C', 'E', 'B', 'A', 'D']).sort().toArray()).toEqual([
+		expect(List.from(['C', 'E', 'B', 'A', 'D']).sorted().toArray()).toEqual([
 			'A',
 			'B',
 			'C',
@@ -318,23 +318,23 @@ describe('List methods', () => {
 
 		//Strings, with duplicates
 		expect(
-			List.from(['A', 'C', 'B', 'A', 'B', 'C', 'A']).sort().toArray(),
+			List.from(['A', 'C', 'B', 'A', 'B', 'C', 'A']).sorted().toArray(),
 		).toEqual(['A', 'A', 'A', 'B', 'B', 'C', 'C']);
 
 		//Default number sorting
-		expect(List.from([90, 4, 8, 100, 7, 1, 9]).sort().toArray()).toEqual([
+		expect(List.from([90, 4, 8, 100, 7, 1, 9]).sorted().toArray()).toEqual([
 			1, 4, 7, 8, 9, 90, 100,
 		]);
 
 		//Comp-based number sorting
 		expect(
-			List.from([90, 4, 8, 100, 7, 1, 9]).sort(Comp.number).toArray(),
+			List.from([90, 4, 8, 100, 7, 1, 9]).sorted(Comp.number).toArray(),
 		).toEqual([1, 4, 7, 8, 9, 90, 100]);
 
 		//Comp-based number sorting inverse
 		expect(
 			List.from([90, 4, 8, 100, 7, 1, 9])
-				.sort(Comp.number, {
+				.sorted(Comp.number, {
 					inverse: true,
 				})
 				.toArray(),
@@ -342,7 +342,9 @@ describe('List methods', () => {
 
 		//Duplicate numbers
 		expect(
-			List.from([90, 4, 7, 90, 8, 100, 7, 1, 9, 7]).sort(Comp.number).toArray(),
+			List.from([90, 4, 7, 90, 8, 100, 7, 1, 9, 7])
+				.sorted(Comp.number)
+				.toArray(),
 		).toEqual([1, 4, 7, 7, 7, 8, 9, 90, 90, 100]);
 
 		//Dates, with duplicates
@@ -354,7 +356,7 @@ describe('List methods', () => {
 				new Date(2000, 3, 3),
 				new Date(1998, 5, 13),
 			])
-				.sort(Comp.date)
+				.sorted(Comp.date)
 				.toArray(),
 		).toEqual([
 			new Date(1986, 3, 29),

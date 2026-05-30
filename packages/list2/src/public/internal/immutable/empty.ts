@@ -54,7 +54,7 @@ export class ListEmpty<T> extends EmptyBase implements ListImpl<T> {
 		return this;
 	}
 
-	sort(): this {
+	sorted(): this {
 		return this;
 	}
 
@@ -139,5 +139,4 @@ export class ListEmpty<T> extends EmptyBase implements ListImpl<T> {
 	toString(): string {
 		return `List()`;
 	}
-
 }
