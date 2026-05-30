@@ -95,6 +95,22 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	get(index: number): T | undefined;
 	get<O>(index: number, otherwise: OptLazy<O>): T | O;
 	/**
+	 * Returns the value in the List at the given `index`, or `undefined` if the index is out of bounds.
+	 * @param index - the element index
+	 * @note a negative `index` will be treated as follows:<br/>
+	 * - -1: the last value in the list<br/>
+	 * - -2: the second-last value in the list<br/>
+	 * - ...etc
+	 * @example
+	 * ```ts
+	 * List.of(0, 1, 2).at(0)    // => 0
+	 * List.of(0, 1, 2).at(5)    // => undefined
+	 * List.of(0, 1, 2).at(-1)   // => 2
+	 * ```
+	 * @note O(logB(N)) for block size B
+	 */
+	at(index: number): T | undefined;
+	/**
 	 * Returns the List where at the given `index` the value is replaced or updated by the given `update`.
 	 * @param index - the index at which to update the value
 	 * @param update - a new value or function taking the current value and returning a new value

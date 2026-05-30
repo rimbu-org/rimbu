@@ -34,6 +34,10 @@ export class ListEmpty<T> extends EmptyBase implements ListImpl<T> {
 		return OptLazy(otherwise) as O;
 	}
 
+	at(): undefined {
+		return undefined;
+	}
+
 	prepend(value: T): ListImpl.NonEmpty<T> {
 		return this.context.outerBlock<T>(this.ops.of([value]));
 	}

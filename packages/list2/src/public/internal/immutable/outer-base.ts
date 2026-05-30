@@ -35,6 +35,9 @@ export abstract class OuterBase<T>
 		options?: { reversed?: boolean },
 	): Stream<T>;
 	abstract get<O>(index: number, otherwise?: OptLazy<O>): T | O;
+	at(index: number): T | undefined {
+		return this.get(index);
+	}
 	abstract updateAt(
 		index: number,
 		update: (current: T) => T,
