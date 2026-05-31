@@ -5,6 +5,8 @@
 		"rootDir": ".",
 		"paths": {
 			"@rimbu/list2": ["./src/entry/list.ts"],
+			"@rimbu/list2/bit": ["./src/entry/bit.ts"],
+			"@rimbu/list2/char": ["./src/entry/char.ts"],
 			"@rimbu/list2/*": ["./src/public/*.ts"],
 			"#list/*": ["./src/public/internal/*.ts"]
 		}
