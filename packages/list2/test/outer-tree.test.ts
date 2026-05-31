@@ -693,16 +693,16 @@ function runOuterTreeTests(
 			const b3 = createBlock([1, 2, 3]);
 			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
 
-			expect(t9.updateAt(10, 1)).toBe(t9);
+			expect(t9.updateAt(10, () => 1)).toBe(t9);
 			expect(t9.updateAt(10, () => 10)).toBe(t9);
 
-			expect(t9.updateAt(1, 10).toArray()).toEqual([
+			expect(t9.updateAt(1, () => 10).toArray()).toEqual([
 				1, 10, 3, 1, 2, 3, 1, 2, 3,
 			]);
 			expect(t9.updateAt(1, (v) => v + 10).toArray()).toEqual([
 				1, 12, 3, 1, 2, 3, 1, 2, 3,
 			]);
-			expect(t9.updateAt(-3, 10).toArray()).toEqual([
+			expect(t9.updateAt(-3, () => 10).toArray()).toEqual([
 				1, 2, 3, 1, 2, 3, 10, 2, 3,
 			]);
 			expect(t9.updateAt(-3, (v) => v + 10).toArray()).toEqual([

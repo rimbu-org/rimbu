@@ -1227,10 +1227,10 @@ describe('List.Builder', () => {
 
 	it('updateAt', () => {
 		const b = List.builder<number>();
-		expect(b.updateAt(1, 9)).toBe(undefined);
+		expect(b.updateAt(1, () => 9)).toBe(undefined);
 		expect(b.isEmpty).toBe(true);
 		b.appendAll([1, 2, 3]);
-		expect(b.updateAt(1, 5)).toBe(2);
+		expect(b.updateAt(1, () => 5)).toBe(2);
 		expect(b.get(1)).toBe(5);
 		expect(b.updateAt(1, (v) => v + 1)).toBe(5);
 		expect(b.get(1)).toBe(6);
@@ -1354,7 +1354,7 @@ describe('List.Builder', () => {
 	it('operations throw in forEach when modifying collection', () => {
 		const b = List.of(1, 2, 3, 4, 5).toBuilder();
 
-		expect(() => b.forEach(() => b.updateAt(1, 2))).toThrow();
+		expect(() => b.forEach(() => b.updateAt(1, () => 2))).toThrow();
 		expect(() => b.forEach(() => b.set(1, 2))).toThrow();
 		expect(() => b.forEach(() => b.prepend(1))).toThrow();
 		expect(() => b.forEach(() => b.append(1))).toThrow();

@@ -7,10 +7,10 @@ import type {
 	ToImmutable,
 } from '#list/mutable/builder-base';
 import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
-import { recomputeSizes } from '#list/mutable/inner-block-builder';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 
+import { recomputeSizes } from '#list/mutable/inner-block-builder';
 import { TreeBuilder } from '#list/mutable/tree-builder';
 
 export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
@@ -299,10 +299,10 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		} else if (this.right.canRemoveChild) {
 			// At level 1, right's children (C) are InnerBlockBuilders containing outer blocks.
 			// TypeScript can't narrow C based on runtime level, so cast is needed.
-			const rightFirstBlock = this.right.firstChild() as unknown as InnerBlockBuilder<T, any>;
+			const rightFirstBlock =
+				this.right.firstChild() as unknown as InnerBlockBuilder<T, any>;
 			const rightFirstOuter = rightFirstBlock.firstChild() as C;
-			const combined =
-				leftOuterBlock.nrChildren + rightFirstOuter.nrChildren;
+			const combined = leftOuterBlock.nrChildren + rightFirstOuter.nrChildren;
 			if (combined <= this.context.maxBlockSize) {
 				leftOuterBlock.appendItems(rightFirstOuter);
 				this.left.length += rightFirstOuter.length;
@@ -355,10 +355,7 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 		const first = this.left.firstChild();
 		if (!first.childrenInMin && this.left.nrChildren > 1) {
 			const second = this.left.children[1] as C;
-			if (
-				first.nrChildren + second.nrChildren <=
-				this.context.maxBlockSize
-			) {
+			if (first.nrChildren + second.nrChildren <= this.context.maxBlockSize) {
 				// merge first into second, remove first
 				second.prependItems(first);
 				this.left.children.splice(0, 1);
@@ -369,12 +366,13 @@ export class InnerTreeBuilder<T, C extends BlockBuilder<T>>
 					(first.nrChildren + 1) >>> 1,
 				) as C;
 			}
-			this.left.sizes = recomputeSizes(this.left.children, this.left.level, this.context.blockSizeBits);
+			this.left.sizes = recomputeSizes(
+				this.left.children,
+				this.left.level,
+				this.context.blockSizeBits,
+			);
 		}
-		this.left.length = this.left.children.reduce(
-			(sum, c) => sum + c.length,
-			0,
-		);
+		this.left.length = this.left.children.reduce((sum, c) => sum + c.length, 0);
 	}
 
 	modifyFirstChild(f: (child: C) => number | undefined): number | undefined {

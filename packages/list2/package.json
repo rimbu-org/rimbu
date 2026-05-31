@@ -85,8 +85,7 @@
 		"@rimbu/base": "workspace:*",
 		"@rimbu/collection-types": "workspace:*",
 		"@rimbu/common": "workspace:*",
-		"@rimbu/stream": "workspace:*",
-		"tslib": "^2.8.1"
+		"@rimbu/stream": "workspace:*"
 	},
 	"publishConfig": {
 		"access": "public",

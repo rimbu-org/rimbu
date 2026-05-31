@@ -330,14 +330,14 @@ describe('OuterBlockBuilder', () => {
 	it('updateAt', () => {
 		{
 			const b = context.outerBlockBuilder([1, 2]);
-			expect(b.updateAt(1, 3)).toBe(2);
+			expect(b.updateAt(1, () => 3)).toBe(2);
 			expect(b.children).toEqual([1, 3]);
 			expect(b.updateAt(0, (v) => v + 1)).toBe(1);
 			expect(b.children).toEqual([2, 3]);
 		}
 		{
 			const b = context.outerBlockBuilderSource(context.outerBlock([1, 2]));
-			expect(b.updateAt(1, 3)).toBe(2);
+			expect(b.updateAt(1, () => 3)).toBe(2);
 			expect(b.children).toEqual([1, 3]);
 			expect(b.updateAt(0, (v) => v + 1)).toBe(1);
 			expect(b.children).toEqual([2, 3]);

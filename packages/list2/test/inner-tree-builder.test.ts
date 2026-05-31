@@ -391,7 +391,7 @@ describe('InnerTreeBuilder', () => {
 		expect(mockPrepareMutate).toHaveBeenCalled();
 		mockPrepareMutate.mockClear();
 
-		createBuilder().updateAt(0, 1);
+		createBuilder().updateAt(0, () => 1);
 		expect(mockPrepareMutate).toHaveBeenCalled();
 		mockPrepareMutate.mockClear();
 	});

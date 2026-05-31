@@ -193,7 +193,7 @@ describe('ListBuilder', () => {
 		expect(b.length).toBe(0);
 		expect(b.isEmpty).toBe(true);
 		expect(b.get(1)).toBeUndefined();
-		expect(b.updateAt(1, 2)).toBeUndefined();
+		expect(b.updateAt(1, () => 2)).toBeUndefined();
 		expect(b.set(1, 2)).toBeUndefined();
 		expect(b.remove(1)).toBeUndefined();
 		expect(b.build()).toBe(context.empty());
@@ -255,7 +255,7 @@ describe('ListBuilder', () => {
 		expect(() => g.prepend(1)).toThrow();
 		expect(() => g.remove(1)).toThrow();
 		expect(() => g.set(1, 1)).toThrow();
-		expect(() => g.updateAt(1, 1)).toThrow();
+		expect(() => g.updateAt(1, () => 1)).toThrow();
 	});
 
 	it('insert', () => {
@@ -353,17 +353,33 @@ describe('ListBuilder', () => {
 		const updateAt = vi.fn().mockReturnValue(5);
 		const g = builder({ length: 10, updateAt });
 		expect(g.set(4, 5)).toBe(5);
-		expect(updateAt).toBeCalledWith(4, 5);
+		expect(updateAt).toBeCalledWith(4, expect.any(Function));
+		{
+			const updateFn = updateAt.mock.calls[0][1];
+			expect(updateFn(4)).toBe(5);
+		}
 		expect(g.set(-1, 1));
-		expect(updateAt).toHaveBeenLastCalledWith(9, 1);
+		expect(updateAt).toBeCalledWith(9, expect.any(Function));
+		{
+			const updateFn = updateAt.mock.calls[1][1];
+			expect(updateFn(4)).toBe(1);
+		}
 	});
 
 	it('updateAt', () => {
 		const updateAt = vi.fn().mockReturnValue(5);
 		const g = builder({ length: 10, updateAt });
-		expect(g.updateAt(4, 2)).toBe(5);
-		expect(updateAt).toBeCalledWith(4, 2);
-		expect(g.updateAt(-5, 3, 1)).toBe(5);
-		expect(updateAt).toHaveBeenLastCalledWith(5, 3);
+		expect(g.updateAt(4, () => 2)).toBe(5);
+		expect(updateAt).toBeCalledWith(4, expect.any(Function));
+		{
+			const updateFn = updateAt.mock.calls[0][1];
+			expect(updateFn(4)).toBe(2);
+		}
+		expect(g.updateAt(-5, () => 3, 1)).toBe(5);
+		expect(updateAt).toHaveBeenLastCalledWith(5, expect.any(Function));
+		{
+			const updateFn = updateAt.mock.calls[1][1];
+			expect(updateFn(4)).toBe(3);
+		}
 	});
 });

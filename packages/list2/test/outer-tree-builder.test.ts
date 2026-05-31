@@ -910,7 +910,7 @@ describe('OuterTreeBuilder', () => {
 		expect(mockPrepareMutate).toBeCalledTimes(1);
 		mockPrepareMutate.mockReset();
 
-		createTree().updateAt(1, -1);
+		createTree().updateAt(1, () => -1);
 		expect(mockPrepareMutate).toBeCalledTimes(1);
 	});
 
@@ -1249,7 +1249,7 @@ describe('OuterTreeBuilder', () => {
 				undefined,
 				4,
 			);
-			expect(t.updateAt(1, -1)).toBe(2);
+			expect(t.updateAt(1, () => -1)).toBe(2);
 			expect(t.get(1)).toBe(-1);
 			expect(t.updateAt(2, (v) => v + 1)).toBe(11);
 			expect(t.get(2)).toBe(12);
@@ -1266,11 +1266,11 @@ describe('OuterTreeBuilder', () => {
 				),
 				7,
 			);
-			expect(t.updateAt(1, -1)).toBe(2);
+			expect(t.updateAt(1, () => -1)).toBe(2);
 			expect(t.get(1)).toBe(-1);
 			expect(t.updateAt(2, (v) => v + 1)).toBe(21);
 			expect(t.get(2)).toBe(22);
-			expect(t.updateAt(6, -2)).toBe(12);
+			expect(t.updateAt(6, () => -2)).toBe(12);
 			expect(t.get(6)).toBe(-2);
 		}
 	});

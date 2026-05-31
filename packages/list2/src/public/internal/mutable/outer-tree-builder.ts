@@ -85,32 +85,32 @@ export class OuterTreeBuilder<T>
 			// index is in left
 			const oldValue = this.left.remove(index);
 
-		if (!this.left.childrenInMin) {
-			if (undefined !== this.middle) {
-				const firstBlock = this.middle.firstChild();
-				if (firstBlock.canRemoveChild) {
-					// balance: move enough elements to equalize left and donor
-					const total = this.left.nrChildren + firstBlock.nrChildren;
+			if (!this.left.childrenInMin) {
+				if (undefined !== this.middle) {
+					const firstBlock = this.middle.firstChild();
+					if (firstBlock.canRemoveChild) {
+						// balance: move enough elements to equalize left and donor
+						const total = this.left.nrChildren + firstBlock.nrChildren;
+						const toMove = (total >>> 1) - this.left.nrChildren;
+						this.middle.modifyFirstChild((fb: OuterBlockBuilder<T>) => {
+							const moved = fb.dropFirstChildren(toMove);
+							this.left.appendItems(moved);
+							return -moved.length;
+						});
+					} else {
+						// merge entire first block into left
+						const dropped = this.middle.dropFirstChild();
+						this.left.appendItems(dropped);
+					}
+					this.middle = this.middle.normalized();
+				} else if (this.right.canRemoveChild) {
+					// no middle — balance left and right
+					const total = this.left.nrChildren + this.right.nrChildren;
 					const toMove = (total >>> 1) - this.left.nrChildren;
-					this.middle.modifyFirstChild((fb: OuterBlockBuilder<T>) => {
-						const moved = fb.dropFirstChildren(toMove);
-						this.left.appendItems(moved);
-						return -moved.length;
-					});
-				} else {
-					// merge entire first block into left
-					const dropped = this.middle.dropFirstChild();
-					this.left.appendItems(dropped);
+					const moved = this.right.dropFirstChildren(toMove);
+					this.left.appendItems(moved);
 				}
-				this.middle = this.middle.normalized();
-			} else if (this.right.canRemoveChild) {
-				// no middle — balance left and right
-				const total = this.left.nrChildren + this.right.nrChildren;
-				const toMove = (total >>> 1) - this.left.nrChildren;
-				const moved = this.right.dropFirstChildren(toMove);
-				this.left.appendItems(moved);
 			}
-		}
 
 			this._normalizeMiddle();
 			return oldValue;
@@ -122,32 +122,32 @@ export class OuterTreeBuilder<T>
 			// index is in right
 			const oldValue = this.right.remove(rightIndex);
 
-		if (!this.right.childrenInMin) {
-			if (undefined !== this.middle) {
-				const lastBlock = this.middle.lastChild();
-				if (lastBlock.canRemoveChild) {
-					// balance: move enough elements to equalize right and donor
-					const total = this.right.nrChildren + lastBlock.nrChildren;
+			if (!this.right.childrenInMin) {
+				if (undefined !== this.middle) {
+					const lastBlock = this.middle.lastChild();
+					if (lastBlock.canRemoveChild) {
+						// balance: move enough elements to equalize right and donor
+						const total = this.right.nrChildren + lastBlock.nrChildren;
+						const toMove = (total >>> 1) - this.right.nrChildren;
+						this.middle.modifyLastChild((lb: OuterBlockBuilder<T>) => {
+							const moved = lb.dropLastChildren(toMove);
+							this.right.prependItems(moved);
+							return -moved.length;
+						});
+					} else {
+						// merge entire last block into right
+						const dropped = this.middle.dropLastChild();
+						this.right.prependItems(dropped);
+					}
+					this.middle = this.middle.normalized();
+				} else if (this.left.canRemoveChild) {
+					// no middle — balance left and right
+					const total = this.left.nrChildren + this.right.nrChildren;
 					const toMove = (total >>> 1) - this.right.nrChildren;
-					this.middle.modifyLastChild((lb: OuterBlockBuilder<T>) => {
-						const moved = lb.dropLastChildren(toMove);
-						this.right.prependItems(moved);
-						return -moved.length;
-					});
-				} else {
-					// merge entire last block into right
-					const dropped = this.middle.dropLastChild();
-					this.right.prependItems(dropped);
+					const moved = this.left.dropLastChildren(toMove);
+					this.right.prependItems(moved);
 				}
-				this.middle = this.middle.normalized();
-			} else if (this.left.canRemoveChild) {
-				// no middle — balance left and right
-				const total = this.left.nrChildren + this.right.nrChildren;
-				const toMove = (total >>> 1) - this.right.nrChildren;
-				const moved = this.left.dropLastChildren(toMove);
-				this.right.prependItems(moved);
 			}
-		}
 
 			this._normalizeMiddle();
 			return oldValue;

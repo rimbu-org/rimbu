@@ -798,7 +798,7 @@ describe('InnerTree', () => {
 		const t = createTree();
 
 		function verify(index: number) {
-			expect(t.updateAt(index, 100).toArray()).toEqual(
+			expect(t.updateAt(index, () => 100).toArray()).toEqual(
 				t
 					.stream()
 					.map((v, i) => (i === index ? 100 : v))

@@ -49,7 +49,7 @@ export namespace ListHelpers {
 
 	export function createListContext(
 		options?: { blockSizeBits?: number | undefined } | undefined,
-		_defaultContext?: ListContext<TypesImpl> | undefined,
+		_defaultContext?: ListContext<ListHelpers.TypesImpl> | undefined,
 	): List.Context {
 		const outerChildrenOpsModule = Module.createPartial<{
 			defines: ListImpl.OuterChildrenOps<ListHelpers.TypesImpl>;

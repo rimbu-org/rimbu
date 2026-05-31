@@ -618,13 +618,12 @@ function runOuterBlockTests(
 		it('updateAt', () => {
 			const b3 = createBlock(1, 2, 3, 4, 5);
 
-			expect(b3.updateAt(3, 10).toArray()).toEqual([1, 2, 3, 10, 5]);
+			expect(b3.updateAt(3, () => 10).toArray()).toEqual([1, 2, 3, 10, 5]);
 			expect(b3.updateAt(3, (v) => v + 10).toArray()).toEqual([1, 2, 3, 14, 5]);
-			expect(b3.updateAt(-3, 10).toArray()).toEqual([1, 2, 10, 4, 5]);
+			expect(b3.updateAt(-3, () => 10).toArray()).toEqual([1, 2, 10, 4, 5]);
 			expect(b3.updateAt(-3, (v) => v + 10).toArray()).toEqual([
 				1, 2, 13, 4, 5,
 			]);
-			expect(b3.updateAt(10, 10)).toBe(b3);
 			expect(b3.updateAt(10, () => 10)).toBe(b3);
 		});
 	});

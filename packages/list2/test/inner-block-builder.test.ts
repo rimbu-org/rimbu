@@ -766,11 +766,11 @@ describe('InnerBlockBuilder', () => {
 				],
 				8,
 			);
-			expect(b.updateAt(0, -1)).toBe(1);
+			expect(b.updateAt(0, () => -1)).toBe(1);
 			expect(b.get(0)).toBe(-1);
 			expect(b.updateAt(3, (v) => v + 1)).toBe(4);
 			expect(b.get(3)).toBe(5);
-			expect(b.updateAt(4, -2)).toBe(11);
+			expect(b.updateAt(4, () => -2)).toBe(11);
 			expect(b.get(4)).toBe(-2);
 			expect(b.updateAt(7, (v) => v + 1)).toBe(14);
 			expect(b.length).toBe(8);
@@ -786,11 +786,11 @@ describe('InnerBlockBuilder', () => {
 				],
 				8,
 			);
-			expect(b.updateAt(0, -1)).toBe(1);
+			expect(b.updateAt(0, () => -1)).toBe(1);
 			expect(b.get(0)).toBe(-1);
 			expect(b.updateAt(3, (v) => v + 1)).toBe(4);
 			expect(b.get(3)).toBe(5);
-			expect(b.updateAt(4, -2)).toBe(11);
+			expect(b.updateAt(4, () => -2)).toBe(11);
 			expect(b.get(4)).toBe(-2);
 			expect(b.updateAt(7, (v) => v + 1)).toBe(14);
 			expect(b.length).toBe(8);

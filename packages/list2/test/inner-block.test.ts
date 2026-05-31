@@ -806,7 +806,9 @@ describe('InnerBlock', () => {
 			1,
 		);
 
-		expect(nl.updateAt(3, 10).toArray()).toEqual([1, 2, 3, 10, 5, 6, 7, 8, 9]);
+		expect(nl.updateAt(3, () => 10).toArray()).toEqual([
+			1, 2, 3, 10, 5, 6, 7, 8, 9,
+		]);
 		expect(nl.updateAt(3, (v) => v + 10).toArray()).toEqual([
 			1, 2, 3, 14, 5, 6, 7, 8, 9,
 		]);
