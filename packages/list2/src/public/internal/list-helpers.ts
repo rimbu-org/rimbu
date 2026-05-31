@@ -196,11 +196,11 @@ export namespace ListHelpers {
 				children.unshift(value);
 				return children;
 			},
-			mutateDropFirst<T>(children: T[]): T {
-				return children.shift()!;
+			mutateDropFirst<T>(children: T[]): [result: T[], dropped: T] {
+				return [children, children.shift()!];
 			},
-			mutateDropLast<T>(children: T[]): T {
-				return children.pop()!;
+			mutateDropLast<T>(children: T[]): [result: T[], dropped: T] {
+				return [children, children.pop()!];
 			},
 			mutateSplice<T>(
 				children: T[],

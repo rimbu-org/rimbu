@@ -6,7 +6,7 @@ const CharList = CharListSrc.createContext({ blockSizeBits: 2 });
 
 describe('CharList', () => {
 	it('works', () => {
-		const list = CharList.from('hello th').with(1, 'a');
+		const list = CharList.from('hello this is a test').with(1, 'a');
 
 		console.log(list.toString());
 		console.log((list as any)._structure());

@@ -112,10 +112,10 @@ export namespace ListImpl {
 		];
 		mutateDropFirst<T extends Tp['_UT']>(
 			children: WithElem<Tp, T>['outerChildren'],
-		): T;
+		): [result: WithElem<Tp, T>['outerChildren'], dropped: T];
 		mutateDropLast<T extends Tp['_UT']>(
 			children: WithElem<Tp, T>['outerChildren'],
-		): T;
+		): [result: WithElem<Tp, T>['outerChildren'], dropped: T];
 		safeCopy<T extends Tp['_UT']>(
 			children: WithElem<Tp, T>['outerChildren'],
 		): WithElem<Tp, T>['outerChildren'];

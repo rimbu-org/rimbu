@@ -172,11 +172,11 @@ export namespace CharListHelpers {
 			mutatePrepend(children: string, value: string): string {
 				return mod.prepend(children, value);
 			},
-			mutateDropFirst<T extends string>(children: string): T {
-				return children.slice(1) as T;
+			mutateDropFirst<T extends string>(children: string): [result: string, dropped: T] {
+				return [children.slice(1), children[0] as T];
 			},
-			mutateDropLast<T extends string>(children: string): T {
-				return children.slice(0, -1) as T;
+			mutateDropLast<T extends string>(children: string): [result: string, dropped: T] {
+				return [children.slice(0, -1), children[children.length - 1] as T];
 			},
 			mutateSplice<T extends string>(
 				children: string,

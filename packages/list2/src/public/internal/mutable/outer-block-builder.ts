@@ -125,7 +125,8 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 
 	dropFirstChild(): T {
 		this.prepareMutate();
-		const value = this.ops.mutateDropFirst<T>(this.children);
+		const [newChildren, value] = this.ops.mutateDropFirst<T>(this.children);
+		this.children = newChildren;
 		return value;
 	}
 
@@ -143,7 +144,8 @@ export class OuterBlockBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 
 	dropLastChild(): T {
 		this.prepareMutate();
-		const value = this.ops.mutateDropLast<T>(this.children);
+		const [newChildren, value] = this.ops.mutateDropLast<T>(this.children);
+		this.children = newChildren;
 		return value;
 	}
 
