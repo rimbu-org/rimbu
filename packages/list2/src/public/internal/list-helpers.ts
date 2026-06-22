@@ -53,7 +53,7 @@ export namespace ListHelpers {
 	): List.Context {
 		const outerChildrenOpsModule = Module.createPartial<{
 			defines: ListImpl.OuterChildrenOps<ListHelpers.TypesImpl>;
-		}>(() => ({
+		}>((mod) => ({
 			length(children: readonly unknown[]) {
 				return children.length;
 			},
@@ -65,7 +65,11 @@ export namespace ListHelpers {
 				index: number,
 				update: (current: T) => T,
 			): readonly T[] {
-				const newValue = update(children.at(index)!);
+				const currentValue = children.at(index)!;
+				const newValue = update(currentValue);
+				if (Object.is(newValue, currentValue)) {
+					return children;
+				}
 				return children.with(index, newValue);
 			},
 			stream<T>(
@@ -111,6 +115,10 @@ export namespace ListHelpers {
 				separator: string,
 				reversed = false,
 			): string {
+				if (!reversed) {
+					return children.join(separator);
+				}
+
 				return Stream.fromArray(children, { reversed })
 					.join({ sep: separator })
 					.toString();
@@ -124,15 +132,7 @@ export namespace ListHelpers {
 					return children.map(f);
 				}
 
-				const length = children.length;
-				const result: T2[] = Array(length);
-				let i = -1;
-
-				while (++i < length) {
-					result[i] = f(children[i], i + indexOffset);
-				}
-
-				return result;
+				return children.map((value, index) => f(value, index + indexOffset));
 			},
 			reverseMap<T, T2>(
 				children: readonly T[],
@@ -142,9 +142,10 @@ export namespace ListHelpers {
 				const length = children.length;
 				const result: T2[] = Array(length);
 				let i = -1;
+				let target = length - 1;
 
 				while (++i < length) {
-					result[i] = f(children.at(-1 - i)!, i + indexOffset);
+					result[i] = f(children.at(target--)!, i + indexOffset);
 				}
 
 				return result;
@@ -175,14 +176,20 @@ export namespace ListHelpers {
 			toArray<T>(
 				children: T[],
 				start = 0,
-				end = children.length,
+				end = children.length - 1,
 				reversed = false,
 			): T[] {
-				const result = children.slice(start, end);
 				if (reversed) {
-					result.reverse();
+					if (start === 0 && end === children.length - 1) {
+						return children.toReversed();
+					}
+
+					return mod
+						.streamRange(children, { range: { start, end }, reversed: true })
+						.toArray() as T[];
 				}
-				return result;
+
+				return children.slice(start, end);
 			},
 			mutateSet<T>(children: T[], index: number, value: T): T[] {
 				children[index] = value;

@@ -102,6 +102,9 @@ export namespace BitListHelpers {
 			): bigint {
 				const current = getBit(children, index) as T;
 				const newValue = update(current);
+				if (Object.is(newValue, current)) {
+					return children;
+				}
 				return setBit(children, index, newValue);
 			},
 			stream<T extends boolean = boolean>(

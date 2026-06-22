@@ -127,7 +127,7 @@ export function createContextModule<
 >(
 	options: { blockSizeBits?: number | undefined } | undefined = {},
 ): (mod: C) => Module.Definition<ListContextBase<Tp>> {
-	const { blockSizeBits = 2 } = options;
+	const { blockSizeBits = 5 } = options;
 
 	const immutableModule = Module.createPartial<{
 		defines: ImmutableFactory<Tp>;

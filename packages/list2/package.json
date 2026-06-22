@@ -47,6 +47,10 @@
 			"types": "./dist/entry/bit.d.ts",
 			"default": "./dist/entry/bit.js"
 		},
+		"./typed-array": {
+			"types": "./dist/entry/typed-array.d.ts",
+			"default": "./dist/entry/typed-array.js"
+		},
 		"./*": {
 			"types": "./dist/public/*.d.ts",
 			"default": "./dist/public/*.js"

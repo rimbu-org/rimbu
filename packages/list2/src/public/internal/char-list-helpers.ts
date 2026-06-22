@@ -53,7 +53,13 @@ export namespace CharListHelpers {
 				index: number,
 				update: (current: T) => string,
 			): string {
+				const currentValue = children.at(index) as T;
 				const newValue = update(children.at(index) as T);
+
+				if (Object.is(newValue, currentValue)) {
+					return children;
+				}
+
 				const left = children.slice(0, index);
 				const right = children.slice(index + 1);
 
@@ -172,10 +178,14 @@ export namespace CharListHelpers {
 			mutatePrepend(children: string, value: string): string {
 				return mod.prepend(children, value);
 			},
-			mutateDropFirst<T extends string>(children: string): [result: string, dropped: T] {
+			mutateDropFirst<T extends string>(
+				children: string,
+			): [result: string, dropped: T] {
 				return [children.slice(1), children[0] as T];
 			},
-			mutateDropLast<T extends string>(children: string): [result: string, dropped: T] {
+			mutateDropLast<T extends string>(
+				children: string,
+			): [result: string, dropped: T] {
 				return [children.slice(0, -1), children[children.length - 1] as T];
 			},
 			mutateSplice<T extends string>(
