@@ -5,6 +5,7 @@ import type { ListImpl } from '#list/list-impl';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { TypedArrayListHelpers } from '@rimbu/list2/internal/typed-array-helpers';
 
+import { BitListHelpers } from '#list/bit-list-helpers';
 import { CharListHelpers } from '#list/char-list-helpers';
 import { ListHelpers } from '#list/list-helpers';
 
@@ -605,5 +606,46 @@ runOuterChildrenOpsTests(
 		joinSep: '-',
 		joinExpected: '1-10-100',
 		joinReversedExpected: '100-10-1',
+	},
+);
+
+const bitListContext = BitListHelpers.createBitListContext({
+	blockSizeBits: 2,
+});
+
+runOuterChildrenOpsTests(
+	'BitListHelpers (bigint)',
+	() => (bitListContext as any).outerChildrenOps,
+	{
+		// Four distinct boolean values cycling false/true; haltValue must be
+		// samples[1] so the halt test expects [samples[0], samples[1]].
+		samples: [false, true, false, true] as [boolean, boolean, boolean, boolean],
+		makeChildren: (values: boolean[]) => {
+			// Replicate the bigint encoding from BitListHelpers:
+			// lower blockSizeBits bits = (length - 1), upper bits = element values.
+			const blockSizeBits = 2;
+			const len = values.length;
+			let result = BigInt(len - 1);
+			for (let i = 0; i < len; i++) {
+				if (values[i]) result |= 1n << BigInt(blockSizeBits + i);
+			}
+			return result;
+		},
+		toValues: (children: bigint) => {
+			const blockSizeBits = 2;
+			const lengthMask = (1n << BigInt(blockSizeBits)) - 1n;
+			const len = Number(children & lengthMask) + 1;
+			const result: boolean[] = [];
+			for (let i = 0; i < len; i++) {
+				result.push((children & (1n << BigInt(blockSizeBits + i))) !== 0n);
+			}
+			return result;
+		},
+		mapFn: (v: boolean) => !v,
+		mapExpected: (vs: boolean[]) => vs.map((v) => !v),
+		haltValue: true,
+		joinSep: '-',
+		joinExpected: 'false-true-false',
+		joinReversedExpected: 'false-true-false',
 	},
 );
