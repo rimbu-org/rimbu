@@ -592,9 +592,7 @@ runOuterChildrenOpsTests(
 	{
 		samples: [1, 10, 100, 1000],
 		makeChildren: (nums: number[]) => {
-			const buf = new ArrayBuffer(nums.length * Uint16Array.BYTES_PER_ELEMENT, {
-				maxByteLength: 256 * Uint16Array.BYTES_PER_ELEMENT,
-			});
+			const buf = new ArrayBuffer(nums.length * Uint16Array.BYTES_PER_ELEMENT);
 			new Uint16Array(buf).set(nums);
 			return buf;
 		},

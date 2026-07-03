@@ -1,4 +1,4 @@
-import type { IndexRange } from '@rimbu/common/index-range';
+import { IndexRange } from '@rimbu/common/index-range';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { TypedArrayList } from '../../entry/typed-array';
 
@@ -105,9 +105,21 @@ export namespace TypedArrayListHelpers {
 				if (undefined === range) {
 					return mod.stream<T>(children, { reversed });
 				}
-				return Stream.range(range, reversed ? { delta: -1 } : undefined).map(
-					(index) => new ViewConstructor(children)[index],
-				) as Stream<T>;
+				if (!reversed) {
+					return Stream.range(range).map(
+						(index) => new ViewConstructor(children)[index],
+					) as Stream<T>;
+				}
+				// For reversed streaming resolve the inclusive [start, end] bounds
+				// using the standard IndexRange utility, then iterate downward.
+				const view = new ViewConstructor(children);
+				const [resolvedStart, resolvedEnd] =
+					IndexRange.getIndexRangeIndices(range);
+				const inclusiveEnd =
+					resolvedEnd !== undefined ? resolvedEnd : view.length - 1;
+				return Stream.range({ start: inclusiveEnd }, { delta: -1 })
+					.take(inclusiveEnd - resolvedStart + 1)
+					.map((index) => view[index] as T) as Stream<T>;
 			},
 			of<T>(values: T[]): ArrayBuffer {
 				const newBuffer = createBuffer(values.length);
@@ -243,8 +255,13 @@ export namespace TypedArrayListHelpers {
 			): T[] {
 				const view = new ViewConstructor(children);
 				if (reversed) {
+					// streamRange uses an inclusive IndexRange end, so convert the
+					// exclusive end to inclusive before delegating.
 					return mod
-						.streamRange(children, { range: { start, end }, reversed: true })
+						.streamRange(children, {
+							range: { start, end: end - 1 },
+							reversed: true,
+						})
 						.toArray() as T[];
 				}
 				return Array.from(view.subarray(start, end)) as T[];
@@ -306,15 +323,30 @@ export namespace TypedArrayListHelpers {
 				const deletedView = new ViewConstructor(deletedBuffer);
 				deletedView.set(view.subarray(start, start + deleteAmount));
 
-				const resultLength =
-					view.length - deleteAmount + (itemsView?.length ?? 0);
+				const oldLength = view.length;
+				const itemsLength = itemsView?.length ?? 0;
+				const resultLength = oldLength - deleteAmount + itemsLength;
 				const resultByteLength = resultLength * view.BYTES_PER_ELEMENT;
-				children.resize(resultByteLength);
-				view.copyWithin(
-					start + (itemsView?.length ?? 0),
-					start + deleteAmount,
-					view.length,
-				);
+
+				if (resultByteLength > children.byteLength) {
+					// Growing: resize first so there is room, then shift tail right,
+					// then write the inserted items.
+					children.resize(resultByteLength);
+					view.copyWithin(
+						start + itemsLength,
+						start + deleteAmount,
+						oldLength,
+					);
+				} else {
+					// Shrinking or same size: shift tail left first (while all
+					// elements are still accessible), then resize down.
+					view.copyWithin(
+						start + itemsLength,
+						start + deleteAmount,
+						oldLength,
+					);
+					children.resize(resultByteLength);
+				}
 				if (itemsView) {
 					view.set(itemsView, start);
 				}
@@ -323,7 +355,9 @@ export namespace TypedArrayListHelpers {
 			},
 			safeCopy(children: ArrayBuffer): ArrayBufferLike {
 				const view = new ViewConstructor(children);
-				return view.slice().buffer;
+				const newBuffer = createBuffer(view.length);
+				new ViewConstructor(newBuffer).set(view);
+				return newBuffer;
 			},
 		}));
 
