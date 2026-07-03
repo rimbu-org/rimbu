@@ -395,8 +395,7 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 
 			while (++i < nrChildren) {
 				const child = children[--reverseIndex];
-				newChildren[i] = child.map(mapFun, {
-					reversed: true,
+				newChildren[i] = child.reversed().map(mapFun, {
 					indexOffset: offset,
 				}) as C2;
 				offset += child.length;
