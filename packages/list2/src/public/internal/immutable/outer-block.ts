@@ -305,9 +305,7 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 			? this.ops.reverseMap(this.children, mapFun, indexOffset)
 			: this.ops.map(this.children, mapFun, indexOffset);
 
-		return reversed
-			? this.context.reversedOuterBlock(newChildren)
-			: this.context.outerBlock(newChildren);
+		return this.context.outerBlock(newChildren);
 	}
 
 	toArray(
