@@ -40,26 +40,29 @@ export namespace BitListHelpers {
 		_defaultContext?: ListBase.Context<BitListHelpers.TypesImpl> | undefined,
 	): BitList.Context {
 		const blockSizeBits = options?.blockSizeBits ?? 5;
-		const lengthBits = BigInt(blockSizeBits);
+		// We need blockSizeBits + 1 bits to store lengths 0..2^blockSizeBits.
+		const lengthBits = BigInt(blockSizeBits + 1);
 		const lengthMask = (1n << lengthBits) - 1n;
+		// Data bits start one position higher than in the original encoding.
+		const dataBitOffset = blockSizeBits + 1;
 
 		/**
 		 * Bigint encoding:
-		 * The lower `lengthBits` bits store (length - 1).
+		 * The lower `blockSizeBits + 1` bits store the length (0 = empty).
 		 * The bits above store the actual boolean values, where bit at position
-		 * (lengthBits + i) represents the element at index i.
+		 * (blockSizeBits + 1 + i) represents the element at index i.
 		 */
 
 		function getLength(children: bigint): number {
-			return Number(children & lengthMask) + 1;
+			return Number(children & lengthMask);
 		}
 
 		function getBit(children: bigint, index: number): boolean {
-			return (children & (1n << BigInt(blockSizeBits + index))) !== 0n;
+			return (children & (1n << BigInt(dataBitOffset + index))) !== 0n;
 		}
 
 		function setBit(children: bigint, index: number, value: boolean): bigint {
-			const bitPos = BigInt(blockSizeBits + index);
+			const bitPos = BigInt(dataBitOffset + index);
 			if (value) {
 				return children | (1n << bitPos);
 			}
@@ -68,10 +71,10 @@ export namespace BitListHelpers {
 
 		function fromArray(values: boolean[]): bigint {
 			const len = values.length;
-			let result = BigInt(len - 1);
+			let result = BigInt(len);
 			for (let i = 0; i < len; i++) {
 				if (values[i]) {
-					result |= 1n << BigInt(blockSizeBits + i);
+					result |= 1n << BigInt(dataBitOffset + i);
 				}
 			}
 			return result;
@@ -93,7 +96,8 @@ export namespace BitListHelpers {
 				return getLength(children);
 			},
 			at<T extends boolean = boolean>(children: bigint, index: number): T {
-				return getBit(children, index) as T;
+				const i = index < 0 ? getLength(children) + index : index;
+				return getBit(children, i) as T;
 			},
 			updateAt<T extends boolean>(
 				children: bigint,
@@ -129,20 +133,19 @@ export namespace BitListHelpers {
 			},
 			prepend(children: bigint, value: boolean): bigint {
 				const len = getLength(children);
-				// Shift all bits up by one position
+				// Shift all data bits up by one position to make room at index 0
 				const dataBits = children >> lengthBits;
 				const shifted = dataBits << 1n;
 				const withNew = value ? shifted | 1n : shifted;
-				return (withNew << lengthBits) | BigInt(len);
+				return (withNew << lengthBits) | BigInt(len + 1);
 			},
 			append(children: bigint, value: boolean): bigint {
 				const len = getLength(children);
-				const newLen = BigInt(len);
 				let result = children >> lengthBits;
 				if (value) {
 					result |= 1n << BigInt(len);
 				}
-				return (result << lengthBits) | newLen;
+				return (result << lengthBits) | BigInt(len + 1);
 			},
 			concat(children1: bigint, children2: bigint): bigint {
 				const len1 = getLength(children1);
@@ -150,7 +153,7 @@ export namespace BitListHelpers {
 				const data1 = children1 >> lengthBits;
 				const data2 = children2 >> lengthBits;
 				const combined = data1 | (data2 << BigInt(len1));
-				return (combined << lengthBits) | BigInt(len1 + len2 - 1);
+				return (combined << lengthBits) | BigInt(len1 + len2);
 			},
 			toReversed(children: bigint): bigint {
 				const len = getLength(children);
@@ -160,16 +163,17 @@ export namespace BitListHelpers {
 						result |= 1n << BigInt(len - 1 - i);
 					}
 				}
-				return (result << lengthBits) | BigInt(len - 1);
+				return (result << lengthBits) | BigInt(len);
 			},
 			toSpliced(
 				children: bigint,
 				start: number,
 				deleteCount: number,
-				items: bigint = BigInt(0),
+				items?: bigint,
 			): bigint {
 				const arr = toArrayFull(children);
-				const itemsArr = items === 0n ? [] : toArrayFull(items);
+				const itemsArr =
+					items === undefined ? [] : toArrayFull(items);
 				const result = arr.toSpliced(start, deleteCount, ...itemsArr);
 				return fromArray(result);
 			},
@@ -255,7 +259,7 @@ export namespace BitListHelpers {
 				const len = getLength(children);
 				const data = children >> lengthBits;
 				const shifted = data >> 1n;
-				const result = (shifted << lengthBits) | BigInt(len - 2);
+				const result = (shifted << lengthBits) | BigInt(len - 1);
 				return [result, dropped];
 			},
 			mutateDropLast<T extends boolean>(
@@ -263,20 +267,21 @@ export namespace BitListHelpers {
 			): [result: bigint, dropped: T] {
 				const len = getLength(children);
 				const dropped = getBit(children, len - 1) as T;
-				// Clear the top bit and decrease length
+				// Clear the top data bit and decrease length
 				const data = children >> lengthBits;
 				const cleared = data & ((1n << BigInt(len - 1)) - 1n);
-				const result = (cleared << lengthBits) | BigInt(len - 2);
+				const result = (cleared << lengthBits) | BigInt(len - 1);
 				return [result, dropped];
 			},
 			mutateSplice<T extends boolean>(
 				children: bigint,
 				start: number,
 				deleteCount?: number | undefined,
-				items: bigint = 0n as unknown as bigint,
+				items?: bigint,
 			): [result: bigint, deleted: bigint] {
 				const arr = toArrayFull(children);
-				const itemsArr = items === 0n ? [] : toArrayFull(items);
+				const itemsArr =
+					items === undefined ? [] : toArrayFull(items);
 				const deleted = arr.splice(
 					start,
 					deleteCount ?? arr.length,

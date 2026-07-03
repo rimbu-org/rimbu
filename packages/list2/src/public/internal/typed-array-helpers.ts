@@ -1,10 +1,10 @@
-import { IndexRange } from '@rimbu/common/index-range';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { TypedArrayList } from '../../entry/typed-array';
 
 import type { ListBase } from '#list/list-base';
 import type { ListImpl } from '#list/list-impl';
 
+import { IndexRange } from '@rimbu/common/index-range';
 import { Module } from '@rimbu/common/module';
 import { Stream } from '@rimbu/stream';
 
@@ -332,19 +332,11 @@ export namespace TypedArrayListHelpers {
 					// Growing: resize first so there is room, then shift tail right,
 					// then write the inserted items.
 					children.resize(resultByteLength);
-					view.copyWithin(
-						start + itemsLength,
-						start + deleteAmount,
-						oldLength,
-					);
+					view.copyWithin(start + itemsLength, start + deleteAmount, oldLength);
 				} else {
 					// Shrinking or same size: shift tail left first (while all
 					// elements are still accessible), then resize down.
-					view.copyWithin(
-						start + itemsLength,
-						start + deleteAmount,
-						oldLength,
-					);
+					view.copyWithin(start + itemsLength, start + deleteAmount, oldLength);
 					children.resize(resultByteLength);
 				}
 				if (itemsView) {

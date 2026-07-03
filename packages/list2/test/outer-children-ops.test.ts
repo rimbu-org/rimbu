@@ -622,22 +622,23 @@ runOuterChildrenOpsTests(
 		samples: [false, true, false, true] as [boolean, boolean, boolean, boolean],
 		makeChildren: (values: boolean[]) => {
 			// Replicate the bigint encoding from BitListHelpers:
-			// lower blockSizeBits bits = (length - 1), upper bits = element values.
-			const blockSizeBits = 2;
+			// lower (blockSizeBits + 1) bits = length, upper bits = element values.
+			const dataBitOffset = 3; // blockSizeBits(2) + 1
+			// const lengthBits = BigInt(dataBitOffset);
 			const len = values.length;
-			let result = BigInt(len - 1);
+			let result = BigInt(len);
 			for (let i = 0; i < len; i++) {
-				if (values[i]) result |= 1n << BigInt(blockSizeBits + i);
+				if (values[i]) result |= 1n << BigInt(dataBitOffset + i);
 			}
 			return result;
 		},
 		toValues: (children: bigint) => {
-			const blockSizeBits = 2;
-			const lengthMask = (1n << BigInt(blockSizeBits)) - 1n;
-			const len = Number(children & lengthMask) + 1;
+			const dataBitOffset = 3; // blockSizeBits(2) + 1
+			const lengthMask = (1n << BigInt(dataBitOffset)) - 1n;
+			const len = Number(children & lengthMask);
 			const result: boolean[] = [];
 			for (let i = 0; i < len; i++) {
-				result.push((children & (1n << BigInt(blockSizeBits + i))) !== 0n);
+				result.push((children & (1n << BigInt(dataBitOffset + i))) !== 0n);
 			}
 			return result;
 		},
