@@ -24,6 +24,11 @@ export interface ListCommon<T> {
 		mapFun: (value: T, index: number) => T2,
 		options?: { reversed?: boolean; indexOffset?: number },
 	): ListCommon<T2>;
+	mapPure<T2>(
+		mapFun: (value: T) => T2,
+		options?: { reversed?: boolean } | undefined,
+		cacheMap?: CacheMap | undefined,
+	): ListCommon<T2>;
 	_structure(depth?: number): string;
 	_verifyStructure(
 		messages?: string[] | undefined,

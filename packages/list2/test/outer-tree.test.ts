@@ -397,7 +397,7 @@ function runOuterTreeTests(
 			]);
 		});
 
-		it.skip('mapPure', () => {
+		it('mapPure', () => {
 			const b3 = createBlock([1, 2, 3]);
 			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
 
@@ -583,21 +583,33 @@ function runOuterTreeTests(
 			).toEqual([2, 1, 3, 2]);
 		});
 
-		it.skip('_structure', () => {
+		it('_structure', () => {
 			const b3 = createBlock([1, 2, 3]);
 			const t9 = context.outerTree(b3, b3, context.innerBlock([b3], 3, 1), 9);
 
-			const leafType = b3.isReversedBlock ? 'RLeaf' : 'Leaf';
-
-			expect(t9._structure()).toEqual(
-				`\
-<LeafTree len:9
- l:<${leafType} 3>
- m: 
-  <NLBlock(1) len:3 c:1 <${leafType} 3>>
- r:<${leafType} 3>
->`,
-			);
+			if (b3.isReversedBlock) {
+				expect(t9._structure()).toMatchInlineSnapshot(`
+				  "OuterTree(len: 9)
+				    left: (len: 3, ch: 3)
+				      ReversedOuterBlock<3>(1,2,3)
+				    middle: (len 3)
+				      InnerBlock(lev:1, len:3, ch: 1)
+				          ReversedOuterBlock<3>(1,2,3)
+				    right: (len: 3, ch: 3)
+				      ReversedOuterBlock<3>(1,2,3))"
+				`);
+			} else {
+				expect(t9._structure()).toMatchInlineSnapshot(`
+				  "OuterTree(len: 9)
+				    left: (len: 3, ch: 3)
+				      OuterBlock<3>(1,2,3)
+				    middle: (len 3)
+				      InnerBlock(lev:1, len:3, ch: 1)
+				          OuterBlock<3>(1,2,3)
+				    right: (len: 3, ch: 3)
+				      OuterBlock<3>(1,2,3))"
+				`);
+			}
 		});
 
 		it('take', () => {
@@ -656,16 +668,6 @@ function runOuterTreeTests(
 			builder.append(4);
 			expect(builder.build().toArray()).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3, 4]);
 			expect(t9.toArray()).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3]);
-		});
-
-		it.skip('toJSON', () => {
-			const b3 = createBlock([1, 2, 3]);
-			const t6 = context.outerTree(b3, b3, null, 6);
-
-			expect(t6.toJSON()).toEqual({
-				dataType: 'List',
-				value: [1, 2, 3, 1, 2, 3],
-			});
 		});
 
 		it('toString', () => {

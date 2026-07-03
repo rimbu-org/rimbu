@@ -691,6 +691,34 @@ export class InnerTree<T, C extends Block<T>> implements ListCommon<T> {
 		return this.copy2(newLeft, newRight, newMiddle);
 	}
 
+	mapPure<T2, C2 extends Block<T2>>(
+		mapFun: (value: T) => T2,
+		options: { reversed?: boolean } = {},
+		cacheMap: CacheMap = this.context.cacheMap(),
+	): InnerTree<T2, C2> {
+		const cachedThis = cacheMap.get<InnerTree<T2, C2>>(this);
+		if (undefined !== cachedThis) return cachedThis;
+
+		const newLeft = this.left.mapPure<T2, C2>(mapFun, options, cacheMap);
+		const newRight = this.right.mapPure<T2, C2>(mapFun, options, cacheMap);
+		const newMiddle =
+			null === this.middle
+				? null
+				: this.middle.mapPure<T2, InnerBlock<T2, C2>>(
+						mapFun,
+						options,
+						cacheMap,
+					);
+
+		const { reversed = false } = options;
+
+		const newThis = reversed
+			? this.copy2<T2, C2>(newRight, newLeft, newMiddle)
+			: this.copy2(newLeft, newRight, newMiddle);
+
+		return cacheMap.setAndReturn(this, newThis);
+	}
+
 	_structure(depth: number): string {
 		const space = '  '.repeat(depth);
 		const nextDepth = depth + 2;

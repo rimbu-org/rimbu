@@ -413,6 +413,40 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		return this.copy2(newChildren);
 	}
 
+	mapPure<T2, C2 extends Block<T2>>(
+		mapFun: (value: T) => T2,
+		options: { reversed?: boolean } = {},
+		cacheMap: CacheMap = this.context.cacheMap(),
+	): InnerBlock<T2, C2> {
+		const cachedThis = cacheMap.get<InnerBlock<T2, C2>>(this);
+		if (undefined !== cachedThis) return cachedThis;
+
+		const { reversed = false } = options;
+
+		const children = this.children;
+		const nrChildren = this.nrChildren;
+		const newChildren: C2[] = Array(nrChildren);
+
+		if (reversed) {
+			let i = -1;
+			let reverseIndex = nrChildren;
+
+			while (++i < nrChildren) {
+				const child = children[--reverseIndex];
+				newChildren[i] = child.mapPure(mapFun, options, cacheMap) as C2;
+			}
+		} else {
+			let i = -1;
+
+			while (++i < nrChildren) {
+				const child = children[i];
+				newChildren[i] = child.mapPure(mapFun, options, cacheMap) as C2;
+			}
+		}
+
+		return cacheMap.setAndReturn(this, this.copy2(newChildren));
+	}
+
 	takeChildren(childAmount: number): InnerBlock<T, C> | null {
 		if (childAmount <= 0) return null;
 		if (childAmount >= this.nrChildren) return this;

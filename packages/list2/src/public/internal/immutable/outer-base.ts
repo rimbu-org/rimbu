@@ -68,6 +68,10 @@ export abstract class OuterBase<T>
 		mapFun: (value: T, index: number) => T2,
 		options?: { reversed?: boolean },
 	): OuterBase<T2>;
+	abstract mapPure<T2>(
+		mapFun: (value: T) => T2,
+		options?: { reversed?: boolean },
+	): OuterBase<T2>;
 	abstract toArray(
 		options?:
 			| { range?: IndexRange | undefined; reversed?: boolean | undefined }

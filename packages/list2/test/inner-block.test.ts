@@ -550,10 +550,10 @@ describe('InnerBlock', () => {
 		}
 	});
 
-	it.skip('mapPure', () => {
+	it('mapPure', () => {
 		const b1 = context.outerBlock([1, 2, 3]);
 
-		const nl = context.innerBlock<number, OuterBlock<number>>(6, [b1, b1], 1);
+		const nl = context.innerBlock<number, OuterBlock<number>>([b1, b1], 6, 1);
 		{
 			const r = nl.mapPure((v) => v + 1);
 			expect(r.length).toBe(6);
@@ -692,15 +692,16 @@ describe('InnerBlock', () => {
 		]);
 	});
 
-	it.skip('_structure', () => {
+	it('_structure', () => {
 		const b3 = context.outerBlock([1, 2, 3]);
 
 		const nl = context.innerBlock<number, OuterBlock<number>>([b3, b3], 6, 1);
 
-		expect(nl._structure()).toMatchInlineSnapshot(`
-      "
-        <NLBlock(1) len:6 c:2 <Leaf 3> <Leaf 3>>"
-    `);
+		expect(nl._structure(0)).toMatchInlineSnapshot(`
+"InnerBlock(lev:1, len:6, ch: 2)
+    OuterBlock<3>(1,2,3)
+    OuterBlock<3>(1,2,3)"
+`);
 	});
 
 	it('takeChildren', () => {

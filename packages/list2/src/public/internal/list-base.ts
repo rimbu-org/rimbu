@@ -450,6 +450,10 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 		mapFun: (value: T, index: number) => T2,
 		options?: { reversed?: boolean },
 	): WithElem<Tp, T2>['normal'];
+	mapPure<T2 extends Tp['_UT']>(
+		mapFun: (value: T) => T2,
+		options?: { reversed?: boolean },
+	): WithElem<Tp, T2>['normal'];
 	/**
 	 * Returns a List containing the joined results of applying given `flatMapFun` to each value in this List.
 	 * @param flatMapFun - a function taking the next value and its index, and returning a `StreamSource`
@@ -752,6 +756,10 @@ export namespace ListBase {
 		 */
 		map<T2 extends Tp['_UT']>(
 			mapFun: (value: T, index: number) => T2,
+			options?: { reversed?: boolean },
+		): WithElem<Tp, T2>['nonEmpty'];
+		mapPure<T2 extends Tp['_UT']>(
+			mapFun: (value: T) => T2,
 			options?: { reversed?: boolean },
 		): WithElem<Tp, T2>['nonEmpty'];
 		/**

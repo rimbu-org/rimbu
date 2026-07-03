@@ -9,7 +9,6 @@ import { Stream } from '@rimbu/stream';
 import { InnerBlock } from '#list/immutable/inner-block';
 import { InnerTree } from '#list/immutable/inner-tree';
 import { ListHelpers } from '#list/list-helpers';
-import { InnerTreeBuilder } from '#list/mutable/inner-tree-builder';
 
 const context = ListHelpers.createListContext({
 	blockSizeBits: 2,
@@ -303,13 +302,6 @@ describe('InnerTree', () => {
 		expect(t.context).toBe(context);
 	});
 
-	it.skip('createInnerBuilder', () => {
-		const t = createTree();
-		const b = t.createInnerBuilder();
-		expect(b).toBeInstanceOf(InnerTreeBuilder);
-		expect(b.build()).toBe(t);
-	});
-
 	it('dropFirstChild', () => {
 		{
 			// middle tree
@@ -558,9 +550,9 @@ describe('InnerTree', () => {
 		}
 	});
 
-	it.skip('mapPure', () => {
+	it('mapPure', () => {
 		{
-			const t = context.innerTree(nlb1, nlb1, nlb3, 1);
+			const t = context.innerTree(nlb1, nlb1, nlb3, 36, 1);
 			const r = t.mapPure((v) => v + 1);
 			expect(r.length).toBe(t.length);
 			expect(r.level).toBe(t.level);
@@ -656,19 +648,29 @@ describe('InnerTree', () => {
 		expect(r.toArray()).toEqual(t.toArray({ reversed: true }));
 	});
 
-	it.skip('structure', () => {
-		expect(createTree().structure()).toMatchInlineSnapshot(`
-      "
-        <NLTree(1) len:36
-        l:
-        <NLBlock(1) len:9 c:3 <Leaf 3> <Leaf 3> <Leaf 3>>
-        m:
-          <NLBlock(2) len:18 c:2 
-        <NLBlock(1) len:9 c:3 <Leaf 3> <Leaf 3> <Leaf 3>> 
-        <NLBlock(1) len:9 c:3 <Leaf 3> <Leaf 3> <Leaf 3>>>
-        r:
-        <NLBlock(1) len:9 c:3 <Leaf 3> <Leaf 3> <Leaf 3>>
-      >"
+	it('structure', () => {
+		expect(createTree()._structure(0)).toMatchInlineSnapshot(`
+      "InnerTree(lev:1, len:36)
+        left: (len:9, children:3)
+          InnerBlock(lev:1, len:9, ch: 3)
+              OuterBlock<3>(1,2,3)
+              OuterBlock<3>(4,5,6)
+              OuterBlock<3>(7,8,9)
+        middle: (len:18)
+          InnerBlock(lev:2, len:18, ch: 2)
+              InnerBlock(lev:1, len:9, ch: 3)
+                  OuterBlock<3>(1,2,3)
+                  OuterBlock<3>(4,5,6)
+                  OuterBlock<3>(7,8,9)
+              InnerBlock(lev:1, len:9, ch: 3)
+                  OuterBlock<3>(1,2,3)
+                  OuterBlock<3>(4,5,6)
+                  OuterBlock<3>(7,8,9)
+        right: (len:9, children:3)
+          InnerBlock(lev:1, len:9, ch: 3)
+              OuterBlock<3>(1,2,3)
+              OuterBlock<3>(4,5,6)
+              OuterBlock<3>(7,8,9)"
     `);
 	});
 

@@ -486,6 +486,31 @@ export class OuterTree<T>
 		return this.copy2(newLeft, newRight, newMiddle);
 	}
 
+	mapPure<T2>(
+		mapFun: (value: T) => T2,
+		options: { reversed?: boolean } = {},
+		cacheMap: CacheMap = this.context.cacheMap(),
+	): OuterTree<T2> {
+		const cachedThis = cacheMap.get<OuterTree<T2>>(this);
+		if (undefined !== cachedThis) return cachedThis;
+
+		const newLeft = this.left.mapPure(mapFun, options, cacheMap);
+		const newRight = this.right.mapPure(mapFun, options, cacheMap);
+		const newMiddle =
+			null === this.middle
+				? null
+				: this.middle.mapPure<T2, OuterBlock<T2>>(mapFun, options, cacheMap);
+
+		const { reversed = false } = options;
+
+		return cacheMap.setAndReturn(
+			this,
+			reversed
+				? this.copy2(newRight, newLeft, newMiddle)
+				: this.copy2(newLeft, newRight, newMiddle),
+		);
+	}
+
 	toArray(options?: {
 		range?: IndexRange | undefined;
 		reversed?: boolean | undefined;

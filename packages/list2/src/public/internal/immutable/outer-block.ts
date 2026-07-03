@@ -308,6 +308,17 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return this.context.outerBlock(newChildren);
 	}
 
+	mapPure<T2>(
+		mapFun: (value: T) => T2,
+		options: { reversed?: boolean } = {},
+		cacheMap = this.context.cacheMap(),
+	): OuterBlock<T2> {
+		const cachedThis = cacheMap.get<OuterBlock<T2>>(this);
+		if (undefined !== cachedThis) return cachedThis;
+
+		return cacheMap.setAndReturn(this, this.map(mapFun, options));
+	}
+
 	toArray(
 		options: { range?: IndexRange | undefined; reversed?: boolean } = {},
 	): any {

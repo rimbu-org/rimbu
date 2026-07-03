@@ -252,10 +252,6 @@ describe('OuterBlockBuilder', () => {
 		}
 	});
 
-	it.skip('level', () => {
-		expect(createBlockBuilder(1).level).toBe(0);
-	});
-
 	it('normalized', () => {
 		{
 			const b = context.outerBlockBuilder([]);
