@@ -160,14 +160,14 @@ export namespace CharListHelpers {
 					return children.split('') as T[];
 				}
 
+				// `end` is exclusive throughout (matching Array.slice semantics).
+				const slice = children.slice(start, end);
+
 				if (!reversed) {
-					return children.slice(start, end).split('') as T[];
+					return slice.split('') as T[];
 				}
 
-				return Stream.fromString(children, {
-					range: { start, end },
-					reversed,
-				}).toArray() as T[];
+				return Stream.fromString(slice, { reversed }).toArray() as T[];
 			},
 			mutateSet(children: string, index: number, value: string): string {
 				return mod.updateAt(children, index, () => value);

@@ -458,12 +458,11 @@ function runOuterChildrenOpsTests<V>(
 				expect(ops.toArray(ch, undefined, undefined, true)).toEqual([c, b, a]);
 			});
 
-			// NOTE: the `end` parameter semantics differ between implementations
-			// when `reversed` is true: the array-backed implementation treats `end`
-			// as exclusive (matching Array.prototype.slice), while the string-backed
-			// implementation delegates to Stream.fromString which uses an inclusive
-			// IndexRange end. The reversed-slice test is therefore implementation-
-			// specific and is omitted from this shared suite.
+			it('returns reversed slice with exclusive end', () => {
+				const ops = createOps();
+				const ch = makeChildren([a, b, c, d]);
+				expect(ops.toArray(ch, 1, 3, true)).toEqual([c, b]);
+			});
 		});
 
 		describe('mutateSet', () => {
