@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'bun:test';
 
-import type { ListCommon } from '@rimbu/list/internal/immutable/utils';
-
 import { List } from '@rimbu/list2';
 import { Stream } from '@rimbu/stream';
 
@@ -12,9 +10,7 @@ describe('List Structure', () => {
 		for (let i = 0; i < 20000; i++) {
 			// console.log(i);
 			list = list.append(i);
-			const messages = (
-				list as unknown as ListCommon<number>
-			)._verifyStructure();
+			const messages = (list as any)._verifyStructure();
 			expect(messages).toEqual([]);
 		}
 	});
@@ -25,9 +21,7 @@ describe('List Structure', () => {
 		for (let i = 0; i < 20000; i++) {
 			// console.log(i);
 			list = list.prepend(i);
-			const messages = (
-				list as unknown as ListCommon<number>
-			)._verifyStructure();
+			const messages = (list as any)._verifyStructure();
 			expect(messages).toEqual([]);
 		}
 	});
@@ -39,7 +33,7 @@ describe('List Structure', () => {
 
 		for (let i = 0; i < 20000; i++) {
 			// console.log(i);
-			const dropList = list.drop(i) as unknown as ListCommon<number>;
+			const dropList = list.drop(i) as any;
 			const messages = dropList._verifyStructure();
 			if (messages.length > 0) {
 				console.log(i);
@@ -53,7 +47,7 @@ describe('List Structure', () => {
 		const list = List.from(Stream.range({ amount: 200 }));
 
 		for (let i = 0; i < 20000; i++) {
-			const takeList = list.take(i) as unknown as ListCommon<number>;
+			const takeList = list.take(i) as any;
 			const messages = takeList._verifyStructure();
 			if (messages.length > 0) {
 				console.log(i);

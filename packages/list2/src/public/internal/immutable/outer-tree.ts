@@ -533,6 +533,18 @@ export class OuterTree<T>
 					newMiddle,
 				);
 			}
+
+			if (this.length <= this.context.maxBlockSize * 2) {
+				// length fits in two blocks but no single merge above worked;
+				// flatten all elements into two blocks and drop the middle
+				let merged = this.left;
+				for (const child of this.middle.children) {
+					merged = merged.concatChildren(child);
+				}
+				merged = merged.concatChildren(this.right);
+				const newRight = merged._mutateSplitRight();
+				return this.copy(merged, newRight, null, this.length);
+			}
 		}
 
 		return this;
