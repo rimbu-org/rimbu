@@ -175,21 +175,19 @@ export namespace ListHelpers {
 			},
 			toArray<T>(
 				children: T[],
-				start = 0,
-				end = children.length - 1,
+				start = undefined,
+				end = undefined,
 				reversed = false,
 			): T[] {
-				if (reversed) {
-					if (start === 0 && end === children.length - 1) {
-						return children.toReversed();
-					}
+				const isFullRange =
+					(undefined === start || start === 0) &&
+					(undefined === end || end === children.length);
 
-					return mod
-						.streamRange(children, { range: { start, end }, reversed: true })
-						.toArray() as T[];
-				}
+				const resultChildren = isFullRange
+					? children
+					: children.slice(start, end);
 
-				return children.slice(start, end);
+				return reversed ? resultChildren.toReversed() : resultChildren;
 			},
 			mutateSet<T>(children: T[], index: number, value: T): T[] {
 				children[index] = value;

@@ -71,7 +71,9 @@ export class ReversedOuterBlock<
 	): OuterBlock<T2> {
 		const { reversed = false, indexOffset = 0 } = options;
 
-		const newChildren = this.ops.reverseMap(this.children, mapFun, indexOffset);
+		const newChildren = reversed
+			? this.ops.map(this.children, mapFun, indexOffset)
+			: this.ops.reverseMap(this.children, mapFun, indexOffset);
 
 		return reversed
 			? this.context.reversedOuterBlock(newChildren)

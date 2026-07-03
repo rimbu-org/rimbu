@@ -978,7 +978,7 @@ describe('List methods', () => {
 		expect(list6_1.map((v, i) => v + i).toArray()).toEqual([1, 3, 5, 7, 9, 11]);
 		expect(list6_2.map((v, i) => v + i).toArray()).toEqual([1, 3, 5, 7, 9, 11]);
 
-		// expect(listEmpty.map((v, i) => v + i, { reversed: true })).toBe(listEmpty);
+		expect(listEmpty.map((v, i) => v + i, { reversed: true })).toBe(listEmpty);
 		expect(list3_1.map((v, i) => v + i, { reversed: true }).toArray()).toEqual([
 			3, 3, 3,
 		]);
@@ -1404,7 +1404,7 @@ describe('List inserts', () => {
     6,  4,  2,  0
  ]
  */
-	it.only('inserts in the middle', () => {
+	it('inserts in the middle', () => {
 		const maxInserts = 170; // test a lot of cases, because this happend only "sometimes", first occurence is 29
 		let list = List.empty<number>();
 		for (let i = 0; i < maxInserts; i++) {

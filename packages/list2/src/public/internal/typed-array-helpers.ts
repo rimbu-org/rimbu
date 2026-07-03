@@ -344,15 +344,3 @@ export namespace TypedArrayListHelpers {
 		).build();
 	}
 }
-
-// function log(a: any) {
-// 	const result: any = {};
-// 	for (const key in a) {
-// 		result[key] = (...args: any[]) => {
-// 			const result = a[key](...args);
-// 			console.log('calling', key, 'with args', args, 'result', result);
-// 			return result;
-// 		};
-// 	}
-// 	return result;
-// }

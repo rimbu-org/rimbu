@@ -301,7 +301,9 @@ export class OuterBlock<T, Tp extends ListImpl.Types = ListImpl.Types>
 	): OuterBlock<T2> {
 		const { reversed = false, indexOffset = 0 } = options;
 
-		const newChildren = this.ops.map(this.children, mapFun, indexOffset);
+		const newChildren = reversed
+			? this.ops.reverseMap(this.children, mapFun, indexOffset)
+			: this.ops.map(this.children, mapFun, indexOffset);
 
 		return reversed
 			? this.context.reversedOuterBlock(newChildren)

@@ -1010,7 +1010,11 @@ export namespace ListBase {
 		 * @note O(logB(N)) for block size B
 		 */
 		updateAt(index: number, update: (current: T) => T): T | undefined;
-		updateAt<O>(index: number, update: (current: T) => T, otherwise: OptLazy<O>): T | O;
+		updateAt<O>(
+			index: number,
+			update: (current: T) => T,
+			otherwise: OptLazy<O>,
+		): T | O;
 		/**
 		 * Sets the element at the given `index` to the given `value`.
 		 * @param index - the index of the element to set.
@@ -1096,6 +1100,9 @@ export namespace ListBase {
 		empty<T extends Tp['_UT']>(): WithElem<Tp, T>['normal'];
 		of<T extends Tp['_UT']>(
 			...values: ArrayNonEmpty<T>
+		): WithElem<Tp, T>['nonEmpty'];
+		from<T extends Tp['_UT']>(
+			...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>
 		): WithElem<Tp, T>['nonEmpty'];
 		from<T extends Tp['_UT']>(
 			...sources: ArrayNonEmpty<StreamSource<T>>

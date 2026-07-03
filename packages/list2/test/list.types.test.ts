@@ -3,7 +3,7 @@ import { expectTypeOf } from 'bun:test';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { FastIterator, Stream } from '@rimbu/stream';
 
-import { List } from '@rimbu/list';
+import { List } from '@rimbu/list2';
 
 expectTypeOf(List.of(1)).toExtend<List<number>>();
 expectTypeOf(List.empty<number>()).not.toExtend<List.NonEmpty<number>>();
@@ -23,7 +23,7 @@ expectTypeOf(List.builder<number>()).toEqualTypeOf<List.Builder<number>>();
 expectTypeOf(List.createContext()).toEqualTypeOf<List.Context>();
 
 // List.defaultContext()
-expectTypeOf(List.defaultContext()).toEqualTypeOf<List.Context>();
+expectTypeOf(List.defaultContext).toEqualTypeOf<List.Context>();
 
 // List.empty()
 expectTypeOf(List.empty<number>()).toEqualTypeOf<List<number>>();
@@ -47,9 +47,12 @@ expectTypeOf(List.empty<number>().append(2)).toEqualTypeOf<
 expectTypeOf(List.of(1).append(2)).toEqualTypeOf<List.NonEmpty<number>>();
 
 // .assumeNonEmpty()
-expectTypeOf(List.empty<number>().assumeNonEmpty()).toEqualTypeOf<
-	List.NonEmpty<number>
->();
+try {
+	expectTypeOf(List.empty<number>().assumeNonEmpty()).toEqualTypeOf<
+		List.NonEmpty<number>
+	>();
+} catch {}
+
 expectTypeOf(List.of(1).assumeNonEmpty()).toEqualTypeOf<
 	List.NonEmpty<number>
 >();
@@ -268,8 +271,10 @@ expectTypeOf(List.empty<number>().toBuilder()).toEqualTypeOf<
 expectTypeOf(List.of(1).toBuilder()).toEqualTypeOf<List.Builder<number>>();
 
 // .unzip(..)
-// @ts-expect-error
-List.unzip(List.of(1));
+try {
+	// @ts-expect-error
+	List.unzip(List.of(1));
+} catch {}
 expectTypeOf(
 	List.unzip(List.empty<[number, string]>(), { length: 2 }),
 ).toEqualTypeOf<[List<number>, List<string>]>();
