@@ -53,7 +53,7 @@ export namespace ListHelpers {
 	): List.Context {
 		const outerChildrenOpsModule = Module.createPartial<{
 			defines: ListImpl.OuterChildrenOps<ListHelpers.TypesImpl>;
-		}>((mod) => ({
+		}>(() => ({
 			length(children: readonly unknown[]) {
 				return children.length;
 			},
