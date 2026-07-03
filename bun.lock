@@ -179,7 +179,6 @@
         "@rimbu/collection-types": "workspace:*",
         "@rimbu/common": "workspace:*",
         "@rimbu/stream": "workspace:*",
-        "tslib": "catalog:",
       },
     },
     "packages/multimap": {
