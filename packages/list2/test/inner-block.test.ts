@@ -437,19 +437,19 @@ describe('InnerBlock', () => {
 		expect(nl.get(7)).toBe(8);
 	});
 
-	it.skip('getChild', () => {
+	it('children', () => {
 		const b1 = context.outerBlock([1, 2, 3]);
 		const b2 = context.outerBlock([4, 5, 6]);
 		const b3 = context.outerBlock([7, 8, 9]);
 		const nl = context.innerBlock<number, OuterBlock<number>>(
-			9,
 			[b1, b2, b3],
+			9,
 			1,
 		);
 
-		expect(nl.getChild(0)).toBe(b1);
-		expect(nl.getChild(1)).toBe(b2);
-		expect(nl.getChild(2)).toBe(b3);
+		expect(nl.children[0]).toBe(b1);
+		expect(nl.children[1]).toBe(b2);
+		expect(nl.children[2]).toBe(b3);
 	});
 
 	it('getCoordinates', () => {
