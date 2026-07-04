@@ -32,7 +32,7 @@ describe('ListBuilder', () => {
 			expect(g.outerBuilder).toBeInstanceOf(OuterBlockBuilder);
 			expect((g.outerBuilder as OuterBlockBuilder<number>).children).toEqual([
 				11, 12, 13, 1,
-			]);
+			] as any);
 		}
 		{
 			const g = context.createBuilder<number>(context.of(11, 12, 13, 14));
@@ -40,10 +40,10 @@ describe('ListBuilder', () => {
 			expect(g.outerBuilder).toBeInstanceOf(OuterTreeBuilder);
 			expect(
 				(g.outerBuilder as OuterTreeBuilder<number>).left.children,
-			).toEqual([11, 12]);
+			).toEqual([11, 12] as any);
 			expect(
 				(g.outerBuilder as OuterTreeBuilder<number>).right.children,
-			).toEqual([13, 14, 1]);
+			).toEqual([13, 14, 1] as any);
 		}
 	});
 
@@ -310,7 +310,7 @@ describe('ListBuilder', () => {
 			expect(g.outerBuilder).toBeInstanceOf(OuterBlockBuilder);
 			expect((g.outerBuilder as OuterBlockBuilder<number>).children).toEqual([
 				1, 11, 12, 13,
-			]);
+			] as any);
 		}
 		{
 			const g = context.createBuilder<number>(context.of(11, 12, 13, 14));
@@ -318,10 +318,10 @@ describe('ListBuilder', () => {
 			expect(g.outerBuilder).toBeInstanceOf(OuterTreeBuilder);
 			expect(
 				(g.outerBuilder as OuterTreeBuilder<number>).left.children,
-			).toEqual([1, 11]);
+			).toEqual([1, 11] as any);
 			expect(
 				(g.outerBuilder as OuterTreeBuilder<number>).right.children,
-			).toEqual([12, 13, 14]);
+			).toEqual([12, 13, 14] as any);
 		}
 	});
 

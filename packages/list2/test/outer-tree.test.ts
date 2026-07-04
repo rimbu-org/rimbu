@@ -866,8 +866,8 @@ function outerTreeBlockSize3(
 		expect(mt.nrChildren).toBe(2);
 		expect(context.isOuterBlock<number>(mt.children[0])).toBe(true);
 		expect(context.isOuterBlock<number>(mt.children[1])).toBe(true);
-		expect(mt.children[0].children.length).toBe(4);
-		expect(mt.children[1].children.length).toBe(5);
+		expect((mt.children[0].children as any).length).toBe(4);
+		expect((mt.children[1].children as any).length).toBe(5);
 	});
 }
 

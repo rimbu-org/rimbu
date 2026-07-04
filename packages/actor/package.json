@@ -77,7 +77,7 @@
 	},
 	"devDependencies": {
 		"@rimbu/deep": "workspace:*",
-		"@rimbu/spy": "^0.7.7",
+		"@rimbu/spy": "workspace:*",
 		"@rimbu/stream": "workspace:*",
 		"happy-dom": "catalog:",
 		"immer": "catalog:"

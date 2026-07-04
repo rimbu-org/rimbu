@@ -461,8 +461,8 @@ describe('InnerBlockBuilder', () => {
 			b.insert(1, 21);
 			expect(b.nrChildren).toBe(2);
 			expect(b.get(1)).toBe(21);
-			expect(b.children[0].children).toEqual([1, 21, 2, 3]);
-			expect(b.children[1].children).toEqual([4, 11, 12, 13]);
+			expect(b.children[0].children).toEqual([1, 21, 2, 3] as any);
+			expect(b.children[1].children).toEqual([4, 11, 12, 13] as any);
 		}
 		{
 			// shift to right child
@@ -477,8 +477,8 @@ describe('InnerBlockBuilder', () => {
 			b.insert(4, 21);
 			expect(b.nrChildren).toBe(2);
 			expect(b.get(4)).toBe(21);
-			expect(b.children[0].children).toEqual([1, 2, 3, 11]);
-			expect(b.children[1].children).toEqual([21, 12, 13, 14]);
+			expect(b.children[0].children).toEqual([1, 2, 3, 11] as any);
+			expect(b.children[1].children).toEqual([21, 12, 13, 14] as any);
 		}
 		{
 			// split child
@@ -493,9 +493,9 @@ describe('InnerBlockBuilder', () => {
 			b.insert(4, 21);
 			expect(b.nrChildren).toBe(3);
 			expect(b.get(4)).toBe(21);
-			expect(b.children[0].children).toEqual([1, 2, 3, 4]);
-			expect(b.children[1].children).toEqual([21, 11]);
-			expect(b.children[2].children).toEqual([12, 13, 14]);
+			expect(b.children[0].children).toEqual([1, 2, 3, 4] as any);
+			expect(b.children[1].children).toEqual([21, 11] as any);
+			expect(b.children[2].children).toEqual([12, 13, 14] as any);
 		}
 	});
 
@@ -676,8 +676,8 @@ describe('InnerBlockBuilder', () => {
 			);
 			expect(b.remove(1)).toBe(2);
 			expect(b.nrChildren).toBe(2);
-			expect(b.children[0].children).toEqual([1, 3, 4]);
-			expect(b.children[1].children).toEqual([11, 12, 13, 14]);
+			expect(b.children[0].children).toEqual([1, 3, 4] as any);
+			expect(b.children[1].children).toEqual([11, 12, 13, 14] as any);
 		}
 		{
 			// shift from left
@@ -691,8 +691,8 @@ describe('InnerBlockBuilder', () => {
 			);
 			expect(b.remove(4)).toBe(11);
 			expect(b.nrChildren).toBe(2);
-			expect(b.children[0].children).toEqual([1, 2, 3]);
-			expect(b.children[1].children).toEqual([4, 12]);
+			expect(b.children[0].children).toEqual([1, 2, 3] as any);
+			expect(b.children[1].children).toEqual([4, 12] as any);
 		}
 		{
 			// shift from right
@@ -706,8 +706,8 @@ describe('InnerBlockBuilder', () => {
 			);
 			expect(b.remove(1)).toBe(2);
 			expect(b.nrChildren).toBe(2);
-			expect(b.children[0].children).toEqual([1, 11]);
-			expect(b.children[1].children).toEqual([12, 13, 14]);
+			expect(b.children[0].children).toEqual([1, 11] as any);
+			expect(b.children[1].children).toEqual([12, 13, 14] as any);
 		}
 		{
 			// merge with right
@@ -721,7 +721,7 @@ describe('InnerBlockBuilder', () => {
 			);
 			expect(b.remove(1)).toBe(2);
 			expect(b.nrChildren).toBe(1);
-			expect(b.children[0].children).toEqual([1, 11, 12]);
+			expect(b.children[0].children).toEqual([1, 11, 12] as any);
 		}
 		{
 			// merge with left
@@ -735,7 +735,7 @@ describe('InnerBlockBuilder', () => {
 			);
 			expect(b.remove(2)).toBe(11);
 			expect(b.nrChildren).toBe(1);
-			expect(b.children[0].children).toEqual([1, 2, 12]);
+			expect(b.children[0].children).toEqual([1, 2, 12] as any);
 		}
 	});
 

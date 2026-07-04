@@ -561,7 +561,7 @@ describe('InnerTree', () => {
 			expect(r.left).toBe(r.right);
 		}
 		{
-			const t = context.innerTree(nlb1, nlb1, nlb3, 1);
+			const t = context.innerTree(nlb1, nlb1, nlb3, 36, 1);
 			const r = t.mapPure((v) => v + 1, { reversed: true });
 			expect(r.length).toBe(t.length);
 			expect(r.level).toBe(t.level);

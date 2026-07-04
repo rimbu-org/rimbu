@@ -26,8 +26,8 @@ describe('OuterTree Structural Transitions', () => {
 
 		expect(result.length).toBe(8);
 		expect(result.middle).toBeNull();
-		expect(result.left.children).toEqual([1, 2, 3, 4]);
-		expect(result.right.children).toEqual([5, 6, 7, 8]);
+		expect(result.left.children).toEqual([1, 2, 3, 4] as any);
+		expect(result.right.children).toEqual([5, 6, 7, 8] as any);
 	});
 
 	it('should have a middle node when length > maxBlockSize * 2', () => {
@@ -48,7 +48,7 @@ describe('OuterTree Structural Transitions', () => {
 		if (!context.isInnerBlock<number, any>(result.middle)) {
 			throw new Error('Expected middle to be an InnerBlock');
 		}
-		expect(result.middle.children[0].children).toEqual([5, 6, 7, 8]);
+		expect(result.middle.children[0].children).toEqual([5, 6, 7, 8] as any);
 	});
 
 	it('should transition from OuterTree to OuterBlock when size decreases below minTreeLength', () => {
@@ -58,7 +58,7 @@ describe('OuterTree Structural Transitions', () => {
 			throw new Error('Expected result to be an OuterBlock');
 		}
 		expect(result.length).toBe(3);
-		expect(result.children).toEqual([3, 4, 5]);
+		expect(result.children).toEqual([3, 4, 5] as any);
 	});
 
 	it('should maintain correct element order across structural changes', () => {

@@ -728,6 +728,23 @@ export namespace ListBase {
 			insert?: StreamSource<T>;
 		}): WithElem<Tp, T>['normal'];
 		/**
+		 * Returns the non-empty List with the given `values` inserted at the given `index`.
+		 * @param index - the index at which to insert the values
+		 * @param values - a `StreamSource` of values to insert
+		 *
+		 * @note a negative `index` will be treated as follows:<br/>
+		 * - -1: the last element in the list<br/>
+		 * - -2: the second-last element in the list<br/>
+		 * - ...etc
+		 * @example
+		 * ```ts
+		 * List.of(0, 1, 2, 3).insert(2, [10, 11])   // -> List(0, 1, 10, 11, 2, 3)
+		 * List.of(0, 1, 2, 3).insert(-1, [10, 11])  // -> List(0, 1, 2, 1, 11, 3)
+		 * ```
+		 * @note O(logB(N)) for block size B
+		 */
+		insert(index: number, values: StreamSource<T>): WithElem<Tp, T>['nonEmpty'];
+		/**
 		 * Returns the non-empty List succeeded by the values from all given `StreamSource` instances given in `sources`.
 		 * @param sources - an array of `StreamSource` instances containing values to be added to the list
 		 * @note this operation is most efficient when the given sources are instances of List from the same context.

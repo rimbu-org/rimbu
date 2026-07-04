@@ -16,7 +16,7 @@ describe('OuterBlock Structural Transitions', () => {
 			throw new Error('Expected result to be an OuterBlock');
 		}
 		expect(result1.length).toBe(1);
-		expect(result1.children).toEqual([1]);
+		expect(result1.children).toEqual([1] as any);
 
 		// 4 elements (max)
 		const result4 = context.of(1, 2, 3, 4);
@@ -24,7 +24,7 @@ describe('OuterBlock Structural Transitions', () => {
 			throw new Error('Expected result to be an OuterBlock');
 		}
 		expect(result4.length).toBe(4);
-		expect(result4.children).toEqual([1, 2, 3, 4]);
+		expect(result4.children).toEqual([1, 2, 3, 4] as any);
 	});
 
 	it('should transition to OuterTree when size exceeds maxBlockSize', () => {
@@ -35,8 +35,8 @@ describe('OuterBlock Structural Transitions', () => {
 			throw new Error('Expected result to be an OuterTree');
 		}
 		expect(result5.length).toBe(5);
-		expect(result5.left.children).toEqual([1, 2, 3, 4]);
-		expect(result5.right.children).toEqual([5]);
+		expect(result5.left.children).toEqual([1, 2, 3, 4] as any);
+		expect(result5.right.children).toEqual([5] as any);
 		expect(result5.toArray()).toEqual([1, 2, 3, 4, 5]);
 	});
 
@@ -47,7 +47,7 @@ describe('OuterBlock Structural Transitions', () => {
 			throw new Error('Expected result to be an OuterBlock');
 		}
 		expect(result4.length).toBe(4);
-		expect(result4.children).toEqual([2, 3, 4, 5]);
+		expect(result4.children).toEqual([2, 3, 4, 5] as any);
 	});
 
 	it('should transition to context empty when all elements are removed', () => {
@@ -68,7 +68,7 @@ describe('OuterBlock Structural Transitions', () => {
 			throw new Error('Expected result to be an OuterBlock');
 		}
 		expect(result.length).toBe(3);
-		expect(result.children).toEqual([3, 4, 5]);
+		expect(result.children).toEqual([3, 4, 5] as any);
 	});
 
 	it('should maintain element integrity during take/drop', () => {
@@ -78,6 +78,6 @@ describe('OuterBlock Structural Transitions', () => {
 			throw new Error('Expected result to be an OuterBlock');
 		}
 		expect(result.length).toBe(3);
-		expect(result.children).toEqual([1, 2, 3]);
+		expect(result.children).toEqual([1, 2, 3] as any);
 	});
 });

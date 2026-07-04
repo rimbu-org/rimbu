@@ -20,12 +20,12 @@ describe('OuterBlockBuilder', () => {
 		{
 			const b = context.outerBlockBuilder([1, 2]);
 			b.append(10);
-			expect(b.children).toEqual([1, 2, 10]);
+			expect(b.children).toEqual([1, 2, 10] as any);
 		}
 		{
 			const b = context.outerBlockBuilderSource(context.outerBlock([1, 2]));
 			b.append(10);
-			expect(b.children).toEqual([1, 2, 10]);
+			expect(b.children).toEqual([1, 2, 10] as any);
 		}
 	});
 
@@ -70,7 +70,7 @@ describe('OuterBlockBuilder', () => {
 		{
 			const children = [1];
 			const b = context.outerBlockBuilder(children);
-			expect(b.children).toBe(children);
+			expect(b.children).toBe(children as any);
 			expect(b.source).toBeUndefined();
 		}
 		{
@@ -81,7 +81,7 @@ describe('OuterBlockBuilder', () => {
 			expect(b.source).toBe(s);
 			b.prepareMutate();
 
-			expect(b.children).toEqual(children);
+			expect(b.children).toEqual(children as any);
 			expect(b.children).not.toBe(children);
 			expect(b.source).toBeUndefined();
 		}
@@ -92,7 +92,7 @@ describe('OuterBlockBuilder', () => {
 			expect(b.source).toBe(s);
 			b.prepareMutate();
 
-			expect(b.children).toEqual([...children].reverse());
+			expect(b.children).toEqual(children.toReversed() as any);
 			expect(b.source).toBeUndefined();
 		}
 	});
@@ -101,14 +101,14 @@ describe('OuterBlockBuilder', () => {
 		{
 			const b = context.outerBlockBuilder([1, 2, 3]);
 			b.appendItems(context.outerBlockBuilder([5, 6]));
-			expect(b.children).toEqual([1, 2, 3, 5, 6]);
+			expect(b.children).toEqual([1, 2, 3, 5, 6] as any);
 		}
 		{
 			const b = context.outerBlockBuilderSource(context.outerBlock([1, 2, 3]));
 			b.appendItems(
 				context.outerBlockBuilderSource(context.outerBlock([5, 6])),
 			);
-			expect(b.children).toEqual([1, 2, 3, 5, 6]);
+			expect(b.children).toEqual([1, 2, 3, 5, 6] as any);
 		}
 	});
 
@@ -116,14 +116,14 @@ describe('OuterBlockBuilder', () => {
 		{
 			const b = context.outerBlockBuilder([1, 2]);
 			const children = [3, 4];
-			const n = b.copy(children);
-			expect(n.children).toBe(children);
+			const n = b.copy(children as any);
+			expect(n.children).toBe(children as any);
 		}
 		{
 			const b = context.outerBlockBuilderSource(context.outerBlock([1, 2]));
 			const children = [3, 4];
-			const n = b.copy(children);
-			expect(n.children).toBe(children);
+			const n = b.copy(children as any);
+			expect(n.children).toBe(children as any);
 		}
 	});
 
@@ -131,12 +131,12 @@ describe('OuterBlockBuilder', () => {
 		{
 			const b = context.outerBlockBuilder([1, 2, 3]);
 			expect(b.dropFirstChild()).toBe(1);
-			expect(b.children).toEqual([2, 3]);
+			expect(b.children).toEqual([2, 3] as any);
 		}
 		{
 			const b = context.outerBlockBuilderSource(context.outerBlock([1, 2, 3]));
 			expect(b.dropFirstChild()).toBe(1);
-			expect(b.children).toEqual([2, 3]);
+			expect(b.children).toEqual([2, 3] as any);
 		}
 	});
 
@@ -144,12 +144,12 @@ describe('OuterBlockBuilder', () => {
 		{
 			const b = context.outerBlockBuilder([1, 2, 3]);
 			expect(b.dropLastChild()).toBe(3);
-			expect(b.children).toEqual([1, 2]);
+			expect(b.children).toEqual([1, 2] as any);
 		}
 		{
 			const b = context.outerBlockBuilderSource(context.outerBlock([1, 2, 3]));
 			expect(b.dropLastChild()).toBe(3);
-			expect(b.children).toEqual([1, 2]);
+			expect(b.children).toEqual([1, 2] as any);
 		}
 	});
 
@@ -186,24 +186,27 @@ describe('OuterBlockBuilder', () => {
 				context.outerBlock([1, 2, 3, 4]),
 			);
 			const cb = vi.fn();
-			b.forEach(cb);
+			b.forEach(cb, { reversed: false, state: TraverseState() });
 			expect(cb).toBeCalledTimes(4);
 			expect(cb.mock.calls[1][0]).toBe(2);
 			expect(cb.mock.calls[1][1]).toBe(1);
 
 			cb.mockReset();
 
-			b.forEach(cb, { reversed: true });
+			b.forEach(cb, { reversed: true, state: TraverseState() });
 			expect(cb).toBeCalledTimes(4);
 			expect(cb.mock.calls[1][0]).toBe(3);
 			expect(cb.mock.calls[1][1]).toBe(1);
 
 			cb.mockReset();
 
-			b.forEach((_, __, halt) => {
-				halt();
-				cb();
-			});
+			b.forEach(
+				(_, __, halt) => {
+					halt();
+					cb();
+				},
+				{ reversed: false, state: TraverseState() },
+			);
 
 			expect(cb).toBeCalledTimes(1);
 		}
@@ -224,20 +227,20 @@ describe('OuterBlockBuilder', () => {
 		{
 			const b = context.outerBlockBuilder([1, 2]);
 			b.insert(1, 10);
-			expect(b.children).toEqual([1, 10, 2]);
+			expect(b.children).toEqual([1, 10, 2] as any);
 			b.insert(0, 11);
-			expect(b.children).toEqual([11, 1, 10, 2]);
+			expect(b.children).toEqual([11, 1, 10, 2] as any);
 			b.insert(4, 12);
-			expect(b.children).toEqual([11, 1, 10, 2, 12]);
+			expect(b.children).toEqual([11, 1, 10, 2, 12] as any);
 		}
 		{
 			const b = context.outerBlockBuilderSource(context.outerBlock([1, 2]));
 			b.insert(1, 10);
-			expect(b.children).toEqual([1, 10, 2]);
+			expect(b.children).toEqual([1, 10, 2] as any);
 			b.insert(0, 11);
-			expect(b.children).toEqual([11, 1, 10, 2]);
+			expect(b.children).toEqual([11, 1, 10, 2] as any);
 			b.insert(4, 12);
-			expect(b.children).toEqual([11, 1, 10, 2, 12]);
+			expect(b.children).toEqual([11, 1, 10, 2, 12] as any);
 		}
 	});
 
@@ -265,8 +268,8 @@ describe('OuterBlockBuilder', () => {
 			const b = context.outerBlockBuilder([1, 2, 3, 4, 5]);
 			const n = b.normalized() as OuterTreeBuilder<number>;
 			expect(n).toBeInstanceOf(OuterTreeBuilder);
-			expect(n.left.children).toEqual([1, 2]);
-			expect(n.right.children).toEqual([3, 4, 5]);
+			expect(n.left.children).toEqual([1, 2] as any);
+			expect(n.right.children).toEqual([3, 4, 5] as any);
 			expect(n.middle).toBeUndefined();
 		}
 	});
@@ -286,12 +289,12 @@ describe('OuterBlockBuilder', () => {
 		{
 			const b = context.outerBlockBuilder([1, 2]);
 			b.prepend(10);
-			expect(b.children).toEqual([10, 1, 2]);
+			expect(b.children).toEqual([10, 1, 2] as any);
 		}
 		{
 			const b = context.outerBlockBuilderSource(context.outerBlock([1, 2]));
 			b.prepend(10);
-			expect(b.children).toEqual([10, 1, 2]);
+			expect(b.children).toEqual([10, 1, 2] as any);
 		}
 	});
 
@@ -299,12 +302,12 @@ describe('OuterBlockBuilder', () => {
 		{
 			const b = context.outerBlockBuilder([1, 2, 3]);
 			b.remove(1);
-			expect(b.children).toEqual([1, 3]);
+			expect(b.children).toEqual([1, 3] as any);
 		}
 		{
 			const b = context.outerBlockBuilderSource(context.outerBlock([1, 2, 3]));
 			b.remove(1);
-			expect(b.children).toEqual([1, 3]);
+			expect(b.children).toEqual([1, 3] as any);
 		}
 	});
 
@@ -312,14 +315,14 @@ describe('OuterBlockBuilder', () => {
 		{
 			const b = context.outerBlockBuilder([1, 2, 3]);
 			const r = b.splitRight();
-			expect(b.children).toEqual([1]);
-			expect(r.children).toEqual([2, 3]);
+			expect(b.children).toEqual([1] as any);
+			expect(r.children).toEqual([2, 3] as any);
 		}
 		{
 			const b = context.outerBlockBuilderSource(context.outerBlock([1, 2, 3]));
 			const r = b.splitRight();
-			expect(b.children).toEqual([1]);
-			expect(r.children).toEqual([2, 3]);
+			expect(b.children).toEqual([1] as any);
+			expect(r.children).toEqual([2, 3] as any);
 		}
 	});
 
@@ -327,16 +330,16 @@ describe('OuterBlockBuilder', () => {
 		{
 			const b = context.outerBlockBuilder([1, 2]);
 			expect(b.updateAt(1, () => 3)).toBe(2);
-			expect(b.children).toEqual([1, 3]);
+			expect(b.children).toEqual([1, 3] as any);
 			expect(b.updateAt(0, (v) => v + 1)).toBe(1);
-			expect(b.children).toEqual([2, 3]);
+			expect(b.children).toEqual([2, 3] as any);
 		}
 		{
 			const b = context.outerBlockBuilderSource(context.outerBlock([1, 2]));
 			expect(b.updateAt(1, () => 3)).toBe(2);
-			expect(b.children).toEqual([1, 3]);
+			expect(b.children).toEqual([1, 3] as any);
 			expect(b.updateAt(0, (v) => v + 1)).toBe(1);
-			expect(b.children).toEqual([2, 3]);
+			expect(b.children).toEqual([2, 3] as any);
 		}
 	});
 });

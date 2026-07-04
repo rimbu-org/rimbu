@@ -78,16 +78,16 @@ function runOuterChildrenOpsTests<V>(
 			it('returns element at positive index', () => {
 				const ops = createOps();
 				const ch = makeChildren([a, b, c]);
-				expect(ops.at(ch, 0)).toBe(a);
-				expect(ops.at(ch, 1)).toBe(b);
-				expect(ops.at(ch, 2)).toBe(c);
+				expect(ops.at(ch, 0)).toBe(a as any);
+				expect(ops.at(ch, 1)).toBe(b as any);
+				expect(ops.at(ch, 2)).toBe(c as any);
 			});
 
 			it('returns element at negative index', () => {
 				const ops = createOps();
 				const ch = makeChildren([a, b, c]);
-				expect(ops.at(ch, -1)).toBe(c);
-				expect(ops.at(ch, -3)).toBe(a);
+				expect(ops.at(ch, -1)).toBe(c as any);
+				expect(ops.at(ch, -3)).toBe(a as any);
 			});
 		});
 
@@ -547,7 +547,7 @@ const listContext = ListHelpers.createListContext({ blockSizeBits: 2 });
 
 runOuterChildrenOpsTests(
 	'ListHelpers (array)',
-	() => listContext.outerChildrenOps,
+	() => (listContext as any).outerChildrenOps,
 	{
 		samples: ['a', 'b', 'c', 'd'],
 		makeChildren: (chars: string[]) => chars as readonly string[],
@@ -567,7 +567,7 @@ const charListContext = CharListHelpers.createCharListContext({
 
 runOuterChildrenOpsTests(
 	'CharListHelpers (string)',
-	() => charListContext.outerChildrenOps,
+	() => (charListContext as any).outerChildrenOps,
 	{
 		samples: ['a', 'b', 'c', 'd'],
 		makeChildren: (chars: string[]) => chars.join('') as any,

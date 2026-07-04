@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'bun:test';
 
-import type { ReversedOuterBlock } from '@rimbu/list/internal/immutable/reversed-outer-block';
+import type { ReversedOuterBlock } from '@rimbu/list2/internal/immutable/reversed-outer-block';
 
 import type { ListContext } from '#list/context-module';
 
@@ -26,7 +26,7 @@ describe('OuterBlock', () => {
 		expect(bn).not.toBe(b6);
 		expect(b6.children).toEqual([1, 2, 3]);
 		expect(bn.left).toBe(b6);
-		expect(bn.right.children).toEqual([4, 5, 6]);
+		expect(bn.right.children).toEqual([4, 5, 6] as any);
 	});
 
 	it('_mutateSplitRight', () => {
@@ -37,7 +37,7 @@ describe('OuterBlock', () => {
 			const bn = b6._mutateSplitRight();
 			expect(bn).not.toBe(b6);
 			expect(b6.children).toEqual([1, 2, 3]);
-			expect(bn.children).toEqual([4, 5, 6]);
+			expect(bn.children).toEqual([4, 5, 6] as any);
 		}
 		{
 			const b6 = createBlock(1, 2, 3, 4, 5, 6);
@@ -46,7 +46,7 @@ describe('OuterBlock', () => {
 			const bn = b6._mutateSplitRight(4);
 			expect(bn).not.toBe(b6);
 			expect(b6.children).toEqual([1, 2, 3, 4]);
-			expect(bn.children).toEqual([5, 6]);
+			expect(bn.children).toEqual([5, 6] as any);
 		}
 	});
 
@@ -107,7 +107,7 @@ describe('ReversedOuterBlock', () => {
 		expect(bn).not.toBe(b6);
 		expect(b6.children).toEqual([3, 2, 1]);
 		expect(bn.left).toBe(b6);
-		expect(bn.right.children).toEqual([6, 5, 4]);
+		expect(bn.right.children).toEqual([6, 5, 4] as any);
 	});
 
 	it('_mutateSplitRight', () => {
@@ -118,14 +118,14 @@ describe('ReversedOuterBlock', () => {
 			const bn = b6._mutateSplitRight();
 			expect(bn).not.toBe(b6);
 			expect(b6.children).toEqual([3, 2, 1]);
-			expect(bn.children).toEqual([6, 5, 4]);
+			expect(bn.children).toEqual([6, 5, 4] as any);
 		}
 		{
 			const b6 = createRevBlock(1, 2, 3, 4, 5, 6);
 			const bn = b6._mutateSplitRight(4);
 			expect(bn).not.toBe(b6);
 			expect(b6.children).toEqual([4, 3, 2, 1]);
-			expect(bn.children).toEqual([6, 5]);
+			expect(bn.children).toEqual([6, 5] as any);
 		}
 	});
 
@@ -258,12 +258,12 @@ function runOuterBlockTests(
 
 		it('copy', () => {
 			const b1 = createBlock(1);
-			expect(b1.copy([1]).children).toEqual([1]);
+			expect(b1.copy([1] as any).children).toEqual([1] as any);
 		});
 
 		it('copy2', () => {
 			const b1 = createBlock(1);
-			expect(b1.copy2([1]).children).toEqual([1]);
+			expect(b1.copy2([1] as any).children).toEqual([1] as any);
 		});
 
 		it('createBlockBuilder', () => {

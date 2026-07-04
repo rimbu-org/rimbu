@@ -1,6 +1,6 @@
 {
 	"extends": "../../config/tsconfig.base.json",
-	"include": ["src", "test", "test-d", "test-random"],
+	"include": ["src", "test", "test-random", "test-types"],
 	"compilerOptions": {
 		"rootDir": ".",
 		"paths": {

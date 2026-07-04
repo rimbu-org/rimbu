@@ -319,7 +319,7 @@ describe('InnerBlock', () => {
 
 			expect(r).toBeNull();
 			expect(u).toBeInstanceOf(OuterBlock);
-			expect(u.children).toEqual([1, 2, 3]);
+			expect(u.children).toEqual([1, 2, 3] as any);
 		}
 	});
 
@@ -334,7 +334,7 @@ describe('InnerBlock', () => {
 			const [r, u, i] = nl.dropInternal(1);
 			expect(r?.length).toBe(6);
 			expect(u).toBeInstanceOf(OuterBlock);
-			expect(u.children).toEqual([1, 2, 3]);
+			expect(u.children).toEqual([1, 2, 3] as any);
 			expect(i).toBe(1);
 		}
 		{
@@ -346,7 +346,7 @@ describe('InnerBlock', () => {
 			const [r, u, i] = nl.dropInternal(4);
 			expect(r?.length).toBe(3);
 			expect(u).toBeInstanceOf(OuterBlock);
-			expect(u.children).toEqual([1, 2, 3]);
+			expect(u.children).toEqual([1, 2, 3] as any);
 			expect(i).toBe(1);
 		}
 		{
@@ -358,7 +358,7 @@ describe('InnerBlock', () => {
 			const [r, u, i] = nl.dropInternal(7);
 			expect(r).toBeNull();
 			expect(u).toBeInstanceOf(OuterBlock);
-			expect(u.children).toEqual([1, 2, 3]);
+			expect(u.children).toEqual([1, 2, 3] as any);
 			expect(i).toBe(1);
 		}
 	});
@@ -735,7 +735,7 @@ describe('InnerBlock', () => {
 			const [r, u, i] = nl.takeInternal(1);
 			expect(r).toBeNull();
 			expect(u).toBeInstanceOf(OuterBlock);
-			expect(u.children).toEqual([1, 2, 3]);
+			expect(u.children).toEqual([1, 2, 3] as any);
 			expect(i).toBe(1);
 		}
 		{
@@ -747,7 +747,7 @@ describe('InnerBlock', () => {
 			const [r, u, i] = nl.takeInternal(4);
 			expect(r?.length).toBe(3);
 			expect(u).toBeInstanceOf(OuterBlock);
-			expect(u.children).toEqual([1, 2, 3]);
+			expect(u.children).toEqual([1, 2, 3] as any);
 			expect(i).toBe(1);
 		}
 		{
@@ -759,7 +759,7 @@ describe('InnerBlock', () => {
 			const [r, u, i] = nl.takeInternal(7);
 			expect(r?.length).toBe(6);
 			expect(u).toBeInstanceOf(OuterBlock);
-			expect(u.children).toEqual([1, 2, 3]);
+			expect(u.children).toEqual([1, 2, 3] as any);
 			expect(i).toBe(1);
 		}
 	});
