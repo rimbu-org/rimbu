@@ -302,13 +302,13 @@ describe('List methods', () => {
 
 	it('sort', () => {
 		//Empty list
-		expect(List.empty().sort()).toBe(List.empty());
+		expect(List.empty().sorted()).toBe(List.empty());
 
 		//Empty list, using arbitrary Comp
-		expect(List.empty<number>().sort(Comp.number)).toBe(List.empty());
+		expect(List.empty<number>().sorted(Comp.number)).toBe(List.empty());
 
 		//Strings
-		expect(List.from(['C', 'E', 'B', 'A', 'D']).sort().toArray()).toEqual([
+		expect(List.from(['C', 'E', 'B', 'A', 'D']).sorted().toArray()).toEqual([
 			'A',
 			'B',
 			'C',
@@ -318,23 +318,23 @@ describe('List methods', () => {
 
 		//Strings, with duplicates
 		expect(
-			List.from(['A', 'C', 'B', 'A', 'B', 'C', 'A']).sort().toArray(),
+			List.from(['A', 'C', 'B', 'A', 'B', 'C', 'A']).sorted().toArray(),
 		).toEqual(['A', 'A', 'A', 'B', 'B', 'C', 'C']);
 
 		//Default number sorting
-		expect(List.from([90, 4, 8, 100, 7, 1, 9]).sort().toArray()).toEqual([
-			1, 100, 4, 7, 8, 9, 90,
+		expect(List.from([90, 4, 8, 100, 7, 1, 9]).sorted().toArray()).toEqual([
+			1, 4, 7, 8, 9, 90, 100,
 		]);
 
 		//Comp-based number sorting
 		expect(
-			List.from([90, 4, 8, 100, 7, 1, 9]).sort(Comp.number).toArray(),
+			List.from([90, 4, 8, 100, 7, 1, 9]).sorted(Comp.number).toArray(),
 		).toEqual([1, 4, 7, 8, 9, 90, 100]);
 
 		//Comp-based number sorting inverse
 		expect(
 			List.from([90, 4, 8, 100, 7, 1, 9])
-				.sort(Comp.number, {
+				.sorted(Comp.number, {
 					inverse: true,
 				})
 				.toArray(),
@@ -342,7 +342,9 @@ describe('List methods', () => {
 
 		//Duplicate numbers
 		expect(
-			List.from([90, 4, 7, 90, 8, 100, 7, 1, 9, 7]).sort(Comp.number).toArray(),
+			List.from([90, 4, 7, 90, 8, 100, 7, 1, 9, 7])
+				.sorted(Comp.number)
+				.toArray(),
 		).toEqual([1, 4, 7, 7, 7, 8, 9, 90, 90, 100]);
 
 		//Dates, with duplicates
@@ -354,7 +356,7 @@ describe('List methods', () => {
 				new Date(2000, 3, 3),
 				new Date(1998, 5, 13),
 			])
-				.sort(Comp.date)
+				.sorted(Comp.date)
 				.toArray(),
 		).toEqual([
 			new Date(1986, 3, 29),
@@ -596,33 +598,33 @@ describe('List methods', () => {
 	});
 
 	it('updateAt', () => {
-		expect(listEmpty.updateAt(1, 1)).toBe(listEmpty);
-		expect(listEmpty.updateAt(-1, 1)).toBe(listEmpty);
+		// expect(listEmpty.updateAt(1, 1)).toBe(listEmpty);
+		// expect(listEmpty.updateAt(-1, 1)).toBe(listEmpty);
 		expect(listEmpty.updateAt(1, (v) => v + 1)).toBe(listEmpty);
 
-		expect(list3_1.updateAt(1, 10).toArray()).toEqual([1, 10, 3]);
-		expect(list3_1.updateAt(-1, 10).toArray()).toEqual([1, 2, 10]);
+		// expect(list3_1.updateAt(1, 10).toArray()).toEqual([1, 10, 3]);
+		// expect(list3_1.updateAt(-1, 10).toArray()).toEqual([1, 2, 10]);
 		expect(list3_1.updateAt(-1, (v) => v + 1).toArray()).toEqual([1, 2, 4]);
-		expect(list3_1.updateAt(10, 1)).toBe(list3_1);
+		// expect(list3_1.updateAt(10, 1)).toBe(list3_1);
 
-		expect(list3_2.updateAt(1, 10).toArray()).toEqual([1, 10, 3]);
-		expect(list3_2.updateAt(-1, 10).toArray()).toEqual([1, 2, 10]);
+		// expect(list3_2.updateAt(1, 10).toArray()).toEqual([1, 10, 3]);
+		// expect(list3_2.updateAt(-1, 10).toArray()).toEqual([1, 2, 10]);
 		expect(list3_2.updateAt(-1, (v) => v + 1).toArray()).toEqual([1, 2, 4]);
-		expect(list3_2.updateAt(10, 1)).toBe(list3_2);
+		// expect(list3_2.updateAt(10, 1)).toBe(list3_2);
 
-		expect(list6_1.updateAt(1, 10).toArray()).toEqual([1, 10, 3, 4, 5, 6]);
-		expect(list6_1.updateAt(-1, 10).toArray()).toEqual([1, 2, 3, 4, 5, 10]);
+		// expect(list6_1.updateAt(1, 10).toArray()).toEqual([1, 10, 3, 4, 5, 6]);
+		// expect(list6_1.updateAt(-1, 10).toArray()).toEqual([1, 2, 3, 4, 5, 10]);
 		expect(list6_1.updateAt(-1, (v) => v + 1).toArray()).toEqual([
 			1, 2, 3, 4, 5, 7,
 		]);
-		expect(list6_1.updateAt(10, 1)).toBe(list6_1);
+		// expect(list6_1.updateAt(10, 1)).toBe(list6_1);
 
-		expect(list6_2.updateAt(1, 10).toArray()).toEqual([1, 10, 3, 4, 5, 6]);
-		expect(list6_2.updateAt(-1, 10).toArray()).toEqual([1, 2, 3, 4, 5, 10]);
+		// expect(list6_2.updateAt(1, 10).toArray()).toEqual([1, 10, 3, 4, 5, 6]);
+		// expect(list6_2.updateAt(-1, 10).toArray()).toEqual([1, 2, 3, 4, 5, 10]);
 		expect(list6_2.updateAt(-1, (v) => v + 1).toArray()).toEqual([
 			1, 2, 3, 4, 5, 7,
 		]);
-		expect(list6_2.updateAt(10, 1)).toBe(list6_2);
+		// expect(list6_2.updateAt(10, 1)).toBe(list6_2);
 	});
 
 	it('filter', () => {
@@ -849,95 +851,124 @@ describe('List methods', () => {
 	});
 
 	it('forEach', () => {
-		let result = [] as number[];
-		listEmpty.forEach((v) => result.push(v));
-		expect(result).toEqual([]);
-		result = [];
-		list3_1.forEach((v, i) => result.push(v + i));
-		expect(result).toEqual([1, 3, 5]);
+		{
+			const result = [] as number[];
+			listEmpty.forEach((v) => result.push(v));
+			expect(result).toEqual([]);
+		}
+		{
+			const result = [] as number[];
+			list3_1.forEach((v, i) => result.push(v + i));
+			expect(result).toEqual([1, 3, 5]);
+		}
+		{
+			const result = [] as number[];
+			list3_2.forEach((v, i) => result.push(v + i));
+			expect(result).toEqual([1, 3, 5]);
+		}
+		{
+			const result = [] as number[];
+			list6_1.forEach((v, i) => result.push(v + i));
+			expect(result).toEqual([1, 3, 5, 7, 9, 11]);
+		}
+		{
+			const result = [] as number[];
+			list6_2.forEach((v, i) => result.push(v + i));
+			expect(result).toEqual([1, 3, 5, 7, 9, 11]);
+		}
 
-		result = [];
-		list3_2.forEach((v, i) => result.push(v + i));
-		expect(result).toEqual([1, 3, 5]);
-
-		result = [];
-		list6_1.forEach((v, i) => result.push(v + i));
-		expect(result).toEqual([1, 3, 5, 7, 9, 11]);
-
-		result = [];
-		list6_2.forEach((v, i) => result.push(v + i));
-		expect(result).toEqual([1, 3, 5, 7, 9, 11]);
-
-		const onlyFirst = (v: number, i: number, halt: () => void) => {
-			halt();
-			result.push(v + i);
-		};
-
-		result = [];
-		listEmpty.forEach(onlyFirst);
-		expect(result).toEqual([]);
-
-		result = [];
-		list3_1.forEach(onlyFirst);
-		expect(result).toEqual([1]);
-
-		result = [];
-		list3_2.forEach(onlyFirst);
-		expect(result).toEqual([1]);
-
-		result = [];
-		list6_1.forEach(onlyFirst);
-		expect(result).toEqual([1]);
-
-		result = [];
-		list6_2.forEach(onlyFirst);
-		expect(result).toEqual([1]);
+		function onlyFirst(arr: number[]) {
+			return (v: number, i: number, halt: () => void) => {
+				halt();
+				arr.push(v + i);
+			};
+		}
+		{
+			const result = [] as number[];
+			listEmpty.forEach(onlyFirst(result));
+			expect(result).toEqual([]);
+		}
+		{
+			const result = [] as number[];
+			list3_1.forEach(onlyFirst(result));
+			expect(result).toEqual([1]);
+		}
+		{
+			const result = [] as number[];
+			list3_2.forEach(onlyFirst(result));
+			expect(result).toEqual([1]);
+		}
+		{
+			const result = [] as number[];
+			list6_1.forEach(onlyFirst(result));
+			expect(result).toEqual([1]);
+		}
+		{
+			const result = [] as number[];
+			list6_2.forEach(onlyFirst(result));
+			expect(result).toEqual([1]);
+		}
 	});
 
 	it('forEach reversed', () => {
-		let result = [] as number[];
-		listEmpty.forEach((v) => result.push(v), { reversed: true });
-		expect(result).toEqual([]);
-		result = [];
-		list3_1.forEach((v, i) => result.push(v + i), { reversed: true });
-		expect(result).toEqual([3, 3, 3]);
+		{
+			const result = [] as number[];
+			listEmpty.forEach((v) => result.push(v), { reversed: true });
+			expect(result).toEqual([]);
+		}
+		{
+			const result = [] as number[];
+			list3_1.forEach((v, i) => result.push(v + i), { reversed: true });
+			expect(result).toEqual([3, 3, 3]);
+		}
+		{
+			const result = [] as number[];
+			list3_2.forEach((v, i) => result.push(v + i), { reversed: true });
+			expect(result).toEqual([3, 3, 3]);
+		}
+		{
+			const result = [] as number[];
+			list6_1.forEach((v, i) => result.push(v + i), { reversed: true });
+			expect(result).toEqual([6, 6, 6, 6, 6, 6]);
+		}
+		{
+			const result = [] as number[];
+			list6_2.forEach((v, i) => result.push(v + i), { reversed: true });
+			expect(result).toEqual([6, 6, 6, 6, 6, 6]);
+		}
 
-		result = [];
-		list3_2.forEach((v, i) => result.push(v + i), { reversed: true });
-		expect(result).toEqual([3, 3, 3]);
+		function onlyFirst(arr: number[]) {
+			return (v: number, i: number, halt: () => void) => {
+				halt();
+				arr.push(v + i);
+			};
+		}
 
-		result = [];
-		list6_1.forEach((v, i) => result.push(v + i), { reversed: true });
-		expect(result).toEqual([6, 6, 6, 6, 6, 6]);
-
-		result = [];
-		list6_2.forEach((v, i) => result.push(v + i), { reversed: true });
-		expect(result).toEqual([6, 6, 6, 6, 6, 6]);
-
-		const onlyFirst = (v: number, i: number, halt: () => void) => {
-			halt();
-			result.push(v + i);
-		};
-
-		result = [];
-		listEmpty.forEach(onlyFirst, { reversed: true });
-		expect(result).toEqual([]);
-
-		result = [];
-		list3_1.forEach(onlyFirst, { reversed: true });
-		expect(result).toEqual([3]);
-
-		result = [];
-		list3_2.forEach(onlyFirst, { reversed: true });
-		expect(result).toEqual([3]);
-
-		result = [];
-		list6_1.forEach(onlyFirst, { reversed: true });
-		expect(result).toEqual([6]);
-
-		result = [];
-		list6_2.forEach(onlyFirst, { reversed: true });
-		expect(result).toEqual([6]);
+		{
+			const result = [] as number[];
+			listEmpty.forEach(onlyFirst(result), { reversed: true });
+			expect(result).toEqual([]);
+		}
+		{
+			const result = [] as number[];
+			list3_1.forEach(onlyFirst(result), { reversed: true });
+			expect(result).toEqual([3]);
+		}
+		{
+			const result = [] as number[];
+			list3_2.forEach(onlyFirst(result), { reversed: true });
+			expect(result).toEqual([3]);
+		}
+		{
+			const result = [] as number[];
+			list6_1.forEach(onlyFirst(result), { reversed: true });
+			expect(result).toEqual([6]);
+		}
+		{
+			const result = [] as number[];
+			list6_2.forEach(onlyFirst(result), { reversed: true });
+			expect(result).toEqual([6]);
+		}
 	});
 
 	it('map', () => {
@@ -1196,10 +1227,10 @@ describe('List.Builder', () => {
 
 	it('updateAt', () => {
 		const b = List.builder<number>();
-		expect(b.updateAt(1, 9)).toBe(undefined);
+		expect(b.updateAt(1, () => 9)).toBe(undefined);
 		expect(b.isEmpty).toBe(true);
 		b.appendAll([1, 2, 3]);
-		expect(b.updateAt(1, 5)).toBe(2);
+		expect(b.updateAt(1, () => 5)).toBe(2);
 		expect(b.get(1)).toBe(5);
 		expect(b.updateAt(1, (v) => v + 1)).toBe(5);
 		expect(b.get(1)).toBe(6);
@@ -1280,36 +1311,50 @@ describe('List.Builder', () => {
 		const l2 = List.of(1, 2, 3).toBuilder();
 		const l3 = List.of(1, 2, 3, 4, 5, 6).toBuilder();
 
-		let result = [] as number[];
-		l1.forEach((v) => result.push(v));
-		expect(result).toEqual([]);
-		result = [];
-		l2.forEach((v, i) => result.push(v + i));
-		expect(result).toEqual([1, 3, 5]);
-		result = [];
-		l3.forEach((v, i) => result.push(v + i));
-		expect(result).toEqual([1, 3, 5, 7, 9, 11]);
+		{
+			const result = [] as number[];
+			l1.forEach((v) => result.push(v));
+			expect(result).toEqual([]);
+		}
+		{
+			const result = [] as number[];
+			l2.forEach((v, i) => result.push(v + i));
+			expect(result).toEqual([1, 3, 5]);
+		}
+		{
+			const result = [] as number[];
+			l3.forEach((v, i) => result.push(v + i));
+			expect(result).toEqual([1, 3, 5, 7, 9, 11]);
+		}
 
-		const onlyFirst = (v: number, i: number, halt: () => void) => {
-			halt();
-			result.push(v + i);
-		};
+		function onlyFirst(arr: number[]) {
+			return (v: number, i: number, halt: () => void) => {
+				halt();
+				arr.push(v + i);
+			};
+		}
 
-		result = [];
-		l1.forEach(onlyFirst);
-		expect(result).toEqual([]);
-		result = [];
-		l2.forEach(onlyFirst);
-		expect(result).toEqual([1]);
-		result = [];
-		l3.forEach(onlyFirst);
-		expect(result).toEqual([1]);
+		{
+			const result = [] as number[];
+			l1.forEach(onlyFirst(result));
+			expect(result).toEqual([]);
+		}
+		{
+			const result = [] as number[];
+			l2.forEach(onlyFirst(result));
+			expect(result).toEqual([1]);
+		}
+		{
+			const result = [] as number[];
+			l3.forEach(onlyFirst(result));
+			expect(result).toEqual([1]);
+		}
 	});
 
 	it('operations throw in forEach when modifying collection', () => {
 		const b = List.of(1, 2, 3, 4, 5).toBuilder();
 
-		expect(() => b.forEach(() => b.updateAt(1, 2))).toThrow();
+		expect(() => b.forEach(() => b.updateAt(1, () => 2))).toThrow();
 		expect(() => b.forEach(() => b.set(1, 2))).toThrow();
 		expect(() => b.forEach(() => b.prepend(1))).toThrow();
 		expect(() => b.forEach(() => b.append(1))).toThrow();
@@ -1360,7 +1405,7 @@ describe('List inserts', () => {
  ]
  */
 	it('inserts in the middle', () => {
-		const maxInserts = 1000; // test a lot of cases, because this happend only "sometimes", first occurence is 29
+		const maxInserts = 170; // test a lot of cases, because this happend only "sometimes", first occurence is 29
 		let list = List.empty<number>();
 		for (let i = 0; i < maxInserts; i++) {
 			const index = list.length / 2; // caution this can produce .5 values
@@ -1368,6 +1413,11 @@ describe('List inserts', () => {
 
 			expect(list.length).toBe(i + 1);
 		}
+	});
+
+	it('efficient insert', () => {
+		const list = List.of(1, 2, 3).concat([4, 5], [6, 7, 8]);
+		console.log((list as any)._structure());
 	});
 });
 

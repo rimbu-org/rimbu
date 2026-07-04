@@ -70,8 +70,7 @@
 	},
 	"dependencies": {
 		"@rimbu/channel": "workspace:*",
-		"@rimbu/common": "workspace:*",
-		"tslib": "catalog:"
+		"@rimbu/common": "workspace:*"
 	},
 	"publishConfig": {
 		"access": "public",

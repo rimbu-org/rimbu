@@ -90,8 +90,7 @@
 		"@rimbu/collection-types": "workspace:*",
 		"@rimbu/common": "workspace:*",
 		"@rimbu/list": "workspace:*",
-		"@rimbu/stream": "workspace:*",
-		"tslib": "catalog:"
+		"@rimbu/stream": "workspace:*"
 	},
 	"publishConfig": {
 		"access": "public",

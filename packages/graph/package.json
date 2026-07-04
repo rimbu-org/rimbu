@@ -94,8 +94,7 @@
 		"@rimbu/common": "workspace:*",
 		"@rimbu/hashed": "workspace:*",
 		"@rimbu/sorted": "workspace:*",
-		"@rimbu/stream": "workspace:*",
-		"tslib": "catalog:"
+		"@rimbu/stream": "workspace:*"
 	},
 	"publishConfig": {
 		"access": "public",

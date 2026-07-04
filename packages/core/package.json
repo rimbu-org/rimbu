@@ -90,8 +90,7 @@
 		"@rimbu/proximity": "workspace:*",
 		"@rimbu/sorted": "workspace:*",
 		"@rimbu/stream": "workspace:*",
-		"@rimbu/table": "workspace:*",
-		"tslib": "catalog:"
+		"@rimbu/table": "workspace:*"
 	},
 	"publishConfig": {
 		"access": "public",

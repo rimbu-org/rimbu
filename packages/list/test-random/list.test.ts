@@ -45,7 +45,7 @@ function runWith(nrOfBits: number): void {
 				}
 				console.log('log:', this.log);
 				console.log('expected:', this.arr);
-				console.log((this.listBuilder.build() as any).structure());
+				console.log((this.listBuilder.build() as any)._structure());
 				console.log('length', this.listBuilder.length);
 				// console.log('str', (this.wv as any).structure());
 				// console.log('actual wv: ', this.wv.toArray());
@@ -357,7 +357,7 @@ function runWith(nrOfBits: number): void {
 			expect(builder.build()).toBe(context.empty());
 			expect(builder.get(1, 'a')).toBe('a');
 			expect(builder.length).toBe(0);
-			builder.updateAt(1, 1);
+			builder.updateAt(1, () => 1);
 			expect(builder.isEmpty).toBe(true);
 		});
 
@@ -404,7 +404,7 @@ function runWith(nrOfBits: number): void {
 
 			expect((): void => {
 				builder.forEach((): void => {
-					builder.updateAt(5, 10);
+					builder.updateAt(5, () => 10);
 				});
 			}).toThrow();
 

@@ -1,8 +1,14 @@
 {
-	"extends": ["../../config/tsconfig.base.json", "./tsconfig.common.json"],
-	"include": ["src", "test", "test-d", "test-random"],
+	"extends": "../../config/tsconfig.base.json",
+	"include": ["src", "test", "test-random", "test-types"],
 	"compilerOptions": {
 		"rootDir": ".",
-		"baseUrl": "./src"
+		"paths": {
+			"@rimbu/list": ["./src/entry/list.ts"],
+			"@rimbu/list/bit": ["./src/entry/bit.ts"],
+			"@rimbu/list/char": ["./src/entry/char.ts"],
+			"@rimbu/list/*": ["./src/public/*.ts"],
+			"#list/*": ["./src/public/internal/*.ts"]
+		}
 	}
 }

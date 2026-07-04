@@ -75,8 +75,7 @@
 		"@rimbu/collection-types": "workspace*",
 		"@rimbu/common": "workspace:*",
 		"@rimbu/hashed": "workspace:*",
-		"@rimbu/stream": "workspace:*",
-		"tslib": "catalog:"
+		"@rimbu/stream": "workspace:*"
 	},
 	"publishConfig": {
 		"access": "public",

@@ -1,11 +1,11 @@
 export class CacheMap {
 	readonly #map = new Map();
 
-	get(key: any): any {
+	get<T>(key: unknown): T | undefined {
 		return this.#map.get(key);
 	}
 
-	setAndReturn<T>(key: any, value: T): T {
+	setAndReturn<T>(key: unknown, value: T): T {
 		this.#map.set(key, value);
 		return value;
 	}

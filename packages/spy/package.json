@@ -52,9 +52,7 @@
 		"test": "bun test test/* --tsconfig-override tsconfig.common.json",
 		"typecheck": "tsc -p tsconfig.json --noEmit"
 	},
-	"dependencies": {
-		"tslib": "catalog:"
-	},
+	"dependencies": {},
 	"publishConfig": {
 		"access": "public",
 		"provenance": true

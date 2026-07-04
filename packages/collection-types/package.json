@@ -60,8 +60,7 @@
 	"dependencies": {
 		"@rimbu/base": "workspace:*",
 		"@rimbu/common": "workspace:*",
-		"@rimbu/stream": "workspace:*",
-		"tslib": "catalog:"
+		"@rimbu/stream": "workspace:*"
 	},
 	"publishConfig": {
 		"access": "public",

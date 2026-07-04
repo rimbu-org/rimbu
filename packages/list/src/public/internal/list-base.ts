@@ -4,14 +4,14 @@ import type { Comp } from '@rimbu/common/comp';
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
-import type { ArrayNonEmpty, ToJSON } from '@rimbu/common/types';
-import type { Update } from '@rimbu/common/update';
+import type { ArrayNonEmpty, SuperOf } from '@rimbu/common/types';
 import type {
 	FastIterable,
 	Stream,
 	Streamable,
 	StreamSource,
 } from '@rimbu/stream';
+import type { Reducer } from '@rimbu/stream/reducer';
 
 export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	extends FastIterable<T>,
@@ -87,6 +87,77 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 */
 	streamRange(range: IndexRange, options?: { reversed?: boolean }): Stream<T>;
 	/**
+	 * Returns the value in the List at the given `index`.
+	 * @param index - the element index
+	 * @param otherwise - (default: undefined) an `OptLazy` value to return if the index is out of bounds
+	 * @typeparam O - the type of the `otherwise` value
+	 * @note a negative `index` will be treated as follows:<br/>
+	 * - -1: the last value in the list<br/>
+	 * - -2: the second-last value in the list<br/>
+	 * - ...etc
+	 * @example
+	 * ```ts
+	 * List.of(0, 1, 2).get(5)             // => undefined
+	 * List.of(0, 1, 2).get(5, 'other')    // => 'other'
+	 * List.of(0, 1, 2).get(1, 'other')    // => 1
+	 * List.of(0, 1, 2).get(-1)            // => 2
+	 * ```
+	 * @note O(logB(N)) for block size B
+	 */
+	get(index: number): T | undefined;
+	get<O>(index: number, otherwise: OptLazy<O>): T | O;
+	/**
+	 * Returns the value in the List at the given `index`, or `undefined` if the index is out of bounds.
+	 * @param index - the element index
+	 * @note a negative `index` will be treated as follows:<br/>
+	 * - -1: the last value in the list<br/>
+	 * - -2: the second-last value in the list<br/>
+	 * - ...etc
+	 * @example
+	 * ```ts
+	 * List.of(0, 1, 2).at(0)    // => 0
+	 * List.of(0, 1, 2).at(5)    // => undefined
+	 * List.of(0, 1, 2).at(-1)   // => 2
+	 * ```
+	 * @note O(logB(N)) for block size B
+	 */
+	at(index: number): T | undefined;
+	/**
+	 * Returns the List where at the given `index` the value is replaced or updated by the given `update`.
+	 * @param index - the index at which to update the value
+	 * @param update - a new value or function taking the current value and returning a new value
+	 *
+	 * @note a negative `index` will be treated as follows:<br/>
+	 * - -1: the last element in the list<br/>
+	 * - -2: the second-last element in the list<br/>
+	 * - ...etc
+	 * @example
+	 * ```ts
+	 * List.of(0, 1, 2).updateAt(1, 10)            // -> List(0, 10, 2)
+	 * List.of(0, 1, 2).updateAt(1, v => v + 1)    // -> List(0, 2, 2)
+	 * List.of(0, 1, 2).updateAt(-1, 10)           // -> List(0, 1, 10)
+	 * ```
+	 * @note O(logB(N)) for block size B
+	 */
+	updateAt(index: number, update: (current: T) => T): WithElem<Tp, T>['normal'];
+	/**
+	 * Returns the List with the value at the given `index` replaced by the given `value`.
+	 * @param index - the index at which to replace the value
+	 * @param value - the new value to set at the given index
+	 *
+	 * @note a negative `index` will be treated as follows:<br/>
+	 * - -1: the last element in the list<br/>
+	 * - -2: the second-last element in the list<br/>
+	 * - ...etc
+	 * @example
+	 * ```ts
+	 * List.of(0, 1, 2).with(1, 10)    // -> List(0, 10, 2)
+	 * List.of(0, 1, 2).with(-1, 10)   // -> List(0, 1, 10)
+	 * ```
+	 * @note O(logB(N)) for block size B
+	 */
+	with(index: number, value: T): WithElem<Tp, T>['normal'];
+	/**
 	 * Returns the first value of the List, or the `otherwise` value if the list is empty.
 	 * @param otherwise - (default: undefined) an `OptLazy` value to return if the List is empty
 	 * @typeparam O - the type of the `otherwise` value
@@ -114,26 +185,6 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 */
 	last(): T | undefined;
 	last<O>(otherwise: OptLazy<O>): T | O;
-	/**
-	 * Returns the value in the List at the given `index`.
-	 * @param index - the element index
-	 * @param otherwise - (default: undefined) an `OptLazy` value to return if the index is out of bounds
-	 * @typeparam O - the type of the `otherwise` value
-	 * @note a negative `index` will be treated as follows:<br/>
-	 * - -1: the last value in the list<br/>
-	 * - -2: the second-last value in the list<br/>
-	 * - ...etc
-	 * @example
-	 * ```ts
-	 * List.of(0, 1, 2).get(5)             // => undefined
-	 * List.of(0, 1, 2).get(5, 'other')    // => 'other'
-	 * List.of(0, 1, 2).get(1, 'other')    // => 1
-	 * List.of(0, 1, 2).get(-1)            // => 2
-	 * ```
-	 * @note O(logB(N)) for block size B
-	 */
-	get(index: number): T | undefined;
-	get<O>(index: number, otherwise: OptLazy<O>): T | O;
 	/**
 	 * Returns the List with the given `value` added to the start.
 	 * @param value - the value to prepend
@@ -211,22 +262,6 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 		options?: { reversed?: boolean },
 	): WithElem<Tp, T>['normal'];
 	/**
-	 * Returns the values sorted according to the given, optional Comp.
-	 *
-	 * **Performance warning**: this method is not designed for frequent calls;
-	 * should you need to keep in order a collection with potentially duplicate values,
-	 * please consider `SortedMultiSet` instead.
-	 *
-	 * @param comp The comparison logic to use; if missing, the default JavaScript sorting algorithm is applied
-	 * @param options - (optional) an object containing the following properties:<br/>
-	 * - inverse: (default: false) when true will invert the sorting order
-	 * @returns A sorted copy of the list
-	 */
-	sort(
-		comp?: Comp<T>,
-		options?: { inverse?: boolean },
-	): WithElem<Tp, T>['normal'];
-	/**
 	 * Returns the List, where at the given `index` the `remove` amount of values are replaced by the values
 	 * from the optionally given `insert` `StreamSource`.
 	 * @param options - object containing the following<br/>
@@ -298,24 +333,6 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 		options?: { amount?: number },
 	): WithElem<Tp, T>['normal'];
 	/**
-	 * Returns the List succeeded by the values from all given `StreamSource` instances given in `sources`.
-	 * @param sources - an array of `StreamSource` instances containing values to be added to the list
-	 * @typeparam T2 - the type of the source elements to add
-	 * @note this operation is most efficient when the given sources are instances of List from the same context.
-	 * @example
-	 * ```ts
-	 * List.of(0, 1, 2).concat([10, 11])                      // -> List(0, 1, 2, 10, 11)
-	 * List.of(0, 1, 2).concat([10, 11], new Set([12, 13]))   // -> List(0, 1, 2, 10, 11, 12, 13)
-	 * ```
-	 * @note O(logB(N)) for block size B
-	 */
-	concat<T2 = T>(
-		...sources: ArrayNonEmpty<StreamSource.NonEmpty<T2>>
-	): WithElem<Tp, T | T2>['nonEmpty'];
-	concat<T2 = T>(
-		...sources: ArrayNonEmpty<StreamSource<T2>>
-	): WithElem<Tp, T | T2>['normal'];
-	/**
 	 * Returns a List that contains this List the given `amount` of times.
 	 * @param amount - the amount of times to repeat the values in this List
 	 *
@@ -365,23 +382,111 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 		options?: { positionPercentage?: number },
 	): WithElem<Tp, T>['normal'];
 	/**
-	 * Returns the List where at the given `index` the value is replaced or updated by the given `update`.
-	 * @param index - the index at which to update the value
-	 * @param update - a new value or function taking the current value and returning a new value
+	 * Returns the values sorted according to the given, optional Comp.
 	 *
-	 * @note a negative `index` will be treated as follows:<br/>
-	 * - -1: the last element in the list<br/>
-	 * - -2: the second-last element in the list<br/>
-	 * - ...etc
+	 * **Performance warning**: this method is not designed for frequent calls;
+	 * should you need to keep in order a collection with potentially duplicate values,
+	 * please consider `SortedMultiSet` instead.
+	 *
+	 * @param comp The comparison logic to use; if missing, the default JavaScript sorting algorithm is applied
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - inverse: (default: false) when true will invert the sorting order
+	 * @returns A sorted copy of the list
+	 */
+	sorted<TC = T>(
+		comp?: Comp<SuperOf<TC, T>> | undefined,
+		options?: { inverse?: boolean } | undefined,
+	): WithElem<Tp, T>['normal'];
+	/**
+	 * Returns the List in reversed order.
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2).updateAt(1, 10)            // -> List(0, 10, 2)
-	 * List.of(0, 1, 2).updateAt(1, v => v + 1)    // -> List(0, 2, 2)
-	 * List.of(0, 1, 2).updateAt(-1, 10)           // -> List(0, 1, 10)
+	 * List.of(0, 1, 2).reversed()  // -> List(2, 1, 0)
+	 * ```
+	 * @note O(logB(n)) for block size B
+	 */
+	reversed(): WithElem<Tp, T>['normal'];
+	/**
+	 * Returns the List succeeded by the values from all given `StreamSource` instances given in `sources`.
+	 * @param sources - an array of `StreamSource` instances containing values to be added to the list
+	 * @typeparam T2 - the type of the source elements to add
+	 * @note this operation is most efficient when the given sources are instances of List from the same context.
+	 * @example
+	 * ```ts
+	 * List.of(0, 1, 2).concat([10, 11])                      // -> List(0, 1, 2, 10, 11)
+	 * List.of(0, 1, 2).concat([10, 11], new Set([12, 13]))   // -> List(0, 1, 2, 10, 11, 12, 13)
 	 * ```
 	 * @note O(logB(N)) for block size B
 	 */
-	updateAt(index: number, update: Update<T>): WithElem<Tp, T>['normal'];
+	concat(
+		...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>
+	): WithElem<Tp, T>['nonEmpty'];
+	concat(...sources: ArrayNonEmpty<StreamSource<T>>): WithElem<Tp, T>['normal'];
+	/**
+	 * Performs given function `f` for each value of the List.
+	 * @param f - the function to perform for each element, receiving<br/>
+	 * - `value`: the next value<br/>
+	 * - `index`: the index of the value<br/>
+	 * - `halt`: a function that, if called, ensures that no new elements are passed
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - reversed: (default: false) when true will reverse the element order
+	 * - state: (optional) the traversal state
+	 * @example
+	 * ```ts
+	 * List.of(0, 1, 2, 3).forEach((value, i, halt) => {
+	 *  console.log(value * 2);
+	 *  if (i >= 1) halt();
+	 * })
+	 * // => logs 0  2
+	 * ```
+	 * @note O(N)
+	 */
+	forEach(
+		f: (value: T, index: number, halt: () => void) => void,
+		options?: { reversed?: boolean; state?: TraverseState } | undefined,
+	): void;
+	/**
+	 * Returns a List containing the result of applying given `mapFun` to each value in this List.
+	 * If `reversed` is true, the order of the values is reversed.
+	 * @param mapFun - a function receiving a value and its index, and returning a new value
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - reversed: (default: false) if true, reverses the order of the values
+	 * @typeparam T2 - the result element type
+	 * @example
+	 * ```ts
+	 * List.of(1, 2, 3).map(v => `value: ${v + 2}`).toArray()
+	 * // => ['value: 3', 'value: 4', 'value: 5']
+	 * ```
+	 */
+	map<T2 extends Tp['_UT']>(
+		mapFun: (value: T, index: number) => T2,
+		options?: { reversed?: boolean },
+	): WithElem<Tp, T2>['normal'];
+	mapPure<T2 extends Tp['_UT']>(
+		mapFun: (value: T) => T2,
+		options?: { reversed?: boolean },
+	): WithElem<Tp, T2>['normal'];
+	/**
+	 * Returns a List containing the joined results of applying given `flatMapFun` to each value in this List.
+	 * @param flatMapFun - a function taking the next value and its index, and returning a `StreamSource`
+	 * of value to include in the resulting collection
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - range: (optional) the range of the list to include in the filtering process<br/>
+	 * - reversed: (default: false) if true reverses the elements within the given range
+	 * @typeparam T2 - the result element type
+	 * @example
+	 * ```ts
+	 * List.of(1, 2, 3).flatMap(v => [v, v + 1]).toArray()
+	 * // => [1, 2, 2, 3, 3, 4]
+	 * ```
+	 */
+	flatMap<T2 extends Tp['_UT']>(
+		flatMapFun: (value: T, index: number) => StreamSource<T2>,
+		options?: {
+			range?: IndexRange;
+			reversed?: boolean;
+		},
+	): WithElem<Tp, T2>['normal'];
 	/**
 	 * Returns a List containing only those values within optionally given `range` that satisfy given `pred` predicate.
 	 * If `reversed` is true, the order of the values is reversed.
@@ -404,22 +509,22 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 *   .filter((_, i) => i > 1, undefined, true)      // -> List(1, 0)
 	 * ```
 	 */
-	filter<TF extends T>(
-		pred: (value: T, index: number, halt: () => void) => value is TF,
-		options?: {
-			range?: IndexRange;
-			reversed?: boolean;
-			negate?: false | undefined;
-		},
-	): WithElem<Tp, TF>['normal'];
-	filter<TF extends T>(
-		pred: (value: T, index: number, halt: () => void) => value is TF,
-		options: {
-			range?: IndexRange;
-			reversed?: boolean;
-			negate: true;
-		},
-	): WithElem<Tp, Exclude<T, TF>>['normal'];
+	// filter<TF extends T>(
+	// 	pred: (value: T, index: number, halt: () => void) => value is TF,
+	// 	options?: {
+	// 		range?: IndexRange;
+	// 		reversed?: boolean;
+	// 		negate?: false | undefined;
+	// 	},
+	// ): WithElem<Tp, TF>['normal'];
+	// filter<TF extends T>(
+	// 	pred: (value: T, index: number, halt: () => void) => value is TF,
+	// 	options: {
+	// 		range?: IndexRange;
+	// 		reversed?: boolean;
+	// 		negate: true;
+	// 	},
+	// ): WithElem<Tp, Exclude<T, TF>>['normal'];
 	filter(
 		pred: (value: T, index: number, halt: () => void) => boolean,
 		options?: { range?: IndexRange; reversed?: boolean; negate?: boolean },
@@ -448,102 +553,13 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * // => List(0, 2)
 	 * ```
 	 */
-	collect<T2>(
+	collect<T2 extends Tp['_UT']>(
 		collectFun: CollectFun<T, T2>,
 		options?: {
 			range?: IndexRange;
 			reversed?: boolean;
 		},
 	): WithElem<Tp, T2>['normal'];
-	/**
-	 * Performs given function `f` for each value of the List.
-	 * @param f - the function to perform for each element, receiving<br/>
-	 * - `value`: the next value<br/>
-	 * - `index`: the index of the value<br/>
-	 * - `halt`: a function that, if called, ensures that no new elements are passed
-	 * @param options - (optional) an object containing the following properties:<br/>
-	 * - reversed: (default: false) when true will reverse the element order
-	 * - state: (optional) the traversal state
-	 * @example
-	 * ```ts
-	 * List.of(0, 1, 2, 3).forEach((value, i, halt) => {
-	 *  console.log(value * 2);
-	 *  if (i >= 1) halt();
-	 * })
-	 * // => logs 0  2
-	 * ```
-	 * @note O(N)
-	 */
-	forEach(
-		f: (value: T, index: number, halt: () => void) => void,
-		options?: { reversed?: boolean; state?: TraverseState },
-	): void;
-	/**
-	 * Returns a List containing the result of applying given `mapFun` to each value in this List.
-	 * If `reversed` is true, the order of the values is reversed.
-	 * @param mapFun - a function receiving a value and its index, and returning a new value
-	 * @param options - (optional) an object containing the following properties:<br/>
-	 * - reversed: (default: false) if true, reverses the order of the values
-	 * @typeparam T2 - the result element type
-	 * @example
-	 * ```ts
-	 * List.of(1, 2, 3).map(v => `value: ${v + 2}`).toArray()
-	 * // => ['value: 3', 'value: 4', 'value: 5']
-	 * ```
-	 */
-	map<T2>(
-		mapFun: (value: T, index: number) => T2,
-		options?: { reversed?: boolean },
-	): WithElem<Tp, T2>['normal'];
-	/**
-	 * Returns a List containing the result of applying given `mapFun` to each value in this List.
-	 * If `reversed` is true, the order of the values is reversed.
-	 * @note The given `mapFun` is expected to be side-effect free, so that structural sharing can be kept
-	 * in place.
-	 * @param mapFun - a function receiving a value, and returning a new value
-	 * @param options - (optional) an object containing the following properties:<br/>
-	 * - reversed: (default: false) if true, reverses the order of the values
-	 * @typeparam T2 - the result element type
-	 * @example
-	 * ```ts
-	 * List.of(1, 2, 3).mapPure(v => `value: ${v + 2}`).toArray()
-	 * // => ['value: 3', 'value: 4', 'value: 5']
-	 * ```
-	 */
-	mapPure<T2>(
-		mapFun: (value: T) => T2,
-		options?: { reversed?: boolean },
-	): WithElem<Tp, T2>['normal'];
-	/**
-	 * Returns a List containing the joined results of applying given `flatMapFun` to each value in this List.
-	 * @param flatMapFun - a function taking the next value and its index, and returning a `StreamSource`
-	 * of value to include in the resulting collection
-	 * @param options - (optional) an object containing the following properties:<br/>
-	 * - range: (optional) the range of the list to include in the filtering process<br/>
-	 * - reversed: (default: false) if true reverses the elements within the given range
-	 * @typeparam T2 - the result element type
-	 * @example
-	 * ```ts
-	 * List.of(1, 2, 3).flatMap(v => [v, v + 1]).toArray()
-	 * // => [1, 2, 2, 3, 3, 4]
-	 * ```
-	 */
-	flatMap<T2>(
-		flatMapFun: (value: T, index: number) => StreamSource<T2>,
-		options?: {
-			range?: IndexRange;
-			reversed?: boolean;
-		},
-	): WithElem<Tp, T2>['normal'];
-	/**
-	 * Returns the List in reversed order.
-	 * @example
-	 * ```ts
-	 * List.of(0, 1, 2).reversed()  // -> List(2, 1, 0)
-	 * ```
-	 * @note O(logB(n)) for block size B
-	 */
-	reversed(): WithElem<Tp, T>['normal'];
 	/**
 	 * Returns an array containing the values within given `range` (default: all) in this collection.
 	 * If `reversed` is true, reverses the order of the values.
@@ -568,22 +584,6 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * ```
 	 */
 	toBuilder(): WithElem<Tp, T>['builder'];
-	/**
-	 * Returns a string representation of this collection.
-	 * @example
-	 * ```ts
-	 * List.of(0, 1, 2, 3).toString()   // => List(0, 1, 2, 3)
-	 * ```
-	 */
-	toString(): string;
-	/**
-	 * Returns a JSON representation of this collection.
-	 * @example
-	 * ```ts
-	 * List.of(0, 1, 2, 3).toJSON()   // => { dataType: 'List', value: [0, 1, 2, 3] }
-	 * ```
-	 */
-	toJSON(): ToJSON<T[], Tp['context']['typeTag']>;
 }
 
 export namespace ListBase {
@@ -636,6 +636,44 @@ export namespace ListBase {
 		 */
 		stream(options?: { reversed?: boolean }): Stream.NonEmpty<T>;
 		/**
+		 * Returns the non-empty List where at the given `index` the value is replaced or updated by the given `update`.
+		 * @param index - the index at which to update the value
+		 * @param update - a new value or function taking the current value and returning a new value
+		 *
+		 * @note a negative `index` will be treated as follows:<br/>
+		 * - -1: the last element in the list<br/>
+		 * - -2: the second-last element in the list<br/>
+		 * - ...etc
+		 * @example
+		 * ```ts
+		 * List.of(0, 1, 2).updateAt(1, 10)            // -> List(0, 10, 2)
+		 * List.of(0, 1, 2).updateAt(1, v => v + 1)    // -> List(0, 2, 2)
+		 * List.of(0, 1, 2).updateAt(-1, 10)           // -> List(0, 1, 10)
+		 * ```
+		 * @note O(logB(N)) for block size B
+		 */
+		updateAt(
+			index: number,
+			update: (current: T) => T,
+		): WithElem<Tp, T>['nonEmpty'];
+		/**
+		 * Returns the non-empty List with the value at the given `index` replaced by the given `value`.
+		 * @param index - the index at which to replace the value
+		 * @param value - the new value to set at the given index
+		 *
+		 * @note a negative `index` will be treated as follows:<br/>
+		 * - -1: the last element in the list<br/>
+		 * - -2: the second-last element in the list<br/>
+		 * - ...etc
+		 * @example
+		 * ```ts
+		 * List.of(0, 1, 2).with(1, 10)    // -> List(0, 10, 2)
+		 * List.of(0, 1, 2).with(-1, 10)   // -> List(0, 1, 10)
+		 * ```
+		 * @note O(logB(N)) for block size B
+		 */
+		with(index: number, value: T): WithElem<Tp, T>['nonEmpty'];
+		/**
 		 * Returns the first value of the List.
 		 * @example
 		 * ```ts
@@ -673,9 +711,54 @@ export namespace ListBase {
 			amount: N,
 		): 0 extends N ? WithElem<Tp, T>['normal'] : WithElem<Tp, T>['nonEmpty'];
 		/**
+		 * Returns the List, where at the given `index` the `remove` amount of values are replaced by the values
+		 * from the optionally given `insert` `StreamSource`.
+		 * @param options - object containing the following<br/>
+		 * - index: the index at which to replace values<br/>
+		 * - remove: (default: 0) the amount of values to remove<br/>
+		 * - insert: (default: []) a `StreamSource` of values to insert
+		 *
+		 * @note a negative `index` will be treated as follows:
+		 * - -1: the last element in the list
+		 * - -2: the second-last element in the list
+		 * - ...etc
+		 * @example
+		 * ```ts
+		 * List.of(0, 1, 2, 3).splice({ index: 2, remove: 1 })                    // -> List(0, 1, 3)
+		 * List.of(0, 1, 2, 3).splice({ index: 1, remove: 2, insert: [10, 11] })  // -> List(0, 10, 11, 3)
+		 * ```
+		 * @note O(logB(N)) for block size B
+		 */
+		splice(options: {
+			index: number;
+			remove?: number;
+			insert: StreamSource.NonEmpty<T>;
+		}): WithElem<Tp, T>['nonEmpty'];
+		splice(options: {
+			index: number;
+			remove?: number;
+			insert?: StreamSource<T>;
+		}): WithElem<Tp, T>['normal'];
+		/**
+		 * Returns the non-empty List with the given `values` inserted at the given `index`.
+		 * @param index - the index at which to insert the values
+		 * @param values - a `StreamSource` of values to insert
+		 *
+		 * @note a negative `index` will be treated as follows:<br/>
+		 * - -1: the last element in the list<br/>
+		 * - -2: the second-last element in the list<br/>
+		 * - ...etc
+		 * @example
+		 * ```ts
+		 * List.of(0, 1, 2, 3).insert(2, [10, 11])   // -> List(0, 1, 10, 11, 2, 3)
+		 * List.of(0, 1, 2, 3).insert(-1, [10, 11])  // -> List(0, 1, 2, 1, 11, 3)
+		 * ```
+		 * @note O(logB(N)) for block size B
+		 */
+		insert(index: number, values: StreamSource<T>): WithElem<Tp, T>['nonEmpty'];
+		/**
 		 * Returns the non-empty List succeeded by the values from all given `StreamSource` instances given in `sources`.
 		 * @param sources - an array of `StreamSource` instances containing values to be added to the list
-		 * @typeparam T2 - the type of the source elements to add
 		 * @note this operation is most efficient when the given sources are instances of List from the same context.
 		 * @example
 		 * ```ts
@@ -684,9 +767,52 @@ export namespace ListBase {
 		 * ```
 		 * @note O(logB(N)) for block size B
 		 */
-		concat<T2 = T>(
-			...sources: ArrayNonEmpty<StreamSource<T2>>
-		): WithElem<Tp, T | T2>['nonEmpty'];
+		concat(
+			...sources: ArrayNonEmpty<StreamSource<T>>
+		): WithElem<Tp, T>['nonEmpty'];
+		/**
+		 * Returns a non-empty List containing the result of applying given `mapFun` to each value in this List.
+		 * If `reversed` is true, the order of the values is reversed.
+		 * @param mapFun - a function receiving a value and its index, and returning a new value
+		 * @param options - (optional) an object containing the following properties:<br/>
+		 * - reversed: (default: false) if true, reverses the order of the values
+		 * @typeparam T2 - the result element type
+		 * @example
+		 * ```ts
+		 * List.of(1, 2, 3).map(v => `value: ${v + 2}`).toArray()
+		 * // => ['value: 3', 'value: 4', 'value: 5']
+		 * ```
+		 */
+		map<T2 extends Tp['_UT']>(
+			mapFun: (value: T, index: number) => T2,
+			options?: { reversed?: boolean },
+		): WithElem<Tp, T2>['nonEmpty'];
+		mapPure<T2 extends Tp['_UT']>(
+			mapFun: (value: T) => T2,
+			options?: { reversed?: boolean },
+		): WithElem<Tp, T2>['nonEmpty'];
+		/**
+		 * Returns a List containing the joined results of applying given `flatMapFun` to each value in this List.
+		 * @param flatMapFun - a function taking the next value and its index, and returning a `StreamSource`
+		 * of value to include in the resulting collection
+		 * @param options - (optional) an object containing the following properties:<br/>
+		 * - range: (optional) the range of the list to include in the filtering process<br/>
+		 * - reversed: (default: false) if true reverses the elements within the given range
+		 * @typeparam T2 - the result element type
+		 * @example
+		 * ```ts
+		 * List.of(1, 2, 3).flatMap(v => [v, v + 1]).toArray()
+		 * // => [1, 2, 2, 3, 3, 4]
+		 * ```
+		 */
+		flatMap<T2 extends Tp['_UT']>(
+			flatMapFun: (value: T, index: number) => StreamSource.NonEmpty<T2>,
+			options?: { range?: undefined; reversed?: boolean },
+		): WithElem<Tp, T2>['nonEmpty'];
+		flatMap<T2>(
+			flatMapFun: (value: T, index: number) => StreamSource<T2>,
+			options?: { range?: IndexRange; reversed?: boolean },
+		): WithElem<Tp, T2>['normal'];
 		/**
 		 * Returns a non-empty List that contains this List the given `amount` of times.
 		 * @param amount - the amount of times to repeat the values in this List
@@ -736,100 +862,6 @@ export namespace ListBase {
 			options?: { positionPercentage?: number },
 		): WithElem<Tp, T>['nonEmpty'];
 		/**
-		 * Returns the non-empty List where at the given `index` the value is replaced or updated by the given `update`.
-		 * @param index - the index at which to update the value
-		 * @param update - a new value or function taking the current value and returning a new value
-		 *
-		 * @note a negative `index` will be treated as follows:<br/>
-		 * - -1: the last element in the list<br/>
-		 * - -2: the second-last element in the list<br/>
-		 * - ...etc
-		 * @example
-		 * ```ts
-		 * List.of(0, 1, 2).updateAt(1, 10)            // -> List(0, 10, 2)
-		 * List.of(0, 1, 2).updateAt(1, v => v + 1)    // -> List(0, 2, 2)
-		 * List.of(0, 1, 2).updateAt(-1, 10)           // -> List(0, 1, 10)
-		 * ```
-		 * @note O(logB(N)) for block size B
-		 */
-		updateAt(index: number, update: Update<T>): WithElem<Tp, T>['nonEmpty'];
-		/**
-		 * Returns the non-empty List with the given `values` inserted at the given `index`.
-		 * @param index - the index at which to insert the values
-		 * @param values - a `StreamSource` of values to insert
-		 *
-		 * @note a negative `index` will be treated as follows:<br/>
-		 * - -1: the last element in the list<br/>
-		 * - -2: the second-last element in the list<br/>
-		 * - ...etc
-		 * @example
-		 * ```ts
-		 * List.of(0, 1, 2, 3).insert(2, [10, 11])   // -> List(0, 1, 10, 11, 2, 3)
-		 * List.of(0, 1, 2, 3).insert(-1, [10, 11])  // -> List(0, 1, 2, 1, 11, 3)
-		 * ```
-		 * @note O(logB(N)) for block size B
-		 */
-		insert(index: number, values: StreamSource<T>): WithElem<Tp, T>['nonEmpty'];
-		/**
-		 * Returns a non-empty List containing the result of applying given `mapFun` to each value in this List.
-		 * If `reversed` is true, the order of the values is reversed.
-		 * @param mapFun - a function receiving a value and its index, and returning a new value
-		 * @param options - (optional) an object containing the following properties:<br/>
-		 * - reversed: (default: false) if true, reverses the order of the values
-		 * @typeparam T2 - the result element type
-		 * @example
-		 * ```ts
-		 * List.of(1, 2, 3).map(v => `value: ${v + 2}`).toArray()
-		 * // => ['value: 3', 'value: 4', 'value: 5']
-		 * ```
-		 */
-		map<T2>(
-			mapFun: (value: T, index: number) => T2,
-			options?: { reversed?: boolean },
-		): WithElem<Tp, T2>['nonEmpty'];
-		/**
-		 * Returns a non-empty List containing the result of applying given `mapFun` to each value in this List.
-		 * If `reversed` is true, the order of the values is reversed.
-		 * @note The given `mapFun` is expected to be side-effect free, so that structural sharing can be kept
-		 * in place.
-		 * @param mapFun - a function receiving a value and returning a new value
-		 * @param options - (optional) an object containing the following properties:<br/>
-		 * - reversed: (default: false) if true, reverses the order of the values
-		 * @typeparam T2 - the result element type
-		 * @example
-		 * ```ts
-		 * List.of(1, 2, 3).mapPure(v => `value: ${v + 2}`).toArray()
-		 * // => ['value: 3', 'value: 4', 'value: 5']
-		 * ```
-		 */
-		mapPure<T2>(
-			mapFun: (value: T) => T2,
-			options?: { reversed?: boolean },
-		): WithElem<Tp, T2>['nonEmpty'];
-		/**
-		 * Returns a List containing the joined results of applying given `flatMapFun` to each value in this List.
-		 * @param flatMapFun - a function taking the next value and its index, and returning a `StreamSource`
-		 * of value to include in the resulting collection
-		 * @param options - (optional) an object containing the following properties:<br/>
-		 * - range: (optional) the range of the list to include in the filtering process<br/>
-		 * - reversed: (default: false) if true reverses the elements within the given range
-		 * @typeparam T2 - the result element type
-		 * @example
-		 * ```ts
-		 * List.of(1, 2, 3).flatMap(v => [v, v + 1]).toArray()
-		 * // => [1, 2, 2, 3, 3, 4]
-		 * ```
-		 */
-		flatMap<T2>(
-			flatMapFun: (value: T, index: number) => StreamSource.NonEmpty<T2>,
-			options?: { range?: undefined; reversed?: boolean },
-		): WithElem<Tp, T2>['nonEmpty'];
-		flatMap<T2>(
-			flatMapFun: (value: T, index: number) => StreamSource<T2>,
-			options?: { range?: IndexRange; reversed?: boolean },
-		): WithElem<Tp, T2>['normal'];
-
-		/**
 		 * Returns the values sorted according to the given, optional Comp.
 		 *
 		 * **Performance warning**: this method is not designed for frequent calls;
@@ -841,40 +873,10 @@ export namespace ListBase {
 		 * - inverse: (default: false) when true will reverse the sorting order
 		 * @returns A sorted copy of the list
 		 */
-		sort(
-			comp?: Comp<T>,
-			options?: { inverse?: boolean },
+		sorted<TC = T>(
+			comp?: Comp<SuperOf<TC, T>> | undefined,
+			options?: { inverse?: boolean } | undefined,
 		): WithElem<Tp, T>['nonEmpty'];
-
-		/**
-		 * Returns the List, where at the given `index` the `remove` amount of values are replaced by the values
-		 * from the optionally given `insert` `StreamSource`.
-		 * @param options - object containing the following<br/>
-		 * - index: the index at which to replace values<br/>
-		 * - remove: (default: 0) the amount of values to remove<br/>
-		 * - insert: (default: []) a `StreamSource` of values to insert
-		 *
-		 * @note a negative `index` will be treated as follows:
-		 * - -1: the last element in the list
-		 * - -2: the second-last element in the list
-		 * - ...etc
-		 * @example
-		 * ```ts
-		 * List.of(0, 1, 2, 3).splice({ index: 2, remove: 1 })                    // -> List(0, 1, 3)
-		 * List.of(0, 1, 2, 3).splice({ index: 1, remove: 2, insert: [10, 11] })  // -> List(0, 10, 11, 3)
-		 * ```
-		 * @note O(logB(N)) for block size B
-		 */
-		splice(options: {
-			index: number;
-			remove?: number;
-			insert: StreamSource.NonEmpty<T>;
-		}): WithElem<Tp, T>['nonEmpty'];
-		splice(options: {
-			index: number;
-			remove?: number;
-			insert?: StreamSource<T>;
-		}): WithElem<Tp, T>['normal'];
 		/**
 		 * Returns the non-empty List in reversed order.
 		 * @example
@@ -908,15 +910,6 @@ export namespace ListBase {
 
 	export interface Builder<T, Tp extends ListBase.Types = ListBase.Types> {
 		/**
-		 * Returns the amount of values in the builder.
-		 * @example
-		 * ```ts
-		 * List.of(1, 2, 3).toBuilder().size
-		 * // => 3
-		 * ```
-		 */
-		readonly length: number;
-		/**
 		 * Returns true if there are no values in the builder.
 		 * @example
 		 * ```ts
@@ -924,7 +917,16 @@ export namespace ListBase {
 		 * // => false
 		 * ```
 		 */
-		readonly isEmpty: boolean;
+		get isEmpty(): boolean;
+		/**
+		 * Returns the amount of values in the builder.
+		 * @example
+		 * ```ts
+		 * List.of(1, 2, 3).toBuilder().size
+		 * // => 3
+		 * ```
+		 */
+		get length(): number;
 		/**
 		 * Returns the value in the List builder at the given `index`.
 		 * @param index - the element index
@@ -946,52 +948,6 @@ export namespace ListBase {
 		 */
 		get(index: number): T | undefined;
 		get<O>(index: number, otherwise: OptLazy<O>): T | O;
-		/**
-		 * Updates the element at the given `index` with the given `update` value or function.
-		 * @param index - the index of the element to update
-		 * @param update - the new value or function taking the current value and returning a new value
-		 * @param otherwise - (default: undefined) the `OptLazy` value to return if there is no element at given index
-		 * @typeparam O - the type of the `otherwise` value
-		 * @returns the old value at the given index, or the `otherwise` value if the index is out of bounds
-		 * @note a negative `index` will be treated as follows:<br/>
-		 * - -1: the last element in the list<br/>
-		 * - -2: the second-last element in the list<br/>
-		 * - ...etc
-		 * @example
-		 * ```ts
-		 * const m = List.of(1, 2, 3).toBuilder()
-		 * m.updateAt(0, 10)       // => 1
-		 * m.updateAt(1, 10, 'a')  // => 2
-		 * m.updateAt(10, 0)       // => undefined
-		 * m.updateAt(10, 0, 'a')  // => 'a'
-		 * ```
-		 * @note O(logB(N)) for block size B
-		 */
-		updateAt(index: number, update: Update<T>): T | undefined;
-		updateAt<O>(index: number, update: Update<T>, otherwise: OptLazy<O>): T | O;
-		/**
-		 * Sets the element at the given `index` to the given `value`.
-		 * @param index - the index of the element to set.
-		 * @param value - the new value to set.
-		 * @param otherwise - (default: undefined) the `OptLazy` value to return if there is no element at given index
-		 * @typeparam O - the type of the `otherwise` value
-		 * @returns the old value at the given index, or the `otherwise` value if the index is out of bounds
-		 * @note a negative `index` will be treated as follows:<br/>
-		 * - -1: the last element in the list<br/>
-		 * - -2: the second-last element in the list<br/>
-		 * - ...etc
-		 * @example
-		 * ```ts
-		 * const m = List.of(1, 2, 3).toBuilder()
-		 * m.set(0, 10)       // => 1
-		 * m.set(1, 10, 'a')  // => 2
-		 * m.set(10, 0)       // => undefined
-		 * m.set(10, 0, 'a')  // => 'a'
-		 * ```
-		 * @note O(logB(N)) for block size B
-		 */
-		set(index: number, value: T): T | undefined;
-		set<O>(index: number, value: T, otherwise: OptLazy<O>): T | O;
 		/**
 		 * Adds the given `value` to the start of the builder values.
 		 * @param value - the value to prepend
@@ -1070,6 +1026,56 @@ export namespace ListBase {
 		remove(index: number): T | undefined;
 		remove<O>(index: number, otherwise: OptLazy<O>): T | O;
 		/**
+		 * Updates the element at the given `index` with the given `update` function.
+		 * @param index - the index of the element to update
+		 * @param update - a function taking the current value and returning a new value
+		 * @param otherwise - (default: undefined) the `OptLazy` value to return if there is no element at given index
+		 * @typeparam O - the type of the `otherwise` value
+		 * @returns the old value at the given index, or the `otherwise` value if the index is out of bounds
+		 * @note a negative `index` will be treated as follows:<br/>
+		 * - -1: the last element in the list<br/>
+		 * - -2: the second-last element in the list<br/>
+		 * - ...etc
+		 * @example
+		 * ```ts
+		 * const m = List.of(1, 2, 3).toBuilder()
+		 * m.updateAt(0, 10)       // => 1
+		 * m.updateAt(1, 10, 'a')  // => 2
+		 * m.updateAt(10, 0)       // => undefined
+		 * m.updateAt(10, 0, 'a')  // => 'a'
+		 * ```
+		 * @note O(logB(N)) for block size B
+		 */
+		updateAt(index: number, update: (current: T) => T): T | undefined;
+		updateAt<O>(
+			index: number,
+			update: (current: T) => T,
+			otherwise: OptLazy<O>,
+		): T | O;
+		/**
+		 * Sets the element at the given `index` to the given `value`.
+		 * @param index - the index of the element to set.
+		 * @param value - the new value to set.
+		 * @param otherwise - (default: undefined) the `OptLazy` value to return if there is no element at given index
+		 * @typeparam O - the type of the `otherwise` value
+		 * @returns the old value at the given index, or the `otherwise` value if the index is out of bounds
+		 * @note a negative `index` will be treated as follows:<br/>
+		 * - -1: the last element in the list<br/>
+		 * - -2: the second-last element in the list<br/>
+		 * - ...etc
+		 * @example
+		 * ```ts
+		 * const m = List.of(1, 2, 3).toBuilder()
+		 * m.set(0, 10)       // => 1
+		 * m.set(1, 10, 'a')  // => 2
+		 * m.set(10, 0)       // => undefined
+		 * m.set(10, 0, 'a')  // => 'a'
+		 * ```
+		 * @note O(logB(N)) for block size B
+		 */
+		set(index: number, value: T): T | undefined;
+		set<O>(index: number, value: T, otherwise: OptLazy<O>): T | O;
+		/**
 		 * Performs given function `f` for each value of the List builder.
 		 * @param f - the function to perform for each element, receiving<br/>
 		 * - `value`: the next value<br/>
@@ -1115,12 +1121,16 @@ export namespace ListBase {
 		 * // => ['1', '2', '3']
 		 * ```
 		 */
-		buildMap<T2 = T>(mapFun: (value: T) => T2): WithElem<Tp, T2>['normal'];
+		buildMap<T2 extends Tp['_UT'] = T>(
+			mapFun: (value: T) => T2,
+		): WithElem<Tp, T2>['normal'];
 	}
 
 	export interface Context<Tp extends ListBase.Types = ListBase.Types>
 		extends ListBase.Factory<Tp> {
-		readonly typeTag: string;
+		readonly blockSizeBits: number;
+		readonly minBlockSize: number;
+		readonly maxBlockSize: number;
 	}
 
 	export interface Factory<Tp extends ListBase.Types = ListBase.Types> {
@@ -1129,26 +1139,82 @@ export namespace ListBase {
 			...values: ArrayNonEmpty<T>
 		): WithElem<Tp, T>['nonEmpty'];
 		from<T extends Tp['_UT']>(
-			values: StreamSource<T>,
+			...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>
+		): WithElem<Tp, T>['nonEmpty'];
+		from<T extends Tp['_UT']>(
+			...sources: ArrayNonEmpty<StreamSource<T>>
 		): WithElem<Tp, T>['normal'];
-		builder<T>(): WithElem<Tp, T>['builder'];
+		builder<T extends Tp['_UT']>(): WithElem<Tp, T>['builder'];
 		/**
-		 * Returns a new `List.Creators` instance using the provided options.
-		 * @param options - (optional) an object containing the following properties:
-		 * @param blockSizeBits - (default: 5) the power of 2 to to `blockSizeBits` to use as block size for all `List` instances that are created from the context.
+		 * Returns a `Reducer` that appends received items to a List and returns the List as a result. When a `source` is given,
+		 * the reducer will first create a List from the source, and then append elements to it.
+		 * @param source - (optional) an initial source of elements to append to
+		 * @typeparam T - the element type
+		 * @example
+		 * ```ts
+		 * const someList = List.of(1, 2, 3);
+		 * const result = Stream.range({ start: 20, amount: 5 }).reduce(List.reducer(someList))
+		 * result.toArray()   // => [1, 2, 3, 20, 21, 22, 23, 24]
+		 * ```
+		 * @note uses a List builder under the hood. If the given `source` is a List in the same context, it will directly call `.toBuilder()`.
 		 */
-		createContext(options?: { blockSizeBits?: number }): Tp['context'];
+		reducer<T extends Tp['_UT']>(
+			source?: StreamSource<T>,
+		): Reducer<T, WithElem<Tp, T>['normal']>;
 		/**
-		 * Returns the default `List.Context` instance.
+		 * Returns, if T is a valid `StreamSource`, the result of concatenating all
+		 * streamable elements of the given sources.
+		 * @param source - a `StreamSource` containing `StreamSource` instances of values to concatenate
+		 * @typeparam T - the element type
+		 * @example
+		 * ```ts
+		 * const m = List.of([1, 2], [3, 4, 5])
+		 * List.flatten(m).toArray() // => [1, 2, 3, 4, 5]
+		 * ```
 		 */
-		defaultContext(): Tp['context'];
+		flatten<T extends StreamSource.NonEmpty<unknown>>(
+			source: StreamSource.NonEmpty<T>,
+		): T extends StreamSource.NonEmpty<infer S>
+			? WithElem<Tp, S>['nonEmpty']
+			: never;
+		flatten<T extends StreamSource<unknown>>(
+			source: StreamSource<T>,
+		): T extends StreamSource<infer S> ? WithElem<Tp, S>['normal'] : never;
+		/**
+		 * Returns an array of Lists, where each list contains the values of the corresponding index of tuple T.
+		 * @param source - a `StreamSource` containing tuples of type T to unzip
+		 * @param options - an object containing the following properties:<br/>
+		 * - length: the length of the tuples in type T
+		 * @typeparam T - the StreamSource tuple element type
+		 * @typeparam L - the tuple element length
+		 * @example
+		 * ```ts
+		 * const m = List.of([1, 'a'], [2, 'b'])
+		 * List.unzip(m)  // => [List.NonEmpty<number>, List.NonEmpty<string>]
+		 * ```
+		 */
+		unzip<T extends readonly unknown[] & { length: L }, L extends number>(
+			source: StreamSource.NonEmpty<T>,
+			options: { length: L },
+		): { [K in keyof T]: WithElem<Tp, T[K]>['nonEmpty'] };
+		unzip<T extends readonly unknown[] & { length: L }, L extends number>(
+			source: StreamSource<T>,
+			options: { length: L },
+		): { [K in keyof T]: WithElem<Tp, T[K]>['normal'] };
+	}
+
+	export interface OuterChildrenTag {
+		__outerChildrenTag?: true;
 	}
 
 	export interface Types extends Elem {
 		readonly _UT: unknown;
-		readonly context: ListBase.Context;
 		readonly normal: ListBase<this['_T']>;
 		readonly nonEmpty: ListBase.NonEmpty<this['_T']>;
-		readonly builder: ListBase.Builder<this['_T']>;
+		readonly builder: this['_UT'] extends unknown
+			? unknown
+			: ListBase.Builder<this['_T']>;
+		readonly context: ListBase.Context;
+		readonly outerChildren: OuterChildrenTag;
 	}
 }

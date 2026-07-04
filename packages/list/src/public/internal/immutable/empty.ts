@@ -1,16 +1,20 @@
-import type { ArrayNonEmpty, ToJSON } from '@rimbu/common/types';
-import type { List } from '@rimbu/list';
+import type { ArrayNonEmpty } from '@rimbu/common/types';
 
-import type { ContextFactory } from '#list/context-factory';
+import type { ListContext } from '#list/context-module';
+import type { ListImpl } from '#list/list-impl';
+import type { ListBuilder } from '#list/mutable/builder';
 
 import { EmptyBase } from '@rimbu/collection-types/common/empty-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
-export class Empty<T = any> extends EmptyBase implements List<T> {
-	declare _NonEmptyType: List.NonEmpty<T>;
+export class ListEmpty<T> extends EmptyBase implements ListImpl<T> {
+	declare _NonEmptyType: ListImpl.NonEmpty<T>;
 
-	constructor(readonly context: ContextFactory) {
+	constructor(
+		readonly context: ListContext,
+		readonly ops = context.outerChildrenOps,
+	) {
 		super();
 	}
 
@@ -30,12 +34,16 @@ export class Empty<T = any> extends EmptyBase implements List<T> {
 		return OptLazy(otherwise) as O;
 	}
 
-	prepend(value: T): List.NonEmpty<T> {
-		return this.context.leafBlock([value]);
+	at(): undefined {
+		return undefined;
 	}
 
-	append(value: T): List.NonEmpty<T> {
-		return this.context.leafBlock([value]);
+	prepend(value: T): ListImpl.NonEmpty<T> {
+		return this.context.outerBlock<T>(this.ops.of([value]));
+	}
+
+	append(value: T): ListImpl.NonEmpty<T> {
+		return this.context.outerBlock<T>(this.ops.of([value]));
 	}
 
 	take(): this {
@@ -50,7 +58,7 @@ export class Empty<T = any> extends EmptyBase implements List<T> {
 		return this;
 	}
 
-	sort(): this {
+	sorted(): this {
 		return this;
 	}
 
@@ -68,7 +76,10 @@ export class Empty<T = any> extends EmptyBase implements List<T> {
 		return this;
 	}
 
-	concat<T2>(...sources: ArrayNonEmpty<StreamSource<T2>>): any {
+	concat(
+		...sources: ArrayNonEmpty<StreamSource.NonEmpty<T>>
+	): ListImpl.NonEmpty<T>;
+	concat(...sources: ArrayNonEmpty<StreamSource<T>>): ListImpl<T> {
 		return this.context.from(...sources);
 	}
 
@@ -80,12 +91,16 @@ export class Empty<T = any> extends EmptyBase implements List<T> {
 		return this;
 	}
 
-	padTo(length: number, fill: any): List<any> {
+	padTo(length: number, fill: any): ListImpl<any> {
 		if (length <= 0) return this;
 		return this.append(fill).repeat(length);
 	}
 
 	updateAt(): this {
+		return this;
+	}
+
+	with(): this {
 		return this;
 	}
 
@@ -117,22 +132,19 @@ export class Empty<T = any> extends EmptyBase implements List<T> {
 		return [];
 	}
 
-	toBuilder(): List.Builder<T> {
+	toBuilder(): ListBuilder<T> {
 		return this.context.builder();
 	}
 
-	structure(): string {
-		return '<empty>';
+	_structure(): string {
+		return 'Empty';
+	}
+
+	_verifyStructure(messages: string[] = []): string[] {
+		return messages;
 	}
 
 	toString(): string {
 		return `List()`;
-	}
-
-	toJSON(): ToJSON<any[], this['context']['typeTag']> {
-		return {
-			dataType: this.context.typeTag,
-			value: [],
-		};
 	}
 }

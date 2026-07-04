@@ -51,8 +51,7 @@
 	"dependencies": {
 		"@rimbu/actor": "workspace:*",
 		"@rimbu/deep": "workspace:*",
-		"@rimbu/stream": "workspace:*",
-		"tslib": "catalog:"
+		"@rimbu/stream": "workspace:*"
 	},
 	"peerDependencies": {
 		"react": ">=16"
