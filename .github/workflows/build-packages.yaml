@@ -20,20 +20,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version: 20
-          registry-url: 'https://registry.npmjs.org'
-          cache: 'yarn'
-          # Defaults to the user or organization that owns the workflow file
-          scope: '@rimbu'
-      - run: yarn install --frozen-lockfile
-      - run: yarn format:check
-      - run: yarn lint
-      - run: yarn build
-      # Unfortunately this crashes due to low memory on GitHub runners
-      # - run: yarn test:types
-      - run: yarn test:cov
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+
+      - name: Format check
+        run: bun format:check
+
+      - name: Lint check
+        run: bun lint:check
+
+      - name: Build
+        run: bun build
+
+      - name: Test
+        run: bun test
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:

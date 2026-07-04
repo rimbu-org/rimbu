@@ -31,14 +31,14 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/entry/typical.d.ts",
-			"import": "./dist/entry/typical.js"
+			"types": "./dist/typical.d.ts",
+			"import": "./dist/typical.js"
 		}
 	},
 	"imports": {
 		"#typical/*": {
-			"types": "./dist/public/internal/*.d.ts",
-			"default": "./dist/public/internal/*.js"
+			"types": "./dist/internal/*.d.ts",
+			"default": "./dist/internal/*.js"
 		}
 	},
 	"files": [

@@ -1,14 +1,12 @@
 {
 	"compilerOptions": {
 		"paths": {
-			"@rimbu/hashed": ["./entry/hashed.ts"],
-			"@rimbu/hashed/map": ["./entry/map.ts"],
-			"@rimbu/hashed/set": ["./entry/set.ts"],
-			"@rimbu/hashed/*": ["./public/*.ts"],
-			"#hashed/*": ["./public/internal/hashed/*.ts"],
-			"#map/*": ["./public/internal/map/*.ts"],
-			"#set/*": ["./public/internal/set/*.ts"],
-			"#private/*": ["./private/*.ts"]
+			"@rimbu/hashed": ["./hashed.ts"],
+			"@rimbu/hashed/map": ["./map.ts"],
+			"@rimbu/hashed/set": ["./set.ts"],
+			"#hashed/*": ["./internal/hashed/*.ts"],
+			"#map/*": ["./internal/map/*.ts"],
+			"#set/*": ["./internal/set/*.ts"]
 		}
 	}
 }

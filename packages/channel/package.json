@@ -33,22 +33,22 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/entry/channel.d.ts",
-			"import": "./dist/entry/channel.js"
+			"types": "./dist/channel.d.ts",
+			"import": "./dist/channel.js"
 		},
 		"./*": {
-			"types": "./dist/public/*.d.ts",
-			"default": "./dist/public/*.js"
+			"types": "./dist/*.d.ts",
+			"default": "./dist/*.js"
 		}
 	},
 	"imports": {
 		"#channel/*": {
-			"types": "./dist/public/internal/*.d.ts",
-			"default": "./dist/public/internal/*.js"
+			"types": "./dist/internal/*.d.ts",
+			"default": "./dist/internal/*.js"
 		},
 		"#private/*": {
-			"types": "./dist/private/*.d.ts",
-			"default": "./dist/private/*.js"
+			"types": "./dist/internal/*.d.ts",
+			"default": "./dist/internal/*.js"
 		}
 	},
 	"files": [

@@ -1,9 +1,9 @@
 {
 	"compilerOptions": {
 		"paths": {
-			"@rimbu/proximity": ["./entry/proximity.ts"],
-			"@rimbu/proximity/*": ["./public/*.ts"],
-			"#proximity/*": ["./public/internal/*.ts"]
+			"@rimbu/proximity": ["./proximity.ts"],
+			"@rimbu/proximity/*": ["./*.ts"],
+			"#proximity/*": ["./internal/*.ts"]
 		}
 	}
 }

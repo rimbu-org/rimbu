@@ -36,18 +36,18 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/entry/table.d.ts",
-			"default": "./dist/entry/table.js"
+			"types": "./dist/table.d.ts",
+			"default": "./dist/table.js"
 		},
 		"./*": {
-			"types": "./dist/public/*.d.ts",
-			"default": "./dist/public/*.js"
+			"types": "./dist/*.d.ts",
+			"default": "./dist/*.js"
 		}
 	},
 	"imports": {
 		"#table/*": {
-			"types": "./dist/public/internal/*.d.ts",
-			"default": "./dist/public/internal/*.js"
+			"types": "./dist/internal/*.d.ts",
+			"default": "./dist/internal/*.js"
 		}
 	},
 	"files": [

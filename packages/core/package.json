@@ -52,12 +52,12 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/entry/core.d.ts",
-			"default": "./dist/entry/core.js"
+			"types": "./dist/core.d.ts",
+			"default": "./dist/core.js"
 		},
 		"./*": {
-			"types": "./dist/public/*.d.ts",
-			"default": "./dist/public/*.js"
+			"types": "./dist/*.d.ts",
+			"default": "./dist/*.js"
 		}
 	},
 	"files": [

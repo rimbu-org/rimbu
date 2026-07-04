@@ -35,39 +35,27 @@
 	"type": "module",
 	"sideEffects": false,
 	"exports": {
-		".": {
-			"types": "./dist/entry/ordered.d.ts",
-			"default": "./dist/entry/ordered.js"
-		},
 		"./map": {
-			"types": "./dist/entry/map.d.ts",
-			"default": "./dist/entry/map.js"
+			"types": "./dist/map.d.ts",
+			"default": "./dist/map.js"
 		},
 		"./set": {
-			"types": "./dist/entry/set.d.ts",
-			"default": "./dist/entry/set.js"
+			"types": "./dist/set.d.ts",
+			"default": "./dist/set.js"
 		},
 		"./*": {
-			"types": "./dist/public/*.d.ts",
-			"default": "./dist/public/*.js"
+			"types": "./dist/*.d.ts",
+			"default": "./dist/*.js"
 		}
 	},
 	"imports": {
-		"#ordered/*": {
-			"types": "./dist/public/internal/ordered/*.d.ts",
-			"default": "./dist/public/internal/ordered/*.js"
-		},
 		"#map/*": {
-			"types": "./dist/public/internal/map/*.d.ts",
-			"default": "./dist/public/internal/map/*.js"
+			"types": "./dist/internal/map/*.d.ts",
+			"default": "./dist/internal/map/*.js"
 		},
 		"#set/*": {
-			"types": "./dist/public/internal/set/*.d.ts",
-			"default": "./dist/public/internal/set/*.js"
-		},
-		"#private/*": {
-			"types": "./dist/private/*.d.ts",
-			"default": "./dist/private/*.js"
+			"types": "./dist/internal/set/*.d.ts",
+			"default": "./dist/internal/set/*.js"
 		}
 	},
 	"files": [

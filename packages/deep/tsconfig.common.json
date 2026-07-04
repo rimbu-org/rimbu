@@ -1,10 +1,10 @@
 {
 	"compilerOptions": {
 		"paths": {
-			"@rimbu/deep": ["./entry/deep.ts"],
-			"@rimbu/deep/*": ["./public/*.ts"],
-			"#deep/*": ["./public/internal/*.ts"],
-			"#private/*": ["./private/*.ts"]
+			"@rimbu/deep": ["./deep.ts"],
+			"@rimbu/deep/*": ["./*.ts"],
+			"#deep/*": ["./internal/*.ts"],
+			"#private/*": ["./internal/*.ts"]
 		}
 	}
 }

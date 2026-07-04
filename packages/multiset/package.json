@@ -35,34 +35,26 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/entry/multiset.d.ts",
-			"default": "./dist/entry/multiset.js"
+			"types": "./dist/multiset.d.ts",
+			"default": "./dist/multiset.js"
 		},
 		"./hashed": {
-			"types": "./dist/entry/hashed.d.ts",
-			"default": "./dist/entry/hashed.js"
+			"types": "./dist/hashed.d.ts",
+			"default": "./dist/hashed.js"
 		},
 		"./sorted": {
-			"types": "./dist/entry/sorted.d.ts",
-			"default": "./dist/entry/sorted.js"
+			"types": "./dist/sorted.d.ts",
+			"default": "./dist/sorted.js"
 		},
 		"./*": {
-			"types": "./dist/public/*.d.ts",
-			"default": "./dist/public/*.js"
+			"types": "./dist/*.d.ts",
+			"default": "./dist/*.js"
 		}
 	},
 	"imports": {
 		"#multiset/*": {
-			"types": "./dist/public/internal/*.d.ts",
-			"default": "./dist/public/internal/*.js"
-		},
-		"#hashed/*": {
-			"types": "./dist/public/internal/hashed/*.d.ts",
-			"default": "./dist/public/internal/hashed/*.js"
-		},
-		"#sorted/*": {
-			"types": "./dist/public/internal/sorted/*.d.ts",
-			"default": "./dist/public/internal/sorted/*.js"
+			"types": "./dist/internal/*.d.ts",
+			"default": "./dist/internal/*.js"
 		}
 	},
 	"files": [

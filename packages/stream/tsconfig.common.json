@@ -1,12 +1,14 @@
 {
 	"compilerOptions": {
 		"paths": {
-			"@rimbu/stream": ["./entry/stream.ts"],
-			"@rimbu/stream/async": ["./entry/async-stream.ts"],
-			"@rimbu/stream/*": ["./public/*.ts"],
-			"#async/*": ["./public/async/internal/*.ts"],
-			"#stream/*": ["./public/internal/*.ts"],
-			"#private/*": ["./private/*.ts"]
+			"@rimbu/stream": ["./stream.ts"],
+			"@rimbu/stream/async": ["./async-stream.ts"],
+			"@rimbu/stream/async/internal/fast-iterator-base": ["./internal/async/fast-iterator-base.ts"],
+			"@rimbu/stream/async/internal/stream-base": ["./internal/async/stream-base.ts"],
+			"@rimbu/stream/*": ["./*.ts"],
+			"#async/*": ["./internal/async/*.ts"],
+			"#stream/*": ["./internal/*.ts"],
+			"#private/*": ["./internal/*.ts"]
 		}
 	}
 }

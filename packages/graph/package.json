@@ -39,38 +39,38 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/entry/graph.d.ts",
-			"default": "./dist/entry/graph.js"
+			"types": "./dist/graph.d.ts",
+			"default": "./dist/graph.js"
 		},
 		"./arrow-graph": {
-			"types": "./dist/entry/arrow-graph.d.ts",
-			"default": "./dist/entry/arrow-graph.js"
+			"types": "./dist/arrow-graph.d.ts",
+			"default": "./dist/arrow-graph.js"
 		},
 		"./arrow-valued-graph": {
-			"types": "./dist/entry/arrow-valued-graph.d.ts",
-			"default": "./dist/entry/arrow-valued-graph.js"
+			"types": "./dist/arrow-valued-graph.d.ts",
+			"default": "./dist/arrow-valued-graph.js"
 		},
 		"./edge-graph": {
-			"types": "./dist/entry/edge-graph.d.ts",
-			"default": "./dist/entry/edge-graph.js"
+			"types": "./dist/edge-graph.d.ts",
+			"default": "./dist/edge-graph.js"
 		},
 		"./edge-valued-graph": {
-			"types": "./dist/entry/edge-valued-graph.d.ts",
-			"default": "./dist/entry/edge-valued-graph.js"
+			"types": "./dist/edge-valued-graph.d.ts",
+			"default": "./dist/edge-valued-graph.js"
 		},
 		"./*": {
-			"types": "./dist/public/*.d.ts",
-			"default": "./dist/public/*.js"
+			"types": "./dist/*.d.ts",
+			"default": "./dist/*.js"
 		}
 	},
 	"imports": {
 		"#graph/*": {
-			"types": "./dist/public/internal/*.d.ts",
-			"default": "./dist/public/internal/*.js"
+			"types": "./dist/internal/*.d.ts",
+			"default": "./dist/internal/*.js"
 		},
 		"#private/*": {
-			"types": "./dist/private/*.d.ts",
-			"default": "./dist/private/*.js"
+			"types": "./dist/internal/*.d.ts",
+			"default": "./dist/internal/*.js"
 		}
 	},
 	"files": [

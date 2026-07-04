@@ -33,18 +33,14 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/entry/bimap.d.ts",
-			"default": "./dist/entry/bimap.js"
-		},
-		"./*": {
-			"types": "./dist/public/*.d.ts",
-			"default": "./dist/public/*.js"
+			"types": "./dist/bimap.d.ts",
+			"default": "./dist/bimap.js"
 		}
 	},
 	"imports": {
 		"#bimap/*": {
-			"types": "./dist/public/internal/*.d.ts",
-			"default": "./dist/public/internal/*.js"
+			"types": "./dist/internal/*.d.ts",
+			"default": "./dist/internal/*.js"
 		}
 	},
 	"files": [

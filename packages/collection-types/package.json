@@ -31,16 +31,22 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/entry/collection-types.d.ts",
-			"default": "./dist/entry/collection-types.js"
+			"types": "./dist/collection-types.d.ts",
+			"default": "./dist/collection-types.js"
 		},
 		"./common": {
-			"types": "./dist/entry/common.d.ts",
-			"default": "./dist/entry/common.js"
+			"types": "./dist/common.d.ts",
+			"default": "./dist/common.js"
 		},
 		"./*": {
-			"types": "./dist/public/*.d.ts",
-			"default": "./dist/public/*.js"
+			"types": "./dist/*.d.ts",
+			"default": "./dist/*.js"
+		}
+	},
+	"imports": {
+		"#collection-types/*": {
+			"types": "./dist/internal/*.d.ts",
+			"default": "./dist/internal/*.js"
 		}
 	},
 	"files": [

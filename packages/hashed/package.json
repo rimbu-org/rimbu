@@ -35,38 +35,30 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/entry/hashed.d.ts",
-			"default": "./dist/entry/hashed.js"
+			"types": "./dist/hashed.d.ts",
+			"default": "./dist/hashed.js"
 		},
 		"./map": {
-			"types": "./dist/entry/map.d.ts",
-			"default": "./dist/entry/map.js"
+			"types": "./dist/map.d.ts",
+			"default": "./dist/map.js"
 		},
 		"./set": {
-			"types": "./dist/entry/set.d.ts",
-			"default": "./dist/entry/set.js"
-		},
-		"./*": {
-			"types": "./dist/public/*.d.ts",
-			"default": "./dist/public/*.js"
+			"types": "./dist/set.d.ts",
+			"default": "./dist/set.js"
 		}
 	},
 	"imports": {
 		"#hashed/*": {
-			"types": "./dist/public/internal/hashed/*.d.ts",
-			"default": "./dist/public/internal/hashed/*.js"
+			"types": "./dist/internal/hashed/*.d.ts",
+			"default": "./dist/internal/hashed/*.js"
 		},
 		"#map/*": {
-			"types": "./dist/public/internal/map/*.d.ts",
-			"default": "./dist/public/internal/map/*.js"
+			"types": "./dist/internal/map/*.d.ts",
+			"default": "./dist/internal/map/*.js"
 		},
 		"#set/*": {
-			"types": "./dist/public/internal/set/*.d.ts",
-			"default": "./dist/public/internal/set/*.js"
-		},
-		"#private/*": {
-			"types": "./dist/private/*.d.ts",
-			"default": "./dist/private/*.js"
+			"types": "./dist/internal/set/*.d.ts",
+			"default": "./dist/internal/set/*.js"
 		}
 	},
 	"files": [

@@ -1,0 +1,37 @@
+{
+	"$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
+	"changelog": "@changesets/cli/changelog",
+	"commit": false,
+	"fixed": [
+		[
+			"@rimbu/actor",
+			"@rimbu/base",
+			"@rimbu/bimap",
+			"@rimbu/bimultimap",
+			"@rimbu/channel",
+			"@rimbu/collection-types",
+			"@rimbu/common",
+			"@rimbu/core",
+			"@rimbu/deep",
+			"@rimbu/graph",
+			"@rimbu/hashed",
+			"@rimbu/list",
+			"@rimbu/multimap",
+			"@rimbu/multiset",
+			"@rimbu/ordered",
+			"@rimbu/proximity",
+			"@rimbu/reactor",
+			"@rimbu/sorted",
+			"@rimbu/spy",
+			"@rimbu/stream",
+			"@rimbu/table",
+			"@rimbu/task",
+			"@rimbu/typical"
+		]
+	],
+	"linked": [],
+	"access": "public",
+	"baseBranch": "main",
+	"updateInternalDependencies": "patch",
+	"ignore": []
+}

@@ -1,9 +1,9 @@
 {
 	"compilerOptions": {
 		"paths": {
-			"@rimbu/actor": ["./entry/actor.ts"],
-			"@rimbu/actor/*": ["./public/actor/*.ts"],
-			"#actor/*": ["./public/actor/internal/*.ts"]
+			"@rimbu/actor": ["./actor.ts"],
+			"@rimbu/actor/*": ["./*.ts"],
+			"#actor/*": ["./internal/*.ts"]
 		}
 	}
 }

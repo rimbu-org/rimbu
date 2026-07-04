@@ -40,18 +40,18 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/entry/proximity.d.ts",
-			"default": "./dist/entry/proximity.js"
+			"types": "./dist/proximity.d.ts",
+			"default": "./dist/proximity.js"
 		},
 		"./*": {
-			"types": "./dist/public/*.d.ts",
-			"default": "./dist/public/*.js"
+			"types": "./dist/*.d.ts",
+			"default": "./dist/*.js"
 		}
 	},
 	"imports": {
 		"#proximity/*": {
-			"types": "./dist/public/internal/*.d.ts",
-			"default": "./dist/public/internal/*.js"
+			"types": "./dist/internal/*.d.ts",
+			"default": "./dist/internal/*.js"
 		}
 	},
 	"files": [

@@ -36,34 +36,30 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/entry/list.d.ts",
-			"default": "./dist/entry/list.js"
+			"types": "./dist/list.d.ts",
+			"default": "./dist/list.js"
 		},
 		"./char": {
-			"types": "./dist/entry/char.d.ts",
-			"default": "./dist/entry/char.js"
+			"types": "./dist/char.d.ts",
+			"default": "./dist/char.js"
 		},
 		"./bit": {
-			"types": "./dist/entry/bit.d.ts",
-			"default": "./dist/entry/bit.js"
+			"types": "./dist/bit.d.ts",
+			"default": "./dist/bit.js"
 		},
 		"./typed-array": {
-			"types": "./dist/entry/typed-array.d.ts",
-			"default": "./dist/entry/typed-array.js"
+			"types": "./dist/typed-array.d.ts",
+			"default": "./dist/typed-array.js"
 		},
-		"./*": {
-			"types": "./dist/public/*.d.ts",
-			"default": "./dist/public/*.js"
+		"./internal/*": {
+			"types": "./dist/internal/*.d.ts",
+			"default": "./dist/internal/*.js"
 		}
 	},
 	"imports": {
 		"#list/*": {
-			"types": "./dist/public/internal/*.d.ts",
-			"default": "./dist/public/internal/*.js"
-		},
-		"#private/*": {
-			"types": "./dist/private/*.d.ts",
-			"default": "./dist/private/*.js"
+			"types": "./dist/internal/*.d.ts",
+			"default": "./dist/internal/*.js"
 		},
 		"#test/*": {
 			"default": "./test/*.ts"

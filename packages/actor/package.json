@@ -31,26 +31,26 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/entry/actor.d.ts",
-			"default": "./dist/entry/actor.js"
+			"types": "./dist/actor.d.ts",
+			"default": "./dist/actor.js"
 		},
 		"./immer": {
-			"types": "./dist/entry/immer.d.ts",
-			"default": "./dist/entry/immer.js"
+			"types": "./dist/immer.d.ts",
+			"default": "./dist/immer.js"
 		},
 		"./patch": {
-			"types": "./dist/entry/patch.d.ts",
-			"default": "./dist/entry/patch.js"
+			"types": "./dist/patch.d.ts",
+			"default": "./dist/patch.js"
 		},
 		"./*": {
-			"types": "./dist/public/actor/*.d.ts",
-			"default": "./dist/public/actor/*.js"
+			"types": "./dist/*.d.ts",
+			"default": "./dist/*.js"
 		}
 	},
 	"imports": {
 		"#actor/*": {
-			"types": "./dist/public/actor/internal/*.d.ts",
-			"default": "./dist/public/actor/internal/*.js"
+			"types": "./dist/internal/*.d.ts",
+			"default": "./dist/internal/*.js"
 		}
 	},
 	"files": [

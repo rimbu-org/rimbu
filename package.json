@@ -29,11 +29,13 @@
 		"format:check": "bun --workspaces --if-present run format:check",
 		"lint:check": "bun --workspaces --if-present run lint:check",
 		"postinstall": "husky",
-		"prerelease": "yarn typecheck && yarn test:types && yarn test && yarn test:random",
+		"prerelease": "bun typecheck && bun test:types && bun test && bun test:random",
+		"release": "bun prerelease && bunx changeset publish",
 		"test": "bun --workspaces --if-present run test",
 		"test:types": "bun --workspaces --if-present run test:types",
 		"test:random": "bun --workspaces --if-present run test:random",
-		"typecheck": "bun --workspaces run typecheck"
+		"typecheck": "bun --workspaces run typecheck",
+		"version": "bunx changeset version"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.3.13",

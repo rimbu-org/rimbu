@@ -1,14 +1,13 @@
 {
 	"compilerOptions": {
 		"paths": {
-			"@rimbu/sorted": ["./entry/sorted.ts"],
-			"@rimbu/sorted/map": ["./entry/map.ts"],
-			"@rimbu/sorted/set": ["./entry/set.ts"],
-			"@rimbu/sorted/*": ["./public/*.ts"],
-			"#sorted/*": ["./public/internal/sorted/*.ts"],
-			"#map/*": ["./public/internal/map/*.ts"],
-			"#set/*": ["./public/internal/set/*.ts"],
-			"#private/*": ["./private/*.ts"]
+			"@rimbu/sorted": ["./sorted.ts"],
+			"@rimbu/sorted/map": ["./map.ts"],
+			"@rimbu/sorted/set": ["./set.ts"],
+			"@rimbu/sorted/internal/*": ["./internal/*.ts", "./internal/*"],
+			"#sorted/*": ["./internal/sorted/*.ts"],
+			"#map/*": ["./internal/map/*.ts"],
+			"#set/*": ["./internal/set/*.ts"]
 		}
 	}
 }

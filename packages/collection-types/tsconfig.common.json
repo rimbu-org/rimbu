@@ -3,9 +3,10 @@
 		"rootDir": ".",
 		"baseUrl": "./src",
 		"paths": {
-			"@rimbu/collection-types": ["./entry/collection-types.ts"],
-			"@rimbu/collection-types/common": ["./entry/common.ts"],
-			"@rimbu/collection-types/*": ["./public/*.ts"]
+			"@rimbu/collection-types": ["./collection-types.ts"],
+			"@rimbu/collection-types/common": ["./common.ts"],
+			"@rimbu/collection-types/*": ["./*.ts", "./*"],
+			"#collection-types/*": ["./internal/*.ts", "./internal/*"]
 		}
 	}
 }

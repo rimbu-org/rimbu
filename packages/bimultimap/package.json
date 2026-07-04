@@ -33,30 +33,26 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/entry/bimultimap.d.ts",
-			"default": "./dist/entry/bimultimap.js"
+			"types": "./dist/bimultimap.d.ts",
+			"default": "./dist/bimultimap.js"
 		},
 		"./hashed": {
-			"types": "./dist/entry/hashed.d.ts",
-			"default": "./dist/entry/hashed.js"
+			"types": "./dist/hashed.d.ts",
+			"default": "./dist/hashed.js"
 		},
 		"./sorted": {
-			"types": "./dist/entry/sorted.d.ts",
-			"default": "./dist/entry/sorted.js"
+			"types": "./dist/sorted.d.ts",
+			"default": "./dist/sorted.js"
 		},
 		"./*": {
-			"types": "./dist/public/*.d.ts",
-			"default": "./dist/public/*.js"
+			"types": "./dist/*.d.ts",
+			"default": "./dist/*.js"
 		}
 	},
 	"imports": {
 		"#bimultimap/*": {
-			"types": "./dist/public/internal/*.d.ts",
-			"default": "./dist/public/internal/*.js"
-		},
-		"#private/*": {
-			"types": "./dist/private/*.d.ts",
-			"default": "./dist/private/*.js"
+			"types": "./dist/internal/*.d.ts",
+			"default": "./dist/internal/*.js"
 		}
 	},
 	"files": [
