@@ -1076,6 +1076,27 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 		shape: S & Reducer.CombineShape<T>,
 	): Stream<Reducer.CombineResult<S>>;
 	/**
+	 * Returns the result of applying the `valueToKey` function to calculate a key for each value, and feeding the tuple of the key and the value to the
+	 * `collector` reducer, and finally returning its result. If no collector is given, the default collector will return a JS multimap
+	 * of the type `Map<K, V[]>`.
+	 * @param valueToKey - function taking a value and its index, and returning the corresponding key
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - collector: (default: Reducer.toArray()) a reducer that collects the incoming tuple of key and value, and provides the output
+	 * @typeparam K - the key type
+	 * @typeparam R - the collector output type
+	 * @example
+	 * ```ts
+	 * Stream.of(1, 2, 3).groupBy((v) => v % 2)
+	 * // => Map {0 => [2], 1 => [1, 3]}
+	 * ```
+	 */
+	groupBy<K>(valueToKey: (value: T, index: number) => K): {
+		<R>(options: {
+			collector: Reducer<[K, T], R> | Reducer<readonly [K, T], R>;
+		}): R;
+		(options?: { collector?: undefined } | undefined): Map<K, T[]>;
+	};
+	/**
 	 * Returns an Array containing all elements in the Stream.
 	 * @example
 	 * ```ts

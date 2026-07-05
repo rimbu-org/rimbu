@@ -1124,6 +1124,29 @@ export interface AsyncStream<T>
 		shape: S & AsyncReducer.CombineShape<T>,
 	): AsyncStream<AsyncReducer.CombineResult<S>>;
 	/**
+	 * Returns the result of applying the `valueToKey` function to calculate a key for each value, and feeding the tuple of the key and the value to the
+	 * `collector` reducer, and finally returning its result. If no collector is given, the default collector will return a JS multimap
+	 * of the type `Map<K, V[]>`.
+	 * @param valueToKey - a potentially asynchronous function taking a value and its index, and returning the corresponding key
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - collector: (default: AsyncReducer.toArray()) an async reducer that collects the incoming tuple of key and value, and provides the output
+	 * @typeparam K - the key type
+	 * @typeparam R - the collector output type
+	 * @example
+	 * ```ts
+	 * await AsyncStream.of(1, 2, 3).groupBy((v) => v % 2)
+	 * // => Map {0 => [2], 1 => [1, 3]}
+	 * ```
+	 */
+	groupBy<K>(valueToKey: (value: T, index: number) => MaybePromise<K>): {
+		<R>(options: {
+			collector:
+				| AsyncReducer<[K, T], R>
+				| AsyncReducer<readonly [K, T], R>;
+		}): Promise<R>;
+		(options?: { collector?: undefined } | undefined): Promise<Map<K, T[]>>;
+	};
+	/**
 	 * Returns an Array containing all elements in the AsyncStream.
 	 * @example
 	 * ```ts

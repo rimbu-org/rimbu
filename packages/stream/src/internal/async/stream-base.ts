@@ -817,6 +817,11 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 		return new AsyncReduceStream(this, reducer);
 	}
 
+	groupBy<K>(valueToKey: (value: T, index: number) => MaybePromise<K>): any {
+		return (options: any = {}) =>
+			(this as AsyncStream<T>).reduce(AsyncReducer.groupBy(valueToKey, options));
+	}
+
 	async toArray(): Promise<T[]> {
 		const iterator = this[Symbol.asyncIterator]();
 		const result: T[] = [];
@@ -1357,8 +1362,8 @@ class AsyncConcatStream<T> extends AsyncStreamBase<T> {
 
 	concat<T2>(...others2: AsyncStreamSource<T2>[]): any {
 		return new AsyncConcatStream<T | T2>(
-			this.source,
-			(this.otherSources as AsyncStreamSource<T | T2>[]).concat(others2),
+			this.source as any,
+			(this.otherSources as AsyncStreamSource<T | T2>[]).concat(others2 as any),
 		);
 	}
 

@@ -673,6 +673,10 @@ export abstract class StreamBase<T> implements Stream<T> {
 		return new ReducerStream(this, reducer);
 	}
 
+	groupBy<K>(valueToKey: (value: T, index: number) => K): any {
+		return (options: any = {}) => this.reduce(Reducer.groupBy(valueToKey, options));
+	}
+
 	toArray(): T[] {
 		const iterator = this[Symbol.iterator]();
 		const result: T[] = [];
@@ -1150,8 +1154,8 @@ class ConcatStream<T> extends StreamBase<T> {
 
 	concat<T2>(...others2: StreamSource<T2>[]): any {
 		return new ConcatStream<T | T2>(
-			this.source,
-			(this.otherSources as StreamSource<T | T2>[]).concat(others2),
+			this.source as any,
+			(this.otherSources as StreamSource<T | T2>[]).concat(others2 as any),
 		);
 	}
 
@@ -1965,7 +1969,7 @@ export class AlwaysStream<T> extends StreamBase<T> {
 	}
 
 	concat<T2>(): Stream.NonEmpty<T | T2> {
-		return this.assumeNonEmpty();
+		return this.assumeNonEmpty() as any;
 	}
 
 	min(): T {
