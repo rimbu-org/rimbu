@@ -707,54 +707,54 @@ expectTypeOf(
 	await AsyncStream.empty<number>().minBy(() => 0, 'a' as string),
 ).toEqualTypeOf<number | string>();
 
-// .mkGroup(..)
-expectTypeOf(AsyncStream.empty<number>().mkGroup({})).toEqualTypeOf<
+// .joinStream(..)
+expectTypeOf(AsyncStream.empty<number>().joinStream({})).toEqualTypeOf<
 	AsyncStream<number>
 >();
-expectTypeOf(AsyncStream.of(1).mkGroup({})).toEqualTypeOf<
+expectTypeOf(AsyncStream.of(1).joinStream({})).toEqualTypeOf<
 	AsyncStream.NonEmpty<number>
 >();
 
 expectTypeOf(
-	AsyncStream.empty<number>().mkGroup({ start: AsyncStream.empty<number>() }),
+	AsyncStream.empty<number>().joinStream({ start: AsyncStream.empty<number>() }),
 ).toEqualTypeOf<AsyncStream<number>>();
 expectTypeOf(
-	AsyncStream.empty<number>().mkGroup({ sep: AsyncStream.empty<number>() }),
+	AsyncStream.empty<number>().joinStream({ sep: AsyncStream.empty<number>() }),
 ).toEqualTypeOf<AsyncStream<number>>();
 expectTypeOf(
-	AsyncStream.empty<number>().mkGroup({ end: AsyncStream.empty<number>() }),
+	AsyncStream.empty<number>().joinStream({ end: AsyncStream.empty<number>() }),
 ).toEqualTypeOf<AsyncStream<number>>();
 
 expectTypeOf(
-	AsyncStream.empty<number>().mkGroup({ sep: AsyncStream.of(1) }),
+	AsyncStream.empty<number>().joinStream({ sep: AsyncStream.of(1) }),
 ).toEqualTypeOf<AsyncStream<number>>();
 
 // TODO
 // expectType<AsyncStream.NonEmpty<number>>(
-//   AsyncStream.empty<number>().mkGroup({ start: AsyncStream.of(1) })
+//   AsyncStream.empty<number>().joinStream({ start: AsyncStream.of(1) })
 // );
 // expectType<AsyncStream.NonEmpty<number>>(
-//   AsyncStream.empty<number>().mkGroup({ end: AsyncStream.of(1) })
+//   AsyncStream.empty<number>().joinStream({ end: AsyncStream.of(1) })
 // );
 
 expectTypeOf(
-	AsyncStream.of(1).mkGroup({ start: AsyncStream.empty<number>() }),
+	AsyncStream.of(1).joinStream({ start: AsyncStream.empty<number>() }),
 ).toEqualTypeOf<AsyncStream.NonEmpty<number>>();
 expectTypeOf(
-	AsyncStream.of(1).mkGroup({ sep: AsyncStream.empty<number>() }),
+	AsyncStream.of(1).joinStream({ sep: AsyncStream.empty<number>() }),
 ).toEqualTypeOf<AsyncStream.NonEmpty<number>>();
 expectTypeOf(
-	AsyncStream.of(1).mkGroup({ end: AsyncStream.empty<number>() }),
+	AsyncStream.of(1).joinStream({ end: AsyncStream.empty<number>() }),
 ).toEqualTypeOf<AsyncStream.NonEmpty<number>>();
 
 expectTypeOf(
-	AsyncStream.of(1).mkGroup({ start: AsyncStream.of(1) }),
+	AsyncStream.of(1).joinStream({ start: AsyncStream.of(1) }),
 ).toEqualTypeOf<AsyncStream.NonEmpty<number>>();
 expectTypeOf(
-	AsyncStream.of(1).mkGroup({ sep: AsyncStream.of(1) }),
+	AsyncStream.of(1).joinStream({ sep: AsyncStream.of(1) }),
 ).toEqualTypeOf<AsyncStream.NonEmpty<number>>();
 expectTypeOf(
-	AsyncStream.of(1).mkGroup({ end: AsyncStream.of(1) }),
+	AsyncStream.of(1).joinStream({ end: AsyncStream.of(1) }),
 ).toEqualTypeOf<AsyncStream.NonEmpty<number>>();
 
 // .prepend(..)

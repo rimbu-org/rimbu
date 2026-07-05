@@ -855,12 +855,12 @@ export interface AsyncStream<T>
 	 * - end: (optional) an end StreamSource to append
 	 * @example
 	 * ```ts
-	 * await AsyncStream.of(1, 2, 3).mkGroup({ start: '<<', sep: '-', end: '>>' }).toArray()
+	 * await AsyncStream.of(1, 2, 3).joinStream({ start: '<<', sep: '-', end: '>>' }).toArray()
 	 * // => ['<', '<', 1, '-', 2, '-', 3, '>', '>']
 	 * ```
 	 * @note O(N)
 	 */
-	mkGroup(options: {
+	joinStream(options: {
 		sep?: AsyncStreamSource<T> | undefined;
 		start?: AsyncStreamSource<T> | undefined;
 		end?: AsyncStreamSource<T> | undefined;
@@ -1410,12 +1410,12 @@ export namespace AsyncStream {
 		 * - end: (optional) an end StreamSource to append
 		 * @example
 		 * ```ts
-		 * await AsyncStream.of(1, 2, 3).mkGroup({ start: '<<', sep: '-', end: '>>' }).toArray()
+		 * await AsyncStream.of(1, 2, 3).joinStream({ start: '<<', sep: '-', end: '>>' }).toArray()
 		 * // => ['<', '<', 1, '-', 2, '-', 3, '>', '>']
 		 * ```
 		 * @note O(N)
 		 */
-		mkGroup(options: {
+		joinStream(options: {
 			sep?: AsyncStreamSource<T> | undefined;
 			start?: AsyncStreamSource<T> | undefined;
 			end?: AsyncStreamSource<T> | undefined;

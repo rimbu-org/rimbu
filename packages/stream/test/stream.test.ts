@@ -1473,21 +1473,21 @@ describe('Stream methods', () => {
 		});
 	});
 
-	it('mkGroup', () => {
+	it('joinStream', () => {
 		expect(
 			Stream.empty()
-				.mkGroup({ start: [-1], end: [-2], sep: [-3] })
+				.joinStream({ start: [-1], end: [-2], sep: [-3] })
 				.toArray(),
 		).toEqual([-1, -2]);
-		expect(Stream.of(1).mkGroup({}).toArray()).toEqual([1]);
+		expect(Stream.of(1).joinStream({}).toArray()).toEqual([1]);
 		expect(
 			Stream.of(1)
-				.mkGroup({ start: [-1], end: [-2], sep: [-3] })
+				.joinStream({ start: [-1], end: [-2], sep: [-3] })
 				.toArray(),
 		).toEqual([-1, 1, -2]);
 		expect(
 			Stream.of(1, 2, 3)
-				.mkGroup({ start: [-1], end: [-2], sep: [-3] })
+				.joinStream({ start: [-1], end: [-2], sep: [-3] })
 				.toArray(),
 		).toEqual([-1, 1, -3, 2, -3, 3, -2]);
 	});

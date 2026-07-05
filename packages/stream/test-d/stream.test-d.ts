@@ -702,51 +702,51 @@ expectTypeOf(
 	Stream.empty<number>().minBy(() => 0, 'a' as string),
 ).toEqualTypeOf<number | string>();
 
-// .mkGroup(..)
-expectTypeOf(Stream.empty<number>().mkGroup({})).toEqualTypeOf<
+// .joinStream(..)
+expectTypeOf(Stream.empty<number>().joinStream({})).toEqualTypeOf<
 	Stream<number>
 >();
-expectTypeOf(Stream.of(1).mkGroup({})).toEqualTypeOf<Stream.NonEmpty<number>>();
+expectTypeOf(Stream.of(1).joinStream({})).toEqualTypeOf<Stream.NonEmpty<number>>();
 
 expectTypeOf(
-	Stream.empty<number>().mkGroup({ start: Stream.empty<number>() }),
+	Stream.empty<number>().joinStream({ start: Stream.empty<number>() }),
 ).toEqualTypeOf<Stream<number>>();
 expectTypeOf(
-	Stream.empty<number>().mkGroup({ sep: Stream.empty<number>() }),
+	Stream.empty<number>().joinStream({ sep: Stream.empty<number>() }),
 ).toEqualTypeOf<Stream<number>>();
 expectTypeOf(
-	Stream.empty<number>().mkGroup({ end: Stream.empty<number>() }),
+	Stream.empty<number>().joinStream({ end: Stream.empty<number>() }),
 ).toEqualTypeOf<Stream<number>>();
 
 expectTypeOf(
-	Stream.empty<number>().mkGroup({ sep: Stream.of(1) }),
+	Stream.empty<number>().joinStream({ sep: Stream.of(1) }),
 ).toEqualTypeOf<Stream<number>>();
 
 // TODO
 // expectType<Stream.NonEmpty<number>>(
-//   Stream.empty<number>().mkGroup({ start: Stream.of(1) })
+//   Stream.empty<number>().joinStream({ start: Stream.of(1) })
 // );
 // expectType<Stream.NonEmpty<number>>(
-//   Stream.empty<number>().mkGroup({ end: Stream.of(1) })
+//   Stream.empty<number>().joinStream({ end: Stream.of(1) })
 // );
 
 expectTypeOf(
-	Stream.of(1).mkGroup({ start: Stream.empty<number>() }),
+	Stream.of(1).joinStream({ start: Stream.empty<number>() }),
 ).toEqualTypeOf<Stream.NonEmpty<number>>();
 expectTypeOf(
-	Stream.of(1).mkGroup({ sep: Stream.empty<number>() }),
+	Stream.of(1).joinStream({ sep: Stream.empty<number>() }),
 ).toEqualTypeOf<Stream.NonEmpty<number>>();
 expectTypeOf(
-	Stream.of(1).mkGroup({ end: Stream.empty<number>() }),
+	Stream.of(1).joinStream({ end: Stream.empty<number>() }),
 ).toEqualTypeOf<Stream.NonEmpty<number>>();
 
-expectTypeOf(Stream.of(1).mkGroup({ start: Stream.of(1) })).toEqualTypeOf<
+expectTypeOf(Stream.of(1).joinStream({ start: Stream.of(1) })).toEqualTypeOf<
 	Stream.NonEmpty<number>
 >();
-expectTypeOf(Stream.of(1).mkGroup({ sep: Stream.of(1) })).toEqualTypeOf<
+expectTypeOf(Stream.of(1).joinStream({ sep: Stream.of(1) })).toEqualTypeOf<
 	Stream.NonEmpty<number>
 >();
-expectTypeOf(Stream.of(1).mkGroup({ end: Stream.of(1) })).toEqualTypeOf<
+expectTypeOf(Stream.of(1).joinStream({ end: Stream.of(1) })).toEqualTypeOf<
 	Stream.NonEmpty<number>
 >();
 

@@ -645,7 +645,7 @@ describe('AsyncReducer', () => {
 			async (c, v) => c + v,
 			async (s) => s * 2,
 			close,
-		).sliceInput(1, 1);
+		).sliceInput({ start: 1, amount: 1 });
 
 		expect(AsyncStream.of(1, 2, 3).reduce(sumDouble)).resolves.toBe(4);
 		expect(close).toBeCalledTimes(1);

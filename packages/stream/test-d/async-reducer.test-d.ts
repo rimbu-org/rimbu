@@ -178,5 +178,5 @@ expectTypeOf(
 
 // .sliceInput
 expectTypeOf(
-	AsyncReducer.from(Reducer.toArray<number>()).sliceInput(5, 3),
+	AsyncReducer.from(Reducer.toArray<number>()).sliceInput({ start: 5, amount: 3 }),
 ).toEqualTypeOf<AsyncReducer<number, number[]>>();

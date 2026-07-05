@@ -1599,25 +1599,25 @@ describe('AsyncStream methods', () => {
 		} catch {}
 		expect(close).toBeCalledTimes(1);
 	});
-	it('mkGroup', () => {
+	it('joinStream', () => {
 		expect(
 			AsyncStream.empty()
-				.mkGroup({ start: [-1], end: [-2], sep: [-3] })
+				.joinStream({ start: [-1], end: [-2], sep: [-3] })
 				.toArray(),
 		).resolves.toEqual([-1, -2]);
-		expect(AsyncStream.of(1).mkGroup({}).toArray()).resolves.toEqual([1]);
+		expect(AsyncStream.of(1).joinStream({}).toArray()).resolves.toEqual([1]);
 		expect(
 			AsyncStream.of(1)
-				.mkGroup({ start: [-1], end: [-2], sep: [-3] })
+				.joinStream({ start: [-1], end: [-2], sep: [-3] })
 				.toArray(),
 		).resolves.toEqual([-1, 1, -2]);
 		expect(
 			AsyncStream.of(1, 2, 3)
-				.mkGroup({ start: [-1], end: [-2], sep: [-3] })
+				.joinStream({ start: [-1], end: [-2], sep: [-3] })
 				.toArray(),
 		).resolves.toEqual([-1, 1, -3, 2, -3, 3, -2]);
 	});
-	it('mkGroup close', async () => {
+	it('joinStream close', async () => {
 		const s = createResourceStream([1, 2, 3]);
 		const closeStart = vi.fn();
 		const start = createResourceStream([4, 5], closeStart);
@@ -1626,7 +1626,7 @@ describe('AsyncStream methods', () => {
 		const closeEnd = vi.fn();
 		const end = createResourceStream([8, 9], closeEnd);
 
-		const group = s.mkGroup({ sep, start, end });
+		const group = s.joinStream({ sep, start, end });
 		await group.count();
 		expect(close).toBeCalledTimes(1);
 		expect(closeStart).toBeCalledTimes(1);
@@ -1638,7 +1638,7 @@ describe('AsyncStream methods', () => {
 		closeEnd.mockReset();
 		closeSep.mockReset();
 		try {
-			await createErrorStream().mkGroup({ sep, start, end }).count();
+			await createErrorStream().joinStream({ sep, start, end }).count();
 		} catch {}
 		expect(close).toBeCalledTimes(1);
 		expect(closeStart).toBeCalledTimes(1);

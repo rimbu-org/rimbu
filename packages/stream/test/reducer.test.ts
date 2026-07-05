@@ -548,14 +548,23 @@ describe('Reducer', () => {
 	});
 
 	it('sliceInput', () => {
-		expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput(1))).toBe(5);
-		expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput(1, 10))).toBe(5);
-		expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput(1, 1))).toBe(2);
-		expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput(0, 1))).toBe(1);
-		expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput(2))).toBe(3);
-		expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput(2, 2))).toBe(3);
-		expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput(2, 0))).toBe(0);
-		expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput(2, 1))).toBe(3);
+		// no range — all elements
+		expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput())).toBe(6);
+		// start only — drop first N
+		expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput({ start: 1 }))).toBe(5);
+		expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput({ start: 2 }))).toBe(3);
+		// start + amount
+		expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput({ start: 1, amount: 10 }))).toBe(5);
+		expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput({ start: 1, amount: 1 }))).toBe(2);
+		expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput({ start: 2, amount: 2 }))).toBe(3);
+		expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput({ start: 2, amount: 1 }))).toBe(3);
+		// amount only — take first N
+		expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput({ amount: 1 }))).toBe(1);
+		// start + end (inclusive)
+		expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput({ start: 1, end: 1 }))).toBe(2);
+		expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput({ start: 1, end: 2 }))).toBe(5);
+		// zero-length range
+		expect(Stream.of(1, 2, 3).reduce(Reducer.sum.sliceInput({ start: 2, amount: 0 }))).toBe(0);
 	});
 
 	it('pipe', () => {

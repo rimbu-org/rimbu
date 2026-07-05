@@ -575,7 +575,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 		return result.concat(end);
 	}
 
-	mkGroup({
+	joinStream({
 		sep = StreamFactory().empty() as StreamSource<T>,
 		start = StreamFactory().empty() as StreamSource<T>,
 		end = StreamFactory().empty() as StreamSource<T>,
@@ -1660,7 +1660,7 @@ export class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
 		if (undefined !== ifEmpty) return ifEmpty;
 		return start.concat(end);
 	}
-	mkGroup({
+	joinStream({
 		start = StreamFactory().empty() as StreamSource<T>,
 		end = StreamFactory().empty() as StreamSource<T>,
 	} = {}): Stream.NonEmpty<T> {

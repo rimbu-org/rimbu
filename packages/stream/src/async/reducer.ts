@@ -1,5 +1,6 @@
 import type { AsyncOptLazy, MaybePromise } from '@rimbu/common/async-opt-lazy';
 import type { AsyncCollectFun } from '@rimbu/common/collect';
+import type { IndexRange } from '@rimbu/common/index-range';
 import type { AsyncStreamSource } from '@rimbu/stream/async';
 import type { Reducer } from '@rimbu/stream/reducer';
 
@@ -192,9 +193,8 @@ export namespace AsyncReducer {
 		 */
 		dropInput(amount: number): AsyncReducer<I, O>;
 		/**
-		 * Returns an `AsyncReducer` instance that takes given `amount` of elements starting at given `from` index, and ignores other elements.
-		 * @param from - (default: 0) the index at which to start processing elements
-		 * @param amount - (optional) the amount of elements to process, if not given, processes all elements from the `from` index
+		 * Returns an `AsyncReducer` instance that only processes elements within the given `range`, and ignores other elements.
+		 * @param range - (optional) an `IndexRange` specifying which input elements to process; if omitted, all elements are processed
 		 * @example
 		 * ```ts
 		 * await AsyncStream
@@ -202,15 +202,12 @@ export namespace AsyncReducer {
 		 *   .reduce(
 		 *     AsyncReducer
 		 *       .createMono(0, async (c, v) => c + v)
-		 *       .sliceInput(1, 2)
+		 *       .sliceInput({ start: 1, amount: 2 })
 		 *   )
 		 * // => 3
 		 * ```
 		 */
-		sliceInput(
-			from?: number | undefined,
-			amount?: number | undefined,
-		): AsyncReducer<I, O>;
+		sliceInput(range?: IndexRange): AsyncReducer<I, O>;
 		/**
 		 * Returns an 'AsyncReducer` instance that produces at most `amount` values.
 		 * @param amount - the maximum amount of values to produce.

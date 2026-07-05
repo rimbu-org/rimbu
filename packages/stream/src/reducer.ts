@@ -1,4 +1,5 @@
 import type { CollectFun } from '@rimbu/common/collect';
+import type { IndexRange } from '@rimbu/common/index-range';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { StreamSource } from '@rimbu/stream';
 
@@ -148,16 +149,19 @@ export namespace Reducer {
 		 */
 		dropInput(amount: number): Reducer<I, O>;
 		/**
-		 * Returns a `Reducer` instance that takes given `amount` of elements starting at given `from` index, and ignores other elements.
-		 * @param from - (default: 0) the index at which to start processing elements
-		 * @param amount - (optional) the amount of elements to process, if not given, processes all elements from the `from` index
+		 * Returns a `Reducer` instance that only processes elements within the given `range`, and ignores other elements.
+		 * @param range - (optional) an `IndexRange` specifying which input elements to process; if omitted, all elements are processed
 		 * @example
 		 * ```ts
-		 * Stream.range({ end: 10 }).reduce(Reducer.sum.sliceInput(1, 2))
+		 * Stream.range({ end: 10 }).reduce(Reducer.sum.sliceInput({ start: 1, amount: 2 }))
 		 * // => 3
+		 * Stream.range({ end: 10 }).reduce(Reducer.sum.sliceInput({ start: 2, end: 4 }))
+		 * // => 9
+		 * Stream.range({ end: 10 }).reduce(Reducer.sum.sliceInput({ start: 5 }))
+		 * // => 35
 		 * ```
 		 */
-		sliceInput(from?: number, amount?: number): Reducer<I, O>;
+		sliceInput(range?: IndexRange): Reducer<I, O>;
 		/**
 		 * Returns an 'AsyncReducer` instance that produces at most `amount` values.
 		 * @param amount - the maximum amount of values to produce.

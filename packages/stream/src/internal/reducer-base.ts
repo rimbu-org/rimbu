@@ -1,4 +1,5 @@
 import { CollectFun } from '@rimbu/common/collect';
+import { IndexRange } from '@rimbu/common/index-range';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { type FastIterator, Stream, type StreamSource } from '@rimbu/stream';
 import { Reducer } from '@rimbu/stream/reducer';
@@ -182,13 +183,18 @@ export class ReducerBase<I, O, S> implements Reducer.Impl<I, O, S> {
 		return this.filterInput((_, i): boolean => i >= amount);
 	}
 
-	sliceInput(from = 0, amount?: number): Reducer<I, O> {
-		if (undefined === amount) return this.dropInput(from);
+	sliceInput(range?: IndexRange): Reducer<I, O> {
+		if (undefined === range) return this as unknown as Reducer<I, O>;
+
+		const [start, end] = IndexRange.getIndexRangeIndices(range);
+		const amount = undefined === end ? undefined : end - start + 1;
+
+		if (undefined === amount) return this.dropInput(start);
 		if (amount <= 0)
 			return Reducer.create(this.init, identity, this.stateToResult);
-		if (from <= 0) return this.takeInput(amount);
+		if (start <= 0) return this.takeInput(amount);
 
-		return this.takeInput(amount).dropInput(from);
+		return this.takeInput(amount).dropInput(start);
 	}
 
 	chain<O2 extends O>(

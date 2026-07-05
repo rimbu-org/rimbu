@@ -829,12 +829,12 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - end: (optional) an end StreamSource to append
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).mkGroup({ start: '<<', sep: '-', end: '>>' }).toArray()
+	 * Stream.of(1, 2, 3).joinStream({ start: '<<', sep: '-', end: '>>' }).toArray()
 	 * // => ['<', '<', 1, '-', 2, '-', 3, '>', '>']
 	 * ```
 	 * @note O(N)
 	 */
-	mkGroup(options: {
+	joinStream(options: {
 		sep?: StreamSource<T> | undefined;
 		start?: StreamSource<T> | undefined;
 		end?: StreamSource<T> | undefined;
@@ -1356,12 +1356,12 @@ export namespace Stream {
 		 * - end: (optional) an end StreamSource to append
 		 * @example
 		 * ```ts
-		 * Stream.of(1, 2, 3).mkGroup({ start: '<<', sep: '-', end: '>>' }).toArray()
+		 * Stream.of(1, 2, 3).joinStream({ start: '<<', sep: '-', end: '>>' }).toArray()
 		 * // => ['<', '<', 1, '-', 2, '-', 3, '>', '>']
 		 * ```
 		 * @note O(N)
 		 */
-		mkGroup(options: {
+		joinStream(options: {
 			sep?: StreamSource<T> | undefined;
 			start?: StreamSource<T> | undefined;
 			end?: StreamSource<T> | undefined;

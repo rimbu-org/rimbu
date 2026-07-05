@@ -699,7 +699,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 		}
 	}
 
-	mkGroup({
+	joinStream({
 		sep = AsyncStreamFactory().empty() as AsyncStreamSource<T>,
 		start = AsyncStreamFactory().empty() as AsyncStreamSource<T>,
 		end = AsyncStreamFactory().empty() as AsyncStreamSource<T>,
@@ -1855,7 +1855,7 @@ export class AsyncEmptyStream<T = any>
 	} = {}): Promise<string> {
 		return undefined !== ifEmpty ? ifEmpty : start.concat(end);
 	}
-	mkGroup({
+	joinStream({
 		start = AsyncStreamFactory().empty() as AsyncStreamSource<T>,
 		end = AsyncStreamFactory().empty() as AsyncStreamSource<T>,
 	} = {}): AsyncStream.NonEmpty<T> {

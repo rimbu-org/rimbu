@@ -170,6 +170,6 @@ expectTypeOf(
 ).toEqualTypeOf<boolean>();
 
 // .sliceInput
-expectTypeOf(Reducer.toArray<number>().sliceInput(5, 3)).toEqualTypeOf<
+expectTypeOf(Reducer.toArray<number>().sliceInput({ start: 5, amount: 3 })).toEqualTypeOf<
 	Reducer<number, number[]>
 >();
