@@ -2,7 +2,7 @@ import { describe, expect, it } from 'bun:test';
 
 import { Eq } from '@rimbu/common/eq';
 import { HashSet } from '@rimbu/hashed/set';
-import { runSetRandomTestsWith } from '../../collection-types/test-utils/set/set-random';
+import { runSetRandomTestsWith } from '@rimbu/collection-types/test-utils/set/set-random';
 
 runSetRandomTestsWith('HashSet default', HashSet.defaultContext());
 

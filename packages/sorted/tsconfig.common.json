@@ -5,6 +5,7 @@
 			"@rimbu/sorted/map": ["./map.ts"],
 			"@rimbu/sorted/set": ["./set.ts"],
 			"@rimbu/sorted/internal/*": ["./internal/*.ts", "./internal/*"],
+			"@rimbu/collection-types/*": ["../collection-types/*.ts", "../collection-types/*"],
 			"#sorted/*": ["./internal/sorted/*.ts"],
 			"#map/*": ["./internal/map/*.ts"],
 			"#set/*": ["./internal/set/*.ts"]

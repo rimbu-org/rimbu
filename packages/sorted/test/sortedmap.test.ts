@@ -1,5 +1,5 @@
 import { SortedMap } from '@rimbu/sorted/map';
-import { runMapTestsWith } from '../../collection-types/test-utils/map/map-standard';
+import { runMapTestsWith } from '@rimbu/collection-types/test-utils/map/map-standard';
 
 runMapTestsWith(
 	'SortedMap blockSize 2',

@@ -1,6 +1,6 @@
 import { HashMap } from '@rimbu/hashed/map';
 import { ProximityMap } from '@rimbu/proximity';
-import { runMapRandomTestsWith } from '../../collection-types/test-utils/map/map-random';
+import { runMapRandomTestsWith } from '@rimbu/collection-types/test-utils/map/map-random';
 
 runMapRandomTestsWith('ProximityMap default', ProximityMap.defaultContext());
 

@@ -1,5 +1,5 @@
 import { SortedSet } from '@rimbu/sorted/set';
-import { runSetTestsWith } from '../../collection-types/test-utils/set/set-standard';
+import { runSetTestsWith } from '@rimbu/collection-types/test-utils/set/set-standard';
 
 runSetTestsWith(
 	'SortedSet blockSize 2',

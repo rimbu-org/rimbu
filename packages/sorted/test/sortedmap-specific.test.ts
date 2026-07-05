@@ -22,7 +22,7 @@ function runWith(name: string, context: SortedMap.Context<number>): void {
 			);
 			expect(map.stream({ reversed: true }).toArray()).toEqual(
 				Stream.range({ start: 99, end: 0 }, { delta: -1 })
-					.map((v) => [v, v])
+					.map((v) => [v, v] as const)
 					.toArray(),
 			);
 		});

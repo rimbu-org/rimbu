@@ -486,12 +486,6 @@ The following packages have typecheck errors that existed before this migration.
 
 | Package | Known issues |
 |---|---|
-| `@rimbu/actor` | `immer` type export issues; test type errors |
-| `@rimbu/deep` | One test type error in `patch.test.ts` |
-| `@rimbu/graph` | Test type errors in graph equality checks; `#private/*` references in some files |
-| `@rimbu/hashed` | Internal `Context` callable type error; test `rootDir` issues |
-| `@rimbu/ordered` | Test `rootDir` issues |
-| `@rimbu/proximity` | Test `rootDir` issues |
-| `@rimbu/sorted` | Test type errors; test `rootDir` issues |
-
-The `rootDir` issues are caused by tests importing from `@rimbu/collection-types/test-utils/` — a cross-package test utility path that puts source files outside the package's `rootDir`. These do not affect runtime behavior.
+| `@rimbu/actor` | Test type error in `test/actor.test.ts`: `Reducer<unknown, {}>` not assignable to `ActionReducer<{}>` |
+| `@rimbu/graph` | `entry/*` module-not-found errors in `src/internal/*/creators.ts` and test files; many implicit `any` parameters in valued graph test files |
+| `@rimbu/sorted` | One type error in `test/sortedmap-specific.test.ts` (`number[][]` not assignable to `(readonly [number, number])[]`) |

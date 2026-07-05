@@ -59,5 +59,4 @@ This is intentional and test-only. Do not remove it.
 
 ## Pre-existing known issues
 
-- Test `rootDir` issues from importing `@rimbu/collection-types/test-utils/`
-- Some test type errors in sorted-specific edge cases
+- One type error in `test/sortedmap-specific.test.ts`: `number[][]` not assignable to `(readonly [number, number])[]`

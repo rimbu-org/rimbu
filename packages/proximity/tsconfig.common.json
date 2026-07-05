@@ -3,6 +3,7 @@
 		"paths": {
 			"@rimbu/proximity": ["./proximity.ts"],
 			"@rimbu/proximity/*": ["./*.ts"],
+			"@rimbu/collection-types/*": ["../collection-types/*.ts", "../collection-types/*"],
 			"#proximity/*": ["./internal/*.ts"]
 		}
 	}

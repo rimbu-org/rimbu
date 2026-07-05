@@ -1,7 +1,7 @@
 import type { Hasher } from '@rimbu/hashed';
 
 import { HashMap } from '@rimbu/hashed/map';
-import { runMapTestsWith } from '../../collection-types/test-utils/map/map-standard';
+import { runMapTestsWith } from '@rimbu/collection-types/test-utils/map/map-standard';
 
 const collisionHasher: Hasher<any> = {
 	hash: () => 1,

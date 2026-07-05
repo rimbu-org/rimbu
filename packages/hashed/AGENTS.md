@@ -75,5 +75,4 @@ This is how `filter()` on `RMapBase` returns `HashMap<K,V>` (not `RMapBase<K,V>`
 
 ## Pre-existing known issues
 
-- Internal `Context` callable type error in `context-factory.ts` (pre-existing, do not fix without understanding the callable interface pattern)
-- Test `rootDir` issues from importing `@rimbu/collection-types/test-utils/`
+None currently.
