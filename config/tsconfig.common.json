@@ -3,18 +3,14 @@
 		"target": "es2023",
 		"module": "esnext",
 		"moduleResolution": "bundler",
-		"lib": ["ES2024", "DOM", "DOM.Iterable"],
+		"lib": ["ES2024", "DOM"],
 		"verbatimModuleSyntax": true,
-		"importHelpers": false,
-		"sourceMap": true,
 		"strict": true,
 		"exactOptionalPropertyTypes": true,
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,
 		"noUnusedLocals": true,
-		"noUnusedParameters": false,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"isolatedModules": true
+		"noUncheckedSideEffectImports": true,
+		"skipLibCheck": true
 	}
 }
