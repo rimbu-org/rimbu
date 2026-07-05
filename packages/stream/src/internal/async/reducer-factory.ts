@@ -484,14 +484,14 @@ export interface AsyncReducerFactory {
 			reducer1: AsyncReducer.Accept<I, O1>,
 			reducer2: AsyncReducer.Accept<O1, O2>,
 			reducer3: AsyncReducer.Accept<O2, O3>,
-			reducer4: AsyncReducer.Accept<O2, O4>,
+			reducer4: AsyncReducer.Accept<O3, O4>,
 		): AsyncReducer<I, O4>;
 		<I, O1, O2, O3, O4, O5>(
 			reducer1: AsyncReducer.Accept<I, O1>,
 			reducer2: AsyncReducer.Accept<O1, O2>,
 			reducer3: AsyncReducer.Accept<O2, O3>,
-			reducer4: AsyncReducer.Accept<O2, O4>,
-			reducer5: AsyncReducer.Accept<O2, O5>,
+			reducer4: AsyncReducer.Accept<O3, O4>,
+			reducer5: AsyncReducer.Accept<O4, O5>,
 		): AsyncReducer<I, O5>;
 	};
 }

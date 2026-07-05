@@ -272,21 +272,21 @@ export abstract class StreamBase<T> implements Stream<T> {
 	find<O>(
 		pred: (value: T, index: number) => boolean,
 		options: {
-			occurrance?: number | undefined;
+			occurrence?: number | undefined;
 			negate?: boolean | undefined;
 			otherwise?: OptLazy<O>;
 		} = {},
 	): T | O {
-		const { occurrance = 1, negate = false, otherwise } = options;
+		const { occurrence = 1, negate = false, otherwise } = options;
 
-		if (occurrance <= 0) {
+		if (occurrence <= 0) {
 			return OptLazy(otherwise) as O;
 		}
 
 		const done = Symbol('Done');
 		const iterator = this[Symbol.iterator]();
 		let value: T | typeof done;
-		let remain = occurrance;
+		let remain = occurrence;
 		let index = 0;
 
 		while (done !== (value = iterator.fastNext(done))) {
@@ -298,7 +298,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 		return OptLazy(otherwise) as O;
 	}
 
-	elementAt<O>(index: number, otherwise?: OptLazy<O>): T | O {
+	at<O>(index: number, otherwise?: OptLazy<O>): T | O {
 		if (index < 0) {
 			return OptLazy(otherwise) as O;
 		}
@@ -335,13 +335,13 @@ export abstract class StreamBase<T> implements Stream<T> {
 	indexWhere(
 		pred: (value: T, index: number) => boolean,
 		options: {
-			occurrance?: number;
+			occurrence?: number;
 			negate?: boolean;
 		} = {},
 	): number | undefined {
-		const { occurrance = 1, negate = false } = options;
+		const { occurrence = 1, negate = false } = options;
 
-		if (occurrance <= 0) {
+		if (occurrence <= 0) {
 			return undefined;
 		}
 
@@ -356,7 +356,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 
 			if (pred(value, i) !== negate) {
 				occ++;
-				if (occ >= occurrance) {
+				if (occ >= occurrence) {
 					return i;
 				}
 			}
@@ -368,14 +368,14 @@ export abstract class StreamBase<T> implements Stream<T> {
 	indexOf(
 		searchValue: T,
 		options: {
-			occurrance?: number | undefined;
+			occurrence?: number | undefined;
 			eq?: Eq<T> | undefined;
 			negate?: boolean | undefined;
 		} = {},
 	): number | undefined {
-		const { occurrance = 1 } = options;
+		const { occurrence = 1 } = options;
 
-		if (occurrance <= 0) {
+		if (occurrence <= 0) {
 			return undefined;
 		}
 
@@ -393,7 +393,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 			if (eq(value, searchValue) !== negate) {
 				occ++;
 
-				if (occ >= occurrance) {
+				if (occ >= occurrence) {
 					return i;
 				}
 			}
@@ -432,7 +432,7 @@ export abstract class StreamBase<T> implements Stream<T> {
 
 		return (
 			undefined !==
-			this.indexOf(searchValue, { occurrance: amount, eq, negate })
+			this.indexOf(searchValue, { occurrence: amount, eq, negate })
 		);
 	}
 
@@ -923,9 +923,9 @@ class MapStream<T, T2> extends StreamBase<T2> {
 		return this.source.count();
 	}
 
-	elementAt<O>(index: number, otherwise?: OptLazy<O>): T2 | O {
+	at<O>(index: number, otherwise?: OptLazy<O>): T2 | O {
 		const done = Symbol('Done');
-		const value = this.source.elementAt(index, done);
+		const value = this.source.at(index, done);
 		if (done === value) return OptLazy(otherwise) as O;
 		return this.mapFun(value, index);
 	}
@@ -992,9 +992,9 @@ class MapPureStream<
 		return this.source.count();
 	}
 
-	elementAt<O>(index: number, otherwise?: OptLazy<O>): T2 | O {
+	at<O>(index: number, otherwise?: OptLazy<O>): T2 | O {
 		const done = Symbol('Done');
-		const value = this.source.elementAt(index, done);
+		const value = this.source.at(index, done);
 		if (done === value) return OptLazy(otherwise) as O;
 		return this.mapFun(value, ...this.args);
 	}
@@ -1206,18 +1206,18 @@ class IndexedStream<T> extends StreamBase<[number, T]> {
 		return this.source.count();
 	}
 
-	elementAt<O>(
+	at<O>(
 		index: number,
 		otherwise?: OptLazy<O> | undefined,
 	): [number, T] | O {
 		const token = Symbol();
-		const elementAtSource = this.source.elementAt(index, token);
+		const atSource = this.source.at(index, token);
 
-		if (token === elementAtSource) {
+		if (token === atSource) {
 			return OptLazy(otherwise) as O;
 		}
 
-		return [index, elementAtSource];
+		return [index, atSource];
 	}
 
 	take(amount: number): Stream<[number, T]> {
@@ -1583,13 +1583,13 @@ export class EmptyStream<T = any> extends StreamBase<T> implements Stream<T> {
 	}
 	find<O>(
 		pred: (value: any, index: number) => boolean,
-		options: { otherwise?: OptLazy<O>; occurrance?: number | undefined } = {},
+		options: { otherwise?: OptLazy<O>; occurrence?: number | undefined } = {},
 	): O {
 		const { otherwise } = options;
 
 		return OptLazy(otherwise) as O;
 	}
-	elementAt<O>(index: number, otherwise?: OptLazy<O>): O {
+	at<O>(index: number, otherwise?: OptLazy<O>): O {
 		return OptLazy(otherwise) as O;
 	}
 	indicesWhere(): Stream<number> {
@@ -1785,17 +1785,17 @@ export class ArrayStream<T> extends StreamBase<T> {
 	find<O>(
 		pred: (value: T, index: number) => boolean,
 		options: {
-			occurrance?: number | undefined;
+			occurrence?: number | undefined;
 			negate?: boolean | undefined;
 			otherwise?: OptLazy<O>;
 		} = {},
 	): T | O {
-		const { occurrance = 1, negate = false, otherwise } = options;
+		const { occurrence = 1, negate = false, otherwise } = options;
 
 		const startIndex = this.startIndex;
 		const endIndex = this.endIndex;
 		const array = this.array;
-		let remain = occurrance;
+		let remain = occurrence;
 		let index = 0;
 
 		if (!this.reversed) {
@@ -1817,7 +1817,7 @@ export class ArrayStream<T> extends StreamBase<T> {
 		return OptLazy(otherwise) as O;
 	}
 
-	elementAt<O>(index: number, otherwise?: OptLazy<O>): T | O {
+	at<O>(index: number, otherwise?: OptLazy<O>): T | O {
 		if (index < 0 || index >= this.length) {
 			return OptLazy(otherwise) as O;
 		}
@@ -1832,18 +1832,18 @@ export class ArrayStream<T> extends StreamBase<T> {
 	indexOf(
 		searchValue: T,
 		options: {
-			occurrance?: number | undefined;
+			occurrence?: number | undefined;
 			eq?: Eq<T> | undefined;
 			negate?: boolean | undefined;
 		} = {},
 	): number | undefined {
-		const { occurrance = 1 } = options;
+		const { occurrence = 1 } = options;
 
-		if (occurrance <= 0) return undefined;
+		if (occurrence <= 0) return undefined;
 
 		const { eq = Object.is, negate = false } = options;
 
-		let remain = occurrance;
+		let remain = occurrence;
 
 		const startIndex = this.startIndex;
 		const endIndex = this.endIndex;
@@ -1956,7 +1956,7 @@ export class AlwaysStream<T> extends StreamBase<T> {
 		}
 	}
 
-	elementAt(): T {
+	at(): T {
 		return this.value;
 	}
 

@@ -155,7 +155,7 @@ describe('Stream constructors', () => {
 		expect(Stream.always(5).take(5).toArray()).toEqual([5, 5, 5, 5, 5]);
 		expect(Stream.always(5).first()).toBe(5);
 		// expect(Stream.always(5).last()).toBe(5);
-		expect(Stream.always(5).elementAt(10000)).toBe(5);
+		expect(Stream.always(5).at(10000)).toBe(5);
 	});
 
 	it('flatten', () => {
@@ -817,7 +817,7 @@ describe('Stream methods', () => {
 		);
 		expect(
 			Stream.of(1, 2, 1, 4).find((v) => v > 1, {
-				occurrance: 2,
+				occurrence: 2,
 				otherwise: 'a',
 			}),
 		).toBe(4);
@@ -849,7 +849,7 @@ describe('Stream methods', () => {
 		expect(
 			Stream.of(1, 2, 1, 4).find((v) => v <= 1, {
 				negate: true,
-				occurrance: 2,
+				occurrence: 2,
 				otherwise: 'a',
 			}),
 		).toBe(4);
@@ -864,16 +864,19 @@ describe('Stream methods', () => {
 		});
 	});
 
-	it('elementAt', () => {
-		expect(Stream.empty().elementAt(0, 'a')).toBe('a');
-		expect(Stream.of(1).elementAt(0, 'a')).toBe(1);
-		expect(Stream.of(1).elementAt(1, 'a')).toBe('a');
+	it('at', () => {
+		expect(Stream.empty().at(0, 'a')).toBe('a');
+		expect(Stream.of(1).at(0, 'a')).toBe(1);
+		expect(Stream.of(1).at(1, 'a')).toBe('a');
+		// negative indices return the fallback (not supported — stream may be infinite)
+		expect(Stream.of(1, 2, 3).at(-1)).toBe(undefined);
+		expect(Stream.of(1, 2, 3).at(-1, 'a')).toBe('a');
 
 		sources.forEach((source) => {
-			expect(source.elementAt(0, 'a')).toBe(0);
-			expect(source.elementAt(50, 'a')).toBe(50);
-			expect(source.elementAt(99, 'a')).toBe(99);
-			expect(source.elementAt(100, 'a')).toBe('a');
+			expect(source.at(0, 'a')).toBe(0);
+			expect(source.at(50, 'a')).toBe(50);
+			expect(source.at(99, 'a')).toBe(99);
+			expect(source.at(100, 'a')).toBe('a');
 		});
 	});
 
@@ -967,21 +970,21 @@ describe('Stream methods', () => {
 		expect(Stream.empty<number>().indexWhere((v) => v >= 0)).toBe(undefined);
 		expect(Stream.of(1).indexWhere((v) => v >= 0)).toBe(0);
 		expect(Stream.of(1).indexWhere((v) => v < 0)).toBe(undefined);
-		expect(Stream.of(1).indexWhere((v) => v >= 0, { occurrance: 2 })).toBe(
+		expect(Stream.of(1).indexWhere((v) => v >= 0, { occurrence: 2 })).toBe(
 			undefined,
 		);
 		expect(Stream.of(1, 2, 1).indexWhere((v) => v >= 2)).toBe(1);
 		expect(Stream.of(1, 2, 1).indexWhere((v) => v < 0)).toBe(undefined);
-		expect(Stream.of(1, 2, 1).indexWhere((v) => v < 2, { occurrance: 2 })).toBe(
+		expect(Stream.of(1, 2, 1).indexWhere((v) => v < 2, { occurrence: 2 })).toBe(
 			2,
 		);
-		expect(Stream.of(1, 2, 1).indexWhere((v) => v < 2, { occurrance: 3 })).toBe(
+		expect(Stream.of(1, 2, 1).indexWhere((v) => v < 2, { occurrence: 3 })).toBe(
 			undefined,
 		);
 
 		sources.forEach((source) => {
 			expect(source.indexWhere((v) => v >= 50)).toEqual(50);
-			expect(source.indexWhere((v) => v >= 50, { occurrance: 10 })).toEqual(59);
+			expect(source.indexWhere((v) => v >= 50, { occurrence: 10 })).toEqual(59);
 			expect(source.indexWhere((v) => v < 0)).toEqual(undefined);
 		});
 	});
@@ -995,7 +998,7 @@ describe('Stream methods', () => {
 			undefined,
 		);
 		expect(
-			Stream.of(1).indexWhere((v) => v < 0, { negate: true, occurrance: 2 }),
+			Stream.of(1).indexWhere((v) => v < 0, { negate: true, occurrence: 2 }),
 		).toBe(undefined);
 		expect(Stream.of(1, 2, 1).indexWhere((v) => v < 2, { negate: true })).toBe(
 			1,
@@ -1006,20 +1009,20 @@ describe('Stream methods', () => {
 		expect(
 			Stream.of(1, 2, 1).indexWhere((v) => v >= 2, {
 				negate: true,
-				occurrance: 2,
+				occurrence: 2,
 			}),
 		).toBe(2);
 		expect(
 			Stream.of(1, 2, 1).indexWhere((v) => v >= 2, {
 				negate: true,
-				occurrance: 3,
+				occurrence: 3,
 			}),
 		).toBe(undefined);
 
 		sources.forEach((source) => {
 			expect(source.indexWhere((v) => v < 50, { negate: true })).toEqual(50);
 			expect(
-				source.indexWhere((v) => v < 50, { negate: true, occurrance: 10 }),
+				source.indexWhere((v) => v < 50, { negate: true, occurrence: 10 }),
 			).toEqual(59);
 			expect(source.indexWhere((v) => v >= 0, { negate: true })).toEqual(
 				undefined,
@@ -1031,15 +1034,15 @@ describe('Stream methods', () => {
 		expect(Stream.empty<number>().indexOf(1)).toBe(undefined);
 		expect(Stream.of(1).indexOf(1)).toBe(0);
 		expect(Stream.of(1).indexOf(2)).toBe(undefined);
-		expect(Stream.of(1).indexOf(1, { occurrance: 2 })).toBe(undefined);
+		expect(Stream.of(1).indexOf(1, { occurrence: 2 })).toBe(undefined);
 		expect(Stream.of(1, 2, 1).indexOf(2)).toBe(1);
 		expect(Stream.of(1, 2, 1).indexOf(3)).toBe(undefined);
-		expect(Stream.of(1, 2, 1).indexOf(1, { occurrance: 2 })).toBe(2);
-		expect(Stream.of(1, 2, 1).indexOf(1, { occurrance: 3 })).toBe(undefined);
+		expect(Stream.of(1, 2, 1).indexOf(1, { occurrence: 2 })).toBe(2);
+		expect(Stream.of(1, 2, 1).indexOf(1, { occurrence: 3 })).toBe(undefined);
 
 		sources.forEach((source) => {
 			expect(source.indexOf(50)).toEqual(50);
-			expect(source.indexOf(50, { occurrance: 2 })).toEqual(undefined);
+			expect(source.indexOf(50, { occurrence: 2 })).toEqual(undefined);
 			expect(source.indexOf(-1)).toEqual(undefined);
 		});
 	});
@@ -1048,25 +1051,25 @@ describe('Stream methods', () => {
 		expect(Stream.empty<number>().indexOf(1, { negate: true })).toBe(undefined);
 		expect(Stream.of(1).indexOf(5, { negate: true })).toBe(0);
 		expect(Stream.of(1).indexOf(1, { negate: true })).toBe(undefined);
-		expect(Stream.of(1).indexOf(5, { negate: true, occurrance: 2 })).toBe(
+		expect(Stream.of(1).indexOf(5, { negate: true, occurrence: 2 })).toBe(
 			undefined,
 		);
 		expect(Stream.of(1, 2, 1).indexOf(1, { negate: true })).toBe(1);
 		expect(Stream.of(1, 2, 1).indexOf(2, { negate: true })).toBe(0);
-		expect(Stream.of(1, 2, 1).indexOf(1, { negate: true, occurrance: 2 })).toBe(
+		expect(Stream.of(1, 2, 1).indexOf(1, { negate: true, occurrence: 2 })).toBe(
 			undefined,
 		);
 		expect(
-			Stream.of(1, 2, 1, 2).indexOf(1, { negate: true, occurrance: 2 }),
+			Stream.of(1, 2, 1, 2).indexOf(1, { negate: true, occurrence: 2 }),
 		).toBe(3);
-		expect(Stream.of(1, 2, 1).indexOf(2, { negate: true, occurrance: 3 })).toBe(
+		expect(Stream.of(1, 2, 1).indexOf(2, { negate: true, occurrence: 3 })).toBe(
 			undefined,
 		);
 
 		sources.forEach((source) => {
 			expect(source.indexOf(10, { negate: true })).toEqual(0);
-			expect(source.indexOf(50, { negate: true, occurrance: 2 })).toEqual(1);
-			expect(source.indexOf(50, { negate: true, occurrance: 20 })).toEqual(19);
+			expect(source.indexOf(50, { negate: true, occurrence: 2 })).toEqual(1);
+			expect(source.indexOf(50, { negate: true, occurrence: 20 })).toEqual(19);
 			expect(source.indexOf(-1, { negate: true })).toEqual(0);
 		});
 	});

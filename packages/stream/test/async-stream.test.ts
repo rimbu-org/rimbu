@@ -214,7 +214,7 @@ describe('AsyncStream constructors', () => {
 		]);
 		expect(AsyncStream.always(5).first()).resolves.toBe(5);
 		// expect(AsyncStream.always(5).last()).resolves.toBe(5);
-		expect(AsyncStream.always(5).elementAt(10000)).resolves.toBe(5);
+		expect(AsyncStream.always(5).at(10000)).resolves.toBe(5);
 	});
 
 	it('flatten', () => {
@@ -1000,7 +1000,7 @@ describe('AsyncStream methods', () => {
 		).resolves.toBe('a');
 		expect(
 			AsyncStream.of(1, 2, 1, 4).find((v) => v > 1, {
-				occurrance: 2,
+				occurrence: 2,
 				otherwise: 'a',
 			}),
 		).resolves.toBe(4);
@@ -1028,22 +1028,25 @@ describe('AsyncStream methods', () => {
 		} catch {}
 		expect(close).toBeCalledTimes(1);
 	});
-	it('elementAt', async () => {
-		expect(AsyncStream.empty().elementAt(0, 'a')).resolves.toBe('a');
-		expect(AsyncStream.of(1).elementAt(0, 'a')).resolves.toBe(1);
-		expect(AsyncStream.of(1).elementAt(1, 'a')).resolves.toBe('a');
+	it('at', async () => {
+		expect(AsyncStream.empty().at(0, 'a')).resolves.toBe('a');
+		expect(AsyncStream.of(1).at(0, 'a')).resolves.toBe(1);
+		expect(AsyncStream.of(1).at(1, 'a')).resolves.toBe('a');
+		// negative indices return the fallback (not supported — stream may be infinite)
+		expect(AsyncStream.of(1, 2, 3).at(-1)).resolves.toBe(undefined);
+		expect(AsyncStream.of(1, 2, 3).at(-1, 'a')).resolves.toBe('a');
 		for (const source of sources) {
-			expect(source.elementAt(0, 'a')).resolves.toBe(0);
-			expect(source.elementAt(50, 'a')).resolves.toBe(50);
-			expect(source.elementAt(99, 'a')).resolves.toBe(99);
-			expect(source.elementAt(100, 'a')).resolves.toBe('a');
+			expect(source.at(0, 'a')).resolves.toBe(0);
+			expect(source.at(50, 'a')).resolves.toBe(50);
+			expect(source.at(99, 'a')).resolves.toBe(99);
+			expect(source.at(100, 'a')).resolves.toBe('a');
 		}
 	});
-	it('elementAt close', async () => {
-		await createResourceStream([1, 2, 3]).elementAt(1);
+	it('at close', async () => {
+		await createResourceStream([1, 2, 3]).at(1);
 		expect(close).toBeCalledTimes(1);
 		close.mockReset();
-		await createResourceStream([1, 2, 3]).elementAt(100);
+		await createResourceStream([1, 2, 3]).at(100);
 		expect(close).toBeCalledTimes(1);
 	});
 	it('indicesWhere', async () => {
@@ -1099,22 +1102,22 @@ describe('AsyncStream methods', () => {
 		expect(AsyncStream.of(1).indexWhere((v) => v >= 0)).resolves.toBe(0);
 		expect(AsyncStream.of(1).indexWhere((v) => v < 0)).resolves.toBe(undefined);
 		expect(
-			AsyncStream.of(1).indexWhere((v) => v >= 0, { occurrance: 2 }),
+			AsyncStream.of(1).indexWhere((v) => v >= 0, { occurrence: 2 }),
 		).resolves.toBe(undefined);
 		expect(AsyncStream.of(1, 2, 1).indexWhere((v) => v >= 2)).resolves.toBe(1);
 		expect(AsyncStream.of(1, 2, 1).indexWhere((v) => v < 0)).resolves.toBe(
 			undefined,
 		);
 		expect(
-			AsyncStream.of(1, 2, 1).indexWhere((v) => v < 2, { occurrance: 2 }),
+			AsyncStream.of(1, 2, 1).indexWhere((v) => v < 2, { occurrence: 2 }),
 		).resolves.toBe(2);
 		expect(
-			AsyncStream.of(1, 2, 1).indexWhere((v) => v < 2, { occurrance: 3 }),
+			AsyncStream.of(1, 2, 1).indexWhere((v) => v < 2, { occurrence: 3 }),
 		).resolves.toBe(undefined);
 		for (const source of sources) {
 			expect(source.indexWhere((v) => v >= 50)).resolves.toEqual(50);
 			expect(
-				source.indexWhere((v) => v >= 50, { occurrance: 10 }),
+				source.indexWhere((v) => v >= 50, { occurrence: 10 }),
 			).resolves.toEqual(59);
 			expect(source.indexWhere((v) => v < 0)).resolves.toEqual(undefined);
 		}
@@ -1130,20 +1133,20 @@ describe('AsyncStream methods', () => {
 		expect(AsyncStream.empty<number>().indexOf(1)).resolves.toBe(undefined);
 		expect(AsyncStream.of(1).indexOf(1)).resolves.toBe(0);
 		expect(AsyncStream.of(1).indexOf(2)).resolves.toBe(undefined);
-		expect(AsyncStream.of(1).indexOf(1, { occurrance: 2 })).resolves.toBe(
+		expect(AsyncStream.of(1).indexOf(1, { occurrence: 2 })).resolves.toBe(
 			undefined,
 		);
 		expect(AsyncStream.of(1, 2, 1).indexOf(2)).resolves.toBe(1);
 		expect(AsyncStream.of(1, 2, 1).indexOf(3)).resolves.toBe(undefined);
-		expect(AsyncStream.of(1, 2, 1).indexOf(1, { occurrance: 2 })).resolves.toBe(
+		expect(AsyncStream.of(1, 2, 1).indexOf(1, { occurrence: 2 })).resolves.toBe(
 			2,
 		);
-		expect(AsyncStream.of(1, 2, 1).indexOf(1, { occurrance: 3 })).resolves.toBe(
+		expect(AsyncStream.of(1, 2, 1).indexOf(1, { occurrence: 3 })).resolves.toBe(
 			undefined,
 		);
 		for (const source of sources) {
 			expect(source.indexOf(50)).resolves.toEqual(50);
-			expect(source.indexOf(50, { occurrance: 2 })).resolves.toEqual(undefined);
+			expect(source.indexOf(50, { occurrence: 2 })).resolves.toEqual(undefined);
 			expect(source.indexOf(-1)).resolves.toEqual(undefined);
 		}
 	});

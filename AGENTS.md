@@ -13,6 +13,21 @@ Rimbu is a TypeScript library of **immutable persistent data structures** and **
 - Cross-runtime: Node ≥ 18, Deno, Bun, browser (ESM)
 - Runtime: **Bun only** — do not use npm, yarn, or pnpm
 
+### 1.1 API Design Goals
+
+A primary goal of Rimbu is to provide an API that is **simple, intuitive, easy to use, and predictable**. This shapes every design decision:
+
+- **Consistent naming across packages** — the same concept always uses the same name. For example, `filter`, `map`, `flatMap`, `take`, `drop` mean the same thing everywhere. Never use synonyms for the same operation in different packages.
+- **Mathematical index handling** — indices follow mathematical convention throughout:
+  - Non-negative indices count from the start (0-based).
+  - Negative indices count from the end, mirroring JavaScript's `Array.prototype.at()`: `-1` is the last element, `-2` is second-to-last, etc.
+  - This applies to `List`, `Stream`, `fromArray`, `fromString`, `IndexRange`, and any other API that accepts positional indices.
+- **Predictable option objects** — optional behaviour (negation, custom equality, fallback values) is always expressed as a trailing `options` object, never as positional booleans. Property names are consistent: `eq`, `negate`, `otherwise`, `amount`, `reversed`.
+- **OptLazy for fallbacks** — any method that may return `undefined` when the collection is empty provides an `OptLazy<O>` overload so callers can supply an eager or lazy fallback value without a separate null-check.
+- **NonEmpty at the type level** — methods that provably return a non-empty result (e.g. `prepend`, `append`, `concat` on a non-empty source) encode that fact in the return type. Users should never need to cast or guard against emptiness after such operations.
+
+When adding new methods or packages, always ask: *"Is this name what a new user would expect?"* and *"Does this behave the same way the equivalent method does in every other package?"*
+
 ---
 
 ## 2. Monorepo Structure
@@ -482,10 +497,4 @@ All packages share a single version (lockstep). Releasing:
 
 ## 11. Pre-existing Known Issues
 
-The following packages have typecheck errors that existed before this migration. Do not introduce new errors:
-
-| Package | Known issues |
-|---|---|
-| `@rimbu/actor` | Test type error in `test/actor.test.ts`: `Reducer<unknown, {}>` not assignable to `ActionReducer<{}>` |
-| `@rimbu/graph` | `entry/*` module-not-found errors in `src/internal/*/creators.ts` and test files; many implicit `any` parameters in valued graph test files |
-| `@rimbu/sorted` | One type error in `test/sortedmap-specific.test.ts` (`number[][]` not assignable to `(readonly [number, number])[]`) |
+All packages currently typecheck cleanly. There are no known pre-existing typecheck errors.

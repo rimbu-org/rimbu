@@ -690,14 +690,14 @@ export interface ReducerFactory {
 			reducer1: Reducer<I, O1>,
 			reducer2: Reducer<O1, O2>,
 			reducer3: Reducer<O2, O3>,
-			reducer4: Reducer<O2, O4>,
+			reducer4: Reducer<O3, O4>,
 		): Reducer<I, O4>;
 		<I, O1, O2, O3, O4, O5>(
 			reducer1: Reducer<I, O1>,
 			reducer2: Reducer<O1, O2>,
 			reducer3: Reducer<O2, O3>,
-			reducer4: Reducer<O2, O4>,
-			reducer5: Reducer<O2, O5>,
+			reducer4: Reducer<O3, O4>,
+			reducer5: Reducer<O4, O5>,
 		): Reducer<I, O5>;
 	};
 }

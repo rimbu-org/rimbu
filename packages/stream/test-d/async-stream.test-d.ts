@@ -332,17 +332,17 @@ expectTypeOf(AsyncStream.of(1).dropWhile(() => true)).toEqualTypeOf<
 
 // .elementtAt(..)
 expectTypeOf(
-	await AsyncStream.empty<number>().elementAt(1, 3),
+	await AsyncStream.empty<number>().at(1, 3),
 ).toEqualTypeOf<number>();
 expectTypeOf(
-	await AsyncStream.empty<number>().elementAt(1, '' as string),
+	await AsyncStream.empty<number>().at(1, '' as string),
 ).toEqualTypeOf<number | string>();
 
 expectTypeOf(
-	await AsyncStream.empty<number>().elementAt(1, () => 3),
+	await AsyncStream.empty<number>().at(1, () => 3),
 ).toEqualTypeOf<number>();
 expectTypeOf(
-	await AsyncStream.empty<number>().elementAt(1, () => '' as string),
+	await AsyncStream.empty<number>().at(1, () => '' as string),
 ).toEqualTypeOf<number | string>();
 
 // .filter(..)
@@ -382,13 +382,13 @@ expectTypeOf(await AsyncStream.empty<number>().find(() => true)).toEqualTypeOf<
 	number | undefined
 >();
 expectTypeOf(
-	await AsyncStream.empty<number>().find(() => true, { occurrance: 1 }),
+	await AsyncStream.empty<number>().find(() => true, { occurrence: 1 }),
 ).toEqualTypeOf<number | undefined>();
 expectTypeOf(await AsyncStream.of(1).find(() => true)).toEqualTypeOf<
 	number | undefined
 >();
 expectTypeOf(
-	await AsyncStream.of(1).find(() => true, { occurrance: 1 }),
+	await AsyncStream.of(1).find(() => true, { occurrence: 1 }),
 ).toEqualTypeOf<number | undefined>();
 expectTypeOf(
 	await AsyncStream.empty<number>().find(() => true, { otherwise: () => 1 }),

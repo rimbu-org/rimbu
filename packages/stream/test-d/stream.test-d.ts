@@ -288,16 +288,16 @@ expectTypeOf(Stream.of(1).dropWhile(() => true)).toEqualTypeOf<
 >();
 
 // .elementtAt(..)
-expectTypeOf(Stream.empty<number>().elementAt(1, 3)).toEqualTypeOf<number>();
-expectTypeOf(Stream.empty<number>().elementAt(1, '' as string)).toEqualTypeOf<
+expectTypeOf(Stream.empty<number>().at(1, 3)).toEqualTypeOf<number>();
+expectTypeOf(Stream.empty<number>().at(1, '' as string)).toEqualTypeOf<
 	number | string
 >();
 
 expectTypeOf(
-	Stream.empty<number>().elementAt(1, () => 3),
+	Stream.empty<number>().at(1, () => 3),
 ).toEqualTypeOf<number>();
 expectTypeOf(
-	Stream.empty<number>().elementAt(1, () => '' as string),
+	Stream.empty<number>().at(1, () => '' as string),
 ).toEqualTypeOf<number | string>();
 
 // .forEach(..)
@@ -377,10 +377,10 @@ expectTypeOf(Stream.empty<number>().find(() => true)).toEqualTypeOf<
 	number | undefined
 >();
 expectTypeOf(
-	Stream.empty<number>().find(() => true, { occurrance: 1 }),
+	Stream.empty<number>().find(() => true, { occurrence: 1 }),
 ).toEqualTypeOf<number | undefined>();
 expectTypeOf(Stream.of(1).find(() => true)).toEqualTypeOf<number | undefined>();
-expectTypeOf(Stream.of(1).find(() => true, { occurrance: 1 })).toEqualTypeOf<
+expectTypeOf(Stream.of(1).find(() => true, { occurrence: 1 })).toEqualTypeOf<
 	number | undefined
 >();
 expectTypeOf(

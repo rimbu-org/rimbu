@@ -424,16 +424,16 @@ export interface AsyncStream<T>
 	 * @typeparam O - the optional value type to return no value was found
 	 * @param pred - a potentially asynchronous predicate function taking an element and its index
 	 * @param options - (optional) object specifying the following properties<br/>
-	 * - occurrance: (default: 1) the occurrance number to look for<br/>
+	 * - occurrence: (default: 1) the occurrence number to look for<br/>
 	 * - otherwise: (default: undefined) an `OptLazy` value to be returned if the Stream is empty
 	 * @note if the predicate is a type guard, the return type is automatically inferred
 	 * @example
 	 * ```ts
 	 * const isEven = async (v: number) => v % 2 === 0
 	 * await AsyncStream.of(1, 2, 3, 4).find(isEven)           // => 2
-	 * await AsyncStream.of(1, 2, 3, 4).find(isEven, { occurrance: 2 })        // => 4
-	 * await AsyncStream.of(1, 2, 3, 4).find(isEven, { occurrance: 3 })        // => undefined
-	 * await AsyncStream.of(1, 2, 3, 4).find(isEven, { occurrance: 3, otherwise: 'a' })
+	 * await AsyncStream.of(1, 2, 3, 4).find(isEven, { occurrence: 2 })        // => 4
+	 * await AsyncStream.of(1, 2, 3, 4).find(isEven, { occurrence: 3 })        // => undefined
+	 * await AsyncStream.of(1, 2, 3, 4).find(isEven, { occurrence: 3, otherwise: 'a' })
 	 * // => 'a'
 	 * ```
 	 * @note O(N)
@@ -441,7 +441,7 @@ export interface AsyncStream<T>
 	find<O, TF extends T>(
 		pred: (value: T, index: number) => value is TF,
 		options?: {
-			occurrance?: number | undefined;
+			occurrence?: number | undefined;
 			negate?: false | undefined;
 			otherwise: AsyncOptLazy<O>;
 		},
@@ -449,7 +449,7 @@ export interface AsyncStream<T>
 	find<O, TF extends T>(
 		pred: (value: T, index: number) => value is TF,
 		options: {
-			occurrance?: number | undefined;
+			occurrence?: number | undefined;
 			negate: true;
 			otherwise: AsyncOptLazy<O>;
 		},
@@ -457,7 +457,7 @@ export interface AsyncStream<T>
 	find<TF extends T>(
 		pred: (value: T, index: number) => value is TF,
 		options?: {
-			occurrance?: number | undefined;
+			occurrence?: number | undefined;
 			negate?: false | undefined;
 			otherwise?: undefined;
 		},
@@ -465,7 +465,7 @@ export interface AsyncStream<T>
 	find<TF extends T>(
 		pred: (value: T, index: number) => value is TF,
 		options?: {
-			occurrance?: number | undefined;
+			occurrence?: number | undefined;
 			negate: true;
 			otherwise?: undefined;
 		},
@@ -473,7 +473,7 @@ export interface AsyncStream<T>
 	find<O>(
 		pred: (value: T, index: number) => MaybePromise<boolean>,
 		options: {
-			occurrance?: number | undefined;
+			occurrence?: number | undefined;
 			negate?: boolean | undefined;
 			otherwise: AsyncOptLazy<O>;
 		},
@@ -481,7 +481,7 @@ export interface AsyncStream<T>
 	find(
 		pred: (value: T, index: number) => MaybePromise<boolean>,
 		options?: {
-			occurrance?: number | undefined;
+			occurrence?: number | undefined;
 			negate?: boolean | undefined;
 			otherwise?: undefined;
 		},
@@ -489,19 +489,21 @@ export interface AsyncStream<T>
 	/**
 	 * Returns the element in the AsyncStream at the given index, or a fallback value (default undefined) otherwise.
 	 * @typeparam O - the optional value type to return if the index is out of bounds
-	 * @param index - the index of the element to retrieve
+	 * @param index - the non-negative index of the element to retrieve
 	 * @param otherwise - (optional) an `AsyncOptLazy` value to be returned if the index is out of bounds
 	 * @example
 	 * ```ts
-	 * await AsyncStream.of(1, 2, 3).elementAt(1)        // => 2
-	 * await AsyncStream.of(1, 2, 3).elementAt(5)        // => undefined
-	 * await AsyncStream.of(1, 2, 3).elementAt(5, 'a')   // => 'a'
-	 * await AsyncStream.of(1, 2, 3).elementAt(5, async () => 'a')   // => 'a'
+	 * await AsyncStream.of(1, 2, 3).at(1)        // => 2
+	 * await AsyncStream.of(1, 2, 3).at(5)        // => undefined
+	 * await AsyncStream.of(1, 2, 3).at(5, 'a')   // => 'a'
+	 * await AsyncStream.of(1, 2, 3).at(5, async () => 'a')   // => 'a'
+	 * await AsyncStream.of(1, 2, 3).at(-1)       // => undefined  (negative indices not supported)
 	 * ```
 	 * @note O(N) for most types of Stream
+	 * @note negative indices are not supported on AsyncStream because the stream may be infinite — use `last()` to access the last element
 	 */
-	elementAt(index: number): Promise<T | undefined>;
-	elementAt<O>(index: number, otherwise: AsyncOptLazy<O>): Promise<T | O>;
+	at(index: number): Promise<T | undefined>;
+	at<O>(index: number, otherwise: AsyncOptLazy<O>): Promise<T | O>;
 	/**
 	 * Returns an AsyncStream containing the indices of the elements for which the given `pred` function returns true.
 	 * @param pred - a potentially asynchronous predicate function taking an element
@@ -519,7 +521,7 @@ export interface AsyncStream<T>
 		options?: { negate?: boolean | undefined },
 	): AsyncStream<number>;
 	/**
-	 * Returns an AsyncStream containing the indicies of the occurrance of the given `searchValue`, according to given `eq` function.
+	 * Returns an AsyncStream containing the indicies of the occurrence of the given `searchValue`, according to given `eq` function.
 	 * @param searchValue - the value to search for
 	 * @param options - (optional) object specifying the following properties<br/>
 	 * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
@@ -536,37 +538,37 @@ export interface AsyncStream<T>
 		options?: { eq?: Eq<T> | undefined; negate?: boolean | undefined },
 	): AsyncStream<number>;
 	/**
-	 * Returns the index of the given `occurrance` instance of the element in the AsyncStream that satisfies given `pred` function,
+	 * Returns the index of the given `occurrence` instance of the element in the AsyncStream that satisfies given `pred` function,
 	 * or undefined if no such instance is found.
 	 * @param pred - a potentially asynchronous predicate function taking an element and its index
 	 * @param options - (optional) object specifying the following properties<br/>
-	 * - occurrance: (default: 1) the occurrance to search for<br/>
+	 * - occurrence: (default: 1) the occurrence to search for<br/>
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
 	 * await AsyncStream.of(1, 2, 3).indexWhere((v, i) => v + i > 2)      // => 1
-	 * await AsyncStream.of(1, 2, 3).indexWhere(async (v, i) => v + i > 2, { occurrance: 2 })   // => 2
+	 * await AsyncStream.of(1, 2, 3).indexWhere(async (v, i) => v + i > 2, { occurrence: 2 })   // => 2
 	 * ```
 	 * @note O(N)
 	 */
 	indexWhere(
 		pred: (value: T, index: number) => MaybePromise<boolean>,
-		options?: { occurrance?: number | undefined; negate?: boolean | undefined },
+		options?: { occurrence?: number | undefined; negate?: boolean | undefined },
 	): Promise<number | undefined>;
 	/**
-	 * Returns the index of the `occurrance` instance of given `searchValue` in the AsyncStream, using given `eq` function,
+	 * Returns the index of the `occurrence` instance of given `searchValue` in the AsyncStream, using given `eq` function,
 	 * or undefined if no such value is found.
 	 * @param searchValue  - the element to search for
 	 * @param options - (optional) object specifying the following properties<br/>
-	 * - occurrance - (default: 1) the occurrance to search for<br/>
+	 * - occurrence - (default: 1) the occurrence to search for<br/>
 	 * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
 	 * - negate: (default: false) when true will negate the given Eq function
 	 * @example
 	 * ```ts
 	 * const source = AsyncStream.from('marmot')
 	 * await source.indexOf('m')     // => 0
-	 * await source.indexOf('m', { occurrance: 2 })  // => 3
-	 * await source.indexOf('m', { occurrance: 3 })  // => undefined
+	 * await source.indexOf('m', { occurrence: 2 })  // => 3
+	 * await source.indexOf('m', { occurrence: 3 })  // => undefined
 	 * await source.indexOf('q')     // => undefined
 	 * ```
 	 * @note O(N)
@@ -574,7 +576,7 @@ export interface AsyncStream<T>
 	indexOf(
 		searchValue: T,
 		options?: {
-			occurrance?: number | undefined;
+			occurrence?: number | undefined;
 			eq?: Eq<T> | undefined;
 			negate?: boolean | undefined;
 		},

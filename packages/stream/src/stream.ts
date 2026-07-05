@@ -412,15 +412,15 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @typeparam O - the optional value type to return if no match is found
 	 * @param pred - a predicate function taking an element and its index
 	 * @param options - (optional) object specifying the following properties<br/>
-	 * - occurrance: (default: 1) the occurrance number to look for<br/>
+	 * - occurrence: (default: 1) the occurrence number to look for<br/>
 	 * - otherwise: (default: undefined) an `OptLazy` value to be returned if the Stream is empty
 	 * @example
 	 * ```ts
 	 * const isEven = (v: number) => v % 2 === 0
 	 * Stream.of(1, 2, 3, 4).find(isEven)           // => 2
-	 * Stream.of(1, 2, 3, 4).find(isEven, { occurrance: 2 })        // => 4
-	 * Stream.of(1, 2, 3, 4).find(isEven, { occurrance: 3 })        // => undefined
-	 * Stream.of(1, 2, 3, 4).find(isEven, { occurrance: 3, otherwise: 'a' })
+	 * Stream.of(1, 2, 3, 4).find(isEven, { occurrence: 2 })        // => 4
+	 * Stream.of(1, 2, 3, 4).find(isEven, { occurrence: 3 })        // => undefined
+	 * Stream.of(1, 2, 3, 4).find(isEven, { occurrence: 3, otherwise: 'a' })
 	 * // => 'a'
 	 * ```
 	 * @note O(N) for most types of Stream
@@ -428,7 +428,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	find<O, TF extends T>(
 		pred: (value: T, index: number) => value is TF,
 		options: {
-			occurrance?: number | undefined;
+			occurrence?: number | undefined;
 			negate?: false | undefined;
 			otherwise: OptLazy<O>;
 		},
@@ -436,7 +436,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	find<O, TF extends T>(
 		pred: (value: T, index: number) => value is TF,
 		options: {
-			occurrance?: number | undefined;
+			occurrence?: number | undefined;
 			negate: true;
 			otherwise: OptLazy<O>;
 		},
@@ -444,7 +444,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	find<TF extends T>(
 		pred: (value: T, index: number) => value is TF,
 		options?: {
-			occurrance?: number | undefined;
+			occurrence?: number | undefined;
 			negate?: false | undefined;
 			otherwise?: undefined;
 		},
@@ -452,7 +452,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	find<TF extends T>(
 		pred: (value: T, index: number) => value is TF,
 		options?: {
-			occurrance?: number | undefined;
+			occurrence?: number | undefined;
 			negate: true;
 			otherwise?: undefined;
 		},
@@ -460,7 +460,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	find<O>(
 		pred: (value: T, index: number) => boolean,
 		options: {
-			occurrance?: number | undefined;
+			occurrence?: number | undefined;
 			negate?: boolean | undefined;
 			otherwise: OptLazy<O>;
 		},
@@ -468,7 +468,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	find(
 		pred: (value: T, index: number) => boolean,
 		options?: {
-			occurrance?: number | undefined;
+			occurrence?: number | undefined;
 			negate?: boolean | undefined;
 			otherwise?: undefined;
 		},
@@ -476,18 +476,20 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	/**
 	 * Returns the element in the Stream at the given index, or a fallback value (default undefined) otherwise.
 	 * @typeparam O - the optional value type to return if no match is found
-	 * @param index - the index of the element to retrieve
+	 * @param index - the non-negative index of the element to retrieve
 	 * @param otherwise - (optional) an `OptLazy` value to be returned if the element does not exist
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).elementAt(1)        // => 2
-	 * Stream.of(1, 2, 3).elementAt(5)        // => undefined
-	 * Stream.of(1, 2, 3).elementAt(5, 'a')   // => 'a'
+	 * Stream.of(1, 2, 3).at(1)        // => 2
+	 * Stream.of(1, 2, 3).at(5)        // => undefined
+	 * Stream.of(1, 2, 3).at(5, 'a')   // => 'a'
+	 * Stream.of(1, 2, 3).at(-1)       // => undefined  (negative indices not supported)
 	 * ```
 	 * @note O(N) for most types of Stream
+	 * @note negative indices are not supported on Stream because the stream may be infinite — use `last()` to access the last element
 	 */
-	elementAt(index: number): T | undefined;
-	elementAt<O>(index: number, otherwise: OptLazy<O>): T | O;
+	at(index: number): T | undefined;
+	at<O>(index: number, otherwise: OptLazy<O>): T | O;
 	/**
 	 * Returns a Stream containing the indices of the elements for which the given `pred` function returns true.
 	 * @param pred - a predicate function taking an element
@@ -505,7 +507,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 		options?: { negate?: boolean | undefined },
 	): Stream<number>;
 	/**
-	 * Returns a Stream containing the indicies of the occurrance of the given `searchValue`, according to given `eq` function.
+	 * Returns a Stream containing the indicies of the occurrence of the given `searchValue`, according to given `eq` function.
 	 * @param searchValue - the value to search for
 	 * @param options - (optional) object specifying the following properties<br/>
 	 * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
@@ -522,11 +524,11 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 		options?: { eq?: Eq<T> | undefined; negate?: boolean | undefined },
 	): Stream<number>;
 	/**
-	 * Returns the index of the given `occurrance` instance of the element in the Stream that satisfies given `pred` function,
+	 * Returns the index of the given `occurrence` instance of the element in the Stream that satisfies given `pred` function,
 	 * or undefined if no such instance is found.
 	 * @param pred - a predicate function taking an element and its index
 	 * @param options - (optional) object specifying the following properties<br/>
-	 * - occurrance: (default: 1) the occurrance to search for<br/>
+	 * - occurrence: (default: 1) the occurrence to search for<br/>
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
@@ -537,14 +539,14 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 */
 	indexWhere(
 		pred: (value: T, index: number) => boolean,
-		options?: { occurrance?: number | undefined; negate?: boolean | undefined },
+		options?: { occurrence?: number | undefined; negate?: boolean | undefined },
 	): number | undefined;
 	/**
-	 * Returns the index of the `occurrance` instance of given `searchValue` in the Stream, using given `eq` function,
+	 * Returns the index of the `occurrence` instance of given `searchValue` in the Stream, using given `eq` function,
 	 * or undefined if no such value is found.
 	 * @param searchValue  - the element to search for
 	 * @param options - (optional) object specifying the following properties<br/>
-	 * - occurrance: (default: 1) the occurrance to search for<br/>
+	 * - occurrence: (default: 1) the occurrence to search for<br/>
 	 * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
 	 * - negate: (default: false) when true will negate the given Eq function
 	 * @example
@@ -560,7 +562,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	indexOf(
 		searchValue: T,
 		options?: {
-			occurrance?: number | undefined;
+			occurrence?: number | undefined;
 			eq?: Eq<T> | undefined;
 			negate?: boolean | undefined;
 		},

@@ -348,19 +348,19 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 	async find<O>(
 		pred: (value: T, index: number) => MaybePromise<boolean>,
 		options: {
-			occurrance?: number | undefined;
+			occurrence?: number | undefined;
 			negate?: boolean | undefined;
 			otherwise?: AsyncOptLazy<O>;
 		} = {},
 	): Promise<T | O> {
-		const { occurrance = 1, negate = false, otherwise } = options;
+		const { occurrence = 1, negate = false, otherwise } = options;
 
-		if (occurrance <= 0) return AsyncOptLazy.toPromise(otherwise!);
+		if (occurrence <= 0) return AsyncOptLazy.toPromise(otherwise!);
 
 		const done = Symbol('Done');
 		const iterator = this[Symbol.asyncIterator]();
 		let value: T | typeof done;
-		let remain = occurrance;
+		let remain = occurrence;
 		let index = 0;
 
 		try {
@@ -379,7 +379,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 		}
 	}
 
-	async elementAt<O>(
+	async at<O>(
 		index: number,
 		otherwise?: AsyncOptLazy<O>,
 	): Promise<T | O> {
@@ -422,11 +422,11 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 
 	async indexWhere(
 		pred: (value: T, index: number) => MaybePromise<boolean>,
-		options: { occurrance?: number; negate?: boolean } = {},
+		options: { occurrence?: number; negate?: boolean } = {},
 	): Promise<number | undefined> {
-		const { occurrance = 1, negate = false } = options;
+		const { occurrence = 1, negate = false } = options;
 
-		if (occurrance <= 0) {
+		if (occurrence <= 0) {
 			return undefined;
 		}
 
@@ -444,7 +444,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 
 				if (cond === !negate) {
 					occ++;
-					if (occ >= occurrance) {
+					if (occ >= occurrence) {
 						return i;
 					}
 				}
@@ -461,14 +461,14 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 	async indexOf(
 		searchValue: T,
 		options: {
-			occurrance?: number | undefined;
+			occurrence?: number | undefined;
 			eq?: Eq<T> | undefined;
 			negate?: boolean | undefined;
 		} = {},
 	): Promise<number | undefined> {
-		const { occurrance = 1, eq = Eq.objectIs, negate = false } = options;
+		const { occurrence = 1, eq = Eq.objectIs, negate = false } = options;
 
-		if (occurrance <= 0) return undefined;
+		if (occurrence <= 0) return undefined;
 
 		const done = Symbol('Done');
 		let value: T | typeof done;
@@ -482,7 +482,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 
 				if (eq(value, searchValue) !== negate) {
 					occ++;
-					if (occ >= occurrance) {
+					if (occ >= occurrence) {
 						return i;
 					}
 				}
@@ -526,7 +526,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 
 		return (
 			undefined !==
-			(await this.indexOf(searchValue, { occurrance: amount, eq, negate }))
+			(await this.indexOf(searchValue, { occurrence: amount, eq, negate }))
 		);
 	}
 
@@ -1107,12 +1107,12 @@ class AsyncMapStream<T, T2> extends AsyncStreamBase<T2> {
 		return this.source.count();
 	}
 
-	async elementAt<O>(
+	async at<O>(
 		index: number,
 		otherwise?: AsyncOptLazy<O>,
 	): Promise<T2 | O> {
 		const done = Symbol('Done');
-		const value = await this.source.elementAt(index, done);
+		const value = await this.source.at(index, done);
 		if (done === value) return AsyncOptLazy.toPromise(otherwise!);
 		return this.mapFun(value, index);
 	}
@@ -1181,12 +1181,12 @@ class AsyncMapPureStream<
 		return this.source.count();
 	}
 
-	async elementAt<O>(
+	async at<O>(
 		index: number,
 		otherwise?: AsyncOptLazy<O>,
 	): Promise<T2 | O> {
 		const done = Symbol('Done');
-		const value = await this.source.elementAt(index, done);
+		const value = await this.source.at(index, done);
 		if (done === value) return AsyncOptLazy.toPromise(otherwise!);
 		return this.mapFun(value, ...this.args);
 	}
@@ -1780,7 +1780,7 @@ export class AsyncEmptyStream<T = any>
 
 		return AsyncOptLazy.toPromise(otherwise!);
 	}
-	elementAt<O>(index: number, otherwise?: AsyncOptLazy<O>): Promise<O> {
+	at<O>(index: number, otherwise?: AsyncOptLazy<O>): Promise<O> {
 		return AsyncOptLazy.toPromise(otherwise!);
 	}
 	indicesWhere(): AsyncStream<number> {
