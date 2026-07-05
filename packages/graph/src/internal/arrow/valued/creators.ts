@@ -1,9 +1,9 @@
 import type { RMap } from '@rimbu/collection-types';
+import type { ArrowValuedGraph } from '@rimbu/graph/arrow-valued-graph';
 import type { ArrowValuedGraphHashed } from '@rimbu/graph/valued/arrow/hashed';
 import type { ArrowValuedGraphSorted } from '@rimbu/graph/valued/arrow/sorted';
 import type { HashMap } from '@rimbu/hashed/map';
 import type { SortedMap } from '@rimbu/sorted/map';
-import type { ArrowValuedGraph } from 'entry/arrow-valued-graph';
 
 import type { ValuedGraphBase } from '#private/valued/base';
 

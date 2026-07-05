@@ -1,11 +1,11 @@
 import type { RMap, RSet } from '@rimbu/collection-types';
+import type { ArrowGraph } from '@rimbu/graph/arrow-graph';
 import type { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed';
 import type { ArrowGraphSorted } from '@rimbu/graph/non-valued/arrow/sorted';
 import type { HashMap } from '@rimbu/hashed/map';
 import type { HashSet } from '@rimbu/hashed/set';
 import type { SortedMap } from '@rimbu/sorted/map';
 import type { SortedSet } from '@rimbu/sorted/set';
-import type { ArrowGraph } from 'entry/arrow-graph';
 
 import type { GraphBase } from '#private/base';
 

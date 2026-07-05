@@ -42,7 +42,7 @@ export function runArrowGraphTestsWith(
 ) {
 	describe(`${name} creators`, () => {
 		it('empty', () => {
-			expect(G.empty<number>()).toEqual(G.empty<string>());
+			expect(G.empty<number>()).toEqual(G.empty<string>() as any);
 		});
 
 		it('of', () => {

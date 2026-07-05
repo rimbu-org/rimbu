@@ -1,9 +1,9 @@
 import type { RMap } from '@rimbu/collection-types';
+import type { EdgeValuedGraph } from '@rimbu/graph/edge-valued-graph';
 import type { EdgeValuedGraphHashed } from '@rimbu/graph/valued/edge/hashed';
 import type { EdgeValuedGraphSorted } from '@rimbu/graph/valued/edge/sorted';
 import type { HashMap } from '@rimbu/hashed/map';
 import type { SortedMap } from '@rimbu/sorted/map';
-import type { EdgeValuedGraph } from 'entry/edge-valued-graph';
 
 import type { ValuedGraphBase } from '#private/valued/base';
 

@@ -1,11 +1,11 @@
 import type { RMap, RSet } from '@rimbu/collection-types';
+import type { EdgeGraph } from '@rimbu/graph/edge-graph';
 import type { EdgeGraphHashed } from '@rimbu/graph/non-valued/edge/hashed';
 import type { EdgeGraphSorted } from '@rimbu/graph/non-valued/edge/sorted';
 import type { HashMap } from '@rimbu/hashed/map';
 import type { HashSet } from '@rimbu/hashed/set';
 import type { SortedMap } from '@rimbu/sorted/map';
 import type { SortedSet } from '@rimbu/sorted/set';
-import type { EdgeGraph } from 'entry/edge-graph';
 
 import type { GraphBase } from '#private/base';
 

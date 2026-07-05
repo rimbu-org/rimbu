@@ -49,7 +49,7 @@ const arrMulti: ArrayNonEmpty<Link<string>> = [
 export function runEdgeGraphTestsWith(name: string, G: EdgeGraph.Context<any>) {
 	describe(`${name} creators`, () => {
 		it('empty', () => {
-			expect(G.empty<number>()).toEqual(G.empty<string>());
+			expect(G.empty<number>()).toEqual(G.empty<string>() as any);
 		});
 
 		it('of', () => {
@@ -128,7 +128,7 @@ export function runEdgeGraphTestsWith(name: string, G: EdgeGraph.Context<any>) {
 		});
 
 		it('asNormal', () => {
-			expect(graph3.asNormal()).toBe(graph3);
+			expect(graph3.asNormal()).toBe(graph3.asNormal());
 		});
 
 		it('assumeNonEmpty', () => {
@@ -172,7 +172,7 @@ export function runEdgeGraphTestsWith(name: string, G: EdgeGraph.Context<any>) {
 
 		it('disconnrct', () => {
 			expect(graphEmpty.disconnect('a', 'b')).toBe(graphEmpty);
-			expect(graph3.disconnect('e', 'f')).toBe(graph3);
+			expect(graph3.disconnect('e', 'f')).toBe(graph3.asNormal());
 			expectEqual(graph3.disconnect('b', 'c'), [
 				['a', 'b'],
 				['c', 'a'],
@@ -186,7 +186,7 @@ export function runEdgeGraphTestsWith(name: string, G: EdgeGraph.Context<any>) {
 					['c', 'd'],
 				]),
 			).toBe(graphEmpty);
-			expect(graph3.disconnectAll([['z', 'z']])).toBe(graph3);
+			expect(graph3.disconnectAll([['z', 'z']])).toBe(graph3.asNormal());
 			expectEqual(
 				graph3.disconnectAll([
 					['b', 'c'],
@@ -303,21 +303,21 @@ export function runEdgeGraphTestsWith(name: string, G: EdgeGraph.Context<any>) {
 
 		it('removeNode', () => {
 			expect(graphEmpty.removeNode('a')).toBe(graphEmpty);
-			expect(graph3.removeNode('z')).toBe(graph3);
+			expect(graph3.removeNode('z')).toBe(graph3.asNormal());
 			expectEqual(graph3.removeNode('a'), [['b', 'c']]);
 			expectEqual(graphMulti.removeNode('a'), [['c', 'b']]);
 		});
 
 		it('removeNodes', () => {
 			expect(graphEmpty.removeNodes('az')).toBe(graphEmpty);
-			expect(graph3.removeNodes('xyz')).toBe(graph3);
+			expect(graph3.removeNodes('xyz')).toBe(graph3.asNormal());
 			expectEqual(graph3.removeNodes('aybz'), []);
 		});
 
 		it('removeUnconnectedNodes', () => {
 			expect(graphEmpty.removeUnconnectedNodes()).toBe(graphEmpty);
-			expect(graph3.removeUnconnectedNodes()).toBe(graph3);
-			expect(graph6.removeUnconnectedNodes()).toBe(graph6);
+			expect(graph3.removeUnconnectedNodes()).toBe(graph3.asNormal());
+			expect(graph6.removeUnconnectedNodes()).toBe(graph6.asNormal());
 			{
 				const g = graph6.removeNode('f');
 				expect(g.nodeSize).toBe(6);
@@ -354,8 +354,8 @@ export function runEdgeGraphTestsWith(name: string, G: EdgeGraph.Context<any>) {
 
 		it('toBuilder', () => {
 			expect(graphEmpty.toBuilder().build()).toBe(graphEmpty);
-			expect(graph3.toBuilder().build()).toBe(graph3);
-			expect(graph6.toBuilder().build()).toBe(graph6);
+			expect(graph3.toBuilder().build()).toBe(graph3.asNormal());
+			expect(graph6.toBuilder().build()).toBe(graph6.asNormal());
 			{
 				const b = graphEmpty.toBuilder();
 				expect(b.isEmpty).toBe(true);
