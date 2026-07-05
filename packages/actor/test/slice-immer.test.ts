@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 
 import { Action } from '@rimbu/actor/action';
-import { SliceImmer } from '@rimbu/actor/immer';
+import { SliceImmer } from '@rimbu/actor/use-immer';
 
 describe('SliceImmer', () => {
 	it('empty slice', () => {

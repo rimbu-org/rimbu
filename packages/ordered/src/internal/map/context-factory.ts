@@ -93,7 +93,7 @@ export function createOrderedMapContextModule<UK>(
 
 		typeTag: 'OrderedMap',
 		listContext: Module.lazyGetter(
-			() => options.listContext ?? List.defaultContext(),
+			() => options.listContext ?? List.defaultContext,
 		),
 		mapContext: Module.lazyGetter(() => options.mapContext),
 

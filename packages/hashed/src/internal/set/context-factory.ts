@@ -74,7 +74,7 @@ export function createHashSetContextModule<UT>(
 		requires: ContextImpl<UT>;
 	}>((mod) => ({
 		listContext: Module.lazyGetter(
-			() => options.listContext ?? List.defaultContext(),
+			() => options.listContext ?? List.defaultContext,
 		),
 		emptyBlock: Module.lazyGetter(() =>
 			Object.freeze(new HashSetBlock<UT>(mod, null, null, 0, 0)),
@@ -140,7 +140,7 @@ export function createHashSetContextModule<UT>(
 		hasher: Module.lazyGetter(() => options.hasher ?? Hasher.defaultInstance),
 		eq: Module.lazyGetter(() => options.eq ?? Eq.defaultInstance),
 		listContext: Module.lazyGetter(
-			() => options.listContext ?? List.defaultContext(),
+			() => options.listContext ?? List.defaultContext,
 		),
 
 		maxDepth: Math.ceil(32 / blockSizeBits),

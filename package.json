@@ -58,7 +58,7 @@
 		],
 		"catalog": {
 			"happy-dom": "^20.5.0",
-			"immer": "^11.1.3"
+			"immer": "^11.1.11"
 		}
 	},
 	"config": {

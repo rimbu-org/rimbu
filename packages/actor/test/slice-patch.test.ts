@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'bun:test';
 
 import { Action } from '@rimbu/actor/action';
-import { SlicePatch } from '@rimbu/actor/patch';
+import { SlicePatch } from '@rimbu/actor/use-patch';
 
 const mockHalt = vi.fn();
 

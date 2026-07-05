@@ -700,7 +700,7 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
 		if (Object.is(newValue, currentValue)) return this;
 
 		const newEntry: [K, V] = [atKey, newValue];
-		const newEntries = this.entries.updateAt(currentIndex, newEntry);
+		const newEntries = this.entries.with(currentIndex, newEntry);
 		return this.copy(newEntries);
 	}
 

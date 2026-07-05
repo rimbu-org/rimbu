@@ -90,7 +90,7 @@ export function createOrderedSetContextModule<UT>(
 		typeTag: 'OrderedSet',
 
 		listContext: Module.lazyGetter(
-			() => options.listContext ?? List.defaultContext(),
+			() => options.listContext ?? List.defaultContext,
 		),
 		setContext: Module.lazyGetter(() => options.setContext),
 

@@ -1,7 +1,5 @@
 import type { ActionBase } from '#actor/action-base';
 
-import { generateUUID } from '#actor/generate-uuid';
-
 /**
  * The default action interface, containing an optional payload.
  * @typeparam P - the payload type
@@ -44,7 +42,7 @@ export namespace Action {
 			createTag?: () => string;
 		} = {},
 	): Action.Creator<P, A> => {
-		const { createPayload, createTag = generateUUID } = config;
+		const { createPayload, createTag = () => crypto.randomUUID() } = config;
 		const tag = createTag();
 		const type = config.type ?? `ANON_${tag}`;
 

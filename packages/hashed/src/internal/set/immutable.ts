@@ -473,7 +473,7 @@ export class HashSetCollision<T> extends HashSetNonEmptyBase<T> {
 			return this.copy(this.entries.append(value));
 		}
 
-		return this.copy(this.entries.updateAt(currentIndex, value));
+		return this.copy(this.entries.with(currentIndex, value));
 	}
 
 	remove<U>(value: RelatedTo<T, U>, hash?: number): HashSet<T> {

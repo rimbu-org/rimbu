@@ -4,8 +4,8 @@ import type { ActionBase } from '#actor/action-base';
 
 import { Actor } from '@rimbu/actor';
 import { Action } from '@rimbu/actor/action';
-import { SlicePatch } from '@rimbu/actor/patch';
 import { Slice } from '@rimbu/actor/slice';
+import { SlicePatch } from '@rimbu/actor/use-patch';
 import { Spy } from '@rimbu/spy';
 import { Reducer } from '@rimbu/stream/reducer';
 

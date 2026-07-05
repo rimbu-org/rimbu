@@ -150,17 +150,7 @@
     },
     "packages/list": {
       "name": "@rimbu/list",
-      "version": "2.1.10",
-      "dependencies": {
-        "@rimbu/base": "workspace:*",
-        "@rimbu/collection-types": "workspace:*",
-        "@rimbu/common": "workspace:*",
-        "@rimbu/stream": "workspace:*",
-      },
-    },
-    "packages/list2": {
-      "name": "@rimbu/list2",
-      "version": "2.1.10",
+      "version": "3.0.0",
       "dependencies": {
         "@rimbu/base": "workspace:*",
         "@rimbu/collection-types": "workspace:*",
@@ -308,7 +298,7 @@
   },
   "catalog": {
     "happy-dom": "^20.5.0",
-    "immer": "^11.1.3",
+    "immer": "^11.1.11",
   },
   "packages": {
     "@babel/code-frame": ["@babel/code-frame@7.29.0", "https://nexus.topaas.ns.nl/repository/NS_BACKPACK_NPMGroup/@babel/code-frame/-/code-frame-7.29.0.tgz", { "dependencies": { "@babel/helper-validator-identifier": "^7.28.5", "js-tokens": "^4.0.0", "picocolors": "^1.1.1" } }, "sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw=="],
@@ -422,8 +412,6 @@
     "@rimbu/hashed": ["@rimbu/hashed@workspace:packages/hashed"],
 
     "@rimbu/list": ["@rimbu/list@workspace:packages/list"],
-
-    "@rimbu/list2": ["@rimbu/list2@workspace:packages/list2"],
 
     "@rimbu/multimap": ["@rimbu/multimap@workspace:packages/multimap"],
 
@@ -719,7 +707,7 @@
 
     "ignore": ["ignore@5.3.2", "https://nexus.topaas.ns.nl/repository/NS_BACKPACK_NPMGroup/ignore/-/ignore-5.3.2.tgz", {}, "sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g=="],
 
-    "immer": ["immer@11.1.3", "https://nexus.topaas.ns.nl/repository/NS_BACKPACK_NPMGroup/immer/-/immer-11.1.3.tgz", {}, "sha512-6jQTc5z0KJFtr1UgFpIL3N9XSC3saRaI9PwWtzM2pSqkNGtiNkYY2OSwkOGDK2XcTRcLb1pi/aNkKZz0nxVH4Q=="],
+    "immer": ["immer@11.1.11", "https://nexus.topaas.ns.nl/repository/NS_BACKPACK_NPMGroup/immer/-/immer-11.1.11.tgz", {}, "sha512-qzXuyXAkPySAGYkfsAwodDPWT8Zm7/Uo5BNt4BjhMhG5WlWyZZ4wQqnWwdS8kjlQ1Cwu6gjw3A6+0gTQwlyYtw=="],
 
     "import-fresh": ["import-fresh@3.3.1", "https://nexus.topaas.ns.nl/repository/NS_BACKPACK_NPMGroup/import-fresh/-/import-fresh-3.3.1.tgz", { "dependencies": { "parent-module": "^1.0.0", "resolve-from": "^4.0.0" } }, "sha512-TR3KfrTZTYLPB6jUjfx6MF9WcWrHL9su5TObK4ZkYgBdWKPOFoSoQIdEuTuR82pmtxH2spWG9h6etwfr1pLBqQ=="],
 

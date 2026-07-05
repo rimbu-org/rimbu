@@ -132,7 +132,7 @@ export function createHashMapContextModule<UK>(
 		hasher: Module.lazyGetter(() => options.hasher ?? Hasher.defaultInstance),
 		eq: Module.lazyGetter(() => options.eq ?? Eq.defaultInstance),
 		listContext: Module.lazyGetter(
-			() => options.listContext ?? List.defaultContext(),
+			() => options.listContext ?? List.defaultContext,
 		),
 
 		typeTag: 'HashMap',
