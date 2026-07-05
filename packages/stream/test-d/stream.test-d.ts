@@ -159,63 +159,6 @@ expectTypeOf(Stream.zipAll(true, Stream.of(1))).toEqualTypeOf<
 // @ts-expect-error
 Stream.zipAll(true);
 
-// Stream.zipWith(..)
-expectTypeOf(
-	Stream.zipWith(
-		Stream.empty<number>(),
-		Stream.empty<string>(),
-	)((a, b) => [a, true, b] as const),
-).toEqualTypeOf<Stream<readonly [number, true, string]>>();
-expectTypeOf(
-	Stream.zipWith(
-		Stream.of(1),
-		Stream.empty<string>(),
-	)((a, b) => [a, true, b] as const),
-).toEqualTypeOf<Stream<readonly [number, true, string]>>();
-expectTypeOf(
-	Stream.zipWith(
-		Stream.empty<number>(),
-		Stream.of('a'),
-	)((a, b) => [a, true, b] as const),
-).toEqualTypeOf<Stream<readonly [number, true, string]>>();
-expectTypeOf(
-	Stream.zipWith(Stream.of(1), Stream.of('a'))((a, b) => [a, true, b] as const),
-).toEqualTypeOf<Stream.NonEmpty<readonly [number, true, string]>>();
-
-expectTypeOf(Stream.zipWith(Stream.of(1))((a) => [a] as const)).toEqualTypeOf<
-	Stream.NonEmpty<readonly [number]>
->();
-
-// @ts-expect-error
-Stream.zipWith();
-
-// Stream.zipAllWith()
-expectTypeOf(
-	Stream.zipAllWith(Stream.empty<number>(), Stream.empty<string>())(
-		true,
-		(a, b) => [a, true, b] as const,
-	),
-).toEqualTypeOf<Stream<readonly [number | boolean, true, string | boolean]>>();
-expectTypeOf(
-	Stream.zipAllWith(Stream.of(1), Stream.of('a'))(
-		true,
-		(a, b) => [a, true, b] as const,
-	),
-).toEqualTypeOf<
-	Stream.NonEmpty<readonly [number | boolean, true, string | boolean]>
->();
-expectTypeOf(
-	Stream.zipAllWith(Stream.of(1))(true, (a) => [a] as const),
-).toEqualTypeOf<Stream.NonEmpty<readonly [number | boolean]>>();
-
-// @ts-expect-error
-Stream.zipAllWith();
-
-// TODO
-// expectType<Stream.NonEmpty<[number | boolean, string | boolean]>>(
-//   Stream.zipAllWith(true, (a, b) => [a, true, b], Stream.empty<number>(), Stream.of('a'))
-// );
-
 // .assumeNonEmpty()
 expectTypeOf(Stream.empty<number>().assumeNonEmpty()).toEqualTypeOf<
 	Stream.NonEmpty<number>

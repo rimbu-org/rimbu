@@ -231,32 +231,22 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 			(): FastIterator<T> => new UnfoldIterator<T>(init, next),
 		) as unknown as Stream.NonEmpty<T>;
 	},
-	zipWith: (...sources) => {
-		return (zipFun): any => {
-			if (sources.some(mod.isEmptyStreamSourceInstance)) {
-				return mod.empty();
-			}
+	zip: (...sources): any => {
+		if ((sources as any[]).some(mod.isEmptyStreamSourceInstance)) {
+			return mod.empty();
+		}
 
-			return new FromStream(() => new ZipWithIterator(sources as any, zipFun));
-		};
+		return new FromStream(() => new ZipWithIterator(sources as any, Array));
 	},
-	zip: (...sources) => {
-		return mod.zipWith(...(sources as any))(Array);
-	},
-	zipAllWith: (...sources) => {
-		return (fillValue, zipFun: any): any => {
-			if (sources.every(mod.isEmptyStreamSourceInstance)) {
-				return mod.empty();
-			}
+	zipAll: (fillValue, ...sources): any => {
+		if ((sources as any[]).every(mod.isEmptyStreamSourceInstance)) {
+			return mod.empty();
+		}
 
-			return new FromStream(
-				(): FastIterator<any> =>
-					new ZipAllWithItererator(fillValue, sources as any, zipFun),
-			);
-		};
-	},
-	zipAll: (fillValue, ...sources) => {
-		return mod.zipAllWith(...(sources as any))(fillValue, Array);
+		return new FromStream(
+			(): FastIterator<any> =>
+				new ZipAllWithItererator(fillValue, sources as any, Array),
+		);
 	},
 	flatten: (source: any) => {
 		return mod.fromStreamSource(source).flatMap((s: any) => s);

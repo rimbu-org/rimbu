@@ -30,28 +30,6 @@ export interface AsyncStreamConstructors {
 		createSource: (resource: R) => MaybePromise<AsyncStreamSource<T>>;
 		close?: (resource: R) => MaybePromise<void>;
 	}): AsyncStream<T>;
-	/** Returns an AsyncStream with the result of applying given `zipFun` to each successive value resulting from the given `sources`.
-	 * @param sources - the input async stream sources
-	 * @param zipFun - a potentially asynchronous function taking one element from each given Stream, and returning a result value
-	 * @example
-	 * ```ts
-	 * await AsyncStream.zipWith(
-	 *   [1, 2],
-	 *   [3, 4, 5],
-	 *   [true, false]
-	 * )(
-	 *   async (a, b, c) => c ? a + b : a - b,
-	 * ).toArray()
-	 * // => [4, -2]
-	 * ```
-	 * @note ends the AsyncStream when any of the given streams ends
-	 */
-	zipWith<I extends readonly [unknown, ...unknown[]]>(
-		...sources: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> } & unknown[]
-	): <R>(zipFun: (...values: I) => MaybePromise<R>) => AsyncStream.NonEmpty<R>;
-	zipWith<I extends readonly [unknown, ...unknown[]]>(
-		...sources: { [K in keyof I]: AsyncStreamSource<I[K]> } & unknown[]
-	): <R>(zipFun: (...values: I) => MaybePromise<R>) => AsyncStream<R>;
 	/**
 	 * Returns an AsyncStream with tuples containing each successive value from the given `sources`.
 	 * @param sources - the input async stream sources
@@ -63,6 +41,8 @@ export interface AsyncStreamConstructors {
 	 *   ['a', 'b', 'c']
 	 * ).toArray()
 	 * // => [[1, 4, 'a'], [2, 5, 'b']]
+	 * // to apply a transform, chain .map():
+	 * await AsyncStream.zip([1, 2], [3, 4, 5]).map(([a, b]) => a + b).toArray()  // => [4, 6]
 	 * ```
 	 * @note ends the AsyncStream when any of the given streams ends
 	 */
@@ -72,38 +52,6 @@ export interface AsyncStreamConstructors {
 	zip<I extends readonly [unknown, ...unknown[]]>(
 		...sources: { [K in keyof I]: AsyncStreamSource<I[K]> } & unknown[]
 	): AsyncStream<I>;
-	/**
-	 * Returns an AsyncStream with the result of applying given `zipFun` to each successive value resulting from the given `sources`, adding
-	 * given `fillValue` to any Streams that end before all streams have ended.
-	 * @param sources - the input async stream sources
-	 * @param fillValue - the `AsyncOptLazyz value to add to streams that end early
-	 * @param zipFun - a potentially asynchronous function taking one element from each given Stream, and returning a result value
-	 * @example
-	 * ```ts
-	 * await AsyncStream.zipAllWith(
-	 *   [1, 2],
-	 *   [3, 4, 5],
-	 *   [6, 7]
-	 * )(
-	 *   async () => 0,
-	 *   async (a, b, c) => a + b + c,
-	 * ).toArray()
-	 * // => [10, 13, 5]
-	 * ```
-	 */
-	zipAllWith<I extends readonly [unknown, ...unknown[]]>(
-		...sources: { [K in keyof I]: AsyncStreamSource.NonEmpty<I[K]> } & unknown[]
-	): <O, R>(
-		fillValue: AsyncOptLazy<O>,
-		zipFun: (...values: { [K in keyof I]: I[K] | O }) => MaybePromise<R>,
-	) => AsyncStream.NonEmpty<R>;
-	zipAllWith<I extends readonly [unknown, ...unknown[]]>(
-		...sources: { [K in keyof I]: AsyncStreamSource<I[K]> } & unknown[]
-	): <O, R>(
-		fillValue: AsyncOptLazy<O>,
-		zipFun: (...values: { [K in keyof I]: I[K] | O }) => MaybePromise<R>,
-	) => AsyncStream<R>;
-
 	/**
 	 * Returns an AsyncStream with tuples containing each successive value from the given `sources`, adding given `fillValue` to any streams
 	 * that end before all streams have ended.

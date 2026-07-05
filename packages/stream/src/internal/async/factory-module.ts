@@ -73,34 +73,24 @@ export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 			const { open, createSource, close } = options;
 			return new FromResource(open, createSource, close);
 		},
-		zipWith: (...sources): any => {
-			return (zipFun: any): any => {
-				if (sources.some(mod.isEmptyAsyncStreamSourceInstance)) {
-					return mod.empty();
-				}
-
-				return new AsyncFromStream(
-					() => new AsyncZipWithIterator(sources, zipFun),
-				);
-			};
-		},
 		zip: (...sources): any => {
-			return mod.zipWith(...(sources as any))(Array);
-		},
-		zipAllWith: (...sources): any => {
-			return (fillValue: any, zipFun: any): any => {
-				if (sources.every(mod.isEmptyAsyncStreamSourceInstance)) {
-					return mod.empty();
-				}
+			if ((sources as any[]).some(mod.isEmptyAsyncStreamSourceInstance)) {
+				return mod.empty();
+			}
 
-				return new AsyncFromStream(
-					(): AsyncFastIterator<any> =>
-						new AsyncZipAllWithItererator(fillValue, sources, zipFun),
-				);
-			};
+			return new AsyncFromStream(
+				() => new AsyncZipWithIterator(sources, Array),
+			);
 		},
 		zipAll: (fillValue, ...sources): any => {
-			return mod.zipAllWith(...(sources as any))(fillValue, Array);
+			if ((sources as any[]).every(mod.isEmptyAsyncStreamSourceInstance)) {
+				return mod.empty();
+			}
+
+			return new AsyncFromStream(
+				(): AsyncFastIterator<any> =>
+					new AsyncZipAllWithItererator(fillValue, sources, Array),
+			);
 		},
 		flatten: (source: any) => {
 			return mod.fromAsyncStreamSource(source).flatMap((s: any) => s);

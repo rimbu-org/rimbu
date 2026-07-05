@@ -1704,34 +1704,13 @@ export namespace Stream {
 			next: (current: T, index: number, stop: Token) => T | Token,
 		): Stream.NonEmpty<T>;
 		/**
-		 * Returns a Stream with the result of applying given `zipFun` to each successive value resulting from the given `sources`.
-		 * @param sources - the input stream sources
-		 * @param zipFun - a function taking one element from each given Stream, and returning a result value
-		 * @example
-		 * ```ts
-		 * Stream.zipWith(
-		 *   [1, 2],
-		 *   [3, 4, 5],
-		 *   [true, false]
-		 * )(
-		 *   (a, b, c) => c ? a + b : a - b
-		 * ).toArray()
-		 * // => [4, -2]
-		 * ```
-		 * @note ends the Stream when any of the given streams ends
-		 */
-		zipWith<I extends readonly [unknown, ...unknown[]]>(
-			...sources: { [K in keyof I]: StreamSource.NonEmpty<I[K]> } & unknown[]
-		): <R>(zipFun: (...values: I) => R) => Stream.NonEmpty<R>;
-		zipWith<I extends readonly [unknown, ...unknown[]]>(
-			...sources: { [K in keyof I]: StreamSource<I[K]> } & unknown[]
-		): <R>(zipFun: (...values: I) => R) => Stream<R>;
-		/**
 		 * Returns a Stream with tuples containing each successive value from the given `sources`.
 		 * @param sources - the input stream sources
 		 * @example
 		 * ```ts
 		 * Stream.zip([1, 2, 3], [4, 5], ['a', 'b', 'c']).toArray()    // => [[1, 4, 'a'], [2, 5, 'b']]
+		 * // to apply a transform, chain .map():
+		 * Stream.zip([1, 2], [3, 4, 5]).map(([a, b]) => a + b).toArray()  // => [4, 6]
 		 * ```
 		 * @note ends the Stream when any of the given streams ends
 		 */
@@ -1741,37 +1720,6 @@ export namespace Stream {
 		zip<I extends readonly [unknown, ...unknown[]]>(
 			...sources: { [K in keyof I]: StreamSource<I[K]> } & unknown[]
 		): Stream<I>;
-		/**
-		 * Returns a Stream with the result of applying given `zipFun` to each successive value resulting from the given `sources`, adding
-		 * given `fillValue` to any Streams that end before all streams have ended.
-		 * @param sources - the input stream sources
-		 * @param fillValue - the value to add to streams that end early
-		 * @param zipFun - a function taking one element from each given Stream, and returning a result value
-		 * @example
-		 * ```ts
-		 * Stream.zipAllWith(
-		 *   [1, 2],
-		 *   [3, 4, 5],
-		 *   [6, 7]
-		 * )(
-		 *   0,
-		 *   (a, b, c) => a + b + c,
-		 * ).toArray()
-		 * // => [10, 13, 5]
-		 * ```
-		 */
-		zipAllWith<I extends readonly [unknown, ...unknown[]]>(
-			...sources: { [K in keyof I]: StreamSource.NonEmpty<I[K]> } & unknown[]
-		): <O, R>(
-			fillValue: OptLazy<O>,
-			zipFun: (...values: { [K in keyof I]: I[K] | O }) => R,
-		) => Stream.NonEmpty<R>;
-		zipAllWith<I extends readonly [unknown, ...unknown[]]>(
-			...sources: { [K in keyof I]: StreamSource<I[K]> } & unknown[]
-		): <O, R>(
-			fillValue: OptLazy<O>,
-			zipFun: (...values: { [K in keyof I]: I[K] | O }) => R,
-		) => Stream<R>;
 		/**
 		 * Returns a Stream with tuples containing each successive value from the given `sources`, adding given `fillValue` to any Streams
 		 * that end before all streams have ended.

@@ -162,68 +162,6 @@ AsyncStream.zipAll(true);
 // @ts-expect-error
 AsyncStream.zipAll(true);
 
-// AsyncStream.zipWith(..)
-expectTypeOf(
-	AsyncStream.zipWith(
-		AsyncStream.empty<number>(),
-		AsyncStream.empty<string>(),
-	)((a, b) => [a, true, b] as const),
-).toEqualTypeOf<AsyncStream<readonly [number, true, string]>>();
-expectTypeOf(
-	AsyncStream.zipWith(
-		AsyncStream.of(1),
-		AsyncStream.empty<string>(),
-	)((a, b) => [a, true, b] as const),
-).toEqualTypeOf<AsyncStream<readonly [number, true, string]>>();
-expectTypeOf(
-	AsyncStream.zipWith(
-		AsyncStream.empty<number>(),
-		AsyncStream.of('a'),
-	)((a, b) => [a, true, b] as const),
-).toEqualTypeOf<AsyncStream<readonly [number, true, string]>>();
-expectTypeOf(
-	AsyncStream.zipWith(
-		AsyncStream.of(1),
-		AsyncStream.of('a'),
-	)((a, b) => [a, true, b] as const),
-).toEqualTypeOf<AsyncStream.NonEmpty<readonly [number, true, string]>>();
-
-expectTypeOf(
-	AsyncStream.zipWith(AsyncStream.of(1))((a) => [a] as const),
-).toEqualTypeOf<AsyncStream.NonEmpty<readonly [number]>>();
-
-// @ts-expect-error
-AsyncStream.zipWith();
-
-// AsyncStream.zipAllWith()
-expectTypeOf(
-	AsyncStream.zipAllWith(
-		AsyncStream.empty<number>(),
-		AsyncStream.empty<string>(),
-	)(true, (a, b) => [a, true, b] as const),
-).toEqualTypeOf<
-	AsyncStream<readonly [number | boolean, true, string | boolean]>
->();
-expectTypeOf(
-	AsyncStream.zipAllWith(AsyncStream.of(1), AsyncStream.of('a'))(
-		true,
-		(a, b) => [a, true, b] as const,
-	),
-).toEqualTypeOf<
-	AsyncStream.NonEmpty<readonly [number | boolean, true, string | boolean]>
->();
-expectTypeOf(
-	AsyncStream.zipAllWith(AsyncStream.of(1))(true, (a) => [a] as const),
-).toEqualTypeOf<AsyncStream.NonEmpty<readonly [number | boolean]>>();
-
-// @ts-expect-error
-AsyncStream.zipAllWith();
-
-// TODO
-// expectType<AsyncStream.NonEmpty<[number | boolean, string | boolean]>>(
-//   AsyncStream.zipAllWith(true, (a, b) => [a, true, b], AsyncStream.empty<number>(), AsyncStream.of('a'))
-// );
-
 // AsyncStream methods
 
 // .assumeNonEmpty()

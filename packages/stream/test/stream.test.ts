@@ -1718,30 +1718,6 @@ describe('Stream methods', () => {
 		expect(Stream.of(1).toString()).toBe('Stream(...<potentially empty>)');
 	});
 
-	it('zipWith', () => {
-		expect(
-			Stream.zipWith(Stream.empty<number>(), [])((a, b) => a + b).toArray(),
-		).toEqual([]);
-		expect(
-			Stream.zipWith(Stream.of(1, 2, 3), [])((a, b) => a + b).toArray(),
-		).toEqual([]);
-		expect(
-			Stream.zipWith(
-				Stream.empty<number>(),
-				[1, 2, 3],
-			)((a, b) => a + b).toArray(),
-		).toEqual([]);
-		expect(
-			Stream.zipWith(Stream.of(1, 2, 3), [1, 2, 3])((a, b) => a + b).toArray(),
-		).toEqual([2, 4, 6]);
-		expect(
-			Stream.zipWith(Stream.of(1), [1, 2, 3])((a, b) => a + b).toArray(),
-		).toEqual([2]);
-		expect(
-			Stream.zipWith(Stream.of(1, 2, 3), [1])((a, b) => a + b).toArray(),
-		).toEqual([2]);
-	});
-
 	it('zip', () => {
 		expect(Stream.zip(Stream.empty(), Stream.empty())).toBe(Stream.empty());
 		expect(Stream.zip(Stream.empty(), Stream.of(1))).toBe(Stream.empty());
@@ -1772,36 +1748,6 @@ describe('Stream methods', () => {
 		const ne = Stream.of(1);
 		isNonEmpty(Stream.zip(ne, ne));
 		isNonEmpty(Stream.zip(ne, ne, ne, ne));
-	});
-
-	it('zipAllWith', () => {
-		expect(
-			Stream.zipAllWith(Stream.empty<number>(), [])(
-				10,
-				(a, b) => a + b,
-			).toArray(),
-		).toEqual([]);
-		expect(
-			Stream.zipAllWith(Stream.of(1, 2, 3), [])(10, (a, b) => a + b).toArray(),
-		).toEqual([11, 12, 13]);
-		expect(
-			Stream.zipAllWith(Stream.empty<number>(), [1, 2, 3])(
-				10,
-				(a, b) => a + b,
-			).toArray(),
-		).toEqual([11, 12, 13]);
-		expect(
-			Stream.zipAllWith(Stream.of(1, 2, 3), [1, 2, 3])(
-				10,
-				(a, b) => a + b,
-			).toArray(),
-		).toEqual([2, 4, 6]);
-		expect(
-			Stream.zipAllWith(Stream.of(1), [1, 2, 3])(10, (a, b) => a + b).toArray(),
-		).toEqual([2, 12, 13]);
-		expect(
-			Stream.zipAllWith(Stream.of(1, 2, 3), [1])(10, (a, b) => a + b).toArray(),
-		).toEqual([2, 12, 13]);
 	});
 
 	it('zipAll', () => {
