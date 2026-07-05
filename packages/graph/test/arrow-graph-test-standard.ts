@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'bun:test';
 
 import type { ArrayNonEmpty } from '@rimbu/common/types';
+import type { ArrowGraph } from '@rimbu/graph/arrow-graph';
 import type { GraphElement, Link } from '@rimbu/graph/link';
-import type { ArrowGraph } from 'entry/arrow-graph';
 
 import { ArrowGraphHashed } from '@rimbu/graph/non-valued/arrow/hashed';
 import { Stream } from '@rimbu/stream';

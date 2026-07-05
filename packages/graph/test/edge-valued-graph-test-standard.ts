@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'bun:test';
 
 import type { ArrayNonEmpty } from '@rimbu/common/types';
+import type { EdgeValuedGraph } from '@rimbu/graph/edge-valued-graph';
 import type { ValuedGraphElement, ValuedLink } from '@rimbu/graph/valued-link';
-import type { EdgeValuedGraph } from 'entry/edge-valued-graph';
 
 import { Stream, type StreamSource } from '@rimbu/stream';
 
