@@ -229,7 +229,7 @@ export namespace ListHelpers {
 			createContext: (
 				options: { blockSizeBits?: number | undefined } | undefined,
 			) => createListContext(options, mod),
-			defaultContext: Module.lazy(() => _defaultContext ?? mod),
+			defaultContext: Module.lazyGetter(() => _defaultContext ?? mod),
 
 			fromString: (...sources: ArrayNonEmpty<string>): ListImpl<string> => {
 				return mod.from(...sources);
