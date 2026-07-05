@@ -466,30 +466,21 @@ expectTypeOf(Stream.of(1).foldStream('a', () => 'b')).toEqualTypeOf<
 
 // .groupBy(...)
 expectTypeOf(
-	Stream.groupBy(Stream.empty<string>(), (v) => v.length)(),
+	Stream.empty<string>().groupBy((v) => v.length)(),
 ).toEqualTypeOf<Map<number, string[]>>();
 expectTypeOf(
-	Stream.groupBy(
-		Stream.empty<string>(),
-		(v) => v.length,
-	)({
+	Stream.empty<string>().groupBy((v) => v.length)({
 		collector: Reducer.join(),
 	}),
 ).toEqualTypeOf<string>();
 expectTypeOf(
-	Stream.groupBy(
-		Stream.empty<string>(),
-		(v) => v.length,
-	)({
+	Stream.empty<string>().groupBy((v) => v.length)({
 		// accepts readonly tuples
 		collector: HashMap.reducer(),
 	}),
 ).toEqualTypeOf<HashMap<number, string>>();
 expectTypeOf(
-	Stream.groupBy(
-		Stream.empty<string>(),
-		(v) => v.length,
-	)({
+	Stream.empty<string>().groupBy((v) => v.length)({
 		// accepts normal tuples
 		collector: HashMultiMapHashValue.reducer(),
 	}),

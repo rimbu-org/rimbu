@@ -1801,32 +1801,6 @@ export namespace Stream {
 			options: { length: L },
 		): { [K in keyof T]: Stream<T[K]> };
 		/**
-		 * Returns the result of applying the `valueToKey` function to calculate a key for each value, and feeding the tuple of the key and the value to the
-		 * `collector` reducer, and finally returning its result. If no collector is given, the default collector will return a JS multimap
-		 * of the type `Map<K, V[]>`.
-		 * @param source - the source of values to group
-		 * @param valueToKey - function taking a value and its index, and returning the corresponding key
-		 * @param options - (optional) an object containing the following properties:<br/>
-		 * - collector: (default: Reducer.toArray()) a reducer that collects the incoming tuple of key and value, and provides the output
-		 * @typeparam T - the input value type
-		 * @typeparam K - the key type
-		 * @typeparam R - the collector output type
-		 * @example
-		 * ```ts
-		 * Stream.groupBy(Stream.of(1, 2, 3), (v) => v % 2))
-		 * // => Map {0 => [2], 1 => [1, 3]}
-		 * ```
-		 */
-		groupBy<T, K>(
-			source: StreamSource<T>,
-			valueToKey: (value: T, index: number) => K,
-		): {
-			<R>(options: {
-				collector: Reducer<[K, T], R> | Reducer<readonly [K, T], R>;
-			}): R;
-			(options?: { collector?: undefined } | undefined): Map<K, T[]>;
-		};
-		/**
 		 * Returns a tuple of which the first element is the result of collecting the elements for which the given `predicate` is true, and
 		 * the second one the result of collecting the other elements. Own reducers can be provided as collectors, by default the values are
 		 * collected into an array.

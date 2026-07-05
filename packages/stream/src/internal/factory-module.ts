@@ -267,16 +267,6 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 
 		return result;
 	},
-	groupBy: <T, K>(
-		source: StreamSource<T>,
-		valueToKey: (value: T, index: number) => K,
-	): (<R>(options?: { collector?: any | undefined } | undefined) => R) => {
-		return <R>(options = {}) => {
-			return mod
-				.fromStreamSource(source)
-				.reduce(Reducer.groupBy(valueToKey, options as any)) as R;
-		};
-	},
 	partition: <T>(
 		source: StreamSource<T>,
 		pred: (value: T, index: number) => boolean,

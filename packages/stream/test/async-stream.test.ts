@@ -1913,14 +1913,13 @@ describe('AsyncStream methods', () => {
 
 	it('groupBy', async () => {
 		expect(
-			AsyncStream.groupBy(AsyncStream.empty<string>(), async (v) => v.length)(),
+			AsyncStream.empty<string>().groupBy(async (v) => v.length)(),
 		).resolves.toEqual(new Map());
 		expect(
-			AsyncStream.groupBy(AsyncStream.of('a'), async (v) => v.length)(),
+			AsyncStream.of('a').groupBy(async (v) => v.length)(),
 		).resolves.toEqual(new Map([[1, ['a']]]));
 		expect(
-			AsyncStream.groupBy(
-				AsyncStream.of('abc', 'a', 'def', 'b', 'qq'),
+			AsyncStream.of('abc', 'a', 'def', 'b', 'qq').groupBy(
 				async (v) => v.length,
 			)(),
 		).resolves.toEqual(
@@ -1932,7 +1931,9 @@ describe('AsyncStream methods', () => {
 		);
 
 		AsyncStream.from(sources).forEach(async (source) => {
-			const result = await AsyncStream.groupBy(source, async (v) => v % 4)();
+			const result = await AsyncStream.from(source).groupBy(
+				async (v) => v % 4,
+			)();
 			for (let i = 0; i < 4; i++) {
 				expect(result.get(i)?.length).toBe(25);
 			}
@@ -1947,21 +1948,13 @@ describe('AsyncStream methods', () => {
 		);
 
 		expect(
-			AsyncStream.groupBy(
-				AsyncStream.empty<string>(),
-				(v) => v.length,
-			)({
-				collector,
-			}),
+			AsyncStream.empty<string>().groupBy((v) => v.length)({ collector }),
 		).resolves.toEqual(new Map());
 		expect(
-			AsyncStream.groupBy(AsyncStream.of('a'), (v) => v.length)({ collector }),
+			AsyncStream.of('a').groupBy((v) => v.length)({ collector }),
 		).resolves.toEqual(new Map([[2, ['a']]]));
 		expect(
-			AsyncStream.groupBy(
-				AsyncStream.of('abc', 'a', 'def', 'b', 'qq'),
-				(v) => v.length,
-			)({
+			AsyncStream.of('abc', 'a', 'def', 'b', 'qq').groupBy((v) => v.length)({
 				collector,
 			}),
 		).resolves.toEqual(

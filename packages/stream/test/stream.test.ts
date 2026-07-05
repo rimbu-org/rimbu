@@ -1920,17 +1920,14 @@ describe('Stream methods', () => {
 	});
 
 	it('groupBy', () => {
-		expect(Stream.groupBy(Stream.empty<string>(), (v) => v.length)()).toEqual(
+		expect(Stream.empty<string>().groupBy((v) => v.length)()).toEqual(
 			new Map(),
 		);
-		expect(Stream.groupBy(Stream.of('a'), (v) => v.length)()).toEqual(
+		expect(Stream.of('a').groupBy((v) => v.length)()).toEqual(
 			new Map([[1, ['a']]]),
 		);
 		expect(
-			Stream.groupBy(
-				Stream.of('abc', 'a', 'def', 'b', 'qq'),
-				(v) => v.length,
-			)(),
+			Stream.of('abc', 'a', 'def', 'b', 'qq').groupBy((v) => v.length)(),
 		).toEqual(
 			new Map([
 				[1, ['a', 'b']],
@@ -1940,7 +1937,7 @@ describe('Stream methods', () => {
 		);
 
 		sources.forEach((source) => {
-			const result = Stream.groupBy(source, (v) => v % 4)();
+			const result = source.groupBy((v) => v % 4)();
 			for (let i = 0; i < 4; i++) {
 				expect(result.get(i)?.length).toBe(25);
 			}
@@ -1953,21 +1950,13 @@ describe('Stream methods', () => {
 		>(([key, value]) => [key * 2, value]);
 
 		expect(
-			Stream.groupBy(
-				Stream.empty<string>(),
-				(v) => v.length,
-			)({
-				collector,
-			}),
+			Stream.empty<string>().groupBy((v) => v.length)({ collector }),
 		).toEqual(new Map());
+		expect(Stream.of('a').groupBy((v) => v.length)({ collector })).toEqual(
+			new Map([[2, ['a']]]),
+		);
 		expect(
-			Stream.groupBy(Stream.of('a'), (v) => v.length)({ collector }),
-		).toEqual(new Map([[2, ['a']]]));
-		expect(
-			Stream.groupBy(
-				Stream.of('abc', 'a', 'def', 'b', 'qq'),
-				(v) => v.length,
-			)({
+			Stream.of('abc', 'a', 'def', 'b', 'qq').groupBy((v) => v.length)({
 				collector,
 			}),
 		).toEqual(
