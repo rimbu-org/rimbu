@@ -817,6 +817,13 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 		return new AsyncReduceStream(this, reducer);
 	}
 
+	partition(
+		pred: (value: T, index: number) => MaybePromise<boolean>,
+	): any {
+		return (options: any = {}) =>
+			(this as AsyncStream<T>).reduce(AsyncReducer.partition(pred, options));
+	}
+
 	groupBy<K>(valueToKey: (value: T, index: number) => MaybePromise<K>): any {
 		return (options: any = {}) =>
 			(this as AsyncStream<T>).reduce(AsyncReducer.groupBy(valueToKey, options));

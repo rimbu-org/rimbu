@@ -10,7 +10,6 @@ import type { AsyncStreamFactory } from '#async/factory';
 import type { StreamSource } from '#private/stream-types';
 
 import { Module } from '@rimbu/common/module';
-import { AsyncReducer } from '@rimbu/stream/async/reducer';
 
 import {
 	AsyncUnfoldIterator,
@@ -126,15 +125,5 @@ export const asyncStreamFactoryModule = Module.create<AsyncStreamFactory>(
 		asyncFastIteratorFactory: Module.lazyGetter(() =>
 			asyncFastIteratorFactoryModule.build(),
 		),
-		partition: <T>(
-			source: AsyncStreamSource<T>,
-			pred: (value: T, index: number) => MaybePromise<boolean>,
-		): ((options?: { collectorTrue?: any; collectorFalse?: any }) => any) => {
-			return (options = {}) => {
-				return mod
-					.fromAsyncStreamSource(source)
-					.reduce(AsyncReducer.partition(pred, options));
-			};
-		},
 	}),
 );

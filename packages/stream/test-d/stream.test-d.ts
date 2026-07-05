@@ -685,30 +685,23 @@ expectTypeOf(Stream.of(1).joinStream({ end: Stream.of(1) })).toEqualTypeOf<
 >();
 
 // .partition(...)
-expectTypeOf(Stream.partition(Stream.of(1), () => false)()).toEqualTypeOf<
+expectTypeOf(Stream.of(1).partition(() => false)()).toEqualTypeOf<
 	[number[], number[]]
 >();
 expectTypeOf(
-	Stream.partition(
-		Stream.of(1),
-		() => false,
-	)({
+	Stream.of(1).partition(() => false)({
 		collectorTrue: Reducer.toJSSet(),
 		collectorFalse: Reducer.sum,
 	}),
 ).toEqualTypeOf<[Set<number>, number]>();
 
 expectTypeOf(
-	Stream.partition(
-		Stream.empty<number | string>(),
+	Stream.empty<number | string>().partition(
 		(v): v is string => false,
 	)(),
 ).toEqualTypeOf<[string[], number[]]>();
 expectTypeOf(
-	Stream.partition(
-		Stream.empty<number | string>(),
-		(v): v is string => false,
-	)({
+	Stream.empty<number | string>().partition((v): v is string => false)({
 		collectorTrue: Reducer.toJSSet(),
 		collectorFalse: Reducer.sum,
 	}),

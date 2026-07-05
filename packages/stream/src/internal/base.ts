@@ -673,6 +673,10 @@ export abstract class StreamBase<T> implements Stream<T> {
 		return new ReducerStream(this, reducer);
 	}
 
+	partition(pred: (value: T, index: number) => boolean): any {
+		return (options: any = {}) => this.reduce(Reducer.partition(pred, options));
+	}
+
 	groupBy<K>(valueToKey: (value: T, index: number) => K): any {
 		return (options: any = {}) => this.reduce(Reducer.groupBy(valueToKey, options));
 	}

@@ -1860,60 +1860,42 @@ describe('Stream methods', () => {
 	it('partition', () => {
 		const isEven = (v: number) => v % 2 === 0;
 
-		expect(Stream.partition(Stream.empty<number>(), isEven)()).toEqual([
-			[],
-			[],
-		]);
-		expect(Stream.partition(Stream.of(1), isEven)()).toEqual([[], [1]]);
-		expect(Stream.partition(Stream.of(0), isEven)()).toEqual([[0], []]);
-		expect(Stream.partition(Stream.of(1, 2, 3), isEven)()).toEqual([
-			[2],
-			[1, 3],
-		]);
+		expect(Stream.empty<number>().partition(isEven)()).toEqual([[], []]);
+		expect(Stream.of(1).partition(isEven)()).toEqual([[], [1]]);
+		expect(Stream.of(0).partition(isEven)()).toEqual([[0], []]);
+		expect(Stream.of(1, 2, 3).partition(isEven)()).toEqual([[2], [1, 3]]);
 	});
 
 	it('partition collector', () => {
 		const isEven = (v: number) => v % 2 === 0;
 
 		expect(
-			Stream.partition(
-				Stream.empty<number>(),
-				isEven,
-			)({
+			Stream.empty<number>().partition(isEven)({
 				collectorTrue: Reducer.join<number>({ sep: ',' }),
 				collectorFalse: Reducer.join<number>({ sep: ',' }),
 			}),
 		).toEqual(['', '']);
 		expect(
-			Stream.partition(
-				Stream.of(1),
-				isEven,
-			)({
+			Stream.of(1).partition(isEven)({
 				collectorTrue: Reducer.join<number>({ sep: ',' }),
 				collectorFalse: Reducer.join<number>({ sep: ',' }),
 			}),
 		).toEqual(['', '1']);
 		expect(
-			Stream.partition(
-				Stream.of(0),
-				isEven,
-			)({
+			Stream.of(0).partition(isEven)({
 				collectorTrue: Reducer.join<number>({ sep: ',' }),
 				collectorFalse: Reducer.join<number>({ sep: ',' }),
 			}),
 		).toEqual(['0', '']);
 		expect(
-			Stream.partition(
-				Stream.of(1, 2, 3),
-				isEven,
-			)({
+			Stream.of(1, 2, 3).partition(isEven)({
 				collectorTrue: Reducer.join<number>({ sep: ',' }),
 				collectorFalse: Reducer.join<number>({ sep: ',' }),
 			}),
 		).toEqual(['2', '1,3']);
 
 		sources.forEach((source) => {
-			const [left, right] = Stream.partition(source, (v) => v % 2 === 0)();
+			const [left, right] = source.partition((v) => v % 2 === 0)();
 			expect(left.length).toBe(50);
 			expect(right.length).toBe(50);
 		});

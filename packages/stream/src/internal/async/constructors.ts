@@ -2,8 +2,6 @@ import type { Token } from '@rimbu/base/token';
 import type { AsyncOptLazy, MaybePromise } from '@rimbu/common/async-opt-lazy';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 import type { AsyncStream, AsyncStreamSource } from '@rimbu/stream/async';
-import type { AsyncReducer } from '@rimbu/stream/async/reducer';
-
 /**
  * An interface describing all factory functions used to create `AsyncStream` instances.
  * Implementations of this interface are exposed via the global `AsyncStream` value and the `@rimbu/stream/async-custom` sub-package.
@@ -126,51 +124,4 @@ export interface AsyncStreamConstructors {
 		init: T,
 		next: (current: T, index: number, stop: Token) => MaybePromise<T | Token>,
 	): AsyncStream.NonEmpty<T>;
-	/**
-	 * Returns a promise resolving to a tuple of which the first element is the result of collecting the elements for which the given `predicate` is true, and
-	 * the second one the result of collecting the other elements. Own reducers can be provided as collectors, by default the values are
-	 * collected into an array.
-	 * @param pred - a potentially async predicate receiving the value and its index
-	 * @param options - (optional) an object containing the following properties:<br/>
-	 * - collectorTrue: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is true<br/>
-	 * - collectorFalse: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is false
-	 * @typeparam T - the input element type
-	 * @typeparam RT - the reducer result type for the `collectorTrue` value
-	 * @typeparam RF - the reducer result type for the `collectorFalse` value
-	 * @note if the predicate is a type guard, the return type is automatically inferred
-	 */
-	partition<T, TT extends T = T>(
-		source: AsyncStreamSource<T>,
-		pred: (value: T, index: number) => value is TT,
-	): {
-		<RT, RF>(options: {
-			collectorTrue: AsyncReducer.Accept<TT, RT>;
-			collectorFalse: AsyncReducer.Accept<Exclude<T, TT>, RF>;
-		}): Promise<[true: RT, false: RF]>;
-		(
-			options?:
-				| {
-						collectorTrue?: undefined;
-						collectorFalse?: undefined;
-				  }
-				| undefined,
-		): Promise<[true: TT[], false: Exclude<T, TT>[]]>;
-	};
-	partition<T>(
-		source: AsyncStreamSource<T>,
-		pred: (value: T, index: number) => MaybePromise<boolean>,
-	): {
-		<RT, RF>(options: {
-			collectorTrue: AsyncReducer.Accept<T, RT>;
-			collectorFalse: AsyncReducer.Accept<T, RF>;
-		}): Promise<[true: RT, false: RF]>;
-		(
-			options?:
-				| {
-						collectorTrue?: undefined;
-						collectorFalse?: undefined;
-				  }
-				| undefined,
-		): Promise<[true: T[], false: T[]]>;
-	};
 }

@@ -8,8 +8,6 @@ import { ErrBase } from '@rimbu/common/err';
 import { IndexRange } from '@rimbu/common/index-range';
 import { Module } from '@rimbu/common/module';
 import { Range } from '@rimbu/common/range';
-import { Reducer } from '@rimbu/stream/reducer';
-
 import {
 	AlwaysStream,
 	ArrayStream,
@@ -266,27 +264,5 @@ export const streamFactoryModule = Module.create<StreamFactory>((mod) => ({
 		}
 
 		return result;
-	},
-	partition: <T>(
-		source: StreamSource<T>,
-		pred: (value: T, index: number) => boolean,
-	): ((options?: { collectorTrue?: any; collectorFalse?: any }) => any) => {
-		return (options = {}) => {
-			if (mod.isEmptyStreamSourceInstance(source)) {
-				const {
-					collectorTrue = Reducer.toArray(),
-					collectorFalse = Reducer.toArray(),
-				} = options;
-
-				return [
-					collectorTrue.compile().getOutput(),
-					collectorFalse.compile().getOutput(),
-				];
-			}
-
-			return mod
-				.fromStreamSource(source)
-				.reduce(Reducer.partition(pred, options));
-		};
 	},
 }));

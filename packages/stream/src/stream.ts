@@ -1076,6 +1076,48 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 		shape: S & Reducer.CombineShape<T>,
 	): Stream<Reducer.CombineResult<S>>;
 	/**
+	 * Returns a tuple of which the first element is the result of collecting the elements for which the given `predicate` is true, and
+	 * the second one the result of collecting the other elements. Own reducers can be provided as collectors, by default the values are
+	 * collected into an array.
+	 * @param pred - a predicate receiving the value and its index
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - collectorTrue: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is true<br/>
+	 * - collectorFalse: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is false
+	 * @typeparam TT - the true-branch element type (inferred from type guard predicates)
+	 * @typeparam RT - the reducer result type for the `collectorTrue` value
+	 * @typeparam RF - the reducer result type for the `collectorFalse` value
+	 * @note if the predicate is a type guard, the return type is automatically inferred
+	 * @example
+	 * ```ts
+	 * Stream.of(1, 2, 3).partition((v) => v % 2 === 0)()
+	 * // => [[2], [1, 3]]
+	 * ```
+	 */
+	partition<TT extends T = T>(
+		pred: (value: T, index: number) => value is TT,
+	): {
+		<RT, RF>(options: {
+			collectorTrue: Reducer<TT, RT>;
+			collectorFalse: Reducer<Exclude<T, TT>, RF>;
+		}): [true: RT, false: RF];
+		(
+			options?:
+				| { collectorTrue?: undefined; collectorFalse?: undefined }
+				| undefined,
+		): [true: TT[], false: Exclude<T, TT>[]];
+	};
+	partition(pred: (value: T, index: number) => boolean): {
+		<RT, RF>(options: {
+			collectorTrue: Reducer<T, RT>;
+			collectorFalse: Reducer<T, RF>;
+		}): [true: RT, false: RF];
+		(
+			options?:
+				| { collectorTrue?: undefined; collectorFalse?: undefined }
+				| undefined,
+		): [true: T[], false: T[]];
+	};
+	/**
 	 * Returns the result of applying the `valueToKey` function to calculate a key for each value, and feeding the tuple of the key and the value to the
 	 * `collector` reducer, and finally returning its result. If no collector is given, the default collector will return a JS multimap
 	 * of the type `Map<K, V[]>`.
@@ -1800,54 +1842,6 @@ export namespace Stream {
 			source: Stream<T>,
 			options: { length: L },
 		): { [K in keyof T]: Stream<T[K]> };
-		/**
-		 * Returns a tuple of which the first element is the result of collecting the elements for which the given `predicate` is true, and
-		 * the second one the result of collecting the other elements. Own reducers can be provided as collectors, by default the values are
-		 * collected into an array.
-		 * @param source - the source of values to partition
-		 * @param pred - a predicate receiving the value and its index
-		 * @param options - (optional) an object containing the following properties:<br/>
-		 * - collectorTrue: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is true<br/>
-		 * - collectorFalse: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is false
-		 * @typeparam T - the input element type
-		 * @typeparam RT - the reducer result type for the `collectorTrue` value
-		 * @typeparam RF - the reducer result type for the `collectorFalse` value
-		 * @note if the predicate is a type guard, the return type is automatically inferred
-		 */
-		partition<T, TT extends T = T>(
-			source: StreamSource<T>,
-			pred: (value: T, index: number) => value is TT,
-		): {
-			<RT, RF>(options: {
-				collectorTrue: Reducer<TT, RT>;
-				collectorFalse: Reducer<Exclude<T, TT>, RF>;
-			}): [true: RT, false: RF];
-			(
-				options?:
-					| {
-							collectorTrue?: undefined;
-							collectorFalse?: undefined;
-					  }
-					| undefined,
-			): [true: TT[], false: Exclude<T, TT>[]];
-		};
-		partition<T>(
-			source: StreamSource<T>,
-			pred: (value: T, index: number) => boolean,
-		): {
-			<RT, RF>(options: {
-				collectorTrue: Reducer<T, RT>;
-				collectorFalse: Reducer<T, RF>;
-			}): [true: RT, false: RF];
-			(
-				options?:
-					| {
-							collectorTrue?: undefined;
-							collectorFalse?: undefined;
-					  }
-					| undefined,
-			): [true: T[], false: T[]];
-		};
 	}
 }
 

@@ -1124,6 +1124,50 @@ export interface AsyncStream<T>
 		shape: S & AsyncReducer.CombineShape<T>,
 	): AsyncStream<AsyncReducer.CombineResult<S>>;
 	/**
+	 * Returns a promise resolving to a tuple of which the first element is the result of collecting the elements for which the given `predicate` is true, and
+	 * the second one the result of collecting the other elements. Own reducers can be provided as collectors, by default the values are
+	 * collected into an array.
+	 * @param pred - a potentially asynchronous predicate receiving the value and its index
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - collectorTrue: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is true<br/>
+	 * - collectorFalse: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is false
+	 * @typeparam TT - the true-branch element type (inferred from type guard predicates)
+	 * @typeparam RT - the reducer result type for the `collectorTrue` value
+	 * @typeparam RF - the reducer result type for the `collectorFalse` value
+	 * @note if the predicate is a type guard, the return type is automatically inferred
+	 * @example
+	 * ```ts
+	 * await AsyncStream.of(1, 2, 3).partition((v) => v % 2 === 0)()
+	 * // => [[2], [1, 3]]
+	 * ```
+	 */
+	partition<TT extends T = T>(
+		pred: (value: T, index: number) => value is TT,
+	): {
+		<RT, RF>(options: {
+			collectorTrue: AsyncReducer.Accept<TT, RT>;
+			collectorFalse: AsyncReducer.Accept<Exclude<T, TT>, RF>;
+		}): Promise<[true: RT, false: RF]>;
+		(
+			options?:
+				| { collectorTrue?: undefined; collectorFalse?: undefined }
+				| undefined,
+		): Promise<[true: TT[], false: Exclude<T, TT>[]]>;
+	};
+	partition(
+		pred: (value: T, index: number) => MaybePromise<boolean>,
+	): {
+		<RT, RF>(options: {
+			collectorTrue: AsyncReducer.Accept<T, RT>;
+			collectorFalse: AsyncReducer.Accept<T, RF>;
+		}): Promise<[true: RT, false: RF]>;
+		(
+			options?:
+				| { collectorTrue?: undefined; collectorFalse?: undefined }
+				| undefined,
+		): Promise<[true: T[], false: T[]]>;
+	};
+	/**
 	 * Returns the result of applying the `valueToKey` function to calculate a key for each value, and feeding the tuple of the key and the value to the
 	 * `collector` reducer, and finally returning its result. If no collector is given, the default collector will return a JS multimap
 	 * of the type `Map<K, V[]>`.

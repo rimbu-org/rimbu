@@ -1847,17 +1847,14 @@ describe('AsyncStream methods', () => {
 	it('partition', () => {
 		const isEven = (v: number) => v % 2 === 0;
 
+		expect(AsyncStream.empty<number>().partition(isEven)()).resolves.toEqual([
+			[],
+			[],
+		]);
+		expect(AsyncStream.of(1).partition(isEven)()).resolves.toEqual([[], [1]]);
+		expect(AsyncStream.of(0).partition(isEven)()).resolves.toEqual([[0], []]);
 		expect(
-			AsyncStream.partition(AsyncStream.empty<number>(), isEven)(),
-		).resolves.toEqual([[], []]);
-		expect(AsyncStream.partition(AsyncStream.of(1), isEven)()).resolves.toEqual(
-			[[], [1]],
-		);
-		expect(AsyncStream.partition(AsyncStream.of(0), isEven)()).resolves.toEqual(
-			[[0], []],
-		);
-		expect(
-			AsyncStream.partition(AsyncStream.of(1, 2, 3), isEven)(),
+			AsyncStream.of(1, 2, 3).partition(isEven)(),
 		).resolves.toEqual([[2], [1, 3]]);
 	});
 
@@ -1865,45 +1862,32 @@ describe('AsyncStream methods', () => {
 		const isEven = async (v: number) => v % 2 === 0;
 
 		expect(
-			AsyncStream.partition(
-				AsyncStream.empty<number>(),
-				isEven,
-			)({
+			AsyncStream.empty<number>().partition(isEven)({
 				collectorTrue: Reducer.join<number>({ sep: ',' }),
 				collectorFalse: Reducer.join<number>({ sep: ',' }),
 			}),
 		).resolves.toEqual(['', '']);
 		expect(
-			AsyncStream.partition(
-				AsyncStream.of(1),
-				isEven,
-			)({
+			AsyncStream.of(1).partition(isEven)({
 				collectorTrue: Reducer.join<number>({ sep: ',' }),
 				collectorFalse: Reducer.join<number>({ sep: ',' }),
 			}),
 		).resolves.toEqual(['', '1']);
 		expect(
-			AsyncStream.partition(
-				AsyncStream.of(0),
-				isEven,
-			)({
+			AsyncStream.of(0).partition(isEven)({
 				collectorTrue: Reducer.join<number>({ sep: ',' }),
 				collectorFalse: Reducer.join<number>({ sep: ',' }),
 			}),
 		).resolves.toEqual(['0', '']);
 		expect(
-			AsyncStream.partition(
-				AsyncStream.of(1, 2, 3),
-				isEven,
-			)({
+			AsyncStream.of(1, 2, 3).partition(isEven)({
 				collectorTrue: Reducer.join<number>({ sep: ',' }),
 				collectorFalse: Reducer.join<number>({ sep: ',' }),
 			}),
 		).resolves.toEqual(['2', '1,3']);
 
 		await AsyncStream.from(sources).forEach(async (source) => {
-			const [left, right] = await AsyncStream.partition(
-				source,
+			const [left, right] = await AsyncStream.from(source).partition(
 				(v) => v % 2 === 0,
 			)();
 			expect(left.length).toBe(50);
