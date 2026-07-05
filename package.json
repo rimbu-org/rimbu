@@ -49,7 +49,7 @@
 		"rimraf": "^6.1.2",
 		"typedoc": "^0.28.16",
 		"typedoc-theme-oxide": "^0.2.5",
-		"typescript": "^5.9.3"
+		"typescript": "^7.0.1-rc"
 	},
 	"workspaces": {
 		"packages": [

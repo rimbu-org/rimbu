@@ -3,6 +3,11 @@
 	"include": ["src", "test", "test-d"],
 	"compilerOptions": {
 		"rootDir": ".",
-		"baseUrl": "./src"
+		"paths": {
+			"@rimbu/channel": ["./src/channel.ts"],
+			"@rimbu/channel/*": ["./src/*.ts"],
+			"#channel/*": ["./src/internal/*.ts"],
+			"#private/*": ["./src/internal/*.ts"]
+		}
 	}
 }

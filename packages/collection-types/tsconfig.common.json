@@ -1,7 +1,6 @@
 {
 	"compilerOptions": {
 		"rootDir": ".",
-		"baseUrl": "./src",
 		"paths": {
 			"@rimbu/collection-types": ["./collection-types.ts"],
 			"@rimbu/collection-types/common": ["./common.ts"],

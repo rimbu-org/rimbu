@@ -2,9 +2,14 @@
 	"extends": ["../../config/tsconfig.esm.base.json", "./tsconfig.common.json"],
 	"include": ["src"],
 	"compilerOptions": {
-		"baseUrl": "./src",
 		"rootDir": "./src",
 		"noEmit": false,
-		"outDir": "./dist"
+		"outDir": "./dist",
+		"paths": {
+			"@rimbu/channel": ["./channel.ts"],
+			"@rimbu/channel/*": ["./*.ts"],
+			"#channel/*": ["./internal/*.ts"],
+			"#private/*": ["./internal/*.ts"]
+		}
 	}
 }

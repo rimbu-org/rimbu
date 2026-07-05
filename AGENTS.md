@@ -202,7 +202,6 @@ Every package's `package.json` must follow this shape exactly:
   "include": ["src", "test", "test-d"],   // add "test-random" if needed
   "compilerOptions": {
     "rootDir": ".",
-    "baseUrl": "./src"
   }
 }
 ```
@@ -214,7 +213,6 @@ Every package's `package.json` must follow this shape exactly:
   "extends": ["../../config/tsconfig.esm.base.json", "./tsconfig.common.json"],
   "include": ["src"],
   "compilerOptions": {
-    "baseUrl": "./src",
     "rootDir": "./src",
     "noEmit": false,
     "outDir": "./dist"

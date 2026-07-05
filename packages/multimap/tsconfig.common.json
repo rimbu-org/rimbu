@@ -1,7 +1,6 @@
 {
 	"compilerOptions": {
 		"rootDirs": [".", ".."],
-		"baseUrl": "./src",
 		"paths": {
 			"@rimbu/multimap": ["./multimap.ts"],
 			"@rimbu/multimap/*": ["./*.ts"],
