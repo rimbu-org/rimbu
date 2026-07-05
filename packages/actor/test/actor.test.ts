@@ -14,7 +14,7 @@ describe('Actor', () => {
 
 	it('can be empty', () => {
 		const act = Actor.configure({
-			reducer: Reducer.combine({}),
+			reducer: Reducer.combine({}) as any,
 		});
 
 		expect(act.getState()).toEqual({});
