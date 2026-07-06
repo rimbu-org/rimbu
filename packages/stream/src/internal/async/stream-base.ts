@@ -379,10 +379,7 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 		}
 	}
 
-	async at<O>(
-		index: number,
-		otherwise?: AsyncOptLazy<O>,
-	): Promise<T | O> {
+	async at<O>(index: number, otherwise?: AsyncOptLazy<O>): Promise<T | O> {
 		if (index < 0) return AsyncOptLazy.toPromise(otherwise!);
 
 		const done = Symbol('Done');
@@ -817,16 +814,16 @@ export abstract class AsyncStreamBase<T> implements AsyncStream<T> {
 		return new AsyncReduceStream(this, reducer);
 	}
 
-	partition(
-		pred: (value: T, index: number) => MaybePromise<boolean>,
-	): any {
+	partition(pred: (value: T, index: number) => MaybePromise<boolean>): any {
 		return (options: any = {}) =>
 			(this as AsyncStream<T>).reduce(AsyncReducer.partition(pred, options));
 	}
 
 	groupBy<K>(valueToKey: (value: T, index: number) => MaybePromise<K>): any {
 		return (options: any = {}) =>
-			(this as AsyncStream<T>).reduce(AsyncReducer.groupBy(valueToKey, options));
+			(this as AsyncStream<T>).reduce(
+				AsyncReducer.groupBy(valueToKey, options),
+			);
 	}
 
 	async toArray(): Promise<T[]> {
@@ -1119,10 +1116,7 @@ class AsyncMapStream<T, T2> extends AsyncStreamBase<T2> {
 		return this.source.count();
 	}
 
-	async at<O>(
-		index: number,
-		otherwise?: AsyncOptLazy<O>,
-	): Promise<T2 | O> {
+	async at<O>(index: number, otherwise?: AsyncOptLazy<O>): Promise<T2 | O> {
 		const done = Symbol('Done');
 		const value = await this.source.at(index, done);
 		if (done === value) return AsyncOptLazy.toPromise(otherwise!);
@@ -1193,10 +1187,7 @@ class AsyncMapPureStream<
 		return this.source.count();
 	}
 
-	async at<O>(
-		index: number,
-		otherwise?: AsyncOptLazy<O>,
-	): Promise<T2 | O> {
+	async at<O>(index: number, otherwise?: AsyncOptLazy<O>): Promise<T2 | O> {
 		const done = Symbol('Done');
 		const value = await this.source.at(index, done);
 		if (done === value) return AsyncOptLazy.toPromise(otherwise!);

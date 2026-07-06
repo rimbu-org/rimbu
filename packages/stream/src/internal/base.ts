@@ -678,7 +678,8 @@ export abstract class StreamBase<T> implements Stream<T> {
 	}
 
 	groupBy<K>(valueToKey: (value: T, index: number) => K): any {
-		return (options: any = {}) => this.reduce(Reducer.groupBy(valueToKey, options));
+		return (options: any = {}) =>
+			this.reduce(Reducer.groupBy(valueToKey, options));
 	}
 
 	toArray(): T[] {
@@ -1214,10 +1215,7 @@ class IndexedStream<T> extends StreamBase<[number, T]> {
 		return this.source.count();
 	}
 
-	at<O>(
-		index: number,
-		otherwise?: OptLazy<O> | undefined,
-	): [number, T] | O {
+	at<O>(index: number, otherwise?: OptLazy<O> | undefined): [number, T] | O {
 		const token = Symbol();
 		const atSource = this.source.at(index, token);
 

@@ -1398,12 +1398,12 @@ export namespace AsyncStream {
 		 * await source.repeat(3).toArray()   // => [1, 2, 3, 1, 2, 3, 1, 2, 3]
 		 * await source.repeat(-3).toArray()  // => [1, 2, 3]
 		 * ```
-	 * @note amount = undefined means that the AsyncStream is repeated indefinitely
-	 * @note amount = 1 means that the AsyncStream is not repeated
-	 * @note amount < 1 will be normalized to amount = 1
-	 * @note O(1)
-	 */
-	repeat(amount?: number | undefined): AsyncStream.NonEmpty<T>;
+		 * @note amount = undefined means that the AsyncStream is repeated indefinitely
+		 * @note amount = 1 means that the AsyncStream is not repeated
+		 * @note amount < 1 will be normalized to amount = 1
+		 * @note O(1)
+		 */
+		repeat(amount?: number | undefined): AsyncStream.NonEmpty<T>;
 		/**
 		 * Returns a non-empty AsyncStream containing the elements of this stream followed by all elements produced by the `others` array of AsyncStreamSources.
 		 * @typeparam T2 - the result value type

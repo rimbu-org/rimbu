@@ -1348,12 +1348,12 @@ export namespace Stream {
 		 * Stream.of(1, 2, 3).repeat(3).toArray()   // => [1, 2, 3, 1, 2, 3, 1, 2, 3]
 		 * Stream.of(1, 2, 3).repeat(-3).toArray()  // => [1, 2, 3]
 		 * ```
-	 * @note amount = undefined means that the Stream is repeated indefinitely
-	 * @note amount = 1 means that the Stream is not repeated
-	 * @note amount < 1 will be normalized to amount = 1
-	 * @note O(1)
-	 */
-	repeat(amount?: number | undefined): Stream.NonEmpty<T>;
+		 * @note amount = undefined means that the Stream is repeated indefinitely
+		 * @note amount = 1 means that the Stream is not repeated
+		 * @note amount < 1 will be normalized to amount = 1
+		 * @note O(1)
+		 */
+		repeat(amount?: number | undefined): Stream.NonEmpty<T>;
 		/**
 		 * Returns a Stream containing the elements of this Stream followed by all elements produced by the `others` array of StreamSources.
 		 * @param others - a series of StreamSources to concatenate.
@@ -1550,13 +1550,13 @@ export namespace Stream {
 		 * @param options - (optional) the options used to create the Stream, containing:<br/>
 		 * - range: (optional) a sub index range of the array<br/>
 		 * - reversed: (default: false) if true reverses the order of the Stream
-	 * @example
-	 * ```ts
-	 * Stream.fromArray([1, 2, 3]).toArray()                                            // => [1, 2, 3]
-	 * Stream.fromArray([1, 2, 3], { range: { start: -2 } }).toArray()                  // => [2, 3]
-	 * Stream.fromArray([1, 2, 3], { range: { start: 1 }, reversed: true }).toArray()   // => [3, 2]
-	 * ```
-	 */
+		 * @example
+		 * ```ts
+		 * Stream.fromArray([1, 2, 3]).toArray()                                            // => [1, 2, 3]
+		 * Stream.fromArray([1, 2, 3], { range: { start: -2 } }).toArray()                  // => [2, 3]
+		 * Stream.fromArray([1, 2, 3], { range: { start: 1 }, reversed: true }).toArray()   // => [3, 2]
+		 * ```
+		 */
 		fromArray<T>(
 			array: ArrayNonEmpty<T>,
 			options?: {
