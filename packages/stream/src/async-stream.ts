@@ -1154,12 +1154,12 @@ export interface AsyncStream<T>
 				| undefined,
 		): Promise<[true: TT[], false: Exclude<T, TT>[]]>;
 	};
-	partition(
+	partition<T2 extends T = T>(
 		pred: (value: T, index: number) => MaybePromise<boolean>,
 	): {
 		<RT, RF>(options: {
-			collectorTrue: AsyncReducer.Accept<T, RT>;
-			collectorFalse: AsyncReducer.Accept<T, RF>;
+			collectorTrue: AsyncReducer.Accept<T2, RT>;
+			collectorFalse: AsyncReducer.Accept<T2, RF>;
 		}): Promise<[true: RT, false: RF]>;
 		(
 			options?:
@@ -1182,11 +1182,11 @@ export interface AsyncStream<T>
 	 * // => Map {0 => [2], 1 => [1, 3]}
 	 * ```
 	 */
-	groupBy<K>(valueToKey: (value: T, index: number) => MaybePromise<K>): {
+	groupBy<K, T2 extends T = T>(
+		valueToKey: (value: T, index: number) => MaybePromise<K>,
+	): {
 		<R>(options: {
-			collector:
-				| AsyncReducer<[K, T], R>
-				| AsyncReducer<readonly [K, T], R>;
+			collector: AsyncReducer<[K, T2], R> | AsyncReducer<readonly [K, T2], R>;
 		}): Promise<R>;
 		(options?: { collector?: undefined } | undefined): Promise<Map<K, T[]>>;
 	};

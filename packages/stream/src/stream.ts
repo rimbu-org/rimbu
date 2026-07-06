@@ -1084,6 +1084,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - collectorTrue: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is true<br/>
 	 * - collectorFalse: (default: Reducer.toArray()) a reducer that collects the values for which the predicate is false
 	 * @typeparam TT - the true-branch element type (inferred from type guard predicates)
+	 * @typeparam T2 - utility type equal to T
 	 * @typeparam RT - the reducer result type for the `collectorTrue` value
 	 * @typeparam RF - the reducer result type for the `collectorFalse` value
 	 * @note if the predicate is a type guard, the return type is automatically inferred
@@ -1106,10 +1107,12 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 				| undefined,
 		): [true: TT[], false: Exclude<T, TT>[]];
 	};
-	partition(pred: (value: T, index: number) => boolean): {
+	partition<T2 extends T = T>(
+		pred: (value: T, index: number) => boolean,
+	): {
 		<RT, RF>(options: {
-			collectorTrue: Reducer<T, RT>;
-			collectorFalse: Reducer<T, RF>;
+			collectorTrue: Reducer<T2, RT>;
+			collectorFalse: Reducer<T2, RF>;
 		}): [true: RT, false: RF];
 		(
 			options?:
@@ -1125,6 +1128,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @param options - (optional) an object containing the following properties:<br/>
 	 * - collector: (default: Reducer.toArray()) a reducer that collects the incoming tuple of key and value, and provides the output
 	 * @typeparam K - the key type
+	 * @typeparam T2 - the value type (default: T)
 	 * @typeparam R - the collector output type
 	 * @example
 	 * ```ts
@@ -1132,9 +1136,11 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * // => Map {0 => [2], 1 => [1, 3]}
 	 * ```
 	 */
-	groupBy<K>(valueToKey: (value: T, index: number) => K): {
+	groupBy<K, T2 extends T = T>(
+		valueToKey: (value: T, index: number) => K,
+	): {
 		<R>(options: {
-			collector: Reducer<[K, T], R> | Reducer<readonly [K, T], R>;
+			collector: Reducer<[K, T2], R> | Reducer<readonly [K, T2], R>;
 		}): R;
 		(options?: { collector?: undefined } | undefined): Map<K, T[]>;
 	};
