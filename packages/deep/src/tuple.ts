@@ -1,7 +1,3 @@
-import type { Update } from '@rimbu/common/update';
-
-import * as Arr from '@rimbu/base/arr';
-
 /**
  * A readonly array of fixed length and types.
  */
@@ -9,30 +5,28 @@ export type Tuple<T extends Tuple.Source> = Readonly<T>;
 
 export namespace Tuple {
 	/**
-	 * A non-empty readonly array that can serve as a source for a Tuple.
-	 */
-	export type NonEmptySource = readonly [unknown, ...unknown[]];
-
-	/**
 	 * A readonly array that can serve as a source for a Tuple.
 	 */
 	export type Source = readonly unknown[];
 
-	/**
-	 * Determines whether the given type `T` is a tuple type.
-	 * @typeparam T - the input type
-	 */
-	export type IsTuple<T> = T extends { length: infer L }
-		? 0 extends L
-			? false
-			: true
-		: false;
+	export namespace Source {
+		/**
+		 * A non-empty readonly array that can serve as a source for a Tuple.
+		 */
+		export type NonEmpty = readonly [unknown, ...unknown[]];
+	}
+
+	export type NonEmpty<T extends Tuple.Source.NonEmpty> = Readonly<T>;
 
 	/**
 	 * Returns the indices/keys that are in a tuple.
 	 * @typeparam T - the input tuple type
 	 */
 	export type KeysOf<T> = { [K in keyof T]: K }[keyof T & number];
+
+	export function empty(): Tuple<[]> {
+		return [];
+	}
 
 	/**
 	 * Convenience method to type Tuple types
@@ -45,8 +39,8 @@ export namespace Tuple {
 	 * // type of t => Tuple<[number, string, boolean]>
 	 * ```
 	 */
-	export function of<T extends Tuple.NonEmptySource>(...values: T): Tuple<T> {
-		return values as any;
+	export function of<T extends Tuple.Source.NonEmpty>(...values: T): Tuple<T> {
+		return values as T;
 	}
 
 	/**
@@ -59,11 +53,11 @@ export namespace Tuple {
 	 * @example
 	 * ```ts
 	 * const t = Tuple.of(1, 'a', true)
-	 * console.log(Tuple.getIndex(t, 1))
+	 * console.log(Tuple.at(t, 1))
 	 * // => 'a'
 	 * ```
 	 */
-	export function getIndex<T extends Tuple.Source, K extends keyof T = keyof T>(
+	export function at<T extends Tuple.Source, K extends keyof T = keyof T>(
 		tuple: T,
 		index: K,
 	): T[K] {
@@ -115,10 +109,16 @@ export namespace Tuple {
 	 * // => true
 	 * ```
 	 */
-	export function last<T extends readonly unknown[], R>(
-		tuple: readonly [...T, R],
-	): R {
+	export function last<T extends Tuple.Source, R>(tuple: Tuple<[...T, R]>): R {
 		return tuple[tuple.length - 1] as any;
+	}
+
+	export function withAt<T extends Tuple.Source, K extends keyof T = keyof T>(
+		tuple: T,
+		index: K,
+		value: T[K],
+	): Tuple<T> {
+		return tuple.with(index as number, value) as unknown as T;
 	}
 
 	/**
@@ -140,9 +140,10 @@ export namespace Tuple {
 	export function updateAt<T extends Tuple.Source, K extends keyof T = keyof T>(
 		tuple: T,
 		index: K,
-		updater: Update<T[K]>,
-	): T {
-		return Arr.update(tuple, index as number, updater) as T;
+		updater: (current: T[K]) => T[K],
+	): Tuple<T> {
+		const newValue = updater(tuple[index]);
+		return withAt(tuple, index, newValue);
 	}
 
 	/**
@@ -161,8 +162,8 @@ export namespace Tuple {
 	 */
 	export function append<
 		T extends Tuple.Source,
-		V extends readonly [unknown, ...unknown[]],
-	>(tuple: T, ...values: V): readonly [...T, ...V] {
+		V extends Tuple.Source.NonEmpty,
+	>(tuple: T, ...values: V): Tuple<[...T, ...V]> {
 		return [...tuple, ...values];
 	}
 
@@ -185,7 +186,7 @@ export namespace Tuple {
 	export function concat<T1 extends Tuple.Source, T2 extends Tuple.Source>(
 		tuple1: T1,
 		tuple2: T2,
-	): readonly [...T1, ...T2] {
+	): Tuple<[...T1, ...T2]> {
 		return tuple1.concat(tuple2) as any;
 	}
 
@@ -201,10 +202,10 @@ export namespace Tuple {
 	 * // => [1, 'a']
 	 * ```
 	 */
-	export function init<T extends readonly unknown[]>(
-		tuple: readonly [...T, unknown],
-	): Readonly<T> {
-		return Arr.init(tuple) as any;
+	export function init<T extends Tuple.Source>(
+		tuple: Tuple<[...T, unknown]>,
+	): Tuple<T> {
+		return tuple.slice(0, -1) as unknown as T;
 	}
 
 	/**
@@ -219,9 +220,9 @@ export namespace Tuple {
 	 * // => ['a', true]
 	 * ```
 	 */
-	export function tail<T extends readonly [...unknown[]]>(
-		tuple: readonly [unknown, ...T],
-	): Readonly<T> {
-		return Arr.tail(tuple) as any;
+	export function tail<T extends Tuple.Source>(
+		tuple: Tuple<[unknown, ...T]>,
+	): Tuple<T> {
+		return tuple.slice(1) as unknown as T;
 	}
 }

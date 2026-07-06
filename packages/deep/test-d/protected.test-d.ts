@@ -51,16 +51,20 @@ expectTypeOf(p<{ a: { b: number }[] }>()).toEqualTypeOf<{
 	readonly a: readonly { readonly b: number }[];
 }>();
 
-// expectAssignable<Set<string>>(p<Set<string>>());
-// expectAssignable<Set<{ readonly a: number }>>(p<Set<{ a: number }>>());
+expectTypeOf(p<Set<string>>()).toEqualTypeOf<ReadonlySet<string>>();
+expectTypeOf(p<Set<{ a: number }>>()).toEqualTypeOf<
+	ReadonlySet<{ readonly a: number }>
+>();
 expectTypeOf([...p<Set<{ a: number }>>()][0]).toEqualTypeOf<{
 	readonly a: number;
 }>();
 
-// expectAssignable<Map<string, number>>(p<Map<string, number>>());
-// expectAssignable<Map<{ readonly a: number }, { readonly b: number }>>(
-//   p<Map<{ a: number }, { b: number }>>()
-// );
+expectTypeOf(p<Map<string, number>>()).toEqualTypeOf<
+	ReadonlyMap<string, number>
+>();
+expectTypeOf(p<Map<{ a: number }, { b: number }>>()).toEqualTypeOf<
+	ReadonlyMap<{ readonly a: number }, { readonly b: number }>
+>();
 expectTypeOf([...p<Map<{ a: number }, { b: number }>>()][0][0]).toEqualTypeOf<{
 	readonly a: number;
 }>();
