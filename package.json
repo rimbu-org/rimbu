@@ -33,7 +33,7 @@
 		"test": "bun --workspaces --if-present run test",
 		"test:types": "bun --workspaces --if-present run test:types",
 		"test:random": "bun --workspaces --if-present run test:random",
-		"typecheck": "bun --workspaces run typecheck",
+		"typecheck": "bun --workspaces --if-present run typecheck",
 		"version": "bunx changeset version"
 	},
 	"devDependencies": {
