@@ -163,12 +163,12 @@ export namespace Reducer {
 		 */
 		sliceInput(range?: IndexRange): Reducer<I, O>;
 		/**
-		 * Returns an 'AsyncReducer` instance that produces at most `amount` values.
+		 * Returns a `Reducer` instance that produces at most `amount` values.
 		 * @param amount - the maximum amount of values to produce.
 		 */
 		takeOutput(amount: number): Reducer<I, O>;
 		/**
-		 * Returns a 'Reducer` instance that produces until the given `pred` predicate returns true for
+		 * Returns a `Reducer` instance that produces until the given `pred` predicate returns true for
 		 * the output value.
 		 * @param pred - a function that returns true if the value should be passed to the reducer based on the following inputs:<br/>
 		 * - value: the current input value<br/>

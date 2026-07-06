@@ -227,9 +227,9 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 		flatMapFun: (value: T, index: number, halt: () => void) => StreamSource<T2>,
 	): Stream<[T, T2]>;
 	/**
-	 * Returns a Stream consisting of the concatenation of StreamSource elements resulting from applying the given `reducer` to each element.
+	 * Returns a Stream consisting of the concatenation of StreamSource elements resulting from applying the given `transformer` to each element.
 	 * @typeparam R - the resulting element type
-	 * @param transformer - a reducer taking elements ot type T as input, and returing a `StreamSource` of element type R
+	 * @param transformer - a `Transformer` taking elements of type T as input, and returning a `StreamSource` of element type R
 	 * @note O(1)
 	 * @example
 	 * ```ts
@@ -273,11 +273,11 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	): Stream<T>;
 	/**
 	 * Returns a Stream containing only those elements from this Stream for which the given `pred` function returns true.
-	 * @typeparam A - the arguments to be supplied to the `pred` function after each element
+	 * @typeparam A - the type of the extra arguments to be supplied to the `pred` function after each element
 	 * @param options - object specifying the following properties<br/>
-	 * - pred: a function taking an element the optionaly given `args`, and returning true if the element should be included in the resulting Stream.<br/>
+	 * - pred: a function taking an element and the optionally given `args`, and returning true if the element should be included in the resulting Stream.<br/>
 	 * - negate: (default: false) when true will negate the given predicate
-	 * @param args - the extra arguments to pass to the given `mapFun`
+	 * @param args - (optional) the extra arguments to pass to the given `pred`
 	 *
 	 * @note O(1)
 	 * @example
@@ -507,7 +507,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 		options?: { negate?: boolean | undefined },
 	): Stream<number>;
 	/**
-	 * Returns a Stream containing the indicies of the occurrence of the given `searchValue`, according to given `eq` function.
+	 * Returns a Stream containing the indices of the occurrence of the given `searchValue`, according to given `eq` function.
 	 * @param searchValue - the value to search for
 	 * @param options - (optional) object specifying the following properties<br/>
 	 * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
@@ -532,8 +532,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).indexWhere((v, i) => v + i > 2)      // => 1
-	 * Stream.of(1, 2, 3).indexWhere((v, i) => v + i > 2, 2)   // => 2
+	 * Stream.of(1, 2, 3).indexWhere((v, i) => v + i > 2)                      // => 1
+	 * Stream.of(1, 2, 3).indexWhere((v, i) => v + i > 2, { occurrence: 2 })   // => 2
 	 * ```
 	 * @note O(N)
 	 */
@@ -544,7 +544,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	/**
 	 * Returns the index of the `occurrence` instance of given `searchValue` in the Stream, using given `eq` function,
 	 * or undefined if no such value is found.
-	 * @param searchValue  - the element to search for
+	 * @param searchValue - the element to search for
 	 * @param options - (optional) object specifying the following properties<br/>
 	 * - occurrence: (default: 1) the occurrence to search for<br/>
 	 * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
@@ -552,10 +552,10 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @example
 	 * ```ts
 	 * const source = Stream.from('marmot')
-	 * source.indexOf('m')     // => 0
-	 * source.indexOf('m', 2)  // => 3
-	 * source.indexOf('m', 3)  // => undefined
-	 * source.indexOf('q')     // => undefined
+	 * source.indexOf('m')                    // => 0
+	 * source.indexOf('m', { occurrence: 2 }) // => 3
+	 * source.indexOf('m', { occurrence: 3 }) // => undefined
+	 * source.indexOf('q')                    // => undefined
 	 * ```
 	 * @note O(N)
 	 */
@@ -603,8 +603,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * Returns true if the Stream contains given `amount` instances of given `value`, using given `eq` function.
 	 * @param value - the value to search for
 	 * @param options - (optional) object specifying the following properties<br/>
-	 * = amount: (default: 1) the amount of values the Stream should contain<br/>
-	 * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements
+	 * - amount: (default: 1) the amount of values the Stream should contain<br/>
+	 * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
@@ -703,7 +703,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * Stream.of(1, 2, 3).repeat(3).toArray()   // => [1, 2, 3, 1, 2, 3, 1, 2, 3]
 	 * Stream.of(1, 2, 3).repeat(-3).toArray()  // => [1, 2, 3]
 	 * ```
-	 * @note amount = undefined means that the Stream is repeated indefintely
+	 * @note amount = undefined means that the Stream is repeated indefinitely
 	 * @note amount = 1 means that the Stream is not repeated
 	 * @note amount < 1 will be normalized to amount = 1
 	 * @note O(1)
@@ -801,7 +801,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * Returns a string resulting from converting each element to string with `options.valueToString`, interspersed with `options.sep`, starting with
 	 * `options.start` and ending with `options.end`.
 	 * @param options - (optional) object specifying the following properties<br/>
-	 * - sep: (optional) a seperator to insert between each Stream element<br/>
+	 * - sep: (optional) a separator to insert between each Stream element<br/>
 	 * - start: (optional) a start string to prepend at the start<br/>
 	 * - end: (optional) an end string to append at the end<br/>
 	 * - valueToString: (default: String) a function converting a Stream element to a string<br/>
@@ -821,10 +821,10 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 		ifEmpty?: string | undefined;
 	}): string;
 	/**
-	 * Returns a Stream starting with `options.sep`, then returning the elements of this Stream interspersed with `options.sep`, and ending with
-	 * `options.end`.
+	 * Returns a Stream starting with the elements from `options.start`, then returning the elements of this Stream interspersed with `options.sep`, and ending with
+	 * the elements from `options.end`.
 	 * @param options - object specifying the following properties<br/>
-	 * - sep: (optional) a seperator StreamSource to insert between each Stream element<br/>
+	 * - sep: (optional) a separator StreamSource to insert between each Stream element<br/>
 	 * - start: (optional) a start StreamSource to prepend<br/>
 	 * - end: (optional) an end StreamSource to append
 	 * @example
@@ -936,15 +936,15 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @typeparam R - the collector reducer result type
 	 * @param windowSize - the size in elements of the windows
 	 * @param options - (optional) object specifying the following properties<br/>
-	 * - skipAmount: (default: `windowSize`) the amount of elements to skip to start the next window
+	 * - skipAmount: (default: `windowSize`) the amount of elements to skip to start the next window<br/>
 	 * - collector: (default: `Reducer.toArray()`) the reducer to use to collect the window values
 	 * @example
 	 * ```ts
 	 * console.log(Stream.of(1, 2, 3, 4, 5, 6, 7).window(3).toArray())
 	 * // => [[1, 2, 3], [4, 5, 6]]
-	 * console.log(Stream.of(1, 2, 3, 4, 5).window(3, 1).toArray())
+	 * console.log(Stream.of(1, 2, 3, 4, 5).window(3, { skipAmount: 1 }).toArray())
 	 * // => [[1, 2, 3], [2, 3, 4], [3, 4, 5]]
-	 * console.log(Stream.of(1, 2, 3, 4).window(2, 2, Reducer.toJSSet()).toArray())
+	 * console.log(Stream.of(1, 2, 3, 4).window(2, { collector: Reducer.toJSSet() }).toArray())
 	 * // => [Set(1, 2), Set(3, 4)]
 	 * ```
 	 */
@@ -1012,17 +1012,6 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 		next: (current: R, value: T, index: number, halt: () => void) => R,
 	): Stream<R>;
 	/**
-	 * Applies the given combined `Reducer` to each element in the Stream, and returns the final result.
-	 * @typeparam S - a shape defining a combined reducer definition
-	 * @param shape - the `Reducer` combined instance to use to apply to all stream elements.
-	 * @example
-	 * ```ts
-	 * console.log(Stream.of(1, 2, 4).reduce([Reducer.sum, { prod: Reducer.product }]))
-	 * // => [7, { prod: 8 }]
-	 * ```
-	 */
-	reduce<R, T2 = T>(reducer: Reducer<T | T2, R>): R;
-	/**
 	 * Applies the given `reducer` to each element in the Stream, and returns the final result.
 	 * @typeparam R - the result type
 	 * @param reducer - the `Reducer` instance to use to apply to all Stream elements.
@@ -1034,11 +1023,22 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * // => 8
 	 * ```
 	 */
+	reduce<R, T2 = T>(reducer: Reducer<T | T2, R>): R;
+	/**
+	 * Applies the given combined `Reducer` shape to each element in the Stream, and returns the final result in the matching shape.
+	 * @typeparam S - a shape defining a combined reducer definition
+	 * @param shape - the `Reducer` combined shape to use to apply to all stream elements.
+	 * @example
+	 * ```ts
+	 * console.log(Stream.of(1, 2, 4).reduce([Reducer.sum, { prod: Reducer.product }]))
+	 * // => [7, { prod: 8 }]
+	 * ```
+	 */
 	reduce<const S extends Reducer.CombineShape<T>>(
 		shape: S & Reducer.CombineShape<T>,
 	): Reducer.CombineResult<S>;
 	/**
-	 * Returns a Stream where the given `reducer` is applied to each element in the Stream.
+	 * Returns a Stream emitting the intermediate output values of applying the given `reducer` to each element in the Stream.
 	 * @typeparam R - the resulting element type
 	 * @param reducer - the `Reducer` instance to use to apply to all Stream elements.
 	 * @example
@@ -1059,7 +1059,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 */
 	reduceStream<R, T2 = T>(reducer: Reducer<T | T2, R>): Stream<R>;
 	/**
-	 * Returns a Stream where the given shape containing `Reducers` is applied to each element in the stream.
+	 * Returns a Stream emitting the intermediate output values of applying the given combined `Reducer` shape to each element in the stream.
 	 * @typeparam S - the reducer shape type
 	 * @param shape - the reducer shape containing instances of Reducers to use to apply to all stream elements.
 	 * @example
@@ -1223,7 +1223,7 @@ export namespace Stream {
 		 */
 		map<T2>(mapFun: (value: T, index: number) => T2): Stream.NonEmpty<T2>;
 		/**
-		 * Returns a non-empty tream where the given `mapFun` is applied to each value in the stream, with optionally
+		 * Returns a non-empty Stream where the given `mapFun` is applied to each value in the stream, with optionally
 		 * as extra arguments the given `args`.
 		 * @typeparam T2 - the result element type
 		 * @typeparam A - the type of the arguments to be passed to the `mapFun` function after each element
@@ -1302,9 +1302,9 @@ export namespace Stream {
 			) => StreamSource<T2>,
 		): Stream<[T, T2]>;
 		/**
-		 * Returns a Stream consisting of the concatenation of StreamSource elements resulting from applying the given `reducer` to each element.
+		 * Returns a Stream consisting of the concatenation of StreamSource elements resulting from applying the given `transformer` to each element.
 		 * @typeparam R - the resulting element type
-		 * @param transformer - a reducer taking elements ot type T as input, and returing a `StreamSource` of element type R
+		 * @param transformer - a `Transformer` taking elements of type T as input, and returning a `StreamSource` of element type R
 		 * @note O(1)
 		 * @example
 		 * ```ts
@@ -1348,12 +1348,12 @@ export namespace Stream {
 		 * Stream.of(1, 2, 3).repeat(3).toArray()   // => [1, 2, 3, 1, 2, 3, 1, 2, 3]
 		 * Stream.of(1, 2, 3).repeat(-3).toArray()  // => [1, 2, 3]
 		 * ```
-		 * @note amount = undefined means that the Stream is repeated indefintely
-		 * @note amount = 1 means that the Stream is not repeated
-		 * @note amount < 1 will be normalized to amount = 1
-		 * @note O(1)
-		 */
-		repeat(amount?: number | undefined): Stream.NonEmpty<T>;
+	 * @note amount = undefined means that the Stream is repeated indefinitely
+	 * @note amount = 1 means that the Stream is not repeated
+	 * @note amount < 1 will be normalized to amount = 1
+	 * @note O(1)
+	 */
+	repeat(amount?: number | undefined): Stream.NonEmpty<T>;
 		/**
 		 * Returns a Stream containing the elements of this Stream followed by all elements produced by the `others` array of StreamSources.
 		 * @param others - a series of StreamSources to concatenate.
@@ -1417,10 +1417,10 @@ export namespace Stream {
 		 */
 		intersperse(sep: StreamSource<T>): Stream.NonEmpty<T>;
 		/**
-		 * Returns a non-empty Stream starting with `options.sep`, then returning the elements of this Stream interspersed with `options.sep`, and ending with
-		 * `options.end`.
+		 * Returns a non-empty Stream starting with the elements from `options.start`, then returning the elements of this Stream interspersed with `options.sep`, and ending with
+		 * the elements from `options.end`.
 		 * @param options - object specifying the following properties<br/>
-		 * - sep: (optional) a seperator StreamSource to insert between each Stream element<br/>
+		 * - sep: (optional) a separator StreamSource to insert between each Stream element<br/>
 		 * - start: (optional) a start StreamSource to prepend<br/>
 		 * - end: (optional) an end StreamSource to append
 		 * @example
@@ -1550,13 +1550,13 @@ export namespace Stream {
 		 * @param options - (optional) the options used to create the Stream, containing:<br/>
 		 * - range: (optional) a sub index range of the array<br/>
 		 * - reversed: (default: false) if true reverses the order of the Stream
-		 * @example
-		 * ```ts
-		 * Stream.fromArray([1, 2, 3]).toArray()                                            // => [1, 2, 3]
-		 * Stream.fromArray([1, 2, 3], { range: { start: -2 } }).toArray()                  // => [1, 2]
-		 * Stream.fromArray([1, 2, 3], { range: { start: 1 }, reversed: true }).toArray()   // => [3, 2]
-		 * ```
-		 */
+	 * @example
+	 * ```ts
+	 * Stream.fromArray([1, 2, 3]).toArray()                                            // => [1, 2, 3]
+	 * Stream.fromArray([1, 2, 3], { range: { start: -2 } }).toArray()                  // => [2, 3]
+	 * Stream.fromArray([1, 2, 3], { range: { start: 1 }, reversed: true }).toArray()   // => [3, 2]
+	 * ```
+	 */
 		fromArray<T>(
 			array: ArrayNonEmpty<T>,
 			options?: {

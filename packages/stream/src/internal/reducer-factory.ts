@@ -121,14 +121,14 @@ export interface ReducerFactory {
 	 * A `Reducer` that calculates the product of all given numeric input values.
 	 * @example
 	 * ```ts
-	 * console.log(Stream.range({ start: 1, amount: 5 }).reduce(product))
+	 * console.log(Stream.range({ start: 1, amount: 5 }).reduce(Reducer.product))
 	 * // => 120
 	 * ```
 	 */
 	product: Reducer<number>;
 
 	/**
-	 * A `Reducer` that calculates the average of all given numberic input values.
+	 * A `Reducer` that calculates the average of all given numeric input values.
 	 * @example
 	 * ```ts
 	 * console.log(Stream.range({ amount: 5 }).reduce(Reducer.average));
@@ -139,8 +139,8 @@ export interface ReducerFactory {
 
 	/**
 	 * Returns a `Reducer` that remembers the minimum value of the inputs using the given `compFun` to compare input values
-	 * @param compFun - a comparison function for two input values, returning 0 when equal, positive when greater, negetive when smaller
-	 * @param otherwise - (default: undefineds) a fallback value when there were no input values given
+	 * @param compFun - a comparison function for two input values, returning 0 when equal, positive when greater, negative when smaller
+	 * @param otherwise - (default: undefined) a fallback value when there were no input values given
 	 * @typeparam T - the element type
 	 * @typeparam O - the fallback value type
 	 * @example
@@ -159,7 +159,7 @@ export interface ReducerFactory {
 	};
 
 	/**
-	 * Returns a `Reducer` that remembers the minimum value of the numberic inputs.
+	 * Returns a `Reducer` that remembers the minimum value of the numeric inputs.
 	 * @param otherwise - (default: undefined) a fallback value when there were no input values given
 	 * @typeparam O - the fallback value type
 	 * @example
@@ -175,7 +175,7 @@ export interface ReducerFactory {
 
 	/**
 	 * Returns a `Reducer` that remembers the maximum value of the inputs using the given `compFun` to compare input values
-	 * @param compFun - a comparison function for two input values, returning 0 when equal, positive when greater, negetive when smaller
+	 * @param compFun - a comparison function for two input values, returning 0 when equal, positive when greater, negative when smaller
 	 * @param otherwise - (default: undefined) a fallback value when there were no input values given
 	 * @typeparam T - the element type
 	 * @typeparam O - the fallback value type
@@ -195,7 +195,7 @@ export interface ReducerFactory {
 	};
 
 	/**
-	 * Returns a `Reducer` that remembers the maximum value of the numberic inputs.
+	 * Returns a `Reducer` that remembers the maximum value of the numeric inputs.
 	 * @param otherwise - (default: undefined) a fallback value when there were no input values given
 	 * @typeparam O - the fallback value type
 	 * @example
@@ -289,7 +289,7 @@ export interface ReducerFactory {
 	};
 
 	/**
-	 * Returns a `Reducer` that ouputs false as long as no input value satisfies given `pred`, true otherwise.
+	 * Returns a `Reducer` that outputs false as long as no input value satisfies given `pred`, true otherwise.
 	 * @typeparam T - the element type
 	 * @param pred - a function taking an input value and its index, and returning true if the value satisfies the predicate
 	 * @param options - (optional) an object containing the following properties:<br/>
@@ -308,7 +308,7 @@ export interface ReducerFactory {
 	): Reducer<T, boolean>;
 
 	/**
-	 * Returns a `Reducer` that ouputs true as long as all input values satisfy the given `pred`, false otherwise.
+	 * Returns a `Reducer` that outputs true as long as all input values satisfy the given `pred`, false otherwise.
 	 * @typeparam T - the element type
 	 * @param pred - a function taking an input value and its index, and returning true if the value satisfies the predicate
 	 * @param options - (optional) an object containing the following properties:<br/>
@@ -327,9 +327,9 @@ export interface ReducerFactory {
 	): Reducer<T, boolean>;
 
 	/**
-	 * Returns a `Reducer` that ouputs true when the received elements match the given `other` stream source according to the `eq` instance, false otherwise.
+	 * Returns a `Reducer` that outputs true when the received elements match the given `other` stream source according to the `eq` instance, false otherwise.
 	 * @typeparam T - the element type
-	 * @param other - a stream source containg elements to match against
+	 * @param other - a stream source containing elements to match against
 	 * @param options - (optional) an object containing the following properties:<br/>
 	 * - eq: (default: Eq.objectIs) the `Eq` instance to use to compare elements
 	 * - negate: (default: false) when true will invert the given predicate
@@ -344,7 +344,7 @@ export interface ReducerFactory {
 	 * @typeparam T - the element type
 	 * @param elem - the element to search for
 	 * @param options - (optional) an object containing the following properties:<br/>
-	 * - amount: (detaulf: 1) the amount of elements to find
+	 * - amount: (default: 1) the amount of elements to find
 	 * - eq: (default: Eq.objectIs) the `Eq` instance to use to compare elements
 	 * - negate: (default: false) when true will invert the given predicate
 	 * @example
@@ -369,7 +369,7 @@ export interface ReducerFactory {
 	 * returns false.
 	 * @param slice - a sequence of elements to match against
 	 * @param options - (optional) an object containing the following properties:<br/>
-	 * - amount: (detaulf: 1) the amount of elements to find
+	 * - amount: (default: 1) the amount of times to match the slice
 	 * - eq: (default: Eq.objectIs) the `Eq` instance to use to compare elements
 	 */
 	startsWithSlice<T>(
@@ -384,7 +384,7 @@ export interface ReducerFactory {
 	 * returns false.
 	 * @param slice - a sequence of elements to match against
 	 * @param options - (optional) an object containing the following properties:<br/>
-	 * - amount: (detaulf: 1) the amount of elements to find
+	 * - amount: (default: 1) the amount of times to match the slice
 	 * - eq: (default: Eq.objectIs) the `Eq` instance to use to compare elements
 	 */
 	endsWithSlice<T>(
@@ -399,7 +399,7 @@ export interface ReducerFactory {
 	 * returns false.
 	 * @param slice - a sequence of elements to match against
 	 * @param options - (optional) an object containing the following properties:<br/>
-	 * - amount: (detaulf: 1) the amount of elements to find
+	 * - amount: (default: 1) the amount of times to match the slice
 	 * - eq: (default: Eq.objectIs) the `Eq` instance to use to compare elements
 	 */
 	containsSlice<T>(
@@ -413,7 +413,7 @@ export interface ReducerFactory {
 	 * A `Reducer` that takes boolean values and outputs true if all input values are true, and false otherwise.
 	 * @example
 	 * ```ts
-	 * console.log(Stream.of(true, false, true)).reduce(Reducer.and))
+	 * console.log(Stream.of(true, false, true).reduce(Reducer.and))
 	 * // => false
 	 * ```
 	 */
@@ -423,7 +423,7 @@ export interface ReducerFactory {
 	 * A `Reducer` that takes boolean values and outputs true if one or more input values are true, and false otherwise.
 	 * @example
 	 * ```ts
-	 * console.log(Stream.of(true, false, true)).reduce(Reducer.or))
+	 * console.log(Stream.of(true, false, true).reduce(Reducer.or))
 	 * // => true
 	 * ```
 	 */
@@ -593,14 +593,14 @@ export interface ReducerFactory {
 	toJSMap<K, V>(): Reducer<readonly [K, V], Map<K, V>>;
 
 	/**
-	 * Returns a `Reducer` that collects received input tuples into a mutable JS multimap, and returns
-	 * a copy of that map when output is requested.
+	 * Returns a `Reducer` that collects received input tuples into a mutable JS multimap (each key maps to an array of values),
+	 * and returns a copy of that map when output is requested.
 	 * @typeparam K - the map key type
 	 * @typeparam V - the map value type
 	 * @example
 	 * ```ts
-	 * console.log(Stream.of([1, 'a'], [2, 'b']).reduce(Reducer.toJSMap()))
-	 * // Map { 1 => 'a', 2 => 'b' }
+	 * console.log(Stream.of([1, 'a'], [1, 'b'], [2, 'c']).reduce(Reducer.toJSMultiMap()))
+	 * // Map { 1 => ['a', 'b'], 2 => ['c'] }
 	 * ```
 	 */
 	toJSMultiMap<K, V>(): Reducer<readonly [K, V], Map<K, V[]>>;

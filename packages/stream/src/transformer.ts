@@ -92,11 +92,11 @@ export namespace Transformer {
 	};
 
 	/**
-	 * Returns a transformer that returns only those elements from the input that are different to previous element
+	 * Returns a transformer that returns only those elements from the input that are different to the previous element
 	 * according to the optionally given `eq` function.
-	 * @param options:
-	 * - eq - (default: `Eq.objectIs`) the equality testing function
-	 * - negate: (default: false) when true will negate the given predicate<br/>
+	 * @param options - (optional) object specifying the following properties<br/>
+	 * - eq: (default: `Eq.objectIs`) the equality testing function<br/>
+	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
 	 * Stream.of(1, 1, 2, 3, 2, 2)
@@ -122,11 +122,10 @@ export namespace Transformer {
 
 	/**
 	 * Returns a transformer that applies the given flatMap function to each element of the input stream,
-	 * and concatenates all the resulting resulting streams into one stream.
+	 * and concatenates all the resulting streams into one stream.
 	 * @typeparam T - the input element type
 	 * @typeparam T2 - the output element type
-	 * @param flatMapFun - a function that maps each input element to an `StreamSource` or a promise
-	 * resolving to a `StreamSource`. The function receives three parameters:<br/>
+	 * @param flatMapFun - a function that maps each input element to a `StreamSource`. The function receives three parameters:<br/>
 	 * - `value`: the current element being processed<br/>
 	 * - `index`: the index of the current element in the input stream<br/>
 	 * - `halt`: a function that can be called to halt further processing of the input stream<br/>
@@ -143,12 +142,11 @@ export namespace Transformer {
 
 	/**
 	 * Returns a transformer that applies the given flatMap function to each element of the input stream,
-	 * and concatenates all the resulting resulting streams into one stream, where each resulting element is tupled
+	 * and concatenates all the resulting streams into one stream, where each resulting element is tupled
 	 * with the originating input element.
 	 * @typeparam T - the input element type
 	 * @typeparam T2 - the output element type
-	 * @param flatMapFun - a function that maps each input element to an `StreamSource` or a promise
-	 * resolving to an `StreamSource`. The function receives three parameters:<br/>
+	 * @param flatMapFun - a function that maps each input element to a `StreamSource`. The function receives three parameters:<br/>
 	 * - `value`: the current element being processed<br/>
 	 * - `index`: the index of the current element in the input stream<br/>
 	 * - `halt`: a function that can be called to halt further processing of the input stream<br/>
@@ -220,7 +218,7 @@ export namespace Transformer {
 	}
 
 	/**
-	 * Returns a `Transfoemr` that inserts the given `sep` stream source elements between each received input element.
+	 * Returns a `Transformer` that inserts the given `sep` stream source elements between each received input element.
 	 * @param sep - the StreamSource to insert between each received element
 	 * @typeparam T - the input and output element type
 	 */
@@ -316,11 +314,11 @@ export namespace Transformer {
 	 * into a `collector` that will be returned as output every time the input matches the given `sepElem` value.
 	 * @typeparam T - the input element type
 	 * @typeparam R - the collector result type
-	 * @param pred - a predicate function taking an element
+	 * @param sepElem - the separator element to split on
 	 * @param options - (optional) object specifying the following properties<br/>
-	 * - eq - (default: `Eq.objectIs`) the equality testing function
+	 * - eq: (default: `Eq.objectIs`) the equality testing function<br/>
 	 * - negate: (default: false) when true will negate the given predicate<br/>
-	 * - collector: (default: Reducer.toArray()) an AsyncReducer that can accept multiple values and reduce them into a single value of type `R`.
+	 * - collector: (default: Reducer.toArray()) a Reducer that can accept multiple values and reduce them into a single value of type `R`.
 	 */
 	export function splitOn<T, R>(
 		sepElem: T,
@@ -364,10 +362,10 @@ export namespace Transformer {
 	 * into a `collector` that will be returned as output every time the input matches the given `sepSlice` sequence of elements.
 	 * @typeparam T - the input element type
 	 * @typeparam R - the collector result type
-	 * @param pred - a predicate function taking an element
+	 * @param sepSlice - a StreamSource containing the sequence of elements to split on
 	 * @param options - (optional) object specifying the following properties<br/>
-	 * - eq - (default: `Eq.objectIs`) the equality testing function
-	 * - collector: (default: Reducer.toArray()) an AsyncReducer that can accept multiple values and reduce them into a single value of type `R`.
+	 * - eq: (default: `Eq.objectIs`) the equality testing function<br/>
+	 * - collector: (default: Reducer.toArray()) a Reducer that can accept multiple values and reduce them into a single value of type `R`.
 	 */
 	export function splitOnSlice<T, R>(
 		sepSlice: StreamSource<T>,

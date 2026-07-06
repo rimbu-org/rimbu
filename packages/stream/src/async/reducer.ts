@@ -54,12 +54,12 @@ export namespace AsyncReducer {
 		/**
 		 * An optional function that is called when the reducer will no longer receive values.
 		 * @param state - the final reducer state
-		 * @param error - (optional) if an error has occured, it ix passed here
+		 * @param error - (optional) if an error has occurred, it is passed here
 		 */
 		onClose?: ((state: S, error?: unknown) => MaybePromise<void>) | undefined;
 		/**
-		 * Returns an `AsyncReducer` instance that only passes values to the reducer that satisy the given `pred` predicate.
-		 * @param pred - a potaentially asynchronous function that returns true if the value should be passed to the reducer based on the following inputs:<br/>
+		 * Returns an `AsyncReducer` instance that only passes values to the reducer that satisfy the given `pred` predicate.
+		 * @param pred - a potentially asynchronous function that returns true if the value should be passed to the reducer based on the following inputs:<br/>
 		 * - value: the current input value<br/>
 		 * - index: the current input index<br/>
 		 * - halt: function that, when called, ensures no more new values are passed to the reducer
@@ -209,17 +209,16 @@ export namespace AsyncReducer {
 		 */
 		sliceInput(range?: IndexRange): AsyncReducer<I, O>;
 		/**
-		 * Returns an 'AsyncReducer` instance that produces at most `amount` values.
+		 * Returns an `AsyncReducer` instance that produces at most `amount` values.
 		 * @param amount - the maximum amount of values to produce.
 		 */
 		takeOutput(amount: number): AsyncReducer<I, O>;
 		/**
-		 * Returns an 'AsyncReducer` instance that produces until the given `pred` predicate returns true for
+		 * Returns an `AsyncReducer` instance that produces until the given `pred` predicate returns true for
 		 * the output value.
-		 * @param pred - a potaentially asynchronous function that returns true if the value should be passed to the reducer based on the following inputs:<br/>
-		 * - value: the current input value<br/>
-		 * - index: the current input index<br/>
-		 * - halt: function that, when called, ensures no more new values are passed to the reducer
+		 * @param pred - a potentially asynchronous function that returns true if output production should stop, based on the following inputs:<br/>
+		 * - value: the current output value<br/>
+		 * - index: the current output index
 		 * @param options - (optional) an object containing the following properties:<br/>
 		 * - negate: (default: false) when true will invert the given predicate
 		 */
@@ -231,15 +230,15 @@ export namespace AsyncReducer {
 		 * Returns a reducer that applies the given `nextReducers` sequentially after this reducer
 		 * has halted, and moving on to the next provided reducer until it is halted. Optionally, it provides the last output
 		 * value of the previous reducer.
-		 * @param nextReducers - an number of reducers consuming and producing the same types as the current reducer.
+		 * @param nextReducers - a stream source of reducers consuming and producing the same types as the current reducer.
 		 * @example
 		 * ```ts
-		 * const result = await AsyncStream.range({ amount: 6 })
+		 * const result = await AsyncStream.from(Stream.range({ amount: 6 }))
 		 *  .reduce(
 		 *    Reducer.sum
 		 *      .takeInput(3)
 		 *      .chain(
-		 *        v => v > 10 ? Reducer.product : Reducer.sum
+		 *        [v => v > 10 ? Reducer.product : Reducer.sum]
 		 *      )
 		 *    )
 		 * console.log(result)
@@ -299,7 +298,7 @@ export namespace AsyncReducer {
 		getOutput(): MaybePromise<O>;
 		/**
 		 * Closes any resources that may have been opened.
-		 * @param err - (optional) if an error occurrerd it can be supplied
+		 * @param err - (optional) if an error occurred it can be supplied
 		 */
 		onClose(err?: unknown): Promise<void>;
 	}

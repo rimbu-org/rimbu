@@ -235,9 +235,9 @@ export interface AsyncStream<T>
 		) => AsyncStreamSource<T2>,
 	): AsyncStream<[T, T2]>;
 	/**
-	 * Returns an AsyncStream consisting of the concatenation of AsyncStreamSource elements resulting from applying the given `reducer` to each element.
+	 * Returns an AsyncStream consisting of the concatenation of AsyncStreamSource elements resulting from applying the given `transformer` to each element.
 	 * @typeparam R - the resulting element type
-	 * @param transformer - an async reducer taking elements ot type T as input, and returing an `AsyncStreamSource` of element type R
+	 * @param transformer - an `AsyncTransformer` taking elements of type T as input, and returning an `AsyncStreamSource` of element type R
 	 * @note O(1)
 	 * @example
 	 * ```ts
@@ -277,11 +277,11 @@ export interface AsyncStream<T>
 	): AsyncStream<T>;
 	/**
 	 * Returns an AsyncStream containing only those elements from this stream for which the given `pred` function returns true.
-	 * @typeparam A - the type of the arguments to be passed to the `pred` function after each element
+	 * @typeparam A - the type of the extra arguments to be supplied to the `pred` function after each element
 	 * @param options - object specifying the following properties<br/>
-	 * - pred: a potentially asynchronous function taking an element the optionaly given `args`, and returning true if the element should be included in the resulting stream.<br/>
+	 * - pred: a potentially asynchronous function taking an element and the optionally given `args`, and returning true if the element should be included in the resulting stream.<br/>
 	 * - negate: (default: false) when true will negate the given predicate
-	 * @param args - (optional) the extra arguments to pass to the given `mapFun`
+	 * @param args - (optional) the extra arguments to pass to the given `pred`
 	 * @note if the predicate is a type guard, the return type is automatically inferred
 	 * @note O(1)
 	 * @example
@@ -298,7 +298,7 @@ export interface AsyncStream<T>
 			negate?: false | undefined;
 		},
 		...args: A
-	): AsyncStream<T>;
+	): AsyncStream<TF>;
 	filterPure<A extends readonly unknown[], TF extends T>(
 		options: {
 			pred: (value: T, ...args: A) => value is TF;
@@ -378,15 +378,16 @@ export interface AsyncStream<T>
 	last(): Promise<T | undefined>;
 	last<O>(otherwise: AsyncOptLazy<O>): Promise<T | O>;
 	/**
-	 * Returns the first element of the Stream if it only has one element, or a fallback value if the Stream does not have exactly one value.
+	 * Returns the first element of the AsyncStream if it only has one element, or a fallback value if the stream does not have exactly one value.
 	 * @typeparam O - the optional value to return if the stream does not have exactly one value.
-	 * @param otherwise - (default: undefined) an `OptLazy` value to return if the Stream does not have exactly one value.
+	 * @param otherwise - (default: undefined) an `AsyncOptLazy` value to return if the stream does not have exactly one value.
 	 * @example
 	 * ```ts
-	 * await AsyncStream.empty<number>().single()  // => undefined
-	 * await AsyncStream.of(1, 2, 3).single()      // => undefined
-	 * await AsyncStream.of(1).single()            // => 1
-	 * await AsyncStream.of(1, 2, 3).single(0)     // => 0
+	 * await AsyncStream.empty<number>().single()              // => undefined
+	 * await AsyncStream.of(1, 2, 3).single()                 // => undefined
+	 * await AsyncStream.of(1).single()                       // => 1
+	 * await AsyncStream.of(1, 2, 3).single(0)                // => 0
+	 * await AsyncStream.of(1, 2, 3).single(async () => 0)    // => 0
 	 * ```
 	 */
 	single(): Promise<T | undefined>;
@@ -521,7 +522,7 @@ export interface AsyncStream<T>
 		options?: { negate?: boolean | undefined },
 	): AsyncStream<number>;
 	/**
-	 * Returns an AsyncStream containing the indicies of the occurrence of the given `searchValue`, according to given `eq` function.
+	 * Returns an AsyncStream containing the indices of the occurrence of the given `searchValue`, according to given `eq` function.
 	 * @param searchValue - the value to search for
 	 * @param options - (optional) object specifying the following properties<br/>
 	 * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
@@ -558,18 +559,18 @@ export interface AsyncStream<T>
 	/**
 	 * Returns the index of the `occurrence` instance of given `searchValue` in the AsyncStream, using given `eq` function,
 	 * or undefined if no such value is found.
-	 * @param searchValue  - the element to search for
+	 * @param searchValue - the element to search for
 	 * @param options - (optional) object specifying the following properties<br/>
-	 * - occurrence - (default: 1) the occurrence to search for<br/>
+	 * - occurrence: (default: 1) the occurrence to search for<br/>
 	 * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
 	 * - negate: (default: false) when true will negate the given Eq function
 	 * @example
 	 * ```ts
 	 * const source = AsyncStream.from('marmot')
-	 * await source.indexOf('m')     // => 0
-	 * await source.indexOf('m', { occurrence: 2 })  // => 3
-	 * await source.indexOf('m', { occurrence: 3 })  // => undefined
-	 * await source.indexOf('q')     // => undefined
+	 * await source.indexOf('m')                    // => 0
+	 * await source.indexOf('m', { occurrence: 2 }) // => 3
+	 * await source.indexOf('m', { occurrence: 3 }) // => undefined
+	 * await source.indexOf('q')                    // => undefined
 	 * ```
 	 * @note O(N)
 	 */
@@ -617,16 +618,16 @@ export interface AsyncStream<T>
 	 * Returns true if the AsyncStream contains given `amount` instances of given `value`, using given `eq` function.
 	 * @param value - the value to search for
 	 * @param options - (optional) object specifying the following properties<br/>
-	 * = amount: (default: 1) the amount of values the Stream should contain<br/>
-	 * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements
+	 * - amount: (default: 1) the amount of values the stream should contain<br/>
+	 * - eq: (default: `Eq.objectIs`) the `Eq` instance to use to test equality of elements<br/>
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
-	 * const source = Stream.from('marmot')
-	 * await source.contains('m')    // => true
-	 * await source.contains('m', 2) // => true
-	 * await source.contains('m', 3) // => false
-	 * await source.contains('q')    // => false
+	 * const source = AsyncStream.from('marmot')
+	 * await source.contains('m')                // => true
+	 * await source.contains('m', { amount: 2 }) // => true
+	 * await source.contains('m', { amount: 3 }) // => false
+	 * await source.contains('q')                // => false
 	 * ```
 	 * @note O(N)
 	 */
@@ -720,8 +721,8 @@ export interface AsyncStream<T>
 	 * await source.repeat(3).toArray()   // => [1, 2, 3, 1, 2, 3, 1, 2, 3]
 	 * await source.repeat(-3).toArray()  // => [1, 2, 3]
 	 * ```
-	 * @note amount = undefined means that the AsyncStream is repeated indefintely
-	 * @note amount = 1 means that the Stream is not repeated
+	 * @note amount = undefined means that the AsyncStream is repeated indefinitely
+	 * @note amount = 1 means that the AsyncStream is not repeated
 	 * @note amount < 1 will be normalized to amount = 1
 	 * @note O(1)
 	 */
@@ -827,7 +828,7 @@ export interface AsyncStream<T>
 	 * Returns a string resulting from converting each element to string with `options.valueToString`, interspersed with `options.sep`, starting with
 	 * `options.start` and ending with `options.end`.
 	 * @param options - (optional) object specifying the following properties<br/>
-	 * - sep: (optional) a seperator to insert between each Stream element<br/>
+	 * - sep: (optional) a separator to insert between each Stream element<br/>
 	 * - start: (optional) a start string to prepend at the start<br/>
 	 * - end: (optional) an end string to append at the end<br/>
 	 * - valueToString: (default: String) a potentially asynchronous function converting a Stream element to a string<br/>
@@ -847,12 +848,12 @@ export interface AsyncStream<T>
 		ifEmpty?: string | undefined;
 	}): Promise<string>;
 	/**
-	 * Returns an AsyncStream starting with `options.sep`, then returning the elements of this Stream interspersed with `options.sep`, and ending with
-	 * `options.end`.
+	 * Returns an AsyncStream starting with the elements from `options.start`, then returning the elements of this Stream interspersed with `options.sep`, and ending with
+	 * the elements from `options.end`.
 	 * @param options - object specifying the following properties<br/>
-	 * - sep: (optional) a seperator StreamSource to insert between each Stream element<br/>
-	 * - start: (optional) a start StreamSource to prepend<br/>
-	 * - end: (optional) an end StreamSource to append
+	 * - sep: (optional) a separator AsyncStreamSource to insert between each Stream element<br/>
+	 * - start: (optional) a start AsyncStreamSource to prepend<br/>
+	 * - end: (optional) an end AsyncStreamSource to append
 	 * @example
 	 * ```ts
 	 * await AsyncStream.of(1, 2, 3).joinStream({ start: '<<', sep: '-', end: '>>' }).toArray()
@@ -969,15 +970,15 @@ export interface AsyncStream<T>
 	 * @typeparam R - the collector reducer result type
 	 * @param windowSize - the size in elements of the windows
 	 * @param options - (optional) object specifying the following properties<br/>
-	 * - skipAmount: (default: `windowSize`) the amount of elements to skip to start the next window
-	 * - collector: (default: `AsyncArray.toArray()`) the async reducer to use to collect the window values
+	 * - skipAmount: (default: `windowSize`) the amount of elements to skip to start the next window<br/>
+	 * - collector: (default: `Reducer.toArray()`) the async reducer to use to collect the window values
 	 * @example
 	 * ```ts
-	 * await Stream.of(1, 2, 3, 4, 5, 6, 7).window(3).toArray()
+	 * await AsyncStream.of(1, 2, 3, 4, 5, 6, 7).window(3).toArray()
 	 * // => [[1, 2, 3], [4, 5, 6]]
-	 * await Stream.of(1, 2, 3, 4, 5).window(3, 1).toArray()
+	 * await AsyncStream.of(1, 2, 3, 4, 5).window(3, { skipAmount: 1 }).toArray()
 	 * // => [[1, 2, 3], [2, 3, 4], [3, 4, 5]]
-	 * await Stream.of(1, 2, 3, 4).window(2, 2, AsyncReducer.toJSSet()).toArray()
+	 * await AsyncStream.of(1, 2, 3, 4).window(2, { collector: AsyncReducer.toJSSet() }).toArray()
 	 * // => [Set(1, 2), Set(3, 4)]
 	 * ```
 	 */
@@ -1057,7 +1058,6 @@ export interface AsyncStream<T>
 	/**
 	 * Applies the given `(Async)Reducer` to each element in the AsyncStream, and returns the final result.
 	 * @typeparam R - the resulting type
-	 * @typeparam S - a shape defining a combined reducer definition
 	 * @param reducer - the `(Async)Reducer` instance to use to apply to all stream elements.
 	 * @example
 	 * ```ts
@@ -1071,9 +1071,9 @@ export interface AsyncStream<T>
 		reducer: AsyncReducer.Accept<T | T2, R>,
 	): Promise<R>;
 	/**
-	 * Applies the given combined `(Async)Reducer` to each element in the AsyncStream, and returns the final result.
+	 * Applies the given combined `(Async)Reducer` shape to each element in the AsyncStream, and returns the final result in the matching shape.
 	 * @typeparam S - a shape defining a combined reducer definition
-	 * @param shape - the `(Async)Reducer` combined instance to use to apply to all stream elements.
+	 * @param shape - the `(Async)Reducer` combined shape to use to apply to all stream elements.
 	 * @example
 	 * ```ts
 	 * console.log(await AsyncStream.of(1, 2, 4).reduce([AsyncReducer.sum, { prod: AsyncReducer.product }]))
@@ -1084,7 +1084,7 @@ export interface AsyncStream<T>
 		shape: S & AsyncReducer.CombineShape<T>,
 	): Promise<AsyncReducer.CombineResult<S>>;
 	/**
-	 * Returns an AsyncStream where the given `AsyncReducer` is applied to each element in the stream.
+	 * Returns an AsyncStream emitting the intermediate output values of applying the given `(Async)Reducer` to each element in the stream.
 	 * @typeparam R - the resulting element type
 	 * @param reducer - the `(Async)Reducer` instance to use to apply to all stream elements.
 	 * @example
@@ -1107,7 +1107,7 @@ export interface AsyncStream<T>
 		reducer: AsyncReducer.Accept<T | T2, R>,
 	): AsyncStream<R>;
 	/**
-	 * Returns an AsyncStream where the given shape containing `AsyncReducers` is applied to each element in the stream.
+	 * Returns an AsyncStream emitting the intermediate output values of applying the given combined `(Async)Reducer` shape to each element in the stream.
 	 * @typeparam S - the reducer shape type
 	 * @param shape - the reducer shape containing instances of AsyncReducers to use to apply to all stream elements.
 	 * @example
@@ -1117,7 +1117,7 @@ export interface AsyncStream<T>
 	 *     .reduceStream([Reducer.sum, { prod: AsyncReducer.product }])
 	 *     .toArray()
 	 * )
-	 * // => [[1, { prod: 1 }], [3, { prod: 2 }], [7, { prod: 9 }]]
+	 * // => [[1, { prod: 1 }], [3, { prod: 2 }], [7, { prod: 8 }]]
 	 * ```
 	 */
 	reduceStream<const S extends AsyncReducer.CombineShape<T>>(
@@ -1225,9 +1225,8 @@ export namespace AsyncStream {
 	 * @typeparam T - the element type
 	 * @example
 	 * ```ts
-	 * const s1 = AsyncStream.empty<number>()
-	 * const s2 = AsyncStream.of(1, 3, 2)
-	 * const s3 = AsyncStream.from(Stream.range({ start: 10, amount: 15 }))
+	 * const s1 = AsyncStream.of(1, 3, 2)
+	 * const s2 = AsyncStream.from(Stream.range({ start: 10, amount: 15 }))
 	 * ```
 	 */
 	export interface NonEmpty<T> extends AsyncStream<T> {
@@ -1354,9 +1353,9 @@ export namespace AsyncStream {
 			) => AsyncStreamSource<T2>,
 		): AsyncStream<[T, T2]>;
 		/**
-		 * Returns an AsyncStream consisting of the concatenation of AsyncStreamSource elements resulting from applying the given `reducer` to each element.
+		 * Returns an AsyncStream consisting of the concatenation of AsyncStreamSource elements resulting from applying the given `transformer` to each element.
 		 * @typeparam R - the resulting element type
-		 * @param transformer - an async reducer taking elements ot type T as input, and returing an `AsyncStreamSource` of element type R.
+		 * @param transformer - an `AsyncTransformer` taking elements of type T as input, and returning an `AsyncStreamSource` of element type R.
 		 * @note O(1)
 		 * @example
 		 * ```ts
@@ -1399,12 +1398,12 @@ export namespace AsyncStream {
 		 * await source.repeat(3).toArray()   // => [1, 2, 3, 1, 2, 3, 1, 2, 3]
 		 * await source.repeat(-3).toArray()  // => [1, 2, 3]
 		 * ```
-		 * @note amount = undefined means that the AsyncStream is repeated indefintely
-		 * @note amount = 1 means that the Stream is not repeated
-		 * @note amount < 1 will be normalized to amount = 1
-		 * @note O(1)
-		 */
-		repeat(amount?: number | undefined): AsyncStream.NonEmpty<T>;
+	 * @note amount = undefined means that the AsyncStream is repeated indefinitely
+	 * @note amount = 1 means that the AsyncStream is not repeated
+	 * @note amount < 1 will be normalized to amount = 1
+	 * @note O(1)
+	 */
+	repeat(amount?: number | undefined): AsyncStream.NonEmpty<T>;
 		/**
 		 * Returns a non-empty AsyncStream containing the elements of this stream followed by all elements produced by the `others` array of AsyncStreamSources.
 		 * @typeparam T2 - the result value type
@@ -1469,12 +1468,12 @@ export namespace AsyncStream {
 		 */
 		intersperse(sep: AsyncStreamSource<T>): AsyncStream.NonEmpty<T>;
 		/**
-		 * Returns a non-empty AsyncStream starting with `options.sep`, then returning the elements of this Stream interspersed with `options.sep`, and ending with
-		 * `options.end`.
+		 * Returns a non-empty AsyncStream starting with the elements from `options.start`, then returning the elements of this Stream interspersed with `options.sep`, and ending with
+		 * the elements from `options.end`.
 		 * @param options - object specifying the following properties<br/>
-		 * - sep: (optional) a seperator StreamSource to insert between each Stream element<br/>
-		 * - start: (optional) a start StreamSource to prepend<br/>
-		 * - end: (optional) an end StreamSource to append
+		 * - sep: (optional) a separator AsyncStreamSource to insert between each Stream element<br/>
+		 * - start: (optional) a start AsyncStreamSource to prepend<br/>
+		 * - end: (optional) an end AsyncStreamSource to append
 		 * @example
 		 * ```ts
 		 * await AsyncStream.of(1, 2, 3).joinStream({ start: '<<', sep: '-', end: '>>' }).toArray()
