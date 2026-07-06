@@ -4,9 +4,9 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type { ArrowGraphBase } from '#graph/arrow/base';
 import type { ArrowGraphSortedCreators } from '#private/arrow/creators';
 
-import { createGraphContextModule } from '../../internal/non-valued/context-factory';
 import { SortedMap } from '@rimbu/sorted/map';
 import { SortedSet } from '@rimbu/sorted/set';
+import { createGraphContextModule } from '../../internal/non-valued/context-factory';
 
 /**
  * A type-invariant immutable arrow (directed) graph.

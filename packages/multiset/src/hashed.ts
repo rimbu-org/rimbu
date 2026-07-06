@@ -4,6 +4,7 @@ import type { HashMultiSetCreators } from '#multiset/creators';
 import type { MultiSetBase } from '#multiset/types';
 
 import { HashMap } from '@rimbu/hashed/map';
+
 import { createMultiSetContextModule } from '#multiset/context-factory';
 
 /**

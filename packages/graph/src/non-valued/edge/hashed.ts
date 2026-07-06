@@ -4,9 +4,9 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type { EdgeGraphBase } from '#private/edge/base';
 import type { EdgeGraphHashedCreators } from '#private/edge/creators';
 
-import { createGraphContextModule } from '../../internal/non-valued/context-factory';
 import { HashMap } from '@rimbu/hashed/map';
 import { HashSet } from '@rimbu/hashed/set';
+import { createGraphContextModule } from '../../internal/non-valued/context-factory';
 
 /**
  * A type-invariant immutable edge (undirected) graph.

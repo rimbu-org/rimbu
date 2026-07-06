@@ -1,7 +1,4 @@
-import {
-	type HasherModule,
-	hasherModule,
-} from '#hashed/hasher-module';
+import { type HasherModule, hasherModule } from '#hashed/hasher-module';
 
 /**
  * Interface used to hash objects for hashed collections.

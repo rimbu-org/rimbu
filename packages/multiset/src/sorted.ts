@@ -1,10 +1,11 @@
-import type { SortedMultiSetCreators } from '#multiset/creators';
 import type { Stream, Streamable } from '@rimbu/stream';
 
+import type { SortedMultiSetCreators } from '#multiset/creators';
 import type { MultiSetBase } from '#multiset/types';
 
-import { createMultiSetContextModule } from '#multiset/context-factory';
 import { SortedMap } from '@rimbu/sorted/map';
+
+import { createMultiSetContextModule } from '#multiset/context-factory';
 
 /**
  * A type-invariant immutable MultiSet of value type T.

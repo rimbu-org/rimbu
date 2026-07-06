@@ -4,8 +4,8 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type { EdgeValuedGraphBase } from '#private/edge/valued/base';
 import type { EdgeValuedGraphSortedCreators } from '#private/edge/valued/creators';
 
-import { createValuedGraphContextModule } from '../../internal/valued/context-factory';
 import { SortedMap } from '@rimbu/sorted/map';
+import { createValuedGraphContextModule } from '../../internal/valued/context-factory';
 
 /**
  * A type-invariant immutable valued edge (undirected) graph.

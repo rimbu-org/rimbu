@@ -1,8 +1,9 @@
 import type { RSetBase } from '@rimbu/collection-types/set/base';
 import type { Eq } from '@rimbu/common/eq';
 import type { Hasher } from '@rimbu/hashed';
-import type { HashSetCreators } from '#set/creators';
 import type { Streamable } from '@rimbu/stream';
+
+import type { HashSetCreators } from '#set/creators';
 
 import { createHashSetContextModule } from '#set/context-factory';
 

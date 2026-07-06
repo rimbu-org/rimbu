@@ -271,7 +271,7 @@ export class ListBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		if (undefined === this.outerBuilder) {
 			return [];
 		}
-		
+
 		return this.outerBuilder._verifyStructure(messages);
 	}
 }

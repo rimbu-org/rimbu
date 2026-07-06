@@ -4,8 +4,8 @@ import type { Stream, Streamable } from '@rimbu/stream';
 import type { ArrowValuedGraphBase } from '#private/arrow/valued/base';
 import type { ArrowValuedGraphHashedCreators } from '#private/arrow/valued/creators';
 
-import { createValuedGraphContextModule } from '../../internal/valued/context-factory';
 import { HashMap } from '@rimbu/hashed/map';
+import { createValuedGraphContextModule } from '../../internal/valued/context-factory';
 
 /**
  * A type-invariant immutable valued arrow (directed) graph.

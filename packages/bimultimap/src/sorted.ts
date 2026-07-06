@@ -4,8 +4,9 @@ import type { Streamable } from '@rimbu/stream';
 
 import type { BiMultiMapBase } from '#bimultimap/base';
 
-import { createBiMultiMapContextModule } from '#bimultimap/context-factory';
 import { SortedMultiMapSortedValue } from '@rimbu/multimap/sorted-key/sorted-value';
+
+import { createBiMultiMapContextModule } from '#bimultimap/context-factory';
 
 /**
  * A type-invariant immutable bi-directional MultiMap where keys and values have a
