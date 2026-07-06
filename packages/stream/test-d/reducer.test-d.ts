@@ -8,6 +8,8 @@ expectTypeOf(Reducer.sum).toExtend<Reducer<number, number | string>>();
 expectTypeOf(Reducer.sum).not.toExtend<Reducer<number | string, number>>();
 
 // Reducer.combine shapes
+
+// --- tuple of two reducers ---
 expectTypeOf(
 	Reducer.combine([Reducer.toArray<number>(), Reducer.sum]),
 ).toEqualTypeOf<Reducer<number, [number[], number]>>();
@@ -16,9 +18,39 @@ expectTypeOf(
 	Stream.of(1, 2).reduce([Reducer.toArray<number>(), Reducer.sum]),
 ).toEqualTypeOf<[number[], number]>();
 
+// --- tuple of three reducers ---
+// Note: toExtend used for Reducer<...> results because expect-type's
+// StrictEqualUsingBranding cannot handle structural equality on complex
+// generic interfaces with overloaded methods.
+expectTypeOf(
+	Reducer.combine([Reducer.toArray<number>(), Reducer.sum, Reducer.count]),
+).toExtend<Reducer<number, [number[], number, number]>>();
+
+// Verify via the .reduce() result which returns a plain value type.
+expectTypeOf(
+	Stream.of(1, 2, 3).reduce([
+		Reducer.toArray<number>(),
+		Reducer.sum,
+		Reducer.count,
+	]),
+).toEqualTypeOf<[number[], number, number]>();
+
+// --- generic (variable-length) array ---
+declare const arrayOfReducers: Reducer<number, boolean>[];
+expectTypeOf(Reducer.combine(arrayOfReducers)).toExtend<
+	Reducer<number, boolean[]>
+>();
+expectTypeOf(Stream.of(1, 2).reduce(arrayOfReducers)).toEqualTypeOf<
+	boolean[]
+>();
+
+// --- bare reducer passed directly to combine ---
+expectTypeOf(Reducer.combine(Reducer.sum)).toExtend<Reducer<number, number>>();
+
+// --- object shape (exact result via .reduce()) ---
 expectTypeOf(
 	Reducer.combine({
-		a: Reducer.toArray(),
+		a: Reducer.toArray<number>(),
 		s: Reducer.sum,
 	}),
 ).toExtend<Reducer<number, { a: number[]; s: number }>>();
@@ -31,6 +63,35 @@ expectTypeOf(
 		}),
 	),
 ).toExtend<{ a: number[]; s: number }>();
+
+// --- nested: object inside tuple ---
+expectTypeOf(
+	Reducer.combine([Reducer.sum, { x: Reducer.toArray<number>() }]),
+).toExtend<Reducer<number, [number, { x: number[] }]>>();
+expectTypeOf(
+	Stream.of(1, 2).reduce([Reducer.sum, { x: Reducer.toArray<number>() }]),
+).toExtend<[number, { x: number[] }]>();
+
+// --- nested: tuple inside object ---
+expectTypeOf(
+	Reducer.combine({ arr: [Reducer.sum, Reducer.count] }),
+).toExtend<Reducer<number, { arr: [number, number] }>>();
+expectTypeOf(
+	Stream.of(1, 2).reduce({ arr: [Reducer.sum, Reducer.count] }),
+).toExtend<{ arr: [number, number] }>();
+
+// --- reduceStream with a tuple shape ---
+expectTypeOf(
+	Stream.of(1, 2).reduceStream([Reducer.toArray<number>(), Reducer.sum]),
+).toEqualTypeOf<Stream<[number[], number]>>();
+
+// --- reduceStream with an object shape ---
+expectTypeOf(
+	Stream.of(1, 2).reduceStream({
+		a: Reducer.toArray<number>(),
+		s: Reducer.sum,
+	}),
+).toExtend<Stream<{ a: number[]; s: number }>>();
 
 // Reducer.race
 expectTypeOf(Reducer.race([Reducer.sum, Reducer.product])).toEqualTypeOf<
