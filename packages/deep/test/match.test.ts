@@ -75,6 +75,8 @@ describe('match', () => {
 		expect(match({ s: [1] }, { s: (v) => v.length < 3 })).toBe(true);
 		expect(match({ s: [1, 2, 3] }, { s: { 1: 2, 2: 3 } })).toBe(true);
 		expect(match({ s: [1, 2, 3] }, { s: { 1: 2, 3: 5 } })).toBe(false);
+		match({ s: [1, 2, 3] }, { s: { some: [{ 0: 1 }, { 1: 3 }] } }, log);
+		console.log(log);
 		expect(match({ s: [1, 2, 3] }, { s: { some: [{ 0: 1 }, { 1: 3 }] } })).toBe(
 			true,
 		);
@@ -237,59 +239,63 @@ describe('match', () => {
 	});
 
 	it('matches some matchers using the `some` provider', () => {
-		expect(match({ a: 1 }, ['some', { a: 1 }, { a: (v) => v > 0 }])).toBe(true);
-		expect(match({ a: 1 }, ['some', { a: 2 }, { a: (v) => v > 0 }])).toBe(true);
-		expect(match({ a: 1 }, ['some', { a: 1 }, { a: (v) => v > 10 }])).toBe(
+		expect(match({ a: 1 }, [{ some: [{ a: 1 }, { a: (v) => v > 0 }] }])).toBe(
 			true,
 		);
-		expect(match({ a: 1 }, ['some', { a: 2 }, { a: (v) => v > 10 }])).toBe(
+		expect(match({ a: 1 }, [{ some: [{ a: 2 }, { a: (v) => v > 0 }] }])).toBe(
+			true,
+		);
+		expect(match({ a: 1 }, [{ some: [{ a: 1 }, { a: (v) => v > 10 }] }])).toBe(
+			true,
+		);
+		expect(match({ a: 1 }, [{ some: [{ a: 2 }, { a: (v) => v > 10 }] }])).toBe(
 			false,
 		);
 	});
 
 	it('matches every matchers using the `every` provider', () => {
-		expect(match({ a: 1 }, ['every', { a: 1 }, { a: (v) => v > 0 }])).toBe(
+		expect(match({ a: 1 }, [{ every: [{ a: 1 }, { a: (v) => v > 0 }] }])).toBe(
 			true,
 		);
-		expect(match({ a: 1 }, ['every', { a: 2 }, { a: (v) => v > 0 }])).toBe(
+		expect(match({ a: 1 }, [{ every: [{ a: 2 }, { a: (v) => v > 0 }] }])).toBe(
 			false,
 		);
-		expect(match({ a: 1 }, ['every', { a: 1 }, { a: (v) => v > 10 }])).toBe(
+		expect(match({ a: 1 }, [{ every: [{ a: 1 }, { a: (v) => v > 10 }] }])).toBe(
 			false,
 		);
-		expect(match({ a: 1 }, ['every', { a: 2 }, { a: (v) => v > 10 }])).toBe(
+		expect(match({ a: 1 }, [{ every: [{ a: 2 }, { a: (v) => v > 10 }] }])).toBe(
 			false,
 		);
 	});
 
 	it('matches none matchers using the `none` provider', () => {
-		expect(match({ a: 1 }, ['none', { a: 1 }, { a: (v) => v > 0 }])).toBe(
+		expect(match({ a: 1 }, [{ none: [{ a: 1 }, { a: (v) => v > 0 }] }])).toBe(
 			false,
 		);
-		expect(match({ a: 1 }, ['none', { a: 2 }, { a: (v) => v > 0 }])).toBe(
+		expect(match({ a: 1 }, [{ none: [{ a: 2 }, { a: (v) => v > 0 }] }])).toBe(
 			false,
 		);
-		expect(match({ a: 1 }, ['none', { a: 1 }, { a: (v) => v > 10 }])).toBe(
+		expect(match({ a: 1 }, [{ none: [{ a: 1 }, { a: (v) => v > 10 }] }])).toBe(
 			false,
 		);
-		expect(match({ a: 1 }, ['none', { a: 2 }, { a: (v) => v > 10 }])).toBe(
+		expect(match({ a: 1 }, [{ none: [{ a: 2 }, { a: (v) => v > 10 }] }])).toBe(
 			true,
 		);
 	});
 
 	it('matches one matcher using the `single` provider', () => {
-		expect(match({ a: 1 }, ['single', { a: 1 }, { a: (v) => v > 0 }])).toBe(
+		expect(match({ a: 1 }, [{ single: [{ a: 1 }, { a: (v) => v > 0 }] }])).toBe(
 			false,
 		);
-		expect(match({ a: 1 }, ['single', { a: 2 }, { a: (v) => v > 0 }])).toBe(
+		expect(match({ a: 1 }, [{ single: [{ a: 2 }, { a: (v) => v > 0 }] }])).toBe(
 			true,
 		);
-		expect(match({ a: 1 }, ['single', { a: 1 }, { a: (v) => v > 10 }])).toBe(
-			true,
-		);
-		expect(match({ a: 1 }, ['single', { a: 2 }, { a: (v) => v > 10 }])).toBe(
-			false,
-		);
+		expect(
+			match({ a: 1 }, [{ single: [{ a: 1 }, { a: (v) => v > 10 }] }]),
+		).toBe(true);
+		expect(
+			match({ a: 1 }, [{ single: [{ a: 2 }, { a: (v) => v > 10 }] }]),
+		).toBe(false);
 	});
 
 	it('matches booleans', () => {

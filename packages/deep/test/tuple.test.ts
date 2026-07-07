@@ -11,8 +11,8 @@ describe('Tuple', () => {
 	});
 
 	it('getIndex', () => {
-		expect(Tuple.getIndex(tuple, 0)).toBe(1);
-		expect(Tuple.getIndex(tuple, 2)).toBe(true);
+		expect(Tuple.at(tuple, 0)).toBe(1);
+		expect(Tuple.at(tuple, 2)).toBe(true);
 	});
 
 	it('first', () => {
@@ -28,7 +28,7 @@ describe('Tuple', () => {
 	});
 
 	it('updateAt', () => {
-		expect(Tuple.updateAt(tuple, 1, 'b')).toEqual([1, 'b', true]);
+		expect(Tuple.withAt(tuple, 1, 'b')).toEqual([1, 'b', true]);
 	});
 
 	it('concat', () => {

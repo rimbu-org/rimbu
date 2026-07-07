@@ -55,39 +55,51 @@ const v1 = { a: 1, b: 'a' };
 expectTypeOf(match(v1, v1)).toEqualTypeOf<boolean>();
 expectTypeOf(match(v1, {})).toEqualTypeOf<boolean>();
 expectTypeOf(match(v1, { a: 2 })).toEqualTypeOf<boolean>();
-expectTypeOf(match(v1, ['every', { a: 1 }, { a: 2 }])).toEqualTypeOf<boolean>();
-expectTypeOf(match(v1, ['some', { a: 1 }, { a: 2 }])).toEqualTypeOf<boolean>();
-expectTypeOf(match(v1, ['none', { a: 1 }, { a: 2 }])).toEqualTypeOf<boolean>();
 expectTypeOf(
-	match(v1, ['single', { a: 1 }, { a: 2 }]),
+	match(v1, [{ every: [{ a: 1 }, { a: 2 }] }]),
+).toEqualTypeOf<boolean>();
+expectTypeOf(
+	match(v1, [{ some: [{ a: 1 }, { a: 2 }] }]),
+).toEqualTypeOf<boolean>();
+expectTypeOf(
+	match(v1, [{ none: [{ a: 1 }, { a: 2 }] }]),
+).toEqualTypeOf<boolean>();
+expectTypeOf(
+	match(v1, [{ single: [{ a: 1 }, { a: 2 }] }]),
 ).toEqualTypeOf<boolean>();
 expectTypeOf(
 	match(v1, [
-		'some',
-		['every', { a: 1 }, { b: 'a' }],
-		['every', { a: 3 }, { b: 'b' }],
+		{
+			some: [
+				[{ every: [{ a: 1 }, { b: 'a' }] }],
+				[{ every: [{ a: 3 }, { b: 'b' }] }],
+			],
+		},
 	]),
 ).toEqualTypeOf<boolean>();
 
 expectTypeOf(match(v1, () => ({}))).toEqualTypeOf<boolean>();
 expectTypeOf(match(v1, () => ({ a: 2 }))).toEqualTypeOf<boolean>();
 expectTypeOf(
-	match(v1, () => ['every', { a: 1 }, { a: 2 }]),
+	match(v1, () => [{ every: [{ a: 1 }, { a: 2 }] }]),
 ).toEqualTypeOf<boolean>();
 expectTypeOf(
-	match(v1, () => ['some', { a: 1 }, { a: 2 }]),
+	match(v1, () => [{ some: [{ a: 1 }, { a: 2 }] }]),
 ).toEqualTypeOf<boolean>();
 expectTypeOf(
-	match(v1, () => ['none', { a: 1 }, { a: 2 }]),
+	match(v1, () => [{ none: [{ a: 1 }, { a: 2 }] }]),
 ).toEqualTypeOf<boolean>();
 expectTypeOf(
-	match(v1, () => ['single', { a: 1 }, { a: 2 }]),
+	match(v1, () => [{ single: [{ a: 1 }, { a: 2 }] }]),
 ).toEqualTypeOf<boolean>();
 expectTypeOf(
 	match(v1, [
-		'some',
-		['every', () => ({ a: 1 }), { b: 'a' }],
-		['every', () => ({ a: 3 }), { b: 'b' }],
+		{
+			some: [
+				[{ every: [() => ({ a: 1 }), { b: 'a' }] }],
+				[{ every: [() => ({ a: 3 }), { b: 'b' }] }],
+			],
+		},
 	]),
 ).toEqualTypeOf<boolean>();
 
@@ -131,7 +143,7 @@ expectTypeOf(match(v2, { a: 'a' })).toEqualTypeOf<boolean>();
 expectTypeOf(match(v2, { b: { d: true } })).toEqualTypeOf<boolean>();
 expectTypeOf(match(v2, { b: { c: (v) => v > 1 } })).toEqualTypeOf<boolean>();
 expectTypeOf(
-	match(v2, { b: ['some', { c: 1 }, { d: false }] }),
+	match(v2, { b: [{ some: [{ c: 1 }, { d: false }] }] }),
 ).toEqualTypeOf<boolean>();
 
 expectTypeOf(match(v2, () => v2)).toEqualTypeOf<boolean>();
@@ -142,7 +154,7 @@ expectTypeOf(
 	match(v2, () => ({ b: { c: (v) => v > 1 } })),
 ).toEqualTypeOf<boolean>();
 expectTypeOf(
-	match(v2, () => ({ b: ['some', { c: 1 }, { d: false }] })),
+	match(v2, () => ({ b: [{ some: [{ c: 1 }, { d: false }] }] })),
 ).toEqualTypeOf<boolean>();
 
 // @ts-expect-error
@@ -216,7 +228,8 @@ match(v3, { every: [], some: undefined });
 // @ts-expect-error
 match(v3, () => ['a']);
 // TODO cannot get this to work
-// expectError(match(v3, () => ({ a: 'a' })));
+// // @ts-expect-error
+// match(v3, () => ({ a: 'a' }))
 // @ts-expect-error
 match(v3, () => ({ 1: 'a' }));
 // @ts-expect-error

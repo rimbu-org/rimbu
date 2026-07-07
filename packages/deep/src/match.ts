@@ -190,83 +190,11 @@ function matchArr<T extends any[], C, P, R>(
 
 	// matcher is plain object
 
-	if (typeof matcher === 'object' && null !== matcher) {
-		if (`every` in matcher) {
-			return matchCompound(
-				source,
-				parent,
-				root,
-				['every', ...(matcher.every as any)],
-				failureLog,
-			);
-		}
-		if (`some` in matcher) {
-			return matchCompound(
-				source,
-				parent,
-				root,
-				['some', ...(matcher.some as any)],
-				failureLog,
-			);
-		}
-		if (`none` in matcher) {
-			return matchCompound(
-				source,
-				parent,
-				root,
-				['none', ...(matcher.none as any)],
-				failureLog,
-			);
-		}
-		if (`single` in matcher) {
-			return matchCompound(
-				source,
-				parent,
-				root,
-				['single', ...(matcher.single as any)],
-				failureLog,
-			);
-		}
-		if (`someItem` in matcher) {
-			return matchTraversal(
-				source,
-				root,
-				'someItem',
-				matcher.someItem as any,
-				failureLog,
-			);
-		}
-		if (`everyItem` in matcher) {
-			return matchTraversal(
-				source,
-				root,
-				'everyItem',
-				matcher.everyItem as any,
-				failureLog,
-			);
-		}
-		if (`noneItem` in matcher) {
-			return matchTraversal(
-				source,
-				root,
-				'noneItem',
-				matcher.noneItem as any,
-				failureLog,
-			);
-		}
-		if (`singleItem` in matcher) {
-			return matchTraversal(
-				source,
-				root,
-				'singleItem',
-				matcher.singleItem as any,
-				failureLog,
-			);
-		}
+	if (isTraverseCompound(matcher)) {
+		return matchTraverseCompound(source, root, matcher as any, failureLog);
 	}
 
 	// matcher is plain object with index keys
-
 	for (const index in matcher as any) {
 		const matcherAtIndex = (matcher as any)[index];
 
@@ -321,7 +249,8 @@ function matchPlainObj<T extends object, C, P, R>(
 ): boolean {
 	if (Array.isArray(matcher)) {
 		// the matcher is of compound type
-		return matchCompound(source, parent, root, matcher as any, failureLog);
+		const [compoundMatcher] = matcher;
+		return matchCompound(source, parent, root, compoundMatcher, failureLog);
 	}
 
 	// partial object props matcher
@@ -361,6 +290,36 @@ function matchPlainObj<T extends object, C, P, R>(
 	return true;
 }
 
+export function isCompound(
+	obj: any,
+): obj is MatchInternal.Compound<any, any, any, any> {
+	return (
+		typeof obj === 'object' &&
+		null !== obj &&
+		!Array.isArray(obj) &&
+		('every' in obj ||
+			'some' in obj ||
+			'none' in obj ||
+			'single' in obj ||
+			'customMatch' in obj)
+	);
+}
+
+export function isTraverseCompound(
+	obj: any,
+): obj is MatchInternal.Compound<any, any, any, any> {
+	return (
+		typeof obj === 'object' &&
+		null !== obj &&
+		!Array.isArray(obj) &&
+		('everyItem' in obj ||
+			'someItem' in obj ||
+			'noneItem' in obj ||
+			'singleItem' in obj ||
+			'customMatchItem' in obj)
+	);
+}
+
 /**
  * Match a compound matcher against the given source.
  * @typeparam T - the input value type for the compound match
@@ -378,117 +337,93 @@ function matchCompound<T, C, P, R>(
 	source: T,
 	parent: P,
 	root: R,
-	compound: [MatchInternal.CompoundType, ...MatchInternal.Entry<T, C, P, R>[]],
+	compound: MatchInternal.Compound<T, C, P, R>,
 	failureLog?: string[],
 ): boolean {
-	// first item indicates compound match type
-	const matchType = compound[0];
-
-	const length = compound.length;
-
-	// start at index 1
-	let index = 0;
+	const compoundKeys = Object.entries(compound);
+	const amountKeys = compoundKeys.length;
 
 	type Entry = MatchInternal.Entry<T, C, P, R>;
 
-	switch (matchType) {
-		case 'every': {
-			while (++index < length) {
-				// if any item does not match, return false
-				const result = matchEntry(
-					source,
-					parent,
-					root,
-					compound[index] as Entry,
-					failureLog,
+	let matchers: Entry[];
+	let getResult: (pass: number, fail: number) => boolean;
+	let halt: ((pass: number, fail: number) => boolean) | undefined;
+
+	if (amountKeys === 1) {
+		const [[mode, compoundMatchers]] = compoundKeys;
+		matchers = compoundMatchers as Entry[];
+
+		switch (mode) {
+			case 'every':
+				getResult = (_, fail) => fail === 0;
+				halt = (_, fail) => fail > 0;
+				break;
+			case 'some':
+				getResult = (pass) => pass > 0;
+				halt = (pass) => pass > 0;
+				break;
+			case 'none':
+				getResult = (pass) => pass === 0;
+				halt = (pass) => pass > 0;
+				break;
+			case 'single':
+				getResult = (pass) => pass === 1;
+				halt = (pass) => pass > 1;
+				break;
+			default:
+				failureLog?.push(
+					`compound matcher has unknown key ${mode}, expected one of "every", "some", "none", "single"`,
 				);
-
-				if (!result) {
-					failureLog?.push(
-						`in compound "every": match at index ${index} failed`,
-					);
-
-					return false;
-				}
-			}
-
-			return true;
+				return false;
 		}
-		case 'none': {
-			// if any item matches, return false
-			while (++index < length) {
-				const result = matchEntry(
-					source,
-					parent,
-					root,
-					compound[index] as Entry,
-					failureLog,
-				);
+	} else if ('customMatch' in compound && 'getResult' in compound) {
+		matchers = compound.customMatch;
+		getResult = compound.getResult;
+		halt = compound.halt;
+	} else {
+		failureLog?.push(
+			`compound matcher has multiple keys, expected only one of "every", "some", "none", "single" or both "customMatch" and "getResult"`,
+		);
+		return false;
+	}
 
-				if (result) {
-					failureLog?.push(
-						`in compound "none": match at index ${index} succeeded`,
-					);
+	const length = matchers.length;
 
-					return false;
-				}
-			}
+	let passed = 0;
+	let failed = 0;
 
-			return true;
+	let index = -1;
+	while (++index < length) {
+		// if any item does not match, return false
+		const result = matchEntry(
+			source,
+			parent,
+			root,
+			matchers[index],
+			failureLog,
+		);
+		if (result) {
+			passed++;
+		} else {
+			failed++;
 		}
-		case 'single': {
-			// if not exactly one item matches, return false
-			let onePassed = false;
 
-			while (++index < length) {
-				const result = matchEntry(
-					source,
-					parent,
-					root,
-					compound[index] as Entry,
-					failureLog,
-				);
-
-				if (result) {
-					if (onePassed) {
-						failureLog?.push(
-							`in compound "single": multiple matches succeeded`,
-						);
-
-						return false;
-					}
-
-					onePassed = true;
-				}
-			}
-
-			if (!onePassed) {
-				failureLog?.push(`in compound "single": no matches succeeded`);
-			}
-
-			return onePassed;
-		}
-		case 'some': {
-			// if any item matches, return true
-			while (++index < length) {
-				const result = matchEntry(
-					source,
-					parent,
-					root,
-					compound[index] as Entry,
-					failureLog,
-				);
-
-				if (result) {
-					return true;
-				}
-			}
-
-			failureLog?.push(`in compound "some": no matches succeeded`);
-
-			return false;
+		if (halt?.(passed, failed)) {
+			break;
 		}
 	}
+
+	const matchPassed = getResult(passed, failed);
+
+	if (!matchPassed) {
+		failureLog?.push(
+			`compound matcher failed with ${passed} passed and ${failed} failed`,
+		);
+
+		return false;
+	}
+
+	return true;
 }
 
 /**
@@ -499,86 +434,106 @@ function matchCompound<T, C, P, R>(
  * @param source - the array to traverse
  * @param root - the root value in which the match started
  * @param matchType - the traversal match type (someItem/everyItem/noneItem/singleItem)
- * @param matcher - the entry matcher to apply to items
+ * @param traverseCompound - the entry matcher to apply to items
  * @param failureLog - optional array to collect failure reasons
  * @returns true when the traversal condition is satisfied, false otherwise
  */
-function matchTraversal<T extends any[], C extends any[], R>(
+function matchTraverseCompound<T extends any[], C extends any[], R>(
 	source: T,
 	root: R,
-	matchType: MatchInternal.ArrayTraversalType,
-	matcher: MatchInternal.Entry<T[keyof T], C[keyof C], T, R>,
+	traverseCompound: MatchInternal.TraverseCompound<
+		T[keyof T],
+		C[keyof C],
+		T,
+		R
+	>,
 	failureLog?: string[],
 ): boolean {
+	const compoundKeys = Object.entries(traverseCompound);
+	const amountKeys = compoundKeys.length;
+
+	type Entry = MatchInternal.Entry<T[keyof T], C[keyof C], T, R>;
+
+	let matcher: Entry;
+	let getResult: (pass: number, fail: number) => boolean;
+	let halt: ((pass: number, fail: number) => boolean) | undefined;
+
+	if (amountKeys === 1) {
+		const [[mode, _matcher]] = compoundKeys;
+		matcher = _matcher as Entry;
+
+		switch (mode) {
+			case 'everyItem':
+				getResult = (_, fail) => fail === 0;
+				halt = (_, fail) => fail > 0;
+				break;
+			case 'someItem':
+				getResult = (pass) => pass > 0;
+				halt = (pass) => pass > 0;
+				break;
+			case 'noneItem':
+				getResult = (pass) => pass === 0;
+				halt = (pass) => pass > 0;
+				break;
+			case 'singleItem':
+				getResult = (pass) => pass === 1;
+				halt = (pass) => pass > 1;
+				break;
+			default:
+				failureLog?.push(
+					`compound traverse matcher has unknown key ${mode}, expected one of "every", "some", "none", "single"`,
+				);
+				return false;
+		}
+	} else if (
+		'customMatchItem' in traverseCompound &&
+		'getResult' in traverseCompound
+	) {
+		matcher = traverseCompound.customMatchItem as Entry;
+		getResult = traverseCompound.getResult;
+		halt = traverseCompound.halt;
+	} else {
+		failureLog?.push(
+			`compound matcher has multiple keys, expected only one of "every", "some", "none", "single" or both "customMatch" and "getResult"`,
+		);
+		return false;
+	}
+
+	let pass = 0;
+	let fail = 0;
+
 	let index = -1;
 	const length = source.length;
 
-	switch (matchType) {
-		case 'someItem': {
-			while (++index < length) {
-				if (matchEntry(source[index], source, root, matcher, failureLog)) {
-					return true;
-				}
-			}
+	while (++index < length) {
+		const matches = matchEntry(
+			source[index],
+			source,
+			root,
+			matcher,
+			failureLog,
+		);
 
-			failureLog?.push(
-				`in array traversal "someItem": no items matched given matcher`,
-			);
-
-			return false;
+		if (matches) {
+			pass++;
+		} else {
+			fail++;
 		}
-		case 'everyItem': {
-			while (++index < length) {
-				if (!matchEntry(source[index], source, root, matcher, failureLog)) {
-					failureLog?.push(
-						`in array traversal "everyItem": at least one item did not match given matcher`,
-					);
-					return false;
-				}
-			}
 
-			return true;
-		}
-		case 'noneItem': {
-			while (++index < length) {
-				if (matchEntry(source[index], source, root, matcher, failureLog)) {
-					failureLog?.push(
-						`in array traversal "noneItem": at least one item matched given matcher`,
-					);
-					return false;
-				}
-			}
-
-			return true;
-		}
-		case 'singleItem': {
-			let singleMatched = false;
-
-			while (++index < length) {
-				if (matchEntry(source[index], source, root, matcher, failureLog)) {
-					if (singleMatched) {
-						failureLog?.push(
-							`in array traversal "singleItem": more than one item matched given matcher`,
-						);
-
-						return false;
-					}
-
-					singleMatched = true;
-				}
-			}
-
-			if (!singleMatched) {
-				failureLog?.push(
-					`in array traversal "singleItem": no item matched given matcher`,
-				);
-
-				return false;
-			}
-
-			return true;
+		if (halt?.(pass, fail)) {
+			break;
 		}
 	}
+
+	const result = getResult(pass, fail);
+
+	if (!result) {
+		failureLog?.push(
+			`compound traverse matcher failed with ${pass} passed and ${fail} failed`,
+		);
+	}
+
+	return result;
 }
 
 /**

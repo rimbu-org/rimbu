@@ -60,7 +60,7 @@ export namespace MatchInternal {
 	 */
 	export type Obj<T, C, P, R> =
 		| MatchInternal.ObjProps<T, C, R>
-		| MatchInternal.CompoundForObj<T, C, P, R>;
+		| [MatchInternal.Compound<T, C, P, R>];
 
 	/**
 	 * The type to determine allowed matchers for object properties.
@@ -83,7 +83,7 @@ export namespace MatchInternal {
 	 */
 	export type Arr<T, C, P, R> =
 		| C
-		| MatchInternal.CompoundForArr<T, C, P, R>
+		| MatchInternal.Compound<T, C, P, R>
 		| MatchInternal.TraversalForArr<T, C, R>
 		| (MatchInternal.TupIndices<T, C, R> & {
 				[K in
@@ -135,16 +135,24 @@ export namespace MatchInternal {
 	export type ArrayTraversalType = `${CompoundType}Item`;
 
 	/**
-	 * Compound matcher for objects, represented as an array starting with a compound type keyword.
+	 * Defines an object containing exactly one `CompoundType` key, having an array of matchers.
 	 * @typeparam T - the input value type
 	 * @typeparam C - utility type
 	 * @typeparam P - the parent type
 	 * @typeparam R - the root object type
 	 */
-	export type CompoundForObj<T, C, P, R> = [
-		MatchInternal.CompoundType,
-		...MatchInternal.Entry<T, C, P, R>[],
-	];
+	export type Compound<T, C, P, R> =
+		| SingleKey<{
+				every: MatchInternal.Entry<T, C, P, R>[];
+				some: MatchInternal.Entry<T, C, P, R>[];
+				none: MatchInternal.Entry<T, C, P, R>[];
+				single: MatchInternal.Entry<T, C, P, R>[];
+		  }>
+		| {
+				customMatch: MatchInternal.Entry<T, C, P, R>[];
+				getResult: (pass: number, fail: number) => boolean;
+				halt?: (pass: number, fail: number) => boolean;
+		  };
 
 	/**
 	 * Defines an object containing exactly one `CompoundType` key, having an array of matchers.
@@ -153,13 +161,22 @@ export namespace MatchInternal {
 	 * @typeparam P - the parent type
 	 * @typeparam R - the root object type
 	 */
-	export type CompoundForArr<T, C, P, R> = {
-		[K in MatchInternal.CompoundType]: {
-			[K2 in MatchInternal.CompoundType]?: K2 extends K
-				? MatchInternal.Entry<T, C, P, R>[]
-				: never;
-		};
-	}[MatchInternal.CompoundType];
+	export type TraverseCompound<T, C, P, R> =
+		| SingleKey<{
+				everyItem: MatchInternal.Entry<T, C, P, R>;
+				someItem: MatchInternal.Entry<T, C, P, R>;
+				noneItem: MatchInternal.Entry<T, C, P, R>;
+				singleItem: MatchInternal.Entry<T, C, P, R>;
+		  }>
+		| {
+				customMatchItem: MatchInternal.Entry<T, C, P, R>[];
+				getResult: (pass: number, fail: number) => boolean;
+				halt?: (pass: number, fail: number) => boolean;
+		  };
+
+	export type SingleKey<T> = {
+		[K in keyof T]: { [K2 in keyof T]?: K2 extends K ? T[K] : never };
+	}[keyof T];
 
 	/**
 	 * Defines an object containing exactly one `TraversalType` key, having a matcher for the array element type.
