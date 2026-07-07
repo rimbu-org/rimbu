@@ -6,8 +6,8 @@ import type { IsAny, IsPlainObj } from '@rimbu/base/plain-object';
  *
  * Mapping rules:
  * - arrays and tuples become `readonly` counterparts and all element types are wrapped in `Protected` when applicable
- * - `Map<K, V>` becomes `ReadonlyMap<Protected<K>, Protected<V>>`
- * - `Set<E>` becomes `ReadonlySet<Protected<E>>`
+ * - `Map<K, V>` and `ReadonlyMap<K, V>` become `ReadonlyMap<Protected<K>, Protected<V>>`
+ * - `Set<E>` and `ReadonlySet<E>` become `ReadonlySet<Protected<E>>`
  * - `Promise<E>` becomes `Promise<Protected<E>>`
  * - Plain objects with only simple properties (no functions or iterators) will have all properties made `readonly` and their values wrapped in `Protected`
  * - Any other type is left unchanged
@@ -26,9 +26,9 @@ export type Protected<T> =
 		: T extends readonly any[] & infer A
 			? // convert all keys to readonly and all values to `Protected`
 				{ readonly [K in keyof A]: Protected<A[K]> }
-			: T extends Map<infer K, infer V>
+			: T extends ReadonlyMap<infer K, infer V>
 				? ReadonlyMap<Protected<K>, Protected<V>>
-				: T extends Set<infer E>
+				: T extends ReadonlySet<infer E>
 					? ReadonlySet<Protected<E>>
 					: T extends Promise<infer E>
 						? Promise<Protected<E>>

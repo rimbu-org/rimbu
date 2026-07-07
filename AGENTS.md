@@ -456,14 +456,16 @@ Example: adding `mapValues<W>(f: (v: V) => W): HashMap<K, W>` to HashMap.
 | Tool | Command | Purpose |
 |---|---|---|
 | Bun | `bun install` | Install dependencies |
-| TypeScript | `bun run typecheck` | Type-check (no emit) |
-| TypeScript | `bun run build` | Compile to `dist/` |
+| TypeScript | `bun run build` | Compile to `dist/` — **run this first** |
+| TypeScript | `bun run typecheck` | Type-check (no emit) — run after build |
 | Biome | `bun run biome:check` | Lint + format check |
 | Biome | `bun run biome:fix` | Auto-fix lint + format |
-| Bun test | `bun run test` | Run tests |
+| Bun test | `bun run test` | Run tests — run after build |
 | Changesets | `bunx changeset` | Create a changeset for a release |
 | Changesets | `bun run version` | Apply changeset version bumps |
 | Changesets | `bun run release` | Full release: prerelease checks + publish |
+
+**Always run `bun run build` before `bun run typecheck` or `bun run test`.** The build catches emit-specific diagnostics that `--noEmit` suppresses (notably TS2731: implicit symbol-to-string coercion in template literals, introduced in TS 5.5). Running typecheck or tests against a stale `dist/` can produce misleading errors.
 
 ### Lint rules enforced by Biome
 

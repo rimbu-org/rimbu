@@ -108,7 +108,7 @@ Resolution order:
 |---|---|
 | `Entry<T,C,P,R>` | Central dispatch — nested ternary on `IsAnyFunc`, `IsPlainObj`, `IsArray` |
 | `Obj<T,C,P,R>` | `ObjProps \| [Compound]` — mirrors `Array.isArray` check at runtime |
-| `ObjProps<T,C,R>` | `[K in keyof C as K extends keyof T ? K : never]?:` — `as` key remapping filters invalid keys |
+| `ObjProps<T,C,R>` | `[K in keyof C]?: K extends keyof T ? Entry<...> : never` — maps invalid keys to `never`, rejecting extra keys under `exactOptionalPropertyTypes` |
 | `Arr<T,C,P,R>` | Union: `C \| Compound \| TraverseCompound<element,...> \| TupIndices` |
 | `WithResult<T,P,R,S>` | `S \| Func<T,P,R,S>` |
 | `Func<T,P,R,S>` | `(current: Protected<T>, parent: Protected<P>, root: Protected<R>) => boolean \| S` |
@@ -151,10 +151,12 @@ Deep-readonly mapped type. Handles arrays, `Map`, `Set`, `Promise`, plain object
 ## Testing
 
 ```sh
+bun run build         # compile to dist/ — always run this first
 bun run test          # runtime tests (test/*.test.ts)
 bun run typecheck     # type-level tests + src (test-d/*.test-d.ts)
 bun run biome:check   # lint + format
-bun run build         # compile to dist/
 ```
+
+**Always run `bun run build` before `bun run test`, `bun run typecheck`, or any other verification step.** The build catches emit-specific diagnostics that `--noEmit` suppresses (notably TS2731: implicit symbol-to-string coercion in template literals, introduced in TS 5.5), and it ensures the `dist/` output is consistent with the current source before any downstream check runs against it.
 
 Type tests use `expectTypeOf` from `bun:test`. Error cases use `// @ts-expect-error` on the preceding line.

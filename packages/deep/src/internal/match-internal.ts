@@ -70,12 +70,9 @@ export namespace MatchInternal {
 	 * @typeparam R - the root object type
 	 */
 	export type ObjProps<T, C, R> = {
-		[K in keyof C as K extends keyof T ? K : never]?: MatchInternal.Entry<
-			T[K & keyof T],
-			C[K],
-			T,
-			R
-		>;
+		[K in keyof C]?: K extends keyof T
+			? MatchInternal.Entry<T[K & keyof T], C[K], T, R>
+			: never;
 	};
 
 	/**
