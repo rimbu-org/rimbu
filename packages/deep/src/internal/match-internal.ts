@@ -189,5 +189,4 @@ export namespace MatchInternal {
 			[P in Exclude<keyof T, K>]?: never;
 		};
 	}[keyof T];
-
 }

@@ -2,6 +2,7 @@ import { expectTypeOf } from 'bun:test';
 
 import { Tuple } from '@rimbu/deep/tuple';
 
+expectTypeOf(Tuple.empty()).toEqualTypeOf<readonly []>();
 expectTypeOf(Tuple.of(1, 'a')).toEqualTypeOf<readonly [number, string]>();
 expectTypeOf(Tuple.of(1, 'a', true)).toEqualTypeOf<
 	readonly [number, string, boolean]

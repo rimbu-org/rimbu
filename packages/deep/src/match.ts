@@ -23,7 +23,6 @@ export type Match<T, C extends Partial<T> = Partial<T>> = MatchInternal.Entry<
  * @typeparam C - utility type
  * @param source - the value to match (should be a plain object)
  * @param matcher - a matcher object or a function taking the matcher API and returning a match object
- * @param failureLog - (optional) a string array that can be passed to collect reasons why the match failed
  * @returns true if the value matches the matcher, false otherwise
  * @example
  * ```ts
@@ -32,7 +31,6 @@ export type Match<T, C extends Partial<T> = Partial<T>> = MatchInternal.Entry<
  * match(input, { a: 2 }) // => false
  * match(input, { a: (v) => v > 10 }) // => false
  * match(input, { b: { c: true }}) // => true
- * match(input, ['every', { a: (v) => v > 0 }, { b: { c: true } }]) // => true
  * match(input, { b: { c: (v, parent, root) => v && parent.d.length > 0 && root.a > 0 } })
  *  // => true
  * ```
@@ -53,19 +51,6 @@ export function matchVerbose<T, C extends Partial<T> = Partial<T>>(
 	return { result, failureLog };
 }
 
-/**
- * Match a generic match entry against the given source.
- * @typeparam T - the entry value type
- * @typeparam C - utility matcher type
- * @typeparam P - the parent value type
- * @typeparam R - the root value type
- * @param source - the value to match
- * @param parent - the parent value of `source`
- * @param root - the root value in which the match started
- * @param matcher - the matcher entry to evaluate
- * @param failureLog - optional array to collect failure reasons
- * @returns true when the entry matches, false otherwise
- */
 function matchEntry<T, C, P, R>(
 	source: T,
 	parent: P,
@@ -73,190 +58,50 @@ function matchEntry<T, C, P, R>(
 	matcher: MatchInternal.Entry<T, C, P, R>,
 	failureLog?: string[],
 ): boolean {
-	if (Object.is(source, matcher)) {
-		// value and target are exactly the same, always will be true
-		return true;
-	}
+	if (Object.is(source, matcher)) return true;
 
 	if (matcher === null || matcher === undefined) {
-		// these matchers can only be direct matches, and previously it was determined that
-		// they are not equal
 		failureLog?.push(
 			`value ${JSON.stringify(source)} did not match matcher ${matcher}`,
 		);
-
 		return false;
 	}
 
 	if (typeof source === 'function') {
-		// function source values can only be directly matched
-		const result = Object.is(source, matcher);
-
-		if (!result) {
-			failureLog?.push(
-				`both value and matcher are functions, but they do not have the same reference`,
-			);
-		}
-
-		return result;
+		// function sources can only match by reference; equality was already ruled out above
+		failureLog?.push(
+			'both value and matcher are functions, but they do not have the same reference',
+		);
+		return false;
 	}
 
 	if (typeof matcher === 'function') {
-		// resolve match function first
-		const matcherResult = matcher(source, parent, root);
-
+		const matcherResult = (matcher as any)(source, parent, root);
 		if (typeof matcherResult === 'boolean') {
-			// function resulted in a direct match result
-
 			if (!matcherResult) {
 				failureLog?.push(
 					`function matcher returned false for value ${JSON.stringify(source)}`,
 				);
 			}
-
 			return matcherResult;
 		}
-
-		// function resulted in a value that needs to be further matched
+		// function returned a new matcher — recurse
 		return matchEntry(source, parent, root, matcherResult, failureLog);
 	}
 
-	if (isPlainObj(source)) {
-		// source ia a plain object, can be partially matched
+	if (isPlainObj(source))
 		return matchPlainObj(source, parent, root, matcher, failureLog);
-	}
-
-	if (Array.isArray(source)) {
-		// source is an array
+	if (Array.isArray(source))
 		return matchArr(source, parent, root, matcher, failureLog);
-	}
-
-	// source is most likely primitive
-	if (isCompound(matcher)) {
+	if (isCompound(matcher))
 		return matchCompound(source, parent, root, matcher, failureLog);
-	}
-
-	// already determined above that the source and matcher are not equal
 
 	failureLog?.push(
 		`value ${JSON.stringify(source)} does not match given matcher ${JSON.stringify(matcher)}`,
 	);
-
 	return false;
 }
 
-/**
- * Match an array matcher against the given source.
- * @typeparam T - the array value type
- * @typeparam C - utility matcher type
- * @typeparam P - the parent value type
- * @typeparam R - the root value type
- * @param source - the array value to match
- * @param parent - the parent value of `source`
- * @param root - the root value in which the match started
- * @param matcher - the array matcher to evaluate
- * @param failureLog - optional array to collect failure reasons
- * @returns true when the array matches the matcher, false otherwise
- */
-function matchArr<T extends any[], C, P, R>(
-	source: T,
-	parent: P,
-	root: R,
-	matcher: MatchInternal.Arr<T, C, P, R>,
-	failureLog?: string[],
-): boolean {
-	if (Array.isArray(matcher)) {
-		// directly compare array contents
-		const length = source.length;
-
-		if (length !== matcher.length) {
-			// if lengths not equal, arrays are not equal
-
-			failureLog?.push(
-				`array lengths are not equal: value length ${source.length} !== matcher length ${matcher.length}`,
-			);
-
-			return false;
-		}
-
-		// loop over arrays, matching every value
-		let index = -1;
-		while (++index < length) {
-			if (
-				!matchEntry(source[index], source, root, matcher[index], failureLog)
-			) {
-				// item did not match, return false
-
-				failureLog?.push(
-					`index ${index} does not match with value ${JSON.stringify(
-						source[index],
-					)} and matcher ${matcher[index]}`,
-				);
-
-				return false;
-			}
-		}
-
-		// all items are equal
-		return true;
-	}
-
-	// matcher is plain object
-
-	if (isTraverseCompound(matcher)) {
-		return matchTraverseCompound(source, root, matcher as any, failureLog);
-	}
-
-	if (isCompound(matcher)) {
-		return matchCompound(source, parent, root, matcher as any, failureLog);
-	}
-
-	// matcher is plain object with index keys
-	for (const index in matcher as any) {
-		const matcherAtIndex = (matcher as any)[index];
-
-		if (!(index in source)) {
-			// source does not have item at given index
-
-			failureLog?.push(
-				`index ${index} does not exist in source ${JSON.stringify(
-					source,
-				)} but should match matcher ${JSON.stringify(matcherAtIndex)}`,
-			);
-
-			return false;
-		}
-
-		// match the source item at the given index
-		const result = matchEntry(
-			(source as any)[index],
-			source,
-			root,
-			matcherAtIndex,
-			failureLog,
-		);
-
-		if (!result) {
-			// item did not match
-
-			failureLog?.push(
-				`index ${index} does not match with value ${JSON.stringify(
-					(source as any)[index],
-				)} and matcher ${JSON.stringify(matcherAtIndex)}`,
-			);
-
-			return false;
-		}
-	}
-
-	// all items match
-
-	return true;
-}
-
-/**
- * Match an object matcher against the given source.
- */
 function matchPlainObj<T extends object, C, P, R>(
 	source: T,
 	parent: P,
@@ -265,36 +110,22 @@ function matchPlainObj<T extends object, C, P, R>(
 	failureLog?: string[],
 ): boolean {
 	if (Array.isArray(matcher)) {
-		// the matcher is of compound type
-		const [compoundMatcher] = matcher;
-		return matchCompound(source, parent, root, compoundMatcher, failureLog);
+		return matchCompound(source, parent, root, matcher[0], failureLog);
 	}
-
-	// partial object props matcher
 
 	for (const key in matcher) {
 		if (!(key in source)) {
-			// the source does not have the given key
-
 			failureLog?.push(
-				`key ${key} is specified in matcher but not present in value ${JSON.stringify(source)}`,
+				`key ${String(key)} is specified in matcher but not present in value ${JSON.stringify(source)}`,
 			);
-
 			return false;
 		}
 
-		// match the source value at the given key with the matcher at given key
-		const result = matchEntry(
-			(source as any)[key],
-			source,
-			root,
-			matcher[key],
-			failureLog,
-		);
-
-		if (!result) {
+		if (
+			!matchEntry((source as any)[key], source, root, matcher[key], failureLog)
+		) {
 			failureLog?.push(
-				`key ${key} does not match in value ${JSON.stringify(
+				`key ${String(key)} does not match in value ${JSON.stringify(
 					(source as any)[key],
 				)} with matcher ${JSON.stringify(matcher[key])}`,
 			);
@@ -302,17 +133,79 @@ function matchPlainObj<T extends object, C, P, R>(
 		}
 	}
 
-	// all properties match
+	return true;
+}
+
+function matchArr<T extends any[], C, P, R>(
+	source: T,
+	parent: P,
+	root: R,
+	matcher: MatchInternal.Arr<T, C, P, R>,
+	failureLog?: string[],
+): boolean {
+	if (Array.isArray(matcher)) {
+		if (source.length !== matcher.length) {
+			failureLog?.push(
+				`array lengths are not equal: value length ${source.length} !== matcher length ${matcher.length}`,
+			);
+			return false;
+		}
+
+		for (let i = 0; i < source.length; i++) {
+			if (!matchEntry(source[i], source, root, matcher[i], failureLog)) {
+				failureLog?.push(
+					`index ${i} does not match with value ${JSON.stringify(source[i])} and matcher ${matcher[i]}`,
+				);
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	if (isTraverseCompound(matcher))
+		return matchTraverseCompound(source, root, matcher as any, failureLog);
+	if (isCompound(matcher))
+		return matchCompound(source, parent, root, matcher as any, failureLog);
+
+	// sparse index object: match only the specified numeric indices
+	for (const index in matcher as any) {
+		const matcherAtIndex = (matcher as any)[index];
+
+		if (!(index in source)) {
+			failureLog?.push(
+				`index ${index} does not exist in source ${JSON.stringify(source)} but should match matcher ${JSON.stringify(matcherAtIndex)}`,
+			);
+			return false;
+		}
+
+		if (
+			!matchEntry(
+				(source as any)[index],
+				source,
+				root,
+				matcherAtIndex,
+				failureLog,
+			)
+		) {
+			failureLog?.push(
+				`index ${index} does not match with value ${JSON.stringify(
+					(source as any)[index],
+				)} and matcher ${JSON.stringify(matcherAtIndex)}`,
+			);
+			return false;
+		}
+	}
 
 	return true;
 }
 
-export function isCompound(
+function isCompound(
 	obj: any,
 ): obj is MatchInternal.Compound<any, any, any, any> {
 	return (
 		typeof obj === 'object' &&
-		null !== obj &&
+		obj !== null &&
 		!Array.isArray(obj) &&
 		('every' in obj ||
 			'some' in obj ||
@@ -322,12 +215,12 @@ export function isCompound(
 	);
 }
 
-export function isTraverseCompound(
+function isTraverseCompound(
 	obj: any,
-): obj is MatchInternal.Compound<any, any, any, any> {
+): obj is MatchInternal.TraverseCompound<any, any, any, any> {
 	return (
 		typeof obj === 'object' &&
-		null !== obj &&
+		obj !== null &&
 		!Array.isArray(obj) &&
 		('everyItem' in obj ||
 			'someItem' in obj ||
@@ -337,19 +230,89 @@ export function isTraverseCompound(
 	);
 }
 
-/**
- * Match a compound matcher against the given source.
- * @typeparam T - the input value type for the compound match
- * @typeparam C - utility matcher type
- * @typeparam P - the parent value type
- * @typeparam R - the root value type
- * @param source - the value to match
- * @param parent - the parent value of `source`
- * @param root - the root value in which the match started
- * @param compound - the compound matcher tuple
- * @param failureLog - optional array to collect failure reasons
- * @returns true when the compound matcher succeeds, false otherwise
- */
+type CompoundControl = {
+	getResult: (pass: number, fail: number) => boolean;
+	halt?: (pass: number, fail: number) => boolean;
+};
+
+function resolveCompoundControl(
+	mode: string,
+	value: any,
+	failureLog: string[] | undefined,
+): { matchers: any[]; control: CompoundControl } | undefined {
+	switch (mode) {
+		case 'every':
+			return {
+				matchers: value,
+				control: { getResult: (_, f) => f === 0, halt: (_, f) => f > 0 },
+			};
+		case 'some':
+			return {
+				matchers: value,
+				control: { getResult: (p) => p > 0, halt: (p) => p > 0 },
+			};
+		case 'none':
+			return {
+				matchers: value,
+				control: { getResult: (p) => p === 0, halt: (p) => p > 0 },
+			};
+		case 'single':
+			return {
+				matchers: value,
+				control: { getResult: (p) => p === 1, halt: (p) => p > 1 },
+			};
+		case 'customMatch':
+			return {
+				matchers: value.matchers,
+				control: { getResult: value.getResult, halt: value.halt },
+			};
+		default:
+			failureLog?.push(
+				`compound matcher has unknown key "${mode}", expected one of "every", "some", "none", "single", "customMatch"`,
+			);
+			return undefined;
+	}
+}
+
+function resolveTraverseControl(
+	mode: string,
+	value: any,
+	failureLog: string[] | undefined,
+): { matcher: any; control: CompoundControl } | undefined {
+	switch (mode) {
+		case 'everyItem':
+			return {
+				matcher: value,
+				control: { getResult: (_, f) => f === 0, halt: (_, f) => f > 0 },
+			};
+		case 'someItem':
+			return {
+				matcher: value,
+				control: { getResult: (p) => p > 0, halt: (p) => p > 0 },
+			};
+		case 'noneItem':
+			return {
+				matcher: value,
+				control: { getResult: (p) => p === 0, halt: (p) => p > 0 },
+			};
+		case 'singleItem':
+			return {
+				matcher: value,
+				control: { getResult: (p) => p === 1, halt: (p) => p > 1 },
+			};
+		case 'customMatchItem':
+			return {
+				matcher: value.matcher,
+				control: { getResult: value.getResult, halt: value.halt },
+			};
+		default:
+			failureLog?.push(
+				`traversal compound matcher has unknown key "${mode}", expected one of "everyItem", "someItem", "noneItem", "singleItem", "customMatchItem"`,
+			);
+			return undefined;
+	}
+}
+
 function matchCompound<T, C, P, R>(
 	source: T,
 	parent: P,
@@ -357,108 +320,40 @@ function matchCompound<T, C, P, R>(
 	compound: MatchInternal.Compound<T, C, P, R>,
 	failureLog?: string[],
 ): boolean {
-	const compoundKeys = Object.entries(compound);
-	const amountKeys = compoundKeys.length;
-
-	type Entry = MatchInternal.Entry<T, C, P, R>;
-
-	let matchers: Entry[];
-	let getResult: (pass: number, fail: number) => boolean;
-	let halt: ((pass: number, fail: number) => boolean) | undefined;
-
-	if (amountKeys === 1) {
-		const [[mode, compoundMatchers]] = compoundKeys;
-
-		switch (mode) {
-			case 'every':
-				getResult = (_, fail) => fail === 0;
-				halt = (_, fail) => fail > 0;
-				matchers = compoundMatchers;
-				break;
-			case 'some':
-				getResult = (pass) => pass > 0;
-				halt = (pass) => pass > 0;
-				matchers = compoundMatchers;
-				break;
-			case 'none':
-				getResult = (pass) => pass === 0;
-				halt = (pass) => pass > 0;
-				matchers = compoundMatchers;
-				break;
-			case 'single':
-				getResult = (pass) => pass === 1;
-				halt = (pass) => pass > 1;
-				matchers = compoundMatchers;
-				break;
-			case 'customMatch':
-				getResult = compoundMatchers.getResult;
-				halt = compoundMatchers.halt;
-				matchers = compoundMatchers.matchers;
-				break;
-			default:
-				failureLog?.push(
-					`compound matcher has unknown key ${mode}, expected one of "every", "some", "none", "single"`,
-				);
-				return false;
-		}
-	} else {
+	const entries = Object.entries(compound as any);
+	if (entries.length !== 1) {
 		failureLog?.push(
-			`compound matcher has multiple keys, expected only one of "every", "some", "none", "single" or "customMatch"`,
+			`compound matcher must have exactly one key ("every", "some", "none", "single", or "customMatch")`,
 		);
 		return false;
 	}
 
-	const length = matchers.length;
+	const [[mode, value]] = entries;
+	const resolved = resolveCompoundControl(mode, value, failureLog);
+	if (resolved === undefined) return false;
 
-	let passed = 0;
-	let failed = 0;
+	const { matchers, control } = resolved;
+	let pass = 0;
+	let fail = 0;
 
-	let index = -1;
-	while (++index < length) {
-		// if any item does not match, return false
-		const passes = matchEntry(
-			source,
-			parent,
-			root,
-			matchers[index],
-			failureLog,
-		);
-		if (passes) {
-			passed++;
+	for (let i = 0; i < matchers.length; i++) {
+		if (matchEntry(source, parent, root, matchers[i], failureLog)) {
+			pass++;
 		} else {
-			failed++;
+			fail++;
 		}
-
-		if (halt?.(passed, failed)) {
-			break;
-		}
+		if (control.halt?.(pass, fail)) break;
 	}
 
-	const matchPassed = getResult(passed, failed);
-
-	if (!matchPassed) {
+	const result = control.getResult(pass, fail);
+	if (!result) {
 		failureLog?.push(
-			`compound matcher failed with ${passed} passed and ${failed} failed`,
+			`compound matcher failed with ${pass} passed and ${fail} failed`,
 		);
-
-		return false;
 	}
-
-	return true;
+	return result;
 }
 
-/**
- * Traverse an array for item-level match checks.
- * @typeparam T - the array value type
- * @typeparam C - utility matcher type for array items
- * @typeparam R - the root value type
- * @param source - the array to traverse
- * @param root - the root value in which the match started
- * @param matchType - the traversal match type (someItem/everyItem/noneItem/singleItem)
- * @param traverseCompound - the entry matcher to apply to items
- * @param failureLog - optional array to collect failure reasons
- * @returns true when the traversal condition is satisfied, false otherwise
- */
 function matchTraverseCompound<T extends any[], C extends any[], R>(
 	source: T,
 	root: R,
@@ -470,106 +365,46 @@ function matchTraverseCompound<T extends any[], C extends any[], R>(
 	>,
 	failureLog?: string[],
 ): boolean {
-	const compoundKeys = Object.entries(traverseCompound);
-	const amountKeys = compoundKeys.length;
-
-	type Entry = MatchInternal.Entry<T[keyof T], C[keyof C], T, R>;
-
-	let matcher: Entry;
-	let getResult: (pass: number, fail: number) => boolean;
-	let halt: ((pass: number, fail: number) => boolean) | undefined;
-
-	if (amountKeys === 1) {
-		const [[mode, _matcher]] = compoundKeys;
-
-		switch (mode) {
-			case 'everyItem':
-				getResult = (_, fail) => fail === 0;
-				halt = (_, fail) => fail > 0;
-				matcher = _matcher as Entry;
-				break;
-			case 'someItem':
-				getResult = (pass) => pass > 0;
-				halt = (pass) => pass > 0;
-				matcher = _matcher as Entry;
-				break;
-			case 'noneItem':
-				getResult = (pass) => pass === 0;
-				halt = (pass) => pass > 0;
-				matcher = _matcher as Entry;
-				break;
-			case 'singleItem':
-				getResult = (pass) => pass === 1;
-				halt = (pass) => pass > 1;
-				matcher = _matcher as Entry;
-				break;
-			case 'customMatchItem':
-				getResult = _matcher.getResult;
-				halt = _matcher.halt;
-				matcher = _matcher.matcher as Entry;
-				break;
-			default:
-				failureLog?.push(
-					`compound traverse matcher has unknown key ${mode}, expected one of "every", "some", "none", "single"`,
-				);
-				return false;
-		}
-	} else {
+	const entries = Object.entries(traverseCompound as any);
+	if (entries.length !== 1) {
 		failureLog?.push(
-			`compound matcher has multiple keys, expected only one of "every", "some", "none", "single" or "customMatch"`,
+			`traversal compound matcher must have exactly one key ("everyItem", "someItem", "noneItem", "singleItem", or "customMatchItem")`,
 		);
 		return false;
 	}
 
+	const [[mode, value]] = entries;
+	const resolved = resolveTraverseControl(mode, value, failureLog);
+	if (resolved === undefined) return false;
+
+	const { matcher, control } = resolved;
 	let pass = 0;
 	let fail = 0;
 
-	let index = -1;
-	const length = source.length;
-
-	while (++index < length) {
-		const matches = matchEntry(
-			source[index],
-			source,
-			root,
-			matcher,
-			failureLog,
-		);
-
-		if (matches) {
+	for (let i = 0; i < source.length; i++) {
+		if (matchEntry(source[i], source, root, matcher, failureLog)) {
 			pass++;
 		} else {
 			fail++;
 		}
-
-		if (halt?.(pass, fail)) {
-			break;
-		}
+		if (control.halt?.(pass, fail)) break;
 	}
 
-	const result = getResult(pass, fail);
-
+	const result = control.getResult(pass, fail);
 	if (!result) {
 		failureLog?.push(
 			`compound traverse matcher failed with ${pass} passed and ${fail} failed`,
 		);
 	}
-
 	return result;
 }
 
 /**
- * Returns true if the given `value` object matches the given `matcher` at the given `path`, false otherwise.
- * @typeparam T - the input value type
- * @typeparam P - the string literal path type in the object
- * @param source - the input value
- * @param path - the string path in the object
- * @param matcher - a matcher object or a function taking the matcher API and returning a match object
+ * Returns true if the given `source` matches the given `matcher` at the given `path`, false otherwise.
  * @example
  * ```ts
  * const input = { a: 1, b: { c: true, d: 'a' } }
- * matchAt(input, 'b', { c: true })
- * // => true
+ * matchAt(input, 'b', { c: true }) // => true
  * ```
  */
 export function matchAt<T, P extends Path.Get<T>>(
@@ -581,10 +416,7 @@ export function matchAt<T, P extends Path.Get<T>>(
 }
 
 /**
- * Returns a function that matches a given `value` with the given `matcher`.
- * @typeparam T - the input value type
- * @param matcher - a matcher object that matches input values.
- * @param source - the value to match (parameter of the returned function).
+ * Returns a function that matches a given `source` with the given `matcher`.
  * @example
  * ```ts
  * const items = [{ a: 1, b: 'a' }, { a: 2, b: 'b' }];
@@ -597,16 +429,10 @@ export function matchWith<T>(matcher: Match<T>): (source: T) => boolean {
 }
 
 /**
- * Returns a function that matches a given `value` with the given `matcher` at the given string `path`.
- * @typeparam T - the input value type
- * @typeparam P - the string literal path type in the object
- * @typeparam TE - utility type
- * @param path - the string path in the object
- * @param matcher - a matcher object that matches input values.
- * @param source - the value to use the given `matcher` on at the given `path`.
+ * Returns a function that matches a given `source` with the given `matcher` at the given string `path`.
  * @example
  * ```ts
- * const items = [{ a: { b:  1, c: 'a' } }, { a: { b: 2, c: 'b' } }];
+ * const items = [{ a: { b: 1, c: 'a' } }, { a: { b: 2, c: 'b' } }];
  * items.filter(matchAtWith('a.b', 2));
  * // => [{ a: 2, b: 'b' }]
  * ```

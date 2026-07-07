@@ -6,8 +6,8 @@ import {
 	type IsAnyFunc,
 	type IsArray,
 	type IsPlainObj,
-	type NotIterable,
 	isPlainObj,
+	type NotIterable,
 } from '@rimbu/base/plain-object';
 
 import { stringSplit } from '#private/string-split';
