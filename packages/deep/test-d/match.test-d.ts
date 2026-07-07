@@ -383,8 +383,34 @@ expectTypeOf(
 // @ts-expect-error — customMatch missing required getResult
 match(vObj, [{ customMatch: { matchers: [{ a: 1 }] } }]);
 
-// Note: customMatchItem is supported at runtime but not exposed in the public
-// type system (TraversalForArr only covers everyItem/someItem/noneItem/singleItem).
+// ---- customMatchItem traversal compound ----
+
+const vArrCMI = [1, 2, 3];
+
+expectTypeOf(
+	match(vArrCMI, {
+		customMatchItem: {
+			matcher: (v: number) => v > 0,
+			getResult: (pass: number, fail: number) => pass > fail,
+		},
+	}),
+).toEqualTypeOf<boolean>();
+
+expectTypeOf(
+	match(vArrCMI, {
+		customMatchItem: {
+			matcher: 1,
+			getResult: (pass: number) => pass > 0,
+			halt: (pass: number) => pass > 2,
+		},
+	}),
+).toEqualTypeOf<boolean>();
+
+// @ts-expect-error — customMatchItem missing required getResult
+match(vArrCMI, { customMatchItem: { matcher: 1 } });
+
+// @ts-expect-error — cannot mix customMatchItem with other traversal keys
+match(vArrCMI, { customMatchItem: { matcher: 1, getResult: () => true }, someItem: 1 });
 
 // ---- Function matchers: typed (current, parent, root) parameters ----
 

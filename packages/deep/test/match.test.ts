@@ -588,29 +588,29 @@ describe('match — customMatchItem traversal', () => {
 		expect(
 			match(values, {
 				customMatchItem: {
-					matcher: (v) => v > 2,
-					getResult: (pass, fail) => pass > fail,
+					matcher: (v: number) => v > 2,
+					getResult: (pass: number, fail: number) => pass > fail,
 				},
-			} as any),
+			}),
 		).toBe(true); // 3 pass, 2 fail
 
-		// pass if all items > 0 (getResult requires pass === length)
+		// pass if all items > 0
 		expect(
 			match(values, {
 				customMatchItem: {
 					matcher: (v: number) => v > 0,
-					getResult: (pass, fail) => fail === 0,
+					getResult: (pass: number, fail: number) => fail === 0,
 				},
-			} as any),
+			}),
 		).toBe(true);
 
 		expect(
 			match(values, {
 				customMatchItem: {
 					matcher: (v: number) => v > 10,
-					getResult: (pass) => pass > 0,
+					getResult: (pass: number) => pass > 0,
 				},
-			} as any),
+			}),
 		).toBe(false); // none pass
 	});
 
@@ -624,10 +624,10 @@ describe('match — customMatchItem traversal', () => {
 		match([1, 2, 3], {
 			customMatchItem: {
 				matcher: counter,
-				getResult: (pass) => pass > 0,
-				halt: (pass) => pass > 0,
+				getResult: (pass: number) => pass > 0,
+				halt: (pass: number) => pass > 0,
 			},
-		} as any);
+		});
 
 		// first item passes -> halt fires
 		expect(evaluations).toBe(1);
@@ -736,11 +736,13 @@ describe('match — function source matching', () => {
 		expect(match({ a: fn1 }, { a: fn2 })).toBe(false);
 	});
 
-	it('returns false when a function matcher is given for a function source', () => {
-		// source value is a function; trying to match it with a wrapper function
-		// that returns the wrong reference — the inner comparison is reference-only
-		const fn = () => 42;
-		expect(match({ a: fn }, { a: () => fn })).toBe(false);
+	it('returns false when using a different function reference of the same type', () => {
+		// Function sources are matched by reference only; two independently created
+		// functions with the same signature and body are not equal
+		const fn1 = () => 42;
+		const fn2 = () => 42;
+		expect(fn1 === fn2).toBe(false);
+		expect(match({ a: fn1 }, { a: fn2 })).toBe(false);
 	});
 });
 

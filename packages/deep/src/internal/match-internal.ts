@@ -85,11 +85,17 @@ export namespace MatchInternal {
 	export type Arr<T, C, P, R> =
 		| C
 		| MatchInternal.Compound<T, C, P, R>
-		| MatchInternal.TraversalForArr<T, C, R>
+		| MatchInternal.TraverseCompound<
+				T[number & keyof T],
+				C[number & keyof C],
+				T,
+				R
+		  >
 		| (MatchInternal.TupIndices<T, C, R> & {
 				[K in
 					| MatchInternal.CompoundType
-					| MatchInternal.ArrayTraversalType]?: never;
+					| MatchInternal.ArrayTraversalType
+					| 'customMatchItem']?: never;
 		  });
 
 	/**
