@@ -63,10 +63,7 @@ expectTypeOf(getAt(m, 'h')).toEqualTypeOf<M['h']>();
 // Valid getAt result types — array indexing
 // ---------------------------------------------------------------------------
 
-// b[0]: Tuple.IsTuple<string[]> incorrectly returns true so the array-element
-// Maybe=true branch is bypassed — result is `string`, not `string | undefined`.
-// Runtime will return undefined for out-of-bounds, but the type only says string.
-expectTypeOf(getAt(m, 'b[0]')).toEqualTypeOf<string>();
+expectTypeOf(getAt(m, 'b[0]')).toEqualTypeOf<string | undefined>();
 
 // ---------------------------------------------------------------------------
 // Valid getAt result types — tuple indexing with optional chaining
@@ -134,8 +131,7 @@ expectTypeOf<Path.Result<M, 'c'>>().toEqualTypeOf<M['c']>();
 expectTypeOf<Path.Result<M, 'c.d'>>().toEqualTypeOf<boolean>();
 // c.f is string | null — null is preserved at the leaf (see comment at line 57 above)
 expectTypeOf<Path.Result<M, 'c.f'>>().toEqualTypeOf<string | null>();
-// b[0]: result is string (not string | undefined) — see comment at line 64 above
-expectTypeOf<Path.Result<M, 'b[0]'>>().toEqualTypeOf<string>();
+expectTypeOf<Path.Result<M, 'b[0]'>>().toEqualTypeOf<string | undefined>();
 expectTypeOf<Path.Result<M, 'c.e?.[0]'>>().toEqualTypeOf<number | undefined>();
 expectTypeOf<Path.Result<M, 'h?.i'>>().toEqualTypeOf<number | undefined>();
 

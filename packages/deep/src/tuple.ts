@@ -18,7 +18,11 @@ export namespace Tuple {
 
 	export type NonEmpty<T extends Tuple.Source.NonEmpty> = Readonly<T>;
 
-	export type IsTuple<T> = T extends Tuple.Source ? true : false;
+	export type IsTuple<T> = T extends { length: infer L }
+		? number extends L
+			? false
+			: true
+		: false;
 
 	/**
 	 * Returns the indices/keys that are in a tuple.
