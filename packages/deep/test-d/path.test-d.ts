@@ -125,6 +125,13 @@ requireSetPath('h?.i');
 // Path.Result — direct type tests
 // ---------------------------------------------------------------------------
 
+// Path.Result accepts any string, not just valid Path.Get paths. When an
+// invalid path skips required optional chaining, the nullable mid-path value
+// must still propagate Maybe=true so the result includes | undefined.
+// e.g. 'h.i' is not in Path.Get<M> (h is nullable, requires h?.i) but
+// Path.Result should still return number | undefined, not number.
+expectTypeOf<Path.Result<M, 'h.i'>>().toEqualTypeOf<number | undefined>();
+
 expectTypeOf<Path.Result<M, ''>>().toEqualTypeOf<M>();
 expectTypeOf<Path.Result<M, 'a'>>().toEqualTypeOf<number>();
 expectTypeOf<Path.Result<M, 'c'>>().toEqualTypeOf<M['c']>();

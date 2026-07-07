@@ -187,7 +187,7 @@ export namespace PathResultInternal {
 			PathInternal.MaybeValue<T, Maybe>
 		: PathInternal.IsOptional<T> extends true
 			? // T can be null or undefined, so continue with Maybe set to true
-				PathResultInternal.For<Exclude<T, undefined | null>, Tokens, Maybe>
+				PathResultInternal.For<Exclude<T, undefined | null>, Tokens, true>
 			: Tokens extends ['?.', infer Key, ...infer Rest]
 				? // optional chaining, process first part and set Maybe to true
 					PathResultInternal.For<
