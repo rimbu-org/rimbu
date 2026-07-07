@@ -70,9 +70,12 @@ export namespace MatchInternal {
 	 * @typeparam R - the root object type
 	 */
 	export type ObjProps<T, C, R> = {
-		[K in keyof C]?: K extends keyof T
-			? MatchInternal.Entry<T[K], C[K], T, R>
-			: never;
+		[K in keyof C as K extends keyof T ? K : never]?: MatchInternal.Entry<
+			T[K & keyof T],
+			C[K],
+			T,
+			R
+		>;
 	};
 
 	/**
@@ -187,17 +190,4 @@ export namespace MatchInternal {
 		};
 	}[keyof T];
 
-	/**
-	 * Defines an object containing exactly one `TraversalType` key, having a matcher for the array element type.
-	 * @typeparam T - the input value type
-	 * @typeparam C - utility type
-	 * @typeparam R - the root object type
-	 */
-	export type TraversalForArr<T, C, R> = {
-		[K in MatchInternal.ArrayTraversalType]: {
-			[K2 in MatchInternal.ArrayTraversalType]?: K2 extends K
-				? MatchInternal.Entry<T[number & keyof T], C[number & keyof C], T, R>
-				: never;
-		};
-	}[MatchInternal.ArrayTraversalType];
 }

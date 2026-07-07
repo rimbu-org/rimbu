@@ -6,6 +6,7 @@ import {
 	type IsAnyFunc,
 	type IsArray,
 	type IsPlainObj,
+	type NotIterable,
 	isPlainObj,
 } from '@rimbu/base/plain-object';
 
@@ -69,12 +70,7 @@ export namespace Patch {
 		[K in Tuple.KeysOf<T>]?: Patch.Entry<T[K & keyof T], C[K & keyof C], T, R>;
 	} & NotIterable;
 
-	/**
-	 * Utility type to exclude Iterable types.
-	 */
-	export type NotIterable = {
-		[Symbol.iterator]?: never;
-	};
+
 
 	/**
 	 * A type defining the allowed patch values for objects.
