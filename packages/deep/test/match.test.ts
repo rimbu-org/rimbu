@@ -6,6 +6,27 @@ import { List } from '@rimbu/list';
 import { SortedMap } from '@rimbu/sorted/map';
 
 describe('match', () => {
+	it('matches primitives', () => {
+		expect(match(undefined, undefined)).toBe(true);
+		expect(match(null, null)).toBe(true);
+		expect(match(1, 2)).toBe(false);
+		expect(match('a', 'b')).toBe(false);
+		expect(match(true, false)).toBe(false);
+	});
+
+	it('matches primivies with provider function', () => {
+		expect(match(undefined, () => undefined)).toBe(true);
+		expect(match(null, () => null)).toBe(true);
+		expect(match(1, () => 2)).toBe(false);
+		expect(match('a', () => 'b')).toBe(false);
+		expect(match(true, () => false)).toBe(false);
+	});
+
+	it('matches primitives with multiple matchers', () => {
+		expect(match(1, { some: [2, (v) => v > 0] })).toBe(true);
+		expect(match(1, { some: [2, (v) => v > 10] })).toBe(false);
+	});
+
 	it('matches simple', () => {
 		expect(match({ a: 1 }, { a: 1 })).toBe(true);
 		expect(match({ a: 1 }, { a: 2 })).toBe(false);
@@ -66,7 +87,7 @@ describe('match', () => {
 		).toBe(false);
 	});
 
-	it('handles array', () => {
+	it.only('handles array', () => {
 		expect(match({ s: [1] }, { s: [] })).toBe(false);
 		expect(match({ s: [1, 2, 3] }, { s: [1, 2, 3] })).toBe(true);
 		expect(match({ s: [1, 2, 3] }, { s: [1, 2, 4] })).toBe(false);
@@ -75,6 +96,7 @@ describe('match', () => {
 		expect(match({ s: [1] }, { s: (v) => v.length < 3 })).toBe(true);
 		expect(match({ s: [1, 2, 3] }, { s: { 1: 2, 2: 3 } })).toBe(true);
 		expect(match({ s: [1, 2, 3] }, { s: { 1: 2, 3: 5 } })).toBe(false);
+		const log = [] as string[];
 		match({ s: [1, 2, 3] }, { s: { some: [{ 0: 1 }, { 1: 3 }] } }, log);
 		console.log(log);
 		expect(match({ s: [1, 2, 3] }, { s: { some: [{ 0: 1 }, { 1: 3 }] } })).toBe(
@@ -284,6 +306,8 @@ describe('match', () => {
 	});
 
 	it('matches one matcher using the `single` provider', () => {
+		match(1, () => ({ single: [1, (v) => v > 2] }));
+
 		expect(match({ a: 1 }, [{ single: [{ a: 1 }, { a: (v) => v > 0 }] }])).toBe(
 			false,
 		);

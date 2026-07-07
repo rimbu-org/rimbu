@@ -115,12 +115,17 @@ function matchEntry<T, C, P, R>(
 
 	if (isPlainObj(source)) {
 		// source ia a plain object, can be partially matched
-		return matchPlainObj(source, parent, root, matcher as any, failureLog);
+		return matchPlainObj(source, parent, root, matcher, failureLog);
 	}
 
 	if (Array.isArray(source)) {
 		// source is an array
-		return matchArr(source, parent, root, matcher as any, failureLog);
+		return matchArr(source, parent, root, matcher, failureLog);
+	}
+
+	// source is most likely primitive
+	if (isCompound(matcher)) {
+		return matchCompound(source, parent, root, matcher, failureLog);
 	}
 
 	// already determined above that the source and matcher are not equal
@@ -351,24 +356,32 @@ function matchCompound<T, C, P, R>(
 
 	if (amountKeys === 1) {
 		const [[mode, compoundMatchers]] = compoundKeys;
-		matchers = compoundMatchers as Entry[];
 
 		switch (mode) {
 			case 'every':
 				getResult = (_, fail) => fail === 0;
 				halt = (_, fail) => fail > 0;
+				matchers = compoundMatchers;
 				break;
 			case 'some':
 				getResult = (pass) => pass > 0;
 				halt = (pass) => pass > 0;
+				matchers = compoundMatchers;
 				break;
 			case 'none':
 				getResult = (pass) => pass === 0;
 				halt = (pass) => pass > 0;
+				matchers = compoundMatchers;
 				break;
 			case 'single':
 				getResult = (pass) => pass === 1;
 				halt = (pass) => pass > 1;
+				matchers = compoundMatchers;
+				break;
+			case 'customMatch':
+				getResult = compoundMatchers.getResult;
+				halt = compoundMatchers.halt;
+				matchers = compoundMatchers.matchers;
 				break;
 			default:
 				failureLog?.push(
@@ -376,13 +389,9 @@ function matchCompound<T, C, P, R>(
 				);
 				return false;
 		}
-	} else if ('customMatch' in compound && 'getResult' in compound) {
-		matchers = compound.customMatch;
-		getResult = compound.getResult;
-		halt = compound.halt;
 	} else {
 		failureLog?.push(
-			`compound matcher has multiple keys, expected only one of "every", "some", "none", "single" or both "customMatch" and "getResult"`,
+			`compound matcher has multiple keys, expected only one of "every", "some", "none", "single" or "customMatch"`,
 		);
 		return false;
 	}
@@ -395,14 +404,14 @@ function matchCompound<T, C, P, R>(
 	let index = -1;
 	while (++index < length) {
 		// if any item does not match, return false
-		const result = matchEntry(
+		const passes = matchEntry(
 			source,
 			parent,
 			root,
 			matchers[index],
 			failureLog,
 		);
-		if (result) {
+		if (passes) {
 			passed++;
 		} else {
 			failed++;
@@ -460,24 +469,32 @@ function matchTraverseCompound<T extends any[], C extends any[], R>(
 
 	if (amountKeys === 1) {
 		const [[mode, _matcher]] = compoundKeys;
-		matcher = _matcher as Entry;
 
 		switch (mode) {
 			case 'everyItem':
 				getResult = (_, fail) => fail === 0;
 				halt = (_, fail) => fail > 0;
+				matcher = _matcher as Entry;
 				break;
 			case 'someItem':
 				getResult = (pass) => pass > 0;
 				halt = (pass) => pass > 0;
+				matcher = _matcher as Entry;
 				break;
 			case 'noneItem':
 				getResult = (pass) => pass === 0;
 				halt = (pass) => pass > 0;
+				matcher = _matcher as Entry;
 				break;
 			case 'singleItem':
 				getResult = (pass) => pass === 1;
 				halt = (pass) => pass > 1;
+				matcher = _matcher as Entry;
+				break;
+			case 'customMatchItem':
+				getResult = _matcher.getResult;
+				halt = _matcher.halt;
+				matcher = _matcher.matcher as Entry;
 				break;
 			default:
 				failureLog?.push(
@@ -485,16 +502,9 @@ function matchTraverseCompound<T extends any[], C extends any[], R>(
 				);
 				return false;
 		}
-	} else if (
-		'customMatchItem' in traverseCompound &&
-		'getResult' in traverseCompound
-	) {
-		matcher = traverseCompound.customMatchItem as Entry;
-		getResult = traverseCompound.getResult;
-		halt = traverseCompound.halt;
 	} else {
 		failureLog?.push(
-			`compound matcher has multiple keys, expected only one of "every", "some", "none", "single" or both "customMatch" and "getResult"`,
+			`compound matcher has multiple keys, expected only one of "every", "some", "none", "single" or "customMatch"`,
 		);
 		return false;
 	}

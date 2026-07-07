@@ -43,12 +43,13 @@ export namespace MatchInternal {
 											R
 									  >[]
 							  >
-					: // only accept values with same interface
+					: // only accept values with same interface or compound
 						MatchInternal.WithResult<
 							T,
 							P,
 							R,
-							{ [K in keyof C]: C[K & keyof T] }
+							| { [K in keyof C]: C[K & keyof T] }
+							| MatchInternal.Compound<T, C, P, R>
 						>;
 
 	/**
@@ -141,18 +142,17 @@ export namespace MatchInternal {
 	 * @typeparam P - the parent type
 	 * @typeparam R - the root object type
 	 */
-	export type Compound<T, C, P, R> =
-		| SingleKey<{
-				every: MatchInternal.Entry<T, C, P, R>[];
-				some: MatchInternal.Entry<T, C, P, R>[];
-				none: MatchInternal.Entry<T, C, P, R>[];
-				single: MatchInternal.Entry<T, C, P, R>[];
-		  }>
-		| {
-				customMatch: MatchInternal.Entry<T, C, P, R>[];
-				getResult: (pass: number, fail: number) => boolean;
-				halt?: (pass: number, fail: number) => boolean;
-		  };
+	export type Compound<T, C, P, R> = ExactlyOne<{
+		every: MatchInternal.Entry<T, C, P, R>[];
+		some: MatchInternal.Entry<T, C, P, R>[];
+		none: MatchInternal.Entry<T, C, P, R>[];
+		single: MatchInternal.Entry<T, C, P, R>[];
+		customMatch: {
+			matchers: MatchInternal.Entry<T, C, P, R>[];
+			getResult: (pass: number, fail: number) => boolean;
+			halt?: (pass: number, fail: number) => boolean;
+		};
+	}>;
 
 	/**
 	 * Defines an object containing exactly one `CompoundType` key, having an array of matchers.
@@ -161,21 +161,24 @@ export namespace MatchInternal {
 	 * @typeparam P - the parent type
 	 * @typeparam R - the root object type
 	 */
-	export type TraverseCompound<T, C, P, R> =
-		| SingleKey<{
-				everyItem: MatchInternal.Entry<T, C, P, R>;
-				someItem: MatchInternal.Entry<T, C, P, R>;
-				noneItem: MatchInternal.Entry<T, C, P, R>;
-				singleItem: MatchInternal.Entry<T, C, P, R>;
-		  }>
-		| {
-				customMatchItem: MatchInternal.Entry<T, C, P, R>[];
-				getResult: (pass: number, fail: number) => boolean;
-				halt?: (pass: number, fail: number) => boolean;
-		  };
+	export type TraverseCompound<T, C, P, R> = ExactlyOne<{
+		everyItem: MatchInternal.Entry<T, C, P, R>;
+		someItem: MatchInternal.Entry<T, C, P, R>;
+		noneItem: MatchInternal.Entry<T, C, P, R>;
+		singleItem: MatchInternal.Entry<T, C, P, R>;
+		customMatchItem: {
+			matcher: MatchInternal.Entry<T, C, P, R>;
+			getResult: (pass: number, fail: number) => boolean;
+			halt?: (pass: number, fail: number) => boolean;
+		};
+	}>;
 
-	export type SingleKey<T> = {
-		[K in keyof T]: { [K2 in keyof T]?: K2 extends K ? T[K] : never };
+	export type ExactlyOne<T> = {
+		[K in keyof T]: {
+			[P in K]: T[P];
+		} & {
+			[P in Exclude<keyof T, K>]?: never;
+		};
 	}[keyof T];
 
 	/**
