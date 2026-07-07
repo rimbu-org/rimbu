@@ -40,9 +40,17 @@ export type Match<T, C extends Partial<T> = Partial<T>> = MatchInternal.Entry<
 export function match<T, C extends Partial<T> = Partial<T>>(
 	source: T,
 	matcher: Match<T, C>,
-	failureLog?: string[],
 ): boolean {
-	return matchEntry(source, source, source, matcher as any, failureLog);
+	return matchEntry(source, source, source, matcher as any);
+}
+
+export function matchVerbose<T, C extends Partial<T> = Partial<T>>(
+	source: T,
+	matcher: Match<T, C>,
+): { result: boolean; failureLog: string[] } {
+	const failureLog: string[] = [];
+	const result = matchEntry(source, source, source, matcher as any, failureLog);
+	return { result, failureLog };
 }
 
 /**
@@ -197,6 +205,10 @@ function matchArr<T extends any[], C, P, R>(
 
 	if (isTraverseCompound(matcher)) {
 		return matchTraverseCompound(source, root, matcher as any, failureLog);
+	}
+
+	if (isCompound(matcher)) {
+		return matchCompound(source, parent, root, matcher as any, failureLog);
 	}
 
 	// matcher is plain object with index keys

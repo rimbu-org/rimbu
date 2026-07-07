@@ -87,7 +87,7 @@ describe('match', () => {
 		).toBe(false);
 	});
 
-	it.only('handles array', () => {
+	it('handles array', () => {
 		expect(match({ s: [1] }, { s: [] })).toBe(false);
 		expect(match({ s: [1, 2, 3] }, { s: [1, 2, 3] })).toBe(true);
 		expect(match({ s: [1, 2, 3] }, { s: [1, 2, 4] })).toBe(false);
@@ -96,9 +96,6 @@ describe('match', () => {
 		expect(match({ s: [1] }, { s: (v) => v.length < 3 })).toBe(true);
 		expect(match({ s: [1, 2, 3] }, { s: { 1: 2, 2: 3 } })).toBe(true);
 		expect(match({ s: [1, 2, 3] }, { s: { 1: 2, 3: 5 } })).toBe(false);
-		const log = [] as string[];
-		match({ s: [1, 2, 3] }, { s: { some: [{ 0: 1 }, { 1: 3 }] } }, log);
-		console.log(log);
 		expect(match({ s: [1, 2, 3] }, { s: { some: [{ 0: 1 }, { 1: 3 }] } })).toBe(
 			true,
 		);
