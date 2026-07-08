@@ -196,8 +196,8 @@ function patchPlainObj<T, C, R>(
 		// keep current updated result as parent
 		const parent = { ...result };
 
-		// loop over all the patch keys
-		for (const key in entry as T) {
+		// loop over all the patch keys (own properties only, to avoid inherited-key injection)
+		for (const key of Object.keys(entry as object) as (keyof T)[]) {
 			// patch the value at the given key with the patch at that key
 			const currentValue = result[key];
 			const newValue = patchEntry(
@@ -260,8 +260,8 @@ function patchArr<T extends any[], C, R>(
 	const result = [...value] as T;
 	let anyChange = false;
 
-	// loop over all index keys in object
-	for (const index in patchItem) {
+	// loop over all index keys in object (own properties only, to avoid inherited-key injection)
+	for (const index of Object.keys(patchItem as object)) {
 		const numIndex = index as any as number;
 
 		// patch the tuple at the given index

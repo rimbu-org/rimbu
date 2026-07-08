@@ -441,6 +441,40 @@ describe('patch', () => {
 		}
 	});
 
+	it('does not apply inherited properties from patch entry (object)', () => {
+		const value = { a: 1, b: 'x' };
+
+		// patch entry with an inherited key that is not in value
+		const base = { extra: 99 };
+		const entry = Object.create(base) as { a?: number };
+		entry.a = 2;
+
+		const result = patch(value, [entry]);
+
+		// own key is applied
+		expect(result.a).toBe(2);
+		// inherited key must not appear in the result
+		expect('extra' in result).toBe(false);
+		// original is unchanged
+		expect(value).toEqual({ a: 1, b: 'x' });
+	});
+
+	it('does not apply inherited properties from patch entry (tuple)', () => {
+		const value = Tuple.of(10, 20);
+
+		// tuple-index patch object with an inherited numeric key
+		const base = { 1: 99 };
+		const entry = Object.create(base) as { 0?: number };
+		entry[0] = 5;
+
+		const result = patch(value, entry);
+
+		// own key is applied
+		expect(result[0]).toBe(5);
+		// inherited index must not be applied
+		expect(result[1]).toBe(20);
+	});
+
 	it('circular obj', () => {
 		const value = { a: 1, b: 2 };
 
