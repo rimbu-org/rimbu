@@ -45,12 +45,14 @@ export function getAt<T, P extends Path.Get<T>>(
 ): Path.Result<T, P> {
 	if (path === '') {
 		// empty path always directly returns source value
+		// cast needed: TS cannot evaluate PathResultInternal.For<T, [], false> = T at compile time
 		return source as any;
 	}
 
 	const items = stringSplit(path);
 
-	// start with `source` as result value
+	// cast needed: dynamic property access by string key cannot be typed incrementally;
+	// the return statement at the end carries the correct Path.Result<T, P> type
 	let result = source as any;
 
 	for (const item of items) {
@@ -62,6 +64,8 @@ export function getAt<T, P extends Path.Get<T>>(
 
 		if (undefined === result || null === result) {
 			// optional chaining assumed and no value available, skip rest of path and return undefined
+			// cast needed: Path.Result<T, P> includes | undefined for optional-chain paths,
+			// but TS cannot verify that the specific P in scope guarantees undefined is assignable
 			return undefined as any;
 		}
 
