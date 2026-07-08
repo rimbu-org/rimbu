@@ -1,6 +1,7 @@
 import { expectTypeOf } from 'bun:test';
 
-import { patch } from '@rimbu/deep/patch';
+import type { Protected } from '@rimbu/deep/protected';
+import { patch, patchAt, patchAtWith, patchWith } from '@rimbu/deep/patch';
 import { Tuple } from '@rimbu/deep/tuple';
 
 const num = 1 as number;
@@ -167,8 +168,10 @@ expectTypeOf(patch(t, [{ b: { 1: 'c' } }])).toEqualTypeOf<T>();
 expectTypeOf(patch(t, [{ b: { 0: true, 1: 'c' } }])).toEqualTypeOf<T>();
 expectTypeOf(patch(t, [{ b: { 0: (v) => !v } }])).toEqualTypeOf<T>();
 expectTypeOf(patch(t, [{ b: { 2: { x: 2, y: 2 } } }])).toEqualTypeOf<T>();
-// expectType<T>(patch(t, [{ b: { 2: [{ y: 2 }] } }]));
-// expectType<T>(patch(t, [{ b: { 2: [{ y: (v, p) => v + p.x }] } }]));
+expectTypeOf(patch(t, [{ b: { 2: [{ y: 2 }] } }])).toEqualTypeOf<T>();
+expectTypeOf(
+	patch(t, [{ b: { 2: [{ y: (v, p) => v + p.x }] } }]),
+).toEqualTypeOf<T>();
 
 // @ts-expect-error
 patch(t, [{ b: [] }]);
@@ -281,3 +284,134 @@ expectTypeOf(
 patch({ a: 1, b: 1 } as { a?: number; b: number }, [{ a: undefined }]);
 // @ts-expect-error
 patch({ a: 1 }, [{ a: undefined }]);
+
+// --- Patch.Func parameter types at various nesting levels ---
+
+const nested = { a: { b: { c: 5 } } };
+type Nested = typeof nested;
+
+patch(nested, (v, p, r) => {
+	expectTypeOf(v).toEqualTypeOf<Protected<Nested>>();
+	expectTypeOf(p).toEqualTypeOf<Protected<Nested>>();
+	expectTypeOf(r).toEqualTypeOf<Protected<Nested>>();
+	return v;
+});
+
+patch(nested, [
+	{
+		a: (v, p, r) => {
+			expectTypeOf(v).toEqualTypeOf<Protected<{ b: { c: number } }>>();
+			expectTypeOf(p).toEqualTypeOf<Protected<Nested>>();
+			expectTypeOf(r).toEqualTypeOf<Protected<Nested>>();
+			return v;
+		},
+	},
+]);
+
+patch(nested, [
+	{
+		a: [
+			{
+				b: (v, p, r) => {
+					expectTypeOf(v).toEqualTypeOf<Protected<{ c: number }>>();
+					expectTypeOf(p).toEqualTypeOf<Protected<{ b: { c: number } }>>();
+					expectTypeOf(r).toEqualTypeOf<Protected<Nested>>();
+					return v;
+				},
+			},
+		],
+	},
+]);
+
+patch(nested, [
+	{
+		a: [
+			{
+				b: [
+					{
+						c: (v, p, r) => {
+							expectTypeOf(v).toEqualTypeOf<Protected<number>>();
+							expectTypeOf(p).toEqualTypeOf<Protected<{ c: number }>>();
+							expectTypeOf(r).toEqualTypeOf<Protected<Nested>>();
+							return v;
+						},
+					},
+				],
+			},
+		],
+	},
+]);
+
+// --- Objects with function-valued properties ---
+// Such types are not considered plain objects (IsPlainObj is false when any
+// property is a function), so only direct replacement or a function patch is allowed.
+
+// @ts-expect-error — patch-array form is not valid for objects with function props
+patch({ fn: () => 5 as number }, [{ fn: () => 6 }]);
+
+// @ts-expect-error — same applies to nested objects with function props
+patch({ a: { fn: () => 1 as number } }, [{ a: [{ fn: () => 2 }] }]);
+
+// --- patchWith ---
+
+const pw1 = patchWith<Nested>([{ a: { b: { c: 10 } } }]);
+expectTypeOf(pw1).toEqualTypeOf<(source: Nested) => Nested>();
+expectTypeOf(pw1(nested)).toEqualTypeOf<Nested>();
+
+const pw2 = patchWith<Nested>([{ a: (v) => v }]);
+expectTypeOf(pw2(nested)).toEqualTypeOf<Nested>();
+
+// @ts-expect-error — unknown key
+patchWith<Nested>([{ a: { b: { c: 10 } }, z: 1 }]);
+
+// @ts-expect-error — wrong source type passed to returned function
+patchWith<Nested>([{ a: { b: { c: 10 } } }])({ a: { b: { c: 5 } }, extra: true });
+
+// --- patchAt ---
+
+expectTypeOf(patchAt(nested, '', nested)).toEqualTypeOf<Nested>();
+expectTypeOf(patchAt(nested, 'a', { b: { c: 10 } })).toEqualTypeOf<Nested>();
+expectTypeOf(patchAt(nested, 'a', (v) => v)).toEqualTypeOf<Nested>();
+expectTypeOf(patchAt(nested, 'a.b', { c: 10 })).toEqualTypeOf<Nested>();
+expectTypeOf(patchAt(nested, 'a.b.c', 10)).toEqualTypeOf<Nested>();
+expectTypeOf(patchAt(nested, 'a.b.c', (v) => v + 1)).toEqualTypeOf<Nested>();
+
+const withTuple = { b: Tuple.of(1, 'a') };
+type WithTuple = typeof withTuple;
+expectTypeOf(patchAt(withTuple, 'b[0]', 2)).toEqualTypeOf<WithTuple>();
+expectTypeOf(patchAt(withTuple, 'b[0]', (v) => v + 1)).toEqualTypeOf<WithTuple>();
+
+// --- patchAtWith ---
+
+const patw1 = patchAtWith<Nested, 'a.b.c'>('a.b.c', (v) => v + 1);
+expectTypeOf(patw1).toEqualTypeOf<(source: Nested) => Nested>();
+expectTypeOf(patw1(nested)).toEqualTypeOf<Nested>();
+
+const patw2 = patchAtWith<WithTuple, 'b[0]'>('b[0]', 2);
+expectTypeOf(patw2(withTuple)).toEqualTypeOf<WithTuple>();
+
+// --- Union of two plain objects ---
+
+type AB = { a: number } | { b: string };
+
+const ab = { a: 1 } as AB;
+expectTypeOf(patch(ab, ab)).toEqualTypeOf<AB>();
+expectTypeOf(patch(ab, () => ab)).toEqualTypeOf<AB>();
+expectTypeOf(patch(ab, (v) => v)).toEqualTypeOf<AB>();
+
+// --- Optional properties ---
+
+type ObjWithOpt = { a?: number; b: number };
+
+expectTypeOf(
+	patch({ a: 1, b: 1 } as ObjWithOpt, [{ a: 5 }]),
+).toEqualTypeOf<ObjWithOpt>();
+expectTypeOf(
+	patch({ a: 1, b: 1 } as ObjWithOpt, [{}]),
+).toEqualTypeOf<ObjWithOpt>();
+
+// nested optional prop
+type ObjNested = { inner: { a?: number; b: number } };
+expectTypeOf(
+	patch({ inner: { a: 1, b: 2 } } as ObjNested, [{ inner: [{ a: 5 }] }]),
+).toEqualTypeOf<ObjNested>();

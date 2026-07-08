@@ -4,6 +4,19 @@ import { patch, patchAt, patchAtWith, patchWith } from '@rimbu/deep/patch';
 import { Tuple } from '@rimbu/deep/tuple';
 import { List } from '@rimbu/list';
 
+describe('Object.is edge cases', () => {
+	it('NaN patches to NaN (same reference)', () => {
+		// Object.is(NaN, NaN) is true, so patching NaN with NaN returns same value
+		expect(patch(Number.NaN, Number.NaN)).toBeNaN();
+	});
+
+	it('+0 and -0 are distinct under Object.is', () => {
+		// Object.is(+0, -0) is false, so patching +0 with -0 returns -0
+		const result = patch(+0, -0);
+		expect(Object.is(result, -0)).toBe(true);
+	});
+});
+
 describe('patch', () => {
 	it('undefined', () => {
 		expect(patch(undefined, undefined)).toBeUndefined();
@@ -334,6 +347,30 @@ describe('patch', () => {
 		expect(value).toEqual(Tuple.of(1, { a: 2, b: true }, true));
 	});
 
+	it('tuple with nested object — patch-array at tuple index', () => {
+		// Tuple element at index 2 is an object; patch it with patch-array notation
+		const value = Tuple.of(1, 'a', { x: 1, y: 2 });
+
+		// patch single prop in nested object at tuple index 2
+		expect(patch(value, { 2: [{ y: 5 }] })).toEqual([1, 'a', { x: 1, y: 5 }]);
+		// unchanged case returns same reference for the tuple
+		expect(patch(value, { 2: [{ x: 1 }] })).toBe(value);
+		// patch with function using parent (the nested object)
+		expect(patch(value, { 2: [{ y: (v, p) => v + p.x }] })).toEqual([
+			1,
+			'a',
+			{ x: 1, y: 3 },
+		]);
+		// patch with function using root (the full tuple)
+		expect(patch(value, { 2: [{ y: (v, p, r) => r[2].x + 10 }] })).toEqual([
+			1,
+			'a',
+			{ x: 1, y: 11 },
+		]);
+
+		expect(value).toEqual(Tuple.of(1, 'a', { x: 1, y: 2 }));
+	});
+
 	it('non-plain object', () => {
 		const value = new Set([1, 2, 3]);
 
@@ -576,6 +613,25 @@ describe('patchAt', () => {
 		});
 	});
 
+	it('returns same reference when nothing changes', () => {
+		expect(patchAt(m, 'a', 1)).toBe(m);
+		expect(patchAt(m, 'c.d', true)).toBe(m);
+	});
+
+	it('patches 3-level-deep path', () => {
+		const src = { a: { b: { c: 5 } } };
+		expect(patchAt(src, 'a.b.c', 10)).toEqual({ a: { b: { c: 10 } } });
+		expect(patchAt(src, 'a.b.c', (v) => v + 1)).toEqual({
+			a: { b: { c: 6 } },
+		});
+		// unchanged — same reference
+		expect(patchAt(src, 'a.b.c', 5)).toBe(src);
+		// nested objects not on the changed path are reused
+		const result = patchAt(src, 'a.b.c', 10);
+		expect(result.a).not.toBe(src.a);
+		expect(result.a.b).not.toBe(src.a.b);
+	});
+
 	it('patches optional props', () => {
 		const q = {
 			b: null as null | { a: number },
@@ -622,6 +678,32 @@ describe('patchWith', () => {
 			{ a: 5, b: 'b' },
 		]);
 	});
+
+	it('returns same reference when nothing changes', () => {
+		const v = { a: 1, b: 'x' };
+		const fn = patchWith<typeof v>([{ a: 1 }]);
+		expect(fn(v)).toBe(v);
+	});
+
+	it('patches with function patch', () => {
+		const values = [{ a: 1 }, { a: 2 }, { a: 3 }];
+		expect(values.map(patchWith<{ a: number }>([{ a: (v) => v * 2 }]))).toEqual(
+			[{ a: 2 }, { a: 4 }, { a: 6 }],
+		);
+	});
+
+	it('patches nested object', () => {
+		const values = [
+			{ a: 1, b: { c: 'x' } },
+			{ a: 2, b: { c: 'y' } },
+		];
+		expect(
+			values.map(patchWith<(typeof values)[number]>([{ b: [{ c: 'z' }] }])),
+		).toEqual([
+			{ a: 1, b: { c: 'z' } },
+			{ a: 2, b: { c: 'z' } },
+		]);
+	});
 });
 
 describe('patchAtWith', () => {
@@ -637,5 +719,20 @@ describe('patchAtWith', () => {
 				patchAtWith('a.c', (v) => v + 10),
 			),
 		).toEqual([{ a: { b: 'a', c: 11 } }, { a: { b: 'b', c: 12 } }]);
+	});
+
+	it('returns same reference when nothing changes', () => {
+		const v = { a: { b: 1 } };
+		const fn = patchAtWith<typeof v, 'a.b'>('a.b', 1);
+		expect(fn(v)).toBe(v);
+	});
+
+	it('patches with nested function patch', () => {
+		const values = [{ a: { b: 1 } }, { a: { b: 2 } }];
+		type V = (typeof values)[number];
+		expect(values.map(patchAtWith<V, 'a.b'>('a.b', (v) => v * 10))).toEqual([
+			{ a: { b: 10 } },
+			{ a: { b: 20 } },
+		]);
 	});
 });
