@@ -219,13 +219,15 @@ export namespace PathResultInternal {
 	 * @typeparam Maybe - if true indicates that the path may be undefined
 	 */
 	export type Part<T, K, Maybe extends boolean> = IsArray<T> extends true
-		? // for arrays, Maybe needs to be set to true to force optional chaining
-			// for tuples, Maybe should be false
-			PathInternal.MaybeValue<
-				T[K & keyof T],
-				Tuple.IsTuple<T> extends true ? Maybe : true
-			>
-		: // Return the type at the given key, and take `Maybe` into account
+		? Tuple.IsTuple<T> extends true
+			? // Tuple: use K to look up the specific per-index type
+				PathInternal.MaybeValue<T[K & keyof T], Maybe>
+			: // Regular array: all indices share the same element type T[number].
+				// Using T[number] is explicit and avoids relying on TypeScript's implicit
+				// string-to-number coercion when indexing arrays with a string literal key.
+				// Array element access is always potentially out-of-bounds, so Maybe=true.
+				PathInternal.MaybeValue<T[number & keyof T], true>
+		: // Plain object or other: use K to look up the key
 			PathInternal.MaybeValue<T[K & keyof T], Maybe>;
 
 	/**

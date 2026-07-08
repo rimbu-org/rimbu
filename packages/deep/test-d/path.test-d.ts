@@ -63,7 +63,13 @@ expectTypeOf(getAt(m, 'h')).toEqualTypeOf<M['h']>();
 // Valid getAt result types — array indexing
 // ---------------------------------------------------------------------------
 
+// Regular array: element type is T[number], always | undefined (out-of-bounds possible).
+// Part uses T[number & keyof T] explicitly — no reliance on TS string-to-number coercion.
 expectTypeOf(getAt(m, 'b[0]')).toEqualTypeOf<string | undefined>();
+
+// Union-element array: all indices return the full element union | undefined.
+declare let mixed: Array<string | boolean>;
+expectTypeOf(getAt(mixed, '[0]')).toEqualTypeOf<string | boolean | undefined>();
 
 // ---------------------------------------------------------------------------
 // Valid getAt result types — tuple indexing with optional chaining

@@ -38,6 +38,13 @@ describe('getAt', () => {
 		expect(getAt(m, 'b[10]')).toBeUndefined();
 	});
 
+	it('gets in union-element array', () => {
+		const arr = [true, 'hello'] as Array<string | boolean>;
+		expect(getAt(arr, '[0]')).toBe(true);
+		expect(getAt(arr, '[1]')).toBe('hello');
+		expect(getAt(arr, '[99]')).toBeUndefined();
+	});
+
 	it('gets in nullable array when non-null', () => {
 		expect(getAt(m, 'c.e?.[0]')).toBe(1);
 		expect(getAt(m, 'c.e?.[1]')).toBe('a');
