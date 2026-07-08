@@ -68,7 +68,7 @@ export namespace Select {
  * // => { q: 'a', y: [1, 'a'], z: 2 }
  * ```
  */
-export function select<T, SL extends Select<T>>(
+export function select<T, const SL extends Select<T>>(
 	source: T,
 	selector: Select.Shape<SL>,
 ): Select.Result<T, SL> {
@@ -109,7 +109,7 @@ export function select<T, SL extends Select<T>>(
  * // => [{ q: 'a', z: [1, 2] }, { q: 'b', z: [2, 3] }]
  * ```
  */
-export function selectWith<T, SL extends Select<T>>(
+export function selectWith<T, const SL extends Select<T>>(
 	selector: Select.Shape<SL>,
 ): (source: T) => Select.Result<T, SL> {
 	return (source) => select(source, selector);
@@ -134,7 +134,7 @@ export function selectWith<T, SL extends Select<T>>(
 export function selectAt<
 	T,
 	P extends Path.Get<T>,
-	SL extends Select<Path.Result<T, P>>,
+	const SL extends Select<Path.Result<T, P>>,
 >(
 	source: T,
 	path: P,
@@ -161,7 +161,7 @@ export function selectAt<
 export function selectAtWith<
 	T,
 	P extends Path.Get<T>,
-	SL extends Select<Path.Result<T, P>>,
+	const SL extends Select<Path.Result<T, P>>,
 >(
 	path: P,
 	selector: Select.Shape<SL>,

@@ -56,25 +56,26 @@ select(m, { q: 'd[2]' });
 // { [key: string]: Select<T> }, so no @ts-expect-error directive is needed here.
 
 // --- select: tuple selectors ---
+// const SL means 'as const' is no longer required at the call site
 
-expectTypeOf(select(m, ['a', 'b'] as const)).toEqualTypeOf<
+expectTypeOf(select(m, ['a', 'b'])).toEqualTypeOf<
 	readonly [number, { c: boolean }]
 >();
 
-expectTypeOf(select(m, [{ q: 'a' }, 'b'] as const)).toEqualTypeOf<
+expectTypeOf(select(m, [{ q: 'a' }, 'b'])).toEqualTypeOf<
 	readonly [{ readonly q: number }, { c: boolean }]
 >();
 
 // mixed tuple: path + function + object
 expectTypeOf(
-	select(m, ['a', (v: Protected<M>) => v.b.c, { q: 'b' }] as const),
+	select(m, ['a', (v: Protected<M>) => v.b.c, { q: 'b' }]),
 ).toEqualTypeOf<readonly [number, boolean, { readonly q: { c: boolean } }]>();
 
 // empty tuple
-expectTypeOf(select(m, [] as const)).toEqualTypeOf<readonly []>();
+expectTypeOf(select(m, [])).toEqualTypeOf<readonly []>();
 
 // tuple nested inside object selector
-expectTypeOf(select(m, { h: ['a', 'b.c'] as const })).toEqualTypeOf<{
+expectTypeOf(select(m, { h: ['a', 'b.c'] })).toEqualTypeOf<{
 	readonly h: readonly [number, boolean];
 }>();
 
@@ -103,7 +104,8 @@ expectTypeOf(selectWith<M, 'b.c'>('b.c')).toEqualTypeOf<
 >();
 
 // selectWith with tuple selector used via map — each element is a proper readonly tuple
-const mappedTuple = [m].map(selectWith(['a', 'b.c'] as const));
+// no 'as const' needed thanks to const SL
+const mappedTuple = [m].map(selectWith(['a', 'b.c']));
 expectTypeOf(mappedTuple[0]).toEqualTypeOf<readonly [number, boolean]>();
 expectTypeOf([m].map(selectWith({ q: 'b.c' }))).toEqualTypeOf<
 	{ readonly q: boolean }[]
@@ -125,10 +127,8 @@ expectTypeOf(selectAt(m, 'b', { x: 'c' })).toEqualTypeOf<{
 	readonly x: boolean;
 }>();
 
-// tuple selector at path
-expectTypeOf(selectAt(m, 'b', ['c'] as const)).toEqualTypeOf<
-	readonly [boolean]
->();
+// tuple selector at path — no 'as const' needed
+expectTypeOf(selectAt(m, 'b', ['c'])).toEqualTypeOf<readonly [boolean]>();
 
 // invalid path
 // @ts-expect-error
