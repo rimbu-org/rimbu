@@ -348,12 +348,8 @@ export function patchAt<T, P extends Path.Set<T>, C = Path.Result<T, P>>(
 		const item = items[index];
 
 		if (undefined === item || item === '') {
-			// empty items can be ignored
-			return createPatchPart(index + 1, target);
-		}
-
-		if (item === '[') {
-			// next item is array index, set arrayMode to true
+			// empty items can be ignored (stringSplit splits on '[' and ']',
+			// so '[' is consumed as a delimiter and never appears as a token)
 			return createPatchPart(index + 1, target);
 		}
 
