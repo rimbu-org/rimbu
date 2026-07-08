@@ -390,6 +390,26 @@ expectTypeOf(patw1(nested)).toEqualTypeOf<Nested>();
 const patw2 = patchAtWith<WithTuple, 'b[0]'>('b[0]', 2);
 expectTypeOf(patw2(withTuple)).toEqualTypeOf<WithTuple>();
 
+// --- array | null and array | undefined union types ---
+
+type NumArrOrNull = number[] | null;
+type NumArrOrUndef = number[] | undefined;
+
+// valid: direct replacement with null/undefined
+expectTypeOf(patch([1, 2] as NumArrOrNull, null)).toEqualTypeOf<NumArrOrNull>();
+expectTypeOf(patch(null as NumArrOrNull, [3, 4])).toEqualTypeOf<NumArrOrNull>();
+expectTypeOf(patch([1, 2] as NumArrOrUndef, undefined)).toEqualTypeOf<NumArrOrUndef>();
+expectTypeOf(patch(undefined as NumArrOrUndef, [3, 4])).toEqualTypeOf<NumArrOrUndef>();
+
+// valid: function patch
+expectTypeOf(
+	patch([1, 2] as NumArrOrNull, (v) => (v === null ? [0] : null)),
+).toEqualTypeOf<NumArrOrNull>();
+
+// invalid: patch-array form is not valid for union types (IsArray distributes to boolean)
+// @ts-expect-error
+patch([1, 2] as NumArrOrNull, ['a']);
+
 // --- Union of two plain objects ---
 
 type AB = { a: number } | { b: string };

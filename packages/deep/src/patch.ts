@@ -246,6 +246,12 @@ function patchArr<T extends any[], C, R>(
 		return patchItem;
 	}
 
+	if (patchItem === null || typeof patchItem !== 'object') {
+		// patch is a non-object replacement (e.g. null, undefined, primitive)
+		// for union types like T = string[] | null
+		return patchItem as unknown as T;
+	}
+
 	// value is a tuple
 	// patch is an object containing numeric keys with function values
 	// that update the tuple at the given indices

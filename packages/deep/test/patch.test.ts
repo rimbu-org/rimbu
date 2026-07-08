@@ -519,6 +519,28 @@ describe('patch', () => {
 		expect(patch(undefined as typeof value, value)).toBe(value);
 	});
 
+	it('array | null union — patch array with null replaces it', () => {
+		type AN = number[] | null;
+		const arr = [1, 2, 3] as AN;
+		expect(patch(arr, null)).toBeNull();
+		expect(patch(null as AN, [4, 5])).toEqual([4, 5]);
+		expect(patch(arr, (v) => (v === null ? null : null))).toBeNull();
+	});
+
+	it('array | undefined union — patch array with undefined replaces it', () => {
+		type AU = number[] | undefined;
+		const arr = [1, 2, 3] as AU;
+		expect(patch(arr, undefined)).toBeUndefined();
+		expect(patch(undefined as AU, [4, 5])).toEqual([4, 5]);
+	});
+
+	it('tuple | null union — patch tuple with null replaces it', () => {
+		type TN = readonly [number, string] | null;
+		const tup = Tuple.of(1, 'a') as TN;
+		expect(patch(tup, null)).toBeNull();
+		expect(patch(null as TN, Tuple.of(2, 'b'))).toEqual([2, 'b']);
+	});
+
 	it('returns updated object as parent', () => {
 		expect(
 			patch({ count: 0, total: 10 }, [
