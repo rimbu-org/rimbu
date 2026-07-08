@@ -15,14 +15,32 @@ import { stringSplit } from '#private/string-split';
 /**
  * A type to determine the allowed input type for the `patch` function.
  * @typeparam T - the input type to be patched
+ * @typeparam C - internal recursion utility type; do not set explicitly
  */
 export type Patch<T, C = T> = Patch.Entry<T, C, T, T>;
 
 export namespace Patch {
 	/**
 	 * The entry type for a (nested) patch. Can be either a patch object or a function accepting the nested patch function and returning a patch object.
+	 *
+	 * Dispatch rules by value type:
+	 * - **Function** (`T` extends a function): only the same function type is accepted. Functions are
+	 *   replaced by reference only; structural patching is not possible.
+	 * - **Plain object** (`IsPlainObj<T>` is true): accepts a full replacement value of type `T`,
+	 *   an array of partial `ObjProps` patch objects, or a function returning either.
+	 *   Note: an object type is only considered a plain object when *none* of its properties are
+	 *   functions. A type like `{ count: number; reset: () => void }` is treated as opaque — only
+	 *   full replacement or a function patch is accepted for it.
+	 * - **Tuple** (`Tuple.IsTuple<T>` is true, i.e. `length` is a numeric literal): accepts a full
+	 *   replacement tuple or an object with optional numeric index keys for per-element patches.
+	 * - **Plain array** (`T[]`, where `length` is `number`): only full array replacement or a function
+	 *   patch is accepted. Per-index patching is not supported for plain arrays; use `Tuple.of` when
+	 *   you need to patch individual elements by index.
+	 * - **Everything else** (primitives, class instances, etc.): only the same type or a function
+	 *   returning the same type is accepted.
+	 *
 	 * @typeparam T - the input value type
-	 * @typeparam C - a utility type
+	 * @typeparam C - internal recursion utility type
 	 * @typeparam P - the parent type
 	 * @typeparam R - the root object type
 	 */
@@ -95,9 +113,18 @@ export namespace Patch {
  * Returns an immutably updated version of the given `value` where the given `patchItems` have been
  * applied to the result.
  * The Rimbu patch notation is as follows:
- * - if the target is a simple value or array, the patch can be the same type or a function returning the same type
- * - if the target is a tuple (array of fixed length), the patch be the same type or an object containing numeric keys with patches indicating the tuple index to patch
- * - if the target is an object, the patch can be the same type, or an array containing partial keys with their patches for the object
+ * - if the target is a **plain array** (`T[]`), the patch must be a full replacement array or a
+ *   function returning one. Per-index patching is not supported for plain arrays; use `Tuple.of`
+ *   when you need to patch individual elements by index.
+ * - if the target is a **tuple** (created with `Tuple.of`, so `length` is a numeric literal), the
+ *   patch can be the same tuple type or an object with optional numeric index keys to patch
+ *   individual elements.
+ * - if the target is a **plain object** (no function-valued properties), the patch can be a full
+ *   replacement value or an array of partial patch objects covering a subset of its keys.
+ *   Objects that have any function-valued property are treated as opaque and only accept full
+ *   replacement or a function patch.
+ * - for everything else (primitives, class instances, functions), the patch must be the same type
+ *   or a function returning it.
  * @typeparam T - the type of the value to patch
  * @typeparam TE - a utility type
  * @typeparam TT - a utility type
