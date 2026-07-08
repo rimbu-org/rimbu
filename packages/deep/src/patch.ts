@@ -315,7 +315,6 @@ export function patchWith<T, TE extends T = T, TT = T>(
  * chaining and array indexing is not allowed.
  * @typeparam T - the root object type
  * @typeparam P - the string literal path type in the object
- * @typeparam C - the result type at the given path
  * @param source - the object to update
  * @param path - the path in the object to update
  * @param patchItem - the patch for the value at the given path
@@ -327,10 +326,10 @@ export function patchWith<T, TE extends T = T, TT = T>(
  * // => { a: { b: { c: 6 } } }
  * ```
  */
-export function patchAt<T, P extends Path.Set<T>, C = Path.Result<T, P>>(
+export function patchAt<T, P extends Path.Set<T>>(
 	source: T,
 	path: P,
-	patchItem: Patch<Path.Result<T, P>, Path.Result<T, P> & C>,
+	patchItem: Patch<Path.Result<T, P>>,
 ): T {
 	if (path === '') {
 		return patch(source, patchItem as any);
