@@ -2,7 +2,7 @@ import { expectTypeOf } from 'bun:test';
 
 import type { List } from '@rimbu/list';
 
-import { getAt, getAtWith } from '@rimbu/deep';
+import { getAt, getAtWith, protect } from '@rimbu/deep';
 import { match, matchAt, matchAtWith, matchWith } from '@rimbu/deep/match';
 import { patch, patchAt, patchAtWith, patchWith } from '@rimbu/deep/patch';
 import { select, selectAt, selectAtWith, selectWith } from '@rimbu/deep/select';
@@ -19,7 +19,56 @@ let m!: {
 };
 type M = typeof m;
 
+// protect — zero-cost cast to Protected<T>
+expectTypeOf(protect(m)).toEqualTypeOf<{
+	readonly a: number;
+	readonly b: readonly string[];
+	readonly c: { readonly d: boolean; readonly e: readonly [number, string] | null };
+	readonly f: List.NonEmpty<number>;
+	readonly g: { readonly [k: string]: string };
+}>();
+expectTypeOf(protect(42)).toEqualTypeOf<number>();
+expectTypeOf(protect('hello')).toEqualTypeOf<string>();
+expectTypeOf(protect([1, 2, 3])).toEqualTypeOf<readonly number[]>();
+
+// getAt — empty path returns the source value itself
+expectTypeOf(getAt(m, '')).toEqualTypeOf<M>();
+
+// getAt — simple top-level property
 expectTypeOf(getAt(m, 'a')).toEqualTypeOf<number>();
+
+// getAt — nested path
+expectTypeOf(getAt(m, 'c.d')).toEqualTypeOf<boolean>();
+expectTypeOf(getAt(m, 'c.e')).toEqualTypeOf<[number, string] | null>();
+
+// getAt — array index access (always potentially undefined)
+expectTypeOf(getAt(m, 'b[0]')).toEqualTypeOf<string | undefined>();
+
+// getAt — tuple index (exact per-index type, no undefined since tuple length is fixed)
+expectTypeOf(getAt(m, 'c.e?.[0]')).toEqualTypeOf<number | undefined>();
+expectTypeOf(getAt(m, 'c.e?.[1]')).toEqualTypeOf<string | undefined>();
+
+// getAt — Record<string, V> access
+expectTypeOf(getAt(m, 'g')).toEqualTypeOf<Record<string, string>>();
+
+// getAt — nullable root with optional chaining
+let nullable!: { a: number } | null;
+expectTypeOf(getAt(nullable, '?.a')).toEqualTypeOf<number | undefined>();
+
+// getAt — @ts-expect-error: invalid path should not compile
+// @ts-expect-error
+getAt(m, 'z');
+// @ts-expect-error
+getAt(m, 'a.nonexistent');
+
+// getAtWith — inferred via array map context (simple path)
+expectTypeOf([m].map(getAtWith('a'))).toEqualTypeOf<number[]>();
+
+// getAtWith — nested path inferred via array map context
+expectTypeOf([m].map(getAtWith('c.d'))).toEqualTypeOf<boolean[]>();
+
+// getAtWith — optional chaining produces union with undefined
+expectTypeOf([m].map(getAtWith('c.e?.[0]'))).toEqualTypeOf<(number | undefined)[]>();
 
 expectTypeOf(patch(m, [{ a: 3 }])).toEqualTypeOf<M>();
 
