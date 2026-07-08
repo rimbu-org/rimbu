@@ -87,7 +87,7 @@ export function select<T, SL extends Select<T>>(
 
 	const result: any = {};
 
-	for (const key in selector as any) {
+	for (const key of Object.keys(selector as any)) {
 		// set each selected object key to the selector value
 		result[key] = select(source, (selector as any)[key]);
 	}

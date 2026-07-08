@@ -103,6 +103,17 @@ describe('selectAt', () => {
 	});
 });
 
+describe('select: object selector only visits own enumerable keys', () => {
+	it('does not include inherited enumerable properties', () => {
+		const proto = { inherited: 'a' };
+		const selector = Object.create(proto) as { own: 'a' };
+		selector.own = 'a';
+		// 'inherited' is on the prototype — for...in would visit it, Object.keys() does not
+		expect(select(m, selector)).toEqual({ own: 1 });
+		expect(select(m, selector)).not.toHaveProperty('inherited');
+	});
+});
+
 describe('select: edge cases', () => {
 	it('select with array index path', () => {
 		expect(select(m, 'b[0]')).toBe('abc');
