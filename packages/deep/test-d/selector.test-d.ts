@@ -102,11 +102,9 @@ expectTypeOf(selectWith<M, 'b.c'>('b.c')).toEqualTypeOf<
 	(source: M) => boolean
 >();
 
-// selectWith with tuple selector used via map — verifies element result type
+// selectWith with tuple selector used via map — each element is a proper readonly tuple
 const mappedTuple = [m].map(selectWith(['a', 'b.c'] as const));
-expectTypeOf(mappedTuple[0]).toEqualTypeOf<
-	Select.Result<M, readonly ['a', 'b.c']>
->();
+expectTypeOf(mappedTuple[0]).toEqualTypeOf<readonly [number, boolean]>();
 expectTypeOf([m].map(selectWith({ q: 'b.c' }))).toEqualTypeOf<
 	{ readonly q: boolean }[]
 >();
@@ -163,4 +161,7 @@ expectTypeOf<Select.Result<M, { q: 'a'; r: 'b.c' }>>().toEqualTypeOf<{
 	readonly q: number;
 	readonly r: boolean;
 }>();
+expectTypeOf<Select.Result<M, readonly ['a', 'b.c']>>().toEqualTypeOf<
+	readonly [number, boolean]
+>();
 expectTypeOf<Select.Result<M, Select<M>>>().toEqualTypeOf<never>();
