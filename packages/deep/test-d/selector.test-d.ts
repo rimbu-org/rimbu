@@ -51,6 +51,10 @@ select(m, { q: 'z' });
 // @ts-expect-error
 select(m, { q: 'd[2]' });
 
+// symbol keys are not allowed — they would be silently dropped by for...in at runtime.
+// TypeScript already rejects { [sym]: 'a' } because computed symbol keys don't satisfy
+// { [key: string]: Select<T> }, so no @ts-expect-error directive is needed here.
+
 // --- select: tuple selectors ---
 
 expectTypeOf(select(m, ['a', 'b'] as const)).toEqualTypeOf<

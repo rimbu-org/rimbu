@@ -16,7 +16,7 @@ export type Select<T> =
 	| Path.Get<T>
 	| ((value: Protected<T>) => any)
 	| readonly Select<T>[]
-	| { readonly [key: string | symbol]: Select<T> };
+	| { readonly [key: string]: Select<T> };
 
 export namespace Select {
 	/**
@@ -30,7 +30,7 @@ export namespace Select {
 			: IsArray<SL> extends true
 				? // ensure tuple type is preserved
 					readonly [...(SL extends readonly unknown[] ? SL : never)]
-				: SL extends { readonly [key: string | number | symbol]: unknown }
+				: SL extends { readonly [key: string]: unknown }
 					? // ensure all object properties satisfy `Shape`
 						{ readonly [K in keyof SL]: Select.Shape<SL[K]> }
 					: // nothing to check
