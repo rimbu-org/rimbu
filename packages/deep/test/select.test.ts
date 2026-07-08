@@ -103,6 +103,33 @@ describe('selectAt', () => {
 	});
 });
 
+describe('select: edge cases', () => {
+	it('select with array index path', () => {
+		expect(select(m, 'b[0]')).toBe('abc');
+		expect(select(m, 'b[1]')).toBe('def');
+	});
+
+	it('select with optional chaining on nullable value', () => {
+		expect(select(m, 'c.e?.[0]')).toBe(1);
+		const mNull: typeof m = { ...m, c: { ...m.c, e: null } };
+		expect(select(mNull, 'c.e?.[0]')).toBeUndefined();
+	});
+
+	it('select with 3-level deep path', () => {
+		const deep = { a: { b: { c: { d: 99 } } } };
+		expect(select(deep, 'a.b.c.d')).toBe(99);
+		expect(select(deep, { x: 'a.b.c' })).toEqual({ x: { d: 99 } });
+	});
+
+	it('select with empty object selector', () => {
+		// Empty object selector: picks no keys, returns {}
+		// Use a typed empty object explicitly
+		type EmptySel = Record<string, never>;
+		const emptySelector = {} as EmptySel;
+		expect(select(m, emptySelector)).toEqual({});
+	});
+});
+
 describe('selectWith', () => {
 	it('selects from input object', () => {
 		expect(
@@ -113,6 +140,33 @@ describe('selectWith', () => {
 			{ x: ['a'], y: { c: 1 } },
 			{ x: ['b'], y: { c: 2 } },
 		]);
+	});
+
+	it('selectWith with path string selector', () => {
+		const fn = selectWith<typeof m, 'a'>('a');
+		expect(fn(m)).toBe(1);
+		const m2: typeof m = { ...m, a: 42 };
+		expect([m, m2].map(fn)).toEqual([1, 42]);
+	});
+
+	it('selectWith with function selector', () => {
+		const fn = selectWith<typeof m, (v: any) => number>((v: any) => v.a + 10);
+		expect(fn(m)).toBe(11);
+		expect([m, m].map(fn)).toEqual([11, 11]);
+	});
+
+	it('selectWith with tuple selector', () => {
+		const fn = selectWith<typeof m, readonly ['a', 'c.d']>(['a', 'c.d'] as const);
+		expect(fn(m)).toEqual([m.a, m.c.d]);
+	});
+
+	it('selectWith returns reusable function', () => {
+		const fn = selectWith<typeof m, { v: 'a' }>({ v: 'a' });
+		const input1: typeof m = { ...m, a: 10 };
+		const input2: typeof m = { ...m, a: 20 };
+		expect(fn(input1)).toEqual({ v: 10 });
+		expect(fn(input2)).toEqual({ v: 20 });
+		expect(fn(input1)).toEqual({ v: 10 });
 	});
 });
 
@@ -125,6 +179,32 @@ describe('selectAtWith', () => {
 		).toEqual([
 			{ x: ['a'], y: { c: 1 } },
 			{ x: ['b'], y: { c: 2 } },
+		]);
+	});
+
+	it('selectAtWith with path string sub-selector', () => {
+		type Q = { m: typeof m };
+		const q: Q = { m };
+		const fn = selectAtWith<Q, 'm', 'a'>('m', 'a');
+		expect(fn(q)).toBe(1);
+		expect([q, { m: { ...m, a: 5 } }].map(fn)).toEqual([1, 5]);
+	});
+
+	it('selectAtWith with function sub-selector', () => {
+		type Q = { m: typeof m };
+		const q: Q = { m };
+		const fn = selectAtWith<Q, 'm', (v: any) => number>('m', (v: any) => v.a + 1);
+		expect(fn(q)).toBe(2);
+	});
+
+	it('selectAtWith with tuple sub-selector', () => {
+		type Q = { m: typeof m };
+		const q: Q = { m };
+		const fn = selectAtWith<Q, 'm', readonly ['a', 'c.d']>('m', ['a', 'c.d'] as const);
+		expect(fn(q)).toEqual([m.a, m.c.d]);
+		expect([q, q].map(fn)).toEqual([
+			[m.a, m.c.d],
+			[m.a, m.c.d],
 		]);
 	});
 });

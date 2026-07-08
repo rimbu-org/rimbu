@@ -1,6 +1,8 @@
 import { expectTypeOf } from 'bun:test';
 
-import { select } from '@rimbu/deep/select';
+import type { Protected } from '@rimbu/deep/protected';
+import { select, selectAt, selectAtWith, selectWith } from '@rimbu/deep/select';
+import type { Select } from '@rimbu/deep/select';
 import { Tuple } from '@rimbu/deep/tuple';
 
 const m = {
@@ -8,6 +10,10 @@ const m = {
 	b: { c: true },
 	d: Tuple.of(1, true),
 };
+
+type M = typeof m;
+
+// --- select: path string ---
 
 expectTypeOf(select(m, 'a')).toEqualTypeOf<number>();
 expectTypeOf(select(m, (v) => v.a)).toEqualTypeOf<number>();
@@ -21,6 +27,8 @@ select(m, 'q');
 // @ts-expect-error
 select(m, 'd[2]');
 
+// --- select: object selectors ---
+
 expectTypeOf(select(m, { q: 'a' })).toEqualTypeOf<{ readonly q: number }>();
 expectTypeOf(select(m, { q: 'b' })).toEqualTypeOf<{
 	readonly q: { c: boolean };
@@ -28,6 +36,23 @@ expectTypeOf(select(m, { q: 'b' })).toEqualTypeOf<{
 expectTypeOf(select(m, { q: 'b.c' })).toEqualTypeOf<{ readonly q: boolean }>();
 expectTypeOf(select(m, { q: 'd[0]' })).toEqualTypeOf<{ readonly q: number }>();
 expectTypeOf(select(m, { q: 'd[1]' })).toEqualTypeOf<{ readonly q: boolean }>();
+
+// nested object selectors (>1 level deep)
+expectTypeOf(select(m, { outer: { inner: 'a' } })).toEqualTypeOf<{
+	readonly outer: { readonly inner: number };
+}>();
+expectTypeOf(select(m, { x: { y: { z: 'b.c' } } })).toEqualTypeOf<{
+	readonly x: { readonly y: { readonly z: boolean } };
+}>();
+
+// object selector with invalid path value should error
+// @ts-expect-error
+select(m, { q: 'z' });
+// @ts-expect-error
+select(m, { q: 'd[2]' });
+
+// --- select: tuple selectors ---
+
 expectTypeOf(select(m, ['a', 'b'] as const)).toEqualTypeOf<
 	readonly [number, { c: boolean }]
 >();
@@ -36,9 +61,102 @@ expectTypeOf(select(m, [{ q: 'a' }, 'b'] as const)).toEqualTypeOf<
 	readonly [{ readonly q: number }, { c: boolean }]
 >();
 
-expectTypeOf(select(m, { q: 'b' })).toEqualTypeOf<{
-	readonly q: { c: boolean };
+// mixed tuple: path + function + object
+expectTypeOf(
+	select(m, ['a', (v: Protected<M>) => v.b.c, { q: 'b' }] as const),
+).toEqualTypeOf<readonly [number, boolean, { readonly q: { c: boolean } }]>();
+
+// empty tuple
+expectTypeOf(select(m, [] as const)).toEqualTypeOf<readonly []>();
+
+// tuple nested inside object selector
+expectTypeOf(select(m, { h: ['a', 'b.c'] as const })).toEqualTypeOf<{
+	readonly h: readonly [number, boolean];
 }>();
-expectTypeOf(select(m, { q: 'b.c' })).toEqualTypeOf<{ readonly q: boolean }>();
-expectTypeOf(select(m, { q: 'd[0]' })).toEqualTypeOf<{ readonly q: number }>();
-expectTypeOf(select(m, { q: 'd[1]' })).toEqualTypeOf<{ readonly q: boolean }>();
+
+// --- select: function selectors ---
+
+// function returning object type (Protected makes properties readonly)
+expectTypeOf(select(m, (v) => v.b)).toEqualTypeOf<{ readonly c: boolean }>();
+
+// function returning tuple (Protected makes tuple readonly)
+expectTypeOf(select(m, (v) => v.d)).toEqualTypeOf<readonly [number, boolean]>();
+
+// function with computed return
+expectTypeOf(select(m, (v) => v.a * 2)).toEqualTypeOf<number>();
+
+// parameter is Protected<T>
+select(m, (v: Protected<M>) => {
+	expectTypeOf(v).toEqualTypeOf<Protected<M>>();
+	return v.a;
+});
+
+// --- selectWith ---
+
+expectTypeOf(selectWith<M, 'a'>('a')).toEqualTypeOf<(source: M) => number>();
+expectTypeOf(selectWith<M, 'b.c'>('b.c')).toEqualTypeOf<
+	(source: M) => boolean
+>();
+
+// selectWith with tuple selector used via map — verifies element result type
+const mappedTuple = [m].map(selectWith(['a', 'b.c'] as const));
+expectTypeOf(mappedTuple[0]).toEqualTypeOf<
+	Select.Result<M, readonly ['a', 'b.c']>
+>();
+expectTypeOf([m].map(selectWith({ q: 'b.c' }))).toEqualTypeOf<
+	{ readonly q: boolean }[]
+>();
+expectTypeOf([m].map(selectWith((v: Protected<M>) => v.a))).toEqualTypeOf<
+	number[]
+>();
+
+// --- selectAt ---
+
+// path string sub-selector
+expectTypeOf(selectAt(m, 'b', 'c')).toEqualTypeOf<boolean>();
+
+// function selector at path
+expectTypeOf(selectAt(m, 'b', (v) => v.c)).toEqualTypeOf<boolean>();
+
+// object selector at path
+expectTypeOf(selectAt(m, 'b', { x: 'c' })).toEqualTypeOf<{
+	readonly x: boolean;
+}>();
+
+// tuple selector at path
+expectTypeOf(selectAt(m, 'b', ['c'] as const)).toEqualTypeOf<
+	readonly [boolean]
+>();
+
+// invalid path
+// @ts-expect-error
+selectAt(m, 'z', 'a');
+
+// invalid sub-path
+// @ts-expect-error
+selectAt(m, 'b', 'z');
+
+// --- selectAtWith ---
+
+expectTypeOf(selectAtWith<M, 'b', 'c'>('b', 'c')).toEqualTypeOf<
+	(source: M) => boolean
+>();
+
+expectTypeOf([m].map(selectAtWith('b', { x: 'c' }))).toEqualTypeOf<
+	{ readonly x: boolean }[]
+>();
+
+// invalid path (with explicit T so the path can be checked)
+// @ts-expect-error
+selectAtWith<M, 'z', 'a'>('z', 'a');
+
+// --- Select.Result type alias ---
+
+expectTypeOf<Select.Result<M, 'a'>>().toEqualTypeOf<number>();
+expectTypeOf<Select.Result<M, 'b.c'>>().toEqualTypeOf<boolean>();
+expectTypeOf<Select.Result<M, (v: Protected<M>) => string>>().toEqualTypeOf<string>();
+expectTypeOf<Select.Result<M, { q: 'a'; r: 'b.c' }>>().toEqualTypeOf<{
+	readonly q: number;
+	readonly r: boolean;
+}>();
+expectTypeOf<Select.Result<M, Select<M>>>().toEqualTypeOf<never>();
