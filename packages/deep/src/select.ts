@@ -100,7 +100,6 @@ export function select<T, const SL extends Select<T>>(
  * @typeparam T - the input value type
  * @typeparam SL - the selector shape type
  * @param selector - a shape indicating the selection from the source values
- * @param source - the value to use the given `selector` on.
  * @returns a function that accepts a `source` value and returns `Select.Result<T, SL>`
  * @example
  * ```ts
