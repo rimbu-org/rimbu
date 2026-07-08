@@ -54,8 +54,9 @@ export function getAt<T, P extends Path.Get<T>>(
 	let result = source as any;
 
 	for (const item of items) {
-		if (undefined === item || item === '' || item === '[') {
-			// ignore irrelevant items
+		if (undefined === item || item === '') {
+			// stringSplit splits on '[' and ']', so '[' is consumed as a delimiter
+			// and never appears as a token; empty strings come from ']' and '?.' delimiters
 			continue;
 		}
 
