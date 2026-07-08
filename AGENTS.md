@@ -371,7 +371,52 @@ const stats = Stream.of(1, 2, 3).reduce({
 const doubled = Reducer.sum.mapInput((x: number) => x * 2);
 ```
 
-### 6.6 Module Pattern
+### 6.6 Advanced Inference Helpers
+
+Two TypeScript 5.x features that are easy to forget but frequently useful in a library with deeply generic APIs.
+
+#### `const` type parameters (TS 5.0+)
+
+Adding `const` to a type parameter causes TypeScript to infer literal/tuple/object types from inline arguments **without requiring the caller to write `as const`**. This is the right default for any function that accepts a selector, descriptor, path, or shape that the return type depends on.
+
+```ts
+// Without const: caller must write 'as const' to get precise types
+function selectPlain<T, SL extends Select<T>>(source: T, selector: SL): Select.Result<T, SL>
+select(m, ['a', 'b.c'])         // SL inferred as string[] → result is useless
+
+// With const: inference is precise automatically
+function select<T, const SL extends Select<T>>(source: T, selector: SL): Select.Result<T, SL>
+select(m, ['a', 'b.c'])         // SL inferred as readonly ['a', 'b.c'] → result is readonly [number, boolean]
+```
+
+Rules:
+- Use `const SL` whenever the return type is computed from `SL` and callers pass inline literals, arrays, or objects.
+- The constraint must use `readonly` arrays (e.g. `extends readonly unknown[]`, not `extends unknown[]`); otherwise TypeScript cannot assign the inferred readonly tuple to the mutable constraint and falls back to widening.
+- `const` only affects **inline expressions at the call site** — a variable passed as an argument is already typed and is not affected.
+
+#### `NoInfer<T>` (TS 5.4+)
+
+`NoInfer<T>` prevents a type parameter position from participating in inference. Use it when one argument should **constrain** the type and a second argument should only be **checked** against the already-inferred type, not allowed to influence it.
+
+```ts
+// Problem: both `fallback` and the collection element type influence T,
+// so passing a wider fallback silently widens T
+declare function first<T>(list: List<T>, fallback: T): T;
+first(List.of(1, 2, 3), 'oops') // T inferred as number | string — no error
+
+// Fix: only the list drives T; fallback is checked against the settled type
+declare function first<T>(list: List<T>, fallback: NoInfer<T>): T;
+first(List.of(1, 2, 3), 'oops') // error: string not assignable to number ✓
+```
+
+Rules:
+- Wrap **fallback / default / otherwise** parameters in `NoInfer<T>` when the primary source of truth for `T` is another parameter (typically the collection itself).
+- The `OptLazy<O>` overload pattern (section 6.3) already separates concerns via a second type parameter `O`, so `NoInfer` is most useful on single-type-parameter helpers or internal utilities.
+- Do not use `NoInfer` on the parameter that *should* drive inference — only on the ones that should be checked against it.
+
+---
+
+### 6.7 Module Pattern
 
 Some types use the `Module` helper from `@rimbu/common` to create namespace-style factory objects:
 
