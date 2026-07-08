@@ -4,6 +4,9 @@ import type { Protected } from '@rimbu/deep/protected';
 import { stringSplit } from '#private/string-split';
 
 export type * from '@rimbu/deep/protected';
+export type { WithType } from '@rimbu/deep/with-type';
+
+export { withType } from '@rimbu/deep/with-type';
 
 /**
  * Returns the same value wrapped in the `Protected` type.

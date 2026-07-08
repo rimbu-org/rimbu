@@ -2,7 +2,7 @@ import { expectTypeOf } from 'bun:test';
 
 import type { List } from '@rimbu/list';
 
-import { getAt, getAtWith, protect } from '@rimbu/deep';
+import { getAt, getAtWith, protect, withType } from '@rimbu/deep';
 import { match, matchAt, matchAtWith, matchWith } from '@rimbu/deep/match';
 import { patch, patchAt, patchAtWith, patchWith } from '@rimbu/deep/patch';
 import { select, selectAt, selectAtWith, selectWith } from '@rimbu/deep/select';
@@ -108,26 +108,45 @@ expectTypeOf([m].map(selectAtWith('c', { q: 'd' }))).toEqualTypeOf<
 // @ts-expect-error
 [m].map(patchWith(() => [{ a: 2, z: 1 }]));
 
-// const wt = withType<M>();
+// ── withType<T>() builder ──────────────────────────────────────────────────
 
-// expectTypeOf(wt.getAtWith('a')(m)).toEqualTypeOf<number>();
+const wt = withType<M>();
 
-// expectTypeOf(wt.patchWith([{ a: 2 }])(m)).toEqualTypeOf<M>();
+// getAtWith — T is fixed so path and result are fully typed
+expectTypeOf(wt.getAtWith('a')(m)).toEqualTypeOf<number>();
+expectTypeOf(wt.getAtWith('c.d')(m)).toEqualTypeOf<boolean>();
+expectTypeOf(wt.getAtWith('c.e?.[0]')(m)).toEqualTypeOf<number | undefined>();
+expectTypeOf([m].map(wt.getAtWith('a'))).toEqualTypeOf<number[]>();
+expectTypeOf([m].map(wt.getAtWith('c.d'))).toEqualTypeOf<boolean[]>();
+// @ts-expect-error — invalid path
+wt.getAtWith('nonexistent');
 
-// expectTypeOf(wt.patchAtWith('c', [{ d: true }])(m)).toEqualTypeOf<M>();
-// expectTypeOf(wt.patchAtWith('c.d', (v) => !v)(m)).toEqualTypeOf<M>();
+// matchAtWith — T is fixed so path and matcher type are fully constrained
+expectTypeOf(wt.matchAtWith('a', 1)(m)).toEqualTypeOf<boolean>();
+expectTypeOf([m].map(wt.matchAtWith('a', 2))).toEqualTypeOf<boolean[]>();
+expectTypeOf([m].map(wt.matchAtWith('c.d', true))).toEqualTypeOf<boolean[]>();
+// @ts-expect-error — matcher type doesn't match value at path
+wt.matchAtWith('a', 'not-a-number');
 
-// expectTypeOf(wt.matchWith({ a: 3 })(m)).toEqualTypeOf<boolean>();
+// patchWith — T is fixed so no explicit type annotation needed at call site
+expectTypeOf(wt.patchWith([{ a: 2 }])(m)).toEqualTypeOf<M>();
+expectTypeOf([m].map(wt.patchWith([{ a: 2 }]))).toEqualTypeOf<M[]>();
 
-// expectTypeOf(wt.matchAtWith('c', { d: true })(m)).toEqualTypeOf<boolean>();
+// patchAtWith — T is fixed so path and patch type are fully constrained
+expectTypeOf(wt.patchAtWith('c', [{ d: true }])(m)).toEqualTypeOf<M>();
+expectTypeOf(wt.patchAtWith('c.d', (v) => !v)(m)).toEqualTypeOf<M>();
+expectTypeOf([m].map(wt.patchAtWith('c', [{ d: true }]))).toEqualTypeOf<M[]>();
+expectTypeOf([m].map(wt.patchAtWith('c.d', (v) => !v))).toEqualTypeOf<M[]>();
+// @ts-expect-error — invalid path
+wt.patchAtWith('nonexistent', 1);
 
-// expectTypeOf([m].map(wt.selectWith({ q: 'c.d' }))).toEqualTypeOf<
-// 	{ readonly q: boolean }[]
-// >();
-
-// expectTypeOf([m].map(wt.selectAtWith('c', { q: 'd' }))).toEqualTypeOf<
-// 	{ readonly q: boolean }[]
-// >();
+// selectAtWith — T is fixed so path and selector type are fully constrained
+expectTypeOf(wt.selectAtWith('c', { q: 'd' })(m)).toEqualTypeOf<{
+	readonly q: boolean;
+}>();
+expectTypeOf([m].map(wt.selectAtWith('c', { q: 'd' }))).toEqualTypeOf<
+	{ readonly q: boolean }[]
+>();
 
 const person = {
 	name: 'Alice',

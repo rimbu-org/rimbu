@@ -88,8 +88,6 @@ export namespace Patch {
 		[K in Tuple.KeysOf<T>]?: Patch.Entry<T[K & keyof T], C[K & keyof C], T, R>;
 	} & NotIterable;
 
-
-
 	/**
 	 * A type defining the allowed patch values for objects.
 	 * @typeparam T - the input value type

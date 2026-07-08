@@ -49,7 +49,9 @@ export namespace Select {
 				: SL extends string
 					? Path.Result<T, SL>
 					: SL extends readonly unknown[]
-						? readonly [...{ readonly [K in keyof SL]: Select.Result<T, SL[K]> }]
+						? readonly [
+								...{ readonly [K in keyof SL]: Select.Result<T, SL[K]> },
+							]
 						: {
 								readonly [K in keyof SL]: Select.Result<T, SL[K]>;
 							};
