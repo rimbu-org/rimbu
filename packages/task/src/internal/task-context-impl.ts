@@ -46,6 +46,12 @@ export class TaskContextImpl implements Task.Context {
 	// past the shutdown deadline.
 	#pendingChildren = 0;
 
+	// Number of children that were force-detached by `cancelWithTimeout`.
+	// Each of these will still call `#childrenWaitGroup.done()` when they
+	// eventually finish; we intercept those calls and skip them so the
+	// WaitGroup (now at count 0 after the forced drain) does not underflow.
+	#detachedChildren = 0;
+
 	#nextChildId = 0;
 
 	constructor(
@@ -147,9 +153,15 @@ export class TaskContextImpl implements Task.Context {
 	// can proceed. The actual child work may still be running in the
 	// background — we cannot forcibly terminate arbitrary async code —
 	// but the context bookkeeping no longer blocks the shutdown path.
+	//
+	// Rather than calling `done(count)` on the WaitGroup directly (which
+	// would cause the still-running children's eventual `done()` calls to
+	// underflow), we record how many slots we are pre-paying and skip the
+	// corresponding number of future `done()` calls in `launch`'s finally.
 	#detachPendingChildren = (): void => {
 		const count = this.#pendingChildren;
 		if (count <= 0) return;
+		this.#detachedChildren += count;
 		this.#pendingChildren = 0;
 		this.#childrenWaitGroup.done(count);
 	};
@@ -319,11 +331,16 @@ export class TaskContextImpl implements Task.Context {
 					// release the max-branch slot
 					this.#maxBranchSemaphore?.release();
 				}
-				// ensure parent stops waiting for child. Both the underlying
-				// WaitGroup and our mirror are guarded so a late completion
-				// after `cancelWithTimeout` has forcibly detached still-
-				// pending children does not cause under-flow.
-				this.#childrenWaitGroup.done();
+				// ensure parent stops waiting for child.
+				// If this child was forcibly detached by `cancelWithTimeout`,
+				// the WaitGroup was already credited on its behalf — skip the
+				// `done()` to avoid underflowing the now-zero count. Otherwise
+				// decrement normally.
+				if (this.#detachedChildren > 0) {
+					this.#detachedChildren--;
+				} else {
+					this.#childrenWaitGroup.done();
+				}
 				if (this.#pendingChildren > 0) this.#pendingChildren--;
 			}
 
