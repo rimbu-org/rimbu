@@ -38,9 +38,21 @@
 			"types": "./dist/task.d.ts",
 			"default": "./dist/task.js"
 		},
-		"./*": {
-			"types": "./dist/*.d.ts",
-			"default": "./dist/*.js"
+		"./ops": {
+			"types": "./dist/ops.d.ts",
+			"default": "./dist/ops.js"
+		},
+		"./ops-impl": {
+			"types": "./dist/ops-impl.d.ts",
+			"default": "./dist/ops-impl.js"
+		},
+		"./modifiers": {
+			"types": "./dist/modifiers.d.ts",
+			"default": "./dist/modifiers.js"
+		},
+		"./utils": {
+			"types": "./dist/utils.d.ts",
+			"default": "./dist/utils.js"
 		}
 	},
 	"imports": {

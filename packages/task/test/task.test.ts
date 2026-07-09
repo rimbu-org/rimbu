@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it } from 'bun:test';
 
-import { Task } from '@rimbu/task';
-import { CancellationError } from '@rimbu/task/errors';
+import { Task, TaskCancellationError } from '@rimbu/task';
 
 import { disposableDelay } from '#task/utils';
 
@@ -11,13 +10,13 @@ describe('Task factory methods', () => {
 		expect(Task.rootContext.isCancelled).toBe(false);
 	});
 
-	it('create should return the given Task instance', () => {
+	it('fn should return the given Task instance', () => {
 		const task: Task<number> = (taskContext) => {
 			expect([...Task.rootContext.children]).toContain(taskContext);
 			return 1;
 		};
 
-		const createdTask = Task.create(task);
+		const createdTask = Task.fn(task);
 		expect(createdTask).toBe(task);
 
 		expect(Task.launch(createdTask).join()).resolves.toBe(1);
@@ -40,7 +39,7 @@ describe('Task.launch', () => {
 		const task: Task<void> = (context) => {
 			context.cancel();
 		};
-		expect(Task.launch(task).join()).rejects.toThrow(CancellationError);
+		expect(Task.launch(task).join()).rejects.toThrow(TaskCancellationError);
 	});
 
 	it('cancelAndJoin should cancel the task and wait for its completion', async () => {
@@ -49,7 +48,7 @@ describe('Task.launch', () => {
 			try {
 				await context.delay(1000);
 			} catch (e) {
-				if (e instanceof CancellationError) {
+				if (e instanceof TaskCancellationError) {
 					wasCancelled = true;
 					throw e;
 				}
@@ -84,7 +83,7 @@ describe('Task.launch', () => {
 				expect(job2.join()).rejects.toThrow();
 				expect(started).toBe(true);
 			},
-			{ isSupervisor: true, maxBranch: 1 },
+			{ isolated: true, maxBranch: 1 },
 		).join();
 	});
 
@@ -109,13 +108,13 @@ describe('Task.launch', () => {
 				expect(job2.join()).resolves.toBe(1);
 				expect(started).toBe(true);
 			},
-			{ isSupervisor: true, maxBranch: 1 },
+			{ isolated: true, maxBranch: 1 },
 		).join();
 	});
 
 	it('should execute the task and wait until the job is finished without joining', async () => {
 		const message = 'Hello, World!';
-		const task = Task.create(async (context) => {
+		const task = Task.fn(async (context) => {
 			await context.delay(200);
 			return message;
 		});
@@ -143,8 +142,8 @@ describe('Task.launch', () => {
 		}).join();
 	});
 
-	it('can relaunch a job with the same supervisor context', async () => {
-		const task = Task.create(async (context, value: number) => {
+	it('can relaunch a job with the same isolated context', async () => {
+		const task = Task.fn(async (context, value: number) => {
 			await context.delay(50);
 			return value;
 		});
@@ -160,14 +159,14 @@ describe('Task.launch', () => {
 				expect(defer1.join()).rejects.toThrow();
 				expect(defer2.join()).resolves.toBe(2);
 			},
-			{ isSupervisor: true },
+			{ isolated: true },
 		).join();
 	});
 
 	it('parent waits for children to complete before completing itself, even without join', async () => {
 		const results: number[] = [];
 
-		const task = Task.create(async (context, value: number) => {
+		const task = Task.fn(async (context, value: number) => {
 			await context.delay(value * 10);
 			results.push(value);
 			return value;

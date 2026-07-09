@@ -2,7 +2,7 @@ import type { Task } from '@rimbu/task';
 
 import { Semaphore } from '@rimbu/channel/semaphore';
 import { WaitGroup } from '@rimbu/channel/wait-group';
-import { CancellationError } from '@rimbu/task/errors';
+import { TaskCancellationError } from '@rimbu/task';
 
 import {
 	type Cleanup,
@@ -23,16 +23,18 @@ export class TaskContextImpl implements Task.Context {
 	readonly #parent: Task.Context | undefined;
 	readonly #children: Set<Task.Context> = new Set();
 	readonly #maxBranchSemaphore: Semaphore | undefined;
+	readonly #isolated: boolean;
 
 	#nextChildId = 0;
 
 	constructor(
 		readonly id: string,
-		readonly isSupervisor: boolean,
+		isolated: boolean,
 		parent: Task.Context | undefined,
 		maxBranch?: number | undefined,
 	) {
 		this.#parent = parent;
+		this.#isolated = isolated;
 
 		if (undefined !== maxBranch && maxBranch > 0) {
 			this.#maxBranchSemaphore = Semaphore.create({ maxSize: maxBranch });
@@ -85,20 +87,21 @@ export class TaskContextImpl implements Task.Context {
 
 	#createChildContext = (
 		options: {
-			childId?: string | undefined;
-			isSupervisor?: boolean | undefined;
+			id?: string | undefined;
+			isolated?: boolean | undefined;
 			maxBranch?: number | undefined;
 		} = {},
 	): Task.Context => {
 		const {
-			childId = `${this.id}_${this.isSupervisor ? 'S-' : ''}${this.#nextChildId++}`,
-			isSupervisor = false,
+			id:
+				childId = `${this.id}_${this.#isolated ? 'I-' : ''}${this.#nextChildId++}`,
+			isolated = false,
 			maxBranch,
 		} = options;
 
 		const childContext = new TaskContextImpl(
 			childId,
-			isSupervisor,
+			isolated,
 			this,
 			maxBranch,
 		);
@@ -116,13 +119,19 @@ export class TaskContextImpl implements Task.Context {
 
 	throwIfCancelled = (): void => {
 		if (this.isCancelled) {
-			throw new CancellationError();
+			throw new TaskCancellationError();
 		}
 	};
 
-	delay = async (delayMs?: number): Promise<void> => {
+	yield = async (): Promise<void> => {
 		this.throwIfCancelled();
-		using delayPromise = disposableDelay(delayMs ?? 0);
+		await new Promise<void>((resolve) => setTimeout(resolve, 0));
+		this.throwIfCancelled();
+	};
+
+	delay = async (delayMs: number): Promise<void> => {
+		this.throwIfCancelled();
+		using delayPromise = disposableDelay(delayMs);
 		using _ = this.onCancelled(delayPromise);
 		await delayPromise;
 		this.throwIfCancelled();
@@ -142,8 +151,8 @@ export class TaskContextImpl implements Task.Context {
 	launch = <R, A extends readonly any[]>(
 		task: Task<R, A>,
 		options: {
-			childId?: string | undefined;
-			isSupervisor?: boolean | undefined;
+			id?: string | undefined;
+			isolated?: boolean | undefined;
 			maxBranch?: number | undefined;
 			args?: A | undefined;
 		} = {},
@@ -152,9 +161,10 @@ export class TaskContextImpl implements Task.Context {
 
 		const promise = (async (): Promise<LaunchResult<R>> => {
 			this.throwIfCancelled();
-			using childContext = this.#createChildContext(options);
-			using _ = cleanupOn(cancelChildController.signal, childContext);
-			let branchAqcuired = false;
+			const childContext = this.#createChildContext(options);
+			const unsubscribeCancel = cleanupOn(cancelChildController.signal, childContext);
+			let branchAcquired = false;
+			let launchResult: LaunchResult<R>;
 
 			try {
 				// ensure parent waits for child to complete
@@ -164,25 +174,33 @@ export class TaskContextImpl implements Task.Context {
 				await this.#maxBranchSemaphore?.acquire(1, {
 					signal: this.cancelledSignal,
 				});
-				branchAqcuired = true;
+				branchAcquired = true;
 
 				const { args = [] as unknown as A } = options;
 
 				const result = await childContext.run(task, args);
-				return { type: 'result', value: result };
+				launchResult = { type: 'result', value: result };
 			} catch (error) {
-				if (!this.isSupervisor) {
+				if (!this.#isolated) {
 					this.cancel();
 				}
-				return { type: 'error', error };
+				launchResult = { type: 'error', error };
 			} finally {
-				if (branchAqcuired) {
+				// Explicitly cancel the child context so #children.delete fires
+				// synchronously here, before done() and before the promise resolves.
+				// This ensures join() callers observe hasChildren = false immediately.
+				unsubscribeCancel[Symbol.dispose]();
+				childContext.cancel();
+
+				if (branchAcquired) {
 					// if max branching set, release the slot
 					this.#maxBranchSemaphore?.release();
 				}
 				// ensure parent stops waiting for child
 				this.#childrenWaitGroup.done();
 			}
+
+			return launchResult!;
 		})();
 
 		const result: Task.Job<R> = {
@@ -200,8 +218,8 @@ export class TaskContextImpl implements Task.Context {
 						return options.recover(error);
 					}
 
-					if (!this.isSupervisor) {
-						// if not a supervisor, cancel the parent context on error
+					if (!this.#isolated) {
+						// if not isolated, cancel the parent context on error
 						this.cancel();
 					}
 
@@ -218,7 +236,7 @@ export class TaskContextImpl implements Task.Context {
 				result.cancel();
 				await result.join({
 					recover: (error) => {
-						if (error instanceof CancellationError) {
+						if (error instanceof TaskCancellationError) {
 							return;
 						}
 						throw error;
@@ -240,17 +258,6 @@ function unpackTask<R, A extends readonly any[]>(
 			const result = await task(context, ...args);
 			context.throwIfCancelled();
 			return result;
-		};
-	} else if (Array.isArray(task)) {
-		const [first, ...rest] = task;
-
-		return async (context, ...args) => {
-			// first subtask gets all args
-			let lastResult = await unpackTask(first)(context, ...args);
-			for (const subTask of rest) {
-				lastResult = await unpackTask(subTask as Task)(context);
-			}
-			return lastResult as R;
 		};
 	} else {
 		throw new Error('Invalid task type');

@@ -8,26 +8,33 @@ This document supplements the root `AGENTS.md` with details specific to the `@ri
 
 `@rimbu/task` provides composable, cancellable, supervised async task orchestration. Its core concepts:
 
-- **`Task<R, A>`** — a unit of async work, either a `Task.Fun` (a function) or a `Task.Seq` (an ordered tuple of tasks where each task passes its result to the next).
+- **`Task<R, A>`** — a unit of async work: a function `(context: Task.Context, ...args: A) => Task.Result<R>`.
 - **`Task.Context`** — the execution environment passed to every running task. Tracks cancellation state, child contexts, and `AbortSignal`. Implements `Disposable` (cancels on dispose).
 - **`Task.Job<R>`** — a handle to a background task launched with `ctx.launch(...)`. Supports `join`, `cancel`, `cancelAndJoin`. Implements `Disposable` (cancels on dispose).
 - **`Task.Modifier<E>`** — a higher-order function that wraps a task to add behaviour (timeout, retry, error handling, etc.).
 
-The single global entry point is `Task` (from `@rimbu/task`). It holds `Task.rootContext`, `Task.create`, and `Task.launch`.
+The single global entry point is `Task` (from `@rimbu/task`). It holds `Task.rootContext`, `Task.fn`, `Task.modifier`, and `Task.launch`.
 
 ---
 
 ## 2. Public Sub-paths
 
-| Import path | Source file | Purpose |
-|---|---|---|
-| `@rimbu/task` | `src/task.ts` | Core types and the `Task` factory |
-| `@rimbu/task/errors` | `src/errors.ts` | `CancellationError`, `TimeoutError`, `RetryExhaustedError` |
-| `@rimbu/task/modifiers` | `src/modifiers.ts` | `withTimeout`, `withRetry`, `withArgs`, `catchError`, `catchAll`, `combined`, `repeat`, `mapOutput`, `mapOutputArr` |
-| `@rimbu/task/ops` | `src/ops.ts` | Primitive tasks: `delay`, `race`, `any`, `all`, `allSettled`, `chain`, `effect`, `clog`, `clogArgs`, `cancelContext`, `cancelAllChildren`, `cancelParent`, `throwError`, `throwErrorClass`, `runSingleCancelPrevious`, `runSingleCancelNew` |
-| `@rimbu/task/utils` | `src/utils.ts` | `taskify`, `joinAll` |
+| Import path | Purpose |
+|---|---|
+| `@rimbu/task` | Core types (`Task`, `Task.Context`, `Task.Job`, `Task.Modifier`, `Task.Chain`, `Task.ChildOptions`), error classes (`TaskCancellationError`, `TaskTimeoutError`, `TaskRetryExhaustedError`), utility types (`Cleanup`, `DisposableCallback`), and the `Task` factory |
+| `@rimbu/task/ops` | Everything else: all ops, modifiers, and utilities (barrel re-export of `ops-impl`, `modifiers`, `utils`) |
 
-`#task/*` internal imports map to `src/internal/*.ts` and must not be imported from outside the package.
+**Rule:** if it creates or transforms a task, it's in `@rimbu/task/ops`. If it defines the shape of a task or is needed in a `catch` block, it's in `@rimbu/task`.
+
+The following sub-paths also exist as source files and are individually accessible, but users should prefer `@rimbu/task/ops`:
+
+| Path | Contains |
+|---|---|
+| `@rimbu/task/ops-impl` | Primitive task ops: `chain`, `race`, `any`, `all`, `allSettled`, `delay`, `effect`, `throwError`, `throwErrorClass`, `cancelContext`, `cancelAllChildren`, `runSingleCancelPrevious`, `runSingleCancelNew` |
+| `@rimbu/task/modifiers` | Modifier functions: `combined`, `withTimeout`, `retryWhen`, `withRetry`, `withArgs`, `mapOutput`, `mapOutputArr`, `catchError`, `catchAll`, `repeat`, `repeatWithIndex` |
+| `@rimbu/task/utils` | `taskify`, `joinAll` |
+
+`#task/*` internal imports map to `src/internal/*.ts` and must not be used outside `src/`.
 
 ---
 
@@ -42,73 +49,97 @@ src/internal/
                            #   cleanupToCallback, promiseToDisposable
 ```
 
-Never import from `#task/*` outside `src/`. Tests use the public sub-paths.
+Never import from `#task/*` outside `src/`. Tests use the public sub-paths or `#task/*` for internal utility testing only.
 
 ---
 
-## 4. Key Design Invariants
+## 4. Error Classes
 
-### Cancellation propagates downward, not upward (unless non-supervisor)
+Errors are defined in `task.ts` as standalone classes and re-exported as namespace aliases:
+
+| Standalone export | Namespace alias | When thrown |
+|---|---|---|
+| `TaskCancellationError` | `Task.CancellationError` | Context or job cancelled |
+| `TaskTimeoutError` | `Task.TimeoutError` | `withTimeout` competitor wins |
+| `TaskRetryExhaustedError` | `Task.RetryExhaustedError` | (exported for completeness; `withRetry` re-throws the last error, not this) |
+
+**Important:** `Task.CancellationError` is a type alias only in the namespace — not a value. Use `TaskCancellationError` when you need the constructor (e.g. `instanceof` checks, `throw new TaskCancellationError()`). This is a tsgo limitation: `export const` inside a namespace that shares its name with an outer `export type` + `export const` causes a duplicate identifier error in tsgo 7.
+
+---
+
+## 5. Key Design Invariants
+
+### Cancellation propagates downward, not upward (unless non-isolated)
 
 - When a parent context is cancelled, all child contexts are cancelled transitively.
-- When a child context throws an **unhandled error** and the parent is **not a supervisor** (`isSupervisor: false`), the parent is also cancelled. This is the "structured concurrency" default.
-- A **supervisor** context (`isSupervisor: true`) isolates child failures — children can fail without cancelling the parent. Use supervisor contexts for `race`, `any`, and `allSettled`.
+- When a child context throws an **unhandled error** and the parent is **not isolated** (`isolated: false`, the default), the parent is also cancelled.
+- An **isolated** context (`isolated: true`) absorbs child failures — children can fail without cancelling the parent. Used internally by `race`, `any`, and `allSettled`.
 
-### `CancellationError` is never swallowed
+### `TaskCancellationError` is never swallowed
 
-Every `catch` block in this package re-throws `CancellationError`. When adding error-handling logic, always check `error instanceof CancellationError` and re-throw it.
+Every `catch` block in this package re-throws `TaskCancellationError`. When adding error-handling logic, always check `error instanceof TaskCancellationError` and re-throw it.
 
 ### `using` / `Symbol.dispose` for cleanup
 
 Cancellation cleanup is expressed with `using` declarations (TC39 Explicit Resource Management). `Task.Context` and `Task.Job` both implement `Disposable`. Internal utilities (`DisposablePromise`, `DisposableCallback`) also implement `Disposable`. This is why the package requires `"lib": ["ES2025", "ESNext.Disposable", "DOM"]` in the shared tsconfig — do **not** remove `ESNext.Disposable` from `config/tsconfig.common.json`.
 
-### `Task.Seq` executes sequentially; later tasks receive no args
+### `chain` passes the first task's original args; subsequent tasks receive the previous result as a single argument
 
-In a `Task.Seq` tuple `[t1, t2, t3]`, `t1` receives the original `args`, but `t2` and `t3` receive no arguments — they are called with an empty arg list. The result of the last task is the result of the sequence. See `unpackTask` in `src/internal/task-context-impl.ts`.
+```ts
+chain(
+  async (_ctx, id: number) => ({ id, name: 'User ' + id }), // receives [id] from args
+  async (_ctx, user: { id: number; name: string }) => user.name, // receives { id, name } as single arg
+  mapOutput((name: string) => name.length),                   // receives "name" as single arg
+)
+// Task<number, [number]>
+```
 
 ### `ctx.run` vs `ctx.launch`
 
 - `ctx.run(task, args)` — executes a task inline in the current context. Awaits it and all its children before returning. Use for sequential work.
 - `ctx.launch(task, options)` — starts a task as a background `Job` in a new child context. Returns immediately with a `Job` handle. Use for concurrent work.
 
----
+### `context.delay(ms)` requires a number argument
 
-## 5. Adding a New Modifier or Op
-
-### Adding to `src/modifiers.ts`
-
-Modifiers have the signature `(task: Task<R, A>) => Task<R | E, A>` (for `Task.Modifier<E>`) or the narrower `ModifierIO` form. Rules:
-
-1. Always re-throw `CancellationError` — never catch it silently.
-2. Use `context.run(task, args)` to execute the wrapped task, not a raw `await task(context, ...args)` — this ensures cancellation checks run.
-3. Export the function from `src/modifiers.ts` only. Do not add it to `src/ops.ts`.
-
-### Adding to `src/ops.ts`
-
-Ops are tasks or task factories (functions that return a `Task`). For concurrent ops that need isolation use a supervisor child context, matching the pattern in `race`, `any`, and `allSettled`.
+`delay` is not optional. Use `context.yield()` for a zero-delay event-loop yield.
 
 ---
 
-## 6. Dependencies
+## 6. Adding a New Modifier
+
+Modifiers live in `src/modifiers.ts`. Rules:
+
+1. Always re-throw `TaskCancellationError` — never catch it silently.
+2. Use `context.run(task, args)` to execute the wrapped task, not `await task(context, ...args)` directly — this ensures cancellation checks run.
+3. Use `retryWhen` as the primitive for any retry-based modifier.
+4. Export from `src/modifiers.ts` only. The `ops.ts` barrel re-exports everything automatically.
+
+### Adding a New Op
+
+Ops live in `src/ops-impl.ts`. For concurrent ops that need isolation, set `isolated: true` in the `launch` options, matching the pattern in `race`, `any`, and `allSettled`.
+
+---
+
+## 7. Dependencies
 
 - `@rimbu/channel` — used for `Semaphore` (max-branch limiting) and `WaitGroup` (waiting for all children to finish before a parent `run` returns).
-- `@rimbu/common` — used for `Module` (factory wiring) and `ErrBase.CustomError` (error base class).
+- `@rimbu/common` — used for `Module` (factory wiring).
 
 No other `@rimbu/*` packages are allowed as dependencies without a deliberate decision.
 
 ---
 
-## 7. Testing
+## 8. Testing
 
 Tests live in `test/` and are split by concern:
 
 | File | What it covers |
 |---|---|
-| `task.test.ts` | `Task.create`, `Task.launch`, basic execution |
-| `task-context.test.ts` | `Task.Context` API: cancellation, children, signals |
-| `task-exceptions.test.ts` | Error propagation and `CancellationError` behaviour |
-| `task-modifiers.test.ts` | All modifiers in `src/modifiers.ts` |
-| `task-operations.test.ts` | All ops in `src/ops.ts` |
+| `task.test.ts` | `Task.fn`, `Task.launch`, basic execution, `maxBranch` |
+| `task-context.test.ts` | `Task.Context` API: parent/child relationships |
+| `task-exceptions.test.ts` | Error propagation, `TaskCancellationError` behaviour, `recover` |
+| `task-modifiers.test.ts` | All modifiers: `withRetry`, `retryWhen`, `withTimeout`, `withArgs`, `mapOutput`, `mapOutputArr`, `repeat`, `repeatWithIndex`, `combined`, `catchError`, `catchAll` |
+| `task-operations.test.ts` | All ops: `chain`, `race`, `all`, `any`, `allSettled`, `delay`, `effect`, `cancelContext`, `cancelAllChildren`, `runSingleCancelPrevious`, `runSingleCancelNew` |
 | `task-utils.test.ts` | `taskify`, `joinAll` |
 | `utils.test.ts` | Internal utilities (`disposableDelay`, `cleanupOn`, etc.) |
 
@@ -119,17 +150,14 @@ bun run build   # always build first
 bun run test
 ```
 
-When adding a modifier: add tests to `task-modifiers.test.ts`.
-When adding an op: add tests to `task-operations.test.ts`.
-When adding a utility in `src/utils.ts`: add tests to `task-utils.test.ts`.
-When modifying internal utilities: add tests to `utils.test.ts`.
-
 ---
 
-## 8. Common Pitfalls
+## 9. Common Pitfalls
 
 - **Do not use `task(context, ...args)` directly.** Always go through `context.run(task, args)` so cancellation is checked before and after execution.
 - **Do not add `@rimbu/channel` primitives to the public API.** They are an implementation detail of `TaskContextImpl`.
-- **Do not remove `ESNext.Disposable` from `config/tsconfig.common.json`.** The `Disposable` global is only available in `esnext.disposable`, not in `ES2025`, in the current TypeScript version used by this repo (7.0.1-rc / typescript-go).
-- **`Task.Seq` passes no args to tasks after the first.** If your task needs data from a previous step, use `chain` from `ops.ts` instead, which threads results as arguments.
-- **Supervisor contexts do not cancel on child error; non-supervisor contexts do.** Get this wrong and you will either leak running jobs or cancel the context unintentionally.
+- **Do not remove `ESNext.Disposable` from `config/tsconfig.common.json`.** The `Disposable` global is only available in `esnext.disposable`, not in `ES2025`, in the current TypeScript version (tsgo 7.0.1-rc).
+- **`chain` passes the first task its original args directly.** Only subsequent tasks receive the previous task's result as a single wrapped argument.
+- **Isolated contexts do not cancel on child error; non-isolated contexts do.** Default is non-isolated. Use `isolated: true` for supervisor-style contexts.
+- **Error classes in the `Task` namespace are type aliases only.** `Task.CancellationError` is a type, not a constructor value in the namespace. Use `TaskCancellationError` (standalone export) for `instanceof` checks and `throw new ...` — this is a tsgo limitation.
+- **`context.delay(ms)` requires a number.** There is no default. Use `context.yield()` for a zero-delay yield.

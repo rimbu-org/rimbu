@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'bun:test';
 
-import { CancellationError, TimeoutError } from '@rimbu/task/errors';
+import { TaskCancellationError, TaskTimeoutError } from '@rimbu/task';
 
 import {
 	cleanupOn,
@@ -25,11 +25,11 @@ describe(disposableDelay.name, () => {
 		p[Symbol.dispose]();
 	});
 
-	it('rejects with CancellationError when disposed before resolving', () => {
+	it('rejects with TaskCancellationError when disposed before resolving', () => {
 		vi.useFakeTimers();
 		const p = disposableDelay(1000);
 		p[Symbol.dispose]();
-		expect(p).rejects.toThrow(CancellationError);
+		expect(p).rejects.toThrow(TaskCancellationError);
 	});
 });
 
@@ -48,12 +48,12 @@ describe('internal withTimeout', () => {
 		expect(promise).resolves.toBe('fast');
 	});
 
-	it('throws TimeoutError if promise does not settle before timeout', () => {
+	it('throws TaskTimeoutError if promise does not settle before timeout', () => {
 		vi.useFakeTimers();
 		const never = new Promise<void>(() => {});
 		const timed = internalWithTimeout(never, 100);
 		vi.advanceTimersByTime(100);
-		expect(timed).rejects.toThrow(TimeoutError);
+		expect(timed).rejects.toThrow(TaskTimeoutError);
 	});
 });
 
@@ -141,6 +141,10 @@ describe(cleanupToCallback.name, () => {
 });
 
 describe(promiseToDisposable.name, () => {
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
 	it('attaches cleanup that can be invoked via Symbol.dispose', () => {
 		let cleaned = 0;
 		const p = Promise.resolve('value');
@@ -172,7 +176,5 @@ describe(promiseToDisposable.name, () => {
 
 		expect(disposable).resolves.toBe('late');
 		expect(resolved).toBe(true);
-
-		vi.useRealTimers();
 	});
 });

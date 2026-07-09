@@ -1,15 +1,43 @@
-import type { Cleanup, DisposableCallback, Prepend } from '#task/utils';
+import type { Cleanup, DisposableCallback } from '#task/utils';
 
 import { taskModule } from '#task/task-module';
+
+/**
+ * Error thrown when a Task is cancelled.
+ */
+export class TaskCancellationError extends Error {
+	constructor() {
+		super('Task was cancelled');
+		this.name = 'TaskCancellationError';
+	}
+}
+
+/**
+ * Error thrown when a Task exceeds its allowed execution time.
+ */
+export class TaskTimeoutError extends Error {
+	constructor() {
+		super('Task timed out');
+		this.name = 'TaskTimeoutError';
+	}
+}
+
+/**
+ * Error thrown when the retry limit for a Task is reached.
+ */
+export class TaskRetryExhaustedError extends Error {
+	constructor() {
+		super('Task retry exhausted');
+		this.name = 'TaskRetryExhaustedError';
+	}
+}
 
 /**
  * A unit of work that can be executed within a Task Context.
  * @typeparam R - the result type
  * @typeparam A - the argument tuple type
  */
-export type Task<R = void, A extends readonly any[] = []> =
-	| Task.Fun<R, A>
-	| Task.Seq<R, A>;
+export type Task<R = void, A extends readonly any[] = []> = Task.Fun<R, A>;
 
 export namespace Task {
 	/**
@@ -28,31 +56,30 @@ export namespace Task {
 		...args: A
 	) => Task.Result<R>;
 
-	/**
-	 * A sequence of Tasks to be executed in order. Each task receives the output of the previous as input.
-	 * The tuple structure enforces that the last element is the final Task with the desired result type.
-	 * @typeparam R - the result type of the final Task
-	 * @typeparam A - the argument tuple type for the first Task
-	 */
-	export type Seq<R = void, A extends readonly any[] = []> = [
-		Task<unknown, A>,
-		...unknown[],
-	] &
-		[...unknown[], Task<R, unknown[]>];
+	/** @internal */
+	export type _Prepend<I, T extends any[]> = [I, ...T];
 
 	/**
-	 * Represents a chain of Tasks with typed results and arguments. Each Task in the chain receives the result of the previous as its argument.
+	 * Represents a chain of Tasks with typed results and arguments.
+	 * Each Task in the chain receives the result of the previous as its single argument.
 	 * @typeparam RS - array of result types for each Task in the chain
 	 * @typeparam A - argument tuple type for the first Task
-	 * @typeparam RRS - array of argument tuples for each result (advanced usage)
 	 */
 	export type Chain<
 		RS extends any[],
 		A extends any[],
 		RRS extends any[] = { [K in keyof RS]: [RS[K]] },
 	> = [Task<unknown, A>, ...unknown[]] & {
-		[K in keyof RS]: Task<RS[K], Prepend<A, RRS>[K & keyof Prepend<A, RRS>]>;
+		[K in keyof RS]: Task<
+			RS[K],
+			Task._Prepend<A, RRS>[K & keyof Task._Prepend<A, RRS>]
+		>;
 	};
+
+	/** @internal */
+	export type Last<T extends any[], O = never> = T extends [...any[], infer L]
+		? L
+		: O;
 
 	/**
 	 * Modifies a Task, potentially changing its result or error type.
@@ -60,7 +87,7 @@ export namespace Task {
 	 *
 	 * Example:
 	 * ```ts
-	 * const withTimeout: Task.Modifier<TimeoutError> = ...;
+	 * const withTimeout: Task.Modifier<TaskTimeoutError> = ...;
 	 * const safeTask = withTimeout(myTask);
 	 * ```
 	 */
@@ -68,25 +95,18 @@ export namespace Task {
 		task: Task<R, A>,
 	) => Task<R | E, A>;
 
-	/**
-	 * Modifies a Task's input and output types.
-	 * @typeparam RI - input result type
-	 * @typeparam RO - output result type
-	 *
-	 * Example:
-	 * ```ts
-	 * const doubleResult: Task.ModifierIO<number, number> = (task) => async (ctx, ...args) => 2 * await ctx.next(task, args);
-	 * ```
-	 */
-	export type ModifierIO<RI = void, RO = RI, A extends any[] = []> = (
-		task: Task<RI, A>,
-	) => Task<RO, A>;
-
 	export interface ChildOptions {
-		childId?: string | undefined;
-		isSupervisor?: boolean | undefined;
+		id?: string | undefined;
+		isolated?: boolean | undefined;
 		maxBranch?: number | undefined;
 	}
+
+	/** @see {@link TaskCancellationError} */
+	export type CancellationError = TaskCancellationError;
+	/** @see {@link TaskTimeoutError} */
+	export type TimeoutError = TaskTimeoutError;
+	/** @see {@link TaskRetryExhaustedError} */
+	export type RetryExhaustedError = TaskRetryExhaustedError;
 
 	/**
 	 * Represents a running Task that can be joined or cancelled.
@@ -135,20 +155,28 @@ export namespace Task {
 		get isCancelled(): boolean;
 		/** AbortSignal for cancellation */
 		get cancelledSignal(): AbortSignal;
-		/** True if this context is a supervisor */
-		get isSupervisor(): boolean;
 		/** Cancels this context */
 		cancel: () => void;
 		/** Cancels all child contexts */
 		cancelAllChildren: () => void;
-		/** Registers a callback for cancellation */
+		/** Registers a cleanup callback to be called when this context is cancelled.
+		 *  Returns a disposable that unregisters the callback when disposed. */
 		onCancelled: (cleanup: Cleanup) => DisposableCallback;
-		/** Throws if cancelled */
+		/** Throws a CancellationError if this context is cancelled */
 		throwIfCancelled: () => void;
-		delay: (delayMs?: number) => Promise<void>;
 		/**
-		 * Executes the next task within a running context.
-		 * Use for chaining tasks or running a task as part of a sequence.
+		 * Yields control to the event loop, allowing other tasks to run.
+		 */
+		yield: () => Promise<void>;
+		/**
+		 * Delays execution for the specified number of milliseconds.
+		 * Respects cancellation — throws CancellationError if cancelled during the delay.
+		 * @param delayMs - the number of milliseconds to delay
+		 */
+		delay: (delayMs: number) => Promise<void>;
+		/**
+		 * Executes a task within this context, awaiting it and all its children before returning.
+		 * Use for sequential work inside a running task.
 		 * @param task - the task to execute
 		 * @param args - arguments to pass to the task
 		 * @returns a promise that resolves with the task's result
@@ -161,10 +189,10 @@ export namespace Task {
 			): Promise<R>;
 		};
 		/**
-		 * Launches a task as a background Job in this context.
-		 * Use for running tasks that can be cancelled or joined later.
+		 * Launches a task as a background Job in a new child context.
+		 * Returns immediately with a Job handle that can be joined or cancelled.
 		 * @param task - the task to execute
-		 * @param args - arguments to pass to the task
+		 * @param options - optional child context options
 		 * @returns the launched Job
 		 */
 		launch: {
@@ -185,16 +213,30 @@ export namespace Task {
 	export interface Constructors {
 		/** Returns the root context. */
 		get rootContext(): Context;
-		/** Utility method to wrap a task.
-		 * @param task - the task to wrap
-		 * @returns the same task
+		/**
+		 * Wraps a function as a Task, providing type inference for the context parameter.
+		 * @param task - the task function to wrap
+		 * @returns the same task function
 		 */
-		create<R = void, A extends readonly any[] = []>(
-			task: Task<R, A>,
-		): Task<R, A>;
+		fn<R = void, A extends readonly any[] = []>(task: Task<R, A>): Task<R, A>;
+		/**
+		 * Wraps a modifier function, providing type inference for the modifier signature.
+		 * @param modifier - the modifier function to wrap
+		 * @returns the same modifier function
+		 *
+		 * Example:
+		 * ```ts
+		 * const withLogging = Task.modifier((task) => async (ctx, ...args) => {
+		 *   console.log('before');
+		 *   const r = await ctx.run(task, args);
+		 *   console.log('after');
+		 *   return r;
+		 * });
+		 * ```
+		 */
+		modifier<E = never>(modifier: Task.Modifier<E>): Task.Modifier<E>;
 		/** Launches a task in the root context. Equivalent to `Task.rootContext.launch`. */
 		launch: Task.Context['launch'];
-		// run: Task.Context['run'];
 	}
 }
 
@@ -203,8 +245,8 @@ export namespace Task {
  *
  * Example:
  * ```ts
- * const t = Task.create((ctx, name: string) => `Hello, ${name}!`);
- * Task.launch(t, ['World']);
+ * const t = Task.fn((ctx, name: string) => `Hello, ${name}!`);
+ * Task.launch(t, { args: ['World'] });
  * ```
  * @expandType Constructors
  */

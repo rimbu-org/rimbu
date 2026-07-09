@@ -1,10 +1,4 @@
-import { CancellationError, TimeoutError } from '@rimbu/task/errors';
-
-export type Last<T extends any[], O = never> = T extends [...any[], infer L]
-	? L
-	: O;
-
-export type Prepend<I, T extends any[]> = [I, ...T];
+import { TaskCancellationError, TaskTimeoutError } from '@rimbu/task';
 
 export type DisposablePromise<T> = Promise<T> & Disposable;
 
@@ -27,7 +21,7 @@ export function disposableDelay(ms: number): DisposablePromise<void> {
 
 	return promiseToDisposable(promise, () => {
 		clearTimeout(timeout);
-		reject(new CancellationError());
+		reject(new TaskCancellationError());
 	});
 }
 
@@ -44,7 +38,7 @@ export async function withTimeout<R>(
 	return await Promise.race([
 		promise,
 		delayPromise.then(() => {
-			throw new TimeoutError();
+			throw new TaskTimeoutError();
 		}),
 	]);
 }

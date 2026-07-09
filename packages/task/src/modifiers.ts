@@ -1,17 +1,13 @@
 import type { Task } from '@rimbu/task';
 
-import {
-	CancellationError,
-	RetryExhaustedError,
-	TimeoutError,
-} from '@rimbu/task/errors';
-import { delay, race, throwErrorClass } from '@rimbu/task/ops';
+import { TaskCancellationError, TaskTimeoutError } from '@rimbu/task';
+import { chain, delay, race, throwErrorClass } from '@rimbu/task/ops-impl';
 
 /**
  * Combines multiple Task modifiers into a single modifier.
  * If no modifiers are provided, returns an identity modifier.
  * Modifiers are applied in the order they are provided.
- * @param modifiers - An array of Task modifiers to combine.
+ * @param modifiers - Task modifiers to combine.
  * @returns A single Task modifier that applies all provided modifiers in sequence.
  */
 export function combined(...modifiers: Task.Modifier[]): Task.Modifier {
@@ -31,52 +27,87 @@ export function combined(...modifiers: Task.Modifier[]): Task.Modifier {
  * @returns A Task modifier that applies the timeout.
  */
 export function withTimeout(ms: number): Task.Modifier {
-	return (task) => race([task, [delay(ms), throwErrorClass(TimeoutError)]]);
+	return (task) =>
+		race(task, chain(delay(ms), throwErrorClass(TaskTimeoutError)));
+}
+
+/**
+ * A low-level retry primitive with full control over retry behaviour.
+ * The control function receives the error and the attempt number (0-based),
+ * and returns either a delay in milliseconds before the next attempt,
+ * or `false` to stop retrying and re-throw the error.
+ * @param fn - Control function: `(error, attempt) => delayMs | false`
+ * @returns A Task modifier that applies the retry logic.
+ *
+ * Example:
+ * ```ts
+ * const retried = retryWhen((error, attempt) => {
+ *   if (attempt >= 3 || error instanceof FatalError) return false;
+ *   return 100 * (attempt + 1); // exponential-ish backoff
+ * })(myTask);
+ * ```
+ */
+export function retryWhen(
+	fn: (error: unknown, attempt: number) => number | false,
+): Task.Modifier {
+	return (task) =>
+		async (context, ...args) => {
+			let attempt = 0;
+
+			while (true) {
+				try {
+					return await context.run(task, args);
+				} catch (error) {
+					if (error instanceof TaskCancellationError) {
+						throw error;
+					}
+
+					const result = fn(error, attempt);
+
+					if (result === false) {
+						throw error;
+					}
+
+					if (result > 0) {
+						await context.delay(result);
+					}
+
+					attempt++;
+				}
+			}
+		};
 }
 
 /**
  * Retries a Task a specified number of times with optional delays between attempts.
- * If the Task fails after all attempts, a RetryExhaustedError is thrown.
- * @param times - The maximum number of retry attempts. If undefined, retries indefinitely.
- * @param delayMsArray - An array of delay durations in milliseconds between attempts.
- *                       The delay for each attempt is taken from this array in order,
- *                       and if there are more attempts than delays, the last delay is used for all remaining attempts.
+ * If the Task fails after all attempts, the last error is re-thrown.
+ * @param times - The maximum number of retry attempts. Must be greater than 0.
+ * @param options - Optional configuration:
+ *   - `delays`: Array of delay durations in milliseconds between attempts.
+ *     The delay for each attempt is taken from this array in order; the last value
+ *     is reused for all remaining attempts if there are more retries than delays.
+ *   - `onRetry`: Called after each failed attempt before the next delay.
+ *     Receives the error and the attempt number (0-based).
  * @returns A Task modifier that applies the retry logic.
  */
 export function withRetry(
-	times?: number | undefined,
-	delayMsArray: number[] = [],
+	times: number,
+	options: {
+		delays?: number[];
+		onRetry?: (error: unknown, attempt: number) => void;
+	} = {},
 ): Task.Modifier {
-	return (task) =>
-		async (context, ...args) => {
-			if (undefined !== times && times <= 0) {
-				throw new RetryExhaustedError();
-			}
+	const { delays = [], onRetry } = options;
 
-			let currentTry = 0;
+	return retryWhen((error, attempt) => {
+		if (attempt + 1 >= times) {
+			return false;
+		}
 
-			while (undefined === times || currentTry < times) {
-				try {
-					return await context.run(task, args);
-				} catch (error) {
-					if (error instanceof CancellationError) {
-						// do not retry on cancellation
-						throw error;
-					}
+		onRetry?.(error, attempt);
 
-					const delayMs =
-						delayMsArray[Math.min(currentTry, delayMsArray.length - 1)] ?? 0;
-
-					if (delayMs > 0) {
-						await context.delay(delayMs);
-					}
-				}
-
-				currentTry++;
-			}
-
-			throw new RetryExhaustedError();
-		};
+		return delays[Math.min(attempt, delays.length - 1)] ?? 0;
+	});
 }
 
 /**
@@ -94,32 +125,30 @@ export function withArgs<R, A extends readonly any[]>(
 
 /**
  * Maps the output of a Task using a provided function.
- * The mapping function receives the output of the Task as its arguments.
+ * The mapping function receives the output of the Task as its argument.
  * @param fn - The function to map the Task's output.
  * @returns A Task that applies the mapping function to the output of the original Task.
  */
-export function mapOutput<RO, RI extends [any]>(
-	fn: (...input: RI) => RO,
-): Task<RO, RI> {
-	return (_, ...input) => fn(...input);
+export function mapOutput<RO, RI>(fn: (input: RI) => RO): Task<RO, [RI]> {
+	return (_, input) => fn(input);
 }
 
 /**
  * Maps the output of a Task that returns an array using a provided function.
  * The mapping function receives the elements of the output array as its arguments.
  * @param fn - The function to map the Task's output array.
- * @returns A Task that applies the mapping function to the elements of the output array of the original Task.
+ * @returns A Task that applies the mapping function to the elements of the output array.
  */
 export function mapOutputArr<RO, RI extends readonly any[]>(
 	fn: (...input: RI) => RO,
 ): Task<RO, [RI]> {
-	return (_, [input]) => fn(...input);
+	return (_, input) => fn(...input);
 }
 
 /**
  * Catches errors thrown by a Task and allows for handling them with a provided function.
  * If the handling function returns a Task, it will be executed; otherwise, the original error is re-thrown.
- * Note that CancellationError is not caught and will always be re-thrown.
+ * CancellationError is never caught and will always be re-thrown.
  * @param onError - A function that takes an error and returns a Task to handle it, or undefined to re-throw the error.
  * @returns A Task modifier that applies the error handling logic.
  */
@@ -135,8 +164,7 @@ export function catchError<R = never>(
 			try {
 				return await context.run(task, args);
 			} catch (error) {
-				if (error instanceof CancellationError) {
-					// do not catch cancellation errors
+				if (error instanceof TaskCancellationError) {
 					throw error;
 				}
 
@@ -154,7 +182,7 @@ export function catchError<R = never>(
 /**
  * Catches all errors thrown by a Task and allows for handling them with a provided Task.
  * If no handling Task is provided, errors are caught and undefined is returned.
- * Note that CancellationError is not caught and will always be re-thrown.
+ * CancellationError is never caught and will always be re-thrown.
  * @param onError - A Task to execute when an error is caught, or undefined to return undefined on error.
  * @returns A Task modifier that applies the error handling logic.
  */
@@ -170,20 +198,41 @@ export function catchAll<R = undefined>(
 
 /**
  * Repeats a Task a specified number of times.
+ * The task receives no index — use `repeatWithIndex` if you need the iteration index.
  * @param times - The number of times to repeat the Task.
  * @returns A Task modifier that repeats the original Task the specified number of times.
  */
 export function repeat(
 	times: number,
-): <A extends readonly any[] = []>(
-	task: Task<unknown, [...A, number]>,
-) => Task<void, A> {
+): <A extends readonly any[]>(task: Task<unknown, A>) => Task<void, A> {
 	return (task) =>
 		async (context, ...args) => {
-			let index = -1;
-
-			while (++index < times) {
-				await context.run(task, [...args, index]);
+			for (let i = 0; i < times; i++) {
+				await context.run(task, args);
 			}
 		};
+}
+
+/**
+ * Repeats a task factory a specified number of times, passing the current index to the factory.
+ * The factory receives the index (0-based) and returns the Task to run for that iteration.
+ * @param times - The number of times to repeat.
+ * @param factory - A function that receives the iteration index and returns a Task.
+ * @returns A Task with no arguments that runs the factory-produced tasks in sequence.
+ *
+ * Example:
+ * ```ts
+ * const indexed = repeatWithIndex(3, (i) => Task.fn((ctx) => console.log(i)));
+ * await Task.launch(indexed).join(); // logs 0, 1, 2
+ * ```
+ */
+export function repeatWithIndex(
+	times: number,
+	factory: (index: number) => Task,
+): Task {
+	return async (context) => {
+		for (let i = 0; i < times; i++) {
+			await context.run(factory(i));
+		}
+	};
 }

@@ -8,6 +8,7 @@ export const taskModule = Module.create<Task.Constructors>((mod) => ({
 	rootContext: Module.lazyGetter(
 		() => new TaskContextImpl('root', true, undefined),
 	),
-	create: (task) => task,
+	fn: (task) => task,
+	modifier: (mod) => mod,
 	launch: Module.lazyGetter(() => mod.rootContext.launch),
 }));

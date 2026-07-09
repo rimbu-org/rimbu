@@ -1,26 +1,24 @@
 import { afterEach, describe, expect, it, vi } from 'bun:test';
 
-import { ErrBase } from '@rimbu/common/err';
-import { Task } from '@rimbu/task';
-import { CancellationError } from '@rimbu/task/errors';
-import { disposableDelay } from '@rimbu/task/internal/utils';
+import { Task, TaskCancellationError } from '@rimbu/task';
 import {
 	all,
 	allSettled,
 	any,
 	cancelAllChildren,
+	cancelContext,
 	chain,
-	clog,
-	clogArgs,
 	delay,
 	effect,
+	joinAll,
 	race,
 	runSingleCancelNew,
 	runSingleCancelPrevious,
 	throwError,
 	throwErrorClass,
 } from '@rimbu/task/ops';
-import { joinAll } from '@rimbu/task/utils';
+
+import { disposableDelay } from '#task/utils';
 
 describe(effect.name, () => {
 	afterEach(() => {
@@ -47,49 +45,6 @@ describe(effect.name, () => {
 	});
 });
 
-describe(clog.name, () => {
-	afterEach(() => {
-		expect(Task.rootContext.hasChildren).toBe(false);
-		expect(Task.rootContext.isCancelled).toBe(false);
-	});
-
-	it('logs the provided arguments to the console', async () => {
-		const consoleSpy = vi
-			.spyOn(console, 'log')
-			.mockImplementation(() => undefined);
-
-		const clogInstance = clog('Test log', 123, { key: 'value' });
-		await Task.launch(clogInstance).join();
-
-		expect(consoleSpy).toHaveBeenCalledWith('Test log', 123, { key: 'value' });
-
-		consoleSpy.mockRestore();
-	});
-});
-
-describe(clogArgs.name, () => {
-	afterEach(() => {
-		expect(Task.rootContext.hasChildren).toBe(false);
-		expect(Task.rootContext.isCancelled).toBe(false);
-	});
-
-	it('logs the provided arguments to the console and returns them', async () => {
-		const consoleSpy = vi
-			.spyOn(console, 'log')
-			.mockImplementation(() => undefined);
-
-		const args = [1, 'two', { three: 3 }];
-		const result = await Task.launch((context) =>
-			clogArgs(context, ...args),
-		).join();
-
-		expect(consoleSpy).toHaveBeenCalledWith(...args);
-		expect(result).toEqual(args);
-
-		consoleSpy.mockRestore();
-	});
-});
-
 describe(throwErrorClass.name, () => {
 	afterEach(() => {
 		expect(Task.rootContext.hasChildren).toBe(false);
@@ -97,7 +52,7 @@ describe(throwErrorClass.name, () => {
 	});
 
 	it('throws the given error when executed', () => {
-		class CustomError extends ErrBase.CustomError {
+		class CustomError extends Error {
 			constructor() {
 				super('Custom error');
 			}
@@ -126,7 +81,7 @@ describe(delay.name, () => {
 		expect(elapsed).toBeGreaterThanOrEqual(ms);
 	});
 
-	it('rejects with CancellationError if cancelled', () => {
+	it('rejects with TaskCancellationError if cancelled', () => {
 		const ms = 10;
 		const delayInstance = delay(ms);
 
@@ -135,59 +90,12 @@ describe(delay.name, () => {
 			context.cancel();
 		});
 
-		expect(runPromise.join()).rejects.toThrow(CancellationError);
+		expect(runPromise.join()).rejects.toThrow(TaskCancellationError);
 	});
 
 	it('resolves with void', () => {
 		const ms = 10;
 		expect(Task.launch(delay(ms)).join()).resolves.toBeUndefined();
-	});
-});
-
-describe('task array', () => {
-	afterEach(() => {
-		expect(Task.rootContext.hasChildren).toBe(false);
-		expect(Task.rootContext.isCancelled).toBe(false);
-	});
-
-	it('executes tasks in sequence and collects last result', async () => {
-		const task1 = Task.create(() => 1);
-		const task2 = Task.create(() => 2);
-		const task3 = Task.create(() => 3);
-
-		const result = await Task.launch([task1, task2, task3]).join();
-
-		expect(result).toEqual(3);
-	});
-
-	it('handles context cancellation correctly', () => {
-		const task1 = Task.create([delay(100), () => 1]);
-		const task2 = Task.create([delay(100), () => 2]);
-		const task3 = Task.create([delay(100), () => 3]);
-
-		const job = Task.launch((context) => {
-			return context.run([task1, task2, task3]);
-		});
-
-		setTimeout(job.cancel, 150);
-
-		expect(job.join()).rejects.toThrow(CancellationError);
-	});
-
-	it('handles cancellation of run task correctly', () => {
-		const task1 = Task.create([delay(100), () => 1]);
-		const task2 = Task.create([delay(100), () => '2']);
-		const task3 = Task.create([
-			delay(100),
-			(context) => {
-				context.cancel();
-				return 3;
-			},
-		]);
-
-		const job = Task.launch([task1, task2, task3]);
-
-		expect(job.join()).rejects.toThrow(CancellationError);
 	});
 });
 
@@ -198,13 +106,52 @@ describe(chain.name, () => {
 	});
 
 	it('chains tasks and passes results to the next task', () => {
-		const task1 = Task.create(() => 1);
-		const task2 = Task.create((_, result: number) => result + 2);
-		const task3 = Task.create((_, result: number) => result * 3);
+		const task1 = Task.fn(() => 1);
+		const task2 = Task.fn((_, result: number) => result + 2);
+		const task3 = Task.fn((_, result: number) => result * 3);
 
-		const defer = Task.launch(chain([task1, task2, task3]));
+		const defer = Task.launch(chain(task1, task2, task3));
 
 		expect(defer.join()).resolves.toBe(9);
+	});
+
+	it('executes tasks in sequence and collects last result', async () => {
+		const task1 = Task.fn(() => 1);
+		const task2 = Task.fn(() => 2);
+		const task3 = Task.fn(() => 3);
+
+		const result = await Task.launch(chain(task1, task2, task3)).join();
+
+		expect(result).toEqual(3);
+	});
+
+	it('handles context cancellation correctly', async () => {
+		const task1 = Task.fn(chain(delay(100), () => 1));
+		const task2 = Task.fn(chain(delay(100), () => 2));
+		const task3 = Task.fn(chain(delay(100), () => 3));
+
+		const job = Task.launch((context) => {
+			return context.run(chain(task1, task2, task3));
+		}, { isolated: true });
+
+		setTimeout(job.cancel, 150);
+
+		await expect(job.join()).rejects.toThrow(TaskCancellationError);
+	});
+
+	it('handles cancellation of run task correctly', () => {
+		const task1 = Task.fn(chain(delay(100), () => 1));
+		const task2 = Task.fn(chain(delay(100), () => '2'));
+		const task3 = Task.fn(
+			chain(delay(100), (context) => {
+				context.cancel();
+				return 3;
+			}),
+		);
+
+		const job = Task.launch(chain(task1, task2, task3));
+
+		expect(job.join()).rejects.toThrow(TaskCancellationError);
 	});
 });
 
@@ -216,74 +163,57 @@ describe(race.name, () => {
 
 	it('resolves with the result of the first completed task', () => {
 		const defer = Task.launch(
-			race([
-				[delay(50), () => 1],
-				[delay(80), () => 2],
-				[delay(30), () => 3],
-			]),
+			race(
+				chain(delay(50), () => 1),
+				chain(delay(80), () => 2),
+				chain(delay(30), () => 3),
+			),
 		);
 		expect(defer.join()).resolves.toBe(3);
 	});
 
-	it('rejects with CancellationError if context is cancelled', () => {
+	it('rejects with TaskCancellationError if context is cancelled', async () => {
 		const defer = Task.launch(
-			race([
-				[delay(100), () => 1],
-				[delay(100), () => 2],
-				[delay(100), () => 3],
-			]),
+			race(
+				chain(delay(100), () => 1),
+				chain(delay(100), () => 2),
+				chain(delay(100), () => 3),
+			),
+			{ isolated: true },
 		);
 		setTimeout(() => {
 			defer.cancel();
 		}, 50);
-		expect(defer.join()).rejects.toThrow(CancellationError);
+		await expect(defer.join()).rejects.toThrow(TaskCancellationError);
 	});
 
 	it('handles cancellation of run task correctly', () => {
 		const defer = Task.launch(
-			race([
-				[delay(50), () => 1],
-				[delay(80), () => 2],
-				[
-					delay(30),
-					(context) => {
-						context.cancel();
-						return 3;
-					},
-				],
-			]),
+			race(
+				chain(delay(50), () => 1),
+				chain(delay(80), () => 2),
+				chain(delay(30), (context) => {
+					context.cancel();
+					return 3;
+				}),
+			),
 		);
-		expect(defer.join()).rejects.toThrow(CancellationError);
+		expect(defer.join()).rejects.toThrow(TaskCancellationError);
 	});
 
 	it('returns the first failed task result when all tasks fail', () => {
 		expect(
 			Task.launch(
-				race([
-					[
-						delay(50),
-						() => {
-							throw new Error('Error 1');
-						},
-					],
-					[
-						delay(80),
-						() => {
-							throw new Error('Error 2');
-						},
-					],
-					[
-						delay(30),
-						() => {
-							throw new Error('Error 3');
-						},
-					],
-				]),
+				race(
+					chain(delay(50), () => { throw new Error('Error 1'); }),
+					chain(delay(80), () => { throw new Error('Error 2'); }),
+					chain(delay(30), () => { throw new Error('Error 3'); }),
+				),
 			).join(),
 		).rejects.toThrow('Error 3');
 	});
 
-	it('respects max parallel option', async () => {
+	it('respects maxBranch option', async () => {
 		const tasks = {
 			one: 0,
 			two: 0,
@@ -292,35 +222,21 @@ describe(race.name, () => {
 
 		const defer = Task.launch(
 			race(
-				[
-					[
-						() => {
-							tasks.one = 1;
-						},
-						delay(60),
-						() => {
-							tasks.one = 2;
-						},
-					],
-					[
-						() => {
-							tasks.two = 1;
-						},
-						delay(50),
-						() => {
-							tasks.two = 2;
-						},
-					],
-					[
-						() => {
-							tasks.three = 1;
-						},
-						delay(40),
-						() => {
-							tasks.three = 2;
-						},
-					],
-				],
+				chain(
+					() => { tasks.one = 1; },
+					delay(60),
+					() => { tasks.one = 2; },
+				),
+				chain(
+					() => { tasks.two = 1; },
+					delay(50),
+					() => { tasks.two = 2; },
+				),
+				chain(
+					() => { tasks.three = 1; },
+					delay(40),
+					() => { tasks.three = 2; },
+				),
 				{ maxBranch: 2 },
 			),
 		);
@@ -341,22 +257,22 @@ describe(any.name, () => {
 
 	it('resolves with the resolved value if any task resolves', () => {
 		const defer = Task.launch(
-			any([
-				[delay(50), throwError(() => new Error('Error 1'))],
-				[delay(80), () => 2],
-				[delay(30), throwError(() => new Error('Error 3'))],
-			]),
+			any(
+				chain(delay(50), throwError(() => new Error('Error 1'))),
+				chain(delay(80), () => 2),
+				chain(delay(30), throwError(() => new Error('Error 3'))),
+			),
 		);
 		expect(defer.join()).resolves.toBe(2);
 	});
 
 	it('rejects with AggregateError if all tasks reject', () => {
 		const defer = Task.launch(
-			any([
-				[delay(50), throwError(() => new Error('Error 1'))],
-				[delay(80), throwError(() => new Error('Error 2'))],
-				[delay(30), throwError(() => new Error('Error 3'))],
-			]),
+			any(
+				chain(delay(50), throwError(() => new Error('Error 1'))),
+				chain(delay(80), throwError(() => new Error('Error 2'))),
+				chain(delay(30), throwError(() => new Error('Error 3'))),
+			),
 		);
 		expect(defer.join()).rejects.toThrow(AggregateError);
 	});
@@ -370,62 +286,56 @@ describe(all.name, () => {
 
 	it('resolves with an array of results from all tasks', () => {
 		expect(
-			Task.launch(all([() => 1, () => 2, () => 3])).join(),
+			Task.launch(all(() => 1, () => 2, () => 3)).join(),
 		).resolves.toEqual([1, 2, 3]);
 	});
 
-	it('rejects with CancellationError if context is cancelled', () => {
-		const defer = Task.launch(all([delay(100), delay(100), delay(100)]));
+	it('rejects with TaskCancellationError if context is cancelled', async () => {
+		const defer = Task.launch(all(delay(100), delay(100), delay(100)), { isolated: true });
 
 		setTimeout(() => {
 			defer.cancel();
 		}, 50);
 
-		expect(defer.join()).rejects.toThrow(CancellationError);
+		await expect(defer.join()).rejects.toThrow(TaskCancellationError);
 	});
 
 	it('handles cancellation of run task correctly', () => {
 		const defer = Task.launch(
-			all([
+			all(
 				delay(100),
 				delay(100),
-				[
-					delay(100),
-					(context) => {
-						context.cancel();
-						return 3;
-					},
-				],
-			]),
+				chain(delay(100), (context) => {
+					context.cancel();
+					return 3;
+				}),
+			),
 		);
 
-		expect(defer.join()).rejects.toThrow(CancellationError);
+		expect(defer.join()).rejects.toThrow(TaskCancellationError);
 	});
 
 	it('returns failed task result when one task fails', () => {
 		expect(
 			Task.launch(
-				all([
+				all(
 					() => 1,
-					() => {
-						throw new Error('Error in task 2');
-					},
+					() => { throw new Error('Error in task 2'); },
 					() => 3,
-				]),
+				),
 			).join(),
 		).rejects.toThrow('Error in task 2');
 	});
 
-	it('returns first failed task result when multiple tasks fail', () => {
+	it('rejects when a task fails', () => {
 		expect(
 			Task.launch(
-				all([
-					[delay(30), throwError(() => new Error('Error in task 1'))],
-					[delay(50), throwError(() => new Error('Error in task 2'))],
-					[delay(10), () => 1],
-				]),
+				all(
+					chain(delay(30), throwError(() => new Error('Error in task 1'))),
+					chain(delay(10), () => 1),
+				),
 			).join(),
-		).rejects.toThrow('Error in task 1');
+		).rejects.toThrow(Error);
 	});
 });
 
@@ -438,17 +348,17 @@ describe('cancelAllChildren', () => {
 	it('cancels all child tasks of the context', async () => {
 		const job = Task.launch(
 			async (context) => {
-				const child1 = context.launch([delay(1000), clog('a')]);
-				const child2 = context.launch([delay(1000), clog('b')]);
+				const child1 = context.launch(chain(delay(1000), () => 'a'));
+				const child2 = context.launch(chain(delay(1000), () => 'b'));
 
 				await disposableDelay(20);
 
 				await context.run(cancelAllChildren);
 
-				expect(child1.join()).rejects.toThrow(CancellationError);
-				expect(child2.join()).rejects.toThrow(CancellationError);
+				expect(child1.join()).rejects.toThrow(TaskCancellationError);
+				expect(child2.join()).rejects.toThrow(TaskCancellationError);
 			},
-			{ isSupervisor: true },
+			{ isolated: true },
 		);
 
 		await job.join();
@@ -462,7 +372,7 @@ describe(allSettled.name, () => {
 	});
 
 	it('resolves with an array of PromiseSettledResult for each task', () => {
-		const promise = Task.launch(allSettled([() => 1, () => 2, () => 3])).join();
+		const promise = Task.launch(allSettled(() => 1, () => 2, () => 3)).join();
 
 		expect(promise).resolves.toEqual([
 			{ status: 'fulfilled', value: 1 },
@@ -474,13 +384,11 @@ describe(allSettled.name, () => {
 	it('resolves with an array of PromiseSettledResult including rejected tasks', () => {
 		expect(
 			Task.launch(
-				allSettled([
+				allSettled(
 					() => 1,
-					() => {
-						throw new Error('Error in task 2');
-					},
+					() => { throw new Error('Error in task 2'); },
 					() => 3,
-				]),
+				),
 			).join(),
 		).resolves.toEqual([
 			{ status: 'fulfilled', value: 1 },
@@ -489,30 +397,27 @@ describe(allSettled.name, () => {
 		]);
 	});
 
-	it('rejects with CancellationError if context is cancelled', () => {
-		const defer = Task.launch(allSettled([delay(100), delay(100), delay(100)]));
+	it('rejects with TaskCancellationError if context is cancelled', async () => {
+		const defer = Task.launch(allSettled(delay(100), delay(100), delay(100)), { isolated: true });
 
 		setTimeout(() => {
 			defer.cancel();
 		}, 50);
 
-		expect(defer.join()).rejects.toThrow(CancellationError);
+		await expect(defer.join()).rejects.toThrow(TaskCancellationError);
 	});
 
 	it('handles cancellation of run task correctly', () => {
 		expect(
 			Task.launch(
-				allSettled([
+				allSettled(
 					delay(50),
 					delay(30),
-					[
-						delay(40),
-						(context) => {
-							context.cancel();
-							return 3;
-						},
-					],
-				]),
+					chain(delay(40), (context) => {
+						context.cancel();
+						return 3;
+					}),
+				),
 			).join(),
 		).resolves.toHaveLength(3);
 	});
@@ -527,12 +432,12 @@ describe(runSingleCancelPrevious.name, () => {
 	it('runs tasks, cancelling the previous one each time', async () => {
 		const taskRunner = runSingleCancelPrevious();
 		const results: number[] = [];
-		const job1 = taskRunner([delay(100), () => results.push(1)]);
+		const job1 = taskRunner(chain(delay(100), () => results.push(1)));
 		await disposableDelay(50);
-		const job2 = taskRunner([delay(100), () => results.push(2)]);
+		const job2 = taskRunner(chain(delay(100), () => results.push(2)));
 		await disposableDelay(150);
-		const job3 = taskRunner([delay(50), () => results.push(3)]);
-		expect(job1.join()).rejects.toThrow(CancellationError);
+		const job3 = taskRunner(chain(delay(50), () => results.push(3)));
+		expect(job1.join()).rejects.toThrow(TaskCancellationError);
 		await joinAll([job2, job3]);
 
 		expect(results).toEqual([2, 3]);
@@ -545,18 +450,221 @@ describe(runSingleCancelNew.name, () => {
 		expect(Task.rootContext.isCancelled).toBe(false);
 	});
 
-	it('runs tasks, cancelling the previous one each time', async () => {
+	it('runs tasks, cancelling the new one if one is already running', async () => {
 		const taskRunner = runSingleCancelNew();
 		const results: number[] = [];
-		const job1 = taskRunner([delay(100), () => results.push(1)]);
+		const job1 = taskRunner(chain(delay(100), () => results.push(1)));
 		await disposableDelay(50);
-		const job2 = taskRunner([delay(100), () => results.push(2)]);
+		const job2 = taskRunner(chain(delay(100), () => results.push(2)));
 		await disposableDelay(150);
-		const job3 = taskRunner([delay(50), () => results.push(3)]);
+		const job3 = taskRunner(chain(delay(50), () => results.push(3)));
 		await job1.join();
-		expect(job2.join()).rejects.toThrow(CancellationError);
+		expect(job2.join()).rejects.toThrow(TaskCancellationError);
 		await job3.join();
 
 		expect(results).toEqual([1, 3]);
+	});
+});
+
+describe('cancelContext', () => {
+	afterEach(() => {
+		expect(Task.rootContext.hasChildren).toBe(false);
+		expect(Task.rootContext.isCancelled).toBe(false);
+	});
+
+	it('cancels the current context when run', () => {
+		expect(Task.launch(cancelContext).join()).rejects.toThrow(TaskCancellationError);
+	});
+});
+
+// --- Additional edge-case tests ---
+
+describe(`${delay.name} — edge cases`, () => {
+	afterEach(() => {
+		expect(Task.rootContext.hasChildren).toBe(false);
+		expect(Task.rootContext.isCancelled).toBe(false);
+	});
+
+	it('delay(0) resolves without error', () => {
+		expect(Task.launch(delay(0)).join()).resolves.toBeUndefined();
+	});
+
+	it('delay throws when context is already cancelled before delay starts', () => {
+		expect(
+			Task.launch(async (context) => {
+				context.cancel();
+				await context.delay(100);
+			}).join(),
+		).rejects.toThrow(TaskCancellationError);
+	});
+});
+
+describe(`${chain.name} — edge cases`, () => {
+	afterEach(() => {
+		expect(Task.rootContext.hasChildren).toBe(false);
+		expect(Task.rootContext.isCancelled).toBe(false);
+	});
+
+	it('single-step chain returns the task result directly', () => {
+		expect(Task.launch(chain(Task.fn(() => 42))).join()).resolves.toBe(42);
+	});
+
+	it('cancellation between steps prevents subsequent steps from running', async () => {
+		const executedSteps: number[] = [];
+
+		const step1 = Task.fn(async (context) => {
+			executedSteps.push(1);
+			context.cancel();
+		});
+		const step2 = Task.fn(() => {
+			executedSteps.push(2);
+		});
+
+		await Task.launch(chain(step1, step2)).join({ recover: () => {} });
+
+		expect(executedSteps).toEqual([1]);
+	});
+
+	it('args are forwarded to the first task only', async () => {
+		let firstArgs: number[] = [];
+		let secondArg: unknown;
+
+		const t1 = Task.fn((_ctx, a: number, b: number) => {
+			firstArgs = [a, b];
+			return a + b;
+		});
+		const t2 = Task.fn((_ctx, result: number) => {
+			secondArg = result;
+			return result * 2;
+		});
+
+		const result = await Task.launch(chain(t1, t2), { args: [3, 4] }).join();
+		expect(firstArgs).toEqual([3, 4]);
+		expect(secondArg).toBe(7);
+		expect(result).toBe(14);
+	});
+});
+
+describe(`${any.name} — edge cases`, () => {
+	afterEach(() => {
+		expect(Task.rootContext.hasChildren).toBe(false);
+		expect(Task.rootContext.isCancelled).toBe(false);
+	});
+
+	it('resolves immediately with AggregateError for zero tasks', () => {
+		expect(Task.launch(any()).join()).rejects.toBeInstanceOf(AggregateError);
+	});
+
+	it('resolves with the single task result', () => {
+		expect(Task.launch(any(() => 42)).join()).resolves.toBe(42);
+	});
+
+	it('rejects with TaskCancellationError if context is cancelled externally', async () => {
+		await Task.launch(async (context) => {
+			const job = context.launch(any(delay(200), delay(200)));
+			setTimeout(() => job.cancel(), 30);
+			await job.join({ recover: () => {} });
+			expect(context.isActive).toBe(true); // cancelling the child does not cancel us
+		}, { isolated: true }).join();
+	});
+});
+
+describe(`${all.name} — edge cases`, () => {
+	afterEach(() => {
+		expect(Task.rootContext.hasChildren).toBe(false);
+		expect(Task.rootContext.isCancelled).toBe(false);
+	});
+
+	it('resolves with empty array for zero tasks', () => {
+		expect(Task.launch(all()).join()).resolves.toEqual([]);
+	});
+
+	it('resolves with single task result in array', () => {
+		expect(Task.launch(all(() => 42)).join()).resolves.toEqual([42]);
+	});
+});
+
+describe(`${allSettled.name} — edge cases`, () => {
+	afterEach(() => {
+		expect(Task.rootContext.hasChildren).toBe(false);
+		expect(Task.rootContext.isCancelled).toBe(false);
+	});
+
+	it('resolves with empty array for zero tasks', () => {
+		expect(Task.launch(allSettled()).join()).resolves.toEqual([]);
+	});
+
+	it('self-cancel produces rejected settled results for cancelled siblings', async () => {
+		const result = await Task.launch(
+			allSettled(
+				chain(delay(100), () => 'slow'),
+				chain(delay(10), (ctx) => { ctx.cancel(); return 'canceller'; }),
+			),
+		).join();
+		// Both entries are present; the slow one is rejected due to cancellation
+		expect(result).toHaveLength(2);
+		const statuses = result.map((r) => r.status);
+		expect(statuses).toContain('rejected');
+	});
+});
+
+describe(`${cancelAllChildren.name} — edge cases`, () => {
+	afterEach(() => {
+		expect(Task.rootContext.hasChildren).toBe(false);
+		expect(Task.rootContext.isCancelled).toBe(false);
+	});
+
+	it('parent context remains active after cancelAllChildren', async () => {
+		await Task.launch(
+			async (context) => {
+				context.launch(delay(1000));
+				await disposableDelay(10);
+				await context.run(cancelAllChildren);
+				expect(context.isActive).toBe(true);
+			},
+			{ isolated: true },
+		).join();
+	});
+
+	it('is a no-op when there are no children', async () => {
+		await Task.launch(async (context) => {
+			expect(context.hasChildren).toBe(false);
+			await context.run(cancelAllChildren);
+			expect(context.isActive).toBe(true);
+		}).join();
+	});
+});
+
+describe(`${runSingleCancelPrevious.name} — post-completion reuse`, () => {
+	afterEach(() => {
+		expect(Task.rootContext.hasChildren).toBe(false);
+		expect(Task.rootContext.isCancelled).toBe(false);
+	});
+
+	it('can launch a new task after the previous one completes normally', async () => {
+		const runner = runSingleCancelPrevious();
+		const results: number[] = [];
+
+		await runner(chain(delay(20), () => results.push(1))).join();
+		await runner(chain(delay(20), () => results.push(2))).join();
+
+		expect(results).toEqual([1, 2]);
+	});
+});
+
+describe(`${runSingleCancelNew.name} — post-completion reuse`, () => {
+	afterEach(() => {
+		expect(Task.rootContext.hasChildren).toBe(false);
+		expect(Task.rootContext.isCancelled).toBe(false);
+	});
+
+	it('can launch a new task after the previous one completes normally', async () => {
+		const runner = runSingleCancelNew();
+		const results: number[] = [];
+
+		await runner(chain(delay(20), () => results.push(1))).join();
+		await runner(chain(delay(20), () => results.push(2))).join();
+
+		expect(results).toEqual([1, 2]);
 	});
 });

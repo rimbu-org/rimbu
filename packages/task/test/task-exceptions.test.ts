@@ -1,8 +1,7 @@
 import { describe, expect, it, vi } from 'bun:test';
 
-import { Task } from '@rimbu/task';
-import { CancellationError } from '@rimbu/task/errors';
-import { cancelContext, delay, throwError } from '@rimbu/task/ops';
+import { Task, TaskCancellationError } from '@rimbu/task';
+import { cancelContext, chain, delay, throwError } from '@rimbu/task/ops';
 
 import { disposableDelay } from '#task/utils';
 
@@ -12,7 +11,7 @@ describe('Task exceptions', () => {
 			Task.launch(async (context) => {
 				await context.run(cancelContext);
 			}).join(),
-		).rejects.toThrow(CancellationError);
+		).rejects.toThrow(TaskCancellationError);
 	});
 
 	it('run throws if task throws exception', () => {
@@ -25,7 +24,7 @@ describe('Task exceptions', () => {
 
 	it('launch throws if its context is cancelled', () => {
 		expect(Task.launch(cancelContext).join()).rejects.toThrow(
-			CancellationError,
+			TaskCancellationError,
 		);
 	});
 
@@ -35,25 +34,27 @@ describe('Task exceptions', () => {
 		).rejects.toThrow('Error 3');
 	});
 
-	it('normal context cancels children and itself on child cancel', () => {
-		const job = Task.launch(async (context) => {
-			const job1 = context.launch([delay(10), cancelContext]);
-			let job2Done = false;
-			const job2 = context.launch([
-				delay(30),
-				() => {
-					job2Done = true;
-				},
-			]);
+	it('normal context cancels children and itself on child cancel', async () => {
+		// Wrap in an isolated outer context so the cancellation is contained
+		await Task.launch(async (outerCtx) => {
+			const job = outerCtx.launch(async (context) => {
+				const job1 = context.launch(chain(delay(10), cancelContext));
+				let job2Done = false;
+				const job2 = context.launch(
+					chain(delay(30), () => {
+						job2Done = true;
+					}),
+				);
 
-			expect(job1.join()).rejects.toThrow(CancellationError);
-			expect(job2Done).toBe(false);
-			expect(job2.join()).rejects.toThrow(CancellationError);
-			await disposableDelay(50);
-			expect(job2Done).toBe(false);
-		});
+				expect(job1.join()).rejects.toThrow(TaskCancellationError);
+				expect(job2Done).toBe(false);
+				expect(job2.join()).rejects.toThrow(TaskCancellationError);
+				await disposableDelay(50);
+				expect(job2Done).toBe(false);
+			});
 
-		expect(job.join()).rejects.toThrow(CancellationError);
+			await expect(job.join()).rejects.toThrow(TaskCancellationError);
+		}, { isolated: true }).join();
 	});
 
 	it('recover catches thrown errors', () => {
@@ -98,13 +99,13 @@ describe('Task exceptions', () => {
 		).resolves.toBe(42);
 	});
 
-	it('throws cancellation error if cancelled during delay', () => {
+	it('throws cancellation error if cancelled during delay', async () => {
 		const job = Task.launch(async (context) => {
 			setTimeout(() => context.cancel(), 10);
 			await context.delay(50);
 			return 42;
-		});
+		}, { isolated: true });
 
-		expect(job.join()).rejects.toThrow(CancellationError);
+		await expect(job.join()).rejects.toThrow(TaskCancellationError);
 	});
 });
