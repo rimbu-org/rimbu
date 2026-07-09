@@ -61,9 +61,7 @@ export class SemaphoreImpl implements Semaphore {
 			// If `release` already claimed the slot and sent (i.e. the entry
 			// was removed from the map before we got here), we must undo the
 			// weight allocation that release performed on our behalf.
-			if (blockChannels.delete(blockCh)) {
-				// entry was still queued: nothing to undo
-			} else {
+			if (!blockChannels.delete(blockCh)) {
 				// entry was already claimed by release: give the weight back
 				this.release(weight);
 			}

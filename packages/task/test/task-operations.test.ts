@@ -668,3 +668,60 @@ describe(`${runSingleCancelNew.name} — post-completion reuse`, () => {
 		expect(results).toEqual([1, 2]);
 	});
 });
+
+// Regression: previously, both `runSingleCancelPrevious` and
+// `runSingleCancelNew` cleared their internal `current` pointer
+// unconditionally from the chained cleanup step of every completed job.
+// If a subsequent invocation had already overwritten `current` with a
+// newer job, that cleanup would stomp the pointer, leaving the fresh
+// job orphaned and un-cancellable. The identity guard (`if (current
+// === job) current = undefined`) fixes this.
+//
+// The exact race is hard to force deterministically from user code, so
+// this test asserts the positive invariant across a rapid mixed
+// sequence of invocations: every launched job must reach its natural
+// end (either completed or cancelled) and no job may be silently
+// orphaned.
+describe(`${runSingleCancelPrevious.name} — rapid interleaved invocation`, () => {
+	afterEach(() => {
+		expect(Task.rootContext.hasChildren).toBe(false);
+		expect(Task.rootContext.isCancelled).toBe(false);
+	});
+
+	it('every job reaches a terminal state under rapid re-invocation', async () => {
+		const runner = runSingleCancelPrevious();
+		const completed: number[] = [];
+		const jobs: Task.Job<void>[] = [];
+
+		// Fire five invocations back-to-back. Each cancels the prior.
+		// Only the last should complete normally; the first four should
+		// terminate with TaskCancellationError.
+		for (let i = 0; i < 5; i++) {
+			jobs.push(
+				runner(
+					chain(delay(30), () => {
+						completed.push(i);
+					}),
+				),
+			);
+			// Tiny asynchronous gap so each launch actually starts before
+			// the next one cancels it. Without this, some cancellations
+			// arrive before the semaphore acquire, exercising a different
+			// path — but the invariant still holds.
+			await disposableDelay(2);
+		}
+
+		const outcomes = await Promise.all(
+			jobs.map((job) => job.join({ recover: (e) => e })),
+		);
+
+		// Only the final job should have completed.
+		expect(completed).toEqual([4]);
+		// The first four should be cancellation errors; the last
+		// should be undefined (successful void return).
+		for (let i = 0; i < 4; i++) {
+			expect(outcomes[i]).toBeInstanceOf(TaskCancellationError);
+		}
+		expect(outcomes[4]).toBeUndefined();
+	});
+});

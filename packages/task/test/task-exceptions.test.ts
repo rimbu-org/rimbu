@@ -108,4 +108,93 @@ describe('Task exceptions', () => {
 
 		await expect(job.join()).rejects.toThrow(TaskCancellationError);
 	});
+
+	// Regression: previously, `run`'s finally block awaited the children
+	// WaitGroup with the context's cancelled signal. If a child ignored
+	// cancellation and the context was cancelled, the wait rejected with a
+	// foreign `ChannelError.OperationAbortedError` from `@rimbu/channel`,
+	// which replaced the user's original error via the finally-throw semantics.
+	// The task API must never surface channel-package errors.
+	it('run preserves user errors even when the context is cancelled with pending children', async () => {
+		let capturedError: unknown;
+
+		await Task.launch(
+			async (outerCtx) => {
+				capturedError = await outerCtx
+					.launch(
+						async (innerCtx) => {
+							// Launch a grandchild that ignores cancellation.
+							// It keeps the WaitGroup count above zero when
+							// innerCtx's run enters its finally block.
+							innerCtx.launch(async () => {
+								await new Promise((r) => setTimeout(r, 100));
+							});
+							// Ensure the grandchild has been added to the
+							// WaitGroup before we cancel.
+							await new Promise((r) => setTimeout(r, 5));
+							// Cancel own context so the wait's signal is aborted.
+							innerCtx.cancel();
+							// Throw a user error. The finally must not
+							// replace this with a channel-abort error.
+							throw new Error('user error');
+						},
+						// Isolate so the parent's cancel-propagation does not
+						// interfere with what we are testing on innerCtx.
+						{ isolated: true },
+					)
+					.join({ recover: (e) => e });
+			},
+			{ isolated: true },
+		).join();
+
+		// Assertions live outside the task body so a failure surfaces to the
+		// test runner rather than being swallowed by the task's own error
+		// handling.
+		expect(capturedError).toBeInstanceOf(Error);
+		expect((capturedError as Error).message).toBe('user error');
+		expect(capturedError).not.toBeInstanceOf(TaskCancellationError);
+		// A foreign `ChannelError.OperationAbortedError` would have its
+		// constructor name set to "OperationAbortedError" — guard against
+		// that class of leak.
+		expect((capturedError as Error).constructor.name).toBe('Error');
+	});
+
+	// Regression: when a job is queued on the maxBranch semaphore and its
+	// parent context is cancelled, the queued acquire rejects. Previously
+	// this rejection was a `ChannelError.OperationAbortedError` from the
+	// semaphore's abort signal; the task layer must translate this into
+	// `TaskCancellationError` before surfacing to the caller.
+	it('queued jobs cancelled via parent yield TaskCancellationError', async () => {
+		let capturedError: unknown;
+
+		await Task.launch(
+			async (context) => {
+				// job1 holds the single semaphore slot with a long delay.
+				const job1 = context.launch(async (ctx) => {
+					await ctx.delay(1000);
+				});
+				// job2 queues on the semaphore.
+				const job2 = context.launch(async () => {
+					// Body will not run — cancelled before acquire.
+				});
+
+				// Give job2 time to reach the semaphore acquire.
+				await new Promise((r) => setTimeout(r, 5));
+				context.cancel();
+
+				capturedError = await job2.join({ recover: (e) => e });
+
+				// Clean up job1 so the outer join does not hang.
+				await job1.join({ recover: () => {} });
+			},
+			{ isolated: true, maxBranch: 1 },
+		).join({ recover: () => {} });
+
+		// Assertions live outside the task body so a failure surfaces to the
+		// test runner rather than being swallowed by the outer `recover`.
+		expect(capturedError).toBeInstanceOf(TaskCancellationError);
+		expect((capturedError as Error).constructor.name).toBe(
+			'TaskCancellationError',
+		);
+	});
 });

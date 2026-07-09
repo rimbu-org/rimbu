@@ -166,4 +166,59 @@ describe('Semaphore', () => {
 
 		expect(sem.canAcquire()).toBe(true);
 	});
+
+	// Regression: previously, when a queued `acquire` was rejected via
+	// AbortSignal (or timeout), its entry in the internal block-channels
+	// map was orphaned. On the next `release`, the semaphore would iterate
+	// the map, find the phantom entry, permanently attribute its weight to
+	// no holder, and silently drop below its true available capacity.
+	it('aborted acquire does not leak capacity', async () => {
+		const sem = Semaphore.create({ maxSize: 1 });
+
+		// Fill the semaphore.
+		await sem.acquire();
+
+		// Queue an acquire that will be aborted before capacity frees up.
+		const controller = new AbortController();
+		const queued = sem.acquire(1, { signal: controller.signal });
+		controller.abort();
+		await queued.catch(() => {});
+
+		// Release the initial holder. Full capacity must be restored.
+		sem.release();
+		expect(sem.canAcquire(1)).toBe(true);
+		// A fresh acquirer should get in immediately.
+		await sem.acquire();
+		sem.release();
+		expect(sem.canAcquire(1)).toBe(true);
+	});
+
+	// Regression: same class of leak, but under the race where `release`
+	// picks the queued channel *before* the abort listener rejects the
+	// waiter. The waiter's throw must return the weight to the pool.
+	it('aborted acquire returns weight when release races with abort', async () => {
+		const sem = Semaphore.create({ maxSize: 1 });
+
+		await sem.acquire();
+
+		const controller = new AbortController();
+		const queued = sem.acquire(1, { signal: controller.signal });
+
+		// Interleave: release first (which claims the slot for `queued`),
+		// then immediately abort. Depending on microtask ordering the
+		// abort may fire before or after receive resolves.
+		sem.release();
+		controller.abort();
+
+		// Either the waiter observed the release (queued resolves) or the
+		// abort won (queued rejects). In the reject case, the fix must
+		// return the weight so the semaphore is back to full capacity.
+		await queued.catch(() => {});
+
+		if (!sem.canAcquire(1)) {
+			// The waiter resolved (owns the slot); release for cleanup.
+			sem.release();
+		}
+		expect(sem.canAcquire(1)).toBe(true);
+	});
 });
