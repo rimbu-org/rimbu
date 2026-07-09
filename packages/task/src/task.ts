@@ -162,6 +162,33 @@ export namespace Task {
 		get cancelledSignal(): AbortSignal;
 		/** Cancels this context */
 		cancel: () => void;
+		/**
+		 * Cancels this context and waits up to `ms` milliseconds for all
+		 * child work registered on this context to unwind, then returns.
+		 *
+		 * Unlike `cancel()`, which returns synchronously and leaves parent
+		 * `run` calls to await child unwinding indefinitely, this method
+		 * gives the caller a bounded shutdown deadline. If a child ignores
+		 * cancellation (e.g. an unadopted `setTimeout` or `fetch` without
+		 * an `AbortSignal`), the returned promise still resolves after
+		 * `ms` — the runaway children remain running in the background but
+		 * no longer block this context's `run` from returning.
+		 *
+		 * The returned object reports whether the deadline was reached and
+		 * how many children were still pending at that point. Callers can
+		 * use `pendingChildren > 0` as a signal to log a warning, panic,
+		 * or surface the issue to observability tooling.
+		 *
+		 * If `ms` is 0, the method still cancels the context and reports
+		 * the pending count in a single microtask, without waiting.
+		 *
+		 * @param ms - the maximum time in milliseconds to wait for children
+		 *   to unwind after cancellation
+		 * @returns a Promise resolving to `{ timedOut, pendingChildren }`
+		 */
+		cancelWithTimeout: (
+			ms: number,
+		) => Promise<{ timedOut: boolean; pendingChildren: number }>;
 		/** Cancels all child contexts */
 		cancelAllChildren: () => void;
 		/** Registers a cleanup callback to be called when this context is cancelled.
@@ -192,7 +219,9 @@ export namespace Task {
 		 * will not return even if the context is cancelled — the parent is
 		 * only unblocked when the child eventually completes. Use `taskify` or
 		 * respect `context.cancelledSignal` in every async operation to
-		 * guarantee bounded shutdown time.
+		 * guarantee bounded shutdown time. If cooperative shutdown cannot be
+		 * assured, use `context.cancelWithTimeout(ms)` to place a hard
+		 * deadline on the wait.
 		 */
 		run: {
 			<R = void>(task: Task<R>): Promise<R>;

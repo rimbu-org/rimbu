@@ -161,7 +161,7 @@ describe(withTimeout.name, () => {
 	it('should complete before timeout', async () => {
 		const task = withTimeout(100)(() => 'Completed');
 
-		await expect(Task.launch(task).join()).resolves.toBe('Completed');
+		expect(Task.launch(task).join()).resolves.toBe('Completed');
 	});
 
 	it('should throw TimeoutError if task does not complete in time', () => {
@@ -687,20 +687,24 @@ describe(`${combined.name} — modifier order`, () => {
 	it('applies modifiers left-to-right (outer wraps inner)', async () => {
 		const order: string[] = [];
 
-		const modA = Task.modifier(<R, A extends readonly any[]>(task: Task<R, A>): Task<R, A> =>
-			async (ctx, ...args) => {
-				order.push('A-before');
-				const r = await ctx.run(task, args);
-				order.push('A-after');
-				return r;
-			});
-		const modB = Task.modifier(<R, A extends readonly any[]>(task: Task<R, A>): Task<R, A> =>
-			async (ctx, ...args) => {
-				order.push('B-before');
-				const r = await ctx.run(task, args);
-				order.push('B-after');
-				return r;
-			});
+		const modA = Task.modifier(
+			<R, A extends readonly any[]>(task: Task<R, A>): Task<R, A> =>
+				async (ctx, ...args) => {
+					order.push('A-before');
+					const r = await ctx.run(task, args);
+					order.push('A-after');
+					return r;
+				},
+		);
+		const modB = Task.modifier(
+			<R, A extends readonly any[]>(task: Task<R, A>): Task<R, A> =>
+				async (ctx, ...args) => {
+					order.push('B-before');
+					const r = await ctx.run(task, args);
+					order.push('B-after');
+					return r;
+				},
+		);
 
 		const base = Task.fn(() => {
 			order.push('base');

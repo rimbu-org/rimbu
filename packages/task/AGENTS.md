@@ -103,6 +103,27 @@ chain(
 
 `delay` is not optional. Use `context.yield()` for a zero-delay event-loop yield.
 
+### Bounded shutdown with `cancelWithTimeout`
+
+`context.cancel()` is synchronous and does not wait for children to unwind — but any surrounding `context.run(...)` call will still block until every launched child completes. A child that ignores cancellation (unadopted `setTimeout`, `fetch` without `AbortSignal`, or a long-running sync loop) therefore blocks `run` indefinitely.
+
+Use `context.cancelWithTimeout(ms)` when you need a guaranteed shutdown deadline:
+
+```ts
+const { timedOut, pendingChildren } = await context.cancelWithTimeout(1000);
+if (timedOut) {
+  console.warn(`${pendingChildren} tasks did not shut down within 1s`);
+}
+```
+
+Semantics:
+
+- Cancels this context (identical to `cancel()`).
+- Waits up to `ms` milliseconds for all pending children to unwind.
+- If they finish in time → `{ timedOut: false, pendingChildren: 0 }`.
+- If the deadline elapses → detaches the still-pending children from this context's WaitGroup so the parent `run` is unblocked, then returns `{ timedOut: true, pendingChildren: <count> }`. The runaway children are **not terminated** (impossible in JavaScript); they continue running in the background but no longer block shutdown bookkeeping.
+- Late completions of detached children are safe: their bookkeeping decrement is floored at zero.
+
 ---
 
 ## 6. Adding a New Modifier
@@ -161,3 +182,4 @@ bun run test
 - **Isolated contexts do not cancel on child error; non-isolated contexts do.** Default is non-isolated. Use `isolated: true` for supervisor-style contexts.
 - **Error classes in the `Task` namespace are type aliases only.** `Task.CancellationError` is a type, not a constructor value in the namespace. Use `TaskCancellationError` (standalone export) for `instanceof` checks and `throw new ...` — this is a tsgo limitation.
 - **`context.delay(ms)` requires a number.** There is no default. Use `context.yield()` for a zero-delay yield.
+- **`ctx.run` waits for every launched child before returning.** A child that ignores cancellation will block `run` even if the context is cancelled. Reach for `context.cancelWithTimeout(ms)` when cooperative shutdown cannot be guaranteed.

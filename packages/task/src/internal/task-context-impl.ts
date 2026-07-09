@@ -40,6 +40,12 @@ export class TaskContextImpl implements Task.Context {
 	readonly #maxBranchSemaphore: Semaphore | undefined;
 	readonly #isolated: boolean;
 
+	// Mirrors the count in `#childrenWaitGroup`. Maintained in lockstep
+	// with add()/done() calls in `launch`. Exposed only via
+	// `cancelWithTimeout` to report the number of children still pending
+	// past the shutdown deadline.
+	#pendingChildren = 0;
+
 	#nextChildId = 0;
 
 	constructor(
@@ -84,6 +90,68 @@ export class TaskContextImpl implements Task.Context {
 		if (!this.isCancelled) {
 			this.#cancelController.abort();
 		}
+	};
+
+	cancelWithTimeout = async (
+		ms: number,
+	): Promise<{ timedOut: boolean; pendingChildren: number }> => {
+		this.cancel();
+
+		// Fast path: no children pending, nothing to wait for.
+		if (this.#pendingChildren === 0) {
+			return { timedOut: false, pendingChildren: 0 };
+		}
+
+		// If ms <= 0, do not wait beyond a single microtask. Report
+		// current state and detach so `run` on this context is unblocked.
+		if (ms <= 0) {
+			const remaining = this.#pendingChildren;
+			this.#detachPendingChildren();
+			return { timedOut: true, pendingChildren: remaining };
+		}
+
+		// Race the WaitGroup drain against a hard deadline. Both sides
+		// are turned into sentinel values so that neither an unhandled
+		// rejection from the losing side nor a foreign channel error
+		// can escape.
+		const DEADLINE = Symbol('deadline');
+		const DRAINED = Symbol('drained');
+		using deadline = disposableDelay(ms);
+		const drainPromise = this.#childrenWaitGroup.wait().then(
+			() => DRAINED,
+			// If wait rejects (should not happen here — no signal passed
+			// — but defensively), treat as drained; the deadline path
+			// will do the same accounting.
+			() => DRAINED,
+		);
+		const deadlinePromise = deadline.then(
+			() => DEADLINE,
+			// If the deadline promise is disposed early (i.e. the drain
+			// won and `using` disposed the delay), it rejects with
+			// TaskCancellationError. We map that away so no unhandled
+			// rejection leaks.
+			() => DEADLINE,
+		);
+
+		const result = await Promise.race([drainPromise, deadlinePromise]);
+		if (result === DRAINED) {
+			return { timedOut: false, pendingChildren: 0 };
+		}
+		const remaining = this.#pendingChildren;
+		this.#detachPendingChildren();
+		return { timedOut: true, pendingChildren: remaining };
+	};
+
+	// Force the WaitGroup to consider all currently-pending children as
+	// done, so that any parent `run` awaiting on this context's children
+	// can proceed. The actual child work may still be running in the
+	// background — we cannot forcibly terminate arbitrary async code —
+	// but the context bookkeeping no longer blocks the shutdown path.
+	#detachPendingChildren = (): void => {
+		const count = this.#pendingChildren;
+		if (count <= 0) return;
+		this.#pendingChildren = 0;
+		this.#childrenWaitGroup.done(count);
 	};
 
 	cancelAllChildren = (): void => {
@@ -205,6 +273,7 @@ export class TaskContextImpl implements Task.Context {
 			// matching done() in the finally, even if a synchronous throw occurs
 			// before we enter the try body.
 			this.#childrenWaitGroup.add();
+			this.#pendingChildren++;
 			let branchAcquired = false;
 			let launchResult: LaunchResult<R>;
 
@@ -250,8 +319,12 @@ export class TaskContextImpl implements Task.Context {
 					// release the max-branch slot
 					this.#maxBranchSemaphore?.release();
 				}
-				// ensure parent stops waiting for child
+				// ensure parent stops waiting for child. Both the underlying
+				// WaitGroup and our mirror are guarded so a late completion
+				// after `cancelWithTimeout` has forcibly detached still-
+				// pending children does not cause under-flow.
 				this.#childrenWaitGroup.done();
+				if (this.#pendingChildren > 0) this.#pendingChildren--;
 			}
 
 			return launchResult!;

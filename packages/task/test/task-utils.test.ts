@@ -1,8 +1,7 @@
 import { afterEach, describe, expect, it } from 'bun:test';
 
 import { Task, TaskCancellationError } from '@rimbu/task';
-import { joinAll, taskify } from '@rimbu/task/ops';
-import { delay } from '@rimbu/task/ops';
+import { delay, joinAll, taskify } from '@rimbu/task/ops';
 
 describe(taskify.name, () => {
 	it('should create a task that calls the original function with an AbortSignal', () => {
@@ -84,7 +83,9 @@ describe(taskify.name, () => {
 		const task = taskify(fn, 1);
 
 		// supply only the first arg — taskify should fill in the second
-		const result = Task.launch(task, { args: ['http://example.com', {}] }).join();
+		const result = Task.launch(task, {
+			args: ['http://example.com', {}],
+		}).join();
 		expect(result).resolves.toContain('present');
 	});
 
@@ -125,10 +126,12 @@ describe(joinAll.name, () => {
 	it('rejects if any job rejects', async () => {
 		const jobs = [
 			Task.launch(() => 1),
-			Task.launch(() => { throw new Error('boom'); }),
+			Task.launch(() => {
+				throw new Error('boom');
+			}),
 			Task.launch(() => 3),
 		];
-		await expect(joinAll(jobs as any)).rejects.toThrow('boom');
+		expect(joinAll(jobs as any)).rejects.toThrow('boom');
 		// clean up remaining jobs
 		for (const j of jobs) {
 			await j.join({ recover: () => {} });
@@ -142,19 +145,28 @@ describe(joinAll.name, () => {
 	});
 
 	it('preserves order even when jobs complete in different order', async () => {
-		await Task.launch(async (context) => {
-			const jobs = [
-				context.launch(async (ctx) => { await ctx.delay(50); return 'slow'; }),
-				context.launch(async (ctx) => { await ctx.delay(10); return 'fast'; }),
-			];
-			const results = await joinAll(jobs);
-			expect(results).toEqual(['slow', 'fast']);
-		}, { isolated: true }).join();
+		await Task.launch(
+			async (context) => {
+				const jobs = [
+					context.launch(async (ctx) => {
+						await ctx.delay(50);
+						return 'slow';
+					}),
+					context.launch(async (ctx) => {
+						await ctx.delay(10);
+						return 'fast';
+					}),
+				];
+				const results = await joinAll(jobs);
+				expect(results).toEqual(['slow', 'fast']);
+			},
+			{ isolated: true },
+		).join();
 	});
 
 	it('rejects with TaskCancellationError when a job is cancelled', async () => {
 		const job = Task.launch(delay(1000));
 		job.cancel();
-		await expect(joinAll([job])).rejects.toThrow(TaskCancellationError);
+		expect(joinAll([job])).rejects.toThrow(TaskCancellationError);
 	});
 });

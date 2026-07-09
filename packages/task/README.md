@@ -140,6 +140,7 @@ Handle via modifiers (`catchError`, `catchAll`) or `recover` in `join`.
 ### Context Essentials
 
 - `context.cancel()` – cancels current and propagates to children.
+- `context.cancelWithTimeout(ms)` – cancel and wait up to `ms` for children to unwind; returns `{ timedOut, pendingChildren }`. Bounded shutdown even if a child ignores cancellation.
 - `context.cancelAllChildren()` – granular bulk cancellation.
 - `context.delay(ms)` – cancellable delay respecting `AbortSignal`.
 - `context.run(task, args)` – run sequentially inside existing context.
@@ -410,6 +411,7 @@ context.run(task, args?)
 context.launch(task, { args, maxBranch })
 context.delay(ms)
 context.cancel(); context.cancelAllChildren();
+context.cancelWithTimeout(ms) // -> { timedOut, pendingChildren }
 context.onCancelled(cleanup)
 context.throwIfCancelled()
 
