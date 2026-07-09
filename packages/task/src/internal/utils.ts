@@ -87,7 +87,12 @@ export function toDisposableCallback(callback: () => void): DisposableCallback {
 
 export function cleanupToCallback(cleanup: Cleanup): () => void {
 	if (Symbol.dispose in cleanup) {
-		return cleanup[Symbol.dispose];
+		// Bind so the callback can be invoked without a `this` receiver
+		// (e.g. from an AbortSignal event dispatch or a Set of callbacks).
+		// If the object exposes `[Symbol.dispose]` as a getter that already
+		// returns a bound function (arrow class field), `bind` is a no-op
+		// but harmless.
+		return cleanup[Symbol.dispose].bind(cleanup);
 	}
 	if (typeof cleanup === 'function') {
 		return cleanup;

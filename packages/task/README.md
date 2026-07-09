@@ -67,7 +67,7 @@ If you need clearer async flows without adopting a new paradigm (like full Obser
 - **Composable Operations** – `all`, `race`, `any`, `allSettled`, `chain`.
 - **Selective Concurrency Control** – `maxBranch` option limits parallel branches.
 - **Cancellation & Timeouts** – `withTimeout(ms)` modifier uses supervised `race`.
-- **Retries & Backoff** – `withRetry(times, [delays])` preserves cancellation semantics.
+- **Retries & Backoff** – `withRetry(maxAttempts, { delays })` preserves cancellation semantics.
 - **Argument Binding** – `withArgs(task, ...args)` creates zero‑arg variant.
 - **Error Recovery** – `catchError(fn)` and `catchAll()` modifiers.
 - **Result Mapping** – `mapOutput` / `mapOutputArr` for transforming flows.
@@ -190,7 +190,7 @@ const unstable = async (ctx) => {
 
 const resilient = combined(
   withTimeout(500), // guard duration
-  withRetry(5, [50, 100, 150]), // backoff pattern
+  withRetry(5, { delays: [50, 100, 150] }), // up to 5 total attempts with backoff
   catchError((err) => () => `Recovered: ${String(err)}`)
 )(unstable);
 
@@ -200,7 +200,7 @@ console.log(await Task.launch(resilient, { args: [] }).join());
 Available modifiers:
 
 - `withTimeout(ms)` – cancel & throw `TimeoutError`.
-- `withRetry(times, delays[])` – controlled retry attempts; stops on cancellation.
+- `withRetry(maxAttempts, { delays, onRetry })` – controlled retry attempts; stops on cancellation.
 - `withArgs(task, ...bound)` – pre-bind arguments.
 - `mapOutput(fn)` / `mapOutputArr(fn)` – transform results.
 - `catchError(fn)` / `catchAll()` – selective error recovery.
@@ -431,7 +431,7 @@ throwErrorClass(MyErr) / throwError(() => err)
 
 // Modifiers & utils
 withTimeout(ms)
-withRetry(times, delays?)
+withRetry(maxAttempts, { delays?, onRetry? })
 withArgs(task, ...args)
 mapOutput(fn)
 mapOutputArr(fn)

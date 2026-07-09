@@ -122,10 +122,15 @@ export namespace Task {
 		 * - `recover`: Optional function to recover from an error if the job fails or times out.
 		 *   If provided, this function will be called with the error, and its return value will be used as the result of the `join` method.
 		 *   If not provided, the error will be thrown.
+		 *
+		 * Note: providing `recover` **suppresses parent-context cancellation on error**.
+		 * Without `recover`, when a job launched in a non-isolated parent throws, the
+		 * parent context is cancelled to propagate the failure. Supplying `recover`
+		 * signals "I have handled this error" and the parent is left running.
 		 */
 		join: <RT = never>(options?: {
 			timeoutMs?: number;
-			recover?: (error?: unknown) => RT;
+			recover?: (error: unknown) => RT;
 		}) => Promise<R | RT>;
 		/**
 		 * Cancels the job if it is still running.
@@ -180,6 +185,14 @@ export namespace Task {
 		 * @param task - the task to execute
 		 * @param args - arguments to pass to the task
 		 * @returns a promise that resolves with the task's result
+		 *
+		 * Note: `run` waits for **every** child launched inside `task` to finish
+		 * before returning. If a child ignores cancellation (for example, an
+		 * unadopted `setTimeout` or a `fetch` without an `AbortSignal`), `run`
+		 * will not return even if the context is cancelled — the parent is
+		 * only unblocked when the child eventually completes. Use `taskify` or
+		 * respect `context.cancelledSignal` in every async operation to
+		 * guarantee bounded shutdown time.
 		 */
 		run: {
 			<R = void>(task: Task<R>): Promise<R>;
@@ -211,7 +224,14 @@ export namespace Task {
 	 * Static constructors and root context for Tasks.
 	 */
 	export interface Constructors {
-		/** Returns the root context. */
+		/**
+		 * Returns the root context.
+		 *
+		 * The root context is **isolated**: an unhandled error from a job
+		 * launched directly on the root context does not cancel the root itself.
+		 * This makes it safe to reuse across independent launches — one failing
+		 * job cannot poison later ones.
+		 */
 		get rootContext(): Context;
 		/**
 		 * Wraps a function as a Task, providing type inference for the context parameter.

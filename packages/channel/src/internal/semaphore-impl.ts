@@ -52,7 +52,23 @@ export class SemaphoreImpl implements Semaphore {
 		const blockCh = Channel.create();
 		blockChannels.set(blockCh, weight);
 
-		await blockCh.receive(options);
+		try {
+			await blockCh.receive(options);
+		} catch (err) {
+			// If the waiter was aborted, timed out, or otherwise failed to
+			// receive its slot, we must remove the block channel entry so a
+			// later `release` does not attribute weight to a phantom holder.
+			// If `release` already claimed the slot and sent (i.e. the entry
+			// was removed from the map before we got here), we must undo the
+			// weight allocation that release performed on our behalf.
+			if (blockChannels.delete(blockCh)) {
+				// entry was still queued: nothing to undo
+			} else {
+				// entry was already claimed by release: give the weight back
+				this.release(weight);
+			}
+			throw err;
+		}
 	}
 
 	release(weight = 1): void {

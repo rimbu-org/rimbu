@@ -79,19 +79,29 @@ export function retryWhen(
 }
 
 /**
- * Retries a Task a specified number of times with optional delays between attempts.
- * If the Task fails after all attempts, the last error is re-thrown.
- * @param times - The maximum number of retry attempts. Must be greater than 0.
+ * Retries a Task a specified total number of times, with optional delays between attempts.
+ * If the Task fails after every attempt, the last error is re-thrown.
+ *
+ * `maxAttempts` is the **total** number of times the task may run, including the
+ * first invocation. `withRetry(1)` therefore runs the task exactly once with no
+ * retries; `withRetry(3)` runs it up to three times.
+ *
+ * The `delays` array supplies the wait between consecutive attempts:
+ * `delays[0]` is used between attempts 0 and 1, `delays[1]` between 1 and 2,
+ * and so on. If there are more inter-attempt gaps than delays supplied, the
+ * last delay is reused for the remaining gaps. An empty `delays` array (or
+ * omitting the option) means no waiting between attempts.
+ *
+ * @param maxAttempts - The maximum total number of attempts (including the initial call).
+ *   Passing a value less than 1 causes the task to run exactly once and then rethrow.
  * @param options - Optional configuration:
- *   - `delays`: Array of delay durations in milliseconds between attempts.
- *     The delay for each attempt is taken from this array in order; the last value
- *     is reused for all remaining attempts if there are more retries than delays.
- *   - `onRetry`: Called after each failed attempt before the next delay.
- *     Receives the error and the attempt number (0-based).
+ *   - `delays`: Array of delay durations in milliseconds between consecutive attempts.
+ *   - `onRetry`: Called after each failed attempt that will be followed by another
+ *     attempt. Receives the error and the 0-based attempt index that just failed.
  * @returns A Task modifier that applies the retry logic.
  */
 export function withRetry(
-	times: number,
+	maxAttempts: number,
 	options: {
 		delays?: number[];
 		onRetry?: (error: unknown, attempt: number) => void;
@@ -100,13 +110,14 @@ export function withRetry(
 	const { delays = [], onRetry } = options;
 
 	return retryWhen((error, attempt) => {
-		if (attempt + 1 >= times) {
+		if (attempt + 1 >= maxAttempts) {
 			return false;
 		}
 
 		onRetry?.(error, attempt);
 
-		return delays[Math.min(attempt, delays.length - 1)] ?? 0;
+		if (delays.length === 0) return 0;
+		return delays[Math.min(attempt, delays.length - 1)];
 	});
 }
 

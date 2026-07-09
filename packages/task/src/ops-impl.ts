@@ -88,6 +88,10 @@ export function chain<RS extends any[], A extends any[]>(
  * All other Tasks are cancelled once one completes.
  * @param tasks - Tasks to execute concurrently.
  * @returns A Task that resolves with the result of the first completed Task.
+ *
+ * Note: the returned Task waits for the losing tasks to finish unwinding
+ * before it resolves. If a losing task ignores cancellation, `race` will
+ * hang until it completes on its own.
  */
 export function race<R, A extends readonly any[] = []>(
 	...tasks: Task<R, { [AK in keyof A]?: A[AK] }>[]
@@ -124,6 +128,10 @@ export function race<R, A extends readonly any[] = []>(
  * All other Tasks are cancelled once one completes successfully.
  * @param tasks - Tasks to execute concurrently.
  * @returns A Task that resolves with the result of the first successfully completed Task.
+ *
+ * Note: the returned Task waits for the remaining tasks to finish unwinding
+ * before it resolves. If a remaining task ignores cancellation, `any` will
+ * hang until it completes on its own.
  */
 export function any<R, A extends readonly any[] = []>(
 	...tasks: Task<R, { [AK in keyof A]?: A[AK] }>[]

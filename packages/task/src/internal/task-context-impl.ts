@@ -76,8 +76,8 @@ export class TaskContextImpl implements Task.Context {
 		return !this.isCancelled;
 	}
 
-	get [Symbol.dispose](): () => void {
-		return this.cancel;
+	[Symbol.dispose](): void {
+		this.cancel();
 	}
 
 	cancel = (): void => {
@@ -283,8 +283,8 @@ export class TaskContextImpl implements Task.Context {
 			cancel: (): void => {
 				cancelChildController.abort();
 			},
-			get [Symbol.dispose](): () => void {
-				return result.cancel;
+			[Symbol.dispose](): void {
+				result.cancel();
 			},
 			cancelAndJoin: async (): Promise<void> => {
 				result.cancel();
