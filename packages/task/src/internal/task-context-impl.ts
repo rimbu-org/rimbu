@@ -9,12 +9,27 @@ import {
 	cleanupOn,
 	type DisposableCallback,
 	disposableDelay,
+	toDisposableCallback,
 	withTimeout,
 } from '#task/utils';
 
 type LaunchResult<R> =
 	| { type: 'result'; value: R }
 	| { type: 'error'; error: any };
+
+// Never let internal WaitGroup abort errors escape from the task layer.
+// The task's own error (or a TaskCancellationError) already conveys the
+// correct signal to the caller.
+async function waitIgnoringAbort(
+	waitGroup: WaitGroup,
+	signal: AbortSignal,
+): Promise<void> {
+	try {
+		await waitGroup.wait({ signal });
+	} catch {
+		// aborted because this context was cancelled; nothing more to wait for.
+	}
+}
 
 export class TaskContextImpl implements Task.Context {
 	readonly #cancelController: AbortController = new AbortController();
@@ -91,7 +106,10 @@ export class TaskContextImpl implements Task.Context {
 			isolated?: boolean | undefined;
 			maxBranch?: number | undefined;
 		} = {},
-	): Task.Context => {
+	): {
+		context: TaskContextImpl;
+		cleanup: DisposableCallback;
+	} => {
 		const {
 			id:
 				childId = `${this.id}_${this.#isolated ? 'I-' : ''}${this.#nextChildId++}`,
@@ -107,14 +125,25 @@ export class TaskContextImpl implements Task.Context {
 		);
 		this.#children.add(childContext);
 
-		const unsubscribe = this.onCancelled(childContext);
+		// If the parent is cancelled, cancel the child too.
+		const unsubscribeParentCancel = this.onCancelled(childContext);
 
-		childContext.onCancelled(() => {
-			unsubscribe();
+		// Cleanup must be idempotent: it may be triggered by either the child
+		// completing normally (via `cleanup()` in launch's finally) or by the
+		// child being cancelled (via its own onCancelled). Removing the child
+		// from `#children` only when it is cancelled would leak entries on
+		// normal completion.
+		let cleanedUp = false;
+		const cleanup = toDisposableCallback((): void => {
+			if (cleanedUp) return;
+			cleanedUp = true;
+			unsubscribeParentCancel();
 			this.#children.delete(childContext);
 		});
 
-		return childContext;
+		childContext.onCancelled(cleanup);
+
+		return { context: childContext, cleanup };
 	};
 
 	throwIfCancelled = (): void => {
@@ -144,7 +173,11 @@ export class TaskContextImpl implements Task.Context {
 		try {
 			return await unpackTask(task)(this, ...args);
 		} finally {
-			await this.#childrenWaitGroup.wait({ signal: this.cancelledSignal });
+			// Wait for any children launched in this context to complete before
+			// returning. If the context is cancelled while waiting, we silently
+			// stop waiting — the original error (or cancellation) is already
+			// captured on the throw path and children have been notified.
+			await waitIgnoringAbort(this.#childrenWaitGroup, this.cancelledSignal);
 		}
 	};
 
@@ -161,20 +194,38 @@ export class TaskContextImpl implements Task.Context {
 
 		const promise = (async (): Promise<LaunchResult<R>> => {
 			this.throwIfCancelled();
-			const childContext = this.#createChildContext(options);
-			const unsubscribeCancel = cleanupOn(cancelChildController.signal, childContext);
+			const { context: childContext, cleanup: childCleanup } =
+				this.#createChildContext(options);
+			const unsubscribeCancel = cleanupOn(
+				cancelChildController.signal,
+				childContext,
+			);
+			// Ensure parent waits for child to complete. Registered here (rather
+			// than inside the try) so it is guaranteed to be paired with a
+			// matching done() in the finally, even if a synchronous throw occurs
+			// before we enter the try body.
+			this.#childrenWaitGroup.add();
 			let branchAcquired = false;
 			let launchResult: LaunchResult<R>;
 
 			try {
-				// ensure parent waits for child to complete
-				this.#childrenWaitGroup.add();
-
 				// if max branching set, wait for permission to start
-				await this.#maxBranchSemaphore?.acquire(1, {
-					signal: this.cancelledSignal,
-				});
-				branchAcquired = true;
+				if (this.#maxBranchSemaphore !== undefined) {
+					try {
+						await this.#maxBranchSemaphore.acquire(1, {
+							signal: this.cancelledSignal,
+						});
+					} catch (error) {
+						// Translate any abort from the semaphore into a
+						// TaskCancellationError so foreign channel errors do
+						// not leak out of the task API.
+						if (this.isCancelled) {
+							throw new TaskCancellationError();
+						}
+						throw error;
+					}
+					branchAcquired = true;
+				}
 
 				const { args = [] as unknown as A } = options;
 
@@ -186,14 +237,17 @@ export class TaskContextImpl implements Task.Context {
 				}
 				launchResult = { type: 'error', error };
 			} finally {
-				// Explicitly cancel the child context so #children.delete fires
-				// synchronously here, before done() and before the promise resolves.
-				// This ensures join() callers observe hasChildren = false immediately.
 				unsubscribeCancel[Symbol.dispose]();
+				// Cancel the child so its onCancelled observers fire and any
+				// pending delays/waits inside it unwind.
 				childContext.cancel();
+				// Idempotent — safe even if the child was already cancelled by
+				// a parent-cancel propagation. Removes the child from
+				// this.#children and unregisters the parent-cancel listener.
+				childCleanup();
 
 				if (branchAcquired) {
-					// if max branching set, release the slot
+					// release the max-branch slot
 					this.#maxBranchSemaphore?.release();
 				}
 				// ensure parent stops waiting for child

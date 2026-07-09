@@ -263,14 +263,20 @@ export const runSingleCancelPrevious: {
 
 	return (task: Task<any, any[]>, ...args: any[]) => {
 		current?.cancel();
-		current = ctx.launch(
+		let job!: Task.Job;
+		job = ctx.launch(
 			chain(task, (): void => {
-				current = undefined;
+				// Only clear `current` if it still points at *this* job. If a
+				// subsequent invocation has already overwritten `current` with
+				// a newer job, this cleanup must not stomp on that pointer or
+				// we would lose the handle to the in-flight new job.
+				if (current === job) current = undefined;
 			}),
 			{ args, maxBranch: 1 },
 		);
+		current = job;
 
-		return current;
+		return job;
 	};
 };
 
@@ -288,13 +294,15 @@ export const runSingleCancelNew: {
 			return ctx.launch(cancelContext);
 		}
 
-		current = ctx.launch(
+		let job!: Task.Job;
+		job = ctx.launch(
 			chain(task, (): void => {
-				current = undefined;
+				if (current === job) current = undefined;
 			}),
 			{ args },
 		);
+		current = job;
 
-		return current;
+		return job;
 	};
 };

@@ -17,9 +17,22 @@ export function disposableDelay(ms: number): DisposablePromise<void> {
 		resolve = res;
 		reject = rej;
 	});
-	const timeout = setTimeout(resolve, ms);
+
+	// Track whether the delay has already settled (naturally or via dispose),
+	// so that a subsequent dispose is a no-op. Without this, `using`
+	// declarations that scope the delay always call reject() after the delay
+	// resolves normally, which is confusing to observers on the promise chain
+	// and could interact badly with future logic that inspects rejections.
+	let settled = false;
+	const timeout = setTimeout(() => {
+		if (settled) return;
+		settled = true;
+		resolve();
+	}, ms);
 
 	return promiseToDisposable(promise, () => {
+		if (settled) return;
+		settled = true;
 		clearTimeout(timeout);
 		reject(new TaskCancellationError());
 	});
