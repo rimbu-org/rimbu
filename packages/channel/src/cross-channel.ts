@@ -76,10 +76,10 @@ const crossChannelModule = Module.create<typeof CrossChannel>((mod) => ({
 				return readCh.asyncStream();
 			},
 			readable() {
-				return result;
+				return readCh;
 			},
 			writable() {
-				return result;
+				return writeCh;
 			},
 			receive<RT>(options?: {
 				signal?: AbortSignal | undefined;
@@ -88,11 +88,31 @@ const crossChannelModule = Module.create<typeof CrossChannel>((mod) => ({
 			}): Promise<any> {
 				return readCh.receive(options as any);
 			},
-			send(value, options): Promise<any> {
+			tryReceive() {
+				return readCh.tryReceive();
+			},
+			send<RT>(
+				value: TSend,
+				options?: {
+					signal?: AbortSignal | undefined;
+					timeoutMs?: number | undefined;
+					recover?: ((channelError: Channel.Error) => RT) | undefined;
+				},
+			): Promise<any> {
 				return writeCh.send(value, options as any);
 			},
-			sendAll(source, options): Promise<any> {
+			sendAll<RT>(
+				source: any,
+				options?: {
+					signal?: AbortSignal | undefined;
+					timeoutMs?: number | undefined;
+					recover?: ((channelError: Channel.Error) => RT) | undefined;
+				},
+			): Promise<any> {
 				return writeCh.sendAll(source, options as any);
+			},
+			trySend(value: TSend) {
+				return writeCh.trySend(value);
 			},
 			close() {
 				return writeCh.close();

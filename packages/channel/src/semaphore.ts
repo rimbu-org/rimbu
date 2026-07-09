@@ -1,7 +1,7 @@
 import { Module } from '@rimbu/common/module';
 
+import { SemaphoreError } from '#channel/semaphore-error';
 import { SemaphoreImpl } from '#channel/semaphore-impl';
-import { SemaphoreError } from '#private/semaphore-error';
 
 export { SemaphoreError };
 

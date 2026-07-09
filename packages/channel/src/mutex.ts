@@ -6,7 +6,7 @@ import { Module } from '@rimbu/common/module';
  * used to acquire a lock for the resource, preventing others using the Mutex from accessing the resource. When
  * finished using the resource, the lock can be released, allowing other waiting processes to acquire a lock.
  */
-export interface Mutex extends Semaphore {
+export interface Mutex {
 	/**
 	 * Returns true if the resource can be acquired immediately, false otherwise.
 	 * @returns true when the resource can be acquired immediately, false otherwise
@@ -14,28 +14,31 @@ export interface Mutex extends Semaphore {
 	canAcquire(): boolean;
 	/**
 	 * Acquire a lock. Blocks if the resource is already locked. Resolves when the resource is available.
-	 * @param unused - reserved for future API compatibility (do not pass)
 	 * @param options - (optional) acquisition options<br/>
 	 * - signal: (optional) an abort signal to cancel waiting for the lock<br/>
 	 * - timeoutMs: (optional) amount of milliseconds to wait for acquiring the lock before throwing
 	 * @returns a `Promise` that resolves when the lock is acquired
 	 */
-	acquire(
-		unused?: undefined,
-		options?: {
-			signal?: AbortSignal | undefined;
-			timeoutMs?: number | undefined;
-		},
-	): Promise<void>;
+	acquire(options?: {
+		signal?: AbortSignal | undefined;
+		timeoutMs?: number | undefined;
+	}): Promise<void>;
 	/**
-	 * Release a lock after it is acquired. Allows other functions to obtain a lock.
+	 * Release a lock after it is acquired. Allows other processes to obtain a lock.
 	 * @returns void
 	 */
 	release(): void;
 }
 
 const mutexModule = Module.create<typeof Mutex>(() => ({
-	create: () => Semaphore.create({ maxSize: 1 }),
+	create: (): Mutex => {
+		const sem = Semaphore.create({ maxSize: 1 });
+		return {
+			canAcquire: () => sem.canAcquire(1),
+			acquire: (options?) => sem.acquire(1, options),
+			release: () => sem.release(1),
+		};
+	},
 }));
 
 export const Mutex: {

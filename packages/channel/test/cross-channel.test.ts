@@ -10,10 +10,11 @@ describe('CrossChannel', () => {
 		expect(sendCh.capacity).toBe(0);
 		expect(sendCh.length).toBe(0);
 
-		expect(sendCh.writable()).toBe(sendCh);
-		expect(sendCh.readable()).toBe(sendCh);
-		expect(receiveCh.writable()).toBe(receiveCh);
-		expect(receiveCh.readable()).toBe(receiveCh);
+		// writable() returns the underlying write channel; readable() returns the underlying read channel
+		expect(sendCh.writable()).not.toBe(sendCh);
+		expect(sendCh.readable()).not.toBe(sendCh);
+		expect(receiveCh.writable()).not.toBe(receiveCh);
+		expect(receiveCh.readable()).not.toBe(receiveCh);
 
 		expect(sendCh.isClosed).toBe(false);
 		expect(receiveCh.isExhausted).toBe(false);

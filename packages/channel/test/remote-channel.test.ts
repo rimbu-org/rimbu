@@ -73,7 +73,7 @@ describe('RemoteChannel buffer 0', () => {
 		chWrite.close();
 		expect(chRead.capacity).toBe(0);
 		expect(chRead.length).toBe(0);
-		await timeout(1);
+		await timeout(50);
 		expect(chRead.isExhausted).toBe(true);
 
 		expect(chWrite.isClosed).toBe(true);
@@ -154,7 +154,7 @@ describe('RemoteChannel buffer 0', () => {
 	it('send returns closed error when closed while sending and catchChannelErrors', async () => {
 		const [chWrite, chRead] = await createInitializedChannels<string>();
 
-		const sendPromise = chWrite.send(MSG, { catchChannelErrors: true });
+		const sendPromise = chWrite.send(MSG, { recover: (err) => err });
 		expect(chRead.length).toBe(0);
 		chWrite.close();
 		expect(sendPromise).resolves.toBeInstanceOf(
@@ -197,7 +197,7 @@ describe('RemoteChannel buffer 0', () => {
 			expect(
 				chWrite.send(MSG, {
 					timeoutMs: 100,
-					catchChannelErrors: true,
+					recover: (err) => err,
 				}),
 			).resolves.toBeInstanceOf(ChannelError.TimeoutError);
 		} finally {
@@ -211,7 +211,7 @@ describe('RemoteChannel buffer 0', () => {
 		try {
 			expect(
 				chWrite.send(MSG, {
-					catchChannelErrors: true,
+					recover: (err) => err,
 					timeoutMs: 100,
 				}),
 			).resolves.toBeInstanceOf(ChannelError.TimeoutError);
@@ -261,7 +261,7 @@ describe('RemoteChannel buffer 0', () => {
 			expect(
 				chWrite.send(MSG, {
 					signal: controller.signal,
-					catchChannelErrors: true,
+					recover: (err) => err,
 				}),
 			).resolves.toBeInstanceOf(ChannelError.OperationAbortedError);
 		} finally {
@@ -278,7 +278,7 @@ describe('RemoteChannel buffer 0', () => {
 			expect(
 				chWrite.send(MSG, {
 					signal: controller.signal,
-					catchChannelErrors: true,
+					recover: (err) => err,
 				}),
 			).resolves.toBeInstanceOf(ChannelError.OperationAbortedError);
 		} finally {
@@ -330,30 +330,32 @@ describe('RemoteChannel buffer 0', () => {
 		}
 	});
 
-	it('cannot send multiple times without await', async () => {
-		const [chWrite] = await createInitializedChannels<string>();
+	it('can send sequentially', async () => {
+		const [chWrite, chRead] = await createInitializedChannels<string>();
 
 		try {
-			const sendPromise = chWrite.send('A', {
-				timeoutMs: 10,
-				catchChannelErrors: true,
-			});
-			expect(chWrite.send('B')).rejects.toThrow();
-			await sendPromise;
+			await Promise.all([
+				chWrite.send('A').then(() => chWrite.send('B')),
+				(async () => {
+					expect(await chRead.receive()).toBe('A');
+					expect(await chRead.receive()).toBe('B');
+				})(),
+			]);
 		} finally {
 			chWrite.close();
 		}
 	});
 
-	it('cannot receive multiple times without await', async () => {
+	it('allows multiple concurrent receives', async () => {
 		const [chWrite, chRead] = await createInitializedChannels<string>();
 
 		try {
-			const receivePromise = chRead.receive();
-			expect(chRead.receive()).rejects.toThrow();
-			const writePromise = chWrite.send(MSG);
-			expect(receivePromise).resolves.toBe(MSG);
-			await writePromise;
+			const r1 = chRead.receive();
+			const r2 = chRead.receive();
+			await chWrite.send('A');
+			await chWrite.send('B');
+			expect(await r1).toBe('A');
+			expect(await r2).toBe('B');
 		} finally {
 			chWrite.close();
 		}
@@ -363,8 +365,7 @@ describe('RemoteChannel buffer 0', () => {
 		expect(
 			RemoteChannel.createWrite(self, {
 				...CHANNEL_OPTIONS_WRITE,
-				maxHandshakeAttempts: 5,
-				handshakeAttemptTimeoutMs: 100,
+				handshakeTimeoutMs: 500,
 			}),
 		).rejects.toThrow();
 	});
@@ -373,8 +374,7 @@ describe('RemoteChannel buffer 0', () => {
 		expect(
 			RemoteChannel.createRead(self, {
 				...CHANNEL_OPTIONS_READ,
-				maxHandshakeAttempts: 5,
-				handshakeAttemptTimeoutMs: 100,
+				handshakeTimeoutMs: 500,
 			}),
 		).rejects.toThrow();
 	});
@@ -438,7 +438,7 @@ describe('RemoteChannel buffer 1', () => {
 			capacity: 1,
 		});
 
-		const sendPromise = chWrite.send(MSG, { catchChannelErrors: true });
+		const sendPromise = chWrite.send(MSG, { recover: (err) => err });
 		expect(chRead.length).toBe(0);
 		chWrite.close();
 		expect(sendPromise).resolves.toBeInstanceOf(
@@ -485,7 +485,7 @@ describe('RemoteChannel buffer 1', () => {
 			expect(
 				chWrite.send(MSG, {
 					timeoutMs: 100,
-					catchChannelErrors: true,
+					recover: (err) => err,
 				}),
 			).resolves.toBeInstanceOf(ChannelError.TimeoutError);
 		} finally {
@@ -500,7 +500,7 @@ describe('RemoteChannel buffer 1', () => {
 			await chWrite.send('A');
 			expect(
 				chWrite.send(MSG, {
-					catchChannelErrors: true,
+					recover: (err) => err,
 					timeoutMs: 100,
 				}),
 			).resolves.toBeInstanceOf(ChannelError.TimeoutError);
@@ -552,7 +552,7 @@ describe('RemoteChannel buffer 1', () => {
 			expect(
 				chWrite.send(MSG, {
 					signal: controller.signal,
-					catchChannelErrors: true,
+					recover: (err) => err,
 				}),
 			).resolves.toBeInstanceOf(ChannelError.OperationAbortedError);
 		} finally {
@@ -610,32 +610,33 @@ describe('RemoteChannel buffer 1', () => {
 		}
 	});
 
-	it('cannot send multiple times without await', async () => {
-		const [chWrite] = await createInitializedChannels<string>({ capacity: 1 });
-
-		try {
-			const sendPromise = chWrite.send('A', {
-				timeoutMs: 10,
-				catchChannelErrors: true,
-			});
-			expect(chWrite.send('B')).rejects.toThrow();
-			await sendPromise;
-		} finally {
-			chWrite.close();
-		}
-	});
-
-	it('cannot receive multiple times without await', async () => {
+	it('can send sequentially', async () => {
 		const [chWrite, chRead] = await createInitializedChannels<string>({
 			capacity: 1,
 		});
 
 		try {
-			const receivePromise = chRead.receive();
-			expect(chRead.receive()).rejects.toThrow();
-			const writePromise = chWrite.send(MSG);
-			expect(receivePromise).resolves.toBe(MSG);
-			await writePromise;
+			await chWrite.send('A');
+			expect(await chRead.receive()).toBe('A');
+			await chWrite.send('B');
+			expect(await chRead.receive()).toBe('B');
+		} finally {
+			chWrite.close();
+		}
+	});
+
+	it('allows multiple concurrent receives', async () => {
+		const [chWrite, chRead] = await createInitializedChannels<string>({
+			capacity: 1,
+		});
+
+		try {
+			const r1 = chRead.receive();
+			const r2 = chRead.receive();
+			await chWrite.send('A');
+			await chWrite.send('B');
+			expect(await r1).toBe('A');
+			expect(await r2).toBe('B');
 		} finally {
 			chWrite.close();
 		}
@@ -649,7 +650,7 @@ describe('RemoteChannel buffer 1', () => {
 		try {
 			await chRead.receive({ timeoutMs: 10, recover: () => 1 });
 			await chWrite.send('A');
-			await chWrite.send('B', { timeoutMs: 10, catchChannelErrors: true });
+			await chWrite.send('B', { timeoutMs: 10, recover: (err) => err });
 			expect(chRead.receive()).resolves.toBe('A');
 		} finally {
 			chWrite.close();
@@ -670,12 +671,12 @@ describe('RemoteChannel buffer 1', () => {
 		expect(chRead2.receive()).resolves.toBe('B');
 		expect(chRead1.receive()).resolves.toBe('A');
 		chWrite1.close();
-		await timeout(1);
+		await timeout(50);
 		expect(chRead1.isExhausted).toBe(true);
 		expect(chWrite2.isClosed).toBe(false);
 		expect(chRead2.isExhausted).toBe(false);
 		chWrite2.close();
-		await timeout(1);
+		await timeout(50);
 		expect(chWrite2.isClosed).toBe(true);
 	});
 });
@@ -729,15 +730,12 @@ describe('createCross', () => {
 			RemoteChannel.createCross<number, string>(self, {
 				write: {
 					channelId: channelIdNumber,
-					maxHandshakeAttempts: 100,
-
-					handshakeAttemptTimeoutMs: 500,
+					handshakeTimeoutMs: 5000,
 				},
 				read: {
 					channelId: channelIdString,
 					capacity: 1,
-					maxHandshakeAttempts: 100,
-					handshakeAttemptTimeoutMs: 500,
+					handshakeTimeoutMs: 5000,
 				},
 			}),
 		]);

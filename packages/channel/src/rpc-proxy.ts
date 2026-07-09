@@ -1,7 +1,7 @@
 import { Module } from '@rimbu/common/module';
 
+import { RpcProxyError } from '#channel/rpc-proxy-error';
 import { RpcProxyImpl } from '#channel/rpc-proxy-impl';
-import { RpcProxyError } from '#private/rpc-proxy-error';
 
 export { RpcProxyError };
 

@@ -43,6 +43,18 @@ export namespace ChannelError {
 	}
 
 	/**
+	 * Error indicating that a Channel is open but currently empty (no messages available).
+	 * Unlike `ChannelExhaustedError`, this is a transient condition — the channel is still
+	 * open and may receive messages in the future. Returned by `tryReceive` when there is
+	 * no message immediately available.
+	 */
+	export class ChannelEmptyError extends ChannelError {
+		constructor() {
+			super('The channel is empty.');
+		}
+	}
+
+	/**
 	 * Error indicating that a Channel message has an incorrect type.
 	 */
 	export class InvalidMessageTypeError extends ChannelError {

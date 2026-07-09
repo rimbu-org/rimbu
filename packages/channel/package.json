@@ -45,10 +45,6 @@
 		"#channel/*": {
 			"types": "./dist/internal/*.d.ts",
 			"default": "./dist/internal/*.js"
-		},
-		"#private/*": {
-			"types": "./dist/internal/*.d.ts",
-			"default": "./dist/internal/*.js"
 		}
 	},
 	"files": [

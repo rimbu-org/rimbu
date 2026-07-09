@@ -3,8 +3,8 @@ import type { CrossChannel } from '@rimbu/channel/cross-channel';
 import { RpcProxy } from '@rimbu/channel/rpc-proxy';
 import { Module } from '@rimbu/common/module';
 
+import { RemoteObjectError } from '#channel/remote-object-error';
 import { RemoteObjectImpl } from '#channel/remote-object-impl';
-import { RemoteObjectError } from '#private/remote-object-error';
 
 export { RemoteObjectError };
 
@@ -69,7 +69,7 @@ const removeObjectModule = Module.create<typeof RemoteObject>(() => ({
 		return proxy;
 	},
 
-	createServer: async <T>(
+	serve: async <T>(
 		source: T,
 		commCh: CrossChannel<RemoteObject.Response, RemoteObject.Call>,
 	): Promise<void> => {
@@ -101,14 +101,12 @@ export const RemoteObject: {
 	createClient<T>(commCh: RemoteObject.ClientCrossChannel): RpcProxy<T>;
 
 	/**
-	 * Creates a remote object server that allows clients to perform remote operations on the given `source` object.
+	 * Serves a remote object, handling incoming calls from clients until the channel is exhausted.
+	 * This is a long-running operation that blocks until the communication channel closes.
 	 * @typeparam T - the type of the object to serve remotely
 	 * @param source - the object whose properties and methods will be exposed remotely
 	 * @param commCh - the cross-channel to use for communication
-	 * @returns a `Promise` that resolves when the server has finished handling requests
+	 * @returns a `Promise` that resolves when the channel is exhausted and serving is complete
 	 */
-	createServer<T>(
-		source: T,
-		commCh: RemoteObject.ServerCrossChannel,
-	): Promise<void>;
+	serve<T>(source: T, commCh: RemoteObject.ServerCrossChannel): Promise<void>;
 } = removeObjectModule.build();

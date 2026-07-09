@@ -55,22 +55,22 @@ export namespace RemoteChannel {
 		 */
 		channelId: string;
 		/**
-		 * The maximum amount of messages the Channel can buffer. If 0, the channel is unbuffered and the communication is synchronous.
+		 * The maximum amount of messages the Channel can buffer. If 0 (or `Channel.UNBUFFERED`), the channel is
+		 * unbuffered and the communication is synchronous.
 		 */
 		capacity?: number;
 		/**
-		 * A function taking a message and returning true if the message is of a valid type, false otherwise
+		 * A validation function applied to each message before sending. Since remote channel values are
+		 * deserialized from `postMessage`, runtime validation is recommended.
 		 * @param value - the value to validate
 		 */
-		validator?: (value: any) => boolean;
+		validator?: (value: unknown) => boolean;
 		/**
-		 * The amount of handshake attempts to make before failing.
+		 * Total time budget (in milliseconds) to complete the handshake with the remote read side.
+		 * If the handshake does not complete within this time, a `ChannelError.HandshakeError` is thrown.
+		 * @default 10000
 		 */
-		maxHandshakeAttempts?: number;
-		/**
-		 * The amount of milliseconds to wait for a response to each handshake.
-		 */
-		handshakeAttemptTimeoutMs?: number;
+		handshakeTimeoutMs?: number;
 	}
 
 	/**
@@ -82,18 +82,17 @@ export namespace RemoteChannel {
 		 */
 		channelId: string;
 		/**
-		 * A function taking a message and returning true if the message is of a valid type, false otherwise
+		 * A validation function applied to each received message. Since remote channel values are
+		 * deserialized from `postMessage`, runtime validation is recommended.
 		 * @param value - the value to validate
 		 */
-		validator?: (value: any) => boolean;
+		validator?: (value: unknown) => boolean;
 		/**
-		 * The amount of handshake attempts to make before failing.
+		 * Total time budget (in milliseconds) to complete the handshake with the remote write side.
+		 * If the handshake does not complete within this time, a `ChannelError.HandshakeError` is thrown.
+		 * @default 10000
 		 */
-		maxHandshakeAttempts?: number;
-		/**
-		 * The amount of milliseconds to wait for a response to each handshake.
-		 */
-		handshakeAttemptTimeoutMs?: number;
+		handshakeTimeoutMs?: number;
 	}
 
 	/**
@@ -109,22 +108,17 @@ export namespace RemoteChannel {
 			 */
 			channelId: string;
 			/**
-			 * The maximum amount of messages the Channel can buffer. If 0, the channel is unbuffered and the communication is synchronous.
+			 * The maximum amount of messages the Channel can buffer.
 			 */
 			capacity?: number;
 			/**
-			 * A function taking a message and returning true if the message is of a valid type, false otherwise
-			 * @param value - the value to validate
+			 * A validation function applied to each message before sending.
 			 */
-			validator?: (value: any) => boolean;
+			validator?: (value: unknown) => boolean;
 			/**
-			 * The amount of handshake attempts to make before failing.
+			 * Total time budget (in milliseconds) to complete the handshake.
 			 */
-			maxHandshakeAttempts?: number;
-			/**
-			 * The amount of milliseconds to wait for a response to each handshake.
-			 */
-			handshakeAttemptTimeoutMs?: number;
+			handshakeTimeoutMs?: number;
 		};
 		/**
 		 * The channel read configuration.
@@ -135,22 +129,17 @@ export namespace RemoteChannel {
 			 */
 			channelId: string;
 			/**
-			 * The maximum amount of messages the Channel can buffer. If 0, the channel is unbuffered and the communication is synchronous.
+			 * The maximum amount of messages the Channel can buffer.
 			 */
 			capacity?: number;
 			/**
-			 * A function taking a message and returning true if the message is of a valid type, false otherwise
-			 * @param value - the value to validate
+			 * A validation function applied to each received message.
 			 */
-			validator?: (value: any) => boolean;
+			validator?: (value: unknown) => boolean;
 			/**
-			 * The amount of handshake attempts to make before failing.
+			 * Total time budget (in milliseconds) to complete the handshake.
 			 */
-			maxHandshakeAttempts?: number;
-			/**
-			 * The amount of milliseconds to wait for a response to each handshake.
-			 */
-			handshakeAttemptTimeoutMs?: number;
+			handshakeTimeoutMs?: number;
 		};
 	}
 }

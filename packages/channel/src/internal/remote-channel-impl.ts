@@ -141,11 +141,9 @@ export class RemoteChannelWrite<T>
 	readonly #initialized;
 	readonly #validator;
 
-	#isSending = false;
-
 	constructor(
 		port: RemoteChannel.SimpleMessagePort,
-		config: RemoteChannel.ReadConfig,
+		config: RemoteChannel.WriteConfig,
 	) {
 		super(port, config);
 
@@ -166,15 +164,15 @@ export class RemoteChannelWrite<T>
 		return this;
 	}
 
-	async send(
+	async send<RT>(
 		value: T,
 		options: {
 			signal?: AbortSignal | undefined;
 			timeoutMs?: number | undefined;
-			catchChannelErrors?: boolean | undefined;
+			recover?: ((channelError: ChannelError) => RT) | undefined;
 		} = {},
-	): Promise<any> {
-		const { signal, timeoutMs, catchChannelErrors = false } = options;
+	): Promise<void | RT> {
+		const { signal, timeoutMs, recover } = options;
 
 		const cleaner = createCleaner();
 
@@ -187,15 +185,9 @@ export class RemoteChannelWrite<T>
 				throw new ChannelError.OperationAbortedError();
 			}
 
-			if (this.#isSending) {
-				throw new ChannelError.AlreadyBusySendingError();
-			}
-
 			if (this.#validator?.(value) === false) {
 				throw new ChannelError.InvalidMessageTypeError(value);
 			}
-
-			this.#isSending = true;
 
 			const localController = new AbortController();
 
@@ -231,31 +223,39 @@ export class RemoteChannelWrite<T>
 		} catch (err) {
 			this.postMessage('SEND_VALUE_REQUEST_CANCEL', {});
 
-			if (catchChannelErrors && ChannelError.isChannelError(err)) {
-				return err;
+			if (recover !== undefined && ChannelError.isChannelError(err)) {
+				return recover(err);
 			}
 
 			throw err;
 		} finally {
-			this.#isSending = false;
+			cleaner.cleanup();
 		}
 	}
 
-	async sendAll(
+	async sendAll<RT>(
 		source: AsyncStreamSource<T>,
 		options: {
 			signal?: AbortSignal | undefined;
 			timeoutMs?: number | undefined;
-			catchChannelErrors?: boolean | undefined;
+			recover?: ((channelError: ChannelError) => RT) | undefined;
 		} = {},
-	): Promise<any> {
+	): Promise<void | RT> {
 		const iterator = AsyncStream.from(source)[Symbol.asyncIterator]();
 		const done = Symbol('done');
 		let value: T | typeof done;
 
 		while (done !== (value = await iterator.fastNext(done))) {
-			await this.send(value, options);
+			const result = await this.send(value, options as any);
+			if (result !== undefined) {
+				return result as RT;
+			}
 		}
+	}
+
+	trySend(_value: T): ChannelError | undefined {
+		// Remote channels do not support non-blocking sends
+		return new ChannelError.ChannelClosedError();
 	}
 
 	close(): void {
@@ -269,12 +269,17 @@ export class RemoteChannelWrite<T>
 	}
 
 	async #performHandshake(config: RemoteChannel.WriteConfig): Promise<void> {
-		const { maxHandshakeAttempts = 100, handshakeAttemptTimeoutMs = 100 } =
-			config;
+		const { handshakeTimeoutMs = 10000 } = config;
 
-		let attempt = 1;
+		// Each attempt uses a short per-attempt window; retry until the total budget expires
+		const attemptTimeoutMs = 100;
+		const deadline = Date.now() + handshakeTimeoutMs;
 
 		while (this.otherInstanceId === undefined) {
+			if (Date.now() >= deadline) {
+				throw new ChannelError.HandshakeError();
+			}
+
 			try {
 				const instanceId = getRandomSequenceNumber();
 				this.instanceId = instanceId;
@@ -284,7 +289,7 @@ export class RemoteChannelWrite<T>
 				const { sourceInstanceId } = await this.receiveMessage(
 					'OPEN_CHANNEL_RESPONSE',
 					{
-						timeoutMs: handshakeAttemptTimeoutMs,
+						timeoutMs: attemptTimeoutMs,
 						filter: (message) => message.ack === instanceId + 1,
 					},
 				);
@@ -297,12 +302,6 @@ export class RemoteChannelWrite<T>
 			} catch {
 				this.instanceId = undefined;
 				this.otherInstanceId = undefined;
-			}
-
-			attempt++;
-
-			if (attempt >= maxHandshakeAttempts) {
-				throw new ChannelError.HandshakeError();
 			}
 		}
 	}
@@ -321,15 +320,16 @@ export class RemoteChannelRead<T>
 
 	readonly #initialized;
 	readonly #receiveBufferCh;
+	readonly #validator;
 
 	constructor(
 		port: RemoteChannel.SimpleMessagePort,
-		config: RemoteChannel.WriteConfig,
+		config: RemoteChannel.ReadConfig & { capacity?: number },
 	) {
 		super(port, config);
 
+		this.#validator = config.validator;
 		this.#receiveBufferCh = Channel.create<T>({
-			validator: config.validator,
 			capacity: config.capacity,
 		});
 
@@ -380,18 +380,27 @@ export class RemoteChannelRead<T>
 		return await this.#receiveBufferCh.receive(options as any);
 	}
 
-	async #performHandshake(config: RemoteChannel.ReadConfig): Promise<void> {
-		const { maxHandshakeAttempts = 10, handshakeAttemptTimeoutMs = 1000 } =
-			config;
+	tryReceive(): T | ChannelError {
+		return this.#receiveBufferCh.tryReceive();
+	}
 
-		let attempt = 1;
+	async #performHandshake(config: RemoteChannel.ReadConfig): Promise<void> {
+		const { handshakeTimeoutMs = 10000 } = config;
+
+		// Use a longer per-attempt window on the read side (it waits for the writer to initiate)
+		const attemptTimeoutMs = 1000;
+		const deadline = Date.now() + handshakeTimeoutMs;
 
 		while (this.otherInstanceId === undefined) {
+			if (Date.now() >= deadline) {
+				throw new ChannelError.HandshakeError();
+			}
+
 			try {
 				const { sourceInstanceId } = await this.receiveMessage(
 					'OPEN_CHANNEL_REQUEST',
 					{
-						timeoutMs: handshakeAttemptTimeoutMs,
+						timeoutMs: attemptTimeoutMs,
 					},
 				);
 
@@ -410,18 +419,12 @@ export class RemoteChannelRead<T>
 				});
 
 				await this.receiveMessage('OPEN_CHANNEL_CONFIRM', {
-					timeoutMs: handshakeAttemptTimeoutMs,
+					timeoutMs: attemptTimeoutMs,
 					filter: (message) => message.ack === instanceId + 1,
 				});
 			} catch {
 				this.instanceId = undefined;
 				this.otherInstanceId = undefined;
-			}
-
-			attempt++;
-
-			if (attempt >= maxHandshakeAttempts) {
-				throw new ChannelError.HandshakeError();
 			}
 		}
 	}
@@ -442,6 +445,11 @@ export class RemoteChannelRead<T>
 				const { value } = await this.receiveMessage('SEND_VALUE_REQUEST', {
 					signal: this.#exhaustedController.signal,
 				});
+
+				if (this.#validator?.(value) === false) {
+					this.postMessage('SEND_VALUE_RESPONSE', { accepted: false });
+					continue;
+				}
 
 				const cancelController = new AbortController();
 

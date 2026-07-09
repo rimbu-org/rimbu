@@ -13,18 +13,20 @@ import { RemoteChannelServerImpl } from '#channel/remote-channel-server-impl';
  */
 export interface RemoteChannelServer {
 	/**
-	 * Channel that will send new write channels requested by the client.
+	 * Receive from this channel to get a new `Channel.Write` each time a client requests a write channel.
+	 * The received writer can be used to push data to that client.
 	 */
-	readonly writeChannelCh: Channel.Read<Channel.Write<unknown>>;
+	readonly newWriterCh: Channel.Read<Channel.Write<unknown>>;
 	/**
-	 * Channel that will send new read channels requested by the client.
+	 * Receive from this channel to get a new `Channel.Read` each time a client requests a read channel.
+	 * The received reader can be used to pull data sent by that client.
 	 */
-	readonly readChannelCh: Channel.Read<Channel.Read<unknown>>;
-
+	readonly newReaderCh: Channel.Read<Channel.Read<unknown>>;
 	/**
-	 * Channel that will send new cross channels requested by the client.
+	 * Receive from this channel to get a new `CrossChannel` each time a client requests a cross channel.
+	 * The received cross-channel supports bidirectional communication with that client.
 	 */
-	readonly crossChannelCh: Channel.Read<CrossChannel<unknown, unknown>>;
+	readonly newCrossCh: Channel.Read<CrossChannel<unknown, unknown>>;
 }
 
 const removeChannelServerModule = Module.create<typeof RemoteChannelServer>(

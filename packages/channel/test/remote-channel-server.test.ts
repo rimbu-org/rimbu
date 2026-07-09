@@ -20,7 +20,7 @@ describe('RemoteChannelServer', () => {
 		const [client, server] = await createClientServer();
 
 		const readCh = await client.createRead({ channelId: 'TEST' });
-		const writeCh = await server.writeChannelCh.receive();
+		const writeCh = await server.newWriterCh.receive();
 
 		const sendPromise = writeCh.send('MSG');
 		expectNotResolves(sendPromise);
@@ -32,7 +32,7 @@ describe('RemoteChannelServer', () => {
 		const [client, server] = await createClientServer();
 
 		const writeCh = await client.createWrite({ channelId: 'TEST' });
-		const readCh = await server.readChannelCh.receive();
+		const readCh = await server.newReaderCh.receive();
 
 		const sendPromise = writeCh.send('MSG');
 		expectNotResolves(sendPromise);
@@ -47,7 +47,7 @@ describe('RemoteChannelServer', () => {
 			read: { channelId: 'CROSS_READ' },
 			write: { channelId: 'CROSS_WRITE' },
 		});
-		const serverCh = await server.crossChannelCh.receive();
+		const serverCh = await server.newCrossCh.receive();
 
 		const clientSendPromise = clientCh.send('MSG');
 		expectNotResolves(clientSendPromise);

@@ -48,9 +48,9 @@ export async function RemoteChannelServerImpl(config: {
 			channelId: rcsChannelId,
 		});
 
-	const writeChannelCh = Channel.create<Channel.Write<unknown>>();
-	const readChannelCh = Channel.create<Channel.Read<unknown>>();
-	const crossChannelCh = Channel.create<CrossChannel<unknown>>();
+	const newWriterCh = Channel.create<Channel.Write<unknown>>();
+	const newReaderCh = Channel.create<Channel.Read<unknown>>();
+	const newCrossCh = Channel.create<CrossChannel<unknown>>();
 
 	const handler = async (): Promise<void> => {
 		while (!rcsChannel.isExhausted) {
@@ -65,14 +65,14 @@ export async function RemoteChannelServerImpl(config: {
 					const ch = await RemoteChannel.createWrite<unknown>(port, {
 						channelId: openMessage.channelId,
 					});
-					await writeChannelCh.send(ch);
+					await newWriterCh.send(ch);
 					break;
 				}
 				case 'read': {
 					const ch = await RemoteChannel.createRead<unknown>(port, {
 						channelId: openMessage.channelId,
 					});
-					await readChannelCh.send(ch);
+					await newReaderCh.send(ch);
 					break;
 				}
 				case 'cross': {
@@ -80,7 +80,7 @@ export async function RemoteChannelServerImpl(config: {
 						read: openMessage.read,
 						write: openMessage.write,
 					});
-					await crossChannelCh.send(crossCh);
+					await newCrossCh.send(crossCh);
 					break;
 				}
 			}
@@ -90,8 +90,8 @@ export async function RemoteChannelServerImpl(config: {
 	handler();
 
 	return {
-		writeChannelCh,
-		readChannelCh,
-		crossChannelCh,
+		newWriterCh,
+		newReaderCh,
+		newCrossCh,
 	};
 }

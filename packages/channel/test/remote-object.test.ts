@@ -13,7 +13,7 @@ function createRemoteChannels(sourceObj: any) {
 
 	return [
 		RemoteObject.createClient<typeof obj>(clientCommCh),
-		RemoteObject.createServer(sourceObj, serverCommCh),
+		RemoteObject.serve(sourceObj, serverCommCh),
 	] as const;
 }
 

@@ -1,6 +1,9 @@
 import { Module } from '@rimbu/common/module';
 
+import { WaitGroupError } from '#channel/wait-group-error';
 import { WaitGroupImpl } from '#channel/wait-group-impl';
+
+export { WaitGroupError };
 
 /**
  * A WaitGroup is a way to perform fork-join logic in an asynchronous context. It allows a process to create an
@@ -14,7 +17,8 @@ export interface WaitGroup {
 	 */
 	add(amount?: number): void;
 	/**
-	 * Informs the WaitGroup that a process has completed.
+	 * Informs the WaitGroup that a process has completed. Throws `WaitGroupError.UnderflowError` if called
+	 * more times than `add()`.
 	 * @param amount - (default: 1) the amount of processes to mark as done
 	 * @returns `void`
 	 */
@@ -30,6 +34,13 @@ export interface WaitGroup {
 		signal?: AbortSignal | undefined;
 		timeoutMs?: number | undefined;
 	}): Promise<void>;
+}
+
+export namespace WaitGroup {
+	/**
+	 * The WaitGroup Error type.
+	 */
+	export type Error = WaitGroupError;
 }
 
 const waitGroupModule = Module.create<typeof WaitGroup>(() => ({

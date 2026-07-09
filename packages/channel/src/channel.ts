@@ -2,11 +2,22 @@ import type { AsyncStreamable, AsyncStreamSource } from '@rimbu/stream/async';
 
 import { Module } from '@rimbu/common/module';
 
+import { ChannelError } from '#channel/channel-error';
 import { ChannelImpl } from '#channel/channel-impl';
 import { attachAbort, createCleaner } from '#channel/utils';
-import { ChannelError } from '#private/channel-error';
 
 export { ChannelError };
+
+// Re-export all sub-modules from the main entry point
+export { CrossChannel } from '@rimbu/channel/cross-channel';
+export { Mutex } from '@rimbu/channel/mutex';
+export { RemoteChannel } from '@rimbu/channel/remote-channel';
+export { RemoteChannelClient } from '@rimbu/channel/remote-channel-client';
+export { RemoteChannelServer } from '@rimbu/channel/remote-channel-server';
+export { RemoteObject, RemoteObjectError } from '@rimbu/channel/remote-object';
+export { RpcProxy, RpcProxyError } from '@rimbu/channel/rpc-proxy';
+export { Semaphore, SemaphoreError } from '@rimbu/channel/semaphore';
+export { WaitGroup, WaitGroupError } from '@rimbu/channel/wait-group';
 
 /**
  * A Rimbu Channel offers various ways to synchronize communication between asynchronous processes. These processes can send and receive
@@ -23,7 +34,8 @@ export namespace Channel {
 	 */
 	export interface Read<T = void> extends AsyncIterable<T>, AsyncStreamable<T> {
 		/**
-		 * The maximum amount of messages the Channel can buffer. If 0, the channel is unbuffered and the communication is synchronous.
+		 * The maximum amount of messages the Channel can buffer. If 0 (or `Channel.UNBUFFERED`), the channel is unbuffered
+		 * and the communication is synchronous.
 		 */
 		get capacity(): number;
 		/**
@@ -55,6 +67,14 @@ export namespace Channel {
 			timeoutMs?: number | undefined;
 			recover?: undefined;
 		}): Promise<T>;
+		/**
+		 * Attempts to receive a message from the Channel without blocking. Returns the message immediately if
+		 * one is available, or a `Channel.Error` if the channel is empty, exhausted, or closed.
+		 * - Returns `ChannelError.ChannelEmptyError` if the channel is open but has no messages.
+		 * - Returns `ChannelError.ChannelExhaustedError` if the channel is closed and empty.
+		 * @returns the next message `T`, or a `Channel.Error` describing why no message was available
+		 */
+		tryReceive(): T | Channel.Error;
 	}
 
 	/**
@@ -77,50 +97,57 @@ export namespace Channel {
 		 * @param options - (optional) the message send options<br/>
 		 * - signal: (optional) an abort signal to cancel sending<br/>
 		 * - timeoutMs: (optional) amount of milliseconds to wait for being able to send message<br/>
-		 * - catchChannelErrors: (optional) when true the call returns a `Channel.Error` instead of throwing; when false (default) errors are thrown
-		 * @returns a `Promise` that resolves to `void`, or to `Channel.Error | undefined` when `catchChannelErrors` is true
+		 * - recover: (optional) a function that can be supplied to recover from a channel error
+		 * @returns a `Promise` that resolves to `void`, or to the recover return value on error
 		 */
-		send(
+		send<RT>(
 			value: T,
 			options: {
 				signal?: AbortSignal | undefined;
 				timeoutMs?: number | undefined;
-				catchChannelErrors?: false | undefined;
+				recover: (channelError: Channel.Error) => RT;
 			},
-		): Promise<void>;
+		): Promise<void | RT>;
 		send(
 			value: T,
 			options?: {
 				signal?: AbortSignal | undefined;
 				timeoutMs?: number | undefined;
-				catchChannelErrors: boolean;
+				recover?: undefined;
 			},
-		): Promise<undefined | Channel.Error>;
+		): Promise<void>;
 		/**
 		 * Sequentially send all the values in the given `source` to the channel. Blocks until all the values are sent.
 		 * @param source - a stream source containing the values to send
 		 * @param options - the message send options<br/>
 		 * - signal: (optional) an abort signal to cancel sending<br/>
 		 * - timeoutMs: (optional) amount of milliseconds to wait for being able to send message, for each separate message in the source<br/>
-		 * - catchChannelErrors: (optional) when true the call returns a `Channel.Error` instead of throwing; when false (default) errors are thrown
-		 * @returns a `Promise` that resolves to `void`, or to `Channel.Error | undefined` when `catchChannelErrors` is true
+		 * - recover: (optional) a function invoked on the first error; stops sending further items
+		 * @returns a `Promise` that resolves to `void`, or to the recover return value on error
 		 */
-		sendAll(
+		sendAll<RT>(
 			source: AsyncStreamSource<T>,
 			options: {
 				signal?: AbortSignal | undefined;
 				timeoutMs?: number | undefined;
-				catchChannelErrors?: false | undefined;
+				recover: (channelError: Channel.Error) => RT;
 			},
-		): Promise<void>;
+		): Promise<void | RT>;
 		sendAll(
 			source: AsyncStreamSource<T>,
 			options?: {
 				signal?: AbortSignal | undefined;
 				timeoutMs?: number | undefined;
-				catchChannelErrors: boolean;
+				recover?: undefined;
 			},
-		): Promise<undefined | Channel.Error>;
+		): Promise<void>;
+		/**
+		 * Attempts to send a message to the Channel without blocking. Returns `undefined` on success, or a
+		 * `Channel.Error` if the channel is full or closed.
+		 * @param value - the message to send
+		 * @returns `undefined` on success, or a `Channel.Error` describing why the send could not proceed
+		 */
+		trySend(value: T): Channel.Error | undefined;
 		/**
 		 * Closes the channel. After a close, further send actions will throw.
 		 */
@@ -149,14 +176,10 @@ export namespace Channel {
 	export interface Config {
 		/**
 		 * The channel capacity, indicating the amount of messages a channel will buffer
-		 * before sending to the channel will block.
+		 * before sending to the channel will block. Use `Channel.UNBUFFERED` (or `0`) for
+		 * an unbuffered channel where each send blocks until a receiver is ready.
 		 */
 		capacity?: number | undefined;
-		/**
-		 * A validation function that is used when sending values. If the provided value returns true, the
-		 * value is valid and will be sent. If the value is false, an exception will be thrown.
-		 */
-		validator?: ((value: any) => boolean) | undefined;
 	}
 
 	/**
@@ -164,11 +187,16 @@ export namespace Channel {
 	 */
 	export interface Constructors {
 		/**
+		 * Capacity value for an unbuffered channel. An unbuffered channel requires a receiver to be
+		 * ready before a send can proceed (synchronous handoff).
+		 */
+		readonly UNBUFFERED: 0;
+
+		/**
 		 * Returns a new Channel instance that can be used to synchronize asynchronous processes within a single thread.
 		 * @typeparam T - the channel message type
 		 * @param options - (optional) the options used to create the channel<br/>
-		 * - capacity: (optional) the buffer size of the channel<br/>
-		 * - validator: (optional) a function taking a message and returning true if the message is of a valid type, false otherwise
+		 * - capacity: (optional) the buffer size of the channel (use `Channel.UNBUFFERED` or `0` for unbuffered)
 		 */
 		create<T = void>(options?: Channel.Config): Channel<T>;
 
@@ -215,29 +243,29 @@ export namespace Channel {
 		 * Resolves, from the given tuples of channels and channel value handlers, the result of applying the corresponding channel handler to the
 		 * first channel value that is received.
 		 * @typeparam TS - an array of channel message types
-		 * @typeparam HS - an array of tuple containing a read channel for the message type, and a handler for the message
-		 * @param options - options to take into account:<br/>
-		 * - signal: an abortsignal that can be provided to abort waiting for a value<br/>
+		 * @typeparam HS - an array of tuples containing a read channel for the message type, and a handler for the message
+		 * @param cases - an array of tuples, each containing a (read) channel and a handler for the received value
+		 * @param options - (optional) options to take into account:<br/>
+		 * - signal: an AbortSignal that can be provided to abort waiting for a value<br/>
 		 * - timeoutMs: if none of the channels receives a value within the given amount of milliseconds, will throw<br/>
 		 * - recover: when given, catches any `Channel.Error` instance and allows returning a backup value
-		 * @param cases - a number of tuples, each tuple containing a (read) channel and a handler for converting the received value into another value
 		 */
-		selectMap: {
+		selectCase: {
 			<
 				TS extends any[],
 				HS extends {
 					[K in keyof TS]: [Channel.Read<TS[K]>, (value: TS[K]) => any];
 				},
 			>(
+				cases: HS & {
+					[K in keyof TS]: [Channel.Read<TS[K]>, (value: TS[K]) => any];
+				},
 				options?: {
 					signal?: AbortSignal | undefined;
 					timeoutMs?: number | undefined;
 					recover?: undefined;
 				},
-				...cases: HS & {
-					[K in keyof TS]: [Channel.Read<TS[K]>, (value: TS[K]) => any];
-				}
-			): Promise<{ [K in keyof HS]: Promise<ReturnType<HS[K][1]>> }[number]>;
+			): Promise<{ [K in keyof HS]: ReturnType<HS[K][1]> }[number]>;
 			<
 				TS extends any[],
 				HS extends {
@@ -245,22 +273,21 @@ export namespace Channel {
 				},
 				RT,
 			>(
+				cases: HS & {
+					[K in keyof TS]: [Channel.Read<TS[K]>, (value: TS[K]) => any];
+				},
 				options: {
 					signal?: AbortSignal | undefined;
 					timeoutMs?: number | undefined;
 					recover: (channelError: Channel.Error) => RT;
 				},
-				...cases: HS & {
-					[K in keyof TS]: [Channel.Read<TS[K]>, (value: TS[K]) => any];
-				}
-			): Promise<
-				{ [K in keyof HS]: Promise<ReturnType<HS[K][1]>> }[number] | RT
-			>;
+			): Promise<{ [K in keyof HS]: ReturnType<HS[K][1]> }[number] | RT>;
 		};
 	}
 }
 
 const channelModule = Module.create<Channel.Constructors>(() => ({
+	UNBUFFERED: 0,
 	create: (options) => {
 		return new ChannelImpl(options);
 	},
@@ -321,24 +348,22 @@ const channelModule = Module.create<Channel.Constructors>(() => ({
 			throw err;
 		}
 	},
-	selectMap: async <
+	selectCase: async <
 		TS extends any[],
 		HS extends {
 			[K in keyof TS]: [Channel.Read<TS[K]>, (value: TS[K]) => any];
 		},
 		RT,
 	>(
+		cases: HS & {
+			[K in keyof TS]: [Channel.Read<TS[K]>, (value: TS[K]) => any];
+		},
 		options: {
 			signal?: AbortSignal | undefined;
 			timeoutMs?: number | undefined;
 			recover?: ((channelError: Channel.Error) => RT) | undefined;
 		} = {},
-		...cases: HS & {
-			[K in keyof TS]: [Channel.Read<TS[K]>, (value: TS[K]) => any];
-		}
-	): Promise<
-		{ [K in keyof HS]: Promise<ReturnType<HS[K][1]>> }[number] | RT
-	> => {
+	): Promise<{ [K in keyof HS]: ReturnType<HS[K][1]> }[number] | RT> => {
 		const { signal, timeoutMs, recover } = options;
 
 		if (signal?.aborted) {
@@ -355,7 +380,9 @@ const channelModule = Module.create<Channel.Constructors>(() => ({
 			attachAbort(signal, abortLocalController),
 		);
 
-		const mappedCases = cases.map(async ([chan, handler]) => {
+		const mappedCases = (
+			cases as Array<[Channel.Read<any>, (value: any) => any]>
+		).map(async ([chan, handler]) => {
 			try {
 				const value = await chan.receive({
 					signal: localController.signal,

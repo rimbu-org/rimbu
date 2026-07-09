@@ -3,6 +3,7 @@ import type { WaitGroup } from '@rimbu/channel/wait-group';
 import { ChannelError } from '@rimbu/channel';
 
 import { attachAbort } from '#channel/utils';
+import { WaitGroupError } from '#channel/wait-group-error';
 
 /**
  * Default implementation of the `WaitGroup` synchronization primitive.
@@ -43,7 +44,11 @@ export class WaitGroupImpl implements WaitGroup {
 			return;
 		}
 
-		this.#count -= Math.min(amount, this.#count);
+		if (amount > this.#count) {
+			throw new WaitGroupError.UnderflowError();
+		}
+
+		this.#count -= amount;
 
 		if (this.#count <= 0) {
 			if (this.#blockPromise === undefined) {

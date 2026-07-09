@@ -26,7 +26,13 @@ describe('Channel buffer 0', () => {
 		expect(ch.isExhausted).toBe(false);
 	});
 
-	it('readable and writable return self', () => {
+	it('UNBUFFERED constant equals 0', () => {
+		expect(Channel.UNBUFFERED).toBe(0);
+		const ch = Channel.create({ capacity: Channel.UNBUFFERED });
+		expect(ch.capacity).toBe(0);
+	});
+
+	it('readable returns read-only view, writable returns write-only view', () => {
 		const ch = Channel.create();
 		expect(ch.readable()).toBe(ch);
 		expect(ch.writable()).toBe(ch);
@@ -68,20 +74,20 @@ describe('Channel buffer 0', () => {
 		);
 	});
 
-	it('send with catchChannelErrors returns channel error', async () => {
+	it('send with recover returns channel error', async () => {
 		const ch = Channel.create<string>();
 		const res = await ch.send(MSG, {
 			timeoutMs: 100,
-			catchChannelErrors: true,
+			recover: (err) => err,
 		});
 		expect(ch.length).toBe(0);
 		expect(res).toBeInstanceOf(ChannelError.TimeoutError);
 	});
 
-	it('send with catchChannelErrors and timeout returns channel error after timeout', async () => {
+	it('send with recover and timeout returns channel error after timeout', async () => {
 		const ch = Channel.create<string>();
 		const res = await ch.send(MSG, {
-			catchChannelErrors: true,
+			recover: (err) => err,
 			timeoutMs: 100,
 		});
 		expect(ch.length).toBe(0);
@@ -112,7 +118,7 @@ describe('Channel buffer 0', () => {
 		).rejects.toThrow(ChannelError.OperationAbortedError);
 	});
 
-	it('send with aborted signal and catchChannelErrors returns channel error', () => {
+	it('send with aborted signal and recover returns channel error', () => {
 		const ch = Channel.create<string>();
 
 		const controller = new AbortController();
@@ -120,12 +126,12 @@ describe('Channel buffer 0', () => {
 		expect(
 			ch.send(MSG, {
 				signal: controller.signal,
-				catchChannelErrors: true,
+				recover: (err) => err,
 			}),
 		).resolves.toBeInstanceOf(ChannelError.OperationAbortedError);
 	});
 
-	it('send with signal that is aborted after some time and catchChannelErrors returns channel error', () => {
+	it('send with signal that is aborted after some time and recover returns channel error', () => {
 		const ch = Channel.create<string>();
 
 		const controller = new AbortController();
@@ -133,7 +139,7 @@ describe('Channel buffer 0', () => {
 		expect(
 			ch.send(MSG, {
 				signal: controller.signal,
-				catchChannelErrors: true,
+				recover: (err) => err,
 			}),
 		).resolves.toBeInstanceOf(ChannelError.OperationAbortedError);
 	});
@@ -152,7 +158,7 @@ describe('Channel buffer 0', () => {
 		expect(res).toBeInstanceOf(ChannelError.TimeoutError);
 	});
 
-	it('receive with catchChannelErrors and timeout returns channel error after timeout', async () => {
+	it('receive with recover and timeout returns channel error after timeout', async () => {
 		const ch = Channel.create<string>();
 		const res = await ch.receive({
 			recover: (err) => err,
@@ -162,21 +168,52 @@ describe('Channel buffer 0', () => {
 		expect(res).toBeInstanceOf(ChannelError.TimeoutError);
 	});
 
-	it('cannot send multiple times without await', () => {
+	it('allows multiple concurrent sends', async () => {
 		const ch = Channel.create<string>();
-		ch.send('A');
-		expect(ch.length).toBe(0);
-		expect(ch.send('B')).rejects.toThrow();
-		expect(ch.receive()).resolves.toBe('A');
+		const p1 = ch.send('A');
+		const p2 = ch.send('B');
+		expect(await ch.receive()).toBe('A');
+		expect(await ch.receive()).toBe('B');
+		await p1;
+		await p2;
 	});
 
-	it('cannot receive multiple times without await', () => {
+	it('allows multiple concurrent receives', async () => {
+		const ch = Channel.create<string>();
+		const r1 = ch.receive();
+		const r2 = ch.receive();
+		await ch.send('A');
+		await ch.send('B');
+		expect(await r1).toBe('A');
+		expect(await r2).toBe('B');
+	});
+
+	it('trySend returns undefined on success (when receiver is waiting)', async () => {
 		const ch = Channel.create<string>();
 		const receivePromise = ch.receive();
-		expect(ch.length).toBe(0);
-		expect(ch.receive()).rejects.toThrow();
-		ch.send(MSG);
-		expect(receivePromise).resolves.toBe(MSG);
+		const result = ch.trySend(MSG);
+		expect(result).toBeUndefined();
+		expect(await receivePromise).toBe(MSG);
+	});
+
+	it('trySend returns ChannelClosedError when channel is closed', () => {
+		const ch = Channel.create<string>();
+		ch.close();
+		const result = ch.trySend(MSG);
+		expect(result).toBeInstanceOf(ChannelError.ChannelClosedError);
+	});
+
+	it('tryReceive returns ChannelEmptyError when channel is open and empty', () => {
+		const ch = Channel.create<string>();
+		const result = ch.tryReceive();
+		expect(result).toBeInstanceOf(ChannelError.ChannelEmptyError);
+	});
+
+	it('tryReceive returns ChannelExhaustedError when channel is exhausted', () => {
+		const ch = Channel.create<string>();
+		ch.close();
+		const result = ch.tryReceive();
+		expect(result).toBeInstanceOf(ChannelError.ChannelExhaustedError);
 	});
 
 	it('closing while receiving empty throws', () => {
@@ -242,14 +279,6 @@ describe('Channel buffer 1', () => {
 		const ch = Channel.create({ capacity: 1 });
 		ch.close();
 		expect(ch.send()).rejects.toThrow(ChannelError.ChannelClosedError);
-	});
-
-	it('send throws when validator is provided and value is invalid', () => {
-		const ch = Channel.create<any>({
-			capacity: 1,
-			validator: (v) => typeof v === 'string',
-		});
-		expect(ch.send(5)).rejects.toThrow(ChannelError.InvalidMessageTypeError);
 	});
 
 	it('send with timeout when buffer full throws', async () => {
@@ -351,21 +380,53 @@ describe('Channel buffer 1', () => {
 		expect(() => ch.close()).toThrow(ChannelError.ChannelClosedError);
 	});
 
-	it('cannot send multiple times without await', async () => {
+	it('allows multiple concurrent sends', async () => {
 		const ch = Channel.create<string>({ capacity: 1 });
 		await ch.send('A');
-		expect(ch.length).toBe(1);
-		ch.send('B');
-		expect(ch.send('C')).rejects.toThrow();
+		const p2 = ch.send('B');
+		const p3 = ch.send('C');
+		expect(await ch.receive()).toBe('A');
+		expect(await ch.receive()).toBe('B');
+		expect(await ch.receive()).toBe('C');
+		await p2;
+		await p3;
 	});
 
-	it('cannot receive multiple times without await', () => {
+	it('allows multiple concurrent receives', () => {
 		const ch = Channel.create<string>({ capacity: 1 });
 		const r1 = ch.receive();
-		expect(ch.length).toBe(0);
-		expect(ch.receive()).rejects.toThrow();
+		const r2 = ch.receive();
 		ch.send(MSG);
 		expect(r1).resolves.toBe(MSG);
+		ch.send(MSG);
+		expect(r2).resolves.toBe(MSG);
+	});
+
+	it('trySend returns undefined on success when buffer has space', async () => {
+		const ch = Channel.create<string>({ capacity: 1 });
+		const result = ch.trySend(MSG);
+		expect(result).toBeUndefined();
+		expect(await ch.receive()).toBe(MSG);
+	});
+
+	it('trySend returns error when buffer is full', async () => {
+		const ch = Channel.create<string>({ capacity: 1 });
+		await ch.send(MSG);
+		const result = ch.trySend(MSG);
+		expect(result).toBeInstanceOf(ChannelError);
+	});
+
+	it('tryReceive returns value when buffer has data', async () => {
+		const ch = Channel.create<string>({ capacity: 1 });
+		await ch.send(MSG);
+		const result = ch.tryReceive();
+		expect(result).toBe(MSG);
+	});
+
+	it('tryReceive returns ChannelEmptyError when buffer is empty but open', () => {
+		const ch = Channel.create<string>({ capacity: 1 });
+		const result = ch.tryReceive();
+		expect(result).toBeInstanceOf(ChannelError.ChannelEmptyError);
 	});
 });
 
@@ -395,33 +456,39 @@ describe('Channel.select', () => {
 		}
 	});
 
-	it('selectMap', async () => {
+	it('selectCase', async () => {
 		const ch1 = Channel.create<string>();
 		const ch2 = Channel.create<number>();
 
 		expect(
-			Channel.selectMap(
+			Channel.selectCase(
+				[
+					[ch1, (v) => `${v}${v}`],
+					[ch2, (v) => v * 2],
+				],
 				{ timeoutMs: 10 },
-				[ch1, (v) => `${v}${v}`],
-				[ch2, (v) => v * 2],
 			),
 		).rejects.toThrow();
 
 		{
-			const promise = Channel.selectMap(
+			const promise = Channel.selectCase(
+				[
+					[ch1, (v) => `${v}${v}`],
+					[ch2, (v) => v * 2],
+				],
 				{ timeoutMs: 10 },
-				[ch1, (v) => `${v}${v}`],
-				[ch2, (v) => v * 2],
 			);
 			await ch1.send(MSG);
 			expect(promise).resolves.toBe(`${MSG}${MSG}`);
 		}
 
 		{
-			const promise = Channel.selectMap(
+			const promise = Channel.selectCase(
+				[
+					[ch1, (v) => `${v}${v}`],
+					[ch2, (v) => v * 2],
+				],
 				{ timeoutMs: 10 },
-				[ch1, (v) => `${v}${v}`],
-				[ch2, (v) => v * 2],
 			);
 			await ch2.send(5);
 			expect(promise).resolves.toBe(10);

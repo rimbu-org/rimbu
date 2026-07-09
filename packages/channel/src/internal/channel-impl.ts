@@ -5,8 +5,8 @@ import { AsyncStream, type AsyncStreamSource } from '@rimbu/stream/async';
 import { AsyncFastIteratorBase } from '@rimbu/stream/async/internal/fast-iterator-base';
 import { AsyncFromStream } from '@rimbu/stream/async/internal/stream-base';
 
+import { ChannelError } from '#channel/channel-error';
 import { attachAbort, createCleaner, timeoutAction } from '#channel/utils';
-import { ChannelError } from '#private/channel-error';
 
 /**
  * Fast async iterator adapter that turns a `Channel.Read` into an `AsyncStream`.
@@ -28,27 +28,27 @@ export class ChannelFastIterator<T> extends AsyncFastIteratorBase<T> {
 
 /**
  * Default in-memory implementation of a `Channel` that backs the public channel API.
+ * Multiple concurrent senders and receivers are supported; they are queued FIFO.
  * @typeparam T - the channel message type
  */
 export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
 	readonly #closeController = new AbortController();
+
+	// Queue of getters representing buffered (or blocked-sender) values
 	readonly #getNextValueQueue = new Set<() => T>();
 
+	// Queue of blocked receivers waiting for a value
+	readonly #blockedReceivers = new Set<(value: T) => void>();
+
 	readonly #capacity;
-	readonly #validator;
 
 	constructor(
 		options: {
 			capacity?: number | undefined;
-			validator?: ((value: any) => boolean) | undefined;
 		} = {},
 	) {
 		this.#capacity = options.capacity ?? 0;
-		this.#validator = options.validator;
 	}
-
-	#blockedReceiver: ((value: T) => void) | undefined;
-	#isSending = false;
 
 	[Symbol.asyncIterator](): AsyncIterator<T> {
 		return this.asyncStream()[Symbol.asyncIterator]();
@@ -94,15 +94,29 @@ export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
 		return this;
 	}
 
-	async send(
+	/**
+	 * Attempt to hand `value` directly to a blocked receiver. Returns true if consumed.
+	 */
+	#tryDeliverToBlockedReceiver(value: T): boolean {
+		if (this.#blockedReceivers.size === 0) {
+			return false;
+		}
+
+		const [receiver] = this.#blockedReceivers;
+		this.#blockedReceivers.delete(receiver);
+		receiver(value);
+		return true;
+	}
+
+	async send<RT>(
 		value: T,
 		options: {
 			signal?: AbortSignal | undefined;
 			timeoutMs?: number | undefined;
-			catchChannelErrors?: boolean | undefined;
+			recover?: ((channelError: Channel.Error) => RT) | undefined;
 		} = {},
-	): Promise<any> {
-		const { signal, timeoutMs, catchChannelErrors = false } = options;
+	): Promise<void | RT> {
+		const { signal, timeoutMs, recover } = options;
 
 		try {
 			if (this.isClosed) {
@@ -113,38 +127,25 @@ export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
 				throw new ChannelError.OperationAbortedError();
 			}
 
-			if (this.#isSending) {
-				throw new ChannelError.AlreadyBusySendingError();
-			}
-
-			if (this.#validator?.(value) === false) {
-				throw new ChannelError.InvalidMessageTypeError(value);
-			}
-
 			if (this.#bufferFull && timeoutMs !== undefined && timeoutMs <= 0) {
 				throw new ChannelError.TimeoutError();
 			}
 
-			{
-				const receiver = this.#blockedReceiver;
-
-				if (this.#bufferEmpty && receiver !== undefined) {
-					receiver(value);
-					return;
-				}
+			// If a receiver is waiting and buffer is empty, hand value directly
+			if (this.#bufferEmpty && this.#tryDeliverToBlockedReceiver(value)) {
+				return;
 			}
 
 			if (!this.#bufferFull) {
-				// store in buffer, no way to cancel send
+				// store in buffer
 				this.#getNextValueQueue.add(() => value);
 				return;
 			}
 
+			// Buffer full: block until a receiver consumes our value or we are cancelled
 			const cleaner = createCleaner();
 
 			return await new Promise<void>((resolve, reject) => {
-				this.#isSending = true;
-
 				const getNextValue = (): T => {
 					resolve();
 					return value;
@@ -168,32 +169,54 @@ export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
 				);
 			}).finally(() => {
 				cleaner.cleanup();
-				this.#isSending = false;
 			});
 		} catch (err) {
-			if (catchChannelErrors && ChannelError.isChannelError(err)) {
-				return err;
+			if (recover !== undefined && ChannelError.isChannelError(err)) {
+				return recover(err);
 			}
 
 			throw err;
 		}
 	}
 
-	async sendAll(
+	async sendAll<RT>(
 		source: AsyncStreamSource<T>,
 		options: {
 			signal?: AbortSignal | undefined;
 			timeoutMs?: number | undefined;
-			catchChannelErrors?: boolean | undefined;
+			recover?: ((channelError: Channel.Error) => RT) | undefined;
 		} = {},
-	): Promise<any> {
+	): Promise<void | RT> {
 		const iterator = AsyncStream.from(source)[Symbol.asyncIterator]();
 		const done = Symbol('done');
 		let value: T | typeof done;
 
 		while (done !== (value = await iterator.fastNext(done))) {
-			await this.send(value, options);
+			const result = await this.send(value, options as any);
+			if (result !== undefined) {
+				// recover was called — stop sending
+				return result as RT;
+			}
 		}
+	}
+
+	trySend(value: T): Channel.Error | undefined {
+		if (this.isClosed) {
+			return new ChannelError.ChannelClosedError();
+		}
+
+		// If a receiver is waiting and buffer is empty, hand value directly
+		if (this.#bufferEmpty && this.#tryDeliverToBlockedReceiver(value)) {
+			return undefined;
+		}
+
+		if (!this.#bufferFull) {
+			this.#getNextValueQueue.add(() => value);
+			return undefined;
+		}
+
+		// Buffer full — would need to block, so fail
+		return new ChannelError.ChannelExhaustedError();
 	}
 
 	async receive<RT>(
@@ -214,32 +237,26 @@ export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
 				throw new ChannelError.OperationAbortedError();
 			}
 
-			if (this.#blockedReceiver !== undefined) {
-				throw new ChannelError.AlreadyBusyReceivingError();
-			}
-
 			if (!this.#bufferEmpty) {
 				const [getNextValue] = this.#getNextValueQueue;
 				this.#getNextValueQueue.delete(getNextValue);
-				const value = getNextValue();
-
-				return value;
+				return getNextValue();
 			}
 
+			// No value in buffer — block until a sender delivers or we are cancelled
 			const cleaner = createCleaner();
 
 			return await new Promise<T>((resolve, reject) => {
 				const receiveValue = (value: T): void => {
-					if (this.#validator?.(value) === false) {
-						reject(new ChannelError.InvalidMessageTypeError(value));
-					} else {
-						resolve(value);
-					}
+					resolve(value);
 				};
 
-				this.#blockedReceiver = receiveValue;
+				this.#blockedReceivers.add(receiveValue);
 
 				cleaner.add(
+					() => {
+						this.#blockedReceivers.delete(receiveValue);
+					},
 					attachAbort(signal, () => {
 						reject(new ChannelError.OperationAbortedError());
 					}),
@@ -254,7 +271,6 @@ export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
 				);
 			}).finally(() => {
 				cleaner.cleanup();
-				this.#blockedReceiver = undefined;
 			});
 		} catch (err) {
 			if (recover !== undefined && ChannelError.isChannelError(err)) {
@@ -263,6 +279,24 @@ export class ChannelImpl<T> implements Channel.Read<T>, Channel.Write<T> {
 
 			throw err;
 		}
+	}
+
+	tryReceive(): T | Channel.Error {
+		if (this.isExhausted) {
+			return new ChannelError.ChannelExhaustedError();
+		}
+
+		if (this.isClosed) {
+			return new ChannelError.ChannelClosedError();
+		}
+
+		if (!this.#bufferEmpty) {
+			const [getNextValue] = this.#getNextValueQueue;
+			this.#getNextValueQueue.delete(getNextValue);
+			return getNextValue();
+		}
+
+		return new ChannelError.ChannelEmptyError();
 	}
 
 	close(): void {

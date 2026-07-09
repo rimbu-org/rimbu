@@ -1,6 +1,6 @@
-import { describe, it } from 'bun:test';
+import { describe, expect, it } from 'bun:test';
 
-import { WaitGroup } from '@rimbu/channel/wait-group';
+import { WaitGroup, WaitGroupError } from '@rimbu/channel/wait-group';
 import { expectNotResolves } from './test-utils';
 
 describe('WaitGroup', () => {
@@ -39,8 +39,19 @@ describe('WaitGroup', () => {
 		expectNotResolves(waitWg);
 		wg.done();
 		expectNotResolves(waitWg);
-		wg.done(10);
+		wg.done(2);
 		await waitWg;
+	});
+
+	it('done throws WaitGroupError.UnderflowError when called more times than add', () => {
+		const wg = WaitGroup.create();
+		expect(() => wg.done()).toThrow(WaitGroupError.UnderflowError);
+	});
+
+	it('done throws when partial amount causes underflow', () => {
+		const wg = WaitGroup.create();
+		wg.add(2);
+		expect(() => wg.done(3)).toThrow(WaitGroupError.UnderflowError);
 	});
 
 	it('can reuse waitgroup', async () => {

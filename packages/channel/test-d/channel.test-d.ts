@@ -36,28 +36,29 @@ expectTypeOf(CrossChannel.createPair<string, number>()[0]).toEqualTypeOf<
 
 const ch = CrossChannel.createPair<number, string>()[0];
 
-expectTypeOf(await ch.send(1)).toEqualTypeOf<undefined | Channel.Error>();
-expectTypeOf(
-	await ch.send(1, { catchChannelErrors: undefined }),
-).toEqualTypeOf<void>();
-expectTypeOf(
-	await ch.send(1, { catchChannelErrors: false }),
-).toEqualTypeOf<void>();
-expectTypeOf(await ch.send(1, { catchChannelErrors: true })).toEqualTypeOf<
-	undefined | Channel.Error
+// send: no recover → Promise<void>
+expectTypeOf(await ch.send(1)).toEqualTypeOf<void>();
+// send: recover → Promise<void | RT>
+expectTypeOf(await ch.send(1, { recover: () => true })).toEqualTypeOf<
+	void | boolean
 >();
-expectTypeOf(
-	await ch.send(1, { catchChannelErrors: 1 as any as boolean }),
-).toEqualTypeOf<undefined | Channel.Error>();
 
+// receive: no recover → T
 expectTypeOf(await ch.receive()).toEqualTypeOf<string>();
 expectTypeOf(await ch.receive({ recover: undefined })).toEqualTypeOf<string>();
+// receive: with recover → T | RT
 expectTypeOf(await ch.receive({ recover: () => true })).toEqualTypeOf<
 	string | boolean
 >();
 
+// readable() returns Channel.Read; writable() returns Channel.Write
 expectTypeOf(ch.readable()).toEqualTypeOf<Channel.Read<string>>();
 expectTypeOf(ch.writable()).toEqualTypeOf<Channel.Write<number>>();
+
+// trySend returns Channel.Error | undefined
+expectTypeOf(ch.trySend(1)).toEqualTypeOf<Channel.Error | undefined>();
+// tryReceive returns T | Channel.Error
+expectTypeOf(ch.tryReceive()).toEqualTypeOf<string | Channel.Error>();
 
 expectTypeOf(
 	CrossChannel.combine(Channel.create<string>(), Channel.create<number>()),
@@ -83,37 +84,26 @@ expectTypeOf(
 	await Channel.select([ch, ch2], { recover: () => true }),
 ).toEqualTypeOf<string | symbol | boolean>();
 
-expectTypeOf(await Channel.selectMap({})).toEqualTypeOf<never>();
+// selectCase: cases first, options last
 expectTypeOf(
-	await Channel.selectMap({ recover: undefined }),
-).toEqualTypeOf<never>();
+	await Channel.selectCase([[ch, (v) => v]]),
+).toMatchTypeOf<string>();
 expectTypeOf(
-	await Channel.selectMap({ recover: () => true }),
-).toEqualTypeOf<boolean>();
-
+	await Channel.selectCase([[ch, () => true]]),
+).toMatchTypeOf<boolean>();
 expectTypeOf(
-	await Channel.selectMap({}, [ch, (v) => v]),
-).toEqualTypeOf<string>();
+	await Channel.selectCase([[ch, (v) => v], [ch2, (v) => v]]),
+).toMatchTypeOf<string | symbol>();
 expectTypeOf(
-	await Channel.selectMap({}, [ch, () => true]),
-).toEqualTypeOf<boolean>();
+	await Channel.selectCase([[ch, (v) => true], [ch2, (v) => 5]]),
+).toMatchTypeOf<boolean | number>();
 expectTypeOf(
-	await Channel.selectMap({}, [ch, (v) => v], [ch2, (v) => v]),
-).toEqualTypeOf<string | symbol>();
+	await Channel.selectCase([[ch, (v) => true], [ch2, (v) => 5]], {
+		recover: undefined,
+	}),
+).toMatchTypeOf<boolean | number>();
 expectTypeOf(
-	await Channel.selectMap({}, [ch, (v) => true], [ch2, (v) => 5]),
-).toEqualTypeOf<boolean | number>();
-expectTypeOf(
-	await Channel.selectMap(
-		{ recover: undefined },
-		[ch, (v) => true],
-		[ch2, (v) => 5],
-	),
-).toEqualTypeOf<boolean | number>();
-expectTypeOf(
-	await Channel.selectMap(
-		{ recover: () => 'a' },
-		[ch, (v) => true],
-		[ch2, (v) => 5],
-	),
-).toEqualTypeOf<boolean | number | string>();
+	await Channel.selectCase([[ch, (v) => true], [ch2, (v) => 5]], {
+		recover: () => 'a',
+	}),
+).toMatchTypeOf<boolean | number | string>();
