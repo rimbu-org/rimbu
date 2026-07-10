@@ -173,6 +173,7 @@ export interface VariantMapBase<
 		f: (entry: readonly [K, V], index: number, halt: () => void) => void,
 		options?: { state?: TraverseState },
 	): void;
+	mapKeys(mapFun: (key: K, value: V) => K): (Tp & KeyValue<K, V>)['normal'];
 	/**
 	 * Returns a collection with the same keys, but where the given `mapFun` function is applied to each entry value.
 	 * @param mapFun - a function taking a `value` and a `key`, and returning a new value
@@ -184,6 +185,9 @@ export interface VariantMapBase<
 	 */
 	mapValues<V2>(
 		mapFun: (value: V, key: K) => V2,
+	): (Tp & KeyValue<K, V2>)['normal'];
+	mapEntries<V2>(
+		mapFun: (entry: readonly [K, V], index: number) => readonly [K, V2],
 	): (Tp & KeyValue<K, V2>)['normal'];
 	/**
 	 * Returns a collection containing only those entries that satisfy given `pred` predicate.
@@ -295,6 +299,9 @@ export namespace VariantMapBase {
 		 * ```
 		 */
 		streamValues(): Stream.NonEmpty<V>;
+		mapKeys(
+			mapFun: (key: K, value: V, index: number) => K,
+		): (Tp & KeyValue<K, V>)['nonEmpty'];
 		/**
 		 * Returns a non-empty collection with the same keys, but where the given `mapFun` function is
 		 * applied to each entry value.
@@ -307,6 +314,9 @@ export namespace VariantMapBase {
 		 */
 		mapValues<V2>(
 			mapFun: (value: V, key: K) => V2,
+		): (Tp & KeyValue<K, V2>)['nonEmpty'];
+		mapEntries<V2>(
+			mapFun: (entry: readonly [K, V], index: number) => readonly [K, V2],
 		): (Tp & KeyValue<K, V2>)['nonEmpty'];
 		/**
 		 * Returns a non-empty array containing all entries in this collection.
@@ -421,7 +431,7 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 	 */
 	updateAt<UK = K>(
 		key: RelatedTo<K, UK>,
-		update: RMapBase.Update<V>,
+		update: (value: V) => V,
 	): WithKeyValue<Tp, K, V>['normal'];
 	/**
 	 * Returns a builder object containing the entries of this collection.
@@ -482,7 +492,7 @@ export namespace RMapBase {
 		 */
 		updateAt<UK = K>(
 			key: RelatedTo<K, UK>,
-			update: RMapBase.Update<V>,
+			update: (value: V) => V,
 		): WithKeyValue<Tp, K, V>['nonEmpty'];
 	}
 
@@ -518,7 +528,7 @@ export namespace RMapBase {
 		from<K extends UK, V>(
 			...sources: ArrayNonEmpty<StreamSource.NonEmpty<readonly [K, V]>>
 		): WithKeyValue<Tp, K, V>['nonEmpty'];
-		from<K, V>(
+		from<K extends UK, V>(
 			...sources: ArrayNonEmpty<StreamSource<readonly [K, V]>>
 		): WithKeyValue<Tp, K, V>['normal'];
 		/**

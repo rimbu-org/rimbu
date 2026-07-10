@@ -288,11 +288,13 @@ export function runMapRandomTestsWith(
 				context.empty(),
 			);
 			const m = context.of([1, 1], [2, 2], [3, 3]);
-			expect(m.updateAt(2, 3)).toEqual(context.of([1, 1], [2, 3], [3, 3]));
+			expect(m.updateAt(2, () => 3)).toEqual(
+				context.of([1, 1], [2, 3], [3, 3]),
+			);
 			expect(m.updateAt(2, (v) => v + 1)).toEqual(
 				context.of([1, 1], [2, 3], [3, 3]),
 			);
-			expect(m.updateAt(4, 3)).toBe(m);
+			expect(m.updateAt(4, () => 3)).toBe(m);
 		});
 
 		it('stream', (): void => {

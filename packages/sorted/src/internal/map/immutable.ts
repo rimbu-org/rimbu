@@ -148,7 +148,15 @@ export class SortedMapEmpty<K = any, V = any>
 		return this;
 	}
 
+	mapKeys(): SortedMap<K, V> {
+		return this;
+	}
+
 	mapValues<V2>(): SortedMap<K, V2> {
+		return this as any;
+	}
+
+	mapEntries<V2>(): SortedMap<K, V2> {
 		return this as any;
 	}
 
@@ -333,7 +341,7 @@ export abstract class SortedMapNode<K, V>
 
 	updateAt<U>(
 		key: RelatedTo<K, U>,
-		update: Update<V>,
+		update: (value: V) => V,
 	): SortedMap.NonEmpty<K, V> {
 		if (!this.context.isValidKey(key)) return this;
 
@@ -376,6 +384,22 @@ export abstract class SortedMapNode<K, V>
 		}
 
 		return [newMap, currentValue];
+	}
+
+	mapKeys(
+		mapFun: (key: K, value: V, index: number) => K,
+	): SortedMap.NonEmpty<K, V> {
+		return this.context.from(
+			this.stream().map(
+				([key, value], index) => [mapFun(key, value, index), value] as [K, V],
+			),
+		);
+	}
+
+	mapEntries<V2>(
+		mapFun: (entry: readonly [K, V], index: number) => readonly [K, V2],
+	): SortedMap.NonEmpty<K, V2> {
+		return this.context.from(this.stream().map(mapFun));
 	}
 
 	filter(
@@ -523,9 +547,9 @@ export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
 	}
 
 	mapValues<V2>(mapFun: (value: V, key: K) => V2): SortedMapLeaf<K, V2> {
-		const newEntries = this.entries.map((entry): [K, V2] => {
-			const newValue = mapFun(entry[1], entry[0]);
-			return [entry[0], newValue];
+		const newEntries = this.entries.map(([key, value]): [K, V2] => {
+			const newValue = mapFun(value, key);
+			return [key, newValue];
 		});
 
 		return this.context.leaf(newEntries);

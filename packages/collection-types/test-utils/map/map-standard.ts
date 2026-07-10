@@ -537,16 +537,16 @@ export function runMapTestsWith(name: string, GMap: RMap.Context<any>): void {
 		});
 
 		it('updateAt', () => {
-			expect(mapEmpty.updateAt(2, 'z')).toBe(mapEmpty);
+			expect(mapEmpty.updateAt(2, () => 'z')).toBe(mapEmpty);
 			expect(mapEmpty.updateAt(2, (v) => v + v)).toBe(mapEmpty);
 
-			expect(map3.updateAt(2, 'z').get(2)).toBe('z');
+			expect(map3.updateAt(2, () => 'z').get(2)).toBe('z');
 			expect(map3.updateAt(2, (v) => v + v).get(2)).toBe('bb');
-			expect(map3.updateAt(10, 'z')).toBe(map3);
+			expect(map3.updateAt(10, () => 'z')).toBe(map3);
 
-			expect(map6.updateAt(2, 'z').get(2)).toBe('z');
+			expect(map6.updateAt(2, () => 'z').get(2)).toBe('z');
 			expect(map6.updateAt(2, (v) => v + v).get(2)).toBe('bb');
-			expect(map6.updateAt(10, 'z')).toBe(map6);
+			expect(map6.updateAt(10, () => 'z')).toBe(map6);
 		});
 	});
 
