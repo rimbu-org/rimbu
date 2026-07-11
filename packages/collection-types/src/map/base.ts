@@ -173,7 +173,18 @@ export interface VariantMapBase<
 		f: (entry: readonly [K, V], index: number, halt: () => void) => void,
 		options?: { state?: TraverseState },
 	): void;
-	mapKeys(mapFun: (key: K, value: V) => K): (Tp & KeyValue<K, V>)['normal'];
+	/**
+	 * Returns a collection with the same values, but where the given `mapFun` function is applied to each entry key.
+	 * @param mapFun - a function taking a `key`, `value`, and `index`, and returning a new key
+	 * @example
+	 * ```ts
+	 * HashMap.of([1, 'a'], [2, 'b']).mapKeys(k => k * 10).toArray()
+	 * // => [[10, 'a'], [20, 'b']]
+	 * ```
+	 */
+	mapKeys(
+		mapFun: (key: K, value: V, index: number) => K,
+	): (Tp & KeyValue<K, V>)['normal'];
 	/**
 	 * Returns a collection with the same keys, but where the given `mapFun` function is applied to each entry value.
 	 * @param mapFun - a function taking a `value` and a `key`, and returning a new value
@@ -186,6 +197,15 @@ export interface VariantMapBase<
 	mapValues<V2>(
 		mapFun: (value: V, key: K) => V2,
 	): (Tp & KeyValue<K, V2>)['normal'];
+	/**
+	 * Returns a collection where each entry is replaced by the result of applying given `mapFun` to the entry and its index.
+	 * @param mapFun - a function taking an `entry` and `index`, and returning a new entry
+	 * @example
+	 * ```ts
+	 * HashMap.of([1, 'a'], [2, 'b']).mapEntries(([k, v]) => [k, v.toUpperCase()]).toArray()
+	 * // => [[1, 'A'], [2, 'B']]
+	 * ```
+	 */
 	mapEntries<V2>(
 		mapFun: (entry: readonly [K, V], index: number) => readonly [K, V2],
 	): (Tp & KeyValue<K, V2>)['normal'];
@@ -299,6 +319,16 @@ export namespace VariantMapBase {
 		 * ```
 		 */
 		streamValues(): Stream.NonEmpty<V>;
+		/**
+		 * Returns a non-empty collection with the same values, but where the given `mapFun` function is
+		 * applied to each entry key.
+		 * @param mapFun - a function taking a `key`, `value`, and `index`, and returning a new key
+		 * @example
+		 * ```ts
+		 * HashMap.of([1, 'a'], [2, 'b']).mapKeys(k => k * 10).toArray()
+		 * // => [[10, 'a'], [20, 'b']]
+		 * ```
+		 */
 		mapKeys(
 			mapFun: (key: K, value: V, index: number) => K,
 		): (Tp & KeyValue<K, V>)['nonEmpty'];
@@ -315,6 +345,16 @@ export namespace VariantMapBase {
 		mapValues<V2>(
 			mapFun: (value: V, key: K) => V2,
 		): (Tp & KeyValue<K, V2>)['nonEmpty'];
+		/**
+		 * Returns a non-empty collection where each entry is replaced by the result of applying given `mapFun`
+		 * to the entry and its index.
+		 * @param mapFun - a function taking an `entry` and `index`, and returning a new entry
+		 * @example
+		 * ```ts
+		 * HashMap.of([1, 'a'], [2, 'b']).mapEntries(([k, v]) => [k, v.toUpperCase()]).toArray()
+		 * // => [[1, 'A'], [2, 'B']]
+		 * ```
+		 */
 		mapEntries<V2>(
 			mapFun: (entry: readonly [K, V], index: number) => readonly [K, V2],
 		): (Tp & KeyValue<K, V2>)['nonEmpty'];
@@ -433,6 +473,21 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 		key: RelatedTo<K, UK>,
 		update: RMapBase.Update<V>,
 	): WithKeyValue<Tp, K, V>['normal'];
+	/**
+	 * Returns a tuple containing the collection where the value associated with given `key` is updated with
+	 * the given `update` value or update function, and the resulting value for that key. If the key is not
+	 * present, it instead returns undefined.
+	 * @param key - the key of the entry to update
+	 * @param update - a new value or function taking the current value and returning a new value
+	 * @example
+	 * ```ts
+	 * const m = HashMap.of([1, 'a'], [2, 'b'])
+	 * const result = m.updateAtAndGet(2, 'c')
+	 * if (result !== undefined) console.log([result[0].toArray(), result[1]])
+	 * // => logs [[[1, 'a'], [2, 'c']], 'c']
+	 * console.log(m.updateAtAndGet(3, 'c'))   // => undefined
+	 * ```
+	 */
 	updateAtAndGet<UK = K>(
 		key: RelatedTo<K, UK>,
 		update: RMapBase.Update<V>,
@@ -498,6 +553,20 @@ export namespace RMapBase {
 			key: RelatedTo<K, UK>,
 			update: RMapBase.Update<V>,
 		): WithKeyValue<Tp, K, V>['nonEmpty'];
+		/**
+		 * Returns a tuple containing the collection where the value associated with given `key` is updated with
+		 * the given `update` value or update function, and the resulting value for that key. If the key is not
+		 * present, it instead returns undefined.
+		 * @param key - the key of the entry to update
+		 * @param update - a new value or function taking the current value and returning a new value
+		 * @example
+		 * ```ts
+		 * const m = HashMap.of([1, 'a'], [2, 'b'])
+		 * const result = m.updateAtAndGet(2, 'c')
+		 * if (result !== undefined) console.log([result[0].toArray(), result[1]])
+		 * // => logs [[[1, 'a'], [2, 'c']], 'c']
+		 * ```
+		 */
 		updateAtAndGet<UK = K>(
 			key: RelatedTo<K, UK>,
 			update: RMapBase.Update<V>,
