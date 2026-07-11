@@ -1,17 +1,16 @@
-import type { Token } from '@rimbu/base/token';
-import type { RMapBase } from '@rimbu/collection-types/map/base';
-import type { TraverseState } from '@rimbu/common/traverse-state';
-import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
-import type { HashMap } from '@rimbu/hashed/map';
-import type { ProximityMap } from '@rimbu/proximity';
-import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
+import type { Token } from "@rimbu/base/token";
+import type { TraverseState } from "@rimbu/common/traverse-state";
+import type { ArrayNonEmpty, RelatedTo, ToJSON } from "@rimbu/common/types";
+import type { HashMap } from "@rimbu/hashed/map";
+import type { ProximityMap } from "@rimbu/proximity";
+import type { FastIterator, Stream, StreamSource } from "@rimbu/stream";
 
-import type { ContextImpl } from '#proximity/context-factory';
+import type { ContextImpl } from "#proximity/context-factory";
 
-import { OptLazy, type OptLazyOr } from '@rimbu/common/opt-lazy';
-import { findNearestKeyMatch } from '@rimbu/proximity/key-matching';
+import { OptLazy, type OptLazyOr } from "@rimbu/common/opt-lazy";
+import { findNearestKeyMatch } from "@rimbu/proximity/key-matching";
 
-import { wrapHashMap } from '#proximity/wrapping';
+import { wrapHashMap } from "#proximity/wrapping";
 
 const toStringBeginning = /^[^(]+/;
 
@@ -25,172 +24,186 @@ const toStringBeginning = /^[^(]+/;
  * @typeparam V - the value type
  */
 export class ProximityMapNonEmpty<K, V> implements ProximityMap.NonEmpty<K, V> {
-	_NonEmptyType!: ProximityMap.NonEmpty<K, V>;
+  _NonEmptyType!: ProximityMap.NonEmpty<K, V>;
 
-	readonly isEmpty = false;
+  readonly isEmpty = false;
 
-	constructor(
-		readonly context: ContextImpl<K>,
-		private readonly internalMap: HashMap.NonEmpty<K, V>,
-	) {}
+  constructor(
+    readonly context: ContextImpl<K>,
+    private readonly internalMap: HashMap.NonEmpty<K, V>,
+  ) {}
 
-	private plugInternalMap(
-		newInternalMap: HashMap.NonEmpty<K, V>,
-	): ProximityMap.NonEmpty<K, V>;
-	private plugInternalMap(newInternalMap: HashMap<K, V>): ProximityMap<K, V>;
-	private plugInternalMap(newInternalMap: HashMap<K, V>): ProximityMap<K, V> {
-		if (newInternalMap === this.internalMap) {
-			return this;
-		}
+  private plugInternalMap(
+    newInternalMap: HashMap.NonEmpty<K, V>,
+  ): ProximityMap.NonEmpty<K, V>;
+  private plugInternalMap(newInternalMap: HashMap<K, V>): ProximityMap<K, V>;
+  private plugInternalMap(newInternalMap: HashMap<K, V>): ProximityMap<K, V> {
+    if (newInternalMap === this.internalMap) {
+      return this;
+    }
 
-		return wrapHashMap(this.context, newInternalMap);
-	}
+    return wrapHashMap(this.context, newInternalMap);
+  }
 
-	get size(): number {
-		return this.internalMap.size;
-	}
+  get size(): number {
+    return this.internalMap.size;
+  }
 
-	stream(): Stream.NonEmpty<readonly [K, V]> {
-		return this.internalMap.stream();
-	}
+  stream(): Stream.NonEmpty<readonly [K, V]> {
+    return this.internalMap.stream();
+  }
 
-	addEntries(
-		entries: StreamSource<readonly [K, V]>,
-	): ProximityMap.NonEmpty<K, V> {
-		return this.plugInternalMap(this.internalMap.addEntries(entries));
-	}
+  addEntries(
+    entries: StreamSource<readonly [K, V]>,
+  ): ProximityMap.NonEmpty<K, V> {
+    return this.plugInternalMap(this.internalMap.addEntries(entries));
+  }
 
-	updateAt<UK = K>(
-		key: RelatedTo<K, UK>,
-		update: RMapBase.Update<V>,
-	): ProximityMap.NonEmpty<K, V> {
-		return this.plugInternalMap(this.internalMap.updateAt(key, update));
-	}
+  updateAt<UK = K>(
+    key: RelatedTo<K, UK>,
+    update: (value: V) => V,
+  ): ProximityMap.NonEmpty<K, V> {
+    return this.plugInternalMap(this.internalMap.updateAt(key, update));
+  }
 
-	nonEmpty(): this is ProximityMap.NonEmpty<K, V> {
-		return true;
-	}
+  nonEmpty(): this is ProximityMap.NonEmpty<K, V> {
+    return true;
+  }
 
-	assumeNonEmpty(): this {
-		return this;
-	}
+  assumeNonEmpty(): this {
+    return this;
+  }
 
-	asNormal(): ProximityMap<K, V> {
-		return this;
-	}
+  asNormal(): ProximityMap<K, V> {
+    return this;
+  }
 
-	streamKeys(): Stream.NonEmpty<K> {
-		return this.internalMap.streamKeys();
-	}
+  streamKeys(): Stream.NonEmpty<K> {
+    return this.internalMap.streamKeys();
+  }
 
-	streamValues(): Stream.NonEmpty<V> {
-		return this.internalMap.streamValues();
-	}
+  streamValues(): Stream.NonEmpty<V> {
+    return this.internalMap.streamValues();
+  }
 
-	mapValues<V2>(
-		mapFun: (value: V, key: K) => V2,
-	): ProximityMap.NonEmpty<K, V2> {
-		return new ProximityMapNonEmpty(
-			this.context,
-			this.internalMap.mapValues(mapFun),
-		);
-	}
+  mapKeys(
+    mapFun: (key: K, value: V, index: number) => K,
+  ): ProximityMap.NonEmpty<K, V> {
+    return this.context.from(
+      this.stream().map(([k, v], index) => [mapFun(k, v, index), v]),
+    );
+  }
 
-	toArray(): ArrayNonEmpty<readonly [K, V]> {
-		return this.internalMap.toArray();
-	}
+  mapValues<V2>(
+    mapFun: (value: V, key: K) => V2,
+  ): ProximityMap.NonEmpty<K, V2> {
+    return new ProximityMapNonEmpty(
+      this.context,
+      this.internalMap.mapValues(mapFun),
+    );
+  }
 
-	get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
-	get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
-	get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O | undefined {
-		const keyMatch = findNearestKeyMatch(
-			this.context.distanceFunction,
-			key as K,
-			this.internalMap,
-		);
+  mapEntries<V2>(
+    mapFun: (entry: readonly [K, V], index: number) => readonly [K, V2],
+  ): ProximityMap.NonEmpty<K, V2> {
+    return this.context.from(this.stream().map(mapFun));
+  }
 
-		return keyMatch ? keyMatch.value : OptLazy(otherwise);
-	}
+  toArray(): ArrayNonEmpty<readonly [K, V]> {
+    return this.internalMap.toArray();
+  }
 
-	hasKey<UK = K>(key: RelatedTo<K, UK>): boolean {
-		return this.internalMap.hasKey(key);
-	}
+  get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
+  get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
+  get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O | undefined {
+    const keyMatch = findNearestKeyMatch(
+      this.context.distanceFunction,
+      key as K,
+      this.internalMap,
+    );
 
-	removeKey<UK = K>(key: RelatedTo<K, UK>): ProximityMap<K, V> {
-		return this.plugInternalMap(this.internalMap.removeKey(key));
-	}
+    return keyMatch ? keyMatch.value : OptLazy(otherwise);
+  }
 
-	removeKeys<UK = K>(keys: StreamSource<RelatedTo<K, UK>>): ProximityMap<K, V> {
-		return this.plugInternalMap(this.internalMap.removeKeys(keys));
-	}
+  hasKey<UK = K>(key: RelatedTo<K, UK>): boolean {
+    return this.internalMap.hasKey(key);
+  }
 
-	removeKeyAndGet<UK = K>(
-		key: RelatedTo<K, UK>,
-	): [ProximityMap<K, V>, V] | undefined {
-		const internalResult = this.internalMap.removeKeyAndGet(key);
+  removeKey<UK = K>(key: RelatedTo<K, UK>): ProximityMap<K, V> {
+    return this.plugInternalMap(this.internalMap.removeKey(key));
+  }
 
-		if (!internalResult) {
-			return undefined;
-		}
+  removeKeys<UK = K>(keys: StreamSource<RelatedTo<K, UK>>): ProximityMap<K, V> {
+    return this.plugInternalMap(this.internalMap.removeKeys(keys));
+  }
 
-		const [newInternalMap, value] = internalResult;
+  removeKeyAndGet<UK = K>(
+    key: RelatedTo<K, UK>,
+  ): [ProximityMap<K, V>, V] | undefined {
+    const internalResult = this.internalMap.removeKeyAndGet(key);
 
-		return [this.plugInternalMap(newInternalMap), value];
-	}
+    if (!internalResult) {
+      return undefined;
+    }
 
-	forEach(
-		f: (entry: readonly [K, V], index: number, halt: () => void) => void,
-		options: { state?: TraverseState } = {},
-	): void {
-		this.internalMap.forEach(f, options);
-	}
+    const [newInternalMap, value] = internalResult;
 
-	filter(
-		pred: (entry: readonly [K, V], index: number, halt: () => void) => boolean,
-		options: { negate?: boolean } = {},
-	): ProximityMap<K, V> {
-		return this.plugInternalMap(this.internalMap.filter(pred, options));
-	}
+    return [this.plugInternalMap(newInternalMap), value];
+  }
 
-	toString(): string {
-		return this.internalMap
-			.toString()
-			.replace(toStringBeginning, this.context.typeTag);
-	}
+  forEach(
+    f: (entry: readonly [K, V], index: number, halt: () => void) => void,
+    options: { state?: TraverseState } = {},
+  ): void {
+    this.internalMap.forEach(f, options);
+  }
 
-	toJSON(): ToJSON<(readonly [K, V])[], string> {
-		return {
-			dataType: this.context.typeTag,
-			value: this.toArray(),
-		};
-	}
+  filter(
+    pred: (entry: readonly [K, V], index: number, halt: () => void) => boolean,
+    options: { negate?: boolean } = {},
+  ): ProximityMap<K, V> {
+    return this.plugInternalMap(this.internalMap.filter(pred, options));
+  }
 
-	[Symbol.iterator](): FastIterator<readonly [K, V]> {
-		return this.internalMap[Symbol.iterator]();
-	}
+  toString(): string {
+    return this.internalMap
+      .toString()
+      .replace(toStringBeginning, this.context.typeTag);
+  }
 
-	set(key: K, value: V): ProximityMap.NonEmpty<K, V> {
-		return this.plugInternalMap(this.internalMap.set(key, value));
-	}
+  toJSON(): ToJSON<(readonly [K, V])[], string> {
+    return {
+      dataType: this.context.typeTag,
+      value: this.toArray(),
+    };
+  }
 
-	addEntry(entry: readonly [K, V]): ProximityMap.NonEmpty<K, V> {
-		return this.plugInternalMap(this.internalMap.addEntry(entry));
-	}
+  [Symbol.iterator](): FastIterator<readonly [K, V]> {
+    return this.internalMap[Symbol.iterator]();
+  }
 
-	modifyAt(
-		atKey: K,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: <V2 extends V = V>(
-				currentEntry: V & V2,
-				remove: Token,
-			) => V | Token;
-		},
-	): ProximityMap<K, V> {
-		return this.plugInternalMap(this.internalMap.modifyAt(atKey, options));
-	}
+  set(key: K, value: V): ProximityMap.NonEmpty<K, V> {
+    return this.plugInternalMap(this.internalMap.set(key, value));
+  }
 
-	toBuilder(): ProximityMap.Builder<K, V> {
-		return this.context.createBuilder<K, V>(this);
-	}
+  addEntry(entry: readonly [K, V]): ProximityMap.NonEmpty<K, V> {
+    return this.plugInternalMap(this.internalMap.addEntry(entry));
+  }
+
+  modifyAt(
+    atKey: K,
+    options: {
+      ifNew?: OptLazyOr<V, Token>;
+      ifExists?: <V2 extends V = V>(
+        currentEntry: V & V2,
+        remove: Token,
+      ) => V | Token;
+    },
+  ): ProximityMap<K, V> {
+    return this.plugInternalMap(this.internalMap.modifyAt(atKey, options));
+  }
+
+  toBuilder(): ProximityMap.Builder<K, V> {
+    return this.context.createBuilder<K, V>(this);
+  }
 }

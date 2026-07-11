@@ -1,12 +1,12 @@
-import type { ToJSON } from '@rimbu/common/types';
-import type { ProximityMap } from '@rimbu/proximity';
+import type { ToJSON } from "@rimbu/common/types";
+import type { ProximityMap } from "@rimbu/proximity";
 
-import type { ContextImpl } from '#proximity/context-factory';
+import type { ContextImpl } from "#proximity/context-factory";
 
-import { Token } from '@rimbu/base/token';
-import { EmptyBase } from '@rimbu/collection-types/common/empty-base';
-import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
-import { Stream, type StreamSource } from '@rimbu/stream';
+import { Token } from "@rimbu/base/token";
+import { EmptyBase } from "@rimbu/collection-types/common/empty-base";
+import { OptLazy, OptLazyOr } from "@rimbu/common/opt-lazy";
+import { Stream, type StreamSource } from "@rimbu/stream";
 
 /**
  * Concrete empty implementation of {@link ProximityMap}.<br/>
@@ -18,94 +18,102 @@ import { Stream, type StreamSource } from '@rimbu/stream';
  * @typeparam V - the value type
  */
 export class ProximityMapEmpty<K = any, V = any>
-	extends EmptyBase
-	implements ProximityMap<K, V>
+  extends EmptyBase
+  implements ProximityMap<K, V>
 {
-	declare _NonEmptyType: ProximityMap.NonEmpty<K, V>;
+  declare _NonEmptyType: ProximityMap.NonEmpty<K, V>;
 
-	constructor(readonly context: ContextImpl<K>) {
-		super();
-	}
+  constructor(readonly context: ContextImpl<K>) {
+    super();
+  }
 
-	streamKeys(): Stream<K> {
-		return Stream.empty();
-	}
+  streamKeys(): Stream<K> {
+    return Stream.empty();
+  }
 
-	streamValues(): Stream<V> {
-		return Stream.empty();
-	}
+  streamValues(): Stream<V> {
+    return Stream.empty();
+  }
 
-	get<O>(_key: K, otherwise?: OptLazy<O>): O {
-		return OptLazy(otherwise) as O;
-	}
+  get<O>(_key: K, otherwise?: OptLazy<O>): O {
+    return OptLazy(otherwise) as O;
+  }
 
-	hasKey(): false {
-		return false;
-	}
+  hasKey(): false {
+    return false;
+  }
 
-	set(key: K, value: V): ProximityMap.NonEmpty<K, V> {
-		return this.context.from([[key, value]]);
-	}
+  set(key: K, value: V): ProximityMap.NonEmpty<K, V> {
+    return this.context.from([[key, value]]);
+  }
 
-	addEntry(entry: readonly [K, V]): ProximityMap.NonEmpty<K, V> {
-		return this.context.from([entry]);
-	}
+  addEntry(entry: readonly [K, V]): ProximityMap.NonEmpty<K, V> {
+    return this.context.from([entry]);
+  }
 
-	addEntries(
-		entries: StreamSource<readonly [K, V]>,
-	): ProximityMap.NonEmpty<K, V> {
-		return this.context.from(entries) as ProximityMap.NonEmpty<K, V>;
-	}
+  addEntries(
+    entries: StreamSource<readonly [K, V]>,
+  ): ProximityMap.NonEmpty<K, V> {
+    return this.context.from(entries) as ProximityMap.NonEmpty<K, V>;
+  }
 
-	removeKeyAndGet(): undefined {
-		return undefined;
-	}
+  removeKeyAndGet(): undefined {
+    return undefined;
+  }
 
-	removeKey(): ProximityMap<K, V> {
-		return this;
-	}
+  removeKey(): ProximityMap<K, V> {
+    return this;
+  }
 
-	removeKeys(): ProximityMap<K, V> {
-		return this;
-	}
+  removeKeys(): ProximityMap<K, V> {
+    return this;
+  }
 
-	modifyAt(
-		atKey: K,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-		},
-	): ProximityMap<K, V> {
-		if (!options.ifNew) {
-			return this;
-		}
+  modifyAt(
+    atKey: K,
+    options: {
+      ifNew?: OptLazyOr<V, Token>;
+    },
+  ): ProximityMap<K, V> {
+    if (!options.ifNew) {
+      return this;
+    }
 
-		const value = OptLazyOr<V, Token>(options.ifNew, Token);
+    const value = OptLazyOr<V, Token>(options.ifNew, Token);
 
-		if (value === Token) return this;
+    if (value === Token) return this;
 
-		return this.set(atKey, value);
-	}
+    return this.set(atKey, value);
+  }
 
-	mapValues<V2>(): ProximityMap<K, V2> {
-		return this as any;
-	}
+  mapKeys(): ProximityMap<K, V> {
+    return this;
+  }
 
-	updateAt(): ProximityMap<K, V> {
-		return this;
-	}
+  mapValues<V2>(): ProximityMap<K, V2> {
+    return this as any;
+  }
 
-	toBuilder(): ProximityMap.Builder<K, V> {
-		return this.context.builder();
-	}
+  mapEntries<V2>(): ProximityMap<K, V2> {
+    return this as any;
+  }
 
-	override toString(): string {
-		return `${this.context.typeTag}()`;
-	}
+  updateAt(): ProximityMap<K, V> {
+    return this;
+  }
 
-	toJSON(): ToJSON<(readonly [K, V])[]> {
-		return {
-			dataType: this.context.typeTag,
-			value: [],
-		};
-	}
+  toBuilder(): ProximityMap.Builder<K, V> {
+    return this.context.builder();
+  }
+
+  override toString(): string {
+    return `${this.context.typeTag}()`;
+  }
+
+  toJSON(): ToJSON<(readonly [K, V])[]> {
+    return {
+      dataType: this.context.typeTag,
+      value: [],
+    };
+  }
 }
