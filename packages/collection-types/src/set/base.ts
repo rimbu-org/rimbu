@@ -133,6 +133,22 @@ export interface VariantSetBase<
 		pred: (value: T, index: number, halt: () => void) => boolean,
 		options?: { negate?: boolean },
 	): WithElem<Tp, T>['normal'];
+	/**
+	 * Returns a collection that is the result of applying given `transformFun` to the `Stream` of all values of this collection.
+	 *
+	 * This is a general-purpose transformation method: `transformFun` receives the values of this collection as a `Stream`,
+	 * and can apply any `Stream` operation such as `map`, `flatMap`, `filter`, `partition`, or `collect` to produce the
+	 * resulting values. The returned `StreamSource` is used to build a new collection in the same context.
+	 * @typeparam T2 - the element type of the resulting collection, a subtype of `T`
+	 * @param transformFun - a function that receives the `Stream` of values of this collection, and returns a `StreamSource` of resulting values
+	 * @example
+	 * ```ts
+	 * HashSet.of(1, 2, 3).transform(s => s.flatMap(v => [v, -v])).toArray()
+	 * // => [1, -1, 2, -2, 3, -3]
+	 * ```
+	 * @note because the resulting collection is built in the same context, `T2` must be a subtype of `T`. To transform to an
+	 * unrelated element type, build a new collection explicitly, for example `HashSet.from(stream.map(...))`.
+	 */
 	transform<T2 extends T>(
 		transformFun: (stream: Stream<T>) => StreamSource<T2>,
 	): WithElem<Tp, T2>['normal'];
@@ -233,6 +249,22 @@ export namespace VariantSetBase {
 		 * ```
 		 */
 		stream(): Stream.NonEmpty<T>;
+		/**
+		 * Returns a non-empty collection that is the result of applying given `transformFun` to the `Stream` of all values of this collection.
+		 *
+		 * This is a general-purpose transformation method: `transformFun` receives the values of this collection as a non-empty `Stream`,
+		 * and can apply any `Stream` operation such as `map`, `flatMap`, `filter`, `partition`, or `collect` to produce the
+		 * resulting values. The returned `StreamSource` is used to build a new collection in the same context.
+		 * @typeparam T2 - the element type of the resulting collection, a subtype of `T`
+		 * @param transformFun - a function that receives the non-empty `Stream` of values of this collection, and returns a `StreamSource` of resulting values
+		 * @example
+		 * ```ts
+		 * HashSet.of(1, 2, 3).transform(s => s.flatMap(v => [v, -v])).toArray()
+		 * // => [1, -1, 2, -2, 3, -3]
+		 * ```
+		 * @note because the resulting collection is built in the same context, `T2` must be a subtype of `T`. To transform to an
+		 * unrelated element type, build a new collection explicitly, for example `HashSet.from(stream.map(...))`.
+		 */
 		transform<T2 extends T>(
 			transformFun: (stream: Stream.NonEmpty<T>) => StreamSource.NonEmpty<T2>,
 		): WithElem<Tp, T2>['nonEmpty'];
