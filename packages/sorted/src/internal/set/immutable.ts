@@ -87,6 +87,12 @@ export class SortedSetEmpty<T = any>
 		return this;
 	}
 
+	transform<T2 extends T>(
+		transformFun: (stream: Stream<T>) => StreamSource<T2>,
+	): any {
+		return this.context.from(transformFun(this.stream()));
+	}
+
 	union(other: StreamSource<T>): SortedSet<T> | any {
 		if (
 			this.context.isSortedSetLeaf(other) ||
@@ -229,6 +235,12 @@ export abstract class SortedSetNode<T>
 
 		if (builder.size === this.size) return this;
 		return builder.build();
+	}
+
+	transform<T2 extends T>(
+		transformFun: (stream: Stream.NonEmpty<T>) => StreamSource<T2>,
+	): any {
+		return this.context.from(transformFun(this.stream()));
 	}
 
 	take(amount: number): SortedSet<T> | any {

@@ -86,16 +86,14 @@ export class ProximityMapEmpty<K = any, V = any>
 		return this.set(atKey, value);
 	}
 
-	mapKeys(): ProximityMap<K, V> {
-		return this;
-	}
-
 	mapValues<V2>(): ProximityMap<K, V2> {
 		return this as any;
 	}
 
-	mapEntries<V2>(): ProximityMap<K, V2> {
-		return this as any;
+	transform<V2, K2 extends K>(
+		transformFun: (stream: Stream<readonly [K, V]>) => StreamSource<[K2, V2]>,
+	): ProximityMap<K2, V2> {
+		return this.context.from(transformFun(this.stream()));
 	}
 
 	updateAt(): ProximityMap<K, V> {

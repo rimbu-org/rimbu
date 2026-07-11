@@ -133,6 +133,9 @@ export interface VariantSetBase<
 		pred: (value: T, index: number, halt: () => void) => boolean,
 		options?: { negate?: boolean },
 	): WithElem<Tp, T>['normal'];
+	transform<T2 extends T>(
+		transformFun: (stream: Stream<T>) => StreamSource<T2>,
+	): WithElem<Tp, T2>['normal'];
 	/**
 	 * Returns a collection where each value of given `other` `StreamSource` is removed from this collection.
 	 * @param other - a `StreamSource` containing values
@@ -230,6 +233,12 @@ export namespace VariantSetBase {
 		 * ```
 		 */
 		stream(): Stream.NonEmpty<T>;
+		transform<T2 extends T>(
+			transformFun: (stream: Stream.NonEmpty<T>) => StreamSource.NonEmpty<T2>,
+		): WithElem<Tp, T2>['nonEmpty'];
+		transform<T2 extends T>(
+			transformFun: (stream: Stream.NonEmpty<T>) => StreamSource<T2>,
+		): WithElem<Tp, T2>['normal'];
 		/**
 		 * Returns a non-empty array containing all values in this collection.
 		 * @example

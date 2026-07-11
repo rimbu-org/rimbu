@@ -178,18 +178,9 @@ export interface VariantMapBase<
 		f: (entry: readonly [K, V], index: number, halt: () => void) => void,
 		options?: { state?: TraverseState },
 	): void;
-	/**
-	 * Returns a collection with the same values, but where the given `mapFun` function is applied to each entry key.
-	 * @param mapFun - a function taking a `key`, `value`, and `index`, and returning a new key
-	 * @example
-	 * ```ts
-	 * HashMap.of([1, 'a'], [2, 'b']).mapKeys(k => k * 10).toArray()
-	 * // => [[10, 'a'], [20, 'b']]
-	 * ```
-	 */
-	mapKeys(
-		mapFun: (key: K, value: V, index: number) => K,
-	): (Tp & KeyValue<K, V>)['normal'];
+	transform<V2, K2 extends K = K>(
+		transformFun: (stream: Stream<readonly [K, V]>) => StreamSource<[K2, V2]>,
+	): (Tp & KeyValue<K2, V2>)['normal'];
 	/**
 	 * Returns a collection with the same keys, but where the given `mapFun` function is applied to each entry value.
 	 * @typeparam V2 - the type of the resulting values
@@ -202,19 +193,6 @@ export interface VariantMapBase<
 	 */
 	mapValues<V2>(
 		mapFun: (value: V, key: K) => V2,
-	): (Tp & KeyValue<K, V2>)['normal'];
-	/**
-	 * Returns a collection where each entry is replaced by the result of applying given `mapFun` to the entry and its index.
-	 * @typeparam V2 - the type of the resulting values
-	 * @param mapFun - a function taking an `entry` and `index`, and returning a new entry
-	 * @example
-	 * ```ts
-	 * HashMap.of([1, 'a'], [2, 'b']).mapEntries(([k, v]) => [k, v.toUpperCase()]).toArray()
-	 * // => [[1, 'A'], [2, 'B']]
-	 * ```
-	 */
-	mapEntries<V2>(
-		mapFun: (entry: readonly [K, V], index: number) => readonly [K, V2],
 	): (Tp & KeyValue<K, V2>)['normal'];
 	/**
 	 * Returns a collection containing only those entries that satisfy given `pred` predicate.
@@ -326,24 +304,21 @@ export namespace VariantMapBase {
 		 * ```
 		 */
 		streamValues(): Stream.NonEmpty<V>;
+		transform<V2, K2 extends K = K>(
+			transformFun: (
+				stream: Stream.NonEmpty<readonly [K, V]>,
+			) => StreamSource<[K2, V2]>,
+		): (Tp & KeyValue<K2, V2>)['normal'];
+		transform<V2, K2 extends K = K>(
+			transformFun: (
+				stream: Stream.NonEmpty<readonly [K, V]>,
+			) => StreamSource.NonEmpty<[K2, V2]>,
+		): (Tp & KeyValue<K2, V2>)['nonEmpty'];
 		/**
-		 * Returns a non-empty collection with the same values, but where the given `mapFun` function is
-		 * applied to each entry key.
-		 * @param mapFun - a function taking a `key`, `value`, and `index`, and returning a new key
-		 * @example
-		 * ```ts
-		 * HashMap.of([1, 'a'], [2, 'b']).mapKeys(k => k * 10).toArray()
-		 * // => [[10, 'a'], [20, 'b']]
-		 * ```
-		 */
-		mapKeys(
-			mapFun: (key: K, value: V, index: number) => K,
-		): (Tp & KeyValue<K, V>)['nonEmpty'];
-		/**
-	 * Returns a non-empty collection with the same keys, but where the given `mapFun` function is
-	 * applied to each entry value.
-	 * @typeparam V2 - the type of the resulting values
-	 * @param mapFun - a function taking a `value` and a `key`, and returning a new value
+		 * Returns a non-empty collection with the same keys, but where the given `mapFun` function is
+		 * applied to each entry value.
+		 * @typeparam V2 - the type of the resulting values
+		 * @param mapFun - a function taking a `value` and a `key`, and returning a new value
 		 * @example
 		 * ```ts
 		 * HashMap.of([1, 'a'], [2, 'abc']).mapValues(v => v.length).toArray()
@@ -352,20 +327,6 @@ export namespace VariantMapBase {
 		 */
 		mapValues<V2>(
 			mapFun: (value: V, key: K) => V2,
-		): (Tp & KeyValue<K, V2>)['nonEmpty'];
-		/**
-	 * Returns a non-empty collection where each entry is replaced by the result of applying given `mapFun`
-	 * to the entry and its index.
-	 * @typeparam V2 - the type of the resulting values
-	 * @param mapFun - a function taking an `entry` and `index`, and returning a new entry
-		 * @example
-		 * ```ts
-		 * HashMap.of([1, 'a'], [2, 'b']).mapEntries(([k, v]) => [k, v.toUpperCase()]).toArray()
-		 * // => [[1, 'A'], [2, 'B']]
-		 * ```
-		 */
-		mapEntries<V2>(
-			mapFun: (entry: readonly [K, V], index: number) => readonly [K, V2],
 		): (Tp & KeyValue<K, V2>)['nonEmpty'];
 		/**
 		 * Returns a non-empty array containing all entries in this collection.
@@ -547,14 +508,14 @@ export namespace RMapBase {
 			entries: StreamSource<readonly [K, V]>,
 		): WithKeyValue<Tp, K, V>['nonEmpty'];
 		/**
-	 * Returns the collection where the value associated with given `key` is updated with the given `update` value or update function.
-	 * @typeparam UK - the type of key to look for, a related type to K
-	 * @param key - the key of the entry to update
-	 * @param update - a new value or function taking the current value and returning a new value
-	 * @example
-	 * ```ts
-	 * const m = HashMap.of([1, 'a'], [2, 'b'])
-	 * m.updateAt(3, 'a').toArray()
+		 * Returns the collection where the value associated with given `key` is updated with the given `update` value or update function.
+		 * @typeparam UK - the type of key to look for, a related type to K
+		 * @param key - the key of the entry to update
+		 * @param update - a new value or function taking the current value and returning a new value
+		 * @example
+		 * ```ts
+		 * const m = HashMap.of([1, 'a'], [2, 'b'])
+		 * m.updateAt(3, 'a').toArray()
 		 * // => [[1, 'a'], [2, 'b']]
 		 * m.updateAt(2, 'c').toArray()
 		 * // => [[1, 'a'], [2, 'c']]
@@ -569,14 +530,14 @@ export namespace RMapBase {
 		/**
 		 * Returns a tuple containing the collection where the value associated with given `key` is updated with
 		 * the given `update` value or update function, and the resulting value for that key. If the key is not
-	 * present, it instead returns undefined.
-	 * @typeparam UK - the type of key to look for, a related type to K
-	 * @param key - the key of the entry to update
-	 * @param update - a new value or function taking the current value and returning a new value
-	 * @example
-	 * ```ts
-	 * const m = HashMap.of([1, 'a'], [2, 'b'])
-	 * const result = m.updateAtAndGet(2, 'c')
+		 * present, it instead returns undefined.
+		 * @typeparam UK - the type of key to look for, a related type to K
+		 * @param key - the key of the entry to update
+		 * @param update - a new value or function taking the current value and returning a new value
+		 * @example
+		 * ```ts
+		 * const m = HashMap.of([1, 'a'], [2, 'b'])
+		 * const result = m.updateAtAndGet(2, 'c')
 		 * if (result !== undefined) console.log([result[0].toArray(), result[1]])
 		 * // => logs [[[1, 'a'], [2, 'c']], 'c']
 		 * ```
@@ -869,13 +830,13 @@ export namespace RMapBase {
 		 */
 		readonly isEmpty: boolean;
 		/**
-	 * Returns the value associated with the given `key`, or given `otherwise` value if the key is not in the collection.
-	 * @typeparam UK - the type of key to look for, a related type to K
-	 * @param key - the key to look for
-	 * @param otherwise - (default: undefined) an `OptLazy` fallback value if the key is not in the collection
-	 * @example
-	 * ```ts
-	 * const m = HashMap.of([1, 'a'], [2, 'b']).toBuilder()
+		 * Returns the value associated with the given `key`, or given `otherwise` value if the key is not in the collection.
+		 * @typeparam UK - the type of key to look for, a related type to K
+		 * @param key - the key to look for
+		 * @param otherwise - (default: undefined) an `OptLazy` fallback value if the key is not in the collection
+		 * @example
+		 * ```ts
+		 * const m = HashMap.of([1, 'a'], [2, 'b']).toBuilder()
 		 * m.get(2)          // => 'b'
 		 * m.get(3)          // => undefined
 		 * m.get(2, 'none')  // => 'b'
@@ -885,9 +846,9 @@ export namespace RMapBase {
 		get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
 		get<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
 		/**
-	 * Returns true if the given `key` is present in the builder.
-	 * @typeparam UK - the type of key to look for, a related type to K
-	 * @param key - the key to look for
+		 * Returns true if the given `key` is present in the builder.
+		 * @typeparam UK - the type of key to look for, a related type to K
+		 * @param key - the key to look for
 		 * @example
 		 * ```ts
 		 * const m = HashMap.of([1, 'a'], [2, 'b']).toBuilder()
@@ -956,10 +917,10 @@ export namespace RMapBase {
 		 */
 		set(key: K, value: V): boolean;
 		/**
-	 * Removes the entry with given `key` from the builder.
-	 * @typeparam UK - the type of key to look for, a related type to K
-	 * @param key - the key of the entry to remove
-	 * @param otherwise - (default: undefined) the value to return if the key is not in the builder
+		 * Removes the entry with given `key` from the builder.
+		 * @typeparam UK - the type of key to look for, a related type to K
+		 * @param key - the key of the entry to remove
+		 * @param otherwise - (default: undefined) the value to return if the key is not in the builder
 		 * @returns the value previously associated with given `key`, or the fallback value otherwise
 		 * @example
 		 * ```ts
@@ -972,9 +933,9 @@ export namespace RMapBase {
 		removeKey<UK = K>(key: RelatedTo<K, UK>): V | undefined;
 		removeKey<UK, O>(key: RelatedTo<K, UK>, otherwise: OptLazy<O>): V | O;
 		/**
-	 * Removes the entries in the given `keys` `StreamSource` from the builder.
-	 * @typeparam UK - the type of keys to look for, a related type to K
-	 * @param source - the `StreamSource` containing the keys to remove.
+		 * Removes the entries in the given `keys` `StreamSource` from the builder.
+		 * @typeparam UK - the type of keys to look for, a related type to K
+		 * @param source - the `StreamSource` containing the keys to remove.
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
@@ -1052,10 +1013,10 @@ export namespace RMapBase {
 		 */
 		build(): WithKeyValue<Tp, K, V>['normal'];
 		/**
-	 * Returns an immutable instance of the entries in this builder, with given `mapValues` function applied
-	 * to all the values in the entries.
-	 * @typeparam V2 - the type of the resulting values
-	 * @param mapFun - a function that takes an entry value and its key, and returns a new value
+		 * Returns an immutable instance of the entries in this builder, with given `mapValues` function applied
+		 * to all the values in the entries.
+		 * @typeparam V2 - the type of the resulting values
+		 * @param mapFun - a function that takes an entry value and its key, and returns a new value
 		 * @example
 		 * ```ts
 		 * const m = HashMap.of([1, 'a'], [2, 'b']).toBuilder()

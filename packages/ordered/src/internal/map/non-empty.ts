@@ -216,14 +216,12 @@ export class OrderedMapNonEmpty<K, V>
 		return builder.build();
 	}
 
-	mapKeys(
-		mapFun: (key: K, value: V, index: number) => K,
-	): OrderedMap.NonEmpty<K, V> {
-		return this.context.from(
-			this.stream().map(
-				([key, value], index) => [mapFun(key, value, index), value] as [K, V],
-			),
-		);
+	transform<V2, K2 extends K>(
+		transformFun: (
+			stream: Stream.NonEmpty<readonly [K, V]>,
+		) => StreamSource<[K2, V2]>,
+	): any {
+		return this.context.from(transformFun(this.stream()));
 	}
 
 	mapValues<V2>(mapFun: (value: V, key: K) => V2): any {
@@ -231,12 +229,6 @@ export class OrderedMapNonEmpty<K, V>
 			this.keyOrder,
 			this.sourceMap.mapValues(mapFun),
 		);
-	}
-
-	mapEntries<V2>(
-		mapFun: (entry: [K, V], index: number) => [K, V2],
-	): OrderedMap.NonEmpty<K, V2> {
-		return this.context.from(this.stream().map(mapFun));
 	}
 
 	updateAt<UK>(key: RelatedTo<K, UK>, update: (value: V) => V): any {

@@ -147,15 +147,13 @@ export class SortedMapEmpty<K = any, V = any>
 		return this;
 	}
 
-	mapKeys(): SortedMap<K, V> {
-		return this;
+	transform<V2, K2 extends K>(
+		transformFun: (stream: Stream<readonly [K, V]>) => StreamSource<[K2, V2]>,
+	): SortedMap<K2, V2> {
+		return this.context.from(transformFun(this.stream()));
 	}
 
 	mapValues<V2>(): SortedMap<K, V2> {
-		return this as any;
-	}
-
-	mapEntries<V2>(): SortedMap<K, V2> {
 		return this as any;
 	}
 
@@ -403,22 +401,6 @@ export abstract class SortedMapNode<K, V>
 		return [newMap, currentValue];
 	}
 
-	mapKeys(
-		mapFun: (key: K, value: V, index: number) => K,
-	): SortedMap.NonEmpty<K, V> {
-		return this.context.from(
-			this.stream().map(
-				([key, value], index) => [mapFun(key, value, index), value] as [K, V],
-			),
-		);
-	}
-
-	mapEntries<V2>(
-		mapFun: (entry: readonly [K, V], index: number) => readonly [K, V2],
-	): SortedMap.NonEmpty<K, V2> {
-		return this.context.from(this.stream().map(mapFun));
-	}
-
 	filter(
 		pred: (entry: readonly [K, V], index: number, halt: () => void) => boolean,
 		options: { negate?: boolean } = {},
@@ -429,6 +411,14 @@ export abstract class SortedMapNode<K, V>
 		if (builder.size === this.size) return this;
 
 		return builder.build();
+	}
+
+	transform<V2, K2 extends K>(
+		transformFun: (
+			stream: Stream.NonEmpty<readonly [K, V]>,
+		) => StreamSource<[K2, V2]>,
+	): any {
+		return this.context.from(transformFun(this.stream()));
 	}
 
 	take(amount: number): SortedMap<K, V> | any {

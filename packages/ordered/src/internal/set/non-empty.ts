@@ -104,6 +104,12 @@ export class OrderedSetNonEmpty<T>
 		return builder.build();
 	}
 
+	transform<T2 extends T>(
+		transformFun: (stream: Stream.NonEmpty<T>) => StreamSource<T2>,
+	): any {
+		return this.context.from(transformFun(this.stream()));
+	}
+
 	union(other: StreamSource<T>): OrderedSet.NonEmpty<T> {
 		if (other === this) return this;
 		if (Stream.isEmptyStreamSourceInstance(other)) return this;

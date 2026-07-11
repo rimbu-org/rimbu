@@ -2,7 +2,7 @@ import type { RSet } from '@rimbu/collection-types';
 import type { ToJSON } from '@rimbu/common/types';
 import type { List } from '@rimbu/list';
 import type { OrderedSet } from '@rimbu/ordered/set';
-import type { StreamSource } from '@rimbu/stream';
+import type { Stream, StreamSource } from '@rimbu/stream';
 
 import type { OrderedSetBase } from '#set/base';
 import type { ContextImpl } from '#set/context-factory';
@@ -48,6 +48,12 @@ export class OrderedSetEmpty<T>
 
 	removeAll(): OrderedSet<T> {
 		return this;
+	}
+
+	transform<T2 extends T>(
+		transformFun: (stream: Stream<T>) => StreamSource<T2>,
+	): any {
+		return this.context.from(transformFun(this.stream()));
 	}
 
 	union(other: StreamSource<T>): any {

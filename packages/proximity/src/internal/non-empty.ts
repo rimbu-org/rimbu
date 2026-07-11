@@ -102,14 +102,6 @@ export class ProximityMapNonEmpty<K, V> implements ProximityMap.NonEmpty<K, V> {
 		return this.internalMap.streamValues();
 	}
 
-	mapKeys(
-		mapFun: (key: K, value: V, index: number) => K,
-	): ProximityMap.NonEmpty<K, V> {
-		return this.context.from(
-			this.stream().map(([k, v], index) => [mapFun(k, v, index), v]),
-		);
-	}
-
 	mapValues<V2>(
 		mapFun: (value: V, key: K) => V2,
 	): ProximityMap.NonEmpty<K, V2> {
@@ -119,10 +111,12 @@ export class ProximityMapNonEmpty<K, V> implements ProximityMap.NonEmpty<K, V> {
 		);
 	}
 
-	mapEntries<V2>(
-		mapFun: (entry: readonly [K, V], index: number) => readonly [K, V2],
-	): ProximityMap.NonEmpty<K, V2> {
-		return this.context.from(this.stream().map(mapFun));
+	transform<V2, K2 extends K>(
+		transformFun: (
+			stream: Stream.NonEmpty<readonly [K, V]>,
+		) => StreamSource<[K2, V2]>,
+	): any {
+		return this.context.from(transformFun(this.stream()));
 	}
 
 	toArray(): ArrayNonEmpty<readonly [K, V]> {

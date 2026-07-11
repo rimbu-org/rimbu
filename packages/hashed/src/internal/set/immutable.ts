@@ -40,6 +40,10 @@ export class HashSetEmpty<T = any> extends EmptyBase implements HashSet<T> {
 		return this;
 	}
 
+	transform(transformFun: (stream: Stream<T>) => StreamSource<T>): any {
+		return this.context.from(transformFun(this.stream()));
+	}
+
 	union(other: StreamSource<T>): HashSet<T> | any {
 		if (
 			this.context.isHashSetBlock(other as any) ||
@@ -128,6 +132,12 @@ export abstract class HashSetNonEmptyBase<T>
 		if (builder.size === this.size) return this;
 
 		return builder.build();
+	}
+
+	transform<T2 extends T>(
+		transformFun: (stream: Stream.NonEmpty<T>) => StreamSource<T2>,
+	): any {
+		return this.context.from(transformFun(this.stream()));
 	}
 
 	union(other: StreamSource<T>): HashSet.NonEmpty<T> {

@@ -82,16 +82,14 @@ export class HashMapEmpty<K = any, V = any>
 		return this;
 	}
 
-	mapKeys(): HashMap<K, V> {
-		return this;
-	}
-
 	mapValues<V2>(): HashMap<K, V2> {
 		return this as any;
 	}
 
-	mapEntries<V2>(): HashMap<K, V2> {
-		return this as any;
+	transform<V2, K2 extends K>(
+		transformFun: (stream: Stream<readonly [K, V]>) => StreamSource<[K2, V2]>,
+	): any {
+		return this.context.from(transformFun(this.stream()));
 	}
 
 	updateAt(): HashMap<K, V> {
@@ -233,23 +231,6 @@ export abstract class HashMapNonEmptyBase<K, V>
 		return [newMap, currentValue];
 	}
 
-	mapKeys(
-		mapfun: (key: K, value: V, index: number) => K,
-	): HashMap.NonEmpty<K, V> {
-		return this.context.from(
-			this.stream().map(([key, value], index) => [
-				mapfun(key, value, index),
-				value,
-			]),
-		);
-	}
-
-	mapEntries<V2>(
-		mapFun: (entry: readonly [K, V], index: number) => readonly [K, V2],
-	): HashMap.NonEmpty<K, V2> {
-		return this.context.from(this.stream().map(mapFun));
-	}
-
 	filter(
 		pred: (entry: readonly [K, V], index: number, halt: () => void) => boolean,
 		options: { negate?: boolean } = {},
@@ -261,6 +242,14 @@ export abstract class HashMapNonEmptyBase<K, V>
 		if (builder.size === this.size) return this;
 
 		return builder.build();
+	}
+
+	transform<V2, K2 extends K>(
+		transformFun: (
+			stream: Stream.NonEmpty<readonly [K, V]>,
+		) => StreamSource<[K2, V2]>,
+	): any {
+		return this.context.from(transformFun(this.stream()));
 	}
 
 	toBuilder(): HashMap.Builder<K, V> {
