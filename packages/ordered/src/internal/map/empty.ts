@@ -1,121 +1,123 @@
-import type { RMap } from "@rimbu/collection-types";
-import type { ToJSON } from "@rimbu/common/types";
-import type { List } from "@rimbu/list";
-import type { OrderedMap } from "@rimbu/ordered/map";
+import type { RMap } from '@rimbu/collection-types';
+import type { ToJSON } from '@rimbu/common/types';
+import type { List } from '@rimbu/list';
+import type { OrderedMap } from '@rimbu/ordered/map';
 
-import type { OrderedMapBase } from "#map/base";
-import type { ContextImpl } from "#map/context-factory";
+import type { OrderedMapBase } from '#map/base';
+import type { ContextImpl } from '#map/context-factory';
 
-import { Token } from "@rimbu/base/token";
-import { EmptyBase } from "@rimbu/collection-types/common/empty-base";
-import { OptLazy, OptLazyOr } from "@rimbu/common/opt-lazy";
-import { Stream, type StreamSource } from "@rimbu/stream";
+import { Token } from '@rimbu/base/token';
+import { EmptyBase } from '@rimbu/collection-types/common/empty-base';
+import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
+import { Stream, type StreamSource } from '@rimbu/stream';
 
 export class OrderedMapEmpty<K = any, V = any>
-  extends EmptyBase
-  implements OrderedMapBase<K, V>
+	extends EmptyBase
+	implements OrderedMapBase<K, V>
 {
-  declare _NonEmptyType: OrderedMap.NonEmpty<K, V>;
+	declare _NonEmptyType: OrderedMap.NonEmpty<K, V>;
 
-  constructor(readonly context: ContextImpl<K>) {
-    super();
-  }
+	constructor(readonly context: ContextImpl<K>) {
+		super();
+	}
 
-  get keyOrder(): List<K> {
-    return this.context.listContext.empty();
-  }
+	get keyOrder(): List<K> {
+		return this.context.listContext.empty();
+	}
 
-  get sourceMap(): RMap<K, V> {
-    return this.context.mapContext.empty();
-  }
+	get sourceMap(): RMap<K, V> {
+		return this.context.mapContext.empty();
+	}
 
-  streamKeys(): Stream<K> {
-    return Stream.empty();
-  }
+	streamKeys(): Stream<K> {
+		return Stream.empty();
+	}
 
-  streamValues(): Stream<V> {
-    return Stream.empty();
-  }
+	streamValues(): Stream<V> {
+		return Stream.empty();
+	}
 
-  hasKey(): false {
-    return false;
-  }
+	hasKey(): false {
+		return false;
+	}
 
-  get<O>(key: K, otherwise?: OptLazy<O>): O {
-    return OptLazy(otherwise) as O;
-  }
+	get<O>(key: K, otherwise?: OptLazy<O>): O {
+		return OptLazy(otherwise) as O;
+	}
 
-  set(key: K, value: V): OrderedMap.NonEmpty<K, V> {
-    return this.addEntry([key, value]);
-  }
+	set(key: K, value: V): OrderedMap.NonEmpty<K, V> {
+		return this.addEntry([key, value]);
+	}
 
-  addEntry(entry: readonly [K, V]): OrderedMap.NonEmpty<K, V> {
-    return this.context.createNonEmpty<K, V>(
-      this.context.listContext.of(entry[0]),
-      this.context.mapContext.of(entry),
-    );
-  }
+	addEntry(entry: readonly [K, V]): OrderedMap.NonEmpty<K, V> {
+		return this.context.createNonEmpty<K, V>(
+			this.context.listContext.of(entry[0]),
+			this.context.mapContext.of(entry),
+		);
+	}
 
-  addEntries(
-    entries: StreamSource<readonly [K, V]>,
-  ): OrderedMap.NonEmpty<K, V> {
-    if (Stream.isEmptyStreamSourceInstance(entries)) {
-      return this as any;
-    }
+	addEntries(
+		entries: StreamSource<readonly [K, V]>,
+	): OrderedMap.NonEmpty<K, V> {
+		if (Stream.isEmptyStreamSourceInstance(entries)) {
+			return this as any;
+		}
 
-    return this.context.from(entries) as any;
-  }
+		return this.context.from(entries) as any;
+	}
 
-  modifyAt(key: K, options: { ifNew?: OptLazyOr<V, Token> }): OrderedMap<K, V> {
-    if (undefined === options.ifNew) return this;
+	modifyAt(key: K, options: { ifNew?: OptLazyOr<V, Token> }): OrderedMap<K, V> {
+		if (undefined === options.ifNew) return this;
 
-    const value = OptLazyOr<V, Token>(options.ifNew, Token);
+		const value = OptLazyOr<V, Token>(options.ifNew, Token);
 
-    if (Token === value) return this;
+		if (Token === value) return this;
 
-    return this.addEntry([key, value]);
-  }
+		return this.addEntry([key, value]);
+	}
 
-  removeKey(): OrderedMap<K, V> {
-    return this as any;
-  }
+	removeKey(): OrderedMap<K, V> {
+		return this as any;
+	}
 
-  removeKeys(): OrderedMap<K, V> {
-    return this as any;
-  }
+	removeKeys(): OrderedMap<K, V> {
+		return this as any;
+	}
 
-  removeKeyAndGet(): undefined {
-    return undefined;
-  }
+	removeKeyAndGet(): undefined {
+		return undefined;
+	}
 
-  mapKeys(): OrderedMap<K, V> {
-    return this;
-  }
+	mapKeys(): OrderedMap<K, V> {
+		return this;
+	}
 
-  mapValues<V2>(): OrderedMap<K, V2> {
-    return this as any;
-  }
+	mapValues<V2>(): OrderedMap<K, V2> {
+		return this as any;
+	}
 
-  mapEntries<V2>(): OrderedMap<K, V2> {
-    return this as any;
-  }
+	mapEntries<V2>(): OrderedMap<K, V2> {
+		return this as any;
+	}
 
-  updateAt(): OrderedMap<K, V> {
-    return this;
-  }
+	updateAt(): OrderedMap<K, V> {
+		return this;
+	}
 
-  toBuilder(): OrderedMap.Builder<K, V> {
-    return this.context.builder();
-  }
+	updateAtAndGet(): undefined {}
 
-  toString(): string {
-    return "OrderedMap()";
-  }
+	toBuilder(): OrderedMap.Builder<K, V> {
+		return this.context.builder();
+	}
 
-  toJSON(): ToJSON<any[]> {
-    return {
-      dataType: this.context.typeTag,
-      value: [],
-    };
-  }
+	toString(): string {
+		return 'OrderedMap()';
+	}
+
+	toJSON(): ToJSON<any[]> {
+		return {
+			dataType: this.context.typeTag,
+			value: [],
+		};
+	}
 }

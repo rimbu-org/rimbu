@@ -163,6 +163,8 @@ export class SortedMapEmpty<K = any, V = any>
 		return this;
 	}
 
+	updateAtAndGet(): undefined {}
+
 	slice(): SortedMap<K, V> {
 		return this;
 	}
@@ -347,6 +349,22 @@ export abstract class SortedMapNode<K, V>
 		return this.modifyAt(key, {
 			ifExists: update,
 		}).assumeNonEmpty();
+	}
+
+	updateAtAndGet<U>(
+		key: RelatedTo<K, U>,
+		update: (value: V) => V,
+	): [SortedMap.NonEmpty<K, V>, V] | undefined {
+		let oldValue: V | undefined;
+
+		const newMap = this.updateAt(key, (value) => {
+			oldValue = value;
+			return update(value);
+		});
+
+		if (this === newMap) return undefined;
+
+		return [newMap, oldValue as V];
 	}
 
 	removeKey<UK>(key: RelatedTo<K, UK>): SortedMap<K, V> {

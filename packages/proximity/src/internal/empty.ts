@@ -102,6 +102,8 @@ export class ProximityMapEmpty<K = any, V = any>
 		return this;
 	}
 
+	updateAtAndGet(): undefined {}
+
 	toBuilder(): ProximityMap.Builder<K, V> {
 		return this.context.builder();
 	}

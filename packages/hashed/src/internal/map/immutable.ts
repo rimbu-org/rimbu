@@ -98,6 +98,8 @@ export class HashMapEmpty<K = any, V = any>
 		return this;
 	}
 
+	updateAtAndGet(): undefined {}
+
 	toBuilder(): HashMap.Builder<K, V> {
 		return this.context.builder();
 	}
@@ -188,6 +190,22 @@ export abstract class HashMapNonEmptyBase<K, V>
 		return this.modifyAt(key, {
 			ifExists: update,
 		});
+	}
+
+	updateAtAndGet<UK>(
+		key: RelatedTo<K, UK>,
+		update: (value: V) => V,
+	): [HashMap.NonEmpty<K, V>, V] | undefined {
+		let oldValue: V | undefined;
+
+		const newMap = this.updateAt(key, (value) => {
+			oldValue = value;
+			return update(value);
+		});
+
+		if (this === newMap) return undefined;
+
+		return [newMap, oldValue as V];
 	}
 
 	removeKey<UK>(key: RelatedTo<K, UK>): HashMap<K, V> {

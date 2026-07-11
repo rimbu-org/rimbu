@@ -433,6 +433,10 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 		key: RelatedTo<K, UK>,
 		update: RMapBase.Update<V>,
 	): WithKeyValue<Tp, K, V>['normal'];
+	updateAtAndGet<UK = K>(
+		key: RelatedTo<K, UK>,
+		update: RMapBase.Update<V>,
+	): [WithKeyValue<Tp, K, V>['normal'], V] | undefined;
 	/**
 	 * Returns a builder object containing the entries of this collection.
 	 * @example
@@ -494,6 +498,10 @@ export namespace RMapBase {
 			key: RelatedTo<K, UK>,
 			update: RMapBase.Update<V>,
 		): WithKeyValue<Tp, K, V>['nonEmpty'];
+		updateAtAndGet<UK = K>(
+			key: RelatedTo<K, UK>,
+			update: RMapBase.Update<V>,
+		): [WithKeyValue<Tp, K, V>['nonEmpty'], V] | undefined;
 	}
 
 	export interface Factory<Tp extends RMapBase.Types, UK = unknown> {

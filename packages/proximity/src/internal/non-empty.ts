@@ -66,6 +66,22 @@ export class ProximityMapNonEmpty<K, V> implements ProximityMap.NonEmpty<K, V> {
 		return this.plugInternalMap(this.internalMap.updateAt(key, update));
 	}
 
+	updateAtAndGet<U>(
+		key: RelatedTo<K, U>,
+		update: (value: V) => V,
+	): [ProximityMap.NonEmpty<K, V>, V] | undefined {
+		let oldValue: V | undefined;
+
+		const newMap = this.updateAt(key, (value) => {
+			oldValue = value;
+			return update(value);
+		});
+
+		if (this === newMap) return undefined;
+
+		return [newMap, oldValue as V];
+	}
+
 	nonEmpty(): this is ProximityMap.NonEmpty<K, V> {
 		return true;
 	}
