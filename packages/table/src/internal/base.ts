@@ -17,7 +17,6 @@ import {
 } from '@rimbu/collection-types/common/empty-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
-import { Update } from '@rimbu/common/update';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
 export class TableEmpty<R, C, V>
@@ -788,7 +787,7 @@ export class TableBuilder<R, C, V> implements TableBase.Builder<R, C, V> {
 	updateAt = <O>(
 		row: R,
 		column: C,
-		update: Update<V>,
+		update: (value: V) => V,
 		otherwise?: OptLazy<O>,
 	): V | O => {
 		this.checkLock();
@@ -801,7 +800,7 @@ export class TableBuilder<R, C, V> implements TableBase.Builder<R, C, V> {
 				update: (value): V => {
 					oldValue = value;
 					found = true;
-					return Update(value, update);
+					return update(value);
 				},
 			},
 		});

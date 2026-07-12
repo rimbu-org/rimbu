@@ -651,7 +651,7 @@ export function runMapTestsWith(name: string, GMap: RMap.Context<any>): void {
 				expect(() => b.forEach(() => b.removeKey(1))).toThrow();
 				expect(() => b.forEach(() => b.removeKeys([1]))).toThrow();
 				expect(() => b.forEach(() => b.set(1, 'a'))).toThrow();
-				expect(() => b.forEach(() => b.updateAt(1, 'a'))).toThrow();
+				expect(() => b.forEach(() => b.updateAt(1, () => 'a'))).toThrow();
 			});
 		});
 

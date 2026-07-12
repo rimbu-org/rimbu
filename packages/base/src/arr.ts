@@ -1,33 +1,6 @@
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 
 import { TraverseState } from '@rimbu/common/traverse-state';
-import { Update } from '@rimbu/common/update';
-
-/**
- * Internal helper that appends a value using the modern immutable `toSpliced` API.
- * @internal
- * @typeparam T - the array element type
- * @param array - the source array (not mutated)
- * @param value - the value to append
- * @returns a new non-empty array with the value at the end
- */
-export function _appendNew<T>(array: readonly T[], value: T): ArrayNonEmpty<T> {
-	return (array as any).toSpliced(array.length, 0, value) as ArrayNonEmpty<T>;
-}
-
-/**
- * Internal helper that appends a value by cloning and pushing (legacy fallback).
- * @internal
- * @typeparam T - the array element type
- * @param array - the source array (not mutated)
- * @param value - the value to append
- * @returns a new non-empty array with the value at the end
- */
-export function _appendOld<T>(array: readonly T[], value: T): ArrayNonEmpty<T> {
-	const clone = array.slice();
-	clone.push(value);
-	return clone as ArrayNonEmpty<T>;
-}
 
 /**
  * Returns a copy of the array with the given value appended.
@@ -37,7 +10,9 @@ export function _appendOld<T>(array: readonly T[], value: T): ArrayNonEmpty<T> {
  * @param value - the value to append
  * @returns a new array with the value at the end
  */
-export const append = `toSpliced` in Array.prototype ? _appendNew : _appendOld;
+export function append<T>(array: readonly T[], value: T): ArrayNonEmpty<T> {
+	return array.toSpliced(array.length, 0, value) as ArrayNonEmpty<T>;
+}
 
 /**
  * Returns the concatenation of two arrays, reusing an input array when the other is empty.
@@ -56,10 +31,14 @@ export function concat<T>(
 }
 
 /**
- * Internal helper to create a reversed copy using modern `toReversed` with optional slicing.
- * @internal
+ * Returns a copy of the array (or a slice) with elements in reversed order.
+ * @typeparam T - array element type
+ * @param array - the source array
+ * @param start - optional start index (inclusive)
+ * @param end - optional end index (inclusive)
+ * @returns a new array containing the selected range with elements in reversed order
  */
-export function _reverseNew<T>(
+export function reverse<T>(
 	array: readonly T[],
 	start?: number,
 	end?: number,
@@ -69,41 +48,8 @@ export function _reverseNew<T>(
 			? array.slice(start ?? 0, (end ?? array.length - 1) + 1)
 			: array;
 
-	return (source as any).toReversed();
+	return source.toReversed();
 }
-
-/**
- * Internal helper to create a reversed copy using manual iteration (legacy fallback).
- * @internal
- */
-export function _reverseOld<T>(
-	array: readonly T[],
-	start?: number,
-	end?: number,
-): T[] {
-	const _start = start ?? 0;
-	const _end = end ?? array.length - 1;
-	const length = _end - _start + 1;
-	const res = [] as T[];
-
-	let arrayIndex = _start - 1;
-	let resIndex = length - 1;
-
-	while (++arrayIndex <= _end) res[resIndex--] = array[arrayIndex];
-
-	return res;
-}
-
-/**
- * Returns a copy of the array (or a slice) with elements in reversed order.
- * @typeparam T - array element type
- * @param array - the source array
- * @param start - optional start index (inclusive)
- * @param end - optional end index (inclusive)
- * @returns a new array containing the selected range with elements in reversed order
- */
-export const reverse =
-	'toReversed' in Array.prototype ? _reverseNew : _reverseOld;
 
 /**
  * Performs the given function for each element of the array, optionally in reverse order.
@@ -197,106 +143,23 @@ export function reverseMap<T, R>(
 }
 
 /**
- * Internal helper to prepend a value using `toSpliced`.
- * @internal
- */
-export function _prependNew<T>(
-	array: readonly T[],
-	value: T,
-): ArrayNonEmpty<T> {
-	return (array as any).toSpliced(0, 0, value) as ArrayNonEmpty<T>;
-}
-
-/**
- * Internal helper to prepend a value using legacy cloning.
- * @internal
- */
-export function _prependOld<T>(
-	array: readonly T[],
-	value: T,
-): ArrayNonEmpty<T> {
-	const clone = array.slice();
-	clone.unshift(value);
-	return clone as ArrayNonEmpty<T>;
-}
-
-/**
  * Returns a copy of the array with the given value inserted at the start.
  * @typeparam T - element type
  * @param array - the source array
  * @param value - value to insert at index 0
  */
-export const prepend =
-	`toSpliced` in Array.prototype ? _prependNew : _prependOld;
-
-/**
- * Internal helper to obtain the last element using modern `at`.
- * @internal
- */
-export function _lastNew<T>(arr: readonly T[]): T {
-	return arr.at(-1)!;
+export function prepend<T>(array: readonly T[], value: T): ArrayNonEmpty<T> {
+	return array.toSpliced(0, 0, value) as ArrayNonEmpty<T>;
 }
 
-/**
- * Internal helper to obtain the last element using index arithmetic.
- * @internal
- */
-export function _lastOld<T>(arr: readonly T[]): T {
-	return arr[arr.length - 1];
-}
-
-/**
- * Returns the last element of the array.
- * @typeparam T - element type
- * @param arr - the array
- */
-export const last = `at` in Array.prototype ? _lastNew : _lastOld;
-
-/**
- * Internal helper implementing an immutable index update via `with`.
- * @internal
- */
-export function _updateNew<T>(
-	arr: readonly T[],
-	index: number,
-	updater: Update<T>,
-): readonly T[] {
-	if (index < 0 || index >= arr.length) {
-		return arr;
-	}
-	const curValue = arr[index];
-
-	const newValue = Update(curValue, updater);
-	if (Object.is(newValue, curValue)) {
-		return arr;
-	}
-
-	return (arr as any).with(index, newValue);
-}
-
-/**
- * Internal helper implementing an immutable index update via cloning.
- * @internal
- */
-export function _updateOld<T>(
-	arr: readonly T[],
-	index: number,
-	updater: Update<T>,
-): readonly T[] {
-	if (index < 0 || index >= arr.length) {
-		return arr;
-	}
-	const curValue = arr[index];
-
-	const newValue = Update(curValue, updater);
-	if (Object.is(newValue, curValue)) {
-		return arr;
-	}
-
-	const newArr = arr.slice();
-	newArr[index] = newValue;
-	return newArr;
-}
+// /**
+//  * Returns the last element of the array.
+//  * @typeparam T - element type
+//  * @param arr - the array
+//  */
+// export function last<T>(arr: readonly T[]): T {
+// 	return arr.at(-1)!;
+// }
 
 /**
  * Returns a copy of the array where the element at the given index is replaced using the provided updater.
@@ -306,82 +169,39 @@ export function _updateOld<T>(
  * @param index - the index to update
  * @param updater - value or function update description
  */
-export const update = `with` in Array.prototype ? _updateNew : _updateOld;
-
-/**
- * Internal helper applying a modifier function via `with`.
- * @internal
- */
-export function _modNew<T>(
+export function update<T>(
 	arr: readonly T[],
 	index: number,
-	f: (value: T) => T,
+	updater: (value: T) => T,
 ): readonly T[] {
 	if (index < 0 || index >= arr.length) {
 		return arr;
 	}
-
 	const curValue = arr[index];
-	const newValue = f(curValue);
+
+	const newValue = updater(curValue);
+	if (Object.is(newValue, curValue)) {
+		return arr;
+	}
+
+	return arr.with(index, newValue);
+}
+
+export function set<T>(
+	arr: readonly T[],
+	index: number,
+	newValue: T,
+): readonly T[] {
+	if (index < 0 || index >= arr.length) {
+		return arr;
+	}
+	const curValue = arr[index];
 
 	if (Object.is(newValue, curValue)) {
 		return arr;
 	}
 
-	return (arr as any).with(index, newValue);
-}
-
-/**
- * Internal helper applying a modifier function via cloning.
- * @internal
- */
-export function _modOld<T>(
-	arr: readonly T[],
-	index: number,
-	f: (value: T) => T,
-): readonly T[] {
-	if (index < 0 || index >= arr.length) {
-		return arr;
-	}
-
-	const curValue = arr[index];
-	const newValue = f(curValue);
-
-	if (Object.is(newValue, curValue)) {
-		return arr;
-	}
-
-	const newArr = arr.slice();
-	newArr[index] = newValue;
-	return newArr;
-}
-
-/**
- * Returns a copy of the array where the element at the given index is transformed by a modifier function.
- * If the result value is identical (by `Object.is`) the original array is returned.
- * @typeparam T - element type
- * @param arr - the source array
- * @param index - the index to modify
- * @param f - modifier function receiving the current value
- */
-export const mod = `with` in Array.prototype ? _modNew : _modOld;
-
-/**
- * Internal helper for inserting a value using `toSpliced`.
- * @internal
- */
-export function _insertNew<T>(arr: readonly T[], index: number, value: T): T[] {
-	return (arr as any).toSpliced(index, 0, value);
-}
-
-/**
- * Internal helper for inserting a value using legacy `splice` on a clone.
- * @internal
- */
-export function _insertOld<T>(arr: readonly T[], index: number, value: T): T[] {
-	const clone = arr.slice();
-	clone.splice(index, 0, value);
-	return clone;
+	return arr.with(index, newValue);
 }
 
 /**
@@ -391,7 +211,9 @@ export function _insertOld<T>(arr: readonly T[], index: number, value: T): T[] {
  * @param index - insertion index
  * @param value - value to insert
  */
-export const insert = `toSpliced` in Array.prototype ? _insertNew : _insertOld;
+export function insert<T>(arr: readonly T[], index: number, value: T): T[] {
+	return arr.toSpliced(index, 0, value);
+}
 
 /**
  * Returns a copy of the array without its first element.
@@ -410,44 +232,6 @@ export function tail<T>(arr: readonly T[]): T[] {
 export function init<T>(arr: readonly T[]): T[] {
 	return arr.slice(0, arr.length - 1);
 }
-
-/**
- * Internal helper providing an immutable `splice` using `toSpliced`.
- * @internal
- */
-export function _spliceNew<T>(
-	arr: readonly T[],
-	start: number,
-	deleteCount: number,
-	...items: T[]
-): T[] {
-	return (arr as any).toSpliced(start, deleteCount, ...items);
-}
-
-/**
- * Internal helper providing an immutable `splice` via cloning.
- * @internal
- */
-export function _spliceOld<T>(
-	arr: readonly T[],
-	start: number,
-	deleteCount: number,
-	...items: T[]
-): T[] {
-	const clone = arr.slice();
-	clone.splice(start, deleteCount, ...items);
-	return clone;
-}
-
-/**
- * Immutable version of the array `.splice` command, always returning a new array.
- * @typeparam T - element type
- * @param arr - the source array
- * @param start - start index
- * @param deleteCount - number of elements to delete
- * @param items - optional items to insert
- */
-export const splice = `toSpliced` in Array.prototype ? _spliceNew : _spliceOld;
 
 /**
  * Returns a copy of a (potentially) sparse array preserving sparsity (skips holes).

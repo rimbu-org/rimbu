@@ -401,7 +401,7 @@ export function runMapRandomTestsWith(
 
 			expect((): void => {
 				b.forEach((): void => {
-					b.updateAt(1, 3);
+					b.updateAt(1, () => 3);
 				});
 			}).toThrow();
 		});
@@ -518,7 +518,7 @@ export function runMapRandomTestsWith(
 
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3]).forEach(b.addEntry);
-			expect(b.updateAt(2, 3)).toBe(2);
+			expect(b.updateAt(2, () => 3)).toBe(2);
 			expect(b.build()).toEqual(context.of([1, 1], [2, 3], [3, 3]));
 
 			b = context.builder();
@@ -528,13 +528,13 @@ export function runMapRandomTestsWith(
 
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3]).forEach(b.addEntry);
-			expect(b.updateAt(4, 3)).toBe(undefined);
-			expect(b.updateAt(4, 3, 'a')).toBe('a');
+			expect(b.updateAt(4, () => 3)).toBe(undefined);
+			expect(b.updateAt(4, () => 3, 'a')).toBe('a');
 			expect(b.build()).toEqual(context.of([1, 1], [2, 2], [3, 3]));
 
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3]).forEach(b.addEntry);
-			expect(b.updateAt(2, 2)).toBe(2);
+			expect(b.updateAt(2, () => 2)).toBe(2);
 			expect(b.build()).toEqual(context.of([1, 1], [2, 2], [3, 3]));
 		});
 	});

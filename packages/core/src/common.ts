@@ -9,4 +9,3 @@ export * from '@rimbu/common/opt-lazy';
 export * from '@rimbu/common/range';
 export * from '@rimbu/common/traverse-state';
 export * from '@rimbu/common/types';
-export * from '@rimbu/common/update';

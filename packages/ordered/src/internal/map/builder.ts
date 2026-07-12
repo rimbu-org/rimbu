@@ -13,7 +13,6 @@ import {
 } from '@rimbu/collection-types/common';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
-import { Update } from '@rimbu/common/update';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
 export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
@@ -130,7 +129,11 @@ export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 		);
 	};
 
-	updateAt = <O>(key: K, update: Update<V>, otherwise?: OptLazy<O>): V | O => {
+	updateAt = <O>(
+		key: K,
+		update: (value: V) => V,
+		otherwise?: OptLazy<O>,
+	): V | O => {
 		let oldValue: V;
 		let found = false;
 
@@ -139,7 +142,7 @@ export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 				update: (value): V => {
 					oldValue = value;
 					found = true;
-					return Update(value, update);
+					return update(value);
 				},
 			},
 		});

@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from 'bun:test';
 
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 
-import * as Arr from '@rimbu/base/arr';
 import { Eq } from '@rimbu/common/eq';
 import { Err } from '@rimbu/common/err';
 import { Stream } from '@rimbu/stream';
@@ -881,7 +880,7 @@ describe('AsyncStream methods', () => {
 		expect(AsyncStream.empty<number>().last(1)).resolves.toBe(1);
 		expect(AsyncStream.of(1, 2, 3).last()).resolves.toBe(3);
 		for (const source of sources) {
-			const last = Arr.last(await source.toArray());
+			const last = (await source.toArray()).at(-1)!;
 			expect(source.last()).resolves.toBe(last);
 			expect(source.last('a')).resolves.toBe(last);
 		}
@@ -1853,9 +1852,10 @@ describe('AsyncStream methods', () => {
 		]);
 		expect(AsyncStream.of(1).partition(isEven)()).resolves.toEqual([[], [1]]);
 		expect(AsyncStream.of(0).partition(isEven)()).resolves.toEqual([[0], []]);
-		expect(
-			AsyncStream.of(1, 2, 3).partition(isEven)(),
-		).resolves.toEqual([[2], [1, 3]]);
+		expect(AsyncStream.of(1, 2, 3).partition(isEven)()).resolves.toEqual([
+			[2],
+			[1, 3],
+		]);
 	});
 
 	it('partition collector', async () => {

@@ -109,7 +109,7 @@ export function leafDeleteMin<S extends LeafMutateSource<S, E>, E>(
 export function leafDeleteMax<S extends LeafMutateSource<S, E>, E>(
 	source: S,
 ): [E, S] {
-	return [Arr.last(source.entries), source.copy(Arr.init(source.entries))];
+	return [source.entries.at(-1)!, source.copy(Arr.init(source.entries))];
 }
 
 /**
@@ -176,7 +176,7 @@ export function leafMutateGetFromLeft<S extends LeafMutateSource<S, E>, E>(
 	left: S,
 	toMe: E,
 ): [E, S] {
-	const toUp = Arr.last(left.entries);
+	const toUp = left.entries.at(-1)!;
 	const newLeft = left.copy(Arr.init(left.entries));
 	source.mutateEntries.unshift(toMe);
 	return [toUp, newLeft];
@@ -416,8 +416,8 @@ export function innerMutateGetFromLeft<S extends InnerMutateSource<S, E>, E>(
 	left: S,
 	toMe: E,
 ): [E, S] {
-	const toUp = Arr.last(left.entries);
-	const toMeChild = Arr.last(left.children);
+	const toUp = left.entries.at(-1)!;
+	const toMeChild = left.children.at(-1)!;
 	const leftShrink = toMeChild.size + 1;
 	const newLeft = left.copy(
 		Arr.init(left.entries),
@@ -520,8 +520,7 @@ export function innerNormalizeDownsizeChild<
 		// cannot shift
 		const [upEntry, rightChild] = newChild.mutateSplitRight();
 		const newEntries = Arr.insert(source.entries, childIndex, upEntry);
-		const newChildren = Arr.splice(
-			source.children,
+		const newChildren = source.children.toSpliced(
 			childIndex,
 			1,
 			newChild,
@@ -540,9 +539,8 @@ export function innerNormalizeDownsizeChild<
 			leftChild,
 			source.entries[childIndex - 1],
 		);
-		const newEntries = Arr.update(source.entries, childIndex - 1, newSep);
-		const newChildren = Arr.splice(
-			source.children,
+		const newEntries = Arr.set(source.entries, childIndex - 1, newSep);
+		const newChildren = source.children.toSpliced(
 			childIndex - 1,
 			2,
 			newLeft,
@@ -556,9 +554,8 @@ export function innerNormalizeDownsizeChild<
 		rightChild,
 		source.entries[childIndex],
 	);
-	const newEntries = Arr.update(source.entries, childIndex, newSep);
-	const newChildren = Arr.splice(
-		source.children,
+	const newEntries = Arr.set(source.entries, childIndex, newSep);
+	const newChildren = source.children.toSpliced(
 		childIndex,
 		2,
 		newChild,
@@ -583,7 +580,7 @@ export function innerNormalizeIncreaseChild<
 	E,
 >(source: S, childIndex: number, newChild: InnerChild<E>, newSize: number): S {
 	if (newChild.entries.length >= source.context.minEntries) {
-		const newChildren = Arr.update(source.children, childIndex, newChild);
+		const newChildren = Arr.set(source.children, childIndex, newChild);
 		return source.copy(undefined, newChildren, newSize);
 	}
 
@@ -600,9 +597,8 @@ export function innerNormalizeIncreaseChild<
 		// cannot shift
 		if (undefined !== leftChild) {
 			newChild.mutateJoinLeft(leftChild, source.entries[childIndex - 1]);
-			const newEntries = Arr.splice(source.entries, childIndex - 1, 1);
-			const newChildren = Arr.splice(
-				source.children,
+			const newEntries = source.entries.toSpliced(childIndex - 1, 1);
+			const newChildren = source.children.toSpliced(
 				childIndex - 1,
 				2,
 				newChild,
@@ -611,8 +607,8 @@ export function innerNormalizeIncreaseChild<
 		}
 
 		newChild.mutateJoinRight(rightChild, source.entries[childIndex]);
-		const newEntries = Arr.splice(source.entries, childIndex, 1);
-		const newChildren = Arr.splice(source.children, childIndex, 2, newChild);
+		const newEntries = source.entries.toSpliced(childIndex, 1);
+		const newChildren = source.children.toSpliced(childIndex, 2, newChild);
 		return source.copy(newEntries, newChildren, newSize);
 	}
 
@@ -626,9 +622,8 @@ export function innerNormalizeIncreaseChild<
 			leftChild,
 			source.entries[childIndex - 1],
 		);
-		const newEntries = Arr.update(source.entries, childIndex - 1, newSep);
-		const newChildren = Arr.splice(
-			source.children,
+		const newEntries = Arr.set(source.entries, childIndex - 1, newSep);
+		const newChildren = source.children.toSpliced(
 			childIndex - 1,
 			2,
 			newLeft,
@@ -642,9 +637,8 @@ export function innerNormalizeIncreaseChild<
 		rightChild,
 		source.entries[childIndex],
 	);
-	const newEntries = Arr.update(source.entries, childIndex, newSep);
-	const newChildren = Arr.splice(
-		source.children,
+	const newEntries = Arr.set(source.entries, childIndex, newSep);
+	const newChildren = source.children.toSpliced(
 		childIndex,
 		2,
 		newChild,
@@ -733,12 +727,10 @@ export function innerTakeInternal<S extends InnerMutateSource<S, E>, E>(
 		let result = source.context.inner(entries, children, amount);
 		if (childIndex === 0) return result;
 
-		while (
-			Arr.last(result.children).entries.length < source.context.minEntries
-		) {
+		while (result.children.at(-1)!.entries.length < source.context.minEntries) {
 			result = result.normalizeIncreaseChild(
 				result.entries.length,
-				Arr.last(result.children),
+				result.children.at(-1)!,
 				amount,
 			);
 		}
@@ -971,8 +963,8 @@ export abstract class SortedBuilder<E> {
 
 		if (this.size === 0) return OptLazy(otherwise) as O;
 
-		if (this.hasChildren) return Arr.last(this.children).max(otherwise);
-		else return Arr.last(this.entries);
+		if (this.hasChildren) return this.children.at(-1)!.max(otherwise);
+		else return this.entries.at(-1)!;
 	}
 
 	/**

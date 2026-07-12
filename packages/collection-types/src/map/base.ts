@@ -1,6 +1,7 @@
 import type {
 	KeyValue,
 	VariantModifyOptions,
+	VariantUpdate,
 	WithKeyValue,
 } from '@rimbu/collection-types/common';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
@@ -495,7 +496,7 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 	 */
 	updateAtAndGet<UK = K>(
 		key: RelatedTo<K, UK>,
-		update: RMapBase.Update<V>,
+		update: VariantUpdate<V>,
 	): [WithKeyValue<Tp, K, V>['normal'], V] | undefined;
 	/**
 	 * Returns a builder object containing the entries of this collection.
@@ -508,14 +509,6 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 }
 
 export namespace RMapBase {
-	/**
-	 * A utility type describing an update operation for a value of type `V`.
-	 *
-	 * It can be either a new value, or a function that receives the previous value
-	 * and returns the new one.
-	 */
-	export type Update<V> = V | (<V2 extends V>(value: V & V2) => V);
-
 	export interface NonEmpty<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 		extends VariantMapBase.NonEmpty<K, V, Tp>,
 			Omit<RMapBase<K, V, Tp>, keyof VariantMapBase.NonEmpty<any, any, any>>,
@@ -576,7 +569,7 @@ export namespace RMapBase {
 		 */
 		updateAtAndGet<UK = K>(
 			key: RelatedTo<K, UK>,
-			update: RMapBase.Update<V>,
+			update: VariantUpdate<V>,
 		): [WithKeyValue<Tp, K, V>['nonEmpty'], V] | undefined;
 	}
 
@@ -1018,12 +1011,8 @@ export namespace RMapBase {
 		 * m.updateAt(2, v => v + 'z')  // => 'b'
 		 * ```
 		 */
-		updateAt(key: K, update: RMapBase.Update<V>): V | undefined;
-		updateAt<O>(
-			key: K,
-			update: RMapBase.Update<V>,
-			otherwise: OptLazy<O>,
-		): V | O;
+		updateAt(key: K, update: VariantUpdate<V>): V | undefined;
+		updateAt<O>(key: K, update: VariantUpdate<V>, otherwise: OptLazy<O>): V | O;
 		/**
 		 * Returns an immutable collection instance containing the entries in this builder.
 		 * @example

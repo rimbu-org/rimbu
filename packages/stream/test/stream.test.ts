@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'bun:test';
 
-import * as Arr from '@rimbu/base/arr';
 import { Eq } from '@rimbu/common/eq';
 
 // import { List } from '@rimbu/list';
@@ -756,7 +755,7 @@ describe('Stream methods', () => {
 		expect(artificialEmpty.last(5)).toBe(5);
 
 		sources.forEach((source) => {
-			const last = Arr.last(source.toArray());
+			const last = source.toArray().at(-1)!;
 			expect(source.last()).toBe(last);
 			expect(source.last('a')).toBe(last);
 		});

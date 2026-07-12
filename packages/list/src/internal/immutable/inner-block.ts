@@ -7,7 +7,7 @@ import type { InnerTree } from '#list/immutable/inner-tree';
 import type { Block, Inner } from '#list/immutable/utils';
 import type { InnerBlockBuilder } from '#list/mutable/inner-block-builder';
 
-import { append, concat, prepend, splice } from '@rimbu/base/arr';
+import { append, concat, prepend } from '@rimbu/base/arr';
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
 import { IndexRange } from '@rimbu/common/index-range';
 import { Stream } from '@rimbu/stream';
@@ -451,8 +451,7 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 		if (childAmount <= 0) return null;
 		if (childAmount >= this.nrChildren) return this;
 
-		const newChildren = splice(
-			this.children,
+		const newChildren = this.children.toSpliced(
 			childAmount,
 			this.context.maxBlockSize,
 		);
@@ -469,7 +468,7 @@ export class InnerBlock<T, C extends Block<T>> implements Block<T, C> {
 			return null;
 		}
 
-		const newChildren = splice(this.children, 0, childAmount);
+		const newChildren = this.children.toSpliced(0, childAmount);
 
 		const newLength = newChildren.reduce((l, c): number => l + c.length, 0);
 		return this.copy(newChildren, newLength);

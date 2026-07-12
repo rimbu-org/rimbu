@@ -509,7 +509,7 @@ export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
 	}
 
 	max(): readonly [K, V] {
-		return Arr.last(this.entries);
+		return this.entries.at(-1)!;
 	}
 
 	get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O {
@@ -573,7 +573,7 @@ export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
 			const currentEntry = this.entries[index];
 			if (Object.is(currentEntry[1], entry[1])) return this;
 
-			const newEntries = Arr.update(this.entries, index, entry);
+			const newEntries = Arr.set(this.entries, index, entry);
 			return this.copy(newEntries);
 		}
 
@@ -598,14 +598,14 @@ export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
 			if (Object.is(newValue, currentValue)) return this;
 
 			if (token === newValue) {
-				const newEntries = Arr.splice(this.mutateEntries, entryIndex, 1);
+				const newEntries = this.mutateEntries.toSpliced(entryIndex, 1);
 				return this.copy(newEntries);
 			}
 
-			const newEntries = Arr.update(this.entries, entryIndex, [
-				key,
-				newValue,
-			] as [K, V]);
+			const newEntries = Arr.set(this.entries, entryIndex, [key, newValue] as [
+				K,
+				V,
+			]);
 			return this.copy(newEntries);
 		}
 
@@ -749,7 +749,7 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 	}
 
 	max(): readonly [K, V] {
-		return Arr.last(this.children).max();
+		return this.children.at(-1)!.max();
 	}
 
 	get<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O {
@@ -861,7 +861,7 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 			if (comp === 0) return index - 1;
 		}
 
-		const insertIndex = Arr.last(this.children).getInsertIndexOf(key);
+		const insertIndex = this.children.at(-1)!.getInsertIndexOf(key);
 
 		if (insertIndex < 0) return -index + insertIndex;
 		return index + insertIndex;
@@ -893,7 +893,7 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 
 		if (newChild.entries.length <= this.context.maxEntries) {
 			// no need to shift
-			const newChildren = Arr.update(this.children, childIndex, newChild);
+			const newChildren = Arr.set(this.children, childIndex, newChild);
 			return this.copy(undefined, newChildren, newSize);
 		}
 
@@ -925,7 +925,7 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 
 				if (leftChild.entries.length >= rightChild.entries.length) {
 					const [max, newLeft] = leftChild.deleteMax();
-					const newEntries = Arr.update(this.entries, entryIndex, max);
+					const newEntries = Arr.set(this.entries, entryIndex, max);
 					const newSelf = this.copy(newEntries);
 					return newSelf.normalizeIncreaseChild(
 						entryIndex,
@@ -935,7 +935,7 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 				}
 
 				const [min, newRight] = rightChild.deleteMin();
-				const newEntries = Arr.update(this.entries, entryIndex, min);
+				const newEntries = Arr.set(this.entries, entryIndex, min);
 				const newSelf = this.copy(newEntries);
 				return newSelf.normalizeIncreaseChild(
 					entryIndex + 1,
@@ -946,7 +946,7 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 
 			// update inner entry
 			const newEntry: [K, V] = [key, newValue];
-			const newEntries = Arr.update(this.entries, entryIndex, newEntry);
+			const newEntries = Arr.set(this.entries, entryIndex, newEntry);
 			return this.copy(newEntries);
 		}
 
@@ -963,7 +963,7 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 			return this.normalizeDownsizeChild(childIndex, newChild, newSize);
 		}
 
-		const newChildren = Arr.update(this.children, childIndex, newChild);
+		const newChildren = Arr.set(this.children, childIndex, newChild);
 		return this.copy(
 			undefined,
 			newChildren,
