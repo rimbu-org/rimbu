@@ -6,9 +6,12 @@ import type { OrderedMap } from '@rimbu/ordered/map';
 import type { OrderedMapBase } from '#map/base';
 import type { ContextImpl } from '#map/context-factory';
 
-import { Token } from '@rimbu/base/token';
 import { EmptyBase } from '@rimbu/collection-types/common/empty-base';
-import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
+import {
+	checkEmptyModifyOptions,
+	type ModifyOptions,
+} from '@rimbu/collection-types/dist/common.d';
+import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
 export class OrderedMapEmpty<K = any, V = any>
@@ -66,14 +69,18 @@ export class OrderedMapEmpty<K = any, V = any>
 		return this.context.from(entries) as any;
 	}
 
-	modifyAt(key: K, options: { ifNew?: OptLazyOr<V, Token> }): OrderedMap<K, V> {
-		if (undefined === options.ifNew) return this;
+	modifyAt(key: K, options: ModifyOptions<V>): OrderedMap<K, V> {
+		if (checkEmptyModifyOptions(options)) return this;
 
-		const value = OptLazyOr<V, Token>(options.ifNew, Token);
+		const { ifNew } = options;
+		if (undefined === ifNew) return this;
 
-		if (Token === value) return this;
+		const { set, create } = ifNew;
+		const token = Symbol();
+		const newValue = create !== undefined ? create(token) : set;
 
-		return this.addEntry([key, value]);
+		if (token === newValue) return this;
+		return this.addEntry([key, newValue]);
 	}
 
 	removeKey(): OrderedMap<K, V> {

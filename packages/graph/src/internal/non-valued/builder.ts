@@ -67,7 +67,7 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 
 	addNodeInternal = (node: N): boolean => {
 		const changed = this.linkMap.modifyAt(node, {
-			ifNew: this.context.linkConnectionsContext.builder,
+			ifNew: { create: this.context.linkConnectionsContext.builder },
 		});
 
 		if (changed) this.source = undefined;
@@ -134,19 +134,23 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 		let changed = false;
 
 		this.linkMap.modifyAt(node1, {
-			ifNew: () => {
-				const targetBuilder = this.context.linkConnectionsContext.builder();
-				targetBuilder.add(node2);
-				this.connectionSize++;
-				changed = true;
-				return targetBuilder;
-			},
-			ifExists: (targets) => {
-				if (targets.add(node2)) {
+			ifNew: {
+				create: () => {
+					const targetBuilder = this.context.linkConnectionsContext.builder();
+					targetBuilder.add(node2);
 					this.connectionSize++;
 					changed = true;
-				}
-				return targets;
+					return targetBuilder;
+				},
+			},
+			ifExists: {
+				update: (targets) => {
+					if (targets.add(node2)) {
+						this.connectionSize++;
+						changed = true;
+					}
+					return targets;
+				},
 			},
 		});
 
@@ -154,14 +158,18 @@ export class GraphBuilder<N> implements Graph.Builder<N> {
 
 		if (changed && node1 !== node2) {
 			this.linkMap.modifyAt(node2, {
-				ifNew: () => {
-					const targetBuilder = this.context.linkConnectionsContext.builder();
-					if (!this.isDirected) targetBuilder.add(node1);
-					return targetBuilder;
+				ifNew: {
+					create: () => {
+						const targetBuilder = this.context.linkConnectionsContext.builder();
+						if (!this.isDirected) targetBuilder.add(node1);
+						return targetBuilder;
+					},
 				},
-				ifExists: (targets) => {
-					if (!this.isDirected) targets.add(node1);
-					return targets;
+				ifExists: {
+					update: (targets) => {
+						if (!this.isDirected) targets.add(node1);
+						return targets;
+					},
 				},
 			});
 		}

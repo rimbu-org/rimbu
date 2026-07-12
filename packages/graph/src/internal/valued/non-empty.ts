@@ -1,4 +1,3 @@
-import type { Token } from '@rimbu/base/token';
 import type { RMap } from '@rimbu/collection-types';
 import type { RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { Link } from '@rimbu/graph/link';
@@ -8,8 +7,12 @@ import type { ValuedGraphContextImpl } from '#graph/valued/context-factory';
 import type { ValuedGraphBase } from '#private/valued/base';
 import type { ValuedGraph } from '#private/valued/valued-graph';
 
+import {
+	checkEmptyModifyOptions,
+	type ModifyOptions,
+} from '@rimbu/collection-types/common';
 import { NonEmptyBase } from '@rimbu/collection-types/common/empty-base';
-import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
+import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
@@ -194,7 +197,9 @@ export class ValuedGraphNonEmpty<N, V>
 	addNode(node: N): ValuedGraph.NonEmpty<N, V> {
 		return this.copy(
 			this.linkMap
-				.modifyAt(node, { ifNew: this.context.linkConnectionsContext.empty })
+				.modifyAt(node, {
+					ifNew: { create: this.context.linkConnectionsContext.empty },
+				})
 				.assumeNonEmpty(),
 			this.connectionSize,
 		);
@@ -220,8 +225,10 @@ export class ValuedGraphNonEmpty<N, V>
 
 	connect(node1: N, node2: N, value: V): ValuedGraph.NonEmpty<N, V> {
 		const newLinkMap = this.linkMap.modifyAt(node1, {
-			ifNew: this.context.linkConnectionsContext.of([node2, value]),
-			ifExists: (targets) => targets.set(node2, value),
+			ifNew: {
+				create: () => this.context.linkConnectionsContext.of([node2, value]),
+			},
+			ifExists: { update: (targets) => targets.set(node2, value) },
 		});
 
 		if (newLinkMap === this.linkMap) return this;
@@ -238,11 +245,13 @@ export class ValuedGraphNonEmpty<N, V>
 		return this.copy(
 			newLinkMap
 				.modifyAt(node2, {
-					ifNew: () => {
-						if (this.isDirected) {
-							return this.context.linkConnectionsContext.empty();
-						}
-						return this.context.linkConnectionsContext.of([node1, value]);
+					ifNew: {
+						create: () => {
+							if (this.isDirected) {
+								return this.context.linkConnectionsContext.empty();
+							}
+							return this.context.linkConnectionsContext.of([node1, value]);
+						},
 					},
 				})
 				.assumeNonEmpty(),
@@ -261,66 +270,77 @@ export class ValuedGraphNonEmpty<N, V>
 	modifyAt(
 		node1: N,
 		node2: N,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: ((value: V, remove: Token) => V | Token) | V;
-		},
+		options: ModifyOptions<V>,
 	): ValuedGraph.NonEmpty<N, V> {
+		if (checkEmptyModifyOptions(options)) return this;
+
 		let newConnectionSize = this.connectionSize;
 		let addedOrUpdatedValue: V;
 
-		const newLinkMap = this.linkMap.modifyAt(node1, {
-			ifNew: (none) => {
-				if (undefined === options.ifNew) return none;
+		const { ifNew, ifExists } = options;
+		const linkMapOptions: ModifyOptions<RMap<N, V>> = {};
 
-				const newValue = OptLazyOr<V, Token>(options.ifNew, none);
+		if (undefined !== ifNew) {
+			linkMapOptions.ifNew = {
+				create: (skip) => {
+					const { set, create } = ifNew;
+					const token = Symbol();
+					const newValue = undefined !== create ? create(token) : set;
 
-				if (none === newValue) return none;
+					if (token === newValue) return skip;
 
-				addedOrUpdatedValue = newValue;
+					addedOrUpdatedValue = newValue;
+					newConnectionSize++;
 
-				newConnectionSize++;
+					return this.context.linkMapContext.of([node2, newValue]);
+				},
+			};
+		}
 
-				return this.context.linkMapContext.of([node2, newValue]);
-			},
-			ifExists: (valueMap) => {
-				const { ifExists } = options;
+		if (undefined !== ifExists) {
+			linkMapOptions.ifExists = {
+				update: (valueMap) => {
+					return valueMap.modifyAt(node2, {
+						ifNew: {
+							create: (skip) => {
+								if (undefined === ifNew) return skip;
 
-				if (undefined === ifExists) return valueMap;
+								const { set, create } = ifNew;
+								const token = Symbol();
+								const newValue = undefined !== create ? create(token) : set;
 
-				return valueMap.modifyAt(node2, {
-					ifNew: (none) => {
-						if (undefined === options.ifNew) return none;
+								if (token === newValue) return skip;
 
-						const newValue = OptLazyOr<V, Token>(options.ifNew, none);
+								addedOrUpdatedValue = newValue;
+								newConnectionSize++;
 
-						if (none === newValue) return none;
+								return newValue;
+							},
+						},
+						ifExists: {
+							update: (currentValue, remove) => {
+								const { set, update } = ifExists;
+								const token = Symbol();
+								const newValue =
+									undefined !== update ? update(currentValue, token) : set;
 
-						addedOrUpdatedValue = newValue;
+								if (Object.is(newValue, currentValue)) return currentValue;
 
-						newConnectionSize++;
+								if (token === newValue) {
+									newConnectionSize--;
+									return remove;
+								}
 
-						return newValue;
-					},
-					ifExists: (currentValue, remove) => {
-						const newValue =
-							ifExists instanceof Function
-								? ifExists(currentValue, remove)
-								: ifExists;
+								addedOrUpdatedValue = newValue;
+								return newValue;
+							},
+						},
+					});
+				},
+			};
+		}
 
-						if (Object.is(newValue, currentValue)) return currentValue;
-
-						if (remove === newValue) {
-							newConnectionSize--;
-						} else {
-							addedOrUpdatedValue = newValue;
-						}
-
-						return newValue;
-					},
-				});
-			},
-		});
+		const newLinkMap = this.linkMap.modifyAt(node1, linkMapOptions);
 
 		if (newLinkMap === this.linkMap) return this;
 
@@ -333,9 +353,13 @@ export class ValuedGraphNonEmpty<N, V>
 		if (newConnectionSize === this.connectionSize) {
 			// value was updated
 			const newLinkMap2 = newLinkMap.modifyAt(node2, {
-				ifNew: () =>
-					this.context.linkMapContext.of([node1, addedOrUpdatedValue]),
-				ifExists: (valueMap) => valueMap.set(node1, addedOrUpdatedValue),
+				ifNew: {
+					create: () =>
+						this.context.linkMapContext.of([node1, addedOrUpdatedValue]),
+				},
+				ifExists: {
+					update: (valueMap) => valueMap.set(node1, addedOrUpdatedValue),
+				},
 			});
 
 			return this.copy(newLinkMap2.assumeNonEmpty(), newConnectionSize);
@@ -344,7 +368,7 @@ export class ValuedGraphNonEmpty<N, V>
 		if (newConnectionSize < this.connectionSize) {
 			// value was removed
 			const newLinkMap2 = newLinkMap.modifyAt(node2, {
-				ifExists: (valueMap) => valueMap.removeKey(node1),
+				ifExists: { update: (valueMap) => valueMap.removeKey(node1) },
 			});
 
 			return this.copy(newLinkMap2.assumeNonEmpty(), newConnectionSize);
@@ -352,8 +376,13 @@ export class ValuedGraphNonEmpty<N, V>
 
 		// value was added
 		const newLinkMap2 = newLinkMap.modifyAt(node2, {
-			ifNew: () => this.context.linkMapContext.of([node1, addedOrUpdatedValue]),
-			ifExists: (valueMap) => valueMap.set(node1, addedOrUpdatedValue),
+			ifNew: {
+				create: () =>
+					this.context.linkMapContext.of([node1, addedOrUpdatedValue]),
+			},
+			ifExists: {
+				update: (valueMap) => valueMap.set(node1, addedOrUpdatedValue),
+			},
 		});
 
 		return this.copy(newLinkMap2.assumeNonEmpty(), newConnectionSize);

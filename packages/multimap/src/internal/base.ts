@@ -7,10 +7,13 @@ import type { MultiMapBase } from '#multimap/types';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import {
+	checkEmptyModifyOptions,
+	type ModifyOptions,
+} from '@rimbu/collection-types/common';
+import {
 	EmptyBase,
 	NonEmptyBase,
 } from '@rimbu/collection-types/common/empty-base';
-import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
@@ -79,13 +82,16 @@ export class MultiMapEmpty<K, V>
 		return this.context.createNonEmpty(keyMap, valueSet.size);
 	}
 
-	modifyAt(
-		atKey: K,
-		options: { ifNew?: OptLazy<StreamSource<V>> },
-	): MultiMap<K, V> {
-		if (undefined === options.ifNew) return this;
+	modifyAt(atKey: K, options: MultiMap.ModifyOptions<V>): MultiMap<K, V> {
+		if (checkEmptyModifyOptions(options)) return this;
 
-		return this.setValues(atKey, OptLazy(options.ifNew));
+		const { ifNew } = options;
+		if (undefined === ifNew) return this;
+
+		const { set, create } = ifNew;
+		const newValues = undefined !== create ? create() : set;
+
+		return this.setValues(atKey, newValues);
 	}
 
 	removeKey(): MultiMap<K, V> {
@@ -204,19 +210,23 @@ export class MultiMapNonEmpty<K, V>
 
 		const newKeyMap = this.keyMap
 			.modifyAt(key, {
-				ifNew: () => {
-					newSize++;
-					return this.context.keyMapValuesContext.of(value);
+				ifNew: {
+					create: () => {
+						newSize++;
+						return this.context.keyMapValuesContext.of(value);
+					},
 				},
-				ifExists: (values) => {
-					const newValues = values.add(value);
+				ifExists: {
+					update: (values) => {
+						const newValues = values.add(value);
 
-					if (newValues === values) return values;
+						if (newValues === values) return values;
 
-					newSize -= values.size;
-					newSize += newValues.size;
+						newSize -= values.size;
+						newSize += newValues.size;
 
-					return newValues;
+						return newValues;
+					},
 				},
 			})
 			.assumeNonEmpty();
@@ -234,14 +244,14 @@ export class MultiMapNonEmpty<K, V>
 
 	setValues(key: K, values: StreamSource<V>): MultiMap.NonEmpty<K, V> {
 		return this.modifyAt(key, {
-			ifNew: values,
-			ifExists: () => values,
+			ifNew: { set: values },
+			ifExists: { set: values },
 		}).assumeNonEmpty();
 	}
 
 	removeKey<UK>(key: RelatedTo<K, UK>): MultiMap<K, V> {
 		if (!this.context.keyMapContext.isValidKey(key)) return this;
-		return this.modifyAt(key, { ifExists: () => [] });
+		return this.modifyAt(key, { ifExists: { set: [] } });
 	}
 
 	removeKeys<UK>(keys: StreamSource<RelatedTo<K, UK>>): MultiMap<K, V> {
@@ -260,9 +270,11 @@ export class MultiMapNonEmpty<K, V>
 		let removed: RSet.NonEmpty<V> | undefined;
 
 		const result = this.modifyAt(key, {
-			ifExists: (values) => {
-				removed = values;
-				return [];
+			ifExists: {
+				update: (values) => {
+					removed = values;
+					return [];
+				},
 			},
 		});
 
@@ -278,7 +290,7 @@ export class MultiMapNonEmpty<K, V>
 		if (!this.context.keyMapContext.isValidKey(key)) return this;
 
 		return this.modifyAt(key, {
-			ifExists: (values) => values.remove(value),
+			ifExists: { update: (values) => values.remove(value) },
 		});
 	}
 
@@ -315,51 +327,55 @@ export class MultiMapNonEmpty<K, V>
 		this.stream().forEach(f, { state });
 	}
 
-	modifyAt(
-		atKey: K,
-		options: {
-			ifNew?: OptLazy<StreamSource<V>>;
-			ifExists?:
-				| ((currentValues: RSet.NonEmpty<V>) => StreamSource<V>)
-				| StreamSource<V>;
-		},
-	): MultiMap<K, V> {
+	modifyAt(atKey: K, options: MultiMap.ModifyOptions<V>): MultiMap<K, V> {
+		if (checkEmptyModifyOptions(options)) return this;
+
 		let newSize = this.size;
 
 		const { ifNew, ifExists } = options;
 
-		const newKeyMap = this.keyMap.modifyAt(atKey, {
-			ifNew: (none) => {
-				if (undefined === ifNew) return none;
+		const keyMapOptions: ModifyOptions<RSet.NonEmpty<V>> = {};
+		if (undefined !== ifNew) {
+			keyMapOptions.ifNew = {
+				create: (skip) => {
+					const { set, create } = ifNew;
+					const newValueStream = undefined !== create ? create() : set;
 
-				const newValueStream = OptLazy(ifNew);
-				const newValues = this.context.keyMapValuesContext.from(newValueStream);
+					const newValues =
+						this.context.keyMapValuesContext.from(newValueStream);
 
-				if (!newValues.nonEmpty()) return none;
+					if (!newValues.nonEmpty()) return skip;
 
-				newSize += newValues.size;
+					newSize += newValues.size;
+					return newValues;
+				},
+			};
+		}
+		if (undefined !== ifExists) {
+			keyMapOptions.ifExists = {
+				update: (currentValues, remove) => {
+					const { set, update } = ifExists;
 
-				return newValues;
-			},
-			ifExists: (currentValues, remove) => {
-				if (undefined === ifExists) return currentValues;
+					const newValueStream =
+						undefined !== update ? update(currentValues) : set;
 
-				const newValueStream =
-					ifExists instanceof Function ? ifExists(currentValues) : ifExists;
-				const newValues = this.context.keyMapValuesContext.from(newValueStream);
+					const newValues =
+						this.context.keyMapValuesContext.from(newValueStream);
 
-				if (!newValues.nonEmpty()) {
+					if (!newValues.nonEmpty()) {
+						newSize -= currentValues.size;
+						return remove;
+					}
+
 					newSize -= currentValues.size;
-					return remove;
-				}
+					newSize += newValues.size;
 
-				newSize -= currentValues.size;
-				newSize += newValues.size;
+					return newValues;
+				},
+			};
+		}
 
-				return newValues;
-			},
-		});
-
+		const newKeyMap = this.keyMap.modifyAt(atKey, keyMapOptions);
 		return this.copyE(newKeyMap, newSize);
 	}
 
@@ -457,19 +473,23 @@ export class MultiMapBuilder<K, V> implements MultiMapBase.Builder<K, V> {
 		let changed = true;
 
 		this.keyMap.modifyAt(key, {
-			ifNew: () => {
-				this._size++;
-				const valueBuilder = this.context.keyMapValuesContext.builder();
-				valueBuilder.add(value);
-				return valueBuilder;
+			ifNew: {
+				create: () => {
+					this._size++;
+					const valueBuilder = this.context.keyMapValuesContext.builder();
+					valueBuilder.add(value);
+					return valueBuilder;
+				},
 			},
-			ifExists: (valueBuilder) => {
-				this._size -= valueBuilder.size;
+			ifExists: {
+				update: (valueBuilder) => {
+					this._size -= valueBuilder.size;
 
-				changed = valueBuilder.add(value);
+					changed = valueBuilder.add(value);
 
-				this._size += valueBuilder.size;
-				return valueBuilder;
+					this._size += valueBuilder.size;
+					return valueBuilder;
+				},
 			},
 		});
 
@@ -493,20 +513,24 @@ export class MultiMapBuilder<K, V> implements MultiMapBase.Builder<K, V> {
 		if (size <= 0) return this.removeKey(key);
 
 		return this.keyMap.modifyAt(key, {
-			ifNew: () => {
-				this._size += size;
+			ifNew: {
+				create: () => {
+					this._size += size;
 
-				this.source = undefined;
+					this.source = undefined;
 
-				return values;
+					return values;
+				},
 			},
-			ifExists: (oldValues) => {
-				this._size -= oldValues.size;
-				this._size += size;
+			ifExists: {
+				update: (oldValues) => {
+					this._size -= oldValues.size;
+					this._size += size;
 
-				this.source = undefined;
+					this.source = undefined;
 
-				return values;
+					return values;
+				},
 			},
 		});
 	};
@@ -522,14 +546,16 @@ export class MultiMapBuilder<K, V> implements MultiMapBase.Builder<K, V> {
 		let changed = false;
 
 		this.keyMap.modifyAt(key, {
-			ifExists: (valueBuilder, remove) => {
-				if (valueBuilder.remove(value)) {
-					this._size--;
-					changed = true;
-				}
+			ifExists: {
+				update: (valueBuilder, remove) => {
+					if (valueBuilder.remove(value)) {
+						this._size--;
+						changed = true;
+					}
 
-				if (valueBuilder.size <= 0) return remove;
-				return valueBuilder;
+					if (valueBuilder.size <= 0) return remove;
+					return valueBuilder;
+				},
 			},
 		});
 
@@ -552,9 +578,11 @@ export class MultiMapBuilder<K, V> implements MultiMapBase.Builder<K, V> {
 		if (!this.context.keyMapContext.isValidKey(key)) return false;
 
 		const changed = this.keyMap.modifyAt(key, {
-			ifExists: (valueBuilder, remove) => {
-				this._size -= valueBuilder.size;
-				return remove;
+			ifExists: {
+				update: (valueBuilder, remove) => {
+					this._size -= valueBuilder.size;
+					return remove;
+				},
 			},
 		});
 

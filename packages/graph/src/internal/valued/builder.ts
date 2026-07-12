@@ -1,4 +1,3 @@
-import type { Token } from '@rimbu/base/token';
 import type { RMap } from '@rimbu/collection-types';
 import type { RelatedTo } from '@rimbu/common/types';
 import type { Link } from '@rimbu/graph/link';
@@ -7,7 +6,11 @@ import type { ValuedGraphContextImpl } from '#graph/valued/context-factory';
 import type { ValuedGraph } from '#private/valued/valued-graph';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
-import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
+import {
+	checkEmptyModifyOptions,
+	type ModifyOptions,
+} from '@rimbu/collection-types/common';
+import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { ValuedGraphElement } from '@rimbu/graph/valued-link';
 import { Stream, type StreamSource } from '@rimbu/stream';
@@ -88,7 +91,7 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 
 	addNodeInternal = (node: N): boolean => {
 		const changed = this.linkMap.modifyAt(node, {
-			ifNew: this.context.linkConnectionsContext.builder,
+			ifNew: { create: this.context.linkConnectionsContext.builder },
 		});
 
 		if (changed) this.source = undefined;
@@ -156,23 +159,27 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		let changed = false;
 
 		this.linkMap.modifyAt(node1, {
-			ifNew: () => {
-				const targetBuilder = this.context.linkConnectionsContext.builder<
-					N,
-					V
-				>();
-				targetBuilder.set(node2, value);
-				this.connectionSize++;
-				changed = true;
-				return targetBuilder;
-			},
-			ifExists: (targets) => {
-				const oldSize = targets.size;
-				if (targets.set(node2, value)) {
-					if (targets.size !== oldSize) this.connectionSize++;
+			ifNew: {
+				create: () => {
+					const targetBuilder = this.context.linkConnectionsContext.builder<
+						N,
+						V
+					>();
+					targetBuilder.set(node2, value);
+					this.connectionSize++;
 					changed = true;
-				}
-				return targets;
+					return targetBuilder;
+				},
+			},
+			ifExists: {
+				update: (targets) => {
+					const oldSize = targets.size;
+					if (targets.set(node2, value)) {
+						if (targets.size !== oldSize) this.connectionSize++;
+						changed = true;
+					}
+					return targets;
+				},
 			},
 		});
 
@@ -180,17 +187,21 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 
 		if (changed && node1 !== node2) {
 			this.linkMap.modifyAt(node2, {
-				ifNew: () => {
-					const targetBuilder = this.context.linkConnectionsContext.builder<
-						N,
-						V
-					>();
-					if (!this.isDirected) targetBuilder.set(node1, value);
-					return targetBuilder;
+				ifNew: {
+					create: () => {
+						const targetBuilder = this.context.linkConnectionsContext.builder<
+							N,
+							V
+						>();
+						if (!this.isDirected) targetBuilder.set(node1, value);
+						return targetBuilder;
+					},
 				},
-				ifExists: (targets) => {
-					if (!this.isDirected) targets.set(node1, value);
-					return targets;
+				ifExists: {
+					update: (targets) => {
+						if (!this.isDirected) targets.set(node1, value);
+						return targets;
+					},
 				},
 			});
 		}
@@ -233,82 +244,86 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		);
 	};
 
-	modifyAt = (
-		node1: N,
-		node2: N,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: ((value: V, remove: Token) => V | Token) | V;
-		},
-	): boolean => {
+	modifyAt = (node1: N, node2: N, options: ModifyOptions<V>): boolean => {
 		this.checkLock();
+		if (checkEmptyModifyOptions(options)) return false;
 
 		const preConnectionSize = this.connectionSize;
 		let changed = false;
 		let addedOrUpdatedValue: V;
+		const { ifNew, ifExists } = options;
 
-		this.linkMap.modifyAt(node1, {
-			ifNew: (none) => {
-				if (undefined === options.ifNew) return none;
+		const linkMapOptions: ModifyOptions<RMap.Builder<N, V>> = {};
+		if (undefined !== ifNew) {
+			linkMapOptions.ifNew = {
+				create: (skip) => {
+					const { set, create } = ifNew;
+					const token = Symbol();
+					const newValue = undefined !== create ? create(token) : set;
 
-				const newValue = OptLazyOr<V, Token>(options.ifNew, none);
+					if (token === newValue) return skip;
 
-				if (none === newValue) return none;
+					changed = true;
+					addedOrUpdatedValue = newValue;
+					this.connectionSize++;
 
-				changed = true;
-				addedOrUpdatedValue = newValue;
+					const builder = this.context.linkMapContext.builder<N, V>();
 
-				this.connectionSize++;
+					builder.set(node2, newValue);
 
-				const builder = this.context.linkMapContext.builder<N, V>();
+					return builder;
+				},
+			};
+		}
+		if (undefined !== ifExists) {
+			linkMapOptions.ifExists = {
+				update: (valueMap) => {
+					valueMap.modifyAt(node2, {
+						ifNew: {
+							create: (skip) => {
+								if (undefined === ifNew) return skip;
 
-				builder.set(node2, newValue);
+								const { set, create } = ifNew;
+								const token = Symbol();
+								const newValue = undefined !== create ? create(token) : set;
 
-				return builder;
-			},
-			ifExists: (valueMap) => {
-				const { ifExists } = options;
+								if (token === newValue) return skip;
 
-				if (undefined === ifExists) return valueMap;
+								changed = true;
+								addedOrUpdatedValue = newValue;
+								this.connectionSize++;
 
-				valueMap.modifyAt(node2, {
-					ifNew: (none) => {
-						if (undefined === options.ifNew) return none;
+								return newValue;
+							},
+						},
+						ifExists: {
+							update: (currentValue, remove) => {
+								const { set, update } = ifExists;
+								const token = Symbol();
+								const newValue =
+									undefined !== update ? update(currentValue, token) : set;
 
-						const newValue = OptLazyOr<V, Token>(options.ifNew, none);
+								if (Object.is(newValue, currentValue)) return currentValue;
 
-						if (none === newValue) return none;
+								changed = true;
 
-						changed = true;
-						addedOrUpdatedValue = newValue;
+								if (token === newValue) {
+									this.connectionSize--;
+									return remove;
+								}
 
-						this.connectionSize++;
+								addedOrUpdatedValue = newValue;
+								return newValue;
+							},
+						},
+					});
 
-						return newValue;
-					},
-					ifExists: (currentValue, remove) => {
-						const newValue =
-							ifExists instanceof Function
-								? ifExists(currentValue, remove)
-								: ifExists;
+					return valueMap;
+				},
+			};
+		}
 
-						if (Object.is(newValue, currentValue)) return currentValue;
-
-						changed = true;
-
-						if (remove === newValue) {
-							this.connectionSize--;
-						} else {
-							addedOrUpdatedValue = newValue;
-						}
-
-						return newValue;
-					},
-				});
-
-				return valueMap;
-			},
-		});
+		this.linkMap.modifyAt(node1, linkMapOptions);
 
 		if (!changed) return false;
 		if (this.isDirected) return true;
@@ -318,14 +333,18 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		if (this.connectionSize === preConnectionSize) {
 			// value was updated
 			this.linkMap.modifyAt(node2, {
-				ifNew: () => {
-					const builder = this.context.linkMapContext.builder<N, V>();
-					builder.set(node1, addedOrUpdatedValue);
-					return builder;
+				ifNew: {
+					create: () => {
+						const builder = this.context.linkMapContext.builder<N, V>();
+						builder.set(node1, addedOrUpdatedValue);
+						return builder;
+					},
 				},
-				ifExists: (valueMap) => {
-					valueMap.set(node1, addedOrUpdatedValue);
-					return valueMap;
+				ifExists: {
+					update: (valueMap) => {
+						valueMap.set(node1, addedOrUpdatedValue);
+						return valueMap;
+					},
 				},
 			});
 
@@ -335,9 +354,11 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 		if (this.connectionSize < preConnectionSize) {
 			// value was removed
 			this.linkMap.modifyAt(node2, {
-				ifExists: (valueMap) => {
-					valueMap.removeKey(node1);
-					return valueMap;
+				ifExists: {
+					update: (valueMap) => {
+						valueMap.removeKey(node1);
+						return valueMap;
+					},
 				},
 			});
 
@@ -346,14 +367,18 @@ export class ValuedGraphBuilder<N, V> implements ValuedGraph.Builder<N, V> {
 
 		// value was added
 		this.linkMap.modifyAt(node2, {
-			ifNew: () => {
-				const builder = this.context.linkMapContext.builder<N, V>();
-				builder.set(node1, addedOrUpdatedValue);
-				return builder;
+			ifNew: {
+				create: () => {
+					const builder = this.context.linkMapContext.builder<N, V>();
+					builder.set(node1, addedOrUpdatedValue);
+					return builder;
+				},
 			},
-			ifExists: (valueMap) => {
-				valueMap.set(node1, addedOrUpdatedValue);
-				return valueMap;
+			ifExists: {
+				update: (valueMap) => {
+					valueMap.set(node1, addedOrUpdatedValue);
+					return valueMap;
+				},
 			},
 		});
 

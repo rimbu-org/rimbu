@@ -1,10 +1,12 @@
-import type { Token } from '@rimbu/base/token';
 import type { RMap, VariantMap } from '@rimbu/collection-types';
-import type { Row, WithRow } from '@rimbu/collection-types/common';
-import type { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
+import type {
+	ModifyOptions,
+	Row,
+	WithRow,
+} from '@rimbu/collection-types/common';
+import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
-import type { Update } from '@rimbu/common/update';
 import type {
 	FastIterable,
 	Stream,
@@ -567,10 +569,7 @@ export interface TableBase<
 	modifyAt(
 		row: R,
 		column: C,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: ((value: V, remove: Token) => V | Token) | V;
-		},
+		options: ModifyOptions<V>,
 	): WithRow<Tp, R, C, V>['normal'];
 	/**
 	 * Returns the collection with the value at given `row` and `column` keys updated according
@@ -590,7 +589,7 @@ export interface TableBase<
 	updateAt<UR = R, UC = C>(
 		row: RelatedTo<R, UR>,
 		column: RelatedTo<C, UC>,
-		update: Update<V>,
+		update: (value: V) => V,
 	): WithRow<Tp, R, C, V>['normal'];
 	/**
 	 * Returns a builder object containing the entries of this collection.
@@ -656,7 +655,7 @@ export namespace TableBase {
 		updateAt<UR = R, UC = C>(
 			row: RelatedTo<R, UR>,
 			column: RelatedTo<C, UC>,
-			update: Update<V>,
+			update: (value: V) => V,
 		): WithRow<Tp, R, C, V>['nonEmpty'];
 	}
 
@@ -997,14 +996,7 @@ export namespace TableBase {
 		 * // => true
 		 * ```
 		 */
-		modifyAt(
-			row: R,
-			column: C,
-			options: {
-				ifNew?: OptLazyOr<V, Token>;
-				ifExists?: (currentValue: V, remove: Token) => V | Token | V;
-			},
-		): boolean;
+		modifyAt(row: R, column: C, options: ModifyOptions<V>): boolean;
 		/**
 		 * Updates the value at given `row` and `column` keys according to the given `update`
 		 * function.
@@ -1023,11 +1015,11 @@ export namespace TableBase {
 		 * t.updateAt(1, 2, v => v * 2, 'a')   // => true
 		 * ```
 		 */
-		updateAt(row: R, column: C, update: Update<V>): V | undefined;
+		updateAt(row: R, column: C, update: (value: V) => V): V | undefined;
 		updateAt<O>(
 			row: R,
 			column: C,
-			update: Update<V>,
+			update: (value: V) => V,
 			otherwise: OptLazy<O>,
 		): V | O;
 		/**

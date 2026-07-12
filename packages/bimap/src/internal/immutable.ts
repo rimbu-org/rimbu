@@ -5,12 +5,15 @@ import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { ContextImpl } from '#bimap/context-factory';
 
 import {
+	checkEmptyModifyOptions,
+	type ModifyOptions,
+} from '@rimbu/collection-types/common';
+import {
 	EmptyBase,
 	NonEmptyBase,
 } from '@rimbu/collection-types/common/empty-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
-import { Update } from '@rimbu/common/update';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
 export class BiMapEmpty<K = any, V = any>
@@ -97,6 +100,36 @@ export class BiMapEmpty<K = any, V = any>
 
 	updateValueAtKey(): this {
 		return this;
+	}
+
+	updateKeyAtValueAndGet(): undefined {}
+
+	updateValueAtKeyAndGet(): undefined {}
+
+	modifyAtKey(atKey: K, options: ModifyOptions<V>): BiMap<K, V> {
+		if (checkEmptyModifyOptions(options)) return this;
+		const { ifNew } = options;
+		if (undefined === ifNew) return this;
+
+		const { set, create } = ifNew;
+		const skip = Symbol();
+		const newValue = undefined !== create ? create(skip) : set;
+
+		if (skip === newValue) return this;
+		return this.set(atKey, newValue);
+	}
+
+	modifyAtValue(atValue: V, options: ModifyOptions<K>): BiMap<K, V> {
+		if (checkEmptyModifyOptions(options)) return this;
+		const { ifNew } = options;
+		if (undefined === ifNew) return this;
+
+		const { set, create } = ifNew;
+		const skip = Symbol();
+		const newKey = undefined !== create ? create(skip) : set;
+
+		if (skip === newKey) return this;
+		return this.set(newKey, atValue);
 	}
 
 	streamKeys(): Stream<K> {
@@ -349,24 +382,158 @@ export class BiMapNonEmptyImpl<K, V>
 		return builder.build();
 	}
 
-	updateValueAtKey(key: K, valueUpdate: Update<V>): BiMap.NonEmpty<K, V> {
+	updateValueAtKey(key: K, valueUpdate: (value: V) => V): BiMap.NonEmpty<K, V> {
 		const token = Symbol();
 		const currentValue = this.getValue(key, token);
 		if (token === currentValue) return this;
 
-		const newValue = Update(currentValue, valueUpdate);
+		const newValue = valueUpdate(currentValue);
 		if (Object.is(newValue, currentValue)) return this;
 		return this.set(key, newValue);
 	}
 
-	updateKeyAtValue(keyUpdate: Update<K>, value: V): BiMap.NonEmpty<K, V> {
+	updateKeyAtValue(keyUpdate: (key: K) => K, value: V): BiMap.NonEmpty<K, V> {
 		const token = Symbol();
-		const result = this.getKey(value, token);
-		if (token === result) return this;
+		const currentKey = this.getKey(value, token);
+		if (token === currentKey) return this;
 
-		const newKey = Update(result, keyUpdate);
-		if (Object.is(newKey, result)) return this;
+		const newKey = keyUpdate(currentKey);
+		if (Object.is(newKey, currentKey)) return this;
 		return this.set(newKey, value);
+	}
+
+	updateValueAtKeyAndGet(
+		key: K,
+		valueUpdate: (value: V) => V,
+	): [BiMap.NonEmpty<K, V>, V] | undefined {
+		let oldValue: V | undefined;
+		const newBiMap = this.updateValueAtKey(key, (value) => {
+			oldValue = value;
+			return valueUpdate(value);
+		});
+
+		if (this === newBiMap) return undefined;
+
+		return [newBiMap, oldValue as V];
+	}
+
+	updateKeyAtValueAndGet(
+		keyUpdate: (key: K) => K,
+		value: V,
+	): [BiMap.NonEmpty<K, V>, K] | undefined {
+		let oldKey: K | undefined;
+
+		const newBiMap = this.updateKeyAtValue((key) => {
+			oldKey = key;
+			return keyUpdate(key);
+		}, value);
+
+		if (this === newBiMap) return undefined;
+
+		return [newBiMap, oldKey as K];
+	}
+
+	modifyAtKey(atKey: K, options: ModifyOptions<V>): BiMap<K, V> {
+		if (checkEmptyModifyOptions(options)) return this;
+
+		let newValueKeyMap = this.valueKeyMap.asNormal();
+		const { ifNew, ifExists } = options;
+
+		const keyValueMapOptions: ModifyOptions<V> = {};
+		if (undefined !== ifNew) {
+			keyValueMapOptions.ifNew = {
+				create: (skip) => {
+					const { set, create } = ifNew;
+					const token = Symbol();
+					const newValue = undefined !== create ? create(token) : set;
+					if (token === newValue) return skip;
+
+					newValueKeyMap = newValueKeyMap.set(newValue, atKey);
+					return newValue;
+				},
+			};
+		}
+		if (undefined !== ifExists) {
+			keyValueMapOptions.ifExists = {
+				update: (currentValue, remove) => {
+					const { set, update } = ifExists;
+
+					const token = Symbol();
+					const newValue =
+						undefined !== update ? update(currentValue, token) : set;
+
+					if (token === newValue) {
+						newValueKeyMap = newValueKeyMap.removeKey(currentValue);
+						return remove;
+					}
+
+					newValueKeyMap = newValueKeyMap.set(newValue, atKey);
+					return newValue;
+				},
+			};
+		}
+
+		const newKeyValueMap = this.keyValueMap.modifyAt(atKey, keyValueMapOptions);
+		if (newKeyValueMap === this.keyValueMap) return this;
+
+		if (newKeyValueMap.nonEmpty() && newValueKeyMap.nonEmpty()) {
+			return this.copy(newKeyValueMap, newValueKeyMap);
+		}
+
+		return this.context.empty();
+	}
+
+	modifyAtValue(atValue: V, options: ModifyOptions<K>): BiMap<K, V> {
+		if (checkEmptyModifyOptions(options)) return this;
+
+		let newKeyValueMap = this.keyValueMap.asNormal();
+
+		const { ifNew, ifExists } = options;
+
+		const valueKeyMapOptions: ModifyOptions<K> = {};
+		if (undefined !== ifNew) {
+			valueKeyMapOptions.ifNew = {
+				create: (skip) => {
+					const { set, create } = ifNew;
+					const token = Symbol();
+					const newKey = undefined !== create ? create(token) : set;
+
+					if (token === newKey) return skip;
+
+					newKeyValueMap = newKeyValueMap.set(newKey, atValue);
+					return newKey;
+				},
+			};
+		}
+		if (undefined !== ifExists) {
+			valueKeyMapOptions.ifExists = {
+				update: (currentKey, remove) => {
+					const { set, update } = ifExists;
+					const token = Symbol();
+					const newKey = undefined !== update ? update(currentKey, token) : set;
+
+					if (token === newKey) {
+						newKeyValueMap = newKeyValueMap.removeKey(currentKey);
+						return remove;
+					}
+
+					newKeyValueMap = newKeyValueMap.set(newKey, atValue);
+					return newKey;
+				},
+			};
+		}
+
+		const newValueKeyMap = this.valueKeyMap.modifyAt(
+			atValue,
+			valueKeyMapOptions,
+		);
+		if (newValueKeyMap === this.valueKeyMap) return this;
+
+		if (newKeyValueMap.nonEmpty() && newValueKeyMap.nonEmpty()) {
+			return this.copy(newKeyValueMap, newValueKeyMap);
+		}
+
+		return this.context.empty();
 	}
 
 	forEach(

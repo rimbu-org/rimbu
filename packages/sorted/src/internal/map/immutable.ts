@@ -7,9 +7,12 @@ import type { ContextImpl } from '#map/context-factory';
 import * as Arr from '@rimbu/base/arr';
 import * as Entry from '@rimbu/base/entry';
 import * as RimbuError from '@rimbu/base/rimbu-error';
-import { Token } from '@rimbu/base/token';
+import {
+	checkEmptyModifyOptions,
+	type ModifyOptions,
+} from '@rimbu/collection-types/common';
 import { IndexRange } from '@rimbu/common/index-range';
-import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
+import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Range } from '@rimbu/common/range';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
@@ -130,21 +133,18 @@ export class SortedMapEmpty<K = any, V = any>
 		return undefined;
 	}
 
-	modifyAt(
-		atKey: K,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-		},
-	): SortedMap<K, V> {
-		if (undefined !== options.ifNew) {
-			const value = OptLazyOr<V, Token>(options.ifNew, Token);
+	modifyAt(atKey: K, options: ModifyOptions<V>): SortedMap<K, V> {
+		if (checkEmptyModifyOptions(options)) return this;
 
-			if (Token === value) return this;
+		const { ifNew } = options;
+		if (undefined === ifNew) return this;
 
-			return this.context.leaf([[atKey, value]]);
-		}
+		const { set, create } = ifNew;
+		const skip = Symbol();
+		const newValue = create !== undefined ? create(skip) : set;
 
-		return this;
+		if (skip === newValue) return this;
+		return this.context.leaf([[atKey, newValue]]);
 	}
 
 	transform<V2, K2 extends K>(
@@ -210,10 +210,7 @@ export abstract class SortedMapNode<K, V>
 	): SortedMapNode<K, V>;
 	abstract modifyAtInternal(
 		atKey: K,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: ((currentEntry: V, remove: Token) => V | Token) | V;
-		},
+		options: ModifyOptions<V>,
 	): SortedMapNode<K, V>;
 	abstract getInsertIndexOf(key: K): number;
 	abstract mapValues<V2>(
@@ -324,13 +321,8 @@ export abstract class SortedMapNode<K, V>
 		return builder.build() as SortedMap.NonEmpty<K, V>;
 	}
 
-	modifyAt(
-		atKey: K,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: ((currentEntry: V, remove: Token) => V | Token) | V;
-		},
-	): SortedMap<K, V> {
+	modifyAt(atKey: K, options: ModifyOptions<V>): SortedMap<K, V> {
+		if (checkEmptyModifyOptions(options)) return this;
 		return this.modifyAtInternal(atKey, options).normalize();
 	}
 
@@ -345,7 +337,7 @@ export abstract class SortedMapNode<K, V>
 		if (!this.context.isValidKey(key)) return this;
 
 		return this.modifyAt(key, {
-			ifExists: update,
+			ifExists: { update },
 		}).assumeNonEmpty();
 	}
 
@@ -369,7 +361,7 @@ export abstract class SortedMapNode<K, V>
 		if (!this.context.isValidKey(key)) return this;
 
 		return this.modifyAt(key, {
-			ifExists: (_, remove): typeof remove => remove,
+			ifExists: { update: (_, remove): typeof remove => remove },
 		});
 	}
 
@@ -388,9 +380,11 @@ export abstract class SortedMapNode<K, V>
 		let currentValue: V | typeof token = token;
 
 		const newMap = this.modifyAt(key, {
-			ifExists: (value, remove): V | typeof remove => {
-				currentValue = value;
-				return remove;
+			ifExists: {
+				update: (value, remove) => {
+					currentValue = value;
+					return remove;
+				},
 			},
 		});
 
@@ -588,28 +582,22 @@ export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
 		return this.copy(newEntries);
 	}
 
-	modifyAtInternal(
-		key: K,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: ((currentEntry: V, remove: Token) => V | Token) | V;
-		},
-	): SortedMapNode<K, V> {
+	modifyAtInternal(key: K, options: ModifyOptions<V>): SortedMapNode<K, V> {
+		const { ifNew, ifExists } = options;
 		const entryIndex = this.context.findIndex(key, this.entries);
 
 		if (entryIndex >= 0) {
-			if (undefined === options.ifExists) return this;
+			if (undefined === ifExists) return this;
 
+			const { set, update } = ifExists;
 			const currentEntry = this.entries[entryIndex];
 			const currentValue = currentEntry[1];
-			const newValue =
-				options.ifExists instanceof Function
-					? options.ifExists(currentValue, Token)
-					: options.ifExists;
+			const token = Symbol();
+			const newValue = update !== undefined ? update(currentValue, token) : set;
 
 			if (Object.is(newValue, currentValue)) return this;
 
-			if (Token === newValue) {
+			if (token === newValue) {
 				const newEntries = Arr.splice(this.mutateEntries, entryIndex, 1);
 				return this.copy(newEntries);
 			}
@@ -621,11 +609,12 @@ export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
 			return this.copy(newEntries);
 		}
 
-		if (undefined === options.ifNew) return this;
+		if (undefined === ifNew) return this;
+		const { set, create } = ifNew;
+		const token = Symbol();
+		const newValue = create !== undefined ? create(token) : set;
 
-		const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
-
-		if (Token === newValue) return this;
+		if (token === newValue) return this;
 
 		const insertIndex = SortedIndex.next(entryIndex);
 		const newEntries = Arr.insert(this.entries, insertIndex, [
@@ -911,28 +900,25 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 		return this.normalizeDownsizeChild(childIndex, newChild, newSize);
 	}
 
-	modifyAtInternal(
-		key: K,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: ((currentEntry: V, remove: Token) => V | Token) | V;
-		},
-	): SortedMapInner<K, V> {
+	modifyAtInternal(key: K, options: ModifyOptions<V>): SortedMapInner<K, V> {
+		const { ifNew } = options;
 		const entryIndex = this.context.findIndex(key, this.entries);
 
 		if (entryIndex >= 0) {
-			if (undefined === options.ifExists) return this;
+			if (undefined === ifNew) return this;
+
+			const { set, create } = ifNew;
+			if (undefined === set && undefined === create) return this;
 
 			const currentEntry = this.entries[entryIndex];
 			const currentValue = currentEntry[1];
-			const newValue =
-				options.ifExists instanceof Function
-					? options.ifExists(currentValue, Token)
-					: options.ifExists;
+			const token = Symbol();
+
+			const newValue = create !== undefined ? create(token) : set;
 
 			if (Object.is(newValue, currentValue)) return this;
 
-			if (Token === newValue) {
+			if (token === newValue) {
 				// remove inner entry
 				const leftChild = this.children[entryIndex];
 				const rightChild = this.children[entryIndex + 1];

@@ -1,9 +1,8 @@
 import type { RMap } from '@rimbu/collection-types';
-import type { KeyValue } from '@rimbu/collection-types/common';
+import type { KeyValue, ModifyOptions } from '@rimbu/collection-types/common';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
-import type { Update } from '@rimbu/common/update';
 import type {
 	FastIterable,
 	Stream,
@@ -276,7 +275,7 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 */
 	updateValueAtKey<UK = K>(
 		key: RelatedTo<K, UK>,
-		valueUpdate: Update<V>,
+		valueUpdate: (value: V) => V,
 	): BiMap<K, V>;
 	/**
 	 * Returns the collection where the key associated with given `value` is updated with the given `keyUpdate` value or update function.
@@ -294,9 +293,19 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * ```
 	 */
 	updateKeyAtValue<UV = V>(
-		keyUpdate: Update<K>,
+		keyUpdate: (key: K) => K,
 		value: RelatedTo<V, UV>,
 	): BiMap<K, V>;
+	updateValueAtKeyAndGet<UK = K>(
+		key: RelatedTo<K, UK>,
+		valueUpdate: (value: V) => V,
+	): [BiMap<K, V>, V] | undefined;
+	updateKeyAtValueAndGet<UV = V>(
+		keyUpdate: (key: K) => K,
+		value: RelatedTo<V, UV>,
+	): [BiMap<K, V>, K] | undefined;
+	modifyAtKey(atKey: K, options: ModifyOptions<V>): BiMap<K, V>;
+	modifyAtValue(atValue: V, options: ModifyOptions<K>): BiMap<K, V>;
 	/**
 	 * Returns a `Stream` containing all entries of this collection as tuples of key and value.
 	 * @example
@@ -485,7 +494,7 @@ export namespace BiMap {
 		 */
 		updateValueAtKey<UK = K>(
 			key: RelatedTo<K, UK>,
-			valueUpdate: Update<V>,
+			valueUpdate: (value: V) => V,
 		): BiMap.NonEmpty<K, V>;
 		/**
 		 * Returns the collection where the key associated with given `value` is updated with the given `update` value or update function.
@@ -503,9 +512,17 @@ export namespace BiMap {
 		 * ```
 		 */
 		updateKeyAtValue<UV = V>(
-			keyUpdate: Update<K>,
+			keyUpdate: (key: K) => K,
 			value: RelatedTo<V, UV>,
 		): BiMap.NonEmpty<K, V>;
+		updateKeyAtValueAndGet<UV = V>(
+			keyUpdate: (key: K) => K,
+			value: RelatedTo<V, UV>,
+		): [BiMap.NonEmpty<K, V>, K] | undefined;
+		updateValueAtKeyAndGet<UK = K>(
+			key: RelatedTo<K, UK>,
+			valueUpdate: (value: V) => V,
+		): [BiMap.NonEmpty<K, V>, V] | undefined;
 		/**
 		 * Returns a non-empty `Stream` containing all entries of this collection as tuples of key and value.
 		 * @example

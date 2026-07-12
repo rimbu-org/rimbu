@@ -7,12 +7,15 @@ import type { ContextImpl } from '#map/context-factory';
 import * as Arr from '@rimbu/base/arr';
 import * as Entry from '@rimbu/base/entry';
 import * as RimbuError from '@rimbu/base/rimbu-error';
-import { Token } from '@rimbu/base/token';
+import {
+	checkEmptyModifyOptions,
+	type ModifyOptions,
+} from '@rimbu/collection-types/common';
 import {
 	EmptyBase,
 	NonEmptyBase,
 } from '@rimbu/collection-types/common/empty-base';
-import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
+import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
@@ -66,20 +69,18 @@ export class HashMapEmpty<K = any, V = any>
 		return this;
 	}
 
-	modifyAt(
-		atKey: K,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-		},
-	): HashMap<K, V> {
-		if (undefined !== options.ifNew) {
-			const value = OptLazyOr<V, Token>(options.ifNew, Token);
+	modifyAt(atKey: K, options: ModifyOptions<V>): HashMap<K, V> {
+		if (checkEmptyModifyOptions(options)) return this;
 
-			if (Token === value) return this;
+		const { ifNew } = options;
+		if (undefined === ifNew) return this;
 
-			return this.set(atKey, value);
-		}
-		return this;
+		const { set, create } = ifNew;
+		const token = Symbol();
+		const newValue = create !== undefined ? create(token) : set;
+
+		if (token === newValue) return this;
+		return this.set(atKey, newValue);
 	}
 
 	mapValues<V2>(): HashMap<K, V2> {
@@ -131,13 +132,7 @@ export abstract class HashMapNonEmptyBase<K, V>
 		f: (entry: readonly [K, V], index: number, halt: () => void) => void,
 		options?: { state?: TraverseState },
 	): void;
-	abstract modifyAt(
-		atKey: K,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: ((currentEntry: V, remove: Token) => V | Token) | V;
-		},
-	): HashMap<K, V> | any;
+	abstract modifyAt(atKey: K, options: ModifyOptions<V>): HashMap<K, V> | any;
 	abstract mapValues<V2>(
 		mapFun: (value: V, key: K) => V2,
 	): HashMap.NonEmpty<K, V2>;
@@ -186,7 +181,7 @@ export abstract class HashMapNonEmptyBase<K, V>
 	): HashMap.NonEmpty<K, V> {
 		if (!this.context.isValidKey(key)) return this;
 		return this.modifyAt(key, {
-			ifExists: update,
+			ifExists: { update },
 		});
 	}
 
@@ -209,7 +204,7 @@ export abstract class HashMapNonEmptyBase<K, V>
 	removeKey<UK>(key: RelatedTo<K, UK>): HashMap<K, V> {
 		if (!this.context.hasher.isValid(key)) return this;
 		return this.modifyAt(key, {
-			ifExists: (_, remove): typeof remove => remove,
+			ifExists: { update: (_, remove) => remove },
 		});
 	}
 
@@ -220,9 +215,11 @@ export abstract class HashMapNonEmptyBase<K, V>
 		let currentValue: V | typeof token = token;
 
 		const newMap = this.modifyAt(key, {
-			ifExists: (value, remove): V | typeof remove => {
-				currentValue = value;
-				return remove;
+			ifExists: {
+				update: (value, remove) => {
+					currentValue = value;
+					return remove;
+				},
 			},
 		});
 
@@ -423,12 +420,12 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 
 	modifyAt(
 		atKey: K,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: ((currentEntry: V, remove: Token) => V | Token) | V;
-		},
+		options: ModifyOptions<V>,
 		atKeyHash = this.context.hash(atKey),
 	): HashMap<K, V> {
+		if (checkEmptyModifyOptions(options)) return this;
+
+		const { ifNew, ifExists } = options;
 		const atKeyIndex = this.context.getKeyIndex(this.level, atKeyHash);
 
 		if (null !== this.entries && atKeyIndex in this.entries) {
@@ -436,19 +433,18 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 
 			if (this.context.eq(atKey, currentEntry[0])) {
 				// exact key match
-				if (undefined === options.ifExists) return this;
-
+				if (undefined === ifExists) return this;
+				const { set, update } = ifExists;
 				const currentValue = currentEntry[1];
+				const token = Symbol();
 				const newValue =
-					options.ifExists instanceof Function
-						? options.ifExists(currentValue, Token)
-						: options.ifExists;
+					update !== undefined ? update(currentValue, token) : set;
 
 				if (Object.is(newValue, currentValue)) return this;
 
 				const newEntries = Arr.copySparse(this.entries);
 
-				if (Token === newValue) {
+				if (token === newValue) {
 					delete newEntries[atKeyIndex];
 
 					for (const _ in newEntries) {
@@ -465,11 +461,13 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 			}
 
 			// no exact match, but key collision
-			if (undefined === options.ifNew) return this;
+			if (undefined === ifNew) return this;
 
-			const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
+			const { set, create } = ifNew;
+			const token = Symbol();
+			const newValue = create !== undefined ? create(token) : set;
 
-			if (Token === newValue) return this;
+			if (token === newValue) return this;
 
 			let newEntries: (readonly [K, V])[] | null = Arr.copySparse(this.entries);
 			delete newEntries[atKeyIndex];
@@ -546,14 +544,15 @@ export class HashMapBlock<K, V> extends HashMapNonEmptyBase<K, V> {
 			);
 		}
 
-		if (undefined === options.ifNew) return this;
+		if (undefined === ifNew) return this;
 
-		const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
+		const { set, create } = ifNew;
+		const token = Symbol();
+		const newValue = create !== undefined ? create(token) : set;
 
-		if (Token === newValue) return this;
+		if (token === newValue) return this;
 
 		const newEntry: [K, V] = [atKey, newValue];
-
 		const newEntries =
 			null === this.entries ? [] : Arr.copySparse(this.entries);
 		newEntries[atKeyIndex] = newEntry;
@@ -690,40 +689,42 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
 
 	modifyAt(
 		atKey: K,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: ((currentValue: V, remove: Token) => V | Token) | V;
-		},
+		options: ModifyOptions<V>,
 		atKeyHash?: number,
 	): HashMap<K, V> | any {
+		if (checkEmptyModifyOptions(options)) return this;
+
+		const { ifNew, ifExists } = options;
+
 		const currentIndex = this.stream().indexWhere((entry): boolean =>
 			this.context.eq(entry[0], atKey),
 		);
 
 		if (undefined === currentIndex) {
-			if (undefined === options.ifNew) return this;
+			if (undefined === ifNew) return this;
 
-			const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
+			const { set, create } = ifNew;
+			const token = Symbol();
+			const newValue = create !== undefined ? create(token) : set;
 
-			if (Token === newValue) return this;
+			if (token === newValue) return this;
 
 			const newEntries = this.entries.append([atKey, newValue]);
 			return this.copy(newEntries);
 		}
 
-		if (undefined === options.ifExists) return this;
+		if (undefined === ifExists) return this;
+		const { set, update } = ifExists;
 
 		const currentEntry = this.entries.get(
 			currentIndex,
 			RimbuError.throwInvalidStateError,
 		);
 		const currentValue = currentEntry[1];
-		const newValue =
-			options.ifExists instanceof Function
-				? options.ifExists(currentValue, Token)
-				: options.ifExists;
+		const token = Symbol();
+		const newValue = update !== undefined ? update(currentValue, token) : set;
 
-		if (Token === newValue) {
+		if (token === newValue) {
 			const newEntries = this.entries.remove(currentIndex).assumeNonEmpty();
 			return this.copy(newEntries);
 		}

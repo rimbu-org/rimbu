@@ -268,23 +268,35 @@ export function runMultiMapTestsWith(
 		});
 
 		it('modifyAt', () => {
-			expect(mapEmpty.modifyAt(2, { ifExists: (v) => v })).toBe(mapEmpty);
-			expectEqual(mapEmpty.modifyAt(2, { ifNew: ['z'] }), [[2, 'z']]);
-			expectEqual(mapEmpty.modifyAt(2, { ifNew: () => ['z'] }), [[2, 'z']]);
-
-			expect(map3_1.modifyAt(2, { ifNew: ['z'] })).toBe(map3_1);
-			expect(map3_1.modifyAt(5, { ifExists: () => ['z'] })).toBe(map3_1);
-			expectEqual(map3_1.modifyAt(2, { ifExists: (v) => [...v, 'z'] }), [
-				[1, 'a'],
-				[2, 'b'],
+			expect(mapEmpty.modifyAt(2, { ifExists: { update: (v) => v } })).toBe(
+				mapEmpty,
+			);
+			expectEqual(mapEmpty.modifyAt(2, { ifNew: { set: ['z'] } }), [[2, 'z']]);
+			expectEqual(mapEmpty.modifyAt(2, { ifNew: { create: () => ['z'] } }), [
 				[2, 'z'],
-				[3, 'c'],
 			]);
-			expectEqual(map3_1.modifyAt(2, { ifExists: () => [] }), [
+
+			expect(map3_1.modifyAt(2, { ifNew: { set: ['z'] } })).toBe(map3_1);
+			expect(map3_1.modifyAt(5, { ifExists: { update: () => ['z'] } })).toBe(
+				map3_1,
+			);
+			expectEqual(
+				map3_1.modifyAt(2, { ifExists: { update: (v) => [...v, 'z'] } }),
+				[
+					[1, 'a'],
+					[2, 'b'],
+					[2, 'z'],
+					[3, 'c'],
+				],
+			);
+			expectEqual(map3_1.modifyAt(2, { ifExists: { update: () => [] } }), [
 				[1, 'a'],
 				[3, 'c'],
 			]);
-			expectEqual(map3_1.modifyAt(5, { ifNew: ['z'] }), [...arr3, [5, 'z']]);
+			expectEqual(map3_1.modifyAt(5, { ifNew: { set: ['z'] } }), [
+				...arr3,
+				[5, 'z'],
+			]);
 		});
 
 		it('removeEntries', () => {

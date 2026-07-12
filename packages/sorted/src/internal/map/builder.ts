@@ -5,8 +5,11 @@ import type { ContextImpl } from '#map/context-factory';
 import type { SortedMapNode } from '#map/immutable';
 
 import { Token } from '@rimbu/base/token';
-import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
-import { Update } from '@rimbu/common/update';
+import {
+	checkEmptyModifyOptions,
+	type ModifyOptions,
+} from '@rimbu/collection-types/common';
+import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
 import { SortedBuilder } from '#sorted/base';
@@ -141,29 +144,30 @@ export class SortedMapBuilder<K, V>
 		);
 	};
 
-	modifyAt = (
-		key: K,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: ((currentValue: V, remove: Token) => V | Token) | V;
-		},
-	): boolean => {
+	modifyAt = (key: K, options: ModifyOptions<V>): boolean => {
 		this.checkLock();
+		if (checkEmptyModifyOptions(options)) return false;
 
 		const result = this.modifyAtInternal(key, options);
 		this.normalize();
 		return result;
 	};
 
-	updateAt = <O>(key: K, update: Update<V>, otherwise?: OptLazy<O>): V | O => {
+	updateAt = <O>(
+		key: K,
+		update: (value: V) => V,
+		otherwise?: OptLazy<O>,
+	): V | O => {
 		let result: V;
 		let found = false;
 
 		this.modifyAt(key, {
-			ifExists: (value): V => {
-				result = value;
-				found = true;
-				return Update(value, update);
+			ifExists: {
+				update: (value): V => {
+					result = value;
+					found = true;
+					return update(value);
+				},
 			},
 		});
 
@@ -299,29 +303,24 @@ export class SortedMapBuilder<K, V>
 		return oldValue;
 	}
 
-	modifyAtInternal(
-		key: K,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: ((currentValue: V, remove: Token) => V | Token) | V;
-		},
-	): boolean {
+	modifyAtInternal(key: K, options: ModifyOptions<V>): boolean {
+		const { ifNew, ifExists } = options;
+
 		const entryIndex = this.context.findIndex(key, this.entries);
 
 		if (entryIndex >= 0) {
-			if (undefined === options.ifExists) return false;
+			if (undefined === ifExists) return false;
+			const { set, update } = ifExists;
 
 			const currentEntry = this.entries[entryIndex];
 			const currentValue = currentEntry[1];
-			const newValue =
-				options.ifExists instanceof Function
-					? options.ifExists(currentValue, Token)
-					: options.ifExists;
+			const token = Symbol();
+			const newValue = set !== undefined ? set : update!(currentValue, token);
 
 			if (newValue === currentValue) return false;
 
-			if (Token === newValue) {
-				return Token !== this.removeInternal(key, Token);
+			if (token === newValue) {
+				return token !== this.removeInternal(key, token);
 			}
 
 			this.source = undefined;
@@ -334,11 +333,13 @@ export class SortedMapBuilder<K, V>
 		const childIndex = SortedIndex.next(entryIndex);
 
 		if (!this.hasChildren) {
-			if (undefined === options.ifNew) return false;
+			if (undefined === ifNew) return false;
+			const { set, create } = ifNew;
 
-			const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
+			const token = Symbol();
+			const newValue = set !== undefined ? set : create!(token);
 
-			if (Token === newValue) return false;
+			if (token === newValue) return false;
 
 			this.source = undefined;
 

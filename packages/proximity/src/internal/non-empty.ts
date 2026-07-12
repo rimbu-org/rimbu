@@ -1,4 +1,4 @@
-import type { Token } from '@rimbu/base/token';
+import type { ModifyOptions } from '@rimbu/collection-types/common';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { HashMap } from '@rimbu/hashed/map';
@@ -7,7 +7,7 @@ import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
 
 import type { ContextImpl } from '#proximity/context-factory';
 
-import { OptLazy, type OptLazyOr } from '@rimbu/common/opt-lazy';
+import { OptLazy } from '@rimbu/common/opt-lazy';
 import { findNearestKeyMatch } from '@rimbu/proximity/key-matching';
 
 import { wrapHashMap } from '#proximity/wrapping';
@@ -200,16 +200,7 @@ export class ProximityMapNonEmpty<K, V> implements ProximityMap.NonEmpty<K, V> {
 		return this.plugInternalMap(this.internalMap.addEntry(entry));
 	}
 
-	modifyAt(
-		atKey: K,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: <V2 extends V = V>(
-				currentEntry: V & V2,
-				remove: Token,
-			) => V | Token;
-		},
-	): ProximityMap<K, V> {
+	modifyAt(atKey: K, options: ModifyOptions<V>): ProximityMap<K, V> {
 		return this.plugInternalMap(this.internalMap.modifyAt(atKey, options));
 	}
 

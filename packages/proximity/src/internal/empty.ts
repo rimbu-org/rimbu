@@ -3,9 +3,12 @@ import type { ProximityMap } from '@rimbu/proximity';
 
 import type { ContextImpl } from '#proximity/context-factory';
 
-import { Token } from '@rimbu/base/token';
+import {
+	checkEmptyModifyOptions,
+	type ModifyOptions,
+} from '@rimbu/collection-types/common';
 import { EmptyBase } from '@rimbu/collection-types/common/empty-base';
-import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
+import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
 /**
@@ -69,21 +72,18 @@ export class ProximityMapEmpty<K = any, V = any>
 		return this;
 	}
 
-	modifyAt(
-		atKey: K,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-		},
-	): ProximityMap<K, V> {
-		if (!options.ifNew) {
-			return this;
-		}
+	modifyAt(atKey: K, options: ModifyOptions<V>): ProximityMap<K, V> {
+		if (checkEmptyModifyOptions(options)) return this;
 
-		const value = OptLazyOr<V, Token>(options.ifNew, Token);
+		const { ifNew } = options;
+		if (undefined === ifNew) return this;
 
-		if (value === Token) return this;
+		const { set, create } = ifNew;
+		const token = Symbol();
+		const newValue = create !== undefined ? create(token) : set;
 
-		return this.set(atKey, value);
+		if (token === newValue) return this;
+		return this.set(atKey, newValue);
 	}
 
 	mapValues<V2>(): ProximityMap<K, V2> {

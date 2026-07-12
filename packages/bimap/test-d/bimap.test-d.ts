@@ -131,12 +131,16 @@ expectTypeOf(bNonEmpty.toBuilder()).toEqualTypeOf<
 >();
 
 // .updateKeyAtValue(..)
-expectTypeOf(bEmpty.updateKeyAtValue(2, 'b')).toEqualTypeOf<B_Empty>();
-expectTypeOf(bNonEmpty.updateKeyAtValue(2, 'b')).toEqualTypeOf<B_NonEmpty>();
+expectTypeOf(bEmpty.updateKeyAtValue(() => 2, 'b')).toEqualTypeOf<B_Empty>();
+expectTypeOf(
+	bNonEmpty.updateKeyAtValue(() => 2, 'b'),
+).toEqualTypeOf<B_NonEmpty>();
 
 // .updateValueAtKey(..)
-expectTypeOf(bEmpty.updateValueAtKey(2, 'b')).toEqualTypeOf<B_Empty>();
-expectTypeOf(bNonEmpty.updateValueAtKey(2, 'b')).toEqualTypeOf<B_NonEmpty>();
+expectTypeOf(bEmpty.updateValueAtKey(2, () => 'b')).toEqualTypeOf<B_Empty>();
+expectTypeOf(
+	bNonEmpty.updateValueAtKey(2, () => 'b'),
+).toEqualTypeOf<B_NonEmpty>();
 
 // From Builder
 expectTypeOf(bEmpty.toBuilder().build()).toEqualTypeOf<B_Empty>();

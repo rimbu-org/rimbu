@@ -1,5 +1,4 @@
-import type { Token } from '@rimbu/base/token';
-import type { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
+import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { RelatedTo } from '@rimbu/common/types';
 import type { HashMap } from '@rimbu/hashed/map';
@@ -7,6 +6,8 @@ import type { ProximityMap } from '@rimbu/proximity';
 import type { StreamSource } from '@rimbu/stream';
 
 import type { ContextImpl } from '#proximity/context-factory';
+
+import { type ModifyOptions } from '@rimbu/collection-types/common';
 
 import { wrapHashMap } from '#proximity/wrapping';
 
@@ -110,18 +111,7 @@ export class ProximityMapBuilder<K, V> implements ProximityMap.Builder<K, V> {
 		return hasChanged;
 	};
 
-	modifyAt = (
-		key: K,
-		options: {
-			ifNew?: OptLazyOr<V, typeof Token>;
-			ifExists?:
-				| (<V2 extends V = V>(
-						currentValue: V & V2,
-						remove: typeof Token,
-				  ) => V | typeof Token)
-				| V;
-		},
-	): boolean => {
+	modifyAt = (key: K, options: ModifyOptions<V>): boolean => {
 		const hasChanged = this.internalBuilder.modifyAt(key, options);
 
 		if (hasChanged) {

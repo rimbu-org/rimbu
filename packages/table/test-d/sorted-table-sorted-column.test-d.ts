@@ -183,8 +183,10 @@ expectTypeOf(genEmpty.toBuilder()).toEqualTypeOf<Builder>();
 expectTypeOf(genNonEmpty.toBuilder()).toEqualTypeOf<Builder>();
 
 // .updateAt(..)
-expectTypeOf(genEmpty.updateAt(2, 'b', true)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.updateAt(2, 'b', true)).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genEmpty.updateAt(2, 'b', () => true)).toEqualTypeOf<G_Empty>();
+expectTypeOf(
+	genNonEmpty.updateAt(2, 'b', () => true),
+).toEqualTypeOf<G_NonEmpty>();
 
 // From Builder
 expectTypeOf(genEmpty.toBuilder().build()).toEqualTypeOf<G_Empty>();

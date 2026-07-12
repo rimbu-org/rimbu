@@ -1,4 +1,3 @@
-import type { Token } from '@rimbu/base/token';
 import type { RMap } from '@rimbu/collection-types';
 import type { RelatedTo } from '@rimbu/common/types';
 import type { List } from '@rimbu/list';
@@ -8,7 +7,11 @@ import type { OrderedMapBase } from '#map/base';
 import type { ContextImpl } from '#map/context-factory';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
-import { OptLazy, type OptLazyOr } from '@rimbu/common/opt-lazy';
+import {
+	checkEmptyModifyOptions,
+	type ModifyOptions,
+} from '@rimbu/collection-types/common';
+import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Update } from '@rimbu/common/update';
 import { Stream, type StreamSource } from '@rimbu/stream';
@@ -132,10 +135,12 @@ export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 		let found = false;
 
 		this.modifyAt(key, {
-			ifExists: (value): V => {
-				oldValue = value;
-				found = true;
-				return Update(value, update);
+			ifExists: {
+				update: (value): V => {
+					oldValue = value;
+					found = true;
+					return Update(value, update);
+				},
 			},
 		});
 
@@ -146,14 +151,10 @@ export class OrderedMapBuilder<K, V> implements OrderedMapBase.Builder<K, V> {
 		return oldValue!;
 	};
 
-	modifyAt = (
-		key: K,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: ((currentValue: V, remove: Token) => V | Token) | V;
-		},
-	): boolean => {
+	modifyAt = (key: K, options: ModifyOptions<V>): boolean => {
 		this.checkLock();
+
+		if (checkEmptyModifyOptions(options)) return false;
 
 		const preSize = this.mapBuilder.size;
 		const changed = this.mapBuilder.modifyAt(key, options);

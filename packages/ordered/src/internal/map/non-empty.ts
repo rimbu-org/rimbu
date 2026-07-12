@@ -1,6 +1,5 @@
-import type { Token } from '@rimbu/base/token';
 import type { RMap } from '@rimbu/collection-types';
-import type { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
+import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { List } from '@rimbu/list';
 import type { OrderedMap } from '@rimbu/ordered/map';
@@ -9,6 +8,10 @@ import type { OrderedMapBase } from '#map/base';
 import type { ContextImpl } from '#map/context-factory';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
+import {
+	checkEmptyModifyOptions,
+	type ModifyOptions,
+} from '@rimbu/collection-types/common';
 import { NonEmptyBase } from '@rimbu/collection-types/common/empty-base';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
@@ -70,11 +73,13 @@ export class OrderedMapNonEmpty<K, V>
 	set(key: K, value: V): OrderedMap.NonEmpty<K, V> {
 		let newKeyOrder = this.keyOrder;
 		const newSourceMap = this.sourceMap.modifyAt(key, {
-			ifNew: (): V => {
-				newKeyOrder = newKeyOrder.append(key);
-				return value;
+			ifNew: {
+				create: (): V => {
+					newKeyOrder = newKeyOrder.append(key);
+					return value;
+				},
 			},
-			ifExists: () => value,
+			ifExists: { set: value },
 		});
 
 		return this.copy(newKeyOrder, newSourceMap.assumeNonEmpty());
@@ -150,13 +155,9 @@ export class OrderedMapNonEmpty<K, V>
 		return [this.context.empty(), removedValue!];
 	}
 
-	modifyAt(
-		key: K,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: (currentValue: V, remove: Token) => V | Token;
-		},
-	): OrderedMap<K, V> {
+	modifyAt(key: K, options: ModifyOptions<V>): OrderedMap<K, V> {
+		if (checkEmptyModifyOptions(options)) return this;
+
 		let newKeyOrder: List<K> = this.keyOrder;
 
 		const result = this.sourceMap.modifyAt(key, options);

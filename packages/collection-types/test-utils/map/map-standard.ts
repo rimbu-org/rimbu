@@ -400,26 +400,46 @@ export function runMapTestsWith(name: string, GMap: RMap.Context<any>): void {
 		});
 
 		it('modifyAt', () => {
-			expect(mapEmpty.modifyAt(2, { ifExists: (v) => v + v })).toBe(mapEmpty);
-			expect(mapEmpty.modifyAt(2, { ifNew: 'z' }).get(2)).toBe('z');
-
-			expect(map3.modifyAt(2, { ifExists: (v) => v + v }).get(2)).toBe('bb');
-			expect(map3.modifyAt(2, { ifNew: 'bb' }).get(2)).toBe('b');
-			expect(
-				map3.modifyAt(10, { ifNew: 'z', ifExists: (v) => v + v }).get(10),
-			).toBe('z');
-			expect(map3.modifyAt(2, { ifExists: (_, remove) => remove }).get(2)).toBe(
-				undefined,
+			expect(mapEmpty.modifyAt(2, { ifExists: { update: (v) => v + v } })).toBe(
+				mapEmpty,
 			);
+			expect(mapEmpty.modifyAt(2, { ifNew: { set: 'z' } }).get(2)).toBe('z');
 
-			expect(map6.modifyAt(2, { ifExists: (v) => v + v }).get(2)).toBe('bb');
-			expect(map6.modifyAt(2, { ifNew: 'bb' }).get(2)).toBe('b');
 			expect(
-				map6.modifyAt(10, { ifNew: 'z', ifExists: (v) => v + v }).get(10),
+				map3.modifyAt(2, { ifExists: { update: (v) => v + v } }).get(2),
+			).toBe('bb');
+			expect(map3.modifyAt(2, { ifNew: { set: 'bb' } }).get(2)).toBe('b');
+			expect(
+				map3
+					.modifyAt(10, {
+						ifNew: { set: 'z' },
+						ifExists: { update: (v) => v + v },
+					})
+					.get(10),
 			).toBe('z');
-			expect(map6.modifyAt(2, { ifExists: (_, remove) => remove }).get(2)).toBe(
-				undefined,
-			);
+			expect(
+				map3
+					.modifyAt(2, { ifExists: { update: (_, remove) => remove } })
+					.get(2),
+			).toBe(undefined);
+
+			expect(
+				map6.modifyAt(2, { ifExists: { update: (v) => v + v } }).get(2),
+			).toBe('bb');
+			expect(map6.modifyAt(2, { ifNew: { set: 'bb' } }).get(2)).toBe('b');
+			expect(
+				map6
+					.modifyAt(10, {
+						ifNew: { set: 'z' },
+						ifExists: { update: (v) => v + v },
+					})
+					.get(10),
+			).toBe('z');
+			expect(
+				map6
+					.modifyAt(2, { ifExists: { update: (_, remove) => remove } })
+					.get(2),
+			).toBe(undefined);
 		});
 
 		it('nonEmpty', () => {
@@ -662,25 +682,31 @@ export function runMapTestsWith(name: string, GMap: RMap.Context<any>): void {
 
 		it('modifyAt', () => {
 			forEachBuilder((b) => {
-				expect(b.modifyAt(2, { ifExists: (v) => v + v })).toBe(true);
+				expect(b.modifyAt(2, { ifExists: { update: (v) => v + v } })).toBe(
+					true,
+				);
 				expect(b.get(2)).toBe('bb');
 
-				expect(b.modifyAt(1, { ifExists: (v) => v })).toBe(false);
+				expect(b.modifyAt(1, { ifExists: { update: (v) => v } })).toBe(false);
 
-				expect(b.modifyAt(3, { ifNew: 'z' })).toBe(false);
+				expect(b.modifyAt(3, { ifNew: { set: 'z' } })).toBe(false);
 				expect(b.get(3)).toBe('c');
 
-				expect(b.modifyAt(10, { ifExists: (v) => v + v })).toBe(false);
+				expect(b.modifyAt(10, { ifExists: { update: (v) => v + v } })).toBe(
+					false,
+				);
 				expect(b.get(10)).toBe(undefined);
 
 				expect(b.size).toBe(3);
 
-				expect(b.modifyAt(10, { ifNew: 'z' })).toBe(true);
+				expect(b.modifyAt(10, { ifNew: { set: 'z' } })).toBe(true);
 				expect(b.get(10)).toBe('z');
 
 				expect(b.size).toBe(4);
 
-				expect(b.modifyAt(2, { ifExists: (_, remove) => remove })).toBe(true);
+				expect(
+					b.modifyAt(2, { ifExists: { update: (_, remove) => remove } }),
+				).toBe(true);
 				expect(b.get(2)).toBe(undefined);
 
 				expect(b.size).toBe(3);

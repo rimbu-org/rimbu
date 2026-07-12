@@ -106,14 +106,18 @@ export namespace RMapContextBaseModule {
 							const index = i;
 
 							builder.modifyAt(key, {
-								ifNew(): unknown[] {
-									const row = Array(length).fill(fillValue);
-									row[index] = value;
-									return row;
+								ifNew: {
+									create: () => {
+										const row = Array(length).fill(fillValue);
+										row[index] = value;
+										return row;
+									},
 								},
-								ifExists(row): unknown[] {
-									row[index] = value;
-									return row;
+								ifExists: {
+									update: (row) => {
+										row[index] = value;
+										return row;
+									},
 								},
 							});
 						}
@@ -157,16 +161,20 @@ export namespace RMapContextBaseModule {
 							const index = i;
 
 							builder.modifyAt(key, {
-								ifNew(nothing): unknown[] | typeof nothing {
-									if (index > 0) return nothing;
+								ifNew: {
+									create: (skip) => {
+										if (index > 0) return skip;
 
-									const row = [value];
-									return row;
+										const row = [value];
+										return row;
+									},
 								},
-								ifExists(row, remove): unknown[] | typeof remove {
-									if (row.length !== index) return remove;
-									row.push(value);
-									return row;
+								ifExists: {
+									update: (row, remove) => {
+										if (row.length !== index) return remove;
+										row.push(value);
+										return row;
+									},
 								},
 							});
 						}
@@ -182,9 +190,11 @@ export namespace RMapContextBaseModule {
 						const key = entry[0];
 
 						builder.modifyAt(key, {
-							ifExists(row, remove): unknown[] | typeof remove {
-								if (row.length !== length) return remove;
-								return row;
+							ifExists: {
+								update: (row, remove) => {
+									if (row.length !== length) return remove;
+									return row;
+								},
 							},
 						});
 					}

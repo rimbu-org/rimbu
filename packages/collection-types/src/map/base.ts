@@ -1,6 +1,9 @@
-import type { Token } from '@rimbu/base/token';
-import type { KeyValue, WithKeyValue } from '@rimbu/collection-types/common';
-import type { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
+import type {
+	KeyValue,
+	VariantModifyOptions,
+	WithKeyValue,
+} from '@rimbu/collection-types/common';
+import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type {
@@ -452,12 +455,7 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 	 */
 	modifyAt(
 		atKey: K,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?:
-				| (<V2 extends V = V>(currentEntry: V | V2, remove: Token) => V | Token)
-				| V;
-		},
+		options: VariantModifyOptions<V>,
 	): WithKeyValue<Tp, K, V>['normal'];
 	/**
 	 * Returns the collection where the value associated with given `key` is updated with the given `update` value or update function.
@@ -477,7 +475,7 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 	 */
 	updateAt<UK = K>(
 		key: RelatedTo<K, UK>,
-		update: RMapBase.Update<V>,
+		update: (value: V) => V,
 	): WithKeyValue<Tp, K, V>['normal'];
 	/**
 	 * Returns a tuple containing the collection where the value associated with given `key` is updated with
@@ -559,7 +557,7 @@ export namespace RMapBase {
 		 */
 		updateAt<UK = K>(
 			key: RelatedTo<K, UK>,
-			update: RMapBase.Update<V>,
+			update: (value: V) => V,
 		): WithKeyValue<Tp, K, V>['nonEmpty'];
 		/**
 		 * Returns a tuple containing the collection where the value associated with given `key` is updated with
@@ -1005,18 +1003,7 @@ export namespace RMapBase {
 		 * // => true
 		 * ```
 		 */
-		modifyAt(
-			key: K,
-			options: {
-				ifNew?: OptLazyOr<V, Token>;
-				ifExists?:
-					| (<V2 extends V = V>(
-							currentValue: V & V2,
-							remove: Token,
-					  ) => V | Token)
-					| V;
-			},
-		): boolean;
+		modifyAt(key: K, options: VariantModifyOptions<V>): boolean;
 		/**
 		 * Updates the value in the builder associated with given `key` according to given `update` value or function.
 		 * @param key - the key of the entry to update

@@ -1,6 +1,6 @@
-import type { Token } from '@rimbu/base/token';
 import type { RMap } from '@rimbu/collection-types';
-import type { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
+import type { ModifyOptions } from '@rimbu/collection-types/common';
+import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common/types';
 import type { Link } from '@rimbu/graph/link';
@@ -82,10 +82,7 @@ export interface ValuedGraphBase<
 	modifyAt(
 		node1: N,
 		node2: N,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: ((value: V, remove: Token) => V | Token) | V;
-		},
+		options: ModifyOptions<V>,
 	): WithGraphValues<Tp, N, V>['normal'];
 	/**
 	 * Returns a builder object containing the entries of this collection.
@@ -369,14 +366,7 @@ export namespace ValuedGraphBase {
 		 * // => true
 		 * ```
 		 */
-		modifyAt(
-			node1: N,
-			node2: N,
-			options: {
-				ifNew?: OptLazyOr<V, Token>;
-				ifExists?: (value: V, remove: Token) => V | Token;
-			},
-		): boolean;
+		modifyAt(node1: N, node2: N, options: ModifyOptions<V>): boolean;
 		/**
 		 * Removes the connection between given `node1` and `node2` if the connection was present.
 		 * @param node1 - the first connection node

@@ -94,7 +94,9 @@ export function runMapRandomTestsWith(
 			expect(m.get(0, 'a')).toBe('a');
 			// expect(m.keySet().isEmpty).toBe(true);
 			expect(m.mapValues((): number => 1)).toBe<any>(empty);
-			expect(m.modifyAt(0, { ifExists: (): number => 5 })).toBe(empty);
+			expect(m.modifyAt(0, { ifExists: { update: (): number => 5 } })).toBe(
+				empty,
+			);
 			expect(m.removeKey(0)).toBe(empty);
 			expect(m.set(1, 2).isEmpty).toBe(false);
 			expect(m.stream()).toBe(Stream.empty());
@@ -231,39 +233,43 @@ export function runMapRandomTestsWith(
 
 		it('modifyAt', (): void => {
 			expect(context.empty().modifyAt(1, {})).toBe(context.empty());
-			expect(context.empty().modifyAt(1, { ifNew: 1 })).toEqual(
+			expect(context.empty().modifyAt(1, { ifNew: { set: 1 } })).toEqual(
 				context.of([1, 1]),
-			);
-			expect(context.empty().modifyAt(1, { ifNew: () => 1 })).toEqual(
-				context.of([1, 1]),
-			);
-			expect(context.empty().modifyAt(1, { ifExists: () => 1 })).toEqual(
-				context.empty(),
 			);
 			expect(
-				context
-					.empty()
-					.modifyAt(1, { ifExists: (_: any, remove: any) => remove }),
+				context.empty().modifyAt(1, { ifNew: { create: () => 1 } }),
+			).toEqual(context.of([1, 1]));
+			expect(
+				context.empty().modifyAt(1, { ifExists: { update: () => 1 } }),
+			).toEqual(context.empty());
+			expect(
+				context.empty().modifyAt(1, {
+					ifExists: { update: (_: any, remove: any) => remove },
+				}),
 			).toEqual(context.empty());
 			const m = context.of([1, 1], [2, 2], [3, 3]);
-			expect(m.modifyAt(1, { ifNew: 2 })).toBe(m);
-			expect(m.modifyAt(1, { ifNew: () => 2 })).toBe(m);
-			expect(m.modifyAt(1, { ifExists: (v) => v + 1 })).toEqual(
+			expect(m.modifyAt(1, { ifNew: { set: 2 } })).toBe(m);
+			expect(m.modifyAt(1, { ifNew: { create: () => 2 } })).toBe(m);
+			expect(m.modifyAt(1, { ifExists: { update: (v) => v + 1 } })).toEqual(
 				context.of([1, 2], [2, 2], [3, 3]),
 			);
-			expect(m.modifyAt(2, { ifExists: (_, remove) => remove })).toEqual(
-				context.of([1, 1], [3, 3]),
-			);
-			expect(m.modifyAt(4, { ifNew: 4 })).toEqual(
-				context.of([1, 1], [2, 2], [3, 3], [4, 4]),
-			);
-			expect(m.modifyAt(4, { ifNew: () => 4 })).toEqual(
-				context.of([1, 1], [2, 2], [3, 3], [4, 4]),
-			);
-			expect(m.modifyAt(4, { ifExists: (v) => v + 1 })).toBe(m);
-			expect(m.modifyAt(4, { ifExists: (_, remove) => remove })).toBe(m);
 			expect(
-				context.of([1, 1]).modifyAt(1, { ifExists: (_, remove) => remove }),
+				m.modifyAt(2, { ifExists: { update: (_, remove) => remove } }),
+			).toEqual(context.of([1, 1], [3, 3]));
+			expect(m.modifyAt(4, { ifNew: { set: 4 } })).toEqual(
+				context.of([1, 1], [2, 2], [3, 3], [4, 4]),
+			);
+			expect(m.modifyAt(4, { ifNew: { create: () => 4 } })).toEqual(
+				context.of([1, 1], [2, 2], [3, 3], [4, 4]),
+			);
+			expect(m.modifyAt(4, { ifExists: { update: (v) => v + 1 } })).toBe(m);
+			expect(
+				m.modifyAt(4, { ifExists: { update: (_, remove) => remove } }),
+			).toBe(m);
+			expect(
+				context
+					.of([1, 1])
+					.modifyAt(1, { ifExists: { update: (_, remove) => remove } }),
 			).toBe(context.empty());
 		});
 
@@ -380,7 +386,10 @@ export function runMapRandomTestsWith(
 
 			expect((): void => {
 				b.forEach((): void => {
-					b.modifyAt(1, { ifNew: 2, ifExists: (v: any) => v });
+					b.modifyAt(1, {
+						ifNew: { set: 2 },
+						ifExists: { update: (v: any) => v },
+					});
 				});
 			}).toThrow();
 
@@ -419,59 +428,65 @@ export function runMapRandomTestsWith(
 			expect(b.size).toBe(0);
 
 			b = context.builder();
-			expect(b.modifyAt(1, { ifNew: 1 })).toBe(true);
+			expect(b.modifyAt(1, { ifNew: { set: 1 } })).toBe(true);
 			expect(b.get(1, 'a')).toBe(1);
 
 			b = context.builder();
-			expect(b.modifyAt(1, { ifNew: () => 1 })).toBe(true);
+			expect(b.modifyAt(1, { ifNew: { create: () => 1 } })).toBe(true);
 			expect(b.get(1, 'a')).toBe(1);
 
 			b = context.builder();
-			expect(b.modifyAt(1, { ifExists: () => 1 })).toBe(false);
+			expect(b.modifyAt(1, { ifExists: { update: () => 1 } })).toBe(false);
 			expect(b.size).toBe(0);
 
 			b = context.builder();
-			expect(b.modifyAt(1, { ifExists: (_, remove) => remove })).toBe(false);
+			expect(
+				b.modifyAt(1, { ifExists: { update: (_, remove) => remove } }),
+			).toBe(false);
 			expect(b.size).toBe(0);
 
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3]).forEach(b.addEntry);
-			expect(b.modifyAt(1, { ifNew: 2 })).toBe(false);
+			expect(b.modifyAt(1, { ifNew: { set: 2 } })).toBe(false);
 			expect(b.get(1, 'a')).toBe(1);
 
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3]).forEach(b.addEntry);
-			expect(b.modifyAt(1, { ifNew: () => 2 })).toBe(false);
+			expect(b.modifyAt(1, { ifNew: { create: () => 2 } })).toBe(false);
 			expect(b.get(1, 'a')).toBe(1);
 
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3]).forEach(b.addEntry);
-			expect(b.modifyAt(1, { ifExists: (v) => v + 1 })).toBe(true);
+			expect(b.modifyAt(1, { ifExists: { update: (v) => v + 1 } })).toBe(true);
 			expect(b.get(1, 'a')).toBe(2);
 
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3]).forEach(b.addEntry);
-			expect(b.modifyAt(2, { ifExists: (_, remove) => remove })).toBe(true);
+			expect(
+				b.modifyAt(2, { ifExists: { update: (_, remove) => remove } }),
+			).toBe(true);
 			expect(b.get(2, 'a')).toBe('a');
 
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3]).forEach(b.addEntry);
-			expect(b.modifyAt(4, { ifNew: 4 })).toBe(true);
+			expect(b.modifyAt(4, { ifNew: { set: 4 } })).toBe(true);
 			expect(b.get(4, 'a')).toBe(4);
 
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3]).forEach(b.addEntry);
-			expect(b.modifyAt(4, { ifNew: () => 4 })).toBe(true);
+			expect(b.modifyAt(4, { ifNew: { create: () => 4 } })).toBe(true);
 			expect(b.get(4, 'a')).toBe(4);
 
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3]).forEach(b.addEntry);
-			expect(b.modifyAt(4, { ifExists: (v) => v + 1 })).toBe(false);
+			expect(b.modifyAt(4, { ifExists: { update: (v) => v + 1 } })).toBe(false);
 			expect(b.get(4, 'a')).toBe('a');
 
 			b = context.builder();
 			Stream.of<[number, number]>([1, 1], [2, 2], [3, 3]).forEach(b.addEntry);
-			expect(b.modifyAt(4, { ifExists: (_, remove) => remove })).toBe(false);
+			expect(
+				b.modifyAt(4, { ifExists: { update: (_, remove) => remove } }),
+			).toBe(false);
 			expect(b.get(4, 'a')).toBe('a');
 		});
 

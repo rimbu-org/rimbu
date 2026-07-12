@@ -8,10 +8,14 @@ import type { TableBase } from '#table/types';
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import { Token } from '@rimbu/base/token';
 import {
+	checkEmptyModifyOptions,
+	type ModifyOptions,
+} from '@rimbu/collection-types/common';
+import {
 	EmptyBase,
 	NonEmptyBase,
 } from '@rimbu/collection-types/common/empty-base';
-import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
+import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Update } from '@rimbu/common/update';
 import { Stream, type StreamSource } from '@rimbu/stream';
@@ -97,18 +101,19 @@ export class TableEmpty<R, C, V>
 		return this.context.columnContext.empty();
 	}
 
-	modifyAt(
-		row: R,
-		column: C,
-		options: { ifNew?: OptLazyOr<V, Token> },
-	): Table<R, C, V> {
-		if (undefined !== options.ifNew) {
-			const value = OptLazyOr<V, Token>(options.ifNew, Token);
-			if (Token === value) return this;
+	modifyAt(row: R, column: C, options: ModifyOptions<V>): Table<R, C, V> {
+		if (checkEmptyModifyOptions(options)) return this;
 
-			return this.set(row, column, value);
-		}
-		return this;
+		const { ifNew } = options;
+		if (undefined === ifNew) return this;
+
+		const { set, create } = ifNew;
+		const token = Symbol();
+		const newValue = create !== undefined ? create(token) : set;
+
+		if (token === newValue) return this;
+
+		return this.set(row, column, newValue);
 	}
 
 	updateAt(): this {
@@ -227,8 +232,8 @@ export class TableNonEmpty<R, C, V>
 
 	set(row: R, column: C, value: V): Table.NonEmpty<R, C, V> {
 		return this.modifyAt(row, column, {
-			ifNew: value,
-			ifExists: (): V => value,
+			ifNew: { set: value },
+			ifExists: { set: value },
 		}).assumeNonEmpty();
 	}
 
@@ -247,49 +252,51 @@ export class TableNonEmpty<R, C, V>
 		return builder.build().assumeNonEmpty();
 	}
 
-	modifyAt(
-		row: R,
-		column: C,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: ((value: V, remove: Token) => V | Token) | V;
-		},
-	): Table<R, C, V> {
+	modifyAt(row: R, column: C, options: ModifyOptions<V>): Table<R, C, V> {
+		if (checkEmptyModifyOptions(options)) return this;
+
 		let newSize = this.size;
+		const { ifNew } = options;
 
-		const newRowMap = this.rowMap.modifyAt(row, {
-			ifNew: (none) => {
-				const { ifNew } = options;
+		const rowMapOptions: ModifyOptions<RMap.NonEmpty<C, V>> = {
+			ifExists: {
+				update: (row, remove) => {
+					const newRow = row.modifyAt(column, options);
 
-				if (undefined === ifNew) {
-					return none;
-				}
-				const value = OptLazyOr<V, Token>(ifNew, none);
+					if (newRow === row) return row;
 
-				if (none === value) {
-					return none;
-				}
+					if (!newRow.nonEmpty()) {
+						return remove;
+					}
 
-				newSize++;
+					newSize += newRow.size - row.size;
 
-				return this.context.columnContext.of([column, value]);
+					return newRow;
+				},
 			},
-			ifExists: (row, remove) => {
-				const newRow = row.modifyAt(column, options);
+		};
+		if (undefined !== ifNew) {
+			rowMapOptions.ifNew = {
+				create: (skip) => {
+					const { ifNew } = options;
 
-				if (newRow === row) {
-					return row;
-				}
+					if (undefined === ifNew) return skip;
+					const { set, create } = ifNew;
+					const token = Symbol();
+					const newValue = create !== undefined ? create(token) : set;
 
-				if (!newRow.nonEmpty()) {
-					return remove;
-				}
+					if (token === newValue) {
+						return skip;
+					}
 
-				newSize += newRow.size - row.size;
+					newSize++;
 
-				return newRow;
-			},
-		});
+					return this.context.columnContext.of([column, newValue]);
+				},
+			};
+		}
+
+		const newRowMap = this.rowMap.modifyAt(row, rowMapOptions);
 
 		return this.copyE(newRowMap, newSize);
 	}
@@ -297,13 +304,13 @@ export class TableNonEmpty<R, C, V>
 	updateAt<UR, UC>(
 		row: RelatedTo<R, UR>,
 		column: RelatedTo<C, UC>,
-		update: Update<V>,
+		update: (value: V) => V,
 	): Table.NonEmpty<R, C, V> {
 		if (!this.context.rowContext.isValidKey(row)) return this;
 		if (!this.context.columnContext.isValidKey(column)) return this;
 
 		return this.modifyAt(row, column, {
-			ifExists: (value): V => Update(value, update),
+			ifExists: { update },
 		}).assumeNonEmpty();
 	}
 
@@ -343,17 +350,21 @@ export class TableNonEmpty<R, C, V>
 		let removedValue: V | typeof token = token;
 
 		const newRows = this.rowMap.modifyAt(row, {
-			ifExists: (columns, remove): typeof columns | typeof remove => {
-				const newColumns = columns.modifyAt(column, {
-					ifExists: (currentValue, remove): typeof remove => {
-						removedValue = currentValue;
-						newSize--;
-						return remove;
-					},
-				});
+			ifExists: {
+				update: (columns, remove): typeof columns | typeof remove => {
+					const newColumns = columns.modifyAt(column, {
+						ifExists: {
+							update: (currentValue, remove): typeof remove => {
+								removedValue = currentValue;
+								newSize--;
+								return remove;
+							},
+						},
+					});
 
-				if (newColumns.nonEmpty()) return newColumns;
-				return remove;
+					if (newColumns.nonEmpty()) return newColumns;
+					return remove;
+				},
 			},
 		});
 
@@ -372,10 +383,12 @@ export class TableNonEmpty<R, C, V>
 		let removedRow: RMap.NonEmpty<C, V> | undefined;
 
 		const newRows = this.rowMap.modifyAt(row, {
-			ifExists: (columns, remove): typeof remove => {
-				removedRow = columns;
-				newSize -= columns.size;
-				return remove;
+			ifExists: {
+				update: (columns, remove): typeof remove => {
+					removedRow = columns;
+					newSize -= columns.size;
+					return remove;
+				},
 			},
 		});
 
@@ -600,26 +613,34 @@ export class TableBuilder<R, C, V> implements TableBase.Builder<R, C, V> {
 		let columnBuilder: RMap.Builder<C, V> = undefined as any;
 
 		this.rowMap.modifyAt(row, {
-			ifNew: (): RMap.Builder<C, V> => {
-				columnBuilder = this.context.columnContext.builder();
-				return columnBuilder;
+			ifNew: {
+				create: (): RMap.Builder<C, V> => {
+					columnBuilder = this.context.columnContext.builder();
+					return columnBuilder;
+				},
 			},
-			ifExists: (b): RMap.Builder<C, V> => {
-				columnBuilder = b;
-				return b;
+			ifExists: {
+				update: (b): RMap.Builder<C, V> => {
+					columnBuilder = b;
+					return b;
+				},
 			},
 		});
 
 		let changed = true;
 
 		columnBuilder.modifyAt(column, {
-			ifNew: (): V => {
-				this._size++;
-				return value;
+			ifNew: {
+				create: (): V => {
+					this._size++;
+					return value;
+				},
 			},
-			ifExists: (currentValue): V => {
-				if (Object.is(currentValue, value)) changed = false;
-				return value;
+			ifExists: {
+				update: (currentValue): V => {
+					if (Object.is(currentValue, value)) changed = false;
+					return value;
+				},
 			},
 		});
 
@@ -655,10 +676,12 @@ export class TableBuilder<R, C, V> implements TableBase.Builder<R, C, V> {
 		let removedValue: V | Token = Token;
 
 		columnMap.modifyAt(column, {
-			ifExists: (currentValue, remove): typeof remove => {
-				removedValue = currentValue;
-				this._size--;
-				return remove;
+			ifExists: {
+				update: (currentValue, remove): typeof remove => {
+					removedValue = currentValue;
+					this._size--;
+					return remove;
+				},
 			},
 		});
 
@@ -677,10 +700,12 @@ export class TableBuilder<R, C, V> implements TableBase.Builder<R, C, V> {
 		if (!this.context.rowContext.isValidKey(row)) return false;
 
 		return this.rowMap.modifyAt(row, {
-			ifExists: (row, remove): typeof remove => {
-				this.source = undefined;
-				this._size -= row.size;
-				return remove;
+			ifExists: {
+				update: (row, remove): typeof remove => {
+					this.source = undefined;
+					this._size -= row.size;
+					return remove;
+				},
 			},
 		});
 	};
@@ -705,56 +730,51 @@ export class TableBuilder<R, C, V> implements TableBase.Builder<R, C, V> {
 		);
 	};
 
-	modifyAt = (
-		row: R,
-		column: C,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: ((currentValue: V, remove: Token) => V | Token) | V;
-		},
-	): boolean => {
+	modifyAt = (row: R, column: C, options: ModifyOptions<V>): boolean => {
 		this.checkLock();
+		if (checkEmptyModifyOptions(options)) return false;
 
 		let changed = false;
 
 		this.rowMap.modifyAt(row, {
-			ifNew: (none) => {
-				const { ifNew } = options;
+			ifNew: {
+				create: (skip) => {
+					const { ifNew } = options;
+					if (undefined === ifNew) return skip;
 
-				if (undefined === ifNew) {
-					return none;
-				}
+					const { set, create } = ifNew;
+					const token = Symbol();
+					const newValue = create !== undefined ? create(token) : set;
 
-				const newValue = OptLazyOr<V, Token>(ifNew, none);
+					if (token === newValue) return skip;
 
-				if (newValue === none) {
-					return none;
-				}
+					const rowMap = this.context.columnContext.builder<C, V>();
 
-				const rowMap = this.context.columnContext.builder<C, V>();
+					rowMap.set(column, newValue);
 
-				rowMap.set(column, newValue);
+					changed = true;
+					this._size++;
 
-				changed = true;
-				this._size++;
-
-				return rowMap;
+					return rowMap;
+				},
 			},
-			ifExists: (curMap, remove) => {
-				const preSize = curMap.size;
-				changed = curMap.modifyAt(column, options);
+			ifExists: {
+				update: (curMap, remove) => {
+					const preSize = curMap.size;
+					changed = curMap.modifyAt(column, options);
 
-				if (changed) {
-					const postSize = curMap.size;
+					if (changed) {
+						const postSize = curMap.size;
 
-					this._size += postSize - preSize;
+						this._size += postSize - preSize;
 
-					if (postSize <= 0) {
-						return remove;
+						if (postSize <= 0) {
+							return remove;
+						}
 					}
-				}
 
-				return curMap;
+					return curMap;
+				},
 			},
 		});
 
@@ -777,10 +797,12 @@ export class TableBuilder<R, C, V> implements TableBase.Builder<R, C, V> {
 		let found = false;
 
 		this.modifyAt(row, column, {
-			ifExists: (value): V => {
-				oldValue = value;
-				found = true;
-				return Update(value, update);
+			ifExists: {
+				update: (value): V => {
+					oldValue = value;
+					found = true;
+					return Update(value, update);
+				},
 			},
 		});
 

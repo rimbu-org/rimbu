@@ -160,7 +160,9 @@ export class GraphNonEmpty<N>
 	addNode(node: N): Graph.NonEmpty<N> {
 		return this.copy(
 			this.linkMap
-				.modifyAt(node, { ifNew: this.context.linkConnectionsContext.empty })
+				.modifyAt(node, {
+					ifNew: { create: this.context.linkConnectionsContext.empty },
+				})
 				.assumeNonEmpty(),
 			this.connectionSize,
 		);
@@ -186,8 +188,8 @@ export class GraphNonEmpty<N>
 
 	connect(node1: N, node2: N): Graph.NonEmpty<N> {
 		const newLinkMap = this.linkMap.modifyAt(node1, {
-			ifNew: this.context.linkConnectionsContext.of(node2),
-			ifExists: (targets) => targets.add(node2),
+			ifNew: { create: () => this.context.linkConnectionsContext.of(node2) },
+			ifExists: { update: (targets) => targets.add(node2) },
 		});
 
 		if (newLinkMap === this.linkMap) return this;
@@ -205,7 +207,9 @@ export class GraphNonEmpty<N>
 			return this.copy(
 				newLinkMap
 					.modifyAt(node2, {
-						ifNew: () => this.context.linkConnectionsContext.empty(),
+						ifNew: {
+							create: () => this.context.linkConnectionsContext.empty(),
+						},
 					})
 					.assumeNonEmpty(),
 				newConnectionSize,
@@ -215,8 +219,10 @@ export class GraphNonEmpty<N>
 		return this.copy(
 			newLinkMap
 				.modifyAt(node2, {
-					ifNew: () => this.context.linkConnectionsContext.of(node1),
-					ifExists: (targets) => targets.add(node1),
+					ifNew: {
+						create: () => this.context.linkConnectionsContext.of(node1),
+					},
+					ifExists: { update: (targets) => targets.add(node1) },
 				})
 				.assumeNonEmpty(),
 			newConnectionSize,

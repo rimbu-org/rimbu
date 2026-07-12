@@ -170,8 +170,8 @@ export class MultiSetNonEmpty<T>
 		return this.copy(
 			this.countMap
 				.modifyAt(elem, {
-					ifNew: amount,
-					ifExists: (count): number => count + amount,
+					ifNew: { set: amount },
+					ifExists: { update: (count): number => count + amount },
 				})
 				.assumeNonEmpty(),
 			this.size + amount,
@@ -203,10 +203,12 @@ export class MultiSetNonEmpty<T>
 
 		const newCountMap = this.countMap
 			.modifyAt(elem, {
-				ifNew: amount,
-				ifExists: (count): number => {
-					sizeDelta -= count;
-					return amount;
+				ifNew: { set: amount },
+				ifExists: {
+					update: (count): number => {
+						sizeDelta -= count;
+						return amount;
+					},
 				},
 			})
 			.assumeNonEmpty();
@@ -219,20 +221,24 @@ export class MultiSetNonEmpty<T>
 
 		const newCountMap = this.countMap
 			.modifyAt(value, {
-				ifNew: (none) => {
-					const newAmount = update(0);
-					if (newAmount <= 0) return none;
-					sizeDelta += newAmount;
-					return newAmount;
+				ifNew: {
+					create: (skip) => {
+						const newAmount = update(0);
+						if (newAmount <= 0) return skip;
+						sizeDelta += newAmount;
+						return newAmount;
+					},
 				},
-				ifExists: (amount, remove) => {
-					sizeDelta -= amount;
-					const newAmount = update(amount);
+				ifExists: {
+					update: (amount, remove) => {
+						sizeDelta -= amount;
+						const newAmount = update(amount);
 
-					if (newAmount <= 0) return remove;
+						if (newAmount <= 0) return remove;
 
-					sizeDelta += newAmount;
-					return newAmount;
+						sizeDelta += newAmount;
+						return newAmount;
+					},
 				},
 			})
 			.assumeNonEmpty();
@@ -251,20 +257,22 @@ export class MultiSetNonEmpty<T>
 		let newSize = this.size;
 
 		const newCountMap = this.countMap.modifyAt(elem, {
-			ifExists: (count, remove): number | typeof remove => {
-				if (amount === 'ALL') {
-					newSize -= count;
-					return remove;
-				}
+			ifExists: {
+				update: (count, remove): number | typeof remove => {
+					if (amount === 'ALL') {
+						newSize -= count;
+						return remove;
+					}
 
-				const result = count - amount;
-				if (result <= 0) {
-					newSize -= count;
-					return remove;
-				}
+					const result = count - amount;
+					if (result <= 0) {
+						newSize -= count;
+						return remove;
+					}
 
-				newSize -= amount;
-				return result;
+					newSize -= amount;
+					return result;
+				},
 			},
 		});
 
@@ -418,8 +426,8 @@ export class MultiSetBuilder<T> implements MultiSetBase.Builder<T> {
 		if (amount <= 0) return false;
 		this._size += amount;
 		this.countMap.modifyAt(value, {
-			ifNew: amount,
-			ifExists: (count): number => count + amount,
+			ifNew: { set: amount },
+			ifExists: { update: (count): number => count + amount },
 		});
 		this.source = undefined;
 		return true;
@@ -446,21 +454,23 @@ export class MultiSetBuilder<T> implements MultiSetBase.Builder<T> {
 		let removed = 0;
 
 		this.countMap.modifyAt(value, {
-			ifExists: (count, remove): number | typeof remove => {
-				if (amount === 'ALL') {
-					removed = count;
-					return remove;
-				}
+			ifExists: {
+				update: (count, remove): number | typeof remove => {
+					if (amount === 'ALL') {
+						removed = count;
+						return remove;
+					}
 
-				const result = count - amount;
+					const result = count - amount;
 
-				if (result <= 0) {
-					removed = count;
-					return remove;
-				}
+					if (result <= 0) {
+						removed = count;
+						return remove;
+					}
 
-				removed = amount;
-				return result;
+					removed = amount;
+					return result;
+				},
 			},
 		});
 
@@ -481,10 +491,12 @@ export class MultiSetBuilder<T> implements MultiSetBase.Builder<T> {
 		this._size += amount;
 
 		const changed = this.countMap.modifyAt(value, {
-			ifNew: amount,
-			ifExists: (count): number => {
-				this._size -= count;
-				return amount;
+			ifNew: { set: amount },
+			ifExists: {
+				update: (count): number => {
+					this._size -= count;
+					return amount;
+				},
 			},
 		});
 
@@ -500,21 +512,25 @@ export class MultiSetBuilder<T> implements MultiSetBase.Builder<T> {
 		this.checkLock();
 
 		const changed = this.countMap.modifyAt(value, {
-			ifNew: (none) => {
-				const newAmount = update(0);
-				if (newAmount <= 0) return none;
+			ifNew: {
+				create: (skip) => {
+					const newAmount = update(0);
+					if (newAmount <= 0) return skip;
 
-				this._size += newAmount;
-				return newAmount;
+					this._size += newAmount;
+					return newAmount;
+				},
 			},
-			ifExists: (currentCount, remove) => {
-				this._size -= currentCount;
-				const newCount = update(currentCount);
+			ifExists: {
+				update: (currentCount, remove) => {
+					this._size -= currentCount;
+					const newCount = update(currentCount);
 
-				if (newCount <= 0) return remove;
+					if (newCount <= 0) return remove;
 
-				this._size += newCount;
-				return newCount;
+					this._size += newCount;
+					return newCount;
+				},
 			},
 		});
 

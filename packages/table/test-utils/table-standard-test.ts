@@ -285,32 +285,33 @@ export function runTableTestsWith(
 		it('modifyAt', () => {
 			expect(
 				tableEmpty.modifyAt(1, 'a', {
-					ifNew: (none) => none,
-					ifExists: () => true,
+					ifNew: { create: (skip) => skip },
+					ifExists: { update: () => true },
 				}),
 			).toBe(tableEmpty);
-			expectEqual(tableEmpty.modifyAt(1, 'a', { ifNew: true }), [
+			expectEqual(tableEmpty.modifyAt(1, 'a', { ifNew: { set: true } }), [
 				[1, 'a', true],
 			]);
-			expectEqual(tableEmpty.modifyAt(1, 'a', { ifNew: () => true }), [
-				[1, 'a', true],
-			]);
+			expectEqual(
+				tableEmpty.modifyAt(1, 'a', { ifNew: { create: () => true } }),
+				[[1, 'a', true]],
+			);
 			expect(
 				table3.modifyAt(10, 'z', {
-					ifNew: (none) => none,
-					ifExists: () => true,
+					ifNew: { create: (skip) => skip },
+					ifExists: { update: () => true },
 				}),
 			).toBe(table3);
 			expect(
 				table3.modifyAt(1, 'a', {
-					ifNew: (none) => none,
-					ifExists: () => true,
+					ifNew: { create: (skip) => skip },
+					ifExists: { update: () => true },
 				}),
 			).toBe(table3);
 			expectEqual(
 				table3.modifyAt(1, 'a', {
-					ifNew: (none) => none,
-					ifExists: () => false,
+					ifNew: { create: (skip) => skip },
+					ifExists: { update: () => false },
 				}),
 				[
 					[1, 'a', false],
@@ -320,8 +321,8 @@ export function runTableTestsWith(
 			);
 			expectEqual(
 				table3.modifyAt(1, 'a', {
-					ifNew: (none) => none,
-					ifExists: (_, remove) => remove,
+					ifNew: { create: (skip) => skip },
+					ifExists: { update: (_, remove) => remove },
 				}),
 				[
 					[1, 'c', true],
@@ -330,8 +331,8 @@ export function runTableTestsWith(
 			);
 			expectEqual(
 				table3.modifyAt(10, 'a', {
-					ifNew: true,
-					ifExists: (_, remove) => remove,
+					ifNew: { set: true },
+					ifExists: { update: (_, remove) => remove },
 				}),
 				[
 					[1, 'a', true],
@@ -491,15 +492,18 @@ export function runTableTestsWith(
 		});
 
 		it('updateAt', () => {
-			expect(tableEmpty.updateAt(1, 'a', false)).toBe(tableEmpty);
+			expect(tableEmpty.updateAt(1, 'a', () => false)).toBe(tableEmpty);
 			expect(tableEmpty.updateAt(1, 'a', (v) => !v)).toBe(tableEmpty);
-			expect(table3.updateAt(10, 'a', false)).toBe(table3);
-			expect(table3.updateAt(1, 'a', true)).toBe(table3);
-			expectEqual(table3.updateAt(1, 'a', false), [
-				[1, 'a', false],
-				[2, 'b', true],
-				[1, 'c', true],
-			]);
+			expect(table3.updateAt(10, 'a', () => false)).toBe(table3);
+			expect(table3.updateAt(1, 'a', () => true)).toBe(table3);
+			expectEqual(
+				table3.updateAt(1, 'a', () => false),
+				[
+					[1, 'a', false],
+					[2, 'b', true],
+					[1, 'c', true],
+				],
+			);
 			expectEqual(
 				table3.updateAt(1, 'a', (v) => !v),
 				[
@@ -602,7 +606,9 @@ export function runTableTestsWith(
 					expect(() => b.forEach(() => b.removeRow(1))).toThrow();
 					expect(() => b.forEach(() => b.removeRows([1]))).toThrow();
 					expect(() => b.forEach(() => b.set(1, 'a', false))).toThrow();
-					expect(() => b.forEach(() => b.updateAt(1, 'a', false))).toThrow();
+					expect(() =>
+						b.forEach(() => b.updateAt(1, 'a', () => false)),
+					).toThrow();
 				});
 			});
 
@@ -670,31 +676,40 @@ export function runTableTestsWith(
 			it('modifyAt', () => {
 				const b = T.builder<number, string, boolean>();
 				expect(
-					b.modifyAt(1, 'a', { ifNew: (none) => none, ifExists: (v) => !v }),
+					b.modifyAt(1, 'a', {
+						ifNew: { create: (skip) => skip },
+						ifExists: { update: (v) => !v },
+					}),
 				).toBe(false);
 				expect(b.size).toBe(0);
 				expect(b.build().size).toBe(0);
 
-				expect(b.modifyAt(1, 'a', { ifNew: true })).toBe(true);
-				expect(b.modifyAt(10, 'a', { ifNew: (none) => none })).toBe(false);
-				expect(b.modifyAt(1, 'z', { ifNew: (none) => none })).toBe(false);
+				expect(b.modifyAt(1, 'a', { ifNew: { set: true } })).toBe(true);
+				expect(b.modifyAt(10, 'a', { ifNew: { create: (skip) => skip } })).toBe(
+					false,
+				);
+				expect(b.modifyAt(1, 'z', { ifNew: { create: (none) => none } })).toBe(
+					false,
+				);
 				expect(b.size).toBe(1);
 				expect(b.get(1, 'a')).toBe(true);
 				expect(b.build().get(1, 'a')).toBe(true);
 
-				expect(b.modifyAt(1, 'a', { ifNew: true })).toBe(false);
+				expect(b.modifyAt(1, 'a', { ifNew: { set: true } })).toBe(false);
 
-				expect(b.modifyAt(1, 'a', { ifExists: (v) => !v })).toBe(true);
+				expect(b.modifyAt(1, 'a', { ifExists: { update: (v) => !v } })).toBe(
+					true,
+				);
 				expect(b.size).toBe(1);
 				expect(b.get(1, 'a')).toBe(false);
 				expect(b.build().get(1, 'a')).toBe(false);
 
-				expect(b.modifyAt(2, 'a', { ifNew: true })).toBe(true);
+				expect(b.modifyAt(2, 'a', { ifNew: { set: true } })).toBe(true);
 				expect(b.size).toBe(2);
 
-				expect(b.modifyAt(1, 'a', { ifExists: (_, remove) => remove })).toBe(
-					true,
-				);
+				expect(
+					b.modifyAt(1, 'a', { ifExists: { update: (_, remove) => remove } }),
+				).toBe(true);
 				expect(b.size).toBe(1);
 				expect(b.get(1, 'a')).toBe(undefined);
 				expect(b.build().get(1, 'a')).toBe(undefined);
@@ -702,18 +717,30 @@ export function runTableTestsWith(
 				expect(b.build().get(2, 'a')).toBe(true);
 
 				forEachBuilder((b) => {
-					expect(b.modifyAt(1, 'a', { ifNew: true })).toBe(false);
-					expect(b.modifyAt(1, 'a', { ifExists: () => true })).toBe(false);
-					expect(b.modifyAt(1, 'a', { ifExists: () => false })).toBe(true);
-					expect(b.modifyAt(1, 'b', { ifNew: true })).toBe(true);
-					expect(b.get(1, 'b')).toBe(true);
-					expect(b.modifyAt(1, 'b', { ifExists: () => true })).toBe(false);
-					expect(b.modifyAt(1, 'b', { ifExists: () => false })).toBe(true);
-					expect(b.modifyAt(10, 'a', { ifNew: (none) => none })).toBe(false);
-					expect(b.modifyAt(1, 'z', { ifNew: (none) => none })).toBe(false);
-					expect(b.modifyAt(1, 'a', { ifExists: (_, remove) => remove })).toBe(
-						true,
+					expect(b.modifyAt(1, 'a', { ifNew: { set: true } })).toBe(false);
+					expect(b.modifyAt(1, 'a', { ifExists: { update: () => true } })).toBe(
+						false,
 					);
+					expect(
+						b.modifyAt(1, 'a', { ifExists: { update: () => false } }),
+					).toBe(true);
+					expect(b.modifyAt(1, 'b', { ifNew: { set: true } })).toBe(true);
+					expect(b.get(1, 'b')).toBe(true);
+					expect(b.modifyAt(1, 'b', { ifExists: { update: () => true } })).toBe(
+						false,
+					);
+					expect(
+						b.modifyAt(1, 'b', { ifExists: { update: () => false } }),
+					).toBe(true);
+					expect(
+						b.modifyAt(10, 'a', { ifNew: { create: (skip) => skip } }),
+					).toBe(false);
+					expect(
+						b.modifyAt(1, 'z', { ifNew: { create: (skip) => skip } }),
+					).toBe(false);
+					expect(
+						b.modifyAt(1, 'a', { ifExists: { update: (_, remove) => remove } }),
+					).toBe(true);
 				});
 			});
 
@@ -798,8 +825,8 @@ export function runTableTestsWith(
 
 			it('updateAt', () => {
 				const b = T.builder<number, string, boolean>();
-				expect(b.updateAt(1, 'a', false)).toBe(undefined);
-				expect(b.updateAt(1, 'a', false, 1)).toBe(1);
+				expect(b.updateAt(1, 'a', () => false)).toBe(undefined);
+				expect(b.updateAt(1, 'a', () => false, 1)).toBe(1);
 				expect(b.updateAt(1, 'a', () => false)).toBe(undefined);
 				expect(
 					b.updateAt(
@@ -811,10 +838,8 @@ export function runTableTestsWith(
 				).toBe(1);
 
 				forEachBuilder((b) => {
-					expect(b.updateAt(10, 'a', false)).toBe(undefined);
-					expect(b.updateAt(10, 'a', false, 1)).toBe(1);
 					expect(b.updateAt(10, 'a', () => false)).toBe(undefined);
-					expect(b.updateAt(1, 'a', true)).toBe(true);
+					expect(b.updateAt(10, 'a', () => false, 1)).toBe(1);
 					expect(b.updateAt(1, 'a', () => true)).toBe(true);
 					expect(b.updateAt(1, 'a', (v) => !v)).toBe(true);
 				});

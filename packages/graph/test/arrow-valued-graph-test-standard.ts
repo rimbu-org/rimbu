@@ -334,24 +334,30 @@ export function runGraphTestsWith(
 		it('modifyAt', () => {
 			expect(
 				graphEmpty.modifyAt('a', 'b', {
-					ifNew: (none) => none,
-					ifExists: (v) => v + 1,
+					ifNew: { create: (skip) => skip },
+					ifExists: { update: (v) => v + 1 },
 				}),
 			).toBe(graphEmpty);
 			expectEqual(
-				graphEmpty.modifyAt('a', 'b', { ifNew: 1, ifExists: (v) => v + 1 }),
+				graphEmpty.modifyAt('a', 'b', {
+					ifNew: { set: 1 },
+					ifExists: { update: (v) => v + 1 },
+				}),
 				[['a', 'b', 1]],
 			);
 			expectEqual(
 				graphEmpty.modifyAt('a', 'b', {
-					ifNew: () => 1,
-					ifExists: (v) => v + 1,
+					ifNew: { create: () => 1 },
+					ifExists: { update: (v) => v + 1 },
 				}),
 				[['a', 'b', 1]],
 			);
 
 			expectEqual(
-				graph3.modifyAt('a', 'b', { ifNew: 1, ifExists: (v) => v + 1 }),
+				graph3.modifyAt('a', 'b', {
+					ifNew: { set: 1 },
+					ifExists: { update: (v) => v + 1 },
+				}),
 				[
 					['a', 'b', 2],
 					['b', 'c', 2],
@@ -361,8 +367,8 @@ export function runGraphTestsWith(
 
 			expectEqual(
 				graph3.modifyAt('a', 'b', {
-					ifNew: 1,
-					ifExists: (_, remove) => remove,
+					ifNew: { set: 1 },
+					ifExists: { update: (_, remove) => remove },
 				}),
 				[
 					['b', 'c', 2],
@@ -372,8 +378,8 @@ export function runGraphTestsWith(
 
 			expectEqual(
 				graph3.modifyAt('z', 'b', {
-					ifNew: 1,
-					ifExists: (_, remove) => remove,
+					ifNew: { set: 1 },
+					ifExists: { update: (_, remove) => remove },
 				}),
 				[
 					['a', 'b', 1],
@@ -686,27 +692,44 @@ export function runGraphTestsWith(
 			const b = G.builder<string, number>();
 
 			expect(
-				b.modifyAt('a', 'b', { ifNew: (none) => none, ifExists: (v) => v + 1 }),
+				b.modifyAt('a', 'b', {
+					ifNew: { create: (skip) => skip },
+					ifExists: { update: (v) => v + 1 },
+				}),
 			).toBe(false);
 
 			expect(b.getValue('a', 'b')).toBe(undefined);
 
-			expect(b.modifyAt('a', 'b', { ifNew: 1, ifExists: (v) => v + 1 })).toBe(
-				true,
-			);
+			expect(
+				b.modifyAt('a', 'b', {
+					ifNew: { set: 1 },
+					ifExists: { update: (v) => v + 1 },
+				}),
+			).toBe(true);
 
 			expect(b.getValue('a', 'b')).toBe(1);
 
-			expect(b.modifyAt('a', 'b', { ifNew: 1, ifExists: (v) => v + 1 })).toBe(
-				true,
-			);
+			expect(
+				b.modifyAt('a', 'b', {
+					ifNew: { set: 1 },
+					ifExists: { update: (v) => v + 1 },
+				}),
+			).toBe(true);
 
 			expect(b.getValue('a', 'b')).toBe(2);
 
-			expect(b.modifyAt('a', 'b', { ifNew: 1, ifExists: () => 2 })).toBe(false);
+			expect(
+				b.modifyAt('a', 'b', {
+					ifNew: { set: 1 },
+					ifExists: { update: () => 2 },
+				}),
+			).toBe(false);
 
 			expect(
-				b.modifyAt('a', 'b', { ifNew: 1, ifExists: (_, remove) => remove }),
+				b.modifyAt('a', 'b', {
+					ifNew: { set: 1 },
+					ifExists: { update: (_, remove) => remove },
+				}),
 			).toBe(true);
 
 			expect(b.getValue('a', 'b')).toBe(undefined);

@@ -275,43 +275,49 @@ export function runTableRandomTestsWith(
 
 		it('modifyAt', (): void => {
 			expect(context.empty().modifyAt(1, 1, {})).toBe(context.empty());
-			expect(context.empty().modifyAt(1, 1, { ifNew: 1 })).toEqual<any>(
-				context.of([1, 1, 1]),
-			);
-			expect(context.empty().modifyAt(1, 1, { ifNew: () => 1 })).toEqual<any>(
-				context.of([1, 1, 1]),
-			);
-			expect(context.empty().modifyAt(1, 1, { ifExists: () => 1 })).toEqual(
-				context.empty(),
-			);
 			expect(
-				context
-					.empty()
-					.modifyAt(1, 1, { ifExists: (_: any, remove: any) => remove }),
+				context.empty().modifyAt(1, 1, { ifNew: { set: 1 } }),
+			).toEqual<any>(context.of([1, 1, 1]));
+			expect(
+				context.empty().modifyAt(1, 1, { ifNew: { create: () => 1 } }),
+			).toEqual<any>(context.of([1, 1, 1]));
+			expect(
+				context.empty().modifyAt(1, 1, { ifExists: { update: () => 1 } }),
+			).toEqual(context.empty());
+			expect(
+				context.empty().modifyAt(1, 1, {
+					ifExists: { update: (_: any, remove: any) => remove },
+				}),
 			).toEqual(context.empty());
 			const m = context.of([1, 1, 1], [2, 2, 2], [2, 0, 0], [3, 3, 3]);
-			expect(m.modifyAt(2, 2, { ifNew: 2 })).toBe(m);
-			expect(m.modifyAt(2, 2, { ifNew: () => 2 })).toBe(m);
-			expect(m.modifyAt(1, 1, { ifExists: (v) => v + 1 })).toEqual(
+			expect(m.modifyAt(2, 2, { ifNew: { set: 2 } })).toBe(m);
+			expect(m.modifyAt(2, 2, { ifNew: { create: () => 2 } })).toBe(m);
+			expect(m.modifyAt(1, 1, { ifExists: { update: (v) => v + 1 } })).toEqual(
 				context.of([1, 1, 2], [2, 2, 2], [2, 0, 0], [3, 3, 3]),
 			);
-			expect(m.modifyAt(1, 2, { ifExists: (v) => v + 1 })).toEqual(m);
-			expect(m.modifyAt(2, 1, { ifExists: (v) => v + 1 })).toEqual(m);
-			expect(m.modifyAt(2, 2, { ifExists: (_, remove) => remove })).toEqual(
-				context.of([1, 1, 1], [2, 0, 0], [3, 3, 3]),
+			expect(m.modifyAt(1, 2, { ifExists: { update: (v) => v + 1 } })).toEqual(
+				m,
 			);
-			expect(m.modifyAt(4, 4, { ifNew: 4 })).toEqual(
+			expect(m.modifyAt(2, 1, { ifExists: { update: (v) => v + 1 } })).toEqual(
+				m,
+			);
+			expect(
+				m.modifyAt(2, 2, { ifExists: { update: (_, remove) => remove } }),
+			).toEqual(context.of([1, 1, 1], [2, 0, 0], [3, 3, 3]));
+			expect(m.modifyAt(4, 4, { ifNew: { set: 4 } })).toEqual(
 				context.of([1, 1, 1], [2, 2, 2], [2, 0, 0], [3, 3, 3], [4, 4, 4]),
 			);
-			expect(m.modifyAt(4, 4, { ifNew: () => 4 })).toEqual(
+			expect(m.modifyAt(4, 4, { ifNew: { create: () => 4 } })).toEqual(
 				context.of([1, 1, 1], [2, 2, 2], [2, 0, 0], [3, 3, 3], [4, 4, 4]),
 			);
-			expect(m.modifyAt(4, 4, { ifExists: (v) => v + 1 })).toBe(m);
-			expect(m.modifyAt(4, 4, { ifExists: (_, remove) => remove })).toBe(m);
+			expect(m.modifyAt(4, 4, { ifExists: { update: (v) => v + 1 } })).toBe(m);
+			expect(
+				m.modifyAt(4, 4, { ifExists: { update: (_, remove) => remove } }),
+			).toBe(m);
 			expect(
 				context
 					.of([1, 1, 1])
-					.modifyAt(1, 1, { ifExists: (_, remove) => remove }),
+					.modifyAt(1, 1, { ifExists: { update: (_, remove) => remove } }),
 			).toBe(context.empty());
 		});
 
@@ -339,13 +345,13 @@ export function runTableRandomTestsWith(
 				context.empty<number, number, number>().updateAt(1, 1, (v) => v + 1),
 			).toBe(context.empty());
 			const m = context.of([1, 1, 1], [2, 2, 2], [2, 0, 0], [3, 3, 3]);
-			expect(m.updateAt(2, 2, 3)).toEqual(
+			expect(m.updateAt(2, 2, () => 3)).toEqual(
 				context.of([1, 1, 1], [2, 2, 3], [2, 0, 0], [3, 3, 3]),
 			);
 			expect(m.updateAt(2, 2, (v) => v + 1)).toEqual(
 				context.of([1, 1, 1], [2, 2, 3], [2, 0, 0], [3, 3, 3]),
 			);
-			expect(m.updateAt(4, 4, 3)).toBe(m);
+			expect(m.updateAt(4, 4, () => 3)).toBe(m);
 		});
 
 		it('stream', (): void => {
@@ -445,7 +451,10 @@ export function runTableRandomTestsWith(
 
 			expect((): void => {
 				b.forEach((): void => {
-					b.modifyAt(1, 1, { ifNew: 1, ifExists: () => 1 });
+					b.modifyAt(1, 1, {
+						ifNew: { set: 1 },
+						ifExists: { update: () => 1 },
+					});
 				});
 			}).toThrow();
 		});
@@ -472,19 +481,21 @@ export function runTableRandomTestsWith(
 			expect(b.size).toBe(0);
 
 			b = context.builder();
-			expect(b.modifyAt(1, 1, { ifNew: 1 })).toBe(true);
+			expect(b.modifyAt(1, 1, { ifNew: { set: 1 } })).toBe(true);
 			expect(b.get(1, 1, 'a')).toBe(1);
 
 			b = context.builder();
-			expect(b.modifyAt(1, 1, { ifNew: () => 1 })).toBe(true);
+			expect(b.modifyAt(1, 1, { ifNew: { create: () => 1 } })).toBe(true);
 			expect(b.get(1, 1, 'a')).toBe(1);
 
 			b = context.builder();
-			expect(b.modifyAt(1, 1, { ifExists: () => 1 })).toBe(false);
+			expect(b.modifyAt(1, 1, { ifExists: { update: () => 1 } })).toBe(false);
 			expect(b.size).toBe(0);
 
 			b = context.builder();
-			expect(b.modifyAt(1, 1, { ifExists: (_, remove) => remove })).toBe(false);
+			expect(
+				b.modifyAt(1, 1, { ifExists: { update: (_, remove) => remove } }),
+			).toBe(false);
 			expect(b.size).toBe(0);
 
 			b = context.builder();
@@ -494,7 +505,7 @@ export function runTableRandomTestsWith(
 				[2, 0, 0],
 				[3, 3, 3],
 			).forEach((e) => b.set(...e));
-			expect(b.modifyAt(1, 1, { ifNew: 2 })).toBe(false);
+			expect(b.modifyAt(1, 1, { ifNew: { set: 2 } })).toBe(false);
 			expect(b.get(1, 1, 'a')).toBe(1);
 
 			b = context.builder();
@@ -504,7 +515,7 @@ export function runTableRandomTestsWith(
 				[2, 0, 0],
 				[3, 3, 3],
 			).forEach((e) => b.set(...e));
-			expect(b.modifyAt(1, 1, { ifNew: () => 2 })).toBe(false);
+			expect(b.modifyAt(1, 1, { ifNew: { create: () => 2 } })).toBe(false);
 			expect(b.get(1, 1, 'a')).toBe(1);
 
 			b = context.builder();
@@ -514,7 +525,9 @@ export function runTableRandomTestsWith(
 				[2, 0, 0],
 				[3, 3, 3],
 			).forEach((e) => b.set(...e));
-			expect(b.modifyAt(1, 1, { ifExists: (v) => v + 1 })).toBe(true);
+			expect(b.modifyAt(1, 1, { ifExists: { update: (v) => v + 1 } })).toBe(
+				true,
+			);
 			expect(b.get(1, 1, 'a')).toBe(2);
 
 			b = context.builder();
@@ -524,7 +537,9 @@ export function runTableRandomTestsWith(
 				[2, 0, 0],
 				[3, 3, 3],
 			).forEach((e) => b.set(...e));
-			expect(b.modifyAt(2, 2, { ifExists: (_, remove) => remove })).toBe(true);
+			expect(
+				b.modifyAt(2, 2, { ifExists: { update: (_, remove) => remove } }),
+			).toBe(true);
 			expect(b.get(2, 2, 'a')).toBe('a');
 
 			b = context.builder();
@@ -534,7 +549,7 @@ export function runTableRandomTestsWith(
 				[2, 0, 0],
 				[3, 3, 3],
 			).forEach((e) => b.set(...e));
-			expect(b.modifyAt(4, 4, { ifNew: 4 })).toBe(true);
+			expect(b.modifyAt(4, 4, { ifNew: { set: 4 } })).toBe(true);
 			expect(b.get(4, 4, 'a')).toBe(4);
 
 			b = context.builder();
@@ -544,7 +559,7 @@ export function runTableRandomTestsWith(
 				[2, 0, 0],
 				[3, 3, 3],
 			).forEach((e) => b.set(...e));
-			expect(b.modifyAt(4, 4, { ifNew: () => 4 })).toBe(true);
+			expect(b.modifyAt(4, 4, { ifNew: { create: () => 4 } })).toBe(true);
 			expect(b.get(4, 4, 'a')).toBe(4);
 
 			b = context.builder();
@@ -554,7 +569,9 @@ export function runTableRandomTestsWith(
 				[2, 0, 0],
 				[3, 3, 3],
 			).forEach((e) => b.set(...e));
-			expect(b.modifyAt(4, 4, { ifExists: (v) => v + 1 })).toBe(false);
+			expect(b.modifyAt(4, 4, { ifExists: { update: (v) => v + 1 } })).toBe(
+				false,
+			);
 			expect(b.get(4, 4, 'a')).toBe('a');
 
 			b = context.builder();
@@ -564,7 +581,9 @@ export function runTableRandomTestsWith(
 				[2, 0, 0],
 				[3, 3, 3],
 			).forEach((e) => b.set(...e));
-			expect(b.modifyAt(4, 4, { ifExists: (_, remove) => remove })).toBe(false);
+			expect(
+				b.modifyAt(4, 4, { ifExists: { update: (_, remove) => remove } }),
+			).toBe(false);
 			expect(b.get(4, 4, 'a')).toBe('a');
 		});
 
@@ -603,7 +622,7 @@ export function runTableRandomTestsWith(
 				[2, 0, 0],
 				[3, 3, 3],
 			).forEach((e) => b.set(...e));
-			expect(b.updateAt(2, 2, 3)).toBe(2);
+			expect(b.updateAt(2, 2, () => 3)).toBe(2);
 			expect(b.build()).toEqual(
 				context.of([1, 1, 1], [2, 2, 3], [2, 0, 0], [3, 3, 3]),
 			);
@@ -627,8 +646,8 @@ export function runTableRandomTestsWith(
 				[2, 0, 0],
 				[3, 3, 3],
 			).forEach((e) => b.set(...e));
-			expect(b.updateAt(4, 4, 3)).toBe(undefined);
-			expect(b.updateAt(4, 4, 3, 'a')).toBe('a');
+			expect(b.updateAt(4, 4, () => 3)).toBe(undefined);
+			expect(b.updateAt(4, 4, () => 3, 'a')).toBe('a');
 			expect(b.build()).toEqual(
 				context.of([1, 1, 1], [2, 2, 2], [2, 0, 0], [3, 3, 3]),
 			);
@@ -640,7 +659,7 @@ export function runTableRandomTestsWith(
 				[2, 0, 0],
 				[3, 3, 3],
 			).forEach((e) => b.set(...e));
-			expect(b.updateAt(2, 2, 2)).toBe(2);
+			expect(b.updateAt(2, 2, () => 2)).toBe(2);
 			expect(b.build()).toEqual(
 				context.of([1, 1, 1], [2, 2, 2], [2, 0, 0], [3, 3, 3]),
 			);

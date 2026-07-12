@@ -10,10 +10,12 @@ import type {
 
 import * as Arr from '@rimbu/base/arr';
 import * as RimbuError from '@rimbu/base/rimbu-error';
-import { Token } from '@rimbu/base/token';
-import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
+import {
+	checkEmptyModifyOptions,
+	type ModifyOptions,
+} from '@rimbu/collection-types/common';
+import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
-import { Update } from '@rimbu/common/update';
 import { List } from '@rimbu/list';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
@@ -214,13 +216,13 @@ export class HashMapBlockBuilder<K, V>
 
 	modifyAt = (
 		key: K,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: ((currentValue: V, remove: Token) => V | Token) | V;
-		},
+		options: ModifyOptions<V>,
 		keyHash = this.context.hash(key),
 	): boolean => {
 		this.checkLock();
+
+		if (checkEmptyModifyOptions(options)) return false;
+		const { ifNew, ifExists } = options;
 
 		const keyIndex = this.context.getKeyIndex(this.level, keyHash);
 
@@ -232,12 +234,11 @@ export class HashMapBlockBuilder<K, V>
 
 			if (this.context.eq(key, currentKey)) {
 				// exact match
-				if (undefined === options.ifExists) return false;
-
+				if (undefined === ifExists) return false;
+				const { set, update } = ifExists;
+				const token = Symbol();
 				const newValue =
-					options.ifExists instanceof Function
-						? options.ifExists(currentValue, Token)
-						: options.ifExists;
+					update !== undefined ? update(currentValue, token) : set!;
 
 				if (Object.is(newValue, currentValue)) {
 					return false;
@@ -245,7 +246,7 @@ export class HashMapBlockBuilder<K, V>
 
 				this.source = undefined;
 
-				if (Token === newValue) {
+				if (token === newValue) {
 					this.size--;
 					delete this.entries[keyIndex];
 					return true;
@@ -257,12 +258,15 @@ export class HashMapBlockBuilder<K, V>
 				return true;
 			}
 
-			if (undefined === options.ifNew) return false;
+			if (undefined === ifNew) return false;
+
+			const { set, create } = ifNew;
 
 			// no match, replace entry with entryset containing both entries
-			const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
+			const token = Symbol();
+			const newValue = create !== undefined ? create(token) : set;
 
-			if (Token === newValue) return false;
+			if (token === newValue) return false;
 
 			this.source = undefined;
 
@@ -318,30 +322,38 @@ export class HashMapBlockBuilder<K, V>
 			return true;
 		}
 
-		if (undefined === options.ifNew) return false;
+		if (undefined === ifNew) return false;
+
+		const { set, create } = ifNew;
 
 		// no matching entry or entrySet
-		const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
+		const token = Symbol();
+		const newValue = create !== undefined ? create(token) : set;
 
-		if (Token === newValue) return false;
+		if (token === newValue) return false;
 
 		this.source = undefined;
-
 		this.size++;
-
 		this.entries[keyIndex] = [key, newValue];
+
 		return true;
 	};
 
-	updateAt = <O>(key: K, update: Update<V>, otherwise?: OptLazy<O>): V | O => {
+	updateAt = <O>(
+		key: K,
+		update: (value: V) => V,
+		otherwise?: OptLazy<O>,
+	): V | O => {
 		let result: V;
 		let found = false;
 
 		this.modifyAt(key, {
-			ifExists: (value): V => {
-				result = value;
-				found = true;
-				return Update(value, update);
+			ifExists: {
+				update: (value): V => {
+					result = value;
+					found = true;
+					return update(value);
+				},
 			},
 		});
 
@@ -359,10 +371,12 @@ export class HashMapBlockBuilder<K, V>
 		let found = false;
 
 		this.modifyAt(key, {
-			ifExists: (currentValue, remove): typeof remove => {
-				removedValue = currentValue;
-				found = true;
-				return remove;
+			ifExists: {
+				update: (currentValue, remove) => {
+					removedValue = currentValue;
+					found = true;
+					return remove;
+				},
 			},
 		});
 
@@ -516,13 +530,10 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
 		return this.addEntryInternal([key, value]);
 	}
 
-	modifyAt(
-		atKey: K,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: ((currentEntry: V, remove: Token) => V | Token) | V;
-		},
-	): boolean {
+	modifyAt(atKey: K, options: ModifyOptions<V>): boolean {
+		if (checkEmptyModifyOptions(options)) return false;
+		const { ifNew, ifExists } = options;
+
 		let index = -1;
 		let foundEntry: readonly [K, V] | undefined;
 
@@ -535,36 +546,34 @@ export class HashMapCollisionBuilder<K, V> extends CollisionBuilderBase<
 		});
 
 		if (undefined === foundEntry) {
-			if (undefined === options.ifNew) return false;
+			if (undefined === ifNew) return false;
 
-			const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
+			const { set, create } = ifNew;
+			const token = Symbol();
+			const newValue = create !== undefined ? create(token) : set;
 
-			if (Token === newValue) return false;
+			if (token === newValue) return false;
 
 			this.source = undefined;
-
 			this.entries.append([atKey, newValue]);
 
 			return true;
 		}
 
-		if (undefined === options.ifExists) return false;
+		if (undefined === ifExists) return false;
 
-		const newValue =
-			options.ifExists instanceof Function
-				? options.ifExists(foundEntry[1], Token)
-				: options.ifExists;
+		const { set, update } = ifExists;
+		const token = Symbol();
+		const newValue = update !== undefined ? update(foundEntry[1], token) : set;
 
 		if (Object.is(newValue, foundEntry[1])) return false;
-
-		if (Token === newValue) {
+		if (token === newValue) {
 			this.source = undefined;
 			this.entries.remove(index);
 			return true;
 		}
 
 		const result = this.entries.set(index, [atKey, newValue as V]);
-
 		const changed = undefined !== result;
 
 		if (changed) this.source = undefined;

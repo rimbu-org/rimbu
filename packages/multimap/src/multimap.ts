@@ -1,5 +1,5 @@
 import type { RMap, RSet } from '@rimbu/collection-types';
-import type { Streamable } from '@rimbu/stream';
+import type { Streamable, StreamSource } from '@rimbu/stream';
 
 import type { MultiMapCreators } from '#multimap/creators';
 import type { MultiMapBase } from '#multimap/types';
@@ -55,6 +55,18 @@ export namespace MultiMap {
 		readonly context: MultiMap.Context<this['_K'], this['_V']>;
 		readonly builder: MultiMap.Builder<this['_K'], this['_V']>;
 	}
+
+	export type ModifyOptions<
+		V,
+		VS extends RSet.NonEmpty<V> = RSet.NonEmpty<V>,
+	> = {
+		ifNew?:
+			| { set: StreamSource<V>; create?: never }
+			| { set?: never; create: () => StreamSource<V> };
+		ifExists?:
+			| { set: StreamSource<V>; update?: never }
+			| { set?: never; update: (currentValues: VS) => StreamSource<V> };
+	};
 }
 
 /**

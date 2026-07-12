@@ -6,8 +6,11 @@ import type { ValuedGraphContextImpl } from '#graph/valued/context-factory';
 import type { ValuedGraphBase } from '#private/valued/base';
 import type { ValuedGraph } from '#private/valued/valued-graph';
 
-import { Token } from '@rimbu/base/token';
-import { OptLazy, OptLazyOr } from '@rimbu/common/opt-lazy';
+import {
+	checkEmptyModifyOptions,
+	type ModifyOptions,
+} from '@rimbu/collection-types/common';
+import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
 import { GraphEmptyBase } from '#graph/common/base';
@@ -84,19 +87,17 @@ export class ValuedGraphEmpty<N, V>
 		return this.context.from(links);
 	}
 
-	modifyAt(
-		node1: N,
-		node2: N,
-		options: {
-			ifNew?: OptLazyOr<V, Token>;
-			ifExists?: (value: V, remove: Token) => V | Token;
-		},
-	): ValuedGraph<N, V> {
-		if (undefined === options.ifNew) return this;
+	modifyAt(node1: N, node2: N, options: ModifyOptions<V>): ValuedGraph<N, V> {
+		if (checkEmptyModifyOptions(options)) return this;
 
-		const newValue = OptLazyOr<V, Token>(options.ifNew, Token);
+		const { ifNew } = options;
+		if (undefined === ifNew) return this;
 
-		if (Token === newValue) return this;
+		const { set, create } = ifNew;
+		const token = Symbol();
+		const newValue = undefined !== create ? create(token) : set;
+
+		if (token === newValue) return this;
 
 		return this.connect(node1, node2, newValue);
 	}

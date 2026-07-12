@@ -5,7 +5,6 @@ import type {
 	VariantSet,
 } from '@rimbu/collection-types';
 import type { KeyValue, WithKeyValue } from '@rimbu/collection-types/common';
-import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type {
@@ -15,6 +14,7 @@ import type {
 	StreamSource,
 } from '@rimbu/stream';
 import type { Reducer } from '@rimbu/stream/reducer';
+import type { MultiMap } from '../multimap';
 
 export interface VariantMultiMapBase<
 	K,
@@ -469,14 +469,10 @@ export interface MultiMapBase<
 	 */
 	modifyAt(
 		atKey: K,
-		options: {
-			ifNew?: OptLazy<StreamSource<V>>;
-			ifExists?:
-				| ((
-						currentValues: WithKeyValue<Tp, K, V>['keyMapValuesNonEmpty'],
-				  ) => StreamSource<V>)
-				| StreamSource<V>;
-		},
+		options: MultiMap.ModifyOptions<
+			V,
+			WithKeyValue<Tp, K, V>['keyMapValuesNonEmpty'] & RSet.NonEmpty<V>
+		>,
 	): WithKeyValue<Tp, K, V>['normal'];
 	/**
 	 * Returns a builder object containing the entries of this collection.
