@@ -28,10 +28,16 @@ src/
 ## Package imports (`#` paths)
 
 ```jsonc
-"#sorted/*": "./dist/internal/sorted/*.{js,d.ts}"
-"#map/*":    "./dist/internal/map/*.{js,d.ts}"
-"#set/*":    "./dist/internal/set/*.{js,d.ts}"
+"#sorted/*": "./src/internal/sorted/*.{ts}"
+"#map/*":    "./src/internal/map/*.{ts}"
+"#set/*":    "./src/internal/set/*.{ts}"
 ```
+
+These aliases are safe because the shared `set-standard` test util in
+`@rimbu/collection-types` is dependency-free: it never imports a concrete collection from
+another package (e.g. `@rimbu/hashed`), so running this package's tests cannot pull another
+package's internal `#set/*` import into this graph. Each package passes its own `foreignContext`
+to `runSetTestsWith` for the cross-implementation `from` test.
 
 ## B-tree structure
 

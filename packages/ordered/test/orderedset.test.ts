@@ -5,8 +5,10 @@ import { runSetTestsWith } from '@rimbu/collection-types/test-utils/set/set-stan
 runSetTestsWith(
 	'OrderedHashSet default',
 	OrderedHashSet.defaultContext<number>(),
+	OrderedSortedSet.defaultContext<number>(),
 );
 runSetTestsWith(
 	'OrderedSortedSet default',
 	OrderedSortedSet.defaultContext<number>(),
+	OrderedHashSet.defaultContext<number>(),
 );

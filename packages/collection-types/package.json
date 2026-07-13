@@ -71,8 +71,5 @@
 	"publishConfig": {
 		"access": "public",
 		"provenance": true
-	},
-	"devDependencies": {
-		"@rimbu/hashed": "workspace:*"
 	}
 }

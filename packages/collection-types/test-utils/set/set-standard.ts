@@ -2,7 +2,6 @@ import { describe, expect, it } from 'bun:test';
 
 import type { RSet } from '@rimbu/collection-types';
 
-import { HashSet } from '@rimbu/hashed/set';
 import { Stream } from '@rimbu/stream';
 
 function expectEqual(set: RSet<number>, arr: number[]): void {
@@ -15,6 +14,7 @@ const arr6 = [1, 3, 2, 4, 6, 5];
 export function runSetTestsWith(
 	name: string,
 	context: RSet.Context<any>,
+	foreignContext: RSet.Context<any>,
 ): void {
 	const S = context;
 
@@ -39,8 +39,7 @@ export function runSetTestsWith(
 			}
 
 			{
-				const c = HashSet.createContext();
-				const s = c.from(arr3);
+				const s = foreignContext.from(arr3);
 				expect(S.from(s)).not.toBe(s);
 			}
 		});

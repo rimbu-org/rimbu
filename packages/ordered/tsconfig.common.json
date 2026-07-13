@@ -7,9 +7,7 @@
 			"@rimbu/collection-types/*": [
 				"../collection-types/*.ts",
 				"../collection-types/*"
-			],
-			"#map/*": ["./src/internal/map/*.ts"],
-			"#set/*": ["./src/internal/set/*.ts"]
+			]
 		}
 	}
 }
