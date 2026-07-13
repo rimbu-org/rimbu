@@ -65,6 +65,12 @@ export class MultiMapEmpty<K, V>
 		return this.context.from(entries);
 	}
 
+	transform<K2 extends K, V2 extends V>(
+		transformFun: (stream: Stream<[K, V]>) => StreamSource<[K2, V2]>,
+	): any {
+		return this.context.from(transformFun(Stream.empty()));
+	}
+
 	getValues(): RSet<V> {
 		return this.context.keyMapValuesContext.empty();
 	}
@@ -185,6 +191,12 @@ export class MultiMapNonEmpty<K, V>
 		return this.keyMap
 			.streamValues()
 			.flatMap((values): Stream.NonEmpty<V> => values.stream());
+	}
+
+	transform<K2 extends K, V2 extends V>(
+		transformFun: (stream: Stream.NonEmpty<[K, V]>) => StreamSource<[K2, V2]>,
+	): any {
+		return this.context.from(transformFun(this.stream()));
 	}
 
 	get keySize(): number {

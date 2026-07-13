@@ -124,6 +124,10 @@ export class ListEmpty<T> extends EmptyBase implements ListImpl<T> {
 		return this;
 	}
 
+	transform<T2>(transformFun: (stream: Stream<T>) => StreamSource<T2>): any {
+		return this.context.from(transformFun(Stream.empty()));
+	}
+
 	reversed(): this {
 		return this;
 	}

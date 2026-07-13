@@ -149,6 +149,12 @@ export abstract class OuterBase<T>
 		return result;
 	}
 
+	transform<T2>(
+		transformFun: (stream: Stream.NonEmpty<T>) => StreamSource<T2>,
+	): any {
+		return this.context.from(transformFun(this.stream()));
+	}
+
 	slice(range: IndexRange, options: { reversed?: boolean } = {}): ListImpl<T> {
 		const { reversed = false } = options;
 

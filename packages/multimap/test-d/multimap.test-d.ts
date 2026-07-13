@@ -112,6 +112,42 @@ expectTypeOf(varNonEmpty.filter(() => true)).toEqualTypeOf<V_Empty>();
 expectTypeOf(genEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.filter(() => true)).toEqualTypeOf<G_Empty>();
 
+// .transform(..)
+// Normal overload: a plain StreamSource result yields a (possibly empty) collection.
+const tVarEmpty: V_Empty = varEmpty.transform((s) =>
+	s.map(([k, v]) => [k, v] as [number, string]),
+);
+const tVarNonEmpty: V_Empty = varNonEmpty.transform((s) =>
+	s.map(([k, v]) => [k, v] as [number, string]),
+);
+const tGenEmpty: G_Empty = genEmpty.transform((s) =>
+	s.map(([k, v]) => [k, v] as [number, string]),
+);
+const tGenNonEmpty: G_Empty = genNonEmpty.transform((s) =>
+	s.map(([k, v]) => [k, v] as [number, string]),
+);
+// The NonEmpty overload must be declared FIRST: when transformFun returns a
+// StreamSource.NonEmpty, TypeScript must select it so the result keeps its
+// NonEmpty type. If the overloads are reordered, these assignments fail to
+// compile (the result would be the possibly-empty G_Empty instead).
+const tGenNonEmptyNE: G_NonEmpty = genNonEmpty.transform((s) =>
+	s.map(([k, v]) => [k, v] as [number, string]).assumeNonEmpty(),
+);
+const tGenNonEmptyStreamNE: G_NonEmpty = genNonEmpty.transform((s) =>
+	s.assumeNonEmpty(),
+);
+
+void [
+	tVarEmpty,
+	tVarNonEmpty,
+	tGenEmpty,
+	tGenNonEmpty,
+	tGenNonEmptyNE,
+	tGenNonEmptyStreamNE,
+];
+
+
+
 // .getValues(..)
 expectTypeOf(genEmpty.getValues(1)).toEqualTypeOf<RSet<string>>();
 expectTypeOf(genNonEmpty.getValues(1)).toEqualTypeOf<RSet<string>>();

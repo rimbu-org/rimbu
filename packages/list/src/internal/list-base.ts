@@ -502,6 +502,25 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 		},
 	): WithElem<Tp, T2>['normal'];
 	/**
+	 * Returns a List that is the result of applying given `transformFun` to the `Stream` of all values of this List.
+	 *
+	 * This is a general-purpose transformation method: `transformFun` receives the values of this List as a `Stream`,
+	 * and can apply any `Stream` operation such as `map`, `flatMap`, `filter`, `partition`, or `collect`
+	 * to produce the resulting values. The returned `StreamSource` is used to build a new List in the same context.
+	 * @typeparam T2 - the value type of the resulting List
+	 * @param transformFun - a function that receives the `Stream` of values of this List, and returns a `StreamSource` of resulting values
+	 * @example
+	 * ```ts
+	 * List.of(1, 2, 3).transform(s => s.map(v => v * 2)).toArray()
+	 * // => [2, 4, 6]
+	 * ```
+	 * @note because the resulting List is built in the same context, `T2` must be a subtype of `T`. To transform to an
+	 * unrelated value type, build a new List explicitly, for example `List.from(stream.map(...))`.
+	 */
+	transform<T2 extends T>(
+		transformFun: (stream: Stream<T>) => StreamSource<T2>,
+	): WithElem<Tp, T2>['normal'];
+	/**
 	 * Returns a List containing only those values within optionally given `range` that satisfy given `pred` predicate.
 	 * If `reversed` is true, the order of the values is reversed.
 	 * @param pred - a predicate function receiving<br/>
@@ -840,6 +859,30 @@ export namespace ListBase {
 		flatMap<T2>(
 			flatMapFun: (value: T, index: number) => StreamSource<T2>,
 			options?: { range?: IndexRange; reversed?: boolean },
+		): WithElem<Tp, T2>['normal'];
+		/**
+		 * Returns a List that is the result of applying given `transformFun` to the `Stream` of all values of this List.
+		 *
+		 * This is a general-purpose transformation method: `transformFun` receives the values of this List as a non-empty `Stream`,
+		 * and can apply any `Stream` operation such as `map`, `flatMap`, `filter`, `partition`, or `collect`
+		 * to produce the resulting values. The returned `StreamSource` is used to build a new List in the same context.
+		 * @typeparam T2 - the value type of the resulting List
+		 * @param transformFun - a function that receives the non-empty `Stream` of values of this List, and returns a `StreamSource` of resulting values
+		 * @example
+		 * ```ts
+		 * List.of(1, 2, 3).transform(s => s.map(v => v * 2)).toArray()
+		 * // => [2, 4, 6]
+		 * ```
+		 * @note because the resulting List is built in the same context, `T2` must be a subtype of `T`. To transform to an
+		 * unrelated value type, build a new List explicitly, for example `List.from(stream.map(...))`.
+		 */
+		transform<T2 extends T>(
+			transformFun: (
+				stream: Stream.NonEmpty<T>,
+			) => StreamSource.NonEmpty<T2>,
+		): WithElem<Tp, T2>['nonEmpty'];
+		transform<T2 extends T>(
+			transformFun: (stream: Stream.NonEmpty<T>) => StreamSource<T2>,
 		): WithElem<Tp, T2>['normal'];
 		/**
 		 * Returns a non-empty List that contains this List the given `amount` of times.

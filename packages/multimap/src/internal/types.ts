@@ -263,6 +263,26 @@ export interface VariantMultiMapBase<
 		options?: { negate?: boolean },
 	): WithKeyValue<Tp, K, V>['normal'];
 	/**
+	 * Returns a collection that is the result of applying given `transformFun` to the `Stream` of all entries of this collection.
+	 *
+	 * This is a general-purpose transformation method: `transformFun` receives the entries of this collection as a `Stream` of
+	 * `[key, value]` tuples, and can apply any `Stream` operation such as `map`, `flatMap`, `filter`, `partition`, or `collect`
+	 * to produce the resulting entries. The returned `StreamSource` is used to build a new collection in the same context.
+	 * @typeparam V2 - the value type of the resulting collection
+	 * @typeparam K2 - the key type of the resulting collection, a subtype of `K`
+	 * @param transformFun - a function that receives the `Stream` of entries of this collection, and returns a `StreamSource` of resulting entries
+	 * @example
+	 * ```ts
+	 * HashMultiMapHashValue.of([1, 'a'], [2, 'b']).transform(s => s.map(([k, v]) => [k, v.toUpperCase()])).toArray()
+	 * // => [[1, 'A'], [2, 'B']]
+	 * ```
+	 * @note because the resulting collection is built in the same context, `K2` must be a subtype of `K` and `V2` a subtype of `V`.
+	 * To transform to unrelated key or value types, build a new collection explicitly, for example `HashMultiMapHashValue.from(stream.map(...))`.
+	 */
+	transform<K2 extends K, V2 extends V>(
+		transformFun: (stream: Stream<[K, V]>) => StreamSource<[K2, V2]>,
+	): WithKeyValue<Tp, K2, V2>['normal'];
+	/**
 	 * Returns an array containing all entries in this collection.
 	 * @example
 	 * ```ts
@@ -349,6 +369,33 @@ export namespace VariantMultiMapBase {
 		 * ```
 		 */
 		stream(): Stream.NonEmpty<[K, V]>;
+		/**
+		 * Returns a collection that is the result of applying given `transformFun` to the `Stream` of all entries of this collection.
+		 *
+		 * This is a general-purpose transformation method: `transformFun` receives the entries of this collection as a non-empty `Stream` of
+		 * `[key, value]` tuples, and can apply any `Stream` operation such as `map`, `flatMap`, `filter`, `partition`, or `collect`
+		 * to produce the resulting entries. The returned `StreamSource` is used to build a new collection in the same context.
+		 * @typeparam V2 - the value type of the resulting collection
+		 * @typeparam K2 - the key type of the resulting collection, a subtype of `K`
+		 * @param transformFun - a function that receives the non-empty `Stream` of entries of this collection, and returns a `StreamSource` of resulting entries
+		 * @example
+		 * ```ts
+		 * HashMultiMapHashValue.of([1, 'a'], [2, 'b']).transform(s => s.map(([k, v]) => [k, v.toUpperCase()])).toArray()
+		 * // => [[1, 'A'], [2, 'B']]
+		 * ```
+		 * @note because the resulting collection is built in the same context, `K2` must be a subtype of `K` and `V2` a subtype of `V`.
+		 * To transform to unrelated key or value types, build a new collection explicitly, for example `HashMultiMapHashValue.from(stream.map(...))`.
+		 */
+		transform<K2 extends K, V2 extends V>(
+			transformFun: (
+				stream: Stream.NonEmpty<[K, V]>,
+			) => StreamSource.NonEmpty<[K2, V2]>,
+		): WithKeyValue<Tp, K2, V2>['nonEmpty'];
+		transform<K2 extends K, V2 extends V>(
+			transformFun: (
+				stream: Stream.NonEmpty<[K, V]>,
+			) => StreamSource<[K2, V2]>,
+		): WithKeyValue<Tp, K2, V2>['normal'];
 		/**
 		 * Returns a non-empty Stream containing all keys of this collection.
 		 * @example

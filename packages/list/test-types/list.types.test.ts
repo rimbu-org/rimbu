@@ -270,6 +270,25 @@ expectTypeOf(List.empty<number>().toBuilder()).toEqualTypeOf<
 >();
 expectTypeOf(List.of(1).toBuilder()).toEqualTypeOf<List.Builder<number>>();
 
+// .transform(..)
+// Normal overload: a plain StreamSource result yields a (possibly empty) List.
+const tEmpty: List<number> = List.empty<number>().transform((s) =>
+	s.map((v) => v * 2),
+);
+const tNonEmpty: List<number> = List.of(1).transform((s) =>
+	s.map((v) => v * 2),
+);
+// The NonEmpty overload must be declared FIRST: when transformFun returns a
+// StreamSource.NonEmpty, TypeScript must select it so the result keeps its
+// NonEmpty type. If the overloads are reordered, this fails to compile (the
+// result would be the possibly-empty List<number> instead).
+const tNonEmptyNE: List.NonEmpty<number> = List.of(1).transform((s) =>
+	s.map((v) => v * 2).assumeNonEmpty(),
+);
+
+void [tEmpty, tNonEmpty, tNonEmptyNE];
+
+
 // .unzip(..)
 try {
 	// @ts-expect-error

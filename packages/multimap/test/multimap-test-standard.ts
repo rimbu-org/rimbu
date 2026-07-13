@@ -189,6 +189,51 @@ export function runMultiMapTestsWith(
 			expect(map6_1.filter(first2).size).toBe(2);
 		});
 
+		it('transform', () => {
+			expect(
+				mapEmpty.transform((s) =>
+					s.map(([k, v]) => [k, v] as [number, string]),
+				),
+			).toBe(mapEmpty);
+			expectEqual(
+				map3_1.transform((s) =>
+					s.map(([k, v]) => [k, v.toUpperCase()] as [number, string]),
+				),
+				[
+					[1, 'A'],
+					[2, 'B'],
+					[3, 'C'],
+				],
+			);
+			expectEqual(
+				map6_1.transform((s) => s.filter(([k]) => k % 2 === 0)),
+				[
+					[2, 'b'],
+					[4, 'd'],
+					[6, 'f'],
+				],
+			);
+			expectEqual(
+				map3_1.transform((s) =>
+					s.flatMap(
+						([k, v]) =>
+							[
+								[k, v],
+								[k, `${v}!`],
+							] as [number, string][],
+					),
+				),
+				[
+					[1, 'a'],
+					[1, 'a!'],
+					[2, 'b'],
+					[2, 'b!'],
+					[3, 'c'],
+					[3, 'c!'],
+				],
+			);
+		});
+
 		it('forEach', () => {
 			let result = new Set<number>();
 

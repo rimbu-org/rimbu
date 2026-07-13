@@ -1079,6 +1079,27 @@ describe('List methods', () => {
 		).toEqual([0, 3, 0, 3]);
 	});
 
+	it('transform', () => {
+		expect(listEmpty.transform((s) => s.map((v) => v * 2))).toBe(listEmpty);
+		expect(list3_1.transform((s) => s.map((v) => v * 2)).toArray()).toEqual([
+			2, 4, 6,
+		]);
+		expect(list3_1.transform((s) => s.map((v) => v * 2)).toArray()).toEqual(
+			list3_2.transform((s) => s.map((v) => v * 2)).toArray(),
+		);
+		expect(
+			list6_1.transform((s) => s.filter((v) => v % 2 === 0)).toArray(),
+		).toEqual([2, 4, 6]);
+		expect(
+			list6_1.transform((s) => s.flatMap((v) => [v, v])).toArray(),
+		).toEqual([1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6]);
+		expect(
+			List.of(1, 2, 3)
+				.transform((s) => s.prepend(0))
+				.toArray(),
+		).toEqual([0, 1, 2, 3]);
+	});
+
 	it('reversed', () => {
 		expect(listEmpty.reversed()).toBe(listEmpty);
 		expect(list3_1.reversed().toArray()).toEqual([3, 2, 1]);
