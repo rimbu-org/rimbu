@@ -3,8 +3,12 @@
 		"paths": {
 			"@rimbu/stream": ["./src/stream.ts"],
 			"@rimbu/stream/async": ["./src/async-stream.ts"],
-			"@rimbu/stream/async/internal/fast-iterator-base": ["./src/internal/async/fast-iterator-base.ts"],
-			"@rimbu/stream/async/internal/stream-base": ["./src/internal/async/stream-base.ts"],
+			"@rimbu/stream/async/internal/fast-iterator-base": [
+				"./src/internal/async/fast-iterator-base.ts"
+			],
+			"@rimbu/stream/async/internal/stream-base": [
+				"./src/internal/async/stream-base.ts"
+			],
 			"@rimbu/stream/*": ["./src/*.ts"],
 			"#async/*": ["./src/internal/async/*.ts"],
 			"#stream/*": ["./src/internal/*.ts"],

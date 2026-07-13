@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"rootDir": ".",
 		"paths": {
-			"@rimbu/base/*": ["./*.ts"]
+			"@rimbu/base/*": ["./src/*.ts"]
 		}
 	}
 }

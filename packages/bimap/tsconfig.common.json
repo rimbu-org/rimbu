@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
 		"paths": {
-			"@rimbu/bimap": ["./bimap.ts"],
-			"#bimap/*": ["./internal/*.ts"]
+			"@rimbu/bimap": ["./src/bimap.ts"],
+			"#bimap/*": ["./src/internal/*.ts"]
 		}
 	}
 }

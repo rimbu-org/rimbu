@@ -492,7 +492,7 @@ Example: adding `mapValues<W>(f: (v: V) => W): HashMap<K, W>` to HashMap.
 
 10. **Run `bun install`** from the repo root to wire up the workspace.
 
-11. **Verify**: `bun run typecheck && bun run build && bun run test`
+11. **Verify**: `bun run typecheck && bun run build:seq && bun run test`
 
 ---
 
@@ -501,7 +501,7 @@ Example: adding `mapValues<W>(f: (v: V) => W): HashMap<K, W>` to HashMap.
 | Tool | Command | Purpose |
 |---|---|---|
 | Bun | `bun install` | Install dependencies |
-| TypeScript | `bun run build` | Compile to `dist/` — **run this first** |
+| TypeScript | `bun run build:seq` | Compile all packages to `dist/` — **run this first** |
 | TypeScript | `bun run typecheck` | Type-check (no emit) — run after build |
 | Biome | `bun run biome:check` | Lint + format check |
 | Biome | `bun run biome:fix` | Auto-fix lint + format |
@@ -510,7 +510,9 @@ Example: adding `mapValues<W>(f: (v: V) => W): HashMap<K, W>` to HashMap.
 | Changesets | `bun run version` | Apply changeset version bumps |
 | Changesets | `bun run release` | Full release: prerelease checks + publish |
 
-**Always run `bun run build` before `bun run typecheck` or `bun run test`.** The build catches emit-specific diagnostics that `--noEmit` suppresses (notably TS2731: implicit symbol-to-string coercion in template literals, introduced in TS 5.5). Running typecheck or tests against a stale `dist/` can produce misleading errors.
+**Always run `bun run build:seq` before `bun run typecheck` or `bun run test`.** The build catches emit-specific diagnostics that `--noEmit` suppresses (notably TS2731: implicit symbol-to-string coercion in template literals, introduced in TS 5.5). Running typecheck or tests against a stale `dist/` can produce misleading errors.
+
+**Use `build:seq`, never the per-package `build`.** Running `bun run build` (which build every workspace package in parallel) exhausts the container's CPU/memory limits and can hang or be killed. `build:seq` builds all packages sequentially with the same end result and stays within the container's resource constraints.
 
 ### Lint rules enforced by Biome
 
@@ -535,7 +537,7 @@ All packages share a single version (lockstep). Releasing:
 
 4. **Release**: Trigger the `Publish release to NPM` GitHub Actions workflow (manual dispatch). It will:
    - Run `bun prerelease` (typecheck + type tests + tests)
-   - Run `bun build`
+    - Run `bun build:seq`
    - Apply version bumps via `bunx changeset version`
    - Commit version bumps
    - Publish all packages via `bunx changeset publish` with OIDC provenance
@@ -545,3 +547,15 @@ All packages share a single version (lockstep). Releasing:
 ## 11. Pre-existing Known Issues
 
 All packages currently typecheck cleanly. There are no known pre-existing typecheck errors.
+
+---
+
+## 12. Shell and Sandbox Restrictions
+
+When running shell commands (via Bash or the build/test tooling), observe these sandbox rules:
+
+- **Never ask for permission** to run a shell command. Execute the needed command directly; do not prompt the user or wait for approval.
+- **Restrict file access to the repository and `/tmp`**. Never attempt to read, write, or traverse directories outside the repository root (`/workspace/rimbu-worktree`) and the `/tmp` scratch directory.
+  - Use the repository root for all project work.
+  - Use `/tmp/opencode` for any temporary files or external work that must live outside the repository.
+- Do not access home directories, system folders (`/etc`, `/usr`, etc.), or other users' data.

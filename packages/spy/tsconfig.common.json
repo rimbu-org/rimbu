@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
 		"paths": {
-			"@rimbu/spy": ["./spy.ts"]
+			"@rimbu/spy": ["./src/spy.ts"]
 		}
 	}
 }

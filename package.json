@@ -22,6 +22,7 @@
 		"biome:check": "bun --workspaces --if-present run biome:check",
 		"biome:fix": "bun --workspaces --if-present run biome:fix",
 		"build": "bun --workspaces --if-present run build",
+		"build:seq": "bun --sequential --workspaces --if-present run build",
 		"clean": "bun --workspaces --if-present run clean && rimraf node_modules",
 		"clean:build": "bun --workspaces --if-present run clean:build",
 		"commit": "git-cz",

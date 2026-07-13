@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
 		"paths": {
-			"@rimbu/core": ["./core.ts"],
-			"@rimbu/core/*": ["./*.ts"]
+			"@rimbu/core": ["./src/core.ts"],
+			"@rimbu/core/*": ["./src/*.ts"]
 		}
 	}
 }

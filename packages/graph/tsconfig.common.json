@@ -1,15 +1,15 @@
 {
 	"compilerOptions": {
 		"paths": {
-			"@rimbu/graph": ["./graph.ts"],
-			"@rimbu/graph/arrow-graph": ["./arrow-graph.ts"],
-			"@rimbu/graph/arrow-valued-graph": ["./arrow-valued-graph.ts"],
-			"@rimbu/graph/edge-graph": ["./edge-graph.ts"],
-			"@rimbu/graph/edge-valued-graph": ["./edge-valued-graph.ts"],
-			"@rimbu/graph/*": ["./*.ts"],
-			"#graph/*": ["./internal/*.ts"],
-			"#private/*": ["./internal/*.ts"],
-			"entry/*": ["./*.ts"]
+			"@rimbu/graph": ["./src/graph.ts"],
+			"@rimbu/graph/arrow-graph": ["./src/arrow-graph.ts"],
+			"@rimbu/graph/arrow-valued-graph": ["./src/arrow-valued-graph.ts"],
+			"@rimbu/graph/edge-graph": ["./src/edge-graph.ts"],
+			"@rimbu/graph/edge-valued-graph": ["./src/edge-valued-graph.ts"],
+			"@rimbu/graph/*": ["./src/*.ts"],
+			"#graph/*": ["./src/internal/*.ts"],
+			"#private/*": ["./src/internal/*.ts"],
+			"entry/*": ["./src/*.ts"]
 		}
 	}
 }

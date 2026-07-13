@@ -1,9 +1,9 @@
 {
 	"compilerOptions": {
 		"paths": {
-			"@rimbu/table": ["./table.ts"],
-			"@rimbu/table/*": ["./*.ts"],
-			"#table/*": ["./internal/*.ts"]
+			"@rimbu/table": ["./src/table.ts"],
+			"@rimbu/table/*": ["./src/*.ts"],
+			"#table/*": ["./src/internal/*.ts"]
 		}
 	}
 }

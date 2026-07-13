@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
 		"paths": {
-			"@rimbu/typical": ["./typical.ts"],
-			"#typical/*": ["./internal/*.ts"]
+			"@rimbu/typical": ["./src/typical.ts"],
+			"#typical/*": ["./src/internal/*.ts"]
 		}
 	}
 }

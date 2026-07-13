@@ -1,11 +1,11 @@
 {
 	"compilerOptions": {
 		"paths": {
-			"@rimbu/multiset": ["./multiset.ts"],
-			"@rimbu/multiset/hashed": ["./hashed.ts"],
-			"@rimbu/multiset/sorted": ["./sorted.ts"],
-			"@rimbu/multiset/*": ["./*.ts"],
-			"#multiset/*": ["./internal/*.ts"]
+			"@rimbu/multiset": ["./src/multiset.ts"],
+			"@rimbu/multiset/hashed": ["./src/hashed.ts"],
+			"@rimbu/multiset/sorted": ["./src/sorted.ts"],
+			"@rimbu/multiset/*": ["./src/*.ts"],
+			"#multiset/*": ["./src/internal/*.ts"]
 		}
 	}
 }
