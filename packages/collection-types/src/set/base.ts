@@ -117,7 +117,7 @@ export interface VariantSetBase<
 	 * @note if the predicate is a type guard, the return type is automatically inferred
 	 * @example
 	 * ```ts
-	 * HashSet.of(1, 2, 3).filter(value < 3).toArray()
+	 * HashSet.of(1, 2, 3).filter((value) => value < 3).toArray()
 	 * // => [1, 2]
 	 * ```
 	 */
@@ -217,7 +217,7 @@ export namespace VariantSetBase {
 		 */
 		readonly isEmpty: false;
 		/**
-		 * Returns true since this collection is know to be non-empty
+		 * Returns true since this collection is known to be non-empty
 		 * @example
 		 * ```ts
 		 * HashSet.of(1, 2, 3).nonEmpty()   // => true
@@ -312,7 +312,7 @@ export interface RSetBase<T, Tp extends RSetBase.Types = RSetBase.Types>
 	 * @param values - a `StreamSource` containing values to add
 	 * @example
 	 * ```ts
-	 * HashSet.of(1, 2, 3).addAll(10, 11).toArray()   // => [1, 2, 3, 10, 11]
+	 * HashSet.of(1, 2, 3).addAll([10, 11]).toArray()   // => [1, 2, 3, 10, 11]
 	 * ```
 	 */
 	addAll(values: StreamSource.NonEmpty<T>): WithElem<Tp, T>['nonEmpty'];
@@ -377,7 +377,7 @@ export namespace RSetBase {
 		 * @param values - a `StreamSource` containing values to add
 		 * @example
 		 * ```ts
-		 * HashSet.of(1, 2, 3).addAll(10, 11).toArray()   // => [1, 2, 3, 10, 11]
+		 * HashSet.of(1, 2, 3).addAll([10, 11]).toArray()   // => [1, 2, 3, 10, 11]
 		 * ```
 		 */
 		addAll(values: StreamSource<T>): WithElem<Tp, T>['nonEmpty'];
@@ -441,8 +441,8 @@ export namespace RSetBase {
 		 * @param source - (optional) an initial source of elements to append to
 		 * @example
 		 * ```ts
-		 * const someList = SortedSet.of(1, 2, 3);
-		 * const result = Stream.range({ start: 20, amount: 5 }).reduce(SortedSet.reducer(someList))
+		 * const someSet = HashSet.of(1, 2, 3);
+		 * const result = Stream.range({ start: 20, amount: 5 }).reduce(HashSet.reducer(someSet))
 		 * result.toArray()   // => [1, 2, 3, 20, 21, 22, 23, 24]
 		 * ```
 		 * @note uses an RSet builder under the hood. If the given `source` is a RSet in the same context, it will directly call `.toBuilder()`.
@@ -592,7 +592,7 @@ export namespace RSetBase {
 		 * @example
 		 * ```ts
 		 * const s = HashSet.of(1, 2, 3).toBuilder()
-		 * const s2: HashSet<number> = m.build()
+		 * const s2: HashSet<number> = s.build()
 		 * ```
 		 */
 		build(): WithElem<Tp, T>['normal'];

@@ -31,6 +31,14 @@ export namespace SlicePatch {
 		_ACTION_CREATOR_PARAMS: Parameters<this['_ACTION_HANDLER']>;
 	}
 
+	/**
+	 * Creates a new patch-based actor {@link Slice} whose action handlers return a
+	 * `Patch` describing the state change, applied via `@rimbu/deep/patch`.
+	 * @typeparam S - the slice state type
+	 * @typeparam LU - the action-handler definition
+	 * @param config - the slice configuration (name, initState, actions, includeActions)
+	 * @returns a {@link Slice} containing the reducer and action creators
+	 */
 	export const { create } = SliceConfig.configure<SlicePatch.Config>({
 		applyHandler: <S, A extends unknown[]>(
 			state: S,

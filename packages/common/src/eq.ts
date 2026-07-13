@@ -51,9 +51,9 @@ export namespace Eq {
 		 * @example
 		 * ```ts
 		 * const eq = Eq.dateEq()
-		 * console.log(eq(new Date(2020, 1, 1), new Date(2020, 1, 1))
+		 * console.log(eq(new Date(2020, 1, 1), new Date(2020, 1, 1)))
 		 * // => true
-		 * console.log(eq(new Date(2020, 1, 1), new Date(2020, 2, 1))
+		 * console.log(eq(new Date(2020, 1, 1), new Date(2020, 2, 1)))
 		 * // => false
 		 * ```
 		 * @returns an `Eq<Date>` comparing dates by value
@@ -134,7 +134,7 @@ export namespace Eq {
 		anyByToString: Eq<any>;
 
 		/**
-		 * Returns an Eq instance that considers values equal their JSON.stringify values are equal.
+		 * Returns an Eq instance that considers values equal when their JSON.stringify values are equal.
 		 * @returns an `Eq<any>` that compares values via `JSON.stringify`
 		 */
 		anyByJsonStringify(): Eq<any>;

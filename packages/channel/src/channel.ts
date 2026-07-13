@@ -56,6 +56,8 @@ export namespace Channel {
 		 * - signal: (optional) an abort signal to cancel receiving<br/>
 		 * - timeoutMs: (optional) amount of milliseconds to wait for received message<br/>
 		 * - recover: (optional) a function that can be supplied to recover from a channel error
+		 * @returns a `Promise` resolving to the next message `T`, or to the recover
+		 * return value `RT` when the `recover` overload is used
 		 */
 		receive<RT>(options: {
 			signal?: AbortSignal | undefined;
@@ -149,7 +151,10 @@ export namespace Channel {
 		 */
 		trySend(value: T): Channel.Error | undefined;
 		/**
-		 * Closes the channel. After a close, further send actions will throw.
+		 * Closes the channel. After closing, further `send` calls throw a
+		 * `ChannelError.ChannelClosedError`, and `receive` on an empty buffer rejects
+		 * with `ChannelExhaustedError`. Calling `close()` on an already-closed channel
+		 * also throws `ChannelError.ChannelClosedError`.
 		 */
 		close(): void;
 	}
@@ -210,6 +215,8 @@ export namespace Channel {
 		 * - signal: an abort signal that can be provided to abort waiting for a value<br/>
 		 * - timeoutMs: if none of the channels receives a value within the given amount of milliseconds, will throw<br/>
 		 * - recover: when given, catches any `Channel.Error` instance and allows returning a backup value
+		 * @returns a `Promise` resolving to the first received message (the union of the
+		 * channels' message types), or to the recover value if `recover` is given
 		 */
 		select: {
 			<CS extends Channel.Read<any>[], RT>(
@@ -249,6 +256,9 @@ export namespace Channel {
 		 * - signal: an AbortSignal that can be provided to abort waiting for a value<br/>
 		 * - timeoutMs: if none of the channels receives a value within the given amount of milliseconds, will throw<br/>
 		 * - recover: when given, catches any `Channel.Error` instance and allows returning a backup value
+		 * @returns a `Promise` resolving to the result of the handler for the first
+		 * channel that receives a value (the union of handler return types), or to the
+		 * recover value if `recover` is given
 		 */
 		selectCase: {
 			<

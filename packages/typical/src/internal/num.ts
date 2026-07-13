@@ -2,7 +2,7 @@ import type { StrNum, U } from '@rimbu/typical';
 
 /**
  * Returns the sum of given numbers.
- * @note due to compiler limitations, the maximum result and input numbers is 9999.
+ * @note due to compiler limitations, the maximum result and input numbers are 9999.
  * @example
  * ```ts
  * Add<13, 25> => 38
@@ -49,7 +49,7 @@ export type IsNegative<N extends number> = U.Not<IsNatural<N>>;
 /**
  * Returns the result of subtracting N2 from N1.
  * @note since only natural numbers are supported, a result that would be negative will be type never.
- * @note due to compiler limitations, the maximum result and input numbers is 9999.
+ * @note due to compiler limitations, the maximum result and input numbers are 9999.
  * @example
  * ```ts
  * Subtract<25, 13> => 12
@@ -174,11 +174,11 @@ export type NotEqual<N1 extends number, N2 extends number> = N1 extends N2
 
 /**
  * Returns true if the given first natural number is greater or equal than the second.
- * Returns never otherwise.
+ * Returns false otherwise.
  * @example
  * ```ts
  * GreaterThanOrEqual<15, 12> => true
- * GreaterThanOrEqual<15, 6> => never
+ * GreaterThanOrEqual<15, 6> => true
  * ```
  */
 export type GreaterThanOrEqual<N1 extends number, N2 extends number> = Subtract<

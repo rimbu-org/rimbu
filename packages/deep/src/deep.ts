@@ -37,6 +37,12 @@ export function protect<T>(source: T): Protected<T> {
  * @typeparam P - a Path in object type T
  * @param source - the object to select in
  * @param path - the path into the object
+ * @example
+ * ```ts
+ * const value = { a: { b: [{ c: 5 }] } }
+ * getAt(value, 'a.b[0].c')   // => 5
+ * getAt(value, 'a.b[0]')     // => { c: 5 }
+ * ```
  * @returns the selected value (type `Path.Result<T, P>`) or `undefined` if the path does not exist
  */
 export function getAt<T, P extends Path.Get<T>>(

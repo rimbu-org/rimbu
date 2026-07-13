@@ -25,7 +25,7 @@ Use it when you want:
 
 - a **single dependency** that gives you the full set of Rimbu core collections
 - a consistent, **fully typed** API for immutable data structures
-- both **direct imports** and a **creation “menu”** (`@rimbu/core/menu`) for concise, expressive code
+- **direct named imports** for concise, expressive code
 
 ---
 
@@ -67,11 +67,9 @@ For full documentation, see the [Rimbu Docs](https://rimbu.org) and the
 ## Feature Highlights
 
 - **All main collections in one place** – `List`, `Stream` / `AsyncStream`, `HashMap`, `SortedMap`, `HashSet`,
-  `SortedSet`, `BiMap`, `BiMultiMap`, `Table`, graphs, multimaps, multisets, and more.
+  `SortedSet`, `BiMap`, `BiMultiMap`, graphs, multimaps, multisets, and more.
 - **Immutable & persistent semantics** – structural sharing for efficient copies and diffs.
 - **Typed end‑to‑end** – works great in TypeScript, with rich generics and non‑empty refinements.
-- **Creation “menu”** – optional namespace‑style API via `@rimbu/core/menu` for expressive code like
-  `Rimbu.Map.Sorted.of(...)`.
 - **Cross‑runtime support** – Node ≥ 18, Deno, Bun, and modern browsers (ESM + CJS builds included).
 
 Each individual collection has its own dedicated documentation and examples, but `@rimbu/core` lets you reach them all
@@ -124,26 +122,6 @@ const result = Stream.from(map.entries()).toArray();
 All public types from the core collection packages are re‑exported here, so you rarely need to import the
 sub‑packages directly.
 
-### 2. Using the creation “menu” from `@rimbu/core/menu`
-
-The “menu” groups key Rimbu types into a single namespace, which is convenient for quick prototyping or REPL usage:
-
-```ts
-import Rimbu from '@rimbu/core/menu';
-
-const list = Rimbu.List.of(1, 3, 2, 4, 2);
-
-const stream = Rimbu.Stream.from(list).map((v) => [v, String(v * 2)] as const);
-
-const map = Rimbu.Map.Sorted.from(stream);
-
-console.log(map.toArray());
-// => [[1, '2'], [2, '4'], [3, '6'], [4, '8']]
-```
-
-Under the hood, this uses the same types that are exported from `@rimbu/core`, organized into namespaces like
-`Rimbu.Map`, `Rimbu.Set`, `Rimbu.Table`, and `Rimbu.Graph`.
-
 ---
 
 ## What’s Included
@@ -162,12 +140,9 @@ package‑specific documentation, but feel free to import their types through `@
 | [@rimbu/hashed](../hashed)                     | `HashMap` / `HashSet` implementations using hash functions for fast key retrieval.         |
 | [@rimbu/list](../list)                         | Immutable `List` for ordered sequences with efficient random access and updates.           |
 | [@rimbu/multimap](../multimap)                 | Map where each key can be associated with multiple values.                                 |
-| [@rimbu/multiset](../multiset)                 | Set where elements can occur multiple times.                                               |
-| [@rimbu/ordered](../ordered)                   | `OrderedMap` / `OrderedSet` that retain insertion order.                                   |
-| [@rimbu/proximity](../proximity)               | `ProximityMap` for retrieving values based on key proximity.                               |
+| [@rimbu/multiset](../multiset)               | Set where elements can occur multiple times.                                               |
 | [@rimbu/sorted](../sorted)                     | `SortedMap` / `SortedSet` implementations that keep elements sorted via compare functions. |
 | [@rimbu/stream](../stream)                     | Lazy, composable `Stream` / `AsyncStream` types for processing sequences of data.          |
-| [@rimbu/table](../table)                       | Table data structures where row/column key pairs map to a single value.                    |
 
 For a complete overview, start from the [Rimbu documentation](https://rimbu.org) or jump directly to the
 [`@rimbu/core` API docs](https://rimbu.org/api/rimbu/core).

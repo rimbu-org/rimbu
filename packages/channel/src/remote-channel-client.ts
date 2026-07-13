@@ -96,7 +96,7 @@ const removeChannelClientModule = Module.create<typeof RemoteChannelClient>(
 export const RemoteChannelClient: {
 	/**
 	 * Creates a new RemoteChannelClient instance with the given configuration.
-	 * @param config - the configuration for the client:<br/>
+	 * @param config - the configuration for the client.
 	 * @returns a `Promise` resolving to a `RemoteChannelClient` configured for the provided `config`
 	 */
 	create(config: RemoteChannelClient.Config): Promise<RemoteChannelClient>;

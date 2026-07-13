@@ -53,6 +53,11 @@ export function taskify<
 	}) as any;
 }
 
+/**
+ * Awaits all the given Jobs and returns their results, in order, as a tuple.
+ * @param jobs - an object (or tuple) of `Task.Job` values to join
+ * @returns a `Promise` resolving to a tuple of the jobs' results
+ */
 export function joinAll<R extends readonly any[]>(
 	jobs: {
 		[K in keyof R]: Task.Job<R[K]>;

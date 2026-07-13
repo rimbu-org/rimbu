@@ -19,7 +19,7 @@ export interface GraphConnect<N, V, Tp extends VariantGraphBase.Types>
 	 * ```ts
 	 * const g = ArrowGraphHashed.of([1], [2, 3])
 	 * g.addNode(4).stream().toArray()  // => [[1], [2, 3], [4]]
-	 * g.addNode(1).stream().toArray()  // ==> [[1], [2, 3]]
+	 * g.addNode(1).stream().toArray()  // => [[1], [2, 3]]
 	 * ```
 	 */
 	addNode(node: N): WithGraphValues<Tp, N, V>['nonEmpty'];
@@ -39,7 +39,7 @@ export interface GraphConnect<N, V, Tp extends VariantGraphBase.Types>
 	addNodes(nodes: StreamSource<N>): WithGraphValues<Tp, N, V>['normal'];
 	/**
 	 * Returns the graph with the connections from the given `connections` `StreamSource` added.
-	 * @param connections - a `StreamSource` conntaining tuple representing the connections to add
+	 * @param connections - a `StreamSource` containing tuples representing the connections to add
 	 * @example
 	 * ```ts
 	 * const g = ArrowGraphHashed.of([1], [2, 3])
@@ -72,7 +72,7 @@ export interface GraphConnectNonEmpty<N, V, Tp extends VariantGraphBase.Types>
 	addNodes(nodes: StreamSource<N>): WithGraphValues<Tp, N, V>['nonEmpty'];
 	/**
 	 * Returns the non-empty graph with the connections from the given `connections` `StreamSource` added.
-	 * @param connections - a `StreamSource` conntaining tuple representing the connections to add
+	 * @param connections - a `StreamSource` containing tuples representing the connections to add
 	 * @example
 	 * ```ts
 	 * const g = ArrowGraphHashed.of([1], [2, 3])

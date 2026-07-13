@@ -110,7 +110,7 @@ export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
 	 * Returns the value at the given index of the value sort order of the SortedSet, or a fallback value (default: undefined)
 	 * if the index is out of bounds.
 	 * @param index - the index in the key sort order
-	 * @param otherwise - (default: undefined) the fallback value to return if the range is out of bounds.
+	 * @param otherwise - (default: undefined) the fallback value to return if the index is out of bounds.
 	 *
 	 * @note negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value
 	 * @example
@@ -290,7 +290,7 @@ export namespace SortedSet {
 		 * Returns the value at the given index of the value sort order of the SortedSet builder, or a fallback value (default: undefined)
 		 * if the index is out of bounds.
 		 * @param index - the index in the key sort order
-		 * @param otherwise - (default: undefined) the fallback value to return if the range is out of bounds.
+		 * @param otherwise - (default: undefined) the fallback value to return if the index is out of bounds.
 		 *
 		 * @note negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value
 		 * @example

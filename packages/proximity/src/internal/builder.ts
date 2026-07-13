@@ -1,3 +1,4 @@
+import type { ModifyOptions } from '@rimbu/collection-types/common';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { RelatedTo } from '@rimbu/common/types';
@@ -6,8 +7,6 @@ import type { ProximityMap } from '@rimbu/proximity';
 import type { StreamSource } from '@rimbu/stream';
 
 import type { ContextImpl } from '#proximity/context-factory';
-
-import { type ModifyOptions } from '@rimbu/collection-types/common';
 
 import { wrapHashMap } from '#proximity/wrapping';
 

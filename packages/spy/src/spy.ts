@@ -26,6 +26,7 @@ export type FuncInterface<F extends Func> = (
 
 /**
  * Utility type to return the contained type of a promise.
+ * @typeparam P - the promise type whose contained value type is extracted
  */
 export type PromiseValue<P> = P extends Promise<infer R> ? R : never;
 
@@ -182,7 +183,7 @@ export namespace Spy {
 						const { done, value } = iterator.next();
 
 						if (done) {
-							throw Error('Spy.fn: stub sequence is exhasuted');
+							throw Error('Spy.fn: stub sequence is exhausted');
 						}
 
 						return getStubResult(value);
@@ -259,7 +260,7 @@ export namespace Spy {
 		 */
 		get nrCalls(): number;
 		/**
-		 * Empties this spied objects' callSequence.
+		 * Empties this spied object's `callSequence`.
 		 */
 		clearCallSequence(): void;
 		/**
@@ -267,7 +268,7 @@ export namespace Spy {
 		 */
 		clearMethods(): void;
 		/**
-		 * Empties both the spied objects' call sequence and its method call histories.
+		 * Empties both the spied object's call sequence and its method call histories.
 		 */
 		clearAll(): void;
 		/**
@@ -428,7 +429,7 @@ export namespace Spy {
 		 */
 		clearInstances(): void;
 		/**
-		 * Resets the current spy class constructor stub and all the instances method stubs.
+		 * Resets the current spy class constructor stub and all the instance method stubs.
 		 */
 		resetAllStubs(): void;
 		/**

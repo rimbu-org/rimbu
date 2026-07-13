@@ -124,7 +124,7 @@ export interface VariantGraphBase<
 		node2: RelatedTo<N, UN>,
 	): boolean;
 	/**
-	 * Returns a `Stream` containing all the connetions from the given `node1`
+	 * Returns a `Stream` containing all the connections from the given `node1`
 	 * @param node1 - the first connection node
 	 * @example
 	 * ```ts
@@ -137,7 +137,7 @@ export interface VariantGraphBase<
 		node1: RelatedTo<N, UN>,
 	): Stream<WithGraphValues<Tp, N, V>['link']>;
 	/**
-	 * Returns a `Stream` containing all the connetions to the given `node2`
+	 * Returns a `Stream` containing all the connections to the given `node2`
 	 * @param node2 - the second connection node
 	 * @example
 	 * ```ts
@@ -179,7 +179,7 @@ export interface VariantGraphBase<
 	/**
 	 * Returns the graph with the connection between given `node1` and `node2` removed if it exists.
 	 * @param node1 - the first connection node
-	 * @param node2 - the second connectio node
+	 * @param node2 - the second connection node
 	 * @example
 	 * ```ts
 	 * const g = ArrowGraphHashed.of([1], [2, 3])

@@ -61,7 +61,8 @@ export namespace Task {
 
 	/**
 	 * Represents a chain of Tasks with typed results and arguments.
-	 * Each Task in the chain receives the result of the previous as its single argument.
+	 * The first Task receives the original arguments `A`; each subsequent Task
+	 * receives the result of the previous Task as its single argument.
 	 * @typeparam RS - array of result types for each Task in the chain
 	 * @typeparam A - argument tuple type for the first Task
 	 */

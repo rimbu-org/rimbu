@@ -25,7 +25,7 @@ export interface BiMultiMapBase<
 	 * @example
 	 * ```ts
 	 * HashBiMultiMap.of([1, 10], [1, 20]).keyValueMultiMap.toArray()
-	 * // => [[1, [10, 20]]
+	 * // => [[1, [10, 20]]]
 	 * ```
 	 */
 	readonly keyValueMultiMap: WithKeyValue<Tp, K, V>['keyValueMultiMap'];
@@ -130,8 +130,8 @@ export interface BiMultiMapBase<
 	 * @example
 	 * ```ts
 	 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b'])
-	 * m.hasKey('a')    // => true
-	 * m.hasKey('z')    // => false
+	 * m.hasValue('a')    // => true
+	 * m.hasValue('z')    // => false
 	 * ```
 	 */
 	hasValue<UV = V>(key: RelatedTo<V, UV>): boolean;
@@ -244,7 +244,7 @@ export interface BiMultiMapBase<
 	 * @example
 	 * ```ts
 	 * const m = HashBiMultiMap.of([1, 1], [1, 2])
-	 * m.removeKey(2).toArray()   // => [1, 2]
+	 * m.removeKey(1).toArray()   // => []
 	 * m.removeKey(3) === m       // true
 	 * ```
 	 * @note guarantees same object reference if the key is not present
@@ -271,7 +271,7 @@ export interface BiMultiMapBase<
 	 * @example
 	 * ```ts
 	 * const m = HashBiMultiMap.of([1, 2], [2, 2])
-	 * m.removeValue(2).toArray()   // => [1, 2]
+	 * m.removeValue(2).toArray()   // => []
 	 * m.removeValue(3) === m       // true
 	 * ```
 	 * @note guarantees same object reference if the key is not present
@@ -721,7 +721,7 @@ export namespace BiMultiMapBase {
 		 * @example
 		 * ```ts
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.addEntries([1, 'a'], [3, 'c']])   // => true
+		 * m.addEntries([[1, 'a'], [3, 'c']])   // => true
 		 * m.addEntries([])                    // => false
 		 * ```
 		 */
@@ -797,7 +797,7 @@ export namespace BiMultiMapBase {
 		 * @example
 		 * ```ts
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.removeEntries([[1, 'c'], ['2', 'a']])  // => false
+		 * m.removeEntries([[1, 'c'], [2, 'a']])    // => false
 		 * m.removeEntries([[1, 'a']])              // => true
 		 * ```
 		 */
@@ -810,7 +810,7 @@ export namespace BiMultiMapBase {
 		 * - `entry`: the next key-value entry<br/>
 		 * - `index`: the index of the element<br/>
 		 * - `halt`: a function that, if called, ensures that no new elements are passed
-		 * @throws RibuError.ModifiedBuilderWhileLoopingOverItError if the builder is modified while
+		 * @throws RimbuError.ModifiedBuilderWhileLoopingOverItError if the builder is modified while
 		 * looping over it
 		 * @example
 		 * ```ts

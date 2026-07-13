@@ -199,7 +199,7 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * ```ts
 	 * const m = BiMap.of([1, 1], [2, 2])
 	 * const result = m.removeKeyAndGet(2)
-	 * if (result !== undefined) console.log([result[0].toString(), result[1]])    // => logs [BiMap(1 <=> 1), 2]
+	 * if (result !== undefined) console.log([result[0].toString(), result[1]])    // => logs [BiMap(1 <-> 1), 2]
 	 * console.log(m.removeKeyAndGet(3))                                           // => logs undefined
 	 * ```
 	 */
@@ -238,7 +238,7 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * ```ts
 	 * const m = BiMap.of([1, 1], [2, 2])
 	 * const result = m.removeValueAndGet(2)
-	 * if (result !== undefined) console.log([result[0].toString(), result[1]])    // => logs [BiMap(1 <=> 1), 2]
+	 * if (result !== undefined) console.log([result[0].toString(), result[1]])    // => logs [BiMap(1 <-> 1), 2]
 	 * console.log(m.removeValueAndGet(3))                                           // => logs undefined
 	 * ```
 	 */
@@ -296,15 +296,69 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 		keyUpdate: (key: K) => K,
 		value: RelatedTo<V, UV>,
 	): BiMap<K, V>;
+	/**
+	 * Returns a tuple of the updated collection and the new value if the given `key` is present, or `undefined` if not.
+	 * @param key - the key of the entry to update
+	 * @param valueUpdate - a function taking the current value and returning a new value
+	 * @typeparam UK - the key type to accept, related to `K`
+	 * @example
+	 * ```ts
+	 * const m = BiMap.of([1, 1], [2, 2])
+	 * m.updateValueAtKeyAndGet(3, v => v + 1)   // => undefined
+	 * m.updateValueAtKeyAndGet(2, v => v + 10)  // => [BiMap(1 <-> 1, 2 <-> 12), 12]
+	 * ```
+	 */
 	updateValueAtKeyAndGet<UK = K>(
 		key: RelatedTo<K, UK>,
 		valueUpdate: (value: V) => V,
 	): [BiMap<K, V>, V] | undefined;
+	/**
+	 * Returns a tuple of the updated collection and the new key if the given `value` is present, or `undefined` if not.
+	 * @param keyUpdate - a function taking the current key and returning a new key
+	 * @param value - the value of the entry to update
+	 * @typeparam UV - the value type to accept, related to `V`
+	 * @example
+	 * ```ts
+	 * const m = BiMap.of([1, 1], [2, 2])
+	 * m.updateKeyAtValueAndGet(k => k + 1, 3)   // => undefined
+	 * m.updateKeyAtValueAndGet(k => k + 10, 2)  // => [BiMap(1 <-> 1, 12 <-> 2), 12]
+	 * ```
+	 */
 	updateKeyAtValueAndGet<UV = V>(
 		keyUpdate: (key: K) => K,
 		value: RelatedTo<V, UV>,
 	): [BiMap<K, V>, K] | undefined;
+	/**
+	 * Returns the collection with the entry at given `atKey` key modified according to given `options`.
+	 * @param atKey - the key at which to modify the collection
+	 * @param options - an object containing the following information:<br/>
+	 * - ifNew: (optional) if the given `atKey` is not present, this value or function will be used to generate a new value.
+	 * If a function returning the given token is used, no new entry is created.<br/>
+	 * - ifExists: (optional) if a value is associated with given `atKey`, this function is called with the current value
+	 * to return a new value. If it returns the given `remove` token, the entry is removed.
+	 * @example
+	 * ```ts
+	 * const m = BiMap.of([1, 1], [2, 2])
+	 * m.modifyAtKey(3, { ifNew: 3 }).toArray()          // => [[1, 1], [2, 2], [3, 3]]
+	 * m.modifyAtKey(2, { ifExists: v => v + 10 }).toArray()  // => [[1, 1], [2, 12]]
+	 * ```
+	 */
 	modifyAtKey(atKey: K, options: ModifyOptions<V>): BiMap<K, V>;
+	/**
+	 * Returns the collection with the entry at given `atValue` value modified according to given `options`.
+	 * @param atValue - the value at which to modify the collection
+	 * @param options - an object containing the following information:<br/>
+	 * - ifNew: (optional) if the given `atValue` is not present, this value or function will be used to generate a new key.
+	 * If a function returning the given token is used, no new entry is created.<br/>
+	 * - ifExists: (optional) if a key is associated with given `atValue`, this function is called with the current key
+	 * to return a new key. If it returns the given `remove` token, the entry is removed.
+	 * @example
+	 * ```ts
+	 * const m = BiMap.of([1, 1], [2, 2])
+	 * m.modifyAtValue(3, { ifNew: 3 }).toArray()          // => [[1, 1], [2, 2], [3, 3]]
+	 * m.modifyAtValue(2, { ifExists: k => k + 10 }).toArray()  // => [[1, 1], [12, 2]]
+	 * ```
+	 */
 	modifyAtValue(atValue: V, options: ModifyOptions<K>): BiMap<K, V>;
 	/**
 	 * Returns a `Stream` containing all entries of this collection as tuples of key and value.
@@ -392,7 +446,7 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * Returns a string representation of this collection.
 	 * @example
 	 * ```ts
-	 * BiMap.of([1, 'a'], [2, 'b']).toString()   // => BiMap(1 <=> 'a', 2 <=> 'b')
+	 * BiMap.of([1, 'a'], [2, 'b']).toString()   // => BiMap(1 <-> 'a', 2 <-> 'b')
 	 * ```
 	 */
 	toString(): string;
@@ -515,10 +569,34 @@ export namespace BiMap {
 			keyUpdate: (key: K) => K,
 			value: RelatedTo<V, UV>,
 		): BiMap.NonEmpty<K, V>;
+		/**
+		 * Returns a tuple of the updated non-empty collection and the new key if the given `value` is present, or `undefined` if not.
+		 * @param keyUpdate - a function taking the current key and returning a new key
+		 * @param value - the value of the entry to update
+		 * @typeparam UV - the value type to accept, related to `V`
+		 * @example
+		 * ```ts
+		 * const m = BiMap.of([1, 1], [2, 2])
+		 * m.updateKeyAtValueAndGet(k => k + 1, 3)   // => undefined
+		 * m.updateKeyAtValueAndGet(k => k + 10, 2)  // => [BiMap(1 <-> 1, 12 <-> 2), 12]
+		 * ```
+		 */
 		updateKeyAtValueAndGet<UV = V>(
 			keyUpdate: (key: K) => K,
 			value: RelatedTo<V, UV>,
 		): [BiMap.NonEmpty<K, V>, K] | undefined;
+		/**
+		 * Returns a tuple of the updated non-empty collection and the new value if the given `key` is present, or `undefined` if not.
+		 * @param key - the key of the entry to update
+		 * @param valueUpdate - a function taking the current value and returning a new value
+		 * @typeparam UK - the key type to accept, related to `K`
+		 * @example
+		 * ```ts
+		 * const m = BiMap.of([1, 1], [2, 2])
+		 * m.updateValueAtKeyAndGet(3, v => v + 1)   // => undefined
+		 * m.updateValueAtKeyAndGet(2, v => v + 10)  // => [BiMap(1 <-> 1, 2 <-> 12), 12]
+		 * ```
+		 */
 		updateValueAtKeyAndGet<UK = K>(
 			key: RelatedTo<K, UK>,
 			valueUpdate: (value: V) => V,

@@ -745,7 +745,7 @@ export interface AsyncStream<T>
 		...others: ArrayNonEmpty<AsyncStreamSource<T2>>
 	): AsyncStream<T | T2>;
 	/**
-	 * Returns the mimimum element of the AsyncStream according to a default compare function, or the provided `otherwise` fallback value if the
+	 * Returns the minimum element of the AsyncStream according to a default compare function, or the provided `otherwise` fallback value if the
 	 * stream is empty.
 	 * @typeparam O - the optional value type to return if the stream is empty
 	 * @param otherwise - (default: undefined) the value to return if the stream is empty
@@ -761,7 +761,7 @@ export interface AsyncStream<T>
 	min(): Promise<T | undefined>;
 	min<O>(otherwise: AsyncOptLazy<O>): Promise<T | O>;
 	/**
-	 * Returns the mimimum element of the AsyncStream according to the provided `compare` function, or the provided `otherwise` fallback value
+	 * Returns the minimum element of the AsyncStream according to the provided `compare` function, or the provided `otherwise` fallback value
 	 * if the stream is empty.
 	 * @typeparam O - the optional value type to return if the stream is empty
 	 * @param otherwise - (default: undefined) the value to return if the Stream is empty
@@ -1419,7 +1419,7 @@ export namespace AsyncStream {
 			...others: ArrayNonEmpty<AsyncStreamSource<T>>
 		): AsyncStream.NonEmpty<T | T2>;
 		/**
-		 * Returns the mimimum element of the AsyncStream according to a default compare function.
+		 * Returns the minimum element of the AsyncStream according to a default compare function.
 		 * @example
 		 * ```ts
 		 * await AsyncStream.of(5, 1, 3).min()         // => 1
@@ -1428,7 +1428,7 @@ export namespace AsyncStream {
 		 */
 		min(): Promise<T>;
 		/**
-		 * Returns the mimimum element of the AsyncStream according to the provided `compare` function.
+		 * Returns the minimum element of the AsyncStream according to the provided `compare` function.
 		 * @example
 		 * ```ts
 		 * function compareLength(a: string, b: string): number { return b.length - a.length };

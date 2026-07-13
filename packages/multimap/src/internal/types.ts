@@ -7,6 +7,7 @@ import type {
 import type { KeyValue, WithKeyValue } from '@rimbu/collection-types/common';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
+import type { MultiMap } from '@rimbu/multimap';
 import type {
 	FastIterable,
 	Stream,
@@ -14,7 +15,6 @@ import type {
 	StreamSource,
 } from '@rimbu/stream';
 import type { Reducer } from '@rimbu/stream/reducer';
-import type { MultiMap } from '../multimap';
 
 export interface VariantMultiMapBase<
 	K,
@@ -418,7 +418,7 @@ export interface MultiMapBase<
 	 * @param entries - a `StreamSource` containing entries to add
 	 * @example
 	 * ```ts
-	 * HashMultiMapHashValue.of([1, 'a']).addEntries([[2, 'b'], [1, 'c']).toArray()
+	 * HashMultiMapHashValue.of([1, 'a']).addEntries([[2, 'b'], [1, 'c']]).toArray()
 	 * // => [[1, 'a'], [1, 'c'], [2, 'b']]
 	 * ```
 	 */
@@ -509,7 +509,7 @@ export namespace MultiMapBase {
 		 * @param entries - a `StreamSource` containing entries to add
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.of([1, 'a']).addEntries([[2, 'b'], [1, 'c']).toArray()
+		 * HashMultiMapHashValue.of([1, 'a']).addEntries([[2, 'b'], [1, 'c']]).toArray()
 		 * // => [[1, 'a'], [1, 'c'], [2, 'b']]
 		 * ```
 		 */
@@ -537,7 +537,7 @@ export namespace MultiMapBase {
 		 * @param entries - a non-empty array of key-value entries
 		 * @example
 		 * ```ts
-		 * HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c'])    // => HashMap.NonEmpty<number, string>
+		 * HashMultiMapHashValue.of([1, 'a'], [2, 'b'], [1, 'c'])    // => HashMultiMapHashValue.NonEmpty<number, string>
 		 * ```
 		 */
 		of<K extends UK, V extends UV>(
@@ -571,8 +571,8 @@ export namespace MultiMapBase {
 		 * @param source - (optional) an initial source of tuples to add to
 		 * @example
 		 * ```ts
-		 * const someSource: [number, string][] = [1, 'a'], [2, 'b'];
-		 * const result = Stream.of([1, 'c'], [3, 'a']).reduce(SortedMultiMap.reducer(someSource))
+		 * const someSource: [number, string][] = [[1, 'a'], [2, 'b']];
+		 * const result = Stream.of([1, 'c'], [3, 'a']).reduce(HashMultiMapHashValue.reducer(someSource))
 		 * result.toArray()   // => [[1, 'a'], [1, 'c'], [2, 'b'], [3, 'a']]
 		 * ```
 		 * @note uses a builder under the hood. If the given `source` is a `MultiMap` in the same context, it will directly call `.toBuilder()`.
@@ -633,7 +633,7 @@ export namespace MultiMapBase {
 		 */
 		readonly isEmpty: boolean;
 		/**
-		 * Returns a built immutable collection of the values asssociated with given `key`
+		 * Returns a built immutable collection of the values associated with given `key`
 		 * @param key - the key for which to get the associated values
 		 * @example
 		 * ```ts
@@ -686,6 +686,7 @@ export namespace MultiMapBase {
 		 * @param key - the entry key
 		 * @param value - the entry value
 		 * @returns true if the data in the builder has changed
+		 * @example
 		 * ```ts
 		 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b']).toBuilder()
 		 * m.add(1, 'a')   // => false
@@ -695,13 +696,13 @@ export namespace MultiMapBase {
 		add(key: K, value: V): boolean;
 		/**
 		 * Adds given `entries` to the builder.
-		 * @param entries - a `StreamSource` containig entries to add
+		 * @param entries - a `StreamSource` containing entries to add
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
 		 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.addEntries([1, 'a'], [2, 'b']])   // => false
-		 * m.addEntries([1, 'b'], [2, 'd']])   // => true
+		 * m.addEntries([[1, 'a'], [2, 'b']])   // => false
+		 * m.addEntries([[1, 'b'], [2, 'd']])   // => true
 		 * ```
 		 */
 		addEntries(entries: StreamSource<readonly [K, V]>): boolean;

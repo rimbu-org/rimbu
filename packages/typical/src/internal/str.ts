@@ -90,7 +90,7 @@ export type StartsWith<
  * ```ts
  * EndsWith<'abcd', 'cd'> => ['ab', 'cd']
  * EndsWith<'abcd', 'a'> => false
- * EndsWith<'abcd', 'cd' | 'de'> => ['ab', 'cd']
+ * EndsWith<'abcd', 'cd' | 'de'> => ['ab', 'cd'] | false
  * EndsWith<'abcd', 'cd' | 'd'> => ['ab', 'cd'] | ['abc', 'd']
  * ```
  */
@@ -104,12 +104,12 @@ export type EndsWith<
 	: false;
 
 /**
- * Returns false if the given string does not contain the given `Middle` type,
- * or a 3-tuple containing the start, the matched middle, and the rest.
+ * Returns a 3-tuple containing the start, the matched middle, and the rest if the given string
+ * contains the given `Middle` type, or a 3-tuple of two empty strings and the original string otherwise.
  * @example
  * ```ts
  * SplitAt<'abcd', 'bc'> => ['a', 'bc', 'd']
- * SplitAt<'abcd', 'ef'> => false
+ * SplitAt<'abcd', 'ef'> => ['', '', 'abcd']
  * SplitAt<'abcd', 'b' | 'c'> => ['a', 'b', 'cd'] | ['ab', 'c', 'd']
  * ```
  */

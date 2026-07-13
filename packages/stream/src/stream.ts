@@ -119,7 +119,6 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	): void;
 	/**
 	 * Performs given function `f` for each element of the Stream, with the optionally given `args` as extra arguments.
-	 * @typeparam A - the type of the arguments to be passed to the `f` function after each element
 	 * @param f - the function to perform for each element, optionally receiving given extra `args`.
 	 * @param args - a list of extra arguments to pass to given `f` for each element when needed
 	 * @typeparam A - the type of the extra arguments to pass
@@ -307,12 +306,20 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * Returns a Stream containing only those elements that are in the given `values` array.
 	 * @typeparam F - a subtype of T to indicate the resulting element type
 	 * @param values - an array of values to include
+	 * @example
+	 * ```ts
+	 * Stream.of(1, 2, 3, 4).withOnly([2, 4]).toArray()   // => [2, 4]
+	 * ```
 	 */
 	withOnly<F extends T>(values: F[]): Stream<F>;
 	/**
 	 * Returns a Stream containing all elements except the elements in the given `values` array.
 	 * @typeparam F - a subtype of T to indicate the resulting element type
 	 * @param values - an array of values to exclude
+	 * @example
+	 * ```ts
+	 * Stream.of(1, 2, 3, 4).without([2, 4]).toArray()   // => [1, 3]
+	 * ```
 	 */
 	without<F extends T>(
 		values: F[],
@@ -327,12 +334,8 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * - halt: a function that, if called, ensures that no new elements are passed
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).collect((v, i, skip, halt) => {
-	 *   if (i === 0) return skip;
-	 *   if (i === 1) halt();
-	 *   return String(v)
-	 * }).toArray();
-	 * // => ['1']
+	 * Stream.of(1, 2, 3).collect((v, i, skip) => (i === 0 ? skip : String(v))).toArray();
+	 * // => ['2', '3']
 	 * ```
 	 * @note O(1)
 	 */
@@ -725,7 +728,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	): Stream.NonEmpty<T | T2>;
 	concat<T2 = T>(...others: ArrayNonEmpty<StreamSource<T2>>): Stream<T | T2>;
 	/**
-	 * Returns the mimimum element of the Stream according to a default compare function, or the provided `otherwise` fallback value if the
+	 * Returns the minimum element of the Stream according to a default compare function, or the provided `otherwise` fallback value if the
 	 * Stream is empty.
 	 * @typeparam O - the optional value type to return if no match is found
 	 * @param otherwise - (default: undefined) the value to return if the Stream is empty
@@ -740,7 +743,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	min(): T | undefined;
 	min<O>(otherwise: OptLazy<O>): T | O;
 	/**
-	 * Returns the mimimum element of the Stream according to the provided `compare` function, or the provided `otherwise` fallback value
+	 * Returns the minimum element of the Stream according to the provided `compare` function, or the provided `otherwise` fallback value
 	 * if the Stream is empty.
 	 * @typeparam O - the optional value type to return if no match is found
 	 * @param otherwise - (default: undefined) the value to return if the Stream is empty
@@ -771,7 +774,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	max(): T | undefined;
 	max<O>(otherwise: OptLazy<O>): T | O;
 	/**
-	 * Returns the maximum element of the Stream according to the provided `compare` function, or the provided `otherwise fallback value
+	 * Returns the maximum element of the Stream according to the provided `compare` function, or the provided `otherwise` fallback value
 	 * if the Stream is empty.
 	 * @typeparam O - the optional value type to return if no match is found
 	 * @param otherwise - (default: undefined) the value to return if the Stream is empty
@@ -1132,7 +1135,7 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 	 * @typeparam R - the collector output type
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).groupBy((v) => v % 2)
+	 * Stream.of(1, 2, 3).groupBy((v) => v % 2)()
 	 * // => Map {0 => [2], 1 => [1, 3]}
 	 * ```
 	 */
@@ -1368,7 +1371,7 @@ export namespace Stream {
 			...others: ArrayNonEmpty<StreamSource<T2>>
 		): Stream.NonEmpty<T | T2>;
 		/**
-		 * Returns the mimimum element of the Stream according to a default compare function.
+		 * Returns the minimum element of the Stream according to a default compare function.
 		 * @example
 		 * ```ts
 		 * Stream.of(5, 1, 3).min()         // => 1
@@ -1377,7 +1380,7 @@ export namespace Stream {
 		 */
 		min(): T;
 		/**
-		 * Returns the mimimum element of the Stream according to the provided `compare` function.
+		 * Returns the minimum element of the Stream according to the provided `compare` function.
 		 * @example
 		 * ```ts
 		 * function compareLength(a: string, b: string): number { return b.length - a.length };
@@ -1817,8 +1820,8 @@ export namespace Stream {
 		 * Returns a Stream concatenating the given `source` StreamSource containing StreamSources.
 		 * @example
 		 * ```ts
-		 * Stream.flatten(Stream.of([[1, 2], [3], [], [4]])).toArray()  // => [1, 2, 3, 4]
-		 * Stream.flatten(Stream.of(['ma', 'r', '', 'mot')).toArray()   // => ['m', 'a', 'r', 'm', 'o', 't']
+		 * Stream.flatten(Stream.of([1, 2], [3], [], [4])).toArray()  // => [1, 2, 3, 4]
+		 * Stream.flatten(Stream.of('ma', 'r', '', 'mot')).toArray()   // => ['m', 'a', 'r', 'm', 'o', 't']
 		 * ```
 		 */
 		flatten<T extends StreamSource.NonEmpty<unknown>>(

@@ -3,7 +3,7 @@
  *
  * The `@rimbu/proximity/map` package provides the `ProximityMap` implementation.<br/>
  * <br/>
- * See the [Rimbu docs Map page](/docs/collections/map) for more information.
+ * See the [Rimbu docs Map page](https://rimbu.org/docs/collections/map) for more information.
  */
 
 import type { RMap } from '@rimbu/collection-types';
@@ -20,8 +20,8 @@ import { createProximityMapContextModule } from '#proximity/context-factory';
  * A type-invariant immutable Map of key type K, and value type V.
  * In the Map, each key has exactly one value, and the Map cannot contain
  * duplicate keys.
- * See the [Map documentation](/docs/collections/map) and the
- * [ProximityMap API documentation](/api/rimbu/proximity/map/ProximityMap/interface)
+ * See the [Map documentation](https://rimbu.org/docs/collections/map) and the
+ * [ProximityMap API documentation](https://rimbu.org/api/rimbu/proximity/map/ProximityMap/interface)
  * @typeparam K - the key type
  * @typeparam V - the value type
  * @note
@@ -43,8 +43,8 @@ export namespace ProximityMap {
 	 * A **non-empty** type-invariant immutable Map of key type K, and value type V.
 	 * In the Map, each key has exactly one value, and the Map cannot contain
 	 * duplicate keys.<br/>
-	 * See the [Map documentation](/docs/collections/map) and the
-	 * [ProximityMap API documentation](/api/rimbu/proximity/map/ProximityMap/interface)
+	 * See the [Map documentation](https://rimbu.org/docs/collections/map) and the
+	 * [ProximityMap API documentation](https://rimbu.org/api/rimbu/proximity/map/ProximityMap/interface)
 	 * @typeparam K - the key type
 	 * @typeparam V - the value type
 	 * @note
@@ -88,8 +88,8 @@ export namespace ProximityMap {
 
 	/**
 	 * A mutable `ProximityMap` builder used to efficiently create new immutable instances.
-	 * See the [Map documentation](/docs/collections/map) and the
-	 * [ProximityMap.Builder API documentation](/api/rimbu/proximity/map/ProximityMap/Builder/interface)
+	 * See the [Map documentation](https://rimbu.org/docs/collections/map) and the
+	 * [ProximityMap.Builder API documentation](https://rimbu.org/api/rimbu/proximity/map/ProximityMap/Builder/interface)
 	 * @typeparam K - the key type
 	 * @typeparam V - the value type
 	 */

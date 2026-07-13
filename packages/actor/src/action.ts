@@ -1,7 +1,7 @@
 import type { ActionBase } from '#actor/action-base';
 
 /**
- * The default action interface, containing an optional payload.
+ * The default action interface, containing a `payload` of type `P`.
  * @typeparam P - the payload type
  */
 export interface Action<P = unknown> extends ActionBase {
@@ -22,7 +22,14 @@ export namespace Action {
 
 	/**
 	 * Returns a new action creator instance that can be used to create `Action` instances.
-	 * @param config - the configuration for the action
+	 * @param config - the configuration for the action creator (optional `type`, `createTag`, `createPayload`)
+	 * @returns an action creator function that, when called, produces a new `Action` instance
+	 * @example
+	 * ```ts
+	 * const inc = Action.create<number>();
+	 * inc(1);
+	 * // => { tag: '...', type: 'ANON_...', payload: 1 }
+	 * ```
 	 */
 	export const create: {
 		<P = void>(config?: {

@@ -109,7 +109,7 @@ export namespace AsyncReducer {
 		) => AsyncReducer<I2, O>;
 		/**
 		 * Returns an `AsyncReducer` instance that converts its input values using given `flatMapFun` before passing them to the reducer.
-		 * @param flatMapFun - a potentially asynchronous function that returns am arbitrary number of new values to pass to the reducer based on the following inputs:<br/>
+		 * @param flatMapFun - a potentially asynchronous function that returns an arbitrary number of new values to pass to the reducer based on the following inputs:<br/>
 		 * - value: the current input value<br/>
 		 * - index: the current input index
 		 * @typeparam I2 - the new input type
@@ -140,7 +140,7 @@ export namespace AsyncReducer {
 		 * AsyncReducer
 		 *   .createMono(0, async (c, v) => c + v)
 		 *   .collectInput(async (v, _, skip) => v <= 10 ? skip : v * 2)
-		 * // this reducer will double all input values larger thant 10 before summing them,
+		 * // this reducer will double all input values larger than 10 before summing them,
 		 * // and will skip all values smaller than 10
 		 * ```
 		 */

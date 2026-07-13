@@ -7,7 +7,7 @@ import { Module } from '@rimbu/common/module';
  */
 export interface Comp<K> {
 	/**
-	 * Returns 0 if given `value1` and `value2` are equal, a positive value is `value1` is greater than
+	 * Returns 0 if given `value1` and `value2` are equal, a positive value if `value1` is greater than
 	 * `value2`, and a negative value otherwise.
 	 * @param value1 - the first value to compare
 	 * @param value2 - the second value to compare
@@ -51,8 +51,7 @@ export interface Comp<K> {
 	 */
 	toEq(): Eq<K>;
 	/**
-	 * Returns a Comp instance the reverses the order of the current `comp` instance.
-	 * @param comp - the Comp instance to wrap
+	 * Returns a Comp instance that reverses the order of the current `comp` instance.
 	 * @example
 	 * ```ts
 	 * const c = Comp.number.inverted()
@@ -79,9 +78,8 @@ export interface Comp<K> {
 	 */
 	withUndefined(): Comp<K | undefined>;
 	/**
-	 * Returns a Comp instance that extends the given `comp` instance with the capability to handle `null` values, where null is considered to be smaller
+	 * Returns a Comp instance that extends the current `comp` instance with the capability to handle `null` values, where null is considered to be smaller
 	 * than any other value, and equal to another null.
-	 * @param comp - the Comp instance to wrap
 	 * @example
 	 * ```ts
 	 * const c = Comp.number.withNull()

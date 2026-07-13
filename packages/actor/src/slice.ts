@@ -44,6 +44,13 @@ export namespace Slice {
 		_ACTION_CREATOR_PARAMS: Tail<Parameters<this['_ACTION_HANDLER']>>;
 	}
 
+	/**
+	 * Creates a new actor {@link Slice} with the given action handlers, initial state and optional included actions.
+	 * @typeparam S - the slice state type
+	 * @typeparam LU - the action-handler definition
+	 * @param config - the slice configuration (name, initState, actions, includeActions)
+	 * @returns a {@link Slice} containing the reducer and action creators
+	 */
 	export const { create } = SliceConfig.configure<Slice.Config>({
 		applyHandler: <S, A extends unknown[]>(
 			state: S,
@@ -73,6 +80,12 @@ export namespace Slice {
 	 * Returns an object containing the combined reducer and action creators from the given input object.
 	 * @param slices - an object containing keyed slices to be combined
 	 * @typeparam SDef - the object type containing keys and slices to combine
+	 * @returns a combined slice whose reducer and actions merge all input slices
+	 * @example
+	 * ```ts
+	 * const combined = Slice.combine({ user: userSlice, cart: cartSlice });
+	 * combined.reducer; // reducer over { user: ..., cart: ... }
+	 * ```
 	 */
 	export function combine<SDef extends Record<string, Slice<any, any>>>(
 		slices: SDef,

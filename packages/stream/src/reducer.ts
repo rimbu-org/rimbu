@@ -109,7 +109,7 @@ export namespace Reducer {
 		 * @example
 		 * ```ts
 		 * Reducer.sum.collectInput((v, _, skip) => v <= 10 ? skip : v * 2)
-		 * // this reducer will double all input values larger thant 10 before summing them,
+		 * // this reducer will double all input values larger than 10 before summing them,
 		 * // and will skip all values smaller than 10
 		 * ```
 		 */

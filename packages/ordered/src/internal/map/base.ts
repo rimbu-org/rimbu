@@ -25,7 +25,7 @@ export interface OrderedMapBase<
 	 * ```ts
 	 * const m = OrderedHashMap.of([2, 'b'], [1, 'a'])
 	 * console.log(m.sourceMap.toString())
-	 * // => HashMap(1 -> 'a', 2 -> 'b')
+	 * // => HashMap(1 => 'a', 2 => 'b')
 	 * ```
 	 */
 	readonly sourceMap: WithKeyValue<Tp, K, V>['sourceMap'];
@@ -54,7 +54,7 @@ export namespace OrderedMapBase {
 		 * ```ts
 		 * const m = OrderedHashMap.of([2, 'b'], [1, 'a'])
 		 * console.log(m.sourceMap.toString())
-		 * // => HashMap(1 -> 'a', 2 -> 'b')
+		 * // => HashMap(1 => 'a', 2 => 'b')
 		 * ```
 		 */
 		readonly sourceMap: WithKeyValue<Tp, K, V>['sourceMapNonEmpty'];

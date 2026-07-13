@@ -10,6 +10,13 @@ import {
   unregisterSelector,
 } from './internal.mjs';
 
+/**
+ * An actor augmented with React hook support: `use()` returns the dispatch plus a
+ * `useSelect` hook that re-renders the component only when the selected slice of state changes.
+ * @typeparam A - the underlying actor type
+ * @typeparam S - the actor state type
+ * @typeparam D - the dispatch function type
+ */
 export type Reactor<
   A extends Actor.Base<S> & Actor.Dispatch<D>,
   S,
@@ -24,6 +31,23 @@ export type Reactor<
 };
 
 export namespace Reactor {
+  /**
+   * Actor enhancer that adds React reactive selector support. Wrap an actor with this
+   * enhancer so components can subscribe to fine-grained slices of state via `actor.use().useSelect(...)`.
+   * @typeparam S - the actor state type
+   * @typeparam A - the actor type
+   * @typeparam D - the dispatch type
+   * @param actor - the base actor to enhance
+   * @returns the enhanced reactor actor exposing `use()`
+   * @example
+   * ```ts
+   * const reactor = Reactor.enhancer(actor);
+   * function Comp() {
+   *   const count = reactor.use().useSelect((s) => s.count);
+   *   return <button onClick={() => reactor.dispatch(...)}>{count}</button>;
+   * }
+   * ```
+   */
   export function enhancer<
     S,
     A extends Actor.Base<S> & Actor.Dispatch<D>,

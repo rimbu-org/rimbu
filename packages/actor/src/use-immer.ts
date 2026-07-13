@@ -36,6 +36,14 @@ export namespace SliceImmer {
 		_ACTION_CREATOR_PARAMS: Tail<Parameters<this['_ACTION_HANDLER']>>;
 	}
 
+	/**
+	 * Creates a new Immer-based actor {@link Slice} whose action handlers receive a
+	 * mutable draft of the state and produce immutable updates via `immer`.
+	 * @typeparam S - the slice state type
+	 * @typeparam LU - the action-handler definition
+	 * @param config - the slice configuration (name, initState, actions, includeActions)
+	 * @returns a {@link Slice} containing the reducer and action creators
+	 */
 	export const { create } = SliceConfig.configure<SliceImmer.Config>({
 		applyHandler: <S, A extends unknown[]>(
 			state: S,

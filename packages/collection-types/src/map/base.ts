@@ -167,7 +167,7 @@ export interface VariantMapBase<
 	 * - `index`: the index of the element<br/>
 	 * - `halt`: a function that, if called, ensures that no new elements are passed
 	 * @param options - (optional) an object containing the following properties:<br/>
-	 * - state:: (optional) the traversal state
+	 * - state: (optional) the traversal state
 	 * @example
 	 * ```ts
 	 * HashMap.of([1, 'a'], [2, 'b'], [3, 'c']).forEach((entry, i, halt) => {
@@ -923,7 +923,7 @@ export namespace RMapBase {
 		 * @example
 		 * ```ts
 		 * const m = HashMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.addEntries([1, 'a'], [3, 'c']])   // => true
+		 * m.addEntries([[1, 'a'], [3, 'c']])   // => true
 		 * m.addEntries([])                    // => false
 		 * ```
 		 */

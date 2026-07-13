@@ -360,7 +360,7 @@ export interface VariantTableBase<
 	 * @example
 	 * ```ts
 	 * HashTableHashColumn.of([1, 2, 3], [1, 4, 5]).toJSON()
-	 * // => { dataType: 'HashTableHashColumn', value: [1, [ [2, 3], [4, 5] ] ] }
+	 * // => { dataType: 'HashTableHashColumn', value: [[1, [[2, 3], [4, 5]]]] }
 	 * ```
 	 */
 	toJSON(): ToJSON<[R, [C, V][]][]>;
@@ -529,7 +529,7 @@ export interface TableBase<
 	addEntry(entry: readonly [R, C, V]): WithRow<Tp, R, C, V>['nonEmpty'];
 	/**
 	 * Returns the collection with the given `entries` added.
-	 * @param entries - a `StreamSource containing entries to add
+	 * @param entries - a `StreamSource` containing entries to add
 	 * @example
 	 * ```ts
 	 * const t = HashTableHashColumn.of([1, 2, 3])
@@ -626,7 +626,7 @@ export namespace TableBase {
 		stream(): Stream.NonEmpty<[R, C, V]>;
 		/**
 		 * Returns the collection with the given `entries` added.
-		 * @param entries - a `StreamSource containing entries to add
+		 * @param entries - a `StreamSource` containing entries to add
 		 * @example
 		 * ```ts
 		 * const t = HashTableHashColumn.of([1, 2, 3])
@@ -712,9 +712,9 @@ export namespace TableBase {
 		 * @param source - (optional) an initial source of tuples to add to
 		 * @example
 		 * ```ts
-		 * const someSource = Table.of([1, 'a', true], [2, 'b', false]);
-		 * const result = Stream.of([1, 'c', true], [3, 'a', false]).reduce(Table.reducer(someSource))
-		 * result.toArray()   // => [[1, 'c'], [2, 'b'], [3, 'a']]
+		 * const someSource = HashTableHashColumn.of([1, 'a', true], [2, 'b', false]);
+		 * const result = Stream.of([1, 'c', true], [3, 'a', false]).reduce(HashTableHashColumn.reducer(someSource))
+		 * result.toArray()   // => [[1, 'a', true], [1, 'c', true], [2, 'b', false], [3, 'a', false]]
 		 * ```
 		 * @note uses a builder under the hood. If the given `source` is a Table in the same context, it will directly call `.toBuilder()`.
 		 */

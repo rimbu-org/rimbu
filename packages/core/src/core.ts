@@ -1,3 +1,9 @@
+/**
+ * Umbrella package re-exporting all stable Rimbu collections and shared utilities
+ * from a single entry point.
+ * @note All exported types are immutable and persistent; see each collection's
+ * docs for complexity characteristics.
+ */
 export * from '@rimbu/core/bimap';
 export * from '@rimbu/core/bimultimap';
 export * from '@rimbu/core/collection-types';

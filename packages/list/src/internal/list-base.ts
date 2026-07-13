@@ -302,7 +302,7 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @example
 	 * ```ts
 	 * List.of(0, 1, 2, 3).insert(2, [10, 11])   // -> List(0, 1, 10, 11, 2, 3)
-	 * List.of(0, 1, 2, 3).insert(-1, [10, 11])  // -> List(0, 1, 2, 1, 11, 3)
+	 * List.of(0, 1, 2, 3).insert(-1, [10, 11])  // -> List(0, 1, 2, 10, 11, 3)
 	 * ```
 	 * @note O(logB(N)) for block size B
 	 */
@@ -462,6 +462,20 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 		mapFun: (value: T, index: number) => T2,
 		options?: { reversed?: boolean },
 	): WithElem<Tp, T2>['normal'];
+	/**
+	 * Returns a List containing the result of applying given `mapFun` to each value in this List.
+	 * If `reversed` is true, the order of the values is reversed. Unlike `map`, `mapFun` receives
+	 * only the value and not its index, allowing the mapping to be cached and reused for improved performance.
+	 * @param mapFun - a pure function receiving a value and returning a new value
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - reversed: (default: false) if true, reverses the order of the values
+	 * @typeparam T2 - the result element type
+	 * @example
+	 * ```ts
+	 * List.of(1, 2, 3).mapPure(v => `value: ${v + 2}`).toArray()
+	 * // => ['value: 3', 'value: 4', 'value: 5']
+	 * ```
+	 */
 	mapPure<T2 extends Tp['_UT']>(
 		mapFun: (value: T) => T2,
 		options?: { reversed?: boolean },
@@ -751,7 +765,7 @@ export namespace ListBase {
 		 * @example
 		 * ```ts
 		 * List.of(0, 1, 2, 3).insert(2, [10, 11])   // -> List(0, 1, 10, 11, 2, 3)
-		 * List.of(0, 1, 2, 3).insert(-1, [10, 11])  // -> List(0, 1, 2, 1, 11, 3)
+		 * List.of(0, 1, 2, 3).insert(-1, [10, 11])  // -> List(0, 1, 2, 10, 11, 3)
 		 * ```
 		 * @note O(logB(N)) for block size B
 		 */
@@ -787,6 +801,20 @@ export namespace ListBase {
 			mapFun: (value: T, index: number) => T2,
 			options?: { reversed?: boolean },
 		): WithElem<Tp, T2>['nonEmpty'];
+		/**
+		 * Returns a non-empty List containing the result of applying given `mapFun` to each value in this List.
+		 * If `reversed` is true, the order of the values is reversed. Unlike `map`, `mapFun` receives
+		 * only the value and not its index, allowing the mapping to be cached and reused for improved performance.
+		 * @param mapFun - a pure function receiving a value and returning a new value
+		 * @param options - (optional) an object containing the following properties:<br/>
+		 * - reversed: (default: false) if true, reverses the order of the values
+		 * @typeparam T2 - the result element type
+		 * @example
+		 * ```ts
+		 * List.of(1, 2, 3).mapPure(v => `value: ${v + 2}`).toArray()
+		 * // => ['value: 3', 'value: 4', 'value: 5']
+		 * ```
+		 */
 		mapPure<T2 extends Tp['_UT']>(
 			mapFun: (value: T) => T2,
 			options?: { reversed?: boolean },

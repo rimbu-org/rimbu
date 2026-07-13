@@ -13,7 +13,11 @@ import type { Reducer } from '@rimbu/stream/reducer';
 import type { ActionBase } from '#actor/action-base';
 
 /**
- *
+ * An actor combines immutable observable state with a dispatch mechanism and
+ * optionally named action dispatchers.
+ * @typeparam S - the state type
+ * @typeparam D - the dispatch function type
+ * @typeparam ACS - the named action dispatchers definition
  */
 export interface Actor<
 	S,
@@ -72,6 +76,22 @@ export namespace Actor {
 
 	export type Unsubscribe = () => void;
 
+	/**
+	 * Creates a new actor from the given configuration.
+	 * @typeparam S - the state type
+	 * @typeparam D - the dispatch function type
+	 * @typeparam AC - the named actions definition
+	 * @param config - the configuration for the actor (reducer, actions, middleware and/or enhancer)
+	 * @returns the configured (and possibly enhanced) actor instance
+	 * @example
+	 * ```ts
+	 * const actor = Actor.configure({
+	 *   reducer: Reducer....,
+	 * });
+	 * actor.getState();
+	 * // => <initial state>
+	 * ```
+	 */
 	export function configure<
 		S,
 		D extends Actor.DispatchFunction = (action: ActionBase) => void,

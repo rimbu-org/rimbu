@@ -190,7 +190,7 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * Returns the entry with its key at the given index of the key sort order of the SortedMap, or a fallback value (default: undefined)
 	 * if the index is out of bounds.
 	 * @param index - the index in the key sort order
-	 * @param otherwise - (default: undefined) the fallback value to return if the range is out of bounds.
+	 * @param otherwise - (default: undefined) the fallback value to return if the index is out of bounds.
 	 *
 	 * @note negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value
 	 * @example
@@ -212,7 +212,7 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * Returns the key at the given index of the key sort order of the SortedMap, or a fallback value (default: undefined)
 	 * if the index is out of bounds.
 	 * @param index - the index in the key sort order
-	 * @param otherwise - (default: undefined) the fallback value to return if the range is out of bounds.
+	 * @param otherwise - (default: undefined) the fallback value to return if the index is out of bounds.
 	 *
 	 * @note negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value
 	 * @example
@@ -234,7 +234,7 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * Returns the value associated with the key at the given index of the key sort order of the SortedMap, or a fallback value (default: undefined)
 	 * if the index is out of bounds.
 	 * @param index - the index in the key sort order
-	 * @param otherwise - (default: undefined) the fallback value to return if the range is out of bounds.
+	 * @param otherwise - (default: undefined) the fallback value to return if the index is out of bounds.
 	 *
 	 * @note negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value
 	 * @example
@@ -253,7 +253,7 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	getValueAtIndex(index: number): V | undefined;
 	getValueAtIndex<O>(index: number, otherwise: OptLazy<O>): V | O;
 	/**
-	 * Returns a SortedMap containing the the first `amount` of elements of this SortedMap.
+	 * Returns a SortedMap containing the first `amount` of elements of this SortedMap.
 	 * @param amount - the amount of elements to keep
 	 *
 	 * @note a negative `amount` takes the last elements instead of the first, e.g. -2 is the last 2 elements
@@ -397,7 +397,7 @@ export namespace SortedMap {
 	}
 
 	/**
-	 * A context instance for a HashMap that acts as a factory for every instance of this
+	 * A context instance for a SortedMap that acts as a factory for every instance of this
 	 * type of collection.
 	 * @typeparam UK - the upper key type bound for which the context can be used
 	 */
@@ -445,9 +445,9 @@ export namespace SortedMap {
 		 * ```ts
 		 * const b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();
 		 * console.log(b.max())
-		 * // => ['a', 1]
+		 * // => ['d', 4]
 		 * console.log(b.max('q'))
-		 * // => ['a', 1]
+		 * // => ['d', 4]
 		 * console.log(SortedMap.builder().max())
 		 * // => undefined
 		 * console.log(SortedMap.builder().max('q'))
@@ -460,7 +460,7 @@ export namespace SortedMap {
 		 * Returns the entry with its key at the given index of the key sort order of the SortedMap builder, or a fallback value (default: undefined)
 		 * if the index is out of bounds.
 		 * @param index - the index in the key sort order
-		 * @param otherwise - (default: undefined) the fallback value to return if the range is out of bounds.
+		 * @param otherwise - (default: undefined) the fallback value to return if the index is out of bounds.
 		 *
 		 * @note negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value
 		 * @example

@@ -212,7 +212,7 @@ export interface ReducerFactory {
 	/**
 	 * Returns a `Reducer` that joins the given input values into a string using the given options.
 	 * @param options - an object containing:<br/>
-	 * - sep: (optional) a seperator string value between values in the output<br/>
+	 * - sep: (optional) a separator string value between values in the output<br/>
 	 * - start: (optional) a start string to prepend to the output<br/>
 	 * - end: (optional) an end string to append to the output<br/>
 	 * @typeparam T - the input element type
@@ -468,18 +468,18 @@ export interface ReducerFactory {
 	 * @note if the predicate is a type guard, the return type is automatically inferred
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).partition((v) => v % 2 === 0)
+	 * Stream.of(1, 2, 3).partition((v) => v % 2 === 0)()
 	 * // => [[2], [1, 3]]
 	 *
 	 * Stream.of<number | string>(1, 'a', 'b', 2)
-	 *   .partition((v): v is string => typeof v === 'string')
+	 *   .partition((v): v is string => typeof v === 'string')()
 	 * // => [['a', 'b'], [1, 2]]
 	 * // return type is: [string[], number[]]
 	 *
 	 * Stream.of(1, 2, 3, 4).partition(
 	 *   (v) => v % 2 === 0,
 	 *   { collectorTrue: Reducer.toJSSet(), collectorFalse: Reducer.sum }
-	 * )
+	 * )()
 	 * // => [Set(2, 4), 4]
 	 * ```
 	 */
@@ -526,7 +526,7 @@ export interface ReducerFactory {
 	 * @typeparam R - the collector output type
 	 * @example
 	 * ```ts
-	 * Stream.of(1, 2, 3).groupBy((v) => v % 2)
+	 * Stream.of(1, 2, 3).groupBy((v) => v % 2)()
 	 * // => Map {0 => [2], 1 => [1, 3]}
 	 * ```
 	 */

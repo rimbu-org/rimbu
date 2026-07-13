@@ -17,18 +17,20 @@ export function effect<R, A extends readonly any[] = []>(
 }
 
 /**
- * A Task that throws an error of the specified class when executed.
+ * A factory function that returns a Task which, when executed, throws an
+ * instance of the given error class.
  * @param ErrorClass - The error class to instantiate and throw.
- * @returns A Task that throws the specified error when executed.
+ * @returns A function `(ErrorClass) => Task<void>` that builds the throwing Task.
  */
 export const throwErrorClass = effect((ErrorClass: { new (): any }) => {
 	throw new ErrorClass();
 });
 
 /**
- * A Task that throws an error created by the provided function when executed.
+ * A factory function that returns a Task which, when executed, throws the
+ * error produced by the provided function.
  * @param createError - A function that creates and returns an error object.
- * @returns A Task that throws the created error when executed.
+ * @returns A function `(createError) => Task<void>` that builds the throwing Task.
  */
 export const throwError = effect((createError: () => any) => {
 	throw createError();
@@ -46,7 +48,8 @@ export function delay(ms: number): Task<void, any[]> {
 
 /**
  * Chains multiple Tasks together, executing them sequentially.
- * The output of each Task is passed as a single argument to the next Task.
+ * The first Task receives the original arguments; the output of each subsequent
+ * Task is passed as a single argument to the next Task.
  * @param tasks - Tasks to chain together, in order.
  * @returns A Task that represents the chained sequential execution of the provided Tasks.
  *
@@ -260,6 +263,12 @@ export const cancelContext: Task = (context) => {
 	context.cancel();
 };
 
+/**
+ * Returns a launcher bound to the given context (or the root context) that runs
+ * a single Task at a time: starting a new Task cancels the previously running one.
+ * @param context - the context to launch in; defaults to `Task.rootContext`
+ * @returns a function that launches a Task, cancelling any prior job it started
+ */
 export const runSingleCancelPrevious: {
 	(
 		context?: Task.Context | undefined,
@@ -288,6 +297,13 @@ export const runSingleCancelPrevious: {
 	};
 };
 
+/**
+ * Returns a launcher bound to the given context (or the root context) that runs
+ * a single Task at a time: if a Task is already running, the new invocation is
+ * ignored (a `cancelContext` Task is launched instead).
+ * @param context - the context to launch in; defaults to `Task.rootContext`
+ * @returns a function that launches a Task, ignoring the request if one is busy
+ */
 export const runSingleCancelNew: {
 	(
 		context?: Task.Context | undefined,

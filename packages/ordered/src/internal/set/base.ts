@@ -69,7 +69,7 @@ export namespace OrderedSetBase {
 		readonly typeTag: 'OrderedSet';
 
 		/**
-		 * The List context used create Lists to keep value insertion order.
+		 * The List context used to create Lists to keep value insertion order.
 		 */
 		readonly listContext: List.Context;
 		/**

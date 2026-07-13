@@ -87,7 +87,7 @@ class DirectedGraphBreadthFirstIterable<
  * avoid loops if needed in a custom way by supplying the `addVisitedNode` function.
  * @param graph - the graph to traverse
  * @param startNode - the start node within the graph
- * @param addVisitedNode - a function taking the currenty traversed node,
+ * @param addVisitedNode - a function taking the currently traversed node,
  * and returning true if the node has been traversed before, or false otherwise
  * @example
  * ```ts

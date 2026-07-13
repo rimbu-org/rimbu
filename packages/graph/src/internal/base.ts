@@ -20,7 +20,7 @@ export interface GraphBase<N, Tp extends GraphBase.Types = GraphBase.Types>
 	 * @example
 	 * ```ts
 	 * ArrowGraphHashed.of([1, 2], [2, 3]).linkMap.toArray()
-	 * // => [1 -> HashSet(2), 2 -> HashSet(3)]]
+	 * // => [[1, HashSet(2)], [2, HashSet(3)]]
 	 * ```
 	 */
 	readonly linkMap: WithGraphValues<Tp, N, unknown>['linkMap'];
@@ -82,7 +82,7 @@ export namespace GraphBase {
 		 * @example
 		 * ```ts
 		 * ArrowGraphHashed.of([1, 2], [2, 3]).linkMap.toArray()
-		 * // => [1 -> HashSet(2), 2 -> HashSet(3)]]
+		 * // => [[1, HashSet(2)], [2, HashSet(3)]]
 		 * ```
 		 */
 		readonly linkMap: WithGraphValues<Tp, N, unknown>['linkMapNonEmpty'];
@@ -367,7 +367,7 @@ export namespace GraphBase {
 		 * Returns an immutable Graph containing the links in this Builder instance.
 		 * @example
 		 * ```ts
-		 * const b = ArrowGraphHashed.builder<number, number>()
+		 * const b = ArrowGraphHashed.builder<number>()
 		 * b.connect(1, 2)
 		 * b.addNode(3)
 		 * const g = b.build()
@@ -431,7 +431,7 @@ export namespace GraphBase {
 		 * @example
 		 * ```ts
 		 * const someSource: GraphElement<number>[] = [[1, 2], [3], [5]];
-		 * const result = Stream.of([1, 3], [4, 3]).reduce(ArrowGraphSorted.reducer(someSource))
+		 * const result = Stream.of([1, 3], [4, 3]).reduce(ArrowGraphHashed.reducer(someSource))
 		 * result.toArray()   // => [[1, 2], [1, 3], [4, 3], [5]]
 		 * ```
 		 * @note uses a builder under the hood. If the given `source` is a Graph in the same context, it will directly call `.toBuilder()`.

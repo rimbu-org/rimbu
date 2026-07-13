@@ -88,7 +88,7 @@ export interface VariantMultiSetBase<
 	 * Returns a Stream containing all distinct values of this collection.
 	 * @example
 	 * ```ts
-	 * HashMultiSet.of(1, 2, 2).stream().toArray()  // => [1, 2]
+	 * HashMultiSet.of(1, 2, 2).streamDistinct().toArray()  // => [1, 2]
 	 * ```
 	 */
 	streamDistinct(): Stream<T>;
@@ -171,11 +171,11 @@ export interface VariantMultiSetBase<
 	 * - state: (optional) the traversal state
 	 * @example
 	 * ```ts
-	 * HashMultiSet.of(1, 2, 2, 3).forEach((entry, i, halt) => {
-	 *   console.log(entry)
+	 * HashMultiSet.of(1, 2, 2, 3).forEach((value, i, halt) => {
+	 *   console.log(value)
 	 *   if (i >= 1) halt()
 	 * })
-	 * // => logs [1, 1]  [2, 2]
+	 * // => logs 1  2
 	 * ```
 	 */
 	forEach(
@@ -196,7 +196,7 @@ export interface VariantMultiSetBase<
 	 * HashMultiSet.of(1, 2, 2, 3)
 	 *   .filterEntries(entry => entry[1] > 1)
 	 *   .toArray()
-	 * // => [[2, 2]]
+	 * // => [2, 2]
 	 * ```
 	 */
 	filterEntries<TF extends T>(
@@ -504,8 +504,8 @@ export namespace MultiSetBase {
 		 * @param source - (optional) an initial source of elements to add to
 		 * @example
 		 * ```ts
-		 * const someList = [1, 2, 3];
-		 * const result = Stream.range({ start: 20, amount: 5 }).reduce(SortedMultiSet.reducer(someList))
+		 * const someSource = [1, 2, 3];
+		 * const result = Stream.range({ start: 20, amount: 5 }).reduce(HashMultiSet.reducer(someSource))
 		 * result.toArray()   // => [1, 2, 3, 20, 21, 22, 23, 24]
 		 * ```
 		 * @note uses a MultiSet builder under the hood. If the given `source` is a MultiSet in the same context, it will directly call `.toBuilder()`.
@@ -714,15 +714,15 @@ export namespace MultiSetBase {
 		 * - `halt`: a function that, if called, ensures that no new values are passed
 		 * @param options - (optional) an object containing the following properties:<br/>
 		 * - state: (optional) the traversal state
-		 * @throws RibuError.ModifiedBuilderWhileLoopingOverItError if the builder is modified while
+		 * @throws RimbuError.ModifiedBuilderWhileLoopingOverItError if the builder is modified while
 		 * looping over it
 		 * @example
 		 * ```ts
-		 * HashMultiSet.of(1, 2, 2, 3).toBuilder().forEach((entry, i, halt) => {
-		 *   console.log(entry)
+		 * HashMultiSet.of(1, 2, 2, 3).toBuilder().forEach((value, i, halt) => {
+		 *   console.log(value)
 		 *   if (i >= 1) halt()
 		 * })
-		 * // => logs [1, 1]  [2, 2]
+		 * // => logs 1  2
 		 * ```
 		 */
 		forEach(
@@ -734,7 +734,7 @@ export namespace MultiSetBase {
 		 * @example
 		 * ```ts
 		 * const s = HashMultiSet.of(1, 2, 2).toBuilder()
-		 * const s2: HashMultiSet<number> = m.build()
+		 * const s2: HashMultiSet<number> = s.build()
 		 * ```
 		 */
 		build(): WithElem<Tp, T>['normal'];

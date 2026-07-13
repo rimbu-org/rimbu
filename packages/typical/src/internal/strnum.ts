@@ -209,10 +209,10 @@ export type Add<N1 extends string, N2 extends string> = N1 extends Str.Append<
 
 /**
  * Given two string digits, returns a tuple of which the first element is the resulting digit from subtracting the second from the first,
- * and the second element a boolean that is true if there is an 'underflow' or borrow, never otherwise.
+ * and the second element a boolean that is true if there is an 'underflow' or borrow, false otherwise.
  * @example
  * ```ts
- * SubDigit<'5', '3'> => ['2', never]
+ * SubDigit<'5', '3'> => ['2', false]
  * SubDigit<'3', '6'> => ['7', true]
  * ```
  */
@@ -392,8 +392,8 @@ export type Subtract<N1 extends string, N2 extends string> = N1 extends N2
  * Converts a natural number to a string-number, otherwise never.
  * @example
  * ```ts
- * NumberToStringNum<123> => '123'
- * NumberToStringNum<-13> => never
+ * FromNumber<123> => '123'
+ * FromNumber<-13> => never
  * ```
  */
 export type FromNumber<N extends number> = NatNum<`${N}`>;
