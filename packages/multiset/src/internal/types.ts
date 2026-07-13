@@ -2,6 +2,7 @@ import type { RMap, VariantMap } from '@rimbu/collection-types';
 import type { Elem, WithElem } from '@rimbu/collection-types/common';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
+import type { MultiSet } from '@rimbu/multiset';
 import type {
 	FastIterable,
 	Stream,
@@ -93,6 +94,14 @@ export interface VariantMultiSetBase<
 	 */
 	streamDistinct(): Stream<T>;
 	/**
+	 * Returns a Stream of tuples containing each distinct value and its count.
+	 * @example
+	 * ```ts
+	 * HashMultiSet.of(1, 2, 2).streamWithCounts().toArray()  // => [[1, 1], [2, 2]]
+	 * ```
+	 */
+	streamWithCounts(): Stream<readonly [T, number]>;
+	/**
 	 * Returns the collection where the given `amount` (default: 'ALL') of the given `value`
 	 * are removed.
 	 * @param value - the value to remove
@@ -111,33 +120,22 @@ export interface VariantMultiSetBase<
 		options?: { amount?: number | 'ALL' },
 	): WithElem<Tp, T>['normal'];
 	/**
-	 * Returns the collection where every single value from given `values` `StreamSource` is
-	 * removed.
+	 * Returns the collection where, for every value from given `values` `StreamSource`,
+	 * the given `amount` (default: 'ALL') of occurrences are removed.
 	 * @param values - a `StreamSource` containing values to remove.
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - amount: (default: 'ALL') the amount of occurrences to remove per value, or 'ALL' to remove all occurrences.
 	 * @example
 	 * ```ts
 	 * const m = HashMultiSet.of(1, 2, 2)
-	 * m.removeAllSingle([5, 6]).toArray()    // => [1, 2, 2]
-	 * m.removeAllSingle([2, 3]).toArray()    // => [1, 2]
-	 * m.removeAllSingle([2, 3, 2]).toArray() // => [1]
+	 * m.removeAll([5, 6]).toArray()         // => [1, 2, 2]
+	 * m.removeAll([2, 3]).toArray()         // => [1]
+	 * m.removeAll([2], { amount: 1 }).toArray()  // => [1, 2]
 	 * ```
 	 */
-	removeAllSingle<U = T>(
+	removeAll<U = T>(
 		values: StreamSource<RelatedTo<T, U>>,
-	): WithElem<Tp, T>['normal'];
-	/**
-	 * Returns the collection where for every value from given `values` `StreamSource`,
-	 * all values in the collection are removed.
-	 * @param values - a `StreamSource` containing values to remove.
-	 * @example
-	 * ```ts
-	 * const m = HashMultiSet.of(1, 2, 2)
-	 * m.removeAllEvery([5, 6]).toArray()    // => [1, 2, 2]
-	 * m.removeAllEvery([2, 3]).toArray()    // => [1]
-	 * ```
-	 */
-	removeAllEvery<U = T>(
-		values: StreamSource<RelatedTo<T, U>>,
+		options?: { amount?: number | 'ALL' },
 	): WithElem<Tp, T>['normal'];
 	/**
 	 * Returns true if the given `value` exists in the collection.
@@ -185,30 +183,36 @@ export interface VariantMultiSetBase<
 	/**
 	 * Returns the collection containing only those values for which the given `pred` function returns true.
 	 * @param pred - a predicate function receiving:<br/>
-	 * - `entry`: the next entry consisting of the value and its count<br/>
-	 * - `index`: the entry index<br/>
-	 * - `halt`: a function that, when called, ensures no next entries are passed
+	 * - `valueCount`: a tuple of the value and its count<br/>
+	 * - `index`: the value-count index<br/>
+	 * - `halt`: a function that, when called, ensures no next values are passed
 	 * @param options - (optional) an object containing the following properties:<br/>
 	 * - negate: (default: false) when true will negate the predicate
 	 * @note if the predicate is a type guard, the return type is automatically inferred
 	 * @example
 	 * ```ts
 	 * HashMultiSet.of(1, 2, 2, 3)
-	 *   .filterEntries(entry => entry[1] > 1)
+	 *   .filterWithCounts(([_, count]) => count > 1)
 	 *   .toArray()
 	 * // => [2, 2]
 	 * ```
 	 */
-	filterEntries<TF extends T>(
-		pred: (entry: readonly [T, number], index: number) => entry is [TF, number],
+	filterWithCounts<TF extends T>(
+		pred: (
+			valueCount: readonly [T, number],
+			index: number,
+		) => valueCount is [TF, number],
 		options?: { negate?: false | undefined },
 	): WithElem<Tp, TF>['normal'];
-	filterEntries<TF extends T>(
-		pred: (entry: readonly [T, number], index: number) => entry is [TF, number],
+	filterWithCounts<TF extends T>(
+		pred: (
+			valueCount: readonly [T, number],
+			index: number,
+		) => valueCount is [TF, number],
 		options: { negate: true },
 	): WithElem<Tp, Exclude<T, TF>>['normal'];
-	filterEntries(
-		pred: (entry: readonly [T, number], index: number) => boolean,
+	filterWithCounts(
+		pred: (valueCount: readonly [T, number], index: number) => boolean,
 		options?: { negate?: boolean },
 	): WithElem<Tp, T>['normal'];
 	/**
@@ -217,7 +221,7 @@ export interface VariantMultiSetBase<
 	 * ```ts
 	 * HashMultiSet.of(1, 2, 2).toArray()  // => [1, 2, 2]
 	 * ```
-	 * @note O(log(N))
+	 * @note O(N)
 	 * @note it is safe to mutate the returned array, however, the array elements are not copied, thus should be treated as read-only
 	 */
 	toArray(): T[];
@@ -295,12 +299,20 @@ export namespace VariantMultiSetBase {
 		 */
 		streamDistinct(): Stream.NonEmpty<T>;
 		/**
+		 * Returns a non-empty Stream of tuples containing each distinct value and its count.
+		 * @example
+		 * ```ts
+		 * HashMultiSet.of(1, 2, 2).streamWithCounts().toArray()  // => [[1, 1], [2, 2]]
+		 * ```
+		 */
+		streamWithCounts(): Stream.NonEmpty<readonly [T, number]>;
+		/**
 		 * Returns a non-empty array containing all values in this collection.
 		 * @example
 		 * ```ts
 		 * HashMultiSet.of(1, 2, 2).toArray()  // => [1, 2, 2]
 		 * ```
-		 * @note O(log(N))
+		 * @note O(N)
 		 * @note it is safe to mutate the returned array, however, the array elements are not copied, thus should be treated as read-only
 		 */
 		toArray(): ArrayNonEmpty<T>;
@@ -354,12 +366,12 @@ export interface MultiSetBase<
 	 * @param entries - a `StreamSource` containing tuples that contain a value and an amount
 	 * @example
 	 * ```ts
-	 * HashMultiSet.of(1, 2).addEntries([[2, 2], [3, 2]]).toArray()
+	 * HashMultiSet.of(1, 2).addAllWithCounts([[2, 2], [3, 2]]).toArray()
 	 * // => [1, 2, 2, 2, 3, 3]
 	 * ```
 	 */
-	addEntries(
-		entries: StreamSource<readonly [T, number]>,
+	addAllWithCounts(
+		valueCounts: StreamSource<readonly [T, number]>,
 	): WithElem<Tp, T>['normal'];
 	/**
 	 * Returns the collection where the amount of values of `value` if set to `amount`.
@@ -394,6 +406,51 @@ export interface MultiSetBase<
 		value: T,
 		update: (currentCount: number) => number,
 	): WithElem<Tp, T>['normal'];
+	/**
+	 * Returns a `MultiSet` that is the union of this and given `other` `MultiSet`,
+	 * where the count of each value is the maximum of its counts in both collections.
+	 * @param other - a `MultiSet` to combine with
+	 * @example
+	 * ```ts
+	 * HashMultiSet.of(1, 2, 2).union(HashMultiSet.of(2, 3)).toArray()
+	 * // => [1, 2, 2, 3]
+	 * ```
+	 */
+	union<U extends T>(other: MultiSet.NonEmpty<U>): WithElem<Tp, T>['nonEmpty'];
+	union<U extends T>(other: MultiSet<U>): WithElem<Tp, T>['normal'];
+	/**
+	 * Returns a `MultiSet` that is the intersection of this and given `other` `MultiSet`,
+	 * where the count of each value is the minimum of its counts in both collections.
+	 * @param other - a `MultiSet` to combine with
+	 * @example
+	 * ```ts
+	 * HashMultiSet.of(1, 2, 2).intersect(HashMultiSet.of(2, 3)).toArray()
+	 * // => [2]
+	 * ```
+	 */
+	intersect<U extends T>(other: MultiSet<U>): WithElem<Tp, T>['normal'];
+	/**
+	 * Returns a `MultiSet` that is the difference of this and given `other` `MultiSet`,
+	 * where the count of each value is the maximum of 0 and (this count - other count).
+	 * @param other - a `MultiSet` to subtract
+	 * @example
+	 * ```ts
+	 * HashMultiSet.of(1, 2, 2).difference(HashMultiSet.of(2, 3)).toArray()
+	 * // => [1, 2]
+	 * ```
+	 */
+	difference<U extends T>(other: MultiSet<U>): WithElem<Tp, T>['normal'];
+	/**
+	 * Returns a `MultiSet` that is the symmetric difference of this and given `other` `MultiSet`,
+	 * where the count of each value is the absolute difference of its counts in both collections.
+	 * @param other - a `MultiSet` to combine with
+	 * @example
+	 * ```ts
+	 * HashMultiSet.of(1, 2, 2).symDifference(HashMultiSet.of(2, 3)).toArray()
+	 * // => [1, 2, 3]
+	 * ```
+	 */
+	symDifference<U extends T>(other: MultiSet<U>): WithElem<Tp, T>['normal'];
 	/**
 	 * Returns a builder object containing the entries of this collection.
 	 * @example
@@ -442,18 +499,24 @@ export namespace MultiSetBase {
 		 */
 		addAll(values: StreamSource<T>): WithElem<Tp, T>['nonEmpty'];
 		/**
-		 * Returns the collection where for every entry in `entries` consisting of a tuple
-		 * of a value and an amount, that value is added `amount` times.
-		 * @param entries - a `StreamSource` containing tuples that contain a value and an amount
+		 * Returns the collection where for every tuple in `valueCounts` consisting of a value
+		 * and an amount, that value is added `amount` times.
+		 * @param valueCounts - a `StreamSource` containing tuples of a value and an amount
 		 * @example
 		 * ```ts
-		 * HashMultiSet.of(1, 2).addEntries([[2, 2], [3, 2]]).toArray()
+		 * HashMultiSet.of(1, 2).addAllWithCounts([[2, 2], [3, 2]]).toArray()
 		 * // => [1, 2, 2, 2, 3, 3]
 		 * ```
 		 */
-		addEntries(
-			entries: StreamSource<readonly [T, number]>,
+		addAllWithCounts(
+			valueCounts: StreamSource<readonly [T, number]>,
 		): WithElem<Tp, T>['nonEmpty'];
+		/**
+		 * Returns a non-empty `MultiSet` that is the union of this and given `other` `MultiSet`,
+		 * where the count of each value is the maximum of its counts in both collections.
+		 * @param other - a `MultiSet` to combine with
+		 */
+		union(other: MultiSet<T>): WithElem<Tp, T>['nonEmpty'];
 	}
 
 	export interface Factory<Tp extends MultiSetBase.Types, UT = unknown> {
@@ -613,18 +676,18 @@ export namespace MultiSetBase {
 		 */
 		addAll(values: StreamSource<T>): boolean;
 		/**
-		 * Adds for each tuple of a value and amount in the given `entries`, the amount of values
+		 * Adds for each tuple of a value and amount in the given `valueCounts`, the amount of values
 		 * to the builder.
-		 * @param entries - a `StreamSource` containing tuples of a value and amount
+		 * @param valueCounts - a `StreamSource` containing tuples of a value and amount
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
 		 * const s = HashMultiSet.of(1, 2, 2).toBuilder()
-		 * s.addEntries([[1, 2], [2, 3]])   // => true
-		 * s.addEntries([[1, 0], [3, 0]])   // => false
+		 * s.addAllWithCounts([[1, 2], [2, 3]])   // => true
+		 * s.addAllWithCounts([[1, 0], [3, 0]])   // => false
 		 * ```
 		 */
-		addEntries(entries: StreamSource<readonly [T, number]>): boolean;
+		addAllWithCounts(valueCounts: StreamSource<readonly [T, number]>): boolean;
 		/**
 		 * Removes given `amount` or all of given `value` from the builder.
 		 * @param value - the value to remove
@@ -640,29 +703,24 @@ export namespace MultiSetBase {
 		 */
 		remove<U = T>(value: RelatedTo<T, U>, amount?: number | 'ALL'): number;
 		/**
-		 * Removes every single value in given `values` from the builder.
+		 * Removes the given `amount` (default: 'ALL') of occurrences of every value in given
+		 * `values` from the builder.
 		 * @param values - a `StreamSource` of values to remove.
+		 * @param options - (optional) an object containing the following properties:<br/>
+		 * - amount: (default: 'ALL') the amount of occurrences to remove per value, or 'ALL' to remove all occurrences.
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
 		 * const s = HashMultiSet.of(1, 2, 2).toBuilder()
-		 * s.removeAllSingle([10, 11])   // => false
-		 * s.removeAllSingle([1, 11])    // => true
+		 * s.removeAll([10, 11])   // => false
+		 * s.removeAll([1, 11])    // => true
+		 * s.removeAll([2], { amount: 1 })  // => true
 		 * ```
 		 */
-		removeAllSingle<U = T>(values: StreamSource<RelatedTo<T, U>>): boolean;
-		/**
-		 * Removes every instance of the given `values` from the builder.
-		 * @param values - a `StreamSource` of values to remove.
-		 * @returns true if the data in the builder has changed
-		 * @example
-		 * ```ts
-		 * const s = HashMultiSet.of(1, 2, 2).toBuilder()
-		 * s.removeAllEvery([10, 11])   // => false
-		 * s.removeAllEvery([1, 11])    // => true
-		 * ```
-		 */
-		removeAllEvery<U = T>(values: StreamSource<RelatedTo<T, U>>): boolean;
+		removeAll<U = T>(
+			values: StreamSource<RelatedTo<T, U>>,
+			options?: { amount?: number | 'ALL' },
+		): boolean;
 		/**
 		 * Sets the amount of given `value` in the collection to `amount`.
 		 * @param value - the value for which to set the amount

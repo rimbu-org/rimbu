@@ -44,14 +44,20 @@ export class MultiSetEmpty<T> extends EmptyBase implements MultiSetBase<T> {
 	}
 
 	addAll(values: StreamSource<T>): any {
+		if (this.context.isNonEmptyInstance<T>(values) && values.context === this.context) {
+			return values;
+		}
+
 		return this.context.from(values);
 	}
 
-	addEntries(entries: StreamSource<readonly [T, number]>): MultiSet<T> {
-		if (Stream.isEmptyStreamSourceInstance(entries)) return this;
+	addAllWithCounts(
+		valueCounts: StreamSource<readonly [T, number]>,
+	): MultiSet<T> {
+		if (Stream.isEmptyStreamSourceInstance(valueCounts)) return this;
 
 		const builder = this.toBuilder();
-		builder.addEntries(entries);
+		builder.addAllWithCounts(valueCounts);
 		return builder.build();
 	}
 
@@ -59,12 +65,28 @@ export class MultiSetEmpty<T> extends EmptyBase implements MultiSetBase<T> {
 		return this;
 	}
 
-	removeAllSingle(): this {
+	removeAll(): this {
 		return this;
 	}
 
-	removeAllEvery(): this {
-		return this;
+	streamWithCounts(): Stream<readonly [T, number]> {
+		return Stream.empty();
+	}
+
+	union<U extends T>(other: MultiSet<U>): any {
+		return this.addAll(other);
+	}
+
+	intersect(): MultiSet<T> {
+		return this.context.empty();
+	}
+
+	difference(): MultiSet<T> {
+		return this.context.empty();
+	}
+
+	symDifference<U extends T>(other: MultiSet<U>): MultiSet<T> {
+		return this.addAll(other);
 	}
 
 	setCount(elem: T, amount: number): MultiSet<T> {
@@ -87,7 +109,7 @@ export class MultiSetEmpty<T> extends EmptyBase implements MultiSetBase<T> {
 		//
 	}
 
-	filterEntries(): any {
+	filterWithCounts(): any {
 		return this;
 	}
 
@@ -125,7 +147,7 @@ export class MultiSetNonEmpty<T>
 		super();
 	}
 
-	assumeNonEmpty(): any {
+	assumeNonEmpty(): this {
 		return this;
 	}
 
@@ -186,13 +208,13 @@ export class MultiSetNonEmpty<T>
 		return builder.build().assumeNonEmpty();
 	}
 
-	addEntries(
-		entries: StreamSource<readonly [T, number]>,
+	addAllWithCounts(
+		valueCounts: StreamSource<readonly [T, number]>,
 	): MultiSet.NonEmpty<T> {
-		if (Stream.isEmptyStreamSourceInstance(entries)) return this;
+		if (Stream.isEmptyStreamSourceInstance(valueCounts)) return this;
 
 		const builder = this.toBuilder();
-		builder.addEntries(entries);
+		builder.addAllWithCounts(valueCounts);
 		return builder.build().assumeNonEmpty();
 	}
 
@@ -279,19 +301,58 @@ export class MultiSetNonEmpty<T>
 		return this.copyE(newCountMap, newSize);
 	}
 
-	removeAllSingle<U>(elems: StreamSource<RelatedTo<T, U>>): MultiSet<T> {
+	removeAll<U>(
+		elems: StreamSource<RelatedTo<T, U>>,
+		options?: { amount?: number | 'ALL' },
+	): MultiSet<T> {
 		if (Stream.isEmptyStreamSourceInstance(elems)) return this;
 
 		const builder = this.toBuilder();
-		builder.removeAllSingle(elems);
+		builder.removeAll(elems, options);
 		return builder.build();
 	}
 
-	removeAllEvery<U>(elems: StreamSource<RelatedTo<T, U>>): MultiSet<T> {
-		if (Stream.isEmptyStreamSourceInstance(elems)) return this;
+	streamWithCounts(): Stream.NonEmpty<readonly [T, number]> {
+		return this.countMap.stream();
+	}
 
+	union<U extends T>(other: MultiSet<U>): MultiSet.NonEmpty<T> {
 		const builder = this.toBuilder();
-		builder.removeAllEvery(elems);
+		other.countMap.forEach(([value, count]): void => {
+			builder.modifyCount(value, (currentCount): number => (currentCount > count ? currentCount : count));
+		});
+		return builder.build().assumeNonEmpty();
+	}
+
+	intersect<U extends T>(other: MultiSet<U>): MultiSet<T> {
+		const builder = this.context.builder();
+		this.countMap.forEach(([value, count]): void => {
+			const otherCount = other.count(value as U);
+			if (otherCount > 0) builder.setCount(value, count < otherCount ? count : otherCount);
+		});
+		return builder.build();
+	}
+
+	difference<U extends T>(other: MultiSet<U>): MultiSet<T> {
+		const builder = this.toBuilder();
+		other.countMap.forEach(([value, count]): void => {
+			if (count <= 0) return;
+			const currentCount = builder.count(value);
+			const newCount = currentCount - count;
+			if (newCount <= 0) builder.remove(value, 'ALL');
+			else builder.setCount(value, newCount);
+		});
+		return builder.build();
+	}
+
+	symDifference<U extends T>(other: MultiSet<U>): MultiSet<T> {
+		const builder = this.toBuilder();
+		other.countMap.forEach(([value, count]): void => {
+			const currentCount = builder.count(value);
+			const newCount = currentCount > count ? currentCount - count : count - currentCount;
+			if (newCount <= 0) builder.remove(value, 'ALL');
+			else builder.setCount(value, newCount);
+		});
 		return builder.build();
 	}
 
@@ -320,8 +381,8 @@ export class MultiSetNonEmpty<T>
 		}
 	}
 
-	filterEntries(
-		pred: (entry: readonly [T, number], index: number) => boolean,
+	filterWithCounts(
+		pred: (valueCount: readonly [T, number], index: number) => boolean,
 		options: { negate?: boolean | undefined } = {},
 	): any {
 		const builder = this.context.builder();
@@ -371,7 +432,7 @@ export class MultiSetNonEmpty<T>
 	}
 
 	toBuilder(): MultiSet.Builder<T> {
-		return new MultiSetBuilder(this.context, this);
+		return new MultiSetBuilder<T>(this.context, this);
 	}
 }
 
@@ -439,10 +500,12 @@ export class MultiSetBuilder<T> implements MultiSetBase.Builder<T> {
 		return Stream.from(source).filterPure({ pred: this.add }, 1).count() > 0;
 	};
 
-	addEntries = (entries: StreamSource<readonly [T, number]>): boolean => {
+	addAllWithCounts = (
+		valueCounts: StreamSource<readonly [T, number]>,
+	): boolean => {
 		this.checkLock();
 
-		return Stream.applyFilter(entries, { pred: this.add }).count() > 0;
+		return Stream.applyFilter(valueCounts, { pred: this.add }).count() > 0;
 	};
 
 	remove = <U>(value: RelatedTo<T, U>, amount: number | 'ALL' = 1): number => {
@@ -545,25 +608,19 @@ export class MultiSetBuilder<T> implements MultiSetBase.Builder<T> {
 
 	removeAll = <U>(
 		values: StreamSource<RelatedTo<T, U>>,
-		mode: 'SINGLE' | 'ALL',
+		options?: { amount?: number | 'ALL' },
 	): boolean => {
 		this.checkLock();
 
 		if (Stream.isEmptyStreamSourceInstance(values)) return false;
 
+		const amount = options?.amount ?? 'ALL';
+
 		return (
 			Stream.from(values)
-				.mapPure(this.remove, mode === 'SINGLE' ? 1 : 'ALL')
+				.mapPure(this.remove, amount)
 				.countElement(0, { negate: true }) > 0
 		);
-	};
-
-	removeAllSingle = <U>(values: StreamSource<RelatedTo<T, U>>): boolean => {
-		return this.removeAll(values, 'SINGLE');
-	};
-
-	removeAllEvery = <U>(values: StreamSource<RelatedTo<T, U>>): boolean => {
-		return this.removeAll(values, 'ALL');
 	};
 
 	forEach = (

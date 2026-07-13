@@ -45,11 +45,11 @@ expectTypeOf(genNonEmpty.add(1, 0)).toEqualTypeOf<G_NonEmpty>();
 expectTypeOf(genEmpty.addAll([1, 2, 3])).toEqualTypeOf<G_NonEmpty>();
 expectTypeOf(genNonEmpty.addAll([1, 2, 3])).toEqualTypeOf<G_NonEmpty>();
 
-// .addEntries(..)
-expectTypeOf(genEmpty.addEntries([])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genEmpty.addEntries([[1, 1]])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.addEntries([])).toEqualTypeOf<G_NonEmpty>();
-expectTypeOf(genNonEmpty.addEntries([[1, 1]])).toEqualTypeOf<G_NonEmpty>();
+// .addAllWithCounts(..)
+expectTypeOf(genEmpty.addAllWithCounts([])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.addAllWithCounts([[1, 1]])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.addAllWithCounts([])).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.addAllWithCounts([[1, 1]])).toEqualTypeOf<G_NonEmpty>();
 
 // .assumeNonEmpty()
 expectTypeOf(genEmpty.assumeNonEmpty()).toEqualTypeOf<G_NonEmpty>();
@@ -61,9 +61,9 @@ expectTypeOf(genNonEmpty.context).toEqualTypeOf<
 	SortedMultiSet.Context<number>
 >();
 
-// .filterEntries
-expectTypeOf(genEmpty.filterEntries(() => true)).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.filterEntries(() => true)).toEqualTypeOf<G_Empty>();
+// .filterWithCounts
+expectTypeOf(genEmpty.filterWithCounts(() => true)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.filterWithCounts(() => true)).toEqualTypeOf<G_Empty>();
 
 // .isEmpty
 expectTypeOf(genEmpty.isEmpty).toEqualTypeOf<boolean>();
@@ -86,13 +86,13 @@ expectTypeOf(genNonEmpty.remove(3)).toEqualTypeOf<G_Empty>();
 expectTypeOf(genEmpty.remove(3, { amount: 3 })).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.remove(3, { amount: 3 })).toEqualTypeOf<G_Empty>();
 
-// .removeAllEvery(..)
-expectTypeOf(genEmpty.removeAllEvery([3, 4])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.removeAllEvery([3, 4])).toEqualTypeOf<G_Empty>();
-
-// .removeAllEvery(..)
-expectTypeOf(genEmpty.removeAllSingle([3, 4])).toEqualTypeOf<G_Empty>();
-expectTypeOf(genNonEmpty.removeAllSingle([3, 4])).toEqualTypeOf<G_Empty>();
+// .removeAll(..)
+expectTypeOf(genEmpty.removeAll([3, 4])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.removeAll([3, 4])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.removeAll([3, 4], { amount: 1 })).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.removeAll([3, 4], { amount: 1 })).toEqualTypeOf<
+	G_Empty
+>();
 
 // .setCount(..)
 expectTypeOf(genEmpty.setCount(3, 0)).toEqualTypeOf<G_Empty>();
@@ -107,6 +107,20 @@ expectTypeOf(genEmpty.streamDistinct()).toEqualTypeOf<Stream<number>>();
 expectTypeOf(genNonEmpty.streamDistinct()).toEqualTypeOf<
 	Stream.NonEmpty<number>
 >();
+
+// .streamWithCounts();
+expectTypeOf(genEmpty.streamWithCounts()).toEqualTypeOf<
+	Stream<readonly [number, number]>
+>();
+expectTypeOf(genNonEmpty.streamWithCounts()).toEqualTypeOf<
+	Stream.NonEmpty<readonly [number, number]>
+>();
+
+// .union(..)
+expectTypeOf(genEmpty.union(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.union(genNonEmpty)).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.union(genEmpty)).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.union(genNonEmpty)).toEqualTypeOf<G_NonEmpty>();
 
 // .toArray()
 expectTypeOf(genEmpty.toArray()).toEqualTypeOf<number[]>();

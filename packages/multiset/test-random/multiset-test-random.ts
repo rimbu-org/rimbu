@@ -121,7 +121,7 @@ export function runMultiSetRandomTestsWith(
 			expect(m.nonEmpty()).toBe(false);
 			expect(m.add(1).isEmpty).toBe(false);
 			expect(m.assumeNonEmpty).toThrowError();
-			expect(m.filterEntries((v): boolean => false)).toBe(empty);
+			expect(m.filterWithCounts((v): boolean => false)).toBe(empty);
 			expect(m.has(0)).toBe(false);
 			expect(m.count(1)).toBe(0);
 			// expect(m.keySet().isEmpty).toBe(true);
@@ -213,16 +213,16 @@ export function runMultiSetRandomTestsWith(
 			expect(context.of(10, 1, 10, 1).count(5)).toBe(0);
 		});
 
-		it('filterEntries', (): void => {
-			expect(context.empty().filterEntries((v) => true)).toBe(context.empty());
+		it('filterWithCounts', (): void => {
+			expect(context.empty().filterWithCounts((v) => true)).toBe(context.empty());
 			const m = context.from(
 				Stream.range({ amount: 4 }).concat(Stream.range({ amount: 6 })),
 			);
-			expect(m.filterEntries((v) => true)).toBe(m);
-			expect(m.filterEntries(([value, count]) => value < 3)).toEqual(
+			expect(m.filterWithCounts((v) => true)).toBe(m);
+			expect(m.filterWithCounts(([value, count]) => value < 3)).toEqual(
 				context.of(0, 0, 1, 1, 2, 2),
 			);
-			expect(m.filterEntries(([value, count]) => count > 1)).toEqual(
+			expect(m.filterWithCounts(([value, count]) => count > 1)).toEqual(
 				context.of(0, 0, 1, 1, 2, 2, 3, 3),
 			);
 		});
