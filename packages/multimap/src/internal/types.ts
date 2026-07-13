@@ -283,6 +283,17 @@ export interface VariantMultiMapBase<
 		transformFun: (stream: Stream<[K, V]>) => StreamSource<[K2, V2]>,
 	): WithKeyValue<Tp, K2, V2>['normal'];
 	/**
+	 * Returns the number of values associated with given `key`, or `0` if the key is not present.
+	 * @param key - the key to look for
+	 * @example
+	 * ```ts
+	 * const m = HashMultiMapHashValue.of([1, 'a'], [1, 'b'], [2, 'c'])
+	 * m.count(1)   // => 2
+	 * m.count(3)   // => 0
+	 * ```
+	 */
+	count<UK = K>(key: RelatedTo<K, UK>): number;
+	/**
 	 * Returns an array containing all entries in this collection.
 	 * @example
 	 * ```ts
@@ -392,9 +403,7 @@ export namespace VariantMultiMapBase {
 			) => StreamSource.NonEmpty<[K2, V2]>,
 		): WithKeyValue<Tp, K2, V2>['nonEmpty'];
 		transform<K2 extends K, V2 extends V>(
-			transformFun: (
-				stream: Stream.NonEmpty<[K, V]>,
-			) => StreamSource<[K2, V2]>,
+			transformFun: (stream: Stream.NonEmpty<[K, V]>) => StreamSource<[K2, V2]>,
 		): WithKeyValue<Tp, K2, V2>['normal'];
 		/**
 		 * Returns a non-empty Stream containing all keys of this collection.
@@ -491,14 +500,45 @@ export interface MultiMapBase<
 	): WithKeyValue<Tp, K, V>['nonEmpty'];
 	setValues(key: K, values: StreamSource<V>): WithKeyValue<Tp, K, V>['normal'];
 	/**
+	 * Returns a MultiMap with the same keys, but where given `mapFun` is applied to each of its values.
+	 * @typeparam W - the type of the resulting values (a subtype of `V`)
+	 * @param mapFun - a function taking a value and its key, returning a new value
+	 * @example
+	 * ```ts
+	 * HashMultiMapHashValue.of([1, 'a'], [1, 'b']).mapValues(v => v.toUpperCase()).toArray()
+	 * // => [[1, 'A'], [1, 'B']]
+	 * ```
+	 * @note the number of values per key is preserved, so a non-empty collection stays non-empty.
+	 * Because the result is built in the same context, `W` must be a subtype of `V`.
+	 */
+	mapValues<V2 extends V>(
+		mapFun: (value: V, key: K) => V2,
+	): WithKeyValue<Tp, K, V2>['normal'];
+	/**
+	 * Returns a MultiMap where, for each key, given `flatMapFun` is applied to each of its values,
+	 * and the resulting values are collected as the new values for that key.
+	 * @typeparam W - the type of the resulting values (a subtype of `V`)
+	 * @param flatMapFun - a function taking a value and its key, returning a `StreamSource` of new values
+	 * @example
+	 * ```ts
+	 * HashMultiMapHashValue.of([1, 'a']).flatMapValues(v => [v, v.toUpperCase()]).toArray()
+	 * // => [[1, 'a'], [1, 'A']]
+	 * ```
+	 * @note a key may end up with zero values (for example if `flatMapFun` returns an empty
+	 * `StreamSource` for all its values), in which case the key is removed. Because the result is
+	 * built in the same context, `W` must be a subtype of `V`.
+	 */
+	flatMapValues<V2 extends V>(
+		flatMapFun: (value: V, key: K) => StreamSource<V2>,
+	): WithKeyValue<Tp, K, V2>['normal'];
+	/**
 	 * Returns the collection with the given `atKey` key modified according to given `options`.
 	 * @param atKey - the key at which to modify the collection
 	 * @param options - an object containing the following information:<br/>
 	 * - ifNew: (optional) if the given `atKey` is not present in the collection, this value or function will be used
-	 * to generate new values. If a function returning the token argument is given, no new entry is created.<br/>
-	 * - ifExists: (optional) if given `atKey` exists in the collection, this function is called with the current values to
-	 * return new values. As a second argument, a `remove` token is given. If the function returns this token, the current
-	 * entry is removed.
+	 * to generate the new values. Returning or providing an empty `StreamSource` creates no new entry.<br/>
+	 * - ifExists: (optional) if given `atKey` exists in the collection, this function is called with the current
+	 * non-empty value set to return the new values. Returning an empty `StreamSource` removes the key (and its values).
 	 * @example
 	 * ```ts
 	 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])
@@ -520,6 +560,102 @@ export interface MultiMapBase<
 			V,
 			WithKeyValue<Tp, K, V>['keyMapValuesNonEmpty'] & RSet.NonEmpty<V>
 		>,
+	): WithKeyValue<Tp, K, V>['normal'];
+	/**
+	 * Returns the collection with the given `values` added to the values associated with given `key`.
+	 * @param key - the key to which to add the values
+	 * @param values - a `StreamSource` of values to add
+	 * @example
+	 * ```ts
+	 * HashMultiMapHashValue.of([1, 'a']).addValues(1, ['b', 'c']).toArray()
+	 * // => [[1, 'a'], [1, 'b'], [1, 'c']]
+	 * ```
+	 * @note if `values` is empty, the collection is returned unchanged (and, if the key was
+	 * absent, the same object reference)
+	 */
+	addValues(
+		key: K,
+		values: StreamSource.NonEmpty<V>,
+	): WithKeyValue<Tp, K, V>['nonEmpty'];
+	addValues(key: K, values: StreamSource<V>): WithKeyValue<Tp, K, V>['normal'];
+	/**
+	 * Returns a MultiMap that is the result of applying given `flatMapFun` to each key-value entry,
+	 * where the function returns a `StreamSource` of resulting entries.
+	 * @typeparam K2 - the key type of the resulting entries (a subtype of `K`)
+	 * @typeparam V2 - the value type of the resulting entries (a subtype of `V`)
+	 * @param flatMapFun - a function taking an entry, its index, and a halt function,
+	 * returning a `StreamSource` of new entries
+	 * @example
+	 * ```ts
+	 * HashMultiMapHashValue.of([1, 'a']).flatMap(([k, v]) => [[k, v], [k, v.toUpperCase()]]).toArray()
+	 * // => [[1, 'a'], [1, 'A']]
+	 * ```
+	 * @note because the result is built in the same context, `K2` must be a subtype of `K` and
+	 * `V2` a subtype of `V`. To transform to unrelated key or value types, build a new collection
+	 * explicitly, for example `HashMultiMapHashValue.from(stream.flatMap(...))`
+	 */
+	flatMap<K2 extends K, V2 extends V>(
+		flatMapFun: (
+			entry: [K, V],
+			index: number,
+			halt: () => void,
+		) => StreamSource<[K2, V2]>,
+	): WithKeyValue<Tp, K2, V2>['normal'];
+	/**
+	 * Returns the union of this and given `other` MultiMap, where for each key the value sets are
+	 * combined using set union. Keys that are present in only one of the collections keep their values.
+	 * @param other - a `MultiMap` to combine with
+	 * @example
+	 * ```ts
+	 * HashMultiMapHashValue.of([1, 'a'], [2, 'b']).union(HashMultiMapHashValue.of([1, 'c'], [3, 'd'])).toArray()
+	 * // => [[1, 'a'], [1, 'c'], [2, 'b'], [3, 'd']]
+	 * ```
+	 */
+	union<U extends V>(
+		other: MultiMap.NonEmpty<K, U>,
+	): WithKeyValue<Tp, K, V>['nonEmpty'];
+	union<U extends V>(other: MultiMap<K, U>): WithKeyValue<Tp, K, V>['normal'];
+	/**
+	 * Returns the intersection of this and given `other` MultiMap, where for each key that is present
+	 * in both collections, the resulting value set is the set intersection of both value sets. Keys
+	 * that are not present in both are removed.
+	 * @param other - a `MultiMap` to combine with
+	 * @example
+	 * ```ts
+	 * HashMultiMapHashValue.of([1, 'a'], [1, 'b'], [2, 'b']).intersect(HashMultiMapHashValue.of([1, 'b'], [3, 'd'])).toArray()
+	 * // => [[1, 'b']]
+	 * ```
+	 */
+	intersect<U extends V>(
+		other: MultiMap<K, U>,
+	): WithKeyValue<Tp, K, V>['normal'];
+	/**
+	 * Returns the difference of this and given `other` MultiMap, where for each key the resulting
+	 * value set is the set difference of this collection's values minus `other`'s values. Keys whose
+	 * value set becomes empty are removed.
+	 * @param other - a `MultiMap` to subtract
+	 * @example
+	 * ```ts
+	 * HashMultiMapHashValue.of([1, 'a'], [1, 'b'], [2, 'b']).difference(HashMultiMapHashValue.of([1, 'b'], [3, 'd'])).toArray()
+	 * // => [[1, 'a'], [2, 'b']]
+	 * ```
+	 */
+	difference<U extends V>(
+		other: MultiMap<K, U>,
+	): WithKeyValue<Tp, K, V>['normal'];
+	/**
+	 * Returns the symmetric difference of this and given `other` MultiMap, where for each key the
+	 * resulting value set is the symmetric set difference of both value sets. Keys present in only
+	 * one collection keep their values; keys present in both keep only the values not shared.
+	 * @param other - a `MultiMap` to combine with
+	 * @example
+	 * ```ts
+	 * HashMultiMapHashValue.of([1, 'a'], [1, 'b'], [2, 'b']).symDifference(HashMultiMapHashValue.of([1, 'b'], [3, 'd'])).toArray()
+	 * // => [[1, 'a'], [2, 'b'], [3, 'd']]
+	 * ```
+	 */
+	symDifference<U extends V>(
+		other: MultiMap<K, U>,
 	): WithKeyValue<Tp, K, V>['normal'];
 	/**
 	 * Returns a builder object containing the entries of this collection.
@@ -562,6 +698,65 @@ export namespace MultiMapBase {
 		 */
 		addEntries(
 			entries: StreamSource<readonly [K, V]>,
+		): WithKeyValue<Tp, K, V>['nonEmpty'];
+		/**
+		 * Returns the collection with the given `values` added to the values associated with given `key`.
+		 * @param key - the key to which to add the values
+		 * @param values - a non-empty `StreamSource` of values to add
+		 * @example
+		 * ```ts
+		 * HashMultiMapHashValue.of([1, 'a']).addValues(1, ['b', 'c']).toArray()
+		 * // => [[1, 'a'], [1, 'b'], [1, 'c']]
+		 * ```
+		 */
+		addValues(
+			key: K,
+			values: StreamSource<V>,
+		): WithKeyValue<Tp, K, V>['nonEmpty'];
+		/**
+		 * Returns a MultiMap with the same keys, but where given `mapFun` is applied to each of its values.
+		 * @typeparam W - the type of the resulting values (a subtype of `V`)
+		 * @param mapFun - a function taking a value and its key, returning a new value
+		 * @example
+		 * ```ts
+		 * HashMultiMapHashValue.of([1, 'a'], [1, 'b']).mapValues(v => v.toUpperCase()).toArray()
+		 * // => [[1, 'A'], [1, 'B']]
+		 * ```
+		 * @note the number of values per key is preserved, so a non-empty collection stays non-empty
+		 */
+		mapValues<V2 extends V>(
+			mapFun: (value: V, key: K) => V2,
+		): WithKeyValue<Tp, K, V2>['nonEmpty'];
+		/**
+		 * Returns a MultiMap that is the result of applying given `flatMapFun` to each key-value entry,
+		 * where the function returns a `StreamSource` of resulting entries.
+		 * @typeparam K2 - the key type of the resulting entries (a subtype of `K`)
+		 * @typeparam V2 - the value type of the resulting entries (a subtype of `V`)
+		 * @param flatMapFun - a function taking an entry, its index, and a halt function,
+		 * returning a `StreamSource` of new entries
+		 * @example
+		 * ```ts
+		 * HashMultiMapHashValue.of([1, 'a']).flatMap(([k, v]) => [[k, v], [k, v.toUpperCase()]]).toArray()
+		 * // => [[1, 'a'], [1, 'A']]
+		 * ```
+		 * @note because the result is built in the same context, `K2` must be a subtype of `K` and
+		 * `V2` a subtype of `V`. To transform to unrelated key or value types, build a new collection
+		 * explicitly, for example `HashMultiMapHashValue.from(stream.flatMap(...))`
+		 */
+		flatMap<K2 extends K, V2 extends V>(
+			flatMapFun: (
+				entry: [K, V],
+				index: number,
+				halt: () => void,
+			) => StreamSource.NonEmpty<[K2, V2]>,
+		): WithKeyValue<Tp, K2, V2>['nonEmpty'];
+		/**
+		 * Returns the union of this and given `other` MultiMap, where for each key the value sets are
+		 * combined using set union. Since this collection is non-empty, the result is non-empty as well.
+		 * @param other - a non-empty `MultiMap` to combine with
+		 */
+		union<U extends V>(
+			other: MultiMap<K, U>,
 		): WithKeyValue<Tp, K, V>['nonEmpty'];
 	}
 
@@ -704,6 +899,19 @@ export namespace MultiMapBase {
 		 * ```
 		 */
 		setValues(key: K, values: StreamSource<V>): boolean;
+		/**
+		 * Adds given `values` to the values associated with given `key`.
+		 * @param key - the key to which to add the values
+		 * @param values - a `StreamSource` of values to add
+		 * @returns true if the data in the builder has changed
+		 * @example
+		 * ```ts
+		 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b']).toBuilder()
+		 * m.addValues(1, ['c'])   // => true
+		 * m.addValues(1, [])      // => false
+		 * ```
+		 */
+		addValues(key: K, values: StreamSource<V>): boolean;
 		/**
 		 * Returns true if the given `key` is present in the builder.
 		 * @param key - the key to look for

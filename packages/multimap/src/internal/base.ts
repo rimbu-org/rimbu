@@ -71,6 +71,46 @@ export class MultiMapEmpty<K, V>
 		return this.context.from(transformFun(Stream.empty()));
 	}
 
+	addValues(key: K, values: StreamSource<V>): any {
+		return this.context.from(
+			Stream.from(values).map((v) => [key, v] as [K, V]),
+		);
+	}
+
+	flatMap(): any {
+		return this;
+	}
+
+	mapValues(): any {
+		return this;
+	}
+
+	flatMapValues(): any {
+		return this;
+	}
+
+	count(): 0 {
+		return 0;
+	}
+
+	union<U extends V>(other: MultiMap<K, U>): any {
+		if (other.isEmpty) return this;
+		return this.context.from(other);
+	}
+
+	intersect(): any {
+		return this;
+	}
+
+	difference(): any {
+		return this;
+	}
+
+	symDifference<U extends V>(other: MultiMap<K, U>): any {
+		if (other.isEmpty) return this;
+		return this.context.from(other);
+	}
+
 	getValues(): RSet<V> {
 		return this.context.keyMapValuesContext.empty();
 	}
@@ -197,6 +237,125 @@ export class MultiMapNonEmpty<K, V>
 		transformFun: (stream: Stream.NonEmpty<[K, V]>) => StreamSource<[K2, V2]>,
 	): any {
 		return this.context.from(transformFun(this.stream()));
+	}
+
+	addValues(key: K, values: StreamSource<V>): MultiMap.NonEmpty<K, V> {
+		if (Stream.isEmptyStreamSourceInstance(values)) return this;
+
+		const builder = this.toBuilder();
+		builder.addValues(key, values);
+		return builder.build().assumeNonEmpty();
+	}
+
+	flatMap<K2 extends K, V2 extends V>(
+		flatMapFun: (
+			entry: [K, V],
+			index: number,
+			halt: () => void,
+		) => StreamSource<[K2, V2]>,
+	): any {
+		const builder = this.context.builder<K2, V2>();
+
+		let entry: [K, V] | undefined;
+		const iter = this[Symbol.iterator]();
+		const state = TraverseState();
+
+		while (!state.halted && (entry = iter.fastNext()) !== undefined) {
+			builder.addEntries(flatMapFun(entry, state.nextIndex(), state.halt));
+		}
+
+		return builder.build();
+	}
+
+	mapValues<V2 extends V>(
+		mapFun: (value: V, key: K) => V2,
+	): MultiMap.NonEmpty<K, V2> {
+		const newKeyMap = this.keyMap.mapValues((values, key) =>
+			this.context.keyMapValuesContext.from(
+				values.stream().map((v) => mapFun(v, key)),
+			),
+		);
+		return this.context.createNonEmpty(newKeyMap, this.size);
+	}
+
+	flatMapValues<V2 extends V>(
+		flatMapFun: (value: V, key: K) => StreamSource<V2>,
+	): MultiMap<K, V2> {
+		const builder = this.context.builder<K, V2>();
+
+		let entry: readonly [K, RSet.NonEmpty<V>] | undefined;
+		const iter = this.keyMap[Symbol.iterator]();
+		const state = TraverseState();
+
+		while (!state.halted && (entry = iter.fastNext()) !== undefined) {
+			const [key, values] = entry;
+			const newValues = this.context.keyMapValuesContext.from(
+				values.stream().flatMap((v) => flatMapFun(v, key)),
+			);
+			if (newValues.nonEmpty()) {
+				builder.setValues(key, newValues);
+			}
+		}
+
+		return builder.build();
+	}
+
+	count<UK>(key: RelatedTo<K, UK>): number {
+		return this.keyMap.get(key)?.size ?? 0;
+	}
+
+	union<U extends V>(other: MultiMap<K, U>): MultiMap.NonEmpty<K, V> {
+		if (other.isEmpty) return this;
+
+		const builder = this.toBuilder();
+		builder.addEntries(other);
+
+		return builder.build().assumeNonEmpty();
+	}
+
+	intersect<U extends V>(other: MultiMap<K, U>): MultiMap<K, V> {
+		if (this.isEmpty || other.isEmpty) return this.context.empty();
+
+		const builder = this.context.builder<K, V>();
+		this.keyMap.forEach(([key, values]) => {
+			const inter = values.intersect(other.getValues(key));
+			if (inter.nonEmpty()) builder.setValues(key, inter);
+		});
+		return builder.build();
+	}
+
+	difference<U extends V>(other: MultiMap<K, U>): MultiMap<K, V> {
+		if (this.isEmpty) return this.context.empty();
+		if (other.isEmpty) return this;
+
+		return this.removeEntries(other);
+	}
+
+	symDifference<U extends V>(other: MultiMap<K, U>): MultiMap<K, V> {
+		if (other.isEmpty) return this;
+
+		const builder = this.toBuilder();
+
+		let thisEntry: readonly [K, RSet.NonEmpty<V>] | undefined;
+		const thisIter = this.keyMap[Symbol.iterator]();
+		const otherBuilder = other.keyMap.toBuilder();
+
+		while ((thisEntry = thisIter.fastNext()) !== undefined) {
+			const [key, values] = thisEntry;
+			const otherValues = otherBuilder.get(key);
+
+			if (undefined !== otherValues) {
+				otherBuilder.removeKey(key);
+				const sym = values.symDifference(otherValues);
+				builder.setValues(key, sym);
+			}
+		}
+
+		otherBuilder.forEach(([key, otherValues]) => {
+			builder.setValues(key, otherValues);
+		});
+
+		return builder.build();
 	}
 
 	get keySize(): number {
@@ -545,6 +704,43 @@ export class MultiMapBuilder<K, V> implements MultiMapBase.Builder<K, V> {
 				},
 			},
 		});
+	};
+
+	addValues = (key: K, values: StreamSource<V>): boolean => {
+		this.checkLock();
+
+		const valueSet = this.context.keyMapValuesContext.from(values);
+
+		if (!valueSet.nonEmpty()) return false;
+
+		const prevSize = this._size;
+
+		this.keyMap.modifyAt(key, {
+			ifNew: {
+				create: () => {
+					this._size += valueSet.size;
+					this.source = undefined;
+					return valueSet.toBuilder();
+				},
+			},
+			ifExists: {
+				update: (current) => {
+					const wasSize = current.size;
+					let changed = false;
+					valueSet.stream().forEach((v) => {
+						if (current.add(v)) changed = true;
+					});
+					if (changed) {
+						this._size -= wasSize;
+						this._size += current.size;
+						this.source = undefined;
+					}
+					return current;
+				},
+			},
+		});
+
+		return this._size !== prevSize;
 	};
 
 	removeEntry = <UK, UV>(

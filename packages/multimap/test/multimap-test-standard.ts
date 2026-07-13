@@ -510,6 +510,136 @@ export function runMultiMapTestsWith(
 			]);
 		});
 
+		it('addValues', () => {
+			expect(mapEmpty.addValues(2, [])).toBe(mapEmpty);
+			expectEqual(mapEmpty.addValues(2, ['b', 'c']), [
+				[2, 'b'],
+				[2, 'c'],
+			]);
+			expectEqual(map3_1.addValues(2, ['z']), [
+				[1, 'a'],
+				[2, 'b'],
+				[2, 'z'],
+				[3, 'c'],
+			]);
+			expectEqual(mapDouble.addValues(1, ['z']), [
+				[1, 'a'],
+				[1, 'b'],
+				[1, 'z'],
+				[2, 'a'],
+				[2, 'b'],
+			]);
+		});
+
+		it('count', () => {
+			expect(mapEmpty.count(2)).toBe(0);
+			expect(map3_1.count(2)).toBe(1);
+			expect(map3_1.count(9)).toBe(0);
+			expect(mapDouble.count(1)).toBe(2);
+			expect(mapDouble.count(2)).toBe(2);
+		});
+
+		it('mapValues', () => {
+			expectEqual(
+				mapEmpty.mapValues((v) => v.toUpperCase()),
+				[],
+			);
+			expectEqual(
+				map3_1.mapValues((v) => v.toUpperCase()),
+				[
+					[1, 'A'],
+					[2, 'B'],
+					[3, 'C'],
+				],
+			);
+			expectEqual(
+				mapDouble.mapValues((v) => v.toUpperCase()),
+				[
+					[1, 'A'],
+					[1, 'B'],
+					[2, 'A'],
+					[2, 'B'],
+				],
+			);
+		});
+
+		it('flatMapValues', () => {
+			expectEqual(
+				mapEmpty.flatMapValues((v) => [v, v.toUpperCase()]),
+				[],
+			);
+			expectEqual(
+				map3_1.flatMapValues((v) => [v, v.toUpperCase()]),
+				[
+					[1, 'a'],
+					[1, 'A'],
+					[2, 'b'],
+					[2, 'B'],
+					[3, 'c'],
+					[3, 'C'],
+				],
+			);
+			expectEqual(
+				map3_1.flatMapValues(() => []),
+				[],
+			);
+		});
+
+		it('union', () => {
+			expect(mapEmpty.union(mapEmpty)).toBe(mapEmpty);
+			expectEqual(map3_1.union(mapEmpty), arr3);
+			expectEqual(
+				map3_1.union(HashMultiMapHashValue.of([1, 'z'], [3, 'd'], [5, 'e'])),
+				[
+					[1, 'a'],
+					[1, 'z'],
+					[2, 'b'],
+					[3, 'c'],
+					[3, 'd'],
+					[5, 'e'],
+				],
+			);
+		});
+
+		it('intersect', () => {
+			expect(mapEmpty.intersect(mapEmpty)).toBe(mapEmpty);
+			expectEqual(map3_1.intersect(mapEmpty), []);
+			expectEqual(
+				mapDouble.intersect(HashMultiMapHashValue.of([1, 'a'], [2, 'b'])),
+				[
+					[1, 'a'],
+					[2, 'b'],
+				],
+			);
+		});
+
+		it('difference', () => {
+			expect(mapEmpty.difference(mapEmpty)).toBe(mapEmpty);
+			expectEqual(map3_1.difference(mapEmpty), arr3);
+			expectEqual(
+				mapDouble.difference(HashMultiMapHashValue.of([1, 'b'], [2, 'a'])),
+				[
+					[1, 'a'],
+					[2, 'b'],
+				],
+			);
+		});
+
+		it('symDifference', () => {
+			expect(mapEmpty.symDifference(mapEmpty)).toBe(mapEmpty);
+			expectEqual(map3_1.symDifference(mapEmpty), arr3);
+			expectEqual(
+				mapDouble.symDifference(
+					HashMultiMapHashValue.of([1, 'b'], [2, 'a'], [3, 'z']),
+				),
+				[
+					[1, 'a'],
+					[2, 'b'],
+					[3, 'z'],
+				],
+			);
+		});
+
 		it('size', () => {
 			expect(mapEmpty.size).toBe(0);
 			expect(map3_1.size).toBe(3);
@@ -732,6 +862,17 @@ export function runMultiMapTestsWith(
 				expect(b.size).toBe(2);
 				expect(b.setValues(10, ['z']));
 				expect(b.size).toBe(3);
+			});
+		});
+
+		it('addValues', () => {
+			forEachBuilder((b) => {
+				expect(b.addValues(10, [])).toBe(false);
+				expect(b.addValues(2, ['b'])).toBe(false);
+				expect(b.addValues(2, ['z'])).toBe(true);
+				expect(b.size).toBe(4);
+				expect(b.addValues(1, ['x', 'y'])).toBe(true);
+				expect(b.size).toBe(6);
 			});
 		});
 	});

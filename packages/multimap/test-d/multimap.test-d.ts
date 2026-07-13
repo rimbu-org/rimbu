@@ -146,8 +146,6 @@ void [
 	tGenNonEmptyStreamNE,
 ];
 
-
-
 // .getValues(..)
 expectTypeOf(genEmpty.getValues(1)).toEqualTypeOf<RSet<string>>();
 expectTypeOf(genNonEmpty.getValues(1)).toEqualTypeOf<RSet<string>>();
@@ -221,6 +219,56 @@ expectTypeOf(genEmpty.setValues(1, [])).toEqualTypeOf<G_Empty>();
 expectTypeOf(genEmpty.setValues(1, ['a'])).toEqualTypeOf<G_NonEmpty>();
 expectTypeOf(genNonEmpty.setValues(1, [])).toEqualTypeOf<G_Empty>();
 expectTypeOf(genNonEmpty.setValues(1, ['a'])).toEqualTypeOf<G_NonEmpty>();
+
+// .addValues(..)
+expectTypeOf(genEmpty.addValues(1, [] as string[])).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.addValues(1, ['a'])).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(
+	genNonEmpty.addValues(1, [] as string[]),
+).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.addValues(1, ['a'])).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(
+	genNonEmpty.addValues(1, ['a'] as const),
+).toEqualTypeOf<G_NonEmpty>();
+
+// .count(..)
+expectTypeOf(genEmpty.count(1)).toEqualTypeOf<number>();
+expectTypeOf(genNonEmpty.count(1)).toEqualTypeOf<number>();
+
+// .mapValues(..)
+expectTypeOf(genEmpty.mapValues((v) => v.toUpperCase())).toEqualTypeOf<
+	GE<number, string>
+>();
+expectTypeOf(genNonEmpty.mapValues((v) => v.toUpperCase())).toEqualTypeOf<
+	GNE<number, string>
+>();
+
+// .flatMapValues(..)
+expectTypeOf(
+	genEmpty.flatMapValues((v) => [v, v.toUpperCase()] as string[]),
+).toEqualTypeOf<GE<number, string>>();
+expectTypeOf(
+	genNonEmpty.flatMapValues((v) => [v, v.toUpperCase()] as string[]),
+).toEqualTypeOf<GE<number, string>>();
+
+// .flatMap(..)
+expectTypeOf(
+	genEmpty.flatMap(([k, v]) => [[k, v]] as [number, string][]),
+).toEqualTypeOf<GE<number, string>>();
+expectTypeOf(genNonEmpty.flatMap(([k, v]) => [[k, v]])).toEqualTypeOf<
+	GNE<number, string>
+>();
+
+// set algebra
+expectTypeOf(genEmpty.union(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.union(genEmpty)).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genNonEmpty.union(genNonEmpty)).toEqualTypeOf<G_NonEmpty>();
+expectTypeOf(genEmpty.intersect(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.intersect(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.difference(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.difference(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genEmpty.symDifference(genEmpty)).toEqualTypeOf<G_Empty>();
+expectTypeOf(genNonEmpty.symDifference(genEmpty)).toEqualTypeOf<G_Empty>();
 
 // .stream()
 expectTypeOf(varEmpty.stream()).toEqualTypeOf<Stream<[number, string]>>();
