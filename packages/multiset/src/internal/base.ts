@@ -44,7 +44,10 @@ export class MultiSetEmpty<T> extends EmptyBase implements MultiSetBase<T> {
 	}
 
 	addAll(values: StreamSource<T>): any {
-		if (this.context.isNonEmptyInstance<T>(values) && values.context === this.context) {
+		if (
+			this.context.isNonEmptyInstance<T>(values) &&
+			values.context === this.context
+		) {
 			return values;
 		}
 
@@ -317,23 +320,36 @@ export class MultiSetNonEmpty<T>
 	}
 
 	union<U extends T>(other: MultiSet<U>): MultiSet.NonEmpty<T> {
+		if (other.isEmpty) return this;
+		if (other === (this as any)) return this;
+
 		const builder = this.toBuilder();
 		other.countMap.forEach(([value, count]): void => {
-			builder.modifyCount(value, (currentCount): number => (currentCount > count ? currentCount : count));
+			builder.modifyCount(value, (currentCount): number =>
+				currentCount > count ? currentCount : count,
+			);
 		});
+
 		return builder.build().assumeNonEmpty();
 	}
 
 	intersect<U extends T>(other: MultiSet<U>): MultiSet<T> {
+		if (other.isEmpty) return this.context.empty();
+		if (other === (this as any)) return this;
+
 		const builder = this.context.builder();
 		this.countMap.forEach(([value, count]): void => {
 			const otherCount = other.count(value as U);
-			if (otherCount > 0) builder.setCount(value, count < otherCount ? count : otherCount);
+			if (otherCount > 0)
+				builder.setCount(value, count < otherCount ? count : otherCount);
 		});
 		return builder.build();
 	}
 
 	difference<U extends T>(other: MultiSet<U>): MultiSet<T> {
+		if (other.isEmpty) return this;
+		if (other === (this as any)) return this.context.empty();
+
 		const builder = this.toBuilder();
 		other.countMap.forEach(([value, count]): void => {
 			if (count <= 0) return;
@@ -346,10 +362,14 @@ export class MultiSetNonEmpty<T>
 	}
 
 	symDifference<U extends T>(other: MultiSet<U>): MultiSet<T> {
+		if (other.isEmpty) return this;
+		if (other === (this as any)) return this.context.empty();
+
 		const builder = this.toBuilder();
 		other.countMap.forEach(([value, count]): void => {
 			const currentCount = builder.count(value);
-			const newCount = currentCount > count ? currentCount - count : count - currentCount;
+			const newCount =
+				currentCount > count ? currentCount - count : count - currentCount;
 			if (newCount <= 0) builder.remove(value, 'ALL');
 			else builder.setCount(value, newCount);
 		});

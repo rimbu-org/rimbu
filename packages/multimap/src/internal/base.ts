@@ -306,6 +306,7 @@ export class MultiMapNonEmpty<K, V>
 
 	union<U extends V>(other: MultiMap<K, U>): MultiMap.NonEmpty<K, V> {
 		if (other.isEmpty) return this;
+		if (other === (this as any)) return this;
 
 		const builder = this.toBuilder();
 		builder.addEntries(other);
@@ -314,7 +315,8 @@ export class MultiMapNonEmpty<K, V>
 	}
 
 	intersect<U extends V>(other: MultiMap<K, U>): MultiMap<K, V> {
-		if (this.isEmpty || other.isEmpty) return this.context.empty();
+		if (other.isEmpty) return this.context.empty();
+		if (other === (this as any)) return this;
 
 		const builder = this.context.builder<K, V>();
 		this.keyMap.forEach(([key, values]) => {
@@ -325,14 +327,15 @@ export class MultiMapNonEmpty<K, V>
 	}
 
 	difference<U extends V>(other: MultiMap<K, U>): MultiMap<K, V> {
-		if (this.isEmpty) return this.context.empty();
 		if (other.isEmpty) return this;
+		if (other === (this as any)) return this.context.empty();
 
 		return this.removeEntries(other);
 	}
 
 	symDifference<U extends V>(other: MultiMap<K, U>): MultiMap<K, V> {
 		if (other.isEmpty) return this;
+		if (other === (this as any)) return this.context.empty();
 
 		const builder = this.toBuilder();
 
