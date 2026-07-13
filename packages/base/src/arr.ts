@@ -152,15 +152,6 @@ export function prepend<T>(array: readonly T[], value: T): ArrayNonEmpty<T> {
 	return array.toSpliced(0, 0, value) as ArrayNonEmpty<T>;
 }
 
-// /**
-//  * Returns the last element of the array.
-//  * @typeparam T - element type
-//  * @param arr - the array
-//  */
-// export function last<T>(arr: readonly T[]): T {
-// 	return arr.at(-1)!;
-// }
-
 /**
  * Returns a copy of the array where the element at the given index is replaced using the provided updater.
  * If the result value is identical (by `Object.is`) the original array is returned.
