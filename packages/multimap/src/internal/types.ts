@@ -750,6 +750,13 @@ export namespace MultiMapBase {
 				halt: () => void,
 			) => StreamSource.NonEmpty<[K2, V2]>,
 		): WithKeyValue<Tp, K2, V2>['nonEmpty'];
+		flatMap<K2 extends K, V2 extends V>(
+			flatMapFun: (
+				entry: [K, V],
+				index: number,
+				halt: () => void,
+			) => StreamSource<[K2, V2]>,
+		): WithKeyValue<Tp, K2, V2>['normal'];
 		/**
 		 * Returns the union of this and given `other` MultiMap, where for each key the value sets are
 		 * combined using set union. Since this collection is non-empty, the result is non-empty as well.
