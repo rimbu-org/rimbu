@@ -29,9 +29,13 @@
 	"type": "module",
 	"sideEffects": false,
 	"exports": {
+		".": {
+			"types": "./dist/base.d.ts",
+			"default": "./dist/base.js"
+		},
 		"./*": {
-			"types": "./dist/*.d.ts",
-			"import": "./dist/*.js"
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"files": [

@@ -31,9 +31,13 @@
 	"type": "module",
 	"sideEffects": false,
 	"exports": {
+		".": {
+			"types": "./dist/common.d.ts",
+			"default": "./dist/common.js"
+		},
 		"./*": {
-			"types": "./dist/*.d.ts",
-			"default": "./dist/*.js"
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"files": [
