@@ -1,10 +1,11 @@
 import type { Stream, Streamable } from '@rimbu/stream';
-import type { OrderedSortedSetCreators } from '../internal/set/creators';
 
 import type { OrderedSetBase } from '#set/base';
+import type { OrderedSortedSetCreators } from '#set/creators';
 
 import { SortedSet } from '@rimbu/sorted/set';
-import { createOrderedSetContextModule } from '../internal/set/context-factory';
+
+import { createOrderedSetContextModule } from '#set/context-factory';
 
 /**
  * A type-invariant immutable Ordered SortedSet of value type T.

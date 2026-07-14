@@ -35,17 +35,13 @@
 	"type": "module",
 	"sideEffects": false,
 	"exports": {
-		"./map": {
-			"types": "./dist/map.d.ts",
-			"default": "./dist/map.js"
-		},
-		"./set": {
-			"types": "./dist/set.d.ts",
-			"default": "./dist/set.js"
+		".": {
+			"types": "./dist/ordered.d.ts",
+			"default": "./dist/ordered.js"
 		},
 		"./*": {
-			"types": "./dist/*.d.ts",
-			"default": "./dist/*.js"
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"imports": {

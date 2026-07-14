@@ -4,7 +4,8 @@ import type { OrderedSetBase } from '#set/base';
 import type { OrderedHashSetCreators } from '#set/creators';
 
 import { HashSet } from '@rimbu/hashed/set';
-import { createOrderedSetContextModule } from '../internal/set/context-factory';
+
+import { createOrderedSetContextModule } from '#set/context-factory';
 
 /**
  * A type-invariant immutable Ordered HashSet of value type T.

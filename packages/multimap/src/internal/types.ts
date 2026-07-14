@@ -4,7 +4,10 @@ import type {
 	VariantMap,
 	VariantSet,
 } from '@rimbu/collection-types';
-import type { KeyValue, WithKeyValue } from '@rimbu/collection-types/advanced/common';
+import type {
+	KeyValue,
+	WithKeyValue,
+} from '@rimbu/collection-types/advanced/common';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { MultiMap } from '@rimbu/multimap';

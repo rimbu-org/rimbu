@@ -877,9 +877,7 @@ export namespace ListBase {
 		 * unrelated value type, build a new List explicitly, for example `List.from(stream.map(...))`.
 		 */
 		transform<T2 extends T>(
-			transformFun: (
-				stream: Stream.NonEmpty<T>,
-			) => StreamSource.NonEmpty<T2>,
+			transformFun: (stream: Stream.NonEmpty<T>) => StreamSource.NonEmpty<T2>,
 		): WithElem<Tp, T2>['nonEmpty'];
 		transform<T2 extends T>(
 			transformFun: (stream: Stream.NonEmpty<T>) => StreamSource<T2>,

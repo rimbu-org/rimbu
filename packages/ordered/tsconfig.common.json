@@ -1,9 +1,12 @@
 {
 	"compilerOptions": {
 		"paths": {
-			"@rimbu/ordered/map": ["./src/map.ts"],
-			"@rimbu/ordered/set": ["./src/set.ts"],
-			"@rimbu/ordered/*": ["./src/*.ts"],
+			"@rimbu/ordered": ["./src/ordered.ts"],
+			"@rimbu/ordered/map": ["./src/public/map.ts"],
+			"@rimbu/ordered/set": ["./src/public/set.ts"],
+			"@rimbu/ordered/map/*": ["./src/public/map/*.ts"],
+			"@rimbu/ordered/set/*": ["./src/public/set/*.ts"],
+			"@rimbu/ordered/*": ["./src/public/*.ts", "./src/public/*"],
 			"@rimbu/collection-types/*": [
 				"../collection-types/*.ts",
 				"../collection-types/*"

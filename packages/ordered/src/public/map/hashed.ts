@@ -4,7 +4,8 @@ import type { OrderedMapBase } from '#map/base';
 import type { OrderedHashMapCreators } from '#map/creators';
 
 import { HashMap } from '@rimbu/hashed/map';
-import { createOrderedMapContextModule } from '../internal/map/context-factory';
+
+import { createOrderedMapContextModule } from '#map/context-factory';
 
 /**
  * A type-invariant immutable Ordered HashMap of key type K, and value type V.

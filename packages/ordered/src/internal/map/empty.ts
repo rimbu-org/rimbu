@@ -6,11 +6,11 @@ import type { OrderedMap } from '@rimbu/ordered/map';
 import type { OrderedMapBase } from '#map/base';
 import type { ContextImpl } from '#map/context-factory';
 
-import { EmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
 import {
 	checkEmptyModifyOptions,
 	type ModifyOptions,
 } from '@rimbu/collection-types/advanced/common';
+import { EmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
