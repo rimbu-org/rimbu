@@ -1,8 +1,8 @@
-import type { BiMultiMapSorted } from '@rimbu/bimultimap/sorted/interface';
 import type { SortedSet } from '@rimbu/sorted/set';
 import type { Streamable } from '@rimbu/stream';
 
 import type { BiMultiMapBase } from '#bimultimap/base';
+import type { BiMultiMapSorted } from '#bimultimap/sorted-interface';
 
 import { SortedMultiMapSortedValue } from '@rimbu/multimap/sorted-key/sorted-value';
 

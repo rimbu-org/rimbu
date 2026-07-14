@@ -1,8 +1,8 @@
-import type { BiMultiMapHashed } from '@rimbu/bimultimap/hashed/interface';
 import type { HashSet } from '@rimbu/hashed/set';
 import type { Streamable } from '@rimbu/stream';
 
 import type { BiMultiMapBase } from '#bimultimap/base';
+import type { BiMultiMapHashed } from '#bimultimap/hashed-interface';
 
 import { HashMultiMapHashValue } from '@rimbu/multimap/hash-key/hash-value';
 

@@ -2,9 +2,9 @@
 	"compilerOptions": {
 		"paths": {
 			"@rimbu/bimultimap": ["./src/bimultimap.ts"],
-			"@rimbu/bimultimap/hashed": ["./src/hashed.ts"],
-			"@rimbu/bimultimap/sorted": ["./src/sorted.ts"],
-			"@rimbu/bimultimap/*": ["./src/*.ts"],
+			"@rimbu/bimultimap/hashed": ["./src/public/hashed.ts"],
+			"@rimbu/bimultimap/sorted": ["./src/public/sorted.ts"],
+			"@rimbu/bimultimap/*": ["./src/public/*.ts", "./src/public/*"],
 			"#bimultimap/*": ["./src/internal/*.ts"]
 		}
 	}
