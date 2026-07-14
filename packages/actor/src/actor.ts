@@ -12,6 +12,9 @@ import type { Reducer } from '@rimbu/stream/reducer';
 
 import type { ActionBase } from '#actor/action-base';
 
+export * from '@rimbu/actor/action';
+export * from '@rimbu/actor/slice';
+
 /**
  * An actor combines immutable observable state with a dispatch mechanism and
  * optionally named action dispatchers.

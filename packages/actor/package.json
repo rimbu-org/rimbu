@@ -34,17 +34,9 @@
 			"types": "./dist/actor.d.ts",
 			"default": "./dist/actor.js"
 		},
-		"./use-immer": {
-			"types": "./dist/use-immer.d.ts",
-			"default": "./dist/use-immer.js"
-		},
-		"./use-patch": {
-			"types": "./dist/use-patch.d.ts",
-			"default": "./dist/use-patch.js"
-		},
 		"./*": {
-			"types": "./dist/*.d.ts",
-			"default": "./dist/*.js"
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"imports": {
