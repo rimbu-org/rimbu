@@ -22,15 +22,27 @@ every type is re-exported from `@rimbu/core/multiset`.
 ```
 src/
 ├── multiset.ts     # exports["."]             — type-invariant MultiSet interface + creators
-├── hashed.ts       # @rimbu/multiset/hashed   — HashMultiSet
-├── sorted.ts       # @rimbu/multiset/sorted   — SortedMultiSet
-├── variant.ts      # @rimbu/multiset/variant  — VariantMultiSet (type-variant read-only base)
-└── internal/
+├── public/        # exports["./*"]           — public subpaths (dist/public/*)
+│   ├── hashed.ts   # @rimbu/multiset/hashed   — HashMultiSet
+│   ├── sorted.ts   # @rimbu/multiset/sorted   — SortedMultiSet
+│   └── variant.ts  # @rimbu/multiset/variant  — VariantMultiSet (type-variant read-only base)
+└── internal/        # NEVER exported; "#multiset/*" only
     ├── types.ts        # ALL interface declarations: VariantMultiSetBase, MultiSetBase, Builder, Factory, Context
     ├── base.ts         # Implementations: MultiSetEmpty, MultiSetNonEmpty, MultiSetBuilder
     ├── context-factory.ts  # createMultiSetContextModule — the Module/context factory
     └── creators.ts     # MultiSetCreators / HashMultiSetCreators / SortedMultiSetCreators
 ```
+
+### Restructure note (deviation from draft plan)
+
+The draft `plans/multiset.md` proposed moving `variant.ts` to `advanced/`
+(`@rimbu/multiset/advanced/variant`). **This was not followed**, because `@rimbu/core`
+re-exports `@rimbu/multiset/variant` and `packages/multiset/test-d/multiset.test-d.ts`
+imports `VariantMultiSet` from `@rimbu/multiset/variant`. Moving it to `advanced/` would
+break both. Instead, the only change made was to relocate `hashed.ts`, `sorted.ts`, and
+`variant.ts` under `public/`, and repoint the leaking `"./*" → "./dist/*.js"` export
+at `"./*" → "./dist/public/*"`, so `internal/` is no longer reachable. No `./advanced/*`
+tier was added.
 
 ### Key rule: imports inside `src/`
 - Use the package alias `#multiset/*` for anything in `src/internal/*`

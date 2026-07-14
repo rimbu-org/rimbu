@@ -2,7 +2,9 @@
 	"compilerOptions": {
 		"paths": {
 			"@rimbu/proximity": ["./src/proximity.ts"],
-			"@rimbu/proximity/*": ["./src/*.ts"],
+			"@rimbu/proximity/distance-function": ["./src/public/distance-function.ts"],
+			"@rimbu/proximity/key-matching": ["./src/public/key-matching.ts"],
+			"@rimbu/proximity/*": ["./src/public/*.ts"],
 			"@rimbu/collection-types/*": [
 				"../collection-types/*.ts",
 				"../collection-types/*"

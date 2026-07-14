@@ -38,17 +38,9 @@
 			"types": "./dist/multiset.d.ts",
 			"default": "./dist/multiset.js"
 		},
-		"./hashed": {
-			"types": "./dist/hashed.d.ts",
-			"default": "./dist/hashed.js"
-		},
-		"./sorted": {
-			"types": "./dist/sorted.d.ts",
-			"default": "./dist/sorted.js"
-		},
 		"./*": {
-			"types": "./dist/*.d.ts",
-			"default": "./dist/*.js"
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"imports": {
