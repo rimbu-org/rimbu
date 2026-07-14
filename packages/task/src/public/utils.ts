@@ -1,6 +1,6 @@
 import type { Task } from '@rimbu/task';
 
-import { cleanupOn } from '#task/utils';
+import { cleanupOn } from '#task/task-utils';
 
 /**
  * Converts a function that takes an AbortSignal in one of its arguments into a Task.

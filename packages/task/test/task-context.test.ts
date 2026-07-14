@@ -8,7 +8,7 @@ import {
 } from '@rimbu/task';
 import { cancelContext, delay } from '@rimbu/task/ops';
 
-import { disposableDelay } from '#task/utils';
+import { disposableDelay } from '#task/task-utils';
 
 describe('Task.Context', () => {
 	afterEach(() => {

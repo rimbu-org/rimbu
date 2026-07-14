@@ -2,7 +2,8 @@
 	"compilerOptions": {
 		"paths": {
 			"@rimbu/task": ["./src/task.ts"],
-			"@rimbu/task/*": ["./src/*.ts"],
+			"@rimbu/task/*": ["./src/public/*.ts"],
+			"@rimbu/task/advanced/*": ["./src/advanced/*.ts"],
 			"#task/*": ["./src/internal/*.ts"]
 		}
 	}

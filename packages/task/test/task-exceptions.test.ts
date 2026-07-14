@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'bun:test';
 import { Task, TaskCancellationError } from '@rimbu/task';
 import { cancelContext, chain, delay, throwError } from '@rimbu/task/ops';
 
-import { disposableDelay } from '#task/utils';
+import { disposableDelay } from '#task/task-utils';
 
 describe('Task exceptions', () => {
 	it('run throws if context is cancelled', () => {

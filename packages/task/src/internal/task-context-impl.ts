@@ -11,7 +11,7 @@ import {
 	disposableDelay,
 	toDisposableCallback,
 	withTimeout,
-} from '#task/utils';
+} from '#task/task-utils';
 
 type LaunchResult<R> =
 	| { type: 'result'; value: R }

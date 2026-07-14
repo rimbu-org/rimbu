@@ -9,7 +9,7 @@ import {
 	withTimeout as internalWithTimeout,
 	promiseToDisposable,
 	toDisposableCallback,
-} from '#task/utils';
+} from '#task/task-utils';
 
 describe(disposableDelay.name, () => {
 	afterEach(() => {

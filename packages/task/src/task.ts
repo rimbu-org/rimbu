@@ -1,4 +1,4 @@
-import type { Cleanup, DisposableCallback } from '#task/utils';
+import type { Cleanup, DisposableCallback } from '#task/task-utils';
 
 import { taskModule } from '#task/task-module';
 
@@ -301,3 +301,7 @@ export namespace Task {
  * @expandType Constructors
  */
 export const Task: Task.Constructors = taskModule.build();
+
+// Re-export the whole public surface (and the advanced primitive ops) from the
+// root entry point so `@rimbu/task` is a complete umbrella import.
+export * from '@rimbu/task/ops';

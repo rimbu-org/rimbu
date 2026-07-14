@@ -1,7 +1,12 @@
 import type { Task } from '@rimbu/task';
 
 import { TaskCancellationError, TaskTimeoutError } from '@rimbu/task';
-import { chain, delay, race, throwErrorClass } from '@rimbu/task/ops-impl';
+import {
+	chain,
+	delay,
+	race,
+	throwErrorClass,
+} from '@rimbu/task/advanced/ops-impl';
 
 /**
  * Combines multiple Task modifiers into a single modifier.

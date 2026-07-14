@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from 'bun:test';
 
 import { Task, TaskCancellationError } from '@rimbu/task';
 
-import { disposableDelay } from '#task/utils';
+import { disposableDelay } from '#task/task-utils';
 
 describe('Task factory methods', () => {
 	afterEach(() => {

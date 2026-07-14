@@ -19,20 +19,26 @@ The single global entry point is `Task` (from `@rimbu/task`). It holds `Task.roo
 
 ## 2. Public Sub-paths
 
-| Import path | Purpose |
-|---|---|
-| `@rimbu/task` | Core types (`Task`, `Task.Context`, `Task.Job`, `Task.Modifier`, `Task.Chain`, `Task.ChildOptions`), error classes (`TaskCancellationError`, `TaskTimeoutError`, `TaskRetryExhaustedError`), utility types (`Cleanup`, `DisposableCallback`), and the `Task` factory |
-| `@rimbu/task/ops` | Everything else: all ops, modifiers, and utilities (barrel re-export of `ops-impl`, `modifiers`, `utils`) |
+The package follows the three-tier layout:
+
+- `src/public/` → `"./*"` → `dist/public/*` (normal user API)
+- `src/advanced/` → `"./advanced/*"` → `dist/advanced/*` (implementer / extension API)
+- `src/internal/` → `#task/*` only (private impl, never exported)
+
+| Import path | Tier | Purpose |
+|---|---|---|
+| `@rimbu/task` | root | Core types (`Task`, `Task.Context`, `Task.Job`, `Task.Modifier`, `Task.Chain`, `Task.ChildOptions`), error classes (`TaskCancellationError`, `TaskTimeoutError`, `TaskRetryExhaustedError`), utility types (`Cleanup`, `DisposableCallback`), the `Task` factory, and a re-export of the whole public surface via `ops` |
+| `@rimbu/task/ops` | public | Everything else: all ops, modifiers, and utilities (barrel re-export of `modifiers`, `advanced/ops-impl`, `utils`) |
+| `@rimbu/task/modifiers` | public | Modifier functions: `combined`, `withTimeout`, `retryWhen`, `withRetry`, `withArgs`, `mapOutput`, `mapOutputArr`, `catchError`, `catchAll`, `repeat`, `repeatWithIndex` |
+| `@rimbu/task/utils` | public | `taskify`, `joinAll` |
+| `@rimbu/task/advanced/ops-impl` | advanced | Primitive task ops: `chain`, `race`, `any`, `all`, `allSettled`, `delay`, `effect`, `throwError`, `throwErrorClass`, `cancelContext`, `cancelAllChildren`, `runSingleCancelPrevious`, `runSingleCancelNew` |
 
 **Rule:** if it creates or transforms a task, it's in `@rimbu/task/ops`. If it defines the shape of a task or is needed in a `catch` block, it's in `@rimbu/task`.
 
-The following sub-paths also exist as source files and are individually accessible, but users should prefer `@rimbu/task/ops`:
-
-| Path | Contains |
-|---|---|
-| `@rimbu/task/ops-impl` | Primitive task ops: `chain`, `race`, `any`, `all`, `allSettled`, `delay`, `effect`, `throwError`, `throwErrorClass`, `cancelContext`, `cancelAllChildren`, `runSingleCancelPrevious`, `runSingleCancelNew` |
-| `@rimbu/task/modifiers` | Modifier functions: `combined`, `withTimeout`, `retryWhen`, `withRetry`, `withArgs`, `mapOutput`, `mapOutputArr`, `catchError`, `catchAll`, `repeat`, `repeatWithIndex` |
-| `@rimbu/task/utils` | `taskify`, `joinAll` |
+> **Note (intentional deviation):** `ops-impl` keeps its basename but now lives in
+> `src/advanced/` and is reached via `@rimbu/task/advanced/ops-impl` (previously
+> `@rimbu/task/ops-impl`). Renaming the public subpath to `@rimbu/task/advanced/ops`
+> would be a breaking change, so the basename is preserved.
 
 `#task/*` internal imports map to `src/internal/*.ts` and must not be used outside `src/`.
 
@@ -44,9 +50,10 @@ The following sub-paths also exist as source files and are individually accessib
 src/internal/
 ├── task-context-impl.ts   # TaskContextImpl — the sole impl of Task.Context
 ├── task-module.ts         # Module.create wiring; creates the Task factory object
-└── utils.ts               # Low-level helpers: DisposablePromise, DisposableCallback,
+└── task-utils.ts          # Low-level helpers: DisposablePromise, DisposableCallback,
                            #   disposableDelay, withTimeout, cleanupOn, toDisposableCallback,
                            #   cleanupToCallback, promiseToDisposable
+                           #   (renamed from utils.ts to avoid the public utils.ts basename clash)
 ```
 
 Never import from `#task/*` outside `src/`. Tests use the public sub-paths or `#task/*` for internal utility testing only.
