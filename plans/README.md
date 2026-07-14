@@ -50,7 +50,7 @@ src/
 ### Async / utilities / misc
 | Package | Plan | Key action |
 |---|---|---|
-| `@rimbu/list` | [list.md](list.md) | Root re-exports `List` + `CharList`/`BitList`/`TypedArrayList`; `char`/`bit`/`typed-array` → `src/public/`; **remove explicit `./internal/*` export (currently leaks entire block-tree impl).** |
+| `@rimbu/list` | [list.md](list.md) | **DONE** — root re-exports `CharList`/`BitList`/`TypedArrayList`; `char`/`bit`/`typed-array` → `src/public/`; **removed explicit `./internal/*` leak** (now `./dist/public/*`). |
 | `@rimbu/channel` | [channel.md](channel.md) | Root re-exports all; move 9 modules to `src/public/`; wildcard `./dist/*` → `./dist/public/*`. |
 | `@rimbu/task` | [task.md](task.md) | Root re-exports; `ops-impl.ts` → `src/advanced/`; rename internal `utils.ts` → `internal/task-utils.ts`; add root re-exports. |
 | `@rimbu/actor` | [actor.md](actor.md) | Root re-exports `Actor`+`Action`+`Slice` (hooks subpath-only); `action`/`slice` → `src/public/`; **remove `"./*"` leak.** |

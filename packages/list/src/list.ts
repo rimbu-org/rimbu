@@ -30,3 +30,7 @@ export namespace List {
 }
 
 export const List: ListHelpers.Factory = ListHelpers.createListContext();
+
+export * from '@rimbu/list/bit';
+export * from '@rimbu/list/char';
+export * from '@rimbu/list/typed-array';

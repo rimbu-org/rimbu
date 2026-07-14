@@ -39,21 +39,9 @@
 			"types": "./dist/list.d.ts",
 			"default": "./dist/list.js"
 		},
-		"./char": {
-			"types": "./dist/char.d.ts",
-			"default": "./dist/char.js"
-		},
-		"./bit": {
-			"types": "./dist/bit.d.ts",
-			"default": "./dist/bit.js"
-		},
-		"./typed-array": {
-			"types": "./dist/typed-array.d.ts",
-			"default": "./dist/typed-array.js"
-		},
-		"./internal/*": {
-			"types": "./dist/internal/*.d.ts",
-			"default": "./dist/internal/*.js"
+		"./*": {
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"imports": {

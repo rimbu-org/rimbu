@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'bun:test';
 
-import type { ReversedOuterBlock } from '@rimbu/list/internal/immutable/reversed-outer-block';
+import type { ReversedOuterBlock } from '#list/immutable/reversed-outer-block';
 
 import type { ListContext } from '#list/context-module';
 

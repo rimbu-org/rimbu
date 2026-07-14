@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import type { BuilderCommon } from '@rimbu/list/internal/mutable/builder-base';
+import type { BuilderCommon } from '#list/mutable/builder-base';
 
 import { List } from '@rimbu/list';
 import { Stream } from '@rimbu/stream';

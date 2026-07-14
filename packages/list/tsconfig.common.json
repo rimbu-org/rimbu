@@ -2,10 +2,10 @@
 	"compilerOptions": {
 		"paths": {
 			"@rimbu/list": ["./src/list.ts"],
-			"@rimbu/list/char": ["./src/char.ts"],
-			"@rimbu/list/bit": ["./src/bit.ts"],
-			"@rimbu/list/typed-array": ["./src/typed-array.ts"],
-			"@rimbu/list/internal/*": ["./src/internal/*.ts"],
+			"@rimbu/list/*": ["./src/public/*.ts"],
+			"@rimbu/list/char": ["./src/public/char.ts"],
+			"@rimbu/list/bit": ["./src/public/bit.ts"],
+			"@rimbu/list/typed-array": ["./src/public/typed-array.ts"],
 			"#list/*": ["./src/internal/*.ts"]
 		}
 	}

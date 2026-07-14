@@ -3,7 +3,7 @@ import { describe, expect, it } from 'bun:test';
 import type { ListImpl } from '#list/list-impl';
 
 import { TraverseState } from '@rimbu/common/traverse-state';
-import { TypedArrayListHelpers } from '@rimbu/list/internal/typed-array-helpers';
+import { TypedArrayListHelpers } from '#list/typed-array-helpers';
 
 import { BitListHelpers } from '#list/bit-list-helpers';
 import { CharListHelpers } from '#list/char-list-helpers';
