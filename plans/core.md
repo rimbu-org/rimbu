@@ -91,6 +91,27 @@ This is still valid for internal resolution; the explicit `exports` entries cont
 - `./collection-types/advanced` reuses `collection-types.ts` (same file) as a convenience alias so callers can `import ... from '@rimbu/core/collection-types/advanced'`. Document as intentional.
 
 ## Notes
-- No source files move; this is a low-risk package-json/manifest change plus two re-export edits.
+- No source files move; this is a low-risk package-json/manifest change plus several re-export edits.
 - The explicit subpath list must stay in sync with the 12 subpackage re-export files; if a new subpackage is added to core, add its explicit export entry.
 - After collection-types' breaking rename (`@rimbu/collection-types/common` → `advanced/common`), core consumers gain the HKT helpers at the core root automatically — a net improvement over current state.
+
+## Implemented (refinement: wildcard + sub-folder advanced)
+Final core design (user-directed, differs from the original explicit-subpath plan):
+- `package.json` uses a **`"./*"` wildcard** (`"./*" → "./dist/*.js"`) so the
+  **folder structure defines the exports**. This is intentional for an umbrella
+  package — the one place the catch-all wildcard is acceptable. The explicit
+  per-subpath `exports` list from the first pass was removed.
+- **No `@rimbu/core/advanced` root umbrella** — it was added then dropped; callers
+  use the per-package advanced sub-paths instead.
+- Per-package advanced re-exports live in **sub-folders**:
+  - `src/collection-types/advanced.ts` → `@rimbu/core/collection-types/advanced`
+    (full `collection-types` advanced tier: `KeyValue`, `RMapBase`, `EmptyBase`, …).
+  - `src/stream/advanced.ts` → `@rimbu/core/stream/advanced`
+    (full `stream` advanced tier: `StreamBase`, `FastIteratorBase`, …).
+- `src/collection-types.ts` (`@rimbu/core/collection-types`) still surfaces the
+  commonly-used HKT helpers from `advanced/common` for convenience.
+- `src/advanced.ts` (the root umbrella) was deleted; `collection-types-advanced.ts`
+  and `stream-advanced.ts` flat files were moved into their sub-folders.
+- Validation: `build:seq` EXIT 0; core typecheck green; smoke tests confirm
+  `@rimbu/core/collection-types/advanced` and `@rimbu/core/stream/advanced` resolve
+  via the folder structure, and `@rimbu/core/advanced` is no longer exported.
