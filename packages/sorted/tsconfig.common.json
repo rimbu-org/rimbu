@@ -2,9 +2,9 @@
 	"compilerOptions": {
 		"paths": {
 			"@rimbu/sorted": ["./src/sorted.ts"],
-			"@rimbu/sorted/map": ["./src/map.ts"],
-			"@rimbu/sorted/set": ["./src/set.ts"],
-			"@rimbu/sorted/internal/*": ["./src/internal/*.ts", "./src/internal/*"],
+			"@rimbu/sorted/map": ["./src/public/map.ts"],
+			"@rimbu/sorted/set": ["./src/public/set.ts"],
+			"@rimbu/sorted/*": ["./src/public/*.ts", "./src/public/*"],
 			"@rimbu/collection-types/*": [
 				"../collection-types/*.ts",
 				"../collection-types/*"

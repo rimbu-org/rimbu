@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 
 import { Comp } from '@rimbu/common/comp';
-import { createSortedSetContextModule } from '@rimbu/sorted/internal/set/context-factory';
+import { createSortedSetContextModule } from '#set/context-factory';
 
 import { SortedSetInner } from '#set/immutable';
 import {

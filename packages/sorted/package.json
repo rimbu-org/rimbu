@@ -39,17 +39,9 @@
 			"types": "./dist/sorted.d.ts",
 			"default": "./dist/sorted.js"
 		},
-		"./map": {
-			"types": "./dist/map.d.ts",
-			"default": "./dist/map.js"
-		},
-		"./set": {
-			"types": "./dist/set.d.ts",
-			"default": "./dist/set.js"
-		},
-		"./internal/*": {
-			"types": "./dist/internal/*.d.ts",
-			"default": "./dist/internal/*.js"
+		"./*": {
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"imports": {

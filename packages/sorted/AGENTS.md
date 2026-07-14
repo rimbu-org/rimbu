@@ -6,9 +6,10 @@ This package provides `SortedMap<K, V>` and `SortedSet<T>` — immutable sorted 
 
 ```
 src/
-├── sorted.ts    # exports["."]       — re-exports SortedMap + SortedSet
-├── map.ts       # exports["./map"]   — SortedMap only
-├── set.ts       # exports["./set"]   — SortedSet only
+├── sorted.ts      # exports["."]     — re-exports whole surface (SortedMap + SortedSet + contexts)
+├── public/
+│   ├── map.ts     # exports["./map"]   — SortedMap only
+│   └── set.ts     # exports["./set"]   — SortedSet only
 └── internal/
     ├── sorted/
     │   ├── base.ts         # shared sorted node base (B-tree node operations)
@@ -25,6 +26,9 @@ src/
         └── creators.ts        # SortedSet factory methods
 ```
 
+The `public/` tier is exposed via the `"./*"` wildcard export (`exports["./*"] → "./dist/public/*"`).
+`internal/` is never exported and is reachable only via the `#sorted/*`, `#map/*`, `#set/*` import aliases.
+
 ## Package imports (`#` paths)
 
 ```jsonc
@@ -39,6 +43,10 @@ another package (e.g. `@rimbu/hashed`), so running this package's tests cannot p
 package's internal `#set/*` import into this graph. Each package passes its own `foreignContext`
 to `runSetTestsWith` for the cross-implementation `from` test.
 
+Test files that need implementation internals (e.g. `sortedset-inner.test.ts`,
+`sortedset-leaf.test.ts`) import them through the `#set/*` / `#sorted/*` aliases, never through
+a public `@rimbu/sorted/...` path.
+
 ## B-tree structure
 
 SortedMap and SortedSet are implemented as **B-trees** with configurable block size:
@@ -52,16 +60,6 @@ SortedMap and SortedSet are implemented as **B-trees** with configurable block s
 - Requires a `Comp<K>` comparator (from `@rimbu/common`) — keys must be orderable
 - Supports range queries: `streamRange(range)`, `getAtIndex(i)`, `streamSliceIndex(range)`
 - Inner and leaf nodes are stored separately (`SortedSetInner`, `SortedSetLeaf`) — the test files `sortedset-inner.test.ts` and `sortedset-leaf.test.ts` test these individually
-
-## tsconfig.common.json note
-
-The `tsconfig.common.json` includes a path for `@rimbu/sorted/internal/*` to allow test files to access internal types:
-
-```jsonc
-"@rimbu/sorted/internal/*": ["./internal/*.ts", "./internal/*"]
-```
-
-This is intentional and test-only. Do not remove it.
 
 ## Pre-existing known issues
 
