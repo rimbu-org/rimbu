@@ -10,7 +10,7 @@ import {
 	type NotIterable,
 } from '@rimbu/base/plain-object';
 
-import { stringSplit } from '#private/string-split';
+import { stringSplit } from '#deep/string-split';
 
 /**
  * A type to determine the allowed input type for the `patch` function.

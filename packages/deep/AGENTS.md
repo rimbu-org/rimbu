@@ -8,14 +8,16 @@ Tools for working with plain JS objects immutably: match, patch, select, path na
 
 ```
 src/
-  deep.ts          # main entry (.): protect, getAt, getAtWith; re-exports Protected
-  match.ts         # @rimbu/deep/match
-  patch.ts         # @rimbu/deep/patch
-  path.ts          # @rimbu/deep/path
-  select.ts        # @rimbu/deep/select
-  tuple.ts         # @rimbu/deep/tuple
-  protected.ts     # @rimbu/deep/protected
-  internal/
+  deep.ts          # exports["."]   — re-exports whole surface (protect, getAt, getAtWith, Protected, and Match/Patch/Path/Select/Tuple/WithType)
+  public/          # exports["./*"]  — public subpaths (dist/public/*)
+    match.ts         # @rimbu/deep/match
+    patch.ts         # @rimbu/deep/patch
+    path.ts          # @rimbu/deep/path
+    select.ts        # @rimbu/deep/select
+    tuple.ts         # @rimbu/deep/tuple
+    protected.ts     # @rimbu/deep/protected
+    with-type.ts     # @rimbu/deep/with-type
+  internal/        # NEVER exported; "#deep/*" only
     match-internal.ts   # MatchInternal namespace — all Match type machinery
     path-internal.ts    # PathInternal / PathResultInternal — path string types
     string-split.ts     # stringSplit() runtime helper for path parsing
@@ -23,7 +25,9 @@ test/              # runtime tests (bun test)
 test-d/            # type-level tests (expectTypeOf)
 ```
 
-Internal imports use `#deep/*` (maps to `src/internal/*.ts`). The legacy alias `#private/*` also maps there (used in `patch.ts` for `string-split`).
+The `public/` tier is exposed via the `"./*"` wildcard export (`exports["./*"] → "./dist/public/*"`).
+`internal/` is never exported and is reachable only via the `#deep/*` import alias. The legacy
+redundant `#private/*` alias has been folded into `#deep/*`.
 
 ---
 

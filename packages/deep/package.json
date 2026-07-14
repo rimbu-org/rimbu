@@ -38,16 +38,12 @@
 			"import": "./dist/deep.js"
 		},
 		"./*": {
-			"types": "./dist/*.d.ts",
-			"default": "./dist/*.js"
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"imports": {
 		"#deep/*": {
-			"types": "./dist/internal/*.d.ts",
-			"default": "./dist/internal/*.js"
-		},
-		"#private/*": {
 			"types": "./dist/internal/*.d.ts",
 			"default": "./dist/internal/*.js"
 		}

@@ -1,11 +1,16 @@
 import type { Path } from '@rimbu/deep/path';
 import type { Protected } from '@rimbu/deep/protected';
 
-import { stringSplit } from '#private/string-split';
+import { stringSplit } from '#deep/string-split';
 
 export type * from '@rimbu/deep/protected';
 export type { WithType } from '@rimbu/deep/with-type';
 
+export * from '@rimbu/deep/match';
+export * from '@rimbu/deep/patch';
+export * from '@rimbu/deep/path';
+export * from '@rimbu/deep/select';
+export * from '@rimbu/deep/tuple';
 export { withType } from '@rimbu/deep/with-type';
 
 /**

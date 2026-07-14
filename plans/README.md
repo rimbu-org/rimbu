@@ -55,7 +55,7 @@ src/
 | `@rimbu/task` | [task.md](task.md) | **DONE** — root `task.ts` re-exports whole surface via the `ops` barrel; moved `ops`/`modifiers`/`utils` → `src/public/`; moved `ops-impl` → `src/advanced/` (now `@rimbu/task/advanced/ops-impl`, basename kept — breaking-change avoidance); renamed `internal/utils.ts` → `task-utils.ts` (+ `#task/utils` → `#task/task-utils` in src + tests); `package.json` `"./*" → "./dist/public/*"` + added `"./advanced/*"`; repointed `@rimbu/task/*` tsconfig path to `public/`. 172 tests pass; biome 0 errors (77 pre-existing `any` warnings). |
 | `@rimbu/actor` | [actor.md](actor.md) | **DONE** — root re-exports `Actor`+`Action`+`Slice` (hooks subpath-only); moved `action`/`slice`/`use-immer`/`use-patch` → `src/public/`; `"./*"` leak removed (now `./dist/public/*`); removed explicit `./use-immer`/`./use-patch`. 36 tests pass; biome 0 errors (pre-existing any warnings). |
 | `@rimbu/spy` | [spy.md](spy.md) | Already conformant — no changes. |
-| `@rimbu/deep` | [deep.md](deep.md) | Fold `#private/*` into `#deep/*`; add root re-exports; wildcard `./dist/*` → `./dist/public/*`. |
+| `@rimbu/deep` | [deep.md](deep.md) | **DONE** — moved 7 public modules (`match`/`patch`/`path`/`protected`/`select`/`tuple`/`with-type`) → `src/public/`; root re-exports whole surface; folded `#private/*` → `#deep/*`; `"./*"` leak removed (now `./dist/public/*`). |
 | `@rimbu/typical` | [typical.md](typical.md) | Already largely conformant; type-only root, no `public/` needed. |
 
 ### Deferred
