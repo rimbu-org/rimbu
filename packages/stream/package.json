@@ -40,20 +40,16 @@
 			"default": "./dist/stream.js"
 		},
 		"./async": {
-			"types": "./dist/async-stream.d.ts",
-			"default": "./dist/async-stream.js"
+			"types": "./dist/public/async.d.ts",
+			"default": "./dist/public/async.js"
 		},
-		"./async/internal/fast-iterator-base": {
-			"types": "./dist/internal/async/fast-iterator-base.d.ts",
-			"default": "./dist/internal/async/fast-iterator-base.js"
-		},
-		"./async/internal/stream-base": {
-			"types": "./dist/internal/async/stream-base.d.ts",
-			"default": "./dist/internal/async/stream-base.js"
+		"./advanced/*": {
+			"types": "./dist/advanced/*.d.ts",
+			"default": "./dist/advanced/*.js"
 		},
 		"./*": {
-			"types": "./dist/*.d.ts",
-			"default": "./dist/*.js"
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"imports": {
@@ -62,10 +58,6 @@
 			"default": "./dist/internal/async/*.js"
 		},
 		"#stream/*": {
-			"types": "./dist/internal/*.d.ts",
-			"default": "./dist/internal/*.js"
-		},
-		"#private/*": {
 			"types": "./dist/internal/*.d.ts",
 			"default": "./dist/internal/*.js"
 		}

@@ -3,19 +3,19 @@ import type { AsyncCollectFun } from '@rimbu/common/collect';
 import type { Eq } from '@rimbu/common/eq';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, ToJSON } from '@rimbu/common/types';
-import type { AsyncReducer } from '@rimbu/stream/async/reducer';
-import type { AsyncTransformer } from '@rimbu/stream/async/transformer';
-
-import type { AsyncStreamConstructors } from '#async/constructors';
 import type {
 	AsyncFastIterable,
 	AsyncStreamable,
 	AsyncStreamSource,
-} from '#private/async-stream-types';
+} from '@rimbu/stream/async/async-stream-types';
+import type { AsyncReducer } from '@rimbu/stream/async/reducer';
+import type { AsyncTransformer } from '@rimbu/stream/async/transformer';
+
+import type { AsyncStreamConstructors } from '#async/constructors';
 
 import { asyncStreamFactoryModule } from '#async/factory-module';
 
-export type * from '#private/async-stream-types';
+export type * from '@rimbu/stream/async/async-stream-types';
 
 /**
  * A possibly infinite asynchronous sequence of elements of type T.

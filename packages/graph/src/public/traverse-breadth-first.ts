@@ -5,8 +5,8 @@ import { OptLazy } from '@rimbu/common/opt-lazy';
 import { HashSet } from '@rimbu/hashed/set';
 import { SortedSet } from '@rimbu/sorted/set';
 import { type FastIterator, Stream } from '@rimbu/stream';
-import { StreamBase } from '@rimbu/stream/internal/base';
-import { FastIteratorBase } from '@rimbu/stream/internal/fast-iterator-base';
+import { StreamBase } from '@rimbu/stream/advanced/base';
+import { FastIteratorBase } from '@rimbu/stream/advanced/fast-iterator-base';
 
 class GraphBreadthFirstStream<
 	G extends VariantGraphBase.NonEmpty<N, any>,

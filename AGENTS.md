@@ -81,10 +81,13 @@ Every package follows this exact layout:
 ```
 packages/<name>/
 ├── src/
-│   ├── <name>.ts          # Main entry: maps to exports["."] and defines the public API
-│   ├── <sub>.ts           # Named sub-path entries: maps to exports["./<sub>"]
-│   │                      # (only if the package has multiple public sub-paths)
-│   └── internal/          # Implementation details — NOT accessible from outside the package
+│   ├── <name>.ts          # Main entry: maps to exports["."] and re-exports the whole public surface
+│   ├── public/            # "./*" → dist/public/*   (normal user API)
+│   │   ├── <sub>.ts        # Named public sub-paths: @rimbu/<pkg>/<sub>
+│   │   └── <group>/       # Grouped public sub-paths (e.g. public/async/)
+│   ├── advanced/          # "./advanced/*" → dist/advanced/*  (extension / implementer API)
+│   │   └── <sub>.ts        # Implementer-facing base classes for custom implementations
+│   └── internal/          # NEVER exported; "#<pkg>/*" alias only (never in package.exports)
 │       ├── *.ts           # Flat or nested implementation files
 │       └── <group>/       # Grouped internals (e.g., internal/map/, internal/set/)
 ├── test/                  # Runtime tests (bun test)
@@ -97,6 +100,40 @@ packages/<name>/
 └── tsconfig.common.json   # Path aliases for this package's own exports and imports
 ```
 
+### Three tiers: public / advanced / internal
+
+Every package exposes exactly three tiers, mapped by `package.json` `exports`:
+
+| Tier | Export | Purpose | Reachable from outside? |
+|---|---|---|---|
+| `public/` | `"./*"` → `"./dist/public/*"` | The normal user-facing API (`@rimbu/<pkg>/<sub>`). The root `.` re-exports the whole public surface. | **Yes** |
+| `advanced/` | `"./advanced/*"` → `"./dist/advanced/*"` | **Extension / implementer API** — base classes and helpers for building *custom* implementations of the package's types. | **Yes** (intentionally) |
+| `internal/` | (none — `#<pkg>/*` import alias only) | Private implementation details. Never listed in `exports`. | **No** |
+
+**The `advanced` tier is for external consumers too.** When a package's types are
+meant to be *extended or composed* by code outside the monorepo (e.g. a sibling
+package or an end-user library), the extension points belong in `advanced/`, **not**
+in `internal/`. Typical `advanced/` contents are the abstract `*Base` classes and
+factory helpers that a consumer subclasses to create a custom variant.
+
+Concrete example — `@rimbu/stream`:
+
+```ts
+// Building a custom stream by extending the advanced base classes:
+import { StreamBase } from '@rimbu/stream/advanced/base';
+import { FastIteratorBase } from '@rimbu/stream/advanced/fast-iterator-base';
+
+class MyStream<T> extends StreamBase<T> { /* ... implement fastNext ... */ }
+class MyIterator<T> extends FastIteratorBase<T> { /* ... implement fastNext ... */ }
+```
+
+The symbols in `src/advanced/*` usually just **re-export** the real definitions
+from `src/internal/*` (via the `#<pkg>/*` alias), so the implementation stays
+private while the extension API is curated. `internal/` must never appear in
+`exports` — if an external package needs something currently in `internal/`, move
+that specific symbol to `advanced/` (or re-export it from `advanced/`) rather than
+exposing the whole `internal/` tree.
+
 ### Key rule: imports within a package
 
 All imports inside `src/` must use **package paths**, never relative paths (`./`, `../`):
@@ -107,6 +144,7 @@ import { something } from '#mypackage/internal-file';
 
 // CORRECT — uses package exports
 import type { MyType } from '@rimbu/mypackage';
+import type { MyBase } from '@rimbu/mypackage/advanced/my-base';  // advanced tier
 
 // WRONG — relative imports are banned by Biome
 import { something } from '../internal/something';
@@ -145,9 +183,17 @@ Every package's `package.json` must follow this shape exactly:
     ".": {
       "types": "./dist/<name>.d.ts",
       "default": "./dist/<name>.js"
+    },
+    // Normal public sub-paths (if the package has them):
+    "./*": {
+      "types": "./dist/public/*.d.ts",
+      "default": "./dist/public/*.js"
+    },
+    // Extension / implementer API (base classes for custom implementations):
+    "./advanced/*": {
+      "types": "./dist/advanced/*.d.ts",
+      "default": "./dist/advanced/*.js"
     }
-    // Additional named sub-paths if the package has them:
-    // "./async": { "types": "./dist/async-stream.d.ts", "default": "./dist/async-stream.js" }
   },
 
   // imports: internal paths used within src/ via #<name>/* pattern

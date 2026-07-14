@@ -7,15 +7,22 @@ This is the most complex package in Rimbu. It contains the lazy `Stream` and `As
 ```
 src/
 ├── stream.ts            # exports["."]   — sync Stream API (main entry)
-├── async-stream.ts      # exports["./async"] — AsyncStream API
-├── reducer.ts           # exports["./reducer"] — Reducer type
-├── transformer.ts       # exports["./transformer"] — Transformer type
-├── async/
-│   ├── reducer.ts       # exports["./async/reducer"]
-│   └── transformer.ts   # exports["./async/transformer"]
-└── internal/
-    ├── stream-types.ts         # shared type helpers
-    ├── async-stream-types.ts   # shared async type helpers
+├── public/              # exports["./*"]  — public subpaths (dist/public/*)
+│   ├── async.ts             # @rimbu/stream/async        — AsyncStream API
+│   ├── reducer.ts            # @rimbu/stream/reducer      — Reducer type
+│   ├── transformer.ts        # @rimbu/stream/transformer   — Transformer type
+│   ├── stream-types.ts      # @rimbu/stream/stream-types — FastIterable/Streamable/StreamSource
+│   ├── async/
+│   │   ├── reducer.ts            # @rimbu/stream/async/reducer
+│   │   ├── transformer.ts        # @rimbu/stream/async/transformer
+│   │   └── async-stream-types.ts # @rimbu/stream/async/async-stream-types
+├── advanced/           # exports["./advanced/*"]  — extension bases (dist/advanced/*)
+│   ├── base.ts             # @rimbu/stream/advanced/base          → StreamBase
+│   ├── fast-iterator-base.ts # @rimbu/stream/advanced/fast-iterator-base → FastIteratorBase
+│   └── async/
+│       ├── fast-iterator-base.ts # @rimbu/stream/advanced/async/fast-iterator-base → AsyncFastIteratorBase
+│       └── stream-base.ts        # @rimbu/stream/advanced/async/stream-base    → AsyncFromStream
+└── internal/             # NEVER exported; "#stream/*" / "#async/*" only
     ├── base.ts                 # sync stream base implementation
     ├── factory.ts              # sync stream factory
     ├── factory-module.ts       # sync stream module builder
@@ -44,12 +51,37 @@ src/
         └── utils.ts
 ```
 
+### Restructure note (deviation from draft plan)
+
+- Moved the public entry files to `src/public/`: `async-stream.ts` → `public/async.ts`
+  (subpath `@rimbu/stream/async`), `reducer.ts`/`transformer.ts`, and
+  `async/{reducer,transformer}.ts`. The foundional type files `stream-types.ts`
+  and `async-stream-types.ts` (previously under `internal/`) are genuinely public
+  (`FastIterable`/`Streamable`/`StreamSource`, `AsyncStreamable`/etc.) so they
+  were promoted to `public/` rather than kept private.
+- `package.json`: removed the leaking `"./*" → "./dist/*.js"` (now `"./*" →
+  "./dist/public/*"`); added a `"./advanced/*" → "./dist/advanced/*"` tier;
+  removed the redundant `#private/*` import alias (folded into `#stream/*` /
+  package paths).
+- **`advanced/` tier added (no leaks).** `@rimbu/channel` and `@rimbu/graph`
+  extend stream's base classes to build custom streams. Those extension bases
+  are now exposed through `advanced/` (not raw `internal/`):
+  - `@rimbu/stream/advanced/base` → `StreamBase`
+  - `@rimbu/stream/advanced/fast-iterator-base` → `FastIteratorBase`
+  - `@rimbu/stream/advanced/async/fast-iterator-base` → `AsyncFastIteratorBase`
+  - `@rimbu/stream/advanced/async/stream-base` → `AsyncFromStream`
+  The `src/advanced/*` files simply re-export the symbols from their `internal/`
+  homes, so the definitions stay private while the extension API is curated.
+  `internal/` is now completely unreachable from outside the package.
+- `tsconfig.common.json`: `@rimbu/stream/async` → `./src/public/async.ts`;
+  added `"./*" → "./src/public/*.ts"` and `"./advanced/*" → "./src/advanced/*.ts"`
+  (incl. `./advanced/async/*`).
+
 ## Package imports (`#` paths)
 
 ```jsonc
 "#stream/*": "./dist/internal/*.{js,d.ts}"        // sync internals
 "#async/*": "./dist/internal/async/*.{js,d.ts}"   // async internals
-"#private/*": "./dist/internal/*.{js,d.ts}"       // legacy alias (same as #stream/*)
 ```
 
 ## Key types

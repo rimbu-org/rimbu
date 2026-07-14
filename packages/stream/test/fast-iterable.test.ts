@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 
 import { OptLazy } from '@rimbu/common/opt-lazy';
-import { FastIteratorFactory } from '@rimbu/stream/internal/fast-iterator-factory';
+import { FastIteratorFactory } from '#stream/fast-iterator-factory';
 
 import { FastIteratorBase } from '#stream/fast-iterator-base';
 

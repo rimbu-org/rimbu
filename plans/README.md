@@ -30,7 +30,7 @@ src/
 | `@rimbu/base` | [base.md](base.md) | **DONE** — created root `src/base.ts` re-exporting surface; 5 utility files → `src/public/`; **removed `"./*"` leak** (now `./dist/public/*`, added proper `"."` entry). |
 | `@rimbu/common` | [common.md](common.md) | **DONE** — created root `src/common.ts` re-exporting surface; 11 files → `src/public/`; **removed `"./*"` leak** (now `./dist/public/*`, added proper `"."` entry); documented `range`/`index-range` distinction. |
 | `@rimbu/collection-types` | [collection-types.md](collection-types.md) | Move implementer bases (`map/base`, `set/base`, `base-module`) to `src/advanced/`; keep HKT machinery in `src/internal/`; remove `"./*"` leak + `./common`; fix banned relative `./internal` imports. **Breaking import change for downstream packages.** |
-| `@rimbu/stream` | [stream.md](stream.md) | Move public entries (incl. `stream-types`) to `src/public/`; remove `./async/internal/*` leaks and `"./*"`; fold `#private/*` into `#stream/*`. |
+| `@rimbu/stream` | [stream.md](stream.md) | **DONE** — public entries → `src/public/` (incl. promoted `stream-types`/`async-stream-types`); **removed `"./*"` leak** (`./*`→`./dist/public/*`); folded `#private/*`→`#stream/*`; added `advanced/` tier exposing the 4 consumed extension bases (`StreamBase`/`FastIteratorBase`/`AsyncFastIteratorBase`/`AsyncFromStream`) — `internal/` now fully unreachable. Re-validated channel+graph+core. |
 | `@rimbu/core` | [core.md](core.md) | Replace `"./*"` with explicit subpaths; surface `collection-types/advanced` HKT helpers. No file moves. |
 
 ### Core collections

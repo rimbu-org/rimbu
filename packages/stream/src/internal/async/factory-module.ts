@@ -5,9 +5,9 @@ import type {
 	AsyncStream,
 	AsyncStreamSource,
 } from '@rimbu/stream/async';
+import type { StreamSource } from '@rimbu/stream/stream-types';
 
 import type { AsyncStreamFactory } from '#async/factory';
-import type { StreamSource } from '#private/stream-types';
 
 import { Module } from '@rimbu/common/module';
 

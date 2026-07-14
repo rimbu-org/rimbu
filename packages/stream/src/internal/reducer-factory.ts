@@ -1,8 +1,7 @@
 import type { Eq } from '@rimbu/common/eq';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { Reducer } from '@rimbu/stream/reducer';
-
-import type { StreamSource } from '#private/stream-types';
+import type { StreamSource } from '@rimbu/stream/stream-types';
 
 export interface ReducerFactory {
 	/**

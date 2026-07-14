@@ -3,11 +3,11 @@
 		"paths": {
 			"@rimbu/channel": ["./src/channel.ts"],
 			"@rimbu/channel/*": ["./src/*.ts"],
-			"@rimbu/stream/async/internal/fast-iterator-base": [
-				"../stream/src/internal/async/fast-iterator-base.ts"
+			"@rimbu/stream/advanced/async/*": [
+				"../stream/src/advanced/async/*.ts"
 			],
-			"@rimbu/stream/async/internal/stream-base": [
-				"../stream/src/internal/async/stream-base.ts"
+			"@rimbu/stream/advanced/*": [
+				"../stream/src/advanced/*.ts"
 			],
 			"#channel/*": ["./src/internal/*.ts"]
 		}

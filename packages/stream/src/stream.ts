@@ -10,17 +10,16 @@ import type {
 	ToJSON,
 } from '@rimbu/common/types';
 import type { Reducer } from '@rimbu/stream/reducer';
-import type { Transformer } from '@rimbu/stream/transformer';
-
 import type {
 	FastIterable,
 	Streamable,
 	StreamSource,
-} from '#private/stream-types';
+} from '@rimbu/stream/stream-types';
+import type { Transformer } from '@rimbu/stream/transformer';
 
 import { streamFactoryModule } from '#stream/factory-module';
 
-export type * from '#private/stream-types';
+export type * from '@rimbu/stream/stream-types';
 
 /**
  * A possibly infinite sequence of elements of type T.

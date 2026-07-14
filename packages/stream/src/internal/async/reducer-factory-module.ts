@@ -1,8 +1,9 @@
-import type { AsyncReducerFactory } from '#async/reducer-factory';
 import type {
 	AsyncFastIterator,
 	AsyncStreamSource,
-} from '#private/async-stream-types';
+} from '@rimbu/stream/async/async-stream-types';
+
+import type { AsyncReducerFactory } from '#async/reducer-factory';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import { AsyncOptLazy, type MaybePromise } from '@rimbu/common/async-opt-lazy';
