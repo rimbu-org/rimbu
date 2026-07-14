@@ -4,7 +4,8 @@ import type { HashTableHashColumnCreators } from '#table/creators';
 import type { TableBase } from '#table/types';
 
 import { HashMap } from '@rimbu/hashed/map';
-import { createTableContextModule } from '../internal/context-factory';
+
+import { createTableContextModule } from '#table/context-factory';
 
 /**
  * A type-invariant immutable Table of row key type R, column key type C, and value type V.

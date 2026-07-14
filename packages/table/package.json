@@ -40,8 +40,8 @@
 			"default": "./dist/table.js"
 		},
 		"./*": {
-			"types": "./dist/*.d.ts",
-			"default": "./dist/*.js"
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"imports": {

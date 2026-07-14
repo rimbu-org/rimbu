@@ -2,7 +2,9 @@
 	"compilerOptions": {
 		"paths": {
 			"@rimbu/table": ["./src/table.ts"],
-			"@rimbu/table/*": ["./src/*.ts"],
+			"@rimbu/table/*": ["./src/public/*.ts"],
+			"@rimbu/table/hash-row/*": ["./src/public/hash-row/*.ts"],
+			"@rimbu/table/sorted-row/*": ["./src/public/sorted-row/*.ts"],
 			"#table/*": ["./src/internal/*.ts"]
 		}
 	}
