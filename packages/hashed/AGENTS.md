@@ -6,10 +6,11 @@ This package provides `HashMap<K, V>` and `HashSet<T>` — immutable hash-based 
 
 ```
 src/
-├── hashed.ts        # exports["."]       — re-exports HashMap + HashSet + Hasher
-├── map.ts           # exports["./map"]   — HashMap only
-├── set.ts           # exports["./set"]   — HashSet only
-└── internal/
+├── hashed.ts        # exports["."]       — re-exports HashMap + HashSet + Hasher (whole surface)
+├── public/          # exports["./*"]     — public subpaths
+│   ├── map.ts       # @rimbu/hashed/map  — HashMap only
+│   └── set.ts       # @rimbu/hashed/set  — HashSet only
+└── internal/        # NEVER exported; "#hashed/*", "#map/*", "#set/*" only
     ├── hashed/
     │   ├── base.ts            # shared hashed node base (HAMT structure)
     │   └── hasher-module.ts   # Hasher factory module

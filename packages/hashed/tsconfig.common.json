@@ -2,8 +2,9 @@
 	"compilerOptions": {
 		"paths": {
 			"@rimbu/hashed": ["./src/hashed.ts"],
-			"@rimbu/hashed/map": ["./src/map.ts"],
-			"@rimbu/hashed/set": ["./src/set.ts"],
+			"@rimbu/hashed/map": ["./src/public/map.ts"],
+			"@rimbu/hashed/set": ["./src/public/set.ts"],
+			"@rimbu/hashed/*": ["./src/public/*.ts", "./src/public/*"],
 			"@rimbu/collection-types/*": [
 				"../collection-types/*.ts",
 				"../collection-types/*"

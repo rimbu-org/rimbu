@@ -38,13 +38,9 @@
 			"types": "./dist/hashed.d.ts",
 			"default": "./dist/hashed.js"
 		},
-		"./map": {
-			"types": "./dist/map.d.ts",
-			"default": "./dist/map.js"
-		},
-		"./set": {
-			"types": "./dist/set.d.ts",
-			"default": "./dist/set.js"
+		"./*": {
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"imports": {

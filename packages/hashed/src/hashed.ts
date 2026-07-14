@@ -1,5 +1,8 @@
 import { type HasherModule, hasherModule } from '#hashed/hasher-module';
 
+export * from '@rimbu/hashed/map';
+export * from '@rimbu/hashed/set';
+
 /**
  * Interface used to hash objects for hashed collections.
  * @typeparam UK - the upper type limit for which the hasher is assumed to be valid
