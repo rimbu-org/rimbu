@@ -6,20 +6,38 @@ An immutable `Map` where each key is associated with **one or more** values. Eac
 
 ```
 src/
-├── multimap.ts                # exports["."]        — type-invariant MultiMap API (main entry)
-├── variant.ts                 # exports["./variant"] — type-VARIANT MultiMap API
-├── hash-key/
-│   ├── hash-value.ts          # exports["./hash-key/hash-value"]        — HashMultiMapHashValue
-│   └── sorted-value.ts       # exports["./hash-key/sorted-value"]      — HashMultiMapSortedValue
-├── sorted-key/
-│   ├── hash-value.ts          # exports["./sorted-key/hash-value"]      — SortedMultiMapHashValue
-│   └── sorted-value.ts       # exports["./sorted-key/sorted-value"]    — SortedMultiMapSortedValue
-└── internal/
+├── multimap.ts                # exports["."]       — type-invariant MultiMap API (main entry)
+├── public/                    # exports["./*"]    — public subpaths (dist/public/*)
+│   ├── variant.ts            # @rimbu/multimap/variant — type-VARIANT MultiMap API
+│   ├── hash-key/
+│   │   ├── hash-value.ts     # @rimbu/multimap/hash-key/hash-value    — HashMultiMapHashValue
+│   │   └── sorted-value.ts  # @rimbu/multimap/hash-key/sorted-value  — HashMultiMapSortedValue
+│   └── sorted-key/
+│       ├── hash-value.ts     # @rimbu/multimap/sorted-key/hash-value  — SortedMultiMapHashValue
+│       └── sorted-value.ts  # @rimbu/multimap/sorted-key/sorted-value — SortedMultiMapSortedValue
+└── internal/                  # NEVER exported; "#multimap/*" only
     ├── types.ts               # ALL interface declarations (VariantMultiMapBase, MultiMapBase, NonEmpty, Builder, Types)
     ├── base.ts                # ALL implementations (MultiMapEmpty, MultiMapNonEmpty, MultiMapBuilder)
     ├── context-factory.ts     # createMultiMapContextModule() — the sealed factory/Module
     └── creators.ts           # Creators interfaces for the 4 concrete variants
 ```
+
+### Restructure note (deviation from draft plan)
+
+The draft `plans/multimap.md` proposed moving the four `hash-key/*` / `sorted-key/*` variant
+entries to `internal/` and `variant.ts` to `advanced/`. **This was not followed**, because the
+dependency graph proves they are genuinely public:
+
+- `@rimbu/core` re-exports all five (`@rimbu/multimap/hash-key/hash-value`,
+  `.../sorted-value`, `.../sorted-key/hash-value`, `.../sorted-key/sorted-value`,
+  `@rimbu/multimap/variant`).
+- `@rimbu/bimultimap` imports `HashMultiMapHashValue` and `SortedMultiMapSortedValue`
+  directly from `@rimbu/multimap/hash-key/hash-value` and `.../sorted-key/sorted-value`.
+
+Moving them to `internal/`/`advanced/` would break both consumers. Instead, the only change made
+was to relocate the five public subpaths under `public/` and repoint the leaking
+`"./*" → "./dist/*.js"` export at `"./*" → "./dist/public/*"`, so `internal/` (base,
+context-factory, creators, types) is no longer reachable. No `./advanced/*` tier was added.
 
 ### Key rule: where declarations live
 

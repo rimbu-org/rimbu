@@ -5,7 +5,8 @@ import type { MultiMapBase } from '#multimap/types';
 
 import { HashSet } from '@rimbu/hashed/set';
 import { SortedMap } from '@rimbu/sorted/map';
-import { createMultiMapContextModule } from '../internal/context-factory';
+
+import { createMultiMapContextModule } from '#multimap/context-factory';
 
 /**
  * A type-invariant immutable MultiMap of key type K, and value type V.

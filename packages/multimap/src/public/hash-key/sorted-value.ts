@@ -1,6 +1,6 @@
 import type { Stream, Streamable } from '@rimbu/stream';
-import type { HashMultiMapSortedValueCreators } from '../internal/creators';
 
+import type { HashMultiMapSortedValueCreators } from '#multimap/creators';
 import type { MultiMapBase } from '#multimap/types';
 
 import { HashMap } from '@rimbu/hashed/map';

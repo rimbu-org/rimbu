@@ -3,7 +3,7 @@
 		"rootDirs": [".", ".."],
 		"paths": {
 			"@rimbu/multimap": ["./src/multimap.ts"],
-			"@rimbu/multimap/*": ["./src/*.ts"],
+			"@rimbu/multimap/*": ["./src/public/*.ts", "./src/public/*"],
 			"#multimap/*": ["./src/internal/*.ts"]
 		}
 	}
