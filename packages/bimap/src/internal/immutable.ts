@@ -210,14 +210,11 @@ export class BiMapNonEmptyImpl<K, V>
 	}
 
 	hasKey<UK>(key: RelatedTo<K, UK>): boolean {
-		const token = Symbol();
-		return token !== this.getValue(key, token);
+		return this.keyValueMap.hasKey(key);
 	}
 
 	hasValue<UV>(value: RelatedTo<V, UV>): boolean {
-		const token = Symbol();
-
-		return token !== this.getKey(value, token);
+		return this.valueKeyMap.hasKey(value);
 	}
 
 	getValue<UK, O>(key: RelatedTo<K, UK>, otherwise?: OptLazy<O>): V | O {
