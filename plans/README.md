@@ -39,7 +39,7 @@ src/
 | `@rimbu/hashed` | [hashed.md](hashed.md) | Root must re-export `Hasher` + `HashMap` + `HashSet`; move `map.ts`/`set.ts` to `src/public/`. |
 | `@rimbu/sorted` | [sorted.md](sorted.md) | **Empty root** — create proper `src/sorted.ts` re-exporting `SortedMap`+`SortedSet`; move `map`/`set` to `src/public/`; **remove explicit `./internal/*` export (currently leaks impl).** |
 | `@rimbu/ordered` | [ordered.md](ordered.md) | **No root export** — create `src/ordered.ts`; move `map`/`set` to `src/public/`, impl to `src/internal/`; **remove `"./*"` leak.** |
-| `@rimbu/bimap` | [bimap.md](bimap.md) | Root re-exports whole surface; `internal/` stays. Document `getValue`/`getKey` (no `get`/`mapValues`) as intentional. |
+| `@rimbu/bimap` | [bimap.md](bimap.md) | **DONE** (conformant) — single root entry already re-exports whole surface; `internal/` correctly private (`#bimap/*`); no `"./*"` leak. Created `bimap/AGENTS.md` documenting `getValue`/`getKey` (no `get`/`mapValues`) as intentional. |
 | `@rimbu/bimultimap` | [bimultimap.md](bimultimap.md) | Root re-exports whole surface; `hashed`/`sorted` variants → `src/public/`; **remove `"./*"` leak.** |
 | `@rimbu/multimap` | [multimap.md](multimap.md) | Root re-exports; `variant.ts` → `src/advanced/`; key-type impl → `src/internal/`; **remove `"./*"` leak.** Document `setValues`/`addValues` as intentional. |
 | `@rimbu/multiset` | [multiset.md](multiset.md) | Root re-exports; `hashed`/`sorted` → `src/public/`, `variant.ts` → `src/advanced/`; **remove `"./*"` leak.** Document `count`/`streamWithCounts` as intentional. |
@@ -54,9 +54,9 @@ src/
 | `@rimbu/channel` | [channel.md](channel.md) | **DONE** — moved 9 public modules into `src/public/` (no import rewrites; they used `@rimbu/channel/*` + `#channel/*`); `package.json` `./*` → `./dist/public/*`; repointed `@rimbu/channel/*` paths in all 3 tsconfigs to `public/`. External `@rimbu/task` still resolves `semaphore`/`wait-group`. 155 tests pass. Pre-existing `any`/`void` biome warnings in untouched files left as-is (D1). |
 | `@rimbu/task` | [task.md](task.md) | **DONE** — root `task.ts` re-exports whole surface via the `ops` barrel; moved `ops`/`modifiers`/`utils` → `src/public/`; moved `ops-impl` → `src/advanced/` (now `@rimbu/task/advanced/ops-impl`, basename kept — breaking-change avoidance); renamed `internal/utils.ts` → `task-utils.ts` (+ `#task/utils` → `#task/task-utils` in src + tests); `package.json` `"./*" → "./dist/public/*"` + added `"./advanced/*"`; repointed `@rimbu/task/*` tsconfig path to `public/`. 172 tests pass; biome 0 errors (77 pre-existing `any` warnings). |
 | `@rimbu/actor` | [actor.md](actor.md) | **DONE** — root re-exports `Actor`+`Action`+`Slice` (hooks subpath-only); moved `action`/`slice`/`use-immer`/`use-patch` → `src/public/`; `"./*"` leak removed (now `./dist/public/*`); removed explicit `./use-immer`/`./use-patch`. 36 tests pass; biome 0 errors (pre-existing any warnings). |
-| `@rimbu/spy` | [spy.md](spy.md) | Already conformant — no changes. |
+| `@rimbu/spy` | [spy.md](spy.md) | **DONE** (conformant) — single-file `spy.ts` root, no leak, no wildcards. Created `spy/AGENTS.md`. |
 | `@rimbu/deep` | [deep.md](deep.md) | **DONE** — moved 7 public modules (`match`/`patch`/`path`/`protected`/`select`/`tuple`/`with-type`) → `src/public/`; root re-exports whole surface; folded `#private/*` → `#deep/*`; `"./*"` leak removed (now `./dist/public/*`). |
-| `@rimbu/typical` | [typical.md](typical.md) | Already largely conformant; type-only root, no `public/` needed. |
+| `@rimbu/typical` | [typical.md](typical.md) | **DONE** (conformant) — type-only root re-exports whole surface; no `public/` needed; no leak. Created `typical/AGENTS.md`. |
 
 ### Deferred
 | Package | Plan | Key action |
