@@ -1,5 +1,5 @@
 import type { RSet } from '@rimbu/collection-types';
-import type { RSetBase } from '@rimbu/collection-types/set/base';
+import type { RSetBase } from '@rimbu/collection-types/advanced/set/base';
 import type { RelatedTo } from '@rimbu/common/types';
 import type { List } from '@rimbu/list';
 import type { OrderedSet } from '@rimbu/ordered/set';

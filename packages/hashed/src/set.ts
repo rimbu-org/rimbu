@@ -1,4 +1,4 @@
-import type { RSetBase } from '@rimbu/collection-types/set/base';
+import type { RSetBase } from '@rimbu/collection-types/advanced/set/base';
 import type { Eq } from '@rimbu/common/eq';
 import type { Hasher } from '@rimbu/hashed';
 import type { Streamable } from '@rimbu/stream';

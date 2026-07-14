@@ -10,8 +10,8 @@ import type { ValuedGraph } from '#private/valued/valued-graph';
 import {
 	checkEmptyModifyOptions,
 	type ModifyOptions,
-} from '@rimbu/collection-types/common';
-import { NonEmptyBase } from '@rimbu/collection-types/common/empty-base';
+} from '@rimbu/collection-types/advanced/common';
+import { NonEmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';

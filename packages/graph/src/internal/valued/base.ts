@@ -1,5 +1,5 @@
 import type { RMap } from '@rimbu/collection-types';
-import type { ModifyOptions } from '@rimbu/collection-types/common';
+import type { ModifyOptions } from '@rimbu/collection-types/advanced/common';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, RelatedTo } from '@rimbu/common/types';

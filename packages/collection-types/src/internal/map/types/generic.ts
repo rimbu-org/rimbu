@@ -1,4 +1,4 @@
-import type { RMapBase } from '@rimbu/collection-types/map/base';
+import type { RMapBase } from '@rimbu/collection-types/advanced/map/base';
 
 /**
  * A type-invariant immutable Map of key type K, and value type V.

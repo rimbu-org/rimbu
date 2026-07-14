@@ -8,7 +8,7 @@ import type { ListImpl } from '#list/list-impl';
 import type { ListBuilder } from '#list/mutable/builder';
 
 import { throwInvalidStateError } from '@rimbu/base/rimbu-error';
-import { NonEmptyBase } from '@rimbu/collection-types/common/empty-base';
+import { NonEmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
 import { Comp } from '@rimbu/common/comp';
 import { IndexRange } from '@rimbu/common/index-range';
 import { Stream, type StreamSource } from '@rimbu/stream';

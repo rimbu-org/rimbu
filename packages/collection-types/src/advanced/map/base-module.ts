@@ -1,5 +1,5 @@
-import type { WithKeyValue } from '@rimbu/collection-types/common';
-import type { RMapBase } from '@rimbu/collection-types/map/base';
+import type { WithKeyValue } from '@rimbu/collection-types/advanced/common';
+import type { RMapBase } from '@rimbu/collection-types/advanced/map/base';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 
 import { Module } from '@rimbu/common/module';

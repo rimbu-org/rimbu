@@ -1,6 +1,6 @@
 import type { VariantGraphBase } from '#private/variant-base';
 
-import { EmptyBase } from '@rimbu/collection-types/common/empty-base';
+import { EmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
 export interface GraphValues<N = unknown, V = unknown> {

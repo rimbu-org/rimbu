@@ -7,7 +7,7 @@ import type { OrderedSet } from '@rimbu/ordered/set';
 import type { OrderedSetBase } from '#set/base';
 import type { ContextImpl } from '#set/context-factory';
 
-import { NonEmptyBase } from '@rimbu/collection-types/common/empty-base';
+import { NonEmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
 export class OrderedSetNonEmpty<T>

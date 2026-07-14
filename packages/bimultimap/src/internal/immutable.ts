@@ -10,7 +10,7 @@ import type { ContextImpl } from '#bimultimap/context-factory';
 import {
 	EmptyBase,
 	NonEmptyBase,
-} from '@rimbu/collection-types/common/empty-base';
+} from '@rimbu/collection-types/advanced/common/empty-base';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
 export class BiMultiMapEmpty<K, V>

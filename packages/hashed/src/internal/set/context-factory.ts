@@ -3,7 +3,7 @@ import type { StreamSource } from '@rimbu/stream';
 
 import type { HashSetCreators } from '#set/creators';
 
-import { RSetContextBaseModule } from '@rimbu/collection-types/set/base-module';
+import { RSetContextBaseModule } from '@rimbu/collection-types/advanced/set/base-module';
 import { Eq } from '@rimbu/common/eq';
 import { Module } from '@rimbu/common/module';
 import { Hasher } from '@rimbu/hashed';

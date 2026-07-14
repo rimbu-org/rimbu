@@ -6,19 +6,20 @@ This package defines the **abstract base interfaces and HKT machinery** shared b
 
 ```
 src/
-├── collection-types.ts    # exports["."]        — re-exports all base types
-├── common.ts              # exports["./common"] — KeyValue, WithElem, common HKT helpers
-├── common/
-│   └── empty-base.ts      # EmptyBase class (base for empty collection implementations)
-├── map/
-│   ├── base.ts            # RMapBase, VariantMapBase interfaces
-│   └── base-module.ts     # RMapContextBaseModule: factory methods pattern for maps
-├── set/
-│   ├── base.ts            # RSetBase, VariantSetBase interfaces
-│   └── base-module.ts     # RSetContextBaseModule: factory methods pattern for sets
-└── internal/
+├── collection-types.ts    # exports["."]           — re-exports all base types (RMap, RSet, VariantMap, VariantSet)
+├── advanced/              # exports["./advanced/*"] — implementer / extension API
+│   ├── common.ts          # KeyValue, WithElem, common HKT helpers
+│   ├── common/
+│   │   └── empty-base.ts  # EmptyBase / NonEmptyBase classes
+│   ├── map/
+│   │   ├── base.ts        # RMapBase, VariantMapBase interfaces
+│   │   └── base-module.ts # RMapContextBaseModule
+│   └── set/
+│       ├── base.ts        # RSetBase, VariantSetBase interfaces
+│       └── base-module.ts # RSetContextBaseModule
+└── internal/              # NEVER exported; "#collection-types/*" only (package-private HKT machinery)
     ├── common/
-    │   └── types.ts       # WithElem, KeyValue HKT slot types (package-private)
+    │   └── types.ts       # WithElem, KeyValue HKT slot types
     ├── map/types/
     │   ├── generic.ts     # Generic map type slots
     │   └── variant.ts     # Variant map type slots
@@ -81,7 +82,8 @@ After any change here, verify all concrete implementations still compile:
 
 ```ts
 import type { RMap, RSet, VariantMap } from '@rimbu/collection-types';
-import type { KeyValue } from '@rimbu/collection-types/common';
+import type { KeyValue } from '@rimbu/collection-types/advanced/common';
+import type { RMapBase } from '@rimbu/collection-types/advanced/map/base';
 ```
 
-The `common` sub-path is used by collection implementations for HKT slot types.
+The `advanced` sub-path holds the implementer-facing base interfaces and context modules. HKT slot types are package-private under `internal/` and surfaced only through `advanced/`.

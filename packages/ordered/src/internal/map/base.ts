@@ -1,6 +1,6 @@
 import type { RMap } from '@rimbu/collection-types';
-import type { WithKeyValue } from '@rimbu/collection-types/common';
-import type { RMapBase } from '@rimbu/collection-types/map/base';
+import type { WithKeyValue } from '@rimbu/collection-types/advanced/common';
+import type { RMapBase } from '@rimbu/collection-types/advanced/map/base';
 import type { List } from '@rimbu/list';
 import type { Streamable } from '@rimbu/stream';
 

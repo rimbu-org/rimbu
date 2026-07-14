@@ -1,4 +1,4 @@
-import type { RSetBase } from '@rimbu/collection-types/set/base';
+import type { RSetBase } from '@rimbu/collection-types/advanced/set/base';
 import type { ArrayNonEmpty } from '@rimbu/common/types';
 
 import type { WithElem } from '#collection-types/common/types';

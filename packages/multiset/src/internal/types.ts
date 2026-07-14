@@ -1,5 +1,5 @@
 import type { RMap, VariantMap } from '@rimbu/collection-types';
-import type { Elem, WithElem } from '@rimbu/collection-types/common';
+import type { Elem, WithElem } from '@rimbu/collection-types/advanced/common';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { MultiSet } from '@rimbu/multiset';

@@ -2,7 +2,7 @@ import type { HashMap } from '@rimbu/hashed/map';
 
 import type { HashMapCreators } from '#map/creators';
 
-import { RMapContextBaseModule } from '@rimbu/collection-types/map/base-module';
+import { RMapContextBaseModule } from '@rimbu/collection-types/advanced/map/base-module';
 import { Eq } from '@rimbu/common/eq';
 import { Module } from '@rimbu/common/module';
 import { Hasher } from '@rimbu/hashed';

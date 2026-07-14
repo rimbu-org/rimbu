@@ -1,5 +1,5 @@
-import type { WithElem } from '@rimbu/collection-types/common';
-import type { RSetBase } from '@rimbu/collection-types/set/base';
+import type { WithElem } from '@rimbu/collection-types/advanced/common';
+import type { RSetBase } from '@rimbu/collection-types/advanced/set/base';
 import type { List } from '@rimbu/list';
 import type { Streamable } from '@rimbu/stream';
 

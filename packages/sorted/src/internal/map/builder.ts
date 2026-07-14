@@ -8,7 +8,7 @@ import { Token } from '@rimbu/base/token';
 import {
 	checkEmptyModifyOptions,
 	type ModifyOptions,
-} from '@rimbu/collection-types/common';
+} from '@rimbu/collection-types/advanced/common';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Stream, type StreamSource } from '@rimbu/stream';
 

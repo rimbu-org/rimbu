@@ -1,4 +1,4 @@
-import type { RMapBase } from '@rimbu/collection-types/map/base';
+import type { RMapBase } from '@rimbu/collection-types/advanced/map/base';
 import type { Eq } from '@rimbu/common/eq';
 import type { Hasher } from '@rimbu/hashed';
 import type { HashMap } from '@rimbu/hashed/map';

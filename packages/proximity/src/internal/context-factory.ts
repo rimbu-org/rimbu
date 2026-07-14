@@ -2,7 +2,7 @@ import type { ProximityMap } from '@rimbu/proximity';
 
 import type { ProximityMapCreators } from '#proximity/creators';
 
-import { RMapContextBaseModule } from '@rimbu/collection-types/map/base-module';
+import { RMapContextBaseModule } from '@rimbu/collection-types/advanced/map/base-module';
 import { Module } from '@rimbu/common/module';
 import { HashMap } from '@rimbu/hashed/map';
 import { DistanceFunction } from '@rimbu/proximity/distance-function';

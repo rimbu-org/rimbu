@@ -3,7 +3,7 @@
 		"rootDir": ".",
 		"paths": {
 			"@rimbu/collection-types": ["./src/collection-types.ts"],
-			"@rimbu/collection-types/common": ["./src/common.ts"],
+			"@rimbu/collection-types/advanced/*": ["./src/advanced/*.ts", "./src/advanced/*"],
 			"@rimbu/collection-types/*": ["./src/*.ts", "./src/*"],
 			"#collection-types/*": ["./src/internal/*.ts", "./src/internal/*"]
 		}

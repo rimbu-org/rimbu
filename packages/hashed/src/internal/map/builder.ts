@@ -13,7 +13,7 @@ import * as RimbuError from '@rimbu/base/rimbu-error';
 import {
 	checkEmptyModifyOptions,
 	type ModifyOptions,
-} from '@rimbu/collection-types/common';
+} from '@rimbu/collection-types/advanced/common';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { List } from '@rimbu/list';

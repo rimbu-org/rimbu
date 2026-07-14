@@ -1,4 +1,4 @@
-import type { ModifyOptions } from '@rimbu/collection-types/common';
+import type { ModifyOptions } from '@rimbu/collection-types/advanced/common';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { HashMap } from '@rimbu/hashed/map';

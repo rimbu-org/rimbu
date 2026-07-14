@@ -4,7 +4,7 @@ import type { OrderedMap } from '@rimbu/ordered/map';
 import type { OrderedMapBase } from '#map/base';
 import type { OrderedMapCreators } from '#map/creators';
 
-import { RMapContextBaseModule } from '@rimbu/collection-types/map/base-module';
+import { RMapContextBaseModule } from '@rimbu/collection-types/advanced/map/base-module';
 import { Module } from '@rimbu/common/module';
 import { List } from '@rimbu/list';
 

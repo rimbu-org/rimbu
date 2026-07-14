@@ -1,4 +1,4 @@
-import type { VariantSetBase } from '@rimbu/collection-types/set/base';
+import type { VariantSetBase } from '@rimbu/collection-types/advanced/set/base';
 
 /**
  * A type-variant immutable Set of value type T.

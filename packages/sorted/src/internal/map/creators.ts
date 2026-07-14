@@ -1,4 +1,4 @@
-import type { RMapBase } from '@rimbu/collection-types/map/base';
+import type { RMapBase } from '@rimbu/collection-types/advanced/map/base';
 import type { Comp } from '@rimbu/common/comp';
 import type { SortedMap } from '@rimbu/sorted/map';
 

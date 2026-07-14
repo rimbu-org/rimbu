@@ -1,11 +1,11 @@
 import type { RSet } from '@rimbu/collection-types';
-import type { WithElem } from '@rimbu/collection-types/common';
+import type { WithElem } from '@rimbu/collection-types/advanced/common';
 import type { OrderedSet } from '@rimbu/ordered/set';
 
 import type { OrderedSetBase } from '#set/base';
 import type { OrderedSetCreators } from '#set/creators';
 
-import { RSetContextBaseModule } from '@rimbu/collection-types/set/base-module';
+import { RSetContextBaseModule } from '@rimbu/collection-types/advanced/set/base-module';
 import { Module } from '@rimbu/common/module';
 import { List } from '@rimbu/list';
 

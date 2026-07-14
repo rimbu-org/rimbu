@@ -1,4 +1,4 @@
-import type { WithElem } from '@rimbu/collection-types/common';
+import type { WithElem } from '@rimbu/collection-types/advanced/common';
 
 import type { ListContext } from '#list/context-module';
 import type { ListBase } from '#list/list-base';

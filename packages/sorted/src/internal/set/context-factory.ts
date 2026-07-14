@@ -2,7 +2,7 @@ import type { SortedSet } from '@rimbu/sorted/set';
 
 import type { SortedSetCreators } from '#set/creators';
 
-import { RSetContextBaseModule } from '@rimbu/collection-types/set/base-module';
+import { RSetContextBaseModule } from '@rimbu/collection-types/advanced/set/base-module';
 import { Comp } from '@rimbu/common/comp';
 import { Module } from '@rimbu/common/module';
 

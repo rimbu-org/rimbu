@@ -1,4 +1,4 @@
-import type { RSetBase } from '@rimbu/collection-types/set/base';
+import type { RSetBase } from '@rimbu/collection-types/advanced/set/base';
 import type { Comp } from '@rimbu/common/comp';
 import type { SortedSet } from '@rimbu/sorted/set';
 

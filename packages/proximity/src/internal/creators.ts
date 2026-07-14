@@ -1,4 +1,4 @@
-import type { RMapBase } from '@rimbu/collection-types/map/base';
+import type { RMapBase } from '@rimbu/collection-types/advanced/map/base';
 import type { HashMap } from '@rimbu/hashed/map';
 import type { ProximityMap } from '@rimbu/proximity';
 import type { DistanceFunction } from '@rimbu/proximity/distance-function';

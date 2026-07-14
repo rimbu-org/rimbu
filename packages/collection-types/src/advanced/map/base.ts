@@ -3,7 +3,7 @@ import type {
 	VariantModifyOptions,
 	VariantUpdate,
 	WithKeyValue,
-} from '@rimbu/collection-types/common';
+} from '@rimbu/collection-types/advanced/common';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';

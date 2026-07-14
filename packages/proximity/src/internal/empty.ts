@@ -6,8 +6,8 @@ import type { ContextImpl } from '#proximity/context-factory';
 import {
 	checkEmptyModifyOptions,
 	type ModifyOptions,
-} from '@rimbu/collection-types/common';
-import { EmptyBase } from '@rimbu/collection-types/common/empty-base';
+} from '@rimbu/collection-types/advanced/common';
+import { EmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Stream, type StreamSource } from '@rimbu/stream';
 

@@ -7,11 +7,11 @@ import type { ContextImpl } from '#bimap/context-factory';
 import {
 	checkEmptyModifyOptions,
 	type ModifyOptions,
-} from '@rimbu/collection-types/common';
+} from '@rimbu/collection-types/advanced/common';
 import {
 	EmptyBase,
 	NonEmptyBase,
-} from '@rimbu/collection-types/common/empty-base';
+} from '@rimbu/collection-types/advanced/common/empty-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';

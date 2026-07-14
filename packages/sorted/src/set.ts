@@ -1,5 +1,5 @@
 import type { RSet } from '@rimbu/collection-types';
-import type { RSetBase } from '@rimbu/collection-types/set/base';
+import type { RSetBase } from '@rimbu/collection-types/advanced/set/base';
 import type { Comp } from '@rimbu/common/comp';
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { OptLazy } from '@rimbu/common/opt-lazy';

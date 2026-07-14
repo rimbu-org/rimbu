@@ -7,7 +7,7 @@
  */
 
 import type { RMap } from '@rimbu/collection-types';
-import type { RMapBase } from '@rimbu/collection-types/map/base';
+import type { RMapBase } from '@rimbu/collection-types/advanced/map/base';
 import type { HashMap } from '@rimbu/hashed/map';
 import type { DistanceFunction } from '@rimbu/proximity/distance-function';
 import type { Stream, Streamable } from '@rimbu/stream';

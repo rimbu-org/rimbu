@@ -2,7 +2,7 @@ import type { SortedMap } from '@rimbu/sorted/map';
 
 import type { SortedMapCreators } from '#map/creators';
 
-import { RMapContextBaseModule } from '@rimbu/collection-types/map/base-module';
+import { RMapContextBaseModule } from '@rimbu/collection-types/advanced/map/base-module';
 import { Comp } from '@rimbu/common/comp';
 import { Module } from '@rimbu/common/module';
 

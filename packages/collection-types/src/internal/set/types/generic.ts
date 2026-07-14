@@ -1,4 +1,4 @@
-import type { RSetBase } from '@rimbu/collection-types/set/base';
+import type { RSetBase } from '@rimbu/collection-types/advanced/set/base';
 
 /**
  * A type-invariant immutable Set of value type T.

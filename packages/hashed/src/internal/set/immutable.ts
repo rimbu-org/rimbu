@@ -9,7 +9,7 @@ import * as RimbuError from '@rimbu/base/rimbu-error';
 import {
 	EmptyBase,
 	NonEmptyBase,
-} from '@rimbu/collection-types/common/empty-base';
+} from '@rimbu/collection-types/advanced/common/empty-base';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
 

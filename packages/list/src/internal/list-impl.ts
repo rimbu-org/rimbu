@@ -1,4 +1,4 @@
-import type { WithElem } from '@rimbu/collection-types/common';
+import type { WithElem } from '@rimbu/collection-types/advanced/common';
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { TraverseState } from '@rimbu/common/traverse-state';
 import type { Stream } from '@rimbu/stream';

@@ -6,7 +6,7 @@ import type { GraphContextImpl } from '#graph/non-valued/context-factory';
 import type { GraphBase } from '#private/base';
 import type { Graph } from '#private/graph';
 
-import { NonEmptyBase } from '@rimbu/collection-types/common/empty-base';
+import { NonEmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
 import { TraverseState } from '@rimbu/common/traverse-state';
 import { Stream, type StreamSource } from '@rimbu/stream';
 

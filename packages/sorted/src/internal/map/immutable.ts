@@ -10,7 +10,7 @@ import * as RimbuError from '@rimbu/base/rimbu-error';
 import {
 	checkEmptyModifyOptions,
 	type ModifyOptions,
-} from '@rimbu/collection-types/common';
+} from '@rimbu/collection-types/advanced/common';
 import { IndexRange } from '@rimbu/common/index-range';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Range } from '@rimbu/common/range';

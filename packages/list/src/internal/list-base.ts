@@ -1,4 +1,4 @@
-import type { Elem, WithElem } from '@rimbu/collection-types/common';
+import type { Elem, WithElem } from '@rimbu/collection-types/advanced/common';
 import type { CollectFun } from '@rimbu/common/collect';
 import type { Comp } from '@rimbu/common/comp';
 import type { IndexRange } from '@rimbu/common/index-range';

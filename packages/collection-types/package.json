@@ -34,13 +34,9 @@
 			"types": "./dist/collection-types.d.ts",
 			"default": "./dist/collection-types.js"
 		},
-		"./common": {
-			"types": "./dist/common.d.ts",
-			"default": "./dist/common.js"
-		},
-		"./*": {
-			"types": "./dist/*.d.ts",
-			"default": "./dist/*.js"
+		"./advanced/*": {
+			"types": "./dist/advanced/*.d.ts",
+			"default": "./dist/advanced/*.js"
 		}
 	},
 	"imports": {

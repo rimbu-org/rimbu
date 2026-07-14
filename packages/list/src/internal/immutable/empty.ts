@@ -4,7 +4,7 @@ import type { ListContext } from '#list/context-module';
 import type { ListImpl } from '#list/list-impl';
 import type { ListBuilder } from '#list/mutable/builder';
 
-import { EmptyBase } from '@rimbu/collection-types/common/empty-base';
+import { EmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { Stream, type StreamSource } from '@rimbu/stream';
 
