@@ -6,7 +6,7 @@
 		"outDir": "./dist",
 		"paths": {
 			"@rimbu/channel": ["./channel.ts"],
-			"@rimbu/channel/*": ["./*.ts"],
+			"@rimbu/channel/*": ["./public/*.ts"],
 			"#channel/*": ["./internal/*.ts"],
 			"#private/*": ["./internal/*.ts"]
 		}

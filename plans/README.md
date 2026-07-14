@@ -51,7 +51,7 @@ src/
 | Package | Plan | Key action |
 |---|---|---|
 | `@rimbu/list` | [list.md](list.md) | **DONE** — root re-exports `CharList`/`BitList`/`TypedArrayList`; `char`/`bit`/`typed-array` → `src/public/`; **removed explicit `./internal/*` leak** (now `./dist/public/*`). |
-| `@rimbu/channel` | [channel.md](channel.md) | Root re-exports all; move 9 modules to `src/public/`; wildcard `./dist/*` → `./dist/public/*`. |
+| `@rimbu/channel` | [channel.md](channel.md) | **DONE** — moved 9 public modules into `src/public/` (no import rewrites; they used `@rimbu/channel/*` + `#channel/*`); `package.json` `./*` → `./dist/public/*`; repointed `@rimbu/channel/*` paths in all 3 tsconfigs to `public/`. External `@rimbu/task` still resolves `semaphore`/`wait-group`. 155 tests pass. Pre-existing `any`/`void` biome warnings in untouched files left as-is (D1). |
 | `@rimbu/task` | [task.md](task.md) | Root re-exports; `ops-impl.ts` → `src/advanced/`; rename internal `utils.ts` → `internal/task-utils.ts`; add root re-exports. |
 | `@rimbu/actor` | [actor.md](actor.md) | Root re-exports `Actor`+`Action`+`Slice` (hooks subpath-only); `action`/`slice` → `src/public/`; **remove `"./*"` leak.** |
 | `@rimbu/spy` | [spy.md](spy.md) | Already conformant — no changes. |
