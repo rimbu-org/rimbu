@@ -3,7 +3,7 @@ import type { Link } from '@rimbu/graph/link';
 import type { Stream, Streamable } from '@rimbu/stream';
 
 import type { ArrowGraphBase } from '#graph/arrow/base';
-import type { ArrowGraphCreators } from '#private/arrow/creators';
+import type { ArrowGraphCreators } from '#graph/arrow/creators';
 
 import { createGraphContextModule } from '#graph/non-valued/context-factory';
 

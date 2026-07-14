@@ -42,33 +42,13 @@
 			"types": "./dist/graph.d.ts",
 			"default": "./dist/graph.js"
 		},
-		"./arrow-graph": {
-			"types": "./dist/arrow-graph.d.ts",
-			"default": "./dist/arrow-graph.js"
-		},
-		"./arrow-valued-graph": {
-			"types": "./dist/arrow-valued-graph.d.ts",
-			"default": "./dist/arrow-valued-graph.js"
-		},
-		"./edge-graph": {
-			"types": "./dist/edge-graph.d.ts",
-			"default": "./dist/edge-graph.js"
-		},
-		"./edge-valued-graph": {
-			"types": "./dist/edge-valued-graph.d.ts",
-			"default": "./dist/edge-valued-graph.js"
-		},
 		"./*": {
-			"types": "./dist/*.d.ts",
-			"default": "./dist/*.js"
+			"types": "./dist/public/*.d.ts",
+			"default": "./dist/public/*.js"
 		}
 	},
 	"imports": {
 		"#graph/*": {
-			"types": "./dist/internal/*.d.ts",
-			"default": "./dist/internal/*.js"
-		},
-		"#private/*": {
 			"types": "./dist/internal/*.d.ts",
 			"default": "./dist/internal/*.js"
 		}

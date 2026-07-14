@@ -7,7 +7,7 @@ import type { HashSet } from '@rimbu/hashed/set';
 import type { SortedMap } from '@rimbu/sorted/map';
 import type { SortedSet } from '@rimbu/sorted/set';
 
-import type { GraphBase } from '#private/base';
+import type { GraphBase } from '#graph/base';
 
 export interface ArrowGraphCreators {
 	/**

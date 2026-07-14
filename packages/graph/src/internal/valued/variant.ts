@@ -1,7 +1,7 @@
 import type { ValuedGraphElement } from '@rimbu/graph/valued-link';
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type { VariantValuedGraphBase } from '#private/valued/variant-base';
+import type { VariantValuedGraphBase } from '#graph/valued/variant-base';
 
 /**
  * A type-variant immutable valued graph.

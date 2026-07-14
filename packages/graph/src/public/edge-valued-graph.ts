@@ -2,8 +2,8 @@ import type { RMap } from '@rimbu/collection-types';
 import type { ValuedGraphElement } from '@rimbu/graph/valued-link';
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type { EdgeValuedGraphBase } from '#private/edge/valued/base';
-import type { EdgeValuedGraphCreators } from '#private/edge/valued/creators';
+import type { EdgeValuedGraphBase } from '#graph/edge/valued/base';
+import type { EdgeValuedGraphCreators } from '#graph/edge/valued/creators';
 
 import { createValuedGraphContextModule } from '#graph/valued/context-factory';
 

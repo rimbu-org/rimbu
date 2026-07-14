@@ -1,7 +1,7 @@
 import type { ValuedGraphElement } from '@rimbu/graph/valued-link';
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type { ValuedGraphBase } from '#private/valued/base';
+import type { ValuedGraphBase } from '#graph/valued/base';
 
 export interface EdgeValuedGraphBase<
 	N,

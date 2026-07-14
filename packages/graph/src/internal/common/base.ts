@@ -1,4 +1,4 @@
-import type { VariantGraphBase } from '#private/variant-base';
+import type { VariantGraphBase } from '#graph/variant-base';
 
 import { EmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
 import { Stream, type StreamSource } from '@rimbu/stream';

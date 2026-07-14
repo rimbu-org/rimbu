@@ -1,8 +1,8 @@
 import type { RMap, RSet } from '@rimbu/collection-types';
 import type { GraphElement } from '@rimbu/graph/link';
 
-import type { GraphBase } from '#private/base';
-import type { Graph } from '#private/graph';
+import type { GraphBase } from '#graph/base';
+import type { Graph } from '#graph/graph';
 
 import { Module } from '@rimbu/common/module';
 import { Stream, type StreamSource } from '@rimbu/stream';

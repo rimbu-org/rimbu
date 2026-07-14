@@ -1,7 +1,7 @@
 import type { RMap } from '@rimbu/collection-types';
 import type { ValuedGraphElement } from '@rimbu/graph/valued-link';
 
-import type { ValuedGraph } from '#private/valued/valued-graph';
+import type { ValuedGraph } from '#graph/valued/valued-graph';
 
 import { Module } from '@rimbu/common/module';
 import { Stream, type StreamSource } from '@rimbu/stream';

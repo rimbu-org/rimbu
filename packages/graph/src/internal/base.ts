@@ -10,7 +10,7 @@ import type {
 	GraphConnectNonEmpty,
 	WithGraphValues,
 } from '#graph/common/base';
-import type { VariantGraphBase } from '#private/variant-base';
+import type { VariantGraphBase } from '#graph/variant-base';
 
 export interface GraphBase<N, Tp extends GraphBase.Types = GraphBase.Types>
 	extends VariantGraphBase<N, unknown, Tp>,

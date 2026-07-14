@@ -5,7 +5,7 @@ import type { ValuedGraphElement, ValuedLink } from '@rimbu/graph/valued-link';
 import type { Stream, Streamable } from '@rimbu/stream';
 
 import type { WithGraphValues } from '#graph/common/base';
-import type { VariantGraphBase } from '#private/variant-base';
+import type { VariantGraphBase } from '#graph/variant-base';
 
 export interface VariantValuedGraphBase<
 	N,

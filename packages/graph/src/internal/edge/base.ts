@@ -1,7 +1,7 @@
 import type { GraphElement } from '@rimbu/graph/link';
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type { GraphBase } from '#private/base';
+import type { GraphBase } from '#graph/base';
 
 export interface EdgeGraphBase<
 	N,

@@ -13,8 +13,8 @@ import type {
 	GraphConnectNonEmpty,
 	WithGraphValues,
 } from '#graph/common/base';
-import type { VariantValuedGraphBase } from '#private/valued/variant-base';
-import type { VariantGraphBase } from '#private/variant-base';
+import type { VariantValuedGraphBase } from '#graph/valued/variant-base';
+import type { VariantGraphBase } from '#graph/variant-base';
 
 export interface ValuedGraphBase<
 	N,

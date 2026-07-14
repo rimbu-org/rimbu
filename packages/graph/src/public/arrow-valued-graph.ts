@@ -2,8 +2,8 @@ import type { RMap } from '@rimbu/collection-types';
 import type { ValuedGraphElement } from '@rimbu/graph/valued-link';
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type { ArrowValuedGraphBase } from '#private/arrow/valued/base';
-import type { ArrowValuedGraphCreators } from '#private/arrow/valued/creators';
+import type { ArrowValuedGraphBase } from '#graph/arrow/valued/base';
+import type { ArrowValuedGraphCreators } from '#graph/arrow/valued/creators';
 
 import { createValuedGraphContextModule } from '#graph/valued/context-factory';
 

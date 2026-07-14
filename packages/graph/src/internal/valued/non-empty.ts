@@ -3,9 +3,9 @@ import type { RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { Link } from '@rimbu/graph/link';
 import type { ValuedGraphElement, ValuedLink } from '@rimbu/graph/valued-link';
 
+import type { ValuedGraphBase } from '#graph/valued/base';
 import type { ValuedGraphContextImpl } from '#graph/valued/context-factory';
-import type { ValuedGraphBase } from '#private/valued/base';
-import type { ValuedGraph } from '#private/valued/valued-graph';
+import type { ValuedGraph } from '#graph/valued/valued-graph';
 
 import {
 	checkEmptyModifyOptions,

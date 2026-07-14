@@ -1,11 +1,12 @@
 import type { ValuedGraphElement } from '@rimbu/graph/valued-link';
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type { EdgeValuedGraphBase } from '#private/edge/valued/base';
-import type { EdgeValuedGraphHashedCreators } from '#private/edge/valued/creators';
+import type { EdgeValuedGraphBase } from '#graph/edge/valued/base';
+import type { EdgeValuedGraphHashedCreators } from '#graph/edge/valued/creators';
 
 import { HashMap } from '@rimbu/hashed/map';
-import { createValuedGraphContextModule } from '../../internal/valued/context-factory';
+
+import { createValuedGraphContextModule } from '#graph/valued/context-factory';
 
 /**
  * A type-invariant immutable valued edge (undirected) graph.

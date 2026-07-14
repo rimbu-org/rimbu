@@ -45,7 +45,7 @@ src/
 | `@rimbu/multiset` | [multiset.md](multiset.md) | Root re-exports; `hashed`/`sorted` → `src/public/`, `variant.ts` → `src/advanced/`; **remove `"./*"` leak.** Document `count`/`streamWithCounts` as intentional. |
 | `@rimbu/proximity` | [proximity.md](proximity.md) | **DONE** — root re-exports; `distance-function`/`key-matching` → `src/public/`; **removed `"./*"` leak** (now `./dist/public/*`). |
 | `@rimbu/table` | [table.md](table.md) | **DONE** — `hash-row`/`sorted-row` variant factories → `src/advanced/`; **removed `"./*"` leak** (now `./dist/public/*` + `./dist/advanced/*`). |
-| `@rimbu/graph` | [graph.md](graph.md) | **Empty root** — create `src/graph.ts` re-exporting 4 families + `Link`; top-level modules → `src/public/`, `non-valued/`+`valued/` impl → `src/internal/`; **remove `"./*"` leak**; fold `#private/*` into `#graph/*`. |
+| `@rimbu/graph` | [graph.md](graph.md) | **DONE** — root re-exports whole surface; top-level modules → `src/public/` (incl. `non-valued/`+`valued/` kept public: core re-exports the former, variant ctor = public per table precedent); **removed `"./*"` leak**; fold `#private/*` → `#graph/*`. |
 
 ### Async / utilities / misc
 | Package | Plan | Key action |

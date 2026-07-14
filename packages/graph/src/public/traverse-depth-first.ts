@@ -1,5 +1,5 @@
 import type { LinkType } from '#graph/traverse-base';
-import type { VariantGraphBase } from '#private/variant-base';
+import type { VariantGraphBase } from '#graph/variant-base';
 
 import { OptLazy } from '@rimbu/common/opt-lazy';
 import { HashSet } from '@rimbu/hashed/set';
@@ -8,7 +8,7 @@ import { type FastIterator, Stream } from '@rimbu/stream';
 import { StreamBase } from '@rimbu/stream/internal/base';
 import { FastIteratorBase } from '@rimbu/stream/internal/fast-iterator-base';
 
-class GraphBreadthFirstStream<
+class GraphDepthFirstStream<
 	G extends VariantGraphBase.NonEmpty<N, any>,
 	N,
 > extends StreamBase<LinkType<G, N>> {
@@ -21,7 +21,7 @@ class GraphBreadthFirstStream<
 	}
 
 	[Symbol.iterator](): FastIterator<LinkType<G, N>> {
-		return new DirectedGraphBreadthFirstIterable<G, N>(
+		return new GraphDepthFirstIterable<G, N>(
 			this.node,
 			this.graph,
 			this.addVisitedNode,
@@ -29,7 +29,7 @@ class GraphBreadthFirstStream<
 	}
 }
 
-class DirectedGraphBreadthFirstIterable<
+class GraphDepthFirstIterable<
 	G extends VariantGraphBase.NonEmpty<N, any>,
 	N,
 > extends FastIteratorBase<LinkType<G, N>> {
@@ -37,53 +37,52 @@ class DirectedGraphBreadthFirstIterable<
 		readonly node: N,
 		readonly graph: G,
 		readonly addVisitedNode: (node: N) => boolean,
+		isRoot = true,
 	) {
 		super();
-		addVisitedNode(node);
+		if (isRoot) this.addVisitedNode(node);
 
 		const startConnectionStream = this.graph.getConnectionStreamFrom(this.node);
 
-		this.currentIterator = startConnectionStream[
+		this.arrowIterator = startConnectionStream[
 			Symbol.iterator
 		]() as FastIterator<LinkType<G, N>>;
 	}
 
-	readonly nextIterators: FastIterator<LinkType<G, N>>[] = [];
-	currentIterator: FastIterator<LinkType<G, N>>;
+	readonly arrowIterator: FastIterator<LinkType<G, N>>;
+
+	currentIterator?: FastIterator<LinkType<G, N>>;
 
 	fastNext<O>(otherwise?: OptLazy<O>): LinkType<G, N> | O {
+		if (this.currentIterator) {
+			const nextNode = this.currentIterator.fastNext();
+			if (undefined !== nextNode) return nextNode;
+		}
+
 		let nextConnection: LinkType<G, N> | undefined;
 
-		while (undefined !== (nextConnection = this.currentIterator.fastNext())) {
+		while (undefined !== (nextConnection = this.arrowIterator.fastNext())) {
 			const result = nextConnection;
 			const targetNode = result[1];
 
 			if (this.addVisitedNode(targetNode)) {
-				const targetConnectionStream =
-					this.graph.getConnectionStreamFrom(targetNode);
-
-				this.nextIterators.push(
-					targetConnectionStream[Symbol.iterator]() as FastIterator<
-						LinkType<G, N>
-					>,
+				this.currentIterator = new GraphDepthFirstIterable<G, N>(
+					targetNode,
+					this.graph,
+					this.addVisitedNode,
+					false,
 				);
 				return result;
 			}
 		}
 
-		const nextIterator = this.nextIterators.shift();
-
-		if (undefined === nextIterator) return OptLazy(otherwise) as O;
-
-		this.currentIterator = nextIterator;
-
-		return this.fastNext(otherwise);
+		return OptLazy(otherwise) as O;
 	}
 }
 
 /**
  * Returns a stream of connections that can be reached in the given `graph`
- * starting at the given `startNode`, and using breadth-first traversal. It can
+ * starting at the given `startNode`, and using depth-first traversal. It can
  * avoid loops if needed in a custom way by supplying the `addVisitedNode` function.
  * @param graph - the graph to traverse
  * @param startNode - the start node within the graph
@@ -92,69 +91,65 @@ class DirectedGraphBreadthFirstIterable<
  * @example
  * ```ts
  * const g = EdgeGraphHashed.of([1, 2], [2, 3], [1, 3], [3, 4])
- * const stream = traverseBreadthFirstCustom(g, 1)
+ * const stream = traverseDepthFirstCustom(g, 1)
  * console.log(stream.toArray())
- * // => [[1, 2], [1, 3], [2, 3], [3, 4]]
+ * // => [[1, 2], [2, 3], [1, 3], [3, 4]]
  * ```
  */
-export function traverseBreadthFirstCustom<
-	G extends VariantGraphBase<N, any>,
-	N,
->(
+export function traverseDepthFirstCustom<G extends VariantGraphBase<N, any>, N>(
 	graph: G,
 	startNode: N,
-	addVisitedNode: (node: N) => boolean = (): boolean => true,
+	addVisitedNode: (node: N) => boolean = (): true => true,
 ): Stream<LinkType<G, N>> {
 	if (!graph.nonEmpty() || !graph.hasNode(startNode)) return Stream.empty();
 
-	return new GraphBreadthFirstStream(startNode, graph, addVisitedNode);
+	return new GraphDepthFirstStream(startNode, graph, addVisitedNode);
 }
 
 /**
  * Returns a stream of connections that can be reached in the given `graph`
- * starting at the given `startNode`, and using breadth-first traversal. It avoids
+ * starting at the given `startNode`, and using depth-first traversal. It avoids
  * loops by internally placing the visited nodes in a HashSet builder.
  * @param graph - the graph to traverse
  * @param startNode - the start node within the graph
  * @example
  * ```ts
  * const g = EdgeGraphHashed.of([1, 2], [2, 3], [1, 3], [3, 4])
- * const stream = traverseBreadthFirstHashed(g, 1)
+ * const stream = traverseDepthFirstHashed(g, 1)
  * console.log(stream.toArray())
- * // => [[1, 2], [1, 3], [2, 3], [3, 4]]
+ * // => [[1, 2], [2, 3], [1, 3], [3, 4]]
  * ```
  */
-export function traverseBreadthFirstHashed<
-	G extends VariantGraphBase<N, V>,
-	N,
-	V,
->(graph: G, startNode: N): Stream<LinkType<G, N>> {
+export function traverseDepthFirstHashed<G extends VariantGraphBase<N, any>, N>(
+	graph: G,
+	startNode: N,
+): Stream<LinkType<G, N>> {
 	if (!graph.nonEmpty() || !graph.hasNode(startNode)) return Stream.empty();
 
 	const visitSet = HashSet.builder<N>();
-	return new GraphBreadthFirstStream(startNode, graph, visitSet.add);
+	return new GraphDepthFirstStream(startNode, graph, visitSet.add);
 }
 
 /**
  * Returns a stream of connections that can be reached in the given `graph`
- * starting at the given `startNode`, and using breadth-first traversal. It avoids
+ * starting at the given `startNode`, and using depth-first traversal. It avoids
  * loops by internally placing the visited nodes in a SortedSet builder.
  * @param graph - the graph to traverse
  * @param startNode - the start node within the graph
  * @example
  * ```ts
  * const g = EdgeGraphHashed.of([1, 2], [2, 3], [1, 3], [3, 4])
- * const stream = traverseBreadthFirstSorted(g, 1)
+ * const stream = traverseDepthFirstSorted(g, 1)
  * console.log(stream.toArray())
- * // => [[1, 2], [1, 3], [2, 3], [3, 4]]
+ * // => [[1, 2], [2, 3], [1, 3], [3, 4]]
  * ```
  */
-export function traverseBreadthFirstSorted<
-	G extends VariantGraphBase<N, any>,
-	N,
->(graph: G, startNode: N): Stream<LinkType<G, N>> {
+export function traverseDepthFirstSorted<G extends VariantGraphBase<N, any>, N>(
+	graph: G,
+	startNode: N,
+): Stream<LinkType<G, N>> {
 	if (!graph.nonEmpty() || !graph.hasNode(startNode)) return Stream.empty();
 
 	const visitSet = SortedSet.builder<N>();
-	return new GraphBreadthFirstStream(startNode, graph, visitSet.add);
+	return new GraphDepthFirstStream(startNode, graph, visitSet.add);
 }

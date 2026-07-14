@@ -2,8 +2,8 @@ import type { RMap, RSet } from '@rimbu/collection-types';
 import type { GraphElement } from '@rimbu/graph/link';
 import type { Stream, Streamable } from '@rimbu/stream';
 
-import type { EdgeGraphBase } from '#private/edge/base';
-import type { EdgeGraphCreators } from '#private/edge/creators';
+import type { EdgeGraphBase } from '#graph/edge/base';
+import type { EdgeGraphCreators } from '#graph/edge/creators';
 
 import { createGraphContextModule } from '#graph/non-valued/context-factory';
 

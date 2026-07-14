@@ -1,8 +1,8 @@
 import type { RMap, RSet } from '@rimbu/collection-types';
 import type { RelatedTo } from '@rimbu/common/types';
 
+import type { Graph } from '#graph/graph';
 import type { GraphContextImpl } from '#graph/non-valued/context-factory';
-import type { Graph } from '#private/graph';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import { TraverseState } from '@rimbu/common/traverse-state';

@@ -2,9 +2,9 @@ import type { RMap, RSet } from '@rimbu/collection-types';
 import type { RelatedTo, ToJSON } from '@rimbu/common/types';
 import type { GraphElement, Link } from '@rimbu/graph/link';
 
+import type { GraphBase } from '#graph/base';
+import type { Graph } from '#graph/graph';
 import type { GraphContextImpl } from '#graph/non-valued/context-factory';
-import type { GraphBase } from '#private/base';
-import type { Graph } from '#private/graph';
 
 import { NonEmptyBase } from '@rimbu/collection-types/advanced/common/empty-base';
 import { TraverseState } from '@rimbu/common/traverse-state';

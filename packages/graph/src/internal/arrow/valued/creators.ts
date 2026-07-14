@@ -5,7 +5,7 @@ import type { ArrowValuedGraphSorted } from '@rimbu/graph/valued/arrow/sorted';
 import type { HashMap } from '@rimbu/hashed/map';
 import type { SortedMap } from '@rimbu/sorted/map';
 
-import type { ValuedGraphBase } from '#private/valued/base';
+import type { ValuedGraphBase } from '#graph/valued/base';
 
 export interface ArrowValuedGraphCreators {
 	/**

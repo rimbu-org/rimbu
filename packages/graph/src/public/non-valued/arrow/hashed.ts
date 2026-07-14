@@ -2,11 +2,12 @@ import type { GraphElement } from '@rimbu/graph/link';
 import type { Stream, Streamable } from '@rimbu/stream';
 
 import type { ArrowGraphBase } from '#graph/arrow/base';
-import type { ArrowGraphHashedCreators } from '#private/arrow/creators';
+import type { ArrowGraphHashedCreators } from '#graph/arrow/creators';
 
 import { HashMap } from '@rimbu/hashed/map';
 import { HashSet } from '@rimbu/hashed/set';
-import { createGraphContextModule } from '../../internal/non-valued/context-factory';
+
+import { createGraphContextModule } from '#graph/non-valued/context-factory';
 
 /**
  * A type-invariant immutable arrow (directed) graph.

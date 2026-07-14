@@ -3,7 +3,7 @@ import type { RelatedTo } from '@rimbu/common/types';
 import type { Link } from '@rimbu/graph/link';
 
 import type { ValuedGraphContextImpl } from '#graph/valued/context-factory';
-import type { ValuedGraph } from '#private/valued/valued-graph';
+import type { ValuedGraph } from '#graph/valued/valued-graph';
 
 import * as RimbuError from '@rimbu/base/rimbu-error';
 import {

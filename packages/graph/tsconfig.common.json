@@ -2,14 +2,18 @@
 	"compilerOptions": {
 		"paths": {
 			"@rimbu/graph": ["./src/graph.ts"],
-			"@rimbu/graph/arrow-graph": ["./src/arrow-graph.ts"],
-			"@rimbu/graph/arrow-valued-graph": ["./src/arrow-valued-graph.ts"],
-			"@rimbu/graph/edge-graph": ["./src/edge-graph.ts"],
-			"@rimbu/graph/edge-valued-graph": ["./src/edge-valued-graph.ts"],
-			"@rimbu/graph/*": ["./src/*.ts"],
-			"#graph/*": ["./src/internal/*.ts"],
-			"#private/*": ["./src/internal/*.ts"],
-			"entry/*": ["./src/*.ts"]
+			"@rimbu/graph/*": ["./src/public/*.ts"],
+			"@rimbu/graph/arrow-graph": ["./src/public/arrow-graph.ts"],
+			"@rimbu/graph/arrow-valued-graph": ["./src/public/arrow-valued-graph.ts"],
+			"@rimbu/graph/edge-graph": ["./src/public/edge-graph.ts"],
+			"@rimbu/graph/edge-valued-graph": ["./src/public/edge-valued-graph.ts"],
+			"@rimbu/graph/link": ["./src/public/link.ts"],
+			"@rimbu/graph/valued-link": ["./src/public/valued-link.ts"],
+			"@rimbu/graph/traverse-depth-first": ["./src/public/traverse-depth-first.ts"],
+			"@rimbu/graph/traverse-breadth-first": ["./src/public/traverse-breadth-first.ts"],
+			"@rimbu/graph/non-valued/*": ["./src/public/non-valued/*.ts"],
+			"@rimbu/graph/valued/*": ["./src/public/valued/*.ts"],
+			"#graph/*": ["./src/internal/*.ts"]
 		}
 	}
 }
