@@ -4,7 +4,11 @@ import type { Comp } from '@rimbu/common/comp';
 import type { IndexRange } from '@rimbu/common/index-range';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
-import type { ArrayNonEmpty, SuperOf } from '@rimbu/common/types';
+import type {
+	ArrayNonEmpty,
+	SuperOf,
+	WithValueResult,
+} from '@rimbu/common/types';
 import type {
 	FastIterable,
 	Stream,
@@ -140,6 +144,10 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @note O(logB(N)) for block size B
 	 */
 	updateAt(index: number, update: (current: T) => T): WithElem<Tp, T>['normal'];
+	updateAtAndGet(
+		index: number,
+		update: (current: T) => T,
+	): WithValueResult<WithElem<Tp, T>['nonEmpty'], T, WithElem<Tp, T>['normal']>;
 	/**
 	 * Returns the List with the value at the given `index` replaced by the given `value`.
 	 * @param index - the index at which to replace the value
@@ -157,6 +165,10 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @note O(logB(N)) for block size B
 	 */
 	with(index: number, value: T): WithElem<Tp, T>['normal'];
+	withAndGet(
+		index: number,
+		value: T,
+	): WithValueResult<WithElem<Tp, T>['nonEmpty'], T, WithElem<Tp, T>['normal']>;
 	/**
 	 * Returns the first value of the List, or the `otherwise` value if the list is empty.
 	 * @param otherwise - (default: undefined) an `OptLazy` value to return if the List is empty
@@ -281,15 +293,30 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @note O(logB(N)) for block size B
 	 */
 	splice(options: {
-		index: number;
-		remove?: number;
+		index?: number | undefined;
+		remove?: number | undefined;
 		insert: StreamSource.NonEmpty<T>;
 	}): WithElem<Tp, T>['nonEmpty'];
 	splice(options: {
-		index: number;
-		remove?: number;
-		insert?: StreamSource<T>;
+		index?: number | undefined;
+		remove?: number | undefined;
+		insert?: StreamSource<T> | undefined;
 	}): WithElem<Tp, T>['normal'];
+	spliceAndGet(options: {
+		index?: number | undefined;
+		remove?: number | undefined;
+		insert: StreamSource.NonEmpty<T>;
+	}): WithValueResult<WithElem<Tp, T>['nonEmpty'], WithElem<Tp, T>['nonEmpty']>;
+	spliceAndGet(options: {
+		index?: number | undefined;
+		remove?: number | undefined;
+		insert?: StreamSource<T> | undefined;
+	}): WithValueResult<
+		WithElem<Tp, T>['normal'],
+		WithElem<Tp, T>['nonEmpty'],
+		WithElem<Tp, T>['normal']
+	>;
+
 	/**
 	 * Returns the List with the given `values` inserted at the given `index`.
 	 * @param index - the index at which to insert the values
@@ -330,8 +357,12 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 */
 	remove(
 		index: number,
-		options?: { amount?: number },
+		options?: { amount?: number | undefined } | undefined,
 	): WithElem<Tp, T>['normal'];
+	removeAndGet(
+		index: number,
+		options?: { amount?: number | undefined } | undefined,
+	): WithValueResult<WithElem<Tp, T>['normal'], WithElem<Tp, T>['nonEmpty']>;
 	/**
 	 * Returns a List that contains this List the given `amount` of times.
 	 * @param amount - the amount of times to repeat the values in this List
@@ -689,6 +720,10 @@ export namespace ListBase {
 			index: number,
 			update: (current: T) => T,
 		): WithElem<Tp, T>['nonEmpty'];
+		updateAtAndGet(
+			index: number,
+			update: (current: T) => T,
+		): WithValueResult<WithElem<Tp, T>['nonEmpty'], T>;
 		/**
 		 * Returns the non-empty List with the value at the given `index` replaced by the given `value`.
 		 * @param index - the index at which to replace the value
@@ -706,6 +741,10 @@ export namespace ListBase {
 		 * @note O(logB(N)) for block size B
 		 */
 		with(index: number, value: T): WithElem<Tp, T>['nonEmpty'];
+		withAndGet(
+			index: number,
+			value: T,
+		): WithValueResult<WithElem<Tp, T>['nonEmpty'], T>;
 		/**
 		 * Returns the first value of the List.
 		 * @example
@@ -763,15 +802,32 @@ export namespace ListBase {
 		 * @note O(logB(N)) for block size B
 		 */
 		splice(options: {
-			index: number;
-			remove?: number;
+			index?: number | undefined;
+			remove?: number | undefined;
 			insert: StreamSource.NonEmpty<T>;
 		}): WithElem<Tp, T>['nonEmpty'];
 		splice(options: {
-			index: number;
-			remove?: number;
-			insert?: StreamSource<T>;
+			index?: number | undefined;
+			remove?: number | undefined;
+			insert?: StreamSource<T> | undefined;
 		}): WithElem<Tp, T>['normal'];
+		spliceAndGet(options: {
+			index?: number | undefined;
+			remove?: number | undefined;
+			insert: StreamSource.NonEmpty<T>;
+		}): WithValueResult<
+			WithElem<Tp, T>['nonEmpty'],
+			WithElem<Tp, T>['nonEmpty']
+		>;
+		spliceAndGet(options: {
+			index?: number | undefined;
+			remove?: number | undefined;
+			insert?: StreamSource<T> | undefined;
+		}): WithValueResult<
+			WithElem<Tp, T>['normal'],
+			WithElem<Tp, T>['nonEmpty'],
+			WithElem<Tp, T>['normal']
+		>;
 		/**
 		 * Returns the non-empty List with the given `values` inserted at the given `index`.
 		 * @param index - the index at which to insert the values
@@ -882,6 +938,14 @@ export namespace ListBase {
 		transform<T2 extends T>(
 			transformFun: (stream: Stream.NonEmpty<T>) => StreamSource<T2>,
 		): WithElem<Tp, T2>['normal'];
+		removeAndGet(
+			index: number,
+			options?: { amount?: number },
+		): WithValueResult<
+			WithElem<Tp, T>['normal'],
+			WithElem<Tp, T>['nonEmpty'],
+			WithElem<Tp, T>['nonEmpty']
+		>;
 		/**
 		 * Returns a non-empty List that contains this List the given `amount` of times.
 		 * @param amount - the amount of times to repeat the values in this List

@@ -428,6 +428,13 @@ export namespace VariantMultiMapBase {
 		 * ```
 		 */
 		streamValues(): Stream.NonEmpty<V>;
+		/**
+		 * Returns a tuple `[newMultiMap, values, hasValue]` containing the collection of which the given `key` is
+		 * removed, the non-empty set of values that were associated with that key, and a `hasValue` flag indicating
+		 * whether the `key` was present. Since this collection is non-empty, `newMultiMap` is always non-empty; if
+		 * the key is not present, `newMultiMap` is unchanged (and still non-empty) and `hasValue` is `false`.
+		 * @param key - the key of the entry to remove
+		 */
 		removeKeyAndGet<UK = K>(
 			key: RelatedTo<K, UK>,
 		): WithValueResult<

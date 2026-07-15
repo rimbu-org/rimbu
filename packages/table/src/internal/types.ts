@@ -451,6 +451,14 @@ export namespace VariantTableBase {
 		 * ```
 		 */
 		streamValues(): Stream.NonEmpty<V>;
+		/**
+		 * Returns a tuple `[newTable, value, hasValue]` containing the collection with the value at given `row` and
+		 * `column` removed, the removed value, and a `hasValue` flag indicating whether a value was present at that
+		 * position. Since this collection is non-empty, `newTable` is always non-empty; if no such value is found,
+		 * `newTable` is unchanged (and still non-empty) and `hasValue` is `false`.
+		 * @param row - the row key
+		 * @param column - the column key
+		 */
 		removeAndGet<UR = R, UC = C>(
 			row: RelatedTo<R, UR>,
 			column: RelatedTo<C, UC>,
@@ -459,6 +467,13 @@ export namespace VariantTableBase {
 			V,
 			WithRow<Tp, R, C, V>['nonEmpty']
 		>;
+		/**
+		 * Returns a tuple `[newTable, row, hasValue]` containing the collection with the values at given `row` removed,
+		 * a map containing the removed columns and values, and a `hasValue` flag indicating whether the `row` was
+		 * present. Since this collection is non-empty, `newTable` is always non-empty; if no such row is found,
+		 * `newTable` is unchanged (and still non-empty) and `hasValue` is `false`.
+		 * @param row - the row key
+		 */
 		removeRowAndGet<UR = R>(
 			row: RelatedTo<R, UR>,
 		): WithValueResult<

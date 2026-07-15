@@ -1,7 +1,11 @@
 import type { CollectFun } from '@rimbu/common/collect';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
-import type { ArrayNonEmpty, SuperOf } from '@rimbu/common/types';
+import type {
+	ArrayNonEmpty,
+	SuperOf,
+	WithValueResult,
+} from '@rimbu/common/types';
 
 import type { ListContext } from '#list/context-module';
 import type { ListImpl } from '#list/list-impl';
@@ -78,6 +82,32 @@ export abstract class OuterBase<T>
 			| undefined,
 	): ArrayNonEmpty<T>;
 	abstract _structure(): string;
+
+	updateAtAndGet(
+		index: number,
+		update: (current: T) => T,
+	): WithValueResult<ListImpl.NonEmpty<T>, T> {
+		const token = Symbol();
+		let oldValue: T | typeof token = token;
+
+		const newThis = this.updateAt(index, (current) => {
+			oldValue = current;
+			return update(current);
+		});
+
+		if (token === oldValue) {
+			return [this, undefined, false];
+		}
+
+		return [newThis, oldValue, true];
+	}
+
+	withAndGet(
+		index: number,
+		value: T,
+	): WithValueResult<ListImpl.NonEmpty<T>, T> {
+		return this.updateAtAndGet(index, () => value);
+	}
 
 	filter(
 		pred: (value: T, index: number, halt: () => void) => boolean,
@@ -173,15 +203,13 @@ export abstract class OuterBase<T>
 		return values.reversed();
 	}
 
-	splice({
-		index = 0,
-		remove = 0,
-		insert,
-	}: {
-		index?: number;
-		remove?: number;
-		insert?: StreamSource<T>;
-	} = {}): ListImpl<T> | any {
+	splice(options: {
+		index?: number | undefined;
+		remove?: number | undefined;
+		insert?: StreamSource<T> | undefined;
+	}): ListImpl<T> | any {
+		const { index = 0, remove = 0, insert } = options;
+
 		if (index < 0) {
 			return this.splice({ index: this.length + index, remove, insert });
 		}
@@ -196,6 +224,49 @@ export abstract class OuterBase<T>
 		return this.take(index).concat(insert, this.drop(index + remove));
 	}
 
+	spliceAndGet(options: {
+		index?: number | undefined;
+		remove?: number | undefined;
+		insert?: StreamSource<T> | undefined;
+	}): WithValueResult<
+		ListImpl.NonEmpty<T>,
+		ListImpl.NonEmpty<T>,
+		ListImpl.NonEmpty<T>
+	> {
+		const { index = 0, remove = 0, insert } = options;
+
+		if (index < 0) {
+			return this.spliceAndGet({ index: this.length + index, remove, insert });
+		}
+
+		if (undefined === insert) {
+			if (remove <= 0) return [this, undefined, false];
+
+			const left = this.take(index);
+			const removed = this.slice({ start: index, amount: remove });
+			const right = this.drop(index + remove);
+			const result = left.concat(right);
+
+			if (removed.nonEmpty()) {
+				return [result, removed, true];
+			}
+			return [result, undefined, false];
+		}
+
+		if (remove <= 0 && Stream.isEmptyStreamSourceInstance(insert))
+			return [this, undefined, false];
+
+		const left = this.take(index);
+		const removed = this.slice({ start: index, amount: remove });
+		const right = this.drop(index + remove);
+		const result = left.concat(insert, right);
+
+		if (removed.nonEmpty()) {
+			return [result, removed, true];
+		}
+		return [result, undefined, false];
+	}
+
 	insert(index: number, values: StreamSource<T>): ListImpl<T> | any {
 		return this.splice({ index, insert: values });
 	}
@@ -204,6 +275,19 @@ export abstract class OuterBase<T>
 		const { amount = 1 } = options;
 
 		return this.splice({ index, remove: amount });
+	}
+
+	removeAndGet(
+		index: number,
+		options: { amount?: number | undefined } = {},
+	): WithValueResult<ListImpl<T>, ListImpl.NonEmpty<T>, ListImpl.NonEmpty<T>> {
+		if (index < 0) {
+			return this.removeAndGet(this.length + index);
+		}
+
+		const { amount = 1 } = options;
+
+		return this.spliceAndGet({ index, remove: amount });
 	}
 
 	repeat(amount: number): ListImpl.NonEmpty<T> {

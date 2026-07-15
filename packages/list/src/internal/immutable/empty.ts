@@ -1,4 +1,4 @@
-import type { ArrayNonEmpty } from '@rimbu/common/types';
+import type { ArrayNonEmpty, WithValueResult } from '@rimbu/common/types';
 
 import type { ListContext } from '#list/context-module';
 import type { ListImpl } from '#list/list-impl';
@@ -62,10 +62,16 @@ export class ListEmpty<T> extends EmptyBase implements ListImpl<T> {
 		return this;
 	}
 
-	splice(options: { insert?: StreamSource<T> }): any {
+	splice(options: { insert?: StreamSource<T> | undefined }): any {
 		if (undefined === options.insert) return this;
 
 		return this.context.from(options.insert);
+	}
+
+	spliceAndGet(options: {
+		insert?: StreamSource<T> | undefined;
+	}): WithValueResult<ListImpl.NonEmpty<T>, ListImpl.NonEmpty<T>> {
+		return [this.splice(options), undefined, false];
 	}
 
 	insert(index: number, values: StreamSource<T>): any {
@@ -74,6 +80,10 @@ export class ListEmpty<T> extends EmptyBase implements ListImpl<T> {
 
 	remove(): this {
 		return this;
+	}
+
+	removeAndGet(): WithValueResult<ListImpl<T>, ListImpl.NonEmpty<T>> {
+		return [this, undefined, false];
 	}
 
 	concat(
@@ -100,8 +110,16 @@ export class ListEmpty<T> extends EmptyBase implements ListImpl<T> {
 		return this;
 	}
 
+	updateAtAndGet(): WithValueResult<ListImpl.NonEmpty<T>, T, ListImpl<T>> {
+		return [this, undefined, false];
+	}
+
 	with(): this {
 		return this;
+	}
+
+	withAndGet(): WithValueResult<ListImpl.NonEmpty<T>, T, ListImpl<T>> {
+		return [this, undefined, false];
 	}
 
 	filter(): any {
