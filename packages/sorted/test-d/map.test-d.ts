@@ -1,7 +1,7 @@
 import { expectTypeOf } from 'bun:test';
 
 import type { RMap } from '@rimbu/collection-types';
-import type { ArrayNonEmpty } from '@rimbu/common/types';
+import type { ArrayNonEmpty, WithValueResult } from '@rimbu/common/types';
 import type { SortedMap } from '@rimbu/sorted/map';
 import type { FastIterator, Stream } from '@rimbu/stream';
 
@@ -105,10 +105,10 @@ expectTypeOf(genNonEmpty.removeKey(3)).toEqualTypeOf<G_Empty>();
 
 // .removeKeyAndGet(..)
 expectTypeOf(genEmpty.removeKeyAndGet(3)).toEqualTypeOf<
-	[G_Empty, string] | undefined
+	WithValueResult<G_Empty, string>
 >();
 expectTypeOf(genNonEmpty.removeKeyAndGet(3)).toEqualTypeOf<
-	[G_Empty, string] | undefined
+	WithValueResult<G_Empty, string>
 >();
 
 // .removeKeys(..)

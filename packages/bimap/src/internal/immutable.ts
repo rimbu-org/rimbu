@@ -262,130 +262,123 @@ export class BiMapNonEmptyImpl<K, V>
 		key: K,
 		value: V,
 	): WithValueResult<BiMap.NonEmpty<K, V>, readonly [K, V]> {
-		const removeKeyResult = this.keyValueMap.removeKeyAndGet(key);
-		const removeValueResult = this.valueKeyMap.removeKeyAndGet(value);
-
-		if (undefined === removeKeyResult && undefined === removeValueResult) {
-			return [
-				this.copy(
-					this.keyValueMap.addEntry([key, value]),
-					this.valueKeyMap.set(value, key),
-				),
-				undefined,
-				false,
-			];
-		}
-
-		if (undefined !== removeKeyResult && undefined !== removeValueResult) {
-			const [removedKeyValueMap, oldValue] = removeKeyResult;
-			const [removedValueKeyMap, oldKey] = removeValueResult;
-
-			// entry already present and identical -> nothing displaced
-			if (Object.is(oldKey, key) && Object.is(oldValue, value)) {
-				return [this, [key, oldValue], true];
-			}
-
-			// the entry previously associated with `key` is displaced
-			const displaced: readonly [K, V] = [key, oldValue];
-
-			const newKeyValueMap = removedKeyValueMap
-				.removeKey(oldKey)
-				.addEntry([key, value]);
-			const newValueKeyMap = removedValueKeyMap
-				.removeKey(oldValue)
-				.set(value, key);
-
-			return [this.copy(newKeyValueMap, newValueKeyMap), displaced, true];
-		}
-
-		if (undefined !== removeKeyResult) {
-			// key present, value absent: the entry at `key` is displaced
-			const [, oldValue] = removeKeyResult;
-			const displaced: readonly [K, V] = [key, oldValue];
-
-			const newKeyValueMap = this.keyValueMap.addEntry([key, value]);
-			const newValueKeyMap = this.valueKeyMap
-				.removeKey(oldValue)
-				.set(value, key);
-
-			return [this.copy(newKeyValueMap, newValueKeyMap), displaced, true];
-		}
-
-		// value present, key absent: the entry previously bound to `value` is displaced
-		if (undefined !== removeValueResult) {
-			const [, oldKey] = removeValueResult;
-			const displaced: readonly [K, V] = [oldKey, value];
-
-			const newKeyValueMap = this.keyValueMap
-				.removeKey(oldKey)
-				.addEntry([key, value]);
-			const newValueKeyMap = this.valueKeyMap.set(value, key);
-
-			return [this.copy(newKeyValueMap, newValueKeyMap), displaced, true];
-		}
-
-		// should be unreachable: handled by the both-absent case above
-		return [
-			this.copy(
-				this.keyValueMap.addEntry([key, value]),
-				this.valueKeyMap.set(value, key),
-			),
-			undefined,
-			false,
-		];
+		return this.addEntryAndGet([key, value]);
 	}
 
 	addEntry(entry: readonly [K, V]): BiMap.NonEmpty<K, V> {
 		const [key, value] = entry;
 
-		const removeKeyResult = this.keyValueMap.removeKeyAndGet(key);
-		const removeValueResult = this.valueKeyMap.removeKeyAndGet(value);
+		const [removedKeyValueMap, removedValue, wasKeyRemoved] =
+			this.keyValueMap.removeKeyAndGet(key);
+		const [removedValueKeyMap, removedKey, wasValueRemoved] =
+			this.valueKeyMap.removeKeyAndGet(value);
 
-		if (undefined === removeKeyResult && undefined === removeValueResult) {
-			// key and value were not present
-			return this.copy(
-				this.keyValueMap.addEntry(entry),
-				this.valueKeyMap.set(value, key),
-			);
-		}
+		if (wasKeyRemoved) {
+			if (wasValueRemoved) {
+				// check if existing entry was not same
+				if (Object.is(removedKey, key) && Object.is(removedValue, value)) {
+					return this;
+				}
 
-		if (undefined !== removeKeyResult && undefined !== removeValueResult) {
-			const [removedKeyValueMap, oldValue] = removeKeyResult;
-			const [removedValueKeyMap, oldKey] = removeValueResult;
+				const newKeyValueMap = removedKeyValueMap
+					.removeKey(removedKey)
+					.addEntry(entry);
+				const newValueKeyMap = removedValueKeyMap
+					.removeKey(removedValue)
+					.set(value, key);
 
-			// check if existing entry was not same
-			if (Object.is(oldKey, key) && Object.is(oldValue, value)) return this;
+				return this.copy(newKeyValueMap, newValueKeyMap);
+			}
 
-			const newKeyValueMap = removedKeyValueMap
-				.removeKey(oldKey)
-				.addEntry(entry);
 			const newValueKeyMap = removedValueKeyMap
-				.removeKey(oldValue)
+				.removeKey(removedValue)
 				.set(value, key);
+			const newKeyValueMap = removedKeyValueMap.addEntry(entry);
 
 			return this.copy(newKeyValueMap, newValueKeyMap);
 		}
 
-		const newKeyValueMap = (
-			undefined === removeValueResult
-				? this.keyValueMap
-				: this.keyValueMap.removeKey(removeValueResult[1])
-		).addEntry(entry);
+		if (wasValueRemoved) {
+			const newValueKeyMap = removedValueKeyMap.set(value, key);
+			const newKeyValueMap = removedKeyValueMap
+				.removeKey(removedKey)
+				.addEntry(entry);
 
-		const newValueKeyMap = (
-			undefined === removeKeyResult
-				? this.valueKeyMap
-				: this.valueKeyMap.removeKey(removeKeyResult[1])
-		).set(value, key);
+			return this.copy(newKeyValueMap, newValueKeyMap);
+		}
 
-		return this.copy(newKeyValueMap, newValueKeyMap);
+		// key and value were not present
+		return this.copy(
+			this.keyValueMap.addEntry(entry),
+			this.valueKeyMap.set(value, key),
+		);
 	}
 
-	addEntryAndGet([key, value]: readonly [K, V]): WithValueResult<
-		BiMap.NonEmpty<K, V>,
-		readonly [K, V]
-	> {
-		return this.setAndGet(key, value);
+	addEntryAndGet(
+		entry: readonly [K, V],
+	): WithValueResult<BiMap.NonEmpty<K, V>, readonly [K, V]> {
+		const [key, value] = entry;
+
+		const [removedKeyValueMap, removedValue, wasKeyRemoved] =
+			this.keyValueMap.removeKeyAndGet(key);
+		const [removedValueKeyMap, removedKey, wasValueRemoved] =
+			this.valueKeyMap.removeKeyAndGet(value);
+
+		if (wasKeyRemoved) {
+			if (wasValueRemoved) {
+				// check if existing entry was not same
+				if (Object.is(removedKey, key) && Object.is(removedValue, value)) {
+					return [this, undefined, false];
+				}
+
+				const newKeyValueMap = removedKeyValueMap
+					.removeKey(removedKey)
+					.addEntry(entry);
+				const newValueKeyMap = removedValueKeyMap
+					.removeKey(removedValue)
+					.set(value, key);
+
+				return [
+					this.copy(newKeyValueMap, newValueKeyMap),
+					[key, removedValue],
+					true,
+				];
+			}
+
+			const newValueKeyMap = removedValueKeyMap
+				.removeKey(removedValue)
+				.set(value, key);
+			const newKeyValueMap = removedKeyValueMap.addEntry(entry);
+
+			return [
+				this.copy(newKeyValueMap, newValueKeyMap),
+				[key, removedValue],
+				true,
+			];
+		}
+
+		if (wasValueRemoved) {
+			const newValueKeyMap = removedValueKeyMap.set(value, key);
+			const newKeyValueMap = removedKeyValueMap
+				.removeKey(removedKey)
+				.addEntry(entry);
+
+			return [
+				this.copy(newKeyValueMap, newValueKeyMap),
+				[removedKey, value],
+				true,
+			];
+		}
+
+		// key and value were not present
+		return [
+			this.copy(
+				this.keyValueMap.addEntry(entry),
+				this.valueKeyMap.set(value, key),
+			),
+			undefined,
+			false,
+		];
 	}
 
 	removeEntry([key, value]: readonly [K, V]): BiMap<K, V> {
@@ -408,41 +401,41 @@ export class BiMapNonEmptyImpl<K, V>
 	}
 
 	removeKey<UK>(key: RelatedTo<K, UK>): BiMap<K, V> {
-		const removeKeyResult = this.keyValueMap.removeKeyAndGet(key);
+		const [removedKeyValueMap, removedValue, wasKeyRemoved] =
+			this.keyValueMap.removeKeyAndGet(key);
 
-		if (undefined === removeKeyResult) return this;
+		if (!wasKeyRemoved) return this;
 
-		const [newKeyValueMap, oldValue] = removeKeyResult;
+		if (this.size === 1) {
+			return this.context.empty();
+		}
 
-		if (this.size === 1) return this.context.empty();
-
-		const newValueKeyMap = this.valueKeyMap.removeKey(oldValue!);
+		const removedValueKeyMap = this.valueKeyMap.removeKey(removedValue);
 
 		return this.copy(
-			newKeyValueMap.assumeNonEmpty(),
-			newValueKeyMap.assumeNonEmpty(),
+			removedKeyValueMap.assumeNonEmpty(),
+			removedValueKeyMap.assumeNonEmpty(),
 		);
 	}
 
 	removeKeyAndGet<UK>(
 		key: RelatedTo<K, UK>,
 	): WithValueResult<BiMap<K, V>, V, BiMap.NonEmpty<K, V>> {
-		const removeKeyResult = this.keyValueMap.removeKeyAndGet(key);
+		const [removedKeyValueMap, removedValue, wasKeyRemoved] =
+			this.keyValueMap.removeKeyAndGet(key);
 
-		if (undefined === removeKeyResult) return [this, undefined, false];
+		if (!wasKeyRemoved) return [this, undefined, false];
 
-		const [newKeyValueMap, oldValue] = removeKeyResult;
+		if (this.size === 1) return [this.context.empty(), removedValue, true];
 
-		if (this.size === 1) return [this.context.empty(), oldValue, true];
-
-		const newValueKeyMap = this.valueKeyMap.removeKey(oldValue);
+		const removedValueKeyMap = this.valueKeyMap.removeKey(removedValue);
 
 		return [
 			this.copy(
-				newKeyValueMap.assumeNonEmpty(),
-				newValueKeyMap.assumeNonEmpty(),
+				removedKeyValueMap.assumeNonEmpty(),
+				removedValueKeyMap.assumeNonEmpty(),
 			),
-			oldValue,
+			removedValue,
 			true,
 		];
 	}
@@ -458,41 +451,39 @@ export class BiMapNonEmptyImpl<K, V>
 	}
 
 	removeValue<UV>(value: RelatedTo<V, UV>): BiMap<K, V> {
-		const removeResult = this.valueKeyMap.removeKeyAndGet(value);
+		const [removedValueKeyMap, removedKey, wasValueRemoved] =
+			this.valueKeyMap.removeKeyAndGet(value);
 
-		if (undefined === removeResult) return this;
-
-		const [newValueKeyMap, oldKey] = removeResult;
+		if (!wasValueRemoved) return this;
 
 		if (this.size === 1) return this.context.empty();
 
-		const newKeyValueMap = this.keyValueMap.removeKey(oldKey!);
+		const removedKeyValueMap = this.keyValueMap.removeKey(removedKey);
 
 		return this.copy(
-			newKeyValueMap.assumeNonEmpty(),
-			newValueKeyMap.assumeNonEmpty(),
+			removedKeyValueMap.assumeNonEmpty(),
+			removedValueKeyMap.assumeNonEmpty(),
 		);
 	}
 
 	removeValueAndGet<UV>(
 		value: RelatedTo<V, UV>,
 	): WithValueResult<BiMap<K, V>, K> {
-		const removeValueResult = this.valueKeyMap.removeKeyAndGet(value);
+		const [removedValueKeyMap, removedKey, wasValueRemoved] =
+			this.valueKeyMap.removeKeyAndGet(value);
 
-		if (undefined === removeValueResult) return [this, undefined, false];
+		if (!wasValueRemoved) return [this, undefined, false];
 
-		const [newValueKeyMap, oldKey] = removeValueResult;
+		if (this.size === 1) return [this.context.empty(), removedKey, true];
 
-		if (this.size === 1) return [this.context.empty(), oldKey, true];
-
-		const newKeyValueMap = this.keyValueMap.removeKey(oldKey);
+		const removedKeyValueMap = this.keyValueMap.removeKey(removedKey);
 
 		return [
 			this.copy(
-				newKeyValueMap.assumeNonEmpty(),
-				newValueKeyMap.assumeNonEmpty(),
+				removedKeyValueMap.assumeNonEmpty(),
+				removedValueKeyMap.assumeNonEmpty(),
 			),
-			oldKey,
+			removedKey,
 			true,
 		];
 	}

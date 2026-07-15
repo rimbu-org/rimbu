@@ -1,5 +1,5 @@
 import type { RMap } from '@rimbu/collection-types';
-import type { ToJSON } from '@rimbu/common/types';
+import type { ToJSON, WithValueResult } from '@rimbu/common/types';
 import type { List } from '@rimbu/list';
 import type { OrderedMap } from '@rimbu/ordered/map';
 
@@ -91,8 +91,8 @@ export class OrderedMapEmpty<K = any, V = any>
 		return this as any;
 	}
 
-	removeKeyAndGet(): undefined {
-		return undefined;
+	removeKeyAndGet(): WithValueResult<OrderedMap<K, V>, V> {
+		return [this, undefined, false];
 	}
 
 	mapValues<V2>(): OrderedMap<K, V2> {
@@ -109,7 +109,13 @@ export class OrderedMapEmpty<K = any, V = any>
 		return this;
 	}
 
-	updateAtAndGet(): undefined {}
+	updateAtAndGet(): WithValueResult<
+		OrderedMap.NonEmpty<K, V>,
+		V,
+		OrderedMap<K, V>
+	> {
+		return [this, undefined, false];
+	}
 
 	toBuilder(): OrderedMap.Builder<K, V> {
 		return this.context.builder();

@@ -1,6 +1,11 @@
 import type { ModifyOptions } from '@rimbu/collection-types/advanced/common';
 import type { TraverseState } from '@rimbu/common/traverse-state';
-import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
+import type {
+	ArrayNonEmpty,
+	RelatedTo,
+	ToJSON,
+	WithValueResult,
+} from '@rimbu/common/types';
 import type { HashMap } from '@rimbu/hashed/map';
 import type { ProximityMap } from '@rimbu/proximity';
 import type { FastIterator, Stream, StreamSource } from '@rimbu/stream';
@@ -69,17 +74,19 @@ export class ProximityMapNonEmpty<K, V> implements ProximityMap.NonEmpty<K, V> {
 	updateAtAndGet<U>(
 		key: RelatedTo<K, U>,
 		update: (value: V) => V,
-	): [ProximityMap.NonEmpty<K, V>, V] | undefined {
-		let oldValue: V | undefined;
+	): WithValueResult<ProximityMap.NonEmpty<K, V>, V> {
+		const token = Symbol();
+		let oldValue: V | typeof token = token;
 
-		const newMap = this.updateAt(key, (value) => {
+		const updatedMap = this.updateAt(key, (value) => {
 			oldValue = value;
 			return update(value);
 		});
 
-		if (this === newMap) return undefined;
+		if (token === oldValue || this === updatedMap)
+			return [this, undefined, false];
 
-		return [newMap, oldValue as V];
+		return [updatedMap, oldValue, true];
 	}
 
 	nonEmpty(): this is ProximityMap.NonEmpty<K, V> {
@@ -149,16 +156,15 @@ export class ProximityMapNonEmpty<K, V> implements ProximityMap.NonEmpty<K, V> {
 
 	removeKeyAndGet<UK = K>(
 		key: RelatedTo<K, UK>,
-	): [ProximityMap<K, V>, V] | undefined {
-		const internalResult = this.internalMap.removeKeyAndGet(key);
+	): WithValueResult<ProximityMap<K, V>, V, ProximityMap.NonEmpty<K, V>> {
+		const [newInternalMap, removedValue, wasKeyRemoved] =
+			this.internalMap.removeKeyAndGet(key);
 
-		if (!internalResult) {
-			return undefined;
+		if (wasKeyRemoved) {
+			return [this.plugInternalMap(newInternalMap), removedValue, true];
 		}
 
-		const [newInternalMap, value] = internalResult;
-
-		return [this.plugInternalMap(newInternalMap), value];
+		return [this, undefined, false];
 	}
 
 	forEach(

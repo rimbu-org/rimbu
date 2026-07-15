@@ -449,10 +449,11 @@ describe('BiMap methods', () => {
 		expect(r3[0].getKey('b')).toBe(1);
 		expect(r3[0].hasKey(2)).toBe(false);
 
-		// no-op when identical entry
+		// no-op when identical entry: nothing is displaced, collection unchanged
 		const r4 = map3_1.setAndGet(2, 'b');
 		expect(r4[0]).toBe(map3_1);
-		expect(r4[1]).toEqual([2, 'b']);
+		expect(r4[2]).toBe(false);
+		expect(r4[1]).toBe(undefined);
 	});
 
 	it('addEntryAndGet', () => {
@@ -469,7 +470,8 @@ describe('BiMap methods', () => {
 
 		const r3 = map3_1.addEntryAndGet([2, 'b']);
 		expect(r3[0]).toBe(map3_1);
-		expect(r3[1]).toEqual([2, 'b']);
+		expect(r3[2]).toBe(false);
+		expect(r3[1]).toBe(undefined);
 	});
 
 	it('removeEntry', () => {

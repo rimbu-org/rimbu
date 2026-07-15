@@ -1,7 +1,7 @@
 import { expectTypeOf } from 'bun:test';
 
 import type { RMap, VariantMap } from '@rimbu/collection-types';
-import type { ArrayNonEmpty } from '@rimbu/common/types';
+import type { ArrayNonEmpty, WithValueResult } from '@rimbu/common/types';
 import type { FastIterator, Stream } from '@rimbu/stream';
 
 type VE<K, V> = VariantMap<K, V>;
@@ -164,16 +164,16 @@ expectTypeOf(genNonEmpty.removeKey(3)).toEqualTypeOf<G_Empty>();
 
 // .removeKeyAndGet(..)
 expectTypeOf(varEmpty.removeKeyAndGet(3)).toEqualTypeOf<
-	[V_Empty, string] | undefined
+	WithValueResult<V_Empty, string>
 >();
 expectTypeOf(varNonEmpty.removeKeyAndGet(3)).toEqualTypeOf<
-	[V_Empty, string] | undefined
+	WithValueResult<V_Empty, string>
 >();
 expectTypeOf(genEmpty.removeKeyAndGet(3)).toEqualTypeOf<
-	[G_Empty, string] | undefined
+	WithValueResult<G_Empty, string>
 >();
 expectTypeOf(genNonEmpty.removeKeyAndGet(3)).toEqualTypeOf<
-	[G_Empty, string] | undefined
+	WithValueResult<G_Empty, string>
 >();
 
 // .removeKeys(..)

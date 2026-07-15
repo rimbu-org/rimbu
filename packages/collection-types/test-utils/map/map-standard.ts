@@ -457,15 +457,19 @@ export function runMapTestsWith(name: string, GMap: RMap.Context<any>): void {
 		});
 
 		it('removeKeyAndGet', () => {
-			expect(mapEmpty.removeKeyAndGet(2)).toBe(undefined);
+			expect(mapEmpty.removeKeyAndGet(2)).toEqual([mapEmpty, undefined, false]);
 
-			expect(map3.removeKeyAndGet(2)![0].size).toBe(2);
-			expect(map3.removeKeyAndGet(2)![1]).toBe('b');
-			expect(map3.removeKeyAndGet(10)).toBe(undefined);
+			const r3 = map3.removeKeyAndGet(2);
+			expect(r3[2]).toBe(true);
+			expect(r3[0].size).toBe(2);
+			expect(r3[1]).toBe('b');
+			expect(map3.removeKeyAndGet(10)[2]).toBe(false);
 
-			expect(map6.removeKeyAndGet(2)![0].size).toBe(5);
-			expect(map6.removeKeyAndGet(2)![1]).toBe('b');
-			expect(map6.removeKeyAndGet(10)).toBe(undefined);
+			const r6 = map6.removeKeyAndGet(2);
+			expect(r6[2]).toBe(true);
+			expect(r6[0].size).toBe(5);
+			expect(r6[1]).toBe('b');
+			expect(map6.removeKeyAndGet(10)[2]).toBe(false);
 		});
 
 		it('removeKeys', () => {
@@ -567,6 +571,38 @@ export function runMapTestsWith(name: string, GMap: RMap.Context<any>): void {
 			expect(map6.updateAt(2, () => 'z').get(2)).toBe('z');
 			expect(map6.updateAt(2, (v) => v + v).get(2)).toBe('bb');
 			expect(map6.updateAt(10, () => 'z')).toBe(map6);
+		});
+
+		it('updateAtAndGet', () => {
+			// empty: no-op
+			expect(mapEmpty.updateAtAndGet(2, () => 'z')).toEqual([
+				mapEmpty,
+				undefined,
+				false,
+			]);
+
+			// no-op on existing key: value unchanged -> hasValue false, map unchanged
+			const r3Noop = map3.updateAtAndGet(2, (v) => v);
+			expect(r3Noop[2]).toBe(false);
+			expect(r3Noop[0]).toEqual(map3);
+
+			// key absent: hasValue false, map unchanged
+			const r3Absent = map3.updateAtAndGet(10, () => 'z');
+			expect(r3Absent[2]).toBe(false);
+			expect(r3Absent[0]).toEqual(map3);
+
+			// real update: hasValue true, returns old value, map updated
+			const r3 = map3.updateAtAndGet(2, () => 'z');
+			expect(r3[2]).toBe(true);
+			expect(r3[1]).toBe('b');
+			expect(r3[0].get(2)).toBe('z');
+			expect(r3[0].size).toBe(3);
+
+			const r6 = map6.updateAtAndGet(2, (v) => v + v);
+			expect(r6[2]).toBe(true);
+			expect(r6[1]).toBe('b');
+			expect(r6[0].get(2)).toBe('bb');
+			expect(r6[0].size).toBe(6);
 		});
 	});
 

@@ -1,4 +1,9 @@
-import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
+import type {
+	ArrayNonEmpty,
+	RelatedTo,
+	ToJSON,
+	WithValueResult,
+} from '@rimbu/common/types';
 import type { SortedMap } from '@rimbu/sorted/map';
 
 import type { SortedMapBuilder } from '#map/builder';
@@ -129,8 +134,8 @@ export class SortedMapEmpty<K = any, V = any>
 		return this;
 	}
 
-	removeKeyAndGet(): undefined {
-		return undefined;
+	removeKeyAndGet(): WithValueResult<SortedMap<K, V>, V> {
+		return [this, undefined, false];
 	}
 
 	modifyAt(atKey: K, options: ModifyOptions<V>): SortedMap<K, V> {
@@ -161,7 +166,13 @@ export class SortedMapEmpty<K = any, V = any>
 		return this;
 	}
 
-	updateAtAndGet(): undefined {}
+	updateAtAndGet(): WithValueResult<
+		SortedMap.NonEmpty<K, V>,
+		V,
+		SortedMap<K, V>
+	> {
+		return [this, undefined, false];
+	}
 
 	slice(): SortedMap<K, V> {
 		return this;
@@ -344,17 +355,17 @@ export abstract class SortedMapNode<K, V>
 	updateAtAndGet<U>(
 		key: RelatedTo<K, U>,
 		update: (value: V) => V,
-	): [SortedMap.NonEmpty<K, V>, V] | undefined {
-		let oldValue: V | undefined;
+	): WithValueResult<SortedMap.NonEmpty<K, V>, V> {
+		const token = Symbol();
+		let oldValue: V | typeof token = token;
 
 		const newMap = this.updateAt(key, (value) => {
 			oldValue = value;
 			return update(value);
 		});
 
-		if (this === newMap) return undefined;
-
-		return [newMap, oldValue as V];
+		if (token === oldValue || this === newMap) return [this, undefined, false];
+		return [newMap, oldValue, true];
 	}
 
 	removeKey<UK>(key: RelatedTo<K, UK>): SortedMap<K, V> {
@@ -373,8 +384,10 @@ export abstract class SortedMapNode<K, V>
 		return builder.build();
 	}
 
-	removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [SortedMap<K, V>, V] | undefined {
-		if (!this.context.isValidKey(key)) return undefined;
+	removeKeyAndGet<UK>(
+		key: RelatedTo<K, UK>,
+	): WithValueResult<SortedMap<K, V>, V> {
+		if (!this.context.isValidKey(key)) return [this, undefined, false];
 
 		const token = Symbol();
 		let currentValue: V | typeof token = token;
@@ -388,11 +401,8 @@ export abstract class SortedMapNode<K, V>
 			},
 		});
 
-		if (token === currentValue) {
-			return undefined;
-		}
-
-		return [newMap, currentValue];
+		if (token === currentValue) return [this, undefined, false];
+		return [newMap, currentValue, true];
 	}
 
 	filter(

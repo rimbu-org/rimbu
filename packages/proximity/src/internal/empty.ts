@@ -1,4 +1,4 @@
-import type { ToJSON } from '@rimbu/common/types';
+import type { ToJSON, WithValueResult } from '@rimbu/common/types';
 import type { ProximityMap } from '@rimbu/proximity';
 
 import type { ContextImpl } from '#proximity/context-factory';
@@ -60,8 +60,8 @@ export class ProximityMapEmpty<K = any, V = any>
 		return this.context.from(entries) as ProximityMap.NonEmpty<K, V>;
 	}
 
-	removeKeyAndGet(): undefined {
-		return undefined;
+	removeKeyAndGet(): WithValueResult<ProximityMap<K, V>, V> {
+		return [this, undefined, false];
 	}
 
 	removeKey(): ProximityMap<K, V> {
@@ -100,7 +100,13 @@ export class ProximityMapEmpty<K = any, V = any>
 		return this;
 	}
 
-	updateAtAndGet(): undefined {}
+	updateAtAndGet(): WithValueResult<
+		ProximityMap.NonEmpty<K, V>,
+		V,
+		ProximityMap<K, V>
+	> {
+		return [this, undefined, false];
+	}
 
 	toBuilder(): ProximityMap.Builder<K, V> {
 		return this.context.builder();

@@ -282,11 +282,14 @@ export function runMapRandomTestsWith(
 		});
 
 		it('removeKeyAndGet', (): void => {
-			expect(context.empty().removeKeyAndGet(1)).toBe(undefined);
+			const empty = context.empty();
+			expect(empty.removeKeyAndGet(1)).toEqual([empty, undefined, false]);
 			const m = context.of([1, 1], [2, 2]);
-			expect(m.removeKeyAndGet(1)![1]).toBe(1);
+			const r = m.removeKeyAndGet(1);
+			expect(r[2]).toBe(true);
+			expect(r[1]).toBe(1);
 
-			expect(m.removeKeyAndGet(4)).toBe(undefined);
+			expect(m.removeKeyAndGet(4)[2]).toBe(false);
 		});
 
 		it('updateAt', (): void => {

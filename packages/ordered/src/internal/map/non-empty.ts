@@ -1,6 +1,11 @@
 import type { RMap } from '@rimbu/collection-types';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
-import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
+import type {
+	ArrayNonEmpty,
+	RelatedTo,
+	ToJSON,
+	WithValueResult,
+} from '@rimbu/common/types';
 import type { List } from '@rimbu/list';
 import type { OrderedMap } from '@rimbu/ordered/map';
 
@@ -130,29 +135,23 @@ export class OrderedMapNonEmpty<K, V>
 
 	removeKeyAndGet<UK>(
 		key: RelatedTo<K, UK>,
-	): [OrderedMap<K, V>, V] | undefined {
+	): WithValueResult<OrderedMap<K, V>, V, OrderedMap.NonEmpty<K, V>> {
 		if (!this.context.mapContext.isValidKey(key)) {
-			return undefined;
+			return [this, undefined, false];
 		}
 
-		const removeSourceResult = this.sourceMap.removeKeyAndGet(key);
+		const [newSourceMap, removedValue, wasRemoved] =
+			this.sourceMap.removeKeyAndGet(key);
 
-		if (undefined === removeSourceResult) {
-			return undefined;
-		}
-
-		const [newSourceMap, removedValue] = removeSourceResult;
+		if (!wasRemoved) return [this, undefined, false];
 
 		if (newSourceMap.nonEmpty()) {
 			const index = this.keyOrder.stream().indexOf(key as K)!;
-			const newKeyOrder = this.keyOrder.remove(index);
-
-			if (newKeyOrder.nonEmpty()) {
-				return [this.copy(newKeyOrder, newSourceMap), removedValue!];
-			}
+			const newKeyOrder = this.keyOrder.remove(index).assumeNonEmpty();
+			return [this.copy(newKeyOrder, newSourceMap), removedValue, true];
 		}
 
-		return [this.context.empty(), removedValue!];
+		return [this.context.empty(), removedValue, true];
 	}
 
 	modifyAt(key: K, options: ModifyOptions<V>): OrderedMap<K, V> {
@@ -239,17 +238,17 @@ export class OrderedMapNonEmpty<K, V>
 	updateAtAndGet<U>(
 		key: RelatedTo<K, U>,
 		update: (value: V) => V,
-	): [OrderedMap.NonEmpty<K, V>, V] | undefined {
-		let oldValue: V | undefined;
+	): WithValueResult<OrderedMap.NonEmpty<K, V>, V> {
+		const token = Symbol();
+		let oldValue: V | typeof token = token;
 
 		const newMap = this.updateAt(key, (value) => {
 			oldValue = value;
 			return update(value);
 		});
 
-		if (this === newMap) return undefined;
-
-		return [newMap, oldValue as V];
+		if (token === oldValue || this === newMap) return [this, undefined, false];
+		return [newMap, oldValue, true];
 	}
 
 	toArray(): ArrayNonEmpty<[K, V]> {
