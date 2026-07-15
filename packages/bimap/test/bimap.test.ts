@@ -305,15 +305,27 @@ describe('BiMap methods', () => {
 	});
 
 	it('removeKeyAndGet', () => {
-		expect(mapEmpty.removeKeyAndGet(2)).toBe(undefined);
+		const emptyResult = mapEmpty.removeKeyAndGet(2);
+		expect(emptyResult[2]).toBe(false);
+		expect(emptyResult[0]).toBe(mapEmpty);
 
-		expect(map3_1.removeKeyAndGet(2)![0].size).toBe(2);
-		expect(map3_1.removeKeyAndGet(2)![1]).toBe('b');
-		expect(map3_1.removeKeyAndGet(10)).toBe(undefined);
+		const r1 = map3_1.removeKeyAndGet(2);
+		expect(r1[2]).toBe(true);
+		expect(r1[0].size).toBe(2);
+		expect(r1[1]).toBe('b');
 
-		expect(map6_1.removeKeyAndGet(2)![0].size).toBe(5);
-		expect(map6_1.removeKeyAndGet(2)![1]).toBe('b');
-		expect(map6_1.removeKeyAndGet(10)).toBe(undefined);
+		const r1Absent = map3_1.removeKeyAndGet(10);
+		expect(r1Absent[2]).toBe(false);
+		expect(r1Absent[0]).toBe(map3_1);
+
+		const r2 = map6_1.removeKeyAndGet(2);
+		expect(r2[2]).toBe(true);
+		expect(r2[0].size).toBe(5);
+		expect(r2[1]).toBe('b');
+
+		const r2Absent = map6_1.removeKeyAndGet(10);
+		expect(r2Absent[2]).toBe(false);
+		expect(r2Absent[0]).toBe(map6_1);
 	});
 
 	it('removeKeys', () => {
@@ -339,15 +351,57 @@ describe('BiMap methods', () => {
 	});
 
 	it('removeValueAndGet', () => {
-		expect(mapEmpty.removeValueAndGet('b')).toBe(undefined);
+		const emptyResult = mapEmpty.removeValueAndGet('b');
+		expect(emptyResult[2]).toBe(false);
+		expect(emptyResult[0]).toBe(mapEmpty);
 
-		expect(map3_1.removeValueAndGet('b')![0].size).toBe(2);
-		expect(map3_1.removeValueAndGet('b')![1]).toBe(2);
-		expect(map3_1.removeValueAndGet('z')).toBe(undefined);
+		const r1 = map3_1.removeValueAndGet('b');
+		expect(r1[2]).toBe(true);
+		expect(r1[0].size).toBe(2);
+		expect(r1[1]).toBe(2);
 
-		expect(map6_1.removeValueAndGet('b')![0].size).toBe(5);
-		expect(map6_1.removeValueAndGet('b')![1]).toBe(2);
-		expect(map6_1.removeValueAndGet('z')).toBe(undefined);
+		const r1Absent = map3_1.removeValueAndGet('z');
+		expect(r1Absent[2]).toBe(false);
+		expect(r1Absent[0]).toBe(map3_1);
+
+		const r2 = map6_1.removeValueAndGet('b');
+		expect(r2[2]).toBe(true);
+		expect(r2[0].size).toBe(5);
+		expect(r2[1]).toBe(2);
+
+		const r2Absent = map6_1.removeValueAndGet('z');
+		expect(r2Absent[2]).toBe(false);
+		expect(r2Absent[0]).toBe(map6_1);
+	});
+
+	it('updateValueAtKeyAndGet', () => {
+		const absent = map3_1.updateValueAtKeyAndGet(10, (v) => v + '!');
+		expect(absent[2]).toBe(false);
+		expect(absent[0]).toBe(map3_1);
+
+		const r = map3_1.updateValueAtKeyAndGet(2, (v) => v + '!');
+		expect(r[2]).toBe(true);
+		expect(r[0].getValue(2)).toBe('b!');
+		expect(r[1]).toBe('b');
+
+		const noop = map3_1.updateValueAtKeyAndGet(2, (v) => v);
+		expect(noop[2]).toBe(false);
+		expect(noop[0]).toBe(map3_1);
+	});
+
+	it('updateKeyAtValueAndGet', () => {
+		const absent = map3_1.updateKeyAtValueAndGet((k) => k + 1, 'z');
+		expect(absent[2]).toBe(false);
+		expect(absent[0]).toBe(map3_1);
+
+		const r = map3_1.updateKeyAtValueAndGet((k) => k + 10, 'b');
+		expect(r[2]).toBe(true);
+		expect(r[0].getKey('b')).toBe(12);
+		expect(r[1]).toBe(2);
+
+		const noop = map3_1.updateKeyAtValueAndGet((k) => k, 'b');
+		expect(noop[2]).toBe(false);
+		expect(noop[0]).toBe(map3_1);
 	});
 
 	it('removeValues', () => {
@@ -372,6 +426,63 @@ describe('BiMap methods', () => {
 
 		expect(map6_1.set(10, 'z').getValue(10)).toBe('z');
 		expect(map6_1.set(2, 'z').getValue(2)).toBe('z');
+	});
+
+	it('setAndGet', () => {
+		expect(mapEmpty.setAndGet(1, 'a')[0].getValue(1)).toBe('a');
+		expect(mapEmpty.setAndGet(1, 'a')[1]).toBe(undefined);
+
+		// key present, value absent -> previous entry at key is displaced
+		const r1 = map3_1.setAndGet(2, 'z');
+		expect(r1[0].getValue(2)).toBe('z');
+		expect(r1[1]).toEqual([2, 'b']);
+
+		// key absent, value present -> previous entry bound to value is displaced
+		const r2 = map3_1.setAndGet(10, 'b');
+		expect(r2[0].getValue(10)).toBe('b');
+		expect(r2[1]).toEqual([2, 'b']);
+
+		// key and value both present, mapped to different entries -> previous entry at key displaced
+		const r3 = map3_1.setAndGet(1, 'b');
+		expect(r3[0].getValue(1)).toBe('b');
+		expect(r3[1]).toEqual([1, 'a']);
+		expect(r3[0].getKey('b')).toBe(1);
+		expect(r3[0].hasKey(2)).toBe(false);
+
+		// no-op when identical entry
+		const r4 = map3_1.setAndGet(2, 'b');
+		expect(r4[0]).toBe(map3_1);
+		expect(r4[1]).toEqual([2, 'b']);
+	});
+
+	it('addEntryAndGet', () => {
+		expect(mapEmpty.addEntryAndGet([1, 'a'])[0].toArray()).toEqual([[1, 'a']]);
+		expect(mapEmpty.addEntryAndGet([1, 'a'])[1]).toBe(undefined);
+
+		const r1 = map3_1.addEntryAndGet([2, 'z']);
+		expect(r1[0].getValue(2)).toBe('z');
+		expect(r1[1]).toEqual([2, 'b']);
+
+		const r2 = map3_1.addEntryAndGet([10, 'b']);
+		expect(r2[0].getValue(10)).toBe('b');
+		expect(r2[1]).toEqual([2, 'b']);
+
+		const r3 = map3_1.addEntryAndGet([2, 'b']);
+		expect(r3[0]).toBe(map3_1);
+		expect(r3[1]).toEqual([2, 'b']);
+	});
+
+	it('removeEntry', () => {
+		expect(mapEmpty.removeEntry([1, 'a'])).toBe(mapEmpty);
+		expect(map3_1.removeEntry([2, 'b']).toArray()).toEqual([
+			[1, 'a'],
+			[3, 'c'],
+		]);
+		expect(map3_1.removeEntry([2, 'b']).getKey('b')).toBe(undefined);
+		// key present but value does not match -> unchanged
+		expect(map3_1.removeEntry([2, 'c'])).toBe(map3_1);
+		// key not present -> unchanged
+		expect(map3_1.removeEntry([10, 'b'])).toBe(map3_1);
 	});
 
 	it('size', () => {
@@ -509,6 +620,17 @@ describe('BiMap.Builder', () => {
 		b.addEntries(arr3);
 		expect(b.build().size).toBe(3);
 		expect(b.build().getValue(2)).toBe('b');
+	});
+
+	it('removeEntry', () => {
+		const b = BiMap.builder<number, string>();
+		expect(b.removeEntry([1, 'a'])).toBe(false);
+		b.addEntries(arr3);
+		expect(b.removeEntry([2, 'b'])).toBe(true);
+		expect(b.build().getValue(2)).toBe(undefined);
+		expect(b.removeEntry([1, 'c'])).toBe(false);
+		expect(b.removeEntry([10, 'a'])).toBe(false);
+		expect(b.build().size).toBe(2);
 	});
 
 	it('forEach', () => {

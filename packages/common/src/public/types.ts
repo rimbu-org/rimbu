@@ -44,3 +44,14 @@ export interface ToJSON<V, D extends string = string> {
 	readonly dataType: D;
 	readonly value: V;
 }
+
+/**
+ * Utility type to represent the result of an operation that may or may not have a value.
+ * @typeparam R - the result type when a value is present
+ * @typeparam V - the value type when a value is present
+ * @typeparam RNoValue - the result type when no value is present (default: `R`)
+ * @typeparam VNoValue - the value type when no value is present (default: `undefined`)
+ */
+export type WithValueResult<R, V, RNoValue = R, VNoValue = undefined> =
+	| [result: R, value: V, hasValue: true]
+	| [result: RNoValue, value: VNoValue, hasValue: false];

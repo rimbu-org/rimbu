@@ -5,7 +5,15 @@ import type {
 } from '@rimbu/collection-types/advanced/common';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
-import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
+import type {
+	ArrayNonEmpty,
+	RelatedTo,
+	ToJSON,
+	WithValueResult,
+} from '@rimbu/common/types';
+
+export type { WithValueResult };
+
 import type {
 	FastIterable,
 	Stream,
@@ -159,6 +167,26 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 */
 	set(key: K, value: V): BiMap.NonEmpty<K, V>;
 	/**
+	 * Returns a tuple `[newBiMap, entry, hasValue]` containing the collection with given `key` associated to given
+	 * `value`, the entry that was previously associated with the `key` (or, if the `key` was not present, the entry
+	 * that was previously associated with the `value`), and a `hasValue` flag indicating whether an entry was displaced.
+	 * If no entry was displaced, `entry` is `undefined` and `hasValue` is `false`.
+	 * @param key - the entry key to add
+	 * @param value - the entry value to add
+	 * @example
+	 * ```ts
+	 * BiMap.of([1, 'a']).setAndGet(2, 'b')   // => [BiMap(1 <-> 'a', 2 <-> 'b'), undefined, false]
+	 * BiMap.of([1, 'a']).setAndGet(1, 'b')   // => [BiMap(1 <-> 'b'), [1, 'a'], true]
+	 * BiMap.of([1, 'a']).setAndGet(2, 'a')   // => [BiMap(2 <-> 'a'), [1, 'a'], true]
+	 * ```
+	 * @note if the key and/or value are already associated, the previous value/key will be 'replaced' and the
+	 * displaced entry is returned
+	 */
+	setAndGet(
+		key: K,
+		value: V,
+	): WithValueResult<BiMap.NonEmpty<K, V>, readonly [K, V]>;
+	/**
 	 * Returns the collection with given `entry` added.
 	 * @param entry - a tuple containing a key and value
 	 * @example
@@ -168,6 +196,25 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * ```
 	 */
 	addEntry(entry: readonly [K, V]): BiMap.NonEmpty<K, V>;
+	/**
+	 * Returns a tuple `[newBiMap, entry, hasValue]` containing the collection with given `entry` added, the entry that
+	 * was previously associated with the entry's `key` (or, if the key was not present, the entry that was previously
+	 * associated with the entry's `value`), and a `hasValue` flag indicating whether an entry was displaced. If no entry
+	 * was displaced, `entry` is `undefined` and `hasValue` is `false`.
+	 * @param entry - a tuple containing a key and value
+	 * @example
+	 * ```ts
+	 * BiMap.of([1, 'a']).addEntryAndGet([2, 'b'])   // => [BiMap(1 <-> 'a', 2 <-> 'b'), undefined, false]
+	 * BiMap.of([1, 'a']).addEntryAndGet([1, 'b'])   // => [BiMap(1 <-> 'b'), [1, 'a'], true]
+	 * BiMap.of([1, 'a']).addEntryAndGet([2, 'a'])   // => [BiMap(2 <-> 'a'), [1, 'a'], true]
+	 * ```
+	 * @note if the key and/or value are already associated, the previous value/key will be 'replaced' and the
+	 * displaced entry is returned
+	 */
+	addEntryAndGet(
+		entry: readonly [K, V],
+	): WithValueResult<BiMap.NonEmpty<K, V>, readonly [K, V]>;
+
 	/**
 	 * Returns the collection with the entries from the given `StreamSource` `entries` added.
 	 * @param entries - a `StreamSource` containing tuples with a key and value
@@ -195,18 +242,22 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 */
 	removeKey<UK = K>(key: RelatedTo<K, UK>): BiMap<K, V>;
 	/**
-	 * Returns a tuple containing the collection of which the entry associated with given `key` is removed, and the value that
-	 * is associated with that key. If the key is not present, it will return undefined instead.
+	 * Returns a tuple `[newBiMap, value, hasValue]` containing the collection of which the entry associated with given
+	 * `key` is removed, the value that was associated with that key, and a `hasValue` flag indicating whether the key
+	 * was present. If the key is not present, `newBiMap` is unchanged and `hasValue` is `false`.
 	 * @param key - the key of the entry to remove
 	 * @example
 	 * ```ts
 	 * const m = BiMap.of([1, 1], [2, 2])
 	 * const result = m.removeKeyAndGet(2)
-	 * if (result !== undefined) console.log([result[0].toString(), result[1]])    // => logs [BiMap(1 <-> 1), 2]
-	 * console.log(m.removeKeyAndGet(3))                                           // => logs undefined
+	 * if (result[2]) console.log([result[0].toString(), result[1]])    // => logs [BiMap(1 <-> 1), 2]
+	 * console.log(m.removeKeyAndGet(3))                                // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]
 	 * ```
 	 */
-	removeKeyAndGet<UK = K>(key: RelatedTo<K, UK>): [BiMap<K, V>, V] | undefined;
+	removeKeyAndGet<UK = K>(
+		key: RelatedTo<K, UK>,
+	): WithValueResult<BiMap<K, V>, V>;
+
 	/**
 	 * Returns the collection where the entries associated with each key in given `keys` are removed if they were present.
 	 * @param keys - a `StreamSource` of keys to remove
@@ -234,20 +285,22 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	removeValue<UV = V>(value: RelatedTo<V, UV>): BiMap<K, V>;
 
 	/**
-	 * Returns a tuple containing the collection of which the entry associated with given `value` is removed, and the key that
-	 * is associated with that value. If the value is not present, it will return undefined instead.
+	 * Returns a tuple `[newBiMap, key, hasValue]` containing the collection of which the entry associated with given
+	 * `value` is removed, the key that was associated with that value, and a `hasValue` flag indicating whether the value
+	 * was present. If the value is not present, `newBiMap` is unchanged and `hasValue` is `false`.
 	 * @param value - the value of the entry to remove
 	 * @example
 	 * ```ts
 	 * const m = BiMap.of([1, 1], [2, 2])
 	 * const result = m.removeValueAndGet(2)
-	 * if (result !== undefined) console.log([result[0].toString(), result[1]])    // => logs [BiMap(1 <-> 1), 2]
-	 * console.log(m.removeValueAndGet(3))                                           // => logs undefined
+	 * if (result[2]) console.log([result[0].toString(), result[1]])    // => logs [BiMap(1 <-> 1), 2]
+	 * console.log(m.removeValueAndGet(3))                              // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]
 	 * ```
 	 */
 	removeValueAndGet<UV = V>(
 		value: RelatedTo<V, UV>,
-	): [BiMap<K, V>, K] | undefined;
+	): WithValueResult<BiMap<K, V>, K>;
+
 	/**
 	 * Returns the collection where the entries associated with each value in given `values` are removed if they were present.
 	 * @param values - a `StreamSource` of values to remove
@@ -261,6 +314,20 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @note guarantees same object reference if none of the values are present
 	 */
 	removeValues<UV = V>(values: StreamSource<RelatedTo<V, UV>>): BiMap<K, V>;
+	/**
+	 * Returns the collection where the entry associated with given `key` and `value` is removed, but only if both the
+	 * key and value match an existing entry.
+	 * @param entry - a tuple containing the key and value of the entry to remove
+	 * @example
+	 * ```ts
+	 * const m = BiMap.of([1, 'a'], [2, 'b'])
+	 * m.removeEntry([2, 'b']).toArray()   // => [[1, 'a']]
+	 * m.removeEntry([2, 'c']) === m       // true (value does not match)
+	 * m.removeEntry([3, 'b']) === m       // true (key is not present)
+	 * ```
+	 * @note guarantees same object reference if no matching entry was removed
+	 */
+	removeEntry(entry: readonly [K, V]): BiMap<K, V>;
 	/**
 	 * Returns the collection where the value associated with given `key` is updated with the given `valueUpdate` value or update function.
 	 * @param key - the key of the entry to update
@@ -300,37 +367,41 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 		value: RelatedTo<V, UV>,
 	): BiMap<K, V>;
 	/**
-	 * Returns a tuple of the updated collection and the new value if the given `key` is present, or `undefined` if not.
+	 * Returns a tuple `[newBiMap, value, hasValue]` of the updated collection and the new value, or the unchanged
+	 * collection and `undefined` if the `key` is not present. The `hasValue` flag indicates whether the key was present.
 	 * @param key - the key of the entry to update
 	 * @param valueUpdate - a function taking the current value and returning a new value
 	 * @typeparam UK - the key type to accept, related to `K`
 	 * @example
 	 * ```ts
 	 * const m = BiMap.of([1, 1], [2, 2])
-	 * m.updateValueAtKeyAndGet(3, v => v + 1)   // => undefined
-	 * m.updateValueAtKeyAndGet(2, v => v + 10)  // => [BiMap(1 <-> 1, 2 <-> 12), 12]
+	 * m.updateValueAtKeyAndGet(3, v => v + 1)   // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]
+	 * m.updateValueAtKeyAndGet(2, v => v + 10)  // => [BiMap(1 <-> 1, 2 <-> 12), 12, true]
 	 * ```
 	 */
 	updateValueAtKeyAndGet<UK = K>(
 		key: RelatedTo<K, UK>,
 		valueUpdate: (value: V) => V,
-	): [BiMap<K, V>, V] | undefined;
+	): WithValueResult<BiMap.NonEmpty<K, V>, V, BiMap<K, V>>;
+
 	/**
-	 * Returns a tuple of the updated collection and the new key if the given `value` is present, or `undefined` if not.
+	 * Returns a tuple `[newBiMap, key, hasValue]` of the updated collection and the new key, or the unchanged collection
+	 * and `undefined` if the `value` is not present. The `hasValue` flag indicates whether the value was present.
 	 * @param keyUpdate - a function taking the current key and returning a new key
 	 * @param value - the value of the entry to update
 	 * @typeparam UV - the value type to accept, related to `V`
 	 * @example
 	 * ```ts
 	 * const m = BiMap.of([1, 1], [2, 2])
-	 * m.updateKeyAtValueAndGet(k => k + 1, 3)   // => undefined
-	 * m.updateKeyAtValueAndGet(k => k + 10, 2)  // => [BiMap(1 <-> 1, 12 <-> 2), 12]
+	 * m.updateKeyAtValueAndGet(k => k + 1, 3)   // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]
+	 * m.updateKeyAtValueAndGet(k => k + 10, 2)  // => [BiMap(1 <-> 1, 12 <-> 2), 12, true]
 	 * ```
 	 */
 	updateKeyAtValueAndGet<UV = V>(
 		keyUpdate: (key: K) => K,
 		value: RelatedTo<V, UV>,
-	): [BiMap<K, V>, K] | undefined;
+	): WithValueResult<BiMap.NonEmpty<K, V>, K, BiMap<K, V>>;
+
 	/**
 	 * Returns the collection with the entry at given `atKey` key modified according to given `options`.
 	 * @param atKey - the key at which to modify the collection
@@ -534,6 +605,10 @@ export namespace BiMap {
 		 * ```
 		 */
 		addEntries(entries: StreamSource<readonly [K, V]>): BiMap.NonEmpty<K, V>;
+		removeKeyAndGet<UK = K>(
+			key: RelatedTo<K, UK>,
+		): WithValueResult<BiMap<K, V>, V, BiMap.NonEmpty<K, V>>;
+
 		/**
 		 * Returns the collection where the value associated with given `key` is updated with the given `update` value or update function.
 		 * @param key - the key of the entry to update
@@ -573,37 +648,43 @@ export namespace BiMap {
 			value: RelatedTo<V, UV>,
 		): BiMap.NonEmpty<K, V>;
 		/**
-		 * Returns a tuple of the updated non-empty collection and the new key if the given `value` is present, or `undefined` if not.
+		 * Returns a tuple `[newBiMap, key, hasValue]` of the updated non-empty collection and the new key, or the
+		 * unchanged collection and `undefined` if the `value` is not present. The `hasValue` flag indicates whether the
+		 * value was present.
 		 * @param keyUpdate - a function taking the current key and returning a new key
 		 * @param value - the value of the entry to update
 		 * @typeparam UV - the value type to accept, related to `V`
 		 * @example
 		 * ```ts
 		 * const m = BiMap.of([1, 1], [2, 2])
-		 * m.updateKeyAtValueAndGet(k => k + 1, 3)   // => undefined
-		 * m.updateKeyAtValueAndGet(k => k + 10, 2)  // => [BiMap(1 <-> 1, 12 <-> 2), 12]
+		 * m.updateKeyAtValueAndGet(k => k + 1, 3)   // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]
+		 * m.updateKeyAtValueAndGet(k => k + 10, 2)  // => [BiMap(1 <-> 1, 12 <-> 2), 12, true]
 		 * ```
 		 */
 		updateKeyAtValueAndGet<UV = V>(
 			keyUpdate: (key: K) => K,
 			value: RelatedTo<V, UV>,
-		): [BiMap.NonEmpty<K, V>, K] | undefined;
+		): WithValueResult<BiMap.NonEmpty<K, V>, K>;
+
 		/**
-		 * Returns a tuple of the updated non-empty collection and the new value if the given `key` is present, or `undefined` if not.
+		 * Returns a tuple `[newBiMap, value, hasValue]` of the updated non-empty collection and the new value, or the
+		 * unchanged collection and `undefined` if the `key` is not present. The `hasValue` flag indicates whether the key
+		 * was present.
 		 * @param key - the key of the entry to update
 		 * @param valueUpdate - a function taking the current value and returning a new value
 		 * @typeparam UK - the key type to accept, related to `K`
 		 * @example
 		 * ```ts
 		 * const m = BiMap.of([1, 1], [2, 2])
-		 * m.updateValueAtKeyAndGet(3, v => v + 1)   // => undefined
-		 * m.updateValueAtKeyAndGet(2, v => v + 10)  // => [BiMap(1 <-> 1, 2 <-> 12), 12]
+		 * m.updateValueAtKeyAndGet(3, v => v + 1)   // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]
+		 * m.updateValueAtKeyAndGet(2, v => v + 10)  // => [BiMap(1 <-> 1, 2 <-> 12), 12, true]
 		 * ```
 		 */
-		updateValueAtKeyAndGet<UK = K>(
+		updateValueAtKeyAndGet<O, UK = K>(
 			key: RelatedTo<K, UK>,
 			valueUpdate: (value: V) => V,
-		): [BiMap.NonEmpty<K, V>, V] | undefined;
+		): WithValueResult<BiMap.NonEmpty<K, V>, V>;
+
 		/**
 		 * Returns a non-empty `Stream` containing all entries of this collection as tuples of key and value.
 		 * @example
@@ -828,6 +909,19 @@ export namespace BiMap {
 		 * ```
 		 */
 		removeValues<UV = V>(values: StreamSource<RelatedTo<V, UV>>): boolean;
+		/**
+		 * Removes the entry related to given `entry` from the builder, but only if both the key and value match an
+		 * existing entry.
+		 * @param entry - a tuple containing the key and value of the entry to remove
+		 * @returns true if the data in the builder has changed
+		 * @example
+		 * ```ts
+		 * const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()
+		 * m.removeEntry([2, 'b'])   // => true
+		 * m.removeEntry([2, 'c'])   // => false
+		 * ```
+		 */
+		removeEntry(entry: readonly [K, V]): boolean;
 		/**
 		 * Performs given function `f` for each entry of the builder.
 		 * @param f - the function to perform for each element, receiving:<br/>

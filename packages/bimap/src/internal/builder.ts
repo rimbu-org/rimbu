@@ -177,13 +177,11 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
 		}
 
 		const token = Symbol();
-
 		const key = this.valueKeyMap.removeKey(value, token);
 
 		if (token === key) return OptLazy(otherwise) as O;
 
 		this.keyValueMap.removeKey(key);
-
 		this.source = undefined;
 
 		return key;
@@ -195,12 +193,26 @@ export class BiMapBuilder<K, V> implements BiMap.Builder<K, V> {
 		if (Stream.isEmptyStreamSourceInstance(values)) return false;
 
 		const notFound = Symbol();
-
 		return (
 			Stream.from(values)
 				.mapPure(this.removeValue, notFound)
 				.countElement(notFound, { negate: true }) > 0
 		);
+	};
+
+	removeEntry = (entry: readonly [K, V]): boolean => {
+		this.checkLock();
+
+		const [key, value] = entry;
+
+		const token = Symbol();
+		const current = this.keyValueMap.get(key, token);
+
+		if (token === current) return false;
+		if (!Object.is(current, value)) return false;
+
+		const removed = this.removeKey(key, token);
+		return token !== removed;
 	};
 
 	forEach = (
