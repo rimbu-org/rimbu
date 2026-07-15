@@ -1,16 +1,16 @@
 import { describe, expect, it, vi } from 'bun:test';
 
-import type { ReversedOuterBlock } from '#list/immutable/reversed-outer-block';
-import type { ReversedOuterBlock } from '#list/immutable/reversed-outer-block';
 import type { ListContext } from '#list/context-module';
-import { List } from '@rimbu/list';
+import type { ReversedOuterBlock } from '#list/immutable/reversed-outer-block';
+
 import { List } from '@rimbu/list';
 import { Stream } from '@rimbu/stream';
-import { OuterBlock } from '#list/immutable/outer-block';
+
 import { OuterBlock } from '#list/immutable/outer-block';
 import { OuterTree } from '#list/immutable/outer-tree';
 import { ListHelpers } from '#list/list-helpers';
 import { OuterBlockBuilder } from '#list/mutable/outer-block-builder';
+
 describe('OuterBlock', () => {
 	it('_mutateNormalize', () => {
 		const b3 = createBlock(1, 2, 3);
