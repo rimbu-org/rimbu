@@ -83,8 +83,7 @@ export class ProximityMapNonEmpty<K, V> implements ProximityMap.NonEmpty<K, V> {
 			return update(value);
 		});
 
-		if (token === oldValue || this === updatedMap)
-			return [this, undefined, false];
+		if (token === oldValue) return [this, undefined, false];
 
 		return [updatedMap, oldValue, true];
 	}

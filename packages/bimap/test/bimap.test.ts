@@ -385,7 +385,8 @@ describe('BiMap methods', () => {
 		expect(r[1]).toBe('b');
 
 		const noop = map3_1.updateValueAtKeyAndGet(2, (v) => v);
-		expect(noop[2]).toBe(false);
+		expect(noop[2]).toBe(true);
+		expect(noop[1]).toBe('b');
 		expect(noop[0]).toBe(map3_1);
 	});
 
@@ -400,7 +401,8 @@ describe('BiMap methods', () => {
 		expect(r[1]).toBe(2);
 
 		const noop = map3_1.updateKeyAtValueAndGet((k) => k, 'b');
-		expect(noop[2]).toBe(false);
+		expect(noop[2]).toBe(true);
+		expect(noop[1]).toBe(2);
 		expect(noop[0]).toBe(map3_1);
 	});
 
@@ -449,11 +451,11 @@ describe('BiMap methods', () => {
 		expect(r3[0].getKey('b')).toBe(1);
 		expect(r3[0].hasKey(2)).toBe(false);
 
-		// no-op when identical entry: nothing is displaced, collection unchanged
+		// no-op when identical entry: entry is present, collection unchanged
 		const r4 = map3_1.setAndGet(2, 'b');
 		expect(r4[0]).toBe(map3_1);
-		expect(r4[2]).toBe(false);
-		expect(r4[1]).toBe(undefined);
+		expect(r4[2]).toBe(true);
+		expect(r4[1]).toEqual([2, 'b']);
 	});
 
 	it('addEntryAndGet', () => {
@@ -470,8 +472,8 @@ describe('BiMap methods', () => {
 
 		const r3 = map3_1.addEntryAndGet([2, 'b']);
 		expect(r3[0]).toBe(map3_1);
-		expect(r3[2]).toBe(false);
-		expect(r3[1]).toBe(undefined);
+		expect(r3[2]).toBe(true);
+		expect(r3[1]).toEqual([2, 'b']);
 	});
 
 	it('removeEntry', () => {

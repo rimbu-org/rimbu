@@ -1,6 +1,6 @@
 import { expectTypeOf } from 'bun:test';
 
-import type { ArrayNonEmpty } from '@rimbu/common/types';
+import type { ArrayNonEmpty, WithValueResult } from '@rimbu/common/types';
 import type { HashSet } from '@rimbu/hashed/set';
 import type { SortedMultiMapHashValue } from '@rimbu/multimap/sorted-key/hash-value';
 import type { SortedMap } from '@rimbu/sorted/map';
@@ -96,10 +96,10 @@ expectTypeOf(genNonEmpty.removeKey(3)).toEqualTypeOf<G_Empty>();
 
 // .removeKeyAndGet(..)
 expectTypeOf(genEmpty.removeKeyAndGet(3)).toEqualTypeOf<
-	[G_Empty, Values_NE] | undefined
+	WithValueResult<G_Empty, Values_NE>
 >();
 expectTypeOf(genNonEmpty.removeKeyAndGet(3)).toEqualTypeOf<
-	[G_Empty, Values_NE] | undefined
+	WithValueResult<G_Empty, Values_NE, G_NonEmpty>
 >();
 
 // .removeKeys(..)

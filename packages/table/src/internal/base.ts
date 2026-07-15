@@ -1,5 +1,10 @@
 import type { RMap } from '@rimbu/collection-types';
-import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
+import type {
+	ArrayNonEmpty,
+	RelatedTo,
+	ToJSON,
+	WithValueResult,
+} from '@rimbu/common/types';
 import type { Table } from '@rimbu/table';
 
 import type { ContextImpl } from '#table/context-factory';
@@ -72,12 +77,12 @@ export class TableEmpty<R, C, V>
 		return this;
 	}
 
-	removeAndGet(): undefined {
-		return undefined;
+	removeAndGet(): WithValueResult<Table<R, C, V>, V> {
+		return [this, undefined, false];
 	}
 
-	removeRowAndGet(): undefined {
-		return undefined;
+	removeRowAndGet(): WithValueResult<Table<R, C, V>, RMap.NonEmpty<C, V>> {
+		return [this, undefined, false];
 	}
 
 	removeEntries(): this {
@@ -340,9 +345,11 @@ export class TableNonEmpty<R, C, V>
 	removeAndGet<UR, UC>(
 		row: RelatedTo<R, UR>,
 		column: RelatedTo<C, UC>,
-	): [Table<R, C, V>, V] | undefined {
-		if (!this.context.rowContext.isValidKey(row)) return undefined;
-		if (!this.context.columnContext.isValidKey(column)) return undefined;
+	): WithValueResult<Table<R, C, V>, V, Table.NonEmpty<R, C, V>> {
+		if (!this.context.rowContext.isValidKey(row))
+			return [this, undefined, false];
+		if (!this.context.columnContext.isValidKey(column))
+			return [this, undefined, false];
 
 		let newSize = this.size;
 		const token = Symbol();
@@ -367,16 +374,21 @@ export class TableNonEmpty<R, C, V>
 			},
 		});
 
-		if (token === removedValue) return undefined;
+		if (token === removedValue) return [this, undefined, false];
 
 		const newSelf = this.copyE(newRows, newSize);
-		return [newSelf, removedValue];
+		return [newSelf, removedValue, true];
 	}
 
 	removeRowAndGet<UR>(
 		row: RelatedTo<R, UR>,
-	): [Table<R, C, V>, RMap.NonEmpty<C, V>] | undefined {
-		if (!this.context.rowContext.isValidKey(row)) return undefined;
+	): WithValueResult<
+		Table<R, C, V>,
+		RMap.NonEmpty<C, V>,
+		Table.NonEmpty<R, C, V>
+	> {
+		if (!this.context.rowContext.isValidKey(row))
+			return [this, undefined, false];
 
 		let newSize = this.size;
 		let removedRow: RMap.NonEmpty<C, V> | undefined;
@@ -391,10 +403,10 @@ export class TableNonEmpty<R, C, V>
 			},
 		});
 
-		if (undefined === removedRow) return undefined;
+		if (undefined === removedRow) return [this, undefined, false];
 
 		const newSelf = this.copyE(newRows, newSize);
-		return [newSelf, removedRow];
+		return [newSelf, removedRow, true];
 	}
 
 	removeEntries<UR, UC>(

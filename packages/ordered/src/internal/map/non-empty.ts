@@ -247,7 +247,7 @@ export class OrderedMapNonEmpty<K, V>
 			return update(value);
 		});
 
-		if (token === oldValue || this === newMap) return [this, undefined, false];
+		if (token === oldValue) return [this, undefined, false];
 		return [newMap, oldValue, true];
 	}
 

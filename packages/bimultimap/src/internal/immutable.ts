@@ -227,13 +227,10 @@ export class BiMultiMapNonEmpty<K, V>
 	}
 
 	removeKey<UK = K>(key: RelatedTo<K, UK>): BiMultiMap<K, V> {
-		const result = this.keyValueMultiMap.removeKeyAndGet(key);
+		const [newKeyValueMultiMap, oldValues, hasOldValues] =
+			this.keyValueMultiMap.removeKeyAndGet(key);
 
-		if (undefined === result) {
-			return this;
-		}
-
-		const [newKeyValueMultiMap, oldValues] = result;
+		if (!hasOldValues) return this;
 
 		if (!newKeyValueMultiMap.nonEmpty()) return this.context.empty();
 
@@ -255,13 +252,10 @@ export class BiMultiMapNonEmpty<K, V>
 	}
 
 	removeValue<UV = V>(value: RelatedTo<V, UV>): BiMultiMap<K, V> {
-		const result = this.valueKeyMultiMap.removeKeyAndGet(value);
+		const [newValueKeyMultiMap, oldKeys, hasOldKeys] =
+			this.valueKeyMultiMap.removeKeyAndGet(value);
 
-		if (undefined === result) {
-			return this;
-		}
-
-		const [newValueKeyMultiMap, oldKeys] = result;
+		if (!hasOldKeys) return this;
 
 		if (!newValueKeyMultiMap.nonEmpty()) return this.context.empty();
 

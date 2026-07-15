@@ -6,7 +6,7 @@ import type {
 	VariantMap,
 	VariantSet,
 } from '@rimbu/collection-types';
-import type { ArrayNonEmpty } from '@rimbu/common/types';
+import type { ArrayNonEmpty, WithValueResult } from '@rimbu/common/types';
 import type { MultiMap } from '@rimbu/multimap';
 import type { VariantMultiMap } from '@rimbu/multimap/variant';
 import type { FastIterator, Stream } from '@rimbu/stream';
@@ -196,16 +196,16 @@ expectTypeOf(genNonEmpty.removeKey(3)).toEqualTypeOf<G_Empty>();
 
 // .removeKeyAndGet(..)
 expectTypeOf(varEmpty.removeKeyAndGet(3)).toEqualTypeOf<
-	[V_Empty, VariantSet.NonEmpty<string>] | undefined
+	WithValueResult<V_Empty, VariantSet.NonEmpty<string>>
 >();
 expectTypeOf(varNonEmpty.removeKeyAndGet(3)).toEqualTypeOf<
-	[V_Empty, VariantSet.NonEmpty<string>] | undefined
+	WithValueResult<V_Empty, VariantSet.NonEmpty<string>, V_NonEmpty>
 >();
 expectTypeOf(genEmpty.removeKeyAndGet(3)).toEqualTypeOf<
-	[G_Empty, RSet.NonEmpty<string>] | undefined
+	WithValueResult<G_Empty, RSet.NonEmpty<string>>
 >();
 expectTypeOf(genNonEmpty.removeKeyAndGet(3)).toEqualTypeOf<
-	[G_Empty, RSet.NonEmpty<string>] | undefined
+	WithValueResult<G_Empty, RSet.NonEmpty<string>, G_NonEmpty>
 >();
 
 // .removeKeys(..)

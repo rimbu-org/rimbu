@@ -333,11 +333,11 @@ export function runTableRandomTestsWith(
 		});
 
 		it('removeAndGet', (): void => {
-			expect(context.empty().removeAndGet(1, 1)).toBe(undefined);
+			expect(context.empty().removeAndGet(1, 1)[2]).toBe(false);
 			const m = context.of([1, 1, 1], [2, 2, 2], [2, 0, 0]);
 			expect(m.removeAndGet(1, 1)![1]).toBe(1);
 
-			expect(m.removeAndGet(4, 4)).toBe(undefined);
+			expect(m.removeAndGet(4, 4)[2]).toBe(false);
 		});
 
 		it('updateAt', (): void => {

@@ -6,7 +6,12 @@ import type {
 } from '@rimbu/collection-types/advanced/common';
 import type { OptLazy } from '@rimbu/common/opt-lazy';
 import type { TraverseState } from '@rimbu/common/traverse-state';
-import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
+import type {
+	ArrayNonEmpty,
+	RelatedTo,
+	ToJSON,
+	WithValueResult,
+} from '@rimbu/common/types';
 import type {
 	FastIterable,
 	Stream,
@@ -199,38 +204,40 @@ export interface VariantTableBase<
 	 */
 	removeRow<UR = R>(row: RelatedTo<R, UR>): WithRow<Tp, R, C, V>['normal'];
 	/**
-	 * Returns a tuple containing the collection with the value at given `row` and `column` removed,
-	 * and the removed value. If no such value is found, it returns undefined.
+	 * Returns a tuple `[newTable, value, hasValue]` containing the collection with the value at given `row` and
+	 * `column` removed, the removed value, and a `hasValue` flag indicating whether a value was present at that
+	 * position. If no such value is found, `newTable` is unchanged and `hasValue` is `false`.
 	 * @param row - the row key
 	 * @param column - the column key
 	 * @example
 	 * ```ts
 	 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
-	 * t.removeAndGet(10, 11)  // => undefined
-	 * t.removeAndGet(1, 2)    // => [HashTableHashColumn([1, 4, 5]), 3]
+	 * t.removeAndGet(10, 11)  // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]
+	 * t.removeAndGet(1, 2)    // => [HashTableHashColumn([1, 4, 5]), 3, true]
 	 * ```
 	 */
 	removeAndGet<UR = R, UC = C>(
 		row: RelatedTo<R, UR>,
 		column: RelatedTo<C, UC>,
-	): [WithRow<Tp, R, C, V>['normal'], V] | undefined;
+	): WithValueResult<WithRow<Tp, R, C, V>['normal'], V>;
 	/**
-	 * Returns a tuple containing the collection with the values at given `row` removed,
-	 * and a map containing the removed columns and values. If no such row is found, it
-	 * returns undefined.
+	 * Returns a tuple `[newTable, row, hasValue]` containing the collection with the values at given `row` removed,
+	 * a map containing the removed columns and values, and a `hasValue` flag indicating whether the `row` was
+	 * present. If no such row is found, `newTable` is unchanged and `hasValue` is `false`.
 	 * @param row - the row key
 	 * @example
 	 * ```ts
 	 * const t = HashTableHashColumn.of([1, 2, 3], [1, 4, 5])
-	 * t.removeRowAndGet(10)    // => undefined
-	 * t.removeRowAndGet(1)     // => [HashTableHashColumn(), HashMap(2 => 3, 4 => 5)]
+	 * t.removeRowAndGet(10)    // => [HashTableHashColumn([1, 2, 3], [1, 4, 5]), undefined, false]
+	 * t.removeRowAndGet(1)     // => [HashTableHashColumn(), HashMap(2 => 3, 4 => 5), true]
 	 * ```
 	 */
 	removeRowAndGet<UR = R>(
 		row: RelatedTo<R, UR>,
-	):
-		| [WithRow<Tp, R, C, V>['normal'], WithRow<Tp, R, C, V>['rowNonEmpty']]
-		| undefined;
+	): WithValueResult<
+		WithRow<Tp, R, C, V>['normal'],
+		WithRow<Tp, R, C, V>['rowNonEmpty']
+	>;
 	/**
 	 * Returns the collection where the values for each row key in given `rows` are removed.
 	 * @param rows - a `StreamSource` of row keys
@@ -444,6 +451,21 @@ export namespace VariantTableBase {
 		 * ```
 		 */
 		streamValues(): Stream.NonEmpty<V>;
+		removeAndGet<UR = R, UC = C>(
+			row: RelatedTo<R, UR>,
+			column: RelatedTo<C, UC>,
+		): WithValueResult<
+			WithRow<Tp, R, C, V>['normal'],
+			V,
+			WithRow<Tp, R, C, V>['nonEmpty']
+		>;
+		removeRowAndGet<UR = R>(
+			row: RelatedTo<R, UR>,
+		): WithValueResult<
+			WithRow<Tp, R, C, V>['normal'],
+			WithRow<Tp, R, C, V>['rowNonEmpty'],
+			WithRow<Tp, R, C, V>['nonEmpty']
+		>;
 		/**
 		 * Returns a non-empty collection with the same row and column keys, but where the given `mapFun` function is applied to each entry value.
 		 * @param mapFun - a function taking a `value` and a row and column key, and returning a new value

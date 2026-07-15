@@ -328,7 +328,7 @@ export class BiMapNonEmptyImpl<K, V>
 			if (wasValueRemoved) {
 				// check if existing entry was not same
 				if (Object.is(removedKey, key) && Object.is(removedValue, value)) {
-					return [this, undefined, false];
+					return [this, entry, true];
 				}
 
 				const newKeyValueMap = removedKeyValueMap
@@ -524,17 +524,14 @@ export class BiMapNonEmptyImpl<K, V>
 	): WithValueResult<BiMap.NonEmpty<K, V>, V> {
 		const token = Symbol();
 		let oldValue: V | typeof token = token;
-		let newValue: V | typeof token = token;
 
 		const newBiMap = this.updateValueAtKey(key, (value) => {
 			oldValue = value;
-			newValue = valueUpdate(value);
-			return newValue;
+			return valueUpdate(value);
 		});
 
 		if (token === oldValue) return [this, undefined, false];
-		if (Object.is(newValue, oldValue)) return [this, undefined, false];
-		return [newBiMap, oldValue as V, true];
+		return [newBiMap, oldValue, true];
 	}
 
 	updateKeyAtValueAndGet(
@@ -552,7 +549,6 @@ export class BiMapNonEmptyImpl<K, V>
 		}, value);
 
 		if (token === oldKey) return [this, undefined, false];
-		if (Object.is(newKey, oldKey)) return [this, undefined, false];
 		return [newBiMap, oldKey, true];
 	}
 

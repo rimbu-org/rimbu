@@ -1,6 +1,6 @@
 import { expectTypeOf } from 'bun:test';
 
-import type { ArrayNonEmpty } from '@rimbu/common/types';
+import type { ArrayNonEmpty, WithValueResult } from '@rimbu/common/types';
 import type { HashMap } from '@rimbu/hashed/map';
 import type { FastIterator, Stream } from '@rimbu/stream';
 import type { HashTableHashColumn } from '@rimbu/table/hash-row/hash-column';
@@ -118,10 +118,10 @@ expectTypeOf(genNonEmpty.remove(3, 'a')).toEqualTypeOf<G_Empty>();
 
 // .removeAndGet(..)
 expectTypeOf(genEmpty.removeAndGet(3, 'a')).toEqualTypeOf<
-	[G_Empty, boolean] | undefined
+	WithValueResult<G_Empty, boolean>
 >();
 expectTypeOf(genNonEmpty.removeAndGet(3, 'a')).toEqualTypeOf<
-	[G_Empty, boolean] | undefined
+	WithValueResult<G_Empty, boolean, G_NonEmpty>
 >();
 
 // .removeEntries(..)
@@ -134,10 +134,10 @@ expectTypeOf(genNonEmpty.removeRow(3)).toEqualTypeOf<G_Empty>();
 
 // .removeRowAndGet(..)
 expectTypeOf(genEmpty.removeRowAndGet(3)).toEqualTypeOf<
-	[G_Empty, RowType_NE] | undefined
+	WithValueResult<G_Empty, RowType_NE>
 >();
 expectTypeOf(genNonEmpty.removeRowAndGet(3)).toEqualTypeOf<
-	[G_Empty, RowType_NE] | undefined
+	WithValueResult<G_Empty, RowType_NE, G_NonEmpty>
 >();
 
 // .removeRows(..)

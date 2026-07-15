@@ -9,7 +9,12 @@ import type {
 	WithKeyValue,
 } from '@rimbu/collection-types/advanced/common';
 import type { TraverseState } from '@rimbu/common/traverse-state';
-import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
+import type {
+	ArrayNonEmpty,
+	RelatedTo,
+	ToJSON,
+	WithValueResult,
+} from '@rimbu/common/types';
 import type { MultiMap } from '@rimbu/multimap';
 import type {
 	FastIterable,
@@ -205,25 +210,24 @@ export interface VariantMultiMapBase<
 		entries: StreamSource<[RelatedTo<K, UK>, RelatedTo<V, UV>]>,
 	): WithKeyValue<Tp, K, V>['normal'];
 	/**
-	 * Returns a tuple containing the collection of which the given `key` is removed, and the values that
-	 * are associated with that key. If the key is not present, it will return undefined instead.
+	 * Returns a tuple `[newMultiMap, values, hasValue]` containing the collection of which the given `key` is
+	 * removed, the non-empty set of values that were associated with that key, and a `hasValue` flag indicating
+	 * whether the `key` was present. If the key is not present, `newMultiMap` is unchanged and `hasValue` is `false`.
 	 * @param key - the key of the entry to remove
 	 * @example
 	 * ```ts
 	 * const m = HashMultiMapHashValue.of([1, 'a'], [2, 'b'])
 	 * const result = m.removeKeyAndGet(2)
-	 * if (result !== undefined) console.log([result[0].toString(), result[1]])    // => logs [HashMultiMapHashValue(1 => 'a'), HashSet('b')]
-	 * console.log(m.removeKeyAndGet(3))                                           // => logs undefined
+	 * if (result[2]) console.log([result[0].toString(), result[1]])    // => logs [HashMultiMapHashValue(1 => 'a'), HashSet('b')]
+	 * console.log(m.removeKeyAndGet(3))                                // => [HashMultiMapHashValue(1 => 'a'), undefined, false]
 	 * ```
 	 */
 	removeKeyAndGet<UK = K>(
 		key: RelatedTo<K, UK>,
-	):
-		| [
-				WithKeyValue<Tp, K, V>['normal'],
-				WithKeyValue<Tp, K, V>['keyMapValuesNonEmpty'],
-		  ]
-		| undefined;
+	): WithValueResult<
+		WithKeyValue<Tp, K, V>['normal'],
+		WithKeyValue<Tp, K, V>['keyMapValuesNonEmpty']
+	>;
 	/**
 	 * Performs given function `f` for each entry of the collection, using given `state` as initial traversal state.
 	 * @param f - the function to perform for each element, receiving:<br/>
@@ -424,6 +428,13 @@ export namespace VariantMultiMapBase {
 		 * ```
 		 */
 		streamValues(): Stream.NonEmpty<V>;
+		removeKeyAndGet<UK = K>(
+			key: RelatedTo<K, UK>,
+		): WithValueResult<
+			WithKeyValue<Tp, K, V>['normal'],
+			WithKeyValue<Tp, K, V>['keyMapValuesNonEmpty'],
+			WithKeyValue<Tp, K, V>['nonEmpty']
+		>;
 		/**
 		 * Returns a non-empty array containing all entries in this collection.
 		 * @example

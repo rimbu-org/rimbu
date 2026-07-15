@@ -359,8 +359,8 @@ export function runTableTestsWith(
 		});
 
 		it('removeAndGet', () => {
-			expect(tableEmpty.removeAndGet(1, 'a')).toBe(undefined);
-			expect(table3.removeAndGet(10, 'a')).toBe(undefined);
+			expect(tableEmpty.removeAndGet(1, 'a')[2]).toBe(false);
+			expect(table3.removeAndGet(10, 'a')[2]).toBe(false);
 			const [newTable, value] = table3.removeAndGet(1, 'a')!;
 			expectEqual(newTable, [
 				[2, 'b', true],
@@ -398,8 +398,8 @@ export function runTableTestsWith(
 		});
 
 		it('removeRowAndGet', () => {
-			expect(tableEmpty.removeRowAndGet(1)).toBe(undefined);
-			expect(table3.removeRowAndGet(10)).toBe(undefined);
+			expect(tableEmpty.removeRowAndGet(1)[2]).toBe(false);
+			expect(table3.removeRowAndGet(10)[2]).toBe(false);
 			const [newTable, row] = table3.removeRowAndGet(1)!;
 			expectEqual(newTable, [[2, 'b', true]]);
 			expect(new Set(row)).toEqual(

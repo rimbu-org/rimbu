@@ -457,13 +457,15 @@ export function runMultiMapTestsWith(
 		});
 
 		it('removeKeyAndGet', () => {
-			expect(mapEmpty.removeKeyAndGet(2)).toBe(undefined);
-			expect(map3_1.removeKeyAndGet(10)).toBe(undefined);
-			expectEqual(map3_1.removeKeyAndGet(2)![0], [
+			expect(mapEmpty.removeKeyAndGet(2)[2]).toBe(false);
+			expect(map3_1.removeKeyAndGet(10)[2]).toBe(false);
+			const r = map3_1.removeKeyAndGet(2);
+			expect(r[2]).toBe(true);
+			expectEqual(r[0], [
 				[1, 'a'],
 				[3, 'c'],
 			]);
-			expect(map3_1.removeKeyAndGet(2)![1].toArray()).toEqual(['b']);
+			expect(r[1]!.toArray()).toEqual(['b']);
 		});
 
 		it('removeKeys', () => {

@@ -15,7 +15,7 @@
         "rimraf": "^6.1.2",
         "typedoc": "^0.28.16",
         "typedoc-theme-oxide": "^0.2.5",
-        "typescript": "^7.0.1-rc",
+        "typescript": "^7.0.2",
       },
     },
     "packages/actor": {
@@ -82,9 +82,6 @@
         "@rimbu/base": "workspace:*",
         "@rimbu/common": "workspace:*",
         "@rimbu/stream": "workspace:*",
-      },
-      "devDependencies": {
-        "@rimbu/hashed": "workspace:*",
       },
     },
     "packages/common": {

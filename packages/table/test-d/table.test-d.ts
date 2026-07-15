@@ -1,7 +1,7 @@
 import { expectTypeOf } from 'bun:test';
 
 import type { RMap, VariantMap } from '@rimbu/collection-types';
-import type { ArrayNonEmpty } from '@rimbu/common/types';
+import type { ArrayNonEmpty, WithValueResult } from '@rimbu/common/types';
 import type { FastIterator, Stream } from '@rimbu/stream';
 import type { Table, VariantTable } from '@rimbu/table';
 
@@ -208,16 +208,16 @@ expectTypeOf(genNonEmpty.remove(3, 'a')).toEqualTypeOf<G_Empty>();
 
 // .removeAndGet(..)
 expectTypeOf(varEmpty.removeAndGet(3, 'a')).toEqualTypeOf<
-	[V_Empty, boolean] | undefined
+	WithValueResult<V_Empty, boolean>
 >();
 expectTypeOf(varNonEmpty.removeAndGet(3, 'a')).toEqualTypeOf<
-	[V_Empty, boolean] | undefined
+	WithValueResult<V_Empty, boolean, V_NonEmpty>
 >();
 expectTypeOf(genEmpty.removeAndGet(3, 'a')).toEqualTypeOf<
-	[G_Empty, boolean] | undefined
+	WithValueResult<G_Empty, boolean>
 >();
 expectTypeOf(genNonEmpty.removeAndGet(3, 'a')).toEqualTypeOf<
-	[G_Empty, boolean] | undefined
+	WithValueResult<G_Empty, boolean, G_NonEmpty>
 >();
 
 // .removeEntries(..)
@@ -234,16 +234,16 @@ expectTypeOf(genNonEmpty.removeRow(3)).toEqualTypeOf<G_Empty>();
 
 // .removeRowAndGet(..)
 expectTypeOf(varEmpty.removeRowAndGet(3)).toEqualTypeOf<
-	[V_Empty, VariantMap.NonEmpty<string, boolean>] | undefined
+	WithValueResult<V_Empty, VariantMap.NonEmpty<string, boolean>>
 >();
 expectTypeOf(varNonEmpty.removeRowAndGet(3)).toEqualTypeOf<
-	[V_Empty, VariantMap.NonEmpty<string, boolean>] | undefined
+	WithValueResult<V_Empty, VariantMap.NonEmpty<string, boolean>, V_NonEmpty>
 >();
 expectTypeOf(genEmpty.removeRowAndGet(3)).toEqualTypeOf<
-	[G_Empty, RMap.NonEmpty<string, boolean>] | undefined
+	WithValueResult<G_Empty, RMap.NonEmpty<string, boolean>>
 >();
 expectTypeOf(genNonEmpty.removeRowAndGet(3)).toEqualTypeOf<
-	[G_Empty, RMap.NonEmpty<string, boolean>] | undefined
+	WithValueResult<G_Empty, RMap.NonEmpty<string, boolean>, G_NonEmpty>
 >();
 
 // .removeRows(..)

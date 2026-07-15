@@ -487,11 +487,10 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 	/**
 	 * Returns a tuple `[newMap, value, hasValue]` containing the collection where the value associated with given `key` is
 	 * updated with the given `update` value or update function, the value that was previously associated with that key, and
-	 * a `hasValue` flag indicating whether the key was present and the value actually changed.
-	 * If the key is not present, or if the update yields the same value (so the collection is unchanged), `newMap` is
-	 * unchanged, `value` is `undefined`, and `hasValue` is `false`. Note that a no-op update therefore reports
-	 * `hasValue: false`, which can be surprising: `hasValue` signals whether the collection changed, not merely
-	 * whether the key exists.
+	 * a `hasValue` flag indicating whether the `key` was present.
+	 * If the key is present, `value` is the previous value and `hasValue` is `true`, even when the update yields the same
+	 * value (a no-op): in that case `newMap` is unchanged and `result[0] === this`. If the key is not present, `newMap` is
+	 * unchanged, `value` is `undefined`, and `hasValue` is `false`.
 	 * @typeparam UK - the type of key to look for, a related type to K
 	 * @param key - the key of the entry to update
 	 * @param update - a new value or function taking the current value and returning a new value
@@ -502,7 +501,7 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 	 * if (result[2]) console.log([result[0].toArray(), result[1]])
 	 * // => logs [[[1, 'a'], [2, 'bc']], 'b']
 	 * console.log(m.updateAtAndGet(3, v => v + 'c'))   // => [HashMap(1 => 'a', 2 => 'b'), undefined, false]
-	 * console.log(m.updateAtAndGet(2, v => v))          // => [HashMap(1 => 'a', 2 => 'b'), undefined, false]   (no-op)
+	 * console.log(m.updateAtAndGet(2, v => v))          // => [HashMap(1 => 'a', 2 => 'b'), 'b', true]   (no-op, unchanged)
 	 * ```
 	 */
 	updateAtAndGet<UK = K>(
@@ -570,10 +569,10 @@ export namespace RMapBase {
 		/**
 		 * Returns a tuple `[newMap, value, hasValue]` containing the collection where the value associated with given `key` is
 		 * updated with the given `update` value or update function, the value that was previously associated with that key, and
-		 * a `hasValue` flag indicating whether the key was present and the value actually changed. Since this collection is
-		 * non-empty, `newMap` is always non-empty; if the key is not present, or if the update yields the same value (no-op),
-		 * `newMap` is unchanged and `hasValue` is `false`. Note that a no-op update therefore reports `hasValue: false`,
-		 * which can be surprising: `hasValue` signals whether the collection changed, not merely whether the key exists.
+		 * a `hasValue` flag indicating whether the `key` was present. Since this collection is non-empty, `newMap` is always
+		 * non-empty; if the key is present, `value` is the previous value and `hasValue` is `true`, even when the update yields
+		 * the same value (a no-op, where `newMap` is unchanged and `result[0] === this`). If the key is not present, `newMap`
+		 * is unchanged, `value` is `undefined`, and `hasValue` is `false`.
 		 * @typeparam UK - the type of key to look for, a related type to K
 		 * @param key - the key of the entry to update
 		 * @param update - a new value or function taking the current value and returning a new value
@@ -583,7 +582,7 @@ export namespace RMapBase {
 		 * const result = m.updateAtAndGet(2, v => v + 'c')
 		 * if (result[2]) console.log([result[0].toArray(), result[1]])
 		 * // => logs [[[1, 'a'], [2, 'bc']], 'b']
-		 * console.log(m.updateAtAndGet(2, v => v))   // => [HashMap(1 => 'a', 2 => 'b'), undefined, false]   (no-op)
+		 * console.log(m.updateAtAndGet(2, v => v))   // => [HashMap(1 => 'a', 2 => 'b'), 'b', true]   (no-op, unchanged)
 		 * ```
 		 */
 		updateAtAndGet<UK = K>(

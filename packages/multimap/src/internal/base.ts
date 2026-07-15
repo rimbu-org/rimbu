@@ -1,5 +1,10 @@
 import type { RMap, RSet } from '@rimbu/collection-types';
-import type { ArrayNonEmpty, RelatedTo, ToJSON } from '@rimbu/common/types';
+import type {
+	ArrayNonEmpty,
+	RelatedTo,
+	ToJSON,
+	WithValueResult,
+} from '@rimbu/common/types';
 import type { MultiMap } from '@rimbu/multimap';
 
 import type { ContextImpl } from '#multimap/context-factory';
@@ -148,8 +153,8 @@ export class MultiMapEmpty<K, V>
 		return this;
 	}
 
-	removeKeyAndGet(): undefined {
-		return undefined;
+	removeKeyAndGet(): WithValueResult<MultiMap<K, V>, RSet.NonEmpty<V>> {
+		return [this, undefined, false];
 	}
 
 	removeEntry(): this {
@@ -438,8 +443,13 @@ export class MultiMapNonEmpty<K, V>
 
 	removeKeyAndGet<UK>(
 		key: RelatedTo<K, UK>,
-	): [MultiMap<K, V>, RSet.NonEmpty<V>] | undefined {
-		if (!this.context.keyMapContext.isValidKey(key)) return undefined;
+	): WithValueResult<
+		MultiMap<K, V>,
+		RSet.NonEmpty<V>,
+		MultiMap.NonEmpty<K, V>
+	> {
+		if (!this.context.keyMapContext.isValidKey(key))
+			return [this, undefined, false];
 
 		let removed: RSet.NonEmpty<V> | undefined;
 
@@ -452,9 +462,9 @@ export class MultiMapNonEmpty<K, V>
 			},
 		});
 
-		if (undefined === removed) return undefined;
+		if (undefined === removed) return [this, undefined, false];
 
-		return [result, removed];
+		return [result, removed, true];
 	}
 
 	removeEntry<UK, UV>(

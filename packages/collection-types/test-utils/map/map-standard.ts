@@ -581,10 +581,11 @@ export function runMapTestsWith(name: string, GMap: RMap.Context<any>): void {
 				false,
 			]);
 
-			// no-op on existing key: value unchanged -> hasValue false, map unchanged
+			// no-op on existing key: value unchanged -> hasValue true (key present), map unchanged
 			const r3Noop = map3.updateAtAndGet(2, (v) => v);
-			expect(r3Noop[2]).toBe(false);
-			expect(r3Noop[0]).toEqual(map3);
+			expect(r3Noop[2]).toBe(true);
+			expect(r3Noop[1]).toBe('b');
+			expect(r3Noop[0]).toBe(map3);
 
 			// key absent: hasValue false, map unchanged
 			const r3Absent = map3.updateAtAndGet(10, () => 'z');

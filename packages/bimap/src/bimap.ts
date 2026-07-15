@@ -169,10 +169,11 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	/**
 	 * Returns a tuple `[newBiMap, entry, hasValue]` containing the collection with given `key` associated to given
 	 * `value`, the entry that was previously associated with the `key` (or, if the `key` was not present, the entry
-	 * that was previously associated with the `value`), and a `hasValue` flag indicating whether an entry was displaced.
-	 * If no entry was displaced — for example, when the exact entry already exists — `entry` is `undefined` and
-	 * `hasValue` is `false`, and `newBiMap` is the same collection. Note that `hasValue` signals whether the collection
-	 * changed, so re-setting an already-present identical entry reports `hasValue: false`.
+	 * that was previously associated with the `value`), and a `hasValue` flag indicating whether a previous entry was
+	 * returned. If the given entry is entirely new (neither the `key` nor the `value` were present before) nothing is
+	 * displaced and `entry` is `undefined` with `hasValue: false`. Otherwise `entry` holds the previously associated
+	 * entry and `hasValue` is `true`, even when the key/value were already present with the exact same entry — in that
+	 * case the collection is unchanged (`newBiMap === this`).
 	 * @param key - the entry key to add
 	 * @param value - the entry value to add
 	 * @example
@@ -180,7 +181,7 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * BiMap.of([1, 'a']).setAndGet(2, 'b')   // => [BiMap(1 <-> 'a', 2 <-> 'b'), undefined, false]
 	 * BiMap.of([1, 'a']).setAndGet(1, 'b')   // => [BiMap(1 <-> 'b'), [1, 'a'], true]
 	 * BiMap.of([1, 'a']).setAndGet(2, 'a')   // => [BiMap(2 <-> 'a'), [1, 'a'], true]
-	 * BiMap.of([1, 'a']).setAndGet(1, 'a')   // => [BiMap(1 <-> 'a'), undefined, false]   (no change)
+	 * BiMap.of([1, 'a']).setAndGet(1, 'a')   // => [BiMap(1 <-> 'a'), [1, 'a'], true]   (no-op, unchanged)
 	 * ```
 	 * @note if the key and/or value are already associated, the previous value/key will be 'replaced' and the
 	 * displaced entry is returned
@@ -202,17 +203,18 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	/**
 	 * Returns a tuple `[newBiMap, entry, hasValue]` containing the collection with given `entry` added, the entry that
 	 * was previously associated with the entry's `key` (or, if the key was not present, the entry that was previously
-	 * associated with the entry's `value`), and a `hasValue` flag indicating whether an entry was displaced. If no entry
-	 * was displaced — for example, when the exact entry already exists — `entry` is `undefined` and `hasValue` is `false`,
-	 * and `newBiMap` is the same collection. Note that `hasValue` signals whether the collection changed, so adding an
-	 * already-present identical entry reports `hasValue: false`.
+	 * associated with the entry's `value`), and a `hasValue` flag indicating whether a previous entry was returned. If
+	 * the given entry is entirely new (neither its key nor its value were present before) nothing is displaced and
+	 * `entry` is `undefined` with `hasValue: false`. Otherwise `entry` holds the previously associated entry and
+	 * `hasValue` is `true`, even when the exact entry was already present — in that case the collection is unchanged
+	 * (`newBiMap === this`).
 	 * @param entry - a tuple containing a key and value
 	 * @example
 	 * ```ts
 	 * BiMap.of([1, 'a']).addEntryAndGet([2, 'b'])   // => [BiMap(1 <-> 'a', 2 <-> 'b'), undefined, false]
 	 * BiMap.of([1, 'a']).addEntryAndGet([1, 'b'])   // => [BiMap(1 <-> 'b'), [1, 'a'], true]
 	 * BiMap.of([1, 'a']).addEntryAndGet([2, 'a'])   // => [BiMap(2 <-> 'a'), [1, 'a'], true]
-	 * BiMap.of([1, 'a']).addEntryAndGet([1, 'a'])   // => [BiMap(1 <-> 'a'), undefined, false]   (no change)
+	 * BiMap.of([1, 'a']).addEntryAndGet([1, 'a'])   // => [BiMap(1 <-> 'a'), [1, 'a'], true]   (no-op, unchanged)
 	 * ```
 	 * @note if the key and/or value are already associated, the previous value/key will be 'replaced' and the
 	 * displaced entry is returned
@@ -374,9 +376,10 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	): BiMap<K, V>;
 	/**
 	 * Returns a tuple `[newBiMap, value, hasValue]` of the updated collection and the previous value that was
-	 * associated with the key, or the unchanged collection and `undefined` if the `key` is not present, or if the update
-	 * function returns the same value (so the collection is unchanged). The `hasValue` flag indicates whether the key was
-	 * present and the value actually changed; a no-op update therefore reports `hasValue: false`, which can be surprising.
+	 * associated with the key, or the unchanged collection and `undefined` if the `key` is not present. The `hasValue`
+	 * flag indicates whether the `key` was present; if it was, `value` is the previous value and `hasValue` is `true`,
+	 * even when the update function returns the same value (a no-op, where `newBiMap` is unchanged and
+	 * `result[0] === this`).
 	 * @param key - the key of the entry to update
 	 * @param valueUpdate - a function taking the current value and returning a new value
 	 * @typeparam UK - the key type to accept, related to `K`
@@ -385,7 +388,7 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * const m = BiMap.of([1, 1], [2, 2])
 	 * m.updateValueAtKeyAndGet(3, v => v + 1)   // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]
 	 * m.updateValueAtKeyAndGet(2, v => v + 10)  // => [BiMap(1 <-> 1, 2 <-> 12), 2, true]
-	 * m.updateValueAtKeyAndGet(2, v => v)       // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]   (no-op)
+	 * m.updateValueAtKeyAndGet(2, v => v)       // => [BiMap(1 <-> 1, 2 <-> 2), 2, true]   (no-op, unchanged)
 	 * ```
 	 */
 	updateValueAtKeyAndGet<UK = K>(
@@ -395,9 +398,9 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 
 	/**
 	 * Returns a tuple `[newBiMap, key, hasValue]` of the updated collection and the previous key that was associated
-	 * with the value, or the unchanged collection and `undefined` if the `value` is not present, or if the update
-	 * function returns the same key (so the collection is unchanged). The `hasValue` flag indicates whether the value was
-	 * present and the key actually changed; a no-op update therefore reports `hasValue: false`, which can be surprising.
+	 * with the value, or the unchanged collection and `undefined` if the `value` is not present. The `hasValue` flag
+	 * indicates whether the `value` was present; if it was, `key` is the previous key and `hasValue` is `true`, even when
+	 * the update function returns the same key (a no-op, where `newBiMap` is unchanged and `result[0] === this`).
 	 * @param keyUpdate - a function taking the current key and returning a new key
 	 * @param value - the value of the entry to update
 	 * @typeparam UV - the value type to accept, related to `V`
@@ -406,7 +409,7 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * const m = BiMap.of([1, 1], [2, 2])
 	 * m.updateKeyAtValueAndGet(k => k + 1, 3)   // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]
 	 * m.updateKeyAtValueAndGet(k => k + 10, 2)  // => [BiMap(1 <-> 1, 12 <-> 2), 2, true]
-	 * m.updateKeyAtValueAndGet(k => k, 2)       // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]   (no-op)
+	 * m.updateKeyAtValueAndGet(k => k, 2)       // => [BiMap(1 <-> 1, 2 <-> 2), 2, true]   (no-op, unchanged)
 	 * ```
 	 */
 	updateKeyAtValueAndGet<UV = V>(
@@ -666,10 +669,9 @@ export namespace BiMap {
 		): BiMap.NonEmpty<K, V>;
 		/**
 		 * Returns a tuple `[newBiMap, key, hasValue]` of the updated non-empty collection and the previous key that was
-		 * associated with the value, or the unchanged collection and `undefined` if the `value` is not present, or if the
-		 * update function returns the same key (so the collection is unchanged). The `hasValue` flag indicates whether the
-		 * value was present and the key actually changed; a no-op update therefore reports `hasValue: false`, which can be
-		 * surprising.
+		 * associated with the value, or the unchanged collection and `undefined` if the `value` is not present. The `hasValue`
+		 * flag indicates whether the `value` was present; if it was, `key` is the previous key and `hasValue` is `true`, even
+		 * when the update function returns the same key (a no-op, where `newBiMap` is unchanged and `result[0] === this`).
 		 * @param keyUpdate - a function taking the current key and returning a new key
 		 * @param value - the value of the entry to update
 		 * @typeparam UV - the value type to accept, related to `V`
@@ -678,7 +680,7 @@ export namespace BiMap {
 		 * const m = BiMap.of([1, 1], [2, 2])
 		 * m.updateKeyAtValueAndGet(k => k + 1, 3)   // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]
 		 * m.updateKeyAtValueAndGet(k => k + 10, 2)  // => [BiMap(1 <-> 1, 12 <-> 2), 2, true]
-		 * m.updateKeyAtValueAndGet(k => k, 2)       // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]   (no-op)
+		 * m.updateKeyAtValueAndGet(k => k, 2)       // => [BiMap(1 <-> 1, 2 <-> 2), 2, true]   (no-op, unchanged)
 		 * ```
 		 */
 		updateKeyAtValueAndGet<UV = V>(
@@ -688,10 +690,10 @@ export namespace BiMap {
 
 		/**
 		 * Returns a tuple `[newBiMap, value, hasValue]` of the updated non-empty collection and the previous value that
-		 * was associated with the key, or the unchanged collection and `undefined` if the `key` is not present, or if the
-		 * update function returns the same value (so the collection is unchanged). The `hasValue` flag indicates whether
-		 * the key was present and the value actually changed; a no-op update therefore reports `hasValue: false`, which can
-		 * be surprising.
+		 * was associated with the key, or the unchanged collection and `undefined` if the `key` is not present. The `hasValue`
+		 * flag indicates whether the `key` was present; if it was, `value` is the previous value and `hasValue` is `true`,
+		 * even when the update function returns the same value (a no-op, where `newBiMap` is unchanged and
+		 * `result[0] === this`).
 		 * @param key - the key of the entry to update
 		 * @param valueUpdate - a function taking the current value and returning a new value
 		 * @typeparam UK - the key type to accept, related to `K`
@@ -700,7 +702,7 @@ export namespace BiMap {
 		 * const m = BiMap.of([1, 1], [2, 2])
 		 * m.updateValueAtKeyAndGet(3, v => v + 1)   // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]
 		 * m.updateValueAtKeyAndGet(2, v => v + 10)  // => [BiMap(1 <-> 1, 2 <-> 12), 2, true]
-		 * m.updateValueAtKeyAndGet(2, v => v)       // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]   (no-op)
+		 * m.updateValueAtKeyAndGet(2, v => v)       // => [BiMap(1 <-> 1, 2 <-> 2), 2, true]   (no-op, unchanged)
 		 * ```
 		 */
 		updateValueAtKeyAndGet<O, UK = K>(
