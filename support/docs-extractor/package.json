@@ -1,0 +1,12 @@
+{
+  "name": "@rimbu/docs-extractor",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "extract": "bun run src/extract.ts"
+  },
+  "dependencies": {
+    "typescript": "^6.0.2"
+  }
+}

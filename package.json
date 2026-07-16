@@ -25,8 +25,7 @@
 		"rimraf": "^6.1.2",
 		"typedoc": "^0.28.16",
 		"typedoc-theme-oxide": "^0.2.5",
-		"ts6": "npm:typescript@6",
-		"typescript": "^7.0.2"
+		"typescript": "7"
 	},
 	"engines": {
 		"node": "please-use-bun",
@@ -54,7 +53,7 @@
 		"clean": "bun --workspaces --if-present run clean && rimraf node_modules",
 		"clean:build": "bun --workspaces --if-present run clean:build",
 		"commit": "git-cz",
-		"docs": "typedoc --options config/typedoc.json",
+		"docs": "bun ./support/docs-extractor/src/extract.ts",
 		"format:check": "bun --workspaces --if-present run format:check",
 		"lint:check": "bun --workspaces --if-present run lint:check",
 		"prerelease": "bun typecheck && bun test:types && bun test && bun test:random",
