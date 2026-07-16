@@ -267,10 +267,10 @@ export interface AsyncStream<T>
 		pred: (value: T, index: number, halt: () => void) => value is TF,
 		options?: { negate?: false | undefined },
 	): AsyncStream<TF>;
-	filter<TF extends T>(
+	filter<TF extends T, TR extends T = Exclude<T, TF>>(
 		pred: (value: T, index: number, halt: () => void) => value is TF,
 		options: { negate: true },
-	): AsyncStream<Exclude<T, TF>>;
+	): AsyncStream<TR>;
 	filter(
 		pred: (value: T, index: number, halt: () => void) => MaybePromise<boolean>,
 		options?: { negate?: boolean | undefined },

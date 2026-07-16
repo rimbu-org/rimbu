@@ -125,10 +125,10 @@ export interface VariantSetBase<
 		pred: (value: T, index: number, halt: () => void) => value is TF,
 		options?: { negate?: false | undefined },
 	): WithElem<Tp, TF>['normal'];
-	filter<TF extends T>(
+	filter<TF extends T, TR extends T = Exclude<T, TF>>(
 		pred: (value: T, index: number, halt: () => void) => value is TF,
 		options: { negate: true },
-	): WithElem<Tp, Exclude<T, TF>>['normal'];
+	): WithElem<Tp, TR>['normal'];
 	filter(
 		pred: (value: T, index: number, halt: () => void) => boolean,
 		options?: { negate?: boolean },

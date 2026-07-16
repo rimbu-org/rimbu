@@ -573,22 +573,22 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 *   .filter((_, i) => i > 1, undefined, true)      // -> List(1, 0)
 	 * ```
 	 */
-	// filter<TF extends T>(
-	// 	pred: (value: T, index: number, halt: () => void) => value is TF,
-	// 	options?: {
-	// 		range?: IndexRange;
-	// 		reversed?: boolean;
-	// 		negate?: false | undefined;
-	// 	},
-	// ): WithElem<Tp, TF>['normal'];
-	// filter<TF extends T>(
-	// 	pred: (value: T, index: number, halt: () => void) => value is TF,
-	// 	options: {
-	// 		range?: IndexRange;
-	// 		reversed?: boolean;
-	// 		negate: true;
-	// 	},
-	// ): WithElem<Tp, Exclude<T, TF>>['normal'];
+	filter<TF extends T>(
+		pred: (value: T, index: number, halt: () => void) => value is TF,
+		options?: {
+			range?: IndexRange;
+			reversed?: boolean;
+			negate?: false | undefined;
+		},
+	): WithElem<Tp, TF>['normal'];
+	filter<TF extends T, TR extends T = Exclude<T, TF>>(
+		pred: (value: T, index: number, halt: () => void) => value is TF,
+		options: {
+			range?: IndexRange;
+			reversed?: boolean;
+			negate: true;
+		},
+	): WithElem<Tp, TR>['normal'];
 	filter(
 		pred: (value: T, index: number, halt: () => void) => boolean,
 		options?: { range?: IndexRange; reversed?: boolean; negate?: boolean },

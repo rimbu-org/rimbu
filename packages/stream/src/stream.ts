@@ -259,10 +259,10 @@ export interface Stream<T> extends FastIterable<T>, Streamable<T> {
 		pred: (value: T, index: number, halt: () => void) => value is TF,
 		options?: { negate?: false | undefined },
 	): Stream<TF>;
-	filter<TF extends T>(
+	filter<TF extends T, TR extends T = Exclude<T, TF>>(
 		pred: (value: T, index: number, halt: () => void) => value is TF,
 		options: { negate: true },
-	): Stream<Exclude<T, TF>>;
+	): Stream<TR>;
 	filter(
 		pred: (value: T, index: number, halt: () => void) => boolean,
 		options?: {
