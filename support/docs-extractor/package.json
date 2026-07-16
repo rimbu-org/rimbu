@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "extract": "bun run src/extract.ts",
-    "aggregate": "bun run src/aggregate.ts"
+    "aggregate": "bun run src/aggregate.ts",
+    "markdown": "bun run src/markdown.ts"
   },
   "dependencies": {
     "typescript": "^6.0.2"

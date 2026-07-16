@@ -1,7 +1,8 @@
 # Docs Pipeline — Status
 
-**Stage 1 (extractor → per-package `.api.json`) and Stage 2 (aggregate + gates)
-are DONE.** Implementation lives in `support/docs-extractor/`.
+**Stages 1–3 are DONE** — extractor (`.api.json`), aggregator (gates +
+inheritance graph), and both renderers (Starlight site + `API_SURFACE.md`).
+Implementation lives in `support/docs-extractor/` and `website/`.
 
 Root scripts:
 
@@ -80,5 +81,51 @@ the gates. Report always written to `docs/api.aggregate.report.json`.
 
 ## Next
 
-- Stage 3: Starlight MDX renderer + Markdown (`API_SURFACE.md`) renderer, both
-  consuming `docs/api.aggregate.json`.
+- Stage 4: `@example` extraction + type-check gate; final `docs/` cutover /
+  deployment wiring.
+
+## Stage 3 — Render (DONE)
+
+Two independent consumers of `docs/api.aggregate.json`.
+
+### Starlight site (`website/`, renderer `website/scripts/render.ts`)
+
+Scaffolded as an **isolated** Astro + Starlight project in `website/` (its own
+`package.json`/lockfile; **not** a root workspace member, so it stays clear of
+the monorepo's TS7 toolchain). The existing Docusaurus `docs/` is left untouched
+until the Stage 4 cutover.
+
+- `render.ts` reads the aggregate and emits, into `website/src/content/docs/`:
+  one MDX page per entity (`api/<pkg>/<slug>.mdx`), a package index per package,
+  an API landing page, the homepage, and `src/generated/sidebar.json` (imported
+  by `astro.config.mjs`). All generated paths are git-ignored and regenerated.
+- **Companion layout A** (chosen): interface members first, then collapsible
+  *Static methods* (value facet) and *Related types* (namespace facet).
+- **Inheritance tree** (Extends / Extended by) rendered from `ancestors[]` /
+  `descendants[]`, cross-package links included.
+- **Overloads**: all shown by default inside an open expander; each signature
+  tagged `data-fallback` and NonEmpty signatures badged.
+- **Toggles** (Starlight `Sidebar` override, `src/components/Sidebar.astro`):
+  *Show advanced API* (default off — advanced entities hidden via CSS) and
+  *Fallback overloads only* (default off). State persisted in `localStorage`.
+- **Source links** per entity/member → GitHub. **`core` redirects** render as
+  short stubs linking to the canonical page (no duplicated bodies).
+- **Validated:** `astro build` produces **802 pages** + Pagefind search index
+  with no errors; `astro check` reports **0 errors / 0 warnings** (requires TS
+  6.x — pinned in `website/devDependencies`, since native TS7 lacks the
+  programmatic API `astro check` needs, same constraint as the extractor).
+
+### Markdown (`support/docs-extractor/src/markdown.ts` → `API_SURFACE.md`)
+
+Regenerates the LLM-review `API_SURFACE.md` (38.9k lines) from the same
+aggregate, so the site and the flat surface can't diverge.
+
+### Scripts (root `package.json`)
+
+- `docs` — extract + aggregate.
+- `docs:extract` / `docs:aggregate` / `docs:markdown` / `docs:render` — stages.
+- `docs:site` — render MDX + `astro build`.
+- `docs:build` — full pipeline: extract + aggregate + markdown + site.
+
+Prerequisite unchanged: packages must be built (`dist/*.d.ts`) with native TS7
+`tsc` first; `reactor` remains excluded.

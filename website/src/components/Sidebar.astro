@@ -1,0 +1,74 @@
+---
+// Overrides Starlight's Sidebar to prepend API view toggles:
+//   - Show advanced-tier entities (default off)
+//   - Show only the fallback overload (default off; all overloads shown)
+// The toggles set attributes on <body>; api.css reacts to them. State is
+// persisted to localStorage and applied on load (see the inline script).
+import Default from '@astrojs/starlight/components/Sidebar.astro';
+---
+
+<div class="rimbu-view-toggles">
+  <label>
+    <input type="checkbox" id="rimbu-toggle-advanced" />
+    Show advanced API
+  </label>
+  <label>
+    <input type="checkbox" id="rimbu-toggle-fallback" />
+    Fallback overloads only
+  </label>
+</div>
+
+<Default><slot /></Default>
+
+<script is:inline>
+  (function () {
+    function apply() {
+      var adv = localStorage.getItem('rimbu-show-advanced') === 'true';
+      var fb = localStorage.getItem('rimbu-overloads-fallback') === 'true';
+      document.body.setAttribute('data-show-advanced', String(adv));
+      document.body.setAttribute('data-overloads-fallback', String(fb));
+      var a = document.getElementById('rimbu-toggle-advanced');
+      var f = document.getElementById('rimbu-toggle-fallback');
+      if (a) a.checked = adv;
+      if (f) f.checked = fb;
+    }
+    function wire() {
+      var a = document.getElementById('rimbu-toggle-advanced');
+      var f = document.getElementById('rimbu-toggle-fallback');
+      if (a)
+        a.addEventListener('change', function () {
+          localStorage.setItem('rimbu-show-advanced', String(a.checked));
+          document.body.setAttribute('data-show-advanced', String(a.checked));
+        });
+      if (f)
+        f.addEventListener('change', function () {
+          localStorage.setItem('rimbu-overloads-fallback', String(f.checked));
+          document.body.setAttribute('data-overloads-fallback', String(f.checked));
+        });
+    }
+    apply();
+    wire();
+    document.addEventListener('astro:page-load', function () {
+      apply();
+      wire();
+    });
+  })();
+</script>
+
+<style>
+  .rimbu-view-toggles {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 0.75rem 0;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--sl-color-gray-6);
+    font-size: 0.85rem;
+  }
+  .rimbu-view-toggles label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+  }
+</style>

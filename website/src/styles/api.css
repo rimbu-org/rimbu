@@ -1,0 +1,80 @@
+/* Rimbu API reference styling */
+
+.rimbu-entity-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.rimbu-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0.25em 0.5em;
+  border-radius: 0.375rem;
+  vertical-align: middle;
+  border: 1px solid var(--sl-color-gray-4);
+  color: var(--sl-color-white);
+}
+.rimbu-badge--companion {
+  background: var(--sl-color-purple-low);
+  border-color: var(--sl-color-purple);
+}
+.rimbu-badge--advanced {
+  background: var(--sl-color-orange-low);
+  border-color: var(--sl-color-orange);
+}
+.rimbu-badge--nonempty {
+  background: var(--sl-color-green-low);
+  border-color: var(--sl-color-green);
+}
+.rimbu-badge--kind {
+  background: var(--sl-color-blue-low);
+  border-color: var(--sl-color-blue);
+}
+.rimbu-badge--inherited {
+  background: var(--sl-color-gray-6);
+  border-color: var(--sl-color-gray-4);
+  font-weight: 400;
+}
+
+.rimbu-source-link {
+  font-size: 0.8rem;
+  float: right;
+}
+
+.rimbu-member {
+  border-top: 1px solid var(--sl-color-gray-5);
+  padding-top: 0.75rem;
+  margin-top: 1rem;
+}
+
+.rimbu-inheritance {
+  font-size: 0.9rem;
+}
+.rimbu-inheritance ul {
+  margin: 0.25rem 0;
+}
+
+details.rimbu-overloads > summary {
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--sl-color-gray-2);
+}
+
+/* Advanced-tier visibility toggle: hidden by default, revealed when the
+   <body> carries the data-show-advanced attribute (set by the toggle). */
+[data-rimbu-tier='advanced'] {
+  display: none;
+}
+body[data-show-advanced='true'] [data-rimbu-tier='advanced'] {
+  display: revert;
+}
+
+/* Fallback-overloads-only toggle: when enabled, hide every overload signature
+   except the fallback (last) one. */
+body[data-overloads-fallback='true'] .rimbu-overload[data-fallback='false'] {
+  display: none;
+}
