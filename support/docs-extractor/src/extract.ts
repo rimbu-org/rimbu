@@ -143,19 +143,26 @@ function entryFiles(pkg: string): string[] {
   const dist = join(PACKAGES_DIR, pkg, 'dist');
   if (!existsSync(dist)) return [];
   const files: string[] = [];
-  const scan = (dir: string, isRoot: boolean) => {
+  // `tierEntered` becomes true once we descend into an allowed tier dir
+  // (public/advanced/esm). From there we recurse into ALL nested subdirs
+  // (except `internal`) so subpath entries like public/async/reducer.d.ts are
+  // scanned. At the root, only .d.ts files and the allowed tier dirs are taken.
+  const scan = (dir: string, isRoot: boolean, tierEntered: boolean) => {
     for (const entry of readdirSync(dir)) {
       const full = join(dir, entry);
       if (statSync(full).isDirectory()) {
         if (entry === 'internal') continue; // excluded entirely (strict tier rule)
-        if (isRoot || entry === 'public' || entry === 'advanced' || entry === 'esm')
-          scan(full, false);
+        if (tierEntered) {
+          scan(full, false, true); // already inside a tier: take every subdir
+        } else if (isRoot && (entry === 'public' || entry === 'advanced' || entry === 'esm')) {
+          scan(full, false, true);
+        }
       } else if (entry.endsWith('.d.ts') && !entry.includes('.map')) {
         if (statSync(full).isFile()) files.push(full);
       }
     }
   };
-  scan(dist, true);
+  scan(dist, true, false);
   return files;
 }
 
@@ -262,16 +269,39 @@ function returnsNonEmpty(sigText: string): boolean {
 
 // Build a stable entity id from a symbol + package.
 function entityId(pkg: string, symbol: ts.Symbol): string {
-  const name = symbol.getName();
+  const qname = qualifiedSymbolName(symbol);
   // try to find the file's package to qualify cross-package
   const decl = symbol.getDeclarations()?.[0];
   if (decl) {
     const fn = decl.getSourceFile().fileName;
     const m = fn.match(/packages\/([^/]+)\/dist/);
     const ownerPkg = m ? m[1] : pkg;
-    return `${ownerPkg}/${name}`;
+    return `${ownerPkg}/${qname}`;
   }
-  return `${pkg}/${name}`;
+  return `${pkg}/${qname}`;
+}
+
+// The dotted name of a symbol including any containing namespace/module chain,
+// e.g. `ErrBase.CustomError` or `List.NonEmpty`. This must match the qualified
+// ids under which nested entities are stored so that `extends`/reference edges
+// resolve correctly after aggregation.
+function qualifiedSymbolName(symbol: ts.Symbol): string {
+  const parts: string[] = [symbol.getName()];
+  let parent: ts.Symbol | undefined = (symbol as any).parent;
+  while (parent) {
+    const name = parent.getName();
+    // Stop at module/file symbols (their names are quoted paths) and globals.
+    if (!name || name.startsWith('"') || name.startsWith("'") || name === '__global') break;
+    // Only include namespace/module containers, not value-space parents.
+    const decls = parent.getDeclarations() ?? [];
+    const isNamespace = decls.some(
+      (d) => ts.isModuleDeclaration(d) || ts.isInterfaceDeclaration(d) || ts.isClassDeclaration(d),
+    );
+    if (!isNamespace) break;
+    parts.unshift(name);
+    parent = (parent as any).parent;
+  }
+  return parts.join('.');
 }
 
 // ---------------------------------------------------------------------------
@@ -422,8 +452,14 @@ function extractPackage(pkg: string, program: ts.Program, checker: ts.TypeChecke
         if (name.startsWith('__')) return;
         const childId = `${id}.${name}`;
         nested.push({ id: childId, name: String(name) });
-        // recursively extract the nested entity so it appears in entities map
-        const childEntity = buildEntityFromSymbol(sym, pkg, `${pkg}/${name}`);
+        // recursively extract the nested entity so it appears in entities map,
+        // keyed and self-identified by its fully-qualified id.
+        const childEntity = buildEntityFromSymbol(
+          sym,
+          pkg,
+          childId,
+          `${entity.qualifiedName}.${String(name)}`,
+        );
         if (childEntity) entities[childId] = childEntity;
       });
       entity.namespace = { members: nested };
@@ -456,11 +492,18 @@ function extractPackage(pkg: string, program: ts.Program, checker: ts.TypeChecke
     return entity;
   };
 
-  // Build a nested entity (e.g. List.NonEmpty) from a symbol.
-  const buildEntityFromSymbol = (symbol: ts.Symbol, p: string, fallbackId: string): Entity | undefined => {
+  // Build a nested entity (e.g. List.NonEmpty) from a symbol. The nested entity
+  // is stored under its fully-qualified id (e.g. `list/List.NonEmpty`) and its
+  // `id`/`qualifiedName` reflect that nesting so map key === entity.id.
+  const buildEntityFromSymbol = (
+    symbol: ts.Symbol,
+    p: string,
+    qualifiedId: string,
+    qualifiedName: string,
+  ): Entity | undefined => {
     const decls = symbol.getDeclarations();
     if (!decls || !decls.length) return undefined;
-    const id = entityId(p, symbol);
+    const id = qualifiedId;
     if (entities[id]) return entities[id];
     const iface = decls.find((d) => ts.isInterfaceDeclaration(d)) as ts.InterfaceDeclaration | undefined;
     const cls = decls.find((d) => ts.isClassDeclaration(d)) as ts.ClassDeclaration | undefined;
@@ -470,7 +513,7 @@ function extractPackage(pkg: string, program: ts.Program, checker: ts.TypeChecke
     const entity: Entity = {
       id,
       name: symbol.getName(),
-      qualifiedName: symbol.getName(),
+      qualifiedName,
       package: `@rimbu/${p}`,
       tier,
       kind: iface ? 'interface' : cls ? 'class' : 'namespace',

@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "extract": "bun run src/extract.ts"
+    "extract": "bun run src/extract.ts",
+    "aggregate": "bun run src/aggregate.ts"
   },
   "dependencies": {
     "typescript": "^6.0.2"
