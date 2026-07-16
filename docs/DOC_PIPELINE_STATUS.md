@@ -84,6 +84,54 @@ the gates. Report always written to `docs/api.aggregate.report.json`.
 - Stage 4: `@example` extraction + type-check gate; final `docs/` cutover /
   deployment wiring.
 
+## Type resolution (HKT) — DONE
+
+The extractor previously emitted the raw `.d.ts` signature text, so
+higher-kinded-type indirection leaked through — e.g. `List.updateAt` read as
+`updateAt(index: number, update: (current: T) => T): WithElem<Tp, T>['normal']`.
+
+The extractor now renders **type-checker-resolved** signatures by reading each
+member off the entity's *concrete* interface/class type (and, for companion
+value facets, off the concrete value type). The checker substitutes the HKT
+indirection into the concrete result:
+
+| member | before (raw) | after (resolved) |
+| --- | --- | --- |
+| `List.updateAt` | `WithElem<Tp, T>['normal']` | `List<T>` |
+| `List.append` | `WithElem<Tp, T>['nonEmpty']` | `List.NonEmpty<T>` |
+| `List.updateAtAndGet` | `WithValueResult<WithElem<Tp,T>['nonEmpty'], …>` | `WithValueResult<List.NonEmpty<T>, T, List<T>>` |
+| `List.empty()` | `WithElem<Tp, T>['normal']` | `List<T>` |
+
+Design / safeguards:
+
+- **Where:** a post-pass in `extract.ts` runs after inheritance inlining and
+  resolves each type entity's members (own **and** inherited) against its own
+  concrete type recorded in `typeDeclOf`. Value-facet static methods are resolved
+  inline against the concrete value type.
+- **Flags:** `NoTruncation | UseAliasDefinedOutsideCurrentScope |
+  WriteTypeArgumentsOfSignature`. `UseAliasDefinedOutsideCurrentScope` is
+  essential — it keeps named aliases (`WithValueResult<…>`) and strips
+  `import("@rimbu/…")` prefixes instead of expanding aliases into large
+  structural types. `InTypeAlias` is deliberately **not** used (it over-expands).
+- **Raw fallback (per user):** the original `.d.ts` text is preserved in
+  `Signature.raw`; `text` holds the resolved form. Resolution is applied
+  positionally only when the overload count matches, else raw is kept (avoids
+  mispairing — e.g. `List.from`, whose single union-typed source signature the
+  checker splits into two).
+- **Over-expansion guard (per user):** resolved strings over `RESOLVED_MAX_LEN`
+  (400 chars) are rejected and raw is kept. Verified: no resolved signature
+  exceeds the cap; the 14 signatures >380 chars are all genuine raw source.
+- **Cosmetic fixups:** `cleanResolvedType` normalizes the generic-namespace
+  qualification quirk (`List<T>.Builder<T>` → `List.Builder<T>`) and strips any
+  residual `import("…")` prefixes.
+- **Coverage:** ~70.7% of 11,313 signatures resolved to a more concrete form;
+  the rest were already concrete or safely fell back to raw. `returnsNonEmpty`
+  badges recomputed on resolved text (e.g. `append` now correctly badged).
+- **Renderers unchanged:** both consume `Signature.text`; `raw` rides along in
+  the JSON for future use (e.g. a "show source type" toggle). `API_SURFACE.md`
+  shrank 38.9k → 34.1k lines; `astro build` still green (802 pages).
+
+
 ## Stage 3 — Render (DONE)
 
 Two independent consumers of `docs/api.aggregate.json`.

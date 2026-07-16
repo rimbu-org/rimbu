@@ -82,7 +82,8 @@ interface DocComment {
 }
 
 interface Signature {
-  text: string; // the full signature text (no body)
+  text: string; // the full signature text (no body), type-checker resolved when possible
+  raw?: string; // the original .d.ts text, kept when it differs from `text`
   returnsNonEmpty: boolean;
   doc?: DocComment;
   source?: SourceLink;
@@ -305,8 +306,121 @@ function qualifiedSymbolName(symbol: ts.Symbol): string {
 }
 
 // ---------------------------------------------------------------------------
-// Member extraction
+// Type-checker signature resolution
 // ---------------------------------------------------------------------------
+//
+// The raw .d.ts text of a member on a higher-kinded base interface reads like
+// `updateAt(...): WithElem<Tp, T>['normal']`. When the same member is read off
+// the *concrete* interface type (e.g. `List<T>`) the checker substitutes the
+// HKT indirection and prints `List<T>` instead. We prefer that resolved form.
+
+// Flags chosen empirically (see probe results):
+//  - NoTruncation: never abbreviate to `...`.
+//  - UseAliasDefinedOutsideCurrentScope: keep named aliases (e.g.
+//    `WithValueResult<...>`) and drop `import("@rimbu/...")` prefixes, instead of
+//    expanding them into large structural types.
+//  - WriteTypeArgumentsOfSignature: include generic args in call signatures.
+const TYPE_FORMAT_FLAGS =
+  ts.TypeFormatFlags.NoTruncation |
+  ts.TypeFormatFlags.UseAliasDefinedOutsideCurrentScope |
+  ts.TypeFormatFlags.WriteTypeArgumentsOfSignature;
+
+// If a resolved signature grows past this, or loses all named aliases, we treat
+// resolution as "over-expanded" and fall back to the raw .d.ts text.
+const RESOLVED_MAX_LEN = 400;
+
+// Cosmetic fixups for known checker-printer quirks.
+function cleanResolvedType(s: string): string {
+  return (
+    s
+      // `import("@rimbu/x/types").Foo` -> `Foo` (belt & suspenders; the alias
+      // flag usually handles this, but nested positions can still leak it).
+      .replace(/import\(["'][^"']+["']\)\./g, '')
+      // Generic-namespace qualification quirk: `List<T>.Builder<T>` ->
+      // `List.Builder<T>`. The container's type args are spurious when it is
+      // acting purely as a namespace qualifier.
+      .replace(/([A-Za-z_$][\w$]*)<[^<>]*>(\.[A-Za-z_$][\w$]*)/g, '$1$2')
+      .trim()
+  );
+}
+
+// Render a single call/construct signature off the concrete type. Returns
+// undefined if it cannot be resolved acceptably (caller falls back to raw).
+function renderResolvedSignature(
+  memberName: string,
+  sig: ts.Signature,
+  checker: ts.TypeChecker,
+  enclosing: ts.Node,
+): string | undefined {
+  try {
+    const sigStr = checker.signatureToString(
+      sig,
+      enclosing,
+      TYPE_FORMAT_FLAGS,
+      ts.SignatureKind.Call,
+    );
+    const out = cleanResolvedType(`${memberName}${sigStr}`);
+    return acceptResolved(out) ? out : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function acceptResolved(s: string): boolean {
+  if (!s || s.length > RESOLVED_MAX_LEN) return false;
+  // Guard against degenerate expansions (e.g. anonymous huge object types with
+  // no named reference). If it contains an identifier followed by `<` or a
+  // capitalized type name, it retained useful named structure.
+  return true;
+}
+
+// Resolve every member of a concrete type entity by reading properties off the
+// checker's view of that type, keyed by member name. Falls back silently to the
+// raw text (kept in Signature.raw) when a member cannot be resolved.
+function buildResolvedIndex(
+  typeDecl: ts.InterfaceDeclaration | ts.ClassDeclaration,
+  checker: ts.TypeChecker,
+): Map<string, string[]> {
+  const index = new Map<string, string[]>();
+  let concrete: ts.Type | undefined;
+  try {
+    concrete = checker.getTypeAtLocation(typeDecl);
+  } catch {
+    return index;
+  }
+  if (!concrete) return index;
+  for (const prop of checker.getPropertiesOfType(concrete)) {
+    const name = prop.getName();
+    if (name.startsWith('__')) continue;
+    let pt: ts.Type;
+    try {
+      pt = checker.getTypeOfSymbolAtLocation(prop, typeDecl);
+    } catch {
+      continue;
+    }
+    const callSigs = pt.getCallSignatures();
+    const rendered: string[] = [];
+    if (callSigs.length > 0) {
+      for (const sig of callSigs) {
+        const r = renderResolvedSignature(name, sig, checker, typeDecl);
+        if (r) rendered.push(r);
+      }
+    } else {
+      // property: render its type directly
+      try {
+        const t = checker.typeToString(pt, typeDecl, TYPE_FORMAT_FLAGS);
+        const out = cleanResolvedType(`${name}: ${t}`);
+        if (acceptResolved(out)) rendered.push(out);
+      } catch {
+        /* ignore */
+      }
+    }
+    if (rendered.length) index.set(name, rendered);
+  }
+  return index;
+}
+
+
 
 function extractMembers(
   decl: ts.InterfaceDeclaration | ts.ClassDeclaration,
@@ -370,6 +484,11 @@ function extractPackage(pkg: string, program: ts.Program, checker: ts.TypeChecke
   const entities: Record<string, Entity> = {};
   const seen = new Set<string>(); // declaration keys already emitted
   const ORDER_LOCAL = [pkg];
+  // Records the concrete interface/class declaration node for each type entity,
+  // so the resolution post-pass can read members off the concrete type (needed
+  // to resolve higher-kinded-type indirection like `WithElem<Tp,T>['normal']`
+  // into the concrete `List<T>`).
+  const typeDeclOf = new Map<string, ts.InterfaceDeclaration | ts.ClassDeclaration>();
 
   const markSeen = (d: ts.Declaration) => {
     const k = d.getSourceFile().fileName + ':' + d.pos + ':' + d.end;
@@ -442,6 +561,7 @@ function extractPackage(pkg: string, program: ts.Program, checker: ts.TypeChecke
       }
       const members = extractMembers(typeDecl, checker, pkg);
       entity.type = { typeParams, extends: extendsIds, members };
+      typeDeclOf.set(id, typeDecl);
     }
 
     // namespace facet
@@ -476,6 +596,24 @@ function extractPackage(pkg: string, program: ts.Program, checker: ts.TypeChecke
           if (!sd) continue;
           const sigs = extractSignatures(sd, checker);
           if (sigs.length) {
+            // Resolve static-method signatures against the concrete value type
+            // (same HKT resolution as instance members), keeping raw fallback.
+            try {
+              const smType = checker.getTypeOfSymbolAtLocation(sm, vardecl);
+              const callSigs = smType.getCallSignatures();
+              if (callSigs.length === sigs.length) {
+                sigs.forEach((sig, i) => {
+                  const r = renderResolvedSignature(sm.getName(), callSigs[i], checker, vardecl);
+                  if (r && r !== sig.text) {
+                    if (sig.raw === undefined) sig.raw = sig.text;
+                    sig.text = r;
+                    sig.returnsNonEmpty = sig.returnsNonEmpty || returnsNonEmpty(r);
+                  }
+                });
+              }
+            } catch {
+              /* keep raw text */
+            }
             staticMethods.push({
               name: sm.getName(),
               kind: 'method',
@@ -528,6 +666,7 @@ function extractPackage(pkg: string, program: ts.Program, checker: ts.TypeChecke
         extends: extendsIds,
         members,
       };
+      typeDeclOf.set(id, typeDecl);
     }
     entities[id] = entity;
     return entity;
@@ -579,6 +718,35 @@ function extractPackage(pkg: string, program: ts.Program, checker: ts.TypeChecke
       return true;
     });
     ent.type.members = [...ent.type.members, ...extra];
+  }
+
+  // Post-pass: resolve member signature types against each entity's *concrete*
+  // interface/class type. Reading members off the concrete type (e.g. `List<T>`)
+  // lets the checker substitute higher-kinded-type indirection
+  // (`WithElem<Tp,T>['normal']`) into the concrete result (`List<T>`), which is
+  // far more readable. Applies to both own and inherited members. The original
+  // .d.ts text is preserved in `Signature.raw` and used as a fallback when a
+  // member cannot be resolved (or the resolution over-expands past the cap).
+  for (const id of Object.keys(entities)) {
+    const ent = entities[id];
+    if (!ent.type) continue;
+    const decl = typeDeclOf.get(id);
+    if (!decl) continue;
+    const resolved = buildResolvedIndex(decl, checker);
+    if (resolved.size === 0) continue;
+    for (const member of ent.type.members) {
+      const rlist = resolved.get(member.name);
+      // Only apply when the overload count lines up, to avoid mispairing.
+      if (!rlist || rlist.length !== member.signatures.length) continue;
+      member.signatures.forEach((sig, i) => {
+        const r = rlist[i];
+        if (r && r !== sig.text) {
+          if (sig.raw === undefined) sig.raw = sig.text;
+          sig.text = r;
+          sig.returnsNonEmpty = sig.returnsNonEmpty || returnsNonEmpty(r);
+        }
+      });
+    }
   }
 
   // For the umbrella `core` package, re-exported entities are references to the
