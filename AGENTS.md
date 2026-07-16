@@ -21,7 +21,8 @@ A primary goal of Rimbu is to provide an API that is **simple, intuitive, easy t
 - **Mathematical index handling** — indices follow mathematical convention throughout:
   - Non-negative indices count from the start (0-based).
   - Negative indices count from the end, mirroring JavaScript's `Array.prototype.at()`: `-1` is the last element, `-2` is second-to-last, etc.
-  - This applies to `List`, `Stream`, `fromArray`, `fromString`, `IndexRange`, and any other API that accepts positional indices.
+  - This applies to `List`, `fromArray`, `fromString`, `IndexRange`, and any other API that accepts positional indices.
+  - **Exception: `Stream` (and `AsyncStream`) does NOT support negative indices** because a stream may be infinite and its length is not generally known ahead of traversal. `Stream.at(-1)` returns the fallback (default `undefined`) rather than counting from the end; use `last()` to access the final element instead.
 - **Predictable option objects** — optional behaviour (negation, custom equality, fallback values) is always expressed as a trailing `options` object, never as positional booleans. Property names are consistent: `eq`, `negate`, `otherwise`, `amount`, `reversed`.
 - **OptLazy for fallbacks** — any method that may return `undefined` when the collection is empty provides an `OptLazy<O>` overload so callers can supply an eager or lazy fallback value without a separate null-check.
 - **NonEmpty at the type level** — methods that provably return a non-empty result (e.g. `prepend`, `append`, `concat` on a non-empty source) encode that fact in the return type. Users should never need to cast or guard against emptiness after such operations.

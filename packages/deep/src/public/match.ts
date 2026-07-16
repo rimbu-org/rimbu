@@ -42,6 +42,23 @@ export function match<T, C extends Partial<T> = Partial<T>>(
 	return matchEntry(source, source, source, matcher as any);
 }
 
+/**
+ * Returns whether the given `source` value matches the given `matcher`, together with a
+ * log of the reasons for any mismatch.
+ * @typeparam T - the input value type
+ * @typeparam C - utility type
+ * @param source - the value to match (should be a plain object)
+ * @param matcher - a matcher object or a function taking the matcher API and returning a match object
+ * @returns an object with `result` (true if the value matches the matcher) and `failureLog`
+ * (an array of human-readable descriptions of each sub-matcher that failed; empty when `result` is true)
+ * @example
+ * ```ts
+ * const input = { a: 1, b: { c: true, d: 'a' } }
+ * matchVerbose(input, { a: 1 })        // => { result: true, failureLog: [] }
+ * matchVerbose(input, { a: 2 })        // => { result: false, failureLog: [...] }
+ * matchVerbose(input, { b: { c: false } }) // => { result: false, failureLog: [...] }
+ * ```
+ */
 export function matchVerbose<T, C extends Partial<T> = Partial<T>>(
 	source: T,
 	matcher: Match<T, C>,

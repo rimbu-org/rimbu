@@ -158,7 +158,8 @@ export function prepend<T>(array: readonly T[], value: T): ArrayNonEmpty<T> {
  * @typeparam T - element type
  * @param arr - the source array
  * @param index - the index to update
- * @param updater - value or function update description
+ * @param updater - function receiving the current value and returning the new value; if it
+ * returns the same value (by `Object.is`) the original array is returned
  */
 export function update<T>(
 	arr: readonly T[],
@@ -178,6 +179,16 @@ export function update<T>(
 	return arr.with(index, newValue);
 }
 
+/**
+ * Returns a copy of the array where at the given index the provided value is set.
+ * If the new value is identical (by `Object.is`) to the current value, or the index is
+ * out of range, the original array is returned.
+ * @typeparam T - element type
+ * @param arr - the source array (not mutated)
+ * @param index - the index at which to set the new value
+ * @param newValue - the value to set at the given index
+ * @returns a new array with the value set, or the original array if unchanged or out of range
+ */
 export function set<T>(
 	arr: readonly T[],
 	index: number,
