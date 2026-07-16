@@ -99,7 +99,7 @@ indirection into the concrete result:
 | --- | --- | --- |
 | `List.updateAt` | `WithElem<Tp, T>['normal']` | `List<T>` |
 | `List.append` | `WithElem<Tp, T>['nonEmpty']` | `List.NonEmpty<T>` |
-| `List.updateAtAndGet` | `WithValueResult<WithElem<Tp,T>['nonEmpty'], …>` | `WithValueResult<List.NonEmpty<T>, T, List<T>>` |
+| `List.updateAtAndGet` | `WithValueResult<WithElem<Tp,T>['nonEmpty'], …>` | expanded — see `@docExpand` below |
 | `List.empty()` | `WithElem<Tp, T>['normal']` | `List<T>` |
 
 Design / safeguards:
@@ -130,6 +130,57 @@ Design / safeguards:
 - **Renderers unchanged:** both consume `Signature.text`; `raw` rides along in
   the JSON for future use (e.g. a "show source type" toggle). `API_SURFACE.md`
   shrank 38.9k → 34.1k lines; `astro build` still green (802 pages).
+
+### Opt-in alias expansion — `@docExpand`
+
+By default resolution keeps type **aliases** named (e.g.
+`WithValueResult<List.NonEmpty<T>, T, List<T>>`) rather than expanding them,
+because `UseAliasDefinedOutsideCurrentScope` makes the printer prefer the
+alias's `aliasSymbol`. For a few aliases the *expanded* structural form is more
+useful. To opt one in, add a `@docExpand` JSDoc tag **on the alias definition**:
+
+```ts
+/**
+ * ...
+ * @docExpand
+ */
+export type WithValueResult<R, V, RNoValue = R, VNoValue = undefined> =
+  | [result: R, value: V, hasValue: true]
+  | [result: RNoValue, value: VNoValue, hasValue: false];
+```
+
+Result (`List.updateAtAndGet`):
+
+```
+before: WithValueResult<List.NonEmpty<T>, T, List<T>>
+after:  [result: List.NonEmpty<T>, value: T, hasValue: true]
+      | [result: List<T>, value: undefined, hasValue: false]
+```
+
+Mechanism (`extract.ts`):
+
+- `collectExpandAliases()` scans all `type X = …` declarations for the tag and
+  records the alias names in `EXPAND_ALIASES` before extraction. Tags are read
+  from `node.jsDoc[].tags` directly — `ts.getJSDocTags` returned `[]` under this
+  runtime even though the parsed jsDoc nodes carry the tags.
+- When a resolved signature's **return type** has an `aliasSymbol` in the set,
+  `maybeExpandReturnAlias()` re-prints that type with the `aliasSymbol` stripped
+  (a shallow clone of the `ts.Type` with `aliasSymbol`/`aliasTypeArguments`
+  cleared), forcing one-level expansion. **Inner types keep their names**
+  (`List<T>`, `List.NonEmpty<T>`) because they are separate type objects; nested
+  interfaces are nominal, nested aliases stay collapsed.
+- **Top-level only** (per user): expansion applies when the tagged alias is the
+  method's return type. Nested occurrences stay collapsed. Both the collapsed
+  return string and the signature string are normalized with `cleanResolvedType`
+  before the tail match, so the two printers' `List<T>.NonEmpty` vs
+  `List.NonEmpty` quirk doesn't defeat the substitution.
+- **Source of truth is the `.ts`** (`packages/common/src/public/types.ts`); the
+  emitted `.d.ts` was also patched so the current `dist` reflects it before a
+  rebuild. A native-TS7 `tsc` rebuild of `common` regenerates the `.d.ts` from
+  source with the tag intact.
+- **Applied surface-wide:** 138 signatures now render the expanded
+  `WithValueResult` tuple; 0 resolved signatures remain collapsed; the 6 raw
+  fallbacks (overload-count mismatch) are unaffected.
 
 
 ## Stage 3 — Render (DONE)

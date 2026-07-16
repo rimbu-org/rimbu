@@ -329,6 +329,44 @@ const TYPE_FORMAT_FLAGS =
 // resolution as "over-expanded" and fall back to the raw .d.ts text.
 const RESOLVED_MAX_LEN = 400;
 
+// Names of type aliases annotated with `@docExpand` in their JSDoc. When such an
+// alias is the *top-level* return type of a resolved signature, it is printed in
+// its expanded (structural) form instead of by its alias name. Populated by
+// collectExpandAliases() before extraction. Keyed by alias symbol name.
+const EXPAND_ALIASES = new Set<string>();
+
+// Scan every source file's top-level statements for `type X = ...` declarations
+// carrying an `@docExpand` JSDoc tag, recording the alias name.
+function collectExpandAliases(program: ts.Program): void {
+  for (const sf of program.getSourceFiles()) {
+    if (sf.isDeclarationFile && sf.fileName.includes('/node_modules/')) continue;
+    const visit = (node: ts.Node) => {
+      if (ts.isTypeAliasDeclaration(node) && hasDocTag(node, 'docExpand')) {
+        EXPAND_ALIASES.add(node.name.text);
+      }
+      ts.forEachChild(node, visit);
+    };
+    ts.forEachChild(sf, visit);
+  }
+}
+
+// True if a declaration's JSDoc contains a tag with the given name (case-insensitive).
+// Reads the parsed `node.jsDoc[].tags` directly: `ts.getJSDocTags` proved
+// unreliable here (returns [] under this runtime) whereas the attached jsDoc
+// nodes do carry the parsed tags.
+function hasDocTag(node: ts.Node, tagName: string): boolean {
+  const want = tagName.toLowerCase();
+  const jsDoc: ts.JSDoc[] | undefined = (node as any).jsDoc;
+  if (jsDoc) {
+    for (const doc of jsDoc) {
+      for (const t of doc.tags ?? []) {
+        if (t.tagName.text.toLowerCase() === want) return true;
+      }
+    }
+  }
+  return false;
+}
+
 // Cosmetic fixups for known checker-printer quirks.
 function cleanResolvedType(s: string): string {
   return (
@@ -353,17 +391,57 @@ function renderResolvedSignature(
   enclosing: ts.Node,
 ): string | undefined {
   try {
-    const sigStr = checker.signatureToString(
+    let sigStr = checker.signatureToString(
       sig,
       enclosing,
       TYPE_FORMAT_FLAGS,
       ts.SignatureKind.Call,
     );
+    sigStr = maybeExpandReturnAlias(sigStr, sig, checker, enclosing);
     const out = cleanResolvedType(`${memberName}${sigStr}`);
     return acceptResolved(out) ? out : undefined;
   } catch {
     return undefined;
   }
+}
+
+// If the signature's return type is a top-level alias tagged `@docExpand`,
+// replace the collapsed alias name in the rendered string with its expanded
+// (structural) form. Expansion is one level: nested types keep their names
+// (interfaces stay nominal; other aliases stay collapsed unless they too are the
+// top-level return of their own signature elsewhere). Returns the original
+// string unchanged if the alias is not tagged or the tail can't be matched.
+function maybeExpandReturnAlias(
+  sigStr: string,
+  sig: ts.Signature,
+  checker: ts.TypeChecker,
+  enclosing: ts.Node,
+): string {
+  const ret = sig.getReturnType();
+  const aliasName = ret.aliasSymbol?.getName();
+  if (!aliasName || !EXPAND_ALIASES.has(aliasName)) return sigStr;
+
+  const collapsed = cleanResolvedType(checker.typeToString(ret, enclosing, TYPE_FORMAT_FLAGS));
+  // Strip the alias origin so the same type prints in expanded form while inner
+  // types keep their names (they are separate type objects, unaffected).
+  const stripped: ts.Type = Object.create(
+    Object.getPrototypeOf(ret),
+    Object.getOwnPropertyDescriptors(ret),
+  );
+  (stripped as any).aliasSymbol = undefined;
+  (stripped as any).aliasTypeArguments = undefined;
+  const expanded = cleanResolvedType(checker.typeToString(stripped, enclosing, TYPE_FORMAT_FLAGS));
+  if (expanded === collapsed) return sigStr; // nothing gained
+
+  // The return type is the tail of the signature string: `...): <collapsed>`.
+  // Both strings are normalized with cleanResolvedType so the two printers'
+  // namespace-qualification quirks (`List<T>.NonEmpty` vs `List.NonEmpty`) match.
+  const cleanedSig = cleanResolvedType(sigStr);
+  const suffix = `: ${collapsed}`;
+  if (cleanedSig.endsWith(suffix)) {
+    return cleanedSig.slice(0, cleanedSig.length - collapsed.length) + expanded;
+  }
+  return sigStr; // couldn't safely locate the return; leave collapsed
 }
 
 function acceptResolved(s: string): boolean {
@@ -786,6 +864,7 @@ function main() {
     moduleResolution: ts.ModuleResolutionKind.Bundler,
   });
   const checker = program.getTypeChecker();
+  collectExpandAliases(program);
 
   let count = 0;
   if (process.env.DOC_DEBUG) {

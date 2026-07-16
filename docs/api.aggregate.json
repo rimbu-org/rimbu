@@ -1,6 +1,6 @@
 {
   "$schema": "rimbu-docs/aggregate/v1",
-  "generatedAt": "2026-07-16T15:39:02.785Z",
+  "generatedAt": "2026-07-16T19:56:15.341Z",
   "gitRef": "main",
   "packages": [
     "@rimbu/actor",
@@ -98779,7 +98779,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<VariantMap<K, V>, V>",
+                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: VariantMap<K, V>, value: V, hasValue: true] | [result: VariantMap<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection of which the entry associated with given `key`\nis removed, the value that was associated with that key, and a `hasValue` flag indicating whether the key was\npresent. If the key is not present, `newMap` is unchanged and `hasValue` is `false`.",
@@ -99262,7 +99262,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "updateAtAndGet<UK = K>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): WithValueResult<WithKeyValue<Tp, K, V>[\"nonEmpty\"], V>",
+                "text": "updateAtAndGet<UK = K>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): [result: WithKeyValue<Tp, K, V>[\"nonEmpty\"], value: V, hasValue: true] | [result: WithKeyValue<Tp, K, V>[\"nonEmpty\"], value: undefined, hasValue: false]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection where the value associated with given `key` is\nupdated with the given `update` value or update function, the value that was previously associated with that key, and\na `hasValue` flag indicating whether the `key` was present. Since this collection is non-empty, `newMap` is always\nnon-empty; if the key is present, `value` is the previous value and `hasValue` is `true`, even when the update yields\nthe same value (a no-op, where `newMap` is unchanged and `result[0] === this`). If the key is not present, `newMap`\nis unchanged, `value` is `undefined`, and `hasValue` is `false`.",
@@ -100808,7 +100808,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): WithValueResult<RMap.NonEmpty<K, V>, V, RMap<K, V>>",
+                "text": "updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): [result: RMap.NonEmpty<K, V>, value: V, hasValue: true] | [result: RMap<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection where the value associated with given `key` is\nupdated with the given `update` value or update function, the value that was previously associated with that key, and\na `hasValue` flag indicating whether the `key` was present.\nIf the key is present, `value` is the previous value and `hasValue` is `true`, even when the update yields the same\nvalue (a no-op): in that case `newMap` is unchanged and `result[0] === this`. If the key is not present, `newMap` is\nunchanged, `value` is `undefined`, and `hasValue` is `false`.",
@@ -101267,7 +101267,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<VariantMap<K, V>, V>",
+                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: VariantMap<K, V>, value: V, hasValue: true] | [result: VariantMap<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection of which the entry associated with given `key`\nis removed, the value that was associated with that key, and a `hasValue` flag indicating whether the key was\npresent. If the key is not present, `newMap` is unchanged and `hasValue` is `false`.",
@@ -105045,7 +105045,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): WithValueResult<RMap.NonEmpty<K, V>, V, RMap<K, V>>",
+                "text": "updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): [result: RMap.NonEmpty<K, V>, value: V, hasValue: true] | [result: RMap<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection where the value associated with given `key` is\nupdated with the given `update` value or update function, the value that was previously associated with that key, and\na `hasValue` flag indicating whether the `key` was present.\nIf the key is present, `value` is the previous value and `hasValue` is `true`, even when the update yields the same\nvalue (a no-op): in that case `newMap` is unchanged and `result[0] === this`. If the key is not present, `newMap` is\nunchanged, `value` is `undefined`, and `hasValue` is `false`.",
@@ -105506,7 +105506,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<VariantMap<K, V>, V>",
+                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: VariantMap<K, V>, value: V, hasValue: true] | [result: VariantMap<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection of which the entry associated with given `key`\nis removed, the value that was associated with that key, and a `hasValue` flag indicating whether the key was\npresent. If the key is not present, `newMap` is unchanged and `hasValue` is `false`.",
@@ -106395,7 +106395,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<VariantMap<K, V>, V>",
+                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: VariantMap<K, V>, value: V, hasValue: true] | [result: VariantMap<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection of which the entry associated with given `key`\nis removed, the value that was associated with that key, and a `hasValue` flag indicating whether the key was\npresent. If the key is not present, `newMap` is unchanged and `hasValue` is `false`.",
@@ -153643,7 +153643,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): WithValueResult<HashMap.NonEmpty<K, V>, V, HashMap<K, V>>",
+                "text": "updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): [result: HashMap.NonEmpty<K, V>, value: V, hasValue: true] | [result: HashMap<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection where the value associated with given `key` is\nupdated with the given `update` value or update function, the value that was previously associated with that key, and\na `hasValue` flag indicating whether the `key` was present.\nIf the key is present, `value` is the previous value and `hasValue` is `true`, even when the update yields the same\nvalue (a no-op): in that case `newMap` is unchanged and `result[0] === this`. If the key is not present, `newMap` is\nunchanged, `value` is `undefined`, and `hasValue` is `false`.",
@@ -154104,7 +154104,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<HashMap<K, V>, V>",
+                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: HashMap<K, V>, value: undefined, hasValue: false] | [result: HashMap<K, V>, value: V, hasValue: true]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection of which the entry associated with given `key`\nis removed, the value that was associated with that key, and a `hasValue` flag indicating whether the key was\npresent. If the key is not present, `newMap` is unchanged and `hasValue` is `false`.",
@@ -159351,7 +159351,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeAndGet<UR = R, UC = C>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): WithValueResult<WithRow<Tp, R, C, V>[\"normal\"], V, WithRow<Tp, R, C, V>[\"nonEmpty\"]>",
+                "text": "removeAndGet<UR = R, UC = C>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): [result: WithRow<Tp, R, C, V>[\"normal\"], value: V, hasValue: true] | [result: WithRow<Tp, R, C, V>[\"nonEmpty\"], value: undefined, hasValue: false]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newTable, value, hasValue]` containing the collection with the value at given `row` and\n`column` removed, the removed value, and a `hasValue` flag indicating whether a value was present at that\nposition. Since this collection is non-empty, `newTable` is always non-empty; if no such value is found,\n`newTable` is unchanged (and still non-empty) and `hasValue` is `false`.",
@@ -159389,7 +159389,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeRowAndGet<UR = R>(row: RelatedTo<R, UR>): WithValueResult<WithRow<Tp, R, C, V>[\"normal\"], WithRow<Tp, R, C, V>[\"rowNonEmpty\"], WithRow<Tp, R, C, V>[\"nonEmpty\"]>",
+                "text": "removeRowAndGet<UR = R>(row: RelatedTo<R, UR>): [result: WithRow<Tp, R, C, V>[\"nonEmpty\"], value: undefined, hasValue: false] | [result: WithRow<Tp, R, C, V>[\"normal\"], value: WithRow<Tp, R, C, V>[\"rowNonEmpty\"], hasValue: true]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newTable, row, hasValue]` containing the collection with the values at given `row` removed,\na map containing the removed columns and values, and a `hasValue` flag indicating whether the `row` was\npresent. Since this collection is non-empty, `newTable` is always non-empty; if no such row is found,\n`newTable` is unchanged (and still non-empty) and `hasValue` is `false`.",
@@ -160194,7 +160194,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): WithValueResult<VariantTable<R, C, V>, V>",
+                "text": "removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): [result: VariantTable<R, C, V>, value: V, hasValue: true] | [result: VariantTable<R, C, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newTable, value, hasValue]` containing the collection with the value at given `row` and\n`column` removed, the removed value, and a `hasValue` flag indicating whether a value was present at that\nposition. If no such value is found, `newTable` is unchanged and `hasValue` is `false`.",
@@ -160234,7 +160234,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeRowAndGet<UR>(row: RelatedTo<R, UR>): WithValueResult<VariantTable<R, C, V>, VariantMap.NonEmpty<C, V>>",
+                "text": "removeRowAndGet<UR>(row: RelatedTo<R, UR>): [result: VariantTable<R, C, V>, value: undefined, hasValue: false] | [result: VariantTable<R, C, V>, value: VariantMap.NonEmpty<C, V>, hasValue: true]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newTable, row, hasValue]` containing the collection with the values at given `row` removed,\na map containing the removed columns and values, and a `hasValue` flag indicating whether the `row` was\npresent. If no such row is found, `newTable` is unchanged and `hasValue` is `false`.",
@@ -162990,7 +162990,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): WithValueResult<VariantTable<R, C, V>, V>",
+                "text": "removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): [result: VariantTable<R, C, V>, value: V, hasValue: true] | [result: VariantTable<R, C, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newTable, value, hasValue]` containing the collection with the value at given `row` and\n`column` removed, the removed value, and a `hasValue` flag indicating whether a value was present at that\nposition. If no such value is found, `newTable` is unchanged and `hasValue` is `false`.",
@@ -163031,7 +163031,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeRowAndGet<UR>(row: RelatedTo<R, UR>): WithValueResult<VariantTable<R, C, V>, VariantMap.NonEmpty<C, V>>",
+                "text": "removeRowAndGet<UR>(row: RelatedTo<R, UR>): [result: VariantTable<R, C, V>, value: undefined, hasValue: false] | [result: VariantTable<R, C, V>, value: VariantMap.NonEmpty<C, V>, hasValue: true]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newTable, row, hasValue]` containing the collection with the values at given `row` removed,\na map containing the removed columns and values, and a `hasValue` flag indicating whether the `row` was\npresent. If no such row is found, `newTable` is unchanged and `hasValue` is `false`.",
@@ -164651,7 +164651,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): WithValueResult<VariantTable<R, C, V>, V>",
+                "text": "removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): [result: VariantTable<R, C, V>, value: V, hasValue: true] | [result: VariantTable<R, C, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newTable, value, hasValue]` containing the collection with the value at given `row` and\n`column` removed, the removed value, and a `hasValue` flag indicating whether a value was present at that\nposition. If no such value is found, `newTable` is unchanged and `hasValue` is `false`.",
@@ -164692,7 +164692,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeRowAndGet<UR>(row: RelatedTo<R, UR>): WithValueResult<VariantTable<R, C, V>, VariantMap.NonEmpty<C, V>>",
+                "text": "removeRowAndGet<UR>(row: RelatedTo<R, UR>): [result: VariantTable<R, C, V>, value: undefined, hasValue: false] | [result: VariantTable<R, C, V>, value: VariantMap.NonEmpty<C, V>, hasValue: true]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newTable, row, hasValue]` containing the collection with the values at given `row` removed,\na map containing the removed columns and values, and a `hasValue` flag indicating whether the `row` was\npresent. If no such row is found, `newTable` is unchanged and `hasValue` is `false`.",
@@ -166562,7 +166562,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): WithValueResult<VariantTable<R, C, V>, V>",
+                "text": "removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): [result: VariantTable<R, C, V>, value: V, hasValue: true] | [result: VariantTable<R, C, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newTable, value, hasValue]` containing the collection with the value at given `row` and\n`column` removed, the removed value, and a `hasValue` flag indicating whether a value was present at that\nposition. If no such value is found, `newTable` is unchanged and `hasValue` is `false`.",
@@ -166603,7 +166603,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeRowAndGet<UR>(row: RelatedTo<R, UR>): WithValueResult<VariantTable<R, C, V>, VariantMap.NonEmpty<C, V>>",
+                "text": "removeRowAndGet<UR>(row: RelatedTo<R, UR>): [result: VariantTable<R, C, V>, value: undefined, hasValue: false] | [result: VariantTable<R, C, V>, value: VariantMap.NonEmpty<C, V>, hasValue: true]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newTable, row, hasValue]` containing the collection with the values at given `row` removed,\na map containing the removed columns and values, and a `hasValue` flag indicating whether the `row` was\npresent. If no such row is found, `newTable` is unchanged and `hasValue` is `false`.",
@@ -168473,7 +168473,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): WithValueResult<VariantTable<R, C, V>, V>",
+                "text": "removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): [result: VariantTable<R, C, V>, value: V, hasValue: true] | [result: VariantTable<R, C, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newTable, value, hasValue]` containing the collection with the value at given `row` and\n`column` removed, the removed value, and a `hasValue` flag indicating whether a value was present at that\nposition. If no such value is found, `newTable` is unchanged and `hasValue` is `false`.",
@@ -168514,7 +168514,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeRowAndGet<UR>(row: RelatedTo<R, UR>): WithValueResult<VariantTable<R, C, V>, VariantMap.NonEmpty<C, V>>",
+                "text": "removeRowAndGet<UR>(row: RelatedTo<R, UR>): [result: VariantTable<R, C, V>, value: undefined, hasValue: false] | [result: VariantTable<R, C, V>, value: VariantMap.NonEmpty<C, V>, hasValue: true]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newTable, row, hasValue]` containing the collection with the values at given `row` removed,\na map containing the removed columns and values, and a `hasValue` flag indicating whether the `row` was\npresent. If no such row is found, `newTable` is unchanged and `hasValue` is `false`.",
@@ -170384,7 +170384,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): WithValueResult<VariantTable<R, C, V>, V>",
+                "text": "removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): [result: VariantTable<R, C, V>, value: V, hasValue: true] | [result: VariantTable<R, C, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newTable, value, hasValue]` containing the collection with the value at given `row` and\n`column` removed, the removed value, and a `hasValue` flag indicating whether a value was present at that\nposition. If no such value is found, `newTable` is unchanged and `hasValue` is `false`.",
@@ -170425,7 +170425,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeRowAndGet<UR>(row: RelatedTo<R, UR>): WithValueResult<VariantTable<R, C, V>, VariantMap.NonEmpty<C, V>>",
+                "text": "removeRowAndGet<UR>(row: RelatedTo<R, UR>): [result: VariantTable<R, C, V>, value: undefined, hasValue: false] | [result: VariantTable<R, C, V>, value: VariantMap.NonEmpty<C, V>, hasValue: true]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newTable, row, hasValue]` containing the collection with the values at given `row` removed,\na map containing the removed columns and values, and a `hasValue` flag indicating whether the `row` was\npresent. If no such row is found, `newTable` is unchanged and `hasValue` is `false`.",
@@ -172159,7 +172159,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): WithValueResult<VariantTable<R, C, V>, V>",
+                "text": "removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): [result: VariantTable<R, C, V>, value: V, hasValue: true] | [result: VariantTable<R, C, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newTable, value, hasValue]` containing the collection with the value at given `row` and\n`column` removed, the removed value, and a `hasValue` flag indicating whether a value was present at that\nposition. If no such value is found, `newTable` is unchanged and `hasValue` is `false`.",
@@ -172200,7 +172200,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeRowAndGet<UR>(row: RelatedTo<R, UR>): WithValueResult<VariantTable<R, C, V>, VariantMap.NonEmpty<C, V>>",
+                "text": "removeRowAndGet<UR>(row: RelatedTo<R, UR>): [result: VariantTable<R, C, V>, value: undefined, hasValue: false] | [result: VariantTable<R, C, V>, value: VariantMap.NonEmpty<C, V>, hasValue: true]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newTable, row, hasValue]` containing the collection with the values at given `row` removed,\na map containing the removed columns and values, and a `hasValue` flag indicating whether the `row` was\npresent. If no such row is found, `newTable` is unchanged and `hasValue` is `false`.",
@@ -173351,7 +173351,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): WithValueResult<VariantTable<R, C, V>, V>",
+                "text": "removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): [result: VariantTable<R, C, V>, value: V, hasValue: true] | [result: VariantTable<R, C, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newTable, value, hasValue]` containing the collection with the value at given `row` and\n`column` removed, the removed value, and a `hasValue` flag indicating whether a value was present at that\nposition. If no such value is found, `newTable` is unchanged and `hasValue` is `false`.",
@@ -173392,7 +173392,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeRowAndGet<UR>(row: RelatedTo<R, UR>): WithValueResult<VariantTable<R, C, V>, VariantMap.NonEmpty<C, V>>",
+                "text": "removeRowAndGet<UR>(row: RelatedTo<R, UR>): [result: VariantTable<R, C, V>, value: undefined, hasValue: false] | [result: VariantTable<R, C, V>, value: VariantMap.NonEmpty<C, V>, hasValue: true]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newTable, row, hasValue]` containing the collection with the values at given `row` removed,\na map containing the removed columns and values, and a `hasValue` flag indicating whether the `row` was\npresent. If no such row is found, `newTable` is unchanged and `hasValue` is `false`.",
@@ -174166,7 +174166,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK = K>(key: RelatedTo<K, UK>): WithValueResult<WithKeyValue<Tp, K, V>[\"normal\"], WithKeyValue<Tp, K, V>[\"keyMapValuesNonEmpty\"], WithKeyValue<Tp, K, V>[\"nonEmpty\"]>",
+                "text": "removeKeyAndGet<UK = K>(key: RelatedTo<K, UK>): [result: WithKeyValue<Tp, K, V>[\"normal\"], value: WithKeyValue<Tp, K, V>[\"keyMapValuesNonEmpty\"], hasValue: true] | [result: WithKeyValue<Tp, K, V>[\"nonEmpty\"], value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newMultiMap, values, hasValue]` containing the collection of which the given `key` is\nremoved, the non-empty set of values that were associated with that key, and a `hasValue` flag indicating\nwhether the `key` was present. Since this collection is non-empty, `newMultiMap` is always non-empty; if\nthe key is not present, `newMultiMap` is unchanged (and still non-empty) and `hasValue` is `false`.",
@@ -174961,7 +174961,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<HashMultiMapSortedValue<K, V>, SortedSet.NonEmpty<V>>",
+                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: HashMultiMapSortedValue<K, V>, value: SortedSet.NonEmpty<V>, hasValue: true] | [result: HashMultiMapSortedValue<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newMultiMap, values, hasValue]` containing the collection of which the given `key` is\nremoved, the non-empty set of values that were associated with that key, and a `hasValue` flag indicating\nwhether the `key` was present. If the key is not present, `newMultiMap` is unchanged and `hasValue` is `false`.",
@@ -177823,7 +177823,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<HashMultiMapSortedValue<K, V>, SortedSet.NonEmpty<V>>",
+                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: HashMultiMapSortedValue<K, V>, value: SortedSet.NonEmpty<V>, hasValue: true] | [result: HashMultiMapSortedValue<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newMultiMap, values, hasValue]` containing the collection of which the given `key` is\nremoved, the non-empty set of values that were associated with that key, and a `hasValue` flag indicating\nwhether the `key` was present. If the key is not present, `newMultiMap` is unchanged and `hasValue` is `false`.",
@@ -179578,7 +179578,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<HashMultiMapSortedValue<K, V>, SortedSet.NonEmpty<V>>",
+                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: HashMultiMapSortedValue<K, V>, value: SortedSet.NonEmpty<V>, hasValue: true] | [result: HashMultiMapSortedValue<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newMultiMap, values, hasValue]` containing the collection of which the given `key` is\nremoved, the non-empty set of values that were associated with that key, and a `hasValue` flag indicating\nwhether the `key` was present. If the key is not present, `newMultiMap` is unchanged and `hasValue` is `false`.",
@@ -181586,7 +181586,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<HashMultiMapSortedValue<K, V>, SortedSet.NonEmpty<V>>",
+                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: HashMultiMapSortedValue<K, V>, value: SortedSet.NonEmpty<V>, hasValue: true] | [result: HashMultiMapSortedValue<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newMultiMap, values, hasValue]` containing the collection of which the given `key` is\nremoved, the non-empty set of values that were associated with that key, and a `hasValue` flag indicating\nwhether the `key` was present. If the key is not present, `newMultiMap` is unchanged and `hasValue` is `false`.",
@@ -183789,7 +183789,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<HashMultiMapSortedValue<K, V>, SortedSet.NonEmpty<V>>",
+                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: HashMultiMapSortedValue<K, V>, value: SortedSet.NonEmpty<V>, hasValue: true] | [result: HashMultiMapSortedValue<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newMultiMap, values, hasValue]` containing the collection of which the given `key` is\nremoved, the non-empty set of values that were associated with that key, and a `hasValue` flag indicating\nwhether the `key` was present. If the key is not present, `newMultiMap` is unchanged and `hasValue` is `false`.",
@@ -185089,7 +185089,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<HashMultiMapSortedValue<K, V>, SortedSet.NonEmpty<V>>",
+                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: HashMultiMapSortedValue<K, V>, value: SortedSet.NonEmpty<V>, hasValue: true] | [result: HashMultiMapSortedValue<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newMultiMap, values, hasValue]` containing the collection of which the given `key` is\nremoved, the non-empty set of values that were associated with that key, and a `hasValue` flag indicating\nwhether the `key` was present. If the key is not present, `newMultiMap` is unchanged and `hasValue` is `false`.",
@@ -187046,7 +187046,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<HashMultiMapSortedValue<K, V>, SortedSet.NonEmpty<V>>",
+                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: HashMultiMapSortedValue<K, V>, value: SortedSet.NonEmpty<V>, hasValue: true] | [result: HashMultiMapSortedValue<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newMultiMap, values, hasValue]` containing the collection of which the given `key` is\nremoved, the non-empty set of values that were associated with that key, and a `hasValue` flag indicating\nwhether the `key` was present. If the key is not present, `newMultiMap` is unchanged and `hasValue` is `false`.",
@@ -189249,7 +189249,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<HashMultiMapSortedValue<K, V>, SortedSet.NonEmpty<V>>",
+                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: HashMultiMapSortedValue<K, V>, value: SortedSet.NonEmpty<V>, hasValue: true] | [result: HashMultiMapSortedValue<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newMultiMap, values, hasValue]` containing the collection of which the given `key` is\nremoved, the non-empty set of values that were associated with that key, and a `hasValue` flag indicating\nwhether the `key` was present. If the key is not present, `newMultiMap` is unchanged and `hasValue` is `false`.",
@@ -190536,7 +190536,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): WithValueResult<ProximityMap.NonEmpty<K, V>, V, ProximityMap<K, V>>",
+                "text": "updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): [result: ProximityMap.NonEmpty<K, V>, value: V, hasValue: true] | [result: ProximityMap<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection where the value associated with given `key` is\nupdated with the given `update` value or update function, the value that was previously associated with that key, and\na `hasValue` flag indicating whether the `key` was present.\nIf the key is present, `value` is the previous value and `hasValue` is `true`, even when the update yields the same\nvalue (a no-op): in that case `newMap` is unchanged and `result[0] === this`. If the key is not present, `newMap` is\nunchanged, `value` is `undefined`, and `hasValue` is `false`.",
@@ -190997,7 +190997,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<ProximityMap<K, V>, V>",
+                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: ProximityMap<K, V>, value: undefined, hasValue: false] | [result: ProximityMap<K, V>, value: V, hasValue: true]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection of which the entry associated with given `key`\nis removed, the value that was associated with that key, and a `hasValue` flag indicating whether the key was\npresent. If the key is not present, `newMap` is unchanged and `hasValue` is `false`.",
@@ -192006,7 +192006,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "updateAtAndGet(index: number, update: (current: T) => T): WithValueResult<WithElem<Tp, T>[\"nonEmpty\"], T>",
+                "text": "updateAtAndGet(index: number, update: (current: T) => T): [result: WithElem<Tp, T>[\"nonEmpty\"], value: T, hasValue: true] | [result: WithElem<Tp, T>[\"nonEmpty\"], value: undefined, hasValue: false]",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -192070,7 +192070,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "withAndGet(index: number, value: T): WithValueResult<WithElem<Tp, T>[\"nonEmpty\"], T>",
+                "text": "withAndGet(index: number, value: T): [result: WithElem<Tp, T>[\"nonEmpty\"], value: T, hasValue: true] | [result: WithElem<Tp, T>[\"nonEmpty\"], value: undefined, hasValue: false]",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -192243,7 +192243,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): WithValueResult<WithElem<Tp, T>[\"nonEmpty\"], WithElem<Tp, T>[\"nonEmpty\"]>",
+                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): [result: WithElem<Tp, T>[\"nonEmpty\"], value: undefined, hasValue: false] | [result: WithElem<Tp, T>[\"nonEmpty\"], value: WithElem<Tp, T>[\"nonEmpty\"], hasValue: true]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -192253,7 +192253,7 @@
                 "raw": "spliceAndGet(options: {\n            index?: number | undefined;\n            remove?: number | undefined;\n            insert: StreamSource.NonEmpty<T>;\n        }): WithValueResult<WithElem<Tp, T>['nonEmpty'], WithElem<Tp, T>['nonEmpty']>"
               },
               {
-                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T> | undefined; }): WithValueResult<WithElem<Tp, T>[\"normal\"], WithElem<Tp, T>[\"nonEmpty\"], WithElem<Tp, T>[\"normal\"]>",
+                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T> | undefined; }): [result: WithElem<Tp, T>[\"normal\"], value: WithElem<Tp, T>[\"nonEmpty\"], hasValue: true] | [result: WithElem<Tp, T>[\"normal\"], value: undefined, hasValue: false]",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -192534,7 +192534,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeAndGet(index: number, options?: { amount?: number; }): WithValueResult<WithElem<Tp, T>[\"normal\"], WithElem<Tp, T>[\"nonEmpty\"], WithElem<Tp, T>[\"nonEmpty\"]>",
+                "text": "removeAndGet(index: number, options?: { amount?: number; }): [result: WithElem<Tp, T>[\"nonEmpty\"], value: undefined, hasValue: false] | [result: WithElem<Tp, T>[\"normal\"], value: WithElem<Tp, T>[\"nonEmpty\"], hasValue: true]",
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -194262,7 +194262,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "updateAtAndGet(index: number, update: (current: T) => T): WithValueResult<List.NonEmpty<T>, T, List<T>>",
+                "text": "updateAtAndGet(index: number, update: (current: T) => T): [result: List.NonEmpty<T>, value: T, hasValue: true] | [result: List<T>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -194326,7 +194326,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "withAndGet(index: number, value: T): WithValueResult<List.NonEmpty<T>, T, List<T>>",
+                "text": "withAndGet(index: number, value: T): [result: List.NonEmpty<T>, value: T, hasValue: true] | [result: List<T>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -194689,7 +194689,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): WithValueResult<List.NonEmpty<T>, List.NonEmpty<T>>",
+                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): [result: List.NonEmpty<T>, value: List.NonEmpty<T>, hasValue: true] | [result: List.NonEmpty<T>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -194699,7 +194699,7 @@
                 "raw": "spliceAndGet(options: {\n        index?: number | undefined;\n        remove?: number | undefined;\n        insert: StreamSource.NonEmpty<T>;\n    }): WithValueResult<WithElem<Tp, T>['nonEmpty'], WithElem<Tp, T>['nonEmpty']>"
               },
               {
-                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T>; }): WithValueResult<List<T>, List.NonEmpty<T>, List<T>>",
+                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T>; }): [result: List<T>, value: undefined, hasValue: false] | [result: List<T>, value: List.NonEmpty<T>, hasValue: true]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -194816,7 +194816,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeAndGet(index: number, options?: { amount?: number | undefined; } | undefined): WithValueResult<List<T>, List.NonEmpty<T>>",
+                "text": "removeAndGet(index: number, options?: { amount?: number | undefined; } | undefined): [result: List<T>, value: undefined, hasValue: false] | [result: List<T>, value: List.NonEmpty<T>, hasValue: true]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -196037,7 +196037,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "updateAtAndGet(index: number, update: (current: T) => T): WithValueResult<List.NonEmpty<T>, T, List<T>>",
+                "text": "updateAtAndGet(index: number, update: (current: T) => T): [result: List.NonEmpty<T>, value: T, hasValue: true] | [result: List<T>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -196103,7 +196103,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "withAndGet(index: number, value: T): WithValueResult<List.NonEmpty<T>, T, List<T>>",
+                "text": "withAndGet(index: number, value: T): [result: List.NonEmpty<T>, value: T, hasValue: true] | [result: List<T>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -196475,7 +196475,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): WithValueResult<List.NonEmpty<T>, List.NonEmpty<T>>",
+                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): [result: List.NonEmpty<T>, value: List.NonEmpty<T>, hasValue: true] | [result: List.NonEmpty<T>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -196485,7 +196485,7 @@
                 "raw": "spliceAndGet(options: {\n        index?: number | undefined;\n        remove?: number | undefined;\n        insert: StreamSource.NonEmpty<T>;\n    }): WithValueResult<WithElem<Tp, T>['nonEmpty'], WithElem<Tp, T>['nonEmpty']>"
               },
               {
-                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T>; }): WithValueResult<List<T>, List.NonEmpty<T>, List<T>>",
+                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T>; }): [result: List<T>, value: undefined, hasValue: false] | [result: List<T>, value: List.NonEmpty<T>, hasValue: true]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -196605,7 +196605,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeAndGet(index: number, options?: { amount?: number | undefined; } | undefined): WithValueResult<List<T>, List.NonEmpty<T>>",
+                "text": "removeAndGet(index: number, options?: { amount?: number | undefined; } | undefined): [result: List<T>, value: undefined, hasValue: false] | [result: List<T>, value: List.NonEmpty<T>, hasValue: true]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -197832,7 +197832,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "updateAtAndGet(index: number, update: (current: T) => T): WithValueResult<List.NonEmpty<T>, T, List<T>>",
+                "text": "updateAtAndGet(index: number, update: (current: T) => T): [result: List.NonEmpty<T>, value: T, hasValue: true] | [result: List<T>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -197898,7 +197898,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "withAndGet(index: number, value: T): WithValueResult<List.NonEmpty<T>, T, List<T>>",
+                "text": "withAndGet(index: number, value: T): [result: List.NonEmpty<T>, value: T, hasValue: true] | [result: List<T>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -198270,7 +198270,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): WithValueResult<List.NonEmpty<T>, List.NonEmpty<T>>",
+                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): [result: List.NonEmpty<T>, value: List.NonEmpty<T>, hasValue: true] | [result: List.NonEmpty<T>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -198280,7 +198280,7 @@
                 "raw": "spliceAndGet(options: {\n        index?: number | undefined;\n        remove?: number | undefined;\n        insert: StreamSource.NonEmpty<T>;\n    }): WithValueResult<WithElem<Tp, T>['nonEmpty'], WithElem<Tp, T>['nonEmpty']>"
               },
               {
-                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T>; }): WithValueResult<List<T>, List.NonEmpty<T>, List<T>>",
+                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T>; }): [result: List<T>, value: undefined, hasValue: false] | [result: List<T>, value: List.NonEmpty<T>, hasValue: true]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -198400,7 +198400,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeAndGet(index: number, options?: { amount?: number | undefined; } | undefined): WithValueResult<List<T>, List.NonEmpty<T>>",
+                "text": "removeAndGet(index: number, options?: { amount?: number | undefined; } | undefined): [result: List<T>, value: undefined, hasValue: false] | [result: List<T>, value: List.NonEmpty<T>, hasValue: true]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -199838,7 +199838,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "updateAtAndGet(index: number, update: (current: T) => T): WithValueResult<List.NonEmpty<T>, T, List<T>>",
+                "text": "updateAtAndGet(index: number, update: (current: T) => T): [result: List.NonEmpty<T>, value: T, hasValue: true] | [result: List<T>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -199904,7 +199904,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "withAndGet(index: number, value: T): WithValueResult<List.NonEmpty<T>, T, List<T>>",
+                "text": "withAndGet(index: number, value: T): [result: List.NonEmpty<T>, value: T, hasValue: true] | [result: List<T>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -200276,7 +200276,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): WithValueResult<List.NonEmpty<T>, List.NonEmpty<T>>",
+                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): [result: List.NonEmpty<T>, value: List.NonEmpty<T>, hasValue: true] | [result: List.NonEmpty<T>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -200286,7 +200286,7 @@
                 "raw": "spliceAndGet(options: {\n        index?: number | undefined;\n        remove?: number | undefined;\n        insert: StreamSource.NonEmpty<T>;\n    }): WithValueResult<WithElem<Tp, T>['nonEmpty'], WithElem<Tp, T>['nonEmpty']>"
               },
               {
-                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T>; }): WithValueResult<List<T>, List.NonEmpty<T>, List<T>>",
+                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T>; }): [result: List<T>, value: undefined, hasValue: false] | [result: List<T>, value: List.NonEmpty<T>, hasValue: true]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -200406,7 +200406,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeAndGet(index: number, options?: { amount?: number | undefined; } | undefined): WithValueResult<List<T>, List.NonEmpty<T>>",
+                "text": "removeAndGet(index: number, options?: { amount?: number | undefined; } | undefined): [result: List<T>, value: undefined, hasValue: false] | [result: List<T>, value: List.NonEmpty<T>, hasValue: true]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -201862,7 +201862,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "updateAtAndGet(index: number, update: (current: T) => T): WithValueResult<List.NonEmpty<T>, T, List<T>>",
+                "text": "updateAtAndGet(index: number, update: (current: T) => T): [result: List.NonEmpty<T>, value: T, hasValue: true] | [result: List<T>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -201928,7 +201928,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "withAndGet(index: number, value: T): WithValueResult<List.NonEmpty<T>, T, List<T>>",
+                "text": "withAndGet(index: number, value: T): [result: List.NonEmpty<T>, value: T, hasValue: true] | [result: List<T>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -202300,7 +202300,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): WithValueResult<List.NonEmpty<T>, List.NonEmpty<T>>",
+                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): [result: List.NonEmpty<T>, value: List.NonEmpty<T>, hasValue: true] | [result: List.NonEmpty<T>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -202310,7 +202310,7 @@
                 "raw": "spliceAndGet(options: {\n        index?: number | undefined;\n        remove?: number | undefined;\n        insert: StreamSource.NonEmpty<T>;\n    }): WithValueResult<WithElem<Tp, T>['nonEmpty'], WithElem<Tp, T>['nonEmpty']>"
               },
               {
-                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T>; }): WithValueResult<List<T>, List.NonEmpty<T>, List<T>>",
+                "text": "spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T>; }): [result: List<T>, value: undefined, hasValue: false] | [result: List<T>, value: List.NonEmpty<T>, hasValue: true]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -202430,7 +202430,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeAndGet(index: number, options?: { amount?: number | undefined; } | undefined): WithValueResult<List<T>, List.NonEmpty<T>>",
+                "text": "removeAndGet(index: number, options?: { amount?: number | undefined; } | undefined): [result: List<T>, value: undefined, hasValue: false] | [result: List<T>, value: List.NonEmpty<T>, hasValue: true]",
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/list/src/internal/list-base.ts",
@@ -209577,7 +209577,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): WithValueResult<SortedMap.NonEmpty<K, V>, V, SortedMap<K, V>>",
+                "text": "updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): [result: SortedMap.NonEmpty<K, V>, value: V, hasValue: true] | [result: SortedMap<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection where the value associated with given `key` is\nupdated with the given `update` value or update function, the value that was previously associated with that key, and\na `hasValue` flag indicating whether the `key` was present.\nIf the key is present, `value` is the previous value and `hasValue` is `true`, even when the update yields the same\nvalue (a no-op): in that case `newMap` is unchanged and `result[0] === this`. If the key is not present, `newMap` is\nunchanged, `value` is `undefined`, and `hasValue` is `false`.",
@@ -210041,7 +210041,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<SortedMap<K, V>, V>",
+                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: SortedMap<K, V>, value: undefined, hasValue: false] | [result: SortedMap<K, V>, value: V, hasValue: true]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection of which the entry associated with given `key`\nis removed, the value that was associated with that key, and a `hasValue` flag indicating whether the key was\npresent. If the key is not present, `newMap` is unchanged and `hasValue` is `false`.",
@@ -212699,7 +212699,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "setAndGet(key: K, value: V): WithValueResult<BiMap.NonEmpty<K, V>, readonly [K, V]>",
+                "text": "setAndGet(key: K, value: V): [result: BiMap.NonEmpty<K, V>, value: readonly [K, V], hasValue: true] | [result: BiMap.NonEmpty<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newBiMap, entry, hasValue]` containing the collection with given `key` associated to given\n`value`, the entry that was previously associated with the `key` (or, if the `key` was not present, the entry\nthat was previously associated with the `value`), and a `hasValue` flag indicating whether a previous entry was\nreturned. If the given entry is entirely new (neither the `key` nor the `value` were present before) nothing is\ndisplaced and `entry` is `undefined` with `hasValue: false`. Otherwise `entry` holds the previously associated\nentry and `hasValue` is `true`, even when the key/value were already present with the exact same entry — in that\ncase the collection is unchanged (`newBiMap === this`).",
@@ -212726,7 +212726,8 @@
                   "file": "packages/bimap/src/bimap.ts",
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1"
-                }
+                },
+                "raw": "setAndGet(key: K, value: V): WithValueResult<BiMap.NonEmpty<K, V>, readonly [K, V]>"
               }
             ],
             "source": {
@@ -212775,7 +212776,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "addEntryAndGet(entry: readonly [K, V]): WithValueResult<BiMap.NonEmpty<K, V>, readonly [K, V]>",
+                "text": "addEntryAndGet(entry: readonly [K, V]): [result: BiMap.NonEmpty<K, V>, value: readonly [K, V], hasValue: true] | [result: BiMap.NonEmpty<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newBiMap, entry, hasValue]` containing the collection with given `entry` added, the entry that\nwas previously associated with the entry's `key` (or, if the key was not present, the entry that was previously\nassociated with the entry's `value`), and a `hasValue` flag indicating whether a previous entry was returned. If\nthe given entry is entirely new (neither its key nor its value were present before) nothing is displaced and\n`entry` is `undefined` with `hasValue: false`. Otherwise `entry` holds the previously associated entry and\n`hasValue` is `true`, even when the exact entry was already present — in that case the collection is unchanged\n(`newBiMap === this`).",
@@ -212798,7 +212799,8 @@
                   "file": "packages/bimap/src/bimap.ts",
                   "line": 1,
                   "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1"
-                }
+                },
+                "raw": "addEntryAndGet(entry: readonly [K, V]): WithValueResult<BiMap.NonEmpty<K, V>, readonly [K, V]>"
               }
             ],
             "source": {
@@ -212894,7 +212896,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<BiMap<K, V>, V>",
+                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: BiMap<K, V>, value: undefined, hasValue: false] | [result: BiMap<K, V>, value: V, hasValue: true]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newBiMap, value, hasValue]` containing the collection of which the entry associated with given\n`key` is removed, the value that was associated with that key, and a `hasValue` flag indicating whether the key\nwas present. If the key is not present, `newBiMap` is unchanged and `hasValue` is `false`.",
@@ -213006,7 +213008,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeValueAndGet<UV>(value: RelatedTo<V, UV>): WithValueResult<BiMap<K, V>, K>",
+                "text": "removeValueAndGet<UV>(value: RelatedTo<V, UV>): [result: BiMap<K, V>, value: K, hasValue: true] | [result: BiMap<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newBiMap, key, hasValue]` containing the collection of which the entry associated with given\n`value` is removed, the key that was associated with that value, and a `hasValue` flag indicating whether the value\nwas present. If the value is not present, `newBiMap` is unchanged and `hasValue` is `false`.",
@@ -213197,7 +213199,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "updateValueAtKeyAndGet<UK>(key: RelatedTo<K, UK>, valueUpdate: (value: V) => V): WithValueResult<BiMap.NonEmpty<K, V>, V, BiMap<K, V>>",
+                "text": "updateValueAtKeyAndGet<UK>(key: RelatedTo<K, UK>, valueUpdate: (value: V) => V): [result: BiMap<K, V>, value: undefined, hasValue: false] | [result: BiMap.NonEmpty<K, V>, value: V, hasValue: true]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newBiMap, value, hasValue]` of the updated collection and the previous value that was\nassociated with the key, or the unchanged collection and `undefined` if the `key` is not present. The `hasValue`\nflag indicates whether the `key` was present; if it was, `value` is the previous value and `hasValue` is `true`,\neven when the update function returns the same value (a no-op, where `newBiMap` is unchanged and\n`result[0] === this`).",
@@ -213237,7 +213239,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "updateKeyAtValueAndGet<UV>(keyUpdate: (key: K) => K, value: RelatedTo<V, UV>): WithValueResult<BiMap.NonEmpty<K, V>, K, BiMap<K, V>>",
+                "text": "updateKeyAtValueAndGet<UV>(keyUpdate: (key: K) => K, value: RelatedTo<V, UV>): [result: BiMap<K, V>, value: undefined, hasValue: false] | [result: BiMap.NonEmpty<K, V>, value: K, hasValue: true]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newBiMap, key, hasValue]` of the updated collection and the previous key that was associated\nwith the value, or the unchanged collection and `undefined` if the `value` is not present. The `hasValue` flag\nindicates whether the `value` was present; if it was, `key` is the previous key and `hasValue` is `true`, even when\nthe update function returns the same key (a no-op, where `newBiMap` is unchanged and `result[0] === this`).",
@@ -226853,7 +226855,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): WithValueResult<OrderedSortedMap.NonEmpty<K, V>, V, OrderedSortedMap<K, V>>",
+                "text": "updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): [result: OrderedSortedMap.NonEmpty<K, V>, value: V, hasValue: true] | [result: OrderedSortedMap<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection where the value associated with given `key` is\nupdated with the given `update` value or update function, the value that was previously associated with that key, and\na `hasValue` flag indicating whether the `key` was present.\nIf the key is present, `value` is the previous value and `hasValue` is `true`, even when the update yields the same\nvalue (a no-op): in that case `newMap` is unchanged and `result[0] === this`. If the key is not present, `newMap` is\nunchanged, `value` is `undefined`, and `hasValue` is `false`.",
@@ -227314,7 +227316,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<OrderedSortedMap<K, V>, V>",
+                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: OrderedSortedMap<K, V>, value: undefined, hasValue: false] | [result: OrderedSortedMap<K, V>, value: V, hasValue: true]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection of which the entry associated with given `key`\nis removed, the value that was associated with that key, and a `hasValue` flag indicating whether the key was\npresent. If the key is not present, `newMap` is unchanged and `hasValue` is `false`.",
@@ -228248,7 +228250,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): WithValueResult<OrderedSortedMap.NonEmpty<K, V>, V, OrderedSortedMap<K, V>>",
+                "text": "updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): [result: OrderedSortedMap.NonEmpty<K, V>, value: V, hasValue: true] | [result: OrderedSortedMap<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection where the value associated with given `key` is\nupdated with the given `update` value or update function, the value that was previously associated with that key, and\na `hasValue` flag indicating whether the `key` was present.\nIf the key is present, `value` is the previous value and `hasValue` is `true`, even when the update yields the same\nvalue (a no-op): in that case `newMap` is unchanged and `result[0] === this`. If the key is not present, `newMap` is\nunchanged, `value` is `undefined`, and `hasValue` is `false`.",
@@ -228709,7 +228711,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<OrderedSortedMap<K, V>, V>",
+                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: OrderedSortedMap<K, V>, value: undefined, hasValue: false] | [result: OrderedSortedMap<K, V>, value: V, hasValue: true]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection of which the entry associated with given `key`\nis removed, the value that was associated with that key, and a `hasValue` flag indicating whether the key was\npresent. If the key is not present, `newMap` is unchanged and `hasValue` is `false`.",
@@ -232406,7 +232408,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): WithValueResult<OrderedSortedMap.NonEmpty<K, V>, V, OrderedSortedMap<K, V>>",
+                "text": "updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): [result: OrderedSortedMap.NonEmpty<K, V>, value: V, hasValue: true] | [result: OrderedSortedMap<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection where the value associated with given `key` is\nupdated with the given `update` value or update function, the value that was previously associated with that key, and\na `hasValue` flag indicating whether the `key` was present.\nIf the key is present, `value` is the previous value and `hasValue` is `true`, even when the update yields the same\nvalue (a no-op): in that case `newMap` is unchanged and `result[0] === this`. If the key is not present, `newMap` is\nunchanged, `value` is `undefined`, and `hasValue` is `false`.",
@@ -232867,7 +232869,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<OrderedSortedMap<K, V>, V>",
+                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: OrderedSortedMap<K, V>, value: undefined, hasValue: false] | [result: OrderedSortedMap<K, V>, value: V, hasValue: true]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection of which the entry associated with given `key`\nis removed, the value that was associated with that key, and a `hasValue` flag indicating whether the key was\npresent. If the key is not present, `newMap` is unchanged and `hasValue` is `false`.",
@@ -234254,7 +234256,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): WithValueResult<OrderedSortedMap.NonEmpty<K, V>, V, OrderedSortedMap<K, V>>",
+                "text": "updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): [result: OrderedSortedMap.NonEmpty<K, V>, value: V, hasValue: true] | [result: OrderedSortedMap<K, V>, value: undefined, hasValue: false]",
                 "returnsNonEmpty": true,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection where the value associated with given `key` is\nupdated with the given `update` value or update function, the value that was previously associated with that key, and\na `hasValue` flag indicating whether the `key` was present.\nIf the key is present, `value` is the previous value and `hasValue` is `true`, even when the update yields the same\nvalue (a no-op): in that case `newMap` is unchanged and `result[0] === this`. If the key is not present, `newMap` is\nunchanged, `value` is `undefined`, and `hasValue` is `false`.",
@@ -234715,7 +234717,7 @@
             "kind": "method",
             "signatures": [
               {
-                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<OrderedSortedMap<K, V>, V>",
+                "text": "removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: OrderedSortedMap<K, V>, value: undefined, hasValue: false] | [result: OrderedSortedMap<K, V>, value: V, hasValue: true]",
                 "returnsNonEmpty": false,
                 "doc": {
                   "summary": "Returns a tuple `[newMap, value, hasValue]` containing the collection of which the entry associated with given `key`\nis removed, the value that was associated with that key, and a `hasValue` flag indicating whether the key was\npresent. If the key is not present, `newMap` is unchanged and `hasValue` is `false`.",

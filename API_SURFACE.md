@@ -546,7 +546,7 @@ Extends: `stream/FastIterable`
   ```
 - `setAndGet` [NonEmpty]
   ```ts
-  setAndGet(key: K, value: V): WithValueResult<BiMap.NonEmpty<K, V>, readonly [K, V]>
+  setAndGet(key: K, value: V): [result: BiMap.NonEmpty<K, V>, value: readonly [K, V], hasValue: true] | [result: BiMap.NonEmpty<K, V>, value: undefined, hasValue: false]
   ```
 - `addEntry` [NonEmpty]
   ```ts
@@ -554,7 +554,7 @@ Extends: `stream/FastIterable`
   ```
 - `addEntryAndGet` [NonEmpty]
   ```ts
-  addEntryAndGet(entry: readonly [K, V]): WithValueResult<BiMap.NonEmpty<K, V>, readonly [K, V]>
+  addEntryAndGet(entry: readonly [K, V]): [result: BiMap.NonEmpty<K, V>, value: readonly [K, V], hasValue: true] | [result: BiMap.NonEmpty<K, V>, value: undefined, hasValue: false]
   ```
 - `addEntries` [NonEmpty]
   ```ts
@@ -569,7 +569,7 @@ Extends: `stream/FastIterable`
   ```
 - `removeKeyAndGet`
   ```ts
-  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<BiMap<K, V>, V>
+  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: BiMap<K, V>, value: undefined, hasValue: false] | [result: BiMap<K, V>, value: V, hasValue: true]
   ```
 - `removeKeys`
   ```ts
@@ -581,7 +581,7 @@ Extends: `stream/FastIterable`
   ```
 - `removeValueAndGet`
   ```ts
-  removeValueAndGet<UV>(value: RelatedTo<V, UV>): WithValueResult<BiMap<K, V>, K>
+  removeValueAndGet<UV>(value: RelatedTo<V, UV>): [result: BiMap<K, V>, value: K, hasValue: true] | [result: BiMap<K, V>, value: undefined, hasValue: false]
   ```
 - `removeValues`
   ```ts
@@ -601,11 +601,11 @@ Extends: `stream/FastIterable`
   ```
 - `updateValueAtKeyAndGet` [NonEmpty]
   ```ts
-  updateValueAtKeyAndGet<UK>(key: RelatedTo<K, UK>, valueUpdate: (value: V) => V): WithValueResult<BiMap.NonEmpty<K, V>, V, BiMap<K, V>>
+  updateValueAtKeyAndGet<UK>(key: RelatedTo<K, UK>, valueUpdate: (value: V) => V): [result: BiMap<K, V>, value: undefined, hasValue: false] | [result: BiMap.NonEmpty<K, V>, value: V, hasValue: true]
   ```
 - `updateKeyAtValueAndGet` [NonEmpty]
   ```ts
-  updateKeyAtValueAndGet<UV>(keyUpdate: (key: K) => K, value: RelatedTo<V, UV>): WithValueResult<BiMap.NonEmpty<K, V>, K, BiMap<K, V>>
+  updateKeyAtValueAndGet<UV>(keyUpdate: (key: K) => K, value: RelatedTo<V, UV>): [result: BiMap<K, V>, value: undefined, hasValue: false] | [result: BiMap.NonEmpty<K, V>, value: K, hasValue: true]
   ```
 - `modifyAtKey`
   ```ts
@@ -2898,7 +2898,7 @@ Extends: `collection-types/RMapBase`
   ```
 - `updateAtAndGet` [NonEmpty] (inherited from collection-types/RMapBase)
   ```ts
-  updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): WithValueResult<RMap.NonEmpty<K, V>, V, RMap<K, V>>
+  updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): [result: RMap.NonEmpty<K, V>, value: V, hasValue: true] | [result: RMap<K, V>, value: undefined, hasValue: false]
   ```
 - `toBuilder` (inherited from collection-types/RMapBase)
   ```ts
@@ -2953,7 +2953,7 @@ Extends: `collection-types/RMapBase`
   ```
 - `removeKeyAndGet` (inherited from collection-types/RMapBase)
   ```ts
-  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<VariantMap<K, V>, V>
+  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: VariantMap<K, V>, value: V, hasValue: true] | [result: VariantMap<K, V>, value: undefined, hasValue: false]
   ```
 - `forEach` (inherited from collection-types/RMapBase)
   ```ts
@@ -3062,7 +3062,7 @@ Extends: `collection-types/VariantMapBase`
   ```
 - `updateAtAndGet` [NonEmpty]
   ```ts
-  updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): WithValueResult<RMap.NonEmpty<K, V>, V, RMap<K, V>>
+  updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): [result: RMap.NonEmpty<K, V>, value: V, hasValue: true] | [result: RMap<K, V>, value: undefined, hasValue: false]
   ```
 - `toBuilder`
   ```ts
@@ -3119,7 +3119,7 @@ Extends: `collection-types/VariantMapBase`
   ```
 - `removeKeyAndGet` (inherited from collection-types/VariantMapBase)
   ```ts
-  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<VariantMap<K, V>, V>
+  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: VariantMap<K, V>, value: V, hasValue: true] | [result: VariantMap<K, V>, value: undefined, hasValue: false]
   ```
 - `forEach` (inherited from collection-types/VariantMapBase)
   ```ts
@@ -3327,7 +3327,7 @@ The map's Context instance that serves as a factory for all related immutable in
   ```
 - `updateAtAndGet`
   ```ts
-  updateAtAndGet<UK = K>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): WithValueResult<WithKeyValue<Tp, K, V>["nonEmpty"], V>
+  updateAtAndGet<UK = K>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): [result: WithKeyValue<Tp, K, V>["nonEmpty"], value: V, hasValue: true] | [result: WithKeyValue<Tp, K, V>["nonEmpty"], value: undefined, hasValue: false]
   ```
 
 ### RMapBase.Types  _(interface, advanced)_
@@ -3857,7 +3857,7 @@ Extends: `collection-types/VariantMapBase`
   ```
 - `removeKeyAndGet` (inherited from collection-types/VariantMapBase)
   ```ts
-  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<VariantMap<K, V>, V>
+  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: VariantMap<K, V>, value: V, hasValue: true] | [result: VariantMap<K, V>, value: undefined, hasValue: false]
   ```
 - `forEach` (inherited from collection-types/VariantMapBase)
   ```ts
@@ -3970,7 +3970,7 @@ Extends: `stream/FastIterable`
   ```
 - `removeKeyAndGet`
   ```ts
-  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<VariantMap<K, V>, V>
+  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: VariantMap<K, V>, value: V, hasValue: true] | [result: VariantMap<K, V>, value: undefined, hasValue: false]
   ```
 - `forEach`
   ```ts
@@ -10044,7 +10044,7 @@ Extends: `collection-types/RMapBase`
   ```
 - `updateAtAndGet` [NonEmpty] (inherited from collection-types/RMapBase)
   ```ts
-  updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): WithValueResult<HashMap.NonEmpty<K, V>, V, HashMap<K, V>>
+  updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): [result: HashMap.NonEmpty<K, V>, value: V, hasValue: true] | [result: HashMap<K, V>, value: undefined, hasValue: false]
   ```
 - `toBuilder` (inherited from collection-types/RMapBase)
   ```ts
@@ -10099,7 +10099,7 @@ Extends: `collection-types/RMapBase`
   ```
 - `removeKeyAndGet` (inherited from collection-types/RMapBase)
   ```ts
-  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<HashMap<K, V>, V>
+  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: HashMap<K, V>, value: undefined, hasValue: false] | [result: HashMap<K, V>, value: V, hasValue: true]
   ```
 - `forEach` (inherited from collection-types/RMapBase)
   ```ts
@@ -10510,7 +10510,7 @@ Extends: `list/ListBase`
   ```
 - `updateAtAndGet` [NonEmpty] (inherited from list/ListBase)
   ```ts
-  updateAtAndGet(index: number, update: (current: T) => T): WithValueResult<List.NonEmpty<T>, T, List<T>>
+  updateAtAndGet(index: number, update: (current: T) => T): [result: List.NonEmpty<T>, value: T, hasValue: true] | [result: List<T>, value: undefined, hasValue: false]
   ```
 - `with` (inherited from list/ListBase)
   ```ts
@@ -10518,7 +10518,7 @@ Extends: `list/ListBase`
   ```
 - `withAndGet` [NonEmpty] (inherited from list/ListBase)
   ```ts
-  withAndGet(index: number, value: T): WithValueResult<List.NonEmpty<T>, T, List<T>>
+  withAndGet(index: number, value: T): [result: List.NonEmpty<T>, value: T, hasValue: true] | [result: List<T>, value: undefined, hasValue: false]
   ```
 - `first` (inherited from list/ListBase)
   ```ts
@@ -10563,10 +10563,10 @@ Extends: `list/ListBase`
   ```
 - `spliceAndGet` [NonEmpty] (inherited from list/ListBase)
   ```ts
-  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): WithValueResult<List.NonEmpty<T>, List.NonEmpty<T>>
+  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): [result: List.NonEmpty<T>, value: List.NonEmpty<T>, hasValue: true] | [result: List.NonEmpty<T>, value: undefined, hasValue: false]
   ```
   ```ts
-  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T>; }): WithValueResult<List<T>, List.NonEmpty<T>, List<T>>
+  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T>; }): [result: List<T>, value: undefined, hasValue: false] | [result: List<T>, value: List.NonEmpty<T>, hasValue: true]
   ```
 - `insert` [NonEmpty] (inherited from list/ListBase)
   ```ts
@@ -10581,7 +10581,7 @@ Extends: `list/ListBase`
   ```
 - `removeAndGet` [NonEmpty] (inherited from list/ListBase)
   ```ts
-  removeAndGet(index: number, options?: { amount?: number | undefined; } | undefined): WithValueResult<List<T>, List.NonEmpty<T>>
+  removeAndGet(index: number, options?: { amount?: number | undefined; } | undefined): [result: List<T>, value: undefined, hasValue: false] | [result: List<T>, value: List.NonEmpty<T>, hasValue: true]
   ```
 - `repeat` (inherited from list/ListBase)
   ```ts
@@ -10767,7 +10767,7 @@ Extends: `list/ListBase`
   ```
 - `updateAtAndGet` [NonEmpty] (inherited from list/ListBase)
   ```ts
-  updateAtAndGet(index: number, update: (current: T) => T): WithValueResult<List.NonEmpty<T>, T, List<T>>
+  updateAtAndGet(index: number, update: (current: T) => T): [result: List.NonEmpty<T>, value: T, hasValue: true] | [result: List<T>, value: undefined, hasValue: false]
   ```
 - `with` (inherited from list/ListBase)
   ```ts
@@ -10775,7 +10775,7 @@ Extends: `list/ListBase`
   ```
 - `withAndGet` [NonEmpty] (inherited from list/ListBase)
   ```ts
-  withAndGet(index: number, value: T): WithValueResult<List.NonEmpty<T>, T, List<T>>
+  withAndGet(index: number, value: T): [result: List.NonEmpty<T>, value: T, hasValue: true] | [result: List<T>, value: undefined, hasValue: false]
   ```
 - `first` (inherited from list/ListBase)
   ```ts
@@ -10820,10 +10820,10 @@ Extends: `list/ListBase`
   ```
 - `spliceAndGet` [NonEmpty] (inherited from list/ListBase)
   ```ts
-  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): WithValueResult<List.NonEmpty<T>, List.NonEmpty<T>>
+  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): [result: List.NonEmpty<T>, value: List.NonEmpty<T>, hasValue: true] | [result: List.NonEmpty<T>, value: undefined, hasValue: false]
   ```
   ```ts
-  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T>; }): WithValueResult<List<T>, List.NonEmpty<T>, List<T>>
+  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T>; }): [result: List<T>, value: undefined, hasValue: false] | [result: List<T>, value: List.NonEmpty<T>, hasValue: true]
   ```
 - `insert` [NonEmpty] (inherited from list/ListBase)
   ```ts
@@ -10838,7 +10838,7 @@ Extends: `list/ListBase`
   ```
 - `removeAndGet` [NonEmpty] (inherited from list/ListBase)
   ```ts
-  removeAndGet(index: number, options?: { amount?: number | undefined; } | undefined): WithValueResult<List<T>, List.NonEmpty<T>>
+  removeAndGet(index: number, options?: { amount?: number | undefined; } | undefined): [result: List<T>, value: undefined, hasValue: false] | [result: List<T>, value: List.NonEmpty<T>, hasValue: true]
   ```
 - `repeat` (inherited from list/ListBase)
   ```ts
@@ -11034,7 +11034,7 @@ Extends: `list/ListBase`
   ```
 - `updateAtAndGet` [NonEmpty] (inherited from list/ListBase)
   ```ts
-  updateAtAndGet(index: number, update: (current: T) => T): WithValueResult<List.NonEmpty<T>, T, List<T>>
+  updateAtAndGet(index: number, update: (current: T) => T): [result: List.NonEmpty<T>, value: T, hasValue: true] | [result: List<T>, value: undefined, hasValue: false]
   ```
 - `with` (inherited from list/ListBase)
   ```ts
@@ -11042,7 +11042,7 @@ Extends: `list/ListBase`
   ```
 - `withAndGet` [NonEmpty] (inherited from list/ListBase)
   ```ts
-  withAndGet(index: number, value: T): WithValueResult<List.NonEmpty<T>, T, List<T>>
+  withAndGet(index: number, value: T): [result: List.NonEmpty<T>, value: T, hasValue: true] | [result: List<T>, value: undefined, hasValue: false]
   ```
 - `first` (inherited from list/ListBase)
   ```ts
@@ -11087,10 +11087,10 @@ Extends: `list/ListBase`
   ```
 - `spliceAndGet` [NonEmpty] (inherited from list/ListBase)
   ```ts
-  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): WithValueResult<List.NonEmpty<T>, List.NonEmpty<T>>
+  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): [result: List.NonEmpty<T>, value: List.NonEmpty<T>, hasValue: true] | [result: List.NonEmpty<T>, value: undefined, hasValue: false]
   ```
   ```ts
-  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T>; }): WithValueResult<List<T>, List.NonEmpty<T>, List<T>>
+  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T>; }): [result: List<T>, value: undefined, hasValue: false] | [result: List<T>, value: List.NonEmpty<T>, hasValue: true]
   ```
 - `insert` [NonEmpty] (inherited from list/ListBase)
   ```ts
@@ -11105,7 +11105,7 @@ Extends: `list/ListBase`
   ```
 - `removeAndGet` [NonEmpty] (inherited from list/ListBase)
   ```ts
-  removeAndGet(index: number, options?: { amount?: number | undefined; } | undefined): WithValueResult<List<T>, List.NonEmpty<T>>
+  removeAndGet(index: number, options?: { amount?: number | undefined; } | undefined): [result: List<T>, value: undefined, hasValue: false] | [result: List<T>, value: List.NonEmpty<T>, hasValue: true]
   ```
 - `repeat` (inherited from list/ListBase)
   ```ts
@@ -11295,7 +11295,7 @@ Extends: `stream/FastIterable`, `stream/Streamable`
   ```
 - `updateAtAndGet` [NonEmpty]
   ```ts
-  updateAtAndGet(index: number, update: (current: T) => T): WithValueResult<List.NonEmpty<T>, T, List<T>>
+  updateAtAndGet(index: number, update: (current: T) => T): [result: List.NonEmpty<T>, value: T, hasValue: true] | [result: List<T>, value: undefined, hasValue: false]
   ```
 - `with`
   ```ts
@@ -11303,7 +11303,7 @@ Extends: `stream/FastIterable`, `stream/Streamable`
   ```
 - `withAndGet` [NonEmpty]
   ```ts
-  withAndGet(index: number, value: T): WithValueResult<List.NonEmpty<T>, T, List<T>>
+  withAndGet(index: number, value: T): [result: List.NonEmpty<T>, value: T, hasValue: true] | [result: List<T>, value: undefined, hasValue: false]
   ```
 - `first`
   ```ts
@@ -11348,10 +11348,10 @@ Extends: `stream/FastIterable`, `stream/Streamable`
   ```
 - `spliceAndGet` [NonEmpty]
   ```ts
-  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): WithValueResult<List.NonEmpty<T>, List.NonEmpty<T>>
+  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): [result: List.NonEmpty<T>, value: List.NonEmpty<T>, hasValue: true] | [result: List.NonEmpty<T>, value: undefined, hasValue: false]
   ```
   ```ts
-  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T>; }): WithValueResult<List<T>, List.NonEmpty<T>, List<T>>
+  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T>; }): [result: List<T>, value: undefined, hasValue: false] | [result: List<T>, value: List.NonEmpty<T>, hasValue: true]
   ```
 - `insert` [NonEmpty]
   ```ts
@@ -11366,7 +11366,7 @@ Extends: `stream/FastIterable`, `stream/Streamable`
   ```
 - `removeAndGet` [NonEmpty]
   ```ts
-  removeAndGet(index: number, options?: { amount?: number | undefined; } | undefined): WithValueResult<List<T>, List.NonEmpty<T>>
+  removeAndGet(index: number, options?: { amount?: number | undefined; } | undefined): [result: List<T>, value: undefined, hasValue: false] | [result: List<T>, value: List.NonEmpty<T>, hasValue: true]
   ```
 - `repeat`
   ```ts
@@ -11608,7 +11608,7 @@ Related types: `NonEmpty`, `Builder`, `Context`, `Factory`, `OuterChildrenTag`, 
   ```
 - `updateAtAndGet`
   ```ts
-  updateAtAndGet(index: number, update: (current: T) => T): WithValueResult<WithElem<Tp, T>["nonEmpty"], T>
+  updateAtAndGet(index: number, update: (current: T) => T): [result: WithElem<Tp, T>["nonEmpty"], value: T, hasValue: true] | [result: WithElem<Tp, T>["nonEmpty"], value: undefined, hasValue: false]
   ```
 - `with`
   ```ts
@@ -11616,7 +11616,7 @@ Related types: `NonEmpty`, `Builder`, `Context`, `Factory`, `OuterChildrenTag`, 
   ```
 - `withAndGet`
   ```ts
-  withAndGet(index: number, value: T): WithValueResult<WithElem<Tp, T>["nonEmpty"], T>
+  withAndGet(index: number, value: T): [result: WithElem<Tp, T>["nonEmpty"], value: T, hasValue: true] | [result: WithElem<Tp, T>["nonEmpty"], value: undefined, hasValue: false]
   ```
 - `first`
   ```ts
@@ -11639,10 +11639,10 @@ Related types: `NonEmpty`, `Builder`, `Context`, `Factory`, `OuterChildrenTag`, 
   ```
 - `spliceAndGet` [NonEmpty]
   ```ts
-  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): WithValueResult<WithElem<Tp, T>["nonEmpty"], WithElem<Tp, T>["nonEmpty"]>
+  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): [result: WithElem<Tp, T>["nonEmpty"], value: undefined, hasValue: false] | [result: WithElem<Tp, T>["nonEmpty"], value: WithElem<Tp, T>["nonEmpty"], hasValue: true]
   ```
   ```ts
-  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T> | undefined; }): WithValueResult<WithElem<Tp, T>["normal"], WithElem<Tp, T>["nonEmpty"], WithElem<Tp, T>["normal"]>
+  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T> | undefined; }): [result: WithElem<Tp, T>["normal"], value: WithElem<Tp, T>["nonEmpty"], hasValue: true] | [result: WithElem<Tp, T>["normal"], value: undefined, hasValue: false]
   ```
 - `insert`
   ```ts
@@ -11676,7 +11676,7 @@ Related types: `NonEmpty`, `Builder`, `Context`, `Factory`, `OuterChildrenTag`, 
   ```
 - `removeAndGet`
   ```ts
-  removeAndGet(index: number, options?: { amount?: number; }): WithValueResult<WithElem<Tp, T>["normal"], WithElem<Tp, T>["nonEmpty"], WithElem<Tp, T>["nonEmpty"]>
+  removeAndGet(index: number, options?: { amount?: number; }): [result: WithElem<Tp, T>["nonEmpty"], value: undefined, hasValue: false] | [result: WithElem<Tp, T>["normal"], value: WithElem<Tp, T>["nonEmpty"], hasValue: true]
   ```
 - `repeat`
   ```ts
@@ -11792,7 +11792,7 @@ Extends: `list/ListBase`
   ```
 - `updateAtAndGet` [NonEmpty] (inherited from list/ListBase)
   ```ts
-  updateAtAndGet(index: number, update: (current: T) => T): WithValueResult<List.NonEmpty<T>, T, List<T>>
+  updateAtAndGet(index: number, update: (current: T) => T): [result: List.NonEmpty<T>, value: T, hasValue: true] | [result: List<T>, value: undefined, hasValue: false]
   ```
 - `with` (inherited from list/ListBase)
   ```ts
@@ -11800,7 +11800,7 @@ Extends: `list/ListBase`
   ```
 - `withAndGet` [NonEmpty] (inherited from list/ListBase)
   ```ts
-  withAndGet(index: number, value: T): WithValueResult<List.NonEmpty<T>, T, List<T>>
+  withAndGet(index: number, value: T): [result: List.NonEmpty<T>, value: T, hasValue: true] | [result: List<T>, value: undefined, hasValue: false]
   ```
 - `first` (inherited from list/ListBase)
   ```ts
@@ -11845,10 +11845,10 @@ Extends: `list/ListBase`
   ```
 - `spliceAndGet` [NonEmpty] (inherited from list/ListBase)
   ```ts
-  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): WithValueResult<List.NonEmpty<T>, List.NonEmpty<T>>
+  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert: StreamSource.NonEmpty<T>; }): [result: List.NonEmpty<T>, value: List.NonEmpty<T>, hasValue: true] | [result: List.NonEmpty<T>, value: undefined, hasValue: false]
   ```
   ```ts
-  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T>; }): WithValueResult<List<T>, List.NonEmpty<T>, List<T>>
+  spliceAndGet(options: { index?: number | undefined; remove?: number | undefined; insert?: StreamSource<T>; }): [result: List<T>, value: undefined, hasValue: false] | [result: List<T>, value: List.NonEmpty<T>, hasValue: true]
   ```
 - `insert` [NonEmpty] (inherited from list/ListBase)
   ```ts
@@ -11863,7 +11863,7 @@ Extends: `list/ListBase`
   ```
 - `removeAndGet` [NonEmpty] (inherited from list/ListBase)
   ```ts
-  removeAndGet(index: number, options?: { amount?: number | undefined; } | undefined): WithValueResult<List<T>, List.NonEmpty<T>>
+  removeAndGet(index: number, options?: { amount?: number | undefined; } | undefined): [result: List<T>, value: undefined, hasValue: false] | [result: List<T>, value: List.NonEmpty<T>, hasValue: true]
   ```
 - `repeat` (inherited from list/ListBase)
   ```ts
@@ -12106,7 +12106,7 @@ Extends: `multimap/MultiMapBase`
   ```
 - `removeKeyAndGet` [NonEmpty] (inherited from multimap/MultiMapBase)
   ```ts
-  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<HashMultiMapSortedValue<K, V>, SortedSet.NonEmpty<V>>
+  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: HashMultiMapSortedValue<K, V>, value: SortedSet.NonEmpty<V>, hasValue: true] | [result: HashMultiMapSortedValue<K, V>, value: undefined, hasValue: false]
   ```
 - `forEach` (inherited from multimap/MultiMapBase)
   ```ts
@@ -12396,7 +12396,7 @@ Extends: `multimap/MultiMapBase`
   ```
 - `removeKeyAndGet` [NonEmpty] (inherited from multimap/MultiMapBase)
   ```ts
-  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<HashMultiMapSortedValue<K, V>, SortedSet.NonEmpty<V>>
+  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: HashMultiMapSortedValue<K, V>, value: SortedSet.NonEmpty<V>, hasValue: true] | [result: HashMultiMapSortedValue<K, V>, value: undefined, hasValue: false]
   ```
 - `forEach` (inherited from multimap/MultiMapBase)
   ```ts
@@ -12694,7 +12694,7 @@ Extends: `multimap/MultiMapBase`
   ```
 - `removeKeyAndGet` [NonEmpty] (inherited from multimap/MultiMapBase)
   ```ts
-  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<HashMultiMapSortedValue<K, V>, SortedSet.NonEmpty<V>>
+  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: HashMultiMapSortedValue<K, V>, value: SortedSet.NonEmpty<V>, hasValue: true] | [result: HashMultiMapSortedValue<K, V>, value: undefined, hasValue: false]
   ```
 - `forEach` (inherited from multimap/MultiMapBase)
   ```ts
@@ -12918,7 +12918,7 @@ Extends: `multimap/VariantMultiMapBase`
   ```
 - `removeKeyAndGet` [NonEmpty] (inherited from multimap/VariantMultiMapBase)
   ```ts
-  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<HashMultiMapSortedValue<K, V>, SortedSet.NonEmpty<V>>
+  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: HashMultiMapSortedValue<K, V>, value: SortedSet.NonEmpty<V>, hasValue: true] | [result: HashMultiMapSortedValue<K, V>, value: undefined, hasValue: false]
   ```
 - `forEach` (inherited from multimap/VariantMultiMapBase)
   ```ts
@@ -13286,7 +13286,7 @@ Extends: `multimap/MultiMapBase`
   ```
 - `removeKeyAndGet` [NonEmpty] (inherited from multimap/MultiMapBase)
   ```ts
-  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<HashMultiMapSortedValue<K, V>, SortedSet.NonEmpty<V>>
+  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: HashMultiMapSortedValue<K, V>, value: SortedSet.NonEmpty<V>, hasValue: true] | [result: HashMultiMapSortedValue<K, V>, value: undefined, hasValue: false]
   ```
 - `forEach` (inherited from multimap/MultiMapBase)
   ```ts
@@ -13576,7 +13576,7 @@ Extends: `multimap/MultiMapBase`
   ```
 - `removeKeyAndGet` [NonEmpty] (inherited from multimap/MultiMapBase)
   ```ts
-  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<HashMultiMapSortedValue<K, V>, SortedSet.NonEmpty<V>>
+  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: HashMultiMapSortedValue<K, V>, value: SortedSet.NonEmpty<V>, hasValue: true] | [result: HashMultiMapSortedValue<K, V>, value: undefined, hasValue: false]
   ```
 - `forEach` (inherited from multimap/MultiMapBase)
   ```ts
@@ -13798,7 +13798,7 @@ Extends: `multimap/VariantMultiMapBase`
   ```
 - `removeKeyAndGet` [NonEmpty] (inherited from multimap/VariantMultiMapBase)
   ```ts
-  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<HashMultiMapSortedValue<K, V>, SortedSet.NonEmpty<V>>
+  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: HashMultiMapSortedValue<K, V>, value: SortedSet.NonEmpty<V>, hasValue: true] | [result: HashMultiMapSortedValue<K, V>, value: undefined, hasValue: false]
   ```
 - `forEach` (inherited from multimap/VariantMultiMapBase)
   ```ts
@@ -13928,7 +13928,7 @@ Extends: `stream/FastIterable`
   ```
 - `removeKeyAndGet` [NonEmpty]
   ```ts
-  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<HashMultiMapSortedValue<K, V>, SortedSet.NonEmpty<V>>
+  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: HashMultiMapSortedValue<K, V>, value: SortedSet.NonEmpty<V>, hasValue: true] | [result: HashMultiMapSortedValue<K, V>, value: undefined, hasValue: false]
   ```
 - `forEach`
   ```ts
@@ -14015,7 +14015,7 @@ Related types: `NonEmpty`, `Types`
   ```
 - `removeKeyAndGet` [NonEmpty]
   ```ts
-  removeKeyAndGet<UK = K>(key: RelatedTo<K, UK>): WithValueResult<WithKeyValue<Tp, K, V>["normal"], WithKeyValue<Tp, K, V>["keyMapValuesNonEmpty"], WithKeyValue<Tp, K, V>["nonEmpty"]>
+  removeKeyAndGet<UK = K>(key: RelatedTo<K, UK>): [result: WithKeyValue<Tp, K, V>["normal"], value: WithKeyValue<Tp, K, V>["keyMapValuesNonEmpty"], hasValue: true] | [result: WithKeyValue<Tp, K, V>["nonEmpty"], value: undefined, hasValue: false]
   ```
 - `toArray` [NonEmpty]
   ```ts
@@ -15375,7 +15375,7 @@ Extends: `ordered/OrderedMapBase`
   ```
 - `updateAtAndGet` [NonEmpty] (inherited from ordered/OrderedMapBase)
   ```ts
-  updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): WithValueResult<OrderedSortedMap.NonEmpty<K, V>, V, OrderedSortedMap<K, V>>
+  updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): [result: OrderedSortedMap.NonEmpty<K, V>, value: V, hasValue: true] | [result: OrderedSortedMap<K, V>, value: undefined, hasValue: false]
   ```
 - `toBuilder` (inherited from ordered/OrderedMapBase)
   ```ts
@@ -15430,7 +15430,7 @@ Extends: `ordered/OrderedMapBase`
   ```
 - `removeKeyAndGet` (inherited from ordered/OrderedMapBase)
   ```ts
-  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<OrderedSortedMap<K, V>, V>
+  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: OrderedSortedMap<K, V>, value: undefined, hasValue: false] | [result: OrderedSortedMap<K, V>, value: V, hasValue: true]
   ```
 - `forEach` (inherited from ordered/OrderedMapBase)
   ```ts
@@ -15835,7 +15835,7 @@ Extends: `ordered/OrderedMapBase`
   ```
 - `updateAtAndGet` [NonEmpty] (inherited from ordered/OrderedMapBase)
   ```ts
-  updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): WithValueResult<OrderedSortedMap.NonEmpty<K, V>, V, OrderedSortedMap<K, V>>
+  updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): [result: OrderedSortedMap.NonEmpty<K, V>, value: V, hasValue: true] | [result: OrderedSortedMap<K, V>, value: undefined, hasValue: false]
   ```
 - `toBuilder` (inherited from ordered/OrderedMapBase)
   ```ts
@@ -15890,7 +15890,7 @@ Extends: `ordered/OrderedMapBase`
   ```
 - `removeKeyAndGet` (inherited from ordered/OrderedMapBase)
   ```ts
-  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<OrderedSortedMap<K, V>, V>
+  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: OrderedSortedMap<K, V>, value: undefined, hasValue: false] | [result: OrderedSortedMap<K, V>, value: V, hasValue: true]
   ```
 - `forEach` (inherited from ordered/OrderedMapBase)
   ```ts
@@ -16021,7 +16021,7 @@ Extends: `collection-types/RMapBase`
   ```
 - `updateAtAndGet` [NonEmpty] (inherited from collection-types/RMapBase)
   ```ts
-  updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): WithValueResult<OrderedSortedMap.NonEmpty<K, V>, V, OrderedSortedMap<K, V>>
+  updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): [result: OrderedSortedMap.NonEmpty<K, V>, value: V, hasValue: true] | [result: OrderedSortedMap<K, V>, value: undefined, hasValue: false]
   ```
 - `toBuilder` (inherited from collection-types/RMapBase)
   ```ts
@@ -16076,7 +16076,7 @@ Extends: `collection-types/RMapBase`
   ```
 - `removeKeyAndGet` (inherited from collection-types/RMapBase)
   ```ts
-  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<OrderedSortedMap<K, V>, V>
+  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: OrderedSortedMap<K, V>, value: undefined, hasValue: false] | [result: OrderedSortedMap<K, V>, value: V, hasValue: true]
   ```
 - `forEach` (inherited from collection-types/RMapBase)
   ```ts
@@ -16599,7 +16599,7 @@ Extends: `ordered/OrderedMapBase`
   ```
 - `updateAtAndGet` [NonEmpty] (inherited from ordered/OrderedMapBase)
   ```ts
-  updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): WithValueResult<OrderedSortedMap.NonEmpty<K, V>, V, OrderedSortedMap<K, V>>
+  updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): [result: OrderedSortedMap.NonEmpty<K, V>, value: V, hasValue: true] | [result: OrderedSortedMap<K, V>, value: undefined, hasValue: false]
   ```
 - `toBuilder` (inherited from ordered/OrderedMapBase)
   ```ts
@@ -16654,7 +16654,7 @@ Extends: `ordered/OrderedMapBase`
   ```
 - `removeKeyAndGet` (inherited from ordered/OrderedMapBase)
   ```ts
-  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<OrderedSortedMap<K, V>, V>
+  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: OrderedSortedMap<K, V>, value: undefined, hasValue: false] | [result: OrderedSortedMap<K, V>, value: V, hasValue: true]
   ```
 - `forEach` (inherited from ordered/OrderedMapBase)
   ```ts
@@ -17071,7 +17071,7 @@ Extends: `collection-types/RMapBase`
   ```
 - `updateAtAndGet` [NonEmpty] (inherited from collection-types/RMapBase)
   ```ts
-  updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): WithValueResult<ProximityMap.NonEmpty<K, V>, V, ProximityMap<K, V>>
+  updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): [result: ProximityMap.NonEmpty<K, V>, value: V, hasValue: true] | [result: ProximityMap<K, V>, value: undefined, hasValue: false]
   ```
 - `toBuilder` (inherited from collection-types/RMapBase)
   ```ts
@@ -17126,7 +17126,7 @@ Extends: `collection-types/RMapBase`
   ```
 - `removeKeyAndGet` (inherited from collection-types/RMapBase)
   ```ts
-  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<ProximityMap<K, V>, V>
+  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: ProximityMap<K, V>, value: undefined, hasValue: false] | [result: ProximityMap<K, V>, value: V, hasValue: true]
   ```
 - `forEach` (inherited from collection-types/RMapBase)
   ```ts
@@ -17432,7 +17432,7 @@ Extends: `collection-types/RMapBase`
   ```
 - `updateAtAndGet` [NonEmpty] (inherited from collection-types/RMapBase)
   ```ts
-  updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): WithValueResult<SortedMap.NonEmpty<K, V>, V, SortedMap<K, V>>
+  updateAtAndGet<UK>(key: RelatedTo<K, UK>, update: VariantUpdate<V>): [result: SortedMap.NonEmpty<K, V>, value: V, hasValue: true] | [result: SortedMap<K, V>, value: undefined, hasValue: false]
   ```
 - `toBuilder` (inherited from collection-types/RMapBase)
   ```ts
@@ -17487,7 +17487,7 @@ Extends: `collection-types/RMapBase`
   ```
 - `removeKeyAndGet` (inherited from collection-types/RMapBase)
   ```ts
-  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): WithValueResult<SortedMap<K, V>, V>
+  removeKeyAndGet<UK>(key: RelatedTo<K, UK>): [result: SortedMap<K, V>, value: undefined, hasValue: false] | [result: SortedMap<K, V>, value: V, hasValue: true]
   ```
 - `forEach` (inherited from collection-types/RMapBase)
   ```ts
@@ -31946,11 +31946,11 @@ Extends: `table/TableBase`
   ```
 - `removeAndGet` (inherited from table/TableBase)
   ```ts
-  removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): WithValueResult<VariantTable<R, C, V>, V>
+  removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): [result: VariantTable<R, C, V>, value: V, hasValue: true] | [result: VariantTable<R, C, V>, value: undefined, hasValue: false]
   ```
 - `removeRowAndGet` [NonEmpty] (inherited from table/TableBase)
   ```ts
-  removeRowAndGet<UR>(row: RelatedTo<R, UR>): WithValueResult<VariantTable<R, C, V>, VariantMap.NonEmpty<C, V>>
+  removeRowAndGet<UR>(row: RelatedTo<R, UR>): [result: VariantTable<R, C, V>, value: undefined, hasValue: false] | [result: VariantTable<R, C, V>, value: VariantMap.NonEmpty<C, V>, hasValue: true]
   ```
 - `removeRows` (inherited from table/TableBase)
   ```ts
@@ -32186,11 +32186,11 @@ Extends: `table/TableBase`
   ```
 - `removeAndGet` (inherited from table/TableBase)
   ```ts
-  removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): WithValueResult<VariantTable<R, C, V>, V>
+  removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): [result: VariantTable<R, C, V>, value: V, hasValue: true] | [result: VariantTable<R, C, V>, value: undefined, hasValue: false]
   ```
 - `removeRowAndGet` [NonEmpty] (inherited from table/TableBase)
   ```ts
-  removeRowAndGet<UR>(row: RelatedTo<R, UR>): WithValueResult<VariantTable<R, C, V>, VariantMap.NonEmpty<C, V>>
+  removeRowAndGet<UR>(row: RelatedTo<R, UR>): [result: VariantTable<R, C, V>, value: undefined, hasValue: false] | [result: VariantTable<R, C, V>, value: VariantMap.NonEmpty<C, V>, hasValue: true]
   ```
 - `removeRows` (inherited from table/TableBase)
   ```ts
@@ -32440,11 +32440,11 @@ Extends: `table/TableBase`
   ```
 - `removeAndGet` (inherited from table/TableBase)
   ```ts
-  removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): WithValueResult<VariantTable<R, C, V>, V>
+  removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): [result: VariantTable<R, C, V>, value: V, hasValue: true] | [result: VariantTable<R, C, V>, value: undefined, hasValue: false]
   ```
 - `removeRowAndGet` [NonEmpty] (inherited from table/TableBase)
   ```ts
-  removeRowAndGet<UR>(row: RelatedTo<R, UR>): WithValueResult<VariantTable<R, C, V>, VariantMap.NonEmpty<C, V>>
+  removeRowAndGet<UR>(row: RelatedTo<R, UR>): [result: VariantTable<R, C, V>, value: undefined, hasValue: false] | [result: VariantTable<R, C, V>, value: VariantMap.NonEmpty<C, V>, hasValue: true]
   ```
 - `removeRows` (inherited from table/TableBase)
   ```ts
@@ -32686,11 +32686,11 @@ Extends: `table/TableBase`
   ```
 - `removeAndGet` (inherited from table/TableBase)
   ```ts
-  removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): WithValueResult<VariantTable<R, C, V>, V>
+  removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): [result: VariantTable<R, C, V>, value: V, hasValue: true] | [result: VariantTable<R, C, V>, value: undefined, hasValue: false]
   ```
 - `removeRowAndGet` [NonEmpty] (inherited from table/TableBase)
   ```ts
-  removeRowAndGet<UR>(row: RelatedTo<R, UR>): WithValueResult<VariantTable<R, C, V>, VariantMap.NonEmpty<C, V>>
+  removeRowAndGet<UR>(row: RelatedTo<R, UR>): [result: VariantTable<R, C, V>, value: undefined, hasValue: false] | [result: VariantTable<R, C, V>, value: VariantMap.NonEmpty<C, V>, hasValue: true]
   ```
 - `removeRows` (inherited from table/TableBase)
   ```ts
@@ -32932,11 +32932,11 @@ Extends: `table/TableBase`
   ```
 - `removeAndGet` (inherited from table/TableBase)
   ```ts
-  removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): WithValueResult<VariantTable<R, C, V>, V>
+  removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): [result: VariantTable<R, C, V>, value: V, hasValue: true] | [result: VariantTable<R, C, V>, value: undefined, hasValue: false]
   ```
 - `removeRowAndGet` [NonEmpty] (inherited from table/TableBase)
   ```ts
-  removeRowAndGet<UR>(row: RelatedTo<R, UR>): WithValueResult<VariantTable<R, C, V>, VariantMap.NonEmpty<C, V>>
+  removeRowAndGet<UR>(row: RelatedTo<R, UR>): [result: VariantTable<R, C, V>, value: undefined, hasValue: false] | [result: VariantTable<R, C, V>, value: VariantMap.NonEmpty<C, V>, hasValue: true]
   ```
 - `removeRows` (inherited from table/TableBase)
   ```ts
@@ -33128,11 +33128,11 @@ Extends: `table/VariantTableBase`
   ```
 - `removeAndGet` (inherited from table/VariantTableBase)
   ```ts
-  removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): WithValueResult<VariantTable<R, C, V>, V>
+  removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): [result: VariantTable<R, C, V>, value: V, hasValue: true] | [result: VariantTable<R, C, V>, value: undefined, hasValue: false]
   ```
 - `removeRowAndGet` [NonEmpty] (inherited from table/VariantTableBase)
   ```ts
-  removeRowAndGet<UR>(row: RelatedTo<R, UR>): WithValueResult<VariantTable<R, C, V>, VariantMap.NonEmpty<C, V>>
+  removeRowAndGet<UR>(row: RelatedTo<R, UR>): [result: VariantTable<R, C, V>, value: undefined, hasValue: false] | [result: VariantTable<R, C, V>, value: VariantMap.NonEmpty<C, V>, hasValue: true]
   ```
 - `removeRows` (inherited from table/VariantTableBase)
   ```ts
@@ -33455,11 +33455,11 @@ Extends: `table/VariantTableBase`
   ```
 - `removeAndGet` (inherited from table/VariantTableBase)
   ```ts
-  removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): WithValueResult<VariantTable<R, C, V>, V>
+  removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): [result: VariantTable<R, C, V>, value: V, hasValue: true] | [result: VariantTable<R, C, V>, value: undefined, hasValue: false]
   ```
 - `removeRowAndGet` [NonEmpty] (inherited from table/VariantTableBase)
   ```ts
-  removeRowAndGet<UR>(row: RelatedTo<R, UR>): WithValueResult<VariantTable<R, C, V>, VariantMap.NonEmpty<C, V>>
+  removeRowAndGet<UR>(row: RelatedTo<R, UR>): [result: VariantTable<R, C, V>, value: undefined, hasValue: false] | [result: VariantTable<R, C, V>, value: VariantMap.NonEmpty<C, V>, hasValue: true]
   ```
 - `removeRows` (inherited from table/VariantTableBase)
   ```ts
@@ -33596,11 +33596,11 @@ Extends: `stream/FastIterable`
   ```
 - `removeAndGet`
   ```ts
-  removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): WithValueResult<VariantTable<R, C, V>, V>
+  removeAndGet<UR, UC>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): [result: VariantTable<R, C, V>, value: V, hasValue: true] | [result: VariantTable<R, C, V>, value: undefined, hasValue: false]
   ```
 - `removeRowAndGet` [NonEmpty]
   ```ts
-  removeRowAndGet<UR>(row: RelatedTo<R, UR>): WithValueResult<VariantTable<R, C, V>, VariantMap.NonEmpty<C, V>>
+  removeRowAndGet<UR>(row: RelatedTo<R, UR>): [result: VariantTable<R, C, V>, value: undefined, hasValue: false] | [result: VariantTable<R, C, V>, value: VariantMap.NonEmpty<C, V>, hasValue: true]
   ```
 - `removeRows`
   ```ts
@@ -33688,11 +33688,11 @@ Related types: `NonEmpty`, `Types`
   ```
 - `removeAndGet`
   ```ts
-  removeAndGet<UR = R, UC = C>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): WithValueResult<WithRow<Tp, R, C, V>["normal"], V, WithRow<Tp, R, C, V>["nonEmpty"]>
+  removeAndGet<UR = R, UC = C>(row: RelatedTo<R, UR>, column: RelatedTo<C, UC>): [result: WithRow<Tp, R, C, V>["normal"], value: V, hasValue: true] | [result: WithRow<Tp, R, C, V>["nonEmpty"], value: undefined, hasValue: false]
   ```
 - `removeRowAndGet` [NonEmpty]
   ```ts
-  removeRowAndGet<UR = R>(row: RelatedTo<R, UR>): WithValueResult<WithRow<Tp, R, C, V>["normal"], WithRow<Tp, R, C, V>["rowNonEmpty"], WithRow<Tp, R, C, V>["nonEmpty"]>
+  removeRowAndGet<UR = R>(row: RelatedTo<R, UR>): [result: WithRow<Tp, R, C, V>["nonEmpty"], value: undefined, hasValue: false] | [result: WithRow<Tp, R, C, V>["normal"], value: WithRow<Tp, R, C, V>["rowNonEmpty"], hasValue: true]
   ```
 - `mapValues`
   ```ts

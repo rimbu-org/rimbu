@@ -59,6 +59,7 @@ export interface ToJSON<V, D extends string = string> {
  * @typeparam V - the value type when a value is present
  * @typeparam RNoValue - the result type when no value is present (default: `R`)
  * @typeparam VNoValue - the value type when no value is present (default: `undefined`)
+ * @docExpand
  */
 export type WithValueResult<R, V, RNoValue = R, VNoValue = undefined> =
 	| [result: R, value: V, hasValue: true]
