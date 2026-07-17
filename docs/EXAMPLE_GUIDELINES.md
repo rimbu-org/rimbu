@@ -249,6 +249,42 @@ Rules for the parser/verifier (keep these exact):
 - Each `console.log` gets exactly one output comment (inline, next-line, or
   multi-line).
 
+### 6c. Parser pitfalls (from the List pilot — avoid these)
+
+- **Keep `console.log(...)` on one physical line.** The verifier pairs a
+  `console.log` with the `// =>` on the **same line** (or the line immediately
+  below). If a call spans multiple lines (e.g. a multi-line arrow argument with the
+  chained `.toString()); // =>` on the closing line), the comment is orphaned and
+  reported as "missing". Fix: assign the result to a `const`, then log it on a
+  single line:
+
+  ```ts
+  const halted = list.collect((v, i, skip, halt) => {
+    if (v > 1) halt();
+    return v * 2;
+  });
+  console.log(halted.toString()); // => List(0, 2, 4)
+  ```
+
+- **Don't log inside a loop body.** A single `console.log` inside `forEach`/`for`
+  fires once per element but parses as one statement, producing a "captured N logs
+  but only 1 console.log parsed" mismatch. Collect into an array and log once:
+
+  ```ts
+  const collected: number[] = [];
+  list.forEach((value, i, halt) => {
+    collected.push(value * 2);
+    if (i >= 1) halt();
+  });
+  console.log(collected); // => [ 0, 2 ]
+  ```
+
+- **Let type-checking correct the API usage, not just the output.** The gate
+  rejects examples that mis-use overloads: e.g. a fallback argument
+  (`.first('x')`) is not allowed on a value known non-empty (`List.of(...)`); use a
+  possibly-empty, explicitly-typed source (`const l: List<number> = List.empty()`).
+  Prefer the exact signature the example is attached to.
+
 ---
 
 ## 7. Checklist (per example)

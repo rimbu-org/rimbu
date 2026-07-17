@@ -25,7 +25,7 @@ export namespace ListHelpers {
 		 * ```ts
 		 * import { List } from '@rimbu/list';
 		 *
-		 * console.log(List.fromString('abc').toArray())   // => ['a', 'b', 'c']
+		 * console.log(List.fromString('abc').toArray()); // => [ "a", "b", "c" ]
 		 * ```
 		 */
 		fromString<S extends string>(

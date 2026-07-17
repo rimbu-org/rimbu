@@ -15,9 +15,13 @@ import { ListHelpers } from '#list/list-helpers';
  * ```ts
  * import { List } from '@rimbu/list';
  *
- * const l1 = List.empty<number>()
- * const l2 = List.of(1, 2, 3)
- * console.log(l2.toArray())  // => [1, 2, 3]
+ * const initialList = List.of(1, 2, 3, 4, 5);
+ * const updatedList = initialList
+ *   .append(6)
+ *   .filter((v) => v % 2 === 0)
+ *   .map((v) => v * 10);
+ * console.log(updatedList.toString()); // => List(20, 40, 60)
+ * console.log(updatedList.get(0, 'none')); // => 20
  * ```
  */
 export interface List<T> extends ListBase<T, ListHelpers.Types> {}

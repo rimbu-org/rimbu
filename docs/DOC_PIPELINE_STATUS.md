@@ -76,6 +76,47 @@ The guidelines doc is done and under review; the tool is the next build.
 > rule). Verify them once the capture tool exists.  ← now doable via the verify
 > tool; note Bun formats arrays with inner spaces (`[ 1, 2, 3 ]`).
 
+**List pilot — DONE (all 74 `@example` blocks rewritten).** Files edited:
+`packages/list/src/internal/list-base.ts` (72 examples across `ListBase`,
+`ListBase.NonEmpty`, `Builder`, `Factory`), `packages/list/src/list.ts` (entity
+showcase), `packages/list/src/internal/list-helpers.ts` (`fromString`). Every
+example now carries its own `import { List } from '@rimbu/list'`, uses descriptive
+names, wraps the result in `console.log(...)` (collections via `.toString()`,
+arrays logged directly), and has a run-captured `// =>` comment.
+
+Result (measured):
+- **Gate** (`bun run docs:examples`): **0 type errors** for `list/` (was 217).
+- **Verifier** (`bun run docs:verify-examples --filter=list/`): **219 snippets,
+  408 output comments, 0 issues** (was 219 issues at baseline). The 219 count and
+  identical fixes propagate automatically to the 5 List-family entities
+  (`List`, `ListBase`, `CharList`, `BitList`, `TypedArrayList`) since they all
+  inherit the same base examples — confirming the "examples on the base, inherited
+  by empty-HKT subtypes" model works.
+
+Authoring-loop learnings (apply to rollout):
+- The loop is: edit source JSDoc → `tsc -p tsconfig.esm.json` in the package
+  (examples flow into `dist/*.d.ts`; ~1.4s incremental) → `bun run docs`
+  (extract+aggregate, ~10s) → `bun run docs:verify-examples --filter=<pkg>/`.
+  Write examples first with best-guess `// =>`, then paste the verifier's `actual:`
+  values to converge (usually 1–2 iterations).
+- **Type-check surfaced real doc bugs** in the old examples, e.g.: `updateAt` only
+  accepts a function `(current)=>T` (never a raw value); `.first('x')`/`.last('x')`
+  fallbacks are rejected on non-empty Lists (`List.of(...)` is NonEmpty — use a
+  `List<T>`-annotated possibly-empty source); `padTo` third arg is
+  `{ positionPercentage }` not a number; `unzip` needs `List.of<[number,string]>`
+  tuple typing; `buildMap` old example logged the builder, not the built result.
+- **Run-capture surfaced real behavior**: `filter((_, i) => i > 1, { reversed:true })`
+  → `List(1, 0)` (index counts in reversed order), and `collect` with `halt()`
+  includes the value returned on the halting call → `List(0, 2, 4)`. Outputs must
+  come from execution, never intuition.
+- **Parser gotcha**: the `// =>` for a `console.log(...)` must be inline on the
+  **same physical line** as `console.log` (or immediately below). Multi-statement
+  `console.log(expr).toString()); // =>` split across lines is mis-parsed — assign
+  to a `const` and log on one line instead.
+- **Loop-body logs**: a single `console.log` inside `forEach`/loops fires N times
+  but parses as one statement → "captured N logs but only 1 parsed". Collect into
+  an array and log once (`const collected: number[] = []; ...; console.log(collected);`).
+
 Root scripts:
 
 - `bun run docs` — full pipeline so far (extract + aggregate).

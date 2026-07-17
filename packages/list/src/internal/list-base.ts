@@ -28,8 +28,10 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * Returns the number of values in the collection
 	 * @example
 	 * ```ts
-	 * List.empty().length      // => 0
-	 * List.of(0, 1, 2).length  // => 3
+	 * import { List } from '@rimbu/list';
+	 *
+	 * console.log(List.empty<number>().length); // => 0
+	 * console.log(List.of(0, 1, 2).length); // => 3
 	 * ```
 	 */
 	readonly length: number;
@@ -37,8 +39,10 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * Returns true if the collection is empty
 	 * @example
 	 * ```ts
-	 * List.empty().isEmpty      // => true
-	 * List.of(0, 1, 2).isEmpty  // => false
+	 * import { List } from '@rimbu/list';
+	 *
+	 * console.log(List.empty<number>().isEmpty); // => true
+	 * console.log(List.of(0, 1, 2).isEmpty); // => false
 	 * ```
 	 */
 	readonly isEmpty: boolean;
@@ -47,10 +51,13 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * as a .NonEmpty type.
 	 * @example
 	 * ```ts
-	 * const m: List<number> = List.of(1, 2, 2)
-	 * m.stream().first(0)     // compiler allows fallback value since the Stream may be empty
-	 * if (m.nonEmpty()) {
-	 *   m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const source: List<number> = List.of(1, 2, 2);
+	 * console.log(source.stream().first(0)); // => 1
+	 * if (source.nonEmpty()) {
+	 *   // within this block the compiler treats `source` as non-empty
+	 *   console.log(source.stream().first()); // => 1
 	 * }
 	 * ```
 	 */
@@ -60,8 +67,11 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @throws `RimbuError.EmptyCollectionAssumedNonEmptyError` if the collection is empty
 	 * @example
 	 * ```ts
-	 * List.empty().assumeNonEmpty()           // => throws RimbuError.EmptyCollectionAssumedNonEmptyError
-	 * List.from([0, 1, 2]).assumeNonEmpty()   // => List.NonEmpty(0, 1, 2)
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const nonEmptyList = List.from([0, 1, 2]).assumeNonEmpty();
+	 * console.log(nonEmptyList.toString()); // => List(0, 1, 2)
+	 * // List.empty<number>().assumeNonEmpty() throws RimbuError.EmptyCollectionAssumedNonEmptyError
 	 * ```
 	 */
 	assumeNonEmpty(): WithElem<Tp, T>['nonEmpty'];
@@ -71,8 +81,10 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * - reversed: (default: false) if true reverses the order of the elements
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2).stream().toArray()                       // => [0, 1, 2]
-	 * List.of(0, 1, 2).stream({ reversed: true }).toArray()     // => [2, 1, 0]
+	 * import { List } from '@rimbu/list';
+	 *
+	 * console.log(List.of(0, 1, 2).stream().toArray()); // => [ 0, 1, 2 ]
+	 * console.log(List.of(0, 1, 2).stream({ reversed: true }).toArray()); // => [ 2, 1, 0 ]
 	 * ```
 	 * @returns A `Stream` containing the values in order (or reversed when `options.reversed` is true).
 	 */
@@ -84,8 +96,11 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * - reversed: (default: false) if true reverses the order of the included elements
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2, 3, 4).streamRange({ start: 1, amount: 2 }).toArray()                      // => [1, 2]
-	 * List.of(0, 1, 2, 3, 4).streamRange({ start: 1, amount: 2 }, { reversed: true }).toArray() // => [2, 1]
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const initialList = List.of(0, 1, 2, 3, 4);
+	 * console.log(initialList.streamRange({ start: 1, amount: 2 }).toArray()); // => [ 1, 2 ]
+	 * console.log(initialList.streamRange({ start: 1, amount: 2 }, { reversed: true }).toArray()); // => [ 2, 1 ]
 	 * ```
 	 * @returns A `Stream` containing the values in the given `range` in order (or reversed when `options.reversed` is true).
 	 */
@@ -101,10 +116,12 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * - ...etc
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2).get(5)             // => undefined
-	 * List.of(0, 1, 2).get(5, 'other')    // => 'other'
-	 * List.of(0, 1, 2).get(1, 'other')    // => 1
-	 * List.of(0, 1, 2).get(-1)            // => 2
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const initialList = List.of(0, 1, 2);
+	 * console.log(initialList.get(5, 'other')); // => other
+	 * console.log(initialList.get(1, 'other')); // => 1
+	 * console.log(initialList.get(-1, 'other')); // => 2
 	 * ```
 	 * @note O(logB(N)) for block size B
 	 */
@@ -119,9 +136,11 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * - ...etc
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2).at(0)    // => 0
-	 * List.of(0, 1, 2).at(5)    // => undefined
-	 * List.of(0, 1, 2).at(-1)   // => 2
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const initialList = List.of(0, 1, 2);
+	 * console.log(initialList.at(0)); // => 0
+	 * console.log(initialList.at(-1)); // => 2
 	 * ```
 	 * @note O(logB(N)) for block size B
 	 */
@@ -137,9 +156,12 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * - ...etc
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2).updateAt(1, 10)            // -> List(0, 10, 2)
-	 * List.of(0, 1, 2).updateAt(1, v => v + 1)    // -> List(0, 2, 2)
-	 * List.of(0, 1, 2).updateAt(-1, 10)           // -> List(0, 1, 10)
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const initialList = List.of(0, 1, 2);
+	 * console.log(initialList.updateAt(1, () => 10).toString()); // => List(0, 10, 2)
+	 * console.log(initialList.updateAt(1, (v) => v + 1).toString()); // => List(0, 2, 2)
+	 * console.log(initialList.updateAt(-1, () => 10).toString()); // => List(0, 1, 10)
 	 * ```
 	 * @note O(logB(N)) for block size B
 	 */
@@ -159,8 +181,11 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * - ...etc
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2).with(1, 10)    // -> List(0, 10, 2)
-	 * List.of(0, 1, 2).with(-1, 10)   // -> List(0, 1, 10)
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const initialList = List.of(0, 1, 2);
+	 * console.log(initialList.with(1, 10).toString()); // => List(0, 10, 2)
+	 * console.log(initialList.with(-1, 10).toString()); // => List(0, 1, 10)
 	 * ```
 	 * @note O(logB(N)) for block size B
 	 */
@@ -175,9 +200,12 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @typeparam O - the type of the `otherwise` value
 	 * @example
 	 * ```ts
-	 * List.empty().first()                  // => undefined
-	 * List.empty().first('other')           // => 'other'
-	 * List.from([0, 1, 2]).first('other')   // => 0
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const emptyList: List<number> = List.empty<number>();
+	 * const filledList: List<number> = List.of(0, 1, 2);
+	 * console.log(emptyList.first('other')); // => other
+	 * console.log(filledList.first('other')); // => 0
 	 * ```
 	 * @note O(1)
 	 */
@@ -189,9 +217,12 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @typeparam O - the type of the `otherwise` value
 	 * @example
 	 * ```ts
-	 * List.empty().last()                  // => undefined
-	 * List.empty().last('other')           // => 'other'
-	 * List.from([0, 1, 2]).last('other')   // => 2
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const emptyList: List<number> = List.empty<number>();
+	 * const filledList: List<number> = List.of(0, 1, 2);
+	 * console.log(emptyList.last('other')); // => other
+	 * console.log(filledList.last('other')); // => 2
 	 * ```
 	 * @note O(1)
 	 */
@@ -202,7 +233,9 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @param value - the value to prepend
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2).prepend(-10)  // => List(-10, 0, 1, 2)
+	 * import { List } from '@rimbu/list';
+	 *
+	 * console.log(List.of(0, 1, 2).prepend(-10).toString()); // => List(-10, 0, 1, 2)
 	 * ```
 	 * @note O(logB(N)) for block size B - mostly o(1)
 	 */
@@ -212,7 +245,9 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @param value - the value to append.
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2).append(-10)  // => List(0, 1, 2, -10)
+	 * import { List } from '@rimbu/list';
+	 *
+	 * console.log(List.of(0, 1, 2).append(-10).toString()); // => List(0, 1, 2, -10)
 	 * ```
 	 * @note O(logB(N)) for block size B - mostly o(1)
 	 */
@@ -227,9 +262,12 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * - ...etc
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2, 3).take(2)    // => List(0, 1)
-	 * List.of(0, 1, 2, 3).take(10)   // => List(0, 1, 2, 3)
-	 * List.of(0, 1, 2, 3).take(-2)   // => List(2, 3)
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const initialList = List.of(0, 1, 2, 3);
+	 * console.log(initialList.take(2).toString()); // => List(0, 1)
+	 * console.log(initialList.take(10).toString()); // => List(0, 1, 2, 3)
+	 * console.log(initialList.take(-2).toString()); // => List(2, 3)
 	 * ```
 	 * @note O(logB(N)) for block size B
 	 */
@@ -244,9 +282,12 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * - ...etc
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2, 3).drop(2)    // => List(2, 3)
-	 * List.of(0, 1, 2, 3).drop(10)   // => List()
-	 * List.of(0, 1, 2, 3).drop(-2)   // => List(0, 1)
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const initialList = List.of(0, 1, 2, 3);
+	 * console.log(initialList.drop(2).toString()); // => List(2, 3)
+	 * console.log(initialList.drop(10).toString()); // => List()
+	 * console.log(initialList.drop(-2).toString()); // => List(0, 1)
 	 * ```
 	 * @note O(logB(N)) for block size B
 	 */
@@ -264,8 +305,11 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * - ...etc
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2, 3).slice({ start: 1, amount: 2 })                       // -> List(1, 2)
-	 * List.of(0, 1, 2, 3).slice({ start: -2, amount: 2 }, { reversed: true }) // -> List(3, 2)
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const initialList = List.of(0, 1, 2, 3);
+	 * console.log(initialList.slice({ start: 1, amount: 2 }).toString()); // => List(1, 2)
+	 * console.log(initialList.slice({ start: -2, amount: 2 }, { reversed: true }).toString()); // => List(3, 2)
 	 * ```
 	 * @note O(logB(N)) for block size B
 	 */
@@ -287,8 +331,11 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * - ...etc
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2, 3).splice({ index: 2, remove: 1 })                    // -> List(0, 1, 3)
-	 * List.of(0, 1, 2, 3).splice({ index: 1, remove: 2, insert: [10, 11] })  // -> List(0, 10, 11, 3)
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const initialList = List.of(0, 1, 2, 3);
+	 * console.log(initialList.splice({ index: 2, remove: 1 }).toString()); // => List(0, 1, 3)
+	 * console.log(initialList.splice({ index: 1, remove: 2, insert: [10, 11] }).toString()); // => List(0, 10, 11, 3)
 	 * ```
 	 * @note O(logB(N)) for block size B
 	 */
@@ -328,8 +375,11 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * - ...etc
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2, 3).insert(2, [10, 11])   // -> List(0, 1, 10, 11, 2, 3)
-	 * List.of(0, 1, 2, 3).insert(-1, [10, 11])  // -> List(0, 1, 2, 10, 11, 3)
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const initialList = List.of(0, 1, 2, 3);
+	 * console.log(initialList.insert(2, [10, 11]).toString()); // => List(0, 1, 10, 11, 2, 3)
+	 * console.log(initialList.insert(-1, [10, 11]).toString()); // => List(0, 1, 2, 10, 11, 3)
 	 * ```
 	 * @note O(logB(N)) for block size B
 	 */
@@ -350,8 +400,11 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * - ...etc
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2, 3).remove(1, 2)  // -> List(0, 3)
-	 * List.of(0, 1, 2, 3).remove(-2, 1) // -> List(0, 1, 3)
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const initialList = List.of(0, 1, 2, 3);
+	 * console.log(initialList.remove(1, { amount: 2 }).toString()); // => List(0, 3)
+	 * console.log(initialList.remove(-2, { amount: 1 }).toString()); // => List(0, 1, 3)
 	 * ```
 	 * @note O(logB(N)) for block size B
 	 */
@@ -371,8 +424,11 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @note if the given amount is 0 or 1, the List itself is returned
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2).repeat(2)   // -> List(0, 1, 2, 0, 1, 2)
-	 * List.of(0, 1, 2).repeat(0)   // -> List(0, 1, 2)
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const initialList = List.of(0, 1, 2);
+	 * console.log(initialList.repeat(2).toString()); // => List(0, 1, 2, 0, 1, 2)
+	 * console.log(initialList.repeat(0).toString()); // => List(0, 1, 2)
 	 * ```
 	 * @note O(logB(N)) for block size B
 	 */
@@ -384,8 +440,11 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @note if the `shiftRightAmount` is negative, the elements will be shifted to the left.
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2, 3).rotate(2)   // -> List(2, 3, 0, 1)
-	 * List.of(0, 1, 2, 3).rotate(-1)  // -> List(1, 2, 3, 0)
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const initialList = List.of(0, 1, 2, 3);
+	 * console.log(initialList.rotate(2).toString()); // => List(2, 3, 0, 1)
+	 * console.log(initialList.rotate(-1).toString()); // => List(1, 2, 3, 0)
 	 * ```
 	 * @note O(logB(N)) for block size B
 	 */
@@ -400,10 +459,13 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * side of the current List
 	 * @example
 	 * ```ts
-	 * List.of(0, 1).padTo(4, 10)       // -> List(0, 1, 10, 10)
-	 * List.of(0, 1).padTo(4, 10, 50)   // -> List(10, 0, 1, 10)
-	 * List.of(0, 1).padTo(4, 10, 100)  // -> List(0, 1, 10, 10)
-	 * List.of(0, 1, 2).padTo(2, 10)    // -> List(0, 1, 2)
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const initialList = List.of(0, 1);
+	 * console.log(initialList.padTo(4, 10).toString()); // => List(0, 1, 10, 10)
+	 * console.log(initialList.padTo(4, 10, { positionPercentage: 50 }).toString()); // => List(10, 0, 1, 10)
+	 * console.log(initialList.padTo(4, 10, { positionPercentage: 100 }).toString()); // => List(10, 10, 0, 1)
+	 * console.log(List.of(0, 1, 2).padTo(2, 10).toString()); // => List(0, 1, 2)
 	 * ```
 	 * @note O(logB(N)) for block size B
 	 */
@@ -432,7 +494,9 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * Returns the List in reversed order.
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2).reversed()  // -> List(2, 1, 0)
+	 * import { List } from '@rimbu/list';
+	 *
+	 * console.log(List.of(0, 1, 2).reversed().toString()); // => List(2, 1, 0)
 	 * ```
 	 * @note O(logB(n)) for block size B
 	 */
@@ -444,8 +508,11 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @note this operation is most efficient when the given sources are instances of List from the same context.
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2).concat([10, 11])                      // -> List(0, 1, 2, 10, 11)
-	 * List.of(0, 1, 2).concat([10, 11], new Set([12, 13]))   // -> List(0, 1, 2, 10, 11, 12, 13)
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const initialList = List.of(0, 1, 2);
+	 * console.log(initialList.concat([10, 11]).toString()); // => List(0, 1, 2, 10, 11)
+	 * console.log(initialList.concat([10, 11], new Set([12, 13])).toString()); // => List(0, 1, 2, 10, 11, 12, 13)
 	 * ```
 	 * @note O(logB(N)) for block size B
 	 */
@@ -464,11 +531,14 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * - state: (optional) the traversal state
 	 * @example
 	 * ```ts
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const collected: number[] = [];
 	 * List.of(0, 1, 2, 3).forEach((value, i, halt) => {
-	 *  console.log(value * 2);
-	 *  if (i >= 1) halt();
-	 * })
-	 * // => logs 0  2
+	 *   collected.push(value * 2);
+	 *   if (i >= 1) halt();
+	 * });
+	 * console.log(collected); // => [ 0, 2 ]
 	 * ```
 	 * @note O(N)
 	 */
@@ -485,8 +555,10 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @typeparam T2 - the result element type
 	 * @example
 	 * ```ts
-	 * List.of(1, 2, 3).map(v => `value: ${v + 2}`).toArray()
-	 * // => ['value: 3', 'value: 4', 'value: 5']
+	 * import { List } from '@rimbu/list';
+	 *
+	 * console.log(List.of(1, 2, 3).map((v) => `value: ${v + 2}`).toArray());
+	 * // => [ "value: 3", "value: 4", "value: 5" ]
 	 * ```
 	 */
 	map<T2 extends Tp['_UT']>(
@@ -503,8 +575,10 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @typeparam T2 - the result element type
 	 * @example
 	 * ```ts
-	 * List.of(1, 2, 3).mapPure(v => `value: ${v + 2}`).toArray()
-	 * // => ['value: 3', 'value: 4', 'value: 5']
+	 * import { List } from '@rimbu/list';
+	 *
+	 * console.log(List.of(1, 2, 3).mapPure((v) => `value: ${v + 2}`).toArray());
+	 * // => [ "value: 3", "value: 4", "value: 5" ]
 	 * ```
 	 */
 	mapPure<T2 extends Tp['_UT']>(
@@ -521,8 +595,9 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @typeparam T2 - the result element type
 	 * @example
 	 * ```ts
-	 * List.of(1, 2, 3).flatMap(v => [v, v + 1]).toArray()
-	 * // => [1, 2, 2, 3, 3, 4]
+	 * import { List } from '@rimbu/list';
+	 *
+	 * console.log(List.of(1, 2, 3).flatMap((v) => [v, v + 1]).toArray()); // => [ 1, 2, 2, 3, 3, 4 ]
 	 * ```
 	 */
 	flatMap<T2 extends Tp['_UT']>(
@@ -542,8 +617,9 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @param transformFun - a function that receives the `Stream` of values of this List, and returns a `StreamSource` of resulting values
 	 * @example
 	 * ```ts
-	 * List.of(1, 2, 3).transform(s => s.map(v => v * 2)).toArray()
-	 * // => [2, 4, 6]
+	 * import { List } from '@rimbu/list';
+	 *
+	 * console.log(List.of(1, 2, 3).transform((s) => s.map((v) => v * 2)).toArray()); // => [ 2, 4, 6 ]
 	 * ```
 	 * @note because the resulting List is built in the same context, `T2` must be a subtype of `T`. To transform to an
 	 * unrelated value type, build a new List explicitly, for example `List.from(stream.map(...))`.
@@ -564,13 +640,13 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @note if the predicate is a type guard, the return type is automatically inferred
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2, 3).filter(v => v < 2)           // -> List(0, 1)
-	 * List.of(0, 1, 2, 3).filter((v, _, halt) => {
-	 *   if (v > 1) halt();
-	 *   return v;
-	 * })                                               // -> List(0, 1, 2)
-	 * List.of(0, 1, 2, 3)
-	 *   .filter((_, i) => i > 1, undefined, true)      // -> List(1, 0)
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const initialList = List.of(0, 1, 2, 3);
+	 * const smallValues = initialList.filter((v) => v < 2);
+	 * console.log(smallValues.toString()); // => List(0, 1)
+	 * const reversedFiltered = initialList.filter((_, i) => i > 1, { reversed: true });
+	 * console.log(reversedFiltered.toString()); // => List(1, 0)
 	 * ```
 	 */
 	filter<TF extends T>(
@@ -606,15 +682,18 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * @typeparam T2 - the result element type
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2, 3).collect(v => v > 1)
-	 * // => List(false, false, true, true)
-	 * List.of(0, 1, 2, 3).collect((v, i, skip) => v === 1 ? skip : v * 2)
-	 * // => List(0, 4, 6)
-	 * List.of(0, 1, 2, 3).collect((v, i, skip, halt) => {
-	 *   if (v > 1) halt()
-	 *   return v * 2
-	 * })
-	 * // => List(0, 2)
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const initialList = List.of(0, 1, 2, 3);
+	 * const flags = initialList.collect((v) => v > 1);
+	 * console.log(flags.toString()); // => List(false, false, true, true)
+	 * const skipped = initialList.collect((v, i, skip) => (v === 1 ? skip : v * 2));
+	 * console.log(skipped.toString()); // => List(0, 4, 6)
+	 * const halted = initialList.collect((v, i, skip, halt) => {
+	 *   if (v > 1) halt();
+	 *   return v * 2;
+	 * });
+	 * console.log(halted.toString()); // => List(0, 2, 4)
 	 * ```
 	 */
 	collect<T2 extends Tp['_UT']>(
@@ -632,9 +711,12 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * - reversed: (default: false) if true reverses the elements within the given range
 	 * @example
 	 * ```ts
-	 * List.of(0, 1, 2, 3).toArray()                      // => [0, 1, 2, 3]
-	 * List.of(0, 1, 2, 3).toArray({ range: { amount: 2 } })                 // => [0, 1]
-	 * List.of(0, 1, 2, 3).toArray({ range: { amount: 2 }, reversed: true }) // => [1, 0]
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const initialList = List.of(0, 1, 2, 3);
+	 * console.log(initialList.toArray()); // => [ 0, 1, 2, 3 ]
+	 * console.log(initialList.toArray({ range: { amount: 2 } })); // => [ 0, 1 ]
+	 * console.log(initialList.toArray({ range: { amount: 2 }, reversed: true })); // => [ 1, 0 ]
 	 * ```
 	 * @note O(logB(N)) for block size B
 	 * @note it is safe to mutate the returned array, however, the array elements are not copied, thus should be treated as read-only
@@ -644,7 +726,10 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * Returns a builder object containing the values of this collection.
 	 * @example
 	 * ```ts
-	 * const builder: List.Builder<number> = List.of(0, 1, 2, 3).toBuilder()
+	 * import { List } from '@rimbu/list';
+	 *
+	 * const builder = List.of(0, 1, 2, 3).toBuilder();
+	 * console.log(builder.length); // => 4
 	 * ```
 	 */
 	toBuilder(): WithElem<Tp, T>['builder'];
@@ -658,7 +743,9 @@ export namespace ListBase {
 		 * Returns false since this collection is known to be non-empty.
 		 * @example
 		 * ```ts
-		 * List(0, 1, 2).isEmpty   // => false
+		 * import { List } from '@rimbu/list';
+		 *
+		 * console.log(List.of(0, 1, 2).isEmpty); // => false
 		 * ```
 		 */
 		readonly isEmpty: false;
@@ -666,7 +753,9 @@ export namespace ListBase {
 		 * Returns true since this collection is known to be non-empty
 		 * @example
 		 * ```ts
-		 * List.of(0, 1, 2).nonEmpty()   // => true
+		 * import { List } from '@rimbu/list';
+		 *
+		 * console.log(List.of(0, 1, 2).nonEmpty()); // => true
 		 * ```
 		 */
 		nonEmpty(): this is WithElem<Tp, T>['nonEmpty'];
@@ -674,8 +763,10 @@ export namespace ListBase {
 		 * Returns a self reference since this collection is known to be non-empty.
 		 * @example
 		 * ```ts
-		 * const m = List.of(0, 1, 2);
-		 * m === m.assumeNonEmpty()  // => true
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const nonEmptyList = List.of(0, 1, 2);
+		 * console.log(nonEmptyList === nonEmptyList.assumeNonEmpty()); // => true
 		 * ```
 		 */
 		assumeNonEmpty(): WithElem<Tp, T>['nonEmpty'];
@@ -683,7 +774,10 @@ export namespace ListBase {
 		 * Returns this collection typed as a 'possibly empty' collection.
 		 * @example
 		 * ```ts
-		 * List.of(0, 1, 2).asNormal();  // type: List<number>
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const normalList = List.of(0, 1, 2).asNormal(); // type: List<number>
+		 * console.log(normalList.toString()); // => List(0, 1, 2)
 		 * ```
 		 */
 		asNormal(): WithElem<Tp, T>['normal'];
@@ -693,8 +787,10 @@ export namespace ListBase {
 		 * - reversed: (default: false) if true reverses the order of the elements
 		 * @example
 		 * ```ts
-		 * List.of(0, 1, 2).stream().toArray()                       // => [0, 1, 2]
-		 * List.of(0, 1, 2).stream({ reversed: true }).toArray()     // => [2, 1, 0]
+		 * import { List } from '@rimbu/list';
+		 *
+		 * console.log(List.of(0, 1, 2).stream().toArray()); // => [ 0, 1, 2 ]
+		 * console.log(List.of(0, 1, 2).stream({ reversed: true }).toArray()); // => [ 2, 1, 0 ]
 		 * ```
 		 * @returns A non-empty `Stream` containing the values in order (or reversed when `options.reversed` is true).
 		 */
@@ -710,9 +806,12 @@ export namespace ListBase {
 		 * - ...etc
 		 * @example
 		 * ```ts
-		 * List.of(0, 1, 2).updateAt(1, 10)            // -> List(0, 10, 2)
-		 * List.of(0, 1, 2).updateAt(1, v => v + 1)    // -> List(0, 2, 2)
-		 * List.of(0, 1, 2).updateAt(-1, 10)           // -> List(0, 1, 10)
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const initialList = List.of(0, 1, 2);
+		 * console.log(initialList.updateAt(1, () => 10).toString()); // => List(0, 10, 2)
+		 * console.log(initialList.updateAt(1, (v) => v + 1).toString()); // => List(0, 2, 2)
+		 * console.log(initialList.updateAt(-1, () => 10).toString()); // => List(0, 1, 10)
 		 * ```
 		 * @note O(logB(N)) for block size B
 		 */
@@ -735,8 +834,11 @@ export namespace ListBase {
 		 * - ...etc
 		 * @example
 		 * ```ts
-		 * List.of(0, 1, 2).with(1, 10)    // -> List(0, 10, 2)
-		 * List.of(0, 1, 2).with(-1, 10)   // -> List(0, 1, 10)
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const initialList = List.of(0, 1, 2);
+		 * console.log(initialList.with(1, 10).toString()); // => List(0, 10, 2)
+		 * console.log(initialList.with(-1, 10).toString()); // => List(0, 1, 10)
 		 * ```
 		 * @note O(logB(N)) for block size B
 		 */
@@ -749,7 +851,9 @@ export namespace ListBase {
 		 * Returns the first value of the List.
 		 * @example
 		 * ```ts
-		 * List.of(0, 1, 2).first()   // => 0
+		 * import { List } from '@rimbu/list';
+		 *
+		 * console.log(List.of(0, 1, 2).first()); // => 0
 		 * ```
 		 * @note O(1)
 		 */
@@ -758,7 +862,9 @@ export namespace ListBase {
 		 * Returns the last value of the List.
 		 * @example
 		 * ```ts
-		 * List.of(0, 1, 2).last()   // => 2
+		 * import { List } from '@rimbu/list';
+		 *
+		 * console.log(List.of(0, 1, 2).last()); // => 2
 		 * ```
 		 * @note O(1)
 		 */
@@ -773,9 +879,12 @@ export namespace ListBase {
 		 * - ...etc
 		 * @example
 		 * ```ts
-		 * List.of(0, 1, 2, 3).take(2)    // => List(0, 1)
-		 * List.of(0, 1, 2, 3).take(10)   // => List(0, 1, 2, 3)
-		 * List.of(0, 1, 2, 3).take(-2)   // => List(2, 3)
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const initialList = List.of(0, 1, 2, 3);
+		 * console.log(initialList.take(2).toString()); // => List(0, 1)
+		 * console.log(initialList.take(10).toString()); // => List(0, 1, 2, 3)
+		 * console.log(initialList.take(-2).toString()); // => List(2, 3)
 		 * ```
 		 * @note O(logB(N)) for block size B
 		 */
@@ -796,8 +905,11 @@ export namespace ListBase {
 		 * - ...etc
 		 * @example
 		 * ```ts
-		 * List.of(0, 1, 2, 3).splice({ index: 2, remove: 1 })                    // -> List(0, 1, 3)
-		 * List.of(0, 1, 2, 3).splice({ index: 1, remove: 2, insert: [10, 11] })  // -> List(0, 10, 11, 3)
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const initialList = List.of(0, 1, 2, 3);
+		 * console.log(initialList.splice({ index: 2, remove: 1 }).toString()); // => List(0, 1, 3)
+		 * console.log(initialList.splice({ index: 1, remove: 2, insert: [10, 11] }).toString()); // => List(0, 10, 11, 3)
 		 * ```
 		 * @note O(logB(N)) for block size B
 		 */
@@ -839,8 +951,11 @@ export namespace ListBase {
 		 * - ...etc
 		 * @example
 		 * ```ts
-		 * List.of(0, 1, 2, 3).insert(2, [10, 11])   // -> List(0, 1, 10, 11, 2, 3)
-		 * List.of(0, 1, 2, 3).insert(-1, [10, 11])  // -> List(0, 1, 2, 10, 11, 3)
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const initialList = List.of(0, 1, 2, 3);
+		 * console.log(initialList.insert(2, [10, 11]).toString()); // => List(0, 1, 10, 11, 2, 3)
+		 * console.log(initialList.insert(-1, [10, 11]).toString()); // => List(0, 1, 2, 10, 11, 3)
 		 * ```
 		 * @note O(logB(N)) for block size B
 		 */
@@ -851,8 +966,11 @@ export namespace ListBase {
 		 * @note this operation is most efficient when the given sources are instances of List from the same context.
 		 * @example
 		 * ```ts
-		 * List.of(0, 1, 2).concat([10, 11])                      // -> List(0, 1, 2, 10, 11)
-		 * List.of(0, 1, 2).concat([10, 11], new Set([12, 13]))   // -> List(0, 1, 2, 10, 11, 12, 13)
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const initialList = List.of(0, 1, 2);
+		 * console.log(initialList.concat([10, 11]).toString()); // => List(0, 1, 2, 10, 11)
+		 * console.log(initialList.concat([10, 11], new Set([12, 13])).toString()); // => List(0, 1, 2, 10, 11, 12, 13)
 		 * ```
 		 * @note O(logB(N)) for block size B
 		 */
@@ -868,8 +986,10 @@ export namespace ListBase {
 		 * @typeparam T2 - the result element type
 		 * @example
 		 * ```ts
-		 * List.of(1, 2, 3).map(v => `value: ${v + 2}`).toArray()
-		 * // => ['value: 3', 'value: 4', 'value: 5']
+		 * import { List } from '@rimbu/list';
+		 *
+		 * console.log(List.of(1, 2, 3).map((v) => `value: ${v + 2}`).toArray());
+		 * // => [ "value: 3", "value: 4", "value: 5" ]
 		 * ```
 		 */
 		map<T2 extends Tp['_UT']>(
@@ -886,8 +1006,10 @@ export namespace ListBase {
 		 * @typeparam T2 - the result element type
 		 * @example
 		 * ```ts
-		 * List.of(1, 2, 3).mapPure(v => `value: ${v + 2}`).toArray()
-		 * // => ['value: 3', 'value: 4', 'value: 5']
+		 * import { List } from '@rimbu/list';
+		 *
+		 * console.log(List.of(1, 2, 3).mapPure((v) => `value: ${v + 2}`).toArray());
+		 * // => [ "value: 3", "value: 4", "value: 5" ]
 		 * ```
 		 */
 		mapPure<T2 extends Tp['_UT']>(
@@ -904,8 +1026,9 @@ export namespace ListBase {
 		 * @typeparam T2 - the result element type
 		 * @example
 		 * ```ts
-		 * List.of(1, 2, 3).flatMap(v => [v, v + 1]).toArray()
-		 * // => [1, 2, 2, 3, 3, 4]
+		 * import { List } from '@rimbu/list';
+		 *
+		 * console.log(List.of(1, 2, 3).flatMap((v) => [v, v + 1]).toArray()); // => [ 1, 2, 2, 3, 3, 4 ]
 		 * ```
 		 */
 		flatMap<T2 extends Tp['_UT']>(
@@ -926,8 +1049,9 @@ export namespace ListBase {
 		 * @param transformFun - a function that receives the non-empty `Stream` of values of this List, and returns a `StreamSource` of resulting values
 		 * @example
 		 * ```ts
-		 * List.of(1, 2, 3).transform(s => s.map(v => v * 2)).toArray()
-		 * // => [2, 4, 6]
+		 * import { List } from '@rimbu/list';
+		 *
+		 * console.log(List.of(1, 2, 3).transform((s) => s.map((v) => v * 2)).toArray()); // => [ 2, 4, 6 ]
 		 * ```
 		 * @note because the resulting List is built in the same context, `T2` must be a subtype of `T`. To transform to an
 		 * unrelated value type, build a new List explicitly, for example `List.from(stream.map(...))`.
@@ -953,8 +1077,11 @@ export namespace ListBase {
 		 * @note if the given amount <= 1, the List itself is returned
 		 * @example
 		 * ```ts
-		 * List.of(0, 1, 2).repeat(2)   // -> List(0, 1, 2, 0, 1, 2)
-		 * List.of(0, 1, 2).repeat(0)   // -> List(0, 1, 2)
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const initialList = List.of(0, 1, 2);
+		 * console.log(initialList.repeat(2).toString()); // => List(0, 1, 2, 0, 1, 2)
+		 * console.log(initialList.repeat(0).toString()); // => List(0, 1, 2)
 		 * ```
 		 * @note O(logB(N)) for block size B
 		 */
@@ -966,8 +1093,11 @@ export namespace ListBase {
 		 * @note if the `shiftAmount` is negative, the last `shiftAmount` values will be removed from the List and will be prepended.
 		 * @example
 		 * ```ts
-		 * List.of(0, 1, 2, 3).rotate(2)   // -> List(2, 3, 0, 1)
-		 * List.of(0, 1, 2, 3).rotate(-1)  // -> List(1, 2, 3, 0)
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const initialList = List.of(0, 1, 2, 3);
+		 * console.log(initialList.rotate(2).toString()); // => List(2, 3, 0, 1)
+		 * console.log(initialList.rotate(-1).toString()); // => List(1, 2, 3, 0)
 		 * ```
 		 * @note O(logB(N)) for block size B
 		 */
@@ -982,10 +1112,13 @@ export namespace ListBase {
 		 * side of the current List
 		 * @example
 		 * ```ts
-		 * List.of(0, 1).padTo(4, 10)       // -> List(0, 1, 10, 10)
-		 * List.of(0, 1).padTo(4, 10, 50)   // -> List(10, 0, 1, 10)
-		 * List.of(0, 1).padTo(4, 10, 100)  // -> List(0, 1, 10, 10)
-		 * List.of(0, 1, 2).padTo(2, 10)    // -> List(0, 1, 2)
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const initialList = List.of(0, 1);
+		 * console.log(initialList.padTo(4, 10).toString()); // => List(0, 1, 10, 10)
+		 * console.log(initialList.padTo(4, 10, { positionPercentage: 50 }).toString()); // => List(10, 0, 1, 10)
+		 * console.log(initialList.padTo(4, 10, { positionPercentage: 100 }).toString()); // => List(10, 10, 0, 1)
+		 * console.log(List.of(0, 1, 2).padTo(2, 10).toString()); // => List(0, 1, 2)
 		 * ```
 		 * @note O(logB(N)) for block size B
 		 */
@@ -1014,7 +1147,9 @@ export namespace ListBase {
 		 * Returns the non-empty List in reversed order.
 		 * @example
 		 * ```ts
-		 * List.of(0, 1, 2).reversed()  // -> List(2, 1, 0)
+		 * import { List } from '@rimbu/list';
+		 *
+		 * console.log(List.of(0, 1, 2).reversed().toString()); // => List(2, 1, 0)
 		 * ```
 		 * @note O(logB(n)) for block size B
 		 */
@@ -1027,9 +1162,12 @@ export namespace ListBase {
 		 * - reversed: (default: false) if true reverses the elements within the given range
 		 * @example
 		 * ```ts
-		 * List.of(0, 1, 2, 3).toArray()                      // => [0, 1, 2, 3]
-		 * List.of(0, 1, 2, 3).toArray({ range: { amount: 2 } })                 // => [0, 1]
-		 * List.of(0, 1, 2, 3).toArray({ range: { amount: 2 }, reversed: true }) // => [1, 0]
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const initialList = List.of(0, 1, 2, 3);
+		 * console.log(initialList.toArray()); // => [ 0, 1, 2, 3 ]
+		 * console.log(initialList.toArray({ range: { amount: 2 } })); // => [ 0, 1 ]
+		 * console.log(initialList.toArray({ range: { amount: 2 }, reversed: true })); // => [ 1, 0 ]
 		 * ```
 		 * @note O(logB(N)) for block size B
 		 * @note it is safe to mutate the returned array, however, the array elements are not copied, thus should be treated as read-only
@@ -1046,8 +1184,9 @@ export namespace ListBase {
 		 * Returns true if there are no values in the builder.
 		 * @example
 		 * ```ts
-		 * List.of(1, 2, 3).toBuilder().isEmpty
-		 * // => false
+		 * import { List } from '@rimbu/list';
+		 *
+		 * console.log(List.of(1, 2, 3).toBuilder().isEmpty); // => false
 		 * ```
 		 */
 		get isEmpty(): boolean;
@@ -1055,8 +1194,9 @@ export namespace ListBase {
 		 * Returns the amount of values in the builder.
 		 * @example
 		 * ```ts
-		 * List.of(1, 2, 3).toBuilder().size
-		 * // => 3
+		 * import { List } from '@rimbu/list';
+		 *
+		 * console.log(List.of(1, 2, 3).toBuilder().length); // => 3
 		 * ```
 		 */
 		get length(): number;
@@ -1071,11 +1211,12 @@ export namespace ListBase {
 		 * - ...etc
 		 * @example
 		 * ```ts
-		 * const m = List.of(0, 1, 2).toBuilder()
-		 * m.get(5)             // => undefined
-		 * m.get(5, 'other')    // => 'other'
-		 * m.get(1, 'other')    // => 1
-		 * m.get(-1)            // => 2
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const builder = List.of(0, 1, 2).toBuilder();
+		 * console.log(builder.get(5, 'other')); // => other
+		 * console.log(builder.get(1, 'other')); // => 1
+		 * console.log(builder.get(-1, 'other')); // => 2
 		 * ```
 		 * @note O(logB(N)) for block size B
 		 */
@@ -1086,10 +1227,11 @@ export namespace ListBase {
 		 * @param value - the value to prepend
 		 * @example
 		 * ```ts
-		 * const m = List.of(1, 2, 3).toBuilder()
-		 * m.prepend(10)
-		 * m.build().toArray()
-		 * // => [10, 1, 2, 3]
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const builder = List.of(1, 2, 3).toBuilder();
+		 * builder.prepend(10);
+		 * console.log(builder.build().toArray()); // => [ 10, 1, 2, 3 ]
 		 * ```
 		 * @note O(logB(N)) for block size B - mostly o(1)
 		 */
@@ -1099,10 +1241,11 @@ export namespace ListBase {
 		 * @param value - the value to append
 		 * @example
 		 * ```ts
-		 * const m = List.of(1, 2, 3).toBuilder()
-		 * m.append(10)
-		 * m.build().toArray()
-		 * // => [1, 2, 3, 10]
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const builder = List.of(1, 2, 3).toBuilder();
+		 * builder.append(10);
+		 * console.log(builder.build().toArray()); // => [ 1, 2, 3, 10 ]
 		 * ```
 		 * @note O(logB(N)) for block size B - mostly o(1)
 		 */
@@ -1112,10 +1255,11 @@ export namespace ListBase {
 		 * @param values - a `StreamSource` containing values to add
 		 * @example
 		 * ```ts
-		 * const m = List.of(1, 2, 3).toBuilder()
-		 * m.appendAll([10, 11])
-		 * m.build().toArray()
-		 * // => [1, 2, 3, 10, 11]
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const builder = List.of(1, 2, 3).toBuilder();
+		 * builder.appendAll([10, 11]);
+		 * console.log(builder.build().toArray()); // => [ 1, 2, 3, 10, 11 ]
 		 * ```
 		 */
 		appendAll(values: StreamSource<T>): void;
@@ -1130,10 +1274,11 @@ export namespace ListBase {
 		 * - ...etc
 		 * @example
 		 * ```ts
-		 * const m = List.of(1, 2, 3).toBuilder()
-		 * m.insert(1, 10)
-		 * m.build().toArray()
-		 * // => [1, 10, 2, 3]
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const builder = List.of(1, 2, 3).toBuilder();
+		 * builder.insert(1, 10);
+		 * console.log(builder.build().toArray()); // => [ 1, 10, 2, 3 ]
 		 * ```
 		 */
 		insert(index: number, value: T): void;
@@ -1149,11 +1294,12 @@ export namespace ListBase {
 		 * @returns the removed value, or the `otherwise` value if the index is out of bounds
 		 * @example
 		 * ```ts
-		 * const m = List.of(1, 2, 3).toBuilder()
-		 * m.remove(10)       // => undefined
-		 * m.remove(10, 'a')  // => 'a'
-		 * m.remove(1)        // => 2
-		 * m.remove(0, 'a')   // => 1
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const builder = List.of(1, 2, 3).toBuilder();
+		 * console.log(builder.remove(10, 'a')); // => a
+		 * console.log(builder.remove(1)); // => 2
+		 * console.log(builder.remove(0, 'a')); // => 1
 		 * ```
 		 */
 		remove(index: number): T | undefined;
@@ -1171,11 +1317,12 @@ export namespace ListBase {
 		 * - ...etc
 		 * @example
 		 * ```ts
-		 * const m = List.of(1, 2, 3).toBuilder()
-		 * m.updateAt(0, 10)       // => 1
-		 * m.updateAt(1, 10, 'a')  // => 2
-		 * m.updateAt(10, 0)       // => undefined
-		 * m.updateAt(10, 0, 'a')  // => 'a'
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const builder = List.of(1, 2, 3).toBuilder();
+		 * console.log(builder.updateAt(0, (v) => v + 10)); // => 1
+		 * console.log(builder.updateAt(1, (v) => v + 10, 'a')); // => 2
+		 * console.log(builder.updateAt(10, (v) => v, 'a')); // => a
 		 * ```
 		 * @note O(logB(N)) for block size B
 		 */
@@ -1198,11 +1345,12 @@ export namespace ListBase {
 		 * - ...etc
 		 * @example
 		 * ```ts
-		 * const m = List.of(1, 2, 3).toBuilder()
-		 * m.set(0, 10)       // => 1
-		 * m.set(1, 10, 'a')  // => 2
-		 * m.set(10, 0)       // => undefined
-		 * m.set(10, 0, 'a')  // => 'a'
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const builder = List.of(1, 2, 3).toBuilder();
+		 * console.log(builder.set(0, 10)); // => 1
+		 * console.log(builder.set(1, 10, 'a')); // => 2
+		 * console.log(builder.set(10, 0, 'a')); // => a
 		 * ```
 		 * @note O(logB(N)) for block size B
 		 */
@@ -1220,11 +1368,14 @@ export namespace ListBase {
 		 * looping over it
 		 * @example
 		 * ```ts
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const collected: number[] = [];
 		 * List.of(0, 1, 2, 3).toBuilder().forEach((value, i, halt) => {
-		 *  console.log(value * 2);
-		 *  if (i >= 1) halt();
-		 * })
-		 * // => logs 0  2
+		 *   collected.push(value * 2);
+		 *   if (i >= 1) halt();
+		 * });
+		 * console.log(collected); // => [ 0, 2 ]
 		 * ```
 		 * @note O(N)
 		 */
@@ -1236,10 +1387,11 @@ export namespace ListBase {
 		 * Returns an immutable instance containing the values in this builder.
 		 * @example
 		 * ```ts
-		 * const m = List.of(1, 2, 3).toBuilder()
-		 * const m2: List<number> = m.build()
-		 * m.toArray()
-		 * // => [1, 2, 3]
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const builder = List.of(1, 2, 3).toBuilder();
+		 * const built = builder.build();
+		 * console.log(built.toArray()); // => [ 1, 2, 3 ]
 		 * ```
 		 */
 		build(): WithElem<Tp, T>['normal'];
@@ -1248,10 +1400,11 @@ export namespace ListBase {
 		 * @typeparam T2 - the result element type
 		 * @example
 		 * ```ts
-		 * const m = List.of(1, 2, 3).toBuilder()
-		 * const m2: List<number> = m.buildMap(v => String(v))
-		 * m.toArray()
-		 * // => ['1', '2', '3']
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const builder = List.of(1, 2, 3).toBuilder();
+		 * const built = builder.buildMap((v) => String(v));
+		 * console.log(built.toArray()); // => [ "1", "2", "3" ]
 		 * ```
 		 */
 		buildMap<T2 extends Tp['_UT'] = T>(
@@ -1285,9 +1438,12 @@ export namespace ListBase {
 		 * @typeparam T - the element type
 		 * @example
 		 * ```ts
+		 * import { List } from '@rimbu/list';
+		 * import { Stream } from '@rimbu/stream';
+		 *
 		 * const someList = List.of(1, 2, 3);
-		 * const result = Stream.range({ start: 20, amount: 5 }).reduce(List.reducer(someList))
-		 * result.toArray()   // => [1, 2, 3, 20, 21, 22, 23, 24]
+		 * const result = Stream.range({ start: 20, amount: 5 }).reduce(List.reducer(someList));
+		 * console.log(result.toArray()); // => [ 1, 2, 3, 20, 21, 22, 23, 24 ]
 		 * ```
 		 * @note uses a List builder under the hood. If the given `source` is a List in the same context, it will directly call `.toBuilder()`.
 		 */
@@ -1301,8 +1457,10 @@ export namespace ListBase {
 		 * @typeparam T - the element type
 		 * @example
 		 * ```ts
-		 * const m = List.of([1, 2], [3, 4, 5])
-		 * List.flatten(m).toArray() // => [1, 2, 3, 4, 5]
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const nested = List.of([1, 2], [3, 4, 5]);
+		 * console.log(List.flatten(nested).toArray()); // => [ 1, 2, 3, 4, 5 ]
 		 * ```
 		 */
 		flatten<T extends StreamSource.NonEmpty<unknown>>(
@@ -1322,8 +1480,12 @@ export namespace ListBase {
 		 * @typeparam L - the tuple element length
 		 * @example
 		 * ```ts
-		 * const m = List.of([1, 'a'], [2, 'b'])
-		 * List.unzip(m)  // => [List.NonEmpty<number>, List.NonEmpty<string>]
+		 * import { List } from '@rimbu/list';
+		 *
+		 * const pairs = List.of<[number, string]>([1, 'a'], [2, 'b']);
+		 * const [numbers, letters] = List.unzip(pairs, { length: 2 });
+		 * console.log(numbers.toString()); // => List(1, 2)
+		 * console.log(letters.toString()); // => List(a, b)
 		 * ```
 		 */
 		unzip<T extends readonly unknown[] & { length: L }, L extends number>(
