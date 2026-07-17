@@ -171,8 +171,11 @@ type, so it MUST be accurate. If unsure, run/check it — do not guess.
 ### 6a. Output correctness & determinism
 
 - **Outputs are run-and-captured, never hand-written.** The tooling executes each
-  snippet and fills/verifies the `// =>` comment from real stdout. Do not invent
-  output by reasoning about it.
+  snippet **with Bun** and fills/verifies the `// =>` comment from real stdout. Do
+  not invent output by reasoning about it. (The live in-browser Sandpack console
+  may format non-string values, e.g. arrays/objects, slightly differently from
+  Bun — that minor drift is accepted. If you want output that is identical
+  everywhere, log strings: `.toString()`, template strings, or `JSON.stringify`.)
 - **Hashed collections have non-obvious, potentially unstable iteration order**
   (their `.toString()` renders in that order). When the point of the example is
   **not** the hashing, prefer a **deterministic** implementation
@@ -184,6 +187,14 @@ type, so it MUST be accurate. If unsure, run/check it — do not guess.
   examples whose output depends on timestamps, randomness, `Date`, locale, etc.
   If a member inherently involves these, keep the logged output to a
   deterministic, verifiable part.
+- **Bun formatting of non-string values.** When you log a raw array/object (not a
+  string), the captured output uses **Bun's** `console.log` formatting, which
+  differs from source/Node style: arrays render with inner spaces and strings use
+  double quotes — e.g. `console.log(['a', 'b'])` captures as `[ "a", "b" ]`, and
+  `console.log([1, 2, 3])` captures as `[ 1, 2, 3 ]`. Write the `// =>` exactly as
+  Bun emits it (the verify tool prints the exact expected value on mismatch). To
+  avoid this entirely, log a string (`.toString()`, template string,
+  `JSON.stringify`).
 
 ### 6b. Format of the `// =>` comment
 
@@ -291,7 +302,7 @@ import { HashMap } from '@rimbu/hashed';
 
 const inventory = HashMap.of([1, 'apple'], [2, 'pear']);
 const [updated, previous, existed] = inventory.updateAtAndGet(2, (v) => v + 's');
-console.log([updated.get(2), previous, existed]); // => ['pears', 'pear', true]
+console.log([updated.get(2), previous, existed]); // => [ "pears", "pear", true ]
 ```
 
 > Note: `updateAtAndGet` is defined on `RMapBase` (maps). Its result tuple's

@@ -47,9 +47,34 @@ Key decisions (rationale in the guidelines):
 `// =>`, and assert `// inferred type:`), then pilot on **List**, then roll out.
 The guidelines doc is done and under review; the tool is the next build.
 
+**Verify tool — DONE (`support/docs-extractor/src/verify-examples.ts`,
+`bun run docs:verify-examples`).** READ-ONLY verifier (never mutates source):
+- **Runtime = Bun** (user decision); `@rimbu/*` resolved to built dist via a
+  generated `tsconfig.json` `paths` map (root `.js`, deep `@rimbu/x/*`, and
+  package-internal `#x/*` → `dist/internal/*`). Minor browser/Sandpack formatting
+  drift for arrays/objects is accepted.
+- Per snippet: (1) type-checks (same resolution as the gate; type-erroring
+  snippets are reported and skipped for runtime), (2) verifies `// inferred type:`
+  against the TS checker's actual inferred type of the named binding, (3) executes
+  the snippet and compares captured stdout **per `console.log`, in order,
+  byte-for-byte**, recognizing all three comment forms (inline `// => X`,
+  next-line `// => X`, multi-line trailing `// =>` + `//` block). `console.log` is
+  overridden to delimit each call and format via `Bun.inspect` so splitting is
+  reliable.
+- Flags: `--strict` (exit 1 on any mismatch, for CI), `--filter=<substr>` (scope
+  to a package/entity, e.g. `--filter=list/`). Report:
+  `docs/api.examples.verify.report.json` (mismatches include expected vs actual,
+  so the correct value is easy to paste).
+- **Validated end-to-end**: on real List examples it caught a genuine output bug
+  (`[1, 2, 3]` vs Bun's actual `[ 1, 2, 3 ]`). A synthetic example confirmed all
+  paths: correct/incorrect inferred type, inline correct/incorrect output, and
+  multi-line output all behave correctly. It also **empirically confirmed**
+  `List.of(1,2,3)` infers `List.NonEmpty<number>`.
+
 > Note: the worked-example outputs in `EXAMPLE_GUIDELINES.md` §8 are hand-written
 > format illustrations and have NOT been run-captured yet (per the doc's own
-> rule). Verify them once the capture tool exists.
+> rule). Verify them once the capture tool exists.  ← now doable via the verify
+> tool; note Bun formats arrays with inner spaces (`[ 1, 2, 3 ]`).
 
 Root scripts:
 

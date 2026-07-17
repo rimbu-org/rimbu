@@ -58,6 +58,7 @@
 		"docs:aggregate": "bun ./support/docs-extractor/src/aggregate.ts",
 		"docs:markdown": "bun ./support/docs-extractor/src/markdown.ts",
 		"docs:examples": "bun ./support/docs-extractor/src/examples.ts",
+		"docs:verify-examples": "bun ./support/docs-extractor/src/verify-examples.ts",
 		"docs:render": "bun ./website/scripts/render.ts",
 		"docs:site": "bun run docs:render && cd website && bun run build",
 		"docs:build": "bun run docs && bun run docs:examples && bun run docs:markdown && bun run docs:site",
