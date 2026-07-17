@@ -5424,6 +5424,14 @@
     "packages": [],
     "typeChecks": false
   },
+  "collection-types/RMapContextBaseModule.createContextModuleBase::::-1::0": {
+    "code": "import { HashMap } from '@rimbu/hashed';\nimport { SortedMap } from '@rimbu/sorted';\nconst hashMap = HashMap.of([1, 'a'], [2, 'b']);\nconst sortedMap = SortedMap.of([2, 'b'], [1, 'a']);\nconsole.log(hashMap.get(1));\nconsole.log(sortedMap.toString());",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
+  },
   "collection-types/VariantMapBase.NonEmpty::isEmpty::0::0": {
     "code": "HashMap.of([1, 1], [2, 2]).isEmpty   // => false",
     "packages": [],

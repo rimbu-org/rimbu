@@ -4,6 +4,53 @@
 inheritance graph), and both renderers (Starlight site + `API_SURFACE.md`).
 Implementation lives in `support/docs-extractor/` and `website/`.
 
+## Example-fixing effort (Stage 4 follow-up) — guidelines DONE, tool NEXT
+
+Goal: rewrite the ~3,687 `@example` blocks to a consistent, high-quality,
+verifiable style so agents can fix them autonomously. Design was settled in a
+grilling session; see **`docs/EXAMPLE_GUIDELINES.md`** for the full rulebook.
+
+Key decisions (rationale in the guidelines):
+- **Examples live on base interfaces** (where members are declared). ~63% of
+  members (3,943/6,291) are inherited by empty HKT sub-interfaces (`HashMap`,
+  `SortedMap`, `CharList`, graphs/tables/multimaps, …), which have no declaration
+  site. Base examples instantiate a **concrete** implementation; variety
+  encouraged. **No overlay/`@impl`/override machinery.**
+- **Accepted regression:** an inherited example on a sub-interface page may show a
+  sibling's concrete type (e.g. `CharList` page showing a `List`-based example).
+  Chosen for simplicity over per-page correctness.
+- **Cross-package concrete imports verified to type-check** — a `collection-types`
+  base example importing `@rimbu/hashed` + `@rimbu/sorted` passes the gate with
+  `typeChecks: true`, no gate changes needed (all 23 package dists exist).
+- One `@example` per member on the **first signature** (matches TypeDoc); covers
+  all overloads in the current interface; base overloads only when valuable.
+- Two example kinds: **entity-level** = broad real-world showcase; **member-level**
+  = isolate that member's benefit.
+- Style: no explicit type annotations (showcase inference); `// inferred type:`
+  only for genuinely surprising inference (overload-dependent results like
+  `RMapBase.updateAtAndGet`; non-obvious narrowing like `List.of(1,2,3)` →
+  `List.NonEmpty<number>`); descriptive names; ≤ 8 lines (hard max ~15).
+- Output: final `console.log`; simple values logged directly, collections via
+  `.toString()`; never log `undefined`.
+- **`// =>` output comment:** inline if line ≤ 80 chars (configurable) else
+  next-line (`// =>` marker + plain `//` continuation, one space); one per
+  `console.log` in stdout order; **exact byte-for-byte** match.
+- **Correct-by-construction:** outputs are **run-and-captured, never
+  hand-written**; hashed/order-sensitive output must come from a real run (prefer
+  deterministic collections/accessors when hashing isn't the point);
+  non-deterministic output (timestamps/random/`Date`) forbidden.
+- **`// inferred type:` is also verifiable** against the compiler's real inferred
+  type.
+
+**Sequencing (agreed):** build the **run-and-capture + verify tool FIRST**
+(extend the existing execute step to capture stdout per `console.log`, fill/verify
+`// =>`, and assert `// inferred type:`), then pilot on **List**, then roll out.
+The guidelines doc is done and under review; the tool is the next build.
+
+> Note: the worked-example outputs in `EXAMPLE_GUIDELINES.md` §8 are hand-written
+> format illustrations and have NOT been run-captured yet (per the doc's own
+> rule). Verify them once the capture tool exists.
+
 Root scripts:
 
 - `bun run docs` — full pipeline so far (extract + aggregate).
