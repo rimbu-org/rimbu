@@ -4575,854 +4575,1197 @@
     "typeChecks": false
   },
   "bimultimap/BiMultiMapBase.NonEmpty::keyValueMultiMap::0::0": {
-    "code": "HashBiMultiMap.of([1, 10], [1, 20]).keyValueMultiMap.toArray()\n// => [[1, [10, 20]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 10], [1, 20]).keyValueMultiMap.toArray()); // => [ [ 1, 10 ], [ 1, 20 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.NonEmpty::valueKeyMultiMap::0::0": {
-    "code": "HashBiMultiMap.of([10, 1], [20, 1]).valueKeyMultiMap.toArray()\n// => [[1, [10, 20]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([10, 1], [20, 1]).valueKeyMultiMap.toArray()); // => [ [ 1, 10 ], [ 1, 20 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.NonEmpty::isEmpty::0::0": {
-    "code": "HashBiMultiMap.of([1, 1], [2, 2]).isEmpty   // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 1], [2, 2]).isEmpty); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.NonEmpty::stream::0::0": {
-    "code": "HashBiMultiMap.of([1, 1], [2, 2]).stream().toArray()  // => [[1, 1], [2, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 1], [2, 2]).stream().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.NonEmpty::streamKeys::0::0": {
-    "code": "HashBiMultiMap.of([[1, 'a'], [2, 'b']]).streamKeys().toArray()   // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).streamKeys().toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.NonEmpty::streamValues::0::0": {
-    "code": "HashBiMultiMap.of([[1, 'a'], [2, 'b']]).streamValues().toArray()   // => ['a', 'b']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).streamValues().toArray()); // => [ \"a\", \"b\" ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.NonEmpty::asNormal::0::0": {
-    "code": "HashBiMultiMap.of([1, 1], [2, 2]).asNormal();  // type: HashBiMultiMap<number, number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal();\nconsole.log(m.toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.NonEmpty::nonEmpty::0::0": {
-    "code": "HashBiMultiMap.of([1, 1], [2, 2]).nonEmpty()   // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 1], [2, 2]).nonEmpty()); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.NonEmpty::addEntries::0::0": {
-    "code": "HashBiMultiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()\n// => [[1, 1], [1, 3], [2, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()); // => [ [ 1, 1 ], [ 1, 3 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Factory::empty::0::0": {
-    "code": "HashBiMultiMap.empty<number, string>()    // => HashBiMultiMap<number, string>\nHashBiMultiMap.empty<string, boolean>()   // => HashBiMultiMap<string, boolean>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.empty<number, string>().size); // => 0\nconsole.log(HashBiMultiMap.empty<string, boolean>().toString()); // => HashBiMultiMap()",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Factory::of::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b'])    // => HashBiMultiMap.NonEmpty<number, string>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toString()); // => HashBiMultiMap(1 <-> (a), 2 <-> (b))",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Factory::from::0::0": {
-    "code": "HashBiMultiMap.from([[1, 'a'], [2, 'b']])    // => HashBiMultiMap.NonEmpty<number, string>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.from([[1, 'a'], [2, 'b']]).toString()); // => HashBiMultiMap(1 <-> (a), 2 <-> (b))",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Factory::builder::0::0": {
-    "code": "HashBiMultiMap.builder<number, string>()    // => HashBiMultiMap.Builder<number, string>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.builder<number, string>().size); // => 0",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Factory::reducer::0::0": {
-    "code": "const someSource = BiMultiMap.of([1, 'a'], [2, 'b']);\nconst result = Stream.of([1, 'c'], [3, 'a']).reduce(BiMultiMap.reducer(someSource))\nresult.toArray()   // => [[1, 'a'], [1, 'c'], [2, 'b'], [3, 'a']]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nimport { Stream } from '@rimbu/stream';\nconst someSource = HashBiMultiMap.of([1, 'a'], [2, 'b']);\nconst result = Stream.of<readonly [number, string]>([1, 'c'], [3, 'a']).reduce(HashBiMultiMap.reducer(someSource));\nconsole.log(result.toArray()); // => [ [ 1, \"a\" ], [ 1, \"c\" ], [ 2, \"b\" ], [ 3, \"a\" ] ]",
+    "packages": [
+      "@rimbu/bimultimap",
+      "@rimbu/stream"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Context::typeTag::0::0": {
-    "code": "HashBiMultiMap.defaultContext().typeTag   // => 'HashBiMultiMap'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.defaultContext().typeTag); // => HashBiMultiMap",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Builder::size::0::0": {
-    "code": "HashBiMultiMap.of([[1, 'a'], [2, 'b']]).toBuilder().size\n// => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder().size); // => 2",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Builder::isEmpty::0::0": {
-    "code": "HashBiMultiMap.of([[1, 'a'], [2, 'b']]).toBuilder().isEmpty\n// => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder().isEmpty); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Builder::hasKey::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.hasKey(2)    // => true\nm.hasKey(3)    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.hasKey(2)); // => true\nconsole.log(m.hasKey(3)); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Builder::hasValue::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.hasValue('a')    // => true\nm.hasValue('z')    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.hasValue('a')); // => true\nconsole.log(m.hasValue('z')); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Builder::hasEntry::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.hasEntry(1, 'a')    // => true\nm.hasEntry(1, 'z')    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.hasEntry(1, 'a')); // => true\nconsole.log(m.hasEntry(1, 'z')); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Builder::getValues::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.getValues(1).toArray()   // => ['a']\nm.getValues(3).toArray()   // => []",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.getValues(1).toArray()); // => [ \"a\" ]\nconsole.log(m.getValues(3).toArray()); // => []",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Builder::getKeys::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.getKeys('a').toArray()   // => [1]\nm.getKeys('z').toArray()   // => []",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.getKeys('a').toArray()); // => [ 1 ]\nconsole.log(m.getKeys('z').toArray()); // => []",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Builder::setValues::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.setValues(1, ['b', 'c']).getValues(1).toArray() // => ['b', 'c']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.setValues(1, ['b', 'c']);\nconsole.log(m.getValues(1).toArray()); // => [ \"b\", \"c\" ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Builder::setKeys::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.setKeys('a', [3, 4]).getKeys('a').toArray() // => [3, 4]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.setKeys('a', [3, 4]);\nconsole.log(m.getKeys('a').toArray()); // => [ 3, 4 ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Builder::add::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.set(1, 'a')   // => false\nm.set(1, 'b')   // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.add(1, 'a')); // => false\nconsole.log(m.add(1, 'b')); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Builder::addEntries::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.addEntries([[1, 'a'], [3, 'c']])   // => true\nm.addEntries([])                    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.addEntries([[1, 'a'], [3, 'c']])); // => true\nconsole.log(m.addEntries([])); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Builder::removeKey::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.removeKey(2)        // => true\nm.removeKey(3)        // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.removeKey(2)); // => true\nconsole.log(m.removeKey(3)); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Builder::removeKeys::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.removeKeys([3, 4, 5])  // => false\nm.removeKeys([1, 10])    // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.removeKeys([3, 4, 5])); // => false\nconsole.log(m.removeKeys([1, 10])); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Builder::removeValue::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.removeValue('b')        // => true\nm.removeValue('c')        // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.removeValue('b')); // => true\nconsole.log(m.removeValue('c')); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Builder::removeValues::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.removeValues(['c', 'd', 'e'])  // => false\nm.removeValues(['a', 'e'])       // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.removeValues(['c', 'd', 'e'])); // => false\nconsole.log(m.removeValues(['a', 'e'])); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Builder::removeEntry::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.removeEntry(1, 'c')   // => false\nm.removeEntry(1, 'a')   // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.removeEntry(1, 'c')); // => false\nconsole.log(m.removeEntry(1, 'a')); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Builder::removeEntries::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.removeEntries([[1, 'c'], [2, 'a']])    // => false\nm.removeEntries([[1, 'a']])              // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.removeEntries([[1, 'c'], [2, 'a']])); // => false\nconsole.log(m.removeEntries([[1, 'a']])); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Builder::forEach::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).toBuilder().forEach((entry, i, halt) => {\n console.log([entry[1], entry[0]]);\n if (i >= 1) halt();\n})\n// => logs ['a', 1]  ['b', 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst collected: [string, number][] = [];\nHashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).toBuilder().forEach((entry, i, halt) => {\n  collected.push([entry[1], entry[0]]);\n  if (i >= 1) halt();\n});\nconsole.log(collected); // => [ [ \"a\", 1 ], [ \"b\", 2 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase.Builder::build::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconst m2: HashBiMultiMap<number, string> = m.build()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconst m2: HashBiMultiMap<number, string> = m.build();\nconsole.log(m2.toArray()); // => [ [ 1, \"a\" ], [ 2, \"b\" ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::keyValueMultiMap::0::0": {
-    "code": "HashBiMultiMap.of([1, 10], [1, 20]).keyValueMultiMap.toArray()\n// => [[1, [10, 20]]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 10], [1, 20]).keyValueMultiMap.toArray()); // => [ [ 1, 10 ], [ 1, 20 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::valueKeyMultiMap::0::0": {
-    "code": "HashBiMultiMap.of([10, 1], [20, 1]).valueKeyMultiMap.toArray()\n// => [[1, [10, 20]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([10, 1], [20, 1]).valueKeyMultiMap.toArray()); // => [ [ 1, 10 ], [ 1, 20 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::isEmpty::0::0": {
-    "code": "HashBiMultiMap.empty<number, number>().isEmpty   // => true\nHashBiMultiMap.of([1, 1], [2, 2]).isEmpty        // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.empty<number, number>().isEmpty); // => true\nconsole.log(HashBiMultiMap.of([1, 1], [2, 2]).isEmpty); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::keySize::0::0": {
-    "code": "HashBiMultiMap.of([1, 10], [1, 20]).keySize       // => 1",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 10], [1, 20]).keySize); // => 1",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::size::0::0": {
-    "code": "HashBiMultiMap.of([1, 10], [2, 10]).size       // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 10], [2, 10]).size); // => 2",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::stream::0::0": {
-    "code": "HashBiMultiMap.of([1, 10], [1, 20]).stream().toArray()  // => [[1, 10], [1, 20]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 10], [1, 20]).stream().toArray()); // => [ [ 1, 10 ], [ 1, 20 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::streamKeys::0::0": {
-    "code": "HashBiMultiMap.of([[1, 'a'], [2, 'b']]).streamKeys().toArray()   // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).streamKeys().toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::streamValues::0::0": {
-    "code": "HashBiMultiMap.of([[1, 'a'], [2, 'b']]).streamValues().toArray()   // => ['a', 'b']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).streamValues().toArray()); // => [ \"a\", \"b\" ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::assumeNonEmpty::0::0": {
-    "code": "HashBiMultiMap.empty<number, number>().assumeNonEmpty()   // => throws\nconst m: HashBiMultiMap<number, number> = HashBiMultiMap.of([1, 1], [2, 2])\nconst m2: HashBiMultiMap.NonEmpty<number, number> = m     // => compiler error\nconst m3: HashBiMultiMap.NonEmpty<number, number> = m.assumeNonEmpty()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\ntry {\n  HashBiMultiMap.empty<number, number>().assumeNonEmpty();\n} catch (err) {\n  console.log((err as Error).name); // => EmptyCollectionAssumedNonEmptyError\n}\nconst m: HashBiMultiMap<number, number> = HashBiMultiMap.of([1, 1], [2, 2]).asNormal();\nconst m3: HashBiMultiMap.NonEmpty<number, number> = m.assumeNonEmpty();\nconsole.log(m3.size); // => 2",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::nonEmpty::0::0": {
-    "code": "const m: HashBiMultiMap<number, number> = HashBiMultiMap.of([1, 1], [2, 2])\nm.stream().first(0)     // compiler allows fallback value since the Stream may be empty\nif (m.nonEmpty()) {\n  m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty\n}",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m: HashBiMultiMap<number, number> = HashBiMultiMap.of([1, 1], [2, 2]).asNormal();\nconsole.log(m.stream().first(0)); // => [ 1, 1 ]\nif (m.nonEmpty()) {\n  console.log(m.stream().first()); // => [ 1, 1 ]\n}",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::hasKey::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nm.hasKey(2)    // => true\nm.hasKey(3)    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.hasKey(2)); // => true\nconsole.log(m.hasKey(3)); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::hasValue::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nm.hasValue('a')    // => true\nm.hasValue('z')    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.hasValue('a')); // => true\nconsole.log(m.hasValue('z')); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::hasEntry::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nm.hasEntry(2, 'b')    // => true\nm.hasEntry(2, 'c')    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.hasEntry(2, 'b')); // => true\nconsole.log(m.hasEntry(2, 'c')); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::add::0::0": {
-    "code": "HashBiMultiMap.of([1, 1], [2, 2]).add(1, 2).toArray()\n// => [[1, 1], [1, 2], [2, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 1], [2, 2]).add(1, 2).toArray()); // => [ [ 1, 1 ], [ 1, 2 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::addEntries::0::0": {
-    "code": "HashBiMultiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()\n// => [[1, 1], [1, 3], [2, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()); // => [ [ 1, 1 ], [ 1, 3 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::setValues::0::0": {
-    "code": "HashBiMultiMap.of([1, 1]).setValues(1, [2, 3]).toArray()\n// => [[1, 1], [1, 2], [1, 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 1]).setValues(1, [2, 3]).toArray()); // => [ [ 1, 2 ], [ 1, 3 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::setKeys::0::0": {
-    "code": "HashBiMultiMap.of([1, 1]).setKeys(1, [2, 3]).toArray()\n// => [[1, 1], [2, 1], [3, 1]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 1]).setKeys(1, [2, 3]).toArray()); // => [ [ 2, 1 ], [ 3, 1 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::getValues::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [1, 2]);\nm.getValues(1).toArray()\n// => [1, 2]\nm.getValues(5).toArray()\n// => []",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]);\nconsole.log(m.getValues(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getValues(5).toArray()); // => []",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::getKeys::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [2, 1]);\nm.getKeys(1).toArray()\n// => [1, 2]\nm.getKeys(5).toArray()\n// => []",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 1]);\nconsole.log(m.getKeys(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getKeys(5).toArray()); // => []",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::removeKey::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [1, 2])\nm.removeKey(1).toArray()   // => []\nm.removeKey(3) === m       // true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]).asNormal()\nconsole.log(m.removeKey(1).toArray()); // => []\nconsole.log(m.removeKey(3) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::removeKeys::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [2, 2])\nm.removeKeys([1, 3]).toArray()     // => [[2, 2]]\nm.removeKeys([1, 3, 2]).toArray()  // => []\nm.removeKeys([3, 4, 5]) === m      // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal()\nconsole.log(m.removeKeys([1, 3]).toArray()); // => [ [ 2, 2 ] ]\nconsole.log(m.removeKeys([1, 3, 2]).toArray()); // => []\nconsole.log(m.removeKeys([3, 4, 5]) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::removeValue::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 2], [2, 2])\nm.removeValue(2).toArray()   // => []\nm.removeValue(3) === m       // true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 2], [2, 2]).asNormal()\nconsole.log(m.removeValue(2).toArray()); // => []\nconsole.log(m.removeValue(3) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::removeValues::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [2, 2])\nm.removeValues([1, 3]).toArray()     // => [[2, 2]]\nm.removeValues([1, 3, 2]).toArray()  // => []\nm.removeValues([3, 4, 5]) === m      // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal()\nconsole.log(m.removeValues([1, 3]).toArray()); // => [ [ 2, 2 ] ]\nconsole.log(m.removeValues([1, 3, 2]).toArray()); // => []\nconsole.log(m.removeValues([3, 4, 5]) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::removeEntry::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [2, 2])\nm.removeEntry(2, 2).toArray()     // => [[1, 1]]\nm.removeEntry(1, 2).toArray()     // => [[1, 1], [2, 2]]\nm.removeEntry(3, 3) === m         // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal()\nconsole.log(m.removeEntry(2, 2).toArray()); // => [ [ 1, 1 ] ]\nconsole.log(m.removeEntry(1, 2).toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]\nconsole.log(m.removeEntry(3, 3) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::removeEntries::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [2, 2])\nm.removeEntries([[2, 2], [2, 3]]).toArray()     // => [[1, 1]]\nm.removeEntries([[1, 2], [4, 3]]).toArray()     // => [[1, 1], [2, 2]]\nm.removeEntries([[3, 3]]) === m                 // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal()\nconsole.log(m.removeEntries([[2, 2], [2, 3]]).toArray()); // => [ [ 1, 1 ] ]\nconsole.log(m.removeEntries([[1, 2], [4, 3]]).toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]\nconsole.log(m.removeEntries([[3, 3]]) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::forEach::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).forEach((entry, i, halt) => {\n console.log([entry[1], entry[0]]);\n if (i >= 1) halt();\n})\n// => logs ['a', 1]  ['b', 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst collected: [string, number][] = [];\nHashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).forEach((entry, i, halt) => {\n  collected.push([entry[1], entry[0]]);\n  if (i >= 1) halt();\n});\nconsole.log(collected); // => [ [ \"a\", 1 ], [ \"b\", 2 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::filter::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(entry => entry[0] === 2 || entry[1] === 'c').toArray()\n// => [[2, 'b'], [3, 'c']]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(entry => entry[0] === 2 || entry[1] === 'c').toArray()); // => [ [ 2, \"b\" ], [ 3, \"c\" ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::toArray::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b']).toArray()   // => [[1, 'a'], [2, 'b']]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toArray()); // => [ [ 1, \"a\" ], [ 2, \"b\" ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::toString::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b']).toString()   // => HashBiMultiMap(1 <=> ['a'], 2 <=> ['b'])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toString()); // => HashBiMultiMap(1 <-> (a), 2 <-> (b))",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::toJSON::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b']).toJSON()   // => { dataType: 'HashBiMultiMap', value: [[1, ['a']], [2, ['b']]] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toJSON()); // => { dataType: \"HashBiMultiMap\", value: [ [ 1, [ \"a\" ] ], [ 2, [ \"b\" ] ] ] }",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMapBase::toBuilder::0::0": {
-    "code": "const builder: HashBiMultiMap.Builder<number, string> = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst builder: HashBiMultiMap.Builder<number, string> = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder();\nconsole.log(builder.size); // => 2",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::keyValueMultiMap::0::0": {
-    "code": "HashBiMultiMap.of([1, 10], [1, 20]).keyValueMultiMap.toArray()\n// => [[1, [10, 20]]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 10], [1, 20]).keyValueMultiMap.toArray()); // => [ [ 1, 10 ], [ 1, 20 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::valueKeyMultiMap::0::0": {
-    "code": "HashBiMultiMap.of([10, 1], [20, 1]).valueKeyMultiMap.toArray()\n// => [[1, [10, 20]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([10, 1], [20, 1]).valueKeyMultiMap.toArray()); // => [ [ 1, 10 ], [ 1, 20 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::isEmpty::0::0": {
-    "code": "HashBiMultiMap.empty<number, number>().isEmpty   // => true\nHashBiMultiMap.of([1, 1], [2, 2]).isEmpty        // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.empty<number, number>().isEmpty); // => true\nconsole.log(HashBiMultiMap.of([1, 1], [2, 2]).isEmpty); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::keySize::0::0": {
-    "code": "HashBiMultiMap.of([1, 10], [1, 20]).keySize       // => 1",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 10], [1, 20]).keySize); // => 1",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::size::0::0": {
-    "code": "HashBiMultiMap.of([1, 10], [2, 10]).size       // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 10], [2, 10]).size); // => 2",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::stream::0::0": {
-    "code": "HashBiMultiMap.of([1, 10], [1, 20]).stream().toArray()  // => [[1, 10], [1, 20]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 10], [1, 20]).stream().toArray()); // => [ [ 1, 10 ], [ 1, 20 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::streamKeys::0::0": {
-    "code": "HashBiMultiMap.of([[1, 'a'], [2, 'b']]).streamKeys().toArray()   // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).streamKeys().toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::streamValues::0::0": {
-    "code": "HashBiMultiMap.of([[1, 'a'], [2, 'b']]).streamValues().toArray()   // => ['a', 'b']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).streamValues().toArray()); // => [ \"a\", \"b\" ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::assumeNonEmpty::0::0": {
-    "code": "HashBiMultiMap.empty<number, number>().assumeNonEmpty()   // => throws\nconst m: HashBiMultiMap<number, number> = HashBiMultiMap.of([1, 1], [2, 2])\nconst m2: HashBiMultiMap.NonEmpty<number, number> = m     // => compiler error\nconst m3: HashBiMultiMap.NonEmpty<number, number> = m.assumeNonEmpty()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\ntry {\n  HashBiMultiMap.empty<number, number>().assumeNonEmpty();\n} catch (err) {\n  console.log((err as Error).name); // => EmptyCollectionAssumedNonEmptyError\n}\nconst m: HashBiMultiMap<number, number> = HashBiMultiMap.of([1, 1], [2, 2]).asNormal();\nconst m3: HashBiMultiMap.NonEmpty<number, number> = m.assumeNonEmpty();\nconsole.log(m3.size); // => 2",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::nonEmpty::0::0": {
-    "code": "const m: HashBiMultiMap<number, number> = HashBiMultiMap.of([1, 1], [2, 2])\nm.stream().first(0)     // compiler allows fallback value since the Stream may be empty\nif (m.nonEmpty()) {\n  m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty\n}",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m: HashBiMultiMap<number, number> = HashBiMultiMap.of([1, 1], [2, 2]).asNormal();\nconsole.log(m.stream().first(0)); // => [ 1, 1 ]\nif (m.nonEmpty()) {\n  console.log(m.stream().first()); // => [ 1, 1 ]\n}",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::hasKey::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nm.hasKey(2)    // => true\nm.hasKey(3)    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.hasKey(2)); // => true\nconsole.log(m.hasKey(3)); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::hasValue::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nm.hasValue('a')    // => true\nm.hasValue('z')    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.hasValue('a')); // => true\nconsole.log(m.hasValue('z')); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::hasEntry::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nm.hasEntry(2, 'b')    // => true\nm.hasEntry(2, 'c')    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.hasEntry(2, 'b')); // => true\nconsole.log(m.hasEntry(2, 'c')); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::add::0::0": {
-    "code": "HashBiMultiMap.of([1, 1], [2, 2]).add(1, 2).toArray()\n// => [[1, 1], [1, 2], [2, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 1], [2, 2]).add(1, 2).toArray()); // => [ [ 1, 1 ], [ 1, 2 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::addEntries::0::0": {
-    "code": "HashBiMultiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()\n// => [[1, 1], [1, 3], [2, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()); // => [ [ 1, 1 ], [ 1, 3 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::setValues::0::0": {
-    "code": "HashBiMultiMap.of([1, 1]).setValues(1, [2, 3]).toArray()\n// => [[1, 1], [1, 2], [1, 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 1]).setValues(1, [2, 3]).toArray()); // => [ [ 1, 2 ], [ 1, 3 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::setKeys::0::0": {
-    "code": "HashBiMultiMap.of([1, 1]).setKeys(1, [2, 3]).toArray()\n// => [[1, 1], [2, 1], [3, 1]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 1]).setKeys(1, [2, 3]).toArray()); // => [ [ 2, 1 ], [ 3, 1 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::getValues::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [1, 2]);\nm.getValues(1).toArray()\n// => [1, 2]\nm.getValues(5).toArray()\n// => []",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]);\nconsole.log(m.getValues(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getValues(5).toArray()); // => []",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::getKeys::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [2, 1]);\nm.getKeys(1).toArray()\n// => [1, 2]\nm.getKeys(5).toArray()\n// => []",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 1]);\nconsole.log(m.getKeys(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getKeys(5).toArray()); // => []",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::removeKey::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [1, 2])\nm.removeKey(1).toArray()   // => []\nm.removeKey(3) === m       // true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]).asNormal()\nconsole.log(m.removeKey(1).toArray()); // => []\nconsole.log(m.removeKey(3) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::removeKeys::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [2, 2])\nm.removeKeys([1, 3]).toArray()     // => [[2, 2]]\nm.removeKeys([1, 3, 2]).toArray()  // => []\nm.removeKeys([3, 4, 5]) === m      // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal()\nconsole.log(m.removeKeys([1, 3]).toArray()); // => [ [ 2, 2 ] ]\nconsole.log(m.removeKeys([1, 3, 2]).toArray()); // => []\nconsole.log(m.removeKeys([3, 4, 5]) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::removeValue::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 2], [2, 2])\nm.removeValue(2).toArray()   // => []\nm.removeValue(3) === m       // true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 2], [2, 2]).asNormal()\nconsole.log(m.removeValue(2).toArray()); // => []\nconsole.log(m.removeValue(3) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::removeValues::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [2, 2])\nm.removeValues([1, 3]).toArray()     // => [[2, 2]]\nm.removeValues([1, 3, 2]).toArray()  // => []\nm.removeValues([3, 4, 5]) === m      // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal()\nconsole.log(m.removeValues([1, 3]).toArray()); // => [ [ 2, 2 ] ]\nconsole.log(m.removeValues([1, 3, 2]).toArray()); // => []\nconsole.log(m.removeValues([3, 4, 5]) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::removeEntry::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [2, 2])\nm.removeEntry(2, 2).toArray()     // => [[1, 1]]\nm.removeEntry(1, 2).toArray()     // => [[1, 1], [2, 2]]\nm.removeEntry(3, 3) === m         // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal()\nconsole.log(m.removeEntry(2, 2).toArray()); // => [ [ 1, 1 ] ]\nconsole.log(m.removeEntry(1, 2).toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]\nconsole.log(m.removeEntry(3, 3) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::removeEntries::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [2, 2])\nm.removeEntries([[2, 2], [2, 3]]).toArray()     // => [[1, 1]]\nm.removeEntries([[1, 2], [4, 3]]).toArray()     // => [[1, 1], [2, 2]]\nm.removeEntries([[3, 3]]) === m                 // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal()\nconsole.log(m.removeEntries([[2, 2], [2, 3]]).toArray()); // => [ [ 1, 1 ] ]\nconsole.log(m.removeEntries([[1, 2], [4, 3]]).toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]\nconsole.log(m.removeEntries([[3, 3]]) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::forEach::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).forEach((entry, i, halt) => {\n console.log([entry[1], entry[0]]);\n if (i >= 1) halt();\n})\n// => logs ['a', 1]  ['b', 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst collected: [string, number][] = [];\nHashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).forEach((entry, i, halt) => {\n  collected.push([entry[1], entry[0]]);\n  if (i >= 1) halt();\n});\nconsole.log(collected); // => [ [ \"a\", 1 ], [ \"b\", 2 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::filter::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(entry => entry[0] === 2 || entry[1] === 'c').toArray()\n// => [[2, 'b'], [3, 'c']]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(entry => entry[0] === 2 || entry[1] === 'c').toArray()); // => [ [ 2, \"b\" ], [ 3, \"c\" ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::toArray::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b']).toArray()   // => [[1, 'a'], [2, 'b']]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toArray()); // => [ [ 1, \"a\" ], [ 2, \"b\" ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::toString::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b']).toString()   // => HashBiMultiMap(1 <=> ['a'], 2 <=> ['b'])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toString()); // => HashBiMultiMap(1 <-> (a), 2 <-> (b))",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::toJSON::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b']).toJSON()   // => { dataType: 'HashBiMultiMap', value: [[1, ['a']], [2, ['b']]] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toJSON()); // => { dataType: \"HashBiMultiMap\", value: [ [ 1, [ \"a\" ] ], [ 2, [ \"b\" ] ] ] }",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/BiMultiMap::toBuilder::0::0": {
-    "code": "const builder: HashBiMultiMap.Builder<number, string> = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst builder: HashBiMultiMap.Builder<number, string> = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder();\nconsole.log(builder.size); // => 2",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::::-1::0": {
-    "code": "const h1 = HashBiMultiMap.empty<number, string>()\nconst h2 = HashBiMultiMap.of([1, 'a'], [1, 'b'])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst h1 = HashBiMultiMap.empty<number, string>()\nconst h2 = HashBiMultiMap.of([1, 'a'], [1, 'b'])\nconsole.log(h2.toArray()); // => [ [ 1, \"a\" ], [ 1, \"b\" ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::keyValueMultiMap::0::0": {
-    "code": "HashBiMultiMap.of([1, 10], [1, 20]).keyValueMultiMap.toArray()\n// => [[1, [10, 20]]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 10], [1, 20]).keyValueMultiMap.toArray()); // => [ [ 1, 10 ], [ 1, 20 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::valueKeyMultiMap::0::0": {
-    "code": "HashBiMultiMap.of([10, 1], [20, 1]).valueKeyMultiMap.toArray()\n// => [[1, [10, 20]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([10, 1], [20, 1]).valueKeyMultiMap.toArray()); // => [ [ 1, 10 ], [ 1, 20 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::isEmpty::0::0": {
-    "code": "HashBiMultiMap.empty<number, number>().isEmpty   // => true\nHashBiMultiMap.of([1, 1], [2, 2]).isEmpty        // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.empty<number, number>().isEmpty); // => true\nconsole.log(HashBiMultiMap.of([1, 1], [2, 2]).isEmpty); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::keySize::0::0": {
-    "code": "HashBiMultiMap.of([1, 10], [1, 20]).keySize       // => 1",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 10], [1, 20]).keySize); // => 1",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::size::0::0": {
-    "code": "HashBiMultiMap.of([1, 10], [2, 10]).size       // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 10], [2, 10]).size); // => 2",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::stream::0::0": {
-    "code": "HashBiMultiMap.of([1, 10], [1, 20]).stream().toArray()  // => [[1, 10], [1, 20]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 10], [1, 20]).stream().toArray()); // => [ [ 1, 10 ], [ 1, 20 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::streamKeys::0::0": {
-    "code": "HashBiMultiMap.of([[1, 'a'], [2, 'b']]).streamKeys().toArray()   // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).streamKeys().toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::streamValues::0::0": {
-    "code": "HashBiMultiMap.of([[1, 'a'], [2, 'b']]).streamValues().toArray()   // => ['a', 'b']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).streamValues().toArray()); // => [ \"a\", \"b\" ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::assumeNonEmpty::0::0": {
-    "code": "HashBiMultiMap.empty<number, number>().assumeNonEmpty()   // => throws\nconst m: HashBiMultiMap<number, number> = HashBiMultiMap.of([1, 1], [2, 2])\nconst m2: HashBiMultiMap.NonEmpty<number, number> = m     // => compiler error\nconst m3: HashBiMultiMap.NonEmpty<number, number> = m.assumeNonEmpty()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\ntry {\n  HashBiMultiMap.empty<number, number>().assumeNonEmpty();\n} catch (err) {\n  console.log((err as Error).name); // => EmptyCollectionAssumedNonEmptyError\n}\nconst m: HashBiMultiMap<number, number> = HashBiMultiMap.of([1, 1], [2, 2]).asNormal();\nconst m3: HashBiMultiMap.NonEmpty<number, number> = m.assumeNonEmpty();\nconsole.log(m3.size); // => 2",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::nonEmpty::0::0": {
-    "code": "const m: HashBiMultiMap<number, number> = HashBiMultiMap.of([1, 1], [2, 2])\nm.stream().first(0)     // compiler allows fallback value since the Stream may be empty\nif (m.nonEmpty()) {\n  m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty\n}",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m: HashBiMultiMap<number, number> = HashBiMultiMap.of([1, 1], [2, 2]).asNormal();\nconsole.log(m.stream().first(0)); // => [ 1, 1 ]\nif (m.nonEmpty()) {\n  console.log(m.stream().first()); // => [ 1, 1 ]\n}",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::hasKey::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nm.hasKey(2)    // => true\nm.hasKey(3)    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.hasKey(2)); // => true\nconsole.log(m.hasKey(3)); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::hasValue::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nm.hasValue('a')    // => true\nm.hasValue('z')    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.hasValue('a')); // => true\nconsole.log(m.hasValue('z')); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::hasEntry::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nm.hasEntry(2, 'b')    // => true\nm.hasEntry(2, 'c')    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.hasEntry(2, 'b')); // => true\nconsole.log(m.hasEntry(2, 'c')); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::add::0::0": {
-    "code": "HashBiMultiMap.of([1, 1], [2, 2]).add(1, 2).toArray()\n// => [[1, 1], [1, 2], [2, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 1], [2, 2]).add(1, 2).toArray()); // => [ [ 1, 1 ], [ 1, 2 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::addEntries::0::0": {
-    "code": "HashBiMultiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()\n// => [[1, 1], [1, 3], [2, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()); // => [ [ 1, 1 ], [ 1, 3 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::setValues::0::0": {
-    "code": "HashBiMultiMap.of([1, 1]).setValues(1, [2, 3]).toArray()\n// => [[1, 1], [1, 2], [1, 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 1]).setValues(1, [2, 3]).toArray()); // => [ [ 1, 2 ], [ 1, 3 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::setKeys::0::0": {
-    "code": "HashBiMultiMap.of([1, 1]).setKeys(1, [2, 3]).toArray()\n// => [[1, 1], [2, 1], [3, 1]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 1]).setKeys(1, [2, 3]).toArray()); // => [ [ 2, 1 ], [ 3, 1 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::getValues::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [1, 2]);\nm.getValues(1).toArray()\n// => [1, 2]\nm.getValues(5).toArray()\n// => []",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]);\nconsole.log(m.getValues(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getValues(5).toArray()); // => []",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::getKeys::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [2, 1]);\nm.getKeys(1).toArray()\n// => [1, 2]\nm.getKeys(5).toArray()\n// => []",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 1]);\nconsole.log(m.getKeys(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getKeys(5).toArray()); // => []",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::removeKey::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [1, 2])\nm.removeKey(1).toArray()   // => []\nm.removeKey(3) === m       // true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]).asNormal()\nconsole.log(m.removeKey(1).toArray()); // => []\nconsole.log(m.removeKey(3) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::removeKeys::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [2, 2])\nm.removeKeys([1, 3]).toArray()     // => [[2, 2]]\nm.removeKeys([1, 3, 2]).toArray()  // => []\nm.removeKeys([3, 4, 5]) === m      // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal()\nconsole.log(m.removeKeys([1, 3]).toArray()); // => [ [ 2, 2 ] ]\nconsole.log(m.removeKeys([1, 3, 2]).toArray()); // => []\nconsole.log(m.removeKeys([3, 4, 5]) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::removeValue::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 2], [2, 2])\nm.removeValue(2).toArray()   // => []\nm.removeValue(3) === m       // true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 2], [2, 2]).asNormal()\nconsole.log(m.removeValue(2).toArray()); // => []\nconsole.log(m.removeValue(3) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::removeValues::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [2, 2])\nm.removeValues([1, 3]).toArray()     // => [[2, 2]]\nm.removeValues([1, 3, 2]).toArray()  // => []\nm.removeValues([3, 4, 5]) === m      // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal()\nconsole.log(m.removeValues([1, 3]).toArray()); // => [ [ 2, 2 ] ]\nconsole.log(m.removeValues([1, 3, 2]).toArray()); // => []\nconsole.log(m.removeValues([3, 4, 5]) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::removeEntry::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [2, 2])\nm.removeEntry(2, 2).toArray()     // => [[1, 1]]\nm.removeEntry(1, 2).toArray()     // => [[1, 1], [2, 2]]\nm.removeEntry(3, 3) === m         // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal()\nconsole.log(m.removeEntry(2, 2).toArray()); // => [ [ 1, 1 ] ]\nconsole.log(m.removeEntry(1, 2).toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]\nconsole.log(m.removeEntry(3, 3) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::removeEntries::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [2, 2])\nm.removeEntries([[2, 2], [2, 3]]).toArray()     // => [[1, 1]]\nm.removeEntries([[1, 2], [4, 3]]).toArray()     // => [[1, 1], [2, 2]]\nm.removeEntries([[3, 3]]) === m                 // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal()\nconsole.log(m.removeEntries([[2, 2], [2, 3]]).toArray()); // => [ [ 1, 1 ] ]\nconsole.log(m.removeEntries([[1, 2], [4, 3]]).toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]\nconsole.log(m.removeEntries([[3, 3]]) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::forEach::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).forEach((entry, i, halt) => {\n console.log([entry[1], entry[0]]);\n if (i >= 1) halt();\n})\n// => logs ['a', 1]  ['b', 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst collected: [string, number][] = [];\nHashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).forEach((entry, i, halt) => {\n  collected.push([entry[1], entry[0]]);\n  if (i >= 1) halt();\n});\nconsole.log(collected); // => [ [ \"a\", 1 ], [ \"b\", 2 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::filter::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(entry => entry[0] === 2 || entry[1] === 'c').toArray()\n// => [[2, 'b'], [3, 'c']]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(entry => entry[0] === 2 || entry[1] === 'c').toArray()); // => [ [ 2, \"b\" ], [ 3, \"c\" ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::toArray::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b']).toArray()   // => [[1, 'a'], [2, 'b']]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toArray()); // => [ [ 1, \"a\" ], [ 2, \"b\" ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::toString::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b']).toString()   // => HashBiMultiMap(1 <=> ['a'], 2 <=> ['b'])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toString()); // => HashBiMultiMap(1 <-> (a), 2 <-> (b))",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::toJSON::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b']).toJSON()   // => { dataType: 'HashBiMultiMap', value: [[1, ['a']], [2, ['b']]] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toJSON()); // => { dataType: \"HashBiMultiMap\", value: [ [ 1, [ \"a\" ] ], [ 2, [ \"b\" ] ] ] }",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::toBuilder::0::0": {
-    "code": "const builder: HashBiMultiMap.Builder<number, string> = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst builder: HashBiMultiMap.Builder<number, string> = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder();\nconsole.log(builder.size); // => 2",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::empty::0::0": {
-    "code": "HashBiMultiMap.empty<number, string>()    // => HashBiMultiMap<number, string>\nHashBiMultiMap.empty<string, boolean>()   // => HashBiMultiMap<string, boolean>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.empty<number, string>().size); // => 0\nconsole.log(HashBiMultiMap.empty<string, boolean>().toString()); // => HashBiMultiMap()",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::of::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b'])    // => HashBiMultiMap.NonEmpty<number, string>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toString()); // => HashBiMultiMap(1 <-> (a), 2 <-> (b))",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::from::0::0": {
-    "code": "HashBiMultiMap.from([[1, 'a'], [2, 'b']])    // => HashBiMultiMap.NonEmpty<number, string>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.from([[1, 'a'], [2, 'b']]).toString()); // => HashBiMultiMap(1 <-> (a), 2 <-> (b))",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::builder::0::0": {
-    "code": "HashBiMultiMap.builder<number, string>()    // => HashBiMultiMap.Builder<number, string>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.builder<number, string>().size); // => 0",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/HashBiMultiMap::reducer::0::0": {
-    "code": "const someSource = BiMultiMap.of([1, 'a'], [2, 'b']);\nconst result = Stream.of([1, 'c'], [3, 'a']).reduce(BiMultiMap.reducer(someSource))\nresult.toArray()   // => [[1, 'a'], [1, 'c'], [2, 'b'], [3, 'a']]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nimport { Stream } from '@rimbu/stream';\nconst someSource = HashBiMultiMap.of([1, 'a'], [2, 'b']);\nconst result = Stream.of<readonly [number, string]>([1, 'c'], [3, 'a']).reduce(HashBiMultiMap.reducer(someSource));\nconsole.log(result.toArray()); // => [ [ 1, \"a\" ], [ 1, \"c\" ], [ 2, \"b\" ], [ 3, \"a\" ] ]",
+    "packages": [
+      "@rimbu/bimultimap",
+      "@rimbu/stream"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::::-1::0": {
-    "code": "const h1 = SortedBiMultiMap.empty<number, string>()\nconst h2 = SortedBiMultiMap.of([1, 'a'], [1, 'b'])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedBiMultiMap } from '@rimbu/bimultimap/sorted';\nconst h1 = SortedBiMultiMap.empty<number, string>()\nconst h2 = SortedBiMultiMap.of([1, 'a'], [1, 'b'])\nconsole.log(h2.toArray()); // => [ [ 1, \"a\" ], [ 1, \"b\" ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::keyValueMultiMap::0::0": {
-    "code": "HashBiMultiMap.of([1, 10], [1, 20]).keyValueMultiMap.toArray()\n// => [[1, [10, 20]]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 10], [1, 20]).keyValueMultiMap.toArray()); // => [ [ 1, 10 ], [ 1, 20 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::valueKeyMultiMap::0::0": {
-    "code": "HashBiMultiMap.of([10, 1], [20, 1]).valueKeyMultiMap.toArray()\n// => [[1, [10, 20]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([10, 1], [20, 1]).valueKeyMultiMap.toArray()); // => [ [ 1, 10 ], [ 1, 20 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::isEmpty::0::0": {
-    "code": "HashBiMultiMap.empty<number, number>().isEmpty   // => true\nHashBiMultiMap.of([1, 1], [2, 2]).isEmpty        // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.empty<number, number>().isEmpty); // => true\nconsole.log(HashBiMultiMap.of([1, 1], [2, 2]).isEmpty); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::keySize::0::0": {
-    "code": "HashBiMultiMap.of([1, 10], [1, 20]).keySize       // => 1",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 10], [1, 20]).keySize); // => 1",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::size::0::0": {
-    "code": "HashBiMultiMap.of([1, 10], [2, 10]).size       // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 10], [2, 10]).size); // => 2",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::stream::0::0": {
-    "code": "HashBiMultiMap.of([1, 10], [1, 20]).stream().toArray()  // => [[1, 10], [1, 20]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 10], [1, 20]).stream().toArray()); // => [ [ 1, 10 ], [ 1, 20 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::streamKeys::0::0": {
-    "code": "HashBiMultiMap.of([[1, 'a'], [2, 'b']]).streamKeys().toArray()   // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).streamKeys().toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::streamValues::0::0": {
-    "code": "HashBiMultiMap.of([[1, 'a'], [2, 'b']]).streamValues().toArray()   // => ['a', 'b']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).streamValues().toArray()); // => [ \"a\", \"b\" ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::assumeNonEmpty::0::0": {
-    "code": "HashBiMultiMap.empty<number, number>().assumeNonEmpty()   // => throws\nconst m: HashBiMultiMap<number, number> = HashBiMultiMap.of([1, 1], [2, 2])\nconst m2: HashBiMultiMap.NonEmpty<number, number> = m     // => compiler error\nconst m3: HashBiMultiMap.NonEmpty<number, number> = m.assumeNonEmpty()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\ntry {\n  HashBiMultiMap.empty<number, number>().assumeNonEmpty();\n} catch (err) {\n  console.log((err as Error).name); // => EmptyCollectionAssumedNonEmptyError\n}\nconst m: HashBiMultiMap<number, number> = HashBiMultiMap.of([1, 1], [2, 2]).asNormal();\nconst m3: HashBiMultiMap.NonEmpty<number, number> = m.assumeNonEmpty();\nconsole.log(m3.size); // => 2",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::nonEmpty::0::0": {
-    "code": "const m: HashBiMultiMap<number, number> = HashBiMultiMap.of([1, 1], [2, 2])\nm.stream().first(0)     // compiler allows fallback value since the Stream may be empty\nif (m.nonEmpty()) {\n  m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty\n}",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m: HashBiMultiMap<number, number> = HashBiMultiMap.of([1, 1], [2, 2]).asNormal();\nconsole.log(m.stream().first(0)); // => [ 1, 1 ]\nif (m.nonEmpty()) {\n  console.log(m.stream().first()); // => [ 1, 1 ]\n}",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::hasKey::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nm.hasKey(2)    // => true\nm.hasKey(3)    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.hasKey(2)); // => true\nconsole.log(m.hasKey(3)); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::hasValue::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nm.hasValue('a')    // => true\nm.hasValue('z')    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.hasValue('a')); // => true\nconsole.log(m.hasValue('z')); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::hasEntry::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nm.hasEntry(2, 'b')    // => true\nm.hasEntry(2, 'c')    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.hasEntry(2, 'b')); // => true\nconsole.log(m.hasEntry(2, 'c')); // => false",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::add::0::0": {
-    "code": "HashBiMultiMap.of([1, 1], [2, 2]).add(1, 2).toArray()\n// => [[1, 1], [1, 2], [2, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 1], [2, 2]).add(1, 2).toArray()); // => [ [ 1, 1 ], [ 1, 2 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::addEntries::0::0": {
-    "code": "HashBiMultiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()\n// => [[1, 1], [1, 3], [2, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()); // => [ [ 1, 1 ], [ 1, 3 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::setValues::0::0": {
-    "code": "HashBiMultiMap.of([1, 1]).setValues(1, [2, 3]).toArray()\n// => [[1, 1], [1, 2], [1, 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 1]).setValues(1, [2, 3]).toArray()); // => [ [ 1, 2 ], [ 1, 3 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::setKeys::0::0": {
-    "code": "HashBiMultiMap.of([1, 1]).setKeys(1, [2, 3]).toArray()\n// => [[1, 1], [2, 1], [3, 1]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 1]).setKeys(1, [2, 3]).toArray()); // => [ [ 2, 1 ], [ 3, 1 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::getValues::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [1, 2]);\nm.getValues(1).toArray()\n// => [1, 2]\nm.getValues(5).toArray()\n// => []",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]);\nconsole.log(m.getValues(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getValues(5).toArray()); // => []",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::getKeys::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [2, 1]);\nm.getKeys(1).toArray()\n// => [1, 2]\nm.getKeys(5).toArray()\n// => []",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 1]);\nconsole.log(m.getKeys(1).toArray()); // => [ 1, 2 ]\nconsole.log(m.getKeys(5).toArray()); // => []",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::removeKey::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [1, 2])\nm.removeKey(1).toArray()   // => []\nm.removeKey(3) === m       // true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [1, 2]).asNormal()\nconsole.log(m.removeKey(1).toArray()); // => []\nconsole.log(m.removeKey(3) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::removeKeys::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [2, 2])\nm.removeKeys([1, 3]).toArray()     // => [[2, 2]]\nm.removeKeys([1, 3, 2]).toArray()  // => []\nm.removeKeys([3, 4, 5]) === m      // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal()\nconsole.log(m.removeKeys([1, 3]).toArray()); // => [ [ 2, 2 ] ]\nconsole.log(m.removeKeys([1, 3, 2]).toArray()); // => []\nconsole.log(m.removeKeys([3, 4, 5]) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::removeValue::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 2], [2, 2])\nm.removeValue(2).toArray()   // => []\nm.removeValue(3) === m       // true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 2], [2, 2]).asNormal()\nconsole.log(m.removeValue(2).toArray()); // => []\nconsole.log(m.removeValue(3) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::removeValues::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [2, 2])\nm.removeValues([1, 3]).toArray()     // => [[2, 2]]\nm.removeValues([1, 3, 2]).toArray()  // => []\nm.removeValues([3, 4, 5]) === m      // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal()\nconsole.log(m.removeValues([1, 3]).toArray()); // => [ [ 2, 2 ] ]\nconsole.log(m.removeValues([1, 3, 2]).toArray()); // => []\nconsole.log(m.removeValues([3, 4, 5]) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::removeEntry::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [2, 2])\nm.removeEntry(2, 2).toArray()     // => [[1, 1]]\nm.removeEntry(1, 2).toArray()     // => [[1, 1], [2, 2]]\nm.removeEntry(3, 3) === m         // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal()\nconsole.log(m.removeEntry(2, 2).toArray()); // => [ [ 1, 1 ] ]\nconsole.log(m.removeEntry(1, 2).toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]\nconsole.log(m.removeEntry(3, 3) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::removeEntries::0::0": {
-    "code": "const m = HashBiMultiMap.of([1, 1], [2, 2])\nm.removeEntries([[2, 2], [2, 3]]).toArray()     // => [[1, 1]]\nm.removeEntries([[1, 2], [4, 3]]).toArray()     // => [[1, 1], [2, 2]]\nm.removeEntries([[3, 3]]) === m                 // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal()\nconsole.log(m.removeEntries([[2, 2], [2, 3]]).toArray()); // => [ [ 1, 1 ] ]\nconsole.log(m.removeEntries([[1, 2], [4, 3]]).toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]\nconsole.log(m.removeEntries([[3, 3]]) === m); // => true",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::forEach::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).forEach((entry, i, halt) => {\n console.log([entry[1], entry[0]]);\n if (i >= 1) halt();\n})\n// => logs ['a', 1]  ['b', 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst collected: [string, number][] = [];\nHashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).forEach((entry, i, halt) => {\n  collected.push([entry[1], entry[0]]);\n  if (i >= 1) halt();\n});\nconsole.log(collected); // => [ [ \"a\", 1 ], [ \"b\", 2 ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::filter::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(entry => entry[0] === 2 || entry[1] === 'c').toArray()\n// => [[2, 'b'], [3, 'c']]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(entry => entry[0] === 2 || entry[1] === 'c').toArray()); // => [ [ 2, \"b\" ], [ 3, \"c\" ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::toArray::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b']).toArray()   // => [[1, 'a'], [2, 'b']]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toArray()); // => [ [ 1, \"a\" ], [ 2, \"b\" ] ]",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::toString::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b']).toString()   // => HashBiMultiMap(1 <=> ['a'], 2 <=> ['b'])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toString()); // => HashBiMultiMap(1 <-> (a), 2 <-> (b))",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::toJSON::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b']).toJSON()   // => { dataType: 'HashBiMultiMap', value: [[1, ['a']], [2, ['b']]] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toJSON()); // => { dataType: \"HashBiMultiMap\", value: [ [ 1, [ \"a\" ] ], [ 2, [ \"b\" ] ] ] }",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::toBuilder::0::0": {
-    "code": "const builder: HashBiMultiMap.Builder<number, string> = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconst builder: HashBiMultiMap.Builder<number, string> = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder();\nconsole.log(builder.size); // => 2",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::empty::0::0": {
-    "code": "HashBiMultiMap.empty<number, string>()    // => HashBiMultiMap<number, string>\nHashBiMultiMap.empty<string, boolean>()   // => HashBiMultiMap<string, boolean>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.empty<number, string>().size); // => 0\nconsole.log(HashBiMultiMap.empty<string, boolean>().toString()); // => HashBiMultiMap()",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::of::0::0": {
-    "code": "HashBiMultiMap.of([1, 'a'], [2, 'b'])    // => HashBiMultiMap.NonEmpty<number, string>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toString()); // => HashBiMultiMap(1 <-> (a), 2 <-> (b))",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::from::0::0": {
-    "code": "HashBiMultiMap.from([[1, 'a'], [2, 'b']])    // => HashBiMultiMap.NonEmpty<number, string>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.from([[1, 'a'], [2, 'b']]).toString()); // => HashBiMultiMap(1 <-> (a), 2 <-> (b))",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::builder::0::0": {
-    "code": "HashBiMultiMap.builder<number, string>()    // => HashBiMultiMap.Builder<number, string>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nconsole.log(HashBiMultiMap.builder<number, string>().size); // => 0",
+    "packages": [
+      "@rimbu/bimultimap"
+    ],
+    "typeChecks": true
   },
   "bimultimap/SortedBiMultiMap::reducer::0::0": {
-    "code": "const someSource = BiMultiMap.of([1, 'a'], [2, 'b']);\nconst result = Stream.of([1, 'c'], [3, 'a']).reduce(BiMultiMap.reducer(someSource))\nresult.toArray()   // => [[1, 'a'], [1, 'c'], [2, 'b'], [3, 'a']]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';\nimport { Stream } from '@rimbu/stream';\nconst someSource = HashBiMultiMap.of([1, 'a'], [2, 'b']);\nconst result = Stream.of<readonly [number, string]>([1, 'c'], [3, 'a']).reduce(HashBiMultiMap.reducer(someSource));\nconsole.log(result.toArray()); // => [ [ 1, \"a\" ], [ 1, \"c\" ], [ 2, \"b\" ], [ 3, \"a\" ] ]",
+    "packages": [
+      "@rimbu/bimultimap",
+      "@rimbu/stream"
+    ],
+    "typeChecks": true
   },
   "collection-types/VariantMapBase.NonEmpty::isEmpty::0::0": {
     "code": "import { HashMap } from '@rimbu/hashed';\n\nconsole.log(HashMap.of([1, 1], [2, 2]).isEmpty); // => false",

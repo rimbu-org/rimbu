@@ -27,8 +27,8 @@ export interface BiMultiMapBase<
 	 * Returns the MultiMap representation of the key to value mapping.
 	 * @example
 	 * ```ts
-	 * HashBiMultiMap.of([1, 10], [1, 20]).keyValueMultiMap.toArray()
-	 * // => [[1, [10, 20]]]
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * console.log(HashBiMultiMap.of([1, 10], [1, 20]).keyValueMultiMap.toArray()); // => [ [ 1, 10 ], [ 1, 20 ] ]
 	 * ```
 	 */
 	readonly keyValueMultiMap: WithKeyValue<Tp, K, V>['keyValueMultiMap'];
@@ -36,8 +36,8 @@ export interface BiMultiMapBase<
 	 * Returns the MultiMap representation of the value to key mapping.
 	 * @example
 	 * ```ts
-	 * HashBiMultiMap.of([10, 1], [20, 1]).valueKeyMultiMap.toArray()
-	 * // => [[1, [10, 20]]
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * console.log(HashBiMultiMap.of([10, 1], [20, 1]).valueKeyMultiMap.toArray()); // => [ [ 1, 10 ], [ 1, 20 ] ]
 	 * ```
 	 */
 	readonly valueKeyMultiMap: WithKeyValue<Tp, K, V>['valueKeyMultiMap'];
@@ -45,8 +45,9 @@ export interface BiMultiMapBase<
 	 * Returns true if the collection is empty.
 	 * @example
 	 * ```ts
-	 * HashBiMultiMap.empty<number, number>().isEmpty   // => true
-	 * HashBiMultiMap.of([1, 1], [2, 2]).isEmpty        // => false
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * console.log(HashBiMultiMap.empty<number, number>().isEmpty); // => true
+	 * console.log(HashBiMultiMap.of([1, 1], [2, 2]).isEmpty); // => false
 	 * ```
 	 */
 	readonly isEmpty: boolean;
@@ -54,7 +55,8 @@ export interface BiMultiMapBase<
 	 * Returns the number of keys
 	 * @example
 	 * ```ts
-	 * HashBiMultiMap.of([1, 10], [1, 20]).keySize       // => 1
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * console.log(HashBiMultiMap.of([1, 10], [1, 20]).keySize); // => 1
 	 * ```
 	 */
 	readonly keySize: number;
@@ -62,7 +64,8 @@ export interface BiMultiMapBase<
 	 * Returns the number of entries
 	 * @example
 	 * ```ts
-	 * HashBiMultiMap.of([1, 10], [2, 10]).size       // => 2
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * console.log(HashBiMultiMap.of([1, 10], [2, 10]).size); // => 2
 	 * ```
 	 */
 	readonly size: number;
@@ -70,7 +73,8 @@ export interface BiMultiMapBase<
 	 * Returns a `Stream` containing all entries of this collection as tuples of key and value.
 	 * @example
 	 * ```ts
-	 * HashBiMultiMap.of([1, 10], [1, 20]).stream().toArray()  // => [[1, 10], [1, 20]]
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * console.log(HashBiMultiMap.of([1, 10], [1, 20]).stream().toArray()); // => [ [ 1, 10 ], [ 1, 20 ] ]
 	 * ```
 	 */
 	stream(): Stream<[K, V]>;
@@ -78,7 +82,8 @@ export interface BiMultiMapBase<
 	 * Returns a `Stream` containing all keys of this collection.
 	 * @example
 	 * ```ts
-	 * HashBiMultiMap.of([[1, 'a'], [2, 'b']]).streamKeys().toArray()   // => [1, 2]
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * console.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).streamKeys().toArray()); // => [ 1, 2 ]
 	 * ```
 	 */
 	streamKeys(): Stream<K>;
@@ -86,7 +91,8 @@ export interface BiMultiMapBase<
 	 * Returns a `Stream` containing all values of this collection.
 	 * @example
 	 * ```ts
-	 * HashBiMultiMap.of([[1, 'a'], [2, 'b']]).streamValues().toArray()   // => ['a', 'b']
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * console.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).streamValues().toArray()); // => [ "a", "b" ]
 	 * ```
 	 */
 	streamValues(): Stream<V>;
@@ -95,10 +101,15 @@ export interface BiMultiMapBase<
 	 * @throws RimbuError.EmptyCollectionAssumedNonEmptyError if the collection is empty
 	 * @example
 	 * ```ts
-	 * HashBiMultiMap.empty<number, number>().assumeNonEmpty()   // => throws
-	 * const m: HashBiMultiMap<number, number> = HashBiMultiMap.of([1, 1], [2, 2])
-	 * const m2: HashBiMultiMap.NonEmpty<number, number> = m     // => compiler error
-	 * const m3: HashBiMultiMap.NonEmpty<number, number> = m.assumeNonEmpty()
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * try {
+	 *   HashBiMultiMap.empty<number, number>().assumeNonEmpty();
+	 * } catch (err) {
+	 *   console.log((err as Error).name); // => EmptyCollectionAssumedNonEmptyError
+	 * }
+	 * const m: HashBiMultiMap<number, number> = HashBiMultiMap.of([1, 1], [2, 2]).asNormal();
+	 * const m3: HashBiMultiMap.NonEmpty<number, number> = m.assumeNonEmpty();
+	 * console.log(m3.size); // => 2
 	 * ```
 	 * @note returns reference to this collection
 	 */
@@ -108,10 +119,11 @@ export interface BiMultiMapBase<
 	 * as a .NonEmpty type.
 	 * @example
 	 * ```ts
-	 * const m: HashBiMultiMap<number, number> = HashBiMultiMap.of([1, 1], [2, 2])
-	 * m.stream().first(0)     // compiler allows fallback value since the Stream may be empty
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * const m: HashBiMultiMap<number, number> = HashBiMultiMap.of([1, 1], [2, 2]).asNormal();
+	 * console.log(m.stream().first(0)); // => [ 1, 1 ]
 	 * if (m.nonEmpty()) {
-	 *   m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty
+	 *   console.log(m.stream().first()); // => [ 1, 1 ]
 	 * }
 	 * ```
 	 */
@@ -121,9 +133,10 @@ export interface BiMultiMapBase<
 	 * @param key - the key to look for
 	 * @example
 	 * ```ts
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 	 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b'])
-	 * m.hasKey(2)    // => true
-	 * m.hasKey(3)    // => false
+	 * console.log(m.hasKey(2)); // => true
+	 * console.log(m.hasKey(3)); // => false
 	 * ```
 	 */
 	hasKey<UK = K>(key: RelatedTo<K, UK>): boolean;
@@ -132,9 +145,10 @@ export interface BiMultiMapBase<
 	 * @param value - the value to look for
 	 * @example
 	 * ```ts
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 	 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b'])
-	 * m.hasValue('a')    // => true
-	 * m.hasValue('z')    // => false
+	 * console.log(m.hasValue('a')); // => true
+	 * console.log(m.hasValue('z')); // => false
 	 * ```
 	 */
 	hasValue<UV = V>(key: RelatedTo<V, UV>): boolean;
@@ -144,9 +158,10 @@ export interface BiMultiMapBase<
 	 * @param value - the entry value to look for
 	 * @example
 	 * ```ts
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 	 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b'])
-	 * m.hasEntry(2, 'b')    // => true
-	 * m.hasEntry(2, 'c')    // => false
+	 * console.log(m.hasEntry(2, 'b')); // => true
+	 * console.log(m.hasEntry(2, 'c')); // => false
 	 * ```
 	 */
 	hasEntry<UK = K, UV = V>(
@@ -159,8 +174,8 @@ export interface BiMultiMapBase<
 	 * @param value - the entry value to add
 	 * @example
 	 * ```ts
-	 * HashBiMultiMap.of([1, 1], [2, 2]).add(1, 2).toArray()
-	 * // => [[1, 1], [1, 2], [2, 2]]
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * console.log(HashBiMultiMap.of([1, 1], [2, 2]).add(1, 2).toArray()); // => [ [ 1, 1 ], [ 1, 2 ], [ 2, 2 ] ]
 	 * ```
 	 */
 	add(key: K, value: V): WithKeyValue<Tp, K, V>['nonEmpty'];
@@ -169,8 +184,8 @@ export interface BiMultiMapBase<
 	 * @param entries - a `StreamSource` containing tuples with a key and value
 	 * @example
 	 * ```ts
-	 * HashBiMultiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()
-	 * // => [[1, 1], [1, 3], [2, 2]]
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * console.log(HashBiMultiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()); // => [ [ 1, 1 ], [ 1, 3 ], [ 2, 2 ] ]
 	 * ```
 	 */
 	addEntries(
@@ -186,8 +201,8 @@ export interface BiMultiMapBase<
 	 * @param values - a `StreamSource` containing values to associate with the given `key`
 	 * @example
 	 * ```ts
-	 * HashBiMultiMap.of([1, 1]).setValues(1, [2, 3]).toArray()
-	 * // => [[1, 1], [1, 2], [1, 3]]
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * console.log(HashBiMultiMap.of([1, 1]).setValues(1, [2, 3]).toArray()); // => [ [ 1, 2 ], [ 1, 3 ] ]
 	 * ```
 	 */
 	setValues(
@@ -202,8 +217,8 @@ export interface BiMultiMapBase<
 	 * @param keys - a `StreamSource` containing keys to associate with the given `value`
 	 * @example
 	 * ```ts
-	 * HashBiMultiMap.of([1, 1]).setKeys(1, [2, 3]).toArray()
-	 * // => [[1, 1], [2, 1], [3, 1]]
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * console.log(HashBiMultiMap.of([1, 1]).setKeys(1, [2, 3]).toArray()); // => [ [ 2, 1 ], [ 3, 1 ] ]
 	 * ```
 	 */
 	setKeys(
@@ -216,11 +231,10 @@ export interface BiMultiMapBase<
 	 * @param key - the key of which to find the values
 	 * @example
 	 * ```ts
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 	 * const m = HashBiMultiMap.of([1, 1], [1, 2]);
-	 * m.getValues(1).toArray()
-	 * // => [1, 2]
-	 * m.getValues(5).toArray()
-	 * // => []
+	 * console.log(m.getValues(1).toArray()); // => [ 1, 2 ]
+	 * console.log(m.getValues(5).toArray()); // => []
 	 * ```
 	 */
 	getValues<UK = K>(
@@ -231,11 +245,10 @@ export interface BiMultiMapBase<
 	 * @param value - the value of which to find the keys
 	 * @example
 	 * ```ts
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 	 * const m = HashBiMultiMap.of([1, 1], [2, 1]);
-	 * m.getKeys(1).toArray()
-	 * // => [1, 2]
-	 * m.getKeys(5).toArray()
-	 * // => []
+	 * console.log(m.getKeys(1).toArray()); // => [ 1, 2 ]
+	 * console.log(m.getKeys(5).toArray()); // => []
 	 * ```
 	 */
 	getKeys<UV = V>(
@@ -246,9 +259,10 @@ export interface BiMultiMapBase<
 	 * @param key - the key of the entries to remove
 	 * @example
 	 * ```ts
-	 * const m = HashBiMultiMap.of([1, 1], [1, 2])
-	 * m.removeKey(1).toArray()   // => []
-	 * m.removeKey(3) === m       // true
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * const m = HashBiMultiMap.of([1, 1], [1, 2]).asNormal()
+	 * console.log(m.removeKey(1).toArray()); // => []
+	 * console.log(m.removeKey(3) === m); // => true
 	 * ```
 	 * @note guarantees same object reference if the key is not present
 	 */
@@ -258,10 +272,11 @@ export interface BiMultiMapBase<
 	 * @param keys - a `StreamSource` of keys to remove
 	 * @example
 	 * ```ts
-	 * const m = HashBiMultiMap.of([1, 1], [2, 2])
-	 * m.removeKeys([1, 3]).toArray()     // => [[2, 2]]
-	 * m.removeKeys([1, 3, 2]).toArray()  // => []
-	 * m.removeKeys([3, 4, 5]) === m      // => true
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * const m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal()
+	 * console.log(m.removeKeys([1, 3]).toArray()); // => [ [ 2, 2 ] ]
+	 * console.log(m.removeKeys([1, 3, 2]).toArray()); // => []
+	 * console.log(m.removeKeys([3, 4, 5]) === m); // => true
 	 * ```
 	 * @note guarantees same object reference if none of the keys are present
 	 */
@@ -273,9 +288,10 @@ export interface BiMultiMapBase<
 	 * @param value - the value of the entries to remove
 	 * @example
 	 * ```ts
-	 * const m = HashBiMultiMap.of([1, 2], [2, 2])
-	 * m.removeValue(2).toArray()   // => []
-	 * m.removeValue(3) === m       // true
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * const m = HashBiMultiMap.of([1, 2], [2, 2]).asNormal()
+	 * console.log(m.removeValue(2).toArray()); // => []
+	 * console.log(m.removeValue(3) === m); // => true
 	 * ```
 	 * @note guarantees same object reference if the key is not present
 	 */
@@ -287,10 +303,11 @@ export interface BiMultiMapBase<
 	 * @param values - a `StreamSource` of values to remove
 	 * @example
 	 * ```ts
-	 * const m = HashBiMultiMap.of([1, 1], [2, 2])
-	 * m.removeValues([1, 3]).toArray()     // => [[2, 2]]
-	 * m.removeValues([1, 3, 2]).toArray()  // => []
-	 * m.removeValues([3, 4, 5]) === m      // => true
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * const m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal()
+	 * console.log(m.removeValues([1, 3]).toArray()); // => [ [ 2, 2 ] ]
+	 * console.log(m.removeValues([1, 3, 2]).toArray()); // => []
+	 * console.log(m.removeValues([3, 4, 5]) === m); // => true
 	 * ```
 	 * @note guarantees same object reference if none of the keys are present
 	 */
@@ -303,10 +320,11 @@ export interface BiMultiMapBase<
 	 * @param value - the entry value
 	 * @example
 	 * ```ts
-	 * const m = HashBiMultiMap.of([1, 1], [2, 2])
-	 * m.removeEntry(2, 2).toArray()     // => [[1, 1]]
-	 * m.removeEntry(1, 2).toArray()     // => [[1, 1], [2, 2]]
-	 * m.removeEntry(3, 3) === m         // => true
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * const m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal()
+	 * console.log(m.removeEntry(2, 2).toArray()); // => [ [ 1, 1 ] ]
+	 * console.log(m.removeEntry(1, 2).toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]
+	 * console.log(m.removeEntry(3, 3) === m); // => true
 	 * ```
 	 */
 	removeEntry<UK = K, UV = V>(
@@ -318,10 +336,11 @@ export interface BiMultiMapBase<
 	 * @param entries - a StreamSource containing entries to remove
 	 * @example
 	 * ```ts
-	 * const m = HashBiMultiMap.of([1, 1], [2, 2])
-	 * m.removeEntries([[2, 2], [2, 3]]).toArray()     // => [[1, 1]]
-	 * m.removeEntries([[1, 2], [4, 3]]).toArray()     // => [[1, 1], [2, 2]]
-	 * m.removeEntries([[3, 3]]) === m                 // => true
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * const m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal()
+	 * console.log(m.removeEntries([[2, 2], [2, 3]]).toArray()); // => [ [ 1, 1 ] ]
+	 * console.log(m.removeEntries([[1, 2], [4, 3]]).toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]
+	 * console.log(m.removeEntries([[3, 3]]) === m); // => true
 	 * ```
 	 */
 	removeEntries<UK = K, UV = V>(
@@ -337,11 +356,13 @@ export interface BiMultiMapBase<
 	 * - state: (optional) the traversal state
 	 * @example
 	 * ```ts
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * const collected: [string, number][] = [];
 	 * HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).forEach((entry, i, halt) => {
-	 *  console.log([entry[1], entry[0]]);
-	 *  if (i >= 1) halt();
-	 * })
-	 * // => logs ['a', 1]  ['b', 2]
+	 *   collected.push([entry[1], entry[0]]);
+	 *   if (i >= 1) halt();
+	 * });
+	 * console.log(collected); // => [ [ "a", 1 ], [ "b", 2 ] ]
 	 * ```
 	 * @note O(N)
 	 */
@@ -359,8 +380,8 @@ export interface BiMultiMapBase<
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
-	 * HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(entry => entry[0] === 2 || entry[1] === 'c').toArray()
-	 * // => [[2, 'b'], [3, 'c']]
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * console.log(HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(entry => entry[0] === 2 || entry[1] === 'c').toArray()); // => [ [ 2, "b" ], [ 3, "c" ] ]
 	 * ```
 	 */
 	filter(
@@ -371,7 +392,8 @@ export interface BiMultiMapBase<
 	 * Returns an array containing all entries in this collection.
 	 * @example
 	 * ```ts
-	 * HashBiMultiMap.of([1, 'a'], [2, 'b']).toArray()   // => [[1, 'a'], [2, 'b']]
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * console.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toArray()); // => [ [ 1, "a" ], [ 2, "b" ] ]
 	 * ```
 	 * @note O(log(N))
 	 */
@@ -380,7 +402,8 @@ export interface BiMultiMapBase<
 	 * Returns a string representation of this collection.
 	 * @example
 	 * ```ts
-	 * HashBiMultiMap.of([1, 'a'], [2, 'b']).toString()   // => HashBiMultiMap(1 <=> ['a'], 2 <=> ['b'])
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * console.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toString()); // => HashBiMultiMap(1 <-> (a), 2 <-> (b))
 	 * ```
 	 */
 	toString(): string;
@@ -388,7 +411,8 @@ export interface BiMultiMapBase<
 	 * Returns a JSON representation of this collection.
 	 * @example
 	 * ```ts
-	 * HashBiMultiMap.of([1, 'a'], [2, 'b']).toJSON()   // => { dataType: 'HashBiMultiMap', value: [[1, ['a']], [2, ['b']]] }
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * console.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toJSON()); // => { dataType: "HashBiMultiMap", value: [ [ 1, [ "a" ] ], [ 2, [ "b" ] ] ] }
 	 * ```
 	 */
 	toJSON(): ToJSON<[K, V[]][], this['context']['typeTag']>;
@@ -396,7 +420,9 @@ export interface BiMultiMapBase<
 	 * Returns a builder object containing the entries of this collection.
 	 * @example
 	 * ```ts
-	 * const builder: HashBiMultiMap.Builder<number, string> = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
+	 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+	 * const builder: HashBiMultiMap.Builder<number, string> = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder();
+	 * console.log(builder.size); // => 2
 	 * ```
 	 */
 	toBuilder(): WithKeyValue<Tp, K, V>['builder'];
@@ -413,8 +439,8 @@ export namespace BiMultiMapBase {
 		 * Returns the non-empty MultiMap representation of the key to value mapping.
 		 * @example
 		 * ```ts
-		 * HashBiMultiMap.of([1, 10], [1, 20]).keyValueMultiMap.toArray()
-		 * // => [[1, [10, 20]]
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+		 * console.log(HashBiMultiMap.of([1, 10], [1, 20]).keyValueMultiMap.toArray()); // => [ [ 1, 10 ], [ 1, 20 ] ]
 		 * ```
 		 */
 		readonly keyValueMultiMap: WithKeyValue<
@@ -426,8 +452,8 @@ export namespace BiMultiMapBase {
 		 * Returns the MultiMap representation of the value to key mapping.
 		 * @example
 		 * ```ts
-		 * HashBiMultiMap.of([10, 1], [20, 1]).valueKeyMultiMap.toArray()
-		 * // => [[1, [10, 20]]
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+		 * console.log(HashBiMultiMap.of([10, 1], [20, 1]).valueKeyMultiMap.toArray()); // => [ [ 1, 10 ], [ 1, 20 ] ]
 		 * ```
 		 */
 		readonly valueKeyMultiMap: WithKeyValue<
@@ -439,7 +465,8 @@ export namespace BiMultiMapBase {
 		 * Returns false since this collection is known to be non-empty.
 		 * @example
 		 * ```ts
-		 * HashBiMultiMap.of([1, 1], [2, 2]).isEmpty   // => false
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+		 * console.log(HashBiMultiMap.of([1, 1], [2, 2]).isEmpty); // => false
 		 * ```
 		 */
 		readonly isEmpty: false;
@@ -447,7 +474,8 @@ export namespace BiMultiMapBase {
 		 * Returns a non-empty `Stream` containing all entries of this collection as tuples of key and value.
 		 * @example
 		 * ```ts
-		 * HashBiMultiMap.of([1, 1], [2, 2]).stream().toArray()  // => [[1, 1], [2, 2]]
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+		 * console.log(HashBiMultiMap.of([1, 1], [2, 2]).stream().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]
 		 * ```
 		 */
 		stream(): Stream.NonEmpty<[K, V]>;
@@ -455,7 +483,8 @@ export namespace BiMultiMapBase {
 		 * Returns a non-empty `Stream` containing all keys of this collection.
 		 * @example
 		 * ```ts
-		 * HashBiMultiMap.of([[1, 'a'], [2, 'b']]).streamKeys().toArray()   // => [1, 2]
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+		 * console.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).streamKeys().toArray()); // => [ 1, 2 ]
 		 * ```
 		 */
 		streamKeys(): Stream.NonEmpty<K>;
@@ -463,7 +492,8 @@ export namespace BiMultiMapBase {
 		 * Returns a non-empty `Stream` containing all values of this collection.
 		 * @example
 		 * ```ts
-		 * HashBiMultiMap.of([[1, 'a'], [2, 'b']]).streamValues().toArray()   // => ['a', 'b']
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+		 * console.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).streamValues().toArray()); // => [ "a", "b" ]
 		 * ```
 		 */
 		streamValues(): Stream.NonEmpty<V>;
@@ -471,7 +501,9 @@ export namespace BiMultiMapBase {
 		 * Returns this collection typed as a 'possibly empty' collection.
 		 * @example
 		 * ```ts
-		 * HashBiMultiMap.of([1, 1], [2, 2]).asNormal();  // type: HashBiMultiMap<number, number>
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+		 * const m = HashBiMultiMap.of([1, 1], [2, 2]).asNormal();
+		 * console.log(m.toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]
 		 * ```
 		 */
 		asNormal(): WithKeyValue<Tp, K, V>['normal'];
@@ -479,7 +511,8 @@ export namespace BiMultiMapBase {
 		 * Returns true since this collection is known to be non-empty
 		 * @example
 		 * ```ts
-		 * HashBiMultiMap.of([1, 1], [2, 2]).nonEmpty()   // => true
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+		 * console.log(HashBiMultiMap.of([1, 1], [2, 2]).nonEmpty()); // => true
 		 * ```
 		 */
 		nonEmpty(): this is WithKeyValue<Tp, K, V>['nonEmpty'];
@@ -488,8 +521,8 @@ export namespace BiMultiMapBase {
 		 * @param entries - a `StreamSource` containing tuples with a key and value
 		 * @example
 		 * ```ts
-		 * HashBiMultiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()
-		 * // => [[1, 1], [1, 3], [2, 2]]
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+		 * console.log(HashBiMultiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()); // => [ [ 1, 1 ], [ 1, 3 ], [ 2, 2 ] ]
 		 * ```
 		 */
 		addEntries(
@@ -506,8 +539,9 @@ export namespace BiMultiMapBase {
 		 * Returns the (singleton) empty instance of this type and context with given key and value types.
 		 * @example
 		 * ```ts
-		 * HashBiMultiMap.empty<number, string>()    // => HashBiMultiMap<number, string>
-		 * HashBiMultiMap.empty<string, boolean>()   // => HashBiMultiMap<string, boolean>
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+		 * console.log(HashBiMultiMap.empty<number, string>().size); // => 0
+		 * console.log(HashBiMultiMap.empty<string, boolean>().toString()); // => HashBiMultiMap()
 		 * ```
 		 */
 		empty<K extends UK, V extends UV>(): WithKeyValue<Tp, K, V>['normal'];
@@ -516,7 +550,8 @@ export namespace BiMultiMapBase {
 		 * @param entries - a non-empty array of key-value entries
 		 * @example
 		 * ```ts
-		 * HashBiMultiMap.of([1, 'a'], [2, 'b'])    // => HashBiMultiMap.NonEmpty<number, string>
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+		 * console.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toString()); // => HashBiMultiMap(1 <-> (a), 2 <-> (b))
 		 * ```
 		 */
 		of<K extends UK, V extends UV>(
@@ -527,7 +562,8 @@ export namespace BiMultiMapBase {
 		 * @param sources - an array of `StreamSource` instances containing key-value entries
 		 * @example
 		 * ```ts
-		 * HashBiMultiMap.from([[1, 'a'], [2, 'b']])    // => HashBiMultiMap.NonEmpty<number, string>
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+		 * console.log(HashBiMultiMap.from([[1, 'a'], [2, 'b']]).toString()); // => HashBiMultiMap(1 <-> (a), 2 <-> (b))
 		 * ```
 		 */
 		from<K extends UK, V extends UV>(
@@ -540,7 +576,8 @@ export namespace BiMultiMapBase {
 		 * Returns an empty `BiMultiMap` builder instance.
 		 * @example
 		 * ```ts
-		 * HashBiMultiMap.builder<number, string>()    // => HashBiMultiMap.Builder<number, string>
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+		 * console.log(HashBiMultiMap.builder<number, string>().size); // => 0
 		 * ```
 		 */
 		builder<K extends UK, V extends UV>(): WithKeyValue<Tp, K, V>['builder'];
@@ -550,9 +587,11 @@ export namespace BiMultiMapBase {
 		 * @param source - (optional) an initial source of tuples to add to
 		 * @example
 		 * ```ts
-		 * const someSource = BiMultiMap.of([1, 'a'], [2, 'b']);
-		 * const result = Stream.of([1, 'c'], [3, 'a']).reduce(BiMultiMap.reducer(someSource))
-		 * result.toArray()   // => [[1, 'a'], [1, 'c'], [2, 'b'], [3, 'a']]
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+		 * import { Stream } from '@rimbu/stream';
+		 * const someSource = HashBiMultiMap.of([1, 'a'], [2, 'b']);
+		 * const result = Stream.of<readonly [number, string]>([1, 'c'], [3, 'a']).reduce(HashBiMultiMap.reducer(someSource));
+		 * console.log(result.toArray()); // => [ [ 1, "a" ], [ 1, "c" ], [ 2, "b" ], [ 3, "a" ] ]
 		 * ```
 		 * @note uses a builder under the hood. If the given `source` is a BiMultiMap in the same context, it will directly call `.toBuilder()`.
 		 */
@@ -572,7 +611,8 @@ export namespace BiMultiMapBase {
 		 * A string tag defining the specific collection type
 		 * @example
 		 * ```ts
-		 * HashBiMultiMap.defaultContext().typeTag   // => 'HashBiMultiMap'
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+		 * console.log(HashBiMultiMap.defaultContext().typeTag); // => HashBiMultiMap
 		 * ```
 		 */
 		readonly typeTag: string;
@@ -599,8 +639,8 @@ export namespace BiMultiMapBase {
 		 * Returns the amount of entries in the builder.
 		 * @example
 		 * ```ts
-		 * HashBiMultiMap.of([[1, 'a'], [2, 'b']]).toBuilder().size
-		 * // => 2
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+		 * console.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder().size); // => 2
 		 * ```
 		 */
 		readonly size: number;
@@ -608,8 +648,8 @@ export namespace BiMultiMapBase {
 		 * Returns true if there are no entries in the builder.
 		 * @example
 		 * ```ts
-		 * HashBiMultiMap.of([[1, 'a'], [2, 'b']]).toBuilder().isEmpty
-		 * // => false
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+		 * console.log(HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder().isEmpty); // => false
 		 * ```
 		 */
 		readonly isEmpty: boolean;
@@ -618,9 +658,10 @@ export namespace BiMultiMapBase {
 		 * @param key - the key to look for
 		 * @example
 		 * ```ts
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.hasKey(2)    // => true
-		 * m.hasKey(3)    // => false
+		 * console.log(m.hasKey(2)); // => true
+		 * console.log(m.hasKey(3)); // => false
 		 * ```
 		 */
 		hasKey<UK = K>(key: RelatedTo<K, UK>): boolean;
@@ -629,9 +670,10 @@ export namespace BiMultiMapBase {
 		 * @param value - the value to look for
 		 * @example
 		 * ```ts
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.hasValue('a')    // => true
-		 * m.hasValue('z')    // => false
+		 * console.log(m.hasValue('a')); // => true
+		 * console.log(m.hasValue('z')); // => false
 		 * ```
 		 */
 		hasValue<UV = V>(value: RelatedTo<V, UV>): boolean;
@@ -641,9 +683,10 @@ export namespace BiMultiMapBase {
 		 * @param value - the value to look for
 		 * @example
 		 * ```ts
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.hasEntry(1, 'a')    // => true
-		 * m.hasEntry(1, 'z')    // => false
+		 * console.log(m.hasEntry(1, 'a')); // => true
+		 * console.log(m.hasEntry(1, 'z')); // => false
 		 * ```
 		 */
 		hasEntry<UK = K, UV = V>(
@@ -658,9 +701,10 @@ export namespace BiMultiMapBase {
 		 * be built upon each call to `getValues`.
 		 * @example
 		 * ```ts
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.getValues(1).toArray()   // => ['a']
-		 * m.getValues(3).toArray()   // => []
+		 * console.log(m.getValues(1).toArray()); // => [ "a" ]
+		 * console.log(m.getValues(3).toArray()); // => []
 		 * ```
 		 */
 		getValues<UK = K>(
@@ -674,9 +718,10 @@ export namespace BiMultiMapBase {
 		 * be built upon each call to `getKeys`.
 		 * @example
 		 * ```ts
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.getKeys('a').toArray()   // => [1]
-		 * m.getKeys('z').toArray()   // => []
+		 * console.log(m.getKeys('a').toArray()); // => [ 1 ]
+		 * console.log(m.getKeys('z').toArray()); // => []
 		 * ```
 		 */
 		getKeys<UV = V>(
@@ -688,8 +733,10 @@ export namespace BiMultiMapBase {
 		 * @param values - a StreamSource containing the values to associate to the key
 		 * @example
 		 * ```ts
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.setValues(1, ['b', 'c']).getValues(1).toArray() // => ['b', 'c']
+		 * m.setValues(1, ['b', 'c']);
+		 * console.log(m.getValues(1).toArray()); // => [ "b", "c" ]
 		 * ```
 		 */
 		setValues(key: K, values: StreamSource<V>): boolean;
@@ -699,8 +746,10 @@ export namespace BiMultiMapBase {
 		 * @param keys - a StreamSource containing the keys to associate to the value
 		 * @example
 		 * ```ts
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.setKeys('a', [3, 4]).getKeys('a').toArray() // => [3, 4]
+		 * m.setKeys('a', [3, 4]);
+		 * console.log(m.getKeys('a').toArray()); // => [ 3, 4 ]
 		 * ```
 		 */
 		setKeys(value: V, keys: StreamSource<K>): boolean;
@@ -711,9 +760,10 @@ export namespace BiMultiMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.set(1, 'a')   // => false
-		 * m.set(1, 'b')   // => true
+		 * console.log(m.add(1, 'a')); // => false
+		 * console.log(m.add(1, 'b')); // => true
 		 * ```
 		 */
 		add(key: K, value: V): boolean;
@@ -723,9 +773,10 @@ export namespace BiMultiMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.addEntries([[1, 'a'], [3, 'c']])   // => true
-		 * m.addEntries([])                    // => false
+		 * console.log(m.addEntries([[1, 'a'], [3, 'c']])); // => true
+		 * console.log(m.addEntries([])); // => false
 		 * ```
 		 */
 		addEntries(entries: StreamSource<readonly [K, V]>): boolean;
@@ -735,9 +786,10 @@ export namespace BiMultiMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.removeKey(2)        // => true
-		 * m.removeKey(3)        // => false
+		 * console.log(m.removeKey(2)); // => true
+		 * console.log(m.removeKey(3)); // => false
 		 * ```
 		 */
 		removeKey<UK = K>(key: RelatedTo<K, UK>): boolean;
@@ -747,9 +799,10 @@ export namespace BiMultiMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.removeKeys([3, 4, 5])  // => false
-		 * m.removeKeys([1, 10])    // => true
+		 * console.log(m.removeKeys([3, 4, 5])); // => false
+		 * console.log(m.removeKeys([1, 10])); // => true
 		 * ```
 		 */
 		removeKeys<UK = K>(keys: StreamSource<RelatedTo<K, UK>>): boolean;
@@ -759,9 +812,10 @@ export namespace BiMultiMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.removeValue('b')        // => true
-		 * m.removeValue('c')        // => false
+		 * console.log(m.removeValue('b')); // => true
+		 * console.log(m.removeValue('c')); // => false
 		 * ```
 		 */
 		removeValue<UV = V>(value: RelatedTo<V, UV>): boolean;
@@ -771,9 +825,10 @@ export namespace BiMultiMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.removeValues(['c', 'd', 'e'])  // => false
-		 * m.removeValues(['a', 'e'])       // => true
+		 * console.log(m.removeValues(['c', 'd', 'e'])); // => false
+		 * console.log(m.removeValues(['a', 'e'])); // => true
 		 * ```
 		 */
 		removeValues<UV = V>(values: StreamSource<RelatedTo<V, UV>>): boolean;
@@ -784,9 +839,10 @@ export namespace BiMultiMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.removeEntry(1, 'c')   // => false
-		 * m.removeEntry(1, 'a')   // => true
+		 * console.log(m.removeEntry(1, 'c')); // => false
+		 * console.log(m.removeEntry(1, 'a')); // => true
 		 * ```
 		 */
 		removeEntry<UK = K, UV = V>(
@@ -799,9 +855,10 @@ export namespace BiMultiMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.removeEntries([[1, 'c'], [2, 'a']])    // => false
-		 * m.removeEntries([[1, 'a']])              // => true
+		 * console.log(m.removeEntries([[1, 'c'], [2, 'a']])); // => false
+		 * console.log(m.removeEntries([[1, 'a']])); // => true
 		 * ```
 		 */
 		removeEntries<UK = K, UV = V>(
@@ -817,11 +874,13 @@ export namespace BiMultiMapBase {
 		 * looping over it
 		 * @example
 		 * ```ts
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
+		 * const collected: [string, number][] = [];
 		 * HashBiMultiMap.of([1, 'a'], [2, 'b'], [3, 'c']).toBuilder().forEach((entry, i, halt) => {
-		 *  console.log([entry[1], entry[0]]);
-		 *  if (i >= 1) halt();
-		 * })
-		 * // => logs ['a', 1]  ['b', 2]
+		 *   collected.push([entry[1], entry[0]]);
+		 *   if (i >= 1) halt();
+		 * });
+		 * console.log(collected); // => [ [ "a", 1 ], [ "b", 2 ] ]
 		 * ```
 		 * @note O(N)
 		 */
@@ -833,8 +892,10 @@ export namespace BiMultiMapBase {
 		 * Returns an immutable collection instance containing the entries in this builder.
 		 * @example
 		 * ```ts
+		 * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
 		 * const m = HashBiMultiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * const m2: HashBiMultiMap<number, string> = m.build()
+		 * const m2: HashBiMultiMap<number, string> = m.build();
+		 * console.log(m2.toArray()); // => [ [ 1, "a" ], [ 2, "b" ] ]
 		 * ```
 		 */
 		build(): WithKeyValue<Tp, K, V>['normal'];

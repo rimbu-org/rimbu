@@ -16,8 +16,10 @@ import { createBiMultiMapContextModule } from '#bimultimap/context-factory';
  * @typeparam V - the value type
  * @example
  * ```ts
+ * import { SortedBiMultiMap } from '@rimbu/bimultimap/sorted';
  * const h1 = SortedBiMultiMap.empty<number, string>()
  * const h2 = SortedBiMultiMap.of([1, 'a'], [1, 'b'])
+ * console.log(h2.toArray()); // => [ [ 1, "a" ], [ 1, "b" ] ]
  * ```
  */
 export interface SortedBiMultiMap<K, V>

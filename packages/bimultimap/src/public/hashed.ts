@@ -16,8 +16,10 @@ import { createBiMultiMapContextModule } from '#bimultimap/context-factory';
  * @typeparam V - the value type
  * @example
  * ```ts
+ * import { HashBiMultiMap } from '@rimbu/bimultimap/hashed';
  * const h1 = HashBiMultiMap.empty<number, string>()
  * const h2 = HashBiMultiMap.of([1, 'a'], [1, 'b'])
+ * console.log(h2.toArray()); // => [ [ 1, "a" ], [ 1, "b" ] ]
  * ```
  */
 export interface HashBiMultiMap<K, V>

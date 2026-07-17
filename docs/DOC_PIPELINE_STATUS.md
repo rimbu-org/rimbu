@@ -318,6 +318,55 @@ apply-actuals) are the fastest path for OLD-style packages. Consider promoting t
 apply-actuals matcher into the verify tool as an opt-in `--write` mode later (still
 deferred — verify stays read-only for now).
 
+**bimultimap — DONE (all 67 `@example` blocks rewritten).** Files edited:
+`src/internal/base.ts` (65 blocks: `BiMultiMapBase`, `.NonEmpty`, `.Factory`,
+`.Context`, `.Builder`) and `src/public/hashed.ts` + `src/public/sorted.ts` (1 each).
+
+Result (measured):
+- **Gate**: **0 type errors** for `bimultimap/` (peaked at 37 in the gate sandbox).
+- **Verifier**: **170 snippets, 258 output comments, 0 issues** (peaked at 121).
+
+Reused the OLD-style workflow (three throwaway scripts, all deleted after use):
+import-injector, console.log-wrapper, and report-driven apply-actuals. Ran the
+apply-actuals matcher twice (after each type-error fix regenerated the report).
+
+**Cross-package (abstract-base) import fact confirmed:** `base.ts` lives in `internal/`
+(never exported) and its examples use the concrete `HashBiMultiMap` from the SUBPATH
+`@rimbu/bimultimap/hashed` (not `@rimbu/bimultimap`). The gate's `buildPaths` resolves
+subpath imports via each package's `exports` map (`./*` → `dist/public/*`), so
+subpath imports type-check correctly — provided **dist is rebuilt first**.
+
+**Gate vs. verify divergence to remember:** the *verifier's runtime* (Bun) ignores TS
+structural-variance rules, so an example can run fine yet still be a **gate** type
+error. Always check `bun run docs:examples` gate failures too, not just the verifier.
+Two whole classes of gate-only errors showed up here:
+- **`.NonEmpty`-vs-normal variance (`typeTag`)**: `const m: HashBiMultiMap<number,
+  number> = HashBiMultiMap.of(...)` fails — `of()` returns `.NonEmpty` and the
+  `keyValueMultiMap.context.typeTag` literal (`'HashMultiMapHashValue'`) isn't
+  assignable to `string`. Fix: append **`.asNormal()`** when you need the normal type.
+- **`x === m` reference-equality examples**: `m` inferred as `.NonEmpty`, `removeX()`
+  returns normal → `TS2367 no overlap`. Same fix: declare `const m = ...of(...).asNormal()`.
+
+Real bugs / API facts the loop caught (now fixed):
+- **`keyValueMultiMap`/`valueKeyMultiMap.toArray()` returns FLAT entries**
+  `[[1, 10], [1, 20]]`, NOT grouped `[[1, [10, 20]]]` — every old doc example was wrong.
+- **`toString()` format**: `HashBiMultiMap(1 <-> (a), 2 <-> (b))` — uses `<->` (not the
+  documented `<=>`) and wraps the value-set as `(a)` (not `['a']`); strings unquoted.
+- **`toJSON`** nests value arrays: `{ dataType: 'HashBiMultiMap', value: [[1, ['a']],
+  [2, ['b']]] }` (captured as-is; being removed soon).
+- **Builder `setValues`/`setKeys` return `boolean`**, not the builder — cannot chain
+  `.getValues()`. Split into two statements.
+- **Builder `set` method is actually named `add`** (JSDoc example called `m.set(...)`).
+- **`setValues`/`setKeys` REPLACE, not merge**: on `of([1,'a'])`, `setValues(1, ['b',
+  'c'])` yields values `['b', 'c']` (the `'a'` is gone).
+- **`BiMultiMap.of(...)` single-nested bug** (`of([[1,'a'],[2,'b']])`, 6 sites) — same
+  as bimap; `of` takes spread entries, so fixed to `of([1,'a'], [2,'b'])`.
+- **Base `BiMultiMap` factory has no `.of`** — the reducer example must use a concrete
+  impl (`HashBiMultiMap.of` / `HashBiMultiMap.reducer`); `Stream.of` needs the
+  `<readonly [number, string]>` tuple type-arg (same widening issue as bimap).
+- `assumeNonEmpty`-throws + `nonEmpty()`-narrowing + both `forEach` (collection &
+  builder) reworked to verifiable form (try/catch, real narrowing, collect-array §6c).
+
 
 Root scripts:
 
