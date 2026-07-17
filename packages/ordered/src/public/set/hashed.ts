@@ -21,6 +21,8 @@ import { createOrderedSetContextModule } from '#set/context-factory';
  * complexity is higher than a regular HashSet.
  * @example
  * ```ts
+ * import { OrderedHashSet } from '@rimbu/ordered/set/hashed';
+ *
  * const s1 = OrderedHashSet.empty<string>()
  * const s2 = OrderedHashSet.of('a', 'b', 'c')
  * ```
@@ -43,6 +45,8 @@ export namespace OrderedHashSet {
 	 * complexity is higher than a regular HashSet.
 	 * @example
 	 * ```ts
+	 * import { OrderedHashSet } from '@rimbu/ordered/set/hashed';
+	 *
 	 * const s1 = OrderedHashSet.empty<string>()
 	 * const s2 = OrderedHashSet.of('a', 'b', 'c')
 	 * ```

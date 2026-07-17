@@ -11,9 +11,11 @@ export interface OrderedSetBase<
 	 * Returns a `List` instance containing the order of the elements.
 	 * @example
 	 * ```ts
+	 * import { OrderedHashSet } from '@rimbu/ordered/set/hashed';
+	 *
 	 * const s = OrderedHashSet.of('b', 'a', 'c')
 	 * console.log(s.order.toArray())
-	 * // => ['b', 'a', 'c']
+	 * // => [ "b", "a", "c" ]
 	 * ```
 	 */
 	readonly order: List<T>;
@@ -21,9 +23,11 @@ export interface OrderedSetBase<
 	 * Returns the contained `Set` instance.
 	 * @example
 	 * ```ts
+	 * import { OrderedHashSet } from '@rimbu/ordered/set/hashed';
+	 *
 	 * const s = OrderedHashSet.of('b', 'a', 'c')
 	 * console.log(s.sourceSet.toString())
-	 * // => HashSet('a', 'b', 'c')
+	 * // => HashSet(a, b, c)
 	 * ```
 	 */
 	readonly sourceSet: WithElem<Tp, T>['sourceSet'];
@@ -39,9 +43,11 @@ export namespace OrderedSetBase {
 		 * Returns a non-empty `List` instance containing the order of the elements.
 		 * @example
 		 * ```ts
+		 * import { OrderedHashSet } from '@rimbu/ordered/set/hashed';
+		 *
 		 * const s = OrderedHashSet.of('b', 'a', 'c')
 		 * console.log(s.order.toArray())
-		 * // => ['b', 'a', 'c']
+		 * // => [ "b", "a", "c" ]
 		 * ```
 		 */
 		readonly order: List.NonEmpty<T>;
@@ -49,9 +55,11 @@ export namespace OrderedSetBase {
 		 * Returns the contained non-empty `Set` instance.
 		 * @example
 		 * ```ts
+		 * import { OrderedHashSet } from '@rimbu/ordered/set/hashed';
+		 *
 		 * const s = OrderedHashSet.of('b', 'a', 'c')
 		 * console.log(s.sourceSet.toString())
-		 * // => HashSet('a', 'b', 'c')
+		 * // => HashSet(a, b, c)
 		 * ```
 		 */
 		readonly sourceSet: WithElem<Tp, T>['sourceSetNonEmpty'];

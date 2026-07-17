@@ -1,6 +1,6 @@
 {
   "$schema": "rimbu-docs/aggregate/v1",
-  "generatedAt": "2026-07-17T19:27:06.493Z",
+  "generatedAt": "2026-07-17T20:29:07.494Z",
   "gitRef": "main",
   "packages": [
     "@rimbu/actor",
@@ -226169,23 +226169,23 @@
                   "description": "Returns a non-empty `List` instance containing the key order of the Map.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [2, 1, 3]\n```"
+                    "```ts\nimport { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [ 2, 1, 3 ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/map/base.ts",
-                  "line": 50,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L50"
+                  "line": 56,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L56"
                 },
                 "raw": "readonly keyOrder: List.NonEmpty<K>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/map/base.ts",
-              "line": 50,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L50"
+              "line": 56,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L56"
             }
           },
           {
@@ -226200,23 +226200,23 @@
                   "description": "Returns the contained non-empty `Map` instance.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'])\nconsole.log(m.sourceMap.toString())\n// => HashMap(1 => 'a', 2 => 'b')\n```"
+                    "```ts\nimport { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'])\nconsole.log(m.sourceMap.toString())\n// => HashMap(1 -> a, 2 -> b)\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/map/base.ts",
-                  "line": 60,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L60"
+                  "line": 68,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L68"
                 },
                 "raw": "readonly sourceMap: WithKeyValue<Tp, K, V>['sourceMapNonEmpty']"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/map/base.ts",
-              "line": 60,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L60"
+              "line": 68,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L68"
             }
           }
         ]
@@ -226276,16 +226276,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/internal/map/base.ts",
-                  "line": 73,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L73"
+                  "line": 81,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L81"
                 },
                 "raw": "readonly typeTag: 'OrderedMap'"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/map/base.ts",
-              "line": 73,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L73"
+              "line": 81,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L81"
             }
           },
           {
@@ -226305,16 +226305,16 @@
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/map/base.ts",
-                  "line": 78,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L78"
+                  "line": 86,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L86"
                 },
                 "raw": "readonly listContext: List.Context"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/map/base.ts",
-              "line": 78,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L78"
+              "line": 86,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L86"
             }
           },
           {
@@ -226334,16 +226334,16 @@
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/map/base.ts",
-                  "line": 82,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L82"
+                  "line": 90,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L90"
                 },
                 "raw": "readonly mapContext: WithKeyValue<Tp, UK, unknown>['sourceContext']"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/map/base.ts",
-              "line": 82,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L82"
+              "line": 90,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L90"
             }
           }
         ]
@@ -226368,8 +226368,8 @@
       },
       "source": {
         "file": "packages/ordered/src/internal/map/base.ts",
-        "line": 88,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L88"
+        "line": 96,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L96"
       },
       "type": {
         "typeParams": [],
@@ -226384,16 +226384,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/internal/map/base.ts",
-                  "line": 89,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L89"
+                  "line": 97,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L97"
                 },
                 "raw": "readonly normal: OrderedMapBase<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/map/base.ts",
-              "line": 89,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L89"
+              "line": 97,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L97"
             }
           },
           {
@@ -226405,16 +226405,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/internal/map/base.ts",
-                  "line": 90,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L90"
+                  "line": 98,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L98"
                 },
                 "raw": "readonly nonEmpty: OrderedMapBase.NonEmpty<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/map/base.ts",
-              "line": 90,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L90"
+              "line": 98,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L98"
             }
           },
           {
@@ -226426,16 +226426,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/internal/map/base.ts",
-                  "line": 91,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L91"
+                  "line": 99,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L99"
                 },
                 "raw": "readonly context: OrderedMapBase.Context<this['_K']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/map/base.ts",
-              "line": 91,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L91"
+              "line": 99,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L99"
             }
           },
           {
@@ -226447,16 +226447,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/internal/map/base.ts",
-                  "line": 92,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L92"
+                  "line": 100,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L100"
                 },
                 "raw": "readonly builder: OrderedMapBase.Builder<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/map/base.ts",
-              "line": 92,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L92"
+              "line": 100,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L100"
             }
           },
           {
@@ -226468,16 +226468,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/internal/map/base.ts",
-                  "line": 93,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L93"
+                  "line": 101,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L101"
                 },
                 "raw": "readonly sourceContext: RMap.Context<this['_K']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/map/base.ts",
-              "line": 93,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L93"
+              "line": 101,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L101"
             }
           },
           {
@@ -226489,16 +226489,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/internal/map/base.ts",
-                  "line": 94,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L94"
+                  "line": 102,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L102"
                 },
                 "raw": "readonly sourceMap: RMap<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/map/base.ts",
-              "line": 94,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L94"
+              "line": 102,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L102"
             }
           },
           {
@@ -226510,16 +226510,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/internal/map/base.ts",
-                  "line": 95,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L95"
+                  "line": 103,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L103"
                 },
                 "raw": "readonly sourceMapNonEmpty: RMap.NonEmpty<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/map/base.ts",
-              "line": 95,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L95"
+              "line": 103,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L103"
             }
           }
         ]
@@ -226561,23 +226561,23 @@
                   "description": "Returns a `List` instance containing the key order of the Map.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [2, 1, 3]\n```"
+                    "```ts\nimport { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [ 2, 1, 3 ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/map/base.ts",
-                  "line": 21,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L21"
+                  "line": 23,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L23"
                 },
                 "raw": "readonly keyOrder: List<K>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/map/base.ts",
-              "line": 21,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L21"
+              "line": 23,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L23"
             }
           },
           {
@@ -226592,23 +226592,23 @@
                   "description": "Returns the contained `Map` instance.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'])\nconsole.log(m.sourceMap.toString())\n// => HashMap(1 => 'a', 2 => 'b')\n```"
+                    "```ts\nimport { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'])\nconsole.log(m.sourceMap.toString())\n// => HashMap(1 -> a, 2 -> b)\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/map/base.ts",
-                  "line": 31,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L31"
+                  "line": 35,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L35"
                 },
                 "raw": "readonly sourceMap: WithKeyValue<Tp, K, V>['sourceMap']"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/map/base.ts",
-              "line": 31,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L31"
+              "line": 35,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L35"
             }
           },
           {
@@ -227691,7 +227691,7 @@
         "description": "A non-empty type-invariant immutable Ordered Map of key type K, and value type V.\nIn the Map, each key has exactly one value, and the Map cannot contain\nduplicate keys.\nSee the [Map documentation](https://rimbu.org/docs/collections/map) and the [OrderedMap API documentation](https://rimbu.org/api/rimbu/ordered/map/OrderedMap/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst m1 = OrderedHashMap.empty<number, string>()\nconst m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])\n```"
+          "```ts\nimport { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m1 = OrderedHashMap.empty<number, string>()\nconst m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])\n```"
         ],
         "notes": [
           "- The OrderedMap keeps the insertion order of elements, thus\niterators and streams will also reflect this order.\n- The OrderedMap wraps around a Map instance, thus has mostly the same time complexity\nas the contained Map.\n- The OrderedMap keeps the key insertion order in a List, thus its space complexity\nis higher than a regular Map."
@@ -227719,15 +227719,15 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/public/map.ts",
-                  "line": 56,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L56"
+                  "line": 60,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L60"
                 }
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map.ts",
-              "line": 56,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L56"
+              "line": 60,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L60"
             }
           }
         ]
@@ -227783,8 +227783,8 @@
       },
       "source": {
         "file": "packages/ordered/src/public/map.ts",
-        "line": 73,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L73"
+        "line": 77,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L77"
       },
       "type": {
         "typeParams": [
@@ -227813,8 +227813,8 @@
       },
       "source": {
         "file": "packages/ordered/src/public/map.ts",
-        "line": 78,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L78"
+        "line": 82,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L82"
       },
       "type": {
         "typeParams": [],
@@ -227829,16 +227829,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/map.ts",
-                  "line": 79,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L79"
+                  "line": 83,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L83"
                 },
                 "raw": "readonly normal: OrderedMap<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map.ts",
-              "line": 79,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L79"
+              "line": 83,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L83"
             }
           },
           {
@@ -227850,16 +227850,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/public/map.ts",
-                  "line": 80,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L80"
+                  "line": 84,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L84"
                 },
                 "raw": "readonly nonEmpty: OrderedMap.NonEmpty<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map.ts",
-              "line": 80,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L80"
+              "line": 84,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L84"
             }
           },
           {
@@ -227871,16 +227871,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/map.ts",
-                  "line": 81,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L81"
+                  "line": 85,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L85"
                 },
                 "raw": "readonly context: OrderedMap.Context<this['_K']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map.ts",
-              "line": 81,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L81"
+              "line": 85,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L85"
             }
           },
           {
@@ -227892,16 +227892,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/map.ts",
-                  "line": 82,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L82"
+                  "line": 86,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L86"
                 },
                 "raw": "readonly builder: OrderedMap.Builder<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map.ts",
-              "line": 82,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L82"
+              "line": 86,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map.ts#L86"
             }
           }
         ]
@@ -227921,7 +227921,7 @@
         "description": "A type-invariant immutable Ordered Map of key type K, and value type V.\nIn the Map, each key has exactly one value, and the Map cannot contain\nduplicate keys.\nSee the [Map documentation](https://rimbu.org/docs/collections/map) and the [OrderedMap API documentation](https://rimbu.org/api/rimbu/ordered/map/OrderedMap/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst m1 = OrderedHashMap.empty<number, string>()\nconst m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])\n```"
+          "```ts\nimport { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m1 = OrderedHashMap.empty<number, string>()\nconst m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])\n```"
         ],
         "notes": [
           "- The OrderedMap keeps the insertion order of elements, thus\niterators and streams will also reflect this order.\n- The OrderedMap wraps around a Map instance, thus has mostly the same time complexity\nas the contained Map.\n- The OrderedMap keeps the key insertion order in a List, thus its space complexity\nis higher than a regular Map."
@@ -227954,23 +227954,23 @@
                   "description": "Returns a `List` instance containing the key order of the Map.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [2, 1, 3]\n```"
+                    "```ts\nimport { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [ 2, 1, 3 ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/map/base.ts",
-                  "line": 21,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L21"
+                  "line": 23,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L23"
                 },
                 "raw": "readonly keyOrder: List<K>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/map/base.ts",
-              "line": 21,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L21"
+              "line": 23,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L23"
             },
             "inheritedFrom": "ordered/OrderedMapBase"
           },
@@ -227986,23 +227986,23 @@
                   "description": "Returns the contained `Map` instance.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'])\nconsole.log(m.sourceMap.toString())\n// => HashMap(1 => 'a', 2 => 'b')\n```"
+                    "```ts\nimport { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'])\nconsole.log(m.sourceMap.toString())\n// => HashMap(1 -> a, 2 -> b)\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/map/base.ts",
-                  "line": 31,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L31"
+                  "line": 35,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L35"
                 },
                 "raw": "readonly sourceMap: WithKeyValue<Tp, K, V>['sourceMap']"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/map/base.ts",
-              "line": 31,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L31"
+              "line": 35,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L35"
             },
             "inheritedFrom": "ordered/OrderedMapBase"
           },
@@ -229140,23 +229140,23 @@
                   "description": "Returns a non-empty `List` instance containing the order of the elements.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.order.toArray())\n// => ['b', 'a', 'c']\n```"
+                    "```ts\nimport { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.order.toArray())\n// => [ \"b\", \"a\", \"c\" ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/set/base.ts",
-                  "line": 47,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L47"
+                  "line": 53,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L53"
                 },
                 "raw": "readonly order: List.NonEmpty<T>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/set/base.ts",
-              "line": 47,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L47"
+              "line": 53,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L53"
             }
           },
           {
@@ -229171,23 +229171,23 @@
                   "description": "Returns the contained non-empty `Set` instance.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.sourceSet.toString())\n// => HashSet('a', 'b', 'c')\n```"
+                    "```ts\nimport { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.sourceSet.toString())\n// => HashSet(a, b, c)\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/set/base.ts",
-                  "line": 57,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L57"
+                  "line": 65,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L65"
                 },
                 "raw": "readonly sourceSet: WithElem<Tp, T>['sourceSetNonEmpty']"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/set/base.ts",
-              "line": 57,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L57"
+              "line": 65,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L65"
             }
           }
         ]
@@ -229246,16 +229246,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/internal/set/base.ts",
-                  "line": 69,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L69"
+                  "line": 77,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L77"
                 },
                 "raw": "readonly typeTag: 'OrderedSet'"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/set/base.ts",
-              "line": 69,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L69"
+              "line": 77,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L77"
             }
           },
           {
@@ -229275,16 +229275,16 @@
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/set/base.ts",
-                  "line": 74,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L74"
+                  "line": 82,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L82"
                 },
                 "raw": "readonly listContext: List.Context"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/set/base.ts",
-              "line": 74,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L74"
+              "line": 82,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L82"
             }
           },
           {
@@ -229304,16 +229304,16 @@
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/set/base.ts",
-                  "line": 78,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L78"
+                  "line": 86,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L86"
                 },
                 "raw": "readonly setContext: WithElem<Tp, UT>['sourceContext']"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/set/base.ts",
-              "line": 78,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L78"
+              "line": 86,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L86"
             }
           }
         ]
@@ -229338,8 +229338,8 @@
       },
       "source": {
         "file": "packages/ordered/src/internal/set/base.ts",
-        "line": 84,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L84"
+        "line": 92,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L92"
       },
       "type": {
         "typeParams": [],
@@ -229354,16 +229354,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/internal/set/base.ts",
-                  "line": 85,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L85"
+                  "line": 93,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L93"
                 },
                 "raw": "readonly normal: OrderedSetBase<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/set/base.ts",
-              "line": 85,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L85"
+              "line": 93,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L93"
             }
           },
           {
@@ -229375,16 +229375,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/internal/set/base.ts",
-                  "line": 86,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L86"
+                  "line": 94,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L94"
                 },
                 "raw": "readonly nonEmpty: OrderedSetBase.NonEmpty<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/set/base.ts",
-              "line": 86,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L86"
+              "line": 94,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L94"
             }
           },
           {
@@ -229396,16 +229396,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/internal/set/base.ts",
-                  "line": 87,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L87"
+                  "line": 95,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L95"
                 },
                 "raw": "readonly context: OrderedSetBase.Context<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/set/base.ts",
-              "line": 87,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L87"
+              "line": 95,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L95"
             }
           },
           {
@@ -229417,16 +229417,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/internal/set/base.ts",
-                  "line": 88,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L88"
+                  "line": 96,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L96"
                 },
                 "raw": "readonly builder: OrderedSetBase.Builder<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/set/base.ts",
-              "line": 88,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L88"
+              "line": 96,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L96"
             }
           },
           {
@@ -229438,16 +229438,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/internal/set/base.ts",
-                  "line": 89,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L89"
+                  "line": 97,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L97"
                 },
                 "raw": "readonly sourceContext: RSetBase.Context<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/set/base.ts",
-              "line": 89,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L89"
+              "line": 97,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L97"
             }
           },
           {
@@ -229459,16 +229459,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/internal/set/base.ts",
-                  "line": 90,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L90"
+                  "line": 98,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L98"
                 },
                 "raw": "readonly sourceSet: RSetBase<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/set/base.ts",
-              "line": 90,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L90"
+              "line": 98,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L98"
             }
           },
           {
@@ -229480,16 +229480,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/internal/set/base.ts",
-                  "line": 91,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L91"
+                  "line": 99,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L99"
                 },
                 "raw": "readonly sourceSetNonEmpty: RSetBase.NonEmpty<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/set/base.ts",
-              "line": 91,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L91"
+              "line": 99,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L99"
             }
           }
         ]
@@ -229530,23 +229530,23 @@
                   "description": "Returns a `List` instance containing the order of the elements.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.order.toArray())\n// => ['b', 'a', 'c']\n```"
+                    "```ts\nimport { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.order.toArray())\n// => [ \"b\", \"a\", \"c\" ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/set/base.ts",
-                  "line": 19,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L19"
+                  "line": 21,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L21"
                 },
                 "raw": "readonly order: List<T>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/set/base.ts",
-              "line": 19,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L19"
+              "line": 21,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L21"
             }
           },
           {
@@ -229561,23 +229561,23 @@
                   "description": "Returns the contained `Set` instance.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.sourceSet.toString())\n// => HashSet('a', 'b', 'c')\n```"
+                    "```ts\nimport { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.sourceSet.toString())\n// => HashSet(a, b, c)\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/set/base.ts",
-                  "line": 29,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L29"
+                  "line": 33,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L33"
                 },
                 "raw": "readonly sourceSet: WithElem<Tp, T>['sourceSet']"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/set/base.ts",
-              "line": 29,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L29"
+              "line": 33,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L33"
             }
           },
           {
@@ -230478,7 +230478,7 @@
         "description": "A non-empty type-invariant immutable Ordered Set of value type T.\nIn the Set, there are no duplicate values.\nSee the [Set documentation](https://rimbu.org/docs/collections/set) and the [OrderedSet API documentation](https://rimbu.org/api/rimbu/ordered/set/OrderedSet/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst s1 = OrderedSet.empty<string>()\nconst s2 = OrderedSet.of('a', 'b', 'c')\n```"
+          "```ts\nimport { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s1 = OrderedHashSet.empty<string>()\nconst s2 = OrderedHashSet.of('a', 'b', 'c')\n```"
         ],
         "notes": [
           "- The OrderedSet keeps the insertion order of values, thus\niterators and stream will also reflect this order.\n- The OrderedSet wraps around an RSet instance, thus has the same time complexity\nas the source set.\n- The OrderedSet keeps the key insertion order in a List, thus its space\ncomplexity is higher than the source set."
@@ -230505,15 +230505,15 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/public/set.ts",
-                  "line": 52,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L52"
+                  "line": 56,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L56"
                 }
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set.ts",
-              "line": 52,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L52"
+              "line": 56,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L56"
             }
           }
         ]
@@ -230598,8 +230598,8 @@
       },
       "source": {
         "file": "packages/ordered/src/public/set.ts",
-        "line": 74,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L74"
+        "line": 78,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L78"
       },
       "type": {
         "typeParams": [],
@@ -230614,16 +230614,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/set.ts",
-                  "line": 75,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L75"
+                  "line": 79,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L79"
                 },
                 "raw": "readonly normal: OrderedSet<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set.ts",
-              "line": 75,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L75"
+              "line": 79,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L79"
             }
           },
           {
@@ -230635,16 +230635,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/public/set.ts",
-                  "line": 76,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L76"
+                  "line": 80,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L80"
                 },
                 "raw": "readonly nonEmpty: OrderedSet.NonEmpty<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set.ts",
-              "line": 76,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L76"
+              "line": 80,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L80"
             }
           },
           {
@@ -230656,16 +230656,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/set.ts",
-                  "line": 77,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L77"
+                  "line": 81,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L81"
                 },
                 "raw": "readonly context: OrderedSet.Context<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set.ts",
-              "line": 77,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L77"
+              "line": 81,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L81"
             }
           },
           {
@@ -230677,16 +230677,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/set.ts",
-                  "line": 78,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L78"
+                  "line": 82,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L82"
                 },
                 "raw": "readonly builder: OrderedSet.Builder<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set.ts",
-              "line": 78,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L78"
+              "line": 82,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L82"
             }
           },
           {
@@ -230698,16 +230698,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/set.ts",
-                  "line": 79,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L79"
+                  "line": 83,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L83"
                 },
                 "raw": "readonly sourceContext: RSet.Context<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set.ts",
-              "line": 79,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L79"
+              "line": 83,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L83"
             }
           },
           {
@@ -230719,16 +230719,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/set.ts",
-                  "line": 80,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L80"
+                  "line": 84,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L84"
                 },
                 "raw": "readonly sourceSet: RSet<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set.ts",
-              "line": 80,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L80"
+              "line": 84,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L84"
             }
           },
           {
@@ -230740,16 +230740,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/public/set.ts",
-                  "line": 81,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L81"
+                  "line": 85,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L85"
                 },
                 "raw": "readonly sourceSetNonEmpty: RSet.NonEmpty<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set.ts",
-              "line": 81,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L81"
+              "line": 85,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L85"
             }
           }
         ]
@@ -230769,7 +230769,7 @@
         "description": "A type-invariant immutable Ordered Set of value type T.\nIn the Set, there are no duplicate values.\nSee the [Set documentation](https://rimbu.org/docs/collections/set) and the [OrderedSet API documentation](https://rimbu.org/api/rimbu/ordered/set/OrderedSet/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst s1 = OrderedSet.empty<string>()\nconst s2 = OrderedSet.of('a', 'b', 'c')\n```"
+          "```ts\nimport { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s1 = OrderedHashSet.empty<string>()\nconst s2 = OrderedHashSet.of('a', 'b', 'c')\n```"
         ],
         "notes": [
           "- The OrderedSet keeps the insertion order of values, thus\niterators and stream will also reflect this order.\n- The OrderedSet wraps around an RSet instance, thus has the same time complexity\nas the source set.\n- The OrderedSet keeps the key insertion order in a List, thus its space\ncomplexity is higher than the source set."
@@ -230778,8 +230778,8 @@
       },
       "source": {
         "file": "packages/ordered/src/public/set.ts",
-        "line": 27,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L27"
+        "line": 29,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set.ts#L29"
       },
       "type": {
         "typeParams": [
@@ -230801,23 +230801,23 @@
                   "description": "Returns a `List` instance containing the order of the elements.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.order.toArray())\n// => ['b', 'a', 'c']\n```"
+                    "```ts\nimport { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.order.toArray())\n// => [ \"b\", \"a\", \"c\" ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/set/base.ts",
-                  "line": 19,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L19"
+                  "line": 21,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L21"
                 },
                 "raw": "readonly order: List<T>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/set/base.ts",
-              "line": 19,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L19"
+              "line": 21,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L21"
             },
             "inheritedFrom": "ordered/OrderedSetBase"
           },
@@ -230833,23 +230833,23 @@
                   "description": "Returns the contained `Set` instance.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.sourceSet.toString())\n// => HashSet('a', 'b', 'c')\n```"
+                    "```ts\nimport { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.sourceSet.toString())\n// => HashSet(a, b, c)\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/set/base.ts",
-                  "line": 29,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L29"
+                  "line": 33,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L33"
                 },
                 "raw": "readonly sourceSet: WithElem<Tp, T>['sourceSet']"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/set/base.ts",
-              "line": 29,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L29"
+              "line": 33,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L33"
             },
             "inheritedFrom": "ordered/OrderedSetBase"
           },
@@ -231786,7 +231786,7 @@
         "description": "A non-empty type-invariant immutable Ordered HashMap of key type K, and value type V.\nIn the Map, each key has exactly one value, and the Map cannot contain\nduplicate keys.\nSee the [Map documentation](https://rimbu.org/docs/collections/map) and the [OrderedHashMap API documentation](https://rimbu.org/api/rimbu/ordered/map/OrderedHashMap/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst m1 = OrderedHashMap.empty<number, string>()\nconst m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])\n```"
+          "```ts\nimport { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m1 = OrderedHashMap.empty<number, string>()\nconst m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])\n```"
         ],
         "notes": [
           "- The OrderedHashMap keeps the insertion order of elements, thus\niterators and streams will also reflect this order.\n- The OrderedHashMap wraps around a HashMap instance, thus has mostly the same time complexity\nas the HashMap.\n- The OrderedHashMap keeps the key insertion order in a List, thus its space\ncomplexity is higher than a regular HashMap."
@@ -231814,15 +231814,15 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/public/map/hashed.ts",
-                  "line": 58,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L58"
+                  "line": 62,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L62"
                 }
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map/hashed.ts",
-              "line": 58,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L58"
+              "line": 62,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L62"
             }
           }
         ]
@@ -231908,8 +231908,8 @@
       },
       "source": {
         "file": "packages/ordered/src/public/map/hashed.ts",
-        "line": 81,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L81"
+        "line": 85,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L85"
       },
       "type": {
         "typeParams": [],
@@ -231924,16 +231924,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/map/hashed.ts",
-                  "line": 82,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L82"
+                  "line": 86,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L86"
                 },
                 "raw": "readonly normal: OrderedHashMap<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map/hashed.ts",
-              "line": 82,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L82"
+              "line": 86,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L86"
             }
           },
           {
@@ -231945,16 +231945,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/public/map/hashed.ts",
-                  "line": 83,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L83"
+                  "line": 87,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L87"
                 },
                 "raw": "readonly nonEmpty: OrderedHashMap.NonEmpty<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map/hashed.ts",
-              "line": 83,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L83"
+              "line": 87,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L87"
             }
           },
           {
@@ -231966,16 +231966,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/map/hashed.ts",
-                  "line": 84,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L84"
+                  "line": 88,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L88"
                 },
                 "raw": "readonly context: OrderedHashMap.Context<this['_K']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map/hashed.ts",
-              "line": 84,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L84"
+              "line": 88,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L88"
             }
           },
           {
@@ -231987,16 +231987,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/map/hashed.ts",
-                  "line": 85,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L85"
+                  "line": 89,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L89"
                 },
                 "raw": "readonly builder: OrderedHashMap.Builder<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map/hashed.ts",
-              "line": 85,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L85"
+              "line": 89,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L89"
             }
           },
           {
@@ -232008,16 +232008,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/map/hashed.ts",
-                  "line": 86,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L86"
+                  "line": 90,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L90"
                 },
                 "raw": "readonly sourceContext: HashMap.Context<this['_K']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map/hashed.ts",
-              "line": 86,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L86"
+              "line": 90,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L90"
             }
           },
           {
@@ -232029,16 +232029,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/map/hashed.ts",
-                  "line": 87,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L87"
+                  "line": 91,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L91"
                 },
                 "raw": "readonly sourceMap: HashMap<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map/hashed.ts",
-              "line": 87,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L87"
+              "line": 91,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L91"
             }
           },
           {
@@ -232050,16 +232050,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/public/map/hashed.ts",
-                  "line": 88,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L88"
+                  "line": 92,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L92"
                 },
                 "raw": "readonly sourceMapNonEmpty: HashMap.NonEmpty<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map/hashed.ts",
-              "line": 88,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L88"
+              "line": 92,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/hashed.ts#L92"
             }
           }
         ]
@@ -232079,7 +232079,7 @@
         "description": "A type-invariant immutable Ordered HashMap of key type K, and value type V.\nIn the Map, each key has exactly one value, and the Map cannot contain\nduplicate keys.\nSee the [Map documentation](https://rimbu.org/docs/collections/map) and the [OrderedHashMap API documentation](https://rimbu.org/api/rimbu/ordered/map/OrderedHashMap/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst m1 = OrderedHashMap.empty<number, string>()\nconst m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])\n```"
+          "```ts\nimport { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m1 = OrderedHashMap.empty<number, string>()\nconst m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])\n```"
         ],
         "notes": [
           "- The OrderedHashMap keeps the insertion order of elements, thus\niterators and streams will also reflect this order.\n- The OrderedHashMap wraps around a HashMap instance, thus has mostly the same time complexity\nas the HashMap.\n- The OrderedHashMap keeps the key insertion order in a List, thus its space\ncomplexity is higher than a regular HashMap."
@@ -232112,23 +232112,23 @@
                   "description": "Returns a `List` instance containing the key order of the Map.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [2, 1, 3]\n```"
+                    "```ts\nimport { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [ 2, 1, 3 ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/map/base.ts",
-                  "line": 21,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L21"
+                  "line": 23,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L23"
                 },
                 "raw": "readonly keyOrder: List<K>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/map/base.ts",
-              "line": 21,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L21"
+              "line": 23,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L23"
             },
             "inheritedFrom": "ordered/OrderedMapBase"
           },
@@ -232144,23 +232144,23 @@
                   "description": "Returns the contained `Map` instance.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'])\nconsole.log(m.sourceMap.toString())\n// => HashMap(1 => 'a', 2 => 'b')\n```"
+                    "```ts\nimport { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'])\nconsole.log(m.sourceMap.toString())\n// => HashMap(1 -> a, 2 -> b)\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/map/base.ts",
-                  "line": 31,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L31"
+                  "line": 35,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L35"
                 },
                 "raw": "readonly sourceMap: WithKeyValue<Tp, K, V>['sourceMap']"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/map/base.ts",
-              "line": 31,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L31"
+              "line": 35,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L35"
             },
             "inheritedFrom": "ordered/OrderedMapBase"
           },
@@ -233634,7 +233634,7 @@
         "description": "A non-empty type-invariant immutable Ordered SortedMap of key type K, and value type V.\nIn the Map, each key has exactly one value, and the Map cannot contain\nduplicate keys.\nSee the [Map documentation](https://rimbu.org/docs/collections/map) and the [OrderedSortedMap API documentation](https://rimbu.org/api/rimbu/ordered/map/OrderedSortedMap/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst m1 = OrderedSortedMap.empty<number, string>()\nconst m2 = OrderedSortedMap.of([1, 'a'], [2, 'b'])\n```"
+          "```ts\nimport { OrderedSortedMap } from '@rimbu/ordered/map/sorted';\n\nconst m1 = OrderedSortedMap.empty<number, string>()\nconst m2 = OrderedSortedMap.of([1, 'a'], [2, 'b'])\n```"
         ],
         "notes": [
           "- The OrderedSortedMap keeps the insertion order of elements, thus\niterators and streams will also reflect this order.\n- The OrderedSortedMap wraps around a SortedMap instance, thus has mostly the same time complexity\nas the SortedMap.\n- The OrderedSortedMap keeps the key insertion order in a List, thus its space complexity\nis higher than a regular SortedMap."
@@ -233662,15 +233662,15 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/public/map/sorted.ts",
-                  "line": 61,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L61"
+                  "line": 65,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L65"
                 }
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map/sorted.ts",
-              "line": 61,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L61"
+              "line": 65,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L65"
             }
           }
         ]
@@ -233756,8 +233756,8 @@
       },
       "source": {
         "file": "packages/ordered/src/public/map/sorted.ts",
-        "line": 84,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L84"
+        "line": 88,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L88"
       },
       "type": {
         "typeParams": [],
@@ -233772,16 +233772,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/map/sorted.ts",
-                  "line": 85,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L85"
+                  "line": 89,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L89"
                 },
                 "raw": "readonly normal: OrderedSortedMap<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map/sorted.ts",
-              "line": 85,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L85"
+              "line": 89,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L89"
             }
           },
           {
@@ -233793,16 +233793,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/public/map/sorted.ts",
-                  "line": 86,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L86"
+                  "line": 90,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L90"
                 },
                 "raw": "readonly nonEmpty: OrderedSortedMap.NonEmpty<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map/sorted.ts",
-              "line": 86,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L86"
+              "line": 90,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L90"
             }
           },
           {
@@ -233814,16 +233814,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/map/sorted.ts",
-                  "line": 87,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L87"
+                  "line": 91,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L91"
                 },
                 "raw": "readonly context: OrderedSortedMap.Context<this['_K']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map/sorted.ts",
-              "line": 87,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L87"
+              "line": 91,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L91"
             }
           },
           {
@@ -233835,16 +233835,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/map/sorted.ts",
-                  "line": 88,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L88"
+                  "line": 92,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L92"
                 },
                 "raw": "readonly builder: OrderedSortedMap.Builder<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map/sorted.ts",
-              "line": 88,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L88"
+              "line": 92,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L92"
             }
           },
           {
@@ -233856,16 +233856,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/map/sorted.ts",
-                  "line": 89,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L89"
+                  "line": 93,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L93"
                 },
                 "raw": "readonly sourceContext: SortedMap.Context<this['_K']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map/sorted.ts",
-              "line": 89,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L89"
+              "line": 93,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L93"
             }
           },
           {
@@ -233877,16 +233877,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/map/sorted.ts",
-                  "line": 90,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L90"
+                  "line": 94,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L94"
                 },
                 "raw": "readonly sourceMap: SortedMap<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map/sorted.ts",
-              "line": 90,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L90"
+              "line": 94,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L94"
             }
           },
           {
@@ -233898,16 +233898,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/public/map/sorted.ts",
-                  "line": 91,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L91"
+                  "line": 95,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L95"
                 },
                 "raw": "readonly sourceMapNonEmpty: SortedMap.NonEmpty<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/map/sorted.ts",
-              "line": 91,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L91"
+              "line": 95,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/map/sorted.ts#L95"
             }
           }
         ]
@@ -233927,7 +233927,7 @@
         "description": "A type-invariant immutable Ordered SortedMap of key type K, and value type V.\nIn the Map, each key has exactly one value, and the Map cannot contain\nduplicate keys.\nSee the [Map documentation](https://rimbu.org/docs/collections/map) and the [OrderedSortedMap API documentation](https://rimbu.org/api/rimbu/ordered/map/OrderedSortedMap/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst m1 = OrderedSortedMap.empty<number, string>()\nconst m2 = OrderedSortedMap.of([1, 'a'], [2, 'b'])\n```"
+          "```ts\nimport { OrderedSortedMap } from '@rimbu/ordered/map/sorted';\n\nconst m1 = OrderedSortedMap.empty<number, string>()\nconst m2 = OrderedSortedMap.of([1, 'a'], [2, 'b'])\n```"
         ],
         "notes": [
           "- The OrderedSortedMap keeps the insertion order of elements, thus\niterators and streams will also reflect this order.\n- The OrderedSortedMap wraps around a SortedMap instance, thus has mostly the same time complexity\nas the SortedMap.\n- The OrderedSortedMap keeps the key insertion order in a List, thus its space complexity\nis higher than a regular SortedMap."
@@ -233960,23 +233960,23 @@
                   "description": "Returns a `List` instance containing the key order of the Map.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [2, 1, 3]\n```"
+                    "```ts\nimport { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [ 2, 1, 3 ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/map/base.ts",
-                  "line": 21,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L21"
+                  "line": 23,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L23"
                 },
                 "raw": "readonly keyOrder: List<K>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/map/base.ts",
-              "line": 21,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L21"
+              "line": 23,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L23"
             },
             "inheritedFrom": "ordered/OrderedMapBase"
           },
@@ -233992,23 +233992,23 @@
                   "description": "Returns the contained `Map` instance.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'])\nconsole.log(m.sourceMap.toString())\n// => HashMap(1 => 'a', 2 => 'b')\n```"
+                    "```ts\nimport { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'])\nconsole.log(m.sourceMap.toString())\n// => HashMap(1 -> a, 2 -> b)\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/map/base.ts",
-                  "line": 31,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L31"
+                  "line": 35,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L35"
                 },
                 "raw": "readonly sourceMap: WithKeyValue<Tp, K, V>['sourceMap']"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/map/base.ts",
-              "line": 31,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L31"
+              "line": 35,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/map/base.ts#L35"
             },
             "inheritedFrom": "ordered/OrderedMapBase"
           },
@@ -235482,7 +235482,7 @@
         "description": "A non-empty type-invariant immutable Ordered HashSet of value type T.\nIn the Set, there are no duplicate values.\nSee the [Set documentation](https://rimbu.org/docs/collections/set) and the [OrderedHashSet API documentation](https://rimbu.org/api/rimbu/ordered/set/OrderedHashSet/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst s1 = OrderedHashSet.empty<string>()\nconst s2 = OrderedHashSet.of('a', 'b', 'c')\n```"
+          "```ts\nimport { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s1 = OrderedHashSet.empty<string>()\nconst s2 = OrderedHashSet.of('a', 'b', 'c')\n```"
         ],
         "notes": [
           "- The OrderedHashSet keeps the insertion order of values, thus\niterators and stream will also reflect this order.\n- The OrderedHashSet wraps around a HashSet instance, thus has the same time complexity\nas the HashSet.\n- The OrderedHashSet keeps the key insertion order in a List, thus its space\ncomplexity is higher than a regular HashSet."
@@ -235509,16 +235509,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/public/set/hashed.ts",
-                  "line": 54,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L54"
+                  "line": 58,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L58"
                 },
                 "raw": "stream(options?: {\n            reverse?: boolean;\n        }): Stream.NonEmpty<T>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set/hashed.ts",
-              "line": 54,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L54"
+              "line": 58,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L58"
             }
           }
         ]
@@ -235603,8 +235603,8 @@
       },
       "source": {
         "file": "packages/ordered/src/public/set/hashed.ts",
-        "line": 76,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L76"
+        "line": 80,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L80"
       },
       "type": {
         "typeParams": [],
@@ -235619,16 +235619,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/set/hashed.ts",
-                  "line": 77,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L77"
+                  "line": 81,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L81"
                 },
                 "raw": "readonly normal: OrderedHashSet<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set/hashed.ts",
-              "line": 77,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L77"
+              "line": 81,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L81"
             }
           },
           {
@@ -235640,16 +235640,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/public/set/hashed.ts",
-                  "line": 78,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L78"
+                  "line": 82,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L82"
                 },
                 "raw": "readonly nonEmpty: OrderedHashSet.NonEmpty<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set/hashed.ts",
-              "line": 78,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L78"
+              "line": 82,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L82"
             }
           },
           {
@@ -235661,16 +235661,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/set/hashed.ts",
-                  "line": 79,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L79"
+                  "line": 83,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L83"
                 },
                 "raw": "readonly context: OrderedHashSet.Context<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set/hashed.ts",
-              "line": 79,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L79"
+              "line": 83,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L83"
             }
           },
           {
@@ -235682,16 +235682,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/set/hashed.ts",
-                  "line": 80,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L80"
+                  "line": 84,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L84"
                 },
                 "raw": "readonly builder: OrderedHashSet.Builder<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set/hashed.ts",
-              "line": 80,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L80"
+              "line": 84,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L84"
             }
           },
           {
@@ -235703,16 +235703,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/set/hashed.ts",
-                  "line": 81,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L81"
+                  "line": 85,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L85"
                 },
                 "raw": "readonly sourceContext: HashSet.Context<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set/hashed.ts",
-              "line": 81,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L81"
+              "line": 85,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L85"
             }
           },
           {
@@ -235724,16 +235724,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/set/hashed.ts",
-                  "line": 82,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L82"
+                  "line": 86,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L86"
                 },
                 "raw": "readonly sourceSet: HashSet<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set/hashed.ts",
-              "line": 82,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L82"
+              "line": 86,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L86"
             }
           },
           {
@@ -235745,16 +235745,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/public/set/hashed.ts",
-                  "line": 83,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L83"
+                  "line": 87,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L87"
                 },
                 "raw": "readonly sourceSetNonEmpty: HashSet.NonEmpty<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set/hashed.ts",
-              "line": 83,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L83"
+              "line": 87,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/hashed.ts#L87"
             }
           }
         ]
@@ -235774,7 +235774,7 @@
         "description": "A type-invariant immutable Ordered HashSet of value type T.\nIn the Set, there are no duplicate values.\nSee the [Set documentation](https://rimbu.org/docs/collections/set) and the [OrderedHashSet API documentation](https://rimbu.org/api/rimbu/ordered/set/OrderedHashSet/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst s1 = OrderedHashSet.empty<string>()\nconst s2 = OrderedHashSet.of('a', 'b', 'c')\n```"
+          "```ts\nimport { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s1 = OrderedHashSet.empty<string>()\nconst s2 = OrderedHashSet.of('a', 'b', 'c')\n```"
         ],
         "notes": [
           "- The OrderedHashSet keeps the insertion order of values, thus\niterators and stream will also reflect this order.\n- The OrderedHashSet wraps around a HashSet instance, thus has the same time complexity\nas the HashSet.\n- The OrderedHashSet keeps the key insertion order in a List, thus its space\ncomplexity is higher than a regular HashSet."
@@ -235806,23 +235806,23 @@
                   "description": "Returns a `List` instance containing the order of the elements.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.order.toArray())\n// => ['b', 'a', 'c']\n```"
+                    "```ts\nimport { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.order.toArray())\n// => [ \"b\", \"a\", \"c\" ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/set/base.ts",
-                  "line": 19,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L19"
+                  "line": 21,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L21"
                 },
                 "raw": "readonly order: List<T>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/set/base.ts",
-              "line": 19,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L19"
+              "line": 21,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L21"
             },
             "inheritedFrom": "ordered/OrderedSetBase"
           },
@@ -235838,23 +235838,23 @@
                   "description": "Returns the contained `Set` instance.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.sourceSet.toString())\n// => HashSet('a', 'b', 'c')\n```"
+                    "```ts\nimport { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.sourceSet.toString())\n// => HashSet(a, b, c)\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/set/base.ts",
-                  "line": 29,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L29"
+                  "line": 33,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L33"
                 },
                 "raw": "readonly sourceSet: WithElem<Tp, T>['sourceSet']"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/set/base.ts",
-              "line": 29,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L29"
+              "line": 33,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L33"
             },
             "inheritedFrom": "ordered/OrderedSetBase"
           },
@@ -236990,7 +236990,7 @@
         "description": "A non-empty type-invariant immutable Ordered SortedSet of value type T.\nIn the Set, there are no duplicate values.\nSee the [Set documentation](https://rimbu.org/docs/collections/set) and the [OrderedSortedSet API documentation](https://rimbu.org/api/rimbu/ordered/set/OrderedSortedSet/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst s1 = OrderedSortedSet.empty<string>()\nconst s2 = OrderedSortedSet.of('a', 'b', 'c')\n```"
+          "```ts\nimport { OrderedSortedSet } from '@rimbu/ordered/set/sorted';\n\nconst s1 = OrderedSortedSet.empty<string>()\nconst s2 = OrderedSortedSet.of('a', 'b', 'c')\n```"
         ],
         "notes": [
           "- The OrderedSortedSet keeps the insertion order of values, thus\niterators and stream will also reflect this order.<br/>\n- The OrderedSortedSet wraps around a SortedSet instance, thus has the same time complexity\nas the SortedSet.<br/>\n- The OrderedSortedSet keeps the key insertion order in a List, thus its space\ncomplexity is higher than a regular SortedSet."
@@ -237017,15 +237017,15 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/public/set/sorted.ts",
-                  "line": 54,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L54"
+                  "line": 58,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L58"
                 }
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set/sorted.ts",
-              "line": 54,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L54"
+              "line": 58,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L58"
             }
           }
         ]
@@ -237110,8 +237110,8 @@
       },
       "source": {
         "file": "packages/ordered/src/public/set/sorted.ts",
-        "line": 76,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L76"
+        "line": 80,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L80"
       },
       "type": {
         "typeParams": [],
@@ -237126,16 +237126,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/set/sorted.ts",
-                  "line": 77,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L77"
+                  "line": 81,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L81"
                 },
                 "raw": "readonly normal: OrderedSortedSet<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set/sorted.ts",
-              "line": 77,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L77"
+              "line": 81,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L81"
             }
           },
           {
@@ -237147,16 +237147,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/public/set/sorted.ts",
-                  "line": 78,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L78"
+                  "line": 82,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L82"
                 },
                 "raw": "readonly nonEmpty: OrderedSortedSet.NonEmpty<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set/sorted.ts",
-              "line": 78,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L78"
+              "line": 82,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L82"
             }
           },
           {
@@ -237168,16 +237168,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/set/sorted.ts",
-                  "line": 79,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L79"
+                  "line": 83,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L83"
                 },
                 "raw": "readonly context: OrderedSortedSet.Context<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set/sorted.ts",
-              "line": 79,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L79"
+              "line": 83,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L83"
             }
           },
           {
@@ -237189,16 +237189,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/set/sorted.ts",
-                  "line": 80,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L80"
+                  "line": 84,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L84"
                 },
                 "raw": "readonly builder: OrderedSortedSet.Builder<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set/sorted.ts",
-              "line": 80,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L80"
+              "line": 84,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L84"
             }
           },
           {
@@ -237210,16 +237210,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/set/sorted.ts",
-                  "line": 81,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L81"
+                  "line": 85,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L85"
                 },
                 "raw": "readonly sourceContext: SortedSet.Context<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set/sorted.ts",
-              "line": 81,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L81"
+              "line": 85,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L85"
             }
           },
           {
@@ -237231,16 +237231,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/ordered/src/public/set/sorted.ts",
-                  "line": 82,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L82"
+                  "line": 86,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L86"
                 },
                 "raw": "readonly sourceSet: SortedSet<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set/sorted.ts",
-              "line": 82,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L82"
+              "line": 86,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L86"
             }
           },
           {
@@ -237252,16 +237252,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/ordered/src/public/set/sorted.ts",
-                  "line": 83,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L83"
+                  "line": 87,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L87"
                 },
                 "raw": "readonly sourceSetNonEmpty: SortedSet.NonEmpty<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/public/set/sorted.ts",
-              "line": 83,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L83"
+              "line": 87,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/public/set/sorted.ts#L87"
             }
           }
         ]
@@ -237281,7 +237281,7 @@
         "description": "A type-invariant immutable Ordered SortedSet of value type T.\nIn the Set, there are no duplicate values.\nSee the [Set documentation](https://rimbu.org/docs/collections/set) and the [OrderedSortedSet API documentation](https://rimbu.org/api/rimbu/ordered/set/OrderedSortedSet/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst s1 = OrderedSortedSet.empty<string>()\nconst s2 = OrderedSortedSet.of('a', 'b', 'c')\n```"
+          "```ts\nimport { OrderedSortedSet } from '@rimbu/ordered/set/sorted';\n\nconst s1 = OrderedSortedSet.empty<string>()\nconst s2 = OrderedSortedSet.of('a', 'b', 'c')\n```"
         ],
         "notes": [
           "- The OrderedSortedSet keeps the insertion order of values, thus\niterators and stream will also reflect this order.<br/>\n- The OrderedSortedSet wraps around a SortedSet instance, thus has the same time complexity\nas the SortedSet.<br/>\n- The OrderedSortedSet keeps the key insertion order in a List, thus its space\ncomplexity is higher than a regular SortedSet."
@@ -237313,23 +237313,23 @@
                   "description": "Returns a `List` instance containing the order of the elements.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.order.toArray())\n// => ['b', 'a', 'c']\n```"
+                    "```ts\nimport { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.order.toArray())\n// => [ \"b\", \"a\", \"c\" ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/set/base.ts",
-                  "line": 19,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L19"
+                  "line": 21,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L21"
                 },
                 "raw": "readonly order: List<T>"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/set/base.ts",
-              "line": 19,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L19"
+              "line": 21,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L21"
             },
             "inheritedFrom": "ordered/OrderedSetBase"
           },
@@ -237345,23 +237345,23 @@
                   "description": "Returns the contained `Set` instance.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.sourceSet.toString())\n// => HashSet('a', 'b', 'c')\n```"
+                    "```ts\nimport { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.sourceSet.toString())\n// => HashSet(a, b, c)\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/ordered/src/internal/set/base.ts",
-                  "line": 29,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L29"
+                  "line": 33,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L33"
                 },
                 "raw": "readonly sourceSet: WithElem<Tp, T>['sourceSet']"
               }
             ],
             "source": {
               "file": "packages/ordered/src/internal/set/base.ts",
-              "line": 29,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L29"
+              "line": 33,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/ordered/src/internal/set/base.ts#L33"
             },
             "inheritedFrom": "ordered/OrderedSetBase"
           },

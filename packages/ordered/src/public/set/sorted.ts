@@ -21,6 +21,8 @@ import { createOrderedSetContextModule } from '#set/context-factory';
  * complexity is higher than a regular SortedSet.
  * @example
  * ```ts
+ * import { OrderedSortedSet } from '@rimbu/ordered/set/sorted';
+ *
  * const s1 = OrderedSortedSet.empty<string>()
  * const s2 = OrderedSortedSet.of('a', 'b', 'c')
  * ```
@@ -43,6 +45,8 @@ export namespace OrderedSortedSet {
 	 * complexity is higher than a regular SortedSet.
 	 * @example
 	 * ```ts
+	 * import { OrderedSortedSet } from '@rimbu/ordered/set/sorted';
+	 *
 	 * const s1 = OrderedSortedSet.empty<string>()
 	 * const s2 = OrderedSortedSet.of('a', 'b', 'c')
 	 * ```

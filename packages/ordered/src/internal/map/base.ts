@@ -13,9 +13,11 @@ export interface OrderedMapBase<
 	 * Returns a `List` instance containing the key order of the Map.
 	 * @example
 	 * ```ts
+	 * import { OrderedHashMap } from '@rimbu/ordered/map/hashed';
+	 *
 	 * const m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])
 	 * console.log(m.keyOrder.toArray())
-	 * // => [2, 1, 3]
+	 * // => [ 2, 1, 3 ]
 	 * ```
 	 */
 	readonly keyOrder: List<K>;
@@ -23,9 +25,11 @@ export interface OrderedMapBase<
 	 * Returns the contained `Map` instance.
 	 * @example
 	 * ```ts
+	 * import { OrderedHashMap } from '@rimbu/ordered/map/hashed';
+	 *
 	 * const m = OrderedHashMap.of([2, 'b'], [1, 'a'])
 	 * console.log(m.sourceMap.toString())
-	 * // => HashMap(1 => 'a', 2 => 'b')
+	 * // => HashMap(1 -> a, 2 -> b)
 	 * ```
 	 */
 	readonly sourceMap: WithKeyValue<Tp, K, V>['sourceMap'];
@@ -42,9 +46,11 @@ export namespace OrderedMapBase {
 		 * Returns a non-empty `List` instance containing the key order of the Map.
 		 * @example
 		 * ```ts
+		 * import { OrderedHashMap } from '@rimbu/ordered/map/hashed';
+		 *
 		 * const m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])
 		 * console.log(m.keyOrder.toArray())
-		 * // => [2, 1, 3]
+		 * // => [ 2, 1, 3 ]
 		 * ```
 		 */
 		readonly keyOrder: List.NonEmpty<K>;
@@ -52,9 +58,11 @@ export namespace OrderedMapBase {
 		 * Returns the contained non-empty `Map` instance.
 		 * @example
 		 * ```ts
+		 * import { OrderedHashMap } from '@rimbu/ordered/map/hashed';
+		 *
 		 * const m = OrderedHashMap.of([2, 'b'], [1, 'a'])
 		 * console.log(m.sourceMap.toString())
-		 * // => HashMap(1 => 'a', 2 => 'b')
+		 * // => HashMap(1 -> a, 2 -> b)
 		 * ```
 		 */
 		readonly sourceMap: WithKeyValue<Tp, K, V>['sourceMapNonEmpty'];

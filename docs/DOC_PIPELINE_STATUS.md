@@ -219,6 +219,47 @@ compiled **dist `.d.ts`**, NOT from `src`. You MUST rebuild the package
 (`bunx tsc --p tsconfig.esm.json`) BEFORE `bun run docs`, or edits won't be picked
 up. (First sorted verify pass still showed 70 issues purely because dist was stale.)
 
+**ordered — DONE (all 20 `@example` blocks rewritten; 32 gate owners fixed).**
+Files edited: `src/internal/map/base.ts` + `src/internal/set/base.ts` (the shared
+base examples, 4 each), `src/public/map.ts`, `src/public/set.ts`, and the four
+variant entries `src/public/{map,set}/{hashed,sorted}.ts` (entity examples, 2 each).
+
+Result (measured):
+- **Gate**: **0 type errors** for `ordered/` (was 32 — more owners than files
+  because the two base examples are *inherited* by `OrderedMap`, `OrderedHashMap`,
+  `OrderedSortedMap` and the set equivalents; fixing one base fixes many).
+- **Verifier**: **240 snippets, 324 output comments, 0 issues** (was 20).
+
+What the loop caught / fixed:
+- **All examples missing imports** → added per-file, using the concrete variant the
+  example references:
+  - base files + `public/map.ts` + `public/map/hashed.ts` → `import { OrderedHashMap }
+    from '@rimbu/ordered/map/hashed'`
+  - `public/set/hashed.ts` → `OrderedHashSet` from `@rimbu/ordered/set/hashed`
+  - `public/map/sorted.ts` → `OrderedSortedMap`; `public/set/sorted.ts` →
+    `OrderedSortedSet`
+- **Real API bug in `public/set.ts` entity examples**: they used
+  `OrderedSet.empty()/.of()`, but `OrderedSet` (like `OrderedMap`) only exposes
+  `createContext` — `empty`/`of` live on the concrete variants. Rewrote to
+  `OrderedHashSet.empty()/.of()` (mirrors how `public/map.ts` already used
+  `OrderedHashMap`).
+- **`sourceMap.toString()` / `sourceSet.toString()` output was wrong**: examples
+  claimed `HashMap(1 => 'a', 2 => 'b')` / `HashSet('a', 'b', 'c')`; actual is
+  `HashMap(1 -> a, 2 -> b)` / `HashSet(a, b, c)` — confirms **`->` (not `=>`)** AND
+  that `toString()` does **not** quote string values.
+- **Array outputs reformatted** to `Bun.inspect` style: `[2, 1, 3]` → `[ 2, 1, 3 ]`,
+  `['b', 'a', 'c']` → `[ "b", "a", "c" ]`.
+- Examples live on the two base interfaces and are **inherited verbatim** by every
+  variant — so all variants' docs correctly show the `OrderedHashMap`/`OrderedHashSet`
+  base example (expected; examples live on base).
+
+**Tooling nit hit this round:** a `perl -pi -e` substitution whose replacement
+contained a literal `[` blanked four `// =>` array lines (dropped the ` * ` margin
+too). Caught immediately by the next verify run + a read; fixed with the `edit`
+tool. Lesson: prefer the `edit` tool (or a proper script file) over inline `perl`
+for replacements that contain regex/format metacharacters.
+
+
 Root scripts:
 
 - `bun run docs` — full pipeline so far (extract + aggregate).

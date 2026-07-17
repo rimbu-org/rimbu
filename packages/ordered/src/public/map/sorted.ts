@@ -23,6 +23,8 @@ import { createOrderedMapContextModule } from '#map/context-factory';
  * @typeparam V - the value type
  * @example
  * ```ts
+ * import { OrderedSortedMap } from '@rimbu/ordered/map/sorted';
+ *
  * const m1 = OrderedSortedMap.empty<number, string>()
  * const m2 = OrderedSortedMap.of([1, 'a'], [2, 'b'])
  * ```
@@ -47,6 +49,8 @@ export namespace OrderedSortedMap {
 	 * @typeparam V - the value type
 	 * @example
 	 * ```ts
+	 * import { OrderedSortedMap } from '@rimbu/ordered/map/sorted';
+	 *
 	 * const m1 = OrderedSortedMap.empty<number, string>()
 	 * const m2 = OrderedSortedMap.of([1, 'a'], [2, 'b'])
 	 * ```

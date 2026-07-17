@@ -20,8 +20,10 @@ import { createOrderedSetContextModule } from '#set/context-factory';
  * complexity is higher than the source set.
  * @example
  * ```ts
- * const s1 = OrderedSet.empty<string>()
- * const s2 = OrderedSet.of('a', 'b', 'c')
+ * import { OrderedHashSet } from '@rimbu/ordered/set/hashed';
+ *
+ * const s1 = OrderedHashSet.empty<string>()
+ * const s2 = OrderedHashSet.of('a', 'b', 'c')
  * ```
  */
 export interface OrderedSet<T> extends OrderedSetBase<T, OrderedSet.Types> {}
@@ -41,8 +43,10 @@ export namespace OrderedSet {
 	 * complexity is higher than the source set.
 	 * @example
 	 * ```ts
-	 * const s1 = OrderedSet.empty<string>()
-	 * const s2 = OrderedSet.of('a', 'b', 'c')
+	 * import { OrderedHashSet } from '@rimbu/ordered/set/hashed';
+	 *
+	 * const s1 = OrderedHashSet.empty<string>()
+	 * const s2 = OrderedHashSet.of('a', 'b', 'c')
 	 * ```
 	 */
 	export interface NonEmpty<T>

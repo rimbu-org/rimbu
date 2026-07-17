@@ -18576,24 +18576,32 @@
     "typeChecks": false
   },
   "ordered/OrderedMapBase.NonEmpty::keyOrder::0::0": {
-    "code": "const m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [2, 1, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [ 2, 1, 3 ]",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedMapBase.NonEmpty::sourceMap::0::0": {
-    "code": "const m = OrderedHashMap.of([2, 'b'], [1, 'a'])\nconsole.log(m.sourceMap.toString())\n// => HashMap(1 => 'a', 2 => 'b')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'])\nconsole.log(m.sourceMap.toString())\n// => HashMap(1 -> a, 2 -> b)",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedMapBase::keyOrder::0::0": {
-    "code": "const m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [2, 1, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [ 2, 1, 3 ]",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedMapBase::sourceMap::0::0": {
-    "code": "const m = OrderedHashMap.of([2, 'b'], [1, 'a'])\nconsole.log(m.sourceMap.toString())\n// => HashMap(1 => 'a', 2 => 'b')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'])\nconsole.log(m.sourceMap.toString())\n// => HashMap(1 -> a, 2 -> b)",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedMapBase::set::0::0": {
     "code": "import { HashMap } from '@rimbu/hashed';\n\nconsole.log(HashMap.of([1, 'a']).set(2, 'b').toArray()); // => [ [ 1, \"a\" ], [ 2, \"b\" ] ]\nconsole.log(HashMap.of([1, 'a']).set(1, 'b').toArray()); // => [ [ 1, \"b\" ] ]",
@@ -18778,24 +18786,32 @@
     "typeChecks": true
   },
   "ordered/OrderedMap.NonEmpty::::-1::0": {
-    "code": "const m1 = OrderedHashMap.empty<number, string>()\nconst m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m1 = OrderedHashMap.empty<number, string>()\nconst m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedMap::::-1::0": {
-    "code": "const m1 = OrderedHashMap.empty<number, string>()\nconst m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m1 = OrderedHashMap.empty<number, string>()\nconst m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedMap::keyOrder::0::0": {
-    "code": "const m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [2, 1, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [ 2, 1, 3 ]",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedMap::sourceMap::0::0": {
-    "code": "const m = OrderedHashMap.of([2, 'b'], [1, 'a'])\nconsole.log(m.sourceMap.toString())\n// => HashMap(1 => 'a', 2 => 'b')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'])\nconsole.log(m.sourceMap.toString())\n// => HashMap(1 -> a, 2 -> b)",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedMap::set::0::0": {
     "code": "import { HashMap } from '@rimbu/hashed';\n\nconsole.log(HashMap.of([1, 'a']).set(2, 'b').toArray()); // => [ [ 1, \"a\" ], [ 2, \"b\" ] ]\nconsole.log(HashMap.of([1, 'a']).set(1, 'b').toArray()); // => [ [ 1, \"b\" ] ]",
@@ -18980,24 +18996,32 @@
     "typeChecks": true
   },
   "ordered/OrderedSetBase.NonEmpty::order::0::0": {
-    "code": "const s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.order.toArray())\n// => ['b', 'a', 'c']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.order.toArray())\n// => [ \"b\", \"a\", \"c\" ]",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedSetBase.NonEmpty::sourceSet::0::0": {
-    "code": "const s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.sourceSet.toString())\n// => HashSet('a', 'b', 'c')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.sourceSet.toString())\n// => HashSet(a, b, c)",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedSetBase::order::0::0": {
-    "code": "const s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.order.toArray())\n// => ['b', 'a', 'c']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.order.toArray())\n// => [ \"b\", \"a\", \"c\" ]",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedSetBase::sourceSet::0::0": {
-    "code": "const s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.sourceSet.toString())\n// => HashSet('a', 'b', 'c')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.sourceSet.toString())\n// => HashSet(a, b, c)",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedSetBase::add::0::0": {
     "code": "import { HashSet } from '@rimbu/hashed';\n\nconsole.log(HashSet.of(1, 2, 3).add(10).toArray()); // => [ 1, 2, 3, 10 ]",
@@ -19133,24 +19157,32 @@
     "typeChecks": true
   },
   "ordered/OrderedSet.NonEmpty::::-1::0": {
-    "code": "const s1 = OrderedSet.empty<string>()\nconst s2 = OrderedSet.of('a', 'b', 'c')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s1 = OrderedHashSet.empty<string>()\nconst s2 = OrderedHashSet.of('a', 'b', 'c')",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedSet::::-1::0": {
-    "code": "const s1 = OrderedSet.empty<string>()\nconst s2 = OrderedSet.of('a', 'b', 'c')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s1 = OrderedHashSet.empty<string>()\nconst s2 = OrderedHashSet.of('a', 'b', 'c')",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedSet::order::0::0": {
-    "code": "const s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.order.toArray())\n// => ['b', 'a', 'c']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.order.toArray())\n// => [ \"b\", \"a\", \"c\" ]",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedSet::sourceSet::0::0": {
-    "code": "const s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.sourceSet.toString())\n// => HashSet('a', 'b', 'c')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.sourceSet.toString())\n// => HashSet(a, b, c)",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedSet::add::0::0": {
     "code": "import { HashSet } from '@rimbu/hashed';\n\nconsole.log(HashSet.of(1, 2, 3).add(10).toArray()); // => [ 1, 2, 3, 10 ]",
@@ -19286,24 +19318,32 @@
     "typeChecks": true
   },
   "ordered/OrderedHashMap.NonEmpty::::-1::0": {
-    "code": "const m1 = OrderedHashMap.empty<number, string>()\nconst m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m1 = OrderedHashMap.empty<number, string>()\nconst m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedHashMap::::-1::0": {
-    "code": "const m1 = OrderedHashMap.empty<number, string>()\nconst m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m1 = OrderedHashMap.empty<number, string>()\nconst m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedHashMap::keyOrder::0::0": {
-    "code": "const m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [2, 1, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [ 2, 1, 3 ]",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedHashMap::sourceMap::0::0": {
-    "code": "const m = OrderedHashMap.of([2, 'b'], [1, 'a'])\nconsole.log(m.sourceMap.toString())\n// => HashMap(1 => 'a', 2 => 'b')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'])\nconsole.log(m.sourceMap.toString())\n// => HashMap(1 -> a, 2 -> b)",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedHashMap::set::0::0": {
     "code": "import { HashMap } from '@rimbu/hashed';\n\nconsole.log(HashMap.of([1, 'a']).set(2, 'b').toArray()); // => [ [ 1, \"a\" ], [ 2, \"b\" ] ]\nconsole.log(HashMap.of([1, 'a']).set(1, 'b').toArray()); // => [ [ 1, \"b\" ] ]",
@@ -19552,24 +19592,32 @@
     "typeChecks": true
   },
   "ordered/OrderedSortedMap.NonEmpty::::-1::0": {
-    "code": "const m1 = OrderedSortedMap.empty<number, string>()\nconst m2 = OrderedSortedMap.of([1, 'a'], [2, 'b'])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedSortedMap } from '@rimbu/ordered/map/sorted';\n\nconst m1 = OrderedSortedMap.empty<number, string>()\nconst m2 = OrderedSortedMap.of([1, 'a'], [2, 'b'])",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedSortedMap::::-1::0": {
-    "code": "const m1 = OrderedSortedMap.empty<number, string>()\nconst m2 = OrderedSortedMap.of([1, 'a'], [2, 'b'])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedSortedMap } from '@rimbu/ordered/map/sorted';\n\nconst m1 = OrderedSortedMap.empty<number, string>()\nconst m2 = OrderedSortedMap.of([1, 'a'], [2, 'b'])",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedSortedMap::keyOrder::0::0": {
-    "code": "const m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [2, 1, 3]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'], [3, 'c'])\nconsole.log(m.keyOrder.toArray())\n// => [ 2, 1, 3 ]",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedSortedMap::sourceMap::0::0": {
-    "code": "const m = OrderedHashMap.of([2, 'b'], [1, 'a'])\nconsole.log(m.sourceMap.toString())\n// => HashMap(1 => 'a', 2 => 'b')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashMap } from '@rimbu/ordered/map/hashed';\n\nconst m = OrderedHashMap.of([2, 'b'], [1, 'a'])\nconsole.log(m.sourceMap.toString())\n// => HashMap(1 -> a, 2 -> b)",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedSortedMap::set::0::0": {
     "code": "import { HashMap } from '@rimbu/hashed';\n\nconsole.log(HashMap.of([1, 'a']).set(2, 'b').toArray()); // => [ [ 1, \"a\" ], [ 2, \"b\" ] ]\nconsole.log(HashMap.of([1, 'a']).set(1, 'b').toArray()); // => [ [ 1, \"b\" ] ]",
@@ -19818,24 +19866,32 @@
     "typeChecks": true
   },
   "ordered/OrderedHashSet.NonEmpty::::-1::0": {
-    "code": "const s1 = OrderedHashSet.empty<string>()\nconst s2 = OrderedHashSet.of('a', 'b', 'c')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s1 = OrderedHashSet.empty<string>()\nconst s2 = OrderedHashSet.of('a', 'b', 'c')",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedHashSet::::-1::0": {
-    "code": "const s1 = OrderedHashSet.empty<string>()\nconst s2 = OrderedHashSet.of('a', 'b', 'c')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s1 = OrderedHashSet.empty<string>()\nconst s2 = OrderedHashSet.of('a', 'b', 'c')",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedHashSet::order::0::0": {
-    "code": "const s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.order.toArray())\n// => ['b', 'a', 'c']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.order.toArray())\n// => [ \"b\", \"a\", \"c\" ]",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedHashSet::sourceSet::0::0": {
-    "code": "const s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.sourceSet.toString())\n// => HashSet('a', 'b', 'c')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.sourceSet.toString())\n// => HashSet(a, b, c)",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedHashSet::add::0::0": {
     "code": "import { HashSet } from '@rimbu/hashed';\n\nconsole.log(HashSet.of(1, 2, 3).add(10).toArray()); // => [ 1, 2, 3, 10 ]",
@@ -20007,24 +20063,32 @@
     "typeChecks": true
   },
   "ordered/OrderedSortedSet.NonEmpty::::-1::0": {
-    "code": "const s1 = OrderedSortedSet.empty<string>()\nconst s2 = OrderedSortedSet.of('a', 'b', 'c')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedSortedSet } from '@rimbu/ordered/set/sorted';\n\nconst s1 = OrderedSortedSet.empty<string>()\nconst s2 = OrderedSortedSet.of('a', 'b', 'c')",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedSortedSet::::-1::0": {
-    "code": "const s1 = OrderedSortedSet.empty<string>()\nconst s2 = OrderedSortedSet.of('a', 'b', 'c')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedSortedSet } from '@rimbu/ordered/set/sorted';\n\nconst s1 = OrderedSortedSet.empty<string>()\nconst s2 = OrderedSortedSet.of('a', 'b', 'c')",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedSortedSet::order::0::0": {
-    "code": "const s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.order.toArray())\n// => ['b', 'a', 'c']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.order.toArray())\n// => [ \"b\", \"a\", \"c\" ]",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedSortedSet::sourceSet::0::0": {
-    "code": "const s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.sourceSet.toString())\n// => HashSet('a', 'b', 'c')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { OrderedHashSet } from '@rimbu/ordered/set/hashed';\n\nconst s = OrderedHashSet.of('b', 'a', 'c')\nconsole.log(s.sourceSet.toString())\n// => HashSet(a, b, c)",
+    "packages": [
+      "@rimbu/ordered"
+    ],
+    "typeChecks": true
   },
   "ordered/OrderedSortedSet::add::0::0": {
     "code": "import { HashSet } from '@rimbu/hashed';\n\nconsole.log(HashSet.of(1, 2, 3).add(10).toArray()); // => [ 1, 2, 3, 10 ]",

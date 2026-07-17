@@ -23,6 +23,8 @@ import { createOrderedMapContextModule } from '#map/context-factory';
  * @typeparam V - the value type
  * @example
  * ```ts
+ * import { OrderedHashMap } from '@rimbu/ordered/map/hashed';
+ *
  * const m1 = OrderedHashMap.empty<number, string>()
  * const m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])
  * ```
@@ -47,6 +49,8 @@ export namespace OrderedHashMap {
 	 * @typeparam V - the value type
 	 * @example
 	 * ```ts
+	 * import { OrderedHashMap } from '@rimbu/ordered/map/hashed';
+	 *
 	 * const m1 = OrderedHashMap.empty<number, string>()
 	 * const m2 = OrderedHashMap.of([1, 'a'], [2, 'b'])
 	 * ```
