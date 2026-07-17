@@ -20,6 +20,8 @@ import { createSortedSetContextModule } from '#set/context-factory';
  * context's `comp` `Comp` instance.
  * @example
  * ```ts
+ * import { SortedSet } from '@rimbu/sorted';
+ *
  * const s1 = SortedSet.empty<string>()
  * const s2 = SortedSet.of('a', 'b', 'c')
  * ```
@@ -33,9 +35,11 @@ export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
 	 * - reversed: (default: false) when true will reverse the stream element order
 	 * @example
 	 * ```ts
+	 * import { SortedSet } from '@rimbu/sorted';
+	 *
 	 * const m = SortedSet.of('b', 'd', 'a', 'c');
 	 * console.log(m.streamRange({ start: 'b', end: 'c' }).toArray())
-	 * // => ['b', 'c']
+	 * // => [ "b", "c" ]
 	 * ```
 	 */
 	streamRange(range: Range<T>, options?: { reversed?: boolean }): Stream<T>;
@@ -46,9 +50,11 @@ export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
 	 * - reversed: (default: false) when true will reverse the stream element order
 	 * @example
 	 * ```ts
+	 * import { SortedSet } from '@rimbu/sorted';
+	 *
 	 * const m = SortedSet.of('b', 'd', 'a', 'c');
 	 * console.log(m.streamSliceIndex({ start: 1, amount: 2 }).toArray())
-	 * // => ['b', 'c']
+	 * // => [ "b", "c" ]
 	 * ```
 	 */
 	streamSliceIndex(
@@ -61,15 +67,17 @@ export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
 	 * @param otherwise - (default: undefined) the fallback value to return if the SortedSet is empty.
 	 * @example
 	 * ```ts
+	 * import { SortedSet } from '@rimbu/sorted';
+	 *
 	 * const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();
 	 * console.log(m.min())
-	 * // => 'a'
+	 * // => a
 	 * console.log(m.min('q'))
-	 * // => 'a'
+	 * // => a
 	 * console.log(SortedSet.empty().min())
 	 * // => undefined
 	 * console.log(SortedSet.empty().min('q'))
-	 * // => 'q'
+	 * // => q
 	 * ```
 	 */
 	min(): T | undefined;
@@ -80,15 +88,17 @@ export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
 	 * @param otherwise - (default: undefined) the fallback value to return if the SortedSet is empty.
 	 * @example
 	 * ```ts
+	 * import { SortedSet } from '@rimbu/sorted';
+	 *
 	 * const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();
 	 * console.log(m.max())
-	 * // => 'd'
+	 * // => d
 	 * console.log(m.max('q'))
-	 * // => 'd'
+	 * // => d
 	 * console.log(SortedSet.empty().max())
 	 * // => undefined
 	 * console.log(SortedSet.empty().max('q'))
-	 * // => 'q'
+	 * // => q
 	 * ```
 	 */
 	max(): T | undefined;
@@ -98,6 +108,8 @@ export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
 	 * @param value - the value to find the index for
 	 * @example
 	 * ```ts
+	 * import { SortedSet } from '@rimbu/sorted';
+	 *
 	 * const m = SortedSet.of('b', 'd', 'a', 'c');
 	 * console.log(m.findIndex('c'))
 	 * // => 2
@@ -115,15 +127,17 @@ export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
 	 * @note negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value
 	 * @example
 	 * ```ts
+	 * import { SortedSet } from '@rimbu/sorted';
+	 *
 	 * const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();
 	 * console.log(m.getAtIndex(1))
-	 * // => 'b'
+	 * // => b
 	 * console.log(m.getAtIndex(-1))
-	 * // => 'd'
+	 * // => d
 	 * console.log(m.getAtIndex(10))
 	 * // => undefined
 	 * console.log(m.getAtIndex(10, 'q'))
-	 * // => 'q'
+	 * // => q
 	 * ```
 	 */
 	getAtIndex(index: number): T | undefined;
@@ -135,11 +149,13 @@ export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
 	 * @note a negative `amount` takes the last values instead of the first, e.g. -2 is the last 2 elements
 	 * @example
 	 * ```ts
+	 * import { SortedSet } from '@rimbu/sorted';
+	 *
 	 * const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();
 	 * console.log(m.take(2).toArray())
-	 * // => ['a', 'b']
+	 * // => [ "a", "b" ]
 	 * console.log(m.take(-2).toArray())
-	 * // => ['c', 'd']
+	 * // => [ "c", "d" ]
 	 * ```
 	 */
 	take(amount: number): SortedSet<T>;
@@ -150,11 +166,13 @@ export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
 	 * @note a negative `amount` drops the last values instead of the first, e.g. -2 is the last 2 elements
 	 * @example
 	 * ```ts
+	 * import { SortedSet } from '@rimbu/sorted';
+	 *
 	 * const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();
 	 * console.log(m.drop(2).toArray())
-	 * // => ['c', 'd']
+	 * // => [ "c", "d" ]
 	 * console.log(m.drop(-2).toArray())
-	 * // => ['a', 'b']
+	 * // => [ "a", "b" ]
 	 * ```
 	 */
 	drop(amount: number): SortedSet<T>;
@@ -164,9 +182,11 @@ export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
 	 * @param range - an `IndexRange` defining the sort order indices to include.
 	 * @example
 	 * ```ts
+	 * import { SortedSet } from '@rimbu/sorted';
+	 *
 	 * const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();
 	 * console.log(m.sliceIndex({ start: 1, amount: 2 }).toArray())
-	 * // => ['b', 'c']
+	 * // => [ "b", "c" ]
 	 * ```
 	 */
 	sliceIndex(range: IndexRange): SortedSet<T>;
@@ -175,9 +195,11 @@ export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
 	 * @param range - a `Range` defining the values to include
 	 * @example
 	 * ```ts
+	 * import { SortedSet } from '@rimbu/sorted';
+	 *
 	 * const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();
 	 * console.log(m.slice({ start: 'b', end: 'c' }).toArray())
-	 * // => ['b', 'c']
+	 * // => [ "b", "c" ]
 	 * ```
 	 */
 	slice(range: Range<T>): SortedSet<T>;
@@ -194,6 +216,8 @@ export namespace SortedSet {
 	 * context's `comp` `Comp` instance.
 	 * @example
 	 * ```ts
+	 * import { SortedSet } from '@rimbu/sorted';
+	 *
 	 * const s1 = SortedSet.empty<string>()
 	 * const s2 = SortedSet.of('a', 'b', 'c')
 	 * ```
@@ -207,9 +231,11 @@ export namespace SortedSet {
 		 * Returns the minimum value of the SortedSet.
 		 * @example
 		 * ```ts
+		 * import { SortedSet } from '@rimbu/sorted';
+		 *
 		 * const m = SortedSet.of('b', 'd', 'a', 'c');
 		 * console.log(m.min())
-		 * // => 'a'
+		 * // => a
 		 * ```
 		 */
 		min(): T;
@@ -217,9 +243,11 @@ export namespace SortedSet {
 		 * Returns the maximum value of the SortedSet.
 		 * @example
 		 * ```ts
+		 * import { SortedSet } from '@rimbu/sorted';
+		 *
 		 * const m = SortedSet.of('b', 'd', 'a', 'c');
 		 * console.log(m.max())
-		 * // => 'd'
+		 * // => d
 		 * ```
 		 */
 		max(): T;
@@ -254,15 +282,17 @@ export namespace SortedSet {
 		 * @param otherwise - (default: undefined) the fallback value to return if the SortedSet is empty.
 		 * @example
 		 * ```ts
+		 * import { SortedSet } from '@rimbu/sorted';
+		 *
 		 * const b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();
 		 * console.log(b.min())
-		 * // => 'a'
+		 * // => a
 		 * console.log(b.min('q'))
-		 * // => 'a'
+		 * // => a
 		 * console.log(SortedSet.empty().min())
 		 * // => undefined
 		 * console.log(SortedSet.empty().min('q'))
-		 * // => 'q'
+		 * // => q
 		 * ```
 		 */
 		min(): T | undefined;
@@ -273,15 +303,17 @@ export namespace SortedSet {
 		 * @param otherwise - (default: undefined) the fallback value to return if the SortedSet is empty.
 		 * @example
 		 * ```ts
+		 * import { SortedSet } from '@rimbu/sorted';
+		 *
 		 * const b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();
 		 * console.log(b.max())
-		 * // => 'd'
+		 * // => d
 		 * console.log(b.max('q'))
-		 * // => 'd'
+		 * // => d
 		 * console.log(SortedSet.empty().max())
 		 * // => undefined
 		 * console.log(SortedSet.empty().max('q'))
-		 * // => 'q'
+		 * // => q
 		 * ```
 		 */
 		max(): T | undefined;
@@ -295,15 +327,17 @@ export namespace SortedSet {
 		 * @note negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value
 		 * @example
 		 * ```ts
+		 * import { SortedSet } from '@rimbu/sorted';
+		 *
 		 * const b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();
 		 * console.log(b.getAtIndex(1))
-		 * // => 'b'
+		 * // => b
 		 * console.log(b.getAtIndex(-1))
-		 * // => 'd'
+		 * // => d
 		 * console.log(b.getAtIndex(10))
 		 * // => undefined
 		 * console.log(b.getAtIndex(10, 'q'))
-		 * // => 'q'
+		 * // => q
 		 * ```
 		 */
 		getAtIndex(index: number): T | undefined;

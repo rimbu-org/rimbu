@@ -21,6 +21,8 @@ import { createSortedMapContextModule } from '#map/context-factory';
  * @typeparam V - the value type
  * @example
  * ```ts
+ * import { SortedMap } from '@rimbu/sorted';
+ *
  * const m1 = SortedMap.empty<number, string>()
  * const m2 = SortedMap.of([1, 'a'], [2, 'b'])
  * ```
@@ -36,9 +38,11 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * - reversed: (default: false) when true reverses the stream element order
 	 * @example
 	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
 	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);
 	 * console.log(m.streamRange({ start: 'b', end: 'c' }).toArray())
-	 * // => ['b', 'c']
+	 * // => [ [ "b", 2 ], [ "c", 3 ] ]
 	 * ```
 	 */
 	streamRange(
@@ -50,9 +54,11 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * @param range - the range of keys to include in the stream
 	 * @example
 	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
 	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);
 	 * console.log(m.streamSliceIndex({ start: 1, amount: 2 }).toArray())
-	 * // => [['b', 2], ['c', 3]]
+	 * // => [ [ "b", 2 ], [ "c", 3 ] ]
 	 * ```
 	 */
 	streamSliceIndex(
@@ -65,15 +71,17 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * @param otherwise - (default: undefined) the fallback value to return if the SortedMap is empty.
 	 * @example
 	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
 	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
 	 * console.log(m.min())
-	 * // => ['a', 1]
+	 * // => [ "a", 1 ]
 	 * console.log(m.min('q'))
-	 * // => ['a', 1]
+	 * // => [ "a", 1 ]
 	 * console.log(SortedMap.empty().min())
 	 * // => undefined
 	 * console.log(SortedMap.empty().min('q'))
-	 * // => 'q'
+	 * // => q
 	 * ```
 	 */
 	min(): readonly [K, V] | undefined;
@@ -84,15 +92,17 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * @param otherwise - (default: undefined) the fallback value to return if the SortedMap is empty.
 	 * @example
 	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
 	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
 	 * console.log(m.minKey())
-	 * // => 'a'
+	 * // => a
 	 * console.log(m.minKey('q'))
-	 * // => 'a'
+	 * // => a
 	 * console.log(SortedMap.empty().minKey())
 	 * // => undefined
 	 * console.log(SortedMap.empty().minKey('q'))
-	 * // => 'q'
+	 * // => q
 	 * ```
 	 */
 	minKey(): K | undefined;
@@ -103,6 +113,8 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * @param otherwise - (default: undefined) the fallback value to return if the SortedMap is empty.
 	 * @example
 	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
 	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
 	 * console.log(m.minValue())
 	 * // => 1
@@ -111,7 +123,7 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * console.log(SortedMap.empty().minValue())
 	 * // => undefined
 	 * console.log(SortedMap.empty().minValue('q'))
-	 * // => 'q'
+	 * // => q
 	 * ```
 	 */
 	minValue(): V | undefined;
@@ -122,15 +134,17 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * @param otherwise - (default: undefined) the fallback value to return if the SortedMap is empty.
 	 * @example
 	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
 	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
 	 * console.log(m.max())
-	 * // => ['d', 4]
+	 * // => [ "d", 4 ]
 	 * console.log(m.max('q'))
-	 * // => ['d', 4]
+	 * // => [ "d", 4 ]
 	 * console.log(SortedMap.empty().max())
 	 * // => undefined
 	 * console.log(SortedMap.empty().max('q'))
-	 * // => 'q'
+	 * // => q
 	 * ```
 	 */
 	max(): readonly [K, V] | undefined;
@@ -141,15 +155,17 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * @param otherwise - (default: undefined) the fallback value to return if the SortedMap is empty.
 	 * @example
 	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
 	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
 	 * console.log(m.maxKey())
-	 * // => 'd'
+	 * // => d
 	 * console.log(m.maxKey('q'))
-	 * // => 'd'
+	 * // => d
 	 * console.log(SortedMap.empty().maxKey())
 	 * // => undefined
 	 * console.log(SortedMap.empty().maxKey('q'))
-	 * // => 'q'
+	 * // => q
 	 * ```
 	 */
 	maxKey(): K | undefined;
@@ -159,6 +175,8 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * @param key - the key to find the index for
 	 * @example
 	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
 	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);
 	 * console.log(m.findIndex('c'))
 	 * // => 2
@@ -173,6 +191,8 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * @param otherwise - (default: undefined) the fallback value to return if the SortedMap is empty.
 	 * @example
 	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
 	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
 	 * console.log(m.maxValue())
 	 * // => 4
@@ -181,7 +201,7 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * console.log(SortedMap.empty().maxValue())
 	 * // => undefined
 	 * console.log(SortedMap.empty().maxValue('q'))
-	 * // => 'q'
+	 * // => q
 	 * ```
 	 */
 	maxValue(): V | undefined;
@@ -195,15 +215,17 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * @note negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value
 	 * @example
 	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
 	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
 	 * console.log(m.getAtIndex(1))
-	 * // => ['b', 2]
+	 * // => [ "b", 2 ]
 	 * console.log(m.getAtIndex(-1))
-	 * // => ['d', 4]
+	 * // => [ "d", 4 ]
 	 * console.log(m.getAtIndex(10))
 	 * // => undefined
 	 * console.log(m.getAtIndex(10, 'q'))
-	 * // => 'q'
+	 * // => q
 	 * ```
 	 */
 	getAtIndex(index: number): readonly [K, V] | undefined;
@@ -217,15 +239,17 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * @note negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value
 	 * @example
 	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
 	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
 	 * console.log(m.getKeyAtIndex(1))
-	 * // => 'b'
+	 * // => b
 	 * console.log(m.getKeyAtIndex(-1))
-	 * // => 'd'
+	 * // => d
 	 * console.log(m.getKeyAtIndex(10))
 	 * // => undefined
 	 * console.log(m.getKeyAtIndex(10, 'q'))
-	 * // => 'q'
+	 * // => q
 	 * ```
 	 */
 	getKeyAtIndex(index: number): K | undefined;
@@ -239,6 +263,8 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * @note negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value
 	 * @example
 	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
 	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
 	 * console.log(m.getValueAtIndex(1))
 	 * // => 2
@@ -247,7 +273,7 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * console.log(m.getValueAtIndex(10))
 	 * // => undefined
 	 * console.log(m.getValueAtIndex(10, 'q'))
-	 * // => 'q'
+	 * // => q
 	 * ```
 	 */
 	getValueAtIndex(index: number): V | undefined;
@@ -259,11 +285,13 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * @note a negative `amount` takes the last elements instead of the first, e.g. -2 is the last 2 elements
 	 * @example
 	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
 	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
 	 * console.log(m.take(2).toArray())
-	 * // => [['a', 1], ['b', 2]]
+	 * // => [ [ "a", 1 ], [ "b", 2 ] ]
 	 * console.log(m.take(-2).toArray())
-	 * // => [['c', 3], ['d', 4]]
+	 * // => [ [ "c", 3 ], [ "d", 4 ] ]
 	 * ```
 	 */
 	take(amount: number): SortedMap<K, V>;
@@ -274,11 +302,13 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * @note a negative `amount` drops the last elements instead of the first, e.g. -2 is the last 2 elements
 	 * @example
 	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
 	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
 	 * console.log(m.drop(2).toArray())
-	 * // => [['c', 3], ['d', 4]]
+	 * // => [ [ "c", 3 ], [ "d", 4 ] ]
 	 * console.log(m.drop(-2).toArray())
-	 * // => [['a', 1], ['b', 2]]
+	 * // => [ [ "a", 1 ], [ "b", 2 ] ]
 	 * ```
 	 */
 	drop(amount: number): SortedMap<K, V>;
@@ -288,9 +318,11 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * @param range - an `IndexRange` defining the sort order indices to include.
 	 * @example
 	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
 	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
 	 * console.log(m.sliceIndex({ start: 1, amount: 2 }).toArray())
-	 * // => [['b', 2], ['c', 3]]
+	 * // => [ [ "b", 2 ], [ "c", 3 ] ]
 	 * ```
 	 */
 	sliceIndex(range: IndexRange): SortedMap<K, V>;
@@ -299,9 +331,11 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * @param keyRange - a `Range` defining the keys to include
 	 * @example
 	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
 	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
 	 * console.log(m.slice({ start: 'b', end: 'c' }).toArray())
-	 * // => [['b', 2], ['c', 3]]
+	 * // => [ [ "b", 2 ], [ "c", 3 ] ]
 	 * ```
 	 */
 	slice(keyRange: Range<K>): SortedMap<K, V>;
@@ -320,6 +354,8 @@ export namespace SortedMap {
 	 * @typeparam V - the value type
 	 * @example
 	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
 	 * const m1 = SortedMap.empty<number, string>()
 	 * const m2 = SortedMap.of([1, 'a'], [2, 'b'])
 	 * ```
@@ -335,9 +371,11 @@ export namespace SortedMap {
 		 * Returns the entry with the minimum key of the SortedMap.
 		 * @example
 		 * ```ts
+		 * import { SortedMap } from '@rimbu/sorted';
+		 *
 		 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);
 		 * console.log(m.min())
-		 * // => ['a', 1]
+		 * // => [ "a", 1 ]
 		 * ```
 		 */
 		min(): readonly [K, V];
@@ -345,9 +383,11 @@ export namespace SortedMap {
 		 * Returns the minimum key of the SortedMap.
 		 * @example
 		 * ```ts
+		 * import { SortedMap } from '@rimbu/sorted';
+		 *
 		 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);
 		 * console.log(m.minKey())
-		 * // => 'a'
+		 * // => a
 		 * ```
 		 */
 		minKey(): K;
@@ -355,6 +395,8 @@ export namespace SortedMap {
 		 * Returns the value associated with the minimum key of the SortedMap.
 		 * @example
 		 * ```ts
+		 * import { SortedMap } from '@rimbu/sorted';
+		 *
 		 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
 		 * console.log(m.minValue())
 		 * // => 1
@@ -365,9 +407,11 @@ export namespace SortedMap {
 		 * Returns the entry with the maximum key of the SortedMap.
 		 * @example
 		 * ```ts
+		 * import { SortedMap } from '@rimbu/sorted';
+		 *
 		 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
 		 * console.log(m.max())
-		 * // => ['d', 4]
+		 * // => [ "d", 4 ]
 		 * ```
 		 */
 		max(): readonly [K, V];
@@ -375,9 +419,11 @@ export namespace SortedMap {
 		 * Returns the maximum key of the SortedMap.
 		 * @example
 		 * ```ts
+		 * import { SortedMap } from '@rimbu/sorted';
+		 *
 		 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
 		 * console.log(m.maxKey())
-		 * // => 'd'
+		 * // => d
 		 * ```
 		 */
 		maxKey(): K;
@@ -385,6 +431,8 @@ export namespace SortedMap {
 		 * Returns the value associated with the maximum key of the SortedMap.
 		 * @example
 		 * ```ts
+		 * import { SortedMap } from '@rimbu/sorted';
+		 *
 		 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
 		 * console.log(m.maxValue())
 		 * // => 4
@@ -424,15 +472,17 @@ export namespace SortedMap {
 		 * @param otherwise - (default: undefined) the fallback value to return if the SortedMap is empty.
 		 * @example
 		 * ```ts
+		 * import { SortedMap } from '@rimbu/sorted';
+		 *
 		 * const b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();
 		 * console.log(b.min())
-		 * // => ['a', 1]
+		 * // => [ "a", 1 ]
 		 * console.log(b.min('q'))
-		 * // => ['a', 1]
+		 * // => [ "a", 1 ]
 		 * console.log(SortedMap.builder().min())
 		 * // => undefined
 		 * console.log(SortedMap.builder().min('q'))
-		 * // => 'q'
+		 * // => q
 		 * ```
 		 */
 		min(): readonly [K, V] | undefined;
@@ -443,15 +493,17 @@ export namespace SortedMap {
 		 * @param otherwise - (default: undefined) the fallback value to return if the SortedMap is empty.
 		 * @example
 		 * ```ts
+		 * import { SortedMap } from '@rimbu/sorted';
+		 *
 		 * const b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();
 		 * console.log(b.max())
-		 * // => ['d', 4]
+		 * // => [ "d", 4 ]
 		 * console.log(b.max('q'))
-		 * // => ['d', 4]
+		 * // => [ "d", 4 ]
 		 * console.log(SortedMap.builder().max())
 		 * // => undefined
 		 * console.log(SortedMap.builder().max('q'))
-		 * // => 'q'
+		 * // => q
 		 * ```
 		 */
 		max(): readonly [K, V] | undefined;
@@ -465,15 +517,17 @@ export namespace SortedMap {
 		 * @note negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value
 		 * @example
 		 * ```ts
+		 * import { SortedMap } from '@rimbu/sorted';
+		 *
 		 * const b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();
 		 * console.log(b.getAtIndex(1))
-		 * // => ['b', 2]
+		 * // => [ "b", 2 ]
 		 * console.log(b.getAtIndex(-1))
-		 * // => ['d', 4]
+		 * // => [ "d", 4 ]
 		 * console.log(b.getAtIndex(10))
 		 * // => undefined
 		 * console.log(b.getAtIndex(10, 'q'))
-		 * // => 'q'
+		 * // => q
 		 * ```
 		 */
 		getAtIndex(index: number): readonly [K, V] | undefined;

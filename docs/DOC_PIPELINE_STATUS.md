@@ -191,6 +191,34 @@ Real bugs the loop caught (now fixed):
 Note: `toJSON` examples are intentionally left alone (to be removed soon per
 decision).
 
+**sorted — DONE (all 44 `@example` blocks rewritten).** Files edited:
+`src/public/set.ts` (17 examples: `SortedSet` + `NonEmpty` + `Builder`) and
+`src/public/map.ts` (27 examples: `SortedMap` + `NonEmpty` + `Builder`).
+
+Result (measured):
+- **Gate**: **0 type errors** for `sorted/` (was 44).
+- **Verifier**: **103 snippets, 184 output comments, 0 issues** (was 70).
+
+What the loop caught / fixed:
+- **Every example was missing its import** → all 44 failed the gate. Added
+  `import { SortedSet } from '@rimbu/sorted'` / `import { SortedMap } from
+  '@rimbu/sorted'` to each block (scripted via a `perl` insert after each
+  ` * ```ts` fence, preserving the tab ` * ` margin).
+- **Old hand-written `// =>` values were in the wrong output style** (70 of them):
+  bare strings were quoted (`// => 'a'` → actual `a`, since top-level
+  `console.log(string)` prints UNQUOTED) and arrays used tight single-quote style
+  (`['a', 'b']` → actual `[ "a", "b" ]` from `Bun.inspect`). Applied the two
+  systematic transforms with a throwaway formatter script (deleted after use), then
+  re-verified byte-for-byte.
+- **Real doc bug in `SortedMap.streamRange`**: the example claimed
+  `// => ['b', 'c']`, but `streamRange(...).toArray()` on a *map* yields entries,
+  not keys — actual `[ [ "b", 2 ], [ "c", 3 ] ]`. Corrected.
+
+**Process gotcha recorded:** the aggregator/extractor reads examples from the
+compiled **dist `.d.ts`**, NOT from `src`. You MUST rebuild the package
+(`bunx tsc --p tsconfig.esm.json`) BEFORE `bun run docs`, or edits won't be picked
+up. (First sorted verify pass still showed 70 issues purely because dist was stale.)
+
 Root scripts:
 
 - `bun run docs` — full pipeline so far (extract + aggregate).

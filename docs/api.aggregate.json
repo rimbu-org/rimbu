@@ -1,6 +1,6 @@
 {
   "$schema": "rimbu-docs/aggregate/v1",
-  "generatedAt": "2026-07-17T19:19:09.163Z",
+  "generatedAt": "2026-07-17T19:27:06.493Z",
   "gitRef": "main",
   "packages": [
     "@rimbu/actor",
@@ -205848,7 +205848,7 @@
         "description": "A non-empty type-invariant immutable Set of value type T.\nIn the Set, there are no duplicate values.\nSee the [Set documentation](https://rimbu.org/docs/collections/set) and the [SortedSet API documentation](https://rimbu.org/api/rimbu/sorted/set/SortedSet/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst s1 = SortedSet.empty<string>()\nconst s2 = SortedSet.of('a', 'b', 'c')\n```"
+          "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst s1 = SortedSet.empty<string>()\nconst s2 = SortedSet.of('a', 'b', 'c')\n```"
         ],
         "notes": [
           "- The `SortedSet` keeps the inserted values in sorted order according to the\ncontext's `comp` `Comp` instance."
@@ -205875,16 +205875,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 28,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L28"
+                  "line": 30,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L30"
                 },
                 "raw": "stream(options?: {\n            reversed?: boolean;\n        }): Stream.NonEmpty<T>"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 28,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L28"
+              "line": 30,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L30"
             }
           },
           {
@@ -205899,22 +205899,22 @@
                   "description": "Returns the minimum value of the SortedSet.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst m = SortedSet.of('b', 'd', 'a', 'c');\nconsole.log(m.min())\n// => 'a'\n```"
+                    "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c');\nconsole.log(m.min())\n// => a\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 215,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L215"
+                  "line": 241,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L241"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 215,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L215"
+              "line": 241,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L241"
             }
           },
           {
@@ -205929,22 +205929,22 @@
                   "description": "Returns the maximum value of the SortedSet.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst m = SortedSet.of('b', 'd', 'a', 'c');\nconsole.log(m.max())\n// => 'd'\n```"
+                    "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c');\nconsole.log(m.max())\n// => d\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 225,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L225"
+                  "line": 253,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L253"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 225,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L225"
+              "line": 253,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L253"
             }
           },
           {
@@ -205989,8 +205989,8 @@
       },
       "source": {
         "file": "packages/sorted/src/public/set.ts",
-        "line": 236,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L236"
+        "line": 264,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L264"
       },
       "type": {
         "typeParams": [
@@ -206007,16 +206007,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 237,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L237"
+                  "line": 265,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L265"
                 },
                 "raw": "readonly typeTag: 'SortedSet'"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 237,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L237"
+              "line": 265,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L265"
             }
           },
           {
@@ -206036,16 +206036,16 @@
                 },
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 242,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L242"
+                  "line": 270,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L270"
                 },
                 "raw": "readonly comp: Comp<UT>"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 242,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L242"
+              "line": 270,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L270"
             }
           }
         ]
@@ -206070,8 +206070,8 @@
       },
       "source": {
         "file": "packages/sorted/src/public/set.ts",
-        "line": 250,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L250"
+        "line": 278,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L278"
       },
       "type": {
         "typeParams": [
@@ -206096,15 +206096,15 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();\nconsole.log(b.min())\n// => 'a'\nconsole.log(b.min('q'))\n// => 'a'\nconsole.log(SortedSet.empty().min())\n// => undefined\nconsole.log(SortedSet.empty().min('q'))\n// => 'q'\n```"
+                    "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();\nconsole.log(b.min())\n// => a\nconsole.log(b.min('q'))\n// => a\nconsole.log(SortedSet.empty().min())\n// => undefined\nconsole.log(SortedSet.empty().min('q'))\n// => q\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 75,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L75"
+                  "line": 83,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L83"
                 }
               },
               {
@@ -206112,15 +206112,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 76,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L76"
+                  "line": 84,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L84"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 75,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L75"
+              "line": 83,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L83"
             }
           },
           {
@@ -206140,15 +206140,15 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();\nconsole.log(b.max())\n// => 'd'\nconsole.log(b.max('q'))\n// => 'd'\nconsole.log(SortedSet.empty().max())\n// => undefined\nconsole.log(SortedSet.empty().max('q'))\n// => 'q'\n```"
+                    "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();\nconsole.log(b.max())\n// => d\nconsole.log(b.max('q'))\n// => d\nconsole.log(SortedSet.empty().max())\n// => undefined\nconsole.log(SortedSet.empty().max('q'))\n// => q\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 94,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L94"
+                  "line": 104,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L104"
                 }
               },
               {
@@ -206156,15 +206156,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 95,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L95"
+                  "line": 105,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L105"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 94,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L94"
+              "line": 104,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L104"
             }
           },
           {
@@ -206188,7 +206188,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();\nconsole.log(b.getAtIndex(1))\n// => 'b'\nconsole.log(b.getAtIndex(-1))\n// => 'd'\nconsole.log(b.getAtIndex(10))\n// => undefined\nconsole.log(b.getAtIndex(10, 'q'))\n// => 'q'\n```"
+                    "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();\nconsole.log(b.getAtIndex(1))\n// => b\nconsole.log(b.getAtIndex(-1))\n// => d\nconsole.log(b.getAtIndex(10))\n// => undefined\nconsole.log(b.getAtIndex(10, 'q'))\n// => q\n```"
                   ],
                   "notes": [
                     "negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value"
@@ -206197,8 +206197,8 @@
                 },
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 129,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L129"
+                  "line": 143,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L143"
                 }
               },
               {
@@ -206206,15 +206206,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 130,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L130"
+                  "line": 144,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L144"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 129,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L129"
+              "line": 143,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L143"
             }
           }
         ]
@@ -206239,8 +206239,8 @@
       },
       "source": {
         "file": "packages/sorted/src/public/set.ts",
-        "line": 316,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L316"
+        "line": 350,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L350"
       },
       "type": {
         "typeParams": [],
@@ -206255,16 +206255,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 317,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L317"
+                  "line": 351,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L351"
                 },
                 "raw": "readonly normal: SortedSet<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 317,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L317"
+              "line": 351,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L351"
             }
           },
           {
@@ -206276,16 +206276,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 318,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L318"
+                  "line": 352,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L352"
                 },
                 "raw": "readonly nonEmpty: SortedSet.NonEmpty<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 318,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L318"
+              "line": 352,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L352"
             }
           },
           {
@@ -206297,16 +206297,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 319,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L319"
+                  "line": 353,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L353"
                 },
                 "raw": "readonly context: SortedSet.Context<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 319,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L319"
+              "line": 353,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L353"
             }
           },
           {
@@ -206318,16 +206318,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 320,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L320"
+                  "line": 354,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L354"
                 },
                 "raw": "readonly builder: SortedSet.Builder<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 320,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L320"
+              "line": 354,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L354"
             }
           }
         ]
@@ -206347,7 +206347,7 @@
         "description": "A type-invariant immutable Set of value type T.\nIn the Set, there are no duplicate values.\nSee the [Set documentation](https://rimbu.org/docs/collections/set) and the [SortedSet API documentation](https://rimbu.org/api/rimbu/sorted/set/SortedSet/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst s1 = SortedSet.empty<string>()\nconst s2 = SortedSet.of('a', 'b', 'c')\n```"
+          "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst s1 = SortedSet.empty<string>()\nconst s2 = SortedSet.of('a', 'b', 'c')\n```"
         ],
         "notes": [
           "- The `SortedSet` keeps the inserted values in sorted order according to the\ncontext's `comp` `Comp` instance."
@@ -206356,8 +206356,8 @@
       },
       "source": {
         "file": "packages/sorted/src/public/set.ts",
-        "line": 27,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L27"
+        "line": 29,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L29"
       },
       "type": {
         "typeParams": [
@@ -206376,16 +206376,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 28,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L28"
+                  "line": 30,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L30"
                 },
                 "raw": "stream(options?: {\n        reversed?: boolean;\n    }): Stream<T>"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 28,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L28"
+              "line": 30,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L30"
             }
           },
           {
@@ -206409,23 +206409,23 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedSet.of('b', 'd', 'a', 'c');\nconsole.log(m.streamRange({ start: 'b', end: 'c' }).toArray())\n// => ['b', 'c']\n```"
+                    "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c');\nconsole.log(m.streamRange({ start: 'b', end: 'c' }).toArray())\n// => [ \"b\", \"c\" ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 41,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L41"
+                  "line": 45,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L45"
                 },
                 "raw": "streamRange(range: Range<T>, options?: {\n        reversed?: boolean;\n    }): Stream<T>"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 41,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L41"
+              "line": 45,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L45"
             }
           },
           {
@@ -206449,7 +206449,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedSet.of('b', 'd', 'a', 'c');\nconsole.log(m.streamSliceIndex({ start: 1, amount: 2 }).toArray())\n// => ['b', 'c']\n```"
+                    "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c');\nconsole.log(m.streamSliceIndex({ start: 1, amount: 2 }).toArray())\n// => [ \"b\", \"c\" ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -206485,15 +206485,15 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.min())\n// => 'a'\nconsole.log(m.min('q'))\n// => 'a'\nconsole.log(SortedSet.empty().min())\n// => undefined\nconsole.log(SortedSet.empty().min('q'))\n// => 'q'\n```"
+                    "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.min())\n// => a\nconsole.log(m.min('q'))\n// => a\nconsole.log(SortedSet.empty().min())\n// => undefined\nconsole.log(SortedSet.empty().min('q'))\n// => q\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 75,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L75"
+                  "line": 83,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L83"
                 }
               },
               {
@@ -206501,15 +206501,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 76,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L76"
+                  "line": 84,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L84"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 75,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L75"
+              "line": 83,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L83"
             }
           },
           {
@@ -206529,15 +206529,15 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.max())\n// => 'd'\nconsole.log(m.max('q'))\n// => 'd'\nconsole.log(SortedSet.empty().max())\n// => undefined\nconsole.log(SortedSet.empty().max('q'))\n// => 'q'\n```"
+                    "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.max())\n// => d\nconsole.log(m.max('q'))\n// => d\nconsole.log(SortedSet.empty().max())\n// => undefined\nconsole.log(SortedSet.empty().max('q'))\n// => q\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 94,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L94"
+                  "line": 104,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L104"
                 }
               },
               {
@@ -206545,15 +206545,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 95,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L95"
+                  "line": 105,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L105"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 94,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L94"
+              "line": 104,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L104"
             }
           },
           {
@@ -206573,22 +206573,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedSet.of('b', 'd', 'a', 'c');\nconsole.log(m.findIndex('c'))\n// => 2\nconsole.log(m.findIndex('q'))\n// => -1\n```"
+                    "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c');\nconsole.log(m.findIndex('c'))\n// => 2\nconsole.log(m.findIndex('q'))\n// => -1\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 108,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L108"
+                  "line": 120,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L120"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 108,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L108"
+              "line": 120,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L120"
             }
           },
           {
@@ -206612,7 +206612,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.getAtIndex(1))\n// => 'b'\nconsole.log(m.getAtIndex(-1))\n// => 'd'\nconsole.log(m.getAtIndex(10))\n// => undefined\nconsole.log(m.getAtIndex(10, 'q'))\n// => 'q'\n```"
+                    "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.getAtIndex(1))\n// => b\nconsole.log(m.getAtIndex(-1))\n// => d\nconsole.log(m.getAtIndex(10))\n// => undefined\nconsole.log(m.getAtIndex(10, 'q'))\n// => q\n```"
                   ],
                   "notes": [
                     "negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value"
@@ -206621,8 +206621,8 @@
                 },
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 129,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L129"
+                  "line": 143,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L143"
                 }
               },
               {
@@ -206630,15 +206630,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 130,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L130"
+                  "line": 144,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L144"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 129,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L129"
+              "line": 143,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L143"
             }
           },
           {
@@ -206658,7 +206658,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.take(2).toArray())\n// => ['a', 'b']\nconsole.log(m.take(-2).toArray())\n// => ['c', 'd']\n```"
+                    "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.take(2).toArray())\n// => [ \"a\", \"b\" ]\nconsole.log(m.take(-2).toArray())\n// => [ \"c\", \"d\" ]\n```"
                   ],
                   "notes": [
                     "a negative `amount` takes the last values instead of the first, e.g. -2 is the last 2 elements"
@@ -206667,15 +206667,15 @@
                 },
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 145,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L145"
+                  "line": 161,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L161"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 145,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L145"
+              "line": 161,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L161"
             }
           },
           {
@@ -206695,7 +206695,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.drop(2).toArray())\n// => ['c', 'd']\nconsole.log(m.drop(-2).toArray())\n// => ['a', 'b']\n```"
+                    "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.drop(2).toArray())\n// => [ \"c\", \"d\" ]\nconsole.log(m.drop(-2).toArray())\n// => [ \"a\", \"b\" ]\n```"
                   ],
                   "notes": [
                     "a negative `amount` drops the last values instead of the first, e.g. -2 is the last 2 elements"
@@ -206704,15 +206704,15 @@
                 },
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 160,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L160"
+                  "line": 178,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L178"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 160,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L160"
+              "line": 178,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L178"
             }
           },
           {
@@ -206732,22 +206732,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.sliceIndex({ start: 1, amount: 2 }).toArray())\n// => ['b', 'c']\n```"
+                    "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.sliceIndex({ start: 1, amount: 2 }).toArray())\n// => [ \"b\", \"c\" ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 172,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L172"
+                  "line": 192,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L192"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 172,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L172"
+              "line": 192,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L192"
             }
           },
           {
@@ -206767,22 +206767,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.slice({ start: 'b', end: 'c' }).toArray())\n// => ['b', 'c']\n```"
+                    "```ts\nimport { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.slice({ start: 'b', end: 'c' }).toArray())\n// => [ \"b\", \"c\" ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/set.ts",
-                  "line": 183,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L183"
+                  "line": 205,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L205"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/set.ts",
-              "line": 183,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L183"
+              "line": 205,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/set.ts#L205"
             }
           },
           {
@@ -207917,7 +207917,7 @@
         "description": "A non-empty type-invariant immutable Map of key type K, and value type V.\nIn the Map, each key has exactly one value, and the Map cannot contain\nduplicate keys.\nSee the [Map documentation](https://rimbu.org/docs/collections/map) and the [SortedMap API documentation](https://rimbu.org/api/rimbu/sorted/map/SortedMap/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst m1 = SortedMap.empty<number, string>()\nconst m2 = SortedMap.of([1, 'a'], [2, 'b'])\n```"
+          "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m1 = SortedMap.empty<number, string>()\nconst m2 = SortedMap.of([1, 'a'], [2, 'b'])\n```"
         ],
         "notes": [
           "- The `SortedMap` keeps the inserted keys in sorted order according to the\ncontext's `comp` instance."
@@ -207945,16 +207945,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 29,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L29"
+                  "line": 31,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L31"
                 },
                 "raw": "stream(options?: {\n            reversed?: boolean;\n        }): Stream.NonEmpty<readonly [K, V]>"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 29,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L29"
+              "line": 31,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L31"
             }
           },
           {
@@ -207966,16 +207966,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 30,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L30"
+                  "line": 32,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L32"
                 },
                 "raw": "streamKeys(options?: {\n            reversed?: boolean;\n        }): Stream.NonEmpty<K>"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 30,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L30"
+              "line": 32,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L32"
             }
           },
           {
@@ -207987,16 +207987,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 31,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L31"
+                  "line": 33,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L33"
                 },
                 "raw": "streamValues(options?: {\n            reversed?: boolean;\n        }): Stream.NonEmpty<V>"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 31,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L31"
+              "line": 33,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L33"
             }
           },
           {
@@ -208011,22 +208011,22 @@
                   "description": "Returns the entry with the minimum key of the SortedMap.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);\nconsole.log(m.min())\n// => ['a', 1]\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);\nconsole.log(m.min())\n// => [ \"a\", 1 ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 343,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L343"
+                  "line": 381,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L381"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 343,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L343"
+              "line": 381,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L381"
             }
           },
           {
@@ -208041,127 +208041,7 @@
                   "description": "Returns the minimum key of the SortedMap.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);\nconsole.log(m.minKey())\n// => 'a'\n```"
-                  ],
-                  "notes": [],
-                  "see": []
-                },
-                "source": {
-                  "file": "packages/sorted/src/public/map.ts",
-                  "line": 353,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L353"
-                }
-              }
-            ],
-            "source": {
-              "file": "packages/sorted/src/public/map.ts",
-              "line": 353,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L353"
-            }
-          },
-          {
-            "name": "minValue",
-            "kind": "method",
-            "signatures": [
-              {
-                "text": "minValue(): V",
-                "returnsNonEmpty": false,
-                "doc": {
-                  "summary": "Returns the value associated with the minimum key of the SortedMap.",
-                  "description": "Returns the value associated with the minimum key of the SortedMap.",
-                  "params": [],
-                  "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.minValue())\n// => 1\n```"
-                  ],
-                  "notes": [],
-                  "see": []
-                },
-                "source": {
-                  "file": "packages/sorted/src/public/map.ts",
-                  "line": 363,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L363"
-                }
-              }
-            ],
-            "source": {
-              "file": "packages/sorted/src/public/map.ts",
-              "line": 363,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L363"
-            }
-          },
-          {
-            "name": "max",
-            "kind": "method",
-            "signatures": [
-              {
-                "text": "max(): readonly [K, V]",
-                "returnsNonEmpty": false,
-                "doc": {
-                  "summary": "Returns the entry with the maximum key of the SortedMap.",
-                  "description": "Returns the entry with the maximum key of the SortedMap.",
-                  "params": [],
-                  "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.max())\n// => ['d', 4]\n```"
-                  ],
-                  "notes": [],
-                  "see": []
-                },
-                "source": {
-                  "file": "packages/sorted/src/public/map.ts",
-                  "line": 373,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L373"
-                }
-              }
-            ],
-            "source": {
-              "file": "packages/sorted/src/public/map.ts",
-              "line": 373,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L373"
-            }
-          },
-          {
-            "name": "maxKey",
-            "kind": "method",
-            "signatures": [
-              {
-                "text": "maxKey(): K",
-                "returnsNonEmpty": false,
-                "doc": {
-                  "summary": "Returns the maximum key of the SortedMap.",
-                  "description": "Returns the maximum key of the SortedMap.",
-                  "params": [],
-                  "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.maxKey())\n// => 'd'\n```"
-                  ],
-                  "notes": [],
-                  "see": []
-                },
-                "source": {
-                  "file": "packages/sorted/src/public/map.ts",
-                  "line": 383,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L383"
-                }
-              }
-            ],
-            "source": {
-              "file": "packages/sorted/src/public/map.ts",
-              "line": 383,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L383"
-            }
-          },
-          {
-            "name": "maxValue",
-            "kind": "method",
-            "signatures": [
-              {
-                "text": "maxValue(): V",
-                "returnsNonEmpty": false,
-                "doc": {
-                  "summary": "Returns the value associated with the maximum key of the SortedMap.",
-                  "description": "Returns the value associated with the maximum key of the SortedMap.",
-                  "params": [],
-                  "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.maxValue())\n// => 4\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);\nconsole.log(m.minKey())\n// => a\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -208177,6 +208057,126 @@
               "file": "packages/sorted/src/public/map.ts",
               "line": 393,
               "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L393"
+            }
+          },
+          {
+            "name": "minValue",
+            "kind": "method",
+            "signatures": [
+              {
+                "text": "minValue(): V",
+                "returnsNonEmpty": false,
+                "doc": {
+                  "summary": "Returns the value associated with the minimum key of the SortedMap.",
+                  "description": "Returns the value associated with the minimum key of the SortedMap.",
+                  "params": [],
+                  "examples": [
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.minValue())\n// => 1\n```"
+                  ],
+                  "notes": [],
+                  "see": []
+                },
+                "source": {
+                  "file": "packages/sorted/src/public/map.ts",
+                  "line": 405,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L405"
+                }
+              }
+            ],
+            "source": {
+              "file": "packages/sorted/src/public/map.ts",
+              "line": 405,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L405"
+            }
+          },
+          {
+            "name": "max",
+            "kind": "method",
+            "signatures": [
+              {
+                "text": "max(): readonly [K, V]",
+                "returnsNonEmpty": false,
+                "doc": {
+                  "summary": "Returns the entry with the maximum key of the SortedMap.",
+                  "description": "Returns the entry with the maximum key of the SortedMap.",
+                  "params": [],
+                  "examples": [
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.max())\n// => [ \"d\", 4 ]\n```"
+                  ],
+                  "notes": [],
+                  "see": []
+                },
+                "source": {
+                  "file": "packages/sorted/src/public/map.ts",
+                  "line": 417,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L417"
+                }
+              }
+            ],
+            "source": {
+              "file": "packages/sorted/src/public/map.ts",
+              "line": 417,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L417"
+            }
+          },
+          {
+            "name": "maxKey",
+            "kind": "method",
+            "signatures": [
+              {
+                "text": "maxKey(): K",
+                "returnsNonEmpty": false,
+                "doc": {
+                  "summary": "Returns the maximum key of the SortedMap.",
+                  "description": "Returns the maximum key of the SortedMap.",
+                  "params": [],
+                  "examples": [
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.maxKey())\n// => d\n```"
+                  ],
+                  "notes": [],
+                  "see": []
+                },
+                "source": {
+                  "file": "packages/sorted/src/public/map.ts",
+                  "line": 429,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L429"
+                }
+              }
+            ],
+            "source": {
+              "file": "packages/sorted/src/public/map.ts",
+              "line": 429,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L429"
+            }
+          },
+          {
+            "name": "maxValue",
+            "kind": "method",
+            "signatures": [
+              {
+                "text": "maxValue(): V",
+                "returnsNonEmpty": false,
+                "doc": {
+                  "summary": "Returns the value associated with the maximum key of the SortedMap.",
+                  "description": "Returns the value associated with the maximum key of the SortedMap.",
+                  "params": [],
+                  "examples": [
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.maxValue())\n// => 4\n```"
+                  ],
+                  "notes": [],
+                  "see": []
+                },
+                "source": {
+                  "file": "packages/sorted/src/public/map.ts",
+                  "line": 441,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L441"
+                }
+              }
+            ],
+            "source": {
+              "file": "packages/sorted/src/public/map.ts",
+              "line": 441,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L441"
             }
           },
           {
@@ -208221,8 +208221,8 @@
       },
       "source": {
         "file": "packages/sorted/src/public/map.ts",
-        "line": 404,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L404"
+        "line": 452,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L452"
       },
       "type": {
         "typeParams": [
@@ -208239,16 +208239,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 405,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L405"
+                  "line": 453,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L453"
                 },
                 "raw": "readonly typeTag: 'SortedMap'"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 405,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L405"
+              "line": 453,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L453"
             }
           },
           {
@@ -208268,16 +208268,16 @@
                 },
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 410,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L410"
+                  "line": 458,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L458"
                 },
                 "raw": "readonly comp: Comp<UK>"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 410,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L410"
+              "line": 458,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L458"
             }
           }
         ]
@@ -208329,15 +208329,15 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();\nconsole.log(b.min())\n// => ['a', 1]\nconsole.log(b.min('q'))\n// => ['a', 1]\nconsole.log(SortedMap.builder().min())\n// => undefined\nconsole.log(SortedMap.builder().min('q'))\n// => 'q'\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();\nconsole.log(b.min())\n// => [ \"a\", 1 ]\nconsole.log(b.min('q'))\n// => [ \"a\", 1 ]\nconsole.log(SortedMap.builder().min())\n// => undefined\nconsole.log(SortedMap.builder().min('q'))\n// => q\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 79,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L79"
+                  "line": 87,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L87"
                 }
               },
               {
@@ -208345,15 +208345,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 80,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L80"
+                  "line": 88,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L88"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 79,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L79"
+              "line": 87,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L87"
             }
           },
           {
@@ -208373,15 +208373,15 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();\nconsole.log(b.max())\n// => ['d', 4]\nconsole.log(b.max('q'))\n// => ['d', 4]\nconsole.log(SortedMap.builder().max())\n// => undefined\nconsole.log(SortedMap.builder().max('q'))\n// => 'q'\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();\nconsole.log(b.max())\n// => [ \"d\", 4 ]\nconsole.log(b.max('q'))\n// => [ \"d\", 4 ]\nconsole.log(SortedMap.builder().max())\n// => undefined\nconsole.log(SortedMap.builder().max('q'))\n// => q\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 136,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L136"
+                  "line": 150,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L150"
                 }
               },
               {
@@ -208389,15 +208389,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 137,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L137"
+                  "line": 151,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L151"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 136,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L136"
+              "line": 150,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L150"
             }
           },
           {
@@ -208421,7 +208421,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();\nconsole.log(b.getAtIndex(1))\n// => ['b', 2]\nconsole.log(b.getAtIndex(-1))\n// => ['d', 4]\nconsole.log(b.getAtIndex(10))\n// => undefined\nconsole.log(b.getAtIndex(10, 'q'))\n// => 'q'\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();\nconsole.log(b.getAtIndex(1))\n// => [ \"b\", 2 ]\nconsole.log(b.getAtIndex(-1))\n// => [ \"d\", 4 ]\nconsole.log(b.getAtIndex(10))\n// => undefined\nconsole.log(b.getAtIndex(10, 'q'))\n// => q\n```"
                   ],
                   "notes": [
                     "negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value"
@@ -208430,8 +208430,8 @@
                 },
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 209,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L209"
+                  "line": 231,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L231"
                 }
               },
               {
@@ -208439,15 +208439,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 210,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L210"
+                  "line": 232,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L232"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 209,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L209"
+              "line": 231,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L231"
             }
           }
         ]
@@ -208472,8 +208472,8 @@
       },
       "source": {
         "file": "packages/sorted/src/public/map.ts",
-        "line": 486,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L486"
+        "line": 540,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L540"
       },
       "type": {
         "typeParams": [],
@@ -208488,16 +208488,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 487,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L487"
+                  "line": 541,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L541"
                 },
                 "raw": "readonly normal: SortedMap<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 487,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L487"
+              "line": 541,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L541"
             }
           },
           {
@@ -208509,16 +208509,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 488,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L488"
+                  "line": 542,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L542"
                 },
                 "raw": "readonly nonEmpty: SortedMap.NonEmpty<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 488,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L488"
+              "line": 542,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L542"
             }
           },
           {
@@ -208530,16 +208530,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 489,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L489"
+                  "line": 543,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L543"
                 },
                 "raw": "readonly context: SortedMap.Context<this['_K']>"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 489,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L489"
+              "line": 543,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L543"
             }
           },
           {
@@ -208551,16 +208551,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 490,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L490"
+                  "line": 544,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L544"
                 },
                 "raw": "readonly builder: SortedMap.Builder<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 490,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L490"
+              "line": 544,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L544"
             }
           }
         ]
@@ -208580,7 +208580,7 @@
         "description": "A type-invariant immutable Map of key type K, and value type V.\nIn the Map, each key has exactly one value, and the Map cannot contain\nduplicate keys.\nSee the [Map documentation](https://rimbu.org/docs/collections/map) and the [SortedMap API documentation](https://rimbu.org/api/rimbu/sorted/map/SortedMap/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst m1 = SortedMap.empty<number, string>()\nconst m2 = SortedMap.of([1, 'a'], [2, 'b'])\n```"
+          "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m1 = SortedMap.empty<number, string>()\nconst m2 = SortedMap.of([1, 'a'], [2, 'b'])\n```"
         ],
         "notes": [
           "- The `SortedMap` keeps the inserted keys in sorted order according to the\ncontext's `comp` `Comp` instance."
@@ -208589,8 +208589,8 @@
       },
       "source": {
         "file": "packages/sorted/src/public/map.ts",
-        "line": 28,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L28"
+        "line": 30,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L30"
       },
       "type": {
         "typeParams": [
@@ -208610,16 +208610,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 29,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L29"
+                  "line": 31,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L31"
                 },
                 "raw": "stream(options?: {\n        reversed?: boolean;\n    }): Stream<readonly [K, V]>"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 29,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L29"
+              "line": 31,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L31"
             }
           },
           {
@@ -208631,16 +208631,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 30,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L30"
+                  "line": 32,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L32"
                 },
                 "raw": "streamKeys(options?: {\n        reversed?: boolean;\n    }): Stream<K>"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 30,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L30"
+              "line": 32,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L32"
             }
           },
           {
@@ -208652,16 +208652,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 31,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L31"
+                  "line": 33,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L33"
                 },
                 "raw": "streamValues(options?: {\n        reversed?: boolean;\n    }): Stream<V>"
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 31,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L31"
+              "line": 33,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L33"
             }
           },
           {
@@ -208685,7 +208685,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);\nconsole.log(m.streamRange({ start: 'b', end: 'c' }).toArray())\n// => ['b', 'c']\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);\nconsole.log(m.streamRange({ start: 'b', end: 'c' }).toArray())\n// => [ [ \"b\", 2 ], [ \"c\", 3 ] ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -208721,7 +208721,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);\nconsole.log(m.streamSliceIndex({ start: 1, amount: 2 }).toArray())\n// => [['b', 2], ['c', 3]]\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);\nconsole.log(m.streamSliceIndex({ start: 1, amount: 2 }).toArray())\n// => [ [ \"b\", 2 ], [ \"c\", 3 ] ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -208757,15 +208757,15 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.min())\n// => ['a', 1]\nconsole.log(m.min('q'))\n// => ['a', 1]\nconsole.log(SortedMap.empty().min())\n// => undefined\nconsole.log(SortedMap.empty().min('q'))\n// => 'q'\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.min())\n// => [ \"a\", 1 ]\nconsole.log(m.min('q'))\n// => [ \"a\", 1 ]\nconsole.log(SortedMap.empty().min())\n// => undefined\nconsole.log(SortedMap.empty().min('q'))\n// => q\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 79,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L79"
+                  "line": 87,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L87"
                 }
               },
               {
@@ -208773,15 +208773,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 80,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L80"
+                  "line": 88,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L88"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 79,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L79"
+              "line": 87,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L87"
             }
           },
           {
@@ -208801,15 +208801,15 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.minKey())\n// => 'a'\nconsole.log(m.minKey('q'))\n// => 'a'\nconsole.log(SortedMap.empty().minKey())\n// => undefined\nconsole.log(SortedMap.empty().minKey('q'))\n// => 'q'\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.minKey())\n// => a\nconsole.log(m.minKey('q'))\n// => a\nconsole.log(SortedMap.empty().minKey())\n// => undefined\nconsole.log(SortedMap.empty().minKey('q'))\n// => q\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 98,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L98"
+                  "line": 108,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L108"
                 }
               },
               {
@@ -208817,15 +208817,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 99,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L99"
+                  "line": 109,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L109"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 98,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L98"
+              "line": 108,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L108"
             }
           },
           {
@@ -208845,15 +208845,15 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.minValue())\n// => 1\nconsole.log(m.minValue('q'))\n// => 1\nconsole.log(SortedMap.empty().minValue())\n// => undefined\nconsole.log(SortedMap.empty().minValue('q'))\n// => 'q'\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.minValue())\n// => 1\nconsole.log(m.minValue('q'))\n// => 1\nconsole.log(SortedMap.empty().minValue())\n// => undefined\nconsole.log(SortedMap.empty().minValue('q'))\n// => q\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 117,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L117"
+                  "line": 129,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L129"
                 }
               },
               {
@@ -208861,15 +208861,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 118,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L118"
+                  "line": 130,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L130"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 117,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L117"
+              "line": 129,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L129"
             }
           },
           {
@@ -208889,15 +208889,15 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.max())\n// => ['d', 4]\nconsole.log(m.max('q'))\n// => ['d', 4]\nconsole.log(SortedMap.empty().max())\n// => undefined\nconsole.log(SortedMap.empty().max('q'))\n// => 'q'\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.max())\n// => [ \"d\", 4 ]\nconsole.log(m.max('q'))\n// => [ \"d\", 4 ]\nconsole.log(SortedMap.empty().max())\n// => undefined\nconsole.log(SortedMap.empty().max('q'))\n// => q\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 136,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L136"
+                  "line": 150,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L150"
                 }
               },
               {
@@ -208905,15 +208905,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 137,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L137"
+                  "line": 151,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L151"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 136,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L136"
+              "line": 150,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L150"
             }
           },
           {
@@ -208933,15 +208933,15 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.maxKey())\n// => 'd'\nconsole.log(m.maxKey('q'))\n// => 'd'\nconsole.log(SortedMap.empty().maxKey())\n// => undefined\nconsole.log(SortedMap.empty().maxKey('q'))\n// => 'q'\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.maxKey())\n// => d\nconsole.log(m.maxKey('q'))\n// => d\nconsole.log(SortedMap.empty().maxKey())\n// => undefined\nconsole.log(SortedMap.empty().maxKey('q'))\n// => q\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 155,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L155"
+                  "line": 171,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L171"
                 }
               },
               {
@@ -208949,15 +208949,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 156,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L156"
+                  "line": 172,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L172"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 155,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L155"
+              "line": 171,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L171"
             }
           },
           {
@@ -208977,22 +208977,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);\nconsole.log(m.findIndex('c'))\n// => 2\nconsole.log(m.findIndex('q'))\n// => -1\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);\nconsole.log(m.findIndex('c'))\n// => 2\nconsole.log(m.findIndex('q'))\n// => -1\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 169,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L169"
+                  "line": 187,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L187"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 169,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L169"
+              "line": 187,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L187"
             }
           },
           {
@@ -209012,15 +209012,15 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.maxValue())\n// => 4\nconsole.log(m.maxValue('q'))\n// => 4\nconsole.log(SortedMap.empty().maxValue())\n// => undefined\nconsole.log(SortedMap.empty().maxValue('q'))\n// => 'q'\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.maxValue())\n// => 4\nconsole.log(m.maxValue('q'))\n// => 4\nconsole.log(SortedMap.empty().maxValue())\n// => undefined\nconsole.log(SortedMap.empty().maxValue('q'))\n// => q\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 187,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L187"
+                  "line": 207,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L207"
                 }
               },
               {
@@ -209028,15 +209028,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 188,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L188"
+                  "line": 208,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L208"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 187,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L187"
+              "line": 207,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L207"
             }
           },
           {
@@ -209060,7 +209060,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.getAtIndex(1))\n// => ['b', 2]\nconsole.log(m.getAtIndex(-1))\n// => ['d', 4]\nconsole.log(m.getAtIndex(10))\n// => undefined\nconsole.log(m.getAtIndex(10, 'q'))\n// => 'q'\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.getAtIndex(1))\n// => [ \"b\", 2 ]\nconsole.log(m.getAtIndex(-1))\n// => [ \"d\", 4 ]\nconsole.log(m.getAtIndex(10))\n// => undefined\nconsole.log(m.getAtIndex(10, 'q'))\n// => q\n```"
                   ],
                   "notes": [
                     "negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value"
@@ -209069,8 +209069,8 @@
                 },
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 209,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L209"
+                  "line": 231,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L231"
                 }
               },
               {
@@ -209078,15 +209078,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 210,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L210"
+                  "line": 232,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L232"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 209,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L209"
+              "line": 231,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L231"
             }
           },
           {
@@ -209110,7 +209110,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.getKeyAtIndex(1))\n// => 'b'\nconsole.log(m.getKeyAtIndex(-1))\n// => 'd'\nconsole.log(m.getKeyAtIndex(10))\n// => undefined\nconsole.log(m.getKeyAtIndex(10, 'q'))\n// => 'q'\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.getKeyAtIndex(1))\n// => b\nconsole.log(m.getKeyAtIndex(-1))\n// => d\nconsole.log(m.getKeyAtIndex(10))\n// => undefined\nconsole.log(m.getKeyAtIndex(10, 'q'))\n// => q\n```"
                   ],
                   "notes": [
                     "negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value"
@@ -209119,8 +209119,8 @@
                 },
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 231,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L231"
+                  "line": 255,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L255"
                 }
               },
               {
@@ -209128,15 +209128,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 232,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L232"
+                  "line": 256,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L256"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 231,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L231"
+              "line": 255,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L255"
             }
           },
           {
@@ -209160,7 +209160,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.getValueAtIndex(1))\n// => 2\nconsole.log(m.getValueAtIndex(-1))\n// => 4\nconsole.log(m.getValueAtIndex(10))\n// => undefined\nconsole.log(m.getValueAtIndex(10, 'q'))\n// => 'q'\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.getValueAtIndex(1))\n// => 2\nconsole.log(m.getValueAtIndex(-1))\n// => 4\nconsole.log(m.getValueAtIndex(10))\n// => undefined\nconsole.log(m.getValueAtIndex(10, 'q'))\n// => q\n```"
                   ],
                   "notes": [
                     "negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value"
@@ -209169,8 +209169,8 @@
                 },
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 253,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L253"
+                  "line": 279,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L279"
                 }
               },
               {
@@ -209178,15 +209178,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 254,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L254"
+                  "line": 280,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L280"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 253,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L253"
+              "line": 279,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L279"
             }
           },
           {
@@ -209206,7 +209206,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.take(2).toArray())\n// => [['a', 1], ['b', 2]]\nconsole.log(m.take(-2).toArray())\n// => [['c', 3], ['d', 4]]\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.take(2).toArray())\n// => [ [ \"a\", 1 ], [ \"b\", 2 ] ]\nconsole.log(m.take(-2).toArray())\n// => [ [ \"c\", 3 ], [ \"d\", 4 ] ]\n```"
                   ],
                   "notes": [
                     "a negative `amount` takes the last elements instead of the first, e.g. -2 is the last 2 elements"
@@ -209215,15 +209215,15 @@
                 },
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 269,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L269"
+                  "line": 297,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L297"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 269,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L269"
+              "line": 297,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L297"
             }
           },
           {
@@ -209243,7 +209243,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.drop(2).toArray())\n// => [['c', 3], ['d', 4]]\nconsole.log(m.drop(-2).toArray())\n// => [['a', 1], ['b', 2]]\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.drop(2).toArray())\n// => [ [ \"c\", 3 ], [ \"d\", 4 ] ]\nconsole.log(m.drop(-2).toArray())\n// => [ [ \"a\", 1 ], [ \"b\", 2 ] ]\n```"
                   ],
                   "notes": [
                     "a negative `amount` drops the last elements instead of the first, e.g. -2 is the last 2 elements"
@@ -209252,15 +209252,15 @@
                 },
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 284,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L284"
+                  "line": 314,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L314"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 284,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L284"
+              "line": 314,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L314"
             }
           },
           {
@@ -209280,22 +209280,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.sliceIndex({ start: 1, amount: 2 }).toArray())\n// => [['b', 2], ['c', 3]]\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.sliceIndex({ start: 1, amount: 2 }).toArray())\n// => [ [ \"b\", 2 ], [ \"c\", 3 ] ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 296,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L296"
+                  "line": 328,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L328"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 296,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L296"
+              "line": 328,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L328"
             }
           },
           {
@@ -209315,22 +209315,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.slice({ start: 'b', end: 'c' }).toArray())\n// => [['b', 2], ['c', 3]]\n```"
+                    "```ts\nimport { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.slice({ start: 'b', end: 'c' }).toArray())\n// => [ [ \"b\", 2 ], [ \"c\", 3 ] ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/sorted/src/public/map.ts",
-                  "line": 307,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L307"
+                  "line": 341,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L341"
                 }
               }
             ],
             "source": {
               "file": "packages/sorted/src/public/map.ts",
-              "line": 307,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L307"
+              "line": 341,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/sorted/src/public/map.ts#L341"
             }
           },
           {

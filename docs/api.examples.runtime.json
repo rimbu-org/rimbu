@@ -11211,7 +11211,7 @@
     "typeChecks": true
   },
   "hashed/Hasher::hash::0::0": {
-    "code": "import { Hasher } from '@rimbu/hashed';\n\nconst h = Hasher.anyToString();\nconsole.log(h.hash([1, 3, 2])); // => -1396387891",
+    "code": "import { Hasher } from '@rimbu/hashed';\n\nconst h = Hasher.anyToString();\nconsole.log(h.hash([1, 3, 2]) === h.hash([1, 3, 2])); // => true\nconsole.log(h.hash([1, 3, 2]) === h.hash([2, 3, 1])); // => false",
     "packages": [
       "@rimbu/hashed"
     ],
@@ -16493,89 +16493,123 @@
     "typeChecks": false
   },
   "sorted/SortedSet.NonEmpty::::-1::0": {
-    "code": "const s1 = SortedSet.empty<string>()\nconst s2 = SortedSet.of('a', 'b', 'c')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst s1 = SortedSet.empty<string>()\nconst s2 = SortedSet.of('a', 'b', 'c')",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedSet.NonEmpty::min::0::0": {
-    "code": "const m = SortedSet.of('b', 'd', 'a', 'c');\nconsole.log(m.min())\n// => 'a'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c');\nconsole.log(m.min())\n// => a",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedSet.NonEmpty::max::0::0": {
-    "code": "const m = SortedSet.of('b', 'd', 'a', 'c');\nconsole.log(m.max())\n// => 'd'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c');\nconsole.log(m.max())\n// => d",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedSet.Builder::min::0::0": {
-    "code": "const b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();\nconsole.log(b.min())\n// => 'a'\nconsole.log(b.min('q'))\n// => 'a'\nconsole.log(SortedSet.empty().min())\n// => undefined\nconsole.log(SortedSet.empty().min('q'))\n// => 'q'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();\nconsole.log(b.min())\n// => a\nconsole.log(b.min('q'))\n// => a\nconsole.log(SortedSet.empty().min())\n// => undefined\nconsole.log(SortedSet.empty().min('q'))\n// => q",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedSet.Builder::max::0::0": {
-    "code": "const b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();\nconsole.log(b.max())\n// => 'd'\nconsole.log(b.max('q'))\n// => 'd'\nconsole.log(SortedSet.empty().max())\n// => undefined\nconsole.log(SortedSet.empty().max('q'))\n// => 'q'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();\nconsole.log(b.max())\n// => d\nconsole.log(b.max('q'))\n// => d\nconsole.log(SortedSet.empty().max())\n// => undefined\nconsole.log(SortedSet.empty().max('q'))\n// => q",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedSet.Builder::getAtIndex::0::0": {
-    "code": "const b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();\nconsole.log(b.getAtIndex(1))\n// => 'b'\nconsole.log(b.getAtIndex(-1))\n// => 'd'\nconsole.log(b.getAtIndex(10))\n// => undefined\nconsole.log(b.getAtIndex(10, 'q'))\n// => 'q'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst b = SortedSet.of('b', 'd', 'a', 'c').toBuilder();\nconsole.log(b.getAtIndex(1))\n// => b\nconsole.log(b.getAtIndex(-1))\n// => d\nconsole.log(b.getAtIndex(10))\n// => undefined\nconsole.log(b.getAtIndex(10, 'q'))\n// => q",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedSet::::-1::0": {
-    "code": "const s1 = SortedSet.empty<string>()\nconst s2 = SortedSet.of('a', 'b', 'c')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst s1 = SortedSet.empty<string>()\nconst s2 = SortedSet.of('a', 'b', 'c')",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedSet::streamRange::0::0": {
-    "code": "const m = SortedSet.of('b', 'd', 'a', 'c');\nconsole.log(m.streamRange({ start: 'b', end: 'c' }).toArray())\n// => ['b', 'c']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c');\nconsole.log(m.streamRange({ start: 'b', end: 'c' }).toArray())\n// => [ \"b\", \"c\" ]",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedSet::streamSliceIndex::0::0": {
-    "code": "const m = SortedSet.of('b', 'd', 'a', 'c');\nconsole.log(m.streamSliceIndex({ start: 1, amount: 2 }).toArray())\n// => ['b', 'c']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c');\nconsole.log(m.streamSliceIndex({ start: 1, amount: 2 }).toArray())\n// => [ \"b\", \"c\" ]",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedSet::min::0::0": {
-    "code": "const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.min())\n// => 'a'\nconsole.log(m.min('q'))\n// => 'a'\nconsole.log(SortedSet.empty().min())\n// => undefined\nconsole.log(SortedSet.empty().min('q'))\n// => 'q'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.min())\n// => a\nconsole.log(m.min('q'))\n// => a\nconsole.log(SortedSet.empty().min())\n// => undefined\nconsole.log(SortedSet.empty().min('q'))\n// => q",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedSet::max::0::0": {
-    "code": "const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.max())\n// => 'd'\nconsole.log(m.max('q'))\n// => 'd'\nconsole.log(SortedSet.empty().max())\n// => undefined\nconsole.log(SortedSet.empty().max('q'))\n// => 'q'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.max())\n// => d\nconsole.log(m.max('q'))\n// => d\nconsole.log(SortedSet.empty().max())\n// => undefined\nconsole.log(SortedSet.empty().max('q'))\n// => q",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedSet::findIndex::0::0": {
-    "code": "const m = SortedSet.of('b', 'd', 'a', 'c');\nconsole.log(m.findIndex('c'))\n// => 2\nconsole.log(m.findIndex('q'))\n// => -1",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c');\nconsole.log(m.findIndex('c'))\n// => 2\nconsole.log(m.findIndex('q'))\n// => -1",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedSet::getAtIndex::0::0": {
-    "code": "const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.getAtIndex(1))\n// => 'b'\nconsole.log(m.getAtIndex(-1))\n// => 'd'\nconsole.log(m.getAtIndex(10))\n// => undefined\nconsole.log(m.getAtIndex(10, 'q'))\n// => 'q'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.getAtIndex(1))\n// => b\nconsole.log(m.getAtIndex(-1))\n// => d\nconsole.log(m.getAtIndex(10))\n// => undefined\nconsole.log(m.getAtIndex(10, 'q'))\n// => q",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedSet::take::0::0": {
-    "code": "const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.take(2).toArray())\n// => ['a', 'b']\nconsole.log(m.take(-2).toArray())\n// => ['c', 'd']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.take(2).toArray())\n// => [ \"a\", \"b\" ]\nconsole.log(m.take(-2).toArray())\n// => [ \"c\", \"d\" ]",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedSet::drop::0::0": {
-    "code": "const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.drop(2).toArray())\n// => ['c', 'd']\nconsole.log(m.drop(-2).toArray())\n// => ['a', 'b']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.drop(2).toArray())\n// => [ \"c\", \"d\" ]\nconsole.log(m.drop(-2).toArray())\n// => [ \"a\", \"b\" ]",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedSet::sliceIndex::0::0": {
-    "code": "const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.sliceIndex({ start: 1, amount: 2 }).toArray())\n// => ['b', 'c']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.sliceIndex({ start: 1, amount: 2 }).toArray())\n// => [ \"b\", \"c\" ]",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedSet::slice::0::0": {
-    "code": "const m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.slice({ start: 'b', end: 'c' }).toArray())\n// => ['b', 'c']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedSet } from '@rimbu/sorted';\n\nconst m = SortedSet.of('b', 'd', 'a', 'c').asNormal();\nconsole.log(m.slice({ start: 'b', end: 'c' }).toArray())\n// => [ \"b\", \"c\" ]",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedSet::add::0::0": {
     "code": "import { HashSet } from '@rimbu/hashed';\n\nconsole.log(HashSet.of(1, 2, 3).add(10).toArray()); // => [ 1, 2, 3, 10 ]",
@@ -16747,139 +16781,193 @@
     "typeChecks": true
   },
   "sorted/SortedMap.NonEmpty::::-1::0": {
-    "code": "const m1 = SortedMap.empty<number, string>()\nconst m2 = SortedMap.of([1, 'a'], [2, 'b'])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m1 = SortedMap.empty<number, string>()\nconst m2 = SortedMap.of([1, 'a'], [2, 'b'])",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap.NonEmpty::min::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);\nconsole.log(m.min())\n// => ['a', 1]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);\nconsole.log(m.min())\n// => [ \"a\", 1 ]",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap.NonEmpty::minKey::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);\nconsole.log(m.minKey())\n// => 'a'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);\nconsole.log(m.minKey())\n// => a",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap.NonEmpty::minValue::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.minValue())\n// => 1",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.minValue())\n// => 1",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap.NonEmpty::max::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.max())\n// => ['d', 4]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.max())\n// => [ \"d\", 4 ]",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap.NonEmpty::maxKey::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.maxKey())\n// => 'd'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.maxKey())\n// => d",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap.NonEmpty::maxValue::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.maxValue())\n// => 4",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.maxValue())\n// => 4",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap.Builder::min::0::0": {
-    "code": "const b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();\nconsole.log(b.min())\n// => ['a', 1]\nconsole.log(b.min('q'))\n// => ['a', 1]\nconsole.log(SortedMap.builder().min())\n// => undefined\nconsole.log(SortedMap.builder().min('q'))\n// => 'q'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();\nconsole.log(b.min())\n// => [ \"a\", 1 ]\nconsole.log(b.min('q'))\n// => [ \"a\", 1 ]\nconsole.log(SortedMap.builder().min())\n// => undefined\nconsole.log(SortedMap.builder().min('q'))\n// => q",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap.Builder::max::0::0": {
-    "code": "const b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();\nconsole.log(b.max())\n// => ['d', 4]\nconsole.log(b.max('q'))\n// => ['d', 4]\nconsole.log(SortedMap.builder().max())\n// => undefined\nconsole.log(SortedMap.builder().max('q'))\n// => 'q'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();\nconsole.log(b.max())\n// => [ \"d\", 4 ]\nconsole.log(b.max('q'))\n// => [ \"d\", 4 ]\nconsole.log(SortedMap.builder().max())\n// => undefined\nconsole.log(SortedMap.builder().max('q'))\n// => q",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap.Builder::getAtIndex::0::0": {
-    "code": "const b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();\nconsole.log(b.getAtIndex(1))\n// => ['b', 2]\nconsole.log(b.getAtIndex(-1))\n// => ['d', 4]\nconsole.log(b.getAtIndex(10))\n// => undefined\nconsole.log(b.getAtIndex(10, 'q'))\n// => 'q'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst b = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).toBuilder();\nconsole.log(b.getAtIndex(1))\n// => [ \"b\", 2 ]\nconsole.log(b.getAtIndex(-1))\n// => [ \"d\", 4 ]\nconsole.log(b.getAtIndex(10))\n// => undefined\nconsole.log(b.getAtIndex(10, 'q'))\n// => q",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap::::-1::0": {
-    "code": "const m1 = SortedMap.empty<number, string>()\nconst m2 = SortedMap.of([1, 'a'], [2, 'b'])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m1 = SortedMap.empty<number, string>()\nconst m2 = SortedMap.of([1, 'a'], [2, 'b'])",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap::streamRange::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);\nconsole.log(m.streamRange({ start: 'b', end: 'c' }).toArray())\n// => ['b', 'c']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);\nconsole.log(m.streamRange({ start: 'b', end: 'c' }).toArray())\n// => [ [ \"b\", 2 ], [ \"c\", 3 ] ]",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap::streamSliceIndex::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);\nconsole.log(m.streamSliceIndex({ start: 1, amount: 2 }).toArray())\n// => [['b', 2], ['c', 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);\nconsole.log(m.streamSliceIndex({ start: 1, amount: 2 }).toArray())\n// => [ [ \"b\", 2 ], [ \"c\", 3 ] ]",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap::min::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.min())\n// => ['a', 1]\nconsole.log(m.min('q'))\n// => ['a', 1]\nconsole.log(SortedMap.empty().min())\n// => undefined\nconsole.log(SortedMap.empty().min('q'))\n// => 'q'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.min())\n// => [ \"a\", 1 ]\nconsole.log(m.min('q'))\n// => [ \"a\", 1 ]\nconsole.log(SortedMap.empty().min())\n// => undefined\nconsole.log(SortedMap.empty().min('q'))\n// => q",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap::minKey::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.minKey())\n// => 'a'\nconsole.log(m.minKey('q'))\n// => 'a'\nconsole.log(SortedMap.empty().minKey())\n// => undefined\nconsole.log(SortedMap.empty().minKey('q'))\n// => 'q'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.minKey())\n// => a\nconsole.log(m.minKey('q'))\n// => a\nconsole.log(SortedMap.empty().minKey())\n// => undefined\nconsole.log(SortedMap.empty().minKey('q'))\n// => q",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap::minValue::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.minValue())\n// => 1\nconsole.log(m.minValue('q'))\n// => 1\nconsole.log(SortedMap.empty().minValue())\n// => undefined\nconsole.log(SortedMap.empty().minValue('q'))\n// => 'q'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.minValue())\n// => 1\nconsole.log(m.minValue('q'))\n// => 1\nconsole.log(SortedMap.empty().minValue())\n// => undefined\nconsole.log(SortedMap.empty().minValue('q'))\n// => q",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap::max::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.max())\n// => ['d', 4]\nconsole.log(m.max('q'))\n// => ['d', 4]\nconsole.log(SortedMap.empty().max())\n// => undefined\nconsole.log(SortedMap.empty().max('q'))\n// => 'q'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.max())\n// => [ \"d\", 4 ]\nconsole.log(m.max('q'))\n// => [ \"d\", 4 ]\nconsole.log(SortedMap.empty().max())\n// => undefined\nconsole.log(SortedMap.empty().max('q'))\n// => q",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap::maxKey::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.maxKey())\n// => 'd'\nconsole.log(m.maxKey('q'))\n// => 'd'\nconsole.log(SortedMap.empty().maxKey())\n// => undefined\nconsole.log(SortedMap.empty().maxKey('q'))\n// => 'q'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.maxKey())\n// => d\nconsole.log(m.maxKey('q'))\n// => d\nconsole.log(SortedMap.empty().maxKey())\n// => undefined\nconsole.log(SortedMap.empty().maxKey('q'))\n// => q",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap::findIndex::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);\nconsole.log(m.findIndex('c'))\n// => 2\nconsole.log(m.findIndex('q'))\n// => -1",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);\nconsole.log(m.findIndex('c'))\n// => 2\nconsole.log(m.findIndex('q'))\n// => -1",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap::maxValue::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.maxValue())\n// => 4\nconsole.log(m.maxValue('q'))\n// => 4\nconsole.log(SortedMap.empty().maxValue())\n// => undefined\nconsole.log(SortedMap.empty().maxValue('q'))\n// => 'q'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.maxValue())\n// => 4\nconsole.log(m.maxValue('q'))\n// => 4\nconsole.log(SortedMap.empty().maxValue())\n// => undefined\nconsole.log(SortedMap.empty().maxValue('q'))\n// => q",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap::getAtIndex::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.getAtIndex(1))\n// => ['b', 2]\nconsole.log(m.getAtIndex(-1))\n// => ['d', 4]\nconsole.log(m.getAtIndex(10))\n// => undefined\nconsole.log(m.getAtIndex(10, 'q'))\n// => 'q'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.getAtIndex(1))\n// => [ \"b\", 2 ]\nconsole.log(m.getAtIndex(-1))\n// => [ \"d\", 4 ]\nconsole.log(m.getAtIndex(10))\n// => undefined\nconsole.log(m.getAtIndex(10, 'q'))\n// => q",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap::getKeyAtIndex::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.getKeyAtIndex(1))\n// => 'b'\nconsole.log(m.getKeyAtIndex(-1))\n// => 'd'\nconsole.log(m.getKeyAtIndex(10))\n// => undefined\nconsole.log(m.getKeyAtIndex(10, 'q'))\n// => 'q'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.getKeyAtIndex(1))\n// => b\nconsole.log(m.getKeyAtIndex(-1))\n// => d\nconsole.log(m.getKeyAtIndex(10))\n// => undefined\nconsole.log(m.getKeyAtIndex(10, 'q'))\n// => q",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap::getValueAtIndex::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.getValueAtIndex(1))\n// => 2\nconsole.log(m.getValueAtIndex(-1))\n// => 4\nconsole.log(m.getValueAtIndex(10))\n// => undefined\nconsole.log(m.getValueAtIndex(10, 'q'))\n// => 'q'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.getValueAtIndex(1))\n// => 2\nconsole.log(m.getValueAtIndex(-1))\n// => 4\nconsole.log(m.getValueAtIndex(10))\n// => undefined\nconsole.log(m.getValueAtIndex(10, 'q'))\n// => q",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap::take::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.take(2).toArray())\n// => [['a', 1], ['b', 2]]\nconsole.log(m.take(-2).toArray())\n// => [['c', 3], ['d', 4]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.take(2).toArray())\n// => [ [ \"a\", 1 ], [ \"b\", 2 ] ]\nconsole.log(m.take(-2).toArray())\n// => [ [ \"c\", 3 ], [ \"d\", 4 ] ]",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap::drop::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.drop(2).toArray())\n// => [['c', 3], ['d', 4]]\nconsole.log(m.drop(-2).toArray())\n// => [['a', 1], ['b', 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.drop(2).toArray())\n// => [ [ \"c\", 3 ], [ \"d\", 4 ] ]\nconsole.log(m.drop(-2).toArray())\n// => [ [ \"a\", 1 ], [ \"b\", 2 ] ]",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap::sliceIndex::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.sliceIndex({ start: 1, amount: 2 }).toArray())\n// => [['b', 2], ['c', 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.sliceIndex({ start: 1, amount: 2 }).toArray())\n// => [ [ \"b\", 2 ], [ \"c\", 3 ] ]",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap::slice::0::0": {
-    "code": "const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.slice({ start: 'b', end: 'c' }).toArray())\n// => [['b', 2], ['c', 3]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { SortedMap } from '@rimbu/sorted';\n\nconst m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();\nconsole.log(m.slice({ start: 'b', end: 'c' }).toArray())\n// => [ [ \"b\", 2 ], [ \"c\", 3 ] ]",
+    "packages": [
+      "@rimbu/sorted"
+    ],
+    "typeChecks": true
   },
   "sorted/SortedMap::set::0::0": {
     "code": "import { HashMap } from '@rimbu/hashed';\n\nconsole.log(HashMap.of([1, 'a']).set(2, 'b').toArray()); // => [ [ 1, \"a\" ], [ 2, \"b\" ] ]\nconsole.log(HashMap.of([1, 'a']).set(1, 'b').toArray()); // => [ [ 1, \"b\" ] ]",
