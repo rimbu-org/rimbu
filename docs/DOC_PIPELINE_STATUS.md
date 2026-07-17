@@ -193,6 +193,55 @@ examples (238 of 784 entity pages). Deps: `@astrojs/react`, `react`, `react-dom`
   ≥ ~6–8 GB should build it. **Open item:** confirm full build on a larger machine
   (and/or further reduce the island footprint).
 
+## Toolchain: Astro 5 → 7 upgrade (fixes React island + rolldown errors) — DONE
+
+Symptoms after wiring Sandpack on Astro 5: dev server spammed
+`[vite] Internal server error: Missing field 'moduleType'` from
+`builtin:vite-react-refresh-wrapper`, code blocks lost highlighting, and Run
+buttons did nothing (browser: `Failed to fetch dynamically imported module
+.../astro:scripts/before-hydration.js` — islands never hydrated).
+
+**Root cause (confirmed against withastro/astro#16229):** a **Vite version
+mismatch**. `@astrojs/react@6` depends on `vite@8` + `@vitejs/plugin-react@5`
+(Rolldown-based, Astro-7-era), but Astro 5 runs its pipeline on `vite@6`
+(Rollup-based). With hoisting, the Rolldown-native react-refresh wrapper got
+injected into the vite@6 transform pipeline, which lacks the `moduleType` field →
+error, which cascaded into broken hydration and highlighting. `@astrojs/react@6`
+targets **Astro 7** (its own devDep is `astro@7`).
+
+**Fix (chosen over downgrading to `@astrojs/react@4`, since Astro is moving to
+Rolldown anyway):** upgraded the whole stack so every package agrees on
+`vite@8`/Rolldown:
+- `astro` `^5.13` → **`^7.1.0`**
+- `@astrojs/starlight` `^0.36` → **`^0.41.3`** (peer `astro@^7`)
+- `@astrojs/react` **`^6.0.1`** (kept; now matches Astro 7)
+- `@astrojs/check@0.9.9` (unchanged; supports TS6), `typescript ~6.0`, React 19 —
+  all compatible. Node here is 22.23 (Astro 7 needs ≥ 22.12).
+- Clean reinstall (`rm -rf node_modules bun.lock && bun install`) → **single
+  `vite@8.1.5`**, no nested vite under `astro/`, no dual-vite.
+
+**Verified:**
+- `astro check` on full content (all 21 packages): **0 errors, 0 warnings** (3
+  pre-existing unused-var hints in `render.ts`).
+- List-only `astro build`: clean, **8.6s** (was 10.5s on Astro 5). Built page has
+  39 Expressive Code highlight markers, 36 hydration islands each with a valid
+  `renderer-url="/_astro/client.*.js"` (the React renderer that previously failed
+  to load), **0 Sandpack inlined**, and separate `sandpack.*.js` /
+  `SandpackPlayer.*.js` chunks. `RunExampleControl` chunk still `lazy(() =>
+  import('./SandpackPlayer'))`. Built through `rolldown-runtime.*.js` with no
+  `moduleType` error. ✅
+- `manualChunks` sandpack split still works under Rolldown.
+
+**Note (dev server):** couldn't keep a long-lived `astro dev` alive in this
+sandbox (background processes get reaped), so dev-mode HMR wasn't re-verified
+here; the production build exercises the same vite8/rolldown + react pipeline and
+is clean. On a normal machine `astro dev` should no longer show the `moduleType`
+error now that the vite versions are unified.
+
+**Still open — build time/CI:** full build was ~2 min on an M2 Max/32 GB (user).
+238 island pages dominate. Options to speed CI: further reduce island count, or
+accept the cost. Tracked separately from the OOM item above.
+
 ## Orchestration (root scripts)
 
 - `docs` → extract + aggregate
