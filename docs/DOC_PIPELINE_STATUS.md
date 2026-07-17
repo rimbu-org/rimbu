@@ -177,6 +177,15 @@ examples (238 of 784 entity pages). Deps: `@astrojs/react`, `react`, `react-dom`
 
 ### Verification status
 
+- **Sandpack empty-console fix (DONE):** the player had `SandpackCodeEditor` +
+  `SandpackConsole` but **no `SandpackPreview`**. Per Sandpack docs, "the Preview
+  component runs the bundler — without it there is no bundling or evaluation", so
+  the code never executed and the console stayed empty (Run button also inert).
+  Fix: mark the console `standalone` (`<SandpackConsole standalone … />`), which
+  mounts its own client/bundler — correct for Rimbu examples which are
+  console-only (no UI to preview). `standalone` confirmed present in the installed
+  `@codesandbox/sandpack-react@2.20`. Also added `showSyntaxError`. List-only
+  build clean.
 - **Gate + runtime:** rebuilt `@rimbu/list` dist (TS7), re-ran extract → aggregate
   → examples. Two hand-fixed List examples (`list.ts` entity, `list-helpers.ts`
   `fromString`) now show `packages: ["@rimbu/list"], typeChecks: true`; overall

@@ -32,7 +32,18 @@ export default function SandpackPlayer({ code, packages }: SandpackPlayerProps) 
     >
       <SandpackLayout>
         <SandpackCodeEditor showLineNumbers showRunButton wrapContent />
-        <SandpackConsole showHeader resetOnPreviewRestart />
+        {/*
+          `standalone` makes the console mount its own Sandpack client (iframe),
+          which runs the bundler and evaluates the code. Without it, the console
+          only listens to a SandpackPreview — and since Rimbu examples are
+          console-only (no UI to preview), we'd otherwise get an empty console.
+        */}
+        <SandpackConsole
+          standalone
+          showHeader
+          showSyntaxError
+          resetOnPreviewRestart
+        />
       </SandpackLayout>
     </SandpackProvider>
   );
