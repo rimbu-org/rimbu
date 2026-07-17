@@ -32,6 +32,8 @@ import { createBiMapContextModule } from '#bimap/context-factory';
  * @typeparam V - the value type
  * @example
  * ```ts
+ * import { BiMap } from '@rimbu/bimap';
+ *
  * const b1 = BiMap.empty<number, string>()
  * const b2 = BiMap.of([1, 'a'], [2, 'b'])
  * ```
@@ -45,8 +47,10 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * Returns true if the collection is empty.
 	 * @example
 	 * ```ts
-	 * BiMap.empty<number, number>().isEmpty   // => true
-	 * BiMap.of([1, 1], [2, 2]).isEmpty        // => false
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * console.log(BiMap.empty<number, number>().isEmpty); // => true
+	 * console.log(BiMap.of([1, 1], [2, 2]).isEmpty); // => false
 	 * ```
 	 */
 	readonly isEmpty: boolean;
@@ -54,7 +58,9 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * Returns the number of entries
 	 * @example
 	 * ```ts
-	 * BiMap.of([1, 1], [2, 2]).size       // => 2
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * console.log(BiMap.of([1, 1], [2, 2]).size); // => 2
 	 * ```
 	 */
 	readonly size: number;
@@ -63,10 +69,12 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * as a .NonEmpty type.
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
 	 * const m: BiMap<number, number> = BiMap.of([1, 1], [2, 2])
-	 * m.stream().first(0)     // compiler allows fallback value since the Stream may be empty
+	 * console.log(m.stream().first(0)); // => [ 1, 1 ]
 	 * if (m.nonEmpty()) {
-	 *   m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty
+	 *   console.log(m.stream().first()); // => [ 1, 1 ]
 	 * }
 	 * ```
 	 */
@@ -76,10 +84,17 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @throws RimbuError.EmptyCollectionAssumedNonEmptyError if the collection is empty
 	 * @example
 	 * ```ts
-	 * BiMap.empty<number, number>().assumeNonEmpty()   // => throws
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * const empty = BiMap.empty<number, number>()
+	 * try {
+	 *   empty.assumeNonEmpty()
+	 * } catch (e) {
+	 *   console.log((e as Error).name); // => EmptyCollectionAssumedNonEmptyError
+	 * }
 	 * const m: BiMap<number, number> = BiMap.of([1, 1], [2, 2])
-	 * const m2: BiMap.NonEmpty<number, number> = m     // => compiler error
 	 * const m3: BiMap.NonEmpty<number, number> = m.assumeNonEmpty()
+	 * console.log(m3.nonEmpty()); // => true
 	 * ```
 	 * @note returns reference to this collection
 	 */
@@ -88,8 +103,10 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * Returns the Map representation of the key to value mapping.
 	 * @example
 	 * ```ts
-	 * BiMap.of([1, 10], [2, 20]).keyValueMap.toArray()
-	 * // => [[1, 10], [2, 20]]
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * console.log(BiMap.of([1, 10], [2, 20]).keyValueMap.toArray());
+	 * // => [ [ 1, 10 ], [ 2, 20 ] ]
 	 * ```
 	 */
 	readonly keyValueMap: RMap<K, V>;
@@ -97,8 +114,10 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * Returns the Map representation of the key to value mapping.
 	 * @example
 	 * ```ts
-	 * BiMap.of([1, 10], [2, 20]).valueKeyMap.toArray()
-	 * // => [[10, 1], [20, 2]]
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * console.log(BiMap.of([1, 10], [2, 20]).valueKeyMap.toArray());
+	 * // => [ [ 10, 1 ], [ 20, 2 ] ]
 	 * ```
 	 */
 	readonly valueKeyMap: RMap<V, K>;
@@ -107,9 +126,11 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @param key - the key to look for
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
 	 * const m = BiMap.of([1, 'a'], [2, 'b'])
-	 * m.hasKey(2)    // => true
-	 * m.hasKey(3)    // => false
+	 * console.log(m.hasKey(2)); // => true
+	 * console.log(m.hasKey(3)); // => false
 	 * ```
 	 */
 	hasKey<UK = K>(key: RelatedTo<K, UK>): boolean;
@@ -118,9 +139,11 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @param value - the value to look for
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
 	 * const m = BiMap.of([1, 'a'], [2, 'b'])
-	 * m.hasValue('a')    // => true
-	 * m.hasValue('z')    // => false
+	 * console.log(m.hasValue('a')); // => true
+	 * console.log(m.hasValue('z')); // => false
 	 * ```
 	 */
 	hasValue<UV = V>(value: RelatedTo<V, UV>): boolean;
@@ -130,11 +153,13 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @param otherwise - (default: undefined) an `OptLazy` fallback value if the key is not in the collection
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
 	 * const m = BiMap.of([1, 'a'], [2, 'b'])
-	 * m.getValue(2)          // => 'b'
-	 * m.getValue(3)          // => undefined
-	 * m.getValue(2, 'none')  // => 'b'
-	 * m.getValue(3, 'none')  // => 'none'
+	 * console.log(m.getValue(2)); // => b
+	 * console.log(m.getValue(3)); // => undefined
+	 * console.log(m.getValue(2, 'none')); // => b
+	 * console.log(m.getValue(3, 'none')); // => none
 	 * ```
 	 */
 	getValue<UK = K>(key: RelatedTo<K, UK>): V | undefined;
@@ -145,11 +170,13 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @param otherwise - (default: undefined) an `OptLazy` fallback value if the value is not in the collection
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
 	 * const m = BiMap.of([1, 'a'], [2, 'b'])
-	 * m.getKey('b')          // => 2
-	 * m.getKey('z')          // => undefined
-	 * m.getKey('b', 'none')  // => 2
-	 * m.getKey('z', 'none')  // => 'none'
+	 * console.log(m.getKey('b')); // => 2
+	 * console.log(m.getKey('z')); // => undefined
+	 * console.log(m.getKey('b', 'none')); // => 2
+	 * console.log(m.getKey('z', 'none')); // => none
 	 * ```
 	 */
 	getKey<UV = V>(value: RelatedTo<V, UV>): K | undefined;
@@ -160,8 +187,10 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @param value - the entry value to add
 	 * @example
 	 * ```ts
-	 * BiMap.of([1, 1], [2, 2]).set(1, 2).toArray()
-	 * // => [[1, 2]]
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * console.log(BiMap.of([1, 1], [2, 2]).set(1, 2).toArray());
+	 * // => [ [ 1, 2 ] ]
 	 * ```
 	 * @note if the key and/or value are already associated, the previous value will be 'replaced'
 	 */
@@ -178,10 +207,16 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @param value - the entry value to add
 	 * @example
 	 * ```ts
-	 * BiMap.of([1, 'a']).setAndGet(2, 'b')   // => [BiMap(1 <-> 'a', 2 <-> 'b'), undefined, false]
-	 * BiMap.of([1, 'a']).setAndGet(1, 'b')   // => [BiMap(1 <-> 'b'), [1, 'a'], true]
-	 * BiMap.of([1, 'a']).setAndGet(2, 'a')   // => [BiMap(2 <-> 'a'), [1, 'a'], true]
-	 * BiMap.of([1, 'a']).setAndGet(1, 'a')   // => [BiMap(1 <-> 'a'), [1, 'a'], true]   (no-op, unchanged)
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * const r1 = BiMap.of([1, 'a']).setAndGet(2, 'b')
+	 * console.log([r1[0].toString(), r1[1], r1[2]]); // => [ "BiMap(1 <-> a, 2 <-> b)", undefined, false ]
+	 * const r2 = BiMap.of([1, 'a']).setAndGet(1, 'b')
+	 * console.log([r2[0].toString(), r2[1], r2[2]]); // => [ "BiMap(1 <-> b)", [ 1, "a" ], true ]
+	 * const r3 = BiMap.of([1, 'a']).setAndGet(2, 'a')
+	 * console.log([r3[0].toString(), r3[1], r3[2]]); // => [ "BiMap(2 <-> a)", [ 1, "a" ], true ]
+	 * const r4 = BiMap.of([1, 'a']).setAndGet(1, 'a')
+	 * console.log([r4[0].toString(), r4[1], r4[2]]); // => [ "BiMap(1 <-> a)", [ 1, "a" ], true ]
 	 * ```
 	 * @note if the key and/or value are already associated, the previous value/key will be 'replaced' and the
 	 * displaced entry is returned
@@ -195,8 +230,10 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @param entry - a tuple containing a key and value
 	 * @example
 	 * ```ts
-	 * BiMap.of([1, 1], [2, 2]).addEntry([1, 2]).toArray()
-	 * // => [[1, 2]]
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * console.log(BiMap.of([1, 1], [2, 2]).addEntry([1, 2]).toArray());
+	 * // => [ [ 1, 2 ] ]
 	 * ```
 	 */
 	addEntry(entry: readonly [K, V]): BiMap.NonEmpty<K, V>;
@@ -211,10 +248,16 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @param entry - a tuple containing a key and value
 	 * @example
 	 * ```ts
-	 * BiMap.of([1, 'a']).addEntryAndGet([2, 'b'])   // => [BiMap(1 <-> 'a', 2 <-> 'b'), undefined, false]
-	 * BiMap.of([1, 'a']).addEntryAndGet([1, 'b'])   // => [BiMap(1 <-> 'b'), [1, 'a'], true]
-	 * BiMap.of([1, 'a']).addEntryAndGet([2, 'a'])   // => [BiMap(2 <-> 'a'), [1, 'a'], true]
-	 * BiMap.of([1, 'a']).addEntryAndGet([1, 'a'])   // => [BiMap(1 <-> 'a'), [1, 'a'], true]   (no-op, unchanged)
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * const r1 = BiMap.of([1, 'a']).addEntryAndGet([2, 'b'])
+	 * console.log([r1[0].toString(), r1[1], r1[2]]); // => [ "BiMap(1 <-> a, 2 <-> b)", undefined, false ]
+	 * const r2 = BiMap.of([1, 'a']).addEntryAndGet([1, 'b'])
+	 * console.log([r2[0].toString(), r2[1], r2[2]]); // => [ "BiMap(1 <-> b)", [ 1, "a" ], true ]
+	 * const r3 = BiMap.of([1, 'a']).addEntryAndGet([2, 'a'])
+	 * console.log([r3[0].toString(), r3[1], r3[2]]); // => [ "BiMap(2 <-> a)", [ 1, "a" ], true ]
+	 * const r4 = BiMap.of([1, 'a']).addEntryAndGet([1, 'a'])
+	 * console.log([r4[0].toString(), r4[1], r4[2]]); // => [ "BiMap(1 <-> a)", [ 1, "a" ], true ]
 	 * ```
 	 * @note if the key and/or value are already associated, the previous value/key will be 'replaced' and the
 	 * displaced entry is returned
@@ -228,8 +271,10 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @param entries - a `StreamSource` containing tuples with a key and value
 	 * @example
 	 * ```ts
-	 * BiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()
-	 * // => [[1, 3], [2, 2]]
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * console.log(BiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray());
+	 * // => [ [ 1, 3 ], [ 2, 2 ] ]
 	 * ```
 	 */
 	addEntries(
@@ -242,9 +287,11 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @param key - the key of the entry to remove
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
 	 * const m = BiMap.of([1, 1], [2, 2])
-	 * m.removeKey(2).toArray()   // => [[1, 1]]
-	 * m.removeKey(3) === m       // true
+	 * console.log(m.removeKey(2).toArray()); // => [ [ 1, 1 ] ]
+	 * console.log(m.removeKey(3) === m); // => true
 	 * ```
 	 * @note guarantees same object reference if the value is not present
 	 */
@@ -256,10 +303,13 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @param key - the key of the entry to remove
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
 	 * const m = BiMap.of([1, 1], [2, 2])
 	 * const result = m.removeKeyAndGet(2)
-	 * if (result[2]) console.log([result[0].toString(), result[1]])    // => logs [BiMap(1 <-> 1), 2]
-	 * console.log(m.removeKeyAndGet(3))                                // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]
+	 * if (result[2]) console.log([result[0].toString(), result[1]]); // => [ "BiMap(1 <-> 1)", 2 ]
+	 * const missing = m.removeKeyAndGet(3)
+	 * console.log([missing[0].toString(), missing[1], missing[2]]); // => [ "BiMap(1 <-> 1, 2 <-> 2)", undefined, false ]
 	 * ```
 	 */
 	removeKeyAndGet<UK = K>(
@@ -271,10 +321,12 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @param keys - a `StreamSource` of keys to remove
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
 	 * const m = BiMap.of([1, 1], [2, 2])
-	 * m.removeKeys([1, 3]).toArray()     // => [[2, 2]]
-	 * m.removeKeys([1, 3, 2]).toArray()  // => []
-	 * m.removeKeys([3, 4, 5]) === m      // => true
+	 * console.log(m.removeKeys([1, 3]).toArray()); // => [ [ 2, 2 ] ]
+	 * console.log(m.removeKeys([1, 3, 2]).toArray()); // => []
+	 * console.log(m.removeKeys([3, 4, 5]) === m); // => true
 	 * ```
 	 * @note guarantees same object reference if none of the keys are present
 	 */
@@ -284,9 +336,11 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @param value - the value of the entry to remove
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
 	 * const m = BiMap.of([1, 1], [2, 2])
-	 * m.removeValue(2).toArray()   // => [[1, 1]]
-	 * m.removeValue(3) === m       // true
+	 * console.log(m.removeValue(2).toArray()); // => [ [ 1, 1 ] ]
+	 * console.log(m.removeValue(3) === m); // => true
 	 * ```
 	 * @note guarantees same object reference if the value is not present
 	 */
@@ -299,10 +353,13 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @param value - the value of the entry to remove
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
 	 * const m = BiMap.of([1, 1], [2, 2])
 	 * const result = m.removeValueAndGet(2)
-	 * if (result[2]) console.log([result[0].toString(), result[1]])    // => logs [BiMap(1 <-> 1), 2]
-	 * console.log(m.removeValueAndGet(3))                              // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]
+	 * if (result[2]) console.log([result[0].toString(), result[1]]); // => [ "BiMap(1 <-> 1)", 2 ]
+	 * const missing = m.removeValueAndGet(3)
+	 * console.log([missing[0].toString(), missing[1], missing[2]]); // => [ "BiMap(1 <-> 1, 2 <-> 2)", undefined, false ]
 	 * ```
 	 */
 	removeValueAndGet<UV = V>(
@@ -314,10 +371,12 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @param values - a `StreamSource` of values to remove
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
 	 * const m = BiMap.of([1, 1], [2, 2])
-	 * m.removeValues([1, 3]).toArray()     // => [[2, 2]]
-	 * m.removeValues([1, 3, 2]).toArray()  // => []
-	 * m.removeValues([3, 4, 5]) === m      // => true
+	 * console.log(m.removeValues([1, 3]).toArray()); // => [ [ 2, 2 ] ]
+	 * console.log(m.removeValues([1, 3, 2]).toArray()); // => []
+	 * console.log(m.removeValues([3, 4, 5]) === m); // => true
 	 * ```
 	 * @note guarantees same object reference if none of the values are present
 	 */
@@ -328,10 +387,12 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @param entry - a tuple containing the key and value of the entry to remove
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
 	 * const m = BiMap.of([1, 'a'], [2, 'b'])
-	 * m.removeEntry([2, 'b']).toArray()   // => [[1, 'a']]
-	 * m.removeEntry([2, 'c']) === m       // true (value does not match)
-	 * m.removeEntry([3, 'b']) === m       // true (key is not present)
+	 * console.log(m.removeEntry([2, 'b']).toArray()); // => [ [ 1, "a" ] ]
+	 * console.log(m.removeEntry([2, 'c']) === m); // => true
+	 * console.log(m.removeEntry([3, 'b']) === m); // => true
 	 * ```
 	 * @note guarantees same object reference if no matching entry was removed
 	 */
@@ -339,16 +400,18 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	/**
 	 * Returns the collection where the value associated with given `key` is updated with the given `valueUpdate` value or update function.
 	 * @param key - the key of the entry to update
-	 * @param valueUpdate - a new value or function taking the current value and returning a new value
+	 * @param valueUpdate - a function taking the current value and returning a new value
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
 	 * const m = BiMap.of([1, 1], [2, 2])
-	 * m.updateValueAtKey(3, 3).toArray()
-	 * // => [[1, 1], [2, 2]]
-	 * m.updateValueAtKey(2, 10).toArray()
-	 * // => [[1, 1], [2, 10]]
-	 * m.updateValueAtKey(1, v => v + 1)
-	 * // => [[1, 2]]
+	 * console.log(m.updateValueAtKey(3, v => v + 100).toArray());
+	 * // => [ [ 1, 1 ], [ 2, 2 ] ]
+	 * console.log(m.updateValueAtKey(2, v => v + 8).toArray());
+	 * // => [ [ 1, 1 ], [ 2, 10 ] ]
+	 * console.log(m.updateValueAtKey(1, v => v + 1).toArray());
+	 * // => [ [ 1, 2 ] ]
 	 * ```
 	 */
 	updateValueAtKey<UK = K>(
@@ -356,18 +419,20 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 		valueUpdate: (value: V) => V,
 	): BiMap<K, V>;
 	/**
-	 * Returns the collection where the key associated with given `value` is updated with the given `keyUpdate` value or update function.
-	 * @param keyUpdate - a new value or function taking the current key and returning a new key
+	 * Returns the collection where the key associated with given `value` is updated with the given `keyUpdate` update function.
+	 * @param keyUpdate - a function taking the current key and returning a new key
 	 * @param value - the value of the entry to update
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
 	 * const m = BiMap.of([1, 1], [2, 2])
-	 * m.updateKeyAtValue(3, 3).toArray()
-	 * // => [[1, 1], [2, 2]]
-	 * m.updateKeyAtValue(10, 2).toArray()
-	 * // => [[1, 1], [10, 2]]
-	 * m.updateKeyAtValue((v) => v + 1, 1)
-	 * // => [[2, 1]]
+	 * console.log(m.updateKeyAtValue(k => k + 100, 3).toArray());
+	 * // => [ [ 1, 1 ], [ 2, 2 ] ]
+	 * console.log(m.updateKeyAtValue(k => k + 8, 2).toArray());
+	 * // => [ [ 1, 1 ], [ 10, 2 ] ]
+	 * console.log(m.updateKeyAtValue((k) => k + 1, 1).toArray());
+	 * // => [ [ 2, 1 ] ]
 	 * ```
 	 */
 	updateKeyAtValue<UV = V>(
@@ -385,10 +450,15 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @typeparam UK - the key type to accept, related to `K`
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
 	 * const m = BiMap.of([1, 1], [2, 2])
-	 * m.updateValueAtKeyAndGet(3, v => v + 1)   // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]
-	 * m.updateValueAtKeyAndGet(2, v => v + 10)  // => [BiMap(1 <-> 1, 2 <-> 12), 2, true]
-	 * m.updateValueAtKeyAndGet(2, v => v)       // => [BiMap(1 <-> 1, 2 <-> 2), 2, true]   (no-op, unchanged)
+	 * const r1 = m.updateValueAtKeyAndGet(3, v => v + 1)
+	 * console.log([r1[0].toString(), r1[1], r1[2]]); // => [ "BiMap(1 <-> 1, 2 <-> 2)", undefined, false ]
+	 * const r2 = m.updateValueAtKeyAndGet(2, v => v + 10)
+	 * console.log([r2[0].toString(), r2[1], r2[2]]); // => [ "BiMap(1 <-> 1, 2 <-> 12)", 2, true ]
+	 * const r3 = m.updateValueAtKeyAndGet(2, v => v)
+	 * console.log([r3[0].toString(), r3[1], r3[2]]); // => [ "BiMap(1 <-> 1, 2 <-> 2)", 2, true ]
 	 * ```
 	 */
 	updateValueAtKeyAndGet<UK = K>(
@@ -406,10 +476,15 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * @typeparam UV - the value type to accept, related to `V`
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
 	 * const m = BiMap.of([1, 1], [2, 2])
-	 * m.updateKeyAtValueAndGet(k => k + 1, 3)   // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]
-	 * m.updateKeyAtValueAndGet(k => k + 10, 2)  // => [BiMap(1 <-> 1, 12 <-> 2), 2, true]
-	 * m.updateKeyAtValueAndGet(k => k, 2)       // => [BiMap(1 <-> 1, 2 <-> 2), 2, true]   (no-op, unchanged)
+	 * const r1 = m.updateKeyAtValueAndGet(k => k + 1, 3)
+	 * console.log([r1[0].toString(), r1[1], r1[2]]); // => [ "BiMap(1 <-> 1, 2 <-> 2)", undefined, false ]
+	 * const r2 = m.updateKeyAtValueAndGet(k => k + 10, 2)
+	 * console.log([r2[0].toString(), r2[1], r2[2]]); // => [ "BiMap(1 <-> 1, 12 <-> 2)", 2, true ]
+	 * const r3 = m.updateKeyAtValueAndGet(k => k, 2)
+	 * console.log([r3[0].toString(), r3[1], r3[2]]); // => [ "BiMap(1 <-> 1, 2 <-> 2)", 2, true ]
 	 * ```
 	 */
 	updateKeyAtValueAndGet<UV = V>(
@@ -427,9 +502,11 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * to return a new value. If it returns the given `remove` token, the entry is removed.
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
 	 * const m = BiMap.of([1, 1], [2, 2])
-	 * m.modifyAtKey(3, { ifNew: 3 }).toArray()          // => [[1, 1], [2, 2], [3, 3]]
-	 * m.modifyAtKey(2, { ifExists: v => v + 10 }).toArray()  // => [[1, 1], [2, 12]]
+	 * console.log(m.modifyAtKey(3, { ifNew: { set: 3 } }).toArray()); // => [ [ 1, 1 ], [ 2, 2 ], [ 3, 3 ] ]
+	 * console.log(m.modifyAtKey(2, { ifExists: { update: v => v + 10 } }).toArray()); // => [ [ 1, 1 ], [ 2, 12 ] ]
 	 * ```
 	 */
 	modifyAtKey(atKey: K, options: ModifyOptions<V>): BiMap<K, V>;
@@ -443,9 +520,11 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * to return a new key. If it returns the given `remove` token, the entry is removed.
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
 	 * const m = BiMap.of([1, 1], [2, 2])
-	 * m.modifyAtValue(3, { ifNew: 3 }).toArray()          // => [[1, 1], [2, 2], [3, 3]]
-	 * m.modifyAtValue(2, { ifExists: k => k + 10 }).toArray()  // => [[1, 1], [12, 2]]
+	 * console.log(m.modifyAtValue(3, { ifNew: { set: 3 } }).toArray()); // => [ [ 1, 1 ], [ 2, 2 ], [ 3, 3 ] ]
+	 * console.log(m.modifyAtValue(2, { ifExists: { update: k => k + 10 } }).toArray()); // => [ [ 1, 1 ], [ 2, 2 ], [ 12, 2 ] ]
 	 * ```
 	 */
 	modifyAtValue(atValue: V, options: ModifyOptions<K>): BiMap<K, V>;
@@ -453,7 +532,9 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * Returns a `Stream` containing all entries of this collection as tuples of key and value.
 	 * @example
 	 * ```ts
-	 * BiMap.of([1, 1], [2, 2]).stream().toArray()  // => [[1, 1], [2, 2]]
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * console.log(BiMap.of([1, 1], [2, 2]).stream().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]
 	 * ```
 	 */
 	stream(): Stream<readonly [K, V]>;
@@ -461,7 +542,9 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * Returns a `Stream` containing all keys of this collection.
 	 * @example
 	 * ```ts
-	 * BiMap.of([[1, 'a'], [2, 'b']]).streamKeys().toArray()   // => [1, 2]
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * console.log(BiMap.of([1, 'a'], [2, 'b']).streamKeys().toArray()); // => [ 1, 2 ]
 	 * ```
 	 */
 	streamKeys(): Stream<K>;
@@ -469,7 +552,9 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * Returns a `Stream` containing all values of this collection.
 	 * @example
 	 * ```ts
-	 * BiMap.of([[1, 'a'], [2, 'b']]).streamValues().toArray()   // => ['a', 'b']
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * console.log(BiMap.of([1, 'a'], [2, 'b']).streamValues().toArray()); // => [ "a", "b" ]
 	 * ```
 	 */
 	streamValues(): Stream<V>;
@@ -483,11 +568,14 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * - state: (optional) the traverse state
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * const collected: [string, number][] = []
 	 * BiMap.of([1, 'a'], [2, 'b'], [3, 'c']).forEach((entry, i, halt) => {
-	 *  console.log([entry[1], entry[0]]);
-	 *  if (i >= 1) halt();
+	 *   collected.push([entry[1], entry[0]]);
+	 *   if (i >= 1) halt();
 	 * })
-	 * // => logs ['a', 1]  ['b', 2]
+	 * console.log(collected); // => [ [ "a", 1 ], [ "b", 2 ] ]
 	 * ```
 	 * @note O(N)
 	 */
@@ -505,8 +593,10 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * - negate: (default: false) when true will negate the given predicate
 	 * @example
 	 * ```ts
-	 * BiMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(entry => entry[0] === 2 || entry[1] === 'c').toArray()
-	 * // => [[2, 'b'], [3, 'c']]
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * console.log(BiMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(entry => entry[0] === 2 || entry[1] === 'c').toArray());
+	 * // => [ [ 2, "b" ], [ 3, "c" ] ]
 	 * ```
 	 */
 	filter(
@@ -517,6 +607,8 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * Returns a builder object containing the entries of this collection.
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
 	 * const builder: BiMap.Builder<number, string> = BiMap.of([1, 'a'], [2, 'b']).toBuilder()
 	 * ```
 	 */
@@ -525,7 +617,9 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * Returns an array containing all entries in this collection.
 	 * @example
 	 * ```ts
-	 * BiMap.of([1, 'a'], [2, 'b']).toArray()   // => [[1, 'a'], [2, 'b']]
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * console.log(BiMap.of([1, 'a'], [2, 'b']).toArray()); // => [ [ 1, "a" ], [ 2, "b" ] ]
 	 * ```
 	 * @note O(log(N))
 	 * @note it is safe to mutate the returned array, however, the array elements are not copied, thus should be treated as read-only
@@ -535,7 +629,9 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * Returns a string representation of this collection.
 	 * @example
 	 * ```ts
-	 * BiMap.of([1, 'a'], [2, 'b']).toString()   // => BiMap(1 <-> 'a', 2 <-> 'b')
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * console.log(BiMap.of([1, 'a'], [2, 'b']).toString()); // => BiMap(1 <-> a, 2 <-> b)
 	 * ```
 	 */
 	toString(): string;
@@ -543,7 +639,9 @@ export interface BiMap<K, V> extends FastIterable<readonly [K, V]> {
 	 * Returns a JSON representation of this collection.
 	 * @example
 	 * ```ts
-	 * BiMap.of([1, 'a'], [2, 'b']).toJSON()   // => { dataType: 'BiMap', value: [[1, 'a'], [2, 'b']] }
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * console.log(BiMap.of([1, 'a'], [2, 'b']).toJSON()); // => { dataType: "BiMap", value: [ [ 1, "a" ], [ 2, "b" ] ] }
 	 * ```
 	 */
 	toJSON(): ToJSON<(readonly [K, V])[], this['context']['typeTag']>;
@@ -563,7 +661,9 @@ export namespace BiMap {
 		 * Returns false since this collection is known to be non-empty.
 		 * @example
 		 * ```ts
-		 * BiMap.of([1, 1], [2, 2]).isEmpty   // => false
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
+		 * console.log(BiMap.of([1, 1], [2, 2]).isEmpty); // => false
 		 * ```
 		 */
 		readonly isEmpty: false;
@@ -571,7 +671,9 @@ export namespace BiMap {
 		 * Returns true since this collection is known to be non-empty
 		 * @example
 		 * ```ts
-		 * BiMap.of([1, 1], [2, 2]).nonEmpty()   // => true
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
+		 * console.log(BiMap.of([1, 1], [2, 2]).nonEmpty()); // => true
 		 * ```
 		 */
 		nonEmpty(): this is BiMap.NonEmpty<K, V>;
@@ -579,8 +681,10 @@ export namespace BiMap {
 		 * Returns a self reference since this collection is known to be non-empty.
 		 * @example
 		 * ```ts
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
 		 * const m = BiMap.of([1, 1], [2, 2]);
-		 * m === m.assumeNonEmpty()  // => true
+		 * console.log(m === m.assumeNonEmpty()); // => true
 		 * ```
 		 */
 		assumeNonEmpty(): this;
@@ -588,6 +692,8 @@ export namespace BiMap {
 		 * Returns this collection typed as a 'possibly empty' collection.
 		 * @example
 		 * ```ts
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
 		 * BiMap.of([1, 1], [2, 2]).asNormal();  // type: BiMap<number, number>
 		 * ```
 		 */
@@ -596,8 +702,10 @@ export namespace BiMap {
 		 * Returns the non-empty Map representation of the key to value mapping.
 		 * @example
 		 * ```ts
-		 * BiMap.of([1, 10], [2, 20]).keyValueMap.toArray()
-		 * // => [[1, 10], [2, 20]]
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
+		 * console.log(BiMap.of([1, 10], [2, 20]).keyValueMap.toArray());
+		 * // => [ [ 1, 10 ], [ 2, 20 ] ]
 		 * ```
 		 */
 		readonly keyValueMap: RMap.NonEmpty<K, V>;
@@ -605,8 +713,10 @@ export namespace BiMap {
 		 * Returns the non-empty Map representation of the key to value mapping.
 		 * @example
 		 * ```ts
-		 * BiMap.of([1, 10], [2, 20]).valueKeyMap.toArray()
-		 * // => [[10, 1], [20, 2]]
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
+		 * console.log(BiMap.of([1, 10], [2, 20]).valueKeyMap.toArray());
+		 * // => [ [ 10, 1 ], [ 20, 2 ] ]
 		 * ```
 		 */
 		readonly valueKeyMap: RMap.NonEmpty<V, K>;
@@ -615,8 +725,10 @@ export namespace BiMap {
 		 * @param entries - a `StreamSource` containing tuples with a key and value
 		 * @example
 		 * ```ts
-		 * BiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()
-		 * // => [[1, 2]]
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
+		 * console.log(BiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray());
+		 * // => [ [ 1, 3 ], [ 2, 2 ] ]
 		 * ```
 		 */
 		addEntries(entries: StreamSource<readonly [K, V]>): BiMap.NonEmpty<K, V>;
@@ -630,18 +742,20 @@ export namespace BiMap {
 		): WithValueResult<BiMap<K, V>, V, BiMap.NonEmpty<K, V>>;
 
 		/**
-		 * Returns the collection where the value associated with given `key` is updated with the given `update` value or update function.
+		 * Returns the collection where the value associated with given `key` is updated with the given `update` function.
 		 * @param key - the key of the entry to update
-		 * @param valueUpdate - a new value or function taking the current value and returning a new value
+		 * @param valueUpdate - a function taking the current value and returning a new value
 		 * @example
 		 * ```ts
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
 		 * const m = BiMap.of([1, 1], [2, 2])
-		 * m.updateValueAtKey(3, 3).toArray()
-		 * // => [[1, 1], [2, 2]]
-		 * m.updateValueAtKey(2, 10).toArray()
-		 * // => [[1, 1], [2, 10]]
-		 * m.updateValueAtKey(1, v => v + 1)
-		 * // => [[1, 2]]
+		 * console.log(m.updateValueAtKey(3, v => v + 100).toArray());
+		 * // => [ [ 1, 1 ], [ 2, 2 ] ]
+		 * console.log(m.updateValueAtKey(2, v => v + 8).toArray());
+		 * // => [ [ 1, 1 ], [ 2, 10 ] ]
+		 * console.log(m.updateValueAtKey(1, v => v + 1).toArray());
+		 * // => [ [ 1, 2 ] ]
 		 * ```
 		 */
 		updateValueAtKey<UK = K>(
@@ -649,18 +763,20 @@ export namespace BiMap {
 			valueUpdate: (value: V) => V,
 		): BiMap.NonEmpty<K, V>;
 		/**
-		 * Returns the collection where the key associated with given `value` is updated with the given `update` value or update function.
-		 * @param keyUpdate - a new value or function taking the current key and returning a new key
+		 * Returns the collection where the key associated with given `value` is updated with the given `update` function.
+		 * @param keyUpdate - a function taking the current key and returning a new key
 		 * @param value - the value of the entry to update
 		 * @example
 		 * ```ts
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
 		 * const m = BiMap.of([1, 1], [2, 2])
-		 * m.updateKeyAtValue(3, 3).toArray()
-		 * // => [[1, 1], [2, 2]]
-		 * m.updateKeyAtValue(10, 2).toArray()
-		 * // => [[1, 1], [10, 2]]
-		 * m.updateKeyAtValue((v) => v + 1, 1)
-		 * // => [[2, 1]]
+		 * console.log(m.updateKeyAtValue(k => k + 100, 3).toArray());
+		 * // => [ [ 1, 1 ], [ 2, 2 ] ]
+		 * console.log(m.updateKeyAtValue(k => k + 8, 2).toArray());
+		 * // => [ [ 1, 1 ], [ 10, 2 ] ]
+		 * console.log(m.updateKeyAtValue((k) => k + 1, 1).toArray());
+		 * // => [ [ 2, 1 ] ]
 		 * ```
 		 */
 		updateKeyAtValue<UV = V>(
@@ -677,10 +793,15 @@ export namespace BiMap {
 		 * @typeparam UV - the value type to accept, related to `V`
 		 * @example
 		 * ```ts
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
 		 * const m = BiMap.of([1, 1], [2, 2])
-		 * m.updateKeyAtValueAndGet(k => k + 1, 3)   // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]
-		 * m.updateKeyAtValueAndGet(k => k + 10, 2)  // => [BiMap(1 <-> 1, 12 <-> 2), 2, true]
-		 * m.updateKeyAtValueAndGet(k => k, 2)       // => [BiMap(1 <-> 1, 2 <-> 2), 2, true]   (no-op, unchanged)
+		 * const r1 = m.updateKeyAtValueAndGet(k => k + 1, 3)
+		 * console.log([r1[0].toString(), r1[1], r1[2]]); // => [ "BiMap(1 <-> 1, 2 <-> 2)", undefined, false ]
+		 * const r2 = m.updateKeyAtValueAndGet(k => k + 10, 2)
+		 * console.log([r2[0].toString(), r2[1], r2[2]]); // => [ "BiMap(1 <-> 1, 12 <-> 2)", 2, true ]
+		 * const r3 = m.updateKeyAtValueAndGet(k => k, 2)
+		 * console.log([r3[0].toString(), r3[1], r3[2]]); // => [ "BiMap(1 <-> 1, 2 <-> 2)", 2, true ]
 		 * ```
 		 */
 		updateKeyAtValueAndGet<UV = V>(
@@ -699,10 +820,15 @@ export namespace BiMap {
 		 * @typeparam UK - the key type to accept, related to `K`
 		 * @example
 		 * ```ts
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
 		 * const m = BiMap.of([1, 1], [2, 2])
-		 * m.updateValueAtKeyAndGet(3, v => v + 1)   // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]
-		 * m.updateValueAtKeyAndGet(2, v => v + 10)  // => [BiMap(1 <-> 1, 2 <-> 12), 2, true]
-		 * m.updateValueAtKeyAndGet(2, v => v)       // => [BiMap(1 <-> 1, 2 <-> 2), 2, true]   (no-op, unchanged)
+		 * const r1 = m.updateValueAtKeyAndGet(3, v => v + 1)
+		 * console.log([r1[0].toString(), r1[1], r1[2]]); // => [ "BiMap(1 <-> 1, 2 <-> 2)", undefined, false ]
+		 * const r2 = m.updateValueAtKeyAndGet(2, v => v + 10)
+		 * console.log([r2[0].toString(), r2[1], r2[2]]); // => [ "BiMap(1 <-> 1, 2 <-> 12)", 2, true ]
+		 * const r3 = m.updateValueAtKeyAndGet(2, v => v)
+		 * console.log([r3[0].toString(), r3[1], r3[2]]); // => [ "BiMap(1 <-> 1, 2 <-> 2)", 2, true ]
 		 * ```
 		 */
 		updateValueAtKeyAndGet<O, UK = K>(
@@ -714,7 +840,9 @@ export namespace BiMap {
 		 * Returns a non-empty `Stream` containing all entries of this collection as tuples of key and value.
 		 * @example
 		 * ```ts
-		 * BiMap.of([1, 1], [2, 2]).stream().toArray()  // => [[1, 1], [2, 2]]
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
+		 * console.log(BiMap.of([1, 1], [2, 2]).stream().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]
 		 * ```
 		 */
 		stream(): Stream.NonEmpty<readonly [K, V]>;
@@ -722,7 +850,9 @@ export namespace BiMap {
 		 * Returns a non-empty `Stream` containing all keys of this collection.
 		 * @example
 		 * ```ts
-		 * BiMap.of([[1, 'a'], [2, 'b']]).streamKeys().toArray()   // => [1, 2]
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
+		 * console.log(BiMap.of([1, 'a'], [2, 'b']).streamKeys().toArray()); // => [ 1, 2 ]
 		 * ```
 		 */
 		streamKeys(): Stream.NonEmpty<K>;
@@ -730,7 +860,9 @@ export namespace BiMap {
 		 * Returns a non-empty `Stream` containing all values of this collection.
 		 * @example
 		 * ```ts
-		 * BiMap.of([[1, 'a'], [2, 'b']]).streamValues().toArray()   // => ['a', 'b']
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
+		 * console.log(BiMap.of([1, 'a'], [2, 'b']).streamValues().toArray()); // => [ "a", "b" ]
 		 * ```
 		 */
 		streamValues(): Stream.NonEmpty<V>;
@@ -738,7 +870,9 @@ export namespace BiMap {
 		 * Returns a non-empty array containing all entries in this collection.
 		 * @example
 		 * ```ts
-		 * BiMap.of([1, 'a'], [2, 'b']).toArray()   // => [[1, 'a'], [2, 'b']]
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
+		 * console.log(BiMap.of([1, 'a'], [2, 'b']).toArray()); // => [ [ 1, "a" ], [ 2, "b" ] ]
 		 * ```
 		 * @note O(log(N))
 		 * @note it is safe to mutate the returned array, however, the array elements are not copied, thus should be treated as read-only
@@ -757,7 +891,9 @@ export namespace BiMap {
 		 * A string tag defining the specific collection type
 		 * @example
 		 * ```ts
-		 * BiMap.defaultContext().typeTag   // => 'BiMap'
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
+		 * console.log(BiMap.defaultContext().typeTag); // => BiMap
 		 * ```
 		 */
 		readonly typeTag: 'BiMap';
@@ -777,7 +913,9 @@ export namespace BiMap {
 		 * Returns the amount of entries in the builder.
 		 * @example
 		 * ```ts
-		 * BiMap.of([[1, 'a'], [2, 'b']]).toBuilder().size
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
+		 * console.log(BiMap.of([1, 'a'], [2, 'b']).toBuilder().size);
 		 * // => 2
 		 * ```
 		 */
@@ -786,7 +924,9 @@ export namespace BiMap {
 		 * Returns true if there are no entries in the builder.
 		 * @example
 		 * ```ts
-		 * BiMap.of([[1, 'a'], [2, 'b']]).toBuilder().isEmpty
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
+		 * console.log(BiMap.of([1, 'a'], [2, 'b']).toBuilder().isEmpty);
 		 * // => false
 		 * ```
 		 */
@@ -797,11 +937,13 @@ export namespace BiMap {
 		 * @param otherwise - (default: undefined) an `OptLazy` fallback value if the key is not in the collection
 		 * @example
 		 * ```ts
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
 		 * const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.getValue(2)          // => 'b'
-		 * m.getValue(3)          // => undefined
-		 * m.getValue(2, 'none')  // => 'b'
-		 * m.getValue(3, 'none')  // => 'none'
+		 * console.log(m.getValue(2)); // => b
+		 * console.log(m.getValue(3)); // => undefined
+		 * console.log(m.getValue(2, 'none')); // => b
+		 * console.log(m.getValue(3, 'none')); // => none
 		 * ```
 		 */
 		getValue<UK = K>(key: RelatedTo<K, UK>): V | undefined;
@@ -812,11 +954,13 @@ export namespace BiMap {
 		 * @param otherwise - (default: undefined) an `OptLazy` fallback value if the value is not in the collection
 		 * @example
 		 * ```ts
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
 		 * const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.getKey('b')          // => 2
-		 * m.getKey('z')          // => undefined
-		 * m.getKey('b', 'none')  // => 2
-		 * m.getKey('z', 'none')  // => 'none'
+		 * console.log(m.getKey('b')); // => 2
+		 * console.log(m.getKey('z')); // => undefined
+		 * console.log(m.getKey('b', 'none')); // => 2
+		 * console.log(m.getKey('z', 'none')); // => none
 		 * ```
 		 */
 		getKey<UV = V>(value: RelatedTo<V, UV>): K | undefined;
@@ -826,9 +970,11 @@ export namespace BiMap {
 		 * @param key - the key to look for
 		 * @example
 		 * ```ts
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
 		 * const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.hasKey(2)    // => true
-		 * m.hasKey(3)    // => false
+		 * console.log(m.hasKey(2)); // => true
+		 * console.log(m.hasKey(3)); // => false
 		 * ```
 		 */
 		hasKey<UK = K>(key: RelatedTo<K, UK>): boolean;
@@ -837,9 +983,11 @@ export namespace BiMap {
 		 * @param value - the value to look for
 		 * @example
 		 * ```ts
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
 		 * const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.hasValue('a')    // => true
-		 * m.hasValue('z')    // => false
+		 * console.log(m.hasValue('a')); // => true
+		 * console.log(m.hasValue('z')); // => false
 		 * ```
 		 */
 		hasValue<UV = V>(value: RelatedTo<V, UV>): boolean;
@@ -850,9 +998,11 @@ export namespace BiMap {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
 		 * const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.set(1, 'a')   // => false
-		 * m.set(1, 'b')   // => true
+		 * console.log(m.set(1, 'a')); // => false
+		 * console.log(m.set(1, 'b')); // => true
 		 * ```
 		 */
 		set(key: K, value: V): boolean;
@@ -862,9 +1012,11 @@ export namespace BiMap {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
 		 * const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.addEntry([1, 'a'])   // => false
-		 * m.addEntry([1, 'b'])   // => true
+		 * console.log(m.addEntry([1, 'a'])); // => false
+		 * console.log(m.addEntry([1, 'b'])); // => true
 		 * ```
 		 */
 		addEntry(entry: readonly [K, V]): boolean;
@@ -874,9 +1026,11 @@ export namespace BiMap {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
 		 * const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.addEntries([[1, 'a'], [3, 'c']])   // => true
-		 * m.addEntries([])                    // => false
+		 * console.log(m.addEntries([[1, 'a'], [3, 'c']])); // => true
+		 * console.log(m.addEntries([])); // => false
 		 * ```
 		 */
 		addEntries(entries: StreamSource<readonly [K, V]>): boolean;
@@ -887,10 +1041,12 @@ export namespace BiMap {
 		 * @returns the value previously associated with given `key`, or the fallback value otherwise
 		 * @example
 		 * ```ts
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
 		 * const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.removeKey(2)        // => 'b'
-		 * m.removeKey(3)        // => undefined
-		 * m.removeKey(3, 'c')   // => 'c'
+		 * console.log(m.removeKey(2)); // => b
+		 * console.log(m.removeKey(3)); // => undefined
+		 * console.log(m.removeKey(3, 'c')); // => c
 		 * ```
 		 */
 		removeKey<UK = K>(key: RelatedTo<K, UK>): V | undefined;
@@ -901,9 +1057,11 @@ export namespace BiMap {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
 		 * const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.removeKeys([3, 4, 5])  // => false
-		 * m.removeKeys([1, 10])    // => true
+		 * console.log(m.removeKeys([3, 4, 5])); // => false
+		 * console.log(m.removeKeys([1, 10])); // => true
 		 * ```
 		 */
 		removeKeys<UK = K>(keys: StreamSource<RelatedTo<K, UK>>): boolean;
@@ -914,10 +1072,12 @@ export namespace BiMap {
 		 * @returns the key previously associated with given `value`, or the fallback value otherwise
 		 * @example
 		 * ```ts
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
 		 * const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.removeValue('b')        // => 2
-		 * m.removeValue('c')        // => undefined
-		 * m.removeValue('c', 0)     // => 0
+		 * console.log(m.removeValue('b')); // => 2
+		 * console.log(m.removeValue('c')); // => undefined
+		 * console.log(m.removeValue('c', 0)); // => 0
 		 * ```
 		 */
 		removeValue<UV = V>(value: RelatedTo<V, UV>): K | undefined;
@@ -928,9 +1088,11 @@ export namespace BiMap {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
 		 * const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.removeValues(['c', 'd', 'e'])  // => false
-		 * m.removeValues(['a', 'e'])       // => true
+		 * console.log(m.removeValues(['c', 'd', 'e'])); // => false
+		 * console.log(m.removeValues(['a', 'e'])); // => true
 		 * ```
 		 */
 		removeValues<UV = V>(values: StreamSource<RelatedTo<V, UV>>): boolean;
@@ -941,9 +1103,11 @@ export namespace BiMap {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
 		 * const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.removeEntry([2, 'b'])   // => true
-		 * m.removeEntry([2, 'c'])   // => false
+		 * console.log(m.removeEntry([2, 'b'])); // => true
+		 * console.log(m.removeEntry([2, 'c'])); // => false
 		 * ```
 		 */
 		removeEntry(entry: readonly [K, V]): boolean;
@@ -959,11 +1123,14 @@ export namespace BiMap {
 		 * looping over it
 		 * @example
 		 * ```ts
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
+		 * const collected: [string, number][] = []
 		 * BiMap.of([1, 'a'], [2, 'b'], [3, 'c']).toBuilder().forEach((entry, i, halt) => {
-		 *  console.log([entry[1], entry[0]]);
-		 *  if (i >= 1) halt();
+		 *   collected.push([entry[1], entry[0]]);
+		 *   if (i >= 1) halt();
 		 * })
-		 * // => logs ['a', 1]  ['b', 2]
+		 * console.log(collected); // => [ [ "a", 1 ], [ "b", 2 ] ]
 		 * ```
 		 * @note O(N)
 		 */
@@ -975,6 +1142,8 @@ export namespace BiMap {
 		 * Returns an immutable collection instance containing the entries in this builder.
 		 * @example
 		 * ```ts
+		 * import { BiMap } from '@rimbu/bimap';
+		 *
 		 * const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()
 		 * const m2: BiMap<number, string> = m.build()
 		 * ```

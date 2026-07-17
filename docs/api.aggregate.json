@@ -1,6 +1,6 @@
 {
   "$schema": "rimbu-docs/aggregate/v1",
-  "generatedAt": "2026-07-17T20:29:07.494Z",
+  "generatedAt": "2026-07-17T20:51:17.737Z",
   "gitRef": "main",
   "packages": [
     "@rimbu/actor",
@@ -210862,23 +210862,23 @@
                   "description": "Returns false since this collection is known to be non-empty.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.of([1, 1], [2, 2]).isEmpty   // => false\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 1], [2, 2]).isEmpty); // => false\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 569,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L569"
+                  "line": 669,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L669"
                 },
                 "raw": "readonly isEmpty: false"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 569,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L569"
+              "line": 669,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L669"
             }
           },
           {
@@ -210893,22 +210893,22 @@
                   "description": "Returns true since this collection is known to be non-empty",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.of([1, 1], [2, 2]).nonEmpty()   // => true\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 1], [2, 2]).nonEmpty()); // => true\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 73,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L73"
+                  "line": 81,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L81"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 73,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L73"
+              "line": 81,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L81"
             }
           },
           {
@@ -210923,23 +210923,23 @@
                   "description": "Returns a self reference since this collection is known to be non-empty.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 1], [2, 2]);\nm === m.assumeNonEmpty()  // => true\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2]);\nconsole.log(m === m.assumeNonEmpty()); // => true\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 586,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L586"
+                  "line": 690,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L690"
                 },
                 "raw": "assumeNonEmpty(): this"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 586,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L586"
+              "line": 690,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L690"
             }
           },
           {
@@ -210954,22 +210954,22 @@
                   "description": "Returns this collection typed as a 'possibly empty' collection.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.of([1, 1], [2, 2]).asNormal();  // type: BiMap<number, number>\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nBiMap.of([1, 1], [2, 2]).asNormal();  // type: BiMap<number, number>\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 594,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L594"
+                  "line": 700,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L700"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 594,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L594"
+              "line": 700,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L700"
             }
           },
           {
@@ -210984,23 +210984,23 @@
                   "description": "Returns the non-empty Map representation of the key to value mapping.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.of([1, 10], [2, 20]).keyValueMap.toArray()\n// => [[1, 10], [2, 20]]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 10], [2, 20]).keyValueMap.toArray());\n// => [ [ 1, 10 ], [ 2, 20 ] ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 603,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L603"
+                  "line": 711,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L711"
                 },
                 "raw": "readonly keyValueMap: RMap.NonEmpty<K, V>"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 603,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L603"
+              "line": 711,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L711"
             }
           },
           {
@@ -211015,23 +211015,23 @@
                   "description": "Returns the non-empty Map representation of the key to value mapping.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.of([1, 10], [2, 20]).valueKeyMap.toArray()\n// => [[10, 1], [20, 2]]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 10], [2, 20]).valueKeyMap.toArray());\n// => [ [ 10, 1 ], [ 20, 2 ] ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 612,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L612"
+                  "line": 722,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L722"
                 },
                 "raw": "readonly valueKeyMap: RMap.NonEmpty<V, K>"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 612,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L612"
+              "line": 722,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L722"
             }
           },
           {
@@ -211051,22 +211051,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nBiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()\n// => [[1, 2]]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray());\n// => [ [ 1, 3 ], [ 2, 2 ] ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 622,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L622"
+                  "line": 734,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L734"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 622,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L622"
+              "line": 734,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L734"
             }
           },
           {
@@ -211105,8 +211105,8 @@
                 "text": "updateValueAtKey<UK = K>(key: RelatedTo<K, UK>, valueUpdate: (value: V) => V): BiMap.NonEmpty<K, V>",
                 "returnsNonEmpty": true,
                 "doc": {
-                  "summary": "Returns the collection where the value associated with given `key` is updated with the given `update` value or update function.",
-                  "description": "Returns the collection where the value associated with given `key` is updated with the given `update` value or update function.",
+                  "summary": "Returns the collection where the value associated with given `key` is updated with the given `update` function.",
+                  "description": "Returns the collection where the value associated with given `key` is updated with the given `update` function.",
                   "params": [
                     {
                       "name": "key",
@@ -211114,11 +211114,11 @@
                     },
                     {
                       "name": "valueUpdate",
-                      "text": "- a new value or function taking the current value and returning a new value"
+                      "text": "- a function taking the current value and returning a new value"
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 1], [2, 2])\nm.updateValueAtKey(3, 3).toArray()\n// => [[1, 1], [2, 2]]\nm.updateValueAtKey(2, 10).toArray()\n// => [[1, 1], [2, 10]]\nm.updateValueAtKey(1, v => v + 1)\n// => [[1, 2]]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconsole.log(m.updateValueAtKey(3, v => v + 100).toArray());\n// => [ [ 1, 1 ], [ 2, 2 ] ]\nconsole.log(m.updateValueAtKey(2, v => v + 8).toArray());\n// => [ [ 1, 1 ], [ 2, 10 ] ]\nconsole.log(m.updateValueAtKey(1, v => v + 1).toArray());\n// => [ [ 1, 2 ] ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -211144,12 +211144,12 @@
                 "text": "updateKeyAtValue<UV = V>(keyUpdate: (key: K) => K, value: RelatedTo<V, UV>): BiMap.NonEmpty<K, V>",
                 "returnsNonEmpty": true,
                 "doc": {
-                  "summary": "Returns the collection where the key associated with given `value` is updated with the given `update` value or update function.",
-                  "description": "Returns the collection where the key associated with given `value` is updated with the given `update` value or update function.",
+                  "summary": "Returns the collection where the key associated with given `value` is updated with the given `update` function.",
+                  "description": "Returns the collection where the key associated with given `value` is updated with the given `update` function.",
                   "params": [
                     {
                       "name": "keyUpdate",
-                      "text": "- a new value or function taking the current key and returning a new key"
+                      "text": "- a function taking the current key and returning a new key"
                     },
                     {
                       "name": "value",
@@ -211157,7 +211157,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 1], [2, 2])\nm.updateKeyAtValue(3, 3).toArray()\n// => [[1, 1], [2, 2]]\nm.updateKeyAtValue(10, 2).toArray()\n// => [[1, 1], [10, 2]]\nm.updateKeyAtValue((v) => v + 1, 1)\n// => [[2, 1]]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconsole.log(m.updateKeyAtValue(k => k + 100, 3).toArray());\n// => [ [ 1, 1 ], [ 2, 2 ] ]\nconsole.log(m.updateKeyAtValue(k => k + 8, 2).toArray());\n// => [ [ 1, 1 ], [ 10, 2 ] ]\nconsole.log(m.updateKeyAtValue((k) => k + 1, 1).toArray());\n// => [ [ 2, 1 ] ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -211196,7 +211196,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 1], [2, 2])\nm.updateKeyAtValueAndGet(k => k + 1, 3)   // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]\nm.updateKeyAtValueAndGet(k => k + 10, 2)  // => [BiMap(1 <-> 1, 12 <-> 2), 2, true]\nm.updateKeyAtValueAndGet(k => k, 2)       // => [BiMap(1 <-> 1, 2 <-> 2), 2, true]   (no-op, unchanged)\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconst r1 = m.updateKeyAtValueAndGet(k => k + 1, 3)\nconsole.log([r1[0].toString(), r1[1], r1[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 2)\", undefined, false ]\nconst r2 = m.updateKeyAtValueAndGet(k => k + 10, 2)\nconsole.log([r2[0].toString(), r2[1], r2[2]]); // => [ \"BiMap(1 <-> 1, 12 <-> 2)\", 2, true ]\nconst r3 = m.updateKeyAtValueAndGet(k => k, 2)\nconsole.log([r3[0].toString(), r3[1], r3[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 2)\", 2, true ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -211235,7 +211235,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 1], [2, 2])\nm.updateValueAtKeyAndGet(3, v => v + 1)   // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]\nm.updateValueAtKeyAndGet(2, v => v + 10)  // => [BiMap(1 <-> 1, 2 <-> 12), 2, true]\nm.updateValueAtKeyAndGet(2, v => v)       // => [BiMap(1 <-> 1, 2 <-> 2), 2, true]   (no-op, unchanged)\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconst r1 = m.updateValueAtKeyAndGet(3, v => v + 1)\nconsole.log([r1[0].toString(), r1[1], r1[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 2)\", undefined, false ]\nconst r2 = m.updateValueAtKeyAndGet(2, v => v + 10)\nconsole.log([r2[0].toString(), r2[1], r2[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 12)\", 2, true ]\nconst r3 = m.updateValueAtKeyAndGet(2, v => v)\nconsole.log([r3[0].toString(), r3[1], r3[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 2)\", 2, true ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -211265,22 +211265,22 @@
                   "description": "Returns a non-empty `Stream` containing all entries of this collection as tuples of key and value.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.of([1, 1], [2, 2]).stream().toArray()  // => [[1, 1], [2, 2]]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 1], [2, 2]).stream().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 720,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L720"
+                  "line": 848,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L848"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 720,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L720"
+              "line": 848,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L848"
             }
           },
           {
@@ -211295,22 +211295,22 @@
                   "description": "Returns a non-empty `Stream` containing all keys of this collection.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.of([[1, 'a'], [2, 'b']]).streamKeys().toArray()   // => [1, 2]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).streamKeys().toArray()); // => [ 1, 2 ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 728,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L728"
+                  "line": 858,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L858"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 728,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L728"
+              "line": 858,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L858"
             }
           },
           {
@@ -211325,22 +211325,22 @@
                   "description": "Returns a non-empty `Stream` containing all values of this collection.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.of([[1, 'a'], [2, 'b']]).streamValues().toArray()   // => ['a', 'b']\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).streamValues().toArray()); // => [ \"a\", \"b\" ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 736,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L736"
+                  "line": 868,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L868"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 736,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L736"
+              "line": 868,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L868"
             }
           },
           {
@@ -211355,7 +211355,7 @@
                   "description": "Returns a non-empty array containing all entries in this collection.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.of([1, 'a'], [2, 'b']).toArray()   // => [[1, 'a'], [2, 'b']]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).toArray()); // => [ [ 1, \"a\" ], [ 2, \"b\" ] ]\n```"
                   ],
                   "notes": [
                     "O(log(N))",
@@ -211365,15 +211365,15 @@
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 746,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L746"
+                  "line": 880,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L880"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 746,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L746"
+              "line": 880,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L880"
             }
           }
         ]
@@ -211421,23 +211421,23 @@
                   "description": "A string tag defining the specific collection type",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.defaultContext().typeTag   // => 'BiMap'\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.defaultContext().typeTag); // => BiMap\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 763,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L763"
+                  "line": 899,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L899"
                 },
                 "raw": "readonly typeTag: 'BiMap'"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 763,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L763"
+              "line": 899,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L899"
             }
           },
           {
@@ -211449,16 +211449,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 764,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L764"
+                  "line": 900,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L900"
                 },
                 "raw": "readonly _types: Tp"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 764,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L764"
+              "line": 900,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L900"
             }
           },
           {
@@ -211470,16 +211470,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 765,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L765"
+                  "line": 901,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L901"
                 },
                 "raw": "readonly keyValueContext: RMap.Context<UK>"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 765,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L765"
+              "line": 901,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L901"
             }
           },
           {
@@ -211491,16 +211491,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 766,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L766"
+                  "line": 902,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L902"
                 },
                 "raw": "readonly valueKeyContext: RMap.Context<UV>"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 766,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L766"
+              "line": 902,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L902"
             }
           }
         ]
@@ -211525,8 +211525,8 @@
       },
       "source": {
         "file": "packages/bimap/src/bimap.ts",
-        "line": 775,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L775"
+        "line": 911,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L911"
       },
       "type": {
         "typeParams": [
@@ -211547,23 +211547,23 @@
                   "description": "Returns the amount of entries in the builder.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.of([[1, 'a'], [2, 'b']]).toBuilder().size\n// => 2\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).toBuilder().size);\n// => 2\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 60,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L60"
+                  "line": 66,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L66"
                 },
                 "raw": "readonly size: number"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 60,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L60"
+              "line": 66,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L66"
             }
           },
           {
@@ -211578,23 +211578,23 @@
                   "description": "Returns true if there are no entries in the builder.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.of([[1, 'a'], [2, 'b']]).toBuilder().isEmpty\n// => false\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).toBuilder().isEmpty);\n// => false\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 52,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L52"
+                  "line": 56,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L56"
                 },
                 "raw": "readonly isEmpty: boolean"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 52,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L52"
+              "line": 56,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L56"
             }
           },
           {
@@ -211618,15 +211618,15 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.getValue(2)          // => 'b'\nm.getValue(3)          // => undefined\nm.getValue(2, 'none')  // => 'b'\nm.getValue(3, 'none')  // => 'none'\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.getValue(2)); // => b\nconsole.log(m.getValue(3)); // => undefined\nconsole.log(m.getValue(2, 'none')); // => b\nconsole.log(m.getValue(3, 'none')); // => none\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 140,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L140"
+                  "line": 165,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L165"
                 }
               },
               {
@@ -211634,15 +211634,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 141,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L141"
+                  "line": 166,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L166"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 140,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L140"
+              "line": 165,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L165"
             }
           },
           {
@@ -211666,15 +211666,15 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.getKey('b')          // => 2\nm.getKey('z')          // => undefined\nm.getKey('b', 'none')  // => 2\nm.getKey('z', 'none')  // => 'none'\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.getKey('b')); // => 2\nconsole.log(m.getKey('z')); // => undefined\nconsole.log(m.getKey('b', 'none')); // => 2\nconsole.log(m.getKey('z', 'none')); // => none\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 155,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L155"
+                  "line": 182,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L182"
                 }
               },
               {
@@ -211682,15 +211682,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 156,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L156"
+                  "line": 183,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L183"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 155,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L155"
+              "line": 182,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L182"
             }
           },
           {
@@ -211710,22 +211710,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.hasKey(2)    // => true\nm.hasKey(3)    // => false\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.hasKey(2)); // => true\nconsole.log(m.hasKey(3)); // => false\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 115,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L115"
+                  "line": 136,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L136"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 115,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L115"
+              "line": 136,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L136"
             }
           },
           {
@@ -211745,22 +211745,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.hasValue('a')    // => true\nm.hasValue('z')    // => false\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.hasValue('a')); // => true\nconsole.log(m.hasValue('z')); // => false\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 126,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L126"
+                  "line": 149,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L149"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 126,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L126"
+              "line": 149,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L149"
             }
           },
           {
@@ -211784,22 +211784,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.set(1, 'a')   // => false\nm.set(1, 'b')   // => true\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.set(1, 'a')); // => false\nconsole.log(m.set(1, 'b')); // => true\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 858,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L858"
+                  "line": 1008,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1008"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 858,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L858"
+              "line": 1008,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1008"
             }
           },
           {
@@ -211819,22 +211819,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.addEntry([1, 'a'])   // => false\nm.addEntry([1, 'b'])   // => true\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.addEntry([1, 'a'])); // => false\nconsole.log(m.addEntry([1, 'b'])); // => true\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 870,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L870"
+                  "line": 1022,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1022"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 870,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L870"
+              "line": 1022,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1022"
             }
           },
           {
@@ -211854,22 +211854,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.addEntries([[1, 'a'], [3, 'c']])   // => true\nm.addEntries([])                    // => false\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.addEntries([[1, 'a'], [3, 'c']])); // => true\nconsole.log(m.addEntries([])); // => false\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 882,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L882"
+                  "line": 1036,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1036"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 882,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L882"
+              "line": 1036,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1036"
             }
           },
           {
@@ -211893,15 +211893,15 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.removeKey(2)        // => 'b'\nm.removeKey(3)        // => undefined\nm.removeKey(3, 'c')   // => 'c'\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.removeKey(2)); // => b\nconsole.log(m.removeKey(3)); // => undefined\nconsole.log(m.removeKey(3, 'c')); // => c\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 896,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L896"
+                  "line": 1052,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1052"
                 }
               },
               {
@@ -211909,15 +211909,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 897,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L897"
+                  "line": 1053,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1053"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 896,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L896"
+              "line": 1052,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1052"
             }
           },
           {
@@ -211937,22 +211937,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.removeKeys([3, 4, 5])  // => false\nm.removeKeys([1, 10])    // => true\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.removeKeys([3, 4, 5])); // => false\nconsole.log(m.removeKeys([1, 10])); // => true\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 909,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L909"
+                  "line": 1067,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1067"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 909,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L909"
+              "line": 1067,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1067"
             }
           },
           {
@@ -211976,15 +211976,15 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.removeValue('b')        // => 2\nm.removeValue('c')        // => undefined\nm.removeValue('c', 0)     // => 0\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.removeValue('b')); // => 2\nconsole.log(m.removeValue('c')); // => undefined\nconsole.log(m.removeValue('c', 0)); // => 0\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 923,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L923"
+                  "line": 1083,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1083"
                 }
               },
               {
@@ -211992,15 +211992,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 924,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L924"
+                  "line": 1084,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1084"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 923,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L923"
+              "line": 1083,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1083"
             }
           },
           {
@@ -212020,22 +212020,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.removeValues(['c', 'd', 'e'])  // => false\nm.removeValues(['a', 'e'])       // => true\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.removeValues(['c', 'd', 'e'])); // => false\nconsole.log(m.removeValues(['a', 'e'])); // => true\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 936,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L936"
+                  "line": 1098,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1098"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 936,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L936"
+              "line": 1098,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1098"
             }
           },
           {
@@ -212055,22 +212055,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.removeEntry([2, 'b'])   // => true\nm.removeEntry([2, 'c'])   // => false\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.removeEntry([2, 'b'])); // => true\nconsole.log(m.removeEntry([2, 'c'])); // => false\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 949,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L949"
+                  "line": 1113,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1113"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 949,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L949"
+              "line": 1113,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1113"
             }
           },
           {
@@ -212094,7 +212094,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nBiMap.of([1, 'a'], [2, 'b'], [3, 'c']).toBuilder().forEach((entry, i, halt) => {\n console.log([entry[1], entry[0]]);\n if (i >= 1) halt();\n})\n// => logs ['a', 1]  ['b', 2]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst collected: [string, number][] = []\nBiMap.of([1, 'a'], [2, 'b'], [3, 'c']).toBuilder().forEach((entry, i, halt) => {\n  collected.push([entry[1], entry[0]]);\n  if (i >= 1) halt();\n})\nconsole.log(collected); // => [ [ \"a\", 1 ], [ \"b\", 2 ] ]\n```"
                   ],
                   "notes": [
                     "O(N)"
@@ -212127,22 +212127,22 @@
                   "description": "Returns an immutable collection instance containing the entries in this builder.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconst m2: BiMap<number, string> = m.build()\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconst m2: BiMap<number, string> = m.build()\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 982,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L982"
+                  "line": 1151,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1151"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 982,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L982"
+              "line": 1151,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1151"
             }
           }
         ]
@@ -212167,8 +212167,8 @@
       },
       "source": {
         "file": "packages/bimap/src/bimap.ts",
-        "line": 988,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L988"
+        "line": 1157,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1157"
       },
       "type": {
         "typeParams": [],
@@ -212191,16 +212191,16 @@
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 992,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L992"
+                  "line": 1161,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1161"
                 },
                 "raw": "readonly normal: BiMap<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 992,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L992"
+              "line": 1161,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1161"
             }
           },
           {
@@ -212220,16 +212220,16 @@
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 996,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L996"
+                  "line": 1165,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1165"
                 },
                 "raw": "readonly nonEmpty: BiMap.NonEmpty<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 996,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L996"
+              "line": 1165,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L1165"
             }
           }
         ]
@@ -212249,15 +212249,15 @@
         "description": "A type-invariant immutable bi-directional Map where keys and values have a one-to-one mapping.\nSee the [BiMap documentation](https://rimbu.org/docs/collections/bimap) and the [BiMap API documentation](https://rimbu.org/api/rimbu/bimap/BiMap/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst b1 = BiMap.empty<number, string>()\nconst b2 = BiMap.of([1, 'a'], [2, 'b'])\n```"
+          "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst b1 = BiMap.empty<number, string>()\nconst b2 = BiMap.of([1, 'a'], [2, 'b'])\n```"
         ],
         "notes": [],
         "see": []
       },
       "source": {
         "file": "packages/bimap/src/bimap.ts",
-        "line": 39,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L39"
+        "line": 41,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L41"
       },
       "type": {
         "typeParams": [
@@ -212285,16 +212285,16 @@
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 43,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L43"
+                  "line": 45,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L45"
                 },
                 "raw": "readonly context: BiMap.Context<K, V>"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 43,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L43"
+              "line": 45,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L45"
             }
           },
           {
@@ -212309,23 +212309,23 @@
                   "description": "Returns true if the collection is empty.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.empty<number, number>().isEmpty   // => true\nBiMap.of([1, 1], [2, 2]).isEmpty        // => false\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.empty<number, number>().isEmpty); // => true\nconsole.log(BiMap.of([1, 1], [2, 2]).isEmpty); // => false\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 52,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L52"
+                  "line": 56,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L56"
                 },
                 "raw": "readonly isEmpty: boolean"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 52,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L52"
+              "line": 56,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L56"
             }
           },
           {
@@ -212340,23 +212340,23 @@
                   "description": "Returns the number of entries",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.of([1, 1], [2, 2]).size       // => 2\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 1], [2, 2]).size); // => 2\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 60,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L60"
+                  "line": 66,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L66"
                 },
                 "raw": "readonly size: number"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 60,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L60"
+              "line": 66,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L66"
             }
           },
           {
@@ -212371,22 +212371,22 @@
                   "description": "Returns true if there is at least one entry in the collection, and instructs the compiler to treat the collection\nas a .NonEmpty type.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst m: BiMap<number, number> = BiMap.of([1, 1], [2, 2])\nm.stream().first(0)     // compiler allows fallback value since the Stream may be empty\nif (m.nonEmpty()) {\n  m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty\n}\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m: BiMap<number, number> = BiMap.of([1, 1], [2, 2])\nconsole.log(m.stream().first(0)); // => [ 1, 1 ]\nif (m.nonEmpty()) {\n  console.log(m.stream().first()); // => [ 1, 1 ]\n}\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 73,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L73"
+                  "line": 81,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L81"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 73,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L73"
+              "line": 81,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L81"
             }
           },
           {
@@ -212401,7 +212401,7 @@
                   "description": "Returns the collection as a .NonEmpty type",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.empty<number, number>().assumeNonEmpty()   // => throws\nconst m: BiMap<number, number> = BiMap.of([1, 1], [2, 2])\nconst m2: BiMap.NonEmpty<number, number> = m     // => compiler error\nconst m3: BiMap.NonEmpty<number, number> = m.assumeNonEmpty()\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst empty = BiMap.empty<number, number>()\ntry {\n  empty.assumeNonEmpty()\n} catch (e) {\n  console.log((e as Error).name); // => EmptyCollectionAssumedNonEmptyError\n}\nconst m: BiMap<number, number> = BiMap.of([1, 1], [2, 2])\nconst m3: BiMap.NonEmpty<number, number> = m.assumeNonEmpty()\nconsole.log(m3.nonEmpty()); // => true\n```"
                   ],
                   "notes": [
                     "returns reference to this collection"
@@ -212410,15 +212410,15 @@
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 86,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L86"
+                  "line": 101,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L101"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 86,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L86"
+              "line": 101,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L101"
             }
           },
           {
@@ -212433,23 +212433,23 @@
                   "description": "Returns the Map representation of the key to value mapping.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.of([1, 10], [2, 20]).keyValueMap.toArray()\n// => [[1, 10], [2, 20]]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 10], [2, 20]).keyValueMap.toArray());\n// => [ [ 1, 10 ], [ 2, 20 ] ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 95,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L95"
+                  "line": 112,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L112"
                 },
                 "raw": "readonly keyValueMap: RMap<K, V>"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 95,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L95"
+              "line": 112,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L112"
             }
           },
           {
@@ -212464,23 +212464,23 @@
                   "description": "Returns the Map representation of the key to value mapping.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.of([1, 10], [2, 20]).valueKeyMap.toArray()\n// => [[10, 1], [20, 2]]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 10], [2, 20]).valueKeyMap.toArray());\n// => [ [ 10, 1 ], [ 20, 2 ] ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 104,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L104"
+                  "line": 123,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L123"
                 },
                 "raw": "readonly valueKeyMap: RMap<V, K>"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 104,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L104"
+              "line": 123,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L123"
             }
           },
           {
@@ -212500,23 +212500,23 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nm.hasKey(2)    // => true\nm.hasKey(3)    // => false\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.hasKey(2)); // => true\nconsole.log(m.hasKey(3)); // => false\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 115,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L115"
+                  "line": 136,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L136"
                 },
                 "raw": "hasKey<UK = K>(key: RelatedTo<K, UK>): boolean"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 115,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L115"
+              "line": 136,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L136"
             }
           },
           {
@@ -212536,23 +212536,23 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nm.hasValue('a')    // => true\nm.hasValue('z')    // => false\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.hasValue('a')); // => true\nconsole.log(m.hasValue('z')); // => false\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 126,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L126"
+                  "line": 149,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L149"
                 },
                 "raw": "hasValue<UV = V>(value: RelatedTo<V, UV>): boolean"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 126,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L126"
+              "line": 149,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L149"
             }
           },
           {
@@ -212576,15 +212576,15 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nm.getValue(2)          // => 'b'\nm.getValue(3)          // => undefined\nm.getValue(2, 'none')  // => 'b'\nm.getValue(3, 'none')  // => 'none'\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.getValue(2)); // => b\nconsole.log(m.getValue(3)); // => undefined\nconsole.log(m.getValue(2, 'none')); // => b\nconsole.log(m.getValue(3, 'none')); // => none\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 140,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L140"
+                  "line": 165,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L165"
                 },
                 "raw": "getValue<UK = K>(key: RelatedTo<K, UK>): V | undefined"
               },
@@ -212593,15 +212593,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 141,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L141"
+                  "line": 166,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L166"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 140,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L140"
+              "line": 165,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L165"
             }
           },
           {
@@ -212625,15 +212625,15 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nm.getKey('b')          // => 2\nm.getKey('z')          // => undefined\nm.getKey('b', 'none')  // => 2\nm.getKey('z', 'none')  // => 'none'\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.getKey('b')); // => 2\nconsole.log(m.getKey('z')); // => undefined\nconsole.log(m.getKey('b', 'none')); // => 2\nconsole.log(m.getKey('z', 'none')); // => none\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 155,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L155"
+                  "line": 182,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L182"
                 },
                 "raw": "getKey<UV = V>(value: RelatedTo<V, UV>): K | undefined"
               },
@@ -212642,15 +212642,15 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 156,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L156"
+                  "line": 183,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L183"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 155,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L155"
+              "line": 182,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L182"
             }
           },
           {
@@ -212674,7 +212674,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nBiMap.of([1, 1], [2, 2]).set(1, 2).toArray()\n// => [[1, 2]]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 1], [2, 2]).set(1, 2).toArray());\n// => [ [ 1, 2 ] ]\n```"
                   ],
                   "notes": [
                     "if the key and/or value are already associated, the previous value will be 'replaced'"
@@ -212683,15 +212683,15 @@
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 168,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L168"
+                  "line": 197,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L197"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 168,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L168"
+              "line": 197,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L197"
             }
           },
           {
@@ -212715,7 +212715,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nBiMap.of([1, 'a']).setAndGet(2, 'b')   // => [BiMap(1 <-> 'a', 2 <-> 'b'), undefined, false]\nBiMap.of([1, 'a']).setAndGet(1, 'b')   // => [BiMap(1 <-> 'b'), [1, 'a'], true]\nBiMap.of([1, 'a']).setAndGet(2, 'a')   // => [BiMap(2 <-> 'a'), [1, 'a'], true]\nBiMap.of([1, 'a']).setAndGet(1, 'a')   // => [BiMap(1 <-> 'a'), [1, 'a'], true]   (no-op, unchanged)\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst r1 = BiMap.of([1, 'a']).setAndGet(2, 'b')\nconsole.log([r1[0].toString(), r1[1], r1[2]]); // => [ \"BiMap(1 <-> a, 2 <-> b)\", undefined, false ]\nconst r2 = BiMap.of([1, 'a']).setAndGet(1, 'b')\nconsole.log([r2[0].toString(), r2[1], r2[2]]); // => [ \"BiMap(1 <-> b)\", [ 1, \"a\" ], true ]\nconst r3 = BiMap.of([1, 'a']).setAndGet(2, 'a')\nconsole.log([r3[0].toString(), r3[1], r3[2]]); // => [ \"BiMap(2 <-> a)\", [ 1, \"a\" ], true ]\nconst r4 = BiMap.of([1, 'a']).setAndGet(1, 'a')\nconsole.log([r4[0].toString(), r4[1], r4[2]]); // => [ \"BiMap(1 <-> a)\", [ 1, \"a\" ], true ]\n```"
                   ],
                   "notes": [
                     "if the key and/or value are already associated, the previous value/key will be 'replaced' and the\ndisplaced entry is returned"
@@ -212753,22 +212753,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nBiMap.of([1, 1], [2, 2]).addEntry([1, 2]).toArray()\n// => [[1, 2]]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 1], [2, 2]).addEntry([1, 2]).toArray());\n// => [ [ 1, 2 ] ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 202,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L202"
+                  "line": 239,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L239"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 202,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L202"
+              "line": 239,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L239"
             }
           },
           {
@@ -212788,7 +212788,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nBiMap.of([1, 'a']).addEntryAndGet([2, 'b'])   // => [BiMap(1 <-> 'a', 2 <-> 'b'), undefined, false]\nBiMap.of([1, 'a']).addEntryAndGet([1, 'b'])   // => [BiMap(1 <-> 'b'), [1, 'a'], true]\nBiMap.of([1, 'a']).addEntryAndGet([2, 'a'])   // => [BiMap(2 <-> 'a'), [1, 'a'], true]\nBiMap.of([1, 'a']).addEntryAndGet([1, 'a'])   // => [BiMap(1 <-> 'a'), [1, 'a'], true]   (no-op, unchanged)\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst r1 = BiMap.of([1, 'a']).addEntryAndGet([2, 'b'])\nconsole.log([r1[0].toString(), r1[1], r1[2]]); // => [ \"BiMap(1 <-> a, 2 <-> b)\", undefined, false ]\nconst r2 = BiMap.of([1, 'a']).addEntryAndGet([1, 'b'])\nconsole.log([r2[0].toString(), r2[1], r2[2]]); // => [ \"BiMap(1 <-> b)\", [ 1, \"a\" ], true ]\nconst r3 = BiMap.of([1, 'a']).addEntryAndGet([2, 'a'])\nconsole.log([r3[0].toString(), r3[1], r3[2]]); // => [ \"BiMap(2 <-> a)\", [ 1, \"a\" ], true ]\nconst r4 = BiMap.of([1, 'a']).addEntryAndGet([1, 'a'])\nconsole.log([r4[0].toString(), r4[1], r4[2]]); // => [ \"BiMap(1 <-> a)\", [ 1, \"a\" ], true ]\n```"
                   ],
                   "notes": [
                     "if the key and/or value are already associated, the previous value/key will be 'replaced' and the\ndisplaced entry is returned"
@@ -212826,7 +212826,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nBiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()\n// => [[1, 3], [2, 2]]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray());\n// => [ [ 1, 3 ], [ 2, 2 ] ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -212842,8 +212842,8 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 238,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L238"
+                  "line": 283,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L283"
                 }
               }
             ],
@@ -212870,7 +212870,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 1], [2, 2])\nm.removeKey(2).toArray()   // => [[1, 1]]\nm.removeKey(3) === m       // true\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconsole.log(m.removeKey(2).toArray()); // => [ [ 1, 1 ] ]\nconsole.log(m.removeKey(3) === m); // => true\n```"
                   ],
                   "notes": [
                     "guarantees same object reference if the value is not present"
@@ -212879,16 +212879,16 @@
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 251,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L251"
+                  "line": 298,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L298"
                 },
                 "raw": "removeKey<UK = K>(key: RelatedTo<K, UK>): BiMap<K, V>"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 251,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L251"
+              "line": 298,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L298"
             }
           },
           {
@@ -212908,7 +212908,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 1], [2, 2])\nconst result = m.removeKeyAndGet(2)\nif (result[2]) console.log([result[0].toString(), result[1]])    // => logs [BiMap(1 <-> 1), 2]\nconsole.log(m.removeKeyAndGet(3))                                // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconst result = m.removeKeyAndGet(2)\nif (result[2]) console.log([result[0].toString(), result[1]]); // => [ \"BiMap(1 <-> 1)\", 2 ]\nconst missing = m.removeKeyAndGet(3)\nconsole.log([missing[0].toString(), missing[1], missing[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 2)\", undefined, false ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -212944,7 +212944,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 1], [2, 2])\nm.removeKeys([1, 3]).toArray()     // => [[2, 2]]\nm.removeKeys([1, 3, 2]).toArray()  // => []\nm.removeKeys([3, 4, 5]) === m      // => true\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconsole.log(m.removeKeys([1, 3]).toArray()); // => [ [ 2, 2 ] ]\nconsole.log(m.removeKeys([1, 3, 2]).toArray()); // => []\nconsole.log(m.removeKeys([3, 4, 5]) === m); // => true\n```"
                   ],
                   "notes": [
                     "guarantees same object reference if none of the keys are present"
@@ -212953,16 +212953,16 @@
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 281,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L281"
+                  "line": 333,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L333"
                 },
                 "raw": "removeKeys<UK = K>(keys: StreamSource<RelatedTo<K, UK>>): BiMap<K, V>"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 281,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L281"
+              "line": 333,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L333"
             }
           },
           {
@@ -212982,7 +212982,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 1], [2, 2])\nm.removeValue(2).toArray()   // => [[1, 1]]\nm.removeValue(3) === m       // true\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconsole.log(m.removeValue(2).toArray()); // => [ [ 1, 1 ] ]\nconsole.log(m.removeValue(3) === m); // => true\n```"
                   ],
                   "notes": [
                     "guarantees same object reference if the value is not present"
@@ -212991,16 +212991,16 @@
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 293,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L293"
+                  "line": 347,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L347"
                 },
                 "raw": "removeValue<UV = V>(value: RelatedTo<V, UV>): BiMap<K, V>"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 293,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L293"
+              "line": 347,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L347"
             }
           },
           {
@@ -213020,7 +213020,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 1], [2, 2])\nconst result = m.removeValueAndGet(2)\nif (result[2]) console.log([result[0].toString(), result[1]])    // => logs [BiMap(1 <-> 1), 2]\nconsole.log(m.removeValueAndGet(3))                              // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconst result = m.removeValueAndGet(2)\nif (result[2]) console.log([result[0].toString(), result[1]]); // => [ \"BiMap(1 <-> 1)\", 2 ]\nconst missing = m.removeValueAndGet(3)\nconsole.log([missing[0].toString(), missing[1], missing[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 2)\", undefined, false ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -213056,7 +213056,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 1], [2, 2])\nm.removeValues([1, 3]).toArray()     // => [[2, 2]]\nm.removeValues([1, 3, 2]).toArray()  // => []\nm.removeValues([3, 4, 5]) === m      // => true\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconsole.log(m.removeValues([1, 3]).toArray()); // => [ [ 2, 2 ] ]\nconsole.log(m.removeValues([1, 3, 2]).toArray()); // => []\nconsole.log(m.removeValues([3, 4, 5]) === m); // => true\n```"
                   ],
                   "notes": [
                     "guarantees same object reference if none of the values are present"
@@ -213065,16 +213065,16 @@
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 324,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L324"
+                  "line": 383,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L383"
                 },
                 "raw": "removeValues<UV = V>(values: StreamSource<RelatedTo<V, UV>>): BiMap<K, V>"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 324,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L324"
+              "line": 383,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L383"
             }
           },
           {
@@ -213094,7 +213094,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nm.removeEntry([2, 'b']).toArray()   // => [[1, 'a']]\nm.removeEntry([2, 'c']) === m       // true (value does not match)\nm.removeEntry([3, 'b']) === m       // true (key is not present)\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.removeEntry([2, 'b']).toArray()); // => [ [ 1, \"a\" ] ]\nconsole.log(m.removeEntry([2, 'c']) === m); // => true\nconsole.log(m.removeEntry([3, 'b']) === m); // => true\n```"
                   ],
                   "notes": [
                     "guarantees same object reference if no matching entry was removed"
@@ -213103,15 +213103,15 @@
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 338,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L338"
+                  "line": 399,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L399"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 338,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L338"
+              "line": 399,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L399"
             }
           },
           {
@@ -213131,11 +213131,11 @@
                     },
                     {
                       "name": "valueUpdate",
-                      "text": "- a new value or function taking the current value and returning a new value"
+                      "text": "- a function taking the current value and returning a new value"
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 1], [2, 2])\nm.updateValueAtKey(3, 3).toArray()\n// => [[1, 1], [2, 2]]\nm.updateValueAtKey(2, 10).toArray()\n// => [[1, 1], [2, 10]]\nm.updateValueAtKey(1, v => v + 1)\n// => [[1, 2]]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconsole.log(m.updateValueAtKey(3, v => v + 100).toArray());\n// => [ [ 1, 1 ], [ 2, 2 ] ]\nconsole.log(m.updateValueAtKey(2, v => v + 8).toArray());\n// => [ [ 1, 1 ], [ 2, 10 ] ]\nconsole.log(m.updateValueAtKey(1, v => v + 1).toArray());\n// => [ [ 1, 2 ] ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -213162,12 +213162,12 @@
                 "text": "updateKeyAtValue<UV>(keyUpdate: (key: K) => K, value: RelatedTo<V, UV>): BiMap<K, V>",
                 "returnsNonEmpty": false,
                 "doc": {
-                  "summary": "Returns the collection where the key associated with given `value` is updated with the given `keyUpdate` value or update function.",
-                  "description": "Returns the collection where the key associated with given `value` is updated with the given `keyUpdate` value or update function.",
+                  "summary": "Returns the collection where the key associated with given `value` is updated with the given `keyUpdate` update function.",
+                  "description": "Returns the collection where the key associated with given `value` is updated with the given `keyUpdate` update function.",
                   "params": [
                     {
                       "name": "keyUpdate",
-                      "text": "- a new value or function taking the current key and returning a new key"
+                      "text": "- a function taking the current key and returning a new key"
                     },
                     {
                       "name": "value",
@@ -213175,7 +213175,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 1], [2, 2])\nm.updateKeyAtValue(3, 3).toArray()\n// => [[1, 1], [2, 2]]\nm.updateKeyAtValue(10, 2).toArray()\n// => [[1, 1], [10, 2]]\nm.updateKeyAtValue((v) => v + 1, 1)\n// => [[2, 1]]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconsole.log(m.updateKeyAtValue(k => k + 100, 3).toArray());\n// => [ [ 1, 1 ], [ 2, 2 ] ]\nconsole.log(m.updateKeyAtValue(k => k + 8, 2).toArray());\n// => [ [ 1, 1 ], [ 10, 2 ] ]\nconsole.log(m.updateKeyAtValue((k) => k + 1, 1).toArray());\n// => [ [ 2, 1 ] ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -213215,7 +213215,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 1], [2, 2])\nm.updateValueAtKeyAndGet(3, v => v + 1)   // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]\nm.updateValueAtKeyAndGet(2, v => v + 10)  // => [BiMap(1 <-> 1, 2 <-> 12), 2, true]\nm.updateValueAtKeyAndGet(2, v => v)       // => [BiMap(1 <-> 1, 2 <-> 2), 2, true]   (no-op, unchanged)\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconst r1 = m.updateValueAtKeyAndGet(3, v => v + 1)\nconsole.log([r1[0].toString(), r1[1], r1[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 2)\", undefined, false ]\nconst r2 = m.updateValueAtKeyAndGet(2, v => v + 10)\nconsole.log([r2[0].toString(), r2[1], r2[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 12)\", 2, true ]\nconst r3 = m.updateValueAtKeyAndGet(2, v => v)\nconsole.log([r3[0].toString(), r3[1], r3[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 2)\", 2, true ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -213255,7 +213255,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 1], [2, 2])\nm.updateKeyAtValueAndGet(k => k + 1, 3)   // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]\nm.updateKeyAtValueAndGet(k => k + 10, 2)  // => [BiMap(1 <-> 1, 12 <-> 2), 2, true]\nm.updateKeyAtValueAndGet(k => k, 2)       // => [BiMap(1 <-> 1, 2 <-> 2), 2, true]   (no-op, unchanged)\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconst r1 = m.updateKeyAtValueAndGet(k => k + 1, 3)\nconsole.log([r1[0].toString(), r1[1], r1[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 2)\", undefined, false ]\nconst r2 = m.updateKeyAtValueAndGet(k => k + 10, 2)\nconsole.log([r2[0].toString(), r2[1], r2[2]]); // => [ \"BiMap(1 <-> 1, 12 <-> 2)\", 2, true ]\nconst r3 = m.updateKeyAtValueAndGet(k => k, 2)\nconsole.log([r3[0].toString(), r3[1], r3[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 2)\", 2, true ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -213295,22 +213295,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 1], [2, 2])\nm.modifyAtKey(3, { ifNew: 3 }).toArray()          // => [[1, 1], [2, 2], [3, 3]]\nm.modifyAtKey(2, { ifExists: v => v + 10 }).toArray()  // => [[1, 1], [2, 12]]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconsole.log(m.modifyAtKey(3, { ifNew: { set: 3 } }).toArray()); // => [ [ 1, 1 ], [ 2, 2 ], [ 3, 3 ] ]\nconsole.log(m.modifyAtKey(2, { ifExists: { update: v => v + 10 } }).toArray()); // => [ [ 1, 1 ], [ 2, 12 ] ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 435,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L435"
+                  "line": 512,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L512"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 435,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L435"
+              "line": 512,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L512"
             }
           },
           {
@@ -213334,22 +213334,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst m = BiMap.of([1, 1], [2, 2])\nm.modifyAtValue(3, { ifNew: 3 }).toArray()          // => [[1, 1], [2, 2], [3, 3]]\nm.modifyAtValue(2, { ifExists: k => k + 10 }).toArray()  // => [[1, 1], [12, 2]]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconsole.log(m.modifyAtValue(3, { ifNew: { set: 3 } }).toArray()); // => [ [ 1, 1 ], [ 2, 2 ], [ 3, 3 ] ]\nconsole.log(m.modifyAtValue(2, { ifExists: { update: k => k + 10 } }).toArray()); // => [ [ 1, 1 ], [ 2, 2 ], [ 12, 2 ] ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 451,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L451"
+                  "line": 530,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L530"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 451,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L451"
+              "line": 530,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L530"
             }
           },
           {
@@ -213364,22 +213364,22 @@
                   "description": "Returns a `Stream` containing all entries of this collection as tuples of key and value.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.of([1, 1], [2, 2]).stream().toArray()  // => [[1, 1], [2, 2]]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 1], [2, 2]).stream().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 459,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L459"
+                  "line": 540,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L540"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 459,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L459"
+              "line": 540,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L540"
             }
           },
           {
@@ -213394,22 +213394,22 @@
                   "description": "Returns a `Stream` containing all keys of this collection.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.of([[1, 'a'], [2, 'b']]).streamKeys().toArray()   // => [1, 2]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).streamKeys().toArray()); // => [ 1, 2 ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 467,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L467"
+                  "line": 550,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L550"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 467,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L467"
+              "line": 550,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L550"
             }
           },
           {
@@ -213424,22 +213424,22 @@
                   "description": "Returns a `Stream` containing all values of this collection.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.of([[1, 'a'], [2, 'b']]).streamValues().toArray()   // => ['a', 'b']\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).streamValues().toArray()); // => [ \"a\", \"b\" ]\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 475,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L475"
+                  "line": 560,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L560"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 475,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L475"
+              "line": 560,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L560"
             }
           },
           {
@@ -213463,7 +213463,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nBiMap.of([1, 'a'], [2, 'b'], [3, 'c']).forEach((entry, i, halt) => {\n console.log([entry[1], entry[0]]);\n if (i >= 1) halt();\n})\n// => logs ['a', 1]  ['b', 2]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst collected: [string, number][] = []\nBiMap.of([1, 'a'], [2, 'b'], [3, 'c']).forEach((entry, i, halt) => {\n  collected.push([entry[1], entry[0]]);\n  if (i >= 1) halt();\n})\nconsole.log(collected); // => [ [ \"a\", 1 ], [ \"b\", 2 ] ]\n```"
                   ],
                   "notes": [
                     "O(N)"
@@ -213505,7 +213505,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nBiMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(entry => entry[0] === 2 || entry[1] === 'c').toArray()\n// => [[2, 'b'], [3, 'c']]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(entry => entry[0] === 2 || entry[1] === 'c').toArray());\n// => [ [ 2, \"b\" ], [ 3, \"c\" ] ]\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -213536,22 +213536,22 @@
                   "description": "Returns a builder object containing the entries of this collection.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst builder: BiMap.Builder<number, string> = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst builder: BiMap.Builder<number, string> = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 523,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L523"
+                  "line": 615,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L615"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 523,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L523"
+              "line": 615,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L615"
             }
           },
           {
@@ -213566,7 +213566,7 @@
                   "description": "Returns an array containing all entries in this collection.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.of([1, 'a'], [2, 'b']).toArray()   // => [[1, 'a'], [2, 'b']]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).toArray()); // => [ [ 1, \"a\" ], [ 2, \"b\" ] ]\n```"
                   ],
                   "notes": [
                     "O(log(N))",
@@ -213576,15 +213576,15 @@
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 533,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L533"
+                  "line": 627,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L627"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 533,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L533"
+              "line": 627,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L627"
             }
           },
           {
@@ -213599,22 +213599,22 @@
                   "description": "Returns a string representation of this collection.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.of([1, 'a'], [2, 'b']).toString()   // => BiMap(1 <-> 'a', 2 <-> 'b')\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).toString()); // => BiMap(1 <-> a, 2 <-> b)\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 541,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L541"
+                  "line": 637,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L637"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 541,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L541"
+              "line": 637,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L637"
             }
           },
           {
@@ -213629,23 +213629,23 @@
                   "description": "Returns a JSON representation of this collection.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.of([1, 'a'], [2, 'b']).toJSON()   // => { dataType: 'BiMap', value: [[1, 'a'], [2, 'b']] }\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).toJSON()); // => { dataType: \"BiMap\", value: [ [ 1, \"a\" ], [ 2, \"b\" ] ] }\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/bimap.ts",
-                  "line": 549,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L549"
+                  "line": 647,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L647"
                 },
                 "raw": "toJSON(): ToJSON<(readonly [K, V])[], this['context']['typeTag']>"
               }
             ],
             "source": {
               "file": "packages/bimap/src/bimap.ts",
-              "line": 549,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L549"
+              "line": 647,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/bimap.ts#L647"
             }
           },
           {
@@ -213734,16 +213734,16 @@
                 },
                 "source": {
                   "file": "packages/bimap/src/internal/factory.ts",
-                  "line": 78,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/internal/factory.ts#L78"
+                  "line": 91,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/internal/factory.ts#L91"
                 },
                 "raw": "createContext<UK, UV>(options?: {\n        keyValueContext?: RMap.Context<UK>;\n        valueKeyContext?: RMap.Context<UV>;\n    }): BiMap.Context<UK, UV>"
               }
             ],
             "source": {
               "file": "packages/bimap/src/internal/factory.ts",
-              "line": 78,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/internal/factory.ts#L78"
+              "line": 91,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/internal/factory.ts#L91"
             }
           },
           {
@@ -213763,15 +213763,15 @@
                 },
                 "source": {
                   "file": "packages/bimap/src/internal/factory.ts",
-                  "line": 87,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/internal/factory.ts#L87"
+                  "line": 100,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/internal/factory.ts#L100"
                 }
               }
             ],
             "source": {
               "file": "packages/bimap/src/internal/factory.ts",
-              "line": 87,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/internal/factory.ts#L87"
+              "line": 100,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/internal/factory.ts#L100"
             }
           },
           {
@@ -213786,23 +213786,23 @@
                   "description": "Returns the (singleton) empty instance of this type and context with given key and value types.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.empty<number, string>()    // => BiMap<number, string>\nBiMap.empty<string, boolean>()   // => BiMap<string, boolean>\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.empty<number, string>().toString()); // => BiMap()\nconsole.log(BiMap.empty<string, boolean>().toString()); // => BiMap()\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/internal/factory.ts",
-                  "line": 16,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/internal/factory.ts#L16"
+                  "line": 18,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/internal/factory.ts#L18"
                 },
                 "raw": "empty<K extends UK, V extends UV>(): BiMap<K, V>"
               }
             ],
             "source": {
               "file": "packages/bimap/src/internal/factory.ts",
-              "line": 16,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/internal/factory.ts#L16"
+              "line": 18,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/internal/factory.ts#L18"
             }
           },
           {
@@ -213822,7 +213822,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nBiMap.of([1, 'a'], [2, 'b'])    // => BiMap.NonEmpty<number, string>\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).toString()); // => BiMap(1 <-> a, 2 <-> b)\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -213858,7 +213858,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nBiMap.from([[1, 'a'], [2, 'b']])    // => BiMap.NonEmpty<number, string>\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.from([[1, 'a'], [2, 'b']]).toString()); // => BiMap(1 <-> a, 2 <-> b)\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -213888,23 +213888,23 @@
                   "description": "Returns an empty `BiMap` builder instance.",
                   "params": [],
                   "examples": [
-                    "```ts\nBiMap.builder<number, string>()    // => BiMap.Builder<number, string>\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\n\nconst b = BiMap.builder<number, string>()\nb.set(1, 'a')\nconsole.log(b.build().toString()); // => BiMap(1 <-> a)\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/bimap/src/internal/factory.ts",
-                  "line": 50,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/internal/factory.ts#L50"
+                  "line": 60,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/internal/factory.ts#L60"
                 },
                 "raw": "builder<K extends UK, V extends UV>(): BiMap.Builder<K, V>"
               }
             ],
             "source": {
               "file": "packages/bimap/src/internal/factory.ts",
-              "line": 50,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/internal/factory.ts#L50"
+              "line": 60,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/bimap/src/internal/factory.ts#L60"
             }
           },
           {
@@ -213924,7 +213924,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst someSource = BiMap.of([1, 'a'], [2, 'b']);\nconst result = Stream.of([1, 'c'], [3, 'a']).reduce(BiMap.reducer(someSource))\nresult.toArray()   // => [[1, 'c'], [2, 'b'], [3, 'a']]\n```"
+                    "```ts\nimport { BiMap } from '@rimbu/bimap';\nimport { Stream } from '@rimbu/stream';\n\nconst someSource = BiMap.of([1, 'a'], [2, 'b']);\nconst result = Stream.of<readonly [number, string]>([1, 'c'], [3, 'a']).reduce(BiMap.reducer(someSource))\nconsole.log(result.toArray()); // => [ [ 1, \"c\" ], [ 2, \"b\" ], [ 3, \"a\" ] ]\n```"
                   ],
                   "notes": [
                     "uses a builder under the hood. If the given `source` is a BiMap in the same context, it will directly call `.toBuilder()`."

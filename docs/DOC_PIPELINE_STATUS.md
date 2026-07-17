@@ -259,6 +259,65 @@ too). Caught immediately by the next verify run + a read; fixed with the `edit`
 tool. Lesson: prefer the `edit` tool (or a proper script file) over inline `perl`
 for replacements that contain regex/format metacharacters.
 
+**bimap — DONE (all 75 `@example` blocks rewritten).** Files edited:
+`src/bimap.ts` (70 blocks: `BiMap`, `NonEmpty`, `Context`, `Builder`) and
+`src/internal/factory.ts` (5 blocks: `empty`/`of`/`from`/`builder`/`reducer`).
+
+Result (measured):
+- **Gate**: **0 type errors** for `bimap/` (was 75).
+- **Verifier**: **75 snippets, 135 output comments, 0 issues** (peaked at 85).
+
+This was the first package written in the OLD "bare-expression `// =>`" style (only 6
+of 70 used `console.log`; 123 `// =>` comments total). Workflow used three throwaway
+scripts (all deleted after use), each committed-then-verified:
+1. **transform script** — inserted `import { BiMap } ...` after each ` * ```ts` fence
+   and wrapped `EXPR // => X` / next-line `EXPR` + `// => X` into
+   `console.log(EXPR); // => X`. Conservative skip-list (const/let/if/}/import/…,
+   lines ending in `{`/`(`/`,`/`=>`) so multi-line and non-output examples were left
+   for manual handling.
+2. **apply-actuals script** — order-preserving, matches each source `// =>` comment to
+   the verifier's captured `actual` by *expected-value sequence* (disambiguates
+   duplicates by position). Rewrote 84 output comments to byte-exact captured output.
+3. Manual fixes for the complex/illustrative blocks the transform skipped.
+
+Real bugs the loop caught (now fixed):
+- **`updateValueAtKey`/`updateKeyAtValue` used raw values** (`updateValueAtKey(2, 10)`)
+  but the signature is **function-only** (`(value) => value`) — matches the known
+  `updateAt`-is-function-only finding. Doc prose also wrongly said "value or function";
+  corrected to "function". Rewrote to `v => v + 8` etc.
+- **`modifyAtKey`/`modifyAtValue` brace form**: `{ ifNew: 3 }` → `{ ifNew: { set: 3 } }`
+  and `{ ifExists: v => v + 10 }` → `{ ifExists: { update: v => v + 10 } }`. NOTE:
+  unlike collection-types where `ifExists` accepted a bare function, BiMap's
+  `ModifyOptions` requires the **`{ update }` brace form for `ifExists` too**.
+- **`BiMap.of([[1,'a'],[2,'b']])`** (6 sites) passed a SINGLE 2-element array as one
+  entry (`key=[1,'a'], value=[2,'b']`), so `size`/`streamKeys`/`streamValues` were all
+  wrong. Fixed to `BiMap.of([1,'a'], [2,'b'])`.
+- **`addEntries` NonEmpty example** claimed `[[1, 2]]`; actual `[[1, 3], [2, 2]]`.
+- **`stream().first(0)`** on a `BiMap` yields the **entry tuple** `[1, 1]`, not the key
+  `1` (old `nonEmpty` example was wrong).
+- **`updateValueAtKey(1, v=>v+1)`** displaces an entry due to the 1-to-1 invariant
+  (setting key 1's value to 2 collides with the existing `2 <-> 2`): result is
+  `[[1, 2]]`, not `[[1, 2], [2, 2]]`.
+- The `assumeNonEmpty` "throws" + deliberate-compiler-error example and the
+  `nonEmpty()` type-narrowing example were **non-runnable** (a throw + a purposeful TS
+  error). Reworked into verifiable form (try/catch capturing `err.name`; valid
+  narrowing that logs real values).
+- Both `forEach` examples used the log-in-loop anti-pattern; converted to the
+  collect-into-array pattern (§6c).
+
+Output-format confirmations (consistent with prior packages):
+- **`BiMap.toString()` does NOT quote string values**: `BiMap(1 <-> 'a')` prints as
+  `BiMap(1 <-> a)` (same as HashMap/HashSet). Uses `<->` as the entry separator.
+- Top-level `console.log(string)` unquoted; `toJSON`/arrays use `Bun.inspect` spacing
+  and double quotes.
+
+`toJSON` example captured as-is (being removed soon per decision).
+
+**Reusable tooling note:** the two throwaway scripts (transform + report-driven
+apply-actuals) are the fastest path for OLD-style packages. Consider promoting the
+apply-actuals matcher into the verify tool as an opt-in `--write` mode later (still
+deferred — verify stays read-only for now).
+
 
 Root scripts:
 

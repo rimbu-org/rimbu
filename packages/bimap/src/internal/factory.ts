@@ -9,8 +9,10 @@ export interface BiMapFactory<UK = unknown, UV = unknown> {
 	 * Returns the (singleton) empty instance of this type and context with given key and value types.
 	 * @example
 	 * ```ts
-	 * BiMap.empty<number, string>()    // => BiMap<number, string>
-	 * BiMap.empty<string, boolean>()   // => BiMap<string, boolean>
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * console.log(BiMap.empty<number, string>().toString()); // => BiMap()
+	 * console.log(BiMap.empty<string, boolean>().toString()); // => BiMap()
 	 * ```
 	 */
 	empty<K extends UK, V extends UV>(): BiMap<K, V>;
@@ -19,7 +21,9 @@ export interface BiMapFactory<UK = unknown, UV = unknown> {
 	 * @param entries - a non-empty array of key-value entries
 	 * @example
 	 * ```ts
-	 * BiMap.of([1, 'a'], [2, 'b'])    // => BiMap.NonEmpty<number, string>
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * console.log(BiMap.of([1, 'a'], [2, 'b']).toString()); // => BiMap(1 <-> a, 2 <-> b)
 	 * ```
 	 */
 	of<K extends UK, V extends UV>(
@@ -30,7 +34,9 @@ export interface BiMapFactory<UK = unknown, UV = unknown> {
 	 * @param sources - an array of `StreamSource` instances containing key-value entries
 	 * @example
 	 * ```ts
-	 * BiMap.from([[1, 'a'], [2, 'b']])    // => BiMap.NonEmpty<number, string>
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * console.log(BiMap.from([[1, 'a'], [2, 'b']]).toString()); // => BiMap(1 <-> a, 2 <-> b)
 	 * ```
 	 */
 	from<K extends UK, V extends UV>(
@@ -43,7 +49,11 @@ export interface BiMapFactory<UK = unknown, UV = unknown> {
 	 * Returns an empty `BiMap` builder instance.
 	 * @example
 	 * ```ts
-	 * BiMap.builder<number, string>()    // => BiMap.Builder<number, string>
+	 * import { BiMap } from '@rimbu/bimap';
+	 *
+	 * const b = BiMap.builder<number, string>()
+	 * b.set(1, 'a')
+	 * console.log(b.build().toString()); // => BiMap(1 <-> a)
 	 * ```
 	 * @returns a new `BiMap.Builder` instance
 	 */
@@ -54,9 +64,12 @@ export interface BiMapFactory<UK = unknown, UV = unknown> {
 	 * @param source - (optional) an initial source of tuples to add to
 	 * @example
 	 * ```ts
+	 * import { BiMap } from '@rimbu/bimap';
+	 * import { Stream } from '@rimbu/stream';
+	 *
 	 * const someSource = BiMap.of([1, 'a'], [2, 'b']);
-	 * const result = Stream.of([1, 'c'], [3, 'a']).reduce(BiMap.reducer(someSource))
-	 * result.toArray()   // => [[1, 'c'], [2, 'b'], [3, 'a']]
+	 * const result = Stream.of<readonly [number, string]>([1, 'c'], [3, 'a']).reduce(BiMap.reducer(someSource))
+	 * console.log(result.toArray()); // => [ [ 1, "c" ], [ 2, "b" ], [ 3, "a" ] ]
 	 * ```
 	 * @note uses a builder under the hood. If the given `source` is a BiMap in the same context, it will directly call `.toBuilder()`.
 	 * @returns a `Reducer` that accumulates tuples into a `BiMap`

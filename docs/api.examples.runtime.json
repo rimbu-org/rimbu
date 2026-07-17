@@ -17216,379 +17216,530 @@
     "typeChecks": true
   },
   "bimap/BiMap.NonEmpty::isEmpty::0::0": {
-    "code": "BiMap.of([1, 1], [2, 2]).isEmpty   // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 1], [2, 2]).isEmpty); // => false",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.NonEmpty::nonEmpty::0::0": {
-    "code": "BiMap.of([1, 1], [2, 2]).nonEmpty()   // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 1], [2, 2]).nonEmpty()); // => true",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.NonEmpty::assumeNonEmpty::0::0": {
-    "code": "const m = BiMap.of([1, 1], [2, 2]);\nm === m.assumeNonEmpty()  // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2]);\nconsole.log(m === m.assumeNonEmpty()); // => true",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.NonEmpty::asNormal::0::0": {
-    "code": "BiMap.of([1, 1], [2, 2]).asNormal();  // type: BiMap<number, number>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nBiMap.of([1, 1], [2, 2]).asNormal();  // type: BiMap<number, number>",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.NonEmpty::keyValueMap::0::0": {
-    "code": "BiMap.of([1, 10], [2, 20]).keyValueMap.toArray()\n// => [[1, 10], [2, 20]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 10], [2, 20]).keyValueMap.toArray());\n// => [ [ 1, 10 ], [ 2, 20 ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.NonEmpty::valueKeyMap::0::0": {
-    "code": "BiMap.of([1, 10], [2, 20]).valueKeyMap.toArray()\n// => [[10, 1], [20, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 10], [2, 20]).valueKeyMap.toArray());\n// => [ [ 10, 1 ], [ 20, 2 ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.NonEmpty::addEntries::0::0": {
-    "code": "BiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()\n// => [[1, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray());\n// => [ [ 1, 3 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.NonEmpty::updateValueAtKey::0::0": {
-    "code": "const m = BiMap.of([1, 1], [2, 2])\nm.updateValueAtKey(3, 3).toArray()\n// => [[1, 1], [2, 2]]\nm.updateValueAtKey(2, 10).toArray()\n// => [[1, 1], [2, 10]]\nm.updateValueAtKey(1, v => v + 1)\n// => [[1, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconsole.log(m.updateValueAtKey(3, v => v + 100).toArray());\n// => [ [ 1, 1 ], [ 2, 2 ] ]\nconsole.log(m.updateValueAtKey(2, v => v + 8).toArray());\n// => [ [ 1, 1 ], [ 2, 10 ] ]\nconsole.log(m.updateValueAtKey(1, v => v + 1).toArray());\n// => [ [ 1, 2 ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.NonEmpty::updateKeyAtValue::0::0": {
-    "code": "const m = BiMap.of([1, 1], [2, 2])\nm.updateKeyAtValue(3, 3).toArray()\n// => [[1, 1], [2, 2]]\nm.updateKeyAtValue(10, 2).toArray()\n// => [[1, 1], [10, 2]]\nm.updateKeyAtValue((v) => v + 1, 1)\n// => [[2, 1]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconsole.log(m.updateKeyAtValue(k => k + 100, 3).toArray());\n// => [ [ 1, 1 ], [ 2, 2 ] ]\nconsole.log(m.updateKeyAtValue(k => k + 8, 2).toArray());\n// => [ [ 1, 1 ], [ 10, 2 ] ]\nconsole.log(m.updateKeyAtValue((k) => k + 1, 1).toArray());\n// => [ [ 2, 1 ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.NonEmpty::updateKeyAtValueAndGet::0::0": {
-    "code": "const m = BiMap.of([1, 1], [2, 2])\nm.updateKeyAtValueAndGet(k => k + 1, 3)   // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]\nm.updateKeyAtValueAndGet(k => k + 10, 2)  // => [BiMap(1 <-> 1, 12 <-> 2), 2, true]\nm.updateKeyAtValueAndGet(k => k, 2)       // => [BiMap(1 <-> 1, 2 <-> 2), 2, true]   (no-op, unchanged)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconst r1 = m.updateKeyAtValueAndGet(k => k + 1, 3)\nconsole.log([r1[0].toString(), r1[1], r1[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 2)\", undefined, false ]\nconst r2 = m.updateKeyAtValueAndGet(k => k + 10, 2)\nconsole.log([r2[0].toString(), r2[1], r2[2]]); // => [ \"BiMap(1 <-> 1, 12 <-> 2)\", 2, true ]\nconst r3 = m.updateKeyAtValueAndGet(k => k, 2)\nconsole.log([r3[0].toString(), r3[1], r3[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 2)\", 2, true ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.NonEmpty::updateValueAtKeyAndGet::0::0": {
-    "code": "const m = BiMap.of([1, 1], [2, 2])\nm.updateValueAtKeyAndGet(3, v => v + 1)   // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]\nm.updateValueAtKeyAndGet(2, v => v + 10)  // => [BiMap(1 <-> 1, 2 <-> 12), 2, true]\nm.updateValueAtKeyAndGet(2, v => v)       // => [BiMap(1 <-> 1, 2 <-> 2), 2, true]   (no-op, unchanged)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconst r1 = m.updateValueAtKeyAndGet(3, v => v + 1)\nconsole.log([r1[0].toString(), r1[1], r1[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 2)\", undefined, false ]\nconst r2 = m.updateValueAtKeyAndGet(2, v => v + 10)\nconsole.log([r2[0].toString(), r2[1], r2[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 12)\", 2, true ]\nconst r3 = m.updateValueAtKeyAndGet(2, v => v)\nconsole.log([r3[0].toString(), r3[1], r3[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 2)\", 2, true ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.NonEmpty::stream::0::0": {
-    "code": "BiMap.of([1, 1], [2, 2]).stream().toArray()  // => [[1, 1], [2, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 1], [2, 2]).stream().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.NonEmpty::streamKeys::0::0": {
-    "code": "BiMap.of([[1, 'a'], [2, 'b']]).streamKeys().toArray()   // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).streamKeys().toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.NonEmpty::streamValues::0::0": {
-    "code": "BiMap.of([[1, 'a'], [2, 'b']]).streamValues().toArray()   // => ['a', 'b']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).streamValues().toArray()); // => [ \"a\", \"b\" ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.NonEmpty::toArray::0::0": {
-    "code": "BiMap.of([1, 'a'], [2, 'b']).toArray()   // => [[1, 'a'], [2, 'b']]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).toArray()); // => [ [ 1, \"a\" ], [ 2, \"b\" ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.Context::typeTag::0::0": {
-    "code": "BiMap.defaultContext().typeTag   // => 'BiMap'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.defaultContext().typeTag); // => BiMap",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.Builder::size::0::0": {
-    "code": "BiMap.of([[1, 'a'], [2, 'b']]).toBuilder().size\n// => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).toBuilder().size);\n// => 2",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.Builder::isEmpty::0::0": {
-    "code": "BiMap.of([[1, 'a'], [2, 'b']]).toBuilder().isEmpty\n// => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).toBuilder().isEmpty);\n// => false",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.Builder::getValue::0::0": {
-    "code": "const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.getValue(2)          // => 'b'\nm.getValue(3)          // => undefined\nm.getValue(2, 'none')  // => 'b'\nm.getValue(3, 'none')  // => 'none'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.getValue(2)); // => b\nconsole.log(m.getValue(3)); // => undefined\nconsole.log(m.getValue(2, 'none')); // => b\nconsole.log(m.getValue(3, 'none')); // => none",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.Builder::getKey::0::0": {
-    "code": "const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.getKey('b')          // => 2\nm.getKey('z')          // => undefined\nm.getKey('b', 'none')  // => 2\nm.getKey('z', 'none')  // => 'none'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.getKey('b')); // => 2\nconsole.log(m.getKey('z')); // => undefined\nconsole.log(m.getKey('b', 'none')); // => 2\nconsole.log(m.getKey('z', 'none')); // => none",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.Builder::hasKey::0::0": {
-    "code": "const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.hasKey(2)    // => true\nm.hasKey(3)    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.hasKey(2)); // => true\nconsole.log(m.hasKey(3)); // => false",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.Builder::hasValue::0::0": {
-    "code": "const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.hasValue('a')    // => true\nm.hasValue('z')    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.hasValue('a')); // => true\nconsole.log(m.hasValue('z')); // => false",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.Builder::set::0::0": {
-    "code": "const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.set(1, 'a')   // => false\nm.set(1, 'b')   // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.set(1, 'a')); // => false\nconsole.log(m.set(1, 'b')); // => true",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.Builder::addEntry::0::0": {
-    "code": "const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.addEntry([1, 'a'])   // => false\nm.addEntry([1, 'b'])   // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.addEntry([1, 'a'])); // => false\nconsole.log(m.addEntry([1, 'b'])); // => true",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.Builder::addEntries::0::0": {
-    "code": "const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.addEntries([[1, 'a'], [3, 'c']])   // => true\nm.addEntries([])                    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.addEntries([[1, 'a'], [3, 'c']])); // => true\nconsole.log(m.addEntries([])); // => false",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.Builder::removeKey::0::0": {
-    "code": "const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.removeKey(2)        // => 'b'\nm.removeKey(3)        // => undefined\nm.removeKey(3, 'c')   // => 'c'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.removeKey(2)); // => b\nconsole.log(m.removeKey(3)); // => undefined\nconsole.log(m.removeKey(3, 'c')); // => c",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.Builder::removeKeys::0::0": {
-    "code": "const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.removeKeys([3, 4, 5])  // => false\nm.removeKeys([1, 10])    // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.removeKeys([3, 4, 5])); // => false\nconsole.log(m.removeKeys([1, 10])); // => true",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.Builder::removeValue::0::0": {
-    "code": "const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.removeValue('b')        // => 2\nm.removeValue('c')        // => undefined\nm.removeValue('c', 0)     // => 0",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.removeValue('b')); // => 2\nconsole.log(m.removeValue('c')); // => undefined\nconsole.log(m.removeValue('c', 0)); // => 0",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.Builder::removeValues::0::0": {
-    "code": "const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.removeValues(['c', 'd', 'e'])  // => false\nm.removeValues(['a', 'e'])       // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.removeValues(['c', 'd', 'e'])); // => false\nconsole.log(m.removeValues(['a', 'e'])); // => true",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.Builder::removeEntry::0::0": {
-    "code": "const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nm.removeEntry([2, 'b'])   // => true\nm.removeEntry([2, 'c'])   // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconsole.log(m.removeEntry([2, 'b'])); // => true\nconsole.log(m.removeEntry([2, 'c'])); // => false",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.Builder::forEach::0::0": {
-    "code": "BiMap.of([1, 'a'], [2, 'b'], [3, 'c']).toBuilder().forEach((entry, i, halt) => {\n console.log([entry[1], entry[0]]);\n if (i >= 1) halt();\n})\n// => logs ['a', 1]  ['b', 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst collected: [string, number][] = []\nBiMap.of([1, 'a'], [2, 'b'], [3, 'c']).toBuilder().forEach((entry, i, halt) => {\n  collected.push([entry[1], entry[0]]);\n  if (i >= 1) halt();\n})\nconsole.log(collected); // => [ [ \"a\", 1 ], [ \"b\", 2 ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap.Builder::build::0::0": {
-    "code": "const m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconst m2: BiMap<number, string> = m.build()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b']).toBuilder()\nconst m2: BiMap<number, string> = m.build()",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::::-1::0": {
-    "code": "const b1 = BiMap.empty<number, string>()\nconst b2 = BiMap.of([1, 'a'], [2, 'b'])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst b1 = BiMap.empty<number, string>()\nconst b2 = BiMap.of([1, 'a'], [2, 'b'])",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::isEmpty::0::0": {
-    "code": "BiMap.empty<number, number>().isEmpty   // => true\nBiMap.of([1, 1], [2, 2]).isEmpty        // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.empty<number, number>().isEmpty); // => true\nconsole.log(BiMap.of([1, 1], [2, 2]).isEmpty); // => false",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::size::0::0": {
-    "code": "BiMap.of([1, 1], [2, 2]).size       // => 2",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 1], [2, 2]).size); // => 2",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::nonEmpty::0::0": {
-    "code": "const m: BiMap<number, number> = BiMap.of([1, 1], [2, 2])\nm.stream().first(0)     // compiler allows fallback value since the Stream may be empty\nif (m.nonEmpty()) {\n  m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty\n}",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m: BiMap<number, number> = BiMap.of([1, 1], [2, 2])\nconsole.log(m.stream().first(0)); // => [ 1, 1 ]\nif (m.nonEmpty()) {\n  console.log(m.stream().first()); // => [ 1, 1 ]\n}",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::assumeNonEmpty::0::0": {
-    "code": "BiMap.empty<number, number>().assumeNonEmpty()   // => throws\nconst m: BiMap<number, number> = BiMap.of([1, 1], [2, 2])\nconst m2: BiMap.NonEmpty<number, number> = m     // => compiler error\nconst m3: BiMap.NonEmpty<number, number> = m.assumeNonEmpty()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst empty = BiMap.empty<number, number>()\ntry {\n  empty.assumeNonEmpty()\n} catch (e) {\n  console.log((e as Error).name); // => EmptyCollectionAssumedNonEmptyError\n}\nconst m: BiMap<number, number> = BiMap.of([1, 1], [2, 2])\nconst m3: BiMap.NonEmpty<number, number> = m.assumeNonEmpty()\nconsole.log(m3.nonEmpty()); // => true",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::keyValueMap::0::0": {
-    "code": "BiMap.of([1, 10], [2, 20]).keyValueMap.toArray()\n// => [[1, 10], [2, 20]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 10], [2, 20]).keyValueMap.toArray());\n// => [ [ 1, 10 ], [ 2, 20 ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::valueKeyMap::0::0": {
-    "code": "BiMap.of([1, 10], [2, 20]).valueKeyMap.toArray()\n// => [[10, 1], [20, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 10], [2, 20]).valueKeyMap.toArray());\n// => [ [ 10, 1 ], [ 20, 2 ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::hasKey::0::0": {
-    "code": "const m = BiMap.of([1, 'a'], [2, 'b'])\nm.hasKey(2)    // => true\nm.hasKey(3)    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.hasKey(2)); // => true\nconsole.log(m.hasKey(3)); // => false",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::hasValue::0::0": {
-    "code": "const m = BiMap.of([1, 'a'], [2, 'b'])\nm.hasValue('a')    // => true\nm.hasValue('z')    // => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.hasValue('a')); // => true\nconsole.log(m.hasValue('z')); // => false",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::getValue::0::0": {
-    "code": "const m = BiMap.of([1, 'a'], [2, 'b'])\nm.getValue(2)          // => 'b'\nm.getValue(3)          // => undefined\nm.getValue(2, 'none')  // => 'b'\nm.getValue(3, 'none')  // => 'none'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.getValue(2)); // => b\nconsole.log(m.getValue(3)); // => undefined\nconsole.log(m.getValue(2, 'none')); // => b\nconsole.log(m.getValue(3, 'none')); // => none",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::getKey::0::0": {
-    "code": "const m = BiMap.of([1, 'a'], [2, 'b'])\nm.getKey('b')          // => 2\nm.getKey('z')          // => undefined\nm.getKey('b', 'none')  // => 2\nm.getKey('z', 'none')  // => 'none'",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.getKey('b')); // => 2\nconsole.log(m.getKey('z')); // => undefined\nconsole.log(m.getKey('b', 'none')); // => 2\nconsole.log(m.getKey('z', 'none')); // => none",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::set::0::0": {
-    "code": "BiMap.of([1, 1], [2, 2]).set(1, 2).toArray()\n// => [[1, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 1], [2, 2]).set(1, 2).toArray());\n// => [ [ 1, 2 ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::setAndGet::0::0": {
-    "code": "BiMap.of([1, 'a']).setAndGet(2, 'b')   // => [BiMap(1 <-> 'a', 2 <-> 'b'), undefined, false]\nBiMap.of([1, 'a']).setAndGet(1, 'b')   // => [BiMap(1 <-> 'b'), [1, 'a'], true]\nBiMap.of([1, 'a']).setAndGet(2, 'a')   // => [BiMap(2 <-> 'a'), [1, 'a'], true]\nBiMap.of([1, 'a']).setAndGet(1, 'a')   // => [BiMap(1 <-> 'a'), [1, 'a'], true]   (no-op, unchanged)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst r1 = BiMap.of([1, 'a']).setAndGet(2, 'b')\nconsole.log([r1[0].toString(), r1[1], r1[2]]); // => [ \"BiMap(1 <-> a, 2 <-> b)\", undefined, false ]\nconst r2 = BiMap.of([1, 'a']).setAndGet(1, 'b')\nconsole.log([r2[0].toString(), r2[1], r2[2]]); // => [ \"BiMap(1 <-> b)\", [ 1, \"a\" ], true ]\nconst r3 = BiMap.of([1, 'a']).setAndGet(2, 'a')\nconsole.log([r3[0].toString(), r3[1], r3[2]]); // => [ \"BiMap(2 <-> a)\", [ 1, \"a\" ], true ]\nconst r4 = BiMap.of([1, 'a']).setAndGet(1, 'a')\nconsole.log([r4[0].toString(), r4[1], r4[2]]); // => [ \"BiMap(1 <-> a)\", [ 1, \"a\" ], true ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::addEntry::0::0": {
-    "code": "BiMap.of([1, 1], [2, 2]).addEntry([1, 2]).toArray()\n// => [[1, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 1], [2, 2]).addEntry([1, 2]).toArray());\n// => [ [ 1, 2 ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::addEntryAndGet::0::0": {
-    "code": "BiMap.of([1, 'a']).addEntryAndGet([2, 'b'])   // => [BiMap(1 <-> 'a', 2 <-> 'b'), undefined, false]\nBiMap.of([1, 'a']).addEntryAndGet([1, 'b'])   // => [BiMap(1 <-> 'b'), [1, 'a'], true]\nBiMap.of([1, 'a']).addEntryAndGet([2, 'a'])   // => [BiMap(2 <-> 'a'), [1, 'a'], true]\nBiMap.of([1, 'a']).addEntryAndGet([1, 'a'])   // => [BiMap(1 <-> 'a'), [1, 'a'], true]   (no-op, unchanged)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst r1 = BiMap.of([1, 'a']).addEntryAndGet([2, 'b'])\nconsole.log([r1[0].toString(), r1[1], r1[2]]); // => [ \"BiMap(1 <-> a, 2 <-> b)\", undefined, false ]\nconst r2 = BiMap.of([1, 'a']).addEntryAndGet([1, 'b'])\nconsole.log([r2[0].toString(), r2[1], r2[2]]); // => [ \"BiMap(1 <-> b)\", [ 1, \"a\" ], true ]\nconst r3 = BiMap.of([1, 'a']).addEntryAndGet([2, 'a'])\nconsole.log([r3[0].toString(), r3[1], r3[2]]); // => [ \"BiMap(2 <-> a)\", [ 1, \"a\" ], true ]\nconst r4 = BiMap.of([1, 'a']).addEntryAndGet([1, 'a'])\nconsole.log([r4[0].toString(), r4[1], r4[2]]); // => [ \"BiMap(1 <-> a)\", [ 1, \"a\" ], true ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::addEntries::0::0": {
-    "code": "BiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray()\n// => [[1, 3], [2, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 1]).addEntries([[2, 2], [1, 3]]).toArray());\n// => [ [ 1, 3 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::removeKey::0::0": {
-    "code": "const m = BiMap.of([1, 1], [2, 2])\nm.removeKey(2).toArray()   // => [[1, 1]]\nm.removeKey(3) === m       // true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconsole.log(m.removeKey(2).toArray()); // => [ [ 1, 1 ] ]\nconsole.log(m.removeKey(3) === m); // => true",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::removeKeyAndGet::0::0": {
-    "code": "const m = BiMap.of([1, 1], [2, 2])\nconst result = m.removeKeyAndGet(2)\nif (result[2]) console.log([result[0].toString(), result[1]])    // => logs [BiMap(1 <-> 1), 2]\nconsole.log(m.removeKeyAndGet(3))                                // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconst result = m.removeKeyAndGet(2)\nif (result[2]) console.log([result[0].toString(), result[1]]); // => [ \"BiMap(1 <-> 1)\", 2 ]\nconst missing = m.removeKeyAndGet(3)\nconsole.log([missing[0].toString(), missing[1], missing[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 2)\", undefined, false ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::removeKeys::0::0": {
-    "code": "const m = BiMap.of([1, 1], [2, 2])\nm.removeKeys([1, 3]).toArray()     // => [[2, 2]]\nm.removeKeys([1, 3, 2]).toArray()  // => []\nm.removeKeys([3, 4, 5]) === m      // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconsole.log(m.removeKeys([1, 3]).toArray()); // => [ [ 2, 2 ] ]\nconsole.log(m.removeKeys([1, 3, 2]).toArray()); // => []\nconsole.log(m.removeKeys([3, 4, 5]) === m); // => true",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::removeValue::0::0": {
-    "code": "const m = BiMap.of([1, 1], [2, 2])\nm.removeValue(2).toArray()   // => [[1, 1]]\nm.removeValue(3) === m       // true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconsole.log(m.removeValue(2).toArray()); // => [ [ 1, 1 ] ]\nconsole.log(m.removeValue(3) === m); // => true",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::removeValueAndGet::0::0": {
-    "code": "const m = BiMap.of([1, 1], [2, 2])\nconst result = m.removeValueAndGet(2)\nif (result[2]) console.log([result[0].toString(), result[1]])    // => logs [BiMap(1 <-> 1), 2]\nconsole.log(m.removeValueAndGet(3))                              // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconst result = m.removeValueAndGet(2)\nif (result[2]) console.log([result[0].toString(), result[1]]); // => [ \"BiMap(1 <-> 1)\", 2 ]\nconst missing = m.removeValueAndGet(3)\nconsole.log([missing[0].toString(), missing[1], missing[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 2)\", undefined, false ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::removeValues::0::0": {
-    "code": "const m = BiMap.of([1, 1], [2, 2])\nm.removeValues([1, 3]).toArray()     // => [[2, 2]]\nm.removeValues([1, 3, 2]).toArray()  // => []\nm.removeValues([3, 4, 5]) === m      // => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconsole.log(m.removeValues([1, 3]).toArray()); // => [ [ 2, 2 ] ]\nconsole.log(m.removeValues([1, 3, 2]).toArray()); // => []\nconsole.log(m.removeValues([3, 4, 5]) === m); // => true",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::removeEntry::0::0": {
-    "code": "const m = BiMap.of([1, 'a'], [2, 'b'])\nm.removeEntry([2, 'b']).toArray()   // => [[1, 'a']]\nm.removeEntry([2, 'c']) === m       // true (value does not match)\nm.removeEntry([3, 'b']) === m       // true (key is not present)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 'a'], [2, 'b'])\nconsole.log(m.removeEntry([2, 'b']).toArray()); // => [ [ 1, \"a\" ] ]\nconsole.log(m.removeEntry([2, 'c']) === m); // => true\nconsole.log(m.removeEntry([3, 'b']) === m); // => true",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::updateValueAtKey::0::0": {
-    "code": "const m = BiMap.of([1, 1], [2, 2])\nm.updateValueAtKey(3, 3).toArray()\n// => [[1, 1], [2, 2]]\nm.updateValueAtKey(2, 10).toArray()\n// => [[1, 1], [2, 10]]\nm.updateValueAtKey(1, v => v + 1)\n// => [[1, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconsole.log(m.updateValueAtKey(3, v => v + 100).toArray());\n// => [ [ 1, 1 ], [ 2, 2 ] ]\nconsole.log(m.updateValueAtKey(2, v => v + 8).toArray());\n// => [ [ 1, 1 ], [ 2, 10 ] ]\nconsole.log(m.updateValueAtKey(1, v => v + 1).toArray());\n// => [ [ 1, 2 ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::updateKeyAtValue::0::0": {
-    "code": "const m = BiMap.of([1, 1], [2, 2])\nm.updateKeyAtValue(3, 3).toArray()\n// => [[1, 1], [2, 2]]\nm.updateKeyAtValue(10, 2).toArray()\n// => [[1, 1], [10, 2]]\nm.updateKeyAtValue((v) => v + 1, 1)\n// => [[2, 1]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconsole.log(m.updateKeyAtValue(k => k + 100, 3).toArray());\n// => [ [ 1, 1 ], [ 2, 2 ] ]\nconsole.log(m.updateKeyAtValue(k => k + 8, 2).toArray());\n// => [ [ 1, 1 ], [ 10, 2 ] ]\nconsole.log(m.updateKeyAtValue((k) => k + 1, 1).toArray());\n// => [ [ 2, 1 ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::updateValueAtKeyAndGet::0::0": {
-    "code": "const m = BiMap.of([1, 1], [2, 2])\nm.updateValueAtKeyAndGet(3, v => v + 1)   // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]\nm.updateValueAtKeyAndGet(2, v => v + 10)  // => [BiMap(1 <-> 1, 2 <-> 12), 2, true]\nm.updateValueAtKeyAndGet(2, v => v)       // => [BiMap(1 <-> 1, 2 <-> 2), 2, true]   (no-op, unchanged)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconst r1 = m.updateValueAtKeyAndGet(3, v => v + 1)\nconsole.log([r1[0].toString(), r1[1], r1[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 2)\", undefined, false ]\nconst r2 = m.updateValueAtKeyAndGet(2, v => v + 10)\nconsole.log([r2[0].toString(), r2[1], r2[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 12)\", 2, true ]\nconst r3 = m.updateValueAtKeyAndGet(2, v => v)\nconsole.log([r3[0].toString(), r3[1], r3[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 2)\", 2, true ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::updateKeyAtValueAndGet::0::0": {
-    "code": "const m = BiMap.of([1, 1], [2, 2])\nm.updateKeyAtValueAndGet(k => k + 1, 3)   // => [BiMap(1 <-> 1, 2 <-> 2), undefined, false]\nm.updateKeyAtValueAndGet(k => k + 10, 2)  // => [BiMap(1 <-> 1, 12 <-> 2), 2, true]\nm.updateKeyAtValueAndGet(k => k, 2)       // => [BiMap(1 <-> 1, 2 <-> 2), 2, true]   (no-op, unchanged)",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconst r1 = m.updateKeyAtValueAndGet(k => k + 1, 3)\nconsole.log([r1[0].toString(), r1[1], r1[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 2)\", undefined, false ]\nconst r2 = m.updateKeyAtValueAndGet(k => k + 10, 2)\nconsole.log([r2[0].toString(), r2[1], r2[2]]); // => [ \"BiMap(1 <-> 1, 12 <-> 2)\", 2, true ]\nconst r3 = m.updateKeyAtValueAndGet(k => k, 2)\nconsole.log([r3[0].toString(), r3[1], r3[2]]); // => [ \"BiMap(1 <-> 1, 2 <-> 2)\", 2, true ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::modifyAtKey::0::0": {
-    "code": "const m = BiMap.of([1, 1], [2, 2])\nm.modifyAtKey(3, { ifNew: 3 }).toArray()          // => [[1, 1], [2, 2], [3, 3]]\nm.modifyAtKey(2, { ifExists: v => v + 10 }).toArray()  // => [[1, 1], [2, 12]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconsole.log(m.modifyAtKey(3, { ifNew: { set: 3 } }).toArray()); // => [ [ 1, 1 ], [ 2, 2 ], [ 3, 3 ] ]\nconsole.log(m.modifyAtKey(2, { ifExists: { update: v => v + 10 } }).toArray()); // => [ [ 1, 1 ], [ 2, 12 ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::modifyAtValue::0::0": {
-    "code": "const m = BiMap.of([1, 1], [2, 2])\nm.modifyAtValue(3, { ifNew: 3 }).toArray()          // => [[1, 1], [2, 2], [3, 3]]\nm.modifyAtValue(2, { ifExists: k => k + 10 }).toArray()  // => [[1, 1], [12, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst m = BiMap.of([1, 1], [2, 2])\nconsole.log(m.modifyAtValue(3, { ifNew: { set: 3 } }).toArray()); // => [ [ 1, 1 ], [ 2, 2 ], [ 3, 3 ] ]\nconsole.log(m.modifyAtValue(2, { ifExists: { update: k => k + 10 } }).toArray()); // => [ [ 1, 1 ], [ 2, 2 ], [ 12, 2 ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::stream::0::0": {
-    "code": "BiMap.of([1, 1], [2, 2]).stream().toArray()  // => [[1, 1], [2, 2]]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 1], [2, 2]).stream().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::streamKeys::0::0": {
-    "code": "BiMap.of([[1, 'a'], [2, 'b']]).streamKeys().toArray()   // => [1, 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).streamKeys().toArray()); // => [ 1, 2 ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::streamValues::0::0": {
-    "code": "BiMap.of([[1, 'a'], [2, 'b']]).streamValues().toArray()   // => ['a', 'b']",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).streamValues().toArray()); // => [ \"a\", \"b\" ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::forEach::0::0": {
-    "code": "BiMap.of([1, 'a'], [2, 'b'], [3, 'c']).forEach((entry, i, halt) => {\n console.log([entry[1], entry[0]]);\n if (i >= 1) halt();\n})\n// => logs ['a', 1]  ['b', 2]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst collected: [string, number][] = []\nBiMap.of([1, 'a'], [2, 'b'], [3, 'c']).forEach((entry, i, halt) => {\n  collected.push([entry[1], entry[0]]);\n  if (i >= 1) halt();\n})\nconsole.log(collected); // => [ [ \"a\", 1 ], [ \"b\", 2 ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::filter::0::0": {
-    "code": "BiMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(entry => entry[0] === 2 || entry[1] === 'c').toArray()\n// => [[2, 'b'], [3, 'c']]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(entry => entry[0] === 2 || entry[1] === 'c').toArray());\n// => [ [ 2, \"b\" ], [ 3, \"c\" ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::toBuilder::0::0": {
-    "code": "const builder: BiMap.Builder<number, string> = BiMap.of([1, 'a'], [2, 'b']).toBuilder()",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst builder: BiMap.Builder<number, string> = BiMap.of([1, 'a'], [2, 'b']).toBuilder()",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::toArray::0::0": {
-    "code": "BiMap.of([1, 'a'], [2, 'b']).toArray()   // => [[1, 'a'], [2, 'b']]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).toArray()); // => [ [ 1, \"a\" ], [ 2, \"b\" ] ]",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::toString::0::0": {
-    "code": "BiMap.of([1, 'a'], [2, 'b']).toString()   // => BiMap(1 <-> 'a', 2 <-> 'b')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).toString()); // => BiMap(1 <-> a, 2 <-> b)",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::toJSON::0::0": {
-    "code": "BiMap.of([1, 'a'], [2, 'b']).toJSON()   // => { dataType: 'BiMap', value: [[1, 'a'], [2, 'b']] }",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).toJSON()); // => { dataType: \"BiMap\", value: [ [ 1, \"a\" ], [ 2, \"b\" ] ] }",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::empty::0::0": {
-    "code": "BiMap.empty<number, string>()    // => BiMap<number, string>\nBiMap.empty<string, boolean>()   // => BiMap<string, boolean>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.empty<number, string>().toString()); // => BiMap()\nconsole.log(BiMap.empty<string, boolean>().toString()); // => BiMap()",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::of::0::0": {
-    "code": "BiMap.of([1, 'a'], [2, 'b'])    // => BiMap.NonEmpty<number, string>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.of([1, 'a'], [2, 'b']).toString()); // => BiMap(1 <-> a, 2 <-> b)",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::from::0::0": {
-    "code": "BiMap.from([[1, 'a'], [2, 'b']])    // => BiMap.NonEmpty<number, string>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconsole.log(BiMap.from([[1, 'a'], [2, 'b']]).toString()); // => BiMap(1 <-> a, 2 <-> b)",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::builder::0::0": {
-    "code": "BiMap.builder<number, string>()    // => BiMap.Builder<number, string>",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\n\nconst b = BiMap.builder<number, string>()\nb.set(1, 'a')\nconsole.log(b.build().toString()); // => BiMap(1 <-> a)",
+    "packages": [
+      "@rimbu/bimap"
+    ],
+    "typeChecks": true
   },
   "bimap/BiMap::reducer::0::0": {
-    "code": "const someSource = BiMap.of([1, 'a'], [2, 'b']);\nconst result = Stream.of([1, 'c'], [3, 'a']).reduce(BiMap.reducer(someSource))\nresult.toArray()   // => [[1, 'c'], [2, 'b'], [3, 'a']]",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { BiMap } from '@rimbu/bimap';\nimport { Stream } from '@rimbu/stream';\n\nconst someSource = BiMap.of([1, 'a'], [2, 'b']);\nconst result = Stream.of<readonly [number, string]>([1, 'c'], [3, 'a']).reduce(BiMap.reducer(someSource))\nconsole.log(result.toArray()); // => [ [ 1, \"c\" ], [ 2, \"b\" ], [ 3, \"a\" ] ]",
+    "packages": [
+      "@rimbu/bimap",
+      "@rimbu/stream"
+    ],
+    "typeChecks": true
   },
   "multiset/VariantMultiSetBase.NonEmpty::isEmpty::0::0": {
     "code": "HashMultiSet.of(1, 2, 2).isEmpty         // => false",
