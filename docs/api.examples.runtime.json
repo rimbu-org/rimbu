@@ -10761,14 +10761,18 @@
     "typeChecks": false
   },
   "hashed/HashSet.NonEmpty::::-1::0": {
-    "code": "const s1 = HashSet.empty<string>()\nconst s2 = HashSet.of('a', 'b', 'c')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashSet } from '@rimbu/hashed';\n\nconst s1 = HashSet.empty<string>();\nconst s2 = HashSet.of('a', 'b', 'c');\nconsole.log(s2.toString()); // => HashSet(a, b, c)",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/HashSet::::-1::0": {
-    "code": "const s1 = HashSet.empty<string>()\nconst s2 = HashSet.of('a', 'b', 'c')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashSet } from '@rimbu/hashed';\n\nconst s1 = HashSet.empty<string>();\nconst s2 = HashSet.of('a', 'b', 'c');\nconsole.log(s2.toString()); // => HashSet(a, b, c)",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/HashSet::add::0::0": {
     "code": "import { HashSet } from '@rimbu/hashed';\n\nconsole.log(HashSet.of(1, 2, 3).add(10).toArray()); // => [ 1, 2, 3, 10 ]",
@@ -10940,14 +10944,18 @@
     "typeChecks": true
   },
   "hashed/HashMap.NonEmpty::::-1::0": {
-    "code": "const m1 = HashMap.empty<number, string>()\nconst m2 = HashMap.of([1, 'a'], [2, 'b'])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst m1 = HashMap.empty<number, string>();\nconst m2 = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(m2.toString()); // => HashMap(1 -> a, 2 -> b)",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/HashMap::::-1::0": {
-    "code": "const m1 = HashMap.empty<number, string>()\nconst m2 = HashMap.of([1, 'a'], [2, 'b'])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { HashMap } from '@rimbu/hashed';\n\nconst m1 = HashMap.empty<number, string>();\nconst m2 = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(m2.toString()); // => HashMap(1 -> a, 2 -> b)",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/HashMap::set::0::0": {
     "code": "import { HashMap } from '@rimbu/hashed';\n\nconsole.log(HashMap.of([1, 'a']).set(2, 'b').toArray()); // => [ [ 1, \"a\" ], [ 2, \"b\" ] ]\nconsole.log(HashMap.of([1, 'a']).set(1, 'b').toArray()); // => [ [ 1, \"b\" ] ]",
@@ -11196,109 +11204,152 @@
     "typeChecks": true
   },
   "hashed/Hasher::isValid::0::0": {
-    "code": "const h = Hasher.numberHasher()\nconsole.log(h.isValid(5))\n// => true\nconsole.log(h.isValid('a'))\n// => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\n\nconst h = Hasher.number;\nconsole.log(h.isValid(5)); // => true\nconsole.log(h.isValid('a')); // => false",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/Hasher::hash::0::0": {
-    "code": "const h = Hasher.anyHasher()\nh.hash([1, 3, 2])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\n\nconst h = Hasher.anyToString();\nconsole.log(h.hash([1, 3, 2])); // => -1396387891",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/Hasher::defaultInstance::0::0": {
-    "code": "const h = Hasher.defaultInstance\nh.hash({ a: 1, b: 2 })",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\n\nconst h = Hasher.defaultInstance;\nconsole.log(h.isValid({ a: 1, b: 2 })); // => true\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 })); // => true",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/Hasher::string::0::0": {
-    "code": "const h = Hasher.string\nh.hash('abc')",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\n\nconst h = Hasher.string;\nconsole.log(h.isValid('abc')); // => true\nconsole.log(h.isValid(5)); // => false",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/Hasher::anyToString::0::0": {
-    "code": "const h = Hasher.anyToString()\nh.hash([1, 3, 'a'])",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\n\nconst h = Hasher.anyToString();\nconsole.log(h.isValid([1, 3, 'a'])); // => true\nconsole.log(h.hash([1, 3, 'a']) === h.hash([1, 3, 'a'])); // => true",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/Hasher::anyJsonString::0::0": {
-    "code": "const h = Hasher.anyJsonString\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\nconst h = Hasher.anyJsonString\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => false",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/Hasher::stringCaseInsensitive::0::0": {
-    "code": "const h = Hasher.stringCaseInsensitive\nconsole.log(h.hash('Abc') === h.hash('aBC'))\n// => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\nconst h = Hasher.stringCaseInsensitive\nconsole.log(h.hash('Abc') === h.hash('aBC'))\n// => true",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/Hasher::array::0::0": {
-    "code": "const h = Hasher.array()\nconsole.log(h.hash([1, 2, 3] === h.hash([1, 3, 2])))\n// => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\n\nconst h = Hasher.array();\nconsole.log(h.hash([1, 2, 3]) === h.hash([1, 3, 2])); // => false",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/Hasher::streamSource::0::0": {
-    "code": "const h = Hasher.streamSource()\nh.hash(Stream.random())\n// infinite stream but will not hang due to the max step limit",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\nimport { Stream } from '@rimbu/stream';\n\nconst h = Hasher.streamSource();\nconsole.log(h.isValid(Stream.of(1, 2, 3))); // => true\n// an infinite stream will not hang due to the max step limit",
+    "packages": [
+      "@rimbu/hashed",
+      "@rimbu/stream"
+    ],
+    "typeChecks": true
   },
   "hashed/Hasher::number::0::0": {
-    "code": "const h = Hasher.number\nconsole.log(h.hash(Number.POSITIVE_INFINITY) === h.hash(Number.NEGATIVE_INFINITY))\n// => false\nconsole.log(h.hash(Number.NaN) === h.hash(Number.NaN))\n// => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\nconst h = Hasher.number\nconsole.log(h.hash(Number.POSITIVE_INFINITY) === h.hash(Number.NEGATIVE_INFINITY))\n// => false\nconsole.log(h.hash(Number.NaN) === h.hash(Number.NaN))\n// => true",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/Hasher::boolean::0::0": {
-    "code": "const h = Hasher.boolean\nconsole.log(h.hash(true) === h.hash(false))\n// => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\nconst h = Hasher.boolean\nconsole.log(h.hash(true) === h.hash(false))\n// => false",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/Hasher::bigint::0::0": {
-    "code": "const h = Hasher.bigint()\nconsole.log(h.hash(BigInt(5)) === h.hash(BigInt(10)))\n// => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\nconst h = Hasher.bigint\nconsole.log(h.hash(BigInt(5)) === h.hash(BigInt(10)))\n// => false",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/Hasher::byValueOf::0::0": {
-    "code": "const h = Hasher.byValueOf(Date)\nconsole.log(h.isValid(new Boolean(true)))\n// => false\nconst d1 = new Date()\nconst d2 = new Date(d1)\nconsole.log(h.hash(d1) === h.hash(d2))\n// => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\nconst h = Hasher.byValueOf(Date)\nconsole.log(h.isValid(new Boolean(true)))\n// => false\nconst d1 = new Date()\nconst d2 = new Date(d1)\nconsole.log(h.hash(d1) === h.hash(d2))\n// => true",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/Hasher::date::0::0": {
-    "code": "const h = Hasher.date()\nconst d1 = new Date()\nconst d2 = new Date(d1)\nconsole.log(h.hash(d1) === h.hash(d2))\n// => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\nconst h = Hasher.date\nconst d1 = new Date()\nconst d2 = new Date(d1)\nconsole.log(h.hash(d1) === h.hash(d2))\n// => true",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/Hasher::object::0::0": {
-    "code": "const h = Hasher.object()\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\nconst h = Hasher.object()\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => true",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/Hasher::objectShallow::0::0": {
-    "code": "const h = Hasher.objectShallow\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\nconst h = Hasher.objectShallow\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => true",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/Hasher::objectDeep::0::0": {
-    "code": "const h = Hasher.objectDeep\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\nconst h = Hasher.objectDeep\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => true",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/Hasher::anyFlat::0::0": {
-    "code": "const h = Hasher.anyFlat()\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\nconst h = Hasher.anyFlat\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => false",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/Hasher::anyShallow::0::0": {
-    "code": "const h = Hasher.anyShallow()\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => true\nconsole.log(h.hash([{ a: 1, b: 2 }]) === h.hash([{ b: 2, a: 1 }]))\n// => false",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\nconst h = Hasher.anyShallow\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => true\nconsole.log(h.hash([{ a: 1, b: 2 }]) === h.hash([{ b: 2, a: 1 }]))\n// => false",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/Hasher::anyDeep::0::0": {
-    "code": "const h = Hasher.anyDeep()\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => true\nconsole.log(h.hash([{ a: 1, b: 2 }]) === h.hash([{ b: 2, a: 1 }]))\n// => true",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\nconst h = Hasher.anyDeep\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => true\nconsole.log(h.hash([{ a: 1, b: 2 }]) === h.hash([{ b: 2, a: 1 }]))\n// => true",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "hashed/Hasher::tupleSymmetric::0::0": {
-    "code": "const h = Hasher.tupleSymmetric()\nconsole.log(h.hash(['abc', 'def']) === h.hash(['def', 'abc']))",
-    "packages": [],
-    "typeChecks": false
+    "code": "import { Hasher } from '@rimbu/hashed';\nconst h = Hasher.tupleSymmetric()\nconsole.log(h.hash(['abc', 'def']) === h.hash(['def', 'abc'])) // => true",
+    "packages": [
+      "@rimbu/hashed"
+    ],
+    "typeChecks": true
   },
   "common/AsyncOptLazy.toMaybePromise::::-1::0": {
     "code": "AsyncOptLazy.toMaybePromise(1)              // => 1\nAsyncOptLazy.toMaybePromise(() => 1)        // => 1\nAsyncOptLazy.toMaybePromise(() => () => 1)  // => () => 1\nAsyncOptLazy.toMaybePromise(async () => 1)  // => Promise(1)\nAsyncOptLazy.toMaybePromise(Promise.resolve(1))  // => Promise(1)",

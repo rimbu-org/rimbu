@@ -17,11 +17,11 @@ export interface Hasher<UK> {
 	 * @returns `true` when `obj` is a valid value for this hasher (of type `UK`), otherwise `false`
 	 * @example
 	 * ```ts
-	 * const h = Hasher.numberHasher()
-	 * console.log(h.isValid(5))
-	 * // => true
-	 * console.log(h.isValid('a'))
-	 * // => false
+	 * import { Hasher } from '@rimbu/hashed';
+	 *
+	 * const h = Hasher.number;
+	 * console.log(h.isValid(5)); // => true
+	 * console.log(h.isValid('a')); // => false
 	 * ```
 	 */
 	isValid(obj: unknown): obj is UK;
@@ -33,8 +33,11 @@ export interface Hasher<UK> {
 	 * is valid, either by knowing the types up front, or by using the `isValid` function.
 	 * @example
 	 * ```ts
-	 * const h = Hasher.anyHasher()
-	 * h.hash([1, 3, 2])
+	 * import { Hasher } from '@rimbu/hashed';
+	 *
+	 * const h = Hasher.anyToString();
+	 * console.log(h.hash([1, 3, 2]) === h.hash([1, 3, 2])); // => true
+	 * console.log(h.hash([1, 3, 2]) === h.hash([2, 3, 1])); // => false
 	 * ```
 	 */
 	hash(value: UK): number;

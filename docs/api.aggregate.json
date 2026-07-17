@@ -1,6 +1,6 @@
 {
   "$schema": "rimbu-docs/aggregate/v1",
-  "generatedAt": "2026-07-17T18:49:18.875Z",
+  "generatedAt": "2026-07-17T19:19:09.163Z",
   "gitRef": "main",
   "packages": [
     "@rimbu/actor",
@@ -151622,7 +151622,7 @@
         "description": "A non-empty type-invariant immutable Set of value type T.\nIn the Set, there are no duplicate values.\nSee the [Set documentation](https://rimbu.org/docs/collections/set) and the [HashSet API documentation](https://rimbu.org/api/rimbu/hashed/HashSet/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst s1 = HashSet.empty<string>()\nconst s2 = HashSet.of('a', 'b', 'c')\n```"
+          "```ts\nimport { HashSet } from '@rimbu/hashed';\n\nconst s1 = HashSet.empty<string>();\nconst s2 = HashSet.of('a', 'b', 'c');\nconsole.log(s2.toString()); // => HashSet(a, b, c)\n```"
         ],
         "notes": [
           "- The `HashSet` uses the context's `hasher` instance to hash values for performance.\n- The `HashSet` uses the context's `eq` function to determine equivalence between values."
@@ -151661,8 +151661,8 @@
       },
       "source": {
         "file": "packages/hashed/src/public/set.ts",
-        "line": 51,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L51"
+        "line": 57,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L57"
       },
       "type": {
         "typeParams": [
@@ -151679,16 +151679,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/hashed/src/public/set.ts",
-                  "line": 52,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L52"
+                  "line": 58,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L58"
                 },
                 "raw": "readonly typeTag: 'HashSet'"
               }
             ],
             "source": {
               "file": "packages/hashed/src/public/set.ts",
-              "line": 52,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L52"
+              "line": 58,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L58"
             }
           },
           {
@@ -151708,16 +151708,16 @@
                 },
                 "source": {
                   "file": "packages/hashed/src/public/set.ts",
-                  "line": 57,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L57"
+                  "line": 63,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L63"
                 },
                 "raw": "readonly hasher: Hasher<UT>"
               }
             ],
             "source": {
               "file": "packages/hashed/src/public/set.ts",
-              "line": 57,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L57"
+              "line": 63,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L63"
             }
           },
           {
@@ -151737,16 +151737,16 @@
                 },
                 "source": {
                   "file": "packages/hashed/src/public/set.ts",
-                  "line": 61,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L61"
+                  "line": 67,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L67"
                 },
                 "raw": "readonly eq: Eq<UT>"
               }
             ],
             "source": {
               "file": "packages/hashed/src/public/set.ts",
-              "line": 61,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L61"
+              "line": 67,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L67"
             }
           }
         ]
@@ -151771,8 +151771,8 @@
       },
       "source": {
         "file": "packages/hashed/src/public/set.ts",
-        "line": 69,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L69"
+        "line": 75,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L75"
       },
       "type": {
         "typeParams": [
@@ -151801,8 +151801,8 @@
       },
       "source": {
         "file": "packages/hashed/src/public/set.ts",
-        "line": 74,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L74"
+        "line": 80,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L80"
       },
       "type": {
         "typeParams": [],
@@ -151817,16 +151817,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/hashed/src/public/set.ts",
-                  "line": 75,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L75"
+                  "line": 81,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L81"
                 },
                 "raw": "readonly normal: HashSet<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/hashed/src/public/set.ts",
-              "line": 75,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L75"
+              "line": 81,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L81"
             }
           },
           {
@@ -151838,16 +151838,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/hashed/src/public/set.ts",
-                  "line": 76,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L76"
+                  "line": 82,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L82"
                 },
                 "raw": "readonly nonEmpty: HashSet.NonEmpty<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/hashed/src/public/set.ts",
-              "line": 76,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L76"
+              "line": 82,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L82"
             }
           },
           {
@@ -151859,16 +151859,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/hashed/src/public/set.ts",
-                  "line": 77,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L77"
+                  "line": 83,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L83"
                 },
                 "raw": "readonly context: HashSet.Context<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/hashed/src/public/set.ts",
-              "line": 77,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L77"
+              "line": 83,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L83"
             }
           },
           {
@@ -151880,16 +151880,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/hashed/src/public/set.ts",
-                  "line": 78,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L78"
+                  "line": 84,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L84"
                 },
                 "raw": "readonly builder: HashSet.Builder<this['_T']>"
               }
             ],
             "source": {
               "file": "packages/hashed/src/public/set.ts",
-              "line": 78,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L78"
+              "line": 84,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L84"
             }
           }
         ]
@@ -151909,7 +151909,7 @@
         "description": "A type-invariant immutable Set of value type T.\nIn the Set, there are no duplicate values.\nSee the [Set documentation](https://rimbu.org/docs/collections/set) and the [HashSet API documentation](https://rimbu.org/api/rimbu/hashed/HashSet/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst s1 = HashSet.empty<string>()\nconst s2 = HashSet.of('a', 'b', 'c')\n```"
+          "```ts\nimport { HashSet } from '@rimbu/hashed';\n\nconst s1 = HashSet.empty<string>();\nconst s2 = HashSet.of('a', 'b', 'c');\nconsole.log(s2.toString()); // => HashSet(a, b, c)\n```"
         ],
         "notes": [
           "- The `HashSet` uses the context's `hasher` instance to hash values for performance.\n- The `HashSet` uses the context's `eq` function to determine equivalence between values."
@@ -151918,8 +151918,8 @@
       },
       "source": {
         "file": "packages/hashed/src/public/set.ts",
-        "line": 24,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L24"
+        "line": 27,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/set.ts#L27"
       },
       "type": {
         "typeParams": [
@@ -153060,7 +153060,7 @@
         "description": "A non-empty type-invariant immutable Map of key type K, and value type V.\nIn the Map, each key has exactly one value, and the Map cannot contain\nduplicate keys.\nSee the [Map documentation](https://rimbu.org/docs/collections/map) and the [HashMap API documentation](https://rimbu.org/api/rimbu/hashed/map/HashMap/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst m1 = HashMap.empty<number, string>()\nconst m2 = HashMap.of([1, 'a'], [2, 'b'])\n```"
+          "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst m1 = HashMap.empty<number, string>();\nconst m2 = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(m2.toString()); // => HashMap(1 -> a, 2 -> b)\n```"
         ],
         "notes": [
           "- The `HashMap` uses the context's `hasher` instance to hash keys for performance.\n- The `HashMap` uses the context's `eq` function to determine equivalence between keys."
@@ -153096,15 +153096,15 @@
                 },
                 "source": {
                   "file": "packages/hashed/src/public/map.ts",
-                  "line": 54,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L54"
+                  "line": 60,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L60"
                 }
               }
             ],
             "source": {
               "file": "packages/hashed/src/public/map.ts",
-              "line": 54,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L54"
+              "line": 60,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L60"
             }
           }
         ]
@@ -153129,8 +153129,8 @@
       },
       "source": {
         "file": "packages/hashed/src/public/map.ts",
-        "line": 62,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L62"
+        "line": 68,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L68"
       },
       "type": {
         "typeParams": [
@@ -153147,16 +153147,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/hashed/src/public/map.ts",
-                  "line": 63,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L63"
+                  "line": 69,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L69"
                 },
                 "raw": "readonly typeTag: 'HashMap'"
               }
             ],
             "source": {
               "file": "packages/hashed/src/public/map.ts",
-              "line": 63,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L63"
+              "line": 69,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L69"
             }
           },
           {
@@ -153176,16 +153176,16 @@
                 },
                 "source": {
                   "file": "packages/hashed/src/public/map.ts",
-                  "line": 68,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L68"
+                  "line": 74,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L74"
                 },
                 "raw": "readonly hasher: Hasher<UK>"
               }
             ],
             "source": {
               "file": "packages/hashed/src/public/map.ts",
-              "line": 68,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L68"
+              "line": 74,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L74"
             }
           },
           {
@@ -153205,16 +153205,16 @@
                 },
                 "source": {
                   "file": "packages/hashed/src/public/map.ts",
-                  "line": 72,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L72"
+                  "line": 78,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L78"
                 },
                 "raw": "readonly eq: Eq<UK>"
               }
             ],
             "source": {
               "file": "packages/hashed/src/public/map.ts",
-              "line": 72,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L72"
+              "line": 78,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L78"
             }
           }
         ]
@@ -153270,8 +153270,8 @@
       },
       "source": {
         "file": "packages/hashed/src/public/map.ts",
-        "line": 87,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L87"
+        "line": 93,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L93"
       },
       "type": {
         "typeParams": [],
@@ -153286,16 +153286,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/hashed/src/public/map.ts",
-                  "line": 88,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L88"
+                  "line": 94,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L94"
                 },
                 "raw": "readonly normal: HashMap<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/hashed/src/public/map.ts",
-              "line": 88,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L88"
+              "line": 94,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L94"
             }
           },
           {
@@ -153307,16 +153307,16 @@
                 "returnsNonEmpty": true,
                 "source": {
                   "file": "packages/hashed/src/public/map.ts",
-                  "line": 89,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L89"
+                  "line": 95,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L95"
                 },
                 "raw": "readonly nonEmpty: HashMap.NonEmpty<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/hashed/src/public/map.ts",
-              "line": 89,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L89"
+              "line": 95,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L95"
             }
           },
           {
@@ -153328,16 +153328,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/hashed/src/public/map.ts",
-                  "line": 90,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L90"
+                  "line": 96,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L96"
                 },
                 "raw": "readonly context: HashMap.Context<this['_K']>"
               }
             ],
             "source": {
               "file": "packages/hashed/src/public/map.ts",
-              "line": 90,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L90"
+              "line": 96,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L96"
             }
           },
           {
@@ -153349,16 +153349,16 @@
                 "returnsNonEmpty": false,
                 "source": {
                   "file": "packages/hashed/src/public/map.ts",
-                  "line": 91,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L91"
+                  "line": 97,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L97"
                 },
                 "raw": "readonly builder: HashMap.Builder<this['_K'], this['_V']>"
               }
             ],
             "source": {
               "file": "packages/hashed/src/public/map.ts",
-              "line": 91,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L91"
+              "line": 97,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L97"
             }
           }
         ]
@@ -153378,7 +153378,7 @@
         "description": "A type-invariant immutable Map of key type K, and value type V.\nIn the Map, each key has exactly one value, and the Map cannot contain\nduplicate keys.\nSee the [Map documentation](https://rimbu.org/docs/collections/map) and the [HashMap API documentation](https://rimbu.org/api/rimbu/hashed/map/HashMap/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst m1 = HashMap.empty<number, string>()\nconst m2 = HashMap.of([1, 'a'], [2, 'b'])\n```"
+          "```ts\nimport { HashMap } from '@rimbu/hashed';\n\nconst m1 = HashMap.empty<number, string>();\nconst m2 = HashMap.of([1, 'a'], [2, 'b']);\nconsole.log(m2.toString()); // => HashMap(1 -> a, 2 -> b)\n```"
         ],
         "notes": [
           "- The `HashMap` uses the context's `hasher` instance to hash keys for performance.\n- The `HashMap` uses the context's `eq` function to determine equivalence between keys."
@@ -153387,8 +153387,8 @@
       },
       "source": {
         "file": "packages/hashed/src/public/map.ts",
-        "line": 27,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L27"
+        "line": 30,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/public/map.ts#L30"
       },
       "type": {
         "typeParams": [
@@ -154901,7 +154901,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst h = Hasher.numberHasher()\nconsole.log(h.isValid(5))\n// => true\nconsole.log(h.isValid('a'))\n// => false\n```"
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\n\nconst h = Hasher.number;\nconsole.log(h.isValid(5)); // => true\nconsole.log(h.isValid('a')); // => false\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -154936,7 +154936,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst h = Hasher.anyHasher()\nh.hash([1, 3, 2])\n```"
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\n\nconst h = Hasher.anyToString();\nconsole.log(h.hash([1, 3, 2]) === h.hash([1, 3, 2])); // => true\nconsole.log(h.hash([1, 3, 2]) === h.hash([2, 3, 1])); // => false\n```"
                   ],
                   "notes": [
                     "it is assumed that the caller has verified that the given object\nis valid, either by knowing the types up front, or by using the `isValid` function."
@@ -154945,15 +154945,15 @@
                 },
                 "source": {
                   "file": "packages/hashed/src/hashed.ts",
-                  "line": 40,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/hashed.ts#L40"
+                  "line": 43,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/hashed.ts#L43"
                 }
               }
             ],
             "source": {
               "file": "packages/hashed/src/hashed.ts",
-              "line": 40,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/hashed.ts#L40"
+              "line": 43,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/hashed.ts#L43"
             }
           }
         ]
@@ -154972,22 +154972,22 @@
                   "description": "Returns the default `Hasher` instance used by hashed collections.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst h = Hasher.defaultInstance\nh.hash({ a: 1, b: 2 })\n```"
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\n\nconst h = Hasher.defaultInstance;\nconsole.log(h.isValid({ a: 1, b: 2 })); // => true\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 })); // => true\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-                  "line": 16,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L16"
+                  "line": 19,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L19"
                 }
               }
             ],
             "source": {
               "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-              "line": 16,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L16"
+              "line": 19,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L19"
             }
           },
           {
@@ -155002,22 +155002,22 @@
                   "description": "Returns a `Hasher` instance for string values.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst h = Hasher.string\nh.hash('abc')\n```"
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\n\nconst h = Hasher.string;\nconsole.log(h.isValid('abc')); // => true\nconsole.log(h.isValid(5)); // => false\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-                  "line": 25,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L25"
+                  "line": 31,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L31"
                 }
               }
             ],
             "source": {
               "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-              "line": 25,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L25"
+              "line": 31,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L31"
             }
           },
           {
@@ -155037,22 +155037,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst h = Hasher.anyToString()\nh.hash([1, 3, 'a'])\n```"
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\n\nconst h = Hasher.anyToString();\nconsole.log(h.isValid([1, 3, 'a'])); // => true\nconsole.log(h.hash([1, 3, 'a']) === h.hash([1, 3, 'a'])); // => true\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-                  "line": 35,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L35"
+                  "line": 44,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L44"
                 }
               }
             ],
             "source": {
               "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-              "line": 35,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L35"
+              "line": 44,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L44"
             }
           },
           {
@@ -155067,37 +155067,7 @@
                   "description": "Returns a `Hasher` instance that hashes any value by hashing the string resulting from\napplying JSON.stringify to the value.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst h = Hasher.anyJsonString\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => false\n```"
-                  ],
-                  "notes": [],
-                  "see": []
-                },
-                "source": {
-                  "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-                  "line": 46,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L46"
-                }
-              }
-            ],
-            "source": {
-              "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-              "line": 46,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L46"
-            }
-          },
-          {
-            "name": "stringCaseInsensitive",
-            "kind": "method",
-            "signatures": [
-              {
-                "text": "readonly stringCaseInsensitive: Hasher<string>",
-                "returnsNonEmpty": false,
-                "doc": {
-                  "summary": "Returns a `Hasher` instance for case-insensitive string values.",
-                  "description": "Returns a `Hasher` instance for case-insensitive string values.",
-                  "params": [],
-                  "examples": [
-                    "```ts\nconst h = Hasher.stringCaseInsensitive\nconsole.log(h.hash('Abc') === h.hash('aBC'))\n// => true\n```"
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\nconst h = Hasher.anyJsonString\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => false\n```"
                   ],
                   "notes": [],
                   "see": []
@@ -155113,6 +155083,36 @@
               "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
               "line": 56,
               "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L56"
+            }
+          },
+          {
+            "name": "stringCaseInsensitive",
+            "kind": "method",
+            "signatures": [
+              {
+                "text": "readonly stringCaseInsensitive: Hasher<string>",
+                "returnsNonEmpty": false,
+                "doc": {
+                  "summary": "Returns a `Hasher` instance for case-insensitive string values.",
+                  "description": "Returns a `Hasher` instance for case-insensitive string values.",
+                  "params": [],
+                  "examples": [
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\nconst h = Hasher.stringCaseInsensitive\nconsole.log(h.hash('Abc') === h.hash('aBC'))\n// => true\n```"
+                  ],
+                  "notes": [],
+                  "see": []
+                },
+                "source": {
+                  "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
+                  "line": 67,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L67"
+                }
+              }
+            ],
+            "source": {
+              "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
+              "line": 67,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L67"
             }
           },
           {
@@ -155132,23 +155132,23 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst h = Hasher.array()\nconsole.log(h.hash([1, 2, 3] === h.hash([1, 3, 2])))\n// => false\n```"
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\n\nconst h = Hasher.array();\nconsole.log(h.hash([1, 2, 3]) === h.hash([1, 3, 2])); // => false\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-                  "line": 72,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L72"
+                  "line": 84,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L84"
                 },
                 "raw": "array<T = any>(options?: {\n        itemHasher?: Hasher<T>;\n        maxStepBits?: number;\n    }): Hasher<readonly T[]>"
               }
             ],
             "source": {
               "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-              "line": 72,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L72"
+              "line": 84,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L84"
             }
           },
           {
@@ -155168,23 +155168,23 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst h = Hasher.streamSource()\nh.hash(Stream.random())\n// infinite stream but will not hang due to the max step limit\n```"
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\nimport { Stream } from '@rimbu/stream';\n\nconst h = Hasher.streamSource();\nconsole.log(h.isValid(Stream.of(1, 2, 3))); // => true\n// an infinite stream will not hang due to the max step limit\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-                  "line": 91,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L91"
+                  "line": 106,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L106"
                 },
                 "raw": "streamSource<T = any>(options?: {\n        itemHasher?: Hasher<T>;\n        maxStepBits?: number;\n    }): Hasher<StreamSource<T>>"
               }
             ],
             "source": {
               "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-              "line": 91,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L91"
+              "line": 106,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L106"
             }
           },
           {
@@ -155199,22 +155199,22 @@
                   "description": "Returns a `Hasher` instance that hashes numbers, including 'special' values like `NaN` and infinities.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst h = Hasher.number\nconsole.log(h.hash(Number.POSITIVE_INFINITY) === h.hash(Number.NEGATIVE_INFINITY))\n// => false\nconsole.log(h.hash(Number.NaN) === h.hash(Number.NaN))\n// => true\n```"
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\nconst h = Hasher.number\nconsole.log(h.hash(Number.POSITIVE_INFINITY) === h.hash(Number.NEGATIVE_INFINITY))\n// => false\nconsole.log(h.hash(Number.NaN) === h.hash(Number.NaN))\n// => true\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-                  "line": 106,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L106"
+                  "line": 122,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L122"
                 }
               }
             ],
             "source": {
               "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-              "line": 106,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L106"
+              "line": 122,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L122"
             }
           },
           {
@@ -155229,22 +155229,22 @@
                   "description": "Returns a `Hasher` instance that hashes booleans.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst h = Hasher.boolean\nconsole.log(h.hash(true) === h.hash(false))\n// => false\n```"
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\nconst h = Hasher.boolean\nconsole.log(h.hash(true) === h.hash(false))\n// => false\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-                  "line": 116,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L116"
+                  "line": 133,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L133"
                 }
               }
             ],
             "source": {
               "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-              "line": 116,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L116"
+              "line": 133,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L133"
             }
           },
           {
@@ -155259,22 +155259,22 @@
                   "description": "Returns a `Hasher` instance that hashes bigints.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst h = Hasher.bigint()\nconsole.log(h.hash(BigInt(5)) === h.hash(BigInt(10)))\n// => false\n```"
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\nconst h = Hasher.bigint\nconsole.log(h.hash(BigInt(5)) === h.hash(BigInt(10)))\n// => false\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-                  "line": 126,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L126"
+                  "line": 144,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L144"
                 }
               }
             ],
             "source": {
               "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-              "line": 126,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L126"
+              "line": 144,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L144"
             }
           },
           {
@@ -155298,23 +155298,23 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst h = Hasher.byValueOf(Date)\nconsole.log(h.isValid(new Boolean(true)))\n// => false\nconst d1 = new Date()\nconst d2 = new Date(d1)\nconsole.log(h.hash(d1) === h.hash(d2))\n// => true\n```"
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\nconst h = Hasher.byValueOf(Date)\nconsole.log(h.isValid(new Boolean(true)))\n// => false\nconst d1 = new Date()\nconst d2 = new Date(d1)\nconsole.log(h.hash(d1) === h.hash(d2))\n// => true\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-                  "line": 145,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L145"
+                  "line": 164,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L164"
                 },
                 "raw": "byValueOf<T extends {\n        valueOf(): V;\n    }, V>(cls: {\n        new (): T;\n    }, valueHasher?: Hasher<V> | undefined): Hasher<T>"
               }
             ],
             "source": {
               "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-              "line": 145,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L145"
+              "line": 164,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L164"
             }
           },
           {
@@ -155329,22 +155329,22 @@
                   "description": "Returns a `Hasher` instance that hashes `Date` values.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst h = Hasher.date()\nconst d1 = new Date()\nconst d2 = new Date(d1)\nconsole.log(h.hash(d1) === h.hash(d2))\n// => true\n```"
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\nconst h = Hasher.date\nconst d1 = new Date()\nconst d2 = new Date(d1)\nconsole.log(h.hash(d1) === h.hash(d2))\n// => true\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-                  "line": 162,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L162"
+                  "line": 182,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L182"
                 }
               }
             ],
             "source": {
               "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-              "line": 162,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L162"
+              "line": 182,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L182"
             }
           },
           {
@@ -155364,23 +155364,23 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst h = Hasher.object()\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => true\n```"
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\nconst h = Hasher.object()\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => true\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-                  "line": 177,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L177"
+                  "line": 198,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L198"
                 },
                 "raw": "object<K extends string | number | symbol, V = any>(options?: {\n        keyHasher: Hasher<K>;\n        valueHasher: Hasher<V>;\n    }): Hasher<Record<K, V>>"
               }
             ],
             "source": {
               "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-              "line": 177,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L177"
+              "line": 198,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L198"
             }
           },
           {
@@ -155395,22 +155395,22 @@
                   "description": "Returns a `Hasher` instance that hashes objects of key type K and value type V.\nIf a value is an object or array, it will convert those values to a string.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst h = Hasher.objectShallow\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => true\n```"
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\nconst h = Hasher.objectShallow\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => true\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-                  "line": 191,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L191"
+                  "line": 213,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L213"
                 }
               }
             ],
             "source": {
               "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-              "line": 191,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L191"
+              "line": 213,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L213"
             }
           },
           {
@@ -155425,7 +155425,7 @@
                   "description": "Returns a `Hasher` instance that hashes objects of key type K and value type V.\nIf a value is an object or array, it will recursively hash its values.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst h = Hasher.objectDeep\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => true\n```"
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\nconst h = Hasher.objectDeep\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => true\n```"
                   ],
                   "notes": [
                     "be careful with circular structures, they can cause an infinite loop"
@@ -155434,15 +155434,15 @@
                 },
                 "source": {
                   "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-                  "line": 203,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L203"
+                  "line": 226,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L226"
                 }
               }
             ],
             "source": {
               "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-              "line": 203,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L203"
+              "line": 226,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L226"
             }
           },
           {
@@ -155457,22 +155457,22 @@
                   "description": "Returns a `Hasher` instance that hashes any value, but never traverses into an object\nor array to hash its elements. In those cases it will use toString.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst h = Hasher.anyFlat()\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => false\n```"
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\nconst h = Hasher.anyFlat\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => false\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-                  "line": 214,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L214"
+                  "line": 238,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L238"
                 }
               }
             ],
             "source": {
               "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-              "line": 214,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L214"
+              "line": 238,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L238"
             }
           },
           {
@@ -155487,22 +155487,22 @@
                   "description": "Returns a `Hasher` instance that hashes any value, but only traverses into an object\nor array to hash its elements one level deep. After one level, it will use toString.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst h = Hasher.anyShallow()\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => true\nconsole.log(h.hash([{ a: 1, b: 2 }]) === h.hash([{ b: 2, a: 1 }]))\n// => false\n```"
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\nconst h = Hasher.anyShallow\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => true\nconsole.log(h.hash([{ a: 1, b: 2 }]) === h.hash([{ b: 2, a: 1 }]))\n// => false\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-                  "line": 227,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L227"
+                  "line": 252,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L252"
                 }
               }
             ],
             "source": {
               "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-              "line": 227,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L227"
+              "line": 252,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L252"
             }
           },
           {
@@ -155517,22 +155517,22 @@
                   "description": "Returns a `Hasher` instance that hashes any value, and traverses into an object\nor array to hash its elements.",
                   "params": [],
                   "examples": [
-                    "```ts\nconst h = Hasher.anyDeep()\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => true\nconsole.log(h.hash([{ a: 1, b: 2 }]) === h.hash([{ b: 2, a: 1 }]))\n// => true\n```"
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\nconst h = Hasher.anyDeep\nconsole.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))\n// => true\nconsole.log(h.hash([{ a: 1, b: 2 }]) === h.hash([{ b: 2, a: 1 }]))\n// => true\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-                  "line": 240,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L240"
+                  "line": 266,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L266"
                 }
               }
             ],
             "source": {
               "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-              "line": 240,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L240"
+              "line": 266,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L266"
             }
           },
           {
@@ -155552,22 +155552,22 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nconst h = Hasher.tupleSymmetric()\nconsole.log(h.hash(['abc', 'def']) === h.hash(['def', 'abc']))\n```"
+                    "```ts\nimport { Hasher } from '@rimbu/hashed';\nconst h = Hasher.tupleSymmetric()\nconsole.log(h.hash(['abc', 'def']) === h.hash(['def', 'abc'])) // => true\n```"
                   ],
                   "notes": [],
                   "see": []
                 },
                 "source": {
                   "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-                  "line": 251,
-                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L251"
+                  "line": 278,
+                  "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L278"
                 }
               }
             ],
             "source": {
               "file": "packages/hashed/src/internal/hashed/hasher-module.ts",
-              "line": 251,
-              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L251"
+              "line": 278,
+              "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/hashed/src/internal/hashed/hasher-module.ts#L278"
             }
           }
         ]

@@ -17,8 +17,11 @@ import { createHashSetContextModule } from '#set/context-factory';
  * - The `HashSet` uses the context's `eq` function to determine equivalence between values.
  * @example
  * ```ts
- * const s1 = HashSet.empty<string>()
- * const s2 = HashSet.of('a', 'b', 'c')
+ * import { HashSet } from '@rimbu/hashed';
+ *
+ * const s1 = HashSet.empty<string>();
+ * const s2 = HashSet.of('a', 'b', 'c');
+ * console.log(s2.toString()); // => HashSet(a, b, c)
  * ```
  */
 export interface HashSet<T> extends RSetBase<T, HashSet.Types> {}
@@ -34,8 +37,11 @@ export namespace HashSet {
 	 * - The `HashSet` uses the context's `eq` function to determine equivalence between values.
 	 * @example
 	 * ```ts
-	 * const s1 = HashSet.empty<string>()
-	 * const s2 = HashSet.of('a', 'b', 'c')
+	 * import { HashSet } from '@rimbu/hashed';
+	 *
+	 * const s1 = HashSet.empty<string>();
+	 * const s2 = HashSet.of('a', 'b', 'c');
+	 * console.log(s2.toString()); // => HashSet(a, b, c)
 	 * ```
 	 */
 	export interface NonEmpty<T>

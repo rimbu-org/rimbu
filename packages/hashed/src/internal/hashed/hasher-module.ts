@@ -9,8 +9,11 @@ export interface HasherModule {
 	 * Returns the default `Hasher` instance used by hashed collections.
 	 * @example
 	 * ```ts
-	 * const h = Hasher.defaultInstance
-	 * h.hash({ a: 1, b: 2 })
+	 * import { Hasher } from '@rimbu/hashed';
+	 *
+	 * const h = Hasher.defaultInstance;
+	 * console.log(h.isValid({ a: 1, b: 2 })); // => true
+	 * console.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 })); // => true
 	 * ```
 	 */
 	readonly defaultInstance: Hasher<any>;
@@ -18,8 +21,11 @@ export interface HasherModule {
 	 * Returns a `Hasher` instance for string values.
 	 * @example
 	 * ```ts
-	 * const h = Hasher.string
-	 * h.hash('abc')
+	 * import { Hasher } from '@rimbu/hashed';
+	 *
+	 * const h = Hasher.string;
+	 * console.log(h.isValid('abc')); // => true
+	 * console.log(h.isValid(5)); // => false
 	 * ```
 	 */
 	readonly string: Hasher<string>;
@@ -28,8 +34,11 @@ export interface HasherModule {
 	 * @param maxStepBits - the maximum amount of samples to take from the string
 	 * @example
 	 * ```ts
-	 * const h = Hasher.anyToString()
-	 * h.hash([1, 3, 'a'])
+	 * import { Hasher } from '@rimbu/hashed';
+	 *
+	 * const h = Hasher.anyToString();
+	 * console.log(h.isValid([1, 3, 'a'])); // => true
+	 * console.log(h.hash([1, 3, 'a']) === h.hash([1, 3, 'a'])); // => true
 	 * ```
 	 */
 	anyToString(maxStepBits?: number): Hasher<any>;
@@ -38,6 +47,7 @@ export interface HasherModule {
 	 * applying JSON.stringify to the value.
 	 * @example
 	 * ```ts
+	 * import { Hasher } from '@rimbu/hashed';
 	 * const h = Hasher.anyJsonString
 	 * console.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))
 	 * // => false
@@ -48,6 +58,7 @@ export interface HasherModule {
 	 * Returns a `Hasher` instance for case-insensitive string values.
 	 * @example
 	 * ```ts
+	 * import { Hasher } from '@rimbu/hashed';
 	 * const h = Hasher.stringCaseInsensitive
 	 * console.log(h.hash('Abc') === h.hash('aBC'))
 	 * // => true
@@ -64,9 +75,10 @@ export interface HasherModule {
 	 * elements to process
 	 * @example
 	 * ```ts
-	 * const h = Hasher.array()
-	 * console.log(h.hash([1, 2, 3] === h.hash([1, 3, 2])))
-	 * // => false
+	 * import { Hasher } from '@rimbu/hashed';
+	 *
+	 * const h = Hasher.array();
+	 * console.log(h.hash([1, 2, 3]) === h.hash([1, 3, 2])); // => false
 	 * ```
 	 */
 	array<T = any>(options?: {
@@ -83,9 +95,12 @@ export interface HasherModule {
 	 * elements to process
 	 * @example
 	 * ```ts
-	 * const h = Hasher.streamSource()
-	 * h.hash(Stream.random())
-	 * // infinite stream but will not hang due to the max step limit
+	 * import { Hasher } from '@rimbu/hashed';
+	 * import { Stream } from '@rimbu/stream';
+	 *
+	 * const h = Hasher.streamSource();
+	 * console.log(h.isValid(Stream.of(1, 2, 3))); // => true
+	 * // an infinite stream will not hang due to the max step limit
 	 * ```
 	 */
 	streamSource<T = any>(options?: {
@@ -96,6 +111,7 @@ export interface HasherModule {
 	 * Returns a `Hasher` instance that hashes numbers, including 'special' values like `NaN` and infinities.
 	 * @example
 	 * ```ts
+	 * import { Hasher } from '@rimbu/hashed';
 	 * const h = Hasher.number
 	 * console.log(h.hash(Number.POSITIVE_INFINITY) === h.hash(Number.NEGATIVE_INFINITY))
 	 * // => false
@@ -108,6 +124,7 @@ export interface HasherModule {
 	 * Returns a `Hasher` instance that hashes booleans.
 	 * @example
 	 * ```ts
+	 * import { Hasher } from '@rimbu/hashed';
 	 * const h = Hasher.boolean
 	 * console.log(h.hash(true) === h.hash(false))
 	 * // => false
@@ -118,7 +135,8 @@ export interface HasherModule {
 	 * Returns a `Hasher` instance that hashes bigints.
 	 * @example
 	 * ```ts
-	 * const h = Hasher.bigint()
+	 * import { Hasher } from '@rimbu/hashed';
+	 * const h = Hasher.bigint
 	 * console.log(h.hash(BigInt(5)) === h.hash(BigInt(10)))
 	 * // => false
 	 * ```
@@ -133,6 +151,7 @@ export interface HasherModule {
 	 * @param valueHasher - the `Hasher` instance to use for the `.valueOf` values
 	 * @example
 	 * ```ts
+	 * import { Hasher } from '@rimbu/hashed';
 	 * const h = Hasher.byValueOf(Date)
 	 * console.log(h.isValid(new Boolean(true)))
 	 * // => false
@@ -152,7 +171,8 @@ export interface HasherModule {
 	 * Returns a `Hasher` instance that hashes `Date` values.
 	 * @example
 	 * ```ts
-	 * const h = Hasher.date()
+	 * import { Hasher } from '@rimbu/hashed';
+	 * const h = Hasher.date
 	 * const d1 = new Date()
 	 * const d2 = new Date(d1)
 	 * console.log(h.hash(d1) === h.hash(d2))
@@ -169,6 +189,7 @@ export interface HasherModule {
 	 * - valueHasher: (optional) a Hasher instance that is used to hash object values
 	 * @example
 	 * ```ts
+	 * import { Hasher } from '@rimbu/hashed';
 	 * const h = Hasher.object()
 	 * console.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))
 	 * // => true
@@ -183,6 +204,7 @@ export interface HasherModule {
 	 * If a value is an object or array, it will convert those values to a string.
 	 * @example
 	 * ```ts
+	 * import { Hasher } from '@rimbu/hashed';
 	 * const h = Hasher.objectShallow
 	 * console.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))
 	 * // => true
@@ -195,6 +217,7 @@ export interface HasherModule {
 	 * @note be careful with circular structures, they can cause an infinite loop
 	 * @example
 	 * ```ts
+	 * import { Hasher } from '@rimbu/hashed';
 	 * const h = Hasher.objectDeep
 	 * console.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))
 	 * // => true
@@ -206,7 +229,8 @@ export interface HasherModule {
 	 * or array to hash its elements. In those cases it will use toString.
 	 * @example
 	 * ```ts
-	 * const h = Hasher.anyFlat()
+	 * import { Hasher } from '@rimbu/hashed';
+	 * const h = Hasher.anyFlat
 	 * console.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))
 	 * // => false
 	 * ```
@@ -217,7 +241,8 @@ export interface HasherModule {
 	 * or array to hash its elements one level deep. After one level, it will use toString.
 	 * @example
 	 * ```ts
-	 * const h = Hasher.anyShallow()
+	 * import { Hasher } from '@rimbu/hashed';
+	 * const h = Hasher.anyShallow
 	 * console.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))
 	 * // => true
 	 * console.log(h.hash([{ a: 1, b: 2 }]) === h.hash([{ b: 2, a: 1 }]))
@@ -230,7 +255,8 @@ export interface HasherModule {
 	 * or array to hash its elements.
 	 * @example
 	 * ```ts
-	 * const h = Hasher.anyDeep()
+	 * import { Hasher } from '@rimbu/hashed';
+	 * const h = Hasher.anyDeep
 	 * console.log(h.hash({ a: 1, b: 2 }) === h.hash({ b: 2, a: 1 }))
 	 * // => true
 	 * console.log(h.hash([{ a: 1, b: 2 }]) === h.hash([{ b: 2, a: 1 }]))
@@ -244,8 +270,9 @@ export interface HasherModule {
 	 * @param hasher - the `Hasher` instance to use for tuple elements
 	 * @example
 	 * ```ts
+	 * import { Hasher } from '@rimbu/hashed';
 	 * const h = Hasher.tupleSymmetric()
-	 * console.log(h.hash(['abc', 'def']) === h.hash(['def', 'abc']))
+	 * console.log(h.hash(['abc', 'def']) === h.hash(['def', 'abc'])) // => true
 	 * ```
 	 */
 	tupleSymmetric<T>(hasher?: Hasher<T> | undefined): Hasher<readonly [T, T]>;

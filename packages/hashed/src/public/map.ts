@@ -20,8 +20,11 @@ import { createHashMapContextModule } from '#map/context-factory';
  * - The `HashMap` uses the context's `eq` function to determine equivalence between keys.
  * @example
  * ```ts
- * const m1 = HashMap.empty<number, string>()
- * const m2 = HashMap.of([1, 'a'], [2, 'b'])
+ * import { HashMap } from '@rimbu/hashed';
+ *
+ * const m1 = HashMap.empty<number, string>();
+ * const m2 = HashMap.of([1, 'a'], [2, 'b']);
+ * console.log(m2.toString()); // => HashMap(1 -> a, 2 -> b)
  * ```
  */
 export interface HashMap<K, V> extends RMapBase<K, V, HashMap.Types> {}
@@ -39,8 +42,11 @@ export namespace HashMap {
 	 * @typeparam V - the value type
 	 * @example
 	 * ```ts
-	 * const m1 = HashMap.empty<number, string>()
-	 * const m2 = HashMap.of([1, 'a'], [2, 'b'])
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * const m1 = HashMap.empty<number, string>();
+	 * const m2 = HashMap.of([1, 'a'], [2, 'b']);
+	 * console.log(m2.toString()); // => HashMap(1 -> a, 2 -> b)
 	 * ```
 	 */
 	export interface NonEmpty<K, V>

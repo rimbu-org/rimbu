@@ -158,6 +158,39 @@ Files edited: `packages/collection-types/src/advanced/map/base.ts`,
 one long `transform` line; it stays in the proper ` * ` JSDoc margin so the
 extractor strips the `*` cleanly).
 
+**hashed — DONE (all 25 `@example` blocks rewritten).** Files edited:
+`src/hashed.ts` (2 `Hasher` interface examples), `src/public/map.ts` +
+`src/public/set.ts` (entity construction examples), and
+`src/internal/hashed/hasher-module.ts` (19 `Hasher` factory examples).
+
+Result (measured):
+- **Gate**: **0 type errors** for `hashed/` (was 25).
+- **Verifier**: **84 snippets, 118 output comments, 0 issues** (was 1 at last pass
+  after the gate was cleared). `HashMap`/`HashSet` entity + all method examples
+  inherit cleanly from `collection-types` base examples.
+
+Real bugs the loop caught (now fixed):
+- **Every hasher example referenced `Hasher` without importing it** → all 19 failed
+  the gate ("Duplicate function implementation" masking the real "Cannot find
+  name 'Hasher'"). Added `import { Hasher } from '@rimbu/hashed'` to each.
+- **`Hasher.numberHasher()` does not exist** (old example) → real method is
+  `Hasher.number`.
+- **`Hasher.anyDeep()/anyFlat()/anyShallow()/bigint()/date()` used `()` calls** but
+  these are `readonly` *properties* on `HasherModule`, not callable factories.
+  Removed the parens (`Hasher.bigint` not `Hasher.bigint()`). (Contrast: `array()`,
+  `object()`, `byValueOf()`, `anyToString()`, `tupleSymmetric()` ARE methods and
+  keep their parens.)
+- **Operator-precedence bug** in `Hasher.array` example: `h.hash([1,2,3] === h.hash([1,3,2]))`
+  parsed as `h.hash(([1,2,3] === ...))`; fixed to `h.hash([1,2,3]) === h.hash([1,3,2])`.
+- **4 examples had bare `h.hash(...)` with no output** (`defaultInstance`, `string`,
+  `anyToString`, `streamSource`) → wrapped in `console.log` with meaningful
+  boolean output (e.g. `isValid`, order-independent equality).
+- **`HashMap`/`HashSet` entity examples** lacked an import (`import { HashMap }` /
+  `{ HashSet }`); added, plus a `.toString()` output line so they show something.
+
+Note: `toJSON` examples are intentionally left alone (to be removed soon per
+decision).
+
 Root scripts:
 
 - `bun run docs` — full pipeline so far (extract + aggregate).
