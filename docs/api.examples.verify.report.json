@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-07-17T16:22:13.307Z",
-  "filter": "list/",
-  "totalSnippets": 219,
-  "checkedOutputs": 408,
+  "generatedAt": "2026-07-17T18:51:52.287Z",
+  "filter": "collection-types/",
+  "totalSnippets": 222,
+  "checkedOutputs": 321,
   "checkedInferredTypes": 0,
   "mismatches": 0,
   "strict": false,

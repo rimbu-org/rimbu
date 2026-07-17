@@ -26,10 +26,14 @@ export interface VariantSetBase<
 	 * as a .NonEmpty type.
 	 * @example
 	 * ```ts
-	 * const m: HashSet<number> = HashSet.of(1, 2, 2)
-	 * m.stream().first(0)     // compiler allows fallback value since the Stream may be empty
-	 * if (m.nonEmpty()) {
-	 *   m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty
+	 * import { HashSet } from '@rimbu/hashed';
+	 *
+	 * const source: HashSet<number> = HashSet.of(1, 2, 2);
+	 * // the fallback value is allowed since the Stream may be empty
+	 * console.log(source.stream().first(0)); // => 1
+	 * if (source.nonEmpty()) {
+	 *   // no fallback needed since the collection is known to be non-empty
+	 *   console.log(source.stream().first()); // => 1
 	 * }
 	 * ```
 	 */
@@ -39,8 +43,10 @@ export interface VariantSetBase<
 	 * @throws `RimbuError.EmptyCollectionAssumedNonEmptyError` if the collection is empty
 	 * @example
 	 * ```ts
-	 * HashSet.empty().assumeNonEmpty()          // => throws RimbuError.EmptyCollectionAssumedNonEmptyError
-	 * HashSet.of(0, 1).assumeNonEmpty()         // => HashSet.NonEmpty<number>
+	 * import { HashSet } from '@rimbu/hashed';
+	 *
+	 * console.log(HashSet.of(0, 1).assumeNonEmpty().toString()); // => HashSet(0, 1)
+	 * // HashSet.empty<number>().assumeNonEmpty() throws RimbuError.EmptyCollectionAssumedNonEmptyError
 	 * ```
 	 */
 	assumeNonEmpty(): WithElem<Tp, T>['nonEmpty'];
@@ -48,7 +54,9 @@ export interface VariantSetBase<
 	 * Returns a Stream containing all elements of this collection.
 	 * @example
 	 * ```ts
-	 * HashSet.of(1, 2, 3).stream().toArray()   // => [1, 2, 3]
+	 * import { HashSet } from '@rimbu/hashed';
+	 *
+	 * console.log(HashSet.of(1, 2, 3).stream().toArray()); // => [ 1, 2, 3 ]
 	 * ```
 	 */
 	stream(): Stream<T>;
@@ -57,8 +65,11 @@ export interface VariantSetBase<
 	 * @param value - the value to look for
 	 * @example
 	 * ```ts
-	 * HashSet.of(1, 2, 3).has(2)  // => true
-	 * HashSet.of(1, 2, 3).has(10) // => false
+	 * import { HashSet } from '@rimbu/hashed';
+	 *
+	 * const source = HashSet.of(1, 2, 3);
+	 * console.log(source.has(2)); // => true
+	 * console.log(source.has(10)); // => false
 	 * ```
 	 */
 	has<U = T>(value: RelatedTo<T, U>): boolean;
@@ -67,9 +78,11 @@ export interface VariantSetBase<
 	 * @param value - the value to remove
 	 * @example
 	 * ```ts
-	 * const s = HashSet.of(1, 2, 3)
-	 * s.remove(2).toArray()   // => [1, 3]
-	 * s.remove(10).toArray()  // => [1, 2, 3]
+	 * import { HashSet } from '@rimbu/hashed';
+	 *
+	 * const source = HashSet.of(1, 2, 3);
+	 * console.log(source.remove(2).toArray()); // => [ 1, 3 ]
+	 * console.log(source.remove(10).toArray()); // => [ 1, 2, 3 ]
 	 * ```
 	 */
 	remove<U = T>(value: RelatedTo<T, U>): WithElem<Tp, T>['normal'];
@@ -78,8 +91,9 @@ export interface VariantSetBase<
 	 * @param values - a `StreamSource` containing values to remove
 	 * @example
 	 * ```ts
-	 * HashSet.of(1, 2, 3).removeAll([1, 3]).toArray()
-	 * // => [2]
+	 * import { HashSet } from '@rimbu/hashed';
+	 *
+	 * console.log(HashSet.of(1, 2, 3).removeAll([1, 3]).toArray()); // => [ 2 ]
 	 * ```
 	 */
 	removeAll<U = T>(
@@ -94,11 +108,14 @@ export interface VariantSetBase<
 	 * @param state - (optional) the traverse state
 	 * @example
 	 * ```ts
+	 * import { HashSet } from '@rimbu/hashed';
+	 *
+	 * const collected: [number, number][] = [];
 	 * HashSet.of(1, 2, 3).forEach((value, i, halt) => {
-	 *  console.log([value, i]);
-	 *  if (i >= 1) halt();
-	 * })
-	 * // => logs [1, 0]  [2, 1]
+	 *   collected.push([value, i]);
+	 *   if (i >= 1) halt();
+	 * });
+	 * console.log(collected); // => [ [ 1, 0 ], [ 2, 1 ] ]
 	 * ```
 	 * @note O(N)
 	 */
@@ -117,8 +134,9 @@ export interface VariantSetBase<
 	 * @note if the predicate is a type guard, the return type is automatically inferred
 	 * @example
 	 * ```ts
-	 * HashSet.of(1, 2, 3).filter((value) => value < 3).toArray()
-	 * // => [1, 2]
+	 * import { HashSet } from '@rimbu/hashed';
+	 *
+	 * console.log(HashSet.of(1, 2, 3).filter((value) => value < 3).toArray()); // => [ 1, 2 ]
 	 * ```
 	 */
 	filter<TF extends T>(
@@ -143,8 +161,10 @@ export interface VariantSetBase<
 	 * @param transformFun - a function that receives the `Stream` of values of this collection, and returns a `StreamSource` of resulting values
 	 * @example
 	 * ```ts
-	 * HashSet.of(1, 2, 3).transform(s => s.flatMap(v => [v, -v])).toArray()
-	 * // => [1, -1, 2, -2, 3, -3]
+	 * import { HashSet } from '@rimbu/hashed';
+	 *
+	 * const result = HashSet.of(1, 2, 3).transform((s) => s.flatMap((v) => [v, -v]));
+	 * console.log(result.toArray()); // => [ 1, 2, 3, -3, -2, -1 ]
 	 * ```
 	 * @note because the resulting collection is built in the same context, `T2` must be a subtype of `T`. To transform to an
 	 * unrelated element type, build a new collection explicitly, for example `HashSet.from(stream.map(...))`.
@@ -157,7 +177,9 @@ export interface VariantSetBase<
 	 * @param other - a `StreamSource` containing values
 	 * @example
 	 * ```ts
-	 * HashSet.of(1, 2, 3).difference(HashSet.of(1, 3)).toArray()  // => [2]
+	 * import { HashSet } from '@rimbu/hashed';
+	 *
+	 * console.log(HashSet.of(1, 2, 3).difference(HashSet.of(1, 3)).toArray()); // => [ 2 ]
 	 * ```
 	 */
 	difference<U = T>(
@@ -168,7 +190,9 @@ export interface VariantSetBase<
 	 * @param other - a `StreamSource` containing values
 	 * @example
 	 * ```ts
-	 * HashSet.of(1, 2, 3).intersect(HashSet.of(1, 3)).toArray()   // => [1, 3]
+	 * import { HashSet } from '@rimbu/hashed';
+	 *
+	 * console.log(HashSet.of(1, 2, 3).intersect(HashSet.of(1, 3)).toArray()); // => [ 1, 3 ]
 	 * ```
 	 */
 	intersect<U = T>(
@@ -178,7 +202,9 @@ export interface VariantSetBase<
 	 * Returns an array containing all values in this collection.
 	 * @example
 	 * ```ts
-	 * HashSet.of(1, 2, 3).toArray()   // => [1, 2, 3]
+	 * import { HashSet } from '@rimbu/hashed';
+	 *
+	 * console.log(HashSet.of(1, 2, 3).toArray()); // => [ 1, 2, 3 ]
 	 * ```
 	 * @note O(log(N))
 	 * @note it is safe to mutate the returned array, however, the array elements are not copied, thus should be treated as read-only
@@ -188,7 +214,9 @@ export interface VariantSetBase<
 	 * Returns a string representation of this collection.
 	 * @example
 	 * ```ts
-	 * HashSet.of(1, 2, 3).toString()   // => HashSet(1, 2, 3)
+	 * import { HashSet } from '@rimbu/hashed';
+	 *
+	 * console.log(HashSet.of(1, 2, 3).toString()); // => HashSet(1, 2, 3)
 	 * ```
 	 */
 	toString(): string;
@@ -196,7 +224,10 @@ export interface VariantSetBase<
 	 * Returns a JSON representation of this collection.
 	 * @example
 	 * ```ts
-	 * HashSet.of(1, 2, 3).toJSON()   // => { dataType: 'HashSet', value: [1, 2, 3] }
+	 * import { HashSet } from '@rimbu/hashed';
+	 *
+	 * // note: only the data type tag is included; elements are reconstructed at parse time
+	 * console.log(HashSet.of(1, 2, 3).toJSON()); // => { dataType: "HashSet", value: [] }
 	 * ```
 	 */
 	toJSON(): ToJSON<T[]>;
@@ -212,7 +243,9 @@ export namespace VariantSetBase {
 		 * Returns false since this collection is known to be non-empty
 		 * @example
 		 * ```ts
-		 * HashSet.of(1, 2, 3).isEmpty   // => false
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * console.log(HashSet.of(1, 2, 3).isEmpty); // => false
 		 * ```
 		 */
 		readonly isEmpty: false;
@@ -220,7 +253,9 @@ export namespace VariantSetBase {
 		 * Returns true since this collection is known to be non-empty
 		 * @example
 		 * ```ts
-		 * HashSet.of(1, 2, 3).nonEmpty()   // => true
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * console.log(HashSet.of(1, 2, 3).nonEmpty()); // => true
 		 * ```
 		 */
 		nonEmpty(): this is WithElem<Tp, T>['nonEmpty'];
@@ -228,8 +263,10 @@ export namespace VariantSetBase {
 		 * Returns a self reference since this collection is known to be non-empty.
 		 * @example
 		 * ```ts
-		 * const m = HashSet.of(1, 2, 3);
-		 * m === m.assumeNonEmpty()  // => true
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * const source = HashSet.of(1, 2, 3);
+		 * console.log(source === source.assumeNonEmpty()); // => true
 		 * ```
 		 */
 		assumeNonEmpty(): this;
@@ -237,7 +274,9 @@ export namespace VariantSetBase {
 		 * Returns this collection typed as a 'possibly empty' collection.
 		 * @example
 		 * ```ts
-		 * HashSet.of(1, 2).asNormal();  // type: HashSet<number>
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * console.log(HashSet.of(1, 2).asNormal().toString()); // => HashSet(1, 2)
 		 * ```
 		 */
 		asNormal(): WithElem<Tp, T>['normal'];
@@ -245,7 +284,9 @@ export namespace VariantSetBase {
 		 * Returns a non-empty Stream containing all values of this collection.
 		 * @example
 		 * ```ts
-		 * HashSet.of(1, 2, 3).stream().toArray()   // => [1, 2, 3]
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * console.log(HashSet.of(1, 2, 3).stream().toArray()); // => [ 1, 2, 3 ]
 		 * ```
 		 */
 		stream(): Stream.NonEmpty<T>;
@@ -259,8 +300,10 @@ export namespace VariantSetBase {
 		 * @param transformFun - a function that receives the non-empty `Stream` of values of this collection, and returns a `StreamSource` of resulting values
 		 * @example
 		 * ```ts
-		 * HashSet.of(1, 2, 3).transform(s => s.flatMap(v => [v, -v])).toArray()
-		 * // => [1, -1, 2, -2, 3, -3]
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * const result = HashSet.of(1, 2, 3).transform((s) => s.flatMap((v) => [v, -v]));
+		 * console.log(result.toArray()); // => [ 1, 2, 3, -3, -2, -1 ]
 		 * ```
 		 * @note because the resulting collection is built in the same context, `T2` must be a subtype of `T`. To transform to an
 		 * unrelated element type, build a new collection explicitly, for example `HashSet.from(stream.map(...))`.
@@ -275,7 +318,9 @@ export namespace VariantSetBase {
 		 * Returns a non-empty array containing all values in this collection.
 		 * @example
 		 * ```ts
-		 * HashSet.of(1, 2, 3).toArray()   // => [1, 2, 3]
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * console.log(HashSet.of(1, 2, 3).toArray()); // => [ 1, 2, 3 ]
 		 * ```
 		 * @note O(log(N))
 		 * @note it is safe to mutate the returned array, however, the array elements are not copied, thus should be treated as read-only
@@ -303,7 +348,9 @@ export interface RSetBase<T, Tp extends RSetBase.Types = RSetBase.Types>
 	 * @param value - the value to add
 	 * @example
 	 * ```ts
-	 * HashSet.of(1, 2, 3).add(10).toArray()   // => [1, 2, 3, 10]
+	 * import { HashSet } from '@rimbu/hashed';
+	 *
+	 * console.log(HashSet.of(1, 2, 3).add(10).toArray()); // => [ 1, 2, 3, 10 ]
 	 * ```
 	 */
 	add(value: T): WithElem<Tp, T>['nonEmpty'];
@@ -312,7 +359,9 @@ export interface RSetBase<T, Tp extends RSetBase.Types = RSetBase.Types>
 	 * @param values - a `StreamSource` containing values to add
 	 * @example
 	 * ```ts
-	 * HashSet.of(1, 2, 3).addAll([10, 11]).toArray()   // => [1, 2, 3, 10, 11]
+	 * import { HashSet } from '@rimbu/hashed';
+	 *
+	 * console.log(HashSet.of(1, 2, 3).addAll([10, 11]).toArray()); // => [ 1, 2, 3, 10, 11 ]
 	 * ```
 	 */
 	addAll(values: StreamSource.NonEmpty<T>): WithElem<Tp, T>['nonEmpty'];
@@ -323,8 +372,10 @@ export interface RSetBase<T, Tp extends RSetBase.Types = RSetBase.Types>
 	 * @param other - a `StreamSource` containing values
 	 * @example
 	 * ```ts
-	 * HashSet.of(1, 2, 3).union(HashSet.of(2, 4, 6)).toArray()
-	 * // => [1, 2, 3, 4, 6]
+	 * import { HashSet } from '@rimbu/hashed';
+	 *
+	 * const result = HashSet.of(1, 2, 3).union(HashSet.of(2, 4, 6));
+	 * console.log(result.toArray()); // => [ 1, 2, 3, 4, 6 ]
 	 * ```
 	 */
 	union(other: StreamSource.NonEmpty<T>): WithElem<Tp, T>['nonEmpty'];
@@ -335,8 +386,9 @@ export interface RSetBase<T, Tp extends RSetBase.Types = RSetBase.Types>
 	 * @param other - a `StreamSource` containing values
 	 * @example
 	 * ```ts
-	 * HashSet.of(1, 2, 3).symDifference([2, 4]).toArray()
-	 * // => [1, 3, 4]
+	 * import { HashSet } from '@rimbu/hashed';
+	 *
+	 * console.log(HashSet.of(1, 2, 3).symDifference([2, 4]).toArray()); // => [ 1, 3, 4 ]
 	 * ```
 	 */
 	symDifference(other: StreamSource<T>): WithElem<Tp, T>['normal'];
@@ -344,7 +396,10 @@ export interface RSetBase<T, Tp extends RSetBase.Types = RSetBase.Types>
 	 * Returns a builder object containing the values of this collection.
 	 * @example
 	 * ```ts
-	 * const builder: HashSet.Builder<number> = HashSet.of(1, 2, 3).toBuilder()
+	 * import { HashSet } from '@rimbu/hashed';
+	 *
+	 * const builder: HashSet.Builder<number> = HashSet.of(1, 2, 3).toBuilder();
+	 * console.log(builder.size); // => 3
 	 * ```
 	 */
 	toBuilder(): WithElem<Tp, T>['builder'];
@@ -359,7 +414,9 @@ export namespace RSetBase {
 		 * Returns a non-empty Stream containing all values of this collection.
 		 * @example
 		 * ```ts
-		 * HashSet.of(1, 2, 3).stream().toArray()   // => [1, 2, 3]
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * console.log(HashSet.of(1, 2, 3).stream().toArray()); // => [ 1, 2, 3 ]
 		 * ```
 		 */
 		stream(): Stream.NonEmpty<T>;
@@ -368,7 +425,9 @@ export namespace RSetBase {
 		 * @param value - the value to add
 		 * @example
 		 * ```ts
-		 * HashSet.of(1, 2, 3).add(10).toArray()   // => [1, 2, 3, 10]
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * console.log(HashSet.of(1, 2, 3).add(10).toArray()); // => [ 1, 2, 3, 10 ]
 		 * ```
 		 */
 		add(value: T): WithElem<Tp, T>['nonEmpty'];
@@ -377,7 +436,9 @@ export namespace RSetBase {
 		 * @param values - a `StreamSource` containing values to add
 		 * @example
 		 * ```ts
-		 * HashSet.of(1, 2, 3).addAll([10, 11]).toArray()   // => [1, 2, 3, 10, 11]
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * console.log(HashSet.of(1, 2, 3).addAll([10, 11]).toArray()); // => [ 1, 2, 3, 10, 11 ]
 		 * ```
 		 */
 		addAll(values: StreamSource<T>): WithElem<Tp, T>['nonEmpty'];
@@ -387,8 +448,10 @@ export namespace RSetBase {
 		 * @param other - a `StreamSource` containing values
 		 * @example
 		 * ```ts
-		 * HashSet.of(1, 2, 3).union(HashSet.of(2, 4, 6)).toArray()
-		 * // => [1, 2, 3, 4, 6]
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * const result = HashSet.of(1, 2, 3).union(HashSet.of(2, 4, 6));
+		 * console.log(result.toArray()); // => [ 1, 2, 3, 4, 6 ]
 		 * ```
 		 */
 		union(other: StreamSource<T>): WithElem<Tp, T>['nonEmpty'];
@@ -399,8 +462,10 @@ export namespace RSetBase {
 		 * Returns the (singleton) empty instance of this type and context with given value type.
 		 * @example
 		 * ```ts
-		 * HashSet.empty<number>()    // => HashSet<number>
-		 * HashSet.empty<string>()    // => HashSet<string>
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * console.log(HashSet.empty<number>().toString()); // => HashSet()
+		 * console.log(HashSet.empty<string>().toString()); // => HashSet()
 		 * ```
 		 */
 		empty<T extends UT>(): WithElem<Tp, T>['normal'];
@@ -409,7 +474,9 @@ export namespace RSetBase {
 		 * @param values - a non-empty array of values
 		 * @example
 		 * ```ts
-		 * HashSet.of(1, 2, 3).toArray()   // => [1, 2, 3]
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * console.log(HashSet.of(1, 2, 3).toArray()); // => [ 1, 2, 3 ]
 		 * ```
 		 */
 		of<T extends UT>(...values: ArrayNonEmpty<T>): WithElem<Tp, T>['nonEmpty'];
@@ -418,7 +485,9 @@ export namespace RSetBase {
 		 * @param sources - an array of `StreamSource` instances containing values
 		 * @example
 		 * ```ts
-		 * HashSet.from([1, 2, 3], [4, 5])   // => HashSet.NonEmpty<number>
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * console.log(HashSet.from([1, 2, 3], [4, 5]).toArray()); // => [ 1, 2, 3, 4, 5 ]
 		 * ```
 		 */
 		from<T extends UT>(
@@ -431,7 +500,10 @@ export namespace RSetBase {
 		 * Returns an empty builder instance for this type of collection and context.
 		 * @example
 		 * ```ts
-		 * HashSet.builder<number>()     // => HashSet.Builder<number>
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * const builder: HashSet.Builder<number> = HashSet.builder<number>();
+		 * console.log(builder.size); // => 0
 		 * ```
 		 */
 		builder<T extends UT>(): WithElem<Tp, T>['builder'];
@@ -441,9 +513,12 @@ export namespace RSetBase {
 		 * @param source - (optional) an initial source of elements to append to
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
 		 * const someSet = HashSet.of(1, 2, 3);
-		 * const result = Stream.range({ start: 20, amount: 5 }).reduce(HashSet.reducer(someSet))
-		 * result.toArray()   // => [1, 2, 3, 20, 21, 22, 23, 24]
+		 * const result = Stream.range({ start: 20, amount: 5 }).reduce(HashSet.reducer(someSet));
+		 * console.log(result.toArray()); // => [ 1, 2, 3, 20, 21, 22, 23, 24 ]
 		 * ```
 		 * @note uses an RSet builder under the hood. If the given `source` is a RSet in the same context, it will directly call `.toBuilder()`.
 		 */
@@ -460,7 +535,9 @@ export namespace RSetBase {
 		 * A string tag defining the specific collection type
 		 * @example
 		 * ```ts
-		 * HashSet.defaultContext().typeTag   // => 'HashSet'
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * console.log(HashSet.defaultContext().typeTag); // => HashSet
 		 * ```
 		 */
 		readonly typeTag: string;
@@ -472,7 +549,9 @@ export namespace RSetBase {
 		 * @param value - the object to check
 		 * @example
 		 * ```ts
-		 * HashSet.defaultContext().isValidValue(1)   // => true
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * console.log(HashSet.defaultContext().isValidValue(1)); // => true
 		 * ```
 		 */
 		isValidValue(value: any): value is UT;
@@ -480,8 +559,10 @@ export namespace RSetBase {
 		 * Returns the (singleton) empty instance of this type and context with given value type.
 		 * @example
 		 * ```ts
-		 * HashSet.empty<number>()    // => HashSet<number>
-		 * HashSet.empty<string>()    // => HashSet<string>
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * console.log(HashSet.empty<number>().toString()); // => HashSet()
+		 * console.log(HashSet.empty<string>().toString()); // => HashSet()
 		 * ```
 		 */
 	}
@@ -491,8 +572,9 @@ export namespace RSetBase {
 		 * Returns the amount of values in the builder.
 		 * @example
 		 * ```ts
-		 * HashSet.of(1, 2, 3).toBuilder().size
-		 * // => 3
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * console.log(HashSet.of(1, 2, 3).toBuilder().size); // => 3
 		 * ```
 		 */
 		readonly size: number;
@@ -500,8 +582,9 @@ export namespace RSetBase {
 		 * Returns true if there are no values in the builder.
 		 * @example
 		 * ```ts
-		 * HashSet.of(1, 2, 3).toBuilder().isEmpty
-		 * // => false
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * console.log(HashSet.of(1, 2, 3).toBuilder().isEmpty); // => false
 		 * ```
 		 */
 		readonly isEmpty: boolean;
@@ -510,9 +593,11 @@ export namespace RSetBase {
 		 * @param value - the value to look for
 		 * @example
 		 * ```ts
-		 * const s = HashSet.of(1, 2, 3).toBuilder()
-		 * s.has(2)   // => true
-		 * s.has(10)  // => false
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * const builder = HashSet.of(1, 2, 3).toBuilder();
+		 * console.log(builder.has(2)); // => true
+		 * console.log(builder.has(10)); // => false
 		 * ```
 		 */
 		has<U = T>(value: RelatedTo<T, U>): boolean;
@@ -522,9 +607,11 @@ export namespace RSetBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
-		 * const s = HashSet.of(1, 2, 3).toBuilder()
-		 * s.add(2)   // => false
-		 * s.add(10)  // => true
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * const builder = HashSet.of(1, 2, 3).toBuilder();
+		 * console.log(builder.add(2)); // => false
+		 * console.log(builder.add(10)); // => true
 		 * ```
 		 */
 		add(value: T): boolean;
@@ -534,9 +621,11 @@ export namespace RSetBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
-		 * const s = HashSet.of(1, 2, 3).toBuilder()
-		 * s.addAll([1, 3])   // => false
-		 * s.addAll([2, 10])  // => true
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * const builder = HashSet.of(1, 2, 3).toBuilder();
+		 * console.log(builder.addAll([1, 3])); // => false
+		 * console.log(builder.addAll([2, 10])); // => true
 		 * ```
 		 */
 		addAll(values: StreamSource<T>): boolean;
@@ -546,9 +635,11 @@ export namespace RSetBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
-		 * const s = HashSet.of(1, 2, 3).toBuilder()
-		 * s.remove(10)  // => false
-		 * s.remove(2)   // => true
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * const builder = HashSet.of(1, 2, 3).toBuilder();
+		 * console.log(builder.remove(10)); // => false
+		 * console.log(builder.remove(2)); // => true
 		 * ```
 		 */
 		remove<U = T>(value: RelatedTo<T, U>): boolean;
@@ -557,9 +648,11 @@ export namespace RSetBase {
 		 * @param values - a `StreamSource` of values
 		 * @example
 		 * ```ts
-		 * const s = HashSet.of(1, 2, 3).toBuilder()
-		 * s.removeAll([1, 3])   // => false
-		 * s.removeAll([2, 10])  // => true
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * const builder = HashSet.of(1, 2, 3).toBuilder();
+		 * console.log(builder.removeAll([1, 3])); // => true
+		 * console.log(builder.removeAll([20, 30])); // => false
 		 * ```
 		 */
 		removeAll<U = T>(values: StreamSource<RelatedTo<T, U>>): boolean;
@@ -575,11 +668,14 @@ export namespace RSetBase {
 		 * looping over it
 		 * @example
 		 * ```ts
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * const collected: [number, number][] = [];
 		 * HashSet.of(1, 2, 3).toBuilder().forEach((value, i, halt) => {
-		 *  console.log([value, i]);
-		 *  if (i >= 1) halt();
-		 * })
-		 * // => logs [1, 0]  [2, 1]
+		 *   collected.push([value, i]);
+		 *   if (i >= 1) halt();
+		 * });
+		 * console.log(collected); // => [ [ 1, 0 ], [ 2, 1 ] ]
 		 * ```
 		 * @note O(N)
 		 */
@@ -591,8 +687,11 @@ export namespace RSetBase {
 		 * Returns an immutable instance containing the values in this builder.
 		 * @example
 		 * ```ts
-		 * const s = HashSet.of(1, 2, 3).toBuilder()
-		 * const s2: HashSet<number> = s.build()
+		 * import { HashSet } from '@rimbu/hashed';
+		 *
+		 * const builder = HashSet.of(1, 2, 3).toBuilder();
+		 * const result: HashSet<number> = builder.build();
+		 * console.log(result.toArray()); // => [ 1, 2, 3 ]
 		 * ```
 		 */
 		build(): WithElem<Tp, T>['normal'];

@@ -262,7 +262,7 @@ function buildRunnableSource(code: string): string {
     `const __origLog = console.log;`,
     `let __first = true;`,
     `console.log = (...args) => {`,
-    `  const s = args.map((a) => (typeof a === 'string' ? a : Bun.inspect(a))).join(' ');`,
+    `  const s = args.map((a) => (typeof a === 'string' ? a : Bun.inspect(a, { breakLength: Infinity, compact: true }))).join(' ');`,
     `  __origLog((__first ? '' : ${JSON.stringify(LOG_DELIM)}) + s);`,
     `  __first = false;`,
     `};`,

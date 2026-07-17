@@ -117,6 +117,47 @@ Authoring-loop learnings (apply to rollout):
   but parses as one statement → "captured N logs but only 1 parsed". Collect into
   an array and log once (`const collected: number[] = []; ...; console.log(collected);`).
 
+**collection-types — DONE (all 112 `@example` blocks in `advanced/map/base.ts` +
+`advanced/set/base.ts` rewritten).** This is the **abstract base** package
+(interfaces only, no impls), so examples use concrete `@rimbu/hashed`
+(`HashMap`/`HashSet`) as the demo implementation — verified to resolve fine via the
+workspace-wide dist paths map (the gate/verify tools add `hashed` dist even though
+it is *not* a `collection-types` dependency; examples live only in JSDoc, stripped
+from compiled output, so there is no runtime dependency).
+
+Result (measured):
+- **Gate**: **0 type errors** for `collection-types/` (was 222).
+- **Verifier**: **222 snippets, 321 output comments, 0 issues** (was 222 issues at
+  baseline). The entity merges (`RMap`, `VariantMap`, `RSet`, `VariantSet`, and the
+  `.NonEmpty` variants) inherit the base examples and all pass.
+- Tool tweak: verifier now formats with `Bun.inspect(arg, { breakLength: Infinity,
+  compact: true })` so captured output is single-line & width-independent (cleaner
+  docs, no multi-line `// =>` blocks for arrays). List re-verified at 0 after the
+  change, so short-array outputs are unchanged.
+
+Real bugs the loop caught in the OLD collection-types examples (now fixed):
+- **`modifyAt` API changed** to brace form `{ ifNew: { set } | { create } }` /
+  `{ ifExists: { set } | { update } }` — the old `{ ifNew: value }` / `{ ifExists: fn }`
+  shape is rejected by the gate. (Bare `ifNew: 'c'` was wrong.)
+- **`HashMap.toString()` uses `->`** not `=>` — old docs wrote `HashMap(1 => a)`.
+- **`transform` tuple inference**: `s.map(([k,v]) => [k, v.toUpperCase()])` widens
+  to `(string|number)[]` and fails the overload; must annotate the return tuple
+  `([k, v]): [number, string] => [...]`.
+- **`HashSet.toJSON()` serializes `value: []`** (empty!) — genuine surprising
+  behavior, now documented as captured.
+- **HashSet ordering is hash-based** — `transform(s => s.flatMap(v => [v,-v]))`
+  yields `[ 1, 2, 3, -3, -2, -1 ]`, not insertion order.
+- **Top-level `console.log(string)` prints UNQUOTED** in Bun — `.get(2)` → `b`,
+  `.typeTag` → `HashMap` (not `"b"`/`"HashMap"`). Only strings inside arrays/objects
+  are quoted.
+- **`updateAt` is function-only** here too (matching List) — `m.updateAt(2, 'c')`
+  is a type error; use `() => 'c'`.
+
+Files edited: `packages/collection-types/src/advanced/map/base.ts`,
+`packages/collection-types/src/advanced/set/base.ts`. Biome:fix applied (re-wrapped
+one long `transform` line; it stays in the proper ` * ` JSDoc margin so the
+extractor strips the `*` cleanly).
+
 Root scripts:
 
 - `bun run docs` — full pipeline so far (extract + aggregate).

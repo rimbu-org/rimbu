@@ -285,6 +285,37 @@ Rules for the parser/verifier (keep these exact):
   possibly-empty, explicitly-typed source (`const l: List<number> = List.empty()`).
   Prefer the exact signature the example is attached to.
 
+### 6d. Output-format realities (captured from the List + collection-types pilots)
+
+The verifier executes examples with **Bun** and formats every non-string argument
+via `Bun.inspect(arg, { breakLength: Infinity, compact: true })`, so output is
+**single-line, deterministic, and width-independent** (you don't need multi-line
+`// =>` blocks for arrays/objects — they render on one line). The captured text is
+what you paste after `// =>`. Known behaviors to expect:
+
+- **Strings logged as a top-level `console.log(arg)` argument are printed
+  UNQUOTED.** `console.log('b')` captures `b`, not `"b"`. Only strings *inside* an
+  array/object are quoted. So `.get(2)` → `b`, `.typeTag` → `HashMap`, builder
+  `.updateAt(k, () => 'a')` → `a`. If you want to show a quoted string, log it inside
+  an array, e.g. `console.log([res])`.
+- **`HashMap`/`RMap.toString()` uses `->`, not `=>`.** `HashMap.of([1,'a'],[2,'b'])`
+  is `HashMap(1 -> a, 2 -> b)`. Don't write `HashMap(1 => a, 2 => b)`.
+- **HashSet / SortedSet ordering is NOT insertion order** for hashed sets (and
+  `flatMap`/`transform` results are likewise unordered). Never assume a specific
+  order; if order matters for the demonstrated output, use `List` instead, or accept
+  whatever the runtime yields.
+- **`HashSet.toJSON()` (and similar) currently serializes with an EMPTY `value`
+  array** — `{ dataType: "HashSet", value: [] }`. This is a real (surprising) API
+  behavior; capture it as-is rather than guessing the elements.
+- **`modifyAt` uses the brace form** `{ ifNew: { set } | { create } }` and
+  `{ ifExists: { set } | { update } }` — never a bare value or a bare function.
+  (This is an API that changed since older examples were written; the gate will
+  reject the old shape.)
+- **`transform`/`map`-style callbacks that build tuple results must annotate the
+  return type** as a tuple, or TS widens `[k, v.toUpperCase()]` to
+  `(string | number)[]` and the overload won't match. Write
+  `s.map(([k, v]): [number, string] => [k, v.toUpperCase()])`.
+
 ---
 
 ## 7. Checklist (per example)

@@ -29,8 +29,10 @@ export interface VariantMapBase<
 	 * Returns true if the collection is empty.
 	 * @example
 	 * ```ts
-	 * HashMap.empty<number, number>().isEmpty    // => true
-	 * HashMap.of([1, 1], [2, 2]).isEmpty         // => false
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * console.log(HashMap.empty<number, number>().isEmpty); // => true
+	 * console.log(HashMap.of([1, 1], [2, 2]).isEmpty); // => false
 	 * ```
 	 */
 	readonly isEmpty: boolean;
@@ -38,7 +40,9 @@ export interface VariantMapBase<
 	 * Returns the number of entries
 	 * @example
 	 * ```ts
-	 * HashMap.of([1, 1], [2, 2]).size       // => 2
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * console.log(HashMap.of([1, 1], [2, 2]).size); // => 2
 	 * ```
 	 */
 	readonly size: number;
@@ -47,10 +51,14 @@ export interface VariantMapBase<
 	 * as a .NonEmpty type.
 	 * @example
 	 * ```ts
-	 * const m: HashMap<number, number> = HashMap.of([1, 1], [2, 2])
-	 * m.stream().first(0)     // compiler allows fallback value since the Stream may be empty
-	 * if (m.nonEmpty()) {
-	 *   m.stream().first(0)   // compiler error: fallback value not allowed since Stream is not empty
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * const source: HashMap<number, number> = HashMap.of([1, 1], [2, 2]);
+	 * // the fallback value is allowed since the Stream may be empty
+	 * console.log(source.stream().first([0, 0])); // => [ 1, 1 ]
+	 * if (source.nonEmpty()) {
+	 *   // no fallback needed since the collection is known to be non-empty
+	 *   console.log(source.stream().first()); // => [ 1, 1 ]
 	 * }
 	 * ```
 	 */
@@ -60,10 +68,12 @@ export interface VariantMapBase<
 	 * @throws RimbuError.EmptyCollectionAssumedNonEmptyError if the collection is empty
 	 * @example
 	 * ```ts
-	 * HashMap.empty<number, number>().assumeNonEmpty()   // => throws
-	 * const m: HashMap<number, number> = HashMap.of([1, 1], [2, 2])
-	 * const m2: HashMap.NonEmpty<number, number> = m     // => compiler error
-	 * const m3: HashMap.NonEmpty<number, number> = m.assumeNonEmpty()
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * const source: HashMap<number, number> = HashMap.of([1, 1], [2, 2]);
+	 * const nonEmpty: HashMap.NonEmpty<number, number> = source.assumeNonEmpty();
+	 * console.log(nonEmpty.toString()); // => HashMap(1 -> 1, 2 -> 2)
+	 * // HashMap.empty<number, number>().assumeNonEmpty() throws RimbuError.EmptyCollectionAssumedNonEmptyError
 	 * ```
 	 * @note returns reference to this collection
 	 */
@@ -72,7 +82,9 @@ export interface VariantMapBase<
 	 * Returns a `Stream` containing all entries of this collection as tuples of key and value.
 	 * @example
 	 * ```ts
-	 * HashMap.of([1, 1], [2, 2]).stream().toArray()  // => [[1, 1], [2, 2]]
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * console.log(HashMap.of([1, 1], [2, 2]).stream().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]
 	 * ```
 	 */
 	stream(): Stream<readonly [K, V]>;
@@ -80,7 +92,9 @@ export interface VariantMapBase<
 	 * Returns a `Stream` containing all keys of this collection.
 	 * @example
 	 * ```ts
-	 * HashMap.of([[1, 'a'], [2, 'b']]).streamKeys().toArray()   // => [1, 2]
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * console.log(HashMap.of([1, 'a'], [2, 'b']).streamKeys().toArray()); // => [ 1, 2 ]
 	 * ```
 	 */
 	streamKeys(): Stream<K>;
@@ -88,7 +102,9 @@ export interface VariantMapBase<
 	 * Returns a `Stream` containing all values of this collection.
 	 * @example
 	 * ```ts
-	 * HashMap.of([[1, 'a'], [2, 'b']]).streamValues().toArray()   // => ['a', 'b']
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * console.log(HashMap.of([1, 'a'], [2, 'b']).streamValues().toArray()); // => [ "a", "b" ]
 	 * ```
 	 */
 	streamValues(): Stream<V>;
@@ -99,11 +115,13 @@ export interface VariantMapBase<
 	 * @param otherwise - (default: undefined) an `OptLazy` fallback value if the key is not in the collection
 	 * @example
 	 * ```ts
-	 * const m = HashMap.of([1, 'a'], [2, 'b'])
-	 * m.get(2)          // => 'b'
-	 * m.get(3)          // => undefined
-	 * m.get(2, 'none')  // => 'b'
-	 * m.get(3, 'none')  // => 'none'
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * const source = HashMap.of([1, 'a'], [2, 'b']);
+	 * console.log(source.get(2)); // => b
+	 * console.log(source.get(3)); // => undefined
+	 * console.log(source.get(2, 'none')); // => b
+	 * console.log(source.get(3, 'none')); // => none
 	 * ```
 	 */
 	get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
@@ -114,9 +132,11 @@ export interface VariantMapBase<
 	 * @param key - the key to look for
 	 * @example
 	 * ```ts
-	 * const m = HashMap.of([1, 'a'], [2, 'b'])
-	 * m.hasKey(2)    // => true
-	 * m.hasKey(3)    // => false
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * const source = HashMap.of([1, 'a'], [2, 'b']);
+	 * console.log(source.hasKey(2)); // => true
+	 * console.log(source.hasKey(3)); // => false
 	 * ```
 	 */
 	hasKey<UK = K>(key: RelatedTo<K, UK>): boolean;
@@ -126,9 +146,11 @@ export interface VariantMapBase<
 	 * @param key - the key of the entry to remove
 	 * @example
 	 * ```ts
-	 * const m = HashMap.of([1, 'a'], [2, 'b'])
-	 * m.removeKey(2).toArray()   // => [[1, 'a']]
-	 * m.removeKey(3) === m       // true
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * const source = HashMap.of([1, 'a'], [2, 'b']);
+	 * console.log(source.removeKey(2).toArray()); // => [ [ 1, "a" ] ]
+	 * console.log(source.removeKey(3) === source); // => true
 	 * ```
 	 * @note guarantees same object reference if the key is not present
 	 */
@@ -139,10 +161,12 @@ export interface VariantMapBase<
 	 * @param keys - a `StreamSource` of keys to remove
 	 * @example
 	 * ```ts
-	 * const m = HashMap.of([1, 'a'], [2, 'b'])
-	 * m.removeKeys([1, 3]).toArray()     // => [[2, 'b']]
-	 * m.removeKeys([1, 3, 2]).toArray()  // => []
-	 * m.removeKeys([3, 4, 5]) === m      // => true
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * const source = HashMap.of([1, 'a'], [2, 'b']);
+	 * console.log(source.removeKeys([1, 3]).toArray()); // => [ [ 2, "b" ] ]
+	 * console.log(source.removeKeys([1, 3, 2]).toArray()); // => []
+	 * console.log(source.removeKeys([3, 4, 5]) === source); // => true
 	 * ```
 	 * @note guarantees same object reference if none of the keys are present
 	 */
@@ -157,10 +181,12 @@ export interface VariantMapBase<
 	 * @param key - the key of the entry to remove
 	 * @example
 	 * ```ts
-	 * const m = HashMap.of([1, 'a'], [2, 'b'])
-	 * const result = m.removeKeyAndGet(2)
-	 * if (result[2]) console.log([result[0].toString(), result[1]])    // => logs [HashMap(1 => 'a'), 'b']
-	 * console.log(m.removeKeyAndGet(3))                                // => [HashMap(1 => 'a', 2 => 'b'), undefined, false]
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * const source = HashMap.of([1, 'a'], [2, 'b']);
+	 * const [newMap, value, hasValue] = source.removeKeyAndGet(2);
+	 * console.log([newMap.toString(), value, hasValue]); // => [ "HashMap(1 -> a)", "b", true ]
+	 * console.log(source.removeKeyAndGet(3)[2]); // => false
 	 * ```
 	 */
 	removeKeyAndGet<UK = K>(
@@ -176,11 +202,14 @@ export interface VariantMapBase<
 	 * - state: (optional) the traversal state
 	 * @example
 	 * ```ts
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * const collected: [string, number][] = [];
 	 * HashMap.of([1, 'a'], [2, 'b'], [3, 'c']).forEach((entry, i, halt) => {
-	 *  console.log([entry[1], entry[0]]);
-	 *  if (i >= 1) halt();
-	 * })
-	 * // => logs ['a', 1]  ['b', 2]
+	 *   collected.push([entry[1], entry[0]]);
+	 *   if (i >= 1) halt();
+	 * });
+	 * console.log(collected); // => [ [ "a", 1 ], [ "b", 2 ] ]
 	 * ```
 	 * @note O(N)
 	 */
@@ -199,8 +228,10 @@ export interface VariantMapBase<
 	 * @param transformFun - a function that receives the `Stream` of entries of this collection, and returns a `StreamSource` of resulting entries
 	 * @example
 	 * ```ts
-	 * HashMap.of([1, 'a'], [2, 'b']).transform(s => s.map(([k, v]) => [k, v.toUpperCase()])).toArray()
-	 * // => [[1, 'A'], [2, 'B']]
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * const result = HashMap.of([1, 'a'], [2, 'b']).transform((s) => s.map(([k, v]): [number, string] => [k, v.toUpperCase()]));
+	 * console.log(result.toArray()); // => [ [ 1, "A" ], [ 2, "B" ] ]
 	 * ```
 	 * @note because the resulting collection is built in the same context, `K2` must be a subtype of `K`. To transform to an
 	 * unrelated key type, build a new collection explicitly, for example `HashMap.from(stream.map(...))`.
@@ -214,8 +245,10 @@ export interface VariantMapBase<
 	 * @param mapFun - a function taking a `value` and a `key`, and returning a new value
 	 * @example
 	 * ```ts
-	 * HashMap.of([1, 'a'], [2, 'abc']).mapValues(v => v.length).toArray()
-	 * // => [[1, 1], [2, 3]]
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * const result = HashMap.of([1, 'a'], [2, 'abc']).mapValues((v) => v.length);
+	 * console.log(result.toArray()); // => [ [ 1, 1 ], [ 2, 3 ] ]
 	 * ```
 	 */
 	mapValues<V2>(
@@ -231,8 +264,12 @@ export interface VariantMapBase<
 	 * - negate: (default: false) when true will negate the predicate
 	 * @example
 	 * ```ts
-	 * HashMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(entry => entry[0] === 2 || entry[1] === 'c').toArray()
-	 * // => [[2, 'b'], [3, 'c']]
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * const result = HashMap.of([1, 'a'], [2, 'b'], [3, 'c']).filter(
+	 *   (entry) => entry[0] === 2 || entry[1] === 'c',
+	 * );
+	 * console.log(result.toArray()); // => [ [ 2, "b" ], [ 3, "c" ] ]
 	 * ```
 	 */
 	filter(
@@ -243,7 +280,9 @@ export interface VariantMapBase<
 	 * Returns an array containing all entries in this collection.
 	 * @example
 	 * ```ts
-	 * HashMap.of([1, 'a'], [2, 'b']).toArray()   // => [[1, 'a'], [2, 'b']]
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * console.log(HashMap.of([1, 'a'], [2, 'b']).toArray()); // => [ [ 1, "a" ], [ 2, "b" ] ]
 	 * ```
 	 * @note O(log(N))
 	 * @note it is safe to mutate the returned array, however, the array elements are not copied, thus should be treated as read-only
@@ -253,7 +292,9 @@ export interface VariantMapBase<
 	 * Returns a string representation of this collection.
 	 * @example
 	 * ```ts
-	 * HashMap.of([1, 'a'], [2, 'b']).toString()   // => HashMap(1 => 'a', 2 => 'b')
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * console.log(HashMap.of([1, 'a'], [2, 'b']).toString()); // => HashMap(1 -> a, 2 -> b)
 	 * ```
 	 */
 	toString(): string;
@@ -261,7 +302,9 @@ export interface VariantMapBase<
 	 * Returns a JSON representation of this collection.
 	 * @example
 	 * ```ts
-	 * HashMap.of([1, 'a'], [2, 'b']).toJSON()   // => { dataType: 'HashMap', value: [[1, 'a'], [2, 'b']] }
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * console.log(HashMap.of([1, 'a'], [2, 'b']).toJSON()); // => { dataType: "HashMap", value: [ [ 1, "a" ], [ 2, "b" ] ] }
 	 * ```
 	 */
 	toJSON(): ToJSON<(readonly [K, V])[]>;
@@ -278,7 +321,9 @@ export namespace VariantMapBase {
 		 * Returns false since this collection is known to be non-empty.
 		 * @example
 		 * ```ts
-		 * HashMap.of([1, 1], [2, 2]).isEmpty   // => false
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * console.log(HashMap.of([1, 1], [2, 2]).isEmpty); // => false
 		 * ```
 		 */
 		readonly isEmpty: false;
@@ -286,7 +331,9 @@ export namespace VariantMapBase {
 		 * Returns true since this collection is known to be non-empty
 		 * @example
 		 * ```ts
-		 * HashMap.of([1, 1], [2, 2]).nonEmpty()   // => true
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * console.log(HashMap.of([1, 1], [2, 2]).nonEmpty()); // => true
 		 * ```
 		 */
 		nonEmpty(): this is WithKeyValue<Tp, K, V>['nonEmpty'];
@@ -294,8 +341,10 @@ export namespace VariantMapBase {
 		 * Returns a self reference since this collection is known to be non-empty.
 		 * @example
 		 * ```ts
-		 * const m = HashMap.of([1, 1], [2, 2]);
-		 * m === m.assumeNonEmpty()  // => true
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const source = HashMap.of([1, 1], [2, 2]);
+		 * console.log(source === source.assumeNonEmpty()); // => true
 		 * ```
 		 */
 		assumeNonEmpty(): this;
@@ -303,7 +352,9 @@ export namespace VariantMapBase {
 		 * Returns this collection typed as a 'possibly empty' collection.
 		 * @example
 		 * ```ts
-		 * HashMap.of([1, 1], [2, 2]).asNormal();  // type: HashMap<number, number>
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * console.log(HashMap.of([1, 1], [2, 2]).asNormal().toString()); // => HashMap(1 -> 1, 2 -> 2)
 		 * ```
 		 */
 		asNormal(): (Tp & KeyValue<K, V>)['normal'];
@@ -311,7 +362,9 @@ export namespace VariantMapBase {
 		 * Returns a non-empty Stream containing all entries of this collection as tuples of key and value.
 		 * @example
 		 * ```ts
-		 * HashMap.of([1, 1], [2, 2]).stream().toArray()  // => [[1, 1], [2, 2]]
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * console.log(HashMap.of([1, 1], [2, 2]).stream().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]
 		 * ```
 		 */
 		stream(): Stream.NonEmpty<readonly [K, V]>;
@@ -319,7 +372,9 @@ export namespace VariantMapBase {
 		 * Returns a non-empty Stream containing all keys of this collection.
 		 * @example
 		 * ```ts
-		 * HashMap.of([[1, 'a'], [2, 'b']]).streamKeys().toArray()   // => [1, 2]
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * console.log(HashMap.of([1, 'a'], [2, 'b']).streamKeys().toArray()); // => [ 1, 2 ]
 		 * ```
 		 */
 		streamKeys(): Stream.NonEmpty<K>;
@@ -327,7 +382,9 @@ export namespace VariantMapBase {
 		 * Returns a non-empty Stream containing all values of this collection.
 		 * @example
 		 * ```ts
-		 * HashMap.of([[1, 'a'], [2, 'b']]).streamValues().toArray()   // => ['a', 'b']
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * console.log(HashMap.of([1, 'a'], [2, 'b']).streamValues().toArray()); // => [ "a", "b" ]
 		 * ```
 		 */
 		streamValues(): Stream.NonEmpty<V>;
@@ -342,8 +399,12 @@ export namespace VariantMapBase {
 		 * @param transformFun - a function that receives the non-empty `Stream` of entries of this collection, and returns a `StreamSource` of resulting entries
 		 * @example
 		 * ```ts
-		 * HashMap.of([1, 'a'], [2, 'b']).transform(s => s.map(([k, v]) => [k, v.toUpperCase()])).toArray()
-		 * // => [[1, 'A'], [2, 'B']]
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const result = HashMap.of([1, 'a'], [2, 'b']).transform((s) =>
+		 *   s.map(([k, v]): [number, string] => [k, v.toUpperCase()]),
+		 * );
+		 * console.log(result.toArray()); // => [ [ 1, "A" ], [ 2, "B" ] ]
 		 * ```
 		 * @note because the resulting collection is built in the same context, `K2` must be a subtype of `K`. To transform to an
 		 * unrelated key type, build a new collection explicitly, for example `HashMap.from(stream.map(...))`.
@@ -365,8 +426,10 @@ export namespace VariantMapBase {
 		 * @param mapFun - a function taking a `value` and a `key`, and returning a new value
 		 * @example
 		 * ```ts
-		 * HashMap.of([1, 'a'], [2, 'abc']).mapValues(v => v.length).toArray()
-		 * // => [[1, 1], [2, 3]]
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const result = HashMap.of([1, 'a'], [2, 'abc']).mapValues((v) => v.length);
+		 * console.log(result.toArray()); // => [ [ 1, 1 ], [ 2, 3 ] ]
 		 * ```
 		 */
 		mapValues<V2>(
@@ -376,7 +439,9 @@ export namespace VariantMapBase {
 		 * Returns a non-empty array containing all entries in this collection.
 		 * @example
 		 * ```ts
-		 * HashMap.of([1, 'a'], [2, 'b']).toArray()   // => [[1, 'a'], [2, 'b']]
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * console.log(HashMap.of([1, 'a'], [2, 'b']).toArray()); // => [ [ 1, "a" ], [ 2, "b" ] ]
 		 * ```
 		 * @note O(log(N))
 		 * @note it is safe to mutate the returned array, however, the array elements are not copied, thus should be treated as read-only
@@ -405,8 +470,10 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 	 * @param value - the entry value to add
 	 * @example
 	 * ```ts
-	 * HashMap.of([1, 'a']).set(2, 'b').toArray()   // => [[1, 'a'], [2, 'b']]
-	 * HashMap.of([1, 'a']).set(1, 'b').toArray()   // => [[1, 'b']]
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * console.log(HashMap.of([1, 'a']).set(2, 'b').toArray()); // => [ [ 1, "a" ], [ 2, "b" ] ]
+	 * console.log(HashMap.of([1, 'a']).set(1, 'b').toArray()); // => [ [ 1, "b" ] ]
 	 * ```
 	 * @note if the key is already associated, the previous value will be 'replaced'
 	 */
@@ -416,8 +483,10 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 	 * @param entry - a tuple containing a key and value
 	 * @example
 	 * ```ts
-	 * HashMap.of([1, 'a']).addEntry([2, 'b']).toArray()   // => [[1, 'a'], [2, 'b']]
-	 * HashMap.of([1, 'a']).addEntry([1, 'b']).toArray()   // => [[1, 'b']]
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * console.log(HashMap.of([1, 'a']).addEntry([2, 'b']).toArray()); // => [ [ 1, "a" ], [ 2, "b" ] ]
+	 * console.log(HashMap.of([1, 'a']).addEntry([1, 'b']).toArray()); // => [ [ 1, "b" ] ]
 	 * ```
 	 */
 	addEntry(entry: readonly [K, V]): WithKeyValue<Tp, K, V>['nonEmpty'];
@@ -427,7 +496,10 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 	 * @param entries - a `StreamSource` containing tuples with a key and value
 	 * @example
 	 * ```ts
-	 * HashMap.of([1, 'a']).addEntries([[2, 'b']]).toArray()   // => [[1, 'a'], [2, 'b']]
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * const result = HashMap.of([1, 'a']).addEntries([[2, 'b']]);
+	 * console.log(result.toArray()); // => [ [ 1, "a" ], [ 2, "b" ] ]
 	 * ```
 	 */
 	addEntries<V2 extends V = V>(
@@ -447,17 +519,14 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 	 * entry is removed.
 	 * @example
 	 * ```ts
-	 * const m = HashMap.of([1, 'a'], [2, 'b'])
-	 * m.modifyAt(3, { ifNew: 'c' }).toArray()
-	 * // => [[1, 'a'], [2, 'b'], [3, 'c']]
-	 * m.modifyAt(3, { ifNew: (none) => 1 < 2 ? none : 'c' }).toArray()
-	 * // => [[1, 'a'], [2, 'b']]
-	 * m.modifyAt(2, { ifExists: () => 'c' }).toArray()
-	 * // => [[1, 'a'], [2, 'c']]
-	 * m.modifyAt(2, { ifExists: (v) => v + 'z' }).toArray()
-	 * // => [[1, 'a'], [2, 'bz']]
-	 * m.modifyAt(2, { ifExists: (v, remove) => v === 'a' ? v : remove }).toArray()
-	 * // => [[1, 'a']]
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * const source = HashMap.of([1, 'a'], [2, 'b']);
+	 * console.log(source.modifyAt(3, { ifNew: { set: 'c' } }).toArray()); // => [ [ 1, "a" ], [ 2, "b" ], [ 3, "c" ] ]
+	 * console.log(source.modifyAt(3, { ifNew: { create: (skip) => skip } }).toArray()); // => [ [ 1, "a" ], [ 2, "b" ] ]
+	 * console.log(source.modifyAt(2, { ifExists: { set: 'c' } }).toArray()); // => [ [ 1, "a" ], [ 2, "c" ] ]
+	 * console.log(source.modifyAt(2, { ifExists: { update: (v) => v + 'z' } }).toArray()); // => [ [ 1, "a" ], [ 2, "bz" ] ]
+	 * console.log(source.modifyAt(2, { ifExists: { update: (v, remove) => (v === 'a' ? v : remove) } }).toArray()); // => [ [ 1, "a" ] ]
 	 * ```
 	 */
 	modifyAt(
@@ -471,13 +540,12 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 	 * @param update - a new value or function taking the current value and returning a new value
 	 * @example
 	 * ```ts
-	 * const m = HashMap.of([1, 'a'], [2, 'b'])
-	 * m.updateAt(3, 'a').toArray()
-	 * // => [[1, 'a'], [2, 'b']]
-	 * m.updateAt(2, 'c').toArray()
-	 * // => [[1, 'a'], [2, 'c']]
-	 * m.updateAt(2, v => v + 'z')
-	 * // => [[1, 'a'], [2, 'bz']]
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * const source = HashMap.of([1, 'a'], [2, 'b']);
+	 * console.log(source.updateAt(3, () => 'a').toArray()); // => [ [ 1, "a" ], [ 2, "b" ] ]
+	 * console.log(source.updateAt(2, () => 'c').toArray()); // => [ [ 1, "a" ], [ 2, "c" ] ]
+	 * console.log(source.updateAt(2, (v) => v + 'z').toArray()); // => [ [ 1, "a" ], [ 2, "bz" ] ]
 	 * ```
 	 */
 	updateAt<UK = K>(
@@ -496,12 +564,13 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 	 * @param update - a new value or function taking the current value and returning a new value
 	 * @example
 	 * ```ts
-	 * const m = HashMap.of([1, 'a'], [2, 'b'])
-	 * const result = m.updateAtAndGet(2, v => v + 'c')
-	 * if (result[2]) console.log([result[0].toArray(), result[1]])
-	 * // => logs [[[1, 'a'], [2, 'bc']], 'b']
-	 * console.log(m.updateAtAndGet(3, v => v + 'c'))   // => [HashMap(1 => 'a', 2 => 'b'), undefined, false]
-	 * console.log(m.updateAtAndGet(2, v => v))          // => [HashMap(1 => 'a', 2 => 'b'), 'b', true]   (no-op, unchanged)
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * const source = HashMap.of([1, 'a'], [2, 'b']);
+	 * const [newMap, value, hasValue] = source.updateAtAndGet(2, (v) => v + 'c');
+	 * console.log([newMap.toArray(), value, hasValue]); // => [ [ [ 1, "a" ], [ 2, "bc" ] ], "b", true ]
+	 * console.log(source.updateAtAndGet(3, (v) => v + 'c')[2]); // => false
+	 * console.log(source.updateAtAndGet(2, (v) => v)[2]); // => true
 	 * ```
 	 */
 	updateAtAndGet<UK = K>(
@@ -516,7 +585,10 @@ export interface RMapBase<K, V, Tp extends RMapBase.Types = RMapBase.Types>
 	 * Returns a builder object containing the entries of this collection.
 	 * @example
 	 * ```ts
-	 * const builder: HashMap.Builder<number, string> = HashMap.of([1, 'a'], [2, 'b']).toBuilder()
+	 * import { HashMap } from '@rimbu/hashed';
+	 *
+	 * const builder: HashMap.Builder<number, string> = HashMap.of([1, 'a'], [2, 'b']).toBuilder();
+	 * console.log(builder.size); // => 2
 	 * ```
 	 */
 	toBuilder(): WithKeyValue<Tp, K, V>['builder'];
@@ -531,7 +603,9 @@ export namespace RMapBase {
 		 * Returns a non-empty Stream containing all entries of this collection as tuples of key and value.
 		 * @example
 		 * ```ts
-		 * HashMap.of([1, 1], [2, 2]).stream().toArray()  // => [[1, 1], [2, 2]]
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * console.log(HashMap.of([1, 1], [2, 2]).stream().toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]
 		 * ```
 		 */
 		stream(): Stream.NonEmpty<readonly [K, V]>;
@@ -540,7 +614,10 @@ export namespace RMapBase {
 		 * @param entries - a `StreamSource` containing tuples with a key and value
 		 * @example
 		 * ```ts
-		 * HashMap.of([1, 'a']).addEntries([[2, 'b']]).toArray()   // => [[1, 'a'], [2, 'b']]
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const result = HashMap.of([1, 'a']).addEntries([[2, 'b']]);
+		 * console.log(result.toArray()); // => [ [ 1, "a" ], [ 2, "b" ] ]
 		 * ```
 		 */
 		addEntries(
@@ -553,13 +630,12 @@ export namespace RMapBase {
 		 * @param update - a new value or function taking the current value and returning a new value
 		 * @example
 		 * ```ts
-		 * const m = HashMap.of([1, 'a'], [2, 'b'])
-		 * m.updateAt(3, 'a').toArray()
-		 * // => [[1, 'a'], [2, 'b']]
-		 * m.updateAt(2, 'c').toArray()
-		 * // => [[1, 'a'], [2, 'c']]
-		 * m.updateAt(2, v => v + 'z')
-		 * // => [[1, 'a'], [2, 'bz']]
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const source = HashMap.of([1, 'a'], [2, 'b']);
+		 * console.log(source.updateAt(3, () => 'a').toArray()); // => [ [ 1, "a" ], [ 2, "b" ] ]
+		 * console.log(source.updateAt(2, () => 'c').toArray()); // => [ [ 1, "a" ], [ 2, "c" ] ]
+		 * console.log(source.updateAt(2, (v) => v + 'z').toArray()); // => [ [ 1, "a" ], [ 2, "bz" ] ]
 		 * ```
 		 */
 		updateAt<UK = K>(
@@ -578,11 +654,12 @@ export namespace RMapBase {
 		 * @param update - a new value or function taking the current value and returning a new value
 		 * @example
 		 * ```ts
-		 * const m = HashMap.of([1, 'a'], [2, 'b'])
-		 * const result = m.updateAtAndGet(2, v => v + 'c')
-		 * if (result[2]) console.log([result[0].toArray(), result[1]])
-		 * // => logs [[[1, 'a'], [2, 'bc']], 'b']
-		 * console.log(m.updateAtAndGet(2, v => v))   // => [HashMap(1 => 'a', 2 => 'b'), 'b', true]   (no-op, unchanged)
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const source = HashMap.of([1, 'a'], [2, 'b']);
+		 * const [newMap, value, hasValue] = source.updateAtAndGet(2, (v) => v + 'c');
+		 * console.log([newMap.toArray(), value, hasValue]); // => [ [ [ 1, "a" ], [ 2, "bc" ] ], "b", true ]
+		 * console.log(source.updateAtAndGet(2, (v) => v)[2]); // => true
 		 * ```
 		 */
 		updateAtAndGet<UK = K>(
@@ -598,8 +675,10 @@ export namespace RMapBase {
 		 * @typeparam V - the value type
 		 * @example
 		 * ```ts
-		 * HashMap.empty<number, string>()    // => HashMap<number, string>
-		 * HashMap.empty<string, boolean>()   // => HashMap<string, boolean>
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * console.log(HashMap.empty<number, string>().toString()); // => HashMap()
+		 * console.log(HashMap.empty<string, boolean>().toString()); // => HashMap()
 		 * ```
 		 */
 		empty<K extends UK, V>(): WithKeyValue<Tp, K, V>['normal'];
@@ -610,7 +689,9 @@ export namespace RMapBase {
 		 * @param entries - a non-empty array of key-value entries
 		 * @example
 		 * ```ts
-		 * HashMap.of([1, 'a'], [2, 'b'])    // => HashMap.NonEmpty<number, string>
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * console.log(HashMap.of([1, 'a'], [2, 'b']).toArray()); // => [ [ 1, "a" ], [ 2, "b" ] ]
 		 * ```
 		 */
 		of<K extends UK, V>(
@@ -623,7 +704,9 @@ export namespace RMapBase {
 		 * @param sources - an array of `StreamSource` instances containing key-value entries
 		 * @example
 		 * ```ts
-		 * HashMap.from([[1, 'a'], [2, 'b']])    // => HashMap.NonEmpty<number, string>
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * console.log(HashMap.from([[1, 'a'], [2, 'b']]).toArray()); // => [ [ 1, "a" ], [ 2, "b" ] ]
 		 * ```
 		 */
 		from<K extends UK, V>(
@@ -638,7 +721,10 @@ export namespace RMapBase {
 		 * @typeparam V - the value type
 		 * @example
 		 * ```ts
-		 * HashMap.builder<number, string>()    // => HashMap.Builder<number, string>
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const builder: HashMap.Builder<number, string> = HashMap.builder<number, string>();
+		 * console.log(builder.size); // => 0
 		 * ```
 		 */
 		builder<K extends UK, V>(): WithKeyValue<Tp, K, V>['builder'];
@@ -650,9 +736,14 @@ export namespace RMapBase {
 		 * @param source - (optional) an initial source of tuples to add to
 		 * @example
 		 * ```ts
+		 * import { Stream } from '@rimbu/stream';
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
 		 * const someSource = HashMap.of([1, 'a'], [2, 'b']);
-		 * const result = Stream.of([1, 'c'], [3, 'a']).reduce(HashMap.reducer(someSource))
-		 * result.toArray()   // => [[1, 'c'], [2, 'b'], [3, 'a']]
+		 * const result = Stream.of<readonly [number, string]>([1, 'c'], [3, 'a']).reduce(
+		 *   HashMap.reducer(someSource),
+		 * );
+		 * console.log(result.toArray()); // => [ [ 1, "c" ], [ 2, "b" ], [ 3, "a" ] ]
 		 * ```
 		 * @note uses a builder under the hood. If the given `source` is an RMap in the same context, it will directly call `.toBuilder()`.
 		 */
@@ -670,11 +761,13 @@ export namespace RMapBase {
 		 * @param sources - a non-empty set of StreamSources containing tuples of keys and values
 		 * @example
 		 * ```ts
-		 * const m = HashMap.of([1, 'a'], [2, 'b'])
-		 * const m2 = HashMap.mergeAll('none', m, [[2, true]], HashMap.of([3, 15]))
-		 * // type of m2: HashMap<number, [string, boolean | string, number | string]>
-		 * console.log(m2.toArray())
-		 * // => [[1, ['a', 'none', 'none']], [2, ['b', true, 'none']], [3, ['none', 'none', 15]]]
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const m = HashMap.of([1, 'a'], [2, 'b']);
+		 * const result = HashMap.mergeAll('none', m, [[2, true]], HashMap.of([3, 15]));
+		 * // type of result: HashMap<number, [string, boolean | string, number | string]>
+		 * console.log(result.toArray());
+		 * // => [ [ 1, [ "a", "none", "none" ] ], [ 2, [ "b", true, "none" ] ], [ 3, [ "none", "none", 15 ] ] ]
 		 * ```
 		 */
 		mergeAll<
@@ -711,18 +804,17 @@ export namespace RMapBase {
 		 * and returns the result value to use in the resulting map.
 		 * @example
 		 * ```ts
-		 * const m = HashMap.of([1, 'a'], [2, 'b'])
-		 * const m2 = HashMap.mergeAllWith(
-		 *   m
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const m = HashMap.of([1, 'a'], [2, 'b']);
+		 * const result = HashMap.mergeAllWith(
+		 *   m,
 		 *   [[2, 'c']],
-		 *   HashMap.of([3, 'd'])
-		 * )(
-		 *   'q',
-		 *   (key, v1, v2, v3) => `${key}${v1}${v2}${v3}`
-		 * )
-		 * // type of m2: HashMap<number, string>
-		 * console.log(m2.toArray())
-		 * // => [[1, '1aqq'], [2, '2bcq'], [3, '3qqd']]
+		 *   HashMap.of([3, 'd']),
+		 * )('q', (key, v1, v2, v3) => `${key}${v1}${v2}${v3}`);
+		 * // type of result: HashMap<number, string>
+		 * console.log(result.toArray());
+		 * // => [ [ 1, "1aqq" ], [ 2, "2bcq" ], [ 3, "3qqd" ] ]
 		 * ```
 		 */
 		mergeAllWith<
@@ -756,11 +848,12 @@ export namespace RMapBase {
 		 * @param sources - a non-empty set of StreamSources containing tuples of keys and values
 		 * @example
 		 * ```ts
-		 * const m = HashMap.of([1, 'a'], [2, 'b'])
-		 * const m2 = HashMap.merge(m, [[2, true]], HashMap.of([2, 15]))
-		 * // type of m2: HashMap<number, [string, boolean, number]>
-		 * console.log(m2.toArray())
-		 * // => [[2, ['b', true, 15]]]
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const m = HashMap.of([1, 'a'], [2, 'b']);
+		 * const result = HashMap.merge(m, [[2, true]], HashMap.of([2, 15]));
+		 * // type of result: HashMap<number, [string, boolean, number]>
+		 * console.log(result.toArray()); // => [ [ 2, [ "b", true, 15 ] ] ]
 		 * ```
 		 */
 		merge<K extends UK, I extends readonly [unknown, unknown, ...unknown[]]>(
@@ -785,17 +878,16 @@ export namespace RMapBase {
 		 * returning a value for the resulting Map.
 		 * @example
 		 * ```ts
-		 * const m = HashMap.of([1, 'a'], [2, 'b'])
-		 * const m2 = HashMap.mergeWith(
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const m = HashMap.of([1, 'a'], [2, 'b']);
+		 * const result = HashMap.mergeWith(
 		 *   m,
 		 *   [[2, true]],
-		 *   HashMap.of([2, 15])
-		 * )(
-		 *   (key, v1, v2) => `${key}${v1}${v2}`,
-		 * )
-		 * // type of m2: HashMap<number, string>
-		 * console.log(m2.toArray())
-		 * // => [[2, '2true15']]
+		 *   HashMap.of([2, 15]),
+		 * )((key, v1, v2) => `${key}${v1}${v2}`);
+		 * // type of result: HashMap<number, string>
+		 * console.log(result.toArray()); // => [ [ 2, "2btrue" ] ]
 		 * ```
 		 */
 		mergeWith<
@@ -831,7 +923,9 @@ export namespace RMapBase {
 		 * A string tag defining the specific collection type
 		 * @example
 		 * ```ts
-		 * HashMap.defaultContext().typeTag   // => 'HashMap'
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * console.log(HashMap.defaultContext().typeTag); // => HashMap
 		 * ```
 		 */
 		readonly typeTag: string;
@@ -843,7 +937,9 @@ export namespace RMapBase {
 		 * @param obj - the object to check
 		 * @example
 		 * ```ts
-		 * HashMap.defaultContext().isValidKey(1)   // => true
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * console.log(HashMap.defaultContext().isValidKey(1)); // => true
 		 * ```
 		 */
 		isValidKey(obj: any): obj is UK;
@@ -858,8 +954,9 @@ export namespace RMapBase {
 		 * Returns the amount of entries in the builder.
 		 * @example
 		 * ```ts
-		 * HashMap.of([[1, 'a'], [2, 'b']]).toBuilder().size
-		 * // => 2
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * console.log(HashMap.of([1, 'a'], [2, 'b']).toBuilder().size); // => 2
 		 * ```
 		 */
 		readonly size: number;
@@ -867,8 +964,9 @@ export namespace RMapBase {
 		 * Returns true if there are no entries in the builder.
 		 * @example
 		 * ```ts
-		 * HashMap.of([[1, 'a'], [2, 'b']]).toBuilder().isEmpty
-		 * // => false
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * console.log(HashMap.of([1, 'a'], [2, 'b']).toBuilder().isEmpty); // => false
 		 * ```
 		 */
 		readonly isEmpty: boolean;
@@ -879,11 +977,13 @@ export namespace RMapBase {
 		 * @param otherwise - (default: undefined) an `OptLazy` fallback value if the key is not in the collection
 		 * @example
 		 * ```ts
-		 * const m = HashMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.get(2)          // => 'b'
-		 * m.get(3)          // => undefined
-		 * m.get(2, 'none')  // => 'b'
-		 * m.get(3, 'none')  // => 'none'
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const builder = HashMap.of([1, 'a'], [2, 'b']).toBuilder();
+		 * console.log(builder.get(2)); // => b
+		 * console.log(builder.get(3)); // => undefined
+		 * console.log(builder.get(2, 'none')); // => b
+		 * console.log(builder.get(3, 'none')); // => none
 		 * ```
 		 */
 		get<UK = K>(key: RelatedTo<K, UK>): V | undefined;
@@ -894,9 +994,11 @@ export namespace RMapBase {
 		 * @param key - the key to look for
 		 * @example
 		 * ```ts
-		 * const m = HashMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.hasKey(2)    // => true
-		 * m.hasKey(3)    // => false
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const builder = HashMap.of([1, 'a'], [2, 'b']).toBuilder();
+		 * console.log(builder.hasKey(2)); // => true
+		 * console.log(builder.hasKey(3)); // => false
 		 * ```
 		 */
 		hasKey<UK = K>(key: RelatedTo<K, UK>): boolean;
@@ -910,11 +1012,14 @@ export namespace RMapBase {
 		 * looping over it
 		 * @example
 		 * ```ts
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const collected: [string, number][] = [];
 		 * HashMap.of([1, 'a'], [2, 'b'], [3, 'c']).toBuilder().forEach((entry, i, halt) => {
-		 *  console.log([entry[1], entry[0]]);
-		 *  if (i >= 1) halt();
-		 * })
-		 * // => logs ['a', 1]  ['b', 2]
+		 *   collected.push([entry[1], entry[0]]);
+		 *   if (i >= 1) halt();
+		 * });
+		 * console.log(collected); // => [ [ "a", 1 ], [ "b", 2 ] ]
 		 * ```
 		 * @note O(N)
 		 */
@@ -928,9 +1033,11 @@ export namespace RMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
-		 * const m = HashMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.addEntry([3, 'c'])   // => true
-		 * m.addEntry([1, 'a'])   // => false
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const builder = HashMap.of([1, 'a'], [2, 'b']).toBuilder();
+		 * console.log(builder.addEntry([3, 'c'])); // => true
+		 * console.log(builder.addEntry([1, 'a'])); // => false
 		 * ```
 		 */
 		addEntry(entry: readonly [K, V]): boolean;
@@ -940,9 +1047,11 @@ export namespace RMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
-		 * const m = HashMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.addEntries([[1, 'a'], [3, 'c']])   // => true
-		 * m.addEntries([])                    // => false
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const builder = HashMap.of([1, 'a'], [2, 'b']).toBuilder();
+		 * console.log(builder.addEntries([[3, 'c']])); // => true
+		 * console.log(builder.addEntries([])); // => false
 		 * ```
 		 */
 		addEntries(entries: StreamSource<readonly [K, V]>): boolean;
@@ -953,9 +1062,11 @@ export namespace RMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
-		 * const m = HashMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.set(3, 'c')   // => true
-		 * m.set(1, 'a')   // => false
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const builder = HashMap.of([1, 'a'], [2, 'b']).toBuilder();
+		 * console.log(builder.set(3, 'c')); // => true
+		 * console.log(builder.set(1, 'a')); // => false
 		 * ```
 		 */
 		set(key: K, value: V): boolean;
@@ -967,10 +1078,12 @@ export namespace RMapBase {
 		 * @returns the value previously associated with given `key`, or the fallback value otherwise
 		 * @example
 		 * ```ts
-		 * const m = HashMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.removeKey(2)        // => 'b'
-		 * m.removeKey(3)        // => undefined
-		 * m.removeKey(3, 'c')   // => 'c'
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const builder = HashMap.of([1, 'a'], [2, 'b']).toBuilder();
+		 * console.log(builder.removeKey(2)); // => b
+		 * console.log(builder.removeKey(3)); // => undefined
+		 * console.log(builder.removeKey(3, 'c')); // => c
 		 * ```
 		 */
 		removeKey<UK = K>(key: RelatedTo<K, UK>): V | undefined;
@@ -982,9 +1095,11 @@ export namespace RMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
-		 * const m = HashMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.removeKeys([3, 4, 5])  // => false
-		 * m.removeKeys([1, 10])    // => true
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const builder = HashMap.of([1, 'a'], [2, 'b']).toBuilder();
+		 * console.log(builder.removeKeys([3, 4, 5])); // => false
+		 * console.log(builder.removeKeys([1, 10])); // => true
 		 * ```
 		 */
 		removeKeys<UK = K>(keys: StreamSource<RelatedTo<K, UK>>): boolean;
@@ -999,19 +1114,15 @@ export namespace RMapBase {
 		 * @returns true if the data in the builder has changed
 		 * @example
 		 * ```ts
-		 * const m = HashMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.modifyAt(1, { ifNew: 'd' })
-		 * // => false
-		 * m.modifyAt(3, { ifNew: 'c' })
-		 * // => true
-		 * m.modifyAt(3, { ifNew: (none) => 1 < 2 ? none : 'c' })
-		 * // => false
-		 * m.modifyAt(2, { ifExists: () => 'c' })
-		 * // => true
-		 * m.modifyAt(1, { ifExists: (v) => v + 'z' })
-		 * // => true
-		 * m.modifyAt(2, { ifExists: (v, remove) => v === 'a' ? v : remove })
-		 * // => true
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const builder = HashMap.of([1, 'a'], [2, 'b']).toBuilder();
+		 * console.log(builder.modifyAt(1, { ifNew: { set: 'd' } })); // => false
+		 * console.log(builder.modifyAt(3, { ifNew: { set: 'c' } })); // => true
+		 * console.log(builder.modifyAt(4, { ifNew: { create: (skip) => skip } })); // => false
+		 * console.log(builder.modifyAt(2, { ifExists: { set: 'c' } })); // => true
+		 * console.log(builder.modifyAt(1, { ifExists: { update: (v) => v + 'z' } })); // => true
+		 * console.log(builder.modifyAt(3, { ifExists: { update: (v, remove) => (v === 'c' ? remove : v) } })); // => true
 		 * ```
 		 */
 		modifyAt(key: K, options: VariantModifyOptions<V>): boolean;
@@ -1023,10 +1134,12 @@ export namespace RMapBase {
 		 * @returns the previous value associated with given key, of the fallback value otherwise.
 		 * @example
 		 * ```ts
-		 * const m = HashMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * m.updateAt(1, 'a')           // => 'a'
-		 * m.updateAt(1, 'b')           // => 'b'
-		 * m.updateAt(2, v => v + 'z')  // => 'b'
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const builder = HashMap.of([1, 'a'], [2, 'b']).toBuilder();
+		 * console.log(builder.updateAt(1, () => 'a')); // => a
+		 * console.log(builder.updateAt(1, () => 'b')); // => a
+		 * console.log(builder.updateAt(2, (v) => v + 'z')); // => b
 		 * ```
 		 */
 		updateAt(key: K, update: VariantUpdate<V>): V | undefined;
@@ -1035,8 +1148,11 @@ export namespace RMapBase {
 		 * Returns an immutable collection instance containing the entries in this builder.
 		 * @example
 		 * ```ts
-		 * const m = HashMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * const m2: HashMap<number, string> = m.build()
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const builder = HashMap.of([1, 'a'], [2, 'b']).toBuilder();
+		 * const result: HashMap<number, string> = builder.build();
+		 * console.log(result.toArray()); // => [ [ 1, "a" ], [ 2, "b" ] ]
 		 * ```
 		 */
 		build(): WithKeyValue<Tp, K, V>['normal'];
@@ -1047,8 +1163,11 @@ export namespace RMapBase {
 		 * @param mapFun - a function that takes an entry value and its key, and returns a new value
 		 * @example
 		 * ```ts
-		 * const m = HashMap.of([1, 'a'], [2, 'b']).toBuilder()
-		 * const m2: HashMap<number, number> = m.buildMapValues(value => value.length)
+		 * import { HashMap } from '@rimbu/hashed';
+		 *
+		 * const builder = HashMap.of([1, 'a'], [2, 'bc']).toBuilder();
+		 * const result: HashMap<number, number> = builder.buildMapValues((value) => value.length);
+		 * console.log(result.toArray()); // => [ [ 1, 1 ], [ 2, 2 ] ]
 		 * ```
 		 */
 		buildMapValues<V2>(
