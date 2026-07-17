@@ -30,8 +30,17 @@ export default function SandpackPlayer({ code, packages }: SandpackPlayerProps) 
       }}
       options={{ recompileMode: 'delayed', recompileDelay: 500 }}
     >
-      <SandpackLayout>
-        <SandpackCodeEditor showLineNumbers showRunButton wrapContent />
+      {/*
+        SandpackLayout is a flex row by default (editor left, console right).
+        Force a column so the console sits *below* the editor.
+      */}
+      <SandpackLayout style={{ flexDirection: 'column' }}>
+        <SandpackCodeEditor
+          showLineNumbers
+          showRunButton
+          wrapContent
+          style={{ width: '100%' }}
+        />
         {/*
           `standalone` makes the console mount its own Sandpack client (iframe),
           which runs the bundler and evaluates the code. Without it, the console
@@ -43,6 +52,7 @@ export default function SandpackPlayer({ code, packages }: SandpackPlayerProps) 
           showHeader
           showSyntaxError
           resetOnPreviewRestart
+          style={{ width: '100%' }}
         />
       </SandpackLayout>
     </SandpackProvider>
