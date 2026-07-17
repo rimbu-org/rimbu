@@ -1,0 +1,31 @@
+---
+/**
+ * RunExample — wraps a static (Astro/Expressive Code-rendered) code block with a
+ * lazy "Run" control. The highlighted code in the default slot is always visible
+ * and requires no hydration; only the small Run button/player is a React island
+ * (client:idle), and Sandpack itself is code-split and loaded on click.
+ *
+ * This keeps per-page hydration cost tiny even when a page has many examples.
+ */
+import RunExampleControl from './RunExampleControl.tsx';
+
+interface Props {
+  code: string;
+  packages?: string[];
+  typeChecks?: boolean;
+}
+
+const { code, packages = [], typeChecks = true } = Astro.props;
+---
+
+<div class="rimbu-runnable">
+  <div class="rimbu-runnable__code">
+    <slot />
+  </div>
+  <RunExampleControl
+    client:idle
+    code={code}
+    packages={packages}
+    typeChecks={typeChecks}
+  />
+</div>

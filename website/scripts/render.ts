@@ -44,6 +44,7 @@ function findRepoRoot(start: string): string {
 const ROOT = findRepoRoot(process.cwd());
 const WEBSITE = join(ROOT, 'website');
 const AGGREGATE = join(ROOT, 'docs', 'api.aggregate.json');
+const RUNTIME = join(ROOT, 'docs', 'api.examples.runtime.json');
 const DOCS_DIR = join(WEBSITE, 'src', 'content', 'docs');
 const API_DIR = join(DOCS_DIR, 'api');
 const GENERATED = join(WEBSITE, 'src', 'generated');
@@ -114,6 +115,11 @@ interface Aggregate {
 // --------------------------------------------------------------------------
 const pkgShort = (pkgName: string): string => pkgName.replace(/^@rimbu\//, '');
 
+// MDX import line for the runnable-example island, inserted after frontmatter on
+// pages that contain at least one runnable code example.
+const RUNNABLE_IMPORT =
+  "import RunExample from '../../../../components/RunExample.astro';\n";
+
 // Slug for an entity id -> URL path segment. Ids look like `list/List` or
 // `list/List.NonEmpty`. We keep the package as a directory and the dotted name
 // as a lowercased, dot->- slug so it is filesystem/URL safe.
@@ -145,7 +151,16 @@ const firstLine = (s: string): string => (s || '').split('\n')[0].trim();
 // --------------------------------------------------------------------------
 class Renderer {
   private out: string[] = [];
-  constructor(private agg: Aggregate) {}
+  // Whether the currently-rendered page uses <RunnableExample>, so we can add
+  // the component import to its frontmatter.
+  private pageUsesRunnable = false;
+  constructor(
+    private agg: Aggregate,
+    // Map: normalized example source -> runtime metadata (packages, typeChecks).
+    // Content-keyed because the same example is shared across inherited members;
+    // duplicates have identical metadata so the lookup is unambiguous.
+    private runtime: Map<string, { packages: string[]; typeChecks: boolean }>,
+  ) {}
 
   private e(id: string): Entity | undefined {
     return this.agg.entities[id];
@@ -186,11 +201,38 @@ class Renderer {
     }
     for (const note of doc.notes) parts.push(escapeMdx(note.trim()));
     for (const ex of doc.examples) {
-      // Examples are already fenced code blocks in the JSON; keep verbatim.
-      parts.push(ex.trim());
+      parts.push(this.example(ex));
     }
     for (const s of doc.see) parts.push(`See: ${escapeMdx(s)}`);
     return parts.join('\n\n');
+  }
+
+  // Render a single @example. TypeScript/JS examples are emitted as a normal
+  // fenced code block (so Starlight/Expressive Code highlights it, adds a copy
+  // button, etc. — always visible, no hydration) wrapped by a small RunExample
+  // island that lazy-mounts Sandpack beneath the code on demand. Non-code (or
+  // non-ts) examples fall back to the verbatim block.
+  private example(ex: string): string {
+    const trimmed = ex.trim();
+    const m = trimmed.match(/^```(ts|typescript|js|javascript)\s*\n([\s\S]*?)```$/i);
+    if (!m) return trimmed;
+    const lang = m[1];
+    const code = m[2].replace(/\s+$/, '');
+    const meta = this.runtime.get(code.trim());
+    const packages = meta?.packages ?? [];
+    const typeChecks = meta?.typeChecks ?? false;
+    this.pageUsesRunnable = true;
+    // The fenced block is Astro-rendered (highlighted, static). The RunExample
+    // wrapper hydrates only a small Run button; Sandpack loads on click.
+    const fence = '```' + lang + '\n' + code + '\n```';
+    return (
+      `<RunExample ` +
+      `code={${JSON.stringify(code)}} ` +
+      `packages={${JSON.stringify(packages)}} ` +
+      `typeChecks={${JSON.stringify(typeChecks)}}>\n\n` +
+      `${fence}\n\n` +
+      `</RunExample>`
+    );
   }
 
   private member(m: Member): string {
@@ -256,6 +298,7 @@ class Renderer {
 
   // ---- Entity page ------------------------------------------------------
   renderEntity(ent: Entity): string {
+    this.pageUsesRunnable = false;
     // Redirected (core re-export) -> short stub linking to canonical.
     if (ent.redirected && ent.canonicalId && ent.canonicalId !== ent.id) {
       const canon = this.e(ent.canonicalId);
@@ -323,6 +366,12 @@ class Renderer {
     // Inheritance tree
     const tree = this.inheritanceTree(ent);
     if (tree) body.push('\n' + tree);
+
+    // If any example on this page became a runnable widget, import the component
+    // right after the frontmatter block.
+    if (this.pageUsesRunnable) {
+      body[0] = body[0] + RUNNABLE_IMPORT + '\n';
+    }
 
     return body.join('\n');
   }
@@ -433,7 +482,26 @@ function main(): void {
     process.exit(1);
   }
   const agg = JSON.parse(readFileSync(AGGREGATE, 'utf8')) as Aggregate;
-  const renderer = new Renderer(agg);
+
+  // Load the examples runtime artifact (produced by `docs:examples`) and index
+  // it by normalized example source so the renderer can attach runnable metadata.
+  const runtime = new Map<string, { packages: string[]; typeChecks: boolean }>();
+  if (existsSync(RUNTIME)) {
+    const raw = JSON.parse(readFileSync(RUNTIME, 'utf8')) as Record<
+      string,
+      { code: string; packages: string[]; typeChecks: boolean }
+    >;
+    for (const entry of Object.values(raw)) {
+      runtime.set(entry.code.trim(), {
+        packages: entry.packages,
+        typeChecks: entry.typeChecks,
+      });
+    }
+  } else {
+    console.warn(`No examples runtime at ${RUNTIME}; examples render as static code.`);
+  }
+
+  const renderer = new Renderer(agg, runtime);
 
   // Clean previously generated api/ pages (leave hand-written docs alone).
   if (existsSync(API_DIR)) rmSync(API_DIR, { recursive: true, force: true });

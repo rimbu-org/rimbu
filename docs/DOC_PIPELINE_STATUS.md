@@ -81,8 +81,127 @@ the gates. Report always written to `docs/api.aggregate.report.json`.
 
 ## Next
 
-- Stage 4: `@example` extraction + type-check gate; final `docs/` cutover /
-  deployment wiring.
+- Stage 4b: final `docs/` cutover (replace Docusaurus with the Starlight
+  `website/`) + deployment wiring. Deferred as a separate reviewed step.
+
+## Stage 4a — `@example` type-check gate (DONE)
+
+`support/docs-extractor/src/examples.ts` (script `docs:examples`) is a fourth
+consumer of `docs/api.aggregate.json`. It type-checks every documented example so
+doc rot fails loudly.
+
+Pipeline per snippet:
+
+1. **Extract** the fenced ` ```ts ` code from each entity/member `@example`
+   (111 snippets across the surface).
+2. **Type-check the snippet as written.** Examples are expected to include their
+   own `import` statements — the gate does **not** auto-inject imports (this was
+   removed by design; see below). The snippet's imports are hoisted above an
+   `async function` wrapper so top-level `await` in async examples is valid.
+3. **Type-check** all snippets in one `ts.Program` with `strict: true` and a
+   `paths` map (`@rimbu/*` → each package's built `dist`, honoring the real
+   `exports` layout: root → `dist/<pkg>.d.ts`, subpath → `dist/public/*`).
+   `noUnusedLocals/Parameters` are off (illustrative snippets).
+4. **Report** to `docs/api.examples.report.json` and emit the runtime artifact
+   `docs/api.examples.runtime.json` (see "In-browser runnable examples").
+
+Severity (per user): **warning by default**; pass `--strict-examples` (or
+`RIMBU_EXAMPLES_STRICT=1`) to hard-fail (exit 1). Wired into `docs:build` before
+markdown/site.
+
+### Auto-import removed (design change)
+
+Earlier the gate auto-injected imports for bare identifiers (mapping each entity
+name to the specifier it is exported from, preferring `@rimbu/core`). Per user
+decision this was **removed**: examples will be updated to carry their own correct
+imports. Benefits: snippets are copy-pasteable, the gate is simpler (no identifier
+scanning / specifier inference), and the in-browser runner's dependency set is
+exact (derived from the snippet's own `import` statements). The identifier→
+specifier map, `specifierFromSource`, and `referencedImports` were deleted;
+`readPkgExports`/`buildPaths` are kept (still needed to resolve `@rimbu/*` to
+built dist for type-checking).
+
+Interim state: since no `@example` has imports yet, the gate reports **0/111**
+clean — expected, and non-blocking because the gate is warning-by-default. A
+follow-up pass will add correct imports to every `@example`, after which both the
+type-check pass rate and the runtime `packages` lists populate automatically.
+
+Transient snippet workdir `docs/.examples-check/` is cleaned after each run
+(kept with `RIMBU_EXAMPLES_KEEP=1` for debugging) and git-ignored.
+
+## In-browser runnable examples (Sandpack) — IN PROGRESS
+
+Decision (user): make every `@example` runnable in the browser with an
+interactive editor + console output, using **Sandpack (React), lazy-loaded**;
+**all** examples get a runner; `@rimbu/*` deps resolved to **`latest`** on the CDN.
+
+### Signature-level example capture (bug fix)
+
+While wiring this up we found the gate was only collecting **111** of the actual
+**3687** examples — it read `entity.doc.examples` and `member.doc.examples` but
+NOT `member.signatures[i].doc.examples`, where the vast majority live (inherited
+members carry their docs on the signature). Fixed: the gate now walks all three
+levels. Snippet/runtime key is `"<ownerId>::<member>::<sig>::<index>"` (`sig=-1`
+for entity/member-level examples).
+
+### Runtime artifact
+
+`docs/api.examples.runtime.json`: `key → { code, packages, typeChecks }`. `code`
+is the snippet as written; `packages` are the external packages it imports (Rimbu
++ others, excluding relative/`node:`); `typeChecks` is the gate result. The
+Starlight renderer indexes this **by normalized code string** (examples are shared
+across inherited members; duplicates carry identical metadata, so content-keyed
+lookup is unambiguous).
+
+### Site architecture (static code + lazy player)
+
+Per user decision the code block stays **always visible and statically
+highlighted** (Starlight/Expressive Code — copy button, theme, no hydration);
+only a small **Run** control is hydrated (`client:idle`), and clicking Run
+**expands the live Sandpack editor + console in place below the code**. Sandpack
+is code-split (~621 KB `sandpack` chunk) and fetched only on Run.
+
+Components (`website/src/components/`):
+- `RunExample.astro` — wraps the static fenced code block (default slot) + the
+  control island.
+- `RunExampleControl.tsx` — the Run button; lazy-imports the player on click.
+- `SandpackPlayer.tsx` — `SandpackProvider` (`vanilla-ts`, `theme: auto`,
+  `layout: console`), deps pinned to `latest`.
+
+`render.ts` emits `<RunExample …>` + a normal ` ```ts ` fence per example, and
+injects the component import after frontmatter on pages that have runnable
+examples (238 of 784 entity pages). Deps: `@astrojs/react`, `react`, `react-dom`,
+`@codesandbox/sandpack-react` added to `website/`; `react()` registered in
+`astro.config.mjs`; `jsx: react-jsx` / `jsxImportSource: react` added to
+`website/tsconfig.json` (SSR was erroring `React is not defined`).
+
+### Verification status
+
+- **Gate + runtime:** rebuilt `@rimbu/list` dist (TS7), re-ran extract → aggregate
+  → examples. Two hand-fixed List examples (`list.ts` entity, `list-helpers.ts`
+  `fromString`) now show `packages: ["@rimbu/list"], typeChecks: true`; overall
+  **2/3687** pass (the rest still lack imports — see follow-up).
+- **Site build (list-only):** 29 pages build cleanly. Verified the page has
+  statically highlighted code (Expressive Code), 39 tiny control islands, and
+  **0 Sandpack in the page HTML** (separate 621 KB chunk). ✅ Architecture correct.
+- **Full-site build (all 21 packages):** OOM-killed on this container (**3.6 GB
+  RAM**, ~2.4 GB free) during Vite's "Building static entrypoints" phase — Sandpack
+  + 238 island entrypoints exceed available memory here. Tried `--max-old-space-size`
+  up to 6 GB, `build.concurrency: 1`, and a `manualChunks` sandpack split; none
+  fit the ceiling. This is an **environment limit, not a code defect** (the
+  pre-Sandpack full build produced 802 pages earlier this session). CI/prod with
+  ≥ ~6–8 GB should build it. **Open item:** confirm full build on a larger machine
+  (and/or further reduce the island footprint).
+
+## Orchestration (root scripts)
+
+- `docs` → extract + aggregate
+- `docs:extract` / `docs:aggregate` / `docs:examples` / `docs:markdown` /
+  `docs:render`
+- `docs:site` → render MDX + `astro build`
+- `docs:build` → **full chain**: extract → aggregate → **examples** → markdown →
+  render → astro build. Verified end-to-end: 802 pages + Pagefind index; examples
+  gate ran in warning mode without blocking.
 
 ## Type resolution (HKT) — DONE
 

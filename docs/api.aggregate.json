@@ -1,6 +1,6 @@
 {
   "$schema": "rimbu-docs/aggregate/v1",
-  "generatedAt": "2026-07-16T19:56:15.341Z",
+  "generatedAt": "2026-07-16T21:33:28.283Z",
   "gitRef": "main",
   "packages": [
     "@rimbu/actor",
@@ -201422,8 +201422,8 @@
       "kind": "interface",
       "source": {
         "file": "packages/list/src/list.ts",
-        "line": 27,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/list/src/list.ts#L27"
+        "line": 30,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/list/src/list.ts#L30"
       },
       "type": {
         "typeParams": [
@@ -201444,8 +201444,8 @@
       "kind": "interface",
       "source": {
         "file": "packages/list/src/list.ts",
-        "line": 29,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/list/src/list.ts#L29"
+        "line": 32,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/list/src/list.ts#L32"
       },
       "type": {
         "typeParams": [],
@@ -201467,7 +201467,7 @@
         "description": "A random accessible immutable sequence of values of type T.\nSee the [List documentation](https://rimbu.org/docs/collections/list) and the [List API documentation](https://rimbu.org/api/rimbu/list/List/interface)",
         "params": [],
         "examples": [
-          "```ts\nconst l1 = List.empty<number>()\nconst l2 = List.of(1, 2, 3)\n```"
+          "```ts\nimport { List } from '@rimbu/list';\n\nconst l1 = List.empty<number>()\nconst l2 = List.of(1, 2, 3)\nconsole.log(l2.toArray())  // => [1, 2, 3]\n```"
         ],
         "notes": [
           "- The `List` is implemented as a block-based balanced tree, giving efficient\n  random access, updates, and concatenation regardless of size.\n- Indices follow mathematical convention: a negative index counts from the end,\n  e.g. -1 is the last value."
@@ -201476,8 +201476,8 @@
       },
       "source": {
         "file": "packages/list/src/list.ts",
-        "line": 20,
-        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/list/src/list.ts#L20"
+        "line": 23,
+        "url": "https://github.com/rimbu-org/rimbu/blob/main/packages/list/src/list.ts#L23"
       },
       "type": {
         "typeParams": [
@@ -203227,7 +203227,7 @@
                     }
                   ],
                   "examples": [
-                    "```ts\nList.fromString('abc').toArray()   // => ['a', 'b', 'c']\n```"
+                    "```ts\nimport { List } from '@rimbu/list';\n\nconsole.log(List.fromString('abc').toArray())   // => ['a', 'b', 'c']\n```"
                   ],
                   "notes": [],
                   "see": []

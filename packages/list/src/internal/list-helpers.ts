@@ -23,7 +23,9 @@ export namespace ListHelpers {
 		 * @typeparam S - the source string type
 		 * @example
 		 * ```ts
-		 * List.fromString('abc').toArray()   // => ['a', 'b', 'c']
+		 * import { List } from '@rimbu/list';
+		 *
+		 * console.log(List.fromString('abc').toArray())   // => ['a', 'b', 'c']
 		 * ```
 		 */
 		fromString<S extends string>(

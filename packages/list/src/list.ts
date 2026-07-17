@@ -13,8 +13,11 @@ import { ListHelpers } from '#list/list-helpers';
  *   e.g. -1 is the last value.
  * @example
  * ```ts
+ * import { List } from '@rimbu/list';
+ *
  * const l1 = List.empty<number>()
  * const l2 = List.of(1, 2, 3)
+ * console.log(l2.toArray())  // => [1, 2, 3]
  * ```
  */
 export interface List<T> extends ListBase<T, ListHelpers.Types> {}

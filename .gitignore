@@ -7,4 +7,7 @@ coverage
 
 benchmark
 
+# transient workdir for the @example type-check gate (docs:examples)
+/docs/.examples-check
+
 **/.DS_Store
