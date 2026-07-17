@@ -32,14 +32,16 @@ export default function SandpackPlayer({ code, packages }: SandpackPlayerProps) 
     >
       {/*
         SandpackLayout is a flex row by default (editor left, console right).
-        Force a column so the console sits *below* the editor.
+        Force a column so the console sits *below* the editor. In a column the
+        children have no intrinsic height and collapse, so give each an explicit
+        height (editor ~10 lines, console ~3 lines).
       */}
       <SandpackLayout style={{ flexDirection: 'column' }}>
         <SandpackCodeEditor
           showLineNumbers
           showRunButton
           wrapContent
-          style={{ width: '100%' }}
+          style={{ width: '100%', height: '200px' }}
         />
         {/*
           `standalone` makes the console mount its own Sandpack client (iframe),
@@ -52,7 +54,7 @@ export default function SandpackPlayer({ code, packages }: SandpackPlayerProps) 
           showHeader
           showSyntaxError
           resetOnPreviewRestart
-          style={{ width: '100%' }}
+          style={{ width: '100%', height: '80px' }}
         />
       </SandpackLayout>
     </SandpackProvider>
