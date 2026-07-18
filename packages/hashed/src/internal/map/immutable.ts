@@ -732,7 +732,7 @@ export class HashMapCollision<K, V> extends HashMapNonEmptyBase<K, V> {
 		if (undefined === ifExists) return this;
 		const { set, update } = ifExists;
 
-		const currentEntry = this.entries.get(
+		const currentEntry = this.entries.at(
 			currentIndex,
 			RimbuError.throwInvalidStateError,
 		);

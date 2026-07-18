@@ -1151,25 +1151,25 @@ describe('List methods', () => {
 		}
 		{
 			const b = list3_1.toBuilder();
-			expect(b.get(1)).toBe(2);
-			expect(b.get(2)).toBe(3);
-			expect(b.get(10)).toBe(undefined);
+			expect(b.at(1)).toBe(2);
+			expect(b.at(2)).toBe(3);
+			expect(b.at(10)).toBe(undefined);
 		}
 		{
 			const b = list3_2.toBuilder();
-			expect(b.get(1)).toBe(2);
-			expect(b.get(2)).toBe(3);
-			expect(b.get(10)).toBe(undefined);
+			expect(b.at(1)).toBe(2);
+			expect(b.at(2)).toBe(3);
+			expect(b.at(10)).toBe(undefined);
 		}
 		{
 			const b = list6_1.toBuilder();
-			expect(b.get(1)).toBe(2);
-			expect(b.get(10)).toBe(undefined);
+			expect(b.at(1)).toBe(2);
+			expect(b.at(10)).toBe(undefined);
 		}
 		{
 			const b = list6_2.toBuilder();
-			expect(b.get(1)).toBe(2);
-			expect(b.get(10)).toBe(undefined);
+			expect(b.at(1)).toBe(2);
+			expect(b.at(10)).toBe(undefined);
 		}
 	});
 
@@ -1235,15 +1235,15 @@ describe('List.Builder', () => {
 
 	it('get', () => {
 		const b = List.builder<number>();
-		expect(b.get(1)).toBe(undefined);
-		expect(b.get(1, 'a')).toBe('a');
+		expect(b.at(1)).toBe(undefined);
+		expect(b.at(1, 'a')).toBe('a');
 		b.appendAll([1, 2, 3]);
-		expect(b.get(1)).toBe(2);
-		expect(b.get(1, 'a')).toBe(2);
-		expect(b.get(-1)).toBe(3);
-		expect(b.get(-1, 'a')).toBe(3);
-		expect(b.get(10)).toBe(undefined);
-		expect(b.get(10, 'a')).toBe('a');
+		expect(b.at(1)).toBe(2);
+		expect(b.at(1, 'a')).toBe(2);
+		expect(b.at(-1)).toBe(3);
+		expect(b.at(-1, 'a')).toBe(3);
+		expect(b.at(10)).toBe(undefined);
+		expect(b.at(10, 'a')).toBe('a');
 	});
 
 	it('updateAt', () => {
@@ -1252,11 +1252,11 @@ describe('List.Builder', () => {
 		expect(b.isEmpty).toBe(true);
 		b.appendAll([1, 2, 3]);
 		expect(b.updateAt(1, () => 5)).toBe(2);
-		expect(b.get(1)).toBe(5);
+		expect(b.at(1)).toBe(5);
 		expect(b.updateAt(1, (v) => v + 1)).toBe(5);
-		expect(b.get(1)).toBe(6);
-		expect(b.get(10)).toBe(undefined);
-		expect(b.get(10, 'a')).toBe('a');
+		expect(b.at(1)).toBe(6);
+		expect(b.at(10)).toBe(undefined);
+		expect(b.at(10, 'a')).toBe('a');
 	});
 
 	it('set', () => {
@@ -1265,32 +1265,32 @@ describe('List.Builder', () => {
 		expect(b.isEmpty).toBe(true);
 		b.appendAll([1, 2, 3]);
 		expect(b.set(1, 5)).toBe(2);
-		expect(b.get(1)).toBe(5);
+		expect(b.at(1)).toBe(5);
 		expect(b.set(1, 5)).toBe(5);
-		expect(b.get(10)).toBe(undefined);
-		expect(b.get(10, 'a')).toBe('a');
+		expect(b.at(10)).toBe(undefined);
+		expect(b.at(10, 'a')).toBe('a');
 	});
 
 	it('prepend', () => {
 		const b = List.builder<number>();
 		b.prepend(1);
 		expect(b.length).toBe(1);
-		expect(b.get(0)).toBe(1);
+		expect(b.at(0)).toBe(1);
 		b.prepend(2);
 		expect(b.length).toBe(2);
-		expect(b.get(0)).toBe(2);
-		expect(b.get(1)).toBe(1);
+		expect(b.at(0)).toBe(2);
+		expect(b.at(1)).toBe(1);
 	});
 
 	it('append', () => {
 		const b = List.builder<number>();
 		b.append(1);
 		expect(b.length).toBe(1);
-		expect(b.get(0)).toBe(1);
+		expect(b.at(0)).toBe(1);
 		b.append(2);
 		expect(b.length).toBe(2);
-		expect(b.get(0)).toBe(1);
-		expect(b.get(1)).toBe(2);
+		expect(b.at(0)).toBe(1);
+		expect(b.at(1)).toBe(2);
 	});
 
 	it('appendAll', () => {
@@ -1305,7 +1305,7 @@ describe('List.Builder', () => {
 		const b = List.builder<number>();
 		b.insert(1, 1);
 		expect(b.length).toBe(1);
-		expect(b.get(0)).toBe(1);
+		expect(b.at(0)).toBe(1);
 		b.appendAll([2, 3, 4]);
 		b.insert(2, 10);
 		expect(b.length).toBe(5);

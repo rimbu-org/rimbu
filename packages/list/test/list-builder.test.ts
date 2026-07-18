@@ -24,7 +24,7 @@ describe('ListBuilder', () => {
 			const g = context.builder();
 			g.append(1);
 			expect(g.outerBuilder).toBeInstanceOf(OuterBlockBuilder);
-			expect(g.get(0)).toBe(1);
+			expect(g.at(0)).toBe(1);
 		}
 		{
 			const g = context.createBuilder<number>(context.of(11, 12, 13));
@@ -192,7 +192,7 @@ describe('ListBuilder', () => {
 		expect(b).toBeInstanceOf(ListBuilder);
 		expect(b.length).toBe(0);
 		expect(b.isEmpty).toBe(true);
-		expect(b.get(1)).toBeUndefined();
+		expect(b.at(1)).toBeUndefined();
 		expect(b.updateAt(1, () => 2)).toBeUndefined();
 		expect(b.set(1, 2)).toBeUndefined();
 		expect(b.remove(1)).toBeUndefined();
@@ -229,11 +229,11 @@ describe('ListBuilder', () => {
 
 	it('get', () => {
 		const g = builder({ length: 10, get: () => 5 });
-		expect(g.get(4)).toBe(5);
-		expect(g.get(-6)).toBe(5);
-		expect(g.get(12)).toBeUndefined();
-		expect(g.get(-12)).toBeUndefined();
-		expect(g.get(-12, 10)).toBe(10);
+		expect(g.at(4)).toBe(5);
+		expect(g.at(-6)).toBe(5);
+		expect(g.at(12)).toBeUndefined();
+		expect(g.at(-12)).toBeUndefined();
+		expect(g.at(-12, 10)).toBe(10);
 	});
 
 	it('checkLock', () => {
@@ -248,7 +248,7 @@ describe('ListBuilder', () => {
 		expect(() => g.build()).not.toThrow();
 		expect(() => g.buildMap((v) => v + 1)).not.toThrow();
 		expect(() => g.forEach(() => 1)).not.toThrow();
-		expect(() => g.get(4)).not.toThrow();
+		expect(() => g.at(4)).not.toThrow();
 		expect(() => g.insert(1, 1)).toThrow();
 		expect(() => g.isEmpty).not.toThrow();
 		expect(() => g.length).not.toThrow();
@@ -302,7 +302,7 @@ describe('ListBuilder', () => {
 			const g = context.builder();
 			g.prepend(1);
 			expect(g.outerBuilder).toBeInstanceOf(OuterBlockBuilder);
-			expect(g.get(0)).toBe(1);
+			expect(g.at(0)).toBe(1);
 		}
 		{
 			const g = context.createBuilder<number>(context.of(11, 12, 13));

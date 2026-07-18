@@ -119,32 +119,14 @@ export interface ListBase<T, Tp extends ListBase.Types = ListBase.Types>
 	 * import { List } from '@rimbu/list';
 	 *
 	 * const initialList = List.of(0, 1, 2);
-	 * console.log(initialList.get(5, 'other')); // => other
-	 * console.log(initialList.get(1, 'other')); // => 1
-	 * console.log(initialList.get(-1, 'other')); // => 2
-	 * ```
-	 * @note O(logB(N)) for block size B
-	 */
-	get(index: number): T | undefined;
-	get<O>(index: number, otherwise: OptLazy<O>): T | O;
-	/**
-	 * Returns the value in the List at the given `index`, or `undefined` if the index is out of bounds.
-	 * @param index - the element index
-	 * @note a negative `index` will be treated as follows:<br/>
-	 * - -1: the last value in the list<br/>
-	 * - -2: the second-last value in the list<br/>
-	 * - ...etc
-	 * @example
-	 * ```ts
-	 * import { List } from '@rimbu/list';
-	 *
-	 * const initialList = List.of(0, 1, 2);
-	 * console.log(initialList.at(0)); // => 0
-	 * console.log(initialList.at(-1)); // => 2
+	 * console.log(initialList.at(5, 'other')); // => other
+	 * console.log(initialList.at(1, 'other')); // => 1
+	 * console.log(initialList.at(-1, 'other')); // => 2
 	 * ```
 	 * @note O(logB(N)) for block size B
 	 */
 	at(index: number): T | undefined;
+	at<O>(index: number, otherwise: OptLazy<O>): T | O;
 	/**
 	 * Returns the List where at the given `index` the value is replaced or updated by the given `update`.
 	 * @param index - the index at which to update the value
@@ -1214,14 +1196,14 @@ export namespace ListBase {
 		 * import { List } from '@rimbu/list';
 		 *
 		 * const builder = List.of(0, 1, 2).toBuilder();
-		 * console.log(builder.get(5, 'other')); // => other
-		 * console.log(builder.get(1, 'other')); // => 1
-		 * console.log(builder.get(-1, 'other')); // => 2
+		 * console.log(builder.at(5, 'other')); // => other
+		 * console.log(builder.at(1, 'other')); // => 1
+		 * console.log(builder.at(-1, 'other')); // => 2
 		 * ```
 		 * @note O(logB(N)) for block size B
 		 */
-		get(index: number): T | undefined;
-		get<O>(index: number, otherwise: OptLazy<O>): T | O;
+		at(index: number): T | undefined;
+		at<O>(index: number, otherwise: OptLazy<O>): T | O;
 		/**
 		 * Adds the given `value` to the start of the builder values.
 		 * @param value - the value to prepend

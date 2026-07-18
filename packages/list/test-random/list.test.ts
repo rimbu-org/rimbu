@@ -127,7 +127,7 @@ function runWith(nrOfBits: number): void {
 			expect(getList).toEqual(getArr);
 
 			if (!this.disableListBuilder) {
-				const getListBuilder = this.listBuilder.get(index, undefined);
+				const getListBuilder = this.listBuilder.at(index, undefined);
 				expect(getListBuilder).toEqual(getArr);
 			}
 		}
@@ -136,7 +136,7 @@ function runWith(nrOfBits: number): void {
 			let i = undefined === options ? 0 : options.start;
 			try {
 				this.list.streamRange(options || { start: 0 }).forEach((v) => {
-					expect(v).toBe<any>(this.listBuilder.get(i, 'a'));
+					expect(v).toBe<any>(this.listBuilder.at(i, 'a'));
 					expect(v).toBe(this.arr[i]);
 					i++;
 				});
@@ -355,7 +355,7 @@ function runWith(nrOfBits: number): void {
 			const builder = context.builder<number>();
 			expect(builder.isEmpty).toBe(true);
 			expect(builder.build()).toBe(context.empty());
-			expect(builder.get(1, 'a')).toBe('a');
+			expect(builder.at(1, 'a')).toBe('a');
 			expect(builder.length).toBe(0);
 			builder.updateAt(1, () => 1);
 			expect(builder.isEmpty).toBe(true);

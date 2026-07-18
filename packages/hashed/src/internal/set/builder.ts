@@ -232,7 +232,7 @@ export class HashSetBlockBuilder<T>
 					break;
 				}
 			} else {
-				first = entrySet.entries.get(0, RimbuError.throwInvalidStateError);
+				first = entrySet.entries.at(0, RimbuError.throwInvalidStateError);
 			}
 
 			delete this.entrySets[index];

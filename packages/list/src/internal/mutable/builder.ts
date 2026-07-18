@@ -42,7 +42,7 @@ export class ListBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 		return this.length === 0;
 	}
 
-	get = <O = undefined>(index: number, otherwise?: OptLazy<O>): T | O => {
+	at = <O = undefined>(index: number, otherwise?: OptLazy<O>): T | O => {
 		if (
 			undefined === this.outerBuilder ||
 			index >= this.length ||
@@ -51,7 +51,7 @@ export class ListBuilder<T, Tp extends ListImpl.Types = ListImpl.Types>
 			return OptLazy(otherwise) as O;
 		}
 		if (index < 0) {
-			return this.get(this.length + index, otherwise);
+			return this.at(this.length + index, otherwise);
 		}
 
 		return this.outerBuilder.get(index);

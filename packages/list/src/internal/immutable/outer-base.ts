@@ -340,7 +340,7 @@ export abstract class OuterBase<T>
 		const builder = this.toBuilder();
 
 		function partition(left: number, right: number): number {
-			const pivot = builder.get(
+			const pivot = builder.at(
 				Math.floor((left + right) / 2),
 				throwInvalidStateError,
 			);
@@ -351,19 +351,19 @@ export abstract class OuterBase<T>
 				if (inverse) {
 					do {
 						leftIndex++;
-					} while (compare(builder.get(leftIndex), pivot) > 0);
+					} while (compare(builder.at(leftIndex), pivot) > 0);
 
 					do {
 						rightIndex--;
-					} while (compare(builder.get(rightIndex), pivot) < 0);
+					} while (compare(builder.at(rightIndex), pivot) < 0);
 				} else {
 					do {
 						leftIndex++;
-					} while (compare(builder.get(leftIndex), pivot) < 0);
+					} while (compare(builder.at(leftIndex), pivot) < 0);
 
 					do {
 						rightIndex--;
-					} while (compare(builder.get(rightIndex), pivot) > 0);
+					} while (compare(builder.at(rightIndex), pivot) > 0);
 				}
 
 				if (leftIndex >= rightIndex) {
