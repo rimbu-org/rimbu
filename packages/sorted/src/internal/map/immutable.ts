@@ -102,16 +102,24 @@ export class SortedMapEmpty<K = any, V = any>
 		return false;
 	}
 
-	findIndex(): number {
-		return -1;
+	findIndex<O>(_key: K, otherwise?: OptLazy<O>): O {
+		return OptLazy(otherwise!);
 	}
 
-	keyAtIndex<O>(index: number, otherwise?: OptLazy<O>): O {
-		return OptLazy(otherwise) as O;
+	lowerBound(): number {
+		return 0;
 	}
 
-	valueAtIndex<O>(index: number, otherwise?: OptLazy<O>): O {
-		return OptLazy(otherwise) as O;
+	upperBound(): number {
+		return 0;
+	}
+
+	nextEntry(): undefined {
+		return undefined;
+	}
+
+	previousEntry(): undefined {
+		return undefined;
 	}
 
 	set(key: K, value: V): SortedMap.NonEmpty<K, V> {
@@ -214,7 +222,7 @@ export abstract class SortedMapNode<K, V>
 		options?: { state?: TraverseState },
 	): void;
 	abstract at<U, O>(key: RelatedTo<K, U>, otherwise?: OptLazy<O>): V | O;
-	abstract findIndex(key: K): number;
+	abstract findIndex(key: K): number | undefined;
 	abstract addInternal(
 		entry: readonly [K, V],
 		hash?: number,
@@ -306,18 +314,42 @@ export abstract class SortedMapNode<K, V>
 		return token !== this.at(key, token);
 	}
 
-	keyAtIndex<O>(index: number, otherwise?: OptLazy<O>): K | O {
-		const token = Symbol();
-		const result = this.atIndex(index, token);
-		if (token === result) return OptLazy(otherwise) as O;
-		return result[0];
+	lowerBound(key: K): number {
+		const index = this.getInsertIndexOf(key);
+		return index >= 0 ? index : -index - 1;
 	}
 
-	valueAtIndex<O>(index: number, otherwise?: OptLazy<O>): V | O {
-		const token = Symbol();
-		const result = this.atIndex(index, token);
-		if (token === result) return OptLazy(otherwise) as O;
-		return result[1];
+	upperBound(key: K): number {
+		const index = this.getInsertIndexOf(key);
+		return index >= 0 ? index + 1 : -index - 1;
+	}
+
+	nextEntry<O>(
+		key: K,
+		options: { inclusive?: boolean | undefined; otherwise?: OptLazy<O> } = {},
+	): readonly [K, V] | O {
+		const { inclusive = false, otherwise } = options;
+		if (!this.context.comp.isComparable(key)) return OptLazy(otherwise) as O;
+
+		const atIndex = inclusive ? this.lowerBound(key) : this.upperBound(key);
+
+		return this.atIndex(atIndex, otherwise);
+	}
+
+	previousEntry<O>(
+		key: K,
+		options: { inclusive?: boolean | undefined; otherwise?: OptLazy<O> } = {},
+	): readonly [K, V] | O {
+		const { inclusive = false, otherwise } = options;
+		if (!this.context.comp.isComparable(key)) return OptLazy(otherwise) as O;
+
+		const index = this.getInsertIndexOf(key);
+		const atIndex =
+			index >= 0 ? (inclusive ? index : index - 1) : -index - 1 - 1;
+
+		if (atIndex < 0) return OptLazy(otherwise) as O;
+
+		return this.atIndex(atIndex, otherwise);
 	}
 
 	addEntry(entry: readonly [K, V]): SortedMap.NonEmpty<K, V> {
@@ -532,10 +564,10 @@ export class SortedMapLeaf<K, V> extends SortedMapNode<K, V> {
 		return this.entries[index][1];
 	}
 
-	findIndex(key: K): number {
-		if (!this.context.comp.isComparable(key)) return -1;
+	findIndex<O>(key: K, otherwise?: OptLazy<O>): number | O {
+		if (!this.context.comp.isComparable(key)) return OptLazy(otherwise!);
 		const index = this.context.findIndex(key, this.entries);
-		return index < 0 ? -1 : index;
+		return index < 0 ? OptLazy(otherwise!) : index;
 	}
 
 	atIndex<O>(index: number, otherwise?: OptLazy<O>): readonly [K, V] | O {
@@ -775,8 +807,9 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 		return child.at(key, otherwise);
 	}
 
-	findIndex(key: K): number {
-		if (!this.context.comp.isComparable(key)) return -1;
+	findIndex<O>(key: K, otherwise?: OptLazy<O>): number | O {
+		if (!this.context.comp.isComparable(key)) return OptLazy(otherwise!);
+
 		const index = this.context.findIndex(key, this.entries);
 		if (index >= 0)
 			return (
@@ -786,7 +819,7 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 		const childIndex = SortedIndex.next(index);
 		const child = this.children[childIndex];
 		const index$ = child.findIndex(key);
-		if (index$ >= 0) {
+		if (undefined !== index$) {
 			return (
 				index$ +
 				(this.children.slice(0, childIndex).reduce((x, y) => x + y.size, 0) -
@@ -795,7 +828,7 @@ export class SortedMapInner<K, V> extends SortedMapNode<K, V> {
 			);
 		}
 
-		return -1;
+		return OptLazy(otherwise!);
 	}
 
 	atIndex<O>(index: number, otherwise?: OptLazy<O>): readonly [K, V] | O {

@@ -364,14 +364,16 @@ function runWith(name: string, context: SortedMap.Context<number>): void {
 		});
 
 		it('findIndex', () => {
-			expect(context.empty().findIndex(5)).toBe(-1);
+			expect(context.empty().findIndex(5)).toBeUndefined();
 
 			const map = context.from(entries(8, 3, 5, 2));
 			expect(map.findIndex(2)).toBe(0);
 			expect(map.findIndex(3)).toBe(1);
 			expect(map.findIndex(5)).toBe(2);
 			expect(map.findIndex(8)).toBe(3);
-			expect(map.findIndex(10 as any)).toBe(-1);
+			expect(map.findIndex(10)).toBeUndefined();
+			expect(map.findIndex(5, -1)).toBe(2);
+			expect(map.findIndex(10, -1)).toBe(-1);
 
 			const largeMap = context.from(
 				Stream.range({ amount: 100 }).map((v) => [v, v]),
@@ -379,11 +381,69 @@ function runWith(name: string, context: SortedMap.Context<number>): void {
 			expect(largeMap.findIndex(0)).toBe(0);
 			expect(largeMap.findIndex(50)).toBe(50);
 			expect(largeMap.findIndex(99)).toBe(99);
-			expect(largeMap.findIndex(100)).toBe(-1);
+			expect(largeMap.findIndex(100)).toBeUndefined();
+			expect(largeMap.findIndex(100, -2)).toBe(-2);
 
 			for (const key of largeMap.streamKeys()) {
 				expect(largeMap.findIndex(key)).toBe(key);
 			}
+		});
+
+		it('atIndex', () => {
+			expect(context.empty().atIndex(0)).toBeUndefined();
+
+			const map = context.from(entries(8, 3, 5, 2));
+			expect(map.atIndex(0)).toEqual([2, 2]);
+			expect(map.atIndex(1)).toEqual([3, 3]);
+			expect(map.atIndex(-1)).toEqual([8, 8]);
+			expect(map.atIndex(10)).toBeUndefined();
+			expect(map.atIndex(10, ['q', 0])).toEqual(['q', 0]);
+		});
+
+		it('lowerBound / upperBound', () => {
+			const map = context.from(entries(8, 3, 5, 2));
+
+			expect(map.lowerBound(2)).toBe(0);
+			expect(map.lowerBound(3)).toBe(1);
+			expect(map.lowerBound(4)).toBe(2);
+			expect(map.lowerBound(8)).toBe(3);
+			expect(map.lowerBound(99)).toBe(4);
+
+			expect(map.upperBound(2)).toBe(1);
+			expect(map.upperBound(3)).toBe(2);
+			expect(map.upperBound(4)).toBe(2);
+			expect(map.upperBound(8)).toBe(4);
+			expect(map.upperBound(99)).toBe(4);
+
+			expect(context.empty().lowerBound(5)).toBe(0);
+			expect(context.empty().upperBound(5)).toBe(0);
+		});
+
+		it('nextEntry / previousEntry', () => {
+			const map = context.from(entries(8, 3, 5, 2));
+
+			expect(map.nextEntry(2)).toEqual([3, 3]);
+			expect(map.nextEntry(3)).toEqual([5, 5]);
+			expect(map.nextEntry(5)).toEqual([8, 8]);
+			expect(map.nextEntry(8)).toBeUndefined();
+			expect(map.nextEntry(99)).toBeUndefined();
+			expect(map.nextEntry(8, { inclusive: true })).toEqual([8, 8]);
+
+			expect(map.previousEntry(8)).toEqual([5, 5]);
+			expect(map.previousEntry(5)).toEqual([3, 3]);
+			expect(map.previousEntry(3)).toEqual([2, 2]);
+			expect(map.previousEntry(2)).toBeUndefined();
+			expect(map.previousEntry(0)).toBeUndefined();
+			expect(map.previousEntry(2, { inclusive: true })).toEqual([2, 2]);
+
+			expect(map.nextEntry(4)).toEqual([5, 5]);
+			expect(map.previousEntry(4)).toEqual([3, 3]);
+
+			expect(context.empty().nextEntry(5)).toBeUndefined();
+			expect(context.empty().previousEntry(5)).toBeUndefined();
+
+			expect(map.previousEntry(2, { otherwise: 'x' })).toBe('x');
+			expect(map.nextEntry(8, { otherwise: 'x' })).toBe('x');
 		});
 	});
 }

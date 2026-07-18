@@ -171,8 +171,10 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	maxKey(): K | undefined;
 	maxKey<O>(otherwise: OptLazy<O>): K | O;
 	/**
-	 * Returns the index of the given key in the SortedMap, or -1 if the key is not present.
+	 * Returns the index of the given key in the SortedMap, or a fallback value (default: undefined)
+	 * if the key is not present.
 	 * @param key - the key to find the index for
+	 * @param otherwise - (default: undefined) the fallback value to return if the key is not present.
 	 * @example
 	 * ```ts
 	 * import { SortedMap } from '@rimbu/sorted';
@@ -181,10 +183,113 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 * console.log(m.findIndex('c'))
 	 * // => 2
 	 * console.log(m.findIndex('q'))
+	 * // => undefined
+	 * console.log(m.findIndex('q', -1))
 	 * // => -1
 	 * ```
 	 */
-	findIndex(key: K): number;
+	findIndex(key: K): number | undefined;
+	findIndex<O>(key: K, otherwise: OptLazy<O>): number | O;
+	/**
+	 * Returns the index of the first entry in the SortedMap whose key is greater than or equal to
+	 * the given key, i.e. the index where the given key would be inserted to preserve sorted order.
+	 * If the given key is greater than all keys in the SortedMap, the SortedMap's size is returned.
+	 * @param key - the key to find the lower bound index for
+	 * @example
+	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
+	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);
+	 * console.log(m.lowerBound('c'))
+	 * // => 2
+	 * console.log(m.lowerBound('q'))
+	 * // => 4
+	 * ```
+	 */
+	lowerBound(key: K): number;
+	/**
+	 * Returns the index of the first entry in the SortedMap whose key is strictly greater than
+	 * the given key, i.e. the index just after the entries with the given key.
+	 * If the given key is greater than or equal to all keys in the SortedMap, the SortedMap's size is returned.
+	 * @param key - the key to find the upper bound index for
+	 * @example
+	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
+	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);
+	 * console.log(m.upperBound('c'))
+	 * // => 3
+	 * console.log(m.upperBound('q'))
+	 * // => 4
+	 * ```
+	 */
+	upperBound(key: K): number;
+	/**
+	 * Returns the entry with the smallest key strictly greater than the given key, or a fallback value
+	 * (default: undefined) if no such key exists.
+	 * @param key - the key to find the next entry for
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - inclusive: (default: false) when true, returns the entry with the given key if present
+	 * instead of the entry with the next greater key
+	 * @param otherwise - (default: undefined) the fallback value to return if no next entry exists.
+	 * @example
+	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
+	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);
+	 * console.log(m.nextEntry('b'))
+	 * // => [ "c", 3 ]
+	 * console.log(m.nextEntry('c'))
+	 * // => [ "d", 4 ]
+	 * console.log(m.nextEntry('c', { inclusive: true }))
+	 * // => [ "c", 3 ]
+	 * console.log(m.nextEntry('q'))
+	 * // => undefined
+	 * ```
+	 */
+	nextEntry(
+		key: K,
+		options?:
+			| { inclusive?: boolean | undefined; otherwise?: never }
+			| undefined,
+	): readonly [K, V] | undefined;
+	nextEntry<O>(
+		key: K,
+		options: { inclusive?: boolean | undefined; otherwise: OptLazy<O> },
+	): readonly [K, V] | O;
+	/**
+	 * Returns the entry with the largest key strictly less than the given key, or a fallback value
+	 * (default: undefined) if no such key exists.
+	 * @param key - the key to find the previous entry for
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - inclusive: (default: false) when true, returns the entry with the given key if present
+	 * instead of the entry with the previous smaller key
+	 * @param otherwise - (default: undefined) the fallback value to return if no previous entry exists.
+	 * @example
+	 * ```ts
+	 * import { SortedMap } from '@rimbu/sorted';
+	 *
+	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]);
+	 * console.log(m.previousEntry('d'))
+	 * // => [ "c", 3 ]
+	 * console.log(m.previousEntry('c'))
+	 * // => [ "b", 2 ]
+	 * console.log(m.previousEntry('c', { inclusive: true }))
+	 * // => [ "c", 3 ]
+	 * console.log(m.previousEntry('a'))
+	 * // => undefined
+	 * ```
+	 */
+	previousEntry(
+		key: K,
+		options?:
+			| { inclusive?: boolean | undefined; otherwise?: never }
+			| undefined,
+	): readonly [K, V] | undefined;
+	previousEntry<O>(
+		key: K,
+		options: { inclusive?: boolean | undefined; otherwise: OptLazy<O> },
+	): readonly [K, V] | O;
 	/**
 	 * Returns the value associated with the maximum key of the SortedMap, or a fallback value (default: undefined)
 	 * if the SortedMap is empty.
@@ -230,54 +335,6 @@ export interface SortedMap<K, V> extends RMapBase<K, V, SortedMap.Types> {
 	 */
 	atIndex(index: number): readonly [K, V] | undefined;
 	atIndex<O>(index: number, otherwise: OptLazy<O>): readonly [K, V] | O;
-	/**
-	 * Returns the key at the given index of the key sort order of the SortedMap, or a fallback value (default: undefined)
-	 * if the index is out of bounds.
-	 * @param index - the index in the key sort order
-	 * @param otherwise - (default: undefined) the fallback value to return if the index is out of bounds.
-	 *
-	 * @note negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value
-	 * @example
-	 * ```ts
-	 * import { SortedMap } from '@rimbu/sorted';
-	 *
-	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
-	 * console.log(m.keyAtIndex(1))
-	 * // => b
-	 * console.log(m.keyAtIndex(-1))
-	 * // => d
-	 * console.log(m.keyAtIndex(10))
-	 * // => undefined
-	 * console.log(m.keyAtIndex(10, 'q'))
-	 * // => q
-	 * ```
-	 */
-	keyAtIndex(index: number): K | undefined;
-	keyAtIndex<O>(index: number, otherwise: OptLazy<O>): K | O;
-	/**
-	 * Returns the value associated with the key at the given index of the key sort order of the SortedMap, or a fallback value (default: undefined)
-	 * if the index is out of bounds.
-	 * @param index - the index in the key sort order
-	 * @param otherwise - (default: undefined) the fallback value to return if the index is out of bounds.
-	 *
-	 * @note negative index values will retrieve the values from the end of the sort order, e.g. -1 is the last value
-	 * @example
-	 * ```ts
-	 * import { SortedMap } from '@rimbu/sorted';
-	 *
-	 * const m = SortedMap.of(['b', 2], ['d', 4], ['a', 1], ['c', 3]).asNormal();
-	 * console.log(m.valueAtIndex(1))
-	 * // => 2
-	 * console.log(m.valueAtIndex(-1))
-	 * // => 4
-	 * console.log(m.valueAtIndex(10))
-	 * // => undefined
-	 * console.log(m.valueAtIndex(10, 'q'))
-	 * // => q
-	 * ```
-	 */
-	valueAtIndex(index: number): V | undefined;
-	valueAtIndex<O>(index: number, otherwise: OptLazy<O>): V | O;
 	/**
 	 * Returns a SortedMap containing the first `amount` of elements of this SortedMap.
 	 * @param amount - the amount of elements to keep

@@ -295,24 +295,73 @@ function runWith(name: string, context: SortedSet.Context<number>): void {
 		});
 
 		it('findIndex', () => {
-			expect(context.empty().findIndex(5)).toBe(-1);
+			expect(context.empty().findIndex(5)).toBeUndefined();
 
-			const set = context.of(8, 3, 5, 2);
+			const set = context.of<number>(8, 3, 5, 2);
 			expect(set.findIndex(2)).toBe(0);
 			expect(set.findIndex(3)).toBe(1);
 			expect(set.findIndex(5)).toBe(2);
 			expect(set.findIndex(8)).toBe(3);
-			expect(set.findIndex(10 as any)).toBe(-1);
+			expect(set.findIndex(10)).toBeUndefined();
+			expect(set.findIndex(5, -1)).toBe(2);
+			expect(set.findIndex(10, -1)).toBe(-1);
 
 			const largeSet = context.from(Stream.range({ amount: 100 }));
 			expect(largeSet.findIndex(0)).toBe(0);
 			expect(largeSet.findIndex(50)).toBe(50);
 			expect(largeSet.findIndex(99)).toBe(99);
-			expect(largeSet.findIndex(100)).toBe(-1);
+			expect(largeSet.findIndex(100)).toBeUndefined();
+			expect(largeSet.findIndex(100, -2)).toBe(-2);
 
 			for (const value of largeSet) {
 				expect(largeSet.findIndex(value)).toBe(value);
 			}
+		});
+
+		it('lowerBound / upperBound', () => {
+			const set = context.of(8, 3, 5, 2);
+
+			expect(set.lowerBound(2)).toBe(0);
+			expect(set.lowerBound(3)).toBe(1);
+			expect(set.lowerBound(4 as any)).toBe(2);
+			expect(set.lowerBound(8)).toBe(3);
+			expect(set.lowerBound(99 as any)).toBe(4);
+
+			expect(set.upperBound(2)).toBe(1);
+			expect(set.upperBound(3)).toBe(2);
+			expect(set.upperBound(4 as any)).toBe(2);
+			expect(set.upperBound(8)).toBe(4);
+			expect(set.upperBound(99 as any)).toBe(4);
+
+			expect(context.empty().lowerBound(5 as any)).toBe(0);
+			expect(context.empty().upperBound(5 as any)).toBe(0);
+		});
+
+		it('next / previous', () => {
+			const set = context.of(8, 3, 5, 2);
+
+			expect(set.next(2)).toBe(3);
+			expect(set.next(3)).toBe(5);
+			expect(set.next(5)).toBe(8);
+			expect(set.next(8)).toBeUndefined();
+			expect(set.next(99 as any)).toBeUndefined();
+			expect(set.next(8, { inclusive: true })).toBe(8);
+
+			expect(set.previous(8)).toBe(5);
+			expect(set.previous(5)).toBe(3);
+			expect(set.previous(3)).toBe(2);
+			expect(set.previous(2)).toBeUndefined();
+			expect(set.previous(0 as any)).toBeUndefined();
+			expect(set.previous(2, { inclusive: true })).toBe(2);
+
+			expect(set.next(4 as any)).toBe(5);
+			expect(set.previous(4 as any)).toBe(3);
+
+			expect(context.empty().next(5 as any)).toBeUndefined();
+			expect(context.empty().previous(5 as any)).toBeUndefined();
+
+			expect(set.next(8, { otherwise: 'x' })).toBe('x');
+			expect(set.previous(2, { otherwise: 'x' })).toBe('x');
 		});
 	});
 }

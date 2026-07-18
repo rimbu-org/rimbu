@@ -104,8 +104,10 @@ export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
 	max(): T | undefined;
 	max<O>(otherwise: OptLazy<O>): T | O;
 	/**
-	 * Returns the index of the given value in the SortedSet, or -1 if the value is not present.
+	 * Returns the index of the given value in the SortedSet, or a fallback value (default: undefined)
+	 * if the value is not present.
 	 * @param value - the value to find the index for
+	 * @param otherwise - (default: undefined) the fallback value to return if the value is not present.
 	 * @example
 	 * ```ts
 	 * import { SortedSet } from '@rimbu/sorted';
@@ -114,10 +116,113 @@ export interface SortedSet<T> extends RSetBase<T, SortedSet.Types> {
 	 * console.log(m.findIndex('c'))
 	 * // => 2
 	 * console.log(m.findIndex('q'))
+	 * // => undefined
+	 * console.log(m.findIndex('q', -1))
 	 * // => -1
 	 * ```
 	 */
-	findIndex(value: T): number;
+	findIndex(value: T): number | undefined;
+	findIndex<O>(value: T, otherwise: OptLazy<O>): number | O;
+	/**
+	 * Returns the index of the first value in the SortedSet that is greater than or equal to
+	 * the given value, i.e. the index where the given value would be inserted to preserve sorted order.
+	 * If the given value is greater than all values in the SortedSet, the SortedSet's size is returned.
+	 * @param value - the value to find the lower bound index for
+	 * @example
+	 * ```ts
+	 * import { SortedSet } from '@rimbu/sorted';
+	 *
+	 * const m = SortedSet.of('b', 'd', 'a', 'c');
+	 * console.log(m.lowerBound('c'))
+	 * // => 2
+	 * console.log(m.lowerBound('q'))
+	 * // => 4
+	 * ```
+	 */
+	lowerBound(value: T): number;
+	/**
+	 * Returns the index of the first value in the SortedSet that is strictly greater than
+	 * the given value, i.e. the index just after the entries with the given value.
+	 * If the given value is greater than or equal to all values in the SortedSet, the SortedSet's size is returned.
+	 * @param value - the value to find the upper bound index for
+	 * @example
+	 * ```ts
+	 * import { SortedSet } from '@rimbu/sorted';
+	 *
+	 * const m = SortedSet.of('b', 'd', 'a', 'c');
+	 * console.log(m.upperBound('c'))
+	 * // => 3
+	 * console.log(m.upperBound('q'))
+	 * // => 4
+	 * ```
+	 */
+	upperBound(value: T): number;
+	/**
+	 * Returns the smallest value strictly greater than the given value, or a fallback value
+	 * (default: undefined) if no such value exists.
+	 * @param value - the value to find the next value for
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - inclusive: (default: false) when true, returns the given value if present
+	 * instead of the next greater value
+	 * @param otherwise - (default: undefined) the fallback value to return if no next value exists.
+	 * @example
+	 * ```ts
+	 * import { SortedSet } from '@rimbu/sorted';
+	 *
+	 * const m = SortedSet.of('b', 'd', 'a', 'c');
+	 * console.log(m.next('b'))
+	 * // => c
+	 * console.log(m.next('c'))
+	 * // => d
+	 * console.log(m.next('c', { inclusive: true }))
+	 * // => c
+	 * console.log(m.next('q'))
+	 * // => undefined
+	 * ```
+	 */
+	next(
+		value: T,
+		options?:
+			| { inclusive?: boolean | undefined; otherwise?: never }
+			| undefined,
+	): T | undefined;
+	next<O>(
+		value: T,
+		options: { inclusive?: boolean | undefined; otherwise: OptLazy<O> },
+	): T | O;
+	/**
+	 * Returns the largest value strictly less than the given value, or a fallback value
+	 * (default: undefined) if no such value exists.
+	 * @param value - the value to find the previous value for
+	 * @param options - (optional) an object containing the following properties:<br/>
+	 * - inclusive: (default: false) when true, returns the given value if present
+	 * instead of the previous smaller value
+	 * @param otherwise - (default: undefined) the fallback value to return if no previous value exists.
+	 * @example
+	 * ```ts
+	 * import { SortedSet } from '@rimbu/sorted';
+	 *
+	 * const m = SortedSet.of('b', 'd', 'a', 'c');
+	 * console.log(m.previous('d'))
+	 * // => c
+	 * console.log(m.previous('c'))
+	 * // => b
+	 * console.log(m.previous('c', { inclusive: true }))
+	 * // => c
+	 * console.log(m.previous('a'))
+	 * // => undefined
+	 * ```
+	 */
+	previous(
+		value: T,
+		options?:
+			| { inclusive?: boolean | undefined; otherwise?: never }
+			| undefined,
+	): T | undefined;
+	previous<O>(
+		value: T,
+		options: { inclusive?: boolean | undefined; otherwise?: OptLazy<O> },
+	): T | O;
 	/**
 	 * Returns the value at the given index of the value sort order of the SortedSet, or a fallback value (default: undefined)
 	 * if the index is out of bounds.

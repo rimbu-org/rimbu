@@ -63,8 +63,24 @@ export class SortedSetEmpty<T = any>
 		return false;
 	}
 
-	findIndex(): number {
-		return -1;
+	findIndex<O>(_value: T, otherwise?: OptLazy<O>): O {
+		return OptLazy(otherwise!);
+	}
+
+	lowerBound(): number {
+		return 0;
+	}
+
+	upperBound(): number {
+		return 0;
+	}
+
+	next(): undefined {
+		return undefined;
+	}
+
+	previous(): undefined {
+		return undefined;
 	}
 
 	add(value: T): SortedSet.NonEmpty<T> {
@@ -150,7 +166,7 @@ export abstract class SortedSetNode<T>
 		options?: { state?: TraverseState },
 	): void;
 	abstract has<U>(value: RelatedTo<T, U>): boolean;
-	abstract findIndex(value: T): number;
+	abstract findIndex(value: T): number | undefined;
 	abstract min(): T;
 	abstract max(): T;
 	abstract toArray(): ArrayNonEmpty<T>;
@@ -163,6 +179,44 @@ export abstract class SortedSetNode<T>
 
 	asNormal(): this {
 		return this;
+	}
+
+	lowerBound(value: T): number {
+		const index = this.getInsertIndexOf(value);
+		return index >= 0 ? index : -index - 1;
+	}
+
+	upperBound(value: T): number {
+		const index = this.getInsertIndexOf(value);
+		return index >= 0 ? index + 1 : -index - 1;
+	}
+
+	next<O>(
+		value: T,
+		options: { inclusive?: boolean | undefined; otherwise?: OptLazy<O> } = {},
+	): T | O {
+		const { inclusive = false, otherwise } = options;
+		if (!this.context.comp.isComparable(value)) return OptLazy(otherwise) as O;
+
+		const index = this.getInsertIndexOf(value);
+		const atIndex = index >= 0 ? (inclusive ? index : index + 1) : -index - 1;
+
+		return this.atIndex(atIndex, otherwise);
+	}
+
+	previous<O>(
+		value: T,
+		options: { inclusive?: boolean | undefined; otherwise?: OptLazy<O> } = {},
+	): T | O {
+		const { inclusive = false, otherwise } = options;
+		if (!this.context.comp.isComparable(value)) return OptLazy(otherwise) as O;
+
+		const index = this.getInsertIndexOf(value);
+		const atIndex =
+			index >= 0 ? (inclusive ? index : index - 1) : -index - 1 - 1;
+
+		if (atIndex < 0) return OptLazy(otherwise) as O;
+		return this.atIndex(atIndex, otherwise);
 	}
 
 	getSliceRange(range: Range<T>): { startIndex: number; endIndex: number } {
@@ -407,10 +461,10 @@ export class SortedSetLeaf<T> extends SortedSetNode<T> {
 		return this.context.findIndex(value, this.entries) >= 0;
 	}
 
-	findIndex(value: T): number {
-		if (!this.context.comp.isComparable(value)) return -1;
+	findIndex<O>(value: T, otherwise?: OptLazy<O>): number | O {
+		if (!this.context.comp.isComparable(value)) return OptLazy(otherwise!);
 		const index = this.context.findIndex(value, this.entries);
-		return index < 0 ? -1 : index;
+		return index < 0 ? OptLazy(otherwise!) : index;
 	}
 
 	atIndex<O>(index: number, otherwise?: OptLazy<O>): T | O {
@@ -599,8 +653,8 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
 		return child.has<U>(value);
 	}
 
-	findIndex(value: T): number {
-		if (!this.context.comp.isComparable(value)) return -1;
+	findIndex<O>(value: T, otherwise?: OptLazy<O>): number | O {
+		if (!this.context.comp.isComparable(value)) return OptLazy(otherwise!);
 
 		const index = this.context.findIndex(value, this.entries);
 		if (index >= 0)
@@ -611,7 +665,7 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
 		const childIndex = SortedIndex.next(index);
 		const child = this.children[childIndex];
 		const index$ = child.findIndex(value);
-		if (index$ >= 0) {
+		if (undefined !== index$) {
 			return (
 				index$ +
 				(this.children.slice(0, childIndex).reduce((x, y) => x + y.size, 0) -
@@ -620,7 +674,7 @@ export class SortedSetInner<T> extends SortedSetNode<T> {
 			);
 		}
 
-		return -1;
+		return OptLazy(otherwise!);
 	}
 
 	atIndex<O>(index: number, otherwise?: OptLazy<O>): T | O {
